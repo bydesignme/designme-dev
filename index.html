@@ -5852,12 +5852,15 @@ body.ui .comp-head .ibox{display:none}
   $('#theme-btn').addEventListener('click', () => {
     const next = curTheme() === 'dark' ? 'light' : 'dark';
     rootEl.classList.add('no-trans');
-    rootEl.setAttribute('data-theme', next);
+    // picking the same mode as the device goes back to following the device, anything else is remembered
+    const sys = mq && mq.matches ? 'dark' : 'light';
+    if (next === sys){ rootEl.removeAttribute('data-theme'); try { localStorage.removeItem('dmui-theme'); } catch(e) {} }
+    else { rootEl.setAttribute('data-theme', next); try { localStorage.setItem('dmui-theme', next); } catch(e) {} }
     requestAnimationFrame(() => requestAnimationFrame(() => rootEl.classList.remove('no-trans')));
-    try { localStorage.setItem('dmui-theme', next); } catch(e) {}
     paintTheme(); Sound.play(next === 'light' ? 'on' : 'off');
   });
-  if (mq && mq.addEventListener) mq.addEventListener('change', paintTheme);
+  // when the device switches mode, a saved choice that now matches it is dropped, so the page follows the device again
+  if (mq && mq.addEventListener) mq.addEventListener('change', () => { const saved = rootEl.getAttribute('data-theme'), sys = mq.matches ? 'dark' : 'light'; if (saved === sys){ rootEl.removeAttribute('data-theme'); try { localStorage.removeItem('dmui-theme'); } catch(e) {} } paintTheme(); });
   paintTheme();
 
   sBtn.addEventListener('click', () => { Sound.set(!Sound.on); paintSound(); if (Sound.on) Sound.play('on'); });
