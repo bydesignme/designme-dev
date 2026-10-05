@@ -3991,6 +3991,8 @@ body.ui .dv-slot .stage>.code-btns{top:20px;right:20px}
 :root{--sh-top:rgba(255,255,255,.9)}
 @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){--sh-top:rgba(22,22,22,.9)} }
 :root[data-theme="dark"]{--sh-top:rgba(22,22,22,.9)}
+/* component headers: title and description only, no icon box */
+body.ui .comp-head .ibox{display:none}
 </style>
 </head>
 <body class="ui">
@@ -9248,13 +9250,19 @@ body.ui .dv-slot .stage>.code-btns{top:20px;right:20px}
         <div class="chg">${LOG.map(r => `<article class="chg-r"><div class="chg-side"><span class="chg-v">${r.v}</span><span class="chg-d">${r.d}</span></div><div class="chg-body"><h2>${r.t}</h2><ul>${r.items.map(it => `<li><span class="chg-tag k-${it[0]}">${LBL[it[0]]}</span><span class="chg-tx">${it[1]}${it[2] ? `<span class="chg-links">${it[2].map(n => `<button class="chg-link" data-n="${n}">${n}</button>`).join('')}</span>` : ''}</span></li>`).join('')}</ul></div></article>`).join('')}</div>`;
     }
     // roadmap with upvotes, shared through Supabase when it is set up, otherwise saved in this browser
-    const SUPA = { url:'', key:'' };
+    const SUPA = { url:'https://udqdwspscjsrtftucueo.supabase.co', key:'sb_publishable_CPlq5d-AQVoUTSYKLK63CQ_mJJYzaLh' };
     const LIVE = !!(SUPA.url && SUPA.key);
     let votes = {}, extra = [], remote = null, loading = false;
     try { votes = JSON.parse(localStorage.getItem('dmui-votes') || '{}'); extra = JSON.parse(localStorage.getItem('dmui-ideas') || '[]'); } catch(e) {}
     let voter = null;
     try { voter = localStorage.getItem('dmui-voter'); if (!voter){ voter = crypto.randomUUID(); localStorage.setItem('dmui-voter', voter); } } catch(e) { voter = crypto.randomUUID(); }
-    const rpc = async (fn, body) => { const r = await fetch(`${SUPA.url}/rest/v1/rpc/${fn}`, { method:'POST', headers:{ apikey:SUPA.key, Authorization:'Bearer ' + SUPA.key, 'Content-Type':'application/json' }, body:JSON.stringify(body) }); if (!r.ok) throw new Error(r.status); return r.json(); };
+    // new-style publishable keys go in the apikey header only, older anon keys also as a bearer token
+    const rpc = async (fn, body) => {
+      const headers = { apikey:SUPA.key, 'Content-Type':'application/json' };
+      if (!SUPA.key.startsWith('sb_')) headers.Authorization = 'Bearer ' + SUPA.key;
+      const r = await fetch(`${SUPA.url}/rest/v1/rpc/${fn}`, { method:'POST', headers, body:JSON.stringify(body) });
+      if (!r.ok) throw new Error(r.status); return r.json();
+    };
     const BASE = [
       ['react','React and Tailwind versions','Every component as a typed React component styled with Tailwind.','progress','Code'],
       ['figma','Figma library','All components with variants, tokens and both styles as variable modes.','progress','Design'],
