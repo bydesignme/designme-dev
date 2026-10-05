@@ -3993,6 +3993,17 @@ body.ui .dv-slot .stage>.code-btns{top:20px;right:20px}
 :root[data-theme="dark"]{--sh-top:rgba(22,22,22,.9)}
 /* component headers: title and description only, no icon box */
 body.ui .comp-head .ibox{display:none}
+/* small screens: Book a call is the main call to action, the sign-up sits above the footer */
+.intro{padding-top:8px}
+.m-cta{display:none}
+@media (max-width:960px){
+  .m-cta{display:flex;flex-direction:column;align-items:flex-start;gap:12px;margin-top:20px}
+  .m-cta .t{font-size:15px;font-weight:600;color:var(--sh-text)}
+  .m-cta .hire-btn{height:40px;padding:0 18px;font-size:14px}
+  .site-foot ~ .su,.faq + .su{margin-top:40px}
+  .side-foot .side-cta-d,.side-foot .hire-btn{display:none}
+}
+@media (max-width:960px){ .m-cta .hire-btn{background:var(--sh-ink);color:var(--sh-on-ink);border-color:transparent} .m-cta .hire-btn .ms{color:inherit} }
 </style>
 </head>
 <body class="ui">
@@ -4035,9 +4046,9 @@ body.ui .comp-head .ibox{display:none}
 
 <main id="components" class="content">
 <section class="intro">
-  <span class="mono-tag">Component library</span>
   <h1>Components for agent-powered products</h1>
   <p>69 components grouped by the job they do, covering agent status, conversation, review, data, charts, dates, forms, collaboration, product and workspace, designed and built by the <a href="https://designme.agency" target="_blank" rel="noopener">DesignMe</a> team.</p>
+  <div class="m-cta"><div class="t">Need expert design and dev support?</div><a class="hire-btn m-cta-btn" href="https://designme.agency" target="_blank" rel="noopener">Book a call<span class="ms">arrow_forward</span></a></div>
   <div class="su" id="su"><div class="su-t">New components every week</div><div class="su-d">Get each new component in your inbox as it lands, and vote on what we build next on the <a href="#/roadmap">roadmap</a>.</div><div class="su-row" id="su-row"><input id="su-email" type="email" placeholder="you@company.com" autocomplete="email" aria-label="Email address"><button class="su-btn" id="su-go">Sign up</button></div><div class="su-msg" id="su-msg" role="status"></div><div class="su-note">Unsubscribe any time. Read the <a href="#/privacy">privacy notice</a>.</div></div>
 </section>
 <div class="content-empty" id="content-empty"><span class="t" id="content-empty-t">No components match</span><p id="content-empty-p"></p><button class="suggest-btn" id="content-suggest"><span class="ms">add</span><span class="st">Suggest this component</span></button></div>
@@ -9427,9 +9438,16 @@ body.ui .comp-head .ibox{display:none}
     else if (t.closest('.exp-btn')) track('Open detail', { component:name });
     else if (t.closest('.save-btn')) track('Save', { component:name });
     else if (t.closest('[data-anim]')) track('Animate', { component:name });
-    else if (t.closest('.hire-btn')) track('Book a call');
+    else if (t.closest('.hire-btn')) track('Book a call', { from:t.closest('.m-cta') ? 'intro' : 'sidebar' });
     else if (t.closest('#style-seg button')) track('Switch style', { style:t.closest('button').dataset.v });
   }, true);
+  /* ---------- small screens: sign-up moves to the bottom, Book a call leads ---------- */
+  {
+    const su = $('#su'), spot = document.createComment('sign-up'), mq = matchMedia('(max-width: 960px)');
+    su.before(spot);
+    const place = () => { if (mq.matches){ const foot = $('.site-foot'); if (foot && su.nextElementSibling !== foot) foot.before(su); } else if (spot.nextSibling !== su) spot.after(su); };
+    place(); mq.addEventListener('change', place);
+  }
   /* ---------- custom select ---------- */
   function enhanceSelect(sel){
     if (!sel || sel._cs) return; sel._cs = true; sel.classList.add('ns-hide');
