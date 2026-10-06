@@ -9076,16 +9076,13 @@ body.ui .comp-head .ibox{display:none}
 
   /* ---------- sign up ---------- */
   {
-    // the Kit form ID goes here, until then the forms only show their states
-    const KIT_FORM = '';
+    // sign-ups are stored in Supabase until the list moves to beehiiv
+    const SUPA_URL = 'https://udqdwspscjsrtftucueo.supabase.co', SUPA_KEY = 'sb_publishable_CPlq5d-AQVoUTSYKLK63CQ_mJJYzaLh';
     const valid = v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
     // one subscribe call shared by the hero form and the slide-in card
     window.dmSubscribe = async (email, from) => {
-      if (KIT_FORM){
-        const fd = new FormData(); fd.append('email_address', email);
-        const r = await fetch(`https://app.kit.com/forms/${KIT_FORM}/subscriptions`, { method:'POST', body:fd, headers:{ Accept:'application/json' } });
-        if (!r.ok) throw new Error(r.status);
-      } else await new Promise(res => setTimeout(res, 700));
+      const r = await fetch(`${SUPA_URL}/rest/v1/rpc/subscribe`, { method:'POST', headers:{ apikey:SUPA_KEY, 'Content-Type':'application/json' }, body:JSON.stringify({ p_email:email, p_source:from }) });
+      if (!r.ok) throw new Error(r.status);
       try { localStorage.setItem('dmui-nudge', 'subscribed'); } catch(e) {}
       track('Sign up', { from });
     };
@@ -9098,7 +9095,7 @@ body.ui .comp-head .ibox{display:none}
       b.disabled = true; b.innerHTML = '<i class="bt-spin"></i>'; Sound.play('send');
       try {
         await window.dmSubscribe(v, 'hero');
-        row.outerHTML = `<div class="su-ok enter">${ic('check_circle','sm')}Check ${esc(v)} to confirm your sign-up.</div>`; Sound.play('done');
+        row.outerHTML = `<div class="su-ok enter">${ic('check_circle','sm')}You're on the list. New components go to ${esc(v)} as they land.</div>`; Sound.play('done');
       } catch(e){ fail('Something went wrong, try again in a moment'); }
     };
     b.addEventListener('click', go);
@@ -9455,12 +9452,12 @@ body.ui .comp-head .ibox{display:none}
       <div class="pp">
         <h2>Who we are</h2><p>Designme.dev is run by DESIGNME SPÓŁKA Z OGRANICZONĄ ODPOWIEDZIALNOŚCIĄ, Aleja Grunwaldzka 409, 80-309 Gdańsk, Poland, registered under KRS 0001185622, NIP 5833543632 and REGON 542307693. We are the controller of the personal data described here, and you can reach us at <a href="mailto:hello@designme.agency">hello@designme.agency</a>.</p>
         <h2>What we collect</h2>
-        <p><b>Your email address</b>, when you sign up for updates. We use it to send new components and library news, and we only add you once you confirm from the email we send.</p>
+        <p><b>Your email address</b>, when you sign up for updates. We use it to send new components and library news, and nothing else.</p>
         <p><b>Roadmap ideas and votes.</b> Your browser creates a random ID so you can vote once per idea, and we store that ID with your votes and any idea you suggest. It does not include your name or email.</p>
         <p><b>Usage statistics.</b> We count page views and actions such as copying code with Plausible Analytics, which does not use cookies and does not collect personal data.</p>
         <p><b>Settings in your browser.</b> Your theme, style, sound setting and saved components are kept in your browser's local storage and are never sent to us.</p>
         <h2>Why we use it</h2><p>We send updates because you asked for them, so the legal basis is your consent (Art. 6(1)(a) GDPR), and you can withdraw it at any time with the unsubscribe link in every email. We run the roadmap and usage statistics to decide what to build next, which is our legitimate interest (Art. 6(1)(f) GDPR).</p>
-        <h2>Who helps us</h2><p>Kit sends our emails, Supabase stores roadmap votes, Plausible provides usage statistics and Cloudflare hosts the site. Some of them process data outside the European Economic Area, and where that happens it is covered by safeguards such as the European Commission's Standard Contractual Clauses.</p>
+        <h2>Who helps us</h2><p>Supabase stores sign-ups and roadmap votes, beehiiv sends our emails, Plausible provides usage statistics and Cloudflare hosts the site. Some of them process data outside the European Economic Area, and where that happens it is covered by safeguards such as the European Commission's Standard Contractual Clauses.</p>
         <h2>How long we keep it</h2><p>We keep your email until you unsubscribe or ask us to delete it, and roadmap votes for as long as the roadmap runs. Usage statistics are aggregated and contain no personal data.</p>
         <h2>Your rights</h2><p>You can ask to access, correct, delete or export your data, object to processing based on legitimate interest, or restrict how we use it. Email us at <a href="mailto:hello@designme.agency">hello@designme.agency</a> and we will reply within 30 days. You can also complain to the Polish data protection authority, the President of the Personal Data Protection Office (UODO), ul. Stawki 2, 00-193 Warsaw.</p>
       </div>`;
@@ -9643,7 +9640,7 @@ body.ui .comp-head .ibox{display:none}
         await window.dmSubscribe(v, 'card');
         const inner = $('.nd-in', card);
         inner.animate([{ opacity:1 }, { opacity:0, transform:'translateY(-6px)' }], { duration:200, easing:'ease-in' }).onfinish = () => {
-          inner.innerHTML = `<span class="nd-ic nd-ok">${ic('check_circle','sm')}</span><div class="nd-t">Check your inbox</div><div class="nd-d">We sent a confirmation to ${esc(v)}. Confirm it and the next component comes straight to you.</div>`;
+          inner.innerHTML = `<span class="nd-ic nd-ok">${ic('check_circle','sm')}</span><div class="nd-t">You're on the list</div><div class="nd-d">New components go to ${esc(v)} as they land, starting with the next one.</div>`;
           inner.animate([{ opacity:0, transform:'translateY(8px)' }, { opacity:1, transform:'none' }], { duration:420, easing:OUT });
           $('.nd-ic', inner).animate([{ transform:'scale(.5)' }, { transform:'scale(1.12)', offset:.6 }, { transform:'none' }], { duration:560, easing:'ease-out' });
           Sound.play('done'); setTimeout(hide, 4200);
