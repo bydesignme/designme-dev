@@ -29,6 +29,37 @@
   plausible.init()
 </script>
 <script>try{var t=localStorage.getItem("dmui-theme");if(t)document.documentElement.setAttribute("data-theme",t);var st=localStorage.getItem("dmui-style");if(st)document.documentElement.setAttribute("data-style",st)}catch(e){}</script>
+<script>
+/* accent colour: one base colour becomes every accent token for the current style and theme */
+(function(){
+  var KEYS = ['--accent','--accent-hi','--accent-bg','--accent-muted','--accent-icon-bg','--accent-icon-line','--accent-fill','--ink','--ink-hover','--ink-rgb','--pb-bg','--pb-line','--pb-tx','--on-accent'];
+  function rgb(h){ h = h.replace('#',''); if (h.length === 3) h = h.split('').map(function(c){ return c + c; }).join(''); return [parseInt(h.slice(0,2),16), parseInt(h.slice(2,4),16), parseInt(h.slice(4,6),16)]; }
+  function mix(a, b, t){ return [0,1,2].map(function(i){ return Math.round(a[i] + (b[i] - a[i]) * t); }); }
+  function hex(c){ return '#' + c.map(function(v){ return v.toString(16).padStart(2,'0'); }).join(''); }
+  function rgba(c, a){ return 'rgba(' + c.join(',') + ',' + a + ')'; }
+  function lum(c){ var v = c.map(function(x){ x /= 255; return x <= .03928 ? x / 12.92 : Math.pow((x + .055) / 1.055, 2.4); }); return .2126 * v[0] + .7152 * v[1] + .0722 * v[2]; }
+  var W = [255,255,255], K = [0,0,0];
+  window.dmAccent = function(base){
+    var r = document.documentElement, s = r.style;
+    KEYS.forEach(function(k){ s.removeProperty(k); });
+    r.classList.toggle('acc-on', !!base);
+    if (!base) return;
+    var c = rgb(base), soft = r.getAttribute('data-style') === 'soft', t = r.getAttribute('data-theme');
+    var dark = t ? t === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches, v = {};
+    if (!soft && !dark){ v['--accent'] = hex(mix(c, K, .06)); v['--accent-hi'] = base; v['--accent-bg'] = rgba(c, .08); v['--accent-muted'] = rgba(mix(c, K, .15), .85); v['--accent-icon-bg'] = rgba(c, .06); v['--accent-icon-line'] = rgba(c, .32); v['--accent-fill'] = hex(mix(W, c, .07)); }
+    if (!soft && dark){ v['--accent'] = hex(mix(c, W, .1)); v['--accent-hi'] = hex(mix(c, W, .16)); v['--accent-muted'] = rgba(c, .51); v['--accent-icon-line'] = rgba(c, .17); }
+    if (soft && !dark){ v['--ink'] = v['--accent'] = v['--accent-hi'] = base; v['--ink-hover'] = hex(mix(c, K, .12)); v['--accent-bg'] = v['--accent-icon-bg'] = v['--pb-bg'] = hex(mix(W, c, .09)); v['--accent-muted'] = hex(mix(W, c, .7)); v['--accent-icon-line'] = hex(mix(W, c, .22)); v['--accent-fill'] = hex(mix(W, c, .05)); v['--pb-line'] = hex(mix(W, c, .24)); v['--pb-tx'] = hex(mix(c, K, .2)); }
+    if (soft && dark){ v['--ink'] = v['--accent-hi'] = hex(mix(c, W, .1)); v['--accent'] = hex(mix(c, W, .2)); v['--ink-hover'] = hex(mix(c, W, .25)); v['--accent-bg'] = v['--accent-icon-bg'] = rgba(c, .16); v['--accent-muted'] = hex(mix(c, W, .45)); v['--accent-icon-line'] = rgba(c, .34); v['--accent-fill'] = rgba(c, .1); v['--pb-bg'] = rgba(c, .15); v['--pb-line'] = rgba(c, .32); v['--pb-tx'] = hex(mix(c, W, .55)); }
+    v['--ink-rgb'] = c.join(',');
+    // text on accent fills: whichever of near-black or white reads better
+    var L = lum(rgb(v['--accent-hi'] || base)), onDark = (L + .05) / (lum([18,10,2]) + .05), onWhite = 1.05 / (L + .05);
+    v['--on-accent'] = onDark >= onWhite ? '#120a02' : '#ffffff';
+    for (var k in v) s.setProperty(k, v[k]);
+  };
+  try { var a = localStorage.getItem('dmui-accent'); if (a && a !== 'default') window.dmAccent(a); } catch(e) {}
+})();
+</script>
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
@@ -4090,6 +4121,50 @@ body.ui .comp-head .ibox{display:none}
 /* more air above the hero, matching the gap below it */
 .intro{padding-top:34px}
 @media (max-width:960px){ .intro{padding-top:34px} }
+/* accent colours ease from one to the next */
+@property --accent{syntax:'<color>';inherits:true;initial-value:#ff850d}
+@property --accent-hi{syntax:'<color>';inherits:true;initial-value:#ff850d}
+@property --accent-bg{syntax:'<color>';inherits:true;initial-value:transparent}
+@property --accent-fill{syntax:'<color>';inherits:true;initial-value:transparent}
+@property --accent-icon-line{syntax:'<color>';inherits:true;initial-value:transparent}
+@property --accent-icon-bg{syntax:'<color>';inherits:true;initial-value:transparent}
+@property --ink{syntax:'<color>';inherits:true;initial-value:#116ff8}
+:root{transition:--accent .5s ease,--accent-hi .5s ease,--accent-bg .5s ease,--accent-fill .5s ease,--accent-icon-line .5s ease,--accent-icon-bg .5s ease,--ink .5s ease}
+@media (prefers-reduced-motion: reduce){ :root{transition:none} }
+/* text on accent fills follows the picked colour */
+html.acc-on .btn.primary,html.acc-on .send,html.acc-on .sb-up,html.acc-on .d-export.on,html.acc-on .sp-act,html.acc-on .vc-mic,html.acc-on .cmp-handle .grip,html.acc-on .pin,html.acc-on .dd.sel,html.acc-on .dd.r-s,html.acc-on .dd.r-e,html.acc-on .slot.on,html.acc-on .bt-primary,html.acc-on .sn-mark,html.acc-on .ec-d.sel,html.acc-on .ci-n.on,html.acc-on .ci-n:hover,html.acc-on .stp-i.done b,html.acc-on .ap-opt .node.on .key,html.acc-on .sb-ws .av,html.acc-on .mk-btn{color:var(--on-accent)!important}
+html.acc-on .btn.primary .ms,html.acc-on .send .ms,html.acc-on .bt-primary .ms,html.acc-on .vc-mic .ms,html.acc-on .sp-act .ms{color:var(--on-accent)!important}
+/* the picker */
+.acc{position:relative;display:flex;align-items:center}
+.acc-btn{display:grid;place-items:center;width:36px;height:36px;border-radius:999px;border:1px solid var(--sh-line);background:var(--sh-card);transition:border-color .2s}
+.acc-btn:hover,.acc-btn[aria-expanded="true"]{border-color:var(--sh-line-2)}
+.acc-dot{display:block;width:16px;height:16px;border-radius:50%;background:var(--accent-hi);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent-hi) 22%,transparent)}
+.acc-pop{position:absolute;top:calc(100% + 10px);right:-8px;z-index:70;width:292px;padding:14px;border-radius:18px;background:var(--sh-card);border:1px solid var(--sh-line);box-shadow:0 1px 2px rgba(17,19,24,.05),0 24px 48px -20px rgba(17,19,24,.28);opacity:0;visibility:hidden;transform:translateY(-6px) scale(.97);transform-origin:top right;transition:opacity .2s ease,transform .35s cubic-bezier(.16,1,.3,1),visibility 0s linear .35s}
+.acc-pop.open{opacity:1;visibility:visible;transform:none;transition:opacity .2s ease,transform .35s cubic-bezier(.16,1,.3,1),visibility 0s}
+.acc-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.acc-t{font-size:13.5px;font-weight:600;color:var(--sh-text)}
+.acc-shuffle{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 10px;border-radius:999px;border:1px solid var(--sh-line);font-size:12.5px;font-weight:500;color:var(--sh-dim);transition:color .2s,border-color .2s}
+.acc-shuffle:hover{color:var(--sh-text);border-color:var(--sh-line-2)}
+.acc-row{display:flex;flex-wrap:wrap;gap:8px}
+.acc-sw{position:relative;width:28px;height:28px;flex:none;border-radius:50%;background:var(--sw,#ff850d);cursor:pointer;transition:transform .2s cubic-bezier(.34,1.56,.64,1),box-shadow .2s}
+.acc-sw:hover{transform:scale(1.12)}
+.acc-sw.on{box-shadow:0 0 0 2px var(--sh-card),0 0 0 4px var(--sw,var(--sh-text))}
+.acc-sw[data-v="default"]{background:conic-gradient(#ff850d 0 50%,#116ff8 50% 100%)}
+html[data-style="soft"] .acc-sw[data-v="default"]{background:conic-gradient(#116ff8 0 50%,#ff850d 50% 100%)}
+.acc-sw[data-v="default"].on{box-shadow:0 0 0 2px var(--sh-card),0 0 0 4px var(--sh-text)}
+.acc-custom{background:conic-gradient(#ff4d4d,#ffb84d,#f4e04d,#4dd47a,#4dc3ff,#7a6bff,#ff4dd8,#ff4d4d)}
+.acc-custom.on{background:var(--sw);box-shadow:0 0 0 2px var(--sh-card),0 0 0 4px var(--sw)}
+.acc-custom input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;border:0;padding:0}
+.acc-f{display:flex;align-items:center;justify-content:space-between;margin-top:12px;padding-top:12px;border-top:1px solid var(--sh-line)}
+.acc-hex{font-size:12.5px;color:var(--sh-dim)}
+.acc-reset{font-size:12.5px;font-weight:500;color:var(--sh-text)}
+.m-acc{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.m-acc .acc-sw{width:26px;height:26px}
+@media (max-width:960px){ body.ui .top .acc{display:none} }
+.acc-pop{width:318px}
+.acc-row{flex-wrap:nowrap}
+.m-acc{flex-wrap:wrap}
+.m-sheet .acc{display:none}
 </style>
 </head>
 <body class="ui">
@@ -9652,6 +9727,60 @@ body.ui .comp-head .ibox{display:none}
     // the first copy or code view triggers it, once the code window is closed again
     const whenClear = fn => { const t = setInterval(() => { if (!document.querySelector('.cdm.open, .cdm.show')){ clearInterval(t); setTimeout(fn, 700); } }, 400); };
     document.addEventListener('click', e => { if (state || shown) return; if (e.target.closest('[data-copy], [data-view], .dv-copy, #dv-copy')) whenClear(show); }, true);
+  }
+
+  /* ---------- accent colour picker ---------- */
+  {
+    const SW = [['default','Default',null],['#ff850d','Orange'],['#116ff8','Blue'],['#7c5cff','Violet'],['#e8366f','Rose'],['#12a150','Green'],['#0ea5a4','Teal']];
+    let cur = 'default'; try { cur = localStorage.getItem('dmui-accent') || 'default'; } catch(e) {}
+    const apply = v => window.dmAccent(v === 'default' ? null : v);
+    const swatches = () => SW.map(([v, n]) => `<button class="acc-sw" data-v="${v}" aria-label="${n}" title="${n}" ${v !== 'default' ? `style="--sw:${v}"` : ''}></button>`).join('') + `<label class="acc-sw acc-custom" title="Pick any colour" aria-label="Pick any colour"><input type="color" value="#ff850d"></label>`;
+    // desktop: a dot next to the style switch that opens the picker
+    const wrap = document.createElement('div'); wrap.className = 'acc'; wrap.id = 'acc';
+    wrap.innerHTML = `<button class="acc-btn" id="acc-btn" aria-haspopup="dialog" aria-expanded="false" aria-label="Accent colour"><i class="acc-dot"></i></button>
+      <div class="acc-pop" id="acc-pop" role="dialog" aria-label="Accent colour">
+        <div class="acc-h"><span class="acc-t">Accent colour</span><button class="acc-shuffle">${ic('shuffle','sm')}Surprise me</button></div>
+        <div class="acc-row">${swatches()}</div>
+        <div class="acc-f"><span class="acc-hex"></span><button class="acc-reset">Reset</button></div>
+      </div>`;
+    // it lives in the header next to the style switch, wherever the switch itself currently sits
+    { const ta = $('.top .top-actions'), seg = $('#style-seg'); if (seg.parentElement === ta) seg.after(wrap); else { const mark = [...ta.childNodes].find(n => n.nodeType === 8); mark ? mark.after(wrap) : ta.prepend(wrap); } }
+    // mobile: the same swatches as a row in the menu
+    const styleRow = $('#m-seg-slot') && $('#m-seg-slot').closest('.m-set');
+    if (styleRow){ const row = document.createElement('div'); row.className = 'm-set mi-in'; row.innerHTML = `<span class="m-lbl">Accent</span><span class="m-acc acc-row">${swatches()}</span>`; styleRow.after(row); }
+    const pop = $('#acc-pop'), btn = $('#acc-btn');
+    const label = v => v === 'default' ? (document.documentElement.getAttribute('data-style') === 'soft' ? 'Blue, the Soft default' : 'Orange, the Blueprint default') : v.toUpperCase();
+    function mark(){
+      $$('.acc-sw[data-v]').forEach(b => b.classList.toggle('on', b.dataset.v === cur));
+      const known = SW.some(s => s[0] === cur); $$('.acc-custom').forEach(l => { l.classList.toggle('on', !known); if (!known) l.style.setProperty('--sw', cur); else l.style.removeProperty('--sw'); });
+      $('.acc-hex').textContent = label(cur);
+    }
+    function commit(v, el){
+      cur = v; try { localStorage.setItem('dmui-accent', v); } catch(e) {}
+      apply(v); mark(); Sound.play('select'); track('Accent', { color:v });
+      if (el && !reduce) el.animate([{ transform:'scale(1)' }, { transform:'scale(1.25)' }, { transform:'scale(1)' }], { duration:380, easing:'cubic-bezier(.34,1.56,.64,1)' });
+    }
+    // hovering a swatch previews it, leaving puts the chosen one back
+    document.addEventListener('pointerover', e => { const b = e.target.closest('.acc-pop .acc-sw[data-v]'); if (b && matchMedia('(hover: hover)').matches) apply(b.dataset.v); });
+    pop.addEventListener('pointerleave', () => apply(cur));
+    document.addEventListener('click', e => {
+      const b = e.target.closest('.acc-sw[data-v]'); if (b){ commit(b.dataset.v, b); return; }
+      if (e.target.closest('.acc-shuffle')){ const h = Math.floor(Math.random() * 360), s = 70 + Math.random() * 20, l = 48 + Math.random() * 8; const v = hslHex(h, s, l); commit(v, $('.acc-custom')); return; }
+      if (e.target.closest('.acc-reset')){ commit('default', $('.acc-sw[data-v="default"]')); return; }
+    });
+    document.addEventListener('input', e => { if (e.target.matches('.acc-custom input')){ cur = e.target.value; apply(cur); mark(); } });
+    document.addEventListener('change', e => { if (e.target.matches('.acc-custom input')) commit(e.target.value, e.target.closest('.acc-custom')); });
+    function hslHex(h, s, l){ s /= 100; l /= 100; const k = n => (n + h / 30) % 12, a = s * Math.min(l, 1 - l), f = n => l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1))); return '#' + [f(0), f(8), f(4)].map(x => Math.round(x * 255).toString(16).padStart(2, '0')).join(''); }
+    // open and close the desktop picker
+    const open = () => { pop.classList.add('open'); btn.setAttribute('aria-expanded', 'true'); Sound.play('open'); if (!reduce) $$('.acc-sw', pop).forEach((s, i) => s.animate([{ transform:'scale(.4)', opacity:0 }, { transform:'scale(1)', opacity:1 }], { duration:420, delay:i * 30, easing:'cubic-bezier(.34,1.56,.64,1)', fill:'backwards' })); };
+    const close = () => { pop.classList.remove('open'); btn.setAttribute('aria-expanded', 'false'); apply(cur); };
+    btn.addEventListener('click', e => { e.stopPropagation(); pop.classList.contains('open') ? close() : open(); });
+    document.addEventListener('pointerdown', e => { if (pop.classList.contains('open') && !wrap.contains(e.target)) close(); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && pop.classList.contains('open')) close(); });
+    // the accent is worked out per style and theme, so redo it when either changes
+    new MutationObserver(() => { apply(cur); mark(); }).observe(document.documentElement, { attributes:true, attributeFilter:['data-style','data-theme'] });
+    matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => apply(cur));
+    mark();
   }
 
   /* ---------- custom select ---------- */
