@@ -4165,6 +4165,17 @@ html[data-style="soft"] .acc-sw[data-v="default"]{background:conic-gradient(#116
 .acc-row{flex-wrap:nowrap}
 .m-acc{flex-wrap:wrap}
 .m-sheet .acc{display:none}
+/* style switch: icons, a springy indicator and an eased page swap */
+.ss-ic{width:14px;height:14px;flex:none;fill:currentColor;transform-origin:50% 60%;transition:opacity .3s ease,color .3s ease}
+.style-seg button{display:inline-flex;align-items:center;gap:6px}
+.style-seg button:not(.on) .ss-ic{opacity:.6}
+body.ui .top .style-seg .seg-ind,.m-sheet #style-seg .seg-ind{transition:transform .55s cubic-bezier(.34,1.25,.64,1),width .55s cubic-bezier(.34,1.25,.64,1)}
+body.ui .top .style-seg button{transition:color .3s ease}
+.top{view-transition-name:topbar}
+::view-transition-old(root),::view-transition-new(root){animation-duration:.42s;animation-timing-function:cubic-bezier(.4,0,.2,1)}
+::view-transition-old(topbar){display:none}
+::view-transition-new(topbar){animation:none}
+@media (prefers-reduced-motion: reduce){ .ss-ic{transition:none} }
 </style>
 </head>
 <body class="ui">
@@ -4184,7 +4195,7 @@ html[data-style="soft"] .acc-sw[data-v="default"]{background:conic-gradient(#116
 </svg></a>
   <nav class="top-links" aria-label="Site"><a href="#/changelog">Changelog</a><a href="#/roadmap">Roadmap</a><a href="#faq">FAQ</a></nav>
   <div class="top-actions">
-    <div class="seg style-seg" id="style-seg" role="group" aria-label="Style"><span class="seg-ind"></span><button data-v="blueprint" class="on">Blueprint</button><button data-v="soft">Soft</button></div>
+    <div class="seg style-seg" id="style-seg" role="group" aria-label="Style"><span class="seg-ind"></span><button data-v="blueprint" class="on"><svg class="ss-ic ss-ruler" viewBox="0 0 256 256" aria-hidden="true"><path d="M229.66,90.34,90.34,229.66a8,8,0,0,1-11.31,0L26.34,177a8,8,0,0,1,0-11.31L165.66,26.34a8,8,0,0,1,11.31,0L229.66,79A8,8,0,0,1,229.66,90.34Z" opacity="0.2"/><path d="M235.32,73.37,182.63,20.69a16,16,0,0,0-22.63,0L20.68,160a16,16,0,0,0,0,22.63l52.69,52.68a16,16,0,0,0,22.63,0L235.32,96A16,16,0,0,0,235.32,73.37ZM84.68,224,32,171.31l32-32,26.34,26.35a8,8,0,0,0,11.32-11.32L75.31,128,96,107.31l26.34,26.35a8,8,0,0,0,11.32-11.32L107.31,96,128,75.31l26.34,26.35a8,8,0,0,0,11.32-11.32L139.31,64l32-32L224,84.69Z"/></svg><span>Blueprint</span></button><button data-v="soft"><svg class="ss-ic ss-cloud" viewBox="0 0 256 256" aria-hidden="true"><path d="M240,128a80,80,0,0,1-80,80H72A56,56,0,1,1,85.92,97.74l0,.1A80,80,0,0,1,240,128Z" opacity="0.2"/><path d="M160,40A88.09,88.09,0,0,0,81.29,88.67,64,64,0,1,0,72,216h88a88,88,0,0,0,0-176Zm0,160H72a48,48,0,0,1,0-96c1.1,0,2.2,0,3.29.11A88,88,0,0,0,72,128a8,8,0,0,0,16,0,72,72,0,1,1,72,72Z"/></svg><span>Soft</span></button></div>
     <button class="theme-sw" id="theme-btn" role="switch" aria-checked="false" aria-label="Dark mode"><span class="ts-thumb"></span><span class="ts-ic sun"><span class="ms">light_mode</span></span><span class="ts-ic moon"><span class="ms">dark_mode</span></span></button>
     <button class="sound-btn" id="sound-btn" aria-pressed="true"><span class="ms sm" id="sound-icon">volume_up</span><span class="lbl" id="sound-lbl">Sound on</span></button>
     <div class="flt"><button class="flt-btn" id="flt-btn" aria-haspopup="menu" aria-expanded="false"><span class="ms flt-ic">filter_list</span><span class="lbl" id="flt-lbl">Popular</span><span class="ms car">expand_more</span></button><div class="flt-menu" id="flt-menu" role="menu"><button class="flt-i on" data-v="popular" role="menuitemradio">Popular<span class="ms">check</span></button><button class="flt-i" data-v="recent" role="menuitemradio">Recent<span class="ms">check</span></button><button class="flt-i" data-v="saved" role="menuitemradio">Saved<span class="ms">check</span></button></div></div>
@@ -8189,13 +8200,27 @@ html[data-style="soft"] .acc-sw[data-v="default"]{background:conic-gradient(#116
       const t0 = c.getBoundingClientRect().top;
       return () => { const d = c.getBoundingClientRect().top - t0; if (Math.abs(d) > 1) window.scrollBy({ top:d, behavior:'instant' }); };
     }
+    // the icon of the picked style answers the click: the ruler tips like it is measuring, the cloud floats up and settles
+    const playIcon = v => {
+      if (reduce) return;
+      const b = seg.querySelector(`button[data-v="${v}"] .ss-ic`); if (!b) return;
+      if (v === 'soft') b.animate([{ transform:'translateY(0) scale(1)' }, { transform:'translateY(-3px) scale(1.14)', offset:.45 }, { transform:'translateY(.5px) scale(.97)', offset:.75 }, { transform:'translateY(0) scale(1)' }], { duration:620, easing:'cubic-bezier(.34,1.3,.64,1)' });
+      else b.animate([{ transform:'rotate(0deg)' }, { transform:'rotate(-22deg)', offset:.4 }, { transform:'rotate(6deg)', offset:.75 }, { transform:'rotate(0deg)' }], { duration:560, easing:'cubic-bezier(.34,1.3,.64,1)' });
+      const ind = seg.querySelector('.seg-ind'); if (ind) ind.animate([{ scale:'1 1' }, { scale:'1.06 .94', offset:.45 }, { scale:'1 1' }], { duration:520, easing:'cubic-bezier(.34,1.3,.64,1)' });
+    };
     segInit(seg, v => {
       const restore = anchor();
-      setTimeout(restore, 40); setTimeout(restore, 560);
-      root.classList.add('theming');
-      if (v === 'soft') root.setAttribute('data-style', 'soft'); else root.removeAttribute('data-style');
-      try { localStorage.setItem('dmui-style', v); } catch(e) {}
-      placeCodeBtns(); hydrate(document.body);
+      playIcon(v);
+      const swap = () => {
+        root.classList.add('theming');
+        if (v === 'soft') root.setAttribute('data-style', 'soft'); else root.removeAttribute('data-style');
+        try { localStorage.setItem('dmui-style', v); } catch(e) {}
+        placeCodeBtns(); hydrate(document.body);
+      };
+      // the page eases from one style into the other where the browser supports it
+      if (document.startViewTransition && !reduce){ const t = document.startViewTransition(swap); t.updateCallbackDone.then(() => { restore(); setTimeout(restore, 40); }); }
+      else { swap(); setTimeout(restore, 40); }
+      setTimeout(restore, 560);
       setTimeout(relayout, 30); setTimeout(relayout, 520);
       setTimeout(() => root.classList.remove('theming'), 500);
     });
