@@ -4176,6 +4176,12 @@ body.ui .top .style-seg button{transition:color .3s ease}
 ::view-transition-old(topbar){display:none}
 ::view-transition-new(topbar){animation:none}
 @media (prefers-reduced-motion: reduce){ .ss-ic{transition:none} }
+/* style switch: the pill slides with the same plush spring as the light and dark switch, even while the page restyles */
+body.ui .top .style-seg .seg-ind,.m-sheet #style-seg .seg-ind,
+html.theming body.ui .top .style-seg .seg-ind,html.theming .m-sheet #style-seg .seg-ind,
+html.no-trans body.ui .top .style-seg .seg-ind,html.no-trans .m-sheet #style-seg .seg-ind{transition:transform .45s cubic-bezier(.34,1.56,.64,1),width .45s cubic-bezier(.34,1.56,.64,1)!important}
+html.theming .style-seg button,html.no-trans .style-seg button{transition:color .3s ease!important}
+html.theming .style-seg .ss-ic,html.no-trans .style-seg .ss-ic{transition:opacity .3s ease!important}
 </style>
 </head>
 <body class="ui">
@@ -7046,7 +7052,9 @@ body.ui .top .style-seg button{transition:color .3s ease}
     const ind = seg.querySelector('.seg-ind');
     const place = anim => { const b = seg.querySelector('button.on'); if (!b) return; ind.style.transition = anim ? '' : 'none'; ind.style.width = b.offsetWidth + 'px'; ind.style.transform = `translateX(${b.offsetLeft}px)`; };
     seg.addEventListener('click', e => { const b = e.target.closest('button'); if (!b || b.classList.contains('on')) return; $$('button', seg).forEach(x => x.classList.toggle('on', x === b)); place(true); Sound.play('tab'); onChange(b.dataset.v); });
-    place(false); if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => place(false)); addEventListener('resize', () => place(false));
+    place(false); if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => place(false));
+    // a resize mid-slide keeps the slide going instead of snapping it to the end
+    addEventListener('resize', () => place(true));
     return place;
   }
   function setPill(el, cls, text){ el.className = 'pill ' + cls; el.innerHTML = `<i></i><span>${text}</span>`; }
@@ -8217,12 +8225,15 @@ body.ui .top .style-seg button{transition:color .3s ease}
         try { localStorage.setItem('dmui-style', v); } catch(e) {}
         placeCodeBtns(); hydrate(document.body);
       };
-      // the page eases from one style into the other where the browser supports it
-      if (document.startViewTransition && !reduce){ const t = document.startViewTransition(swap); t.updateCallbackDone.then(() => { restore(); setTimeout(restore, 40); }); }
-      else { swap(); setTimeout(restore, 40); }
-      setTimeout(restore, 560);
-      setTimeout(relayout, 30); setTimeout(relayout, 520);
-      setTimeout(() => root.classList.remove('theming'), 500);
+      // restyling all the components is heavy, so the pill finishes most of its slide first, then the page eases into the new style
+      const go = () => {
+        if (document.startViewTransition && !reduce){ const t = document.startViewTransition(swap); t.updateCallbackDone.then(() => { restore(); setTimeout(restore, 40); }); }
+        else { swap(); setTimeout(restore, 40); }
+        setTimeout(restore, 560);
+        setTimeout(relayout, 30); setTimeout(relayout, 520);
+        setTimeout(() => root.classList.remove('theming'), 500);
+      };
+      reduce ? go() : setTimeout(go, 300);
     });
     setTimeout(relayout, 60);
   }
