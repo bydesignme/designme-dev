@@ -53,3 +53,16 @@ export function useControllable<T>(value: T | undefined, defaultValue: T, onChan
   const set = useCallback((v: T) => { if (!controlled) setInner(v); onChange?.(v); }, [controlled, onChange]);
   return [controlled ? value : inner, set] as const;
 }
+
+/** Copies text to the clipboard and stays true for `ms`, long enough to show a check mark and a "Copied" tip */
+export function useCopied(ms = 1600) {
+  const [copied, setCopied] = useState(false);
+  const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
+  useEffect(() => () => clearTimeout(timer.current), []);
+  const copy = useCallback((text: string) => {
+    try { navigator.clipboard?.writeText(text).catch(() => {}); } catch { /* the page is not allowed to write to the clipboard */ }
+    setCopied(true); clearTimeout(timer.current);
+    timer.current = setTimeout(() => setCopied(false), ms);
+  }, [ms]);
+  return [copied, copy] as const;
+}

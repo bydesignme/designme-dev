@@ -65,18 +65,23 @@ export function Seg<T extends string>({ options, value, onChange, label }: {
 }
 
 /* ---------- tooltip ---------- */
-/** Shows `label` above whatever it wraps, after a short pause, the same way the site does */
-export function Tip({ label, children }: { label: string; children: ReactNode }) {
+/** Shows `label` above whatever it wraps, after a short pause, the same way the site does.
+    `kbd` adds a shortcut after the label. `open` shows it straight away, for feedback like "Copied" */
+export function Tip({ label, kbd, open: forced, children }: { label: string; kbd?: string; open?: boolean; children: ReactNode }) {
   const [at, setAt] = useState<{ x: number; y: number; r: DOMRect } | null>(null);
   const [show, setShow] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
   const tip = useRef<HTMLDivElement>(null);
-  const open = (el: Element | null, now = false) => {
+  const wrap = useRef<HTMLSpanElement>(null);
+  const open = (el: Element | null | undefined, now = false) => {
     if (!el) return; clearTimeout(timer.current);
     timer.current = setTimeout(() => setAt({ x: 0, y: 0, r: el.getBoundingClientRect() }), now ? 0 : 380);
   };
   const close = () => { clearTimeout(timer.current); setShow(false); setAt(null); };
   useEffect(() => () => clearTimeout(timer.current), []);
+  useEffect(() => { if (forced) open(wrap.current?.firstElementChild, true); else if (forced === false) close(); }, [forced]); // eslint-disable-line react-hooks/exhaustive-deps
+  // a new label can change the width, so place it again
+  useIsoLayoutEffect(() => { setAt(a => a && { ...a, x: 0, y: 0 }); }, [label, kbd]);
   // place it above the target, or below when there is no room, then fade it in
   useIsoLayoutEffect(() => {
     const t = tip.current; if (!at || !t || (at.x || at.y)) return;
@@ -86,15 +91,20 @@ export function Tip({ label, children }: { label: string; children: ReactNode })
     setAt({ ...at, x, y }); requestAnimationFrame(() => setShow(true));
   }, [at]);
   return (
-    <span style={{ display: 'contents' }}
-      onPointerEnter={e => open(e.currentTarget.firstElementChild)} onPointerLeave={close}
-      onFocus={e => { if ((e.target as Element).matches(':focus-visible')) open(e.target, true); }} onBlur={close}>
+    <span ref={wrap} style={{ display: 'contents' }}
+      onPointerEnter={e => open(e.currentTarget.firstElementChild)} onPointerLeave={() => { if (!forced) close(); }}
+      onFocus={e => { if ((e.target as Element).matches(':focus-visible')) open(e.target, true); }} onBlur={() => { if (!forced) close(); }}>
       {children}
       {at && typeof document !== 'undefined' && createPortal(
-        <div ref={tip} className={cx('dm-tip', show && 'dm-show')} role="tooltip" data-dm="" style={{ left: at.x, top: at.y }}>{label}</div>, document.body)}
+        <div ref={tip} className={cx('dm-tip', show && 'dm-show')} role="tooltip" data-dm="" style={{ left: at.x, top: at.y }}>{label}{kbd && <span className="dm-kbd">{kbd}</span>}</div>, document.body)}
     </span>
   );
 }
+
+/** A round avatar with initials, on a colour like 'var(--dm-pl)' */
+export const Avatar = ({ initials, color, size, className }: { initials: string; color: string; size?: number; className?: string }) => (
+  <span className={cx('dm-av', className)} style={{ background: color, ...(size && { width: size, height: size }) }} aria-hidden="true">{initials}</span>
+);
 
 /* ---------- sources ---------- */
 export type SourceKind = 'figma' | 'web' | 'ts' | 'tsx' | 'css' | 'csv' | 'pdf';

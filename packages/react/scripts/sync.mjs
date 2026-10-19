@@ -3,6 +3,7 @@
 //   src/designme.css                       tokens, primitives and motion (Blueprint by default, Soft with data-style="soft")
 //   src/components/<name>/<name>.css       each component's own styles
 //   src/lib/icons.tsx                      the icon set as React elements
+//   src/lib/brands.tsx, src/lib/flags.tsx  the service logos and country flags some components show
 // Every class, custom property and keyframe name gets a dm- prefix on the way, so the components
 // can sit beside any other CSS (Tailwind, shadcn/ui, a site's own .panel or --accent) without either side leaking into the other.
 // usage: node scripts/sync.mjs   (from packages/react)
@@ -67,8 +68,9 @@ let css = file(reg_core, 'css');
 // the registry wraps each component in a [data-c] card; React components mark their root with data-dm instead
 css = css.replace(/\/\* a component card: the template renders into \.stage-in \*\/\n\[data-c\]\{[^}]*\}\n\[data-c\]\.wide\{[^}]*\}\n?/, '');
 css = css.replace(/:where\(\[data-c\]\) /g, ':where([data-dm]) ');
+// :where keeps it weaker than any class, so a component's own type (or the tooltip's, which also carries data-dm) wins
 css += '\n/* every component root carries data-dm, so it starts from the same type wherever it is placed */\n'
-  + '[data-dm]{font-family:var(--sans);font-size:14px;line-height:1.5;color:var(--fg);-webkit-font-smoothing:antialiased;text-align:left}\n';
+  + ':where([data-dm]){font-family:var(--sans);font-size:14px;line-height:1.5;color:var(--fg);-webkit-font-smoothing:antialiased;text-align:left}\n';
 if (/\[data-c\]/.test(css)) throw new Error('card selector left in core css');
 const own = Object.fromEntries(COMPONENTS.map(name => [name, file(read(name), 'css')]));
 const frames = new Set([css, ...Object.values(own)].flatMap(frameNames));
@@ -109,4 +111,37 @@ export function Icon({ name, size = 's', className }: { name: IconName; size?: '
 }
 `;
 write('src/lib/icons.tsx', out);
-console.log(`synced core, ${COMPONENTS.length} components and ${names.length} icons`);
+
+/* ---------- brand marks and flags ---------- */
+const HEAD_TS = HEAD.replace('/*', '//').replace(' */', '');
+const brand = JSON.parse(js.match(/const BRAND = (\{.*\});/)[1]);
+const marks = Object.entries(brand).map(([name, svg]) => { const m = svg.match(/viewBox="([^"]+)">([\s\S]*)<\/svg>$/); return { name, box: m[1], jsx: toJsx(m[2]) }; });
+write('src/lib/brands.tsx', `${HEAD_TS}import type { ReactElement } from 'react';
+import { cx } from './cx';
+
+export type BrandName = ${marks.map(b => `'${b.name}'`).join(' | ')};
+
+const MARKS: Record<BrandName, { box: string; shape: ReactElement }> = {
+${marks.map(b => `  ${b.name}: { box: '${b.box}', shape: <>${b.jsx}</> }`).join(',\n')}
+};
+
+/** The official mark of a service the components name, 16px */
+export function Brand({ name, className }: { name: BrandName; className?: string }) {
+  const { box, shape } = MARKS[name];
+  return <svg className={cx('dm-brand', className)} viewBox={box} aria-hidden="true" focusable="false">{shape}</svg>;
+}
+`);
+const flags = JSON.parse(js.match(/const FLAGS = (\{.*\});/)[1]);
+write('src/lib/flags.tsx', `${HEAD_TS}import { cx } from './cx';
+
+export type FlagCode = ${Object.keys(flags).map(c => `'${c}'`).join(' | ')};
+
+const FLAGS: Record<FlagCode, string> = ${JSON.stringify(flags, null, 1).replace(/\n\s*/g, ' ')};
+
+/** A country flag, drawn as an image so each one keeps its own ids */
+export function Flag({ code, className }: { code: FlagCode; className?: string }) {
+  const svg = FLAGS[code].replace('<svg ', '<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" ');
+  return <img className={cx('dm-flag', className)} alt="" src={'data:image/svg+xml,' + encodeURIComponent(svg)} />;
+}
+`);
+console.log(`synced core, ${COMPONENTS.length} components, ${names.length} icons, ${marks.length} brand marks and ${Object.keys(flags).length} flags`);

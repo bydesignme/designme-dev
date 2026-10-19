@@ -3,6 +3,7 @@ import { cx } from '../../lib/cx';
 import { useControllable } from '../../lib/hooks';
 import { Icon } from '../../lib/icons';
 import { Bars, Dot, Fold, Radar, Spin, Swap, Think } from '../../lib/motion';
+import '../../designme.css';
 import './step-loader.css';
 
 export interface Step {

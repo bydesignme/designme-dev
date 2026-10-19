@@ -4,6 +4,7 @@ import { cx } from '../../lib/cx';
 import { useControllable, useSeconds } from '../../lib/hooks';
 import { Icon } from '../../lib/icons';
 import { Dot, enter, Fold, Pulse, Seg, SourceChip, Swap, Think, type Source } from '../../lib/motion';
+import '../../designme.css';
 import './reasoning-trail.css';
 
 export interface PlanStep {

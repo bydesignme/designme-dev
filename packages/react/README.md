@@ -13,7 +13,7 @@ Preview: https://staging.designme-dev.pages.dev/packages/react/preview/
 Needs React 19. Works in client components, React Server Component pages (Next.js App Router) and Astro islands.
 
 1. Copy `src/` into your project, for example as `components/designme/`.
-2. Import the styles once, near the root of your app: `designme.css`. Each component imports its own small CSS file itself.
+2. That's all for the styles: each component imports the shared `designme.css` and its own small CSS file, in that order, and your bundler loads each file once.
 3. Load Inter and JetBrains Mono (the components fall back to the system font if you don't).
 4. Pick the look on `<html>`: Blueprint is the default, `data-style="soft"` switches to Soft, and `data-theme="dark"` or `data-theme="light"` fixes the theme (otherwise it follows the device).
 
@@ -27,29 +27,20 @@ import { StatusPill } from '@/components/designme';
 
 ### Next.js (App Router)
 
-```tsx
-// app/layout.tsx
-import '@/components/designme/designme.css';
-```
-
 Every component file starts with `'use client'`, so you can render them straight from server components. With `next/font`, set the families on `<html>` or override `--dm-sans` and `--dm-mono` in your own CSS.
 
 On the Pages Router, Next.js only allows global CSS in `pages/_app.tsx`, so import `designme.css` and each component's `.css` file there.
 
 ### React with Vite
 
-```tsx
-// src/main.tsx
-import './components/designme/designme.css';
-```
+Nothing extra to set up.
 
 ### Astro
 
-Add the React integration (`npx astro add react`), import the styles in your layout, and hydrate the components that change over time:
+Add the React integration (`npx astro add react`) and hydrate the components that change over time:
 
 ```astro
 ---
-import '../components/designme/designme.css';
 import { StatusPill, ContextMeter } from '../components/designme';
 ---
 <StatusPill state="done" label="Done" meta="4 files changed" />   <!-- static, no JavaScript -->

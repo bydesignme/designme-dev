@@ -4,6 +4,7 @@ import { cx } from '../../lib/cx';
 import { useControllable, useSeconds } from '../../lib/hooks';
 import { Icon } from '../../lib/icons';
 import { enter, Fold, Pulse, SourceChip, Swap, Think, Tip, type Source } from '../../lib/motion';
+import '../../designme.css';
 import './thinking.css';
 
 export interface ThinkingStep {

@@ -4,6 +4,7 @@ import { cx } from '../../lib/cx';
 import { useControllable, useTween } from '../../lib/hooks';
 import { Icon } from '../../lib/icons';
 import { Swap, Tip } from '../../lib/motion';
+import '../../designme.css';
 import './context-meter.css';
 
 export interface UsageRow {

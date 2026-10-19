@@ -4,6 +4,7 @@ import { cx } from '../../lib/cx';
 import { useIsoLayoutEffect, useReducedMotion } from '../../lib/hooks';
 import { Icon } from '../../lib/icons';
 import { Dot, Radar, Spin, Swap, Think } from '../../lib/motion';
+import '../../designme.css';
 import './status-pill.css';
 
 export type StatusPillState = 'idle' | 'thinking' | 'reading' | 'working' | 'waiting' | 'done';
