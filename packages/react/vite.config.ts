@@ -6,5 +6,6 @@ export default defineConfig({
   root: 'playground',
   base: './',
   plugins: [react()],
+  server: { fs: { allow: ['../../..'] } },
   build: { outDir: '../preview', emptyOutDir: true }
 });
