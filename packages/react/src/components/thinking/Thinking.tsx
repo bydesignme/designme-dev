@@ -41,11 +41,11 @@ export interface ThinkingProps {
 function Chips({ sources, more }: { sources: Source[]; more?: Source[] }) {
   const [all, setAll] = useState(false);
   return (
-    <div className="tk-chips">
+    <div className="dm-tk-chips">
       {sources.map((s, i) => <SourceChip key={i} source={s} {...enter(i * 80)} />)}
       {more?.length ? (all
         ? more.map((s, i) => <SourceChip key={'m' + i} source={s} />)
-        : <Tip label={more.map(s => s.label).join(', ')}><button type="button" className="tk-more" onClick={() => setAll(true)}>+{more.length} more</button></Tip>) : null}
+        : <Tip label={more.map(s => s.label).join(', ')}><button type="button" className="dm-tk-more" onClick={() => setAll(true)}>+{more.length} more</button></Tip>) : null}
     </div>
   );
 }
@@ -53,10 +53,10 @@ function Chips({ sources, more }: { sources: Source[]; more?: Source[] }) {
 function Mark({ step }: { step: ThinkingStep }) {
   if (step.state === 'running') return <Pulse />;
   // keyed so the finished mark plays its entrance once
-  if (step.state === 'dead') return <span key="dead" className="enter" style={{ display: 'grid' }}><Icon name="x" size="xs" /></span>;
-  if (step.mark === 'search') return <span key="search" className="enter" style={{ display: 'grid' }}><Icon name="search" size="xs" /></span>;
-  if (step.mark === 'hollow') return <span key="hollow" className="ring enter" />;
-  return <span key="dot" className="dot enter" />;
+  if (step.state === 'dead') return <span key="dead" className="dm-enter" style={{ display: 'grid' }}><Icon name="x" size="xs" /></span>;
+  if (step.mark === 'search') return <span key="search" className="dm-enter" style={{ display: 'grid' }}><Icon name="search" size="xs" /></span>;
+  if (step.mark === 'hollow') return <span key="hollow" className="dm-ring dm-enter" />;
+  return <span key="dot" className="dm-dot dm-enter" />;
 }
 
 /** The live trace, written as the agent works, then folded away. */
@@ -73,30 +73,30 @@ export function Thinking({ steps, running, seconds, summary, collapseWhenDone = 
   const fin = !running && summary !== undefined;
 
   return (
-    <div data-dm="" className={cx('tk', className)} data-open={isOpen ? '1' : '0'}>
-      <button type="button" className="tk-h" aria-expanded={isOpen} onClick={() => setOpen(!isOpen)}>
-        <span className="tk-mark"><Think on={running} /></span>
-        <Swap className={cx('tk-title', running && 'shim')}>{running ? 'Thinking' : `Thought for ${Math.max(secs, 1)}s`}</Swap>
-        <span className="tk-time num">{running ? secs + 's' : ''}</span>
-        <Icon name="chev-d" size="xs" className="tk-chev" />
+    <div data-dm="" className={cx('dm-tk', className)} data-open={isOpen ? '1' : '0'}>
+      <button type="button" className="dm-tk-h" aria-expanded={isOpen} onClick={() => setOpen(!isOpen)}>
+        <span className="dm-tk-mark"><Think on={running} /></span>
+        <Swap className={cx('dm-tk-title', running && 'dm-shim')}>{running ? 'Thinking' : `Thought for ${Math.max(secs, 1)}s`}</Swap>
+        <span className="dm-tk-time dm-num">{running ? secs + 's' : ''}</span>
+        <Icon name="chev-d" size="xs" className="dm-tk-chev" />
       </button>
-      <Fold open={isOpen} className="tk-fold">
-        <ol className="tk-list" aria-live="polite">
+      <Fold open={isOpen} className="dm-tk-fold">
+        <ol className="dm-tk-list" aria-live="polite">
           {steps.map((s, i) => (
-            <li key={i} className={cx('tk-st enter', s.state === 'running' && 'run', s.sub && 'sub', s.state === 'dead' && 'dead')}>
-              {s.sub && <span className="curve" />}
-              <span className="mk"><Mark step={s} /></span>
-              <span className={cx('rl', (i < steps.length - 1 || fin) && 'on')} />
-              <div className="tx">
-                <Swap className={cx('lab', s.state === 'running' && 'shim')}>{s.label}</Swap>
+            <li key={i} className={cx('dm-tk-st dm-enter', s.state === 'running' && 'dm-run', s.sub && 'dm-sub', s.state === 'dead' && 'dm-dead')}>
+              {s.sub && <span className="dm-curve" />}
+              <span className="dm-mk"><Mark step={s} /></span>
+              <span className={cx('dm-rl', (i < steps.length - 1 || fin) && 'dm-on')} />
+              <div className="dm-tx">
+                <Swap className={cx('dm-lab', s.state === 'running' && 'dm-shim')}>{s.label}</Swap>
                 {s.sources?.length ? <Chips sources={s.sources} more={s.moreSources} /> : null}
               </div>
             </li>
           ))}
           {fin && (
-            <li className="tk-st tk-fin enter">
-              <span className="mk"><Icon name="ok" /></span>
-              <div className="tx"><span><span className="lab">Finished thinking</span>{summary && <span className="sum">{summary}</span>}</span></div>
+            <li className="dm-tk-st dm-tk-fin dm-enter">
+              <span className="dm-mk"><Icon name="ok" /></span>
+              <div className="dm-tx"><span><span className="dm-lab">Finished thinking</span>{summary && <span className="dm-sum">{summary}</span>}</span></div>
             </li>
           )}
         </ol>

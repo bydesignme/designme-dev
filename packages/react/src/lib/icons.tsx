@@ -107,5 +107,5 @@ const BOXES: Partial<Record<IconName, string>> = { };
 
 /** Line icons from designme.dev. size: 'xs' 12px, 's' 14px (default), 'm' 16px, 'l' 18px */
 export function Icon({ name, size = 's', className }: { name: IconName; size?: 'xs' | 's' | 'm' | 'l'; className?: string }) {
-  return <svg className={cx('i', size !== 'm' && size, className)} viewBox={BOXES[name] || '0 0 24 24'} aria-hidden="true" focusable="false">{SHAPES[name]}</svg>;
+  return <svg className={cx('dm-i', size !== 'm' && 'dm-' + size, className)} viewBox={BOXES[name] || '0 0 24 24'} aria-hidden="true" focusable="false">{SHAPES[name]}</svg>;
 }

@@ -17,6 +17,8 @@ Needs React 19. Works in client components, React Server Component pages (Next.j
 3. Load Inter and JetBrains Mono (the components fall back to the system font if you don't).
 4. Pick the look on `<html>`: Blueprint is the default, `data-style="soft"` switches to Soft, and `data-theme="dark"` or `data-theme="light"` fixes the theme (otherwise it follows the device).
 
+Every class, CSS variable and animation name starts with `dm-` (`.dm-panel`, `--dm-accent`, `dm-enter`), so the components sit next to Tailwind, shadcn/ui or your own CSS without either side changing the other. To retheme them, override the variables, for example `:root { --dm-accent: #7c3aed }`.
+
 ```tsx
 import { StatusPill } from '@/components/designme';
 
@@ -30,7 +32,7 @@ import { StatusPill } from '@/components/designme';
 import '@/components/designme/designme.css';
 ```
 
-Every component file starts with `'use client'`, so you can render them straight from server components. With `next/font`, set the families on `<html>` or override `--sans` and `--mono` in your own CSS.
+Every component file starts with `'use client'`, so you can render them straight from server components. With `next/font`, set the families on `<html>` or override `--dm-sans` and `--dm-mono` in your own CSS.
 
 On the Pages Router, Next.js only allows global CSS in `pages/_app.tsx`, so import `designme.css` and each component's `.css` file there.
 

@@ -27,15 +27,15 @@ export interface StatusPillProps {
 }
 
 const LIVE: StatusPillState[] = ['thinking', 'reading', 'working'];
-const FT: Record<string, string> = { tsx: 're', jsx: 're', csv: 'csv', pdf: 'pdf', fig: 'fg' };
+const FT: Record<string, string> = { tsx: 'dm-re', jsx: 'dm-re', csv: 'dm-csv', pdf: 'dm-pdf', fig: 'dm-fg' };
 
 function Glyph({ state }: { state: StatusPillState }) {
-  if (state === 'thinking') return <span className="g" style={{ color: 'var(--fg)' }}><Think /></span>;
-  if (state === 'reading') return <span className="g" style={{ color: 'var(--fg)' }}><Radar /></span>;
-  if (state === 'working') return <span className="g" style={{ color: 'var(--fg)' }}><Spin /></span>;
-  if (state === 'waiting') return <span className="g" style={{ color: 'var(--warn)' }}><Dot /></span>;
-  if (state === 'done') return <span className="g" style={{ color: 'var(--ok)' }}><Icon name="ok" /></span>;
-  return <span className="g"><Dot color="var(--faint)" /></span>;
+  if (state === 'thinking') return <span className="dm-g" style={{ color: 'var(--dm-fg)' }}><Think /></span>;
+  if (state === 'reading') return <span className="dm-g" style={{ color: 'var(--dm-fg)' }}><Radar /></span>;
+  if (state === 'working') return <span className="dm-g" style={{ color: 'var(--dm-fg)' }}><Spin /></span>;
+  if (state === 'waiting') return <span className="dm-g" style={{ color: 'var(--dm-warn)' }}><Dot /></span>;
+  if (state === 'done') return <span className="dm-g" style={{ color: 'var(--dm-ok)' }}><Icon name="ok" /></span>;
+  return <span className="dm-g"><Dot color="var(--dm-faint)" /></span>;
 }
 
 /** One live line for what the agent is doing right now. It fades between states and resizes to fit them. */
@@ -68,18 +68,18 @@ export function StatusPill(props: StatusPillProps) {
   }, [prevKey, variant, view.meta]);
 
   return (
-    <div data-dm="" className={cx('spl', variant === 'bar' && 'bar', className)}>
-      <div className="spl-pill" style={{ width: width ?? (variant === 'bar' ? 300 : 'max-content') }} aria-live="polite">
-        <div ref={box} className={cx('spl-in', fading && 'out')}>
+    <div data-dm="" className={cx('dm-spl', variant === 'bar' && 'dm-bar', className)}>
+      <div className="dm-spl-pill" style={{ width: width ?? (variant === 'bar' ? 300 : 'max-content') }} aria-live="polite">
+        <div ref={box} className={cx('dm-spl-in', fading && 'dm-out')}>
           <Glyph state={state} />
-          <span className={LIVE.includes(state) ? 'shim' : state === 'idle' ? 'fg2' : undefined}>{view.label}</span>
-          {view.file && <span className="fchip" style={{ height: 24 }}>{view.file.type && <span className={cx('ft', FT[view.file.type])}>{view.file.type.toUpperCase()}</span>}{view.file.name}</span>}
-          {view.meta && <Swap className="m">{view.meta}</Swap>}
+          <span className={LIVE.includes(state) ? 'dm-shim' : state === 'idle' ? 'dm-fg2' : undefined}>{view.label}</span>
+          {view.file && <span className="dm-fchip" style={{ height: 24 }}>{view.file.type && <span className={cx('dm-ft', FT[view.file.type])}>{view.file.type.toUpperCase()}</span>}{view.file.name}</span>}
+          {view.meta && <Swap className="dm-m">{view.meta}</Swap>}
           {view.action
-            ? <button type="button" className="pill ink sm" onClick={() => props.action?.onClick()}>{view.action.label}</button>
-            : <span className="end" />}
+            ? <button type="button" className="dm-pill dm-ink dm-sm" onClick={() => props.action?.onClick()}>{view.action.label}</button>
+            : <span className="dm-end" />}
         </div>
-        <div className="spl-track"><div className="spl-fill" style={{ width: Math.max(0, Math.min(100, progress)) + '%' }} /></div>
+        <div className="dm-spl-track"><div className="dm-spl-fill" style={{ width: Math.max(0, Math.min(100, progress)) + '%' }} /></div>
       </div>
     </div>
   );

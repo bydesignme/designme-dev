@@ -8,18 +8,18 @@ import { Icon } from './icons';
 /* ---------- status glyphs ---------- */
 /** Four dots turning: the agent is thinking */
 export const Think = ({ on = true, className }: { on?: boolean; className?: string }) => (
-  <span className={cx('think', on && 'on', className)} aria-hidden="true"><i /><i /><i /><i /></span>
+  <span className={cx('dm-think', on && 'dm-on', className)} aria-hidden="true"><i /><i /><i /><i /></span>
 );
 /** A ring spinning: work in progress */
-export const Spin = () => <span className="spin" aria-hidden="true" />;
+export const Spin = () => <span className="dm-spin" aria-hidden="true" />;
 /** A dot with a sweeping ring: reading or searching */
-export const Radar = () => <span className="radar" aria-hidden="true" />;
+export const Radar = () => <span className="dm-radar" aria-hidden="true" />;
 /** A grey dot with a soft ping: the step happening now */
-export const Pulse = () => <span className="pulse" aria-hidden="true" />;
+export const Pulse = () => <span className="dm-pulse" aria-hidden="true" />;
 /** Three bars rising and falling */
-export const Bars = () => <span className="bars3" aria-hidden="true"><i /><i /><i /></span>;
+export const Bars = () => <span className="dm-bars3" aria-hidden="true"><i /><i /><i /></span>;
 /** A small round dot, coloured by `color` (or currentColor) */
-export const Dot = ({ color }: { color?: string }) => <span className="dot" style={color ? { color } : undefined} aria-hidden="true" />;
+export const Dot = ({ color }: { color?: string }) => <span className="dm-dot" style={color ? { color } : undefined} aria-hidden="true" />;
 
 /* ---------- text that changes ---------- */
 /** Text that blurs out and back in when it changes */
@@ -33,13 +33,13 @@ export function Swap({ children, className, style }: { children: string; classNa
     const t = setTimeout(() => { setShown(children); setOut(false); }, reduce ? 0 : 170);
     return () => clearTimeout(t);
   }, [children, shown, reduce]);
-  return <span className={cx('sw', out && 'out', className)} style={style}>{shown}</span>;
+  return <span className={cx('dm-sw', out && 'dm-out', className)} style={style}>{shown}</span>;
 }
 
 /* ---------- layout ---------- */
 /** A panel that folds open and shut by its height */
 export function Fold({ open, className, children }: { open: boolean; className?: string; children: ReactNode }) {
-  return <div className={cx('fold', !open && 'shut', className)} inert={!open} aria-hidden={!open}><div>{children}</div></div>;
+  return <div className={cx('dm-fold', !open && 'dm-shut', className)} inert={!open} aria-hidden={!open}><div>{children}</div></div>;
 }
 
 /** Segmented control with a sliding knob */
@@ -57,8 +57,8 @@ export function Seg<T extends string>({ options, value, onChange, label }: {
     return () => ro.disconnect();
   }, [value, options.length]);
   return (
-    <div className="seg2" role="group" aria-label={label} ref={ref}>
-      <span className="knob" style={knob} />
+    <div className="dm-seg2" role="group" aria-label={label} ref={ref}>
+      <span className="dm-knob" style={knob} />
       {options.map(o => <button type="button" key={o.value} aria-pressed={o.value === value} onClick={() => onChange(o.value)}>{o.label}</button>)}
     </div>
   );
@@ -91,7 +91,7 @@ export function Tip({ label, children }: { label: string; children: ReactNode })
       onFocus={e => { if ((e.target as Element).matches(':focus-visible')) open(e.target, true); }} onBlur={close}>
       {children}
       {at && typeof document !== 'undefined' && createPortal(
-        <div ref={tip} className={cx('tip', show && 'show')} role="tooltip" data-dm="" style={{ left: at.x, top: at.y }}>{label}</div>, document.body)}
+        <div ref={tip} className={cx('dm-tip', show && 'dm-show')} role="tooltip" data-dm="" style={{ left: at.x, top: at.y }}>{label}</div>, document.body)}
     </span>
   );
 }
@@ -99,15 +99,15 @@ export function Tip({ label, children }: { label: string; children: ReactNode })
 /* ---------- sources ---------- */
 export type SourceKind = 'figma' | 'web' | 'ts' | 'tsx' | 'css' | 'csv' | 'pdf';
 export interface Source { label: string; kind?: SourceKind; tip?: string; onClick?: () => void }
-const FT: Partial<Record<SourceKind, string>> = { tsx: 're', csv: 'csv', pdf: 'pdf' };
+const FT: Partial<Record<SourceKind, string>> = { tsx: 'dm-re', csv: 'dm-csv', pdf: 'dm-pdf' };
 /** A file or link chip, with its type in front */
 export function SourceChip({ source, className, style }: { source: Source; className?: string; style?: CSSProperties }) {
   const { label, kind, tip, onClick } = source;
   const mark = kind === 'figma' ? <Icon name="figma" size="xs" /> : kind === 'web' ? <Icon name="globe" size="xs" />
-    : kind ? <span className={cx('ft', FT[kind])}>{kind.toUpperCase()}</span> : null;
-  const chip = <button type="button" className={cx('fchip lnk', className)} style={style} onClick={onClick}>{mark}{label}</button>;
+    : kind ? <span className={cx('dm-ft', FT[kind])}>{kind.toUpperCase()}</span> : null;
+  const chip = <button type="button" className={cx('dm-fchip dm-lnk', className)} style={style} onClick={onClick}>{mark}{label}</button>;
   return tip ? <Tip label={tip}>{chip}</Tip> : chip;
 }
 
 /** Plays the entrance animation, `delay` ms late, the first time it renders */
-export const enter = (delay = 0): { className: string; style: CSSProperties } => ({ className: 'enter', style: { animationDelay: delay + 'ms' } });
+export const enter = (delay = 0): { className: string; style: CSSProperties } => ({ className: 'dm-enter', style: { animationDelay: delay + 'ms' } });

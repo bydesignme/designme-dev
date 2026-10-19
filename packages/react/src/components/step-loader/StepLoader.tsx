@@ -37,23 +37,23 @@ export function StepLoader({ steps, current, loader = 'radar', doneLabel = 'Read
   const [isOpen, setOpen] = useControllable(open, defaultOpen, onOpenChange);
   const n = steps.length, done = current >= n, at = Math.min(current, n - 1);
   return (
-    <div data-dm="" className={cx('stl', className)} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
-      <button type="button" className="stl-row" aria-expanded={isOpen} onClick={() => setOpen(!isOpen)}>
-        <span className="stl-g">{done ? <span style={{ color: 'var(--ok)', display: 'grid' }}><Icon name="ok" /></span> : <Loader kind={loader} />}</span>
-        <span className="stl-t"><Swap className={cx('stl-lab', !done && 'shim')}>{done ? doneLabel : steps[at].label}</Swap></span>
-        <Swap className="stl-n num">{`${done ? n : at + 1}/${n}`}</Swap>
-        <Icon name="chev-d" size="xs" className="stl-chev" />
+    <div data-dm="" className={cx('dm-stl', className)} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
+      <button type="button" className="dm-stl-row" aria-expanded={isOpen} onClick={() => setOpen(!isOpen)}>
+        <span className="dm-stl-g">{done ? <span style={{ color: 'var(--dm-ok)', display: 'grid' }}><Icon name="ok" /></span> : <Loader kind={loader} />}</span>
+        <span className="dm-stl-t"><Swap className={cx('dm-stl-lab', !done && 'dm-shim')}>{done ? doneLabel : steps[at].label}</Swap></span>
+        <Swap className="dm-stl-n dm-num">{`${done ? n : at + 1}/${n}`}</Swap>
+        <Icon name="chev-d" size="xs" className="dm-stl-chev" />
       </button>
-      <div className="stl-track" role="progressbar" aria-valuemin={0} aria-valuemax={n} aria-valuenow={done ? n : at}>
-        {steps.map((_, i) => <i key={i} className={cx((done || i < current) && 'on', !done && i === current && 'run')} />)}
+      <div className="dm-stl-track" role="progressbar" aria-valuemin={0} aria-valuemax={n} aria-valuenow={done ? n : at}>
+        {steps.map((_, i) => <i key={i} className={cx((done || i < current) && 'dm-on', !done && i === current && 'dm-run')} />)}
       </div>
-      <Fold open={isOpen} className="stl-fold">
-        <ol className="stl-list">
+      <Fold open={isOpen} className="dm-stl-fold">
+        <ol className="dm-stl-list">
           {steps.map((s, i) => {
             const finished = done || i < current, running = !done && i === current;
             return (
-              <li key={i} className={cx(finished && 'done', running && 'run')}>
-                <span className="g">{finished ? <span style={{ color: 'var(--ok)', display: 'grid' }}><Icon name="check" size="xs" /></span> : running ? <Loader kind={loader} /> : <Dot color="var(--faint)" />}</span>
+              <li key={i} className={cx(finished && 'dm-done', running && 'dm-run')}>
+                <span className="dm-g">{finished ? <span style={{ color: 'var(--dm-ok)', display: 'grid' }}><Icon name="check" size="xs" /></span> : running ? <Loader kind={loader} /> : <Dot color="var(--dm-faint)" />}</span>
                 {finished ? s.done ?? s.label : s.label}
               </li>
             );

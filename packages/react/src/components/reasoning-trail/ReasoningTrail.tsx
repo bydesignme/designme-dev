@@ -56,32 +56,32 @@ export function ReasoningTrail({ running = false, seconds, title, plan, notes, s
 
   const body = () => {
     if (tab === 'plan') return plan?.map((p, i) => (
-      <div key={'p' + i} className={cx('rtr-li enter', p.state === 'now' && 'now')} style={enter(i * 50).style}>
-        <span className="g">{p.state === 'done' ? <span style={{ color: 'var(--ok)', display: 'grid' }}><Icon name="check" size="xs" /></span> : p.state === 'now' ? <Pulse /> : <Dot color="var(--faint)" />}</span>
-        <span>{p.label}<span className="d">{p.state === 'done' ? p.detail ?? 'Done' : p.state === 'now' ? 'Working' : 'Next'}</span></span>
+      <div key={'p' + i} className={cx('dm-rtr-li dm-enter', p.state === 'now' && 'dm-now')} style={enter(i * 50).style}>
+        <span className="dm-g">{p.state === 'done' ? <span style={{ color: 'var(--dm-ok)', display: 'grid' }}><Icon name="check" size="xs" /></span> : p.state === 'now' ? <Pulse /> : <Dot color="var(--dm-faint)" />}</span>
+        <span>{p.label}<span className="dm-d">{p.state === 'done' ? p.detail ?? 'Done' : p.state === 'now' ? 'Working' : 'Next'}</span></span>
       </div>));
     if (tab === 'notes') return notes?.map((t, i) => (
-      <div key={'n' + i} className="rtr-li enter" style={enter(i * 50).style}><span className="g"><Dot color="var(--faint)" /></span><span>{t}</span></div>));
-    if (tab === 'sources') return <div className="rtr-src enter">{sources?.map((s, i) => <SourceChip key={i} source={s} />)}</div>;
+      <div key={'n' + i} className="dm-rtr-li dm-enter" style={enter(i * 50).style}><span className="dm-g"><Dot color="var(--dm-faint)" /></span><span>{t}</span></div>));
+    if (tab === 'sources') return <div className="dm-rtr-src dm-enter">{sources?.map((s, i) => <SourceChip key={i} source={s} />)}</div>;
     return edits?.map((e, i) => (
-      <div key={'e' + i} className="enter" style={enter(i * 50).style}>
-        <div className="rtr-li"><span className="g"><Icon name="edit" size="xs" /></span><span>{e.file}{e.detail && <span className="d">{e.detail}</span>}</span></div>
-        <div className="rtr-edit">{e.removed?.map((l, k) => <div key={'x' + k} className="x">{l}</div>)}{e.added?.map((l, k) => <div key={'a' + k} className="a">{l}</div>)}</div>
+      <div key={'e' + i} className="dm-enter" style={enter(i * 50).style}>
+        <div className="dm-rtr-li"><span className="dm-g"><Icon name="edit" size="xs" /></span><span>{e.file}{e.detail && <span className="dm-d">{e.detail}</span>}</span></div>
+        <div className="dm-rtr-edit">{e.removed?.map((l, k) => <div key={'x' + k} className="dm-x">{l}</div>)}{e.added?.map((l, k) => <div key={'a' + k} className="dm-a">{l}</div>)}</div>
       </div>));
   };
 
   return (
-    <div data-dm="" className={cx('rtr', !bare && 'panel', className)} style={bare ? { paddingInline: 0 } : undefined}>
-      <button type="button" className="rtr-h" aria-expanded={isOpen} onClick={() => setOpen(!isOpen)}>
-        <Think on={running} className="rtr-mark" />
-        <Swap className={cx('rtr-title', running && 'shim')}>{head}</Swap>
-        <span className="rtr-time num muted">{running ? secs + 's' : ''}</span>
-        <Icon name="chev-d" size="xs" className="rtr-chev" />
+    <div data-dm="" className={cx('dm-rtr', !bare && 'dm-panel', className)} style={bare ? { paddingInline: 0 } : undefined}>
+      <button type="button" className="dm-rtr-h" aria-expanded={isOpen} onClick={() => setOpen(!isOpen)}>
+        <Think on={running} className="dm-rtr-mark" />
+        <Swap className={cx('dm-rtr-title', running && 'dm-shim')}>{head}</Swap>
+        <span className="dm-rtr-time dm-num dm-muted">{running ? secs + 's' : ''}</span>
+        <Icon name="chev-d" size="xs" className="dm-rtr-chev" />
       </button>
-      <Fold open={isOpen} className="rtr-fold">
-        {tabs.length > 1 && <div className="rtr-tabs"><Seg label="View" options={tabs} value={tab} onChange={setTab} /></div>}
+      <Fold open={isOpen} className="dm-rtr-fold">
+        {tabs.length > 1 && <div className="dm-rtr-tabs"><Seg label="View" options={tabs} value={tab} onChange={setTab} /></div>}
         {/* keyed by tab, so switching tabs plays the entrance again */}
-        <div className="rtr-body" key={tab}>{body()}</div>
+        <div className="dm-rtr-body" key={tab}>{body()}</div>
       </Fold>
     </div>
   );

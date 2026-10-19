@@ -40,16 +40,16 @@ export interface ContextMeterProps {
 
 function Row({ row, ready }: { row: UsageRow; ready: boolean }) {
   const pct = Math.max(0, Math.min(100, row.percent)), shown = Math.round(useTween(ready ? pct : 0, 1000, 0));
-  const bar = <span className="ctm-tr" role="meter" aria-label={row.label} aria-valuemin={0} aria-valuemax={100} aria-valuenow={pct}><i style={{ width: (ready ? pct : 0) + '%' }} /></span>;
+  const bar = <span className="dm-ctm-tr" role="meter" aria-label={row.label} aria-valuemin={0} aria-valuemax={100} aria-valuenow={pct}><i style={{ width: (ready ? pct : 0) + '%' }} /></span>;
   return (
-    <div className={cx('ctm-r', pct >= 90 && 'hot')}>
-      <span className="l">{row.label}</span>
-      <span className="p num">{shown}% used</span>
+    <div className={cx('dm-ctm-r', pct >= 90 && 'dm-hot')}>
+      <span className="dm-l">{row.label}</span>
+      <span className="dm-p dm-num">{shown}% used</span>
       {row.tip ? <Tip label={row.tip}>{bar}</Tip> : bar}
       {(row.detail || row.action) && (
-        <span className="s">
-          {row.detail && <Swap className="t">{row.detail}</Swap>}
-          {row.action && <button type="button" className="ctm-go" onClick={row.action.onClick}><Swap>{row.action.label}</Swap></button>}
+        <span className="dm-s">
+          {row.detail && <Swap className="dm-t">{row.detail}</Swap>}
+          {row.action && <button type="button" className="dm-ctm-go" onClick={row.action.onClick}><Swap>{row.action.label}</Swap></button>}
         </span>
       )}
     </div>
@@ -65,21 +65,21 @@ export function ContextMeter({ rows, ring, title = 'Usage', model, effort, onVie
   const fill = Math.max(0, Math.min(100, ring ?? rows[0]?.percent ?? 0));
 
   return (
-    <div data-dm="" className={cx('ctm', !isOpen && 'shut', className)}>
-      <div className="ctm-pop panel keep" role="dialog" aria-label={title} inert={!isOpen}>
-        <div className="ctm-ph">
+    <div data-dm="" className={cx('dm-ctm', !isOpen && 'dm-shut', className)}>
+      <div className="dm-ctm-pop dm-panel" role="dialog" aria-label={title} inert={!isOpen}>
+        <div className="dm-ctm-ph">
           <b>{title}</b>
-          {onViewUsage && <Tip label="View usage"><button type="button" className="ib ctm-ib" aria-label="View usage" onClick={onViewUsage}><Icon name="bars" /></button></Tip>}
+          {onViewUsage && <Tip label="View usage"><button type="button" className="dm-ib dm-ctm-ib" aria-label="View usage" onClick={onViewUsage}><Icon name="bars" /></button></Tip>}
         </div>
-        <div className="ctm-rows">{rows.map(r => <Row key={r.key} row={r} ready={ready} />)}</div>
+        <div className="dm-ctm-rows">{rows.map(r => <Row key={r.key} row={r} ready={ready} />)}</div>
       </div>
-      <div className="ctm-ft">
+      <div className="dm-ctm-ft">
         {model && <span>{model}</span>}
-        {effort && <span className="muted">{effort}</span>}
-        <button type="button" className="ctm-ring" aria-expanded={isOpen} aria-label={`${title}, ${fill}% full`} onClick={() => setOpen(!isOpen)}>
+        {effort && <span className="dm-muted">{effort}</span>}
+        <button type="button" className="dm-ctm-ring" aria-expanded={isOpen} aria-label={`${title}, ${fill}% full`} onClick={() => setOpen(!isOpen)}>
           <svg viewBox="0 0 20 20" aria-hidden="true">
-            <circle className="tr" cx="10" cy="10" r="7.5" />
-            <circle className="fl" cx="10" cy="10" r="7.5" pathLength={100} style={{ strokeDasharray: `${ready ? fill : 0} 100`, stroke: fill >= 90 ? 'var(--warn)' : undefined }} />
+            <circle className="dm-tr" cx="10" cy="10" r="7.5" />
+            <circle className="dm-fl" cx="10" cy="10" r="7.5" pathLength={100} style={{ strokeDasharray: `${ready ? fill : 0} 100`, stroke: fill >= 90 ? 'var(--dm-warn)' : undefined }} />
           </svg>
         </button>
       </div>
