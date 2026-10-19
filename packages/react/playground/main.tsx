@@ -8,7 +8,8 @@ import { Seg } from '../src/lib/motion';
 // every file in src/examples named after a registry item is one card, in the site's order
 const examples = import.meta.glob<{ default: ComponentType }>('../src/examples/*.tsx', { eager: true });
 // the cards that span the full width on designme.dev
-const WIDE = new Set(['agent-lanes', 'agent-run-timeline']);
+const WIDE = new Set(['agent-lanes', 'agent-run-timeline', 'design-tuner', 'change-review', 'task-table', 'field-extraction', 'automation-canvas',
+  'model-compare', 'stat-cards', 'account-table', 'date-range-picker', 'event-calendar', 'buttons', 'kanban-board', 'pricing-cards']);
 const only = new URLSearchParams(location.search).get('only')?.split(',');
 const CARDS = registry.items.flatMap(item => {
   const mod = examples[`../src/examples/${item.name}.tsx`];

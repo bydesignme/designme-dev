@@ -18,10 +18,8 @@ const read = name => JSON.parse(fs.readFileSync(path.join(reg, name + '.json'), 
 const file = (item, ext) => item.files.find(f => f.path.endsWith('.' + ext)).content;
 const write = (rel, text) => { const p = path.join(pkg, rel); fs.mkdirSync(path.dirname(p), { recursive: true }); fs.writeFileSync(p, text); };
 
-// the components ported so far, by registry name
-const COMPONENTS = ['status-pill', 'step-loader', 'reasoning-trail', 'thinking', 'context-meter',
-  'action-log', 'run-queue', 'run-cost', 'toast', 'toast-stack', 'run-summary', 'error-recovery', 'agent-lanes', 'agent-run-timeline', 'live-answer',
-  'thread-panel', 'composer', 'voice-capture', 'tool-call', 'artifact-card', 'prompt-starters', 'attachment-tray', 'response-versions', 'feedback-sheet', 'decision-prompt'];
+// every component in the registry, in the site's order
+const COMPONENTS = read('index').items.map(i => i.name);
 const HEAD = '/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */\n';
 
 /* ---------- the dm- prefix ---------- */
