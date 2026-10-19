@@ -45,7 +45,7 @@ export function Fold({ open, className, children }: { open: boolean; className?:
 /** Segmented control with a sliding knob */
 export function Seg<T extends string>({ options, value, onChange, label, className }: {
   // T comes from value, so options and onChange are checked against it rather than widening it
-  options: { value: NoInfer<T>; label: string }[]; value: T; onChange: (v: NoInfer<T>) => void; label: string; className?: string;
+  options: { value: NoInfer<T>; label: ReactNode }[]; value: T; onChange: (v: NoInfer<T>) => void; label: string; className?: string;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const [knob, setKnob] = useState<CSSProperties>({});
