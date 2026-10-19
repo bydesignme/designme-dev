@@ -2828,7 +2828,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
   <div class="stage"><div class="stage-in"></div></div>
   <template><div class="prx panel">
   <div class="prx-h"><span class="prx-ic">{wand}</span><div class="prx-ht"><b>Raise contrast on the secondary button</b><span class="muted">Pricing, frame 2 of 3</span></div></div>
-  <div class="prx-diff"><div class="prx-sw"><span class="prx-c" style="background:#c9cfd8"></span><span class="num">#C9CFD8</span><span class="tag bad">2.1 : 1</span></div><span class="prx-ar">{right}</span><div class="prx-sw prx-new"><span class="prx-c" style="background:#5b6472"></span><span class="num">#5B6472</span><span class="tag ok">5.9 : 1</span></div></div>
+  <div class="prx-diff"><div class="prx-sw"><span class="prx-c" style="background:#c9cfd8"></span><span class="num">#C9CFD8</span><span class="tag bad">2.1 : 1</span></div><span class="prx-ar">{right}</span><div class="prx-sw prx-new"><span class="prx-c" style="background:#5b6472"></span><span class="num">#5B6472</span><span class="tag ok"><span class="prx-rt">5.9 : 1</span></span></div></div>
   <div class="prx-cf"><span class="muted">Confidence</span><div class="prx-seg"><i></i><i></i><i></i><i></i><i></i></div><span class="num prx-pc">0%</span></div>
   <button class="prx-alt-t">{chev}<span>2 other options</span></button>
   <div class="fold shut prx-alt"><div><div class="prx-alts"></div></div></div>
@@ -3586,8 +3586,10 @@ function showTip(el){
   let y = r.top - h - 8; if (y < 8) y = r.bottom + 8;
   tip.style.left = x + 'px'; tip.style.top = y + 'px';
 }
-function hideTip(){ clearTimeout(tipT); tipFor = null; tip.classList.remove('show'); }
-document.addEventListener('pointerover', e => { const el = e.target.closest('[data-tip]'); if (!el || el === tipFor) return; clearTimeout(tipT); tipT = setTimeout(() => showTip(el), tip.classList.contains('show') ? 0 : 380); });
+// when the last tip hid, so moving straight on to the next one shows it at once
+let tipHid = -1e9;
+function hideTip(){ clearTimeout(tipT); tipFor = null; if (tip.classList.contains('show')) tipHid = performance.now(); tip.classList.remove('show'); }
+document.addEventListener('pointerover', e => { const el = e.target.closest('[data-tip]'); if (!el || el === tipFor) return; clearTimeout(tipT); tipT = setTimeout(() => showTip(el), tip.classList.contains('show') || performance.now() - tipHid < 120 ? 0 : 380); });
 document.addEventListener('pointerout', e => { const el = e.target.closest('[data-tip]'); if (el && !el.contains(e.relatedTarget)) hideTip(); });
 document.addEventListener('focusin', e => { const el = e.target.closest('[data-tip]'); if (el && el.matches(':focus-visible')) showTip(el); });
 document.addEventListener('focusout', hideTip);
@@ -3911,7 +3913,8 @@ DM.def('run-queue', (r, c) => {
 });
 /* ---------- Run cost ---------- */
 DM.def('run-cost', (r, c) => {
-  const go = $('.rc-go', r); go.textContent = 'Start run';
+  // the label crossfades on its own span, so the button itself never blurs
+  const go = $('.rc-go', r); go.innerHTML = '<span class="rc-gl">Start run</span>'; const gl = () => $('.rc-gl', go);
   const tg = $('.toggle', r), cap = $('.rc-cap', r), fill = $('.rc-fill', r), st = $('.rc-st', r), stt = $('.rc-stt', r);
   let used = 0, inT = 0, outT = 0, tools = 0, running = false, limit = 1800, loop = 0;
   const fmt = n => Math.round(n).toLocaleString('en-US');
@@ -3921,16 +3924,16 @@ DM.def('run-cost', (r, c) => {
   $('.rc-cap-t', r).onclick = e => { e.preventDefault(); tg.setAttribute('aria-checked', !capOn()); cap.style.opacity = capOn() ? 1 : .2; limit = capOn() ? 1800 : 2000; if (!running && used < limit && used > 0) go.disabled = false; };
   function stop(t, cls){ running = false; clearInterval(loop); status(t, cls); }
   go.onclick = () => {
-    if (running){ stop('Stopped'); swap(go, 'Resume'); return; }
+    if (running){ stop('Stopped'); swap(gl(), 'Resume'); return; }
     if (used >= 2000){ used = inT = outT = tools = 0; paint(); }
-    running = true; status('Running', 'b'); swap(go, 'Stop'); go.className = 'pill soft sm rc-go'; fill.style.background = 'var(--accent)';
+    running = true; status('Running', 'b'); swap(gl(), 'Stop'); go.className = 'pill soft sm rc-go'; fill.style.background = 'var(--accent)';
     loop = c.every(90, () => {
       used = Math.min(2000, used + 8 + Math.random() * 18); inT += 120 + Math.random() * 220; outT += 30 + Math.random() * 70; if (Math.random() < .12) tools++;
       paint();
       if (used >= limit){
         used = limit; paint();
-        if (limit < 2000){ stop('Paused at 90%', 'warn'); fill.style.background = 'var(--warn)'; swap(go, 'Raise cap'); go.className = 'pill ink sm rc-go'; go.onclick2 = true; }
-        else { stop('Budget used', 'bad'); swap(go, 'Start over'); go.className = 'pill ink sm rc-go'; }
+        if (limit < 2000){ stop('Paused at 90%', 'warn'); fill.style.background = 'var(--warn)'; swap(gl(), 'Raise cap'); go.className = 'pill ink sm rc-go'; go.onclick2 = true; }
+        else { stop('Budget used', 'bad'); swap(gl(), 'Start over'); go.className = 'pill ink sm rc-go'; }
       }
     });
   };
@@ -4168,10 +4171,10 @@ DM.def('agent-lanes', (r, c) => {
   });
   const st = (l, h) => { const s = $('.aln-st', l.el); s.innerHTML = h; enter(s.firstElementChild); };
   const act = (l, t, live) => { const a = $('.aln-a', l.el); a.classList.toggle('live', !!live); swap(a, t); };
-  let paused = false, secs = 0;
+  let paused = false, secs = 0, finished = false;
   const pb = $('.aln-pause', r);
   pb.onclick = () => { paused = !paused; pb.innerHTML = I(paused ? 'play' : 'pause','xs') + (paused ? 'Resume' : 'Pause all'); swap($('.aln-t', r), paused ? 'All agents paused' : '3 agents working'); L.forEach(l => { if (l.running) st(l, paused ? '<span class="tag warn">Paused</span>' : '<span class="tag b"><span class="spin" style="width:9px;height:9px"></span>Working</span>'); }); };
-  c.every(1000, () => { if (!paused){ secs++; $('.aln-m', r).textContent = '0:' + String(secs).padStart(2, '0'); } });
+  c.every(1000, () => { if (!paused && !finished){ secs++; $('.aln-m', r).textContent = Math.floor(secs / 60) + ':' + String(secs % 60).padStart(2, '0'); } });
   const hold = async ms => { let t = 0; while (t < ms){ await c.wait(100); if (!paused) t += 100; } };
   async function work(l){
     l.running = true; st(l, '<span class="tag b"><span class="spin" style="width:9px;height:9px"></span>Working</span>');
@@ -4194,7 +4197,7 @@ DM.def('agent-lanes', (r, c) => {
     await r1; await handoff(L[0], L[1], 'the brief');
     const r2 = work(L[1]); await r2; await handoff(L[1], L[2], '4 frames');
     await work(L[2]);
-    swap($('.aln-t', r), 'All 3 agents finished'); pb.remove();
+    finished = true; swap($('.aln-t', r), 'All 3 agents finished'); pb.remove();
   });
 });
 /* ---------- Agent run timeline ---------- */
@@ -4382,7 +4385,7 @@ DM.def('voice-capture', (r, c) => {
   const words = 'Move the yearly toggle above the cards and make the save badge say 20% off for annual plans'.split(' ');
   const low = { 3:['toggle','toddle','tunnel'], 10:['save','sale','saving'] };
   let samples = [], speak = 0, last = 0, paused = false, secs = 0, done = false;
-  c.every(1000, () => { if (!paused && !done){ secs++; $('.vcx-t', r).textContent = '0:' + String(secs).padStart(2, '0'); } });
+  c.every(1000, () => { if (!paused && !done){ secs++; $('.vcx-t', r).textContent = Math.floor(secs / 60) + ':' + String(secs % 60).padStart(2, '0'); } });
   c.loop(t => {
     if (done) return false;
     if (t - last > 50){ last = t; samples.push(!paused && speak > 0 ? .2 + Math.random() * .8 : 0); if (samples.length > 300) samples.shift(); if (speak > 0) speak--; }
@@ -4543,8 +4546,8 @@ DM.def('response-versions', (r, c) => {
   pv.onclick = () => c.run(() => show(cur - 1));
   nx.onclick = () => c.run(() => show(cur + 1));
   re.onclick = () => { if (busy) return; busy = true; re.classList.add('go'); c.later(700, () => re.classList.remove('go'));
-    c.run(async () => { swap(st, 'Writing a new version'); st.classList.add('shim'); nav();
-      const s = pool[vers.length % pool.length]; vers.push(s); cur = vers.length - 1;
+    c.run(async () => { swap(st, 'Writing a new version'); st.classList.add('shim');
+      const s = pool[vers.length % pool.length]; vers.push(s); cur = vers.length - 1; nav();
       await stream(s); busy = false; nav(); st.classList.remove('shim'); swap(st, ''); }); };
   const cp = $('.rvx-cp', r);
   cp.onclick = () => copied(cp, vers[cur]);
@@ -4612,7 +4615,7 @@ DM.def('proposal-card', (r, c) => {
   const alts = $('.prx-alts', r);
   function conf(v){ tween(+pc.textContent.replace('%','') || 0, v, 700, x => { pc.textContent = Math.round(x) + '%'; segs.forEach((s, i) => s.classList.toggle('on', x >= (i + 1) * 20 - 10)); }); }
   function list(){ alts.innerHTML = all.map((o, i) => i === cur ? '' : `<button class="prx-a" data-i="${i}"><span class="prx-c" style="background:${o.bg}"></span><span>${o.name}, ${o.ratio}</span><span class="d">${o.d}</span></button>`).join(''); $$('.prx-a', alts).forEach(a => a.onclick = () => apply(+a.dataset.i)); }
-  function apply(i){ cur = i; const o = all[i]; $('.prx-c', nw).style.background = o.bg; swap($('.num', nw), o.hex); swap($('.tag', nw), o.ratio); conf(o.conf); list(); stagger($$('.prx-a', alts), 50); }
+  function apply(i){ cur = i; const o = all[i]; $('.prx-c', nw).style.background = o.bg; swap($('.num', nw), o.hex); swap($('.prx-rt', nw), o.ratio); conf(o.conf); list(); stagger($$('.prx-a', alts), 50); }
   at.onclick = () => { const op = alt.classList.toggle('shut'); at.classList.toggle('open', !op); };
   list();
   let saved;
@@ -4763,6 +4766,8 @@ DM.def('plan-review', (r, c) => {
   $('.plx-chg', r).onclick = () => { swap($('.plx-n', r), 'Tell the agent what to change in chat'); };
   go.onclick = () => c.run(async () => {
     $$('.t', list).forEach(t => t.contentEditable = 'false'); $('.plx-add', r).hidden = true;
+    // the approved plan is fixed: the skip buttons keep their space but can't be used
+    $$('.plx-x', list).forEach(b => { b.disabled = true; b.style.visibility = 'hidden'; });
     f.innerHTML = `<span class="muted plx-n">Running the approved plan</span><button class="pill ghost sm plx-stop">${I('stop','xs')}Stop</button>`; stagger([...f.children], 50);
     let stop = false; $('.plx-stop', f).onclick = () => stop = true;
     $('.plx-mk', r).classList.add('on');
@@ -4870,7 +4875,11 @@ DM.def('metric-insight', (r, c) => {
     pts = d.map((v, i) => [i / (d.length - 1) * 300, 86 - (v - lo) / (hi - lo) * 80, v]);
     const p = pts.map((q, i) => (i ? 'L' : 'M') + q[0].toFixed(1) + ' ' + q[1].toFixed(1)).join(' ');
     l.setAttribute('d', p); a.setAttribute('d', p + ' L300 90 L0 90 Z');
-    ch.classList.remove('in'); l.style.setProperty('--len', 1000); void ch.offsetWidth; requestAnimationFrame(() => ch.classList.add('in'));
+    // reset to the hidden state without a transition (otherwise it reverses in the same frame and never draws), then draw in
+    // the stroke doesn't scale with the stretched chart, so its dashes are measured on screen: use the line's on-screen length
+    const sx = ch.clientWidth / 300, sy = ch.clientHeight / 90, len = pts.reduce((t, q, i) => i ? t + Math.hypot((q[0] - pts[i - 1][0]) * sx, (q[1] - pts[i - 1][1]) * sy) : 0, 0);
+    [l, a, mk].forEach(e => e.style.transition = 'none'); ch.classList.remove('in'); l.style.strokeDasharray = ''; l.style.setProperty('--len', Math.ceil(len) + 2);
+    void ch.offsetWidth; [l, a, mk].forEach(e => e.style.transition = ''); requestAnimationFrame(() => ch.classList.add('in'));
     mk.style.display = k == 30 ? '' : 'none';
     tween(val, D[k].v, 900, v => { val = v; n.textContent = v.toFixed(1) + '%'; });
     tween(chg, D[k].ch, 900, v => { chg = v; dl.textContent = '+' + v.toFixed(1) + ' pts'; });
@@ -4879,6 +4888,8 @@ DM.def('metric-insight', (r, c) => {
   c.on(ch, 'pointermove', e => { const b = ch.getBoundingClientRect(), fx = (e.clientX - b.left) / b.width * 300; let best = pts[0]; pts.forEach(q => { if (Math.abs(q[0] - fx) < Math.abs(best[0] - fx)) best = q; });
     x.setAttribute('x1', best[0]); x.setAttribute('x2', best[0]); dot.style.left = best[0] / 300 * b.width + 'px'; dot.style.top = best[1] / 90 * b.height + 'px'; n.textContent = best[2].toFixed(1) + '%'; });
   c.on(ch, 'pointerleave', () => n.textContent = D[cur].v.toFixed(1) + '%');
+  // once drawn, drop the dashes so a later resize can't cut the line short
+  c.on(l, 'transitionend', e => { if (e.propertyName === 'stroke-dashoffset' && ch.classList.contains('in')) l.style.strokeDasharray = 'none'; });
   seg($('.mix-rg', r), v => { cur = +v; draw(cur); });
   mk.dataset.tip = 'Pricing page update shipped';
   const why = $('.mix-why', r), box = $('.mix-box', r), rs = $('.mix-rs', r);
@@ -5217,13 +5228,16 @@ DM.def('automation-canvas', (r, c) => {
   pop.onclick = e => e.stopPropagation();
   const mark = (id, s) => { const b = el(id); b.classList.toggle('run', s === 'run'); let x = $('.s', b); if (!x){ x = html('<span class="s"></span>'); b.appendChild(x); } x.innerHTML = s === 'run' ? '<span class="spin" style="width:10px;height:10px"></span>' : `<span style="color:var(--ok);display:grid">${I('check','xs')}</span>`; enter(x); };
   const flow = (a, b, on) => $(`path[data-e="${a}${b}"]`, svg)?.classList.toggle('flow', on);
+  // a new test run cancels one still in progress and starts over, rather than running alongside it
+  let runId = 0;
   $('.acx-run', r).onclick = () => c.run(async () => {
-    close(); $$('.acx-n .s', nodes).forEach(x => x.remove()); swap(st, 'Running test');
-    mark('t', 'run'); await c.wait(600); mark('t', 'ok');
-    flow('t','a',1); flow('t','b',1); await c.wait(500); flow('t','a',0); flow('t','b',0);
-    mark('a', 'run'); mark('b', 'run'); await c.wait(1100); mark('a', 'ok'); await c.wait(400); mark('b', 'ok');
-    flow('a','c',1); flow('b','c',1); await c.wait(500); flow('a','c',0); flow('b','c',0);
-    mark('c', 'run'); await c.wait(700); mark('c', 'ok'); swap(st, 'Test passed in 3.4s');
+    const id = ++runId, wait = async ms => { await c.wait(ms); if (id !== runId) throw 'stop'; };
+    close(); $$('.acx-n .s', nodes).forEach(x => x.remove()); $$('.acx-n.run', nodes).forEach(x => x.classList.remove('run')); $$('path.flow', svg).forEach(x => x.classList.remove('flow')); swap(st, 'Running test');
+    mark('t', 'run'); await wait(600); mark('t', 'ok');
+    flow('t','a',1); flow('t','b',1); await wait(500); flow('t','a',0); flow('t','b',0);
+    mark('a', 'run'); mark('b', 'run'); await wait(1100); mark('a', 'ok'); await wait(400); mark('b', 'ok');
+    flow('a','c',1); flow('b','c',1); await wait(500); flow('a','c',0); flow('b','c',0);
+    mark('c', 'run'); await wait(700); mark('c', 'ok'); swap(st, 'Test passed in 3.4s');
   });
   layout(); let lw = 0; const ro = new ResizeObserver(() => { if (lw && Math.abs(cv.clientWidth - lw) > 2) close(); lw = cv.clientWidth; layout(); }); ro.observe(cv); c.offs.push(() => ro.disconnect());
   stagger($$('.acx-n', nodes), 90);
@@ -5242,10 +5256,10 @@ DM.def('memory-panel', (r, c) => {
   ].map((m, i) => ({ id:i, k:m[0], t:m[1], s:m[2] }));
   const list = $('.mmx-list', r), st = $('.mmx-st', r); let f = 'all', nid = 100;
   const col = k => k === 'brand' ? 'var(--pb)' : 'var(--pt)';
-  const count = () => swap(st, M.length + ' memories');
+  const count = () => swap(st, M.length + (M.length === 1 ? ' memory' : ' memories'));
   function item(m){
     const el = html(`<div class="mmx-m" data-id="${m.id}"><span class="dot" style="color:${col(m.k)}"></span><span class="t" spellcheck="false">${m.t}<span class="src" contenteditable="false">${m.s}</span></span><span class="acts"><button class="ib ed" aria-label="Edit" data-tip="Edit">${I('edit','xs')}</button><button class="ib rm" aria-label="Forget" data-tip="Forget">${I('trash','xs')}</button></span></div>`);
-    const t = $('.t', el);
+    const t = $('.t', el); if (m.isNew) el.classList.add('new');
     $('.ed', el).onclick = () => { const src = $('.src', t); src.remove(); t.contentEditable = 'true'; t.focus(); const s = document.getSelection(); s.selectAllChildren(t); s.collapseToEnd();
       const done = () => { t.contentEditable = 'false'; m.t = t.textContent.trim() || m.t; m.s = 'Edited by you, just now'; t.textContent = m.t; t.appendChild(src); src.textContent = m.s; };
       t.onkeydown = e => { if (e.key === 'Enter'){ e.preventDefault(); t.blur(); } }; t.onblur = done; };
@@ -5258,7 +5272,9 @@ DM.def('memory-panel', (r, c) => {
   function paint(){ list.innerHTML = ''; M.filter(m => f === 'all' || m.k === f).forEach(m => list.appendChild(item(m))); stagger([...list.children], 40); }
   seg($('.mmx-tab', r), v => { f = v; paint(); });
   paint();
-  c.later(2200, () => { const m = { id:nid++, k:'brand', t:'Use “Start free” instead of “Sign up” on CTAs', s:'Learned just now from your edit' }; M.unshift(m); count(); if (f === 'brand' || f === 'all'){ const el = item(m); el.classList.add('new'); list.prepend(el); enter(el); c.later(2600, () => { el.classList.remove('new'); $('.src', el).textContent = 'Learned from your edit, today'; }); } });
+  // the new memory's highlight and fresh source live in its data, so switching tabs while it is new keeps them
+  c.later(2200, () => { const m = { id:nid++, k:'brand', t:'Use “Start free” instead of “Sign up” on CTAs', s:'Learned just now from your edit', isNew:true }; M.unshift(m); count(); if (f === 'brand' || f === 'all'){ const el = item(m); list.prepend(el); enter(el); }
+    c.later(2600, () => { m.isNew = false; if (m.s === 'Learned just now from your edit') m.s = 'Learned from your edit, today'; const el = $(`.mmx-m[data-id="${m.id}"]`, list); if (el){ el.classList.remove('new'); const src = $('.src', el); if (src) src.textContent = m.s; } }); });
 });
 /* ---------- Model compare ---------- */
 DM.def('model-compare', (r, c) => {
@@ -5309,7 +5325,7 @@ DM.def('model-compare', (r, c) => {
   }
   /* once every column has answered, the fastest time and the lowest cost turn green */
   function badges(){
-    go.disabled = !q.value.trim();
+    go.disabled = sending || !q.value.trim();
     const done = C.filter(x => !$('.mcx-pick', x.el).disabled); if (done.length < 2) return;
     const fast = done.reduce((a, b) => MOD[b.m].ms < MOD[a.m].ms ? b : a), cheap = done.reduce((a, b) => MOD[b.m].cost < MOD[a.m].cost ? b : a);
     done.forEach(x => { const tm = $('.tm', x.el), co = $('.co', x.el);
@@ -5317,9 +5333,11 @@ DM.def('model-compare', (r, c) => {
       co.classList.toggle('best', x === cheap); co.dataset.tip = x === cheap ? 'Cheapest reply' : 'Cost of this reply'; });
   }
   ['Opus','Sonnet','Haiku'].forEach(m => addCol(m)); sync();
-  const run = () => c.run(async () => { if (!q.value.trim()) return; asked = q.value.trim(); go.disabled = true; await Promise.all(C.map(one)); go.disabled = !q.value.trim(); });
-  $('.mcx-in', r).onsubmit = e => { e.preventDefault(); run(); };
-  q.oninput = () => { go.disabled = !q.value.trim(); };
+  // Send stays off while a send is answering, even if the prompt changes
+  let sending = false;
+  const run = () => c.run(async () => { if (!q.value.trim()) return; asked = q.value.trim(); go.disabled = true; sending = true; try { await Promise.all(C.map(one)); } finally { sending = false; } go.disabled = !q.value.trim(); });
+  $('.mcx-in', r).onsubmit = e => { e.preventDefault(); if (!sending) run(); };
+  q.oninput = () => { go.disabled = sending || !q.value.trim(); };
   c.later(700, run);
 });
 /* ---------- Harness ---------- */
@@ -5343,8 +5361,9 @@ DM.def('harness', (r, c) => {
     requestAnimationFrame(place); new ResizeObserver(place).observe(g);
     el._t = t; return el;
   }
-  const count = () => swap(st, T.filter(t => t[4] > 0).length + ' connected');
-  T.forEach(t => list.appendChild(row(t))); stagger([...list.children], 50); count();
+  // the first count is written straight in, so the header doesn't crossfade from the template's number on load
+  const count = now => { const n = T.filter(t => t[4] > 0).length + ' connected'; if (now) st.textContent = n; else swap(st, n); };
+  T.forEach(t => list.appendChild(row(t))); stagger([...list.children], 50); count(true);
   function menu(){ pop.innerHTML = ADD.length ? ADD.map((a, i) => `<button class="mi" data-close data-i="${i}">${I(a[0],'xs')}<span>${a[1]}</span></button>`).join('') : '<div class="ph" style="padding:8px;font-size:12.5px;color:var(--muted)">All tools connected</div>';
     $$('.mi', pop).forEach(m => m.addEventListener('click', () => { const a = ADD.splice(+m.dataset.i, 1)[0]; const t = [a[0], a[1], 'Just connected', a[2], 1]; T.push(t); const el = row(t); list.appendChild(el); enter(el); count(); menu(); })); }
   menu();
@@ -5355,7 +5374,7 @@ DM.def('harness', (r, c) => {
       if (el._t[1] === 'Slack'){ el.classList.add('err'); swap(s, 'Token expired. Reconnect'); }
       else swap(s, was);
     }
-    swap(st, rows.length - 1 + ' of ' + rows.length + ' healthy');
+    swap(st, rows.filter(el => !el.classList.contains('err')).length + ' of ' + rows.length + ' healthy');
     const bad = [...list.children].find(el => el.classList.contains('err'));
     if (bad){ const b = html(`<button class="pill accent sm">Reconnect</button>`); $('.hnx-pm', bad).replaceWith(b); enter(b);
       b.onclick = () => c.run(async () => { b.innerHTML = '<span class="spin"></span>'; await c.wait(800); bad.classList.remove('err'); swap($('.t span', bad), bad._t[2]); const n = row(bad._t); bad.replaceWith(n); enter(n); count(); }); }
@@ -5780,7 +5799,7 @@ DM.def('search-input', (r, c) => {
       const words = v.toLowerCase().split(/[^a-z0-9.]+/).filter(w => w.length > 2 && !['why','did','the','how','what','does'].includes(w)); const hit = i => !v || i[1].toLowerCase().includes(v.toLowerCase()) || words.some(w => i[1].toLowerCase().includes(w));
       const m = ITEMS.filter(i => (!scope || i[2] === scope) && hit(i)); const hw = words.find(w => m.some(i => i[1].toLowerCase().includes(w))) || v;
       if (v.split(' ').length > 2 || v.endsWith('?')) h += `<div class="six-ans">${I('spark','xs')}<span class="six-at"></span></div>`;
-      h += m.length ? '<div class="six-g">' + m.length + ' results</div>' + m.map(i => `<button class="six-it"><span class="ic">${I(i[0],'xs')}</span><span>${hw ? i[1].replace(new RegExp(hw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i'), s => `<mark>${s}</mark>`) : i[1]}</span><span class="d">${i[2]}</span></button>`).join('') : '<div class="six-g">No matches. Press Enter to ask the agent</div>';
+      h += m.length ? '<div class="six-g">' + m.length + (m.length === 1 ? ' result' : ' results') + '</div>' + m.map(i => `<button class="six-it"><span class="ic">${I(i[0],'xs')}</span><span>${hw ? i[1].replace(new RegExp(hw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i'), s => `<mark>${s}</mark>`) : i[1]}</span><span class="d">${i[2]}</span></button>`).join('') : '<div class="six-g">No matches. Press Enter to ask the agent</div>';
     }
     res.innerHTML = h; stagger($$('.six-it', res), 25);
     const a = $('.six-at', res);
