@@ -43,9 +43,9 @@ export function Fold({ open, className, children }: { open: boolean; className?:
 }
 
 /** Segmented control with a sliding knob */
-export function Seg<T extends string>({ options, value, onChange, label }: {
+export function Seg<T extends string>({ options, value, onChange, label, className }: {
   // T comes from value, so options and onChange are checked against it rather than widening it
-  options: { value: NoInfer<T>; label: string }[]; value: T; onChange: (v: NoInfer<T>) => void; label: string;
+  options: { value: NoInfer<T>; label: string }[]; value: T; onChange: (v: NoInfer<T>) => void; label: string; className?: string;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const [knob, setKnob] = useState<CSSProperties>({});
@@ -57,7 +57,7 @@ export function Seg<T extends string>({ options, value, onChange, label }: {
     return () => ro.disconnect();
   }, [value, options.length]);
   return (
-    <div className="dm-seg2" role="group" aria-label={label} ref={ref}>
+    <div className={cx('dm-seg2', className)} role="group" aria-label={label} ref={ref}>
       <span className="dm-knob" style={knob} />
       {options.map(o => <button type="button" key={o.value} aria-pressed={o.value === value} onClick={() => onChange(o.value)}>{o.label}</button>)}
     </div>
