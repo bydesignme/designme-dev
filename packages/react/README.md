@@ -12,6 +12,14 @@ Preview: https://staging.designme-dev.pages.dev/packages/react/preview/
 
 Needs React 19. Works in client components, React Server Component pages (Next.js App Router) and Astro islands.
 
+The quickest way is the CLI, which copies the components you name and only the shared files they need:
+
+```sh
+npx designme add status-pill thinking composer --react
+```
+
+Or by hand:
+
 1. Copy `src/` into your project, for example as `components/designme/`.
 2. That's all for the styles: each component imports the shared `designme.css` and its own small CSS file, in that order, and your bundler loads each file once.
 3. Load Inter and JetBrains Mono (the components fall back to the system font if you don't).
@@ -411,4 +419,5 @@ npm install      # only needed for the preview and the type check
 npm run sync     # copies the latest styles, icons, logos and flags from ../../r and rewrites src/index.ts
 npm run check    # type check
 npm run build    # rebuilds preview/
+npm run registry # rewrites ../../r/react, what npx designme add --react installs
 ```

@@ -1,0 +1,37 @@
+{
+ "name": "step-loader",
+ "title": "Step loader",
+ "description": "Named steps with a progress track and four loaders.",
+ "framework": "react",
+ "component": "StepLoader",
+ "needs": [
+  "designme.css",
+  "lib/cx.ts",
+  "lib/hooks.ts",
+  "lib/icons.tsx",
+  "lib/motion.tsx"
+ ],
+ "files": [
+  {
+   "path": "step-loader/StepLoader.tsx",
+   "content": "'use client';\nimport { cx } from '../lib/cx';\nimport { useControllable } from '../lib/hooks';\nimport { Icon } from '../lib/icons';\nimport { Bars, Dot, Fold, Radar, Spin, Swap, Think } from '../lib/motion';\nimport '../designme.css';\nimport './step-loader.css';\n\nexport interface Step {\n  /** Shown while the step runs, like \"Reading Figma frames\" */\n  label: string;\n  /** Shown once it is done, like \"Read 4 frames\". Falls back to label */\n  done?: string;\n}\n\nexport type StepLoaderGlyph = 'radar' | 'dots' | 'ring' | 'bars';\n\nexport interface StepLoaderProps {\n  steps: Step[];\n  /** Index of the step running now. steps.length (or more) means every step is done */\n  current: number;\n  /** The loader beside the running step */\n  loader?: StepLoaderGlyph;\n  /** Label once every step is done */\n  doneLabel?: string;\n  /** Whether the list of every step is open. Leave it out to let the row toggle it */\n  open?: boolean;\n  defaultOpen?: boolean;\n  onOpenChange?: (open: boolean) => void;\n  className?: string;\n}\n\nconst Loader = ({ kind }: { kind: StepLoaderGlyph }) =>\n  kind === 'dots' ? <Think /> : kind === 'ring' ? <Spin /> : kind === 'bars' ? <Bars /> : <Radar />;\n\n/** Named steps with a progress track. Click the row to see every step. */\nexport function StepLoader({ steps, current, loader = 'radar', doneLabel = 'Ready for review', open, defaultOpen = false, onOpenChange, className }: StepLoaderProps) {\n  const [isOpen, setOpen] = useControllable(open, defaultOpen, onOpenChange);\n  const n = steps.length, done = current >= n, at = Math.min(current, n - 1);\n  return (\n    <div data-dm=\"\" className={cx('dm-stl', className)} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>\n      <button type=\"button\" className=\"dm-stl-row\" aria-expanded={isOpen} onClick={() => setOpen(!isOpen)}>\n        <span className=\"dm-stl-g\">{done ? <span style={{ color: 'var(--dm-ok)', display: 'grid' }}><Icon name=\"ok\" /></span> : <Loader kind={loader} />}</span>\n        <span className=\"dm-stl-t\"><Swap className={cx('dm-stl-lab', !done && 'dm-shim')}>{done ? doneLabel : steps[at].label}</Swap></span>\n        <Swap className=\"dm-stl-n dm-num\">{`${done ? n : at + 1}/${n}`}</Swap>\n        <Icon name=\"chev-d\" size=\"xs\" className=\"dm-stl-chev\" />\n      </button>\n      <div className=\"dm-stl-track\" role=\"progressbar\" aria-valuemin={0} aria-valuemax={n} aria-valuenow={done ? n : at}>\n        {steps.map((_, i) => <i key={i} className={cx((done || i < current) && 'dm-on', !done && i === current && 'dm-run')} />)}\n      </div>\n      <Fold open={isOpen} className=\"dm-stl-fold\">\n        <ol className=\"dm-stl-list\">\n          {steps.map((s, i) => {\n            const finished = done || i < current, running = !done && i === current;\n            return (\n              <li key={i} className={cx(finished && 'dm-done', running && 'dm-run')}>\n                <span className=\"dm-g\">{finished ? <span style={{ color: 'var(--dm-ok)', display: 'grid' }}><Icon name=\"check\" size=\"xs\" /></span> : running ? <Loader kind={loader} /> : <Dot color=\"var(--dm-faint)\" />}</span>\n                {finished ? s.done ?? s.label : s.label}\n              </li>\n            );\n          })}\n        </ol>\n      </Fold>\n    </div>\n  );\n}\n"
+  },
+  {
+   "path": "step-loader/step-loader.css",
+   "content": "/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */\n/* ---------- Step loader ---------- */\n.dm-stl .dm-dm-main{gap:10px}\n.dm-stl-row{display:flex;align-items:center;gap:10px;background:var(--dm-surface);border-radius:var(--dm-r-pill);box-shadow:var(--dm-shadow);height:40px;padding:0 14px 0 13px;font-size:13.5px;min-width:250px;transition:box-shadow .3s}\n.dm-stl-row:hover{box-shadow:var(--dm-shadow-pop)}\n.dm-stl-g{width:16px;display:grid;place-items:center;color:var(--dm-fg)}\n.dm-stl-t{flex:1;text-align:left}\n.dm-stl-n{color:var(--dm-muted);font-size:12.5px}\n.dm-stl-chev{color:var(--dm-muted);transition:transform .4s var(--dm-ease)}\n.dm-stl-row[aria-expanded=\"true\"] .dm-stl-chev{transform:rotate(180deg)}\n.dm-stl-track{display:flex;gap:4px;width:250px}\n.dm-stl-track i{flex:1;height:3px;border-radius:2px;background:var(--dm-line);position:relative;overflow:hidden}\n.dm-stl-track i::after{content:\"\";position:absolute;inset:0;background:var(--dm-accent);transform:scaleX(0);transform-origin:left;transition:transform .9s var(--dm-ease)}\n.dm-stl-track i.dm-on::after{transform:scaleX(1)}\n.dm-stl-track i.dm-run::after{transform:scaleX(.45);transition-duration:2.2s}\n.dm-stl-fold{width:250px}\n.dm-stl-fold>div{margin-inline:-16px;padding-inline:16px}\n.dm-stl-list{list-style:none;margin:6px 0 18px;padding:6px;background:var(--dm-surface);border-radius:14px;box-shadow:var(--dm-shadow)}\n.dm-stl-list li{display:flex;align-items:center;gap:9px;padding:6px 8px;font-size:13px;color:var(--dm-muted)}\n.dm-stl-list li.dm-done{color:var(--dm-fg2)}.dm-stl-list li.dm-run{color:var(--dm-fg)}\n.dm-stl-list li .dm-g{width:14px;display:grid;place-items:center}\n.dm-bars3{display:inline-flex;gap:2px;align-items:center;height:12px}\n.dm-bars3 i{width:2.5px;height:100%;border-radius:2px;background:currentColor;animation:dm-b3 .9s var(--dm-ease-io) infinite}\n.dm-bars3 i:nth-child(2){animation-delay:.15s}.dm-bars3 i:nth-child(3){animation-delay:.3s}\n@keyframes dm-b3{0%,100%{transform:scaleY(.35)}50%{transform:scaleY(1)}}\n"
+  }
+ ],
+ "example": {
+  "path": "step-loader/StepLoader.example.tsx",
+  "content": "'use client';\n// The animated preview from designme.dev, rebuilt from the React component: an example of driving it from your own state.\nimport { useState } from 'react';\nimport { StepLoader, type StepLoaderGlyph } from './StepLoader';\nimport { Seg } from '../lib/motion';\nimport { Demo } from '../lib/Demo';\nimport { useScript } from '../lib/useScript';\n\n/* ---------- Step loader: four named steps, looping ---------- */\nconst STEPS = [\n  { label: 'Reading Figma frames', done: 'Read 4 frames' }, { label: 'Matching tokens', done: 'Matched 18 tokens' },\n  { label: 'Writing components', done: 'Wrote 3 components' }, { label: 'Checking contrast', done: 'Contrast passes' }\n];\nexport default function StepLoaderDemo() {\n  const [loader, setLoader] = useState<StepLoaderGlyph>('radar');\n  const [current, setCurrent] = useState(0);\n  useScript(async ({ wait }) => {\n    for (;;) {\n      for (let i = 0; i < STEPS.length; i++) { setCurrent(i); await wait(1900); }\n      setCurrent(STEPS.length); await wait(3200);\n      setCurrent(0); await wait(700);\n    }\n  });\n  return (\n    <Demo switcher={<Seg label=\"Loader\" value={loader} onChange={setLoader} options={[{ value: 'radar', label: 'Radar' }, { value: 'dots', label: 'Dots' }, { value: 'ring', label: 'Ring' }, { value: 'bars', label: 'Bars' }]} />}>\n      <StepLoader steps={STEPS} current={current} loader={loader} />\n    </Demo>\n  );\n}\n",
+  "needs": [
+   "designme.css",
+   "lib/Demo.tsx",
+   "lib/cx.ts",
+   "lib/hooks.ts",
+   "lib/icons.tsx",
+   "lib/motion.tsx",
+   "lib/useScript.ts"
+  ]
+ }
+}
