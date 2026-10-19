@@ -7,14 +7,14 @@ import { Tip } from '../../lib/motion';
 import '../../designme.css';
 import './toast-stack.css';
 
-export type ToastTone = 'neutral' | 'ok' | 'warn' | 'bad' | 'merge' | 'blue' | 'purple' | 'green' | 'orange' | 'red' | 'yellow' | 'pink' | 'teal';
+export type ToastStackTone = 'neutral' | 'ok' | 'warn' | 'bad' | 'merge' | 'blue' | 'purple' | 'green' | 'orange' | 'red' | 'yellow' | 'pink' | 'teal';
 
 export interface StackToast {
   id: string | number;
   /** The icon in the round badge */
   icon: IconName;
   /** Colours the badge. Defaults to neutral */
-  tone?: ToastTone;
+  tone?: ToastStackTone;
   title: ReactNode;
   /** The quiet line under the title */
   detail?: ReactNode;
@@ -34,7 +34,7 @@ export interface ToastStackProps {
   className?: string;
 }
 
-const TONE: Record<ToastTone, [string, string]> = {
+const TONE: Record<ToastStackTone, [string, string]> = {
   neutral: ['--dm-fg2', '--dm-chip'], ok: ['--dm-ok', '--dm-ok-bg'], warn: ['--dm-warn', '--dm-warn-bg'], bad: ['--dm-bad', '--dm-bad-bg'],
   merge: ['--dm-merge', '--dm-merge-bg'], blue: ['--dm-pb', '--dm-pb-bg'], purple: ['--dm-pl', '--dm-pl-bg'], green: ['--dm-pm', '--dm-pm-bg'],
   orange: ['--dm-pp', '--dm-pp-bg'], red: ['--dm-pr', '--dm-pr-bg'], yellow: ['--dm-py', '--dm-py-bg'], pink: ['--dm-pk', '--dm-pk-bg'], teal: ['--dm-pt', '--dm-pt-bg']

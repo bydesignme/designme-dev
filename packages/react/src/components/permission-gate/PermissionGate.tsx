@@ -1,0 +1,141 @@
+'use client';
+import { useEffect, useState, type ReactNode } from 'react';
+import { cx } from '../../lib/cx';
+import { useControllable } from '../../lib/hooks';
+import { Icon } from '../../lib/icons';
+import { enter, Seg, Spin, Swap } from '../../lib/motion';
+import '../../designme.css';
+import './permission-gate.css';
+
+/** Something the agent is asking to be allowed to do */
+export interface PermissionScope {
+  key: string;
+  /** Like "Edit frames" */
+  label: string;
+  /** The quiet line under it, like "Only on a new page" */
+  detail?: string;
+  /** A warning tag after it, like "Risky" */
+  risk?: string;
+}
+
+export type PermissionStatus = 'asking' | 'allowed' | 'declined';
+
+export interface PermissionGateProps {
+  /** The question, like "Allow the agent to edit Figma?" */
+  title: ReactNode;
+  /** Why it asks */
+  subtitle?: ReactNode;
+  /** Shown in the tile beside the question. Defaults to a shield */
+  icon?: ReactNode;
+  scopes: PermissionScope[];
+  /** Keys of the ticked scopes. Leave it out to let the checkboxes hold their own */
+  value?: string[];
+  defaultValue?: string[];
+  onValueChange?: (keys: string[]) => void;
+  /** How long the permission lasts. Defaults to This task, Today and Always */
+  durations?: string[];
+  duration?: string;
+  defaultDuration?: string;
+  onDurationChange?: (duration: string) => void;
+  /** asking, allowed or declined. Leave it out to let the buttons move it */
+  status?: PermissionStatus;
+  defaultStatus?: PermissionStatus;
+  onStatusChange?: (status: PermissionStatus) => void;
+  /** Called with the ticked scopes and the duration. Return a promise and the button spins until it settles */
+  onAllow?: (keys: string[], duration: string) => void | Promise<void>;
+  onDecline?: () => void;
+  /** Called by Revoke, after allowing */
+  onRevoke?: () => void;
+  /** Called by Undo, after declining */
+  onUndo?: () => void;
+  /** The line under "Allowed …", like "Applying the pricing fixes now". Crossfades when it changes */
+  allowedDetail?: string;
+  /** Shown after Not now */
+  declinedTitle?: ReactNode;
+  declinedDetail?: ReactNode;
+  className?: string;
+}
+
+const DURATIONS = ['This task', 'Today', 'Always'];
+
+/** The agent asks before it acts: pick the scopes and how long they last, then allow or decline. */
+export function PermissionGate({
+  title, subtitle, icon, scopes, value, defaultValue = [], onValueChange, durations = DURATIONS, duration, defaultDuration, onDurationChange,
+  status, defaultStatus = 'asking', onStatusChange, onAllow, onDecline, onRevoke, onUndo, allowedDetail, declinedTitle = 'The agent will skip these changes',
+  declinedDetail, className
+}: PermissionGateProps) {
+  const [ticked, setTicked] = useControllable(value, defaultValue, onValueChange);
+  const [dur, setDur] = useControllable(duration, defaultDuration ?? durations[0], onDurationChange);
+  const [state, setState] = useControllable(status, defaultStatus, onStatusChange);
+  const [waiting, setWaiting] = useState(false);
+  // a revoked permission fades out before the scopes come back
+  const [leaving, setLeaving] = useState(false);
+  // the scopes play their entrance when they come back, not when the card first appears
+  const [back, setBack] = useState(0);
+  const [granted, setGranted] = useState(0);
+  const n = ticked.length;
+
+  useEffect(() => {
+    if (!leaving) return;
+    const t = setTimeout(() => { setLeaving(false); setState('asking'); setBack(b => b + 1); onRevoke?.(); }, 300);
+    return () => clearTimeout(t);
+  }, [leaving]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const toggle = (key: string) => setTicked(ticked.includes(key) ? ticked.filter(k => k !== key) : scopes.map(s => s.key).filter(k => k === key || ticked.includes(k)));
+  const allow = async () => {
+    if (!n || waiting) return;
+    setWaiting(true); setGranted(n);
+    try { await onAllow?.(ticked, dur); } finally { setWaiting(false); }
+    setState('allowed');
+  };
+  const decline = () => { setState('declined'); onDecline?.(); };
+  const undo = () => { setState('asking'); setBack(b => b + 1); onUndo?.(); };
+  const again = (i: number) => (back ? { className: 'dm-enter', style: enter(i * 50).style, key: back } : { className: undefined, style: undefined, key: 0 });
+
+  return (
+    <div data-dm="" className={cx('dm-pgx dm-panel', className)}>
+      <div className="dm-pgx-h">
+        <span className="dm-pgx-ic">{icon ?? <Icon name="shield" />}</span>
+        <div className="dm-pgx-ht"><b>{title}</b>{subtitle && <span className="dm-muted">{subtitle}</span>}</div>
+      </div>
+      {state === 'asking' && (
+        <>
+          <div key={'sc' + again(0).key} className={cx('dm-pgx-sc', again(0).className)} style={again(0).style}>
+            {scopes.map(s => (
+              <label key={s.key} className="dm-pgx-o">
+                <input type="checkbox" checked={ticked.includes(s.key)} onChange={() => toggle(s.key)} />
+                <span className="dm-bx"><Icon name="check" size="xs" /></span>
+                <span className="dm-t">{s.label}{s.detail && <span className="dm-d">{s.detail}</span>}</span>
+                {s.risk && <span className="dm-tag dm-warn">{s.risk}</span>}
+              </label>
+            ))}
+          </div>
+          <div key={'du' + again(1).key} className={cx('dm-pgx-dur', again(1).className)} style={again(1).style}>
+            <span className="dm-muted">For</span>
+            <Seg label="Duration" value={dur} onChange={setDur} options={durations.map(d => ({ value: d, label: d }))} />
+          </div>
+          <div key={'f' + again(2).key} className={cx('dm-pgx-f', again(2).className)} style={again(2).style}>
+            <button type="button" className="dm-pill dm-ghost dm-sm dm-pgx-no" onClick={decline}>Not now</button>
+            <button type="button" className="dm-pill dm-ink dm-sm dm-pgx-ok" disabled={!n} onClick={allow}>
+              {waiting ? <Spin /> : <Swap>{n ? `Allow ${n} ${n > 1 ? 'scopes' : 'scope'}` : 'Pick a scope'}</Swap>}
+            </button>
+          </div>
+        </>
+      )}
+      {state === 'allowed' && (
+        <div className={cx('dm-pgx-done', leaving ? 'dm-leave' : 'dm-enter')}>
+          <Icon name="ok" />
+          <span className="dm-t">Allowed {granted || n} {(granted || n) > 1 ? 'scopes' : 'scope'} for {dur.toLowerCase()}{allowedDetail !== undefined && <Swap>{allowedDetail}</Swap>}</span>
+          <button type="button" className="dm-pill dm-ghost dm-sm" onClick={() => setLeaving(true)}>Revoke</button>
+        </div>
+      )}
+      {state === 'declined' && (
+        <div className="dm-pgx-done dm-enter" style={{ background: 'var(--dm-chip)' }}>
+          <Icon name="info" />
+          <span className="dm-t">{declinedTitle}{declinedDetail && <span>{declinedDetail}</span>}</span>
+          <button type="button" className="dm-pill dm-ghost dm-sm" onClick={undo}>Undo</button>
+        </div>
+      )}
+    </div>
+  );
+}

@@ -84,7 +84,7 @@ export function Tip({ label, kbd, open: forced, off, children }: { label: string
   };
   const close = () => { clearTimeout(timer.current); setShow(false); setAt(null); };
   useEffect(() => () => clearTimeout(timer.current), []);
-  useEffect(() => { if (forced) open(target.current, true); else if (forced === false) close(); }, [forced]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { if (forced) open(target.current, true); else close(); }, [forced]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => { if (off) close(); }, [off]);
   // a new label can change the width, so place it again
   useIsoLayoutEffect(() => { setAt(a => a && { ...a, x: 0, y: 0 }); }, [label, kbd]);
