@@ -64,6 +64,8 @@ export * from './components/social-sign-in/SocialSignIn';
 export * from './components/comments/Comments';
 export * from './components/notifications/Notifications';
 export * from './components/invite-to-collaborate/InviteToCollaborate';
+export * from './components/set-limit/SetLimit';
+export * from './components/currency-converter/CurrencyConverter';
 export { Icon, type IconName } from './lib/icons';
 export { Brand, type BrandName } from './lib/brands';
 export { Flag, type FlagCode } from './lib/flags';
