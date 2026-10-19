@@ -1766,6 +1766,8 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .drx-f{display:flex;justify-content:flex-end;gap:6px}
 /* ---------- Event calendar ---------- */
 .ecx{overflow:hidden}
+/* the Ask pill crossfades its words but stays a flex row, so the spark keeps its gap */
+.ecx-ask.sw{display:inline-flex}
 .ecx-h{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid var(--line);font-size:13.5px;flex-wrap:wrap}
 .ecx-h b{font-weight:500}
 .ecx-sp{flex:1}
@@ -1863,6 +1865,8 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .btx-live{position:relative;width:7px;height:7px;border-radius:50%;background:var(--ok);flex:none}
 .btx-live::after{content:"";position:absolute;inset:0;border-radius:50%;background:inherit;animation:ping 1.8s var(--ease) infinite}
 .btx-share{min-width:72px}
+/* a pill that swap() crossfades keeps its flex layout, so the icon put back in it later keeps its gap */
+.btx-row .pill.sw{display:inline-flex}
 .btx-sp{min-width:210px}
 .pill.btx-ask.busy,.pill.btx-ask.busy:hover{background:var(--accent-bg);color:var(--accent);cursor:progress}
 .pill.btx-ask.done,.pill.btx-ask.done:hover{background:color-mix(in srgb,var(--ok) 16%,var(--surface));color:var(--ok)}
@@ -2104,6 +2108,8 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .ivx-ch{display:inline-flex;align-items:center;gap:5px;height:26px;padding:0 4px 0 4px;border-radius:8px;background:var(--surface);box-shadow:0 0 0 1px var(--line);font-size:12.5px;animation:popin .4s var(--ease) backwards}
 .ivx-ch .av{width:18px;height:18px;font-size:8.5px}
 .ivx-ch.bad{background:var(--bad-bg);color:var(--bad);box-shadow:none}
+/* chips already on screen keep still when the row is redrawn; only a new one pops in */
+.ivx-chips .ivx-ch.seen{animation:none}
 .ivx-ch button{display:grid;color:var(--muted)}.ivx-ch button:hover{color:var(--fg)}
 .ivx-f input{flex:1;min-width:120px;border:0;outline:0;background:transparent;font:inherit;font-size:13px;color:var(--fg);height:28px}
 .ivx-f input::placeholder{color:var(--muted)}
@@ -4072,8 +4078,10 @@ DM.def('set-limit', (r, c) => {
     k.style.left = pct(cap) + '%'; tt.textContent = '$' + cap; v.textContent = '$' + cap; k.setAttribute('aria-valuenow', cap);
     used.style.width = Math.min(100, SPENT / cap * pct(cap)) + '%'; fc.style.width = Math.min(pct(cap), FC / cap * pct(cap)) + '%';
     const over = FC > cap;
-    const h = over ? `<span class="w">${I('alert','xs')}Forecast passes your cap around Oct 27. Runs will ${mode === 'pause' ? 'pause' : mode === 'ask' ? 'wait for you' : 'keep going'}.</span>` : `<span class="o">${I('ok','xs')}On track. About $${cap - FC} left at month end.</span>`;
+    const h = over ? `<span class="w">${I('alert','xs')}Forecast passes your cap around Oct 27. Runs will ${mode === 'pause' ? 'pause' : mode === 'ask' ? 'wait for you' : 'keep going'}.</span>` : `<span class="o">${I('ok','xs')}On track. About <span class="slx-left">$${cap - FC}</span> left at month end.</span>`;
+    // a new message comes in with the entrance; while it stays the same, only the amount left follows the cap
     if (warn.dataset.h !== String(over) + mode){ warn.dataset.h = String(over) + mode; warn.innerHTML = h; enter(warn.firstChild); }
+    else if (!over) $('.slx-left', warn).textContent = '$' + (cap - FC);
   }
   const at = e => { const b = bar.getBoundingClientRect(); cap = Math.round((MIN + (MAX - MIN) * Math.max(0, Math.min(1, (e.clientX - b.left) / b.width))) / 10) * 10; upd(); };
   bar.onpointerdown = e => { bar.setPointerCapture(e.pointerId); k.classList.add('drag'); at(e); bar.onpointermove = at; };
@@ -5035,7 +5043,7 @@ DM.def('field-extraction', (r, c) => {
     const fx = $('.fex-fix', el);
     if (fx) fx.onclick = () => { const v = $('.v', el); v.contentEditable = 'true'; v.textContent = '2026-11-1'; v.focus(); const s = document.getSelection(); s.selectAllChildren(v); s.collapseToEnd(); z(f[0]).classList.add('hl'); swap(st, 'Type the day you see');
       const done = () => { v.contentEditable = 'false'; z(f[0]).classList.remove('hl', 'warn'); el.classList.remove('warn'); const cf = $('.fex-cf', el); cf.innerHTML = `<i><b style="width:100%"></b></i>Fixed`; enter(cf); go.disabled = false; swap(st, 'All fields confirmed'); };
-      v.onkeydown = e => { if (e.key === 'Enter'){ e.preventDefault(); if (!/\d$/.test(v.textContent)) v.textContent = '2026-11-14'; done(); } }; v.onblur = () => { if (v.isContentEditable){ if (!/\d\d$/.test(v.textContent)) v.textContent = '2026-11-14'; done(); } }; };
+      v.onkeydown = e => { if (e.key === 'Enter'){ e.preventDefault(); if (!/\d\d$/.test(v.textContent)) v.textContent = '2026-11-14'; done(); } }; v.onblur = () => { if (v.isContentEditable){ if (!/\d\d$/.test(v.textContent)) v.textContent = '2026-11-14'; done(); } }; };
     return el;
   }
   go.onclick = () => c.run(async () => { go.innerHTML = '<span class="spin"></span>'; await c.wait(800); go.innerHTML = I('check','xs') + 'Added to Invoices'; go.className = 'pill soft sm fex-go'; swap(st, '1 row added to Invoices 2026'); });
@@ -5371,10 +5379,12 @@ DM.def('line-chart', (r, c) => {
   c.on(ch, 'pointermove', e => { const b = ch.getBoundingClientRect(); const i = Math.max(0, Math.min(11, Math.round((e.clientX - b.left) / b.width * 11))); const px = i / 11 * b.width;
     x.style.left = px + 'px'; tt.style.left = Math.max(50, Math.min(px, b.width - 50)) + 'px';
     [pa, pb].forEach((p, k) => { pts[k].style.left = px + 'px'; pts[k].style.top = p[i][1] / 140 * b.height + 'px'; pts[k].classList.toggle('on', on[k]); });
-    $('b', tt).textContent = (on[0] ? A[i].toLocaleString('en-US') : B[i].toLocaleString('en-US')) + ' editors'; $('span', tt).textContent = MO[i] + (on[0] && on[1] ? ', +' + Math.round((A[i] / B[i] - 1) * 100) + '% vs last year' : '');
+    $('b', tt).textContent = (on[0] ? A[i].toLocaleString('en-US') : B[i].toLocaleString('en-US')) + ' editors'; const dv = Math.round((A[i] / B[i] - 1) * 100); $('span', tt).textContent = MO[i] + (on[0] && on[1] ? ', ' + (dv < 0 ? '−' : '+') + Math.abs(dv) + '% vs last year' : '');
     v.textContent = (on[0] ? A[i] : B[i]).toLocaleString('en-US'); });
   c.on(ch, 'pointerleave', () => v.textContent = (on[0] ? A[11] : B[11]).toLocaleString('en-US'));
-  $$('.lnx-k', r).forEach(k => k.onclick = () => { const s = +k.dataset.s; if (on[s] && !on[1 - s]) return; on[s] = !on[s]; k.classList.toggle('on', on[s]); $('.l' + s, svg).classList.toggle('off', !on[s]); if (s === 0) $('.ar', svg).style.opacity = on[0] ? 1 : 0; });
+  $$('.lnx-k', r).forEach(k => k.onclick = () => { const s = +k.dataset.s; if (on[s] && !on[1 - s]) return; on[s] = !on[s]; k.classList.toggle('on', on[s]); $('.l' + s, svg).classList.toggle('off', !on[s]); if (s === 0) $('.ar', svg).style.opacity = on[0] ? 1 : 0;
+    // the big number rolls to the latest value of the line that is showing
+    const from = +v.textContent.replace(/,/g, ''), to = on[0] ? A[11] : B[11]; if (from !== to) tween(from, to, 600, n => v.textContent = Math.round(n).toLocaleString('en-US')); });
 });
 /* ---------- Bar chart ---------- */
 DM.def('bar-chart', (r, c) => {
@@ -5655,6 +5665,8 @@ DM.def('event-calendar', (r, c) => {
   c.on(document, 'pointerdown', d => { if (openFor && !pop.contains(d.target) && !openFor.contains(d.target)) closePop(); });
   c.on(document, 'keydown', k => { if (k.key === 'Escape') closePop(); });
   const ask = $('.ecx-ask', r);
+  // the button keeps its spark, only the words crossfade
+  const tell = t => swap(ask, I('spark','xs') + t, true);
   ask.onclick = () => c.run(async () => {
     $$('.ecx-e.sug', grid).forEach(x => x.remove());
     ask.innerHTML = '<span class="think on"><i></i><i></i><i></i><i></i></span>Checking 4 calendars'; const sc = $('.ecx-scan', grid); sc.classList.remove('go'); void sc.offsetWidth; sc.classList.add('go');
@@ -5663,8 +5675,8 @@ DM.def('event-calendar', (r, c) => {
     S.forEach((s, i) => { const el = ev(s, 'sug' + (i ? ' alt' : '')); if (!i) el.insertAdjacentHTML('beforeend', '<div class="ecx-sg"><button class="y">Book</button><button class="n">Other</button></div>'); col(s[0]).appendChild(el); el.style.animationDelay = i * 120 + 'ms'; el.style.height = 'auto'; el.style.minHeight = s[2] * PX - 3 + 'px'; });
     ask.innerHTML = I('spark','xs') + 'Everyone is free Wed 1:30';
     const best = $('.ecx-e.sug:not(.alt)', grid);
-    $('.y', best).onclick = e => { e.stopPropagation(); best.classList.remove('sug'); best.style.background = 'var(--pb-bg)'; best.style.color = 'var(--pb)'; best.style.boxShadow = ''; $('.ecx-sg', best).remove(); enter(best); bind(best, S[0]); $$('.ecx-e.sug', grid).forEach(x => x.remove()); swap(ask, 'Booked, invites sent to 4 people'); };
-    $('.n', best).onclick = e => { e.stopPropagation(); const alt = $('.ecx-e.sug.alt', grid); best.remove(); alt.classList.remove('alt'); alt.insertAdjacentHTML('beforeend', '<div class="ecx-sg"><button class="y">Book</button></div>'); $('.y', alt).onclick = ev2 => { ev2.stopPropagation(); alt.classList.remove('sug'); alt.style.background = 'var(--pb-bg)'; alt.style.color = 'var(--pb)'; $('.ecx-sg', alt).remove(); bind(alt, S[1]); swap(ask, 'Booked Fri 1:00, invites sent'); }; swap(ask, 'Next best: Fri 1:00'); };
+    $('.y', best).onclick = e => { e.stopPropagation(); best.classList.remove('sug'); best.style.background = 'var(--pb-bg)'; best.style.color = 'var(--pb)'; best.style.boxShadow = ''; $('.ecx-sg', best).remove(); enter(best); bind(best, S[0]); $$('.ecx-e.sug', grid).forEach(x => x.remove()); tell('Booked, invites sent to 4 people'); };
+    $('.n', best).onclick = e => { e.stopPropagation(); const alt = $('.ecx-e.sug.alt', grid); best.remove(); alt.classList.remove('alt'); alt.insertAdjacentHTML('beforeend', '<div class="ecx-sg"><button class="y">Book</button></div>'); $('.y', alt).onclick = ev2 => { ev2.stopPropagation(); alt.classList.remove('sug'); alt.style.background = 'var(--pb-bg)'; alt.style.color = 'var(--pb)'; $('.ecx-sg', alt).remove(); bind(alt, S[1]); tell('Booked Fri 1:00, invites sent'); }; tell('Next best: Fri 1:00'); };
   });
   c.later(1200, () => ask.click());
 });
@@ -5707,7 +5719,7 @@ DM.def('buttons', (r, c) => {
   /* Run agent: shows the run time, turns into Stop while you hover it */
   const rn = $('.btx-run', r); let rt = 0, rtick = null, rdone = null;
   const idle = () => { clearInterval(rtick); clearTimeout(rdone); rn.classList.remove('busy'); rn.removeAttribute('aria-busy'); rn._run = false; };
-  const rlabel = () => { if (!rn._run) return; rn.innerHTML = rn.matches(':hover') ? '<span class="sq"></span>Stop' : `<span class="spin"></span>Running <span class="num">0:0${rt}</span>`; };
+  const rlabel = () => { if (!rn._run) return; rn.innerHTML = rn.matches(':hover') ? '<span class="sq"></span>Stop' : `<span class="spin"></span>Running <span class="num">${Math.floor(rt / 60)}:${String(rt % 60).padStart(2, '0')}</span>`; };
   rn.onclick = () => {
     if (rn._run){ idle(); rn.innerHTML = '<span class="sq"></span>Stopped'; c.later(1200, () => { if (!rn._run) swap(rn, 'Run agent'); }); return; }
     rn._run = true; rt = 0; rn.classList.add('busy'); rn.setAttribute('aria-busy', 'true'); rlabel();
@@ -5732,12 +5744,13 @@ DM.def('buttons', (r, c) => {
   const cp = $('.btx-copy', r);
   cp.onclick = () => { copied(cp, 'https://designme.dev/p/pricing'); const t = cp.lastChild; t.textContent = 'Copied'; clearTimeout(cp._lt); cp._lt = setTimeout(() => { t.textContent = 'Copy link'; }, 1600); };
   const h = $('.btx-hold', r), lb = $('.lb', h); let t;
-  const start = e => { if (h.classList.contains('done')) return; h.classList.add('h'); swap(lb, 'Keep holding'); t = setTimeout(() => { h.classList.remove('h'); h.classList.add('done'); lb.innerHTML = I('check','xs') + 'Deleted'; c.later(1800, () => { h.classList.remove('done'); lb.innerHTML = I('trash','xs') + 'Hold to delete'; }); }, 1200); };
-  const end = () => { if (!h.classList.contains('h')) return; clearTimeout(t); h.classList.remove('h'); lb.innerHTML = I('trash','xs') + 'Hold to delete'; };
+  // the label crossfades to Keep holding by hand, so an early release can cancel it before the text lands
+  const start = e => { if (h.classList.contains('done')) return; h.classList.add('h'); lb.classList.add('sw', 'out'); clearTimeout(h._sw); h._sw = setTimeout(() => { lb.textContent = 'Keep holding'; lb.classList.remove('out'); }, REDUCE ? 0 : 170); t = setTimeout(() => { h.classList.remove('h'); h.classList.add('done'); lb.innerHTML = I('check','xs') + 'Deleted'; c.later(1800, () => { h.classList.remove('done'); lb.innerHTML = I('trash','xs') + 'Hold to delete'; }); }, 1200); };
+  const end = () => { if (!h.classList.contains('h')) return; clearTimeout(t); clearTimeout(h._sw); lb.classList.remove('out'); h.classList.remove('h'); lb.innerHTML = I('trash','xs') + 'Hold to delete'; };
   h.onpointerdown = start; h.onpointerup = end; h.onpointerleave = end;
   h.onkeydown = e => { if ((e.key === ' ' || e.key === 'Enter') && !e.repeat){ e.preventDefault(); start(); } };
   h.onkeyup = e => { if (e.key === ' ' || e.key === 'Enter') end(); }; h.onblur = end;
-  c.offs.push(() => clearTimeout(t));
+  c.offs.push(() => { clearTimeout(t); clearTimeout(h._sw); });
 });
 /* ---------- Tooltip ---------- */
 DM.def('tooltip', (r, c) => {
@@ -5935,7 +5948,7 @@ DM.def('comments', (r, c) => {
   function send(){ const v = inp.value.trim(); if (!v) return; add('MK', v, 'now'); inp.value = ''; go.disabled = true; men.classList.remove('open'); if (/@agent/i.test(v)) c.run(() => agent(v)); }
   const opts = [['DA','agent','Design agent'],['MK','maya','Maya Kim'],['JO','jon','Jon Ortiz']];
   inp.oninput = () => { go.disabled = !inp.value.trim(); const m = inp.value.match(/@(\w*)$/);
-    if (m){ const list = opts.filter(o => o[1].startsWith(m[1].toLowerCase())); men.innerHTML = list.map(o => `<button class="mi" data-h="${o[1]}">${AV(o[0], P[o[0]][1]).replace('class="av"', 'class="av" style="width:20px;height:20px;font-size:9px"')}<span>${o[2]}<span class="d">@${o[1]}</span></span></button>`).join(''); men.classList.toggle('open', list.length > 0);
+    if (m){ const list = opts.filter(o => o[1].startsWith(m[1].toLowerCase())); men.innerHTML = list.map(o => `<button class="mi" data-h="${o[1]}">${AV(o[0], P[o[0]][1]).replace('class="av" style="', 'class="av" style="width:20px;height:20px;font-size:9px;')}<span>${o[2]}<span class="d">@${o[1]}</span></span></button>`).join(''); men.classList.toggle('open', list.length > 0);
       $$('.mi', men).forEach(b => b.onmousedown = e => { e.preventDefault(); inp.value = inp.value.replace(/@\w*$/, '@' + b.dataset.h + ' '); men.classList.remove('open'); go.disabled = false; inp.focus(); }); }
     else men.classList.remove('open'); };
   inp.onkeydown = e => { if (e.key === 'Enter'){ const f = $('.mi', men); if (men.classList.contains('open') && f){ f.onmousedown(e); } else send(); } if (e.key === 'Escape') men.classList.remove('open'); };
@@ -5968,11 +5981,11 @@ DM.def('notifications', (r, c) => {
 DM.def('invite', (r, c) => {
   r.innerHTML = r.innerHTML.replace('{chev}', I('chev-d','xs')).replace(/\{chk\}/g, I('check','xs')).replace('{link}', I('link','xs'));
   const chips = $('.ivx-chips', r), inp = $('.ivx-f input', r), go = $('.ivx-go', r), mem = $('.ivx-mem', r), sg = $('.ivx-sg', r);
-  let E = [], role = 'Can edit';
+  let E = [], role = 'Can edit', shown = new Set();
   const COL = ['var(--pl)','var(--pm)','var(--pt)','var(--pp)','var(--pk)'];
   const ok = e => /^\S+@\S+\.\S+$/.test(e);
   const ini = e => e.split('@')[0].slice(0, 2).toUpperCase();
-  function paint(){ chips.innerHTML = E.map((e, i) => `<span class="ivx-ch${ok(e) ? '' : ' bad'}" ${ok(e) ? '' : 'data-tip="Not a valid email"'}>${ok(e) ? AV(ini(e), COL[i % 5]) : I('alert','xs')}${e}<button aria-label="Remove ${e}">${I('x','xs')}</button></span>`).join('');
+  function paint(){ const seen = shown; shown = new Set(E); chips.innerHTML = E.map((e, i) => `<span class="ivx-ch${ok(e) ? '' : ' bad'}${seen.has(e) ? ' seen' : ''}" ${ok(e) ? '' : 'data-tip="Not a valid email"'}>${ok(e) ? AV(ini(e), COL[i % 5]) : I('alert','xs')}${e}<button aria-label="Remove ${e}">${I('x','xs')}</button></span>`).join('');
     $$('.ivx-ch button', chips).forEach((b, i) => b.onclick = () => { E.splice(i, 1); paint(); });
     const n = E.filter(ok).length; go.disabled = !n || E.some(e => !ok(e)); go.textContent = n > 1 ? `Send ${n} invites` : 'Send invite'; }
   function commit(){ const parts = inp.value.split(/[,\s]+/).map(s => s.trim()).filter(Boolean); if (!parts.length) return; parts.forEach(p => { if (!E.includes(p)) E.push(p); }); inp.value = ''; paint(); }
