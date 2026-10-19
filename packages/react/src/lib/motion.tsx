@@ -65,6 +65,8 @@ export function Seg<T extends string>({ options, value, onChange, label, classNa
 }
 
 /* ---------- tooltip ---------- */
+// when the last visible tip closed, shared by every Tip on the page
+let tipSeen = -Infinity;
 type Handlers = { onPointerEnter?: (e: PointerEvent) => void; onPointerLeave?: (e: PointerEvent) => void; onFocus?: (e: FocusEvent) => void; onBlur?: (e: FocusEvent) => void; ref?: Ref<Element> };
 const setRef = (ref: Ref<Element> | undefined, node: Element | null) => { if (typeof ref === 'function') ref(node); else if (ref) (ref as RefObject<Element | null>).current = node; };
 
@@ -80,9 +82,10 @@ export function Tip({ label, kbd, open: forced, off, children }: { label: string
   const target = useRef<Element | null>(null);
   const open = (el: Element | null | undefined, now = false) => {
     if (!el) return; clearTimeout(timer.current);
-    timer.current = setTimeout(() => setAt({ x: 0, y: 0, r: el.getBoundingClientRect() }), now ? 0 : 380);
+    // moving straight from one tip to the next shows it at once, as on the site
+    timer.current = setTimeout(() => setAt({ x: 0, y: 0, r: el.getBoundingClientRect() }), now || performance.now() - tipSeen < 120 ? 0 : 380);
   };
-  const close = () => { clearTimeout(timer.current); setShow(false); setAt(null); };
+  const close = () => { clearTimeout(timer.current); if (tip.current) tipSeen = performance.now(); setShow(false); setAt(null); };
   useEffect(() => () => clearTimeout(timer.current), []);
   useEffect(() => { if (forced) open(target.current, true); else close(); }, [forced]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => { if (off) close(); }, [off]);

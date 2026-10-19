@@ -70,7 +70,9 @@ css = css.replace(/:where\(\[data-c\]\) /g, ':where([data-dm]) ');
 css += '\n/* every component root carries data-dm, so it starts from the same type wherever it is placed */\n'
   + ':where([data-dm]){font-family:var(--sans);font-size:14px;line-height:1.5;color:var(--fg);-webkit-font-smoothing:antialiased;text-align:left}\n';
 if (/\[data-c\]/.test(css)) throw new Error('card selector left in core css');
-const own = Object.fromEntries(COMPONENTS.map(name => [name, file(read(name), 'css')]));
+// the registry's element resets are written for its [data-c] cards; a React component's root is marked data-dm instead
+const own = Object.fromEntries(COMPONENTS.map(name => [name, file(read(name), 'css').replace(/:where\(\[data-c\]\) /g, ':where([data-dm]) ')]));
+for (const [name, text] of Object.entries(own)) if (/\[data-c\]/.test(text)) throw new Error(`${name}: card selector left in its css`);
 const frames = new Set([css, ...Object.values(own)].flatMap(frameNames));
 const core = scope(css, frames, true);
 write('src/designme.css', HEAD + core);
