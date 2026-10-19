@@ -1,8 +1,8 @@
 'use client';
 // The animated preview from designme.dev, rebuilt from the React component: an example of driving it from your own state.
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { Comments, type CommentsEntry, type CommentsPerson } from '../components/comments/Comments';
-import { useScript } from './useScript';
+import { useScript, useWait } from './useScript';
 
 /* ---------- Comments: Maya asks the agent in the thread; it thinks, writes its answer, then offers to apply it ---------- */
 const AGENT: CommentsPerson = { name: 'Design agent', initials: 'DA', color: 'var(--dm-pb)', handle: 'agent' };
@@ -13,13 +13,6 @@ const START: CommentsEntry[] = [
   { id: 'c2', author: JON, text: 'Agree. Can we keep it outlined though?', time: '1h' }
 ];
 const ASK = '@agent can you keep it outlined but darker?';
-
-/** Timers for replies started by a click, cleared when the demo unmounts */
-function useWait() {
-  const timers = useRef(new Set<ReturnType<typeof setTimeout>>());
-  useEffect(() => { const all = timers.current; return () => all.forEach(clearTimeout); }, []);
-  return useCallback((ms: number) => new Promise<void>(res => { const t = setTimeout(() => { timers.current.delete(t); res(); }, ms); timers.current.add(t); }), []);
-}
 
 export default function CommentsDemo() {
   const [comments, setComments] = useState(START);

@@ -1,6 +1,7 @@
 'use client';
 // The animated preview from designme.dev, rebuilt from the React component: an example of driving it from your own state.
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { useWait } from './useScript';
 import { AgentHarness, type HarnessTool } from '../components/agent-harness/AgentHarness';
 
 /* ---------- Agent harness: five tools with their permissions; Test all finds Slack's token expired, Reconnect fixes it ---------- */
@@ -16,13 +17,6 @@ const MORE: HarnessTool[] = [
   { key: 'linear', name: 'Linear', icon: 'bell', color: 'var(--dm-pp)' },
   { key: 'gmail', name: 'Gmail', icon: 'mail', color: 'var(--dm-pr)' }
 ];
-
-/** Timers that stop with the demo */
-function useWait() {
-  const timers = useRef(new Set<ReturnType<typeof setTimeout>>());
-  useEffect(() => { const all = timers.current; return () => all.forEach(clearTimeout); }, []);
-  return useCallback((ms: number) => new Promise<void>(res => { const t = setTimeout(() => { timers.current.delete(t); res(); }, ms); timers.current.add(t); }), []);
-}
 
 export default function AgentHarnessDemo() {
   const [tools, setTools] = useState(TOOLS);

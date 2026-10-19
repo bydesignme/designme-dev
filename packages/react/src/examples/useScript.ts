@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, type DependencyList } from 'react';
+import { useCallback, useEffect, useRef, type DependencyList } from 'react';
 
 export interface Script {
   /** Resolves after `ms`, unless the component unmounts first, in which case the script simply stops */
@@ -15,4 +15,11 @@ export function useScript(run: (s: Script) => Promise<void>, deps: DependencyLis
     run({ wait }).catch(e => console.error(e));
     return () => { alive = false; timers.forEach(clearTimeout); };
   }, deps); // eslint-disable-line react-hooks/exhaustive-deps
+}
+
+/** Waits that a click handler can await, cleared when the component unmounts. For runs that start on a click rather than on mount */
+export function useWait() {
+  const timers = useRef(new Set<ReturnType<typeof setTimeout>>());
+  useEffect(() => { const all = timers.current; return () => all.forEach(clearTimeout); }, []);
+  return useCallback((ms: number) => new Promise<void>(res => { const t = setTimeout(() => { timers.current.delete(t); res(); }, ms); timers.current.add(t); }), []);
 }

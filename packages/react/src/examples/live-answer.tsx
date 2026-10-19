@@ -1,6 +1,7 @@
 'use client';
 // The animated preview from designme.dev, rebuilt from the React component: an example of driving it from your own state.
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { useWait } from './useScript';
 import { LiveAnswer, type AnswerSource, type AnswerTurn } from '../components/live-answer/LiveAnswer';
 
 /* ---------- Live answer: it thinks, streams a cited answer, then offers follow-ups that add turns ---------- */
@@ -16,13 +17,6 @@ const SOURCES: AnswerSource[] = [
   { n: 2, mark: 'N', color: '#0ea5a4', title: 'Session notes', detail: 'Notion, 8 interviews', tip: 'Session notes from 8 interviews' },
   { n: 3, mark: 'S', color: '#f97316', title: 'Onboarding.fig', detail: 'Figma, step 2', tip: 'Onboarding.fig, step 2' }
 ];
-
-/** Timers that stop with the demo */
-function useWait() {
-  const timers = useRef(new Set<ReturnType<typeof setTimeout>>());
-  useEffect(() => { const all = timers.current; return () => all.forEach(clearTimeout); }, []);
-  return useCallback((ms: number) => new Promise<void>(res => { const t = setTimeout(() => { timers.current.delete(t); res(); }, ms); timers.current.add(t); }), []);
-}
 
 export default function LiveAnswerDemo() {
   const [turns, setTurns] = useState<AnswerTurn[]>([{ key: 0, question: FIRST, state: 'waiting' }]);

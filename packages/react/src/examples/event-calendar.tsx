@@ -1,8 +1,8 @@
 'use client';
 // The animated preview from designme.dev, rebuilt from the React component: an example of driving it from your own state.
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { EventCalendar, type EventCalendarEvent, type EventCalendarPerson, type EventCalendarSuggestion, type EventCalendarTone } from '../components/event-calendar/EventCalendar';
-import { useScript } from './useScript';
+import { useScript, useWait } from './useScript';
 
 const WEEK = new Date(2026, 9, 19);
 const at = (day: number, hour: number) => new Date(2026, 9, 19 + day, Math.floor(hour), Math.round((hour % 1) * 60));
@@ -19,13 +19,6 @@ const SLOTS: EventCalendarSuggestion[] = [
   { id: 'wed', title: 'Design review', start: at(2, 13.5), end: at(2, 14.25) },
   { id: 'fri', title: 'Design review', start: at(4, 13), end: at(4, 13.75) }
 ];
-
-/** timers for runs started by a click, cleared when the demo unmounts */
-function useWait() {
-  const timers = useRef(new Set<ReturnType<typeof setTimeout>>());
-  useEffect(() => { const all = timers.current; return () => all.forEach(clearTimeout); }, []);
-  return useCallback((ms: number) => new Promise<void>(res => { const t = setTimeout(() => { timers.current.delete(t); res(); }, ms); timers.current.add(t); }), []);
-}
 
 export default function EventCalendarDemo() {
   const [events, setEvents] = useState(START);

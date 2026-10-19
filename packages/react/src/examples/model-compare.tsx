@@ -1,8 +1,8 @@
 'use client';
 // The animated preview from designme.dev, rebuilt from the React component: an example of driving it from your own state.
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { ModelCompare, type ModelCompareAnswer, type ModelCompareColumn, type ModelCompareModel } from '../components/model-compare/ModelCompare';
-import { useScript } from './useScript';
+import { useScript, useWait } from './useScript';
 
 /* ---------- Model compare: one prompt goes to three models, each streams its answer, the fastest and cheapest turn green ---------- */
 const MODELS: ModelCompareModel[] = [
@@ -17,13 +17,6 @@ const RUNS: Record<string, { ms: number; tps: number; cost: number; answer: stri
   Haiku: { ms: 600, tps: 142, cost: .001, answer: 'Your design QA, on autopilot.', other: 'Short answer: yes, and here is the one line why.' }
 };
 const FIRST = 'Write a one line value prop for the Pro plan';
-
-/** Timers that stop with the demo */
-function useWait() {
-  const timers = useRef(new Set<ReturnType<typeof setTimeout>>());
-  useEffect(() => { const all = timers.current; return () => all.forEach(clearTimeout); }, []);
-  return useCallback((ms: number) => new Promise<void>(res => { const t = setTimeout(() => { timers.current.delete(t); res(); }, ms); timers.current.add(t); }), []);
-}
 
 export default function ModelCompareDemo() {
   const [columns, setColumns] = useState<ModelCompareColumn[]>(MODELS.map(m => ({ id: m.name, model: m.name })));
