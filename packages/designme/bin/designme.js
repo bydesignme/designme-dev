@@ -14,10 +14,13 @@ const c = { dim:s => `\x1b[2m${s}\x1b[0m`, bold:s => `\x1b[1m${s}\x1b[0m`, ok:s 
 async function get(name){
   const src = `${REG}/${name}.json`;
   if (!/^https?:/.test(REG)) return JSON.parse(fs.readFileSync(src, 'utf8'));
-  const r = await fetch(src);
-  if (r.status === 404) throw new Error(`No component called "${name}". Run "npx designme list" to see them all.`);
+  const r = await fetch(src), missing = `No component called "${name.replace(/^react\//, '')}". Run "npx designme list" to see them all.`;
+  if (r.status === 404) throw new Error(missing);
   if (!r.ok) throw new Error(`Could not reach designme.dev (${r.status}). Try again in a moment.`);
-  return r.json();
+  // the site answers an unknown path with its home page, not a 404
+  const text = await r.text();
+  if (!text.trimStart().startsWith('{')) throw new Error(missing);
+  return JSON.parse(text);
 }
 function write(file, content, force){
   const p = path.join(outDir, file);
