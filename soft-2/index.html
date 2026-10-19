@@ -342,25 +342,31 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .tk-fin .lab{color:var(--fg)!important}
 .tk-fin .sum{color:var(--muted);margin-left:8px}
 /* ---------- Context meter ---------- */
-.ctm{padding:16px}
-.ctm-h{display:flex;align-items:center;gap:12px}
-.ctm-ring{width:34px;height:34px}
-.ctm-arc{transition:stroke-dasharray 1s var(--ease)}
-.ctm-t{font-weight:500}
-.ctm-s{font-size:12.5px;color:var(--muted)}
-.ctm-pct{margin-left:auto;font-size:22px;font-weight:600;letter-spacing:-.5px}
-.ctm-bar{display:flex;gap:3px;height:8px;margin:16px 0 12px;border-radius:5px;background:repeating-linear-gradient(135deg,var(--line) 0 1.5px,transparent 1.5px 5px)}
-.ctm-bar span{height:100%;border-radius:4px;width:0;transition:width 1s var(--ease),opacity .25s,transform .25s var(--ease)}
-.ctm-bar.hl span{opacity:.25}
-.ctm-bar.hl span.on{opacity:1}
-.ctm-leg{display:flex;flex-direction:column}
-.ctm-row{display:flex;align-items:center;gap:9px;padding:6px 8px;margin:0 -8px;border-radius:9px;font-size:13px;color:var(--fg2);cursor:default;transition:background .2s,color .2s}
-.ctm-row:hover,.ctm-row.on{background:var(--wash);color:var(--fg)}
-.ctm-row i{width:8px;height:8px;border-radius:3px}
-.ctm-row i.free{background:repeating-linear-gradient(135deg,var(--faint) 0 1px,transparent 1px 3px);box-shadow:inset 0 0 0 1px var(--faint)}
-.ctm-row span{margin-left:auto;color:var(--muted)}
-.ctm-f{display:flex;align-items:center;gap:10px;margin-top:12px;padding-top:12px;border-top:1px solid var(--line);font-size:12.5px}
-.ctm-f .pill{margin-left:auto}
+.ctm{display:flex;flex-direction:column;align-items:flex-end;gap:10px;width:100%;max-width:330px;margin-left:auto}
+.ctm-pop{width:100%;padding:14px 16px 16px;border-radius:16px;box-shadow:var(--shadow-pop);transform-origin:bottom right;transition:opacity .25s var(--ease),transform .4s var(--ease),filter .25s}
+.ctm.shut .ctm-pop{opacity:0;transform:translateY(6px) scale(.98);filter:blur(3px);pointer-events:none}
+.ctm-ph{display:flex;align-items:center;justify-content:space-between;margin:-4px -6px 8px 0}
+.ctm-ph b{font-size:15px;font-weight:600}
+.ctm-ib{width:28px;height:28px;color:var(--fg2)}
+.ctm-rows{display:flex;flex-direction:column;gap:16px}
+.ctm-r{display:grid;grid-template-columns:1fr auto;align-items:baseline;row-gap:8px}
+.ctm-r .l{font-size:13.5px;font-weight:500}
+.ctm-r .p{font-size:12.5px;color:var(--muted)}
+.ctm-tr{grid-column:1/-1;height:6px;border-radius:3px;background:var(--chip);overflow:hidden}
+.ctm-tr i{display:block;height:100%;width:0;border-radius:inherit;background:var(--accent);transition:width 1s var(--ease),background .3s}
+.ctm-r.hot .ctm-tr i{background:var(--warn)}
+.ctm-r .s{grid-column:1/-1;display:flex;align-items:center;gap:8px;min-height:20px;margin-top:-2px;font-size:12.5px;color:var(--muted)}
+.ctm-go{margin-left:auto;height:24px;padding:0 9px;border-radius:7px;font-size:12px;font-weight:500;color:var(--fg);background:var(--soft,var(--chip));box-shadow:var(--soft-ring,none);transition:background var(--t-fast)}
+.ctm-go:hover{background:var(--soft-h,var(--hover))}
+.ctm-ft{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--fg2)}
+.ctm-ft .muted{margin-right:2px}
+.ctm-ring{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;transition:background var(--t-fast)}
+.ctm-ring:hover,.ctm-ring[aria-expanded="true"]{background:var(--chip)}
+.ctm-ring svg{width:18px;height:18px;transform:rotate(-90deg);overflow:visible}
+.ctm-ring circle{fill:none;stroke-width:2.6}
+.ctm-ring .tr{stroke:var(--rail)}
+.ctm-ring .fl{stroke:var(--accent);stroke-linecap:round;stroke-dasharray:0 100;transition:stroke-dasharray 1s var(--ease),stroke .3s}
+
 /* ---------- Action log ---------- */
 .alg{padding:8px}
 .alg-h{display:flex;align-items:center;justify-content:space-between;padding:8px 10px 6px}
@@ -2479,24 +2485,16 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
   <div class="card-f"><span>Click the header to open it again</span><span class="sp"></span><button class="replay" aria-label="Replay Thinking"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
 </article>
 <article class="card" data-c="context-meter" id="c-context-meter">
-  <div class="card-h"><div><h3>Context meter</h3><p>What is filling the context window, and a way to compact it.</p></div></div>
+  <div class="card-h"><div><h3>Context meter</h3><p>How full the context window is, with session and weekly limits, in one small popover.</p></div></div>
   <div class="stage"><div class="stage-in"></div></div>
-  <template><div class="ctm panel">
-  <div class="ctm-h">
-    <svg class="ctm-ring" viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="15" fill="none" stroke="var(--line)" stroke-width="3"/><circle class="ctm-arc" cx="18" cy="18" r="15" fill="none" stroke="var(--fg)" stroke-width="3" stroke-linecap="round" pathLength="100" stroke-dasharray="0 100" transform="rotate(-90 18 18)"/></svg>
-    <div><div class="ctm-t">Context window</div><div class="ctm-s"><span class="ctm-used num">0k</span> of 200k used</div></div>
-    <span class="ctm-pct num">0%</span>
+  <template><div class="ctm">
+  <div class="ctm-pop panel keep" role="dialog" aria-label="Usage">
+    <div class="ctm-ph"><b>Usage</b><button class="ib ctm-ib" aria-label="View usage" data-tip="View usage">{bars}</button></div>
+    <div class="ctm-rows"></div>
   </div>
-  <div class="ctm-bar"><span data-k="files" style="background:var(--pb)"></span><span data-k="chat" style="background:var(--pl)"></span><span data-k="tools" style="background:var(--pm)"></span></div>
-  <div class="ctm-leg">
-    <div class="ctm-row" data-k="files"><i style="background:var(--pb)"></i>Files and frames<span class="num">0k</span></div>
-    <div class="ctm-row" data-k="chat"><i style="background:var(--pl)"></i>Conversation<span class="num">0k</span></div>
-    <div class="ctm-row" data-k="tools"><i style="background:var(--pm)"></i>Tool results<span class="num">0k</span></div>
-    <div class="ctm-row" data-k="free"><i class="free"></i>Free<span class="num">200k</span></div>
-  </div>
-  <div class="ctm-f"><span class="ctm-note muted">Compacting keeps decisions, drops the chatter</span><button class="pill ink sm ctm-go">Compact</button></div>
+  <div class="ctm-ft"><span>Opus 5.5</span><span class="muted">Extra</span><button class="ctm-ring" aria-expanded="true" aria-label="Usage"><svg viewBox="0 0 20 20" aria-hidden="true"><circle class="tr" cx="10" cy="10" r="7.5"/><circle class="fl" cx="10" cy="10" r="7.5" pathLength="100"/></svg></button></div>
 </div></template>
-  <div class="card-f"><span>Hover a segment, then compact</span><span class="sp"></span><button class="replay" aria-label="Replay Context meter"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
+  <div class="card-f"><span>Click the ring, compact the context</span><span class="sp"></span><button class="replay" aria-label="Replay Context meter"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
 </article>
 <article class="card bare" data-c="action-log" id="c-action-log">
   <div class="card-h"><div><h3>Action log</h3><p>Every read, search, edit and command, logged as it runs.</p></div></div>
@@ -3816,30 +3814,32 @@ DM.def('thinking', (r, c) => {
 });
 /* ---------- Context meter ---------- */
 DM.def('context-meter', (r, c) => {
-  const total = 200; let v = { files:56, chat:60, tools:20 };
-  const bars = $$('.ctm-bar span', r), rows = $$('.ctm-row', r), bar = $('.ctm-bar', r), go = $('.ctm-go', r);
-  const shown = { files:0, chat:0, tools:0, free:200, used:0 };
-  function paint(){
-    const used = v.files + v.chat + v.tools;
-    bars.forEach(b => b.style.width = (v[b.dataset.k] / total * 100) + '%');
-    $('.ctm-arc', r).setAttribute('stroke-dasharray', (used / total * 100) + ' 100');
-    const tgt = { ...v, free: total - used, used };
-    Object.keys(tgt).forEach(k => { const from = shown[k]; tween(from, tgt[k], 1000, x => { shown[k] = x;
-      if (k === 'used'){ $('.ctm-used', r).textContent = Math.round(x) + 'k'; $('.ctm-pct', r).textContent = Math.round(x / total * 100) + '%'; }
-      else { const row = rows.find(rw => rw.dataset.k === k); $('span', row).textContent = Math.round(x) + 'k'; } }); });
+  r.innerHTML = r.innerHTML.replace('{bars}', I('bars'));
+  /* the context window first, then the plan limits; the ring shows how full the context is */
+  const ROWS = [
+    { k:'ctx', l:'Context window', v:68, s:'136k of 200k tokens', tip:'Files 56k · Conversation 60k · Tool results 20k', go:'Compact' },
+    { k:'ses', l:'Session limit', v:4, s:'Resets in 4 hr 39 min' },
+    { k:'wk', l:'Weekly', v:16, s:'Resets Sun 10:00 PM' }
+  ];
+  const root = $('.ctm', r), rows = $('.ctm-rows', r), ring = $('.ctm-ring', r), arc = $('.ctm-ring .fl', r);
+  rows.innerHTML = ROWS.map(x => `<div class="ctm-r" data-k="${x.k}"><span class="l">${x.l}</span><span class="p num"><b style="font-weight:inherit">0</b>% used</span><span class="ctm-tr" role="meter" aria-label="${x.l}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"${x.tip ? ` data-tip="${x.tip}"` : ''}><i></i></span><span class="s"><span class="t">${x.s}</span>${x.go ? `<button class="ctm-go">${x.go}</button>` : ''}</span></div>`).join('');
+  const shown = {};
+  function set(k, v){
+    const row = $(`.ctm-r[data-k="${k}"]`, rows), n = $('.p b', row), from = shown[k] || 0; shown[k] = v;
+    $('.ctm-tr i', row).style.width = v + '%'; $('.ctm-tr', row).setAttribute('aria-valuenow', v); row.classList.toggle('hot', v >= 90);
+    tween(from, v, 1000, x => n.textContent = Math.round(x));
+    if (k === 'ctx'){ arc.style.strokeDasharray = v + ' 100'; arc.style.stroke = v >= 90 ? 'var(--warn)' : ''; ring.setAttribute('aria-label', 'Usage, context ' + v + '% full'); }
   }
-  const hl = k => { bar.classList.toggle('hl', !!k); bars.forEach(b => b.classList.toggle('on', b.dataset.k === k)); rows.forEach(rw => rw.classList.toggle('on', rw.dataset.k === k)); };
-  bars.forEach(b => { b.dataset.tip = ''; c.on(b, 'pointerenter', () => { hl(b.dataset.k); b.dataset.tip = rows.find(rw => rw.dataset.k === b.dataset.k).firstChild.nextSibling.textContent + ', ' + v[b.dataset.k] + 'k tokens'; }); c.on(b, 'pointerleave', () => hl(null)); });
-  rows.forEach(rw => { c.on(rw, 'pointerenter', () => hl(rw.dataset.k === 'free' ? null : rw.dataset.k)); c.on(rw, 'pointerleave', () => hl(null)); });
-  let compacted = false;
-  go.onclick = () => {
-    compacted = !compacted;
-    v = compacted ? { files:56, chat:14, tools:6 } : { files:56, chat:60, tools:20 };
-    swap(go, compacted ? 'Restore' : 'Compact'); go.className = 'pill sm ' + (compacted ? 'soft' : 'ink') + ' ctm-go';
-    swap($('.ctm-note', r), compacted ? 'Saved 60k tokens, kept 9 decisions' : 'Compacting keeps decisions, drops the chatter');
-    paint();
-  };
-  c.later(300, paint);
+  ring.onclick = () => { const open = root.classList.toggle('shut') === false; ring.setAttribute('aria-expanded', open); };
+  /* compacting frees most of the context, Undo puts the full thread back */
+  const go = $('.ctm-go', rows), sub = $('.ctm-r[data-k="ctx"] .t', rows); let compacted = false;
+  go.onclick = () => c.run(async () => {
+    if (go._busy) return; go._busy = true;
+    if (!compacted){ swap(go, 'Compacting'); swap(sub, 'Summarising the thread'); await c.wait(900); set('ctx', 38); swap(sub, '76k of 200k tokens, 9 decisions kept'); swap(go, 'Undo'); }
+    else { set('ctx', 68); swap(sub, '136k of 200k tokens'); swap(go, 'Compact'); }
+    compacted = !compacted; go._busy = false;
+  });
+  c.later(300, () => ROWS.forEach(x => set(x.k, x.v)));
 });
 /* ---------- Action log ---------- */
 DM.def('action-log', (r, c) => {
