@@ -212,9 +212,9 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 /* ---------- motion ---------- */
 .shim{background:linear-gradient(90deg,var(--fg) 0%,var(--fg) 38%,var(--faint) 50%,var(--fg) 62%,var(--fg) 100%);background-size:260% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shim 2.2s linear infinite}
 @keyframes shim{from{background-position:100% 0}to{background-position:-160% 0}}
-.enter{animation:enter var(--t-slow) var(--ease) both}
+.enter{animation:enter var(--t-slow) var(--ease) backwards}
 @keyframes enter{from{opacity:0;transform:translateY(6px);filter:blur(4px)}to{opacity:1;transform:none;filter:blur(0)}}
-.pop-in{animation:popin .5s var(--ease) both}
+.pop-in{animation:popin .5s var(--ease) backwards}
 @keyframes popin{from{opacity:0;transform:scale(.96);filter:blur(3px)}to{opacity:1;transform:none;filter:blur(0)}}
 .leave{animation:leave .35s var(--ease) both}
 @keyframes leave{to{opacity:0;transform:translateY(-6px);filter:blur(4px)}}
@@ -2009,7 +2009,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .fmx-f input::placeholder,.fmx-f textarea::placeholder{color:var(--muted)}
 .fmx-f input:focus,.fmx-f textarea:focus{background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--accent),0 0 0 4px var(--accent-bg)}
 .fmx-f.bad input,.fmx-f.bad textarea{box-shadow:inset 0 0 0 1.5px var(--bad)}
-.fmx-f .er{font-size:11.5px;color:var(--bad);font-weight:400;animation:enter .35s var(--ease) both}
+.fmx-f .er{font-size:11.5px;color:var(--bad);font-weight:400;animation:enter .35s var(--ease) backwards}
 .fmx-f.ai input,.fmx-f.ai textarea{background:var(--accent-bg)}
 .fmx-c{position:absolute;right:12px;top:24px;height:40px;display:flex;align-items:center;font-style:normal;font-size:11px;color:var(--muted);font-weight:400;pointer-events:none}
 .fmx-ty{display:flex;gap:6px}
@@ -2101,7 +2101,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .ivx-f{display:flex;align-items:center;flex-wrap:wrap;gap:5px;min-height:42px;padding:5px 5px 5px 8px;border-radius:12px;background:var(--chip);transition:box-shadow .25s,background .25s}
 .ivx-f:focus-within{background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--accent),0 0 0 4px var(--accent-bg)}
 .ivx-chips{display:contents}
-.ivx-ch{display:inline-flex;align-items:center;gap:5px;height:26px;padding:0 4px 0 4px;border-radius:8px;background:var(--surface);box-shadow:0 0 0 1px var(--line);font-size:12.5px;animation:popin .4s var(--ease) both}
+.ivx-ch{display:inline-flex;align-items:center;gap:5px;height:26px;padding:0 4px 0 4px;border-radius:8px;background:var(--surface);box-shadow:0 0 0 1px var(--line);font-size:12.5px;animation:popin .4s var(--ease) backwards}
 .ivx-ch .av{width:18px;height:18px;font-size:8.5px}
 .ivx-ch.bad{background:var(--bad-bg);color:var(--bad);box-shadow:none}
 .ivx-ch button{display:grid;color:var(--muted)}.ivx-ch button:hover{color:var(--fg)}
@@ -2144,7 +2144,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .rxx-r::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:0}
 .rxx-r.bump::after{animation:rxring .6s var(--ease)}
 @keyframes rxring{0%{opacity:.5;box-shadow:0 0 0 0 var(--accent)}100%{opacity:0;box-shadow:0 0 0 7px var(--accent)}}
-.rxx-r.new{animation:popin .45s var(--ease) both}
+.rxx-r.new{animation:popin .45s var(--ease) backwards}
 .rxx-r.gone{opacity:0;transform:scale(.8)}
 .rxx-r .e{display:inline-block}
 .rxx-r.bump .e{animation:rxp .5s var(--ease)}
@@ -4125,7 +4125,7 @@ DM.def('error-recovery', (r, c) => {
   list.innerHTML = steps.map(s => `<div class="erx-row"><span class="g"></span><span class="tx">${s[0]}<span class="d"></span></span></div>`).join('');
   const rows = $$('.erx-row', r);
   const G = { done:`<span style="color:var(--ok)">${I('check','xs')}</span>`, fail:`<span style="color:var(--bad)">${I('alert','xs')}</span>`, run:'<span class="spin"></span>', wait:'<span class="dot" style="color:var(--faint)"></span>', skip:`<span class="muted">${I('chev-r','xs')}</span>`, hand:`<span style="color:var(--pl)">${I('user','xs')}</span>` };
-  const set = (i, st, note) => { const rw = rows[i]; rw.className = 'erx-row ' + st; const g = $('.g', rw); g.innerHTML = G[st]; enter(g.firstElementChild); swap($('.d', rw), note || ''); };
+  const set = (i, st, note) => { const rw = rows[i]; rw.className = 'erx-row ' + st; const g = $('.g', rw); g.innerHTML = G[st]; enter(g); swap($('.d', rw), note || ''); };
   set(0, 'done', 'Done in 8s'); set(1, 'fail', 'Error 403: the agent lost edit access to this sheet'); set(2, 'wait');
   let pick = 'retry';
   opts.forEach(o => o.onclick = () => { pick = o.dataset.o; opts.forEach(x => { x.classList.toggle('on', x === o); x.setAttribute('aria-checked', x === o); }); });
@@ -4722,7 +4722,7 @@ DM.def('launch-checklist', (r, c) => {
   list.innerHTML = C.map(x => `<div class="lcx-r wait"><span class="g"><span class="lcx-ring"></span></span><span class="t">${x[0]}<span class="d"></span></span></div>`).join('');
   const rows = $$('.lcx-r', list);
   const G = { ok:`<span style="color:var(--ok)">${I('ok')}</span>`, bad:`<span style="color:var(--bad)">${I('alert')}</span>`, run:'<span class="spin"></span>' };
-  function set(i, s, note){ const rw = rows[i]; rw.className = 'lcx-r ' + s; const g = $('.g', rw); g.innerHTML = G[s]; enter(g.firstElementChild); swap($('.d', rw), note || ''); segs[i].className = s === 'run' ? 'run' : s; }
+  function set(i, s, note){ const rw = rows[i]; rw.className = 'lcx-r ' + s; const g = $('.g', rw); g.innerHTML = G[s]; enter(g); swap($('.d', rw), note || ''); segs[i].className = s === 'run' ? 'run' : s; }
   function tally(){ const bad = rows.filter(x => x.classList.contains('bad')).length; swap(st, bad ? bad + ' to fix before shipping' : 'All clear, ready to ship'); if (!bad){ run.innerHTML = I('rocket','xs') + 'Ship it'; run.className = 'pill accent sm lcx-run'; run.onclick = () => { swap(st, 'Shipped to production'); run.disabled = true; }; } }
   run.onclick = () => c.run(async () => {
     run.disabled = true; swap(st, 'Checking');
@@ -6041,7 +6041,8 @@ DM.def('kanban', (r, c) => {
     { id:5, c:'doing', t:'Review annual plan copy', tag:['l','Copy'], who:['JO','var(--pm)'] },
     { id:6, c:'done', t:'One CTA per pricing card', tag:['b','Design'], who:['MK','var(--pl)'] }
   ];
-  const wrap = $('.kbx-cols', r); let dragging = false;
+  // the agent's timer repaints the board, so it waits while a card is dragged or a new title is typed
+  const wrap = $('.kbx-cols', r); let dragging = false, editing = false;
   wrap.innerHTML = COLS.map(cl => `<div class="kbx-c" data-c="${cl[0]}"><div class="kbx-ch"><b>${cl[1]}</b><span class="n num"></span><button class="ib" aria-label="Add card" data-tip="Add card">${I('plus','xs')}</button></div><div class="kbx-list"></div></div>`).join('');
   const card = k => `<div class="kbx-k${k.run != null ? ' agent' : ''}" data-id="${k.id}"><span class="t">${k.t}</span>${k.run != null ? `<div class="kbx-pr"><i style="width:${k.run * 100}%"></i></div>` : ''}<span class="f"><span class="tag ${k.tag[0]}">${k.tag[1]}</span>${k.run != null ? '<span class="think on"><i></i><i></i><i></i><i></i></span>' : ''}${AV(k.who[0], k.who[1])}</span></div>`;
   function paint(){ COLS.forEach(cl => { const col = $(`.kbx-c[data-c="${cl[0]}"]`, wrap), L = K.filter(k => k.c === cl[0]); $('.kbx-list', col).innerHTML = L.map(card).join(''); $('.n', col).textContent = L.length; }); bind(); }
@@ -6066,11 +6067,11 @@ DM.def('kanban', (r, c) => {
       c.offs.push(() => { document.removeEventListener('pointermove', move); document.removeEventListener('pointerup', up); ghost?.remove(); });
     });
   }
-  $$('.kbx-ch .ib', wrap).forEach(b => b.onclick = () => { const col = b.closest('.kbx-c').dataset.c; const k = { id:Date.now(), c:col, t:'New card', tag:['k','Idea'], who:['MK','var(--pl)'] }; K.push(k); paint(); const el = $(`.kbx-k[data-id="${k.id}"]`, wrap); enter(el); const t = $('.t', el); t.contentEditable = 'true'; t.focus(); document.getSelection().selectAllChildren(t); t.onblur = () => { t.contentEditable = 'false'; k.t = t.textContent.trim() || 'New card'; }; t.onkeydown = e => { if (e.key === 'Enter'){ e.preventDefault(); t.blur(); } }; });
+  $$('.kbx-ch .ib', wrap).forEach(b => b.onclick = () => { const col = b.closest('.kbx-c').dataset.c; const k = { id:Date.now(), c:col, t:'New card', tag:['k','Idea'], who:['MK','var(--pl)'] }; K.push(k); paint(); const el = $(`.kbx-k[data-id="${k.id}"]`, wrap); enter(el); const t = $('.t', el); editing = true; t.contentEditable = 'true'; t.focus(); document.getSelection().selectAllChildren(t); t.onblur = () => { editing = false; t.contentEditable = 'false'; k.t = t.textContent.trim() || 'New card'; }; t.onkeydown = e => { if (e.key === 'Enter'){ e.preventDefault(); t.blur(); } }; });
   paint();
-  c.every(600, () => { if (dragging) return; const k = K.find(x => x.run != null); if (!k) return; k.run = Math.min(1, k.run + .08); const el = $(`.kbx-k[data-id="${k.id}"] .kbx-pr i`, wrap); if (el) el.style.width = k.run * 100 + '%';
+  c.every(600, () => { if (dragging || editing) return; const k = K.find(x => x.run != null); if (!k) return; k.run = Math.min(1, k.run + .08); const el = $(`.kbx-k[data-id="${k.id}"] .kbx-pr i`, wrap); if (el) el.style.width = k.run * 100 + '%';
     if (k.run >= 1){ K = K.filter(x => x !== k); k.c = 'done'; delete k.run; K.push(k); paint(); const n = $(`.kbx-k[data-id="${k.id}"]`, wrap); enter(n);
-      const nx = K.find(x => x.c === 'todo' && x.who[0] === 'DA'); if (nx){ c.later(900, () => { K = K.filter(x => x !== nx); nx.c = 'doing'; nx.run = 0; K.splice(K.findIndex(x => x.c === 'doing'), 0, nx); paint(); enter($(`.kbx-k[data-id="${nx.id}"]`, wrap)); }); } } });
+      const nx = K.find(x => x.c === 'todo' && x.who[0] === 'DA'); if (nx){ c.later(900, function promote(){ if (dragging || editing){ c.later(300, promote); return; } K = K.filter(x => x !== nx); nx.c = 'doing'; nx.run = 0; K.splice(K.findIndex(x => x.c === 'doing'), 0, nx); paint(); enter($(`.kbx-k[data-id="${nx.id}"]`, wrap)); }); } } });
 });
 </script>
 
