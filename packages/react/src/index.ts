@@ -60,6 +60,8 @@ export * from './components/date-picker/DatePicker';
 export * from './components/date-range-picker/DateRangePicker';
 export * from './components/event-calendar/EventCalendar';
 export * from './components/agenda/Agenda';
+export * from './components/buttons/Buttons';
+export * from './components/tooltip/Tooltip';
 export * from './components/search-input/SearchInput';
 export * from './components/country-select/CountrySelect';
 export * from './components/social-sign-in/SocialSignIn';
