@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
+import { cloneElement, isValidElement, useEffect, useRef, useState, type CSSProperties, type FocusEvent, type PointerEvent, type ReactNode, type Ref, type RefObject } from 'react';
 import { createPortal } from 'react-dom';
 import { cx } from './cx';
 import { useIsoLayoutEffect, useReducedMotion } from './hooks';
@@ -65,21 +65,27 @@ export function Seg<T extends string>({ options, value, onChange, label }: {
 }
 
 /* ---------- tooltip ---------- */
-/** Shows `label` above whatever it wraps, after a short pause, the same way the site does.
-    `kbd` adds a shortcut after the label. `open` shows it straight away, for feedback like "Copied" */
-export function Tip({ label, kbd, open: forced, children }: { label: string; kbd?: string; open?: boolean; children: ReactNode }) {
+type Handlers = { onPointerEnter?: (e: PointerEvent) => void; onPointerLeave?: (e: PointerEvent) => void; onFocus?: (e: FocusEvent) => void; onBlur?: (e: FocusEvent) => void; ref?: Ref<Element> };
+const setRef = (ref: Ref<Element> | undefined, node: Element | null) => { if (typeof ref === 'function') ref(node); else if (ref) (ref as RefObject<Element | null>).current = node; };
+
+/** Shows `label` above the element it wraps, after a short pause, the same way the site does.
+    `kbd` adds a shortcut after the label, `open` shows it straight away (for feedback like "Copied"),
+    and `off` keeps it hidden, for example while the button's own menu is open.
+    A single HTML element is used as is, so the tip adds nothing to the layout; anything else gets a display:contents wrapper. */
+export function Tip({ label, kbd, open: forced, off, children }: { label: string; kbd?: string; open?: boolean; off?: boolean; children: ReactNode }) {
   const [at, setAt] = useState<{ x: number; y: number; r: DOMRect } | null>(null);
   const [show, setShow] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
   const tip = useRef<HTMLDivElement>(null);
-  const wrap = useRef<HTMLSpanElement>(null);
+  const target = useRef<Element | null>(null);
   const open = (el: Element | null | undefined, now = false) => {
     if (!el) return; clearTimeout(timer.current);
     timer.current = setTimeout(() => setAt({ x: 0, y: 0, r: el.getBoundingClientRect() }), now ? 0 : 380);
   };
   const close = () => { clearTimeout(timer.current); setShow(false); setAt(null); };
   useEffect(() => () => clearTimeout(timer.current), []);
-  useEffect(() => { if (forced) open(wrap.current?.firstElementChild, true); else if (forced === false) close(); }, [forced]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { if (forced) open(target.current, true); else if (forced === false) close(); }, [forced]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { if (off) close(); }, [off]);
   // a new label can change the width, so place it again
   useIsoLayoutEffect(() => { setAt(a => a && { ...a, x: 0, y: 0 }); }, [label, kbd]);
   // place it above the target, or below when there is no room, then fade it in
@@ -90,13 +96,28 @@ export function Tip({ label, kbd, open: forced, children }: { label: string; kbd
     const y = at.r.top - h - 8 < 8 ? at.r.bottom + 8 : at.r.top - h - 8;
     setAt({ ...at, x, y }); requestAnimationFrame(() => setShow(true));
   }, [at]);
+
+  const enterEl = (el: Element | null) => { if (!off) open(el); };
+  const leave = () => { if (!forced) close(); };
+  const focus = (el: Element) => { if (!off && el.matches(':focus-visible')) open(el, true); };
+  const portal = at && typeof document !== 'undefined' && createPortal(
+    <div ref={tip} className={cx('dm-tip', show && 'dm-show')} role="tooltip" data-dm="" style={{ left: at.x, top: at.y }}>{label}{kbd && <span className="dm-kbd">{kbd}</span>}</div>, document.body);
+
+  if (isValidElement<Handlers>(children) && typeof children.type === 'string') {
+    const own = children.props;
+    return <>{cloneElement(children, {
+      ref: (node: Element | null) => { target.current = node; setRef(own.ref, node); },
+      onPointerEnter: (e: PointerEvent) => { own.onPointerEnter?.(e); enterEl(e.currentTarget as Element); },
+      onPointerLeave: (e: PointerEvent) => { own.onPointerLeave?.(e); leave(); },
+      onFocus: (e: FocusEvent) => { own.onFocus?.(e); focus(e.target as Element); },
+      onBlur: (e: FocusEvent) => { own.onBlur?.(e); leave(); }
+    })}{portal}</>;
+  }
   return (
-    <span ref={wrap} style={{ display: 'contents' }}
-      onPointerEnter={e => open(e.currentTarget.firstElementChild)} onPointerLeave={() => { if (!forced) close(); }}
-      onFocus={e => { if ((e.target as Element).matches(':focus-visible')) open(e.target, true); }} onBlur={() => { if (!forced) close(); }}>
-      {children}
-      {at && typeof document !== 'undefined' && createPortal(
-        <div ref={tip} className={cx('dm-tip', show && 'dm-show')} role="tooltip" data-dm="" style={{ left: at.x, top: at.y }}>{label}{kbd && <span className="dm-kbd">{kbd}</span>}</div>, document.body)}
+    <span ref={el => { target.current = el?.firstElementChild ?? null; }} style={{ display: 'contents' }}
+      onPointerEnter={e => enterEl(e.currentTarget.firstElementChild)} onPointerLeave={leave}
+      onFocus={e => focus(e.target)} onBlur={leave}>
+      {children}{portal}
     </span>
   );
 }
