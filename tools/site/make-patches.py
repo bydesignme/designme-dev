@@ -209,14 +209,20 @@ body.ui,.dv,.pv{background-image:none}
 .intro-cmd .c{color:var(--sh-text)}
 @media (max-width:960px){ .intro h1{font-size:24px} }
 /* Agent components or App basics */
-/* a line between the intro and the components */
-.intro{padding-bottom:30px;border-bottom:1px solid var(--sh-line)}
-.grp-sw{position:relative;display:inline-flex;gap:2px;margin:30px 0 0;padding:3px;border-radius:11px;background:var(--sh-sw);corner-shape:round}
+/* a line between the intro and the components, from the sidebar's edge to the window's: it is placed against the window
+   itself (nothing above the intro is positioned), so it never reaches past the edge. The layout is centred at up to 1440px,
+   and its sidebar ends 264px in; on small screens the line runs edge to edge */
+.content{--ig:30px}
+body.ui .content .intro{padding-bottom:0}
+.intro::after{content:"";display:block;position:absolute;left:calc((100% - min(100%, 1440px)) / 2 + 264px);right:0;height:1px;margin-top:var(--ig);background:var(--sh-line);pointer-events:none}
+@media (max-width:960px){ .intro::after{left:0} }
+@media (max-width:640px){ .content{--ig:22px} }
+.grp-sw{position:relative;display:inline-flex;gap:2px;margin:calc(var(--ig) * 2 + 1px) 0 0;padding:3px;border-radius:11px;background:var(--sh-sw);corner-shape:round}
 .grp-sw button{position:relative;z-index:1;height:32px;padding:0 15px;border-radius:8px;font-size:13.5px;font-weight:500;color:var(--sh-dim);transition:color .2s ease}
 .grp-sw button:hover,.grp-sw button[aria-selected="true"]{color:var(--sh-text)}
 .grp-ind{position:absolute;top:3px;bottom:3px;left:3px;border-radius:8px;background:var(--sh-sw-on);box-shadow:0 1px 2px rgba(17,19,24,.08),0 0 0 .5px rgba(17,19,24,.06);transition:left .4s cubic-bezier(.16,1,.3,1),width .4s cubic-bezier(.16,1,.3,1);corner-shape:round}
 .grp-sw+.lib-sec .sec-head{padding-top:28px}
-@media (max-width:640px){ .grp-sw{display:flex;margin-top:22px} .grp-sw button{flex:1;padding:0 8px} }
+@media (max-width:640px){ .grp-sw{display:flex} .grp-sw button{flex:1;padding:0 8px} }
 :root:not(.grp-all):not([data-grp="basics"]) [data-grp="basics"],:root[data-grp="basics"]:not(.grp-all) [data-grp="agent"]{display:none}
 :root:not(.grp-all) .side-lbl{display:none}
 /* cards: the title sits on the page and the component on a grey stage, with its switch or hint inside it */
