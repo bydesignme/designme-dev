@@ -23,13 +23,14 @@
  ],
  "example": {
   "path": "pricing-cards/PricingCards.example.tsx",
-  "content": "'use client';\n// The preview from designme.dev, rebuilt from the React component: switch the billing period or drag the editors slider.\nimport { PricingCards, type PricingPlan } from './PricingCards';\n\nconst PLANS: PricingPlan[] = [\n  { name: 'Starter', description: 'For trying the agent', price: 0, total: 'Up to 2 editors', features: ['1 project', '50 agent runs a month', 'Figma import'], action: { label: 'Start free', variant: 'soft' } },\n  { name: 'Pro', description: 'For growing design teams', price: 24, popular: true, features: ['Unlimited projects', '1,000 runs per editor', 'Shared tokens and memory', 'Priority models'], action: { label: 'Start free trial', variant: 'accent' } },\n  { name: 'Enterprise', description: 'For design orgs', price: null, unit: 'billed yearly', total: 'Volume pricing from 25 editors', fromSeats: 25, features: ['SSO and audit log', 'Custom spend caps', 'Dedicated support'], action: { label: 'Talk to us', variant: 'ink' } }\n];\n\nexport default function PricingCardsDemo() {\n  return <PricingCards plans={PLANS} />;\n}\n",
+  "content": "'use client';\n// The preview from designme.dev, rebuilt from the React component: switch the billing period or drag the editors slider.\nimport { useRef, useState } from 'react';\nimport { useScript } from '../lib/useScript';\nimport { PricingCards, type PricingPeriod, type PricingPlan } from './PricingCards';\n\nconst PLANS: PricingPlan[] = [\n  { name: 'Starter', description: 'For trying the agent', price: 0, total: 'Up to 2 editors', features: ['1 project', '50 agent runs a month', 'Figma import'], action: { label: 'Start free', variant: 'soft' } },\n  { name: 'Pro', description: 'For growing design teams', price: 24, popular: true, features: ['Unlimited projects', '1,000 runs per editor', 'Shared tokens and memory', 'Priority models'], action: { label: 'Start free trial', variant: 'accent' } },\n  { name: 'Enterprise', description: 'For design orgs', price: null, unit: 'billed yearly', total: 'Volume pricing from 25 editors', fromSeats: 25, features: ['SSO and audit log', 'Custom spend caps', 'Dedicated support'], action: { label: 'Talk to us', variant: 'ink' } }\n];\n\nexport default function PricingCardsDemo() {\n  const [period, setPeriod] = useState<PricingPeriod>('yearly');\n  // once it has appeared it shows the switch at work: monthly, then back to yearly. Touching it takes over\n  const touched = useRef(false);\n  useScript(async ({ wait }) => {\n    await wait(1900); if (touched.current) return; setPeriod('monthly');\n    await wait(2000); if (touched.current) return; setPeriod('yearly');\n  });\n  return <div style={{ width: '100%' }} onPointerDown={() => { touched.current = true; }}><PricingCards plans={PLANS} period={period} onPeriodChange={setPeriod} /></div>;\n}\n",
   "needs": [
    "designme.css",
    "lib/cx.ts",
    "lib/hooks.ts",
    "lib/icons.tsx",
-   "lib/motion.tsx"
+   "lib/motion.tsx",
+   "lib/useScript.ts"
   ]
  }
 }

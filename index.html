@@ -7417,6 +7417,7 @@ body.ui .comp-foot .tabs .ind{top:0;bottom:0;background:var(--sh-sw-on)}
 .v2 .six-ans{margin:4px 2px 6px;padding:10px 12px;border-radius:12px;background:var(--accent-bg);font-size:12.5px;line-height:1.55;color:var(--fg2);display:flex;gap:8px}
 .v2 .six-ans>svg{color:var(--accent);flex:none;margin-top:3px}
 .v2 .six-ans .w{animation:v2-sxw .4s var(--ease) both}
+.v2 .six-ans .w.done{animation:none}
 @keyframes v2-sxw{from{opacity:0;filter:blur(3px)}}
 /* ---------- Country select ---------- */
 .v2 .csx{width:100%;max-width:300px;margin:0 auto;display:flex;flex-direction:column;gap:6px;position:relative;min-height:330px}
@@ -12021,14 +12022,20 @@ DM.def('pricing-cards', (r, c) => {
     P.forEach((p, i) => { const el = cards[i], b = $('.pcx-pr b', el), s = $('.pcx-pr s', el), u = $('.pcx-pr span', el), tt = $('.pcx-tot', el);
       if (p.m === null){ b.textContent = 'Custom'; s.textContent = ''; u.textContent = 'billed yearly'; tt.textContent = 'Volume pricing from 25 editors'; return; }
       const unit = per === 'y' ? p.m * .8 : p.m;
-      tween(shown[i], unit, 500, v => { shown[i] = v; b.textContent = '$' + (Number.isInteger(unit) ? Math.round(v) : v.toFixed(2)); });
+      const go = () => tween(shown[i], unit, 500, v => { shown[i] = v; b.textContent = '$' + (Number.isInteger(unit) ? Math.round(v) : v.toFixed(2)); });
+      // the first time, the prices count up once the cards are in view
+      if (first){ b.textContent = '$0'; c.later(260, go); } else go();
       s.textContent = per === 'y' && p.m ? '$' + p.m : ''; u.textContent = p.m ? 'per editor, per month' : 'forever';
       swap(tt, p.m ? `$${(unit * seats * (per === 'y' ? 12 : 1)).toLocaleString('en-US', { maximumFractionDigits:0 })} ${per === 'y' ? 'billed yearly' : 'a month'} for ${seats} editor${seats > 1 ? 's' : ''}` : 'Up to 2 editors'); });
   }
   seg($('.pcx-per', r), v => { per = v; upd(); });
   rng.oninput = () => { seats = +rng.value; sn.textContent = seats; P.forEach((p, i) => { if (!p.m) return; const tt = $('.pcx-tot', cards[i]); const unit = per === 'y' ? p.m * .8 : p.m; tt.textContent = `$${(unit * seats * (per === 'y' ? 12 : 1)).toLocaleString('en-US', { maximumFractionDigits:0 })} ${per === 'y' ? 'billed yearly' : 'a month'} for ${seats} editor${seats > 1 ? 's' : ''}`; });
     cards[2].classList.toggle('hot', seats >= 25); cards[1].classList.toggle('hot', seats < 25); };
-  stagger(cards, 80); upd();
+  let first = true; stagger(cards, 80); upd(); first = false;
+  // once in view it shows the switch at work: monthly, then back to yearly. Touching it takes over
+  let touched = false; c.on(r, 'pointerdown', () => { touched = true; });
+  const flip = v => { if (!touched) $(`.pcx-per button[data-v="${v}"]`, r).click(); };
+  c.later(1900, () => flip('m')); c.later(3900, () => flip('y'));
 });
 /* ---------- Onboarding checklist ---------- */
 DM.def('onboarding-checklist', (r, c) => {
@@ -12105,18 +12112,26 @@ DM.def('currency-converter', (r, c) => {
   const SYM = { USD:'$', EUR:'€', GBP:'£', JPY:'¥', CAD:'C$', AUD:'A$' };
   let A = 'USD', B = 'EUR', out = 0;
   const a = $('.ccx-a', r), b = $('.ccx-b', r), rate = $('.ccx-rate', r), curs = $$('.ccx-cur', r);
-  function calc(){ const n = parseFloat(a.value.replace(/[^\d.]/g, '')) || 0; const v = n / RATE[A] * RATE[B]; const dp = B === 'JPY' ? 0 : 2;
-    tween(out, v, 450, x => { out = x; b.textContent = SYM[B] + x.toLocaleString('en-US', { minimumFractionDigits:dp, maximumFractionDigits:dp }); });
+  function calc(delay){ const n = parseFloat(a.value.replace(/[^\d.]/g, '')) || 0; const v = n / RATE[A] * RATE[B]; const dp = B === 'JPY' ? 0 : 2;
+    const go = () => tween(out, v, 450, x => { out = x; b.textContent = SYM[B] + x.toLocaleString('en-US', { minimumFractionDigits:dp, maximumFractionDigits:dp }); }); delay ? c.later(delay, go) : go();
     rate.innerHTML = `<span class="dot"></span>1 ${A} = ${(RATE[B] / RATE[A]).toFixed(B === 'JPY' || A === 'JPY' ? 4 : 4)} ${B} · updated 2 min ago`; }
   function menus(){ [['.ccx-p1', 0], ['.ccx-p2', 1]].forEach(([sel, side]) => { const p = $(sel, r), cur = side ? B : A;
     p.innerHTML = Object.keys(RATE).map(k => `<button class="mi" data-close data-k="${k}" aria-checked="${k === cur}"><span class="cd">${k}</span><span>${NAME[k]}</span><span class="ck">${I('check','xs')}</span></button>`).join('');
     $$('.mi', p).forEach(m => m.addEventListener('click', () => { if (side) B = m.dataset.k; else A = m.dataset.k; if (A === B){ if (side) A = Object.keys(RATE).find(x => x !== B); else B = Object.keys(RATE).find(x => x !== A); } paint(); })); }); }
-  function paint(){ swap($('.cd', curs[0]), A); swap($('.cd', curs[1]), B); menus(); calc(); }
+  function paint(delay){ swap($('.cd', curs[0]), A); swap($('.cd', curs[1]), B); menus(); calc(delay); }
   a.oninput = () => { a.value = a.value.replace(/[^\d.]/g, ''); calc(); };
   a.onblur = () => { const n = parseFloat(a.value) || 0; a.value = n.toFixed(2); };
   const sw = $('.ccx-sw', r);
   sw.onclick = () => { sw.classList.toggle('go'); const n = out; [A, B] = [B, A]; a.value = (B === 'JPY' || A === 'JPY') ? (A === 'JPY' ? Math.round(n) : n.toFixed(2)) : n.toFixed(2); a.value = String(a.value); paint(); };
-  paint();
+  paint(260);
+  // once in view it converts a new amount, then swaps the two currencies. Touching it takes over
+  let touched = false; c.on(r, 'pointerdown', () => { touched = true; }); c.on(a, 'focus', () => { touched = true; });
+  c.run(async () => {
+    await c.wait(1500); if (touched) return;
+    a.value = ''; for (const ch of '120'){ await c.wait(150); if (touched) return; a.value += ch; calc(); }
+    await c.wait(250); if (touched) return; a.value = '120.00';
+    await c.wait(1300); if (!touched) sw.click();
+  });
 });
 /* ---------- Run summary ---------- */
 DM.def('run-summary', (r, c) => {
@@ -13425,8 +13440,12 @@ DM.def('line-chart', (r, c) => {
     `<g clip-path="url(#lnc)"><path class="ar" d="${smooth(pa)} L320 140 L0 140 Z" fill="url(#lng)"/><path class="ln l1" d="${smooth(pb)}" stroke="var(--faint)" stroke-dasharray="4 4"/><path class="ln l0" d="${smooth(pa)}" stroke="var(--accent)"/></g>`;
   ch.insertAdjacentHTML('beforeend', '<span class="lnx-pt on" style="color:var(--accent)"></span><span class="lnx-pt on" style="color:var(--faint)"></span>');
   const pts = $$('.lnx-pt', ch), on = [true, true];
-  tween(0, 320, 1400, w => $('.lnr', svg).setAttribute('width', w));
-  tween(0, A[11], 1400, n => v.textContent = Math.round(n).toLocaleString('en-US'));
+  // the line draws and the number counts once the chart has risen into view, so the draw is seen from its start
+  v.textContent = '0';
+  c.later(260, () => {
+    tween(0, 320, 1300, w => $('.lnr', svg).setAttribute('width', w), t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+    tween(0, A[11], 1300, n => v.textContent = Math.round(n).toLocaleString('en-US'));
+  });
   c.on(ch, 'pointermove', e => { const b = ch.getBoundingClientRect(); const i = Math.max(0, Math.min(11, Math.round((e.clientX - b.left) / b.width * 11))); const px = i / 11 * b.width;
     x.style.left = px + 'px'; tt.style.left = Math.max(50, Math.min(px, b.width - 50)) + 'px';
     [pa, pb].forEach((p, k) => { pts[k].style.left = px + 'px'; pts[k].style.top = p[i][1] / 140 * b.height + 'px'; pts[k].classList.toggle('on', on[k]); });
@@ -13454,7 +13473,7 @@ DM.def('bar-chart', (r, c) => {
     const t = d.d.reduce((a, x) => a + x[0] + x[1] + x[2], 0); tween(tot, t, 900, n => { tot = n; v.textContent = Math.round(n).toLocaleString('en-US'); });
   }
   seg($('.bcx-rg', r), draw);
-  c.later(200, () => draw('w'));
+  c.later(280, () => draw('w'));
 });
 /* ---------- Donut chart ---------- */
 DM.def('donut-chart', (r, c) => {
@@ -13469,8 +13488,8 @@ DM.def('donut-chart', (r, c) => {
     if (i == null){ v.textContent = tot.toFixed(1) + 'h'; l.textContent = 'Agent time'; } else { v.textContent = D[i][1] + 'h'; l.textContent = D[i][0]; } };
   [...arcs, ...rows].forEach(el => { el.onmouseenter = () => hl(+el.dataset.i); el.onmouseleave = () => hl(null); });
   stagger(rows, 60, 150);
-  c.later(100, () => arcs.forEach((a, i) => c.later(i * 90, () => a.setAttribute('stroke-dasharray', `${a.dataset.len} ${C}`))));
-  tween(0, tot, 1200, n => v.textContent = n.toFixed(1) + 'h');
+  v.textContent = '0.0h';
+  c.later(260, () => { arcs.forEach((a, i) => c.later(i * 90, () => a.setAttribute('stroke-dasharray', `${a.dataset.len} ${C}`))); tween(0, tot, 1200, n => v.textContent = n.toFixed(1) + 'h'); });
 });
 /* ---------- Funnel ---------- */
 DM.def('funnel', (r, c) => {
@@ -13492,7 +13511,7 @@ DM.def('funnel', (r, c) => {
     swap($('.fnx-t', r), D[s].t);
   }
   seg($('.fnx-sg', r), draw);
-  c.later(150, () => draw('all'));
+  c.later(280, () => draw('all'));
 });
 /* ---------- Top pages ---------- */
 DM.def('top-pages', (r, c) => {
@@ -13505,8 +13524,9 @@ DM.def('top-pages', (r, c) => {
     rows.forEach((row, i) => { const j = order.indexOf(P[i]); row.style.transform = `translateY(${j * H}px)`; $('.rk', row).textContent = j + 1; });
   }
   sort('v'); rows.forEach((row, i) => row.animate([{ opacity:0, filter:'blur(4px)' }, { opacity:1, filter:'blur(0)' }], { duration:450, delay:i * 50, easing:'ease-out', fill:'backwards' }));
-  rows.forEach((row, i) => c.later(200 + i * 70, () => $('.tr i', row).style.width = P[i][2] / mx * 100 + '%'));
-  tween(0, tot, 1000, v => $('.tpx-tot', r).textContent = Math.round(v).toLocaleString('en-US'));
+  rows.forEach((row, i) => c.later(300 + i * 70, () => $('.tr i', row).style.width = P[i][2] / mx * 100 + '%'));
+  $('.tpx-tot', r).textContent = '0';
+  c.later(260, () => tween(0, tot, 1000, v => $('.tpx-tot', r).textContent = Math.round(v).toLocaleString('en-US')));
   seg($('.tpx-sg', r), sort);
 });
 /* ---------- Health score ---------- */
@@ -13520,11 +13540,11 @@ DM.def('health-score', (r, c) => {
   $$('.hsx-c', list).forEach((el, i) => {
     $('.hsx-ch', el).onclick = () => { const o = !el.classList.contains('open'); el.classList.toggle('open', o); $('.fold', el).classList.toggle('shut', !o); };
     const bar = () => { const b = $('.bar i', el); b.style.width = K[i][1] + '%'; b.style.background = col(K[i][1]); };
-    c.later(200 + i * 80, bar);
+    c.later(300 + i * 80, bar);
     const fx = $('.hsx-d .pill', el);
     if (fx) fx.onclick = () => c.run(async () => { fx.innerHTML = '<span class="spin"></span>'; await c.wait(900); K[i][1] = i === 1 ? 97 : 93; K[i][3] = 0; bar(); tween(+$('.v', el).textContent, K[i][1], 700, n => $('.v', el).textContent = Math.round(n)); swap($('.hsx-d span', el), i === 1 ? 'Fixed. Both pairs now pass AA' : 'Fixed. Reattached 11 instances'); fx.remove(); total(); });
   });
-  c.later(200, total);
+  c.later(280, total);
 });
 /* ---------- Activity heatmap ---------- */
 DM.def('activity-heatmap', (r, c) => {
@@ -13541,7 +13561,7 @@ DM.def('activity-heatmap', (r, c) => {
     const hr = (h % 12 || 12) + (h < 12 ? 'am' : 'pm'); el.dataset.tip = `${DAYS[d]} ${hr}: ${Math.round(v * (w === 'agent' ? 40 : 25))} ${w === 'agent' ? 'runs' : 'edits'}`; });
     swap(st, w === 'agent' ? 'Busiest overnight, when the queue runs' : 'Busiest 10am to 4pm on weekdays'); }
   seg($('.hmx-sg', r), draw);
-  c.later(150, () => draw('agent'));
+  c.later(240, () => draw('agent'));
 });
 /* ---------- Stat cards ---------- */
 DM.def('stat-cards', (r, c) => {
@@ -13564,7 +13584,8 @@ DM.def('stat-cards', (r, c) => {
   }
   seg($('.scx-sg', r), v => draw(+v));
   stagger(cards, 70);
-  c.later(200, () => draw(1));
+  c.later(240, () => draw(1));
+  if (!REDUCE) cards.forEach((el, i) => $('.scx-sp svg', el).animate([{ clipPath:'inset(-4px 100% -4px 0)' }, { clipPath:'inset(-4px 0% -4px 0)' }], { duration:1000, delay:300 + i * 70, easing:'cubic-bezier(.45,0,.2,1)', fill:'backwards' }));
 });
 /* ---------- Account table ---------- */
 DM.def('account-table', (r, c) => {
@@ -13828,6 +13849,14 @@ DM.def('tooltip', (r, c) => {
       card.style.left = x + 'px'; card.style.top = (br.bottom - rr.top + 10) + 'px'; card.classList.add('show'); }, 300); };
     b.onmouseleave = () => { clearTimeout(t); card.classList.remove('show'); }; });
   c.offs.push(() => clearTimeout(t));
+  // once it has entered, it shows what it does: a shortcut tip, then the agent's card. Pointing at it takes over
+  let touched = false; c.on(root, 'pointerenter', () => { touched = true; });
+  c.run(async () => {
+    await c.wait(1300); if (touched || tipFor) return;
+    const ask = $('[data-tip-k="⌘J"]', r); showTip(ask); await c.wait(1700); if (touched) return; if (tipFor === ask) hideTip();
+    await c.wait(500); if (touched) return;
+    const av = $('.ttp-av[data-card="1"]', r); av.onmouseenter(); await c.wait(2600); if (!touched) av.onmouseleave();
+  });
 });
 /* ---------- Search input ---------- */
 DM.def('search-input', (r, c) => {
@@ -13835,8 +13864,12 @@ DM.def('search-input', (r, c) => {
   const box = $('.six-box', r), inp = $('.six-in input', r), dd = $('.six-dd', r), res = $('.six-res', r), chips = $('.six-chips', r), xB = $('.six-x', r), k = $('.six-k', r);
   const ITEMS = [['figma','Pricing v4','Figma'],['figma','Pricing mobile','Figma'],['file-text','Pricing research notes','Notion'],['code','PricingCard.tsx','GitHub'],['figma','Checkout flow','Figma'],['file-text','Brand voice guide','Notion'],['code','tokens.css','GitHub']];
   const SC = { figma:'Figma', notion:'Notion', github:'GitHub' };
-  let scope = null, at;
+  let scope = null, at = null, ans = 0, rows = new Set(), grow = null;
+  // the agent's answer streams in word by word and keeps going while the question is still being typed
+  const WS = 'Pricing changed on Sep 18: annual plans first, one CTA per card. Trial to paid is up 8.1 points since.'.split(' ');
   function paint(){
+    // the list eases to its new height instead of jumping as the results change
+    const h0 = dd.classList.contains('shut') ? 0 : res.offsetHeight; if (grow) grow.cancel();
     const v = inp.value.trim(); xB.hidden = !v && !scope; k.hidden = !!v || !!scope;
     let h = '';
     if (/@\w*$/.test(v)){ const q = v.split('@').pop().toLowerCase(); h = '<div class="six-g">Filter by source</div>' + Object.entries(SC).filter(([key]) => key.startsWith(q)).map(([key, n]) => `<button class="six-it" data-sc="${n}"><span class="ic">${I(key === 'figma' ? 'figma' : key === 'github' ? 'code' : 'file-text','xs')}</span>${n}<span class="d">@${key}</span></button>`).join(''); }
@@ -13847,9 +13880,15 @@ DM.def('search-input', (r, c) => {
       if (v.split(' ').length > 2 || v.endsWith('?')) h += `<div class="six-ans">${I('spark','xs')}<span class="six-at"></span></div>`;
       h += m.length ? '<div class="six-g">' + m.length + (m.length === 1 ? ' result' : ' results') + '</div>' + m.map(i => `<button class="six-it"><span class="ic">${I(i[0],'xs')}</span><span>${hw ? i[1].replace(new RegExp(hw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i'), s => `<mark>${s}</mark>`) : i[1]}</span><span class="d">${i[2]}</span></button>`).join('') : '<div class="six-g">No matches. Press Enter to ask the agent</div>';
     }
-    res.innerHTML = h; stagger($$('.six-it', res), 25);
+    res.innerHTML = h;
+    // only rows that weren't showing a moment ago enter, so typing doesn't restart the whole list
+    const now = $$('.six-it', res), fresh = now.filter(b => !rows.has(b.textContent)); rows = new Set(now.map(b => b.textContent)); stagger(fresh, 25);
     const a = $('.six-at', res);
-    if (a){ clearInterval(at); const ws = 'Pricing changed on Sep 18: annual plans first, one CTA per card. Trial to paid is up 8.1 points since.'.split(' '); let i = 0; at = c.every(45, () => { if (i >= ws.length) return clearInterval(at); a.insertAdjacentHTML('beforeend', `<span class="w">${ws[i++]} </span>`); }); }
+    if (a){ a.innerHTML = WS.slice(0, ans).map(w => `<span class="w done">${w} </span>`).join('');
+      if (!at && ans < WS.length) at = c.every(45, () => { const el = $('.six-at', res); if (!el || ans >= WS.length){ clearInterval(at); at = null; return; } el.insertAdjacentHTML('beforeend', `<span class="w">${WS[ans++]} </span>`); }); }
+    else { if (at){ clearInterval(at); at = null; } ans = 0; }
+    const h1 = res.offsetHeight;
+    if (h0 && h1 !== h0 && !REDUCE) grow = res.animate([{ height:h0 + 'px', boxSizing:'border-box', overflow:'hidden' }, { height:h1 + 'px', boxSizing:'border-box', overflow:'hidden' }], { duration:280, easing:'cubic-bezier(.22,1,.36,1)' });
     $$('.six-it[data-q]', res).forEach(b => b.onmousedown = e => { e.preventDefault(); inp.value = b.dataset.q; paint(); });
     $$('.six-it[data-sc]', res).forEach(b => b.onmousedown = e => { e.preventDefault(); scope = b.dataset.sc; inp.value = inp.value.replace(/@\w*$/, ''); chips.innerHTML = `<span class="six-ch">${scope}<button aria-label="Remove filter">${I('x','xs')}</button></span>`; enter(chips.firstChild); $('button', chips).onmousedown = ev => { ev.preventDefault(); scope = null; chips.innerHTML = ''; paint(); }; paint(); });
   }
@@ -13964,6 +14003,8 @@ DM.def('form', (r, c) => {
     if (!d.value) await type_(d, 'Nov 14');
     b.innerHTML = I('check','xs') + 'Drafted'; swap(ms, 'Review the blue fields');
   });
+  let touched = false; c.on(form, 'pointerdown', () => { touched = true; }); c.on(form, 'keydown', () => { touched = true; });
+  c.later(1400, () => { if (!touched && !n.value) $('.fmx-ai', r).click(); });
   form.onsubmit = e => { e.preventDefault(); let ok = true;
     if (!n.value.trim()){ bad(n, 'Give it a name'); ok = false; }
     if (g.value.trim().length < 12){ bad(g, 'Add a sentence about the goal'); ok = false; }

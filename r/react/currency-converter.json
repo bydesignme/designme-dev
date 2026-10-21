@@ -24,14 +24,15 @@
  ],
  "example": {
   "path": "currency-converter/CurrencyConverter.example.tsx",
-  "content": "'use client';\n// The preview from designme.dev, rebuilt from the React component: an example of keeping its values in your own state.\nimport { useState } from 'react';\nimport { CurrencyConverter } from './CurrencyConverter';\n\n/* ---------- Currency converter: $24 in euros; type, pick currencies or swap them ---------- */\nexport default function CurrencyConverterDemo() {\n  const [amount, setAmount] = useState('24.00');\n  const [from, setFrom] = useState('USD');\n  const [to, setTo] = useState('EUR');\n  return <CurrencyConverter amount={amount} onAmountChange={setAmount} from={from} onFromChange={setFrom} to={to} onToChange={setTo} />;\n}\n",
+  "content": "'use client';\n// The preview from designme.dev, rebuilt from the React component: an example of keeping its values in your own state.\nimport { useRef, useState } from 'react';\nimport { useScript } from '../lib/useScript';\nimport { CurrencyConverter, CurrencyConverterCurrencies } from './CurrencyConverter';\n\nconst rate = (code: string) => CurrencyConverterCurrencies.find(c => c.code === code)?.rate ?? 1;\n\n/* ---------- Currency converter: $24 in euros; type, pick currencies or swap them ---------- */\nexport default function CurrencyConverterDemo() {\n  const [amount, setAmount] = useState('24.00');\n  const [from, setFrom] = useState('USD');\n  const [to, setTo] = useState('EUR');\n  // once it has appeared it converts a new amount, then swaps the two currencies, carrying the money over. Touching it takes over\n  const touched = useRef(false);\n  useScript(async ({ wait }) => {\n    await wait(1500); if (touched.current) return;\n    for (const typed of ['1', '12', '120']) { await wait(150); if (touched.current) return; setAmount(typed); }\n    await wait(250); if (touched.current) return; setAmount('120.00');\n    await wait(1300); if (touched.current) return;\n    setAmount((120 / rate('USD') * rate('EUR')).toFixed(2)); setFrom('EUR'); setTo('USD');\n  });\n  return (\n    <div style={{ width: '100%' }} onPointerDown={() => { touched.current = true; }} onFocus={() => { touched.current = true; }}>\n      <CurrencyConverter amount={amount} onAmountChange={setAmount} from={from} onFromChange={setFrom} to={to} onToChange={setTo} />\n    </div>\n  );\n}\n",
   "needs": [
    "designme.css",
    "lib/cx.ts",
    "lib/hooks.ts",
    "lib/icons.tsx",
    "lib/motion.tsx",
-   "lib/popover.tsx"
+   "lib/popover.tsx",
+   "lib/useScript.ts"
   ]
  }
 }
