@@ -41,12 +41,12 @@ export interface FormProps {
   values?: FormValues;
   defaultValues?: FormValues;
   onValuesChange?: (values: FormValues) => void;
-  /** Adds "Draft with agent". Fill the values in while the promise runs and the fields it fills turn blue until someone edits them */
+  /** Adds "Draft with agent". Fill the values in while the promise runs; the fields it fills are marked Drafted beside their label until someone edits them */
   onDraft?: () => void | Promise<void>;
   draftLabel?: string;
   draftingLabel?: string;
   draftedLabel?: string;
-  /** Shown beside the submit button after a draft. Defaults to "Review the blue fields" */
+  /** Shown beside the submit button after a draft. Defaults to "Review what the agent drafted" */
   draftedMessage?: string;
   /** Called with the values once every field passes. Return a promise and the button spins until it settles */
   onSubmit?: (values: FormValues) => void | Promise<void>;
@@ -66,7 +66,7 @@ export interface FormProps {
 /** A short form an agent can draft for you: fields that check themselves on submit, and a confirmation. */
 export function Form({
   title = 'New project brief', fields, values, defaultValues = {}, onValuesChange, onDraft, draftLabel = 'Draft with agent', draftingLabel = 'Drafting',
-  draftedLabel = 'Drafted', draftedMessage = 'Review the blue fields', onSubmit, submitLabel = 'Create brief', invalidMessage = 'A few fields need a look',
+  draftedLabel = 'Drafted', draftedMessage = 'Review what the agent drafted', onSubmit, submitLabel = 'Create brief', invalidMessage = 'A few fields need a look',
   errorMessage = 'Something went wrong, try again', doneTitle, doneDetail = 'The agent is gathering references now', className, ref
 }: FormProps) {
   const [vals, setVals] = useControllable(values, defaultValues, onValuesChange);
@@ -78,7 +78,7 @@ export function Form({
   const [done, setDone] = useState(false);
   const own = useRef<string | null>(null);
 
-  // a changed value clears its field's message, whoever changed it; while a draft runs, the text fields it fills turn blue
+  // a changed value clears its field's message, whoever changed it; while a draft runs, the text fields it fills are marked Drafted
   // until the person edits them
   const before = useRef(vals);
   useEffect(() => {
@@ -156,7 +156,7 @@ export function Form({
         );
         return (
           <label key={f.key} className={state}>
-            <span>{f.label}</span>
+            <span>{f.label}<i className="dm-fmx-dr" aria-hidden="true"><Icon name="spark" size="xs" />{draftedLabel}</i></span>
             {f.type === 'textarea'
               ? <textarea name={f.key} rows={f.rows ?? 2} placeholder={f.placeholder} maxLength={f.maxLength} autoComplete={f.autoComplete} aria-invalid={!!err || undefined} value={value} onChange={e => set(f.key, e.target.value)} />
               : <input name={f.key} placeholder={f.placeholder} maxLength={f.maxLength} autoComplete={f.autoComplete} aria-invalid={!!err || undefined} value={value} onChange={e => set(f.key, e.target.value)} />}

@@ -265,7 +265,7 @@ export function EventCalendar({
       <div className="dm-ecx-h">
         <b>{heading}</b><span className="dm-ecx-sp" />
         <Swap className="dm-ecx-msg dm-muted">{status ?? msg}</Swap>
-        {onAsk && <button type="button" className="dm-pill dm-soft dm-sm" onClick={onAsk}>{finding ? <Think /> : <Icon name="spark" size="xs" />}<Swap key={finding ? 'f' : 'i'}>{askLabel}</Swap></button>}
+        {onAsk && <button type="button" className="dm-pill dm-soft dm-sm dm-ecx-ask" onClick={onAsk}>{finding ? <Think /> : <Icon name="spark" size="xs" />}<Swap key={finding ? 'f' : 'i'}>{askLabel}</Swap></button>}
       </div>
       <div className="dm-ecx-sc">
         <div className="dm-ecx-grid" style={sizes}>
