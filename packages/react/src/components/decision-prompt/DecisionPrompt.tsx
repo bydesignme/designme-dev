@@ -25,11 +25,13 @@ export interface DecisionPromptProps {
   skippedLabel?: string;
   /** The line under the summary while the agent gets going */
   startLabel?: string;
+  /** Sits flat in a chat thread (the default, as on designme.dev). Set false to give it a card of its own */
+  bare?: boolean;
   className?: string;
 }
 
 /** The agent asks a few quick questions before it starts. Number keys pick, Enter continues. */
-export function DecisionPrompt({ questions, onComplete, skippedLabel = 'Agent decides', startLabel = 'Starting', className }: DecisionPromptProps) {
+export function DecisionPrompt({ questions, onComplete, skippedLabel = 'Agent decides', startLabel = 'Starting', bare = true, className }: DecisionPromptProps) {
   const [answers, setAnswers] = useState<(number | null)[]>([]);
   const [sel, setSel] = useState(0);
   const n = questions.length, at = answers.length, done = at >= n, q = questions[Math.min(at, n - 1)];
@@ -49,7 +51,7 @@ export function DecisionPrompt({ questions, onComplete, skippedLabel = 'Agent de
   };
 
   return (
-    <div data-dm="" className={cx('dm-dpx dm-panel', className)} tabIndex={0} onKeyDown={key}>
+    <div data-dm="" className={cx('dm-dpx', !bare && 'dm-panel', className)} tabIndex={0} onKeyDown={key}>
       <div className="dm-dpx-h">
         <span className="dm-dpx-k dm-muted dm-num">{done ? 'All set' : `Question ${at + 1} of ${n}`}</span>
         <div className="dm-dpx-dots" aria-hidden="true">{questions.map((_, i) => <i key={i} className={cx(!done && i === at && 'dm-on', (done || i < at) && 'dm-done')} />)}</div>

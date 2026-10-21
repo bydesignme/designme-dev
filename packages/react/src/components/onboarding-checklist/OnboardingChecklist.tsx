@@ -42,6 +42,8 @@ export interface OnboardingChecklistProps {
   open?: boolean;
   defaultOpen?: boolean;
   onOpenChange?: (open: boolean) => void;
+  /** Sits flat in a chat thread (the default, as on designme.dev). Set false to give it a card of its own */
+  bare?: boolean;
   className?: string;
 }
 
@@ -51,7 +53,7 @@ const keyOf = (s: OnboardingStep) => s.key ?? s.title;
 /** A few first steps with a progress ring. The agent can do some of them for the person. */
 export function OnboardingChecklist({ steps, done, defaultDone, onDoneChange, running, onDoIt, title = 'Get set up', status,
   doneMessage = 'You are all set. The agent will suggest what to try next.', doItLabel = 'Do it for me', runningLabel = 'The agent is on it',
-  open, defaultOpen = true, onOpenChange, className }: OnboardingChecklistProps) {
+  open, defaultOpen = true, onOpenChange, bare = true, className }: OnboardingChecklistProps) {
   const [ticked, setTicked] = useControllable(done, defaultDone ?? steps.filter(s => s.done).map(keyOf), onDoneChange);
   const [isOpen, setOpen] = useControllable(open, defaultOpen, onOpenChange);
   // steps started from "Do it for me" that are still waiting on onDoIt
@@ -74,7 +76,7 @@ export function OnboardingChecklist({ steps, done, defaultDone, onDoneChange, ru
   };
 
   return (
-    <div data-dm="" className={cx('dm-obx dm-panel', className)}>
+    <div data-dm="" className={cx('dm-obx', !bare && 'dm-panel', className)}>
       <div className="dm-obx-h">
         <svg className={cx('dm-obx-ring', ready && all && 'dm-full')} viewBox="0 0 40 40" role="progressbar" aria-label={title} aria-valuemin={0} aria-valuemax={steps.length} aria-valuenow={n}>
           <circle cx="20" cy="20" r="16" className="dm-tr" />

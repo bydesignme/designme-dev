@@ -66,6 +66,8 @@ export interface ProposalCardProps {
   /** Shown once dismissed */
   dismissedLabel?: string;
   confidenceLabel?: string;
+  /** Sits flat in a chat thread (the default, as on designme.dev). Set false to give it a card of its own */
+  bare?: boolean;
   className?: string;
 }
 
@@ -75,7 +77,7 @@ const STEPS = 5;
 export function ProposalCard({
   title, subtitle, icon = 'wand', from, options, value, defaultValue = 0, onValueChange, open, defaultOpen = false, onOpenChange,
   status, defaultStatus = 'open', onStatusChange, onAccept, onDismiss, onUndo, acceptedLabel = 'Applied', dismissedLabel = 'Dismissed. The agent will not suggest this again.',
-  confidenceLabel = 'Confidence', className
+  confidenceLabel = 'Confidence', bare = true, className
 }: ProposalCardProps) {
   const [sel, setSel] = useControllable(value, defaultValue, onValueChange);
   const [isOpen, setOpen] = useControllable(open, defaultOpen, onOpenChange);
@@ -95,7 +97,7 @@ export function ProposalCard({
   const undo = () => { setState('open'); onUndo?.(); };
 
   return (
-    <div data-dm="" className={cx('dm-prx dm-panel', className)}>
+    <div data-dm="" className={cx('dm-prx', !bare && 'dm-panel', className)}>
       <div className="dm-prx-h">
         <span className="dm-prx-ic"><Icon name={icon} /></span>
         <div className="dm-prx-ht"><b>{title}</b>{subtitle && <span className="dm-muted">{subtitle}</span>}</div>

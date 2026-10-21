@@ -37,6 +37,8 @@ export interface ReactionsProps {
   meLabel?: string;
   /** The add button's tooltip */
   addLabel?: string;
+  /** Sits flat in a chat thread (the default, as on designme.dev). Set false to give it a card of its own */
+  bare?: boolean;
   className?: string;
 }
 
@@ -114,7 +116,7 @@ function Reaction({ item, leaving, fresh, pulse, me, onToggle }: { item: Reactio
 }
 
 /** Quick reactions on an agent update, with counts that pop. */
-export function Reactions({ author, time, message, icon = 'spark', reactions, defaultReactions = [], onReactionsChange, emojis = EMOJIS, meLabel = 'You', addLabel = 'Add reaction', className }: ReactionsProps) {
+export function Reactions({ author, time, message, icon = 'spark', reactions, defaultReactions = [], onReactionsChange, emojis = EMOJIS, meLabel = 'You', addLabel = 'Add reaction', bare = true, className }: ReactionsProps) {
   const [list, setList] = useControllable(reactions, defaultReactions, onReactionsChange);
   const shown = useLeaving(list, 320);
   const menu = usePopover();
@@ -136,7 +138,7 @@ export function Reactions({ author, time, message, icon = 'spark', reactions, de
   };
 
   return (
-    <div data-dm="" className={cx('dm-rxx dm-panel', className)}>
+    <div data-dm="" className={cx('dm-rxx', !bare && 'dm-panel', className)}>
       <div className="dm-rxx-m">
         <span className="dm-rxx-ic"><Icon name={icon} size="xs" /></span>
         <div className="dm-rxx-b">
