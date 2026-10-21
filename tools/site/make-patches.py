@@ -9,7 +9,10 @@ SW = '<div class="fw-sw" role="group" aria-label="Version"><button type="button"
 
 # shared helpers, next to the code data they read
 patch("""  const CODE = JSON.parse($('#code-data').textContent);
-""", """  const CODE = JSON.parse($('#code-data').textContent);
+""", """  // the code behind each component lives in code-data.json, fetched once the page has loaded or the first time it is needed
+  let CODE = null;
+  const codeReady = () => codeReady.p || (codeReady.p = fetch('/code-data.json').then(r => { if (!r.ok) throw new Error(r.status); return r.json(); }).then(d => (CODE = d)).catch(e => { codeReady.p = null; throw e; }));
+  addEventListener('load', () => setTimeout(() => codeReady().catch(() => {}), 1500));
   // the React version of each component comes from the registry npx designme add --react uses, fetched the first time it is shown
   const RX = {}, reactOf = name => RX[name] || (RX[name] = fetch(`/r/react/${name}.json`).then(r => { if (!r.ok) throw new Error(r.status); return r.json(); }).catch(e => { delete RX[name]; throw e; }));
   const RX_TABS = { 'rx-tsx':'Component', 'rx-css':'CSS', 'rx-ex':'Example' };
@@ -17,7 +20,7 @@ patch("""  const CODE = JSON.parse($('#code-data').textContent);
   const rxFile = (rx, t) => t === 'rx-tsx' ? rx.component + '.tsx' : t === 'rx-css' ? rx.name + '.css' : rx.component + '.example.tsx';
   const pascal = n => n.replace(/(?:^|-)(\\w)/g, (_, c) => c.toUpperCase());
   // the registry name, which the install command needs; a card's title doesn't always spell it
-  const regName = cid => { const el = document.getElementById(cid); return (el && el.dataset.reg) || CODE[cid].name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''); };
+  const regName = cid => { const el = document.getElementById(cid); return (el && el.dataset.reg) || (el ? $('.comp-title', el).textContent : cid).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''); };
   // HTML or React, remembered between visits and shared by the code view and the detail page
   const fw = { get(){ try { return localStorage.getItem('dm-code-fw') === 'react' ? 'react' : 'html'; } catch(e){ return 'html'; } }, set(v){ try { localStorage.setItem('dm-code-fw', v); } catch(e){} } };
 """)
@@ -28,7 +31,7 @@ patch("""<div class="cdm-note">Self-contained, needs only the shared core.</div>
 patch("""<div class="cdm-tabs" role="tablist">${Object.keys(NAMES).map(t => `<button class="cdm-tab" role="tab" data-t="${t}">${NAMES[t]}</button>`).join('')}""",
       """<div class="cdm-tabs" role="tablist">${Object.keys(NAMES).map(t => `<button class="cdm-tab" role="tab" data-t="${t}">${NAMES[t]}</button>`).join('')}${Object.keys(RX_TABS).map(t => `<button class="cdm-tab" role="tab" data-t="${t}">${RX_TABS[t]}</button>`).join('')}""")
 patch("""    const textFor = t => t === 'shared' ? '/* Shared core: tokens and base styles */\\n' + CODE._shared.css + '\\n\\n/* Shared core: icons, sound and helpers */\\n' + CODE._shared.js : CODE[id][t];
-    function show(t){""", """    const textFor = t => t === 'shared' ? '/* Shared core: tokens and base styles */\\n' + CODE._shared.css + '\\n\\n/* Shared core: icons, sound and helpers */\\n' + CODE._shared.js : t.startsWith('rx-') ? rxText(rx, t) : CODE[id][t];
+    function show(t){""", """    const textFor = t => !CODE && !t.startsWith('rx-') ? 'Loading the code…' : t === 'shared' ?'/* Shared core: tokens and base styles */\\n' + CODE._shared.css + '\\n\\n/* Shared core: icons, sound and helpers */\\n' + CODE._shared.js : t.startsWith('rx-') ? rxText(rx, t) : CODE[id][t];
     let rx = null;
     // the path, note, install command and tabs follow the HTML or React choice
     function head(){
@@ -48,22 +51,23 @@ patch("""    const textFor = t => t === 'shared' ? '/* Shared core: tokens and b
 patch("""      id = cid; last = from; const c = CODE[cid], sl = slug(c.name);
       $('#cdm-t', m).textContent = c.name; $('#cdm-path', m).textContent = `components/${sl}.html`;
       $('#cdm-cmd-t', m).textContent = `npx designme add ${sl}`;
-      show('html'); m.classList.add('open');""", """      id = cid; last = from; rx = null; const c = CODE[cid];
-      $('#cdm-t', m).textContent = c.name; mode(fw.get());
+      show('html'); m.classList.add('open');""", """      id = cid; last = from; rx = null;
+      $('#cdm-t', m).textContent = $('.comp-title', document.getElementById(cid)).textContent; mode(fw.get());
+      if (!CODE) codeReady().then(() => { if (id === cid && !tab.startsWith('rx-')) show(tab); }, () => { if (id === cid && !tab.startsWith('rx-')) pre.innerHTML = codeLines('// The code could not be loaded. Try again in a moment.'); });
       m.classList.add('open');""")
 patch("""      const t = e.target.closest('.cdm-tab'); if (t && t.dataset.t !== tab){ show(t.dataset.t); Sound.play('tab'); }""",
       """      const f = e.target.closest('.fw-sw button'); if (f){ if (f.dataset.fw !== fw.get()){ mode(f.dataset.fw); Sound.play('tab'); } return; }
       const t = e.target.closest('.cdm-tab'); if (t && t.dataset.t !== tab){ show(t.dataset.t); Sound.play('tab'); }""")
 patch("""    $('#cdm-copy', m).addEventListener('click', async () => { if (await copyText(tab === 'shared' ? textFor('shared') : bundle(id))){ Sound.play('copy'); showToast('Copied ' + (tab === 'shared' ? 'shared core' : CODE[id].name)); } });""",
       """    // HTML copies the whole component in one go; React copies the file on show
-    $('#cdm-copy', m).addEventListener('click', async () => { const react = tab.startsWith('rx-'); if (react && !rx) return; if (await copyText(tab === 'shared' || react ? textFor(tab) : bundle(id))){ Sound.play('copy'); showToast('Copied ' + (tab === 'shared' ? 'shared core' : react ? rxFile(rx, tab) : CODE[id].name)); } });""")
+    $('#cdm-copy', m).addEventListener('click', async () => { const react = tab.startsWith('rx-'); if (react ? !rx : !CODE) return; if (await copyText(tab === 'shared' || react ? textFor(tab) : bundle(id))){ Sound.play('copy'); showToast('Copied ' + (tab === 'shared' ? 'shared core' : react ? rxFile(rx, tab) : CODE[id].name)); } });""")
 
 # ---------- detail page ----------
 patch("""<div class="dv-code"><div class="dv-code-h"><div class="dv-tabs" role="tablist">${Object.keys(NAMES).map(t => `<button class="dv-tab" role="tab" data-t="${t}">${NAMES[t]}</button>`).join('')}</div>""",
       """<div class="dv-code" id="dv-code"><div class="dv-code-h">""" + SW + """<div class="dv-tabs" role="tablist">${Object.keys(NAMES).map(t => `<button class="dv-tab" role="tab" data-t="${t}">${NAMES[t]}</button>`).join('')}${Object.keys(RX_TABS).map(t => `<button class="dv-tab" role="tab" data-t="${t}">${RX_TABS[t]}</button>`).join('')}</div>""")
 patch("""    let cur = null, ph = null, tab = 'html';""", """    let cur = null, ph = null, tab = 'html', rx = null;""")
 patch("""    const textFor = t => t === 'shared' ? '/* Shared core: tokens and base styles */\\n' + CODE._shared.css + '\\n\\n/* Shared core: icons, sound and helpers */\\n' + CODE._shared.js : CODE[cur.id][t];""",
-      """    const textFor = t => t === 'shared' ? '/* Shared core: tokens and base styles */\\n' + CODE._shared.css + '\\n\\n/* Shared core: icons, sound and helpers */\\n' + CODE._shared.js : t.startsWith('rx-') ? rxText(rx, t) : CODE[cur.id][t];""")
+      """    const textFor = t => !CODE && !t.startsWith('rx-') ? 'Loading the code…' : t === 'shared' ? '/* Shared core: tokens and base styles */\\n' + CODE._shared.css + '\\n\\n/* Shared core: icons, sound and helpers */\\n' + CODE._shared.js : t.startsWith('rx-') ? rxText(rx, t) : CODE[cur.id][t];""")
 patch("""    function showCode(t){ tab = t; $$('.dv-tab', dv).forEach(b => b.setAttribute('aria-selected', b.dataset.t === t)); $('#dv-pre').innerHTML = codeLines(textFor(t)); $('#dv-pre').scrollTop = 0; }""",
       """    function showCode(t){ tab = t; $$('.dv-tab', dv).forEach(b => b.setAttribute('aria-selected', b.dataset.t === t)); $('#dv-pre').innerHTML = codeLines(textFor(t)); $('#dv-pre').scrollTop = 0; }
     // the install command and tabs follow the HTML or React choice
@@ -82,12 +86,13 @@ patch("""      $('#dv-cmd-t').textContent = `npx designme add ${slug(name)}`;
 """, "")
 patch("""      showCode('html');
       const sibs""", """      rx = null; dvMode(fw.get());
+      if (!CODE) codeReady().then(() => { if (cur === c && !tab.startsWith('rx-')) showCode(tab); }, () => { if (cur === c && !tab.startsWith('rx-')) $('#dv-pre').innerHTML = codeLines('// The code could not be loaded. Try again in a moment.'); });
       const sibs""")
 patch("""      const t = e.target.closest('.dv-tab'); if (t && t.dataset.t !== tab){ showCode(t.dataset.t); Sound.play('tab'); }""",
       """      const f = e.target.closest('#dv-code .fw-sw button'); if (f){ if (f.dataset.fw !== fw.get()){ dvMode(f.dataset.fw); Sound.play('tab'); } return; }
       const t = e.target.closest('.dv-tab'); if (t && t.dataset.t !== tab){ showCode(t.dataset.t); Sound.play('tab'); }""")
 patch("""    $('#dv-copy').addEventListener('click', async () => { if (await copyText(tab === 'shared' ? textFor('shared') : bundle(cur.id))){ Sound.play('copy'); showToast('Copied ' + (tab === 'shared' ? 'shared core' : CODE[cur.id].name)); } });""",
-      """    $('#dv-copy').addEventListener('click', async () => { const react = tab.startsWith('rx-'); if (react && !rx) return; if (await copyText(tab === 'shared' || react ? textFor(tab) : bundle(cur.id))){ Sound.play('copy'); showToast('Copied ' + (tab === 'shared' ? 'shared core' : react ? rxFile(rx, tab) : CODE[cur.id].name)); } });""")
+      """    $('#dv-copy').addEventListener('click', async () => { const react = tab.startsWith('rx-'); if (react ? !rx : !CODE) return; if (await copyText(tab === 'shared' || react ? textFor(tab) : bundle(cur.id))){ Sound.play('copy'); showToast('Copied ' + (tab === 'shared' ? 'shared core' : react ? rxFile(rx, tab) : CODE[cur.id].name)); } });""")
 
 # ---------- thumbnails in "More in …" ----------
 patch("""$$('#dv-more .dv-card').forEach(card => {
@@ -110,6 +115,35 @@ patch(soon_before('<button class="dv-copy" id="dv-copy">') + '<button class="dv-
 patch("""<pre class="cd-pre dv-pre" id="dv-pre"></pre></div>""", """<pre class="cd-pre dv-pre" id="dv-pre"></pre></div>
         <p class="dv-soon">Webflow and Framer exports are on the way. <a href="#/roadmap">See the roadmap</a></p>""")
 
+# ---------- copy before the code has arrived ----------
+patch("""  $$('[data-copy]').forEach(btn => btn.addEventListener('click', async () => {
+    const ok = await copyText(bundle(btn.closest('.comp').id));""", """  // a copy before the code has arrived waits for it; Safari only allows that through a ClipboardItem made during the click
+  async function copyLater(get){
+    if (CODE) return copyText(get());
+    if (window.ClipboardItem && navigator.clipboard && navigator.clipboard.write){
+      try { await navigator.clipboard.write([new ClipboardItem({ 'text/plain': codeReady().then(() => new Blob([get()], { type:'text/plain' })) })]); return true; } catch(e) {}
+    }
+    try { await codeReady(); } catch(e) { return false; }
+    return copyText(get());
+  }
+  // the install command in the intro
+  $$('[data-cmd]').forEach(b => b.addEventListener('click', async () => { if (await copyText(b.dataset.cmd)){ Sound.play('copy'); showToast('Install command copied'); } }));
+  $$('[data-copy]').forEach(btn => btn.addEventListener('click', async () => {
+    const ok = await copyLater(() => bundle(btn.closest('.comp').id));""")
+
+# ---------- the intro: the real count, and React ----------
+RX_CMD = 'npx designme add live-answer --react'
+patch("""<p>46 components for showing an agent's work, from status and conversation to review, sources and workspace, plus 32 app basics for the dashboard around it, designed and built by the <a href="https://designme.agency" target="_blank" rel="noopener">DesignMe</a> team.</p>""",
+      """<p>47 components for showing an agent's work, from conversation and status to review, sources and workspace, plus 32 app basics for the dashboard around it. All 79 come in HTML or React, designed and built by the <a href="https://designme.agency" target="_blank" rel="noopener">DesignMe</a> team.</p>
+  <div class="intro-get"><button class="cdm-cmd intro-cmd" data-cmd=\"""" + RX_CMD + """\" title="Copy install command"><span class="d">$</span><span class="c">""" + RX_CMD + """</span><span class="ms sm">content_copy</span></button><a class="intro-rx" href="/packages/react/preview/">See all 79 in React<span class="ms sm">arrow_forward</span></a></div>""")
+patch("""<span class="k">46 components</span><h2>Agent components</h2>""", """<span class="k">47 components</span><h2>Agent components</h2>""")
+# the phone menu's search counted one card too few
+patch("""placeholder="Search ${$$('main .comp').length - 1} components\"""", """placeholder="Search ${$$('main .comp').length} components\"""")
+patch("""from status pills and reasoning trails to tool calls and run summaries, plus app basics for the dashboard around them, in two styles with light and dark mode.""",
+      """from status pills and reasoning trails to tool calls and run summaries, plus app basics for the dashboard around them, in HTML or React, in two styles with light and dark mode.""")
+patch("""<meta property="og:description" content="Free UI components for AI agent products, in two styles with light and dark mode.""",
+      """<meta property="og:description" content="Free UI components for AI agent products, in HTML or React, in two styles with light and dark mode.""")
+
 CSS = """
 /* a component's own page: the code panel is right below, so the preview keeps only Animate */
 .dv-slot [data-view],.dv-slot [data-copy]{display:none}
@@ -128,6 +162,20 @@ CSS = """
 .cdm .cdm-tab[data-t^="rx-"],.cdm.rx .cdm-tab:not([data-t^="rx-"]),.dv-code .dv-tab[data-t^="rx-"],.dv-code.rx .dv-tab:not([data-t^="rx-"]){display:none}
 .cdm.rx .cdm-tab[data-t^="rx-"],.dv-code.rx .dv-tab[data-t^="rx-"]{display:inline-block}
 .cdm.rx .cdm-foot{display:none}
+/* intro: the React install command and the React preview */
+.intro-get{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;margin-top:18px}
+.intro-get .intro-cmd{margin-top:0;min-width:0;background:var(--sh-card)}
+.intro-cmd .c{color:var(--sh-text)}
+.intro-rx{display:inline-flex;align-items:center;gap:4px;font-size:13.5px;font-weight:500;color:var(--sh-text);text-decoration:none;border-bottom:1px solid var(--sh-line-2);transition:border-color .2s}
+.intro-rx:hover{border-color:var(--sh-text)}
+.intro-rx .ms{color:var(--sh-muted)}
+/* phones: the header is one 40px row from the first paint, before the script moves its controls into the menu, and the
+   sidebar, which sits below the components, waits for the end of the page so it can't flash at the top while it loads */
+@media (max-width:960px){
+  body.ui .top .top-actions{min-height:40px}
+  .top-actions #style-seg,.top-actions #theme-btn,.top-actions #sound-btn{display:none}
+  body:not(:has(> #v2-js)) .side{display:none}
+}
 """
 json.dump({ 'patches': P, 'css': CSS }, open(os.path.join(HERE, 'site-patches.json'), 'w'), indent=1)
 print(len(P), 'patches')

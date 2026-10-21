@@ -23,9 +23,20 @@ From this folder:
 npm install          # acorn and postcss
 npm run base         # writes site-main.html, the original page, from git history (needs a full clone, not a shallow one)
 npm run patches      # only after editing make-patches.py: rewrites site-patches.json
-npm run build        # writes ../../index.html and ../../r/*.json
+npm run build        # writes ../../index.html, ../../code-data.json and ../../r/*.json
 npm run react        # regenerates the React CSS, registry (r/react) and preview from the new build
 ```
+
+After changing a component's size, or adding one, measure the cards again and rebuild:
+
+```sh
+PW=$(npm root -g)/playwright node measure-heights.js   # about five minutes; or npm i playwright and leave PW out
+npm run build
+```
+
+`measure-heights.js` plays every component at the narrowest width of each layout (1400, 1181, 961, 641 and 360px) in
+both styles and writes the tallest each card gets to `card-heights.json`. The build gives every card that height from
+the start, so nothing below a card moves while its component plays. The build warns about a card with no measurement.
 
 `build` stops with an error if a site patch no longer matches exactly once, so a change to the original page can't
 slip through unnoticed.
@@ -45,4 +56,5 @@ Pushing `staging` deploys https://staging.designme-dev.pages.dev; `main` deploys
 - `make-patches.py` writes `site-patches.json`: find-and-replace pairs for the site's own UI, each of which must match
   exactly once, plus the CSS those edits need.
 - `site-patches.json` is generated, but committed so a build doesn't need Python.
+- `measure-heights.js` writes `card-heights.json`, the height each card keeps, committed for the same reason.
 - `site-main.html` is the original page, taken from git and not committed.

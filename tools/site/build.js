@@ -199,6 +199,15 @@ ${defs}
   console.log('dropped statements:', cut.length);
 }
 
+/* ---------- card heights: each card keeps the tallest height its component reaches, measured by measure-heights.js, so
+   nothing below it moves as the component starts and plays. Unlayered, so it outranks the site's own minimums ---------- */
+const HEIGHTS = fs.existsSync(path.join(__dirname, 'card-heights.json')) ? JSON.parse(fs.readFileSync(path.join(__dirname, 'card-heights.json'), 'utf8')) : null;
+const HEIGHTS_CSS = !HEIGHTS ? '' : '\n<style id="card-heights">\n' + HEIGHTS.bands.map(([b, w], i) => {
+  const rule = `.lib-sec .comp>.stage{min-height:var(--rh-${b},420px)}`;
+  return i ? `@media (max-width:${HEIGHTS.bands[i - 1][1] - 1}px){${rule}}` : rule;
+}).join('\n') + '\n</style>';
+const heightsOf = id => !HEIGHTS || !HEIGHTS.heights[id] ? '' : ` style="${HEIGHTS.bands.map(([b], i) => `--rh-${b}:${HEIGHTS.heights[id][i]}px`).join(';')}"`;
+
 /* ---------- site: keep the site's own CSS below the components' ---------- */
 {
   const a = site.indexOf('<style>\n/* fonts are hosted on designme.dev itself');
@@ -211,7 +220,7 @@ ${defs}
   if (asks !== 4) throw new Error(`expected 4 .ask rules in the site css, found ${asks}`);
   own += '\n/* a card that spans the row can leave a gap after an odd card; let the next one fill it */\n.grid{grid-auto-flow:row dense}';
   own += SITE_PATCHES.css;
-  site = site.slice(0, a) + '<style>\n@layer site{' + own + '\n}\n</style>\n<style id="v2-css">\n' + V2CSS + '</style>' + site.slice(b + 8);
+  site = site.slice(0, a) + '<style>\n@layer site{' + own + '\n}\n</style>\n<style id="v2-css">\n' + V2CSS + '</style>' + HEIGHTS_CSS + site.slice(b + 8);
 }
 /* ---------- site: React components have shipped ---------- */
 for (const [a, b, n] of [
@@ -261,9 +270,56 @@ main = main.replace(/<article([^>]*\bid="(c\d+)"[^>]*)>([\s\S]*?)<\/article>/g, 
   attrs = attrs.replace(/class="comp( wide)?"/, wide ? 'class="comp wide"' : 'class="comp"');
   // the registry name the install command and the React code view need; a title doesn't always spell it
   const title = (body.match(/class="comp-title">([^<]*)</) || [])[1] || '', reg = (REG_ITEMS.find(x => x.title === title) || {}).name || title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-  return `<article${attrs} data-v2="${id}" data-reg="${reg}">${body}</article>`;
+  if (HEIGHTS && !HEIGHTS.heights[id]) warn.push('no measured height for ' + id + ': run measure-heights.js');
+  return `<article${attrs} data-v2="${id}" data-reg="${reg}"${heightsOf(id)}>${body}</article>`;
 });
+/* ---------- the agent components open with their strongest cards: Conversation comes first, and every section leads
+   with what shows off an agent best. A wide card goes after an even number of half-width ones, so rows stay full ---------- */
+const SECTIONS_FIRST = ['s-conversation', 's-status'];
+const ORDER = {
+  's-conversation': ['live-answer', 'composer', 'thread-panel', 'artifact-card', 'tool-call', 'voice-capture', 'response-versions', 'prompt-starters', 'attachment-tray', 'feedback-sheet'],
+  's-status': ['thinking', 'reasoning-trail', 'agent-lanes', 'run-summary', 'action-log', 'agent-run-timeline', 'context-meter', 'error-recovery', 'run-queue', 'run-cost', 'toast-stack', 'toast', 'status-pill', 'step-loader'],
+  's-review': ['change-review', 'plan-review', 'permission-gate', 'decision-prompt', 'proposal-card', 'design-tuner', 'rewrite-toolbar', 'launch-checklist'],
+  's-data': ['code-viewer', 'citation-hover', 'source-stack', 'field-extraction', 'metric-insight', 'details-panel', 'task-table'],
+  's-workspace': ['automation-canvas', 'command-palette', 'memory-panel', 'model-compare', 'agent-settings', 'file-explorer', 'workspace-rail']
+};
+{
+  const secRe = id => new RegExp(`<section class="lib-sec" id="${id}">[\\s\\S]*?</section>`);
+  for (const [sid, ids] of Object.entries(ORDER)){
+    const m = main.match(secRe(sid)); if (!m) throw new Error('no section ' + sid);
+    const arts = [...m[0].matchAll(/<article[\s\S]*?<\/article>/g)];
+    const got = arts.map(a => (a[0].match(/data-v2="([^"]+)"/) || [])[1]);
+    if (got.length !== ids.length || ids.some(id => !got.includes(id))) throw new Error(`${sid} order lists ${ids.join(',')} but has ${got.join(',')}`);
+    const a = arts[0].index, b = arts[arts.length - 1].index + arts[arts.length - 1][0].length;
+    // nothing but whitespace between the cards, so they can move freely
+    const gaps = arts.slice(1).map((x, i) => m[0].slice(arts[i].index + arts[i][0].length, x.index));
+    if (gaps.some(g => g.trim())) throw new Error(sid + ': something sits between the cards');
+    const sorted = ids.map(id => arts[got.indexOf(id)][0]).join(gaps[0]);
+    main = main.replace(m[0], () => m[0].slice(0, a) + sorted + m[0].slice(b));
+  }
+  // Conversation before Agent status, and the section numbers follow
+  const [x, y] = SECTIONS_FIRST.map(id => main.match(secRe(id))[0]);
+  const ix = main.indexOf(main.match(secRe(SECTIONS_FIRST[1]))[0]), iy = main.indexOf(x);
+  if (!(ix < iy)) throw new Error('sections already moved');
+  main = main.slice(0, ix) + x + main.slice(ix + y.length, iy) + y + main.slice(iy + x.length);
+  let no = 0; main = main.replace(/<span class="sec-no">\d+<\/span>/g, () => `<span class="sec-no">${String(++no).padStart(2, '0')}</span>`);
+}
 site = site.slice(0, mainA) + main + site.slice(mainB);
+// the sidebar follows: its groups in section order, and its links in card order
+{
+  const grp = id => { const a = site.indexOf(`<div class="side-grp" data-s="${id}">`); if (a < 0) throw new Error('no side group ' + id); return a; };
+  const [ga, gb] = SECTIONS_FIRST.map(grp), next = i => site.indexOf('<div class="side-grp" data-s="', i + 10), gEnd = next(ga);
+  if (next(gb) !== ga) throw new Error('side groups not next to each other');
+  site = site.slice(0, gb) + site.slice(ga, gEnd) + site.slice(gb, ga) + site.slice(gEnd);
+  for (const [sid, ids] of Object.entries(ORDER)){
+    const a = site.indexOf('<div class="side-ul">', grp(sid)) + '<div class="side-ul">'.length, b = site.indexOf('</div>', a);
+    const links = site.slice(a, b).match(/<a class="side-a"[^>]*>[^<]*<\/a>/g);
+    const cidOf = id => (main.match(new RegExp(`id="(c\\d+)"[^>]*data-v2="${id}"`)) || [])[1];
+    const out = ids.map(id => { const l = links.find(x => x.includes(`data-c="${cidOf(id)}"`)); if (!l) throw new Error('no side link for ' + id); return l; });
+    if (out.length !== links.length) throw new Error('side links of ' + sid);
+    site = site.slice(0, a) + out.join('') + site.slice(b);
+  }
+}
 const missing = Object.keys(MAP).filter(k => !done.includes(k));
 if (missing.length) warn.push('cards not swapped: ' + missing.join(','));
 
@@ -297,15 +353,16 @@ const regHtml = id => { const C = CARDS[id], cls = ['card', ...C.cls.filter(c =>
 const regOne = id => { const C = CARDS[id], sec = SECTIONS[C.title] || ''; if (!sec) warn.push('no CSS section for ' + C.title);
   return { html:regHtml(id), css:`/* ---------- ${C.title} ---------- */\n` + regCss(sec), js:defOf(id) + '\n' }; };
 
-/* ---------- code viewer and copy: the new code ---------- */
+/* ---------- code viewer and copy: the new code, in code-data.json next to the page, which fetches it when it needs it ---------- */
 {
   const open = '<script type="application/json" id="code-data">';
-  const a = site.indexOf(open) + open.length, b = site.indexOf('</script>', a);
-  const data = JSON.parse(site.slice(a, b));
+  const a = site.indexOf(open), b = site.indexOf('</script>', a);
+  if (a < 0) throw new Error('code data not found');
+  const data = JSON.parse(site.slice(a + open.length, b));
   for (const [cid, id] of Object.entries(MAP)){ if (!CARDS[id] || !data[cid]) continue; data[cid] = { name:data[cid].name, ...regOne(id) }; }
   data._shared = { css:REG_CORE_CSS, js:REG_CORE_JS };
-  const json = JSON.stringify(data).replace(/<\//g, '<\\/');
-  site = site.slice(0, a) + json + site.slice(b);
+  fs.writeFileSync(path.join(path.dirname(OUT), 'code-data.json'), JSON.stringify(data));
+  site = site.slice(0, a) + site.slice(b + '</script>'.length).replace(/^\n/, '');
 }
 
 /* ---------- the registry npx designme add downloads from ---------- */

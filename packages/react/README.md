@@ -6,7 +6,7 @@ They use the same markup and the same CSS as the site, so they look and move exa
 
 All 79 components are here, from Status pill to Currency converter, each with an example that replays its demo from the site.
 
-Preview: https://staging.designme-dev.pages.dev/packages/react/preview/
+Preview: https://designme.dev/packages/react/preview/
 
 ## Add them to a project
 
