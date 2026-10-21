@@ -18,7 +18,7 @@ const SOURCES: StackSource[] = [
 
 export default function SourceStackDemo() {
   const [isOpen, setOpen] = useState(false);
-  useScript(async ({ wait }) => { await wait(700); setOpen(true); });
+  useScript(async ({ wait }) => { await wait(1100); setOpen(true); });
   return (
     <div style={{ width: '100%' }}>
       <SourceStack sources={SOURCES} open={isOpen} onOpenChange={setOpen}>

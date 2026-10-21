@@ -118,6 +118,11 @@ export function AutomationCanvas({
     const ro = new ResizeObserver(fit); ro.observe(el);
     return () => ro.disconnect();
   }, []);
+  // on arrival the wires draw in once the steps have landed: each path gets its own length to draw along
+  const svg = useRef<SVGSVGElement>(null);
+  const [intro, setIntro] = useState(true);
+  useEffect(() => { const t = setTimeout(() => setIntro(false), 1300); return () => clearTimeout(t); }, []);
+  useIsoLayoutEffect(() => { if (intro) svg.current?.querySelectorAll('path').forEach(p => p.style.setProperty('--dm-l', String(Math.ceil(p.getTotalLength())))); });
   useIsoLayoutEffect(() => {
     const next: Record<string, number> = {};
     for (const n of nodes) next[n.id] = els.current[n.id]?.offsetHeight ?? 0;
@@ -186,7 +191,7 @@ export function AutomationCanvas({
         {onRun && <button type="button" className="dm-pill dm-ink dm-sm dm-acx-run" onClick={() => { setSel(null); onRun(); }}><Icon name="play" size="xs" />{runLabel}</button>}
       </div>
       <div className="dm-acx-cv" ref={cv} onClick={() => setSel(null)}>
-        <svg className="dm-acx-svg" aria-hidden="true">
+        <svg ref={svg} className={cx('dm-acx-svg', intro && 'dm-intro')} aria-hidden="true">
           {size && edges.map(e => <path key={e.join('-')} className={flowing.some(f => same(f, e)) ? 'dm-flow' : undefined} d={wire(e)} />)}
         </svg>
         <div className="dm-acx-nodes">

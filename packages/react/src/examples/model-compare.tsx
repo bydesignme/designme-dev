@@ -48,7 +48,7 @@ export default function ModelCompareDemo() {
     setColumns(next);
   };
 
-  useScript(async ({ wait }) => { await wait(700); send(FIRST, columns); });
+  useScript(async ({ wait }) => { await wait(1200); send(FIRST, columns); });
 
   return (
     <div style={{ width: '100%' }}>

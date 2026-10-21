@@ -1,7 +1,7 @@
 'use client';
 // The animated preview from designme.dev, rebuilt from the React component: an example of driving it from your own state.
 import { useEffect, useRef, useState } from 'react';
-import { useWait } from './useScript';
+import { useScript, useWait } from './useScript';
 import { AgentHarness, type HarnessTool } from '../components/agent-harness/AgentHarness';
 
 /* ---------- Agent harness: five tools with their permissions; Test all finds Slack's token expired, Reconnect fixes it ---------- */
@@ -43,8 +43,12 @@ export default function AgentHarnessDemo() {
     patch(key, { status: 'ok', note: undefined }); setStatus(undefined);
   };
 
+  // the connections are tested once on its own; Reconnect is left for you
+  const yours = useRef(false);
+  useScript(async ({ wait }) => { await wait(1800); if (!yours.current) await test(); });
+
   return (
-    <div style={{ width: '100%' }}>
+    <div style={{ width: '100%' }} onPointerDownCapture={e => { if (e.isTrusted) yours.current = true; }}>
       <AgentHarness tools={tools} onToolsChange={ts => { setTools(ts); setStatus(undefined); }} available={MORE} onTest={test} onReconnect={reconnect} status={status} />
     </div>
   );

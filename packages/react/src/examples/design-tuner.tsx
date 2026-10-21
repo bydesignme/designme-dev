@@ -13,8 +13,10 @@ export default function DesignTunerDemo() {
   const [active, setActive] = useState<string>();
   const [note, setNote] = useState<string>();
   const [runs, setRuns] = useState(0);
-  const live = useRef(values);
+  const live = useRef(values), yours = useRef(false);
   useEffect(() => { live.current = values; });
+  // the agent tunes once on its own, unless you reach for a slider or the button first
+  useScript(async ({ wait }) => { await wait(1600); if (!yours.current) setRuns(r => r || 1); });
   // each run aims at the other set of values, so Tune again always has something to do
   useScript(async ({ wait }) => {
     if (runs <= 0) return;
@@ -31,8 +33,8 @@ export default function DesignTunerDemo() {
   }, [runs > 0 ? runs : 0]);
   return (
     <div style={{ width: '100%' }}>
-      <DesignTuner values={values} onValuesChange={v => { setValues(v); setStatus('Edited by you'); }} status={status} active={active}
-        tuning={runs > 0} note={note} actionLabel={runs ? 'Tune again' : 'Tune with agent'} onTune={() => setRuns(r => Math.abs(r) + 1)} />
+      <DesignTuner values={values} onValuesChange={v => { yours.current = true; setValues(v); setStatus('Edited by you'); }} status={status} active={active}
+        tuning={runs > 0} note={note} actionLabel={runs ? 'Tune again' : 'Tune with agent'} onTune={() => { yours.current = true; setRuns(r => Math.abs(r) + 1); }} />
     </div>
   );
 }
