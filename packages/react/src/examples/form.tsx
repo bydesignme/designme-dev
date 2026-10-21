@@ -1,8 +1,8 @@
 'use client';
 // The animated preview from designme.dev, rebuilt from the React component: an example of driving it from your own state.
 import { useRef, useState } from 'react';
-import { useWait } from './useScript';
-import { Form, type FormField, type FormValues } from '../components/form/Form';
+import { useScript, useWait } from './useScript';
+import { Form, type FormField, type FormHandle, type FormValues } from '../components/form/Form';
 
 const FIELDS: FormField[] = [
   { key: 'name', label: 'Project name', placeholder: 'Pricing refresh', maxLength: 40, validate: v => !v.trim() && 'Give it a name' },
@@ -30,9 +30,13 @@ export default function FormDemo() {
     if (!latest.current.due) await typeIn('due', 'Nov 14');
   };
 
+  // a moment after it appears, the agent drafts the brief, unless someone has started on it
+  const form = useRef<FormHandle>(null), touched = useRef(false);
+  useScript(async s => { await s.wait(1400); if (!touched.current && !latest.current.name) await form.current?.draft(); });
+
   return (
-    <div style={{ width: '100%' }}>
-      <Form fields={FIELDS} values={values} onValuesChange={set} onDraft={draft} onSubmit={() => wait(800)} />
+    <div style={{ width: '100%' }} onPointerDown={() => { touched.current = true; }} onKeyDown={() => { touched.current = true; }}>
+      <Form ref={form} fields={FIELDS} values={values} onValuesChange={set} onDraft={draft} onSubmit={() => wait(800)} />
     </div>
   );
 }

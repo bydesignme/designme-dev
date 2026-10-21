@@ -25,14 +25,14 @@ export default function SearchInputDemo() {
     let typed = '';
     for (const ch of 'why did pricing change?') { typed += ch; setValue(typed); await wait(45); }
   });
-  // a question gets an answer, a word every 45ms; each new keystroke starts it again
+  // a question gets an answer, a word every 45ms, which keeps going while the question is still being typed
   const v = value.trim(), asking = v.split(' ').length > 2 || v.endsWith('?');
   useEffect(() => {
-    if (!asking) return;
-    let n = 0; setAnswer('');
+    if (!asking) { setAnswer(''); return; }
+    let n = 0;
     const id = setInterval(() => { n++; setAnswer(ANSWER.slice(0, n).join(' ')); if (n >= ANSWER.length) clearInterval(id); }, 45);
     return () => clearInterval(id);
-  }, [value, asking]);
+  }, [asking]);
   return (
     <div style={{ width: '100%' }}>
       <SearchInput items={ITEMS} sources={SOURCES} recent={RECENT} value={value} onValueChange={setValue} open={open} onOpenChange={setOpen}

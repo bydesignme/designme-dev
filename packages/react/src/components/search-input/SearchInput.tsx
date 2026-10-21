@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
 import { cx } from '../../lib/cx';
-import { useControllable } from '../../lib/hooks';
+import { useControllable, useIsoLayoutEffect, useReducedMotion } from '../../lib/hooks';
 import { Icon, type IconName } from '../../lib/icons';
 import { enter, Fold } from '../../lib/motion';
 import '../../designme.css';
@@ -73,6 +73,8 @@ const marked = (label: string, word: string): ReactNode => {
 
 type Row = { kind: 'recent'; search: string } | { kind: 'source'; source: SearchInputSource } | { kind: 'item'; item: SearchInputItem };
 
+const rowKey = (r: Row) => r.kind === 'item' ? 'i:' + r.item.label + '|' + r.item.source : r.kind === 'recent' ? 'r:' + r.search : 's:' + r.source.key;
+
 /** Search with source filters, recent searches and an answer from the agent. Type @ to filter by source. */
 export function SearchInput({ items, sources = [], recent = [], value, defaultValue = '', onValueChange, scope, defaultScope = null, onScopeChange,
   open, defaultOpen = false, onOpenChange, answer, filter = matchAny, onSelect, onSubmit, placeholder = 'Search frames, files and docs',
@@ -84,7 +86,8 @@ export function SearchInput({ items, sources = [], recent = [], value, defaultVa
   const root = useRef<HTMLDivElement>(null), input = useRef<HTMLInputElement>(null);
   const id = useId();
 
-  // the results draw in again each time the box opens or the search changes, as on the site
+  // the results draw in again each time the box opens; while it stays open, only rows that weren't showing enter,
+  // so typing doesn't restart the list, and the list eases to its new height
   const [opens, setOpens] = useState(0), [wasOpen, setWasOpen] = useState(isOpen);
   if (wasOpen !== isOpen) { setWasOpen(isOpen); if (isOpen) setOpens(opens + 1); }
 
@@ -96,6 +99,21 @@ export function SearchInput({ items, sources = [], recent = [], value, defaultVa
     : mode === 'recent' ? recent.map(search => ({ kind: 'recent', search }))
     : found.map(item => ({ kind: 'item', item }));
   const paint = `${opens}|${text}|${sc}`;
+  const delays = useRef({ opens: -1, at: new Map<string, number>() });
+  if (delays.current.opens !== opens) delays.current = { opens, at: new Map() };
+  const shownKeys = new Set(rows.map(r => rowKey(r)));
+  for (const k of [...delays.current.at.keys()]) if (!shownKeys.has(k)) delays.current.at.delete(k);
+  let fresh = 0;
+  const delayOf = (k: string) => { const at = delays.current.at; if (!at.has(k)) at.set(k, fresh++ * 25); return at.get(k)!; };
+  const list = useRef<HTMLDivElement>(null), lastH = useRef(0), grow = useRef<Animation | null>(null), reduce = useReducedMotion();
+  useIsoLayoutEffect(() => {
+    const el = list.current; if (!el) { lastH.current = 0; return; }
+    const from = grow.current?.playState === 'running' ? el.getBoundingClientRect().height : lastH.current;
+    grow.current?.cancel(); grow.current = null;
+    const to = el.getBoundingClientRect().height; lastH.current = to;
+    if (!isOpen || !from || Math.abs(from - to) < 1 || reduce || !el.animate) return;
+    grow.current = el.animate([{ height: from + 'px', boxSizing: 'border-box', overflow: 'hidden' }, { height: to + 'px', boxSizing: 'border-box', overflow: 'hidden' }], { duration: 280, easing: 'cubic-bezier(.22,1,.36,1)' });
+  });
 
   // the highlight only moves with the arrow keys, and starts afresh with each new list
   const [hi, setHi] = useState({ at: -1, for: paint });
@@ -124,9 +142,9 @@ export function SearchInput({ items, sources = [], recent = [], value, defaultVa
   };
   // rows are picked on mousedown, so the cursor stays in the box
   const row = (r: Row, i: number, body: ReactNode) => {
-    const e = enter(i * 25);
+    const k = rowKey(r), e = enter(delayOf(k));
     return (
-      <button key={i} type="button" tabIndex={-1} id={`${id}-${i}`} role="option" aria-selected={i === cur} className={cx('dm-six-it', e.className, i === cur && 'dm-hl')} style={e.style}
+      <button key={k} type="button" tabIndex={-1} id={`${id}-${i}`} role="option" aria-selected={i === cur} className={cx('dm-six-it', e.className, i === cur && 'dm-hl')} style={e.style}
         onMouseDown={ev => { ev.preventDefault(); pick(r); }}>{body}</button>
     );
   };
@@ -147,7 +165,7 @@ export function SearchInput({ items, sources = [], recent = [], value, defaultVa
           <button type="button" className="dm-ib dm-six-x" aria-label="Clear" hidden={!v && !sc} onMouseDown={e => { e.preventDefault(); setText(''); setScope(null); }}><Icon name="x" size="xs" /></button>
         </div>
         <Fold open={isOpen}>
-          <div key={paint} className="dm-six-res" id={`${id}-list`} role="listbox" aria-label="Results">
+          <div key={opens} ref={list} className="dm-six-res" id={`${id}-list`} role="listbox" aria-label="Results">
             {mode === 'sources' && <>
               <div className="dm-six-g">Filter by source</div>
               {rows.map((r, i) => r.kind === 'source' && row(r, i, <><span className="dm-ic"><Icon name={r.source.icon} size="xs" /></span>{r.source.label}<span className="dm-d">@{r.source.key}</span></>))}

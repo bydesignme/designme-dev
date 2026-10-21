@@ -41,6 +41,10 @@ export interface TooltipProps {
   note?: ReactNode;
   /** How long the person card waits before it shows */
   cardDelay?: number;
+  /** Shows this tool's tip, by key, as if it were hovered. Leave it out to let the pointer decide */
+  openTip?: string | null;
+  /** Shows this person's card, by key, as if they were hovered. Leave it out to let the pointer decide */
+  openCard?: string | null;
   className?: string;
 }
 
@@ -50,7 +54,7 @@ const DEFAULT_GROUPS: TooltipTool[][] = [
 ];
 
 /** A toolbar whose labels wait a moment, then follow you instantly between buttons, with a richer card for people. */
-export function Tooltip({ groups = DEFAULT_GROUPS, people = [], note, cardDelay = 300, className }: TooltipProps) {
+export function Tooltip({ groups = DEFAULT_GROUPS, people = [], note, cardDelay = 300, openTip, openCard, className }: TooltipProps) {
   const root = useRef<HTMLDivElement>(null);
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
   // the card keeps its last person while it fades out
@@ -69,6 +73,13 @@ export function Tooltip({ groups = DEFAULT_GROUPS, people = [], note, cardDelay 
     }, now ? 0 : cardDelay);
   };
   const close = () => { clearTimeout(timer.current); setShow(false); };
+  // a card asked for by key opens at once under its avatar, and closes when the key is cleared
+  const avatars = useRef(new Map<string, HTMLButtonElement>());
+  useEffect(() => {
+    if (openCard === undefined) return;
+    const person = people.find(x => x.key === openCard), el = person && avatars.current.get(person.key);
+    if (person && el) open(person, el, true); else close();
+  }, [openCard]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const p = card?.person;
   return (
@@ -77,7 +88,7 @@ export function Tooltip({ groups = DEFAULT_GROUPS, people = [], note, cardDelay 
         {groups.map((g, i) => [
           i > 0 && <span key={'s' + i} className="dm-ttp-sep" />,
           ...g.map(t => (
-            <Tip key={t.key} label={t.tip ?? t.label} kbd={t.kbd}>
+            <Tip key={t.key} label={t.tip ?? t.label} kbd={t.kbd} open={openTip === t.key || undefined}>
               <button type="button" className="dm-ib" aria-label={t.label} onClick={t.onClick}><Icon name={t.icon} /></button>
             </Tip>
           ))
@@ -86,7 +97,7 @@ export function Tooltip({ groups = DEFAULT_GROUPS, people = [], note, cardDelay 
           <span className="dm-ttp-sep" />
           <span className="dm-ttp-avs">
             {people.map(person => (
-              <button key={person.key} type="button" className="dm-ttp-av" aria-label={person.name}
+              <button key={person.key} ref={el => { if (el) avatars.current.set(person.key, el); else avatars.current.delete(person.key); }} type="button" className="dm-ttp-av" aria-label={person.name}
                 onMouseEnter={e => open(person, e.currentTarget)} onMouseLeave={close}
                 onFocus={e => { if (e.currentTarget.matches(':focus-visible')) open(person, e.currentTarget, true); }} onBlur={close}>
                 <Avatar initials={person.initials} color={person.color} />
