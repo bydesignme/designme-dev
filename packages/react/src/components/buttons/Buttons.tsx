@@ -1,5 +1,5 @@
 'use client';
-import { isValidElement, useEffect, useRef, useState, type ButtonHTMLAttributes, type MouseEvent, type ReactElement, type ReactNode } from 'react';
+import { Fragment, isValidElement, useEffect, useRef, useState, type ButtonHTMLAttributes, type MouseEvent, type ReactElement, type ReactNode } from 'react';
 import { cx } from '../../lib/cx';
 import { useCopied, useReducedMotion } from '../../lib/hooks';
 import { Brand, type BrandName } from '../../lib/brands';
@@ -55,6 +55,8 @@ export interface ButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement
   busyLabel?: ReactNode;
   /** The label once done, like "Published". Defaults to the label */
   doneLabel?: ReactNode;
+  /** The icon on the done face, like "ext" for something that opened elsewhere. Defaults to a check that pops in */
+  doneIcon?: IconName | ReactElement;
   /** spin, or think: the agent's four turning dots with a shimmering label */
   busyGlyph?: 'spin' | 'think';
   /** The done face turns green */
@@ -71,7 +73,7 @@ export interface ButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement
 }
 
 /** A pill button in one of the site's five styles and three sizes, with busy, done and pressed states. */
-export function Button({ variant, size = 'md', icon, children, onClick, busy, done, busyLabel, doneLabel, busyGlyph = 'spin', success, doneFor = 1800,
+export function Button({ variant, size = 'md', icon, children, onClick, busy, done, busyLabel, doneLabel, doneIcon, busyGlyph = 'spin', success, doneFor = 1800,
   fadeBack = true, pressed, tip, kbd, className, ...rest }: ButtonProps) {
   // an onClick that returns a promise drives the button itself
   const [auto, setAuto] = useState<'idle' | 'busy' | 'done'>('idle');
@@ -97,7 +99,7 @@ export function Button({ variant, size = 'md', icon, children, onClick, busy, do
         isBusy && 'dm-busy', isDone && 'dm-done', isDone && success && 'dm-btx-load dm-ok', className)}
       aria-busy={isBusy || undefined} aria-pressed={pressed} onClick={click}>
       <Face id={face} fade={fadeBack && face === 'idle'}>
-        {isBusy ? (think ? <Think /> : <Spin />) : isDone ? <Check /> : glyph(icon)}
+        {isBusy ? (think ? <Think /> : <Spin />) : isDone ? (doneIcon === undefined ? <Check /> : <span className="dm-enter" style={FACE}>{glyph(doneIcon)}</span>) : glyph(icon)}
         {think ? <span className="dm-shim">{label}</span> : label}
       </Face>
     </button>
@@ -171,8 +173,25 @@ export interface ButtonMenuItem {
   /** An icon before the label, or `brand` for a service's own mark */
   icon?: IconName;
   brand?: BrandName;
-  /** Quiet text at the end of the row, like "#design" */
+  /** Quiet text at the end of the row, like "#design" or a shortcut */
   detail?: string;
+  /** A destructive action, like Delete: drawn in the danger colour */
+  danger?: boolean;
+  /** Starts a new group: a line above this item */
+  divider?: boolean;
+}
+
+function MenuItems({ items, onPick }: { items: ButtonMenuItem[]; onPick: (key: string) => void }) {
+  return <>{items.map(it => (
+    <Fragment key={it.key}>
+      {it.divider && <div className="dm-sep" role="separator" />}
+      <button type="button" role="menuitem" className={cx('dm-mi', it.danger && 'dm-del')} onClick={() => onPick(it.key)}>
+        {it.brand ? <Brand name={it.brand} /> : it.icon && <Icon name={it.icon} />}
+        {it.label}
+        {it.detail && <span className="dm-r">{it.detail}</span>}
+      </button>
+    </Fragment>
+  ))}</>;
 }
 
 export interface ButtonMenuProps {
@@ -205,13 +224,46 @@ export function ButtonMenu({ label, items, onSelect, status, variant = 'line', a
         </Face>
       </button>
       <div {...menu.pop} className={cx(menu.pop.className, 'dm-btx-sp')} role="menu">
-        {items.map(it => (
-          <button key={it.key} type="button" role="menuitem" className="dm-mi" onClick={() => { onSelect?.(it.key); menu.closeSoon(); }}>
-            {it.brand ? <Brand name={it.brand} /> : it.icon && <Icon name={it.icon} />}
-            {it.label}
-            {it.detail && <span className="dm-r">{it.detail}</span>}
-          </button>
-        ))}
+        <MenuItems items={items} onPick={key => { onSelect?.(key); menu.closeSoon(); }} />
+      </div>
+    </span>
+  );
+}
+
+/* ---------- ButtonIconMenu ---------- */
+
+export interface ButtonIconMenuProps {
+  /** The icon on the button. Defaults to the three dots */
+  icon?: IconName;
+  /** Read out and shown in the tooltip */
+  label: string;
+  items: ButtonMenuItem[];
+  /** Called with the picked item's key. The menu closes a moment later */
+  onSelect?: (key: string) => void;
+  /** What just happened, like "Duplicated": the icon turns into a check and the tooltip says it. Clear it and the icon comes back */
+  status?: string | null;
+  /** Which edge of the button the menu lines up with */
+  align?: 'start' | 'end';
+  /** Whether the menu is open. Leave it out to let the button toggle it */
+  open?: boolean;
+  defaultOpen?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  className?: string;
+}
+
+/** A round icon button that opens a menu of actions, like More, then flashes a check and says what happened. */
+export function ButtonIconMenu({ icon = 'more', label, items, onSelect, status, align = 'end', open, defaultOpen, onOpenChange, className }: ButtonIconMenuProps) {
+  const menu = usePopover({ align, open, defaultOpen, onOpenChange });
+  return (
+    <span data-dm="" style={{ position: 'relative', display: 'inline-flex' }}>
+      {/* no tooltip over its own open menu */}
+      <Tip label={status || label} open={status ? true : undefined} off={menu.open && !status}>
+        <button type="button" {...menu.trigger} className={cx('dm-ib dm-fill dm-btx-more', status && 'dm-done', className)} aria-label={label}>
+          <Icon name={status ? 'check' : icon} size="xs" />
+        </button>
+      </Tip>
+      <div {...menu.pop} className={cx(menu.pop.className, 'dm-btx-mp')} role="menu">
+        <MenuItems items={items} onPick={key => { onSelect?.(key); menu.closeSoon(); }} />
       </div>
     </span>
   );

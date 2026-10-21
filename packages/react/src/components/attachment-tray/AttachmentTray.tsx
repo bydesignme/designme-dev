@@ -1,6 +1,7 @@
 'use client';
-import { useEffect, useRef, useState, type DragEvent, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type CSSProperties, type DragEvent, type ReactNode } from 'react';
 import { cx } from '../../lib/cx';
+import { useIsoLayoutEffect } from '../../lib/hooks';
 import { Icon } from '../../lib/icons';
 import { Swap, Tip } from '../../lib/motion';
 import '../../designme.css';
@@ -29,6 +30,8 @@ export interface AttachmentTrayProps {
   accept?: string;
   /** The line under the list. Defaults to how many files the agent can read */
   summary?: string;
+  /** Shows the drop zone as if a file were being dragged over it, for a scripted demo. A real drag shows it by itself */
+  dragging?: boolean;
   className?: string;
 }
 
@@ -68,8 +71,33 @@ function Item({ file, delay, onRemove }: { file: Attachment; delay: number; onRe
   );
 }
 
+/** The dashed edge of the drop zone, drawn in SVG so its dashes can march around the corners. It follows the zone's size and
+ *  corner radius, and spaces the dashes so they meet evenly all the way round */
+function Ants() {
+  const svg = useRef<SVGSVGElement>(null);
+  const [g, setG] = useState<{ w: number; h: number; rx: number; ap: number; ag: number } | null>(null);
+  useIsoLayoutEffect(() => {
+    // the drop zone is the parent; its own ref isn't attached yet when this first runs
+    const el = svg.current?.parentElement; if (!el) return;
+    const fit = () => {
+      const w = el.offsetWidth, h = el.offsetHeight; if (!w || !h) return;
+      const k = .75, rx = Math.max(0, Math.min(parseFloat(getComputedStyle(el).borderTopLeftRadius) || 0, w / 2, h / 2) - k);
+      const per = 2 * (w + h - 4 * k) - (8 - 2 * Math.PI) * rx, step = per / Math.max(8, Math.round(per / 11));
+      setG({ w: w - 2 * k, h: h - 2 * k, rx, ap: step, ag: step - 4.5 });
+    };
+    fit();
+    const ro = new ResizeObserver(fit); ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  return (
+    <svg ref={svg} className="dm-atx-ants" aria-hidden="true">
+      {g && <rect x={.75} y={.75} width={g.w} height={g.h} rx={g.rx} style={{ '--dm-ap': g.ap + 'px', '--dm-ag': g.ag + 'px' } as CSSProperties} />}
+    </svg>
+  );
+}
+
 /** Drop files for the agent and watch each one upload. */
-export function AttachmentTray({ files, onFiles, onRemove, title = 'Drop files here', action, accept, summary, className }: AttachmentTrayProps) {
+export function AttachmentTray({ files, onFiles, onRemove, title = 'Drop files here', action, accept, summary, dragging, className }: AttachmentTrayProps) {
   const [over, setOver] = useState(false);
   // files that arrive together come in one after another
   const ids = files.map(f => f.id).join('\u0000');
@@ -85,10 +113,11 @@ export function AttachmentTray({ files, onFiles, onRemove, title = 'Drop files h
 
   return (
     <div data-dm="" className={cx('dm-atx', className)}>
-      <label className={cx('dm-atx-drop', over && 'dm-over')} onDragEnter={hold} onDragOver={hold} onDragLeave={() => setOver(false)}
+      <label className={cx('dm-atx-drop', (over || dragging) && 'dm-over')} onDragEnter={hold} onDragOver={hold} onDragLeave={() => setOver(false)}
         onDrop={e => { e.preventDefault(); setOver(false); if (e.dataTransfer.files.length) onFiles?.(Array.from(e.dataTransfer.files)); }}>
         <input type="file" multiple accept={accept} className="dm-atx-file" aria-label="Choose files"
           onChange={e => { if (e.target.files?.length) onFiles?.(Array.from(e.target.files)); e.target.value = ''; }} />
+        <Ants />
         <span className="dm-atx-ic"><Icon name="upload" /></span>
         <b>{title}</b>
         {action && <span className="dm-muted">or <button type="button" className="dm-atx-sample" onClick={action.onClick}>{action.label}</button></span>}

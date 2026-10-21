@@ -17,6 +17,25 @@ export interface FeedbackSheetProps {
   rating?: FeedbackRating;
   defaultRating?: FeedbackRating;
   onRatingChange?: (rating: FeedbackRating) => void;
+  /** Whether the reasons sheet is open. Leave it out and thumbs down opens it */
+  open?: boolean;
+  defaultOpen?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  /** The reasons picked. Leave it out to let the chips keep it */
+  selected?: string[];
+  defaultSelected?: string[];
+  onSelectedChange?: (selected: string[]) => void;
+  /** What is written in the box. Leave it out to let the box keep it */
+  comment?: string;
+  defaultComment?: string;
+  onCommentChange?: (comment: string) => void;
+  /** Shows the box as if someone were typing in it, for a scripted demo */
+  typing?: boolean;
+  /** Shows the spinner on Send, for a scripted demo. A promise from onSubmit shows it by itself */
+  sending?: boolean;
+  /** What was sent, which shows the thank-you line. Leave it out and Send sets it */
+  sent?: Feedback | null;
+  onSentChange?: (sent: Feedback | null) => void;
   /** The heading of the sheet that opens on thumbs down */
   question?: string;
   /** Quick reasons to pick from */
@@ -37,33 +56,35 @@ const REASONS = ['Wrong spacing', 'Ignored my tokens', 'Too many changes', 'Brok
 const THANKS = (f: Feedback) => `Thanks. The agent will ${f.reasons.length ? 'avoid this' : 'use this'} next time in this project.`;
 
 /** Rate an answer, and say what missed when it was wrong. */
-export function FeedbackSheet({ children, rating, defaultRating = null, onRatingChange, question = 'What went wrong?', reasons = REASONS, placeholder = 'Anything else the agent should know', note = 'Shared with the agent for this project', onSubmit, thanks = THANKS, bare = true, className }: FeedbackSheetProps) {
+export function FeedbackSheet({ children, rating, defaultRating = null, onRatingChange, open: openProp, defaultOpen = false, onOpenChange,
+  selected, defaultSelected = [], onSelectedChange, comment: commentProp, defaultComment = '', onCommentChange, typing, sending: sendingProp, sent: sentProp, onSentChange, question = 'What went wrong?', reasons = REASONS, placeholder = 'Anything else the agent should know', note = 'Shared with the agent for this project', onSubmit, thanks = THANKS, bare = true, className }: FeedbackSheetProps) {
   const [rate, setRate] = useControllable<FeedbackRating>(rating, defaultRating, onRatingChange);
-  const [open, setOpen] = useState(false);
-  const [picked, setPicked] = useState<string[]>([]);
-  const [comment, setComment] = useState('');
-  const [sending, setSending] = useState(false);
-  const [sent, setSent] = useState<Feedback | null>(null);
-  const [status, setStatus] = useState('');
+  const [open, setOpen] = useControllable(openProp, defaultOpen, onOpenChange);
+  const [picked, setPicked] = useControllable(selected, defaultSelected, onSelectedChange);
+  const [comment, setComment] = useControllable(commentProp, defaultComment, onCommentChange);
+  const [busy, setBusy] = useState(false);
+  const sending = sendingProp ?? busy;
+  const [sent, setSent] = useControllable<Feedback | null>(sentProp, null, onSentChange);
+  const status = sent ? 'Feedback sent' : rate === 'up' ? 'Thanks, noted' : '';
   const box = useRef<HTMLTextAreaElement>(null);
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
   const later = (ms: number, fn: () => void) => { timers.current.push(setTimeout(fn, ms)); };
   useEffect(() => () => timers.current.forEach(clearTimeout), []);
 
-  const up = () => { const on = rate !== 'up'; setRate(on ? 'up' : null); setOpen(false); setStatus(on ? 'Thanks, noted' : ''); };
+  const up = () => { const on = rate !== 'up'; setRate(on ? 'up' : null); setOpen(false); };
   const down = () => {
-    const on = rate !== 'down'; setRate(on ? 'down' : null); setOpen(on); setStatus('');
+    const on = rate !== 'down'; setRate(on ? 'down' : null); setOpen(on);
     // the sheet opens first, then the cursor goes to the box
     if (on) later(350, () => box.current?.focus({ preventScroll: true }));
   };
   const send = async () => {
     if (sending) return;
     const f = { reasons: picked, comment: comment.trim() };
-    setSending(true);
+    setBusy(true);
     // if sending fails the sheet stays open so the person can try again
-    try { await onSubmit?.(f); } catch (e) { setSending(false); throw e; }
-    setSending(false); setOpen(false);
-    later(300, () => { setSent(f); setStatus('Feedback sent'); });
+    try { await onSubmit?.(f); } catch (e) { setBusy(false); throw e; }
+    setBusy(false); setOpen(false);
+    later(300, () => setSent(f));
   };
 
   return (
@@ -85,7 +106,7 @@ export function FeedbackSheet({ children, rating, defaultRating = null, onRating
               })}
             </div>
           )}
-          <textarea ref={box} className="dm-fbx-ta" rows={2} placeholder={placeholder} value={comment} onChange={e => setComment(e.target.value)} />
+          <textarea ref={box} className={cx('dm-fbx-ta', typing && 'dm-typing')} rows={2} placeholder={placeholder} value={comment} onChange={e => setComment(e.target.value)} />
           <div className="dm-fbx-f">
             <span className="dm-muted dm-fbx-n">{note}</span>
             <button type="button" className="dm-pill dm-ghost dm-sm dm-fbx-x" onClick={() => { setOpen(false); setRate(null); }}>Cancel</button>
