@@ -32,6 +32,8 @@ const server = http.createServer((req, res) => {
     const got = await page.evaluate(async ({ PLAY, EVERY }) => {
       // the heights the site would give each stage without these numbers (some cards ask for more than the 420px default)
       const reserved = document.getElementById('card-heights'); if (reserved) reserved.disabled = true;
+      // both sets of cards, Agent components and App basics, are laid out while they're measured
+      document.documentElement.classList.add('grp-all');
       const comps = [...document.querySelectorAll('.lib-sec .comp[data-v2]')];
       const base = new Map(comps.map(c => [c, parseFloat(getComputedStyle(c.querySelector(':scope>.stage')).minHeight) || 0]));
       // then each stage at its own height: no minimum, and not stretched to match the card beside it

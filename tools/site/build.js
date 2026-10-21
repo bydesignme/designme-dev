@@ -275,7 +275,7 @@ main = main.replace(/<article([^>]*\bid="(c\d+)"[^>]*)>([\s\S]*?)<\/article>/g, 
 });
 /* ---------- the agent components open with their strongest cards: Conversation comes first, and every section leads
    with what shows off an agent best. A wide card goes after an even number of half-width ones, so rows stay full ---------- */
-const SECTIONS_FIRST = ['s-conversation', 's-status'];
+const SECTIONS_FIRST = ['s-conversation', 's-status'], GRP = {};
 const ORDER = {
   's-conversation': ['live-answer', 'composer', 'thread-panel', 'artifact-card', 'tool-call', 'voice-capture', 'response-versions', 'prompt-starters', 'attachment-tray', 'feedback-sheet'],
   's-status': ['thinking', 'reasoning-trail', 'agent-lanes', 'run-summary', 'action-log', 'agent-run-timeline', 'context-meter', 'error-recovery', 'run-queue', 'run-cost', 'toast-stack', 'toast', 'status-pill', 'step-loader'],
@@ -302,15 +302,21 @@ const ORDER = {
   const ix = main.indexOf(main.match(secRe(SECTIONS_FIRST[1]))[0]), iy = main.indexOf(x);
   if (!(ix < iy)) throw new Error('sections already moved');
   main = main.slice(0, ix) + x + main.slice(ix + y.length, iy) + y + main.slice(iy + x.length);
-  let no = 0; main = main.replace(/<span class="sec-no">\d+<\/span>/g, () => `<span class="sec-no">${String(++no).padStart(2, '0')}</span>`);
+  // two sets on the page, Agent components and App basics, shown one at a time: each section knows its set, and each set
+  // numbers its sections from 01
+  const cut = main.indexOf('<h2>App basics</h2>'); if (cut < 0) throw new Error('App basics heading not found');
+  const mark = part => { let no = 0; return part.replace(/<section class="lib-sec" id="([\w-]+)">/g, (m, id) => (GRP[id] = GRP.cur, m.replace('>', ` data-grp="${GRP.cur}">`)))
+    .replace(/<span class="sec-no">\d+<\/span>/g, () => `<span class="sec-no">${String(++no).padStart(2, '0')}</span>`); };
+  GRP.cur = 'agent'; const head = mark(main.slice(0, cut)); GRP.cur = 'basics'; main = head + mark(main.slice(cut));
 }
 site = site.slice(0, mainA) + main + site.slice(mainB);
 // the sidebar follows: its groups in section order, and its links in card order
 {
-  const grp = id => { const a = site.indexOf(`<div class="side-grp" data-s="${id}">`); if (a < 0) throw new Error('no side group ' + id); return a; };
+  const grp = id => { const a = site.indexOf(`<div class="side-grp" data-s="${id}"`); if (a < 0) throw new Error('no side group ' + id); return a; };
   const [ga, gb] = SECTIONS_FIRST.map(grp), next = i => site.indexOf('<div class="side-grp" data-s="', i + 10), gEnd = next(ga);
   if (next(gb) !== ga) throw new Error('side groups not next to each other');
   site = site.slice(0, gb) + site.slice(ga, gEnd) + site.slice(gb, ga) + site.slice(gEnd);
+  site = site.replace(/<div class="side-grp" data-s="([\w-]+)">/g, (m, id) => { if (!GRP[id]) throw new Error('no set for ' + id); return `<div class="side-grp" data-s="${id}" data-grp="${GRP[id]}">`; });
   for (const [sid, ids] of Object.entries(ORDER)){
     const a = site.indexOf('<div class="side-ul">', grp(sid)) + '<div class="side-ul">'.length, b = site.indexOf('</div>', a);
     const links = site.slice(a, b).match(/<a class="side-a"[^>]*>[^<]*<\/a>/g);

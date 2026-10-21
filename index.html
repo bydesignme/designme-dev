@@ -5473,13 +5473,44 @@ main .comp .stage-inner{padding-bottom:62px}
 .cdm .cdm-tab[data-t^="rx-"],.cdm.rx .cdm-tab:not([data-t^="rx-"]),.dv-code .dv-tab[data-t^="rx-"],.dv-code.rx .dv-tab:not([data-t^="rx-"]){display:none}
 .cdm.rx .cdm-tab[data-t^="rx-"],.dv-code.rx .dv-tab[data-t^="rx-"]{display:inline-block}
 .cdm.rx .cdm-foot{display:none}
-/* intro: the React install command and the React preview */
+/* ---------- a quieter page: white, no dots, cards without a frame ---------- */
+:root{--sh-bg:#ffffff;--sh-stage:#f5f5f5;--sh-top:rgba(255,255,255,.86);--sh-dot:transparent;--sh-act:#f5f5f5;--sh-sw:#f3f3f3;--sh-sw-on:#ffffff}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){--sh-bg:#111111;--sh-side:#111111;--sh-stage:#1c1c1c;--sh-top:rgba(17,17,17,.86);--sh-dot:transparent;--sh-act:#1d1d1d;--sh-sw:#1c1c1c;--sh-sw-on:#2a2a2a} }
+:root[data-theme="dark"]{--sh-bg:#111111;--sh-side:#111111;--sh-stage:#1c1c1c;--sh-top:rgba(17,17,17,.86);--sh-dot:transparent;--sh-act:#1d1d1d;--sh-sw:#1c1c1c;--sh-sw-on:#2a2a2a}
+body.ui,.dv,.pv{background-image:none}
+/* the intro: a smaller, lighter heading and one short line */
+.intro h1{font-size:26px;font-weight:600;line-height:1.2;letter-spacing:-.022em}
+.intro p{margin-top:8px;font-size:14.5px}
 .intro-get{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;margin-top:18px}
-.intro-get .intro-cmd{margin-top:0;min-width:0;background:var(--sh-card)}
+.intro-get .intro-cmd{margin-top:0;min-width:0;background:var(--sh-bg)}
 .intro-cmd .c{color:var(--sh-text)}
-.intro-rx{display:inline-flex;align-items:center;gap:4px;font-size:13.5px;font-weight:500;color:var(--sh-text);text-decoration:none;border-bottom:1px solid var(--sh-line-2);transition:border-color .2s}
-.intro-rx:hover{border-color:var(--sh-text)}
-.intro-rx .ms{color:var(--sh-muted)}
+@media (max-width:960px){ .intro h1{font-size:24px} }
+/* Agent components or App basics */
+.grp-sw{position:relative;display:inline-flex;gap:2px;margin:30px 0 0;padding:3px;border-radius:11px;background:var(--sh-sw);corner-shape:round}
+.grp-sw button{position:relative;z-index:1;height:32px;padding:0 15px;border-radius:8px;font-size:13.5px;font-weight:500;color:var(--sh-dim);transition:color .2s ease}
+.grp-sw button:hover,.grp-sw button[aria-selected="true"]{color:var(--sh-text)}
+.grp-ind{position:absolute;top:3px;bottom:3px;left:3px;border-radius:8px;background:var(--sh-sw-on);box-shadow:0 1px 2px rgba(17,19,24,.08),0 0 0 .5px rgba(17,19,24,.06);transition:left .4s cubic-bezier(.16,1,.3,1),width .4s cubic-bezier(.16,1,.3,1);corner-shape:round}
+.grp-sw+.lib-sec .sec-head{padding-top:28px}
+@media (max-width:640px){ .grp-sw{display:flex;margin-top:22px} .grp-sw button{flex:1;padding:0 8px} }
+:root:not(.grp-all):not([data-grp="basics"]) [data-grp="basics"],:root[data-grp="basics"]:not(.grp-all) [data-grp="agent"]{display:none}
+:root:not(.grp-all) .side-lbl{display:none}
+/* cards: the title sits on the page and the component on a grey stage, with its switch or hint inside it */
+body.ui .lib-sec .grid{gap:44px 24px}
+body.ui .comp{background:none;border:0;border-radius:0;overflow:visible}
+body.ui .comp-head{padding:0 2px 12px}
+body.ui .comp-title{font-size:14px;font-weight:600}
+body.ui .comp-desc{font-size:13px}
+body.ui .stage{padding:0}
+body.ui .stage-inner{border-radius:14px 14px 0 0}
+body.ui .comp-foot{justify-content:center;padding:2px 16px 16px;background:var(--sh-stage);border-radius:0 0 14px 14px;corner-shape:round}
+body.ui .comp-foot .mono-xs{text-align:center}
+body.ui .comp-foot .tabs{background:none;padding:0}
+body.ui .comp-foot .tabs .ind{top:0;bottom:0;background:var(--sh-sw-on)}
+.dv-slot .stage-inner{border-radius:14px 14px 0 0}
+/* the sidebar: quieter type, and a selected row as light as the stage */
+.side-a{font-size:13px}
+.side-a:hover{background:var(--sh-act)}
+.side-a.act{background:var(--sh-act);font-weight:400}
 /* phones: the header is one 40px row from the first paint, before the script moves its controls into the menu, and the
    sidebar, which sits below the components, waits for the end of the page so it can't flash at the top while it loads */
 @media (max-width:960px){
@@ -7881,7 +7912,7 @@ main .comp .stage-inner{padding-bottom:62px}
 <div class="layout">
 <aside class="side" id="side">
   <label class="side-search"><span class="ms">search</span><input id="side-q" placeholder="Search components" autocomplete="off" aria-label="Search components"><span class="kbd">/</span></label>
-  <nav class="side-nav" aria-label="Components"><div class="side-grp side-saved"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Saved</span><span class="side-n" id="saved-n">0</span></button><div class="side-list"><div class="side-ul" id="saved-list"></div></div></div><div class="side-lbl first">Agent components</div><div class="side-grp" data-s="s-conversation"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Conversation</span><span class="side-n">10</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c3" data-c="c3">Live answer</a><a class="side-a" href="#c6" data-c="c6">Composer</a><a class="side-a" href="#c8" data-c="c8">Thread panel</a><a class="side-a" href="#c108" data-c="c108">Artifact card</a><a class="side-a" href="#c107" data-c="c107">Tool call</a><a class="side-a" href="#c24" data-c="c24">Voice capture</a><a class="side-a" href="#c31" data-c="c31">Response versions</a><a class="side-a" href="#c29" data-c="c29">Prompt starters</a><a class="side-a" href="#c30" data-c="c30">Attachment tray</a><a class="side-a" href="#c32" data-c="c32">Feedback sheet</a></div></div></div><div class="side-grp" data-s="s-status"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Agent status</span><span class="side-n">14</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c60" data-c="c60">Thinking</a><a class="side-a" href="#c2" data-c="c2">Reasoning trail</a><a class="side-a" href="#c26" data-c="c26">Agent lanes</a><a class="side-a" href="#c106" data-c="c106">Run summary</a><a class="side-a" href="#c7" data-c="c7">Action log</a><a class="side-a" href="#c67" data-c="c67">Agent run timeline</a><a class="side-a" href="#c23" data-c="c23">Context meter</a><a class="side-a" href="#c109" data-c="c109">Error and recovery</a><a class="side-a" href="#c5" data-c="c5">Run queue</a><a class="side-a" href="#c27" data-c="c27">Run cost</a><a class="side-a" href="#c28" data-c="c28">Toast stack</a><a class="side-a" href="#c58" data-c="c58">Toast</a><a class="side-a" href="#c22" data-c="c22">Status pill</a><a class="side-a" href="#c1" data-c="c1">Step loader</a></div></div></div><div class="side-grp" data-s="s-review"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Review and approve</span><span class="side-n">8</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c11" data-c="c11">Change review</a><a class="side-a" href="#c105" data-c="c105">Plan review</a><a class="side-a" href="#c33" data-c="c33">Permission gate</a><a class="side-a" href="#c4" data-c="c4">Decision prompt</a><a class="side-a" href="#c9" data-c="c9">Proposal card</a><a class="side-a" href="#c19" data-c="c19">Design tuner</a><a class="side-a" href="#c20" data-c="c20">Rewrite toolbar</a><a class="side-a" href="#c34" data-c="c34">Launch checklist</a></div></div></div><div class="side-grp" data-s="s-data"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Sources and output</span><span class="side-n">7</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c18" data-c="c18">Code viewer</a><a class="side-a" href="#c68" data-c="c68">Citation hover card</a><a class="side-a" href="#c10" data-c="c10">Source stack</a><a class="side-a" href="#c36" data-c="c36">Field extraction</a><a class="side-a" href="#c17" data-c="c17">Metric insight</a><a class="side-a" href="#c66" data-c="c66">Details panel</a><a class="side-a" href="#c13" data-c="c13">Task table</a></div></div></div><div class="side-grp" data-s="s-workspace"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Workspace</span><span class="side-n">7</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c16" data-c="c16">Automation canvas</a><a class="side-a" href="#c15" data-c="c15">Command palette</a><a class="side-a" href="#c69" data-c="c69">Memory panel</a><a class="side-a" href="#c71" data-c="c71">Model compare</a><a class="side-a" href="#c38" data-c="c38">Agent settings</a><a class="side-a" href="#c39" data-c="c39">File explorer</a><a class="side-a" href="#c14" data-c="c14">Workspace rail</a></div></div></div><div class="side-grp" data-s="s-harness"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Harness</span><span class="side-n">1</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c99" data-c="c99">Agent harness</a></div></div></div><div class="side-lbl">App basics</div><div class="side-grp" data-s="s-charts"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Charts and tables</span><span class="side-n">9</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c41" data-c="c41">Line chart</a><a class="side-a" href="#c42" data-c="c42">Bar chart</a><a class="side-a" href="#c43" data-c="c43">Donut chart</a><a class="side-a" href="#c102" data-c="c102">Funnel chart</a><a class="side-a" href="#c103" data-c="c103">Top pages</a><a class="side-a" href="#c65" data-c="c65">Health score</a><a class="side-a" href="#c45" data-c="c45">Activity heatmap</a><a class="side-a" href="#c44" data-c="c44">Stat cards</a><a class="side-a" href="#c12" data-c="c12">Account table</a></div></div></div><div class="side-grp" data-s="s-dates"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Dates</span><span class="side-n">4</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c46" data-c="c46">Date picker</a><a class="side-a" href="#c47" data-c="c47">Date range picker</a><a class="side-a" href="#c62" data-c="c62">Event calendar</a><a class="side-a" href="#c63" data-c="c63">Agenda</a></div></div></div><div class="side-grp" data-s="s-forms"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Forms and inputs</span><span class="side-n">8</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c49" data-c="c49">Buttons</a><a class="side-a" href="#c52" data-c="c52">Tooltip</a><a class="side-a" href="#c53" data-c="c53">Search input</a><a class="side-a" href="#c57" data-c="c57">Country select</a><a class="side-a" href="#c51" data-c="c51">Social sign-in</a><a class="side-a" href="#c55" data-c="c55">Sign in</a><a class="side-a" href="#c50" data-c="c50">Form</a><a class="side-a" href="#c64" data-c="c64">Payment form</a></div></div></div><div class="side-grp" data-s="s-collab"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Collaboration</span><span class="side-n">6</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c54" data-c="c54">Comments</a><a class="side-a" href="#c56" data-c="c56">Notifications</a><a class="side-a" href="#c61" data-c="c61">Invite to collaborate</a><a class="side-a" href="#c59" data-c="c59">Reactions</a><a class="side-a" href="#c104" data-c="c104">Ticket list</a><a class="side-a" href="#c101" data-c="c101">Kanban board</a></div></div></div><div class="side-grp" data-s="s-product"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Product</span><span class="side-n">5</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c70" data-c="c70">Pricing cards</a><a class="side-a" href="#c72" data-c="c72">Onboarding checklist</a><a class="side-a" href="#c73" data-c="c73">Stepper</a><a class="side-a" href="#c74" data-c="c74">Set limit</a><a class="side-a" href="#c75" data-c="c75">Currency converter</a></div></div></div><div class="side-empty" id="side-empty"><p>No components match your search.</p><button class="suggest-btn"><span class="ms">add</span><span class="st">Suggest this component</span></button></div></nav>
+  <nav class="side-nav" aria-label="Components"><div class="side-grp side-saved"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Saved</span><span class="side-n" id="saved-n">0</span></button><div class="side-list"><div class="side-ul" id="saved-list"></div></div></div><div class="side-lbl first">Agent components</div><div class="side-grp" data-s="s-conversation" data-grp="agent"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Conversation</span><span class="side-n">10</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c3" data-c="c3">Live answer</a><a class="side-a" href="#c6" data-c="c6">Composer</a><a class="side-a" href="#c8" data-c="c8">Thread panel</a><a class="side-a" href="#c108" data-c="c108">Artifact card</a><a class="side-a" href="#c107" data-c="c107">Tool call</a><a class="side-a" href="#c24" data-c="c24">Voice capture</a><a class="side-a" href="#c31" data-c="c31">Response versions</a><a class="side-a" href="#c29" data-c="c29">Prompt starters</a><a class="side-a" href="#c30" data-c="c30">Attachment tray</a><a class="side-a" href="#c32" data-c="c32">Feedback sheet</a></div></div></div><div class="side-grp" data-s="s-status" data-grp="agent"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Agent status</span><span class="side-n">14</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c60" data-c="c60">Thinking</a><a class="side-a" href="#c2" data-c="c2">Reasoning trail</a><a class="side-a" href="#c26" data-c="c26">Agent lanes</a><a class="side-a" href="#c106" data-c="c106">Run summary</a><a class="side-a" href="#c7" data-c="c7">Action log</a><a class="side-a" href="#c67" data-c="c67">Agent run timeline</a><a class="side-a" href="#c23" data-c="c23">Context meter</a><a class="side-a" href="#c109" data-c="c109">Error and recovery</a><a class="side-a" href="#c5" data-c="c5">Run queue</a><a class="side-a" href="#c27" data-c="c27">Run cost</a><a class="side-a" href="#c28" data-c="c28">Toast stack</a><a class="side-a" href="#c58" data-c="c58">Toast</a><a class="side-a" href="#c22" data-c="c22">Status pill</a><a class="side-a" href="#c1" data-c="c1">Step loader</a></div></div></div><div class="side-grp" data-s="s-review" data-grp="agent"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Review and approve</span><span class="side-n">8</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c11" data-c="c11">Change review</a><a class="side-a" href="#c105" data-c="c105">Plan review</a><a class="side-a" href="#c33" data-c="c33">Permission gate</a><a class="side-a" href="#c4" data-c="c4">Decision prompt</a><a class="side-a" href="#c9" data-c="c9">Proposal card</a><a class="side-a" href="#c19" data-c="c19">Design tuner</a><a class="side-a" href="#c20" data-c="c20">Rewrite toolbar</a><a class="side-a" href="#c34" data-c="c34">Launch checklist</a></div></div></div><div class="side-grp" data-s="s-data" data-grp="agent"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Sources and output</span><span class="side-n">7</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c18" data-c="c18">Code viewer</a><a class="side-a" href="#c68" data-c="c68">Citation hover card</a><a class="side-a" href="#c10" data-c="c10">Source stack</a><a class="side-a" href="#c36" data-c="c36">Field extraction</a><a class="side-a" href="#c17" data-c="c17">Metric insight</a><a class="side-a" href="#c66" data-c="c66">Details panel</a><a class="side-a" href="#c13" data-c="c13">Task table</a></div></div></div><div class="side-grp" data-s="s-workspace" data-grp="agent"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Workspace</span><span class="side-n">7</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c16" data-c="c16">Automation canvas</a><a class="side-a" href="#c15" data-c="c15">Command palette</a><a class="side-a" href="#c69" data-c="c69">Memory panel</a><a class="side-a" href="#c71" data-c="c71">Model compare</a><a class="side-a" href="#c38" data-c="c38">Agent settings</a><a class="side-a" href="#c39" data-c="c39">File explorer</a><a class="side-a" href="#c14" data-c="c14">Workspace rail</a></div></div></div><div class="side-grp" data-s="s-harness" data-grp="agent"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Harness</span><span class="side-n">1</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c99" data-c="c99">Agent harness</a></div></div></div><div class="side-lbl">App basics</div><div class="side-grp" data-s="s-charts" data-grp="basics"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Charts and tables</span><span class="side-n">9</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c41" data-c="c41">Line chart</a><a class="side-a" href="#c42" data-c="c42">Bar chart</a><a class="side-a" href="#c43" data-c="c43">Donut chart</a><a class="side-a" href="#c102" data-c="c102">Funnel chart</a><a class="side-a" href="#c103" data-c="c103">Top pages</a><a class="side-a" href="#c65" data-c="c65">Health score</a><a class="side-a" href="#c45" data-c="c45">Activity heatmap</a><a class="side-a" href="#c44" data-c="c44">Stat cards</a><a class="side-a" href="#c12" data-c="c12">Account table</a></div></div></div><div class="side-grp" data-s="s-dates" data-grp="basics"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Dates</span><span class="side-n">4</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c46" data-c="c46">Date picker</a><a class="side-a" href="#c47" data-c="c47">Date range picker</a><a class="side-a" href="#c62" data-c="c62">Event calendar</a><a class="side-a" href="#c63" data-c="c63">Agenda</a></div></div></div><div class="side-grp" data-s="s-forms" data-grp="basics"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Forms and inputs</span><span class="side-n">8</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c49" data-c="c49">Buttons</a><a class="side-a" href="#c52" data-c="c52">Tooltip</a><a class="side-a" href="#c53" data-c="c53">Search input</a><a class="side-a" href="#c57" data-c="c57">Country select</a><a class="side-a" href="#c51" data-c="c51">Social sign-in</a><a class="side-a" href="#c55" data-c="c55">Sign in</a><a class="side-a" href="#c50" data-c="c50">Form</a><a class="side-a" href="#c64" data-c="c64">Payment form</a></div></div></div><div class="side-grp" data-s="s-collab" data-grp="basics"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Collaboration</span><span class="side-n">6</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c54" data-c="c54">Comments</a><a class="side-a" href="#c56" data-c="c56">Notifications</a><a class="side-a" href="#c61" data-c="c61">Invite to collaborate</a><a class="side-a" href="#c59" data-c="c59">Reactions</a><a class="side-a" href="#c104" data-c="c104">Ticket list</a><a class="side-a" href="#c101" data-c="c101">Kanban board</a></div></div></div><div class="side-grp" data-s="s-product" data-grp="basics"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Product</span><span class="side-n">5</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c70" data-c="c70">Pricing cards</a><a class="side-a" href="#c72" data-c="c72">Onboarding checklist</a><a class="side-a" href="#c73" data-c="c73">Stepper</a><a class="side-a" href="#c74" data-c="c74">Set limit</a><a class="side-a" href="#c75" data-c="c75">Currency converter</a></div></div></div><div class="side-empty" id="side-empty"><p>No components match your search.</p><button class="suggest-btn"><span class="ms">add</span><span class="st">Suggest this component</span></button></div></nav>
   <div class="side-foot">
     <a class="credit" href="https://designme.agency" target="_blank" rel="noopener"><div class="sticker" style="--sticker-mask:url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNzU5IiBoZWlnaHQ9IjYzMiIgdmlld0JveD0iMCAwIDc1OSA2MzIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxwYXRoIGQ9Ik0xNDkuNDk3IDI4My43ODRDMTQ5LjQ3NyAyODQuMDQ3IDE0OS40NzQgMjg0LjMxMSAxNDkuNDg3IDI4NC41NzVDMTU2LjM4NSAzNDAuMDM0IDE4My41NDggMzkxLjExNiAyMjUuOSA0MjguMTk2QzI2Ny45ODkgNDY1LjA0NCAzMjIuMTg4IDQ4NS41MzIgMzc4LjQxNCA0ODUuODU1TDM3OS43NDMgNDg1Ljg1OUM0MzYuNDUzIDQ4NS44NjggNDkxLjE4OCA0NjUuMzUzIDUzMy42MTkgNDI4LjIxMkM1NzUuOTEyIDM5MS4xOTQgNjAzLjA2MiAzNDAuMjE2IDYxMC4wMTggMjg0Ljg1Nkw2MTAuMDE4IDI4MS41MTJDNjEwLjAwOCAyNzcuMzM3IDYwOC4zMjQgMjczLjMxNSA2MDUuMzAzIDI3MC4zMzVDNjAyLjI3NyAyNjcuMzUxIDU5OC4xNTUgMjY1LjY1NiA1OTMuODM3IDI2NS42NTZMMTY1LjY0NyAyNjUuNjU2QzE2MS4zMzggMjY1LjY1NiAxNTcuMjI2IDI2Ny4zNDkgMTU0LjIxIDI3MC4zMzFDMTUxLjE5OCAyNzMuMzA5IDE0OS41MjQgMjc3LjMyNiAxNDkuNTIzIDI4MS40OTFMMTQ5LjUyMyAyODMuNDM3TDE0OS40OTcgMjgzLjc4NFpNMTE0LjM3OCAyNDcuMzk1QzExOC4zOTYgMjQ3LjM5MSAxMjIuMjU0IDI0NS45MTkgMTI1LjIxNCAyNDMuMjlDMTI4LjA2MyAyNDAuNzU5IDEyOS44ODcgMjM3LjMzIDEzMC4zOTYgMjMzLjYyOUwxMzAuMzk2IDIzMy4zNUwxMzAuNDM3IDIzMi45MTdDMTM2LjM1NSAxNzEuNjM0IDE2NS4xNjIgMTE0Ljc1NCAyMTEuMjAyIDczLjM2ODdDMjU3LjIzOSAzMS45ODU5IDMxNy4yMDYgOS4wNjA2MyAzNzkuMzkzIDkuMDQ0NDhMMzc5LjM5NiA5LjA0NDQ4QzQ0MS41OTMgOS4wNDU4MyA1MDEuNTc0IDMxLjk2NCA1NDcuNjI0IDczLjM0ODJDNTkzLjY3NyAxMTQuNzM1IDYyMi40OTEgMTcxLjYyNCA2MjguNDExIDIzMi45MTdMNjI4LjQ1MyAyMzMuMzVMNjI4LjQ1MyAyMzMuNjQzQzYyOC45NTMgMjM3LjM0NCA2MzAuNzczIDI0MC43NzQgNjMzLjYyMSAyNDMuMzA0QzYzNi41OCAyNDUuOTMyIDY0MC40MzcgMjQ3LjM5OSA2NDQuNDUyIDI0Ny4zOTVMNzI1LjY0NCAyNDcuMzk1QzcyOC44ODIgMjQ3LjQwNCA3MzIuMDg5IDI0OC4wNiA3MzUuMDcxIDI0OS4zMjlDNzM4LjA1NSAyNTAuNTk4IDc0MC43NTMgMjUyLjQ1MyA3NDMuMDAxIDI1NC43ODdDNzQ1LjI1MiAyNTcuMTIzIDc0Ny4wMDUgMjU5Ljg5MSA3NDguMTUxIDI2Mi45MjRDNzQ5LjI5NiAyNjUuOTU0IDc0OS44MSAyNjkuMTgzIDc0OS42NjIgMjcyLjQxOEw3NDkuNjYzIDI3Mi40MThDNzQ1LjQ4NCAzNjYuNzk3IDcwNC42MTcgNDU1LjkxOSA2MzUuNjE1IDUyMS4yMTFDNTY2LjYxNiA1ODYuNDk5IDQ3NC44MDkgNjIyLjkyNCAzNzkuMzM4IDYyMi45MjRDMjgzLjg3MiA2MjIuOTI0IDE5Mi4wNzEgNTg2LjQ5NiAxMjMuMDgxIDUyMS4yMDZDNTQuMDkzNSA0NTUuOTE3IDEzLjI0MTIgMzY2LjgwNCA5LjA3MTMzIDI3Mi40MzhMOS4wNzAzNiAyNzIuNDM4TDkuMDcwMzYgMjcyLjQzNkM5LjA3MDA3IDI3Mi40MyA5LjA2OTY3IDI3Mi40MjMgOS4wNjkzOCAyNzIuNDE3TDkuMDcwMzYgMjcyLjQxN0M4LjkyMjcyIDI2OS4xODIgOS40MzY1NSAyNjUuOTUzIDEwLjU4MTEgMjYyLjkyNEMxMS43Mjc2IDI1OS44OSAxMy40ODEgMjU3LjEyMyAxNS43MzE1IDI1NC43ODdDMTcuOTgwNSAyNTIuNDUyIDIwLjY3OTcgMjUwLjU5NyAyMy42NjIyIDI0OS4zMjlDMjYuNjQ0MyAyNDguMDYgMjkuODUwNCAyNDcuNDA0IDMzLjA4ODkgMjQ3LjM5NUwxMTQuMzc4IDI0Ny4zOTVaIiBmaWxsPSJibGFjayIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIxOC4wOTAxIi8+Cjwvc3ZnPg==)"><div class="die"><svg aria-hidden="true" focusable="false" viewBox="0 0 759 632" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M149.497 283.784C149.477 284.047 149.474 284.311 149.487 284.575C156.385 340.034 183.548 391.116 225.9 428.196C267.989 465.044 322.188 485.532 378.414 485.855L379.743 485.859C436.453 485.868 491.188 465.353 533.619 428.212C575.912 391.194 603.062 340.216 610.018 284.856L610.018 281.512C610.008 277.337 608.324 273.315 605.303 270.335C602.277 267.351 598.155 265.656 593.837 265.656L165.647 265.656C161.338 265.656 157.226 267.349 154.21 270.331C151.198 273.309 149.524 277.326 149.523 281.491L149.523 283.437L149.497 283.784ZM114.378 247.395C118.396 247.391 122.254 245.919 125.214 243.29C128.063 240.759 129.887 237.33 130.396 233.629L130.396 233.35L130.437 232.917C136.355 171.634 165.162 114.754 211.202 73.3687C257.239 31.9859 317.206 9.06063 379.393 9.04448L379.396 9.04448C441.593 9.04583 501.574 31.964 547.624 73.3482C593.677 114.735 622.491 171.624 628.411 232.917L628.453 233.35L628.453 233.643C628.953 237.344 630.773 240.774 633.621 243.304C636.58 245.932 640.437 247.399 644.452 247.395L725.644 247.395C728.882 247.404 732.089 248.06 735.071 249.329C738.055 250.598 740.753 252.453 743.001 254.787C745.252 257.123 747.005 259.891 748.151 262.924C749.296 265.954 749.81 269.183 749.662 272.418L749.663 272.418C745.484 366.797 704.617 455.919 635.615 521.211C566.616 586.499 474.809 622.924 379.338 622.924C283.872 622.924 192.071 586.496 123.081 521.206C54.0935 455.917 13.2412 366.804 9.07133 272.438L9.07036 272.438L9.07036 272.436C9.07007 272.43 9.06967 272.423 9.06938 272.417L9.07036 272.417C8.92272 269.182 9.43655 265.953 10.5811 262.924C11.7276 259.89 13.481 257.123 15.7315 254.787C17.9805 252.452 20.6797 250.597 23.6622 249.329C26.6443 248.06 29.8504 247.404 33.0889 247.395L114.378 247.395Z" fill="black" stroke="white" stroke-width="18.0901"/>
@@ -7894,13 +7925,13 @@ main .comp .stage-inner{padding-bottom:62px}
 <main id="components" class="content">
 <section class="intro">
   <h1>Components for agent-powered products</h1>
-  <p>47 components for showing an agent's work, from conversation and status to review, sources and workspace, plus 32 app basics for the dashboard around it. All 79 come in HTML or React, designed and built by the <a href="https://designme.agency" target="_blank" rel="noopener">DesignMe</a> team.</p>
-  <div class="intro-get"><button class="cdm-cmd intro-cmd" data-cmd="npx designme add live-answer --react" title="Copy install command"><span class="d">$</span><span class="c">npx designme add live-answer --react</span><span class="ms sm">content_copy</span></button><a class="intro-rx" href="/packages/react/preview/">See all 79 in React<span class="ms sm">arrow_forward</span></a></div>
+  <p>79 free components in HTML or <a href="/packages/react/preview/">React</a>, designed and built by <a href="https://designme.agency" target="_blank" rel="noopener">DesignMe</a>.</p>
+  <div class="intro-get"><button class="cdm-cmd intro-cmd" data-cmd="npx designme add live-answer --react" title="Copy install command"><span class="d">$</span><span class="c">npx designme add live-answer --react</span><span class="ms sm">content_copy</span></button></div>
   <div class="m-cta"><div class="t">Need expert design and dev support?</div><a class="hire-btn m-cta-btn" href="https://designme.agency" target="_blank" rel="noopener">Book a call<span class="ms">arrow_forward</span></a></div>
   </section>
 <div class="content-empty" id="content-empty"><span class="t" id="content-empty-t">No components match</span><p id="content-empty-p"></p><button class="suggest-btn" id="content-suggest"><span class="ms">add</span><span class="st">Suggest this component</span></button></div>
-<div class="grp-intro"><span class="k">47 components</span><h2>Agent components</h2><p>Everything for showing an agent's work, from the first plan to the final summary.</p></div>
-<section class="lib-sec" id="s-conversation">
+<div class="grp-sw" id="grp-sw" role="tablist" aria-label="Components"><span class="grp-ind" aria-hidden="true"></span><button role="tab" aria-selected="true" data-g="agent">Agent components</button><button role="tab" aria-selected="false" data-g="basics">App basics</button></div>
+<section class="lib-sec" id="s-conversation" data-grp="agent">
   <div class="sec-head"><div><span class="sec-no">01</span><h2>Conversation</h2><p>Everything for asking, answering and replying, by text or by voice.</p></div></div>
   <div class="sec-body" id="s-conversation-body"><div class="sec-uf"><div class="grid">
   <article class="comp" id="c3" data-soft data-v2="live-answer" data-reg="live-answer" style="--rh-a:478px;--rh-b:522px;--rh-c:478px;--rh-d:478px;--rh-e:546px">
@@ -8161,7 +8192,7 @@ main .comp .stage-inner{padding-bottom:62px}
 
   </div></div></div>
 </section>
-<section class="lib-sec" id="s-status">
+<section class="lib-sec" id="s-status" data-grp="agent">
   <div class="sec-head"><div><span class="sec-no">02</span><h2>Agent status</h2><p>Show what the agent is doing, how far along it is, and what it is working with.</p></div></div>
   <div class="sec-body" id="s-status-body"><div class="sec-uf"><div class="grid">
   <article class="comp" data-soft id="c60" data-v2="thinking" data-reg="thinking" style="--rh-a:537px;--rh-b:569px;--rh-c:537px;--rh-d:537px;--rh-e:611px">
@@ -8468,7 +8499,7 @@ main .comp .stage-inner{padding-bottom:62px}
 
   </div></div></div>
 </section>
-<section class="lib-sec" id="s-review">
+<section class="lib-sec" id="s-review" data-grp="agent">
   <div class="sec-head"><div><span class="sec-no">03</span><h2>Review and approve</h2><p>Moments where a person checks, steers or signs off on the agent's work.</p></div></div>
   <div class="sec-body" id="s-review-body"><div class="sec-uf"><div class="grid">
   <article class="comp wide" id="c11" data-soft data-v2="change-review" data-reg="change-review" style="--rh-a:454px;--rh-b:454px;--rh-c:454px;--rh-d:551px;--rh-e:587px">
@@ -8633,7 +8664,7 @@ main .comp .stage-inner{padding-bottom:62px}
   </article>
   </div></div></div>
 </section>
-<section class="lib-sec" id="s-data">
+<section class="lib-sec" id="s-data" data-grp="agent">
   <div class="sec-head"><div><span class="sec-no">04</span><h2>Sources and output</h2><p>What the agent read, what it produced and where each answer came from.</p></div></div>
   <div class="sec-body" id="s-data-body"><div class="sec-uf"><div class="grid">
   <article class="comp wide" id="c18" data-soft data-v2="code-viewer" data-reg="code-viewer" style="--rh-a:469px;--rh-b:469px;--rh-c:488px;--rh-d:488px;--rh-e:525px">
@@ -8798,7 +8829,7 @@ main .comp .stage-inner{padding-bottom:62px}
   </article>
   </div></div></div>
 </section>
-<section class="lib-sec" id="s-workspace">
+<section class="lib-sec" id="s-workspace" data-grp="agent">
   <div class="sec-head"><div><span class="sec-no">05</span><h2>Workspace</h2><p>Navigation, search, settings, models and automations around the agent.</p></div></div>
   <div class="sec-body" id="s-workspace-body"><div class="sec-uf"><div class="grid">
   <article class="comp wide" id="c16" data-soft data-v2="automation-canvas" data-reg="automation-canvas" style="--rh-a:462px;--rh-b:462px;--rh-c:462px;--rh-d:582px;--rh-e:610px">
@@ -8933,7 +8964,7 @@ main .comp .stage-inner{padding-bottom:62px}
 
   </div></div></div>
 </section>
-<section class="lib-sec" id="s-harness">
+<section class="lib-sec" id="s-harness" data-grp="agent">
   <div class="sec-head"><div><span class="sec-no">06</span><h2>Harness</h2><p>A live agent conversation built only from the components above. Pick a starter and watch them work together.</p></div></div>
   <div class="sec-body" id="s-harness-body"><div class="sec-uf"><div class="grid">
   <article class="comp wide" data-soft id="c99" data-v2="harness" data-reg="agent-harness" style="--rh-a:511px;--rh-b:511px;--rh-c:511px;--rh-d:511px;--rh-e:551px">
@@ -8956,9 +8987,9 @@ main .comp .stage-inner{padding-bottom:62px}
   </article>
   </div></div></div>
 </section>
-<div class="grp-intro"><span class="k">32 components</span><h2>App basics</h2><p>Charts, dates, forms and the standard pieces for building the dashboard around your agent.</p></div>
-<section class="lib-sec" id="s-charts">
-  <div class="sec-head"><div><span class="sec-no">07</span><h2>Charts and tables</h2><p>Lightweight charts and tables for dashboards and reports, drawn in plain SVG and HTML.</p></div></div>
+
+<section class="lib-sec" id="s-charts" data-grp="basics">
+  <div class="sec-head"><div><span class="sec-no">01</span><h2>Charts and tables</h2><p>Lightweight charts and tables for dashboards and reports, drawn in plain SVG and HTML.</p></div></div>
   <div class="sec-body" id="s-charts-body"><div class="sec-uf"><div class="grid">
   <article class="comp" id="c41" data-soft data-v2="line-chart" data-reg="line-chart" style="--rh-a:420px;--rh-b:420px;--rh-c:420px;--rh-d:420px;--rh-e:433px">
     <div class="comp-head">
@@ -9114,8 +9145,8 @@ main .comp .stage-inner{padding-bottom:62px}
   </article>
   </div></div></div>
 </section>
-<section class="lib-sec" id="s-dates">
-  <div class="sec-head"><div><span class="sec-no">08</span><h2>Dates</h2><p>Pickers for single dates and date ranges.</p></div></div>
+<section class="lib-sec" id="s-dates" data-grp="basics">
+  <div class="sec-head"><div><span class="sec-no">02</span><h2>Dates</h2><p>Pickers for single dates and date ranges.</p></div></div>
   <div class="sec-body" id="s-dates-body"><div class="sec-uf"><div class="grid">
   <article class="comp" id="c46" data-soft data-v2="date-picker" data-reg="date-picker" style="--rh-a:524px;--rh-b:524px;--rh-c:524px;--rh-d:524px;--rh-e:524px">
     <div class="comp-head">
@@ -9193,8 +9224,8 @@ main .comp .stage-inner{padding-bottom:62px}
   </article>
   </div></div></div>
 </section>
-<section class="lib-sec" id="s-forms">
-  <div class="sec-head"><div><span class="sec-no">09</span><h2>Forms and inputs</h2><p>Buttons, fields, pickers and sign-in flows for any product.</p></div></div>
+<section class="lib-sec" id="s-forms" data-grp="basics">
+  <div class="sec-head"><div><span class="sec-no">03</span><h2>Forms and inputs</h2><p>Buttons, fields, pickers and sign-in flows for any product.</p></div></div>
   <div class="sec-body" id="s-forms-body"><div class="sec-uf"><div class="grid">
   <article class="comp wide" data-soft id="c49" data-v2="buttons" data-reg="buttons" style="--rh-a:420px;--rh-b:420px;--rh-c:420px;--rh-d:420px;--rh-e:524px">
     <div class="comp-head">
@@ -9362,8 +9393,8 @@ main .comp .stage-inner{padding-bottom:62px}
 
   </div></div></div>
 </section>
-<section class="lib-sec" id="s-collab">
-  <div class="sec-head"><div><span class="sec-no">10</span><h2>Collaboration</h2><p>Threads, inboxes and boards for teams working alongside an agent.</p></div></div>
+<section class="lib-sec" id="s-collab" data-grp="basics">
+  <div class="sec-head"><div><span class="sec-no">04</span><h2>Collaboration</h2><p>Threads, inboxes and boards for teams working alongside an agent.</p></div></div>
   <div class="sec-body" id="s-collab-body"><div class="sec-uf"><div class="grid">
   <article class="comp" data-soft id="c54" data-v2="comments" data-reg="comments" style="--rh-a:500px;--rh-b:539px;--rh-c:500px;--rh-d:500px;--rh-e:597px">
     <div class="comp-head">
@@ -9470,8 +9501,8 @@ main .comp .stage-inner{padding-bottom:62px}
 
   </div></div></div>
 </section>
-<section class="lib-sec" id="s-product">
-  <div class="sec-head"><div><span class="sec-no">11</span><h2>Product</h2><p>Pricing, onboarding, setup flows and spending limits for the rest of your product.</p></div></div>
+<section class="lib-sec" id="s-product" data-grp="basics">
+  <div class="sec-head"><div><span class="sec-no">05</span><h2>Product</h2><p>Pricing, onboarding, setup flows and spending limits for the rest of your product.</p></div></div>
   <div class="sec-body" id="s-product-body"><div class="sec-uf"><div class="grid">
   <article class="comp wide" data-soft id="c70" data-v2="pricing-cards" data-reg="pricing-cards" style="--rh-a:526px;--rh-b:526px;--rh-c:602px;--rh-d:1205px;--rh-e:1237px">
     <div class="comp-head">
@@ -10343,6 +10374,7 @@ main .comp .stage-inner{padding-bottom:62px}
       let sv = 0;
       $$('.saved-a', savedList).forEach(a => { const c = byId.get(a.getAttribute('href').slice(1)); const ok = c && match(c); a.classList.toggle('hide', !ok); if (ok) sv++; });
       $('.side-saved').style.display = q && !sv ? 'none' : '';
+      document.documentElement.classList.toggle('grp-all', !!q || mode === 'saved');
       const none = !shown;
       sideEmpty.classList.toggle('show', none && !!q); contentEmpty.classList.toggle('show', none);
       $('#content-empty-t').textContent = q ? `No components match "${query.trim()}"` : 'Nothing saved yet';
@@ -10377,6 +10409,33 @@ main .comp .stage-inner{padding-bottom:62px}
     paintSaved();
   }
 
+  /* ---------- Agent components or App basics: the page shows one set at a time ---------- */
+  {
+    const root = document.documentElement, sw = $('#grp-sw'), ind = $('.grp-ind', sw);
+    const place = () => { const b = $('[aria-selected="true"]', sw); if (b){ ind.style.left = b.offsetLeft + 'px'; ind.style.width = b.offsetWidth + 'px'; } };
+    const set = g => {
+      if (root.dataset.grp === g) return; root.dataset.grp = g;
+      $$('button', sw).forEach(b => b.setAttribute('aria-selected', String(b.dataset.g === g))); place();
+      setTimeout(() => dispatchEvent(new Event('resize')), 30);
+    };
+    root.dataset.grp = 'agent'; place();
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(place);
+    new ResizeObserver(place).observe(sw);
+    sw.addEventListener('click', e => {
+      const b = e.target.closest('button'); if (!b || b.dataset.g === root.dataset.grp) return;
+      set(b.dataset.g); Sound.play('tab');
+      // from further down the page, the new set starts at the top
+      if (sw.getBoundingClientRect().top < 0) sw.scrollIntoView({ block:'start' });
+    });
+    // anything that points at a card or section in the other set switches to it first
+    const slugOf = t => t.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    const follow = el => { const sec = el && el.closest && el.closest('.lib-sec'); if (sec && sec.dataset.grp) set(sec.dataset.grp); };
+    const target = h => { if (/^#\/./.test(h)) return $$('main .comp').find(c => slugOf(c.querySelector('.comp-title').textContent) === h.slice(2)); try { return h.length > 1 ? document.querySelector(h) : null; } catch(e){ return null; } };
+    document.addEventListener('click', e => { const a = e.target.closest('a[href^="#"],[data-id]'); if (a) follow(a.dataset.id ? document.getElementById(a.dataset.id) : target(a.getAttribute('href'))); }, true);
+    addEventListener('hashchange', () => follow(target(location.hash)));
+    addEventListener('popstate', () => follow(target(location.hash)));
+    follow(target(location.hash));
+  }
   /* ---------- book a call button: fill grows from the pointer ---------- */
   {
     const hb = $('#hire-btn');

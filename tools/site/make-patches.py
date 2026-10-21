@@ -131,12 +131,46 @@ patch("""  $$('[data-copy]').forEach(btn => btn.addEventListener('click', async 
   $$('[data-copy]').forEach(btn => btn.addEventListener('click', async () => {
     const ok = await copyLater(() => bundle(btn.closest('.comp').id));""")
 
-# ---------- the intro: the real count, and React ----------
+# ---------- the intro: one short line, the React install command, then a switch between the two sets ----------
 RX_CMD = 'npx designme add live-answer --react'
 patch("""<p>46 components for showing an agent's work, from status and conversation to review, sources and workspace, plus 32 app basics for the dashboard around it, designed and built by the <a href="https://designme.agency" target="_blank" rel="noopener">DesignMe</a> team.</p>""",
-      """<p>47 components for showing an agent's work, from conversation and status to review, sources and workspace, plus 32 app basics for the dashboard around it. All 79 come in HTML or React, designed and built by the <a href="https://designme.agency" target="_blank" rel="noopener">DesignMe</a> team.</p>
-  <div class="intro-get"><button class="cdm-cmd intro-cmd" data-cmd=\"""" + RX_CMD + """\" title="Copy install command"><span class="d">$</span><span class="c">""" + RX_CMD + """</span><span class="ms sm">content_copy</span></button><a class="intro-rx" href="/packages/react/preview/">See all 79 in React<span class="ms sm">arrow_forward</span></a></div>""")
-patch("""<span class="k">46 components</span><h2>Agent components</h2>""", """<span class="k">47 components</span><h2>Agent components</h2>""")
+      """<p>79 free components in HTML or <a href="/packages/react/preview/">React</a>, designed and built by <a href="https://designme.agency" target="_blank" rel="noopener">DesignMe</a>.</p>
+  <div class="intro-get"><button class="cdm-cmd intro-cmd" data-cmd=\"""" + RX_CMD + """\" title="Copy install command"><span class="d">$</span><span class="c">""" + RX_CMD + """</span><span class="ms sm">content_copy</span></button></div>""")
+# the two group introductions become one switch: Agent components or App basics
+patch("""<div class="grp-intro"><span class="k">46 components</span><h2>Agent components</h2><p>Everything for showing an agent's work, from the first plan to the final summary.</p></div>""",
+      """<div class="grp-sw" id="grp-sw" role="tablist" aria-label="Components"><span class="grp-ind" aria-hidden="true"></span><button role="tab" aria-selected="true" data-g="agent">Agent components</button><button role="tab" aria-selected="false" data-g="basics">App basics</button></div>""")
+patch("""<div class="grp-intro"><span class="k">32 components</span><h2>App basics</h2><p>Charts, dates, forms and the standard pieces for building the dashboard around your agent.</p></div>""", "")
+# a search or the saved list looks across both sets
+patch("""      const none = !shown;""", """      document.documentElement.classList.toggle('grp-all', !!q || mode === 'saved');
+      const none = !shown;""")
+patch("""  /* ---------- book a call button: fill grows from the pointer ---------- */""", """  /* ---------- Agent components or App basics: the page shows one set at a time ---------- */
+  {
+    const root = document.documentElement, sw = $('#grp-sw'), ind = $('.grp-ind', sw);
+    const place = () => { const b = $('[aria-selected="true"]', sw); if (b){ ind.style.left = b.offsetLeft + 'px'; ind.style.width = b.offsetWidth + 'px'; } };
+    const set = g => {
+      if (root.dataset.grp === g) return; root.dataset.grp = g;
+      $$('button', sw).forEach(b => b.setAttribute('aria-selected', String(b.dataset.g === g))); place();
+      setTimeout(() => dispatchEvent(new Event('resize')), 30);
+    };
+    root.dataset.grp = 'agent'; place();
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(place);
+    new ResizeObserver(place).observe(sw);
+    sw.addEventListener('click', e => {
+      const b = e.target.closest('button'); if (!b || b.dataset.g === root.dataset.grp) return;
+      set(b.dataset.g); Sound.play('tab');
+      // from further down the page, the new set starts at the top
+      if (sw.getBoundingClientRect().top < 0) sw.scrollIntoView({ block:'start' });
+    });
+    // anything that points at a card or section in the other set switches to it first
+    const slugOf = t => t.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    const follow = el => { const sec = el && el.closest && el.closest('.lib-sec'); if (sec && sec.dataset.grp) set(sec.dataset.grp); };
+    const target = h => { if (/^#\\/./.test(h)) return $$('main .comp').find(c => slugOf(c.querySelector('.comp-title').textContent) === h.slice(2)); try { return h.length > 1 ? document.querySelector(h) : null; } catch(e){ return null; } };
+    document.addEventListener('click', e => { const a = e.target.closest('a[href^="#"],[data-id]'); if (a) follow(a.dataset.id ? document.getElementById(a.dataset.id) : target(a.getAttribute('href'))); }, true);
+    addEventListener('hashchange', () => follow(target(location.hash)));
+    addEventListener('popstate', () => follow(target(location.hash)));
+    follow(target(location.hash));
+  }
+  /* ---------- book a call button: fill grows from the pointer ---------- */""")
 # the phone menu's search counted one card too few
 patch("""placeholder="Search ${$$('main .comp').length - 1} components\"""", """placeholder="Search ${$$('main .comp').length} components\"""")
 patch("""from status pills and reasoning trails to tool calls and run summaries, plus app basics for the dashboard around them, in two styles with light and dark mode.""",
@@ -162,13 +196,44 @@ CSS = """
 .cdm .cdm-tab[data-t^="rx-"],.cdm.rx .cdm-tab:not([data-t^="rx-"]),.dv-code .dv-tab[data-t^="rx-"],.dv-code.rx .dv-tab:not([data-t^="rx-"]){display:none}
 .cdm.rx .cdm-tab[data-t^="rx-"],.dv-code.rx .dv-tab[data-t^="rx-"]{display:inline-block}
 .cdm.rx .cdm-foot{display:none}
-/* intro: the React install command and the React preview */
+/* ---------- a quieter page: white, no dots, cards without a frame ---------- */
+:root{--sh-bg:#ffffff;--sh-stage:#f5f5f5;--sh-top:rgba(255,255,255,.86);--sh-dot:transparent;--sh-act:#f5f5f5;--sh-sw:#f3f3f3;--sh-sw-on:#ffffff}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){--sh-bg:#111111;--sh-side:#111111;--sh-stage:#1c1c1c;--sh-top:rgba(17,17,17,.86);--sh-dot:transparent;--sh-act:#1d1d1d;--sh-sw:#1c1c1c;--sh-sw-on:#2a2a2a} }
+:root[data-theme="dark"]{--sh-bg:#111111;--sh-side:#111111;--sh-stage:#1c1c1c;--sh-top:rgba(17,17,17,.86);--sh-dot:transparent;--sh-act:#1d1d1d;--sh-sw:#1c1c1c;--sh-sw-on:#2a2a2a}
+body.ui,.dv,.pv{background-image:none}
+/* the intro: a smaller, lighter heading and one short line */
+.intro h1{font-size:26px;font-weight:600;line-height:1.2;letter-spacing:-.022em}
+.intro p{margin-top:8px;font-size:14.5px}
 .intro-get{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;margin-top:18px}
-.intro-get .intro-cmd{margin-top:0;min-width:0;background:var(--sh-card)}
+.intro-get .intro-cmd{margin-top:0;min-width:0;background:var(--sh-bg)}
 .intro-cmd .c{color:var(--sh-text)}
-.intro-rx{display:inline-flex;align-items:center;gap:4px;font-size:13.5px;font-weight:500;color:var(--sh-text);text-decoration:none;border-bottom:1px solid var(--sh-line-2);transition:border-color .2s}
-.intro-rx:hover{border-color:var(--sh-text)}
-.intro-rx .ms{color:var(--sh-muted)}
+@media (max-width:960px){ .intro h1{font-size:24px} }
+/* Agent components or App basics */
+.grp-sw{position:relative;display:inline-flex;gap:2px;margin:30px 0 0;padding:3px;border-radius:11px;background:var(--sh-sw);corner-shape:round}
+.grp-sw button{position:relative;z-index:1;height:32px;padding:0 15px;border-radius:8px;font-size:13.5px;font-weight:500;color:var(--sh-dim);transition:color .2s ease}
+.grp-sw button:hover,.grp-sw button[aria-selected="true"]{color:var(--sh-text)}
+.grp-ind{position:absolute;top:3px;bottom:3px;left:3px;border-radius:8px;background:var(--sh-sw-on);box-shadow:0 1px 2px rgba(17,19,24,.08),0 0 0 .5px rgba(17,19,24,.06);transition:left .4s cubic-bezier(.16,1,.3,1),width .4s cubic-bezier(.16,1,.3,1);corner-shape:round}
+.grp-sw+.lib-sec .sec-head{padding-top:28px}
+@media (max-width:640px){ .grp-sw{display:flex;margin-top:22px} .grp-sw button{flex:1;padding:0 8px} }
+:root:not(.grp-all):not([data-grp="basics"]) [data-grp="basics"],:root[data-grp="basics"]:not(.grp-all) [data-grp="agent"]{display:none}
+:root:not(.grp-all) .side-lbl{display:none}
+/* cards: the title sits on the page and the component on a grey stage, with its switch or hint inside it */
+body.ui .lib-sec .grid{gap:44px 24px}
+body.ui .comp{background:none;border:0;border-radius:0;overflow:visible}
+body.ui .comp-head{padding:0 2px 12px}
+body.ui .comp-title{font-size:14px;font-weight:600}
+body.ui .comp-desc{font-size:13px}
+body.ui .stage{padding:0}
+body.ui .stage-inner{border-radius:14px 14px 0 0}
+body.ui .comp-foot{justify-content:center;padding:2px 16px 16px;background:var(--sh-stage);border-radius:0 0 14px 14px;corner-shape:round}
+body.ui .comp-foot .mono-xs{text-align:center}
+body.ui .comp-foot .tabs{background:none;padding:0}
+body.ui .comp-foot .tabs .ind{top:0;bottom:0;background:var(--sh-sw-on)}
+.dv-slot .stage-inner{border-radius:14px 14px 0 0}
+/* the sidebar: quieter type, and a selected row as light as the stage */
+.side-a{font-size:13px}
+.side-a:hover{background:var(--sh-act)}
+.side-a.act{background:var(--sh-act);font-weight:400}
 /* phones: the header is one 40px row from the first paint, before the script moves its controls into the menu, and the
    sidebar, which sits below the components, waits for the end of the page so it can't flash at the top while it loads */
 @media (max-width:960px){
