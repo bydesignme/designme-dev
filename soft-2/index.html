@@ -322,6 +322,9 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .tk-chev{color:var(--muted);transition:transform .45s var(--ease)}
 .tk[data-open="0"] .tk-chev{transform:rotate(-90deg)}
 .tk-list{list-style:none;margin:0;padding:8px 0 0}
+/* on a card the trace keeps the room its steps will fill, so the header stays put as they arrive, and gives it back as it folds */
+.stage-in>.tk{min-height:444px;transition:min-height var(--t-slow) var(--ease)}
+.stage-in>.tk[data-open="0"]{min-height:0}
 .tk-st{position:relative;display:flex;padding:5px 0 5px 26px;min-height:31px}
 .tk-st .mk{position:absolute;left:0;top:7px;width:16px;height:16px;display:grid;place-items:center;color:var(--muted)}
 .tk-st .rl{position:absolute;left:7.5px;top:25px;bottom:-7px;width:1px;background:var(--rail);transform-origin:top;transform:scaleY(0);transition:transform .6s var(--ease)}
@@ -375,6 +378,8 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .alg-st{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;color:var(--fg2)}
 .alg-st .spin{width:10px;height:10px}
 .alg-list{list-style:none;margin:0;padding:0}
+/* on a card the log keeps the room its five steps fill, so the header doesn't climb as each one lands */
+.stage-in>.alg{min-height:326px}
 .alg-it{border-radius:12px;transition:background .25s}
 .alg-it:hover{background:var(--row)}
 .alg-row{display:flex;align-items:center;gap:10px;width:100%;padding:8px 10px;text-align:left}
@@ -405,7 +410,7 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .rq-sub .m{margin-left:auto;font-size:12px;color:var(--muted)}
 .rq-sub.wait{color:var(--muted)}
 .rq-retry{height:22px;padding:0 9px;border-radius:999px;background:var(--chip);font-size:11.5px;color:var(--fg);transition:background .2s}
-.rq-retry:hover{background:var(--hover)}
+.rq-retry:hover,.rq-retry.on{background:var(--hover)}
 /* ---------- Run cost ---------- */
 .rc{padding:18px}
 .rc-h{display:flex;align-items:center;justify-content:space-between;font-size:12.5px}
@@ -635,6 +640,8 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .aln-det{padding:0 10px 10px 56px;font-size:12.5px;color:var(--fg2)}
 .aln-det div{display:flex;gap:8px;padding:3px 0}
 .aln-det .muted{margin-left:auto}
+/* a hand-off opens a row between the lanes and closes it again, so the lanes glide instead of jumping */
+.aln-hf{transition-duration:var(--t-slow)}
 .aln-hand{display:flex;align-items:center;gap:8px;margin:2px 10px;padding:7px 12px;border-radius:10px;background:color-mix(in srgb,var(--pl-bg) 55%,transparent);color:var(--pl);font-size:12.5px}
 @media (max-width:600px){.aln-row{grid-template-columns:34px minmax(0,1fr) auto}.aln-tr{display:none}}
 /* ---------- Agent run timeline ---------- */
@@ -642,6 +649,7 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .art-h{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
 .art-t{font-weight:500}
 .art-s{font-size:12.5px}
+.art-s.sw{display:block}
 .art-grid{position:relative;margin-top:14px;overflow:hidden}
 .art-axis{display:grid;grid-template-columns:150px 1fr;font-size:11px;color:var(--muted)}
 .art-ticks{position:relative;height:16px}
@@ -664,6 +672,8 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .lva{display:flex;flex-direction:column;gap:14px}
 .lva-q{display:flex;justify-content:flex-end}
 .lva-a{display:flex;flex-direction:column;gap:14px;min-height:230px}
+/* on a card the first answer keeps the room its sources and follow-ups fill, so nothing climbs when they arrive */
+.stage-in>.lva .lva-a{min-height:324px}
 .lva-turn{display:flex;flex-direction:column;gap:12px}
 .lva-th{display:flex;align-items:center;gap:8px;font-size:13.5px;color:var(--muted)}
 .lva-tb{display:inline-flex;gap:6px;align-self:flex-start;padding:2px 6px;margin-left:-6px;border-radius:8px;transition:color var(--t-fast),background var(--t-fast)}
@@ -3938,7 +3948,8 @@ DM.def('run-queue', (r, c) => {
         $('.g', s).innerHTML = `<span style="color:var(--bad)">${I('x','xs')}</span>`;
         $('.m', s).innerHTML = '<button class="rq-retry">Retry</button>';
         setG(g, `<span style="color:var(--bad)">${I('alert','xs')}</span>`, '1 step failed');
-        await new Promise(res => { $('.rq-retry', s).onclick = res; });
+        // waits for Retry, and presses it by itself after a moment so the run never stalls
+        await new Promise(res => { const b = $('.rq-retry', s); b.onclick = res; c.later(2600, () => { if (b.isConnected){ b.classList.add('on'); c.later(220, res); } }); });
         g.retried = true; i--; $('.m', s).textContent = ''; setG(g, '<span class="spin" style="color:var(--fg)"></span>', 'Retrying'); continue;
       }
       bar.style.width = ((i + 1) / subs.length * 100) + '%';
@@ -3977,6 +3988,9 @@ DM.def('run-cost', (r, c) => {
   const orig = go.onclick;
   go.addEventListener('click', e => { if (go.onclick2 && !running){ go.onclick2 = false; e.stopImmediatePropagation(); tg.setAttribute('aria-checked','false'); cap.style.opacity = .2; limit = 2000; orig(); } }, true);
   paint();
+  // the run starts by itself once the card has settled, so the spend can be seen climbing to the cap
+  let touched = false; c.on(r, 'pointerdown', () => { touched = true; }, true);
+  c.later(1500, () => { if (!touched && !running && !used) go.click(); });
 });
 /* ---------- Toast ---------- */
 DM.def('toast', (r, c) => {
@@ -3997,7 +4011,12 @@ DM.def('toast', (r, c) => {
     const u = $('.tst-undo', t); if (u) u.onclick = () => { $('.tx b', t).textContent = 'Changes undone'; swap($('.tx span', t), 'PricingCard is back as it was'); u.remove(); };
     const rt = $('.tst-retry', t); if (rt) rt.onclick = () => { rt.innerHTML = '<span class="spin"></span>'; setTimeout(() => { if (t.isConnected) show('ok'); }, 1200); };
     if (k === 'load') c.later(2600, () => { if (cur === t) show('info'); });
-    if (k === 'ok' || k === 'info'){ const life = $('.life', t); life.animate([{ transform:'scaleX(1)' }, { transform:'scaleX(0)' }], { duration:6000, fill:'forwards' }); }
+    if (k === 'ok' || k === 'info'){
+      // it times out like a real toast: hovering holds it, and when it runs out it leaves and the same one comes back
+      const life = $('.life', t).animate([{ transform:'scaleX(1)' }, { transform:'scaleX(0)' }], { duration:5200, fill:'forwards' });
+      t.addEventListener('pointerenter', () => life.pause()); t.addEventListener('pointerleave', () => life.play());
+      life.finished.then(() => { if (cur !== t || c.dead) return; t.classList.add('tst-out'); cur = null; setTimeout(() => t.remove(), 300); c.later(1100, () => { if (!cur) show(k); }); }).catch(() => {});
+    }
   }
   const sg = $('.seg2', r), knob = seg(sg, v => show(v));
   const sync = k => { $$('button', sg).forEach(b => b.setAttribute('aria-pressed', b.dataset.v === k)); knob.place(); };
@@ -4039,7 +4058,11 @@ DM.def('toast-stack', (r, c) => {
   c.on(stack, 'pointerenter', () => { hover = true; layout(); });
   c.on(stack, 'pointerleave', () => { hover = false; layout(); });
   $('.tsk-add', r).onclick = add;
-  c.run(async () => { for (let i = 0; i < 3; i++){ await c.wait(i ? 700 : 400); add(); } });
+  c.run(async () => {
+    for (let i = 0; i < 3; i++){ await c.wait(i ? 700 : 400); add(); }
+    // then a new one now and then, held back while the stack is fanned out under the pointer
+    for (;;){ await c.wait(3800); if (!hover) add(); }
+  });
 });
 /* ---------- Pricing cards ---------- */
 DM.def('pricing-cards', (r, c) => {
@@ -4225,8 +4248,9 @@ DM.def('agent-lanes', (r, c) => {
     l.running = false; act(l, l.log[2]); st(l, `<span class="tag ok">${I('check','xs')}Done</span>`);
   }
   async function handoff(from, to, txt){
-    const h = html(`<div class="aln-hand">${I('right','xs')}${from.n} handed ${txt} to ${to.n}</div>`);
-    to.el.before(h); enter(h); await c.wait(1400); h.classList.add('leave'); await c.wait(350); h.remove();
+    const h = html(`<div class="fold shut aln-hf"><div><div class="aln-hand">${I('right','xs')}${from.n} handed ${txt} to ${to.n}</div></div></div>`);
+    to.el.before(h); void h.offsetWidth; h.classList.remove('shut'); enter($('.aln-hand', h), 80);
+    await c.wait(1700); h.classList.add('shut'); await c.wait(REDUCE ? 0 : 700); h.remove();
   }
   c.run(async () => {
     await c.wait(600);
@@ -4253,13 +4277,17 @@ DM.def('agent-run-timeline', (r, c) => {
   const rows = $('.art-rows', r), head = $('.art-head', r);
   S.forEach(s => { s.el = html(`<div class="art-row"><span class="art-lab">${I(s.ic,'xs')}<span class="t">${s.l}</span></span><span class="art-lane"><span class="art-bar${s.fail ? ' fail' : ''}" style="--c:${s.c};left:${s.s / T * 100}%" data-tip="${s.l}: ${s.d.toFixed(1)}s, $${s.cost.toFixed(2)}${s.fail ? ', 2 tests failed' : ''}"></span></span></div>`); rows.appendChild(s.el); });
   stagger($$('.art-row', r), 50);
+  $('.art-f', r).innerHTML = '<span><b>0.0s</b> total</span><span><b>$0.00</b> cost</span><span><b>0</b> steps</span><span><b>0</b> retries</span>';
   const lanes = () => $('.art-lane', r).getBoundingClientRect();
   c.run(async () => {
     await c.wait(500);
     const t0 = performance.now();
+    const f = $('.art-f', r);
+    const foot = (secs, cost, n, re) => { f.innerHTML = `<span><b>${secs.toFixed(1)}s</b> total</span><span><b>$${cost.toFixed(2)}</b> cost</span><span><b>${n}</b> step${n === 1 ? '' : 's'}</span><span><b>${re}</b> retr${re === 1 ? 'y' : 'ies'}</span>`; };
     await new Promise(res => c.loop(() => {
       const t = Math.min(T, (performance.now() - t0) / 1000 * 1.6);
       const L = lanes(), gx = $('.art-grid', r).getBoundingClientRect();
+      const on = S.filter(s => t >= s.s); foot(Math.min(t, 11.4), on.reduce((a, s) => a + s.cost * Math.min(1, (t - s.s) / s.d), 0), on.length, on.filter(s => s.ic === 'refresh').length);
       head.style.left = (L.left - gx.left + t / T * L.width) + 'px';
       S.forEach(s => { const w = Math.max(0, Math.min(s.d, t - s.s)); $('.art-bar', s.el).style.width = (w / T * 100) + '%'; });
       const now = S.filter(s => t >= s.s && t < s.s + s.d).map(s => s.l);
@@ -4269,7 +4297,7 @@ DM.def('agent-run-timeline', (r, c) => {
     head.style.opacity = 0;
     const tag = $('.art-tag', r); tag.className = 'art-tag tag ok'; tag.innerHTML = I('check','xs') + 'Done'; enter(tag);
     swap($('.art-s', r), 'Finished in 11.4s');
-    const f = $('.art-f', r); f.innerHTML = '<span><b>11.4s</b> total</span><span><b>$0.16</b> cost</span><span><b>7</b> steps</span><span><b>1</b> retry</span>'; enter(f);
+    foot(11.4, .16, 7, 1);
   });
 });
 /* ---------- Live answer ---------- */
@@ -4344,7 +4372,7 @@ DM.def('thread-panel', (r, c) => {
   tabs.innerHTML = T.map((t, i) => `<button class="thp-tab" role="tab" aria-selected="${i === 0}"><span class="dot" style="color:${t.col}"></span>${t.t}</button>`).join('') + '<span class="thp-ink"></span>';
   const ink = $('.thp-ink', r), tbs = $$('.thp-tab', r);
   const place = () => { const b = tbs[cur]; ink.style.left = b.offsetLeft + 10 + 'px'; ink.style.width = b.offsetWidth - 20 + 'px'; };
-  const msg = (m, anim) => { const el = m[0] === 'u' ? html(`<div class="bub">${m[1]}</div>`) : html(`<div class="thp-ag">${m[2] && m[2].length ? `<div class="src">${m[2].map(s => `<button class="fchip lnk" data-tip="${({ 'Funnel data':'Amplitude, last 30 days', 'Session notes':'Notion, 8 interviews', 'tokens.ts':'src/styles/tokens.ts' })[s] || s}">${I('file-text','xs')}${s}</button>`).join('')}</div>` : ''}${m[1]}</div>`); body.appendChild(el); if (anim) enter(el); body.scrollTop = body.scrollHeight; return el; };
+  const msg = (m, anim) => { const el = m[0] === 'u' ? html(`<div class="bub">${m[1]}</div>`) : html(`<div class="thp-ag">${m[2] && m[2].length ? `<div class="src">${m[2].map(s => `<button class="fchip lnk" data-tip="${({ 'Funnel data':'Amplitude, last 30 days', 'Session notes':'Notion, 8 interviews', 'tokens.ts':'src/styles/tokens.ts' })[s] || s}">${I('file-text','xs')}${s}</button>`).join('')}</div>` : ''}${m[1]}</div>`); body.appendChild(el); if (anim){ enter(el); body.scrollTo({ top:body.scrollHeight, behavior:REDUCE ? 'auto' : 'smooth' }); } else body.scrollTop = body.scrollHeight; return el; };
   function show(i){ cur = i; tbs.forEach((b, k) => b.setAttribute('aria-selected', k === i)); place(); body.innerHTML = ''; T[i].msgs.forEach((m, k) => { const el = msg(m); enter(el, k * 70); }); }
   tbs.forEach((b, i) => b.onclick = () => show(i));
   field.oninput = () => { send.disabled = !field.value.trim(); };
@@ -4354,6 +4382,13 @@ DM.def('thread-panel', (r, c) => {
     const k = cur; c.later(1400, () => { th.remove(); const a = ['a', 'On it. I\'ll update this thread when it\'s done.', []]; T[k].msgs.push(a); if (cur === k) msg(a, true); });
   };
   requestAnimationFrame(() => show(0)); new ResizeObserver(place).observe(tabs);
+  // once the card has settled, a reply is typed and sent in place, unless someone has started using it
+  let touched = false; c.on(r, 'pointerdown', () => { touched = true; }, true); c.on(field, 'focus', () => { touched = true; });
+  c.run(async () => {
+    await c.wait(1800); if (touched) return;
+    for (const ch of 'Can you make that change now?'){ if (touched) return; field.value += ch; send.disabled = false; await c.wait(32 + Math.random() * 40); }
+    await c.wait(380); if (!touched) $('.thp-in', r).requestSubmit();
+  });
 });
 /* ---------- Composer ---------- */
 DM.def('composer', (r, c) => {
@@ -4506,15 +4541,21 @@ DM.def('artifact-card', (r, c) => {
   const path = p => p.reduce((d, q, k, a) => { if (!k) return `M${q[0]} ${q[1]}`; const p0 = a[k - 2] || a[k - 1], p1 = a[k - 1], p3 = a[k + 1] || q, t = .18; return d + ` C${p1[0] + (q[0] - p0[0]) * t} ${p1[1] + (q[1] - p0[1]) * t} ${q[0] - (p3[0] - p1[0]) * t} ${q[1] - (p3[1] - p1[1]) * t} ${q[0]} ${q[1]}`; }, '');
   let shown = V[2].b.map(() => 3.2), cur = 2;
   const draw = b => { const d = path(xy(b)); ln.setAttribute('d', d); ar.setAttribute('d', d + ' L300 56 L0 56 Z'); };
-  function show(i){ cur = i; const v = V[i], from = shown.slice(), last = v.b[v.b.length - 1], top = Math.max(...v.b), at = v.b.indexOf(top);
-    swap($('.afx-dp', r), v.p); swap($('.afx-sub', r), v.sub); swap($('.afx-note', r), v.note);
-    swap($('.afx-v', r), last.toFixed(1) + '%'); swap($('.afx-d', r), '−' + (top - last).toFixed(1) + ' pts since ' + M[at]);
+  function show(i, quiet){ cur = i; const v = V[i], from = shown.slice(), last = v.b[v.b.length - 1], top = Math.max(...v.b), at = v.b.indexOf(top);
+    // quiet sets the text straight away, for the first version while the card comes in
+    const put = quiet ? (el, t) => { el.textContent = t; } : swap;
+    put($('.afx-dp', r), v.p); put($('.afx-sub', r), v.sub); put($('.afx-note', r), v.note);
+    put($('.afx-v', r), last.toFixed(1) + '%'); put($('.afx-d', r), '−' + (top - last).toFixed(1) + ' pts since ' + M[at]);
     tween(0, 1, 700, t => { shown = from.map((f, k) => f + (v.b[k] - f) * t); draw(shown); }); }
   draw(shown);
   seg($('.seg2', r), v => show(+v));
   const lk = $('.afx-link', r);
   lk.onclick = () => copied(lk, 'https://designme.dev/a/churn-q3');
-  c.later(350, () => show(2));
+  // the agent's versions play through once, first draft to final, unless someone picks one first
+  let touched = false; c.on(r, 'pointerdown', () => { touched = true; }, true);
+  const vb = $$('.afx-vers .seg2 button', r), pickV = i => { if (!touched && cur !== i) vb[i].click(); };
+  vb.forEach((b, i) => b.setAttribute('aria-pressed', i === 0));
+  show(0, true); c.later(2300, () => pickV(1)); c.later(4100, () => pickV(2));
 });
 /* ---------- Prompt starters ---------- */
 DM.def('prompt-starters', (r, c) => {
@@ -4540,6 +4581,9 @@ DM.def('prompt-starters', (r, c) => {
   $('.psx-sh', r).onclick = () => { si = (si + 1) % sets.length; tx.innerHTML = ''; inp.classList.remove('has'); go.disabled = true; paint(); };
   go.onclick = () => { tx.innerHTML = '<span class="w">Sent to the agent</span>'; go.disabled = true; $$('.psx-c', grid).forEach(x => x.classList.remove('on')); };
   paint();
+  // once the card has settled, the first starter is picked and fills the box, unless someone got there first
+  let touched = false; c.on(r, 'pointerdown', () => { touched = true; }, true);
+  c.later(1700, () => { if (!touched && si === 0 && !$('.psx-c.on', grid)) pick($('.psx-c', grid)); });
 });
 /* ---------- Attachment tray ---------- */
 DM.def('attachment-tray', (r, c) => {
@@ -4588,7 +4632,10 @@ DM.def('response-versions', (r, c) => {
       await stream(s); busy = false; nav(); st.classList.remove('shim'); swap(st, ''); }); };
   const cp = $('.rvx-cp', r);
   cp.onclick = () => copied(cp, vers[cur]);
-  c.run(async () => { busy = true; nav(); await c.wait(300); await stream(vers[0]); busy = false; nav(); });
+  let touched = false; c.on(r, 'pointerdown', () => { touched = true; }, true);
+  c.run(async () => { busy = true; nav(); await c.wait(300); await stream(vers[0]); busy = false; nav();
+    // then one regenerate plays by itself, so the version count and arrows show what they do
+    await c.wait(1900); if (!touched && vers.length === 1) re.click(); });
 });
 /* ---------- Feedback sheet ---------- */
 DM.def('feedback-sheet', (r, c) => {

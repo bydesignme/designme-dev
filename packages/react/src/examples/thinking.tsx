@@ -37,5 +37,6 @@ export default function ThinkingDemo() {
     }
     await wait(500); setRunning(false);
   });
-  return <div style={{ width: '100%' }}><Thinking steps={steps} running={running} summary="3 cards to fix · 2 steps" /></div>;
+  // keeps the room the steps will fill while it runs, so the header stays put as they arrive; folding gives it back
+  return <div style={{ width: '100%', minHeight: running ? 444 : 0 }}><Thinking steps={steps} running={running} summary="3 cards to fix · 2 steps" /></div>;
 }

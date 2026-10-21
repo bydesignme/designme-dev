@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { RunCost, type RunCostStatus } from '../components/run-cost/RunCost';
 
-/* ---------- Run cost: Start run burns credits until the cap pauses it; raise the cap to finish ---------- */
+/* ---------- Run cost: the run starts by itself and burns credits until the cap pauses it; raise the cap to finish ---------- */
 const BUDGET = 2000;
 
 export default function RunCostDemo() {
@@ -25,6 +25,10 @@ export default function RunCostDemo() {
     return () => clearInterval(id);
   }, [status]);
 
+  // the run starts by itself once the card has settled, unless someone got there first
+  const touched = useRef(false);
+  useEffect(() => { const t = setTimeout(() => { if (!touched.current) setStatus(s => (s === 'idle' ? 'running' : s)); }, 1500); return () => clearTimeout(t); }, []);
+
   const act = () => {
     if (status === 'running') return setStatus('stopped');
     // Raise cap turns the pause off and carries on to the full budget
@@ -34,7 +38,7 @@ export default function RunCostDemo() {
   };
 
   return (
-    <div style={{ width: '100%' }}>
+    <div style={{ width: '100%' }} onPointerDownCapture={() => { touched.current = true; }}>
       <RunCost used={n.used} budget={BUDGET} capOn={capOn} onCapChange={setCapOn} status={status} onAction={act}
         rows={[{ label: 'Input tokens', value: n.input }, { label: 'Output tokens', value: n.output }, { label: 'Tool calls', value: n.tools }]} />
     </div>

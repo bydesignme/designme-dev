@@ -5,7 +5,7 @@ import { Toast, type ToastData } from '../components/toast/Toast';
 import { Seg } from '../lib/motion';
 import { Demo } from './Demo';
 
-/* ---------- Toast: four states; Undo and Retry change the toast, loading turns into the preview link ---------- */
+/* ---------- Toast: four states; Undo and Retry change the toast, loading turns into the preview link, and a toast with a timer leaves when it runs out ---------- */
 type Kind = 'ok' | 'err' | 'info' | 'load';
 
 export default function ToastDemo() {
@@ -15,9 +15,23 @@ export default function ToastDemo() {
   const next = useRef(0);
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
   const later = (ms: number, fn: () => void) => { timers.current.push(setTimeout(fn, ms)); };
-  useEffect(() => () => timers.current.forEach(clearTimeout), []);
+  useEffect(() => () => { timers.current.forEach(clearTimeout); if (life.current) clearTimeout(life.current.t); }, []);
 
   const update = (id: number, patch: Partial<ToastData>) => setToast(t => (t && t.id === id ? { ...t, ...patch } : t));
+  // success and info time out like real toasts: hovering holds the timer, and when it runs out the toast leaves and comes back
+  const life = useRef<{ t?: ReturnType<typeof setTimeout>; id: number; k: Kind; left: number; at: number } | null>(null);
+  const arm = (id: number, k: Kind, ms: number) => {
+    if (life.current) clearTimeout(life.current.t);
+    life.current = { id, k, left: ms, at: Date.now(), t: setTimeout(() => {
+      if (current.current !== id) return;
+      current.current = null; setToast(null); life.current = null;
+      later(1100, () => { if (current.current === null) show(k); });
+    }, ms) };
+  };
+  const hold = (on: boolean) => {
+    const l = life.current; if (!l || current.current !== l.id) return;
+    if (on) { clearTimeout(l.t); l.left -= Date.now() - l.at; } else arm(l.id, l.k, Math.max(400, l.left));
+  };
   const show = (k: Kind) => {
     const id = ++next.current;
     current.current = id; setKind(k);
@@ -29,6 +43,7 @@ export default function ToastDemo() {
         later(1200, () => { if (current.current === id) show('ok'); });
       } } });
     if (k === 'info') setToast({ id, tone: 'info', title: 'Preview is ready', description: 'pricing-spacing.preview.app', action: { label: 'Open', onClick: () => {} } });
+    if (k === 'ok' || k === 'info') arm(id, k, 5200); else if (life.current) { clearTimeout(life.current.t); life.current = null; }
     if (k === 'load') {
       setToast({ id, tone: 'loading', title: 'Deploying preview', description: 'Building 3 pages' });
       later(2600, () => { if (current.current === id) show('info'); });
@@ -38,7 +53,9 @@ export default function ToastDemo() {
 
   return (
     <Demo switcher={<Seg label="State" value={kind} onChange={show} options={[{ value: 'ok', label: 'Success' }, { value: 'err', label: 'Error' }, { value: 'info', label: 'Info' }, { value: 'load', label: 'Loading' }]} />}>
-      <Toast toast={toast} onDismiss={() => { current.current = null; setToast(null); }} />
+      <div style={{ display: 'contents' }} onPointerEnter={() => hold(true)} onPointerLeave={() => hold(false)}>
+        <Toast toast={toast} onDismiss={() => { current.current = null; setToast(null); }} />
+      </div>
     </Demo>
   );
 }

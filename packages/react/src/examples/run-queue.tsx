@@ -4,7 +4,7 @@ import { useRef, useState } from 'react';
 import { RunQueue, type RunGroup } from '../components/run-queue/RunQueue';
 import { useScript } from './useScript';
 
-/* ---------- Run queue: three tasks run in turn; one step fails and waits for Retry ---------- */
+/* ---------- Run queue: three tasks run in turn; one step fails and waits for Retry, and retries by itself after a moment ---------- */
 const TASKS: { title: string; steps: [string, string, boolean?][] }[] = [
   { title: 'Research three competitors', steps: [['Read their pricing pages', '3/3'], ['Compared plans and limits', '5 gaps']] },
   { title: 'Draft the launch email', steps: [['Pulled the new features', 'Done'], ['Wrote two subject lines', 'Done'], ['Sent a test to the team', 'Done', true]] },
@@ -25,7 +25,8 @@ export default function RunQueueDemo() {
         await wait(900);
         if (TASKS[gi].steps[si][2] && !retried) {
           edit(gi, { state: 'failed' }, si, { state: 'failed' });
-          await new Promise<void>(res => { retry.current = res; });
+          // waits for Retry, and carries on by itself after a moment so the run never stalls
+          await Promise.race([new Promise<void>(res => { retry.current = res; }), wait(2800)]);
           retried = true; si--;
           edit(gi, { state: 'running', meta: 'Retrying' });
           continue;
