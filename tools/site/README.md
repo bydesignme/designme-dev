@@ -35,8 +35,9 @@ npm run build
 ```
 
 `measure-heights.js` plays every component at the narrowest width of each layout (1400, 1181, 961, 641 and 360px) in
-both styles and writes the tallest each card gets to `card-heights.json`. The build gives every card that height from
-the start, so nothing below a card moves while its component plays. The build warns about a card with no measurement.
+both styles and writes the tallest each card's stage and each component get to `card-heights.json`. The build gives every
+card that height from the start, and the component its own tallest size inside it, so nothing below a card moves and a
+component grows downwards instead of creeping up while it plays. The build warns about a card with no measurement.
 
 `build` stops with an error if a site patch no longer matches exactly once, so a change to the original page can't
 slip through unnoticed.

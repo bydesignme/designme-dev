@@ -125,7 +125,7 @@ Answers that stream in with numbered sources and next steps.
 
 **ThreadPanel** · `thread-panel/ThreadPanel.tsx`  
 Switch between agent threads and reply in place.  
-`threads: { id, title, color?, messages: { id?, from: 'user' | 'agent', text, sources?, thinking? }[] }[]`, `value` / `defaultValue` / `onValueChange` (the open thread), `onSend(text, threadId)`, `placeholder`, `bare`. `thinking: true` on a message shows a shimmering "Thinking".
+`threads: { id, title, color?, messages: { id?, from: 'user' | 'agent', text, sources?, thinking? }[] }[]`, `value` / `defaultValue` / `onValueChange` (the open thread), `onSend(text, threadId)`, `draft` / `defaultDraft` / `onDraftChange` (the reply being typed), `placeholder`, `bare`. `thinking: true` on a message shows a shimmering "Thinking".
 
 **Composer** · `composer/Composer.tsx`  
 Message input with context, environment, effort and dictation.  

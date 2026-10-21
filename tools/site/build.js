@@ -203,10 +203,11 @@ ${defs}
    nothing below it moves as the component starts and plays. Unlayered, so it outranks the site's own minimums ---------- */
 const HEIGHTS = fs.existsSync(path.join(__dirname, 'card-heights.json')) ? JSON.parse(fs.readFileSync(path.join(__dirname, 'card-heights.json'), 'utf8')) : null;
 const HEIGHTS_CSS = !HEIGHTS ? '' : '\n<style id="card-heights">\n' + HEIGHTS.bands.map(([b, w], i) => {
-  const rule = `.lib-sec .comp>.stage{min-height:var(--rh-${b},420px)}`;
+  const rule = `.lib-sec .comp>.stage{min-height:var(--rh-${b},420px)}.lib-sec .comp>.stage .v2.stage-in{min-height:var(--rc-${b},0px)}`;
   return i ? `@media (max-width:${HEIGHTS.bands[i - 1][1] - 1}px){${rule}}` : rule;
 }).join('\n') + '\n</style>';
-const heightsOf = id => !HEIGHTS || !HEIGHTS.heights[id] ? '' : ` style="${HEIGHTS.bands.map(([b], i) => `--rh-${b}:${HEIGHTS.heights[id][i]}px`).join(';')}"`;
+// the card's stage keeps its tallest height, and inside it the component keeps its own, so it grows downwards as it plays
+const heightsOf = id => !HEIGHTS || !HEIGHTS.heights[id] ? '' : ` style="${HEIGHTS.bands.map(([b], i) => `--rh-${b}:${HEIGHTS.heights[id][i]}px` + (HEIGHTS.components ? `;--rc-${b}:${HEIGHTS.components[id][i]}px` : '')).join(';')}"`;
 
 /* ---------- site: keep the site's own CSS below the components' ---------- */
 {

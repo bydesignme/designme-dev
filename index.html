@@ -5792,6 +5792,9 @@ body.ui .comp-foot .tabs .ind{top:0;bottom:0;background:var(--sh-sw-on)}
 .v2 .tk-chev{color:var(--muted);transition:transform .45s var(--ease)}
 .v2 .tk[data-open="0"] .tk-chev{transform:rotate(-90deg)}
 .v2 .tk-list{list-style:none;margin:0;padding:8px 0 0}
+/* on a card the trace keeps the room its steps will fill, so the header stays put as they arrive, and gives it back as it folds */
+.v2.stage-in>.tk{min-height:444px;transition:min-height var(--t-slow) var(--ease)}
+.v2.stage-in>.tk[data-open="0"]{min-height:0}
 .v2 .tk-st{position:relative;display:flex;padding:5px 0 5px 26px;min-height:31px}
 .v2 .tk-st .mk{position:absolute;left:0;top:7px;width:16px;height:16px;display:grid;place-items:center;color:var(--muted)}
 .v2 .tk-st .rl{position:absolute;left:7.5px;top:25px;bottom:-7px;width:1px;background:var(--rail);transform-origin:top;transform:scaleY(0);transition:transform .6s var(--ease)}
@@ -5845,6 +5848,8 @@ body.ui .comp-foot .tabs .ind{top:0;bottom:0;background:var(--sh-sw-on)}
 .v2 .alg-st{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;color:var(--fg2)}
 .v2 .alg-st .spin{width:10px;height:10px}
 .v2 .alg-list{list-style:none;margin:0;padding:0}
+/* on a card the log keeps the room its five steps fill, so the header doesn't climb as each one lands */
+.v2.stage-in>.alg{min-height:326px}
 .v2 .alg-it{border-radius:12px;transition:background .25s}
 .v2 .alg-it:hover{background:var(--row)}
 .v2 .alg-row{display:flex;align-items:center;gap:10px;width:100%;padding:8px 10px;text-align:left}
@@ -5875,7 +5880,7 @@ body.ui .comp-foot .tabs .ind{top:0;bottom:0;background:var(--sh-sw-on)}
 .v2 .rq-sub .m{margin-left:auto;font-size:12px;color:var(--muted)}
 .v2 .rq-sub.wait{color:var(--muted)}
 .v2 .rq-retry{height:22px;padding:0 9px;border-radius:999px;background:var(--chip);font-size:11.5px;color:var(--fg);transition:background .2s}
-.v2 .rq-retry:hover{background:var(--hover)}
+.v2 .rq-retry:hover,.v2 .rq-retry.on{background:var(--hover)}
 /* ---------- Run cost ---------- */
 .v2 .rc{padding:18px}
 .v2 .rc-h{display:flex;align-items:center;justify-content:space-between;font-size:12.5px}
@@ -6109,6 +6114,8 @@ body.ui .comp-foot .tabs .ind{top:0;bottom:0;background:var(--sh-sw-on)}
 .v2 .aln-det{padding:0 10px 10px 56px;font-size:12.5px;color:var(--fg2)}
 .v2 .aln-det div{display:flex;gap:8px;padding:3px 0}
 .v2 .aln-det .muted{margin-left:auto}
+/* a hand-off opens a row between the lanes and closes it again, so the lanes glide instead of jumping */
+.v2 .aln-hf{transition-duration:var(--t-slow)}
 .v2 .aln-hand{display:flex;align-items:center;gap:8px;margin:2px 10px;padding:7px 12px;border-radius:10px;background:color-mix(in srgb,var(--pl-bg) 55%,transparent);color:var(--pl);font-size:12.5px}
 @media (max-width:600px){.v2 .aln-row{grid-template-columns:34px minmax(0,1fr) auto}.v2 .aln-tr{display:none}}
 /* ---------- Agent run timeline ---------- */
@@ -6116,6 +6123,7 @@ body.ui .comp-foot .tabs .ind{top:0;bottom:0;background:var(--sh-sw-on)}
 .v2 .art-h{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
 .v2 .art-t{font-weight:500}
 .v2 .art-s{font-size:12.5px}
+.v2 .art-s.sw{display:block}
 .v2 .art-grid{position:relative;margin-top:14px;overflow:hidden}
 .v2 .art-axis{display:grid;grid-template-columns:150px 1fr;font-size:11px;color:var(--muted)}
 .v2 .art-ticks{position:relative;height:16px}
@@ -6138,6 +6146,8 @@ body.ui .comp-foot .tabs .ind{top:0;bottom:0;background:var(--sh-sw-on)}
 .v2 .lva{display:flex;flex-direction:column;gap:14px}
 .v2 .lva-q{display:flex;justify-content:flex-end}
 .v2 .lva-a{display:flex;flex-direction:column;gap:14px;min-height:230px}
+/* on a card the first answer keeps the room its sources and follow-ups fill, so nothing climbs when they arrive */
+.v2.stage-in>.lva .lva-a{min-height:324px}
 .v2 .lva-turn{display:flex;flex-direction:column;gap:12px}
 .v2 .lva-th{display:flex;align-items:center;gap:8px;font-size:13.5px;color:var(--muted)}
 .v2 .lva-tb{display:inline-flex;gap:6px;align-self:flex-start;padding:2px 6px;margin-left:-6px;border-radius:8px;transition:color var(--t-fast),background var(--t-fast)}
@@ -7816,11 +7826,11 @@ body.ui .comp-foot .tabs .ind{top:0;bottom:0;background:var(--sh-sw-on)}
 .v2-host{overflow:visible}
 </style>
 <style id="card-heights">
-.lib-sec .comp>.stage{min-height:var(--rh-a,420px)}
-@media (max-width:1399px){.lib-sec .comp>.stage{min-height:var(--rh-b,420px)}}
-@media (max-width:1180px){.lib-sec .comp>.stage{min-height:var(--rh-c,420px)}}
-@media (max-width:960px){.lib-sec .comp>.stage{min-height:var(--rh-d,420px)}}
-@media (max-width:640px){.lib-sec .comp>.stage{min-height:var(--rh-e,420px)}}
+.lib-sec .comp>.stage{min-height:var(--rh-a,420px)}.lib-sec .comp>.stage .v2.stage-in{min-height:var(--rc-a,0px)}
+@media (max-width:1399px){.lib-sec .comp>.stage{min-height:var(--rh-b,420px)}.lib-sec .comp>.stage .v2.stage-in{min-height:var(--rc-b,0px)}}
+@media (max-width:1180px){.lib-sec .comp>.stage{min-height:var(--rh-c,420px)}.lib-sec .comp>.stage .v2.stage-in{min-height:var(--rc-c,0px)}}
+@media (max-width:960px){.lib-sec .comp>.stage{min-height:var(--rh-d,420px)}.lib-sec .comp>.stage .v2.stage-in{min-height:var(--rc-d,0px)}}
+@media (max-width:640px){.lib-sec .comp>.stage{min-height:var(--rh-e,420px)}.lib-sec .comp>.stage .v2.stage-in{min-height:var(--rc-e,0px)}}
 </style>
 </head>
 <body class="ui">
@@ -7972,7 +7982,7 @@ body.ui .comp-foot .tabs .ind{top:0;bottom:0;background:var(--sh-sw-on)}
 <section class="lib-sec" id="s-conversation" data-grp="agent">
   <div class="sec-head"><div><span class="sec-no">01</span><h2>Conversation</h2><p>Everything for asking, answering and replying, by text or by voice.</p></div></div>
   <div class="sec-body" id="s-conversation-body"><div class="sec-uf"><div class="grid">
-  <article class="comp" id="c3" data-soft data-v2="live-answer" data-reg="live-answer" style="--rh-a:478px;--rh-b:522px;--rh-c:478px;--rh-d:478px;--rh-e:546px">
+  <article class="comp" id="c3" data-soft data-v2="live-answer" data-reg="live-answer" style="--rh-a:501px;--rc-a:377px;--rh-b:522px;--rc-b:398px;--rh-c:501px;--rc-c:377px;--rh-d:501px;--rc-d:377px;--rh-e:546px;--rc-e:422px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">edit_note</span></span>
       <div><h2 class="comp-title">Live answer</h2><p class="comp-desc">Answers that stream in with numbered sources and next steps.</p></div>
@@ -7988,7 +7998,7 @@ body.ui .comp-foot .tabs .ind{top:0;bottom:0;background:var(--sh-sw-on)}
   <div class="lva-a"></div>
 </div></template>
   </article>
-  <article class="comp" id="c6" data-soft data-v2="composer" data-reg="composer" style="--rh-a:600px;--rh-b:600px;--rh-c:600px;--rh-d:600px;--rh-e:600px">
+  <article class="comp" id="c6" data-soft data-v2="composer" data-reg="composer" style="--rh-a:600px;--rc-a:102px;--rh-b:600px;--rc-b:102px;--rh-c:600px;--rc-c:102px;--rh-d:600px;--rc-d:102px;--rh-e:600px;--rc-e:102px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">terminal</span></span>
       <div><h2 class="comp-title">Composer</h2><p class="comp-desc">Message input with context, environment, effort and dictation.</p></div>
@@ -8055,7 +8065,7 @@ body.ui .comp-foot .tabs .ind{top:0;bottom:0;background:var(--sh-sw-on)}
   </div>
 </div></template>
   </article>
-  <article class="comp" id="c8" data-soft data-v2="thread-panel" data-reg="thread-panel" style="--rh-a:484px;--rh-b:484px;--rh-c:484px;--rh-d:484px;--rh-e:484px">
+  <article class="comp" id="c8" data-soft data-v2="thread-panel" data-reg="thread-panel" style="--rh-a:484px;--rc-a:360px;--rh-b:484px;--rc-b:360px;--rh-c:484px;--rc-c:360px;--rh-d:484px;--rc-d:360px;--rh-e:484px;--rc-e:360px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">chat_bubble</span></span>
       <div><h2 class="comp-title">Thread panel</h2><p class="comp-desc">Switch between agent threads and reply in place.</p></div>
@@ -8072,7 +8082,7 @@ body.ui .comp-foot .tabs .ind{top:0;bottom:0;background:var(--sh-sw-on)}
   <form class="thp-in"><input class="thp-field" aria-label="Reply" placeholder="Reply to the agent"><button class="thp-send" aria-label="Send" data-tip="Send" data-tip-k="↵" disabled>{up}</button></form>
 </div></template>
   </article>
-  <article class="comp" id="c108" data-soft data-v2="artifact-card" data-reg="artifact-card" style="--rh-a:485px;--rh-b:485px;--rh-c:485px;--rh-d:485px;--rh-e:485px">
+  <article class="comp" id="c108" data-soft data-v2="artifact-card" data-reg="artifact-card" style="--rh-a:485px;--rc-a:361px;--rh-b:485px;--rc-b:361px;--rh-c:485px;--rc-c:361px;--rh-d:485px;--rc-d:361px;--rh-e:485px;--rc-e:361px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">description</span></span>
       <div><h2 class="comp-title">Artifact card</h2><p class="comp-desc">A file the agent made, with a live preview and versions.</p></div>
@@ -8100,7 +8110,7 @@ body.ui .comp-foot .tabs .ind{top:0;bottom:0;background:var(--sh-sw-on)}
   <div class="afx-vers"><div class="seg2" role="group" aria-label="Version"><button aria-pressed="false" data-v="0">v1</button><button aria-pressed="false" data-v="1">v2</button><button aria-pressed="true" data-v="2">v3</button></div><span class="afx-note muted">Final, with your fixes</span></div>
 </div></template>
   </article>
-  <article class="comp" id="c107" data-soft data-v2="tool-call" data-reg="tool-call" style="--rh-a:478px;--rh-b:478px;--rh-c:478px;--rh-d:478px;--rh-e:478px">
+  <article class="comp" id="c107" data-soft data-v2="tool-call" data-reg="tool-call" style="--rh-a:478px;--rc-a:354px;--rh-b:478px;--rc-b:354px;--rh-c:478px;--rc-c:354px;--rh-d:478px;--rc-d:354px;--rh-e:478px;--rc-e:354px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">terminal</span></span>
       <div><h2 class="comp-title">Tool call</h2><p class="comp-desc">Each tool the agent calls, with its input and output.</p></div>
@@ -8117,7 +8127,7 @@ body.ui .comp-foot .tabs .ind{top:0;bottom:0;background:var(--sh-sw-on)}
   <p class="msg tcx-end">Two plans changed. I updated their prices and the yearly saving on the page.</p>
 </div></template>
   </article>
-  <article class="comp" id="c24" data-soft data-v2="voice-capture" data-reg="voice-capture" style="--rh-a:420px;--rh-b:420px;--rh-c:420px;--rh-d:420px;--rh-e:420px">
+  <article class="comp" id="c24" data-soft data-v2="voice-capture" data-reg="voice-capture" style="--rh-a:420px;--rc-a:248px;--rh-b:420px;--rc-b:248px;--rh-c:420px;--rc-c:248px;--rh-d:420px;--rc-d:248px;--rh-e:420px;--rc-e:248px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">mic</span></span>
       <div><h2 class="comp-title">Voice capture</h2><p class="comp-desc">Talk to the agent, then fix what it misheard before sending.</p></div>
@@ -8141,7 +8151,7 @@ body.ui .comp-foot .tabs .ind{top:0;bottom:0;background:var(--sh-sw-on)}
   <div class="pop vcx-fix" role="menu"></div>
 </div></template>
   </article>
-  <article class="comp" id="c31" data-soft data-v2="response-versions" data-reg="response-versions" style="--rh-a:420px;--rh-b:420px;--rh-c:420px;--rh-d:420px;--rh-e:420px">
+  <article class="comp" id="c31" data-soft data-v2="response-versions" data-reg="response-versions" style="--rh-a:420px;--rc-a:163px;--rh-b:420px;--rc-b:163px;--rh-c:420px;--rc-c:163px;--rh-d:420px;--rc-d:163px;--rh-e:420px;--rc-e:183px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">refresh</span></span>
       <div><h2 class="comp-title">Response versions</h2><p class="comp-desc">Regenerate an answer and flip between versions.</p></div>
@@ -8165,7 +8175,7 @@ body.ui .comp-foot .tabs .ind{top:0;bottom:0;background:var(--sh-sw-on)}
   </div>
 </div></template>
   </article>
-  <article class="comp" id="c29" data-soft data-v2="prompt-starters" data-reg="prompt-starters" style="--rh-a:462px;--rh-b:462px;--rh-c:462px;--rh-d:462px;--rh-e:496px">
+  <article class="comp" id="c29" data-soft data-v2="prompt-starters" data-reg="prompt-starters" style="--rh-a:469px;--rc-a:345px;--rh-b:469px;--rc-b:345px;--rh-c:469px;--rc-c:345px;--rh-d:469px;--rc-d:345px;--rh-e:502px;--rc-e:378px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">stars</span></span>
       <div><h2 class="comp-title">Prompt starters</h2><p class="comp-desc">Suggested tasks that fill the composer in one click.</p></div>
@@ -8182,7 +8192,7 @@ body.ui .comp-foot .tabs .ind{top:0;bottom:0;background:var(--sh-sw-on)}
   <button class="pill ghost sm psx-sh">{shuffle}Shuffle</button>
 </div></template>
   </article>
-  <article class="comp" id="c30" data-soft data-v2="attachment-tray" data-reg="attachment-tray" style="--rh-a:474px;--rh-b:474px;--rh-c:474px;--rh-d:474px;--rh-e:474px">
+  <article class="comp" id="c30" data-soft data-v2="attachment-tray" data-reg="attachment-tray" style="--rh-a:474px;--rc-a:350px;--rh-b:474px;--rc-b:350px;--rh-c:474px;--rc-c:350px;--rh-d:474px;--rc-d:350px;--rh-e:474px;--rc-e:350px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">attach_file</span></span>
       <div><h2 class="comp-title">Attachment tray</h2><p class="comp-desc">Drop files for the agent and watch each one upload.</p></div>
@@ -8201,7 +8211,7 @@ body.ui .comp-foot .tabs .ind{top:0;bottom:0;background:var(--sh-sw-on)}
   <div class="atx-sum muted"></div>
 </div></template>
   </article>
-  <article class="comp" id="c32" data-soft data-v2="feedback-sheet" data-reg="feedback-sheet" style="--rh-a:458px;--rh-b:490px;--rh-c:458px;--rh-d:458px;--rh-e:482px">
+  <article class="comp" id="c32" data-soft data-v2="feedback-sheet" data-reg="feedback-sheet" style="--rh-a:458px;--rc-a:334px;--rh-b:490px;--rc-b:366px;--rh-c:458px;--rc-c:334px;--rh-d:458px;--rc-d:334px;--rh-e:482px;--rc-e:358px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">thumb_up</span></span>
       <div><h2 class="comp-title">Feedback sheet</h2><p class="comp-desc">Rate an answer and tell the agent what missed.</p></div>
@@ -8233,7 +8243,7 @@ body.ui .comp-foot .tabs .ind{top:0;bottom:0;background:var(--sh-sw-on)}
 <section class="lib-sec" id="s-status" data-grp="agent">
   <div class="sec-head"><div><span class="sec-no">02</span><h2>Agent status</h2><p>Show what the agent is doing, how far along it is, and what it is working with.</p></div></div>
   <div class="sec-body" id="s-status-body"><div class="sec-uf"><div class="grid">
-  <article class="comp" data-soft id="c60" data-v2="thinking" data-reg="thinking" style="--rh-a:537px;--rh-b:569px;--rh-c:537px;--rh-d:537px;--rh-e:569px">
+  <article class="comp" data-soft id="c60" data-v2="thinking" data-reg="thinking" style="--rh-a:568px;--rc-a:444px;--rh-b:569px;--rc-b:445px;--rh-c:568px;--rc-c:444px;--rh-d:568px;--rc-d:444px;--rh-e:569px;--rc-e:445px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">stars</span></span>
       <div><h2 class="comp-title">Thinking</h2><p class="comp-desc">The live trace, written as the agent works, then folded away.</p></div>
@@ -8253,7 +8263,7 @@ body.ui .comp-foot .tabs .ind{top:0;bottom:0;background:var(--sh-sw-on)}
   <div class="fold tk-fold"><div><ol class="tk-list"></ol></div></div>
 </div></template>
   </article>
-  <article class="comp" id="c2" data-soft data-v2="reasoning-trail" data-reg="reasoning-trail" style="--rh-a:452px;--rh-b:452px;--rh-c:452px;--rh-d:452px;--rh-e:452px">
+  <article class="comp" id="c2" data-soft data-v2="reasoning-trail" data-reg="reasoning-trail" style="--rh-a:452px;--rc-a:328px;--rh-b:452px;--rc-b:328px;--rh-c:452px;--rc-c:328px;--rh-d:452px;--rc-d:328px;--rh-e:452px;--rc-e:328px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">stars</span></span>
       <div><h2 class="comp-title">Reasoning trail</h2><p class="comp-desc">The agent's plan, notes, sources and edits, after it thinks.</p></div>
@@ -8282,7 +8292,7 @@ body.ui .comp-foot .tabs .ind{top:0;bottom:0;background:var(--sh-sw-on)}
   <div class="demo"><div class="seg2" role="group" aria-label="View"><button aria-pressed="true" data-v="plan">Plan</button><button aria-pressed="false" data-v="notes">Notes</button><button aria-pressed="false" data-v="sources">Sources</button><button aria-pressed="false" data-v="edits">Edits</button></div></div>
 </div></template>
   </article>
-  <article class="comp wide" id="c26" data-soft data-v2="agent-lanes" data-reg="agent-lanes" style="--rh-a:420px;--rh-b:420px;--rh-c:420px;--rh-d:420px;--rh-e:436px">
+  <article class="comp wide" id="c26" data-soft data-v2="agent-lanes" data-reg="agent-lanes" style="--rh-a:420px;--rc-a:279px;--rh-b:420px;--rc-b:279px;--rh-c:420px;--rc-c:279px;--rh-d:420px;--rc-d:279px;--rh-e:436px;--rc-e:312px">
     <div class="comp-head">
       <span class="ibox accent"><span class="ms">group</span></span>
       <div><h2 class="comp-title">Agent lanes</h2><p class="comp-desc">Several agents working in parallel, each with its own lane and hand-offs.</p></div>
@@ -8298,7 +8308,7 @@ body.ui .comp-foot .tabs .ind{top:0;bottom:0;background:var(--sh-sw-on)}
   <div class="aln-rows"></div>
 </div></template>
   </article>
-  <article class="comp" id="c106" data-soft data-v2="run-summary" data-reg="run-summary" style="--rh-a:540px;--rh-b:551px;--rh-c:540px;--rh-d:540px;--rh-e:551px">
+  <article class="comp" id="c106" data-soft data-v2="run-summary" data-reg="run-summary" style="--rh-a:540px;--rc-a:416px;--rh-b:551px;--rc-b:427px;--rh-c:540px;--rc-c:416px;--rh-d:540px;--rc-d:416px;--rh-e:551px;--rc-e:427px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">check_circle</span></span>
       <div><h2 class="comp-title">Run summary</h2><p class="comp-desc">What the agent did, what changed and what needs you.</p></div>
@@ -8329,7 +8339,7 @@ body.ui .comp-foot .tabs .ind{top:0;bottom:0;background:var(--sh-sw-on)}
   <div class="rsu-acts"><button class="pill ink sm">Open changes</button><button class="pill ghost sm rsu-undo">Undo all</button></div>
 </div></template>
   </article>
-  <article class="comp" id="c7" data-soft data-v2="action-log" data-reg="action-log" style="--rh-a:450px;--rh-b:450px;--rh-c:450px;--rh-d:450px;--rh-e:468px">
+  <article class="comp" id="c7" data-soft data-v2="action-log" data-reg="action-log" style="--rh-a:450px;--rc-a:326px;--rh-b:450px;--rc-b:326px;--rh-c:450px;--rc-c:326px;--rh-d:450px;--rc-d:326px;--rh-e:468px;--rc-e:344px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">bolt</span></span>
       <div><h2 class="comp-title">Action log</h2><p class="comp-desc">Every read, search, edit and command, logged as it runs.</p></div>
@@ -8345,7 +8355,7 @@ body.ui .comp-foot .tabs .ind{top:0;bottom:0;background:var(--sh-sw-on)}
   <ol class="alg-list"></ol>
 </div></template>
   </article>
-  <article class="comp wide" data-soft id="c67" data-v2="agent-run-timeline" data-reg="agent-run-timeline" style="--rh-a:483px;--rh-b:483px;--rh-c:483px;--rh-d:483px;--rh-e:504px">
+  <article class="comp wide" data-soft id="c67" data-v2="agent-run-timeline" data-reg="agent-run-timeline" style="--rh-a:480px;--rc-a:356px;--rh-b:480px;--rc-b:356px;--rh-c:480px;--rc-c:356px;--rh-d:480px;--rc-d:356px;--rh-e:501px;--rc-e:377px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">graphic_eq</span></span>
       <div><h2 class="comp-title">Agent run timeline</h2><p class="comp-desc">Every model and tool step of a run on one time axis.</p></div>
@@ -8366,7 +8376,7 @@ body.ui .comp-foot .tabs .ind{top:0;bottom:0;background:var(--sh-sw-on)}
   <div class="art-f muted num"></div>
 </div></template>
   </article>
-  <article class="comp" id="c23" data-soft data-v2="context-meter" data-reg="context-meter" style="--rh-a:445px;--rh-b:445px;--rh-c:445px;--rh-d:445px;--rh-e:445px">
+  <article class="comp" id="c23" data-soft data-v2="context-meter" data-reg="context-meter" style="--rh-a:445px;--rc-a:321px;--rh-b:445px;--rc-b:321px;--rh-c:445px;--rc-c:321px;--rh-d:445px;--rc-d:321px;--rh-e:445px;--rc-e:321px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">dashboard</span></span>
       <div><h2 class="comp-title">Context meter</h2><p class="comp-desc">How full the context window is, with session and weekly limits, in one small popover.</p></div>
@@ -8385,7 +8395,7 @@ body.ui .comp-foot .tabs .ind{top:0;bottom:0;background:var(--sh-sw-on)}
   <div class="ctm-ft"><span>Opus 5.5</span><span class="muted">Extra</span><button class="ctm-ring" aria-expanded="true" aria-label="Usage"><svg viewBox="0 0 20 20" aria-hidden="true"><circle class="tr" cx="10" cy="10" r="7.5"/><circle class="fl" cx="10" cy="10" r="7.5" pathLength="100"/></svg></button></div>
 </div></template>
   </article>
-  <article class="comp" id="c109" data-soft data-v2="error-recovery" data-reg="error-recovery" style="--rh-a:510px;--rh-b:510px;--rh-c:510px;--rh-d:510px;--rh-e:549px">
+  <article class="comp" id="c109" data-soft data-v2="error-recovery" data-reg="error-recovery" style="--rh-a:510px;--rc-a:386px;--rh-b:510px;--rc-b:386px;--rh-c:510px;--rc-c:386px;--rh-d:510px;--rc-d:386px;--rh-e:549px;--rc-e:425px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">nearby_error</span></span>
       <div><h2 class="comp-title">Error and recovery</h2><p class="comp-desc">A failed step with retry, skip or hand over to a person.</p></div>
@@ -8410,7 +8420,7 @@ body.ui .comp-foot .tabs .ind{top:0;bottom:0;background:var(--sh-sw-on)}
   </div></div></div>
 </div></template>
   </article>
-  <article class="comp" id="c5" data-soft data-v2="run-queue" data-reg="run-queue" style="--rh-a:536px;--rh-b:536px;--rh-c:536px;--rh-d:536px;--rh-e:536px">
+  <article class="comp" id="c5" data-soft data-v2="run-queue" data-reg="run-queue" style="--rh-a:536px;--rc-a:412px;--rh-b:536px;--rc-b:412px;--rh-c:536px;--rc-c:412px;--rh-d:536px;--rc-d:412px;--rh-e:536px;--rc-e:412px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">readiness_score</span></span>
       <div><h2 class="comp-title">Run queue</h2><p class="comp-desc">Grouped tasks with live progress, retries and a compact view.</p></div>
@@ -8426,7 +8436,7 @@ body.ui .comp-foot .tabs .ind{top:0;bottom:0;background:var(--sh-sw-on)}
   <div class="rq-list panel"></div>
 </div></template>
   </article>
-  <article class="comp" id="c27" data-soft data-v2="run-cost" data-reg="run-cost" style="--rh-a:420px;--rh-b:420px;--rh-c:420px;--rh-d:420px;--rh-e:420px">
+  <article class="comp" id="c27" data-soft data-v2="run-cost" data-reg="run-cost" style="--rh-a:420px;--rc-a:289px;--rh-b:420px;--rc-b:289px;--rh-c:420px;--rc-c:289px;--rh-d:420px;--rc-d:289px;--rh-e:420px;--rc-e:289px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">bolt</span></span>
       <div><h2 class="comp-title">Run cost</h2><p class="comp-desc">Live credit and token spend, with a cap that pauses the run.</p></div>
@@ -8452,7 +8462,7 @@ body.ui .comp-foot .tabs .ind{top:0;bottom:0;background:var(--sh-sw-on)}
   </div>
 </div></template>
   </article>
-  <article class="comp" id="c28" data-soft data-v2="toast-stack" data-reg="toast-stack" style="--rh-a:452px;--rh-b:452px;--rh-c:452px;--rh-d:452px;--rh-e:452px">
+  <article class="comp" id="c28" data-soft data-v2="toast-stack" data-reg="toast-stack" style="--rh-a:452px;--rc-a:328px;--rh-b:452px;--rc-b:328px;--rh-c:452px;--rc-c:328px;--rh-d:452px;--rc-d:328px;--rh-e:452px;--rc-e:328px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">notifications</span></span>
       <div><h2 class="comp-title">Toast stack</h2><p class="comp-desc">Agent notifications that stack and fan out on hover.</p></div>
@@ -8468,7 +8478,7 @@ body.ui .comp-foot .tabs .ind{top:0;bottom:0;background:var(--sh-sw-on)}
   <div class="demo"><button class="pill soft sm tsk-add"><svg class="i s"><use href="#i-bell"/></svg>Send notification</button></div>
 </div></template>
   </article>
-  <article class="comp" data-soft id="c58" data-v2="toast" data-reg="toast" style="--rh-a:452px;--rh-b:452px;--rh-c:452px;--rh-d:452px;--rh-e:452px">
+  <article class="comp" data-soft id="c58" data-v2="toast" data-reg="toast" style="--rh-a:452px;--rc-a:328px;--rh-b:452px;--rc-b:328px;--rh-c:452px;--rc-c:328px;--rh-d:452px;--rc-d:328px;--rh-e:452px;--rc-e:328px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">check_circle</span></span>
       <div><h2 class="comp-title">Toast</h2><p class="comp-desc">One notification that changes shape with its state.</p></div>
@@ -8489,7 +8499,7 @@ body.ui .comp-foot .tabs .ind{top:0;bottom:0;background:var(--sh-sw-on)}
   <div class="demo"><div class="seg2" role="group" aria-label="State"><button aria-pressed="true" data-v="ok">Success</button><button aria-pressed="false" data-v="err">Error</button><button aria-pressed="false" data-v="info">Info</button><button aria-pressed="false" data-v="load">Loading</button></div></div>
 </div></template>
   </article>
-  <article class="comp" id="c22" data-soft data-v2="status-pill" data-reg="status-pill" style="--rh-a:452px;--rh-b:452px;--rh-c:452px;--rh-d:452px;--rh-e:452px">
+  <article class="comp" id="c22" data-soft data-v2="status-pill" data-reg="status-pill" style="--rh-a:452px;--rc-a:328px;--rh-b:452px;--rc-b:328px;--rh-c:452px;--rc-c:328px;--rh-d:452px;--rc-d:328px;--rh-e:452px;--rc-e:328px">
     <div class="comp-head">
       <span class="ibox accent"><span class="ms">readiness_score</span></span>
       <div><h2 class="comp-title">Status pill</h2><p class="comp-desc">One live line for what the agent is doing right now.</p></div>
@@ -8510,7 +8520,7 @@ body.ui .comp-foot .tabs .ind{top:0;bottom:0;background:var(--sh-sw-on)}
   <div class="demo"><div class="seg2" role="group" aria-label="Variant"><button aria-pressed="true" data-v="pill">Pill</button><button aria-pressed="false" data-v="bar">Bar</button></div></div>
 </div></template>
   </article>
-  <article class="comp" id="c1" data-soft data-v2="step-loader" data-reg="step-loader" style="--rh-a:452px;--rh-b:452px;--rh-c:452px;--rh-d:452px;--rh-e:452px">
+  <article class="comp" id="c1" data-soft data-v2="step-loader" data-reg="step-loader" style="--rh-a:452px;--rc-a:328px;--rh-b:452px;--rc-b:328px;--rh-c:452px;--rc-c:328px;--rh-d:452px;--rc-d:328px;--rh-e:452px;--rc-e:328px">
     <div class="comp-head">
       <span class="ibox accent"><span class="ms">graphic_eq</span></span>
       <div><h2 class="comp-title">Step loader</h2><p class="comp-desc">Named steps with a progress track and four loaders.</p></div>
@@ -8546,7 +8556,7 @@ body.ui .comp-foot .tabs .ind{top:0;bottom:0;background:var(--sh-sw-on)}
 <section class="lib-sec" id="s-review" data-grp="agent">
   <div class="sec-head"><div><span class="sec-no">03</span><h2>Review and approve</h2><p>Moments where a person checks, steers or signs off on the agent's work.</p></div></div>
   <div class="sec-body" id="s-review-body"><div class="sec-uf"><div class="grid">
-  <article class="comp wide" id="c11" data-soft data-v2="change-review" data-reg="change-review" style="--rh-a:454px;--rh-b:454px;--rh-c:454px;--rh-d:551px;--rh-e:551px">
+  <article class="comp wide" id="c11" data-soft data-v2="change-review" data-reg="change-review" style="--rh-a:454px;--rc-a:330px;--rh-b:454px;--rc-b:330px;--rh-c:454px;--rc-c:330px;--rh-d:551px;--rc-d:427px;--rh-e:551px;--rc-e:427px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">grid_on</span></span>
       <div><h2 class="comp-title">Change review</h2><p class="comp-desc">Accept or reject each change the agent made, file by file.</p></div>
@@ -8568,7 +8578,7 @@ body.ui .comp-foot .tabs .ind{top:0;bottom:0;background:var(--sh-sw-on)}
   </div>
 </div></template>
   </article>
-  <article class="comp" id="c105" data-soft data-v2="plan-review" data-reg="plan-review" style="--rh-a:466px;--rh-b:466px;--rh-c:466px;--rh-d:466px;--rh-e:534px">
+  <article class="comp" id="c105" data-soft data-v2="plan-review" data-reg="plan-review" style="--rh-a:466px;--rc-a:342px;--rh-b:466px;--rc-b:342px;--rh-c:466px;--rc-c:342px;--rh-d:466px;--rc-d:342px;--rh-e:534px;--rc-e:410px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">account_tree</span></span>
       <div><h2 class="comp-title">Plan review</h2><p class="comp-desc">Check the agent's plan, edit steps, then let it run.</p></div>
@@ -8586,7 +8596,7 @@ body.ui .comp-foot .tabs .ind{top:0;bottom:0;background:var(--sh-sw-on)}
   <div class="plx-f"><span class="muted plx-n">Click a step to edit it</span><button class="pill ghost sm plx-chg">Ask for changes</button><button class="pill ink sm plx-go">Approve plan</button></div>
 </div></template>
   </article>
-  <article class="comp" id="c33" data-soft data-v2="permission-gate" data-reg="permission-gate" style="--rh-a:450px;--rh-b:450px;--rh-c:450px;--rh-d:450px;--rh-e:450px">
+  <article class="comp" id="c33" data-soft data-v2="permission-gate" data-reg="permission-gate" style="--rh-a:450px;--rc-a:326px;--rh-b:450px;--rc-b:326px;--rh-c:450px;--rc-c:326px;--rh-d:450px;--rc-d:326px;--rh-e:450px;--rc-e:326px">
     <div class="comp-head">
       <span class="ibox accent"><span class="ms">lock</span></span>
       <div><h2 class="comp-title">Permission gate</h2><p class="comp-desc">The agent asks before it touches something new.</p></div>
@@ -8608,7 +8618,7 @@ body.ui .comp-foot .tabs .ind{top:0;bottom:0;background:var(--sh-sw-on)}
   <div class="pgx-f"><button class="pill ghost sm pgx-no">Not now</button><button class="pill ink sm pgx-ok">Allow 2 scopes</button></div>
 </div></template>
   </article>
-  <article class="comp" id="c4" data-soft data-v2="decision-prompt" data-reg="decision-prompt" style="--rh-a:420px;--rh-b:420px;--rh-c:420px;--rh-d:420px;--rh-e:420px">
+  <article class="comp" id="c4" data-soft data-v2="decision-prompt" data-reg="decision-prompt" style="--rh-a:420px;--rc-a:270px;--rh-b:420px;--rc-b:270px;--rh-c:420px;--rc-c:270px;--rh-d:420px;--rc-d:270px;--rh-e:420px;--rc-e:270px">
     <div class="comp-head">
       <span class="ibox accent"><span class="ms">nearby_error</span></span>
       <div><h2 class="comp-title">Decision prompt</h2><p class="comp-desc">The agent asks a few quick questions before it starts.</p></div>
@@ -8625,7 +8635,7 @@ body.ui .comp-foot .tabs .ind{top:0;bottom:0;background:var(--sh-sw-on)}
   <div class="dpx-f"><button class="pill ghost sm dpx-skip">Skip</button><button class="pill ink sm dpx-go">Continue <span class="kbd">↵</span></button></div>
 </div></template>
   </article>
-  <article class="comp" id="c9" data-soft data-v2="proposal-card" data-reg="proposal-card" style="--rh-a:420px;--rh-b:420px;--rh-c:420px;--rh-d:420px;--rh-e:420px">
+  <article class="comp" id="c9" data-soft data-v2="proposal-card" data-reg="proposal-card" style="--rh-a:420px;--rc-a:233px;--rh-b:420px;--rc-b:233px;--rh-c:420px;--rc-c:233px;--rh-d:420px;--rc-d:233px;--rh-e:420px;--rc-e:233px">
     <div class="comp-head">
       <span class="ibox accent"><span class="ms">stars</span></span>
       <div><h2 class="comp-title">Proposal card</h2><p class="comp-desc">A suggested change with confidence, alternatives and undo.</p></div>
@@ -8645,7 +8655,7 @@ body.ui .comp-foot .tabs .ind{top:0;bottom:0;background:var(--sh-sw-on)}
   <div class="prx-f"><button class="pill ghost sm prx-no">Not now</button><button class="pill ink sm prx-ok">Accept</button></div>
 </div></template>
   </article>
-  <article class="comp wide" id="c19" data-soft data-v2="design-tuner" data-reg="design-tuner" style="--rh-a:424px;--rh-b:424px;--rh-c:657px;--rh-d:657px;--rh-e:657px">
+  <article class="comp wide" id="c19" data-soft data-v2="design-tuner" data-reg="design-tuner" style="--rh-a:427px;--rc-a:303px;--rh-b:427px;--rc-b:303px;--rh-c:705px;--rc-c:581px;--rh-d:705px;--rc-d:581px;--rh-e:722px;--rc-e:598px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">tune</span></span>
       <div><h2 class="comp-title">Design tuner</h2><p class="comp-desc">Tweak a component by hand or let the agent tune it.</p></div>
@@ -8670,7 +8680,7 @@ body.ui .comp-foot .tabs .ind{top:0;bottom:0;background:var(--sh-sw-on)}
   </div>
 </div></template>
   </article>
-  <article class="comp" id="c20" data-soft data-v2="rewrite-toolbar" data-reg="rewrite-toolbar" style="--rh-a:420px;--rh-b:420px;--rh-c:420px;--rh-d:420px;--rh-e:420px">
+  <article class="comp" id="c20" data-soft data-v2="rewrite-toolbar" data-reg="rewrite-toolbar" style="--rh-a:420px;--rc-a:231px;--rh-b:420px;--rc-b:280px;--rh-c:420px;--rc-c:231px;--rh-d:420px;--rc-d:231px;--rh-e:429px;--rc-e:305px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">edit_note</span></span>
       <div><h2 class="comp-title">Rewrite toolbar</h2><p class="comp-desc">Select a sentence and let the agent rewrite it in place.</p></div>
@@ -8689,7 +8699,7 @@ body.ui .comp-foot .tabs .ind{top:0;bottom:0;background:var(--sh-sw-on)}
   </div>
 </div></template>
   </article>
-  <article class="comp" id="c34" data-soft data-v2="launch-checklist" data-reg="launch-checklist" style="--rh-a:448px;--rh-b:448px;--rh-c:448px;--rh-d:448px;--rh-e:448px">
+  <article class="comp" id="c34" data-soft data-v2="launch-checklist" data-reg="launch-checklist" style="--rh-a:529px;--rc-a:405px;--rh-b:529px;--rc-b:405px;--rh-c:529px;--rc-c:405px;--rh-d:529px;--rc-d:405px;--rh-e:529px;--rc-e:405px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">checklist</span></span>
       <div><h2 class="comp-title">Launch checklist</h2><p class="comp-desc">The agent checks a design before it ships, and fixes what fails.</p></div>
@@ -8711,7 +8721,7 @@ body.ui .comp-foot .tabs .ind{top:0;bottom:0;background:var(--sh-sw-on)}
 <section class="lib-sec" id="s-data" data-grp="agent">
   <div class="sec-head"><div><span class="sec-no">04</span><h2>Sources and output</h2><p>What the agent read, what it produced and where each answer came from.</p></div></div>
   <div class="sec-body" id="s-data-body"><div class="sec-uf"><div class="grid">
-  <article class="comp wide" id="c18" data-soft data-v2="code-viewer" data-reg="code-viewer" style="--rh-a:469px;--rh-b:469px;--rh-c:488px;--rh-d:488px;--rh-e:506px">
+  <article class="comp wide" id="c18" data-soft data-v2="code-viewer" data-reg="code-viewer" style="--rh-a:469px;--rc-a:345px;--rh-b:469px;--rc-b:345px;--rh-c:488px;--rc-c:364px;--rh-d:488px;--rc-d:364px;--rh-e:506px;--rc-e:382px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">code</span></span>
       <div><h2 class="comp-title">Code viewer</h2><p class="comp-desc">Code the agent wrote, with line notes you can ask about.</p></div>
@@ -8727,7 +8737,7 @@ body.ui .comp-foot .tabs .ind{top:0;bottom:0;background:var(--sh-sw-on)}
   <div class="cvx-body"><pre class="cvx-code"></pre></div>
 </div></template>
   </article>
-  <article class="comp" data-soft id="c68" data-v2="citation-hover" data-reg="citation-hover-card" style="--rh-a:420px;--rh-b:420px;--rh-c:420px;--rh-d:420px;--rh-e:431px">
+  <article class="comp" data-soft id="c68" data-v2="citation-hover" data-reg="citation-hover-card" style="--rh-a:420px;--rc-a:255px;--rh-b:420px;--rc-b:281px;--rh-c:420px;--rc-c:255px;--rh-d:420px;--rc-d:255px;--rh-e:431px;--rc-e:307px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">link</span></span>
       <div><h2 class="comp-title">Citation hover card</h2><p class="comp-desc">Hover a citation to see the exact passage it came from.</p></div>
@@ -8743,7 +8753,7 @@ body.ui .comp-foot .tabs .ind{top:0;bottom:0;background:var(--sh-sw-on)}
   <div class="chx-card panel keep" role="dialog" aria-label="Source"><div class="chx-in"></div></div>
 </div></template>
   </article>
-  <article class="comp" id="c10" data-soft data-v2="source-stack" data-reg="source-stack" style="--rh-a:578px;--rh-b:578px;--rh-c:578px;--rh-d:578px;--rh-e:602px">
+  <article class="comp" id="c10" data-soft data-v2="source-stack" data-reg="source-stack" style="--rh-a:578px;--rc-a:454px;--rh-b:578px;--rc-b:454px;--rh-c:578px;--rc-c:454px;--rh-d:578px;--rc-d:454px;--rh-e:602px;--rc-e:478px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">description</span></span>
       <div><h2 class="comp-title">Source stack</h2><p class="comp-desc">Everything the agent read, folded into one quiet pill.</p></div>
@@ -8763,7 +8773,7 @@ body.ui .comp-foot .tabs .ind{top:0;bottom:0;background:var(--sh-sw-on)}
   </div></div></div>
 </div></template>
   </article>
-  <article class="comp wide" id="c36" data-soft data-v2="field-extraction" data-reg="field-extraction" style="--rh-a:435px;--rh-b:435px;--rh-c:509px;--rh-d:689px;--rh-e:689px">
+  <article class="comp wide" id="c36" data-soft data-v2="field-extraction" data-reg="field-extraction" style="--rh-a:435px;--rc-a:311px;--rh-b:435px;--rc-b:311px;--rh-c:509px;--rc-c:385px;--rh-d:689px;--rc-d:565px;--rh-e:689px;--rc-e:565px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">document_scanner</span></span>
       <div><h2 class="comp-title">Field extraction</h2><p class="comp-desc">The agent pulls fields out of a document and shows where each came from.</p></div>
@@ -8796,7 +8806,7 @@ body.ui .comp-foot .tabs .ind{top:0;bottom:0;background:var(--sh-sw-on)}
   </div>
 </div></template>
   </article>
-  <article class="comp" id="c17" data-soft data-v2="metric-insight" data-reg="metric-insight" style="--rh-a:420px;--rh-b:420px;--rh-c:420px;--rh-d:420px;--rh-e:432px">
+  <article class="comp" id="c17" data-soft data-v2="metric-insight" data-reg="metric-insight" style="--rh-a:420px;--rc-a:289px;--rh-b:420px;--rc-b:289px;--rh-c:420px;--rc-c:289px;--rh-d:420px;--rc-d:289px;--rh-e:432px;--rc-e:308px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">trending_up</span></span>
       <div><h2 class="comp-title">Metric insight</h2><p class="comp-desc">A number, its trend, and the agent's read on why it moved.</p></div>
@@ -8816,7 +8826,7 @@ body.ui .comp-foot .tabs .ind{top:0;bottom:0;background:var(--sh-sw-on)}
   <div class="fold shut mix-box"><div><div class="mix-rs"></div></div></div>
 </div></template>
   </article>
-  <article class="comp" data-soft id="c66" data-v2="details-panel" data-reg="details-panel" style="--rh-a:530px;--rh-b:530px;--rh-c:530px;--rh-d:530px;--rh-e:530px">
+  <article class="comp" data-soft id="c66" data-v2="details-panel" data-reg="details-panel" style="--rh-a:530px;--rc-a:406px;--rh-b:530px;--rc-b:406px;--rh-c:530px;--rc-c:406px;--rh-d:530px;--rc-d:406px;--rh-e:530px;--rc-e:406px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">dashboard</span></span>
       <div><h2 class="comp-title">Details panel</h2><p class="comp-desc">Properties of a run you can change in place.</p></div>
@@ -8852,7 +8862,7 @@ body.ui .comp-foot .tabs .ind{top:0;bottom:0;background:var(--sh-sw-on)}
   </div>
 </div></template>
   </article>
-  <article class="comp wide" id="c13" data-soft data-v2="task-table" data-reg="task-table" style="--rh-a:450px;--rh-b:450px;--rh-c:450px;--rh-d:450px;--rh-e:450px">
+  <article class="comp wide" id="c13" data-soft data-v2="task-table" data-reg="task-table" style="--rh-a:450px;--rc-a:326px;--rh-b:450px;--rc-b:326px;--rh-c:450px;--rc-c:326px;--rh-d:450px;--rc-d:326px;--rh-e:450px;--rc-e:326px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">filter_list</span></span>
       <div><h2 class="comp-title">Task table</h2><p class="comp-desc">Agent tasks in a sortable table with bulk actions.</p></div>
@@ -8876,7 +8886,7 @@ body.ui .comp-foot .tabs .ind{top:0;bottom:0;background:var(--sh-sw-on)}
 <section class="lib-sec" id="s-workspace" data-grp="agent">
   <div class="sec-head"><div><span class="sec-no">05</span><h2>Workspace</h2><p>Navigation, search, settings, models and automations around the agent.</p></div></div>
   <div class="sec-body" id="s-workspace-body"><div class="sec-uf"><div class="grid">
-  <article class="comp wide" id="c16" data-soft data-v2="automation-canvas" data-reg="automation-canvas" style="--rh-a:462px;--rh-b:462px;--rh-c:462px;--rh-d:582px;--rh-e:610px">
+  <article class="comp wide" id="c16" data-soft data-v2="automation-canvas" data-reg="automation-canvas" style="--rh-a:462px;--rc-a:338px;--rh-b:462px;--rc-b:338px;--rh-c:462px;--rc-c:338px;--rh-d:582px;--rc-d:458px;--rh-e:610px;--rc-e:486px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">account_tree</span></span>
       <div><h2 class="comp-title">Automation canvas</h2><p class="comp-desc">A trigger, a few agent steps, and a run you can watch flow through.</p></div>
@@ -8896,7 +8906,7 @@ body.ui .comp-foot .tabs .ind{top:0;bottom:0;background:var(--sh-sw-on)}
   </div>
 </div></template>
   </article>
-  <article class="comp" id="c15" data-soft data-v2="command-palette" data-reg="command-palette" style="--rh-a:443px;--rh-b:443px;--rh-c:443px;--rh-d:443px;--rh-e:443px">
+  <article class="comp" id="c15" data-soft data-v2="command-palette" data-reg="command-palette" style="--rh-a:443px;--rc-a:319px;--rh-b:443px;--rc-b:319px;--rh-c:443px;--rc-c:319px;--rh-d:443px;--rc-d:319px;--rh-e:443px;--rc-e:319px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">search</span></span>
       <div><h2 class="comp-title">Command palette</h2><p class="comp-desc">Jump anywhere or hand a task to the agent from one box.</p></div>
@@ -8913,7 +8923,7 @@ body.ui .comp-foot .tabs .ind{top:0;bottom:0;background:var(--sh-sw-on)}
   <div class="cpl-f muted"><span><span class="kbd">↑</span><span class="kbd">↓</span> move</span><span><span class="kbd">↵</span> run</span><span class="cpl-st"></span></div>
 </div></template>
   </article>
-  <article class="comp" data-soft id="c69" data-v2="memory-panel" data-reg="memory-panel" style="--rh-a:617px;--rh-b:714px;--rh-c:617px;--rh-d:617px;--rh-e:734px">
+  <article class="comp" data-soft id="c69" data-v2="memory-panel" data-reg="memory-panel" style="--rh-a:617px;--rc-a:493px;--rh-b:714px;--rc-b:590px;--rh-c:617px;--rc-c:493px;--rh-d:617px;--rc-d:493px;--rh-e:734px;--rc-e:610px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">history</span></span>
       <div><h2 class="comp-title">Memory panel</h2><p class="comp-desc">What the agent remembers about your team, editable and removable.</p></div>
@@ -8929,7 +8939,7 @@ body.ui .comp-foot .tabs .ind{top:0;bottom:0;background:var(--sh-sw-on)}
   <div class="mmx-list"></div>
 </div></template>
   </article>
-  <article class="comp wide" data-soft id="c71" data-v2="model-compare" data-reg="model-compare" style="--rh-a:440px;--rh-b:440px;--rh-c:480px;--rh-d:956px;--rh-e:956px">
+  <article class="comp wide" data-soft id="c71" data-v2="model-compare" data-reg="model-compare" style="--rh-a:440px;--rc-a:316px;--rh-b:440px;--rc-b:316px;--rh-c:480px;--rc-c:356px;--rh-d:956px;--rc-d:832px;--rh-e:956px;--rc-e:832px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">splitscreen</span></span>
       <div><h2 class="comp-title">Model compare</h2><p class="comp-desc">Run one prompt on three models side by side and keep the best.</p></div>
@@ -8945,7 +8955,7 @@ body.ui .comp-foot .tabs .ind{top:0;bottom:0;background:var(--sh-sw-on)}
   <form class="mcx-in"><input class="mcx-q" value="Write a one line value prop for the Pro plan" aria-label="Prompt for every model" spellcheck="false"><span class="mcx-n muted">Sends to 3 models</span><button class="mcx-go" aria-label="Send to every model" data-tip="Send to every model" data-tip-k="↵">{up}</button></form>
 </div></template>
   </article>
-  <article class="comp" id="c38" data-soft data-v2="agent-settings" data-reg="agent-settings" style="--rh-a:589px;--rh-b:589px;--rh-c:589px;--rh-d:589px;--rh-e:607px">
+  <article class="comp" id="c38" data-soft data-v2="agent-settings" data-reg="agent-settings" style="--rh-a:589px;--rc-a:465px;--rh-b:589px;--rc-b:465px;--rh-c:589px;--rc-c:465px;--rh-d:589px;--rc-d:465px;--rh-e:607px;--rc-e:483px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">settings</span></span>
       <div><h2 class="comp-title">Agent settings</h2><p class="comp-desc">How much the agent may do alone, with a save bar for changes.</p></div>
@@ -8966,7 +8976,7 @@ body.ui .comp-foot .tabs .ind{top:0;bottom:0;background:var(--sh-sw-on)}
   <div class="asx-bar"><span>Unsaved changes</span><button class="pill ghost sm asx-rs">Reset</button><button class="pill accent sm asx-sv">Save</button></div>
 </div></template>
   </article>
-  <article class="comp" id="c39" data-soft data-v2="file-explorer" data-reg="file-explorer" style="--rh-a:504px;--rh-b:504px;--rh-c:504px;--rh-d:504px;--rh-e:504px">
+  <article class="comp" id="c39" data-soft data-v2="file-explorer" data-reg="file-explorer" style="--rh-a:504px;--rc-a:380px;--rh-b:504px;--rc-b:380px;--rh-c:504px;--rc-c:380px;--rh-d:504px;--rc-d:380px;--rh-e:504px;--rc-e:380px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">folder</span></span>
       <div><h2 class="comp-title">File explorer</h2><p class="comp-desc">Project files, with the ones the agent touched marked.</p></div>
@@ -8983,7 +8993,7 @@ body.ui .comp-foot .tabs .ind{top:0;bottom:0;background:var(--sh-sw-on)}
   <div class="fxp-f muted"><span class="fxp-st"></span></div>
 </div></template>
   </article>
-  <article class="comp wide" id="c14" data-soft data-v2="workspace-rail" data-reg="workspace-rail" style="--rh-a:555px;--rh-b:555px;--rh-c:555px;--rh-d:555px;--rh-e:555px">
+  <article class="comp wide" id="c14" data-soft data-v2="workspace-rail" data-reg="workspace-rail" style="--rh-a:555px;--rc-a:431px;--rh-b:555px;--rc-b:431px;--rh-c:555px;--rc-c:431px;--rh-d:555px;--rc-d:431px;--rh-e:555px;--rc-e:431px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">view_sidebar</span></span>
       <div><h2 class="comp-title">Workspace rail</h2><p class="comp-desc">A slim app rail that opens into a labelled sidebar.</p></div>
@@ -9011,7 +9021,7 @@ body.ui .comp-foot .tabs .ind{top:0;bottom:0;background:var(--sh-sw-on)}
 <section class="lib-sec" id="s-harness" data-grp="agent">
   <div class="sec-head"><div><span class="sec-no">06</span><h2>Harness</h2><p>A live agent conversation built only from the components above. Pick a starter and watch them work together.</p></div></div>
   <div class="sec-body" id="s-harness-body"><div class="sec-uf"><div class="grid">
-  <article class="comp wide" data-soft id="c99" data-v2="harness" data-reg="agent-harness" style="--rh-a:511px;--rh-b:511px;--rh-c:511px;--rh-d:511px;--rh-e:511px">
+  <article class="comp wide" data-soft id="c99" data-v2="harness" data-reg="agent-harness" style="--rh-a:511px;--rc-a:387px;--rh-b:511px;--rc-b:387px;--rh-c:511px;--rc-c:387px;--rh-d:511px;--rc-d:387px;--rh-e:511px;--rc-e:387px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">stars</span></span>
       <div><h2 class="comp-title">Agent harness</h2><p class="comp-desc">The tools the agent can reach, and how much it may do with each.</p></div>
@@ -9035,7 +9045,7 @@ body.ui .comp-foot .tabs .ind{top:0;bottom:0;background:var(--sh-sw-on)}
 <section class="lib-sec" id="s-charts" data-grp="basics">
   <div class="sec-head"><div><span class="sec-no">01</span><h2>Charts and tables</h2><p>Lightweight charts and tables for dashboards and reports, drawn in plain SVG and HTML.</p></div></div>
   <div class="sec-body" id="s-charts-body"><div class="sec-uf"><div class="grid">
-  <article class="comp" id="c41" data-soft data-v2="line-chart" data-reg="line-chart" style="--rh-a:420px;--rh-b:420px;--rh-c:420px;--rh-d:420px;--rh-e:420px">
+  <article class="comp" id="c41" data-soft data-v2="line-chart" data-reg="line-chart" style="--rh-a:420px;--rc-a:273px;--rh-b:420px;--rc-b:273px;--rh-c:420px;--rc-c:273px;--rh-d:420px;--rc-d:273px;--rh-e:420px;--rc-e:273px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">trending_up</span></span>
       <div><h2 class="comp-title">Line chart</h2><p class="comp-desc">Two series over time with a hover readout and toggles.</p></div>
@@ -9052,7 +9062,7 @@ body.ui .comp-foot .tabs .ind{top:0;bottom:0;background:var(--sh-sw-on)}
   <div class="lnx-ax muted num"><span>Jan</span><span>Mar</span><span>May</span><span>Jul</span><span>Sep</span><span>Nov</span></div>
 </div></template>
   </article>
-  <article class="comp" id="c42" data-soft data-v2="bar-chart" data-reg="bar-chart" style="--rh-a:420px;--rh-b:420px;--rh-c:420px;--rh-d:420px;--rh-e:420px">
+  <article class="comp" id="c42" data-soft data-v2="bar-chart" data-reg="bar-chart" style="--rh-a:420px;--rc-a:278px;--rh-b:420px;--rc-b:278px;--rh-c:420px;--rc-c:278px;--rh-d:420px;--rc-d:278px;--rh-e:420px;--rc-e:278px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">bar_chart</span></span>
       <div><h2 class="comp-title">Bar chart</h2><p class="comp-desc">Weekly agent runs, split by outcome, with a range switch.</p></div>
@@ -9069,7 +9079,7 @@ body.ui .comp-foot .tabs .ind{top:0;bottom:0;background:var(--sh-sw-on)}
   <div class="bcx-lg muted"><span><i style="background:var(--c1)"></i>Shipped</span><span><i style="background:var(--c2)"></i>Needed review</span><span><i style="background:var(--c4)"></i>Failed</span></div>
 </div></template>
   </article>
-  <article class="comp" id="c43" data-soft data-v2="donut-chart" data-reg="donut-chart" style="--rh-a:420px;--rh-b:492px;--rh-c:420px;--rh-d:420px;--rh-e:492px">
+  <article class="comp" id="c43" data-soft data-v2="donut-chart" data-reg="donut-chart" style="--rh-a:420px;--rc-a:198px;--rh-b:492px;--rc-b:368px;--rh-c:420px;--rc-c:198px;--rh-d:420px;--rc-d:198px;--rh-e:492px;--rc-e:368px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">donut</span></span>
       <div><h2 class="comp-title">Donut chart</h2><p class="comp-desc">Where the agent's time went, by kind of task.</p></div>
@@ -9085,7 +9095,7 @@ body.ui .comp-foot .tabs .ind{top:0;bottom:0;background:var(--sh-sw-on)}
   <div class="dnx-lg"></div>
 </div></template>
   </article>
-  <article class="comp" id="c102" data-soft data-v2="funnel" data-reg="funnel-chart" style="--rh-a:438px;--rh-b:438px;--rh-c:438px;--rh-d:438px;--rh-e:457px">
+  <article class="comp" id="c102" data-soft data-v2="funnel" data-reg="funnel-chart" style="--rh-a:438px;--rc-a:314px;--rh-b:438px;--rc-b:314px;--rh-c:438px;--rc-c:314px;--rh-d:438px;--rc-d:314px;--rh-e:457px;--rc-e:333px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">grid_view</span></span>
       <div><h2 class="comp-title">Funnel chart</h2><p class="comp-desc">Signup to paid, with the biggest drop called out by the agent.</p></div>
@@ -9102,7 +9112,7 @@ body.ui .comp-foot .tabs .ind{top:0;bottom:0;background:var(--sh-sw-on)}
   <div class="fnx-ins"><span class="fnx-ic">{spark}</span><span class="fnx-t"></span></div>
 </div></template>
   </article>
-  <article class="comp" id="c103" data-soft data-v2="top-pages" data-reg="top-pages" style="--rh-a:501px;--rh-b:501px;--rh-c:501px;--rh-d:501px;--rh-e:519px">
+  <article class="comp" id="c103" data-soft data-v2="top-pages" data-reg="top-pages" style="--rh-a:501px;--rc-a:377px;--rh-b:501px;--rc-b:377px;--rh-c:501px;--rc-c:377px;--rh-d:501px;--rc-d:377px;--rh-e:519px;--rc-e:395px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">grid_view</span></span>
       <div><h2 class="comp-title">Top pages</h2><p class="comp-desc">Most visited pages with share of traffic and a quick sort.</p></div>
@@ -9118,7 +9128,7 @@ body.ui .comp-foot .tabs .ind{top:0;bottom:0;background:var(--sh-sw-on)}
   <div class="tpx-list"></div>
 </div></template>
   </article>
-  <article class="comp" data-soft id="c65" data-v2="health-score" data-reg="health-score" style="--rh-a:420px;--rh-b:420px;--rh-c:420px;--rh-d:420px;--rh-e:420px">
+  <article class="comp" data-soft id="c65" data-v2="health-score" data-reg="health-score" style="--rh-a:420px;--rc-a:260px;--rh-b:420px;--rc-b:260px;--rh-c:420px;--rc-c:260px;--rh-d:420px;--rc-d:260px;--rh-e:420px;--rc-e:266px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">readiness_score</span></span>
       <div><h2 class="comp-title">Health score</h2><p class="comp-desc">A design system score made of a few checks you can open.</p></div>
@@ -9137,7 +9147,7 @@ body.ui .comp-foot .tabs .ind{top:0;bottom:0;background:var(--sh-sw-on)}
   <div class="hsx-list"></div>
 </div></template>
   </article>
-  <article class="comp wide" id="c45" data-soft data-v2="activity-heatmap" data-reg="activity-heatmap" style="--rh-a:420px;--rh-b:420px;--rh-c:420px;--rh-d:420px;--rh-e:420px">
+  <article class="comp wide" id="c45" data-soft data-v2="activity-heatmap" data-reg="activity-heatmap" style="--rh-a:420px;--rc-a:247px;--rh-b:420px;--rc-b:247px;--rh-c:420px;--rc-c:247px;--rh-d:420px;--rc-d:247px;--rh-e:420px;--rc-e:265px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">grid_on</span></span>
       <div><h2 class="comp-title">Activity heatmap</h2><p class="comp-desc">When the agent and the team were busy, by day and hour.</p></div>
@@ -9155,7 +9165,7 @@ body.ui .comp-foot .tabs .ind{top:0;bottom:0;background:var(--sh-sw-on)}
   <div class="hmx-lg muted">Less<i style="--a:.08"></i><i style="--a:.3"></i><i style="--a:.55"></i><i style="--a:.85"></i>More</div>
 </div></template>
   </article>
-  <article class="comp wide" id="c44" data-soft data-v2="stat-cards" data-reg="stat-cards" style="--rh-a:420px;--rh-b:420px;--rh-c:420px;--rh-d:440px;--rh-e:725px">
+  <article class="comp wide" id="c44" data-soft data-v2="stat-cards" data-reg="stat-cards" style="--rh-a:420px;--rc-a:173px;--rh-b:420px;--rc-b:173px;--rh-c:420px;--rc-c:173px;--rh-d:440px;--rc-d:316px;--rh-e:725px;--rc-e:601px">
     <div class="comp-head">
       <span class="ibox accent"><span class="ms">dashboard</span></span>
       <div><h2 class="comp-title">Stat cards</h2><p class="comp-desc">Four headline numbers with sparklines and a period switch.</p></div>
@@ -9171,7 +9181,7 @@ body.ui .comp-foot .tabs .ind{top:0;bottom:0;background:var(--sh-sw-on)}
   <div class="scx-grid"></div>
 </div></template>
   </article>
-  <article class="comp wide" id="c12" data-soft data-v2="account-table" data-reg="account-table" style="--rh-a:521px;--rh-b:521px;--rh-c:521px;--rh-d:521px;--rh-e:553px">
+  <article class="comp wide" id="c12" data-soft data-v2="account-table" data-reg="account-table" style="--rh-a:521px;--rc-a:397px;--rh-b:521px;--rc-b:397px;--rh-c:521px;--rc-c:397px;--rh-d:521px;--rc-d:397px;--rh-e:553px;--rc-e:429px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">person</span></span>
       <div><h2 class="comp-title">Account table</h2><p class="comp-desc">Customer accounts with health, plan and an agent note per row.</p></div>
@@ -9192,7 +9202,7 @@ body.ui .comp-foot .tabs .ind{top:0;bottom:0;background:var(--sh-sw-on)}
 <section class="lib-sec" id="s-dates" data-grp="basics">
   <div class="sec-head"><div><span class="sec-no">02</span><h2>Dates</h2><p>Pickers for single dates and date ranges.</p></div></div>
   <div class="sec-body" id="s-dates-body"><div class="sec-uf"><div class="grid">
-  <article class="comp" id="c46" data-soft data-v2="date-picker" data-reg="date-picker" style="--rh-a:524px;--rh-b:524px;--rh-c:524px;--rh-d:524px;--rh-e:524px">
+  <article class="comp" id="c46" data-soft data-v2="date-picker" data-reg="date-picker" style="--rh-a:524px;--rc-a:400px;--rh-b:524px;--rc-b:400px;--rh-c:524px;--rc-c:400px;--rh-d:524px;--rc-d:400px;--rh-e:524px;--rc-e:400px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">calendar</span></span>
       <div><h2 class="comp-title">Date picker</h2><p class="comp-desc">A field that opens a calendar, with quick picks and natural language.</p></div>
@@ -9214,7 +9224,7 @@ body.ui .comp-foot .tabs .ind{top:0;bottom:0;background:var(--sh-sw-on)}
   </div>
 </div></template>
   </article>
-  <article class="comp wide" id="c47" data-soft data-v2="date-range-picker" data-reg="date-range-picker" style="--rh-a:452px;--rh-b:452px;--rh-c:452px;--rh-d:506px;--rh-e:566px">
+  <article class="comp wide" id="c47" data-soft data-v2="date-range-picker" data-reg="date-range-picker" style="--rh-a:452px;--rc-a:328px;--rh-b:452px;--rc-b:328px;--rh-c:452px;--rc-c:328px;--rh-d:506px;--rc-d:382px;--rh-e:566px;--rc-e:442px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">calendar</span></span>
       <div><h2 class="comp-title">Date range picker</h2><p class="comp-desc">Pick a start and end across two months, or use a preset.</p></div>
@@ -9234,7 +9244,7 @@ body.ui .comp-foot .tabs .ind{top:0;bottom:0;background:var(--sh-sw-on)}
   </div>
 </div></template>
   </article>
-  <article class="comp wide" data-soft id="c62" data-v2="event-calendar" data-reg="event-calendar" style="--rh-a:557px;--rh-b:557px;--rh-c:557px;--rh-d:557px;--rh-e:586px">
+  <article class="comp wide" data-soft id="c62" data-v2="event-calendar" data-reg="event-calendar" style="--rh-a:557px;--rc-a:433px;--rh-b:557px;--rc-b:433px;--rh-c:557px;--rc-c:433px;--rh-d:557px;--rc-d:433px;--rh-e:586px;--rc-e:462px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">calendar</span></span>
       <div><h2 class="comp-title">Event calendar</h2><p class="comp-desc">A week view where the agent finds a free slot for you.</p></div>
@@ -9250,7 +9260,7 @@ body.ui .comp-foot .tabs .ind{top:0;bottom:0;background:var(--sh-sw-on)}
   <div class="ecx-sc"><div class="ecx-grid"><div class="ecx-tm"></div></div></div>
 </div></template>
   </article>
-  <article class="comp" data-soft id="c63" data-v2="agenda" data-reg="agenda" style="--rh-a:656px;--rh-b:656px;--rh-c:656px;--rh-d:656px;--rh-e:712px">
+  <article class="comp" data-soft id="c63" data-v2="agenda" data-reg="agenda" style="--rh-a:656px;--rc-a:532px;--rh-b:656px;--rc-b:532px;--rh-c:656px;--rc-c:532px;--rh-d:656px;--rc-d:532px;--rh-e:712px;--rc-e:588px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">schedule</span></span>
       <div><h2 class="comp-title">Agenda</h2><p class="comp-desc">Today's schedule with a live now line and agent prep notes.</p></div>
@@ -9271,7 +9281,7 @@ body.ui .comp-foot .tabs .ind{top:0;bottom:0;background:var(--sh-sw-on)}
 <section class="lib-sec" id="s-forms" data-grp="basics">
   <div class="sec-head"><div><span class="sec-no">03</span><h2>Forms and inputs</h2><p>Buttons, fields, pickers and sign-in flows for any product.</p></div></div>
   <div class="sec-body" id="s-forms-body"><div class="sec-uf"><div class="grid">
-  <article class="comp wide" data-soft id="c49" data-v2="buttons" data-reg="buttons" style="--rh-a:420px;--rh-b:420px;--rh-c:420px;--rh-d:420px;--rh-e:524px">
+  <article class="comp wide" data-soft id="c49" data-v2="buttons" data-reg="buttons" style="--rh-a:420px;--rc-a:178px;--rh-b:420px;--rc-b:178px;--rh-c:420px;--rc-c:178px;--rh-d:420px;--rc-d:178px;--rh-e:524px;--rc-e:400px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">bolt</span></span>
       <div><h2 class="comp-title">Buttons</h2><p class="comp-desc">Every button style, with loading, success and hold-to-confirm states.</p></div>
@@ -9289,7 +9299,7 @@ body.ui .comp-foot .tabs .ind{top:0;bottom:0;background:var(--sh-sw-on)}
   <div class="btx-row"><span class="btx-l muted">Sizes</span><button class="pill accent sm">Small</button><button class="pill accent">Default</button><button class="pill accent btx-lg">Large</button></div>
 </div></template>
   </article>
-  <article class="comp" data-soft id="c52" data-v2="tooltip" data-reg="tooltip" style="--rh-a:420px;--rh-b:420px;--rh-c:420px;--rh-d:420px;--rh-e:420px">
+  <article class="comp" data-soft id="c52" data-v2="tooltip" data-reg="tooltip" style="--rh-a:420px;--rc-a:200px;--rh-b:420px;--rc-b:200px;--rh-c:420px;--rc-c:200px;--rh-d:420px;--rc-d:200px;--rh-e:420px;--rc-e:200px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">help</span></span>
       <div><h2 class="comp-title">Tooltip</h2><p class="comp-desc">Quiet labels on hover, with shortcuts and a richer preview card.</p></div>
@@ -9314,7 +9324,7 @@ body.ui .comp-foot .tabs .ind{top:0;bottom:0;background:var(--sh-sw-on)}
   <p class="muted ttp-n">Labels wait a moment, then follow you instantly between buttons.</p>
 </div></template>
   </article>
-  <article class="comp" data-soft id="c53" data-v2="search-input" data-reg="search-input" style="--rh-a:444px;--rh-b:444px;--rh-c:444px;--rh-d:444px;--rh-e:444px">
+  <article class="comp" data-soft id="c53" data-v2="search-input" data-reg="search-input" style="--rh-a:444px;--rc-a:320px;--rh-b:444px;--rc-b:320px;--rh-c:444px;--rc-c:320px;--rh-d:444px;--rc-d:320px;--rh-e:444px;--rc-e:320px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">search</span></span>
       <div><h2 class="comp-title">Search input</h2><p class="comp-desc">Search with scoped filters, recent queries and an agent answer.</p></div>
@@ -9332,7 +9342,7 @@ body.ui .comp-foot .tabs .ind{top:0;bottom:0;background:var(--sh-sw-on)}
   </div>
 </div></template>
   </article>
-  <article class="comp" data-soft id="c57" data-v2="country-select" data-reg="country-select" style="--rh-a:520px;--rh-b:520px;--rh-c:520px;--rh-d:520px;--rh-e:520px">
+  <article class="comp" data-soft id="c57" data-v2="country-select" data-reg="country-select" style="--rh-a:520px;--rc-a:330px;--rh-b:520px;--rc-b:330px;--rh-c:520px;--rc-c:330px;--rh-d:520px;--rc-d:330px;--rh-e:520px;--rc-e:330px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">filter_list</span></span>
       <div><h2 class="comp-title">Country select</h2><p class="comp-desc">A searchable select with country codes, currency and keyboard support.</p></div>
@@ -9350,7 +9360,7 @@ body.ui .comp-foot .tabs .ind{top:0;bottom:0;background:var(--sh-sw-on)}
   <span class="muted csx-h">Used for tax and currency</span>
 </div></template>
   </article>
-  <article class="comp" data-soft id="c51" data-v2="social-signin" data-reg="social-sign-in" style="--rh-a:529px;--rh-b:529px;--rh-c:529px;--rh-d:529px;--rh-e:529px">
+  <article class="comp" data-soft id="c51" data-v2="social-signin" data-reg="social-sign-in" style="--rh-a:529px;--rc-a:405px;--rh-b:529px;--rc-b:405px;--rh-c:529px;--rc-c:405px;--rh-d:529px;--rc-d:405px;--rh-e:529px;--rc-e:405px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">person</span></span>
       <div><h2 class="comp-title">Social sign-in</h2><p class="comp-desc">One-tap providers that remember the last one you used.</p></div>
@@ -9368,7 +9378,7 @@ body.ui .comp-foot .tabs .ind{top:0;bottom:0;background:var(--sh-sw-on)}
   <button class="ssi-mail">Continue with email</button>
 </div></template>
   </article>
-  <article class="comp" data-soft id="c55" data-v2="sign-in" data-reg="sign-in" style="--rh-a:420px;--rh-b:420px;--rh-c:420px;--rh-d:420px;--rh-e:420px">
+  <article class="comp" data-soft id="c55" data-v2="sign-in" data-reg="sign-in" style="--rh-a:420px;--rc-a:233px;--rh-b:420px;--rc-b:233px;--rh-c:420px;--rc-c:233px;--rh-d:420px;--rc-d:233px;--rh-e:420px;--rc-e:233px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">lock</span></span>
       <div><h2 class="comp-title">Sign in</h2><p class="comp-desc">Email first, then a one-time code that fills itself in.</p></div>
@@ -9394,7 +9404,7 @@ body.ui .comp-foot .tabs .ind{top:0;bottom:0;background:var(--sh-sw-on)}
   </div>
 </div></template>
   </article>
-  <article class="comp" data-soft id="c50" data-v2="form" data-reg="form" style="--rh-a:536px;--rh-b:536px;--rh-c:536px;--rh-d:536px;--rh-e:536px">
+  <article class="comp" data-soft id="c50" data-v2="form" data-reg="form" style="--rh-a:536px;--rc-a:412px;--rh-b:536px;--rc-b:412px;--rh-c:536px;--rc-c:412px;--rh-d:536px;--rc-d:412px;--rh-e:536px;--rc-e:412px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">edit_note</span></span>
       <div><h2 class="comp-title">Form</h2><p class="comp-desc">A project brief with inline checks and an agent that drafts the rest.</p></div>
@@ -9414,7 +9424,7 @@ body.ui .comp-foot .tabs .ind{top:0;bottom:0;background:var(--sh-sw-on)}
   <div class="fmx-ft"><span class="fmx-ms muted"></span><button class="pill ink sm fmx-go" type="submit">Create brief</button></div>
 </form></template>
   </article>
-  <article class="comp wide" data-soft id="c64" data-v2="payment-form" data-reg="payment-form" style="--rh-a:543px;--rh-b:543px;--rh-c:543px;--rh-d:543px;--rh-e:583px">
+  <article class="comp wide" data-soft id="c64" data-v2="payment-form" data-reg="payment-form" style="--rh-a:543px;--rc-a:419px;--rh-b:543px;--rc-b:419px;--rh-c:543px;--rc-c:419px;--rh-d:543px;--rc-d:419px;--rh-e:583px;--rc-e:459px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">lock</span></span>
       <div><h2 class="comp-title">Payment form</h2><p class="comp-desc">Card details with live formatting, brand detection and a clear total.</p></div>
@@ -9440,7 +9450,7 @@ body.ui .comp-foot .tabs .ind{top:0;bottom:0;background:var(--sh-sw-on)}
 <section class="lib-sec" id="s-collab" data-grp="basics">
   <div class="sec-head"><div><span class="sec-no">04</span><h2>Collaboration</h2><p>Threads, inboxes and boards for teams working alongside an agent.</p></div></div>
   <div class="sec-body" id="s-collab-body"><div class="sec-uf"><div class="grid">
-  <article class="comp" data-soft id="c54" data-v2="comments" data-reg="comments" style="--rh-a:500px;--rh-b:539px;--rh-c:500px;--rh-d:500px;--rh-e:597px">
+  <article class="comp" data-soft id="c54" data-v2="comments" data-reg="comments" style="--rh-a:500px;--rc-a:376px;--rh-b:539px;--rc-b:415px;--rh-c:500px;--rc-c:376px;--rh-d:500px;--rc-d:376px;--rh-e:597px;--rc-e:473px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">chat_bubble</span></span>
       <div><h2 class="comp-title">Comments</h2><p class="comp-desc">A design thread where you can @mention the agent and it replies.</p></div>
@@ -9457,7 +9467,7 @@ body.ui .comp-foot .tabs .ind{top:0;bottom:0;background:var(--sh-sw-on)}
   <div class="cmx-in"><div class="cmx-box"><input placeholder="Reply, or @agent to ask" aria-label="Reply" spellcheck="false"><button class="cmx-go" aria-label="Send" disabled>{up}</button></div><div class="pop cmx-men" role="listbox"></div></div>
 </div></template>
   </article>
-  <article class="comp" data-soft id="c56" data-v2="notifications" data-reg="notifications" style="--rh-a:571px;--rh-b:589px;--rh-c:571px;--rh-d:571px;--rh-e:665px">
+  <article class="comp" data-soft id="c56" data-v2="notifications" data-reg="notifications" style="--rh-a:571px;--rc-a:447px;--rh-b:589px;--rc-b:465px;--rh-c:571px;--rc-c:447px;--rh-d:571px;--rc-d:447px;--rh-e:665px;--rc-e:541px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">notifications</span></span>
       <div><h2 class="comp-title">Notifications</h2><p class="comp-desc">An inbox where agent updates and mentions arrive live.</p></div>
@@ -9474,7 +9484,7 @@ body.ui .comp-foot .tabs .ind{top:0;bottom:0;background:var(--sh-sw-on)}
   <div class="ntx-list"></div>
 </div></template>
   </article>
-  <article class="comp" data-soft id="c61" data-v2="invite" data-reg="invite-to-collaborate" style="--rh-a:445px;--rh-b:447px;--rh-c:445px;--rh-d:445px;--rh-e:478px">
+  <article class="comp" data-soft id="c61" data-v2="invite" data-reg="invite-to-collaborate" style="--rh-a:445px;--rc-a:321px;--rh-b:447px;--rc-b:323px;--rh-c:445px;--rc-c:321px;--rh-d:445px;--rc-d:321px;--rh-e:478px;--rc-e:354px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">person_add</span></span>
       <div><h2 class="comp-title">Invite to collaborate</h2><p class="comp-desc">Add teammates by email as chips, set their role, send.</p></div>
@@ -9494,7 +9504,7 @@ body.ui .comp-foot .tabs .ind{top:0;bottom:0;background:var(--sh-sw-on)}
   <div class="ivx-ft"><button class="pill ghost sm ivx-link">{link}Copy link</button><button class="pill ink sm ivx-go" disabled>Send invites</button></div>
 </div></template>
   </article>
-  <article class="comp" data-soft id="c59" data-v2="reactions" data-reg="reactions" style="--rh-a:420px;--rh-b:420px;--rh-c:420px;--rh-d:420px;--rh-e:420px">
+  <article class="comp" data-soft id="c59" data-v2="reactions" data-reg="reactions" style="--rh-a:420px;--rc-a:128px;--rh-b:420px;--rc-b:128px;--rh-c:420px;--rc-c:128px;--rh-d:420px;--rc-d:128px;--rh-e:420px;--rc-e:149px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">thumb_up</span></span>
       <div><h2 class="comp-title">Reactions</h2><p class="comp-desc">Quick reactions on an agent update, with counts that pop.</p></div>
@@ -9511,7 +9521,7 @@ body.ui .comp-foot .tabs .ind{top:0;bottom:0;background:var(--sh-sw-on)}
   <div class="pop rxx-pk" role="menu"><div class="rxx-grid"></div></div>
 </div></template>
   </article>
-  <article class="comp wide" id="c104" data-soft data-v2="ticket-list" data-reg="ticket-list" style="--rh-a:542px;--rh-b:542px;--rh-c:542px;--rh-d:542px;--rh-e:561px">
+  <article class="comp wide" id="c104" data-soft data-v2="ticket-list" data-reg="ticket-list" style="--rh-a:542px;--rc-a:418px;--rh-b:542px;--rc-b:418px;--rh-c:542px;--rc-c:418px;--rh-d:542px;--rc-d:418px;--rh-e:561px;--rc-e:437px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">grid_view</span></span>
       <div><h2 class="comp-title">Ticket list</h2><p class="comp-desc">Support tickets the agent has triaged, with suggested replies.</p></div>
@@ -9527,7 +9537,7 @@ body.ui .comp-foot .tabs .ind{top:0;bottom:0;background:var(--sh-sw-on)}
   <div class="tkx-list"></div>
 </div></template>
   </article>
-  <article class="comp wide" id="c101" data-soft data-v2="kanban" data-reg="kanban-board" style="--rh-a:479px;--rh-b:479px;--rh-c:497px;--rh-d:497px;--rh-e:497px">
+  <article class="comp wide" id="c101" data-soft data-v2="kanban" data-reg="kanban-board" style="--rh-a:479px;--rc-a:355px;--rh-b:479px;--rc-b:355px;--rh-c:497px;--rc-c:373px;--rh-d:497px;--rc-d:373px;--rh-e:497px;--rc-e:373px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">grid_view</span></span>
       <div><h2 class="comp-title">Kanban board</h2><p class="comp-desc">A board where you and the agent move cards, with drag and drop.</p></div>
@@ -9548,7 +9558,7 @@ body.ui .comp-foot .tabs .ind{top:0;bottom:0;background:var(--sh-sw-on)}
 <section class="lib-sec" id="s-product" data-grp="basics">
   <div class="sec-head"><div><span class="sec-no">05</span><h2>Product</h2><p>Pricing, onboarding, setup flows and spending limits for the rest of your product.</p></div></div>
   <div class="sec-body" id="s-product-body"><div class="sec-uf"><div class="grid">
-  <article class="comp wide" data-soft id="c70" data-v2="pricing-cards" data-reg="pricing-cards" style="--rh-a:526px;--rh-b:526px;--rh-c:602px;--rh-d:1205px;--rh-e:1237px">
+  <article class="comp wide" data-soft id="c70" data-v2="pricing-cards" data-reg="pricing-cards" style="--rh-a:526px;--rc-a:402px;--rh-b:526px;--rc-b:402px;--rh-c:602px;--rc-c:478px;--rh-d:1205px;--rc-d:1081px;--rh-e:1237px;--rc-e:1113px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">bolt</span></span>
       <div><h2 class="comp-title">Pricing cards</h2><p class="comp-desc">Three plans with a billing switch and a seat slider.</p></div>
@@ -9565,7 +9575,7 @@ body.ui .comp-foot .tabs .ind{top:0;bottom:0;background:var(--sh-sw-on)}
   <div class="pcx-grid"></div>
 </div></template>
   </article>
-  <article class="comp" data-soft id="c72" data-v2="onboarding-checklist" data-reg="onboarding-checklist" style="--rh-a:469px;--rh-b:469px;--rh-c:469px;--rh-d:469px;--rh-e:487px">
+  <article class="comp" data-soft id="c72" data-v2="onboarding-checklist" data-reg="onboarding-checklist" style="--rh-a:469px;--rc-a:345px;--rh-b:469px;--rc-b:345px;--rh-c:469px;--rc-c:345px;--rh-d:469px;--rc-d:345px;--rh-e:487px;--rc-e:363px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">checklist</span></span>
       <div><h2 class="comp-title">Onboarding checklist</h2><p class="comp-desc">First steps with a progress ring, and the agent can do some for you.</p></div>
@@ -9581,7 +9591,7 @@ body.ui .comp-foot .tabs .ind{top:0;bottom:0;background:var(--sh-sw-on)}
   <div class="fold obx-fold"><div><div class="obx-list"></div></div></div>
 </div></template>
   </article>
-  <article class="comp" data-soft id="c73" data-v2="stepper" data-reg="stepper" style="--rh-a:420px;--rh-b:420px;--rh-c:420px;--rh-d:420px;--rh-e:511px">
+  <article class="comp" data-soft id="c73" data-v2="stepper" data-reg="stepper" style="--rh-a:420px;--rc-a:266px;--rh-b:420px;--rc-b:266px;--rh-c:420px;--rc-c:266px;--rh-d:420px;--rc-d:266px;--rh-e:511px;--rc-e:387px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">account_tree</span></span>
       <div><h2 class="comp-title">Stepper</h2><p class="comp-desc">A multi-step setup with a progress track that fills as you go.</p></div>
@@ -9598,7 +9608,7 @@ body.ui .comp-foot .tabs .ind{top:0;bottom:0;background:var(--sh-sw-on)}
   <div class="stx-f"><button class="pill ghost sm stx-bk">Back</button><button class="pill ink sm stx-nx">Continue</button></div>
 </div></template>
   </article>
-  <article class="comp" data-soft id="c74" data-v2="set-limit" data-reg="set-limit" style="--rh-a:420px;--rh-b:420px;--rh-c:420px;--rh-d:420px;--rh-e:420px">
+  <article class="comp" data-soft id="c74" data-v2="set-limit" data-reg="set-limit" style="--rh-a:420px;--rc-a:232px;--rh-b:420px;--rc-b:251px;--rh-c:420px;--rc-c:232px;--rh-d:420px;--rc-d:232px;--rh-e:420px;--rc-e:280px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">tune</span></span>
       <div><h2 class="comp-title">Set limit</h2><p class="comp-desc">A monthly agent budget with a draggable cap and a forecast.</p></div>
@@ -9617,7 +9627,7 @@ body.ui .comp-foot .tabs .ind{top:0;bottom:0;background:var(--sh-sw-on)}
   <div class="slx-opt"><span class="muted">At the limit</span><div class="seg2 slx-sg" role="group" aria-label="At the limit"><button aria-pressed="true" data-v="pause">Pause runs</button><button aria-pressed="false" data-v="ask">Ask me</button><button aria-pressed="false" data-v="keep">Keep going</button></div></div>
 </div></template>
   </article>
-  <article class="comp" data-soft id="c75" data-v2="currency-converter" data-reg="currency-converter" style="--rh-a:420px;--rh-b:420px;--rh-c:420px;--rh-d:420px;--rh-e:420px">
+  <article class="comp" data-soft id="c75" data-v2="currency-converter" data-reg="currency-converter" style="--rh-a:420px;--rc-a:215px;--rh-b:420px;--rc-b:215px;--rh-c:420px;--rc-c:215px;--rh-d:420px;--rc-d:215px;--rh-e:420px;--rc-e:215px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">trending_up</span></span>
       <div><h2 class="comp-title">Currency converter</h2><p class="comp-desc">Show plan prices in local currency, with a swap and live rate.</p></div>
@@ -11907,7 +11917,8 @@ DM.def('run-queue', (r, c) => {
         $('.g', s).innerHTML = `<span style="color:var(--bad)">${I('x','xs')}</span>`;
         $('.m', s).innerHTML = '<button class="rq-retry">Retry</button>';
         setG(g, `<span style="color:var(--bad)">${I('alert','xs')}</span>`, '1 step failed');
-        await new Promise(res => { $('.rq-retry', s).onclick = res; });
+        // waits for Retry, and presses it by itself after a moment so the run never stalls
+        await new Promise(res => { const b = $('.rq-retry', s); b.onclick = res; c.later(2600, () => { if (b.isConnected){ b.classList.add('on'); c.later(220, res); } }); });
         g.retried = true; i--; $('.m', s).textContent = ''; setG(g, '<span class="spin" style="color:var(--fg)"></span>', 'Retrying'); continue;
       }
       bar.style.width = ((i + 1) / subs.length * 100) + '%';
@@ -11946,6 +11957,9 @@ DM.def('run-cost', (r, c) => {
   const orig = go.onclick;
   go.addEventListener('click', e => { if (go.onclick2 && !running){ go.onclick2 = false; e.stopImmediatePropagation(); tg.setAttribute('aria-checked','false'); cap.style.opacity = .2; limit = 2000; orig(); } }, true);
   paint();
+  // the run starts by itself once the card has settled, so the spend can be seen climbing to the cap
+  let touched = false; c.on(r, 'pointerdown', () => { touched = true; }, true);
+  c.later(1500, () => { if (!touched && !running && !used) go.click(); });
 });
 /* ---------- Toast ---------- */
 DM.def('toast', (r, c) => {
@@ -11966,7 +11980,12 @@ DM.def('toast', (r, c) => {
     const u = $('.tst-undo', t); if (u) u.onclick = () => { $('.tx b', t).textContent = 'Changes undone'; swap($('.tx span', t), 'PricingCard is back as it was'); u.remove(); };
     const rt = $('.tst-retry', t); if (rt) rt.onclick = () => { rt.innerHTML = '<span class="spin"></span>'; setTimeout(() => { if (t.isConnected) show('ok'); }, 1200); };
     if (k === 'load') c.later(2600, () => { if (cur === t) show('info'); });
-    if (k === 'ok' || k === 'info'){ const life = $('.life', t); life.animate([{ transform:'scaleX(1)' }, { transform:'scaleX(0)' }], { duration:6000, fill:'forwards' }); }
+    if (k === 'ok' || k === 'info'){
+      // it times out like a real toast: hovering holds it, and when it runs out it leaves and the same one comes back
+      const life = $('.life', t).animate([{ transform:'scaleX(1)' }, { transform:'scaleX(0)' }], { duration:5200, fill:'forwards' });
+      t.addEventListener('pointerenter', () => life.pause()); t.addEventListener('pointerleave', () => life.play());
+      life.finished.then(() => { if (cur !== t || c.dead) return; t.classList.add('tst-out'); cur = null; setTimeout(() => t.remove(), 300); c.later(1100, () => { if (!cur) show(k); }); }).catch(() => {});
+    }
   }
   const sg = $('.seg2', r), knob = seg(sg, v => show(v));
   const sync = k => { $$('button', sg).forEach(b => b.setAttribute('aria-pressed', b.dataset.v === k)); knob.place(); };
@@ -12008,7 +12027,11 @@ DM.def('toast-stack', (r, c) => {
   c.on(stack, 'pointerenter', () => { hover = true; layout(); });
   c.on(stack, 'pointerleave', () => { hover = false; layout(); });
   $('.tsk-add', r).onclick = add;
-  c.run(async () => { for (let i = 0; i < 3; i++){ await c.wait(i ? 700 : 400); add(); } });
+  c.run(async () => {
+    for (let i = 0; i < 3; i++){ await c.wait(i ? 700 : 400); add(); }
+    // then a new one now and then, held back while the stack is fanned out under the pointer
+    for (;;){ await c.wait(3800); if (!hover) add(); }
+  });
 });
 /* ---------- Pricing cards ---------- */
 DM.def('pricing-cards', (r, c) => {
@@ -12208,8 +12231,9 @@ DM.def('agent-lanes', (r, c) => {
     l.running = false; act(l, l.log[2]); st(l, `<span class="tag ok">${I('check','xs')}Done</span>`);
   }
   async function handoff(from, to, txt){
-    const h = html(`<div class="aln-hand">${I('right','xs')}${from.n} handed ${txt} to ${to.n}</div>`);
-    to.el.before(h); enter(h); await c.wait(1400); h.classList.add('leave'); await c.wait(350); h.remove();
+    const h = html(`<div class="fold shut aln-hf"><div><div class="aln-hand">${I('right','xs')}${from.n} handed ${txt} to ${to.n}</div></div></div>`);
+    to.el.before(h); void h.offsetWidth; h.classList.remove('shut'); enter($('.aln-hand', h), 80);
+    await c.wait(1700); h.classList.add('shut'); await c.wait(REDUCE ? 0 : 700); h.remove();
   }
   c.run(async () => {
     await c.wait(600);
@@ -12236,13 +12260,17 @@ DM.def('agent-run-timeline', (r, c) => {
   const rows = $('.art-rows', r), head = $('.art-head', r);
   S.forEach(s => { s.el = html(`<div class="art-row"><span class="art-lab">${I(s.ic,'xs')}<span class="t">${s.l}</span></span><span class="art-lane"><span class="art-bar${s.fail ? ' fail' : ''}" style="--c:${s.c};left:${s.s / T * 100}%" data-tip="${s.l}: ${s.d.toFixed(1)}s, $${s.cost.toFixed(2)}${s.fail ? ', 2 tests failed' : ''}"></span></span></div>`); rows.appendChild(s.el); });
   stagger($$('.art-row', r), 50);
+  $('.art-f', r).innerHTML = '<span><b>0.0s</b> total</span><span><b>$0.00</b> cost</span><span><b>0</b> steps</span><span><b>0</b> retries</span>';
   const lanes = () => $('.art-lane', r).getBoundingClientRect();
   c.run(async () => {
     await c.wait(500);
     const t0 = performance.now();
+    const f = $('.art-f', r);
+    const foot = (secs, cost, n, re) => { f.innerHTML = `<span><b>${secs.toFixed(1)}s</b> total</span><span><b>$${cost.toFixed(2)}</b> cost</span><span><b>${n}</b> step${n === 1 ? '' : 's'}</span><span><b>${re}</b> retr${re === 1 ? 'y' : 'ies'}</span>`; };
     await new Promise(res => c.loop(() => {
       const t = Math.min(T, (performance.now() - t0) / 1000 * 1.6);
       const L = lanes(), gx = $('.art-grid', r).getBoundingClientRect();
+      const on = S.filter(s => t >= s.s); foot(Math.min(t, 11.4), on.reduce((a, s) => a + s.cost * Math.min(1, (t - s.s) / s.d), 0), on.length, on.filter(s => s.ic === 'refresh').length);
       head.style.left = (L.left - gx.left + t / T * L.width) + 'px';
       S.forEach(s => { const w = Math.max(0, Math.min(s.d, t - s.s)); $('.art-bar', s.el).style.width = (w / T * 100) + '%'; });
       const now = S.filter(s => t >= s.s && t < s.s + s.d).map(s => s.l);
@@ -12252,7 +12280,7 @@ DM.def('agent-run-timeline', (r, c) => {
     head.style.opacity = 0;
     const tag = $('.art-tag', r); tag.className = 'art-tag tag ok'; tag.innerHTML = I('check','xs') + 'Done'; enter(tag);
     swap($('.art-s', r), 'Finished in 11.4s');
-    const f = $('.art-f', r); f.innerHTML = '<span><b>11.4s</b> total</span><span><b>$0.16</b> cost</span><span><b>7</b> steps</span><span><b>1</b> retry</span>'; enter(f);
+    foot(11.4, .16, 7, 1);
   });
 });
 /* ---------- Live answer ---------- */
@@ -12327,7 +12355,7 @@ DM.def('thread-panel', (r, c) => {
   tabs.innerHTML = T.map((t, i) => `<button class="thp-tab" role="tab" aria-selected="${i === 0}"><span class="dot" style="color:${t.col}"></span>${t.t}</button>`).join('') + '<span class="thp-ink"></span>';
   const ink = $('.thp-ink', r), tbs = $$('.thp-tab', r);
   const place = () => { const b = tbs[cur]; ink.style.left = b.offsetLeft + 10 + 'px'; ink.style.width = b.offsetWidth - 20 + 'px'; };
-  const msg = (m, anim) => { const el = m[0] === 'u' ? html(`<div class="bub">${m[1]}</div>`) : html(`<div class="thp-ag">${m[2] && m[2].length ? `<div class="src">${m[2].map(s => `<button class="fchip lnk" data-tip="${({ 'Funnel data':'Amplitude, last 30 days', 'Session notes':'Notion, 8 interviews', 'tokens.ts':'src/styles/tokens.ts' })[s] || s}">${I('file-text','xs')}${s}</button>`).join('')}</div>` : ''}${m[1]}</div>`); body.appendChild(el); if (anim) enter(el); body.scrollTop = body.scrollHeight; return el; };
+  const msg = (m, anim) => { const el = m[0] === 'u' ? html(`<div class="bub">${m[1]}</div>`) : html(`<div class="thp-ag">${m[2] && m[2].length ? `<div class="src">${m[2].map(s => `<button class="fchip lnk" data-tip="${({ 'Funnel data':'Amplitude, last 30 days', 'Session notes':'Notion, 8 interviews', 'tokens.ts':'src/styles/tokens.ts' })[s] || s}">${I('file-text','xs')}${s}</button>`).join('')}</div>` : ''}${m[1]}</div>`); body.appendChild(el); if (anim){ enter(el); body.scrollTo({ top:body.scrollHeight, behavior:REDUCE ? 'auto' : 'smooth' }); } else body.scrollTop = body.scrollHeight; return el; };
   function show(i){ cur = i; tbs.forEach((b, k) => b.setAttribute('aria-selected', k === i)); place(); body.innerHTML = ''; T[i].msgs.forEach((m, k) => { const el = msg(m); enter(el, k * 70); }); }
   tbs.forEach((b, i) => b.onclick = () => show(i));
   field.oninput = () => { send.disabled = !field.value.trim(); };
@@ -12337,6 +12365,13 @@ DM.def('thread-panel', (r, c) => {
     const k = cur; c.later(1400, () => { th.remove(); const a = ['a', 'On it. I\'ll update this thread when it\'s done.', []]; T[k].msgs.push(a); if (cur === k) msg(a, true); });
   };
   requestAnimationFrame(() => show(0)); new ResizeObserver(place).observe(tabs);
+  // once the card has settled, a reply is typed and sent in place, unless someone has started using it
+  let touched = false; c.on(r, 'pointerdown', () => { touched = true; }, true); c.on(field, 'focus', () => { touched = true; });
+  c.run(async () => {
+    await c.wait(1800); if (touched) return;
+    for (const ch of 'Can you make that change now?'){ if (touched) return; field.value += ch; send.disabled = false; await c.wait(32 + Math.random() * 40); }
+    await c.wait(380); if (!touched) $('.thp-in', r).requestSubmit();
+  });
 });
 /* ---------- Composer ---------- */
 DM.def('composer', (r, c) => {
@@ -12489,15 +12524,21 @@ DM.def('artifact-card', (r, c) => {
   const path = p => p.reduce((d, q, k, a) => { if (!k) return `M${q[0]} ${q[1]}`; const p0 = a[k - 2] || a[k - 1], p1 = a[k - 1], p3 = a[k + 1] || q, t = .18; return d + ` C${p1[0] + (q[0] - p0[0]) * t} ${p1[1] + (q[1] - p0[1]) * t} ${q[0] - (p3[0] - p1[0]) * t} ${q[1] - (p3[1] - p1[1]) * t} ${q[0]} ${q[1]}`; }, '');
   let shown = V[2].b.map(() => 3.2), cur = 2;
   const draw = b => { const d = path(xy(b)); ln.setAttribute('d', d); ar.setAttribute('d', d + ' L300 56 L0 56 Z'); };
-  function show(i){ cur = i; const v = V[i], from = shown.slice(), last = v.b[v.b.length - 1], top = Math.max(...v.b), at = v.b.indexOf(top);
-    swap($('.afx-dp', r), v.p); swap($('.afx-sub', r), v.sub); swap($('.afx-note', r), v.note);
-    swap($('.afx-v', r), last.toFixed(1) + '%'); swap($('.afx-d', r), '−' + (top - last).toFixed(1) + ' pts since ' + M[at]);
+  function show(i, quiet){ cur = i; const v = V[i], from = shown.slice(), last = v.b[v.b.length - 1], top = Math.max(...v.b), at = v.b.indexOf(top);
+    // quiet sets the text straight away, for the first version while the card comes in
+    const put = quiet ? (el, t) => { el.textContent = t; } : swap;
+    put($('.afx-dp', r), v.p); put($('.afx-sub', r), v.sub); put($('.afx-note', r), v.note);
+    put($('.afx-v', r), last.toFixed(1) + '%'); put($('.afx-d', r), '−' + (top - last).toFixed(1) + ' pts since ' + M[at]);
     tween(0, 1, 700, t => { shown = from.map((f, k) => f + (v.b[k] - f) * t); draw(shown); }); }
   draw(shown);
   seg($('.seg2', r), v => show(+v));
   const lk = $('.afx-link', r);
   lk.onclick = () => copied(lk, 'https://designme.dev/a/churn-q3');
-  c.later(350, () => show(2));
+  // the agent's versions play through once, first draft to final, unless someone picks one first
+  let touched = false; c.on(r, 'pointerdown', () => { touched = true; }, true);
+  const vb = $$('.afx-vers .seg2 button', r), pickV = i => { if (!touched && cur !== i) vb[i].click(); };
+  vb.forEach((b, i) => b.setAttribute('aria-pressed', i === 0));
+  show(0, true); c.later(2300, () => pickV(1)); c.later(4100, () => pickV(2));
 });
 /* ---------- Prompt starters ---------- */
 DM.def('prompt-starters', (r, c) => {
@@ -12523,6 +12564,9 @@ DM.def('prompt-starters', (r, c) => {
   $('.psx-sh', r).onclick = () => { si = (si + 1) % sets.length; tx.innerHTML = ''; inp.classList.remove('has'); go.disabled = true; paint(); };
   go.onclick = () => { tx.innerHTML = '<span class="w">Sent to the agent</span>'; go.disabled = true; $$('.psx-c', grid).forEach(x => x.classList.remove('on')); };
   paint();
+  // once the card has settled, the first starter is picked and fills the box, unless someone got there first
+  let touched = false; c.on(r, 'pointerdown', () => { touched = true; }, true);
+  c.later(1700, () => { if (!touched && si === 0 && !$('.psx-c.on', grid)) pick($('.psx-c', grid)); });
 });
 /* ---------- Attachment tray ---------- */
 DM.def('attachment-tray', (r, c) => {
@@ -12588,7 +12632,10 @@ DM.def('response-versions', (r, c) => {
       await stream(s); busy = false; nav(); st.classList.remove('shim'); swap(st, ''); }); };
   const cp = $('.rvx-cp', r);
   cp.onclick = () => copied(cp, vers[cur]);
-  c.run(async () => { busy = true; nav(); await c.wait(300); await stream(vers[0]); busy = false; nav(); });
+  let touched = false; c.on(r, 'pointerdown', () => { touched = true; }, true);
+  c.run(async () => { busy = true; nav(); await c.wait(300); await stream(vers[0]); busy = false; nav();
+    // then one regenerate plays by itself, so the version count and arrows show what they do
+    await c.wait(1900); if (!touched && vers.length === 1) re.click(); });
 });
 /* ---------- Feedback sheet ---------- */
 DM.def('feedback-sheet', (r, c) => {

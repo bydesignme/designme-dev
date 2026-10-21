@@ -23,7 +23,7 @@ const server = http.createServer((req, res) => {
   await new Promise(r => server.listen(0, '127.0.0.1', r));
   const url = `http://127.0.0.1:${server.address().port}/`;
   const browser = await chromium.launch();
-  const out = {};
+  const out = {}, outHost = {};
   for (const [band, width] of BANDS) for (const style of STYLES){
     const page = await browser.newPage({ viewport: { width, height: 900 } });
     await page.addInitScript(s => { try { if (s === 'soft') localStorage.setItem('dmui-style', 'soft'); else localStorage.removeItem('dmui-style'); localStorage.setItem('dmui-theme', 'light'); } catch(e){} }, style);
@@ -41,19 +41,22 @@ const server = http.createServer((req, res) => {
       st.textContent = '.lib-sec .grid{align-items:start!important}.lib-sec .comp>.stage{min-height:0!important;flex:none!important}';
       document.head.appendChild(st);
       comps.forEach(c => window.V2.replay(c));
-      const max = new Map();
+      // the stage's height, and the component's own: the component keeps its tallest size inside the stage, so it grows
+      // downwards instead of creeping up as it plays
+      const max = new Map(), hmax = new Map();
       for (let t = 0; t <= PLAY; t += EVERY){
-        comps.forEach(c => { const h = c.querySelector(':scope>.stage').getBoundingClientRect().height; if (h > (max.get(c) || 0)) max.set(c, h); });
+        comps.forEach(c => { const h = c.querySelector(':scope>.stage').getBoundingClientRect().height; if (h > (max.get(c) || 0)) max.set(c, h);
+          const hh = c.querySelector('.v2.stage-in').getBoundingClientRect().height; if (hh > (hmax.get(c) || 0)) hmax.set(c, hh); });
         await new Promise(r => setTimeout(r, EVERY));
       }
-      return Object.fromEntries(comps.map(c => [c.dataset.v2, Math.ceil(Math.max(max.get(c), base.get(c)))]));
+      return Object.fromEntries(comps.map(c => [c.dataset.v2, [Math.ceil(Math.max(max.get(c), base.get(c))), Math.ceil(hmax.get(c))]]));
     }, { PLAY, EVERY });
-    for (const [id, h] of Object.entries(got)){ const o = out[id] || (out[id] = {}); o[band] = Math.max(o[band] || 0, h); }
+    for (const [id, [h, hh]] of Object.entries(got)){ const o = out[id] || (out[id] = {}), oh = outHost[id] || (outHost[id] = {}); o[band] = Math.max(o[band] || 0, h); oh[band] = Math.max(oh[band] || 0, hh); }
     console.log(`${band} ${width}px ${style}: ${Object.keys(got).length} cards`);
     await page.close();
   }
   await browser.close(); server.close();
-  const sorted = Object.fromEntries(Object.keys(out).sort().map(id => [id, BANDS.map(([b]) => out[id][b])]));
-  fs.writeFileSync(path.join(__dirname, 'card-heights.json'), JSON.stringify({ bands: BANDS, heights: sorted }, null, 1) + '\n');
+  const sorted = (o) => Object.fromEntries(Object.keys(o).sort().map(id => [id, BANDS.map(([b]) => o[id][b])]));
+  fs.writeFileSync(path.join(__dirname, 'card-heights.json'), JSON.stringify({ bands: BANDS, heights: sorted(out), components: sorted(outHost) }, null, 1) + '\n');
   console.log('wrote card-heights.json');
 })().catch(e => { console.error(e); process.exit(1); });
