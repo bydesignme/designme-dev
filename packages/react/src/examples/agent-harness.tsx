@@ -27,12 +27,12 @@ type Story = 'pricing' | 'team' | 'dropoff' | 'annual' | 'sync';
 type Src = [string, string, string, string];
 
 /* ---------- what the stories say and show ---------- */
-const S: Record<Story, { ask: string; title: string; icon: IconName }> = {
-  pricing: { ask: 'Tighten the spacing and prices on the pricing page', title: 'Pricing page fixes', icon: 'grid' },
-  team: { ask: 'Redesign the pricing page with three agents', title: 'Pricing with three agents', icon: 'users' },
-  dropoff: { ask: 'Where are people dropping off in onboarding?', title: 'Onboarding drop-off', icon: 'chart' },
-  annual: { ask: 'Why do annual plans convert better for us?', title: 'Why annual converts', icon: 'coins' },
-  sync: { ask: "Sync this quarter's deals to the pipeline sheet", title: 'Sync deals to Sheets', icon: 'table' }
+const S: Record<Story, { ask: string; title: string; fresh: string; icon: IconName }> = {
+  pricing: { ask: 'Tighten the spacing and prices on the pricing page', title: 'Pricing page fixes', fresh: 'Pricing spacing and prices', icon: 'grid' },
+  team: { ask: 'Redesign the pricing page with three agents', title: 'Pricing with three agents', fresh: 'Three agents on pricing', icon: 'users' },
+  dropoff: { ask: 'Where are people dropping off in onboarding?', title: 'Onboarding drop-off', fresh: 'Where onboarding loses people', icon: 'chart' },
+  annual: { ask: 'Why do annual plans convert better for us?', title: 'Why annual converts', fresh: 'Annual vs monthly conversion', icon: 'coins' },
+  sync: { ask: "Sync this quarter's deals to the pipeline sheet", title: 'Sync deals to Sheets', fresh: "This quarter's deals to Sheets", icon: 'table' }
 };
 const KEYS = Object.keys(S) as Story[];
 const HUE = ['#3b82f6', '#7a5af8', '#0ea5a4', '#f97316', '#16a34a'];
@@ -539,7 +539,8 @@ export default function AgentHarnessDemo() {
   };
   const start = (text: string, files: string[]) => {
     const s = KEYS.find(k => S[k].ask === text);
-    const title = s ? S[s].title : (w => w ? w[0].toUpperCase() + w.slice(1) : 'New chat')(text.replace(/[.?!][\s\S]*$/, '').split(/\s+/).slice(0, 5).join(' '));
+    // a chat started now gets a title of its own, beside the past chat of the same story
+    const title = s ? S[s].fresh : (w => w ? w[0].toUpperCase() + w.slice(1) : 'New chat')(text.replace(/[.?!][\s\S]*$/, '').split(/\s+/).slice(0, 5).join(' '));
     const id = 'c' + ++n.current;
     setConvs(cs => [{ id, title, state: 'running', status: think, context: 4, blocks: [] }, ...cs]);
     // the new chat is in the list before the story writes to it

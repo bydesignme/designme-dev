@@ -275,6 +275,12 @@ body.ui .comp-foot .tabs .ind{top:0;bottom:0;background:var(--sh-sw-on)}
   .top-actions #style-seg,.top-actions #theme-btn,.top-actions #sound-btn{display:none}
   body:not(:has(> #v2-js)) .side{display:none}
 }
+/* wider screens: the script adds the 36px accent dot beside the style switch, so its room is kept from the first paint and
+   the header doesn't grow and push the page down when it arrives */
+@media (min-width:961px){
+  body.ui .top .top-actions{min-height:36px}
+  body.ui .top .top-actions:not(:has(#acc)) #style-seg{margin-right:44px}
+}
 """
 json.dump({ 'patches': P, 'css': CSS }, open(os.path.join(HERE, 'site-patches.json'), 'w'), indent=1)
 print(len(P), 'patches')

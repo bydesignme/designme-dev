@@ -6077,7 +6077,7 @@ DM.def('harness', (r, c) => {
   /* ---- the stories, each told only with the components above. A story waits for every approval; a past chat replays the
      choice that was made back then, so it opens finished ---- */
   const S = {
-    pricing:{ ask:'Tighten the spacing and prices on the pricing page', title:'Pricing page fixes', ic:'grid', end:{ g:'ok', t:'Done', m:'6 files changed' }, ctx:46, run:async t => {
+    pricing:{ ask:'Tighten the spacing and prices on the pricing page', title:'Pricing page fixes', nt:'Pricing spacing and prices', ic:'grid', end:{ g:'ok', t:'Done', m:'6 files changed' }, ctx:46, run:async t => {
       await t.ask(); t.ctx(12);
       const g = t.group('Checking the pricing page');
       const tk = g.comp('thinking', .5);
@@ -6107,7 +6107,7 @@ DM.def('harness', (r, c) => {
       $('.plx-f .pill.soft', pl).onclick = () => look(rs);
       await t.wait(1200); t.end('Done', '6 files changed', ['What still needs me?', 'Which spacing tokens did you use?']);
     } },
-    team:{ ask:'Redesign the pricing page with three agents', title:'Pricing with three agents', ic:'users', end:{ g:'ok', t:'Ready to review', m:'3 files' }, ctx:58, run:async t => {
+    team:{ ask:'Redesign the pricing page with three agents', title:'Pricing with three agents', nt:'Three agents on pricing', ic:'users', end:{ g:'ok', t:'Ready to review', m:'3 files' }, ctx:58, run:async t => {
       await t.ask(); t.ctx(10);
       await t.say('Three quick questions before I split the work.');
       const dp = t.comp('decision-prompt'); t.hold(dp, 'Needs your answers', "Pick an answer above, or press Skip and I'll decide for you.");
@@ -6123,7 +6123,7 @@ DM.def('harness', (r, c) => {
       t.comp('change-review'); t.ctx(58);
       await t.wait(800); t.end('Ready to review', '3 files', ['What did the researcher find?', 'Who signed off?']);
     } },
-    dropoff:{ ask:'Where are people dropping off in onboarding?', title:'Onboarding drop-off', ic:'chart', end:{ g:'ok', t:'Answered', m:'3 sources' }, ctx:24, run:async t => {
+    dropoff:{ ask:'Where are people dropping off in onboarding?', title:'Onboarding drop-off', nt:'Where onboarding loses people', ic:'chart', end:{ g:'ok', t:'Answered', m:'3 sources' }, ctx:24, run:async t => {
       // the live answer brings the question with it, and its own follow-ups
       const la = t.comp('live-answer'), qb = $('.lva-q .bub', la); if (qb) qb.textContent = t.text; t.ctx(9);
       await t.until(() => { t.status(...($('.lva-p', la) ? ['run', 'Answering'] : ['think', 'Thinking'])); return $('.lva-fu', la); });
@@ -6132,7 +6132,7 @@ DM.def('harness', (r, c) => {
       t.status('run', 'Writing the doc'); t.doc(t.comp('artifact-card')); t.ctx(24);
       await t.wait(4600); t.end('Answered', '3 sources');
     } },
-    annual:{ ask:'Why do annual plans convert better for us?', title:'Why annual converts', ic:'coins', end:{ g:'ok', t:'Answered', m:'8 sources' }, ctx:17, run:async t => {
+    annual:{ ask:'Why do annual plans convert better for us?', title:'Why annual converts', nt:'Annual vs monthly conversion', ic:'coins', end:{ g:'ok', t:'Answered', m:'8 sources' }, ctx:17, run:async t => {
       await t.ask(); t.ctx(8);
       const w = t.working('Reading 8 sources'); t.status('tool', 'Reading 8 sources');
       await t.wait(1700); w.remove();
@@ -6141,7 +6141,7 @@ DM.def('harness', (r, c) => {
       await t.say('Want me to try the crossed-out monthly price on the pricing page?');
       t.end('Answered', '8 sources', ['Try it on the pricing page', 'How sure are you?']);
     } },
-    sync:{ ask:"Sync this quarter's deals to the pipeline sheet", title:'Sync deals to Sheets', ic:'table', end:{ g:'ok', t:'Recovered', m:'1 retry' }, ctx:31, run:async t => {
+    sync:{ ask:"Sync this quarter's deals to the pipeline sheet", title:'Sync deals to Sheets', nt:"This quarter's deals to Sheets", ic:'table', end:{ g:'ok', t:'Recovered', m:'1 retry' }, ctx:31, run:async t => {
       await t.ask(); t.ctx(9);
       const w = t.working('Syncing 1,240 deals'); t.status('run', 'Syncing deals');
       await t.wait(1500); w.remove();
@@ -6428,7 +6428,8 @@ DM.def('harness', (r, c) => {
   $('.ahx-shf', r).onclick = () => { off = (off + 3) % KEYS.length; suggest(true); };
   function start(text, files, s){
     if (!at || at.cv) return;
-    const title = s ? S[s].title : (w => w ? w[0].toUpperCase() + w.slice(1) : 'New chat')(text.replace(/[.?!][\s\S]*$/, '').split(/\s+/).slice(0, 5).join(' '));
+    // a chat started now gets a title of its own, beside the past chat of the same story
+    const title = s ? S[s].nt : (w => w ? w[0].toUpperCase() + w.slice(1) : 'New chat')(text.replace(/[.?!][\s\S]*$/, '').split(/\s+/).slice(0, 5).join(' '));
     const cv = conv(title, { state:'run' });
     CV.unshift(cv); list.prepend(row(cv)); enter(cv.row); filter();
     // the composer glides from the middle of New chat down to the foot of the new chat
