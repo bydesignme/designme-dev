@@ -197,7 +197,7 @@ CSS = """
 .cdm.rx .cdm-tab[data-t^="rx-"],.dv-code.rx .dv-tab[data-t^="rx-"]{display:inline-block}
 .cdm.rx .cdm-foot{display:none}
 /* ---------- a quieter page: white, no dots, cards without a frame ---------- */
-:root{--sh-bg:#ffffff;--sh-stage:#f5f5f5;--sh-top:rgba(255,255,255,.86);--sh-dot:transparent;--sh-act:#f5f5f5;--sh-sw:#f3f3f3;--sh-sw-on:#ffffff}
+:root{--sh-bg:#ffffff;--sh-stage:#fafafa;--sh-top:rgba(255,255,255,.86);--sh-dot:transparent;--sh-act:#fafafa;--sh-sw:#f3f3f3;--sh-sw-on:#ffffff}
 @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){--sh-bg:#111111;--sh-side:#111111;--sh-stage:#1c1c1c;--sh-top:rgba(17,17,17,.86);--sh-dot:transparent;--sh-act:#1d1d1d;--sh-sw:#1c1c1c;--sh-sw-on:#2a2a2a} }
 :root[data-theme="dark"]{--sh-bg:#111111;--sh-side:#111111;--sh-stage:#1c1c1c;--sh-top:rgba(17,17,17,.86);--sh-dot:transparent;--sh-act:#1d1d1d;--sh-sw:#1c1c1c;--sh-sw-on:#2a2a2a}
 body.ui,.dv,.pv{background-image:none}
@@ -209,6 +209,8 @@ body.ui,.dv,.pv{background-image:none}
 .intro-cmd .c{color:var(--sh-text)}
 @media (max-width:960px){ .intro h1{font-size:24px} }
 /* Agent components or App basics */
+/* a line between the intro and the components */
+.intro{padding-bottom:30px;border-bottom:1px solid var(--sh-line)}
 .grp-sw{position:relative;display:inline-flex;gap:2px;margin:30px 0 0;padding:3px;border-radius:11px;background:var(--sh-sw);corner-shape:round}
 .grp-sw button{position:relative;z-index:1;height:32px;padding:0 15px;border-radius:8px;font-size:13.5px;font-weight:500;color:var(--sh-dim);transition:color .2s ease}
 .grp-sw button:hover,.grp-sw button[aria-selected="true"]{color:var(--sh-text)}
