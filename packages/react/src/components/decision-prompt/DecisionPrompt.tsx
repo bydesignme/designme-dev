@@ -1,6 +1,8 @@
 'use client';
 import { useState, type KeyboardEvent } from 'react';
 import { cx } from '../../lib/cx';
+import { useControllable } from '../../lib/hooks';
+import { Icon } from '../../lib/icons';
 import { enter, Think } from '../../lib/motion';
 import '../../designme.css';
 import './decision-prompt.css';
@@ -19,20 +21,31 @@ export interface DecisionQuestion {
 
 export interface DecisionPromptProps {
   questions: DecisionQuestion[];
+  /** The answers so far, an option's index or null for a skipped question. Leave it out to let Continue and Skip fill it */
+  answers?: (number | null)[];
+  defaultAnswers?: (number | null)[];
+  onAnswersChange?: (answers: (number | null)[]) => void;
   /** Called once every question is answered, with the picked option's index for each, or null where the person skipped */
   onComplete?: (answers: (number | null)[]) => void;
   /** What the summary says for a skipped question */
   skippedLabel?: string;
   /** The line under the summary while the agent gets going */
   startLabel?: string;
+  /** The agent has got going: the line under the summary settles with a check */
+  started?: boolean;
+  /** What that line says once started. Defaults to startLabel */
+  startedLabel?: string;
   /** Sits flat in a chat thread (the default, as on designme.dev). Set false to give it a card of its own */
   bare?: boolean;
   className?: string;
 }
 
 /** The agent asks a few quick questions before it starts. Number keys pick, Enter continues. */
-export function DecisionPrompt({ questions, onComplete, skippedLabel = 'Agent decides', startLabel = 'Starting', bare = true, className }: DecisionPromptProps) {
-  const [answers, setAnswers] = useState<(number | null)[]>([]);
+export function DecisionPrompt({
+  questions, answers: value, defaultAnswers = [], onAnswersChange, onComplete, skippedLabel = 'Agent decides', startLabel = 'Starting',
+  started = false, startedLabel, bare = true, className
+}: DecisionPromptProps) {
+  const [answers, setAnswers] = useControllable(value, defaultAnswers, onAnswersChange);
   const [sel, setSel] = useState(0);
   const n = questions.length, at = answers.length, done = at >= n, q = questions[Math.min(at, n - 1)];
 
@@ -65,7 +78,9 @@ export function DecisionPrompt({ questions, onComplete, skippedLabel = 'Agent de
                 <span>{x.label}</span>{answers[i] === null ? skippedLabel : x.options[answers[i]!]?.label}
               </div>
             ))}
-            <div className={cx('dm-dpx-run', enter().className)} style={enter(n * 70).style}><Think /><span className="dm-shim">{startLabel}</span></div>
+            <div className={cx('dm-dpx-run', enter().className)} style={enter(n * 70).style}>{started
+              ? <><span style={{ color: 'var(--dm-ok)' }}><Icon name="check" size="xs" /></span><span>{startedLabel ?? startLabel}</span></>
+              : <><Think /><span className="dm-shim">{startLabel}</span></>}</div>
           </div>
         ) : (
           <>

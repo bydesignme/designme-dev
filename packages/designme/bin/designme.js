@@ -51,9 +51,12 @@ ${item.files.find(f => f.path.endsWith('.html')).content}
 async function addReact(names, force){
   const core = await get('react/core'), shared = Object.fromEntries(core.files.map(f => [f.path, f.content]));
   const examples = args.includes('--examples'), wrote = new Set();
-  for (const n of names){
+  // a component made of others (the agent harness) brings them along
+  const queue = names.map(n => n.toLowerCase()), seen = new Set(queue);
+  for (const n of queue){
     try {
-      const item = await get('react/' + n.toLowerCase());
+      const item = await get('react/' + n);
+      for (const d of (examples ? item.example.components : item.components) || []) if (!seen.has(d)){ seen.add(d); queue.push(d); }
       let added = false; for (const f of item.files) added = write(f.path, f.content, force) || added;
       const needs = examples ? item.example.needs : item.needs;
       for (const p of needs) if (!wrote.has(p)){ wrote.add(p); if (write(p, shared[p], force)) console.log(c.ok('+ ') + p + c.dim('  shared')); }
