@@ -1,8 +1,9 @@
 'use client';
-import { useState, type KeyboardEvent, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
 import { cx } from '../../lib/cx';
-import { useControllable } from '../../lib/hooks';
+import { useControllable, useReducedMotion } from '../../lib/hooks';
 import { Icon } from '../../lib/icons';
+import { enter } from '../../lib/motion';
 import '../../designme.css';
 import './stepper.css';
 
@@ -55,6 +56,28 @@ export interface StepperProps {
   className?: string;
 }
 
+/** A short burst of confetti from an element, in the accent and a few brand colours, falling as it fades. Returns its cleanup */
+function burst(at: HTMLElement) {
+  const bp = getComputedStyle(at).getPropertyValue('--dm-motion').trim() === 'bp';
+  const box = document.createElement('span'); box.className = 'dm-stx-conf'; at.appendChild(box);
+  const COL = ['var(--dm-accent)', 'var(--dm-ok)', 'var(--dm-c2)', 'var(--dm-c4)', 'var(--dm-c5)', 'var(--dm-c6)'], N = 22;
+  for (let k = 0; k < N; k++) {
+    const p = document.createElement('i'), round = k % 3 === 0, a = -Math.PI / 2 + (k / (N - 1) - .5) * Math.PI * 1.5 + Math.sin(k * 7.3) * .18;
+    const d = 46 + (k * 37 % 30), w = round ? 5 : 3 + k % 2, h = round ? 5 : 7 + k % 3;
+    if (round) p.className = 'dm-d';
+    Object.assign(p.style, { width: w + 'px', height: h + 'px', marginLeft: -w / 2 + 'px', marginTop: -h / 2 + 'px', background: COL[k % COL.length] });
+    box.appendChild(p);
+    const x = Math.cos(a) * d, y = Math.sin(a) * d, r0 = k * 47 % 180, spin = (k % 2 ? 1 : -1) * (180 + k * 23 % 200), ms = (bp ? 760 : 1150) + k * 13 % 220;
+    p.animate([
+      { opacity: 1, transform: `translate(0,0) rotate(${r0}deg) scale(.6)` },
+      { opacity: 1, transform: `translate(${x}px,${y}px) rotate(${r0 + spin * .5}deg) scale(1)`, offset: .42 },
+      { opacity: 0, transform: `translate(${x * 1.18}px,${y + 46}px) rotate(${r0 + spin}deg) scale(.9)` }
+    ], { duration: ms, delay: 120 + k % 4 * 18, easing: bp ? 'cubic-bezier(.65,0,.25,1)' : 'cubic-bezier(.16,1,.3,1)', fill: 'both' });
+  }
+  const t = setTimeout(() => box.remove(), 1700);
+  return () => { clearTimeout(t); box.remove(); };
+}
+
 /** A few steps of setup, one question at a time, with a track that fills in as you go. */
 export function Stepper({ steps, step, defaultStep = 0, onStepChange, values, defaultValues, onValuesChange, onNext, onFinish,
   doneTitle = "You're set up", doneDetail, backLabel = 'Back', nextLabel = 'Continue', finishLabel = 'Finish', restartLabel = 'Start over', bare = true, className }: StepperProps) {
@@ -77,6 +100,11 @@ export function Stepper({ steps, step, defaultStep = 0, onStepChange, values, de
   };
   const pick = (i: number, k: number) => setPicks(steps.map((_, j) => (j === i ? k : picks[j] ?? 0)));
   const s = steps[cur];
+  // arriving at the finished screen from Finish is the moment to celebrate
+  const celebrate = finished && seen.dir > 0;
+  const ok = useRef<HTMLSpanElement>(null);
+  const reduce = useReducedMotion();
+  useEffect(() => { if (celebrate && !reduce && ok.current) return burst(ok.current); }, [celebrate, seen.key, reduce]);
 
   return (
     <div data-dm="" className={cx('dm-stx', !bare && 'dm-panel', className)}>
@@ -91,12 +119,15 @@ export function Stepper({ steps, step, defaultStep = 0, onStepChange, values, de
         ])}
       </div>
       <div className="dm-stx-vp">
-        <div key={seen.key} className={cx('dm-stx-body', seen.dir > 0 && 'dm-inr', seen.dir < 0 && 'dm-inl')}>
+        {/* each step slides in from the side it comes from; the finished screen stays put and celebrates instead */}
+        <div key={seen.key} className={cx('dm-stx-body', !finished && seen.dir > 0 && 'dm-inr', !finished && seen.dir < 0 && 'dm-inl')}>
           {finished ? (
-            <div className="dm-stx-dn">
-              <Icon name="ok" />
-              <b>{doneTitle}</b>
-              <span className="dm-muted">{doneDetail ?? steps.map((st, k) => st.options?.[picks[k] ?? 0]?.label).filter(Boolean).join(' · ')}</span>
+            <div className={cx('dm-stx-dn', celebrate && 'dm-go')}>
+              <span ref={ok} className="dm-stx-ok">
+                <svg viewBox="0 0 44 44" aria-hidden="true"><circle className="dm-c" cx="22" cy="22" r="20" /><path className="dm-k" d="M14 22.5l5.5 5.5L30.5 16.5" /></svg>
+              </span>
+              <b {...(celebrate ? enter(260) : {})}>{doneTitle}</b>
+              <span {...(celebrate ? enter(340) : {})} className={cx('dm-muted', celebrate && enter(340).className)}>{doneDetail ?? steps.map((st, k) => st.options?.[picks[k] ?? 0]?.label).filter(Boolean).join(' · ')}</span>
             </div>
           ) : (
             <>

@@ -78,10 +78,14 @@ export function OnboardingChecklist({ steps, done, defaultDone, onDoneChange, ru
   return (
     <div data-dm="" className={cx('dm-obx', !bare && 'dm-panel', className)}>
       <div className="dm-obx-h">
-        <svg className={cx('dm-obx-ring', ready && all && 'dm-full')} viewBox="0 0 40 40" role="progressbar" aria-label={title} aria-valuemin={0} aria-valuemax={steps.length} aria-valuenow={n}>
-          <circle cx="20" cy="20" r="16" className="dm-tr" />
-          <circle cx="20" cy="20" r="16" className="dm-fl" style={{ strokeDashoffset: ready ? RING * (1 - n / steps.length) : RING }} />
-        </svg>
+        {/* when every step is done, a green check grows in the middle of the ring */}
+        <span className={cx('dm-obx-rw', ready && all && 'dm-full')}>
+          <svg className={cx('dm-obx-ring', ready && all && 'dm-full')} viewBox="0 0 40 40" role="progressbar" aria-label={title} aria-valuemin={0} aria-valuemax={steps.length} aria-valuenow={n}>
+            <circle cx="20" cy="20" r="16" className="dm-tr" />
+            <circle cx="20" cy="20" r="16" className="dm-fl" style={{ strokeDashoffset: ready ? RING * (1 - n / steps.length) : RING }} />
+          </svg>
+          <span className="dm-obx-rk" aria-hidden="true"><Icon name="check" size="xs" /></span>
+        </span>
         <div className="dm-obx-ht"><b>{title}</b><Swap className="dm-muted dm-obx-st">{status ?? (all ? 'All done. Nice work' : `${n} of ${steps.length} done`)}</Swap></div>
         <Tip label={isOpen ? 'Collapse' : 'Expand'}>
           <button type="button" className={cx('dm-ib dm-obx-min', !isOpen && 'dm-shut')} aria-label={isOpen ? 'Collapse' : 'Expand'} aria-expanded={isOpen} onClick={() => setOpen(!isOpen)}><Icon name="chev-d" size="xs" /></button>
@@ -93,7 +97,9 @@ export function OnboardingChecklist({ steps, done, defaultDone, onDoneChange, ru
             const k = keyOf(s), isDone = ticked.includes(k), run = !isDone && (pending.includes(k) || !!running?.includes(k));
             const e = enter(i * 50);
             return (
-              <div key={k} className={cx('dm-obx-s', isDone && 'dm-done', run && 'dm-run', e.className)} style={e.style}>
+              // the whole row ticks the step, not only its checkbox; its button does its own thing, and a running step waits
+              <div key={k} className={cx('dm-obx-s', isDone && 'dm-done', run && 'dm-run', e.className)} style={e.style}
+                onClick={ev => { if (!run && !(ev.target as HTMLElement).closest('.dm-obx-ck, .dm-pill')) toggle(k); }}>
                 <button type="button" className="dm-obx-ck" role="checkbox" aria-checked={isDone} aria-label={s.title} onClick={() => toggle(k)}>
                   {run ? <span className="dm-spin" style={{ width: 14, height: 14 }} /> : <Icon name="check" size="xs" />}
                 </button>
