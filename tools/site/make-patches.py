@@ -229,15 +229,6 @@ patch("""      ph.replaceWith(cur); const back = cur; cur = null; ph = null;""",
 patch("""setTimeout(() => $('#dv-back').focus(), 80);""", """setTimeout(() => { dv.tabIndex = -1; dv.focus({ preventScroll:true }); }, 80);""")
 
 # ---------- sound on every click and hover, through the site's own sound switch (off until someone turns it on) ----------
-patch("""    let ctx = null, master = null, on = false;""", """    let ctx = null, master = null, on = false, last = 0;""")
-patch("""      copy:   () => { tone({f:1200, dur:.04, gain:.028}); tone({f:1700, dur:.05, gain:.028, delay:.045}); }""",
-      """      copy:   () => { tone({f:1200, dur:.04, gain:.028}); tone({f:1700, dur:.05, gain:.028, delay:.045}); },
-      // a soft tap for a click, and a much quieter tick for moving onto something you can click
-      click:  () => tone({f:1150, f2:720, dur:.045, gain:.03}),
-      hover:  () => tone({f:2400, f2:1900, type:'triangle', dur:.018, gain:.007})""")
-patch("""      play: n => { try { fx[n] && fx[n](); } catch(e) {} },""",
-      """      play: n => { last = performance.now(); try { fx[n] && fx[n](); } catch(e) {} },
-      get last(){ return last; },""")
 patch("""  ['pointerdown','keydown'].forEach(ev => document.addEventListener(ev, () => Sound.ensure(), {capture:true}));""",
       """  ['pointerdown','keydown'].forEach(ev => document.addEventListener(ev, () => Sound.ensure(), {capture:true}));
   /* every click and hover gets a sound: anything with a pointer cursor counts, so the components need nothing of their own.
@@ -270,6 +261,95 @@ patch("""  ['pointerdown','keydown'].forEach(ev => document.addEventListener(ev,
       lastHover = now; Sound.play('hover');
     }, { passive:true });
   }""")
+
+# the sounds: recordings in one file instead of synthesised tones (see make-sounds.py)
+patch("""    function ensure(){
+      if (!ctx){
+        const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return;
+        ctx = new AC(); master = ctx.createGain(); master.gain.value = .7;
+        const comp = ctx.createDynamicsCompressor(); master.connect(comp); comp.connect(ctx.destination);
+      }
+      if (ctx.state === 'suspended') ctx.resume();
+    }
+    function ready(){ return on && ctx && ctx.state === 'running'; }
+    function tone({f=880, f2=null, type='sine', dur=.08, gain=.05, delay=0, attack=.004}){
+      if (!ready()) return;
+      const t = ctx.currentTime + delay, o = ctx.createOscillator(), g = ctx.createGain();
+      o.type = type; o.frequency.setValueAtTime(f, t);
+      if (f2) o.frequency.exponentialRampToValueAtTime(f2, t + dur);
+      g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(gain, t + attack); g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+      o.connect(g); g.connect(master); o.start(t); o.stop(t + dur + .03);
+    }
+    let nbuf = null;
+    function noise({dur=.16, gain=.02, from=900, to=2600, q=1.2}){
+      if (!ready()) return;
+      if (!nbuf){ nbuf = ctx.createBuffer(1, ctx.sampleRate * .5, ctx.sampleRate); const d = nbuf.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1; }
+      const t = ctx.currentTime, s = ctx.createBufferSource(), f = ctx.createBiquadFilter(), g = ctx.createGain();
+      s.buffer = nbuf; f.type = 'bandpass'; f.Q.value = q;
+      f.frequency.setValueAtTime(from, t); f.frequency.exponentialRampToValueAtTime(to, t + dur);
+      g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(gain, t + dur * .35); g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+      s.connect(f); f.connect(g); g.connect(master); s.start(t); s.stop(t + dur + .02);
+    }
+    const fx = {
+      tab:    () => tone({f:1500, f2:1050, dur:.045, gain:.035}),
+      tick:   () => tone({f:2100, f2:1600, dur:.03, gain:.018}),
+      select: () => { tone({f:660, dur:.07, gain:.035}); tone({f:990, dur:.09, gain:.03, delay:.045}); },
+      pop:    () => tone({f:760, f2:1080, type:'triangle', dur:.1, gain:.04}),
+      done:   () => { tone({f:784, type:'triangle', dur:.16, gain:.035}); tone({f:1175, type:'triangle', dur:.26, gain:.03, delay:.09}); },
+      open:   () => noise({from:700, to:2400, dur:.2, gain:.022}),
+      close:  () => noise({from:2400, to:700, dur:.18, gain:.02}),
+      stream: () => tone({f:2800, dur:.012, gain:.006}),
+      send:   () => tone({f:480, f2:1100, dur:.13, gain:.04}),
+      fail:   () => tone({f:320, f2:230, type:'triangle', dur:.18, gain:.035}),
+      on:     () => tone({f:880, f2:1320, dur:.07, gain:.03}),
+      off:    () => tone({f:1320, f2:880, dur:.07, gain:.03}),
+      copy:   () => { tone({f:1200, dur:.04, gain:.028}); tone({f:1700, dur:.05, gain:.028, delay:.045}); }
+    };
+    return {
+      ensure,
+      play: n => { try { fx[n] && fx[n](); } catch(e) {} },
+      get on(){ return on; },
+      set(v){ on = v; try { localStorage.setItem('dmui-sound', v ? 'on' : 'off'); } catch(e) {} }
+    };
+""", """    function ensure(){
+      if (!ctx){
+        const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return;
+        ctx = new AC(); master = ctx.createGain(); master.gain.value = .7;
+        const comp = ctx.createDynamicsCompressor(); master.connect(comp); comp.connect(ctx.destination);
+      }
+      if (ctx.state === 'suspended') ctx.resume();
+      if (on) load();
+    }
+    function ready(){ return on && ctx && ctx.state === 'running'; }
+    /* recorded sounds rather than synthesised tones: Kenney's Interface Sounds and UI Audio (CC0), all in one file that is
+       only fetched once sound is on. sounds/ui.json says where each one starts, how long it lasts and how loud it plays;
+       tools/site/make-sounds.py builds both */
+    let buf = null, map = null, loading = null;
+    function load(){
+      if (loading || !ctx) return loading;
+      loading = Promise.all([fetch('/sounds/ui.json').then(r => r.json()), fetch('/sounds/ui.wav').then(r => r.arrayBuffer())])
+        .then(([m, data]) => new Promise((res, rej) => ctx.decodeAudioData(data, res, rej)).then(b => { buf = b; map = m; }))
+        .catch(() => { loading = null; });
+      return loading;
+    }
+    // a touch of variation in pitch, so a run of hovers or clicks doesn't sound like a machine
+    const VARY = { hover:.05, click:.04, tick:.04, tab:.03, stream:.08 };
+    function sample(n){
+      const s = map && map[n]; if (!s || !ready()) return;
+      const src = ctx.createBufferSource(), g = ctx.createGain(), v = VARY[n] || 0;
+      src.buffer = buf; src.playbackRate.value = 1 + (Math.random() * 2 - 1) * v; g.gain.value = s[2];
+      src.connect(g); g.connect(master); src.start(ctx.currentTime, s[0], s[1]);
+    }
+    return {
+      ensure,
+      // a sound asked for while the file is still on its way plays when it lands, if that's soon enough to still belong
+      play: n => { last = performance.now(); try { if (buf) sample(n); else if (on && load()){ const t = last; loading.then(() => { if (performance.now() - t < 400) sample(n); }); } } catch(e) {} },
+      get last(){ return last; },
+      get on(){ return on; },
+      set(v){ on = v; try { localStorage.setItem('dmui-sound', v ? 'on' : 'off'); } catch(e) {} if (v) ensure(); }
+    };
+""")
+patch("""    let ctx = null, master = null, on = false;""", """    let ctx = null, master = null, on = false, last = 0;""")
 
 CSS = """/* component page: an arrow either side of the component, halfway down the screen, centred in the space beside it.
    Hovering one names the component it goes to underneath it, never wider than that space, so nothing covers the component.
