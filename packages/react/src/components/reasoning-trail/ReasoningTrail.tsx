@@ -1,9 +1,8 @@
 'use client';
-import { useState } from 'react';
 import { cx } from '../../lib/cx';
 import { useControllable, useSeconds } from '../../lib/hooks';
 import { Icon } from '../../lib/icons';
-import { Dot, enter, Fold, Pulse, Seg, SourceChip, Swap, Think, type Source } from '../../lib/motion';
+import { Dot, enter, Fold, Pulse, SourceChip, Swap, Think, type Source } from '../../lib/motion';
 import '../../designme.css';
 import './reasoning-trail.css';
 
@@ -20,7 +19,9 @@ export interface Edit {
   removed?: string[];
   added?: string[];
 }
-export type ReasoningTab = 'plan' | 'notes' | 'sources' | 'edits';
+export type ReasoningTrailView = 'plan' | 'notes' | 'sources' | 'edits';
+/** The earlier name of ReasoningTrailView */
+export type ReasoningTab = ReasoningTrailView;
 
 export interface ReasoningTrailProps {
   /** Shimmers and counts seconds while true */
@@ -33,7 +34,10 @@ export interface ReasoningTrailProps {
   notes?: string[];
   sources?: Source[];
   edits?: Edit[];
-  defaultTab?: ReasoningTab;
+  /** Which part of the trail it shows: the plan, the notes, the sources or the edits. Leave it out to start on the first one there is */
+  view?: ReasoningTrailView;
+  defaultView?: ReasoningTrailView;
+  onViewChange?: (view: ReasoningTrailView) => void;
   /** Whether the trail is open. Leave it out to let the header toggle it */
   open?: boolean;
   defaultOpen?: boolean;
@@ -43,15 +47,16 @@ export interface ReasoningTrailProps {
   className?: string;
 }
 
-const TABS: { value: ReasoningTab; label: string }[] = [{ value: 'plan', label: 'Plan' }, { value: 'notes', label: 'Notes' }, { value: 'sources', label: 'Sources' }, { value: 'edits', label: 'Edits' }];
+const VIEWS: ReasoningTrailView[] = ['plan', 'notes', 'sources', 'edits'];
 
-/** The agent's plan, notes, sources and edits, in one panel it can fold away. */
-export function ReasoningTrail({ running = false, seconds, title, plan, notes, sources, edits, defaultTab, open, defaultOpen = true, onOpenChange, bare = true, className }: ReasoningTrailProps) {
+/** The agent's plan, notes, sources or edits, under a header it can fold away. Pick what it shows with `view`. */
+export function ReasoningTrail({ running = false, seconds, title, plan, notes, sources, edits, view, defaultView, onViewChange, open, defaultOpen = true, onOpenChange, bare = true, className }: ReasoningTrailProps) {
   const counted = useSeconds(running && seconds === undefined);
   const secs = seconds ?? counted;
   const has = { plan: !!plan?.length, notes: !!notes?.length, sources: !!sources?.length, edits: !!edits?.length };
-  const tabs = TABS.filter(t => has[t.value]);
-  const [tab, setTab] = useState<ReasoningTab>(defaultTab && has[defaultTab] ? defaultTab : tabs[0]?.value ?? 'plan');
+  const [picked] = useControllable(view, defaultView ?? VIEWS.find(v => has[v]) ?? 'plan', onViewChange);
+  // a view with nothing in it falls back to the first one that has something
+  const tab = has[picked] ? picked : VIEWS.find(v => has[v]) ?? picked;
   const [isOpen, setOpen] = useControllable(open, defaultOpen, onOpenChange);
   const head = title ?? (running ? 'Reasoning' : `Reasoned for ${Math.max(secs, 1)}s`);
 
@@ -80,8 +85,7 @@ export function ReasoningTrail({ running = false, seconds, title, plan, notes, s
         <Icon name="chev-d" size="xs" className="dm-rtr-chev" />
       </button>
       <Fold open={isOpen} className="dm-rtr-fold">
-        {tabs.length > 1 && <div className="dm-rtr-tabs"><Seg label="View" options={tabs} value={tab} onChange={setTab} /></div>}
-        {/* keyed by tab, so switching tabs plays the entrance again */}
+        {/* keyed by view, so switching views plays the entrance again */}
         <div className="dm-rtr-body" key={tab}>{body()}</div>
       </Fold>
     </div>
