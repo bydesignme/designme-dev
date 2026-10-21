@@ -149,7 +149,7 @@ Suggested tasks that fill the composer in one click.
 
 **AttachmentTray** · `attachment-tray/AttachmentTray.tsx`  
 Drop files for the agent and watch each one upload.  
-`files: { id, name, size, progress }[]` (at 100 the ring turns into a check), `onFiles(files)` (dropped or picked), `onRemove(id)`, `title`, `action: { label, onClick }`, `accept`, `summary`.
+`files: { id, name, size, progress }[]` (at 100 the ring turns into a check), `onFiles(files)` (dropped or picked), `onRemove(id)`, `title`, `action: { label, onClick }`, `accept`, `summary`, `dragging` (shows the drop zone as if a file were over it; the dashed edge stops and turns accent).
 
 **ResponseVersions** · `response-versions/ResponseVersions.tsx`  
 Regenerate an answer and flip between versions.  
@@ -157,17 +157,17 @@ Regenerate an answer and flip between versions.
 
 **FeedbackSheet** · `feedback-sheet/FeedbackSheet.tsx`  
 Rate an answer and tell the agent what missed.  
-`children` (the answer being rated), `rating` / `defaultRating` / `onRatingChange` (`'up' | 'down' | null`), `question`, `reasons`, `placeholder`, `note`, `onSubmit({ reasons, comment })` (return a promise to show a spinner until it settles), `thanks(feedback)`, `bare`.
+`children` (the answer being rated), `rating` / `defaultRating` / `onRatingChange` (`'up' | 'down' | null`), `question`, `reasons`, `placeholder`, `note`, `onSubmit({ reasons, comment })` (return a promise to show a spinner until it settles), `thanks(feedback)`, `bare`, and for driving it from outside: `open` / `defaultOpen` / `onOpenChange`, `selected` / `defaultSelected` / `onSelectedChange`, `comment` / `defaultComment` / `onCommentChange`, `typing`, `sending`, `sent` / `onSentChange`.
 
 ### Review and approve
 
 **DecisionPrompt** · `decision-prompt/DecisionPrompt.tsx`  
 The agent asks a few quick questions before it starts.  
-`questions: { question, label, options: { label, detail? }[] }[]`, `onComplete(answers)` (the picked index per question, or null if skipped), `skippedLabel`, `startLabel`. Number keys pick, arrow keys move, Enter continues.
+`questions: { question, label, options: { label, detail? }[] }[]`, `onComplete(answers)` (the picked index per question, or null if skipped), `skippedLabel`, `startLabel`. Number keys pick, arrow keys move, Enter continues, `bare` (on by default: it sits in the chat with no card; `false` draws the card).
 
 **ProposalCard** · `proposal-card/ProposalCard.tsx`  
 A suggested change with confidence, alternatives and undo.  
-`title`, `subtitle`, `icon`, `from: { color, label, badge?, tone? }`, `options: { color, label, badge?, tone?, name, description?, confidence }[]` (the agent's pick first), `value` / `defaultValue` / `onValueChange`, `open` / `defaultOpen` / `onOpenChange` (the other options), `status` / `defaultStatus` / `onStatusChange` (`'open' | 'accepted' | 'dismissed'`), `onAccept(option, index)`, `onDismiss`, `onUndo`, `acceptedLabel`, `dismissedLabel`, `confidenceLabel`.
+`title`, `subtitle`, `icon`, `from: { color, label, badge?, tone? }`, `options: { color, label, badge?, tone?, name, description?, confidence }[]` (the agent's pick first), `value` / `defaultValue` / `onValueChange`, `open` / `defaultOpen` / `onOpenChange` (the other options), `status` / `defaultStatus` / `onStatusChange` (`'open' | 'accepted' | 'dismissed'`), `onAccept(option, index)`, `onDismiss`, `onUndo`, `acceptedLabel`, `dismissedLabel`, `confidenceLabel`, `bare` (on by default: it sits in the chat with no card; `false` draws the card).
 
 **RewriteToolbar** · `rewrite-toolbar/RewriteToolbar.tsx`  
 Select a sentence and let the agent rewrite it in place.  
@@ -179,7 +179,7 @@ Tweak a component by hand or let the agent tune it.
 
 **PermissionGate** · `permission-gate/PermissionGate.tsx`  
 The agent asks before it touches something new.  
-`title`, `subtitle`, `icon`, `scopes: { key, label, detail?, risk? }[]`, `value` / `defaultValue` / `onValueChange` (the ticked keys), `durations`, `duration` / `defaultDuration` / `onDurationChange`, `status` / `defaultStatus` / `onStatusChange` (`'asking' | 'allowed' | 'declined'`), `onAllow(keys, duration)` (return a promise and the button spins until it settles), `onDecline`, `onRevoke`, `onUndo`, `allowedDetail`, `declinedTitle`, `declinedDetail`.
+`title`, `subtitle`, `icon`, `scopes: { key, label, detail?, risk? }[]`, `value` / `defaultValue` / `onValueChange` (the ticked keys), `durations`, `duration` / `defaultDuration` / `onDurationChange`, `status` / `defaultStatus` / `onStatusChange` (`'asking' | 'allowed' | 'declined'`), `onAllow(keys, duration)` (return a promise and the button spins until it settles), `onDecline`, `onRevoke`, `onUndo`, `allowedDetail`, `declinedTitle`, `declinedDetail`, `bare` (on by default: it sits in the chat with no card; `false` draws the card).
 
 **LaunchChecklist** · `launch-checklist/LaunchChecklist.tsx`  
 The agent checks a design before it ships, and fixes what fails.  
@@ -187,7 +187,7 @@ The agent checks a design before it ships, and fixes what fails.
 
 **PlanReview** · `plan-review/PlanReview.tsx`  
 Check the agent's plan, edit steps, then let it run.  
-`title`, `steps` / `defaultSteps` / `onStepsChange` (`{ id, text, skipped?, edited?, state?: 'run' | 'done' }[]`; people can edit a step in place, skip one or add one), `phase: 'review' | 'running' | 'done'`, `status`, `note`, `onApprove`, `onRequestChanges`, `onStop`, `onSeeChanges`.
+`title`, `steps` / `defaultSteps` / `onStepsChange` (`{ id, text, skipped?, edited?, state?: 'run' | 'done' }[]`; people can edit a step in place, skip one or add one), `phase: 'review' | 'running' | 'done'`, `status`, `note`, `onApprove`, `onRequestChanges`, `onStop`, `onSeeChanges`, `bare` (on by default: it sits in the chat with no card; `false` draws the card).
 
 **ChangeReview** · `change-review/ChangeReview.tsx`  
 Accept or reject each change the agent made, file by file.  
@@ -319,7 +319,7 @@ Today's schedule with a live now line and agent prep notes.
 
 **Buttons** · `buttons/Buttons.tsx`  
 Every button style, with loading, success and hold-to-confirm states.  
-`Buttons({ rows: { label, children }[] })` is the labelled sheet; the file also exports the buttons themselves. `Button`: `variant: 'accent' | 'ink' | 'soft' | 'line' | 'ghost'`, `size: 'sm' | 'md' | 'lg'`, `icon`, `busy` / `busyLabel` / `busyGlyph`, `done` / `doneLabel`, `success`, `pressed`, `tip`, `kbd`, `disabled`; an `onClick` that returns a promise runs the button by itself (busy, then done for `doneFor`, then back). `ButtonIcon`: `icon`, `label`, `kbd`, `fill`. `ButtonCopy`: `text`, `label`, `copiedLabel`, `tip`, `onCopy`. `ButtonMenu`: `label`, `items: { key, label, icon? or brand?, detail? }[]`, `onSelect(key)`, `status`, `align`, `open` / `defaultOpen` / `onOpenChange`. `ButtonRun`: `state: 'idle' | 'running' | 'stopped' | 'complete'`, `seconds`, `onRun`, `onStop`. `ButtonHold`: `label`, `holdingLabel`, `doneLabel`, `onConfirm` (after holding 1.2s with a pointer, Space or Enter).
+`Buttons({ rows: { label, children }[] })` is the labelled sheet; the file also exports the buttons themselves. `Button`: `variant: 'accent' | 'ink' | 'soft' | 'line' | 'ghost'`, `size: 'sm' | 'md' | 'lg'`, `icon`, `busy` / `busyLabel` / `busyGlyph`, `done` / `doneLabel` / `doneIcon`, `success`, `pressed`, `tip`, `kbd`, `disabled`; an `onClick` that returns a promise runs the button by itself (busy, then done for `doneFor`, then back). `ButtonIcon`: `icon`, `label`, `kbd`, `fill`. `ButtonCopy`: `text`, `label`, `copiedLabel`, `tip`, `onCopy`. `ButtonMenu`: `label`, `items: { key, label, icon? or brand?, detail?, danger?, divider? }[]`, `onSelect(key)`, `status`, `align`, `open` / `defaultOpen` / `onOpenChange`. `ButtonIconMenu`: the same menu from an icon button: `icon`, `label`, `items`, `onSelect(key)`, `status`, `align`, `open` / `defaultOpen` / `onOpenChange`. `ButtonRun`: `state: 'idle' | 'running' | 'stopped' | 'complete'`, `seconds`, `onRun`, `onStop`. `ButtonHold`: `label`, `holdingLabel`, `doneLabel`, `onConfirm` (after holding 1.2s with a pointer, Space or Enter).
 
 **Tooltip** · `tooltip/Tooltip.tsx`  
 Quiet labels on hover, with shortcuts and a richer preview card.  
@@ -365,7 +365,7 @@ Add teammates by email as chips, set their role, send.
 
 **Reactions** · `reactions/Reactions.tsx`  
 Quick reactions on an agent update, with counts that pop.  
-`author`, `time`, `message`, `icon`, `reactions` / `defaultReactions` / `onReactionsChange` (`{ emoji, count, people?, mine? }[]`), `emojis` (the picker), `meLabel`, `addLabel`. Clicking a reaction toggles yours and the count rolls; tips read like "You, Maya, Jon and 2 more".
+`author`, `time`, `message`, `icon`, `reactions` / `defaultReactions` / `onReactionsChange` (`{ emoji, count, people?, mine? }[]`), `emojis` (the picker), `meLabel`, `addLabel`. Clicking a reaction toggles yours and the count rolls; tips read like "You, Maya, Jon and 2 more", `bare` (on by default: it sits in the chat with no card; `false` draws the card).
 
 **TicketList** · `ticket-list/TicketList.tsx`  
 Support tickets the agent has triaged, with suggested replies.  
@@ -383,11 +383,11 @@ Three plans with a billing switch and a seat slider.
 
 **OnboardingChecklist** · `onboarding-checklist/OnboardingChecklist.tsx`  
 First steps with a progress ring, and the agent can do some for you.  
-`steps: { key?, title, detail?, done?, automatic? }[]` (`automatic` adds "Do it for me"), `done` / `defaultDone` / `onDoneChange` (keys), `running` (keys the agent is working on), `onDoIt(step, index)` (return a promise; the step ticks itself off when it settles), `title`, `status`, `doneMessage`, `doItLabel`, `runningLabel`, `open` / `defaultOpen` / `onOpenChange`.
+`steps: { key?, title, detail?, done?, automatic? }[]` (`automatic` adds "Do it for me"), `done` / `defaultDone` / `onDoneChange` (keys), `running` (keys the agent is working on), `onDoIt(step, index)` (return a promise; the step ticks itself off when it settles), `title`, `status`, `doneMessage`, `doItLabel`, `runningLabel`, `open` / `defaultOpen` / `onOpenChange`, `bare` (on by default: it sits in the chat with no card; `false` draws the card).
 
 **Stepper** · `stepper/Stepper.tsx`  
 A multi-step setup with a progress track that fills as you go.  
-`steps: { label, title, description?, options?: { label, detail? }[], content?, defaultOption? }[]` (`content` replaces the options with your own fields), `step` / `defaultStep` / `onStepChange` (`steps.length` is the finished screen), `values` / `defaultValues` / `onValuesChange`, `onNext(step, values)` (return false to stay), `onFinish(values)`, `doneTitle`, `doneDetail`, `backLabel`, `nextLabel`, `finishLabel`, `restartLabel`.
+`steps: { label, title, description?, options?: { label, detail? }[], content?, defaultOption? }[]` (`content` replaces the options with your own fields), `step` / `defaultStep` / `onStepChange` (`steps.length` is the finished screen), `values` / `defaultValues` / `onValuesChange`, `onNext(step, values)` (return false to stay), `onFinish(values)`, `doneTitle`, `doneDetail`, `backLabel`, `nextLabel`, `finishLabel`, `restartLabel`, `bare` (on by default: it sits in the chat with no card; `false` draws the card).
 
 **SetLimit** · `set-limit/SetLimit.tsx`  
 A monthly agent budget with a draggable cap and a forecast.  

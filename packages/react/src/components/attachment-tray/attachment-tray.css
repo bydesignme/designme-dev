@@ -2,9 +2,12 @@
 /* ---------- Attachment tray ---------- */
 .dm-atx{display:flex;flex-direction:column;gap:10px}
 .dm-atx-drop{display:flex;flex-direction:column;align-items:center;gap:6px;padding:26px 16px;border-radius:16px;background:none;cursor:pointer;position:relative;font-size:13.5px;transition:background .35s,box-shadow .35s,transform .45s var(--dm-ease)}
-.dm-atx-drop::before{content:"";position:absolute;inset:0;border-radius:16px;border:1.5px dashed var(--dm-faint);transition:border-color .35s}
+/* the dashed edge is drawn in SVG so its dashes can march slowly around the corners; they stop and take the accent under the pointer */
+.dm-atx-ants{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
+.dm-atx-ants rect{fill:none;stroke:var(--dm-faint);stroke-width:1.5;stroke-linecap:round;stroke-dasharray:4.5px var(--dm-ag,6.5px);animation:dm-atxants 1.4s linear infinite;transition:stroke .35s}
+@keyframes dm-atxants{to{stroke-dashoffset:calc(var(--dm-ap,11px) * -1)}}
 .dm-atx-drop:hover,.dm-atx-drop.dm-over{background:var(--dm-accent-bg)}
-.dm-atx-drop:hover::before,.dm-atx-drop.dm-over::before{border-color:var(--dm-accent)}
+.dm-atx-drop:hover .dm-atx-ants rect,.dm-atx-drop.dm-over .dm-atx-ants rect{stroke:var(--dm-accent);animation-play-state:paused}
 .dm-atx-drop.dm-over{transform:scale(1.015)}
 .dm-atx-file{position:absolute;inset:0;opacity:0;cursor:pointer}
 .dm-atx-ic{width:34px;height:34px;border-radius:11px;background:var(--dm-surface);box-shadow:var(--dm-shadow);display:grid;place-items:center;color:var(--dm-fg2);transition:transform .45s var(--dm-ease),background .35s,color .35s}
