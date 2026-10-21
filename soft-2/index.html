@@ -1610,7 +1610,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .mcx-go:active{transform:scale(.92)}
 .mcx-go[disabled]{background:var(--rail);color:var(--surface);cursor:not-allowed}
 
-/* ---------- Harness ---------- */
+/* ---------- Tools and connections ---------- */
 .hnx{padding:12px;display:flex;flex-direction:column;gap:6px}
 .hnx-h{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:2px 10px 8px}
 .hnx-h>div{display:flex;flex-direction:column}
@@ -1641,6 +1641,8 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .hnx-add{display:flex;align-items:center;gap:8px;height:30px;padding:0 12px 0 10px;font-size:12.5px;color:var(--fg2);border-radius:var(--r-pill);align-self:flex-start;transition:background-color .2s,color .2s}
 .hnx-add:hover{color:var(--fg);background:var(--chip)}
 .hnx-pop{min-width:220px}
+/* ---------- Agent harness ---------- */
+.ahx{padding:20px}
 /* ---------- Line chart ---------- */
 .lnx{padding:14px;display:flex;flex-direction:column;gap:10px}
 .lnx-h{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap}
@@ -3280,8 +3282,8 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 </div></template>
   <div class="card-f"><span>Run the prompt, pick a winner</span><span class="sp"></span><button class="replay" aria-label="Replay Model compare"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
 </article>
-<article class="card" data-c="harness" id="c-harness">
-  <div class="card-h"><div><h3>Harness</h3><p>The tools the agent can reach, and how much it may do with each.</p></div></div>
+<article class="card" data-c="tool-connections" id="c-tool-connections">
+  <div class="card-h"><div><h3>Tools and connections</h3><p>The tools the agent can reach, and how much it may do with each.</p></div></div>
   <div class="stage"><div class="stage-in"></div></div>
   <template><div class="hnx panel" data-reveal="flat">
   <div class="hnx-h"><div><b>Tools and connections</b><span class="muted hnx-st">5 connected</span></div><button class="pill ghost sm hnx-test">{refresh}Test all</button></div>
@@ -3289,7 +3291,16 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
   <button class="hnx-add" data-pop=".hnx-pop" data-pop-pos="up">{plus}Connect a tool</button>
   <div class="pop hnx-pop" role="menu"></div>
 </div></template>
-  <div class="card-f"><span>Set Ask or Allow, test a connection</span><span class="sp"></span><button class="replay" aria-label="Replay Harness"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
+  <div class="card-f"><span>Set Ask or Allow, test a connection</span><span class="sp"></span><button class="replay" aria-label="Replay Tools and connections"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
+</article>
+</div>
+<div class="sec-h" id="s-harness"><h2>Harness</h2><p>A live agent conversation built only from the components above.</p></div>
+<div class="grid">
+<article class="card wide" data-c="harness" id="c-harness">
+  <div class="card-h"><div><h3>Agent harness</h3><p>Every component working together in one agent conversation.</p></div></div>
+  <div class="stage"><div class="stage-in"></div></div>
+  <template><div class="ahx panel"><p class="muted">The agent harness is being built.</p></div></template>
+  <div class="card-f"><span>Pick a starter and watch the agent work</span><span class="sp"></span><button class="replay" aria-label="Replay Agent harness"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
 </article>
 </div>
 <div class="grp-h"><span class="k">Part two</span><h2>App basics</h2></div>
@@ -5762,8 +5773,8 @@ DM.def('model-compare', (r, c) => {
   q.oninput = () => { go.disabled = sending || !q.value.trim(); };
   c.later(1200, run);
 });
-/* ---------- Harness ---------- */
-DM.def('harness', (r, c) => {
+/* ---------- Tools and connections ---------- */
+DM.def('tool-connections', (r, c) => {
   r.innerHTML = r.innerHTML.replace('{refresh}', I('refresh','xs')).replace('{plus}', I('plus','xs'));
   let T = [
     ['@figma','Figma','Read and edit frames','var(--pl)',1],
@@ -5807,6 +5818,8 @@ DM.def('harness', (r, c) => {
   let mine = false; c.on(r, 'pointerdown', e => { if (e.isTrusted) mine = true; }, true);
   c.later(1800, () => { if (!mine) $('.hnx-test', r).click(); });
 });
+/* ---------- Agent harness ---------- */
+DM.def('harness', (r, c) => {});
 /* ---------- Line chart ---------- */
 DM.def('line-chart', (r, c) => {
   const A = [820,860,910,980,1040,1130,1210,1180,1320,1460,1540,1620], B = [610,640,660,700,690,760,800,790,850,880,910,960];

@@ -4,7 +4,7 @@ React versions of the [designme.dev](https://designme.dev) components, for Next.
 
 They use the same markup and the same CSS as the site, so they look and move exactly like the previews on designme.dev, in both styles (Blueprint and Soft) and in light and dark. The difference is that each one takes props, so you drive it from your own state instead of a scripted demo.
 
-All 79 components are here, from Status pill to Currency converter, each with an example that replays its demo from the site.
+All 80 components are here, from Status pill to Currency converter, each with an example that replays its demo from the site.
 
 Preview: https://designme.dev/packages/react/preview/
 
@@ -253,11 +253,15 @@ What the agent remembers about your team, editable and removable.
 Run one prompt on three models side by side and keep the best.  
 `models: { name, mark, color, description? }[]`, `columns` / `defaultColumns` / `onColumnsChange` (`{ id, model }[]`), `max`, `prompt` / `defaultPrompt` / `onPromptChange`, `asked`, `answers` (per column: `{ state: 'thinking' | 'answering' | 'done', text?, seconds?, tokensPerSecond?, cost? }`), `onSend(prompt, columns)`, `onRun(column)`, `chosen` / `defaultChosen` / `onChosenChange`, `placeholder`. Fastest and cheapest turn green once the answers settle.
 
+**ToolConnections** · `tool-connections/ToolConnections.tsx`  
+The tools the agent can reach, and how much it may do with each.  
+`tools` / `defaultTools` / `onToolsChange` (`{ key, name, detail?, brand? or icon? and color?, permission?: 'off' | 'ask' | 'allow', status?: 'ok' | 'testing' | 'error' | 'reconnecting', note? }[]`), `available` and `onConnect(tool)` (the Connect a tool menu), `onTest` (adds Test all), `onReconnect(key)`, `title`, `status`.
+
 ### Harness
 
 **AgentHarness** · `agent-harness/AgentHarness.tsx`  
-The tools the agent can reach, and how much it may do with each.  
-`tools` / `defaultTools` / `onToolsChange` (`{ key, name, detail?, brand? or icon? and color?, permission?: 'off' | 'ask' | 'allow', status?: 'ok' | 'testing' | 'error' | 'reconnecting', note? }[]`), `available` and `onConnect(tool)` (the Connect a tool menu), `onTest` (adds Test all), `onReconnect(key)`, `title`, `status`.
+Every component working together in one agent conversation.  
+Being rebuilt as a chat.
 
 ### Charts and tables
 

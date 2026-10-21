@@ -42,6 +42,7 @@ export * from './components/field-extraction/FieldExtraction';
 export * from './components/workspace-rail/WorkspaceRail';
 export * from './components/command-palette/CommandPalette';
 export * from './components/agent-settings/AgentSettings';
+export * from './components/tool-connections/ToolConnections';
 export * from './components/file-explorer/FileExplorer';
 export * from './components/automation-canvas/AutomationCanvas';
 export * from './components/memory-panel/MemoryPanel';

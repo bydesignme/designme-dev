@@ -23,8 +23,11 @@ const MAP = {
   c65:'health-score', c45:'activity-heatmap', c44:'stat-cards', c12:'account-table', c46:'date-picker', c47:'date-range-picker',
   c62:'event-calendar', c63:'agenda', c49:'buttons', c52:'tooltip', c53:'search-input', c57:'country-select', c51:'social-signin',
   c55:'sign-in', c50:'form', c64:'payment-form', c54:'comments', c56:'notifications', c61:'invite', c59:'reactions', c104:'ticket-list',
-  c101:'kanban', c70:'pricing-cards', c72:'onboarding-checklist', c73:'stepper', c74:'set-limit', c75:'currency-converter'
+  c101:'kanban', c70:'pricing-cards', c72:'onboarding-checklist', c73:'stepper', c74:'set-limit', c75:'currency-converter',
+  c110:'tool-connections'
 };
+// cards the original page never had: each is cut from a sibling card's markup, renamed, and placed after it
+const EXTRA = [{ cid:'c110', id:'tool-connections', reg:'tool-connections', title:'Tools and connections', section:'Workspace', after:'c38', icon:'link' }];
 
 /* ---------- read the Soft 2 page ---------- */
 const cssA = soft.indexOf('<style>\n[hidden]') + '<style>'.length;
@@ -239,12 +242,17 @@ site = site.replace('<body class="ui">', '<body class="ui">\n' + SPRITE.replace(
 /* ---------- site: swap each card's preview ---------- */
 const mainA = site.indexOf('<main id="components"'), mainB = site.indexOf('</main>', mainA);
 let main = site.slice(mainA, mainB);
+for (const x of EXTRA){
+  const m = main.match(new RegExp(`<article[^>]*\\bid="${x.after}"[^>]*>[\\s\\S]*?</article>`)); if (!m) throw new Error('no card ' + x.after);
+  const card = m[0].replace(`id="${x.after}"`, `id="${x.cid}"`).replace(/(class="comp-title">)[^<]*/, '$1' + x.title).replace(/(<span class="ibox"><span class="ms">)[^<]*/, '$1' + x.icon);
+  main = main.replace(m[0], () => m[0] + '\n  ' + card);
+}
 const esc = t => t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 const done = [];
 // card widths: a component drawn wide gets the full row; STRETCH ones get it too and widen to fill it, so every section
 // pairs its half-width cards evenly; NARROW ones were wide on the old site but are narrow components
 const REG_ITEMS = REGDIR ? JSON.parse(fs.readFileSync(path.join(REGDIR, 'index.json'), 'utf8')).items : [];
-const STRETCH = ['code-viewer', 'workspace-rail'];
+const STRETCH = ['code-viewer'];
 const NARROW = ['plan-review', 'form'];
 main = main.replace(/<article([^>]*\bid="(c\d+)"[^>]*)>([\s\S]*?)<\/article>/g, (all, attrs, cid, body) => {
   const id = MAP[cid]; if (!id) return all;
@@ -270,7 +278,8 @@ main = main.replace(/<article([^>]*\bid="(c\d+)"[^>]*)>([\s\S]*?)<\/article>/g, 
   const wide = C.cls.includes('wide') || STRETCH.includes(id) || (/class="comp wide"/.test(attrs) && !NARROW.includes(id));
   attrs = attrs.replace(/class="comp( wide)?"/, wide ? 'class="comp wide"' : 'class="comp"');
   // the registry name the install command and the React code view need; a title doesn't always spell it
-  const title = (body.match(/class="comp-title">([^<]*)</) || [])[1] || '', reg = (REG_ITEMS.find(x => x.title === title) || {}).name || title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  const extra = EXTRA.find(x => x.cid === cid);
+  const title = (body.match(/class="comp-title">([^<]*)</) || [])[1] || '', reg = (extra && extra.reg) || (REG_ITEMS.find(x => x.title === title) || {}).name || title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
   if (HEIGHTS && !HEIGHTS.heights[id]) warn.push('no measured height for ' + id + ': run measure-heights.js');
   return `<article${attrs} data-v2="${id}" data-reg="${reg}"${heightsOf(id)}>${body}</article>`;
 });
@@ -282,7 +291,7 @@ const ORDER = {
   's-status': ['thinking', 'reasoning-trail', 'agent-lanes', 'run-summary', 'action-log', 'agent-run-timeline', 'context-meter', 'error-recovery', 'run-queue', 'run-cost', 'toast-stack', 'toast', 'status-pill', 'step-loader'],
   's-review': ['change-review', 'plan-review', 'permission-gate', 'decision-prompt', 'proposal-card', 'design-tuner', 'rewrite-toolbar', 'launch-checklist'],
   's-data': ['code-viewer', 'citation-hover', 'source-stack', 'field-extraction', 'metric-insight', 'details-panel', 'task-table'],
-  's-workspace': ['automation-canvas', 'command-palette', 'memory-panel', 'model-compare', 'agent-settings', 'file-explorer', 'workspace-rail']
+  's-workspace': ['automation-canvas', 'command-palette', 'memory-panel', 'model-compare', 'agent-settings', 'tool-connections', 'file-explorer', 'workspace-rail']
 };
 {
   const secRe = id => new RegExp(`<section class="lib-sec" id="${id}">[\\s\\S]*?</section>`);
@@ -313,6 +322,14 @@ const ORDER = {
 site = site.slice(0, mainA) + main + site.slice(mainB);
 // the sidebar follows: its groups in section order, and its links in card order
 {
+  // a new card's link goes after its sibling's, and its section counts one more
+  for (const x of EXTRA){
+    const link = `<a class="side-a" href="#${x.after}" data-c="${x.after}">`, at = site.indexOf(link); if (at < 0) throw new Error('no side link ' + x.after);
+    const close = site.indexOf('</a>', at) + 4;
+    site = site.slice(0, close) + `<a class="side-a" href="#${x.cid}" data-c="${x.cid}">${x.title}</a>` + site.slice(close);
+    const n = site.lastIndexOf('<span class="side-n">', at) + '<span class="side-n">'.length, e = site.indexOf('<', n);
+    site = site.slice(0, n) + (+site.slice(n, e) + 1) + site.slice(e);
+  }
   const grp = id => { const a = site.indexOf(`<div class="side-grp" data-s="${id}"`); if (a < 0) throw new Error('no side group ' + id); return a; };
   const [ga, gb] = SECTIONS_FIRST.map(grp), next = i => site.indexOf('<div class="side-grp" data-s="', i + 10), gEnd = next(ga);
   if (next(gb) !== ga) throw new Error('side groups not next to each other');
@@ -366,7 +383,7 @@ const regOne = id => { const C = CARDS[id], sec = SECTIONS[C.title] || ''; if (!
   const a = site.indexOf(open), b = site.indexOf('</script>', a);
   if (a < 0) throw new Error('code data not found');
   const data = JSON.parse(site.slice(a + open.length, b));
-  for (const [cid, id] of Object.entries(MAP)){ if (!CARDS[id] || !data[cid]) continue; data[cid] = { name:data[cid].name, ...regOne(id) }; }
+  for (const [cid, id] of Object.entries(MAP)){ if (!CARDS[id]) continue; const x = EXTRA.find(e => e.cid === cid); if (!data[cid] && !x) continue; data[cid] = { name:x ? x.title : data[cid].name, ...regOne(id) }; }
   data._shared = { css:REG_CORE_CSS, js:REG_CORE_JS };
   fs.writeFileSync(path.join(path.dirname(OUT), 'code-data.json'), JSON.stringify(data));
   site = site.slice(0, a) + site.slice(b + '</script>'.length).replace(/^\n/, '');
@@ -381,7 +398,14 @@ if (REGDIR){
   const slug = n => n.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
   let n = 0;
   for (const [cid, id] of Object.entries(MAP)){
-    const hit = idx.items.find(x => x.title === siteNames[cid]), name = hit ? hit.name : slug(siteNames[cid]), file = path.join(REGDIR, name + '.json');
+    const extra = EXTRA.find(x => x.cid === cid);
+    if (extra && !idx.items.some(x => x.name === extra.reg)){
+      // a new component: its own registry entry, listed after the card it follows
+      const after = idx.items.findIndex(x => x.title === siteNames[extra.after]);
+      idx.items.splice(after + 1, 0, { name:extra.reg, title:extra.title, section:extra.section, description:CARDS[id].desc });
+      fs.writeFileSync(path.join(REGDIR, extra.reg + '.json'), pyDump({ name:extra.reg, title:extra.title, section:extra.section, description:CARDS[id].desc, dependencies:['core'], files:[] }));
+    }
+    const hit = extra ? idx.items.find(x => x.name === extra.reg) : idx.items.find(x => x.title === siteNames[cid]), name = hit ? hit.name : slug(siteNames[cid]), file = path.join(REGDIR, name + '.json');
     if (!fs.existsSync(file)){ warn.push('no registry entry ' + name); continue; }
     const old = JSON.parse(fs.readFileSync(file, 'utf8')), one = regOne(id);
     const item = { ...old, description:CARDS[id].desc, files:[
