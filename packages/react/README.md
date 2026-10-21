@@ -391,7 +391,7 @@ A multi-step setup with a progress track that fills as you go.
 
 **SetLimit** · `set-limit/SetLimit.tsx`  
 A monthly agent budget with a draggable cap and a forecast.  
-`value` / `defaultValue` / `onValueChange` (the cap), `min`, `max`, `step`, `spent` and `forecast` (the solid and striped bars), `mode` / `defaultMode` / `onModeChange` (`'pause' | 'ask' | 'keep'`, what happens at the limit), `title`, `subtitle`, `passesOn`, `format`, `message({ over, cap, left, mode })`. Drag on the bar or use the arrow keys on the knob.
+`value` / `defaultValue` / `onValueChange` (the cap), `min`, `max`, `step`, `spent` and `forecast` (the solid and striped bars), `mode` / `defaultMode` / `onModeChange` (`'pause' | 'ask' | 'keep'`, what happens at the limit), `title`, `subtitle`, `passesOn`, `format`, `message({ over, cap, left, mode })`, `editable` (on by default: click the figure and type a budget; Enter keeps it, Escape goes back). Drag on the bar or use the arrow keys on the knob.
 
 **CurrencyConverter** · `currency-converter/CurrencyConverter.tsx`  
 Show plan prices in local currency, with a swap and live rate.  
