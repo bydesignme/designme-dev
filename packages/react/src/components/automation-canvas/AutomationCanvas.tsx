@@ -1,9 +1,9 @@
 'use client';
 import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react';
 import { cx } from '../../lib/cx';
-import { useControllable, useIsoLayoutEffect } from '../../lib/hooks';
+import { useControllable, useIsoLayoutEffect, useReducedMotion } from '../../lib/hooks';
 import { Icon, type IconName } from '../../lib/icons';
-import { enter, Swap } from '../../lib/motion';
+import { Swap } from '../../lib/motion';
 import '../../designme.css';
 import './automation-canvas.css';
 
@@ -23,7 +23,8 @@ export interface AutomationNode {
   title: string;
   /** The setting shown under the title, like "Pricing, Checkout". The popover changes it */
   detail: string;
-  /** Where the centre of the card sits, as fractions of the canvas width and height */
+  /** Where the centre of the card sits, as fractions of the canvas width and height. With `balanced` (the default), cards
+   * that share an x form a column, and the columns spread evenly from one side to the other */
   x: number;
   y: number;
   /** Where it sits when the canvas is narrower than 560px. Defaults to a column down the middle */
@@ -46,8 +47,12 @@ export interface AutomationCanvasProps {
   status?: string;
   nodes: AutomationNode[];
   edges: AutomationEdge[];
-  /** Wires with something flowing along them, as during a run */
+  /** The wires a run has reached. A soft light passes along each one as it is added, and it stays lit while it is listed;
+   * clear the list when a new run starts */
   flowing?: AutomationEdge[];
+  /** Spread the columns of cards evenly, with the first and last the same distance in from each side, so the wires on
+   * the left and right match at any width. Set false to place every card exactly at its x. Defaults to true */
+  balanced?: boolean;
   /** The node whose popover is open. Leave it out to let clicks pick it */
   selected?: string | null;
   defaultSelected?: string | null;
@@ -74,7 +79,7 @@ const same = (a: AutomationEdge, b: AutomationEdge) => a[0] === b[0] && a[1] ===
 /** An automation as cards and wires: drag the cards, click one to change its setting, and watch a run flow through it. */
 export function AutomationCanvas({
   name, tag, status, nodes, edges, flowing = [], selected, defaultSelected = null, onSelectedChange, values, defaultValues, onValuesChange,
-  onNodeMove, onRun, runLabel = 'Test run', doneLabel = 'Done', className
+  balanced = true, onNodeMove, onRun, runLabel = 'Test run', doneLabel = 'Done', className
 }: AutomationCanvasProps) {
   const [sel, setSel] = useControllable(selected, defaultSelected, onSelectedChange);
   const [vals, setVals] = useControllable(values, defaultValues ?? Object.fromEntries(nodes.map(n => [n.id, n.detail])), onValuesChange);
@@ -102,7 +107,9 @@ export function AutomationCanvas({
   if (optsFor !== sel) { setOptsFor(sel); setOptsOpen(false); }
 
   const narrow = !!size && size.w < NARROW;
-  const width = narrow ? 150 : 176;
+  // cards narrow a little when a wide canvas is short of room for three columns of full-size cards
+  const width = narrow || (!!size && size.w < 700) ? 150 : 176;
+  const reduce = useReducedMotion();
 
   // the canvas size drives the layout; a change of width closes the popover, as the node it points at moves
   useIsoLayoutEffect(() => {
@@ -129,9 +136,16 @@ export function AutomationCanvas({
     setHeights(h => (nodes.every(n => h[n.id] === next[n.id]) ? h : next));
   });
 
+  // balanced: the distinct x values are columns, the first and last the same distance in from each side, the rest evenly between
+  const cols = [...new Set(nodes.map(n => n.x))].sort((a, b) => a - b);
+  const colX = (x: number) => {
+    if (!balanced || !size || cols.length < 2) return x;
+    const W = size.w, pad = Math.max(20, W * .06), first = pad + width / 2, last = W - pad - width / 2;
+    return (first + (last - first) * cols.indexOf(x) / (cols.length - 1)) / W;
+  };
   const at = (n: AutomationNode, i: number): AutomationPoint => narrow
     ? moved.narrow[n.id] ?? n.narrow ?? { x: .5, y: (i + 1) / (nodes.length + 1) }
-    : moved.wide[n.id] ?? { x: n.x, y: n.y };
+    : moved.wide[n.id] ?? { x: colX(n.x), y: n.y };
   const boxes: Record<string, { left: number; top: number; w: number; h: number }> = {};
   nodes.forEach((n, i) => {
     const p = at(n, i), h = heights[n.id] || 56;
@@ -172,6 +186,20 @@ export function AutomationCanvas({
     document.addEventListener('pointermove', move); document.addEventListener('pointerup', up);
   };
 
+  // a wire newly reached by a run gets one soft light passing along it
+  const flowKey = flowing.map(e => e.join('-')).join(',');
+  const lastFlow = useRef<string[]>([]);
+  useEffect(() => {
+    const now = flowKey ? flowKey.split(',') : [], added = now.filter(k => !lastFlow.current.includes(k)); lastFlow.current = now;
+    if (reduce) return;
+    added.forEach(k => {
+      const p = svg.current?.querySelector<SVGPathElement>(`path[data-e="${k}"]`); if (!p) return;
+      const L = p.getTotalLength(), len = Math.min(64, L * .4), q = p.cloneNode() as SVGPathElement;
+      q.removeAttribute('data-e'); q.setAttribute('class', 'dm-pulse'); q.style.cssText = `stroke-dasharray:${len} ${L + len}`; svg.current?.appendChild(q);
+      q.animate([{ strokeDashoffset: len, opacity: 0 }, { opacity: 1, offset: .18 }, { opacity: 1, offset: .78 }, { strokeDashoffset: -L, opacity: 0 }], { duration: 720, easing: 'cubic-bezier(.45,0,.25,1)' }).onfinish = () => q.remove();
+    });
+  }, [flowKey, reduce]);
+
   const pop = nodes.find(n => n.id === popFor);
   const pb = pop && boxes[pop.id];
   let px = 0, py = 0;
@@ -192,22 +220,25 @@ export function AutomationCanvas({
       </div>
       <div className="dm-acx-cv" ref={cv} onClick={() => setSel(null)}>
         <svg ref={svg} className={cx('dm-acx-svg', intro && 'dm-intro')} aria-hidden="true">
-          {size && edges.map(e => <path key={e.join('-')} className={flowing.some(f => same(f, e)) ? 'dm-flow' : undefined} d={wire(e)} />)}
+          {size && edges.map(e => <path key={e.join('-')} data-e={e.join('-')} className={flowing.some(f => same(f, e)) ? 'dm-done' : undefined} d={wire(e)} />)}
         </svg>
         <div className="dm-acx-nodes">
           {nodes.map((n, i) => {
-            const p = at(n, i), h = heights[n.id] || 56, e = enter(i * 90);
+            const p = at(n, i), h = heights[n.id] || 56;
             return (
               <button type="button" key={n.id} ref={el => { els.current[n.id] = el; }} aria-expanded={sel === n.id}
-                className={cx('dm-acx-n', e.className, drag === n.id && 'dm-drag', sel === n.id && 'dm-sel', n.state === 'run' && 'dm-run')}
-                style={{ ...e.style, left: `calc(${p.x * 100}% - ${width / 2}px)`, top: `calc(${p.y * 100}% - ${h / 2}px)`, width: narrow ? width : undefined }}
+                className={cx('dm-acx-n dm-acx-in', drag === n.id && 'dm-drag', sel === n.id && 'dm-sel', n.state === 'run' && 'dm-run')}
+                style={{ animationDelay: i * 90 + 'ms', left: `calc(${p.x * 100}% - ${width / 2}px)`, top: `calc(${p.y * 100}% - ${h / 2}px)`, width: width === 176 ? undefined : width }}
                 onPointerDown={ev => startDrag(ev, n.id)}
                 onClick={ev => { ev.stopPropagation(); if (dropped.current) { dropped.current = false; return; } setSel(sel === n.id ? null : n.id); }}>
                 <span className="dm-ic" style={{ color: n.color, background: `color-mix(in srgb,${n.color} 14%,transparent)` }}><Icon name={n.icon} size="xs" /></span>
                 <span className="dm-t"><b>{n.title}</b><Swap className="dm-d">{valueOf(n)}</Swap></span>
+                {/* the badge pops in once; after that its spinner turns into a check with a short crossfade */}
                 {n.state && (
-                  <span key={n.state} className="dm-s dm-enter">
-                    {n.state === 'run' ? <span className="dm-spin" style={{ width: 10, height: 10 }} /> : <span style={{ color: 'var(--dm-ok)', display: 'grid' }}><Icon name="check" size="xs" /></span>}
+                  <span className="dm-s">
+                    <span key={n.state} className="dm-acx-sv">
+                      {n.state === 'run' ? <span className="dm-spin" style={{ width: 10, height: 10 }} /> : <span style={{ color: 'var(--dm-ok)', display: 'grid' }}><Icon name="check" size="xs" /></span>}
+                    </span>
                   </span>
                 )}
               </button>

@@ -1196,6 +1196,9 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .mix-ins{display:flex;gap:8px;align-items:flex-start;font-size:13px;line-height:1.5;color:var(--fg2)}
 .mix-ic{color:var(--accent);display:grid;margin-top:2px}
 .mix-why{align-self:flex-start}
+/* a lighter button than the soft pill, like the other quiet asks */
+.pill.soft.mix-why{background:var(--chip);box-shadow:none}
+.pill.soft.mix-why:hover,.pill.soft.mix-why[aria-expanded="true"]{background:var(--hover)}
 .mix-rs{display:flex;flex-direction:column;gap:6px;padding-top:2px}
 .mix-r{display:flex;align-items:center;gap:10px;font-size:12.5px}
 .mix-r .t{flex:1;min-width:0}
@@ -1205,36 +1208,74 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 @keyframes ssrel{from{transform:scaleX(0)}}
 /* ---------- Task table ---------- */
 .ttx{overflow:hidden;position:relative}
+/* the header holds the table's name and a summary, or, while rows are picked, what you can do to them */
+.ttx-hd{position:relative;height:50px;border-bottom:1px solid var(--line)}
+.ttx-ti,.ttx-sb{position:absolute;inset:0;display:flex;align-items:center;transition:opacity .28s var(--ease),transform .45s var(--ease),filter .28s var(--ease)}
+.ttx-ti{gap:10px;padding:0 16px}
+.ttx-ti b{font-size:13.5px;font-weight:500}
+.ttx-sum{font-size:12.5px}
+.ttx-sb{gap:2px;padding:0 10px 0 16px;opacity:0;transform:translateY(10px);filter:blur(3px);pointer-events:none}
+.ttx.selecting .ttx-ti{opacity:0;transform:translateY(-10px);filter:blur(3px);pointer-events:none}
+.ttx.selecting .ttx-sb{opacity:1;transform:none;filter:none;pointer-events:auto}
+.ttx-n{margin-right:8px;font-size:13px;font-weight:500;white-space:nowrap}
+.ttx-sp{flex:1}
+.ttx-sb .pill.ttx-del{color:var(--bad)}
+.ttx-sb .pill.ttx-del:hover{background:color-mix(in srgb,var(--bad) 10%,transparent);color:var(--bad)}
 .ttx-sc{overflow-x:auto}
 .ttx-t{width:100%;border-collapse:collapse;font-size:13px;min-width:560px}
-.ttx-t th{text-align:left;font-weight:500;font-size:12px;color:var(--muted);padding:10px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
-.ttx-t th.ck,.ttx-t td.ck{width:36px;padding-left:14px}
+.ttx-t th{height:36px;padding:0 8px;text-align:left;font-weight:500;font-size:12px;color:var(--muted);border-bottom:1px solid var(--line);white-space:nowrap}
+.ttx-t th.ck,.ttx-t td.ck{width:36px;padding-left:16px}
 .ttx-t th.r,.ttx-t td.r{text-align:right}
-.ttx-t th:last-child,.ttx-t td:last-child{padding-right:14px}
-.ttx-s{display:inline-flex;align-items:center;gap:4px;color:inherit;font:inherit}
-.ttx-s:hover{color:var(--fg)}
-.ttx-s .ar{opacity:0;transition:opacity .2s,transform .3s var(--ease);display:grid}
-.ttx-s.on{color:var(--fg)}.ttx-s.on .ar{opacity:1}.ttx-s.on.desc .ar{transform:rotate(180deg)}
-.ttx-t td{padding:9px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
-.ttx-t tr:last-child td{border-bottom:0}
-.ttx-t tbody tr{transition:background .2s}
-.ttx-t tbody tr:hover{background:var(--row)}
-.ttx-t tbody tr.sel{background:var(--sel)}
+.ttx-t th:last-child,.ttx-t td:last-child{padding-right:16px}
+/* a header sorts its column: a quiet arrow shows on hover and stays on the column the rows are sorted by */
+.ttx-s{display:inline-flex;align-items:center;gap:3px;height:24px;margin:0 -6px;padding:0 6px;border-radius:6px;color:inherit;font:inherit;transition:color .2s,background-color .2s}
+.ttx-s:hover{color:var(--fg);background:var(--row)}
+.ttx-s .ar{display:grid;opacity:0;transition:opacity .2s,transform .35s var(--ease)}
+.ttx-s:hover .ar{opacity:.45}
+.ttx-s.on{color:var(--fg)}
+.ttx-s.on .ar{opacity:1}
+.ttx-s.on.desc .ar{transform:rotate(180deg)}
+.ttx-t td{height:46px;padding:0 8px;border-bottom:1px solid var(--line);white-space:nowrap}
+.ttx-t tbody tr:last-child td{border-bottom:0}
+/* rows: the shared hover, and a slightly deeper grey while picked */
+.ttx-t tbody tr[data-id]{cursor:pointer;transition:background-color .25s var(--ease)}
+.ttx-t tbody tr[data-id]:hover{background:var(--row)}
+.ttx-t tbody tr.sel{background:color-mix(in srgb,var(--fg) 6%,transparent)}
+.ttx-t tbody tr.sel:hover{background:color-mix(in srgb,var(--fg) 8%,transparent)}
 .ttx-t .nm{font-weight:500}
 .ttx-t .ag{display:flex;align-items:center;gap:7px;color:var(--fg2)}
 .ttx-t .ag .av{width:20px;height:20px;font-size:9.5px}
 .ttx-t td.num{color:var(--fg2)}
-.ttx-cb{width:16px;height:16px;border-radius:5px;box-shadow:inset 0 0 0 1.5px var(--faint);display:grid;place-items:center;color:#fff;transition:background .25s,box-shadow .25s}
+.ttx-t td.up{color:var(--muted)}
+/* checkboxes: the tick springs in; select-all shows a dash while only some rows are picked */
+.ttx-cb{display:grid;place-items:center;width:16px;height:16px;border-radius:5px;box-shadow:inset 0 0 0 1.5px var(--faint);color:var(--on-accent,#fff);transition:background-color .2s,box-shadow .2s}
+.ttx-cb:hover{box-shadow:inset 0 0 0 1.5px var(--muted)}
 .ttx-cb[aria-checked="true"],.ttx-cb[aria-checked="mixed"]{background:var(--accent);box-shadow:none}
-.ttx-cb svg{width:11px;height:11px}
-.ttx-st{display:inline-flex;align-items:center;gap:6px;font-size:12.5px}
-.ttx-bar{position:absolute;left:50%;bottom:12px;display:flex;align-items:center;gap:2px;padding:4px 4px 4px 14px;border-radius:999px;background:var(--ink);color:var(--on-ink);box-shadow:var(--shadow-pop);transform:translate(-50%,16px) scale(.96);opacity:0;filter:blur(4px);pointer-events:none;transition:transform .45s var(--ease),opacity .3s,filter .3s;white-space:nowrap}
-.ttx-bar.show{transform:translate(-50%,0);opacity:1;filter:none;pointer-events:auto}
-.ttx-bar .pill.ghost{color:inherit;opacity:.85}.ttx-bar .pill.ghost:hover{background:color-mix(in srgb,var(--on-ink) 14%,transparent);opacity:1}
-.ttx-n{font-size:12.5px;margin-right:8px}
-.ttx-t tbody{position:relative}
-.ttx-pad td{height:48px;border:0}
-@container (max-width:560px){.ttx-t{min-width:0}.ttx-t th:nth-child(6),.ttx-t td:nth-child(6){display:none}.ttx-t th:nth-child(5),.ttx-t td:nth-child(5){padding-right:14px}}
+.ttx-cb svg{grid-area:1/1;width:11px;height:11px;opacity:0;transform:scale(.4);transition:opacity .15s,transform .3s cubic-bezier(.34,1.4,.64,1)}
+.ttx-cb[aria-checked="true"] .ck-y,.ttx-cb[aria-checked="mixed"] .ck-m{opacity:1;transform:none}
+/* status: a soft pill in the status colour; Running, Done and Failed have their own, Queued and Paused stay grey */
+.ttx-st{--sc:var(--muted);display:inline-flex;align-items:center;height:22px;padding:0 9px 0 7px;border-radius:var(--r-pill);font-size:12px;font-weight:500;color:var(--sc);background:color-mix(in srgb,var(--sc) 11%,transparent);transition:color .35s var(--ease),background-color .35s var(--ease)}
+.ttx-st .sv{display:inline-flex;align-items:center;gap:6px}
+.ttx-st[data-s="run"]{--sc:var(--accent)}
+.ttx-st[data-s="done"]{--sc:var(--ok)}
+.ttx-st[data-s="fail"]{--sc:var(--bad)}
+.ttx-st .spin{width:10px;height:10px}
+/* a new status fades in out of a blur; a cancelled row slides away before it goes */
+.ttx-sin{animation:ttxsin .32s var(--ease)}
+@keyframes ttxsin{from{opacity:0;filter:blur(3px)}}
+.ttx-t tbody tr.ttx-out{opacity:0;transform:translateX(14px);transition:opacity .24s var(--ease),transform .24s var(--ease)}
+.ttx-st .i{width:12px;height:12px}
+/* when every task is gone */
+.ttx-t tbody tr.ttx-empty td{height:auto;padding:36px 16px 34px;text-align:center;white-space:normal}
+.ttx-em{display:flex;flex-direction:column;align-items:center;gap:3px}
+.ttx-em .ic{display:grid;place-items:center;width:36px;height:36px;margin-bottom:8px;border-radius:12px;background:var(--chip);color:var(--muted)}
+.ttx-em b{font-size:13.5px;font-weight:500}
+.ttx-em span{font-size:12.5px;color:var(--muted)}
+.ttx-em .pill{margin-top:10px}
+/* narrower: Updated goes, long names end in an ellipsis; on a phone Cost goes too and the agent is just its avatar */
+@container (max-width:560px){.ttx-t{min-width:0}.ttx-t th:nth-child(6),.ttx-t td:nth-child(6){display:none}.ttx-t th:nth-child(5),.ttx-t td:nth-child(5){padding-right:16px}.ttx-t td.nm{width:100%;max-width:0;overflow:hidden;text-overflow:ellipsis}}
+@container (max-width:420px){.ttx-t th:nth-child(5),.ttx-t td:nth-child(5){display:none}.ttx-t th:nth-child(4),.ttx-t td:nth-child(4){padding-right:16px}.ttx-t .ag{font-size:0;gap:0}.ttx-sb{padding-right:6px}.ttx-sb .pill{padding:0 9px}.ttx-sb .pill .i{display:none}}
+@container (max-width:340px){.ttx-ti{padding:0 12px}.ttx-sb{gap:0;padding:0 4px 0 12px}.ttx-n{margin-right:4px}.ttx-sb .pill{padding:0 7px}.ttx-t th.ck,.ttx-t td.ck{padding-left:12px}.ttx-t th:nth-child(4),.ttx-t td:nth-child(4){padding-right:12px}}
 /* ---------- Code viewer ---------- */
 .cvx{overflow:hidden;display:flex;flex-direction:column}
 .cvx-h{display:flex;align-items:center;gap:2px;height:44px;padding:0 8px;border-bottom:1px solid var(--line)}
@@ -1438,24 +1479,32 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .acx-st{font-size:12.5px}
 .acx-cv{position:relative;height:300px;border-radius:18px;background:var(--chip);background-image:radial-gradient(circle,var(--line) 1px,transparent 1.2px);background-size:18px 18px;overflow:hidden}
 .acx-svg{position:absolute;inset:0;width:100%;height:100%}
-.acx-svg path{fill:none;stroke:var(--faint);stroke-width:1.5}
+.acx-svg path{fill:none;stroke:var(--faint);stroke-width:1.5;transition:stroke .6s var(--ease)}
 /* on arrival the wires draw in after the steps have landed */
 .acx-svg.intro path{stroke-dasharray:var(--l);animation:acxdraw .8s var(--ease) .42s backwards}
 @keyframes acxdraw{from{stroke-dashoffset:var(--l)}}
-.acx-svg path.flow{stroke:var(--accent);stroke-width:2;stroke-dasharray:6 6;animation:acxf .6s linear infinite}
-@keyframes acxf{to{stroke-dashoffset:-12}}
-.acx-svg circle{fill:var(--accent)}
+/* a test run passes along each wire as one soft light, and the wire stays lightly lit once it has passed */
+.acx-svg path.done{stroke:color-mix(in srgb,var(--accent) 32%,var(--faint))}
+.acx-svg path.pulse{stroke:var(--accent);stroke-width:2.5;stroke-linecap:round;transition:none}
+/* the steps fade in without moving, so the wires meet them exactly while they arrive */
+.acx-in{animation:acxin .56s var(--ease) backwards}
+@keyframes acxin{from{opacity:0;filter:blur(4px)}}
+/* a step's badge pops in once; after that its spinner turns into a check with a short crossfade */
+.acx-n .s{animation:acxs .34s cubic-bezier(.34,1.4,.64,1)}
+@keyframes acxs{from{opacity:0;transform:scale(.6)}}
+.acx-sv{display:grid;animation:acxsv .3s var(--ease)}
+@keyframes acxsv{from{opacity:0;filter:blur(2px)}}
 .acx-n{position:absolute;width:176px;padding:10px 12px;border-radius:14px;background:var(--surface);box-shadow:var(--shadow);display:flex;align-items:center;gap:10px;font-size:12.5px;text-align:left;transition:box-shadow .3s,left .5s var(--ease),top .5s var(--ease)}
 .acx-n:hover{box-shadow:var(--shadow-pop)}
 .acx-n{cursor:grab;touch-action:none;user-select:none}
 .acx-n.drag{cursor:grabbing;transition:box-shadow .3s;box-shadow:var(--shadow-pop);z-index:3;transform:scale(1.02)}
-.acx-n.sel{box-shadow:0 0 0 1.5px var(--accent),var(--shadow-pop)}
+.acx-n.sel{box-shadow:0 0 0 1px var(--rail),var(--shadow-pop)}
 .acx-n .ic{width:28px;height:28px;border-radius:9px;display:grid;place-items:center;flex:none}
 .acx-n .t{display:flex;flex-direction:column;min-width:0}
 .acx-n .t b{font-weight:500;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .acx-n .t span{font-size:11.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .acx-n .s{position:absolute;right:-6px;top:-6px;width:18px;height:18px;border-radius:50%;display:grid;place-items:center;background:var(--surface);box-shadow:0 0 0 1px var(--line)}
-.acx-n.run{box-shadow:0 0 0 1.5px var(--accent),0 0 0 6px var(--accent-bg)}
+.acx-n.run{box-shadow:0 0 0 1.5px color-mix(in srgb,var(--accent) 55%,transparent),0 0 0 6px color-mix(in srgb,var(--accent) 8%,transparent),var(--shadow)}
 .acx-pop{width:240px;padding:12px}
 .acx-pop h4{margin:0 0 10px;font-size:13px;font-weight:500}
 .acx-fl{display:flex;flex-direction:column;gap:4px;margin-bottom:10px;font-size:12px;color:var(--muted)}
@@ -1550,11 +1599,15 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .hnx-t .t{flex:1;min-width:0;display:flex;flex-direction:column}
 .hnx-t .t span{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .hnx-t.err .t span{color:var(--bad)}
-.hnx-pm{display:grid;grid-template-columns:repeat(3,auto);padding:2px;border-radius:9px;background:var(--chip);position:relative}
-.hnx-pm button{position:relative;z-index:1;height:24px;padding:0 8px;font-size:11.5px;color:var(--muted);transition:color .2s}
+/* the same pill switch as every other segmented switch; its track darkens with a hovered row so it never melts into it */
+.hnx-pm{display:grid;grid-template-columns:repeat(3,auto);padding:2px;border-radius:var(--r-pill);background:var(--chip);position:relative;transition:background-color .2s}
+.hnx-t:hover .hnx-pm{background:color-mix(in srgb,var(--fg) 8%,transparent)}
+.hnx-pm button{position:relative;z-index:1;height:24px;padding:0 9px;border-radius:var(--r-pill);font-size:11.5px;color:var(--muted);transition:color .2s}
+.hnx-pm button:hover{color:var(--fg2)}
 .hnx-pm button[aria-pressed="true"]{color:var(--fg)}
-.hnx-pm .kn{position:absolute;top:2px;bottom:2px;border-radius:7px;background:var(--surface);box-shadow:0 1px 2px rgba(0,0,0,.08);transition:left .4s var(--ease),width .4s var(--ease)}
-.hnx-add{display:flex;align-items:center;gap:8px;padding:8px 10px;font-size:12.5px;color:var(--fg2);border-radius:10px;align-self:flex-start}
+.hnx-pm button:focus-visible{outline-offset:-2px}
+.hnx-pm .kn{position:absolute;top:2px;bottom:2px;border-radius:var(--r-pill);background:var(--surface);box-shadow:0 1px 2px rgba(0,0,0,.08);transition:left .4s var(--ease),width .4s var(--ease)}
+.hnx-add{display:flex;align-items:center;gap:8px;height:30px;padding:0 12px 0 10px;font-size:12.5px;color:var(--fg2);border-radius:var(--r-pill);align-self:flex-start;transition:background-color .2s,color .2s}
 .hnx-add:hover{color:var(--fg);background:var(--chip)}
 .hnx-pop{min-width:220px}
 /* ---------- Line chart ---------- */
@@ -3019,11 +3072,14 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
   <div class="card-h"><div><h3>Task table</h3><p>Agent tasks in a sortable table with bulk actions.</p></div></div>
   <div class="stage"><div class="stage-in"></div></div>
   <template><div class="ttx panel" data-reveal="flat">
+  <div class="ttx-hd">
+    <div class="ttx-ti"><b>Agent tasks</b><span class="muted num ttx-sum">6 tasks, 2 running</span></div>
+    <div class="ttx-sb" inert><span class="ttx-n num">2 selected</span><button class="pill ghost sm" data-a="pause">{pause}Pause</button><button class="pill ghost sm" data-a="retry">{refresh}Retry</button><button class="pill ghost sm ttx-del" data-a="cancel">{x}Cancel</button><span class="ttx-sp"></span><button class="pill ghost sm ttx-clr">Clear</button></div>
+  </div>
   <div class="ttx-sc"><table class="ttx-t">
     <thead><tr><th class="ck"><button class="ttx-cb ttx-all" role="checkbox" aria-checked="false" aria-label="Select all"></button></th><th><button class="ttx-s" data-k="0">Task</button></th><th><button class="ttx-s" data-k="1">Status</button></th><th><button class="ttx-s" data-k="2">Agent</button></th><th class="r"><button class="ttx-s" data-k="3">Cost</button></th><th class="r"><button class="ttx-s" data-k="4">Updated</button></th></tr></thead>
     <tbody></tbody>
   </table></div>
-  <div class="ttx-bar"><span class="ttx-n num">2 selected</span><span class="ttx-sp"></span><button class="pill ghost sm" data-a="pause">{pause}Pause</button><button class="pill ghost sm" data-a="retry">{refresh}Retry</button><button class="pill ghost sm ttx-del" data-a="cancel">{x}Cancel</button></div>
 </div></template>
   <div class="card-f"><span>Sort a column, select rows</span><span class="sp"></span><button class="replay" aria-label="Replay Task table"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
 </article>
@@ -3187,7 +3243,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
   <div class="card-h"><div><h3>Harness</h3><p>The tools the agent can reach, and how much it may do with each.</p></div></div>
   <div class="stage"><div class="stage-in"></div></div>
   <template><div class="hnx panel" data-reveal="flat">
-  <div class="hnx-h"><div><b>Tools and connections</b><span class="muted hnx-st">5 connected</span></div><button class="pill soft sm hnx-test">{refresh}Test all</button></div>
+  <div class="hnx-h"><div><b>Tools and connections</b><span class="muted hnx-st">5 connected</span></div><button class="pill ghost sm hnx-test">{refresh}Test all</button></div>
   <div class="hnx-list"></div>
   <button class="hnx-add" data-pop=".hnx-pop" data-pop-pos="up">{plus}Connect a tool</button>
   <div class="pop hnx-pop" role="menu"></div>
@@ -5076,47 +5132,95 @@ DM.def('metric-insight', (r, c) => {
   mk.dataset.tip = 'Pricing page update shipped';
   const why = $('.mix-why', r), box = $('.mix-box', r), rs = $('.mix-rs', r);
   why.onclick = () => c.run(async () => {
-    if (!box.classList.contains('shut')){ box.classList.add('shut'); swap(why, 'Why did it move?'); return; }
+    if (!box.classList.contains('shut')){ box.classList.add('shut'); why.setAttribute('aria-expanded', 'false'); swap(why, 'Why did it move?'); return; }
     why.innerHTML = '<span class="think on"><i></i><i></i><i></i><i></i></span>Looking into it'; await c.wait(900);
     const R = [['Annual plan shown first', 54, 'var(--accent)'], ['One CTA per card', 27, 'var(--pl)'], ['Seasonal traffic', 12, 'var(--pt)'], ['Unexplained', 7, 'var(--faint)']];
     rs.innerHTML = R.map(q => `<div class="mix-r"><span class="dot" style="color:${q[2]}"></span><span class="t">${q[0]}</span><span class="bar"><i style="width:${q[1]}%;background:${q[2]}"></i></span><span class="v num">${q[1]}%</span></div>`).join('');
-    box.classList.remove('shut'); stagger($$('.mix-r', rs), 60); swap(why, 'Hide the breakdown');
+    box.classList.remove('shut'); why.setAttribute('aria-expanded', 'true'); stagger($$('.mix-r', rs), 60); swap(why, 'Hide the breakdown');
   });
   c.later(400, () => draw(30));
 });
 /* ---------- Task table ---------- */
 DM.def('task-table', (r, c) => {
   r.innerHTML = r.innerHTML.replace('{pause}', I('pause','xs')).replace('{refresh}', I('refresh','xs')).replace('{x}', I('x','xs'));
-  const ST = { run:['Running','<span class="spin" style="width:12px;height:12px"></span>'], done:['Done',`<span style="color:var(--ok);display:grid">${I('ok','xs')}</span>`], fail:['Failed',`<span style="color:var(--bad);display:grid">${I('alert','xs')}</span>`], wait:['Queued','<span class="dot" style="color:var(--faint)"></span>'], pause:['Paused',`<span class="muted" style="display:grid">${I('pause','xs')}</span>`] };
-  let T = [
+  const ST = { run:['Running','<span class="spin"></span>'], done:['Done', I('ok','xs')], fail:['Failed', I('alert','xs')], wait:['Queued','<span class="dot"></span>'], pause:['Paused', I('pause','xs')] };
+  const SEED = [
     ['Audit pricing contrast','run','Design','DS','var(--pb)',0.42,2],
     ['Export tokens to CSS','done','Code','CO','var(--pm)',0.18,14],
     ['Sync Figma frames','fail','Design','DS','var(--pb)',0.07,26],
     ['Draft launch email','wait','Writer','WR','var(--pl)',0,31],
     ['Compare checkout flows','done','Research','RE','var(--pt)',0.66,48],
     ['Rename layers in Hero','run','Design','DS','var(--pb)',0.11,5]
-  ].map((x, i) => ({ id:i, n:x[0], s:x[1], a:x[2], ai:x[3], ac:x[4], cost:x[5], up:x[6], sel:false }));
-  const tb = $('tbody', r), all = $('.ttx-all', r), bar = $('.ttx-bar', r);
-  let key = 4, desc = false;
+  ];
+  const seed = () => SEED.map((x, i) => ({ id:i, n:x[0], s:x[1], a:x[2], ai:x[3], ac:x[4], cost:x[5], up:x[6], sel:false }));
+  let T = seed();
+  const box = $('.ttx', r), tb = $('tbody', r), all = $('.ttx-all', r), sb = $('.ttx-sb', r), sum = $('.ttx-sum', r), cnt = $('.ttx-n', r);
+  const ease = getComputedStyle(r).getPropertyValue('--ease').trim() || 'ease';
+  const tick = I('check','xs').replace('class="i xs"', 'class="i xs ck-y"') + I('minus','xs').replace('class="i xs"', 'class="i xs ck-m"');
+  all.innerHTML = tick;
   $$('.ttx-s', r).forEach(b => b.insertAdjacentHTML('beforeend', `<span class="ar">${I('chev-u','xs')}</span>`));
+  let key = 4, desc = false;
   const fields = [t => t.n, t => ['run','fail','wait','pause','done'].indexOf(t.s), t => t.a, t => t.cost, t => t.up];
-  function paint(anim){
-    const f = fields[key]; const rows = [...T].sort((a, b) => { const x = f(a), y = f(b); return (x > y ? 1 : x < y ? -1 : 0) * (desc ? -1 : 1); });
-    tb.innerHTML = rows.map(t => `<tr class="${t.sel ? 'sel' : ''}" data-id="${t.id}"><td class="ck"><button class="ttx-cb" role="checkbox" aria-checked="${t.sel}" aria-label="Select ${t.n}">${t.sel ? I('check','xs') : ''}</button></td><td class="nm">${t.n}</td><td><span class="ttx-st">${ST[t.s][1]}${ST[t.s][0]}</span></td><td><span class="ag">${AV(t.ai, t.ac)}${t.a}</span></td><td class="r num">$${t.cost.toFixed(2)}</td><td class="r num muted">${t.up}m ago</td></tr>`).join('') + '<tr class="ttx-pad"><td colspan="6"></td></tr>';
-    if (anim) stagger($$('tr:not(.ttx-pad)', tb), 30);
-    $$('.ttx-s', r).forEach(b => { b.classList.toggle('on', +b.dataset.k === key); b.classList.toggle('desc', desc); });
-    $$('tbody tr[data-id]', r).forEach(tr => tr.onclick = () => { const t = T[+tr.dataset.id]; t.sel = !t.sel; paint(); });
-    const n = T.filter(t => t.sel).length; all.setAttribute('aria-checked', n === 0 ? 'false' : n === T.length ? 'true' : 'mixed'); all.innerHTML = n ? I(n === T.length ? 'check' : 'minus','xs') : '';
-    bar.classList.toggle('show', n > 0); if (n) $('.ttx-n', bar).textContent = n + ' selected';
+  const ago = m => m ? m + 'm ago' : 'Just now';
+  const face = s => `${ST[s][1]}<span>${ST[s][0]}</span>`, pill = s => `<span class="sv">${face(s)}</span>`;
+  // each row is made once and then kept: picking, sorting and actions change it in place, so it can ease between states
+  const rows = new Map();
+  function make(t){
+    const tr = html(`<tr data-id="${t.id}"><td class="ck"><button class="ttx-cb" role="checkbox" aria-checked="false" aria-label="Select ${t.n}">${tick}</button></td><td class="nm">${t.n}</td><td><span class="ttx-st" data-s="${t.s}">${pill(t.s)}</span></td><td><span class="ag">${AV(t.ai, t.ac)}${t.a}</span></td><td class="r num">$${t.cost.toFixed(2)}</td><td class="r num up"><span>${ago(t.up)}</span></td></tr>`);
+    tr.onclick = () => { t.sel = !t.sel; sync(); };
+    rows.set(t.id, tr); return tr;
   }
-  $$('.ttx-s', r).forEach(b => b.onclick = () => { const k = +b.dataset.k; if (k === key) desc = !desc; else { key = k; desc = false; } paint(true); });
-  all.onclick = () => { const on = all.getAttribute('aria-checked') !== 'true'; T.forEach(t => t.sel = on); paint(); };
-  $$('.ttx-bar [data-a]', r).forEach(b => b.onclick = () => { const a = b.dataset.a;
-    T.forEach(t => { if (!t.sel) return; if (a === 'pause' && (t.s === 'run' || t.s === 'wait')) t.s = 'pause'; if (a === 'retry' && (t.s === 'fail' || t.s === 'pause')) { t.s = 'run'; t.up = 0; } t.sel = false; });
-    if (a === 'cancel') T = T.filter(t => !$(`tr[data-id="${t.id}"]`, tb)?.classList.contains('sel')).map((t, i) => ({ ...t, id:i }));
-    paint(true); });
-  paint(true);
-  c.later(1600, () => { if (!T.some(t => t.sel)) { T[2].sel = true; T[5].sel = true; paint(); } });
+  // rows glide to their new places: measured before and after the move, then eased from where they were
+  function order(anim){
+    const f = fields[key], list = [...T].sort((a, b) => { const x = f(a), y = f(b); return (x > y ? 1 : x < y ? -1 : 0) * (desc ? -1 : 1); });
+    const first = anim && !REDUCE ? new Map(list.map(t => [t.id, rows.get(t.id).getBoundingClientRect().top])) : null;
+    list.forEach(t => tb.appendChild(rows.get(t.id)));
+    if (first) list.forEach(t => { const el = rows.get(t.id), d = first.get(t.id) - el.getBoundingClientRect().top; if (Math.abs(d) > 1) el.animate([{ transform:`translateY(${d}px)` }, { transform:'none' }], { duration:520, easing:ease }); });
+    $$('.ttx-s', r).forEach(b => { b.classList.toggle('on', +b.dataset.k === key); b.classList.toggle('desc', desc); b.closest('th').setAttribute('aria-sort', +b.dataset.k === key ? (desc ? 'descending' : 'ascending') : 'none'); });
+  }
+  let said = '';
+  function sync(){
+    const n = T.filter(t => t.sel).length;
+    T.forEach(t => { const tr = rows.get(t.id); tr.classList.toggle('sel', t.sel); $('.ttx-cb', tr).setAttribute('aria-checked', t.sel); });
+    all.setAttribute('aria-checked', n === 0 ? 'false' : n === T.length ? 'true' : 'mixed');
+    box.classList.toggle('selecting', n > 0); sb.inert = n === 0; if (n) cnt.textContent = n + ' selected';
+    const run = T.filter(t => t.s === 'run').length, line = T.length ? `${T.length} task${T.length === 1 ? '' : 's'}, ${run} running` : 'No tasks';
+    if (line !== said){ said ? swap(sum, line) : sum.textContent = line; said = line; }
+  }
+  const status = (t, s) => { t.s = s; const el = $('.ttx-st', rows.get(t.id)); el.dataset.s = s; el.innerHTML = `<span class="sv ttx-sin">${face(s)}</span>`; };
+  // cancelled rows slide away and the rest close up; when nothing is left the table says so
+  function leave(ids){
+    const out = T.filter(t => ids.includes(t.id)); T = T.filter(t => !ids.includes(t.id));
+    const go = () => { const first = new Map(T.map(t => [t.id, rows.get(t.id).getBoundingClientRect().top]));
+      out.forEach(t => { rows.get(t.id).remove(); rows.delete(t.id); });
+      if (!REDUCE) T.forEach(t => { const el = rows.get(t.id), d = first.get(t.id) - el.getBoundingClientRect().top; if (Math.abs(d) > 1) el.animate([{ transform:`translateY(${d}px)` }, { transform:'none' }], { duration:480, easing:ease }); });
+      if (!T.length) empty(); sync(); };
+    if (REDUCE) return go();
+    out.forEach(t => rows.get(t.id).classList.add('ttx-out'));
+    c.later(250, go);
+  }
+  function empty(){
+    const tr = html(`<tr class="ttx-empty"><td colspan="6"><div class="ttx-em"><span class="ic">${I('check')}</span><b>No agent tasks</b><span>Everything has finished or been cancelled.</span><button class="pill ghost sm">${I('refresh','xs')}Bring them back</button></div></td></tr>`);
+    tb.appendChild(tr); enter(tr);
+    $('.pill', tr).onclick = e => { e.stopPropagation(); tr.remove(); T = seed(); T.forEach(make); order(false); sync(); stagger([...tb.children], 30); };
+  }
+  $$('.ttx-s', r).forEach(b => b.onclick = () => { const k = +b.dataset.k; if (k === key) desc = !desc; else { key = k; desc = false; } order(true); });
+  all.onclick = () => { const on = all.getAttribute('aria-checked') !== 'true'; T.forEach(t => t.sel = on); sync(); };
+  $('.ttx-clr', r).onclick = () => { T.forEach(t => t.sel = false); sync(); };
+  $$('.ttx-sb [data-a]', r).forEach(b => b.onclick = () => {
+    const a = b.dataset.a, ids = T.filter(t => t.sel).map(t => t.id);
+    T.forEach(t => t.sel = false);
+    if (a === 'cancel'){ sync(); leave(ids); return; }
+    T.forEach(t => { if (!ids.includes(t.id)) return;
+      if (a === 'pause' && (t.s === 'run' || t.s === 'wait')) status(t, 'pause');
+      if (a === 'retry' && (t.s === 'fail' || t.s === 'pause')){ status(t, 'run'); t.up = 0; swap($('.up span', rows.get(t.id)), ago(0)); } });
+    sync(); if (key === 1 || key === 4) c.later(320, () => order(true));
+  });
+  T.forEach(make); order(false); sync(); stagger([...tb.children], 30);
+  // the preview picks two tasks and retries them, unless you start clicking first
+  let mine = false; c.on(r, 'pointerdown', e => { if (e.isTrusted) mine = true; }, true);
+  c.later(1600, () => { if (mine || T.some(t => t.sel)) return; T.forEach(t => t.sel = t.id === 2 || t.id === 5); sync();
+    c.later(1900, () => { if (!mine && T.filter(t => t.sel).length === 2) $('.ttx-sb [data-a="retry"]', r).click(); }); });
 });
 /* ---------- Code viewer ---------- */
 DM.def('code-viewer', (r, c) => {
@@ -5361,28 +5465,35 @@ DM.def('file-explorer', (r, c) => {
 DM.def('automation-canvas', (r, c) => {
   r.innerHTML = r.innerHTML.replace('{play}', I('play','xs'));
   const N = [
-    { id:'t', ic:'clock', col:'var(--py)', t:'Schedule', d:'Mondays 9:00', x:.14, y:.5, f:['When', ['Mondays 9:00','Every weekday','On new Figma version']] },
-    { id:'a', ic:'figma', col:'var(--pl)', t:'Read frames', d:'Pricing, Checkout', x:.4, y:.28, f:['Frames', ['Pricing, Checkout','All frames','Changed this week']] },
-    { id:'b', ic:'spark', col:'var(--accent)', t:'Agent: audit', d:'Contrast, tokens', x:.4, y:.72, f:['Checks', ['Contrast, tokens','Everything','Accessibility only']] },
-    { id:'c', ic:'send', col:'var(--pm)', t:'Post summary', d:'#design in Slack', x:.78, y:.5, f:['Channel', ['#design in Slack','Email the team','Linear ticket']] }
+    { id:'t', ic:'clock', col:'var(--py)', t:'Schedule', d:'Mondays 9:00', y:.5, f:['When', ['Mondays 9:00','Every weekday','On new Figma version']] },
+    { id:'a', ic:'figma', col:'var(--pl)', t:'Read frames', d:'Pricing, Checkout', y:.28, f:['Frames', ['Pricing, Checkout','All frames','Changed this week']] },
+    { id:'b', ic:'spark', col:'var(--accent)', t:'Agent: audit', d:'Contrast, tokens', y:.72, f:['Checks', ['Contrast, tokens','Everything','Accessibility only']] },
+    { id:'c', ic:'send', col:'var(--pm)', t:'Post summary', d:'#design in Slack', y:.5, f:['Channel', ['#design in Slack','Email the team','Linear ticket']] }
   ];
   const E = [['t','a'],['t','b'],['a','c'],['b','c']];
   const cv = $('.acx-cv', r), svg = $('.acx-svg', r), nodes = $('.acx-nodes', r), pop = $('.acx-pop', r), st = $('.acx-st', r);
   const narrow = () => cv.clientWidth < 560;
-  const pos = n => (narrow() ? n.um : n.uw) || (narrow() ? { x:{ t:.5, a:.28, b:.72, c:.5 }[n.id], y:{ t:.13, a:.42, b:.62, c:.88 }[n.id] } : n);
+  // wide: the trigger and the last step sit the same distance in from each side and the two middle steps halfway between,
+  // so the wires on the left and right are the same length at any width. A step you dragged keeps where you put it
+  const wide = (n, W, w) => { const pad = Math.max(20, W * .06); return { x:{ t:pad + w / 2, a:W / 2, b:W / 2, c:W - pad - w / 2 }[n.id] / W, y:n.y }; };
+  const pos = (n, W, w) => (narrow() ? n.um : n.uw) || (narrow() ? { x:{ t:.5, a:.28, b:.72, c:.5 }[n.id], y:{ t:.13, a:.42, b:.62, c:.88 }[n.id] } : wide(n, W, w));
   nodes.innerHTML = N.map(n => `<button class="acx-n" data-id="${n.id}"><span class="ic" style="color:${n.col};background:color-mix(in srgb,${n.col} 14%,transparent)">${I(n.ic,'xs')}</span><span class="t"><b>${n.t}</b><span class="d">${n.d}</span></span></button>`).join('');
   const el = id => $(`.acx-n[data-id="${id}"]`, nodes);
   function layout(){
-    const W = cv.clientWidth, H = cv.clientHeight;
-    if (narrow()) $$('.acx-n', nodes).forEach(b => b.style.width = '150px'); else $$('.acx-n', nodes).forEach(b => b.style.width = '');
-    N.forEach(n => { const p = pos(n); const b = el(n.id); b.style.left = (p.x * W - b.offsetWidth / 2) + 'px'; b.style.top = (p.y * H - b.offsetHeight / 2) + 'px'; });
+    const W = cv.clientWidth, H = cv.clientHeight, small = narrow() || W < 700;
+    $$('.acx-n', nodes).forEach(b => b.style.width = small ? '150px' : '');
+    N.forEach(n => { const b = el(n.id), p = pos(n, W, b.offsetWidth); b.style.left = (p.x * W - b.offsetWidth / 2) + 'px'; b.style.top = (p.y * H - b.offsetHeight / 2) + 'px'; });
     wires();
   }
+  // the wires are made once and only reshaped after that, so a resize or a drag never restarts their draw or their light
+  const wireEl = {};
   function wires(){
-    svg.innerHTML = E.map(([a, b]) => { const A = el(a), B = el(b); const ax = A.offsetLeft + A.offsetWidth / 2, ay = A.offsetTop + A.offsetHeight / 2, bx = B.offsetLeft + B.offsetWidth / 2, by = B.offsetTop + B.offsetHeight / 2;
-      if (narrow()){ const y1 = ay + A.offsetHeight / 2, y2 = by - B.offsetHeight / 2; return `<path data-e="${a}${b}" d="M${ax} ${y1} C${ax} ${(y1 + y2) / 2} ${bx} ${(y1 + y2) / 2} ${bx} ${y2}"/>`; }
-      const x1 = ax + A.offsetWidth / 2, x2 = bx - B.offsetWidth / 2; return `<path data-e="${a}${b}" d="M${x1} ${ay} C${(x1 + x2) / 2} ${ay} ${(x1 + x2) / 2} ${by} ${x2} ${by}"/>`; }).join('');
-    if (svg.classList.contains('intro')) $$('path', svg).forEach(p => p.style.setProperty('--l', Math.ceil(p.getTotalLength())));
+    E.forEach(([a, b]) => { const A = el(a), B = el(b); const ax = A.offsetLeft + A.offsetWidth / 2, ay = A.offsetTop + A.offsetHeight / 2, bx = B.offsetLeft + B.offsetWidth / 2, by = B.offsetTop + B.offsetHeight / 2;
+      let d; if (narrow()){ const y1 = ay + A.offsetHeight / 2, y2 = by - B.offsetHeight / 2; d = `M${ax} ${y1} C${ax} ${(y1 + y2) / 2} ${bx} ${(y1 + y2) / 2} ${bx} ${y2}`; }
+      else { const x1 = ax + A.offsetWidth / 2, x2 = bx - B.offsetWidth / 2; d = `M${x1} ${ay} C${(x1 + x2) / 2} ${ay} ${(x1 + x2) / 2} ${by} ${x2} ${by}`; }
+      let p = wireEl[a + b]; if (!p){ p = document.createElementNS('http://www.w3.org/2000/svg', 'path'); p.dataset.e = a + b; svg.appendChild(p); wireEl[a + b] = p; }
+      p.setAttribute('d', d);
+      if (svg.classList.contains('intro') && !p.style.getPropertyValue('--l')) p.style.setProperty('--l', Math.ceil(p.getTotalLength())); });
   }
   let selN = null;
   function config(n){
@@ -5417,22 +5528,30 @@ DM.def('automation-canvas', (r, c) => {
   });
   c.on(cv, 'click', e => { if (!pop.contains(e.target)) close(); });
   pop.onclick = e => e.stopPropagation();
-  const mark = (id, s) => { const b = el(id); b.classList.toggle('run', s === 'run'); let x = $('.s', b); if (!x){ x = html('<span class="s"></span>'); b.appendChild(x); } x.innerHTML = s === 'run' ? '<span class="spin" style="width:10px;height:10px"></span>' : `<span style="color:var(--ok);display:grid">${I('check','xs')}</span>`; enter(x); };
-  const flow = (a, b, on) => $(`path[data-e="${a}${b}"]`, svg)?.classList.toggle('flow', on);
+  // a step's badge pops in once (CSS), and after that its spinner turns into a check with a short crossfade
+  const ease = getComputedStyle(r).getPropertyValue('--ease').trim() || 'ease';
+  const mark = (id, s) => { const b = el(id); b.classList.toggle('run', s === 'run'); const x = $('.s', b) || b.appendChild(html('<span class="s"></span>'));
+    x.innerHTML = `<span class="acx-sv">${s === 'run' ? '<span class="spin" style="width:10px;height:10px"></span>' : `<span style="color:var(--ok);display:grid">${I('check','xs')}</span>`}</span>`; };
+  // a run passes along a wire as one soft light, then leaves the wire lit
+  const flow = (a, b) => { const p = wireEl[a + b]; if (!p) return; p.classList.add('done'); if (REDUCE) return;
+    const L = p.getTotalLength(), len = Math.min(64, L * .4), q = p.cloneNode(); q.removeAttribute('data-e'); q.setAttribute('class', 'pulse'); q.style.cssText = `stroke-dasharray:${len} ${L + len}`; svg.appendChild(q);
+    q.animate([{ strokeDashoffset:len, opacity:0 }, { opacity:1, offset:.18 }, { opacity:1, offset:.78 }, { strokeDashoffset:-L, opacity:0 }], { duration:720, easing:'cubic-bezier(.45,0,.25,1)' }).onfinish = () => q.remove(); };
   // a new test run cancels one still in progress and starts over, rather than running alongside it
   let runId = 0;
   $('.acx-run', r).onclick = () => c.run(async () => {
     const id = ++runId, wait = async ms => { await c.wait(ms); if (id !== runId) throw 'stop'; };
-    close(); $$('.acx-n .s', nodes).forEach(x => x.remove()); $$('.acx-n.run', nodes).forEach(x => x.classList.remove('run')); $$('path.flow', svg).forEach(x => x.classList.remove('flow')); swap(st, 'Running test');
-    mark('t', 'run'); await wait(600); mark('t', 'ok');
-    flow('t','a',1); flow('t','b',1); await wait(500); flow('t','a',0); flow('t','b',0);
+    // the last run's badges and lit wires fade back before the new run starts
+    close(); $$('.acx-n .s', nodes).forEach(x => { if (REDUCE) return x.remove(); x.animate([{ opacity:1 }, { opacity:0, transform:'scale(.7)' }], { duration:200, easing:ease }).onfinish = () => x.remove(); });
+    $$('.acx-n.run', nodes).forEach(x => x.classList.remove('run')); $$('path.done', svg).forEach(x => x.classList.remove('done')); swap(st, 'Running test');
+    await wait(220); mark('t', 'run'); await wait(600); mark('t', 'ok');
+    flow('t','a'); flow('t','b'); await wait(620);
     mark('a', 'run'); mark('b', 'run'); await wait(1100); mark('a', 'ok'); await wait(400); mark('b', 'ok');
-    flow('a','c',1); flow('b','c',1); await wait(500); flow('a','c',0); flow('b','c',0);
+    flow('a','c'); flow('b','c'); await wait(620);
     mark('c', 'run'); await wait(700); mark('c', 'ok'); swap(st, 'Test passed in 3.4s');
   });
   svg.classList.add('intro'); c.later(1300, () => svg.classList.remove('intro'));
   layout(); let lw = 0; const ro = new ResizeObserver(() => { if (lw && Math.abs(cv.clientWidth - lw) > 2) close(); lw = cv.clientWidth; layout(); }); ro.observe(cv); c.offs.push(() => ro.disconnect());
-  stagger($$('.acx-n', nodes), 90);
+  $$('.acx-n', nodes).forEach((b, i) => { b.classList.add('acx-in'); b.style.animationDelay = i * 90 + 'ms'; });
   // the preview runs one test on its own, unless you start moving steps around first
   let mine = false; c.on(r, 'pointerdown', e => { if (e.isTrusted) mine = true; }, true);
   c.later(1600, () => { if (!mine) $('.acx-run', r).click(); });
@@ -5556,6 +5675,8 @@ DM.def('harness', (r, c) => {
     const g = $('.hnx-pm', el), kn = $('.kn', g), bs = $$('button', g);
     const place = () => { const b = bs[t[4]]; kn.style.left = b.offsetLeft + 'px'; kn.style.width = b.offsetWidth + 'px'; };
     bs.forEach((b, i) => b.onclick = () => { t[4] = i; bs.forEach((x, j) => x.setAttribute('aria-pressed', j === i)); place(); el.classList.toggle('off', i === 0); count(); });
+    // a click with the mouse doesn't take focus, so it never leaves a focus ring; the keyboard still reaches every option
+    bs.forEach(b => b.onmousedown = e => e.preventDefault());
     requestAnimationFrame(place); new ResizeObserver(place).observe(g);
     el._t = t; return el;
   }
