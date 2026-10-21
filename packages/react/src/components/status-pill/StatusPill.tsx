@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { cx } from '../../lib/cx';
 import { useIsoLayoutEffect, useReducedMotion } from '../../lib/hooks';
 import { Icon } from '../../lib/icons';
-import { Dot, Radar, Spin, Swap, Think } from '../../lib/motion';
+import { Dot, Radar, Spin, Think } from '../../lib/motion';
 import '../../designme.css';
 import './status-pill.css';
 
@@ -58,24 +58,38 @@ export function StatusPill(props: StatusPillProps) {
     return () => clearTimeout(t);
   }, [key, prevKey, reduce]);
 
+  // switching between pill and bar morphs in three beats, so the words and the shape never move at once: the line fades
+  // out with its track, the shape changes while it's empty, then the new layout fades in with the track under it
+  const [shape, setShape] = useState(variant);
+  const [morphing, setMorphing] = useState(false);
+  const shapeRef = useRef(variant);
+  useEffect(() => {
+    if (variant === shapeRef.current) return;
+    if (reduce){ shapeRef.current = variant; setShape(variant); return; }
+    setMorphing(true);
+    const a = setTimeout(() => { shapeRef.current = variant; setShape(variant); }, 170);
+    const b = setTimeout(() => setMorphing(false), 430);
+    return () => { clearTimeout(a); clearTimeout(b); };
+  }, [variant, reduce]);
+
   // the pill always hugs its content; the bar keeps a little extra room for its track
   const box = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState<number>();
   useIsoLayoutEffect(() => {
     const el = box.current; if (!el) return;
-    const fit = () => { el.style.width = 'max-content'; const w = el.scrollWidth; el.style.width = ''; setWidth(variant === 'bar' ? Math.max(w + 24, 300) : w); };
+    const fit = () => { el.style.width = 'max-content'; const w = el.scrollWidth; el.style.width = ''; setWidth(shape === 'bar' ? Math.max(w + 24, 300) : w); };
     fit();
     document.fonts?.ready.then(fit);
-  }, [prevKey, variant, view.meta]);
+  }, [prevKey, shape, view.meta]);
 
   return (
-    <div data-dm="" className={cx('dm-spl', variant === 'bar' && 'dm-bar', className)}>
-      <div className="dm-spl-pill" style={{ width: width ?? (variant === 'bar' ? 300 : 'max-content') }} aria-live="polite">
-        <div ref={box} className={cx('dm-spl-in', fading && 'dm-out')}>
+    <div data-dm="" className={cx('dm-spl', shape === 'bar' && 'dm-bar', morphing && 'dm-mo', className)}>
+      <div className="dm-spl-pill" style={{ width: width ?? (shape === 'bar' ? 300 : 'max-content') }} aria-live="polite">
+        <div ref={box} className={cx('dm-spl-in', (fading || morphing) && 'dm-out')}>
           <Glyph state={state} />
           <span className={LIVE.includes(state) ? 'dm-shim' : state === 'idle' ? 'dm-fg2' : undefined}>{view.label}</span>
           {view.file && <span className="dm-fchip" style={{ height: 24 }}>{view.file.type && <span className={cx('dm-ft', FT[view.file.type])}>{view.file.type.toUpperCase()}</span>}{view.file.name}</span>}
-          {view.meta && <Swap className="dm-m">{view.meta}</Swap>}
+          {view.meta && <span className="dm-m">{view.meta}</span>}
           {view.action
             ? <button type="button" className="dm-pill dm-ink dm-sm" onClick={() => props.action?.onClick()}>{view.action.label}</button>
             : <span className="dm-end" />}

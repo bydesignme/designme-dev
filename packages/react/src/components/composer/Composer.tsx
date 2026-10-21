@@ -234,7 +234,7 @@ export function Composer({
           }} />
         <div className="dm-cpx-rows">
           <div className="dm-cpx-bar" inert={dictating}>
-            <Tip label="Add files and context" off={pop === 'plus'}><button type="button" className="dm-ib dm-fill" aria-label="Add context" {...trigger('plus')}><Icon name="plus" /></button></Tip>
+            <Tip label="Add files and context" off={pop === 'plus'}><button type="button" className="dm-ib dm-cpx-add" aria-label="Add context" {...trigger('plus')}><Icon name="plus" /></button></Tip>
             {projOpt && <Tip label="Project" off={pop === 'proj'}><button type="button" className="dm-chip" data-pop=".pp-proj" {...trigger('proj')}><Icon name={projOpt.icon ?? 'folder'} /><Swap className="dm-cpx-proj">{projOpt.label ?? projOpt.value}</Swap></button></Tip>}
             {envOpt && <Tip label="Where it runs" off={pop === 'env'}><button type="button" className="dm-chip dm-on" {...trigger('env')}><Icon name={envOpt.icon ?? 'laptop'} /><Swap className="dm-cpx-env">{envOpt.label ?? envOpt.value}</Swap></button></Tip>}
             <Tip label={cloud ? 'Hands off to the cloud when you close your laptop' : 'Hand off to the cloud'} off={pop === 'cloud'}><button type="button" className={cx('dm-ib dm-cpx-cloud', cloud && 'dm-on')} aria-label="Cloud hand-off" {...trigger('cloud')}><Icon name="cloud" /></button></Tip>
