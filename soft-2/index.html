@@ -147,7 +147,7 @@ button{background:none;border:0;padding:0;cursor:pointer}
 .pill.ink{background:var(--ink);color:var(--on-ink)}
 .pill.ink:hover{opacity:.88}
 .pill.accent{background:var(--accent);color:var(--on-accent)}
-.pill.accent:hover{background:var(--accent-2)}
+.pill.accent:hover,.pill.accent.hl{background:var(--accent-2)}
 .pill.soft{background:var(--soft);color:var(--fg);box-shadow:var(--soft-ring)}
 .pill.soft:hover{background:var(--soft-h)}
 .pill.line{background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);color:var(--fg)}
@@ -970,7 +970,7 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .rwx-tb{position:absolute;left:0;top:0;display:flex;align-items:center;gap:2px;padding:4px;border-radius:999px;background:var(--ink);color:var(--on-ink);box-shadow:var(--shadow-pop);opacity:0;pointer-events:none;transform:translateY(6px) scale(.96);filter:blur(4px);transition:opacity .3s var(--ease),transform .4s var(--ease),filter .3s;z-index:3;white-space:nowrap}
 .rwx-tb.show{opacity:1;pointer-events:auto;transform:none;filter:none}
 .rwx-b{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 11px;border-radius:999px;font-size:12.5px;color:inherit;opacity:.85;transition:background .2s,opacity .2s}
-.rwx-b:hover{background:color-mix(in srgb,var(--on-ink) 14%,transparent);opacity:1}
+.rwx-b:hover,.rwx-b.hl{background:color-mix(in srgb,var(--on-ink) 14%,transparent);opacity:1}
 .rwx-b.ic{width:28px;padding:0;justify-content:center}
 .rwx-sep{width:1px;height:16px;background:color-mix(in srgb,var(--on-ink) 25%,transparent);margin:0 2px}
 .rwx-tb.act{padding:4px 4px 4px 12px}
@@ -1394,7 +1394,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .asx-v{min-width:38px;text-align:center;font-size:13px}
 .asx-ta{width:100%;resize:none;border:0;outline:0;border-radius:12px;background:var(--chip);padding:9px 12px;font:inherit;font-size:13px;color:var(--fg);transition:box-shadow .3s}
 .asx-ta:focus{box-shadow:inset 0 0 0 1px var(--accent),0 0 0 3px var(--accent-bg)}
-.asx-bar{display:flex;align-items:center;gap:6px;padding:6px 6px 6px 14px;border-radius:999px;background:var(--ink);color:var(--on-ink);font-size:12.5px;margin-top:10px;transform:translateY(30px);opacity:0;filter:blur(4px);pointer-events:none;transition:transform .45s var(--ease),opacity .3s,filter .3s;height:0;margin-bottom:-10px}
+.asx-bar{display:flex;align-items:center;gap:6px;padding:6px 6px 6px 14px;border-radius:999px;background:var(--ink);color:var(--on-ink);font-size:12.5px;margin-top:10px;transform:translateY(30px);opacity:0;filter:blur(4px);pointer-events:none;transition:transform .45s var(--ease),opacity .3s,filter .3s,height .45s var(--ease),margin-bottom .45s var(--ease);height:0;margin-bottom:-10px}
 .asx-bar span{flex:1}
 .asx-bar .pill.ghost{color:inherit;opacity:.8}.asx-bar .pill.ghost:hover{background:color-mix(in srgb,var(--on-ink) 14%,transparent)}
 .asx.dirty .asx-bar{transform:none;opacity:1;filter:none;pointer-events:auto;height:40px;margin-bottom:0}
@@ -1429,6 +1429,9 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .acx-cv{position:relative;height:300px;border-radius:18px;background:var(--chip);background-image:radial-gradient(circle,var(--line) 1px,transparent 1.2px);background-size:18px 18px;overflow:hidden}
 .acx-svg{position:absolute;inset:0;width:100%;height:100%}
 .acx-svg path{fill:none;stroke:var(--faint);stroke-width:1.5}
+/* on arrival the wires draw in after the steps have landed */
+.acx-svg.intro path{stroke-dasharray:var(--l);animation:acxdraw .8s var(--ease) .42s backwards}
+@keyframes acxdraw{from{stroke-dashoffset:var(--l)}}
 .acx-svg path.flow{stroke:var(--accent);stroke-width:2;stroke-dasharray:6 6;animation:acxf .6s linear infinite}
 @keyframes acxf{to{stroke-dashoffset:-12}}
 .acx-svg circle{fill:var(--accent)}
@@ -3005,7 +3008,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 <article class="card wide" data-c="task-table" id="c-task-table">
   <div class="card-h"><div><h3>Task table</h3><p>Agent tasks in a sortable table with bulk actions.</p></div></div>
   <div class="stage"><div class="stage-in"></div></div>
-  <template><div class="ttx panel">
+  <template><div class="ttx panel" data-reveal="flat">
   <div class="ttx-sc"><table class="ttx-t">
     <thead><tr><th class="ck"><button class="ttx-cb ttx-all" role="checkbox" aria-checked="false" aria-label="Select all"></button></th><th><button class="ttx-s" data-k="0">Task</button></th><th><button class="ttx-s" data-k="1">Status</button></th><th><button class="ttx-s" data-k="2">Agent</button></th><th class="r"><button class="ttx-s" data-k="3">Cost</button></th><th class="r"><button class="ttx-s" data-k="4">Updated</button></th></tr></thead>
     <tbody></tbody>
@@ -3017,7 +3020,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 <article class="card" data-c="code-viewer" id="c-code-viewer">
   <div class="card-h"><div><h3>Code viewer</h3><p>Code the agent wrote, with line notes you can ask about.</p></div></div>
   <div class="stage"><div class="stage-in"></div></div>
-  <template><div class="cvx panel">
+  <template><div class="cvx panel" data-reveal="flat">
   <div class="cvx-h"><div class="cvx-tabs" role="tablist"></div><span class="cvx-meta num"></span><button class="ib cvx-cp" aria-label="Copy file" data-tip="Copy">{copy}</button></div>
   <div class="cvx-body"><pre class="cvx-code"></pre></div>
 </div></template>
@@ -3132,7 +3135,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 <article class="card" data-c="file-explorer" id="c-file-explorer">
   <div class="card-h"><div><h3>File explorer</h3><p>Project files, with the ones the agent touched marked.</p></div></div>
   <div class="stage"><div class="stage-in"></div></div>
-  <template><div class="fxp panel">
+  <template><div class="fxp panel" data-reveal="flat">
   <div class="fxp-h"><div class="fxp-s">{search}<input placeholder="Filter files" aria-label="Filter files" spellcheck="false"></div><button class="ib fxp-ch" aria-label="Only changed" data-tip="Only changed files">{filter}</button></div>
   <div class="fxp-tree" role="tree"></div>
   <div class="fxp-f muted"><span class="fxp-st"></span></div>
@@ -3142,7 +3145,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 <article class="card wide" data-c="automation-canvas" id="c-automation-canvas">
   <div class="card-h"><div><h3>Automation canvas</h3><p>A trigger, a few agent steps, and a run you can watch flow through.</p></div></div>
   <div class="stage"><div class="stage-in"></div></div>
-  <template><div class="acx">
+  <template><div class="acx" data-reveal="flat">
   <div class="acx-top"><span class="acx-name">Weekly design QA</span><span class="tag ok acx-on">On</span><span class="acx-sp"></span><span class="muted acx-st">Every Monday, 9:00</span><button class="pill ink sm acx-run">{play}Test run</button></div>
   <div class="acx-cv">
     <svg class="acx-svg"></svg>
@@ -3155,7 +3158,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 <article class="card bare" data-c="memory-panel" id="c-memory-panel">
   <div class="card-h"><div><h3>Memory panel</h3><p>What the agent remembers about your team, editable and removable.</p></div></div>
   <div class="stage"><div class="stage-in"></div></div>
-  <template><div class="mmx panel">
+  <template><div class="mmx panel" data-reveal="flat">
   <div class="mmx-h"><span class="mmx-ic">{book}</span><div class="mmx-ht"><b>Team memory</b><span class="muted mmx-st">7 memories</span></div><div class="seg2 mmx-tab" role="group" aria-label="Filter"><button aria-pressed="true" data-v="all">All</button><button aria-pressed="false" data-v="brand">Brand</button><button aria-pressed="false" data-v="process">Process</button></div></div>
   <div class="mmx-list"></div>
 </div></template>
@@ -3173,7 +3176,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 <article class="card" data-c="harness" id="c-harness">
   <div class="card-h"><div><h3>Harness</h3><p>The tools the agent can reach, and how much it may do with each.</p></div></div>
   <div class="stage"><div class="stage-in"></div></div>
-  <template><div class="hnx panel">
+  <template><div class="hnx panel" data-reveal="flat">
   <div class="hnx-h"><div><b>Tools and connections</b><span class="muted hnx-st">5 connected</span></div><button class="pill soft sm hnx-test">{refresh}Test all</button></div>
   <div class="hnx-list"></div>
   <button class="hnx-add" data-pop=".hnx-pop" data-pop-pos="up">{plus}Connect a tool</button>
@@ -4759,7 +4762,8 @@ DM.def('rewrite-toolbar', (r, c) => {
   function place(el){
     const br = box.getBoundingClientRect(), rects = el.getClientRects(), f = rects[0];
     const w = tb.offsetWidth; let x = f.left - br.left; x = Math.max(8, Math.min(x, br.width - w - 8));
-    let y = f.top - br.top - tb.offsetHeight - 8; if (y < 4) y = rects[rects.length - 1].bottom - br.top + 8;
+    // above the sentence, unless that would cover the header: then under its last line
+    let y = f.top - br.top - tb.offsetHeight - 8; if (y < $('.rwx-h', r).getBoundingClientRect().bottom - br.top) y = rects[rects.length - 1].bottom - br.top + 8;
     tb.style.left = x + 'px'; tb.style.top = y + 'px';
   }
   function hide(){ tb.classList.remove('show'); }
@@ -4782,7 +4786,15 @@ DM.def('rewrite-toolbar', (r, c) => {
     });
   }
   bindTb();
-  c.later(900, () => { if (!sel) select($$('.rwx-s', doc)[0]); });
+  // the preview plays it once on its own after the entrance: pick a sentence, make it clearer, keep it. A click of yours takes over
+  let mine = false; c.on(r, 'pointerdown', e => { if (e.isTrusted) mine = true; }, true);
+  c.run(async () => {
+    await c.wait(1300); if (mine || sel) return; select($$('.rwx-s', doc)[0]);
+    await c.wait(1200); const b = $('.rwx-b[data-k="clear"]', tb); if (mine || busy || !b) return;
+    b.classList.add('hl'); await c.wait(240); b.classList.remove('hl'); rewrite('clear');
+    await c.wait(2600); const ok = $('.rwx-ok', tb); if (mine || !ok) return;
+    ok.classList.add('hl'); await c.wait(240); ok.click();
+  });
 });
 /* ---------- Design tuner ---------- */
 DM.def('design-tuner', (r, c) => {
@@ -4813,6 +4825,9 @@ DM.def('design-tuner', (r, c) => {
     go.classList.remove('busy'); go.innerHTML = I('wand','xs') + 'Tune again'; swap(st, 'Tuned by agent');
     P.forEach(p => { const o = p.t; p.t = p.k === 'rad' ? (o === 20 ? 12 : 20) : p.k === 'pad' ? (o === 24 ? 20 : 24) : p.k === 'gap' ? (o === 14 ? 10 : 14) : (o === .05 ? .1 : .05); });
   });
+  // the preview lets the agent tune once on its own, unless you reach for a slider or the button first
+  let mine = false; c.on(r, 'pointerdown', e => { if (e.isTrusted) mine = true; }, true); c.on(r, 'keydown', () => mine = true, true);
+  c.later(1600, () => { if (!mine) go.click(); });
 });
 /* ---------- Permission gate ---------- */
 DM.def('permission-gate', (r, c) => {
@@ -4863,6 +4878,9 @@ DM.def('launch-checklist', (r, c) => {
     run.disabled = false; run.innerHTML = I('refresh','xs') + 'Run again'; tally();
     if (rows.some(x => x.classList.contains('bad'))) run.onclick = () => DM.mount(r.closest('.card'));
   });
+  // the preview runs the checks once on its own after the entrance; the fixes are left for you
+  let mine = false; c.on(r, 'pointerdown', e => { if (e.isTrusted) mine = true; }, true);
+  c.later(1300, () => { if (!mine && !run.disabled) run.click(); });
 });
 /* ---------- Plan review ---------- */
 DM.def('plan-review', (r, c) => {
@@ -4911,10 +4929,10 @@ DM.def('change-review', (r, c) => {
   let cur = 0;
   const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;');
   function fileState(i){ const hs = F[i].h, b = $$('.crx-f', files)[i]; const all = s => hs.every(h => h.s === s); b.classList.toggle('kept', all('kept')); b.classList.toggle('undone', all('undone')); $('.st', b).innerHTML = all('kept') ? I('check','xs') : all('undone') ? I('undo','xs') : hs.some(h => h.s) ? '<span class="dot" style="color:var(--accent)"></span>' : '<span class="dot"></span>'; }
-  function show(i){
+  function show(i, quiet){
     cur = i; $$('.crx-f', files).forEach((b, j) => b.classList.toggle('on', j === i)); swap(fn, 'src/' + F[i].n);
     diff.innerHTML = F[i].h.map((h, k) => `<div class="crx-hk ${h.s}" data-k="${k}"><div class="crx-hh">${I('spark','xs')}<span>${h.t}</span><span class="sp"></span><button class="pill ghost hk-u">Undo</button><button class="pill soft hk-k">Keep</button></div>${h.l.map(l => `<div class="crx-l ${l[0]}"><span class="ln">${l[1]}</span><span class="c">${esc(l[2])}</span><button class="cm" aria-label="Comment on line" data-tip="Comment">${I('plus','xs')}</button></div>`).join('')}</div>`).join('');
-    stagger($$('.crx-hk', diff), 70);
+    if (!quiet) stagger($$('.crx-hk', diff), 70);
     $$('.crx-hk', diff).forEach(hk => { const h = F[i].h[+hk.dataset.k];
       const setS = s => { h.s = h.s === s ? '' : s; hk.className = 'crx-hk ' + h.s; fileState(i); };
       $('.hk-k', hk).onclick = () => setS('kept'); $('.hk-u', hk).onclick = () => setS('undone');
@@ -4927,7 +4945,7 @@ DM.def('change-review', (r, c) => {
   $$('.crx-f', files).forEach(b => b.onclick = () => show(+b.dataset.i));
   const bulk = s => { F[cur].h.forEach(h => h.s = s); fileState(cur); show(cur); if (s === 'kept' && cur < F.length - 1) c.later(500, () => show(cur + 1)); };
   $('.crx-ok', r).onclick = () => bulk('kept'); $('.crx-rej', r).onclick = () => bulk('undone');
-  F.forEach((_, i) => fileState(i)); show(0);
+  F.forEach((_, i) => fileState(i)); show(0, true);
 });
 /* ---------- Pull request ---------- */
 DM.def('pull-request', (r, c) => {
@@ -4975,7 +4993,7 @@ DM.def('source-stack', (r, c) => {
   }
   pill.onclick = () => { const open = box.classList.toggle('shut') === false; pill.setAttribute('aria-expanded', open); if (open) paint($('.ssx-fl .on', r).dataset.f); };
   $$('.ssx-fl .chip', r).forEach(ch => ch.onclick = () => { $$('.ssx-fl .chip', r).forEach(x => x.classList.toggle('on', x === ch)); paint(ch.dataset.f); });
-  c.later(700, () => { if (pill.getAttribute('aria-expanded') === 'false') pill.click(); });
+  c.later(1100, () => { if (pill.getAttribute('aria-expanded') === 'false') pill.click(); });
 });
 /* ---------- Metric insight ---------- */
 DM.def('metric-insight', (r, c) => {
@@ -5017,7 +5035,7 @@ DM.def('metric-insight', (r, c) => {
     rs.innerHTML = R.map(q => `<div class="mix-r"><span class="dot" style="color:${q[2]}"></span><span class="t">${q[0]}</span><span class="bar"><i style="width:${q[1]}%;background:${q[2]}"></i></span><span class="v num">${q[1]}%</span></div>`).join('');
     box.classList.remove('shut'); stagger($$('.mix-r', rs), 60); swap(why, 'Hide the breakdown');
   });
-  c.later(200, () => draw(30));
+  c.later(400, () => draw(30));
 });
 /* ---------- Task table ---------- */
 DM.def('task-table', (r, c) => {
@@ -5088,12 +5106,17 @@ DM.def('code-viewer', (r, c) => {
     stagger($$('.cvx-l', code), 18); meta.innerHTML = `<b>+${F[i].src.filter(l => l[1]).length}</b> changed`;
     $$('.cvx-l', code).forEach(el => el.onclick = () => ask(el));
   }
+  // a note opens and closes its own height, so the code around it moves smoothly
+  const fold = (n, open) => { const cs = getComputedStyle(n), ease = getComputedStyle(r).getPropertyValue('--ease').trim() || 'ease';
+    const full = { height:cs.height, marginTop:cs.marginTop, marginBottom:cs.marginBottom, paddingTop:cs.paddingTop, paddingBottom:cs.paddingBottom, opacity:1, overflow:'hidden' };
+    const none = { height:'0px', marginTop:'0px', marginBottom:'0px', paddingTop:'0px', paddingBottom:'0px', opacity:0, overflow:'hidden' };
+    return n.animate(open ? [none, full] : [full, none], { duration:REDUCE ? 1 : 420, easing:ease }); };
   function ask(el){
     const k = +el.dataset.k, l = F[cur].src[k], open = el.classList.contains('on');
-    $$('.cvx-note', code).forEach(n => n.remove()); $$('.cvx-l', code).forEach(x => x.classList.remove('on'));
+    $$('.cvx-note:not(.going)', code).forEach(n => { n.classList.add('going'); fold(n, false).onfinish = () => n.remove(); }); $$('.cvx-l', code).forEach(x => x.classList.remove('on'));
     if (open) return;
     el.classList.add('on');
-    const note = html(`<div class="cvx-note">${I('spark','xs')}<span><span class="shim">Reading the line</span></span></div>`); el.after(note); enter(note);
+    const note = html(`<div class="cvx-note">${I('spark','xs')}<span><span class="shim">Reading the line</span></span></div>`); el.after(note); fold(note, true);
     c.later(600, () => swap($('span', note), l[2] || 'Unchanged. The agent kept this line as it was.'));
   }
   $$('.cvx-tab', tabs).forEach(t => t.onclick = () => show(+t.dataset.i));
@@ -5117,7 +5140,7 @@ DM.def('details-panel', (r, c) => {
   const labels = [['Q4','y'],['A/B test','t'],['Urgent','r']]; let li = 0;
   $('.dtp-add', r).onclick = e => { if (li >= labels.length) return; const t = html(`<span class="tag ${labels[li][1]}">${labels[li][0]}</span>`); e.currentTarget.before(t); enter(t); li++; };
   const cp = $('.dtp-cp', r); cp.onclick = () => copied(cp, 'run_8f2a');
-  c.later(400, () => setM('Opus'));
+  c.later(700, () => setM('Opus'));
 });
 /* ---------- Citation hover card ---------- */
 DM.def('citation-hover', (r, c) => {
@@ -5157,6 +5180,9 @@ DM.def('citation-hover', (r, c) => {
   c.on(document, 'pointerdown', e => { if (!card.contains(e.target) && !e.target.closest('.chx-c')) hide(true); });
   c.on(window, 'resize', () => hide(true));
   c.offs.push(() => { clearTimeout(hideT); clearTimeout(showT); });
+  // the preview shows one card on its own after the entrance, then puts it away, unless you are already pointing at a citation
+  let mine = false; c.on(r, 'pointerover', e => { if (e.isTrusted) mine = true; }, true);
+  c.run(async () => { await c.wait(1400); if (mine || cur) return; show(cites[0]); await c.wait(2800); if (!mine && cur === cites[0]) hide(); });
 });
 /* ---------- Field extraction ---------- */
 DM.def('field-extraction', (r, c) => {
@@ -5194,7 +5220,7 @@ DM.def('workspace-rail', (r, c) => {
   const tipSync = () => $$('[data-tip]', $('.wrx-rail', r)).forEach(el => { if (!el.dataset.t0) el.dataset.t0 = el.dataset.tip; if (root.classList.contains('wide') && !el.classList.contains('wrx-pin')) el.removeAttribute('data-tip'); else el.dataset.tip = el.dataset.t0; });
   $('.wrx-pin', r).onclick = () => { root.classList.toggle('wide'); const w = root.classList.contains('wide'); $('.wrx-pin', r).dataset.t0 = w ? 'Collapse' : 'Pin open'; tipSync(); };
   mh.textContent = 'Agent'; requestAnimationFrame(() => ind.style.top = items[1].offsetTop + 'px');
-  c.later(1100, () => { root.classList.add('wide'); $('.wrx-pin', r).dataset.t0 = 'Collapse'; tipSync(); });
+  c.later(1500, () => { root.classList.add('wide'); $('.wrx-pin', r).dataset.t0 = 'Collapse'; tipSync(); });
 });
 /* ---------- Command palette ---------- */
 DM.def('command-palette', (r, c) => {
@@ -5228,7 +5254,7 @@ DM.def('command-palette', (r, c) => {
   q.oninput = paint;
   q.onkeydown = e => { if (e.key === 'ArrowDown'){ move(1); e.preventDefault(); } else if (e.key === 'ArrowUp'){ move(-1); e.preventDefault(); } else if (e.key === 'Enter' && items[hi]) run(items[hi]); else if (e.key === 'Escape'){ q.value = ''; paint(); } };
   paint();
-  c.run(async () => { await c.wait(900); for (const ch of 'tok'){ q.value += ch; paint(); await c.wait(180); } });
+  c.run(async () => { await c.wait(1500); for (const ch of 'tok'){ q.value += ch; paint(); await c.wait(180); } });
 });
 /* ---------- Agent settings ---------- */
 DM.def('agent-settings', (r, c) => {
@@ -5309,6 +5335,7 @@ DM.def('automation-canvas', (r, c) => {
     svg.innerHTML = E.map(([a, b]) => { const A = el(a), B = el(b); const ax = A.offsetLeft + A.offsetWidth / 2, ay = A.offsetTop + A.offsetHeight / 2, bx = B.offsetLeft + B.offsetWidth / 2, by = B.offsetTop + B.offsetHeight / 2;
       if (narrow()){ const y1 = ay + A.offsetHeight / 2, y2 = by - B.offsetHeight / 2; return `<path data-e="${a}${b}" d="M${ax} ${y1} C${ax} ${(y1 + y2) / 2} ${bx} ${(y1 + y2) / 2} ${bx} ${y2}"/>`; }
       const x1 = ax + A.offsetWidth / 2, x2 = bx - B.offsetWidth / 2; return `<path data-e="${a}${b}" d="M${x1} ${ay} C${(x1 + x2) / 2} ${ay} ${(x1 + x2) / 2} ${by} ${x2} ${by}"/>`; }).join('');
+    if (svg.classList.contains('intro')) $$('path', svg).forEach(p => p.style.setProperty('--l', Math.ceil(p.getTotalLength())));
   }
   let selN = null;
   function config(n){
@@ -5356,8 +5383,12 @@ DM.def('automation-canvas', (r, c) => {
     flow('a','c',1); flow('b','c',1); await wait(500); flow('a','c',0); flow('b','c',0);
     mark('c', 'run'); await wait(700); mark('c', 'ok'); swap(st, 'Test passed in 3.4s');
   });
+  svg.classList.add('intro'); c.later(1300, () => svg.classList.remove('intro'));
   layout(); let lw = 0; const ro = new ResizeObserver(() => { if (lw && Math.abs(cv.clientWidth - lw) > 2) close(); lw = cv.clientWidth; layout(); }); ro.observe(cv); c.offs.push(() => ro.disconnect());
   stagger($$('.acx-n', nodes), 90);
+  // the preview runs one test on its own, unless you start moving steps around first
+  let mine = false; c.on(r, 'pointerdown', e => { if (e.isTrusted) mine = true; }, true);
+  c.later(1600, () => { if (!mine) $('.acx-run', r).click(); });
 });
 /* ---------- Memory panel ---------- */
 DM.def('memory-panel', (r, c) => {
@@ -5387,10 +5418,13 @@ DM.def('memory-panel', (r, c) => {
     return el;
   }
   function paint(){ list.innerHTML = ''; M.filter(m => f === 'all' || m.k === f).forEach(m => list.appendChild(item(m))); stagger([...list.children], 40); }
+  // a row that arrives opens its own height, so the panel grows smoothly instead of jumping
+  const grow = el => { if (REDUCE) return; const cs = getComputedStyle(el), gap = parseFloat(getComputedStyle(list).rowGap) || 0, ease = getComputedStyle(r).getPropertyValue('--ease').trim() || 'ease';
+    el.animate([{ height:'0px', paddingTop:'0px', paddingBottom:'0px', marginBottom:-gap + 'px', opacity:0, filter:'blur(4px)', overflow:'hidden' }, { height:cs.height, paddingTop:cs.paddingTop, paddingBottom:cs.paddingBottom, marginBottom:'0px', opacity:1, filter:'blur(0px)', overflow:'hidden' }], { duration:560, easing:ease }); };
   seg($('.mmx-tab', r), v => { f = v; paint(); });
   paint();
   // the new memory's highlight and fresh source live in its data, so switching tabs while it is new keeps them
-  c.later(2200, () => { const m = { id:nid++, k:'brand', t:'Use “Start free” instead of “Sign up” on CTAs', s:'Learned just now from your edit', isNew:true }; M.unshift(m); count(); if (f === 'brand' || f === 'all'){ const el = item(m); list.prepend(el); enter(el); }
+  c.later(2200, () => { const m = { id:nid++, k:'brand', t:'Use “Start free” instead of “Sign up” on CTAs', s:'Learned just now from your edit', isNew:true }; M.unshift(m); count(); if (f === 'brand' || f === 'all'){ const el = item(m); list.prepend(el); grow(el); }
     c.later(2600, () => { m.isNew = false; if (m.s === 'Learned just now from your edit') m.s = 'Learned from your edit, today'; const el = $(`.mmx-m[data-id="${m.id}"]`, list); if (el){ el.classList.remove('new'); const src = $('.src', el); if (src) src.textContent = m.s; } }); });
 });
 /* ---------- Model compare ---------- */
@@ -5455,7 +5489,7 @@ DM.def('model-compare', (r, c) => {
   const run = () => c.run(async () => { if (!q.value.trim()) return; asked = q.value.trim(); go.disabled = true; sending = true; try { await Promise.all(C.map(one)); } finally { sending = false; } go.disabled = !q.value.trim(); });
   $('.mcx-in', r).onsubmit = e => { e.preventDefault(); if (!sending) run(); };
   q.oninput = () => { go.disabled = sending || !q.value.trim(); };
-  c.later(700, run);
+  c.later(1200, run);
 });
 /* ---------- Harness ---------- */
 DM.def('harness', (r, c) => {
@@ -5496,6 +5530,9 @@ DM.def('harness', (r, c) => {
     if (bad){ const b = html(`<button class="pill accent sm">Reconnect</button>`); $('.hnx-pm', bad).replaceWith(b); enter(b);
       b.onclick = () => c.run(async () => { b.innerHTML = '<span class="spin"></span>'; await c.wait(800); bad.classList.remove('err'); swap($('.t span', bad), bad._t[2]); const n = row(bad._t); bad.replaceWith(n); enter(n); count(); }); }
   });
+  // the preview tests the connections once on its own; Reconnect is left for you
+  let mine = false; c.on(r, 'pointerdown', e => { if (e.isTrusted) mine = true; }, true);
+  c.later(1800, () => { if (!mine) $('.hnx-test', r).click(); });
 });
 /* ---------- Line chart ---------- */
 DM.def('line-chart', (r, c) => {

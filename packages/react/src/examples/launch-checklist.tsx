@@ -23,6 +23,8 @@ export default function LaunchChecklistDemo() {
   const [runs, setRuns] = useState(0);
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
   useEffect(() => () => timers.current.forEach(clearTimeout), []);
+  // the checks run once on its own; the fixes are left for you
+  useScript(async ({ wait }) => { await wait(1300); setRuns(r => r || 1); });
   const set = (i: number, row: Row) => setRows(rs => rs.map((r, k) => k === i ? row : r));
   const tally = (rs: Row[]) => { const bad = rs.filter(r => r.state === 'bad').length; setStatus(bad ? `${bad} to fix before shipping` : 'All clear, ready to ship'); };
 

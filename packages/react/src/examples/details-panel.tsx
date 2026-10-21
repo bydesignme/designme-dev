@@ -13,7 +13,7 @@ export default function DetailsPanelDemo() {
   const [usage, setUsage] = useState<[number, number]>([0, 0]);
   const [tags, setTags] = useState<DetailsPanelTag[]>([{ label: 'Pricing', tone: 'blue' }, { label: 'Web', tone: 'orange' }]);
   // the usage counts up a moment after the panel appears
-  useScript(async ({ wait }) => { await wait(400); setUsage(COST.Opus); });
+  useScript(async ({ wait }) => { await wait(700); setUsage(COST.Opus); });
   const pickModel = (m: string) => { setModel(m); setUsage(COST[m]); };
   const added = tags.length - 2;
 

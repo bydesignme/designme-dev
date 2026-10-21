@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useImperativeHandle, useRef, useState, type ReactNode, type Ref } from 'react';
 import { cx } from '../../lib/cx';
 import { useControllable, useIsoLayoutEffect, useReducedMotion } from '../../lib/hooks';
 import { Icon, type IconName } from '../../lib/icons';
@@ -12,6 +12,16 @@ export interface RewriteAction {
   key: string;
   label: string;
   icon?: IconName;
+}
+
+/** What a ref to the toolbar can do: drive it from a shortcut, a command menu or a scripted demo */
+export interface RewriteToolbarHandle {
+  /** Rewrites the selected sentence with one of the actions, as a click on that action does */
+  rewrite: (action: string) => void;
+  /** Keeps the rewrite that is waiting for review */
+  accept: () => void;
+  /** Puts the sentence back as it was */
+  undo: () => void;
 }
 
 export interface RewriteToolbarProps {
@@ -39,6 +49,7 @@ export interface RewriteToolbarProps {
   askLabel?: string;
   /** The shortcut shown in that tip */
   askShortcut?: string;
+  ref?: Ref<RewriteToolbarHandle>;
   className?: string;
 }
 
@@ -49,7 +60,7 @@ type Job = { index: number; old: string; text?: string; shown: number };
 /** Click a sentence and a small toolbar offers rewrites; the new text is written in beside the old one, to accept or undo. */
 export function RewriteToolbar({
   title, kind = 'DOC', sentences, defaultSentences = [], onSentencesChange, selected, defaultSelected = null, onSelectedChange,
-  actions = ACTIONS, onRewrite, onAsk, askLabel = 'Ask the agent', askShortcut = '⌘K', className
+  actions = ACTIONS, onRewrite, onAsk, askLabel = 'Ask the agent', askShortcut = '⌘K', ref, className
 }: RewriteToolbarProps) {
   const [text, setText] = useControllable(sentences, defaultSentences, onSentencesChange);
   const [sel, setSel] = useControllable(selected, defaultSelected, onSelectedChange);
@@ -58,6 +69,7 @@ export function RewriteToolbar({
   const reduce = useReducedMotion();
   const root = useRef<HTMLDivElement>(null);
   const bar = useRef<HTMLDivElement>(null);
+  const head = useRef<HTMLDivElement>(null);
   const spans = useRef<(HTMLSpanElement | null)[]>([]);
   const [at, setAt] = useState<{ left: number; top: number }>({ left: 0, top: 0 });
   const busy = job !== null;
@@ -71,14 +83,14 @@ export function RewriteToolbar({
   // a new selection from outside says the same as a click does
   useEffect(() => { if (sel !== null && !busy) setStatus('Pick a rewrite'); }, [sel]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // the toolbar sits above the sentence's first line, or under its last when there is no room above
+  // the toolbar sits above the sentence's first line, or under its last when above would cover the header
   useIsoLayoutEffect(() => {
     const el = sel === null ? null : spans.current[sel], tb = bar.current, box = root.current;
     if (!el || !tb || !box) return;
     const br = box.getBoundingClientRect(), rects = el.getClientRects(), f = rects[0]; if (!f) return;
     const left = Math.max(8, Math.min(f.left - br.left, br.width - tb.offsetWidth - 8));
     let top = f.top - br.top - tb.offsetHeight - 8;
-    if (top < 4) top = rects[rects.length - 1].bottom - br.top + 8;
+    if (top < (head.current ? head.current.getBoundingClientRect().bottom - br.top : 4)) top = rects[rects.length - 1].bottom - br.top + 8;
     setAt({ left, top });
   }, [sel, view]);
 
@@ -114,9 +126,11 @@ export function RewriteToolbar({
     setJob(null); setSel(null); setStatus(keep ? 'Saved' : 'Click a sentence');
   };
 
+  useImperativeHandle(ref, () => ({ rewrite, accept: () => finish(true), undo: () => finish(false) }));
+
   return (
     <div data-dm="" ref={root} className={cx('dm-rwx dm-panel', className)}>
-      <div className="dm-rwx-h"><span className="dm-ft">{kind}</span><span>{title}</span><Swap className="dm-muted dm-rwx-st">{status}</Swap></div>
+      <div ref={head} className="dm-rwx-h"><span className="dm-ft">{kind}</span><span>{title}</span><Swap className="dm-muted dm-rwx-st">{status}</Swap></div>
       <div className="dm-rwx-doc">
         {text.map((s, i) => {
           const mine = job?.index === i;

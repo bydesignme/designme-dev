@@ -29,13 +29,17 @@ export interface CitationHoverCardProps {
   openLabel?: string;
   /** Called when the card's link is clicked, with the source and its index */
   onOpenSource?: (source: CitationHoverCardSource, index: number) => void;
+  /** Opens a source's card from outside (0 is the first source), or closes it with null. Hover, focus and taps still work */
+  open?: number | null;
+  /** Called when a card opens or closes, with the source's index, or null */
+  onOpenChange?: (index: number | null) => void;
   className?: string;
 }
 
 interface Shown { i: number; x: number; y: number; n: number }
 
 /** An answer with numbered citations. Hovering, focusing or tapping one shows its source in a small card underneath. */
-export function CitationHoverCard({ text, sources, openLabel = 'Open source', onOpenSource, className }: CitationHoverCardProps) {
+export function CitationHoverCard({ text, sources, openLabel = 'Open source', onOpenSource, open: openAt, onOpenChange, className }: CitationHoverCardProps) {
   const box = useRef<HTMLDivElement>(null);
   const card = useRef<HTMLDivElement>(null);
   // `at` is the open card; `last` keeps its content while it fades out
@@ -43,19 +47,23 @@ export function CitationHoverCard({ text, sources, openLabel = 'Open source', on
   const [last, setLast] = useState(0);
   const cur = useRef<number | null>(null);
   const showT = useRef<ReturnType<typeof setTimeout>>(undefined), hideT = useRef<ReturnType<typeof setTimeout>>(undefined);
+  // the first citation of each source, which a card opened from outside sits under
+  const marks = useRef(new Map<number, HTMLButtonElement>());
+  const told = useRef(onOpenChange);
+  useEffect(() => { told.current = onOpenChange; });
 
   const show = (i: number, el: HTMLElement) => {
     clearTimeout(hideT.current); if (cur.current === i) return;
     const b = box.current, c = card.current; if (!b || !c) return;
     const br = b.getBoundingClientRect(), cr = el.getBoundingClientRect();
     const x = Math.max(0, Math.min(cr.left - br.left - 24, br.width - c.offsetWidth));
-    cur.current = i; setLast(i);
+    cur.current = i; setLast(i); told.current?.(i);
     // a new key restarts the entrance, so the card always rises in place instead of sliding across
     setAt(a => ({ i, x, y: cr.bottom - br.top + 8, n: (a?.n ?? 0) + 1 }));
   };
   const hide = (now = false) => {
     clearTimeout(hideT.current); clearTimeout(showT.current);
-    const go = () => { cur.current = null; setAt(a => a && { ...a, i: -1 }); };
+    const go = () => { if (cur.current !== null) told.current?.(null); cur.current = null; setAt(a => a && { ...a, i: -1 }); };
     if (now) go(); else hideT.current = setTimeout(go, 140);
   };
 
@@ -66,11 +74,18 @@ export function CitationHoverCard({ text, sources, openLabel = 'Open source', on
     return () => { document.removeEventListener('pointerdown', down); removeEventListener('resize', resize); clearTimeout(hideT.current); clearTimeout(showT.current); };
   }, []);
 
+  // a card opened or closed from outside
+  useEffect(() => {
+    if (openAt === undefined) return;
+    if (openAt === null) { if (cur.current !== null) hide(true); return; }
+    const el = marks.current.get(openAt); if (el && cur.current !== openAt) show(openAt, el);
+  }, [openAt]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const cite = (n: number, key: string) => {
     const i = n - 1;
     if (!sources[i]) return <Fragment key={key}>[{n}]</Fragment>;
     return (
-      <button type="button" key={key} className={cx('dm-chx-c', at?.i === i && 'dm-on')} aria-label={`Source ${n}: ${sources[i].title}`}
+      <button type="button" key={key} ref={el => { if (el && !marks.current.has(i)) marks.current.set(i, el); }} className={cx('dm-chx-c', at?.i === i && 'dm-on')} aria-label={`Source ${n}: ${sources[i].title}`}
         onPointerEnter={e => { const el = e.currentTarget; clearTimeout(showT.current); clearTimeout(hideT.current); showT.current = setTimeout(() => show(i, el), cur.current !== null ? 0 : 90); }}
         onPointerLeave={() => { clearTimeout(showT.current); hide(); }}
         onFocus={e => show(i, e.currentTarget)} onBlur={() => hide()}

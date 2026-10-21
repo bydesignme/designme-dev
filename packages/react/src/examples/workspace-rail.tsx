@@ -14,7 +14,7 @@ export default function WorkspaceRailDemo() {
   const [active, setActive] = useState('agent');
   const [badges, setBadges] = useState<Record<string, number>>({ agent: 2 });
   const [wide, setWide] = useState(false);
-  useScript(async ({ wait }) => { await wait(1100); setWide(true); });
+  useScript(async ({ wait }) => { await wait(1500); setWide(true); });
   const open = (key: string) => { setActive(key); setBadges(b => ({ ...b, [key]: 0 })); };
 
   return (

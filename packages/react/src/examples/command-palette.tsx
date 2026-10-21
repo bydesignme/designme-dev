@@ -20,7 +20,7 @@ const COMMANDS: CommandPaletteItem[] = [
 export default function CommandPaletteDemo() {
   const [query, setQuery] = useState('');
   useScript(async ({ wait }) => {
-    await wait(900);
+    await wait(1500);
     let typed = '';
     for (const ch of 'tok') { typed += ch; setQuery(typed); await wait(180); }
   });

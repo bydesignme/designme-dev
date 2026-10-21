@@ -1,6 +1,6 @@
 'use client';
 // The animated preview from designme.dev, rebuilt from the React component: an example of driving it from your own state.
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { AutomationCanvas, type AutomationEdge, type AutomationNode } from '../components/automation-canvas/AutomationCanvas';
 import { useScript } from './useScript';
 
@@ -20,6 +20,9 @@ export default function AutomationCanvasDemo() {
   const [status, setStatus] = useState('Every Monday, 9:00');
   // picking a new schedule rewrites the line in the corner
   const [trigger, setTrigger] = useState('Mondays 9:00');
+  // one test run plays on its own, unless you start moving or changing steps first
+  const yours = useRef(false);
+  useScript(async ({ wait }) => { await wait(1600); if (!yours.current) setRun(r => r || 1); });
 
   // Test run lights each step in turn and sends a pulse along the wires between them
   useScript(async ({ wait }) => {
@@ -34,7 +37,7 @@ export default function AutomationCanvasDemo() {
   }, [run]);
 
   return (
-    <div style={{ width: '100%' }}>
+    <div style={{ width: '100%' }} onPointerDownCapture={e => { if (e.isTrusted) yours.current = true; }}>
       <AutomationCanvas name="Weekly design QA" tag="On" status={status}
         nodes={NODES.map(n => ({ ...n, state: states[n.id] }))} edges={EDGES} flowing={flowing}
         onValuesChange={v => { if (v.t !== trigger) { setTrigger(v.t); setStatus(v.t.replace('Mondays', 'Every Monday,')); } }}

@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { cx } from '../../lib/cx';
-import { useControllable, useIsoLayoutEffect } from '../../lib/hooks';
+import { useControllable, useIsoLayoutEffect, useReducedMotion } from '../../lib/hooks';
 import { Icon, type IconName } from '../../lib/icons';
 import { Dot, Seg, Swap, Tip } from '../../lib/motion';
 import '../../designme.css';
@@ -126,6 +126,15 @@ export function MemoryPanel({
   // rows that were there when the tab painted stagger in; anything that arrives later comes in on its own
   if (!order.current.size) shown.forEach((r, i) => { if (r.m) order.current.set(r.m.id, i); });
   const delay = (id: MemoryItem['id']) => (order.current.get(id) ?? 0) * 40 + 'ms';
+  // a memory the agent learns while the panel is open opens its own height, so the panel grows instead of jumping
+  const reduce = useReducedMotion(), grown = useRef(new WeakSet<HTMLElement>());
+  const grow = (el: HTMLDivElement | null) => {
+    if (!el || grown.current.has(el)) return; grown.current.add(el);
+    if (reduce || !el.animate) return;
+    const cs = getComputedStyle(el), ease = cs.getPropertyValue('--dm-ease').trim() || 'ease';
+    el.animate([{ height: '0px', paddingTop: '0px', paddingBottom: '0px', opacity: 0, filter: 'blur(4px)', overflow: 'hidden' },
+      { height: cs.height, paddingTop: cs.paddingTop, paddingBottom: cs.paddingBottom, opacity: 1, filter: 'blur(0px)', overflow: 'hidden' }], { duration: 560, easing: ease });
+  };
 
   return (
     <div data-dm="" className={cx('dm-mmx', !bare && 'dm-panel', className)} style={bare ? { paddingInline: 0 } : undefined}>
@@ -147,9 +156,9 @@ export function MemoryPanel({
               </div>
             );
           }
-          const m = r.m;
+          const m = r.m, arriving = !!m.isNew && !order.current.has(m.id);
           return (
-            <div key={`${paint}-${m.id}`} className={cx('dm-mmx-m dm-enter', m.isNew && 'dm-new')} style={{ animationDelay: delay(m.id) }}>
+            <div key={`${paint}-${m.id}`} ref={arriving ? grow : undefined} className={cx('dm-mmx-m', !arriving && 'dm-enter', m.isNew && 'dm-new')} style={arriving ? undefined : { animationDelay: delay(m.id) }}>
               <Dot color={colour(m.kind)} />
               {editing === m.id
                 ? <span key="edit" ref={edit} className="dm-t" spellCheck={false} contentEditable suppressContentEditableWarning

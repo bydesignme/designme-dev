@@ -1,7 +1,7 @@
 'use client';
-import { useEffect, useState, type KeyboardEvent } from 'react';
+import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
 import { cx } from '../../lib/cx';
-import { useControllable, useCopied, useReducedMotion } from '../../lib/hooks';
+import { useControllable, useCopied, useIsoLayoutEffect, useReducedMotion } from '../../lib/hooks';
 import { Icon } from '../../lib/icons';
 import { enter, Tip } from '../../lib/motion';
 import '../../designme.css';
@@ -58,8 +58,16 @@ function Note({ note, delay }: { note: string; delay: number }) {
     const b = setTimeout(() => setPhase('said'), delay + (reduce ? 0 : 170));
     return () => { clearTimeout(a); clearTimeout(b); };
   }, [delay, reduce]);
+  // it opens its own height, so the code under it moves down smoothly instead of jumping
+  const box = useRef<HTMLDivElement>(null);
+  useIsoLayoutEffect(() => {
+    const n = box.current; if (!n || reduce || !n.animate) return;
+    const cs = getComputedStyle(n), ease = cs.getPropertyValue('--dm-ease').trim() || 'ease';
+    n.animate([{ height: '0px', marginTop: '0px', marginBottom: '0px', paddingTop: '0px', paddingBottom: '0px', opacity: 0, overflow: 'hidden' },
+      { height: cs.height, marginTop: cs.marginTop, marginBottom: cs.marginBottom, paddingTop: cs.paddingTop, paddingBottom: cs.paddingBottom, opacity: 1, overflow: 'hidden' }], { duration: 420, easing: ease });
+  }, []);
   return (
-    <div className="dm-cvx-note dm-enter" aria-live="polite">
+    <div ref={box} className="dm-cvx-note" aria-live="polite">
       <Icon name="spark" size="xs" />
       <span className={cx('dm-sw', phase === 'out' && 'dm-out')}>{phase === 'said' ? note : <span className="dm-shim">Reading the line</span>}</span>
     </div>
