@@ -183,6 +183,8 @@ patch("""  /* ---------- book a call button: fill grows from the pointer -------
     // anything that points at a card or section in the other set switches to it first, unless both are showing
     const slugOf = t => t.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
     const follow = el => { if (both()) return; const sec = el && el.closest && el.closest('.lib-sec'); if (sec && sec.dataset.grp && sec.dataset.grp !== root.dataset.grp) set(sec.dataset.grp); };
+    // the component page steps through both sets, so on its way out it shows the set its last component is in
+    window.dmFollow = follow;
     const target = h => { if (/^#\\/./.test(h)) return $$('main .comp').find(c => slugOf(c.querySelector('.comp-title').textContent) === h.slice(2)); try { return h.length > 1 ? document.querySelector(h) : null; } catch(e){ return null; } };
     document.addEventListener('click', e => { const a = e.target.closest('a[href^="#"],[data-id]'); if (a) follow(a.dataset.id ? document.getElementById(a.dataset.id) : target(a.getAttribute('href'))); }, true);
     addEventListener('hashchange', () => follow(target(location.hash)));
@@ -197,7 +199,51 @@ patch("""from status pills and reasoning trails to tool calls and run summaries,
 patch("""<meta property="og:description" content="Free UI components for AI agent products, in two styles with light and dark mode.""",
       """<meta property="og:description" content="Free UI components for AI agent products, in HTML or React, in two styles with light and dark mode.""")
 
-CSS = """
+# ---------- component page: an arrow either side, named on hover, and the plain arrow keys ----------
+patch("""<button class="dv-ib" id="dv-x" aria-label="Close">${ic('close','sm')}</button></div>""",
+      """<button class="dv-ib" id="dv-x" aria-label="Close">${ic('close','sm')}</button></div>
+      <button class="dv-side l" id="dv-sl"><span class="dv-side-i">${ic('chevron_left','sm')}</span><span class="dv-side-t"><span class="k">Previous<kbd>←</kbd></span><span class="n"></span></span></button>
+      <button class="dv-side r" id="dv-sr"><span class="dv-side-i">${ic('chevron_right','sm')}</span><span class="dv-side-t"><span class="k">Next<kbd>→</kbd></span><span class="n"></span></span></button>""")
+patch("""      $('#dv-sec').textContent = secName;""", """      // the arrows name the components either side, in the order of the page
+      { const o = order(), i = o.indexOf(c), at = k => o[(i + k + o.length) % o.length].querySelector('.comp-title').textContent;
+        [['#dv-prev', '#dv-sl', 'Previous', at(-1), '←'], ['#dv-next', '#dv-sr', 'Next', at(1), '→']].forEach(([top, side, k, n, key]) => {
+          $(top).title = `${k}: ${n} (${key})`; $(top).setAttribute('aria-label', `${k}: ${n}`);
+          $('.n', $(side)).textContent = n; $(side).setAttribute('aria-label', `${k}: ${n}`); }); }
+      $('#dv-sec').textContent = secName;""")
+patch("""    const step = n => { const o = order(), i = o.indexOf(cur); open(o[(i + n + o.length) % o.length]); Sound.play('tab'); };""",
+      """    const step = n => { const o = order(), i = o.indexOf(cur); open(o[(i + n + o.length) % o.length]); Sound.play('tab');
+      // the next component comes in from the side it's on
+      if (!reduce) [$('.dv-h', dv), $('#dv-slot')].forEach((el, k) => el.animate([{ opacity:0, transform:`translateX(${n * 28}px)` }, { opacity:1, transform:'none' }], { duration:460, delay:k * 50, easing:'cubic-bezier(.16,1,.3,1)', fill:'backwards' })); };""")
+patch("""    $('#dv-prev').addEventListener('click', () => step(-1)); $('#dv-next').addEventListener('click', () => step(1));""",
+      """    $('#dv-prev').addEventListener('click', () => step(-1)); $('#dv-next').addEventListener('click', () => step(1));
+    $('#dv-sl').addEventListener('click', () => step(-1)); $('#dv-sr').addEventListener('click', () => step(1));""")
+# the plain arrow keys step too, unless they belong to a field, a tab list or the component itself (Alt and an arrow always step)
+patch("""(e.key === 'ArrowRight' || e.key === 'ArrowLeft') && e.altKey) step""",
+      """(e.key === 'ArrowRight' || e.key === 'ArrowLeft') && !e.ctrlKey && !e.metaKey && !e.shiftKey && (e.altKey || !e.target.closest('#dv-slot,[role="tablist"],[role="radiogroup"],[role="menu"],[role="slider"],.fw-sw'))) step""")
+patch("""      ph.replaceWith(cur); const back = cur; cur = null; ph = null;""",
+      """      ph.replaceWith(cur); const back = cur; cur = null; ph = null; if (window.dmFollow) window.dmFollow(back);""")
+
+CSS = """/* component page: an arrow either side of the component, halfway down the screen, in the space beside it. Hovering one
+   names the component it goes to. Where that space runs out, the arrows in the top bar take over */
+.dv-side{position:fixed;top:50%;z-index:6;display:none;align-items:center;height:44px;margin-top:-22px;border-radius:999px;background:var(--sh-card);color:var(--sh-text);box-shadow:0 0 0 1px var(--sh-line),0 2px 10px rgba(17,19,24,.05);transition:box-shadow .25s ease}
+.dv-side:hover{box-shadow:0 0 0 1px var(--sh-line-2),0 6px 20px rgba(17,19,24,.08)}
+.dv-side.l{left:calc((100vw - 1180px) / 4 - 10px)}
+.dv-side.r{right:calc((100vw - 1180px) / 4 - 10px);flex-direction:row-reverse}
+.dv-side-i{display:grid;place-items:center;flex:none;width:44px;height:44px;color:var(--sh-dim);transition:color .2s ease}
+.dv-side-i svg,.dv-side-i .ms{transition:transform .35s cubic-bezier(.16,1,.3,1)}
+.dv-side:hover .dv-side-i{color:var(--sh-text)}
+.dv-side.l:hover .dv-side-i svg,.dv-side.l:hover .dv-side-i .ms{transform:translateX(-2px)}
+.dv-side.r:hover .dv-side-i svg,.dv-side.r:hover .dv-side-i .ms{transform:translateX(2px)}
+.dv-side-t{display:flex;flex-direction:column;max-width:0;overflow:hidden;opacity:0;white-space:nowrap;text-align:left;transition:max-width .45s cubic-bezier(.16,1,.3,1),opacity .2s ease}
+.dv-side-t>span{padding-right:18px}
+.dv-side.r .dv-side-t{align-items:flex-end;text-align:right}
+.dv-side.r .dv-side-t>span{padding:0 0 0 18px}
+.dv-side-t .k{display:flex;align-items:center;gap:5px;font-size:11px;line-height:14px;color:var(--sh-dim)}
+.dv-side-t .n{font-size:13px;line-height:17px;font-weight:500}
+.dv-side-t kbd{font-family:inherit;font-size:10px;line-height:14px;font-weight:500;padding:0 4px;border-radius:4px;box-shadow:inset 0 0 0 1px var(--sh-line);color:var(--sh-dim)}
+.dv-side:hover .dv-side-t,.dv-side:focus-visible .dv-side-t{max-width:260px;opacity:1}
+@media (min-width:1320px){ .dv-side{display:flex} .dv-bar #dv-prev,.dv-bar #dv-next{display:none} }
+
 /* a component's own page: the code panel is right below, so the preview keeps only Animate */
 .dv-slot [data-view],.dv-slot [data-copy]{display:none}
 .dv-soon{margin:10px 2px 0;font-size:12.5px;color:var(--sh-muted)}
@@ -264,6 +310,9 @@ body.ui .comp-foot .mono-xs{text-align:center}
 body.ui .comp-foot .tabs{background:none;padding:0}
 body.ui .comp-foot .tabs .ind{top:0;bottom:0;background:var(--sh-sw-on)}
 .dv-slot .stage-inner{border-radius:14px 14px 0 0}
+/* the component page's stage fills its card like a card in the grid, so it lines up with the grey strip under it */
+body.ui .dv-slot .stage{padding:0}
+body.ui .dv-slot .stage>.code-btns{top:10px;right:20px}
 /* the sidebar: quieter type, and a selected row as light as the stage */
 .side-a{font-size:13px}
 .side-a:hover{background:var(--sh-act)}
