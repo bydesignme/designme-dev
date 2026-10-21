@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { cx } from '../../lib/cx';
 import { useControllable, useTween } from '../../lib/hooks';
 import { Icon, type IconName } from '../../lib/icons';
@@ -60,6 +60,13 @@ function Card({ stat, index, period, compare, drawn, range }: { stat: StatCardsS
   const [lo, hi] = range ?? [Math.min(...all), Math.max(...all)];
   const d = v.points.map((y, k) => `${k === 0 ? 'M' : 'L'}${(k / Math.max(1, v.points.length - 1) * 100).toFixed(1)} ${(29 - (y - lo) / (hi - lo || 1) * 28).toFixed(1)}`).join(' ');
   const { className: entering, style } = enter(index * 70);
+  // the sparkline draws in from the left as its card arrives
+  const spark = useRef<SVGSVGElement>(null);
+  useEffect(() => {
+    const el = spark.current; if (!el || !el.animate || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const a = el.animate([{ clipPath: 'inset(-4px 100% -4px 0)' }, { clipPath: 'inset(-4px 0% -4px 0)' }], { duration: 1000, delay: 300 + index * 70, easing: 'cubic-bezier(.45,0,.2,1)', fill: 'backwards' });
+    return () => a.cancel();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
   const card = (
     <div className={cx('dm-scx-c dm-panel', entering)} style={style}>
       <span className="dm-scx-k"><span className="dm-ic"><Icon name={stat.icon} size="xs" /></span>{stat.label}</span>
@@ -68,7 +75,7 @@ function Card({ stat, index, period, compare, drawn, range }: { stat: StatCardsS
         <Swap className={cx('dm-scx-d dm-num', drawn && (v.change >= 0 ? 'dm-up' : 'dm-dn'))}>{drawn ? (v.change >= 0 ? '+' : '') + v.change + '%' : ''}</Swap>
       </div>
       <div className="dm-scx-sp">
-        <svg viewBox="0 0 100 30" preserveAspectRatio="none" aria-hidden="true"><path stroke={stat.color ?? 'var(--dm-accent)'} d={drawn ? d : FLAT} /></svg>
+        <svg ref={spark} viewBox="0 0 100 30" preserveAspectRatio="none" aria-hidden="true"><path stroke={stat.color ?? 'var(--dm-accent)'} d={drawn ? d : FLAT} /></svg>
       </div>
     </div>
   );

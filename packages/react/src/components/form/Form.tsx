@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
+import { useEffect, useImperativeHandle, useRef, useState, type FormEvent, type ReactNode, type Ref } from 'react';
 import { cx } from '../../lib/cx';
 import { useControllable } from '../../lib/hooks';
 import { Icon } from '../../lib/icons';
@@ -8,6 +8,12 @@ import '../../designme.css';
 import './form.css';
 
 export type FormValues = Record<string, string>;
+
+/** What a ref to the form can do */
+export interface FormHandle {
+  /** Runs onDraft as if "Draft with agent" were pressed, with the same Drafting and Drafted states */
+  draft: () => Promise<void>;
+}
 
 export interface FormField {
   key: string;
@@ -53,13 +59,15 @@ export interface FormProps {
   doneTitle?: (values: FormValues) => ReactNode;
   doneDetail?: ReactNode;
   className?: string;
+  /** Gives access to draft(), to start the agent's draft without a click */
+  ref?: Ref<FormHandle>;
 }
 
 /** A short form an agent can draft for you: fields that check themselves on submit, and a confirmation. */
 export function Form({
   title = 'New project brief', fields, values, defaultValues = {}, onValuesChange, onDraft, draftLabel = 'Draft with agent', draftingLabel = 'Drafting',
   draftedLabel = 'Drafted', draftedMessage = 'Review the blue fields', onSubmit, submitLabel = 'Create brief', invalidMessage = 'A few fields need a look',
-  errorMessage = 'Something went wrong, try again', doneTitle, doneDetail = 'The agent is gathering references now', className
+  errorMessage = 'Something went wrong, try again', doneTitle, doneDetail = 'The agent is gathering references now', className, ref
 }: FormProps) {
   const [vals, setVals] = useControllable(values, defaultValues, onValuesChange);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -96,6 +104,7 @@ export function Form({
     try { await onDraft(); } finally { setDraft('drafted'); }
     setMessage(draftedMessage);
   };
+  useImperativeHandle(ref, () => ({ draft: runDraft }));
 
   const submit = async (e: FormEvent) => {
     e.preventDefault();

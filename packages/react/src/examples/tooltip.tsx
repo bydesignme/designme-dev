@@ -1,5 +1,7 @@
 'use client';
 // The tooltip card from designme.dev: a toolbar with shortcut tips and two people with a card each.
+import { useRef, useState } from 'react';
+import { useScript } from './useScript';
 import { Tooltip, type TooltipPerson } from '../components/tooltip/Tooltip';
 
 const PEOPLE: TooltipPerson[] = [
@@ -8,9 +10,19 @@ const PEOPLE: TooltipPerson[] = [
 ];
 
 export default function TooltipDemo() {
+  const [tip, setTip] = useState<string | null>();
+  const [card, setCard] = useState<string | null>();
+  // once it has appeared it shows what it does: a shortcut tip, then the agent's card. Pointing at it takes over
+  const touched = useRef(false);
+  useScript(async ({ wait }) => {
+    await wait(1300); if (touched.current) return;
+    setTip('ask'); await wait(1700); setTip(undefined); if (touched.current) return;
+    await wait(500); if (touched.current) return;
+    setCard('da'); await wait(2600); setCard(null);
+  });
   return (
-    <div style={{ width: '100%' }}>
-      <Tooltip people={PEOPLE} note="Labels wait a moment, then follow you instantly between buttons." />
+    <div style={{ width: '100%' }} onPointerEnter={() => { touched.current = true; setTip(undefined); }}>
+      <Tooltip people={PEOPLE} openTip={tip} openCard={card} note="Labels wait a moment, then follow you instantly between buttons." />
     </div>
   );
 }
