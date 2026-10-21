@@ -171,7 +171,7 @@ A suggested change with confidence, alternatives and undo.
 
 **RewriteToolbar** · `rewrite-toolbar/RewriteToolbar.tsx`  
 Select a sentence and let the agent rewrite it in place.  
-`title`, `kind`, `sentences` / `defaultSentences` / `onSentencesChange`, `selected` / `defaultSelected` / `onSelectedChange`, `actions: { key, label, icon? }[]` (Clearer, Shorter and Friendlier by default), `onRewrite(sentence, action, index)` (returns the new sentence, or a promise of it; it is written in word by word, then Undo or Accept), `onAsk`, `askLabel`, `askShortcut`.
+`title`, `kind`, `sentences` / `defaultSentences` / `onSentencesChange`, `selected` / `defaultSelected` / `onSelectedChange`, `actions: { key, label, icon? }[]` (Clearer, Shorter and Friendlier by default), `onRewrite(sentence, action, index)` (returns the new sentence, or a promise of it; it is written in word by word, then Undo or Accept), `onAsk`, `askLabel`, `askShortcut`. A `ref` gives `rewrite(index, action)`, `accept()` and `undo()`, for driving it from outside.
 
 **DesignTuner** · `design-tuner/DesignTuner.tsx`  
 Tweak a component by hand or let the agent tune it.  
@@ -217,7 +217,7 @@ Properties of a run you can change in place.
 
 **CitationHoverCard** · `citation-hover-card/CitationHoverCard.tsx`  
 Hover a citation to see the exact passage it came from.  
-`text` (`[n]` cites source n; a blank line starts a paragraph), `sources: { mark, color, site, title, quote, meta?, href? }[]` (wrap the key part of `quote` in `<mark>`), `openLabel`, `onOpenSource(source, index)`. Hovering, focusing or tapping a citation shows its card.
+`text` (`[n]` cites source n; a blank line starts a paragraph), `sources: { mark, color, site, title, quote, meta?, href? }[]` (wrap the key part of `quote` in `<mark>`), `openLabel`, `onOpenSource(source, index)`, `open` / `onOpenChange` (the index of the citation whose card shows, or null). Hovering, focusing or tapping a citation shows its card.
 
 **FieldExtraction** · `field-extraction/FieldExtraction.tsx`  
 The agent pulls fields out of a document and shows where each came from.  
@@ -323,7 +323,7 @@ Every button style, with loading, success and hold-to-confirm states.
 
 **Tooltip** · `tooltip/Tooltip.tsx`  
 Quiet labels on hover, with shortcuts and a richer preview card.  
-`groups: { key, icon, label, tip?, kbd?, onClick? }[][]` (toolbar buttons, a line between groups), `people: { key, initials, color, name, role, status, working? }[]` (hovering or focusing an avatar shows its card after `cardDelay`), `note`.
+`groups: { key, icon, label, tip?, kbd?, onClick? }[][]` (toolbar buttons, a line between groups), `people: { key, initials, color, name, role, status, working? }[]` (hovering or focusing an avatar shows its card after `cardDelay`), `note`, `openTip` (a button key whose tip shows) and `openCard` (a person key whose card shows).
 
 **SearchInput** · `search-input/SearchInput.tsx`  
 Search with scoped filters, recent queries and an agent answer.  
@@ -343,7 +343,7 @@ Email first, then a one-time code that fills itself in.
 
 **Form** · `form/Form.tsx`  
 A project brief with inline checks and an agent that drafts the rest.  
-`fields: { key, label, type?: 'text' | 'textarea' | 'choice', placeholder?, maxLength?, rows?, options?, autoComplete?, validate?(value, values) }[]`, `values` / `defaultValues` / `onValuesChange`, `onDraft` (adds "Draft with agent"; drafted fields stay blue until edited), `onSubmit(values)` (spins while pending; a rejection's message shows beside the button), `title`, `submitLabel`, `invalidMessage`, `draftedMessage`, `doneTitle(values)`, `doneDetail`.
+`fields: { key, label, type?: 'text' | 'textarea' | 'choice', placeholder?, maxLength?, rows?, options?, autoComplete?, validate?(value, values) }[]`, `values` / `defaultValues` / `onValuesChange`, `onDraft` (adds "Draft with agent"; drafted fields stay blue until edited), `onSubmit(values)` (spins while pending; a rejection's message shows beside the button), `title`, `submitLabel`, `invalidMessage`, `draftedMessage`, `doneTitle(values)`, `doneDetail`. A `ref` gives `draft()`, which runs the agent's draft as if the button were pressed.
 
 **PaymentForm** · `payment-form/PaymentForm.tsx`  
 Card details with live formatting, brand detection and a clear total.  
