@@ -245,6 +245,9 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .mi[aria-checked="true"] .ck{opacity:1}
 .mi[aria-checked="true"]{background:var(--row);font-weight:500}
 .pop .sep{height:1px;background:var(--line);margin:4px 2px}
+/* every list row hovers with --row; an icon chip or track inside a hovered row lifts above it (white in light mode, one step lighter in dark) */
+:root[data-theme="dark"] :is(.alg-it:hover .alg-ic,.plx-s:hover .n,.tpx-r:hover .tr){background:var(--hover)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) :is(.alg-it:hover .alg-ic,.plx-s:hover .n,.tpx-r:hover .tr){background:var(--hover)}}
 
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}.shim{color:var(--fg);background:none}}
 
@@ -297,14 +300,13 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .bars3 i:nth-child(2){animation-delay:.15s}.bars3 i:nth-child(3){animation-delay:.3s}
 @keyframes b3{0%,100%{transform:scaleY(.35)}50%{transform:scaleY(1)}}
 /* ---------- Reasoning trail ---------- */
-.rtr{padding:6px}
+.rtr{width:100%;padding:6px}
 .rtr-h{display:flex;align-items:center;gap:10px;width:100%;padding:10px 12px;border-radius:12px;font-size:13.5px;transition:background .2s}
 .rtr-h:hover{background:var(--row)}
 .rtr-mark{color:var(--fg2)}
 .rtr-chev{margin-left:auto;color:var(--muted);transition:transform .4s var(--ease)}
 .rtr-h[aria-expanded="false"] .rtr-chev{transform:rotate(-90deg)}
-.rtr-tabs{padding:4px 10px 10px}
-.rtr-body{padding:0 12px 10px;min-height:150px}
+.rtr-body{padding:4px 12px 10px;min-height:150px}
 .rtr-li{position:relative;display:flex;gap:10px;padding:6px 0 6px 24px;font-size:13.5px;color:var(--fg2)}
 .rtr-li .g{position:absolute;left:0;top:7px;width:16px;height:16px;display:grid;place-items:center;color:var(--muted)}
 .rtr-li:not(:last-child)::before{content:"";position:absolute;left:7.5px;top:25px;bottom:-6px;width:1px;background:var(--rail)}
@@ -343,7 +345,7 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .tk-fin .lab{color:var(--fg)!important}
 .tk-fin .sum{color:var(--muted);margin-left:8px}
 /* ---------- Context meter ---------- */
-.ctm{display:flex;flex-direction:column;align-items:flex-end;gap:10px;width:100%;max-width:330px;margin-left:auto}
+.ctm{display:flex;flex-direction:column;align-items:flex-end;gap:10px;width:100%;max-width:330px;margin-inline:auto}
 .ctm-pop{width:100%;padding:14px 16px 16px;border-radius:16px;box-shadow:var(--shadow-pop);transform-origin:bottom right;transition:opacity .25s var(--ease),transform .4s var(--ease),filter .25s}
 .ctm.shut .ctm-pop{opacity:0;transform:translateY(6px) scale(.98);filter:blur(3px);pointer-events:none}
 .ctm-ph{display:flex;align-items:center;justify-content:space-between;margin:-4px -6px 8px 0}
@@ -1138,7 +1140,7 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .ssx-fl .chip.on{background:var(--ink);color:var(--on-ink);box-shadow:none}
 .ssx-list{display:flex;flex-direction:column;gap:2px;margin-inline:-6px}
 .ssx-s{display:flex;align-items:center;gap:10px;padding:7px 6px;border-radius:10px;font-size:13px;transition:background .25s}
-.ssx-s:hover{background:var(--chip)}
+.ssx-s:hover{background:var(--row)}
 .ssx-s .fv{width:22px;height:22px;border-radius:7px;display:grid;place-items:center;font-size:9.5px;font-weight:600;flex:none}
 .ssx-s .t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .ssx-s .h{font-size:12px;color:var(--muted)}
@@ -1273,18 +1275,24 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .fex{display:grid;grid-template-columns:1fr 316px;gap:14px}
 @media (max-width:720px){.fex{grid-template-columns:1fr}}
 .fex-doc{border-radius:18px;background:var(--chip);padding:20px;display:grid;place-items:center;min-width:0;position:relative;overflow:hidden}
-.fex-pg{width:min(330px,100%);background:#fff;color:#1d2330;border-radius:6px;padding:20px 22px;box-shadow:0 1px 2px rgba(0,0,0,.08),0 8px 30px rgba(0,0,0,.08);font-size:12px;display:flex;flex-direction:column;gap:8px;position:relative}
-.fex-pg .muted{color:#7a8291}
+/* the invoice is paper: white ink-on-paper in light mode, a dark document in dark mode */
+.fex-pg{--pg:#fff;--pg-fg:#1d2330;--pg-mut:#7a8291;--pg-line:#e6e8ec;--pg-hl:17,111,248;--pg-ring:#116ff8;--pg-warn:232,155,20;--pg-wring:#e89b14;--pg-sh:0 1px 2px rgba(0,0,0,.08),0 8px 30px rgba(0,0,0,.08);
+  width:min(330px,100%);background:var(--pg);color:var(--pg-fg);border-radius:6px;padding:20px 22px;box-shadow:var(--pg-sh);font-size:12px;display:flex;flex-direction:column;gap:8px;position:relative}
+:root[data-theme="dark"] .fex-doc{background:color-mix(in srgb,var(--chip) 40%,var(--stage))}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .fex-doc{background:color-mix(in srgb,var(--chip) 40%,var(--stage))}}
+:root[data-theme="dark"] .fex-pg{--pg:var(--raised);--pg-fg:var(--fg);--pg-mut:var(--muted);--pg-line:var(--line);--pg-hl:61,139,255;--pg-ring:#3d8bff;--pg-warn:240,168,48;--pg-wring:#f0a830;--pg-sh:0 0 0 1px var(--line),0 10px 30px rgba(0,0,0,.4)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .fex-pg{--pg:var(--raised);--pg-fg:var(--fg);--pg-mut:var(--muted);--pg-line:var(--line);--pg-hl:61,139,255;--pg-ring:#3d8bff;--pg-warn:240,168,48;--pg-wring:#f0a830;--pg-sh:0 0 0 1px var(--line),0 10px 30px rgba(0,0,0,.4)}}
+.fex-pg .muted{color:var(--pg-mut)}
 .fex-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;font-size:13px}
 .fex-z{position:relative;padding:2px 4px;margin:0 -4px;border-radius:4px;transition:background .3s,box-shadow .3s}
-.fex-z.scan{background:rgba(17,111,248,.08)}
-.fex-z.hl{background:rgba(17,111,248,.12);box-shadow:0 0 0 1.5px #116ff8}
-.fex-z.warn.hl{background:rgba(232,155,20,.14);box-shadow:0 0 0 1.5px #e89b14}
-.fex-tb{border-top:1px solid #e6e8ec;border-bottom:1px solid #e6e8ec;padding:6px 0;display:flex;flex-direction:column;gap:4px}
+.fex-z.scan{background:rgba(var(--pg-hl),.08)}
+.fex-z.hl{background:rgba(var(--pg-hl),.12);box-shadow:0 0 0 1.5px var(--pg-ring)}
+.fex-z.warn.hl{background:rgba(var(--pg-warn),.14);box-shadow:0 0 0 1.5px var(--pg-wring)}
+.fex-tb{border-top:1px solid var(--pg-line);border-bottom:1px solid var(--pg-line);padding:6px 0;display:flex;flex-direction:column;gap:4px}
 .fex-li{display:flex;justify-content:space-between;gap:10px}
 .fex-tot{display:flex;justify-content:space-between;font-weight:600;font-size:13px}
 .fex-smudge .num{filter:blur(.4px)}
-.fex-beam{position:absolute;left:0;right:0;height:40px;background:linear-gradient(180deg,transparent,rgba(17,111,248,.12),transparent);pointer-events:none;top:-40px}
+.fex-beam{position:absolute;left:0;right:0;height:40px;background:linear-gradient(180deg,transparent,rgba(var(--pg-hl,17,111,248),.12),transparent);pointer-events:none;top:-40px}
 .fex-beam.go{animation:fexb 2.6s var(--ease-io) both}
 @keyframes fexb{to{top:100%}}
 .fex-side{padding:12px;display:flex;flex-direction:column;gap:8px;min-width:0}
@@ -2466,16 +2474,17 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 <article class="card bare" data-c="reasoning-trail" id="c-reasoning-trail">
   <div class="card-h"><div><h3>Reasoning trail</h3><p>The agent's plan, notes, sources and edits, after it thinks.</p></div></div>
   <div class="stage"><div class="stage-in"></div></div>
-  <template><div class="rtr panel">
+  <template><div class="rtr-dm dm"><div class="dm-main"><div class="rtr panel">
   <button class="rtr-h" aria-expanded="true">
     <span class="think on rtr-mark"><i></i><i></i><i></i><i></i></span>
     <span class="rtr-title shim">Reasoning</span><span class="rtr-time num muted">0s</span>
     <svg class="i xs rtr-chev"><use href="#i-chev-d"/></svg>
   </button>
   <div class="fold rtr-fold"><div>
-    <div class="rtr-tabs"><div class="seg2" role="group" aria-label="View"><button aria-pressed="true" data-v="plan">Plan</button><button aria-pressed="false" data-v="notes">Notes</button><button aria-pressed="false" data-v="sources">Sources</button><button aria-pressed="false" data-v="edits">Edits</button></div></div>
     <div class="rtr-body"></div>
   </div></div>
+</div></div>
+  <div class="demo"><div class="seg2" role="group" aria-label="View"><button aria-pressed="true" data-v="plan">Plan</button><button aria-pressed="false" data-v="notes">Notes</button><button aria-pressed="false" data-v="sources">Sources</button><button aria-pressed="false" data-v="edits">Edits</button></div></div>
 </div></template>
   <div class="card-f"><span>Switch tabs, open the header</span><span class="sp"></span><button class="replay" aria-label="Replay Reasoning trail"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
 </article>

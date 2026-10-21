@@ -20,7 +20,7 @@ export default function ContextMeterDemo() {
     { key: 'week', label: 'Weekly', percent: 16, detail: 'Resets Sun 10:00 PM' }
   ];
   return (
-    <div style={{ width: '100%', maxWidth: 330, marginLeft: 'auto' }}>
+    <div style={{ width: '100%', maxWidth: 330, marginInline: 'auto' }}>
       <ContextMeter rows={rows} model="Opus 5.5" effort="Extra" onViewUsage={() => {}} />
     </div>
   );
