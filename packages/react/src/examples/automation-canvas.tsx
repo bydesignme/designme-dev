@@ -24,15 +24,15 @@ export default function AutomationCanvasDemo() {
   const yours = useRef(false);
   useScript(async ({ wait }) => { await wait(1600); if (!yours.current) setRun(r => r || 1); });
 
-  // Test run lights each step in turn and sends a pulse along the wires between them
+  // Test run lights each step in turn; a soft light passes along each wire the run reaches, and the wire stays lit
   useScript(async ({ wait }) => {
     if (!run) return;
     const mark = (id: string, s: AutomationNode['state']) => setStates(x => ({ ...x, [id]: s }));
     setStates({}); setFlowing([]); setStatus('Running test');
-    mark('t', 'run'); await wait(600); mark('t', 'done');
-    setFlowing([['t', 'a'], ['t', 'b']]); await wait(500); setFlowing([]);
+    await wait(220); mark('t', 'run'); await wait(600); mark('t', 'done');
+    setFlowing([['t', 'a'], ['t', 'b']]); await wait(620);
     mark('a', 'run'); mark('b', 'run'); await wait(1100); mark('a', 'done'); await wait(400); mark('b', 'done');
-    setFlowing([['a', 'c'], ['b', 'c']]); await wait(500); setFlowing([]);
+    setFlowing(f => [...f, ['a', 'c'], ['b', 'c']]); await wait(620);
     mark('c', 'run'); await wait(700); mark('c', 'done'); setStatus('Test passed in 3.4s');
   }, [run]);
 

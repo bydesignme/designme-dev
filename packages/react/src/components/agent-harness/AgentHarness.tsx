@@ -74,7 +74,7 @@ function Permission({ name, value, onChange }: { name: string; value: HarnessPer
   return (
     <div className="dm-hnx-pm" role="group" aria-label={name + ' permission'} ref={ref}>
       <span className="dm-kn" style={knob} />
-      {PERMS.map(p => <Tip key={p.value} label={p.tip}><button type="button" aria-pressed={p.value === value} onClick={() => onChange(p.value)}>{p.label}</button></Tip>)}
+      {PERMS.map(p => <Tip key={p.value} label={p.tip}><button type="button" aria-pressed={p.value === value} onClick={() => onChange(p.value)} onMouseDown={e => e.preventDefault()}>{p.label}</button></Tip>)}
     </div>
   );
 }
@@ -113,7 +113,7 @@ export function AgentHarness({ tools, defaultTools = [], onToolsChange, availabl
     <div data-dm="" className={cx('dm-hnx dm-panel', className)}>
       <div className="dm-hnx-h">
         <div><b>{title}</b><Swap className="dm-muted dm-hnx-st">{status ?? connected + ' connected'}</Swap></div>
-        {onTest && <button type="button" className="dm-pill dm-soft dm-sm dm-hnx-test" onClick={onTest}><Icon name="refresh" size="xs" />Test all</button>}
+        {onTest && <button type="button" className="dm-pill dm-ghost dm-sm dm-hnx-test" onClick={onTest}><Icon name="refresh" size="xs" />Test all</button>}
       </div>
       <div className="dm-hnx-list">
         {list.map(t => {
