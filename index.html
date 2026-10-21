@@ -10124,7 +10124,7 @@ body.ui .dv-slot .stage>.code-btns{top:10px;right:20px}
 
   /* ---------- sound ---------- */
   const Sound = (() => {
-    let ctx = null, master = null, on = false;
+    let ctx = null, master = null, on = false, last = 0;
     // sound starts off and stays on once someone turns it on
     try { if (localStorage.getItem('dmui-sound') === 'on') on = true; } catch(e) {}
     function ensure(){
@@ -10167,16 +10167,50 @@ body.ui .dv-slot .stage>.code-btns{top:10px;right:20px}
       fail:   () => tone({f:320, f2:230, type:'triangle', dur:.18, gain:.035}),
       on:     () => tone({f:880, f2:1320, dur:.07, gain:.03}),
       off:    () => tone({f:1320, f2:880, dur:.07, gain:.03}),
-      copy:   () => { tone({f:1200, dur:.04, gain:.028}); tone({f:1700, dur:.05, gain:.028, delay:.045}); }
+      copy:   () => { tone({f:1200, dur:.04, gain:.028}); tone({f:1700, dur:.05, gain:.028, delay:.045}); },
+      // a soft tap for a click, and a much quieter tick for moving onto something you can click
+      click:  () => tone({f:1150, f2:720, dur:.045, gain:.03}),
+      hover:  () => tone({f:2400, f2:1900, type:'triangle', dur:.018, gain:.007})
     };
     return {
       ensure,
-      play: n => { try { fx[n] && fx[n](); } catch(e) {} },
+      play: n => { last = performance.now(); try { fx[n] && fx[n](); } catch(e) {} },
+      get last(){ return last; },
       get on(){ return on; },
       set(v){ on = v; try { localStorage.setItem('dmui-sound', v ? 'on' : 'off'); } catch(e) {} }
     };
   })();
   ['pointerdown','keydown'].forEach(ev => document.addEventListener(ev, () => Sound.ensure(), {capture:true}));
+  /* every click and hover gets a sound: anything with a pointer cursor counts, so the components need nothing of their own.
+     A click that already plays a sound of its own keeps just that one, a switch or a checkbox says on or off, and typing
+     fields stay quiet. Hovers tick once per control, never while the page scrolls, and only for a mouse */
+  {
+    const FIELD = 'input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),textarea,select,[contenteditable="true"]';
+    const live = el => !(el.disabled || el.getAttribute('aria-disabled') === 'true');
+    // the control under the pointer: the nearest of the target and a few parents with a pointer cursor
+    const control = t => { for (let el = t, k = 0; el && el.nodeType === 1 && k < 6; el = el.parentElement, k++){ if (el.matches(FIELD)) return null; const cur = getComputedStyle(el).cursor; if (cur === 'pointer') return el; if (cur === 'not-allowed') return null; } return null; };
+    document.addEventListener('click', e => {
+      if (!Sound.on || !e.isTrusted) return;
+      const el = control(e.target); if (!el || !live(el)) return;
+      const t0 = performance.now();
+      // after the click's own handlers have run: a switch or checkbox reads its new state, anything that played a sound is left alone
+      setTimeout(() => {
+        if (Sound.last >= t0) return;
+        const sw = el.closest('[role="switch"],[role="checkbox"],[role="menuitemcheckbox"],input[type="checkbox"]');
+        if (sw) Sound.play(sw.matches('input') ? (sw.checked ? 'on' : 'off') : sw.getAttribute('aria-checked') === 'true' ? 'on' : 'off');
+        else Sound.play('click');
+      }, 0);
+    }, true);
+    let over = null, lastHover = 0, still = 0;
+    const moved = () => { still = performance.now(); over = null; };
+    addEventListener('scroll', moved, { capture:true, passive:true }); addEventListener('wheel', moved, { passive:true });
+    document.addEventListener('pointerover', e => {
+      if (!Sound.on || e.pointerType !== 'mouse') return;
+      const el = control(e.target); if (el === over) return; over = el;
+      const now = performance.now(); if (!el || !live(el) || now - still < 180 || now - lastHover < 60) return;
+      lastHover = now; Sound.play('hover');
+    }, { passive:true });
+  }
 
   // ambient sounds only play for components that are mostly on screen
   const inView = new Set();
