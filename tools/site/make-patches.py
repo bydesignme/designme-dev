@@ -216,33 +216,36 @@ patch("""    const step = n => { const o = order(), i = o.indexOf(cur); open(o[(
       if (!reduce) [$('.dv-h', dv), $('#dv-slot')].forEach((el, k) => el.animate([{ opacity:0, transform:`translateX(${n * 28}px)` }, { opacity:1, transform:'none' }], { duration:460, delay:k * 50, easing:'cubic-bezier(.16,1,.3,1)', fill:'backwards' })); };""")
 patch("""    $('#dv-prev').addEventListener('click', () => step(-1)); $('#dv-next').addEventListener('click', () => step(1));""",
       """    $('#dv-prev').addEventListener('click', () => step(-1)); $('#dv-next').addEventListener('click', () => step(1));
-    $('#dv-sl').addEventListener('click', () => step(-1)); $('#dv-sr').addEventListener('click', () => step(1));""")
+    $('#dv-sl').addEventListener('click', () => step(-1)); $('#dv-sr').addEventListener('click', () => step(1));
+    // a click doesn't leave focus on an arrow, so the arrow keys that follow don't ring it; Tab still reaches them
+    ['#dv-sl', '#dv-sr', '#dv-prev', '#dv-next'].forEach(id => $(id).addEventListener('pointerdown', e => e.preventDefault()));""")
 # the plain arrow keys step too, unless they belong to a field, a tab list or the component itself (Alt and an arrow always step)
-patch("""(e.key === 'ArrowRight' || e.key === 'ArrowLeft') && e.altKey) step""",
-      """(e.key === 'ArrowRight' || e.key === 'ArrowLeft') && !e.ctrlKey && !e.metaKey && !e.shiftKey && (e.altKey || !e.target.closest('#dv-slot,[role="tablist"],[role="radiogroup"],[role="menu"],[role="slider"],.fw-sw'))) step""")
+patch("""(e.key === 'ArrowRight' || e.key === 'ArrowLeft') && e.altKey) step(e.key === 'ArrowRight' ? 1 : -1);""",
+      """(e.key === 'ArrowRight' || e.key === 'ArrowLeft') && !e.ctrlKey && !e.metaKey && !e.shiftKey && (e.altKey || !e.target.closest('#dv-slot,[role="tablist"],[role="radiogroup"],[role="menu"],[role="slider"],.fw-sw'))){ if (e.target.closest('.dv-bar,.dv-side')) dv.focus({ preventScroll:true }); step(e.key === 'ArrowRight' ? 1 : -1); }""")
 patch("""      ph.replaceWith(cur); const back = cur; cur = null; ph = null;""",
       """      ph.replaceWith(cur); const back = cur; cur = null; ph = null; if (window.dmFollow) window.dmFollow(back);""")
 
-CSS = """/* component page: an arrow either side of the component, halfway down the screen, in the space beside it. Hovering one
-   names the component it goes to. Where that space runs out, the arrows in the top bar take over */
-.dv-side{position:fixed;top:50%;z-index:6;display:none;align-items:center;height:44px;margin-top:-22px;border-radius:999px;background:var(--sh-card);color:var(--sh-text);box-shadow:0 0 0 1px var(--sh-line),0 2px 10px rgba(17,19,24,.05);transition:box-shadow .25s ease}
-.dv-side:hover{box-shadow:0 0 0 1px var(--sh-line-2),0 6px 20px rgba(17,19,24,.08)}
-.dv-side.l{left:calc((100vw - 1180px) / 4 - 10px)}
-.dv-side.r{right:calc((100vw - 1180px) / 4 - 10px);flex-direction:row-reverse}
-.dv-side-i{display:grid;place-items:center;flex:none;width:44px;height:44px;color:var(--sh-dim);transition:color .2s ease}
+# the component page takes focus itself when it opens, not its first button, so the arrow keys don't ring that button
+patch("""setTimeout(() => $('#dv-back').focus(), 80);""", """setTimeout(() => { dv.tabIndex = -1; dv.focus({ preventScroll:true }); }, 80);""")
+
+CSS = """/* component page: an arrow either side of the component, halfway down the screen, centred in the space beside it.
+   Hovering one names the component it goes to underneath it, never wider than that space, so nothing covers the component.
+   Where the space gets too narrow for a name, the arrows in the top bar take over */
+.dv-side{--gut:calc((100vw - 1180px) / 2 + 24px);position:fixed;top:50%;z-index:6;display:none;width:44px;height:44px;margin-top:-22px;border-radius:999px;background:var(--sh-card);color:var(--sh-dim);box-shadow:0 0 0 1px var(--sh-line),0 2px 10px rgba(17,19,24,.05);transition:box-shadow .25s ease,color .2s ease}
+.dv-side:hover{color:var(--sh-text);box-shadow:0 0 0 1px var(--sh-line-2),0 6px 20px rgba(17,19,24,.08)}
+.dv-side.l{left:calc(var(--gut) / 2 - 22px)}
+.dv-side.r{right:calc(var(--gut) / 2 - 22px)}
+.dv-side-i{display:grid;place-items:center;width:100%;height:100%}
 .dv-side-i svg,.dv-side-i .ms{transition:transform .35s cubic-bezier(.16,1,.3,1)}
-.dv-side:hover .dv-side-i{color:var(--sh-text)}
 .dv-side.l:hover .dv-side-i svg,.dv-side.l:hover .dv-side-i .ms{transform:translateX(-2px)}
 .dv-side.r:hover .dv-side-i svg,.dv-side.r:hover .dv-side-i .ms{transform:translateX(2px)}
-.dv-side-t{display:flex;flex-direction:column;max-width:0;overflow:hidden;opacity:0;white-space:nowrap;text-align:left;transition:max-width .45s cubic-bezier(.16,1,.3,1),opacity .2s ease}
-.dv-side-t>span{padding-right:18px}
-.dv-side.r .dv-side-t{align-items:flex-end;text-align:right}
-.dv-side.r .dv-side-t>span{padding:0 0 0 18px}
+.dv-side-t{position:absolute;top:100%;left:50%;display:flex;flex-direction:column;align-items:center;gap:2px;width:max-content;max-width:calc(var(--gut) - 32px);margin-top:12px;text-align:center;opacity:0;transform:translate(-50%,-4px);pointer-events:none;transition:opacity .2s ease,transform .35s cubic-bezier(.16,1,.3,1)}
+.dv-side:hover .dv-side-t,.dv-side:focus-visible .dv-side-t{opacity:1;transform:translate(-50%,0)}
 .dv-side-t .k{display:flex;align-items:center;gap:5px;font-size:11px;line-height:14px;color:var(--sh-dim)}
-.dv-side-t .n{font-size:13px;line-height:17px;font-weight:500}
+.dv-side-t .n{font-size:12.5px;line-height:16px;font-weight:500;color:var(--sh-text);overflow-wrap:anywhere}
+.dv:focus{outline:none}
 .dv-side-t kbd{font-family:inherit;font-size:10px;line-height:14px;font-weight:500;padding:0 4px;border-radius:4px;box-shadow:inset 0 0 0 1px var(--sh-line);color:var(--sh-dim)}
-.dv-side:hover .dv-side-t,.dv-side:focus-visible .dv-side-t{max-width:260px;opacity:1}
-@media (min-width:1320px){ .dv-side{display:flex} .dv-bar #dv-prev,.dv-bar #dv-next{display:none} }
+@media (min-width:1400px){ .dv-side{display:block} .dv-bar #dv-prev,.dv-bar #dv-next{display:none} }
 
 /* a component's own page: the code panel is right below, so the preview keeps only Animate */
 .dv-slot [data-view],.dv-slot [data-copy]{display:none}
