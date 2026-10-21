@@ -3,7 +3,7 @@
 // a promise for busy and done, a toggle, a menu that reports back, a run you can stop, a hold to confirm.
 import { useEffect, useRef, useState } from 'react';
 import { useWait } from './useScript';
-import { Button, ButtonCopy, ButtonHold, ButtonIcon, ButtonMenu, ButtonRun, Buttons, type ButtonRunState } from '../components/buttons/Buttons';
+import { Button, ButtonCopy, ButtonHold, ButtonIconMenu, ButtonMenu, ButtonRun, Buttons, type ButtonRunState } from '../components/buttons/Buttons';
 
 const LINK = 'https://designme.dev/p/pricing';
 
@@ -36,6 +36,16 @@ export default function ButtonsDemo() {
     else { clearTimeout(shareT.current); setShare({ label: 'Exporting', busy: true }); shareT.current = setTimeout(() => said('PDF ready'), 1100); }
   };
 
+  // More says what it did for a moment
+  const [more, setMore] = useState<string | null>(null);
+  const moreT = useRef<ReturnType<typeof setTimeout>>(undefined);
+  useEffect(() => () => clearTimeout(moreT.current), []);
+  const did = (key: string) => {
+    const said: Record<string, string> = { duplicate: 'Duplicated', rename: 'Renamed', move: 'Moved to Website', delete: 'Moved to trash' };
+    clearTimeout(moreT.current);
+    moreT.current = setTimeout(() => { setMore(said[key]); moreT.current = setTimeout(() => setMore(null), 1500); }, 140);
+  };
+
   return (
     <Buttons rows={[
       { label: 'Styles', children: <>
@@ -51,9 +61,14 @@ export default function ButtonsDemo() {
       </> },
       { label: 'With icon', children: <>
         <Button variant="accent" className="dm-btx-ask" icon="spark" busyGlyph="think" busyLabel="Agent is working" doneLabel="Draft ready" fadeBack={false} onClick={() => wait(2200)}>Ask agent</Button>
-        <Button variant="soft" icon="figma">Open in Figma</Button>
+        <Button variant="soft" icon="figma" className="dm-btx-fig" busyLabel="Opening" doneLabel="Opened in Figma" doneIcon="ext" onClick={() => wait(900)}>Open in Figma</Button>
         <ButtonCopy text={LINK} className="dm-btx-icp" />
-        <ButtonIcon icon="more" label="More" />
+        <ButtonIconMenu label="More" status={more} onSelect={did} items={[
+          { key: 'duplicate', icon: 'copy', label: 'Duplicate', detail: '⌘D' },
+          { key: 'rename', icon: 'edit', label: 'Rename' },
+          { key: 'move', icon: 'folder', label: 'Move to…' },
+          { key: 'delete', icon: 'trash', label: 'Delete', detail: '⌫', danger: true, divider: true }
+        ]} />
       </> },
       { label: 'States', children: <>
         <Button variant="ink" className="dm-btx-load" success fadeBack={false} busyLabel="Publishing" doneLabel="Published" onClick={() => wait(1300)}>Publish</Button>

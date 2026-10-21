@@ -840,9 +840,12 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 /* ---------- Attachment tray ---------- */
 .atx{display:flex;flex-direction:column;gap:10px}
 .atx-drop{display:flex;flex-direction:column;align-items:center;gap:6px;padding:26px 16px;border-radius:16px;background:none;cursor:pointer;position:relative;font-size:13.5px;transition:background .35s,box-shadow .35s,transform .45s var(--ease)}
-.atx-drop::before{content:"";position:absolute;inset:0;border-radius:16px;border:1.5px dashed var(--faint);transition:border-color .35s}
+/* the dashed edge is drawn in SVG so its dashes can march slowly around the corners; they stop and take the accent under the pointer */
+.atx-ants{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
+.atx-ants rect{fill:none;stroke:var(--faint);stroke-width:1.5;stroke-linecap:round;stroke-dasharray:4.5px var(--ag,6.5px);animation:atxants 1.4s linear infinite;transition:stroke .35s}
+@keyframes atxants{to{stroke-dashoffset:calc(var(--ap,11px) * -1)}}
 .atx-drop:hover,.atx-drop.over{background:var(--accent-bg)}
-.atx-drop:hover::before,.atx-drop.over::before{border-color:var(--accent)}
+.atx-drop:hover .atx-ants rect,.atx-drop.over .atx-ants rect{stroke:var(--accent);animation-play-state:paused}
 .atx-drop.over{transform:scale(1.015)}
 .atx-file{position:absolute;inset:0;opacity:0;cursor:pointer}
 .atx-ic{width:34px;height:34px;border-radius:11px;background:var(--surface);box-shadow:var(--shadow);display:grid;place-items:center;color:var(--fg2);transition:transform .45s var(--ease),background .35s,color .35s}
@@ -886,7 +889,7 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .fbx-ch{display:flex;flex-wrap:wrap;gap:6px}
 .fbx-ch .chip.on{background:var(--sel);color:var(--accent);box-shadow:none}
 .fbx-ta{width:100%;resize:none;border:0;outline:0;border-radius:12px;background:var(--chip);padding:9px 12px;font:inherit;font-size:13px;color:var(--fg);transition:box-shadow .3s}
-.fbx-ta:focus{box-shadow:0 0 0 2px var(--accent-bg),inset 0 0 0 1px var(--accent)}
+.fbx-ta:focus,.fbx-ta.typing{box-shadow:0 0 0 2px var(--accent-bg),inset 0 0 0 1px var(--accent)}
 .fbx-ta::placeholder{color:var(--muted)}
 .fbx-f{display:flex;align-items:center;gap:6px}
 .fbx-n{font-size:12px;flex:1;min-width:0}
@@ -1869,6 +1872,12 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 /* a pill that swap() crossfades keeps its flex layout, so the icon put back in it later keeps its gap */
 .btx-row .pill.sw{display:inline-flex}
 .btx-sp{min-width:210px}
+.btx-fig{min-width:128px;transition:min-width .4s var(--ease),background .3s}
+.btx-fig .spin{width:13px;height:13px}
+.btx-mp{min-width:200px}
+.btx-mp .mi.del,.btx-mp .mi.del .i{color:var(--bad)}
+.btx-mp .mi.del:hover{background:var(--bad-bg)}
+.ib.btx-more.done{color:var(--ok)}
 .pill.btx-ask.busy,.pill.btx-ask.busy:hover{background:var(--accent-bg);color:var(--accent);cursor:progress}
 .pill.btx-ask.done,.pill.btx-ask.done:hover{background:color-mix(in srgb,var(--ok) 16%,var(--surface));color:var(--ok)}
 .btx-hold{position:relative;overflow:hidden;background:var(--bad-bg);color:var(--bad);user-select:none;-webkit-user-select:none;touch-action:none}
@@ -1948,20 +1957,20 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .ssi-lg .logo{width:26px;height:26px}
 .ssi-h b{font-weight:500;font-size:15px}
 .ssi-list{display:flex;flex-direction:column;gap:8px;width:100%}
-.ssi-b{position:relative;display:flex;align-items:center;justify-content:center;gap:10px;height:42px;padding:0 14px;border-radius:12px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--rail);font-size:13.5px;font-weight:500;transition:background .2s,box-shadow .2s,transform .15s}
+.ssi-b{position:relative;display:flex;align-items:center;justify-content:center;gap:10px;height:42px;padding:0 18px;border-radius:999px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--rail);font-size:13.5px;font-weight:500;transition:background .2s,box-shadow .2s,transform .15s}
 .ssi-b:hover{background:var(--wash);box-shadow:inset 0 0 0 1px var(--faint)}
 .ssi-b:active{transform:scale(.98)}
 .ssi-b .mk{width:18px;height:18px;display:grid;place-items:center;flex:none}
 .ssi-b .mk svg,.ssi-b .mk img{width:18px;height:18px;display:block}
 .ssi-b .mk .i{width:16px;height:16px}
 .ssi-b .mk .lt{min-width:18px;height:18px;padding:0 3px;border-radius:5px;background:var(--ink);color:var(--on-ink);display:grid;place-items:center;font-size:10px;font-weight:600}
-.ssi-b .last{position:absolute;top:-8px;right:10px;font-size:10.5px;font-weight:500;color:var(--fg2);background:var(--surface);box-shadow:inset 0 0 0 1px var(--rail);padding:1px 7px;border-radius:999px}
+.ssi-b .last{position:absolute;top:-8px;right:22px;font-size:10.5px;font-weight:500;color:var(--fg2);background:var(--surface);box-shadow:inset 0 0 0 1px var(--rail);padding:1px 7px;border-radius:999px}
 .ssi-b.last-used{box-shadow:inset 0 0 0 1px var(--fg2)}
 .ssi-b.busy{pointer-events:none}
 .ssi-list.wait .ssi-b:not(.busy){opacity:.45}
 .ssi-or{display:flex;align-items:center;gap:10px;width:100%;font-size:11.5px;color:var(--muted)}
 .ssi-or::before,.ssi-or::after{content:"";flex:1;height:1px;background:var(--line)}
-.ssi-mail{font-size:12.5px;color:var(--fg2);padding:4px 8px;border-radius:8px;transition:color .2s,background .2s}
+.ssi-mail{font-size:12.5px;color:var(--fg2);padding:4px 10px;border-radius:999px;transition:color .2s,background .2s}
 .ssi-mail:hover{color:var(--fg);background:var(--chip)}
 .ssi-ok{display:flex;flex-direction:column;align-items:center;gap:8px;padding:8px 0 4px;text-align:center;font-size:13px}
 .ssi-ok .av{width:44px;height:44px;font-size:15px}
@@ -2768,7 +2777,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
   <div class="card-h"><div><h3>Attachment tray</h3><p>Drop files for the agent and watch each one upload.</p></div></div>
   <div class="stage"><div class="stage-in"></div></div>
   <template><div class="atx">
-  <label class="atx-drop"><input type="file" multiple class="atx-file" aria-label="Choose files">
+  <label class="atx-drop"><input type="file" multiple class="atx-file" aria-label="Choose files"><svg class="atx-ants" aria-hidden="true"><rect/></svg>
     <span class="atx-ic">{upload}</span><b>Drop files here</b><span class="muted">or <span class="atx-sample">add sample files</span></span>
   </label>
   <div class="atx-list"></div>
@@ -3295,7 +3304,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
   <div class="stage"><div class="stage-in"></div></div>
   <template><div class="btx">
   <div class="btx-row"><span class="btx-l muted">Styles</span><button class="pill accent btx-trial">Start free trial</button><button class="pill ink btx-run">Run agent</button><button class="pill soft btx-pv" aria-pressed="false">Preview</button><button class="pill line btx-share" data-pop=".btx-sp" aria-haspopup="menu">Share</button><div class="pop btx-sp" role="menu"><button class="mi" role="menuitem" data-close data-a="link">{link}Copy link</button><button class="mi" role="menuitem" data-close data-a="slack">{slack}Send to Slack<span class="r">#design</span></button><button class="mi" role="menuitem" data-close data-a="pdf">{down}Export as PDF</button></div><button class="pill ghost">Cancel</button></div>
-  <div class="btx-row"><span class="btx-l muted">With icon</span><button class="pill accent btx-ask">{spark}Ask agent</button><button class="pill soft">{figma}Open in Figma</button><button class="ib fill btx-icp" aria-label="Copy" data-tip="Copy">{copy}</button><button class="ib fill" aria-label="More" data-tip="More">{more}</button></div>
+  <div class="btx-row"><span class="btx-l muted">With icon</span><button class="pill accent btx-ask">{spark}Ask agent</button><button class="pill soft btx-fig">{figma}Open in Figma</button><button class="ib fill btx-icp" aria-label="Copy" data-tip="Copy">{copy}</button><button class="ib fill btx-more" aria-label="More" data-tip="More" data-pop=".btx-mp" data-pop-align="end" aria-haspopup="menu">{more}</button><div class="pop btx-mp" role="menu"><button class="mi" role="menuitem" data-close data-a="Duplicated">{dup}Duplicate<span class="r">⌘D</span></button><button class="mi" role="menuitem" data-close data-a="Renamed">{edit}Rename</button><button class="mi" role="menuitem" data-close data-a="Moved to Website">{folder}Move to…</button><div class="sep"></div><button class="mi del" role="menuitem" data-close data-a="Moved to trash">{bin}Delete<span class="r">⌫</span></button></div></div>
   <div class="btx-row"><span class="btx-l muted">States</span><button class="pill ink btx-load">Publish</button><button class="pill soft btx-copy">{copy}Copy link</button><button class="pill btx-hold"><span class="fill"></span><span class="lb">{trash}Hold to delete</span></button><button class="pill accent" disabled>Disabled</button></div>
   <div class="btx-row"><span class="btx-l muted">Sizes</span><button class="pill accent sm">Small</button><button class="pill accent">Default</button><button class="pill accent btx-lg">Large</button></div>
 </div></template>
@@ -4557,11 +4566,28 @@ DM.def('attachment-tray', (r, c) => {
     const iv = c.every(70, () => { p = Math.min(1, p + .04 + Math.random() * .08); ring.style.strokeDashoffset = 50.3 * (1 - p);
       if (p >= 1){ clearInterval(iv); const s = $('.atx-ring', it); s.outerHTML = `<span style="color:var(--ok);display:grid;place-items:center;width:22px">${I('ok')}</span>`; read++; swap(sum, 'The agent can read ' + read + (read > 1 ? ' files' : ' file') + ' now'); } });
   }
-  $('.atx-sample', r).onclick = e => { e.preventDefault(); [['brief.pdf', 2.4e6],['Pricing.fig', 8.1e6],['signups.csv', 3.2e5]].forEach((f, i) => add(f[0], f[1], i)); };
+  const samples = () => [['brief.pdf', 2.4e6],['Pricing.fig', 8.1e6],['signups.csv', 3.2e5]].forEach((f, i) => add(f[0], f[1], i));
+  $('.atx-sample', r).onclick = e => { e.preventDefault(); samples(); };
   $('.atx-file', r).onchange = e => { Array.from(e.target.files).forEach((f, i) => add(f.name, f.size, i)); e.target.value = ''; };
   ['dragenter','dragover'].forEach(ev => c.on(drop, ev, e => { e.preventDefault(); drop.classList.add('over'); }));
   ['dragleave','drop'].forEach(ev => c.on(drop, ev, () => drop.classList.remove('over')));
   c.on(drop, 'drop', e => { e.preventDefault(); Array.from(e.dataTransfer.files).forEach((f, i) => add(f.name, f.size, i)); });
+  /* the dashed edge follows the drop zone's size and corners, with the dashes spaced to meet evenly all the way round */
+  const ants = $('.atx-ants rect', r);
+  const fit = () => {
+    const w = drop.offsetWidth, h = drop.offsetHeight; if (!w || !h) return;
+    const k = .75, rad = Math.max(0, Math.min(parseFloat(getComputedStyle(drop).borderTopLeftRadius) || 0, w / 2, h / 2) - k);
+    ants.setAttribute('x', k); ants.setAttribute('y', k); ants.setAttribute('width', w - 2 * k); ants.setAttribute('height', h - 2 * k); ants.setAttribute('rx', rad);
+    const per = 2 * (w + h - 4 * k) - (8 - 2 * Math.PI) * rad, step = per / Math.max(8, Math.round(per / 11));
+    ants.style.setProperty('--ap', step + 'px'); ants.style.setProperty('--ag', (step - 4.5) + 'px');
+  };
+  fit(); const ro = new ResizeObserver(fit); ro.observe(drop); c.offs.push(() => ro.disconnect());
+  /* once it has entered, three sample files drop in and upload, so the tray shows what it does */
+  c.run(async () => {
+    await c.wait(950); if (list.children.length) return;
+    drop.classList.add('over'); await c.wait(500); drop.classList.remove('over');
+    if (!list.children.length) samples();
+  });
 });
 /* ---------- Response versions ---------- */
 DM.def('response-versions', (r, c) => {
@@ -4598,7 +4624,9 @@ DM.def('feedback-sheet', (r, c) => {
   chips.forEach(ch => ch.onclick = () => { ch.classList.toggle('on'); ready(); });
   ta.oninput = ready;
   up.onclick = () => { const on = !up.classList.contains('on'); up.classList.toggle('on', on); dn.classList.remove('on'); box.classList.add('shut'); swap(st, on ? 'Thanks, noted' : ''); };
-  dn.onclick = () => { const on = !dn.classList.contains('on'); dn.classList.toggle('on', on); up.classList.remove('on'); box.classList.toggle('shut', !on); swap(st, ''); if (on) c.later(350, () => ta.focus({ preventScroll:true })); };
+  // the demo opens the sheet without taking the focus from wherever you are on the page
+  const down = focus => { const on = !dn.classList.contains('on'); dn.classList.toggle('on', on); up.classList.remove('on'); box.classList.toggle('shut', !on); swap(st, ''); if (on && focus) c.later(350, () => ta.focus({ preventScroll:true })); };
+  dn.onclick = e => down(e.isTrusted);
   $('.fbx-x', r).onclick = () => { box.classList.add('shut'); dn.classList.remove('on'); };
   go.onclick = () => c.run(async () => {
     go.innerHTML = '<span class="spin"></span>'; await c.wait(800);
@@ -4606,6 +4634,17 @@ DM.def('feedback-sheet', (r, c) => {
     const n = chips.filter(x => x.classList.contains('on')).length;
     const thx = html(`<div class="fbx-thx">${I('ok')}<span>Thanks. The agent will ${n ? 'avoid this' : 'use this'} next time in this project.</span></div>`);
     r.firstElementChild.appendChild(thx); enter(thx); swap(st, 'Feedback sent');
+  });
+  /* once it has entered, it rates the answer down and fills in the sheet by itself. Anything you do inside it takes over */
+  let auto = true; const mine = e => { if (e.isTrusted){ auto = false; ta.classList.remove('typing'); } };
+  c.on(r, 'pointerdown', mine, true); c.on(r, 'keydown', mine, true);
+  const beat = async ms => { await c.wait(ms); if (!auto) throw 'stop'; };
+  c.run(async () => {
+    await beat(1500); down(false);
+    await beat(1000); chips[1].click();
+    await beat(700); ta.classList.add('typing');
+    for (const ch of 'Keep our 8px spacing scale'){ ta.value += ch; ready(); await beat(34 + Math.random() * 40); }
+    await beat(650); ta.classList.remove('typing'); go.click();
   });
 });
 /* ---------- Decision prompt ---------- */
@@ -5760,7 +5799,7 @@ DM.def('agenda', (r, c) => {
 });
 /* ---------- Buttons ---------- */
 DM.def('buttons', (r, c) => {
-  r.innerHTML = r.innerHTML.replace('{link}', I('link','s')).replace('{slack}', BRAND.slack).replace('{down}', I('down','s')).replace('{spark}', I('spark','xs')).replace('{figma}', I('figma','xs')).replace(/\{copy\}/g, (m, o) => I('copy','xs')).replace('{more}', I('more','xs')).replace('{trash}', I('trash','xs'));
+  r.innerHTML = r.innerHTML.replace('{link}', I('link','s')).replace('{slack}', BRAND.slack).replace('{down}', I('down','s')).replace('{spark}', I('spark','xs')).replace('{figma}', I('figma','xs')).replace(/\{copy\}/g, (m, o) => I('copy','xs')).replace('{more}', I('more','xs')).replace('{trash}', I('trash','xs')).replace('{bin}', I('trash','s')).replace('{dup}', I('copy','s')).replace('{edit}', I('edit','s')).replace('{folder}', I('folder','s'));
   const ld = $('.btx-load', r);
   /* busy buttons keep their colour; disabled styling is only for buttons you can't use */
   ld.onclick = () => c.run(async () => { if (ld._busy) return; ld._busy = true; ld.classList.add('busy'); ld.setAttribute('aria-busy', 'true'); ld.innerHTML = '<span class="spin"></span>Publishing'; await c.wait(1300); ld.classList.remove('busy'); ld.classList.add('ok'); ld.innerHTML = I('check','xs') + 'Published'; enter(ld.firstChild); await c.wait(1800); ld.classList.remove('ok'); ld.textContent = 'Publish'; ld._busy = false; ld.removeAttribute('aria-busy'); });
@@ -5797,6 +5836,20 @@ DM.def('buttons', (r, c) => {
     else { clearTimeout(sh._t); sh.innerHTML = '<span class="spin"></span>Exporting'; sh._t = setTimeout(() => said('PDF ready'), 1100); }
   }));
   c.offs.push(() => clearTimeout(sh._t));
+  /* Open in Figma: a short wait while it opens, then it says where it went */
+  const fg = $('.btx-fig', r);
+  fg.onclick = () => c.run(async () => { if (fg._busy) return; fg._busy = true; fg.setAttribute('aria-busy', 'true'); fg.innerHTML = '<span class="spin"></span>Opening'; await c.wait(900);
+    fg.innerHTML = I('ext','xs') + 'Opened in Figma'; enter(fg.firstChild); await c.wait(1800); swap(fg, I('figma','xs') + 'Open in Figma', true); await c.wait(200); fg._busy = false; fg.removeAttribute('aria-busy'); });
+  /* More: a menu of actions; the button flashes a check and says what happened */
+  const mo = $('.btx-more', r), moIc = mo.innerHTML;
+  // no tooltip over its own open menu
+  const mob = new MutationObserver(() => { if (mo.getAttribute('aria-expanded') === 'true'){ if (tipFor === mo) hideTip(); delete mo.dataset.tip; } else if (!mo.classList.contains('done')) mo.dataset.tip = 'More'; });
+  mob.observe(mo, { attributes:true, attributeFilter:['aria-expanded'] }); c.offs.push(() => mob.disconnect());
+  $$('.btx-mp .mi', r).forEach(b => b.addEventListener('click', () => {
+    clearTimeout(mo._t); c.later(140, () => { mo.innerHTML = I('check','xs'); mo.classList.add('done'); mo.dataset.tip = b.dataset.a; showTip(mo);
+      mo._t = setTimeout(() => { mo.innerHTML = moIc; mo.classList.remove('done'); mo.dataset.tip = 'More'; if (tipFor === mo) hideTip(); }, 1500); });
+  }));
+  c.offs.push(() => clearTimeout(mo._t));
   const cp = $('.btx-copy', r);
   cp.onclick = () => { copied(cp, 'https://designme.dev/p/pricing'); const t = cp.lastChild; t.textContent = 'Copied'; clearTimeout(cp._lt); cp._lt = setTimeout(() => { t.textContent = 'Copy link'; }, 1600); };
   const h = $('.btx-hold', r), lb = $('.lb', h); let t;

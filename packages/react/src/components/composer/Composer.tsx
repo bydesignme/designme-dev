@@ -167,7 +167,8 @@ export function Composer({
   useIsoLayoutEffect(() => {
     if (!pop) return;
     const btn = triggers.current[pop], el = pops.current[pop], host = box.current; if (!btn || !el || !host) return;
-    const hr = host.getBoundingClientRect(), br = btn.getBoundingClientRect(), end = pop === 'eff';
+    // effort and the cloud hand-off sit near the right end of the bar, so they line up with their button's right edge
+    const hr = host.getBoundingClientRect(), br = btn.getBoundingClientRect(), end = pop === 'eff' || pop === 'cloud';
     let x = end ? br.right - hr.left - el.offsetWidth : br.left - hr.left;
     x = Math.max(-hr.left + 8, Math.min(x, innerWidth - hr.left - el.offsetWidth - 8));
     setPlace(p => ({ ...p, [pop]: { left: x, top: br.top - hr.top - el.offsetHeight - 6, '--dm-origin': 'bottom ' + (end ? 'right' : 'left') } as CSSProperties }));
