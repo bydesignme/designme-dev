@@ -1,14 +1,14 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { cx } from '../../lib/cx';
-import { useControllable, useSeconds } from '../../lib/hooks';
+import { useControllable, useIsoLayoutEffect, useReducedMotion, useSeconds } from '../../lib/hooks';
 import { Icon } from '../../lib/icons';
-import { enter, Fold, Pulse, SourceChip, Swap, Think, Tip, type Source } from '../../lib/motion';
+import { enter, Fold, Pulse, SourceChip, Think, Tip, type Source } from '../../lib/motion';
 import '../../designme.css';
 import './thinking.css';
 
 export interface ThinkingStep {
-  /** What the agent is doing, then what it did. Change it when the step finishes and it crossfades */
+  /** What the agent is doing, then what it did. While it runs it changes in place under the shimmer; when the step finishes it settles */
   label: string;
   /** running shimmers, done settles, dead marks a path that went nowhere */
   state: 'running' | 'done' | 'dead';
@@ -61,6 +61,25 @@ function Mark({ step }: { step: ThinkingStep }) {
 }
 
 /** The live trace, written as the agent works, then folded away. */
+/** A line that settles in place when its words change, sharpening out of a soft blur, never fading to nothing and back.
+ *  While it shimmers (still running) it just takes the new words, so a count like "Reading 2 of 6" doesn't blink */
+function Settle({ children, shimmer, className }: { children: string; shimmer: boolean; className?: string }) {
+  const ref = useRef<HTMLSpanElement>(null);
+  const prev = useRef({ text: children, shimmer });
+  const reduce = useReducedMotion();
+  useIsoLayoutEffect(() => {
+    const el = ref.current, was = prev.current; prev.current = { text: children, shimmer };
+    if (!el) return;
+    // the shimmer draws the words in a clear colour; going straight to the solid colour stops it fading in from nothing
+    if (was.shimmer && !shimmer){ el.style.transition = 'none'; void el.offsetWidth; requestAnimationFrame(() => { el.style.transition = ''; }); }
+    if (shimmer || reduce || was.text === children) return;
+    const bp = getComputedStyle(el).getPropertyValue('--dm-motion').trim() === 'bp';
+    el.animate(bp ? [{ opacity: .6 }, { opacity: 1 }] : [{ opacity: .6, filter: 'blur(1.5px)' }, { opacity: 1, filter: 'blur(0)' }],
+      { duration: bp ? 220 : 460, easing: bp ? 'steps(3, end)' : 'cubic-bezier(.22,1,.36,1)' });
+  }, [children, shimmer]);
+  return <span ref={ref} className={cx(shimmer && 'dm-shim', className)}>{children}</span>;
+}
+
 export function Thinking({ steps, running, seconds, summary, collapseWhenDone = true, open, defaultOpen = true, onOpenChange, className }: ThinkingProps) {
   const counted = useSeconds(running && seconds === undefined);
   const secs = seconds ?? counted;
@@ -77,7 +96,7 @@ export function Thinking({ steps, running, seconds, summary, collapseWhenDone = 
     <div data-dm="" className={cx('dm-tk', className)} data-open={isOpen ? '1' : '0'}>
       <button type="button" className="dm-tk-h" aria-expanded={isOpen} onClick={() => setOpen(!isOpen)}>
         <span className="dm-tk-mark"><Think on={running} /></span>
-        <Swap className={cx('dm-tk-title', running && 'dm-shim')}>{running ? 'Thinking' : `Thought for ${Math.max(secs, 1)}s`}</Swap>
+        <Settle className="dm-tk-title" shimmer={running}>{running ? 'Thinking' : `Thought for ${Math.max(secs, 1)}s`}</Settle>
         <span className="dm-tk-time dm-num">{running ? secs + 's' : ''}</span>
         <Icon name="chev-d" size="xs" className="dm-tk-chev" />
       </button>
@@ -89,7 +108,7 @@ export function Thinking({ steps, running, seconds, summary, collapseWhenDone = 
               <span className="dm-mk"><Mark step={s} /></span>
               <span className={cx('dm-rl', (i < steps.length - 1 || fin) && 'dm-on')} />
               <div className="dm-tx">
-                <Swap className={cx('dm-lab', s.state === 'running' && 'dm-shim')}>{s.label}</Swap>
+                <Settle className="dm-lab" shimmer={s.state === 'running'}>{s.label}</Settle>
                 {s.sources?.length ? <Chips sources={s.sources} more={s.moreSources} /> : null}
               </div>
             </li>

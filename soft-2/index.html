@@ -261,8 +261,8 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 /* ---------- Status pill ---------- */
 .spl-stage{min-height:44px;justify-content:center}
 .spl-pill{background:var(--surface);border-radius:var(--r-pill);box-shadow:var(--shadow);height:40px;display:flex;align-items:center;overflow:hidden;transition:width .6s var(--ease),border-radius .5s var(--ease),height .5s var(--ease)}
-.spl-in{display:flex;align-items:center;gap:9px;padding:0 6px 0 14px;height:100%;white-space:nowrap;font-size:13.5px;transition:opacity .2s var(--ease),filter .2s var(--ease)}
-.spl-in.out{opacity:0;filter:blur(4px)}
+.spl-in{display:flex;align-items:center;gap:9px;padding:0 6px 0 14px;height:100%;white-space:nowrap;font-size:13.5px;transition:opacity .32s var(--ease),filter .32s var(--ease)}
+.spl-in.out{opacity:0;filter:blur(4px);transition-duration:.16s}
 .spl-in .g{display:grid;place-items:center;width:16px;color:var(--fg2)}
 .spl-in .m{color:var(--muted);font-variant-numeric:tabular-nums}
 .spl-in .end{width:0}
@@ -271,8 +271,9 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .spl.bar .spl-in{height:46px;width:100%;padding:0 16px}
 .spl.bar .spl-in .m,.spl.bar .spl-in .pill{margin-left:auto}
 .spl.bar .spl-in .end{display:none}
-.spl-track{position:absolute;left:16px;right:16px;bottom:13px;height:3px;border-radius:2px;background:var(--line);overflow:hidden;opacity:0;transition:opacity .3s}
-.spl.bar .spl-track{opacity:1}
+.spl-track{position:absolute;left:16px;right:16px;bottom:13px;height:3px;border-radius:2px;background:var(--line);overflow:hidden;opacity:0;transition:opacity .16s}
+.spl.bar .spl-track{opacity:1;transition:opacity .4s var(--ease) .1s}
+.spl.mo .spl-track{opacity:0;transition:opacity .16s}
 .spl-fill{height:100%;width:0;border-radius:inherit;background:var(--accent);transition:width .8s var(--ease)}
 .spl-pill{position:relative}
 /* ---------- Step loader ---------- */
@@ -362,8 +363,8 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .ctm-tr i{display:block;height:100%;width:0;border-radius:inherit;background:var(--accent);transition:width 1s var(--ease),background .3s}
 .ctm-r.hot .ctm-tr i{background:var(--warn)}
 .ctm-r .s{grid-column:1/-1;display:flex;align-items:center;gap:8px;min-height:20px;margin-top:-2px;font-size:12.5px;color:var(--muted)}
-.ctm-go{margin-left:auto;height:24px;padding:0 9px;border-radius:7px;font-size:12px;font-weight:500;color:var(--fg);background:var(--soft,var(--chip));box-shadow:var(--soft-ring,none);transition:background var(--t-fast)}
-.ctm-go:hover{background:var(--soft-h,var(--hover))}
+.ctm-go{margin-left:auto;height:24px;padding:0 10px;border-radius:var(--r-pill);font-size:12px;font-weight:500;color:var(--fg);background:var(--chip);transition:background var(--t-fast)}
+.ctm-go:hover{background:var(--hover)}
 .ctm-ft{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--fg2)}
 .ctm-ft .muted{margin-right:2px}
 .ctm-ring{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;transition:background var(--t-fast)}
@@ -756,7 +757,8 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .cpx-bars i{width:3px;border-radius:1.5px;background:var(--faint);transition:background .3s}
 .cpx-bars i:nth-child(1){height:5px}.cpx-bars i:nth-child(2){height:8.5px}.cpx-bars i:nth-child(3){height:12px}
 .cpx-bars i.on{background:var(--fg)}
-.cpx-bar>.ib.fill{width:32px;height:32px}
+.cpx-bar>.cpx-add{width:32px;height:32px}
+.cpx-add[aria-expanded="true"]{background:var(--chip);color:var(--fg)}
 .cpx-send{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:var(--on-accent);flex:none;transition:opacity .3s,transform .15s,background .2s}
 .cpx-send:hover{background:var(--accent-2)}
 .cpx-send:active{transform:scale(.92)}
@@ -840,7 +842,9 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .psx-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%}
 .psx-c{display:flex;flex-direction:column;gap:6px;align-items:flex-start;text-align:left;padding:12px;border-radius:14px;background:var(--chip);transition:background .25s,box-shadow .25s}
 .psx-c:hover{background:var(--hover)}
-.psx-c.on{background:var(--sel);box-shadow:inset 0 0 0 1.5px var(--accent)}
+.psx-c.on{background:var(--surface);box-shadow:inset 0 0 0 1px var(--rail),0 1px 2px rgba(0,0,0,.04)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .psx-c.on{background:var(--hover)}}
+:root[data-theme="dark"] .psx-c.on{background:var(--hover)}
 .psx-ic{width:28px;height:28px;border-radius:9px;display:grid;place-items:center;background:var(--surface)!important}
 .psx-c b{font-weight:500;font-size:13.5px}
 .psx-c span.d{font-size:12px;color:var(--muted);line-height:1.4}
@@ -2715,7 +2719,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
     <textarea class="cpx-ta" rows="1" aria-label="Message" placeholder="Ask anything, or type / for skills"></textarea>
     <div class="cpx-rows">
       <div class="cpx-bar">
-        <button class="ib fill" aria-label="Add context" data-tip="Add files and context" data-pop=".pp-plus" data-pop-pos="up">{plus}</button>
+        <button class="ib cpx-add" aria-label="Add context" data-tip="Add files and context" data-pop=".pp-plus" data-pop-pos="up">{plus}</button>
         <button class="chip" data-pop=".pp-proj" data-pop-pos="up" data-tip="Project">{folder}<span class="cpx-proj">acme-webapp</span></button>
         <button class="chip on" data-pop=".pp-env" data-pop-pos="up" data-tip="Where it runs">{laptop}<span class="cpx-env">Local</span></button>
         <button class="ib cpx-cloud" aria-label="Cloud hand-off" data-tip="Hand off to the cloud" data-pop=".pp-cloud" data-pop-pos="up" data-pop-align="end">{cloud}</button>
@@ -3789,7 +3793,15 @@ DM.def('status-pill', (r, c) => {
   const pill = $('.spl-pill', r), box = $('.spl-in', r), root = $('.spl', r);
   pill.insertAdjacentHTML('beforeend', '<div class="spl-track"><div class="spl-fill"></div></div>');
   const fill = $('.spl-fill', r);
-  seg($('.seg2', r), v => { root.classList.toggle('bar', v === 'bar'); fit(); });
+  // the switch morphs in three beats, so the words and the shape never move at once: the line fades out with its track,
+  // the pill changes shape while it's empty, then the new layout fades in with the track under it
+  let morph = 0;
+  seg($('.seg2', r), v => {
+    const bar = v === 'bar', id = ++morph; if (root.classList.contains('bar') === bar) return;
+    pill.style.width = pill.offsetWidth + 'px'; box.classList.add('out'); root.classList.add('mo');
+    c.later(REDUCE ? 0 : 170, () => { if (id !== morph) return; root.classList.toggle('bar', bar); fit(); });
+    c.later(REDUCE ? 0 : 430, () => { if (id !== morph) return; morph = 0; box.classList.remove('out'); root.classList.remove('mo'); });
+  });
   /* both variants hug their content; the bar keeps a little extra room for its track */
   function fit(){
     box.style.width = 'max-content'; const w = box.scrollWidth; box.style.width = '';
@@ -3798,7 +3810,8 @@ DM.def('status-pill', (r, c) => {
   function set(htmlStr, pct){
     pill.style.width = pill.offsetWidth + 'px';
     box.classList.add('out');
-    c.later(180, () => { box.innerHTML = htmlStr; box.classList.remove('out'); fit(); });
+    // mid-switch, the morph brings the line back once the shape has settled
+    c.later(180, () => { box.innerHTML = htmlStr; if (!morph) box.classList.remove('out'); fit(); });
     if (pct !== undefined) fill.style.width = pct + '%';
   }
   const think = '<span class="think on"><i></i><i></i><i></i><i></i></span>';
@@ -3810,7 +3823,8 @@ DM.def('status-pill', (r, c) => {
     set(`<span class="g" style="color:var(--fg)">${think}</span><span class="shim">Thinking</span><span class="end"></span>`, 8); await c.wait(1800);
     set(`<span class="g" style="color:var(--fg)"><span class="radar"></span></span><span class="shim">Reading Figma frames</span><span class="m n">1 of 4</span><span class="end"></span>`, 22);
     await c.wait(400);
-    for (let i = 2; i <= 4; i++){ await c.wait(650); const n = $('.n', box); if (n) swap(n, i + ' of 4'); fill.style.width = (22 + i * 8) + '%'; }
+    // the count ticks over in place, under a steady line
+    for (let i = 2; i <= 4; i++){ await c.wait(650); const n = $('.n', box); if (n) n.textContent = i + ' of 4'; fill.style.width = (22 + i * 8) + '%'; }
     await c.wait(700);
     set(`<span class="g" style="color:var(--fg)"><span class="spin"></span></span><span class="shim">Editing</span><span class="fchip" style="height:24px"><span class="ft re">TSX</span>PricingCard.tsx</span><span class="end"></span>`, 64); await c.wait(2000);
     set(`<span class="g" style="color:var(--warn)"><span class="dot"></span></span><span>Waiting for your approval</span><button class="pill ink sm">Review</button>`, 72);
@@ -3890,6 +3904,13 @@ DM.def('thinking', (r, c) => {
   ];
   const setOpen = o => { tk.dataset.open = o ? '1' : '0'; fold.classList.toggle('shut', !o); head.setAttribute('aria-expanded', o); };
   head.onclick = () => setOpen(tk.dataset.open !== '1');
+  // a finished line settles where it is: the shimmer stops and the new words sharpen out of a soft blur, never fading to nothing and back
+  const settle = (el, text) => {
+    el.style.transition = 'none'; el.classList.remove('shim'); el.textContent = text; void el.offsetWidth; el.style.transition = '';
+    if (REDUCE) return;
+    const bp = getComputedStyle(el).getPropertyValue('--motion').trim() === 'bp';
+    el.animate(bp ? [{ opacity:.6 }, { opacity:1 }] : [{ opacity:.6, filter:'blur(1.5px)' }, { opacity:1, filter:'blur(0)' }], { duration:bp ? 220 : 460, easing:bp ? 'steps(3, end)' : 'cubic-bezier(.22,1,.36,1)' });
+  };
   let secs = 0, live = true; c.every(1000, () => { if (live){ secs++; time.textContent = secs + 's'; } });
   c.run(async () => {
     await c.wait(800);
@@ -3901,9 +3922,10 @@ DM.def('thinking', (r, c) => {
       const lab = $('.lab', li), tx = $('.tx', li);
       if (s.chips){ await c.wait(550); tx.insertAdjacentHTML('beforeend', chips); stagger($$('.fchip,.tk-more', tx), 80);
         const more = $('.tk-more', tx); more.onclick = () => { hideTip(); const add = html(`<span style="display:contents"><button class="fchip lnk" data-tip="src/components/Button.tsx"><span class="ft re">TSX</span>Button.tsx</button><button class="fchip lnk" data-tip="src/styles/globals.css"><span class="ft">CSS</span>globals.css</button></span>`); more.replaceWith(add); stagger($$('.fchip', add), 70); }; }
-      if (s.count){ for (let n = 2; n <= s.count; n++){ await c.wait(s.ms / s.count); swap(lab, 'Reading ' + n + ' of ' + s.count + ' frames'); } }
+      // the count changes in place under the shimmer, so the line never blinks
+      if (s.count){ for (let n = 2; n <= s.count; n++){ await c.wait(s.ms / s.count); lab.textContent = 'Reading ' + n + ' of ' + s.count + ' frames'; } }
       else await c.wait(s.ms);
-      li.classList.remove('run'); lab.classList.remove('shim'); swap(lab, s.done);
+      settle(lab, s.done); li.classList.remove('run');
       const mk = $('.mk', li);
       mk.innerHTML = s.mk === 'search' ? I('search','xs') : s.dead ? I('x','xs') : s.hollow ? '<span class="ring"></span>' : '<span class="dot"></span>';
       enter(mk.firstElementChild);
@@ -3912,7 +3934,7 @@ DM.def('thinking', (r, c) => {
     await c.wait(500); live = false; $('.rl', prev).classList.add('on');
     const fin = html(`<li class="tk-st tk-fin"><span class="mk">${I('ok','s')}</span><div class="tx"><span><span class="lab">Finished thinking</span><span class="sum">3 cards to fix · 2 steps</span></span></div></li>`);
     list.appendChild(fin); enter(fin);
-    mark.classList.remove('on'); title.classList.remove('shim'); swap(title, 'Thought for ' + Math.max(secs, 1) + 's'); time.textContent = '';
+    mark.classList.remove('on'); settle(title, 'Thought for ' + Math.max(secs, 1) + 's'); time.textContent = '';
     await c.wait(2200); setOpen(false);
   });
 });
