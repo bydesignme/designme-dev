@@ -171,7 +171,7 @@ A suggested change with confidence, alternatives and undo.
 
 **RewriteToolbar** · `rewrite-toolbar/RewriteToolbar.tsx`  
 Select a sentence and let the agent rewrite it in place.  
-`title`, `kind`, `sentences` / `defaultSentences` / `onSentencesChange`, `selected` / `defaultSelected` / `onSelectedChange`, `actions: { key, label, icon? }[]` (Clearer, Shorter and Friendlier by default), `onRewrite(sentence, action, index)` (returns the new sentence, or a promise of it; it is written in word by word, then Undo or Accept), `onAsk`, `askLabel`, `askShortcut`. A `ref` gives `rewrite(index, action)`, `accept()` and `undo()`, for driving it from outside.
+`title`, `kind`, `sentences` / `defaultSentences` / `onSentencesChange`, `selected` / `defaultSelected` / `onSelectedChange`, `actions: { key, label, icon? }[]` (Clearer, Shorter and Friendlier by default), `onRewrite(sentence, action, index)` (returns the new sentence, or a promise of it; it is written in word by word, then Undo or Accept), `onAsk`, `askLabel`, `askShortcut`. A `ref` gives `rewrite(action)` (on the selected sentence), `accept()` and `undo()`, for driving it from outside.
 
 **DesignTuner** · `design-tuner/DesignTuner.tsx`  
 Tweak a component by hand or let the agent tune it.  
