@@ -27,8 +27,8 @@ export type AnswerState = 'waiting' | 'thinking' | 'answering' | 'done';
 export interface AnswerTurn {
   /** Keeps each turn in place when turns are added. Defaults to its index */
   key?: string | number;
-  /** What the person asked, shown as a bubble above the answer */
-  question: string;
+  /** What the person asked, shown as a bubble above the answer. Leave it out when the bubble is shown elsewhere, like in a chat */
+  question?: string;
   /** waiting shows nothing yet, thinking shows the Thinking line, answering streams the text, done adds sources and actions */
   state: AnswerState;
   /** The answer so far. Each new word fades in as it arrives. [1] after a word cites source 1, a blank line starts a new paragraph */
@@ -199,11 +199,11 @@ export function LiveAnswer({ turns, followUps, onFollowUp, onRetry, onRate, onCo
   const last = turns.length - 1;
   return (
     <div data-dm="" className={cx('dm-lva', className)}>
-      {turns.length > 0 && <div className="dm-lva-q"><div className="dm-bub">{turns[0].question}</div></div>}
+      {turns.length > 0 && turns[0].question && <div className="dm-lva-q"><div className="dm-bub">{turns[0].question}</div></div>}
       <div className="dm-lva-a">
         {turns.map((t, i) => (
           <Fragment key={t.key ?? i}>
-            {i > 0 && <div className="dm-lva-q dm-enter"><div className="dm-bub">{t.question}</div></div>}
+            {i > 0 && t.question && <div className="dm-lva-q dm-enter"><div className="dm-bub">{t.question}</div></div>}
             <TurnSlot turn={t} followUps={i === last ? followUps : undefined} onFollowUp={onFollowUp}
               onRetry={onRetry && (() => onRetry(i))} onRate={onRate && (r => onRate(i, r))} onCopy={onCopy && (x => onCopy(i, x))} onSourceClick={onSourceClick} />
           </Fragment>

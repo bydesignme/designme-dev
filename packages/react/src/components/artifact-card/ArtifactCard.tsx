@@ -43,6 +43,10 @@ export interface ArtifactCardProps {
   link?: string;
   /** Adds a button that opens this address in a new tab */
   href?: string;
+  /** Adds an open button that calls this instead, like opening the file beside a chat */
+  onOpen?: () => void;
+  /** The open button's tip. Defaults to "Open" */
+  openLabel?: string;
   className?: string;
 }
 
@@ -76,20 +80,21 @@ function useTweenList(target: number[], ms: number, from: number[]) {
 }
 
 /** Copy link and open buttons. Copying flashes a check and says so, then settles back, like the site's copy buttons */
-function Actions({ link, href }: { link?: string; href?: string }) {
+function Actions({ link, href, onOpen, openLabel = 'Open' }: { link?: string; href?: string; onOpen?: () => void; openLabel?: string }) {
   const [copied, copy] = useCopied();
   return (
     <>
       {link && <Tip label={copied ? 'Copied to clipboard' : 'Copy link'} open={copied || undefined}>
         <button type="button" className={cx('dm-ib dm-afx-link', copied && 'dm-copied')} aria-label="Copy link" onClick={() => copy(link)}><Icon name={copied ? 'check' : 'link'} /></button>
       </Tip>}
-      {href && <Tip label="Open in a new tab"><a className="dm-ib" href={href} target="_blank" rel="noreferrer" aria-label="Open"><Icon name="ext" /></a></Tip>}
+      {onOpen && <Tip label={openLabel}><button type="button" className="dm-ib" aria-label={openLabel} onClick={onOpen}><Icon name="max" /></button></Tip>}
+      {href && !onOpen && <Tip label="Open in a new tab"><a className="dm-ib" href={href} target="_blank" rel="noreferrer" aria-label="Open"><Icon name="ext" /></a></Tip>}
     </>
   );
 }
 
 /** A file the agent made, with a live preview and its versions. */
-export function ArtifactCard({ title, versions, axis, range, icon = 'file-text', version, defaultVersion, onVersionChange, link, href, className }: ArtifactCardProps) {
+export function ArtifactCard({ title, versions, axis, range, icon = 'file-text', version, defaultVersion, onVersionChange, link, href, onOpen, openLabel, className }: ArtifactCardProps) {
   const [cur, setCur] = useControllable(version, defaultVersion ?? versions.length - 1, onVersionChange);
   const v = versions[Math.max(0, Math.min(versions.length - 1, cur))];
   const all = versions.flatMap(x => x.values);
@@ -131,7 +136,7 @@ export function ArtifactCard({ title, versions, axis, range, icon = 'file-text',
       <div className="dm-afx-meta">
         <span className="dm-afx-ic"><Icon name={icon} /></span>
         <div className="dm-afx-mt"><b>{title}</b>{v.meta && <Swap className="dm-afx-sub">{v.meta}</Swap>}</div>
-        <Actions link={link ?? href} href={href} />
+        <Actions link={link ?? href} href={href} onOpen={onOpen} openLabel={openLabel} />
       </div>
       {versions.length > 1 && (
         <div className="dm-afx-vers">

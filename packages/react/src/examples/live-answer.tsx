@@ -45,7 +45,7 @@ export default function LiveAnswerDemo() {
     setTurns(ts => [...ts, { key: i, question: q, state: 'waiting' }]);
     await wait(450); await answer(i, q);
   };
-  const retry = (i: number) => { if (turns[i].state === 'done') answer(i, turns[i].question); };
+  const retry = (i: number) => { if (turns[i].state === 'done') answer(i, turns[i].question ?? ''); };
 
   return (
     // keeps the room the first answer fills with its sources and follow-ups, so nothing climbs when they arrive
