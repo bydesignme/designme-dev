@@ -129,7 +129,7 @@ Switch between agent threads and reply in place.
 
 **Composer** · `composer/Composer.tsx`  
 Message input with context, environment, effort and dictation.  
-`value` / `defaultValue` / `onValueChange`, `placeholder`, `onSubmit({ text, attachments })`, `busy` and `onStop` (send turns into stop), `thread`, `attachments` / `defaultAttachments` / `onAttachmentsChange`, `addOptions` and `onAdd`, `projects` / `project` / `onProjectChange`, `environments` / `environment` / `onEnvironmentChange`, `handoff` / `onHandoffChange` / `handoffNote`, `effort: 'low' | 'medium' | 'high'`, `onDictate`, `dictating`, `level`, `onDictationEnd(keep)`. Enter sends, Shift+Enter adds a line, Escape cancels dictation.
+`value` / `defaultValue` / `onValueChange`, `placeholder`, `onSubmit({ text, attachments })`, `busy` and `onStop` (send turns into stop), `thread`, `attachments` / `defaultAttachments` / `onAttachmentsChange`, `addOptions` and `onAdd`, `projects` / `project` / `onProjectChange`, `environments` / `environment` / `onEnvironmentChange`, `handoff` / `onHandoffChange` / `handoffNote`, `tools` (more in the toolbar, before effort), `effort: 'low' | 'medium' | 'high'`, `onDictate`, `dictating`, `level`, `onDictationEnd(keep)`. Enter sends, Shift+Enter adds a line, Escape cancels dictation.
 
 **VoiceCapture** · `voice-capture/VoiceCapture.tsx`  
 Talk to the agent, then fix what it misheard before sending.  
@@ -163,7 +163,7 @@ Rate an answer and tell the agent what missed.
 
 **DecisionPrompt** · `decision-prompt/DecisionPrompt.tsx`  
 The agent asks a few quick questions before it starts.  
-`questions: { question, label, options: { label, detail? }[] }[]`, `onComplete(answers)` (the picked index per question, or null if skipped), `skippedLabel`, `startLabel`. Number keys pick, arrow keys move, Enter continues, `bare` (on by default: it sits in the chat with no card; `false` draws the card).
+`questions: { question, label, options: { label, detail? }[] }[]`, `answers` / `defaultAnswers` / `onAnswersChange` (the picked index per question so far, or null if skipped), `onComplete(answers)`, `skippedLabel`, `startLabel`, `started` and `startedLabel` (the line under the summary settles with a check). Number keys pick, arrow keys move, Enter continues, `bare` (on by default: it sits in the chat with no card; `false` draws the card).
 
 **ProposalCard** · `proposal-card/ProposalCard.tsx`  
 A suggested change with confidence, alternatives and undo.  
@@ -260,8 +260,8 @@ The tools the agent can reach, and how much it may do with each.
 ### Harness
 
 **AgentHarness** · `agent-harness/AgentHarness.tsx`  
-Every component working together in one agent conversation.  
-Being rebuilt as a chat.
+A live agent app made of the other components: conversations down the side, the chat in the middle, the Composer at its foot.  
+`conversations: { id, title, time?, state?: 'idle' | 'running' | 'waiting' | 'done', unread?, status?: { state, label, meta?, action?, review? }, context?, blocks }[]`, `value` / `defaultValue` / `onValueChange` (the open conversation, null for New chat), `starters` and `onStarter(starter)` (New chat's Prompt starters; without `onStarter` a pick writes its prompt into the composer), `onSend({ text, attachments }, conversationId)`, `heading`, `model` (beside the context ring), `draft` / `defaultDraft` / `onDraftChange`, `composer` (the rest of the Composer's props). A block is `{ key, kind, … }`: `'user'` (`text`, `files?`), `'say'` (`text`, pass it as it grows and each word fades in), `'node'` (`node`), or a component's name with its `props`: `'thinking'`, `'tool-call'`, `'permission-gate'`, `'plan-review'`, `'action-log'`, `'run-summary'`, `'live-answer'`, `'source-stack'`, `'artifact-card'`, `'error-recovery'`, `'decision-prompt'`, `'agent-lanes'`, `'change-review'`. `status` drives the Status pill in the header; `review: blockKey` adds a Review button that scrolls to that block, and `context` (0 to 100) fills the ring. Every conversation stays mounted, so its components keep their state when you switch. The chat follows new messages until you scroll up. At phone width the list folds into a menu on the title. `npx designme add agent-harness --react` adds the components it uses too.
 
 ### Charts and tables
 

@@ -64,6 +64,8 @@ export interface ComposerProps {
   onHandoffChange?: (handoff: boolean) => void;
   /** A quiet line at the foot of the hand-off popover, like how many cloud machines are free */
   handoffNote?: ReactNode;
+  /** More in the toolbar, before the effort button, like the model and a context ring */
+  tools?: ReactNode;
   /** How hard the agent works on it */
   effort?: ComposerEffort;
   defaultEffort?: ComposerEffort;
@@ -140,7 +142,7 @@ export function Composer({
   value, defaultValue = '', onValueChange, placeholder = PLACEHOLDER, onSubmit, busy = false, onStop, thread,
   attachments, defaultAttachments = [], onAttachmentsChange, addOptions = ADD, onAdd,
   projects, project, defaultProject, onProjectChange, environments = ENVS, environment, defaultEnvironment, onEnvironmentChange,
-  handoff, defaultHandoff = false, onHandoffChange, handoffNote, effort, defaultEffort = 'medium', onEffortChange,
+  handoff, defaultHandoff = false, onHandoffChange, handoffNote, tools, effort, defaultEffort = 'medium', onEffortChange,
   onDictate, dictating = false, level, onDictationEnd, className
 }: ComposerProps) {
   const [text, setText] = useControllable(value, defaultValue, onValueChange);
@@ -239,6 +241,7 @@ export function Composer({
             {envOpt && <Tip label="Where it runs" off={pop === 'env'}><button type="button" className="dm-chip dm-on" {...trigger('env')}><Icon name={envOpt.icon ?? 'laptop'} /><Swap className="dm-cpx-env">{envOpt.label ?? envOpt.value}</Swap></button></Tip>}
             <Tip label={cloud ? 'Hands off to the cloud when you close your laptop' : 'Hand off to the cloud'} off={pop === 'cloud'}><button type="button" className={cx('dm-ib dm-cpx-cloud', cloud && 'dm-on')} aria-label="Cloud hand-off" {...trigger('cloud')}><Icon name="cloud" /></button></Tip>
             <span className="dm-sp" />
+            {tools}
             <Tip label={'Effort: ' + EFFORTS[effN - 1].label} off={pop === 'eff'}><button type="button" className="dm-ib dm-cpx-eff" aria-label="Effort" {...trigger('eff')}><Bars n={effN} /></button></Tip>
             {onDictate && <Tip label="Dictate" kbd="⌘D"><button type="button" className="dm-ib dm-cpx-mic" aria-label="Dictate" onClick={onDictate}><Icon name="mic" /></button></Tip>}
             {busy

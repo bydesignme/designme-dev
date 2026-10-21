@@ -21,17 +21,21 @@ for (const f of fs.readdirSync(path.join(src, 'lib'))) core['lib/' + f] = read('
 core['lib/useScript.ts'] = read('examples/useScript.ts');
 core['lib/Demo.tsx'] = read('examples/Demo.tsx');
 
-/** The shared files a set of files needs, following imports through lib */
+/** The shared files a set of files needs, following imports through lib. Imports of other components (the harness is made
+    of them) sit beside it in both layouts, so they stay as they are and are listed in `components` for the CLI to add too */
 const imports = text => [...text.matchAll(/(?:from|import) '([^']+)'/g)].map(m => m[1]).filter(s => s.startsWith('.'));
-function needs(files) {
+const sibling = base => { const m = base.match(/^([a-z0-9-]+)\/[^/]+$/); return m && fs.existsSync(path.join(src, 'components', m[1])) ? m[1] : null; };
+function needs(files, components = new Set()) {
   const found = new Set(), queue = Object.entries(files);
   while (queue.length) {
     const [at, text] = queue.shift();
     for (const spec of imports(text)) {
       const base = path.posix.normalize(path.posix.join(path.posix.dirname(at), spec));
       const hit = [base, base + '.ts', base + '.tsx'].find(p => p in core);
-      if (hit && !found.has(hit)) { found.add(hit); queue.push([hit, core[hit]]); }
-      else if (!hit && !(base in files) && !Object.keys(files).some(f => f.replace(/\.tsx?$/, '') === base)) throw new Error(`${at}: can't resolve ${spec}`);
+      if (hit) { if (!found.has(hit)) { found.add(hit); queue.push([hit, core[hit]]); } continue; }
+      if (base in files || Object.keys(files).some(f => f.replace(/\.tsx?$/, '') === base)) continue;
+      const other = sibling(base);
+      if (other) components.add(other); else throw new Error(`${at}: can't resolve ${spec}`);
     }
   }
   return [...found].sort();
@@ -54,14 +58,18 @@ for (const item of index.items) {
     [`${item.name}/${item.name}.css`]: read(`components/${item.name}/${item.name}.css`)
   };
   const example = read(`examples/${item.name}.tsx`)
-    .replaceAll(`'../components/${item.name}/${comp}'`, `'./${comp}'`)
+    .replaceAll(`'../components/${item.name}/${comp}'`, `'./${comp}'`).replaceAll("'../components/", "'../")
     .replaceAll("'./useScript'", "'../lib/useScript'").replaceAll("'./Demo'", "'../lib/Demo'");
   const examplePath = `${item.name}/${comp}.example.tsx`;
+  const uses = new Set(), exampleUses = new Set();
+  const own = needs(files, uses), exampleNeeds = needs({ ...files, [examplePath]: example }, exampleUses);
+  uses.delete(item.name); exampleUses.delete(item.name);
   json(item.name, {
     name: item.name, title: item.title, description: item.description, framework: 'react', component: comp,
-    needs: needs(files),
+    needs: own,
+    ...(uses.size ? { components: [...uses].sort() } : {}),
     files: Object.entries(files).map(([p, content]) => ({ path: p, content })),
-    example: { path: examplePath, content: example, needs: needs({ ...files, [examplePath]: example }) }
+    example: { path: examplePath, content: example, needs: exampleNeeds, ...(exampleUses.size ? { components: [...exampleUses].sort() } : {}) }
   });
   n++;
 }

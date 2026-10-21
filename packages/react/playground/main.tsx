@@ -23,7 +23,8 @@ function Card({ name, title, desc, file, Demo }: (typeof CARDS)[number]) {
   return (
     <article className={WIDE.has(name) ? 'pg-card pg-wide' : 'pg-card'} id={name}>
       <header><h3>{title}</h3><p>{desc}</p></header>
-      <div className="pg-stage"><div className="pg-in"><Demo key={run} /></div></div>
+      {/* the harness is a whole app, as wide as on designme.dev */}
+      <div className="pg-stage"><div className="pg-in" style={name === 'agent-harness' ? { maxWidth: 960 } : undefined}><Demo key={run} /></div></div>
       <footer><code>{file}</code><button type="button" onClick={() => setRun(r => r + 1)}>Replay</button></footer>
     </article>
   );

@@ -1642,7 +1642,70 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .hnx-add:hover{color:var(--fg);background:var(--chip)}
 .hnx-pop{min-width:220px}
 /* ---------- Agent harness ---------- */
-.ahx{padding:20px}
+/* a whole agent app in one card: conversations down the side, the chat in the middle, the composer at its foot */
+.card.wide .stage-in:has(>.ahx){max-width:960px}
+.ahx{display:flex;height:600px;overflow:hidden;container-type:inline-size;text-align:left}
+.ahx-side{flex:none;width:214px;display:flex;flex-direction:column;gap:2px;padding:10px;background:color-mix(in srgb,var(--surface) 50%,var(--page));border-right:1px solid var(--line);overflow-y:auto;scrollbar-width:none}
+.ahx-new,.ahx-cv{display:flex;align-items:center;gap:8px;width:100%;min-height:34px;padding:0 10px;border-radius:10px;font-size:13px;text-align:left;color:var(--fg2);transition:background var(--t-fast),box-shadow var(--t-fast),color var(--t-fast)}
+.ahx-new{color:var(--fg);font-weight:500;gap:9px}
+.ahx-new .i{color:var(--fg2)}
+.ahx-new:hover,.ahx-cv:hover{background:var(--row);color:var(--fg)}
+.ahx-new[aria-current="true"],.ahx-cv[aria-current="true"]{background:var(--surface);color:var(--fg);box-shadow:inset 0 0 0 1px var(--rail),0 1px 2px rgba(0,0,0,.04)}
+.ahx-lh{padding:14px 10px 4px;font-size:11.5px;color:var(--muted)}
+.ahx-list{display:flex;flex-direction:column;gap:2px}
+.ahx-cv .t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ahx-cv .tm{font-size:11.5px;color:var(--muted)}
+.ahx-cv .mk{display:grid;place-items:center;width:10px;flex:none}
+.ahx-cv .mk:empty{display:none}
+.ahx-cv .mk .spin,.ahx-pop .spin{width:10px;height:10px;color:var(--muted)}
+.ahx-main{flex:1;min-width:0;display:flex;flex-direction:column;position:relative}
+.ahx-top{flex:none;display:flex;align-items:center;gap:10px;height:52px;padding:0 12px 0 20px;border-bottom:1px solid var(--line);position:relative}
+.ahx-sw{display:flex;align-items:center;gap:6px;min-width:0;height:32px;padding:0 8px;margin-left:-8px;border-radius:10px;font-size:13.5px;font-weight:500;color:var(--fg);pointer-events:none;transition:background var(--t-fast)}
+.ahx-sw .t{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ahx-sw>.i{display:none;color:var(--muted);transition:transform var(--t) var(--ease)}
+.ahx-sw:hover,.ahx-sw[aria-expanded="true"]{background:var(--row)}
+.ahx-sw[aria-expanded="true"]>.i{transform:rotate(180deg)}
+.ahx-spl{flex:none;margin-left:auto}
+.ahx-spl .spl-pill{height:30px;box-shadow:inset 0 0 0 1px var(--line)}
+.ahx-spl .spl-in{gap:7px;padding:0 4px 0 11px;font-size:12.5px}
+.ahx-spl .spl-in .g{width:14px}
+.ahx-spl .spl-in .pill{height:22px;padding:0 9px;margin-left:1px;font-size:12px}
+.ahx-pop{width:268px}
+.ahx-pop .mi>span:first-of-type{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ahx-pop .mi .r{display:flex;align-items:center;gap:7px}
+/* the conversation scrolls inside the card; each one keeps its own column, only the one on screen takes up room */
+.ahx-feed{flex:1;min-height:0;display:flex;flex-direction:column;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:var(--line) transparent}
+.ahx-cols{flex:1 0 auto;display:grid}
+.ahx-col{grid-area:1/1;min-width:0;width:100%;max-width:688px;margin:0 auto;display:flex;flex-direction:column;gap:20px;padding:24px 28px 30px;transition:opacity var(--t) var(--ease)}
+.ahx-col.off{visibility:hidden;height:0;padding-block:0;overflow:hidden}
+.ahx-col.ff{opacity:0}
+.ahx-say .w{animation:lvw .5s var(--ease) both}
+.ahx-msg{min-width:0}
+/* chat components sit on the chat itself, the way a bare card shows them; an artifact and a diff keep their card */
+.ahx-msg:not(.box)>.panel:not(.keep){background:none;box-shadow:none;padding-left:0;padding-right:0;border-radius:0}
+/* in the chat a finished question set closes up behind its answers */
+.ahx-msg .dpx-body{min-height:0}
+.ahx-msg .dpx-f.leave{display:none}
+.ahx-hi{justify-content:center;align-items:center;gap:18px}
+.ahx-hi h4{margin:0;font-size:19px;font-weight:600;letter-spacing:-.3px;text-align:center}
+.ahx-hi .psx{width:100%;max-width:500px}
+.ahx-bot{flex:none;position:relative;padding:0 24px 18px}
+.ahx-bot::before{content:"";position:absolute;left:0;right:10px;bottom:100%;height:28px;background:linear-gradient(transparent,var(--surface));pointer-events:none}
+.ahx-bot .cpx{max-width:632px;margin:0 auto}
+.ahx-bot .cpx-thread{display:none}
+.ahx-bot .ctm-ft{gap:2px;margin-right:1px;font-size:12.5px}
+.ahx-bot .ctm-ft>span{color:var(--muted);margin-right:2px}
+/* phone: the list folds into a switcher on the conversation's title */
+@container (max-width:620px){
+  .ahx-side{display:none}
+  .ahx-top{padding:0 10px 0 14px}
+  .ahx-sw{pointer-events:auto}
+  .ahx-sw>.i{display:block}
+  .ahx-spl .spl-in :is(.m,.pill){display:none}
+  .ahx-col{padding:18px 16px 24px}
+  .ahx-bot{padding:0 10px 10px}
+  .ahx-bot .ctm-ft>span,.ahx-bot .cpx-bar .chip[data-pop=".pp-proj"]{display:none}
+}
 /* ---------- Line chart ---------- */
 .lnx{padding:14px;display:flex;flex-direction:column;gap:10px}
 .lnx-h{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap}
@@ -3299,7 +3362,22 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 <article class="card wide" data-c="harness" id="c-harness">
   <div class="card-h"><div><h3>Agent harness</h3><p>Every component working together in one agent conversation.</p></div></div>
   <div class="stage"><div class="stage-in"></div></div>
-  <template><div class="ahx panel"><p class="muted">The agent harness is being built.</p></div></template>
+  <template><div class="ahx panel">
+  <aside class="ahx-side" aria-label="Conversations">
+    <button class="ahx-new">{plus}<span>New chat</span></button>
+    <div class="ahx-lh">Recent</div>
+    <div class="ahx-list"></div>
+  </aside>
+  <div class="ahx-main">
+    <div class="ahx-top">
+      <button class="ahx-sw" data-pop=".ahx-pop" aria-haspopup="menu"><span class="t"></span>{chev}</button>
+      <div class="spl ahx-spl"><div class="spl-pill" aria-live="polite"><div class="spl-in"></div></div></div>
+      <div class="pop ahx-pop" role="menu"></div>
+    </div>
+    <div class="ahx-feed"><div class="ahx-cols"></div></div>
+    <div class="ahx-bot"></div>
+  </div>
+</div></template>
   <div class="card-f"><span>Pick a starter and watch the agent work</span><span class="sp"></span><button class="replay" aria-label="Replay Agent harness"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
 </article>
 </div>
@@ -5819,7 +5897,318 @@ DM.def('tool-connections', (r, c) => {
   c.later(1800, () => { if (!mine) $('.hnx-test', r).click(); });
 });
 /* ---------- Agent harness ---------- */
-DM.def('harness', (r, c) => {});
+/* a live agent app made only of the components above: every message is one of them, from its own template and run by its
+   own script, the way its card mounts it. Five conversations; the first plays by itself, the rest open on their last state */
+DM.def('harness', (r, c) => {
+  r.innerHTML = r.innerHTML.replace('{plus}', I('plus')).replace('{chev}', I('chev-d','xs'));
+  const root = $('.ahx', r), list = $('.ahx-list', r), feed = $('.ahx-feed', r), cols = $('.ahx-cols', r), bot = $('.ahx-bot', r);
+  const sw = $('.ahx-sw', r), swT = $('.t', sw), menu = $('.ahx-pop', r), pill = $('.ahx-spl .spl-pill', r), pin = $('.spl-in', pill), newB = $('.ahx-new', r);
+  // the templates live on the components' own cards: here and on designme.dev every card is on the page; on your own page, add the cards it uses
+  const tplOf = k => { const card = $(`.card[data-c="${k}"], .comp[data-v2="${k}"]`); return card && $('template', card); };
+  const BOXED = ['artifact-card', 'change-review'];
+  const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;');
+  // the preview drives itself until someone clicks or types in it; from then on every approval waits for them
+  let touched = false;
+  c.on(root, 'pointerdown', e => { if (e.isTrusted) touched = true; }, true);
+  c.on(root, 'keydown', e => { if (e.isTrusted) touched = true; }, true);
+  /* a clock of its own: a finished conversation replays at speed out of sight, so opening it shows its end at once.
+     The tiny waits of a replay go through a message, which the browser runs at once, where a timer would be held back */
+  const mc = new MessageChannel(), q = [];
+  mc.port1.onmessage = () => { const f = q.shift(); if (f) f(); };
+  const soon = fn => { q.push(fn); mc.port2.postMessage(0); };
+  c.offs.push(() => { q.length = 0; mc.port1.close(); });
+  const paced = (up, f) => { const s = ctl(), w = s.wait, l = s.later, e = s.every; s.speed = (up.speed || 1) * f; s.ff = up.ff; s.raw = w;
+    s.wait = ms => (ms *= s.speed) < 4 ? new Promise((res, rej) => soon(() => s.dead ? rej('stop') : res())) : w(ms);
+    s.later = (ms, fn) => (ms *= s.speed) < 4 ? soon(() => { if (!s.dead) fn(); }) : l(ms, fn);
+    s.every = (ms, fn) => e(Math.max(16, ms * s.speed), fn);
+    up.offs.push(() => s.stop()); return s; };
+
+  /* ---- the composer, with the model and the context ring in its bar ---- */
+  const cpT = tplOf('composer');
+  if (cpT){ bot.append(cpT.content.cloneNode(true)); try { DM.defs.composer(bot, c, bot); } catch(e){ console.error('composer', e); } }
+  const ta = $('.cpx-ta', bot), send = $('.cpx-bar .cpx-send', bot), att = $('.cpx-att', bot);
+  const ctT = tplOf('context-meter'), ft = ctT && ta && $('.ctm-ft', ctT.content).cloneNode(true);
+  if (ft){ $('.muted', ft).remove(); const rb = $('.ctm-ring', ft); rb.removeAttribute('aria-expanded'); $('.cpx-eff', bot).before(ft); }
+  const ring = v => { if (!ft) return; const rb = $('.ctm-ring', ft); $('.fl', ft).style.strokeDasharray = v + ' 100';
+    rb.dataset.tip = 'Context ' + v + '% full'; rb.setAttribute('aria-label', 'Context, ' + v + '% full'); };
+  const input = () => ta.dispatchEvent(new Event('input'));
+  // the box grows a word at a time, so typing never measures the page for every letter
+  async function typeIn(k, text, words){
+    for (const p of words ? text.split(/(?<= )/) : text){ ta.value += p; if (words || p === ' ') input(); await k.wait(words ? 38 : 12 + Math.random() * 22); }
+    input();
+  }
+  const press = () => { if (!REDUCE) send.animate([{ transform:'scale(.9)' }, { transform:'none' }], { duration:260, easing:'cubic-bezier(.22,1,.36,1)' }); ta.value = ''; input(); };
+
+  /* ---- the status pill in the header says what the conversation on screen is doing ---- */
+  const G = {
+    idle:'<span class="g"><span class="dot" style="color:var(--faint)"></span></span>',
+    think:'<span class="g" style="color:var(--fg)"><span class="think on"><i></i><i></i><i></i><i></i></span></span>',
+    tool:'<span class="g" style="color:var(--fg)"><span class="radar"></span></span>',
+    run:'<span class="g" style="color:var(--fg)"><span class="spin"></span></span>',
+    wait:'<span class="g" style="color:var(--warn)"><span class="dot"></span></span>',
+    ok:`<span class="g" style="color:var(--ok)">${I('ok')}</span>`
+  };
+  const fit = () => { pin.style.width = 'max-content'; const w = pin.scrollWidth; pin.style.width = ''; pill.style.width = w + 'px'; };
+  let shown = '';
+  function showStatus(st, now){
+    const key = [st.g, st.t, !!st.act].join('|');
+    // a count or a timer ticks over in place, under a steady line
+    if (key === shown){ let m = $('.m', pin); if ((m ? m.textContent : '') === st.m) return;
+      if (!m){ m = html('<span class="m"></span>'); pin.lastElementChild.before(m); } else if (!st.m){ m.remove(); return fit(); }
+      m.textContent = st.m; return fit(); }
+    shown = key;
+    const put = () => { pin.innerHTML = G[st.g] + `<span class="${st.g === 'idle' ? 'fg2' : /think|tool|run/.test(st.g) ? 'shim' : ''}">${st.t}</span>`
+      + (st.m ? `<span class="m">${st.m}</span>` : '') + (st.act ? '<button class="pill ink sm">Review</button>' : '<span class="end"></span>');
+      const b = $('.pill', pin); if (b) b.onclick = () => look(st.act); fit(); };
+    if (now || REDUCE) return put();
+    pill.style.width = pill.offsetWidth + 'px'; pin.classList.add('out');
+    c.later(180, () => { if (shown !== key) return; put(); pin.classList.remove('out'); });
+  }
+
+  /* ---- following the conversation: it keeps to the newest message until you scroll up, and picks up again at the bottom ---- */
+  let stick = true, ours = 0, following = false;
+  const bottom = () => feed.scrollHeight - feed.clientHeight;
+  c.on(feed, 'scroll', () => { if (Math.abs(feed.scrollTop - ours) > 2) stick = bottom() - feed.scrollTop < 40; });
+  c.on(feed, 'wheel', e => { if (e.deltaY < 0) stick = false; }, { passive:true });
+  function follow(){
+    if (following || !stick) return; following = true;
+    c.loop(() => { const d = bottom() - feed.scrollTop; if (!stick || d < 1){ following = false; return false; }
+      feed.scrollTop += REDUCE ? d : Math.max(1, Math.ceil(d * .16)); ours = feed.scrollTop; });
+  }
+  const ro = new ResizeObserver(() => follow()); c.offs.push(() => ro.disconnect());
+  const toEnd = () => { stick = true; feed.scrollTop = bottom(); ours = feed.scrollTop; };
+  const look = el => { if (!el || !el.isConnected) return; stick = false;
+    feed.scrollTo({ top:feed.scrollTop + el.getBoundingClientRect().top - feed.getBoundingClientRect().top - 12, behavior:REDUCE ? 'auto' : 'smooth' }); };
+
+  /* ---- the stories, each told only with the components above ---- */
+  const S = {
+    pricing:{ ask:'Tighten the pricing page: fix the spacing, check the plan prices, and apply the fixes in Figma.', end:{ g:'ok', t:'Done', m:'6 files changed' }, ctx:46, run:async t => {
+      await t.ask(); t.ctx(12);
+      const tk = t.comp('thinking', .5);
+      await t.until(() => { t.status('think', 'Thinking', $('.tk-time', tk).textContent); return $('.tk-fin', tk); }, 200);
+      t.ctx(21); await t.wait(500);
+      const tc = t.comp('tool-call');
+      await t.until(() => { const on = $$('.tcx-c', tc).find(x => $('.spin', x)); t.status('tool', 'Calling tools', on ? $('.tcx-n b', on).textContent : 'billing'); return $('.tcx-end.in', tc); });
+      t.ctx(28); await t.wait(700);
+      await t.say('The Figma frames still show the old prices. To fix them I need edit access to Pricing.fig.');
+      const pg = t.comp('permission-gate'); t.status('wait', 'Needs access', '', pg);
+      t.auto(pg, '.pgx-ok', 2600);
+      await t.until(() => $('.pgx-done', pg));
+      if (/skip/.test($('.pgx-done', pg).textContent)){ await t.wait(500); await t.say("No problem. I'll list the fixes here instead."); return t.end('Done', 'Nothing edited'); }
+      t.status('run', 'Editing Figma'); await t.wait(1900);
+      await t.say("Here's the plan for the rest. Change any step, or approve it and I'll start.");
+      const pl = t.comp('plan-review'); t.status('wait', 'Needs your approval', '', pl); t.ctx(33);
+      t.auto(pl, '.plx-go', 3400);
+      await t.until(() => { const s = $('.plx-st', pl).textContent; if (/^Step/.test(s)) t.status('run', 'Running the plan', s); return $('.plx-f .pill.soft', pl); });
+      if (/Stopped/.test($('.plx-st', pl).textContent)){ await t.say('Stopped. The finished steps are kept.'); return t.end('Stopped', 'Progress kept'); }
+      t.ctx(42); await t.wait(600);
+      await t.say("All done. Here's what changed.");
+      const rs = t.comp('run-summary'); t.ctx(46);
+      $('.plx-f .pill.soft', pl).onclick = () => look(rs);
+      await t.wait(1400); t.end('Done', '6 files changed');
+    } },
+    team:{ ask:'Redesign the pricing page with a researcher, a designer and a reviewer.', end:{ g:'ok', t:'Ready to review', m:'3 files' }, ctx:58, run:async t => {
+      await t.ask(); t.ctx(10);
+      await t.say('Three quick questions before I split the work.');
+      const dp = t.comp('decision-prompt'); t.status('wait', 'Needs your answers', '', dp);
+      for (let q = 0; q < 3 && !$('.dpx-sum', dp); q++){
+        const at = $('.dpx-k', dp).textContent; t.auto(dp, '.dpx-go', 1500);
+        await t.until(() => $('.dpx-sum', dp) || $('.dpx-k', dp).textContent !== at);
+      }
+      t.status('run', 'Starting 3 agents'); t.ctx(18); await t.wait(1400);
+      const run = $('.dpx-run', dp); if (run) run.innerHTML = `<span style="color:var(--ok)">${I('check','xs')}</span><span>Started the redesign</span>`;
+      await t.say("I've handed the brief to three agents. Each one passes its work to the next.");
+      const al = t.comp('agent-lanes', .6);
+      await t.until(() => { const s = $('.aln-t', al).textContent; t.status('run', /paused/.test(s) ? 'Agents paused' : 'Agents working', $('.aln-m', al).textContent); return /finished/.test(s); }, 300);
+      t.ctx(52); await t.wait(600);
+      await t.say('The reviewer signed off. Here are the changes, ready for you to keep or undo.');
+      t.comp('change-review'); t.ctx(58);
+      await t.wait(900); t.end('Ready to review', '3 files');
+    } },
+    dropoff:{ ask:'Where are people dropping off in onboarding?', end:{ g:'ok', t:'Answered', m:'3 sources' }, ctx:24, run:async t => {
+      // the live answer brings the question with it
+      const la = t.comp('live-answer'); t.ctx(9);
+      await t.until(() => { t.status(...($('.lva-p', la) ? ['run', 'Answering'] : ['think', 'Thinking'])); return $('.lva-fu', la); });
+      t.ctx(19); await t.wait(700);
+      await t.say('I also put the numbers in a doc you can share with the team.');
+      t.status('run', 'Writing the doc'); t.comp('artifact-card'); t.ctx(24);
+      await t.wait(4600); t.end('Answered', '3 sources');
+    } },
+    annual:{ ask:'Why do annual plans convert better for us?', end:{ g:'ok', t:'Answered', m:'8 sources' }, ctx:17, run:async t => {
+      await t.ask(); t.status('tool', 'Reading 8 sources'); t.ctx(8);
+      await t.wait(1500);
+      t.comp('source-stack'); t.ctx(17);
+      await t.wait(1800);
+      await t.say('Want me to try the crossed-out monthly price on the pricing page?');
+      t.end('Answered', '8 sources');
+    } },
+    sync:{ ask:"Sync this quarter's deals to the Pipeline 2026 sheet and post a summary in #sales.", end:{ g:'ok', t:'Recovered', m:'1 retry' }, ctx:31, run:async t => {
+      await t.ask(); t.status('run', 'Syncing deals'); t.ctx(9);
+      await t.wait(1200);
+      const er = t.comp('error-recovery'); t.status('wait', 'Needs a decision', '', er); t.ctx(14);
+      t.auto(er, '.erx-go', 2600);
+      await t.until(() => { const s = $('.erx-s', er).textContent; if (s === 'Recovering') t.status('run', 'Recovering'); return /Recovered|2 of 3|Maya/.test(s); });
+      const s = $('.erx-s', er).textContent; t.ctx(31); await t.wait(600);
+      if (/Maya/.test(s)){ await t.say("Maya has the error and the logs. I'll pick it up again when she replies."); return t.status('wait', 'Waiting on Maya'); }
+      if (/2 of 3/.test(s)){ await t.say('The summary is posted in #sales. The sheet stays as it was until access is back.'); return t.end('Done', '1 step skipped'); }
+      await t.say('All 1,240 deals are in the sheet, and the summary is posted in #sales.');
+      t.end('Recovered', '1 retry');
+    } }
+  };
+
+  /* ---- conversations ---- */
+  let n = 0, cur = null;
+  const conv = (s, title, tm, o) => Object.assign({ id:'c' + ++n, s, title, tm, ask:S[s].ask, st:{ g:'idle', t:'Ready for a task' }, ctx:4, state:'idle' }, o);
+  const done = (s, title, tm, o) => conv(s, title, tm, Object.assign({ done:true, st:S[s].end, ctx:S[s].ctx, state:'done' }, o));
+  const CV = [
+    conv('pricing', 'Redesign the pricing page', 'now'),
+    done('team', 'Pricing with three agents', '12m'),
+    done('dropoff', 'Where people drop off', '1h'),
+    done('annual', 'Why annual converts better', '3h'),
+    done('sync', 'Sync deals to the sheet', '1d', { unread:true })
+  ];
+  const STARTERS = [
+    { ic:'grid', c:'var(--pb)', bg:'var(--pb-bg)', t:'Audit a page', d:'Fix the spacing and prices on the pricing page', s:'pricing', title:'Audit the pricing page',
+      ask:'Audit the pricing page for spacing and contrast, then apply the fixes in Figma.' },
+    { ic:'chart', c:'var(--pt)', bg:'var(--pt-bg)', t:'Explain a drop', d:'Find where people leave onboarding', s:'dropoff', title:'Where people drop off' },
+    { ic:'table', c:'var(--pm)', bg:'var(--pm-bg)', t:'Sync a sheet', d:"Send this quarter's deals to Sheets", s:'sync', title:'Sync deals to the sheet' },
+    { ic:'users', c:'var(--pl)', bg:'var(--pl-bg)', t:'Split the work', d:'Three agents redesign the pricing page', s:'team', title:'Pricing with three agents' }
+  ];
+  const markOf = cv => cv.unread ? '<span class="dot" style="color:var(--accent)"></span>' : cv.state === 'run' ? '<span class="spin"></span>'
+    : cv.state === 'wait' ? '<span class="dot" style="color:var(--warn)"></span>' : '';
+  function mark(cv){
+    if (!cv.row || (cv.k && cv.k.ff && !cv.ready)) return;
+    const m = markOf(cv), mk = $('.mk', cv.row); if (cv.row._m === m) return;
+    cv.row._m = m; mk.innerHTML = m; if (m) enter(mk.firstElementChild);
+  }
+  function row(cv){
+    cv.row = html(`<button class="ahx-cv" aria-current="false"><span class="t">${esc(cv.title)}</span><span class="mk"></span><span class="tm num">${cv.tm}</span></button>`);
+    cv.row.onclick = () => select(cv); mark(cv); return cv.row;
+  }
+  const stateOf = g => g === 'ok' ? 'done' : g === 'wait' ? 'wait' : g === 'idle' ? 'idle' : 'run';
+  function status(cv, g, t, m = '', act){
+    // a replay out of sight keeps its last word for when it is shown
+    if (cv.k && cv.k.ff && !cv.ready){ cv.fst = { g, t, m }; return; }
+    cv.st = { g, t, m, act }; cv.state = stateOf(g);
+    mark(cv); if (cv === cur) showStatus(cv.st);
+  }
+  const column = cv => { if (!cv.col){ cv.col = html('<div class="ahx-col off" aria-hidden="true"></div>'); cols.appendChild(cv.col); } return cv.col; };
+
+  /* what a story can do: say something, ask, bring in a component, wait on it, approve it, and keep the header honest */
+  function turn(cv){
+    const k = cv.k, add = el => { cv.col.appendChild(el); if (!k.ff) enter(el); return el; };
+    return {
+      wait: ms => k.wait(ms),
+      until: async (fn, step = 120) => { while (!fn()) await (k.ff ? k.raw(16) : k.wait(step)); },
+      status: (g, t, m, act) => status(cv, g, t, m, act),
+      ctx: v => { cv.ctx = v; if (cv === cur && !k.ff) ring(v); },
+      end: (t, m) => { status(cv, 'ok', t, m); if (!k.ff && cv !== cur){ cv.unread = true; mark(cv); } },
+      async ask(){
+        // the conversation that plays first is typed into the composer and sent, the way a person starts one
+        if (!k.ff && cv.type && cv === cur && !touched && ta && !ta.value){ await typeIn(k, cv.ask); await k.wait(380); press(); }
+        add(html(`<div class="bub">${cv.files ? `<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px">${cv.files.map(f => `<span class="fchip">${I('clip','xs')}${esc(f)}</span>`).join('')}</div>` : ''}${esc(cv.ask)}</div>`));
+        status(cv, 'think', 'Thinking'); await k.wait(700);
+      },
+      async say(text){
+        const p = html('<p class="msg ahx-say"></p>'); cv.col.appendChild(p);
+        for (const w of text.split(' ')){ p.insertAdjacentHTML('beforeend', `<span class="w">${w} </span>`); await k.wait(26 + Math.random() * 30); }
+        await k.wait(260);
+      },
+      comp(name, f = 1){
+        const t = tplOf(name), host = html(`<div class="ahx-msg${BOXED.includes(name) ? ' box' : ''}"></div>`);
+        if (t) host.append(t.content.cloneNode(true));
+        cv.col.appendChild(host);
+        if (t && DM.defs[name]) try { DM.defs[name](host, paced(k, f), host); } catch(e){ console.error(name, e); }
+        if (!k.ff) reveal(host);
+        return host;
+      },
+      // an approval the preview gives by itself, unless someone has taken over; a finished conversation gives it at once
+      auto(host, sel, ms){
+        const go = () => { const b = $(sel, host); if (b && b.isConnected && !b.disabled && !b.closest('[hidden],.shut')) b.click(); };
+        if (k.ff) go(); else k.later(ms, () => { if (!touched) go(); });
+      }
+    };
+  }
+  function play(cv, ff){
+    column(cv); const k = paced(c, ff ? .02 : 1); k.ff = ff; cv.k = k;
+    if (ff) cv.col.classList.add('ff');
+    k.run(async () => {
+      await S[cv.s].run(turn(cv));
+      if (!ff) return;
+      // the real-time parts (counters, crossfades) settle before the replay is shown
+      await new Promise(res => c.later(1300, res));
+      cv.ready = true; cv.col.classList.remove('ff'); if (cv.fst){ cv.st = cv.fst; cv.state = stateOf(cv.st.g); } mark(cv);
+      if (cv === cur){ showStatus(cv.st); ring(cv.ctx); toEnd(); }
+    });
+  }
+  function start(st, ask, title, files){
+    const cv = conv(st.s || st, title, 'now', { ask, files, state:'run' });
+    CV.unshift(cv); list.prepend(row(cv)); enter(cv.row);
+    play(cv, false); select(cv);
+  }
+  function reply(cv, v, files){
+    const b = html(`<div class="bub">${files.length ? `<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:${v ? 6 : 0}px">${files.map(f => `<span class="fchip">${I('clip','xs')}${esc(f)}</span>`).join('')}</div>` : ''}${esc(v)}</div>`);
+    const a = html('<div class="cpx-ag"><span class="think on"><i></i><i></i><i></i><i></i></span><span class="shim">Thinking</span></div>');
+    cv.col.append(b, a); enter(b); enter(a, 120); stick = true;
+    c.later(1700, () => { a.innerHTML = "<span>On it. I'll update this thread when it's done.</span>"; enter(a); });
+  }
+
+  /* ---- New chat: the Prompt starters; picking one types it into the composer and starts that conversation ---- */
+  const NEW = { title:'New chat', st:{ g:'idle', t:'Ready for a task', m:'' }, ctx:0 };
+  NEW.col = html(`<div class="ahx-col ahx-hi off" aria-hidden="true"><h4>What should the agent do?</h4><div class="psx"><div class="psx-grid">${STARTERS.map((s, i) =>
+    `<button class="psx-c" data-i="${i}"><span class="psx-ic" style="color:${s.c};background:${s.bg}">${I(s.ic)}</span><b>${s.t}</b><span class="d">${s.d}</span></button>`).join('')}</div></div></div>`);
+  cols.appendChild(NEW.col);
+  let typing = null;
+  $$('.psx-c', NEW.col).forEach(b => b.onclick = () => {
+    const s = STARTERS[b.dataset.i], ask = s.ask || S[s.s].ask;
+    $$('.psx-c', NEW.col).forEach(x => x.classList.toggle('on', x === b));
+    if (typing) typing.stop(); const k = typing = ctl(); c.offs.push(() => k.stop());
+    ta.value = ''; input();
+    k.run(async () => { await typeIn(k, ask, true); await k.wait(420); press(); $$('.psx-c', NEW.col).forEach(x => x.classList.remove('on')); start(s, ask, s.title); });
+  });
+  newB.onclick = () => select(NEW);
+  // a message goes to the conversation on screen, or starts a new one, instead of the composer's own little thread
+  function sendNow(){
+    const v = ta.value.trim(), files = $$('.fchip', att).map(f => f.textContent.trim());
+    if (!v && !files.length) return;
+    if (typing) typing.stop();
+    att.innerHTML = ''; ta.value = ''; input();
+    if (cur === NEW){ $$('.psx-c', NEW.col).forEach(x => x.classList.remove('on')); const w = v.replace(/[.?!].*$/, '').split(/\s+/).slice(0, 5).join(' ');
+      start('pricing', v || 'Have a look at these files.', w ? w[0].toUpperCase() + w.slice(1) : 'New chat', files.length ? files : null); }
+    else reply(cur, v, files);
+  }
+  if (ta){
+    c.on(bot, 'keydown', e => { if (e.target === ta && e.key === 'Enter' && !e.shiftKey && $('.cpx-box', bot).dataset.mode === 'idle'){ e.preventDefault(); e.stopPropagation(); sendNow(); } }, true);
+    c.on(bot, 'click', e => { if (e.target.closest('.cpx-bar .cpx-send')){ e.stopPropagation(); sendNow(); } }, true);
+  }
+
+  /* ---- switching: the list on the side, or the title's menu at phone width ---- */
+  function select(cv, first){
+    if (cv === cur) return;
+    if (cur){ cur.col.classList.add('off'); cur.col.setAttribute('aria-hidden', 'true'); }
+    cur = cv; column(cv);
+    if (cv.done && !cv.k) play(cv, true);
+    cv.col.classList.remove('off'); cv.col.removeAttribute('aria-hidden');
+    cv.unread = false; mark(cv);
+    CV.forEach(x => x.row && x.row.setAttribute('aria-current', x === cv)); newB.setAttribute('aria-current', cv === NEW);
+    if (first) swT.textContent = cv.title; else swap(swT, cv.title);
+    showStatus(cv.st, first); ring(cv.ctx);
+    ro.disconnect(); ro.observe(cv.col); toEnd();
+    if (!first) enter(cv.col);
+    if (cv === NEW) stagger($$('.psx-c', NEW.col), 60, 60);
+  }
+  sw.onclick = () => {
+    menu.innerHTML = `<button class="mi" role="menuitemradio" aria-checked="${cur === NEW}" data-close>${I('plus')}<span>New chat</span></button><div class="sep"></div>`
+      + CV.map((cv, i) => `<button class="mi" role="menuitemradio" aria-checked="${cv === cur}" data-close data-i="${i}"><span>${esc(cv.title)}</span><span class="r">${markOf(cv)}${cv.tm}</span></button>`).join('');
+    $$('.mi', menu).forEach(b => b.onclick = () => select(b.dataset.i ? CV[b.dataset.i] : NEW));
+  };
+
+  CV.forEach(cv => list.appendChild(row(cv)));
+  CV[0].type = true; select(CV[0], true);
+  // the first conversation plays once the card has come in; the finished ones replay out of sight meanwhile
+  c.later(1300, () => play(CV[0], false));
+  CV.filter(cv => cv.done).forEach((cv, i) => c.later(400 + i * 120, () => { if (!cv.k) play(cv, true); }));
+});
 /* ---------- Line chart ---------- */
 DM.def('line-chart', (r, c) => {
   const A = [820,860,910,980,1040,1130,1210,1180,1320,1460,1540,1620], B = [610,640,660,700,690,760,800,790,850,880,910,960];
