@@ -5,7 +5,7 @@ import { ToastStack, type StackToast } from '../components/toast-stack/ToastStac
 import { Icon } from '../lib/icons';
 import { useScript } from './useScript';
 
-/* ---------- Toast stack: three notifications arrive, the button sends more, hover fans them out ---------- */
+/* ---------- Toast stack: three notifications arrive, then one now and then; the button sends more, hover fans them out ---------- */
 const POOL: Omit<StackToast, 'id'>[] = [
   { icon: 'ok', tone: 'ok', title: 'Tests passed', detail: '42 of 42 in 38s' },
   { icon: 'pr', tone: 'merge', title: 'PR #412 is ready', detail: 'Use shared spacing tokens' },
@@ -24,10 +24,15 @@ export default function ToastStackDemo() {
       return next.map((t, i) => ({ ...t, time: i === next.length - 1 ? 'now' : (next.length - 1 - i) * 2 + 'm' }));
     });
   };
-  useScript(async ({ wait }) => { for (let i = 0; i < 3; i++) { await wait(i ? 700 : 400); add(); } });
+  const hover = useRef(false);
+  useScript(async ({ wait }) => {
+    for (let i = 0; i < 3; i++) { await wait(i ? 700 : 400); add(); }
+    // a new one now and then, held back while the stack is fanned out under the pointer
+    for (;;) { await wait(3800); if (!hover.current) add(); }
+  });
   return (
     <div style={{ width: '100%', minHeight: 260, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 32 }}>
-      <div style={{ marginBlock: 'auto', width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      <div style={{ marginBlock: 'auto', width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }} onPointerEnter={() => { hover.current = true; }} onPointerLeave={() => { hover.current = false; }}>
         <ToastStack toasts={toasts} onDismiss={id => setToasts(list => list.filter(t => t.id !== id))} />
       </div>
       <div data-dm=""><button type="button" className="dm-pill dm-soft dm-sm" onClick={add}><Icon name="bell" />Send notification</button></div>

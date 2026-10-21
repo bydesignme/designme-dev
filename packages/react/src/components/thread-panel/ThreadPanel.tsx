@@ -34,6 +34,10 @@ export interface ThreadPanelProps {
   onValueChange?: (id: string) => void;
   /** Called with the reply and the open thread's id. Add the message to that thread to show it */
   onSend?: (text: string, threadId: string) => void;
+  /** The reply being written. Leave it out to let the field keep its own */
+  draft?: string;
+  defaultDraft?: string;
+  onDraftChange?: (text: string) => void;
   placeholder?: string;
   /** Sits flat in a chat column (the default, as on designme.dev). Set false to give it a card of its own */
   bare?: boolean;
@@ -64,7 +68,8 @@ function Message({ m, delay }: { m: ThreadMessage; delay: number }) {
 function Body({ messages }: { messages: ThreadMessage[] }) {
   const ref = useRef<HTMLDivElement>(null);
   const [first] = useState(messages.length);
-  useIsoLayoutEffect(() => { const el = ref.current; if (el) el.scrollTop = el.scrollHeight; }, [messages.length]);
+  // the first messages are simply there; a later one glides into view
+  useIsoLayoutEffect(() => { const el = ref.current; if (!el) return; if (messages.length > first) el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' }); else el.scrollTop = el.scrollHeight; }, [messages.length]);
   return (
     <div ref={ref} className="dm-thp-body" aria-live="polite">
       {messages.map((m, i) => <Message key={(m.id ?? i) + (m.thinking ? '-t' : '')} m={m} delay={i < first ? i * 70 : 0} />)}
@@ -73,10 +78,10 @@ function Body({ messages }: { messages: ThreadMessage[] }) {
 }
 
 /** Several conversations with an agent, one tab each, with a reply field under the open one. */
-export function ThreadPanel({ threads, value, defaultValue, onValueChange, onSend, placeholder = 'Reply to the agent', bare = true, className }: ThreadPanelProps) {
+export function ThreadPanel({ threads, value, defaultValue, onValueChange, onSend, draft: draftProp, defaultDraft = '', onDraftChange, placeholder = 'Reply to the agent', bare = true, className }: ThreadPanelProps) {
   const [cur, setCur] = useControllable(value, defaultValue ?? threads[0]?.id ?? '', onValueChange);
   const thread = threads.find(t => t.id === cur) ?? threads[0];
-  const [draft, setDraft] = useState('');
+  const [draft, setDraft] = useControllable(draftProp, defaultDraft, onDraftChange);
 
   // the underline slides to the open tab, 10px in from each side
   const tabs = useRef<HTMLDivElement>(null);

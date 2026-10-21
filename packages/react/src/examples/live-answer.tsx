@@ -48,7 +48,8 @@ export default function LiveAnswerDemo() {
   const retry = (i: number) => { if (turns[i].state === 'done') answer(i, turns[i].question); };
 
   return (
-    <div style={{ width: '100%' }}>
+    // keeps the room the first answer fills with its sources and follow-ups, so nothing climbs when they arrive
+    <div style={{ width: '100%', minHeight: 376 }}>
       <LiveAnswer turns={turns} followUps={asked ? undefined : ['Show the drop-off by device', 'Draft a fix for the workspace step']} onFollowUp={ask} onRetry={retry} />
     </div>
   );

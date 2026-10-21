@@ -1,9 +1,10 @@
 'use client';
 // The animated preview from designme.dev, rebuilt from the React component: an example of driving it from your own state.
-import { useState } from 'react';
+import { useRef, useState } from 'react';
+import { useScript } from './useScript';
 import { PromptStarters, type Starter } from '../components/prompt-starters/PromptStarters';
 
-/* ---------- Prompt starters: two sets of four; Shuffle swaps between them ---------- */
+/* ---------- Prompt starters: two sets of four; the first is picked by itself, Shuffle swaps between them ---------- */
 const SETS: Starter[][] = [
   [
     { icon: 'grid', tone: 'blue', title: 'Audit a page', description: 'Check the pricing page for spacing and contrast', prompt: 'Audit the pricing page for spacing and contrast issues and list fixes.' },
@@ -21,5 +22,13 @@ const SETS: Starter[][] = [
 
 export default function PromptStartersDemo() {
   const [set, setSet] = useState(0);
-  return <div style={{ width: '100%' }}><PromptStarters starters={SETS[set]} onShuffle={() => setSet(s => (s + 1) % SETS.length)} /></div>;
+  // once the card has settled, the first starter is picked and fills the box, unless someone got there first
+  const [picked, setPicked] = useState<string | null>(null);
+  const touched = useRef(false);
+  useScript(async ({ wait }) => { await wait(1700); if (!touched.current) setPicked(SETS[0][0].title); });
+  return (
+    <div style={{ width: '100%' }} onPointerDownCapture={() => { touched.current = true; }}>
+      <PromptStarters starters={SETS[set]} value={picked} onValueChange={setPicked} onShuffle={() => { setPicked(null); setSet(s => (s + 1) % SETS.length); }} />
+    </div>
+  );
 }

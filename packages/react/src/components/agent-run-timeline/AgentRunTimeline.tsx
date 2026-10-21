@@ -43,7 +43,7 @@ export interface AgentRunTimelineProps {
   ticks?: number[];
   /** The line under the title. Defaults to the steps running now, then "Finished in 11.4s" */
   status?: string;
-  /** The figures in the footer once the run is done. Defaults to the total time, cost, steps and retries */
+  /** The figures in the footer once the run is done. Defaults to the total time, cost, steps and retries, which count up while it plays */
   stats?: TimelineStat[];
   /** Sits flat in a chat thread (the default, as on designme.dev). Set false to give it a card of its own */
   bare?: boolean;
@@ -88,12 +88,15 @@ export function AgentRunTimeline({ title, steps, time, span, ticks, status, stat
 
   const now = steps.filter(s => t >= s.start && t < s.start + s.duration).map(s => s.label);
   const line = status ?? (done ? `Finished in ${end.toFixed(1)}s` : now.length ? now.join(', ') : 'Wrapping up');
-  const cost = steps.reduce((sum, s) => sum + (s.cost ?? 0), 0), retries = steps.filter(s => s.failed).length;
-  const figures = stats ?? [
-    { value: `${end.toFixed(1)}s`, label: 'total' },
+  // the footer counts up with the playhead, so it is there from the start and never pops in at the end
+  const started = steps.filter(s => t >= s.start), hasRetries = steps.some(s => s.failed);
+  const cost = started.reduce((sum, s) => sum + (s.cost ?? 0) * Math.min(1, (t - s.start) / (s.duration || 1)), 0);
+  const retries = steps.filter(s => s.failed && t >= s.start + s.duration).length, n = started.length;
+  const figures = (done && stats) || [
+    { value: `${Math.min(t, end).toFixed(1)}s`, label: 'total' },
     ...(steps.some(s => s.cost !== undefined) ? [{ value: `$${cost.toFixed(2)}`, label: 'cost' }] : []),
-    { value: String(steps.length), label: steps.length === 1 ? 'step' : 'steps' },
-    ...(retries ? [{ value: String(retries), label: retries === 1 ? 'retry' : 'retries' }] : [])
+    { value: String(n), label: n === 1 ? 'step' : 'steps' },
+    ...(hasRetries ? [{ value: String(retries), label: retries === 1 ? 'retry' : 'retries' }] : [])
   ];
 
   // the playhead follows the lanes, which start after the label column (narrower on small screens)
@@ -146,8 +149,8 @@ export function AgentRunTimeline({ title, steps, time, span, ticks, status, stat
         </div>
         <div className="dm-art-head" ref={head} style={done ? { opacity: 0 } : undefined} />
       </div>
-      <div key={done ? 'done' : 'run'} className={cx('dm-art-f dm-muted dm-num', done && changed)}>
-        {done && figures.map(f => <span key={f.label}><b>{f.value}</b> {f.label}</span>)}
+      <div className="dm-art-f dm-muted dm-num">
+        {figures.map((f, i) => <span key={i}><b>{f.value}</b> {f.label}</span>)}
       </div>
     </div>
   );

@@ -2,8 +2,9 @@
 // The animated preview from designme.dev, rebuilt from the React component: an example of driving it from your own state.
 import { useEffect, useRef, useState } from 'react';
 import { ThreadPanel, type Thread } from '../components/thread-panel/ThreadPanel';
+import { useScript } from './useScript';
 
-/* ---------- Thread panel: three threads; a reply gets a short Thinking, then an answer ---------- */
+/* ---------- Thread panel: three threads; a reply is typed and sent by itself, gets a short Thinking, then an answer ---------- */
 const THREADS: Thread[] = [
   { id: 'onboarding', title: 'Onboarding', color: 'var(--dm-ok)', messages: [
     { from: 'user', text: 'Why is the workspace step losing people?' },
@@ -30,5 +31,20 @@ export default function ThreadPanelDemo() {
     })), 1400));
   };
 
-  return <div style={{ width: '100%' }}><ThreadPanel threads={threads} onSend={send} /></div>;
+  // once the card has settled, a reply is typed and sent in place, unless someone has started using it
+  const [draft, setDraft] = useState('');
+  const touched = useRef(false);
+  useScript(async ({ wait }) => {
+    await wait(1800);
+    const reply = 'Can you make that change now?';
+    for (let i = 1; i <= reply.length; i++) { if (touched.current) return; setDraft(reply.slice(0, i)); await wait(32 + Math.random() * 40); }
+    await wait(380); if (touched.current) return;
+    setDraft(''); send(reply, 'onboarding');
+  });
+
+  return (
+    <div style={{ width: '100%' }} onPointerDownCapture={() => { touched.current = true; }} onFocusCapture={() => { touched.current = true; }}>
+      <ThreadPanel threads={threads} onSend={send} draft={draft} onDraftChange={setDraft} />
+    </div>
+  );
 }

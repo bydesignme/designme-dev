@@ -42,7 +42,7 @@ export default function AgentLanesDemo() {
       }
       set(p.key, { status: 'done', activity: p.log[2] });
     };
-    const hand = async (from: string, to: string, what: string) => { setHandoff({ from, to, what }); await wait(1400); setHandoff(undefined); await wait(350); };
+    const hand = async (from: string, to: string, what: string) => { setHandoff({ from, to, what }); await wait(1700); setHandoff(undefined); await wait(700); };
 
     await wait(600);
     const first = work(PLAN[0]); set('designer', { status: 'waiting' });

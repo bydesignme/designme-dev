@@ -1,8 +1,10 @@
 'use client';
 // The animated preview from designme.dev, rebuilt from the React component: an example of driving it from your own state.
+import { useRef, useState } from 'react';
+import { useScript } from './useScript';
 import { ArtifactCard, type ArtifactVersion } from '../components/artifact-card/ArtifactCard';
 
-/* ---------- Artifact card: a churn report in three versions; the chart redraws as you switch ---------- */
+/* ---------- Artifact card: a churn report in three versions that play through once; the chart redraws as you switch ---------- */
 const MONTHS = ['April', 'May', 'June', 'July', 'August', 'September'];
 const DRAFTS = [
   { text: 'First pass at churn by month, sources still to check.', values: [3.4, 3.9, 4.3, 4.1, 3.8, 3.6], meta: 'v1, edited yesterday', note: 'First draft' },
@@ -16,9 +18,16 @@ const VERSIONS: ArtifactVersion[] = DRAFTS.map((d, i) => {
 });
 
 export default function ArtifactCardDemo() {
+  // the agent's versions play through once, first draft to final, unless someone picks one first
+  const [version, setVersion] = useState(0);
+  const touched = useRef(false);
+  useScript(async ({ wait }) => {
+    await wait(2300); if (!touched.current) setVersion(1);
+    await wait(1800); if (!touched.current) setVersion(2);
+  });
   return (
-    <div style={{ width: '100%' }}>
-      <ArtifactCard title="Churn analysis, Q3" versions={VERSIONS} axis={['Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep']} range={[2.6, 6.2]}
+    <div style={{ width: '100%' }} onPointerDownCapture={() => { touched.current = true; }}>
+      <ArtifactCard title="Churn analysis, Q3" versions={VERSIONS} version={version} onVersionChange={setVersion} axis={['Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep']} range={[2.6, 6.2]}
         link="https://designme.dev/a/churn-q3" href="https://designme.dev/a/churn-q3" />
     </div>
   );

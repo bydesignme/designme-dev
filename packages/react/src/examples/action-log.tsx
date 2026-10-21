@@ -25,5 +25,6 @@ export default function ActionLogDemo() {
     }
     setRunning(false);
   });
-  return <div style={{ width: '100%' }}><ActionLog actions={actions} running={running} /></div>;
+  // keeps the room the five steps fill, so the header doesn't climb as each one lands
+  return <div style={{ width: '100%', minHeight: 326 }}><ActionLog actions={actions} running={running} /></div>;
 }

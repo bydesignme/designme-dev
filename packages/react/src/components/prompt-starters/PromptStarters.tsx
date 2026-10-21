@@ -49,11 +49,11 @@ export function PromptStarters({ starters, value, defaultValue = null, onValueCh
   const [field, setField] = useState<{ key: number; words: string[]; sent: boolean } | null>(null);
   const [typed, setTyped] = useState(0);
 
-  const pick = (s: Starter) => {
-    setPicked(s.title);
-    setField(f => ({ key: (f?.key ?? 0) + 1, words: s.prompt.split(' '), sent: false }));
-    setTyped(0);
-  };
+  const fill = (s: Starter) => { setField(f => ({ key: (f?.key ?? 0) + 1, words: s.prompt.split(' '), sent: false })); setTyped(0); };
+  const pick = (s: Starter) => { setPicked(s.title); setFilledFor(s.title); fill(s); };
+  // a starter picked from outside, through value, fills the field the same way a click does
+  const [filledFor, setFilledFor] = useState(picked);
+  if (picked !== filledFor) { setFilledFor(picked); const s = starters.find(x => x.title === picked); if (s) fill(s); }
   // a word every 40ms
   useEffect(() => {
     if (!field || field.sent || typed >= field.words.length) return;

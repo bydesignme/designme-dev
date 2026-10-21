@@ -1,9 +1,9 @@
 'use client';
-import { Fragment, useEffect, useState, type CSSProperties } from 'react';
+import { Fragment, useEffect, useState, type CSSProperties, type ReactNode } from 'react';
 import { cx } from '../../lib/cx';
 import { useControllable, useSeconds } from '../../lib/hooks';
 import { Icon, type IconName } from '../../lib/icons';
-import { Fold, Swap } from '../../lib/motion';
+import { enter, Fold, Swap } from '../../lib/motion';
 import '../../designme.css';
 import './agent-lanes.css';
 
@@ -72,7 +72,7 @@ function useChanges<T>(value: T) {
 }
 
 /** Keeps the last value on screen for `ms` after it is cleared, so it can play its exit */
-function usePresence<T>(value: T | undefined, ms = 350) {
+function usePresence<T>(value: T | undefined, ms = 700) {
   const [kept, setKept] = useState(value);
   if (value !== undefined && value !== kept) setKept(value);
   useEffect(() => {
@@ -81,6 +81,14 @@ function usePresence<T>(value: T | undefined, ms = 350) {
     return () => clearTimeout(t);
   }, [value, kept, ms]);
   return { shown: value ?? kept, leaving: value === undefined && kept !== undefined };
+}
+
+/** The hand-off row: it mounts shut and opens on the next frame, so the lanes below glide down, then closes before it goes */
+function Handoff({ leaving, children }: { leaving: boolean; children: ReactNode }) {
+  const [open, setOpen] = useState(false);
+  useEffect(() => { let b = 0; const a = requestAnimationFrame(() => { b = requestAnimationFrame(() => setOpen(true)); }); return () => { cancelAnimationFrame(a); cancelAnimationFrame(b); }; }, []);
+  const e = enter(80);
+  return <Fold open={open && !leaving} className="dm-aln-hf"><div className={cx('dm-aln-hand', e.className)} style={e.style}>{children}</div></Fold>;
 }
 
 function StatusTag({ status }: { status: LaneStatus }) {
@@ -142,9 +150,9 @@ export function AgentLanes({ lanes, title, seconds, paused, defaultPaused = fals
         {lanes.map(l => (
           <Fragment key={l.key}>
             {hand?.to === l.key && (
-              <div key={`${hand.from}>${hand.to}`} className={cx('dm-aln-hand', leaving ? 'dm-leave' : 'dm-enter')}>
+              <Handoff key={`${hand.from}>${hand.to}`} leaving={leaving}>
                 <Icon name="right" size="xs" />{nameOf(hand.from)} handed {hand.what} to {nameOf(hand.to)}
-              </div>
+              </Handoff>
             )}
             <Lane lane={l} paused={isPaused} open={open.includes(l.key)} onToggle={() => setOpen(open.includes(l.key) ? open.filter(k => k !== l.key) : [...open, l.key])} />
           </Fragment>
