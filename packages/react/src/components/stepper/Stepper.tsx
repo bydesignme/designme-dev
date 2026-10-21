@@ -50,12 +50,14 @@ export interface StepperProps {
   nextLabel?: string;
   finishLabel?: string;
   restartLabel?: string;
+  /** Sits flat in a chat thread (the default, as on designme.dev). Set false to give it a card of its own */
+  bare?: boolean;
   className?: string;
 }
 
 /** A few steps of setup, one question at a time, with a track that fills in as you go. */
 export function Stepper({ steps, step, defaultStep = 0, onStepChange, values, defaultValues, onValuesChange, onNext, onFinish,
-  doneTitle = "You're set up", doneDetail, backLabel = 'Back', nextLabel = 'Continue', finishLabel = 'Finish', restartLabel = 'Start over', className }: StepperProps) {
+  doneTitle = "You're set up", doneDetail, backLabel = 'Back', nextLabel = 'Continue', finishLabel = 'Finish', restartLabel = 'Start over', bare = true, className }: StepperProps) {
   const [cur, setCur] = useControllable(step, defaultStep, onStepChange);
   const [picks, setPicks] = useControllable(values, defaultValues ?? steps.map(s => s.defaultOption ?? 0), onValuesChange);
   // each move slides the new step in from the side it comes from; the first step just appears
@@ -77,7 +79,7 @@ export function Stepper({ steps, step, defaultStep = 0, onStepChange, values, de
   const s = steps[cur];
 
   return (
-    <div data-dm="" className={cx('dm-stx dm-panel', className)}>
+    <div data-dm="" className={cx('dm-stx', !bare && 'dm-panel', className)}>
       <div className="dm-stx-track">
         {steps.map((st, i) => [
           // a finished step on the track takes you back to it

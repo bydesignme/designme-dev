@@ -53,6 +53,8 @@ export interface PermissionGateProps {
   /** Shown after Not now */
   declinedTitle?: ReactNode;
   declinedDetail?: ReactNode;
+  /** Sits flat in a chat thread (the default, as on designme.dev). Set false to give it a card of its own */
+  bare?: boolean;
   className?: string;
 }
 
@@ -62,7 +64,7 @@ const DURATIONS = ['This task', 'Today', 'Always'];
 export function PermissionGate({
   title, subtitle, icon, scopes, value, defaultValue = [], onValueChange, durations = DURATIONS, duration, defaultDuration, onDurationChange,
   status, defaultStatus = 'asking', onStatusChange, onAllow, onDecline, onRevoke, onUndo, allowedDetail, declinedTitle = 'The agent will skip these changes',
-  declinedDetail, className
+  declinedDetail, bare = true, className
 }: PermissionGateProps) {
   const [ticked, setTicked] = useControllable(value, defaultValue, onValueChange);
   const [dur, setDur] = useControllable(duration, defaultDuration ?? durations[0], onDurationChange);
@@ -93,7 +95,7 @@ export function PermissionGate({
   const again = (i: number) => (back ? { className: 'dm-enter', style: enter(i * 50).style, key: back } : { className: undefined, style: undefined, key: 0 });
 
   return (
-    <div data-dm="" className={cx('dm-pgx dm-panel', className)}>
+    <div data-dm="" className={cx('dm-pgx', !bare && 'dm-panel', className)}>
       <div className="dm-pgx-h">
         <span className="dm-pgx-ic">{icon ?? <Icon name="shield" />}</span>
         <div className="dm-pgx-ht"><b>{title}</b>{subtitle && <span className="dm-muted">{subtitle}</span>}</div>

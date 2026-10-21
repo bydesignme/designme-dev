@@ -37,6 +37,8 @@ export interface PlanReviewProps {
   onRequestChanges?: () => void;
   onStop?: () => void;
   onSeeChanges?: () => void;
+  /** Sits flat in a chat thread (the default, as on designme.dev). Set false to give it a card of its own */
+  bare?: boolean;
   className?: string;
 }
 
@@ -44,7 +46,7 @@ const NOTE: Record<PlanPhase, string> = { review: 'Click a step to edit it', run
 let added = 0;
 
 /** A plan the agent proposes before it starts: edit a step, skip it, add one, then approve. */
-export function PlanReview({ title, steps, defaultSteps = [], onStepsChange, phase = 'review', status, note, onApprove, onRequestChanges, onStop, onSeeChanges, className }: PlanReviewProps) {
+export function PlanReview({ title, steps, defaultSteps = [], onStepsChange, phase = 'review', status, note, onApprove, onRequestChanges, onStop, onSeeChanges, bare = true, className }: PlanReviewProps) {
   const [list, setList] = useControllable(steps, defaultSteps, onStepsChange);
   const live = useRef(list);
   useEffect(() => { live.current = list; });
@@ -68,7 +70,7 @@ export function PlanReview({ title, steps, defaultSteps = [], onStepsChange, pha
   let n = 0;
 
   return (
-    <div data-dm="" className={cx('dm-plx dm-panel', className)}>
+    <div data-dm="" className={cx('dm-plx', !bare && 'dm-panel', className)}>
       <div className="dm-plx-h">
         <Think on={phase === 'running'} className="dm-plx-mk" />
         <div className="dm-plx-ht"><b>{title}</b><Swap className="dm-muted dm-plx-st">{status ?? `${included.length} steps, about ${Math.max(1, Math.round(included.length * .8))} min`}</Swap></div>
