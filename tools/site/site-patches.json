@@ -1,0 +1,81 @@
+{
+ "patches": [
+  [
+   "  const CODE = JSON.parse($('#code-data').textContent);\n",
+   "  const CODE = JSON.parse($('#code-data').textContent);\n  // the React version of each component comes from the registry npx designme add --react uses, fetched the first time it is shown\n  const RX = {}, reactOf = name => RX[name] || (RX[name] = fetch(`/r/react/${name}.json`).then(r => { if (!r.ok) throw new Error(r.status); return r.json(); }).catch(e => { delete RX[name]; throw e; }));\n  const RX_TABS = { 'rx-tsx':'Component', 'rx-css':'CSS', 'rx-ex':'Example' };\n  const rxText = (rx, t) => !rx ? 'Loading the React version\u2026' : t === 'rx-tsx' ? rx.files[0].content : t === 'rx-css' ? rx.files[1].content : rx.example.content;\n  const rxFile = (rx, t) => t === 'rx-tsx' ? rx.component + '.tsx' : t === 'rx-css' ? rx.name + '.css' : rx.component + '.example.tsx';\n  const pascal = n => n.replace(/(?:^|-)(\\w)/g, (_, c) => c.toUpperCase());\n  // the registry name, which the install command needs; a card's title doesn't always spell it\n  const regName = cid => { const el = document.getElementById(cid); return (el && el.dataset.reg) || CODE[cid].name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''); };\n  // HTML or React, remembered between visits and shared by the code view and the detail page\n  const fw = { get(){ try { return localStorage.getItem('dm-code-fw') === 'react' ? 'react' : 'html'; } catch(e){ return 'html'; } }, set(v){ try { localStorage.setItem('dm-code-fw', v); } catch(e){} } };\n"
+  ],
+  [
+   "<div class=\"cdm-note\">Self-contained, needs only the shared core.</div><button class=\"cdm-cmd\" id=\"cdm-cmd\" title=\"Copy install command\"><span class=\"d\">$</span><span class=\"c\" id=\"cdm-cmd-t\"></span>${ic('content_copy','sm')}</button></div>",
+   "<div class=\"cdm-note\"><span class=\"h-only\">Self-contained, needs only the shared core.</span><span class=\"rx-only\">A typed React component. It imports its own styles, and the install command adds the shared files it needs.</span></div><div class=\"cmd-row\"><div class=\"fw-sw\" role=\"group\" aria-label=\"Version\"><button type=\"button\" data-fw=\"html\">HTML</button><button type=\"button\" data-fw=\"react\">React</button></div><button class=\"cdm-cmd\" id=\"cdm-cmd\" title=\"Copy install command\"><span class=\"d\">$</span><span class=\"c\" id=\"cdm-cmd-t\"></span>${ic('content_copy','sm')}</button></div></div>"
+  ],
+  [
+   "<div class=\"cdm-tabs\" role=\"tablist\">${Object.keys(NAMES).map(t => `<button class=\"cdm-tab\" role=\"tab\" data-t=\"${t}\">${NAMES[t]}</button>`).join('')}",
+   "<div class=\"cdm-tabs\" role=\"tablist\">${Object.keys(NAMES).map(t => `<button class=\"cdm-tab\" role=\"tab\" data-t=\"${t}\">${NAMES[t]}</button>`).join('')}${Object.keys(RX_TABS).map(t => `<button class=\"cdm-tab\" role=\"tab\" data-t=\"${t}\">${RX_TABS[t]}</button>`).join('')}"
+  ],
+  [
+   "    const textFor = t => t === 'shared' ? '/* Shared core: tokens and base styles */\\n' + CODE._shared.css + '\\n\\n/* Shared core: icons, sound and helpers */\\n' + CODE._shared.js : CODE[id][t];\n    function show(t){",
+   "    const textFor = t => t === 'shared' ? '/* Shared core: tokens and base styles */\\n' + CODE._shared.css + '\\n\\n/* Shared core: icons, sound and helpers */\\n' + CODE._shared.js : t.startsWith('rx-') ? rxText(rx, t) : CODE[id][t];\n    let rx = null;\n    // the path, note, install command and tabs follow the HTML or React choice\n    function head(){\n      const name = regName(id), react = fw.get() === 'react';\n      m.classList.toggle('rx', react); $$('.fw-sw button', m).forEach(b => b.setAttribute('aria-pressed', String((b.dataset.fw === 'react') === react)));\n      // a zero-width space after each slash lets a long path wrap at a folder on a phone\n      $('#cdm-path', m).textContent = (react ? `components/designme/${name}/${rx ? rx.component : pascal(name)}.tsx` : `components/${name}.html`).replace(/\\//g, '/\\u200b');\n      $('#cdm-cmd-t', m).textContent = `npx designme add ${name}${react ? ' --react' : ''}`;\n    }\n    function mode(v){ fw.set(v); head(); show(v === 'react' ? 'rx-tsx' : 'html'); if (v === 'react') load(); }\n    async function load(){\n      const want = id;\n      try { const r = await reactOf(regName(want)); if (want !== id) return; rx = r; head(); if (tab.startsWith('rx-')) show(tab); }\n      catch(e){ if (want === id && tab.startsWith('rx-')) pre.innerHTML = codeLines('// The React version could not be loaded. Try again in a moment.'); }\n    }\n    function show(t){"
+  ],
+  [
+   "      id = cid; last = from; const c = CODE[cid], sl = slug(c.name);\n      $('#cdm-t', m).textContent = c.name; $('#cdm-path', m).textContent = `components/${sl}.html`;\n      $('#cdm-cmd-t', m).textContent = `npx designme add ${sl}`;\n      show('html'); m.classList.add('open');",
+   "      id = cid; last = from; rx = null; const c = CODE[cid];\n      $('#cdm-t', m).textContent = c.name; mode(fw.get());\n      m.classList.add('open');"
+  ],
+  [
+   "      const t = e.target.closest('.cdm-tab'); if (t && t.dataset.t !== tab){ show(t.dataset.t); Sound.play('tab'); }",
+   "      const f = e.target.closest('.fw-sw button'); if (f){ if (f.dataset.fw !== fw.get()){ mode(f.dataset.fw); Sound.play('tab'); } return; }\n      const t = e.target.closest('.cdm-tab'); if (t && t.dataset.t !== tab){ show(t.dataset.t); Sound.play('tab'); }"
+  ],
+  [
+   "    $('#cdm-copy', m).addEventListener('click', async () => { if (await copyText(tab === 'shared' ? textFor('shared') : bundle(id))){ Sound.play('copy'); showToast('Copied ' + (tab === 'shared' ? 'shared core' : CODE[id].name)); } });",
+   "    // HTML copies the whole component in one go; React copies the file on show\n    $('#cdm-copy', m).addEventListener('click', async () => { const react = tab.startsWith('rx-'); if (react && !rx) return; if (await copyText(tab === 'shared' || react ? textFor(tab) : bundle(id))){ Sound.play('copy'); showToast('Copied ' + (tab === 'shared' ? 'shared core' : react ? rxFile(rx, tab) : CODE[id].name)); } });"
+  ],
+  [
+   "<div class=\"dv-code\"><div class=\"dv-code-h\"><div class=\"dv-tabs\" role=\"tablist\">${Object.keys(NAMES).map(t => `<button class=\"dv-tab\" role=\"tab\" data-t=\"${t}\">${NAMES[t]}</button>`).join('')}</div>",
+   "<div class=\"dv-code\" id=\"dv-code\"><div class=\"dv-code-h\"><div class=\"fw-sw\" role=\"group\" aria-label=\"Version\"><button type=\"button\" data-fw=\"html\">HTML</button><button type=\"button\" data-fw=\"react\">React</button></div><div class=\"dv-tabs\" role=\"tablist\">${Object.keys(NAMES).map(t => `<button class=\"dv-tab\" role=\"tab\" data-t=\"${t}\">${NAMES[t]}</button>`).join('')}${Object.keys(RX_TABS).map(t => `<button class=\"dv-tab\" role=\"tab\" data-t=\"${t}\">${RX_TABS[t]}</button>`).join('')}</div>"
+  ],
+  [
+   "    let cur = null, ph = null, tab = 'html';",
+   "    let cur = null, ph = null, tab = 'html', rx = null;"
+  ],
+  [
+   "    const textFor = t => t === 'shared' ? '/* Shared core: tokens and base styles */\\n' + CODE._shared.css + '\\n\\n/* Shared core: icons, sound and helpers */\\n' + CODE._shared.js : CODE[cur.id][t];",
+   "    const textFor = t => t === 'shared' ? '/* Shared core: tokens and base styles */\\n' + CODE._shared.css + '\\n\\n/* Shared core: icons, sound and helpers */\\n' + CODE._shared.js : t.startsWith('rx-') ? rxText(rx, t) : CODE[cur.id][t];"
+  ],
+  [
+   "    function showCode(t){ tab = t; $$('.dv-tab', dv).forEach(b => b.setAttribute('aria-selected', b.dataset.t === t)); $('#dv-pre').innerHTML = codeLines(textFor(t)); $('#dv-pre').scrollTop = 0; }",
+   "    function showCode(t){ tab = t; $$('.dv-tab', dv).forEach(b => b.setAttribute('aria-selected', b.dataset.t === t)); $('#dv-pre').innerHTML = codeLines(textFor(t)); $('#dv-pre').scrollTop = 0; }\n    // the install command and tabs follow the HTML or React choice\n    function dvMode(v){\n      fw.set(v); const react = v === 'react', name = regName(cur.id);\n      $('#dv-code').classList.toggle('rx', react); $$('#dv-code .fw-sw button').forEach(b => b.setAttribute('aria-pressed', String((b.dataset.fw === 'react') === react)));\n      $('#dv-cmd-t').textContent = `npx designme add ${name}${react ? ' --react' : ''}`;\n      showCode(react ? 'rx-tsx' : 'html'); if (react) dvLoad();\n    }\n    async function dvLoad(){\n      const want = cur.id;\n      try { const r = await reactOf(regName(want)); if (!cur || want !== cur.id) return; rx = r; if (tab.startsWith('rx-')) showCode(tab); }\n      catch(e){ if (cur && want === cur.id && tab.startsWith('rx-')) $('#dv-pre').innerHTML = codeLines('// The React version could not be loaded. Try again in a moment.'); }\n    }"
+  ],
+  [
+   "      $('#dv-cmd-t').textContent = `npx designme add ${slug(name)}`;\n",
+   ""
+  ],
+  [
+   "      showCode('html');\n      const sibs",
+   "      rx = null; dvMode(fw.get());\n      const sibs"
+  ],
+  [
+   "      const t = e.target.closest('.dv-tab'); if (t && t.dataset.t !== tab){ showCode(t.dataset.t); Sound.play('tab'); }",
+   "      const f = e.target.closest('#dv-code .fw-sw button'); if (f){ if (f.dataset.fw !== fw.get()){ dvMode(f.dataset.fw); Sound.play('tab'); } return; }\n      const t = e.target.closest('.dv-tab'); if (t && t.dataset.t !== tab){ showCode(t.dataset.t); Sound.play('tab'); }"
+  ],
+  [
+   "    $('#dv-copy').addEventListener('click', async () => { if (await copyText(tab === 'shared' ? textFor('shared') : bundle(cur.id))){ Sound.play('copy'); showToast('Copied ' + (tab === 'shared' ? 'shared core' : CODE[cur.id].name)); } });",
+   "    $('#dv-copy').addEventListener('click', async () => { const react = tab.startsWith('rx-'); if (react && !rx) return; if (await copyText(tab === 'shared' || react ? textFor(tab) : bundle(cur.id))){ Sound.play('copy'); showToast('Copied ' + (tab === 'shared' ? 'shared core' : react ? rxFile(rx, tab) : CODE[cur.id].name)); } });"
+  ],
+  [
+   "$$('#dv-more .dv-card').forEach(card => {\n        const x = $('#' + card.dataset.id), main = x && x.querySelector('.stage-inner > :not(.code-btns)'); if (!main) return;",
+   "$$('#dv-more .dv-card').forEach(function snap(card){\n        // a component that never scrolled into view has nothing to copy yet: start it, then take the snapshot\n        const host = $('#' + card.dataset.id + ' .v2.stage-in');\n        if (host && !host.children.length && !card.dataset.waited && window.V2){ card.dataset.waited = '1'; window.V2.replay(host.closest('.comp')); setTimeout(() => { if (card.isConnected) snap(card); }, 1400); return; }\n        const x = $('#' + card.dataset.id), main = x && x.querySelector('.stage-inner > :not(.code-btns)'); if (!main) return;"
+  ],
+  [
+   "<button class=\"soon-btn\" aria-disabled=\"true\" data-soon><svg viewBox=\\\"0 0 24 24\\\" aria-hidden=\\\"true\\\"><path fill=\\\"currentColor\\\" d=\\\"m24 4.515-7.658 14.97H9.149l3.205-6.204h-.144C9.566 16.713 5.621 18.973 0 19.485v-6.118s3.596-.213 5.71-2.435H0V4.515h6.417v5.278l.144-.001 2.622-5.277h4.854v5.244h.144l2.72-5.244H24Z\\\"/></svg>Webflow<span class=\"soon-tip\">Coming soon</span></button><button class=\"soon-btn\" aria-disabled=\"true\" data-soon><svg viewBox=\\\"0 0 24 24\\\" aria-hidden=\\\"true\\\"><path fill=\\\"currentColor\\\" d=\\\"M4 0h16v8h-8zM4 8h8l8 8H4zM4 16h8v8z\\\"/></svg>Framer<span class=\"soon-tip\">Coming soon</span></button><button class=\"cdm-copy\" id=\"cdm-copy\">",
+   "<button class=\"cdm-copy\" id=\"cdm-copy\">"
+  ],
+  [
+   "<button class=\"soon-btn\" aria-disabled=\"true\" data-soon><svg viewBox=\\\"0 0 24 24\\\" aria-hidden=\\\"true\\\"><path fill=\\\"currentColor\\\" d=\\\"m24 4.515-7.658 14.97H9.149l3.205-6.204h-.144C9.566 16.713 5.621 18.973 0 19.485v-6.118s3.596-.213 5.71-2.435H0V4.515h6.417v5.278l.144-.001 2.622-5.277h4.854v5.244h.144l2.72-5.244H24Z\\\"/></svg>Webflow<span class=\"soon-tip\">Coming soon</span></button><button class=\"soon-btn\" aria-disabled=\"true\" data-soon><svg viewBox=\\\"0 0 24 24\\\" aria-hidden=\\\"true\\\"><path fill=\\\"currentColor\\\" d=\\\"M4 0h16v8h-8zM4 8h8l8 8H4zM4 16h8v8z\\\"/></svg>Framer<span class=\"soon-tip\">Coming soon</span></button><button class=\"dv-copy\" id=\"dv-copy\">",
+   "<button class=\"dv-copy\" id=\"dv-copy\">"
+  ],
+  [
+   "<pre class=\"cd-pre dv-pre\" id=\"dv-pre\"></pre></div>",
+   "<pre class=\"cd-pre dv-pre\" id=\"dv-pre\"></pre></div>\n        <p class=\"dv-soon\">Webflow and Framer exports are on the way. <a href=\"#/roadmap\">See the roadmap</a></p>"
+  ]
+ ],
+ "css": "\n/* a component's own page: the code panel is right below, so the preview keeps only Animate */\n.dv-slot [data-view],.dv-slot [data-copy]{display:none}\n.dv-soon{margin:10px 2px 0;font-size:12.5px;color:var(--sh-muted)}\n.dv-soon a{color:var(--sh-dim);text-decoration:underline;text-underline-offset:2px}\n.dv-soon a:hover{color:var(--sh-text)}\n/* HTML or React in the code view and on the detail page */\n.fw-sw{display:inline-flex;flex:none;gap:2px;padding:2px;border-radius:9px;background:var(--sh-stage);border:1px solid var(--sh-line)}\n.fw-sw button{height:24px;padding:0 10px;border-radius:7px;font-size:12px;font-weight:500;color:var(--sh-dim);transition:background-color .2s,color .2s}\n.fw-sw button:hover{color:var(--sh-text)}\n.fw-sw button[aria-pressed=\"true\"]{background:var(--sh-chip);color:var(--sh-text)}\n.cmd-row{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-top:12px;min-width:0}\n.cmd-row .cdm-cmd{margin-top:0;min-width:0}\n.cdm .rx-only,.cdm.rx .h-only{display:none}\n.cdm.rx .rx-only{display:inline}\n.cdm .cdm-tab[data-t^=\"rx-\"],.cdm.rx .cdm-tab:not([data-t^=\"rx-\"]),.dv-code .dv-tab[data-t^=\"rx-\"],.dv-code.rx .dv-tab:not([data-t^=\"rx-\"]){display:none}\n.cdm.rx .cdm-tab[data-t^=\"rx-\"],.dv-code.rx .dv-tab[data-t^=\"rx-\"]{display:inline-block}\n.cdm.rx .cdm-foot{display:none}\n"
+}

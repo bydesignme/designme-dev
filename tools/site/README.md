@@ -1,0 +1,48 @@
+# Site build
+
+`index.html` at the root of this repository is generated. It is the original designme.dev page (commit `56e4f0b`) with every
+component card swapped for its Soft 2 / Blueprint 2 version from `soft-2/index.html`, plus a few edits to the site's own UI.
+The same build writes the HTML registry in `r/` that `npx designme add` downloads.
+
+Don't edit `index.html` or `r/*.json` by hand: the next build overwrites them.
+
+## Where to change things
+
+| To change | Edit |
+| --- | --- |
+| A component (markup, CSS, demo script) | `soft-2/index.html` |
+| The site's own UI (code view, component page, intro, toolbars) | `make-patches.py`, then `npm run patches` |
+| Card widths, card order, the React copy in the FAQ and roadmap | `build.js` |
+| The React components | `packages/react` (see its README) |
+
+## Build
+
+From this folder:
+
+```sh
+npm install          # acorn and postcss
+npm run base         # writes site-main.html, the original page, from git history (needs a full clone, not a shallow one)
+npm run patches      # only after editing make-patches.py: rewrites site-patches.json
+npm run build        # writes ../../index.html and ../../r/*.json
+npm run react        # regenerates the React CSS, registry (r/react) and preview from the new build
+```
+
+`build` stops with an error if a site patch no longer matches exactly once, so a change to the original page can't
+slip through unnoticed.
+
+Then check the site locally before pushing:
+
+```sh
+cd ../.. && python3 -m http.server 8790
+# open http://localhost:8790/ in Blueprint and Soft, light and dark, at desktop and phone widths
+```
+
+Pushing `staging` deploys https://staging.designme-dev.pages.dev; `main` deploys https://designme.dev.
+
+## Files
+
+- `build.js` does the build. Its comments explain each step.
+- `make-patches.py` writes `site-patches.json`: find-and-replace pairs for the site's own UI, each of which must match
+  exactly once, plus the CSS those edits need.
+- `site-patches.json` is generated, but committed so a build doesn't need Python.
+- `site-main.html` is the original page, taken from git and not committed.
