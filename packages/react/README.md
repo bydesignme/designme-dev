@@ -205,7 +205,7 @@ A number, its trend, and the agent's read on why it moved.
 
 **TaskTable** · `task-table/TaskTable.tsx`  
 Agent tasks in a sortable table with bulk actions.  
-`tasks: { id, name, status: 'running' | 'failed' | 'queued' | 'paused' | 'done', agent: { name, initials, color }, cost, updated }[]`, `selected` / `defaultSelected` / `onSelectedChange` (ids), `sort` / `defaultSort` / `onSortChange` (`{ key, desc? }`), `onAction(action, ids)` (`'pause' | 'retry' | 'cancel'`; the selection clears after). Below 560px wide it hides the Updated column.
+`tasks: { id, name, status: 'running' | 'failed' | 'queued' | 'paused' | 'done', agent: { name, initials, color }, cost, updated }[]`, `selected` / `defaultSelected` / `onSelectedChange` (ids), `sort` / `defaultSort` / `onSortChange` (`{ key, desc? }`), `onAction(action, ids)` (`'pause' | 'retry' | 'cancel'`; the selection clears after, and cancelled rows slide away first), `title`, `summary`, `empty` and `emptyAction: { label, onClick }` (shown when there are no tasks). Selecting rows turns the header into an action bar; rows glide when the order changes. On narrow screens it hides the cost and shows agents as avatars.
 
 **CodeViewer** · `code-viewer/CodeViewer.tsx`  
 Code the agent wrote, with line notes you can ask about.  
@@ -243,7 +243,7 @@ Project files, with the ones the agent touched marked.
 
 **AutomationCanvas** · `automation-canvas/AutomationCanvas.tsx`  
 A trigger, a few agent steps, and a run you can watch flow through.  
-`name`, `tag`, `status`, `nodes: { id, icon, color, title, detail, x, y, narrow?, field?: { label, options }, state?: 'run' | 'done' }[]` (positions are fractions of the canvas), `edges: [from, to][]`, `flowing: [from, to][]` (wires with a pulse), `selected` / `defaultSelected` / `onSelectedChange`, `values` / `defaultValues` / `onValuesChange`, `onNodeMove(id, at, narrow)`, `onRun` (adds Test run), `runLabel`, `doneLabel`. Under 560px wide it stacks.
+`name`, `tag`, `status`, `nodes: { id, icon, color, title, detail, x, y, narrow?, field?: { label, options }, state?: 'run' | 'done' }[]` (positions are fractions of the canvas), `edges: [from, to][]`, `flowing: [from, to][]` (the wires a run has reached: a soft light passes along each as it is added, and it stays lit), `balanced` (on by default: columns spread evenly so the wires match on both sides), `selected` / `defaultSelected` / `onSelectedChange`, `values` / `defaultValues` / `onValuesChange`, `onNodeMove(id, at, narrow)`, `onRun` (adds Test run), `runLabel`, `doneLabel`. Under 560px wide it stacks.
 
 **MemoryPanel** · `memory-panel/MemoryPanel.tsx`  
 What the agent remembers about your team, editable and removable.  
