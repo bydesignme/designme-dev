@@ -14,6 +14,7 @@ Don't edit `index.html` or `r/*.json` by hand: the next build overwrites them.
 | The site's own UI (code view, component page, intro, toolbars) | `make-patches.py`, then `npm run patches` |
 | Card widths, card order, the React copy in the FAQ and roadmap | `build.js` |
 | The React components | `packages/react` (see its README) |
+| The component pages at `/components`, and their written copy | `tools/pages` (see its README) |
 
 ## Build
 
@@ -25,6 +26,7 @@ npm run base         # writes site-main.html, the original page, from git histor
 npm run patches      # only after editing make-patches.py: rewrites site-patches.json
 npm run build        # writes ../../index.html, ../../code-data.json, ../../r/*.json, ../../llms.txt and ../../404.html
 npm run react        # regenerates the React CSS, registry (r/react) and preview from the new build
+npm run pages        # builds the component pages, their Markdown copies and the sitemap (see ../pages/README.md)
 ```
 
 After changing a component's size, or adding one, measure the cards again and rebuild:
@@ -69,6 +71,7 @@ Pushing `staging` deploys https://staging.designme-dev.pages.dev; `main` deploys
 - `measure-heights.js` writes `card-heights.json`, the height each card keeps, committed for the same reason.
 - The build also writes `llms.txt`, a Markdown index of every component for AI tools, and `404.html`, which Cloudflare
   Pages serves with a 404 for any address that isn't a file (without it, every address got the homepage). The 404 page
-  knows every component, so `/components/composer` offers the Composer page. `robots.txt` and `sitemap.xml` are written
-  by hand.
+  knows every component, so a mistyped address like `/composer` offers the Composer page. `robots.txt` is written by
+  hand; `sitemap.xml` comes from `tools/pages`. The build also writes `../pages/data/site.json` for those pages, and
+  links each card's title on the homepage to its page.
 - `site-main.html` is the original page, taken from git and not committed.

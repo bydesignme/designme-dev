@@ -1,0 +1,405 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Design tuner: AI agent UI component for React and HTML | Designme.dev</title><meta name="description" content="Tweak a component by hand or let the agent tune it. Free and MIT licensed, as HTML or a typed React component, in two styles with light and dark mode."><link rel="canonical" href="https://designme.dev/components/design-tuner"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><meta property="og:type" content="website"><meta property="og:site_name" content="Designme.dev"><meta property="og:title" content="Design tuner: AI agent UI component for React and HTML | Designme.dev"><meta property="og:description" content="Tweak a component by hand or let the agent tune it. Free and MIT licensed, as HTML or a typed React component, in two styles with light and dark mode."><meta property="og:url" content="https://designme.dev/components/design-tuner"><meta property="og:image" content="https://designme.dev/og.png"><meta name="twitter:card" content="summary_large_image"><link rel="alternate" type="text/plain" title="All components for AI tools" href="/llms.txt"><link rel="preload" href="/fonts/inter-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin><link rel="preload" href="/fonts/inter-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin><script>try{var t=localStorage.getItem('dmui-theme');if(t)document.documentElement.setAttribute('data-theme',t);var s=localStorage.getItem('dmui-style');if(s)document.documentElement.setAttribute('data-style',s)}catch(e){}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareSourceCode","name":"Design tuner","description":"Design tuner puts a live preview next to a few sliders, such as radius, padding, spacing and shadow, so a person can tweak a component by hand. A button hands the same sliders to the agent, which can move them while people watch and then explain what it changed.","url":"https://designme.dev/components/design-tuner","programmingLanguage":["HTML","CSS","JavaScript","TypeScript"],"runtimePlatform":"Web browser","license":"https://opensource.org/licenses/MIT","isAccessibleForFree":true,"keywords":"Design tuner, Review and approve, AI agent UI, React component, HTML component","author":{"@type":"Organization","name":"DesignMe","url":"https://designme.agency"},"isPartOf":{"@type":"WebSite","name":"Designme.dev","url":"https://designme.dev/"}}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Components","item":"https://designme.dev/components"},{"@type":"ListItem","position":2,"name":"Review and approve","item":"https://designme.dev/components/review"},{"@type":"ListItem","position":3,"name":"Design tuner","item":"https://designme.dev/components/design-tuner"}]}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I let the agent move the sliders?","acceptedAnswer":{"@type":"Answer","text":"Control values and update them from your agent as it works. Set tuning and active while it runs so people can see which slider it is on."}},{"@type":"Question","name":"How do I tune my own component instead of the sample card?","acceptedAnswer":{"@type":"Answer","text":"Pass preview, a function that gets the values and a style object. Spread the style onto your element and read the --dm-<key> variables in its CSS."}},{"@type":"Question","name":"Can a slider hold decimal values?","acceptedAnswer":{"@type":"Answer","text":"Yes. Set decimals on the param, for example 2 for a shadow strength. The value is shown and set with that many decimals instead of being rounded."}}]}</script><link rel="stylesheet" href="/components/assets/core.css"><style>/* ---------- Design tuner ---------- */
+.dtx{display:grid;grid-template-columns:1fr 280px;gap:14px;align-items:stretch}
+@media (max-width:720px){.dtx{grid-template-columns:1fr}}
+@container (max-width:600px){.dtx{grid-template-columns:1fr}.dtx-prev{min-height:240px}}
+.dtx-prev{border-radius:18px;background:var(--chip);display:grid;place-items:center;padding:24px;min-height:300px;min-width:0}
+.dtx-card{--rad:16px;--pad:18px;--gap:12px;--sh:.08;width:min(250px,100%);background:var(--surface);border-radius:var(--rad);padding:var(--pad);display:flex;flex-direction:column;gap:var(--gap);box-shadow:0 1px 2px rgba(0,0,0,var(--sh)),0 8px 24px rgba(0,0,0,calc(var(--sh) * .8))}
+.dtx-tg{align-self:flex-start}
+.dtx-pr{display:flex;align-items:baseline;gap:6px}
+.dtx-pr b{font-size:28px;font-weight:600;letter-spacing:-.02em}
+.dtx-pr span{font-size:12px}
+.dtx-li{display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--fg2)}
+.dtx-li span{display:flex;align-items:center;gap:7px}
+.dtx-li svg{color:var(--accent)}
+.dtx-cta{width:100%;border-radius:calc(var(--rad) * .6)}
+.dtx-insp{padding:14px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.dtx-ih{display:flex;align-items:baseline;justify-content:space-between;font-size:13.5px}
+.dtx-ih b{font-weight:500}
+.dtx-st{font-size:12px}
+.dtx-rows{display:flex;flex-direction:column;gap:10px}
+.dtx-r{display:grid;grid-template-columns:62px 1fr 40px;align-items:center;gap:10px;font-size:12.5px;color:var(--fg2)}
+.dtx-r .v{text-align:right;color:var(--fg);font-size:12px}
+.dtx-r.hot .v{color:var(--accent)}
+.dtx-sl{position:relative;height:22px;display:flex;align-items:center;cursor:pointer;touch-action:none}
+.dtx-sl::before{content:"";position:absolute;left:0;right:0;height:4px;border-radius:2px;background:var(--line)}
+.dtx-sl .f{position:absolute;left:0;height:4px;border-radius:2px;background:var(--accent)}
+.dtx-sl .k{position:absolute;width:14px;height:14px;margin-left:-7px;border-radius:50%;background:#fff;box-shadow:0 0 0 1px var(--line),0 1px 3px rgba(0,0,0,.18);transition:transform .2s}
+.dtx-sl:hover .k,.dtx-sl.drag .k,.dtx-sl:focus-visible .k{transform:scale(1.15)}
+.dtx-sl:focus-visible{outline-offset:4px}
+.dtx-go{align-self:stretch;margin-top:auto}
+.dtx-go.busy{pointer-events:none}
+.dtx-note{font-size:12px;color:var(--fg2);padding:8px 10px;border-radius:10px;background:var(--accent-bg);line-height:1.45}
+</style><style>
+@font-face{font-family:Inter;font-style:normal;font-weight:400;font-display:swap;src:url(/fonts/inter-latin-400-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:Inter;font-style:normal;font-weight:500;font-display:swap;src:url(/fonts/inter-latin-500-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:Inter;font-style:normal;font-weight:600;font-display:swap;src:url(/fonts/inter-latin-600-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:Inter;font-style:normal;font-weight:700;font-display:swap;src:url(/fonts/inter-latin-700-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"JetBrains Mono";font-style:normal;font-weight:500;font-display:swap;src:url(/fonts/jetbrains-mono-latin-500-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+</style><style>:root{--pg-bg:#fff;--pg-fg:#111318;--pg-dim:#5b5f6b;--pg-muted:#8b8f99;--pg-line:#11131814;--pg-line2:#11131824;--pg-soft:#fafafa;--pg-chip:#f1f1f3;--pg-ink:#111318;--pg-on-ink:#fff;--pg-link:#116ff8;--pg-sans:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;--pg-mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace}@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--pg-bg:#0b0c0f;--pg-fg:#ededee;--pg-dim:#a1a3ab;--pg-muted:#76787f;--pg-line:#ffffff14;--pg-line2:#ffffff24;--pg-soft:#131418;--pg-chip:#ffffff0f;--pg-ink:#f5f5f4;--pg-on-ink:#111318;--pg-link:#6aa8ff;color-scheme:dark}}:root[data-theme=dark]{--pg-bg:#0b0c0f;--pg-fg:#ededee;--pg-dim:#a1a3ab;--pg-muted:#76787f;--pg-line:#ffffff14;--pg-line2:#ffffff24;--pg-soft:#131418;--pg-chip:#ffffff0f;--pg-ink:#f5f5f4;--pg-on-ink:#111318;--pg-link:#6aa8ff;color-scheme:dark}*{box-sizing:border-box}html{-webkit-text-size-adjust:100%}body{background:var(--pg-bg);color:var(--pg-fg);font:15px/1.6 var(--pg-sans);-webkit-font-smoothing:antialiased;margin:0}a{color:inherit}.pg-top{z-index:50;background:color-mix(in srgb,var(--pg-bg) 88%,transparent);backdrop-filter:blur(14px);border-bottom:1px solid var(--pg-line);position:sticky;top:0}.pg-top-in{align-items:center;gap:28px;max-width:1180px;margin:0 auto;padding:12px 24px;display:flex}.pg-logo{color:var(--pg-fg);display:block}.pg-logo svg{width:auto;height:21px;display:block}.pg-nav{gap:22px;font-size:14px;display:flex}.pg-nav a{color:var(--pg-dim);text-decoration:none;transition:color .2s}.pg-nav a:hover,.pg-nav a[aria-current=page]{color:var(--pg-fg)}.pg-top .pg-sp{flex:1}.pg-theme{width:34px;height:34px;color:var(--pg-dim);cursor:pointer;background:0 0;border:0;border-radius:999px;place-items:center;display:grid}.pg-theme:hover{background:var(--pg-chip);color:var(--pg-fg)}.pg-theme svg{width:17px;height:17px}.pg-main{max-width:1180px;margin:0 auto;padding:36px 24px 96px}.pg-foot{border-top:1px solid var(--pg-line);color:var(--pg-dim);font-size:13px}.pg-foot-in{flex-wrap:wrap;justify-content:space-between;gap:10px 24px;max-width:1180px;margin:0 auto;padding:28px 24px 40px;display:flex}.pg-foot nav{flex-wrap:wrap;gap:18px;display:flex}.pg-foot a{color:var(--pg-dim);text-decoration:none}.pg-foot a:hover{color:var(--pg-fg)}:focus-visible{outline:2px solid var(--pg-fg);outline-offset:2px}@media (width<=640px){.pg-top-in{gap:14px;padding:10px 16px}.pg-logo svg{height:18px}.pg-nav{gap:14px}.pg-nav .pg-wide{display:none}.pg-main{padding:24px 16px 72px}.pg-foot-in{padding:24px 16px 32px}}@media (width<=380px){.pg-nav .pg-cl{display:none}}
+.cp-crumbs{color:var(--pg-muted);flex-wrap:wrap;gap:6px;font-size:13px;display:flex}.cp-crumbs a{color:var(--pg-dim);text-decoration:none}.cp-crumbs a:hover{color:var(--pg-fg)}.cp-h{letter-spacing:-.025em;text-wrap:balance;margin:14px 0 0;font-size:34px;font-weight:600;line-height:1.15}.cp-lead{color:var(--pg-dim);max-width:62ch;margin:10px 0 0;font-size:17px}.cp-tags{flex-wrap:wrap;gap:6px;margin:16px 0 0;padding:0;list-style:none;display:flex}.cp-tags li{color:var(--pg-dim);box-shadow:inset 0 0 0 1px var(--pg-line2);border-radius:999px;padding:3px 10px;font-size:12.5px}.cp-demo{background:var(--stage,var(--pg-soft));border-radius:16px;margin:28px 0 0;overflow:hidden}.cp-bar{align-items:center;gap:8px;padding:10px 12px 0;display:flex}.cp-bar .sp{flex:1}.cp-seg{background:var(--pg-chip);border-radius:999px;padding:3px;display:inline-flex}.cp-seg button,.cp-btn{height:28px;color:var(--pg-dim);font:500 13px/1 var(--pg-sans);cursor:pointer;background:0 0;border:0;border-radius:999px;padding:0 12px}.cp-seg button[aria-pressed=true]{background:var(--pg-bg);color:var(--pg-fg);box-shadow:0 1px 2px #00000014}.cp-btn:hover,.cp-seg button:hover{color:var(--pg-fg)}.cp-btn{align-items:center;gap:6px;display:inline-flex}.cp-btn svg{width:14px;height:14px}.pg-demo{min-height:calc(var(--h-a) + 72px);grid-template-columns:minmax(0,1fr);justify-items:center;padding:32px 24px 40px;display:grid}.pg-demo>.card{align-self:stretch;place-items:center;min-width:0;display:grid}@media (width<=640px){.pg-demo{min-height:calc(var(--h-e) + 52px);padding:24px 12px 28px}.cp-h{font-size:28px}}.cp-sec{max-width:820px;margin:56px 0 0}.cp-sec.wide{max-width:none}.cp-sec h2{letter-spacing:-.015em;margin:0 0 14px;font-size:22px;font-weight:600}.cp-sec h3{margin:24px 0 8px;font-size:15px;font-weight:600}.cp-sec p{max-width:68ch;margin:0 0 12px}.cp-sec ul{margin:0;padding-left:20px}.cp-sec li{max-width:66ch;margin:5px 0}.cp-sec code,.cp-props code,.cp-cmd code{font-variant-ligatures:none;font:500 12.5px/1.4 var(--pg-mono);background:var(--pg-chip);border-radius:5px;padding:1px 5px}.cp-cmds{grid-template-columns:minmax(0,1fr);gap:8px;display:grid}.cp-cmd{background:var(--pg-soft);min-width:0;box-shadow:inset 0 0 0 1px var(--pg-line);border-radius:12px;align-items:center;gap:12px;padding:6px 6px 6px 14px;display:flex}.cp-cmd .k{width:52px;color:var(--pg-muted);flex:none;font-size:12.5px}.cp-cmd code{white-space:nowrap;min-width:0;font:500 13.5px/1.5 var(--pg-mono);background:0 0;flex:1;padding:0;overflow-x:auto}.cp-copy{background:var(--pg-bg);height:30px;color:var(--pg-fg);box-shadow:inset 0 0 0 1px var(--pg-line2);font:500 12.5px/1 var(--pg-sans);cursor:pointer;border:0;border-radius:999px;flex:none;padding:0 12px}.cp-copy:hover{background:var(--pg-chip)}.cp-note{color:var(--pg-dim);margin:12px 0 0;font-size:13.5px}.cp-pre{font-variant-ligatures:none;background:var(--pg-soft);max-height:460px;box-shadow:inset 0 0 0 1px var(--pg-line);font:500 12.5px/1.6 var(--pg-mono);tab-size:2;border-radius:12px;margin:0;padding:16px 18px;overflow:auto}.cp-pre code{font:inherit;background:0 0;padding:0}.cp-props{margin:0 0 8px;overflow-x:auto}.cp-props table{border-collapse:collapse;width:100%;min-width:560px;font-size:13.5px}.cp-props th{text-align:left;color:var(--pg-muted);border-bottom:1px solid var(--pg-line2);padding:8px 10px;font-size:12.5px;font-weight:500}.cp-props td{border-bottom:1px solid var(--pg-line);vertical-align:top;padding:10px}.cp-props td:first-child{white-space:nowrap}.cp-props td:nth-child(2) code{white-space:normal;word-break:break-word}.cp-props .opt{color:var(--pg-muted)}.cp-ext{color:var(--pg-dim);font-size:13.5px}details.cp-file{box-shadow:inset 0 0 0 1px var(--pg-line);border-radius:12px;margin:0 0 8px}details.cp-file summary{cursor:pointer;font:500 13.5px/1.4 var(--pg-mono);align-items:center;gap:10px;padding:12px 14px;list-style:none;display:flex}details.cp-file summary::-webkit-details-marker{display:none}details.cp-file summary:before{content:"";border-right:1.5px solid var(--pg-muted);border-bottom:1.5px solid var(--pg-muted);width:6px;height:6px;transition:transform .2s;transform:rotate(-45deg)}details.cp-file[open] summary:before{transform:rotate(45deg)}details.cp-file summary .l{font:12px/1 var(--pg-sans);color:var(--pg-muted);margin-left:auto}details.cp-file .cp-pre{box-shadow:none;border-top:1px solid var(--pg-line);border-radius:0 0 12px 12px;max-height:560px}.cp-faq dt{margin:20px 0 4px;font-weight:600}.cp-faq dd{color:var(--pg-dim);max-width:68ch;margin:0}.cp-rel{grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px;display:grid}.cp-rel a{background:var(--pg-soft);border-radius:14px;padding:14px 16px;text-decoration:none;transition:background .2s;display:block}.cp-rel a:hover{background:var(--pg-chip)}.cp-rel b{font-weight:500;display:block}.cp-rel span{color:var(--pg-dim);margin-top:2px;font-size:13.5px;display:block}.cp-pn{grid-template-columns:1fr 1fr;gap:10px;margin:56px 0 0;display:grid}.cp-pn a{box-shadow:inset 0 0 0 1px var(--pg-line);border-radius:14px;padding:14px 16px;text-decoration:none;display:block}.cp-pn a:hover{background:var(--pg-soft)}.cp-pn .k{color:var(--pg-muted);font-size:12.5px;display:block}.cp-pn b{font-weight:500}.cp-pn .n{text-align:right}.cp-toc{flex-wrap:wrap;gap:4px 18px;margin:22px 0 0;font-size:13.5px;display:flex}.cp-toc a{color:var(--pg-dim);text-decoration:none}.cp-toc a:hover{color:var(--pg-fg)}.sp-crumbs[data-astro-cid-lfhuveqs]{color:var(--pg-muted);font-size:13px}.sp-crumbs[data-astro-cid-lfhuveqs] a[data-astro-cid-lfhuveqs]{color:var(--pg-dim);text-decoration:none}.sp-h[data-astro-cid-lfhuveqs]{letter-spacing:-.025em;margin:14px 0 0;font-size:34px;font-weight:600;line-height:1.15}.sp-lead[data-astro-cid-lfhuveqs]{color:var(--pg-dim);max-width:62ch;margin:10px 0 0;font-size:17px}.sp-grid[data-astro-cid-lfhuveqs]{grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;margin:32px 0 0;display:grid}.sp-grid[data-astro-cid-lfhuveqs] a[data-astro-cid-lfhuveqs]{background:var(--pg-soft);border-radius:14px;padding:18px;text-decoration:none;transition:background .2s;display:block}.sp-grid[data-astro-cid-lfhuveqs] a[data-astro-cid-lfhuveqs]:hover{background:var(--pg-chip)}.sp-grid[data-astro-cid-lfhuveqs] b[data-astro-cid-lfhuveqs]{font-size:15.5px;font-weight:500;display:block}.sp-grid[data-astro-cid-lfhuveqs] span[data-astro-cid-lfhuveqs]{color:var(--pg-dim);margin-top:4px;font-size:13.5px;display:block}.sp-more[data-astro-cid-lfhuveqs]{margin:64px 0 0}.sp-more[data-astro-cid-lfhuveqs] h2[data-astro-cid-lfhuveqs]{margin:0 0 12px;font-size:18px;font-weight:600}.sp-more[data-astro-cid-lfhuveqs] nav[data-astro-cid-lfhuveqs]{flex-wrap:wrap;gap:8px;display:flex}.sp-more[data-astro-cid-lfhuveqs] a[data-astro-cid-lfhuveqs]{box-shadow:inset 0 0 0 1px var(--pg-line2);color:var(--pg-dim);border-radius:999px;padding:6px 12px;font-size:13.5px;text-decoration:none}.sp-more[data-astro-cid-lfhuveqs] a[data-astro-cid-lfhuveqs]:hover{color:var(--pg-fg)}@media (width<=640px){.sp-h[data-astro-cid-lfhuveqs]{font-size:28px}}
+</style></head><body><header class="pg-top"><div class="pg-top-in"><a class="pg-logo" href="/" aria-label="Designme.dev home"><svg role="img" aria-label="Designme.dev" viewBox="0 12.5 210 29.5" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M137.937 20.1034V39.1011H155.787V33.1982H145.37V31.9317H155.38V27.2501H145.37V26.0062H155.787V20.1034H137.937Z" fill="currentColor"/>
+<path d="M136.845 39.1013V20.1036L127.536 20.1036L125.525 29.2632H124.983L122.972 20.1036L113.662 20.1036V39.1013H120.735V32.7009H121.299L122.542 39.1013H127.965L129.208 32.7009H129.773V39.1013L136.845 39.1013Z" fill="currentColor"/>
+<path d="M91.5581 20.1034V39.1011H100.054L104.686 30.5069H105.341V39.1011H112.572V20.1034H104.279L99.4665 28.6976H98.7886V20.1034H91.5581Z" fill="currentColor"/>
+<path d="M90.3556 30.9135V20.1029H86.6499L86.5369 22.274H86.4014C85.0457 20.6457 82.7409 19.4696 79.5324 19.4696C73.6576 19.4696 69.1159 23.4501 69.1159 29.6017C69.1159 35.776 73.3639 39.7338 80.2102 39.7338C84.9553 39.7338 89.8359 37.4044 90.4007 32.0669H83.0347C82.8765 32.4966 81.9501 33.3334 80.391 33.3334C78.0637 33.3334 76.5046 31.9538 76.5046 29.6017C76.5046 27.2496 78.1315 25.87 80.1425 25.87C80.4814 25.87 82.5602 25.7796 83.2154 27.521H79.9391V30.9135H90.3556Z" fill="currentColor"/>
+<path d="M60.9353 20.1034V39.1011H68.3691V20.1034H60.9353Z" fill="currentColor"/>
+<path d="M50.0428 19.4696C42.9704 19.4922 39.8523 21.5277 40.1008 26.7747H46.7664C46.7664 25.8248 47.6025 25.2594 50.0428 25.2368C52.0763 25.1915 52.8446 25.6665 52.8446 26.1414C52.8446 26.2771 53.0027 26.9104 51.4211 27.0913L48.913 27.4758C45.3203 28.0186 40.5075 28.1091 40.5075 33.4465C40.5075 37.3139 43.5805 39.7338 50.0879 39.7338C55.8724 39.7338 59.8943 38.3769 59.691 32.474H53.0705C52.8898 33.4239 52.0086 33.9893 49.9298 33.9893C48.1673 33.9893 47.6477 33.5144 47.6477 33.062C47.6477 32.9263 47.6025 32.3157 48.7096 32.18L50.698 31.8634C54.5618 31.2301 60.2333 31.4563 60.2333 25.8248C60.2333 21.4372 56.9343 19.4244 50.0428 19.4696Z" fill="currentColor"/>
+<path d="M21.5475 20.1034V39.1011H39.3978V33.1982H28.9813V31.9317H38.9911V27.2501H28.9813V26.0062H39.3978V20.1034H21.5475Z" fill="currentColor"/>
+<path d="M10.0775 39.1011C18.0537 39.1011 20.6973 35.1206 20.6973 29.6022C20.6973 24.1291 18.0537 20.1034 10.0775 20.1034H0V39.1011H10.0775ZM10.1001 26.3228C11.7044 26.3228 13.2409 27.0013 13.2409 29.6022C13.2409 32.2483 11.7044 32.9042 10.1001 32.9042H7.45646V26.3228H10.1001Z" fill="currentColor"/>
+<path d="M160.138 24.7522C158.938 24.7522 157.983 23.8244 157.983 22.5601C157.983 21.3049 158.938 20.368 160.138 20.368C161.339 20.368 162.294 21.3049 162.294 22.5601C162.294 23.8244 161.339 24.7522 160.138 24.7522ZM160.138 24.4339C161.139 24.4339 161.939 23.6607 161.939 22.5601C161.939 21.4686 161.139 20.6864 160.138 20.6864C159.147 20.6864 158.337 21.4686 158.337 22.5601C158.337 23.6607 159.147 24.4339 160.138 24.4339ZM159.747 23.7517H159.265V21.3413H160.239C160.784 21.3413 161.075 21.5959 161.075 22.0416C161.075 22.3691 160.875 22.5692 160.548 22.642V22.6602C161.148 22.7693 160.957 23.6607 161.121 23.7244V23.7517H160.63C160.457 23.6243 160.693 22.8421 160.093 22.8421H159.747V23.7517ZM159.747 22.4419H160.12C160.411 22.4419 160.611 22.3691 160.611 22.078C160.611 21.7961 160.402 21.7415 160.129 21.7415H159.747V22.4419Z" fill="currentColor"/>
+<path d="M162.778 38.7558C162.174 38.9572 161.671 39.0579 161.268 39.0579C160.865 39.0291 160.419 38.8421 159.93 38.4968C159.355 37.9214 159.153 37.346 159.326 36.7705C159.527 36.1663 160.045 35.5765 160.879 35.0011C161.455 34.6558 161.872 34.4832 162.131 34.4832C162.419 34.4544 162.836 34.5551 163.383 34.7853C164.361 35.3895 164.792 36.0656 164.677 36.8137C164.562 37.533 163.929 38.1804 162.778 38.7558ZM179.189 41.82C178.815 41.9063 178.441 41.8056 178.067 41.5179C177.721 41.2589 177.477 40.9712 177.333 40.6547C177.16 40.1944 177.045 39.7628 176.988 39.36C176.959 38.9284 176.93 38.4393 176.901 37.8926L176.858 36.4253L175.089 38.0221C174.111 38.9428 173.19 39.6046 172.327 40.0074C171.492 40.3814 170.73 40.5684 170.039 40.5684C169.723 40.5109 169.334 40.3095 168.874 39.9642C168.443 39.5902 168.04 39.1874 167.666 38.7558C167.32 38.2954 167.076 37.9214 166.932 37.6337C166.759 37.2309 166.702 36.6698 166.759 35.9505C166.846 35.2312 167.018 34.44 167.277 33.5769C167.565 32.7137 167.91 31.8649 168.313 31.0305C168.745 30.1962 169.234 29.4769 169.78 28.8727C170.73 27.4341 171.91 26.5421 173.319 26.1969C174.729 25.8228 175.981 25.9379 177.074 26.5421C177.592 26.8011 177.966 26.9018 178.196 26.8442C178.426 26.7867 178.57 26.5997 178.628 26.2832C178.743 25.8228 178.872 25.3913 179.016 24.9885C179.16 24.5856 179.361 23.9814 179.62 23.1758C180.34 20.9892 180.958 19.2772 181.476 18.04C182.023 16.8029 182.512 15.7239 182.944 14.8032C183.26 14.1415 183.577 13.6811 183.893 13.4222C184.21 13.1632 184.483 13.0481 184.713 13.0769C185.03 13.0769 185.418 13.192 185.878 13.4222C186.367 13.6523 186.684 13.9688 186.828 14.3716C186.943 14.6306 186.986 14.9039 186.957 15.1916C186.957 15.4793 186.871 15.7815 186.698 16.0979C186.324 16.7885 185.878 17.7092 185.36 18.86C184.871 19.9821 184.368 21.2193 183.85 22.5716C183.361 23.9239 182.9 25.2618 182.469 26.5853C182.037 27.9088 181.678 29.0741 181.39 30.0811C181.217 30.7141 181.073 31.5197 180.958 32.4979C180.872 33.4762 180.8 34.4832 180.743 35.519C180.714 36.526 180.714 37.4323 180.743 38.2379C180.771 39.0147 180.814 39.5182 180.872 39.7484C181.045 40.3239 181.045 40.7554 180.872 41.0432C180.699 41.3309 180.455 41.5179 180.138 41.6042C179.822 41.7193 179.505 41.7912 179.189 41.82ZM172.068 36.5979C172.471 36.454 172.83 36.2814 173.147 36.08C173.463 35.8786 173.837 35.6197 174.269 35.3032C175.132 34.6414 175.751 34.066 176.125 33.5769C176.527 33.0877 176.844 32.4835 177.074 31.7642C177.218 31.3326 177.218 30.9586 177.074 30.6421C176.959 30.3256 176.743 30.0235 176.427 29.7358C176.11 29.4769 175.707 29.3762 175.218 29.4337C174.729 29.4625 174.168 29.7646 173.535 30.34C172.845 30.973 172.255 31.7067 171.766 32.5411C171.277 33.3755 170.874 34.5695 170.557 36.1232C170.5 36.4109 170.6 36.6123 170.859 36.7274C171.118 36.8425 171.521 36.7993 172.068 36.5979ZM191.763 40.1368C190.899 40.626 189.979 40.9137 189.001 41C188.051 41.0575 187.159 40.9281 186.325 40.6116C185.49 40.2663 184.814 39.7628 184.296 39.1011C184.009 38.727 183.735 38.1372 183.476 37.3316C183.217 36.4972 183.174 35.3751 183.347 33.9653C183.519 32.6418 183.922 31.3039 184.555 29.9516C185.217 28.5993 186.023 27.4053 186.972 26.3695C187.922 25.3337 188.957 24.6288 190.079 24.2548C190.482 24.1109 190.885 24.0102 191.288 23.9527C191.719 23.8663 192.281 23.852 192.971 23.9095C193.633 23.9958 194.223 24.1685 194.741 24.4274C195.258 24.6576 195.632 24.9165 195.863 25.2042C196.323 25.6646 196.625 26.1106 196.769 26.5421C196.913 26.9737 196.97 27.3909 196.942 27.7937C196.798 28.7144 196.38 29.707 195.69 30.7716C195.028 31.8362 194.093 32.6274 192.885 33.1453C192.396 33.3467 191.82 33.4762 191.158 33.5337C190.497 33.5912 189.59 33.5049 188.439 33.2748C187.749 33.1309 187.289 33.2028 187.058 33.4905C186.857 33.7783 186.771 34.3393 186.799 35.1737C186.857 35.6916 186.972 36.1519 187.145 36.5547C187.346 36.9288 187.706 37.1877 188.224 37.3316C188.885 37.4467 189.36 37.4611 189.648 37.3747C189.936 37.2597 190.295 37.1014 190.727 36.9C190.957 36.7561 191.173 36.5979 191.374 36.4253C191.604 36.2526 191.82 36.08 192.022 35.9074C192.252 35.7347 192.439 35.6053 192.583 35.519C192.726 35.4039 192.87 35.3319 193.014 35.3032C193.158 35.2744 193.302 35.26 193.446 35.26C193.762 35.2888 194.064 35.4614 194.352 35.7779C194.64 36.0944 194.827 36.3965 194.913 36.6842C194.913 36.9144 194.769 37.2453 194.482 37.6768C194.194 38.0797 193.805 38.5112 193.316 38.9716C192.856 39.4032 192.338 39.7916 191.763 40.1368ZM191.202 30.5127C191.403 30.4263 191.691 30.2249 192.065 29.9084C192.468 29.592 192.827 29.2611 193.144 28.9158C193.46 28.5418 193.618 28.2541 193.618 28.0527C193.618 27.7362 193.403 27.4628 192.971 27.2327C192.568 27.0025 192.036 26.9593 191.374 27.1032C191.144 27.1607 190.871 27.319 190.554 27.5779C190.238 27.8369 189.921 28.139 189.605 28.4842C189.288 28.8007 189.015 29.1172 188.785 29.4337C188.555 29.7214 188.396 29.9516 188.31 30.1242C188.425 30.2681 188.655 30.3832 189.001 30.4695C189.346 30.5558 189.72 30.599 190.123 30.599C190.554 30.599 190.914 30.5702 191.202 30.5127ZM201.731 39.8779C201.444 40.0793 201.084 40.1944 200.652 40.2232C200.25 40.2232 199.89 40.0649 199.574 39.7484C199.027 39.2305 198.552 38.2091 198.149 36.6842C197.746 35.1305 197.545 33.0302 197.545 30.3832C197.66 29.2035 197.718 28.1102 197.718 27.1032C197.746 26.0962 197.761 25.5351 197.761 25.42C198.077 25.2186 198.48 25.1611 198.969 25.2474C199.487 25.3049 199.904 25.4056 200.221 25.5495C200.509 25.6934 200.71 25.9092 200.825 26.1969C200.969 26.4846 201.055 27.0025 201.084 27.7506C201.142 28.4698 201.17 29.5776 201.17 31.0737C201.084 32.2246 201.026 33.1453 200.998 33.8358C200.969 34.5263 200.998 34.9291 201.084 35.0442C201.199 35.2456 201.257 35.3607 201.257 35.3895C201.257 35.3895 201.472 35.1737 201.904 34.7421C202.134 34.4256 202.379 34.0084 202.638 33.4905C202.925 32.9726 203.17 32.5555 203.371 32.239C203.688 31.8362 203.976 31.4477 204.235 31.0737C204.522 30.6997 204.724 30.4551 204.839 30.34C204.954 30.1098 205.098 29.8941 205.27 29.6927C205.443 29.4912 205.587 29.2898 205.702 29.0884C206.018 28.5418 206.349 28.0958 206.695 27.7506C207.04 27.3765 207.27 27.1895 207.385 27.1895C207.5 27.2758 207.716 27.2614 208.032 27.1463C208.349 27.0025 208.565 26.9306 208.68 26.9306C208.881 26.7291 209.155 26.7291 209.5 26.9306C209.615 27.0169 209.716 27.1176 209.802 27.2327C209.888 27.319 209.931 27.4197 209.931 27.5348C209.931 27.6786 209.845 28.0383 209.672 28.6137C209.529 29.1604 209.342 29.707 209.111 30.2537C208.91 30.7716 208.737 31.0737 208.593 31.16C208.593 31.16 208.55 31.2032 208.464 31.2895C208.378 31.3758 208.277 31.4765 208.162 31.5916C208.104 31.793 207.903 32.167 207.558 32.7137C207.241 33.2316 206.838 33.8358 206.349 34.5263C205.889 35.1881 205.414 35.8498 204.925 36.5116C204.436 37.1446 204.004 37.7056 203.63 38.1947C203.343 38.5975 203.012 38.9572 202.638 39.2737C202.264 39.5614 201.962 39.7628 201.731 39.8779Z" fill="#0072FF"/>
+</svg></a><nav class="pg-nav" aria-label="Site"><a href="/components" aria-current="page">Components</a><a href="/packages/react/preview/" class="pg-wide">React preview</a><a href="/#/changelog" class="pg-cl">Changelog</a></nav><span class="pg-sp"></span><button class="pg-theme" id="pg-theme" type="button" aria-label="Switch between light and dark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"></path></svg></button></div></header><main class="pg-main"><nav class="cp-crumbs" aria-label="Breadcrumb"><a href="/components">Components</a><span>/</span><a href="/components/review">Review and approve</a></nav><h1 class="cp-h">Design tuner</h1><p class="cp-lead">Tweak a component by hand or let the agent tune it.</p><ul class="cp-tags"><li>Agent components</li><li>HTML and React</li><li>Soft and Blueprint</li><li>Light and dark</li><li>MIT</li></ul><section class="cp-demo" aria-label="Design tuner demo"><div class="cp-bar"><div class="cp-seg" role="group" aria-label="Style"><button type="button" data-style-set="bp">Blueprint</button><button type="button" data-style-set="soft">Soft</button></div><span class="sp"></span><button type="button" class="cp-btn" id="cp-replay"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"></path><path d="M3 3v5h5"></path></svg>Replay</button></div><div class="pg-demo stage-inner" style="--h-a:303px;--h-e:598px"><div class="card wide" data-c="design-tuner">
+  <div class="stage-in"></div>
+  <template>
+<div class="dtx">
+  <div class="dtx-prev"><div class="dtx-card">
+    <span class="tag b dtx-tg">Pro</span>
+    <div class="dtx-pr"><b class="num">$24</b><span class="muted">per editor, monthly</span></div>
+    <div class="dtx-li"><span>{c}Unlimited frames</span><span>{c}Agent reviews</span><span>{c}Shared tokens</span></div>
+    <button class="pill accent dtx-cta">Start free trial</button>
+  </div></div>
+  <div class="dtx-insp panel">
+    <div class="dtx-ih"><b>Pricing card</b><span class="muted dtx-st">Edited by you</span></div>
+    <div class="dtx-rows"></div>
+    <button class="pill ink sm dtx-go">{wand}Tune with agent</button>
+  </div>
+</div>
+  </template>
+</div>
+</div></section><nav class="cp-toc" aria-label="On this page"><a href="#install">Install</a><a href="#about">About</a><a href="#usage">Usage</a><a href="#props">Props</a><a href="#code">Code</a><a href="#questions">Questions</a></nav><section class="cp-sec" id="install"><h2>Install</h2><div class="cp-cmds"><div class="cp-cmd"><span class="k">HTML</span><code>npx designme add design-tuner</code><button class="cp-copy" type="button" data-copy="npx designme add design-tuner">Copy</button></div><div class="cp-cmd"><span class="k">React</span><code>npx designme add design-tuner --react</code><button class="cp-copy" type="button" data-copy="npx designme add design-tuner --react">Copy</button></div></div><p class="cp-note">The CLI copies the source into your project, so you own it and can change anything. The HTML version lands in <code>./designme</code> with the shared core and a <code>demo.html</code>. The React version lands in <code>src/components/designme</code> and needs React 19; it works in Next.js, Vite and Astro.</p></section><section class="cp-sec" id="about"><h2>About the design tuner</h2><p>Design tuner puts a live preview next to a few sliders, such as radius, padding, spacing and shadow, so a person can tweak a component by hand. A button hands the same sliders to the agent, which can move them while people watch and then explain what it changed.</p><h3>When to use it</h3><ul><li>When people and the agent should share control over a component's look.</li><li>When you want the agent's styling choices to be visible as slider moves, not hidden in code.</li><li>When designers want to fine-tune spacing or radius after the agent has made a first pass.</li><li>When you need a short note from the agent about why it picked the new values.</li></ul><h3>What it does</h3><ul><li>Each entry in <code>params</code> becomes a slider with a label, a range, a unit like px, and optional <code>decimals</code> for fine values.</li><li>Every value is set on the preview as a CSS variable named <code>--dm-&lt;key&gt;</code>, so your styles can read it.</li><li><code>preview</code> lets you render your own component. It receives the values and a style object with those variables. Without it, a sample pricing card is shown.</li><li><code>active</code> highlights the slider the agent is moving, and <code>status</code> shows a short line like "Agent is tuning".</li><li>The tune button calls <code>onTune</code>. While <code>tuning</code> is true it shows a thinking animation and ignores clicks.</li><li><code>note</code> shows the agent's explanation above the button, and <code>actionLabel</code> lets you change it to something like "Tune again".</li></ul><h3>Accessibility</h3><ul><li>Each slider has <code>role="slider"</code>, is focusable, and sets <code>aria-label</code>, <code>aria-valuemin</code>, <code>aria-valuemax</code>, <code>aria-valuenow</code> and <code>aria-valuetext</code>.</li><li>Arrow keys move a slider by one step, or by the smallest decimal when <code>decimals</code> is set.</li><li>The tune button sets <code>aria-busy</code> while the agent is tuning.</li></ul></section><section class="cp-sec" id="usage"><h2>Usage in React</h2><p>After installing, import it from where the CLI put it:</p><pre class="cp-pre"><code>import { DesignTuner } from &#39;@/components/designme/design-tuner/DesignTuner&#39;;</code></pre><h3>Example</h3><p>The demo above, as a React component you can copy:</p><pre class="cp-pre"><code>&#39;use client&#39;;
+// The animated preview from designme.dev, rebuilt from the React component: an example of driving it from your own state.
+import { useEffect, useRef, useState } from &#39;react&#39;;
+import { DesignTuner } from &#39;./DesignTuner&#39;;
+import { useScript } from &#39;../lib/useScript&#39;;
+
+/* ---------- Design tuner: drag the sliders, or let the agent tune each one in turn ---------- */
+const START = { rad: 16, pad: 18, gap: 12, sh: .08 };
+const KEYS = [&#39;rad&#39;, &#39;pad&#39;, &#39;gap&#39;, &#39;sh&#39;] as const;
+export default function DesignTunerDemo() {
+  const [values, setValues] = useState&lt;Record&lt;string, number&gt;&gt;(START);
+  const [status, setStatus] = useState(&#39;Edited by you&#39;);
+  const [active, setActive] = useState&lt;string&gt;();
+  const [note, setNote] = useState&lt;string&gt;();
+  const [runs, setRuns] = useState(0);
+  const live = useRef(values), yours = useRef(false);
+  useEffect(() =&gt; { live.current = values; });
+  // the agent tunes once on its own, unless you reach for a slider or the button first
+  useScript(async ({ wait }) =&gt; { await wait(1600); if (!yours.current) setRuns(r =&gt; r || 1); });
+  // each run aims at the other set of values, so Tune again always has something to do
+  useScript(async ({ wait }) =&gt; {
+    if (runs &lt;= 0) return;
+    const target = runs % 2 ? { rad: 20, pad: 24, gap: 14, sh: .05 } : { rad: 12, pad: 20, gap: 10, sh: .1 };
+    setStatus(&#39;Agent is tuning&#39;); setNote(undefined);
+    for (const k of KEYS) {
+      setActive(k);
+      const from = live.current[k], to = target[k], t0 = performance.now();
+      for (let p = 0; p &lt; 1;) { await wait(16); p = Math.min(1, (performance.now() - t0) / 650); setValues(v =&gt; ({ ...v, [k]: from + (to - from) * (1 - Math.pow(1 - p, 3)) })); }
+      await wait(120); setActive(undefined);
+    }
+    setNote(&#39;Matched the 4px grid and your card tokens. Softer shadow so the CTA leads.&#39;);
+    setStatus(&#39;Tuned by agent&#39;); setRuns(r =&gt; -r);
+  }, [runs &gt; 0 ? runs : 0]);
+  return (
+    &lt;div style={{ width: &#39;100%&#39; }}&gt;
+      &lt;DesignTuner values={values} onValuesChange={v =&gt; { yours.current = true; setValues(v); setStatus(&#39;Edited by you&#39;); }} status={status} active={active}
+        tuning={runs &gt; 0} note={note} actionLabel={runs ? &#39;Tune again&#39; : &#39;Tune with agent&#39;} onTune={() =&gt; { yours.current = true; setRuns(r =&gt; Math.abs(r) + 1); }} /&gt;
+    &lt;/div&gt;
+  );
+}
+</code></pre></section><section class="cp-sec wide" id="props"><h2>Props</h2><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>params</code><span class="opt"> optional</span></td><td><code>TunerParam[]</code></td><td>The sliders. Defaults to radius, padding, spacing and shadow for the sample card</td></tr><tr><td><code>values</code><span class="opt"> optional</span></td><td><code>Record&lt;string, number&gt;</code></td><td>The value of each slider by key. Leave it out to let the sliders keep their own</td></tr><tr><td><code>defaultValues</code><span class="opt"> optional</span></td><td><code>Record&lt;string, number&gt;</code></td><td></td></tr><tr><td><code>onValuesChange</code><span class="opt"> optional</span></td><td><code>(values: Record&lt;string, number&gt;) =&gt; void</code></td><td></td></tr><tr><td><code>title</code><span class="opt"> optional</span></td><td><code>string</code></td><td>What is being tuned, like &quot;Pricing card&quot;</td></tr><tr><td><code>status</code><span class="opt"> optional</span></td><td><code>string</code></td><td>Quiet line beside the title, like &quot;Edited by you&quot; or &quot;Agent is tuning&quot;</td></tr><tr><td><code>active</code><span class="opt"> optional</span></td><td><code>string</code></td><td>Key of the slider the agent is moving now; its value turns the accent colour</td></tr><tr><td><code>tuning</code><span class="opt"> optional</span></td><td><code>boolean</code></td><td>The agent is tuning: the button thinks and stops taking clicks</td></tr><tr><td><code>note</code><span class="opt"> optional</span></td><td><code>ReactNode</code></td><td>What the agent changed and why, shown above the button</td></tr><tr><td><code>actionLabel</code><span class="opt"> optional</span></td><td><code>string</code></td><td>The button&#39;s label, like &quot;Tune with agent&quot; or &quot;Tune again&quot;</td></tr><tr><td><code>onTune</code><span class="opt"> optional</span></td><td><code>() =&gt; void</code></td><td></td></tr><tr><td><code>preview</code><span class="opt"> optional</span></td><td><code>(values: Record&lt;string, number&gt;, vars: CSSProperties) =&gt; ReactNode</code></td><td>What the sliders change. Gets the values and a style with a `--dm-&lt;key&gt;` variable for each one. Defaults to the sample pricing card from designme.dev</td></tr><tr><td><code>className</code><span class="opt"> optional</span></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec wide" id="code"><h2>Code</h2><p>The full source, as the CLI installs it. Open a file to read it.</p><details class="cp-file"><summary>DesignTuner.tsx<span class="l">React</span></summary><pre class="cp-pre"><code>&#39;use client&#39;;
+import { useRef, useState, type CSSProperties, type KeyboardEvent, type PointerEvent, type ReactNode } from &#39;react&#39;;
+import { cx } from &#39;../lib/cx&#39;;
+import { useControllable } from &#39;../lib/hooks&#39;;
+import { Icon } from &#39;../lib/icons&#39;;
+import { enter, Swap, Think } from &#39;../lib/motion&#39;;
+import &#39;../designme.css&#39;;
+import &#39;./design-tuner.css&#39;;
+
+export interface TunerParam {
+  /** Names the value and the CSS variable it sets on the preview, `--dm-&lt;key&gt;` */
+  key: string;
+  /** Shown beside the slider, like &quot;Radius&quot; */
+  label: string;
+  min: number;
+  max: number;
+  /** Where the slider starts when you don&#39;t pass values */
+  value: number;
+  /** Added after whole numbers, like &quot;px&quot;. Leave it out for plain numbers */
+  unit?: string;
+  /** Shows and sets the value with this many decimals instead of rounding it, like 2 for a shadow strength */
+  decimals?: number;
+}
+
+export interface DesignTunerProps {
+  /** The sliders. Defaults to radius, padding, spacing and shadow for the sample card */
+  params?: TunerParam[];
+  /** The value of each slider by key. Leave it out to let the sliders keep their own */
+  values?: Record&lt;string, number&gt;;
+  defaultValues?: Record&lt;string, number&gt;;
+  onValuesChange?: (values: Record&lt;string, number&gt;) =&gt; void;
+  /** What is being tuned, like &quot;Pricing card&quot; */
+  title?: string;
+  /** Quiet line beside the title, like &quot;Edited by you&quot; or &quot;Agent is tuning&quot; */
+  status?: string;
+  /** Key of the slider the agent is moving now; its value turns the accent colour */
+  active?: string;
+  /** The agent is tuning: the button thinks and stops taking clicks */
+  tuning?: boolean;
+  /** What the agent changed and why, shown above the button */
+  note?: ReactNode;
+  /** The button&#39;s label, like &quot;Tune with agent&quot; or &quot;Tune again&quot; */
+  actionLabel?: string;
+  onTune?: () =&gt; void;
+  /** What the sliders change. Gets the values and a style with a `--dm-&lt;key&gt;` variable for each one.
+      Defaults to the sample pricing card from designme.dev */
+  preview?: (values: Record&lt;string, number&gt;, vars: CSSProperties) =&gt; ReactNode;
+  className?: string;
+}
+
+const PARAMS: TunerParam[] = [
+  { key: &#39;rad&#39;, label: &#39;Radius&#39;, min: 0, max: 28, value: 16, unit: &#39;px&#39; },
+  { key: &#39;pad&#39;, label: &#39;Padding&#39;, min: 8, max: 32, value: 18, unit: &#39;px&#39; },
+  { key: &#39;gap&#39;, label: &#39;Spacing&#39;, min: 4, max: 24, value: 12, unit: &#39;px&#39; },
+  { key: &#39;sh&#39;, label: &#39;Shadow&#39;, min: 0, max: .2, value: .08, decimals: 2 }
+];
+
+const clamp = (p: TunerParam, v: number) =&gt; Math.max(p.min, Math.min(p.max, v));
+const shown = (p: TunerParam, v: number) =&gt; p.decimals ? v.toFixed(p.decimals) : Math.round(v) + (p.unit ?? &#39;&#39;);
+const cssValue = (p: TunerParam, v: number) =&gt; p.decimals ? String(+v.toFixed(p.decimals)) : Math.round(v) + (p.unit ?? &#39;&#39;);
+
+/** The sample the site tunes: a pricing card that reads --dm-rad, --dm-pad, --dm-gap and --dm-sh */
+function SampleCard({ vars }: { vars: CSSProperties }) {
+  return (
+    &lt;div className=&quot;dm-dtx-card&quot; style={vars}&gt;
+      &lt;span className=&quot;dm-tag dm-b dm-dtx-tg&quot;&gt;Pro&lt;/span&gt;
+      &lt;div className=&quot;dm-dtx-pr&quot;&gt;&lt;b className=&quot;dm-num&quot;&gt;$24&lt;/b&gt;&lt;span className=&quot;dm-muted&quot;&gt;per editor, monthly&lt;/span&gt;&lt;/div&gt;
+      &lt;div className=&quot;dm-dtx-li&quot;&gt;{[&#39;Unlimited frames&#39;, &#39;Agent reviews&#39;, &#39;Shared tokens&#39;].map(t =&gt; &lt;span key={t}&gt;&lt;Icon name=&quot;check&quot; size=&quot;xs&quot; /&gt;{t}&lt;/span&gt;)}&lt;/div&gt;
+      &lt;button type=&quot;button&quot; className=&quot;dm-pill dm-accent dm-dtx-cta&quot;&gt;Start free trial&lt;/button&gt;
+    &lt;/div&gt;
+  );
+}
+
+function Slider({ param, value, hot, onChange }: { param: TunerParam; value: number; hot: boolean; onChange: (v: number) =&gt; void }) {
+  const [drag, setDrag] = useState(false);
+  const ref = useRef&lt;HTMLDivElement&gt;(null);
+  const pct = (value - param.min) / (param.max - param.min) * 100;
+  const at = (e: PointerEvent) =&gt; { const b = ref.current!.getBoundingClientRect(); onChange(clamp(param, param.min + (param.max - param.min) * Math.max(0, Math.min(1, (e.clientX - b.left) / b.width)))); };
+  const key = (e: KeyboardEvent) =&gt; {
+    const dir = ({ ArrowRight: 1, ArrowUp: 1, ArrowLeft: -1, ArrowDown: -1 } as Record&lt;string, number&gt;)[e.key]; if (!dir) return;
+    e.preventDefault(); onChange(clamp(param, value + dir * (param.decimals ? Math.pow(10, -param.decimals) : 1)));
+  };
+  return (
+    &lt;div className={cx(&#39;dm-dtx-r&#39;, hot &amp;&amp; &#39;dm-hot&#39;)}&gt;
+      &lt;span&gt;{param.label}&lt;/span&gt;
+      &lt;div ref={ref} className={cx(&#39;dm-dtx-sl&#39;, drag &amp;&amp; &#39;dm-drag&#39;)} role=&quot;slider&quot; tabIndex={0} aria-label={param.label}
+        aria-valuemin={param.min} aria-valuemax={param.max} aria-valuenow={param.decimals ? +value.toFixed(param.decimals) : Math.round(value)} aria-valuetext={shown(param, value)}
+        onPointerDown={e =&gt; { e.currentTarget.setPointerCapture(e.pointerId); setDrag(true); at(e); }}
+        onPointerMove={e =&gt; { if (drag) at(e); }}
+        onPointerUp={() =&gt; setDrag(false)} onPointerCancel={() =&gt; setDrag(false)} onKeyDown={key}&gt;
+        &lt;span className=&quot;dm-f&quot; style={{ width: pct + &#39;%&#39; }} /&gt;&lt;span className=&quot;dm-k&quot; style={{ left: pct + &#39;%&#39; }} /&gt;
+      &lt;/div&gt;
+      &lt;span className=&quot;dm-v dm-num&quot;&gt;{shown(param, value)}&lt;/span&gt;
+    &lt;/div&gt;
+  );
+}
+
+/** A live preview beside a few sliders, with a button that hands the tuning to the agent. */
+export function DesignTuner({ params = PARAMS, values, defaultValues, onValuesChange, title = &#39;Pricing card&#39;, status = &#39;Edited by you&#39;, active, tuning = false, note,
+  actionLabel = &#39;Tune with agent&#39;, onTune, preview, className }: DesignTunerProps) {
+  const [vals, setVals] = useControllable(values, defaultValues ?? Object.fromEntries(params.map(p =&gt; [p.key, p.value])), onValuesChange);
+  const valueOf = (p: TunerParam) =&gt; clamp(p, vals[p.key] ?? p.value);
+  const vars = Object.fromEntries(params.map(p =&gt; [&#39;--dm-&#39; + p.key, cssValue(p, valueOf(p))])) as CSSProperties;
+  return (
+    // the site lays this out by the width of its card, so the box around it is the container its query measures
+    &lt;div data-dm=&quot;&quot; className={cx(&#39;dm-dtx-box&#39;, className)} style={{ containerType: &#39;inline-size&#39;, width: &#39;100%&#39; }}&gt;
+      &lt;div className=&quot;dm-dtx&quot;&gt;
+        &lt;div className=&quot;dm-dtx-prev&quot;&gt;{preview ? preview(Object.fromEntries(params.map(p =&gt; [p.key, valueOf(p)])), vars) : &lt;SampleCard vars={vars} /&gt;}&lt;/div&gt;
+        &lt;div className=&quot;dm-dtx-insp dm-panel&quot;&gt;
+          &lt;div className=&quot;dm-dtx-ih&quot;&gt;&lt;b&gt;{title}&lt;/b&gt;&lt;Swap className=&quot;dm-muted dm-dtx-st&quot;&gt;{status}&lt;/Swap&gt;&lt;/div&gt;
+          &lt;div className=&quot;dm-dtx-rows&quot;&gt;
+            {params.map(p =&gt; &lt;Slider key={p.key} param={p} value={valueOf(p)} hot={active === p.key} onChange={v =&gt; setVals({ ...vals, [p.key]: v })} /&gt;)}
+          &lt;/div&gt;
+          {note &amp;&amp; &lt;div className=&quot;dm-dtx-note dm-enter&quot; style={enter().style}&gt;{note}&lt;/div&gt;}
+          &lt;button type=&quot;button&quot; className={cx(&#39;dm-pill dm-ink dm-sm dm-dtx-go&#39;, tuning &amp;&amp; &#39;dm-busy&#39;)} aria-busy={tuning} onClick={() =&gt; { if (!tuning) onTune?.(); }}&gt;
+            {tuning ? &lt;&gt;&lt;Think /&gt;Tuning&lt;/&gt; : &lt;&gt;&lt;Icon name=&quot;wand&quot; size=&quot;xs&quot; /&gt;{actionLabel}&lt;/&gt;}
+          &lt;/button&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  );
+}
+</code></pre></details><details class="cp-file"><summary>design-tuner.css<span class="l">React</span></summary><pre class="cp-pre"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+/* ---------- Design tuner ---------- */
+.dm-dtx{display:grid;grid-template-columns:1fr 280px;gap:14px;align-items:stretch}
+@media (max-width:720px){.dm-dtx{grid-template-columns:1fr}}
+@container (max-width:600px){.dm-dtx{grid-template-columns:1fr}.dm-dtx-prev{min-height:240px}}
+.dm-dtx-prev{border-radius:18px;background:var(--dm-chip);display:grid;place-items:center;padding:24px;min-height:300px;min-width:0}
+.dm-dtx-card{--dm-rad:16px;--dm-pad:18px;--dm-gap:12px;--dm-sh:.08;width:min(250px,100%);background:var(--dm-surface);border-radius:var(--dm-rad);padding:var(--dm-pad);display:flex;flex-direction:column;gap:var(--dm-gap);box-shadow:0 1px 2px rgba(0,0,0,var(--dm-sh)),0 8px 24px rgba(0,0,0,calc(var(--dm-sh) * .8))}
+.dm-dtx-tg{align-self:flex-start}
+.dm-dtx-pr{display:flex;align-items:baseline;gap:6px}
+.dm-dtx-pr b{font-size:28px;font-weight:600;letter-spacing:-.02em}
+.dm-dtx-pr span{font-size:12px}
+.dm-dtx-li{display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--dm-fg2)}
+.dm-dtx-li span{display:flex;align-items:center;gap:7px}
+.dm-dtx-li svg{color:var(--dm-accent)}
+.dm-dtx-cta{width:100%;border-radius:calc(var(--dm-rad) * .6)}
+.dm-dtx-insp{padding:14px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.dm-dtx-ih{display:flex;align-items:baseline;justify-content:space-between;font-size:13.5px}
+.dm-dtx-ih b{font-weight:500}
+.dm-dtx-st{font-size:12px}
+.dm-dtx-rows{display:flex;flex-direction:column;gap:10px}
+.dm-dtx-r{display:grid;grid-template-columns:62px 1fr 40px;align-items:center;gap:10px;font-size:12.5px;color:var(--dm-fg2)}
+.dm-dtx-r .dm-v{text-align:right;color:var(--dm-fg);font-size:12px}
+.dm-dtx-r.dm-hot .dm-v{color:var(--dm-accent)}
+.dm-dtx-sl{position:relative;height:22px;display:flex;align-items:center;cursor:pointer;touch-action:none}
+.dm-dtx-sl::before{content:&quot;&quot;;position:absolute;left:0;right:0;height:4px;border-radius:2px;background:var(--dm-line)}
+.dm-dtx-sl .dm-f{position:absolute;left:0;height:4px;border-radius:2px;background:var(--dm-accent)}
+.dm-dtx-sl .dm-k{position:absolute;width:14px;height:14px;margin-left:-7px;border-radius:50%;background:#fff;box-shadow:0 0 0 1px var(--dm-line),0 1px 3px rgba(0,0,0,.18);transition:transform .2s}
+.dm-dtx-sl:hover .dm-k,.dm-dtx-sl.dm-drag .dm-k,.dm-dtx-sl:focus-visible .dm-k{transform:scale(1.15)}
+.dm-dtx-sl:focus-visible{outline-offset:4px}
+.dm-dtx-go{align-self:stretch;margin-top:auto}
+.dm-dtx-go.dm-busy{pointer-events:none}
+.dm-dtx-note{font-size:12px;color:var(--dm-fg2);padding:8px 10px;border-radius:10px;background:var(--dm-accent-bg);line-height:1.45}
+</code></pre></details><details class="cp-file"><summary>design-tuner.html<span class="l">HTML</span></summary><pre class="cp-pre"><code>&lt;div class=&quot;card wide&quot; data-c=&quot;design-tuner&quot;&gt;
+  &lt;div class=&quot;stage-in&quot;&gt;&lt;/div&gt;
+  &lt;template&gt;
+&lt;div class=&quot;dtx&quot;&gt;
+  &lt;div class=&quot;dtx-prev&quot;&gt;&lt;div class=&quot;dtx-card&quot;&gt;
+    &lt;span class=&quot;tag b dtx-tg&quot;&gt;Pro&lt;/span&gt;
+    &lt;div class=&quot;dtx-pr&quot;&gt;&lt;b class=&quot;num&quot;&gt;$24&lt;/b&gt;&lt;span class=&quot;muted&quot;&gt;per editor, monthly&lt;/span&gt;&lt;/div&gt;
+    &lt;div class=&quot;dtx-li&quot;&gt;&lt;span&gt;{c}Unlimited frames&lt;/span&gt;&lt;span&gt;{c}Agent reviews&lt;/span&gt;&lt;span&gt;{c}Shared tokens&lt;/span&gt;&lt;/div&gt;
+    &lt;button class=&quot;pill accent dtx-cta&quot;&gt;Start free trial&lt;/button&gt;
+  &lt;/div&gt;&lt;/div&gt;
+  &lt;div class=&quot;dtx-insp panel&quot;&gt;
+    &lt;div class=&quot;dtx-ih&quot;&gt;&lt;b&gt;Pricing card&lt;/b&gt;&lt;span class=&quot;muted dtx-st&quot;&gt;Edited by you&lt;/span&gt;&lt;/div&gt;
+    &lt;div class=&quot;dtx-rows&quot;&gt;&lt;/div&gt;
+    &lt;button class=&quot;pill ink sm dtx-go&quot;&gt;{wand}Tune with agent&lt;/button&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+  &lt;/template&gt;
+&lt;/div&gt;
+</code></pre></details><details class="cp-file"><summary>design-tuner.css<span class="l">HTML</span></summary><pre class="cp-pre"><code>/* ---------- Design tuner ---------- */
+.dtx{display:grid;grid-template-columns:1fr 280px;gap:14px;align-items:stretch}
+@media (max-width:720px){.dtx{grid-template-columns:1fr}}
+@container (max-width:600px){.dtx{grid-template-columns:1fr}.dtx-prev{min-height:240px}}
+.dtx-prev{border-radius:18px;background:var(--chip);display:grid;place-items:center;padding:24px;min-height:300px;min-width:0}
+.dtx-card{--rad:16px;--pad:18px;--gap:12px;--sh:.08;width:min(250px,100%);background:var(--surface);border-radius:var(--rad);padding:var(--pad);display:flex;flex-direction:column;gap:var(--gap);box-shadow:0 1px 2px rgba(0,0,0,var(--sh)),0 8px 24px rgba(0,0,0,calc(var(--sh) * .8))}
+.dtx-tg{align-self:flex-start}
+.dtx-pr{display:flex;align-items:baseline;gap:6px}
+.dtx-pr b{font-size:28px;font-weight:600;letter-spacing:-.02em}
+.dtx-pr span{font-size:12px}
+.dtx-li{display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--fg2)}
+.dtx-li span{display:flex;align-items:center;gap:7px}
+.dtx-li svg{color:var(--accent)}
+.dtx-cta{width:100%;border-radius:calc(var(--rad) * .6)}
+.dtx-insp{padding:14px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.dtx-ih{display:flex;align-items:baseline;justify-content:space-between;font-size:13.5px}
+.dtx-ih b{font-weight:500}
+.dtx-st{font-size:12px}
+.dtx-rows{display:flex;flex-direction:column;gap:10px}
+.dtx-r{display:grid;grid-template-columns:62px 1fr 40px;align-items:center;gap:10px;font-size:12.5px;color:var(--fg2)}
+.dtx-r .v{text-align:right;color:var(--fg);font-size:12px}
+.dtx-r.hot .v{color:var(--accent)}
+.dtx-sl{position:relative;height:22px;display:flex;align-items:center;cursor:pointer;touch-action:none}
+.dtx-sl::before{content:&quot;&quot;;position:absolute;left:0;right:0;height:4px;border-radius:2px;background:var(--line)}
+.dtx-sl .f{position:absolute;left:0;height:4px;border-radius:2px;background:var(--accent)}
+.dtx-sl .k{position:absolute;width:14px;height:14px;margin-left:-7px;border-radius:50%;background:#fff;box-shadow:0 0 0 1px var(--line),0 1px 3px rgba(0,0,0,.18);transition:transform .2s}
+.dtx-sl:hover .k,.dtx-sl.drag .k,.dtx-sl:focus-visible .k{transform:scale(1.15)}
+.dtx-sl:focus-visible{outline-offset:4px}
+.dtx-go{align-self:stretch;margin-top:auto}
+.dtx-go.busy{pointer-events:none}
+.dtx-note{font-size:12px;color:var(--fg2);padding:8px 10px;border-radius:10px;background:var(--accent-bg);line-height:1.45}
+</code></pre></details><details class="cp-file"><summary>design-tuner.js<span class="l">HTML</span></summary><pre class="cp-pre"><code>DM.def(&#39;design-tuner&#39;, (r, c) =&gt; {
+  r.innerHTML = r.innerHTML.replace(/\{c\}/g, I(&#39;check&#39;,&#39;xs&#39;)).replace(&#39;{wand}&#39;, I(&#39;wand&#39;,&#39;xs&#39;));
+  const card = $(&#39;.dtx-card&#39;, r), rows = $(&#39;.dtx-rows&#39;, r), st = $(&#39;.dtx-st&#39;, r), go = $(&#39;.dtx-go&#39;, r);
+  const P = [
+    { k:&#39;rad&#39;, n:&#39;Radius&#39;, min:0, max:28, v:16, u:&#39;px&#39;, t:20 },
+    { k:&#39;pad&#39;, n:&#39;Padding&#39;, min:8, max:32, v:18, u:&#39;px&#39;, t:24 },
+    { k:&#39;gap&#39;, n:&#39;Spacing&#39;, min:4, max:24, v:12, u:&#39;px&#39;, t:14 },
+    { k:&#39;sh&#39;, n:&#39;Shadow&#39;, min:0, max:.2, v:.08, u:&#39;&#39;, t:.05, f:2 }
+  ];
+  rows.innerHTML = P.map(p =&gt; `&lt;div class=&quot;dtx-r&quot; data-k=&quot;${p.k}&quot;&gt;&lt;span&gt;${p.n}&lt;/span&gt;&lt;div class=&quot;dtx-sl&quot; role=&quot;slider&quot; tabindex=&quot;0&quot; aria-label=&quot;${p.n}&quot; aria-valuemin=&quot;${p.min}&quot; aria-valuemax=&quot;${p.max}&quot;&gt;&lt;span class=&quot;f&quot;&gt;&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;&lt;/span&gt;&lt;/div&gt;&lt;span class=&quot;v num&quot;&gt;&lt;/span&gt;&lt;/div&gt;`).join(&#39;&#39;);
+  function set(p, v){ p.v = Math.max(p.min, Math.min(p.max, v)); const pc = (p.v - p.min) / (p.max - p.min) * 100; const row = $(`[data-k=&quot;${p.k}&quot;]`, rows);
+    $(&#39;.f&#39;, row).style.width = pc + &#39;%&#39;; $(&#39;.k&#39;, row).style.left = pc + &#39;%&#39;; $(&#39;.v&#39;, row).textContent = p.f ? p.v.toFixed(p.f) : Math.round(p.v) + p.u;
+    card.style.setProperty(&#39;--&#39; + p.k, p.f ? p.v : Math.round(p.v) + &#39;px&#39;); $(&#39;.dtx-sl&#39;, row).setAttribute(&#39;aria-valuenow&#39;, p.f ? p.v.toFixed(p.f) : Math.round(p.v)); }
+  P.forEach(p =&gt; {
+    set(p, p.v); const sl = $(`[data-k=&quot;${p.k}&quot;] .dtx-sl`, rows);
+    const at = e =&gt; { const b = sl.getBoundingClientRect(); set(p, p.min + (p.max - p.min) * Math.max(0, Math.min(1, (e.clientX - b.left) / b.width))); };
+    sl.onpointerdown = e =&gt; { sl.setPointerCapture(e.pointerId); sl.classList.add(&#39;drag&#39;); at(e); swap(st, &#39;Edited by you&#39;); sl.onpointermove = at; };
+    sl.onpointerup = sl.onpointercancel = () =&gt; { sl.classList.remove(&#39;drag&#39;); sl.onpointermove = null; };
+    sl.onkeydown = e =&gt; { const k = { ArrowRight:1, ArrowUp:1, ArrowLeft:-1, ArrowDown:-1 }[e.key]; if (!k) return; e.preventDefault(); set(p, p.v + k * (p.f ? .01 : 1)); swap(st, &#39;Edited by you&#39;); };
+  });
+  let note;
+  go.onclick = () =&gt; c.run(async () =&gt; {
+    go.classList.add(&#39;busy&#39;); go.innerHTML = &#39;&lt;span class=&quot;think on&quot;&gt;&lt;i&gt;&lt;/i&gt;&lt;i&gt;&lt;/i&gt;&lt;i&gt;&lt;/i&gt;&lt;i&gt;&lt;/i&gt;&lt;/span&gt;Tuning&#39;; swap(st, &#39;Agent is tuning&#39;); if (note) note.remove();
+    for (const p of P){ const row = $(`[data-k=&quot;${p.k}&quot;]`, rows); row.classList.add(&#39;hot&#39;); await tween(p.v, p.t, 650, x =&gt; set(p, x)); await c.wait(120); row.classList.remove(&#39;hot&#39;); }
+    note = html(&#39;&lt;div class=&quot;dtx-note&quot;&gt;Matched the 4px grid and your card tokens. Softer shadow so the CTA leads.&lt;/div&gt;&#39;); go.before(note); enter(note);
+    go.classList.remove(&#39;busy&#39;); go.innerHTML = I(&#39;wand&#39;,&#39;xs&#39;) + &#39;Tune again&#39;; swap(st, &#39;Tuned by agent&#39;);
+    P.forEach(p =&gt; { const o = p.t; p.t = p.k === &#39;rad&#39; ? (o === 20 ? 12 : 20) : p.k === &#39;pad&#39; ? (o === 24 ? 20 : 24) : p.k === &#39;gap&#39; ? (o === 14 ? 10 : 14) : (o === .05 ? .1 : .05); });
+  });
+  // the preview lets the agent tune once on its own, unless you reach for a slider or the button first
+  let mine = false; c.on(r, &#39;pointerdown&#39;, e =&gt; { if (e.isTrusted) mine = true; }, true); c.on(r, &#39;keydown&#39;, () =&gt; mine = true, true);
+  c.later(1600, () =&gt; { if (!mine) go.click(); });
+});
+</code></pre></details></section><section class="cp-sec" id="questions"><h2>Questions</h2><dl class="cp-faq"><dt>How do I let the agent move the sliders?</dt><dd>Control <code>values</code> and update them from your agent as it works. Set <code>tuning</code> and <code>active</code> while it runs so people can see which slider it is on.</dd><dt>How do I tune my own component instead of the sample card?</dt><dd>Pass <code>preview</code>, a function that gets the values and a style object. Spread the style onto your element and read the <code>--dm-&lt;key&gt;</code> variables in its CSS.</dd><dt>Can a slider hold decimal values?</dt><dd>Yes. Set <code>decimals</code> on the param, for example 2 for a shadow strength. The value is shown and set with that many decimals instead of being rounded.</dd></dl></section><section class="cp-sec wide"><h2>More in Review and approve</h2><div class="cp-rel"><a href="/components/change-review"><b>Change review</b><span>Accept or reject each change the agent made, file by file.</span></a><a href="/components/plan-review"><b>Plan review</b><span>Check the agent&#39;s plan, edit steps, then let it run.</span></a><a href="/components/permission-gate"><b>Permission gate</b><span>The agent asks before it touches something new.</span></a><a href="/components/decision-prompt"><b>Decision prompt</b><span>The agent asks a few quick questions before it starts.</span></a><a href="/components/proposal-card"><b>Proposal card</b><span>A suggested change with confidence, alternatives and undo.</span></a><a href="/components/rewrite-toolbar"><b>Rewrite toolbar</b><span>Select a sentence and let the agent rewrite it in place.</span></a><a href="/components/launch-checklist"><b>Launch checklist</b><span>The agent checks a design before it ships, and fixes what fails.</span></a></div></section><nav class="cp-pn" aria-label="Previous and next component"><a href="/components/proposal-card" rel="prev"><span class="k">Previous</span><b>Proposal card</b></a><a href="/components/rewrite-toolbar" rel="next" class="n"><span class="k">Next</span><b>Rewrite toolbar</b></a></nav></main><footer class="pg-foot"><div class="pg-foot-in"><span>Free and MIT licensed. Built by <a href="https://designme.agency">DesignMe</a>.</span><nav aria-label="More"><a href="/components">All components</a><a href="/#/changelog">Changelog</a><a href="/llms.txt">llms.txt</a><a href="/r/index.json">Registry</a><a href="/">Home</a></nav></div></footer><script>
+// light and dark, shared with the rest of the site through the same saved setting
+(function(){
+  var root = document.documentElement, mq = matchMedia('(prefers-color-scheme: dark)');
+  var cur = function(){ return root.getAttribute('data-theme') || (mq.matches ? 'dark' : 'light'); };
+  document.getElementById('pg-theme').addEventListener('click', function(){
+    var next = cur() === 'dark' ? 'light' : 'dark', sys = mq.matches ? 'dark' : 'light';
+    if (next === sys){ root.removeAttribute('data-theme'); try { localStorage.removeItem('dmui-theme'); } catch(e){} }
+    else { root.setAttribute('data-theme', next); try { localStorage.setItem('dmui-theme', next); } catch(e){} }
+  });
+})();
+</script><script src="/components/assets/core.js"></script><script>DM.def('design-tuner', (r, c) => {
+  r.innerHTML = r.innerHTML.replace(/\{c\}/g, I('check','xs')).replace('{wand}', I('wand','xs'));
+  const card = $('.dtx-card', r), rows = $('.dtx-rows', r), st = $('.dtx-st', r), go = $('.dtx-go', r);
+  const P = [
+    { k:'rad', n:'Radius', min:0, max:28, v:16, u:'px', t:20 },
+    { k:'pad', n:'Padding', min:8, max:32, v:18, u:'px', t:24 },
+    { k:'gap', n:'Spacing', min:4, max:24, v:12, u:'px', t:14 },
+    { k:'sh', n:'Shadow', min:0, max:.2, v:.08, u:'', t:.05, f:2 }
+  ];
+  rows.innerHTML = P.map(p => `<div class="dtx-r" data-k="${p.k}"><span>${p.n}</span><div class="dtx-sl" role="slider" tabindex="0" aria-label="${p.n}" aria-valuemin="${p.min}" aria-valuemax="${p.max}"><span class="f"></span><span class="k"></span></div><span class="v num"></span></div>`).join('');
+  function set(p, v){ p.v = Math.max(p.min, Math.min(p.max, v)); const pc = (p.v - p.min) / (p.max - p.min) * 100; const row = $(`[data-k="${p.k}"]`, rows);
+    $('.f', row).style.width = pc + '%'; $('.k', row).style.left = pc + '%'; $('.v', row).textContent = p.f ? p.v.toFixed(p.f) : Math.round(p.v) + p.u;
+    card.style.setProperty('--' + p.k, p.f ? p.v : Math.round(p.v) + 'px'); $('.dtx-sl', row).setAttribute('aria-valuenow', p.f ? p.v.toFixed(p.f) : Math.round(p.v)); }
+  P.forEach(p => {
+    set(p, p.v); const sl = $(`[data-k="${p.k}"] .dtx-sl`, rows);
+    const at = e => { const b = sl.getBoundingClientRect(); set(p, p.min + (p.max - p.min) * Math.max(0, Math.min(1, (e.clientX - b.left) / b.width))); };
+    sl.onpointerdown = e => { sl.setPointerCapture(e.pointerId); sl.classList.add('drag'); at(e); swap(st, 'Edited by you'); sl.onpointermove = at; };
+    sl.onpointerup = sl.onpointercancel = () => { sl.classList.remove('drag'); sl.onpointermove = null; };
+    sl.onkeydown = e => { const k = { ArrowRight:1, ArrowUp:1, ArrowLeft:-1, ArrowDown:-1 }[e.key]; if (!k) return; e.preventDefault(); set(p, p.v + k * (p.f ? .01 : 1)); swap(st, 'Edited by you'); };
+  });
+  let note;
+  go.onclick = () => c.run(async () => {
+    go.classList.add('busy'); go.innerHTML = '<span class="think on"><i></i><i></i><i></i><i></i></span>Tuning'; swap(st, 'Agent is tuning'); if (note) note.remove();
+    for (const p of P){ const row = $(`[data-k="${p.k}"]`, rows); row.classList.add('hot'); await tween(p.v, p.t, 650, x => set(p, x)); await c.wait(120); row.classList.remove('hot'); }
+    note = html('<div class="dtx-note">Matched the 4px grid and your card tokens. Softer shadow so the CTA leads.</div>'); go.before(note); enter(note);
+    go.classList.remove('busy'); go.innerHTML = I('wand','xs') + 'Tune again'; swap(st, 'Tuned by agent');
+    P.forEach(p => { const o = p.t; p.t = p.k === 'rad' ? (o === 20 ? 12 : 20) : p.k === 'pad' ? (o === 24 ? 20 : 24) : p.k === 'gap' ? (o === 14 ? 10 : 14) : (o === .05 ? .1 : .05); });
+  });
+  // the preview lets the agent tune once on its own, unless you reach for a slider or the button first
+  let mine = false; c.on(r, 'pointerdown', e => { if (e.isTrusted) mine = true; }, true); c.on(r, 'keydown', () => mine = true, true);
+  c.later(1600, () => { if (!mine) go.click(); });
+});
+</script><script>
+    (function(){
+      var root = document.documentElement, card = document.querySelector('.pg-demo > .card[data-c]');
+      // Blueprint or Soft, shared with the rest of the site; the demo starts again in the new style
+      var mark = function(){ var soft = root.getAttribute('data-style') === 'soft'; document.querySelectorAll('[data-style-set]').forEach(function(b){ b.setAttribute('aria-pressed', String((b.dataset.styleSet === 'soft') === soft)); }); };
+      document.querySelectorAll('[data-style-set]').forEach(function(b){ b.addEventListener('click', function(){
+        if (b.getAttribute('aria-pressed') === 'true') return;
+        if (b.dataset.styleSet === 'soft') root.setAttribute('data-style', 'soft'); else root.removeAttribute('data-style');
+        try { localStorage.setItem('dmui-style', b.dataset.styleSet === 'soft' ? 'soft' : 'bp'); } catch(e){}
+        mark(); if (card && window.DM) DM.mount(card);
+      }); });
+      mark();
+      document.getElementById('cp-replay').addEventListener('click', function(){ if (card && typeof DM !== 'undefined') DM.mount(card); });
+      document.querySelectorAll('[data-copy]').forEach(function(b){ b.addEventListener('click', function(){
+        var done = function(){ b.textContent = 'Copied'; setTimeout(function(){ b.textContent = 'Copy'; }, 1400); };
+        if (navigator.clipboard) navigator.clipboard.writeText(b.dataset.copy).then(done, function(){}); });
+      });
+    })();
+    </script></body></html>

@@ -1,0 +1,37 @@
+{
+  "summary": "Step loader shows an agent task as a short list of named steps, with the current step's label, a count like 2/4 and a segmented progress track. Click the row to open the full list and see which steps are done and which are still to come.",
+  "use": [
+    "When an agent runs a known sequence, like reading frames, matching tokens and writing components.",
+    "When people want one compact line by default, with the full list a click away.",
+    "When finished steps should report what they did, such as \"Read 4 frames\" instead of \"Reading Figma frames\".",
+    "When the end of a run should hand off with a clear label like \"Ready for review\"."
+  ],
+  "features": [
+    "Pass `steps` and a `current` index. Setting `current` to `steps.length` marks every step done and shows a check.",
+    "Each step has a running `label` and an optional `done` text that replaces it once the step is finished.",
+    "The row label and the count crossfade as the agent moves to the next step.",
+    "`loader` picks the animation beside the running step: `radar`, `dots`, `ring` or `bars`.",
+    "`doneLabel` sets the text once everything is finished, \"Ready for review\" by default.",
+    "The step list can be left to toggle itself, or controlled with `open`, `defaultOpen` and `onOpenChange`."
+  ],
+  "a11y": [
+    "The row is a button with `aria-expanded` that reflects whether the step list is open.",
+    "The track has `role=\"progressbar\"` with `aria-valuemin`, `aria-valuemax` and `aria-valuenow` set from the steps.",
+    "When the list is closed it is `inert` and `aria-hidden`, so hidden steps are skipped by keyboard and screen readers.",
+    "With reduced motion turned on, label swaps happen instantly and loader animations are cut short."
+  ],
+  "faq": [
+    {
+      "q": "How do I mark the whole run as finished?",
+      "a": "Set `current` to `steps.length` or higher. The loader becomes a green check, every step shows its `done` text and the row shows `doneLabel`."
+    },
+    {
+      "q": "Can I open the step list from my own code?",
+      "a": "Yes. Pass `open` and update it from `onOpenChange` to control it. Leave `open` out and the row toggles the list by itself, starting from `defaultOpen`."
+    },
+    {
+      "q": "Does the loader advance on its own?",
+      "a": "No. It shows whatever `current` you pass, so you move it forward as your agent reports each step."
+    }
+  ]
+}

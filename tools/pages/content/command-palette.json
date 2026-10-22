@@ -1,0 +1,29 @@
+{
+  "summary": "A search box with a list of commands under it, grouped by heading, where a person can jump to a page, run an action, or pass what they typed to the agent. As soon as something is typed, the list narrows and a last row, \"Ask the agent\", sends the text to the agent instead. It gives an agent product one keyboard-first place to start anything.",
+  "use": [
+    "When people need a single shortcut that reaches every page and action in your app.",
+    "When a typed request that matches no command should still reach the agent.",
+    "When you want to show keyboard shortcuts next to the commands they trigger.",
+    "Inside a modal opened by a key such as Cmd K, closed again with Escape."
+  ],
+  "features": [
+    "Filters `items` as you type, matching the letters of the query in order anywhere in the label, and marks the matching letters.",
+    "Lists commands under their `group` heading, each with an icon and optional `keys` shown as keyboard chips.",
+    "Adds an \"Ask the agent\" row at the end whenever the box has text, which calls `onAsk` with that text.",
+    "Runs the highlighted command on click or Enter and calls `onRun` with it.",
+    "Shows what ran last in the footer, or your own `status` text.",
+    "Works controlled through `query` and `onQueryChange`, or holds its own text with `defaultQuery`."
+  ],
+  "a11y": [
+    "The list has role=\"listbox\" and each row has role=\"option\" with aria-selected on the highlighted one.",
+    "Arrow Up and Arrow Down move the highlight and wrap around, and Enter runs the highlighted row.",
+    "Escape clears the box first, and calls `onClose` only when the box is already empty.",
+    "The input carries aria-label=\"Command\"."
+  ],
+  "faq": [
+    {"q": "How do I send a free-text request to the agent?", "a": "Pass `onAsk`. When the box has text, the last row reads \"Ask the agent\" with the typed text, and running it calls `onAsk` with the trimmed query."},
+    {"q": "How does the filter match commands?", "a": "Each letter of the query must appear in the label in the same order, though not side by side. So \"tok\" matches \"Export tokens as CSS variables\"."},
+    {"q": "How do I close the palette with Escape?", "a": "Pass `onClose`. The first Escape clears any text, and the next Escape, on an empty box, calls `onClose` so you can hide the palette."},
+    {"q": "Can I focus the input when the palette opens?", "a": "Yes. Set `autoFocus` and the cursor goes into the box when it appears."}
+  ]
+}

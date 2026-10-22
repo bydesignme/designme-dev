@@ -1,0 +1,359 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Pricing cards: free UI component for React and HTML | Designme.dev</title><meta name="description" content="Three plans with a billing switch and a seat slider. Free and MIT licensed, as HTML or a typed React component, in two styles with light and dark mode."><link rel="canonical" href="https://designme.dev/components/pricing-cards"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><meta property="og:type" content="website"><meta property="og:site_name" content="Designme.dev"><meta property="og:title" content="Pricing cards: free UI component for React and HTML | Designme.dev"><meta property="og:description" content="Three plans with a billing switch and a seat slider. Free and MIT licensed, as HTML or a typed React component, in two styles with light and dark mode."><meta property="og:url" content="https://designme.dev/components/pricing-cards"><meta property="og:image" content="https://designme.dev/og.png"><meta name="twitter:card" content="summary_large_image"><link rel="alternate" type="text/plain" title="All components for AI tools" href="/llms.txt"><link rel="preload" href="/fonts/inter-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin><link rel="preload" href="/fonts/inter-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin><script>try{var t=localStorage.getItem('dmui-theme');if(t)document.documentElement.setAttribute('data-theme',t);var s=localStorage.getItem('dmui-style');if(s)document.documentElement.setAttribute('data-style',s)}catch(e){}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareSourceCode","name":"Pricing cards","description":"Pricing cards shows your plans side by side, with a Monthly and Yearly switch and a slider for how many editors the price should cover. Each paid plan works out its own total for that team size and billing period, and prices roll to their new value when the period changes. Once the team is large enough, the outline can move from the popular plan to a bigger one.","url":"https://designme.dev/components/pricing-cards","programmingLanguage":["HTML","CSS","JavaScript","TypeScript"],"runtimePlatform":"Web browser","license":"https://opensource.org/licenses/MIT","isAccessibleForFree":true,"keywords":"Pricing cards, Product, UI component, React component, HTML component","author":{"@type":"Organization","name":"DesignMe","url":"https://designme.agency"},"isPartOf":{"@type":"WebSite","name":"Designme.dev","url":"https://designme.dev/"}}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Components","item":"https://designme.dev/components"},{"@type":"ListItem","position":2,"name":"Product","item":"https://designme.dev/components/product"},{"@type":"ListItem","position":3,"name":"Pricing cards","item":"https://designme.dev/components/pricing-cards"}]}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I know which plan, period and team size the person picked?","acceptedAnswer":{"@type":"Answer","text":"Handle onChoose. It receives the plan and an object with period and seats, the values the card was priced for when its button was pressed."}},{"@type":"Question","name":"How do I show a free plan or a custom-priced plan?","acceptedAnswer":{"@type":"Answer","text":"Set price to 0 for free, or null for priced on request. Paid plans work out their own total line; for free and custom plans set total yourself, like \"Up to 2 editors\"."}},{"@type":"Question","name":"Can the Enterprise plan be highlighted for big teams?","acceptedAnswer":{"@type":"Answer","text":"Yes. Give it fromSeats, such as 25. When the slider reaches that number, the outline moves to that card from the popular one."}}]}</script><link rel="stylesheet" href="/components/assets/core.css"><style>/* ---------- Pricing cards ---------- */
+.pcx{display:flex;flex-direction:column;gap:14px;width:100%}
+.pcx-top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.pcx-per button{font-size:12.5px;height:30px;padding:0 12px;display:inline-flex;align-items:center;gap:6px}
+.pcx-per .tag{height:18px;font-size:10.5px;padding:0 5px}
+.pcx-seats{display:flex;align-items:center;gap:10px;font-size:12.5px}
+.pcx-seats input{width:150px;accent-color:var(--accent)}
+.pcx-seats b{width:22px;font-weight:500}
+.pcx-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+@media (max-width:760px){.pcx-grid{grid-template-columns:1fr}}
+.pcx-c{padding:18px;display:flex;flex-direction:column;gap:12px;transition:transform .45s var(--ease),box-shadow .3s;position:relative}
+.pcx-c:hover{box-shadow:var(--shadow-pop)}
+.pcx-c.hot{box-shadow:0 0 0 1.5px var(--accent),var(--shadow)}
+.pcx-c.hot:hover{box-shadow:0 0 0 1.5px var(--accent),var(--shadow-pop)}
+.pcx-c .bd{position:absolute;top:16px;right:16px}
+.pcx-c .nm{font-size:14px;font-weight:500}
+.pcx-c .ds{font-size:12.5px;color:var(--muted);margin-top:-8px}
+.pcx-pr{display:flex;flex-wrap:wrap;align-items:baseline;gap:0 6px}
+.pcx-pr b{font-size:30px;font-weight:600;letter-spacing:-.02em}
+.pcx-pr span{flex-basis:100%;min-height:18px;font-size:12px;color:var(--muted)}
+.pcx-pr s{font-size:13px;color:var(--faint)}
+.pcx-tot{font-size:12px;color:var(--fg2);min-height:16px}
+.pcx-li{display:flex;flex-direction:column;gap:7px;font-size:13px;color:var(--fg2);margin:4px 0}
+.pcx-li span{display:flex;align-items:center;gap:8px}
+.pcx-li svg{color:var(--accent);flex:none}
+.pcx-c .pill{width:100%;height:38px;margin-top:auto}
+</style><style>
+@font-face{font-family:Inter;font-style:normal;font-weight:400;font-display:swap;src:url(/fonts/inter-latin-400-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:Inter;font-style:normal;font-weight:500;font-display:swap;src:url(/fonts/inter-latin-500-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:Inter;font-style:normal;font-weight:600;font-display:swap;src:url(/fonts/inter-latin-600-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:Inter;font-style:normal;font-weight:700;font-display:swap;src:url(/fonts/inter-latin-700-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"JetBrains Mono";font-style:normal;font-weight:500;font-display:swap;src:url(/fonts/jetbrains-mono-latin-500-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+</style><style>:root{--pg-bg:#fff;--pg-fg:#111318;--pg-dim:#5b5f6b;--pg-muted:#8b8f99;--pg-line:#11131814;--pg-line2:#11131824;--pg-soft:#fafafa;--pg-chip:#f1f1f3;--pg-ink:#111318;--pg-on-ink:#fff;--pg-link:#116ff8;--pg-sans:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;--pg-mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace}@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--pg-bg:#0b0c0f;--pg-fg:#ededee;--pg-dim:#a1a3ab;--pg-muted:#76787f;--pg-line:#ffffff14;--pg-line2:#ffffff24;--pg-soft:#131418;--pg-chip:#ffffff0f;--pg-ink:#f5f5f4;--pg-on-ink:#111318;--pg-link:#6aa8ff;color-scheme:dark}}:root[data-theme=dark]{--pg-bg:#0b0c0f;--pg-fg:#ededee;--pg-dim:#a1a3ab;--pg-muted:#76787f;--pg-line:#ffffff14;--pg-line2:#ffffff24;--pg-soft:#131418;--pg-chip:#ffffff0f;--pg-ink:#f5f5f4;--pg-on-ink:#111318;--pg-link:#6aa8ff;color-scheme:dark}*{box-sizing:border-box}html{-webkit-text-size-adjust:100%}body{background:var(--pg-bg);color:var(--pg-fg);font:15px/1.6 var(--pg-sans);-webkit-font-smoothing:antialiased;margin:0}a{color:inherit}.pg-top{z-index:50;background:color-mix(in srgb,var(--pg-bg) 88%,transparent);backdrop-filter:blur(14px);border-bottom:1px solid var(--pg-line);position:sticky;top:0}.pg-top-in{align-items:center;gap:28px;max-width:1180px;margin:0 auto;padding:12px 24px;display:flex}.pg-logo{color:var(--pg-fg);display:block}.pg-logo svg{width:auto;height:21px;display:block}.pg-nav{gap:22px;font-size:14px;display:flex}.pg-nav a{color:var(--pg-dim);text-decoration:none;transition:color .2s}.pg-nav a:hover,.pg-nav a[aria-current=page]{color:var(--pg-fg)}.pg-top .pg-sp{flex:1}.pg-theme{width:34px;height:34px;color:var(--pg-dim);cursor:pointer;background:0 0;border:0;border-radius:999px;place-items:center;display:grid}.pg-theme:hover{background:var(--pg-chip);color:var(--pg-fg)}.pg-theme svg{width:17px;height:17px}.pg-main{max-width:1180px;margin:0 auto;padding:36px 24px 96px}.pg-foot{border-top:1px solid var(--pg-line);color:var(--pg-dim);font-size:13px}.pg-foot-in{flex-wrap:wrap;justify-content:space-between;gap:10px 24px;max-width:1180px;margin:0 auto;padding:28px 24px 40px;display:flex}.pg-foot nav{flex-wrap:wrap;gap:18px;display:flex}.pg-foot a{color:var(--pg-dim);text-decoration:none}.pg-foot a:hover{color:var(--pg-fg)}:focus-visible{outline:2px solid var(--pg-fg);outline-offset:2px}@media (width<=640px){.pg-top-in{gap:14px;padding:10px 16px}.pg-logo svg{height:18px}.pg-nav{gap:14px}.pg-nav .pg-wide{display:none}.pg-main{padding:24px 16px 72px}.pg-foot-in{padding:24px 16px 32px}}@media (width<=380px){.pg-nav .pg-cl{display:none}}
+.cp-crumbs{color:var(--pg-muted);flex-wrap:wrap;gap:6px;font-size:13px;display:flex}.cp-crumbs a{color:var(--pg-dim);text-decoration:none}.cp-crumbs a:hover{color:var(--pg-fg)}.cp-h{letter-spacing:-.025em;text-wrap:balance;margin:14px 0 0;font-size:34px;font-weight:600;line-height:1.15}.cp-lead{color:var(--pg-dim);max-width:62ch;margin:10px 0 0;font-size:17px}.cp-tags{flex-wrap:wrap;gap:6px;margin:16px 0 0;padding:0;list-style:none;display:flex}.cp-tags li{color:var(--pg-dim);box-shadow:inset 0 0 0 1px var(--pg-line2);border-radius:999px;padding:3px 10px;font-size:12.5px}.cp-demo{background:var(--stage,var(--pg-soft));border-radius:16px;margin:28px 0 0;overflow:hidden}.cp-bar{align-items:center;gap:8px;padding:10px 12px 0;display:flex}.cp-bar .sp{flex:1}.cp-seg{background:var(--pg-chip);border-radius:999px;padding:3px;display:inline-flex}.cp-seg button,.cp-btn{height:28px;color:var(--pg-dim);font:500 13px/1 var(--pg-sans);cursor:pointer;background:0 0;border:0;border-radius:999px;padding:0 12px}.cp-seg button[aria-pressed=true]{background:var(--pg-bg);color:var(--pg-fg);box-shadow:0 1px 2px #00000014}.cp-btn:hover,.cp-seg button:hover{color:var(--pg-fg)}.cp-btn{align-items:center;gap:6px;display:inline-flex}.cp-btn svg{width:14px;height:14px}.pg-demo{min-height:calc(var(--h-a) + 72px);grid-template-columns:minmax(0,1fr);justify-items:center;padding:32px 24px 40px;display:grid}.pg-demo>.card{align-self:stretch;place-items:center;min-width:0;display:grid}@media (width<=640px){.pg-demo{min-height:calc(var(--h-e) + 52px);padding:24px 12px 28px}.cp-h{font-size:28px}}.cp-sec{max-width:820px;margin:56px 0 0}.cp-sec.wide{max-width:none}.cp-sec h2{letter-spacing:-.015em;margin:0 0 14px;font-size:22px;font-weight:600}.cp-sec h3{margin:24px 0 8px;font-size:15px;font-weight:600}.cp-sec p{max-width:68ch;margin:0 0 12px}.cp-sec ul{margin:0;padding-left:20px}.cp-sec li{max-width:66ch;margin:5px 0}.cp-sec code,.cp-props code,.cp-cmd code{font-variant-ligatures:none;font:500 12.5px/1.4 var(--pg-mono);background:var(--pg-chip);border-radius:5px;padding:1px 5px}.cp-cmds{grid-template-columns:minmax(0,1fr);gap:8px;display:grid}.cp-cmd{background:var(--pg-soft);min-width:0;box-shadow:inset 0 0 0 1px var(--pg-line);border-radius:12px;align-items:center;gap:12px;padding:6px 6px 6px 14px;display:flex}.cp-cmd .k{width:52px;color:var(--pg-muted);flex:none;font-size:12.5px}.cp-cmd code{white-space:nowrap;min-width:0;font:500 13.5px/1.5 var(--pg-mono);background:0 0;flex:1;padding:0;overflow-x:auto}.cp-copy{background:var(--pg-bg);height:30px;color:var(--pg-fg);box-shadow:inset 0 0 0 1px var(--pg-line2);font:500 12.5px/1 var(--pg-sans);cursor:pointer;border:0;border-radius:999px;flex:none;padding:0 12px}.cp-copy:hover{background:var(--pg-chip)}.cp-note{color:var(--pg-dim);margin:12px 0 0;font-size:13.5px}.cp-pre{font-variant-ligatures:none;background:var(--pg-soft);max-height:460px;box-shadow:inset 0 0 0 1px var(--pg-line);font:500 12.5px/1.6 var(--pg-mono);tab-size:2;border-radius:12px;margin:0;padding:16px 18px;overflow:auto}.cp-pre code{font:inherit;background:0 0;padding:0}.cp-props{margin:0 0 8px;overflow-x:auto}.cp-props table{border-collapse:collapse;width:100%;min-width:560px;font-size:13.5px}.cp-props th{text-align:left;color:var(--pg-muted);border-bottom:1px solid var(--pg-line2);padding:8px 10px;font-size:12.5px;font-weight:500}.cp-props td{border-bottom:1px solid var(--pg-line);vertical-align:top;padding:10px}.cp-props td:first-child{white-space:nowrap}.cp-props td:nth-child(2) code{white-space:normal;word-break:break-word}.cp-props .opt{color:var(--pg-muted)}.cp-ext{color:var(--pg-dim);font-size:13.5px}details.cp-file{box-shadow:inset 0 0 0 1px var(--pg-line);border-radius:12px;margin:0 0 8px}details.cp-file summary{cursor:pointer;font:500 13.5px/1.4 var(--pg-mono);align-items:center;gap:10px;padding:12px 14px;list-style:none;display:flex}details.cp-file summary::-webkit-details-marker{display:none}details.cp-file summary:before{content:"";border-right:1.5px solid var(--pg-muted);border-bottom:1.5px solid var(--pg-muted);width:6px;height:6px;transition:transform .2s;transform:rotate(-45deg)}details.cp-file[open] summary:before{transform:rotate(45deg)}details.cp-file summary .l{font:12px/1 var(--pg-sans);color:var(--pg-muted);margin-left:auto}details.cp-file .cp-pre{box-shadow:none;border-top:1px solid var(--pg-line);border-radius:0 0 12px 12px;max-height:560px}.cp-faq dt{margin:20px 0 4px;font-weight:600}.cp-faq dd{color:var(--pg-dim);max-width:68ch;margin:0}.cp-rel{grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px;display:grid}.cp-rel a{background:var(--pg-soft);border-radius:14px;padding:14px 16px;text-decoration:none;transition:background .2s;display:block}.cp-rel a:hover{background:var(--pg-chip)}.cp-rel b{font-weight:500;display:block}.cp-rel span{color:var(--pg-dim);margin-top:2px;font-size:13.5px;display:block}.cp-pn{grid-template-columns:1fr 1fr;gap:10px;margin:56px 0 0;display:grid}.cp-pn a{box-shadow:inset 0 0 0 1px var(--pg-line);border-radius:14px;padding:14px 16px;text-decoration:none;display:block}.cp-pn a:hover{background:var(--pg-soft)}.cp-pn .k{color:var(--pg-muted);font-size:12.5px;display:block}.cp-pn b{font-weight:500}.cp-pn .n{text-align:right}.cp-toc{flex-wrap:wrap;gap:4px 18px;margin:22px 0 0;font-size:13.5px;display:flex}.cp-toc a{color:var(--pg-dim);text-decoration:none}.cp-toc a:hover{color:var(--pg-fg)}.sp-crumbs[data-astro-cid-lfhuveqs]{color:var(--pg-muted);font-size:13px}.sp-crumbs[data-astro-cid-lfhuveqs] a[data-astro-cid-lfhuveqs]{color:var(--pg-dim);text-decoration:none}.sp-h[data-astro-cid-lfhuveqs]{letter-spacing:-.025em;margin:14px 0 0;font-size:34px;font-weight:600;line-height:1.15}.sp-lead[data-astro-cid-lfhuveqs]{color:var(--pg-dim);max-width:62ch;margin:10px 0 0;font-size:17px}.sp-grid[data-astro-cid-lfhuveqs]{grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;margin:32px 0 0;display:grid}.sp-grid[data-astro-cid-lfhuveqs] a[data-astro-cid-lfhuveqs]{background:var(--pg-soft);border-radius:14px;padding:18px;text-decoration:none;transition:background .2s;display:block}.sp-grid[data-astro-cid-lfhuveqs] a[data-astro-cid-lfhuveqs]:hover{background:var(--pg-chip)}.sp-grid[data-astro-cid-lfhuveqs] b[data-astro-cid-lfhuveqs]{font-size:15.5px;font-weight:500;display:block}.sp-grid[data-astro-cid-lfhuveqs] span[data-astro-cid-lfhuveqs]{color:var(--pg-dim);margin-top:4px;font-size:13.5px;display:block}.sp-more[data-astro-cid-lfhuveqs]{margin:64px 0 0}.sp-more[data-astro-cid-lfhuveqs] h2[data-astro-cid-lfhuveqs]{margin:0 0 12px;font-size:18px;font-weight:600}.sp-more[data-astro-cid-lfhuveqs] nav[data-astro-cid-lfhuveqs]{flex-wrap:wrap;gap:8px;display:flex}.sp-more[data-astro-cid-lfhuveqs] a[data-astro-cid-lfhuveqs]{box-shadow:inset 0 0 0 1px var(--pg-line2);color:var(--pg-dim);border-radius:999px;padding:6px 12px;font-size:13.5px;text-decoration:none}.sp-more[data-astro-cid-lfhuveqs] a[data-astro-cid-lfhuveqs]:hover{color:var(--pg-fg)}@media (width<=640px){.sp-h[data-astro-cid-lfhuveqs]{font-size:28px}}
+</style></head><body><header class="pg-top"><div class="pg-top-in"><a class="pg-logo" href="/" aria-label="Designme.dev home"><svg role="img" aria-label="Designme.dev" viewBox="0 12.5 210 29.5" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M137.937 20.1034V39.1011H155.787V33.1982H145.37V31.9317H155.38V27.2501H145.37V26.0062H155.787V20.1034H137.937Z" fill="currentColor"/>
+<path d="M136.845 39.1013V20.1036L127.536 20.1036L125.525 29.2632H124.983L122.972 20.1036L113.662 20.1036V39.1013H120.735V32.7009H121.299L122.542 39.1013H127.965L129.208 32.7009H129.773V39.1013L136.845 39.1013Z" fill="currentColor"/>
+<path d="M91.5581 20.1034V39.1011H100.054L104.686 30.5069H105.341V39.1011H112.572V20.1034H104.279L99.4665 28.6976H98.7886V20.1034H91.5581Z" fill="currentColor"/>
+<path d="M90.3556 30.9135V20.1029H86.6499L86.5369 22.274H86.4014C85.0457 20.6457 82.7409 19.4696 79.5324 19.4696C73.6576 19.4696 69.1159 23.4501 69.1159 29.6017C69.1159 35.776 73.3639 39.7338 80.2102 39.7338C84.9553 39.7338 89.8359 37.4044 90.4007 32.0669H83.0347C82.8765 32.4966 81.9501 33.3334 80.391 33.3334C78.0637 33.3334 76.5046 31.9538 76.5046 29.6017C76.5046 27.2496 78.1315 25.87 80.1425 25.87C80.4814 25.87 82.5602 25.7796 83.2154 27.521H79.9391V30.9135H90.3556Z" fill="currentColor"/>
+<path d="M60.9353 20.1034V39.1011H68.3691V20.1034H60.9353Z" fill="currentColor"/>
+<path d="M50.0428 19.4696C42.9704 19.4922 39.8523 21.5277 40.1008 26.7747H46.7664C46.7664 25.8248 47.6025 25.2594 50.0428 25.2368C52.0763 25.1915 52.8446 25.6665 52.8446 26.1414C52.8446 26.2771 53.0027 26.9104 51.4211 27.0913L48.913 27.4758C45.3203 28.0186 40.5075 28.1091 40.5075 33.4465C40.5075 37.3139 43.5805 39.7338 50.0879 39.7338C55.8724 39.7338 59.8943 38.3769 59.691 32.474H53.0705C52.8898 33.4239 52.0086 33.9893 49.9298 33.9893C48.1673 33.9893 47.6477 33.5144 47.6477 33.062C47.6477 32.9263 47.6025 32.3157 48.7096 32.18L50.698 31.8634C54.5618 31.2301 60.2333 31.4563 60.2333 25.8248C60.2333 21.4372 56.9343 19.4244 50.0428 19.4696Z" fill="currentColor"/>
+<path d="M21.5475 20.1034V39.1011H39.3978V33.1982H28.9813V31.9317H38.9911V27.2501H28.9813V26.0062H39.3978V20.1034H21.5475Z" fill="currentColor"/>
+<path d="M10.0775 39.1011C18.0537 39.1011 20.6973 35.1206 20.6973 29.6022C20.6973 24.1291 18.0537 20.1034 10.0775 20.1034H0V39.1011H10.0775ZM10.1001 26.3228C11.7044 26.3228 13.2409 27.0013 13.2409 29.6022C13.2409 32.2483 11.7044 32.9042 10.1001 32.9042H7.45646V26.3228H10.1001Z" fill="currentColor"/>
+<path d="M160.138 24.7522C158.938 24.7522 157.983 23.8244 157.983 22.5601C157.983 21.3049 158.938 20.368 160.138 20.368C161.339 20.368 162.294 21.3049 162.294 22.5601C162.294 23.8244 161.339 24.7522 160.138 24.7522ZM160.138 24.4339C161.139 24.4339 161.939 23.6607 161.939 22.5601C161.939 21.4686 161.139 20.6864 160.138 20.6864C159.147 20.6864 158.337 21.4686 158.337 22.5601C158.337 23.6607 159.147 24.4339 160.138 24.4339ZM159.747 23.7517H159.265V21.3413H160.239C160.784 21.3413 161.075 21.5959 161.075 22.0416C161.075 22.3691 160.875 22.5692 160.548 22.642V22.6602C161.148 22.7693 160.957 23.6607 161.121 23.7244V23.7517H160.63C160.457 23.6243 160.693 22.8421 160.093 22.8421H159.747V23.7517ZM159.747 22.4419H160.12C160.411 22.4419 160.611 22.3691 160.611 22.078C160.611 21.7961 160.402 21.7415 160.129 21.7415H159.747V22.4419Z" fill="currentColor"/>
+<path d="M162.778 38.7558C162.174 38.9572 161.671 39.0579 161.268 39.0579C160.865 39.0291 160.419 38.8421 159.93 38.4968C159.355 37.9214 159.153 37.346 159.326 36.7705C159.527 36.1663 160.045 35.5765 160.879 35.0011C161.455 34.6558 161.872 34.4832 162.131 34.4832C162.419 34.4544 162.836 34.5551 163.383 34.7853C164.361 35.3895 164.792 36.0656 164.677 36.8137C164.562 37.533 163.929 38.1804 162.778 38.7558ZM179.189 41.82C178.815 41.9063 178.441 41.8056 178.067 41.5179C177.721 41.2589 177.477 40.9712 177.333 40.6547C177.16 40.1944 177.045 39.7628 176.988 39.36C176.959 38.9284 176.93 38.4393 176.901 37.8926L176.858 36.4253L175.089 38.0221C174.111 38.9428 173.19 39.6046 172.327 40.0074C171.492 40.3814 170.73 40.5684 170.039 40.5684C169.723 40.5109 169.334 40.3095 168.874 39.9642C168.443 39.5902 168.04 39.1874 167.666 38.7558C167.32 38.2954 167.076 37.9214 166.932 37.6337C166.759 37.2309 166.702 36.6698 166.759 35.9505C166.846 35.2312 167.018 34.44 167.277 33.5769C167.565 32.7137 167.91 31.8649 168.313 31.0305C168.745 30.1962 169.234 29.4769 169.78 28.8727C170.73 27.4341 171.91 26.5421 173.319 26.1969C174.729 25.8228 175.981 25.9379 177.074 26.5421C177.592 26.8011 177.966 26.9018 178.196 26.8442C178.426 26.7867 178.57 26.5997 178.628 26.2832C178.743 25.8228 178.872 25.3913 179.016 24.9885C179.16 24.5856 179.361 23.9814 179.62 23.1758C180.34 20.9892 180.958 19.2772 181.476 18.04C182.023 16.8029 182.512 15.7239 182.944 14.8032C183.26 14.1415 183.577 13.6811 183.893 13.4222C184.21 13.1632 184.483 13.0481 184.713 13.0769C185.03 13.0769 185.418 13.192 185.878 13.4222C186.367 13.6523 186.684 13.9688 186.828 14.3716C186.943 14.6306 186.986 14.9039 186.957 15.1916C186.957 15.4793 186.871 15.7815 186.698 16.0979C186.324 16.7885 185.878 17.7092 185.36 18.86C184.871 19.9821 184.368 21.2193 183.85 22.5716C183.361 23.9239 182.9 25.2618 182.469 26.5853C182.037 27.9088 181.678 29.0741 181.39 30.0811C181.217 30.7141 181.073 31.5197 180.958 32.4979C180.872 33.4762 180.8 34.4832 180.743 35.519C180.714 36.526 180.714 37.4323 180.743 38.2379C180.771 39.0147 180.814 39.5182 180.872 39.7484C181.045 40.3239 181.045 40.7554 180.872 41.0432C180.699 41.3309 180.455 41.5179 180.138 41.6042C179.822 41.7193 179.505 41.7912 179.189 41.82ZM172.068 36.5979C172.471 36.454 172.83 36.2814 173.147 36.08C173.463 35.8786 173.837 35.6197 174.269 35.3032C175.132 34.6414 175.751 34.066 176.125 33.5769C176.527 33.0877 176.844 32.4835 177.074 31.7642C177.218 31.3326 177.218 30.9586 177.074 30.6421C176.959 30.3256 176.743 30.0235 176.427 29.7358C176.11 29.4769 175.707 29.3762 175.218 29.4337C174.729 29.4625 174.168 29.7646 173.535 30.34C172.845 30.973 172.255 31.7067 171.766 32.5411C171.277 33.3755 170.874 34.5695 170.557 36.1232C170.5 36.4109 170.6 36.6123 170.859 36.7274C171.118 36.8425 171.521 36.7993 172.068 36.5979ZM191.763 40.1368C190.899 40.626 189.979 40.9137 189.001 41C188.051 41.0575 187.159 40.9281 186.325 40.6116C185.49 40.2663 184.814 39.7628 184.296 39.1011C184.009 38.727 183.735 38.1372 183.476 37.3316C183.217 36.4972 183.174 35.3751 183.347 33.9653C183.519 32.6418 183.922 31.3039 184.555 29.9516C185.217 28.5993 186.023 27.4053 186.972 26.3695C187.922 25.3337 188.957 24.6288 190.079 24.2548C190.482 24.1109 190.885 24.0102 191.288 23.9527C191.719 23.8663 192.281 23.852 192.971 23.9095C193.633 23.9958 194.223 24.1685 194.741 24.4274C195.258 24.6576 195.632 24.9165 195.863 25.2042C196.323 25.6646 196.625 26.1106 196.769 26.5421C196.913 26.9737 196.97 27.3909 196.942 27.7937C196.798 28.7144 196.38 29.707 195.69 30.7716C195.028 31.8362 194.093 32.6274 192.885 33.1453C192.396 33.3467 191.82 33.4762 191.158 33.5337C190.497 33.5912 189.59 33.5049 188.439 33.2748C187.749 33.1309 187.289 33.2028 187.058 33.4905C186.857 33.7783 186.771 34.3393 186.799 35.1737C186.857 35.6916 186.972 36.1519 187.145 36.5547C187.346 36.9288 187.706 37.1877 188.224 37.3316C188.885 37.4467 189.36 37.4611 189.648 37.3747C189.936 37.2597 190.295 37.1014 190.727 36.9C190.957 36.7561 191.173 36.5979 191.374 36.4253C191.604 36.2526 191.82 36.08 192.022 35.9074C192.252 35.7347 192.439 35.6053 192.583 35.519C192.726 35.4039 192.87 35.3319 193.014 35.3032C193.158 35.2744 193.302 35.26 193.446 35.26C193.762 35.2888 194.064 35.4614 194.352 35.7779C194.64 36.0944 194.827 36.3965 194.913 36.6842C194.913 36.9144 194.769 37.2453 194.482 37.6768C194.194 38.0797 193.805 38.5112 193.316 38.9716C192.856 39.4032 192.338 39.7916 191.763 40.1368ZM191.202 30.5127C191.403 30.4263 191.691 30.2249 192.065 29.9084C192.468 29.592 192.827 29.2611 193.144 28.9158C193.46 28.5418 193.618 28.2541 193.618 28.0527C193.618 27.7362 193.403 27.4628 192.971 27.2327C192.568 27.0025 192.036 26.9593 191.374 27.1032C191.144 27.1607 190.871 27.319 190.554 27.5779C190.238 27.8369 189.921 28.139 189.605 28.4842C189.288 28.8007 189.015 29.1172 188.785 29.4337C188.555 29.7214 188.396 29.9516 188.31 30.1242C188.425 30.2681 188.655 30.3832 189.001 30.4695C189.346 30.5558 189.72 30.599 190.123 30.599C190.554 30.599 190.914 30.5702 191.202 30.5127ZM201.731 39.8779C201.444 40.0793 201.084 40.1944 200.652 40.2232C200.25 40.2232 199.89 40.0649 199.574 39.7484C199.027 39.2305 198.552 38.2091 198.149 36.6842C197.746 35.1305 197.545 33.0302 197.545 30.3832C197.66 29.2035 197.718 28.1102 197.718 27.1032C197.746 26.0962 197.761 25.5351 197.761 25.42C198.077 25.2186 198.48 25.1611 198.969 25.2474C199.487 25.3049 199.904 25.4056 200.221 25.5495C200.509 25.6934 200.71 25.9092 200.825 26.1969C200.969 26.4846 201.055 27.0025 201.084 27.7506C201.142 28.4698 201.17 29.5776 201.17 31.0737C201.084 32.2246 201.026 33.1453 200.998 33.8358C200.969 34.5263 200.998 34.9291 201.084 35.0442C201.199 35.2456 201.257 35.3607 201.257 35.3895C201.257 35.3895 201.472 35.1737 201.904 34.7421C202.134 34.4256 202.379 34.0084 202.638 33.4905C202.925 32.9726 203.17 32.5555 203.371 32.239C203.688 31.8362 203.976 31.4477 204.235 31.0737C204.522 30.6997 204.724 30.4551 204.839 30.34C204.954 30.1098 205.098 29.8941 205.27 29.6927C205.443 29.4912 205.587 29.2898 205.702 29.0884C206.018 28.5418 206.349 28.0958 206.695 27.7506C207.04 27.3765 207.27 27.1895 207.385 27.1895C207.5 27.2758 207.716 27.2614 208.032 27.1463C208.349 27.0025 208.565 26.9306 208.68 26.9306C208.881 26.7291 209.155 26.7291 209.5 26.9306C209.615 27.0169 209.716 27.1176 209.802 27.2327C209.888 27.319 209.931 27.4197 209.931 27.5348C209.931 27.6786 209.845 28.0383 209.672 28.6137C209.529 29.1604 209.342 29.707 209.111 30.2537C208.91 30.7716 208.737 31.0737 208.593 31.16C208.593 31.16 208.55 31.2032 208.464 31.2895C208.378 31.3758 208.277 31.4765 208.162 31.5916C208.104 31.793 207.903 32.167 207.558 32.7137C207.241 33.2316 206.838 33.8358 206.349 34.5263C205.889 35.1881 205.414 35.8498 204.925 36.5116C204.436 37.1446 204.004 37.7056 203.63 38.1947C203.343 38.5975 203.012 38.9572 202.638 39.2737C202.264 39.5614 201.962 39.7628 201.731 39.8779Z" fill="#0072FF"/>
+</svg></a><nav class="pg-nav" aria-label="Site"><a href="/components" aria-current="page">Components</a><a href="/packages/react/preview/" class="pg-wide">React preview</a><a href="/#/changelog" class="pg-cl">Changelog</a></nav><span class="pg-sp"></span><button class="pg-theme" id="pg-theme" type="button" aria-label="Switch between light and dark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"></path></svg></button></div></header><main class="pg-main"><nav class="cp-crumbs" aria-label="Breadcrumb"><a href="/components">Components</a><span>/</span><a href="/components/product">Product</a></nav><h1 class="cp-h">Pricing cards</h1><p class="cp-lead">Three plans with a billing switch and a seat slider.</p><ul class="cp-tags"><li>App basics</li><li>HTML and React</li><li>Soft and Blueprint</li><li>Light and dark</li><li>MIT</li></ul><section class="cp-demo" aria-label="Pricing cards demo"><div class="cp-bar"><div class="cp-seg" role="group" aria-label="Style"><button type="button" data-style-set="bp">Blueprint</button><button type="button" data-style-set="soft">Soft</button></div><span class="sp"></span><button type="button" class="cp-btn" id="cp-replay"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"></path><path d="M3 3v5h5"></path></svg>Replay</button></div><div class="pg-demo stage-inner" style="--h-a:402px;--h-e:1113px"><div class="card wide" data-c="pricing-cards">
+  <div class="stage-in"></div>
+  <template>
+<div class="pcx">
+  <div class="pcx-top"><div class="seg2 pcx-per" role="group" aria-label="Billing"><button aria-pressed="false" data-v="m">Monthly</button><button aria-pressed="true" data-v="y">Yearly <span class="tag ok">−20%</span></button></div>
+    <label class="pcx-seats"><span class="muted">Editors</span><input type="range" min="1" max="50" value="5" aria-label="Editors"><b class="num pcx-sn">5</b></label></div>
+  <div class="pcx-grid"></div>
+</div>
+  </template>
+</div>
+</div></section><nav class="cp-toc" aria-label="On this page"><a href="#install">Install</a><a href="#about">About</a><a href="#usage">Usage</a><a href="#props">Props</a><a href="#code">Code</a><a href="#questions">Questions</a></nav><section class="cp-sec" id="install"><h2>Install</h2><div class="cp-cmds"><div class="cp-cmd"><span class="k">HTML</span><code>npx designme add pricing-cards</code><button class="cp-copy" type="button" data-copy="npx designme add pricing-cards">Copy</button></div><div class="cp-cmd"><span class="k">React</span><code>npx designme add pricing-cards --react</code><button class="cp-copy" type="button" data-copy="npx designme add pricing-cards --react">Copy</button></div></div><p class="cp-note">The CLI copies the source into your project, so you own it and can change anything. The HTML version lands in <code>./designme</code> with the shared core and a <code>demo.html</code>. The React version lands in <code>src/components/designme</code> and needs React 19; it works in Next.js, Vite and Astro.</p></section><section class="cp-sec" id="about"><h2>About the pricing cards</h2><p>Pricing cards shows your plans side by side, with a Monthly and Yearly switch and a slider for how many editors the price should cover. Each paid plan works out its own total for that team size and billing period, and prices roll to their new value when the period changes. Once the team is large enough, the outline can move from the popular plan to a bigger one.</p><h3>When to use it</h3><ul><li>When an agent product is priced per seat and buyers want to see the total for their team</li><li>When yearly billing carries a discount you want to show next to the monthly price</li><li>When a free, a paid and a talk-to-sales plan sit on one page</li><li>When larger teams should be steered toward an enterprise plan</li></ul><h3>What it does</h3><ul><li>The billing switch shows the yearly saving as a tag, worked out from <code>yearlyDiscount</code>.</li><li>On yearly billing, paid plans show the discounted price with the monthly price struck through.</li><li>The editors slider, 1 to 50 by default, updates totals like "$1,152 billed yearly for 5 editors".</li><li>A <code>price</code> of 0 reads as free ("forever"), and null shows <code>priceLabel</code>, "Custom" by default.</li><li><code>popular</code> adds a Most popular badge and outline; a plan with <code>fromSeats</code> takes the outline once the slider reaches that number.</li><li>Each plan's button calls <code>onChoose</code> with the plan, the period and the number of editors.</li></ul><h3>Accessibility</h3><ul><li>The billing switch is a <code>group</code> labelled Billing, with <code>aria-pressed</code> on Monthly and Yearly.</li><li>The editors slider is a native range input labelled with <code>seatsLabel</code>, so arrow keys change it.</li></ul></section><section class="cp-sec" id="usage"><h2>Usage in React</h2><p>After installing, import it from where the CLI put it:</p><pre class="cp-pre"><code>import { PricingCards } from &#39;@/components/designme/pricing-cards/PricingCards&#39;;</code></pre><h3>Example</h3><p>The demo above, as a React component you can copy:</p><pre class="cp-pre"><code>&#39;use client&#39;;
+// The preview from designme.dev, rebuilt from the React component: switch the billing period or drag the editors slider.
+import { useRef, useState } from &#39;react&#39;;
+import { useScript } from &#39;../lib/useScript&#39;;
+import { PricingCards, type PricingPeriod, type PricingPlan } from &#39;./PricingCards&#39;;
+
+const PLANS: PricingPlan[] = [
+  { name: &#39;Starter&#39;, description: &#39;For trying the agent&#39;, price: 0, total: &#39;Up to 2 editors&#39;, features: [&#39;1 project&#39;, &#39;50 agent runs a month&#39;, &#39;Figma import&#39;], action: { label: &#39;Start free&#39;, variant: &#39;soft&#39; } },
+  { name: &#39;Pro&#39;, description: &#39;For growing design teams&#39;, price: 24, popular: true, features: [&#39;Unlimited projects&#39;, &#39;1,000 runs per editor&#39;, &#39;Shared tokens and memory&#39;, &#39;Priority models&#39;], action: { label: &#39;Start free trial&#39;, variant: &#39;accent&#39; } },
+  { name: &#39;Enterprise&#39;, description: &#39;For design orgs&#39;, price: null, unit: &#39;billed yearly&#39;, total: &#39;Volume pricing from 25 editors&#39;, fromSeats: 25, features: [&#39;SSO and audit log&#39;, &#39;Custom spend caps&#39;, &#39;Dedicated support&#39;], action: { label: &#39;Talk to us&#39;, variant: &#39;ink&#39; } }
+];
+
+export default function PricingCardsDemo() {
+  const [period, setPeriod] = useState&lt;PricingPeriod&gt;(&#39;yearly&#39;);
+  // once it has appeared it shows the switch at work: monthly, then back to yearly. Touching it takes over
+  const touched = useRef(false);
+  useScript(async ({ wait }) =&gt; {
+    await wait(1900); if (touched.current) return; setPeriod(&#39;monthly&#39;);
+    await wait(2000); if (touched.current) return; setPeriod(&#39;yearly&#39;);
+  });
+  return &lt;div style={{ width: &#39;100%&#39; }} onPointerDown={() =&gt; { touched.current = true; }}&gt;&lt;PricingCards plans={PLANS} period={period} onPeriodChange={setPeriod} /&gt;&lt;/div&gt;;
+}
+</code></pre></section><section class="cp-sec wide" id="props"><h2>Props</h2><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>plans</code></td><td><code>PricingPlan[]</code></td><td></td></tr><tr><td><code>period</code><span class="opt"> optional</span></td><td><code>PricingPeriod</code></td><td>monthly or yearly. Leave it out to let the switch change it</td></tr><tr><td><code>defaultPeriod</code><span class="opt"> optional</span></td><td><code>PricingPeriod</code></td><td></td></tr><tr><td><code>onPeriodChange</code><span class="opt"> optional</span></td><td><code>(period: PricingPeriod) =&gt; void</code></td><td></td></tr><tr><td><code>yearlyDiscount</code><span class="opt"> optional</span></td><td><code>number</code></td><td>Taken off a paid plan&#39;s price when billed yearly, 0.2 for 20%</td></tr><tr><td><code>seats</code><span class="opt"> optional</span></td><td><code>number</code></td><td>How many editors the totals are for. Leave it out to let the slider change it</td></tr><tr><td><code>defaultSeats</code><span class="opt"> optional</span></td><td><code>number</code></td><td></td></tr><tr><td><code>onSeatsChange</code><span class="opt"> optional</span></td><td><code>(seats: number) =&gt; void</code></td><td></td></tr><tr><td><code>minSeats</code><span class="opt"> optional</span></td><td><code>number</code></td><td>The slider&#39;s range, 1 to 50 by default</td></tr><tr><td><code>maxSeats</code><span class="opt"> optional</span></td><td><code>number</code></td><td></td></tr><tr><td><code>seatsLabel</code><span class="opt"> optional</span></td><td><code>string</code></td><td>The slider&#39;s label, like &quot;Editors&quot;</td></tr><tr><td><code>popularLabel</code><span class="opt"> optional</span></td><td><code>string</code></td><td>The badge on the popular plan</td></tr><tr><td><code>onChoose</code><span class="opt"> optional</span></td><td><code>(plan: PricingPlan, choice: { period: PricingPeriod; seats: number }) =&gt; void</code></td><td>Called with the plan when its button is pressed, and the period and editors it was priced for</td></tr><tr><td><code>className</code><span class="opt"> optional</span></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec wide" id="code"><h2>Code</h2><p>The full source, as the CLI installs it. Open a file to read it.</p><details class="cp-file"><summary>PricingCards.tsx<span class="l">React</span></summary><pre class="cp-pre"><code>&#39;use client&#39;;
+import { useEffect, useRef, useState, type ReactNode } from &#39;react&#39;;
+import { cx } from &#39;../lib/cx&#39;;
+import { useControllable, useTween } from &#39;../lib/hooks&#39;;
+import { Icon } from &#39;../lib/icons&#39;;
+import { enter, Seg } from &#39;../lib/motion&#39;;
+import &#39;../designme.css&#39;;
+import &#39;./pricing-cards.css&#39;;
+
+export type PricingPeriod = &#39;monthly&#39; | &#39;yearly&#39;;
+
+export interface PricingPlan {
+  /** Like &quot;Pro&quot; */
+  name: string;
+  /** The quiet line under the name, like &quot;For growing design teams&quot; */
+  description?: string;
+  /** The monthly price per editor. 0 is a free plan, null is priced on request (&quot;Custom&quot;) */
+  price: number | null;
+  /** Shown instead of a price when `price` is null. Defaults to &quot;Custom&quot; */
+  priceLabel?: string;
+  /** The line under the price. Defaults to &quot;per editor, per month&quot;, or &quot;forever&quot; for a free plan */
+  unit?: string;
+  /** The line above the features. Paid plans work it out from the editors and the billing period; set it for free or custom plans */
+  total?: string;
+  features: ReactNode[];
+  /** The button at the foot of the card. soft is quiet, accent is the one to pick, ink is for talking to sales */
+  action: { label: string; variant?: &#39;soft&#39; | &#39;accent&#39; | &#39;ink&#39; };
+  /** Adds the &quot;Most popular&quot; badge and outlines the card */
+  popular?: boolean;
+  /** Once the editors reach this many, this card takes the outline from the popular one, like Enterprise from 25 editors */
+  fromSeats?: number;
+}
+
+export interface PricingCardsProps {
+  plans: PricingPlan[];
+  /** monthly or yearly. Leave it out to let the switch change it */
+  period?: PricingPeriod;
+  defaultPeriod?: PricingPeriod;
+  onPeriodChange?: (period: PricingPeriod) =&gt; void;
+  /** Taken off a paid plan&#39;s price when billed yearly, 0.2 for 20% */
+  yearlyDiscount?: number;
+  /** How many editors the totals are for. Leave it out to let the slider change it */
+  seats?: number;
+  defaultSeats?: number;
+  onSeatsChange?: (seats: number) =&gt; void;
+  /** The slider&#39;s range, 1 to 50 by default */
+  minSeats?: number;
+  maxSeats?: number;
+  /** The slider&#39;s label, like &quot;Editors&quot; */
+  seatsLabel?: string;
+  /** The badge on the popular plan */
+  popularLabel?: string;
+  /** Called with the plan when its button is pressed, and the period and editors it was priced for */
+  onChoose?: (plan: PricingPlan, choice: { period: PricingPeriod; seats: number }) =&gt; void;
+  className?: string;
+}
+
+const money = (n: number) =&gt; &#39;$&#39; + n.toLocaleString(&#39;en-US&#39;, { maximumFractionDigits: 0 });
+
+/** Monthly or yearly, with a knob that slides between them like the site&#39;s switches. The yearly side carries the saving */
+function PeriodSwitch({ value, onChange, saving }: { value: PricingPeriod; onChange: (p: PricingPeriod) =&gt; void; saving?: string }) {
+  return &lt;Seg className=&quot;dm-pcx-per&quot; label=&quot;Billing&quot; value={value} onChange={onChange}
+    options={[{ value: &#39;monthly&#39;, label: &#39;Monthly&#39; }, { value: &#39;yearly&#39;, label: &lt;&gt;Yearly{saving &amp;&amp; &lt;span className=&quot;dm-tag dm-ok&quot;&gt;{saving}&lt;/span&gt;}&lt;/&gt; }]} /&gt;;
+}
+
+/** The total under the price. A new billing period crossfades it, the way the site swaps text; dragging the slider changes it in place */
+function Total({ text, period }: { text: string; period: PricingPeriod }) {
+  const [shown, setShown] = useState(text);
+  const [out, setOut] = useState(false);
+  const last = useRef(period);
+  useEffect(() =&gt; {
+    if (period === last.current) { setShown(text); setOut(false); return; }
+    last.current = period; setOut(true);
+    const t = setTimeout(() =&gt; { setShown(text); setOut(false); }, 170);
+    return () =&gt; clearTimeout(t);
+  }, [text, period]);
+  return &lt;div className={cx(&#39;dm-pcx-tot dm-num dm-sw&#39;, out &amp;&amp; &#39;dm-out&#39;)}&gt;{shown}&lt;/div&gt;;
+}
+
+/** A price that rolls to its new value when the period changes */
+function Price({ value }: { value: number }) {
+  const v = useTween(value, 500, 0);
+  return &lt;b className=&quot;dm-num&quot;&gt;${Number.isInteger(value) ? Math.round(v) : v.toFixed(2)}&lt;/b&gt;;
+}
+
+/** Plans side by side, with a monthly or yearly switch and a slider for how many editors the totals cover. */
+export function PricingCards({ plans, period, defaultPeriod = &#39;yearly&#39;, onPeriodChange, yearlyDiscount = .2, seats, defaultSeats = 5, onSeatsChange,
+  minSeats = 1, maxSeats = 50, seatsLabel = &#39;Editors&#39;, popularLabel = &#39;Most popular&#39;, onChoose, className }: PricingCardsProps) {
+  const [per, setPer] = useControllable(period, defaultPeriod, onPeriodChange);
+  const [n, setN] = useControllable(seats, defaultSeats, onSeatsChange);
+  const yearly = per === &#39;yearly&#39;;
+  // the outline sits on the popular plan, or on a bigger plan once the editors reach its threshold
+  const big = plans.reduce((at, p, i) =&gt; (p.fromSeats !== undefined &amp;&amp; n &gt;= p.fromSeats ? i : at), -1);
+  const hot = big &gt;= 0 ? big : plans.findIndex(p =&gt; p.popular);
+  const saving = yearlyDiscount &gt; 0 ? `−${Math.round(yearlyDiscount * 100)}%` : undefined;
+
+  return (
+    &lt;div data-dm=&quot;&quot; className={cx(&#39;dm-pcx&#39;, className)}&gt;
+      &lt;div className=&quot;dm-pcx-top&quot;&gt;
+        &lt;PeriodSwitch value={per} onChange={setPer} saving={saving} /&gt;
+        &lt;label className=&quot;dm-pcx-seats&quot;&gt;
+          &lt;span className=&quot;dm-muted&quot;&gt;{seatsLabel}&lt;/span&gt;
+          &lt;input type=&quot;range&quot; min={minSeats} max={maxSeats} value={n} aria-label={seatsLabel} onChange={e =&gt; setN(+e.target.value)} /&gt;
+          &lt;b className=&quot;dm-num&quot;&gt;{n}&lt;/b&gt;
+        &lt;/label&gt;
+      &lt;/div&gt;
+      &lt;div className=&quot;dm-pcx-grid&quot;&gt;
+        {plans.map((p, i) =&gt; {
+          const unit = p.price === null ? 0 : yearly ? p.price * (1 - yearlyDiscount) : p.price;
+          const total = p.total ?? (p.price ? `${money(unit * n * (yearly ? 12 : 1))} ${yearly ? &#39;billed yearly&#39; : &#39;a month&#39;} for ${n} editor${n &gt; 1 ? &#39;s&#39; : &#39;&#39;}` : &#39;&#39;);
+          const e = enter(i * 80);
+          return (
+            &lt;div key={p.name} className={cx(&#39;dm-pcx-c dm-panel&#39;, i === hot &amp;&amp; &#39;dm-hot&#39;, e.className)} style={e.style}&gt;
+              {p.popular &amp;&amp; &lt;span className=&quot;dm-tag dm-b dm-bd&quot;&gt;{popularLabel}&lt;/span&gt;}
+              &lt;span className=&quot;dm-nm&quot;&gt;{p.name}&lt;/span&gt;
+              {p.description &amp;&amp; &lt;span className=&quot;dm-ds&quot;&gt;{p.description}&lt;/span&gt;}
+              &lt;div className=&quot;dm-pcx-pr&quot;&gt;
+                {p.price === null ? &lt;b className=&quot;dm-num&quot;&gt;{p.priceLabel ?? &#39;Custom&#39;}&lt;/b&gt; : &lt;Price value={unit} /&gt;}
+                &lt;s className=&quot;dm-num&quot;&gt;{yearly &amp;&amp; p.price ? &#39;$&#39; + p.price : &#39;&#39;}&lt;/s&gt;
+                &lt;span&gt;{p.unit ?? (p.price === null ? &#39;&#39; : p.price ? &#39;per editor, per month&#39; : &#39;forever&#39;)}&lt;/span&gt;
+              &lt;/div&gt;
+              &lt;Total text={total} period={per} /&gt;
+              &lt;div className=&quot;dm-pcx-li&quot;&gt;{p.features.map((f, k) =&gt; &lt;span key={k}&gt;&lt;Icon name=&quot;check&quot; size=&quot;xs&quot; /&gt;{f}&lt;/span&gt;)}&lt;/div&gt;
+              &lt;button type=&quot;button&quot; className={cx(&#39;dm-pill&#39;, &#39;dm-&#39; + (p.action.variant ?? &#39;soft&#39;))} onClick={() =&gt; onChoose?.(p, { period: per, seats: n })}&gt;{p.action.label}&lt;/button&gt;
+            &lt;/div&gt;
+          );
+        })}
+      &lt;/div&gt;
+    &lt;/div&gt;
+  );
+}
+</code></pre></details><details class="cp-file"><summary>pricing-cards.css<span class="l">React</span></summary><pre class="cp-pre"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+/* ---------- Pricing cards ---------- */
+.dm-pcx{display:flex;flex-direction:column;gap:14px;width:100%}
+.dm-pcx-top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.dm-pcx-per button{font-size:12.5px;height:30px;padding:0 12px;display:inline-flex;align-items:center;gap:6px}
+.dm-pcx-per .dm-tag{height:18px;font-size:10.5px;padding:0 5px}
+.dm-pcx-seats{display:flex;align-items:center;gap:10px;font-size:12.5px}
+.dm-pcx-seats input{width:150px;accent-color:var(--dm-accent)}
+.dm-pcx-seats b{width:22px;font-weight:500}
+.dm-pcx-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+@media (max-width:760px){.dm-pcx-grid{grid-template-columns:1fr}}
+.dm-pcx-c{padding:18px;display:flex;flex-direction:column;gap:12px;transition:transform .45s var(--dm-ease),box-shadow .3s;position:relative}
+.dm-pcx-c:hover{box-shadow:var(--dm-shadow-pop)}
+.dm-pcx-c.dm-hot{box-shadow:0 0 0 1.5px var(--dm-accent),var(--dm-shadow)}
+.dm-pcx-c.dm-hot:hover{box-shadow:0 0 0 1.5px var(--dm-accent),var(--dm-shadow-pop)}
+.dm-pcx-c .dm-bd{position:absolute;top:16px;right:16px}
+.dm-pcx-c .dm-nm{font-size:14px;font-weight:500}
+.dm-pcx-c .dm-ds{font-size:12.5px;color:var(--dm-muted);margin-top:-8px}
+.dm-pcx-pr{display:flex;flex-wrap:wrap;align-items:baseline;gap:0 6px}
+.dm-pcx-pr b{font-size:30px;font-weight:600;letter-spacing:-.02em}
+.dm-pcx-pr span{flex-basis:100%;min-height:18px;font-size:12px;color:var(--dm-muted)}
+.dm-pcx-pr s{font-size:13px;color:var(--dm-faint)}
+.dm-pcx-tot{font-size:12px;color:var(--dm-fg2);min-height:16px}
+.dm-pcx-li{display:flex;flex-direction:column;gap:7px;font-size:13px;color:var(--dm-fg2);margin:4px 0}
+.dm-pcx-li span{display:flex;align-items:center;gap:8px}
+.dm-pcx-li svg{color:var(--dm-accent);flex:none}
+.dm-pcx-c .dm-pill{width:100%;height:38px;margin-top:auto}
+</code></pre></details><details class="cp-file"><summary>pricing-cards.html<span class="l">HTML</span></summary><pre class="cp-pre"><code>&lt;div class=&quot;card wide&quot; data-c=&quot;pricing-cards&quot;&gt;
+  &lt;div class=&quot;stage-in&quot;&gt;&lt;/div&gt;
+  &lt;template&gt;
+&lt;div class=&quot;pcx&quot;&gt;
+  &lt;div class=&quot;pcx-top&quot;&gt;&lt;div class=&quot;seg2 pcx-per&quot; role=&quot;group&quot; aria-label=&quot;Billing&quot;&gt;&lt;button aria-pressed=&quot;false&quot; data-v=&quot;m&quot;&gt;Monthly&lt;/button&gt;&lt;button aria-pressed=&quot;true&quot; data-v=&quot;y&quot;&gt;Yearly &lt;span class=&quot;tag ok&quot;&gt;−20%&lt;/span&gt;&lt;/button&gt;&lt;/div&gt;
+    &lt;label class=&quot;pcx-seats&quot;&gt;&lt;span class=&quot;muted&quot;&gt;Editors&lt;/span&gt;&lt;input type=&quot;range&quot; min=&quot;1&quot; max=&quot;50&quot; value=&quot;5&quot; aria-label=&quot;Editors&quot;&gt;&lt;b class=&quot;num pcx-sn&quot;&gt;5&lt;/b&gt;&lt;/label&gt;&lt;/div&gt;
+  &lt;div class=&quot;pcx-grid&quot;&gt;&lt;/div&gt;
+&lt;/div&gt;
+  &lt;/template&gt;
+&lt;/div&gt;
+</code></pre></details><details class="cp-file"><summary>pricing-cards.css<span class="l">HTML</span></summary><pre class="cp-pre"><code>/* ---------- Pricing cards ---------- */
+.pcx{display:flex;flex-direction:column;gap:14px;width:100%}
+.pcx-top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.pcx-per button{font-size:12.5px;height:30px;padding:0 12px;display:inline-flex;align-items:center;gap:6px}
+.pcx-per .tag{height:18px;font-size:10.5px;padding:0 5px}
+.pcx-seats{display:flex;align-items:center;gap:10px;font-size:12.5px}
+.pcx-seats input{width:150px;accent-color:var(--accent)}
+.pcx-seats b{width:22px;font-weight:500}
+.pcx-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+@media (max-width:760px){.pcx-grid{grid-template-columns:1fr}}
+.pcx-c{padding:18px;display:flex;flex-direction:column;gap:12px;transition:transform .45s var(--ease),box-shadow .3s;position:relative}
+.pcx-c:hover{box-shadow:var(--shadow-pop)}
+.pcx-c.hot{box-shadow:0 0 0 1.5px var(--accent),var(--shadow)}
+.pcx-c.hot:hover{box-shadow:0 0 0 1.5px var(--accent),var(--shadow-pop)}
+.pcx-c .bd{position:absolute;top:16px;right:16px}
+.pcx-c .nm{font-size:14px;font-weight:500}
+.pcx-c .ds{font-size:12.5px;color:var(--muted);margin-top:-8px}
+.pcx-pr{display:flex;flex-wrap:wrap;align-items:baseline;gap:0 6px}
+.pcx-pr b{font-size:30px;font-weight:600;letter-spacing:-.02em}
+.pcx-pr span{flex-basis:100%;min-height:18px;font-size:12px;color:var(--muted)}
+.pcx-pr s{font-size:13px;color:var(--faint)}
+.pcx-tot{font-size:12px;color:var(--fg2);min-height:16px}
+.pcx-li{display:flex;flex-direction:column;gap:7px;font-size:13px;color:var(--fg2);margin:4px 0}
+.pcx-li span{display:flex;align-items:center;gap:8px}
+.pcx-li svg{color:var(--accent);flex:none}
+.pcx-c .pill{width:100%;height:38px;margin-top:auto}
+</code></pre></details><details class="cp-file"><summary>pricing-cards.js<span class="l">HTML</span></summary><pre class="cp-pre"><code>DM.def(&#39;pricing-cards&#39;, (r, c) =&gt; {
+  const P = [
+    { n:&#39;Starter&#39;, d:&#39;For trying the agent&#39;, m:0, f:[&#39;1 project&#39;,&#39;50 agent runs a month&#39;,&#39;Figma import&#39;], cta:[&#39;soft&#39;,&#39;Start free&#39;] },
+    { n:&#39;Pro&#39;, d:&#39;For growing design teams&#39;, m:24, f:[&#39;Unlimited projects&#39;,&#39;1,000 runs per editor&#39;,&#39;Shared tokens and memory&#39;,&#39;Priority models&#39;], cta:[&#39;accent&#39;,&#39;Start free trial&#39;], hot:1 },
+    { n:&#39;Enterprise&#39;, d:&#39;For design orgs&#39;, m:null, f:[&#39;SSO and audit log&#39;,&#39;Custom spend caps&#39;,&#39;Dedicated support&#39;], cta:[&#39;ink&#39;,&#39;Talk to us&#39;] }
+  ];
+  const grid = $(&#39;.pcx-grid&#39;, r), rng = $(&#39;.pcx-seats input&#39;, r), sn = $(&#39;.pcx-sn&#39;, r);
+  let per = &#39;y&#39;, seats = 5; const shown = P.map(() =&gt; 0);
+  grid.innerHTML = P.map(p =&gt; `&lt;div class=&quot;pcx-c panel${p.hot ? &#39; hot&#39; : &#39;&#39;}&quot;&gt;${p.hot ? &#39;&lt;span class=&quot;tag b bd&quot;&gt;Most popular&lt;/span&gt;&#39; : &#39;&#39;}&lt;span class=&quot;nm&quot;&gt;${p.n}&lt;/span&gt;&lt;span class=&quot;ds&quot;&gt;${p.d}&lt;/span&gt;&lt;div class=&quot;pcx-pr&quot;&gt;&lt;b class=&quot;num&quot;&gt;&lt;/b&gt;&lt;s class=&quot;num&quot;&gt;&lt;/s&gt;&lt;span&gt;&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;pcx-tot num&quot;&gt;&lt;/div&gt;&lt;div class=&quot;pcx-li&quot;&gt;${p.f.map(x =&gt; `&lt;span&gt;${I(&#39;check&#39;,&#39;xs&#39;)}${x}&lt;/span&gt;`).join(&#39;&#39;)}&lt;/div&gt;&lt;button class=&quot;pill ${p.cta[0]}&quot;&gt;${p.cta[1]}&lt;/button&gt;&lt;/div&gt;`).join(&#39;&#39;);
+  const cards = $$(&#39;.pcx-c&#39;, grid);
+  function upd(){
+    P.forEach((p, i) =&gt; { const el = cards[i], b = $(&#39;.pcx-pr b&#39;, el), s = $(&#39;.pcx-pr s&#39;, el), u = $(&#39;.pcx-pr span&#39;, el), tt = $(&#39;.pcx-tot&#39;, el);
+      if (p.m === null){ b.textContent = &#39;Custom&#39;; s.textContent = &#39;&#39;; u.textContent = &#39;billed yearly&#39;; tt.textContent = &#39;Volume pricing from 25 editors&#39;; return; }
+      const unit = per === &#39;y&#39; ? p.m * .8 : p.m;
+      const go = () =&gt; tween(shown[i], unit, 500, v =&gt; { shown[i] = v; b.textContent = &#39;$&#39; + (Number.isInteger(unit) ? Math.round(v) : v.toFixed(2)); });
+      // the first time, the prices count up once the cards are in view
+      if (first){ b.textContent = &#39;$0&#39;; c.later(260, go); } else go();
+      s.textContent = per === &#39;y&#39; &amp;&amp; p.m ? &#39;$&#39; + p.m : &#39;&#39;; u.textContent = p.m ? &#39;per editor, per month&#39; : &#39;forever&#39;;
+      swap(tt, p.m ? `$${(unit * seats * (per === &#39;y&#39; ? 12 : 1)).toLocaleString(&#39;en-US&#39;, { maximumFractionDigits:0 })} ${per === &#39;y&#39; ? &#39;billed yearly&#39; : &#39;a month&#39;} for ${seats} editor${seats &gt; 1 ? &#39;s&#39; : &#39;&#39;}` : &#39;Up to 2 editors&#39;); });
+  }
+  seg($(&#39;.pcx-per&#39;, r), v =&gt; { per = v; upd(); });
+  rng.oninput = () =&gt; { seats = +rng.value; sn.textContent = seats; P.forEach((p, i) =&gt; { if (!p.m) return; const tt = $(&#39;.pcx-tot&#39;, cards[i]); const unit = per === &#39;y&#39; ? p.m * .8 : p.m; tt.textContent = `$${(unit * seats * (per === &#39;y&#39; ? 12 : 1)).toLocaleString(&#39;en-US&#39;, { maximumFractionDigits:0 })} ${per === &#39;y&#39; ? &#39;billed yearly&#39; : &#39;a month&#39;} for ${seats} editor${seats &gt; 1 ? &#39;s&#39; : &#39;&#39;}`; });
+    cards[2].classList.toggle(&#39;hot&#39;, seats &gt;= 25); cards[1].classList.toggle(&#39;hot&#39;, seats &lt; 25); };
+  let first = true; stagger(cards, 80); upd(); first = false;
+  // once in view it shows the switch at work: monthly, then back to yearly. Touching it takes over
+  let touched = false; c.on(r, &#39;pointerdown&#39;, () =&gt; { touched = true; });
+  const flip = v =&gt; { if (!touched) $(`.pcx-per button[data-v=&quot;${v}&quot;]`, r).click(); };
+  c.later(1900, () =&gt; flip(&#39;m&#39;)); c.later(3900, () =&gt; flip(&#39;y&#39;));
+});
+</code></pre></details></section><section class="cp-sec" id="questions"><h2>Questions</h2><dl class="cp-faq"><dt>How do I know which plan, period and team size the person picked?</dt><dd>Handle <code>onChoose</code>. It receives the plan and an object with <code>period</code> and <code>seats</code>, the values the card was priced for when its button was pressed.</dd><dt>How do I show a free plan or a custom-priced plan?</dt><dd>Set <code>price</code> to 0 for free, or null for priced on request. Paid plans work out their own total line; for free and custom plans set <code>total</code> yourself, like "Up to 2 editors".</dd><dt>Can the Enterprise plan be highlighted for big teams?</dt><dd>Yes. Give it <code>fromSeats</code>, such as 25. When the slider reaches that number, the outline moves to that card from the popular one.</dd></dl></section><section class="cp-sec wide"><h2>More in Product</h2><div class="cp-rel"><a href="/components/onboarding-checklist"><b>Onboarding checklist</b><span>First steps with a progress ring, and the agent can do some for you.</span></a><a href="/components/stepper"><b>Stepper</b><span>A multi-step setup with a progress track that fills as you go.</span></a><a href="/components/set-limit"><b>Set limit</b><span>A monthly agent budget with a draggable cap and a forecast.</span></a><a href="/components/currency-converter"><b>Currency converter</b><span>Show plan prices in local currency, with a swap and live rate.</span></a></div></section><nav class="cp-pn" aria-label="Previous and next component"><a href="/components/kanban-board" rel="prev"><span class="k">Previous</span><b>Kanban board</b></a><a href="/components/onboarding-checklist" rel="next" class="n"><span class="k">Next</span><b>Onboarding checklist</b></a></nav></main><footer class="pg-foot"><div class="pg-foot-in"><span>Free and MIT licensed. Built by <a href="https://designme.agency">DesignMe</a>.</span><nav aria-label="More"><a href="/components">All components</a><a href="/#/changelog">Changelog</a><a href="/llms.txt">llms.txt</a><a href="/r/index.json">Registry</a><a href="/">Home</a></nav></div></footer><script>
+// light and dark, shared with the rest of the site through the same saved setting
+(function(){
+  var root = document.documentElement, mq = matchMedia('(prefers-color-scheme: dark)');
+  var cur = function(){ return root.getAttribute('data-theme') || (mq.matches ? 'dark' : 'light'); };
+  document.getElementById('pg-theme').addEventListener('click', function(){
+    var next = cur() === 'dark' ? 'light' : 'dark', sys = mq.matches ? 'dark' : 'light';
+    if (next === sys){ root.removeAttribute('data-theme'); try { localStorage.removeItem('dmui-theme'); } catch(e){} }
+    else { root.setAttribute('data-theme', next); try { localStorage.setItem('dmui-theme', next); } catch(e){} }
+  });
+})();
+</script><script src="/components/assets/core.js"></script><script>DM.def('pricing-cards', (r, c) => {
+  const P = [
+    { n:'Starter', d:'For trying the agent', m:0, f:['1 project','50 agent runs a month','Figma import'], cta:['soft','Start free'] },
+    { n:'Pro', d:'For growing design teams', m:24, f:['Unlimited projects','1,000 runs per editor','Shared tokens and memory','Priority models'], cta:['accent','Start free trial'], hot:1 },
+    { n:'Enterprise', d:'For design orgs', m:null, f:['SSO and audit log','Custom spend caps','Dedicated support'], cta:['ink','Talk to us'] }
+  ];
+  const grid = $('.pcx-grid', r), rng = $('.pcx-seats input', r), sn = $('.pcx-sn', r);
+  let per = 'y', seats = 5; const shown = P.map(() => 0);
+  grid.innerHTML = P.map(p => `<div class="pcx-c panel${p.hot ? ' hot' : ''}">${p.hot ? '<span class="tag b bd">Most popular</span>' : ''}<span class="nm">${p.n}</span><span class="ds">${p.d}</span><div class="pcx-pr"><b class="num"></b><s class="num"></s><span></span></div><div class="pcx-tot num"></div><div class="pcx-li">${p.f.map(x => `<span>${I('check','xs')}${x}</span>`).join('')}</div><button class="pill ${p.cta[0]}">${p.cta[1]}</button></div>`).join('');
+  const cards = $$('.pcx-c', grid);
+  function upd(){
+    P.forEach((p, i) => { const el = cards[i], b = $('.pcx-pr b', el), s = $('.pcx-pr s', el), u = $('.pcx-pr span', el), tt = $('.pcx-tot', el);
+      if (p.m === null){ b.textContent = 'Custom'; s.textContent = ''; u.textContent = 'billed yearly'; tt.textContent = 'Volume pricing from 25 editors'; return; }
+      const unit = per === 'y' ? p.m * .8 : p.m;
+      const go = () => tween(shown[i], unit, 500, v => { shown[i] = v; b.textContent = '$' + (Number.isInteger(unit) ? Math.round(v) : v.toFixed(2)); });
+      // the first time, the prices count up once the cards are in view
+      if (first){ b.textContent = '$0'; c.later(260, go); } else go();
+      s.textContent = per === 'y' && p.m ? '$' + p.m : ''; u.textContent = p.m ? 'per editor, per month' : 'forever';
+      swap(tt, p.m ? `$${(unit * seats * (per === 'y' ? 12 : 1)).toLocaleString('en-US', { maximumFractionDigits:0 })} ${per === 'y' ? 'billed yearly' : 'a month'} for ${seats} editor${seats > 1 ? 's' : ''}` : 'Up to 2 editors'); });
+  }
+  seg($('.pcx-per', r), v => { per = v; upd(); });
+  rng.oninput = () => { seats = +rng.value; sn.textContent = seats; P.forEach((p, i) => { if (!p.m) return; const tt = $('.pcx-tot', cards[i]); const unit = per === 'y' ? p.m * .8 : p.m; tt.textContent = `$${(unit * seats * (per === 'y' ? 12 : 1)).toLocaleString('en-US', { maximumFractionDigits:0 })} ${per === 'y' ? 'billed yearly' : 'a month'} for ${seats} editor${seats > 1 ? 's' : ''}`; });
+    cards[2].classList.toggle('hot', seats >= 25); cards[1].classList.toggle('hot', seats < 25); };
+  let first = true; stagger(cards, 80); upd(); first = false;
+  // once in view it shows the switch at work: monthly, then back to yearly. Touching it takes over
+  let touched = false; c.on(r, 'pointerdown', () => { touched = true; });
+  const flip = v => { if (!touched) $(`.pcx-per button[data-v="${v}"]`, r).click(); };
+  c.later(1900, () => flip('m')); c.later(3900, () => flip('y'));
+});
+</script><script>
+    (function(){
+      var root = document.documentElement, card = document.querySelector('.pg-demo > .card[data-c]');
+      // Blueprint or Soft, shared with the rest of the site; the demo starts again in the new style
+      var mark = function(){ var soft = root.getAttribute('data-style') === 'soft'; document.querySelectorAll('[data-style-set]').forEach(function(b){ b.setAttribute('aria-pressed', String((b.dataset.styleSet === 'soft') === soft)); }); };
+      document.querySelectorAll('[data-style-set]').forEach(function(b){ b.addEventListener('click', function(){
+        if (b.getAttribute('aria-pressed') === 'true') return;
+        if (b.dataset.styleSet === 'soft') root.setAttribute('data-style', 'soft'); else root.removeAttribute('data-style');
+        try { localStorage.setItem('dmui-style', b.dataset.styleSet === 'soft' ? 'soft' : 'bp'); } catch(e){}
+        mark(); if (card && window.DM) DM.mount(card);
+      }); });
+      mark();
+      document.getElementById('cp-replay').addEventListener('click', function(){ if (card && typeof DM !== 'undefined') DM.mount(card); });
+      document.querySelectorAll('[data-copy]').forEach(function(b){ b.addEventListener('click', function(){
+        var done = function(){ b.textContent = 'Copied'; setTimeout(function(){ b.textContent = 'Copy'; }, 1400); };
+        if (navigator.clipboard) navigator.clipboard.writeText(b.dataset.copy).then(done, function(){}); });
+      });
+    })();
+    </script></body></html>

@@ -362,7 +362,13 @@ patch("""      set(v){ on = v; try { localStorage.setItem('dmui-sound', v ? 'on'
 patch("""Your theme, style, sound setting and saved components""", """Your theme, style and saved components""")
 patch("""add it once for the tokens, icons, sound and helpers.""", """add it once for the tokens, icons and helpers.""")
 
-CSS = """/* component page: an arrow either side of the component, halfway down the screen, centred in the space beside it.
+# the card title is a link to the component's own page: a plain click opens the component here, as before, and a click
+# meant for a new tab follows the link
+patch("""      c.querySelector('.comp-title').addEventListener('click', () => { if (!dv.contains(c)) open(c); });""",
+      """      c.querySelector('.comp-title').addEventListener('click', e => { if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button) return; e.preventDefault(); if (!dv.contains(c)) open(c); });""")
+
+CSS = """.comp-title a{color:inherit;text-decoration:inherit}
+/* component page: an arrow either side of the component, halfway down the screen, centred in the space beside it.
    Hovering one names the component it goes to underneath it, never wider than that space, so nothing covers the component.
    Where the space gets too narrow for a name, the arrows in the top bar take over */
 .dv-side{--gut:calc((100vw - 1180px) / 2 + 24px);position:fixed;top:50%;z-index:6;display:none;width:44px;height:44px;margin-top:-22px;border-radius:999px;background:var(--sh-card);color:var(--sh-dim);box-shadow:0 0 0 1px var(--sh-line),0 2px 10px rgba(17,19,24,.05);transition:box-shadow .25s ease,color .2s ease}

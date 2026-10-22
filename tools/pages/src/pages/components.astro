@@ -1,0 +1,33 @@
+---
+// /components: every component, by set and section
+import Page from '../layouts/Page.astro';
+import { SITE, SETS, SECTIONS, COMPONENTS } from '../lib/data.mjs';
+const title = `${COMPONENTS.length} free UI components for AI agent products, in React and HTML | Designme.dev`;
+const description = `Every Designme.dev component: ${SECTIONS.filter(s => s.grp === 'agent').reduce((n, s) => n + s.cards.length, 0)} components for showing an agent's work, from status pills and reasoning trails to permission gates and run summaries, plus the app basics around them. Free, MIT licensed, as HTML or typed React.`;
+const jsonld = [{ '@context':'https://schema.org', '@type':'CollectionPage', name:'Components', description, url:SITE + '/components',
+  mainEntity:{ '@type':'ItemList', numberOfItems:COMPONENTS.length, itemListElement:COMPONENTS.map((c, i) => ({ '@type':'ListItem', position:i + 1, name:c.title, url:SITE + c.url })) } }];
+---
+<Page title={title} description={description} path="/components" jsonld={jsonld}>
+  <Fragment slot="head"><style>
+    .ix-h{margin:0;font-size:34px;line-height:1.15;font-weight:600;letter-spacing:-.025em}
+    .ix-lead{margin:10px 0 0;font-size:17px;color:var(--pg-dim);max-width:64ch}
+    .ix-lead code{font:500 14.5px/1.4 var(--pg-mono);background:var(--pg-chip);padding:1px 6px;border-radius:6px}
+    .ix-set{margin:56px 0 0} .ix-set>h2{margin:0;font-size:13px;font-weight:500;letter-spacing:.04em;text-transform:uppercase;color:var(--pg-muted)}
+    .ix-sec{display:grid;grid-template-columns:240px 1fr;gap:24px;padding:28px 0;border-bottom:1px solid var(--pg-line)}
+    .ix-sec h3{margin:0;font-size:17px;font-weight:600} .ix-sec h3 a{text-decoration:none} .ix-sec h3 a:hover{text-decoration:underline}
+    .ix-sec p{margin:6px 0 0;font-size:13.5px;color:var(--pg-dim)}
+    .ix-sec ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:4px 24px}
+    .ix-sec li a{display:block;padding:7px 0;text-decoration:none}
+    .ix-sec li b{font-weight:500} .ix-sec li span{display:block;font-size:13px;color:var(--pg-dim)}
+    .ix-sec li a:hover b{text-decoration:underline}
+    @media (max-width:760px){.ix-sec{grid-template-columns:1fr;gap:12px}.ix-h{font-size:28px}}
+  </style></Fragment>
+  <h1 class="ix-h">Components</h1>
+  <p class="ix-lead">{COMPONENTS.length} free components for products built around AI agents, each one as plain HTML, CSS and JavaScript or as a typed React component, in two styles with light and dark mode. Install any of them with <code>npx designme add</code>.</p>
+  {Object.entries(SETS).map(([g, name]) => <section class="ix-set"><h2>{name}</h2>
+    {SECTIONS.filter(s => s.grp === g).map(s => <div class="ix-sec">
+      <div><h3><a href={s.url}>{s.title}</a></h3><p>{s.about}</p></div>
+      <ul>{s.cards.map(c => <li><a href={`/components/${c.reg}`}><b>{c.title}</b><span>{c.desc}</span></a></li>)}</ul>
+    </div>)}
+  </section>)}
+</Page>

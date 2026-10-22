@@ -1,0 +1,27 @@
+{
+  "summary": "A work-week calendar where people drag events to a new time or day, click free time to add one, and open any event for its details. An agent button in the header asks your agent to find a slot, and the slots it suggests appear as outlined blocks with Book and Other. It shows scheduling help from an agent right inside the calendar people already use.",
+  "use": [
+    "When an agent schedules meetings or finds free time for a team.",
+    "When people need to move and add events in a simple week view without a full calendar app.",
+    "When the agent can prepare something for a meeting, such as prep notes, from the event itself."
+  ],
+  "features": [
+    "Shows `days` columns from `week` (5 by default) and `hours` rows from `startHour` (9am to 5pm by default), with a today mark and a now line when `now` is set.",
+    "Dragging an event moves it to another time or day in 15-minute steps; a click without moving opens its details card.",
+    "Hovering free time shows a \"+ New event\" slot, and clicking it adds an event, from `newEvent`, with a box to name it; Save keeps it and Discard removes it.",
+    "The details card shows the time and the people invited, plus Prep notes when `onPrepNotes` is set (\"Writing\" shows until a returned promise settles) and Join when `onJoin` is set.",
+    "With `onAsk`, the header gets the agent's button; while `finding` is true it shows a thinking mark and a scan line sweeps the week.",
+    "`suggestions` draw as outlined blocks; the first is the pick, with Book (`onBook`) and, while there are more, Other (`onSkip`). The header line reports the last move or addition, or your own `status`."
+  ],
+  "a11y": [
+    "The details card is a role=\"dialog\" labelled \"Event\", and it is inert while closed.",
+    "Escape closes the details card; in a new event's title box, Enter saves and Escape discards.",
+    "The title box is labelled \"Event title\", and the card's close button is labelled \"Close\"."
+  ],
+  "faq": [
+    {"q": "Does the calendar find free slots by itself?", "a": "No. `onAsk` tells you the person pressed the agent's button. Set `finding` to true while your agent looks, then pass what it found as `suggestions` and set `finding` back to false."},
+    {"q": "What should Book and Other do?", "a": "`onBook` gets the picked suggestion: add it to `events` and clear `suggestions`. `onSkip` gets the one being skipped: drop it from `suggestions` and the next one becomes the pick."},
+    {"q": "How do I save events after someone drags or adds one?", "a": "Pass `events` and `onEventsChange`. Every move, new event, rename and removal comes back as the full updated list, with times as local Dates."},
+    {"q": "Can I show a full week or longer hours?", "a": "Yes. Set `days` to 7 for a full week, and `startHour` and `hours` for the time range, like `startHour={8}` and `hours={10}` for 8am to 6pm."}
+  ]
+}

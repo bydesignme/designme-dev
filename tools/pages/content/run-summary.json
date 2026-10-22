@@ -1,0 +1,36 @@
+{
+  "summary": "Run summary is the report an agent leaves when a run finishes: a one-line summary, a few headline numbers, the files it changed with lines added and removed, and anything that still needs the person. Buttons at the bottom open the changes or undo them all.",
+  "use": [
+    "At the end of an agent run, when people need to see at a glance what happened before they review the details.",
+    "When the run changed files and people should see which ones and by how much.",
+    "When the agent finished but left questions or checks that need a person.",
+    "When people should be able to undo a whole run in one click."
+  ],
+  "features": [
+    "`stats` like files, steps, tokens or cost count up from zero one after another, with an optional `prefix`, `suffix` and number of `decimals`.",
+    "\"What changed\" lists each file in `changes` with its added and removed line counts.",
+    "\"Needs you\" lists each item in `needs` with an optional action button. Setting `busy` on the action shows a spinner, and the item's text crossfades when it changes.",
+    "\"Open changes\" calls `onOpenChanges`, and `onDetails` adds a menu button in the corner for the run's details.",
+    "\"Undo all\" switches the card to its undone look, changes the title to `undoneTitle` and turns the button into Redo. Control it with `undone` and `onUndoneChange`.",
+    "The rows come in one after another when the summary appears. It sits flat in a chat thread by default, and `bare={false}` gives it a card."
+  ],
+  "a11y": [
+    "A \"Needs you\" action button sets `aria-busy` while it is busy.",
+    "The corner details button is labelled \"More\" and shows a \"Run details\" tooltip on hover or keyboard focus.",
+    "Under `prefers-reduced-motion: reduce`, the stats jump straight to their values instead of counting up."
+  ],
+  "faq": [
+    {
+      "q": "Does Undo all revert the files?",
+      "a": "No. It changes the card's state and calls `onUndoneChange(true)`. Your code reverts the changes, and Redo calls it again with false."
+    },
+    {
+      "q": "How do I show that a \"Needs you\" item is being handled?",
+      "a": "Set `busy: true` on its `action` while you work on it, then replace its `text`, and drop the action, once it is resolved. The new text crossfades in."
+    },
+    {
+      "q": "Can I show a cost with two decimals?",
+      "a": "Yes. Pass a stat like `{ label: 'cost', value: 0.84, prefix: '$', decimals: 2 }`."
+    }
+  ]
+}

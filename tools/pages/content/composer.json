@@ -1,0 +1,41 @@
+{
+  "summary": "Composer is the box where a person writes a task for a coding or work agent and sends it. Besides the text, it lets them add files and context, pick the project and where the task runs, turn on cloud hand-off, set how much effort the agent spends, and dictate instead of typing.",
+  "use": [
+    "When people give your agent tasks that run in a local folder, a separate worktree or the cloud.",
+    "When a message often comes with files, screenshots or links that should travel with it.",
+    "When you want people to choose how hard the agent works on a task before they send it.",
+    "When people should be able to stop the agent while it answers, from the same button they used to send."
+  ],
+  "features": [
+    "The text box grows as you type, up to 160px. Enter sends, Shift+Enter adds a new line, and `onSubmit` receives the trimmed text and the attachments before the box clears.",
+    "Attachments show as chips above the text, each with its own remove button. The + menu lists `addOptions` and calls `onAdd`, and it can also insert @ to mention a file or / to use a skill.",
+    "Toolbar menus pick the project (`projects`), where it runs (`environments`, which defaults to Local, Worktree and Cloud) and effort (low, medium or high). A switch in its own popover turns on cloud hand-off.",
+    "While `busy` is true, the Send button becomes a Stop button that calls `onStop`.",
+    "When `onDictate` is set, a microphone button appears. With `dictating` on, the toolbar turns into a live waveform driven by `level`, with Cancel to restore the earlier text and Done to keep what was heard.",
+    "`thread` places your conversation above the box, and `tools` adds your own controls, like a model picker, before the effort button."
+  ],
+  "a11y": [
+    "The menus use `role=\"menu\"` with `menuitemradio` and `aria-checked` for the current pick, and their buttons carry `aria-expanded` and `aria-haspopup`.",
+    "Escape or a click outside closes an open menu, and Escape cancels dictation.",
+    "The cloud hand-off control is a `role=\"switch\"` with `aria-checked`, and each attachment's remove button is labelled with the file name.",
+    "The thread area above the box is an `aria-live=\"polite\"` region."
+  ],
+  "faq": [
+    {
+      "q": "Does the composer record audio itself?",
+      "a": "No. `onDictate` tells you the person pressed the microphone, and you start listening, set `dictating` and write what you hear into `value`. Pass `level` as a number or a function, for example one that reads an audio analyser, to drive the waveform."
+    },
+    {
+      "q": "What happens to the text when dictation is cancelled?",
+      "a": "The composer remembers the text from before dictation started. Cancel, or Escape, puts it back and calls `onDictationEnd(false)`, while Done keeps the dictated text and calls `onDictationEnd(true)`."
+    },
+    {
+      "q": "Where does the project chip come from?",
+      "a": "It only shows when you pass `projects`. Pick the current one with `project` or `defaultProject`, and listen with `onProjectChange`."
+    },
+    {
+      "q": "Can people send a message with only an attachment?",
+      "a": "Yes. Send is enabled when there is text or at least one attachment, and it is disabled while `busy` is true."
+    }
+  ]
+}

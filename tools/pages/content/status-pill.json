@@ -1,0 +1,36 @@
+{
+  "summary": "Status pill is a single line that tells people what the agent is doing right now, such as thinking, reading files or waiting for approval. It fades between states and resizes to fit the new text, and it can hold a button for the moment the agent needs a person.",
+  "use": [
+    "When people need a glanceable signal of the agent's current step, in a header, a chat footer or over a canvas.",
+    "When the agent pauses for approval and you want a Review button right where people are already looking.",
+    "When a task reports small counts like \"2 of 4\" that tick over without restarting the line.",
+    "When you want a slim progress track under the status in a wider bar."
+  ],
+  "features": [
+    "Six states: `idle`, `thinking`, `reading`, `working`, `waiting` and `done`, each with its own glyph and colour.",
+    "The label shimmers while the state is thinking, reading or working.",
+    "A new `state`, `label`, `file` or `action` fades the old line out before the new one comes in. Changing only `meta` or `progress` updates at once.",
+    "`file` adds a chip with a type badge, like TSX or PDF. `action` adds a button that calls your `onClick`.",
+    "`variant=\"bar\"` makes it taller with a `progress` track (0 to 100) along the bottom. Switching variants morphs in steps so text and shape never move together.",
+    "The width is measured from the content, so the pill always hugs its text."
+  ],
+  "a11y": [
+    "The pill is an `aria-live=\"polite\"` region, so each new status is read out.",
+    "The state glyphs are marked `aria-hidden`, so screen readers hear the label text, not the animation.",
+    "With reduced motion turned on, the fade and the pill-to-bar morph happen at once, and the shimmer is removed."
+  ],
+  "faq": [
+    {
+      "q": "How do I update a counter like \"2 of 4\" without the pill flashing?",
+      "a": "Put the count in `meta` and keep `state` and `label` the same. Only changes to state, label, file or the action label trigger the fade."
+    },
+    {
+      "q": "Can the agent wait for approval before it continues?",
+      "a": "Yes. Set `state=\"waiting\"` with an `action` such as `{ label: 'Review', onClick }`, and resume the agent from that handler. The demo does exactly this."
+    },
+    {
+      "q": "Why doesn't my progress show up?",
+      "a": "The progress track belongs to the bar variant. Pass `variant=\"bar\"` together with `progress` from 0 to 100; values outside that range are clamped."
+    }
+  ]
+}

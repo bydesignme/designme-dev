@@ -1,0 +1,746 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Event calendar: free UI component for React and HTML | Designme.dev</title><meta name="description" content="A week view where the agent finds a free slot for you. Free and MIT licensed, as HTML or a typed React component, in two styles with light and dark mode."><link rel="canonical" href="https://designme.dev/components/event-calendar"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><meta property="og:type" content="website"><meta property="og:site_name" content="Designme.dev"><meta property="og:title" content="Event calendar: free UI component for React and HTML | Designme.dev"><meta property="og:description" content="A week view where the agent finds a free slot for you. Free and MIT licensed, as HTML or a typed React component, in two styles with light and dark mode."><meta property="og:url" content="https://designme.dev/components/event-calendar"><meta property="og:image" content="https://designme.dev/og.png"><meta name="twitter:card" content="summary_large_image"><link rel="alternate" type="text/plain" title="All components for AI tools" href="/llms.txt"><link rel="preload" href="/fonts/inter-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin><link rel="preload" href="/fonts/inter-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin><script>try{var t=localStorage.getItem('dmui-theme');if(t)document.documentElement.setAttribute('data-theme',t);var s=localStorage.getItem('dmui-style');if(s)document.documentElement.setAttribute('data-style',s)}catch(e){}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareSourceCode","name":"Event calendar","description":"A work-week calendar where people drag events to a new time or day, click free time to add one, and open any event for its details. An agent button in the header asks your agent to find a slot, and the slots it suggests appear as outlined blocks with Book and Other. It shows scheduling help from an agent right inside the calendar people already use.","url":"https://designme.dev/components/event-calendar","programmingLanguage":["HTML","CSS","JavaScript","TypeScript"],"runtimePlatform":"Web browser","license":"https://opensource.org/licenses/MIT","isAccessibleForFree":true,"keywords":"Event calendar, Dates, UI component, React component, HTML component","author":{"@type":"Organization","name":"DesignMe","url":"https://designme.agency"},"isPartOf":{"@type":"WebSite","name":"Designme.dev","url":"https://designme.dev/"}}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Components","item":"https://designme.dev/components"},{"@type":"ListItem","position":2,"name":"Dates","item":"https://designme.dev/components/dates"},{"@type":"ListItem","position":3,"name":"Event calendar","item":"https://designme.dev/components/event-calendar"}]}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does the calendar find free slots by itself?","acceptedAnswer":{"@type":"Answer","text":"No. onAsk tells you the person pressed the agent's button. Set finding to true while your agent looks, then pass what it found as suggestions and set finding back to false."}},{"@type":"Question","name":"What should Book and Other do?","acceptedAnswer":{"@type":"Answer","text":"onBook gets the picked suggestion: add it to events and clear suggestions. onSkip gets the one being skipped: drop it from suggestions and the next one becomes the pick."}},{"@type":"Question","name":"How do I save events after someone drags or adds one?","acceptedAnswer":{"@type":"Answer","text":"Pass events and onEventsChange. Every move, new event, rename and removal comes back as the full updated list, with times as local Dates."}},{"@type":"Question","name":"Can I show a full week or longer hours?","acceptedAnswer":{"@type":"Answer","text":"Yes. Set days to 7 for a full week, and startHour and hours for the time range, like startHour={8} and hours={10} for 8am to 6pm."}}]}</script><link rel="stylesheet" href="/components/assets/core.css"><style>/* ---------- Event calendar ---------- */
+.ecx{overflow:hidden}
+/* the Ask pill crossfades its words but stays a flex row, so the spark keeps its gap */
+.ecx-ask.sw{display:inline-flex}
+/* the Ask pill is quiet: no ring, the same light grey as the stage */
+.pill.soft.ecx-ask{background:var(--wash);box-shadow:none}
+.pill.soft.ecx-ask:hover{background:var(--chip)}
+.ecx-h{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid var(--line);font-size:13.5px;flex-wrap:wrap}
+.ecx-h b{font-weight:500}
+.ecx-sp{flex:1}
+.ecx-sc{overflow-x:auto}
+.ecx-grid{display:grid;grid-template-columns:44px repeat(5,minmax(76px,1fr));min-width:424px;position:relative}
+.ecx-tm{grid-row:1/3;display:flex;flex-direction:column;padding-top:32px}
+.ecx-tm span{height:44px;font-size:10.5px;color:var(--muted);text-align:right;padding-right:8px;transform:translateY(-6px)}
+.ecx-day{border-left:1px solid var(--line)}
+.ecx-dh{height:32px;display:flex;align-items:center;justify-content:center;gap:5px;font-size:12px;color:var(--fg2);border-bottom:1px solid var(--line)}
+.ecx-dh b{font-weight:500;color:var(--fg)}
+.ecx-dh.t b{width:22px;height:22px;border-radius:50%;background:var(--accent);color:var(--on-accent);display:grid;place-items:center;font-size:11.5px}
+.ecx-col{position:relative;height:352px;background-image:linear-gradient(var(--line) 1px,transparent 1px);background-size:100% 44px}
+.ecx-e{position:absolute;left:3px;right:3px;border-radius:8px;padding:4px 7px;font-size:11.5px;line-height:1.3;text-align:left;overflow:hidden;transition:transform .25s var(--ease),box-shadow .25s}
+.ecx-e:hover{transform:translateY(-1px);box-shadow:var(--shadow)}
+.ecx-e{cursor:grab;touch-action:none}
+.ecx-e.drag{transition:none;z-index:6;box-shadow:var(--shadow-pop);cursor:grabbing}
+.ecx-col{cursor:copy}
+.ecx-ghost{position:absolute;left:3px;right:3px;height:41px;border-radius:8px;border:1.5px dashed color-mix(in srgb,var(--accent) 45%,transparent);background:color-mix(in srgb,var(--accent) 5%,transparent);color:var(--accent);font-size:11px;font-weight:500;padding:4px 7px;pointer-events:none}
+.ecx-now{position:absolute;left:0;right:0;height:2px;margin-top:-1px;background:var(--bad);z-index:3}
+.ecx-now::before{content:"";position:absolute;left:-4px;top:-3px;width:8px;height:8px;border-radius:50%;background:var(--bad)}
+.ecx-msg{font-size:12.5px;margin-right:8px}
+.ecx-pop{position:absolute;z-index:20;width:248px;padding:12px;background:var(--raised);border-radius:14px;box-shadow:var(--shadow-pop);opacity:0;transform:translateY(6px);filter:blur(3px);pointer-events:none;transition:opacity .2s var(--ease),transform .35s var(--ease),filter .2s}
+.ecx-pop.open{opacity:1;transform:none;filter:none;pointer-events:auto}
+.ecx-ph{display:flex;align-items:center;gap:8px;font-size:13.5px}
+.ecx-ph>i{width:10px;height:10px;border-radius:3px;flex:none}
+.ecx-ph b{font-weight:500;flex:1;min-width:0}
+.ecx-ph .ib{width:24px;height:24px;margin:-4px -4px -4px auto}
+.ecx-ti{flex:1;min-width:0;border:0;outline:0;background:none;font:inherit;font-weight:500;color:var(--fg)}
+.ecx-ti::placeholder{color:var(--muted)}
+.ecx-pt{font-size:12.5px;color:var(--fg2);margin:4px 0 0 18px}
+.ecx-pw{display:flex;align-items:center;margin:10px 0 0 18px}
+.ecx-pw .av{width:22px;height:22px;font-size:9px;margin-right:-4px;box-shadow:0 0 0 2px var(--raised)}
+.ecx-pw .muted{margin-left:10px;font-size:12px}
+.ecx-note{display:flex;gap:6px;align-items:flex-start;margin:10px 0 0 18px;font-size:12px;line-height:1.45;color:var(--fg2)}
+.ecx-note .i{color:var(--accent);margin-top:2px}
+.ecx-pa{display:flex;justify-content:flex-end;gap:6px;margin-top:12px}
+.ecx-e b{display:block;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ecx-e span{opacity:.8;font-size:10.5px}
+.ecx-e.sug{background:var(--surface)!important;color:var(--accent)!important;box-shadow:inset 0 0 0 1.5px var(--accent);animation:ecs .6s var(--ease) both}
+.ecx-e.sug.alt{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--accent) 40%,transparent);opacity:.8}
+@keyframes ecs{from{opacity:0;transform:scale(.92);filter:blur(3px)}}
+.ecx-sg{display:flex;gap:4px;margin-top:4px}
+.ecx-sg button{font-size:10.5px;padding:2px 6px;border-radius:5px;background:var(--accent);color:var(--on-accent)}
+.ecx-sg button.n{background:transparent;color:var(--accent)}
+.ecx-scan{position:absolute;left:44px;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--accent),transparent);top:32px;opacity:0;pointer-events:none}
+.ecx-scan.go{animation:ecsc 1.2s var(--ease-io) both}
+@keyframes ecsc{0%{opacity:0;top:32px}20%{opacity:1}100%{opacity:0;top:384px}}
+</style><style>
+@font-face{font-family:Inter;font-style:normal;font-weight:400;font-display:swap;src:url(/fonts/inter-latin-400-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:Inter;font-style:normal;font-weight:500;font-display:swap;src:url(/fonts/inter-latin-500-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:Inter;font-style:normal;font-weight:600;font-display:swap;src:url(/fonts/inter-latin-600-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:Inter;font-style:normal;font-weight:700;font-display:swap;src:url(/fonts/inter-latin-700-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"JetBrains Mono";font-style:normal;font-weight:500;font-display:swap;src:url(/fonts/jetbrains-mono-latin-500-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+</style><style>:root{--pg-bg:#fff;--pg-fg:#111318;--pg-dim:#5b5f6b;--pg-muted:#8b8f99;--pg-line:#11131814;--pg-line2:#11131824;--pg-soft:#fafafa;--pg-chip:#f1f1f3;--pg-ink:#111318;--pg-on-ink:#fff;--pg-link:#116ff8;--pg-sans:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;--pg-mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace}@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--pg-bg:#0b0c0f;--pg-fg:#ededee;--pg-dim:#a1a3ab;--pg-muted:#76787f;--pg-line:#ffffff14;--pg-line2:#ffffff24;--pg-soft:#131418;--pg-chip:#ffffff0f;--pg-ink:#f5f5f4;--pg-on-ink:#111318;--pg-link:#6aa8ff;color-scheme:dark}}:root[data-theme=dark]{--pg-bg:#0b0c0f;--pg-fg:#ededee;--pg-dim:#a1a3ab;--pg-muted:#76787f;--pg-line:#ffffff14;--pg-line2:#ffffff24;--pg-soft:#131418;--pg-chip:#ffffff0f;--pg-ink:#f5f5f4;--pg-on-ink:#111318;--pg-link:#6aa8ff;color-scheme:dark}*{box-sizing:border-box}html{-webkit-text-size-adjust:100%}body{background:var(--pg-bg);color:var(--pg-fg);font:15px/1.6 var(--pg-sans);-webkit-font-smoothing:antialiased;margin:0}a{color:inherit}.pg-top{z-index:50;background:color-mix(in srgb,var(--pg-bg) 88%,transparent);backdrop-filter:blur(14px);border-bottom:1px solid var(--pg-line);position:sticky;top:0}.pg-top-in{align-items:center;gap:28px;max-width:1180px;margin:0 auto;padding:12px 24px;display:flex}.pg-logo{color:var(--pg-fg);display:block}.pg-logo svg{width:auto;height:21px;display:block}.pg-nav{gap:22px;font-size:14px;display:flex}.pg-nav a{color:var(--pg-dim);text-decoration:none;transition:color .2s}.pg-nav a:hover,.pg-nav a[aria-current=page]{color:var(--pg-fg)}.pg-top .pg-sp{flex:1}.pg-theme{width:34px;height:34px;color:var(--pg-dim);cursor:pointer;background:0 0;border:0;border-radius:999px;place-items:center;display:grid}.pg-theme:hover{background:var(--pg-chip);color:var(--pg-fg)}.pg-theme svg{width:17px;height:17px}.pg-main{max-width:1180px;margin:0 auto;padding:36px 24px 96px}.pg-foot{border-top:1px solid var(--pg-line);color:var(--pg-dim);font-size:13px}.pg-foot-in{flex-wrap:wrap;justify-content:space-between;gap:10px 24px;max-width:1180px;margin:0 auto;padding:28px 24px 40px;display:flex}.pg-foot nav{flex-wrap:wrap;gap:18px;display:flex}.pg-foot a{color:var(--pg-dim);text-decoration:none}.pg-foot a:hover{color:var(--pg-fg)}:focus-visible{outline:2px solid var(--pg-fg);outline-offset:2px}@media (width<=640px){.pg-top-in{gap:14px;padding:10px 16px}.pg-logo svg{height:18px}.pg-nav{gap:14px}.pg-nav .pg-wide{display:none}.pg-main{padding:24px 16px 72px}.pg-foot-in{padding:24px 16px 32px}}@media (width<=380px){.pg-nav .pg-cl{display:none}}
+.cp-crumbs{color:var(--pg-muted);flex-wrap:wrap;gap:6px;font-size:13px;display:flex}.cp-crumbs a{color:var(--pg-dim);text-decoration:none}.cp-crumbs a:hover{color:var(--pg-fg)}.cp-h{letter-spacing:-.025em;text-wrap:balance;margin:14px 0 0;font-size:34px;font-weight:600;line-height:1.15}.cp-lead{color:var(--pg-dim);max-width:62ch;margin:10px 0 0;font-size:17px}.cp-tags{flex-wrap:wrap;gap:6px;margin:16px 0 0;padding:0;list-style:none;display:flex}.cp-tags li{color:var(--pg-dim);box-shadow:inset 0 0 0 1px var(--pg-line2);border-radius:999px;padding:3px 10px;font-size:12.5px}.cp-demo{background:var(--stage,var(--pg-soft));border-radius:16px;margin:28px 0 0;overflow:hidden}.cp-bar{align-items:center;gap:8px;padding:10px 12px 0;display:flex}.cp-bar .sp{flex:1}.cp-seg{background:var(--pg-chip);border-radius:999px;padding:3px;display:inline-flex}.cp-seg button,.cp-btn{height:28px;color:var(--pg-dim);font:500 13px/1 var(--pg-sans);cursor:pointer;background:0 0;border:0;border-radius:999px;padding:0 12px}.cp-seg button[aria-pressed=true]{background:var(--pg-bg);color:var(--pg-fg);box-shadow:0 1px 2px #00000014}.cp-btn:hover,.cp-seg button:hover{color:var(--pg-fg)}.cp-btn{align-items:center;gap:6px;display:inline-flex}.cp-btn svg{width:14px;height:14px}.pg-demo{min-height:calc(var(--h-a) + 72px);grid-template-columns:minmax(0,1fr);justify-items:center;padding:32px 24px 40px;display:grid}.pg-demo>.card{align-self:stretch;place-items:center;min-width:0;display:grid}@media (width<=640px){.pg-demo{min-height:calc(var(--h-e) + 52px);padding:24px 12px 28px}.cp-h{font-size:28px}}.cp-sec{max-width:820px;margin:56px 0 0}.cp-sec.wide{max-width:none}.cp-sec h2{letter-spacing:-.015em;margin:0 0 14px;font-size:22px;font-weight:600}.cp-sec h3{margin:24px 0 8px;font-size:15px;font-weight:600}.cp-sec p{max-width:68ch;margin:0 0 12px}.cp-sec ul{margin:0;padding-left:20px}.cp-sec li{max-width:66ch;margin:5px 0}.cp-sec code,.cp-props code,.cp-cmd code{font-variant-ligatures:none;font:500 12.5px/1.4 var(--pg-mono);background:var(--pg-chip);border-radius:5px;padding:1px 5px}.cp-cmds{grid-template-columns:minmax(0,1fr);gap:8px;display:grid}.cp-cmd{background:var(--pg-soft);min-width:0;box-shadow:inset 0 0 0 1px var(--pg-line);border-radius:12px;align-items:center;gap:12px;padding:6px 6px 6px 14px;display:flex}.cp-cmd .k{width:52px;color:var(--pg-muted);flex:none;font-size:12.5px}.cp-cmd code{white-space:nowrap;min-width:0;font:500 13.5px/1.5 var(--pg-mono);background:0 0;flex:1;padding:0;overflow-x:auto}.cp-copy{background:var(--pg-bg);height:30px;color:var(--pg-fg);box-shadow:inset 0 0 0 1px var(--pg-line2);font:500 12.5px/1 var(--pg-sans);cursor:pointer;border:0;border-radius:999px;flex:none;padding:0 12px}.cp-copy:hover{background:var(--pg-chip)}.cp-note{color:var(--pg-dim);margin:12px 0 0;font-size:13.5px}.cp-pre{font-variant-ligatures:none;background:var(--pg-soft);max-height:460px;box-shadow:inset 0 0 0 1px var(--pg-line);font:500 12.5px/1.6 var(--pg-mono);tab-size:2;border-radius:12px;margin:0;padding:16px 18px;overflow:auto}.cp-pre code{font:inherit;background:0 0;padding:0}.cp-props{margin:0 0 8px;overflow-x:auto}.cp-props table{border-collapse:collapse;width:100%;min-width:560px;font-size:13.5px}.cp-props th{text-align:left;color:var(--pg-muted);border-bottom:1px solid var(--pg-line2);padding:8px 10px;font-size:12.5px;font-weight:500}.cp-props td{border-bottom:1px solid var(--pg-line);vertical-align:top;padding:10px}.cp-props td:first-child{white-space:nowrap}.cp-props td:nth-child(2) code{white-space:normal;word-break:break-word}.cp-props .opt{color:var(--pg-muted)}.cp-ext{color:var(--pg-dim);font-size:13.5px}details.cp-file{box-shadow:inset 0 0 0 1px var(--pg-line);border-radius:12px;margin:0 0 8px}details.cp-file summary{cursor:pointer;font:500 13.5px/1.4 var(--pg-mono);align-items:center;gap:10px;padding:12px 14px;list-style:none;display:flex}details.cp-file summary::-webkit-details-marker{display:none}details.cp-file summary:before{content:"";border-right:1.5px solid var(--pg-muted);border-bottom:1.5px solid var(--pg-muted);width:6px;height:6px;transition:transform .2s;transform:rotate(-45deg)}details.cp-file[open] summary:before{transform:rotate(45deg)}details.cp-file summary .l{font:12px/1 var(--pg-sans);color:var(--pg-muted);margin-left:auto}details.cp-file .cp-pre{box-shadow:none;border-top:1px solid var(--pg-line);border-radius:0 0 12px 12px;max-height:560px}.cp-faq dt{margin:20px 0 4px;font-weight:600}.cp-faq dd{color:var(--pg-dim);max-width:68ch;margin:0}.cp-rel{grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px;display:grid}.cp-rel a{background:var(--pg-soft);border-radius:14px;padding:14px 16px;text-decoration:none;transition:background .2s;display:block}.cp-rel a:hover{background:var(--pg-chip)}.cp-rel b{font-weight:500;display:block}.cp-rel span{color:var(--pg-dim);margin-top:2px;font-size:13.5px;display:block}.cp-pn{grid-template-columns:1fr 1fr;gap:10px;margin:56px 0 0;display:grid}.cp-pn a{box-shadow:inset 0 0 0 1px var(--pg-line);border-radius:14px;padding:14px 16px;text-decoration:none;display:block}.cp-pn a:hover{background:var(--pg-soft)}.cp-pn .k{color:var(--pg-muted);font-size:12.5px;display:block}.cp-pn b{font-weight:500}.cp-pn .n{text-align:right}.cp-toc{flex-wrap:wrap;gap:4px 18px;margin:22px 0 0;font-size:13.5px;display:flex}.cp-toc a{color:var(--pg-dim);text-decoration:none}.cp-toc a:hover{color:var(--pg-fg)}.sp-crumbs[data-astro-cid-lfhuveqs]{color:var(--pg-muted);font-size:13px}.sp-crumbs[data-astro-cid-lfhuveqs] a[data-astro-cid-lfhuveqs]{color:var(--pg-dim);text-decoration:none}.sp-h[data-astro-cid-lfhuveqs]{letter-spacing:-.025em;margin:14px 0 0;font-size:34px;font-weight:600;line-height:1.15}.sp-lead[data-astro-cid-lfhuveqs]{color:var(--pg-dim);max-width:62ch;margin:10px 0 0;font-size:17px}.sp-grid[data-astro-cid-lfhuveqs]{grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;margin:32px 0 0;display:grid}.sp-grid[data-astro-cid-lfhuveqs] a[data-astro-cid-lfhuveqs]{background:var(--pg-soft);border-radius:14px;padding:18px;text-decoration:none;transition:background .2s;display:block}.sp-grid[data-astro-cid-lfhuveqs] a[data-astro-cid-lfhuveqs]:hover{background:var(--pg-chip)}.sp-grid[data-astro-cid-lfhuveqs] b[data-astro-cid-lfhuveqs]{font-size:15.5px;font-weight:500;display:block}.sp-grid[data-astro-cid-lfhuveqs] span[data-astro-cid-lfhuveqs]{color:var(--pg-dim);margin-top:4px;font-size:13.5px;display:block}.sp-more[data-astro-cid-lfhuveqs]{margin:64px 0 0}.sp-more[data-astro-cid-lfhuveqs] h2[data-astro-cid-lfhuveqs]{margin:0 0 12px;font-size:18px;font-weight:600}.sp-more[data-astro-cid-lfhuveqs] nav[data-astro-cid-lfhuveqs]{flex-wrap:wrap;gap:8px;display:flex}.sp-more[data-astro-cid-lfhuveqs] a[data-astro-cid-lfhuveqs]{box-shadow:inset 0 0 0 1px var(--pg-line2);color:var(--pg-dim);border-radius:999px;padding:6px 12px;font-size:13.5px;text-decoration:none}.sp-more[data-astro-cid-lfhuveqs] a[data-astro-cid-lfhuveqs]:hover{color:var(--pg-fg)}@media (width<=640px){.sp-h[data-astro-cid-lfhuveqs]{font-size:28px}}
+</style></head><body><header class="pg-top"><div class="pg-top-in"><a class="pg-logo" href="/" aria-label="Designme.dev home"><svg role="img" aria-label="Designme.dev" viewBox="0 12.5 210 29.5" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M137.937 20.1034V39.1011H155.787V33.1982H145.37V31.9317H155.38V27.2501H145.37V26.0062H155.787V20.1034H137.937Z" fill="currentColor"/>
+<path d="M136.845 39.1013V20.1036L127.536 20.1036L125.525 29.2632H124.983L122.972 20.1036L113.662 20.1036V39.1013H120.735V32.7009H121.299L122.542 39.1013H127.965L129.208 32.7009H129.773V39.1013L136.845 39.1013Z" fill="currentColor"/>
+<path d="M91.5581 20.1034V39.1011H100.054L104.686 30.5069H105.341V39.1011H112.572V20.1034H104.279L99.4665 28.6976H98.7886V20.1034H91.5581Z" fill="currentColor"/>
+<path d="M90.3556 30.9135V20.1029H86.6499L86.5369 22.274H86.4014C85.0457 20.6457 82.7409 19.4696 79.5324 19.4696C73.6576 19.4696 69.1159 23.4501 69.1159 29.6017C69.1159 35.776 73.3639 39.7338 80.2102 39.7338C84.9553 39.7338 89.8359 37.4044 90.4007 32.0669H83.0347C82.8765 32.4966 81.9501 33.3334 80.391 33.3334C78.0637 33.3334 76.5046 31.9538 76.5046 29.6017C76.5046 27.2496 78.1315 25.87 80.1425 25.87C80.4814 25.87 82.5602 25.7796 83.2154 27.521H79.9391V30.9135H90.3556Z" fill="currentColor"/>
+<path d="M60.9353 20.1034V39.1011H68.3691V20.1034H60.9353Z" fill="currentColor"/>
+<path d="M50.0428 19.4696C42.9704 19.4922 39.8523 21.5277 40.1008 26.7747H46.7664C46.7664 25.8248 47.6025 25.2594 50.0428 25.2368C52.0763 25.1915 52.8446 25.6665 52.8446 26.1414C52.8446 26.2771 53.0027 26.9104 51.4211 27.0913L48.913 27.4758C45.3203 28.0186 40.5075 28.1091 40.5075 33.4465C40.5075 37.3139 43.5805 39.7338 50.0879 39.7338C55.8724 39.7338 59.8943 38.3769 59.691 32.474H53.0705C52.8898 33.4239 52.0086 33.9893 49.9298 33.9893C48.1673 33.9893 47.6477 33.5144 47.6477 33.062C47.6477 32.9263 47.6025 32.3157 48.7096 32.18L50.698 31.8634C54.5618 31.2301 60.2333 31.4563 60.2333 25.8248C60.2333 21.4372 56.9343 19.4244 50.0428 19.4696Z" fill="currentColor"/>
+<path d="M21.5475 20.1034V39.1011H39.3978V33.1982H28.9813V31.9317H38.9911V27.2501H28.9813V26.0062H39.3978V20.1034H21.5475Z" fill="currentColor"/>
+<path d="M10.0775 39.1011C18.0537 39.1011 20.6973 35.1206 20.6973 29.6022C20.6973 24.1291 18.0537 20.1034 10.0775 20.1034H0V39.1011H10.0775ZM10.1001 26.3228C11.7044 26.3228 13.2409 27.0013 13.2409 29.6022C13.2409 32.2483 11.7044 32.9042 10.1001 32.9042H7.45646V26.3228H10.1001Z" fill="currentColor"/>
+<path d="M160.138 24.7522C158.938 24.7522 157.983 23.8244 157.983 22.5601C157.983 21.3049 158.938 20.368 160.138 20.368C161.339 20.368 162.294 21.3049 162.294 22.5601C162.294 23.8244 161.339 24.7522 160.138 24.7522ZM160.138 24.4339C161.139 24.4339 161.939 23.6607 161.939 22.5601C161.939 21.4686 161.139 20.6864 160.138 20.6864C159.147 20.6864 158.337 21.4686 158.337 22.5601C158.337 23.6607 159.147 24.4339 160.138 24.4339ZM159.747 23.7517H159.265V21.3413H160.239C160.784 21.3413 161.075 21.5959 161.075 22.0416C161.075 22.3691 160.875 22.5692 160.548 22.642V22.6602C161.148 22.7693 160.957 23.6607 161.121 23.7244V23.7517H160.63C160.457 23.6243 160.693 22.8421 160.093 22.8421H159.747V23.7517ZM159.747 22.4419H160.12C160.411 22.4419 160.611 22.3691 160.611 22.078C160.611 21.7961 160.402 21.7415 160.129 21.7415H159.747V22.4419Z" fill="currentColor"/>
+<path d="M162.778 38.7558C162.174 38.9572 161.671 39.0579 161.268 39.0579C160.865 39.0291 160.419 38.8421 159.93 38.4968C159.355 37.9214 159.153 37.346 159.326 36.7705C159.527 36.1663 160.045 35.5765 160.879 35.0011C161.455 34.6558 161.872 34.4832 162.131 34.4832C162.419 34.4544 162.836 34.5551 163.383 34.7853C164.361 35.3895 164.792 36.0656 164.677 36.8137C164.562 37.533 163.929 38.1804 162.778 38.7558ZM179.189 41.82C178.815 41.9063 178.441 41.8056 178.067 41.5179C177.721 41.2589 177.477 40.9712 177.333 40.6547C177.16 40.1944 177.045 39.7628 176.988 39.36C176.959 38.9284 176.93 38.4393 176.901 37.8926L176.858 36.4253L175.089 38.0221C174.111 38.9428 173.19 39.6046 172.327 40.0074C171.492 40.3814 170.73 40.5684 170.039 40.5684C169.723 40.5109 169.334 40.3095 168.874 39.9642C168.443 39.5902 168.04 39.1874 167.666 38.7558C167.32 38.2954 167.076 37.9214 166.932 37.6337C166.759 37.2309 166.702 36.6698 166.759 35.9505C166.846 35.2312 167.018 34.44 167.277 33.5769C167.565 32.7137 167.91 31.8649 168.313 31.0305C168.745 30.1962 169.234 29.4769 169.78 28.8727C170.73 27.4341 171.91 26.5421 173.319 26.1969C174.729 25.8228 175.981 25.9379 177.074 26.5421C177.592 26.8011 177.966 26.9018 178.196 26.8442C178.426 26.7867 178.57 26.5997 178.628 26.2832C178.743 25.8228 178.872 25.3913 179.016 24.9885C179.16 24.5856 179.361 23.9814 179.62 23.1758C180.34 20.9892 180.958 19.2772 181.476 18.04C182.023 16.8029 182.512 15.7239 182.944 14.8032C183.26 14.1415 183.577 13.6811 183.893 13.4222C184.21 13.1632 184.483 13.0481 184.713 13.0769C185.03 13.0769 185.418 13.192 185.878 13.4222C186.367 13.6523 186.684 13.9688 186.828 14.3716C186.943 14.6306 186.986 14.9039 186.957 15.1916C186.957 15.4793 186.871 15.7815 186.698 16.0979C186.324 16.7885 185.878 17.7092 185.36 18.86C184.871 19.9821 184.368 21.2193 183.85 22.5716C183.361 23.9239 182.9 25.2618 182.469 26.5853C182.037 27.9088 181.678 29.0741 181.39 30.0811C181.217 30.7141 181.073 31.5197 180.958 32.4979C180.872 33.4762 180.8 34.4832 180.743 35.519C180.714 36.526 180.714 37.4323 180.743 38.2379C180.771 39.0147 180.814 39.5182 180.872 39.7484C181.045 40.3239 181.045 40.7554 180.872 41.0432C180.699 41.3309 180.455 41.5179 180.138 41.6042C179.822 41.7193 179.505 41.7912 179.189 41.82ZM172.068 36.5979C172.471 36.454 172.83 36.2814 173.147 36.08C173.463 35.8786 173.837 35.6197 174.269 35.3032C175.132 34.6414 175.751 34.066 176.125 33.5769C176.527 33.0877 176.844 32.4835 177.074 31.7642C177.218 31.3326 177.218 30.9586 177.074 30.6421C176.959 30.3256 176.743 30.0235 176.427 29.7358C176.11 29.4769 175.707 29.3762 175.218 29.4337C174.729 29.4625 174.168 29.7646 173.535 30.34C172.845 30.973 172.255 31.7067 171.766 32.5411C171.277 33.3755 170.874 34.5695 170.557 36.1232C170.5 36.4109 170.6 36.6123 170.859 36.7274C171.118 36.8425 171.521 36.7993 172.068 36.5979ZM191.763 40.1368C190.899 40.626 189.979 40.9137 189.001 41C188.051 41.0575 187.159 40.9281 186.325 40.6116C185.49 40.2663 184.814 39.7628 184.296 39.1011C184.009 38.727 183.735 38.1372 183.476 37.3316C183.217 36.4972 183.174 35.3751 183.347 33.9653C183.519 32.6418 183.922 31.3039 184.555 29.9516C185.217 28.5993 186.023 27.4053 186.972 26.3695C187.922 25.3337 188.957 24.6288 190.079 24.2548C190.482 24.1109 190.885 24.0102 191.288 23.9527C191.719 23.8663 192.281 23.852 192.971 23.9095C193.633 23.9958 194.223 24.1685 194.741 24.4274C195.258 24.6576 195.632 24.9165 195.863 25.2042C196.323 25.6646 196.625 26.1106 196.769 26.5421C196.913 26.9737 196.97 27.3909 196.942 27.7937C196.798 28.7144 196.38 29.707 195.69 30.7716C195.028 31.8362 194.093 32.6274 192.885 33.1453C192.396 33.3467 191.82 33.4762 191.158 33.5337C190.497 33.5912 189.59 33.5049 188.439 33.2748C187.749 33.1309 187.289 33.2028 187.058 33.4905C186.857 33.7783 186.771 34.3393 186.799 35.1737C186.857 35.6916 186.972 36.1519 187.145 36.5547C187.346 36.9288 187.706 37.1877 188.224 37.3316C188.885 37.4467 189.36 37.4611 189.648 37.3747C189.936 37.2597 190.295 37.1014 190.727 36.9C190.957 36.7561 191.173 36.5979 191.374 36.4253C191.604 36.2526 191.82 36.08 192.022 35.9074C192.252 35.7347 192.439 35.6053 192.583 35.519C192.726 35.4039 192.87 35.3319 193.014 35.3032C193.158 35.2744 193.302 35.26 193.446 35.26C193.762 35.2888 194.064 35.4614 194.352 35.7779C194.64 36.0944 194.827 36.3965 194.913 36.6842C194.913 36.9144 194.769 37.2453 194.482 37.6768C194.194 38.0797 193.805 38.5112 193.316 38.9716C192.856 39.4032 192.338 39.7916 191.763 40.1368ZM191.202 30.5127C191.403 30.4263 191.691 30.2249 192.065 29.9084C192.468 29.592 192.827 29.2611 193.144 28.9158C193.46 28.5418 193.618 28.2541 193.618 28.0527C193.618 27.7362 193.403 27.4628 192.971 27.2327C192.568 27.0025 192.036 26.9593 191.374 27.1032C191.144 27.1607 190.871 27.319 190.554 27.5779C190.238 27.8369 189.921 28.139 189.605 28.4842C189.288 28.8007 189.015 29.1172 188.785 29.4337C188.555 29.7214 188.396 29.9516 188.31 30.1242C188.425 30.2681 188.655 30.3832 189.001 30.4695C189.346 30.5558 189.72 30.599 190.123 30.599C190.554 30.599 190.914 30.5702 191.202 30.5127ZM201.731 39.8779C201.444 40.0793 201.084 40.1944 200.652 40.2232C200.25 40.2232 199.89 40.0649 199.574 39.7484C199.027 39.2305 198.552 38.2091 198.149 36.6842C197.746 35.1305 197.545 33.0302 197.545 30.3832C197.66 29.2035 197.718 28.1102 197.718 27.1032C197.746 26.0962 197.761 25.5351 197.761 25.42C198.077 25.2186 198.48 25.1611 198.969 25.2474C199.487 25.3049 199.904 25.4056 200.221 25.5495C200.509 25.6934 200.71 25.9092 200.825 26.1969C200.969 26.4846 201.055 27.0025 201.084 27.7506C201.142 28.4698 201.17 29.5776 201.17 31.0737C201.084 32.2246 201.026 33.1453 200.998 33.8358C200.969 34.5263 200.998 34.9291 201.084 35.0442C201.199 35.2456 201.257 35.3607 201.257 35.3895C201.257 35.3895 201.472 35.1737 201.904 34.7421C202.134 34.4256 202.379 34.0084 202.638 33.4905C202.925 32.9726 203.17 32.5555 203.371 32.239C203.688 31.8362 203.976 31.4477 204.235 31.0737C204.522 30.6997 204.724 30.4551 204.839 30.34C204.954 30.1098 205.098 29.8941 205.27 29.6927C205.443 29.4912 205.587 29.2898 205.702 29.0884C206.018 28.5418 206.349 28.0958 206.695 27.7506C207.04 27.3765 207.27 27.1895 207.385 27.1895C207.5 27.2758 207.716 27.2614 208.032 27.1463C208.349 27.0025 208.565 26.9306 208.68 26.9306C208.881 26.7291 209.155 26.7291 209.5 26.9306C209.615 27.0169 209.716 27.1176 209.802 27.2327C209.888 27.319 209.931 27.4197 209.931 27.5348C209.931 27.6786 209.845 28.0383 209.672 28.6137C209.529 29.1604 209.342 29.707 209.111 30.2537C208.91 30.7716 208.737 31.0737 208.593 31.16C208.593 31.16 208.55 31.2032 208.464 31.2895C208.378 31.3758 208.277 31.4765 208.162 31.5916C208.104 31.793 207.903 32.167 207.558 32.7137C207.241 33.2316 206.838 33.8358 206.349 34.5263C205.889 35.1881 205.414 35.8498 204.925 36.5116C204.436 37.1446 204.004 37.7056 203.63 38.1947C203.343 38.5975 203.012 38.9572 202.638 39.2737C202.264 39.5614 201.962 39.7628 201.731 39.8779Z" fill="#0072FF"/>
+</svg></a><nav class="pg-nav" aria-label="Site"><a href="/components" aria-current="page">Components</a><a href="/packages/react/preview/" class="pg-wide">React preview</a><a href="/#/changelog" class="pg-cl">Changelog</a></nav><span class="pg-sp"></span><button class="pg-theme" id="pg-theme" type="button" aria-label="Switch between light and dark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"></path></svg></button></div></header><main class="pg-main"><nav class="cp-crumbs" aria-label="Breadcrumb"><a href="/components">Components</a><span>/</span><a href="/components/dates">Dates</a></nav><h1 class="cp-h">Event calendar</h1><p class="cp-lead">A week view where the agent finds a free slot for you.</p><ul class="cp-tags"><li>App basics</li><li>HTML and React</li><li>Soft and Blueprint</li><li>Light and dark</li><li>MIT</li></ul><section class="cp-demo" aria-label="Event calendar demo"><div class="cp-bar"><div class="cp-seg" role="group" aria-label="Style"><button type="button" data-style-set="bp">Blueprint</button><button type="button" data-style-set="soft">Soft</button></div><span class="sp"></span><button type="button" class="cp-btn" id="cp-replay"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"></path><path d="M3 3v5h5"></path></svg>Replay</button></div><div class="pg-demo stage-inner" style="--h-a:433px;--h-e:462px"><div class="card wide" data-c="event-calendar">
+  <div class="stage-in"></div>
+  <template>
+<div class="ecx panel">
+  <div class="ecx-h"><b>Oct 19 – 23, 2026</b><span class="ecx-sp"></span><span class="ecx-msg muted"></span><button class="pill soft sm ecx-ask">{spark}Find 45 min for a design review</button></div>
+  <div class="ecx-sc"><div class="ecx-grid"><div class="ecx-tm"></div></div></div>
+</div>
+  </template>
+</div>
+</div></section><nav class="cp-toc" aria-label="On this page"><a href="#install">Install</a><a href="#about">About</a><a href="#usage">Usage</a><a href="#props">Props</a><a href="#code">Code</a><a href="#questions">Questions</a></nav><section class="cp-sec" id="install"><h2>Install</h2><div class="cp-cmds"><div class="cp-cmd"><span class="k">HTML</span><code>npx designme add event-calendar</code><button class="cp-copy" type="button" data-copy="npx designme add event-calendar">Copy</button></div><div class="cp-cmd"><span class="k">React</span><code>npx designme add event-calendar --react</code><button class="cp-copy" type="button" data-copy="npx designme add event-calendar --react">Copy</button></div></div><p class="cp-note">The CLI copies the source into your project, so you own it and can change anything. The HTML version lands in <code>./designme</code> with the shared core and a <code>demo.html</code>. The React version lands in <code>src/components/designme</code> and needs React 19; it works in Next.js, Vite and Astro.</p></section><section class="cp-sec" id="about"><h2>About the event calendar</h2><p>A work-week calendar where people drag events to a new time or day, click free time to add one, and open any event for its details. An agent button in the header asks your agent to find a slot, and the slots it suggests appear as outlined blocks with Book and Other. It shows scheduling help from an agent right inside the calendar people already use.</p><h3>When to use it</h3><ul><li>When an agent schedules meetings or finds free time for a team.</li><li>When people need to move and add events in a simple week view without a full calendar app.</li><li>When the agent can prepare something for a meeting, such as prep notes, from the event itself.</li></ul><h3>What it does</h3><ul><li>Shows <code>days</code> columns from <code>week</code> (5 by default) and <code>hours</code> rows from <code>startHour</code> (9am to 5pm by default), with a today mark and a now line when <code>now</code> is set.</li><li>Dragging an event moves it to another time or day in 15-minute steps; a click without moving opens its details card.</li><li>Hovering free time shows a "+ New event" slot, and clicking it adds an event, from <code>newEvent</code>, with a box to name it; Save keeps it and Discard removes it.</li><li>The details card shows the time and the people invited, plus Prep notes when <code>onPrepNotes</code> is set ("Writing" shows until a returned promise settles) and Join when <code>onJoin</code> is set.</li><li>With <code>onAsk</code>, the header gets the agent's button; while <code>finding</code> is true it shows a thinking mark and a scan line sweeps the week.</li><li><code>suggestions</code> draw as outlined blocks; the first is the pick, with Book (<code>onBook</code>) and, while there are more, Other (<code>onSkip</code>). The header line reports the last move or addition, or your own <code>status</code>.</li></ul><h3>Accessibility</h3><ul><li>The details card is a role="dialog" labelled "Event", and it is inert while closed.</li><li>Escape closes the details card; in a new event's title box, Enter saves and Escape discards.</li><li>The title box is labelled "Event title", and the card's close button is labelled "Close".</li></ul></section><section class="cp-sec" id="usage"><h2>Usage in React</h2><p>After installing, import it from where the CLI put it:</p><pre class="cp-pre"><code>import { EventCalendar } from &#39;@/components/designme/event-calendar/EventCalendar&#39;;</code></pre><h3>Example</h3><p>The demo above, as a React component you can copy:</p><pre class="cp-pre"><code>&#39;use client&#39;;
+// The animated preview from designme.dev, rebuilt from the React component: an example of driving it from your own state.
+import { useCallback, useRef, useState } from &#39;react&#39;;
+import { EventCalendar, type EventCalendarEvent, type EventCalendarPerson, type EventCalendarSuggestion, type EventCalendarTone } from &#39;./EventCalendar&#39;;
+import { useScript, useWait } from &#39;../lib/useScript&#39;;
+
+const WEEK = new Date(2026, 9, 19);
+const at = (day: number, hour: number) =&gt; new Date(2026, 9, 19 + day, Math.floor(hour), Math.round((hour % 1) * 60));
+const WHO: EventCalendarPerson[] = [{ initials: &#39;MK&#39;, color: &#39;var(--dm-pl)&#39; }, { initials: &#39;JO&#39;, color: &#39;var(--dm-pm)&#39; }, { initials: &#39;DA&#39;, color: &#39;var(--dm-pb)&#39; }, { initials: &#39;AR&#39;, color: &#39;var(--dm-pp)&#39; }];
+// two to four people, the way the site picks them
+const people = (title: string) =&gt; WHO.slice(0, 2 + title.length % 3);
+const EVENTS: [number, number, number, string, EventCalendarTone][] = [
+  [0, 9, 1, &#39;Standup&#39;, &#39;blue&#39;], [0, 13, 1.5, &#39;Pricing workshop&#39;, &#39;orange&#39;], [1, 10, 1, &#39;1:1 with Maya&#39;, &#39;purple&#39;], [1, 14, 2, &#39;Focus: checkout&#39;, &#39;teal&#39;],
+  [2, 9, 1, &#39;Standup&#39;, &#39;blue&#39;], [2, 11.5, 1, &#39;Agent demo&#39;, &#39;yellow&#39;], [3, 9, 1, &#39;Standup&#39;, &#39;blue&#39;], [3, 12, 1, &#39;Lunch &amp; learn&#39;, &#39;green&#39;],
+  [3, 15, 1.5, &#39;Launch review&#39;, &#39;red&#39;], [4, 10, 1.5, &#39;Planning&#39;, &#39;orange&#39;]
+];
+const START: EventCalendarEvent[] = EVENTS.map(([d, h, len, title, tone], i) =&gt; ({ id: &#39;e&#39; + i, title, start: at(d, h), end: at(d, h + len), tone, people: people(title) }));
+const SLOTS: EventCalendarSuggestion[] = [
+  { id: &#39;wed&#39;, title: &#39;Design review&#39;, start: at(2, 13.5), end: at(2, 14.25) },
+  { id: &#39;fri&#39;, title: &#39;Design review&#39;, start: at(4, 13), end: at(4, 13.75) }
+];
+
+export default function EventCalendarDemo() {
+  const [events, setEvents] = useState(START);
+  const [suggestions, setSuggestions] = useState&lt;EventCalendarSuggestion[]&gt;([]);
+  const [finding, setFinding] = useState(false);
+  const [label, setLabel] = useState(&#39;Find 45 min for a design review&#39;);
+  const skipped = useRef(false);
+  const wait = useWait();
+
+  // the agent checks everyone&#39;s calendar, then suggests the best slot with one more behind it
+  const ask = useCallback(async () =&gt; {
+    setSuggestions([]); skipped.current = false;
+    setFinding(true); setLabel(&#39;Checking 4 calendars&#39;);
+    await wait(1300);
+    setSuggestions(SLOTS); setFinding(false); setLabel(&#39;Everyone is free Wed 1:30&#39;);
+  }, [wait]);
+  useScript(async ({ wait }) =&gt; { await wait(1200); await ask(); });
+
+  return (
+    &lt;div style={{ width: &#39;100%&#39; }}&gt;
+      &lt;EventCalendar week={WEEK} now={new Date(2026, 9, 19, 10, 42)} events={events} onEventsChange={setEvents}
+        newEvent={{ tone: &#39;pink&#39;, people: people(&#39;New event&#39;) }}
+        onPrepNotes={() =&gt; wait(1200).then(() =&gt; &quot;Notes ready: last week&#39;s decisions and 3 open questions.&quot;)} onJoin={() =&gt; {}}
+        askLabel={label} onAsk={ask} finding={finding} suggestions={suggestions}
+        onBook={s =&gt; {
+          setEvents(es =&gt; [...es, { id: s.id + &#39;-booked&#39;, title: s.title, start: s.start, end: s.end, tone: &#39;blue&#39;, people: people(s.title) }]);
+          setSuggestions([]); setLabel(skipped.current ? &#39;Booked Fri 1:00, invites sent&#39; : &#39;Booked, invites sent to 4 people&#39;);
+        }}
+        onSkip={() =&gt; { skipped.current = true; setSuggestions(ss =&gt; ss.slice(1)); setLabel(&#39;Next best: Fri 1:00&#39;); }} /&gt;
+    &lt;/div&gt;
+  );
+}
+</code></pre></section><section class="cp-sec wide" id="props"><h2>Props</h2><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>events</code><span class="opt"> optional</span></td><td><code>EventCalendarEvent[]</code></td><td>The events. Dragging moves them, clicking free time adds one, the details card names or removes it</td></tr><tr><td><code>defaultEvents</code><span class="opt"> optional</span></td><td><code>EventCalendarEvent[]</code></td><td></td></tr><tr><td><code>onEventsChange</code><span class="opt"> optional</span></td><td><code>(events: EventCalendarEvent[]) =&gt; void</code></td><td></td></tr><tr><td><code>week</code></td><td><code>Date</code></td><td>The first day shown, like Monday Oct 19. Its time of day is ignored</td></tr><tr><td><code>days</code><span class="opt"> optional</span></td><td><code>number</code></td><td>How many days to show, from `week`. Defaults to 5</td></tr><tr><td><code>startHour</code><span class="opt"> optional</span></td><td><code>number</code></td><td>The first hour on the grid, 9 for 9am</td></tr><tr><td><code>hours</code><span class="opt"> optional</span></td><td><code>number</code></td><td>How many hours the grid shows. Defaults to 8 (9am to 5pm)</td></tr><tr><td><code>title</code><span class="opt"> optional</span></td><td><code>string</code></td><td>The heading. Defaults to the dates shown, like &quot;Oct 19 – 23, 2026&quot;</td></tr><tr><td><code>now</code><span class="opt"> optional</span></td><td><code>Date</code></td><td>Marks today and draws the now line. Leave it out for neither</td></tr><tr><td><code>selected</code><span class="opt"> optional</span></td><td><code>string | null</code></td><td>The event whose details card is open</td></tr><tr><td><code>defaultSelected</code><span class="opt"> optional</span></td><td><code>string | null</code></td><td></td></tr><tr><td><code>onSelectedChange</code><span class="opt"> optional</span></td><td><code>(id: string | null) =&gt; void</code></td><td></td></tr><tr><td><code>newEvent</code><span class="opt"> optional</span></td><td><code>{ tone?: EventCalendarTone; people?: EventCalendarPerson[]; hours?: number }</code></td><td>What an event added by clicking free time starts with. Defaults to a pink, one hour event</td></tr><tr><td><code>onPrepNotes</code><span class="opt"> optional</span></td><td><code>(event: EventCalendarEvent) =&gt; ReactNode | Promise&lt;ReactNode&gt;</code></td><td>Adds Prep notes to the details card. Return the notes, or a promise of them; &quot;Writing&quot; shows until it settles</td></tr><tr><td><code>onJoin</code><span class="opt"> optional</span></td><td><code>(event: EventCalendarEvent) =&gt; void</code></td><td>Adds Join to the details card</td></tr><tr><td><code>askLabel</code><span class="opt"> optional</span></td><td><code>string</code></td><td>Adds the agent&#39;s button to the header, like &quot;Find 45 min for a design review&quot;</td></tr><tr><td><code>onAsk</code><span class="opt"> optional</span></td><td><code>() =&gt; void</code></td><td></td></tr><tr><td><code>finding</code><span class="opt"> optional</span></td><td><code>boolean</code></td><td>The agent is looking: its button thinks and a scan line sweeps the week</td></tr><tr><td><code>suggestions</code><span class="opt"> optional</span></td><td><code>EventCalendarSuggestion[]</code></td><td>Slots the agent suggests. The first is the pick, the rest wait dimmed behind it</td></tr><tr><td><code>onBook</code><span class="opt"> optional</span></td><td><code>(suggestion: EventCalendarSuggestion) =&gt; void</code></td><td>Book on the picked suggestion. Add the event and clear the suggestions</td></tr><tr><td><code>onSkip</code><span class="opt"> optional</span></td><td><code>(suggestion: EventCalendarSuggestion) =&gt; void</code></td><td>Other on the picked suggestion, shown while there are more. Drop it and the next one becomes the pick</td></tr><tr><td><code>status</code><span class="opt"> optional</span></td><td><code>string</code></td><td>The quiet line in the header. Defaults to what the person last did, like &quot;Moved Standup to Wed 1:15&quot;</td></tr><tr><td><code>className</code><span class="opt"> optional</span></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec wide" id="code"><h2>Code</h2><p>The full source, as the CLI installs it. Open a file to read it.</p><details class="cp-file"><summary>EventCalendar.tsx<span class="l">React</span></summary><pre class="cp-pre"><code>&#39;use client&#39;;
+import { useEffect, useId, useRef, useState, type CSSProperties, type KeyboardEvent, type MouseEvent, type PointerEvent, type ReactNode } from &#39;react&#39;;
+import { cx } from &#39;../lib/cx&#39;;
+import { useControllable, useIsoLayoutEffect } from &#39;../lib/hooks&#39;;
+import { Icon } from &#39;../lib/icons&#39;;
+import { Avatar, enter, Swap, Think, Tip } from &#39;../lib/motion&#39;;
+import &#39;../designme.css&#39;;
+import &#39;./event-calendar.css&#39;;
+
+export type EventCalendarTone = &#39;blue&#39; | &#39;purple&#39; | &#39;green&#39; | &#39;orange&#39; | &#39;red&#39; | &#39;yellow&#39; | &#39;pink&#39; | &#39;teal&#39;;
+
+export interface EventCalendarPerson {
+  /** Like &quot;MK&quot; */
+  initials: string;
+  /** The avatar&#39;s colour, like &#39;var(--dm-pl)&#39; */
+  color: string;
+}
+
+export interface EventCalendarEvent {
+  id: string;
+  /** Like &quot;Pricing workshop&quot;. An empty title reads &quot;New event&quot; and opens with a box to name it */
+  title: string;
+  /** Read in the browser&#39;s local time */
+  start: Date;
+  end: Date;
+  /** The block&#39;s colour. Defaults to blue */
+  tone?: EventCalendarTone;
+  /** Who is invited, shown in the details card */
+  people?: EventCalendarPerson[];
+}
+
+/** A free slot the agent found, drawn as an outlined block with Book (and Other while there are more) */
+export interface EventCalendarSuggestion {
+  id: string;
+  title: string;
+  start: Date;
+  end: Date;
+}
+
+export interface EventCalendarProps {
+  /** The events. Dragging moves them, clicking free time adds one, the details card names or removes it */
+  events?: EventCalendarEvent[];
+  defaultEvents?: EventCalendarEvent[];
+  onEventsChange?: (events: EventCalendarEvent[]) =&gt; void;
+  /** The first day shown, like Monday Oct 19. Its time of day is ignored */
+  week: Date;
+  /** How many days to show, from `week`. Defaults to 5 */
+  days?: number;
+  /** The first hour on the grid, 9 for 9am */
+  startHour?: number;
+  /** How many hours the grid shows. Defaults to 8 (9am to 5pm) */
+  hours?: number;
+  /** The heading. Defaults to the dates shown, like &quot;Oct 19 – 23, 2026&quot; */
+  title?: string;
+  /** Marks today and draws the now line. Leave it out for neither */
+  now?: Date;
+  /** The event whose details card is open */
+  selected?: string | null;
+  defaultSelected?: string | null;
+  onSelectedChange?: (id: string | null) =&gt; void;
+  /** What an event added by clicking free time starts with. Defaults to a pink, one hour event */
+  newEvent?: { tone?: EventCalendarTone; people?: EventCalendarPerson[]; hours?: number };
+  /** Adds Prep notes to the details card. Return the notes, or a promise of them; &quot;Writing&quot; shows until it settles */
+  onPrepNotes?: (event: EventCalendarEvent) =&gt; ReactNode | Promise&lt;ReactNode&gt;;
+  /** Adds Join to the details card */
+  onJoin?: (event: EventCalendarEvent) =&gt; void;
+  /** Adds the agent&#39;s button to the header, like &quot;Find 45 min for a design review&quot; */
+  askLabel?: string;
+  onAsk?: () =&gt; void;
+  /** The agent is looking: its button thinks and a scan line sweeps the week */
+  finding?: boolean;
+  /** Slots the agent suggests. The first is the pick, the rest wait dimmed behind it */
+  suggestions?: EventCalendarSuggestion[];
+  /** Book on the picked suggestion. Add the event and clear the suggestions */
+  onBook?: (suggestion: EventCalendarSuggestion) =&gt; void;
+  /** Other on the picked suggestion, shown while there are more. Drop it and the next one becomes the pick */
+  onSkip?: (suggestion: EventCalendarSuggestion) =&gt; void;
+  /** The quiet line in the header. Defaults to what the person last did, like &quot;Moved Standup to Wed 1:15&quot; */
+  status?: string;
+  className?: string;
+}
+
+const PX = 44;
+const MONTHS = [&#39;Jan&#39;, &#39;Feb&#39;, &#39;Mar&#39;, &#39;Apr&#39;, &#39;May&#39;, &#39;Jun&#39;, &#39;Jul&#39;, &#39;Aug&#39;, &#39;Sep&#39;, &#39;Oct&#39;, &#39;Nov&#39;, &#39;Dec&#39;];
+const DAYN = [&#39;Sun&#39;, &#39;Mon&#39;, &#39;Tue&#39;, &#39;Wed&#39;, &#39;Thu&#39;, &#39;Fri&#39;, &#39;Sat&#39;];
+const TONE: Record&lt;EventCalendarTone, string&gt; = { blue: &#39;pb&#39;, purple: &#39;pl&#39;, green: &#39;pm&#39;, orange: &#39;pp&#39;, red: &#39;pr&#39;, yellow: &#39;py&#39;, pink: &#39;pk&#39;, teal: &#39;pt&#39; };
+
+const addDays = (d: Date, n: number) =&gt; new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
+const dayIndex = (week: Date, d: Date) =&gt; Math.round((addDays(d, 0).getTime() - addDays(week, 0).getTime()) / 864e5);
+const hourOf = (d: Date) =&gt; d.getHours() + d.getMinutes() / 60;
+const at = (week: Date, day: number, hour: number) =&gt; new Date(week.getFullYear(), week.getMonth(), week.getDate() + day, Math.floor(hour), Math.round((hour % 1) * 60));
+/** 13.5 → &quot;1:30&quot;, the way the site writes times */
+const tm = (h: number) =&gt; { const hh = Math.floor(h), mm = Math.round((h - hh) * 60); return `${hh &gt; 12 ? hh - 12 : hh}:${String(mm).padStart(2, &#39;0&#39;)}`; };
+const tint = (tone: EventCalendarTone = &#39;blue&#39;): CSSProperties =&gt; ({ background: `var(--dm-${TONE[tone]}-bg)`, color: `var(--dm-${TONE[tone]})` });
+const named = (e: EventCalendarEvent) =&gt; e.title || &#39;New event&#39;;
+
+/** The details card: who is coming and what to do, or a box to name a new event */
+function Details({ event, onClose, onSave, onDiscard, onPrepNotes, onJoin }: {
+  event: EventCalendarEvent; onClose: () =&gt; void; onSave: (title: string) =&gt; void; onDiscard: () =&gt; void;
+  onPrepNotes?: EventCalendarProps[&#39;onPrepNotes&#39;]; onJoin?: EventCalendarProps[&#39;onJoin&#39;];
+}) {
+  const fresh = !event.title;
+  const input = useRef&lt;HTMLInputElement&gt;(null);
+  const [prep, setPrep] = useState&lt;&#39;idle&#39; | &#39;writing&#39; | &#39;done&#39;&gt;(&#39;idle&#39;);
+  const [note, setNote] = useState&lt;ReactNode&gt;(null);
+  useEffect(() =&gt; { if (fresh) input.current?.focus({ preventScroll: true }); }, [fresh]);
+  const write = async () =&gt; {
+    if (!onPrepNotes || prep !== &#39;idle&#39;) return;
+    setPrep(&#39;writing&#39;);
+    const n = await onPrepNotes(event);
+    setNote(n); setPrep(&#39;done&#39;);
+  };
+  const key = (k: KeyboardEvent&lt;HTMLInputElement&gt;) =&gt; { if (k.key === &#39;Enter&#39;) onSave(k.currentTarget.value); if (k.key === &#39;Escape&#39;) onDiscard(); };
+  const h = hourOf(event.start), end = hourOf(event.end), people = event.people ?? [];
+  return (
+    &lt;&gt;
+      &lt;div className=&quot;dm-ecx-ph&quot;&gt;
+        &lt;i style={{ background: `var(--dm-${TONE[event.tone ?? &#39;blue&#39;]})` }} /&gt;
+        {fresh ? &lt;input ref={input} className=&quot;dm-ecx-ti&quot; placeholder=&quot;Add a title&quot; aria-label=&quot;Event title&quot; onKeyDown={key} /&gt; : &lt;b&gt;{event.title}&lt;/b&gt;}
+        &lt;Tip label=&quot;Close&quot;&gt;&lt;button type=&quot;button&quot; className=&quot;dm-ib&quot; aria-label=&quot;Close&quot; onClick={onClose}&gt;&lt;Icon name=&quot;x&quot; size=&quot;xs&quot; /&gt;&lt;/button&gt;&lt;/Tip&gt;
+      &lt;/div&gt;
+      &lt;div className=&quot;dm-ecx-pt&quot;&gt;{DAYN[event.start.getDay()]} {event.start.getDate()} {MONTHS[event.start.getMonth()]} · {tm(h)} – {tm(end)}&lt;/div&gt;
+      {people.length &gt; 0 &amp;&amp; (
+        &lt;div className=&quot;dm-ecx-pw&quot;&gt;
+          {people.map((p, i) =&gt; &lt;Avatar key={i} initials={p.initials} color={p.color} /&gt;)}
+          &lt;span className=&quot;dm-muted&quot;&gt;{people.length === 1 ? &#39;1 person&#39; : `${people.length} people`}&lt;/span&gt;
+        &lt;/div&gt;
+      )}
+      {prep === &#39;done&#39; &amp;&amp; &lt;div className={cx(&#39;dm-ecx-note&#39;, enter().className)}&gt;&lt;Icon name=&quot;spark&quot; size=&quot;xs&quot; /&gt;&lt;span&gt;{note}&lt;/span&gt;&lt;/div&gt;}
+      {fresh ? (
+        &lt;div className=&quot;dm-ecx-pa&quot;&gt;
+          &lt;button type=&quot;button&quot; className=&quot;dm-pill dm-ghost dm-sm&quot; onClick={onDiscard}&gt;Discard&lt;/button&gt;
+          &lt;button type=&quot;button&quot; className=&quot;dm-pill dm-ink dm-sm&quot; onClick={() =&gt; onSave(input.current?.value ?? &#39;&#39;)}&gt;Save&lt;/button&gt;
+        &lt;/div&gt;
+      ) : (onPrepNotes || onJoin) &amp;&amp; (
+        &lt;div className=&quot;dm-ecx-pa&quot;&gt;
+          {onPrepNotes &amp;&amp; prep !== &#39;done&#39; &amp;&amp; &lt;button type=&quot;button&quot; className=&quot;dm-pill dm-soft dm-sm&quot; onClick={write}&gt;{prep === &#39;writing&#39; ? &lt;&gt;&lt;Think /&gt;Writing&lt;/&gt; : &lt;&gt;&lt;Icon name=&quot;spark&quot; size=&quot;xs&quot; /&gt;Prep notes&lt;/&gt;}&lt;/button&gt;}
+          {onJoin &amp;&amp; &lt;button type=&quot;button&quot; className=&quot;dm-pill dm-ink dm-sm&quot; onClick={() =&gt; onJoin(event)}&gt;Join&lt;/button&gt;}
+        &lt;/div&gt;
+      )}
+    &lt;/&gt;
+  );
+}
+
+/** A work week of events you can drag to another time or day, add to by clicking free time, and open for details.
+    The agent can look for a free slot and suggest it. */
+export function EventCalendar({
+  events, defaultEvents = [], onEventsChange, week, days = 5, startHour = 9, hours = 8, title, now,
+  selected, defaultSelected = null, onSelectedChange, newEvent, onPrepNotes, onJoin,
+  askLabel = &#39;Find a time&#39;, onAsk, finding = false, suggestions = [], onBook, onSkip, status, className
+}: EventCalendarProps) {
+  const [list, setList] = useControllable(events, defaultEvents, onEventsChange);
+  const [openId, setOpenId] = useControllable(selected, defaultSelected, onSelectedChange);
+  const [msg, setMsg] = useState(&#39;&#39;);
+  const uid = useId();
+  const made = useRef(0);
+
+  const root = useRef&lt;HTMLDivElement&gt;(null);
+  const pop = useRef&lt;HTMLDivElement&gt;(null);
+  const cols = useRef&lt;(HTMLDivElement | null)[]&gt;([]);
+  const blocks = useRef(new Map&lt;string, HTMLElement&gt;());
+
+  // the first events stagger in; an event added later, or dropped after a drag, plays the entrance again
+  const delays = useRef&lt;Map&lt;string, number&gt; | null&gt;(null);
+  if (!delays.current) delays.current = new Map(list.map((e, i) =&gt; [e.id, i * 30]));
+  // a dropped event goes last in its day, so it sits on top, as on the site
+  const [moves, setMoves] = useState&lt;Record&lt;string, number&gt;&gt;({});
+  const drops = useRef(0);
+
+  const end = startHour + hours;
+  const inView = (d: Date) =&gt; { const i = dayIndex(week, d); return i &gt;= 0 &amp;&amp; i &lt; days; };
+  const shown = list.filter(e =&gt; inView(e.start));
+  const open = openId != null ? list.find(e =&gt; e.id === openId) ?? null : null;
+  // the card keeps what it showed while it fades out, and starts afresh each time it opens
+  const [card, setCard] = useState(open);
+  if (open &amp;&amp; open !== card) setCard(open);
+  const [runs, setRuns] = useState(0);
+
+  const select = (id: string | null) =&gt; { if (id !== null) setRuns(n =&gt; n + 1); setOpenId(id); };
+  const close = () =&gt; setOpenId(null);
+
+  /* ---------- the details card: beside its event, inside the calendar ---------- */
+  const [place, setPlace] = useState&lt;CSSProperties&gt;({});
+  useIsoLayoutEffect(() =&gt; {
+    const el = open &amp;&amp; blocks.current.get(open.id), p = pop.current, panel = root.current;
+    if (!el || !p || !panel) return;
+    const pr = panel.getBoundingClientRect(), er = el.getBoundingClientRect(), w = 248;
+    let x = er.right - pr.left + 8; if (x + w &gt; pr.width - 8) x = er.left - pr.left - w - 8; x = Math.max(8, x);
+    const y = Math.max(8, Math.min(er.top - pr.top, pr.height - p.offsetHeight - 8));
+    setPlace({ left: x, top: y });
+  }, [open?.id, runs]);
+  useEffect(() =&gt; {
+    if (!open) return;
+    const down = (e: globalThis.PointerEvent) =&gt; { const t = e.target as Node; if (!pop.current?.contains(t) &amp;&amp; !blocks.current.get(open.id)?.contains(t)) close(); };
+    const key = (e: globalThis.KeyboardEvent) =&gt; { if (e.key === &#39;Escape&#39;) close(); };
+    document.addEventListener(&#39;pointerdown&#39;, down); document.addEventListener(&#39;keydown&#39;, key);
+    return () =&gt; { document.removeEventListener(&#39;pointerdown&#39;, down); document.removeEventListener(&#39;keydown&#39;, key); };
+  }); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const update = (id: string, change: Partial&lt;EventCalendarEvent&gt;) =&gt; setList(list.map(e =&gt; e.id === id ? { ...e, ...change } : e));
+  const remove = (id: string) =&gt; { setList(list.filter(e =&gt; e.id !== id)); close(); };
+  const save = (e: EventCalendarEvent, value: string) =&gt; {
+    const v = value.trim() || &#39;Untitled&#39;;
+    update(e.id, { title: v }); close();
+    setMsg(`Added ${v}, ${DAYN[e.start.getDay()]} ${tm(hourOf(e.start))}`);
+  };
+
+  /* ---------- dragging: to another time or day, in 15 minute steps; a click without moving opens the card ---------- */
+  const drag = useRef&lt;{ id: string; x: number; y: number; moved: boolean; day: number; hour: number } | null&gt;(null);
+  const [dragging, setDragging] = useState&lt;{ id: string; day: number; hour: number; dx: number } | null&gt;(null);
+  const colX = (i: number) =&gt; cols.current[i]?.getBoundingClientRect().left ?? 0;
+  const down = (p: PointerEvent&lt;HTMLElement&gt;, e: EventCalendarEvent) =&gt; {
+    if (p.button) return;
+    p.currentTarget.setPointerCapture(p.pointerId);
+    drag.current = { id: e.id, x: p.clientX, y: p.clientY, moved: false, day: dayIndex(week, e.start), hour: hourOf(e.start) };
+  };
+  const move = (p: PointerEvent&lt;HTMLElement&gt;, e: EventCalendarEvent) =&gt; {
+    const d = drag.current; if (!d || d.id !== e.id) return;
+    const dx = p.clientX - d.x, dy = p.clientY - d.y;
+    if (!d.moved &amp;&amp; Math.hypot(dx, dy) &lt; 5) return;
+    if (!d.moved) { d.moved = true; if (openId != null) close(); setGhost(null); }
+    const from = dayIndex(week, e.start), len = hourOf(e.end) - hourOf(e.start);
+    d.hour = Math.max(startHour, Math.min(end - len, hourOf(e.start) + Math.round(dy / PX * 4) / 4));
+    const under = document.elementsFromPoint(p.clientX, p.clientY).find(x =&gt; x.classList?.contains(&#39;dm-ecx-col&#39;)) as HTMLElement | undefined;
+    if (under) d.day = +(under.dataset.d ?? d.day);
+    setDragging({ id: e.id, day: d.day, hour: d.hour, dx: colX(d.day) - colX(from) });
+  };
+  const up = (e: EventCalendarEvent) =&gt; {
+    const d = drag.current; drag.current = null; if (!d || d.id !== e.id) return;
+    if (!d.moved) { select(openId === e.id ? null : e.id); return; }
+    setDragging(null);
+    const n = ++drops.current; setMoves(m =&gt; ({ ...m, [e.id]: n }));
+    const from = dayIndex(week, e.start), h = hourOf(e.start), len = hourOf(e.end) - h;
+    if (d.day === from &amp;&amp; d.hour === h) return;
+    update(e.id, { start: at(week, d.day, d.hour), end: at(week, d.day, d.hour + len) });
+    setMsg(`Moved ${named(e)} to ${DAYN[addDays(week, d.day).getDay()]} ${tm(d.hour)}`);
+  };
+
+  /* ---------- free time: a dashed slot follows the pointer, a click adds an event there ---------- */
+  const [ghost, setGhost] = useState&lt;{ day: number; hour: number } | null&gt;(null);
+  const hover = (p: PointerEvent&lt;HTMLDivElement&gt;, day: number) =&gt; {
+    if (p.target !== p.currentTarget || dragging) { if (ghost) setGhost(null); return; }
+    const hour = startHour + Math.min(hours * 2 - 1, Math.floor((p.clientY - p.currentTarget.getBoundingClientRect().top) / PX * 2)) / 2;
+    if (ghost?.day !== day || ghost.hour !== hour) setGhost({ day, hour });
+  };
+  const add = (p: MouseEvent&lt;HTMLDivElement&gt;, day: number) =&gt; {
+    if (p.target !== p.currentTarget || !ghost || ghost.day !== day) return;
+    const len = newEvent?.hours ?? 1, id = `${uid}-new-${++made.current}`;
+    setList([...list, { id, title: &#39;&#39;, start: at(week, day, ghost.hour), end: at(week, day, ghost.hour + len), tone: newEvent?.tone ?? &#39;pink&#39;, people: newEvent?.people }]);
+    setGhost(null); select(id);
+  };
+
+  /* ---------- the agent&#39;s scan ---------- */
+  const [scans, setScans] = useState(0);
+  useEffect(() =&gt; { if (finding) setScans(n =&gt; n + 1); }, [finding]);
+
+  const heading = title ?? (() =&gt; { const a = week, b = addDays(week, days - 1); return `${MONTHS[a.getMonth()]} ${a.getDate()} – ${b.getMonth() !== a.getMonth() ? MONTHS[b.getMonth()] + &#39; &#39; : &#39;&#39;}${b.getDate()}, ${b.getFullYear()}`; })();
+  const today = now &amp;&amp; inView(now) ? dayIndex(week, now) : -1;
+  const sizes: CSSProperties | undefined = days !== 5 ? { gridTemplateColumns: `44px repeat(${days},minmax(76px,1fr))` } : undefined;
+  const tall: CSSProperties | undefined = hours !== 8 ? { height: hours * PX } : undefined;
+  const top = (h: number) =&gt; (h - startHour) * PX + 1;
+
+  return (
+    &lt;div ref={root} data-dm=&quot;&quot; className={cx(&#39;dm-ecx dm-panel&#39;, className)}&gt;
+      &lt;div className=&quot;dm-ecx-h&quot;&gt;
+        &lt;b&gt;{heading}&lt;/b&gt;&lt;span className=&quot;dm-ecx-sp&quot; /&gt;
+        &lt;Swap className=&quot;dm-ecx-msg dm-muted&quot;&gt;{status ?? msg}&lt;/Swap&gt;
+        {onAsk &amp;&amp; &lt;button type=&quot;button&quot; className=&quot;dm-pill dm-soft dm-sm dm-ecx-ask&quot; onClick={onAsk}&gt;{finding ? &lt;Think /&gt; : &lt;Icon name=&quot;spark&quot; size=&quot;xs&quot; /&gt;}&lt;Swap key={finding ? &#39;f&#39; : &#39;i&#39;}&gt;{askLabel}&lt;/Swap&gt;&lt;/button&gt;}
+      &lt;/div&gt;
+      &lt;div className=&quot;dm-ecx-sc&quot;&gt;
+        &lt;div className=&quot;dm-ecx-grid&quot; style={sizes}&gt;
+          &lt;div className=&quot;dm-ecx-tm&quot;&gt;{Array.from({ length: hours }, (_, i) =&gt; { const h = startHour + i; return &lt;span key={h}&gt;{h &gt; 12 ? h - 12 : h}{h &gt;= 12 ? &#39;pm&#39; : &#39;am&#39;}&lt;/span&gt;; })}&lt;/div&gt;
+          {Array.from({ length: days }, (_, d) =&gt; {
+            const date = addDays(week, d);
+            return (
+              &lt;div key={d} className=&quot;dm-ecx-day&quot;&gt;
+                &lt;div className={cx(&#39;dm-ecx-dh&#39;, d === today &amp;&amp; &#39;dm-t&#39;)}&gt;{DAYN[date.getDay()]} &lt;b&gt;{date.getDate()}&lt;/b&gt;&lt;/div&gt;
+                &lt;div ref={el =&gt; { cols.current[d] = el; }} className=&quot;dm-ecx-col&quot; data-d={d} style={tall}
+                  onPointerMove={p =&gt; hover(p, d)} onPointerLeave={() =&gt; setGhost(null)} onClick={p =&gt; add(p, d)}&gt;
+                  {shown.filter(e =&gt; dayIndex(week, e.start) === d).sort((a, b) =&gt; (moves[a.id] ?? 0) - (moves[b.id] ?? 0)).map(e =&gt; {
+                    const h = hourOf(e.start), len = hourOf(e.end) - h, live = dragging?.id === e.id ? dragging : null, at_ = live?.hour ?? h;
+                    if (h + len &lt;= startHour || h &gt;= end) return null;
+                    // an hour or more keeps its exact height; anything shorter grows to show its time, like a booked suggestion on the site
+                    return (
+                      &lt;Tip key={`${e.id}:${moves[e.id] ?? 0}`} label={`${named(e)}, ${tm(at_)}`} off={!!dragging || openId === e.id}&gt;
+                        &lt;button type=&quot;button&quot; ref={el =&gt; { if (el) blocks.current.set(e.id, el); else blocks.current.delete(e.id); }}
+                          className={cx(&#39;dm-ecx-e dm-enter&#39;, live &amp;&amp; &#39;dm-drag&#39;)}
+                          style={{ ...tint(e.tone), top: top(at_), [len &lt; 1 ? &#39;minHeight&#39; : &#39;height&#39;]: len * PX - 3, transform: live ? `translateX(${live.dx}px)` : undefined, animationDelay: (delays.current!.get(e.id) ?? 0) + &#39;ms&#39; }}
+                          onPointerDown={p =&gt; down(p, e)} onPointerMove={p =&gt; move(p, e)} onPointerUp={() =&gt; up(e)} onPointerCancel={() =&gt; up(e)}&gt;
+                          &lt;b&gt;{named(e)}&lt;/b&gt;&lt;span&gt;{tm(at_)} – {tm(at_ + len)}&lt;/span&gt;
+                        &lt;/button&gt;
+                      &lt;/Tip&gt;
+                    );
+                  })}
+                  {suggestions.filter(s =&gt; dayIndex(week, s.start) === d).map(s =&gt; {
+                    const i = suggestions.indexOf(s), h = hourOf(s.start), len = hourOf(s.end) - h;
+                    return (
+                      &lt;div key={s.id} className={cx(&#39;dm-ecx-e dm-sug&#39;, i &gt; 0 &amp;&amp; &#39;dm-alt&#39;)} style={{ ...tint(&#39;blue&#39;), top: top(h), height: &#39;auto&#39;, minHeight: len * PX - 3, animationDelay: i * 120 + &#39;ms&#39; }}&gt;
+                        &lt;b&gt;{s.title}&lt;/b&gt;&lt;span&gt;{tm(h)} – {tm(h + len)}&lt;/span&gt;
+                        {i === 0 &amp;&amp; (onBook || onSkip) &amp;&amp; (
+                          &lt;div className=&quot;dm-ecx-sg&quot;&gt;
+                            {onBook &amp;&amp; &lt;button type=&quot;button&quot; onClick={() =&gt; onBook(s)}&gt;Book&lt;/button&gt;}
+                            {onSkip &amp;&amp; suggestions.length &gt; 1 &amp;&amp; &lt;button type=&quot;button&quot; className=&quot;dm-n&quot; onClick={() =&gt; onSkip(s)}&gt;Other&lt;/button&gt;}
+                          &lt;/div&gt;
+                        )}
+                      &lt;/div&gt;
+                    );
+                  })}
+                  {d === today &amp;&amp; now &amp;&amp; &lt;Tip label={`Now, ${tm(hourOf(now))}`}&gt;&lt;div className=&quot;dm-ecx-now&quot; style={{ top: (hourOf(now) - startHour) * PX }} /&gt;&lt;/Tip&gt;}
+                  {ghost?.day === d &amp;&amp; &lt;div className=&quot;dm-ecx-ghost&quot; style={{ top: top(ghost.hour) }}&gt;+ New event&lt;/div&gt;}
+                &lt;/div&gt;
+              &lt;/div&gt;
+            );
+          })}
+          &lt;div key={scans} className={cx(&#39;dm-ecx-scan&#39;, scans &gt; 0 &amp;&amp; &#39;dm-go&#39;)} /&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+      &lt;div ref={pop} className={cx(&#39;dm-ecx-pop&#39;, open &amp;&amp; &#39;dm-open&#39;)} role=&quot;dialog&quot; aria-label=&quot;Event&quot; inert={!open} style={place}&gt;
+        {card &amp;&amp; &lt;Details key={`${card.id}:${runs}`} event={card} onClose={close} onSave={v =&gt; save(card, v)} onDiscard={() =&gt; remove(card.id)} onPrepNotes={onPrepNotes} onJoin={onJoin} /&gt;}
+      &lt;/div&gt;
+    &lt;/div&gt;
+  );
+}
+</code></pre></details><details class="cp-file"><summary>event-calendar.css<span class="l">React</span></summary><pre class="cp-pre"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+/* ---------- Event calendar ---------- */
+.dm-ecx{overflow:hidden}
+/* the Ask pill crossfades its words but stays a flex row, so the spark keeps its gap */
+.dm-ecx-ask.dm-sw{display:inline-flex}
+/* the Ask pill is quiet: no ring, the same light grey as the stage */
+.dm-pill.dm-soft.dm-ecx-ask{background:var(--dm-wash);box-shadow:none}
+.dm-pill.dm-soft.dm-ecx-ask:hover{background:var(--dm-chip)}
+.dm-ecx-h{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid var(--dm-line);font-size:13.5px;flex-wrap:wrap}
+.dm-ecx-h b{font-weight:500}
+.dm-ecx-sp{flex:1}
+.dm-ecx-sc{overflow-x:auto}
+.dm-ecx-grid{display:grid;grid-template-columns:44px repeat(5,minmax(76px,1fr));min-width:424px;position:relative}
+.dm-ecx-tm{grid-row:1/3;display:flex;flex-direction:column;padding-top:32px}
+.dm-ecx-tm span{height:44px;font-size:10.5px;color:var(--dm-muted);text-align:right;padding-right:8px;transform:translateY(-6px)}
+.dm-ecx-day{border-left:1px solid var(--dm-line)}
+.dm-ecx-dh{height:32px;display:flex;align-items:center;justify-content:center;gap:5px;font-size:12px;color:var(--dm-fg2);border-bottom:1px solid var(--dm-line)}
+.dm-ecx-dh b{font-weight:500;color:var(--dm-fg)}
+.dm-ecx-dh.dm-t b{width:22px;height:22px;border-radius:50%;background:var(--dm-accent);color:var(--dm-on-accent);display:grid;place-items:center;font-size:11.5px}
+.dm-ecx-col{position:relative;height:352px;background-image:linear-gradient(var(--dm-line) 1px,transparent 1px);background-size:100% 44px}
+.dm-ecx-e{position:absolute;left:3px;right:3px;border-radius:8px;padding:4px 7px;font-size:11.5px;line-height:1.3;text-align:left;overflow:hidden;transition:transform .25s var(--dm-ease),box-shadow .25s}
+.dm-ecx-e:hover{transform:translateY(-1px);box-shadow:var(--dm-shadow)}
+.dm-ecx-e{cursor:grab;touch-action:none}
+.dm-ecx-e.dm-drag{transition:none;z-index:6;box-shadow:var(--dm-shadow-pop);cursor:grabbing}
+.dm-ecx-col{cursor:copy}
+.dm-ecx-ghost{position:absolute;left:3px;right:3px;height:41px;border-radius:8px;border:1.5px dashed color-mix(in srgb,var(--dm-accent) 45%,transparent);background:color-mix(in srgb,var(--dm-accent) 5%,transparent);color:var(--dm-accent);font-size:11px;font-weight:500;padding:4px 7px;pointer-events:none}
+.dm-ecx-now{position:absolute;left:0;right:0;height:2px;margin-top:-1px;background:var(--dm-bad);z-index:3}
+.dm-ecx-now::before{content:&quot;&quot;;position:absolute;left:-4px;top:-3px;width:8px;height:8px;border-radius:50%;background:var(--dm-bad)}
+.dm-ecx-msg{font-size:12.5px;margin-right:8px}
+.dm-ecx-pop{position:absolute;z-index:20;width:248px;padding:12px;background:var(--dm-raised);border-radius:14px;box-shadow:var(--dm-shadow-pop);opacity:0;transform:translateY(6px);filter:blur(3px);pointer-events:none;transition:opacity .2s var(--dm-ease),transform .35s var(--dm-ease),filter .2s}
+.dm-ecx-pop.dm-open{opacity:1;transform:none;filter:none;pointer-events:auto}
+.dm-ecx-ph{display:flex;align-items:center;gap:8px;font-size:13.5px}
+.dm-ecx-ph&gt;i{width:10px;height:10px;border-radius:3px;flex:none}
+.dm-ecx-ph b{font-weight:500;flex:1;min-width:0}
+.dm-ecx-ph .dm-ib{width:24px;height:24px;margin:-4px -4px -4px auto}
+.dm-ecx-ti{flex:1;min-width:0;border:0;outline:0;background:none;font:inherit;font-weight:500;color:var(--dm-fg)}
+.dm-ecx-ti::placeholder{color:var(--dm-muted)}
+.dm-ecx-pt{font-size:12.5px;color:var(--dm-fg2);margin:4px 0 0 18px}
+.dm-ecx-pw{display:flex;align-items:center;margin:10px 0 0 18px}
+.dm-ecx-pw .dm-av{width:22px;height:22px;font-size:9px;margin-right:-4px;box-shadow:0 0 0 2px var(--dm-raised)}
+.dm-ecx-pw .dm-muted{margin-left:10px;font-size:12px}
+.dm-ecx-note{display:flex;gap:6px;align-items:flex-start;margin:10px 0 0 18px;font-size:12px;line-height:1.45;color:var(--dm-fg2)}
+.dm-ecx-note .dm-i{color:var(--dm-accent);margin-top:2px}
+.dm-ecx-pa{display:flex;justify-content:flex-end;gap:6px;margin-top:12px}
+.dm-ecx-e b{display:block;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dm-ecx-e span{opacity:.8;font-size:10.5px}
+.dm-ecx-e.dm-sug{background:var(--dm-surface)!important;color:var(--dm-accent)!important;box-shadow:inset 0 0 0 1.5px var(--dm-accent);animation:dm-ecs .6s var(--dm-ease) both}
+.dm-ecx-e.dm-sug.dm-alt{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-accent) 40%,transparent);opacity:.8}
+@keyframes dm-ecs{from{opacity:0;transform:scale(.92);filter:blur(3px)}}
+.dm-ecx-sg{display:flex;gap:4px;margin-top:4px}
+.dm-ecx-sg button{font-size:10.5px;padding:2px 6px;border-radius:5px;background:var(--dm-accent);color:var(--dm-on-accent)}
+.dm-ecx-sg button.dm-n{background:transparent;color:var(--dm-accent)}
+.dm-ecx-scan{position:absolute;left:44px;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--dm-accent),transparent);top:32px;opacity:0;pointer-events:none}
+.dm-ecx-scan.dm-go{animation:dm-ecsc 1.2s var(--dm-ease-io) both}
+@keyframes dm-ecsc{0%{opacity:0;top:32px}20%{opacity:1}100%{opacity:0;top:384px}}
+</code></pre></details><details class="cp-file"><summary>event-calendar.html<span class="l">HTML</span></summary><pre class="cp-pre"><code>&lt;div class=&quot;card wide&quot; data-c=&quot;event-calendar&quot;&gt;
+  &lt;div class=&quot;stage-in&quot;&gt;&lt;/div&gt;
+  &lt;template&gt;
+&lt;div class=&quot;ecx panel&quot;&gt;
+  &lt;div class=&quot;ecx-h&quot;&gt;&lt;b&gt;Oct 19 – 23, 2026&lt;/b&gt;&lt;span class=&quot;ecx-sp&quot;&gt;&lt;/span&gt;&lt;span class=&quot;ecx-msg muted&quot;&gt;&lt;/span&gt;&lt;button class=&quot;pill soft sm ecx-ask&quot;&gt;{spark}Find 45 min for a design review&lt;/button&gt;&lt;/div&gt;
+  &lt;div class=&quot;ecx-sc&quot;&gt;&lt;div class=&quot;ecx-grid&quot;&gt;&lt;div class=&quot;ecx-tm&quot;&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;/div&gt;
+  &lt;/template&gt;
+&lt;/div&gt;
+</code></pre></details><details class="cp-file"><summary>event-calendar.css<span class="l">HTML</span></summary><pre class="cp-pre"><code>/* ---------- Event calendar ---------- */
+.ecx{overflow:hidden}
+/* the Ask pill crossfades its words but stays a flex row, so the spark keeps its gap */
+.ecx-ask.sw{display:inline-flex}
+/* the Ask pill is quiet: no ring, the same light grey as the stage */
+.pill.soft.ecx-ask{background:var(--wash);box-shadow:none}
+.pill.soft.ecx-ask:hover{background:var(--chip)}
+.ecx-h{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid var(--line);font-size:13.5px;flex-wrap:wrap}
+.ecx-h b{font-weight:500}
+.ecx-sp{flex:1}
+.ecx-sc{overflow-x:auto}
+.ecx-grid{display:grid;grid-template-columns:44px repeat(5,minmax(76px,1fr));min-width:424px;position:relative}
+.ecx-tm{grid-row:1/3;display:flex;flex-direction:column;padding-top:32px}
+.ecx-tm span{height:44px;font-size:10.5px;color:var(--muted);text-align:right;padding-right:8px;transform:translateY(-6px)}
+.ecx-day{border-left:1px solid var(--line)}
+.ecx-dh{height:32px;display:flex;align-items:center;justify-content:center;gap:5px;font-size:12px;color:var(--fg2);border-bottom:1px solid var(--line)}
+.ecx-dh b{font-weight:500;color:var(--fg)}
+.ecx-dh.t b{width:22px;height:22px;border-radius:50%;background:var(--accent);color:var(--on-accent);display:grid;place-items:center;font-size:11.5px}
+.ecx-col{position:relative;height:352px;background-image:linear-gradient(var(--line) 1px,transparent 1px);background-size:100% 44px}
+.ecx-e{position:absolute;left:3px;right:3px;border-radius:8px;padding:4px 7px;font-size:11.5px;line-height:1.3;text-align:left;overflow:hidden;transition:transform .25s var(--ease),box-shadow .25s}
+.ecx-e:hover{transform:translateY(-1px);box-shadow:var(--shadow)}
+.ecx-e{cursor:grab;touch-action:none}
+.ecx-e.drag{transition:none;z-index:6;box-shadow:var(--shadow-pop);cursor:grabbing}
+.ecx-col{cursor:copy}
+.ecx-ghost{position:absolute;left:3px;right:3px;height:41px;border-radius:8px;border:1.5px dashed color-mix(in srgb,var(--accent) 45%,transparent);background:color-mix(in srgb,var(--accent) 5%,transparent);color:var(--accent);font-size:11px;font-weight:500;padding:4px 7px;pointer-events:none}
+.ecx-now{position:absolute;left:0;right:0;height:2px;margin-top:-1px;background:var(--bad);z-index:3}
+.ecx-now::before{content:&quot;&quot;;position:absolute;left:-4px;top:-3px;width:8px;height:8px;border-radius:50%;background:var(--bad)}
+.ecx-msg{font-size:12.5px;margin-right:8px}
+.ecx-pop{position:absolute;z-index:20;width:248px;padding:12px;background:var(--raised);border-radius:14px;box-shadow:var(--shadow-pop);opacity:0;transform:translateY(6px);filter:blur(3px);pointer-events:none;transition:opacity .2s var(--ease),transform .35s var(--ease),filter .2s}
+.ecx-pop.open{opacity:1;transform:none;filter:none;pointer-events:auto}
+.ecx-ph{display:flex;align-items:center;gap:8px;font-size:13.5px}
+.ecx-ph&gt;i{width:10px;height:10px;border-radius:3px;flex:none}
+.ecx-ph b{font-weight:500;flex:1;min-width:0}
+.ecx-ph .ib{width:24px;height:24px;margin:-4px -4px -4px auto}
+.ecx-ti{flex:1;min-width:0;border:0;outline:0;background:none;font:inherit;font-weight:500;color:var(--fg)}
+.ecx-ti::placeholder{color:var(--muted)}
+.ecx-pt{font-size:12.5px;color:var(--fg2);margin:4px 0 0 18px}
+.ecx-pw{display:flex;align-items:center;margin:10px 0 0 18px}
+.ecx-pw .av{width:22px;height:22px;font-size:9px;margin-right:-4px;box-shadow:0 0 0 2px var(--raised)}
+.ecx-pw .muted{margin-left:10px;font-size:12px}
+.ecx-note{display:flex;gap:6px;align-items:flex-start;margin:10px 0 0 18px;font-size:12px;line-height:1.45;color:var(--fg2)}
+.ecx-note .i{color:var(--accent);margin-top:2px}
+.ecx-pa{display:flex;justify-content:flex-end;gap:6px;margin-top:12px}
+.ecx-e b{display:block;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ecx-e span{opacity:.8;font-size:10.5px}
+.ecx-e.sug{background:var(--surface)!important;color:var(--accent)!important;box-shadow:inset 0 0 0 1.5px var(--accent);animation:ecs .6s var(--ease) both}
+.ecx-e.sug.alt{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--accent) 40%,transparent);opacity:.8}
+@keyframes ecs{from{opacity:0;transform:scale(.92);filter:blur(3px)}}
+.ecx-sg{display:flex;gap:4px;margin-top:4px}
+.ecx-sg button{font-size:10.5px;padding:2px 6px;border-radius:5px;background:var(--accent);color:var(--on-accent)}
+.ecx-sg button.n{background:transparent;color:var(--accent)}
+.ecx-scan{position:absolute;left:44px;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--accent),transparent);top:32px;opacity:0;pointer-events:none}
+.ecx-scan.go{animation:ecsc 1.2s var(--ease-io) both}
+@keyframes ecsc{0%{opacity:0;top:32px}20%{opacity:1}100%{opacity:0;top:384px}}
+</code></pre></details><details class="cp-file"><summary>event-calendar.js<span class="l">HTML</span></summary><pre class="cp-pre"><code>DM.def(&#39;event-calendar&#39;, (r, c) =&gt; {
+  r.innerHTML = r.innerHTML.replace(&#39;{spark}&#39;, I(&#39;spark&#39;,&#39;xs&#39;));
+  const DAYS = [&#39;Mon 19&#39;,&#39;Tue 20&#39;,&#39;Wed 21&#39;,&#39;Thu 22&#39;,&#39;Fri 23&#39;], H0 = 9, PX = 44;
+  const EV = [[0,9,1,&#39;Standup&#39;,&#39;b&#39;],[0,13,1.5,&#39;Pricing workshop&#39;,&#39;p&#39;],[1,10,1,&#39;1:1 with Maya&#39;,&#39;l&#39;],[1,14,2,&#39;Focus: checkout&#39;,&#39;t&#39;],[2,9,1,&#39;Standup&#39;,&#39;b&#39;],[2,11.5,1,&#39;Agent demo&#39;,&#39;y&#39;],[3,9,1,&#39;Standup&#39;,&#39;b&#39;],[3,12,1,&#39;Lunch &amp; learn&#39;,&#39;m&#39;],[3,15,1.5,&#39;Launch review&#39;,&#39;r&#39;],[4,10,1.5,&#39;Planning&#39;,&#39;p&#39;]];
+  const grid = $(&#39;.ecx-grid&#39;, r);
+  $(&#39;.ecx-tm&#39;, r).innerHTML = Array.from({ length:8 }, (_, i) =&gt; { const h = H0 + i; return `&lt;span&gt;${h &gt; 12 ? h - 12 : h}${h &gt;= 12 ? &#39;pm&#39; : &#39;am&#39;}&lt;/span&gt;`; }).join(&#39;&#39;);
+  grid.insertAdjacentHTML(&#39;beforeend&#39;, DAYS.map((d, i) =&gt; `&lt;div class=&quot;ecx-day&quot;&gt;&lt;div class=&quot;ecx-dh${i === 0 ? &#39; t&#39; : &#39;&#39;}&quot;&gt;${d.split(&#39; &#39;)[0]} &lt;b&gt;${d.split(&#39; &#39;)[1]}&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;ecx-col&quot; data-d=&quot;${i}&quot;&gt;&lt;/div&gt;&lt;/div&gt;`).join(&#39;&#39;) + &#39;&lt;div class=&quot;ecx-scan&quot;&gt;&lt;/div&gt;&#39;);
+  const col = i =&gt; $(`.ecx-col[data-d=&quot;${i}&quot;]`, grid);
+  const tm = h =&gt; { const hh = Math.floor(h), mm = Math.round((h - hh) * 60); return `${hh &gt; 12 ? hh - 12 : hh}:${String(mm).padStart(2, &#39;0&#39;)}`; };
+  const ev = (e, cls = &#39;&#39;) =&gt; html(`&lt;button class=&quot;ecx-e ${cls}&quot; style=&quot;top:${(e[1] - H0) * PX + 1}px;height:${e[2] * PX - 3}px;background:var(--p${e[4]}-bg);color:var(--p${e[4]})&quot;&gt;&lt;b&gt;${e[3]}&lt;/b&gt;&lt;span&gt;${tm(e[1])} – ${tm(e[1] + e[2])}&lt;/span&gt;&lt;/button&gt;`);
+  const panel = $(&#39;.ecx&#39;, r), msg = $(&#39;.ecx-msg&#39;, r), pop = html(&#39;&lt;div class=&quot;ecx-pop&quot; role=&quot;dialog&quot; aria-label=&quot;Event&quot;&gt;&lt;/div&gt;&#39;); panel.appendChild(pop);
+  const WHO = [[&#39;MK&#39;,&#39;var(--pl)&#39;],[&#39;JO&#39;,&#39;var(--pm)&#39;],[&#39;DA&#39;,&#39;var(--pb)&#39;],[&#39;AR&#39;,&#39;var(--pp)&#39;]], DAYN = [&#39;Mon&#39;,&#39;Tue&#39;,&#39;Wed&#39;,&#39;Thu&#39;,&#39;Fri&#39;];
+  let openFor = null;
+  const say = t =&gt; swap(msg, t);
+  const closePop = () =&gt; { pop.classList.remove(&#39;open&#39;); openFor = null; };
+  /* the details card opens beside the event and stays inside the calendar */
+  function openPop(el){
+    const e = el._e; if (openFor === el){ closePop(); return; } openFor = el; const n = 2 + e[3].length % 3, fresh = e[3] === &#39;New event&#39;;
+    pop.innerHTML = `&lt;div class=&quot;ecx-ph&quot;&gt;&lt;i style=&quot;background:var(--p${e[4]})&quot;&gt;&lt;/i&gt;${fresh ? &#39;&lt;input class=&quot;ecx-ti&quot; placeholder=&quot;Add a title&quot; aria-label=&quot;Event title&quot;&gt;&#39; : `&lt;b&gt;${e[3]}&lt;/b&gt;`}&lt;button class=&quot;ib ecx-px&quot; aria-label=&quot;Close&quot; data-tip=&quot;Close&quot;&gt;${I(&#39;x&#39;,&#39;xs&#39;)}&lt;/button&gt;&lt;/div&gt;&lt;div class=&quot;ecx-pt&quot;&gt;${DAYN[e[0]]} ${DAYS[e[0]].split(&#39; &#39;)[1]} Oct · ${tm(e[1])} – ${tm(e[1] + e[2])}&lt;/div&gt;&lt;div class=&quot;ecx-pw&quot;&gt;${WHO.slice(0, n).map(w =&gt; AV(w[0], w[1])).join(&#39;&#39;)}&lt;span class=&quot;muted&quot;&gt;${n} people&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;ecx-pa&quot;&gt;${fresh ? &#39;&lt;button class=&quot;pill ghost sm ecx-del&quot;&gt;Discard&lt;/button&gt;&lt;button class=&quot;pill ink sm ecx-save&quot;&gt;Save&lt;/button&gt;&#39; : `&lt;button class=&quot;pill soft sm ecx-prep&quot;&gt;${I(&#39;spark&#39;,&#39;xs&#39;)}Prep notes&lt;/button&gt;&lt;button class=&quot;pill ink sm&quot;&gt;Join&lt;/button&gt;`}&lt;/div&gt;`;
+    const pr = panel.getBoundingClientRect(), er = el.getBoundingClientRect(), w = 248;
+    let x = er.right - pr.left + 8; if (x + w &gt; pr.width - 8) x = er.left - pr.left - w - 8; x = Math.max(8, x);
+    let y = er.top - pr.top; y = Math.max(8, Math.min(y, pr.height - pop.offsetHeight - 8));
+    pop.style.left = x + &#39;px&#39;; pop.style.top = y + &#39;px&#39;; pop.classList.remove(&#39;open&#39;); void pop.offsetWidth; pop.classList.add(&#39;open&#39;); hideTip();
+    $(&#39;.ecx-px&#39;, pop).onclick = closePop;
+    const prep = $(&#39;.ecx-prep&#39;, pop); if (prep) prep.onclick = () =&gt; { prep.innerHTML = &#39;&lt;span class=&quot;think on&quot;&gt;&lt;i&gt;&lt;/i&gt;&lt;i&gt;&lt;/i&gt;&lt;i&gt;&lt;/i&gt;&lt;i&gt;&lt;/i&gt;&lt;/span&gt;Writing&#39;; c.later(1200, () =&gt; { if (!prep.isConnected) return; const nt = html(`&lt;div class=&quot;ecx-note&quot;&gt;${I(&#39;spark&#39;,&#39;xs&#39;)}&lt;span&gt;Notes ready: last week&#39;s decisions and 3 open questions.&lt;/span&gt;&lt;/div&gt;`); prep.closest(&#39;.ecx-pa&#39;).before(nt); enter(nt); prep.remove(); }); };
+    const ti = $(&#39;.ecx-ti&#39;, pop); if (ti){ ti.focus({ preventScroll:true });
+      const save = () =&gt; { const v = ti.value.trim() || &#39;Untitled&#39;; e[3] = v; $(&#39;b&#39;, el).textContent = v; el.dataset.tip = v + &#39;, &#39; + tm(e[1]); closePop(); say(&#39;Added &#39; + v + &#39;, &#39; + DAYN[e[0]] + &#39; &#39; + tm(e[1])); };
+      ti.onkeydown = k =&gt; { if (k.key === &#39;Enter&#39;) save(); if (k.key === &#39;Escape&#39;){ el.remove(); closePop(); } };
+      $(&#39;.ecx-save&#39;, pop).onclick = save; $(&#39;.ecx-del&#39;, pop).onclick = () =&gt; { el.remove(); closePop(); }; }
+  }
+  /* drag to another time or day, snapping to 15 minutes; a click without moving opens the details */
+  const colX = i =&gt; col(i).getBoundingClientRect().left;
+  function bind(el, e){ el._e = e; el.dataset.tip = e[3] + &#39;, &#39; + tm(e[1]);
+    el.onpointerdown = d =&gt; { if (d.button || d.target.closest(&#39;.ecx-sg&#39;)) return; const sx = d.clientX, sy = d.clientY; let moved = false, nd = e[0], nh = e[1]; el.setPointerCapture(d.pointerId);
+      el.onpointermove = m =&gt; { const dx = m.clientX - sx, dy = m.clientY - sy; if (!moved &amp;&amp; Math.hypot(dx, dy) &lt; 5) return; if (!moved){ moved = true; el.classList.add(&#39;drag&#39;); closePop(); hideTip(); }
+        nh = Math.max(H0, Math.min(H0 + 8 - e[2], e[1] + Math.round(dy / PX * 4) / 4));
+        const under = document.elementsFromPoint(m.clientX, m.clientY).find(x =&gt; x.classList &amp;&amp; x.classList.contains(&#39;ecx-col&#39;)); if (under) nd = +under.dataset.d;
+        el.style.transform = `translateX(${colX(nd) - colX(e[0])}px)`; el.style.top = (nh - H0) * PX + 1 + &#39;px&#39;; $(&#39;span&#39;, el).textContent = `${tm(nh)} – ${tm(nh + e[2])}`; };
+      el.onpointerup = el.onpointercancel = () =&gt; { el.onpointermove = el.onpointerup = el.onpointercancel = null; if (!moved){ openPop(el); return; }
+        el.classList.remove(&#39;drag&#39;); el.style.transform = &#39;&#39;; const was = e[0] !== nd || e[1] !== nh; e[0] = nd; e[1] = nh; col(nd).appendChild(el); el.dataset.tip = e[3] + &#39;, &#39; + tm(nh);
+        if (was) say(`Moved ${e[3]} to ${DAYN[nd]} ${tm(nh)}`); }; }; }
+  EV.forEach((e, i) =&gt; { const el = ev(e); col(e[0]).appendChild(el); enter(el, i * 30); bind(el, e); });
+  /* now line on today&#39;s column */
+  col(0).insertAdjacentHTML(&#39;beforeend&#39;, `&lt;div class=&quot;ecx-now&quot; style=&quot;top:${(10.7 - H0) * PX}px&quot; data-tip=&quot;Now, 10:42&quot;&gt;&lt;/div&gt;`);
+  /* a dashed slot follows the pointer over free time; click it to add an event there */
+  const ghost = html(&#39;&lt;div class=&quot;ecx-ghost&quot;&gt;+ New event&lt;/div&gt;&#39;);
+  $$(&#39;.ecx-col&#39;, grid).forEach(cl =&gt; {
+    cl.onpointermove = m =&gt; { if (m.target !== cl || $(&#39;.ecx-e.drag&#39;, grid)){ ghost.remove(); return; } const h = H0 + Math.min(15, Math.floor((m.clientY - cl.getBoundingClientRect().top) / PX * 2)) / 2;
+      ghost.style.top = (h - H0) * PX + 1 + &#39;px&#39;; ghost._h = h; if (ghost.parentElement !== cl) cl.appendChild(ghost); };
+    cl.onpointerleave = () =&gt; ghost.remove();
+    cl.onclick = m =&gt; { if (m.target !== cl || ghost.parentElement !== cl) return; const e = [+cl.dataset.d, ghost._h, 1, &#39;New event&#39;, &#39;k&#39;]; ghost.remove(); const el = ev(e); cl.appendChild(el); enter(el); bind(el, e); openPop(el); };
+  });
+  c.on(document, &#39;pointerdown&#39;, d =&gt; { if (openFor &amp;&amp; !pop.contains(d.target) &amp;&amp; !openFor.contains(d.target)) closePop(); });
+  c.on(document, &#39;keydown&#39;, k =&gt; { if (k.key === &#39;Escape&#39;) closePop(); });
+  const ask = $(&#39;.ecx-ask&#39;, r);
+  // the button keeps its spark, only the words crossfade
+  const tell = t =&gt; swap(ask, I(&#39;spark&#39;,&#39;xs&#39;) + t, true);
+  ask.onclick = () =&gt; c.run(async () =&gt; {
+    $$(&#39;.ecx-e.sug&#39;, grid).forEach(x =&gt; x.remove());
+    ask.innerHTML = &#39;&lt;span class=&quot;think on&quot;&gt;&lt;i&gt;&lt;/i&gt;&lt;i&gt;&lt;/i&gt;&lt;i&gt;&lt;/i&gt;&lt;i&gt;&lt;/i&gt;&lt;/span&gt;Checking 4 calendars&#39;; const sc = $(&#39;.ecx-scan&#39;, grid); sc.classList.remove(&#39;go&#39;); void sc.offsetWidth; sc.classList.add(&#39;go&#39;);
+    await c.wait(1300);
+    const S = [[2,13.5,.75,&#39;Design review&#39;,&#39;b&#39;],[4,13,.75,&#39;Design review&#39;,&#39;b&#39;]];
+    S.forEach((s, i) =&gt; { const el = ev(s, &#39;sug&#39; + (i ? &#39; alt&#39; : &#39;&#39;)); if (!i) el.insertAdjacentHTML(&#39;beforeend&#39;, &#39;&lt;div class=&quot;ecx-sg&quot;&gt;&lt;button class=&quot;y&quot;&gt;Book&lt;/button&gt;&lt;button class=&quot;n&quot;&gt;Other&lt;/button&gt;&lt;/div&gt;&#39;); col(s[0]).appendChild(el); el.style.animationDelay = i * 120 + &#39;ms&#39;; el.style.height = &#39;auto&#39;; el.style.minHeight = s[2] * PX - 3 + &#39;px&#39;; });
+    ask.innerHTML = I(&#39;spark&#39;,&#39;xs&#39;) + &#39;Everyone is free Wed 1:30&#39;;
+    const best = $(&#39;.ecx-e.sug:not(.alt)&#39;, grid);
+    $(&#39;.y&#39;, best).onclick = e =&gt; { e.stopPropagation(); best.classList.remove(&#39;sug&#39;); best.style.background = &#39;var(--pb-bg)&#39;; best.style.color = &#39;var(--pb)&#39;; best.style.boxShadow = &#39;&#39;; $(&#39;.ecx-sg&#39;, best).remove(); enter(best); bind(best, S[0]); $$(&#39;.ecx-e.sug&#39;, grid).forEach(x =&gt; x.remove()); tell(&#39;Booked, invites sent to 4 people&#39;); };
+    $(&#39;.n&#39;, best).onclick = e =&gt; { e.stopPropagation(); const alt = $(&#39;.ecx-e.sug.alt&#39;, grid); best.remove(); alt.classList.remove(&#39;alt&#39;); alt.insertAdjacentHTML(&#39;beforeend&#39;, &#39;&lt;div class=&quot;ecx-sg&quot;&gt;&lt;button class=&quot;y&quot;&gt;Book&lt;/button&gt;&lt;/div&gt;&#39;); $(&#39;.y&#39;, alt).onclick = ev2 =&gt; { ev2.stopPropagation(); alt.classList.remove(&#39;sug&#39;); alt.style.background = &#39;var(--pb-bg)&#39;; alt.style.color = &#39;var(--pb)&#39;; $(&#39;.ecx-sg&#39;, alt).remove(); bind(alt, S[1]); tell(&#39;Booked Fri 1:00, invites sent&#39;); }; tell(&#39;Next best: Fri 1:00&#39;); };
+  });
+  c.later(1200, () =&gt; ask.click());
+});
+</code></pre></details></section><section class="cp-sec" id="questions"><h2>Questions</h2><dl class="cp-faq"><dt>Does the calendar find free slots by itself?</dt><dd>No. <code>onAsk</code> tells you the person pressed the agent's button. Set <code>finding</code> to true while your agent looks, then pass what it found as <code>suggestions</code> and set <code>finding</code> back to false.</dd><dt>What should Book and Other do?</dt><dd><code>onBook</code> gets the picked suggestion: add it to <code>events</code> and clear <code>suggestions</code>. <code>onSkip</code> gets the one being skipped: drop it from <code>suggestions</code> and the next one becomes the pick.</dd><dt>How do I save events after someone drags or adds one?</dt><dd>Pass <code>events</code> and <code>onEventsChange</code>. Every move, new event, rename and removal comes back as the full updated list, with times as local Dates.</dd><dt>Can I show a full week or longer hours?</dt><dd>Yes. Set <code>days</code> to 7 for a full week, and <code>startHour</code> and <code>hours</code> for the time range, like <code>startHour={8}</code> and <code>hours={10}</code> for 8am to 6pm.</dd></dl></section><section class="cp-sec wide"><h2>More in Dates</h2><div class="cp-rel"><a href="/components/date-picker"><b>Date picker</b><span>A field that opens a calendar, with quick picks and natural language.</span></a><a href="/components/date-range-picker"><b>Date range picker</b><span>Pick a start and end across two months, or use a preset.</span></a><a href="/components/agenda"><b>Agenda</b><span>Today&#39;s schedule with a live now line and agent prep notes.</span></a></div></section><nav class="cp-pn" aria-label="Previous and next component"><a href="/components/date-range-picker" rel="prev"><span class="k">Previous</span><b>Date range picker</b></a><a href="/components/agenda" rel="next" class="n"><span class="k">Next</span><b>Agenda</b></a></nav></main><footer class="pg-foot"><div class="pg-foot-in"><span>Free and MIT licensed. Built by <a href="https://designme.agency">DesignMe</a>.</span><nav aria-label="More"><a href="/components">All components</a><a href="/#/changelog">Changelog</a><a href="/llms.txt">llms.txt</a><a href="/r/index.json">Registry</a><a href="/">Home</a></nav></div></footer><script>
+// light and dark, shared with the rest of the site through the same saved setting
+(function(){
+  var root = document.documentElement, mq = matchMedia('(prefers-color-scheme: dark)');
+  var cur = function(){ return root.getAttribute('data-theme') || (mq.matches ? 'dark' : 'light'); };
+  document.getElementById('pg-theme').addEventListener('click', function(){
+    var next = cur() === 'dark' ? 'light' : 'dark', sys = mq.matches ? 'dark' : 'light';
+    if (next === sys){ root.removeAttribute('data-theme'); try { localStorage.removeItem('dmui-theme'); } catch(e){} }
+    else { root.setAttribute('data-theme', next); try { localStorage.setItem('dmui-theme', next); } catch(e){} }
+  });
+})();
+</script><script src="/components/assets/core.js"></script><script>DM.def('event-calendar', (r, c) => {
+  r.innerHTML = r.innerHTML.replace('{spark}', I('spark','xs'));
+  const DAYS = ['Mon 19','Tue 20','Wed 21','Thu 22','Fri 23'], H0 = 9, PX = 44;
+  const EV = [[0,9,1,'Standup','b'],[0,13,1.5,'Pricing workshop','p'],[1,10,1,'1:1 with Maya','l'],[1,14,2,'Focus: checkout','t'],[2,9,1,'Standup','b'],[2,11.5,1,'Agent demo','y'],[3,9,1,'Standup','b'],[3,12,1,'Lunch & learn','m'],[3,15,1.5,'Launch review','r'],[4,10,1.5,'Planning','p']];
+  const grid = $('.ecx-grid', r);
+  $('.ecx-tm', r).innerHTML = Array.from({ length:8 }, (_, i) => { const h = H0 + i; return `<span>${h > 12 ? h - 12 : h}${h >= 12 ? 'pm' : 'am'}</span>`; }).join('');
+  grid.insertAdjacentHTML('beforeend', DAYS.map((d, i) => `<div class="ecx-day"><div class="ecx-dh${i === 0 ? ' t' : ''}">${d.split(' ')[0]} <b>${d.split(' ')[1]}</b></div><div class="ecx-col" data-d="${i}"></div></div>`).join('') + '<div class="ecx-scan"></div>');
+  const col = i => $(`.ecx-col[data-d="${i}"]`, grid);
+  const tm = h => { const hh = Math.floor(h), mm = Math.round((h - hh) * 60); return `${hh > 12 ? hh - 12 : hh}:${String(mm).padStart(2, '0')}`; };
+  const ev = (e, cls = '') => html(`<button class="ecx-e ${cls}" style="top:${(e[1] - H0) * PX + 1}px;height:${e[2] * PX - 3}px;background:var(--p${e[4]}-bg);color:var(--p${e[4]})"><b>${e[3]}</b><span>${tm(e[1])} – ${tm(e[1] + e[2])}</span></button>`);
+  const panel = $('.ecx', r), msg = $('.ecx-msg', r), pop = html('<div class="ecx-pop" role="dialog" aria-label="Event"></div>'); panel.appendChild(pop);
+  const WHO = [['MK','var(--pl)'],['JO','var(--pm)'],['DA','var(--pb)'],['AR','var(--pp)']], DAYN = ['Mon','Tue','Wed','Thu','Fri'];
+  let openFor = null;
+  const say = t => swap(msg, t);
+  const closePop = () => { pop.classList.remove('open'); openFor = null; };
+  /* the details card opens beside the event and stays inside the calendar */
+  function openPop(el){
+    const e = el._e; if (openFor === el){ closePop(); return; } openFor = el; const n = 2 + e[3].length % 3, fresh = e[3] === 'New event';
+    pop.innerHTML = `<div class="ecx-ph"><i style="background:var(--p${e[4]})"></i>${fresh ? '<input class="ecx-ti" placeholder="Add a title" aria-label="Event title">' : `<b>${e[3]}</b>`}<button class="ib ecx-px" aria-label="Close" data-tip="Close">${I('x','xs')}</button></div><div class="ecx-pt">${DAYN[e[0]]} ${DAYS[e[0]].split(' ')[1]} Oct · ${tm(e[1])} – ${tm(e[1] + e[2])}</div><div class="ecx-pw">${WHO.slice(0, n).map(w => AV(w[0], w[1])).join('')}<span class="muted">${n} people</span></div><div class="ecx-pa">${fresh ? '<button class="pill ghost sm ecx-del">Discard</button><button class="pill ink sm ecx-save">Save</button>' : `<button class="pill soft sm ecx-prep">${I('spark','xs')}Prep notes</button><button class="pill ink sm">Join</button>`}</div>`;
+    const pr = panel.getBoundingClientRect(), er = el.getBoundingClientRect(), w = 248;
+    let x = er.right - pr.left + 8; if (x + w > pr.width - 8) x = er.left - pr.left - w - 8; x = Math.max(8, x);
+    let y = er.top - pr.top; y = Math.max(8, Math.min(y, pr.height - pop.offsetHeight - 8));
+    pop.style.left = x + 'px'; pop.style.top = y + 'px'; pop.classList.remove('open'); void pop.offsetWidth; pop.classList.add('open'); hideTip();
+    $('.ecx-px', pop).onclick = closePop;
+    const prep = $('.ecx-prep', pop); if (prep) prep.onclick = () => { prep.innerHTML = '<span class="think on"><i></i><i></i><i></i><i></i></span>Writing'; c.later(1200, () => { if (!prep.isConnected) return; const nt = html(`<div class="ecx-note">${I('spark','xs')}<span>Notes ready: last week's decisions and 3 open questions.</span></div>`); prep.closest('.ecx-pa').before(nt); enter(nt); prep.remove(); }); };
+    const ti = $('.ecx-ti', pop); if (ti){ ti.focus({ preventScroll:true });
+      const save = () => { const v = ti.value.trim() || 'Untitled'; e[3] = v; $('b', el).textContent = v; el.dataset.tip = v + ', ' + tm(e[1]); closePop(); say('Added ' + v + ', ' + DAYN[e[0]] + ' ' + tm(e[1])); };
+      ti.onkeydown = k => { if (k.key === 'Enter') save(); if (k.key === 'Escape'){ el.remove(); closePop(); } };
+      $('.ecx-save', pop).onclick = save; $('.ecx-del', pop).onclick = () => { el.remove(); closePop(); }; }
+  }
+  /* drag to another time or day, snapping to 15 minutes; a click without moving opens the details */
+  const colX = i => col(i).getBoundingClientRect().left;
+  function bind(el, e){ el._e = e; el.dataset.tip = e[3] + ', ' + tm(e[1]);
+    el.onpointerdown = d => { if (d.button || d.target.closest('.ecx-sg')) return; const sx = d.clientX, sy = d.clientY; let moved = false, nd = e[0], nh = e[1]; el.setPointerCapture(d.pointerId);
+      el.onpointermove = m => { const dx = m.clientX - sx, dy = m.clientY - sy; if (!moved && Math.hypot(dx, dy) < 5) return; if (!moved){ moved = true; el.classList.add('drag'); closePop(); hideTip(); }
+        nh = Math.max(H0, Math.min(H0 + 8 - e[2], e[1] + Math.round(dy / PX * 4) / 4));
+        const under = document.elementsFromPoint(m.clientX, m.clientY).find(x => x.classList && x.classList.contains('ecx-col')); if (under) nd = +under.dataset.d;
+        el.style.transform = `translateX(${colX(nd) - colX(e[0])}px)`; el.style.top = (nh - H0) * PX + 1 + 'px'; $('span', el).textContent = `${tm(nh)} – ${tm(nh + e[2])}`; };
+      el.onpointerup = el.onpointercancel = () => { el.onpointermove = el.onpointerup = el.onpointercancel = null; if (!moved){ openPop(el); return; }
+        el.classList.remove('drag'); el.style.transform = ''; const was = e[0] !== nd || e[1] !== nh; e[0] = nd; e[1] = nh; col(nd).appendChild(el); el.dataset.tip = e[3] + ', ' + tm(nh);
+        if (was) say(`Moved ${e[3]} to ${DAYN[nd]} ${tm(nh)}`); }; }; }
+  EV.forEach((e, i) => { const el = ev(e); col(e[0]).appendChild(el); enter(el, i * 30); bind(el, e); });
+  /* now line on today's column */
+  col(0).insertAdjacentHTML('beforeend', `<div class="ecx-now" style="top:${(10.7 - H0) * PX}px" data-tip="Now, 10:42"></div>`);
+  /* a dashed slot follows the pointer over free time; click it to add an event there */
+  const ghost = html('<div class="ecx-ghost">+ New event</div>');
+  $$('.ecx-col', grid).forEach(cl => {
+    cl.onpointermove = m => { if (m.target !== cl || $('.ecx-e.drag', grid)){ ghost.remove(); return; } const h = H0 + Math.min(15, Math.floor((m.clientY - cl.getBoundingClientRect().top) / PX * 2)) / 2;
+      ghost.style.top = (h - H0) * PX + 1 + 'px'; ghost._h = h; if (ghost.parentElement !== cl) cl.appendChild(ghost); };
+    cl.onpointerleave = () => ghost.remove();
+    cl.onclick = m => { if (m.target !== cl || ghost.parentElement !== cl) return; const e = [+cl.dataset.d, ghost._h, 1, 'New event', 'k']; ghost.remove(); const el = ev(e); cl.appendChild(el); enter(el); bind(el, e); openPop(el); };
+  });
+  c.on(document, 'pointerdown', d => { if (openFor && !pop.contains(d.target) && !openFor.contains(d.target)) closePop(); });
+  c.on(document, 'keydown', k => { if (k.key === 'Escape') closePop(); });
+  const ask = $('.ecx-ask', r);
+  // the button keeps its spark, only the words crossfade
+  const tell = t => swap(ask, I('spark','xs') + t, true);
+  ask.onclick = () => c.run(async () => {
+    $$('.ecx-e.sug', grid).forEach(x => x.remove());
+    ask.innerHTML = '<span class="think on"><i></i><i></i><i></i><i></i></span>Checking 4 calendars'; const sc = $('.ecx-scan', grid); sc.classList.remove('go'); void sc.offsetWidth; sc.classList.add('go');
+    await c.wait(1300);
+    const S = [[2,13.5,.75,'Design review','b'],[4,13,.75,'Design review','b']];
+    S.forEach((s, i) => { const el = ev(s, 'sug' + (i ? ' alt' : '')); if (!i) el.insertAdjacentHTML('beforeend', '<div class="ecx-sg"><button class="y">Book</button><button class="n">Other</button></div>'); col(s[0]).appendChild(el); el.style.animationDelay = i * 120 + 'ms'; el.style.height = 'auto'; el.style.minHeight = s[2] * PX - 3 + 'px'; });
+    ask.innerHTML = I('spark','xs') + 'Everyone is free Wed 1:30';
+    const best = $('.ecx-e.sug:not(.alt)', grid);
+    $('.y', best).onclick = e => { e.stopPropagation(); best.classList.remove('sug'); best.style.background = 'var(--pb-bg)'; best.style.color = 'var(--pb)'; best.style.boxShadow = ''; $('.ecx-sg', best).remove(); enter(best); bind(best, S[0]); $$('.ecx-e.sug', grid).forEach(x => x.remove()); tell('Booked, invites sent to 4 people'); };
+    $('.n', best).onclick = e => { e.stopPropagation(); const alt = $('.ecx-e.sug.alt', grid); best.remove(); alt.classList.remove('alt'); alt.insertAdjacentHTML('beforeend', '<div class="ecx-sg"><button class="y">Book</button></div>'); $('.y', alt).onclick = ev2 => { ev2.stopPropagation(); alt.classList.remove('sug'); alt.style.background = 'var(--pb-bg)'; alt.style.color = 'var(--pb)'; $('.ecx-sg', alt).remove(); bind(alt, S[1]); tell('Booked Fri 1:00, invites sent'); }; tell('Next best: Fri 1:00'); };
+  });
+  c.later(1200, () => ask.click());
+});
+</script><script>
+    (function(){
+      var root = document.documentElement, card = document.querySelector('.pg-demo > .card[data-c]');
+      // Blueprint or Soft, shared with the rest of the site; the demo starts again in the new style
+      var mark = function(){ var soft = root.getAttribute('data-style') === 'soft'; document.querySelectorAll('[data-style-set]').forEach(function(b){ b.setAttribute('aria-pressed', String((b.dataset.styleSet === 'soft') === soft)); }); };
+      document.querySelectorAll('[data-style-set]').forEach(function(b){ b.addEventListener('click', function(){
+        if (b.getAttribute('aria-pressed') === 'true') return;
+        if (b.dataset.styleSet === 'soft') root.setAttribute('data-style', 'soft'); else root.removeAttribute('data-style');
+        try { localStorage.setItem('dmui-style', b.dataset.styleSet === 'soft' ? 'soft' : 'bp'); } catch(e){}
+        mark(); if (card && window.DM) DM.mount(card);
+      }); });
+      mark();
+      document.getElementById('cp-replay').addEventListener('click', function(){ if (card && typeof DM !== 'undefined') DM.mount(card); });
+      document.querySelectorAll('[data-copy]').forEach(function(b){ b.addEventListener('click', function(){
+        var done = function(){ b.textContent = 'Copied'; setTimeout(function(){ b.textContent = 'Copy'; }, 1400); };
+        if (navigator.clipboard) navigator.clipboard.writeText(b.dataset.copy).then(done, function(){}); });
+      });
+    })();
+    </script></body></html>

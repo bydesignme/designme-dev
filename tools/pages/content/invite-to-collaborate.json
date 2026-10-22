@@ -1,0 +1,37 @@
+{
+  "summary": "Invite to collaborate is a sharing panel where a person types email addresses that turn into chips, picks a role such as Can edit or Can view, and sends the invites. Addresses that don't look valid are flagged and block sending until they are fixed or removed. Below the field it lists who already has access, with pending invites shown in amber.",
+  "use": [
+    "When a project, workspace or agent run should be shared with teammates",
+    "When invitees need a role, such as whether they may run the agent or only comment",
+    "When you can suggest likely teammates for one-click adding",
+    "When a share link is an alternative to inviting by email"
+  ],
+  "features": [
+    "Enter, a comma, Tab, pasting or leaving the field turns typed text into chips, and duplicates are skipped.",
+    "Backspace in an empty field removes the last chip, and each chip has its own remove button.",
+    "Invalid addresses show a warning chip with a \"Not a valid email\" tip, and Send stays disabled until every chip is valid.",
+    "The role menu lists `roles` with a short `detail` each; the default roles are Can edit, Can comment and Can view.",
+    "`onSend` receives the valid addresses and the role; a promise shows a spinner, then the chips clear. The button reads \"Send 2 invites\" for more than one.",
+    "`suggestions` add people in one click, and `link` adds a Copy link button that confirms with Link copied."
+  ],
+  "a11y": [
+    "The role options are `menuitemradio` items in a menu labelled Role, with `aria-checked` on the current role.",
+    "The role button reports `aria-expanded`, and Escape closes the menu and returns focus to it.",
+    "Each chip's remove button is labelled \"Remove\" followed by the address, and the input is labelled Email addresses.",
+    "The send button sets `aria-busy` while invites are going out."
+  ],
+  "faq": [
+    {
+      "q": "How do I add the invited people to the members list after sending?",
+      "a": "In `onSend`, append them to the `members` you pass in, with `pending: true` and a role like \"Invited, can edit\". Members added after the first render come in one after another."
+    },
+    {
+      "q": "Can I restrict invites to my company's domain?",
+      "a": "Yes. Pass `validate`, a function that returns true for allowed addresses. Anything else shows as an invalid chip and keeps Send disabled."
+    },
+    {
+      "q": "Can I set my own roles?",
+      "a": "Pass `roles` with a `label` and optional `detail` for each. The first role is selected unless you set `defaultRole` or control `role`."
+    }
+  ]
+}

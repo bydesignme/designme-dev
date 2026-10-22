@@ -1,0 +1,37 @@
+{
+  "summary": "Form is a short form, set up as a project brief by default, with a Draft with agent button that fills the fields in for the person. Fields the agent filled carry a Drafted mark beside their label until the person edits them, so it is clear what still needs a human read. On submit every field is checked, and a confirmation replaces the form once it goes through.",
+  "use": [
+    "When an agent can fill in a brief, ticket or request from context and a person should review it",
+    "When people need to see which answers they typed and which the agent wrote",
+    "When a short form needs inline messages per field instead of a page of errors",
+    "When creating something should hand off to the agent, as in \"the agent is gathering references now\""
+  ],
+  "features": [
+    "Fields can be text, textarea or `choice`, a row of chips that picks one value.",
+    "A `maxLength` on a text field shows a live counter like 0/40 and stops typing there.",
+    "Passing `onDraft` adds the Draft with agent button, which shows Drafting and then Drafted while your promise runs.",
+    "Text fields that change while the draft runs are marked Drafted until the person edits them; choice fields are not marked.",
+    "Each field's `validate` runs on submit, shows its message under the field, and clears as soon as the value changes.",
+    "If `onSubmit` returns a promise, the button spins until it settles; a rejection shows its message, and success shows the done screen."
+  ],
+  "a11y": [
+    "Field messages render with `role=\"alert\"`, and invalid inputs set `aria-invalid`.",
+    "Choice chips sit in a `group` labelled with the field name, and each chip reports `aria-pressed`.",
+    "The Drafted mark beside a label is `aria-hidden`, so it is not read into the field's name.",
+    "The confirmation after submit has `role=\"status\"`."
+  ],
+  "faq": [
+    {
+      "q": "How does the agent fill in the fields?",
+      "a": "Control the form with `values` and `onValuesChange`, and update the values inside your `onDraft` promise. Any text field that changes while the draft runs gets the Drafted mark."
+    },
+    {
+      "q": "Can I start the agent's draft without a click?",
+      "a": "Yes. Put a ref on the form and call `ref.current.draft()`. It runs `onDraft` with the same Drafting and Drafted states as the button."
+    },
+    {
+      "q": "How do I validate a field against another field?",
+      "a": "`validate` receives the field's value and all the form's values. Return a message string to block the submit, or a falsy value to let it pass."
+    }
+  ]
+}

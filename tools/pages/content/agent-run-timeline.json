@@ -1,0 +1,35 @@
+{
+  "summary": "Agent run timeline draws one agent run as a Gantt chart: every model and tool step is a bar on a shared time axis, so people can see what ran in parallel, what took longest and where a step failed and was retried. While the run is live, a playhead sweeps across and the bars grow up to it.",
+  "use": [
+    "When you need to see why an agent run was slow and which steps overlapped.",
+    "When a step failed and was retried, and people should see where in the run that happened.",
+    "When people care about cost per step as well as time.",
+    "In a run history or debugging view, to replay a finished run or follow one live."
+  ],
+  "features": [
+    "Each step is a bar placed by its `start` and `duration` in seconds, with an optional `icon`, `color` and `cost`.",
+    "Pass `time` while the run is live. Bars grow up to it, a playhead sits on it, and the status line names the steps running at that moment.",
+    "Leave `time` out once the run is over. The tag turns from Running to Done and the status line reads \"Finished in Ns\" unless you set `status`.",
+    "`failed` hatches a bar red, and `note` is added to its tooltip, which also lists the step's duration and cost.",
+    "The footer counts up total time, cost, steps and retries as the playhead moves. Pass `stats` to show your own figures once the run is done.",
+    "The axis covers `span` seconds, defaulting to the end of the last step rounded up to a multiple of 4, with labels at quarters unless you pass `ticks`."
+  ],
+  "a11y": [
+    "The run's state is written as text, Running or Done, and the spinner beside it is `aria-hidden`.",
+    "With `prefers-reduced-motion: reduce`, the bars follow the playhead without easing and the status text changes without a crossfade."
+  ],
+  "faq": [
+    {
+      "q": "How do I follow a run live?",
+      "a": "Keep the steps you know about in `steps` and update `time` with the seconds since the run started, for example on each animation frame. When the run ends, leave `time` out."
+    },
+    {
+      "q": "How do I show a failed step and its retry?",
+      "a": "Mark the failed step with `failed: true` and an optional `note`, like \"2 tests failed\", then add the retry as its own step after it. The footer counts the failed steps as retries."
+    },
+    {
+      "q": "Can I replay a finished run?",
+      "a": "Yes. Pass the full `steps` list and move `time` from 0 to the end of the run. The demo plays it back at 1.6 times real speed."
+    }
+  ]
+}

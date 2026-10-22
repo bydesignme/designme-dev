@@ -1,0 +1,34 @@
+{
+  "summary": "Action log is a running list of everything an agent does during a task: each file it reads, search it makes, edit it saves and command it runs. Rows land one by one with a spinner, settle with a check and a time, and open to show their output, like a diff or test results.",
+  "use": [
+    "When a coding or work agent runs many tool calls and people want a plain record of each one.",
+    "When people need to check the exact diff or command output behind a step.",
+    "When you want a header that says the agent is on step 4, then how many steps it took and how long."
+  ],
+  "features": [
+    "Each action has an `icon`, a `title` (wrap file names in `<code>`), an optional `detail` line, and a `state` of running or done.",
+    "Running rows show a spinner. Done rows show a check and their `time`, like \"0.4s\".",
+    "Rows with `output` open on click to show it in a preformatted block. Lines wrapped in `dm-a` or `dm-x` spans read as added or removed.",
+    "While `running` is true, the header shows a spinner and \"Running step N\". After that it shows a green dot and \"N steps, Xs\", the total of the action times, unless you pass `status`.",
+    "`title` changes the header, which defaults to \"Agent activity\". It sits flat in a chat thread by default, and `bare={false}` gives it a card."
+  ],
+  "a11y": [
+    "Rows with output are buttons with `aria-expanded`.",
+    "Closed output panels are `inert` and `aria-hidden`.",
+    "The actions are an ordered list (`<ol>`), so screen readers announce the step count and position."
+  ],
+  "faq": [
+    {
+      "q": "How do I add actions as the agent works?",
+      "a": "Append each new action to `actions` with `state: 'running'`, then set it to 'done' with a `time` when it finishes. Each new row plays a short entrance as it lands."
+    },
+    {
+      "q": "How is the total time in the header worked out?",
+      "a": "It adds up the number at the start of each action's `time`, so write times in seconds, like \"0.4s\", for the total to make sense. Pass `status` to write your own line instead."
+    },
+    {
+      "q": "Can I show a coloured diff in the output?",
+      "a": "Yes. `output` takes any React node, so wrap removed lines in `<span className=\"dm-x\">` and added lines in `<span className=\"dm-a\">`."
+    }
+  ]
+}

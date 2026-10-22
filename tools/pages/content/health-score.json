@@ -1,0 +1,27 @@
+{
+  "summary": "A gauge with one score out of 100 for a design system, plus the checks that make it up, such as token usage, contrast and component reuse. Each check opens to show why it scored as it did, and a check marked fixable gets a Fix button that hands the job to the agent. When the fix lands, the check and the overall score update.",
+  "use": [
+    "When an agent audits a design system or codebase and you want one number with the reasons behind it.",
+    "When some issues can be fixed by the agent with a click.",
+    "On a dashboard card that tracks quality over time."
+  ],
+  "features": [
+    "A half-circle gauge that fills to the score, which is the average of the checks unless you pass `score`.",
+    "Colours by score: green from 90, the accent colour from 80, red below 80.",
+    "A status line such as \"Good, 2 checks need work\" worked out from checks under 90, or your own `status`.",
+    "Each check is a row with a bar and its score; clicking it opens a line of `detail`.",
+    "A check with `fixable` gets a Fix button when `onFix` is set; if `onFix` returns a promise the button spins until it settles.",
+    "Score changes count to the new number, and the open rows can be controlled with `open` and `onOpenChange`."
+  ],
+  "a11y": [
+    "The gauge has role=\"meter\" with aria-valuemin 0, aria-valuemax 100, aria-valuenow set to the score and the title as its label.",
+    "Each check row is a button with aria-expanded, and its closed detail is inert and aria-hidden.",
+    "The Fix button sets aria-busy while the fix runs.",
+    "Number count-ups finish at once when the user prefers reduced motion."
+  ],
+  "faq": [
+    {"q": "How do I let the agent fix a check?", "a": "Set `fixable` on the check and pass `onFix`. Return a promise that resolves once the agent is done, then update that check's `score` and `detail` in `checks`. You may also want to clear `fixable` so the button goes away."},
+    {"q": "How is the overall score worked out?", "a": "By default it is the rounded average of all check scores. Pass `score` to show your own number instead, for example a weighted score."},
+    {"q": "Can I open a check from outside the component?", "a": "Yes. Control `open` with an array of check keys. A check's key is its `key`, or its `label` when no key is set."}
+  ]
+}

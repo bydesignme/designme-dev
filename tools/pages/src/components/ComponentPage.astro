@@ -1,0 +1,212 @@
+---
+// One component: its live demo (the same HTML, CSS and JS that npx designme add installs), how to install it, what it is
+// for, how to use it in React, its props, its code, questions, and the components beside it.
+import Page from '../layouts/Page.astro';
+import { SITE, borrows } from '../lib/data.mjs';
+const { c } = Astro.props;
+const sec = c.section, copy = c.copy || {}, rx = c.react;
+const agent = sec.grp === 'agent';
+const title = `${c.title}: ${agent ? 'AI agent UI component' : 'free UI component'} for React and HTML | Designme.dev`;
+const description = `${c.desc} Free and MIT licensed, as HTML or a typed React component, in two styles with light and dark mode.`;
+const lent = borrows(c);
+const others = sec.cards.filter(x => x.reg !== c.reg);
+const cmdHtml = `npx designme add ${c.reg}`, cmdReact = `npx designme add ${c.reg} --react`;
+const importLine = rx ? `import { ${rx.component} } from '@/components/designme/${c.reg}/${rx.component}';` : '';
+const [ha, , , , he] = c.height;
+const jsonld = [
+  { '@context':'https://schema.org', '@type':'SoftwareSourceCode', name:c.title, description:copy.summary || c.desc, url:SITE + c.url,
+    programmingLanguage:['HTML', 'CSS', 'JavaScript', 'TypeScript'], runtimePlatform:'Web browser', license:'https://opensource.org/licenses/MIT',
+    isAccessibleForFree:true, keywords:[c.title, sec.title, agent ? 'AI agent UI' : 'UI component', 'React component', 'HTML component'].join(', '),
+    author:{ '@type':'Organization', name:'DesignMe', url:'https://designme.agency' },
+    isPartOf:{ '@type':'WebSite', name:'Designme.dev', url:SITE + '/' } },
+  { '@context':'https://schema.org', '@type':'BreadcrumbList', itemListElement:[
+    { '@type':'ListItem', position:1, name:'Components', item:SITE + '/components' },
+    { '@type':'ListItem', position:2, name:sec.title, item:SITE + sec.url },
+    { '@type':'ListItem', position:3, name:c.title, item:SITE + c.url } ] },
+  ...(copy.faq && copy.faq.length ? [{ '@context':'https://schema.org', '@type':'FAQPage', mainEntity:copy.faq.map(f => ({ '@type':'Question', name:f.q, acceptedAnswer:{ '@type':'Answer', text:f.a.replace(/`/g, '') } })) }] : []),
+];
+// `code` in the written copy becomes <code>
+const md = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/`([^`]+)`/g, '<code>$1</code>');
+const files = [
+  ...(rx ? [{ name:rx.tsxPath.split('/').pop(), lang:'React', code:rx.tsx }, { name:(rx.cssPath || '').split('/').pop(), lang:'React', code:rx.css }] : []),
+  { name:`${c.reg}.html`, lang:'HTML', code:c.html.html }, { name:`${c.reg}.css`, lang:'HTML', code:c.html.css }, { name:`${c.reg}.js`, lang:'HTML', code:c.html.js },
+].filter(f => f.name && f.code);
+---
+<Page title={title} description={description} path={c.url} jsonld={jsonld}>
+  <Fragment slot="head">
+    <link rel="stylesheet" href="/components/assets/core.css">
+    {lent.map(x => <style is:inline set:html={x.html.css} />)}
+    <style is:inline set:html={c.html.css} />
+    <style is:global>
+      .cp-crumbs{display:flex;flex-wrap:wrap;gap:6px;font-size:13px;color:var(--pg-muted)}
+      .cp-crumbs a{color:var(--pg-dim);text-decoration:none}
+      .cp-crumbs a:hover{color:var(--pg-fg)}
+      .cp-h{margin:14px 0 0;font-size:34px;line-height:1.15;font-weight:600;letter-spacing:-.025em;text-wrap:balance}
+      .cp-lead{margin:10px 0 0;font-size:17px;color:var(--pg-dim);max-width:62ch}
+      .cp-tags{display:flex;flex-wrap:wrap;gap:6px;margin:16px 0 0;padding:0;list-style:none}
+      .cp-tags li{font-size:12.5px;color:var(--pg-dim);padding:3px 10px;border-radius:999px;box-shadow:inset 0 0 0 1px var(--pg-line2)}
+      .cp-demo{margin:28px 0 0;border-radius:16px;background:var(--stage,var(--pg-soft));overflow:hidden}
+      .cp-bar{display:flex;align-items:center;gap:8px;padding:10px 12px 0}
+      .cp-bar .sp{flex:1}
+      .cp-seg{display:inline-flex;padding:3px;border-radius:999px;background:var(--pg-chip)}
+      .cp-seg button,.cp-btn{height:28px;padding:0 12px;border:0;border-radius:999px;background:none;color:var(--pg-dim);font:500 13px/1 var(--pg-sans);cursor:pointer}
+      .cp-seg button[aria-pressed="true"]{background:var(--pg-bg);color:var(--pg-fg);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+      .cp-btn:hover,.cp-seg button:hover{color:var(--pg-fg)}
+      .cp-btn{display:inline-flex;align-items:center;gap:6px}
+      .cp-btn svg{width:14px;height:14px}
+      /* the demo keeps the tallest the component gets, so nothing below moves while it plays; the card fills that space,
+         so it is on screen (and starts) as soon as the demo is */
+      .pg-demo{display:grid;grid-template-columns:minmax(0,1fr);justify-items:center;padding:32px 24px 40px;min-height:calc(var(--h-a) + 72px)}
+      .pg-demo>.card{min-width:0;align-self:stretch;display:grid;place-items:center}
+      @media (max-width:640px){.pg-demo{padding:24px 12px 28px;min-height:calc(var(--h-e) + 52px)}.cp-h{font-size:28px}}
+      .cp-sec{margin:56px 0 0;max-width:820px}
+      .cp-sec.wide{max-width:none}
+      .cp-sec h2{margin:0 0 14px;font-size:22px;font-weight:600;letter-spacing:-.015em}
+      .cp-sec h3{margin:24px 0 8px;font-size:15px;font-weight:600}
+      .cp-sec p{margin:0 0 12px;max-width:68ch}
+      .cp-sec ul{margin:0;padding-left:20px}
+      .cp-sec li{margin:5px 0;max-width:66ch}
+      .cp-sec code,.cp-props code,.cp-cmd code{font-variant-ligatures:none;font:500 12.5px/1.4 var(--pg-mono);background:var(--pg-chip);padding:1px 5px;border-radius:5px}
+      .cp-cmds{display:grid;grid-template-columns:minmax(0,1fr);gap:8px}
+      .cp-cmd{min-width:0;display:flex;align-items:center;gap:12px;padding:6px 6px 6px 14px;border-radius:12px;background:var(--pg-soft);box-shadow:inset 0 0 0 1px var(--pg-line)}
+      .cp-cmd .k{flex:none;width:52px;font-size:12.5px;color:var(--pg-muted)}
+      .cp-cmd code{flex:1;min-width:0;overflow-x:auto;white-space:nowrap;font:500 13.5px/1.5 var(--pg-mono);background:none;padding:0}
+      .cp-copy{flex:none;height:30px;padding:0 12px;border:0;border-radius:999px;background:var(--pg-bg);color:var(--pg-fg);box-shadow:inset 0 0 0 1px var(--pg-line2);font:500 12.5px/1 var(--pg-sans);cursor:pointer}
+      .cp-copy:hover{background:var(--pg-chip)}
+      .cp-note{margin:12px 0 0;font-size:13.5px;color:var(--pg-dim)}
+      .cp-pre{font-variant-ligatures:none;margin:0;max-height:460px;overflow:auto;padding:16px 18px;border-radius:12px;background:var(--pg-soft);box-shadow:inset 0 0 0 1px var(--pg-line);font:500 12.5px/1.6 var(--pg-mono);tab-size:2}
+      .cp-pre code{background:none;padding:0;font:inherit}
+      .cp-props{overflow-x:auto;margin:0 0 8px}
+      .cp-props table{width:100%;min-width:560px;border-collapse:collapse;font-size:13.5px}
+      .cp-props th{text-align:left;font-weight:500;font-size:12.5px;color:var(--pg-muted);padding:8px 10px;border-bottom:1px solid var(--pg-line2)}
+      .cp-props td{padding:10px;border-bottom:1px solid var(--pg-line);vertical-align:top}
+      .cp-props td:first-child{white-space:nowrap}
+      .cp-props td:nth-child(2) code{white-space:normal;word-break:break-word}
+      .cp-props .opt{color:var(--pg-muted)}
+      .cp-ext{font-size:13.5px;color:var(--pg-dim)}
+      details.cp-file{border-radius:12px;box-shadow:inset 0 0 0 1px var(--pg-line);margin:0 0 8px}
+      details.cp-file summary{display:flex;align-items:center;gap:10px;padding:12px 14px;cursor:pointer;list-style:none;font:500 13.5px/1.4 var(--pg-mono)}
+      details.cp-file summary::-webkit-details-marker{display:none}
+      details.cp-file summary::before{content:"";width:6px;height:6px;border-right:1.5px solid var(--pg-muted);border-bottom:1.5px solid var(--pg-muted);transform:rotate(-45deg);transition:transform .2s}
+      details.cp-file[open] summary::before{transform:rotate(45deg)}
+      details.cp-file summary .l{margin-left:auto;font:12px/1 var(--pg-sans);color:var(--pg-muted)}
+      details.cp-file .cp-pre{border-radius:0 0 12px 12px;box-shadow:none;border-top:1px solid var(--pg-line);max-height:560px}
+      .cp-faq dt{margin:20px 0 4px;font-weight:600}
+      .cp-faq dd{margin:0;color:var(--pg-dim);max-width:68ch}
+      .cp-rel{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
+      .cp-rel a{display:block;padding:14px 16px;border-radius:14px;background:var(--pg-soft);text-decoration:none;transition:background .2s}
+      .cp-rel a:hover{background:var(--pg-chip)}
+      .cp-rel b{display:block;font-weight:500}
+      .cp-rel span{display:block;font-size:13.5px;color:var(--pg-dim);margin-top:2px}
+      .cp-pn{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:56px 0 0}
+      .cp-pn a{display:block;padding:14px 16px;border-radius:14px;box-shadow:inset 0 0 0 1px var(--pg-line);text-decoration:none}
+      .cp-pn a:hover{background:var(--pg-soft)}
+      .cp-pn .k{display:block;font-size:12.5px;color:var(--pg-muted)}
+      .cp-pn b{font-weight:500}
+      .cp-pn .n{text-align:right}
+      .cp-toc{display:flex;flex-wrap:wrap;gap:4px 18px;margin:22px 0 0;font-size:13.5px}
+      .cp-toc a{color:var(--pg-dim);text-decoration:none}
+      .cp-toc a:hover{color:var(--pg-fg)}
+    </style>
+  </Fragment>
+
+  <nav class="cp-crumbs" aria-label="Breadcrumb"><a href="/components">Components</a><span>/</span><a href={sec.url}>{sec.title}</a></nav>
+  <h1 class="cp-h">{c.title}</h1>
+  <p class="cp-lead">{c.desc}</p>
+  <ul class="cp-tags"><li>{sec.set}</li><li>HTML and React</li><li>Soft and Blueprint</li><li>Light and dark</li><li>MIT</li></ul>
+
+  <section class="cp-demo" aria-label={`${c.title} demo`}>
+    <div class="cp-bar">
+      <div class="cp-seg" role="group" aria-label="Style"><button type="button" data-style-set="bp">Blueprint</button><button type="button" data-style-set="soft">Soft</button></div>
+      <span class="sp"></span>
+      <button type="button" class="cp-btn" id="cp-replay"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>Replay</button>
+    </div>
+    <div class="pg-demo stage-inner" style={`--h-a:${ha}px;--h-e:${he}px`} set:html={c.html.html} />
+  </section>
+  {lent.length > 0 && <div hidden aria-hidden="true" set:html={lent.map(x => x.html.html).join('\n')} />}
+
+  <nav class="cp-toc" aria-label="On this page"><a href="#install">Install</a>{copy.summary && <a href="#about">About</a>}{rx && <a href="#usage">Usage</a>}{rx && <a href="#props">Props</a>}<a href="#code">Code</a>{copy.faq && <a href="#questions">Questions</a>}</nav>
+
+  <section class="cp-sec" id="install">
+    <h2>Install</h2>
+    <div class="cp-cmds">
+      <div class="cp-cmd"><span class="k">HTML</span><code>{cmdHtml}</code><button class="cp-copy" type="button" data-copy={cmdHtml}>Copy</button></div>
+      <div class="cp-cmd"><span class="k">React</span><code>{cmdReact}</code><button class="cp-copy" type="button" data-copy={cmdReact}>Copy</button></div>
+    </div>
+    <p class="cp-note">The CLI copies the source into your project, so you own it and can change anything. The HTML version lands in <code>./designme</code> with the shared core and a <code>demo.html</code>. The React version lands in <code>src/components/designme</code> and needs React 19; it works in Next.js, Vite and Astro.</p>
+  </section>
+
+  {copy.summary && <section class="cp-sec" id="about">
+    <h2>About {c.title.toLowerCase().startsWith('the ') ? c.title : `the ${c.title.charAt(0).toLowerCase() + c.title.slice(1)}`}</h2>
+    <p set:html={md(copy.summary)} />
+    {copy.use?.length > 0 && <><h3>When to use it</h3><ul>{copy.use.map(x => <li set:html={md(x)} />)}</ul></>}
+    {copy.features?.length > 0 && <><h3>What it does</h3><ul>{copy.features.map(x => <li set:html={md(x)} />)}</ul></>}
+    {copy.a11y?.length > 0 && <><h3>Accessibility</h3><ul>{copy.a11y.map(x => <li set:html={md(x)} />)}</ul></>}
+  </section>}
+
+  {rx && <section class="cp-sec" id="usage">
+    <h2>Usage in React</h2>
+    <p>After installing, import it from where the CLI put it:</p>
+    <pre class="cp-pre"><code>{importLine}</code></pre>
+    {rx.example && <><h3>Example</h3><p>The demo above, as a React component you can copy:</p><pre class="cp-pre"><code>{rx.example}</code></pre></>}
+  </section>}
+
+  {rx && rx.props.length > 0 && <section class="cp-sec wide" id="props">
+    <h2>Props</h2>
+    {rx.props.map(iface => <>
+      {rx.props.length > 1 && <h3><code>{iface.name}</code></h3>}
+      {iface.doc && <p>{iface.doc}</p>}
+      <div class="cp-props"><table>
+        <thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead>
+        <tbody>{iface.props.map(p => <tr><td><code>{p.name}</code>{p.optional && <span class="opt"> optional</span>}</td><td><code>{p.type}</code></td><td>{p.doc}</td></tr>)}</tbody>
+      </table></div>
+      {iface.extends && <p class="cp-ext">Also takes the props of <code>{iface.extends}</code>.</p>}
+    </>)}
+  </section>}
+
+  <section class="cp-sec wide" id="code">
+    <h2>Code</h2>
+    <p>The full source, as the CLI installs it. Open a file to read it.</p>
+    {files.map(f => <details class="cp-file"><summary>{f.name}<span class="l">{f.lang}</span></summary><pre class="cp-pre"><code>{f.code}</code></pre></details>)}
+  </section>
+
+  {copy.faq?.length > 0 && <section class="cp-sec" id="questions">
+    <h2>Questions</h2>
+    <dl class="cp-faq">{copy.faq.map(f => <><dt set:html={md(f.q)} /><dd set:html={md(f.a)} /></>)}</dl>
+  </section>}
+
+  {others.length > 0 && <section class="cp-sec wide">
+    <h2>More in {sec.title}</h2>
+    <div class="cp-rel">{others.map(x => <a href={`/components/${x.reg}`}><b>{x.title}</b><span>{x.desc}</span></a>)}</div>
+  </section>}
+
+  <nav class="cp-pn" aria-label="Previous and next component">
+    <a href={c.prev.url} rel="prev"><span class="k">Previous</span><b>{c.prev.title}</b></a>
+    <a href={c.next.url} rel="next" class="n"><span class="k">Next</span><b>{c.next.title}</b></a>
+  </nav>
+
+  <Fragment slot="end">
+    <script is:inline src="/components/assets/core.js"></script>
+    {lent.map(x => <script is:inline set:html={x.html.js} />)}
+    <script is:inline set:html={c.html.js} />
+    <script is:inline>
+    (function(){
+      var root = document.documentElement, card = document.querySelector('.pg-demo > .card[data-c]');
+      // Blueprint or Soft, shared with the rest of the site; the demo starts again in the new style
+      var mark = function(){ var soft = root.getAttribute('data-style') === 'soft'; document.querySelectorAll('[data-style-set]').forEach(function(b){ b.setAttribute('aria-pressed', String((b.dataset.styleSet === 'soft') === soft)); }); };
+      document.querySelectorAll('[data-style-set]').forEach(function(b){ b.addEventListener('click', function(){
+        if (b.getAttribute('aria-pressed') === 'true') return;
+        if (b.dataset.styleSet === 'soft') root.setAttribute('data-style', 'soft'); else root.removeAttribute('data-style');
+        try { localStorage.setItem('dmui-style', b.dataset.styleSet === 'soft' ? 'soft' : 'bp'); } catch(e){}
+        mark(); if (card && window.DM) DM.mount(card);
+      }); });
+      mark();
+      document.getElementById('cp-replay').addEventListener('click', function(){ if (card && typeof DM !== 'undefined') DM.mount(card); });
+      document.querySelectorAll('[data-copy]').forEach(function(b){ b.addEventListener('click', function(){
+        var done = function(){ b.textContent = 'Copied'; setTimeout(function(){ b.textContent = 'Copy'; }, 1400); };
+        if (navigator.clipboard) navigator.clipboard.writeText(b.dataset.copy).then(done, function(){}); });
+      });
+    })();
+    </script>
+  </Fragment>
+</Page>

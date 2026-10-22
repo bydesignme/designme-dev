@@ -1,0 +1,34 @@
+{
+  "summary": "Run queue lists the tasks an agent has lined up, each with its own steps, a status and a thin progress bar that fills as steps finish. A count at the top says how many tasks are done, a switch folds the steps away for a compact view, and a failed step can offer a Retry button.",
+  "use": [
+    "When your agent works through several tasks in a row and people want to see what is done, running and still waiting.",
+    "When a step can fail and people should be able to retry just that step.",
+    "When the queue can get long and people want a compact view with only the task rows."
+  ],
+  "features": [
+    "Each task in `groups` has a `title`, a `state` (queued, running, failed or done) and its `steps`. Its progress bar shows the share of steps that are done.",
+    "The words at the end of a task row default to Queued, Running, \"1 step failed\" or Done, and `meta` replaces them, for example with \"Retrying\".",
+    "Done steps show their `meta`, like \"3/3\" or \"4 articles\", or \"Done\" if it is left out.",
+    "With `onRetry`, a failed step shows a Retry button that calls it with the task and step indexes.",
+    "A Detailed / Compact switch folds the steps away or shows them. Control it with `density` and `onDensityChange`.",
+    "The top line counts finished tasks, like \"1 of 3 done\". The list sits flat by default, and `bare={false}` puts it on a card."
+  ],
+  "a11y": [
+    "The density switch is a `role=\"group\"` labelled \"Density\", and the current option has `aria-pressed=\"true\"`.",
+    "In the compact view, the folded steps are `inert` and `aria-hidden`, so their Retry buttons leave the tab order."
+  ],
+  "faq": [
+    {
+      "q": "How do I let people retry a failed step?",
+      "a": "Pass `onRetry`. It is called with the task index and the step index, and you rerun the step and set its `state` back to 'running'. Without `onRetry`, failed steps show no button."
+    },
+    {
+      "q": "Does the task's state follow its steps automatically?",
+      "a": "No. You set each task's `state` and each step's `state` yourself. The component only works out the progress bar from the done steps and the \"N of M done\" count from the done tasks."
+    },
+    {
+      "q": "Can I start in the compact view?",
+      "a": "Yes. Set `defaultDensity=\"compact\"`, or control `density` from your own state."
+    }
+  ]
+}

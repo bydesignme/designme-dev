@@ -1,0 +1,37 @@
+{
+  "summary": "Sign in is a passwordless sign-in card in three steps: the person enters an email, types the one-time code they were sent into separate digit boxes, and sees a short confirmation. The code checks itself as soon as the last box is filled. It suits agent products that sign people in by email instead of with a password.",
+  "use": [
+    "When people sign in with an emailed one-time code instead of a password",
+    "When the code should be checked the moment it is complete, with no extra submit button",
+    "When a wrong code should clear the boxes and let the person try again in place",
+    "When you want a resend countdown so people don't request codes over and over"
+  ],
+  "features": [
+    "The email step checks the address shape and shows `emptyEmailLabel` or `badEmailLabel`, with the field shaking on each failed try.",
+    "If `onSendCode` returns a promise, the button spins until it settles, and a rejection's message shows under the field.",
+    "The code boxes accept typing, Backspace back to the previous box, and a pasted or autofilled code that spreads across the boxes.",
+    "Once every box is filled, `onVerify` runs; returning false clears the boxes and shows `wrongCodeLabel`.",
+    "A resend countdown runs from `resendIn` seconds, 30 by default, then turns into a Resend code button that calls `onResend`.",
+    "A confirmed code shows a check, then the done screen with `doneTitle` and calls `onSignedIn`."
+  ],
+  "a11y": [
+    "Each code box has an `aria-label` like \"Digit 1\" inside a `group` labelled \"Code\", and the first box uses `autocomplete=\"one-time-code\"`.",
+    "The email input sets `aria-invalid` when the address is missing or malformed.",
+    "The resend line is an `aria-live=\"polite\"` region, so verifying, confirmed and wrong code messages are announced.",
+    "The done screen has `role=\"status\"`."
+  ],
+  "faq": [
+    {
+      "q": "How do I check the code against my backend?",
+      "a": "Pass `onVerify(code, email)`. Return true, nothing, or a promise of either to accept it. Return false, or throw, and the boxes clear with the wrong code message."
+    },
+    {
+      "q": "Will a one-time code from the phone's keyboard fill all six boxes?",
+      "a": "The first box has `autocomplete=\"one-time-code\"`, and several digits entered at once spread across the boxes from there. Pasting a code into any box fills from the first box."
+    },
+    {
+      "q": "Can I use a four-digit code instead of six?",
+      "a": "Yes. Set `codeLength` to 4. The default subtitle updates to say how many digits to enter."
+    }
+  ]
+}

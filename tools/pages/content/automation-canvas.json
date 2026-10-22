@@ -1,0 +1,41 @@
+{
+  "summary": "Automation canvas draws an agent automation as cards joined by wires: a trigger, a few agent steps and where the result goes. People can drag the cards, click one to change its setting, and press Test run to watch the run light up each step and wire in turn.",
+  "use": [
+    "When people set up recurring agent workflows, like a weekly design check that posts to Slack.",
+    "When a short flow is easier to understand as a picture than as a form.",
+    "When each step has one main setting that people should be able to change in place.",
+    "When you want to show a test run moving through the steps before the automation goes live."
+  ],
+  "features": [
+    "Each node has an icon, a colour, a `title` and a `detail` line, placed by `x` and `y` as fractions of the canvas. `edges` wire nodes together by id.",
+    "With `balanced` on (the default), nodes that share an `x` form a column and the columns spread evenly across the width.",
+    "Cards can be dragged. Dropping one calls `onNodeMove` with its new centre. Below 560px wide the nodes stack down the canvas, using each node's `narrow` position if set.",
+    "Clicking a node opens a popover with its `field`, a menu of options. Picking one updates the node's detail and calls `onValuesChange`.",
+    "`onRun` adds a Test run button. Set each node's `state` to `run` or `done` and add wires to `flowing` as your run goes, and a soft light passes along each new wire.",
+    "The header shows the automation's `name`, an optional green `tag` like \"On\" and a `status` line that crossfades."
+  ],
+  "a11y": [
+    "Each node is a button with `aria-expanded` that shows whether its popover is open.",
+    "The popover has `role=\"dialog\"`, labelled with the node's title, and is `inert` while closed.",
+    "Setting options use `role=\"menuitemradio\"` with `aria-checked`, and the dropdown button has `aria-expanded`.",
+    "The wires are `aria-hidden`, and the light along a wire is skipped when reduced motion is on."
+  ],
+  "faq": [
+    {
+      "q": "Does Test run execute the automation?",
+      "a": "No. It calls `onRun`. Your code runs the steps and updates each node's `state` and the `flowing` list, which the canvas animates."
+    },
+    {
+      "q": "How do I lay it out for small screens?",
+      "a": "Give nodes a `narrow` position. Below 560px the canvas uses those positions and wires top to bottom. Without them, nodes stack in a column down the middle."
+    },
+    {
+      "q": "How do I save where people dragged the cards?",
+      "a": "Handle `onNodeMove(id, at, narrow)`. It reports the card's centre as fractions of the canvas and whether the narrow layout was in use, so you can store each layout separately."
+    },
+    {
+      "q": "How do I reset the wires before a new run?",
+      "a": "Clear the `flowing` array when the run starts. Wires stay lit for as long as they are listed in it."
+    }
+  ]
+}

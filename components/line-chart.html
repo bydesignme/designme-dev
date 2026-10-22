@@ -1,0 +1,346 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Line chart: free UI component for React and HTML | Designme.dev</title><meta name="description" content="Two series over time with a hover readout and toggles. Free and MIT licensed, as HTML or a typed React component, in two styles with light and dark mode."><link rel="canonical" href="https://designme.dev/components/line-chart"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><meta property="og:type" content="website"><meta property="og:site_name" content="Designme.dev"><meta property="og:title" content="Line chart: free UI component for React and HTML | Designme.dev"><meta property="og:description" content="Two series over time with a hover readout and toggles. Free and MIT licensed, as HTML or a typed React component, in two styles with light and dark mode."><meta property="og:url" content="https://designme.dev/components/line-chart"><meta property="og:image" content="https://designme.dev/og.png"><meta name="twitter:card" content="summary_large_image"><link rel="alternate" type="text/plain" title="All components for AI tools" href="/llms.txt"><link rel="preload" href="/fonts/inter-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin><link rel="preload" href="/fonts/inter-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin><script>try{var t=localStorage.getItem('dmui-theme');if(t)document.documentElement.setAttribute('data-theme',t);var s=localStorage.getItem('dmui-style');if(s)document.documentElement.setAttribute('data-style',s)}catch(e){}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareSourceCode","name":"Line chart","description":"A line chart that compares a main series with one or more reference series over time, such as this year against last year. A big number above it counts up to the latest value, and a readout follows the pointer to show the value at each point. In an agent product it suits a usage or growth metric on a dashboard.","url":"https://designme.dev/components/line-chart","programmingLanguage":["HTML","CSS","JavaScript","TypeScript"],"runtimePlatform":"Web browser","license":"https://opensource.org/licenses/MIT","isAccessibleForFree":true,"keywords":"Line chart, Charts and tables, UI component, React component, HTML component","author":{"@type":"Organization","name":"DesignMe","url":"https://designme.agency"},"isPartOf":{"@type":"WebSite","name":"Designme.dev","url":"https://designme.dev/"}}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Components","item":"https://designme.dev/components"},{"@type":"ListItem","position":2,"name":"Charts and tables","item":"https://designme.dev/components/charts"},{"@type":"ListItem","position":3,"name":"Line chart","item":"https://designme.dev/components/line-chart"}]}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I show \"+69% vs last year\" in the readout?","acceptedAnswer":{"@type":"Answer","text":"Pass compareLabel, like \"vs last year\". The readout then adds the percent change of the first series against the second at the hovered point, as long as both are visible."}},{"@type":"Question","name":"Can I plot more than two series?","acceptedAnswer":{"@type":"Answer","text":"Yes. series takes any number; the first is the solid main line and the rest are dashed. The percent comparison only uses the first two."}},{"@type":"Question","name":"How do I keep the y-axis from starting near the lowest value?","acceptedAnswer":{"@type":"Answer","text":"Pass range as [bottom, top]. Without it, the chart uses the data's range with a little room above and below."}},{"@type":"Question","name":"Can I control which series are visible?","acceptedAnswer":{"@type":"Answer","text":"Yes. Pass visible with the keys to show and handle onVisibleChange, or use defaultVisible and let the legend manage it."}}]}</script><link rel="stylesheet" href="/components/assets/core.css"><style>/* ---------- Line chart ---------- */
+.lnx{padding:14px;display:flex;flex-direction:column;gap:10px}
+.lnx-h{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap}
+.lnx-h>div:first-child{display:flex;flex-direction:column;font-size:12.5px}
+.lnx-v{font-size:26px;font-weight:600;letter-spacing:-.02em;color:var(--fg)}
+.lnx-lg{display:flex;gap:4px}
+.lnx-k{display:flex;align-items:center;gap:6px;height:26px;padding:0 9px;border-radius:999px;font-size:12px;color:var(--muted);transition:color .2s,background .2s}
+.lnx-k:hover{background:var(--chip)}
+.lnx-k.on{color:var(--fg)}
+.lnx-k i{width:8px;height:8px;border-radius:50%;transition:transform .3s var(--ease),opacity .3s}
+.lnx-k:not(.on) i{opacity:.3;transform:scale(.6)}
+.lnx-ch{position:relative;height:150px}
+.lnx-svg{width:100%;height:100%;display:block;overflow:visible}
+.lnx-svg .gl{stroke:var(--line);stroke-width:1;vector-effect:non-scaling-stroke}
+.lnx-svg .ln{fill:none;stroke-width:2;vector-effect:non-scaling-stroke;stroke-linejoin:round;stroke-linecap:round;transition:opacity .4s}
+.lnx-svg .ln.off{opacity:0}
+.lnx-svg .ar{transition:opacity .4s}
+.lnx-x{position:absolute;top:0;bottom:0;width:1px;background:var(--faint);opacity:0;transition:opacity .2s;pointer-events:none}
+.lnx-tt{position:absolute;top:-6px;padding:6px 9px;border-radius:10px;background:var(--ink);color:var(--on-ink);font-size:11.5px;display:flex;flex-direction:column;opacity:0;transform:translate(-50%,-100%) translateY(4px);transition:opacity .2s,transform .25s var(--ease);pointer-events:none;white-space:nowrap}
+.lnx-tt span{opacity:.7}
+.lnx-ch:hover .lnx-x,.lnx-ch:hover .lnx-tt{opacity:1}
+.lnx-ch:hover .lnx-tt{transform:translate(-50%,-100%)}
+.lnx-pt{position:absolute;width:9px;height:9px;margin:-4.5px;border-radius:50%;background:var(--surface);box-shadow:0 0 0 2px currentColor;opacity:0;transition:opacity .2s;pointer-events:none}
+.lnx-ch:hover .lnx-pt.on{opacity:1}
+.lnx-ax{display:flex;justify-content:space-between;font-size:11px}
+</style><style>
+@font-face{font-family:Inter;font-style:normal;font-weight:400;font-display:swap;src:url(/fonts/inter-latin-400-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:Inter;font-style:normal;font-weight:500;font-display:swap;src:url(/fonts/inter-latin-500-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:Inter;font-style:normal;font-weight:600;font-display:swap;src:url(/fonts/inter-latin-600-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:Inter;font-style:normal;font-weight:700;font-display:swap;src:url(/fonts/inter-latin-700-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"JetBrains Mono";font-style:normal;font-weight:500;font-display:swap;src:url(/fonts/jetbrains-mono-latin-500-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+</style><style>:root{--pg-bg:#fff;--pg-fg:#111318;--pg-dim:#5b5f6b;--pg-muted:#8b8f99;--pg-line:#11131814;--pg-line2:#11131824;--pg-soft:#fafafa;--pg-chip:#f1f1f3;--pg-ink:#111318;--pg-on-ink:#fff;--pg-link:#116ff8;--pg-sans:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;--pg-mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace}@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--pg-bg:#0b0c0f;--pg-fg:#ededee;--pg-dim:#a1a3ab;--pg-muted:#76787f;--pg-line:#ffffff14;--pg-line2:#ffffff24;--pg-soft:#131418;--pg-chip:#ffffff0f;--pg-ink:#f5f5f4;--pg-on-ink:#111318;--pg-link:#6aa8ff;color-scheme:dark}}:root[data-theme=dark]{--pg-bg:#0b0c0f;--pg-fg:#ededee;--pg-dim:#a1a3ab;--pg-muted:#76787f;--pg-line:#ffffff14;--pg-line2:#ffffff24;--pg-soft:#131418;--pg-chip:#ffffff0f;--pg-ink:#f5f5f4;--pg-on-ink:#111318;--pg-link:#6aa8ff;color-scheme:dark}*{box-sizing:border-box}html{-webkit-text-size-adjust:100%}body{background:var(--pg-bg);color:var(--pg-fg);font:15px/1.6 var(--pg-sans);-webkit-font-smoothing:antialiased;margin:0}a{color:inherit}.pg-top{z-index:50;background:color-mix(in srgb,var(--pg-bg) 88%,transparent);backdrop-filter:blur(14px);border-bottom:1px solid var(--pg-line);position:sticky;top:0}.pg-top-in{align-items:center;gap:28px;max-width:1180px;margin:0 auto;padding:12px 24px;display:flex}.pg-logo{color:var(--pg-fg);display:block}.pg-logo svg{width:auto;height:21px;display:block}.pg-nav{gap:22px;font-size:14px;display:flex}.pg-nav a{color:var(--pg-dim);text-decoration:none;transition:color .2s}.pg-nav a:hover,.pg-nav a[aria-current=page]{color:var(--pg-fg)}.pg-top .pg-sp{flex:1}.pg-theme{width:34px;height:34px;color:var(--pg-dim);cursor:pointer;background:0 0;border:0;border-radius:999px;place-items:center;display:grid}.pg-theme:hover{background:var(--pg-chip);color:var(--pg-fg)}.pg-theme svg{width:17px;height:17px}.pg-main{max-width:1180px;margin:0 auto;padding:36px 24px 96px}.pg-foot{border-top:1px solid var(--pg-line);color:var(--pg-dim);font-size:13px}.pg-foot-in{flex-wrap:wrap;justify-content:space-between;gap:10px 24px;max-width:1180px;margin:0 auto;padding:28px 24px 40px;display:flex}.pg-foot nav{flex-wrap:wrap;gap:18px;display:flex}.pg-foot a{color:var(--pg-dim);text-decoration:none}.pg-foot a:hover{color:var(--pg-fg)}:focus-visible{outline:2px solid var(--pg-fg);outline-offset:2px}@media (width<=640px){.pg-top-in{gap:14px;padding:10px 16px}.pg-logo svg{height:18px}.pg-nav{gap:14px}.pg-nav .pg-wide{display:none}.pg-main{padding:24px 16px 72px}.pg-foot-in{padding:24px 16px 32px}}@media (width<=380px){.pg-nav .pg-cl{display:none}}
+.cp-crumbs{color:var(--pg-muted);flex-wrap:wrap;gap:6px;font-size:13px;display:flex}.cp-crumbs a{color:var(--pg-dim);text-decoration:none}.cp-crumbs a:hover{color:var(--pg-fg)}.cp-h{letter-spacing:-.025em;text-wrap:balance;margin:14px 0 0;font-size:34px;font-weight:600;line-height:1.15}.cp-lead{color:var(--pg-dim);max-width:62ch;margin:10px 0 0;font-size:17px}.cp-tags{flex-wrap:wrap;gap:6px;margin:16px 0 0;padding:0;list-style:none;display:flex}.cp-tags li{color:var(--pg-dim);box-shadow:inset 0 0 0 1px var(--pg-line2);border-radius:999px;padding:3px 10px;font-size:12.5px}.cp-demo{background:var(--stage,var(--pg-soft));border-radius:16px;margin:28px 0 0;overflow:hidden}.cp-bar{align-items:center;gap:8px;padding:10px 12px 0;display:flex}.cp-bar .sp{flex:1}.cp-seg{background:var(--pg-chip);border-radius:999px;padding:3px;display:inline-flex}.cp-seg button,.cp-btn{height:28px;color:var(--pg-dim);font:500 13px/1 var(--pg-sans);cursor:pointer;background:0 0;border:0;border-radius:999px;padding:0 12px}.cp-seg button[aria-pressed=true]{background:var(--pg-bg);color:var(--pg-fg);box-shadow:0 1px 2px #00000014}.cp-btn:hover,.cp-seg button:hover{color:var(--pg-fg)}.cp-btn{align-items:center;gap:6px;display:inline-flex}.cp-btn svg{width:14px;height:14px}.pg-demo{min-height:calc(var(--h-a) + 72px);grid-template-columns:minmax(0,1fr);justify-items:center;padding:32px 24px 40px;display:grid}.pg-demo>.card{align-self:stretch;place-items:center;min-width:0;display:grid}@media (width<=640px){.pg-demo{min-height:calc(var(--h-e) + 52px);padding:24px 12px 28px}.cp-h{font-size:28px}}.cp-sec{max-width:820px;margin:56px 0 0}.cp-sec.wide{max-width:none}.cp-sec h2{letter-spacing:-.015em;margin:0 0 14px;font-size:22px;font-weight:600}.cp-sec h3{margin:24px 0 8px;font-size:15px;font-weight:600}.cp-sec p{max-width:68ch;margin:0 0 12px}.cp-sec ul{margin:0;padding-left:20px}.cp-sec li{max-width:66ch;margin:5px 0}.cp-sec code,.cp-props code,.cp-cmd code{font-variant-ligatures:none;font:500 12.5px/1.4 var(--pg-mono);background:var(--pg-chip);border-radius:5px;padding:1px 5px}.cp-cmds{grid-template-columns:minmax(0,1fr);gap:8px;display:grid}.cp-cmd{background:var(--pg-soft);min-width:0;box-shadow:inset 0 0 0 1px var(--pg-line);border-radius:12px;align-items:center;gap:12px;padding:6px 6px 6px 14px;display:flex}.cp-cmd .k{width:52px;color:var(--pg-muted);flex:none;font-size:12.5px}.cp-cmd code{white-space:nowrap;min-width:0;font:500 13.5px/1.5 var(--pg-mono);background:0 0;flex:1;padding:0;overflow-x:auto}.cp-copy{background:var(--pg-bg);height:30px;color:var(--pg-fg);box-shadow:inset 0 0 0 1px var(--pg-line2);font:500 12.5px/1 var(--pg-sans);cursor:pointer;border:0;border-radius:999px;flex:none;padding:0 12px}.cp-copy:hover{background:var(--pg-chip)}.cp-note{color:var(--pg-dim);margin:12px 0 0;font-size:13.5px}.cp-pre{font-variant-ligatures:none;background:var(--pg-soft);max-height:460px;box-shadow:inset 0 0 0 1px var(--pg-line);font:500 12.5px/1.6 var(--pg-mono);tab-size:2;border-radius:12px;margin:0;padding:16px 18px;overflow:auto}.cp-pre code{font:inherit;background:0 0;padding:0}.cp-props{margin:0 0 8px;overflow-x:auto}.cp-props table{border-collapse:collapse;width:100%;min-width:560px;font-size:13.5px}.cp-props th{text-align:left;color:var(--pg-muted);border-bottom:1px solid var(--pg-line2);padding:8px 10px;font-size:12.5px;font-weight:500}.cp-props td{border-bottom:1px solid var(--pg-line);vertical-align:top;padding:10px}.cp-props td:first-child{white-space:nowrap}.cp-props td:nth-child(2) code{white-space:normal;word-break:break-word}.cp-props .opt{color:var(--pg-muted)}.cp-ext{color:var(--pg-dim);font-size:13.5px}details.cp-file{box-shadow:inset 0 0 0 1px var(--pg-line);border-radius:12px;margin:0 0 8px}details.cp-file summary{cursor:pointer;font:500 13.5px/1.4 var(--pg-mono);align-items:center;gap:10px;padding:12px 14px;list-style:none;display:flex}details.cp-file summary::-webkit-details-marker{display:none}details.cp-file summary:before{content:"";border-right:1.5px solid var(--pg-muted);border-bottom:1.5px solid var(--pg-muted);width:6px;height:6px;transition:transform .2s;transform:rotate(-45deg)}details.cp-file[open] summary:before{transform:rotate(45deg)}details.cp-file summary .l{font:12px/1 var(--pg-sans);color:var(--pg-muted);margin-left:auto}details.cp-file .cp-pre{box-shadow:none;border-top:1px solid var(--pg-line);border-radius:0 0 12px 12px;max-height:560px}.cp-faq dt{margin:20px 0 4px;font-weight:600}.cp-faq dd{color:var(--pg-dim);max-width:68ch;margin:0}.cp-rel{grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px;display:grid}.cp-rel a{background:var(--pg-soft);border-radius:14px;padding:14px 16px;text-decoration:none;transition:background .2s;display:block}.cp-rel a:hover{background:var(--pg-chip)}.cp-rel b{font-weight:500;display:block}.cp-rel span{color:var(--pg-dim);margin-top:2px;font-size:13.5px;display:block}.cp-pn{grid-template-columns:1fr 1fr;gap:10px;margin:56px 0 0;display:grid}.cp-pn a{box-shadow:inset 0 0 0 1px var(--pg-line);border-radius:14px;padding:14px 16px;text-decoration:none;display:block}.cp-pn a:hover{background:var(--pg-soft)}.cp-pn .k{color:var(--pg-muted);font-size:12.5px;display:block}.cp-pn b{font-weight:500}.cp-pn .n{text-align:right}.cp-toc{flex-wrap:wrap;gap:4px 18px;margin:22px 0 0;font-size:13.5px;display:flex}.cp-toc a{color:var(--pg-dim);text-decoration:none}.cp-toc a:hover{color:var(--pg-fg)}.sp-crumbs[data-astro-cid-lfhuveqs]{color:var(--pg-muted);font-size:13px}.sp-crumbs[data-astro-cid-lfhuveqs] a[data-astro-cid-lfhuveqs]{color:var(--pg-dim);text-decoration:none}.sp-h[data-astro-cid-lfhuveqs]{letter-spacing:-.025em;margin:14px 0 0;font-size:34px;font-weight:600;line-height:1.15}.sp-lead[data-astro-cid-lfhuveqs]{color:var(--pg-dim);max-width:62ch;margin:10px 0 0;font-size:17px}.sp-grid[data-astro-cid-lfhuveqs]{grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;margin:32px 0 0;display:grid}.sp-grid[data-astro-cid-lfhuveqs] a[data-astro-cid-lfhuveqs]{background:var(--pg-soft);border-radius:14px;padding:18px;text-decoration:none;transition:background .2s;display:block}.sp-grid[data-astro-cid-lfhuveqs] a[data-astro-cid-lfhuveqs]:hover{background:var(--pg-chip)}.sp-grid[data-astro-cid-lfhuveqs] b[data-astro-cid-lfhuveqs]{font-size:15.5px;font-weight:500;display:block}.sp-grid[data-astro-cid-lfhuveqs] span[data-astro-cid-lfhuveqs]{color:var(--pg-dim);margin-top:4px;font-size:13.5px;display:block}.sp-more[data-astro-cid-lfhuveqs]{margin:64px 0 0}.sp-more[data-astro-cid-lfhuveqs] h2[data-astro-cid-lfhuveqs]{margin:0 0 12px;font-size:18px;font-weight:600}.sp-more[data-astro-cid-lfhuveqs] nav[data-astro-cid-lfhuveqs]{flex-wrap:wrap;gap:8px;display:flex}.sp-more[data-astro-cid-lfhuveqs] a[data-astro-cid-lfhuveqs]{box-shadow:inset 0 0 0 1px var(--pg-line2);color:var(--pg-dim);border-radius:999px;padding:6px 12px;font-size:13.5px;text-decoration:none}.sp-more[data-astro-cid-lfhuveqs] a[data-astro-cid-lfhuveqs]:hover{color:var(--pg-fg)}@media (width<=640px){.sp-h[data-astro-cid-lfhuveqs]{font-size:28px}}
+</style></head><body><header class="pg-top"><div class="pg-top-in"><a class="pg-logo" href="/" aria-label="Designme.dev home"><svg role="img" aria-label="Designme.dev" viewBox="0 12.5 210 29.5" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M137.937 20.1034V39.1011H155.787V33.1982H145.37V31.9317H155.38V27.2501H145.37V26.0062H155.787V20.1034H137.937Z" fill="currentColor"/>
+<path d="M136.845 39.1013V20.1036L127.536 20.1036L125.525 29.2632H124.983L122.972 20.1036L113.662 20.1036V39.1013H120.735V32.7009H121.299L122.542 39.1013H127.965L129.208 32.7009H129.773V39.1013L136.845 39.1013Z" fill="currentColor"/>
+<path d="M91.5581 20.1034V39.1011H100.054L104.686 30.5069H105.341V39.1011H112.572V20.1034H104.279L99.4665 28.6976H98.7886V20.1034H91.5581Z" fill="currentColor"/>
+<path d="M90.3556 30.9135V20.1029H86.6499L86.5369 22.274H86.4014C85.0457 20.6457 82.7409 19.4696 79.5324 19.4696C73.6576 19.4696 69.1159 23.4501 69.1159 29.6017C69.1159 35.776 73.3639 39.7338 80.2102 39.7338C84.9553 39.7338 89.8359 37.4044 90.4007 32.0669H83.0347C82.8765 32.4966 81.9501 33.3334 80.391 33.3334C78.0637 33.3334 76.5046 31.9538 76.5046 29.6017C76.5046 27.2496 78.1315 25.87 80.1425 25.87C80.4814 25.87 82.5602 25.7796 83.2154 27.521H79.9391V30.9135H90.3556Z" fill="currentColor"/>
+<path d="M60.9353 20.1034V39.1011H68.3691V20.1034H60.9353Z" fill="currentColor"/>
+<path d="M50.0428 19.4696C42.9704 19.4922 39.8523 21.5277 40.1008 26.7747H46.7664C46.7664 25.8248 47.6025 25.2594 50.0428 25.2368C52.0763 25.1915 52.8446 25.6665 52.8446 26.1414C52.8446 26.2771 53.0027 26.9104 51.4211 27.0913L48.913 27.4758C45.3203 28.0186 40.5075 28.1091 40.5075 33.4465C40.5075 37.3139 43.5805 39.7338 50.0879 39.7338C55.8724 39.7338 59.8943 38.3769 59.691 32.474H53.0705C52.8898 33.4239 52.0086 33.9893 49.9298 33.9893C48.1673 33.9893 47.6477 33.5144 47.6477 33.062C47.6477 32.9263 47.6025 32.3157 48.7096 32.18L50.698 31.8634C54.5618 31.2301 60.2333 31.4563 60.2333 25.8248C60.2333 21.4372 56.9343 19.4244 50.0428 19.4696Z" fill="currentColor"/>
+<path d="M21.5475 20.1034V39.1011H39.3978V33.1982H28.9813V31.9317H38.9911V27.2501H28.9813V26.0062H39.3978V20.1034H21.5475Z" fill="currentColor"/>
+<path d="M10.0775 39.1011C18.0537 39.1011 20.6973 35.1206 20.6973 29.6022C20.6973 24.1291 18.0537 20.1034 10.0775 20.1034H0V39.1011H10.0775ZM10.1001 26.3228C11.7044 26.3228 13.2409 27.0013 13.2409 29.6022C13.2409 32.2483 11.7044 32.9042 10.1001 32.9042H7.45646V26.3228H10.1001Z" fill="currentColor"/>
+<path d="M160.138 24.7522C158.938 24.7522 157.983 23.8244 157.983 22.5601C157.983 21.3049 158.938 20.368 160.138 20.368C161.339 20.368 162.294 21.3049 162.294 22.5601C162.294 23.8244 161.339 24.7522 160.138 24.7522ZM160.138 24.4339C161.139 24.4339 161.939 23.6607 161.939 22.5601C161.939 21.4686 161.139 20.6864 160.138 20.6864C159.147 20.6864 158.337 21.4686 158.337 22.5601C158.337 23.6607 159.147 24.4339 160.138 24.4339ZM159.747 23.7517H159.265V21.3413H160.239C160.784 21.3413 161.075 21.5959 161.075 22.0416C161.075 22.3691 160.875 22.5692 160.548 22.642V22.6602C161.148 22.7693 160.957 23.6607 161.121 23.7244V23.7517H160.63C160.457 23.6243 160.693 22.8421 160.093 22.8421H159.747V23.7517ZM159.747 22.4419H160.12C160.411 22.4419 160.611 22.3691 160.611 22.078C160.611 21.7961 160.402 21.7415 160.129 21.7415H159.747V22.4419Z" fill="currentColor"/>
+<path d="M162.778 38.7558C162.174 38.9572 161.671 39.0579 161.268 39.0579C160.865 39.0291 160.419 38.8421 159.93 38.4968C159.355 37.9214 159.153 37.346 159.326 36.7705C159.527 36.1663 160.045 35.5765 160.879 35.0011C161.455 34.6558 161.872 34.4832 162.131 34.4832C162.419 34.4544 162.836 34.5551 163.383 34.7853C164.361 35.3895 164.792 36.0656 164.677 36.8137C164.562 37.533 163.929 38.1804 162.778 38.7558ZM179.189 41.82C178.815 41.9063 178.441 41.8056 178.067 41.5179C177.721 41.2589 177.477 40.9712 177.333 40.6547C177.16 40.1944 177.045 39.7628 176.988 39.36C176.959 38.9284 176.93 38.4393 176.901 37.8926L176.858 36.4253L175.089 38.0221C174.111 38.9428 173.19 39.6046 172.327 40.0074C171.492 40.3814 170.73 40.5684 170.039 40.5684C169.723 40.5109 169.334 40.3095 168.874 39.9642C168.443 39.5902 168.04 39.1874 167.666 38.7558C167.32 38.2954 167.076 37.9214 166.932 37.6337C166.759 37.2309 166.702 36.6698 166.759 35.9505C166.846 35.2312 167.018 34.44 167.277 33.5769C167.565 32.7137 167.91 31.8649 168.313 31.0305C168.745 30.1962 169.234 29.4769 169.78 28.8727C170.73 27.4341 171.91 26.5421 173.319 26.1969C174.729 25.8228 175.981 25.9379 177.074 26.5421C177.592 26.8011 177.966 26.9018 178.196 26.8442C178.426 26.7867 178.57 26.5997 178.628 26.2832C178.743 25.8228 178.872 25.3913 179.016 24.9885C179.16 24.5856 179.361 23.9814 179.62 23.1758C180.34 20.9892 180.958 19.2772 181.476 18.04C182.023 16.8029 182.512 15.7239 182.944 14.8032C183.26 14.1415 183.577 13.6811 183.893 13.4222C184.21 13.1632 184.483 13.0481 184.713 13.0769C185.03 13.0769 185.418 13.192 185.878 13.4222C186.367 13.6523 186.684 13.9688 186.828 14.3716C186.943 14.6306 186.986 14.9039 186.957 15.1916C186.957 15.4793 186.871 15.7815 186.698 16.0979C186.324 16.7885 185.878 17.7092 185.36 18.86C184.871 19.9821 184.368 21.2193 183.85 22.5716C183.361 23.9239 182.9 25.2618 182.469 26.5853C182.037 27.9088 181.678 29.0741 181.39 30.0811C181.217 30.7141 181.073 31.5197 180.958 32.4979C180.872 33.4762 180.8 34.4832 180.743 35.519C180.714 36.526 180.714 37.4323 180.743 38.2379C180.771 39.0147 180.814 39.5182 180.872 39.7484C181.045 40.3239 181.045 40.7554 180.872 41.0432C180.699 41.3309 180.455 41.5179 180.138 41.6042C179.822 41.7193 179.505 41.7912 179.189 41.82ZM172.068 36.5979C172.471 36.454 172.83 36.2814 173.147 36.08C173.463 35.8786 173.837 35.6197 174.269 35.3032C175.132 34.6414 175.751 34.066 176.125 33.5769C176.527 33.0877 176.844 32.4835 177.074 31.7642C177.218 31.3326 177.218 30.9586 177.074 30.6421C176.959 30.3256 176.743 30.0235 176.427 29.7358C176.11 29.4769 175.707 29.3762 175.218 29.4337C174.729 29.4625 174.168 29.7646 173.535 30.34C172.845 30.973 172.255 31.7067 171.766 32.5411C171.277 33.3755 170.874 34.5695 170.557 36.1232C170.5 36.4109 170.6 36.6123 170.859 36.7274C171.118 36.8425 171.521 36.7993 172.068 36.5979ZM191.763 40.1368C190.899 40.626 189.979 40.9137 189.001 41C188.051 41.0575 187.159 40.9281 186.325 40.6116C185.49 40.2663 184.814 39.7628 184.296 39.1011C184.009 38.727 183.735 38.1372 183.476 37.3316C183.217 36.4972 183.174 35.3751 183.347 33.9653C183.519 32.6418 183.922 31.3039 184.555 29.9516C185.217 28.5993 186.023 27.4053 186.972 26.3695C187.922 25.3337 188.957 24.6288 190.079 24.2548C190.482 24.1109 190.885 24.0102 191.288 23.9527C191.719 23.8663 192.281 23.852 192.971 23.9095C193.633 23.9958 194.223 24.1685 194.741 24.4274C195.258 24.6576 195.632 24.9165 195.863 25.2042C196.323 25.6646 196.625 26.1106 196.769 26.5421C196.913 26.9737 196.97 27.3909 196.942 27.7937C196.798 28.7144 196.38 29.707 195.69 30.7716C195.028 31.8362 194.093 32.6274 192.885 33.1453C192.396 33.3467 191.82 33.4762 191.158 33.5337C190.497 33.5912 189.59 33.5049 188.439 33.2748C187.749 33.1309 187.289 33.2028 187.058 33.4905C186.857 33.7783 186.771 34.3393 186.799 35.1737C186.857 35.6916 186.972 36.1519 187.145 36.5547C187.346 36.9288 187.706 37.1877 188.224 37.3316C188.885 37.4467 189.36 37.4611 189.648 37.3747C189.936 37.2597 190.295 37.1014 190.727 36.9C190.957 36.7561 191.173 36.5979 191.374 36.4253C191.604 36.2526 191.82 36.08 192.022 35.9074C192.252 35.7347 192.439 35.6053 192.583 35.519C192.726 35.4039 192.87 35.3319 193.014 35.3032C193.158 35.2744 193.302 35.26 193.446 35.26C193.762 35.2888 194.064 35.4614 194.352 35.7779C194.64 36.0944 194.827 36.3965 194.913 36.6842C194.913 36.9144 194.769 37.2453 194.482 37.6768C194.194 38.0797 193.805 38.5112 193.316 38.9716C192.856 39.4032 192.338 39.7916 191.763 40.1368ZM191.202 30.5127C191.403 30.4263 191.691 30.2249 192.065 29.9084C192.468 29.592 192.827 29.2611 193.144 28.9158C193.46 28.5418 193.618 28.2541 193.618 28.0527C193.618 27.7362 193.403 27.4628 192.971 27.2327C192.568 27.0025 192.036 26.9593 191.374 27.1032C191.144 27.1607 190.871 27.319 190.554 27.5779C190.238 27.8369 189.921 28.139 189.605 28.4842C189.288 28.8007 189.015 29.1172 188.785 29.4337C188.555 29.7214 188.396 29.9516 188.31 30.1242C188.425 30.2681 188.655 30.3832 189.001 30.4695C189.346 30.5558 189.72 30.599 190.123 30.599C190.554 30.599 190.914 30.5702 191.202 30.5127ZM201.731 39.8779C201.444 40.0793 201.084 40.1944 200.652 40.2232C200.25 40.2232 199.89 40.0649 199.574 39.7484C199.027 39.2305 198.552 38.2091 198.149 36.6842C197.746 35.1305 197.545 33.0302 197.545 30.3832C197.66 29.2035 197.718 28.1102 197.718 27.1032C197.746 26.0962 197.761 25.5351 197.761 25.42C198.077 25.2186 198.48 25.1611 198.969 25.2474C199.487 25.3049 199.904 25.4056 200.221 25.5495C200.509 25.6934 200.71 25.9092 200.825 26.1969C200.969 26.4846 201.055 27.0025 201.084 27.7506C201.142 28.4698 201.17 29.5776 201.17 31.0737C201.084 32.2246 201.026 33.1453 200.998 33.8358C200.969 34.5263 200.998 34.9291 201.084 35.0442C201.199 35.2456 201.257 35.3607 201.257 35.3895C201.257 35.3895 201.472 35.1737 201.904 34.7421C202.134 34.4256 202.379 34.0084 202.638 33.4905C202.925 32.9726 203.17 32.5555 203.371 32.239C203.688 31.8362 203.976 31.4477 204.235 31.0737C204.522 30.6997 204.724 30.4551 204.839 30.34C204.954 30.1098 205.098 29.8941 205.27 29.6927C205.443 29.4912 205.587 29.2898 205.702 29.0884C206.018 28.5418 206.349 28.0958 206.695 27.7506C207.04 27.3765 207.27 27.1895 207.385 27.1895C207.5 27.2758 207.716 27.2614 208.032 27.1463C208.349 27.0025 208.565 26.9306 208.68 26.9306C208.881 26.7291 209.155 26.7291 209.5 26.9306C209.615 27.0169 209.716 27.1176 209.802 27.2327C209.888 27.319 209.931 27.4197 209.931 27.5348C209.931 27.6786 209.845 28.0383 209.672 28.6137C209.529 29.1604 209.342 29.707 209.111 30.2537C208.91 30.7716 208.737 31.0737 208.593 31.16C208.593 31.16 208.55 31.2032 208.464 31.2895C208.378 31.3758 208.277 31.4765 208.162 31.5916C208.104 31.793 207.903 32.167 207.558 32.7137C207.241 33.2316 206.838 33.8358 206.349 34.5263C205.889 35.1881 205.414 35.8498 204.925 36.5116C204.436 37.1446 204.004 37.7056 203.63 38.1947C203.343 38.5975 203.012 38.9572 202.638 39.2737C202.264 39.5614 201.962 39.7628 201.731 39.8779Z" fill="#0072FF"/>
+</svg></a><nav class="pg-nav" aria-label="Site"><a href="/components" aria-current="page">Components</a><a href="/packages/react/preview/" class="pg-wide">React preview</a><a href="/#/changelog" class="pg-cl">Changelog</a></nav><span class="pg-sp"></span><button class="pg-theme" id="pg-theme" type="button" aria-label="Switch between light and dark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"></path></svg></button></div></header><main class="pg-main"><nav class="cp-crumbs" aria-label="Breadcrumb"><a href="/components">Components</a><span>/</span><a href="/components/charts">Charts and tables</a></nav><h1 class="cp-h">Line chart</h1><p class="cp-lead">Two series over time with a hover readout and toggles.</p><ul class="cp-tags"><li>App basics</li><li>HTML and React</li><li>Soft and Blueprint</li><li>Light and dark</li><li>MIT</li></ul><section class="cp-demo" aria-label="Line chart demo"><div class="cp-bar"><div class="cp-seg" role="group" aria-label="Style"><button type="button" data-style-set="bp">Blueprint</button><button type="button" data-style-set="soft">Soft</button></div><span class="sp"></span><button type="button" class="cp-btn" id="cp-replay"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"></path><path d="M3 3v5h5"></path></svg>Replay</button></div><div class="pg-demo stage-inner" style="--h-a:273px;--h-e:273px"><div class="card" data-c="line-chart">
+  <div class="stage-in"></div>
+  <template>
+<div class="lnx panel">
+  <div class="lnx-h"><div><span class="muted">Active editors</span><b class="num lnx-v">0</b></div><div class="lnx-lg"><button class="lnx-k on" data-s="0"><i style="background:var(--accent)"></i>This year</button><button class="lnx-k on" data-s="1"><i style="background:var(--faint)"></i>Last year</button></div></div>
+  <div class="lnx-ch"><svg class="lnx-svg" viewBox="0 0 320 140" preserveAspectRatio="none"></svg><div class="lnx-x"></div><div class="lnx-tt"><b class="num"></b><span></span></div></div>
+  <div class="lnx-ax muted num"><span>Jan</span><span>Mar</span><span>May</span><span>Jul</span><span>Sep</span><span>Nov</span></div>
+</div>
+  </template>
+</div>
+</div></section><nav class="cp-toc" aria-label="On this page"><a href="#install">Install</a><a href="#about">About</a><a href="#usage">Usage</a><a href="#props">Props</a><a href="#code">Code</a><a href="#questions">Questions</a></nav><section class="cp-sec" id="install"><h2>Install</h2><div class="cp-cmds"><div class="cp-cmd"><span class="k">HTML</span><code>npx designme add line-chart</code><button class="cp-copy" type="button" data-copy="npx designme add line-chart">Copy</button></div><div class="cp-cmd"><span class="k">React</span><code>npx designme add line-chart --react</code><button class="cp-copy" type="button" data-copy="npx designme add line-chart --react">Copy</button></div></div><p class="cp-note">The CLI copies the source into your project, so you own it and can change anything. The HTML version lands in <code>./designme</code> with the shared core and a <code>demo.html</code>. The React version lands in <code>src/components/designme</code> and needs React 19; it works in Next.js, Vite and Astro.</p></section><section class="cp-sec" id="about"><h2>About the line chart</h2><p>A line chart that compares a main series with one or more reference series over time, such as this year against last year. A big number above it counts up to the latest value, and a readout follows the pointer to show the value at each point. In an agent product it suits a usage or growth metric on a dashboard.</p><h3>When to use it</h3><ul><li>When you want to show a metric's trend over time next to the same period before.</li><li>When the latest value matters most and should be the headline.</li><li>When people need to read exact values by hovering, without a full analytics tool.</li></ul><h3>What it does</h3><ul><li>The first entry in <code>series</code> draws as a solid line with a soft fill; the others draw dashed for comparison.</li><li>The lines draw in from the left while the headline number counts up to the last value.</li><li>Moving the pointer shows a guide line, dots on each series and a readout with the value, the point's name from <code>points</code>, and, with <code>compareLabel</code>, the percent change between the first two series.</li><li>Legend buttons toggle each series on and off; one series always stays on.</li><li><code>range</code> fixes the bottom and top values, <code>axis</code> sets the labels along the bottom, and <code>format</code> and <code>unit</code> control how values read.</li></ul><h3>Accessibility</h3><ul><li>Each legend button uses aria-pressed to show whether its series is visible.</li><li>The SVG drawing is aria-hidden, so the headline number and legend are what a screen reader gets.</li><li>The count-up of the headline number finishes at once when the user prefers reduced motion.</li></ul></section><section class="cp-sec" id="usage"><h2>Usage in React</h2><p>After installing, import it from where the CLI put it:</p><pre class="cp-pre"><code>import { LineChart } from &#39;@/components/designme/line-chart/LineChart&#39;;</code></pre><h3>Example</h3><p>The demo above, as a React component you can copy:</p><pre class="cp-pre"><code>&#39;use client&#39;;
+// The preview from designme.dev, rebuilt from the React component: active editors this year against last year.
+import { LineChart } from &#39;./LineChart&#39;;
+
+const MONTHS = [&#39;Jan&#39;, &#39;Feb&#39;, &#39;Mar&#39;, &#39;Apr&#39;, &#39;May&#39;, &#39;Jun&#39;, &#39;Jul&#39;, &#39;Aug&#39;, &#39;Sep&#39;, &#39;Oct&#39;, &#39;Nov&#39;, &#39;Dec&#39;];
+
+export default function LineChartDemo() {
+  return (
+    &lt;div style={{ width: &#39;100%&#39; }}&gt;
+      &lt;LineChart label=&quot;Active editors&quot; unit=&quot;editors&quot; compareLabel=&quot;vs last year&quot; points={MONTHS} range={[500, 1700]}
+        series={[
+          { key: &#39;now&#39;, label: &#39;This year&#39;, values: [820, 860, 910, 980, 1040, 1130, 1210, 1180, 1320, 1460, 1540, 1620] },
+          { key: &#39;before&#39;, label: &#39;Last year&#39;, values: [610, 640, 660, 700, 690, 760, 800, 790, 850, 880, 910, 960] }
+        ]} /&gt;
+    &lt;/div&gt;
+  );
+}
+</code></pre></section><section class="cp-sec wide" id="props"><h2>Props</h2><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>label</code></td><td><code>string</code></td><td>The name over the big number, like &quot;Active editors&quot;</td></tr><tr><td><code>series</code></td><td><code>LineChartSeries[]</code></td><td>The first series is the main one: a solid line with a soft fill. The others are dashed, to compare against</td></tr><tr><td><code>points</code></td><td><code>string[]</code></td><td>One name per point, shown in the hover readout, like the months</td></tr><tr><td><code>axis</code><span class="opt"> optional</span></td><td><code>string[]</code></td><td>Labels spread along the bottom. Defaults to every other point</td></tr><tr><td><code>range</code><span class="opt"> optional</span></td><td><code>[number, number]</code></td><td>The values at the bottom and top of the chart. Defaults to the data&#39;s range with a little room</td></tr><tr><td><code>unit</code><span class="opt"> optional</span></td><td><code>string</code></td><td>What the values count, like &quot;editors&quot; in &quot;1,620 editors&quot;</td></tr><tr><td><code>compareLabel</code><span class="opt"> optional</span></td><td><code>string</code></td><td>Ends the readout&#39;s comparison of the first two series, like &quot;vs last year&quot; in &quot;+69% vs last year&quot;</td></tr><tr><td><code>format</code><span class="opt"> optional</span></td><td><code>(n: number) =&gt; string</code></td><td>Writes a value. Defaults to whole numbers like 1,620</td></tr><tr><td><code>visible</code><span class="opt"> optional</span></td><td><code>string[]</code></td><td>Keys of the series shown. Leave it out to let the legend toggle them. One always stays on</td></tr><tr><td><code>defaultVisible</code><span class="opt"> optional</span></td><td><code>string[]</code></td><td></td></tr><tr><td><code>onVisibleChange</code><span class="opt"> optional</span></td><td><code>(keys: string[]) =&gt; void</code></td><td></td></tr><tr><td><code>className</code><span class="opt"> optional</span></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec wide" id="code"><h2>Code</h2><p>The full source, as the CLI installs it. Open a file to read it.</p><details class="cp-file"><summary>LineChart.tsx<span class="l">React</span></summary><pre class="cp-pre"><code>&#39;use client&#39;;
+import { useId, useState, type PointerEvent } from &#39;react&#39;;
+import { formatCount } from &#39;../lib/chart&#39;;
+import { cx } from &#39;../lib/cx&#39;;
+import { useControllable, useTween } from &#39;../lib/hooks&#39;;
+import &#39;../designme.css&#39;;
+import &#39;./line-chart.css&#39;;
+
+export interface LineChartSeries {
+  /** Names the series in `visible` */
+  key: string;
+  /** The legend&#39;s label, like &quot;This year&quot; */
+  label: string;
+  /** One value per point, oldest first */
+  values: number[];
+  /** Defaults to the accent for the first series and a quiet grey for the others */
+  color?: string;
+}
+
+export interface LineChartProps {
+  /** The name over the big number, like &quot;Active editors&quot; */
+  label: string;
+  /** The first series is the main one: a solid line with a soft fill. The others are dashed, to compare against */
+  series: LineChartSeries[];
+  /** One name per point, shown in the hover readout, like the months */
+  points: string[];
+  /** Labels spread along the bottom. Defaults to every other point */
+  axis?: string[];
+  /** The values at the bottom and top of the chart. Defaults to the data&#39;s range with a little room */
+  range?: [number, number];
+  /** What the values count, like &quot;editors&quot; in &quot;1,620 editors&quot; */
+  unit?: string;
+  /** Ends the readout&#39;s comparison of the first two series, like &quot;vs last year&quot; in &quot;+69% vs last year&quot; */
+  compareLabel?: string;
+  /** Writes a value. Defaults to whole numbers like 1,620 */
+  format?: (n: number) =&gt; string;
+  /** Keys of the series shown. Leave it out to let the legend toggle them. One always stays on */
+  visible?: string[];
+  defaultVisible?: string[];
+  onVisibleChange?: (keys: string[]) =&gt; void;
+  className?: string;
+}
+
+const W = 320, H = 140;
+// a smooth line through the points, eased halfway between each pair, as the site draws it
+const smooth = (p: [number, number][]) =&gt; p.map((q, i) =&gt; {
+  if (!i) return `M${q[0]} ${q[1]}`;
+  const a = p[i - 1], m = (q[0] - a[0]) / 2;
+  return `C${a[0] + m} ${a[1]} ${q[0] - m} ${q[1]} ${q[0]} ${q[1]}`;
+}).join(&#39; &#39;);
+
+/** Two series over time, drawn in from the left, with a readout that follows the pointer and a legend that toggles them. */
+export function LineChart({ label, series, points, axis, range, unit, compareLabel, format = formatCount, visible, defaultVisible, onVisibleChange, className }: LineChartProps) {
+  const [on, setOn] = useControllable(visible, defaultVisible ?? series.map(s =&gt; s.key), onVisibleChange);
+  const shown = series.map(s =&gt; on.includes(s.key));
+  const n = points.length, last = Math.max(1, n - 1);
+  const all = series.flatMap(s =&gt; s.values), min = Math.min(...all), max = Math.max(...all);
+  const [lo, hi] = range ?? [min - (max - min) * .11, max + (max - min) * .08];
+  const y = (d: number) =&gt; 136 - (d - lo) / (hi - lo || 1) * 128;
+  const paths = series.map(s =&gt; s.values.map((d, i): [number, number] =&gt; [i / last * W, y(d)]));
+  const color = (k: number) =&gt; series[k].color ?? (k ? &#39;var(--dm-faint)&#39; : &#39;var(--dm-accent)&#39;);
+
+  // the lines draw in from the left while the big number counts up
+  const clip = useTween(W, 1400, 0);
+  const lead = Math.max(0, shown.indexOf(true));
+  const counted = useTween(series[lead]?.values[n - 1] ?? 0, 1400, 0);
+
+  const [at, setAt] = useState&lt;{ i: number; w: number; h: number } | null&gt;(null);
+  const [inside, setInside] = useState(false);
+  const move = (e: PointerEvent&lt;HTMLDivElement&gt;) =&gt; {
+    const b = e.currentTarget.getBoundingClientRect();
+    setAt({ i: Math.max(0, Math.min(last, Math.round((e.clientX - b.left) / b.width * last))), w: b.width, h: b.height });
+    setInside(true);
+  };
+  const toggle = (k: number) =&gt; {
+    if (shown[k] &amp;&amp; shown.filter(Boolean).length === 1) return;
+    setOn(series.filter((_, j) =&gt; (j === k ? !shown[k] : shown[j])).map(s =&gt; s.key));
+  };
+
+  const ids = useId().replace(/[^\w-]/g, &#39;&#39;);
+  const px = at ? at.i / last * at.w : 0;
+  const value = inside &amp;&amp; at ? series[lead].values[at.i] : counted;
+  const pct = at &amp;&amp; series[1] ? Math.round((series[0].values[at.i] / series[1].values[at.i] - 1) * 100) : 0;
+  const ticks = axis ?? points.filter((_, i) =&gt; i % 2 === 0);
+
+  return (
+    &lt;div data-dm=&quot;&quot; className={cx(&#39;dm-lnx dm-panel&#39;, className)}&gt;
+      &lt;div className=&quot;dm-lnx-h&quot;&gt;
+        &lt;div&gt;&lt;span className=&quot;dm-muted&quot;&gt;{label}&lt;/span&gt;&lt;b className=&quot;dm-num dm-lnx-v&quot;&gt;{format(value)}&lt;/b&gt;&lt;/div&gt;
+        &lt;div className=&quot;dm-lnx-lg&quot;&gt;
+          {series.map((s, k) =&gt; (
+            &lt;button key={s.key} type=&quot;button&quot; className={cx(&#39;dm-lnx-k&#39;, shown[k] &amp;&amp; &#39;dm-on&#39;)} aria-pressed={shown[k]} onClick={() =&gt; toggle(k)}&gt;
+              &lt;i style={{ background: color(k) }} /&gt;{s.label}
+            &lt;/button&gt;
+          ))}
+        &lt;/div&gt;
+      &lt;/div&gt;
+      &lt;div className=&quot;dm-lnx-ch&quot; onPointerMove={move} onPointerLeave={() =&gt; setInside(false)}&gt;
+        &lt;svg className=&quot;dm-lnx-svg&quot; viewBox={`0 0 ${W} ${H}`} preserveAspectRatio=&quot;none&quot; aria-hidden=&quot;true&quot;&gt;
+          &lt;defs&gt;
+            &lt;linearGradient id={ids + &#39;g&#39;} x1=&quot;0&quot; x2=&quot;0&quot; y1=&quot;0&quot; y2=&quot;1&quot;&gt;
+              &lt;stop offset=&quot;0&quot; style={{ stopColor: color(0), stopOpacity: .16 }} /&gt;
+              &lt;stop offset=&quot;1&quot; style={{ stopColor: color(0), stopOpacity: 0 }} /&gt;
+            &lt;/linearGradient&gt;
+            &lt;clipPath id={ids + &#39;c&#39;}&gt;&lt;rect x=&quot;0&quot; y=&quot;-10&quot; width={clip} height=&quot;160&quot; /&gt;&lt;/clipPath&gt;
+          &lt;/defs&gt;
+          {[35, 70, 105].map(g =&gt; &lt;line key={g} className=&quot;dm-gl&quot; x1=&quot;0&quot; x2={W} y1={g} y2={g} /&gt;)}
+          &lt;g clipPath={`url(#${ids}c)`}&gt;
+            &lt;path className=&quot;dm-ar&quot; d={`${smooth(paths[0])} L${W} ${H} L0 ${H} Z`} fill={`url(#${ids}g)`} style={{ opacity: shown[0] ? 1 : 0 }} /&gt;
+            {/* the main line goes on top */}
+            {[...series.keys()].slice(1).reverse().concat(0).map(k =&gt; (
+              &lt;path key={series[k].key} className={cx(&#39;dm-ln&#39;, !shown[k] &amp;&amp; &#39;dm-off&#39;)} d={smooth(paths[k])} style={{ stroke: color(k) }} strokeDasharray={k ? &#39;4 4&#39; : undefined} /&gt;
+            ))}
+          &lt;/g&gt;
+        &lt;/svg&gt;
+        &lt;div className=&quot;dm-lnx-x&quot; style={at ? { left: px } : undefined} /&gt;
+        &lt;div className=&quot;dm-lnx-tt&quot; style={at ? { left: Math.max(50, Math.min(px, at.w - 50)) } : undefined}&gt;
+          &lt;b className=&quot;dm-num&quot;&gt;{at &amp;&amp; `${format(series[lead].values[at.i])}${unit ? &#39; &#39; + unit : &#39;&#39;}`}&lt;/b&gt;
+          &lt;span&gt;{at &amp;&amp; points[at.i] + (compareLabel &amp;&amp; shown[0] &amp;&amp; shown[1] ? `, ${pct &lt; 0 ? &#39;−&#39; : &#39;+&#39;}${Math.abs(pct)}% ${compareLabel}` : &#39;&#39;)}&lt;/span&gt;
+        &lt;/div&gt;
+        {series.map((s, k) =&gt; (
+          &lt;span key={s.key} className={cx(&#39;dm-lnx-pt&#39;, shown[k] &amp;&amp; &#39;dm-on&#39;)} style={{ color: color(k), ...(at &amp;&amp; { left: px, top: paths[k][at.i][1] / H * at.h }) }} /&gt;
+        ))}
+      &lt;/div&gt;
+      &lt;div className=&quot;dm-lnx-ax dm-muted dm-num&quot;&gt;{ticks.map((t, i) =&gt; &lt;span key={i}&gt;{t}&lt;/span&gt;)}&lt;/div&gt;
+    &lt;/div&gt;
+  );
+}
+</code></pre></details><details class="cp-file"><summary>line-chart.css<span class="l">React</span></summary><pre class="cp-pre"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+/* ---------- Line chart ---------- */
+.dm-lnx{padding:14px;display:flex;flex-direction:column;gap:10px}
+.dm-lnx-h{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap}
+.dm-lnx-h&gt;div:first-child{display:flex;flex-direction:column;font-size:12.5px}
+.dm-lnx-v{font-size:26px;font-weight:600;letter-spacing:-.02em;color:var(--dm-fg)}
+.dm-lnx-lg{display:flex;gap:4px}
+.dm-lnx-k{display:flex;align-items:center;gap:6px;height:26px;padding:0 9px;border-radius:999px;font-size:12px;color:var(--dm-muted);transition:color .2s,background .2s}
+.dm-lnx-k:hover{background:var(--dm-chip)}
+.dm-lnx-k.dm-on{color:var(--dm-fg)}
+.dm-lnx-k i{width:8px;height:8px;border-radius:50%;transition:transform .3s var(--dm-ease),opacity .3s}
+.dm-lnx-k:not(.dm-on) i{opacity:.3;transform:scale(.6)}
+.dm-lnx-ch{position:relative;height:150px}
+.dm-lnx-svg{width:100%;height:100%;display:block;overflow:visible}
+.dm-lnx-svg .dm-gl{stroke:var(--dm-line);stroke-width:1;vector-effect:non-scaling-stroke}
+.dm-lnx-svg .dm-ln{fill:none;stroke-width:2;vector-effect:non-scaling-stroke;stroke-linejoin:round;stroke-linecap:round;transition:opacity .4s}
+.dm-lnx-svg .dm-ln.dm-off{opacity:0}
+.dm-lnx-svg .dm-ar{transition:opacity .4s}
+.dm-lnx-x{position:absolute;top:0;bottom:0;width:1px;background:var(--dm-faint);opacity:0;transition:opacity .2s;pointer-events:none}
+.dm-lnx-tt{position:absolute;top:-6px;padding:6px 9px;border-radius:10px;background:var(--dm-ink);color:var(--dm-on-ink);font-size:11.5px;display:flex;flex-direction:column;opacity:0;transform:translate(-50%,-100%) translateY(4px);transition:opacity .2s,transform .25s var(--dm-ease);pointer-events:none;white-space:nowrap}
+.dm-lnx-tt span{opacity:.7}
+.dm-lnx-ch:hover .dm-lnx-x,.dm-lnx-ch:hover .dm-lnx-tt{opacity:1}
+.dm-lnx-ch:hover .dm-lnx-tt{transform:translate(-50%,-100%)}
+.dm-lnx-pt{position:absolute;width:9px;height:9px;margin:-4.5px;border-radius:50%;background:var(--dm-surface);box-shadow:0 0 0 2px currentColor;opacity:0;transition:opacity .2s;pointer-events:none}
+.dm-lnx-ch:hover .dm-lnx-pt.dm-on{opacity:1}
+.dm-lnx-ax{display:flex;justify-content:space-between;font-size:11px}
+</code></pre></details><details class="cp-file"><summary>line-chart.html<span class="l">HTML</span></summary><pre class="cp-pre"><code>&lt;div class=&quot;card&quot; data-c=&quot;line-chart&quot;&gt;
+  &lt;div class=&quot;stage-in&quot;&gt;&lt;/div&gt;
+  &lt;template&gt;
+&lt;div class=&quot;lnx panel&quot;&gt;
+  &lt;div class=&quot;lnx-h&quot;&gt;&lt;div&gt;&lt;span class=&quot;muted&quot;&gt;Active editors&lt;/span&gt;&lt;b class=&quot;num lnx-v&quot;&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;lnx-lg&quot;&gt;&lt;button class=&quot;lnx-k on&quot; data-s=&quot;0&quot;&gt;&lt;i style=&quot;background:var(--accent)&quot;&gt;&lt;/i&gt;This year&lt;/button&gt;&lt;button class=&quot;lnx-k on&quot; data-s=&quot;1&quot;&gt;&lt;i style=&quot;background:var(--faint)&quot;&gt;&lt;/i&gt;Last year&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;
+  &lt;div class=&quot;lnx-ch&quot;&gt;&lt;svg class=&quot;lnx-svg&quot; viewBox=&quot;0 0 320 140&quot; preserveAspectRatio=&quot;none&quot;&gt;&lt;/svg&gt;&lt;div class=&quot;lnx-x&quot;&gt;&lt;/div&gt;&lt;div class=&quot;lnx-tt&quot;&gt;&lt;b class=&quot;num&quot;&gt;&lt;/b&gt;&lt;span&gt;&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;
+  &lt;div class=&quot;lnx-ax muted num&quot;&gt;&lt;span&gt;Jan&lt;/span&gt;&lt;span&gt;Mar&lt;/span&gt;&lt;span&gt;May&lt;/span&gt;&lt;span&gt;Jul&lt;/span&gt;&lt;span&gt;Sep&lt;/span&gt;&lt;span&gt;Nov&lt;/span&gt;&lt;/div&gt;
+&lt;/div&gt;
+  &lt;/template&gt;
+&lt;/div&gt;
+</code></pre></details><details class="cp-file"><summary>line-chart.css<span class="l">HTML</span></summary><pre class="cp-pre"><code>/* ---------- Line chart ---------- */
+.lnx{padding:14px;display:flex;flex-direction:column;gap:10px}
+.lnx-h{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap}
+.lnx-h&gt;div:first-child{display:flex;flex-direction:column;font-size:12.5px}
+.lnx-v{font-size:26px;font-weight:600;letter-spacing:-.02em;color:var(--fg)}
+.lnx-lg{display:flex;gap:4px}
+.lnx-k{display:flex;align-items:center;gap:6px;height:26px;padding:0 9px;border-radius:999px;font-size:12px;color:var(--muted);transition:color .2s,background .2s}
+.lnx-k:hover{background:var(--chip)}
+.lnx-k.on{color:var(--fg)}
+.lnx-k i{width:8px;height:8px;border-radius:50%;transition:transform .3s var(--ease),opacity .3s}
+.lnx-k:not(.on) i{opacity:.3;transform:scale(.6)}
+.lnx-ch{position:relative;height:150px}
+.lnx-svg{width:100%;height:100%;display:block;overflow:visible}
+.lnx-svg .gl{stroke:var(--line);stroke-width:1;vector-effect:non-scaling-stroke}
+.lnx-svg .ln{fill:none;stroke-width:2;vector-effect:non-scaling-stroke;stroke-linejoin:round;stroke-linecap:round;transition:opacity .4s}
+.lnx-svg .ln.off{opacity:0}
+.lnx-svg .ar{transition:opacity .4s}
+.lnx-x{position:absolute;top:0;bottom:0;width:1px;background:var(--faint);opacity:0;transition:opacity .2s;pointer-events:none}
+.lnx-tt{position:absolute;top:-6px;padding:6px 9px;border-radius:10px;background:var(--ink);color:var(--on-ink);font-size:11.5px;display:flex;flex-direction:column;opacity:0;transform:translate(-50%,-100%) translateY(4px);transition:opacity .2s,transform .25s var(--ease);pointer-events:none;white-space:nowrap}
+.lnx-tt span{opacity:.7}
+.lnx-ch:hover .lnx-x,.lnx-ch:hover .lnx-tt{opacity:1}
+.lnx-ch:hover .lnx-tt{transform:translate(-50%,-100%)}
+.lnx-pt{position:absolute;width:9px;height:9px;margin:-4.5px;border-radius:50%;background:var(--surface);box-shadow:0 0 0 2px currentColor;opacity:0;transition:opacity .2s;pointer-events:none}
+.lnx-ch:hover .lnx-pt.on{opacity:1}
+.lnx-ax{display:flex;justify-content:space-between;font-size:11px}
+</code></pre></details><details class="cp-file"><summary>line-chart.js<span class="l">HTML</span></summary><pre class="cp-pre"><code>DM.def(&#39;line-chart&#39;, (r, c) =&gt; {
+  const A = [820,860,910,980,1040,1130,1210,1180,1320,1460,1540,1620], B = [610,640,660,700,690,760,800,790,850,880,910,960];
+  const MO = [&#39;Jan&#39;,&#39;Feb&#39;,&#39;Mar&#39;,&#39;Apr&#39;,&#39;May&#39;,&#39;Jun&#39;,&#39;Jul&#39;,&#39;Aug&#39;,&#39;Sep&#39;,&#39;Oct&#39;,&#39;Nov&#39;,&#39;Dec&#39;];
+  const svg = $(&#39;.lnx-svg&#39;, r), ch = $(&#39;.lnx-ch&#39;, r), x = $(&#39;.lnx-x&#39;, r), tt = $(&#39;.lnx-tt&#39;, r), v = $(&#39;.lnx-v&#39;, r);
+  const lo = 500, hi = 1700, P = s =&gt; s.map((d, i) =&gt; [i / 11 * 320, 136 - (d - lo) / (hi - lo) * 128]);
+  const smooth = p =&gt; p.map((q, i) =&gt; { if (!i) return `M${q[0]} ${q[1]}`; const a = p[i - 1], m = (q[0] - a[0]) / 2; return `C${a[0] + m} ${a[1]} ${q[0] - m} ${q[1]} ${q[0]} ${q[1]}`; }).join(&#39; &#39;);
+  const pa = P(A), pb = P(B);
+  svg.innerHTML = `&lt;defs&gt;&lt;linearGradient id=&quot;lng&quot; x1=&quot;0&quot; x2=&quot;0&quot; y1=&quot;0&quot; y2=&quot;1&quot;&gt;&lt;stop offset=&quot;0&quot; stop-color=&quot;var(--accent)&quot; stop-opacity=&quot;.16&quot;/&gt;&lt;stop offset=&quot;1&quot; stop-color=&quot;var(--accent)&quot; stop-opacity=&quot;0&quot;/&gt;&lt;/linearGradient&gt;&lt;clipPath id=&quot;lnc&quot;&gt;&lt;rect class=&quot;lnr&quot; x=&quot;0&quot; y=&quot;-10&quot; width=&quot;0&quot; height=&quot;160&quot;/&gt;&lt;/clipPath&gt;&lt;/defs&gt;` +
+    [35, 70, 105].map(y =&gt; `&lt;line class=&quot;gl&quot; x1=&quot;0&quot; x2=&quot;320&quot; y1=&quot;${y}&quot; y2=&quot;${y}&quot;/&gt;`).join(&#39;&#39;) +
+    `&lt;g clip-path=&quot;url(#lnc)&quot;&gt;&lt;path class=&quot;ar&quot; d=&quot;${smooth(pa)} L320 140 L0 140 Z&quot; fill=&quot;url(#lng)&quot;/&gt;&lt;path class=&quot;ln l1&quot; d=&quot;${smooth(pb)}&quot; stroke=&quot;var(--faint)&quot; stroke-dasharray=&quot;4 4&quot;/&gt;&lt;path class=&quot;ln l0&quot; d=&quot;${smooth(pa)}&quot; stroke=&quot;var(--accent)&quot;/&gt;&lt;/g&gt;`;
+  ch.insertAdjacentHTML(&#39;beforeend&#39;, &#39;&lt;span class=&quot;lnx-pt on&quot; style=&quot;color:var(--accent)&quot;&gt;&lt;/span&gt;&lt;span class=&quot;lnx-pt on&quot; style=&quot;color:var(--faint)&quot;&gt;&lt;/span&gt;&#39;);
+  const pts = $$(&#39;.lnx-pt&#39;, ch), on = [true, true];
+  // the line draws and the number counts once the chart has risen into view, so the draw is seen from its start
+  v.textContent = &#39;0&#39;;
+  c.later(260, () =&gt; {
+    tween(0, 320, 1300, w =&gt; $(&#39;.lnr&#39;, svg).setAttribute(&#39;width&#39;, w), t =&gt; t &lt; .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+    tween(0, A[11], 1300, n =&gt; v.textContent = Math.round(n).toLocaleString(&#39;en-US&#39;));
+  });
+  c.on(ch, &#39;pointermove&#39;, e =&gt; { const b = ch.getBoundingClientRect(); const i = Math.max(0, Math.min(11, Math.round((e.clientX - b.left) / b.width * 11))); const px = i / 11 * b.width;
+    x.style.left = px + &#39;px&#39;; tt.style.left = Math.max(50, Math.min(px, b.width - 50)) + &#39;px&#39;;
+    [pa, pb].forEach((p, k) =&gt; { pts[k].style.left = px + &#39;px&#39;; pts[k].style.top = p[i][1] / 140 * b.height + &#39;px&#39;; pts[k].classList.toggle(&#39;on&#39;, on[k]); });
+    $(&#39;b&#39;, tt).textContent = (on[0] ? A[i].toLocaleString(&#39;en-US&#39;) : B[i].toLocaleString(&#39;en-US&#39;)) + &#39; editors&#39;; const dv = Math.round((A[i] / B[i] - 1) * 100); $(&#39;span&#39;, tt).textContent = MO[i] + (on[0] &amp;&amp; on[1] ? &#39;, &#39; + (dv &lt; 0 ? &#39;−&#39; : &#39;+&#39;) + Math.abs(dv) + &#39;% vs last year&#39; : &#39;&#39;);
+    v.textContent = (on[0] ? A[i] : B[i]).toLocaleString(&#39;en-US&#39;); });
+  c.on(ch, &#39;pointerleave&#39;, () =&gt; v.textContent = (on[0] ? A[11] : B[11]).toLocaleString(&#39;en-US&#39;));
+  $$(&#39;.lnx-k&#39;, r).forEach(k =&gt; k.onclick = () =&gt; { const s = +k.dataset.s; if (on[s] &amp;&amp; !on[1 - s]) return; on[s] = !on[s]; k.classList.toggle(&#39;on&#39;, on[s]); $(&#39;.l&#39; + s, svg).classList.toggle(&#39;off&#39;, !on[s]); if (s === 0) $(&#39;.ar&#39;, svg).style.opacity = on[0] ? 1 : 0;
+    // the big number rolls to the latest value of the line that is showing
+    const from = +v.textContent.replace(/,/g, &#39;&#39;), to = on[0] ? A[11] : B[11]; if (from !== to) tween(from, to, 600, n =&gt; v.textContent = Math.round(n).toLocaleString(&#39;en-US&#39;)); });
+});
+</code></pre></details></section><section class="cp-sec" id="questions"><h2>Questions</h2><dl class="cp-faq"><dt>How do I show "+69% vs last year" in the readout?</dt><dd>Pass <code>compareLabel</code>, like "vs last year". The readout then adds the percent change of the first series against the second at the hovered point, as long as both are visible.</dd><dt>Can I plot more than two series?</dt><dd>Yes. <code>series</code> takes any number; the first is the solid main line and the rest are dashed. The percent comparison only uses the first two.</dd><dt>How do I keep the y-axis from starting near the lowest value?</dt><dd>Pass <code>range</code> as [bottom, top]. Without it, the chart uses the data's range with a little room above and below.</dd><dt>Can I control which series are visible?</dt><dd>Yes. Pass <code>visible</code> with the keys to show and handle <code>onVisibleChange</code>, or use <code>defaultVisible</code> and let the legend manage it.</dd></dl></section><section class="cp-sec wide"><h2>More in Charts and tables</h2><div class="cp-rel"><a href="/components/bar-chart"><b>Bar chart</b><span>Weekly agent runs, split by outcome, with a range switch.</span></a><a href="/components/donut-chart"><b>Donut chart</b><span>Where the agent&#39;s time went, by kind of task.</span></a><a href="/components/funnel-chart"><b>Funnel chart</b><span>Signup to paid, with the biggest drop called out by the agent.</span></a><a href="/components/top-pages"><b>Top pages</b><span>Most visited pages with share of traffic and a quick sort.</span></a><a href="/components/health-score"><b>Health score</b><span>A design system score made of a few checks you can open.</span></a><a href="/components/activity-heatmap"><b>Activity heatmap</b><span>When the agent and the team were busy, by day and hour.</span></a><a href="/components/stat-cards"><b>Stat cards</b><span>Four headline numbers with sparklines and a period switch.</span></a><a href="/components/account-table"><b>Account table</b><span>Customer accounts with health, plan and an agent note per row.</span></a></div></section><nav class="cp-pn" aria-label="Previous and next component"><a href="/components/agent-harness" rel="prev"><span class="k">Previous</span><b>Agent harness</b></a><a href="/components/bar-chart" rel="next" class="n"><span class="k">Next</span><b>Bar chart</b></a></nav></main><footer class="pg-foot"><div class="pg-foot-in"><span>Free and MIT licensed. Built by <a href="https://designme.agency">DesignMe</a>.</span><nav aria-label="More"><a href="/components">All components</a><a href="/#/changelog">Changelog</a><a href="/llms.txt">llms.txt</a><a href="/r/index.json">Registry</a><a href="/">Home</a></nav></div></footer><script>
+// light and dark, shared with the rest of the site through the same saved setting
+(function(){
+  var root = document.documentElement, mq = matchMedia('(prefers-color-scheme: dark)');
+  var cur = function(){ return root.getAttribute('data-theme') || (mq.matches ? 'dark' : 'light'); };
+  document.getElementById('pg-theme').addEventListener('click', function(){
+    var next = cur() === 'dark' ? 'light' : 'dark', sys = mq.matches ? 'dark' : 'light';
+    if (next === sys){ root.removeAttribute('data-theme'); try { localStorage.removeItem('dmui-theme'); } catch(e){} }
+    else { root.setAttribute('data-theme', next); try { localStorage.setItem('dmui-theme', next); } catch(e){} }
+  });
+})();
+</script><script src="/components/assets/core.js"></script><script>DM.def('line-chart', (r, c) => {
+  const A = [820,860,910,980,1040,1130,1210,1180,1320,1460,1540,1620], B = [610,640,660,700,690,760,800,790,850,880,910,960];
+  const MO = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const svg = $('.lnx-svg', r), ch = $('.lnx-ch', r), x = $('.lnx-x', r), tt = $('.lnx-tt', r), v = $('.lnx-v', r);
+  const lo = 500, hi = 1700, P = s => s.map((d, i) => [i / 11 * 320, 136 - (d - lo) / (hi - lo) * 128]);
+  const smooth = p => p.map((q, i) => { if (!i) return `M${q[0]} ${q[1]}`; const a = p[i - 1], m = (q[0] - a[0]) / 2; return `C${a[0] + m} ${a[1]} ${q[0] - m} ${q[1]} ${q[0]} ${q[1]}`; }).join(' ');
+  const pa = P(A), pb = P(B);
+  svg.innerHTML = `<defs><linearGradient id="lng" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="var(--accent)" stop-opacity=".16"/><stop offset="1" stop-color="var(--accent)" stop-opacity="0"/></linearGradient><clipPath id="lnc"><rect class="lnr" x="0" y="-10" width="0" height="160"/></clipPath></defs>` +
+    [35, 70, 105].map(y => `<line class="gl" x1="0" x2="320" y1="${y}" y2="${y}"/>`).join('') +
+    `<g clip-path="url(#lnc)"><path class="ar" d="${smooth(pa)} L320 140 L0 140 Z" fill="url(#lng)"/><path class="ln l1" d="${smooth(pb)}" stroke="var(--faint)" stroke-dasharray="4 4"/><path class="ln l0" d="${smooth(pa)}" stroke="var(--accent)"/></g>`;
+  ch.insertAdjacentHTML('beforeend', '<span class="lnx-pt on" style="color:var(--accent)"></span><span class="lnx-pt on" style="color:var(--faint)"></span>');
+  const pts = $$('.lnx-pt', ch), on = [true, true];
+  // the line draws and the number counts once the chart has risen into view, so the draw is seen from its start
+  v.textContent = '0';
+  c.later(260, () => {
+    tween(0, 320, 1300, w => $('.lnr', svg).setAttribute('width', w), t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+    tween(0, A[11], 1300, n => v.textContent = Math.round(n).toLocaleString('en-US'));
+  });
+  c.on(ch, 'pointermove', e => { const b = ch.getBoundingClientRect(); const i = Math.max(0, Math.min(11, Math.round((e.clientX - b.left) / b.width * 11))); const px = i / 11 * b.width;
+    x.style.left = px + 'px'; tt.style.left = Math.max(50, Math.min(px, b.width - 50)) + 'px';
+    [pa, pb].forEach((p, k) => { pts[k].style.left = px + 'px'; pts[k].style.top = p[i][1] / 140 * b.height + 'px'; pts[k].classList.toggle('on', on[k]); });
+    $('b', tt).textContent = (on[0] ? A[i].toLocaleString('en-US') : B[i].toLocaleString('en-US')) + ' editors'; const dv = Math.round((A[i] / B[i] - 1) * 100); $('span', tt).textContent = MO[i] + (on[0] && on[1] ? ', ' + (dv < 0 ? '−' : '+') + Math.abs(dv) + '% vs last year' : '');
+    v.textContent = (on[0] ? A[i] : B[i]).toLocaleString('en-US'); });
+  c.on(ch, 'pointerleave', () => v.textContent = (on[0] ? A[11] : B[11]).toLocaleString('en-US'));
+  $$('.lnx-k', r).forEach(k => k.onclick = () => { const s = +k.dataset.s; if (on[s] && !on[1 - s]) return; on[s] = !on[s]; k.classList.toggle('on', on[s]); $('.l' + s, svg).classList.toggle('off', !on[s]); if (s === 0) $('.ar', svg).style.opacity = on[0] ? 1 : 0;
+    // the big number rolls to the latest value of the line that is showing
+    const from = +v.textContent.replace(/,/g, ''), to = on[0] ? A[11] : B[11]; if (from !== to) tween(from, to, 600, n => v.textContent = Math.round(n).toLocaleString('en-US')); });
+});
+</script><script>
+    (function(){
+      var root = document.documentElement, card = document.querySelector('.pg-demo > .card[data-c]');
+      // Blueprint or Soft, shared with the rest of the site; the demo starts again in the new style
+      var mark = function(){ var soft = root.getAttribute('data-style') === 'soft'; document.querySelectorAll('[data-style-set]').forEach(function(b){ b.setAttribute('aria-pressed', String((b.dataset.styleSet === 'soft') === soft)); }); };
+      document.querySelectorAll('[data-style-set]').forEach(function(b){ b.addEventListener('click', function(){
+        if (b.getAttribute('aria-pressed') === 'true') return;
+        if (b.dataset.styleSet === 'soft') root.setAttribute('data-style', 'soft'); else root.removeAttribute('data-style');
+        try { localStorage.setItem('dmui-style', b.dataset.styleSet === 'soft' ? 'soft' : 'bp'); } catch(e){}
+        mark(); if (card && window.DM) DM.mount(card);
+      }); });
+      mark();
+      document.getElementById('cp-replay').addEventListener('click', function(){ if (card && typeof DM !== 'undefined') DM.mount(card); });
+      document.querySelectorAll('[data-copy]').forEach(function(b){ b.addEventListener('click', function(){
+        var done = function(){ b.textContent = 'Copied'; setTimeout(function(){ b.textContent = 'Copy'; }, 1400); };
+        if (navigator.clipboard) navigator.clipboard.writeText(b.dataset.copy).then(done, function(){}); });
+      });
+    })();
+    </script></body></html>

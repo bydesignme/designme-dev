@@ -1,0 +1,35 @@
+{
+  "summary": "Response versions shows an agent's answer with a small bar under it to page through earlier versions, regenerate it and copy it. Each regenerated answer is kept as a new version, so the person can compare it with the ones before and keep the one they like.",
+  "use": [
+    "When people regenerate answers and want to go back to an earlier one instead of losing it.",
+    "When you want a new version to stream in where the old one was, with a counter like 2 / 3.",
+    "When an answer sits in a chat thread and needs copy and regenerate controls right under it."
+  ],
+  "features": [
+    "`versions` holds every version, oldest first. Previous and next arrows page through them with a counter between, and the current one can be controlled with `version` and `onVersionChange`.",
+    "Switching versions fades the old text out, then the new one comes in word by word.",
+    "While `streaming` is true, words fade in as they arrive, the arrows are disabled and regenerate does nothing.",
+    "`onRegenerate` adds a Regenerate button that spins when pressed. You add the new version and show it.",
+    "Copy puts the shown version on the clipboard, confirms with a check and calls `onCopy` with the text.",
+    "`status` shows quiet text beside the buttons, like \"Writing a new version\", and shimmers while streaming. `prompt` adds the person's message as a bubble above, and `bare={false}` gives the answer its own card."
+  ],
+  "a11y": [
+    "The answer text is an `aria-live=\"polite\"` region.",
+    "The arrows are labelled \"Previous version\" and \"Next version\", and Regenerate and Copy have `aria-label`s too.",
+    "With `prefers-reduced-motion: reduce`, switching versions skips the fade-out delay."
+  ],
+  "faq": [
+    {
+      "q": "How do I stream a regenerated answer into a new version?",
+      "a": "In `onRegenerate`, append an empty string to `versions`, set `version` to its index and `streaming` to true, then update that string as tokens arrive. Set `streaming` back to false when it is done."
+    },
+    {
+      "q": "Why are the arrows greyed out?",
+      "a": "They are disabled while `streaming` is true, and at the first or last version. That keeps people from paging away from an answer that is still being written."
+    },
+    {
+      "q": "Can the answer contain formatting like lists or code?",
+      "a": "No. Each version is a plain string, split into words for the fade-in, so markup is shown as text."
+    }
+  ]
+}

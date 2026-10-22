@@ -1,0 +1,102 @@
+---
+// The frame every page shares: head and metadata, the header with the logo, and the footer.
+// Colours are --pg- tokens, so they never collide with the components' own tokens on the same page.
+import { LOGO, SITE } from '../lib/data.mjs';
+const { title, description, path, jsonld = [], image = '/og.png' } = Astro.props;
+const url = SITE + path;
+---
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{title}</title>
+<meta name="description" content={description}>
+<link rel="canonical" href={url}>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Designme.dev">
+<meta property="og:title" content={title}>
+<meta property="og:description" content={description}>
+<meta property="og:url" content={url}>
+<meta property="og:image" content={SITE + image}>
+<meta name="twitter:card" content="summary_large_image">
+<link rel="alternate" type="text/plain" title="All components for AI tools" href="/llms.txt">
+<link rel="preload" href="/fonts/inter-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/inter-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin>
+<script is:inline>try{var t=localStorage.getItem('dmui-theme');if(t)document.documentElement.setAttribute('data-theme',t);var s=localStorage.getItem('dmui-style');if(s)document.documentElement.setAttribute('data-style',s)}catch(e){}</script>
+{jsonld.map(j => <script type="application/ld+json" is:inline set:html={JSON.stringify(j)} />)}
+<slot name="head" />
+<style is:inline>
+@font-face{font-family:Inter;font-style:normal;font-weight:400;font-display:swap;src:url(/fonts/inter-latin-400-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:Inter;font-style:normal;font-weight:500;font-display:swap;src:url(/fonts/inter-latin-500-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:Inter;font-style:normal;font-weight:600;font-display:swap;src:url(/fonts/inter-latin-600-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:Inter;font-style:normal;font-weight:700;font-display:swap;src:url(/fonts/inter-latin-700-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"JetBrains Mono";font-style:normal;font-weight:500;font-display:swap;src:url(/fonts/jetbrains-mono-latin-500-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+</style>
+<style is:global>
+:root{--pg-bg:#fff;--pg-fg:#111318;--pg-dim:#5b5f6b;--pg-muted:#8b8f99;--pg-line:rgba(17,19,24,.08);--pg-line2:rgba(17,19,24,.14);--pg-soft:#fafafa;--pg-chip:#f1f1f3;--pg-ink:#111318;--pg-on-ink:#fff;--pg-link:#116ff8;
+  --pg-sans:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;--pg-mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--pg-bg:#0b0c0f;--pg-fg:#ededee;--pg-dim:#a1a3ab;--pg-muted:#76787f;--pg-line:rgba(255,255,255,.08);--pg-line2:rgba(255,255,255,.14);--pg-soft:#131418;--pg-chip:rgba(255,255,255,.06);--pg-ink:#f5f5f4;--pg-on-ink:#111318;--pg-link:#6aa8ff;color-scheme:dark}}
+:root[data-theme="dark"]{--pg-bg:#0b0c0f;--pg-fg:#ededee;--pg-dim:#a1a3ab;--pg-muted:#76787f;--pg-line:rgba(255,255,255,.08);--pg-line2:rgba(255,255,255,.14);--pg-soft:#131418;--pg-chip:rgba(255,255,255,.06);--pg-ink:#f5f5f4;--pg-on-ink:#111318;--pg-link:#6aa8ff;color-scheme:dark}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--pg-bg);color:var(--pg-fg);font:15px/1.6 var(--pg-sans);-webkit-font-smoothing:antialiased}
+a{color:inherit}
+.pg-top{position:sticky;top:0;z-index:50;background:color-mix(in srgb,var(--pg-bg) 88%,transparent);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-bottom:1px solid var(--pg-line)}
+.pg-top-in{max-width:1180px;margin:0 auto;padding:12px 24px;display:flex;align-items:center;gap:28px}
+.pg-logo{display:block;color:var(--pg-fg)}
+.pg-logo svg{display:block;height:21px;width:auto}
+.pg-nav{display:flex;gap:22px;font-size:14px}
+.pg-nav a{color:var(--pg-dim);text-decoration:none;transition:color .2s}
+.pg-nav a:hover,.pg-nav a[aria-current="page"]{color:var(--pg-fg)}
+.pg-top .pg-sp{flex:1}
+.pg-theme{display:grid;place-items:center;width:34px;height:34px;border-radius:999px;border:0;background:none;color:var(--pg-dim);cursor:pointer}
+.pg-theme:hover{background:var(--pg-chip);color:var(--pg-fg)}
+.pg-theme svg{width:17px;height:17px}
+.pg-main{max-width:1180px;margin:0 auto;padding:36px 24px 96px}
+.pg-foot{border-top:1px solid var(--pg-line);color:var(--pg-dim);font-size:13px}
+.pg-foot-in{max-width:1180px;margin:0 auto;padding:28px 24px 40px;display:flex;flex-wrap:wrap;gap:10px 24px;justify-content:space-between}
+.pg-foot nav{display:flex;flex-wrap:wrap;gap:18px}
+.pg-foot a{color:var(--pg-dim);text-decoration:none}
+.pg-foot a:hover{color:var(--pg-fg)}
+:focus-visible{outline:2px solid var(--pg-fg);outline-offset:2px}
+@media (max-width:640px){.pg-top-in{padding:10px 16px;gap:14px}.pg-logo svg{height:18px}.pg-nav{gap:14px}.pg-nav .pg-wide{display:none}.pg-main{padding:24px 16px 72px}.pg-foot-in{padding:24px 16px 32px}}
+@media (max-width:380px){.pg-nav .pg-cl{display:none}}
+</style>
+</head>
+<body>
+<header class="pg-top"><div class="pg-top-in">
+  <a class="pg-logo" href="/" aria-label="Designme.dev home" set:html={LOGO} />
+  <nav class="pg-nav" aria-label="Site">
+    <a href="/components" aria-current={path.startsWith('/components') ? 'page' : undefined}>Components</a>
+    <a href="/packages/react/preview/" class="pg-wide">React preview</a>
+    <a href="/#/changelog" class="pg-cl">Changelog</a>
+  </nav>
+  <span class="pg-sp"></span>
+  <button class="pg-theme" id="pg-theme" type="button" aria-label="Switch between light and dark">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+  </button>
+</div></header>
+<main class="pg-main"><slot /></main>
+<footer class="pg-foot"><div class="pg-foot-in">
+  <span>Free and MIT licensed. Built by <a href="https://designme.agency">DesignMe</a>.</span>
+  <nav aria-label="More"><a href="/components">All components</a><a href="/#/changelog">Changelog</a><a href="/llms.txt">llms.txt</a><a href="/r/index.json">Registry</a><a href="/">Home</a></nav>
+</div></footer>
+<script is:inline>
+// light and dark, shared with the rest of the site through the same saved setting
+(function(){
+  var root = document.documentElement, mq = matchMedia('(prefers-color-scheme: dark)');
+  var cur = function(){ return root.getAttribute('data-theme') || (mq.matches ? 'dark' : 'light'); };
+  document.getElementById('pg-theme').addEventListener('click', function(){
+    var next = cur() === 'dark' ? 'light' : 'dark', sys = mq.matches ? 'dark' : 'light';
+    if (next === sys){ root.removeAttribute('data-theme'); try { localStorage.removeItem('dmui-theme'); } catch(e){} }
+    else { root.setAttribute('data-theme', next); try { localStorage.setItem('dmui-theme', next); } catch(e){} }
+  });
+})();
+</script>
+<slot name="end" />
+</body>
+</html>

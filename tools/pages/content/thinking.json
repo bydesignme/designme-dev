@@ -1,0 +1,37 @@
+{
+  "summary": "Thinking shows an agent's reasoning as a live list of steps while it works, under a header that reads \"Thinking\" and counts the seconds. When the agent finishes, the header changes to \"Thought for Ns\" and the trace folds away, a click away for anyone who wants to read it.",
+  "use": [
+    "When your agent takes several seconds before it answers and people should see that it is making progress.",
+    "When you want to show which files and pages the agent read on the way.",
+    "When dead ends are worth showing, so people understand why the agent took the path it did.",
+    "When the reasoning should stay available after the answer without taking up room."
+  ],
+  "features": [
+    "Each step has a `label` and a `state`. Running steps shimmer and their label can change in place, like \"Reading 2 of 6\". Done steps settle, and dead steps get a cross for a path that went nowhere.",
+    "A finished step keeps a dot, a search glass or a hollow ring, set with `mark`, and `sub` indents a step under the one before it.",
+    "Steps can show `sources` as file and link chips, with extra ones behind a \"+N more\" chip that lists them in its tooltip.",
+    "While `running` is true, the header shimmers and counts seconds, unless you pass `seconds`.",
+    "Once it stops running, `summary` adds a \"Finished thinking\" line, and with `collapseWhenDone` on (the default) the trace folds itself away about two seconds later.",
+    "Clicking the header opens and closes the trace, and `open`, `defaultOpen` and `onOpenChange` let you control it."
+  ],
+  "a11y": [
+    "The header is a button with `aria-expanded`.",
+    "The step list is an `aria-live=\"polite\"` region, so new steps are announced as they arrive.",
+    "When folded, the trace is `inert` and `aria-hidden`.",
+    "With `prefers-reduced-motion: reduce`, step labels change without the blur animation and other motion is cut to near zero."
+  ],
+  "faq": [
+    {
+      "q": "How do I update a step while it is still running?",
+      "a": "Keep the steps in state and replace the running step's `label`, for example with a count. While it shimmers, the new words simply replace the old ones. When you set `state` to 'done', the final label settles in with a short sharpen."
+    },
+    {
+      "q": "Can I keep the trace open after the agent finishes?",
+      "a": "Yes. Set `collapseWhenDone={false}`, or control `open` yourself."
+    },
+    {
+      "q": "How is this different from the reasoning trail?",
+      "a": "Thinking is the live view while the agent works and folds away when it is done. Reasoning trail lays out the plan, notes, sources and edits after the agent has finished."
+    }
+  ]
+}

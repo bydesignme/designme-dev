@@ -1,0 +1,40 @@
+{
+  "summary": "Field extraction shows a document next to the fields an agent reads from it, such as an invoice number, date and total. Each field shows how sure the agent is, lights up the part of the page it came from, and asks the person to check it when confidence is low.",
+  "use": [
+    "When an agent pulls structured data out of invoices, receipts, forms or contracts.",
+    "When people need to see where on the page each value came from.",
+    "When low-confidence values should be checked by a person before the data is saved.",
+    "When the result goes on to another tool, like a spreadsheet, once everything is confirmed."
+  ],
+  "features": [
+    "Wrap parts of your `page` in `FieldZone` with a field key. The zone lights up when its field arrives, when the field is hovered and while it is checked.",
+    "Each field shows a `label`, a `value` and a confidence bar. Fields under 0.6 confidence show a Check button and mark their zone.",
+    "Check turns the value into an editable field, prefilled with `suggestion` if given. Enter or clicking away confirms and calls `onFix(key, value)`.",
+    "Set `fixed` on a checked field and it shows \"Fixed\" with a full bar.",
+    "`reading` sends a scan line down the page each time it turns true, and the status line crossfades as `status` changes.",
+    "The send button stays disabled until reading has stopped and every field is sure or fixed. `sendState` moves it through idle, sending and sent."
+  ],
+  "a11y": [
+    "The value being checked is an editable `role=\"textbox\"` with `aria-label=\"Value\"`, focused when it opens. Enter confirms it.",
+    "The scan line is `aria-hidden`.",
+    "The send button is a disabled button while fields still need checking."
+  ],
+  "faq": [
+    {
+      "q": "How do I link a field to the spot on the page it came from?",
+      "a": "Wrap that part of the page in `<FieldZone field=\"key\">` using the same `key` as the field. The component handles the highlight."
+    },
+    {
+      "q": "What counts as a field that needs checking?",
+      "a": "Any field with `confidence` below 0.6 that is not marked `fixed`. Those fields block the send button until the person checks them."
+    },
+    {
+      "q": "Does checking a field update its value by itself?",
+      "a": "No. It calls `onFix` with the key and the typed value. Update the field in your state and set `fixed: true` to show it as confirmed."
+    },
+    {
+      "q": "Can I stream fields in one by one?",
+      "a": "Yes. Append to `fields` as the agent finds them. Each new field slides in and briefly lights its zone on the page."
+    }
+  ]
+}

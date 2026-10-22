@@ -1,0 +1,610 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Model compare: AI agent UI component for React and HTML | Designme.dev</title><meta name="description" content="Run one prompt on three models side by side and keep the best. Free and MIT licensed, as HTML or a typed React component, in two styles with light and dark mode."><link rel="canonical" href="https://designme.dev/components/model-compare"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><meta property="og:type" content="website"><meta property="og:site_name" content="Designme.dev"><meta property="og:title" content="Model compare: AI agent UI component for React and HTML | Designme.dev"><meta property="og:description" content="Run one prompt on three models side by side and keep the best. Free and MIT licensed, as HTML or a typed React component, in two styles with light and dark mode."><meta property="og:url" content="https://designme.dev/components/model-compare"><meta property="og:image" content="https://designme.dev/og.png"><meta name="twitter:card" content="summary_large_image"><link rel="alternate" type="text/plain" title="All components for AI tools" href="/llms.txt"><link rel="preload" href="/fonts/inter-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin><link rel="preload" href="/fonts/inter-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin><script>try{var t=localStorage.getItem('dmui-theme');if(t)document.documentElement.setAttribute('data-theme',t);var s=localStorage.getItem('dmui-style');if(s)document.documentElement.setAttribute('data-style',s)}catch(e){}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareSourceCode","name":"Model compare","description":"Columns that run one prompt on several models at once, so a person can read the answers side by side and keep the best one. Each column shows its model, the answer as it streams in, the time it took and what it cost. When the answers settle, the fastest time and the lowest cost are highlighted.","url":"https://designme.dev/components/model-compare","programmingLanguage":["HTML","CSS","JavaScript","TypeScript"],"runtimePlatform":"Web browser","license":"https://opensource.org/licenses/MIT","isAccessibleForFree":true,"keywords":"Model compare, Workspace, AI agent UI, React component, HTML component","author":{"@type":"Organization","name":"DesignMe","url":"https://designme.agency"},"isPartOf":{"@type":"WebSite","name":"Designme.dev","url":"https://designme.dev/"}}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Components","item":"https://designme.dev/components"},{"@type":"ListItem","position":2,"name":"Workspace","item":"https://designme.dev/components/workspace"},{"@type":"ListItem","position":3,"name":"Model compare","item":"https://designme.dev/components/model-compare"}]}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I stream each model's answer into its column?","acceptedAnswer":{"@type":"Answer","text":"Handle onSend, call your models, and update answers keyed by column id. Set state to 'thinking', then 'answering' with growing text, then 'done' with seconds, cost and optionally tokensPerSecond."}},{"@type":"Question","name":"What happens when someone swaps the model in one column?","acceptedAnswer":{"@type":"Answer","text":"The column keeps its id, the pick is cleared, and onRun is called with that column if a prompt has already been sent. Rerun just that column and update its answer."}},{"@type":"Question","name":"How do I know which answer the person kept?","acceptedAnswer":{"@type":"Answer","text":"Listen to onChosenChange. It gets the chosen column's id, or null when they unpick it or send a new prompt."}},{"@type":"Question","name":"Can I compare more than three models?","acceptedAnswer":{"@type":"Answer","text":"Yes. Set max to the number of columns you want; \"Add a model\" shows until that many are open."}}]}</script><link rel="stylesheet" href="/components/assets/core.css"><style>/* ---------- Model compare ---------- */
+.mcx{display:flex;flex-direction:column;gap:12px}
+.mcx-cols{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+@media (max-width:720px){.mcx-cols{grid-template-columns:1fr}}
+.mcx-c{display:flex;flex-direction:column;min-height:252px;min-width:0;transition:box-shadow .35s,opacity .4s}
+.mcx-c.win{box-shadow:0 0 0 1.5px var(--accent),var(--shadow)}
+.mcx-c.lose{opacity:.55}
+.mcx-c.enter{animation-duration:.5s}
+.mcx-h{display:flex;align-items:center;gap:6px;height:46px;padding:0 6px;border-bottom:1px solid var(--line)}
+.mcx-sel{display:inline-flex;align-items:center;gap:7px;height:32px;padding:0 8px 0 6px;border-radius:9px;font-size:13px;font-weight:500;min-width:0;transition:background .2s}
+.mcx-sel:hover,.mcx-sel[aria-expanded="true"]{background:var(--chip)}
+.mcx-sel>.i{color:var(--muted)}
+.mcx-mk{width:20px;height:20px;border-radius:6px;display:grid;place-items:center;font-size:10px;font-weight:600;color:#fff;flex:none}
+.mcx-x{width:26px;height:26px;margin-left:auto;color:var(--muted)}
+.mcx-o{flex:1;display:flex;flex-direction:column;gap:10px;padding:12px}
+.mcx-o .bub{font-size:13px;padding:7px 11px;border-radius:14px;max-width:92%}
+.mcx-a{font-size:13.5px;line-height:1.55;color:var(--fg);display:flex;flex-direction:column;gap:6px}
+.mcx-a .w{animation:mcw .4s var(--ease) both}
+@keyframes mcw{from{opacity:0;filter:blur(3px)}to{opacity:1;filter:none}}
+.mcx-a .ph{color:var(--muted);font-size:12.5px}
+.mcx-a .wk{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;color:var(--muted)}
+.mcx-a .wk .think{color:var(--accent)}
+.mcx-f{display:flex;align-items:center;gap:8px;height:44px;padding:0 8px 0 12px;border-top:1px solid var(--line);font-size:12px;color:var(--muted)}
+.mcx-m{display:inline-flex;gap:10px;white-space:nowrap}
+.mcx-m span{cursor:default;display:inline-flex;align-items:center;gap:4px;transition:color .3s}
+.mcx-m .best{color:var(--ok);font-weight:500}
+.mcx-pick{margin-left:auto}
+.mcx-pop{min-width:250px}
+.mcx-pop .mi[disabled]{opacity:.45;cursor:not-allowed}
+.mcx-add{border-radius:var(--r-card);box-shadow:inset 0 0 0 1.5px var(--rail);display:flex;align-items:center;justify-content:center;min-height:252px;position:relative;transition:background .2s,box-shadow .2s}
+.mcx-add:hover{background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--faint)}
+.mcx-addb{display:flex;flex-direction:column;align-items:center;gap:6px;font-size:13px;color:var(--fg2);padding:14px 18px;border-radius:14px;transition:background .2s,color .2s}
+.mcx-addb:hover,.mcx-addb[aria-expanded="true"]{color:var(--fg)}
+.mcx-addb .ic{margin-bottom:2px}
+.mcx-addb .ic{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:var(--soft,var(--chip));box-shadow:var(--soft-ring,none);color:var(--fg)}
+.mcx-addb .d{font-size:12px;color:var(--muted)}
+.mcx-in{display:flex;align-items:center;gap:10px;padding:6px 6px 6px 18px;border-radius:999px;background:var(--surface);box-shadow:var(--shadow);transition:box-shadow .25s}
+.mcx-in:focus-within{box-shadow:var(--shadow),0 0 0 4px var(--accent-bg)}
+.mcx-q{flex:1;min-width:0;border:0;outline:0;background:none;font:inherit;font-size:13.5px;color:var(--fg)}
+.mcx-n{font-size:12px;white-space:nowrap}
+.mcx-go{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:var(--ink);color:var(--on-ink);flex:none;transition:opacity .2s,transform .15s}
+.mcx-go:active{transform:scale(.92)}
+.mcx-go[disabled]{background:var(--rail);color:var(--surface);cursor:not-allowed}
+</style><style>
+@font-face{font-family:Inter;font-style:normal;font-weight:400;font-display:swap;src:url(/fonts/inter-latin-400-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:Inter;font-style:normal;font-weight:500;font-display:swap;src:url(/fonts/inter-latin-500-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:Inter;font-style:normal;font-weight:600;font-display:swap;src:url(/fonts/inter-latin-600-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:Inter;font-style:normal;font-weight:700;font-display:swap;src:url(/fonts/inter-latin-700-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"JetBrains Mono";font-style:normal;font-weight:500;font-display:swap;src:url(/fonts/jetbrains-mono-latin-500-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+</style><style>:root{--pg-bg:#fff;--pg-fg:#111318;--pg-dim:#5b5f6b;--pg-muted:#8b8f99;--pg-line:#11131814;--pg-line2:#11131824;--pg-soft:#fafafa;--pg-chip:#f1f1f3;--pg-ink:#111318;--pg-on-ink:#fff;--pg-link:#116ff8;--pg-sans:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;--pg-mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace}@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--pg-bg:#0b0c0f;--pg-fg:#ededee;--pg-dim:#a1a3ab;--pg-muted:#76787f;--pg-line:#ffffff14;--pg-line2:#ffffff24;--pg-soft:#131418;--pg-chip:#ffffff0f;--pg-ink:#f5f5f4;--pg-on-ink:#111318;--pg-link:#6aa8ff;color-scheme:dark}}:root[data-theme=dark]{--pg-bg:#0b0c0f;--pg-fg:#ededee;--pg-dim:#a1a3ab;--pg-muted:#76787f;--pg-line:#ffffff14;--pg-line2:#ffffff24;--pg-soft:#131418;--pg-chip:#ffffff0f;--pg-ink:#f5f5f4;--pg-on-ink:#111318;--pg-link:#6aa8ff;color-scheme:dark}*{box-sizing:border-box}html{-webkit-text-size-adjust:100%}body{background:var(--pg-bg);color:var(--pg-fg);font:15px/1.6 var(--pg-sans);-webkit-font-smoothing:antialiased;margin:0}a{color:inherit}.pg-top{z-index:50;background:color-mix(in srgb,var(--pg-bg) 88%,transparent);backdrop-filter:blur(14px);border-bottom:1px solid var(--pg-line);position:sticky;top:0}.pg-top-in{align-items:center;gap:28px;max-width:1180px;margin:0 auto;padding:12px 24px;display:flex}.pg-logo{color:var(--pg-fg);display:block}.pg-logo svg{width:auto;height:21px;display:block}.pg-nav{gap:22px;font-size:14px;display:flex}.pg-nav a{color:var(--pg-dim);text-decoration:none;transition:color .2s}.pg-nav a:hover,.pg-nav a[aria-current=page]{color:var(--pg-fg)}.pg-top .pg-sp{flex:1}.pg-theme{width:34px;height:34px;color:var(--pg-dim);cursor:pointer;background:0 0;border:0;border-radius:999px;place-items:center;display:grid}.pg-theme:hover{background:var(--pg-chip);color:var(--pg-fg)}.pg-theme svg{width:17px;height:17px}.pg-main{max-width:1180px;margin:0 auto;padding:36px 24px 96px}.pg-foot{border-top:1px solid var(--pg-line);color:var(--pg-dim);font-size:13px}.pg-foot-in{flex-wrap:wrap;justify-content:space-between;gap:10px 24px;max-width:1180px;margin:0 auto;padding:28px 24px 40px;display:flex}.pg-foot nav{flex-wrap:wrap;gap:18px;display:flex}.pg-foot a{color:var(--pg-dim);text-decoration:none}.pg-foot a:hover{color:var(--pg-fg)}:focus-visible{outline:2px solid var(--pg-fg);outline-offset:2px}@media (width<=640px){.pg-top-in{gap:14px;padding:10px 16px}.pg-logo svg{height:18px}.pg-nav{gap:14px}.pg-nav .pg-wide{display:none}.pg-main{padding:24px 16px 72px}.pg-foot-in{padding:24px 16px 32px}}@media (width<=380px){.pg-nav .pg-cl{display:none}}
+.cp-crumbs{color:var(--pg-muted);flex-wrap:wrap;gap:6px;font-size:13px;display:flex}.cp-crumbs a{color:var(--pg-dim);text-decoration:none}.cp-crumbs a:hover{color:var(--pg-fg)}.cp-h{letter-spacing:-.025em;text-wrap:balance;margin:14px 0 0;font-size:34px;font-weight:600;line-height:1.15}.cp-lead{color:var(--pg-dim);max-width:62ch;margin:10px 0 0;font-size:17px}.cp-tags{flex-wrap:wrap;gap:6px;margin:16px 0 0;padding:0;list-style:none;display:flex}.cp-tags li{color:var(--pg-dim);box-shadow:inset 0 0 0 1px var(--pg-line2);border-radius:999px;padding:3px 10px;font-size:12.5px}.cp-demo{background:var(--stage,var(--pg-soft));border-radius:16px;margin:28px 0 0;overflow:hidden}.cp-bar{align-items:center;gap:8px;padding:10px 12px 0;display:flex}.cp-bar .sp{flex:1}.cp-seg{background:var(--pg-chip);border-radius:999px;padding:3px;display:inline-flex}.cp-seg button,.cp-btn{height:28px;color:var(--pg-dim);font:500 13px/1 var(--pg-sans);cursor:pointer;background:0 0;border:0;border-radius:999px;padding:0 12px}.cp-seg button[aria-pressed=true]{background:var(--pg-bg);color:var(--pg-fg);box-shadow:0 1px 2px #00000014}.cp-btn:hover,.cp-seg button:hover{color:var(--pg-fg)}.cp-btn{align-items:center;gap:6px;display:inline-flex}.cp-btn svg{width:14px;height:14px}.pg-demo{min-height:calc(var(--h-a) + 72px);grid-template-columns:minmax(0,1fr);justify-items:center;padding:32px 24px 40px;display:grid}.pg-demo>.card{align-self:stretch;place-items:center;min-width:0;display:grid}@media (width<=640px){.pg-demo{min-height:calc(var(--h-e) + 52px);padding:24px 12px 28px}.cp-h{font-size:28px}}.cp-sec{max-width:820px;margin:56px 0 0}.cp-sec.wide{max-width:none}.cp-sec h2{letter-spacing:-.015em;margin:0 0 14px;font-size:22px;font-weight:600}.cp-sec h3{margin:24px 0 8px;font-size:15px;font-weight:600}.cp-sec p{max-width:68ch;margin:0 0 12px}.cp-sec ul{margin:0;padding-left:20px}.cp-sec li{max-width:66ch;margin:5px 0}.cp-sec code,.cp-props code,.cp-cmd code{font-variant-ligatures:none;font:500 12.5px/1.4 var(--pg-mono);background:var(--pg-chip);border-radius:5px;padding:1px 5px}.cp-cmds{grid-template-columns:minmax(0,1fr);gap:8px;display:grid}.cp-cmd{background:var(--pg-soft);min-width:0;box-shadow:inset 0 0 0 1px var(--pg-line);border-radius:12px;align-items:center;gap:12px;padding:6px 6px 6px 14px;display:flex}.cp-cmd .k{width:52px;color:var(--pg-muted);flex:none;font-size:12.5px}.cp-cmd code{white-space:nowrap;min-width:0;font:500 13.5px/1.5 var(--pg-mono);background:0 0;flex:1;padding:0;overflow-x:auto}.cp-copy{background:var(--pg-bg);height:30px;color:var(--pg-fg);box-shadow:inset 0 0 0 1px var(--pg-line2);font:500 12.5px/1 var(--pg-sans);cursor:pointer;border:0;border-radius:999px;flex:none;padding:0 12px}.cp-copy:hover{background:var(--pg-chip)}.cp-note{color:var(--pg-dim);margin:12px 0 0;font-size:13.5px}.cp-pre{font-variant-ligatures:none;background:var(--pg-soft);max-height:460px;box-shadow:inset 0 0 0 1px var(--pg-line);font:500 12.5px/1.6 var(--pg-mono);tab-size:2;border-radius:12px;margin:0;padding:16px 18px;overflow:auto}.cp-pre code{font:inherit;background:0 0;padding:0}.cp-props{margin:0 0 8px;overflow-x:auto}.cp-props table{border-collapse:collapse;width:100%;min-width:560px;font-size:13.5px}.cp-props th{text-align:left;color:var(--pg-muted);border-bottom:1px solid var(--pg-line2);padding:8px 10px;font-size:12.5px;font-weight:500}.cp-props td{border-bottom:1px solid var(--pg-line);vertical-align:top;padding:10px}.cp-props td:first-child{white-space:nowrap}.cp-props td:nth-child(2) code{white-space:normal;word-break:break-word}.cp-props .opt{color:var(--pg-muted)}.cp-ext{color:var(--pg-dim);font-size:13.5px}details.cp-file{box-shadow:inset 0 0 0 1px var(--pg-line);border-radius:12px;margin:0 0 8px}details.cp-file summary{cursor:pointer;font:500 13.5px/1.4 var(--pg-mono);align-items:center;gap:10px;padding:12px 14px;list-style:none;display:flex}details.cp-file summary::-webkit-details-marker{display:none}details.cp-file summary:before{content:"";border-right:1.5px solid var(--pg-muted);border-bottom:1.5px solid var(--pg-muted);width:6px;height:6px;transition:transform .2s;transform:rotate(-45deg)}details.cp-file[open] summary:before{transform:rotate(45deg)}details.cp-file summary .l{font:12px/1 var(--pg-sans);color:var(--pg-muted);margin-left:auto}details.cp-file .cp-pre{box-shadow:none;border-top:1px solid var(--pg-line);border-radius:0 0 12px 12px;max-height:560px}.cp-faq dt{margin:20px 0 4px;font-weight:600}.cp-faq dd{color:var(--pg-dim);max-width:68ch;margin:0}.cp-rel{grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px;display:grid}.cp-rel a{background:var(--pg-soft);border-radius:14px;padding:14px 16px;text-decoration:none;transition:background .2s;display:block}.cp-rel a:hover{background:var(--pg-chip)}.cp-rel b{font-weight:500;display:block}.cp-rel span{color:var(--pg-dim);margin-top:2px;font-size:13.5px;display:block}.cp-pn{grid-template-columns:1fr 1fr;gap:10px;margin:56px 0 0;display:grid}.cp-pn a{box-shadow:inset 0 0 0 1px var(--pg-line);border-radius:14px;padding:14px 16px;text-decoration:none;display:block}.cp-pn a:hover{background:var(--pg-soft)}.cp-pn .k{color:var(--pg-muted);font-size:12.5px;display:block}.cp-pn b{font-weight:500}.cp-pn .n{text-align:right}.cp-toc{flex-wrap:wrap;gap:4px 18px;margin:22px 0 0;font-size:13.5px;display:flex}.cp-toc a{color:var(--pg-dim);text-decoration:none}.cp-toc a:hover{color:var(--pg-fg)}.sp-crumbs[data-astro-cid-lfhuveqs]{color:var(--pg-muted);font-size:13px}.sp-crumbs[data-astro-cid-lfhuveqs] a[data-astro-cid-lfhuveqs]{color:var(--pg-dim);text-decoration:none}.sp-h[data-astro-cid-lfhuveqs]{letter-spacing:-.025em;margin:14px 0 0;font-size:34px;font-weight:600;line-height:1.15}.sp-lead[data-astro-cid-lfhuveqs]{color:var(--pg-dim);max-width:62ch;margin:10px 0 0;font-size:17px}.sp-grid[data-astro-cid-lfhuveqs]{grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;margin:32px 0 0;display:grid}.sp-grid[data-astro-cid-lfhuveqs] a[data-astro-cid-lfhuveqs]{background:var(--pg-soft);border-radius:14px;padding:18px;text-decoration:none;transition:background .2s;display:block}.sp-grid[data-astro-cid-lfhuveqs] a[data-astro-cid-lfhuveqs]:hover{background:var(--pg-chip)}.sp-grid[data-astro-cid-lfhuveqs] b[data-astro-cid-lfhuveqs]{font-size:15.5px;font-weight:500;display:block}.sp-grid[data-astro-cid-lfhuveqs] span[data-astro-cid-lfhuveqs]{color:var(--pg-dim);margin-top:4px;font-size:13.5px;display:block}.sp-more[data-astro-cid-lfhuveqs]{margin:64px 0 0}.sp-more[data-astro-cid-lfhuveqs] h2[data-astro-cid-lfhuveqs]{margin:0 0 12px;font-size:18px;font-weight:600}.sp-more[data-astro-cid-lfhuveqs] nav[data-astro-cid-lfhuveqs]{flex-wrap:wrap;gap:8px;display:flex}.sp-more[data-astro-cid-lfhuveqs] a[data-astro-cid-lfhuveqs]{box-shadow:inset 0 0 0 1px var(--pg-line2);color:var(--pg-dim);border-radius:999px;padding:6px 12px;font-size:13.5px;text-decoration:none}.sp-more[data-astro-cid-lfhuveqs] a[data-astro-cid-lfhuveqs]:hover{color:var(--pg-fg)}@media (width<=640px){.sp-h[data-astro-cid-lfhuveqs]{font-size:28px}}
+</style></head><body><header class="pg-top"><div class="pg-top-in"><a class="pg-logo" href="/" aria-label="Designme.dev home"><svg role="img" aria-label="Designme.dev" viewBox="0 12.5 210 29.5" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M137.937 20.1034V39.1011H155.787V33.1982H145.37V31.9317H155.38V27.2501H145.37V26.0062H155.787V20.1034H137.937Z" fill="currentColor"/>
+<path d="M136.845 39.1013V20.1036L127.536 20.1036L125.525 29.2632H124.983L122.972 20.1036L113.662 20.1036V39.1013H120.735V32.7009H121.299L122.542 39.1013H127.965L129.208 32.7009H129.773V39.1013L136.845 39.1013Z" fill="currentColor"/>
+<path d="M91.5581 20.1034V39.1011H100.054L104.686 30.5069H105.341V39.1011H112.572V20.1034H104.279L99.4665 28.6976H98.7886V20.1034H91.5581Z" fill="currentColor"/>
+<path d="M90.3556 30.9135V20.1029H86.6499L86.5369 22.274H86.4014C85.0457 20.6457 82.7409 19.4696 79.5324 19.4696C73.6576 19.4696 69.1159 23.4501 69.1159 29.6017C69.1159 35.776 73.3639 39.7338 80.2102 39.7338C84.9553 39.7338 89.8359 37.4044 90.4007 32.0669H83.0347C82.8765 32.4966 81.9501 33.3334 80.391 33.3334C78.0637 33.3334 76.5046 31.9538 76.5046 29.6017C76.5046 27.2496 78.1315 25.87 80.1425 25.87C80.4814 25.87 82.5602 25.7796 83.2154 27.521H79.9391V30.9135H90.3556Z" fill="currentColor"/>
+<path d="M60.9353 20.1034V39.1011H68.3691V20.1034H60.9353Z" fill="currentColor"/>
+<path d="M50.0428 19.4696C42.9704 19.4922 39.8523 21.5277 40.1008 26.7747H46.7664C46.7664 25.8248 47.6025 25.2594 50.0428 25.2368C52.0763 25.1915 52.8446 25.6665 52.8446 26.1414C52.8446 26.2771 53.0027 26.9104 51.4211 27.0913L48.913 27.4758C45.3203 28.0186 40.5075 28.1091 40.5075 33.4465C40.5075 37.3139 43.5805 39.7338 50.0879 39.7338C55.8724 39.7338 59.8943 38.3769 59.691 32.474H53.0705C52.8898 33.4239 52.0086 33.9893 49.9298 33.9893C48.1673 33.9893 47.6477 33.5144 47.6477 33.062C47.6477 32.9263 47.6025 32.3157 48.7096 32.18L50.698 31.8634C54.5618 31.2301 60.2333 31.4563 60.2333 25.8248C60.2333 21.4372 56.9343 19.4244 50.0428 19.4696Z" fill="currentColor"/>
+<path d="M21.5475 20.1034V39.1011H39.3978V33.1982H28.9813V31.9317H38.9911V27.2501H28.9813V26.0062H39.3978V20.1034H21.5475Z" fill="currentColor"/>
+<path d="M10.0775 39.1011C18.0537 39.1011 20.6973 35.1206 20.6973 29.6022C20.6973 24.1291 18.0537 20.1034 10.0775 20.1034H0V39.1011H10.0775ZM10.1001 26.3228C11.7044 26.3228 13.2409 27.0013 13.2409 29.6022C13.2409 32.2483 11.7044 32.9042 10.1001 32.9042H7.45646V26.3228H10.1001Z" fill="currentColor"/>
+<path d="M160.138 24.7522C158.938 24.7522 157.983 23.8244 157.983 22.5601C157.983 21.3049 158.938 20.368 160.138 20.368C161.339 20.368 162.294 21.3049 162.294 22.5601C162.294 23.8244 161.339 24.7522 160.138 24.7522ZM160.138 24.4339C161.139 24.4339 161.939 23.6607 161.939 22.5601C161.939 21.4686 161.139 20.6864 160.138 20.6864C159.147 20.6864 158.337 21.4686 158.337 22.5601C158.337 23.6607 159.147 24.4339 160.138 24.4339ZM159.747 23.7517H159.265V21.3413H160.239C160.784 21.3413 161.075 21.5959 161.075 22.0416C161.075 22.3691 160.875 22.5692 160.548 22.642V22.6602C161.148 22.7693 160.957 23.6607 161.121 23.7244V23.7517H160.63C160.457 23.6243 160.693 22.8421 160.093 22.8421H159.747V23.7517ZM159.747 22.4419H160.12C160.411 22.4419 160.611 22.3691 160.611 22.078C160.611 21.7961 160.402 21.7415 160.129 21.7415H159.747V22.4419Z" fill="currentColor"/>
+<path d="M162.778 38.7558C162.174 38.9572 161.671 39.0579 161.268 39.0579C160.865 39.0291 160.419 38.8421 159.93 38.4968C159.355 37.9214 159.153 37.346 159.326 36.7705C159.527 36.1663 160.045 35.5765 160.879 35.0011C161.455 34.6558 161.872 34.4832 162.131 34.4832C162.419 34.4544 162.836 34.5551 163.383 34.7853C164.361 35.3895 164.792 36.0656 164.677 36.8137C164.562 37.533 163.929 38.1804 162.778 38.7558ZM179.189 41.82C178.815 41.9063 178.441 41.8056 178.067 41.5179C177.721 41.2589 177.477 40.9712 177.333 40.6547C177.16 40.1944 177.045 39.7628 176.988 39.36C176.959 38.9284 176.93 38.4393 176.901 37.8926L176.858 36.4253L175.089 38.0221C174.111 38.9428 173.19 39.6046 172.327 40.0074C171.492 40.3814 170.73 40.5684 170.039 40.5684C169.723 40.5109 169.334 40.3095 168.874 39.9642C168.443 39.5902 168.04 39.1874 167.666 38.7558C167.32 38.2954 167.076 37.9214 166.932 37.6337C166.759 37.2309 166.702 36.6698 166.759 35.9505C166.846 35.2312 167.018 34.44 167.277 33.5769C167.565 32.7137 167.91 31.8649 168.313 31.0305C168.745 30.1962 169.234 29.4769 169.78 28.8727C170.73 27.4341 171.91 26.5421 173.319 26.1969C174.729 25.8228 175.981 25.9379 177.074 26.5421C177.592 26.8011 177.966 26.9018 178.196 26.8442C178.426 26.7867 178.57 26.5997 178.628 26.2832C178.743 25.8228 178.872 25.3913 179.016 24.9885C179.16 24.5856 179.361 23.9814 179.62 23.1758C180.34 20.9892 180.958 19.2772 181.476 18.04C182.023 16.8029 182.512 15.7239 182.944 14.8032C183.26 14.1415 183.577 13.6811 183.893 13.4222C184.21 13.1632 184.483 13.0481 184.713 13.0769C185.03 13.0769 185.418 13.192 185.878 13.4222C186.367 13.6523 186.684 13.9688 186.828 14.3716C186.943 14.6306 186.986 14.9039 186.957 15.1916C186.957 15.4793 186.871 15.7815 186.698 16.0979C186.324 16.7885 185.878 17.7092 185.36 18.86C184.871 19.9821 184.368 21.2193 183.85 22.5716C183.361 23.9239 182.9 25.2618 182.469 26.5853C182.037 27.9088 181.678 29.0741 181.39 30.0811C181.217 30.7141 181.073 31.5197 180.958 32.4979C180.872 33.4762 180.8 34.4832 180.743 35.519C180.714 36.526 180.714 37.4323 180.743 38.2379C180.771 39.0147 180.814 39.5182 180.872 39.7484C181.045 40.3239 181.045 40.7554 180.872 41.0432C180.699 41.3309 180.455 41.5179 180.138 41.6042C179.822 41.7193 179.505 41.7912 179.189 41.82ZM172.068 36.5979C172.471 36.454 172.83 36.2814 173.147 36.08C173.463 35.8786 173.837 35.6197 174.269 35.3032C175.132 34.6414 175.751 34.066 176.125 33.5769C176.527 33.0877 176.844 32.4835 177.074 31.7642C177.218 31.3326 177.218 30.9586 177.074 30.6421C176.959 30.3256 176.743 30.0235 176.427 29.7358C176.11 29.4769 175.707 29.3762 175.218 29.4337C174.729 29.4625 174.168 29.7646 173.535 30.34C172.845 30.973 172.255 31.7067 171.766 32.5411C171.277 33.3755 170.874 34.5695 170.557 36.1232C170.5 36.4109 170.6 36.6123 170.859 36.7274C171.118 36.8425 171.521 36.7993 172.068 36.5979ZM191.763 40.1368C190.899 40.626 189.979 40.9137 189.001 41C188.051 41.0575 187.159 40.9281 186.325 40.6116C185.49 40.2663 184.814 39.7628 184.296 39.1011C184.009 38.727 183.735 38.1372 183.476 37.3316C183.217 36.4972 183.174 35.3751 183.347 33.9653C183.519 32.6418 183.922 31.3039 184.555 29.9516C185.217 28.5993 186.023 27.4053 186.972 26.3695C187.922 25.3337 188.957 24.6288 190.079 24.2548C190.482 24.1109 190.885 24.0102 191.288 23.9527C191.719 23.8663 192.281 23.852 192.971 23.9095C193.633 23.9958 194.223 24.1685 194.741 24.4274C195.258 24.6576 195.632 24.9165 195.863 25.2042C196.323 25.6646 196.625 26.1106 196.769 26.5421C196.913 26.9737 196.97 27.3909 196.942 27.7937C196.798 28.7144 196.38 29.707 195.69 30.7716C195.028 31.8362 194.093 32.6274 192.885 33.1453C192.396 33.3467 191.82 33.4762 191.158 33.5337C190.497 33.5912 189.59 33.5049 188.439 33.2748C187.749 33.1309 187.289 33.2028 187.058 33.4905C186.857 33.7783 186.771 34.3393 186.799 35.1737C186.857 35.6916 186.972 36.1519 187.145 36.5547C187.346 36.9288 187.706 37.1877 188.224 37.3316C188.885 37.4467 189.36 37.4611 189.648 37.3747C189.936 37.2597 190.295 37.1014 190.727 36.9C190.957 36.7561 191.173 36.5979 191.374 36.4253C191.604 36.2526 191.82 36.08 192.022 35.9074C192.252 35.7347 192.439 35.6053 192.583 35.519C192.726 35.4039 192.87 35.3319 193.014 35.3032C193.158 35.2744 193.302 35.26 193.446 35.26C193.762 35.2888 194.064 35.4614 194.352 35.7779C194.64 36.0944 194.827 36.3965 194.913 36.6842C194.913 36.9144 194.769 37.2453 194.482 37.6768C194.194 38.0797 193.805 38.5112 193.316 38.9716C192.856 39.4032 192.338 39.7916 191.763 40.1368ZM191.202 30.5127C191.403 30.4263 191.691 30.2249 192.065 29.9084C192.468 29.592 192.827 29.2611 193.144 28.9158C193.46 28.5418 193.618 28.2541 193.618 28.0527C193.618 27.7362 193.403 27.4628 192.971 27.2327C192.568 27.0025 192.036 26.9593 191.374 27.1032C191.144 27.1607 190.871 27.319 190.554 27.5779C190.238 27.8369 189.921 28.139 189.605 28.4842C189.288 28.8007 189.015 29.1172 188.785 29.4337C188.555 29.7214 188.396 29.9516 188.31 30.1242C188.425 30.2681 188.655 30.3832 189.001 30.4695C189.346 30.5558 189.72 30.599 190.123 30.599C190.554 30.599 190.914 30.5702 191.202 30.5127ZM201.731 39.8779C201.444 40.0793 201.084 40.1944 200.652 40.2232C200.25 40.2232 199.89 40.0649 199.574 39.7484C199.027 39.2305 198.552 38.2091 198.149 36.6842C197.746 35.1305 197.545 33.0302 197.545 30.3832C197.66 29.2035 197.718 28.1102 197.718 27.1032C197.746 26.0962 197.761 25.5351 197.761 25.42C198.077 25.2186 198.48 25.1611 198.969 25.2474C199.487 25.3049 199.904 25.4056 200.221 25.5495C200.509 25.6934 200.71 25.9092 200.825 26.1969C200.969 26.4846 201.055 27.0025 201.084 27.7506C201.142 28.4698 201.17 29.5776 201.17 31.0737C201.084 32.2246 201.026 33.1453 200.998 33.8358C200.969 34.5263 200.998 34.9291 201.084 35.0442C201.199 35.2456 201.257 35.3607 201.257 35.3895C201.257 35.3895 201.472 35.1737 201.904 34.7421C202.134 34.4256 202.379 34.0084 202.638 33.4905C202.925 32.9726 203.17 32.5555 203.371 32.239C203.688 31.8362 203.976 31.4477 204.235 31.0737C204.522 30.6997 204.724 30.4551 204.839 30.34C204.954 30.1098 205.098 29.8941 205.27 29.6927C205.443 29.4912 205.587 29.2898 205.702 29.0884C206.018 28.5418 206.349 28.0958 206.695 27.7506C207.04 27.3765 207.27 27.1895 207.385 27.1895C207.5 27.2758 207.716 27.2614 208.032 27.1463C208.349 27.0025 208.565 26.9306 208.68 26.9306C208.881 26.7291 209.155 26.7291 209.5 26.9306C209.615 27.0169 209.716 27.1176 209.802 27.2327C209.888 27.319 209.931 27.4197 209.931 27.5348C209.931 27.6786 209.845 28.0383 209.672 28.6137C209.529 29.1604 209.342 29.707 209.111 30.2537C208.91 30.7716 208.737 31.0737 208.593 31.16C208.593 31.16 208.55 31.2032 208.464 31.2895C208.378 31.3758 208.277 31.4765 208.162 31.5916C208.104 31.793 207.903 32.167 207.558 32.7137C207.241 33.2316 206.838 33.8358 206.349 34.5263C205.889 35.1881 205.414 35.8498 204.925 36.5116C204.436 37.1446 204.004 37.7056 203.63 38.1947C203.343 38.5975 203.012 38.9572 202.638 39.2737C202.264 39.5614 201.962 39.7628 201.731 39.8779Z" fill="#0072FF"/>
+</svg></a><nav class="pg-nav" aria-label="Site"><a href="/components" aria-current="page">Components</a><a href="/packages/react/preview/" class="pg-wide">React preview</a><a href="/#/changelog" class="pg-cl">Changelog</a></nav><span class="pg-sp"></span><button class="pg-theme" id="pg-theme" type="button" aria-label="Switch between light and dark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"></path></svg></button></div></header><main class="pg-main"><nav class="cp-crumbs" aria-label="Breadcrumb"><a href="/components">Components</a><span>/</span><a href="/components/workspace">Workspace</a></nav><h1 class="cp-h">Model compare</h1><p class="cp-lead">Run one prompt on three models side by side and keep the best.</p><ul class="cp-tags"><li>Agent components</li><li>HTML and React</li><li>Soft and Blueprint</li><li>Light and dark</li><li>MIT</li></ul><section class="cp-demo" aria-label="Model compare demo"><div class="cp-bar"><div class="cp-seg" role="group" aria-label="Style"><button type="button" data-style-set="bp">Blueprint</button><button type="button" data-style-set="soft">Soft</button></div><span class="sp"></span><button type="button" class="cp-btn" id="cp-replay"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"></path><path d="M3 3v5h5"></path></svg>Replay</button></div><div class="pg-demo stage-inner" style="--h-a:316px;--h-e:832px"><div class="card wide" data-c="model-compare">
+  <div class="stage-in"></div>
+  <template>
+<div class="mcx">
+  <div class="mcx-cols"></div>
+  <form class="mcx-in"><input class="mcx-q" value="Write a one line value prop for the Pro plan" aria-label="Prompt for every model" spellcheck="false"><span class="mcx-n muted">Sends to 3 models</span><button class="mcx-go" aria-label="Send to every model" data-tip="Send to every model" data-tip-k="↵">{up}</button></form>
+</div>
+  </template>
+</div>
+</div></section><nav class="cp-toc" aria-label="On this page"><a href="#install">Install</a><a href="#about">About</a><a href="#usage">Usage</a><a href="#props">Props</a><a href="#code">Code</a><a href="#questions">Questions</a></nav><section class="cp-sec" id="install"><h2>Install</h2><div class="cp-cmds"><div class="cp-cmd"><span class="k">HTML</span><code>npx designme add model-compare</code><button class="cp-copy" type="button" data-copy="npx designme add model-compare">Copy</button></div><div class="cp-cmd"><span class="k">React</span><code>npx designme add model-compare --react</code><button class="cp-copy" type="button" data-copy="npx designme add model-compare --react">Copy</button></div></div><p class="cp-note">The CLI copies the source into your project, so you own it and can change anything. The HTML version lands in <code>./designme</code> with the shared core and a <code>demo.html</code>. The React version lands in <code>src/components/designme</code> and needs React 19; it works in Next.js, Vite and Astro.</p></section><section class="cp-sec" id="about"><h2>About the model compare</h2><p>Columns that run one prompt on several models at once, so a person can read the answers side by side and keep the best one. Each column shows its model, the answer as it streams in, the time it took and what it cost. When the answers settle, the fastest time and the lowest cost are highlighted.</p><h3>When to use it</h3><ul><li>When people choose which model an agent or feature should use.</li><li>When you want to compare quality, speed and cost on the same prompt.</li><li>In a prompt playground or evaluation tool where someone picks a winning answer.</li></ul><h3>What it does</h3><ul><li>Up to <code>max</code> columns (3 by default), each with a model picker; columns can be removed and new ones added from "Add a model".</li><li>One prompt box sends to every column through <code>onSend</code>; Send is disabled while a full send is still running.</li><li>Each column follows its answer's <code>state</code>: a thinking indicator, then words fading in as <code>text</code> grows, then the finished answer.</li><li>Shows <code>seconds</code> and <code>cost</code> once done, with tokens per second in the time's tooltip, and marks the fastest and cheapest column.</li><li>Changing a column's model, or adding one after a prompt was sent, calls <code>onRun</code> for just that column.</li><li>"Use this" sets <code>chosen</code>; the chosen column is outlined and the others fade.</li></ul><h3>Accessibility</h3><ul><li>Each model picker is a role="menu" whose items are role="menuitemradio" with aria-checked on the current model.</li><li>The picker buttons expose aria-expanded and aria-haspopup, and Escape closes an open picker and returns focus to its button.</li><li>The prompt input and the send and remove buttons have aria-labels.</li><li>The prompt is a form, so Enter sends it.</li></ul></section><section class="cp-sec" id="usage"><h2>Usage in React</h2><p>After installing, import it from where the CLI put it:</p><pre class="cp-pre"><code>import { ModelCompare } from &#39;@/components/designme/model-compare/ModelCompare&#39;;</code></pre><h3>Example</h3><p>The demo above, as a React component you can copy:</p><pre class="cp-pre"><code>&#39;use client&#39;;
+// The animated preview from designme.dev, rebuilt from the React component: an example of driving it from your own state.
+import { useCallback, useRef, useState } from &#39;react&#39;;
+import { ModelCompare, type ModelCompareAnswer, type ModelCompareColumn, type ModelCompareModel } from &#39;./ModelCompare&#39;;
+import { useScript, useWait } from &#39;../lib/useScript&#39;;
+
+/* ---------- Model compare: one prompt goes to three models, each streams its answer, the fastest and cheapest turn green ---------- */
+const MODELS: ModelCompareModel[] = [
+  { name: &#39;Opus&#39;, mark: &#39;O&#39;, color: &#39;var(--dm-c2)&#39;, description: &#39;Most capable, slower&#39; },
+  { name: &#39;Sonnet&#39;, mark: &#39;S&#39;, color: &#39;var(--dm-c1)&#39;, description: &#39;Balanced speed and quality&#39; },
+  { name: &#39;Haiku&#39;, mark: &#39;H&#39;, color: &#39;var(--dm-c3)&#39;, description: &#39;Fastest, lowest cost&#39; }
+];
+// how each model behaves in the demo: time to finish, speed, cost and its answer to the first prompt
+const RUNS: Record&lt;string, { ms: number; tps: number; cost: number; answer: string; other: string }&gt; = {
+  Opus: { ms: 2400, tps: 38, cost: .021, answer: &#39;Pro gives every designer an agent that knows your tokens, so reviews take minutes, not days.&#39;, other: &#39;Here is a considered take, with the trade-offs spelled out and one clear recommendation at the end.&#39; },
+  Sonnet: { ms: 1300, tps: 74, cost: .006, answer: &#39;Ship polished pages faster with an agent that checks every frame for you.&#39;, other: &#39;Here is a clear, direct answer with the two points that matter most.&#39; },
+  Haiku: { ms: 600, tps: 142, cost: .001, answer: &#39;Your design QA, on autopilot.&#39;, other: &#39;Short answer: yes, and here is the one line why.&#39; }
+};
+const FIRST = &#39;Write a one line value prop for the Pro plan&#39;;
+
+export default function ModelCompareDemo() {
+  const [columns, setColumns] = useState&lt;ModelCompareColumn[]&gt;(MODELS.map(m =&gt; ({ id: m.name, model: m.name })));
+  const [asked, setAsked] = useState&lt;string&gt;();
+  const [answers, setAnswers] = useState&lt;Record&lt;string, ModelCompareAnswer&gt;&gt;({});
+  const wait = useWait();
+  // each column&#39;s latest run; an older run that is still writing stops when a newer one starts
+  const runs = useRef&lt;Record&lt;string, number&gt;&gt;({});
+
+  const run = useCallback(async (column: ModelCompareColumn, q: string) =&gt; {
+    const id = column.id, mine = (runs.current[id] = (runs.current[id] ?? 0) + 1);
+    const live = () =&gt; runs.current[id] === mine;
+    const set = (a: ModelCompareAnswer) =&gt; setAnswers(all =&gt; ({ ...all, [id]: a }));
+    const r = RUNS[column.model];
+    set({ state: &#39;thinking&#39; });
+    await wait(r.ms * .35); if (!live()) return;
+    const words = (q === FIRST ? r.answer : r.other).split(&#39; &#39;);
+    for (let i = 1; i &lt;= words.length; i++) {
+      set({ state: &#39;answering&#39;, text: words.slice(0, i).join(&#39; &#39;) });
+      await wait(r.ms * .65 / words.length); if (!live()) return;
+    }
+    set({ state: &#39;done&#39;, text: words.join(&#39; &#39;), seconds: r.ms / 1000, tokensPerSecond: r.tps, cost: r.cost });
+  }, [wait]);
+
+  const send = (q: string, cols: ModelCompareColumn[]) =&gt; { setAsked(q); cols.forEach(c =&gt; run(c, q)); };
+  // a removed column stops writing and forgets its answer
+  const change = (next: ModelCompareColumn[]) =&gt; {
+    for (const c of columns) if (!next.some(n =&gt; n.id === c.id)) { runs.current[c.id] = (runs.current[c.id] ?? 0) + 1; setAnswers(({ [c.id]: _gone, ...rest }) =&gt; rest); }
+    setColumns(next);
+  };
+
+  useScript(async ({ wait }) =&gt; { await wait(1200); send(FIRST, columns); });
+
+  return (
+    &lt;div style={{ width: &#39;100%&#39; }}&gt;
+      &lt;ModelCompare models={MODELS} columns={columns} onColumnsChange={change} defaultPrompt={FIRST} asked={asked} answers={answers}
+        onSend={send} onRun={c =&gt; asked &amp;&amp; run(c, asked)} /&gt;
+    &lt;/div&gt;
+  );
+}
+</code></pre></section><section class="cp-sec wide" id="props"><h2>Props</h2><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>models</code></td><td><code>ModelCompareModel[]</code></td><td>The models on offer in every picker</td></tr><tr><td><code>columns</code><span class="opt"> optional</span></td><td><code>ModelCompareColumn[]</code></td><td>The columns, left to right. Leave it out to let the pickers, Remove and Add a model change them</td></tr><tr><td><code>defaultColumns</code><span class="opt"> optional</span></td><td><code>ModelCompareColumn[]</code></td><td>Defaults to the first `max` models</td></tr><tr><td><code>onColumnsChange</code><span class="opt"> optional</span></td><td><code>(columns: ModelCompareColumn[]) =&gt; void</code></td><td></td></tr><tr><td><code>max</code><span class="opt"> optional</span></td><td><code>number</code></td><td>How many columns fit side by side. Defaults to 3</td></tr><tr><td><code>prompt</code><span class="opt"> optional</span></td><td><code>string</code></td><td>The text in the prompt box. Leave it out to let the box keep its own</td></tr><tr><td><code>defaultPrompt</code><span class="opt"> optional</span></td><td><code>string</code></td><td></td></tr><tr><td><code>onPromptChange</code><span class="opt"> optional</span></td><td><code>(prompt: string) =&gt; void</code></td><td></td></tr><tr><td><code>asked</code><span class="opt"> optional</span></td><td><code>string</code></td><td>The prompt the answers are for, shown at the top of every column that has an answer</td></tr><tr><td><code>answers</code><span class="opt"> optional</span></td><td><code>Record&lt;string, ModelCompareAnswer&gt;</code></td><td>Each column&#39;s answer, by column id. A column without one waits for a prompt</td></tr><tr><td><code>onSend</code><span class="opt"> optional</span></td><td><code>(prompt: string, columns: ModelCompareColumn[]) =&gt; void</code></td><td>Called when the prompt is sent to every column</td></tr><tr><td><code>onRun</code><span class="opt"> optional</span></td><td><code>(column: ModelCompareColumn) =&gt; void</code></td><td>Called when one column should answer again: its model changed, or it was added after a prompt was sent</td></tr><tr><td><code>chosen</code><span class="opt"> optional</span></td><td><code>string | null</code></td><td>The id of the column whose answer was kept. It is outlined and the others fade</td></tr><tr><td><code>defaultChosen</code><span class="opt"> optional</span></td><td><code>string | null</code></td><td></td></tr><tr><td><code>onChosenChange</code><span class="opt"> optional</span></td><td><code>(id: string | null) =&gt; void</code></td><td></td></tr><tr><td><code>placeholder</code><span class="opt"> optional</span></td><td><code>string</code></td><td>Shown in a column before it has an answer</td></tr><tr><td><code>className</code><span class="opt"> optional</span></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec wide" id="code"><h2>Code</h2><p>The full source, as the CLI installs it. Open a file to read it.</p><details class="cp-file"><summary>ModelCompare.tsx<span class="l">React</span></summary><pre class="cp-pre"><code>&#39;use client&#39;;
+import { useEffect, useRef, useState, type FormEvent } from &#39;react&#39;;
+import { cx } from &#39;../lib/cx&#39;;
+import { useControllable } from &#39;../lib/hooks&#39;;
+import { Icon } from &#39;../lib/icons&#39;;
+import { Think, Tip } from &#39;../lib/motion&#39;;
+import { usePopover } from &#39;../lib/popover&#39;;
+import &#39;../designme.css&#39;;
+import &#39;./model-compare.css&#39;;
+
+/** A model that can fill a column */
+export interface ModelCompareModel {
+  /** Like &quot;Opus&quot;. Columns refer to models by this name */
+  name: string;
+  /** The letter in its coloured mark, like &quot;O&quot; */
+  mark: string;
+  /** The mark&#39;s colour, like &#39;var(--dm-c2)&#39; */
+  color: string;
+  /** The quiet line under it in the pickers, like &quot;Most capable, slower&quot; */
+  description?: string;
+}
+
+/** One column, side by side with the others */
+export interface ModelCompareColumn {
+  /** Stays the same when the column&#39;s model changes, so answers can be keyed by it */
+  id: string;
+  /** The name of the model in it */
+  model: string;
+}
+
+/** thinking before the first word, answering while the words arrive, done once it has finished */
+export type ModelCompareState = &#39;thinking&#39; | &#39;answering&#39; | &#39;done&#39;;
+
+/** A column&#39;s answer to the prompt that was sent */
+export interface ModelCompareAnswer {
+  state: ModelCompareState;
+  /** The answer so far. New words fade in as it grows */
+  text?: string;
+  /** Time to finish, in seconds, shown once done */
+  seconds?: number;
+  /** Shown in the time&#39;s tooltip, like &quot;38 tokens a second&quot; */
+  tokensPerSecond?: number;
+  /** What the reply cost, in dollars */
+  cost?: number;
+}
+
+export interface ModelCompareProps {
+  /** The models on offer in every picker */
+  models: ModelCompareModel[];
+  /** The columns, left to right. Leave it out to let the pickers, Remove and Add a model change them */
+  columns?: ModelCompareColumn[];
+  /** Defaults to the first `max` models */
+  defaultColumns?: ModelCompareColumn[];
+  onColumnsChange?: (columns: ModelCompareColumn[]) =&gt; void;
+  /** How many columns fit side by side. Defaults to 3 */
+  max?: number;
+  /** The text in the prompt box. Leave it out to let the box keep its own */
+  prompt?: string;
+  defaultPrompt?: string;
+  onPromptChange?: (prompt: string) =&gt; void;
+  /** The prompt the answers are for, shown at the top of every column that has an answer */
+  asked?: string;
+  /** Each column&#39;s answer, by column id. A column without one waits for a prompt */
+  answers?: Record&lt;string, ModelCompareAnswer&gt;;
+  /** Called when the prompt is sent to every column */
+  onSend?: (prompt: string, columns: ModelCompareColumn[]) =&gt; void;
+  /** Called when one column should answer again: its model changed, or it was added after a prompt was sent */
+  onRun?: (column: ModelCompareColumn) =&gt; void;
+  /** The id of the column whose answer was kept. It is outlined and the others fade */
+  chosen?: string | null;
+  defaultChosen?: string | null;
+  onChosenChange?: (id: string | null) =&gt; void;
+  /** Shown in a column before it has an answer */
+  placeholder?: string;
+  className?: string;
+}
+
+const running = (a?: ModelCompareAnswer) =&gt; a?.state === &#39;thinking&#39; || a?.state === &#39;answering&#39;;
+const NONE: Record&lt;string, ModelCompareAnswer&gt; = {};
+
+/** The coloured letter that stands for a model */
+const Mark = ({ model }: { model?: ModelCompareModel }) =&gt; &lt;span className=&quot;dm-mcx-mk&quot; style={{ background: model?.color }}&gt;{model?.mark}&lt;/span&gt;;
+
+/** A picker item: the model&#39;s mark, its name and what it is good at */
+const Item = ({ model }: { model: ModelCompareModel }) =&gt; (
+  &lt;&gt;&lt;Mark model={model} /&gt;&lt;span&gt;{model.name}{model.description &amp;&amp; &lt;span className=&quot;dm-d&quot;&gt;{model.description}&lt;/span&gt;}&lt;/span&gt;&lt;/&gt;
+);
+
+function Column({ column, models, answer, asked, placeholder, removable, leaving, fresh, best, chosen, onModel, onRemove, onChoose }: {
+  column: ModelCompareColumn; models: ModelCompareModel[]; answer?: ModelCompareAnswer; asked?: string; placeholder: string;
+  removable: boolean; leaving: boolean; fresh: boolean; best: { fast?: string; cheap?: string }; chosen: string | null;
+  onModel: (name: string) =&gt; void; onRemove: () =&gt; void; onChoose: () =&gt; void;
+}) {
+  const menu = usePopover();
+  const model = models.find(m =&gt; m.name === column.model);
+  const done = answer?.state === &#39;done&#39;;
+  const won = chosen === column.id;
+  const fast = best.fast === column.id, cheap = best.cheap === column.id;
+  const tps = answer?.tokensPerSecond !== undefined ? &#39;, &#39; + answer.tokensPerSecond + &#39; tokens a second&#39; : &#39;&#39;;
+  return (
+    &lt;div className={cx(&#39;dm-mcx-c dm-panel&#39;, fresh &amp;&amp; &#39;dm-enter&#39;, leaving &amp;&amp; &#39;dm-leave&#39;, chosen &amp;&amp; (won ? &#39;dm-win&#39; : &#39;dm-lose&#39;))}&gt;
+      &lt;div className=&quot;dm-mcx-h&quot;&gt;
+        &lt;button type=&quot;button&quot; className=&quot;dm-mcx-sel&quot; {...menu.trigger}&gt;&lt;Mark model={model} /&gt;{column.model}&lt;Icon name=&quot;chev-d&quot; size=&quot;xs&quot; /&gt;&lt;/button&gt;
+        &lt;Tip label=&quot;Remove&quot;&gt;
+          &lt;button type=&quot;button&quot; className=&quot;dm-ib dm-mcx-x&quot; aria-label=&quot;Remove model&quot; hidden={!removable} onClick={onRemove}&gt;&lt;Icon name=&quot;x&quot; size=&quot;xs&quot; /&gt;&lt;/button&gt;
+        &lt;/Tip&gt;
+      &lt;/div&gt;
+      &lt;div {...menu.pop} className={cx(menu.pop.className, &#39;dm-mcx-pop&#39;)} role=&quot;menu&quot;&gt;
+        {models.map(m =&gt; (
+          &lt;button type=&quot;button&quot; key={m.name} className=&quot;dm-mi&quot; role=&quot;menuitemradio&quot; aria-checked={m.name === column.model}
+            onClick={() =&gt; { menu.closeSoon(); if (m.name !== column.model) onModel(m.name); }}&gt;
+            &lt;Item model={m} /&gt;&lt;span className=&quot;dm-ck&quot;&gt;&lt;Icon name=&quot;check&quot; size=&quot;xs&quot; /&gt;&lt;/span&gt;
+          &lt;/button&gt;
+        ))}
+      &lt;/div&gt;
+      &lt;div className=&quot;dm-mcx-o&quot;&gt;
+        {!answer ? &lt;div className=&quot;dm-mcx-a&quot;&gt;&lt;span className=&quot;dm-ph&quot;&gt;{placeholder}&lt;/span&gt;&lt;/div&gt; : &lt;&gt;
+          {asked &amp;&amp; &lt;div className=&quot;dm-bub&quot;&gt;{asked}&lt;/div&gt;}
+          &lt;div className=&quot;dm-mcx-a&quot;&gt;
+            {answer.state === &#39;thinking&#39;
+              ? &lt;span className=&quot;dm-wk&quot;&gt;&lt;Think /&gt;&lt;span className=&quot;dm-shim&quot;&gt;Thinking&lt;/span&gt;&lt;/span&gt;
+              : &lt;span&gt;{(answer.text ?? &#39;&#39;).split(&#39; &#39;).filter(Boolean).map((w, i) =&gt; &lt;span key={i} className=&quot;dm-w&quot;&gt;{w} &lt;/span&gt;)}&lt;/span&gt;}
+          &lt;/div&gt;
+        &lt;/&gt;}
+      &lt;/div&gt;
+      &lt;div className=&quot;dm-mcx-f&quot;&gt;
+        &lt;span className=&quot;dm-mcx-m dm-num&quot;&gt;
+          {!answer ? &#39;No run yet&#39; : !done ? &#39;Running&#39; : &lt;&gt;
+            {answer.seconds !== undefined &amp;&amp; &lt;Tip label={(fast ? &#39;Fastest. &#39; : &#39;&#39;) + &#39;Time to finish&#39; + tps}&gt;&lt;span className={cx(&#39;dm-tm&#39;, fast &amp;&amp; &#39;dm-best&#39;)}&gt;{answer.seconds.toFixed(1)}s&lt;/span&gt;&lt;/Tip&gt;}
+            {answer.cost !== undefined &amp;&amp; &lt;Tip label={cheap ? &#39;Cheapest reply&#39; : &#39;Cost of this reply&#39;}&gt;&lt;span className={cx(&#39;dm-co&#39;, cheap &amp;&amp; &#39;dm-best&#39;)}&gt;${answer.cost.toFixed(3)}&lt;/span&gt;&lt;/Tip&gt;}
+          &lt;/&gt;}
+        &lt;/span&gt;
+        &lt;button type=&quot;button&quot; className=&quot;dm-pill dm-soft dm-sm dm-mcx-pick&quot; disabled={!done} onClick={onChoose}&gt;
+          {won ? &lt;&gt;&lt;Icon name=&quot;check&quot; size=&quot;xs&quot; /&gt;Chosen&lt;/&gt; : &#39;Use this&#39;}
+        &lt;/button&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  );
+}
+
+/** One prompt run on several models side by side, so you can keep the best answer. */
+export function ModelCompare({
+  models, columns, defaultColumns, onColumnsChange, max = 3, prompt, defaultPrompt = &#39;&#39;, onPromptChange, asked, answers = NONE,
+  onSend, onRun, chosen, defaultChosen = null, onChosenChange, placeholder = &#39;Waiting for a prompt&#39;, className
+}: ModelCompareProps) {
+  const [cols, setCols] = useControllable(columns, defaultColumns ?? models.slice(0, max).map(m =&gt; ({ id: m.name, model: m.name })), onColumnsChange);
+  const [text, setText] = useControllable(prompt, defaultPrompt, onPromptChange);
+  const [pick, setPick] = useControllable(chosen, defaultChosen, onChosenChange);
+  const add = usePopover({ align: &#39;end&#39;, side: &#39;down&#39; });
+
+  // columns that were there from the start come in with the card; later ones play their own entrance
+  const [first] = useState(() =&gt; new Set(cols.map(c =&gt; c.id)));
+  // a removed column fades out before it leaves the list
+  const [leaving, setLeaving] = useState&lt;string[]&gt;([]);
+  const timers = useRef&lt;ReturnType&lt;typeof setTimeout&gt;[]&gt;([]);
+  useEffect(() =&gt; () =&gt; timers.current.forEach(clearTimeout), []);
+  const latest = useRef(cols);
+  useEffect(() =&gt; { latest.current = cols; });
+
+  const busy = cols.some(c =&gt; running(answers[c.id]));
+  // Send waits for a full send to finish; a single column answering again leaves it free, as on designme.dev
+  const [sent, setSent] = useState(false);
+  useEffect(() =&gt; { if (!busy) setSent(false); }, [busy]);
+  // when the answers settle, the fastest time and the lowest cost turn green; they stay put until the next answers settle,
+  // so a column answering again or leaving changes nothing until then, as on designme.dev
+  const [best, setBest] = useState&lt;{ fast?: string; cheap?: string }&gt;({});
+  const settled = useRef&lt;boolean | null&gt;(null);
+  useEffect(() =&gt; {
+    const ended = settled.current !== true &amp;&amp; !busy;
+    settled.current = !busy;
+    if (!ended) return;
+    const done = cols.filter(c =&gt; answers[c.id]?.state === &#39;done&#39;);
+    const low = (k: &#39;seconds&#39; | &#39;cost&#39;) =&gt; done.length &lt; 2 ? undefined : done.reduce((a, b) =&gt; (answers[b.id][k] ?? Infinity) &lt; (answers[a.id][k] ?? Infinity) ? b : a).id;
+    const fast = low(&#39;seconds&#39;), cheap = low(&#39;cost&#39;);
+    setBest(b =&gt; b.fast === fast &amp;&amp; b.cheap === cheap ? b : { fast, cheap });
+  }, [busy, answers, cols]);
+
+  const rerun = (c: ModelCompareColumn) =&gt; { setPick(null); if (asked) onRun?.(c); };
+  const setModel = (id: string, model: string) =&gt; {
+    const next = cols.map(c =&gt; c.id === id ? { ...c, model } : c);
+    setCols(next); rerun(next.find(c =&gt; c.id === id)!);
+  };
+  const addModel = (model: string) =&gt; {
+    let n = cols.length, id = model.toLowerCase() + &#39;-&#39; + n;
+    while (cols.some(c =&gt; c.id === id)) id = model.toLowerCase() + &#39;-&#39; + ++n;
+    const c = { id, model };
+    setCols([...cols, c]); add.closeSoon(); rerun(c);
+  };
+  const remove = (id: string) =&gt; {
+    if (leaving.includes(id)) return;
+    setLeaving(l =&gt; [...l, id]);
+    timers.current.push(setTimeout(() =&gt; { setLeaving(l =&gt; l.filter(x =&gt; x !== id)); setCols(latest.current.filter(c =&gt; c.id !== id)); }, 260));
+  };
+  const send = (e: FormEvent) =&gt; {
+    e.preventDefault();
+    const q = text.trim(); if (!q || (sent &amp;&amp; busy)) return;
+    setPick(null); setSent(true); onSend?.(q, cols);
+  };
+
+  return (
+    &lt;div data-dm=&quot;&quot; className={cx(&#39;dm-mcx&#39;, className)}&gt;
+      &lt;div className=&quot;dm-mcx-cols&quot;&gt;
+        {cols.map(c =&gt; (
+          &lt;Column key={c.id} column={c} models={models} answer={answers[c.id]} asked={asked} placeholder={placeholder}
+            removable={cols.length &gt; 1} leaving={leaving.includes(c.id)} fresh={!first.has(c.id)} best={best} chosen={pick}
+            onModel={m =&gt; setModel(c.id, m)} onRemove={() =&gt; remove(c.id)} onChoose={() =&gt; setPick(pick === c.id ? null : c.id)} /&gt;
+        ))}
+        {cols.length &lt; max &amp;&amp; (
+          &lt;div className=&quot;dm-mcx-add&quot;&gt;
+            &lt;button type=&quot;button&quot; className=&quot;dm-mcx-addb&quot; {...add.trigger}&gt;
+              &lt;span className=&quot;dm-ic&quot;&gt;&lt;Icon name=&quot;plus&quot; /&gt;&lt;/span&gt;Add a model&lt;span className=&quot;dm-d&quot;&gt;Compare up to {max}&lt;/span&gt;
+            &lt;/button&gt;
+            &lt;div {...add.pop} className={cx(add.pop.className, &#39;dm-mcx-pop dm-mcx-pa&#39;)} role=&quot;menu&quot;&gt;
+              {models.map(m =&gt; &lt;button type=&quot;button&quot; key={m.name} className=&quot;dm-mi&quot; role=&quot;menuitem&quot; onClick={() =&gt; addModel(m.name)}&gt;&lt;Item model={m} /&gt;&lt;/button&gt;)}
+            &lt;/div&gt;
+          &lt;/div&gt;
+        )}
+      &lt;/div&gt;
+      &lt;form className=&quot;dm-mcx-in&quot; onSubmit={send}&gt;
+        &lt;input className=&quot;dm-mcx-q&quot; value={text} onChange={e =&gt; setText(e.target.value)} aria-label=&quot;Prompt for every model&quot; spellCheck={false} /&gt;
+        &lt;span className=&quot;dm-mcx-n dm-muted&quot;&gt;Sends to {cols.length} {cols.length &gt; 1 ? &#39;models&#39; : &#39;model&#39;}&lt;/span&gt;
+        &lt;Tip label=&quot;Send to every model&quot; kbd=&quot;↵&quot;&gt;
+          &lt;button type=&quot;submit&quot; className=&quot;dm-mcx-go&quot; aria-label=&quot;Send to every model&quot; disabled={(sent &amp;&amp; busy) || !text.trim()}&gt;&lt;Icon name=&quot;up&quot; /&gt;&lt;/button&gt;
+        &lt;/Tip&gt;
+      &lt;/form&gt;
+    &lt;/div&gt;
+  );
+}
+</code></pre></details><details class="cp-file"><summary>model-compare.css<span class="l">React</span></summary><pre class="cp-pre"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+/* ---------- Model compare ---------- */
+.dm-mcx{display:flex;flex-direction:column;gap:12px}
+.dm-mcx-cols{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+@media (max-width:720px){.dm-mcx-cols{grid-template-columns:1fr}}
+.dm-mcx-c{display:flex;flex-direction:column;min-height:252px;min-width:0;transition:box-shadow .35s,opacity .4s}
+.dm-mcx-c.dm-win{box-shadow:0 0 0 1.5px var(--dm-accent),var(--dm-shadow)}
+.dm-mcx-c.dm-lose{opacity:.55}
+.dm-mcx-c.dm-enter{animation-duration:.5s}
+.dm-mcx-h{display:flex;align-items:center;gap:6px;height:46px;padding:0 6px;border-bottom:1px solid var(--dm-line)}
+.dm-mcx-sel{display:inline-flex;align-items:center;gap:7px;height:32px;padding:0 8px 0 6px;border-radius:9px;font-size:13px;font-weight:500;min-width:0;transition:background .2s}
+.dm-mcx-sel:hover,.dm-mcx-sel[aria-expanded=&quot;true&quot;]{background:var(--dm-chip)}
+.dm-mcx-sel&gt;.dm-i{color:var(--dm-muted)}
+.dm-mcx-mk{width:20px;height:20px;border-radius:6px;display:grid;place-items:center;font-size:10px;font-weight:600;color:#fff;flex:none}
+.dm-mcx-x{width:26px;height:26px;margin-left:auto;color:var(--dm-muted)}
+.dm-mcx-o{flex:1;display:flex;flex-direction:column;gap:10px;padding:12px}
+.dm-mcx-o .dm-bub{font-size:13px;padding:7px 11px;border-radius:14px;max-width:92%}
+.dm-mcx-a{font-size:13.5px;line-height:1.55;color:var(--dm-fg);display:flex;flex-direction:column;gap:6px}
+.dm-mcx-a .dm-w{animation:dm-mcw .4s var(--dm-ease) both}
+@keyframes dm-mcw{from{opacity:0;filter:blur(3px)}to{opacity:1;filter:none}}
+.dm-mcx-a .dm-ph{color:var(--dm-muted);font-size:12.5px}
+.dm-mcx-a .dm-wk{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;color:var(--dm-muted)}
+.dm-mcx-a .dm-wk .dm-think{color:var(--dm-accent)}
+.dm-mcx-f{display:flex;align-items:center;gap:8px;height:44px;padding:0 8px 0 12px;border-top:1px solid var(--dm-line);font-size:12px;color:var(--dm-muted)}
+.dm-mcx-m{display:inline-flex;gap:10px;white-space:nowrap}
+.dm-mcx-m span{cursor:default;display:inline-flex;align-items:center;gap:4px;transition:color .3s}
+.dm-mcx-m .dm-best{color:var(--dm-ok);font-weight:500}
+.dm-mcx-pick{margin-left:auto}
+.dm-mcx-pop{min-width:250px}
+.dm-mcx-pop .dm-mi[disabled]{opacity:.45;cursor:not-allowed}
+.dm-mcx-add{border-radius:var(--dm-r-card);box-shadow:inset 0 0 0 1.5px var(--dm-rail);display:flex;align-items:center;justify-content:center;min-height:252px;position:relative;transition:background .2s,box-shadow .2s}
+.dm-mcx-add:hover{background:var(--dm-surface);box-shadow:inset 0 0 0 1.5px var(--dm-faint)}
+.dm-mcx-addb{display:flex;flex-direction:column;align-items:center;gap:6px;font-size:13px;color:var(--dm-fg2);padding:14px 18px;border-radius:14px;transition:background .2s,color .2s}
+.dm-mcx-addb:hover,.dm-mcx-addb[aria-expanded=&quot;true&quot;]{color:var(--dm-fg)}
+.dm-mcx-addb .dm-ic{margin-bottom:2px}
+.dm-mcx-addb .dm-ic{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:var(--dm-soft,var(--dm-chip));box-shadow:var(--dm-soft-ring,none);color:var(--dm-fg)}
+.dm-mcx-addb .dm-d{font-size:12px;color:var(--dm-muted)}
+.dm-mcx-in{display:flex;align-items:center;gap:10px;padding:6px 6px 6px 18px;border-radius:999px;background:var(--dm-surface);box-shadow:var(--dm-shadow);transition:box-shadow .25s}
+.dm-mcx-in:focus-within{box-shadow:var(--dm-shadow),0 0 0 4px var(--dm-accent-bg)}
+.dm-mcx-q{flex:1;min-width:0;border:0;outline:0;background:none;font:inherit;font-size:13.5px;color:var(--dm-fg)}
+.dm-mcx-n{font-size:12px;white-space:nowrap}
+.dm-mcx-go{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:var(--dm-ink);color:var(--dm-on-ink);flex:none;transition:opacity .2s,transform .15s}
+.dm-mcx-go:active{transform:scale(.92)}
+.dm-mcx-go[disabled]{background:var(--dm-rail);color:var(--dm-surface);cursor:not-allowed}
+</code></pre></details><details class="cp-file"><summary>model-compare.html<span class="l">HTML</span></summary><pre class="cp-pre"><code>&lt;div class=&quot;card wide&quot; data-c=&quot;model-compare&quot;&gt;
+  &lt;div class=&quot;stage-in&quot;&gt;&lt;/div&gt;
+  &lt;template&gt;
+&lt;div class=&quot;mcx&quot;&gt;
+  &lt;div class=&quot;mcx-cols&quot;&gt;&lt;/div&gt;
+  &lt;form class=&quot;mcx-in&quot;&gt;&lt;input class=&quot;mcx-q&quot; value=&quot;Write a one line value prop for the Pro plan&quot; aria-label=&quot;Prompt for every model&quot; spellcheck=&quot;false&quot;&gt;&lt;span class=&quot;mcx-n muted&quot;&gt;Sends to 3 models&lt;/span&gt;&lt;button class=&quot;mcx-go&quot; aria-label=&quot;Send to every model&quot; data-tip=&quot;Send to every model&quot; data-tip-k=&quot;↵&quot;&gt;{up}&lt;/button&gt;&lt;/form&gt;
+&lt;/div&gt;
+  &lt;/template&gt;
+&lt;/div&gt;
+</code></pre></details><details class="cp-file"><summary>model-compare.css<span class="l">HTML</span></summary><pre class="cp-pre"><code>/* ---------- Model compare ---------- */
+.mcx{display:flex;flex-direction:column;gap:12px}
+.mcx-cols{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+@media (max-width:720px){.mcx-cols{grid-template-columns:1fr}}
+.mcx-c{display:flex;flex-direction:column;min-height:252px;min-width:0;transition:box-shadow .35s,opacity .4s}
+.mcx-c.win{box-shadow:0 0 0 1.5px var(--accent),var(--shadow)}
+.mcx-c.lose{opacity:.55}
+.mcx-c.enter{animation-duration:.5s}
+.mcx-h{display:flex;align-items:center;gap:6px;height:46px;padding:0 6px;border-bottom:1px solid var(--line)}
+.mcx-sel{display:inline-flex;align-items:center;gap:7px;height:32px;padding:0 8px 0 6px;border-radius:9px;font-size:13px;font-weight:500;min-width:0;transition:background .2s}
+.mcx-sel:hover,.mcx-sel[aria-expanded=&quot;true&quot;]{background:var(--chip)}
+.mcx-sel&gt;.i{color:var(--muted)}
+.mcx-mk{width:20px;height:20px;border-radius:6px;display:grid;place-items:center;font-size:10px;font-weight:600;color:#fff;flex:none}
+.mcx-x{width:26px;height:26px;margin-left:auto;color:var(--muted)}
+.mcx-o{flex:1;display:flex;flex-direction:column;gap:10px;padding:12px}
+.mcx-o .bub{font-size:13px;padding:7px 11px;border-radius:14px;max-width:92%}
+.mcx-a{font-size:13.5px;line-height:1.55;color:var(--fg);display:flex;flex-direction:column;gap:6px}
+.mcx-a .w{animation:mcw .4s var(--ease) both}
+@keyframes mcw{from{opacity:0;filter:blur(3px)}to{opacity:1;filter:none}}
+.mcx-a .ph{color:var(--muted);font-size:12.5px}
+.mcx-a .wk{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;color:var(--muted)}
+.mcx-a .wk .think{color:var(--accent)}
+.mcx-f{display:flex;align-items:center;gap:8px;height:44px;padding:0 8px 0 12px;border-top:1px solid var(--line);font-size:12px;color:var(--muted)}
+.mcx-m{display:inline-flex;gap:10px;white-space:nowrap}
+.mcx-m span{cursor:default;display:inline-flex;align-items:center;gap:4px;transition:color .3s}
+.mcx-m .best{color:var(--ok);font-weight:500}
+.mcx-pick{margin-left:auto}
+.mcx-pop{min-width:250px}
+.mcx-pop .mi[disabled]{opacity:.45;cursor:not-allowed}
+.mcx-add{border-radius:var(--r-card);box-shadow:inset 0 0 0 1.5px var(--rail);display:flex;align-items:center;justify-content:center;min-height:252px;position:relative;transition:background .2s,box-shadow .2s}
+.mcx-add:hover{background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--faint)}
+.mcx-addb{display:flex;flex-direction:column;align-items:center;gap:6px;font-size:13px;color:var(--fg2);padding:14px 18px;border-radius:14px;transition:background .2s,color .2s}
+.mcx-addb:hover,.mcx-addb[aria-expanded=&quot;true&quot;]{color:var(--fg)}
+.mcx-addb .ic{margin-bottom:2px}
+.mcx-addb .ic{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:var(--soft,var(--chip));box-shadow:var(--soft-ring,none);color:var(--fg)}
+.mcx-addb .d{font-size:12px;color:var(--muted)}
+.mcx-in{display:flex;align-items:center;gap:10px;padding:6px 6px 6px 18px;border-radius:999px;background:var(--surface);box-shadow:var(--shadow);transition:box-shadow .25s}
+.mcx-in:focus-within{box-shadow:var(--shadow),0 0 0 4px var(--accent-bg)}
+.mcx-q{flex:1;min-width:0;border:0;outline:0;background:none;font:inherit;font-size:13.5px;color:var(--fg)}
+.mcx-n{font-size:12px;white-space:nowrap}
+.mcx-go{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:var(--ink);color:var(--on-ink);flex:none;transition:opacity .2s,transform .15s}
+.mcx-go:active{transform:scale(.92)}
+.mcx-go[disabled]{background:var(--rail);color:var(--surface);cursor:not-allowed}
+</code></pre></details><details class="cp-file"><summary>model-compare.js<span class="l">HTML</span></summary><pre class="cp-pre"><code>DM.def(&#39;model-compare&#39;, (r, c) =&gt; {
+  r.innerHTML = r.innerHTML.replace(&#39;{up}&#39;, I(&#39;up&#39;));
+  const MOD = {
+    Opus:{ k:&#39;O&#39;, c:&#39;var(--c2)&#39;, d:&#39;Most capable, slower&#39;, ms:2400, tps:38, cost:.021, o:&#39;Pro gives every designer an agent that knows your tokens, so reviews take minutes, not days.&#39; },
+    Sonnet:{ k:&#39;S&#39;, c:&#39;var(--c1)&#39;, d:&#39;Balanced speed and quality&#39;, ms:1300, tps:74, cost:.006, o:&#39;Ship polished pages faster with an agent that checks every frame for you.&#39; },
+    Haiku:{ k:&#39;H&#39;, c:&#39;var(--c3)&#39;, d:&#39;Fastest, lowest cost&#39;, ms:600, tps:142, cost:.001, o:&#39;Your design QA, on autopilot.&#39; }
+  };
+  const generic = { Opus:&#39;Here is a considered take, with the trade-offs spelled out and one clear recommendation at the end.&#39;, Sonnet:&#39;Here is a clear, direct answer with the two points that matter most.&#39;, Haiku:&#39;Short answer: yes, and here is the one line why.&#39; };
+  const cols = $(&#39;.mcx-cols&#39;, r), q = $(&#39;.mcx-q&#39;, r), go = $(&#39;.mcx-go&#39;, r), cnt = $(&#39;.mcx-n&#39;, r), DEF = q.value, MAX = 3;
+  const C = []; let uid = 0, asked = &#39;&#39;, busy = 0;
+  const menu = (id, cur) =&gt; `&lt;div class=&quot;pop mcx-pop ${id}&quot; role=&quot;menu&quot;&gt;${Object.keys(MOD).map(n =&gt; `&lt;button class=&quot;mi&quot; role=&quot;menuitemradio&quot; data-close data-m=&quot;${n}&quot; aria-checked=&quot;${n === cur}&quot;&gt;&lt;span class=&quot;mcx-mk&quot; style=&quot;background:${MOD[n].c}&quot;&gt;${MOD[n].k}&lt;/span&gt;&lt;span&gt;${n}&lt;span class=&quot;d&quot;&gt;${MOD[n].d}&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;ck&quot;&gt;${I(&#39;check&#39;,&#39;xs&#39;)}&lt;/span&gt;&lt;/button&gt;`).join(&#39;&#39;)}&lt;/div&gt;`;
+  /* the empty slot: add a model back, up to three side by side */
+  const slot = html(`&lt;div class=&quot;mcx-add&quot;&gt;&lt;button class=&quot;mcx-addb&quot; data-pop=&quot;.mcx-pa&quot; data-pop-pos=&quot;down&quot; data-pop-align=&quot;end&quot; aria-haspopup=&quot;menu&quot;&gt;&lt;span class=&quot;ic&quot;&gt;${I(&#39;plus&#39;,&#39;s&#39;)}&lt;/span&gt;Add a model&lt;span class=&quot;d&quot;&gt;Compare up to 3&lt;/span&gt;&lt;/button&gt;&lt;div class=&quot;pop mcx-pop mcx-pa&quot; role=&quot;menu&quot;&gt;&lt;/div&gt;&lt;/div&gt;`);
+  function sync(){
+    cnt.textContent = &#39;Sends to &#39; + C.length + (C.length &gt; 1 ? &#39; models&#39; : &#39; model&#39;);
+    C.forEach(col =&gt; { const x = $(&#39;.mcx-x&#39;, col.el); x.hidden = C.length &lt; 2; });
+    if (C.length &lt; MAX){ cols.appendChild(slot); $(&#39;.mcx-pa&#39;, slot).innerHTML = Object.keys(MOD).map(n =&gt; `&lt;button class=&quot;mi&quot; role=&quot;menuitem&quot; data-close data-m=&quot;${n}&quot;&gt;&lt;span class=&quot;mcx-mk&quot; style=&quot;background:${MOD[n].c}&quot;&gt;${MOD[n].k}&lt;/span&gt;&lt;span&gt;${n}&lt;span class=&quot;d&quot;&gt;${MOD[n].d}&lt;/span&gt;&lt;/span&gt;&lt;/button&gt;`).join(&#39;&#39;); $$(&#39;.mcx-pa .mi&#39;, slot).forEach(b =&gt; b.onclick = () =&gt; addCol(b.dataset.m, true)); }
+    else slot.remove();
+  }
+  function head(col){ const m = MOD[col.m]; $(&#39;.mcx-sel&#39;, col.el).innerHTML = `&lt;span class=&quot;mcx-mk&quot; style=&quot;background:${m.c}&quot;&gt;${m.k}&lt;/span&gt;${col.m}${I(&#39;chev-d&#39;,&#39;xs&#39;)}`; $$(&#39;.mi&#39;, col.el).forEach(x =&gt; x.setAttribute(&#39;aria-checked&#39;, x.dataset.m === col.m)); }
+  function addCol(m, fresh){
+    const id = &#39;mcx-p&#39; + (uid++), el = html(`&lt;div class=&quot;mcx-c panel&quot;&gt;&lt;div class=&quot;mcx-h&quot;&gt;&lt;button class=&quot;mcx-sel&quot; data-pop=&quot;.${id}&quot; aria-haspopup=&quot;menu&quot;&gt;&lt;/button&gt;&lt;button class=&quot;ib mcx-x&quot; aria-label=&quot;Remove model&quot; data-tip=&quot;Remove&quot;&gt;${I(&#39;x&#39;,&#39;xs&#39;)}&lt;/button&gt;&lt;/div&gt;${menu(id, m)}&lt;div class=&quot;mcx-o&quot;&gt;&lt;div class=&quot;mcx-a&quot;&gt;&lt;span class=&quot;ph&quot;&gt;Waiting for a prompt&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;mcx-f&quot;&gt;&lt;span class=&quot;mcx-m num&quot;&gt;No run yet&lt;/span&gt;&lt;button class=&quot;pill soft sm mcx-pick&quot; disabled&gt;Use this&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;`);
+    const col = { m, el, run:0 }; C.push(col); cols.insertBefore(el, slot.parentNode === cols ? slot : null); head(col);
+    $$(&#39;.mi&#39;, el).forEach(x =&gt; x.addEventListener(&#39;click&#39;, () =&gt; { if (col.m === x.dataset.m) return; col.m = x.dataset.m; head(col); if (asked) c.run(() =&gt; one(col)); }));
+    $(&#39;.mcx-x&#39;, el).onclick = () =&gt; { hideTip(); C.splice(C.indexOf(col), 1); col.run++; el.classList.add(&#39;leave&#39;); setTimeout(() =&gt; { el.remove(); sync(); }, 260); };
+    $(&#39;.mcx-pick&#39;, el).onclick = () =&gt; choose(col);
+    if (fresh){ enter(el); sync(); if (asked) c.run(() =&gt; one(col)); }
+    return col;
+  }
+  function choose(col){
+    const on = !col.el.classList.contains(&#39;win&#39;);
+    C.forEach(x =&gt; { x.el.classList.toggle(&#39;win&#39;, on &amp;&amp; x === col); x.el.classList.toggle(&#39;lose&#39;, on &amp;&amp; x !== col); $(&#39;.mcx-pick&#39;, x.el).innerHTML = on &amp;&amp; x === col ? I(&#39;check&#39;,&#39;xs&#39;) + &#39;Chosen&#39; : &#39;Use this&#39;; });
+  }
+  async function one(col){
+    const id = ++col.run, el = col.el, m = MOD[col.m], o = $(&#39;.mcx-o&#39;, el), f = $(&#39;.mcx-m&#39;, el), pk = $(&#39;.mcx-pick&#39;, el);
+    C.forEach(x =&gt; x.el.classList.remove(&#39;win&#39;,&#39;lose&#39;)); C.forEach(x =&gt; { const b = $(&#39;.mcx-pick&#39;, x.el); if (b.textContent === &#39;Chosen&#39;) b.textContent = &#39;Use this&#39;; });
+    pk.disabled = true; f.textContent = &#39;Running&#39;; busy++;
+    o.innerHTML = `&lt;div class=&quot;bub&quot;&gt;${asked.replace(/&lt;/g,&#39;&amp;lt;&#39;)}&lt;/div&gt;&lt;div class=&quot;mcx-a&quot;&gt;&lt;span class=&quot;wk&quot;&gt;&lt;span class=&quot;think on&quot;&gt;&lt;i&gt;&lt;/i&gt;&lt;i&gt;&lt;/i&gt;&lt;i&gt;&lt;/i&gt;&lt;i&gt;&lt;/i&gt;&lt;/span&gt;&lt;span class=&quot;shim&quot;&gt;Thinking&lt;/span&gt;&lt;/span&gt;&lt;/div&gt;`;
+    const a = $(&#39;.mcx-a&#39;, o);
+    try {
+      await c.wait(m.ms * .35); if (id !== col.run) return;
+      const ws = (asked === DEF ? m.o : generic[col.m]).split(&#39; &#39;); a.innerHTML = &#39;&lt;span&gt;&lt;/span&gt;&#39;; const p = a.firstChild;
+      for (const w of ws){ p.insertAdjacentHTML(&#39;beforeend&#39;, `&lt;span class=&quot;w&quot;&gt;${w} &lt;/span&gt;`); await c.wait(m.ms * .65 / ws.length); if (id !== col.run) return; }
+      f.innerHTML = `&lt;span class=&quot;tm&quot; data-tip=&quot;Time to finish, ${m.tps} tokens a second&quot;&gt;${(m.ms / 1000).toFixed(1)}s&lt;/span&gt;&lt;span class=&quot;co&quot; data-tip=&quot;Cost of this reply&quot;&gt;$${m.cost.toFixed(3)}&lt;/span&gt;`; pk.disabled = false;
+    } finally { busy--; if (!busy) badges(); }
+  }
+  /* once every column has answered, the fastest time and the lowest cost turn green */
+  function badges(){
+    go.disabled = sending || !q.value.trim();
+    const done = C.filter(x =&gt; !$(&#39;.mcx-pick&#39;, x.el).disabled); if (done.length &lt; 2) return;
+    const fast = done.reduce((a, b) =&gt; MOD[b.m].ms &lt; MOD[a.m].ms ? b : a), cheap = done.reduce((a, b) =&gt; MOD[b.m].cost &lt; MOD[a.m].cost ? b : a);
+    done.forEach(x =&gt; { const tm = $(&#39;.tm&#39;, x.el), co = $(&#39;.co&#39;, x.el);
+      tm.classList.toggle(&#39;best&#39;, x === fast); tm.dataset.tip = (x === fast ? &#39;Fastest. &#39; : &#39;&#39;) + &#39;Time to finish, &#39; + MOD[x.m].tps + &#39; tokens a second&#39;;
+      co.classList.toggle(&#39;best&#39;, x === cheap); co.dataset.tip = x === cheap ? &#39;Cheapest reply&#39; : &#39;Cost of this reply&#39;; });
+  }
+  [&#39;Opus&#39;,&#39;Sonnet&#39;,&#39;Haiku&#39;].forEach(m =&gt; addCol(m)); sync();
+  // Send stays off while a send is answering, even if the prompt changes
+  let sending = false;
+  const run = () =&gt; c.run(async () =&gt; { if (!q.value.trim()) return; asked = q.value.trim(); go.disabled = true; sending = true; try { await Promise.all(C.map(one)); } finally { sending = false; } go.disabled = !q.value.trim(); });
+  $(&#39;.mcx-in&#39;, r).onsubmit = e =&gt; { e.preventDefault(); if (!sending) run(); };
+  q.oninput = () =&gt; { go.disabled = sending || !q.value.trim(); };
+  c.later(1200, run);
+});
+</code></pre></details></section><section class="cp-sec" id="questions"><h2>Questions</h2><dl class="cp-faq"><dt>How do I stream each model's answer into its column?</dt><dd>Handle <code>onSend</code>, call your models, and update <code>answers</code> keyed by column id. Set <code>state</code> to 'thinking', then 'answering' with growing <code>text</code>, then 'done' with <code>seconds</code>, <code>cost</code> and optionally <code>tokensPerSecond</code>.</dd><dt>What happens when someone swaps the model in one column?</dt><dd>The column keeps its <code>id</code>, the pick is cleared, and <code>onRun</code> is called with that column if a prompt has already been sent. Rerun just that column and update its answer.</dd><dt>How do I know which answer the person kept?</dt><dd>Listen to <code>onChosenChange</code>. It gets the chosen column's id, or null when they unpick it or send a new prompt.</dd><dt>Can I compare more than three models?</dt><dd>Yes. Set <code>max</code> to the number of columns you want; "Add a model" shows until that many are open.</dd></dl></section><section class="cp-sec wide"><h2>More in Workspace</h2><div class="cp-rel"><a href="/components/automation-canvas"><b>Automation canvas</b><span>A trigger, a few agent steps, and a run you can watch flow through.</span></a><a href="/components/command-palette"><b>Command palette</b><span>Jump anywhere or hand a task to the agent from one box.</span></a><a href="/components/memory-panel"><b>Memory panel</b><span>What the agent remembers about your team, editable and removable.</span></a><a href="/components/agent-settings"><b>Agent settings</b><span>How much the agent may do alone, with a save bar for changes.</span></a><a href="/components/tool-connections"><b>Tools and connections</b><span>The tools the agent can reach, and how much it may do with each.</span></a><a href="/components/file-explorer"><b>File explorer</b><span>Project files, with the ones the agent touched marked.</span></a><a href="/components/workspace-rail"><b>Workspace rail</b><span>A slim app rail that opens into a labelled sidebar.</span></a></div></section><nav class="cp-pn" aria-label="Previous and next component"><a href="/components/memory-panel" rel="prev"><span class="k">Previous</span><b>Memory panel</b></a><a href="/components/agent-settings" rel="next" class="n"><span class="k">Next</span><b>Agent settings</b></a></nav></main><footer class="pg-foot"><div class="pg-foot-in"><span>Free and MIT licensed. Built by <a href="https://designme.agency">DesignMe</a>.</span><nav aria-label="More"><a href="/components">All components</a><a href="/#/changelog">Changelog</a><a href="/llms.txt">llms.txt</a><a href="/r/index.json">Registry</a><a href="/">Home</a></nav></div></footer><script>
+// light and dark, shared with the rest of the site through the same saved setting
+(function(){
+  var root = document.documentElement, mq = matchMedia('(prefers-color-scheme: dark)');
+  var cur = function(){ return root.getAttribute('data-theme') || (mq.matches ? 'dark' : 'light'); };
+  document.getElementById('pg-theme').addEventListener('click', function(){
+    var next = cur() === 'dark' ? 'light' : 'dark', sys = mq.matches ? 'dark' : 'light';
+    if (next === sys){ root.removeAttribute('data-theme'); try { localStorage.removeItem('dmui-theme'); } catch(e){} }
+    else { root.setAttribute('data-theme', next); try { localStorage.setItem('dmui-theme', next); } catch(e){} }
+  });
+})();
+</script><script src="/components/assets/core.js"></script><script>DM.def('model-compare', (r, c) => {
+  r.innerHTML = r.innerHTML.replace('{up}', I('up'));
+  const MOD = {
+    Opus:{ k:'O', c:'var(--c2)', d:'Most capable, slower', ms:2400, tps:38, cost:.021, o:'Pro gives every designer an agent that knows your tokens, so reviews take minutes, not days.' },
+    Sonnet:{ k:'S', c:'var(--c1)', d:'Balanced speed and quality', ms:1300, tps:74, cost:.006, o:'Ship polished pages faster with an agent that checks every frame for you.' },
+    Haiku:{ k:'H', c:'var(--c3)', d:'Fastest, lowest cost', ms:600, tps:142, cost:.001, o:'Your design QA, on autopilot.' }
+  };
+  const generic = { Opus:'Here is a considered take, with the trade-offs spelled out and one clear recommendation at the end.', Sonnet:'Here is a clear, direct answer with the two points that matter most.', Haiku:'Short answer: yes, and here is the one line why.' };
+  const cols = $('.mcx-cols', r), q = $('.mcx-q', r), go = $('.mcx-go', r), cnt = $('.mcx-n', r), DEF = q.value, MAX = 3;
+  const C = []; let uid = 0, asked = '', busy = 0;
+  const menu = (id, cur) => `<div class="pop mcx-pop ${id}" role="menu">${Object.keys(MOD).map(n => `<button class="mi" role="menuitemradio" data-close data-m="${n}" aria-checked="${n === cur}"><span class="mcx-mk" style="background:${MOD[n].c}">${MOD[n].k}</span><span>${n}<span class="d">${MOD[n].d}</span></span><span class="ck">${I('check','xs')}</span></button>`).join('')}</div>`;
+  /* the empty slot: add a model back, up to three side by side */
+  const slot = html(`<div class="mcx-add"><button class="mcx-addb" data-pop=".mcx-pa" data-pop-pos="down" data-pop-align="end" aria-haspopup="menu"><span class="ic">${I('plus','s')}</span>Add a model<span class="d">Compare up to 3</span></button><div class="pop mcx-pop mcx-pa" role="menu"></div></div>`);
+  function sync(){
+    cnt.textContent = 'Sends to ' + C.length + (C.length > 1 ? ' models' : ' model');
+    C.forEach(col => { const x = $('.mcx-x', col.el); x.hidden = C.length < 2; });
+    if (C.length < MAX){ cols.appendChild(slot); $('.mcx-pa', slot).innerHTML = Object.keys(MOD).map(n => `<button class="mi" role="menuitem" data-close data-m="${n}"><span class="mcx-mk" style="background:${MOD[n].c}">${MOD[n].k}</span><span>${n}<span class="d">${MOD[n].d}</span></span></button>`).join(''); $$('.mcx-pa .mi', slot).forEach(b => b.onclick = () => addCol(b.dataset.m, true)); }
+    else slot.remove();
+  }
+  function head(col){ const m = MOD[col.m]; $('.mcx-sel', col.el).innerHTML = `<span class="mcx-mk" style="background:${m.c}">${m.k}</span>${col.m}${I('chev-d','xs')}`; $$('.mi', col.el).forEach(x => x.setAttribute('aria-checked', x.dataset.m === col.m)); }
+  function addCol(m, fresh){
+    const id = 'mcx-p' + (uid++), el = html(`<div class="mcx-c panel"><div class="mcx-h"><button class="mcx-sel" data-pop=".${id}" aria-haspopup="menu"></button><button class="ib mcx-x" aria-label="Remove model" data-tip="Remove">${I('x','xs')}</button></div>${menu(id, m)}<div class="mcx-o"><div class="mcx-a"><span class="ph">Waiting for a prompt</span></div></div><div class="mcx-f"><span class="mcx-m num">No run yet</span><button class="pill soft sm mcx-pick" disabled>Use this</button></div></div>`);
+    const col = { m, el, run:0 }; C.push(col); cols.insertBefore(el, slot.parentNode === cols ? slot : null); head(col);
+    $$('.mi', el).forEach(x => x.addEventListener('click', () => { if (col.m === x.dataset.m) return; col.m = x.dataset.m; head(col); if (asked) c.run(() => one(col)); }));
+    $('.mcx-x', el).onclick = () => { hideTip(); C.splice(C.indexOf(col), 1); col.run++; el.classList.add('leave'); setTimeout(() => { el.remove(); sync(); }, 260); };
+    $('.mcx-pick', el).onclick = () => choose(col);
+    if (fresh){ enter(el); sync(); if (asked) c.run(() => one(col)); }
+    return col;
+  }
+  function choose(col){
+    const on = !col.el.classList.contains('win');
+    C.forEach(x => { x.el.classList.toggle('win', on && x === col); x.el.classList.toggle('lose', on && x !== col); $('.mcx-pick', x.el).innerHTML = on && x === col ? I('check','xs') + 'Chosen' : 'Use this'; });
+  }
+  async function one(col){
+    const id = ++col.run, el = col.el, m = MOD[col.m], o = $('.mcx-o', el), f = $('.mcx-m', el), pk = $('.mcx-pick', el);
+    C.forEach(x => x.el.classList.remove('win','lose')); C.forEach(x => { const b = $('.mcx-pick', x.el); if (b.textContent === 'Chosen') b.textContent = 'Use this'; });
+    pk.disabled = true; f.textContent = 'Running'; busy++;
+    o.innerHTML = `<div class="bub">${asked.replace(/</g,'&lt;')}</div><div class="mcx-a"><span class="wk"><span class="think on"><i></i><i></i><i></i><i></i></span><span class="shim">Thinking</span></span></div>`;
+    const a = $('.mcx-a', o);
+    try {
+      await c.wait(m.ms * .35); if (id !== col.run) return;
+      const ws = (asked === DEF ? m.o : generic[col.m]).split(' '); a.innerHTML = '<span></span>'; const p = a.firstChild;
+      for (const w of ws){ p.insertAdjacentHTML('beforeend', `<span class="w">${w} </span>`); await c.wait(m.ms * .65 / ws.length); if (id !== col.run) return; }
+      f.innerHTML = `<span class="tm" data-tip="Time to finish, ${m.tps} tokens a second">${(m.ms / 1000).toFixed(1)}s</span><span class="co" data-tip="Cost of this reply">$${m.cost.toFixed(3)}</span>`; pk.disabled = false;
+    } finally { busy--; if (!busy) badges(); }
+  }
+  /* once every column has answered, the fastest time and the lowest cost turn green */
+  function badges(){
+    go.disabled = sending || !q.value.trim();
+    const done = C.filter(x => !$('.mcx-pick', x.el).disabled); if (done.length < 2) return;
+    const fast = done.reduce((a, b) => MOD[b.m].ms < MOD[a.m].ms ? b : a), cheap = done.reduce((a, b) => MOD[b.m].cost < MOD[a.m].cost ? b : a);
+    done.forEach(x => { const tm = $('.tm', x.el), co = $('.co', x.el);
+      tm.classList.toggle('best', x === fast); tm.dataset.tip = (x === fast ? 'Fastest. ' : '') + 'Time to finish, ' + MOD[x.m].tps + ' tokens a second';
+      co.classList.toggle('best', x === cheap); co.dataset.tip = x === cheap ? 'Cheapest reply' : 'Cost of this reply'; });
+  }
+  ['Opus','Sonnet','Haiku'].forEach(m => addCol(m)); sync();
+  // Send stays off while a send is answering, even if the prompt changes
+  let sending = false;
+  const run = () => c.run(async () => { if (!q.value.trim()) return; asked = q.value.trim(); go.disabled = true; sending = true; try { await Promise.all(C.map(one)); } finally { sending = false; } go.disabled = !q.value.trim(); });
+  $('.mcx-in', r).onsubmit = e => { e.preventDefault(); if (!sending) run(); };
+  q.oninput = () => { go.disabled = sending || !q.value.trim(); };
+  c.later(1200, run);
+});
+</script><script>
+    (function(){
+      var root = document.documentElement, card = document.querySelector('.pg-demo > .card[data-c]');
+      // Blueprint or Soft, shared with the rest of the site; the demo starts again in the new style
+      var mark = function(){ var soft = root.getAttribute('data-style') === 'soft'; document.querySelectorAll('[data-style-set]').forEach(function(b){ b.setAttribute('aria-pressed', String((b.dataset.styleSet === 'soft') === soft)); }); };
+      document.querySelectorAll('[data-style-set]').forEach(function(b){ b.addEventListener('click', function(){
+        if (b.getAttribute('aria-pressed') === 'true') return;
+        if (b.dataset.styleSet === 'soft') root.setAttribute('data-style', 'soft'); else root.removeAttribute('data-style');
+        try { localStorage.setItem('dmui-style', b.dataset.styleSet === 'soft' ? 'soft' : 'bp'); } catch(e){}
+        mark(); if (card && window.DM) DM.mount(card);
+      }); });
+      mark();
+      document.getElementById('cp-replay').addEventListener('click', function(){ if (card && typeof DM !== 'undefined') DM.mount(card); });
+      document.querySelectorAll('[data-copy]').forEach(function(b){ b.addEventListener('click', function(){
+        var done = function(){ b.textContent = 'Copied'; setTimeout(function(){ b.textContent = 'Copy'; }, 1400); };
+        if (navigator.clipboard) navigator.clipboard.writeText(b.dataset.copy).then(done, function(){}); });
+      });
+    })();
+    </script></body></html>

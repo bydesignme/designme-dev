@@ -1,0 +1,35 @@
+{
+  "summary": "Attachment tray is a drop zone plus a list of the files a person is giving the agent. Each file shows a type badge, its name and size, and a progress ring that turns into a check when the upload finishes, with a line underneath saying how many files the agent can read.",
+  "use": [
+    "When people hand your agent documents, images or spreadsheets to work from.",
+    "When uploads take long enough that people should see each file's progress before they ask anything.",
+    "When you want a sample-files link so new users can try the agent without their own files."
+  ],
+  "features": [
+    "Files dropped on the zone or chosen with the file dialog go to `onFiles` as a list of `File` objects. `accept` limits the dialog to certain types.",
+    "Each file gets a coloured badge from its extension, like PDF, PNG or CSV, and its size in KB or MB.",
+    "`progress` from 0 to 100 fills a ring, and at 100 the ring becomes a check. Files that arrive together come in one after another.",
+    "`onRemove` adds a remove button to each file and is called after the file has animated out.",
+    "The line under the list counts finished files, like \"The agent can read 2 files now\", unless you pass your own `summary`.",
+    "The drop zone's dashed edge marches while a file is dragged over it. `title` changes its heading, `action` adds a link after \"or\", and `dragging` shows the drag state for a scripted demo."
+  ],
+  "a11y": [
+    "The drop zone wraps a real file input labelled \"Choose files\", so it also works without dragging.",
+    "Each upload ring is a `role=\"progressbar\"` with `aria-valuenow` from 0 to 100 and a label naming the file.",
+    "Remove buttons are labelled with the file name, like \"Remove brief.pdf\"."
+  ],
+  "faq": [
+    {
+      "q": "Does the tray upload the files for me?",
+      "a": "No. It hands you the files through `onFiles`. You upload them, add each one to `files` with an `id`, `name` and `size`, and update its `progress` as the upload runs."
+    },
+    {
+      "q": "How do I restrict which file types people can pick?",
+      "a": "Pass `accept`, for example \"image/*,.pdf\". It is set on the file input, so it applies to the file dialog. Dropped files are passed on as they are, so check their type in `onFiles` too."
+    },
+    {
+      "q": "Can I change the line under the list?",
+      "a": "Yes. Pass `summary` and it replaces the default count of files the agent can read."
+    }
+  ]
+}

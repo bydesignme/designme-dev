@@ -1,0 +1,37 @@
+{
+  "summary": "Decision prompt lets an agent ask a few multiple-choice questions before it starts a task, one question at a time. When the last one is answered it shows a short summary of the choices and a line that says the agent is getting going.",
+  "use": [
+    "When a request is vague and two or three answers would change what the agent does.",
+    "When you want quick answers by keyboard instead of a long reply in chat.",
+    "When some questions can be left to the agent and people should be able to skip them.",
+    "When the person should see a recap of their choices before the work begins."
+  ],
+  "features": [
+    "Shows one question at a time with a \"Question 2 of 3\" counter and progress dots.",
+    "Each option shows a number badge, its `label` and an optional `detail` such as \"Recommended\".",
+    "Continue saves the picked option and moves on. Skip records `null`, which the summary shows as `skippedLabel` (\"Agent decides\" by default).",
+    "Double-clicking an option picks it and continues in one go.",
+    "`onComplete` fires with every answer once the last question is done. Answers can also be controlled with `answers` and `onAnswersChange`.",
+    "The summary ends with a `startLabel` line that shimmers until you set `started`, then settles with a check and `startedLabel`."
+  ],
+  "a11y": [
+    "Options sit in a `radiogroup` labelled with the question, and each option is a `radio` with `aria-checked`.",
+    "Number keys 1 to 9 pick an option, Arrow Up and Arrow Down move the choice, and Enter continues.",
+    "The question area is an `aria-live=\"polite\"` region, so each new question and the summary are announced.",
+    "Once all questions are answered the Skip and Continue footer is made `inert`."
+  ],
+  "faq": [
+    {
+      "q": "How do I get the answers to my agent?",
+      "a": "Use `onComplete`. It receives an array with the chosen option's index for each question, or `null` where the person skipped."
+    },
+    {
+      "q": "Does the keyboard work right away?",
+      "a": "The whole prompt is focusable, so the keys work once it has focus, for example after clicking an option. Number keys pick, arrows move and Enter continues."
+    },
+    {
+      "q": "How do I show that the agent has actually started?",
+      "a": "Set `started` to true. The shimmering `startLabel` line turns into a check with `startedLabel`, or the same text if you leave that out."
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "summary": "A list of the things an agent remembers about a team, such as brand rules and working habits, with the source of each one. People can filter memories by kind, fix one in place, or tell the agent to forget it. It makes the agent's long-term memory visible and correctable.",
+  "use": [
+    "When your agent keeps memories across sessions and people should be able to see them.",
+    "When someone needs to correct a rule the agent learned wrong.",
+    "When you want to show the agent learning something new while the panel is open.",
+    "As a settings page or a flat block inside a chat thread."
+  ],
+  "features": [
+    "Filter tabs for All plus one per entry in `kinds`, each kind with its own dot colour.",
+    "Edit turns a memory into editable text; Enter or leaving the field saves it, gives it the `editedSource` line and calls `onEdit`.",
+    "Forget removes a memory and leaves an Undo in its place for `undoFor` ms (4000 by default), calling `onForget` and, if undone, `onRestore`.",
+    "A memory marked `isNew` is highlighted and grows into the list when it arrives while the panel is open.",
+    "The count under the title updates as memories come and go, worded by `countLabel`.",
+    "Sits flat by default; set `bare` to false to give it its own card."
+  ],
+  "a11y": [
+    "The filter tabs are a role=\"group\" labelled \"Filter\", with aria-pressed on the active tab.",
+    "The Edit and Forget icon buttons have aria-labels and tooltips that also show on keyboard focus.",
+    "Pressing Enter while editing a memory saves it.",
+    "The grow animation for a new memory is skipped when the user prefers reduced motion."
+  ],
+  "faq": [
+    {"q": "How do I save an edited memory to my backend?", "a": "Use `onEdit`. It is called with the updated memory after an edit, with its new text and the `editedSource` line. If the text is left empty, the old text is kept."},
+    {"q": "When should I delete a forgotten memory for good?", "a": "`onForget` fires as soon as someone clicks Forget, and `onRestore` fires if they click Undo within `undoFor` ms. Wait out that window, or handle both callbacks, before deleting it on the server."},
+    {"q": "How do I show a memory the agent just learned?", "a": "Add it to the front of `memories` with `isNew: true`. It grows into the list and is highlighted; set `isNew` back to false later to clear the highlight."},
+    {"q": "Can I use my own categories?", "a": "Yes. Pass `kinds` with a value, a tab label and a dot colour for each; every memory points to one by its `kind`."}
+  ]
+}

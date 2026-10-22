@@ -1,0 +1,36 @@
+---
+// One section of components, like Agent status: what it covers and every component in it.
+import Page from '../layouts/Page.astro';
+import { SITE, SECTIONS } from '../lib/data.mjs';
+const { s } = Astro.props;
+const title = `${s.title}: ${s.cards.length} ${s.grp === 'agent' ? 'AI agent UI components' : 'UI components'} for React and HTML | Designme.dev`;
+const description = `${s.about} ${s.cards.length} free, MIT-licensed components, as HTML or typed React, in two styles with light and dark mode.`;
+const jsonld = [
+  { '@context':'https://schema.org', '@type':'CollectionPage', name:s.title, description:s.about, url:SITE + s.url,
+    mainEntity:{ '@type':'ItemList', itemListElement:s.cards.map((c, i) => ({ '@type':'ListItem', position:i + 1, name:c.title, url:`${SITE}/components/${c.reg}` })) } },
+  { '@context':'https://schema.org', '@type':'BreadcrumbList', itemListElement:[
+    { '@type':'ListItem', position:1, name:'Components', item:SITE + '/components' }, { '@type':'ListItem', position:2, name:s.title, item:SITE + s.url } ] },
+];
+const others = SECTIONS.filter(x => x !== s);
+---
+<Page title={title} description={description} path={s.url} jsonld={jsonld}>
+  <Fragment slot="head"><style>
+    .sp-crumbs{font-size:13px;color:var(--pg-muted)} .sp-crumbs a{color:var(--pg-dim);text-decoration:none}
+    .sp-h{margin:14px 0 0;font-size:34px;line-height:1.15;font-weight:600;letter-spacing:-.025em}
+    .sp-lead{margin:10px 0 0;font-size:17px;color:var(--pg-dim);max-width:62ch}
+    .sp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;margin:32px 0 0}
+    .sp-grid a{display:block;padding:18px;border-radius:14px;background:var(--pg-soft);text-decoration:none;transition:background .2s}
+    .sp-grid a:hover{background:var(--pg-chip)}
+    .sp-grid b{display:block;font-weight:500;font-size:15.5px}
+    .sp-grid span{display:block;margin-top:4px;font-size:13.5px;color:var(--pg-dim)}
+    .sp-more{margin:64px 0 0} .sp-more h2{margin:0 0 12px;font-size:18px;font-weight:600}
+    .sp-more nav{display:flex;flex-wrap:wrap;gap:8px} .sp-more a{font-size:13.5px;padding:6px 12px;border-radius:999px;box-shadow:inset 0 0 0 1px var(--pg-line2);text-decoration:none;color:var(--pg-dim)}
+    .sp-more a:hover{color:var(--pg-fg)}
+    @media (max-width:640px){.sp-h{font-size:28px}}
+  </style></Fragment>
+  <nav class="sp-crumbs" aria-label="Breadcrumb"><a href="/components">Components</a> / {s.set}</nav>
+  <h1 class="sp-h">{s.title}</h1>
+  <p class="sp-lead">{s.about}</p>
+  <div class="sp-grid">{s.cards.map(c => <a href={`/components/${c.reg}`}><b>{c.title}</b><span>{c.desc}</span></a>)}</div>
+  <section class="sp-more"><h2>Other sections</h2><nav>{others.map(x => <a href={x.url}>{x.title}</a>)}</nav></section>
+</Page>

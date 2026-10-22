@@ -1,0 +1,36 @@
+{
+  "summary": "Agent lanes shows several agents working on one job, each in its own row with a name, what it is doing right now, a step track and a status tag. When one agent passes work to another, a banner like \"Researcher handed the brief to Designer\" slides in above the lane that takes it.",
+  "use": [
+    "When your product runs several agents with different roles, like a researcher, a designer and a reviewer, on one task.",
+    "When some agents wait on others and people need to see who is blocked and why.",
+    "When people should be able to pause every agent at once and resume them later.",
+    "When each agent's own log should be one click away without crowding the overview."
+  ],
+  "features": [
+    "Each lane has a `status`: queued, waiting, working, paused or done. Working shows a spinner, paused holds, and done settles with a check.",
+    "The `activity` line crossfades when it changes. The track is cut into `steps` (3 by default), and the step after `done` fills while the agent works.",
+    "Clicking a lane opens its `log`, with an optional time for each entry. Open lanes can be controlled with `expanded` and `onExpandedChange`.",
+    "Setting `handoff` to `{ from, to, what }` slides a banner in above the receiving lane. Set it back to undefined and the banner slides away.",
+    "The header reads \"3 agents working\", \"All agents paused\" or \"All 3 agents finished\" unless you pass `title`, and shows a m:ss clock that counts while agents work.",
+    "`onPausedChange` adds a Pause all / Resume button that turns working lanes into Paused and stops the clock. It disappears once every lane is done."
+  ],
+  "a11y": [
+    "Each lane row is a button with `aria-expanded` for its log.",
+    "Closed logs and a hand-off banner that is leaving are `inert` and `aria-hidden`.",
+    "The working spinner is `aria-hidden`, and each status is written out as text, like Working, Paused or Done."
+  ],
+  "faq": [
+    {
+      "q": "Does Pause all stop my agents?",
+      "a": "No. It changes how the lanes look and calls `onPausedChange`. Your code pauses the agents, and the lanes' own `status` values stay as you set them."
+    },
+    {
+      "q": "How do I show one agent handing work to another?",
+      "a": "Set `handoff` with the `from` and `to` lane keys and a short `what`, like \"the brief\". Clear it after a moment and the banner closes before it goes."
+    },
+    {
+      "q": "Can a lane have more than three steps?",
+      "a": "Yes. Set `steps` on the lane to cut its track into as many parts as you need, and move `done` forward as each one finishes."
+    }
+  ]
+}

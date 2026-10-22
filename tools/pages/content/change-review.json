@@ -1,0 +1,40 @@
+{
+  "summary": "Change review lays out the edits an agent made as a file list beside a diff, so a person can go through them one change at a time. Each hunk gets its own Keep and Undo buttons, and any line can carry a question back to the agent.",
+  "use": [
+    "When an agent has edited several files and a person should approve the work before it lands.",
+    "When some changes are right and others are not, and people need to keep part of the work.",
+    "When a reviewer wants to ask the agent why it changed a specific line.",
+    "When you need a running record of which hunks were kept and which were undone."
+  ],
+  "features": [
+    "The side list shows every file with its type label, a status mark (kept, undone or partly decided) and a total of added and removed lines.",
+    "Each hunk has a title, coloured add and delete lines with line numbers, and its own Keep and Undo buttons. Pressing the same choice again clears it.",
+    "Undo all and Keep all decide every hunk in the open file. After Keep all, the next file opens by itself.",
+    "The plus button on a line opens a field to ask the agent about it. Sending it empty asks \"Why this change?\" and calls `onComment` with the file, hunk, line and text.",
+    "Decisions are stored by hunk `key` and can be left internal or controlled with `decisions` and `onDecisionsChange`.",
+    "The open file can be controlled with `file` and `onFileChange`, and `title` replaces the \"N files changed\" header."
+  ],
+  "a11y": [
+    "Files, hunk choices and bulk actions are all real buttons.",
+    "Each line's comment button has `aria-label=\"Comment on line\"` and a Comment tooltip.",
+    "The comment field is focused when it opens and has an `aria-label`. Enter sends it and Escape closes it."
+  ],
+  "faq": [
+    {
+      "q": "How do I know which changes the person kept?",
+      "a": "Read the `decisions` object passed to `onDecisionsChange`. It maps each hunk key to `kept` or `undone`, and hunks with no decision are left out."
+    },
+    {
+      "q": "What is a hunk key if I don't set one?",
+      "a": "It defaults to the file name plus the hunk's index, like `PricingCard.tsx#0`. Set `key` on a hunk if you need a stable id of your own."
+    },
+    {
+      "q": "How do line questions reach my agent?",
+      "a": "Handle `onComment`. It receives the file, hunk, line and the question text, and the sent question stays under the line in the diff."
+    },
+    {
+      "q": "Does Undo actually revert the code?",
+      "a": "No. The component records the decision and greys out the hunk. Applying or reverting the change in your project is up to your own code."
+    }
+  ]
+}

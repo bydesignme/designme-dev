@@ -1,0 +1,34 @@
+{
+  "summary": "Run cost shows how many credits an agent run has used against its budget, as a big number and a bar with a marker where the agent should pause. Under the bar it breaks the spend down, for example into input tokens, output tokens and tool calls, and a switch turns the pause on or off.",
+  "use": [
+    "When agent runs cost money or credits and people want to watch the spend while the run is going.",
+    "When a long run should stop at a set share of the budget and wait for someone to approve more.",
+    "When people ask what a run's cost is made of and you want to show the token and tool numbers behind it."
+  ],
+  "features": [
+    "`used` and `budget` set the big number and how far the bar is filled. Numbers are rounded and shown with thousands separators.",
+    "A marker on the bar sits at `capAt` percent (90 by default), with a tooltip saying the agent pauses there. It fades when the cap switch is off.",
+    "The \"Pause at N%\" switch can be left to the component or controlled with `capOn` and `onCapChange`.",
+    "`status` sets the tag and colour: idle, running (blue), stopped, paused (amber, and the bar turns amber too) or spent (red). `statusLabel` replaces the tag's words.",
+    "The main button's label follows the status: Start run, Stop, Resume, Raise cap or Start over. It calls `onAction`, and `actionLabel` replaces the label.",
+    "`rows` lists the breakdown under the bar, and `title` replaces the \"Credits used\" heading."
+  ],
+  "a11y": [
+    "The bar is a `role=\"meter\"` with `aria-valuenow` set to the credits used and `aria-valuemax` set to the budget, labelled with the title.",
+    "The cap control is a `role=\"switch\"` with `aria-checked` and a label like \"Pause at 90 percent\"."
+  ],
+  "faq": [
+    {
+      "q": "Does the component pause the agent when it reaches the cap?",
+      "a": "No. It shows the cap and whether it is on. Your code compares `used` with the cap, stops the agent and sets `status` to 'paused'."
+    },
+    {
+      "q": "What should the button do?",
+      "a": "Whatever fits the status, through `onAction`. Its label suggests the usual move, for example Stop while running or Raise cap when paused. The demo turns the cap off and runs on to the full budget when Raise cap is pressed."
+    },
+    {
+      "q": "Can I show money instead of credits?",
+      "a": "The numbers are shown as whole numbers with thousands separators and no currency sign. You can change `title` to name the unit, for example \"Cents used\"."
+    }
+  ]
+}

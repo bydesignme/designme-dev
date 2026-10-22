@@ -1,0 +1,37 @@
+{
+  "summary": "Proposal card shows a single change the agent wants to make, like a new colour for a low-contrast button, as a before and after with the agent's confidence. The person can accept the suggestion, pick one of the other options instead, or say not now, and either choice can be undone.",
+  "use": [
+    "When the agent spots a fix during a review and should ask before applying it.",
+    "When there is more than one reasonable fix and the agent should rank them.",
+    "When people need to see how sure the agent is before they accept.",
+    "When an accepted or dismissed suggestion should be easy to take back."
+  ],
+  "features": [
+    "The current value (`from`) and the chosen option sit side by side as swatches with a label and an optional badge, such as a contrast ratio.",
+    "A five-segment meter and a percentage show the chosen option's `confidence`. It fills in shortly after the card appears and follows each new pick.",
+    "The first entry in `options` is the agent's pick. The others sit behind an \"N other options\" toggle, and clicking one makes it the change.",
+    "Accept calls `onAccept` with the chosen option and its index, closes the options list and shows `acceptedLabel`.",
+    "Not now shows `dismissedLabel`. Both end states offer Undo, which reopens the card and calls `onUndo`.",
+    "Badge tones default to bad for the current value and ok for the options, and can be set per value with `tone`."
+  ],
+  "a11y": [
+    "The confidence bar has `role=\"meter\"` with `aria-valuemin`, `aria-valuemax`, `aria-valuenow` and an `aria-label`.",
+    "The other-options toggle is a button with `aria-expanded`.",
+    "When the options list is closed it is `inert` and `aria-hidden`.",
+    "With reduced motion turned on, the confidence count jumps straight to its value."
+  ],
+  "faq": [
+    {
+      "q": "Which option is the agent's suggestion?",
+      "a": "The first one in `options`. `defaultValue` is 0, so it shows as the change until the person picks another."
+    },
+    {
+      "q": "How do I apply the change when someone accepts it?",
+      "a": "Handle `onAccept(option, index)`. The card only records the decision, so applying and reverting the change happens in your code, with `onUndo` for the revert."
+    },
+    {
+      "q": "Can I use it for something other than colours?",
+      "a": "Each value has a `color` for its swatch and a free-text `label` and `badge`, so it fits any change that can be shown as a swatch and a short value."
+    }
+  ]
+}

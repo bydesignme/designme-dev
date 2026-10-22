@@ -1,0 +1,37 @@
+{
+  "summary": "Search input is a search box that lifts open to show recent searches, matching results, and an answer from the agent above them. Typing @ lists sources such as Figma or Notion, and picking one narrows the search to that source with a removable chip. It lets a person find a file directly or ask a question and get a written answer in the same box.",
+  "use": [
+    "When people search across several connected tools and need to narrow to one",
+    "When a question typed into search should get an agent answer as well as matching files",
+    "When the empty box should offer recent searches to pick up where someone left off",
+    "When nothing matches and Enter should hand the query to the agent"
+  ],
+  "features": [
+    "While the box is empty it lists `recent` searches, and picking one fills the box.",
+    "Typing @ lists your `sources`; picking one sets the `scope` chip, and Backspace in an empty box removes it.",
+    "Results show their source, and the matched word in each label is highlighted.",
+    "The `answer` string appears above the results, and each new word fades in as you feed it more text.",
+    "By default an item matches the whole search or any word longer than two letters, and `filter` replaces that rule.",
+    "Enter picks the highlighted row through `onSelect`, or calls `onSubmit` with the search and scope when no row is highlighted."
+  ],
+  "a11y": [
+    "The input is a `combobox` with `aria-expanded`, `aria-controls` and `aria-autocomplete=\"list\"`, and the results are a `listbox` of `option` rows.",
+    "Arrow Up and Arrow Down move the highlight, which is announced through `aria-activedescendant` and `aria-selected`.",
+    "Enter picks or submits, and Escape closes the list and leaves the box.",
+    "The list's height animation is skipped when the user prefers reduced motion."
+  ],
+  "faq": [
+    {
+      "q": "How do I stream the agent's answer into the results?",
+      "a": "Pass the text so far as `answer` and update it as tokens arrive. Each word is its own span, so new words fade in while earlier ones stay put."
+    },
+    {
+      "q": "What happens when the person presses Enter without picking a result?",
+      "a": "`onSubmit` is called with the trimmed search and the current source filter, or null. That is the place to send the question to your agent."
+    },
+    {
+      "q": "Can I use my own matching, like fuzzy search?",
+      "a": "Yes. Pass `filter(item, search)` and return true for the items to keep. The source filter is still applied first."
+    }
+  ]
+}

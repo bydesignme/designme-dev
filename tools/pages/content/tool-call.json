@@ -1,0 +1,34 @@
+{
+  "summary": "Tool call lists the tools an agent calls while it works, placed between its opening message and its answer. Each call shows its name and status, and opens to show the JSON the agent sent and the JSON that came back.",
+  "use": [
+    "When your agent uses tools or MCP servers and people want to see what it actually ran.",
+    "When you need to debug a wrong answer by checking the input and output of each call.",
+    "When several calls run one after another and the answer should only appear once they have all finished."
+  ],
+  "features": [
+    "Each call has a `state`: queued waits, running shows a spinner and \"Running\", and done shows a check with the `duration`.",
+    "The call's name is shown with its `server` or namespace in front, like billing.list_plan_changes, plus an optional `icon`.",
+    "Clicking a call folds open its Input and Output, printed as JSON with keys, strings and numbers in their own colours. Output reads \"Waiting…\" until the call is done.",
+    "Which calls are open can be left to the calls themselves or controlled with `open`, `defaultOpen` and `onOpenChange`.",
+    "`reply` is laid out from the start and fades in a frame after every call is done, so nothing below it jumps."
+  ],
+  "a11y": [
+    "Each call's header is a button with `aria-expanded` showing whether its input and output are open.",
+    "Closed input and output panels are `inert` and `aria-hidden`, and the reply stays `aria-hidden` until every call is done.",
+    "The spinner and status icons are decorative and hidden from screen readers."
+  ],
+  "faq": [
+    {
+      "q": "How do I update a call while it runs?",
+      "a": "Keep `calls` in your state and change each call's `state` from 'queued' to 'running' to 'done' as your agent reports progress. Add `output` and `duration` when it finishes."
+    },
+    {
+      "q": "What can I pass as input and output?",
+      "a": "Any JSON value: strings, numbers, booleans, null, arrays and objects. Objects print on one line and each array item gets its own line."
+    },
+    {
+      "q": "Can I open a call automatically when it finishes?",
+      "a": "Yes. Control `open` from your own state and add the call's `key` when you mark it done, as the example does with the first call."
+    }
+  ]
+}

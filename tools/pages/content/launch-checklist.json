@@ -1,0 +1,35 @@
+{
+  "summary": "Launch checklist runs a list of pre-flight checks on a design before it ships, such as contrast, token use and alt text, and shows each result as it comes in. Failed checks get a Fix button so the agent can repair them, and the header button moves from running the checks to shipping.",
+  "use": [
+    "When an agent should verify a page or component against your rules before it goes live.",
+    "When people need a quick summary of what still blocks a release.",
+    "When the agent can fix some failures by itself and people should trigger each fix.",
+    "When the final Ship it step should only be offered once every check passes."
+  ],
+  "features": [
+    "Each check has a `label`, an optional `note` and a `state`: `wait`, `run`, `ok` or `bad`, each with its own glyph.",
+    "A segmented bar at the top fills in with green and red as checks finish.",
+    "The status line counts the checks, says Checking while one runs, then reports how many are left to fix or that all is clear. `status` overrides it.",
+    "A failed check with `onFix` shows a Fix button. Set the check back to `run` while the agent fixes it.",
+    "`action` adds a header button with a label, icon, `disabled` state and an `accent` colour for the step that ships.",
+    "Notes crossfade when they change, so \"Checking\" can turn into the result in place."
+  ],
+  "a11y": [
+    "The bar has `role=\"progressbar\"`, labelled with the title, and its `aria-valuenow` counts the checks that have finished, passed or failed.",
+    "Fix and the header action are real buttons, and the action can be disabled."
+  ],
+  "faq": [
+    {
+      "q": "Does the checklist run the checks itself?",
+      "a": "No. It shows the `checks` you pass. Your code or agent runs each check and updates its `state` and `note` as results arrive."
+    },
+    {
+      "q": "How do I offer a fix for a failed check?",
+      "a": "Give that check an `onFix` handler while its state is `bad`. The Fix button calls it, and you can set the state to `run` with a note like \"Fixing\" until it passes."
+    },
+    {
+      "q": "How do I switch the button to Ship it once everything passes?",
+      "a": "Change the `action` prop when all checks are `ok`, for example `{ label: 'Ship it', icon: 'rocket', accent: true }`. The demo does this."
+    }
+  ]
+}

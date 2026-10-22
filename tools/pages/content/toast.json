@@ -1,0 +1,41 @@
+{
+  "summary": "Toast shows one notification at a time and lets it change as the agent's work moves on. A loading toast can turn into a success, and an error can offer Retry, all in the same spot on screen.",
+  "use": [
+    "When an agent action needs a short confirmation, like \"Changes applied\" with an Undo button.",
+    "When a task starts as loading and you want the same toast to report the result.",
+    "When a failure needs a single clear next step, such as Retry.",
+    "When only the latest message matters and older ones should step aside."
+  ],
+  "features": [
+    "Four tones: `success`, `error`, `info` and `loading`. Each picks its own icon and colour, and loading shows a spinner.",
+    "Give the toast a new `id` and the new one rises in while the old one slips away. Keep the `id` to update the text in place.",
+    "The `description` line crossfades when it changes, so progress text can update without a jump.",
+    "An optional `action` adds a button before the close button, in a `ghost` or `ink` style.",
+    "Set `action.busy` and the button label turns into a spinner. Clicks are ignored while it is busy.",
+    "The close button hides the toast straight away and calls `onDismiss`, even if your state has not cleared it yet."
+  ],
+  "a11y": [
+    "Each toast has `role=\"status\"` inside an `aria-live=\"polite\"` slot, so changes are announced without interrupting.",
+    "The action button sets `aria-busy` while `busy` is true.",
+    "The close button has `aria-label=\"Dismiss\"`, and a toast that is leaving is `inert`.",
+    "With reduced motion turned on, the exit animation is skipped and the text swap happens at once."
+  ],
+  "faq": [
+    {
+      "q": "Does the toast close itself after a few seconds?",
+      "a": "No, the component has no timer. Set `toast` to null from your own timeout when you want it gone. The demo does this for success and info, and pauses the timer on hover."
+    },
+    {
+      "q": "How do I turn a loading toast into a success toast?",
+      "a": "Keep the same `id` and change `tone`, `title` and `description`. The card stays in place and the description crossfades. Use a new `id` if you want a fresh toast to slide in instead."
+    },
+    {
+      "q": "How do I show a spinner on Retry while the agent tries again?",
+      "a": "Set `action.busy` to true. The button shows a spinner, gets `aria-busy`, and ignores further clicks until you clear it."
+    },
+    {
+      "q": "What does `onDismiss` need to do?",
+      "a": "The toast hides itself when its close button is pressed, so `onDismiss` is for your own state. Clearing `toast` there keeps the two in sync."
+    }
+  ]
+}

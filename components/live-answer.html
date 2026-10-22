@@ -1,0 +1,577 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Live answer: AI agent UI component for React and HTML | Designme.dev</title><meta name="description" content="Answers that stream in with numbered sources and next steps. Free and MIT licensed, as HTML or a typed React component, in two styles with light and dark mode."><link rel="canonical" href="https://designme.dev/components/live-answer"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><meta property="og:type" content="website"><meta property="og:site_name" content="Designme.dev"><meta property="og:title" content="Live answer: AI agent UI component for React and HTML | Designme.dev"><meta property="og:description" content="Answers that stream in with numbered sources and next steps. Free and MIT licensed, as HTML or a typed React component, in two styles with light and dark mode."><meta property="og:url" content="https://designme.dev/components/live-answer"><meta property="og:image" content="https://designme.dev/og.png"><meta name="twitter:card" content="summary_large_image"><link rel="alternate" type="text/plain" title="All components for AI tools" href="/llms.txt"><link rel="preload" href="/fonts/inter-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin><link rel="preload" href="/fonts/inter-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin><script>try{var t=localStorage.getItem('dmui-theme');if(t)document.documentElement.setAttribute('data-theme',t);var s=localStorage.getItem('dmui-style');if(s)document.documentElement.setAttribute('data-style',s)}catch(e){}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareSourceCode","name":"Live answer","description":"Live answer shows a question and the agent's reply as it streams in word by word, with numbered citations that point to a source list. Each turn moves through waiting, thinking, answering and done, and once it is done the person can copy, rate, retry or pick a follow-up question that adds a new turn below.","url":"https://designme.dev/components/live-answer","programmingLanguage":["HTML","CSS","JavaScript","TypeScript"],"runtimePlatform":"Web browser","license":"https://opensource.org/licenses/MIT","isAccessibleForFree":true,"keywords":"Live answer, Conversation, AI agent UI, React component, HTML component","author":{"@type":"Organization","name":"DesignMe","url":"https://designme.agency"},"isPartOf":{"@type":"WebSite","name":"Designme.dev","url":"https://designme.dev/"}}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Components","item":"https://designme.dev/components"},{"@type":"ListItem","position":2,"name":"Conversation","item":"https://designme.dev/components/conversation"},{"@type":"ListItem","position":3,"name":"Live answer","item":"https://designme.dev/components/live-answer"}]}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I stream the answer in?","acceptedAnswer":{"@type":"Answer","text":"Set the turn's state to 'answering' and keep updating its text as tokens arrive. Each new word fades in, and when the stream ends you set state to 'done' and pass sources."}},{"@type":"Question","name":"How do citations link to sources?","acceptedAnswer":{"@type":"Answer","text":"Put [n] right after a word in text, and give a source in sources the same n. Its tooltip shows the source's tip, or its title and detail when tip is left out."}},{"@type":"Question","name":"What happens to ratings and pinned sources when the person clicks Try again?","acceptedAnswer":{"@type":"Answer","text":"When a turn goes from done back to answering, it starts afresh with closed lists, no pinned source and no rating. Your onRetry handler decides how to regenerate the text."}},{"@type":"Question","name":"Can I show the question bubble somewhere else, like in my own chat?","acceptedAnswer":{"@type":"Answer","text":"Yes. Leave out question on a turn and no bubble is drawn for it, so only the answer appears."}}]}</script><link rel="stylesheet" href="/components/assets/core.css"><style>/* ---------- Live answer ---------- */
+.lva{display:flex;flex-direction:column;gap:14px}
+.lva-q{display:flex;justify-content:flex-end}
+.lva-a{display:flex;flex-direction:column;gap:14px;min-height:230px}
+/* on a card the first answer keeps the room its sources and follow-ups fill, so nothing climbs when they arrive */
+.stage-in>.lva .lva-a{min-height:324px}
+.lva-turn{display:flex;flex-direction:column;gap:12px}
+.lva-th{display:flex;align-items:center;gap:8px;font-size:13.5px;color:var(--muted)}
+.lva-tb{display:inline-flex;gap:6px;align-self:flex-start;padding:2px 8px;margin-left:-8px;border-radius:999px;transition:color var(--t-fast),background var(--t-fast)}
+.lva-tb:hover{color:var(--fg2);background:var(--chip)}
+.lva-tb>.i{transition:transform .2s var(--ease)}
+.lva-tb[aria-expanded="true"]>.i{transform:rotate(180deg)}
+.lva-tlist{list-style:none;margin:0;padding:2px 0 2px 12px;border-left:1px solid var(--rail);display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted)}
+.lva-p{margin:0;font-size:14.5px;line-height:1.65}
+.lva-p .w{display:inline;animation:lvw .5s var(--ease) both}
+@keyframes lvw{from{opacity:0;filter:blur(3px)}to{opacity:1;filter:none}}
+.cite{display:inline-grid;place-items:center;min-width:17px;height:17px;padding:0 4px;margin:0 2px;border-radius:5px;background:var(--hover);font-size:10.5px;font-weight:600;color:var(--fg2);vertical-align:2px;cursor:default;transition:background .2s,color .2s}
+.cite:hover,.cite.on{background:var(--accent-bg);color:var(--accent)}
+.lva-p .cite{animation:lvw .5s var(--ease) both}
+.lva-src{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--muted)}
+.lva-sb{display:inline-flex;align-items:center;gap:8px;height:28px;padding:0 9px 0 5px;border-radius:var(--r-pill);color:var(--fg2);transition:background .2s,color .2s}
+.lva-sb:hover,.lva-sb[aria-expanded="true"]{background:var(--chip);color:var(--fg)}
+.lva-sb>.i{color:var(--muted);transition:transform .35s var(--ease)}
+.lva-sb[aria-expanded="true"]>.i{transform:rotate(180deg)}
+.lva-fav{display:flex}
+.lva-fav span{width:18px;height:18px;border-radius:5px;display:grid;place-items:center;font-size:9.5px;font-weight:600;color:#fff;margin-left:-4px;box-shadow:0 0 0 1.5px var(--surface);transition:margin .3s var(--ease)}
+.lva-fav span:first-child{margin-left:0}
+.lva-sb:hover .lva-fav span:not(:first-child){margin-left:2px}
+.lva-acts{display:flex;gap:2px;margin-left:-6px}
+.lva-acts .ib{width:28px;height:28px}
+.lva-ll{display:flex;flex-direction:column;gap:2px}
+.lva-s{display:flex;align-items:center;gap:10px;width:100%;padding:7px 8px;border-radius:10px;font-size:13px;text-align:left;color:var(--fg);transition:background .2s}
+.lva-s:hover,.lva-s.on{background:var(--row)}
+.lva-s .n{width:17px;height:17px;border-radius:5px;background:var(--hover);display:grid;place-items:center;font-size:10.5px;font-weight:600;color:var(--fg2);flex:none;transition:background .2s,color .2s}
+.lva-s:hover .n,.lva-s.on .n{background:var(--accent-bg);color:var(--accent)}
+.lva-s .d{color:var(--muted);font-size:12px;margin-right:auto;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lva-s>.i{color:var(--muted);opacity:0;transition:opacity .2s}
+.lva-s:hover>.i{opacity:1}
+.lva-fu{display:flex;flex-direction:column;align-items:flex-start;gap:6px}
+.lva-fu button{display:inline-flex;align-items:center;gap:8px;padding:6px 12px 6px 10px;border-radius:999px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);font-size:13px;color:var(--fg2);transition:color .2s,box-shadow .2s,transform .2s var(--ease)}
+.lva-fu button:hover{color:var(--fg);box-shadow:inset 0 0 0 1px var(--faint)}
+</style><style>
+@font-face{font-family:Inter;font-style:normal;font-weight:400;font-display:swap;src:url(/fonts/inter-latin-400-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:Inter;font-style:normal;font-weight:500;font-display:swap;src:url(/fonts/inter-latin-500-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:Inter;font-style:normal;font-weight:600;font-display:swap;src:url(/fonts/inter-latin-600-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:Inter;font-style:normal;font-weight:700;font-display:swap;src:url(/fonts/inter-latin-700-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"JetBrains Mono";font-style:normal;font-weight:500;font-display:swap;src:url(/fonts/jetbrains-mono-latin-500-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+</style><style>:root{--pg-bg:#fff;--pg-fg:#111318;--pg-dim:#5b5f6b;--pg-muted:#8b8f99;--pg-line:#11131814;--pg-line2:#11131824;--pg-soft:#fafafa;--pg-chip:#f1f1f3;--pg-ink:#111318;--pg-on-ink:#fff;--pg-link:#116ff8;--pg-sans:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;--pg-mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace}@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--pg-bg:#0b0c0f;--pg-fg:#ededee;--pg-dim:#a1a3ab;--pg-muted:#76787f;--pg-line:#ffffff14;--pg-line2:#ffffff24;--pg-soft:#131418;--pg-chip:#ffffff0f;--pg-ink:#f5f5f4;--pg-on-ink:#111318;--pg-link:#6aa8ff;color-scheme:dark}}:root[data-theme=dark]{--pg-bg:#0b0c0f;--pg-fg:#ededee;--pg-dim:#a1a3ab;--pg-muted:#76787f;--pg-line:#ffffff14;--pg-line2:#ffffff24;--pg-soft:#131418;--pg-chip:#ffffff0f;--pg-ink:#f5f5f4;--pg-on-ink:#111318;--pg-link:#6aa8ff;color-scheme:dark}*{box-sizing:border-box}html{-webkit-text-size-adjust:100%}body{background:var(--pg-bg);color:var(--pg-fg);font:15px/1.6 var(--pg-sans);-webkit-font-smoothing:antialiased;margin:0}a{color:inherit}.pg-top{z-index:50;background:color-mix(in srgb,var(--pg-bg) 88%,transparent);backdrop-filter:blur(14px);border-bottom:1px solid var(--pg-line);position:sticky;top:0}.pg-top-in{align-items:center;gap:28px;max-width:1180px;margin:0 auto;padding:12px 24px;display:flex}.pg-logo{color:var(--pg-fg);display:block}.pg-logo svg{width:auto;height:21px;display:block}.pg-nav{gap:22px;font-size:14px;display:flex}.pg-nav a{color:var(--pg-dim);text-decoration:none;transition:color .2s}.pg-nav a:hover,.pg-nav a[aria-current=page]{color:var(--pg-fg)}.pg-top .pg-sp{flex:1}.pg-theme{width:34px;height:34px;color:var(--pg-dim);cursor:pointer;background:0 0;border:0;border-radius:999px;place-items:center;display:grid}.pg-theme:hover{background:var(--pg-chip);color:var(--pg-fg)}.pg-theme svg{width:17px;height:17px}.pg-main{max-width:1180px;margin:0 auto;padding:36px 24px 96px}.pg-foot{border-top:1px solid var(--pg-line);color:var(--pg-dim);font-size:13px}.pg-foot-in{flex-wrap:wrap;justify-content:space-between;gap:10px 24px;max-width:1180px;margin:0 auto;padding:28px 24px 40px;display:flex}.pg-foot nav{flex-wrap:wrap;gap:18px;display:flex}.pg-foot a{color:var(--pg-dim);text-decoration:none}.pg-foot a:hover{color:var(--pg-fg)}:focus-visible{outline:2px solid var(--pg-fg);outline-offset:2px}@media (width<=640px){.pg-top-in{gap:14px;padding:10px 16px}.pg-logo svg{height:18px}.pg-nav{gap:14px}.pg-nav .pg-wide{display:none}.pg-main{padding:24px 16px 72px}.pg-foot-in{padding:24px 16px 32px}}@media (width<=380px){.pg-nav .pg-cl{display:none}}
+.cp-crumbs{color:var(--pg-muted);flex-wrap:wrap;gap:6px;font-size:13px;display:flex}.cp-crumbs a{color:var(--pg-dim);text-decoration:none}.cp-crumbs a:hover{color:var(--pg-fg)}.cp-h{letter-spacing:-.025em;text-wrap:balance;margin:14px 0 0;font-size:34px;font-weight:600;line-height:1.15}.cp-lead{color:var(--pg-dim);max-width:62ch;margin:10px 0 0;font-size:17px}.cp-tags{flex-wrap:wrap;gap:6px;margin:16px 0 0;padding:0;list-style:none;display:flex}.cp-tags li{color:var(--pg-dim);box-shadow:inset 0 0 0 1px var(--pg-line2);border-radius:999px;padding:3px 10px;font-size:12.5px}.cp-demo{background:var(--stage,var(--pg-soft));border-radius:16px;margin:28px 0 0;overflow:hidden}.cp-bar{align-items:center;gap:8px;padding:10px 12px 0;display:flex}.cp-bar .sp{flex:1}.cp-seg{background:var(--pg-chip);border-radius:999px;padding:3px;display:inline-flex}.cp-seg button,.cp-btn{height:28px;color:var(--pg-dim);font:500 13px/1 var(--pg-sans);cursor:pointer;background:0 0;border:0;border-radius:999px;padding:0 12px}.cp-seg button[aria-pressed=true]{background:var(--pg-bg);color:var(--pg-fg);box-shadow:0 1px 2px #00000014}.cp-btn:hover,.cp-seg button:hover{color:var(--pg-fg)}.cp-btn{align-items:center;gap:6px;display:inline-flex}.cp-btn svg{width:14px;height:14px}.pg-demo{min-height:calc(var(--h-a) + 72px);grid-template-columns:minmax(0,1fr);justify-items:center;padding:32px 24px 40px;display:grid}.pg-demo>.card{align-self:stretch;place-items:center;min-width:0;display:grid}@media (width<=640px){.pg-demo{min-height:calc(var(--h-e) + 52px);padding:24px 12px 28px}.cp-h{font-size:28px}}.cp-sec{max-width:820px;margin:56px 0 0}.cp-sec.wide{max-width:none}.cp-sec h2{letter-spacing:-.015em;margin:0 0 14px;font-size:22px;font-weight:600}.cp-sec h3{margin:24px 0 8px;font-size:15px;font-weight:600}.cp-sec p{max-width:68ch;margin:0 0 12px}.cp-sec ul{margin:0;padding-left:20px}.cp-sec li{max-width:66ch;margin:5px 0}.cp-sec code,.cp-props code,.cp-cmd code{font-variant-ligatures:none;font:500 12.5px/1.4 var(--pg-mono);background:var(--pg-chip);border-radius:5px;padding:1px 5px}.cp-cmds{grid-template-columns:minmax(0,1fr);gap:8px;display:grid}.cp-cmd{background:var(--pg-soft);min-width:0;box-shadow:inset 0 0 0 1px var(--pg-line);border-radius:12px;align-items:center;gap:12px;padding:6px 6px 6px 14px;display:flex}.cp-cmd .k{width:52px;color:var(--pg-muted);flex:none;font-size:12.5px}.cp-cmd code{white-space:nowrap;min-width:0;font:500 13.5px/1.5 var(--pg-mono);background:0 0;flex:1;padding:0;overflow-x:auto}.cp-copy{background:var(--pg-bg);height:30px;color:var(--pg-fg);box-shadow:inset 0 0 0 1px var(--pg-line2);font:500 12.5px/1 var(--pg-sans);cursor:pointer;border:0;border-radius:999px;flex:none;padding:0 12px}.cp-copy:hover{background:var(--pg-chip)}.cp-note{color:var(--pg-dim);margin:12px 0 0;font-size:13.5px}.cp-pre{font-variant-ligatures:none;background:var(--pg-soft);max-height:460px;box-shadow:inset 0 0 0 1px var(--pg-line);font:500 12.5px/1.6 var(--pg-mono);tab-size:2;border-radius:12px;margin:0;padding:16px 18px;overflow:auto}.cp-pre code{font:inherit;background:0 0;padding:0}.cp-props{margin:0 0 8px;overflow-x:auto}.cp-props table{border-collapse:collapse;width:100%;min-width:560px;font-size:13.5px}.cp-props th{text-align:left;color:var(--pg-muted);border-bottom:1px solid var(--pg-line2);padding:8px 10px;font-size:12.5px;font-weight:500}.cp-props td{border-bottom:1px solid var(--pg-line);vertical-align:top;padding:10px}.cp-props td:first-child{white-space:nowrap}.cp-props td:nth-child(2) code{white-space:normal;word-break:break-word}.cp-props .opt{color:var(--pg-muted)}.cp-ext{color:var(--pg-dim);font-size:13.5px}details.cp-file{box-shadow:inset 0 0 0 1px var(--pg-line);border-radius:12px;margin:0 0 8px}details.cp-file summary{cursor:pointer;font:500 13.5px/1.4 var(--pg-mono);align-items:center;gap:10px;padding:12px 14px;list-style:none;display:flex}details.cp-file summary::-webkit-details-marker{display:none}details.cp-file summary:before{content:"";border-right:1.5px solid var(--pg-muted);border-bottom:1.5px solid var(--pg-muted);width:6px;height:6px;transition:transform .2s;transform:rotate(-45deg)}details.cp-file[open] summary:before{transform:rotate(45deg)}details.cp-file summary .l{font:12px/1 var(--pg-sans);color:var(--pg-muted);margin-left:auto}details.cp-file .cp-pre{box-shadow:none;border-top:1px solid var(--pg-line);border-radius:0 0 12px 12px;max-height:560px}.cp-faq dt{margin:20px 0 4px;font-weight:600}.cp-faq dd{color:var(--pg-dim);max-width:68ch;margin:0}.cp-rel{grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px;display:grid}.cp-rel a{background:var(--pg-soft);border-radius:14px;padding:14px 16px;text-decoration:none;transition:background .2s;display:block}.cp-rel a:hover{background:var(--pg-chip)}.cp-rel b{font-weight:500;display:block}.cp-rel span{color:var(--pg-dim);margin-top:2px;font-size:13.5px;display:block}.cp-pn{grid-template-columns:1fr 1fr;gap:10px;margin:56px 0 0;display:grid}.cp-pn a{box-shadow:inset 0 0 0 1px var(--pg-line);border-radius:14px;padding:14px 16px;text-decoration:none;display:block}.cp-pn a:hover{background:var(--pg-soft)}.cp-pn .k{color:var(--pg-muted);font-size:12.5px;display:block}.cp-pn b{font-weight:500}.cp-pn .n{text-align:right}.cp-toc{flex-wrap:wrap;gap:4px 18px;margin:22px 0 0;font-size:13.5px;display:flex}.cp-toc a{color:var(--pg-dim);text-decoration:none}.cp-toc a:hover{color:var(--pg-fg)}.sp-crumbs[data-astro-cid-lfhuveqs]{color:var(--pg-muted);font-size:13px}.sp-crumbs[data-astro-cid-lfhuveqs] a[data-astro-cid-lfhuveqs]{color:var(--pg-dim);text-decoration:none}.sp-h[data-astro-cid-lfhuveqs]{letter-spacing:-.025em;margin:14px 0 0;font-size:34px;font-weight:600;line-height:1.15}.sp-lead[data-astro-cid-lfhuveqs]{color:var(--pg-dim);max-width:62ch;margin:10px 0 0;font-size:17px}.sp-grid[data-astro-cid-lfhuveqs]{grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;margin:32px 0 0;display:grid}.sp-grid[data-astro-cid-lfhuveqs] a[data-astro-cid-lfhuveqs]{background:var(--pg-soft);border-radius:14px;padding:18px;text-decoration:none;transition:background .2s;display:block}.sp-grid[data-astro-cid-lfhuveqs] a[data-astro-cid-lfhuveqs]:hover{background:var(--pg-chip)}.sp-grid[data-astro-cid-lfhuveqs] b[data-astro-cid-lfhuveqs]{font-size:15.5px;font-weight:500;display:block}.sp-grid[data-astro-cid-lfhuveqs] span[data-astro-cid-lfhuveqs]{color:var(--pg-dim);margin-top:4px;font-size:13.5px;display:block}.sp-more[data-astro-cid-lfhuveqs]{margin:64px 0 0}.sp-more[data-astro-cid-lfhuveqs] h2[data-astro-cid-lfhuveqs]{margin:0 0 12px;font-size:18px;font-weight:600}.sp-more[data-astro-cid-lfhuveqs] nav[data-astro-cid-lfhuveqs]{flex-wrap:wrap;gap:8px;display:flex}.sp-more[data-astro-cid-lfhuveqs] a[data-astro-cid-lfhuveqs]{box-shadow:inset 0 0 0 1px var(--pg-line2);color:var(--pg-dim);border-radius:999px;padding:6px 12px;font-size:13.5px;text-decoration:none}.sp-more[data-astro-cid-lfhuveqs] a[data-astro-cid-lfhuveqs]:hover{color:var(--pg-fg)}@media (width<=640px){.sp-h[data-astro-cid-lfhuveqs]{font-size:28px}}
+</style></head><body><header class="pg-top"><div class="pg-top-in"><a class="pg-logo" href="/" aria-label="Designme.dev home"><svg role="img" aria-label="Designme.dev" viewBox="0 12.5 210 29.5" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M137.937 20.1034V39.1011H155.787V33.1982H145.37V31.9317H155.38V27.2501H145.37V26.0062H155.787V20.1034H137.937Z" fill="currentColor"/>
+<path d="M136.845 39.1013V20.1036L127.536 20.1036L125.525 29.2632H124.983L122.972 20.1036L113.662 20.1036V39.1013H120.735V32.7009H121.299L122.542 39.1013H127.965L129.208 32.7009H129.773V39.1013L136.845 39.1013Z" fill="currentColor"/>
+<path d="M91.5581 20.1034V39.1011H100.054L104.686 30.5069H105.341V39.1011H112.572V20.1034H104.279L99.4665 28.6976H98.7886V20.1034H91.5581Z" fill="currentColor"/>
+<path d="M90.3556 30.9135V20.1029H86.6499L86.5369 22.274H86.4014C85.0457 20.6457 82.7409 19.4696 79.5324 19.4696C73.6576 19.4696 69.1159 23.4501 69.1159 29.6017C69.1159 35.776 73.3639 39.7338 80.2102 39.7338C84.9553 39.7338 89.8359 37.4044 90.4007 32.0669H83.0347C82.8765 32.4966 81.9501 33.3334 80.391 33.3334C78.0637 33.3334 76.5046 31.9538 76.5046 29.6017C76.5046 27.2496 78.1315 25.87 80.1425 25.87C80.4814 25.87 82.5602 25.7796 83.2154 27.521H79.9391V30.9135H90.3556Z" fill="currentColor"/>
+<path d="M60.9353 20.1034V39.1011H68.3691V20.1034H60.9353Z" fill="currentColor"/>
+<path d="M50.0428 19.4696C42.9704 19.4922 39.8523 21.5277 40.1008 26.7747H46.7664C46.7664 25.8248 47.6025 25.2594 50.0428 25.2368C52.0763 25.1915 52.8446 25.6665 52.8446 26.1414C52.8446 26.2771 53.0027 26.9104 51.4211 27.0913L48.913 27.4758C45.3203 28.0186 40.5075 28.1091 40.5075 33.4465C40.5075 37.3139 43.5805 39.7338 50.0879 39.7338C55.8724 39.7338 59.8943 38.3769 59.691 32.474H53.0705C52.8898 33.4239 52.0086 33.9893 49.9298 33.9893C48.1673 33.9893 47.6477 33.5144 47.6477 33.062C47.6477 32.9263 47.6025 32.3157 48.7096 32.18L50.698 31.8634C54.5618 31.2301 60.2333 31.4563 60.2333 25.8248C60.2333 21.4372 56.9343 19.4244 50.0428 19.4696Z" fill="currentColor"/>
+<path d="M21.5475 20.1034V39.1011H39.3978V33.1982H28.9813V31.9317H38.9911V27.2501H28.9813V26.0062H39.3978V20.1034H21.5475Z" fill="currentColor"/>
+<path d="M10.0775 39.1011C18.0537 39.1011 20.6973 35.1206 20.6973 29.6022C20.6973 24.1291 18.0537 20.1034 10.0775 20.1034H0V39.1011H10.0775ZM10.1001 26.3228C11.7044 26.3228 13.2409 27.0013 13.2409 29.6022C13.2409 32.2483 11.7044 32.9042 10.1001 32.9042H7.45646V26.3228H10.1001Z" fill="currentColor"/>
+<path d="M160.138 24.7522C158.938 24.7522 157.983 23.8244 157.983 22.5601C157.983 21.3049 158.938 20.368 160.138 20.368C161.339 20.368 162.294 21.3049 162.294 22.5601C162.294 23.8244 161.339 24.7522 160.138 24.7522ZM160.138 24.4339C161.139 24.4339 161.939 23.6607 161.939 22.5601C161.939 21.4686 161.139 20.6864 160.138 20.6864C159.147 20.6864 158.337 21.4686 158.337 22.5601C158.337 23.6607 159.147 24.4339 160.138 24.4339ZM159.747 23.7517H159.265V21.3413H160.239C160.784 21.3413 161.075 21.5959 161.075 22.0416C161.075 22.3691 160.875 22.5692 160.548 22.642V22.6602C161.148 22.7693 160.957 23.6607 161.121 23.7244V23.7517H160.63C160.457 23.6243 160.693 22.8421 160.093 22.8421H159.747V23.7517ZM159.747 22.4419H160.12C160.411 22.4419 160.611 22.3691 160.611 22.078C160.611 21.7961 160.402 21.7415 160.129 21.7415H159.747V22.4419Z" fill="currentColor"/>
+<path d="M162.778 38.7558C162.174 38.9572 161.671 39.0579 161.268 39.0579C160.865 39.0291 160.419 38.8421 159.93 38.4968C159.355 37.9214 159.153 37.346 159.326 36.7705C159.527 36.1663 160.045 35.5765 160.879 35.0011C161.455 34.6558 161.872 34.4832 162.131 34.4832C162.419 34.4544 162.836 34.5551 163.383 34.7853C164.361 35.3895 164.792 36.0656 164.677 36.8137C164.562 37.533 163.929 38.1804 162.778 38.7558ZM179.189 41.82C178.815 41.9063 178.441 41.8056 178.067 41.5179C177.721 41.2589 177.477 40.9712 177.333 40.6547C177.16 40.1944 177.045 39.7628 176.988 39.36C176.959 38.9284 176.93 38.4393 176.901 37.8926L176.858 36.4253L175.089 38.0221C174.111 38.9428 173.19 39.6046 172.327 40.0074C171.492 40.3814 170.73 40.5684 170.039 40.5684C169.723 40.5109 169.334 40.3095 168.874 39.9642C168.443 39.5902 168.04 39.1874 167.666 38.7558C167.32 38.2954 167.076 37.9214 166.932 37.6337C166.759 37.2309 166.702 36.6698 166.759 35.9505C166.846 35.2312 167.018 34.44 167.277 33.5769C167.565 32.7137 167.91 31.8649 168.313 31.0305C168.745 30.1962 169.234 29.4769 169.78 28.8727C170.73 27.4341 171.91 26.5421 173.319 26.1969C174.729 25.8228 175.981 25.9379 177.074 26.5421C177.592 26.8011 177.966 26.9018 178.196 26.8442C178.426 26.7867 178.57 26.5997 178.628 26.2832C178.743 25.8228 178.872 25.3913 179.016 24.9885C179.16 24.5856 179.361 23.9814 179.62 23.1758C180.34 20.9892 180.958 19.2772 181.476 18.04C182.023 16.8029 182.512 15.7239 182.944 14.8032C183.26 14.1415 183.577 13.6811 183.893 13.4222C184.21 13.1632 184.483 13.0481 184.713 13.0769C185.03 13.0769 185.418 13.192 185.878 13.4222C186.367 13.6523 186.684 13.9688 186.828 14.3716C186.943 14.6306 186.986 14.9039 186.957 15.1916C186.957 15.4793 186.871 15.7815 186.698 16.0979C186.324 16.7885 185.878 17.7092 185.36 18.86C184.871 19.9821 184.368 21.2193 183.85 22.5716C183.361 23.9239 182.9 25.2618 182.469 26.5853C182.037 27.9088 181.678 29.0741 181.39 30.0811C181.217 30.7141 181.073 31.5197 180.958 32.4979C180.872 33.4762 180.8 34.4832 180.743 35.519C180.714 36.526 180.714 37.4323 180.743 38.2379C180.771 39.0147 180.814 39.5182 180.872 39.7484C181.045 40.3239 181.045 40.7554 180.872 41.0432C180.699 41.3309 180.455 41.5179 180.138 41.6042C179.822 41.7193 179.505 41.7912 179.189 41.82ZM172.068 36.5979C172.471 36.454 172.83 36.2814 173.147 36.08C173.463 35.8786 173.837 35.6197 174.269 35.3032C175.132 34.6414 175.751 34.066 176.125 33.5769C176.527 33.0877 176.844 32.4835 177.074 31.7642C177.218 31.3326 177.218 30.9586 177.074 30.6421C176.959 30.3256 176.743 30.0235 176.427 29.7358C176.11 29.4769 175.707 29.3762 175.218 29.4337C174.729 29.4625 174.168 29.7646 173.535 30.34C172.845 30.973 172.255 31.7067 171.766 32.5411C171.277 33.3755 170.874 34.5695 170.557 36.1232C170.5 36.4109 170.6 36.6123 170.859 36.7274C171.118 36.8425 171.521 36.7993 172.068 36.5979ZM191.763 40.1368C190.899 40.626 189.979 40.9137 189.001 41C188.051 41.0575 187.159 40.9281 186.325 40.6116C185.49 40.2663 184.814 39.7628 184.296 39.1011C184.009 38.727 183.735 38.1372 183.476 37.3316C183.217 36.4972 183.174 35.3751 183.347 33.9653C183.519 32.6418 183.922 31.3039 184.555 29.9516C185.217 28.5993 186.023 27.4053 186.972 26.3695C187.922 25.3337 188.957 24.6288 190.079 24.2548C190.482 24.1109 190.885 24.0102 191.288 23.9527C191.719 23.8663 192.281 23.852 192.971 23.9095C193.633 23.9958 194.223 24.1685 194.741 24.4274C195.258 24.6576 195.632 24.9165 195.863 25.2042C196.323 25.6646 196.625 26.1106 196.769 26.5421C196.913 26.9737 196.97 27.3909 196.942 27.7937C196.798 28.7144 196.38 29.707 195.69 30.7716C195.028 31.8362 194.093 32.6274 192.885 33.1453C192.396 33.3467 191.82 33.4762 191.158 33.5337C190.497 33.5912 189.59 33.5049 188.439 33.2748C187.749 33.1309 187.289 33.2028 187.058 33.4905C186.857 33.7783 186.771 34.3393 186.799 35.1737C186.857 35.6916 186.972 36.1519 187.145 36.5547C187.346 36.9288 187.706 37.1877 188.224 37.3316C188.885 37.4467 189.36 37.4611 189.648 37.3747C189.936 37.2597 190.295 37.1014 190.727 36.9C190.957 36.7561 191.173 36.5979 191.374 36.4253C191.604 36.2526 191.82 36.08 192.022 35.9074C192.252 35.7347 192.439 35.6053 192.583 35.519C192.726 35.4039 192.87 35.3319 193.014 35.3032C193.158 35.2744 193.302 35.26 193.446 35.26C193.762 35.2888 194.064 35.4614 194.352 35.7779C194.64 36.0944 194.827 36.3965 194.913 36.6842C194.913 36.9144 194.769 37.2453 194.482 37.6768C194.194 38.0797 193.805 38.5112 193.316 38.9716C192.856 39.4032 192.338 39.7916 191.763 40.1368ZM191.202 30.5127C191.403 30.4263 191.691 30.2249 192.065 29.9084C192.468 29.592 192.827 29.2611 193.144 28.9158C193.46 28.5418 193.618 28.2541 193.618 28.0527C193.618 27.7362 193.403 27.4628 192.971 27.2327C192.568 27.0025 192.036 26.9593 191.374 27.1032C191.144 27.1607 190.871 27.319 190.554 27.5779C190.238 27.8369 189.921 28.139 189.605 28.4842C189.288 28.8007 189.015 29.1172 188.785 29.4337C188.555 29.7214 188.396 29.9516 188.31 30.1242C188.425 30.2681 188.655 30.3832 189.001 30.4695C189.346 30.5558 189.72 30.599 190.123 30.599C190.554 30.599 190.914 30.5702 191.202 30.5127ZM201.731 39.8779C201.444 40.0793 201.084 40.1944 200.652 40.2232C200.25 40.2232 199.89 40.0649 199.574 39.7484C199.027 39.2305 198.552 38.2091 198.149 36.6842C197.746 35.1305 197.545 33.0302 197.545 30.3832C197.66 29.2035 197.718 28.1102 197.718 27.1032C197.746 26.0962 197.761 25.5351 197.761 25.42C198.077 25.2186 198.48 25.1611 198.969 25.2474C199.487 25.3049 199.904 25.4056 200.221 25.5495C200.509 25.6934 200.71 25.9092 200.825 26.1969C200.969 26.4846 201.055 27.0025 201.084 27.7506C201.142 28.4698 201.17 29.5776 201.17 31.0737C201.084 32.2246 201.026 33.1453 200.998 33.8358C200.969 34.5263 200.998 34.9291 201.084 35.0442C201.199 35.2456 201.257 35.3607 201.257 35.3895C201.257 35.3895 201.472 35.1737 201.904 34.7421C202.134 34.4256 202.379 34.0084 202.638 33.4905C202.925 32.9726 203.17 32.5555 203.371 32.239C203.688 31.8362 203.976 31.4477 204.235 31.0737C204.522 30.6997 204.724 30.4551 204.839 30.34C204.954 30.1098 205.098 29.8941 205.27 29.6927C205.443 29.4912 205.587 29.2898 205.702 29.0884C206.018 28.5418 206.349 28.0958 206.695 27.7506C207.04 27.3765 207.27 27.1895 207.385 27.1895C207.5 27.2758 207.716 27.2614 208.032 27.1463C208.349 27.0025 208.565 26.9306 208.68 26.9306C208.881 26.7291 209.155 26.7291 209.5 26.9306C209.615 27.0169 209.716 27.1176 209.802 27.2327C209.888 27.319 209.931 27.4197 209.931 27.5348C209.931 27.6786 209.845 28.0383 209.672 28.6137C209.529 29.1604 209.342 29.707 209.111 30.2537C208.91 30.7716 208.737 31.0737 208.593 31.16C208.593 31.16 208.55 31.2032 208.464 31.2895C208.378 31.3758 208.277 31.4765 208.162 31.5916C208.104 31.793 207.903 32.167 207.558 32.7137C207.241 33.2316 206.838 33.8358 206.349 34.5263C205.889 35.1881 205.414 35.8498 204.925 36.5116C204.436 37.1446 204.004 37.7056 203.63 38.1947C203.343 38.5975 203.012 38.9572 202.638 39.2737C202.264 39.5614 201.962 39.7628 201.731 39.8779Z" fill="#0072FF"/>
+</svg></a><nav class="pg-nav" aria-label="Site"><a href="/components" aria-current="page">Components</a><a href="/packages/react/preview/" class="pg-wide">React preview</a><a href="/#/changelog" class="pg-cl">Changelog</a></nav><span class="pg-sp"></span><button class="pg-theme" id="pg-theme" type="button" aria-label="Switch between light and dark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"></path></svg></button></div></header><main class="pg-main"><nav class="cp-crumbs" aria-label="Breadcrumb"><a href="/components">Components</a><span>/</span><a href="/components/conversation">Conversation</a></nav><h1 class="cp-h">Live answer</h1><p class="cp-lead">Answers that stream in with numbered sources and next steps.</p><ul class="cp-tags"><li>Agent components</li><li>HTML and React</li><li>Soft and Blueprint</li><li>Light and dark</li><li>MIT</li></ul><section class="cp-demo" aria-label="Live answer demo"><div class="cp-bar"><div class="cp-seg" role="group" aria-label="Style"><button type="button" data-style-set="bp">Blueprint</button><button type="button" data-style-set="soft">Soft</button></div><span class="sp"></span><button type="button" class="cp-btn" id="cp-replay"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"></path><path d="M3 3v5h5"></path></svg>Replay</button></div><div class="pg-demo stage-inner" style="--h-a:377px;--h-e:422px"><div class="card bare" data-c="live-answer">
+  <div class="stage-in"></div>
+  <template>
+<div class="lva">
+  <div class="lva-q"><div class="bub">Where are people dropping off in onboarding?</div></div>
+  <div class="lva-a"></div>
+</div>
+  </template>
+</div>
+</div></section><nav class="cp-toc" aria-label="On this page"><a href="#install">Install</a><a href="#about">About</a><a href="#usage">Usage</a><a href="#props">Props</a><a href="#code">Code</a><a href="#questions">Questions</a></nav><section class="cp-sec" id="install"><h2>Install</h2><div class="cp-cmds"><div class="cp-cmd"><span class="k">HTML</span><code>npx designme add live-answer</code><button class="cp-copy" type="button" data-copy="npx designme add live-answer">Copy</button></div><div class="cp-cmd"><span class="k">React</span><code>npx designme add live-answer --react</code><button class="cp-copy" type="button" data-copy="npx designme add live-answer --react">Copy</button></div></div><p class="cp-note">The CLI copies the source into your project, so you own it and can change anything. The HTML version lands in <code>./designme</code> with the shared core and a <code>demo.html</code>. The React version lands in <code>src/components/designme</code> and needs React 19; it works in Next.js, Vite and Astro.</p></section><section class="cp-sec" id="about"><h2>About the live answer</h2><p>Live answer shows a question and the agent's reply as it streams in word by word, with numbered citations that point to a source list. Each turn moves through waiting, thinking, answering and done, and once it is done the person can copy, rate, retry or pick a follow-up question that adds a new turn below.</p><h3>When to use it</h3><ul><li>When your agent answers questions from data, documents or the web and people need to check where each claim came from.</li><li>When answers arrive token by token and you want the text to build up in place instead of appearing all at once.</li><li>When you want to show that the agent thought first, with a short list of what it did, without cluttering the answer.</li><li>When a conversation should continue through suggested follow-up questions.</li></ul><h3>What it does</h3><ul><li>Each turn has a <code>state</code>: waiting shows nothing, thinking shows a Thinking line, answering streams <code>text</code>, and done adds sources and actions.</li><li>Write [1] after a word in <code>text</code> to cite source 1. A half-typed citation like "[2" is held back until it is complete, and a blank line starts a new paragraph.</li><li>Hovering a citation or a source highlights the pair, and a click pins it and opens the source list until the next click.</li><li>A "Thought for Ns" toggle lists the agent's <code>thoughts</code>. Leave out <code>thoughtFor</code> and it counts the seconds while the turn is thinking.</li><li>Copy, Good answer and Bad answer buttons sit under every finished answer, and <code>onRetry</code> adds a Try again button. Copying strips the citation numbers before calling <code>onCopy</code>.</li><li><code>followUps</code> appear under the last answer once it is done, and <code>onFollowUp</code> receives the chosen question so you can add the next turn.</li></ul><h3>Accessibility</h3><ul><li>The "Thought for Ns" button and the sources button report their open state with <code>aria-expanded</code>.</li><li>The Good answer and Bad answer buttons use <code>aria-pressed</code>, and every icon-only button has an <code>aria-label</code>.</li><li>Collapsed thought and source lists are marked <code>inert</code> and <code>aria-hidden</code>, so they drop out of the tab order.</li><li>Under <code>prefers-reduced-motion: reduce</code>, the word fade-ins and other animations are cut to near zero.</li></ul></section><section class="cp-sec" id="usage"><h2>Usage in React</h2><p>After installing, import it from where the CLI put it:</p><pre class="cp-pre"><code>import { LiveAnswer } from &#39;@/components/designme/live-answer/LiveAnswer&#39;;</code></pre><h3>Example</h3><p>The demo above, as a React component you can copy:</p><pre class="cp-pre"><code>&#39;use client&#39;;
+// The animated preview from designme.dev, rebuilt from the React component: an example of driving it from your own state.
+import { useCallback, useEffect, useState } from &#39;react&#39;;
+import { useWait } from &#39;../lib/useScript&#39;;
+import { LiveAnswer, type AnswerSource, type AnswerTurn } from &#39;./LiveAnswer&#39;;
+
+/* ---------- Live answer: it thinks, streams a cited answer, then offers follow-ups that add turns ---------- */
+const FIRST = &#39;Where are people dropping off in onboarding?&#39;;
+const ANSWERS: Record&lt;string, string&gt; = {
+  [FIRST]: &#39;Most people leave at the workspace step [1]. It asks for a team name before anyone has made anything, and five of eight people in interviews paused there [2]. Moving it after the first project, and filling the name from the email domain, should help [3].&#39;,
+  &#39;Show the drop-off by device&#39;: &#39;On mobile the workspace step loses 41% [1], on desktop 23% [1]. Most of the mobile drop comes from the keyboard covering the Continue button [3].&#39;,
+  &#39;Draft a fix for the workspace step&#39;: &#39;Ask for the team name after the first project, and fill it from the email domain so most people never type it [2]. On mobile, keep Continue above the keyboard [3], then compare the step again after a week [1].&#39;
+};
+const THOUGHTS = [&#39;Read the funnel for the last 30 days&#39;, &#39;Matched the drop to the interview notes&#39;, &#39;Checked step 2 in Onboarding.fig&#39;];
+const SOURCES: AnswerSource[] = [
+  { n: 1, mark: &#39;F&#39;, color: &#39;#7a5af8&#39;, title: &#39;Funnel data&#39;, detail: &#39;Amplitude, last 30 days&#39;, tip: &#39;Funnel data, last 30 days&#39; },
+  { n: 2, mark: &#39;N&#39;, color: &#39;#0ea5a4&#39;, title: &#39;Session notes&#39;, detail: &#39;Notion, 8 interviews&#39;, tip: &#39;Session notes from 8 interviews&#39; },
+  { n: 3, mark: &#39;S&#39;, color: &#39;#f97316&#39;, title: &#39;Onboarding.fig&#39;, detail: &#39;Figma, step 2&#39;, tip: &#39;Onboarding.fig, step 2&#39; }
+];
+
+export default function LiveAnswerDemo() {
+  const [turns, setTurns] = useState&lt;AnswerTurn[]&gt;([{ key: 0, question: FIRST, state: &#39;waiting&#39; }]);
+  const [asked, setAsked] = useState(false);
+  const wait = useWait();
+
+  // streams the answer to question q into turn i, one word at a time
+  const answer = useCallback(async (i: number, q: string) =&gt; {
+    const set = (patch: Partial&lt;AnswerTurn&gt;) =&gt; setTurns(ts =&gt; ts.map((t, k) =&gt; k === i ? { ...t, ...patch } : t));
+    set({ state: &#39;thinking&#39;, text: &#39;&#39; });
+    await wait(1300);
+    set({ state: &#39;answering&#39;, thoughts: THOUGHTS, thoughtFor: 2 });
+    let text = &#39;&#39;;
+    for (const tok of ANSWERS[q].split(&#39; &#39;)) {
+      text += (text ? &#39; &#39; : &#39;&#39;) + tok; set({ text });
+      await wait(55 + Math.random() * 45);
+    }
+    set({ state: &#39;done&#39;, sources: SOURCES });
+  }, [wait]);
+
+  useEffect(() =&gt; { answer(0, FIRST); }, [answer]);
+
+  const ask = async (q: string) =&gt; {
+    const i = turns.length;
+    setAsked(true);
+    setTurns(ts =&gt; [...ts, { key: i, question: q, state: &#39;waiting&#39; }]);
+    await wait(450); await answer(i, q);
+  };
+  const retry = (i: number) =&gt; { if (turns[i].state === &#39;done&#39;) answer(i, turns[i].question ?? &#39;&#39;); };
+
+  return (
+    // keeps the room the first answer fills with its sources and follow-ups, so nothing climbs when they arrive
+    &lt;div style={{ width: &#39;100%&#39;, minHeight: 376 }}&gt;
+      &lt;LiveAnswer turns={turns} followUps={asked ? undefined : [&#39;Show the drop-off by device&#39;, &#39;Draft a fix for the workspace step&#39;]} onFollowUp={ask} onRetry={retry} /&gt;
+    &lt;/div&gt;
+  );
+}
+</code></pre></section><section class="cp-sec wide" id="props"><h2>Props</h2><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>turns</code></td><td><code>AnswerTurn[]</code></td><td></td></tr><tr><td><code>followUps</code><span class="opt"> optional</span></td><td><code>string[]</code></td><td>Suggested next questions, shown under the last answer once it is done</td></tr><tr><td><code>onFollowUp</code><span class="opt"> optional</span></td><td><code>(question: string) =&gt; void</code></td><td></td></tr><tr><td><code>onRetry</code><span class="opt"> optional</span></td><td><code>(index: number) =&gt; void</code></td><td>Adds a Try again button under each answer</td></tr><tr><td><code>onRate</code><span class="opt"> optional</span></td><td><code>(index: number, rating: AnswerRating) =&gt; void</code></td><td></td></tr><tr><td><code>onCopy</code><span class="opt"> optional</span></td><td><code>(index: number, text: string) =&gt; void</code></td><td>Called after an answer is copied, with its text without the citations</td></tr><tr><td><code>onSourceClick</code><span class="opt"> optional</span></td><td><code>(source: AnswerSource) =&gt; void</code></td><td>Called when a source in the list is clicked, besides pinning it</td></tr><tr><td><code>className</code><span class="opt"> optional</span></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec wide" id="code"><h2>Code</h2><p>The full source, as the CLI installs it. Open a file to read it.</p><details class="cp-file"><summary>LiveAnswer.tsx<span class="l">React</span></summary><pre class="cp-pre"><code>&#39;use client&#39;;
+import { Fragment, useState } from &#39;react&#39;;
+import { cx } from &#39;../lib/cx&#39;;
+import { useCopied, useSeconds } from &#39;../lib/hooks&#39;;
+import { Icon } from &#39;../lib/icons&#39;;
+import { enter, Fold, Think, Tip } from &#39;../lib/motion&#39;;
+import &#39;../designme.css&#39;;
+import &#39;./live-answer.css&#39;;
+
+export interface AnswerSource {
+  /** The number its citations use: [1] in the text cites source 1 */
+  n: number;
+  /** Like &quot;Funnel data&quot; */
+  title: string;
+  /** Where it came from, shown in the list, like &quot;Amplitude, last 30 days&quot; */
+  detail?: string;
+  /** Shown when you hover a citation. Defaults to the title and detail */
+  tip?: string;
+  /** The letter on its badge. Defaults to the title&#39;s first letter */
+  mark?: string;
+  /** Badge colour, any CSS colour */
+  color?: string;
+}
+
+export type AnswerState = &#39;waiting&#39; | &#39;thinking&#39; | &#39;answering&#39; | &#39;done&#39;;
+
+export interface AnswerTurn {
+  /** Keeps each turn in place when turns are added. Defaults to its index */
+  key?: string | number;
+  /** What the person asked, shown as a bubble above the answer. Leave it out when the bubble is shown elsewhere, like in a chat */
+  question?: string;
+  /** waiting shows nothing yet, thinking shows the Thinking line, answering streams the text, done adds sources and actions */
+  state: AnswerState;
+  /** The answer so far. Each new word fades in as it arrives. [1] after a word cites source 1, a blank line starts a new paragraph */
+  text?: string;
+  /** What the agent did while it thought, listed under &quot;Thought for Ns&quot; */
+  thoughts?: string[];
+  /** Seconds it thought for. Leave it out to count while thinking */
+  thoughtFor?: number;
+  sources?: AnswerSource[];
+}
+
+export type AnswerRating = &#39;good&#39; | &#39;bad&#39; | null;
+
+export interface LiveAnswerProps {
+  turns: AnswerTurn[];
+  /** Suggested next questions, shown under the last answer once it is done */
+  followUps?: string[];
+  onFollowUp?: (question: string) =&gt; void;
+  /** Adds a Try again button under each answer */
+  onRetry?: (index: number) =&gt; void;
+  onRate?: (index: number, rating: AnswerRating) =&gt; void;
+  /** Called after an answer is copied, with its text without the citations */
+  onCopy?: (index: number, text: string) =&gt; void;
+  /** Called when a source in the list is clicked, besides pinning it */
+  onSourceClick?: (source: AnswerSource) =&gt; void;
+  className?: string;
+}
+
+type Word = { text: string; cites: { n: number; rest: string }[] };
+
+/** Splits a paragraph into words, hanging each [n] citation on the word before it */
+function words(par: string, streaming: boolean): Word[] {
+  const toks = par.split(&#39; &#39;).filter(Boolean);
+  // a citation still arriving, like &quot;[&quot; or &quot;[2&quot;, waits until it is complete
+  if (streaming &amp;&amp; /^\[\d*$/.test(toks[toks.length - 1] ?? &#39;&#39;)) toks.pop();
+  const out: Word[] = [];
+  for (const tok of toks) {
+    const m = tok.match(/^\[(\d+)\](.*)$/);
+    if (m &amp;&amp; out.length) out[out.length - 1].cites.push({ n: +m[1], rest: m[2] });
+    else out.push({ text: tok, cites: [] });
+  }
+  return out;
+}
+const plain = (text: string) =&gt; text.replace(/\s*\[\d+\]/g, &#39;&#39;).replace(/\s+/g, &#39; &#39;).trim();
+
+interface TurnProps {
+  turn: AnswerTurn;
+  followUps?: string[];
+  onFollowUp?: (q: string) =&gt; void;
+  onRetry?: () =&gt; void;
+  onRate?: (r: AnswerRating) =&gt; void;
+  onCopy?: (text: string) =&gt; void;
+  onSourceClick?: (s: AnswerSource) =&gt; void;
+}
+
+function Turn({ turn, followUps, onFollowUp, onRetry, onRate, onCopy, onSourceClick }: TurnProps) {
+  const { state, text = &#39;&#39;, thoughts, sources = [] } = turn;
+  const done = state === &#39;done&#39;;
+  const counted = useSeconds(state === &#39;thinking&#39; &amp;&amp; turn.thoughtFor === undefined);
+  const [thoughtsOpen, setThoughtsOpen] = useState(false);
+  const [listOpen, setListOpen] = useState(false);
+  // hovering a citation or a source previews it, a click pins it until the next click
+  const [hover, setHover] = useState&lt;number | null&gt;(null);
+  const [pin, setPin] = useState&lt;number | null&gt;(null);
+  const [rating, setRating] = useState&lt;AnswerRating&gt;(null);
+  const [copied, copyText] = useCopied();
+  const active = hover ?? pin;
+  const pick = (n: number) =&gt; { const next = pin === n ? null : n; setPin(next); if (next !== null) setListOpen(true); };
+  const rate = (r: &#39;good&#39; | &#39;bad&#39;) =&gt; { const next = rating === r ? null : r; setRating(next); onRate?.(next); };
+  const copy = () =&gt; {
+    const out = plain(text);
+    copyText(out); onCopy?.(out);
+  };
+  const tipOf = (n: number) =&gt; { const s = sources.find(x =&gt; x.n === n); return s ? s.tip ?? [s.title, s.detail].filter(Boolean).join(&#39;, &#39;) : `Source ${n}`; };
+
+  return (
+    &lt;div className=&quot;dm-lva-turn&quot;&gt;
+      {state === &#39;thinking&#39; &amp;&amp; (
+        &lt;div className=&quot;dm-lva-th dm-enter&quot;&gt;
+          &lt;span style={{ color: &#39;var(--dm-fg2)&#39;, display: &#39;grid&#39; }}&gt;&lt;Think /&gt;&lt;/span&gt;&lt;span className=&quot;dm-shim&quot;&gt;Thinking&lt;/span&gt;
+        &lt;/div&gt;
+      )}
+      {(state === &#39;answering&#39; || done) &amp;&amp; thoughts?.length ? (
+        &lt;&gt;
+          &lt;button type=&quot;button&quot; className=&quot;dm-lva-th dm-lva-tb&quot; aria-expanded={thoughtsOpen} onClick={() =&gt; setThoughtsOpen(!thoughtsOpen)}&gt;
+            &lt;span&gt;Thought for {turn.thoughtFor ?? Math.max(1, counted)}s&lt;/span&gt;&lt;Icon name=&quot;chev-d&quot; size=&quot;xs&quot; /&gt;
+          &lt;/button&gt;
+          &lt;Fold open={thoughtsOpen}&gt;&lt;ul className=&quot;dm-lva-tlist&quot;&gt;{thoughts.map((t, i) =&gt; &lt;li key={i}&gt;{t}&lt;/li&gt;)}&lt;/ul&gt;&lt;/Fold&gt;
+        &lt;/&gt;
+      ) : null}
+      {(state === &#39;answering&#39; || done) &amp;&amp; text.split(/\n{2,}/).map((par, p) =&gt; (
+        &lt;p key={p} className=&quot;dm-lva-p&quot;&gt;
+          {words(par, !done).map((w, i) =&gt; (
+            &lt;span key={i} className=&quot;dm-w&quot; style={w.cites.length ? { whiteSpace: &#39;nowrap&#39; } : undefined}&gt;
+              {w.text}
+              {w.cites.map((c, k) =&gt; (
+                &lt;Fragment key={k}&gt;
+                  &lt;Tip label={tipOf(c.n)}&gt;
+                    &lt;span className={cx(&#39;dm-cite&#39;, active === c.n &amp;&amp; &#39;dm-on&#39;)} style={done ? { cursor: &#39;pointer&#39; } : undefined}
+                      onMouseEnter={done ? () =&gt; setHover(c.n) : undefined} onMouseLeave={done ? () =&gt; setHover(null) : undefined} onClick={done ? () =&gt; pick(c.n) : undefined}&gt;{c.n}&lt;/span&gt;
+                  &lt;/Tip&gt;
+                  {c.rest}
+                &lt;/Fragment&gt;
+              ))}
+              {&#39; &#39;}
+            &lt;/span&gt;
+          ))}
+        &lt;/p&gt;
+      ))}
+      {done &amp;&amp; (
+        &lt;&gt;
+          &lt;div className=&quot;dm-lva-src dm-enter&quot;&gt;
+            &lt;span className=&quot;dm-lva-acts&quot;&gt;
+              &lt;Tip label={copied ? &#39;Copied to clipboard&#39; : &#39;Copy&#39;} open={copied || undefined}&gt;
+                &lt;button type=&quot;button&quot; className={cx(&#39;dm-ib&#39;, copied &amp;&amp; &#39;dm-copied&#39;)} aria-label=&quot;Copy&quot; onClick={copy}&gt;&lt;Icon name={copied ? &#39;check&#39; : &#39;copy&#39;} /&gt;&lt;/button&gt;
+              &lt;/Tip&gt;
+              &lt;Tip label=&quot;Good answer&quot;&gt;
+                &lt;button type=&quot;button&quot; className={cx(&#39;dm-ib&#39;, rating === &#39;good&#39; &amp;&amp; &#39;dm-on&#39;)} aria-label=&quot;Good answer&quot; aria-pressed={rating === &#39;good&#39;} onClick={() =&gt; rate(&#39;good&#39;)}&gt;&lt;Icon name=&quot;up-thumb&quot; /&gt;&lt;/button&gt;
+              &lt;/Tip&gt;
+              &lt;Tip label=&quot;Bad answer&quot;&gt;
+                &lt;button type=&quot;button&quot; className={cx(&#39;dm-ib&#39;, rating === &#39;bad&#39; &amp;&amp; &#39;dm-on&#39;)} aria-label=&quot;Bad answer&quot; aria-pressed={rating === &#39;bad&#39;} onClick={() =&gt; rate(&#39;bad&#39;)}&gt;&lt;Icon name=&quot;down-thumb&quot; /&gt;&lt;/button&gt;
+              &lt;/Tip&gt;
+              {onRetry &amp;&amp; &lt;Tip label=&quot;Try again&quot;&gt;&lt;button type=&quot;button&quot; className=&quot;dm-ib&quot; aria-label=&quot;Try again&quot; onClick={onRetry}&gt;&lt;Icon name=&quot;refresh&quot; /&gt;&lt;/button&gt;&lt;/Tip&gt;}
+            &lt;/span&gt;
+            {sources.length &gt; 0 &amp;&amp; (
+              &lt;button type=&quot;button&quot; className=&quot;dm-lva-sb&quot; aria-expanded={listOpen} onClick={() =&gt; setListOpen(!listOpen)}&gt;
+                &lt;span className=&quot;dm-lva-fav&quot;&gt;{sources.map(s =&gt; &lt;span key={s.n} style={{ background: s.color ?? &#39;var(--dm-c1)&#39; }}&gt;{s.mark ?? s.title.charAt(0)}&lt;/span&gt;)}&lt;/span&gt;
+                {sources.length} {sources.length === 1 ? &#39;source&#39; : &#39;sources&#39;}&lt;Icon name=&quot;chev-d&quot; size=&quot;xs&quot; /&gt;
+              &lt;/button&gt;
+            )}
+          &lt;/div&gt;
+          {sources.length &gt; 0 &amp;&amp; (
+            &lt;Fold open={listOpen}&gt;
+              &lt;div className=&quot;dm-lva-ll&quot;&gt;
+                {sources.map(s =&gt; (
+                  &lt;button type=&quot;button&quot; key={s.n} className={cx(&#39;dm-lva-s&#39;, active === s.n &amp;&amp; &#39;dm-on&#39;)}
+                    onMouseEnter={() =&gt; setHover(s.n)} onMouseLeave={() =&gt; setHover(null)} onClick={() =&gt; { pick(s.n); onSourceClick?.(s); }}&gt;
+                    &lt;span className=&quot;dm-n&quot;&gt;{s.n}&lt;/span&gt;&lt;span&gt;{s.title}&lt;/span&gt;&lt;span className=&quot;dm-d&quot;&gt;{s.detail}&lt;/span&gt;&lt;Icon name=&quot;ext&quot; size=&quot;xs&quot; /&gt;
+                  &lt;/button&gt;
+                ))}
+              &lt;/div&gt;
+            &lt;/Fold&gt;
+          )}
+          {followUps?.length ? (
+            &lt;div className=&quot;dm-lva-fu&quot;&gt;
+              {followUps.map((q, i) =&gt; &lt;button type=&quot;button&quot; key={q} {...enter(i * 90)} onClick={() =&gt; onFollowUp?.(q)}&gt;&lt;Icon name=&quot;chev-r&quot; size=&quot;xs&quot; /&gt;{q}&lt;/button&gt;)}
+            &lt;/div&gt;
+          ) : null}
+        &lt;/&gt;
+      )}
+    &lt;/div&gt;
+  );
+}
+
+/** Starts a turn afresh (closed lists, no pin or rating) each time it goes back from done to answering again, like Try again */
+function TurnSlot(props: TurnProps) {
+  const [seen, setSeen] = useState({ state: props.turn.state, round: 0 });
+  let round = seen.round;
+  if (seen.state !== props.turn.state) {
+    round += seen.state === &#39;done&#39; ? 1 : 0;
+    setSeen({ state: props.turn.state, round });
+  }
+  return &lt;Turn key={round} {...props} /&gt;;
+}
+
+/** A question and an answer that streams in word by word, with citations, sources and follow-ups, then more turns below it. */
+export function LiveAnswer({ turns, followUps, onFollowUp, onRetry, onRate, onCopy, onSourceClick, className }: LiveAnswerProps) {
+  const last = turns.length - 1;
+  return (
+    &lt;div data-dm=&quot;&quot; className={cx(&#39;dm-lva&#39;, className)}&gt;
+      {turns.length &gt; 0 &amp;&amp; turns[0].question &amp;&amp; &lt;div className=&quot;dm-lva-q&quot;&gt;&lt;div className=&quot;dm-bub&quot;&gt;{turns[0].question}&lt;/div&gt;&lt;/div&gt;}
+      &lt;div className=&quot;dm-lva-a&quot;&gt;
+        {turns.map((t, i) =&gt; (
+          &lt;Fragment key={t.key ?? i}&gt;
+            {i &gt; 0 &amp;&amp; t.question &amp;&amp; &lt;div className=&quot;dm-lva-q dm-enter&quot;&gt;&lt;div className=&quot;dm-bub&quot;&gt;{t.question}&lt;/div&gt;&lt;/div&gt;}
+            &lt;TurnSlot turn={t} followUps={i === last ? followUps : undefined} onFollowUp={onFollowUp}
+              onRetry={onRetry &amp;&amp; (() =&gt; onRetry(i))} onRate={onRate &amp;&amp; (r =&gt; onRate(i, r))} onCopy={onCopy &amp;&amp; (x =&gt; onCopy(i, x))} onSourceClick={onSourceClick} /&gt;
+          &lt;/Fragment&gt;
+        ))}
+      &lt;/div&gt;
+    &lt;/div&gt;
+  );
+}
+</code></pre></details><details class="cp-file"><summary>live-answer.css<span class="l">React</span></summary><pre class="cp-pre"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+/* ---------- Live answer ---------- */
+.dm-lva{display:flex;flex-direction:column;gap:14px}
+.dm-lva-q{display:flex;justify-content:flex-end}
+.dm-lva-a{display:flex;flex-direction:column;gap:14px;min-height:230px}
+/* on a card the first answer keeps the room its sources and follow-ups fill, so nothing climbs when they arrive */
+.dm-stage-in&gt;.dm-lva .dm-lva-a{min-height:324px}
+.dm-lva-turn{display:flex;flex-direction:column;gap:12px}
+.dm-lva-th{display:flex;align-items:center;gap:8px;font-size:13.5px;color:var(--dm-muted)}
+.dm-lva-tb{display:inline-flex;gap:6px;align-self:flex-start;padding:2px 8px;margin-left:-8px;border-radius:999px;transition:color var(--dm-t-fast),background var(--dm-t-fast)}
+.dm-lva-tb:hover{color:var(--dm-fg2);background:var(--dm-chip)}
+.dm-lva-tb&gt;.dm-i{transition:transform .2s var(--dm-ease)}
+.dm-lva-tb[aria-expanded=&quot;true&quot;]&gt;.dm-i{transform:rotate(180deg)}
+.dm-lva-tlist{list-style:none;margin:0;padding:2px 0 2px 12px;border-left:1px solid var(--dm-rail);display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--dm-muted)}
+.dm-lva-p{margin:0;font-size:14.5px;line-height:1.65}
+.dm-lva-p .dm-w{display:inline;animation:dm-lvw .5s var(--dm-ease) both}
+@keyframes dm-lvw{from{opacity:0;filter:blur(3px)}to{opacity:1;filter:none}}
+.dm-cite{display:inline-grid;place-items:center;min-width:17px;height:17px;padding:0 4px;margin:0 2px;border-radius:5px;background:var(--dm-hover);font-size:10.5px;font-weight:600;color:var(--dm-fg2);vertical-align:2px;cursor:default;transition:background .2s,color .2s}
+.dm-cite:hover,.dm-cite.dm-on{background:var(--dm-accent-bg);color:var(--dm-accent)}
+.dm-lva-p .dm-cite{animation:dm-lvw .5s var(--dm-ease) both}
+.dm-lva-src{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--dm-muted)}
+.dm-lva-sb{display:inline-flex;align-items:center;gap:8px;height:28px;padding:0 9px 0 5px;border-radius:var(--dm-r-pill);color:var(--dm-fg2);transition:background .2s,color .2s}
+.dm-lva-sb:hover,.dm-lva-sb[aria-expanded=&quot;true&quot;]{background:var(--dm-chip);color:var(--dm-fg)}
+.dm-lva-sb&gt;.dm-i{color:var(--dm-muted);transition:transform .35s var(--dm-ease)}
+.dm-lva-sb[aria-expanded=&quot;true&quot;]&gt;.dm-i{transform:rotate(180deg)}
+.dm-lva-fav{display:flex}
+.dm-lva-fav span{width:18px;height:18px;border-radius:5px;display:grid;place-items:center;font-size:9.5px;font-weight:600;color:#fff;margin-left:-4px;box-shadow:0 0 0 1.5px var(--dm-surface);transition:margin .3s var(--dm-ease)}
+.dm-lva-fav span:first-child{margin-left:0}
+.dm-lva-sb:hover .dm-lva-fav span:not(:first-child){margin-left:2px}
+.dm-lva-acts{display:flex;gap:2px;margin-left:-6px}
+.dm-lva-acts .dm-ib{width:28px;height:28px}
+.dm-lva-ll{display:flex;flex-direction:column;gap:2px}
+.dm-lva-s{display:flex;align-items:center;gap:10px;width:100%;padding:7px 8px;border-radius:10px;font-size:13px;text-align:left;color:var(--dm-fg);transition:background .2s}
+.dm-lva-s:hover,.dm-lva-s.dm-on{background:var(--dm-row)}
+.dm-lva-s .dm-n{width:17px;height:17px;border-radius:5px;background:var(--dm-hover);display:grid;place-items:center;font-size:10.5px;font-weight:600;color:var(--dm-fg2);flex:none;transition:background .2s,color .2s}
+.dm-lva-s:hover .dm-n,.dm-lva-s.dm-on .dm-n{background:var(--dm-accent-bg);color:var(--dm-accent)}
+.dm-lva-s .dm-d{color:var(--dm-muted);font-size:12px;margin-right:auto;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dm-lva-s&gt;.dm-i{color:var(--dm-muted);opacity:0;transition:opacity .2s}
+.dm-lva-s:hover&gt;.dm-i{opacity:1}
+.dm-lva-fu{display:flex;flex-direction:column;align-items:flex-start;gap:6px}
+.dm-lva-fu button{display:inline-flex;align-items:center;gap:8px;padding:6px 12px 6px 10px;border-radius:999px;background:var(--dm-surface);box-shadow:inset 0 0 0 1px var(--dm-line);font-size:13px;color:var(--dm-fg2);transition:color .2s,box-shadow .2s,transform .2s var(--dm-ease)}
+.dm-lva-fu button:hover{color:var(--dm-fg);box-shadow:inset 0 0 0 1px var(--dm-faint)}
+</code></pre></details><details class="cp-file"><summary>live-answer.html<span class="l">HTML</span></summary><pre class="cp-pre"><code>&lt;div class=&quot;card bare&quot; data-c=&quot;live-answer&quot;&gt;
+  &lt;div class=&quot;stage-in&quot;&gt;&lt;/div&gt;
+  &lt;template&gt;
+&lt;div class=&quot;lva&quot;&gt;
+  &lt;div class=&quot;lva-q&quot;&gt;&lt;div class=&quot;bub&quot;&gt;Where are people dropping off in onboarding?&lt;/div&gt;&lt;/div&gt;
+  &lt;div class=&quot;lva-a&quot;&gt;&lt;/div&gt;
+&lt;/div&gt;
+  &lt;/template&gt;
+&lt;/div&gt;
+</code></pre></details><details class="cp-file"><summary>live-answer.css<span class="l">HTML</span></summary><pre class="cp-pre"><code>/* ---------- Live answer ---------- */
+.lva{display:flex;flex-direction:column;gap:14px}
+.lva-q{display:flex;justify-content:flex-end}
+.lva-a{display:flex;flex-direction:column;gap:14px;min-height:230px}
+/* on a card the first answer keeps the room its sources and follow-ups fill, so nothing climbs when they arrive */
+.stage-in&gt;.lva .lva-a{min-height:324px}
+.lva-turn{display:flex;flex-direction:column;gap:12px}
+.lva-th{display:flex;align-items:center;gap:8px;font-size:13.5px;color:var(--muted)}
+.lva-tb{display:inline-flex;gap:6px;align-self:flex-start;padding:2px 8px;margin-left:-8px;border-radius:999px;transition:color var(--t-fast),background var(--t-fast)}
+.lva-tb:hover{color:var(--fg2);background:var(--chip)}
+.lva-tb&gt;.i{transition:transform .2s var(--ease)}
+.lva-tb[aria-expanded=&quot;true&quot;]&gt;.i{transform:rotate(180deg)}
+.lva-tlist{list-style:none;margin:0;padding:2px 0 2px 12px;border-left:1px solid var(--rail);display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted)}
+.lva-p{margin:0;font-size:14.5px;line-height:1.65}
+.lva-p .w{display:inline;animation:lvw .5s var(--ease) both}
+@keyframes lvw{from{opacity:0;filter:blur(3px)}to{opacity:1;filter:none}}
+.cite{display:inline-grid;place-items:center;min-width:17px;height:17px;padding:0 4px;margin:0 2px;border-radius:5px;background:var(--hover);font-size:10.5px;font-weight:600;color:var(--fg2);vertical-align:2px;cursor:default;transition:background .2s,color .2s}
+.cite:hover,.cite.on{background:var(--accent-bg);color:var(--accent)}
+.lva-p .cite{animation:lvw .5s var(--ease) both}
+.lva-src{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--muted)}
+.lva-sb{display:inline-flex;align-items:center;gap:8px;height:28px;padding:0 9px 0 5px;border-radius:var(--r-pill);color:var(--fg2);transition:background .2s,color .2s}
+.lva-sb:hover,.lva-sb[aria-expanded=&quot;true&quot;]{background:var(--chip);color:var(--fg)}
+.lva-sb&gt;.i{color:var(--muted);transition:transform .35s var(--ease)}
+.lva-sb[aria-expanded=&quot;true&quot;]&gt;.i{transform:rotate(180deg)}
+.lva-fav{display:flex}
+.lva-fav span{width:18px;height:18px;border-radius:5px;display:grid;place-items:center;font-size:9.5px;font-weight:600;color:#fff;margin-left:-4px;box-shadow:0 0 0 1.5px var(--surface);transition:margin .3s var(--ease)}
+.lva-fav span:first-child{margin-left:0}
+.lva-sb:hover .lva-fav span:not(:first-child){margin-left:2px}
+.lva-acts{display:flex;gap:2px;margin-left:-6px}
+.lva-acts .ib{width:28px;height:28px}
+.lva-ll{display:flex;flex-direction:column;gap:2px}
+.lva-s{display:flex;align-items:center;gap:10px;width:100%;padding:7px 8px;border-radius:10px;font-size:13px;text-align:left;color:var(--fg);transition:background .2s}
+.lva-s:hover,.lva-s.on{background:var(--row)}
+.lva-s .n{width:17px;height:17px;border-radius:5px;background:var(--hover);display:grid;place-items:center;font-size:10.5px;font-weight:600;color:var(--fg2);flex:none;transition:background .2s,color .2s}
+.lva-s:hover .n,.lva-s.on .n{background:var(--accent-bg);color:var(--accent)}
+.lva-s .d{color:var(--muted);font-size:12px;margin-right:auto;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lva-s&gt;.i{color:var(--muted);opacity:0;transition:opacity .2s}
+.lva-s:hover&gt;.i{opacity:1}
+.lva-fu{display:flex;flex-direction:column;align-items:flex-start;gap:6px}
+.lva-fu button{display:inline-flex;align-items:center;gap:8px;padding:6px 12px 6px 10px;border-radius:999px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);font-size:13px;color:var(--fg2);transition:color .2s,box-shadow .2s,transform .2s var(--ease)}
+.lva-fu button:hover{color:var(--fg);box-shadow:inset 0 0 0 1px var(--faint)}
+</code></pre></details><details class="cp-file"><summary>live-answer.js<span class="l">HTML</span></summary><pre class="cp-pre"><code>DM.def(&#39;live-answer&#39;, (r, c) =&gt; {
+  const A = $(&#39;.lva-a&#39;, r);
+  const srcs = { 1:&#39;Funnel data, last 30 days&#39;, 2:&#39;Session notes from 8 interviews&#39;, 3:&#39;Onboarding.fig, step 2&#39; };
+  const S = [[1,&#39;F&#39;,&#39;#7a5af8&#39;,&#39;Funnel data&#39;,&#39;Amplitude, last 30 days&#39;],[2,&#39;N&#39;,&#39;#0ea5a4&#39;,&#39;Session notes&#39;,&#39;Notion, 8 interviews&#39;],[3,&#39;S&#39;,&#39;#f97316&#39;,&#39;Onboarding.fig&#39;,&#39;Figma, step 2&#39;]];
+  const T = {
+    &#39;&#39;: &#39;Most people leave at the workspace step [1]. It asks for a team name before anyone has made anything, and five of eight people in interviews paused there [2]. Moving it after the first project, and filling the name from the email domain, should help [3].&#39;,
+    &#39;Show the drop-off by device&#39;: &#39;On mobile the workspace step loses 41% [1], on desktop 23% [1]. Most of the mobile drop comes from the keyboard covering the Continue button [3].&#39;,
+    &#39;Draft a fix for the workspace step&#39;: &#39;Ask for the team name after the first project, and fill it from the email domain so most people never type it [2]. On mobile, keep Continue above the keyboard [3], then compare the step again after a week [1].&#39;
+  };
+  const steps = [&#39;Read the funnel for the last 30 days&#39;,&#39;Matched the drop to the interview notes&#39;,&#39;Checked step 2 in Onboarding.fig&#39;];
+  /* each answer streams into its own turn, so follow-ups add to the thread instead of replacing it */
+  async function answer(q, turn){
+    if (turn._busy) return; turn._busy = true; turn.innerHTML = &#39;&#39;;
+    const th = html(`&lt;div class=&quot;lva-th&quot;&gt;&lt;span class=&quot;think on&quot; style=&quot;color:var(--fg2)&quot;&gt;&lt;i&gt;&lt;/i&gt;&lt;i&gt;&lt;/i&gt;&lt;i&gt;&lt;/i&gt;&lt;i&gt;&lt;/i&gt;&lt;/span&gt;&lt;span class=&quot;shim&quot;&gt;Thinking&lt;/span&gt;&lt;/div&gt;`);
+    turn.appendChild(th); enter(th);
+    await c.wait(1300);
+    const tb = html(`&lt;button class=&quot;lva-th lva-tb&quot; aria-expanded=&quot;false&quot;&gt;&lt;span&gt;Thought for 2s&lt;/span&gt;${I(&#39;chev-d&#39;,&#39;xs&#39;)}&lt;/button&gt;`);
+    const tl = html(`&lt;div class=&quot;fold shut lva-tl&quot;&gt;&lt;div&gt;&lt;ul class=&quot;lva-tlist&quot;&gt;${steps.map(x =&gt; `&lt;li&gt;${x}&lt;/li&gt;`).join(&#39;&#39;)}&lt;/ul&gt;&lt;/div&gt;&lt;/div&gt;`);
+    th.replaceWith(tb); tb.after(tl);
+    tb.onclick = () =&gt; { const s = tl.classList.toggle(&#39;shut&#39;); tb.setAttribute(&#39;aria-expanded&#39;, !s); };
+    const p = html(&#39;&lt;p class=&quot;lva-p&quot;&gt;&lt;/p&gt;&#39;); turn.appendChild(p);
+    for (const tok of T[q].split(&#39; &#39;)){
+      const m = tok.match(/^\[(\d)\](.*)$/);
+      const prev = p.lastElementChild;
+      if (m &amp;&amp; prev){ prev.textContent = prev.textContent.replace(/ $/, &#39;&#39;); prev.style.whiteSpace = &#39;nowrap&#39;; prev.insertAdjacentHTML(&#39;beforeend&#39;, `&lt;span class=&quot;cite&quot; data-tip=&quot;${srcs[m[1]]}&quot;&gt;${m[1]}&lt;/span&gt;${m[2]} `); }
+      else p.insertAdjacentHTML(&#39;beforeend&#39;, `&lt;span class=&quot;w&quot;&gt;${tok} &lt;/span&gt;`);
+      await c.wait(55 + Math.random() * 45);
+    }
+    const src = html(`&lt;div class=&quot;lva-src&quot;&gt;&lt;span class=&quot;lva-acts&quot;&gt;&lt;button class=&quot;ib&quot; aria-label=&quot;Copy&quot; data-tip=&quot;Copy&quot;&gt;${I(&#39;copy&#39;)}&lt;/button&gt;&lt;button class=&quot;ib&quot; aria-label=&quot;Good answer&quot; data-tip=&quot;Good answer&quot;&gt;${I(&#39;up-thumb&#39;)}&lt;/button&gt;&lt;button class=&quot;ib&quot; aria-label=&quot;Bad answer&quot; data-tip=&quot;Bad answer&quot;&gt;${I(&#39;down-thumb&#39;)}&lt;/button&gt;&lt;button class=&quot;ib&quot; aria-label=&quot;Try again&quot; data-tip=&quot;Try again&quot;&gt;${I(&#39;refresh&#39;)}&lt;/button&gt;&lt;/span&gt;&lt;button class=&quot;lva-sb&quot; aria-expanded=&quot;false&quot;&gt;&lt;span class=&quot;lva-fav&quot;&gt;${S.map(x =&gt; `&lt;span style=&quot;background:${x[2]}&quot;&gt;${x[1]}&lt;/span&gt;`).join(&#39;&#39;)}&lt;/span&gt;3 sources${I(&#39;chev-d&#39;,&#39;xs&#39;)}&lt;/button&gt;&lt;/div&gt;`);
+    const ls = html(`&lt;div class=&quot;fold shut lva-ls&quot;&gt;&lt;div&gt;&lt;div class=&quot;lva-ll&quot;&gt;${S.map(x =&gt; `&lt;button class=&quot;lva-s&quot; data-n=&quot;${x[0]}&quot;&gt;&lt;span class=&quot;n&quot;&gt;${x[0]}&lt;/span&gt;&lt;span class=&quot;t&quot;&gt;${x[3]}&lt;/span&gt;&lt;span class=&quot;d&quot;&gt;${x[4]}&lt;/span&gt;${I(&#39;ext&#39;,&#39;xs&#39;)}&lt;/button&gt;`).join(&#39;&#39;)}&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;`);
+    turn.appendChild(src); turn.appendChild(ls); enter(src);
+    const sb = $(&#39;.lva-sb&#39;, src), open = o =&gt; { ls.classList.toggle(&#39;shut&#39;, !o); sb.setAttribute(&#39;aria-expanded&#39;, o); };
+    sb.onclick = () =&gt; open(ls.classList.contains(&#39;shut&#39;));
+    /* hover previews a source, a click pins it until the next click */
+    let pin = &#39;&#39;;
+    const hl = n =&gt; { $$(&#39;.cite&#39;, p).forEach(x =&gt; x.classList.toggle(&#39;on&#39;, x.textContent === n)); $$(&#39;.lva-s&#39;, ls).forEach(x =&gt; x.classList.toggle(&#39;on&#39;, x.dataset.n === n)); };
+    const pick = n =&gt; { pin = pin === n ? &#39;&#39; : n; if (pin) open(true); hl(pin); };
+    $$(&#39;.lva-s&#39;, ls).forEach(x =&gt; { x.onmouseenter = () =&gt; hl(x.dataset.n); x.onmouseleave = () =&gt; hl(pin); x.onclick = () =&gt; pick(x.dataset.n); });
+    $$(&#39;.cite&#39;, p).forEach(x =&gt; { x.style.cursor = &#39;pointer&#39;; x.onmouseenter = () =&gt; hl(x.textContent); x.onmouseleave = () =&gt; hl(pin); x.onclick = () =&gt; pick(x.textContent); });
+    const acts = $$(&#39;.lva-acts .ib&#39;, src);
+    acts[0].onclick = () =&gt; { const cl = p.cloneNode(true); $$(&#39;.cite&#39;, cl).forEach(x =&gt; x.remove()); copied(acts[0], cl.textContent.replace(/\s+/g, &#39; &#39;).trim()); };
+    [1, 2].forEach(i =&gt; acts[i].onclick = () =&gt; { const on = !acts[i].classList.contains(&#39;on&#39;); acts[1].classList.remove(&#39;on&#39;); acts[2].classList.remove(&#39;on&#39;); acts[i].classList.toggle(&#39;on&#39;, on); });
+    acts[3].onclick = () =&gt; c.run(() =&gt; answer(q, turn));
+    turn._busy = false;
+    if (!q &amp;&amp; !A.querySelector(&#39;.lva-q.fu&#39;)){
+      const fu = html(`&lt;div class=&quot;lva-fu&quot;&gt;&lt;button&gt;${I(&#39;chev-r&#39;,&#39;xs&#39;)}Show the drop-off by device&lt;/button&gt;&lt;button&gt;${I(&#39;chev-r&#39;,&#39;xs&#39;)}Draft a fix for the workspace step&lt;/button&gt;&lt;/div&gt;`);
+      turn.appendChild(fu); stagger($$(&#39;button&#39;, fu), 90);
+      $$(&#39;button&#39;, fu).forEach(b =&gt; b.onclick = () =&gt; {
+        const t = b.textContent; fu.remove();
+        const bub = html(`&lt;div class=&quot;lva-q fu&quot;&gt;&lt;div class=&quot;bub&quot;&gt;${t}&lt;/div&gt;&lt;/div&gt;`), next = html(&#39;&lt;div class=&quot;lva-turn&quot;&gt;&lt;/div&gt;&#39;);
+        A.append(bub, next); enter(bub);
+        c.run(async () =&gt; { await c.wait(450); await answer(t, next); });
+      });
+    }
+  }
+  const first = html(&#39;&lt;div class=&quot;lva-turn&quot;&gt;&lt;/div&gt;&#39;); A.appendChild(first);
+  c.run(() =&gt; answer(&#39;&#39;, first));
+});
+</code></pre></details></section><section class="cp-sec" id="questions"><h2>Questions</h2><dl class="cp-faq"><dt>How do I stream the answer in?</dt><dd>Set the turn's <code>state</code> to 'answering' and keep updating its <code>text</code> as tokens arrive. Each new word fades in, and when the stream ends you set <code>state</code> to 'done' and pass <code>sources</code>.</dd><dt>How do citations link to sources?</dt><dd>Put [n] right after a word in <code>text</code>, and give a source in <code>sources</code> the same <code>n</code>. Its tooltip shows the source's <code>tip</code>, or its title and detail when <code>tip</code> is left out.</dd><dt>What happens to ratings and pinned sources when the person clicks Try again?</dt><dd>When a turn goes from done back to answering, it starts afresh with closed lists, no pinned source and no rating. Your <code>onRetry</code> handler decides how to regenerate the text.</dd><dt>Can I show the question bubble somewhere else, like in my own chat?</dt><dd>Yes. Leave out <code>question</code> on a turn and no bubble is drawn for it, so only the answer appears.</dd></dl></section><section class="cp-sec wide"><h2>More in Conversation</h2><div class="cp-rel"><a href="/components/composer"><b>Composer</b><span>Message input with context, environment, effort and dictation.</span></a><a href="/components/thread-panel"><b>Thread panel</b><span>Switch between agent threads and reply in place.</span></a><a href="/components/artifact-card"><b>Artifact card</b><span>A file the agent made, with a live preview and versions.</span></a><a href="/components/tool-call"><b>Tool call</b><span>Each tool the agent calls, with its input and output.</span></a><a href="/components/voice-capture"><b>Voice capture</b><span>Talk to the agent, then fix what it misheard before sending.</span></a><a href="/components/response-versions"><b>Response versions</b><span>Regenerate an answer and flip between versions.</span></a><a href="/components/prompt-starters"><b>Prompt starters</b><span>Suggested tasks that fill the composer in one click.</span></a><a href="/components/attachment-tray"><b>Attachment tray</b><span>Drop files for the agent and watch each one upload.</span></a><a href="/components/feedback-sheet"><b>Feedback sheet</b><span>Rate an answer and tell the agent what missed.</span></a></div></section><nav class="cp-pn" aria-label="Previous and next component"><a href="/components/currency-converter" rel="prev"><span class="k">Previous</span><b>Currency converter</b></a><a href="/components/composer" rel="next" class="n"><span class="k">Next</span><b>Composer</b></a></nav></main><footer class="pg-foot"><div class="pg-foot-in"><span>Free and MIT licensed. Built by <a href="https://designme.agency">DesignMe</a>.</span><nav aria-label="More"><a href="/components">All components</a><a href="/#/changelog">Changelog</a><a href="/llms.txt">llms.txt</a><a href="/r/index.json">Registry</a><a href="/">Home</a></nav></div></footer><script>
+// light and dark, shared with the rest of the site through the same saved setting
+(function(){
+  var root = document.documentElement, mq = matchMedia('(prefers-color-scheme: dark)');
+  var cur = function(){ return root.getAttribute('data-theme') || (mq.matches ? 'dark' : 'light'); };
+  document.getElementById('pg-theme').addEventListener('click', function(){
+    var next = cur() === 'dark' ? 'light' : 'dark', sys = mq.matches ? 'dark' : 'light';
+    if (next === sys){ root.removeAttribute('data-theme'); try { localStorage.removeItem('dmui-theme'); } catch(e){} }
+    else { root.setAttribute('data-theme', next); try { localStorage.setItem('dmui-theme', next); } catch(e){} }
+  });
+})();
+</script><script src="/components/assets/core.js"></script><script>DM.def('live-answer', (r, c) => {
+  const A = $('.lva-a', r);
+  const srcs = { 1:'Funnel data, last 30 days', 2:'Session notes from 8 interviews', 3:'Onboarding.fig, step 2' };
+  const S = [[1,'F','#7a5af8','Funnel data','Amplitude, last 30 days'],[2,'N','#0ea5a4','Session notes','Notion, 8 interviews'],[3,'S','#f97316','Onboarding.fig','Figma, step 2']];
+  const T = {
+    '': 'Most people leave at the workspace step [1]. It asks for a team name before anyone has made anything, and five of eight people in interviews paused there [2]. Moving it after the first project, and filling the name from the email domain, should help [3].',
+    'Show the drop-off by device': 'On mobile the workspace step loses 41% [1], on desktop 23% [1]. Most of the mobile drop comes from the keyboard covering the Continue button [3].',
+    'Draft a fix for the workspace step': 'Ask for the team name after the first project, and fill it from the email domain so most people never type it [2]. On mobile, keep Continue above the keyboard [3], then compare the step again after a week [1].'
+  };
+  const steps = ['Read the funnel for the last 30 days','Matched the drop to the interview notes','Checked step 2 in Onboarding.fig'];
+  /* each answer streams into its own turn, so follow-ups add to the thread instead of replacing it */
+  async function answer(q, turn){
+    if (turn._busy) return; turn._busy = true; turn.innerHTML = '';
+    const th = html(`<div class="lva-th"><span class="think on" style="color:var(--fg2)"><i></i><i></i><i></i><i></i></span><span class="shim">Thinking</span></div>`);
+    turn.appendChild(th); enter(th);
+    await c.wait(1300);
+    const tb = html(`<button class="lva-th lva-tb" aria-expanded="false"><span>Thought for 2s</span>${I('chev-d','xs')}</button>`);
+    const tl = html(`<div class="fold shut lva-tl"><div><ul class="lva-tlist">${steps.map(x => `<li>${x}</li>`).join('')}</ul></div></div>`);
+    th.replaceWith(tb); tb.after(tl);
+    tb.onclick = () => { const s = tl.classList.toggle('shut'); tb.setAttribute('aria-expanded', !s); };
+    const p = html('<p class="lva-p"></p>'); turn.appendChild(p);
+    for (const tok of T[q].split(' ')){
+      const m = tok.match(/^\[(\d)\](.*)$/);
+      const prev = p.lastElementChild;
+      if (m && prev){ prev.textContent = prev.textContent.replace(/ $/, ''); prev.style.whiteSpace = 'nowrap'; prev.insertAdjacentHTML('beforeend', `<span class="cite" data-tip="${srcs[m[1]]}">${m[1]}</span>${m[2]} `); }
+      else p.insertAdjacentHTML('beforeend', `<span class="w">${tok} </span>`);
+      await c.wait(55 + Math.random() * 45);
+    }
+    const src = html(`<div class="lva-src"><span class="lva-acts"><button class="ib" aria-label="Copy" data-tip="Copy">${I('copy')}</button><button class="ib" aria-label="Good answer" data-tip="Good answer">${I('up-thumb')}</button><button class="ib" aria-label="Bad answer" data-tip="Bad answer">${I('down-thumb')}</button><button class="ib" aria-label="Try again" data-tip="Try again">${I('refresh')}</button></span><button class="lva-sb" aria-expanded="false"><span class="lva-fav">${S.map(x => `<span style="background:${x[2]}">${x[1]}</span>`).join('')}</span>3 sources${I('chev-d','xs')}</button></div>`);
+    const ls = html(`<div class="fold shut lva-ls"><div><div class="lva-ll">${S.map(x => `<button class="lva-s" data-n="${x[0]}"><span class="n">${x[0]}</span><span class="t">${x[3]}</span><span class="d">${x[4]}</span>${I('ext','xs')}</button>`).join('')}</div></div></div>`);
+    turn.appendChild(src); turn.appendChild(ls); enter(src);
+    const sb = $('.lva-sb', src), open = o => { ls.classList.toggle('shut', !o); sb.setAttribute('aria-expanded', o); };
+    sb.onclick = () => open(ls.classList.contains('shut'));
+    /* hover previews a source, a click pins it until the next click */
+    let pin = '';
+    const hl = n => { $$('.cite', p).forEach(x => x.classList.toggle('on', x.textContent === n)); $$('.lva-s', ls).forEach(x => x.classList.toggle('on', x.dataset.n === n)); };
+    const pick = n => { pin = pin === n ? '' : n; if (pin) open(true); hl(pin); };
+    $$('.lva-s', ls).forEach(x => { x.onmouseenter = () => hl(x.dataset.n); x.onmouseleave = () => hl(pin); x.onclick = () => pick(x.dataset.n); });
+    $$('.cite', p).forEach(x => { x.style.cursor = 'pointer'; x.onmouseenter = () => hl(x.textContent); x.onmouseleave = () => hl(pin); x.onclick = () => pick(x.textContent); });
+    const acts = $$('.lva-acts .ib', src);
+    acts[0].onclick = () => { const cl = p.cloneNode(true); $$('.cite', cl).forEach(x => x.remove()); copied(acts[0], cl.textContent.replace(/\s+/g, ' ').trim()); };
+    [1, 2].forEach(i => acts[i].onclick = () => { const on = !acts[i].classList.contains('on'); acts[1].classList.remove('on'); acts[2].classList.remove('on'); acts[i].classList.toggle('on', on); });
+    acts[3].onclick = () => c.run(() => answer(q, turn));
+    turn._busy = false;
+    if (!q && !A.querySelector('.lva-q.fu')){
+      const fu = html(`<div class="lva-fu"><button>${I('chev-r','xs')}Show the drop-off by device</button><button>${I('chev-r','xs')}Draft a fix for the workspace step</button></div>`);
+      turn.appendChild(fu); stagger($$('button', fu), 90);
+      $$('button', fu).forEach(b => b.onclick = () => {
+        const t = b.textContent; fu.remove();
+        const bub = html(`<div class="lva-q fu"><div class="bub">${t}</div></div>`), next = html('<div class="lva-turn"></div>');
+        A.append(bub, next); enter(bub);
+        c.run(async () => { await c.wait(450); await answer(t, next); });
+      });
+    }
+  }
+  const first = html('<div class="lva-turn"></div>'); A.appendChild(first);
+  c.run(() => answer('', first));
+});
+</script><script>
+    (function(){
+      var root = document.documentElement, card = document.querySelector('.pg-demo > .card[data-c]');
+      // Blueprint or Soft, shared with the rest of the site; the demo starts again in the new style
+      var mark = function(){ var soft = root.getAttribute('data-style') === 'soft'; document.querySelectorAll('[data-style-set]').forEach(function(b){ b.setAttribute('aria-pressed', String((b.dataset.styleSet === 'soft') === soft)); }); };
+      document.querySelectorAll('[data-style-set]').forEach(function(b){ b.addEventListener('click', function(){
+        if (b.getAttribute('aria-pressed') === 'true') return;
+        if (b.dataset.styleSet === 'soft') root.setAttribute('data-style', 'soft'); else root.removeAttribute('data-style');
+        try { localStorage.setItem('dmui-style', b.dataset.styleSet === 'soft' ? 'soft' : 'bp'); } catch(e){}
+        mark(); if (card && window.DM) DM.mount(card);
+      }); });
+      mark();
+      document.getElementById('cp-replay').addEventListener('click', function(){ if (card && typeof DM !== 'undefined') DM.mount(card); });
+      document.querySelectorAll('[data-copy]').forEach(function(b){ b.addEventListener('click', function(){
+        var done = function(){ b.textContent = 'Copied'; setTimeout(function(){ b.textContent = 'Copy'; }, 1400); };
+        if (navigator.clipboard) navigator.clipboard.writeText(b.dataset.copy).then(done, function(){}); });
+      });
+    })();
+    </script></body></html>

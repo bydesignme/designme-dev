@@ -1,0 +1,37 @@
+{
+  "summary": "Comments is a thread pinned to one spot in a design, where people reply to each other and can bring the agent in by typing @agent. The agent's reply shows a thinking mark first, then its words fade in, and it can end with buttons such as Apply to all that turn into a short note once used. The whole thread can be resolved, which fades it back.",
+  "use": [
+    "When feedback lives on a design or document and the agent should act on it from the thread",
+    "When people need to @mention teammates and the agent from the same reply box",
+    "When an agent's suggestion needs a yes or a choice before it changes anything",
+    "When resolved threads should stay visible but step back"
+  ],
+  "features": [
+    "Typing @ and the start of a handle opens a menu of matching `people`, and Enter or a click inserts the handle.",
+    "@mentions in plain text comments are highlighted, limited to known handles when `people` is given.",
+    "A comment with `thinking` shows the thinking dots; an `agent` comment's words fade in as its `text` grows.",
+    "`actions` add buttons under a comment, and setting `resolution` replaces them with a confirmation line like \"Applied to 3 frames\".",
+    "Enter or the Send button calls `onSend` with the trimmed reply and clears the box; Send is disabled while the box is empty.",
+    "The Resolve button toggles `resolved`, fades the thread and turns the pin green."
+  ],
+  "a11y": [
+    "The thread is an `aria-live=\"polite\"` region, so new comments and replies are announced.",
+    "The reply box is a `combobox` with `aria-expanded` reflecting the mention menu, which is a `listbox` of `option` rows.",
+    "Escape dismisses the mention menu until the text changes.",
+    "Resolve reports its state with `aria-pressed`, and the icon-only Send button has an `aria-label`."
+  ],
+  "faq": [
+    {
+      "q": "How do I stream the agent's reply into the thread?",
+      "a": "Add a comment with `agent: true` and `thinking: true`, then set `thinking` to false and keep updating its `text` as tokens arrive. Each word fades in as it is added."
+    },
+    {
+      "q": "Does the component call my agent when someone types @agent?",
+      "a": "No. `onSend` gives you the reply text, and you decide what happens. The example checks for @agent, adds the person's comment, then adds the agent's reply."
+    },
+    {
+      "q": "How do I let the person approve the agent's change?",
+      "a": "Give the agent's comment `actions`, such as Apply to all and Just this one. In each `onClick`, apply the change and set `resolution` to a short line that replaces the buttons."
+    }
+  ]
+}

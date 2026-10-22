@@ -1,0 +1,35 @@
+{
+  "summary": "Context meter is a small ring next to the model name that shows how full the agent's context window is. Clicking it opens a usage popover with a bar for each limit, like the context window, the session limit and a weekly cap, each with a detail line and an optional action such as Compact.",
+  "use": [
+    "When long conversations can fill the model's context and people should see it coming before answers get worse.",
+    "When your plan has session or weekly limits and people want to know how much is left and when it resets.",
+    "When you offer a way to free up context, like compacting the thread, and want it next to the number it changes."
+  ],
+  "features": [
+    "Each row in `rows` has a `label`, a `percent` from 0 to 100 and an optional `detail` line. The bar and its \"N% used\" count fill in a moment after the meter appears.",
+    "From 90% a bar turns amber, and so does the ring when it is that full.",
+    "A row's `tip` shows when you hover its bar, for example what is filling the context. A row's `action` adds a small button after its detail line, and its label crossfades when it changes.",
+    "The ring follows the first row unless you pass `ring`. `model` and `effort` appear beside it.",
+    "Clicking the ring opens and closes the popover. It starts open, and `open`, `defaultOpen` and `onOpenChange` let you control it.",
+    "`onViewUsage` adds a button in the popover's corner that opens your usage page, and `title` replaces the \"Usage\" heading."
+  ],
+  "a11y": [
+    "Each bar is a `role=\"meter\"` with `aria-valuenow` from 0 to 100, labelled with its row label.",
+    "The ring is a button with `aria-expanded` and a label like \"Usage, 68% full\".",
+    "The popover is a `role=\"dialog\"` named by its title, and it is `inert` while closed."
+  ],
+  "faq": [
+    {
+      "q": "How do I add a Compact button to the context row?",
+      "a": "Give that row an `action` with a `label` and an `onClick`. Change the label to something like \"Compacting\" while it runs, then update `percent` and `detail` when it is done."
+    },
+    {
+      "q": "Can the ring show something other than the context window?",
+      "a": "Yes. By default it follows the first row, so either put the limit you care about first or pass `ring` with its own percentage."
+    },
+    {
+      "q": "Does the popover close when I click outside it?",
+      "a": "No. Only the ring opens and closes it. Control `open` yourself if you want it to close on an outside click or on Escape."
+    }
+  ]
+}

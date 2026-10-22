@@ -431,6 +431,8 @@ for (const [a, b] of SITE_PATCHES.patches){
   if (count !== 1) throw new Error(`site patch matched ${count} times: ${a.slice(0, 70)}`);
   site = site.replace(a, () => b);
 }
+// each card's title links to the component's own page (a plain click still opens it in place, see make-patches.py)
+site = site.replace(/(<article\b[^>]*\bdata-reg="([\w-]+)"[^>]*>[\s\S]*?<h2 class="comp-title">)([^<]*)<\/h2>/g, (m, head, reg, t) => `${head}<a href="/components/${reg}">${t}</a></h2>`);
 fs.writeFileSync(OUT, site);
 console.log('swapped', done.length, 'cards; size', site.length);
 
@@ -439,8 +441,8 @@ console.log('swapped', done.length, 'cards; size', site.length);
   const text = h => h.replace(/<[^>]+>/g, '').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;|&rsquo;/g, "'").replace(/\s+/g, ' ').trim();
   const SETS = { agent:'Agent components', basics:'App basics' };
   const secs = [...site.matchAll(/<section class="lib-sec" id="([\w-]+)" data-grp="(\w+)">([\s\S]*?)<\/section>/g)].map(([, id, grp, body]) => ({
-    grp, title:text(body.match(/<h2>([\s\S]*?)<\/h2>/)[1]), about:text((body.match(/<div class="sec-head">[\s\S]*?<p>([\s\S]*?)<\/p>/) || [, ''])[1]),
-    cards:[...body.matchAll(/<article\b[^>]*\bdata-reg="([\w-]+)"[^>]*>[\s\S]*?class="comp-title">([\s\S]*?)<[\s\S]*?class="comp-desc">([\s\S]*?)<\/p>/g)].map(([, reg, t, d]) => ({ reg, t:text(t), d:text(d) })) }));
+    id, grp, title:text(body.match(/<h2>([\s\S]*?)<\/h2>/)[1]), about:text((body.match(/<div class="sec-head">[\s\S]*?<p>([\s\S]*?)<\/p>/) || [, ''])[1]),
+    cards:[...body.matchAll(/<article\b[^>]*\bdata-reg="([\w-]+)"[^>]*>[\s\S]*?class="comp-title">([\s\S]*?)<\/h2>[\s\S]*?class="comp-desc">([\s\S]*?)<\/p>/g)].map(([, reg, t, d]) => ({ reg, t:text(t), d:text(d) })) }));
   const count = secs.reduce((n, x) => n + x.cards.length, 0);
   let md = `# Designme.dev
 
@@ -451,17 +453,25 @@ Install with the CLI, which copies each component's source into your project so 
 - HTML: \`npx designme add <name>\` adds the component and the shared core it needs.
 - React: \`npx designme add <name> --react\` adds a \`.tsx\` component and its CSS. Needs React 19, and works with Next.js (App Router), Vite and Astro islands.
 
-Every class, CSS variable and animation name starts with \`dm-\` in the React version, so the components sit beside Tailwind or any other CSS. Each component below links to its React source in the registry (JSON with the component, its CSS and an example); the HTML version is at the same path without \`/react\`.
+Every class, CSS variable and animation name starts with \`dm-\` in the React version, so the components sit beside Tailwind or any other CSS. Each component below links to its page as Markdown: what it is for, how to install and use it, its React props, questions and its React source. The same page with a live demo is at the same address without \`.md\`, and every component is listed at https://designme.dev/components.
 `;
   for (const g of Object.keys(SETS)){
     md += `\n## ${SETS[g]}\n`;
     for (const sec of secs.filter(x => x.grp === g && x.cards.length)){
       md += `\n### ${sec.title}\n\n${sec.about ? sec.about + '\n\n' : ''}`;
-      md += sec.cards.map(c => `- [${c.t}](https://designme.dev/r/react/${c.reg}.json): ${c.d} Install: \`npx designme add ${c.reg}\``).join('\n') + '\n';
+      md += sec.cards.map(c => `- [${c.t}](https://designme.dev/components/${c.reg}.md): ${c.d} Install: \`npx designme add ${c.reg}\``).join('\n') + '\n';
     }
   }
-  md += `\n## Optional\n\n- [All components, live](https://designme.dev/): the site, with every demo, both styles and the code.\n- [React preview](https://designme.dev/packages/react/preview/): every React component rendered.\n- [Registry index](https://designme.dev/r/index.json): every component's name, section and description as JSON.\n`;
+  md += `\n## Optional\n\n- [All components](https://designme.dev/components): every component, by section, with a page each.\n- [The homepage](https://designme.dev/): every demo on one page, in both styles.\n- [Registry](https://designme.dev/r/react/composer.json): each component's React source as JSON, at /r/react/<name>.json (HTML at /r/<name>.json).\n- [React preview](https://designme.dev/packages/react/preview/): every React component rendered.\n`;
   if (count !== done.length) warn.push(`llms.txt lists ${count} of ${done.length} components`);
+  // the same sections and cards, in page order, for the component pages that tools/pages builds
+  const PAGES_DATA = path.resolve(__dirname, '../pages/data/site.json');
+  fs.mkdirSync(path.dirname(PAGES_DATA), { recursive:true });
+  const cardsAll = [...site.matchAll(/<article\b([^>]*)>[\s\S]*?class="comp-title">([\s\S]*?)<\/h2>[\s\S]*?class="comp-desc">([\s\S]*?)<\/p>/g)];
+  const meta = {}; for (const [, attrs] of cardsAll){ const reg = (attrs.match(/data-reg="([\w-]+)"/) || [])[1]; if (reg) meta[reg] = { v2:(attrs.match(/data-v2="([\w-]+)"/) || [])[1], wide:/class="comp wide/.test(attrs) }; }
+  fs.writeFileSync(PAGES_DATA, JSON.stringify({ sets:SETS, logo:site.match(/<a[^>]*class="brand"[\s\S]*?(<svg[\s\S]*?<\/svg>)<\/a>/)[1], sections:secs.filter(x => x.cards.length).map(x => ({
+    slug:x.id.replace(/^s-/, ''), ...x,
+    cards:x.cards.map(c => ({ reg:c.reg, title:c.t, desc:c.d, ...meta[c.reg] })) })) }, null, 1));
   fs.writeFileSync(path.join(path.dirname(OUT), 'llms.txt'), md);
   console.log('llms.txt:', count, 'components in', secs.filter(x => x.cards.length).length, 'sections');
 }
@@ -471,7 +481,7 @@ Every class, CSS variable and animation name starts with \`dm-\` in the React ve
 {
   const text = h => h.replace(/<[^>]+>/g, '').replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/\s+/g, ' ').trim();
   const slug = n => n.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-  const list = [...site.matchAll(/<article\b[^>]*\bdata-reg="([\w-]+)"[^>]*>[\s\S]*?class="comp-title">([\s\S]*?)<[\s\S]*?class="comp-desc">([\s\S]*?)<\/p>/g)]
+  const list = [...site.matchAll(/<article\b[^>]*\bdata-reg="([\w-]+)"[^>]*>[\s\S]*?class="comp-title">([\s\S]*?)<\/h2>[\s\S]*?class="comp-desc">([\s\S]*?)<\/p>/g)]
     .map(([, reg, t, d]) => ({ r:reg, s:slug(text(t)), t:text(t), d:text(d) }));
   const logo = site.match(/<a[^>]*class="brand"[\s\S]*?(<svg[\s\S]*?<\/svg>)<\/a>/)[1];
   const fonts = [...site.matchAll(/@font-face\s*\{[^}]*inter-latin(?:-ext)?-(?:400|500|600)-normal[^}]*\}/g)].map(m => m[0]).join('\n');
@@ -513,7 +523,7 @@ p code{font:12.5px ui-monospace,Menlo,monospace;color:var(--fg);background:var(-
   <h1>Page not found</h1>
   <p>There's no page at <code id="where">this address</code>.</p>
   <div class="hits" id="hits" hidden></div>
-  <div class="acts"><a class="btn ink" href="/">All components</a><a class="btn" href="/#/changelog">Changelog</a><a class="btn" href="/llms.txt">llms.txt</a></div>
+  <div class="acts"><a class="btn ink" href="/">All components</a><a class="btn" href="/components">Component list</a><a class="btn" href="/#/changelog">Changelog</a></div>
 </main>
 <script>
 (function(){
@@ -528,7 +538,7 @@ p code{font:12.5px ui-monospace,Menlo,monospace;color:var(--fg);background:var(-
   if (!hits.length) return;
   var box = document.getElementById('hits'); box.hidden = false;
   hits.forEach(function(c){
-    var a = document.createElement('a'); a.className = 'hit'; a.href = '/#/' + c.s;
+    var a = document.createElement('a'); a.className = 'hit'; a.href = '/components/' + c.r;
     var d = document.createElement('div'), b = document.createElement('b'), s = document.createElement('span'), i = document.createElement('i');
     b.textContent = (exact.length ? 'Looking for ' : '') + c.t + (exact.length ? '?' : ''); s.textContent = c.d; i.textContent = '\\u2192';
     d.appendChild(b); d.appendChild(s); a.appendChild(d); a.appendChild(i); box.appendChild(a);
