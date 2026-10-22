@@ -15,8 +15,9 @@ const { chromium } = createRequire(import.meta.url)(process.env.PW || 'playwrigh
 const site = JSON.parse(fs.readFileSync(path.join(HERE, 'data/site.json'), 'utf8'));
 const only = process.argv.slice(2);
 const names = site.sections.flatMap(s => s.cards.map(c => c.reg)).filter(n => !only.length || only.includes(n));
-// most demos have settled after 6 seconds; these cycle, so they are taken at a moment that shows them whole
-const WAIT = { toast:2600, 'status-pill':3300 };
+// most demos have settled after 6 seconds; these cycle, so they are taken at a moment that shows them whole, and Design
+// review's story runs longer, so it is taken once it is approved
+const WAIT = { toast:2600, 'status-pill':3300, 'design-review':9500 };
 const OUT = { thumbs:path.join(HERE, 'public/components/thumbs'), og:path.join(HERE, 'public/components/og') };
 Object.values(OUT).forEach(d => fs.mkdirSync(d, { recursive:true }));
 

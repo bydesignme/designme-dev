@@ -4,7 +4,7 @@ React versions of the [designme.dev](https://designme.dev) components, for Next.
 
 They use the same markup and the same CSS as the site, so they look and move exactly like the previews on designme.dev, in both styles (Blueprint and Soft) and in light and dark. The difference is that each one takes props, so you drive it from your own state instead of a scripted demo.
 
-All 80 components are here, from Status pill to Currency converter, each with an example that replays its demo from the site.
+All 81 components are here, from Status pill to Currency converter, each with an example that replays its demo from the site.
 
 Preview: https://designme.dev/packages/react/preview/
 
@@ -184,6 +184,10 @@ The agent asks before it touches something new.
 **LaunchChecklist** · `launch-checklist/LaunchChecklist.tsx`  
 The agent checks a design before it ships, and fixes what fails.  
 `checks: { label, state: 'wait' | 'run' | 'ok' | 'bad', note?, onFix? }[]`, `title`, `status`, `action: { label, icon?, accent?, disabled?, onClick }`, `bare`.
+
+**DesignReview** · `design-review/DesignReview.tsx`  
+Checks run, a teammate asks for a change, the agent makes it, and you ship.  
+`title`, `subtitle`, `icon`, `checks: { label, state: 'wait' | 'run' | 'ok' | 'bad', note? }[]`, `messages: { author: { name, initials?, color?, agent? }, verdict?: { label, tone?, icon?, busy? }, text? }[]` (oldest first), `phase: 'review' | 'approved' | 'shipping' | 'live' | 'scheduled'` (Ship turns on at `approved`), `note`, `waitingLabel`, `options: { key, label, detail? }[]` (to everyone, to 10% first or on Monday by default), `option` / `defaultOption` / `onOptionChange`, `onShip(option)`, `doneLabel`, `labels`.
 
 **PlanReview** · `plan-review/PlanReview.tsx`  
 Check the agent's plan, edit steps, then let it run.  

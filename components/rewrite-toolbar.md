@@ -307,5 +307,6 @@ const words = (s: string) => s.split(' ');
 - [Proposal card](https://designme.dev/components/proposal-card.md): A suggested change with confidence, alternatives and undo.
 - [Design tuner](https://designme.dev/components/design-tuner.md): Tweak a component by hand or let the agent tune it.
 - [Launch checklist](https://designme.dev/components/launch-checklist.md): The agent checks a design before it ships, and fixes what fails.
+- [Design review](https://designme.dev/components/design-review.md): Checks run, a teammate asks for a change, the agent makes it, and you ship.
 
 All components: https://designme.dev/llms.txt

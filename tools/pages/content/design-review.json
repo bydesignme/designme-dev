@@ -1,0 +1,36 @@
+{
+  "summary": "Design review follows something the agent made on its way out. Automated checks run first, then a teammate reviews it, asks for a change and the agent makes it, and once they approve, a split button lets you ship it to everyone, to a share of visitors first, or on a set day.",
+  "use": [
+    "When a person has to sign off on the agent's work before it goes live.",
+    "When the review is a conversation: the reviewer asks for a change, the agent answers with what it did.",
+    "When automated checks and a human review both gate a release, and people should see them side by side.",
+    "When shipping has options, like a gradual rollout or a scheduled launch."
+  ],
+  "features": [
+    "`checks` run on the left, each with a `state` (`wait`, `run`, `ok` or `bad`) and a result `note` on the right.",
+    "`messages` hold the review, oldest first. Each has an `author` (an avatar, or the agent's mark with `agent: true`), an optional `verdict` tag with a tone, an icon or a spinner, and the `text` they wrote.",
+    "`phase` moves from `review` to `approved`, `shipping`, then `live` or `scheduled`. The tag in the header follows it, and the Ship button only turns on once it is `approved`.",
+    "The menu beside Ship picks how it goes out. `options` replace the defaults (to everyone, to 10% first, on Monday), and `option` / `defaultOption` / `onOptionChange` keep the pick.",
+    "`onShip` gets the picked option. Once the phase is `live` or `scheduled`, the buttons give way to `doneLabel`.",
+    "At wide sizes the checks and the review sit side by side; in a narrow container they stack."
+  ],
+  "a11y": [
+    "The review column is an `aria-live=\"polite\"` region, so new messages are read out as they arrive.",
+    "Ship and the menu button are real buttons, disabled until the review is approved. The menu button is labelled \"How it ships\", says whether its menu is open, and Escape closes the menu.",
+    "Each shipping option is a menu item that marks the picked one with `aria-checked`."
+  ],
+  "faq": [
+    {
+      "q": "Does it run the checks or send the review request?",
+      "a": "No. It shows the `checks`, `messages` and `phase` you pass. Your code or agent runs the checks, collects the review and moves the phase along."
+    },
+    {
+      "q": "How is it different from Launch checklist?",
+      "a": "Launch checklist is the agent checking its own work and fixing what fails. Design review adds a person: a teammate reviews, the agent answers, and shipping waits for their approval."
+    },
+    {
+      "q": "Can I change the ways it ships?",
+      "a": "Yes. Pass your own `options`, each with a `key`, a `label` for the button and a `detail` for the menu. `onShip` gets the one that was picked."
+    }
+  ]
+}
