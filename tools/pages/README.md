@@ -24,6 +24,18 @@ like `index.html`.
   their doc comments), the code, questions, the other components in its section, and previous and next.
 - JSON-LD: the component as source code, its breadcrumbs, and its questions.
 
+## Pictures
+
+`shots.mjs` photographs every component from its own page once its demo has played, in the Soft style: a 640×400
+thumbnail in light and dark for the cards (`public/components/thumbs`) and a 1200×630 picture for shared links
+(`public/components/og`). They are committed. Take them again after a component's look changes, then build:
+
+```sh
+npm run build                                       # the pages the pictures are taken from
+PW=$(npm root -g)/playwright node shots.mjs [names] # about 15 minutes for all 80; or npm i playwright and leave PW out
+npm run build
+```
+
 ## The written copy
 
 `content/<name>.json` holds each page's own text: a summary, when to use it, what it does, accessibility facts and
@@ -37,6 +49,7 @@ file still gets a page, with its one-line description.
 - `src/components/ComponentPage.astro` and `SectionPage.astro` are the two kinds of page under `/components/<name>`.
 - `src/pages/components.astro` is the list of every component; `src/pages/components/[slug].md.ts` the Markdown copies;
   `src/pages/components/assets/` the shared core for the demos; `src/pages/sitemap.xml.ts` the sitemap.
+- `shots.mjs` takes the pictures (see above).
 - `publish.mjs` copies the build to the repository root and stops if the build holds anything it doesn't expect.
 
 Astro is pinned to 7.3.8, the newest release that runs on Node 22.12.

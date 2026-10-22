@@ -1,0 +1,76 @@
+// Pictures of every component, taken from its own page once its demo has played, in the Soft style:
+//   public/components/thumbs/<name>-light.webp and -dark.webp   640×400, for the cards on section and component pages
+//   public/components/og/<name>.jpg                              1200×630, the picture a shared link shows
+// usage (from tools/pages, after npm run build): PW=$(npm root -g)/playwright node shots.mjs [names...]
+// needs Playwright (PW=<path>, or npm i playwright) and ffmpeg. Run it again after a component's look changes, then build.
+import fs from 'node:fs';
+import path from 'node:path';
+import http from 'node:http';
+import { execFileSync } from 'node:child_process';
+import { createRequire } from 'node:module';
+import { fileURLToPath } from 'node:url';
+
+const HERE = path.dirname(fileURLToPath(import.meta.url)), ROOT = path.resolve(HERE, '../..');
+const { chromium } = createRequire(import.meta.url)(process.env.PW || 'playwright');
+const site = JSON.parse(fs.readFileSync(path.join(HERE, 'data/site.json'), 'utf8'));
+const only = process.argv.slice(2);
+const names = site.sections.flatMap(s => s.cards.map(c => c.reg)).filter(n => !only.length || only.includes(n));
+// most demos have settled after 6 seconds; these cycle, so they are taken at a moment that shows them whole
+const WAIT = { toast:2600, 'status-pill':3300 };
+const OUT = { thumbs:path.join(HERE, 'public/components/thumbs'), og:path.join(HERE, 'public/components/og') };
+Object.values(OUT).forEach(d => fs.mkdirSync(d, { recursive:true }));
+
+// the repository as Cloudflare Pages serves it: a file, or the same name with .html
+const TYPES = { '.html':'text/html', '.js':'text/javascript', '.css':'text/css', '.json':'application/json', '.svg':'image/svg+xml', '.png':'image/png', '.webp':'image/webp', '.jpg':'image/jpeg', '.woff2':'font/woff2' };
+const server = http.createServer((q, r) => {
+  const p = path.join(ROOT, decodeURIComponent(q.url.split('?')[0]));
+  const f = [p, p + '.html', path.join(p, 'index.html')].find(x => x.startsWith(ROOT) && fs.existsSync(x) && fs.statSync(x).isFile());
+  if (!f){ r.writeHead(404); return r.end(); }
+  r.writeHead(200, { 'Content-Type':TYPES[path.extname(f)] || 'application/octet-stream' }); fs.createReadStream(f).pipe(r);
+});
+await new Promise(r => server.listen(0, '127.0.0.1', r));
+const base = `http://127.0.0.1:${server.address().port}`;
+
+// a box of the given shape around the component, inside the demo, in page pixels
+const boxAround = (comp, demo, ratio, pad) => {
+  let w = comp.width + pad * 2, h = comp.height + pad * 2;
+  if (w / h < ratio) w = h * ratio; else h = w / ratio;
+  w = Math.min(w, demo.width); h = Math.min(h, demo.height, w / ratio); w = h * ratio;
+  let x = comp.x + comp.width / 2 - w / 2, y = comp.y + comp.height / 2 - h / 2;
+  x = Math.max(demo.x, Math.min(x, demo.x + demo.width - w)); y = Math.max(demo.y, Math.min(y, demo.y + demo.height - h));
+  return { x, y, width:w, height:h };
+};
+const encode = (png, out, w, h, args) => execFileSync('ffmpeg', ['-v', 'error', '-y', '-f', 'png_pipe', '-i', '-', '-vf', `scale=${w}:${h}:flags=lanczos`, ...args, out], { input:png });
+
+const browser = await chromium.launch();
+for (const theme of ['light', 'dark']){
+  const ctx = await browser.newContext({ viewport:{ width:1280, height:1000 }, deviceScaleFactor:2, colorScheme:theme });
+  await ctx.addInitScript(t => { try { localStorage.setItem('dmui-style', 'soft'); localStorage.setItem('dmui-theme', t); } catch(e){} }, theme);
+  for (const name of names){
+    const page = await ctx.newPage();
+    await page.goto(`${base}/components/${name}`, { waitUntil:'load' });
+    // the header and the bar are hidden, and a short demo gets room for a picture of the right shape
+    await page.addStyleTag({ content:'.cp-anim,.pg-top,.cp-bar{visibility:hidden!important}.pg-demo{min-height:max(560px,calc(var(--h-a) + 112px))!important}' });
+    await page.evaluate(() => document.fonts.ready);
+    await page.waitForTimeout(WAIT[name] || 6000);
+    const r = await page.evaluate(() => {
+      const d = document.querySelector('.cp-demo').getBoundingClientRect(), s = document.querySelector('.pg-demo .stage-in');
+      // a component in a demo frame (.dm) is pictured without the switcher under it
+      const k = (s.querySelector('.dm-main') ? [s.querySelector('.dm-main')] : [...s.children]).map(e => e.getBoundingClientRect()).filter(b => b.width && b.height);
+      const x = Math.min(...k.map(b => b.left)), y = Math.min(...k.map(b => b.top)), X = Math.max(...k.map(b => b.right)), Y = Math.max(...k.map(b => b.bottom));
+      const box = b => ({ x:b.x + scrollX, y:b.y + scrollY, width:b.width, height:b.height });
+      return { demo:box(d), comp:box({ x, y, width:X - x, height:Y - y }) };
+    });
+    const thumb = await page.screenshot({ clip:boxAround(r.comp, r.demo, 16 / 10, 40), type:'png' });
+    encode(thumb, path.join(OUT.thumbs, `${name}-${theme}.webp`), 640, 400, ['-c:v', 'libwebp', '-quality', '82']);
+    if (theme === 'light'){
+      const og = await page.screenshot({ clip:boxAround(r.comp, r.demo, 1200 / 630, 56), type:'png' });
+      encode(og, path.join(OUT.og, `${name}.jpg`), 1200, 630, ['-q:v', '3']);
+    }
+    await page.close();
+    process.stdout.write(`${theme} ${name}\n`);
+  }
+  await ctx.close();
+}
+await browser.close(); server.close();
+console.log('pictures written for', names.length, 'components');

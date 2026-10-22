@@ -1,5 +1,6 @@
 ---
-// One section of components, like Agent status: what it covers and every component in it.
+// One section of components, like Agent status: what it covers, every component in it as a card with its picture, and
+// the other sections.
 import Page from '../layouts/Page.astro';
 import { SITE, SECTIONS } from '../lib/data.mjs';
 const { s } = Astro.props;
@@ -12,25 +13,32 @@ const jsonld = [
     { '@type':'ListItem', position:1, name:'Components', item:SITE + '/components' }, { '@type':'ListItem', position:2, name:s.title, item:SITE + s.url } ] },
 ];
 const others = SECTIONS.filter(x => x !== s);
+const no = n => String(n).padStart(2, '0');
 ---
-<Page title={title} description={description} path={s.url} jsonld={jsonld}>
-  <Fragment slot="head"><style>
-    .sp-crumbs{font-size:13px;color:var(--pg-muted)} .sp-crumbs a{color:var(--pg-dim);text-decoration:none}
-    .sp-h{margin:14px 0 0;font-size:34px;line-height:1.15;font-weight:600;letter-spacing:-.025em}
-    .sp-lead{margin:10px 0 0;font-size:17px;color:var(--pg-dim);max-width:62ch}
-    .sp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;margin:32px 0 0}
-    .sp-grid a{display:block;padding:18px;border-radius:14px;background:var(--pg-soft);text-decoration:none;transition:background .2s}
-    .sp-grid a:hover{background:var(--pg-chip)}
-    .sp-grid b{display:block;font-weight:500;font-size:15.5px}
-    .sp-grid span{display:block;margin-top:4px;font-size:13.5px;color:var(--pg-dim)}
-    .sp-more{margin:64px 0 0} .sp-more h2{margin:0 0 12px;font-size:18px;font-weight:600}
-    .sp-more nav{display:flex;flex-wrap:wrap;gap:8px} .sp-more a{font-size:13.5px;padding:6px 12px;border-radius:999px;box-shadow:inset 0 0 0 1px var(--pg-line2);text-decoration:none;color:var(--pg-dim)}
-    .sp-more a:hover{color:var(--pg-fg)}
-    @media (max-width:640px){.sp-h{font-size:28px}}
+<Page title={title} description={description} path={s.url} jsonld={jsonld} image={`/components/og/${s.cards[0].reg}.jpg`}>
+  <Fragment slot="head"><style is:global>
+    .sp-rows{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:40px;border-top:1px solid var(--pg-line)}
+    .sp-rows a{display:flex;align-items:baseline;gap:12px;padding:14px 0;border-bottom:1px solid var(--pg-line);text-decoration:none}
+    .sp-rows a:hover .pg-t{text-decoration:underline;text-decoration-color:var(--pg-line2);text-underline-offset:3px}
+    .sp-rows .pg-d{margin-left:auto}
+    @media (max-width:760px){.sp-rows{grid-template-columns:minmax(0,1fr)}}
   </style></Fragment>
-  <nav class="sp-crumbs" aria-label="Breadcrumb"><a href="/components">Components</a> / {s.set}</nav>
-  <h1 class="sp-h">{s.title}</h1>
-  <p class="sp-lead">{s.about}</p>
-  <div class="sp-grid">{s.cards.map(c => <a href={`/components/${c.reg}`}><b>{c.title}</b><span>{c.desc}</span></a>)}</div>
-  <section class="sp-more"><h2>Other sections</h2><nav>{others.map(x => <a href={x.url}>{x.title}</a>)}</nav></section>
+  <div class="pg-wrap">
+    <nav class="pg-crumbs" aria-label="Breadcrumb"><a href="/components">Components</a><span>/</span><span>{s.set}</span></nav>
+    <h1 class="pg-h1">{s.title}</h1>
+    <p class="pg-lead">{s.about} {s.cards.length === 1 ? 'One component' : `${s.cards.length} components`}, each as plain HTML, CSS and JavaScript or as a typed React component, in two styles with light and dark mode.</p>
+
+    <section>
+      <div class="pg-sh"><span class="n">{no(SECTIONS.indexOf(s) + 1)}</span><h2>{s.title}</h2><p>{s.cards.length === 1 ? '1 component' : `${s.cards.length} components`}</p></div>
+      <div class="pg-cards">{s.cards.map(x => <a class="pg-card" href={`/components/${x.reg}`}>
+        <span class="pg-t">{x.title}</span><span class="pg-d">{x.desc}</span>
+        <span class="pg-thumb"><img class="lt" src={`/components/thumbs/${x.reg}-light.webp`} alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src={`/components/thumbs/${x.reg}-dark.webp`} alt="" width="640" height="400" loading="lazy" decoding="async"></span>
+      </a>)}</div>
+    </section>
+
+    <section>
+      <div class="pg-sh" style="margin-top:32px"><h2>Other sections</h2><p>{others.length} more, {others.reduce((n, x) => n + x.cards.length, 0)} components.</p></div>
+      <div class="sp-rows">{others.map(x => <a href={x.url}><span class="pg-t">{x.title}</span><span class="pg-d">{x.cards.length}</span></a>)}</div>
+    </section>
+  </div>
 </Page>
