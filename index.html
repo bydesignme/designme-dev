@@ -10125,8 +10125,7 @@ body.ui .dv-slot .stage>.code-btns{top:10px;right:20px}
   /* ---------- sound ---------- */
   const Sound = (() => {
     let ctx = null, master = null, on = false, last = 0;
-    // sound starts off and stays on once someone turns it on
-    try { if (localStorage.getItem('dmui-sound') === 'on') on = true; } catch(e) {}
+    // sound starts muted on every visit; turning it on lasts until the page is closed
     function ensure(){
       if (!ctx){
         const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return;
@@ -10162,7 +10161,7 @@ body.ui .dv-slot .stage>.code-btns{top:10px;right:20px}
       play: n => { last = performance.now(); try { if (buf) sample(n); else if (on && load()){ const t = last; loading.then(() => { if (performance.now() - t < 400) sample(n); }); } } catch(e) {} },
       get last(){ return last; },
       get on(){ return on; },
-      set(v){ on = v; try { localStorage.setItem('dmui-sound', v ? 'on' : 'off'); } catch(e) {} if (v) ensure(); }
+      set(v){ on = v; if (v) ensure(); }
     };
   })();
   ['pointerdown','keydown'].forEach(ev => document.addEventListener(ev, () => Sound.ensure(), {capture:true}));
@@ -10971,13 +10970,13 @@ body.ui .dv-slot .stage>.code-btns{top:10px;right:20px}
       <div class="cdm-acts"><button class="cdm-copy" id="cdm-copy">Copy</button><button class="cdm-x" data-close aria-label="Close">${ic('close','sm')}</button></div></div>
       <div class="cdm-tabs" role="tablist">${Object.keys(NAMES).map(t => `<button class="cdm-tab" role="tab" data-t="${t}">${NAMES[t]}</button>`).join('')}${Object.keys(RX_TABS).map(t => `<button class="cdm-tab" role="tab" data-t="${t}">${RX_TABS[t]}</button>`).join('')}<span class="cdm-lines" id="cdm-lines"></span></div>
       <pre class="cd-pre cdm-pre" id="cdm-pre"></pre>
-      <div class="cdm-foot">${ic('help','sm')}<span>Shared core required, add it once for the tokens, icons, sound and helpers.</span><button class="cdm-shared" id="cdm-shared">Shared core ${ic('open_in_new','sm')}</button></div>
+      <div class="cdm-foot">${ic('help','sm')}<span>Shared core required, add it once for the tokens, icons and helpers.</span><button class="cdm-shared" id="cdm-shared">Shared core ${ic('open_in_new','sm')}</button></div>
     </div>`;
     document.body.appendChild(m);
     const pre = $('#cdm-pre', m);
     let id = null, tab = 'html', last = null;
     const slug = n => n.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-    const textFor = t => !CODE && !t.startsWith('rx-') ? 'Loading the code…' : t === 'shared' ?'/* Shared core: tokens and base styles */\n' + CODE._shared.css + '\n\n/* Shared core: icons, sound and helpers */\n' + CODE._shared.js : t.startsWith('rx-') ? rxText(rx, t) : CODE[id][t];
+    const textFor = t => !CODE && !t.startsWith('rx-') ? 'Loading the code…' : t === 'shared' ?'/* Shared core: tokens and base styles */\n' + CODE._shared.css + '\n\n/* Shared core: icons and helpers */\n' + CODE._shared.js : t.startsWith('rx-') ? rxText(rx, t) : CODE[id][t];
     let rx = null;
     // the path, note, install command and tabs follow the HTML or React choice
     function head(){
@@ -11123,7 +11122,7 @@ body.ui .dv-slot .stage>.code-btns{top:10px;right:20px}
       </div>`;
     document.body.appendChild(dv);
     let cur = null, ph = null, tab = 'html', rx = null;
-    const textFor = t => !CODE && !t.startsWith('rx-') ? 'Loading the code…' : t === 'shared' ? '/* Shared core: tokens and base styles */\n' + CODE._shared.css + '\n\n/* Shared core: icons, sound and helpers */\n' + CODE._shared.js : t.startsWith('rx-') ? rxText(rx, t) : CODE[cur.id][t];
+    const textFor = t => !CODE && !t.startsWith('rx-') ? 'Loading the code…' : t === 'shared' ? '/* Shared core: tokens and base styles */\n' + CODE._shared.css + '\n\n/* Shared core: icons and helpers */\n' + CODE._shared.js : t.startsWith('rx-') ? rxText(rx, t) : CODE[cur.id][t];
     function showCode(t){ tab = t; $$('.dv-tab', dv).forEach(b => b.setAttribute('aria-selected', b.dataset.t === t)); $('#dv-pre').innerHTML = codeLines(textFor(t)); $('#dv-pre').scrollTop = 0; }
     // the install command and tabs follow the HTML or React choice
     function dvMode(v){
@@ -11376,7 +11375,7 @@ body.ui .dv-slot .stage>.code-btns{top:10px;right:20px}
         <p><b>Your email address</b>, when you sign up for updates. We use it to send new components and library news, and nothing else.</p>
         <p><b>Roadmap ideas and votes.</b> Your browser creates a random ID so you can vote once per idea, and we store that ID with your votes and any idea you suggest. It does not include your name or email.</p>
         <p><b>Usage statistics.</b> We count page views and actions such as copying code with Plausible Analytics, which does not use cookies and does not collect personal data.</p>
-        <p><b>Settings in your browser.</b> Your theme, style, sound setting and saved components are kept in your browser's local storage and are never sent to us.</p>
+        <p><b>Settings in your browser.</b> Your theme, style and saved components are kept in your browser's local storage and are never sent to us.</p>
         <h2>Why we use it</h2><p>We send updates because you asked for them, so the legal basis is your consent (Art. 6(1)(a) GDPR), and you can withdraw it at any time with the unsubscribe link in every email. We run the roadmap and usage statistics to decide what to build next, which is our legitimate interest (Art. 6(1)(f) GDPR).</p>
         <h2>Who helps us</h2><p>Supabase stores sign-ups and roadmap votes, beehiiv sends our emails, Plausible provides usage statistics and Cloudflare hosts the site. The fonts are served from designme.dev itself, so loading the site sends nothing to Google. Some of them process data outside the European Economic Area, and where that happens it is covered by safeguards such as the European Commission's Standard Contractual Clauses.</p>
         <h2>Children</h2><p>Designme.dev is made for people building products and is not aimed at children, so we do not knowingly collect emails from anyone under 16. If you think a child has signed up, email us and we will delete it.</p>
