@@ -31,7 +31,7 @@ patch("""<div class="cdm-note">Self-contained, needs only the shared core.</div>
 patch("""<div class="cdm-tabs" role="tablist">${Object.keys(NAMES).map(t => `<button class="cdm-tab" role="tab" data-t="${t}">${NAMES[t]}</button>`).join('')}""",
       """<div class="cdm-tabs" role="tablist">${Object.keys(NAMES).map(t => `<button class="cdm-tab" role="tab" data-t="${t}">${NAMES[t]}</button>`).join('')}${Object.keys(RX_TABS).map(t => `<button class="cdm-tab" role="tab" data-t="${t}">${RX_TABS[t]}</button>`).join('')}""")
 patch("""    const textFor = t => t === 'shared' ? '/* Shared core: tokens and base styles */\\n' + CODE._shared.css + '\\n\\n/* Shared core: icons, sound and helpers */\\n' + CODE._shared.js : CODE[id][t];
-    function show(t){""", """    const textFor = t => !CODE && !t.startsWith('rx-') ? 'Loading the code…' : t === 'shared' ?'/* Shared core: tokens and base styles */\\n' + CODE._shared.css + '\\n\\n/* Shared core: icons, sound and helpers */\\n' + CODE._shared.js : t.startsWith('rx-') ? rxText(rx, t) : CODE[id][t];
+    function show(t){""", """    const textFor = t => !CODE && !t.startsWith('rx-') ? 'Loading the code…' : t === 'shared' ?'/* Shared core: tokens and base styles */\\n' + CODE._shared.css + '\\n\\n/* Shared core: icons and helpers */\\n' + CODE._shared.js : t.startsWith('rx-') ? rxText(rx, t) : CODE[id][t];
     let rx = null;
     // the path, note, install command and tabs follow the HTML or React choice
     function head(){
@@ -67,7 +67,7 @@ patch("""<div class="dv-code"><div class="dv-code-h"><div class="dv-tabs" role="
       """<div class="dv-code" id="dv-code"><div class="dv-code-h">""" + SW + """<div class="dv-tabs" role="tablist">${Object.keys(NAMES).map(t => `<button class="dv-tab" role="tab" data-t="${t}">${NAMES[t]}</button>`).join('')}${Object.keys(RX_TABS).map(t => `<button class="dv-tab" role="tab" data-t="${t}">${RX_TABS[t]}</button>`).join('')}</div>""")
 patch("""    let cur = null, ph = null, tab = 'html';""", """    let cur = null, ph = null, tab = 'html', rx = null;""")
 patch("""    const textFor = t => t === 'shared' ? '/* Shared core: tokens and base styles */\\n' + CODE._shared.css + '\\n\\n/* Shared core: icons, sound and helpers */\\n' + CODE._shared.js : CODE[cur.id][t];""",
-      """    const textFor = t => !CODE && !t.startsWith('rx-') ? 'Loading the code…' : t === 'shared' ? '/* Shared core: tokens and base styles */\\n' + CODE._shared.css + '\\n\\n/* Shared core: icons, sound and helpers */\\n' + CODE._shared.js : t.startsWith('rx-') ? rxText(rx, t) : CODE[cur.id][t];""")
+      """    const textFor = t => !CODE && !t.startsWith('rx-') ? 'Loading the code…' : t === 'shared' ? '/* Shared core: tokens and base styles */\\n' + CODE._shared.css + '\\n\\n/* Shared core: icons and helpers */\\n' + CODE._shared.js : t.startsWith('rx-') ? rxText(rx, t) : CODE[cur.id][t];""")
 patch("""    function showCode(t){ tab = t; $$('.dv-tab', dv).forEach(b => b.setAttribute('aria-selected', b.dataset.t === t)); $('#dv-pre').innerHTML = codeLines(textFor(t)); $('#dv-pre').scrollTop = 0; }""",
       """    function showCode(t){ tab = t; $$('.dv-tab', dv).forEach(b => b.setAttribute('aria-selected', b.dataset.t === t)); $('#dv-pre').innerHTML = codeLines(textFor(t)); $('#dv-pre').scrollTop = 0; }
     // the install command and tabs follow the HTML or React choice
@@ -228,42 +228,14 @@ patch("""      ph.replaceWith(cur); const back = cur; cur = null; ph = null;""",
 # the component page takes focus itself when it opens, not its first button, so the arrow keys don't ring that button
 patch("""setTimeout(() => $('#dv-back').focus(), 80);""", """setTimeout(() => { dv.tabIndex = -1; dv.focus({ preventScroll:true }); }, 80);""")
 
-# ---------- sound on every click and hover, through the site's own sound switch (off until someone turns it on) ----------
-patch("""  ['pointerdown','keydown'].forEach(ev => document.addEventListener(ev, () => Sound.ensure(), {capture:true}));""",
-      """  ['pointerdown','keydown'].forEach(ev => document.addEventListener(ev, () => Sound.ensure(), {capture:true}));
-  /* every click and hover gets a sound: anything with a pointer cursor counts, so the components need nothing of their own.
-     A click that already plays a sound of its own keeps just that one, a switch or a checkbox says on or off, and typing
-     fields stay quiet. Hovers tick once per control, never while the page scrolls, and only for a mouse */
-  {
-    const FIELD = 'input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),textarea,select,[contenteditable="true"]';
-    const live = el => !(el.disabled || el.getAttribute('aria-disabled') === 'true');
-    // the control under the pointer: the nearest of the target and a few parents with a pointer cursor
-    const control = t => { for (let el = t, k = 0; el && el.nodeType === 1 && k < 6; el = el.parentElement, k++){ if (el.matches(FIELD)) return null; const cur = getComputedStyle(el).cursor; if (cur === 'pointer') return el; if (cur === 'not-allowed') return null; } return null; };
-    document.addEventListener('click', e => {
-      if (!Sound.on || !e.isTrusted) return;
-      const el = control(e.target); if (!el || !live(el)) return;
-      const t0 = performance.now();
-      // after the click's own handlers have run: a switch or checkbox reads its new state, anything that played a sound is left alone
-      setTimeout(() => {
-        if (Sound.last >= t0) return;
-        const sw = el.closest('[role="switch"],[role="checkbox"],[role="menuitemcheckbox"],input[type="checkbox"]');
-        if (sw) Sound.play(sw.matches('input') ? (sw.checked ? 'on' : 'off') : sw.getAttribute('aria-checked') === 'true' ? 'on' : 'off');
-        else Sound.play('click');
-      }, 0);
-    }, true);
-    let over = null, lastHover = 0, still = 0;
-    const moved = () => { still = performance.now(); over = null; };
-    addEventListener('scroll', moved, { capture:true, passive:true }); addEventListener('wheel', moved, { passive:true });
-    document.addEventListener('pointerover', e => {
-      if (!Sound.on || e.pointerType !== 'mouse') return;
-      const el = control(e.target); if (el === over) return; over = el;
-      const now = performance.now(); if (!el || !live(el) || now - still < 180 || now - lastHover < 60) return;
-      lastHover = now; Sound.play('hover');
-    }, { passive:true });
-  }""")
-
-# the sounds: recordings in one file instead of synthesised tones (see make-sounds.py)
-patch("""    function ensure(){
+# ---------- no sound for now: Sound stays, so every call to Sound.play is still safe, but it does nothing, and the sound
+# switch is gone from the header and the phone menu ----------
+patch("""  /* ---------- sound ---------- */
+  const Sound = (() => {
+    let ctx = null, master = null, on = false;
+    // sound starts off and stays on once someone turns it on
+    try { if (localStorage.getItem('dmui-sound') === 'on') on = true; } catch(e) {}
+    function ensure(){
       if (!ctx){
         const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return;
         ctx = new AC(); master = ctx.createGain(); master.gain.value = .7;
@@ -311,45 +283,24 @@ patch("""    function ensure(){
       get on(){ return on; },
       set(v){ on = v; try { localStorage.setItem('dmui-sound', v ? 'on' : 'off'); } catch(e) {} }
     };
-""", """    function ensure(){
-      if (!ctx){
-        const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return;
-        ctx = new AC(); master = ctx.createGain(); master.gain.value = .7;
-        const comp = ctx.createDynamicsCompressor(); master.connect(comp); comp.connect(ctx.destination);
-      }
-      if (ctx.state === 'suspended') ctx.resume();
-      if (on) load();
-    }
-    function ready(){ return on && ctx && ctx.state === 'running'; }
-    /* recorded sounds rather than synthesised tones: Kenney's Interface Sounds and UI Audio (CC0), all in one file that is
-       only fetched once sound is on. sounds/ui.json says where each one starts, how long it lasts and how loud it plays;
-       tools/site/make-sounds.py builds both */
-    let buf = null, map = null, loading = null;
-    function load(){
-      if (loading || !ctx) return loading;
-      loading = Promise.all([fetch('/sounds/ui.json').then(r => r.json()), fetch('/sounds/ui.wav').then(r => r.arrayBuffer())])
-        .then(([m, data]) => new Promise((res, rej) => ctx.decodeAudioData(data, res, rej)).then(b => { buf = b; map = m; }))
-        .catch(() => { loading = null; });
-      return loading;
-    }
-    // a touch of variation in pitch, so a run of hovers or clicks doesn't sound like a machine
-    const VARY = { hover:.05, click:.04, tick:.04, tab:.03, stream:.08 };
-    function sample(n){
-      const s = map && map[n]; if (!s || !ready()) return;
-      const src = ctx.createBufferSource(), g = ctx.createGain(), v = VARY[n] || 0;
-      src.buffer = buf; src.playbackRate.value = 1 + (Math.random() * 2 - 1) * v; g.gain.value = s[2];
-      src.connect(g); g.connect(master); src.start(ctx.currentTime, s[0], s[1]);
-    }
-    return {
-      ensure,
-      // a sound asked for while the file is still on its way plays when it lands, if that's soon enough to still belong
-      play: n => { last = performance.now(); try { if (buf) sample(n); else if (on && load()){ const t = last; loading.then(() => { if (performance.now() - t < 400) sample(n); }); } } catch(e) {} },
-      get last(){ return last; },
-      get on(){ return on; },
-      set(v){ on = v; try { localStorage.setItem('dmui-sound', v ? 'on' : 'off'); } catch(e) {} if (v) ensure(); }
-    };
+  })();
+  ['pointerdown','keydown'].forEach(ev => document.addEventListener(ev, () => Sound.ensure(), {capture:true}));
+""", """  /* ---------- sound: off for now. The calls to Sound.play stay in place and do nothing ---------- */
+  const Sound = { ensure(){}, play(){}, on:false, set(){} };
 """)
-patch("""    let ctx = null, master = null, on = false;""", """    let ctx = null, master = null, on = false, last = 0;""")
+patch("""  const sBtn = $('#sound-btn');
+  function paintSound(){ sBtn.setAttribute('aria-pressed', Sound.on); sBtn.setAttribute('aria-label', Sound.on ? 'Mute sounds' : 'Turn sounds on'); sBtn.title = Sound.on ? 'Sound on' : 'Sound off'; $('#sound-icon').textContent = Sound.on ? 'volume_up' : 'volume_off'; $('#sound-lbl').textContent = Sound.on ? 'Sound on' : 'Sound off'; }
+""", "")
+patch("""  sBtn.addEventListener('click', () => { Sound.set(!Sound.on); paintSound(); if (Sound.on) Sound.play('on'); });
+  paintSound();
+""", "")
+patch("""    <button class="sound-btn" id="sound-btn" aria-pressed="true"><span class="ms sm" id="sound-icon">volume_up</span><span class="lbl" id="sound-lbl">Sound on</span></button>
+""", "")
+patch("""themeBtn = $('#theme-btn'), soundBtn = $('#sound-btn');""", """themeBtn = $('#theme-btn');""")
+patch("""<span id="m-theme-slot"></span><span id="m-sound-slot"></span>""", """<span id="m-theme-slot"></span>""")
+patch("""[themeBtn, '#m-theme-slot'], [soundBtn, '#m-sound-slot']]""", """[themeBtn, '#m-theme-slot']]""")
+patch("""Your theme, style, sound setting and saved components""", """Your theme, style and saved components""")
+patch("""add it once for the tokens, icons, sound and helpers.""", """add it once for the tokens, icons and helpers.""")
 
 CSS = """/* component page: an arrow either side of the component, halfway down the screen, centred in the space beside it.
    Hovering one names the component it goes to underneath it, never wider than that space, so nothing covers the component.
@@ -447,7 +398,7 @@ body.ui .dv-slot .stage>.code-btns{top:10px;right:20px}
    sidebar, which sits below the components, waits for the end of the page so it can't flash at the top while it loads */
 @media (max-width:960px){
   body.ui .top .top-actions{min-height:40px}
-  .top-actions #style-seg,.top-actions #theme-btn,.top-actions #sound-btn{display:none}
+  .top-actions #style-seg,.top-actions #theme-btn{display:none}
   body:not(:has(> #v2-js)) .side{display:none}
 }
 /* wider screens: the script adds the 36px accent dot beside the style switch, so its room is kept from the first paint and
