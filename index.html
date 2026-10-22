@@ -5551,7 +5551,7 @@ body.ui .dv-slot .stage>.code-btns{top:10px;right:20px}
    sidebar, which sits below the components, waits for the end of the page so it can't flash at the top while it loads */
 @media (max-width:960px){
   body.ui .top .top-actions{min-height:40px}
-  .top-actions #style-seg,.top-actions #theme-btn{display:none}
+  .top-actions #style-seg,.top-actions #theme-btn,.top-actions #sound-btn{display:none}
   body:not(:has(> #v2-js)) .side{display:none}
 }
 /* wider screens: the script adds the 36px accent dot beside the style switch, so its room is kept from the first paint and
@@ -8232,6 +8232,7 @@ body.ui .dv-slot .stage>.code-btns{top:10px;right:20px}
   <div class="top-actions">
     <div class="seg style-seg" id="style-seg" role="group" aria-label="Style"><span class="seg-ind"></span><button data-v="blueprint" class="on"><svg class="ss-ic ss-ruler" viewBox="0 0 256 256" aria-hidden="true"><path d="M229.66,90.34,90.34,229.66a8,8,0,0,1-11.31,0L26.34,177a8,8,0,0,1,0-11.31L165.66,26.34a8,8,0,0,1,11.31,0L229.66,79A8,8,0,0,1,229.66,90.34Z" opacity="0.2"/><path d="M235.32,73.37,182.63,20.69a16,16,0,0,0-22.63,0L20.68,160a16,16,0,0,0,0,22.63l52.69,52.68a16,16,0,0,0,22.63,0L235.32,96A16,16,0,0,0,235.32,73.37ZM84.68,224,32,171.31l32-32,26.34,26.35a8,8,0,0,0,11.32-11.32L75.31,128,96,107.31l26.34,26.35a8,8,0,0,0,11.32-11.32L107.31,96,128,75.31l26.34,26.35a8,8,0,0,0,11.32-11.32L139.31,64l32-32L224,84.69Z"/></svg><span>Blueprint</span></button><button data-v="soft"><svg class="ss-ic ss-cloud" viewBox="0 0 256 256" aria-hidden="true"><path d="M240,128a80,80,0,0,1-80,80H72A56,56,0,1,1,85.92,97.74l0,.1A80,80,0,0,1,240,128Z" opacity="0.2"/><path d="M160,40A88.09,88.09,0,0,0,81.29,88.67,64,64,0,1,0,72,216h88a88,88,0,0,0,0-176Zm0,160H72a48,48,0,0,1,0-96c1.1,0,2.2,0,3.29.11A88,88,0,0,0,72,128a8,8,0,0,0,16,0,72,72,0,1,1,72,72Z"/></svg><span>Soft</span></button></div>
     <button class="theme-sw" id="theme-btn" role="switch" aria-checked="false" aria-label="Dark mode"><span class="ts-thumb"></span><span class="ts-ic sun"><span class="ms">light_mode</span></span><span class="ts-ic moon"><span class="ms">dark_mode</span></span></button>
+    <button class="sound-btn" id="sound-btn" aria-pressed="true"><span class="ms sm" id="sound-icon">volume_up</span><span class="lbl" id="sound-lbl">Sound on</span></button>
     <div class="flt"><button class="flt-btn" id="flt-btn" aria-haspopup="menu" aria-expanded="false"><span class="ms flt-ic">filter_list</span><span class="lbl" id="flt-lbl">Popular</span><span class="ms car">expand_more</span></button><div class="flt-menu" id="flt-menu" role="menu"><button class="flt-i on" data-v="popular" role="menuitemradio">Popular<span class="ms">check</span></button><button class="flt-i" data-v="recent" role="menuitemradio">Recent<span class="ms">check</span></button><button class="flt-i" data-v="saved" role="menuitemradio">Saved<span class="ms">check</span></button></div></div>
   </div>
 </div>
@@ -10121,8 +10122,80 @@ body.ui .dv-slot .stage>.code-btns{top:10px;right:20px}
   /* ---------- analytics ---------- */
   function track(name, props){ try { if (window.plausible) window.plausible(name, props ? { props } : undefined); } catch(e) {} }
 
-  /* ---------- sound: off for now. The calls to Sound.play stay in place and do nothing ---------- */
-  const Sound = { ensure(){}, play(){}, on:false, set(){} };
+  /* ---------- sound ---------- */
+  const Sound = (() => {
+    let ctx = null, master = null, on = false, last = 0;
+    // sound starts off and stays on once someone turns it on
+    try { if (localStorage.getItem('dmui-sound') === 'on') on = true; } catch(e) {}
+    function ensure(){
+      if (!ctx){
+        const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return;
+        ctx = new AC(); master = ctx.createGain(); master.gain.value = .7;
+        const comp = ctx.createDynamicsCompressor(); master.connect(comp); comp.connect(ctx.destination);
+      }
+      if (ctx.state === 'suspended') ctx.resume();
+      if (on) load();
+    }
+    function ready(){ return on && ctx && ctx.state === 'running'; }
+    /* recorded sounds rather than synthesised tones: Kenney's Interface Sounds and UI Audio (CC0), all in one file that is
+       only fetched once sound is on. sounds/ui.json says where each one starts, how long it lasts and how loud it plays;
+       tools/site/make-sounds.py builds both */
+    let buf = null, map = null, loading = null;
+    function load(){
+      if (loading || !ctx) return loading;
+      loading = Promise.all([fetch('/sounds/ui.json').then(r => r.json()), fetch('/sounds/ui.wav').then(r => r.arrayBuffer())])
+        .then(([m, data]) => new Promise((res, rej) => ctx.decodeAudioData(data, res, rej)).then(b => { buf = b; map = m; }))
+        .catch(() => { loading = null; });
+      return loading;
+    }
+    // a touch of variation in pitch, so a run of hovers or clicks doesn't sound like a machine
+    const VARY = { hover:.05, click:.04, tick:.04, tab:.03, stream:.08 };
+    function sample(n){
+      const s = map && map[n]; if (!s || !ready()) return;
+      const src = ctx.createBufferSource(), g = ctx.createGain(), v = VARY[n] || 0;
+      src.buffer = buf; src.playbackRate.value = 1 + (Math.random() * 2 - 1) * v; g.gain.value = s[2];
+      src.connect(g); g.connect(master); src.start(ctx.currentTime, s[0], s[1]);
+    }
+    return {
+      ensure,
+      // a sound asked for while the file is still on its way plays when it lands, if that's soon enough to still belong
+      play: n => { last = performance.now(); try { if (buf) sample(n); else if (on && load()){ const t = last; loading.then(() => { if (performance.now() - t < 400) sample(n); }); } } catch(e) {} },
+      get last(){ return last; },
+      get on(){ return on; },
+      set(v){ on = v; try { localStorage.setItem('dmui-sound', v ? 'on' : 'off'); } catch(e) {} if (v) ensure(); }
+    };
+  })();
+  ['pointerdown','keydown'].forEach(ev => document.addEventListener(ev, () => Sound.ensure(), {capture:true}));
+  /* every click and hover gets a sound: anything with a pointer cursor counts, so the components need nothing of their own.
+     A click that already plays a sound of its own keeps just that one, a switch or a checkbox says on or off, and typing
+     fields stay quiet. Hovers tick once per control, never while the page scrolls, and only for a mouse */
+  {
+    const FIELD = 'input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),textarea,select,[contenteditable="true"]';
+    const live = el => !(el.disabled || el.getAttribute('aria-disabled') === 'true');
+    // the control under the pointer: the nearest of the target and a few parents with a pointer cursor
+    const control = t => { for (let el = t, k = 0; el && el.nodeType === 1 && k < 6; el = el.parentElement, k++){ if (el.matches(FIELD)) return null; const cur = getComputedStyle(el).cursor; if (cur === 'pointer') return el; if (cur === 'not-allowed') return null; } return null; };
+    document.addEventListener('click', e => {
+      if (!Sound.on || !e.isTrusted) return;
+      const el = control(e.target); if (!el || !live(el)) return;
+      const t0 = performance.now();
+      // after the click's own handlers have run: a switch or checkbox reads its new state, anything that played a sound is left alone
+      setTimeout(() => {
+        if (Sound.last >= t0) return;
+        const sw = el.closest('[role="switch"],[role="checkbox"],[role="menuitemcheckbox"],input[type="checkbox"]');
+        if (sw) Sound.play(sw.matches('input') ? (sw.checked ? 'on' : 'off') : sw.getAttribute('aria-checked') === 'true' ? 'on' : 'off');
+        else Sound.play('click');
+      }, 0);
+    }, true);
+    let over = null, lastHover = 0, still = 0;
+    const moved = () => { still = performance.now(); over = null; };
+    addEventListener('scroll', moved, { capture:true, passive:true }); addEventListener('wheel', moved, { passive:true });
+    document.addEventListener('pointerover', e => {
+      if (!Sound.on || e.pointerType !== 'mouse') return;
+      const el = control(e.target); if (el === over) return; over = el;
+      const now = performance.now(); if (!el || !live(el) || now - still < 180 || now - lastHover < 60) return;
+      lastHover = now; Sound.play('hover');
+    }, { passive:true });
+  }
 
   // ambient sounds only play for components that are mostly on screen
   const inView = new Set();
@@ -10143,6 +10216,8 @@ body.ui .dv-slot .stage>.code-btns{top:10px;right:20px}
   addEventListener('blur', () => { hoverComp = null; touchComp = null; });
   const ambient = (id, n) => { if (hoverComp === id || (touchComp === id && performance.now() - touchT < 8000)) Sound.play(n); };
 
+  const sBtn = $('#sound-btn');
+  function paintSound(){ sBtn.setAttribute('aria-pressed', Sound.on); sBtn.setAttribute('aria-label', Sound.on ? 'Mute sounds' : 'Turn sounds on'); sBtn.title = Sound.on ? 'Sound on' : 'Sound off'; $('#sound-icon').textContent = Sound.on ? 'volume_up' : 'volume_off'; $('#sound-lbl').textContent = Sound.on ? 'Sound on' : 'Sound off'; }
   /* ---------- theme ---------- */
   const rootEl = document.documentElement, mq = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
   const curTheme = () => rootEl.getAttribute('data-theme') || (mq && mq.matches ? 'dark' : 'light');
@@ -10164,6 +10239,8 @@ body.ui .dv-slot .stage>.code-btns{top:10px;right:20px}
   if (mq && mq.addEventListener) mq.addEventListener('change', () => { const saved = rootEl.getAttribute('data-theme'), sys = mq.matches ? 'dark' : 'light'; if (saved === sys){ rootEl.removeAttribute('data-theme'); try { localStorage.removeItem('dmui-theme'); } catch(e) {} } paintTheme(); });
   paintTheme();
 
+  sBtn.addEventListener('click', () => { Sound.set(!Sound.on); paintSound(); if (Sound.on) Sound.play('on'); });
+  paintSound();
 
   /* ---------- helpers ---------- */
   function swapText(el, text){
@@ -10894,13 +10971,13 @@ body.ui .dv-slot .stage>.code-btns{top:10px;right:20px}
       <div class="cdm-acts"><button class="cdm-copy" id="cdm-copy">Copy</button><button class="cdm-x" data-close aria-label="Close">${ic('close','sm')}</button></div></div>
       <div class="cdm-tabs" role="tablist">${Object.keys(NAMES).map(t => `<button class="cdm-tab" role="tab" data-t="${t}">${NAMES[t]}</button>`).join('')}${Object.keys(RX_TABS).map(t => `<button class="cdm-tab" role="tab" data-t="${t}">${RX_TABS[t]}</button>`).join('')}<span class="cdm-lines" id="cdm-lines"></span></div>
       <pre class="cd-pre cdm-pre" id="cdm-pre"></pre>
-      <div class="cdm-foot">${ic('help','sm')}<span>Shared core required, add it once for the tokens, icons and helpers.</span><button class="cdm-shared" id="cdm-shared">Shared core ${ic('open_in_new','sm')}</button></div>
+      <div class="cdm-foot">${ic('help','sm')}<span>Shared core required, add it once for the tokens, icons, sound and helpers.</span><button class="cdm-shared" id="cdm-shared">Shared core ${ic('open_in_new','sm')}</button></div>
     </div>`;
     document.body.appendChild(m);
     const pre = $('#cdm-pre', m);
     let id = null, tab = 'html', last = null;
     const slug = n => n.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-    const textFor = t => !CODE && !t.startsWith('rx-') ? 'Loading the code…' : t === 'shared' ?'/* Shared core: tokens and base styles */\n' + CODE._shared.css + '\n\n/* Shared core: icons and helpers */\n' + CODE._shared.js : t.startsWith('rx-') ? rxText(rx, t) : CODE[id][t];
+    const textFor = t => !CODE && !t.startsWith('rx-') ? 'Loading the code…' : t === 'shared' ?'/* Shared core: tokens and base styles */\n' + CODE._shared.css + '\n\n/* Shared core: icons, sound and helpers */\n' + CODE._shared.js : t.startsWith('rx-') ? rxText(rx, t) : CODE[id][t];
     let rx = null;
     // the path, note, install command and tabs follow the HTML or React choice
     function head(){
@@ -11046,7 +11123,7 @@ body.ui .dv-slot .stage>.code-btns{top:10px;right:20px}
       </div>`;
     document.body.appendChild(dv);
     let cur = null, ph = null, tab = 'html', rx = null;
-    const textFor = t => !CODE && !t.startsWith('rx-') ? 'Loading the code…' : t === 'shared' ? '/* Shared core: tokens and base styles */\n' + CODE._shared.css + '\n\n/* Shared core: icons and helpers */\n' + CODE._shared.js : t.startsWith('rx-') ? rxText(rx, t) : CODE[cur.id][t];
+    const textFor = t => !CODE && !t.startsWith('rx-') ? 'Loading the code…' : t === 'shared' ? '/* Shared core: tokens and base styles */\n' + CODE._shared.css + '\n\n/* Shared core: icons, sound and helpers */\n' + CODE._shared.js : t.startsWith('rx-') ? rxText(rx, t) : CODE[cur.id][t];
     function showCode(t){ tab = t; $$('.dv-tab', dv).forEach(b => b.setAttribute('aria-selected', b.dataset.t === t)); $('#dv-pre').innerHTML = codeLines(textFor(t)); $('#dv-pre').scrollTop = 0; }
     // the install command and tabs follow the HTML or React choice
     function dvMode(v){
@@ -11299,7 +11376,7 @@ body.ui .dv-slot .stage>.code-btns{top:10px;right:20px}
         <p><b>Your email address</b>, when you sign up for updates. We use it to send new components and library news, and nothing else.</p>
         <p><b>Roadmap ideas and votes.</b> Your browser creates a random ID so you can vote once per idea, and we store that ID with your votes and any idea you suggest. It does not include your name or email.</p>
         <p><b>Usage statistics.</b> We count page views and actions such as copying code with Plausible Analytics, which does not use cookies and does not collect personal data.</p>
-        <p><b>Settings in your browser.</b> Your theme, style and saved components are kept in your browser's local storage and are never sent to us.</p>
+        <p><b>Settings in your browser.</b> Your theme, style, sound setting and saved components are kept in your browser's local storage and are never sent to us.</p>
         <h2>Why we use it</h2><p>We send updates because you asked for them, so the legal basis is your consent (Art. 6(1)(a) GDPR), and you can withdraw it at any time with the unsubscribe link in every email. We run the roadmap and usage statistics to decide what to build next, which is our legitimate interest (Art. 6(1)(f) GDPR).</p>
         <h2>Who helps us</h2><p>Supabase stores sign-ups and roadmap votes, beehiiv sends our emails, Plausible provides usage statistics and Cloudflare hosts the site. The fonts are served from designme.dev itself, so loading the site sends nothing to Google. Some of them process data outside the European Economic Area, and where that happens it is covered by safeguards such as the European Commission's Standard Contractual Clauses.</p>
         <h2>Children</h2><p>Designme.dev is made for people building products and is not aimed at children, so we do not knowingly collect emails from anyone under 16. If you think a child has signed up, email us and we will delete it.</p>
@@ -11607,7 +11684,7 @@ body.ui .dv-slot .stage>.code-btns{top:10px;right:20px}
   /* ---------- mobile menu ---------- */
   {
     const mq = matchMedia('(max-width: 960px)');
-    const actions = $('.top-actions'), seg = $('#style-seg'), themeBtn = $('#theme-btn');
+    const actions = $('.top-actions'), seg = $('#style-seg'), themeBtn = $('#theme-btn'), soundBtn = $('#sound-btn');
     const btn = document.createElement('button'); btn.className = 'mm-btn'; btn.id = 'mm-btn'; btn.setAttribute('aria-label', 'Open menu'); btn.setAttribute('aria-expanded', 'false'); btn.setAttribute('aria-controls', 'm-menu');
     btn.innerHTML = '<span class="mm-dots"><i></i><i></i><i></i><i></i></span>';
     actions.appendChild(btn);
@@ -11619,12 +11696,12 @@ body.ui .dv-slot .stage>.code-btns{top:10px;right:20px}
       <div class="m-secs mi-in" id="m-secs">${sections.map(([id, n]) => `<a href="#${id}" class="m-sec">${n}</a>`).join('')}</div>
       <div class="m-links mi-in"><a href="#/changelog">Changelog</a><a href="#/roadmap">Roadmap</a><a href="#faq">FAQ</a></div>
       <div class="m-set mi-in"><span class="m-lbl">Style</span><span id="m-seg-slot"></span></div>
-      <div class="m-set mi-in"><span class="m-lbl">Appearance</span><span class="m-ctrl"><span id="m-theme-slot"></span></span></div>
+      <div class="m-set mi-in"><span class="m-lbl">Appearance</span><span class="m-ctrl"><span id="m-theme-slot"></span><span id="m-sound-slot"></span></span></div>
       <div class="m-cta mi-in"><div class="t">Need expert design and dev support?</div><a class="hire-btn m-cta-btn" href="https://designme.agency" target="_blank" rel="noopener">Book a call<span class="ms">arrow_forward</span></a></div>
     </div>`;
     document.body.appendChild(menu);
     // the header controls move into the menu on small screens, and back on wide ones
-    const homes = [[seg, '#m-seg-slot'], [themeBtn, '#m-theme-slot']].map(([el, slot]) => { const mark = document.createComment('home'); el.before(mark); return [el, mark, $(slot, menu)]; });
+    const homes = [[seg, '#m-seg-slot'], [themeBtn, '#m-theme-slot'], [soundBtn, '#m-sound-slot']].map(([el, slot]) => { const mark = document.createComment('home'); el.before(mark); return [el, mark, $(slot, menu)]; });
     const place = () => { homes.forEach(([el, mark, slot]) => { if (mq.matches){ if (el.parentElement !== slot) slot.appendChild(el); } else if (mark.nextSibling !== el) mark.after(el); }); if (!mq.matches) close(); dispatchEvent(new Event('resize')); };
     const setH = () => document.documentElement.style.setProperty('--hdr-h', Math.round($('.top').getBoundingClientRect().bottom) + 'px');
     setH(); addEventListener('resize', setH);

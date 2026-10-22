@@ -39,6 +39,15 @@ both styles and writes the tallest each card's stage and each component get to `
 card that height from the start, and the component its own tallest size inside it, so nothing below a card moves and a
 component grows downwards instead of creeping up while it plays. The build warns about a card with no measurement.
 
+The site's sounds are recordings from Kenney's Interface Sounds and UI Audio packs (CC0, in `sounds-src` with their
+licences). `make-sounds.py` puts the ones in use into `sounds/ui.wav`, with `sounds/ui.json` saying where each starts and
+how loud it plays, and writes the page at `/lab/sounds` that plays each one beside its alternatives. To swap a sound,
+change its file in `SET` and run it again (it needs ffmpeg and numpy):
+
+```sh
+python3 make-sounds.py
+```
+
 `build` stops with an error if a site patch no longer matches exactly once, so a change to the original page can't
 slip through unnoticed.
 
