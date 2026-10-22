@@ -433,6 +433,113 @@ for (const [a, b] of SITE_PATCHES.patches){
 }
 fs.writeFileSync(OUT, site);
 console.log('swapped', done.length, 'cards; size', site.length);
+
+/* ---------- llms.txt: a plain Markdown index of every component for AI tools, in the page's own order ---------- */
+{
+  const text = h => h.replace(/<[^>]+>/g, '').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;|&rsquo;/g, "'").replace(/\s+/g, ' ').trim();
+  const SETS = { agent:'Agent components', basics:'App basics' };
+  const secs = [...site.matchAll(/<section class="lib-sec" id="([\w-]+)" data-grp="(\w+)">([\s\S]*?)<\/section>/g)].map(([, id, grp, body]) => ({
+    grp, title:text(body.match(/<h2>([\s\S]*?)<\/h2>/)[1]), about:text((body.match(/<div class="sec-head">[\s\S]*?<p>([\s\S]*?)<\/p>/) || [, ''])[1]),
+    cards:[...body.matchAll(/<article\b[^>]*\bdata-reg="([\w-]+)"[^>]*>[\s\S]*?class="comp-title">([\s\S]*?)<[\s\S]*?class="comp-desc">([\s\S]*?)<\/p>/g)].map(([, reg, t, d]) => ({ reg, t:text(t), d:text(d) })) }));
+  const count = secs.reduce((n, x) => n + x.cards.length, 0);
+  let md = `# Designme.dev
+
+> ${count} free, MIT-licensed UI components for products built around AI agents: status pills, reasoning trails, tool calls, permission gates, plan reviews, run summaries and more, plus the app basics around them (charts, dates, forms, tables). Each one comes as plain HTML, CSS and JS, or as a typed React component with no dependencies beyond React, in two styles (Soft and Blueprint) with light and dark mode.
+
+Install with the CLI, which copies each component's source into your project so you own it:
+
+- HTML: \`npx designme add <name>\` adds the component and the shared core it needs.
+- React: \`npx designme add <name> --react\` adds a \`.tsx\` component and its CSS. Needs React 19, and works with Next.js (App Router), Vite and Astro islands.
+
+Every class, CSS variable and animation name starts with \`dm-\` in the React version, so the components sit beside Tailwind or any other CSS. Each component below links to its React source in the registry (JSON with the component, its CSS and an example); the HTML version is at the same path without \`/react\`.
+`;
+  for (const g of Object.keys(SETS)){
+    md += `\n## ${SETS[g]}\n`;
+    for (const sec of secs.filter(x => x.grp === g && x.cards.length)){
+      md += `\n### ${sec.title}\n\n${sec.about ? sec.about + '\n\n' : ''}`;
+      md += sec.cards.map(c => `- [${c.t}](https://designme.dev/r/react/${c.reg}.json): ${c.d} Install: \`npx designme add ${c.reg}\``).join('\n') + '\n';
+    }
+  }
+  md += `\n## Optional\n\n- [All components, live](https://designme.dev/): the site, with every demo, both styles and the code.\n- [React preview](https://designme.dev/packages/react/preview/): every React component rendered.\n- [Registry index](https://designme.dev/r/index.json): every component's name, section and description as JSON.\n`;
+  if (count !== done.length) warn.push(`llms.txt lists ${count} of ${done.length} components`);
+  fs.writeFileSync(path.join(path.dirname(OUT), 'llms.txt'), md);
+  console.log('llms.txt:', count, 'components in', secs.filter(x => x.cards.length).length, 'sections');
+}
+
+/* ---------- 404.html: unknown URLs get a real 404 (without it Cloudflare Pages answers every URL with the homepage).
+   It knows every component, so /components/composer or /composer offers the Composer page ---------- */
+{
+  const text = h => h.replace(/<[^>]+>/g, '').replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/\s+/g, ' ').trim();
+  const slug = n => n.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  const list = [...site.matchAll(/<article\b[^>]*\bdata-reg="([\w-]+)"[^>]*>[\s\S]*?class="comp-title">([\s\S]*?)<[\s\S]*?class="comp-desc">([\s\S]*?)<\/p>/g)]
+    .map(([, reg, t, d]) => ({ r:reg, s:slug(text(t)), t:text(t), d:text(d) }));
+  const logo = site.match(/<a[^>]*class="brand"[\s\S]*?(<svg[\s\S]*?<\/svg>)<\/a>/)[1];
+  const fonts = [...site.matchAll(/@font-face\s*\{[^}]*inter-latin(?:-ext)?-(?:400|500|600)-normal[^}]*\}/g)].map(m => m[0]).join('\n');
+  const page = `<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Page not found · Designme.dev</title><meta name="robots" content="noindex">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<script>try{var t=localStorage.getItem('dmui-theme');if(t)document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
+<style>
+${fonts}
+:root{--bg:#fff;--fg:#111318;--dim:#5b5f6b;--stage:#fafafa;--line:rgba(17,19,24,.08);--ink:#111318;--on-ink:#fff;color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0b0c0f;--fg:#ededee;--dim:#a1a3ab;--stage:#16171b;--line:rgba(255,255,255,.08);--ink:#f5f5f4;--on-ink:#111318;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0b0c0f;--fg:#ededee;--dim:#a1a3ab;--stage:#16171b;--line:rgba(255,255,255,.08);--ink:#f5f5f4;--on-ink:#111318;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;display:flex;flex-direction:column;background:var(--bg);color:var(--fg);font:14px/1.55 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+header{padding:18px 24px;border-bottom:1px solid var(--line)}
+header a{display:inline-block;color:var(--fg)}
+header svg{display:block;height:21px;width:auto}
+main{flex:1;width:100%;max-width:560px;margin:0 auto;padding:12vh 24px 64px}
+.code{font:500 12px/1 "JetBrains Mono",ui-monospace,Menlo,monospace;color:var(--dim);letter-spacing:.04em}
+h1{margin:10px 0 8px;font-size:26px;line-height:1.2;font-weight:600;letter-spacing:-.02em}
+p{margin:0;color:var(--dim)}
+p code{font:12.5px ui-monospace,Menlo,monospace;color:var(--fg);background:var(--stage);padding:2px 6px;border-radius:6px;word-break:break-all}
+.hits{display:grid;gap:8px;margin:28px 0 0}
+.hit{display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:14px;background:var(--stage);color:var(--fg);text-decoration:none;transition:background .2s}
+.hit:hover{background:color-mix(in srgb,var(--fg) 6%,var(--stage))}
+.hit div{flex:1;min-width:0}
+.hit b{display:block;font-weight:500}
+.hit span{display:block;color:var(--dim);font-size:13px}
+.hit i{font-style:normal;color:var(--dim)}
+.acts{display:flex;flex-wrap:wrap;gap:8px;margin:28px 0 0}
+.btn{display:inline-flex;align-items:center;height:36px;padding:0 16px;border-radius:999px;font-weight:500;text-decoration:none;color:var(--fg);box-shadow:inset 0 0 0 1px var(--line)}
+.btn.ink{background:var(--ink);color:var(--on-ink);box-shadow:none}
+.btn:focus-visible,.hit:focus-visible{outline:2px solid var(--fg);outline-offset:2px}
+</style></head><body>
+<header><a href="/" aria-label="Designme.dev home">${logo}</a></header>
+<main>
+  <div class="code">404</div>
+  <h1>Page not found</h1>
+  <p>There's no page at <code id="where">this address</code>.</p>
+  <div class="hits" id="hits" hidden></div>
+  <div class="acts"><a class="btn ink" href="/">All components</a><a class="btn" href="/#/changelog">Changelog</a><a class="btn" href="/llms.txt">llms.txt</a></div>
+</main>
+<script>
+(function(){
+  var C = ${JSON.stringify(list)};
+  var where = location.pathname + location.search; document.getElementById('where').textContent = where;
+  // the last part of the address, as a component's name: an exact match first, then names that contain it
+  var q = decodeURIComponent(location.pathname).toLowerCase().replace(/\\.(html?|json|md)$/, '').split('/').filter(Boolean).pop() || '';
+  q = q.replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  if (!q) return;
+  var exact = C.filter(function(c){ return c.s === q || c.r === q; });
+  var hits = exact.length ? exact : q.length > 2 ? C.filter(function(c){ return c.s.indexOf(q) > -1 || c.r.indexOf(q) > -1; }).slice(0, 4) : [];
+  if (!hits.length) return;
+  var box = document.getElementById('hits'); box.hidden = false;
+  hits.forEach(function(c){
+    var a = document.createElement('a'); a.className = 'hit'; a.href = '/#/' + c.s;
+    var d = document.createElement('div'), b = document.createElement('b'), s = document.createElement('span'), i = document.createElement('i');
+    b.textContent = (exact.length ? 'Looking for ' : '') + c.t + (exact.length ? '?' : ''); s.textContent = c.d; i.textContent = '\\u2192';
+    d.appendChild(b); d.appendChild(s); a.appendChild(d); a.appendChild(i); box.appendChild(a);
+  });
+})();
+</script>
+</body></html>
+`;
+  fs.writeFileSync(path.join(path.dirname(OUT), '404.html'), page);
+  console.log('404.html:', list.length, 'components it can point to');
+}
 const wideMis = Object.entries(MAP).filter(([cid, id]) => CARDS[id] && CARDS[id].cls.includes('wide') !== new RegExp(`<article class="comp wide"[^>]*id="${cid}"`).test(fs.readFileSync(SITE, 'utf8'))).map(([c, i]) => `${c}:${i}:${CARDS[i].cls.includes('wide') ? 'new wide' : 'site wide'}`);
 console.log('width differences:', wideMis.join(' '));
 warn.forEach(w => console.log('WARN', w));

@@ -23,7 +23,7 @@ From this folder:
 npm install          # acorn and postcss
 npm run base         # writes site-main.html, the original page, from git history (needs a full clone, not a shallow one)
 npm run patches      # only after editing make-patches.py: rewrites site-patches.json
-npm run build        # writes ../../index.html, ../../code-data.json and ../../r/*.json
+npm run build        # writes ../../index.html, ../../code-data.json, ../../r/*.json, ../../llms.txt and ../../404.html
 npm run react        # regenerates the React CSS, registry (r/react) and preview from the new build
 ```
 
@@ -67,4 +67,8 @@ Pushing `staging` deploys https://staging.designme-dev.pages.dev; `main` deploys
   exactly once, plus the CSS those edits need.
 - `site-patches.json` is generated, but committed so a build doesn't need Python.
 - `measure-heights.js` writes `card-heights.json`, the height each card keeps, committed for the same reason.
+- The build also writes `llms.txt`, a Markdown index of every component for AI tools, and `404.html`, which Cloudflare
+  Pages serves with a 404 for any address that isn't a file (without it, every address got the homepage). The 404 page
+  knows every component, so `/components/composer` offers the Composer page. `robots.txt` and `sitemap.xml` are written
+  by hand.
 - `site-main.html` is the original page, taken from git and not committed.
