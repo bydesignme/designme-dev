@@ -150,7 +150,7 @@ const GATE = {
 };
 const PLAN = ['Read the pricing frames and the brand tokens', 'Compare against the three competitor pages', 'Simplify the plan cards to one CTA each',
   'Move the FAQ below the comparison table', 'Write a summary of every change'];
-const SUMMARY = { subtitle: 'Finished in 12m 40s', summary: 'Tightened the pricing cards and moved them onto spacing tokens',
+const SUMMARY = { subtitle: 'Finished in 12m 40s', summary: 'Pricing cards now use spacing tokens',
   stats: [{ label: 'files', value: 6 }, { label: 'steps', value: 14 }, { label: 'tokens', value: 182, suffix: 'k' }, { label: 'cost', value: 0.84, prefix: '$', decimals: 2 }],
   changes: [{ file: 'PricingCard.tsx', added: 24, removed: 18 }, { file: 'tokens.css', added: 9, removed: 2 }, { file: 'Pricing.test.tsx', added: 31, removed: 0 }],
   needs: [{ key: 'badge', text: 'The yearly badge overlaps the price on mobile', action: { label: 'Review', onClick: () => {} } }], onDetails: () => {}, onOpenChanges: () => {} };
