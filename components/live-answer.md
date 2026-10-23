@@ -29,13 +29,13 @@ Live answer shows a question and the agent's reply as it streams in word by word
 - Each turn has a `state`: waiting shows nothing, thinking shows a Thinking line, answering streams `text`, and done adds sources and actions.
 - Write [1] after a word in `text` to cite source 1. A half-typed citation like "[2" is held back until it is complete, and a blank line starts a new paragraph.
 - Hovering a citation or a source highlights the pair, and a click pins it and opens the source list until the next click.
-- A "Thought for Ns" toggle lists the agent's `thoughts`. Leave out `thoughtFor` and it counts the seconds while the turn is thinking.
+- A toggle like "3 steps · 2s" lists the agent's `thoughts`. Leave out `thoughtFor` and it counts the seconds while the turn is thinking.
 - Copy, Good answer and Bad answer buttons sit under every finished answer, and `onRetry` adds a Try again button. Copying strips the citation numbers before calling `onCopy`.
 - `followUps` appear under the last answer once it is done, and `onFollowUp` receives the chosen question so you can add the next turn.
 
 ### Accessibility
 
-- The "Thought for Ns" button and the sources button report their open state with `aria-expanded`.
+- The steps toggle and the sources button report their open state with `aria-expanded`.
 - The Good answer and Bad answer buttons use `aria-pressed`, and every icon-only button has an `aria-label`.
 - Collapsed thought and source lists are marked `inert` and `aria-hidden`, so they drop out of the tab order.
 - Under `prefers-reduced-motion: reduce`, the word fade-ins and other animations are cut to near zero.
@@ -178,7 +178,7 @@ export interface AnswerTurn {
   state: AnswerState;
   /** The answer so far. Each new word fades in as it arrives. [1] after a word cites source 1, a blank line starts a new paragraph */
   text?: string;
-  /** What the agent did while it thought, listed under "Thought for Ns" */
+  /** What the agent did before it answered, listed under a toggle that counts them, like "3 steps · 2s" */
   thoughts?: string[];
   /** Seconds it thought for. Leave it out to count while thinking */
   thoughtFor?: number;
@@ -259,7 +259,7 @@ function Turn({ turn, followUps, onFollowUp, onRetry, onRate, onCopy, onSourceCl
       {(state === 'answering' || done) && thoughts?.length ? (
         <>
           <button type="button" className="dm-lva-th dm-lva-tb" aria-expanded={thoughtsOpen} onClick={() => setThoughtsOpen(!thoughtsOpen)}>
-            <span>Thought for {turn.thoughtFor ?? Math.max(1, counted)}s</span><Icon name="chev-d" size="xs" />
+            <span>{thoughts.length} {thoughts.length === 1 ? 'step' : 'steps'} · {turn.thoughtFor ?? Math.max(1, counted)}s</span><Icon name="chev-d" size="xs" />
           </button>
           <Fold open={thoughtsOpen}><ul className="dm-lva-tlist">{thoughts.map((t, i) => <li key={i}>{t}</li>)}</ul></Fold>
         </>
@@ -361,7 +361,7 @@ export function LiveAnswer({ turns, followUps, onFollowUp, onRetry, onRate, onCo
 
 ## More in Conversation
 
-- [Composer](https://designme.dev/components/composer.md): Message input with context, environment, effort and dictation.
+- [Composer](https://designme.dev/components/composer.md): Message input with attachments, what to work on, a mode and dictation.
 - [Thread panel](https://designme.dev/components/thread-panel.md): Switch between agent threads and reply in place.
 - [Artifact card](https://designme.dev/components/artifact-card.md): A file the agent made, with a live preview and versions.
 - [Tool call](https://designme.dev/components/tool-call.md): Each tool the agent calls, with its input and output.

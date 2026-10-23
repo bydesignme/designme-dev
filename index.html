@@ -5955,62 +5955,79 @@ body.ui section.faq{display:none}
 .v2 .rtr-edit .a{color:var(--add)}.v2 .rtr-edit .x{color:var(--del);text-decoration:line-through;text-decoration-color:color-mix(in srgb,var(--del) 40%,transparent)}
 .v2 .rtr-src{display:flex;flex-wrap:wrap;gap:6px}
 /* ---------- Thinking ---------- */
-.v2 .tk{font-size:14px}
-.v2 .tk-h{display:flex;align-items:center;gap:10px;padding:4px 8px 4px 2px;border-radius:10px;transition:background .25s}
+/* a plain list of what the agent does, each step with what it found; the header ends as a summary of the work */
+/* neither the trace nor the box it sits in anchors the page's scroll: a centred demo that grows would otherwise pull
+   the page along with it */
+.v2.stage-in:has(>.tk){overflow-anchor:none}
+.v2 .tk{font-size:14px;width:100%;max-width:420px;margin-inline:auto;overflow-anchor:none}
+/* on a card the trace keeps the room it will fill, so the header stays put as steps arrive */
+.v2.stage-in>.tk{min-height:inherit}
+.v2 .tk-h{display:flex;align-items:center;gap:10px;width:calc(100% + 16px);margin:0 -8px;padding:6px 8px;border-radius:10px;text-align:left;transition:background var(--t-fast)}
 .v2 .tk-h:hover{background:var(--row)}
-.v2 .tk-mark{width:16px;display:grid;place-items:center;color:var(--fg2)}
-.v2 .tk-time{color:var(--muted)}
-.v2 .tk-chev{color:var(--muted);transition:transform .45s var(--ease)}
+.v2 .tk-mark{width:16px;height:16px;flex:none;display:grid;place-items:center;color:var(--fg2)}
+.v2 .tk-h.tk-fin .tk-mark{color:var(--ok)}
+.v2 .tk-title{flex:1;min-width:0;color:var(--fg)}
+.v2 .tk-time{color:var(--muted);font-size:13px}
+.v2 .tk-chev{color:var(--muted);transition:transform .32s var(--ease)}
 .v2 .tk[data-open="0"] .tk-chev{transform:rotate(-90deg)}
-.v2 .tk-list{list-style:none;margin:0;padding:8px 0 0}
-/* on a card the trace keeps the room its steps will fill, so the header stays put as they arrive, and gives it back as it folds */
-.v2.stage-in>.tk{min-height:444px;transition:min-height var(--t-slow) var(--ease)}
-.v2.stage-in>.tk[data-open="0"]{min-height:0}
-.v2 .tk-st{position:relative;display:flex;padding:5px 0 5px 26px;min-height:31px}
-.v2 .tk-st .mk{position:absolute;left:0;top:7px;width:16px;height:16px;display:grid;place-items:center;color:var(--muted)}
-.v2 .tk-st .rl{position:absolute;left:7.5px;top:25px;bottom:-7px;width:1px;background:var(--rail);transform-origin:top;transform:scaleY(0);transition:transform .6s var(--ease)}
-.v2 .tk-st .rl.on{transform:scaleY(1)}
-.v2 .tk-st .tx{min-width:0;display:flex;flex-direction:column;gap:8px}
-.v2 .tk-st .lab{color:var(--fg2);transition:color .5s var(--ease)}
-.v2 .tk-st.run .lab{color:var(--fg)}
-.v2 .tk-st.dead .lab,.v2 .tk-st.sub .lab{color:var(--muted)}
-.v2 .tk-st.sub{padding-left:40px}
-.v2 .tk-st.sub .mk{left:15px}
-.v2 .tk-st.sub .curve{position:absolute;left:7.5px;top:-6px;width:11px;height:20px;border-left:1px solid var(--rail);border-bottom:1px solid var(--rail);border-bottom-left-radius:9px}
-.v2 .tk-st .mk .dot{width:6px;height:6px;color:var(--faint)}
-.v2 .tk-st.sub .mk .dot{width:4px;height:4px}
-.v2 .tk-st .ring{width:8px;height:8px;border-radius:50%;border:1.3px solid var(--muted)}
-.v2 .tk-chips{display:flex;flex-wrap:wrap;gap:6px}
-.v2 .tk-more{height:26px;padding:0 8px;border-radius:var(--r-pill);font-size:12.5px;color:var(--muted);align-self:center;transition:background var(--t-fast),color var(--t-fast)}
-.v2 .tk-more:hover{background:var(--chip);color:var(--fg)}
-.v2 .tk-fin .mk{color:var(--accent)}
-.v2 .tk-fin .lab{color:var(--fg)!important}
-.v2 .tk-fin .sum{color:var(--muted);margin-left:8px}
+.v2 .tk-list{list-style:none;margin:0;padding:6px 0 0;display:flex;flex-direction:column}
+.v2 .tk-st{display:flex;gap:10px;padding:6px 0}
+.v2 .tk-st .mk{width:18px;height:18px;flex:none;margin-top:1px;display:grid;place-items:center;border-radius:50%;color:var(--muted);transition:background .32s,color .32s}
+.v2 .tk-st .mk .spin{width:10px;height:10px}
+.v2 .tk-st.done .mk{background:var(--ok-bg);color:var(--ok)}
+.v2 .tk-st.retry .mk{background:var(--warn-bg);color:var(--warn)}
+.v2 .tk-st .tx{flex:1;min-width:0;display:flex;flex-direction:column}
+.v2 .tk-st .lab{color:var(--fg);transition:color .32s}
+.v2 .tk-st.done .lab{color:var(--fg2)}
+/* what a step found opens under it */
+.v2 .tk-st .res{display:grid;grid-template-rows:0fr;font-size:13px;color:var(--muted);transition:grid-template-rows .32s var(--ease),color .32s}
+.v2 .tk-st .res.on{grid-template-rows:1fr}
+.v2 .tk-st .res>span{overflow:hidden;min-height:0}
+.v2 .tk-st.retry .res{color:var(--warn)}
+.v2 .tk-st .res [data-tip]{text-decoration:underline dotted var(--faint);text-underline-offset:3px;cursor:default}
 /* ---------- Context meter ---------- */
-.v2 .ctm{display:flex;flex-direction:column;align-items:flex-end;gap:10px;width:100%;max-width:330px;margin-inline:auto}
-.v2 .ctm-pop{width:100%;padding:14px 16px 16px;border-radius:16px;box-shadow:var(--shadow-pop);transform-origin:bottom right;transition:opacity .25s var(--ease),transform .4s var(--ease),filter .25s}
-.v2 .ctm.shut .ctm-pop{opacity:0;transform:translateY(6px) scale(.98);filter:blur(3px);pointer-events:none}
-.v2 .ctm-ph{display:flex;align-items:center;justify-content:space-between;margin:-4px -6px 8px 0}
-.v2 .ctm-ph b{font-size:14px;font-weight:500}
-.v2 .ctm-ib{width:28px;height:28px;color:var(--fg2)}
-.v2 .ctm-rows{display:flex;flex-direction:column;gap:16px}
-.v2 .ctm-r{display:grid;grid-template-columns:1fr auto;align-items:baseline;row-gap:8px}
-.v2 .ctm-r .l{font-size:13.5px;font-weight:500}
-.v2 .ctm-r .p{font-size:12.5px;color:var(--muted)}
-.v2 .ctm-tr{grid-column:1/-1;height:6px;border-radius:3px;background:var(--chip);overflow:hidden}
-.v2 .ctm-tr i{display:block;height:100%;width:0;border-radius:inherit;background:var(--accent);transition:width 1s var(--ease),background .3s}
-.v2 .ctm-r.hot .ctm-tr i{background:var(--warn)}
-.v2 .ctm-r .s{grid-column:1/-1;display:flex;align-items:center;gap:8px;min-height:20px;margin-top:-2px;font-size:12.5px;color:var(--muted)}
-.v2 .ctm-go{margin-left:auto;height:24px;padding:0 10px;border-radius:var(--r-pill);font-size:12px;font-weight:500;color:var(--fg);background:var(--chip);transition:background var(--t-fast)}
-.v2 .ctm-go:hover{background:var(--hover)}
+/* a pill with the ring opens what fills the context: one bar split by kind, a legend whose rows list their items, and Compact */
+/* it never anchors the page's scroll, so the page can't follow it as it changes; on a card it sits in the middle of its room */
+.v2 .ctm{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:8px;width:100%;max-width:340px;margin-inline:auto;overflow-anchor:none}
+.v2.stage-in:has(>.ctm){overflow-anchor:none}
+.v2.stage-in>.ctm{min-height:inherit}
+.v2 .ctm-tg{display:inline-flex;align-items:center;gap:8px;height:32px;padding:0 10px 0 7px;border-radius:var(--r-pill);font-size:13px;color:var(--fg2);background:var(--surface);box-shadow:var(--shadow);transition:box-shadow var(--t-fast)}
+.v2 .ctm-tg:hover{box-shadow:var(--shadow-pop)}
+.v2 .ctm-tg .ctm-pc{color:var(--fg);font-weight:500}
+.v2 .ctm-tg>svg:last-child{color:var(--muted);transition:transform .32s var(--ease)}
+.v2 .ctm[data-open="0"] .ctm-tg>svg:last-child{transform:rotate(-90deg)}
+/* the panel keeps its room when shut, so nothing below it moves, and nothing clips its shadow */
+.v2 .ctm-pop{width:100%;padding:14px 16px 12px;display:flex;flex-direction:column;gap:12px;transition:opacity .32s var(--ease),transform .42s var(--ease),visibility 0s}
+.v2 .ctm[data-open="0"] .ctm-pop{opacity:0;transform:translateY(-6px);visibility:hidden;pointer-events:none;transition:opacity .16s var(--ease),transform .32s var(--ease),visibility 0s .32s}
+.v2 .ctm-ph{display:flex;align-items:baseline;justify-content:space-between;gap:12px;font-size:13px;color:var(--muted)}
+.v2 .ctm-ph b{color:var(--fg);font-weight:500}
+.v2 .ctm-bar{display:flex;gap:2px;height:8px;border-radius:4px;background:var(--chip);overflow:hidden}
+.v2 .ctm-bar i{height:100%;width:0;flex:none;background:var(--c);transition:width .42s var(--ease),opacity .16s}
+.v2 .ctm-bar.hl i:not(.on){opacity:.25}
+.v2 .ctm-leg{display:flex;flex-direction:column;margin:0 -6px}
+.v2 .ctm-l{display:flex;align-items:center;gap:8px;padding:5px 6px;border-radius:8px;font-size:13px;color:var(--fg2);cursor:default;transition:background var(--t-fast)}
+.v2 .ctm-l:hover{background:var(--row)}
+.v2 .ctm-l .sw{width:8px;height:8px;border-radius:2px;flex:none;background:var(--c)}
+.v2 .ctm-l .v{margin-left:auto;color:var(--fg)}
+/* the message line keeps its room while empty, so a warning or a result fades in without moving anything */
+.v2 .ctm-msg{min-height:18px;font-size:13px;line-height:18px}
+.v2 .ctm-msg>span{display:flex;align-items:flex-start;gap:6px;opacity:0;transition:opacity .32s var(--ease)}
+.v2 .ctm-msg.on>span{opacity:1}
+.v2 .ctm-msg>span>svg{flex:none;margin-top:2px}
+.v2 .ctm-msg.warn{color:var(--warn)}
+.v2 .ctm-msg.ok{color:var(--ok)}
+.v2 .ctm-f{display:flex;align-items:center;gap:10px;padding-top:10px;border-top:1px solid var(--line)}
+.v2 .ctm-f .ctm-hint{flex:1;min-width:0;font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* the ring: inside the meter's pill, and as its own button where Agent harness puts it in the composer */
 .v2 .ctm-ft{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--fg2)}
-.v2 .ctm-ft .muted{margin-right:2px}
-.v2 .ctm-ring{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;transition:background var(--t-fast)}
-.v2 .ctm-ring:hover,.v2 .ctm-ring[aria-expanded="true"]{background:var(--chip)}
+.v2 .ctm-ring{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;flex:none;transition:background var(--t-fast)}
+.v2 .ctm-ring:hover{background:var(--chip)}
+.v2 .ctm-tg .ctm-ring{width:20px;height:20px;background:none}
 .v2 .ctm-ring svg{width:18px;height:18px;transform:rotate(-90deg);overflow:visible}
 .v2 .ctm-ring circle{fill:none;stroke-width:2.6}
 .v2 .ctm-ring .tr{stroke:var(--rail)}
-.v2 .ctm-ring .fl{stroke:var(--accent);stroke-linecap:round;stroke-dasharray:0 100;transition:stroke-dasharray 1s var(--ease),stroke .3s}
+.v2 .ctm-ring .fl{stroke:var(--accent);stroke-linecap:round;stroke-dasharray:0 100;transition:stroke-dasharray .42s var(--ease),stroke .32s}
+.v2 .ctm.hot .ctm-ring .fl{stroke:var(--warn)}
 
 /* ---------- Action log ---------- */
 .v2 .alg{padding:8px}
@@ -6400,51 +6417,52 @@ body.ui section.faq{display:none}
 .v2 .thp-send[disabled]{opacity:1;cursor:not-allowed;background:var(--rail);color:var(--surface)}
 .v2 .thp-send:active{transform:scale(.92)}
 /* ---------- Composer ---------- */
-.v2 .cpx{display:flex;flex-direction:column;gap:14px}
+.v2 .cpx{display:flex;flex-direction:column;justify-content:flex-end;gap:14px;overflow-anchor:none}
+/* neither the composer nor the box it sits in anchors the page's scroll, so the page stays put as the thread grows and clears */
+.v2.stage-in:has(>.cpx){overflow-anchor:none}
+/* on a card the composer keeps the room the conversation will take, with the box at its foot, so the box stays put */
+.v2.stage-in>.cpx{min-height:inherit}
 .v2 .cpx-thread{display:flex;flex-direction:column;gap:12px}
 .v2 .cpx-thread:empty{display:none}
 .v2 .cpx-ag{font-size:14px;color:var(--fg2);display:flex;gap:8px;align-items:center}
-.v2 .cpx-box{position:relative;background:var(--surface);border-radius:20px;box-shadow:var(--shadow);transition:box-shadow .3s}
+.v2 .cpx-box{position:relative;background:var(--surface);border-radius:20px;box-shadow:var(--shadow);transition:box-shadow .32s}
 .v2 .cpx-box:focus-within{box-shadow:var(--shadow-pop)}
 .v2 .cpx-att{display:flex;gap:6px;flex-wrap:wrap;padding:12px 14px 0}
 .v2 .cpx-att:empty{display:none}
-.v2 .cpx-att .fchip .x{display:grid;place-items:center;width:16px;height:16px;border-radius:50%;margin-right:-4px;color:var(--muted)}
-.v2 .cpx-att .fchip .x:hover{background:var(--chip);color:var(--fg)}
-.v2 .cpx-ta{display:block;width:100%;border:0;outline:0;resize:none;background:none;color:var(--fg);font:inherit;font-size:14px;line-height:1.5;padding:15px 17px 4px;min-height:54px;max-height:160px;transition:color .4s}
+.v2 .cpx-att .fchip{transition:color .32s,background .32s}
+.v2 .cpx-att .fchip .x,.v2 .cpx-att .fchip .rt{display:grid;place-items:center;width:18px;height:18px;border-radius:50%;margin-right:-4px;color:var(--muted)}
+.v2 .cpx-att .fchip .x:hover,.v2 .cpx-att .fchip .rt:hover{background:var(--chip);color:var(--fg)}
+.v2 .cpx-att .fchip .spin{width:10px;height:10px}
+.v2 .cpx-att .fchip.ld{color:var(--muted)}
+.v2 .cpx-att .fchip.err{color:var(--bad);background:var(--bad-bg)}
+.v2 .cpx-att .fchip.err .rt{color:var(--bad)}
+.v2 .cpx-ta{display:block;width:100%;border:0;outline:0;resize:none;background:none;color:var(--fg);font:inherit;font-size:14px;line-height:1.5;padding:15px 17px 4px;min-height:54px;max-height:160px;transition:color .32s}
 .v2 .cpx-ta::placeholder{color:var(--muted)}
-.v2 .cpx-box[data-mode="voice"] .cpx-ta{color:var(--muted);font-style:italic}
+.v2 .cpx-box[data-mode="voice"] .cpx-ta{color:var(--fg2)}
 .v2 .cpx-rows{display:grid;padding:6px 10px 10px}
-.v2 .cpx-bar,.v2 .cpx-voice{grid-area:1/1;display:flex;align-items:center;gap:5px;min-width:0;transition:opacity .35s var(--ease),transform .5s var(--ease),filter .35s var(--ease)}
-.v2 .cpx-voice{opacity:0;transform:translateY(6px);filter:blur(3px);pointer-events:none;visibility:hidden;transition:opacity .35s var(--ease),transform .5s var(--ease),filter .35s var(--ease),visibility 0s .35s}
-.v2 .cpx-box[data-mode="voice"] .cpx-bar{opacity:0;transform:translateY(-6px);filter:blur(3px);pointer-events:none}
-.v2 .cpx-box[data-mode="voice"] .cpx-voice{opacity:1;transform:none;filter:none;pointer-events:auto;visibility:visible;transition-delay:0s}
-.v2 .cpx-bars{display:inline-flex;gap:2px;align-items:flex-end;height:12px}
-.v2 .cpx-bars i{width:3px;border-radius:1.5px;background:var(--faint);transition:background .3s}
-.v2 .cpx-bars i:nth-child(1){height:5px}.v2 .cpx-bars i:nth-child(2){height:8.5px}.v2 .cpx-bars i:nth-child(3){height:12px}
-.v2 .cpx-bars i.on{background:var(--fg)}
-.v2 .cpx-bar>.cpx-add{width:32px;height:32px}
+.v2 .cpx-bar,.v2 .cpx-voice{grid-area:1/1;display:flex;align-items:center;gap:4px;min-width:0;transition:opacity .32s var(--ease),transform .42s var(--ease)}
+.v2 .cpx-voice{opacity:0;transform:translateY(6px);pointer-events:none;visibility:hidden;transition:opacity .32s var(--ease),transform .42s var(--ease),visibility 0s .32s}
+.v2 .cpx-box[data-mode="voice"] .cpx-bar{opacity:0;transform:translateY(-6px);pointer-events:none}
+.v2 .cpx-box[data-mode="voice"] .cpx-voice{opacity:1;transform:none;pointer-events:auto;visibility:visible;transition-delay:0s}
+.v2 .cpx-bar>.ib{width:32px;height:32px;flex:none}
 .v2 .cpx-add[aria-expanded="true"]{background:var(--chip);color:var(--fg)}
-.v2 .cpx-send{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:var(--on-accent,#fff);flex:none;transition:opacity .3s,transform .15s,background .2s}
+.v2 .cpx-bar .chip{height:32px;padding:0 10px;gap:6px;background:none;min-width:0;font-size:13px;color:var(--fg2)}
+.v2 .cpx-bar .chip:hover,.v2 .cpx-bar .chip[aria-expanded="true"]{background:var(--chip);color:var(--fg)}
+.v2 .cpx-bar .chip>span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.v2 .cpx-bar .chip>svg:last-child{color:var(--muted)}
+.v2 .cpx-send{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:var(--on-accent,#fff);flex:none;transition:opacity .32s,transform .16s,background .16s}
 .v2 .cpx-send:hover{background:var(--accent-2)}
 .v2 .cpx-send:active{transform:scale(.92)}
 .v2 .cpx-send[disabled]{opacity:1;cursor:not-allowed;background:var(--rail);color:var(--surface)}
-.v2 .cpx-wave{flex:1;min-width:0;height:30px;display:block}
-.v2 .cpx-cloud.on{color:var(--accent);background:var(--accent-bg)}
-.v2 .cpx-cloudpop{width:290px;padding:12px}
-.v2 .cc-h{display:flex;gap:10px;color:var(--fg2)}
-.v2 .cc-h b{display:block;color:var(--fg);font-weight:500;font-size:13.5px}
-.v2 .cc-h span{display:block;font-size:12.5px;color:var(--muted);line-height:1.45;margin-top:2px}
-.v2 .cc-row{display:flex;align-items:center;justify-content:space-between;width:100%;margin-top:12px;padding:9px 10px;border-radius:10px;background:var(--chip);font-size:13px}
-.v2 .cc-row[aria-checked="true"] .toggle{background:var(--accent)}
-.v2 .cc-row[aria-checked="true"] .toggle::after{transform:translateX(12px)}
-.v2 .cc-meta{display:flex;align-items:center;gap:7px;margin-top:10px;font-size:12px;color:var(--muted)}
-.v2 .pp-plus,.v2 .pp-env,.v2 .pp-proj,.v2 .pp-eff{width:268px}
-/* one quiet chip style in the toolbar; at phone width the project chip steps aside */
-.v2 .cpx-bar .chip{background:none;min-width:0}
-.v2 .cpx-bar .chip:hover,.v2 .cpx-bar .chip[aria-expanded="true"]{background:var(--chip)}
-.v2 .cpx-bar .chip.on{box-shadow:none}
-.v2 .cpx-bar>.ib,.v2 .cpx-bar>.cpx-send{flex:none}
-@media (max-width:480px){.v2 .cpx-bar .chip[data-pop=".pp-proj"]{display:none}}
+/* dictation: a red dot and a clock while it listens, the words arriving in the box, then Cancel or Done */
+.v2 .cpx-rec{display:inline-flex;align-items:center;gap:8px;padding-left:8px;font-size:13px;color:var(--fg)}
+.v2 .cpx-dot{width:8px;height:8px;border-radius:50%;background:var(--bad);animation:v2-cpxrec 1.6s var(--ease-io) infinite}
+@keyframes v2-cpxrec{50%{opacity:.35}}
+.v2 .cpx-tm{font-size:13px;margin-left:4px}
+.v2 .cpx-voice .pill{flex:none}
+.v2 .pp-plus,.v2 .pp-ctx,.v2 .pp-mode{width:264px}
+.v2 .cpx-bar>.cpx-send{flex:none}
+@media (max-width:480px){.v2 .cpx-bar .cpx-ctx>span{max-width:88px}}
 /* ---------- Voice capture ---------- */
 .v2 .vcx{padding:16px;position:relative}
 .v2 .vcx-top{display:flex;align-items:center;gap:8px;font-size:13px}
@@ -7541,7 +7559,7 @@ body.ui section.faq{display:none}
 .v2 .ahx-scrim{display:none}
 /* a narrow chat, beside the panel or on a phone: the composer keeps only what it needs */
 @container ahm (max-width:560px){
-  .v2 .ahx .ctm-ft>span,.v2 .ahx .cpx-bar .chip[data-pop=".pp-proj"],.v2 .ahx .cpx-cloud,.v2 .ahx-spl .spl-in .m{display:none}
+  .v2 .ahx .ctm-ft>span,.v2 .ahx .cpx-bar .cpx-ctx,.v2 .ahx-spl .spl-in .m{display:none}
 }
 /* phone: the chats slide in from the side, the tabs scroll, the panel covers the chat */
 @container ahx (max-width:620px){
@@ -8529,7 +8547,7 @@ body.ui section.faq{display:none}
 <section class="lib-sec" id="s-conversation" data-grp="agent">
   <div class="sec-head"><div><span class="sec-no">01</span><h2>Conversation</h2><p>Everything for asking, answering and replying, by text or by voice.</p></div></div>
   <div class="sec-body" id="s-conversation-body"><div class="sec-uf"><div class="grid">
-  <article class="comp" id="c3" data-soft data-v2="live-answer" data-reg="live-answer" style="--rh-a:494px;--rc-a:382px;--rcb-a:377px;--rh-b:551px;--rc-b:439px;--rcb-b:439px;--rh-c:494px;--rc-c:382px;--rcb-c:377px;--rh-d:493px;--rc-d:381px;--rcb-d:381px;--rh-e:496px;--rc-e:416px;--rcb-e:416px">
+  <article class="comp" id="c3" data-soft data-v2="live-answer" data-reg="live-answer" style="--rh-a:493px;--rc-a:381px;--rcb-a:377px;--rh-b:551px;--rc-b:439px;--rcb-b:439px;--rh-c:495px;--rc-c:383px;--rcb-c:377px;--rh-d:495px;--rc-d:383px;--rcb-d:377px;--rh-e:496px;--rc-e:416px;--rcb-e:416px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">edit_note</span></span>
       <div><h2 class="comp-title"><a href="/components/live-answer">Live answer</a></h2><p class="comp-desc">Answers that stream in with numbered sources and next steps.</p></div>
@@ -8545,74 +8563,59 @@ body.ui section.faq{display:none}
   <div class="lva-a"></div>
 </div></template>
   </article>
-  <article class="comp" id="c6" data-soft data-v2="composer" data-reg="composer" style="--rh-a:600px;--rc-a:116px;--rcb-a:102px;--rh-b:600px;--rc-b:116px;--rcb-b:102px;--rh-c:600px;--rc-c:116px;--rcb-c:102px;--rh-d:600px;--rc-d:116px;--rcb-d:106px;--rh-e:600px;--rc-e:116px;--rcb-e:103px">
+  <article class="comp" id="c6" data-soft data-v2="composer" data-reg="composer" style="--rh-a:600px;--rc-a:220px;--rcb-a:220px;--rh-b:600px;--rc-b:261px;--rcb-b:261px;--rh-c:600px;--rc-c:220px;--rcb-c:220px;--rh-d:600px;--rc-d:220px;--rcb-d:220px;--rh-e:600px;--rc-e:261px;--rcb-e:261px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">terminal</span></span>
-      <div><h2 class="comp-title"><a href="/components/composer">Composer</a></h2><p class="comp-desc">Message input with context, environment, effort and dictation.</p></div>
+      <div><h2 class="comp-title"><a href="/components/composer">Composer</a></h2><p class="comp-desc">Message input with attachments, what to work on, a mode and dictation.</p></div>
       <button class="save-btn" aria-pressed="false" aria-label="Save component"><span class="ms">bookmark</span></button>
     </div>
     <div class="stage"><div class="stage-inner dots v2-host" data-demo><div class="v2 stage-in"></div></div></div>
     <div class="comp-foot">
-      <span class="mono-xs">Try +, Local, the cloud and the mic</span>
+      <span class="mono-xs">Attach a frame, pick a mode, send</span>
       <div class="code-btns"><button class="ghost anim-btn" data-anim><span class="ms sm">stars</span>Animate</button><button class="ghost" data-view aria-expanded="false"><span class="ms sm">code</span><span class="vl">View code</span></button><button class="ghost" data-copy><span class="ms sm">content_copy</span>Copy code</button></div>
     </div>
     <template><div class="cpx">
   <div class="cpx-thread" aria-live="polite"></div>
   <div class="cpx-box" data-mode="idle">
     <div class="cpx-att"></div>
-    <textarea class="cpx-ta" rows="1" aria-label="Message" placeholder="Ask anything, or type / for skills"></textarea>
+    <textarea class="cpx-ta" rows="1" aria-label="Message" placeholder="Ask the design agent, or attach a frame"></textarea>
     <div class="cpx-rows">
       <div class="cpx-bar">
-        <button class="ib cpx-add" aria-label="Add context" data-tip="Add files and context" data-pop=".pp-plus" data-pop-pos="up">{plus}</button>
-        <button class="chip" data-pop=".pp-proj" data-pop-pos="up" data-tip="Project">{folder}<span class="cpx-proj">acme-webapp</span></button>
-        <button class="chip on" data-pop=".pp-env" data-pop-pos="up" data-tip="Where it runs">{laptop}<span class="cpx-env">Local</span></button>
-        <button class="ib cpx-cloud" aria-label="Cloud hand-off" data-tip="Hand off to the cloud" data-pop=".pp-cloud" data-pop-pos="up" data-pop-align="end">{cloud}</button>
+        <button class="ib cpx-add" aria-label="Attach" data-tip="Attach a file or a frame" data-pop=".pp-plus" data-pop-pos="up">{clip}</button>
+        <button class="chip cpx-ctx" data-pop=".pp-ctx" data-pop-pos="up" data-tip="What the agent works on">{figma}<span class="cpx-ctx-n">Pricing v4</span>{chev}</button>
         <span class="sp"></span>
-        <button class="ib cpx-eff" aria-label="Effort" data-tip="Effort: Medium" data-pop=".pp-eff" data-pop-pos="up" data-pop-align="end"><span class="cpx-bars"><i class="on"></i><i class="on"></i><i></i></span></button>
-        <button class="ib cpx-mic" aria-label="Dictate" data-tip="Dictate" data-tip-k="⌘D">{mic}</button>
+        <button class="chip cpx-mode" data-pop=".pp-mode" data-pop-pos="up" data-pop-align="end" data-tip="What the agent may do">{eye}<span class="cpx-mode-n">Ask</span>{chev}</button>
+        <button class="ib cpx-mic" aria-label="Dictate" data-tip="Dictate">{mic}</button>
         <button class="cpx-send" aria-label="Send" data-tip="Send" data-tip-k="↵" disabled>{up}</button>
       </div>
       <div class="cpx-voice">
-        <canvas class="cpx-wave" aria-hidden="true"></canvas>
-        <button class="ib cpx-cancel" aria-label="Cancel" data-tip="Cancel" data-tip-k="Esc">{x}</button>
-        <button class="cpx-send cpx-ok" aria-label="Use this text" data-tip="Done">{check}</button>
+        <span class="cpx-rec"><span class="cpx-dot"></span>Listening</span><span class="cpx-tm num muted">0:00</span>
+        <span class="sp"></span>
+        <button class="pill ghost sm cpx-cancel">Cancel</button>
+        <button class="pill ink sm cpx-ok">Done</button>
       </div>
     </div>
     <div class="pop pp-plus" role="menu">
-      <button class="mi" data-close data-add="file">{clip}<span>Upload files<span class="d">Images, PDFs, code</span></span></button>
-      <button class="mi" data-close data-add="shot">{image}<span>Add a screenshot<span class="d">Of your current screen</span></span></button>
-      <button class="mi" data-close data-add="figma">{figma}<span>Link a Figma frame<span class="d">Paste a frame URL</span></span></button>
-      <div class="sep"></div>
-      <button class="mi" data-close data-ins="@">{at}<span>Mention a file</span><span class="r kbd">@</span></button>
-      <button class="mi" data-close data-ins="/">{slash}<span>Use a skill</span><span class="r kbd">/</span></button>
+      <button class="mi" data-close data-add="file">{file}<span>Upload a file<span class="d">Images, PDFs or code</span></span></button>
+      <button class="mi" data-close data-add="figma">{figma}<span>Link a Figma frame<span class="d">From any file you can open</span></span></button>
+      <button class="mi" data-close data-add="shot">{image}<span>Add a screenshot<span class="d">Of the window you're in</span></span></button>
     </div>
-    <div class="pop pp-proj" role="menu">
-      <div class="ph">Recent projects</div>
-      <button class="mi" role="menuitemradio" aria-checked="true" data-close data-proj="acme-webapp">{folder}<span>acme-webapp<span class="d">~/code/acme-webapp</span></span><span class="ck">{check}</span></button>
-      <button class="mi" role="menuitemradio" aria-checked="false" data-close data-proj="marketing-site">{folder}<span>marketing-site<span class="d">~/code/marketing-site</span></span><span class="ck">{check}</span></button>
-      <button class="mi" role="menuitemradio" aria-checked="false" data-close data-proj="design-tokens">{folder}<span>design-tokens<span class="d">~/code/design-tokens</span></span><span class="ck">{check}</span></button>
+    <div class="pop pp-ctx" role="menu">
+      <div class="ph">Working on</div>
+      <button class="mi" role="menuitemradio" aria-checked="true" data-close data-ctx="Pricing v4" data-ic="figma">{figma}<span>Pricing v4<span class="d">Figma, 6 frames</span></span><span class="ck">{check}</span></button>
+      <button class="mi" role="menuitemradio" aria-checked="false" data-close data-ctx="Checkout flow" data-ic="figma">{figma}<span>Checkout flow<span class="d">Figma, 4 frames</span></span><span class="ck">{check}</span></button>
+      <button class="mi" role="menuitemradio" aria-checked="false" data-close data-ctx="Marketing site" data-ic="code">{code}<span>Marketing site<span class="d">Code, main branch</span></span><span class="ck">{check}</span></button>
     </div>
-    <div class="pop pp-env" role="menu">
-      <div class="ph">Run this task</div>
-      <button class="mi" role="menuitemradio" aria-checked="true" data-close data-env="Local">{laptop}<span>Local<span class="d">On this Mac, in your working copy</span></span><span class="ck">{check}</span></button>
-      <button class="mi" role="menuitemradio" aria-checked="false" data-close data-env="Worktree">{branch}<span>Worktree<span class="d">A separate copy, your files stay as they are</span></span><span class="ck">{check}</span></button>
-      <button class="mi" role="menuitemradio" aria-checked="false" data-close data-env="Cloud">{cloud}<span>Cloud<span class="d">Keeps going when your laptop sleeps</span></span><span class="ck">{check}</span></button>
-    </div>
-    <div class="pop pp-cloud cpx-cloudpop">
-      <div class="cc-h">{cloud}<div><b>Hand off to the cloud</b><span>Continue this task on a cloud machine if you close your laptop.</span></div></div>
-      <button class="cc-row" role="switch" aria-checked="false"><span>Hand off automatically</span><span class="toggle" aria-hidden="true"></span></button>
-      <div class="cc-meta"><span class="dot" style="color:var(--ok)"></span>2 cloud machines free · 4 hours left this month</div>
-    </div>
-    <div class="pop pp-eff" role="menu">
-      <div class="ph">Effort</div>
-      <button class="mi" role="menuitemradio" aria-checked="false" data-close data-eff="1"><span class="cpx-bars"><i class="on"></i><i></i><i></i></span><span>Low<span class="d">Quick answers, small edits</span></span><span class="ck">{check}</span></button>
-      <button class="mi" role="menuitemradio" aria-checked="true" data-close data-eff="2"><span class="cpx-bars"><i class="on"></i><i class="on"></i><i></i></span><span>Medium<span class="d">Plans first, then builds</span></span><span class="ck">{check}</span></button>
-      <button class="mi" role="menuitemradio" aria-checked="false" data-close data-eff="3"><span class="cpx-bars"><i class="on"></i><i class="on"></i><i class="on"></i></span><span>High<span class="d">Thinks longer, checks its work</span></span><span class="ck">{check}</span></button>
+    <div class="pop pp-mode" role="menu">
+      <div class="ph">The agent may</div>
+      <button class="mi" role="menuitemradio" aria-checked="true" data-close data-mode="Ask" data-ic="eye">{eye}<span>Ask<span class="d">Answer only, change nothing</span></span><span class="ck">{check}</span></button>
+      <button class="mi" role="menuitemradio" aria-checked="false" data-close data-mode="Edit" data-ic="edit">{edit}<span>Edit<span class="d">Change frames on a new page</span></span><span class="ck">{check}</span></button>
+      <button class="mi" role="menuitemradio" aria-checked="false" data-close data-mode="Plan" data-ic="list">{list}<span>Plan<span class="d">Propose steps before it starts</span></span><span class="ck">{check}</span></button>
     </div>
   </div>
 </div></template>
   </article>
-  <article class="comp" id="c8" data-soft data-v2="thread-panel" data-reg="thread-panel" style="--rh-a:480px;--rc-a:368px;--rcb-a:360px;--rh-b:480px;--rc-b:368px;--rcb-b:360px;--rh-c:480px;--rc-c:368px;--rcb-c:360px;--rh-d:480px;--rc-d:368px;--rcb-d:360px;--rh-e:448px;--rc-e:368px;--rcb-e:360px">
+  <article class="comp" id="c8" data-soft data-v2="thread-panel" data-reg="thread-panel" style="--rh-a:480px;--rc-a:368px;--rcb-a:360px;--rh-b:481px;--rc-b:369px;--rcb-b:360px;--rh-c:480px;--rc-c:368px;--rcb-c:360px;--rh-d:480px;--rc-d:368px;--rcb-d:360px;--rh-e:448px;--rc-e:368px;--rcb-e:360px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">chat_bubble</span></span>
       <div><h2 class="comp-title"><a href="/components/thread-panel">Thread panel</a></h2><p class="comp-desc">Switch between agent threads and reply in place.</p></div>
@@ -8629,7 +8632,7 @@ body.ui section.faq{display:none}
   <form class="thp-in"><input class="thp-field" aria-label="Reply" placeholder="Reply to the agent"><button class="thp-send" aria-label="Send" data-tip="Send" data-tip-k="↵" disabled>{up}</button></form>
 </div></template>
   </article>
-  <article class="comp" id="c108" data-soft data-v2="artifact-card" data-reg="artifact-card" style="--rh-a:467px;--rc-a:355px;--rcb-a:349px;--rh-b:467px;--rc-b:355px;--rcb-b:349px;--rh-c:467px;--rc-c:355px;--rcb-c:349px;--rh-d:467px;--rc-d:355px;--rcb-d:349px;--rh-e:435px;--rc-e:355px;--rcb-e:350px">
+  <article class="comp" id="c108" data-soft data-v2="artifact-card" data-reg="artifact-card" style="--rh-a:467px;--rc-a:355px;--rcb-a:349px;--rh-b:469px;--rc-b:357px;--rcb-b:349px;--rh-c:467px;--rc-c:355px;--rcb-c:349px;--rh-d:467px;--rc-d:355px;--rcb-d:349px;--rh-e:435px;--rc-e:355px;--rcb-e:349px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">description</span></span>
       <div><h2 class="comp-title"><a href="/components/artifact-card">Artifact card</a></h2><p class="comp-desc">A file the agent made, with a live preview and versions.</p></div>
@@ -8674,7 +8677,7 @@ body.ui section.faq{display:none}
   <p class="msg tcx-end">Two plans changed. I updated their prices and the yearly saving on the page.</p>
 </div></template>
   </article>
-  <article class="comp" id="c24" data-soft data-v2="voice-capture" data-reg="voice-capture" style="--rh-a:420px;--rc-a:253px;--rcb-a:248px;--rh-b:420px;--rc-b:254px;--rcb-b:248px;--rh-c:420px;--rc-c:253px;--rcb-c:248px;--rh-d:420px;--rc-d:253px;--rcb-d:248px;--rh-e:420px;--rc-e:253px;--rcb-e:248px">
+  <article class="comp" id="c24" data-soft data-v2="voice-capture" data-reg="voice-capture" style="--rh-a:420px;--rc-a:253px;--rcb-a:248px;--rh-b:420px;--rc-b:256px;--rcb-b:248px;--rh-c:420px;--rc-c:254px;--rcb-c:248px;--rh-d:420px;--rc-d:254px;--rcb-d:248px;--rh-e:420px;--rc-e:253px;--rcb-e:248px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">mic</span></span>
       <div><h2 class="comp-title"><a href="/components/voice-capture">Voice capture</a></h2><p class="comp-desc">Talk to the agent, then fix what it misheard before sending.</p></div>
@@ -8756,7 +8759,7 @@ body.ui section.faq{display:none}
   </div>
 </div></template>
   </article>
-  <article class="comp" id="c112" data-soft data-v2="model-picker" data-reg="model-picker" style="--rh-a:540px;--rc-a:424px;--rcb-a:428px;--rh-b:561px;--rc-b:448px;--rcb-b:449px;--rh-c:536px;--rc-c:424px;--rcb-c:424px;--rh-d:536px;--rc-d:424px;--rcb-d:424px;--rh-e:576px;--rc-e:496px;--rcb-e:496px">
+  <article class="comp" id="c112" data-soft data-v2="model-picker" data-reg="model-picker" style="--rh-a:536px;--rc-a:424px;--rcb-a:424px;--rh-b:560px;--rc-b:448px;--rcb-b:448px;--rh-c:539px;--rc-c:424px;--rcb-c:427px;--rh-d:540px;--rc-d:424px;--rcb-d:428px;--rh-e:576px;--rc-e:496px;--rcb-e:496px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">tune</span></span>
       <div><h2 class="comp-title"><a href="/components/model-picker">Model picker</a></h2><p class="comp-desc">Pick a model by speed, quality and cost, and how hard it thinks.</p></div>
@@ -8804,7 +8807,7 @@ body.ui section.faq{display:none}
   <button class="pill ghost sm psx-sh">{shuffle}Shuffle</button>
 </div></template>
   </article>
-  <article class="comp" id="c30" data-soft data-v2="attachment-tray" data-reg="attachment-tray" style="--rh-a:464px;--rc-a:352px;--rcb-a:350px;--rh-b:464px;--rc-b:352px;--rcb-b:350px;--rh-c:462px;--rc-c:350px;--rcb-c:350px;--rh-d:464px;--rc-d:352px;--rcb-d:350px;--rh-e:432px;--rc-e:352px;--rcb-e:350px">
+  <article class="comp" id="c30" data-soft data-v2="attachment-tray" data-reg="attachment-tray" style="--rh-a:462px;--rc-a:350px;--rcb-a:350px;--rh-b:464px;--rc-b:352px;--rcb-b:350px;--rh-c:464px;--rc-c:352px;--rcb-c:350px;--rh-d:465px;--rc-d:353px;--rcb-d:350px;--rh-e:433px;--rc-e:353px;--rcb-e:350px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">attach_file</span></span>
       <div><h2 class="comp-title"><a href="/components/attachment-tray">Attachment tray</a></h2><p class="comp-desc">Drop files for the agent and watch each one upload.</p></div>
@@ -8855,7 +8858,7 @@ body.ui section.faq{display:none}
 <section class="lib-sec" id="s-status" data-grp="agent">
   <div class="sec-head"><div><span class="sec-no">02</span><h2>Agent status</h2><p>Show what the agent is doing, how far along it is, and what it is working with.</p></div></div>
   <div class="sec-body" id="s-status-body"><div class="sec-uf"><div class="grid">
-  <article class="comp" data-soft id="c60" data-v2="thinking" data-reg="thinking" style="--rh-a:562px;--rc-a:450px;--rcb-a:444px;--rh-b:563px;--rc-b:451px;--rcb-b:449px;--rh-c:562px;--rc-c:450px;--rcb-c:444px;--rh-d:560px;--rc-d:448px;--rcb-d:444px;--rh-e:529px;--rc-e:449px;--rcb-e:449px">
+  <article class="comp" data-soft id="c60" data-v2="thinking" data-reg="thinking" style="--rh-a:420px;--rc-a:302px;--rcb-a:302px;--rh-b:435px;--rc-b:323px;--rcb-b:323px;--rh-c:420px;--rc-c:302px;--rcb-c:302px;--rh-d:420px;--rc-d:302px;--rcb-d:302px;--rh-e:420px;--rc-e:302px;--rcb-e:302px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">stars</span></span>
       <div><h2 class="comp-title"><a href="/components/thinking">Thinking</a></h2><p class="comp-desc">The live trace, written as the agent works, then folded away.</p></div>
@@ -8869,13 +8872,13 @@ body.ui section.faq{display:none}
     <template><div class="tk" data-open="1">
   <button class="tk-h" aria-expanded="true">
     <span class="tk-mark"><span class="think on"><i></i><i></i><i></i><i></i></span></span>
-    <span class="tk-title shim">Thinking</span><span class="tk-time num">0s</span>
+    <span class="tk-title shim">Checking the pricing page</span><span class="tk-time num">0s</span>
     <svg class="i xs tk-chev"><use href="#i-chev-d"/></svg>
   </button>
-  <div class="fold tk-fold"><div><ol class="tk-list"></ol></div></div>
+  <div class="fold tk-fold"><div><ol class="tk-list" aria-live="polite"></ol></div></div>
 </div></template>
   </article>
-  <article class="comp" id="c2" data-soft data-v2="reasoning-trail" data-reg="reasoning-trail" style="--rh-a:446px;--rc-a:334px;--rcb-a:328px;--rh-b:447px;--rc-b:335px;--rcb-b:328px;--rh-c:446px;--rc-c:334px;--rcb-c:328px;--rh-d:444px;--rc-d:332px;--rcb-d:328px;--rh-e:420px;--rc-e:333px;--rcb-e:328px">
+  <article class="comp" id="c2" data-soft data-v2="reasoning-trail" data-reg="reasoning-trail" style="--rh-a:445px;--rc-a:333px;--rcb-a:328px;--rh-b:449px;--rc-b:337px;--rcb-b:328px;--rh-c:447px;--rc-c:335px;--rcb-c:328px;--rh-d:447px;--rc-d:335px;--rcb-d:328px;--rh-e:420px;--rc-e:332px;--rcb-e:328px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">stars</span></span>
       <div><h2 class="comp-title"><a href="/components/reasoning-trail">Reasoning trail</a></h2><p class="comp-desc">The agent's plan, notes, sources and edits, after it thinks.</p></div>
@@ -8920,7 +8923,7 @@ body.ui section.faq{display:none}
   <div class="aln-rows"></div>
 </div></template>
   </article>
-  <article class="comp" id="c106" data-soft data-v2="run-summary" data-reg="run-summary" style="--rh-a:531px;--rc-a:419px;--rcb-a:414px;--rh-b:543px;--rc-b:431px;--rcb-b:425px;--rh-c:511px;--rc-c:399px;--rcb-c:394px;--rh-d:510px;--rc-d:398px;--rcb-d:394px;--rh-e:510px;--rc-e:430px;--rcb-e:425px">
+  <article class="comp" id="c106" data-soft data-v2="run-summary" data-reg="run-summary" style="--rh-a:531px;--rc-a:419px;--rcb-a:414px;--rh-b:545px;--rc-b:433px;--rcb-b:425px;--rh-c:512px;--rc-c:400px;--rcb-c:394px;--rh-d:512px;--rc-d:400px;--rcb-d:394px;--rh-e:509px;--rc-e:429px;--rcb-e:425px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">check_circle</span></span>
       <div><h2 class="comp-title"><a href="/components/run-summary">Run summary</a></h2><p class="comp-desc">What the agent did, what changed and what needs you.</p></div>
@@ -8951,7 +8954,7 @@ body.ui section.faq{display:none}
   <div class="rsu-acts"><button class="pill ink sm">Open changes</button><button class="pill ghost sm rsu-undo">Undo all</button></div>
 </div></template>
   </article>
-  <article class="comp" id="c7" data-soft data-v2="action-log" data-reg="action-log" style="--rh-a:487px;--rc-a:373px;--rcb-a:375px;--rh-b:501px;--rc-b:389px;--rcb-b:389px;--rh-c:484px;--rc-c:372px;--rcb-c:372px;--rh-d:487px;--rc-d:372px;--rcb-d:375px;--rh-e:453px;--rc-e:373px;--rcb-e:372px">
+  <article class="comp" id="c7" data-soft data-v2="action-log" data-reg="action-log" style="--rh-a:485px;--rc-a:373px;--rcb-a:372px;--rh-b:501px;--rc-b:389px;--rcb-b:389px;--rh-c:489px;--rc-c:377px;--rcb-c:374px;--rh-d:487px;--rc-d:373px;--rcb-d:375px;--rh-e:457px;--rc-e:377px;--rcb-e:375px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">bolt</span></span>
       <div><h2 class="comp-title"><a href="/components/action-log">Action log</a></h2><p class="comp-desc">Every read, search, edit and command, logged as it runs.</p></div>
@@ -8967,7 +8970,7 @@ body.ui section.faq{display:none}
   <ol class="alg-list"></ol>
 </div></template>
   </article>
-  <article class="comp wide" data-soft id="c67" data-v2="agent-run-timeline" data-reg="agent-run-timeline" style="--rh-a:474px;--rc-a:362px;--rcb-a:356px;--rh-b:474px;--rc-b:362px;--rcb-b:356px;--rh-c:474px;--rc-c:362px;--rcb-c:356px;--rh-d:474px;--rc-d:362px;--rcb-d:356px;--rh-e:463px;--rc-e:383px;--rcb-e:377px">
+  <article class="comp wide" data-soft id="c67" data-v2="agent-run-timeline" data-reg="agent-run-timeline" style="--rh-a:474px;--rc-a:362px;--rcb-a:356px;--rh-b:476px;--rc-b:364px;--rcb-b:356px;--rh-c:474px;--rc-c:362px;--rcb-c:356px;--rh-d:474px;--rc-d:362px;--rcb-d:356px;--rh-e:463px;--rc-e:383px;--rcb-e:377px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">graphic_eq</span></span>
       <div><h2 class="comp-title"><a href="/components/agent-run-timeline">Agent run timeline</a></h2><p class="comp-desc">Every model and tool step of a run on one time axis.</p></div>
@@ -8988,26 +8991,29 @@ body.ui section.faq{display:none}
   <div class="art-f muted num"></div>
 </div></template>
   </article>
-  <article class="comp" id="c23" data-soft data-v2="context-meter" data-reg="context-meter" style="--rh-a:455px;--rc-a:343px;--rcb-a:325px;--rh-b:455px;--rc-b:343px;--rcb-b:325px;--rh-c:455px;--rc-c:343px;--rcb-c:325px;--rh-d:455px;--rc-d:343px;--rcb-d:325px;--rh-e:423px;--rc-e:343px;--rcb-e:325px">
+  <article class="comp" id="c23" data-soft data-v2="context-meter" data-reg="context-meter" style="--rh-a:443px;--rc-a:331px;--rcb-a:317px;--rh-b:447px;--rc-b:335px;--rcb-b:335px;--rh-c:443px;--rc-c:331px;--rcb-c:317px;--rh-d:443px;--rc-d:331px;--rcb-d:317px;--rh-e:420px;--rc-e:331px;--rcb-e:317px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">dashboard</span></span>
-      <div><h2 class="comp-title"><a href="/components/context-meter">Context meter</a></h2><p class="comp-desc">How full the context window is, with session and weekly limits, in one small popover.</p></div>
+      <div><h2 class="comp-title"><a href="/components/context-meter">Context meter</a></h2><p class="comp-desc">How full the context is and what fills it, with Compact to free room.</p></div>
       <button class="save-btn" aria-pressed="false" aria-label="Save component"><span class="ms">bookmark</span></button>
     </div>
     <div class="stage"><div class="stage-inner dots v2-host" data-demo><div class="v2 stage-in"></div></div></div>
     <div class="comp-foot">
-      <span class="mono-xs">Click the ring, compact the context</span>
+      <span class="mono-xs">Hover a part, then compact</span>
       <div class="code-btns"><button class="ghost anim-btn" data-anim><span class="ms sm">stars</span>Animate</button><button class="ghost" data-view aria-expanded="false"><span class="ms sm">code</span><span class="vl">View code</span></button><button class="ghost" data-copy><span class="ms sm">content_copy</span>Copy code</button></div>
     </div>
-    <template><div class="ctm">
-  <div class="ctm-pop panel keep" role="dialog" aria-label="Usage">
-    <div class="ctm-ph"><b>Usage</b><button class="ib ctm-ib" aria-label="View usage" data-tip="View usage">{bars}</button></div>
-    <div class="ctm-rows"></div>
+    <template><div class="ctm" data-open="1">
+  <button class="ctm-tg" aria-expanded="true" aria-label="Context"><span class="ctm-ring" aria-hidden="true"><svg viewBox="0 0 20 20"><circle class="tr" cx="10" cy="10" r="7.5"/><circle class="fl" cx="10" cy="10" r="7.5" pathLength="100"/></svg></span><span><span class="ctm-pc num">0%</span> of context used</span>{chev}</button>
+  <div class="ctm-pop panel" role="region" aria-label="What fills the context">
+    <div class="ctm-ph"><span>In context</span><span class="num"><b class="ctm-tot">0k</b> of 200k tokens</span></div>
+    <div class="ctm-bar" aria-hidden="true"></div>
+    <div class="ctm-leg"></div>
+    <div class="ctm-msg" aria-live="polite"><span></span></div>
+    <div class="ctm-f"><span class="ctm-hint">Summarises older turns</span><button class="pill ghost sm ctm-go">Compact</button></div>
   </div>
-  <div class="ctm-ft"><span>Opus 5.5</span><span class="muted">Extra</span><button class="ctm-ring" aria-expanded="true" aria-label="Usage"><svg viewBox="0 0 20 20" aria-hidden="true"><circle class="tr" cx="10" cy="10" r="7.5"/><circle class="fl" cx="10" cy="10" r="7.5" pathLength="100"/></svg></button></div>
 </div></template>
   </article>
-  <article class="comp" id="c109" data-soft data-v2="error-recovery" data-reg="error-recovery" style="--rh-a:503px;--rc-a:391px;--rcb-a:386px;--rh-b:544px;--rc-b:432px;--rcb-b:425px;--rh-c:503px;--rc-c:391px;--rcb-c:386px;--rh-d:502px;--rc-d:390px;--rcb-d:386px;--rh-e:510px;--rc-e:430px;--rcb-e:425px">
+  <article class="comp" id="c109" data-soft data-v2="error-recovery" data-reg="error-recovery" style="--rh-a:502px;--rc-a:390px;--rcb-a:386px;--rh-b:546px;--rc-b:434px;--rcb-b:425px;--rh-c:504px;--rc-c:392px;--rcb-c:386px;--rh-d:504px;--rc-d:392px;--rcb-d:386px;--rh-e:509px;--rc-e:429px;--rcb-e:425px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">nearby_error</span></span>
       <div><h2 class="comp-title"><a href="/components/error-recovery">Error and recovery</a></h2><p class="comp-desc">A failed step with retry, skip or hand over to a person.</p></div>
@@ -9048,7 +9054,7 @@ body.ui section.faq{display:none}
   <div class="rq-list panel"></div>
 </div></template>
   </article>
-  <article class="comp" id="c27" data-soft data-v2="run-cost" data-reg="run-cost" style="--rh-a:420px;--rc-a:271px;--rcb-a:264px;--rh-b:420px;--rc-b:272px;--rcb-b:264px;--rh-c:420px;--rc-c:271px;--rcb-c:264px;--rh-d:420px;--rc-d:269px;--rcb-d:264px;--rh-e:420px;--rc-e:270px;--rcb-e:264px">
+  <article class="comp" id="c27" data-soft data-v2="run-cost" data-reg="run-cost" style="--rh-a:420px;--rc-a:270px;--rcb-a:264px;--rh-b:420px;--rc-b:274px;--rcb-b:264px;--rh-c:420px;--rc-c:272px;--rcb-c:264px;--rh-d:420px;--rc-d:272px;--rcb-d:264px;--rh-e:420px;--rc-e:269px;--rcb-e:264px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">bolt</span></span>
       <div><h2 class="comp-title"><a href="/components/run-cost">Run cost</a></h2><p class="comp-desc">Live credit and token spend, with a cap that pauses the run.</p></div>
@@ -9074,7 +9080,7 @@ body.ui section.faq{display:none}
   </div>
 </div></template>
   </article>
-  <article class="comp" id="c28" data-soft data-v2="toast-stack" data-reg="toast-stack" style="--rh-a:446px;--rc-a:334px;--rcb-a:328px;--rh-b:447px;--rc-b:335px;--rcb-b:328px;--rh-c:446px;--rc-c:334px;--rcb-c:328px;--rh-d:444px;--rc-d:332px;--rcb-d:328px;--rh-e:420px;--rc-e:333px;--rcb-e:328px">
+  <article class="comp" id="c28" data-soft data-v2="toast-stack" data-reg="toast-stack" style="--rh-a:445px;--rc-a:333px;--rcb-a:328px;--rh-b:449px;--rc-b:337px;--rcb-b:328px;--rh-c:447px;--rc-c:335px;--rcb-c:328px;--rh-d:447px;--rc-d:335px;--rcb-d:328px;--rh-e:420px;--rc-e:332px;--rcb-e:328px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">notifications</span></span>
       <div><h2 class="comp-title"><a href="/components/toast-stack">Toast stack</a></h2><p class="comp-desc">Agent notifications that stack and fan out on hover.</p></div>
@@ -9090,7 +9096,7 @@ body.ui section.faq{display:none}
   <div class="demo"><button class="pill soft sm tsk-add"><svg class="i s"><use href="#i-bell"/></svg>Send notification</button></div>
 </div></template>
   </article>
-  <article class="comp" data-soft id="c58" data-v2="toast" data-reg="toast" style="--rh-a:446px;--rc-a:334px;--rcb-a:328px;--rh-b:447px;--rc-b:335px;--rcb-b:328px;--rh-c:446px;--rc-c:334px;--rcb-c:328px;--rh-d:444px;--rc-d:332px;--rcb-d:328px;--rh-e:420px;--rc-e:333px;--rcb-e:328px">
+  <article class="comp" data-soft id="c58" data-v2="toast" data-reg="toast" style="--rh-a:445px;--rc-a:333px;--rcb-a:328px;--rh-b:449px;--rc-b:337px;--rcb-b:328px;--rh-c:447px;--rc-c:335px;--rcb-c:328px;--rh-d:447px;--rc-d:335px;--rcb-d:328px;--rh-e:420px;--rc-e:332px;--rcb-e:328px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">check_circle</span></span>
       <div><h2 class="comp-title"><a href="/components/toast">Toast</a></h2><p class="comp-desc">One notification that changes shape with its state.</p></div>
@@ -9111,7 +9117,7 @@ body.ui section.faq{display:none}
   <div class="demo"><div class="seg2" role="group" aria-label="State"><button aria-pressed="true" data-v="ok">Success</button><button aria-pressed="false" data-v="err">Error</button><button aria-pressed="false" data-v="info">Info</button><button aria-pressed="false" data-v="load">Loading</button></div></div>
 </div></template>
   </article>
-  <article class="comp" id="c22" data-soft data-v2="status-pill" data-reg="status-pill" style="--rh-a:446px;--rc-a:334px;--rcb-a:328px;--rh-b:447px;--rc-b:335px;--rcb-b:328px;--rh-c:446px;--rc-c:334px;--rcb-c:328px;--rh-d:444px;--rc-d:332px;--rcb-d:328px;--rh-e:420px;--rc-e:333px;--rcb-e:328px">
+  <article class="comp" id="c22" data-soft data-v2="status-pill" data-reg="status-pill" style="--rh-a:445px;--rc-a:333px;--rcb-a:328px;--rh-b:449px;--rc-b:337px;--rcb-b:328px;--rh-c:447px;--rc-c:335px;--rcb-c:328px;--rh-d:447px;--rc-d:335px;--rcb-d:328px;--rh-e:420px;--rc-e:332px;--rcb-e:328px">
     <div class="comp-head">
       <span class="ibox accent"><span class="ms">readiness_score</span></span>
       <div><h2 class="comp-title"><a href="/components/status-pill">Status pill</a></h2><p class="comp-desc">One live line for what the agent is doing right now.</p></div>
@@ -9168,7 +9174,7 @@ body.ui section.faq{display:none}
 <section class="lib-sec" id="s-review" data-grp="agent">
   <div class="sec-head"><div><span class="sec-no">03</span><h2>Review and approve</h2><p>Moments where a person checks, steers or signs off on the agent's work.</p></div></div>
   <div class="sec-body" id="s-review-body"><div class="sec-uf"><div class="grid">
-  <article class="comp wide" id="c11" data-soft data-v2="change-review" data-reg="change-review" style="--rh-a:455px;--rc-a:343px;--rcb-a:334px;--rh-b:449px;--rc-b:337px;--rcb-b:330px;--rh-c:455px;--rc-c:343px;--rcb-c:334px;--rh-d:561px;--rc-d:449px;--rcb-d:431px;--rh-e:529px;--rc-e:449px;--rcb-e:431px">
+  <article class="comp wide" id="c11" data-soft data-v2="change-review" data-reg="change-review" style="--rh-a:454px;--rc-a:342px;--rcb-a:334px;--rh-b:451px;--rc-b:339px;--rcb-b:334px;--rh-c:449px;--rc-c:337px;--rcb-c:330px;--rh-d:561px;--rc-d:449px;--rcb-d:431px;--rh-e:529px;--rc-e:449px;--rcb-e:431px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">grid_on</span></span>
       <div><h2 class="comp-title"><a href="/components/change-review">Change review</a></h2><p class="comp-desc">Accept or reject each change the agent made, file by file.</p></div>
@@ -9234,7 +9240,7 @@ body.ui section.faq{display:none}
   </div>
 </div></template>
   </article>
-  <article class="comp" id="c4" data-soft data-v2="decision-prompt" data-reg="decision-prompt" style="--rh-a:420px;--rc-a:276px;--rcb-a:270px;--rh-b:420px;--rc-b:277px;--rcb-b:270px;--rh-c:420px;--rc-c:276px;--rcb-c:270px;--rh-d:420px;--rc-d:276px;--rcb-d:270px;--rh-e:420px;--rc-e:276px;--rcb-e:270px">
+  <article class="comp" id="c4" data-soft data-v2="decision-prompt" data-reg="decision-prompt" style="--rh-a:420px;--rc-a:276px;--rcb-a:270px;--rh-b:420px;--rc-b:279px;--rcb-b:270px;--rh-c:420px;--rc-c:277px;--rcb-c:270px;--rh-d:420px;--rc-d:277px;--rcb-d:270px;--rh-e:420px;--rc-e:276px;--rcb-e:270px">
     <div class="comp-head">
       <span class="ibox accent"><span class="ms">nearby_error</span></span>
       <div><h2 class="comp-title"><a href="/components/decision-prompt">Decision prompt</a></h2><p class="comp-desc">The agent asks a few quick questions before it starts.</p></div>
@@ -9271,7 +9277,7 @@ body.ui section.faq{display:none}
   <div class="prx-f"><button class="pill ghost sm prx-no">Not now</button><button class="pill ink sm prx-ok">Accept</button></div>
 </div></template>
   </article>
-  <article class="comp wide" id="c19" data-soft data-v2="design-tuner" data-reg="design-tuner" style="--rh-a:426px;--rc-a:314px;--rcb-a:304px;--rh-b:426px;--rc-b:314px;--rcb-b:300px;--rh-c:690px;--rc-c:578px;--rcb-c:578px;--rh-d:690px;--rc-d:578px;--rcb-d:578px;--rh-e:676px;--rc-e:596px;--rcb-e:596px">
+  <article class="comp wide" id="c19" data-soft data-v2="design-tuner" data-reg="design-tuner" style="--rh-a:426px;--rc-a:314px;--rcb-a:304px;--rh-b:426px;--rc-b:314px;--rcb-b:304px;--rh-c:690px;--rc-c:578px;--rcb-c:578px;--rh-d:690px;--rc-d:578px;--rcb-d:578px;--rh-e:676px;--rc-e:596px;--rcb-e:596px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">tune</span></span>
       <div><h2 class="comp-title"><a href="/components/design-tuner">Design tuner</a></h2><p class="comp-desc">Tweak a component by hand or let the agent tune it.</p></div>
@@ -9381,7 +9387,7 @@ body.ui section.faq{display:none}
   <div class="cvx-body"><pre class="cvx-code"></pre></div>
 </div></template>
   </article>
-  <article class="comp" data-soft id="c68" data-v2="citation-hover" data-reg="citation-hover-card" style="--rh-a:420px;--rc-a:256px;--rcb-a:251px;--rh-b:420px;--rc-b:308px;--rcb-b:302px;--rh-c:420px;--rc-c:256px;--rcb-c:251px;--rh-d:420px;--rc-d:255px;--rcb-d:251px;--rh-e:420px;--rc-e:281px;--rcb-e:276px">
+  <article class="comp" data-soft id="c68" data-v2="citation-hover" data-reg="citation-hover-card" style="--rh-a:420px;--rc-a:256px;--rcb-a:251px;--rh-b:422px;--rc-b:310px;--rcb-b:302px;--rh-c:420px;--rc-c:257px;--rcb-c:251px;--rh-d:420px;--rc-d:257px;--rcb-d:251px;--rh-e:420px;--rc-e:280px;--rcb-e:276px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">link</span></span>
       <div><h2 class="comp-title"><a href="/components/citation-hover-card">Citation hover card</a></h2><p class="comp-desc">Hover a citation to see the exact passage it came from.</p></div>
@@ -9450,7 +9456,7 @@ body.ui section.faq{display:none}
   </div>
 </div></template>
   </article>
-  <article class="comp" id="c17" data-soft data-v2="metric-insight" data-reg="metric-insight" style="--rh-a:420px;--rc-a:272px;--rcb-a:266px;--rh-b:420px;--rc-b:292px;--rcb-b:286px;--rh-c:420px;--rc-c:272px;--rcb-c:266px;--rh-d:420px;--rc-d:271px;--rcb-d:266px;--rh-e:420px;--rc-e:291px;--rcb-e:286px">
+  <article class="comp" id="c17" data-soft data-v2="metric-insight" data-reg="metric-insight" style="--rh-a:420px;--rc-a:271px;--rcb-a:266px;--rh-b:420px;--rc-b:294px;--rcb-b:286px;--rh-c:420px;--rc-c:273px;--rcb-c:266px;--rh-d:420px;--rc-d:273px;--rcb-d:266px;--rh-e:420px;--rc-e:290px;--rcb-e:286px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">trending_up</span></span>
       <div><h2 class="comp-title"><a href="/components/metric-insight">Metric insight</a></h2><p class="comp-desc">A number, its trend, and the agent's read on why it moved.</p></div>
@@ -9553,7 +9559,7 @@ body.ui section.faq{display:none}
   </div>
 </div></template>
   </article>
-  <article class="comp" id="c15" data-soft data-v2="command-palette" data-reg="command-palette" style="--rh-a:594px;--rc-a:482px;--rcb-a:466px;--rh-b:594px;--rc-b:482px;--rcb-b:467px;--rh-c:594px;--rc-c:482px;--rcb-c:467px;--rh-d:594px;--rc-d:482px;--rcb-d:466px;--rh-e:562px;--rc-e:482px;--rcb-e:470px">
+  <article class="comp" id="c15" data-soft data-v2="command-palette" data-reg="command-palette" style="--rh-a:594px;--rc-a:482px;--rcb-a:467px;--rh-b:594px;--rc-b:482px;--rcb-b:466px;--rh-c:594px;--rc-c:482px;--rcb-c:469px;--rh-d:594px;--rc-d:482px;--rcb-d:468px;--rh-e:562px;--rc-e:482px;--rcb-e:466px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">search</span></span>
       <div><h2 class="comp-title"><a href="/components/command-palette">Command palette</a></h2><p class="comp-desc">Jump anywhere or hand a task to the agent from one box.</p></div>
@@ -9586,7 +9592,7 @@ body.ui section.faq{display:none}
   <div class="mmx-list"></div>
 </div></template>
   </article>
-  <article class="comp wide" data-soft id="c71" data-v2="model-compare" data-reg="model-compare" style="--rh-a:436px;--rc-a:324px;--rcb-a:316px;--rh-b:436px;--rc-b:324px;--rcb-b:316px;--rh-c:489px;--rc-c:377px;--rcb-c:377px;--rh-d:960px;--rc-d:848px;--rcb-d:832px;--rh-e:928px;--rc-e:848px;--rcb-e:834px">
+  <article class="comp wide" data-soft id="c71" data-v2="model-compare" data-reg="model-compare" style="--rh-a:436px;--rc-a:324px;--rcb-a:316px;--rh-b:436px;--rc-b:324px;--rcb-b:316px;--rh-c:489px;--rc-c:377px;--rcb-c:377px;--rh-d:960px;--rc-d:848px;--rcb-d:833px;--rh-e:928px;--rc-e:848px;--rcb-e:832px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">splitscreen</span></span>
       <div><h2 class="comp-title"><a href="/components/model-compare">Model compare</a></h2><p class="comp-desc">Run one prompt on three models side by side and keep the best.</p></div>
@@ -9623,7 +9629,7 @@ body.ui section.faq{display:none}
   <div class="asx-bar"><span>Unsaved changes</span><button class="pill ghost sm asx-rs">Reset</button><button class="pill accent sm asx-sv">Save</button></div>
 </div></template>
   </article>
-  <article class="comp" id="c110" data-soft data-v2="tool-connections" data-reg="tool-connections" style="--rh-a:499px;--rc-a:387px;--rcb-a:382px;--rh-b:500px;--rc-b:388px;--rcb-b:382px;--rh-c:499px;--rc-c:387px;--rcb-c:382px;--rh-d:498px;--rc-d:386px;--rcb-d:382px;--rh-e:467px;--rc-e:387px;--rcb-e:382px">
+  <article class="comp" id="c110" data-soft data-v2="tool-connections" data-reg="tool-connections" style="--rh-a:499px;--rc-a:387px;--rcb-a:382px;--rh-b:502px;--rc-b:390px;--rcb-b:382px;--rh-c:500px;--rc-c:388px;--rcb-c:382px;--rh-d:500px;--rc-d:388px;--rcb-d:382px;--rh-e:466px;--rc-e:386px;--rcb-e:382px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">link</span></span>
       <div><h2 class="comp-title"><a href="/components/tool-connections">Tools and connections</a></h2><p class="comp-desc">The tools the agent can reach, and how much it may do with each.</p></div>
@@ -9641,7 +9647,7 @@ body.ui section.faq{display:none}
   <div class="pop hnx-pop" role="menu"></div>
 </div></template>
   </article>
-  <article class="comp" id="c39" data-soft data-v2="file-explorer" data-reg="file-explorer" style="--rh-a:565px;--rc-a:453px;--rcb-a:439px;--rh-b:565px;--rc-b:453px;--rcb-b:440px;--rh-c:565px;--rc-c:453px;--rcb-c:441px;--rh-d:565px;--rc-d:453px;--rcb-d:439px;--rh-e:533px;--rc-e:453px;--rcb-e:442px">
+  <article class="comp" id="c39" data-soft data-v2="file-explorer" data-reg="file-explorer" style="--rh-a:565px;--rc-a:453px;--rcb-a:441px;--rh-b:565px;--rc-b:453px;--rcb-b:439px;--rh-c:565px;--rc-c:453px;--rcb-c:442px;--rh-d:565px;--rc-d:453px;--rcb-d:441px;--rh-e:533px;--rc-e:453px;--rcb-e:439px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">folder</span></span>
       <div><h2 class="comp-title"><a href="/components/file-explorer">File explorer</a></h2><p class="comp-desc">Project files, with the ones the agent touched marked.</p></div>
@@ -9776,7 +9782,7 @@ body.ui section.faq{display:none}
   <div class="bcx-lg muted"><span><i style="background:var(--c1)"></i>Shipped</span><span><i style="background:var(--c2)"></i>Needed review</span><span><i style="background:var(--c4)"></i>Failed</span></div>
 </div></template>
   </article>
-  <article class="comp" id="c43" data-soft data-v2="donut-chart" data-reg="donut-chart" style="--rh-a:420px;--rc-a:223px;--rcb-a:217px;--rh-b:486px;--rc-b:374px;--rcb-b:368px;--rh-c:420px;--rc-c:204px;--rcb-c:198px;--rh-d:420px;--rc-d:204px;--rcb-d:198px;--rh-e:454px;--rc-e:374px;--rcb-e:368px">
+  <article class="comp" id="c43" data-soft data-v2="donut-chart" data-reg="donut-chart" style="--rh-a:420px;--rc-a:223px;--rcb-a:217px;--rh-b:488px;--rc-b:376px;--rcb-b:368px;--rh-c:420px;--rc-c:204px;--rcb-c:198px;--rh-d:420px;--rc-d:204px;--rcb-d:198px;--rh-e:454px;--rc-e:374px;--rcb-e:368px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">donut</span></span>
       <div><h2 class="comp-title"><a href="/components/donut-chart">Donut chart</a></h2><p class="comp-desc">Where the agent's time went, by kind of task.</p></div>
@@ -9809,7 +9815,7 @@ body.ui section.faq{display:none}
   <div class="fnx-ins"><span class="fnx-ic">{spark}</span><span class="fnx-t"></span></div>
 </div></template>
   </article>
-  <article class="comp" id="c103" data-soft data-v2="top-pages" data-reg="top-pages" style="--rh-a:494px;--rc-a:382px;--rcb-a:377px;--rh-b:513px;--rc-b:401px;--rcb-b:395px;--rh-c:494px;--rc-c:382px;--rcb-c:377px;--rh-d:493px;--rc-d:381px;--rcb-d:377px;--rh-e:479px;--rc-e:399px;--rcb-e:395px">
+  <article class="comp" id="c103" data-soft data-v2="top-pages" data-reg="top-pages" style="--rh-a:493px;--rc-a:381px;--rcb-a:377px;--rh-b:507px;--rc-b:395px;--rcb-b:395px;--rh-c:495px;--rc-c:383px;--rcb-c:377px;--rh-d:495px;--rc-d:383px;--rcb-d:377px;--rh-e:478px;--rc-e:398px;--rcb-e:395px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">grid_view</span></span>
       <div><h2 class="comp-title"><a href="/components/top-pages">Top pages</a></h2><p class="comp-desc">Most visited pages with share of traffic and a quick sort.</p></div>
@@ -9844,7 +9850,7 @@ body.ui section.faq{display:none}
   <div class="hsx-list"></div>
 </div></template>
   </article>
-  <article class="comp wide" id="c45" data-soft data-v2="activity-heatmap" data-reg="activity-heatmap" style="--rh-a:420px;--rc-a:252px;--rcb-a:247px;--rh-b:420px;--rc-b:253px;--rcb-b:247px;--rh-c:420px;--rc-c:252px;--rcb-c:247px;--rh-d:420px;--rc-d:252px;--rcb-d:247px;--rh-e:420px;--rc-e:265px;--rcb-e:265px">
+  <article class="comp wide" id="c45" data-soft data-v2="activity-heatmap" data-reg="activity-heatmap" style="--rh-a:420px;--rc-a:252px;--rcb-a:247px;--rh-b:420px;--rc-b:255px;--rcb-b:247px;--rh-c:420px;--rc-c:253px;--rcb-c:247px;--rh-d:420px;--rc-d:253px;--rcb-d:247px;--rh-e:420px;--rc-e:265px;--rcb-e:265px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">grid_on</span></span>
       <div><h2 class="comp-title"><a href="/components/activity-heatmap">Activity heatmap</a></h2><p class="comp-desc">When the agent and the team were busy, by day and hour.</p></div>
@@ -9862,7 +9868,7 @@ body.ui section.faq{display:none}
   <div class="hmx-lg muted">Less<i style="--a:.08"></i><i style="--a:.3"></i><i style="--a:.55"></i><i style="--a:.85"></i>More</div>
 </div></template>
   </article>
-  <article class="comp wide" id="c44" data-soft data-v2="stat-cards" data-reg="stat-cards" style="--rh-a:420px;--rc-a:176px;--rcb-a:166px;--rh-b:420px;--rc-b:177px;--rcb-b:166px;--rh-c:420px;--rc-c:195px;--rcb-c:185px;--rh-d:420px;--rc-d:304px;--rcb-d:294px;--rh-e:635px;--rc-e:555px;--rcb-e:543px">
+  <article class="comp wide" id="c44" data-soft data-v2="stat-cards" data-reg="stat-cards" style="--rh-a:420px;--rc-a:175px;--rcb-a:166px;--rh-b:420px;--rc-b:178px;--rcb-b:166px;--rh-c:420px;--rc-c:196px;--rcb-c:185px;--rh-d:420px;--rc-d:300px;--rcb-d:286px;--rh-e:635px;--rc-e:555px;--rcb-e:541px">
     <div class="comp-head">
       <span class="ibox accent"><span class="ms">dashboard</span></span>
       <div><h2 class="comp-title"><a href="/components/stat-cards">Stat cards</a></h2><p class="comp-desc">Four headline numbers with sparklines and a period switch.</p></div>
@@ -9878,7 +9884,7 @@ body.ui section.faq{display:none}
   <div class="scx-grid"></div>
 </div></template>
   </article>
-  <article class="comp wide" id="c12" data-soft data-v2="account-table" data-reg="account-table" style="--rh-a:509px;--rc-a:397px;--rcb-a:397px;--rh-b:509px;--rc-b:397px;--rcb-b:397px;--rh-c:509px;--rc-c:397px;--rcb-c:397px;--rh-d:509px;--rc-d:397px;--rcb-d:397px;--rh-e:509px;--rc-e:429px;--rcb-e:429px">
+  <article class="comp wide" id="c12" data-soft data-v2="account-table" data-reg="account-table" style="--rh-a:510px;--rc-a:398px;--rcb-a:397px;--rh-b:509px;--rc-b:397px;--rcb-b:397px;--rh-c:509px;--rc-c:397px;--rcb-c:397px;--rh-d:509px;--rc-d:397px;--rcb-d:397px;--rh-e:509px;--rc-e:429px;--rcb-e:429px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">person</span></span>
       <div><h2 class="comp-title"><a href="/components/account-table">Account table</a></h2><p class="comp-desc">Customer accounts with health, plan and an agent note per row.</p></div>
@@ -9899,7 +9905,7 @@ body.ui section.faq{display:none}
 <section class="lib-sec" id="s-dates" data-grp="basics">
   <div class="sec-head"><div><span class="sec-no">02</span><h2>Dates</h2><p>Pickers for single dates and date ranges.</p></div></div>
   <div class="sec-body" id="s-dates-body"><div class="sec-uf"><div class="grid">
-  <article class="comp" id="c46" data-soft data-v2="date-picker" data-reg="date-picker" style="--rh-a:518px;--rc-a:406px;--rcb-a:400px;--rh-b:519px;--rc-b:407px;--rcb-b:400px;--rh-c:518px;--rc-c:406px;--rcb-c:400px;--rh-d:516px;--rc-d:404px;--rcb-d:400px;--rh-e:485px;--rc-e:405px;--rcb-e:400px">
+  <article class="comp" id="c46" data-soft data-v2="date-picker" data-reg="date-picker" style="--rh-a:517px;--rc-a:405px;--rcb-a:400px;--rh-b:521px;--rc-b:409px;--rcb-b:400px;--rh-c:519px;--rc-c:407px;--rcb-c:400px;--rh-d:519px;--rc-d:407px;--rcb-d:400px;--rh-e:484px;--rc-e:404px;--rcb-e:400px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">calendar</span></span>
       <div><h2 class="comp-title"><a href="/components/date-picker">Date picker</a></h2><p class="comp-desc">A field that opens a calendar, with quick picks and natural language.</p></div>
@@ -9996,7 +10002,7 @@ body.ui section.faq{display:none}
   <div class="btx-row"><span class="btx-l muted">Sizes</span><button class="pill accent sm">Small</button><button class="pill accent">Default</button><button class="pill accent btx-lg">Large</button></div>
 </div></template>
   </article>
-  <article class="comp" data-soft id="c52" data-v2="tooltip" data-reg="tooltip" style="--rh-a:420px;--rc-a:206px;--rcb-a:200px;--rh-b:420px;--rc-b:207px;--rcb-b:200px;--rh-c:420px;--rc-c:206px;--rcb-c:200px;--rh-d:420px;--rc-d:204px;--rcb-d:200px;--rh-e:420px;--rc-e:205px;--rcb-e:200px">
+  <article class="comp" data-soft id="c52" data-v2="tooltip" data-reg="tooltip" style="--rh-a:420px;--rc-a:205px;--rcb-a:200px;--rh-b:420px;--rc-b:209px;--rcb-b:200px;--rh-c:420px;--rc-c:207px;--rcb-c:200px;--rh-d:420px;--rc-d:207px;--rcb-d:200px;--rh-e:420px;--rc-e:204px;--rcb-e:200px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">help</span></span>
       <div><h2 class="comp-title"><a href="/components/tooltip">Tooltip</a></h2><p class="comp-desc">Quiet labels on hover, with shortcuts and a richer preview card.</p></div>
@@ -10021,7 +10027,7 @@ body.ui section.faq{display:none}
   <p class="muted ttp-n">Labels wait a moment, then follow you instantly between buttons.</p>
 </div></template>
   </article>
-  <article class="comp" data-soft id="c53" data-v2="search-input" data-reg="search-input" style="--rh-a:438px;--rc-a:326px;--rcb-a:320px;--rh-b:439px;--rc-b:327px;--rcb-b:320px;--rh-c:438px;--rc-c:326px;--rcb-c:320px;--rh-d:436px;--rc-d:324px;--rcb-d:320px;--rh-e:420px;--rc-e:325px;--rcb-e:320px">
+  <article class="comp" data-soft id="c53" data-v2="search-input" data-reg="search-input" style="--rh-a:437px;--rc-a:325px;--rcb-a:320px;--rh-b:441px;--rc-b:329px;--rcb-b:320px;--rh-c:439px;--rc-c:327px;--rcb-c:320px;--rh-d:439px;--rc-d:327px;--rcb-d:320px;--rh-e:420px;--rc-e:324px;--rcb-e:320px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">search</span></span>
       <div><h2 class="comp-title"><a href="/components/search-input">Search input</a></h2><p class="comp-desc">Search with scoped filters, recent queries and an agent answer.</p></div>
@@ -10039,7 +10045,7 @@ body.ui section.faq{display:none}
   </div>
 </div></template>
   </article>
-  <article class="comp" data-soft id="c57" data-v2="country-select" data-reg="country-select" style="--rh-a:647px;--rc-a:535px;--rcb-a:535px;--rh-b:639px;--rc-b:522px;--rcb-b:527px;--rh-c:645px;--rc-c:522px;--rcb-c:533px;--rh-d:647px;--rc-d:522px;--rcb-d:535px;--rh-e:602px;--rc-e:522px;--rcb-e:522px">
+  <article class="comp" data-soft id="c57" data-v2="country-select" data-reg="country-select" style="--rh-a:647px;--rc-a:535px;--rcb-a:522px;--rh-b:634px;--rc-b:522px;--rcb-b:522px;--rh-c:647px;--rc-c:535px;--rcb-c:535px;--rh-d:647px;--rc-d:535px;--rcb-d:522px;--rh-e:602px;--rc-e:522px;--rcb-e:522px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">filter_list</span></span>
       <div><h2 class="comp-title"><a href="/components/country-select">Country select</a></h2><p class="comp-desc">A searchable select with country codes, currency and keyboard support.</p></div>
@@ -10057,7 +10063,7 @@ body.ui section.faq{display:none}
   <span class="muted csx-h">Used for tax and currency</span>
 </div></template>
   </article>
-  <article class="comp" data-soft id="c51" data-v2="social-signin" data-reg="social-sign-in" style="--rh-a:521px;--rc-a:409px;--rcb-a:403px;--rh-b:522px;--rc-b:410px;--rcb-b:403px;--rh-c:521px;--rc-c:409px;--rcb-c:403px;--rh-d:519px;--rc-d:407px;--rcb-d:403px;--rh-e:488px;--rc-e:408px;--rcb-e:403px">
+  <article class="comp" data-soft id="c51" data-v2="social-signin" data-reg="social-sign-in" style="--rh-a:520px;--rc-a:408px;--rcb-a:403px;--rh-b:524px;--rc-b:412px;--rcb-b:403px;--rh-c:522px;--rc-c:410px;--rcb-c:403px;--rh-d:522px;--rc-d:410px;--rcb-d:403px;--rh-e:487px;--rc-e:407px;--rcb-e:403px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">person</span></span>
       <div><h2 class="comp-title"><a href="/components/social-sign-in">Social sign-in</a></h2><p class="comp-desc">One-tap providers that remember the last one you used.</p></div>
@@ -10075,7 +10081,7 @@ body.ui section.faq{display:none}
   <button class="ssi-mail">Continue with email</button>
 </div></template>
   </article>
-  <article class="comp" data-soft id="c55" data-v2="sign-in" data-reg="sign-in" style="--rh-a:420px;--rc-a:237px;--rcb-a:232px;--rh-b:420px;--rc-b:238px;--rcb-b:232px;--rh-c:420px;--rc-c:237px;--rcb-c:232px;--rh-d:420px;--rc-d:236px;--rcb-d:232px;--rh-e:420px;--rc-e:237px;--rcb-e:232px">
+  <article class="comp" data-soft id="c55" data-v2="sign-in" data-reg="sign-in" style="--rh-a:420px;--rc-a:237px;--rcb-a:232px;--rh-b:420px;--rc-b:240px;--rcb-b:232px;--rh-c:420px;--rc-c:238px;--rcb-c:232px;--rh-d:420px;--rc-d:238px;--rcb-d:232px;--rh-e:420px;--rc-e:235px;--rcb-e:232px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">lock</span></span>
       <div><h2 class="comp-title"><a href="/components/sign-in">Sign in</a></h2><p class="comp-desc">Email first, then a one-time code that fills itself in.</p></div>
@@ -10101,7 +10107,7 @@ body.ui section.faq{display:none}
   </div>
 </div></template>
   </article>
-  <article class="comp" data-soft id="c50" data-v2="form" data-reg="form" style="--rh-a:530px;--rc-a:418px;--rcb-a:412px;--rh-b:532px;--rc-b:420px;--rcb-b:420px;--rh-c:530px;--rc-c:418px;--rcb-c:412px;--rh-d:530px;--rc-d:418px;--rcb-d:412px;--rh-e:498px;--rc-e:418px;--rcb-e:412px">
+  <article class="comp" data-soft id="c50" data-v2="form" data-reg="form" style="--rh-a:530px;--rc-a:418px;--rcb-a:412px;--rh-b:533px;--rc-b:421px;--rcb-b:420px;--rh-c:531px;--rc-c:419px;--rcb-c:412px;--rh-d:531px;--rc-d:419px;--rcb-d:412px;--rh-e:498px;--rc-e:418px;--rcb-e:412px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">edit_note</span></span>
       <div><h2 class="comp-title"><a href="/components/form">Form</a></h2><p class="comp-desc">A project brief with inline checks and an agent that drafts the rest.</p></div>
@@ -10121,7 +10127,7 @@ body.ui section.faq{display:none}
   <div class="fmx-ft"><span class="fmx-ms muted"></span><button class="pill ink sm fmx-go" type="submit">Create brief</button></div>
 </form></template>
   </article>
-  <article class="comp wide" data-soft id="c64" data-v2="payment-form" data-reg="payment-form" style="--rh-a:536px;--rc-a:424px;--rcb-a:419px;--rh-b:537px;--rc-b:425px;--rcb-b:419px;--rh-c:536px;--rc-c:424px;--rcb-c:419px;--rh-d:535px;--rc-d:423px;--rcb-d:419px;--rh-e:544px;--rc-e:464px;--rcb-e:459px">
+  <article class="comp wide" data-soft id="c64" data-v2="payment-form" data-reg="payment-form" style="--rh-a:536px;--rc-a:424px;--rcb-a:419px;--rh-b:539px;--rc-b:427px;--rcb-b:419px;--rh-c:537px;--rc-c:425px;--rcb-c:419px;--rh-d:537px;--rc-d:425px;--rcb-d:419px;--rh-e:542px;--rc-e:462px;--rcb-e:459px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">lock</span></span>
       <div><h2 class="comp-title"><a href="/components/payment-form">Payment form</a></h2><p class="comp-desc">Card details with live formatting, brand detection and a clear total.</p></div>
@@ -10255,7 +10261,7 @@ body.ui section.faq{display:none}
 <section class="lib-sec" id="s-product" data-grp="basics">
   <div class="sec-head"><div><span class="sec-no">05</span><h2>Product</h2><p>Pricing, onboarding, setup flows and spending limits for the rest of your product.</p></div></div>
   <div class="sec-body" id="s-product-body"><div class="sec-uf"><div class="grid">
-  <article class="comp wide" data-soft id="c70" data-v2="pricing-cards" data-reg="pricing-cards" style="--rh-a:515px;--rc-a:397px;--rcb-a:387px;--rh-b:516px;--rc-b:398px;--rcb-b:387px;--rh-c:610px;--rc-c:492px;--rcb-c:482px;--rh-d:1135px;--rc-d:1015px;--rcb-d:1017px;--rh-e:1151px;--rc-e:1047px;--rcb-e:1049px">
+  <article class="comp wide" data-soft id="c70" data-v2="pricing-cards" data-reg="pricing-cards" style="--rh-a:513px;--rc-a:395px;--rcb-a:387px;--rh-b:517px;--rc-b:399px;--rcb-b:387px;--rh-c:611px;--rc-c:493px;--rcb-c:482px;--rh-d:1133px;--rc-d:1015px;--rcb-d:1009px;--rh-e:1160px;--rc-e:1058px;--rcb-e:1049px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">bolt</span></span>
       <div><h2 class="comp-title"><a href="/components/pricing-cards">Pricing cards</a></h2><p class="comp-desc">Three plans with a billing switch and a seat slider.</p></div>
@@ -10288,7 +10294,7 @@ body.ui section.faq{display:none}
   <div class="fold obx-fold"><div><div class="obx-list"></div></div></div>
 </div></template>
   </article>
-  <article class="comp" data-soft id="c73" data-v2="stepper" data-reg="stepper" style="--rh-a:420px;--rc-a:272px;--rcb-a:266px;--rh-b:420px;--rc-b:273px;--rcb-b:266px;--rh-c:420px;--rc-c:272px;--rcb-c:266px;--rh-d:420px;--rc-d:272px;--rcb-d:266px;--rh-e:472px;--rc-e:392px;--rcb-e:386px">
+  <article class="comp" data-soft id="c73" data-v2="stepper" data-reg="stepper" style="--rh-a:420px;--rc-a:272px;--rcb-a:266px;--rh-b:420px;--rc-b:275px;--rcb-b:266px;--rh-c:420px;--rc-c:273px;--rcb-c:266px;--rh-d:420px;--rc-d:273px;--rcb-d:266px;--rh-e:472px;--rc-e:392px;--rcb-e:386px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">account_tree</span></span>
       <div><h2 class="comp-title"><a href="/components/stepper">Stepper</a></h2><p class="comp-desc">A multi-step setup with a progress track that fills as you go.</p></div>
@@ -10305,7 +10311,7 @@ body.ui section.faq{display:none}
   <div class="stx-f"><button class="pill ghost sm stx-bk">Back</button><button class="pill ink sm stx-nx">Continue</button></div>
 </div></template>
   </article>
-  <article class="comp" data-soft id="c74" data-v2="set-limit" data-reg="set-limit" style="--rh-a:420px;--rc-a:237px;--rcb-a:232px;--rh-b:420px;--rc-b:280px;--rcb-b:280px;--rh-c:420px;--rc-c:237px;--rcb-c:232px;--rh-d:420px;--rc-d:237px;--rcb-d:232px;--rh-e:420px;--rc-e:280px;--rcb-e:280px">
+  <article class="comp" data-soft id="c74" data-v2="set-limit" data-reg="set-limit" style="--rh-a:420px;--rc-a:237px;--rcb-a:232px;--rh-b:420px;--rc-b:280px;--rcb-b:280px;--rh-c:420px;--rc-c:238px;--rcb-c:232px;--rh-d:420px;--rc-d:238px;--rcb-d:232px;--rh-e:420px;--rc-e:280px;--rcb-e:280px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">tune</span></span>
       <div><h2 class="comp-title"><a href="/components/set-limit">Set limit</a></h2><p class="comp-desc">A monthly agent budget with a draggable cap and a forecast.</p></div>
@@ -10324,7 +10330,7 @@ body.ui section.faq{display:none}
   <div class="slx-opt"><span class="muted">At the limit</span><div class="seg2 slx-sg" role="group" aria-label="At the limit"><button aria-pressed="true" data-v="pause">Pause runs</button><button aria-pressed="false" data-v="ask">Ask me</button><button aria-pressed="false" data-v="keep">Keep going</button></div></div>
 </div></template>
   </article>
-  <article class="comp" data-soft id="c75" data-v2="currency-converter" data-reg="currency-converter" style="--rh-a:420px;--rc-a:190px;--rcb-a:185px;--rh-b:420px;--rc-b:191px;--rcb-b:185px;--rh-c:420px;--rc-c:190px;--rcb-c:185px;--rh-d:420px;--rc-d:189px;--rcb-d:185px;--rh-e:420px;--rc-e:190px;--rcb-e:185px">
+  <article class="comp" data-soft id="c75" data-v2="currency-converter" data-reg="currency-converter" style="--rh-a:420px;--rc-a:190px;--rcb-a:185px;--rh-b:420px;--rc-b:193px;--rcb-b:185px;--rh-c:420px;--rc-c:191px;--rcb-c:185px;--rh-d:420px;--rc-d:191px;--rcb-d:185px;--rh-e:420px;--rc-e:188px;--rcb-e:185px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">trending_up</span></span>
       <div><h2 class="comp-title"><a href="/components/currency-converter">Currency converter</a></h2><p class="comp-desc">Show plan prices in local currency, with a swap and live rate.</p></div>
@@ -12632,83 +12638,108 @@ DM.def('reasoning-trail', (r, c) => {
 });
 /* ---------- Thinking ---------- */
 DM.def('thinking', (r, c) => {
-  const tk = $('.tk', r), list = $('.tk-list', r), title = $('.tk-title', r), time = $('.tk-time', r), head = $('.tk-h', r), fold = $('.tk-fold', r), mark = $('.think', r);
-  const chips = `<div class="tk-chips"><button class="fchip lnk" data-tip="Figma, 6 frames read">${I('figma','xs')}Pricing.fig</button><button class="fchip lnk" data-tip="src/styles/tokens.ts, 212 lines"><span class="ft">TS</span>tokens.ts</button><button class="fchip lnk" data-tip="src/components/PricingCard.tsx"><span class="ft re">TSX</span>PricingCard.tsx</button><button class="fchip lnk" data-tip="w3.org, WCAG 2.2 contrast">${I('globe','xs')}Contrast guide</button><button class="tk-more" data-tip="Button.tsx, globals.css">+2 more</button></div>`;
-  const steps = [
-    { mk:'search', run:'Searching the design system', done:'Searched the design system', chips:true, ms:1600 },
-    { run:'Reading 1 of 6 frames', done:'Read 6 frames from Pricing.fig', count:6, ms:1500 },
-    { run:'Checking if the old grid is in the tokens', done:"Dead end: the old grid isn't in tokens.ts", dead:true, ms:1400 },
-    { run:'Mapping every spacing value', done:'Mapped 9 spacing values', ms:1300 },
-    { run:'Comparing desktop and mobile', done:'Compared desktop and mobile', sub:true, ms:1100 },
-    { run:'Finding values off the 8px grid', done:'3 values break the 8px grid', sub:true, ms:1000 },
-    { run:'Merging both breakpoints', done:'Merged both breakpoints', hollow:true, ms:1000 },
-    { run:'Spotting cards that need a fix', done:'Found 3 cards to fix', ms:1200 },
-    { run:'Drafting the fix', done:'Drafted a 2-step fix', ms:1300 }
+  const tk = $('.tk', r), list = $('.tk-list', r), title = $('.tk-title', r), time = $('.tk-time', r), head = $('.tk-h', r), fold = $('.tk-fold', r), mark = $('.tk-mark', r);
+  // each step: what the agent does and what it found. Measuring the cards times out once, counts down and tries again
+  const S = [
+    ['Open Pricing v4 in Figma', '6 frames, 3 plan cards', 1300],
+    ['Read the spacing tokens', 'tokens.css, 9 spacing values', 1200],
+    ['Measure the plan cards', '3 cards are off the 8px grid', 1400, { retry:"Figma didn't answer", tip:'Pro has an 18px gap, Team 22px and Enterprise 13px' }],
+    ['Check text contrast', 'All 14 text pairs pass AA', 1100],
+    ['Plan the fix', '2 changes, about 3 minutes', 1200]
   ];
   const setOpen = o => { tk.dataset.open = o ? '1' : '0'; fold.classList.toggle('shut', !o); head.setAttribute('aria-expanded', o); };
   head.onclick = () => setOpen(tk.dataset.open !== '1');
-  // a finished line settles where it is: the shimmer stops and the new words sharpen out of a soft blur, never fading to nothing and back
-  const settle = (el, text) => {
-    el.style.transition = 'none'; el.classList.remove('shim'); el.textContent = text; void el.offsetWidth; el.style.transition = '';
-    if (REDUCE) return;
-    const bp = getComputedStyle(el).getPropertyValue('--motion').trim() === 'bp';
-    el.animate(bp ? [{ opacity:.6 }, { opacity:1 }] : [{ opacity:.6, filter:'blur(1.5px)' }, { opacity:1, filter:'blur(0)' }], { duration:bp ? 220 : 460, easing:bp ? 'steps(3, end)' : 'cubic-bezier(.22,1,.36,1)' });
-  };
+  // the line under a step opens and then crossfades; a tip on it holds the detail
+  const note = (li, text, tip) => { const res = $('.res', li), sp = res.firstElementChild; res.classList.add('on'); if (tip) swap(sp, `<span data-tip="${tip}">${text}</span>`, true); else swap(sp, text); };
+  const glyph = (li, g) => { const mk = $('.mk', li); mk.innerHTML = g; enter(mk.firstElementChild); };
   let secs = 0, live = true; c.every(1000, () => { if (live){ secs++; time.textContent = secs + 's'; } });
   c.run(async () => {
-    await c.wait(800);
-    let prev = null;
-    for (const s of steps){
-      if (prev) $('.rl', prev).classList.add('on');
-      const li = html(`<li class="tk-st run${s.sub ? ' sub' : ''}${s.dead ? ' dead' : ''}">${s.sub ? '<span class="curve"></span>' : ''}<span class="mk"><span class="pulse"></span></span><span class="rl"></span><div class="tx"><span class="lab shim">${s.run}</span></div></li>`);
+    await c.wait(600);
+    for (const [lab, res, ms, x] of S){
+      const li = html(`<li class="tk-st run"><span class="mk"><span class="spin"></span></span><div class="tx"><span class="lab shim">${lab}</span><span class="res"><span></span></span></div></li>`);
       list.appendChild(li); enter(li);
-      const lab = $('.lab', li), tx = $('.tx', li);
-      if (s.chips){ await c.wait(550); tx.insertAdjacentHTML('beforeend', chips); stagger($$('.fchip,.tk-more', tx), 80);
-        const more = $('.tk-more', tx); more.onclick = () => { hideTip(); const add = html(`<span style="display:contents"><button class="fchip lnk" data-tip="src/components/Button.tsx"><span class="ft re">TSX</span>Button.tsx</button><button class="fchip lnk" data-tip="src/styles/globals.css"><span class="ft">CSS</span>globals.css</button></span>`); more.replaceWith(add); stagger($$('.fchip', add), 70); }; }
-      // the count changes in place under the shimmer, so the line never blinks
-      if (s.count){ for (let n = 2; n <= s.count; n++){ await c.wait(s.ms / s.count); lab.textContent = 'Reading ' + n + ' of ' + s.count + ' frames'; } }
-      else await c.wait(s.ms);
-      settle(lab, s.done); li.classList.remove('run');
-      const mk = $('.mk', li);
-      mk.innerHTML = s.mk === 'search' ? I('search','xs') : s.dead ? I('x','xs') : s.hollow ? '<span class="ring"></span>' : '<span class="dot"></span>';
-      enter(mk.firstElementChild);
-      prev = li;
+      const l = $('.lab', li);
+      await c.wait(ms);
+      if (x && x.retry){
+        li.classList.replace('run', 'retry'); l.classList.remove('shim'); glyph(li, I('clock','xs'));
+        for (let k = 2; k > 0; k--){ note(li, `${x.retry}. Trying again in ${k}s`); await c.wait(1000); }
+        li.classList.replace('retry', 'run'); l.classList.add('shim'); glyph(li, '<span class="spin"></span>'); note(li, 'Trying again'); await c.wait(900);
+      }
+      li.classList.replace('run', 'done'); l.classList.remove('shim'); glyph(li, I('check','xs')); note(li, res, x && x.tip);
     }
-    await c.wait(500); live = false; $('.rl', prev).classList.add('on');
-    const fin = html(`<li class="tk-st tk-fin"><span class="mk">${I('ok','s')}</span><div class="tx"><span><span class="lab">Finished thinking</span><span class="sum">3 cards to fix · 2 steps</span></span></div></li>`);
-    list.appendChild(fin); enter(fin);
-    mark.classList.remove('on'); settle(title, 'Thought for ' + Math.max(secs, 1) + 's'); time.textContent = '';
-    await c.wait(2200); setOpen(false);
+    // the header becomes what the work came to, and folds the trace away
+    await c.wait(500); live = false;
+    head.classList.add('tk-fin'); mark.innerHTML = I('ok'); enter(mark.firstElementChild); title.classList.remove('shim'); swap(title, '3 cards to fix, 2 changes planned');
+    await c.wait(2000); setOpen(false);
+  });
+  // the preview's story: once it has folded, the person opens it again and reads what the cards measured
+  if (r === c.st) c.story(async s => {
+    await s.until(() => fold.classList.contains('shut')); await s.beat(2);
+    await s.tap(head); await s.beat(2);
+    await s.point($('.res [data-tip]', list)); await s.beat(3);
+    s.away(); await s.beat(1);
   });
 });
 /* ---------- Context meter ---------- */
 DM.def('context-meter', (r, c) => {
-  r.innerHTML = r.innerHTML.replace('{bars}', I('bars'));
-  /* the context window first, then the plan limits; the ring shows how full the context is */
-  const ROWS = [
-    { k:'ctx', l:'Context window', v:68, s:'136k of 200k tokens', tip:'Files 56k · Conversation 60k · Tool results 20k', go:'Compact' },
-    { k:'ses', l:'Session limit', v:4, s:'Resets in 4 hr 39 min' },
-    { k:'wk', l:'Weekly', v:16, s:'Resets Sun 10:00 PM' }
+  r.innerHTML = r.innerHTML.replace('{chev}', I('chev-d','xs'));
+  const LIMIT = 200;
+  // what fills the context, in thousands of tokens; each part lists what's in it on hover
+  const P = [
+    { k:'files', l:'Files', v:56.2, c:'var(--pb)', tip:'Pricing.fig export 31.9k, PricingCard.tsx 18.2k, tokens.css 6.1k' },
+    { k:'tools', l:'Tool output', v:41.8, c:'var(--pt)', tip:'Contrast check 17.4k, Figma frames 15.6k, grid audit 8.8k' },
+    { k:'chat', l:'Chat', v:32.1, c:'var(--pl)', tip:'48 turns with Maya Kim since 09:12' },
+    { k:'sys', l:'Instructions', v:6.3, c:'var(--faint)', tip:'Studio guidelines 4.1k, pricing brief 2.2k' }
   ];
-  const root = $('.ctm', r), rows = $('.ctm-rows', r), ring = $('.ctm-ring', r), arc = $('.ctm-ring .fl', r);
-  rows.innerHTML = ROWS.map(x => `<div class="ctm-r" data-k="${x.k}"><span class="l">${x.l}</span><span class="p num"><b style="font-weight:inherit">0</b>% used</span><span class="ctm-tr" role="meter" aria-label="${x.l}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"${x.tip ? ` data-tip="${x.tip}"` : ''}><i></i></span><span class="s"><span class="t">${x.s}</span>${x.go ? `<button class="ctm-go">${x.go}</button>` : ''}</span></div>`).join('');
-  const shown = {};
-  function set(k, v){
-    const row = $(`.ctm-r[data-k="${k}"]`, rows), n = $('.p b', row), from = shown[k] || 0; shown[k] = v;
-    $('.ctm-tr i', row).style.width = v + '%'; $('.ctm-tr', row).setAttribute('aria-valuenow', v); row.classList.toggle('hot', v >= 90);
-    tween(from, v, 1000, x => n.textContent = Math.round(x));
-    if (k === 'ctx'){ arc.style.strokeDasharray = v + ' 100'; arc.style.stroke = v >= 90 ? 'var(--warn)' : ''; ring.setAttribute('aria-label', 'Usage, context ' + v + '% full'); }
+  const root = $('.ctm', r), tg = $('.ctm-tg', r), pop = $('.ctm-pop', r), arc = $('.ctm-ring .fl', r), pc = $('.ctm-pc', r), tot = $('.ctm-tot', r);
+  const bar = $('.ctm-bar', r), leg = $('.ctm-leg', r), msg = $('.ctm-msg', r), go = $('.ctm-go', r), hint = $('.ctm-hint', r);
+  bar.innerHTML = P.map(p => `<i data-k="${p.k}" style="--c:${p.c}"></i>`).join('');
+  leg.innerHTML = P.map(p => `<div class="ctm-l" data-k="${p.k}" style="--c:${p.c}" data-tip="${p.tip}"><span class="sw"></span>${p.l}<span class="v num">0k</span></div>`).join('');
+  const fmt = v => v.toFixed(1) + 'k', sum = () => P.reduce((t, p) => t + p.v, 0);
+  // the numbers count to their new values; the bar, the ring and the percentage follow
+  const shown = {}; let total = 0;
+  function paint(ms = 900){
+    const all = sum(), pct = Math.round(all / LIMIT * 100);
+    P.forEach(p => { $(`i[data-k="${p.k}"]`, bar).style.width = (p.v / LIMIT * 100) + '%'; const el = $(`.ctm-l[data-k="${p.k}"] .v`, leg), from = shown[p.k] || 0; shown[p.k] = p.v; tween(from, p.v, ms, x => el.textContent = fmt(x)); });
+    const from = total; total = all; tween(from, all, ms, x => { tot.textContent = fmt(x); pc.textContent = Math.round(x / LIMIT * 100) + '%'; });
+    arc.style.strokeDasharray = pct + ' 100'; root.classList.toggle('hot', pct >= 85); tg.setAttribute('aria-label', `Context, ${pct}% used`);
   }
-  ring.onclick = () => { const open = root.classList.toggle('shut') === false; ring.setAttribute('aria-expanded', open); };
-  /* compacting frees most of the context, Undo puts the full thread back */
-  const go = $('.ctm-go', rows), sub = $('.ctm-r[data-k="ctx"] .t', rows); let compacted = false;
+  const say = (text, tone, icon) => { msg.className = 'ctm-msg on ' + tone; swap(msg.firstElementChild, `${I(icon,'xs')}<span>${text}</span>`, true); };
+  // hovering a part lights its share of the bar
+  c.on(leg, 'pointerover', e => { const l = e.target.closest('.ctm-l'); if (!l) return; bar.classList.add('hl'); $$('i', bar).forEach(i => i.classList.toggle('on', i.dataset.k === l.dataset.k)); });
+  c.on(leg, 'pointerout', e => { if (!leg.contains(e.relatedTarget)) bar.classList.remove('hl'); });
+  // the pill opens and shuts the panel; Escape shuts it while the pointer or the focus is on the meter
+  const setOpen = (o, back) => { root.dataset.open = o ? '1' : '0'; tg.setAttribute('aria-expanded', o); pop.inert = !o; if (back) tg.focus({ preventScroll:true }); };
+  tg.onclick = () => setOpen(root.dataset.open !== '1');
+  c.on(document, 'keydown', e => { if (e.key === 'Escape' && root.dataset.open === '1' && (root.contains(document.activeElement) || root.matches(':hover'))) setOpen(false, root.contains(document.activeElement)); });
+  // new tool output lands and takes the context close to its limit
+  function arrive(){ P[1].v = +(P[1].v + 38.5).toFixed(1); paint(700); say(`${Math.round(sum() / LIMIT * 100)}% full. Older turns start to drop at 200k`, 'warn', 'warn'); }
+  // Compact turns older turns into a summary and trims old tool output; Undo puts them back
+  const before = {}; let state = 'full';
   go.onclick = () => c.run(async () => {
     if (go._busy) return; go._busy = true;
-    if (!compacted){ swap(go, 'Compacting'); swap(sub, 'Summarising the thread'); await c.wait(900); set('ctx', 38); swap(sub, '76k of 200k tokens, 9 decisions kept'); swap(go, 'Undo'); }
-    else { set('ctx', 68); swap(sub, '136k of 200k tokens'); swap(go, 'Compact'); }
-    compacted = !compacted; go._busy = false;
+    if (state === 'full'){
+      P.forEach(p => before[p.k] = p.v); const was = sum();
+      go.innerHTML = '<span class="spin"></span>Compacting'; swap(hint, 'Summarising 48 turns'); await c.wait(1000);
+      P[2].v = 4.6; P[1].v = +(P[1].v - 13.7).toFixed(1); paint(1100);
+      say(`Freed ${fmt(was - sum())} tokens. 9 decisions kept`, 'ok', 'ok'); swap(hint, 'Older turns are now a summary'); go.textContent = 'Undo'; state = 'compact';
+    } else {
+      P.forEach(p => p.v = before[p.k]); paint(700); msg.className = 'ctm-msg'; swap(hint, 'Summarises older turns'); go.textContent = 'Compact'; state = 'full';
+    }
+    go._busy = false;
   });
-  c.later(300, () => ROWS.forEach(x => set(x.k, x.v)));
+  // it opens on its real numbers; they only count when something changes
+  paint(1);
+  // the preview's story: read what fills it, new tool output pushes it close to the limit, compact, then shut it
+  if (r === c.st) c.story(async s => {
+    await s.beat(3);
+    await s.point($('.ctm-l[data-k="tools"]', leg)); await s.beat(3);
+    await s.point($('.ctm-l[data-k="files"]', leg)); await s.beat(3);
+    s.away(); await s.beat(1);
+    arrive(); await s.beat(4);
+    await s.tap(go); s.away(); await s.until(() => state === 'compact'); await s.beat(4);
+    await s.tap(tg); s.away(); await s.beat(2);
+  });
 });
 /* ---------- Action log ---------- */
 DM.def('action-log', (r, c) => {
@@ -13191,7 +13222,7 @@ DM.def('live-answer', (r, c) => {
     const th = html(`<div class="lva-th"><span class="think on" style="color:var(--fg2)"><i></i><i></i><i></i><i></i></span><span class="shim">Thinking</span></div>`);
     turn.appendChild(th); enter(th);
     await c.wait(1300);
-    const tb = html(`<button class="lva-th lva-tb" aria-expanded="false"><span>Thought for 2s</span>${I('chev-d','xs')}</button>`);
+    const tb = html(`<button class="lva-th lva-tb" aria-expanded="false"><span>${steps.length} steps · 2s</span>${I('chev-d','xs')}</button>`);
     const tl = html(`<div class="fold shut lva-tl"><div><ul class="lva-tlist">${steps.map(x => `<li>${x}</li>`).join('')}</ul></div></div>`);
     th.replaceWith(tb); tb.after(tl);
     tb.onclick = () => { const s = tl.classList.toggle('shut'); tb.setAttribute('aria-expanded', !s); };
@@ -13266,63 +13297,82 @@ DM.def('thread-panel', (r, c) => {
 });
 /* ---------- Composer ---------- */
 DM.def('composer', (r, c) => {
-  const icons = { plus:'plus', folder:'folder', laptop:'laptop', cloud:'cloud', mic:'mic', up:'up', x:'x', check:'check', clip:'clip', image:'image', figma:'figma', at:'at', slash:'slash', branch:'branch' };
-  r.innerHTML = r.innerHTML.replace(/\{(\w+)\}/g, (m, k) => icons[k] ? I(icons[k]) : m);
-  const box = $('.cpx-box', r), ta = $('.cpx-ta', r), send = $('.cpx-bar .cpx-send', r), cv = $('.cpx-wave', r), thread = $('.cpx-thread', r), att = $('.cpx-att', r);
+  const icons = { clip:'clip', figma:'figma', eye:'eye', edit:'edit', list:'list', code:'code', mic:'mic', up:'up', check:'check', file:'file-text', image:'image' };
+  r.innerHTML = r.innerHTML.replace(/\{(\w+)\}/g, (m, k) => k === 'chev' ? I('chev-d','xs') : icons[k] ? I(icons[k]) : m);
+  const box = $('.cpx-box', r), ta = $('.cpx-ta', r), send = $('.cpx-bar .cpx-send', r), thread = $('.cpx-thread', r), att = $('.cpx-att', r), PH = ta.placeholder;
   const grow = () => { ta.style.height = 'auto'; ta.style.height = Math.min(ta.scrollHeight, 160) + 'px'; };
-  const sync = () => { send.disabled = !ta.value.trim() && !att.children.length; grow(); };
+  // send waits for text or a file, and for every file to finish loading
+  const sync = () => { send.disabled = (!ta.value.trim() && !att.children.length) || !!$('.fchip.ld,.fchip.err', att); grow(); };
   c.on(ta, 'input', sync);
-  c.on(ta, 'keydown', e => { if (e.key === 'Enter' && !e.shiftKey && box.dataset.mode === 'idle'){ e.preventDefault(); submit(); } if (e.key === 'Escape' && box.dataset.mode === 'voice') stopVoice(false); });
-  /* plus menu */
-  const ATT = { file:['file-text','brief.pdf'], shot:['image','Screenshot 10.42'], figma:['figma','Pricing / Desktop'] };
-  $$('[data-add]', r).forEach(b => b.onclick = () => { const a = ATT[b.dataset.add]; const ch = html(`<span class="fchip">${I(a[0],'xs')}${a[1]}<button class="x" aria-label="Remove ${a[1]}">${I('x','xs')}</button></span>`); att.appendChild(ch); enter(ch); $('.x', ch).onclick = () => { ch.classList.add('leave'); setTimeout(() => { ch.remove(); sync(); }, 300); }; sync(); });
-  $$('[data-ins]', r).forEach(b => b.onclick = () => { ta.value += (ta.value && !ta.value.endsWith(' ') ? ' ' : '') + b.dataset.ins; ta.focus({ preventScroll:true }); sync(); });
-  const radio = (sel, attr, fn) => $$(sel, r).forEach(b => b.onclick = () => { $$(sel, r).forEach(x => x.setAttribute('aria-checked', x === b)); fn(b.dataset[attr]); });
-  radio('[data-proj]', 'proj', v => swap($('.cpx-proj', r), v));
-  radio('[data-env]', 'env', v => { swap($('.cpx-env', r), v); const ch = $('[data-pop=".pp-env"]', r); ch.querySelector('svg').outerHTML = I({ Local:'laptop', Worktree:'branch', Cloud:'cloud' }[v]); });
-  const effN = ['','Low','Medium','High'];
-  radio('[data-eff]', 'eff', v => { const b = $('.cpx-eff', r); $$('.cpx-bar .cpx-bars i', r).forEach((x, i) => x.classList.toggle('on', i < +v)); b.dataset.tip = 'Effort: ' + effN[v]; });
-  const cr = $('.cc-row', r); cr.onclick = () => { const on = cr.getAttribute('aria-checked') !== 'true'; cr.setAttribute('aria-checked', on); $('.cpx-cloud', r).classList.toggle('on', on); $('.cpx-cloud', r).dataset.tip = on ? 'Hands off to the cloud when you close your laptop' : 'Hand off to the cloud'; };
-  /* dictation, played from a sample because the page can't use a microphone */
-  const said = 'Can you tighten the spacing on the pricing cards and keep the buttons the same height? Then run the visual tests before you open the PR.';
-  let samples = [], speaking = 0, last = 0, before = '', vc = null;
-  function draw(t){
-    if (box.dataset.mode !== 'voice') return false;
-    if (t - last > 55){ last = t; samples.push(speaking > 0 ? Math.min(1, .25 + Math.random() * .75 * (.6 + .4 * Math.sin(t / 90))) : 0); if (samples.length > 400) samples.shift(); if (speaking > 0) speaking--; }
-    const dpr = devicePixelRatio || 1, w = cv.clientWidth, h = cv.clientHeight; if (!w) return;
-    if (cv.width !== w * dpr){ cv.width = w * dpr; cv.height = h * dpr; }
-    const x = cv.getContext('2d'); x.setTransform(dpr, 0, 0, dpr, 0, 0); x.clearRect(0, 0, w, h);
-    const cs = getComputedStyle(r), col = cs.getPropertyValue('--fg2').trim(), faint = cs.getPropertyValue('--faint').trim();
-    const step = 3.5, n = Math.floor(w / step);
-    for (let i = 0; i < n; i++){ const v = samples[samples.length - n + i], px = i * step + 1, mid = h / 2, fade = Math.min(1, i / 18);
-      x.globalAlpha = fade;
-      if (!v){ x.fillStyle = faint; x.fillRect(px, mid - .6, 1.2, 1.2); } else { const bh = Math.max(3, v * (h - 6)); x.fillStyle = col; x.beginPath(); x.roundRect ? x.roundRect(px, mid - bh / 2, 2, bh, 1) : x.rect(px, mid - bh / 2, 2, bh); x.fill(); } }
-    x.globalAlpha = 1;
+  c.on(r, 'keydown', e => { if (e.target === ta && e.key === 'Enter' && !e.shiftKey && box.dataset.mode === 'idle'){ e.preventDefault(); submit(); } if (e.key === 'Escape' && box.dataset.mode === 'voice') stopVoice(false, true); });
+  /* attachments load before they can be sent. The first Figma link can't be opened, so the error shows, and Try again fetches it */
+  const ATT = { file:['file-text','Spacing notes.pdf'], figma:['figma','Pricing / Desktop'], shot:['image','Screenshot 10.42'] };
+  let figmaTries = 0;
+  function load(ch, kind){
+    const a = ATT[kind]; ch.className = 'fchip ld'; $('.ic', ch).innerHTML = '<span class="spin"></span>'; swap($('.n', ch), a[1]); const rt = $('.rt', ch); if (rt) rt.remove(); sync();
+    const fail = kind === 'figma' && figmaTries++ === 0;
+    c.later(1000, () => { if (!ch.isConnected) return;
+      if (fail){ ch.className = 'fchip err'; $('.ic', ch).innerHTML = I('alert','xs'); swap($('.n', ch), a[1] + " can't be opened");
+        const b = html(`<button class="rt" aria-label="Try again" data-tip="Try again">${I('refresh','xs')}</button>`); $('.x', ch).before(b); b.onclick = () => load(ch, kind); }
+      else { ch.className = 'fchip'; $('.ic', ch).innerHTML = I(a[0],'xs'); enter($('.ic', ch).firstElementChild); }
+      sync(); });
   }
+  function add(kind){
+    const a = ATT[kind], ch = html(`<span class="fchip"><span class="ic" style="display:grid"></span><span class="n">${a[1]}</span><button class="x" aria-label="Remove ${a[1]}">${I('x','xs')}</button></span>`);
+    att.appendChild(ch); enter(ch);
+    $('.x', ch).onclick = () => { ch.classList.add('leave'); c.later(300, () => { ch.remove(); sync(); }); };
+    load(ch, kind);
+  }
+  $$('[data-add]', r).forEach(b => b.onclick = () => add(b.dataset.add));
+  /* what the agent works on, and what it may do: a menu each, the chip shows the pick */
+  const pick = (menu, chip, name, key) => $$(menu + ' .mi', r).forEach(b => b.onclick = () => {
+    $$(menu + ' .mi', r).forEach(x => x.setAttribute('aria-checked', x === b));
+    const ch = $(chip, r); ch.firstElementChild.outerHTML = I(b.dataset.ic); swap($(name, ch), b.dataset[key]);
+  });
+  pick('.pp-ctx', '.cpx-ctx', '.cpx-ctx-n', 'ctx');
+  pick('.pp-mode', '.cpx-mode', '.cpx-mode-n', 'mode');
+  /* dictation, played from a sample because the page can't use a microphone: a red dot and a clock, the words arrive in the box */
+  const said = 'Tighten the spacing on the plan cards and keep the buttons the same height';
+  let before = '', vc = null;
   async function dictate(){
     if (vc) vc.stop(); vc = ctl(); const k = vc; c.offs.push(() => k.stop());
-    before = ta.value; samples = []; speaking = 0; box.dataset.mode = 'voice'; ta.value = ''; ta.placeholder = 'Listening…'; grow();
-    c.loop(draw);
-    await k.run(async () => {
-      await k.wait(900);
-      for (const w of said.split(' ')){ speaking = 6; ta.value += (ta.value ? ' ' : '') + w; grow(); await k.wait(150 + Math.random() * 140 + (/[?.,]$/.test(w) ? 520 : 0)); }
-    });
+    before = ta.value; box.dataset.mode = 'voice'; ta.value = ''; ta.placeholder = 'Listening…'; grow();
+    const t0 = performance.now(), tm = $('.cpx-tm', r); tm.textContent = '0:00';
+    k.every(250, () => { const s = Math.floor((performance.now() - t0) / 1000); tm.textContent = Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); });
+    await k.run(async () => { await k.wait(700); for (const w of said.split(' ')){ ta.value += (ta.value ? ' ' : '') + w; grow(); await k.wait(160 + Math.random() * 120); } });
   }
-  function stopVoice(keep){ if (vc) vc.stop(); box.dataset.mode = 'idle'; ta.placeholder = 'Ask anything, or type / for skills'; if (!keep) ta.value = before; sync(); ta.focus({ preventScroll:true }); }
+  function stopVoice(keep, mine){ if (vc) vc.stop(); box.dataset.mode = 'idle'; ta.placeholder = PH; if (!keep) ta.value = before; sync(); if (mine) ta.focus({ preventScroll:true }); }
   $('.cpx-mic', r).onclick = dictate;
-  $('.cpx-cancel', r).onclick = () => stopVoice(false);
-  $('.cpx-ok', r).onclick = () => stopVoice(true);
+  $('.cpx-cancel', r).onclick = () => stopVoice(false, true);
+  $('.cpx-ok', r).onclick = () => stopVoice(true, true);
+  /* sending: the message and its files go up into the conversation, and the agent answers in the mode picked */
   function submit(){
-    const v = ta.value.trim(); if (!v && !att.children.length) return;
-    const files = $$('.fchip', att).map(f => f.textContent.trim());
+    if (send.disabled) return;
+    const v = ta.value.trim(), files = $$('.fchip', att).map(f => $('.n', f).textContent), mode = $('.cpx-mode-n', r).textContent, ctx = $('.cpx-ctx-n', r).textContent;
     ta.value = ''; att.innerHTML = ''; sync();
     const b = html(`<div class="bub">${files.length ? `<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:${v ? 6 : 0}px">${files.map(f => `<span class="fchip">${I('clip','xs')}${f}</span>`).join('')}</div>` : ''}${v.replace(/</g,'&lt;')}</div>`); thread.appendChild(b); enter(b);
-    const a = html(`<div class="cpx-ag"><span class="think on"><i></i><i></i><i></i><i></i></span><span class="shim">Thinking</span></div>`); thread.appendChild(a); enter(a);
+    const a = html(`<div class="cpx-ag wk"><span class="think on"><i></i><i></i><i></i><i></i></span><span class="shim">Working</span></div>`); thread.appendChild(a); enter(a);
     while (thread.children.length > 4) thread.firstElementChild.remove();
-    c.later(1700, () => { a.innerHTML = '<span>On it. I\'ll start with the pricing cards.</span>'; enter(a); });
+    const say = { Ask:`Looking at ${ctx}. I won't change anything.`, Edit:`On it. I'll make the changes on a new page in ${ctx}.`, Plan:`I'll write a plan for ${ctx} first, then wait for you.` }[mode];
+    c.later(1700, () => { a.classList.remove('wk'); a.innerHTML = `<span>${say}</span>`; enter(a); });
   }
   send.onclick = submit;
   sync();
+  // the preview's story: attach a frame that won't open, try again, write the ask, switch to Edit and send
+  if (r === c.st) c.story(async s => {
+    await s.beat(3);
+    await s.tap($('.cpx-add', r)); await s.beat(3);
+    await s.tap($('.pp-plus [data-add="figma"]', r)); s.away();
+    await s.until(() => $('.fchip.err', att)); await s.beat(3);
+    await s.tap($('.fchip.err .rt', att)); s.away();
+    await s.until(() => att.children.length && !$('.fchip.ld,.fchip.err', att)); await s.beat(1);
+    for (const w of 'Tighten the spacing on the plan cards'.split(' ')){ ta.value += (ta.value ? ' ' : '') + w; sync(); await s.beat(.3); }
+    await s.beat(2);
+    await s.tap($('.cpx-mode', r)); await s.beat(3);
+    await s.tap($('.pp-mode [data-mode="Edit"]', r)); s.away(); await s.beat(2);
+    await s.tap(send); s.away();
+    await s.until(() => $('.cpx-ag', thread) && !$('.cpx-ag.wk', thread)); await s.beat(1);
+  });
 });
 /* ---------- Voice capture ---------- */
 DM.def('voice-capture', (r, c) => {
@@ -14781,8 +14831,10 @@ DM.def('harness', (r, c) => {
   const cpT = tplOf('composer');
   if (cpT){ bot.append(cpT.content.cloneNode(true)); try { DM.defs.composer(bot, c, bot); } catch(e){ console.error('composer', e); } }
   const cpx = $('.cpx', bot), ta = $('.cpx-ta', bot), att = $('.cpx-att', bot);
-  const ctT = tplOf('context-meter'), ft = ctT && ta && $('.ctm-ft', ctT.content).cloneNode(true);
-  if (ft){ $('.muted', ft).remove(); const rb = $('.ctm-ring', ft); rb.removeAttribute('aria-expanded'); $('.cpx-eff', bot).before(ft); }
+  // the context ring is the meter's own ring, as a button of its own in the composer's bar, before the mode
+  const ctT = tplOf('context-meter'), rs = ctT && ta && $('.ctm-ring svg', ctT.content);
+  const ft = rs && html(`<span class="ctm-ft"><button class="ctm-ring" aria-label="Context">${rs.outerHTML}</button></span>`);
+  if (ft) $('.cpx-mode', bot).before(ft);
   const ring = v => { if (!ft) return; const rb = $('.ctm-ring', ft), fl = $('.fl', ft); fl.style.strokeDasharray = v + ' 100'; fl.style.opacity = v ? '' : '0';
     rb.dataset.tip = 'Context ' + v + '% full'; rb.setAttribute('aria-label', 'Context, ' + v + '% full'); };
   const input = () => ta && ta.dispatchEvent(new Event('input'));
@@ -15016,7 +15068,7 @@ DM.def('harness', (r, c) => {
         const box = add(html('<div class="lva-turn"></div>'));
         const th = html(`<div class="lva-th"><span class="think on" style="color:var(--fg2)"><i></i><i></i><i></i><i></i></span><span class="shim">Thinking</span></div>`);
         box.appendChild(th); status(cv, 'think', 'Thinking'); await k.wait(1100);
-        const tb = html(`<button class="lva-th lva-tb" aria-expanded="false"><span>Thought for 1s</span>${I('chev-d','xs')}</button>`);
+        const tb = html(`<button class="lva-th lva-tb" aria-expanded="false"><span>${steps.length} steps · 1s</span>${I('chev-d','xs')}</button>`);
         const tl = html(`<div class="fold shut lva-tl"><div><ul class="lva-tlist">${steps.map(x => `<li>${x}</li>`).join('')}</ul></div></div>`);
         th.replaceWith(tb); tb.after(tl);
         tb.onclick = () => { const s = tl.classList.toggle('shut'); tb.setAttribute('aria-expanded', !s); };

@@ -1,37 +1,35 @@
 {
-  "summary": "Thinking shows an agent's reasoning as a live list of steps while it works, under a header that reads \"Thinking\" and counts the seconds. When the agent finishes, the header changes to \"Thought for Ns\" and the trace folds away, a click away for anyone who wants to read it.",
+  "summary": "Thinking is the live trace an agent writes while it works: a plain list of the steps it takes, each with what it found. A step that runs into a problem shows it in amber while it waits and tries again. When the work is done, the header says what it came to and the trace folds away, one click from opening again.",
   "use": [
-    "When your agent takes several seconds before it answers and people should see that it is making progress.",
-    "When you want to show which files and pages the agent read on the way.",
-    "When dead ends are worth showing, so people understand why the agent took the path it did.",
-    "When the reasoning should stay available after the answer without taking up room."
+    "When an agent works for more than a few seconds and people want to see what it is doing rather than a spinner.",
+    "When each step has a result worth reading, like how many frames it opened or which cards failed a check.",
+    "When a step can hit a timeout or a rate limit and the agent waits it out instead of failing.",
+    "When the trace should step aside once the answer is ready but stay one click away."
   ],
   "features": [
-    "Each step has a `label` and a `state`. Running steps shimmer and their label can change in place, like \"Reading 2 of 6\". Done steps settle, and dead steps get a cross for a path that went nowhere.",
-    "A finished step keeps a dot, a search glass or a hollow ring, set with `mark`, and `sub` indents a step under the one before it.",
-    "Steps can show `sources` as file and link chips, with extra ones behind a \"+N more\" chip that lists them in its tooltip.",
-    "While `running` is true, the header shimmers and counts seconds, unless you pass `seconds`.",
-    "Once it stops running, `summary` adds a \"Finished thinking\" line, and with `collapseWhenDone` on (the default) the trace folds itself away about two seconds later.",
-    "Clicking the header opens and closes the trace, and `open`, `defaultOpen` and `onOpenChange` let you control it."
+    "Each step has a `label`, a `state` and an optional `result`. Running steps spin and shimmer, `retry` shows a clock in amber while the step waits on a problem, and `done` turns into a check.",
+    "A step's `result` opens under it and crossfades when it changes, so a countdown like \"Trying again in 2s\" updates in place. `resultTip` adds more detail on hover.",
+    "The header shows `title` while it runs, like \"Checking the pricing page\", and a clock that counts by itself unless you pass `seconds`.",
+    "When `running` turns false, the header becomes `summary`, like \"3 cards to fix, 2 changes planned\", with a check. With `collapseWhenDone` on, the default, the trace folds away a moment later.",
+    "The header toggles the trace open and shut, and `open`, `defaultOpen` and `onOpenChange` let you control it."
   ],
   "a11y": [
-    "The header is a button with `aria-expanded`.",
-    "The step list is an `aria-live=\"polite\"` region, so new steps are announced as they arrive.",
-    "When folded, the trace is `inert` and `aria-hidden`.",
-    "With `prefers-reduced-motion: reduce`, step labels change without the blur animation and other motion is cut to near zero."
+    "The header is a button with `aria-expanded`, so screen readers hear whether the trace is open.",
+    "The list of steps is an `aria-live=\"polite\"` region, so new steps and their results are announced as they arrive.",
+    "With `prefers-reduced-motion: reduce`, the spinner, shimmer and crossfades stop and changes appear at once."
   ],
   "faq": [
     {
-      "q": "How do I update a step while it is still running?",
-      "a": "Keep the steps in state and replace the running step's `label`, for example with a count. While it shimmers, the new words simply replace the old ones. When you set `state` to 'done', the final label settles in with a short sharpen."
+      "q": "How do I show a step that is waiting out a problem?",
+      "a": "Set its `state` to `'retry'` and put what it waits on in `result`, like \"Figma didn't answer. Trying again in 2s\". Update the result each second for a countdown, then set the state back to `'running'` and finally `'done'` with what it found."
     },
     {
-      "q": "Can I keep the trace open after the agent finishes?",
-      "a": "Yes. Set `collapseWhenDone={false}`, or control `open` yourself."
+      "q": "What does the header say when the work is done?",
+      "a": "Whatever you pass as `summary`, which should say what the work came to. Without it, the header says how many steps there were."
     },
     {
-      "q": "How is this different from the reasoning trail?",
-      "a": "Thinking is the live view while the agent works and folds away when it is done. Reasoning trail lays out the plan, notes, sources and edits after the agent has finished."
+      "q": "Can I keep the trace open after it finishes?",
+      "a": "Yes. Set `collapseWhenDone` to false, or control it with `open` and `onOpenChange`."
     }
   ]
 }

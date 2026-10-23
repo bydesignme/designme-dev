@@ -18,7 +18,7 @@ const names = site.sections.flatMap(s => s.cards.map(c => c.reg)).filter(n => !o
 // most demos have settled after 6 seconds; these cycle, so they are taken at a moment that shows them whole. The longer
 // stories are taken at the end that tells them: Design review once approved, Model picker once Sonnet on high is set,
 // and Answer action bar on its second version
-const WAIT = { toast:2600, 'status-pill':3300, 'design-review':9500, 'model-picker':13000, 'answer-action-bar':17000 };
+const WAIT = { toast:2600, 'status-pill':3300, 'design-review':9500, 'model-picker':13000, 'answer-action-bar':17000, composer:18000, thinking:11000, 'context-meter':10500 };
 const OUT = { thumbs:path.join(HERE, 'public/components/thumbs'), og:path.join(HERE, 'public/components/og') };
 Object.values(OUT).forEach(d => fs.mkdirSync(d, { recursive:true }));
 

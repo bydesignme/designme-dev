@@ -40,51 +40,52 @@
 .lva-fu button{display:inline-flex;align-items:center;gap:8px;padding:6px 12px 6px 10px;border-radius:999px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);font-size:13px;color:var(--fg2);transition:color .2s,box-shadow .2s,transform .2s var(--ease)}
 .lva-fu button:hover{color:var(--fg);box-shadow:inset 0 0 0 1px var(--faint)}
 </style><style>/* ---------- Composer ---------- */
-.cpx{display:flex;flex-direction:column;gap:14px}
+.cpx{display:flex;flex-direction:column;justify-content:flex-end;gap:14px;overflow-anchor:none}
+/* neither the composer nor the box it sits in anchors the page's scroll, so the page stays put as the thread grows and clears */
+.stage-in:has(>.cpx){overflow-anchor:none}
+/* on a card the composer keeps the room the conversation will take, with the box at its foot, so the box stays put */
+.stage-in>.cpx{min-height:inherit}
 .cpx-thread{display:flex;flex-direction:column;gap:12px}
 .cpx-thread:empty{display:none}
 .cpx-ag{font-size:14px;color:var(--fg2);display:flex;gap:8px;align-items:center}
-.cpx-box{position:relative;background:var(--surface);border-radius:20px;box-shadow:var(--shadow);transition:box-shadow .3s}
+.cpx-box{position:relative;background:var(--surface);border-radius:20px;box-shadow:var(--shadow);transition:box-shadow .32s}
 .cpx-box:focus-within{box-shadow:var(--shadow-pop)}
 .cpx-att{display:flex;gap:6px;flex-wrap:wrap;padding:12px 14px 0}
 .cpx-att:empty{display:none}
-.cpx-att .fchip .x{display:grid;place-items:center;width:16px;height:16px;border-radius:50%;margin-right:-4px;color:var(--muted)}
-.cpx-att .fchip .x:hover{background:var(--chip);color:var(--fg)}
-.cpx-ta{display:block;width:100%;border:0;outline:0;resize:none;background:none;color:var(--fg);font:inherit;font-size:14px;line-height:1.5;padding:15px 17px 4px;min-height:54px;max-height:160px;transition:color .4s}
+.cpx-att .fchip{transition:color .32s,background .32s}
+.cpx-att .fchip .x,.cpx-att .fchip .rt{display:grid;place-items:center;width:18px;height:18px;border-radius:50%;margin-right:-4px;color:var(--muted)}
+.cpx-att .fchip .x:hover,.cpx-att .fchip .rt:hover{background:var(--chip);color:var(--fg)}
+.cpx-att .fchip .spin{width:10px;height:10px}
+.cpx-att .fchip.ld{color:var(--muted)}
+.cpx-att .fchip.err{color:var(--bad);background:var(--bad-bg)}
+.cpx-att .fchip.err .rt{color:var(--bad)}
+.cpx-ta{display:block;width:100%;border:0;outline:0;resize:none;background:none;color:var(--fg);font:inherit;font-size:14px;line-height:1.5;padding:15px 17px 4px;min-height:54px;max-height:160px;transition:color .32s}
 .cpx-ta::placeholder{color:var(--muted)}
-.cpx-box[data-mode="voice"] .cpx-ta{color:var(--muted);font-style:italic}
+.cpx-box[data-mode="voice"] .cpx-ta{color:var(--fg2)}
 .cpx-rows{display:grid;padding:6px 10px 10px}
-.cpx-bar,.cpx-voice{grid-area:1/1;display:flex;align-items:center;gap:5px;min-width:0;transition:opacity .35s var(--ease),transform .5s var(--ease),filter .35s var(--ease)}
-.cpx-voice{opacity:0;transform:translateY(6px);filter:blur(3px);pointer-events:none;visibility:hidden;transition:opacity .35s var(--ease),transform .5s var(--ease),filter .35s var(--ease),visibility 0s .35s}
-.cpx-box[data-mode="voice"] .cpx-bar{opacity:0;transform:translateY(-6px);filter:blur(3px);pointer-events:none}
-.cpx-box[data-mode="voice"] .cpx-voice{opacity:1;transform:none;filter:none;pointer-events:auto;visibility:visible;transition-delay:0s}
-.cpx-bars{display:inline-flex;gap:2px;align-items:flex-end;height:12px}
-.cpx-bars i{width:3px;border-radius:1.5px;background:var(--faint);transition:background .3s}
-.cpx-bars i:nth-child(1){height:5px}.cpx-bars i:nth-child(2){height:8.5px}.cpx-bars i:nth-child(3){height:12px}
-.cpx-bars i.on{background:var(--fg)}
-.cpx-bar>.cpx-add{width:32px;height:32px}
+.cpx-bar,.cpx-voice{grid-area:1/1;display:flex;align-items:center;gap:4px;min-width:0;transition:opacity .32s var(--ease),transform .42s var(--ease)}
+.cpx-voice{opacity:0;transform:translateY(6px);pointer-events:none;visibility:hidden;transition:opacity .32s var(--ease),transform .42s var(--ease),visibility 0s .32s}
+.cpx-box[data-mode="voice"] .cpx-bar{opacity:0;transform:translateY(-6px);pointer-events:none}
+.cpx-box[data-mode="voice"] .cpx-voice{opacity:1;transform:none;pointer-events:auto;visibility:visible;transition-delay:0s}
+.cpx-bar>.ib{width:32px;height:32px;flex:none}
 .cpx-add[aria-expanded="true"]{background:var(--chip);color:var(--fg)}
-.cpx-send{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:var(--on-accent);flex:none;transition:opacity .3s,transform .15s,background .2s}
+.cpx-bar .chip{height:32px;padding:0 10px;gap:6px;background:none;min-width:0;font-size:13px;color:var(--fg2)}
+.cpx-bar .chip:hover,.cpx-bar .chip[aria-expanded="true"]{background:var(--chip);color:var(--fg)}
+.cpx-bar .chip>span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cpx-bar .chip>svg:last-child{color:var(--muted)}
+.cpx-send{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:var(--on-accent);flex:none;transition:opacity .32s,transform .16s,background .16s}
 .cpx-send:hover{background:var(--accent-2)}
 .cpx-send:active{transform:scale(.92)}
 .cpx-send[disabled]{opacity:1;cursor:not-allowed;background:var(--rail);color:var(--surface)}
-.cpx-wave{flex:1;min-width:0;height:30px;display:block}
-.cpx-cloud.on{color:var(--accent);background:var(--accent-bg)}
-.cpx-cloudpop{width:290px;padding:12px}
-.cc-h{display:flex;gap:10px;color:var(--fg2)}
-.cc-h b{display:block;color:var(--fg);font-weight:500;font-size:13.5px}
-.cc-h span{display:block;font-size:12.5px;color:var(--muted);line-height:1.45;margin-top:2px}
-.cc-row{display:flex;align-items:center;justify-content:space-between;width:100%;margin-top:12px;padding:9px 10px;border-radius:10px;background:var(--chip);font-size:13px}
-.cc-row[aria-checked="true"] .toggle{background:var(--accent)}
-.cc-row[aria-checked="true"] .toggle::after{transform:translateX(12px)}
-.cc-meta{display:flex;align-items:center;gap:7px;margin-top:10px;font-size:12px;color:var(--muted)}
-.pp-plus,.pp-env,.pp-proj,.pp-eff{width:268px}
-/* one quiet chip style in the toolbar; at phone width the project chip steps aside */
-.cpx-bar .chip{background:none;min-width:0}
-.cpx-bar .chip:hover,.cpx-bar .chip[aria-expanded="true"]{background:var(--chip)}
-.cpx-bar .chip.on{box-shadow:none}
-.cpx-bar>.ib,.cpx-bar>.cpx-send{flex:none}
-@media (max-width:480px){.cpx-bar .chip[data-pop=".pp-proj"]{display:none}}
+/* dictation: a red dot and a clock while it listens, the words arriving in the box, then Cancel or Done */
+.cpx-rec{display:inline-flex;align-items:center;gap:8px;padding-left:8px;font-size:13px;color:var(--fg)}
+.cpx-dot{width:8px;height:8px;border-radius:50%;background:var(--bad);animation:cpxrec 1.6s var(--ease-io) infinite}
+@keyframes cpxrec{50%{opacity:.35}}
+.cpx-tm{font-size:13px;margin-left:4px}
+.cpx-voice .pill{flex:none}
+.pp-plus,.pp-ctx,.pp-mode{width:264px}
+.cpx-bar>.cpx-send{flex:none}
+@media (max-width:480px){.cpx-bar .cpx-ctx>span{max-width:88px}}
 </style><style>/* ---------- Artifact card ---------- */
 .afx{overflow:hidden}
 .afx-prev{padding:16px;background:var(--chip)}
@@ -125,37 +126,36 @@
 .tcx-io pre{margin:0;padding:9px 11px;border-radius:10px;background:var(--chip);font-family:var(--mono);font-size:11.5px;line-height:1.65;white-space:pre-wrap;word-break:break-word}
 .tcx-io .k{color:var(--pb)}.tcx-io .s{color:var(--pm)}.tcx-io .n{color:var(--pp)}
 </style><style>/* ---------- Thinking ---------- */
-.tk{font-size:14px}
-.tk-h{display:flex;align-items:center;gap:10px;padding:4px 8px 4px 2px;border-radius:10px;transition:background .25s}
+/* a plain list of what the agent does, each step with what it found; the header ends as a summary of the work */
+/* neither the trace nor the box it sits in anchors the page's scroll: a centred demo that grows would otherwise pull
+   the page along with it */
+.stage-in:has(>.tk){overflow-anchor:none}
+.tk{font-size:14px;width:100%;max-width:420px;margin-inline:auto;overflow-anchor:none}
+/* on a card the trace keeps the room it will fill, so the header stays put as steps arrive */
+.stage-in>.tk{min-height:inherit}
+.tk-h{display:flex;align-items:center;gap:10px;width:calc(100% + 16px);margin:0 -8px;padding:6px 8px;border-radius:10px;text-align:left;transition:background var(--t-fast)}
 .tk-h:hover{background:var(--row)}
-.tk-mark{width:16px;display:grid;place-items:center;color:var(--fg2)}
-.tk-time{color:var(--muted)}
-.tk-chev{color:var(--muted);transition:transform .45s var(--ease)}
+.tk-mark{width:16px;height:16px;flex:none;display:grid;place-items:center;color:var(--fg2)}
+.tk-h.tk-fin .tk-mark{color:var(--ok)}
+.tk-title{flex:1;min-width:0;color:var(--fg)}
+.tk-time{color:var(--muted);font-size:13px}
+.tk-chev{color:var(--muted);transition:transform .32s var(--ease)}
 .tk[data-open="0"] .tk-chev{transform:rotate(-90deg)}
-.tk-list{list-style:none;margin:0;padding:8px 0 0}
-/* on a card the trace keeps the room its steps will fill, so the header stays put as they arrive, and gives it back as it folds */
-.stage-in>.tk{min-height:444px;transition:min-height var(--t-slow) var(--ease)}
-.stage-in>.tk[data-open="0"]{min-height:0}
-.tk-st{position:relative;display:flex;padding:5px 0 5px 26px;min-height:31px}
-.tk-st .mk{position:absolute;left:0;top:7px;width:16px;height:16px;display:grid;place-items:center;color:var(--muted)}
-.tk-st .rl{position:absolute;left:7.5px;top:25px;bottom:-7px;width:1px;background:var(--rail);transform-origin:top;transform:scaleY(0);transition:transform .6s var(--ease)}
-.tk-st .rl.on{transform:scaleY(1)}
-.tk-st .tx{min-width:0;display:flex;flex-direction:column;gap:8px}
-.tk-st .lab{color:var(--fg2);transition:color .5s var(--ease)}
-.tk-st.run .lab{color:var(--fg)}
-.tk-st.dead .lab,.tk-st.sub .lab{color:var(--muted)}
-.tk-st.sub{padding-left:40px}
-.tk-st.sub .mk{left:15px}
-.tk-st.sub .curve{position:absolute;left:7.5px;top:-6px;width:11px;height:20px;border-left:1px solid var(--rail);border-bottom:1px solid var(--rail);border-bottom-left-radius:9px}
-.tk-st .mk .dot{width:6px;height:6px;color:var(--faint)}
-.tk-st.sub .mk .dot{width:4px;height:4px}
-.tk-st .ring{width:8px;height:8px;border-radius:50%;border:1.3px solid var(--muted)}
-.tk-chips{display:flex;flex-wrap:wrap;gap:6px}
-.tk-more{height:26px;padding:0 8px;border-radius:var(--r-pill);font-size:12.5px;color:var(--muted);align-self:center;transition:background var(--t-fast),color var(--t-fast)}
-.tk-more:hover{background:var(--chip);color:var(--fg)}
-.tk-fin .mk{color:var(--accent)}
-.tk-fin .lab{color:var(--fg)!important}
-.tk-fin .sum{color:var(--muted);margin-left:8px}
+.tk-list{list-style:none;margin:0;padding:6px 0 0;display:flex;flex-direction:column}
+.tk-st{display:flex;gap:10px;padding:6px 0}
+.tk-st .mk{width:18px;height:18px;flex:none;margin-top:1px;display:grid;place-items:center;border-radius:50%;color:var(--muted);transition:background .32s,color .32s}
+.tk-st .mk .spin{width:10px;height:10px}
+.tk-st.done .mk{background:var(--ok-bg);color:var(--ok)}
+.tk-st.retry .mk{background:var(--warn-bg);color:var(--warn)}
+.tk-st .tx{flex:1;min-width:0;display:flex;flex-direction:column}
+.tk-st .lab{color:var(--fg);transition:color .32s}
+.tk-st.done .lab{color:var(--fg2)}
+/* what a step found opens under it */
+.tk-st .res{display:grid;grid-template-rows:0fr;font-size:13px;color:var(--muted);transition:grid-template-rows .32s var(--ease),color .32s}
+.tk-st .res.on{grid-template-rows:1fr}
+.tk-st .res>span{overflow:hidden;min-height:0}
+.tk-st.retry .res{color:var(--warn)}
+.tk-st .res [data-tip]{text-decoration:underline dotted var(--faint);text-underline-offset:3px;cursor:default}
 </style><style>/* ---------- Agent lanes ---------- */
 .aln{padding:8px}
 .aln-h{display:flex;align-items:center;gap:10px;padding:8px 10px 10px}
@@ -227,30 +227,48 @@
 .alg-det pre{margin:0 0 10px;font-family:var(--mono);font-size:11.5px;line-height:1.6;background:var(--surface);border-radius:10px;padding:8px 10px;white-space:pre-wrap;color:var(--fg2);box-shadow:inset 0 0 0 1px var(--line)}
 .alg-det .a{color:var(--add)}.alg-det .x{color:var(--del)}
 </style><style>/* ---------- Context meter ---------- */
-.ctm{display:flex;flex-direction:column;align-items:flex-end;gap:10px;width:100%;max-width:330px;margin-inline:auto}
-.ctm-pop{width:100%;padding:14px 16px 16px;border-radius:16px;box-shadow:var(--shadow-pop);transform-origin:bottom right;transition:opacity .25s var(--ease),transform .4s var(--ease),filter .25s}
-.ctm.shut .ctm-pop{opacity:0;transform:translateY(6px) scale(.98);filter:blur(3px);pointer-events:none}
-.ctm-ph{display:flex;align-items:center;justify-content:space-between;margin:-4px -6px 8px 0}
-.ctm-ph b{font-size:14px;font-weight:500}
-.ctm-ib{width:28px;height:28px;color:var(--fg2)}
-.ctm-rows{display:flex;flex-direction:column;gap:16px}
-.ctm-r{display:grid;grid-template-columns:1fr auto;align-items:baseline;row-gap:8px}
-.ctm-r .l{font-size:13.5px;font-weight:500}
-.ctm-r .p{font-size:12.5px;color:var(--muted)}
-.ctm-tr{grid-column:1/-1;height:6px;border-radius:3px;background:var(--chip);overflow:hidden}
-.ctm-tr i{display:block;height:100%;width:0;border-radius:inherit;background:var(--accent);transition:width 1s var(--ease),background .3s}
-.ctm-r.hot .ctm-tr i{background:var(--warn)}
-.ctm-r .s{grid-column:1/-1;display:flex;align-items:center;gap:8px;min-height:20px;margin-top:-2px;font-size:12.5px;color:var(--muted)}
-.ctm-go{margin-left:auto;height:24px;padding:0 10px;border-radius:var(--r-pill);font-size:12px;font-weight:500;color:var(--fg);background:var(--chip);transition:background var(--t-fast)}
-.ctm-go:hover{background:var(--hover)}
+/* a pill with the ring opens what fills the context: one bar split by kind, a legend whose rows list their items, and Compact */
+/* it never anchors the page's scroll, so the page can't follow it as it changes; on a card it sits in the middle of its room */
+.ctm{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:8px;width:100%;max-width:340px;margin-inline:auto;overflow-anchor:none}
+.stage-in:has(>.ctm){overflow-anchor:none}
+.stage-in>.ctm{min-height:inherit}
+.ctm-tg{display:inline-flex;align-items:center;gap:8px;height:32px;padding:0 10px 0 7px;border-radius:var(--r-pill);font-size:13px;color:var(--fg2);background:var(--surface);box-shadow:var(--shadow);transition:box-shadow var(--t-fast)}
+.ctm-tg:hover{box-shadow:var(--shadow-pop)}
+.ctm-tg .ctm-pc{color:var(--fg);font-weight:500}
+.ctm-tg>svg:last-child{color:var(--muted);transition:transform .32s var(--ease)}
+.ctm[data-open="0"] .ctm-tg>svg:last-child{transform:rotate(-90deg)}
+/* the panel keeps its room when shut, so nothing below it moves, and nothing clips its shadow */
+.ctm-pop{width:100%;padding:14px 16px 12px;display:flex;flex-direction:column;gap:12px;transition:opacity .32s var(--ease),transform .42s var(--ease),visibility 0s}
+.ctm[data-open="0"] .ctm-pop{opacity:0;transform:translateY(-6px);visibility:hidden;pointer-events:none;transition:opacity .16s var(--ease),transform .32s var(--ease),visibility 0s .32s}
+.ctm-ph{display:flex;align-items:baseline;justify-content:space-between;gap:12px;font-size:13px;color:var(--muted)}
+.ctm-ph b{color:var(--fg);font-weight:500}
+.ctm-bar{display:flex;gap:2px;height:8px;border-radius:4px;background:var(--chip);overflow:hidden}
+.ctm-bar i{height:100%;width:0;flex:none;background:var(--c);transition:width .42s var(--ease),opacity .16s}
+.ctm-bar.hl i:not(.on){opacity:.25}
+.ctm-leg{display:flex;flex-direction:column;margin:0 -6px}
+.ctm-l{display:flex;align-items:center;gap:8px;padding:5px 6px;border-radius:8px;font-size:13px;color:var(--fg2);cursor:default;transition:background var(--t-fast)}
+.ctm-l:hover{background:var(--row)}
+.ctm-l .sw{width:8px;height:8px;border-radius:2px;flex:none;background:var(--c)}
+.ctm-l .v{margin-left:auto;color:var(--fg)}
+/* the message line keeps its room while empty, so a warning or a result fades in without moving anything */
+.ctm-msg{min-height:18px;font-size:13px;line-height:18px}
+.ctm-msg>span{display:flex;align-items:flex-start;gap:6px;opacity:0;transition:opacity .32s var(--ease)}
+.ctm-msg.on>span{opacity:1}
+.ctm-msg>span>svg{flex:none;margin-top:2px}
+.ctm-msg.warn{color:var(--warn)}
+.ctm-msg.ok{color:var(--ok)}
+.ctm-f{display:flex;align-items:center;gap:10px;padding-top:10px;border-top:1px solid var(--line)}
+.ctm-f .ctm-hint{flex:1;min-width:0;font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* the ring: inside the meter's pill, and as its own button where Agent harness puts it in the composer */
 .ctm-ft{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--fg2)}
-.ctm-ft .muted{margin-right:2px}
-.ctm-ring{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;transition:background var(--t-fast)}
-.ctm-ring:hover,.ctm-ring[aria-expanded="true"]{background:var(--chip)}
+.ctm-ring{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;flex:none;transition:background var(--t-fast)}
+.ctm-ring:hover{background:var(--chip)}
+.ctm-tg .ctm-ring{width:20px;height:20px;background:none}
 .ctm-ring svg{width:18px;height:18px;transform:rotate(-90deg);overflow:visible}
 .ctm-ring circle{fill:none;stroke-width:2.6}
 .ctm-ring .tr{stroke:var(--rail)}
-.ctm-ring .fl{stroke:var(--accent);stroke-linecap:round;stroke-dasharray:0 100;transition:stroke-dasharray 1s var(--ease),stroke .3s}
+.ctm-ring .fl{stroke:var(--accent);stroke-linecap:round;stroke-dasharray:0 100;transition:stroke-dasharray .42s var(--ease),stroke .32s}
+.ctm.hot .ctm-ring .fl{stroke:var(--warn)}
 </style><style>/* ---------- Error and recovery ---------- */
 .erx{padding:8px}
 .erx-h{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 10px 6px}
@@ -566,7 +584,7 @@
 .ahx-scrim{display:none}
 /* a narrow chat, beside the panel or on a phone: the composer keeps only what it needs */
 @container ahm (max-width:560px){
-  .ahx .ctm-ft>span,.ahx .cpx-bar .chip[data-pop=".pp-proj"],.ahx .cpx-cloud,.ahx-spl .spl-in .m{display:none}
+  .ahx .ctm-ft>span,.ahx .cpx-bar .cpx-ctx,.ahx-spl .spl-in .m{display:none}
 }
 /* phone: the chats slide in from the side, the tabs scroll, the panel covers the chat */
 @container ahx (max-width:620px){
@@ -593,7 +611,7 @@
 @font-face{font-family:Inter;font-style:normal;font-weight:600;font-display:swap;src:url(/fonts/inter-latin-600-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:Inter;font-style:normal;font-weight:700;font-display:swap;src:url(/fonts/inter-latin-700-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:"JetBrains Mono";font-style:normal;font-weight:500;font-display:swap;src:url(/fonts/jetbrains-mono-latin-500-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
-</style><style>:root{--pg-bg:#fff;--pg-fg:#111318;--pg-dim:#5b5f6b;--pg-muted:#8b8f99;--pg-line:#11131814;--pg-line2:#11131824;--pg-soft:#fafafa;--pg-chip:#f1f1f3;--pg-ink:#111318;--pg-on-ink:#fff;--pg-top:#ffffffdb;--pg-sans:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--pg-mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;--pg-head:61px}@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--pg-bg:#0b0c0f;--pg-fg:#ededee;--pg-dim:#a1a3ab;--pg-muted:#76787f;--pg-line:#ffffff14;--pg-line2:#ffffff24;--pg-soft:#16171b;--pg-chip:#ffffff0f;--pg-ink:#f5f5f4;--pg-on-ink:#111318;--pg-top:#0b0c0fdb;color-scheme:dark}}:root[data-theme=dark]{--pg-bg:#0b0c0f;--pg-fg:#ededee;--pg-dim:#a1a3ab;--pg-muted:#76787f;--pg-line:#ffffff14;--pg-line2:#ffffff24;--pg-soft:#16171b;--pg-chip:#ffffff0f;--pg-ink:#f5f5f4;--pg-on-ink:#111318;--pg-top:#0b0c0fdb;color-scheme:dark}*{box-sizing:border-box}html{-webkit-text-size-adjust:100%;scroll-padding-top:calc(var(--pg-head) + 64px)}body{background:var(--pg-bg);color:var(--pg-fg);font:14px/1.6 var(--pg-sans);letter-spacing:-.006em;-webkit-font-smoothing:antialiased;margin:0}a{color:inherit}:focus-visible{outline:2px solid var(--pg-fg);outline-offset:2px}.pg-top{z-index:50;height:var(--pg-head);background:var(--pg-top);backdrop-filter:blur(14px);border-bottom:1px solid var(--pg-line);position:sticky;top:0}.pg-top-in{align-items:center;gap:6px;max-width:1400px;height:100%;margin:0 auto;padding:0 32px;display:flex}.pg-logo{color:var(--pg-fg);margin-right:48px;display:block}.pg-logo svg{width:auto;height:22px;display:block}.pg-nav{gap:4px;display:flex}.pg-nav a{height:28px;color:var(--pg-dim);border-radius:8px;align-items:center;padding:0 10px;font-size:14px;font-weight:400;text-decoration:none;transition:color .2s,background-color .2s;display:inline-flex}.pg-nav a:hover{color:var(--pg-fg);background:var(--pg-chip)}.pg-nav a[aria-current=page]{color:var(--pg-fg)}.pg-sp{flex:1}.pg-seg{background:var(--pg-chip);border-radius:999px;padding:2px;display:inline-flex}.pg-seg button{height:24px;color:var(--pg-dim);font:500 13px/1 var(--pg-sans);cursor:pointer;background:0 0;border:0;border-radius:999px;padding:0 10px;transition:color .2s}.pg-seg button:hover{color:var(--pg-fg)}.pg-seg button[aria-pressed=true]{background:var(--pg-bg);color:var(--pg-fg);box-shadow:0 1px 2px #11131814,0 0 0 .5px #1113180f}.pg-seg svg{width:14px;height:14px;display:block}.pg-seg.icons button{place-items:center;width:26px;padding:0;display:grid}.pg-wrap{max-width:1024px;margin:0 auto;padding:0 32px}.pg-main{padding:40px 0 96px}.pg-crumbs{color:var(--pg-muted);flex-wrap:wrap;gap:6px;font-size:13px;display:flex}.pg-crumbs a{color:var(--pg-dim);text-decoration:none}.pg-crumbs a:hover{color:var(--pg-fg)}.pg-h1{letter-spacing:-.022em;color:var(--pg-fg);text-wrap:balance;margin:14px 0 0;font-size:20px;font-weight:500;line-height:1.3}.pg-lead{color:var(--pg-dim);max-width:72ch;margin:8px 0 0;font-size:14px;line-height:1.6}.pg-lead code,.pg-code{font:500 12.5px/1.4 var(--pg-mono);font-variant-ligatures:none;background:var(--pg-chip);color:var(--pg-fg);border-radius:6px;padding:2px 6px}.pg-cmd{height:32px;box-shadow:inset 0 0 0 1px var(--pg-line2);background:var(--pg-bg);font:500 12px/1 var(--pg-mono);font-variant-ligatures:none;border-radius:9px;align-items:center;gap:8px;max-width:100%;margin:16px 0 0;padding:0 6px 0 10px;display:inline-flex}.pg-cmd .d{color:var(--pg-muted)}.pg-cmd .c{color:var(--pg-fg);white-space:nowrap;text-overflow:ellipsis;overflow:hidden}.pg-cmd button{width:24px;height:24px;color:var(--pg-muted);cursor:pointer;background:0 0;border:0;border-radius:6px;place-items:center;display:grid}.pg-cmd button:hover{color:var(--pg-fg);background:var(--pg-chip)}.pg-cmd svg{width:14px;height:14px}.pg-sh{border-bottom:1px solid var(--pg-line);flex-wrap:wrap;align-items:baseline;gap:2px 10px;margin:0 0 24px;padding:56px 0 18px;display:flex}.pg-sh .n{font:500 12px/1.5 var(--pg-mono);color:var(--pg-muted)}.pg-sh h2{letter-spacing:0;margin:0;font-size:14px;font-weight:500;line-height:20px}.pg-sh p{color:var(--pg-dim);flex-basis:100%;margin:0;font-size:14px;line-height:20px}.pg-t{letter-spacing:0;color:var(--pg-fg);font-size:14px;font-weight:500;line-height:20px}.pg-d{color:var(--pg-dim);font-size:14px;line-height:20px}.pg-cards{grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;display:grid}.pg-card{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--pg-line) 50%,transparent);border-radius:16px;flex-direction:column;padding:5px;text-decoration:none;transition:box-shadow .16s;display:flex}.pg-card:hover{box-shadow:inset 0 0 0 1px var(--pg-line)}.pg-card .pg-thumb{order:-1}.pg-card{position:relative}.pg-card .pg-t{margin:10px 6px 0;text-decoration:none}.pg-link:after{content:"";z-index:2;border-radius:16px;position:absolute;inset:0}.pg-card .pg-d{white-space:nowrap;text-overflow:ellipsis;margin:0 6px 6px;overflow:hidden}.pg-thumb{aspect-ratio:16/10;background:var(--pg-soft);border-radius:12px;position:relative;overflow:hidden}.pg-thumb img{object-fit:cover;width:100%;height:100%;transition:transform .5s cubic-bezier(.16,1,.3,1);position:absolute;inset:0}.pg-card:hover .pg-thumb img{transform:scale(1.025)}.pg-thumb .dk{display:none}@media (prefers-color-scheme:dark){:root:not([data-theme=light]) .pg-thumb .lt{display:none}:root:not([data-theme=light]) .pg-thumb .dk{display:block}}:root[data-theme=dark] .pg-thumb .lt{display:none}:root[data-theme=dark] .pg-thumb .dk{display:block}@media (width<=860px){.pg-cards{grid-template-columns:repeat(2,minmax(0,1fr))}}@media (width<=520px){.pg-cards{grid-template-columns:minmax(0,1fr)}}.pg-foot{color:var(--pg-muted);border-top:1px solid var(--pg-line);font-size:14px}.pg-foot-in{flex-wrap:wrap;justify-content:space-between;gap:10px 24px;padding-block:28px 40px;display:flex}.pg-foot nav{flex-wrap:wrap;gap:18px;display:flex}.pg-foot a{color:var(--pg-dim);text-decoration:none}.pg-foot a:hover{color:var(--pg-fg)}@media (width<=960px){.pg-top-in{padding:0 18px}.pg-logo{margin-right:16px}.pg-wrap{padding:0 18px}.pg-top .pg-style{display:none}}@media (width<=640px){:root{--pg-head:53px}.pg-logo svg{height:18px}.pg-nav .pg-wide{display:none}.pg-h1{font-size:20px}.pg-main{padding-top:28px}}@media (width<=400px){.pg-nav .pg-cl{display:none}}.cp-demo{background:var(--pg-soft);border-radius:14px;margin:28px 0 0;position:relative;overflow:hidden}.cp-anim{z-index:3;background:var(--pg-bg);height:28px;box-shadow:inset 0 0 0 1px var(--pg-line);color:var(--pg-dim);font:500 13px/1 var(--pg-sans);cursor:pointer;border:0;border-radius:999px;align-items:center;gap:6px;padding:0 11px;transition:color .2s;display:inline-flex;position:absolute;top:12px;right:12px}.cp-anim:hover{color:var(--pg-fg)}.cp-anim svg{width:14px;height:14px}.pg-demo{min-height:var(--h-a);grid-template-columns:minmax(0,1fr);justify-items:center;padding:56px 24px;display:grid}.pg-demo>.card{align-self:stretch;place-items:center;min-width:0;display:grid}.cp-bar{top:var(--pg-head);z-index:40;background:var(--pg-top);backdrop-filter:blur(14px);border-bottom:1px solid var(--pg-line);margin-top:40px;position:sticky}.cp-bar nav{scrollbar-width:none;gap:4px;display:flex;overflow-x:auto}.cp-bar nav::-webkit-scrollbar{display:none}.cp-bar a{height:46px;color:var(--pg-dim);flex:none;align-items:center;padding:0 10px;font-size:14px;font-weight:400;text-decoration:none;transition:color .2s;display:inline-flex;position:relative}.cp-bar a:first-child{margin-left:-10px}.cp-bar a:hover,.cp-bar a.on{color:var(--pg-fg)}.cp-bar a:after{content:"";background:var(--pg-fg);border-radius:2px;height:2px;transition:transform .3s cubic-bezier(.16,1,.3,1);position:absolute;bottom:0;left:10px;right:10px;transform:scaleX(0)}.cp-bar a.on:after{transform:scaleX(1)}.cp-sec{scroll-margin-top:calc(var(--pg-head) + 48px);padding-bottom:24px}.cp-sec:first-child .pg-sh{padding-top:36px}.cp-sec h3{margin:0 0 10px}.cp-sec p{max-width:72ch;margin:0}.cp-sec .pg-sh p{max-width:none}.cp-sec ul{color:var(--pg-dim);margin:0;padding-left:18px}.cp-sec li{margin:0 0 8px}.cp-sec li::marker{color:var(--pg-muted)}.cp-sec code{font:500 12.5px/1.4 var(--pg-mono);font-variant-ligatures:none;background:var(--pg-chip);color:var(--pg-fg);border-radius:5px;padding:1px 5px}.cp-gap{margin-top:28px}.cp-two{grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;display:grid}.cp-box{flex-direction:column;gap:10px;min-width:0;display:flex}.cp-line{background:var(--pg-soft);min-width:0;height:44px;box-shadow:inset 0 0 0 1px var(--pg-line);border-radius:12px;align-items:center;gap:10px;padding:0 6px 0 14px;display:flex}.cp-line .d{color:var(--pg-muted);font:500 13px/1 var(--pg-mono)}.cp-line code{white-space:nowrap;min-width:0;font:500 13px/1 var(--pg-mono);font-variant-ligatures:none;scrollbar-width:none;background:0 0;flex:1;padding:0;overflow-x:auto}.cp-copy{background:var(--pg-bg);height:28px;color:var(--pg-fg);box-shadow:inset 0 0 0 1px var(--pg-line2);font:500 13px/1 var(--pg-sans);cursor:pointer;border:0;border-radius:999px;flex:none;align-items:center;gap:6px;padding:0 11px;transition:background-color .2s;display:inline-flex}.cp-copy:hover{background:var(--pg-chip)}.cp-note{color:var(--pg-dim);font-size:14px;margin-top:20px!important}.cp-sum{font-size:14px;line-height:1.7}.cp-tl{scrollbar-width:none;box-shadow:inset 0 -1px 0 var(--pg-line);gap:4px;margin:0 0 18px;display:flex;overflow-x:auto}.cp-tl button:first-child{padding-left:0}.cp-tl button:first-child:after{left:0}.cp-tl button{height:36px;color:var(--pg-dim);font:400 14px/1 var(--pg-sans);cursor:pointer;background:0 0;border:0;flex:none;padding:0 10px;transition:color .16s;position:relative}.cp-tl button:hover,.cp-tl button[aria-selected=true]{color:var(--pg-fg)}.cp-tl button:after{content:"";background:var(--pg-fg);border-radius:2px;height:2px;transition:transform .32s cubic-bezier(.16,1,.3,1);position:absolute;bottom:0;left:10px;right:10px;transform:scaleX(0)}.cp-tl button[aria-selected=true]:after{transform:scaleX(1)}.cp-tp ul{max-width:72ch}.cp-pre{background:var(--pg-soft);max-height:480px;box-shadow:inset 0 0 0 1px var(--pg-line);font:500 12.5px/1.65 var(--pg-mono);font-variant-ligatures:none;tab-size:2;color:var(--pg-fg);border-radius:12px;margin:0;padding:16px 18px;overflow:auto}.cp-pre code{font:inherit;background:0 0;padding:0}.cp-files{gap:8px;display:grid}details.cp-file{box-shadow:inset 0 0 0 1px var(--pg-line);border-radius:12px}details.cp-file summary{cursor:pointer;height:48px;font:500 13px/1 var(--pg-mono);align-items:center;gap:12px;padding:0 16px;list-style:none;display:flex}details.cp-file summary::-webkit-details-marker{display:none}details.cp-file summary:before{content:"";border-right:1.5px solid var(--pg-muted);border-bottom:1.5px solid var(--pg-muted);flex:none;width:6px;height:6px;transition:transform .2s;transform:rotate(-45deg)}details.cp-file[open] summary:before{transform:rotate(45deg)}details.cp-file summary .l{font:13px/1 var(--pg-sans);color:var(--pg-muted);margin-left:auto}details.cp-file .cp-pre{box-shadow:none;border-top:1px solid var(--pg-line);border-radius:0 0 12px 12px;max-height:560px}.cp-props{overflow-x:auto}.cp-props+.cp-props,.cp-props+h3{margin-top:28px}.cp-props table{border-collapse:collapse;width:100%;min-width:620px;font-size:14px}.cp-props th{text-align:left;color:var(--pg-muted);border-bottom:1px solid var(--pg-line);padding:0 12px 10px 0;font-size:14px;font-weight:500}.cp-props td{border-bottom:1px solid var(--pg-line);vertical-align:top;color:var(--pg-dim);padding:12px 12px 12px 0}.cp-props td:first-child{white-space:nowrap;width:1%}.cp-props td:nth-child(2){width:34%}.cp-props td:nth-child(2) code{white-space:normal;word-break:break-word;color:var(--pg-dim);background:0 0;padding:0}.cp-props .opt{color:var(--pg-muted);margin-top:2px;font-size:13px;display:block}.cp-ext{color:var(--pg-dim);font-size:14px;margin-top:12px!important}.cp-qs{flex-direction:column;gap:32px;max-width:72ch;margin:0;display:flex}.cp-qs dt{margin:0 0 6px}.cp-qs dd{color:var(--pg-dim);margin:0}.cp-all{color:var(--pg-dim);margin-top:28px;font-size:14px;font-weight:500;text-decoration:none;display:inline-block}.cp-all:hover{color:var(--pg-fg)}.cp-pn{border-top:1px solid var(--pg-line);grid-template-columns:1fr 1fr;gap:20px;margin-top:64px;padding-top:24px;display:grid}.cp-pn a{flex-direction:column;gap:2px;text-decoration:none;display:flex}.cp-pn .n{text-align:right;align-items:flex-end}.cp-pn a:hover .pg-t{text-decoration:underline;text-decoration-color:var(--pg-line2);text-underline-offset:3px}.pg-thumb .pg-live{width:var(--vw);min-height:0;transform:translate(-50%,-50%) scale(var(--k));pointer-events:none;opacity:0;padding:0;transition:opacity .32s;display:block;position:absolute;top:50%;left:50%}.pg-thumb .pg-live.on{opacity:1}.pg-thumb img{transition:opacity .32s}.pg-thumb:has(.pg-live.on) img{opacity:0}.pg-live .hand{display:none}@media (width<=900px){.cp-two{grid-template-columns:minmax(0,1fr)}}@media (width<=640px){.pg-demo{min-height:var(--h-e);padding:52px 12px 28px}.cp-bar{margin-top:28px}}
+</style><style>:root{--pg-bg:#fff;--pg-fg:#111318;--pg-dim:#5b5f6b;--pg-muted:#8b8f99;--pg-line:#11131814;--pg-line2:#11131824;--pg-soft:#fafafa;--pg-chip:#f1f1f3;--pg-ink:#111318;--pg-on-ink:#fff;--pg-top:#ffffffdb;--pg-sans:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--pg-mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;--pg-head:61px}@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--pg-bg:#0b0c0f;--pg-fg:#ededee;--pg-dim:#a1a3ab;--pg-muted:#76787f;--pg-line:#ffffff14;--pg-line2:#ffffff24;--pg-soft:#16171b;--pg-chip:#ffffff0f;--pg-ink:#f5f5f4;--pg-on-ink:#111318;--pg-top:#0b0c0fdb;color-scheme:dark}}:root[data-theme=dark]{--pg-bg:#0b0c0f;--pg-fg:#ededee;--pg-dim:#a1a3ab;--pg-muted:#76787f;--pg-line:#ffffff14;--pg-line2:#ffffff24;--pg-soft:#16171b;--pg-chip:#ffffff0f;--pg-ink:#f5f5f4;--pg-on-ink:#111318;--pg-top:#0b0c0fdb;color-scheme:dark}*{box-sizing:border-box}html{-webkit-text-size-adjust:100%;scroll-padding-top:calc(var(--pg-head) + 64px)}body{background:var(--pg-bg);color:var(--pg-fg);font:14px/1.6 var(--pg-sans);letter-spacing:-.006em;-webkit-font-smoothing:antialiased;margin:0}a{color:inherit}:focus-visible{outline:2px solid var(--pg-fg);outline-offset:2px}.pg-top{z-index:50;height:var(--pg-head);background:var(--pg-top);backdrop-filter:blur(14px);border-bottom:1px solid var(--pg-line);position:sticky;top:0}.pg-top-in{align-items:center;gap:6px;max-width:1400px;height:100%;margin:0 auto;padding:0 32px;display:flex}.pg-logo{color:var(--pg-fg);margin-right:48px;display:block}.pg-logo svg{width:auto;height:22px;display:block}.pg-nav{gap:4px;display:flex}.pg-nav a{height:28px;color:var(--pg-dim);border-radius:8px;align-items:center;padding:0 10px;font-size:14px;font-weight:400;text-decoration:none;transition:color .2s,background-color .2s;display:inline-flex}.pg-nav a:hover{color:var(--pg-fg);background:var(--pg-chip)}.pg-nav a[aria-current=page]{color:var(--pg-fg)}.pg-sp{flex:1}.pg-seg{background:var(--pg-chip);border-radius:999px;padding:2px;display:inline-flex}.pg-seg button{height:24px;color:var(--pg-dim);font:500 13px/1 var(--pg-sans);cursor:pointer;background:0 0;border:0;border-radius:999px;padding:0 10px;transition:color .2s}.pg-seg button:hover{color:var(--pg-fg)}.pg-seg button[aria-pressed=true]{background:var(--pg-bg);color:var(--pg-fg);box-shadow:0 1px 2px #11131814,0 0 0 .5px #1113180f}.pg-seg svg{width:14px;height:14px;display:block}.pg-seg.icons button{place-items:center;width:26px;padding:0;display:grid}.pg-wrap{max-width:1024px;margin:0 auto;padding:0 32px}.pg-main{padding:40px 0 96px}.pg-crumbs{color:var(--pg-muted);flex-wrap:wrap;gap:6px;font-size:13px;display:flex}.pg-crumbs a{color:var(--pg-dim);text-decoration:none}.pg-crumbs a:hover{color:var(--pg-fg)}.pg-h1{letter-spacing:-.022em;color:var(--pg-fg);text-wrap:balance;margin:14px 0 0;font-size:20px;font-weight:500;line-height:1.3}.pg-lead{color:var(--pg-dim);max-width:72ch;margin:8px 0 0;font-size:14px;line-height:1.6}.pg-lead code,.pg-code{font:500 12.5px/1.4 var(--pg-mono);font-variant-ligatures:none;background:var(--pg-chip);color:var(--pg-fg);border-radius:6px;padding:2px 6px}.pg-cmd{height:32px;box-shadow:inset 0 0 0 1px var(--pg-line2);background:var(--pg-bg);font:500 12px/1 var(--pg-mono);font-variant-ligatures:none;border-radius:9px;align-items:center;gap:8px;max-width:100%;margin:16px 0 0;padding:0 6px 0 10px;display:inline-flex}.pg-cmd .d{color:var(--pg-muted)}.pg-cmd .c{color:var(--pg-fg);white-space:nowrap;text-overflow:ellipsis;overflow:hidden}.pg-cmd button{width:24px;height:24px;color:var(--pg-muted);cursor:pointer;background:0 0;border:0;border-radius:6px;place-items:center;display:grid}.pg-cmd button:hover{color:var(--pg-fg);background:var(--pg-chip)}.pg-cmd svg{width:14px;height:14px}.pg-sh{border-bottom:1px solid var(--pg-line);flex-wrap:wrap;align-items:baseline;gap:2px 10px;margin:0 0 24px;padding:56px 0 18px;display:flex}.pg-sh .n{font:500 12px/1.5 var(--pg-mono);color:var(--pg-muted)}.pg-sh h2{letter-spacing:0;margin:0;font-size:14px;font-weight:500;line-height:20px}.pg-sh p{color:var(--pg-dim);flex-basis:100%;margin:0;font-size:14px;line-height:20px}.pg-t{letter-spacing:0;color:var(--pg-fg);font-size:14px;font-weight:500;line-height:20px}.pg-d{color:var(--pg-dim);font-size:14px;line-height:20px}.pg-cards{grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;display:grid}.pg-card{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--pg-line) 50%,transparent);border-radius:16px;flex-direction:column;padding:5px;text-decoration:none;transition:box-shadow .16s;display:flex}.pg-card:hover{box-shadow:inset 0 0 0 1px var(--pg-line)}.pg-card .pg-thumb{order:-1}.pg-card{position:relative}.pg-card .pg-t{margin:10px 6px 0;text-decoration:none}.pg-link:after{content:"";z-index:2;border-radius:16px;position:absolute;inset:0}.pg-card .pg-d{white-space:nowrap;text-overflow:ellipsis;margin:0 6px 6px;overflow:hidden}.pg-thumb{aspect-ratio:16/10;background:var(--pg-soft);border-radius:12px;position:relative;overflow:hidden}.pg-thumb img{object-fit:cover;width:100%;height:100%;transition:transform .5s cubic-bezier(.16,1,.3,1);position:absolute;inset:0}.pg-card:hover .pg-thumb img{transform:scale(1.025)}.pg-thumb .dk{display:none}@media (prefers-color-scheme:dark){:root:not([data-theme=light]) .pg-thumb .lt{display:none}:root:not([data-theme=light]) .pg-thumb .dk{display:block}}:root[data-theme=dark] .pg-thumb .lt{display:none}:root[data-theme=dark] .pg-thumb .dk{display:block}@media (width<=860px){.pg-cards{grid-template-columns:repeat(2,minmax(0,1fr))}}@media (width<=520px){.pg-cards{grid-template-columns:minmax(0,1fr)}}.pg-foot{color:var(--pg-muted);border-top:1px solid var(--pg-line);font-size:14px}.pg-foot-in{flex-wrap:wrap;justify-content:space-between;gap:10px 24px;padding-block:28px 40px;display:flex}.pg-foot nav{flex-wrap:wrap;gap:18px;display:flex}.pg-foot a{color:var(--pg-dim);text-decoration:none}.pg-foot a:hover{color:var(--pg-fg)}@media (width<=960px){.pg-top-in{padding:0 18px}.pg-logo{margin-right:16px}.pg-wrap{padding:0 18px}.pg-top .pg-style{display:none}}@media (width<=640px){:root{--pg-head:53px}.pg-logo svg{height:18px}.pg-nav .pg-wide{display:none}.pg-h1{font-size:20px}.pg-main{padding-top:28px}}@media (width<=400px){.pg-nav .pg-cl{display:none}}.cp-demo{background:var(--pg-soft);border-radius:14px;margin:28px 0 0;position:relative;overflow:hidden}.cp-anim{z-index:3;background:var(--pg-bg);height:28px;box-shadow:inset 0 0 0 1px var(--pg-line);color:var(--pg-dim);font:500 13px/1 var(--pg-sans);cursor:pointer;border:0;border-radius:999px;align-items:center;gap:6px;padding:0 11px;transition:color .2s;display:inline-flex;position:absolute;top:12px;right:12px}.cp-anim:hover{color:var(--pg-fg)}.cp-anim svg{width:14px;height:14px}.pg-demo{min-height:var(--h-a);overflow-anchor:none;grid-template-columns:minmax(0,1fr);justify-items:center;padding:56px 24px;display:grid}.pg-demo>.card{align-self:stretch;place-items:center;min-width:0;display:grid}.cp-bar{top:var(--pg-head);z-index:40;background:var(--pg-top);backdrop-filter:blur(14px);border-bottom:1px solid var(--pg-line);margin-top:40px;position:sticky}.cp-bar nav{scrollbar-width:none;gap:4px;display:flex;overflow-x:auto}.cp-bar nav::-webkit-scrollbar{display:none}.cp-bar a{height:46px;color:var(--pg-dim);flex:none;align-items:center;padding:0 10px;font-size:14px;font-weight:400;text-decoration:none;transition:color .2s;display:inline-flex;position:relative}.cp-bar a:first-child{margin-left:-10px}.cp-bar a:hover,.cp-bar a.on{color:var(--pg-fg)}.cp-bar a:after{content:"";background:var(--pg-fg);border-radius:2px;height:2px;transition:transform .3s cubic-bezier(.16,1,.3,1);position:absolute;bottom:0;left:10px;right:10px;transform:scaleX(0)}.cp-bar a.on:after{transform:scaleX(1)}.cp-sec{scroll-margin-top:calc(var(--pg-head) + 48px);padding-bottom:24px}.cp-sec:first-child .pg-sh{padding-top:36px}.cp-sec h3{margin:0 0 10px}.cp-sec p{max-width:72ch;margin:0}.cp-sec .pg-sh p{max-width:none}.cp-sec ul{color:var(--pg-dim);margin:0;padding-left:18px}.cp-sec li{margin:0 0 8px}.cp-sec li::marker{color:var(--pg-muted)}.cp-sec code{font:500 12.5px/1.4 var(--pg-mono);font-variant-ligatures:none;background:var(--pg-chip);color:var(--pg-fg);border-radius:5px;padding:1px 5px}.cp-gap{margin-top:28px}.cp-two{grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;display:grid}.cp-box{flex-direction:column;gap:10px;min-width:0;display:flex}.cp-line{background:var(--pg-soft);min-width:0;height:44px;box-shadow:inset 0 0 0 1px var(--pg-line);border-radius:12px;align-items:center;gap:10px;padding:0 6px 0 14px;display:flex}.cp-line .d{color:var(--pg-muted);font:500 13px/1 var(--pg-mono)}.cp-line code{white-space:nowrap;min-width:0;font:500 13px/1 var(--pg-mono);font-variant-ligatures:none;scrollbar-width:none;background:0 0;flex:1;padding:0;overflow-x:auto}.cp-copy{background:var(--pg-bg);height:28px;color:var(--pg-fg);box-shadow:inset 0 0 0 1px var(--pg-line2);font:500 13px/1 var(--pg-sans);cursor:pointer;border:0;border-radius:999px;flex:none;align-items:center;gap:6px;padding:0 11px;transition:background-color .2s;display:inline-flex}.cp-copy:hover{background:var(--pg-chip)}.cp-note{color:var(--pg-dim);font-size:14px;margin-top:20px!important}.cp-sum{font-size:14px;line-height:1.7}.cp-tl{scrollbar-width:none;box-shadow:inset 0 -1px 0 var(--pg-line);gap:4px;margin:0 0 18px;display:flex;overflow-x:auto}.cp-tl button:first-child{padding-left:0}.cp-tl button:first-child:after{left:0}.cp-tl button{height:36px;color:var(--pg-dim);font:400 14px/1 var(--pg-sans);cursor:pointer;background:0 0;border:0;flex:none;padding:0 10px;transition:color .16s;position:relative}.cp-tl button:hover,.cp-tl button[aria-selected=true]{color:var(--pg-fg)}.cp-tl button:after{content:"";background:var(--pg-fg);border-radius:2px;height:2px;transition:transform .32s cubic-bezier(.16,1,.3,1);position:absolute;bottom:0;left:10px;right:10px;transform:scaleX(0)}.cp-tl button[aria-selected=true]:after{transform:scaleX(1)}.cp-tp ul{max-width:72ch}.cp-pre{background:var(--pg-soft);max-height:480px;box-shadow:inset 0 0 0 1px var(--pg-line);font:500 12.5px/1.65 var(--pg-mono);font-variant-ligatures:none;tab-size:2;color:var(--pg-fg);border-radius:12px;margin:0;padding:16px 18px;overflow:auto}.cp-pre code{font:inherit;background:0 0;padding:0}.cp-files{gap:8px;display:grid}details.cp-file{box-shadow:inset 0 0 0 1px var(--pg-line);border-radius:12px}details.cp-file summary{cursor:pointer;height:48px;font:500 13px/1 var(--pg-mono);align-items:center;gap:12px;padding:0 16px;list-style:none;display:flex}details.cp-file summary::-webkit-details-marker{display:none}details.cp-file summary:before{content:"";border-right:1.5px solid var(--pg-muted);border-bottom:1.5px solid var(--pg-muted);flex:none;width:6px;height:6px;transition:transform .2s;transform:rotate(-45deg)}details.cp-file[open] summary:before{transform:rotate(45deg)}details.cp-file summary .l{font:13px/1 var(--pg-sans);color:var(--pg-muted);margin-left:auto}details.cp-file .cp-pre{box-shadow:none;border-top:1px solid var(--pg-line);border-radius:0 0 12px 12px;max-height:560px}.cp-props{overflow-x:auto}.cp-props+.cp-props,.cp-props+h3{margin-top:28px}.cp-props table{border-collapse:collapse;width:100%;min-width:620px;font-size:14px}.cp-props th{text-align:left;color:var(--pg-muted);border-bottom:1px solid var(--pg-line);padding:0 12px 10px 0;font-size:14px;font-weight:500}.cp-props td{border-bottom:1px solid var(--pg-line);vertical-align:top;color:var(--pg-dim);padding:12px 12px 12px 0}.cp-props td:first-child{white-space:nowrap;width:1%}.cp-props td:nth-child(2){width:34%}.cp-props td:nth-child(2) code{white-space:normal;word-break:break-word;color:var(--pg-dim);background:0 0;padding:0}.cp-props .opt{color:var(--pg-muted);margin-top:2px;font-size:13px;display:block}.cp-ext{color:var(--pg-dim);font-size:14px;margin-top:12px!important}.cp-qs{flex-direction:column;gap:32px;max-width:72ch;margin:0;display:flex}.cp-qs dt{margin:0 0 6px}.cp-qs dd{color:var(--pg-dim);margin:0}.cp-all{color:var(--pg-dim);margin-top:28px;font-size:14px;font-weight:500;text-decoration:none;display:inline-block}.cp-all:hover{color:var(--pg-fg)}.cp-pn{border-top:1px solid var(--pg-line);grid-template-columns:1fr 1fr;gap:20px;margin-top:64px;padding-top:24px;display:grid}.cp-pn a{flex-direction:column;gap:2px;text-decoration:none;display:flex}.cp-pn .n{text-align:right;align-items:flex-end}.cp-pn a:hover .pg-t{text-decoration:underline;text-decoration-color:var(--pg-line2);text-underline-offset:3px}.pg-thumb .pg-live{width:var(--vw);min-height:0;transform:translate(-50%,-50%) scale(var(--k));pointer-events:none;opacity:0;padding:0;transition:opacity .32s;display:block;position:absolute;top:50%;left:50%}.pg-thumb .pg-live.on{opacity:1}.pg-thumb img{transition:opacity .32s}.pg-thumb:has(.pg-live.on) img{opacity:0}.pg-live .hand{display:none}@media (width<=900px){.cp-two{grid-template-columns:minmax(0,1fr)}}@media (width<=640px){.pg-demo{min-height:var(--h-e);padding:52px 12px 28px}.cp-bar{margin-top:28px}}
 </style></head><body><header class="pg-top"><div class="pg-top-in"><a class="pg-logo" href="/" aria-label="Designme.dev home"><svg role="img" aria-label="Designme.dev" viewBox="0 12.5 210 29.5" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M137.937 20.1034V39.1011H155.787V33.1982H145.37V31.9317H155.38V27.2501H145.37V26.0062H155.787V20.1034H137.937Z" fill="currentColor"/>
 <path d="M136.845 39.1013V20.1036L127.536 20.1036L125.525 29.2632H124.983L122.972 20.1036L113.662 20.1036V39.1013H120.735V32.7009H121.299L122.542 39.1013H127.965L129.208 32.7009H129.773V39.1013L136.845 39.1013Z" fill="currentColor"/>
@@ -665,54 +683,39 @@
   <div class="cpx-thread" aria-live="polite"></div>
   <div class="cpx-box" data-mode="idle">
     <div class="cpx-att"></div>
-    <textarea class="cpx-ta" rows="1" aria-label="Message" placeholder="Ask anything, or type / for skills"></textarea>
+    <textarea class="cpx-ta" rows="1" aria-label="Message" placeholder="Ask the design agent, or attach a frame"></textarea>
     <div class="cpx-rows">
       <div class="cpx-bar">
-        <button class="ib cpx-add" aria-label="Add context" data-tip="Add files and context" data-pop=".pp-plus" data-pop-pos="up">{plus}</button>
-        <button class="chip" data-pop=".pp-proj" data-pop-pos="up" data-tip="Project">{folder}<span class="cpx-proj">acme-webapp</span></button>
-        <button class="chip on" data-pop=".pp-env" data-pop-pos="up" data-tip="Where it runs">{laptop}<span class="cpx-env">Local</span></button>
-        <button class="ib cpx-cloud" aria-label="Cloud hand-off" data-tip="Hand off to the cloud" data-pop=".pp-cloud" data-pop-pos="up" data-pop-align="end">{cloud}</button>
+        <button class="ib cpx-add" aria-label="Attach" data-tip="Attach a file or a frame" data-pop=".pp-plus" data-pop-pos="up">{clip}</button>
+        <button class="chip cpx-ctx" data-pop=".pp-ctx" data-pop-pos="up" data-tip="What the agent works on">{figma}<span class="cpx-ctx-n">Pricing v4</span>{chev}</button>
         <span class="sp"></span>
-        <button class="ib cpx-eff" aria-label="Effort" data-tip="Effort: Medium" data-pop=".pp-eff" data-pop-pos="up" data-pop-align="end"><span class="cpx-bars"><i class="on"></i><i class="on"></i><i></i></span></button>
-        <button class="ib cpx-mic" aria-label="Dictate" data-tip="Dictate" data-tip-k="⌘D">{mic}</button>
+        <button class="chip cpx-mode" data-pop=".pp-mode" data-pop-pos="up" data-pop-align="end" data-tip="What the agent may do">{eye}<span class="cpx-mode-n">Ask</span>{chev}</button>
+        <button class="ib cpx-mic" aria-label="Dictate" data-tip="Dictate">{mic}</button>
         <button class="cpx-send" aria-label="Send" data-tip="Send" data-tip-k="↵" disabled>{up}</button>
       </div>
       <div class="cpx-voice">
-        <canvas class="cpx-wave" aria-hidden="true"></canvas>
-        <button class="ib cpx-cancel" aria-label="Cancel" data-tip="Cancel" data-tip-k="Esc">{x}</button>
-        <button class="cpx-send cpx-ok" aria-label="Use this text" data-tip="Done">{check}</button>
+        <span class="cpx-rec"><span class="cpx-dot"></span>Listening</span><span class="cpx-tm num muted">0:00</span>
+        <span class="sp"></span>
+        <button class="pill ghost sm cpx-cancel">Cancel</button>
+        <button class="pill ink sm cpx-ok">Done</button>
       </div>
     </div>
     <div class="pop pp-plus" role="menu">
-      <button class="mi" data-close data-add="file">{clip}<span>Upload files<span class="d">Images, PDFs, code</span></span></button>
-      <button class="mi" data-close data-add="shot">{image}<span>Add a screenshot<span class="d">Of your current screen</span></span></button>
-      <button class="mi" data-close data-add="figma">{figma}<span>Link a Figma frame<span class="d">Paste a frame URL</span></span></button>
-      <div class="sep"></div>
-      <button class="mi" data-close data-ins="@">{at}<span>Mention a file</span><span class="r kbd">@</span></button>
-      <button class="mi" data-close data-ins="/">{slash}<span>Use a skill</span><span class="r kbd">/</span></button>
+      <button class="mi" data-close data-add="file">{file}<span>Upload a file<span class="d">Images, PDFs or code</span></span></button>
+      <button class="mi" data-close data-add="figma">{figma}<span>Link a Figma frame<span class="d">From any file you can open</span></span></button>
+      <button class="mi" data-close data-add="shot">{image}<span>Add a screenshot<span class="d">Of the window you're in</span></span></button>
     </div>
-    <div class="pop pp-proj" role="menu">
-      <div class="ph">Recent projects</div>
-      <button class="mi" role="menuitemradio" aria-checked="true" data-close data-proj="acme-webapp">{folder}<span>acme-webapp<span class="d">~/code/acme-webapp</span></span><span class="ck">{check}</span></button>
-      <button class="mi" role="menuitemradio" aria-checked="false" data-close data-proj="marketing-site">{folder}<span>marketing-site<span class="d">~/code/marketing-site</span></span><span class="ck">{check}</span></button>
-      <button class="mi" role="menuitemradio" aria-checked="false" data-close data-proj="design-tokens">{folder}<span>design-tokens<span class="d">~/code/design-tokens</span></span><span class="ck">{check}</span></button>
+    <div class="pop pp-ctx" role="menu">
+      <div class="ph">Working on</div>
+      <button class="mi" role="menuitemradio" aria-checked="true" data-close data-ctx="Pricing v4" data-ic="figma">{figma}<span>Pricing v4<span class="d">Figma, 6 frames</span></span><span class="ck">{check}</span></button>
+      <button class="mi" role="menuitemradio" aria-checked="false" data-close data-ctx="Checkout flow" data-ic="figma">{figma}<span>Checkout flow<span class="d">Figma, 4 frames</span></span><span class="ck">{check}</span></button>
+      <button class="mi" role="menuitemradio" aria-checked="false" data-close data-ctx="Marketing site" data-ic="code">{code}<span>Marketing site<span class="d">Code, main branch</span></span><span class="ck">{check}</span></button>
     </div>
-    <div class="pop pp-env" role="menu">
-      <div class="ph">Run this task</div>
-      <button class="mi" role="menuitemradio" aria-checked="true" data-close data-env="Local">{laptop}<span>Local<span class="d">On this Mac, in your working copy</span></span><span class="ck">{check}</span></button>
-      <button class="mi" role="menuitemradio" aria-checked="false" data-close data-env="Worktree">{branch}<span>Worktree<span class="d">A separate copy, your files stay as they are</span></span><span class="ck">{check}</span></button>
-      <button class="mi" role="menuitemradio" aria-checked="false" data-close data-env="Cloud">{cloud}<span>Cloud<span class="d">Keeps going when your laptop sleeps</span></span><span class="ck">{check}</span></button>
-    </div>
-    <div class="pop pp-cloud cpx-cloudpop">
-      <div class="cc-h">{cloud}<div><b>Hand off to the cloud</b><span>Continue this task on a cloud machine if you close your laptop.</span></div></div>
-      <button class="cc-row" role="switch" aria-checked="false"><span>Hand off automatically</span><span class="toggle" aria-hidden="true"></span></button>
-      <div class="cc-meta"><span class="dot" style="color:var(--ok)"></span>2 cloud machines free · 4 hours left this month</div>
-    </div>
-    <div class="pop pp-eff" role="menu">
-      <div class="ph">Effort</div>
-      <button class="mi" role="menuitemradio" aria-checked="false" data-close data-eff="1"><span class="cpx-bars"><i class="on"></i><i></i><i></i></span><span>Low<span class="d">Quick answers, small edits</span></span><span class="ck">{check}</span></button>
-      <button class="mi" role="menuitemradio" aria-checked="true" data-close data-eff="2"><span class="cpx-bars"><i class="on"></i><i class="on"></i><i></i></span><span>Medium<span class="d">Plans first, then builds</span></span><span class="ck">{check}</span></button>
-      <button class="mi" role="menuitemradio" aria-checked="false" data-close data-eff="3"><span class="cpx-bars"><i class="on"></i><i class="on"></i><i class="on"></i></span><span>High<span class="d">Thinks longer, checks its work</span></span><span class="ck">{check}</span></button>
+    <div class="pop pp-mode" role="menu">
+      <div class="ph">The agent may</div>
+      <button class="mi" role="menuitemradio" aria-checked="true" data-close data-mode="Ask" data-ic="eye">{eye}<span>Ask<span class="d">Answer only, change nothing</span></span><span class="ck">{check}</span></button>
+      <button class="mi" role="menuitemradio" aria-checked="false" data-close data-mode="Edit" data-ic="edit">{edit}<span>Edit<span class="d">Change frames on a new page</span></span><span class="ck">{check}</span></button>
+      <button class="mi" role="menuitemradio" aria-checked="false" data-close data-mode="Plan" data-ic="list">{list}<span>Plan<span class="d">Propose steps before it starts</span></span><span class="ck">{check}</span></button>
     </div>
   </div>
 </div>
@@ -758,10 +761,10 @@
 <div class="tk" data-open="1">
   <button class="tk-h" aria-expanded="true">
     <span class="tk-mark"><span class="think on"><i></i><i></i><i></i><i></i></span></span>
-    <span class="tk-title shim">Thinking</span><span class="tk-time num">0s</span>
+    <span class="tk-title shim">Checking the pricing page</span><span class="tk-time num">0s</span>
     <svg class="i xs tk-chev"><use href="#i-chev-d"/></svg>
   </button>
-  <div class="fold tk-fold"><div><ol class="tk-list"></ol></div></div>
+  <div class="fold tk-fold"><div><ol class="tk-list" aria-live="polite"></ol></div></div>
 </div>
   </template>
 </div>
@@ -814,12 +817,15 @@
 <div class="card" data-c="context-meter">
   <div class="stage-in"></div>
   <template>
-<div class="ctm">
-  <div class="ctm-pop panel keep" role="dialog" aria-label="Usage">
-    <div class="ctm-ph"><b>Usage</b><button class="ib ctm-ib" aria-label="View usage" data-tip="View usage">{bars}</button></div>
-    <div class="ctm-rows"></div>
+<div class="ctm" data-open="1">
+  <button class="ctm-tg" aria-expanded="true" aria-label="Context"><span class="ctm-ring" aria-hidden="true"><svg viewBox="0 0 20 20"><circle class="tr" cx="10" cy="10" r="7.5"/><circle class="fl" cx="10" cy="10" r="7.5" pathLength="100"/></svg></span><span><span class="ctm-pc num">0%</span> of context used</span>{chev}</button>
+  <div class="ctm-pop panel" role="region" aria-label="What fills the context">
+    <div class="ctm-ph"><span>In context</span><span class="num"><b class="ctm-tot">0k</b> of 200k tokens</span></div>
+    <div class="ctm-bar" aria-hidden="true"></div>
+    <div class="ctm-leg"></div>
+    <div class="ctm-msg" aria-live="polite"><span></span></div>
+    <div class="ctm-f"><span class="ctm-hint">Summarises older turns</span><button class="pill ghost sm ctm-go">Compact</button></div>
   </div>
-  <div class="ctm-ft"><span>Opus 5.5</span><span class="muted">Extra</span><button class="ctm-ring" aria-expanded="true" aria-label="Usage"><svg viewBox="0 0 20 20" aria-hidden="true"><circle class="tr" cx="10" cy="10" r="7.5"/><circle class="fl" cx="10" cy="10" r="7.5" pathLength="100"/></svg></button></div>
 </div>
   </template>
 </div>
@@ -915,7 +921,7 @@
 </div>
   </template>
 </div>
-</div></div><div class="cp-bar"><div class="pg-wrap"><nav aria-label="On this page"><a href="#install">Install</a><a href="#about">About</a><a href="#usage">Usage</a><a href="#props">Props</a><a href="#code">Code</a><a href="#questions">Questions</a></nav></div></div><div class="pg-wrap"><section class="cp-sec" id="install"><div class="pg-sh"><span class="n">01</span><h2>Install</h2><p>Add it to your project with the CLI.</p></div><div class="cp-two"><div class="cp-box"><h3 class="pg-t">HTML, CSS and JavaScript</h3><div class="cp-line"><span class="d">$</span><code>npx designme add agent-harness</code><button class="cp-copy" type="button" data-copy="npx designme add agent-harness" data-label="Copy">Copy</button></div></div><div class="cp-box"><h3 class="pg-t">React</h3><div class="cp-line"><span class="d">$</span><code>npx designme add agent-harness --react</code><button class="cp-copy" type="button" data-copy="npx designme add agent-harness --react" data-label="Copy">Copy</button></div></div></div><p class="cp-note">The CLI copies the source into your project, so you own it and can change anything. The HTML version lands in <code>./designme</code> with the shared core and a <code>demo.html</code>. The React version lands in <code>src/components/designme</code> and needs React 19; it works in Next.js, Vite and Astro.</p></section><section class="cp-sec" id="about"><div class="pg-sh"><span class="n">02</span><h2>About</h2><p>What it is for and what it does.</p></div><p class="cp-sum">A complete agent chat app assembled from the other designme components: chats down the side, open chats as tabs, a New chat screen with suggestions, and a panel that opens beside the chat. Each chat is a list of blocks you drive from your own state, such as the person's message, the agent's words, a folded group of its work, or a component like a tool call or a permission gate. Use it as the starting point for a whole agent screen.</p><div class="cp-gap"><div class="cp-tl" role="tablist" aria-label="About"><button type="button" role="tab" id="ab-t0" aria-controls="ab-p0" aria-selected="true" tabindex="0">When to use it</button><button type="button" role="tab" id="ab-t1" aria-controls="ab-p1" aria-selected="false" tabindex="-1">What it does</button><button type="button" role="tab" id="ab-t2" aria-controls="ab-p2" aria-selected="false" tabindex="-1">Accessibility</button></div><div class="cp-tp" role="tabpanel" id="ab-p0" aria-labelledby="ab-t0"><ul><li>When you are building an agent chat app and want the full layout wired up from the start.</li><li>When the agent's replies mix text with plans, tool calls, approvals, diffs and artifacts.</li><li>When people work on several chats at once and need tabs, unread marks and a running state per chat.</li><li>As a reference for how the individual components fit together in one product.</li></ul></div><div class="cp-tp" role="tabpanel" id="ab-p1" aria-labelledby="ab-t1" hidden><ul><li>Each conversation's <code>blocks</code> can be 'user', 'say', 'working', 'group', 'node', or one of thirteen components such as 'tool-call', 'permission-gate', 'plan-review' and 'change-review', each taking that component's own props.</li><li>A 'group' block stays open while its state is 'running' and folds into its label a moment after it is 'done', unless the person opened it.</li><li>Tabs for open chats, with + for New chat and × to close; each tab keeps its own draft in the composer.</li><li>New chat shows a greeting, the <code>heading</code>, the Composer and three <code>suggestions</code> at a time, with Shuffle when there are more than three.</li><li><code>onSend</code> gets the message, the chat id (null from New chat) and the tab; return a new chat id from New chat and the tab becomes that chat. Nothing is sent while the chat on screen is running.</li><li>A status pill beside the tabs, a context ring in the composer, a workspace switcher, chat search, <code>followUps</code> under the last block and a side <code>panel</code> with copy link and close.</li></ul></div><div class="cp-tp" role="tabpanel" id="ab-p2" aria-labelledby="ab-t2" hidden><ul><li>Open chats are a role="tablist" labelled "Open chats", each tab role="tab" with aria-selected; the chat list and side panel are labelled aside elements.</li><li>Escape closes the chat drawer on narrow screens, then the side panel through <code>onPanelClose</code>; in the chat search box it closes the search.</li><li>Chats that are not on screen stay mounted but are aria-hidden and inert, and the status pill is an aria-live="polite" region.</li><li>Auto-scrolling and the composer's move from New chat to the foot of the chat skip their animation when the user prefers reduced motion.</li></ul></div></div></section><section class="cp-sec" id="usage"><div class="pg-sh"><span class="n">03</span><h2>Usage</h2><p>Import it and drive it from your own state.</p></div><div class="cp-box"><h3 class="pg-t">Import</h3><pre class="cp-pre"><code>import { AgentHarness } from &#39;@/components/designme/agent-harness/AgentHarness&#39;;</code></pre></div><div class="cp-box cp-gap"><h3 class="pg-t">Example</h3><p class="pg-d">The demo above as a React component, 570 lines you can copy.</p><pre class="cp-pre"><code>&#39;use client&#39;;
+</div></div><div class="cp-bar"><div class="pg-wrap"><nav aria-label="On this page"><a href="#install">Install</a><a href="#about">About</a><a href="#usage">Usage</a><a href="#props">Props</a><a href="#code">Code</a><a href="#questions">Questions</a></nav></div></div><div class="pg-wrap"><section class="cp-sec" id="install"><div class="pg-sh"><span class="n">01</span><h2>Install</h2><p>Add it to your project with the CLI.</p></div><div class="cp-two"><div class="cp-box"><h3 class="pg-t">HTML, CSS and JavaScript</h3><div class="cp-line"><span class="d">$</span><code>npx designme add agent-harness</code><button class="cp-copy" type="button" data-copy="npx designme add agent-harness" data-label="Copy">Copy</button></div></div><div class="cp-box"><h3 class="pg-t">React</h3><div class="cp-line"><span class="d">$</span><code>npx designme add agent-harness --react</code><button class="cp-copy" type="button" data-copy="npx designme add agent-harness --react" data-label="Copy">Copy</button></div></div></div><p class="cp-note">The CLI copies the source into your project, so you own it and can change anything. The HTML version lands in <code>./designme</code> with the shared core and a <code>demo.html</code>. The React version lands in <code>src/components/designme</code> and needs React 19; it works in Next.js, Vite and Astro.</p></section><section class="cp-sec" id="about"><div class="pg-sh"><span class="n">02</span><h2>About</h2><p>What it is for and what it does.</p></div><p class="cp-sum">A complete agent chat app assembled from the other designme components: chats down the side, open chats as tabs, a New chat screen with suggestions, and a panel that opens beside the chat. Each chat is a list of blocks you drive from your own state, such as the person's message, the agent's words, a folded group of its work, or a component like a tool call or a permission gate. Use it as the starting point for a whole agent screen.</p><div class="cp-gap"><div class="cp-tl" role="tablist" aria-label="About"><button type="button" role="tab" id="ab-t0" aria-controls="ab-p0" aria-selected="true" tabindex="0">When to use it</button><button type="button" role="tab" id="ab-t1" aria-controls="ab-p1" aria-selected="false" tabindex="-1">What it does</button><button type="button" role="tab" id="ab-t2" aria-controls="ab-p2" aria-selected="false" tabindex="-1">Accessibility</button></div><div class="cp-tp" role="tabpanel" id="ab-p0" aria-labelledby="ab-t0"><ul><li>When you are building an agent chat app and want the full layout wired up from the start.</li><li>When the agent's replies mix text with plans, tool calls, approvals, diffs and artifacts.</li><li>When people work on several chats at once and need tabs, unread marks and a running state per chat.</li><li>As a reference for how the individual components fit together in one product.</li></ul></div><div class="cp-tp" role="tabpanel" id="ab-p1" aria-labelledby="ab-t1" hidden><ul><li>Each conversation's <code>blocks</code> can be 'user', 'say', 'working', 'group', 'node', or one of thirteen components such as 'tool-call', 'permission-gate', 'plan-review' and 'change-review', each taking that component's own props.</li><li>A 'group' block stays open while its state is 'running' and folds into its label a moment after it is 'done', unless the person opened it.</li><li>Tabs for open chats, with + for New chat and × to close; each tab keeps its own draft in the composer.</li><li>New chat shows a greeting, the <code>heading</code>, the Composer and three <code>suggestions</code> at a time, with Shuffle when there are more than three.</li><li><code>onSend</code> gets the message, the chat id (null from New chat) and the tab; return a new chat id from New chat and the tab becomes that chat. Nothing is sent while the chat on screen is running.</li><li>A status pill beside the tabs, a context ring in the composer, a workspace switcher, chat search, <code>followUps</code> under the last block and a side <code>panel</code> with copy link and close.</li></ul></div><div class="cp-tp" role="tabpanel" id="ab-p2" aria-labelledby="ab-t2" hidden><ul><li>Open chats are a role="tablist" labelled "Open chats", each tab role="tab" with aria-selected; the chat list and side panel are labelled aside elements.</li><li>Escape closes the chat drawer on narrow screens, then the side panel through <code>onPanelClose</code>; in the chat search box it closes the search.</li><li>Chats that are not on screen stay mounted but are aria-hidden and inert, and the status pill is an aria-live="polite" region.</li><li>Auto-scrolling and the composer's move from New chat to the foot of the chat skip their animation when the user prefers reduced motion.</li></ul></div></div></section><section class="cp-sec" id="usage"><div class="pg-sh"><span class="n">03</span><h2>Usage</h2><p>Import it and drive it from your own state.</p></div><div class="cp-box"><h3 class="pg-t">Import</h3><pre class="cp-pre"><code>import { AgentHarness } from &#39;@/components/designme/agent-harness/AgentHarness&#39;;</code></pre></div><div class="cp-box cp-gap"><h3 class="pg-t">Example</h3><p class="pg-d">The demo above as a React component, 567 lines you can copy.</p><pre class="cp-pre"><code>&#39;use client&#39;;
 // The preview from designme.dev, rebuilt from the React component. Nothing plays by itself: New chat shows suggestions, and a
 // story plays once when one is picked or a message is sent. Every approval waits for a click, and the five past chats open on
 // their last state. An example of driving the harness from your own state.
@@ -984,21 +990,17 @@ const FOLLOW: Record&lt;Story, string[] | undefined&gt; = {
 };
 const sourcesOf = (src: Src[]): AnswerSource[] =&gt; src.map((s, i) =&gt; ({ n: i + 1, mark: s[0], color: s[1], title: s[2], detail: s[3], tip: s[2] }));
 
-type Thought = Omit&lt;ThinkingStep, &#39;state&#39; | &#39;label&#39;&gt; &amp; { run: string; done: string; dead?: boolean; count?: number; ms: number };
+// each step and what it found; measuring the cards times out once and tries again
+type Thought = { label: string; result: string; ms: number; retry?: string; tip?: string };
 const THOUGHTS: Thought[] = [
-  { mark: &#39;search&#39;, run: &#39;Searching the design system&#39;, done: &#39;Searched the design system&#39;, ms: 1600,
-    sources: [{ label: &#39;Pricing.fig&#39;, kind: &#39;figma&#39;, tip: &#39;Figma, 6 frames read&#39; }, { label: &#39;tokens.ts&#39;, kind: &#39;ts&#39;, tip: &#39;src/styles/tokens.ts, 212 lines&#39; }, { label: &#39;PricingCard.tsx&#39;, kind: &#39;tsx&#39;, tip: &#39;src/components/PricingCard.tsx&#39; }, { label: &#39;Contrast guide&#39;, kind: &#39;web&#39;, tip: &#39;w3.org, WCAG 2.2 contrast&#39; }],
-    moreSources: [{ label: &#39;Button.tsx&#39;, kind: &#39;tsx&#39;, tip: &#39;src/components/Button.tsx&#39; }, { label: &#39;globals.css&#39;, kind: &#39;css&#39;, tip: &#39;src/styles/globals.css&#39; }] },
-  { run: &#39;Reading 1 of 6 frames&#39;, done: &#39;Read 6 frames from Pricing.fig&#39;, count: 6, ms: 1500 },
-  { run: &#39;Checking if the old grid is in the tokens&#39;, done: &quot;Dead end: the old grid isn&#39;t in tokens.ts&quot;, dead: true, ms: 1400 },
-  { run: &#39;Mapping every spacing value&#39;, done: &#39;Mapped 9 spacing values&#39;, ms: 1300 },
-  { run: &#39;Comparing desktop and mobile&#39;, done: &#39;Compared desktop and mobile&#39;, sub: true, ms: 1100 },
-  { run: &#39;Finding values off the 8px grid&#39;, done: &#39;3 values break the 8px grid&#39;, sub: true, ms: 1000 },
-  { run: &#39;Merging both breakpoints&#39;, done: &#39;Merged both breakpoints&#39;, mark: &#39;hollow&#39;, ms: 1000 },
-  { run: &#39;Spotting cards that need a fix&#39;, done: &#39;Found 3 cards to fix&#39;, ms: 1200 },
-  { run: &#39;Drafting the fix&#39;, done: &#39;Drafted a 2-step fix&#39;, ms: 1300 }
+  { label: &#39;Open Pricing v4 in Figma&#39;, result: &#39;6 frames, 3 plan cards&#39;, ms: 1300 },
+  { label: &#39;Read the spacing tokens&#39;, result: &#39;tokens.css, 9 spacing values&#39;, ms: 1200 },
+  { label: &#39;Measure the plan cards&#39;, result: &#39;3 cards are off the 8px grid&#39;, ms: 1400, retry: &quot;Figma didn&#39;t answer&quot;, tip: &#39;Pro has an 18px gap, Team 22px and Enterprise 13px&#39; },
+  { label: &#39;Check text contrast&#39;, result: &#39;All 14 text pairs pass AA&#39;, ms: 1100 },
+  { label: &#39;Plan the fix&#39;, result: &#39;2 changes, about 3 minutes&#39;, ms: 1200 }
 ];
-const doneThoughts = (): ThinkingStep[] =&gt; THOUGHTS.map(({ run, done, dead, count, ms, ...rest }) =&gt; ({ ...rest, label: done, state: dead ? &#39;dead&#39; : &#39;done&#39; }));
+const TRACE = { title: &#39;Checking the pricing page&#39;, summary: &#39;3 cards to fix, 2 changes planned&#39; };
+const doneThoughts = (): ThinkingStep[] =&gt; THOUGHTS.map(t =&gt; ({ label: t.label, state: &#39;done&#39;, result: t.result, resultTip: t.tip }));
 const CALLS: ToolCallItem[] = [
   { key: &#39;plans&#39;, icon: &#39;db&#39;, server: &#39;billing&#39;, name: &#39;list_plan_changes&#39;, state: &#39;queued&#39;, duration: &#39;412 ms&#39;,
     input: { since: &#39;2026-10-01&#39; }, output: [{ plan: &#39;Pro&#39;, price: 24 }, { plan: &#39;Team&#39;, price: 48 }] },
@@ -1101,7 +1103,7 @@ const PAST = (openDoc: () =&gt; void): Conv[] =&gt; [
   { id: &#39;pricing&#39;, title: S.pricing.title, state: &#39;done&#39;, context: 46, status: { state: &#39;done&#39;, label: &#39;Done&#39;, meta: &#39;6 files changed&#39; }, followUps: FOLLOW.pricing, blocks: [
     user(S.pricing.ask),
     { key: &#39;g1&#39;, kind: &#39;group&#39;, label: &#39;Checked 6 frames and 2 plan prices&#39;, state: &#39;done&#39;, seconds: 11, blocks: [
-      { key: &#39;tk&#39;, kind: &#39;thinking&#39;, props: { steps: doneThoughts(), running: false, seconds: 9, summary: &#39;3 cards to fix · 2 steps&#39;, defaultOpen: false } },
+      { key: &#39;tk&#39;, kind: &#39;thinking&#39;, props: { steps: doneThoughts(), running: false, seconds: 9, ...TRACE, defaultOpen: false } },
       { key: &#39;tc&#39;, kind: &#39;tool-call&#39;, props: { calls: CALLS.map(c =&gt; ({ ...c, state: &#39;done&#39; })), defaultOpen: [&#39;plans&#39;], ...CALL_TEXT } }
     ] },
     say(&#39;s1&#39;, &#39;Three cards break the 8px grid, and the Figma frames still show the old prices. To fix them I need edit access to Pricing.fig.&#39;),
@@ -1254,19 +1256,20 @@ export default function AgentHarnessDemo() {
     async pricing(t) {
       await t.ask(); t.ctx(12);
       const g = t.group(&#39;g1&#39;, &#39;Checking the pricing page&#39;);
-      // the trace plays at twice its own pace here
+      // the trace plays at twice its own pace here, except the retry&#39;s countdown, which counts real seconds
       const steps: ThinkingStep[] = [], t0 = performance.now();
-      const trace = (running = true) =&gt; t.put({ key: &#39;tk&#39;, kind: &#39;thinking&#39;, props: { steps: steps.slice(), running, summary: &#39;3 cards to fix · 2 steps&#39;, collapseWhenDone: true } }, &#39;g1&#39;);
+      const trace = (running = true) =&gt; t.put({ key: &#39;tk&#39;, kind: &#39;thinking&#39;, props: { steps: steps.slice(), running, ...TRACE, collapseWhenDone: true } }, &#39;g1&#39;);
       const tick = () =&gt; t.status({ state: &#39;thinking&#39;, label: &#39;Thinking&#39;, meta: Math.round((performance.now() - t0) / 1000) + &#39;s&#39; });
       trace(); await t.wait(400);
       for (const th of THOUGHTS) {
-        const { run, done, dead, count, ms, ...rest } = th;
-        steps.push({ ...rest, label: run, state: &#39;running&#39;, sources: undefined, moreSources: undefined }); trace(); tick();
+        steps.push({ label: th.label, state: &#39;running&#39; }); trace(); tick();
         const at = steps.length - 1;
-        if (th.sources) { await t.wait(275); steps[at] = { ...steps[at], sources: th.sources, moreSources: th.moreSources }; trace(); }
-        if (count) for (let k = 2; k &lt;= count; k++) { await t.wait(ms / count / 2); steps[at] = { ...steps[at], label: `Reading ${k} of ${count} frames` }; trace(); tick(); }
-        else await t.wait(ms / 2);
-        steps[at] = { ...steps[at], label: done, state: dead ? &#39;dead&#39; : &#39;done&#39; }; trace(); tick();
+        await t.wait(th.ms / 2);
+        if (th.retry) {
+          for (let k = 2; k &gt; 0; k--) { steps[at] = { ...steps[at], state: &#39;retry&#39;, result: `${th.retry}. Trying again in ${k}s` }; trace(); tick(); await t.wait(1000); }
+          steps[at] = { ...steps[at], state: &#39;running&#39;, result: &#39;Trying again&#39; }; trace(); await t.wait(450);
+        }
+        steps[at] = { ...steps[at], state: &#39;done&#39;, result: th.result, resultTip: th.tip }; trace(); tick();
       }
       await t.wait(250); trace(false); t.ctx(21); await t.wait(400);
       let calls = CALLS;
@@ -1480,11 +1483,11 @@ export default function AgentHarnessDemo() {
         onFollowUp={(text, id) =&gt; converse(id, text)}
         workspaces={[{ name: &#39;DesignMe Studio&#39;, mark: &#39;D&#39; }, { name: &#39;Personal&#39;, mark: &#39;P&#39;, color: &#39;var(--dm-pl)&#39; }]}
         panel={docPanel} onPanelClose={() =&gt; setPanel(null)} model=&quot;Opus 5.5&quot;
-        composer={{ projects: [{ value: &#39;acme-webapp&#39;, detail: &#39;~/code/acme-webapp&#39;, icon: &#39;folder&#39; }, { value: &#39;marketing-site&#39;, detail: &#39;~/code/marketing-site&#39;, icon: &#39;folder&#39; }] }} /&gt;
+        composer={{ contexts: [{ value: &#39;Pricing v4&#39;, detail: &#39;Figma, 6 frames&#39;, icon: &#39;figma&#39; }, { value: &#39;Marketing site&#39;, detail: &#39;Code, main branch&#39;, icon: &#39;code&#39; }] }} /&gt;
     &lt;/div&gt;
   );
 }
-</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything AgentHarness takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>conversations</code><span class="opt">required</span></td><td><code>AgentHarnessConversation[]</code></td><td>The chats down the side, newest first</td></tr><tr><td><code>tabs</code></td><td><code>AgentHarnessTab[]</code></td><td>The open tabs, in order. Leave it out to let the harness keep them; it starts with one New chat tab</td></tr><tr><td><code>defaultTabs</code></td><td><code>AgentHarnessTab[]</code></td><td></td></tr><tr><td><code>onTabsChange</code></td><td><code>(tabs: AgentHarnessTab[]) =&gt; void</code></td><td></td></tr><tr><td><code>tab</code></td><td><code>string</code></td><td>The key of the tab on screen</td></tr><tr><td><code>defaultTab</code></td><td><code>string</code></td><td></td></tr><tr><td><code>onTabChange</code></td><td><code>(tab: string) =&gt; void</code></td><td></td></tr><tr><td><code>suggestions</code></td><td><code>AgentHarnessSuggestion[]</code></td><td>New chat&#39;s suggestions. Three show at a time, and Shuffle shows the next three</td></tr><tr><td><code>onSend</code></td><td><code>(message: { text: string; attachments: ComposerAttachment[] }, conversation: string | null, tab: string) =&gt; string | void</code></td><td>Called with what the person sends or the suggestion they pick, the chat it goes to (null from New chat) and the tab. From New chat, return the id of the chat it started and the tab turns into that chat. Nothing is sent while the chat on screen is running</td></tr><tr><td><code>onFollowUp</code></td><td><code>(text: string, conversation: string) =&gt; void</code></td><td>Called when the person picks one of a chat&#39;s follow-ups</td></tr><tr><td><code>greeting</code></td><td><code>string</code></td><td>The grey line over New chat&#39;s heading. Defaults to good morning, afternoon or evening</td></tr><tr><td><code>heading</code></td><td><code>string</code></td><td>Defaults to &quot;What should the agent work on?&quot;</td></tr><tr><td><code>workspaces</code></td><td><code>AgentHarnessWorkspace[]</code></td><td>The workspace switcher at the top of the side</td></tr><tr><td><code>workspace</code></td><td><code>string</code></td><td>The name of the workspace shown. Defaults to the first</td></tr><tr><td><code>defaultWorkspace</code></td><td><code>string</code></td><td></td></tr><tr><td><code>onWorkspaceChange</code></td><td><code>(name: string) =&gt; void</code></td><td></td></tr><tr><td><code>panel</code></td><td><code>AgentHarnessPanel | null</code></td><td>Opens the panel beside the chat. On a wide harness the chats fold away while it is open</td></tr><tr><td><code>onPanelClose</code></td><td><code>() =&gt; void</code></td><td>Called by the panel&#39;s close button and by Escape</td></tr><tr><td><code>model</code></td><td><code>string</code></td><td>Shown beside the context ring, like the model&#39;s name</td></tr><tr><td><code>draft</code></td><td><code>string</code></td><td>The text in the composer. Leave it out to let the harness keep it; each tab keeps its own draft</td></tr><tr><td><code>defaultDraft</code></td><td><code>string</code></td><td></td></tr><tr><td><code>onDraftChange</code></td><td><code>(draft: string) =&gt; void</code></td><td></td></tr><tr><td><code>placeholders</code></td><td><code>{ home?: string; reply?: string; working?: string }</code></td><td>The composer&#39;s placeholder on New chat, in a chat, and while the agent works</td></tr><tr><td><code>composer</code></td><td><code>Omit&lt;ComposerProps, &#39;value&#39; | &#39;defaultValue&#39; | &#39;onValueChange&#39; | &#39;onSubmit&#39; | &#39;thread&#39; | &#39;tools&#39; | &#39;className&#39; | &#39;placeholder&#39;&gt;</code></td><td>Anything else for the composer: projects, environments, attachments, effort, dictation</td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>AgentHarness.tsx<span class="l">React · 520 lines</span></summary><pre class="cp-pre"><code>&#39;use client&#39;;
+</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything AgentHarness takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>conversations</code><span class="opt">required</span></td><td><code>AgentHarnessConversation[]</code></td><td>The chats down the side, newest first</td></tr><tr><td><code>tabs</code></td><td><code>AgentHarnessTab[]</code></td><td>The open tabs, in order. Leave it out to let the harness keep them; it starts with one New chat tab</td></tr><tr><td><code>defaultTabs</code></td><td><code>AgentHarnessTab[]</code></td><td></td></tr><tr><td><code>onTabsChange</code></td><td><code>(tabs: AgentHarnessTab[]) =&gt; void</code></td><td></td></tr><tr><td><code>tab</code></td><td><code>string</code></td><td>The key of the tab on screen</td></tr><tr><td><code>defaultTab</code></td><td><code>string</code></td><td></td></tr><tr><td><code>onTabChange</code></td><td><code>(tab: string) =&gt; void</code></td><td></td></tr><tr><td><code>suggestions</code></td><td><code>AgentHarnessSuggestion[]</code></td><td>New chat&#39;s suggestions. Three show at a time, and Shuffle shows the next three</td></tr><tr><td><code>onSend</code></td><td><code>(message: { text: string; attachments: ComposerAttachment[] }, conversation: string | null, tab: string) =&gt; string | void</code></td><td>Called with what the person sends or the suggestion they pick, the chat it goes to (null from New chat) and the tab. From New chat, return the id of the chat it started and the tab turns into that chat. Nothing is sent while the chat on screen is running</td></tr><tr><td><code>onFollowUp</code></td><td><code>(text: string, conversation: string) =&gt; void</code></td><td>Called when the person picks one of a chat&#39;s follow-ups</td></tr><tr><td><code>greeting</code></td><td><code>string</code></td><td>The grey line over New chat&#39;s heading. Defaults to good morning, afternoon or evening</td></tr><tr><td><code>heading</code></td><td><code>string</code></td><td>Defaults to &quot;What should the agent work on?&quot;</td></tr><tr><td><code>workspaces</code></td><td><code>AgentHarnessWorkspace[]</code></td><td>The workspace switcher at the top of the side</td></tr><tr><td><code>workspace</code></td><td><code>string</code></td><td>The name of the workspace shown. Defaults to the first</td></tr><tr><td><code>defaultWorkspace</code></td><td><code>string</code></td><td></td></tr><tr><td><code>onWorkspaceChange</code></td><td><code>(name: string) =&gt; void</code></td><td></td></tr><tr><td><code>panel</code></td><td><code>AgentHarnessPanel | null</code></td><td>Opens the panel beside the chat. On a wide harness the chats fold away while it is open</td></tr><tr><td><code>onPanelClose</code></td><td><code>() =&gt; void</code></td><td>Called by the panel&#39;s close button and by Escape</td></tr><tr><td><code>model</code></td><td><code>string</code></td><td>Shown beside the context ring, like the model&#39;s name</td></tr><tr><td><code>draft</code></td><td><code>string</code></td><td>The text in the composer. Leave it out to let the harness keep it; each tab keeps its own draft</td></tr><tr><td><code>defaultDraft</code></td><td><code>string</code></td><td></td></tr><tr><td><code>onDraftChange</code></td><td><code>(draft: string) =&gt; void</code></td><td></td></tr><tr><td><code>placeholders</code></td><td><code>{ home?: string; reply?: string; working?: string }</code></td><td>The composer&#39;s placeholder on New chat, in a chat, and while the agent works</td></tr><tr><td><code>composer</code></td><td><code>Omit&lt;ComposerProps, &#39;value&#39; | &#39;defaultValue&#39; | &#39;onValueChange&#39; | &#39;onSubmit&#39; | &#39;thread&#39; | &#39;tools&#39; | &#39;className&#39; | &#39;placeholder&#39;&gt;</code></td><td>Anything else for the composer: what it works on, its mode, attachments, dictation</td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>AgentHarness.tsx<span class="l">React · 517 lines</span></summary><pre class="cp-pre"><code>&#39;use client&#39;;
 import { useEffect, useRef, useState, type KeyboardEvent, type ReactNode } from &#39;react&#39;;
 import { cx } from &#39;../lib/cx&#39;;
 import { useControllable, useCopied, useIsoLayoutEffect, useReducedMotion } from &#39;../lib/hooks&#39;;
@@ -1633,7 +1636,7 @@ export interface AgentHarnessProps {
   onDraftChange?: (draft: string) =&gt; void;
   /** The composer&#39;s placeholder on New chat, in a chat, and while the agent works */
   placeholders?: { home?: string; reply?: string; working?: string };
-  /** Anything else for the composer: projects, environments, attachments, effort, dictation */
+  /** Anything else for the composer: what it works on, its mode, attachments, dictation */
   composer?: Omit&lt;ComposerProps, &#39;value&#39; | &#39;defaultValue&#39; | &#39;onValueChange&#39; | &#39;onSubmit&#39; | &#39;thread&#39; | &#39;tools&#39; | &#39;className&#39; | &#39;placeholder&#39;&gt;;
   className?: string;
 }
@@ -1753,10 +1756,8 @@ export function AgentHarness({
   /* the composer&#39;s settings live here, so they stay put when it moves between New chat and the foot of a chat */
   const cp = composer ?? {};
   const [att, setAtt] = useControllable(cp.attachments, cp.defaultAttachments ?? [], cp.onAttachmentsChange);
-  const [proj, setProj] = useControllable(cp.project, cp.defaultProject ?? cp.projects?.[0]?.value ?? &#39;&#39;, cp.onProjectChange);
-  const [env, setEnv] = useControllable(cp.environment, cp.defaultEnvironment ?? cp.environments?.[0]?.value ?? &#39;&#39;, cp.onEnvironmentChange);
-  const [cloud, setCloud] = useControllable(cp.handoff, cp.defaultHandoff ?? false, cp.onHandoffChange);
-  const [eff, setEff] = useControllable(cp.effort, cp.defaultEffort ?? &#39;medium&#39;, cp.onEffortChange);
+  const [ctxPick, setCtxPick] = useControllable(cp.context, cp.defaultContext ?? cp.contexts?.[0]?.value ?? &#39;&#39;, cp.onContextChange);
+  const [mode, setMode] = useControllable(cp.mode, cp.defaultMode ?? cp.modes?.[0]?.value ?? &#39;ask&#39;, cp.onModeChange);
 
   /* each tab keeps its own draft */
   const drafts = useRef(new Map&lt;string, string&gt;());
@@ -1873,8 +1874,7 @@ export function AgentHarness({
   const ph = home ? placeholders?.home ?? &#39;Ask the agent to do something&#39; : busy ? placeholders?.working ?? &#39;The agent is working…&#39; : placeholders?.reply ?? &#39;Reply&#39;;
   const box = (
     &lt;Composer {...cp} value={text} onValueChange={setText} onSubmit={send} placeholder={ph}
-      attachments={att} onAttachmentsChange={setAtt} project={proj} onProjectChange={setProj} environment={env} onEnvironmentChange={setEnv}
-      handoff={cloud} onHandoffChange={setCloud} effort={eff} onEffortChange={setEff}
+      attachments={att} onAttachmentsChange={setAtt} context={ctxPick} onContextChange={setCtxPick} mode={mode} onModeChange={setMode}
       tools={
         &lt;div className=&quot;dm-ctm-ft&quot;&gt;
           {model &amp;&amp; &lt;span&gt;{model}&lt;/span&gt;}
@@ -2128,7 +2128,7 @@ export function AgentHarness({
 .dm-ahx-scrim{display:none}
 /* a narrow chat, beside the panel or on a phone: the composer keeps only what it needs */
 @container ahm (max-width:560px){
-  .dm-ahx .dm-ctm-ft&gt;span,.dm-ahx .dm-cpx-bar .dm-chip[data-pop=&quot;.pp-proj&quot;],.dm-ahx .dm-cpx-cloud,.dm-ahx-spl .dm-spl-in .dm-m{display:none}
+  .dm-ahx .dm-ctm-ft&gt;span,.dm-ahx .dm-cpx-bar .dm-cpx-ctx,.dm-ahx-spl .dm-spl-in .dm-m{display:none}
 }
 /* phone: the chats slide in from the side, the tabs scroll, the panel covers the chat */
 @container ahx (max-width:620px){
@@ -2316,7 +2316,7 @@ export function AgentHarness({
 .ahx-scrim{display:none}
 /* a narrow chat, beside the panel or on a phone: the composer keeps only what it needs */
 @container ahm (max-width:560px){
-  .ahx .ctm-ft&gt;span,.ahx .cpx-bar .chip[data-pop=&quot;.pp-proj&quot;],.ahx .cpx-cloud,.ahx-spl .spl-in .m{display:none}
+  .ahx .ctm-ft&gt;span,.ahx .cpx-bar .cpx-ctx,.ahx-spl .spl-in .m{display:none}
 }
 /* phone: the chats slide in from the side, the tabs scroll, the panel covers the chat */
 @container ahx (max-width:620px){
@@ -2337,7 +2337,7 @@ export function AgentHarness({
   .ahx.pn .ahx-pane{width:100%}
   .ahx-pi{width:100%}
 }
-</code></pre></details><details class="cp-file"><summary>agent-harness.js<span class="l">HTML · 476 lines</span></summary><pre class="cp-pre"><code>DM.def(&#39;harness&#39;, (r, c) =&gt; {
+</code></pre></details><details class="cp-file"><summary>agent-harness.js<span class="l">HTML · 478 lines</span></summary><pre class="cp-pre"><code>DM.def(&#39;harness&#39;, (r, c) =&gt; {
   const IC = { plus:I(&#39;plus&#39;), edit:I(&#39;edit&#39;), search:I(&#39;search&#39;), panel:I(&#39;panel&#39;), chev:I(&#39;chev-d&#39;,&#39;xs&#39;), x:I(&#39;x&#39;), refresh:I(&#39;refresh&#39;,&#39;xs&#39;), doc:I(&#39;file-text&#39;), link:I(&#39;link&#39;) };
   r.innerHTML = r.innerHTML.replace(/\{(\w+)\}/g, (m, k) =&gt; IC[k] || m);
   const root = $(&#39;.ahx&#39;, r), main = $(&#39;.ahx-main&#39;, r), list = $(&#39;.ahx-list&#39;, r), tabsEl = $(&#39;.ahx-tabs&#39;, r), feed = $(&#39;.ahx-feed&#39;, r), cols = $(&#39;.ahx-cols&#39;, r);
@@ -2363,8 +2363,10 @@ export function AgentHarness({
   const cpT = tplOf(&#39;composer&#39;);
   if (cpT){ bot.append(cpT.content.cloneNode(true)); try { DM.defs.composer(bot, c, bot); } catch(e){ console.error(&#39;composer&#39;, e); } }
   const cpx = $(&#39;.cpx&#39;, bot), ta = $(&#39;.cpx-ta&#39;, bot), att = $(&#39;.cpx-att&#39;, bot);
-  const ctT = tplOf(&#39;context-meter&#39;), ft = ctT &amp;&amp; ta &amp;&amp; $(&#39;.ctm-ft&#39;, ctT.content).cloneNode(true);
-  if (ft){ $(&#39;.muted&#39;, ft).remove(); const rb = $(&#39;.ctm-ring&#39;, ft); rb.removeAttribute(&#39;aria-expanded&#39;); $(&#39;.cpx-eff&#39;, bot).before(ft); }
+  // the context ring is the meter&#39;s own ring, as a button of its own in the composer&#39;s bar, before the mode
+  const ctT = tplOf(&#39;context-meter&#39;), rs = ctT &amp;&amp; ta &amp;&amp; $(&#39;.ctm-ring svg&#39;, ctT.content);
+  const ft = rs &amp;&amp; html(`&lt;span class=&quot;ctm-ft&quot;&gt;&lt;button class=&quot;ctm-ring&quot; aria-label=&quot;Context&quot;&gt;${rs.outerHTML}&lt;/button&gt;&lt;/span&gt;`);
+  if (ft) $(&#39;.cpx-mode&#39;, bot).before(ft);
   const ring = v =&gt; { if (!ft) return; const rb = $(&#39;.ctm-ring&#39;, ft), fl = $(&#39;.fl&#39;, ft); fl.style.strokeDasharray = v + &#39; 100&#39;; fl.style.opacity = v ? &#39;&#39; : &#39;0&#39;;
     rb.dataset.tip = &#39;Context &#39; + v + &#39;% full&#39;; rb.setAttribute(&#39;aria-label&#39;, &#39;Context, &#39; + v + &#39;% full&#39;); };
   const input = () =&gt; ta &amp;&amp; ta.dispatchEvent(new Event(&#39;input&#39;));
@@ -2598,7 +2600,7 @@ export function AgentHarness({
         const box = add(html(&#39;&lt;div class=&quot;lva-turn&quot;&gt;&lt;/div&gt;&#39;));
         const th = html(`&lt;div class=&quot;lva-th&quot;&gt;&lt;span class=&quot;think on&quot; style=&quot;color:var(--fg2)&quot;&gt;&lt;i&gt;&lt;/i&gt;&lt;i&gt;&lt;/i&gt;&lt;i&gt;&lt;/i&gt;&lt;i&gt;&lt;/i&gt;&lt;/span&gt;&lt;span class=&quot;shim&quot;&gt;Thinking&lt;/span&gt;&lt;/div&gt;`);
         box.appendChild(th); status(cv, &#39;think&#39;, &#39;Thinking&#39;); await k.wait(1100);
-        const tb = html(`&lt;button class=&quot;lva-th lva-tb&quot; aria-expanded=&quot;false&quot;&gt;&lt;span&gt;Thought for 1s&lt;/span&gt;${I(&#39;chev-d&#39;,&#39;xs&#39;)}&lt;/button&gt;`);
+        const tb = html(`&lt;button class=&quot;lva-th lva-tb&quot; aria-expanded=&quot;false&quot;&gt;&lt;span&gt;${steps.length} steps · 1s&lt;/span&gt;${I(&#39;chev-d&#39;,&#39;xs&#39;)}&lt;/button&gt;`);
         const tl = html(`&lt;div class=&quot;fold shut lva-tl&quot;&gt;&lt;div&gt;&lt;ul class=&quot;lva-tlist&quot;&gt;${steps.map(x =&gt; `&lt;li&gt;${x}&lt;/li&gt;`).join(&#39;&#39;)}&lt;/ul&gt;&lt;/div&gt;&lt;/div&gt;`);
         th.replaceWith(tb); tb.after(tl);
         tb.onclick = () =&gt; { const s = tl.classList.toggle(&#39;shut&#39;); tb.setAttribute(&#39;aria-expanded&#39;, !s); };
@@ -2861,7 +2863,7 @@ export function AgentHarness({
     const th = html(`<div class="lva-th"><span class="think on" style="color:var(--fg2)"><i></i><i></i><i></i><i></i></span><span class="shim">Thinking</span></div>`);
     turn.appendChild(th); enter(th);
     await c.wait(1300);
-    const tb = html(`<button class="lva-th lva-tb" aria-expanded="false"><span>Thought for 2s</span>${I('chev-d','xs')}</button>`);
+    const tb = html(`<button class="lva-th lva-tb" aria-expanded="false"><span>${steps.length} steps · 2s</span>${I('chev-d','xs')}</button>`);
     const tl = html(`<div class="fold shut lva-tl"><div><ul class="lva-tlist">${steps.map(x => `<li>${x}</li>`).join('')}</ul></div></div>`);
     th.replaceWith(tb); tb.after(tl);
     tb.onclick = () => { const s = tl.classList.toggle('shut'); tb.setAttribute('aria-expanded', !s); };
@@ -2904,63 +2906,82 @@ export function AgentHarness({
   c.run(() => answer('', first));
 });
 </script><script>DM.def('composer', (r, c) => {
-  const icons = { plus:'plus', folder:'folder', laptop:'laptop', cloud:'cloud', mic:'mic', up:'up', x:'x', check:'check', clip:'clip', image:'image', figma:'figma', at:'at', slash:'slash', branch:'branch' };
-  r.innerHTML = r.innerHTML.replace(/\{(\w+)\}/g, (m, k) => icons[k] ? I(icons[k]) : m);
-  const box = $('.cpx-box', r), ta = $('.cpx-ta', r), send = $('.cpx-bar .cpx-send', r), cv = $('.cpx-wave', r), thread = $('.cpx-thread', r), att = $('.cpx-att', r);
+  const icons = { clip:'clip', figma:'figma', eye:'eye', edit:'edit', list:'list', code:'code', mic:'mic', up:'up', check:'check', file:'file-text', image:'image' };
+  r.innerHTML = r.innerHTML.replace(/\{(\w+)\}/g, (m, k) => k === 'chev' ? I('chev-d','xs') : icons[k] ? I(icons[k]) : m);
+  const box = $('.cpx-box', r), ta = $('.cpx-ta', r), send = $('.cpx-bar .cpx-send', r), thread = $('.cpx-thread', r), att = $('.cpx-att', r), PH = ta.placeholder;
   const grow = () => { ta.style.height = 'auto'; ta.style.height = Math.min(ta.scrollHeight, 160) + 'px'; };
-  const sync = () => { send.disabled = !ta.value.trim() && !att.children.length; grow(); };
+  // send waits for text or a file, and for every file to finish loading
+  const sync = () => { send.disabled = (!ta.value.trim() && !att.children.length) || !!$('.fchip.ld,.fchip.err', att); grow(); };
   c.on(ta, 'input', sync);
-  c.on(ta, 'keydown', e => { if (e.key === 'Enter' && !e.shiftKey && box.dataset.mode === 'idle'){ e.preventDefault(); submit(); } if (e.key === 'Escape' && box.dataset.mode === 'voice') stopVoice(false); });
-  /* plus menu */
-  const ATT = { file:['file-text','brief.pdf'], shot:['image','Screenshot 10.42'], figma:['figma','Pricing / Desktop'] };
-  $$('[data-add]', r).forEach(b => b.onclick = () => { const a = ATT[b.dataset.add]; const ch = html(`<span class="fchip">${I(a[0],'xs')}${a[1]}<button class="x" aria-label="Remove ${a[1]}">${I('x','xs')}</button></span>`); att.appendChild(ch); enter(ch); $('.x', ch).onclick = () => { ch.classList.add('leave'); setTimeout(() => { ch.remove(); sync(); }, 300); }; sync(); });
-  $$('[data-ins]', r).forEach(b => b.onclick = () => { ta.value += (ta.value && !ta.value.endsWith(' ') ? ' ' : '') + b.dataset.ins; ta.focus({ preventScroll:true }); sync(); });
-  const radio = (sel, attr, fn) => $$(sel, r).forEach(b => b.onclick = () => { $$(sel, r).forEach(x => x.setAttribute('aria-checked', x === b)); fn(b.dataset[attr]); });
-  radio('[data-proj]', 'proj', v => swap($('.cpx-proj', r), v));
-  radio('[data-env]', 'env', v => { swap($('.cpx-env', r), v); const ch = $('[data-pop=".pp-env"]', r); ch.querySelector('svg').outerHTML = I({ Local:'laptop', Worktree:'branch', Cloud:'cloud' }[v]); });
-  const effN = ['','Low','Medium','High'];
-  radio('[data-eff]', 'eff', v => { const b = $('.cpx-eff', r); $$('.cpx-bar .cpx-bars i', r).forEach((x, i) => x.classList.toggle('on', i < +v)); b.dataset.tip = 'Effort: ' + effN[v]; });
-  const cr = $('.cc-row', r); cr.onclick = () => { const on = cr.getAttribute('aria-checked') !== 'true'; cr.setAttribute('aria-checked', on); $('.cpx-cloud', r).classList.toggle('on', on); $('.cpx-cloud', r).dataset.tip = on ? 'Hands off to the cloud when you close your laptop' : 'Hand off to the cloud'; };
-  /* dictation, played from a sample because the page can't use a microphone */
-  const said = 'Can you tighten the spacing on the pricing cards and keep the buttons the same height? Then run the visual tests before you open the PR.';
-  let samples = [], speaking = 0, last = 0, before = '', vc = null;
-  function draw(t){
-    if (box.dataset.mode !== 'voice') return false;
-    if (t - last > 55){ last = t; samples.push(speaking > 0 ? Math.min(1, .25 + Math.random() * .75 * (.6 + .4 * Math.sin(t / 90))) : 0); if (samples.length > 400) samples.shift(); if (speaking > 0) speaking--; }
-    const dpr = devicePixelRatio || 1, w = cv.clientWidth, h = cv.clientHeight; if (!w) return;
-    if (cv.width !== w * dpr){ cv.width = w * dpr; cv.height = h * dpr; }
-    const x = cv.getContext('2d'); x.setTransform(dpr, 0, 0, dpr, 0, 0); x.clearRect(0, 0, w, h);
-    const cs = getComputedStyle(r), col = cs.getPropertyValue('--fg2').trim(), faint = cs.getPropertyValue('--faint').trim();
-    const step = 3.5, n = Math.floor(w / step);
-    for (let i = 0; i < n; i++){ const v = samples[samples.length - n + i], px = i * step + 1, mid = h / 2, fade = Math.min(1, i / 18);
-      x.globalAlpha = fade;
-      if (!v){ x.fillStyle = faint; x.fillRect(px, mid - .6, 1.2, 1.2); } else { const bh = Math.max(3, v * (h - 6)); x.fillStyle = col; x.beginPath(); x.roundRect ? x.roundRect(px, mid - bh / 2, 2, bh, 1) : x.rect(px, mid - bh / 2, 2, bh); x.fill(); } }
-    x.globalAlpha = 1;
+  c.on(r, 'keydown', e => { if (e.target === ta && e.key === 'Enter' && !e.shiftKey && box.dataset.mode === 'idle'){ e.preventDefault(); submit(); } if (e.key === 'Escape' && box.dataset.mode === 'voice') stopVoice(false, true); });
+  /* attachments load before they can be sent. The first Figma link can't be opened, so the error shows, and Try again fetches it */
+  const ATT = { file:['file-text','Spacing notes.pdf'], figma:['figma','Pricing / Desktop'], shot:['image','Screenshot 10.42'] };
+  let figmaTries = 0;
+  function load(ch, kind){
+    const a = ATT[kind]; ch.className = 'fchip ld'; $('.ic', ch).innerHTML = '<span class="spin"></span>'; swap($('.n', ch), a[1]); const rt = $('.rt', ch); if (rt) rt.remove(); sync();
+    const fail = kind === 'figma' && figmaTries++ === 0;
+    c.later(1000, () => { if (!ch.isConnected) return;
+      if (fail){ ch.className = 'fchip err'; $('.ic', ch).innerHTML = I('alert','xs'); swap($('.n', ch), a[1] + " can't be opened");
+        const b = html(`<button class="rt" aria-label="Try again" data-tip="Try again">${I('refresh','xs')}</button>`); $('.x', ch).before(b); b.onclick = () => load(ch, kind); }
+      else { ch.className = 'fchip'; $('.ic', ch).innerHTML = I(a[0],'xs'); enter($('.ic', ch).firstElementChild); }
+      sync(); });
   }
+  function add(kind){
+    const a = ATT[kind], ch = html(`<span class="fchip"><span class="ic" style="display:grid"></span><span class="n">${a[1]}</span><button class="x" aria-label="Remove ${a[1]}">${I('x','xs')}</button></span>`);
+    att.appendChild(ch); enter(ch);
+    $('.x', ch).onclick = () => { ch.classList.add('leave'); c.later(300, () => { ch.remove(); sync(); }); };
+    load(ch, kind);
+  }
+  $$('[data-add]', r).forEach(b => b.onclick = () => add(b.dataset.add));
+  /* what the agent works on, and what it may do: a menu each, the chip shows the pick */
+  const pick = (menu, chip, name, key) => $$(menu + ' .mi', r).forEach(b => b.onclick = () => {
+    $$(menu + ' .mi', r).forEach(x => x.setAttribute('aria-checked', x === b));
+    const ch = $(chip, r); ch.firstElementChild.outerHTML = I(b.dataset.ic); swap($(name, ch), b.dataset[key]);
+  });
+  pick('.pp-ctx', '.cpx-ctx', '.cpx-ctx-n', 'ctx');
+  pick('.pp-mode', '.cpx-mode', '.cpx-mode-n', 'mode');
+  /* dictation, played from a sample because the page can't use a microphone: a red dot and a clock, the words arrive in the box */
+  const said = 'Tighten the spacing on the plan cards and keep the buttons the same height';
+  let before = '', vc = null;
   async function dictate(){
     if (vc) vc.stop(); vc = ctl(); const k = vc; c.offs.push(() => k.stop());
-    before = ta.value; samples = []; speaking = 0; box.dataset.mode = 'voice'; ta.value = ''; ta.placeholder = 'Listening…'; grow();
-    c.loop(draw);
-    await k.run(async () => {
-      await k.wait(900);
-      for (const w of said.split(' ')){ speaking = 6; ta.value += (ta.value ? ' ' : '') + w; grow(); await k.wait(150 + Math.random() * 140 + (/[?.,]$/.test(w) ? 520 : 0)); }
-    });
+    before = ta.value; box.dataset.mode = 'voice'; ta.value = ''; ta.placeholder = 'Listening…'; grow();
+    const t0 = performance.now(), tm = $('.cpx-tm', r); tm.textContent = '0:00';
+    k.every(250, () => { const s = Math.floor((performance.now() - t0) / 1000); tm.textContent = Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); });
+    await k.run(async () => { await k.wait(700); for (const w of said.split(' ')){ ta.value += (ta.value ? ' ' : '') + w; grow(); await k.wait(160 + Math.random() * 120); } });
   }
-  function stopVoice(keep){ if (vc) vc.stop(); box.dataset.mode = 'idle'; ta.placeholder = 'Ask anything, or type / for skills'; if (!keep) ta.value = before; sync(); ta.focus({ preventScroll:true }); }
+  function stopVoice(keep, mine){ if (vc) vc.stop(); box.dataset.mode = 'idle'; ta.placeholder = PH; if (!keep) ta.value = before; sync(); if (mine) ta.focus({ preventScroll:true }); }
   $('.cpx-mic', r).onclick = dictate;
-  $('.cpx-cancel', r).onclick = () => stopVoice(false);
-  $('.cpx-ok', r).onclick = () => stopVoice(true);
+  $('.cpx-cancel', r).onclick = () => stopVoice(false, true);
+  $('.cpx-ok', r).onclick = () => stopVoice(true, true);
+  /* sending: the message and its files go up into the conversation, and the agent answers in the mode picked */
   function submit(){
-    const v = ta.value.trim(); if (!v && !att.children.length) return;
-    const files = $$('.fchip', att).map(f => f.textContent.trim());
+    if (send.disabled) return;
+    const v = ta.value.trim(), files = $$('.fchip', att).map(f => $('.n', f).textContent), mode = $('.cpx-mode-n', r).textContent, ctx = $('.cpx-ctx-n', r).textContent;
     ta.value = ''; att.innerHTML = ''; sync();
     const b = html(`<div class="bub">${files.length ? `<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:${v ? 6 : 0}px">${files.map(f => `<span class="fchip">${I('clip','xs')}${f}</span>`).join('')}</div>` : ''}${v.replace(/</g,'&lt;')}</div>`); thread.appendChild(b); enter(b);
-    const a = html(`<div class="cpx-ag"><span class="think on"><i></i><i></i><i></i><i></i></span><span class="shim">Thinking</span></div>`); thread.appendChild(a); enter(a);
+    const a = html(`<div class="cpx-ag wk"><span class="think on"><i></i><i></i><i></i><i></i></span><span class="shim">Working</span></div>`); thread.appendChild(a); enter(a);
     while (thread.children.length > 4) thread.firstElementChild.remove();
-    c.later(1700, () => { a.innerHTML = '<span>On it. I\'ll start with the pricing cards.</span>'; enter(a); });
+    const say = { Ask:`Looking at ${ctx}. I won't change anything.`, Edit:`On it. I'll make the changes on a new page in ${ctx}.`, Plan:`I'll write a plan for ${ctx} first, then wait for you.` }[mode];
+    c.later(1700, () => { a.classList.remove('wk'); a.innerHTML = `<span>${say}</span>`; enter(a); });
   }
   send.onclick = submit;
   sync();
+  // the preview's story: attach a frame that won't open, try again, write the ask, switch to Edit and send
+  if (r === c.st) c.story(async s => {
+    await s.beat(3);
+    await s.tap($('.cpx-add', r)); await s.beat(3);
+    await s.tap($('.pp-plus [data-add="figma"]', r)); s.away();
+    await s.until(() => $('.fchip.err', att)); await s.beat(3);
+    await s.tap($('.fchip.err .rt', att)); s.away();
+    await s.until(() => att.children.length && !$('.fchip.ld,.fchip.err', att)); await s.beat(1);
+    for (const w of 'Tighten the spacing on the plan cards'.split(' ')){ ta.value += (ta.value ? ' ' : '') + w; sync(); await s.beat(.3); }
+    await s.beat(2);
+    await s.tap($('.cpx-mode', r)); await s.beat(3);
+    await s.tap($('.pp-mode [data-mode="Edit"]', r)); s.away(); await s.beat(2);
+    await s.tap(send); s.away();
+    await s.until(() => $('.cpx-ag', thread) && !$('.cpx-ag.wk', thread)); await s.beat(1);
+  });
 });
 </script><script>DM.def('artifact-card', (r, c) => {
   r.innerHTML = r.innerHTML.replace('{doc}', I('file-text')).replace('{link}', I('link')).replace('{ext}', I('ext'));
@@ -3019,53 +3040,46 @@ export function AgentHarness({
   });
 });
 </script><script>DM.def('thinking', (r, c) => {
-  const tk = $('.tk', r), list = $('.tk-list', r), title = $('.tk-title', r), time = $('.tk-time', r), head = $('.tk-h', r), fold = $('.tk-fold', r), mark = $('.think', r);
-  const chips = `<div class="tk-chips"><button class="fchip lnk" data-tip="Figma, 6 frames read">${I('figma','xs')}Pricing.fig</button><button class="fchip lnk" data-tip="src/styles/tokens.ts, 212 lines"><span class="ft">TS</span>tokens.ts</button><button class="fchip lnk" data-tip="src/components/PricingCard.tsx"><span class="ft re">TSX</span>PricingCard.tsx</button><button class="fchip lnk" data-tip="w3.org, WCAG 2.2 contrast">${I('globe','xs')}Contrast guide</button><button class="tk-more" data-tip="Button.tsx, globals.css">+2 more</button></div>`;
-  const steps = [
-    { mk:'search', run:'Searching the design system', done:'Searched the design system', chips:true, ms:1600 },
-    { run:'Reading 1 of 6 frames', done:'Read 6 frames from Pricing.fig', count:6, ms:1500 },
-    { run:'Checking if the old grid is in the tokens', done:"Dead end: the old grid isn't in tokens.ts", dead:true, ms:1400 },
-    { run:'Mapping every spacing value', done:'Mapped 9 spacing values', ms:1300 },
-    { run:'Comparing desktop and mobile', done:'Compared desktop and mobile', sub:true, ms:1100 },
-    { run:'Finding values off the 8px grid', done:'3 values break the 8px grid', sub:true, ms:1000 },
-    { run:'Merging both breakpoints', done:'Merged both breakpoints', hollow:true, ms:1000 },
-    { run:'Spotting cards that need a fix', done:'Found 3 cards to fix', ms:1200 },
-    { run:'Drafting the fix', done:'Drafted a 2-step fix', ms:1300 }
+  const tk = $('.tk', r), list = $('.tk-list', r), title = $('.tk-title', r), time = $('.tk-time', r), head = $('.tk-h', r), fold = $('.tk-fold', r), mark = $('.tk-mark', r);
+  // each step: what the agent does and what it found. Measuring the cards times out once, counts down and tries again
+  const S = [
+    ['Open Pricing v4 in Figma', '6 frames, 3 plan cards', 1300],
+    ['Read the spacing tokens', 'tokens.css, 9 spacing values', 1200],
+    ['Measure the plan cards', '3 cards are off the 8px grid', 1400, { retry:"Figma didn't answer", tip:'Pro has an 18px gap, Team 22px and Enterprise 13px' }],
+    ['Check text contrast', 'All 14 text pairs pass AA', 1100],
+    ['Plan the fix', '2 changes, about 3 minutes', 1200]
   ];
   const setOpen = o => { tk.dataset.open = o ? '1' : '0'; fold.classList.toggle('shut', !o); head.setAttribute('aria-expanded', o); };
   head.onclick = () => setOpen(tk.dataset.open !== '1');
-  // a finished line settles where it is: the shimmer stops and the new words sharpen out of a soft blur, never fading to nothing and back
-  const settle = (el, text) => {
-    el.style.transition = 'none'; el.classList.remove('shim'); el.textContent = text; void el.offsetWidth; el.style.transition = '';
-    if (REDUCE) return;
-    const bp = getComputedStyle(el).getPropertyValue('--motion').trim() === 'bp';
-    el.animate(bp ? [{ opacity:.6 }, { opacity:1 }] : [{ opacity:.6, filter:'blur(1.5px)' }, { opacity:1, filter:'blur(0)' }], { duration:bp ? 220 : 460, easing:bp ? 'steps(3, end)' : 'cubic-bezier(.22,1,.36,1)' });
-  };
+  // the line under a step opens and then crossfades; a tip on it holds the detail
+  const note = (li, text, tip) => { const res = $('.res', li), sp = res.firstElementChild; res.classList.add('on'); if (tip) swap(sp, `<span data-tip="${tip}">${text}</span>`, true); else swap(sp, text); };
+  const glyph = (li, g) => { const mk = $('.mk', li); mk.innerHTML = g; enter(mk.firstElementChild); };
   let secs = 0, live = true; c.every(1000, () => { if (live){ secs++; time.textContent = secs + 's'; } });
   c.run(async () => {
-    await c.wait(800);
-    let prev = null;
-    for (const s of steps){
-      if (prev) $('.rl', prev).classList.add('on');
-      const li = html(`<li class="tk-st run${s.sub ? ' sub' : ''}${s.dead ? ' dead' : ''}">${s.sub ? '<span class="curve"></span>' : ''}<span class="mk"><span class="pulse"></span></span><span class="rl"></span><div class="tx"><span class="lab shim">${s.run}</span></div></li>`);
+    await c.wait(600);
+    for (const [lab, res, ms, x] of S){
+      const li = html(`<li class="tk-st run"><span class="mk"><span class="spin"></span></span><div class="tx"><span class="lab shim">${lab}</span><span class="res"><span></span></span></div></li>`);
       list.appendChild(li); enter(li);
-      const lab = $('.lab', li), tx = $('.tx', li);
-      if (s.chips){ await c.wait(550); tx.insertAdjacentHTML('beforeend', chips); stagger($$('.fchip,.tk-more', tx), 80);
-        const more = $('.tk-more', tx); more.onclick = () => { hideTip(); const add = html(`<span style="display:contents"><button class="fchip lnk" data-tip="src/components/Button.tsx"><span class="ft re">TSX</span>Button.tsx</button><button class="fchip lnk" data-tip="src/styles/globals.css"><span class="ft">CSS</span>globals.css</button></span>`); more.replaceWith(add); stagger($$('.fchip', add), 70); }; }
-      // the count changes in place under the shimmer, so the line never blinks
-      if (s.count){ for (let n = 2; n <= s.count; n++){ await c.wait(s.ms / s.count); lab.textContent = 'Reading ' + n + ' of ' + s.count + ' frames'; } }
-      else await c.wait(s.ms);
-      settle(lab, s.done); li.classList.remove('run');
-      const mk = $('.mk', li);
-      mk.innerHTML = s.mk === 'search' ? I('search','xs') : s.dead ? I('x','xs') : s.hollow ? '<span class="ring"></span>' : '<span class="dot"></span>';
-      enter(mk.firstElementChild);
-      prev = li;
+      const l = $('.lab', li);
+      await c.wait(ms);
+      if (x && x.retry){
+        li.classList.replace('run', 'retry'); l.classList.remove('shim'); glyph(li, I('clock','xs'));
+        for (let k = 2; k > 0; k--){ note(li, `${x.retry}. Trying again in ${k}s`); await c.wait(1000); }
+        li.classList.replace('retry', 'run'); l.classList.add('shim'); glyph(li, '<span class="spin"></span>'); note(li, 'Trying again'); await c.wait(900);
+      }
+      li.classList.replace('run', 'done'); l.classList.remove('shim'); glyph(li, I('check','xs')); note(li, res, x && x.tip);
     }
-    await c.wait(500); live = false; $('.rl', prev).classList.add('on');
-    const fin = html(`<li class="tk-st tk-fin"><span class="mk">${I('ok','s')}</span><div class="tx"><span><span class="lab">Finished thinking</span><span class="sum">3 cards to fix · 2 steps</span></span></div></li>`);
-    list.appendChild(fin); enter(fin);
-    mark.classList.remove('on'); settle(title, 'Thought for ' + Math.max(secs, 1) + 's'); time.textContent = '';
-    await c.wait(2200); setOpen(false);
+    // the header becomes what the work came to, and folds the trace away
+    await c.wait(500); live = false;
+    head.classList.add('tk-fin'); mark.innerHTML = I('ok'); enter(mark.firstElementChild); title.classList.remove('shim'); swap(title, '3 cards to fix, 2 changes planned');
+    await c.wait(2000); setOpen(false);
+  });
+  // the preview's story: once it has folded, the person opens it again and reads what the cards measured
+  if (r === c.st) c.story(async s => {
+    await s.until(() => fold.classList.contains('shut')); await s.beat(2);
+    await s.tap(head); await s.beat(2);
+    await s.point($('.res [data-tip]', list)); await s.beat(3);
+    s.away(); await s.beat(1);
   });
 });
 </script><script>DM.def('agent-lanes', (r, c) => {
@@ -3151,32 +3165,64 @@ export function AgentHarness({
   });
 });
 </script><script>DM.def('context-meter', (r, c) => {
-  r.innerHTML = r.innerHTML.replace('{bars}', I('bars'));
-  /* the context window first, then the plan limits; the ring shows how full the context is */
-  const ROWS = [
-    { k:'ctx', l:'Context window', v:68, s:'136k of 200k tokens', tip:'Files 56k · Conversation 60k · Tool results 20k', go:'Compact' },
-    { k:'ses', l:'Session limit', v:4, s:'Resets in 4 hr 39 min' },
-    { k:'wk', l:'Weekly', v:16, s:'Resets Sun 10:00 PM' }
+  r.innerHTML = r.innerHTML.replace('{chev}', I('chev-d','xs'));
+  const LIMIT = 200;
+  // what fills the context, in thousands of tokens; each part lists what's in it on hover
+  const P = [
+    { k:'files', l:'Files', v:56.2, c:'var(--pb)', tip:'Pricing.fig export 31.9k, PricingCard.tsx 18.2k, tokens.css 6.1k' },
+    { k:'tools', l:'Tool output', v:41.8, c:'var(--pt)', tip:'Contrast check 17.4k, Figma frames 15.6k, grid audit 8.8k' },
+    { k:'chat', l:'Chat', v:32.1, c:'var(--pl)', tip:'48 turns with Maya Kim since 09:12' },
+    { k:'sys', l:'Instructions', v:6.3, c:'var(--faint)', tip:'Studio guidelines 4.1k, pricing brief 2.2k' }
   ];
-  const root = $('.ctm', r), rows = $('.ctm-rows', r), ring = $('.ctm-ring', r), arc = $('.ctm-ring .fl', r);
-  rows.innerHTML = ROWS.map(x => `<div class="ctm-r" data-k="${x.k}"><span class="l">${x.l}</span><span class="p num"><b style="font-weight:inherit">0</b>% used</span><span class="ctm-tr" role="meter" aria-label="${x.l}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"${x.tip ? ` data-tip="${x.tip}"` : ''}><i></i></span><span class="s"><span class="t">${x.s}</span>${x.go ? `<button class="ctm-go">${x.go}</button>` : ''}</span></div>`).join('');
-  const shown = {};
-  function set(k, v){
-    const row = $(`.ctm-r[data-k="${k}"]`, rows), n = $('.p b', row), from = shown[k] || 0; shown[k] = v;
-    $('.ctm-tr i', row).style.width = v + '%'; $('.ctm-tr', row).setAttribute('aria-valuenow', v); row.classList.toggle('hot', v >= 90);
-    tween(from, v, 1000, x => n.textContent = Math.round(x));
-    if (k === 'ctx'){ arc.style.strokeDasharray = v + ' 100'; arc.style.stroke = v >= 90 ? 'var(--warn)' : ''; ring.setAttribute('aria-label', 'Usage, context ' + v + '% full'); }
+  const root = $('.ctm', r), tg = $('.ctm-tg', r), pop = $('.ctm-pop', r), arc = $('.ctm-ring .fl', r), pc = $('.ctm-pc', r), tot = $('.ctm-tot', r);
+  const bar = $('.ctm-bar', r), leg = $('.ctm-leg', r), msg = $('.ctm-msg', r), go = $('.ctm-go', r), hint = $('.ctm-hint', r);
+  bar.innerHTML = P.map(p => `<i data-k="${p.k}" style="--c:${p.c}"></i>`).join('');
+  leg.innerHTML = P.map(p => `<div class="ctm-l" data-k="${p.k}" style="--c:${p.c}" data-tip="${p.tip}"><span class="sw"></span>${p.l}<span class="v num">0k</span></div>`).join('');
+  const fmt = v => v.toFixed(1) + 'k', sum = () => P.reduce((t, p) => t + p.v, 0);
+  // the numbers count to their new values; the bar, the ring and the percentage follow
+  const shown = {}; let total = 0;
+  function paint(ms = 900){
+    const all = sum(), pct = Math.round(all / LIMIT * 100);
+    P.forEach(p => { $(`i[data-k="${p.k}"]`, bar).style.width = (p.v / LIMIT * 100) + '%'; const el = $(`.ctm-l[data-k="${p.k}"] .v`, leg), from = shown[p.k] || 0; shown[p.k] = p.v; tween(from, p.v, ms, x => el.textContent = fmt(x)); });
+    const from = total; total = all; tween(from, all, ms, x => { tot.textContent = fmt(x); pc.textContent = Math.round(x / LIMIT * 100) + '%'; });
+    arc.style.strokeDasharray = pct + ' 100'; root.classList.toggle('hot', pct >= 85); tg.setAttribute('aria-label', `Context, ${pct}% used`);
   }
-  ring.onclick = () => { const open = root.classList.toggle('shut') === false; ring.setAttribute('aria-expanded', open); };
-  /* compacting frees most of the context, Undo puts the full thread back */
-  const go = $('.ctm-go', rows), sub = $('.ctm-r[data-k="ctx"] .t', rows); let compacted = false;
+  const say = (text, tone, icon) => { msg.className = 'ctm-msg on ' + tone; swap(msg.firstElementChild, `${I(icon,'xs')}<span>${text}</span>`, true); };
+  // hovering a part lights its share of the bar
+  c.on(leg, 'pointerover', e => { const l = e.target.closest('.ctm-l'); if (!l) return; bar.classList.add('hl'); $$('i', bar).forEach(i => i.classList.toggle('on', i.dataset.k === l.dataset.k)); });
+  c.on(leg, 'pointerout', e => { if (!leg.contains(e.relatedTarget)) bar.classList.remove('hl'); });
+  // the pill opens and shuts the panel; Escape shuts it while the pointer or the focus is on the meter
+  const setOpen = (o, back) => { root.dataset.open = o ? '1' : '0'; tg.setAttribute('aria-expanded', o); pop.inert = !o; if (back) tg.focus({ preventScroll:true }); };
+  tg.onclick = () => setOpen(root.dataset.open !== '1');
+  c.on(document, 'keydown', e => { if (e.key === 'Escape' && root.dataset.open === '1' && (root.contains(document.activeElement) || root.matches(':hover'))) setOpen(false, root.contains(document.activeElement)); });
+  // new tool output lands and takes the context close to its limit
+  function arrive(){ P[1].v = +(P[1].v + 38.5).toFixed(1); paint(700); say(`${Math.round(sum() / LIMIT * 100)}% full. Older turns start to drop at 200k`, 'warn', 'warn'); }
+  // Compact turns older turns into a summary and trims old tool output; Undo puts them back
+  const before = {}; let state = 'full';
   go.onclick = () => c.run(async () => {
     if (go._busy) return; go._busy = true;
-    if (!compacted){ swap(go, 'Compacting'); swap(sub, 'Summarising the thread'); await c.wait(900); set('ctx', 38); swap(sub, '76k of 200k tokens, 9 decisions kept'); swap(go, 'Undo'); }
-    else { set('ctx', 68); swap(sub, '136k of 200k tokens'); swap(go, 'Compact'); }
-    compacted = !compacted; go._busy = false;
+    if (state === 'full'){
+      P.forEach(p => before[p.k] = p.v); const was = sum();
+      go.innerHTML = '<span class="spin"></span>Compacting'; swap(hint, 'Summarising 48 turns'); await c.wait(1000);
+      P[2].v = 4.6; P[1].v = +(P[1].v - 13.7).toFixed(1); paint(1100);
+      say(`Freed ${fmt(was - sum())} tokens. 9 decisions kept`, 'ok', 'ok'); swap(hint, 'Older turns are now a summary'); go.textContent = 'Undo'; state = 'compact';
+    } else {
+      P.forEach(p => p.v = before[p.k]); paint(700); msg.className = 'ctm-msg'; swap(hint, 'Summarises older turns'); go.textContent = 'Compact'; state = 'full';
+    }
+    go._busy = false;
   });
-  c.later(300, () => ROWS.forEach(x => set(x.k, x.v)));
+  // it opens on its real numbers; they only count when something changes
+  paint(1);
+  // the preview's story: read what fills it, new tool output pushes it close to the limit, compact, then shut it
+  if (r === c.st) c.story(async s => {
+    await s.beat(3);
+    await s.point($('.ctm-l[data-k="tools"]', leg)); await s.beat(3);
+    await s.point($('.ctm-l[data-k="files"]', leg)); await s.beat(3);
+    s.away(); await s.beat(1);
+    arrive(); await s.beat(4);
+    await s.tap(go); s.away(); await s.until(() => state === 'compact'); await s.beat(4);
+    await s.tap(tg); s.away(); await s.beat(2);
+  });
 });
 </script><script>DM.def('error-recovery', (r, c) => {
   const list = $('.erx-list', r), box = $('.erx-box', r), go = $('.erx-go', r), sum = $('.erx-s', r), opts = $$('.erx-o', r);
@@ -3466,8 +3512,10 @@ export function AgentHarness({
   const cpT = tplOf('composer');
   if (cpT){ bot.append(cpT.content.cloneNode(true)); try { DM.defs.composer(bot, c, bot); } catch(e){ console.error('composer', e); } }
   const cpx = $('.cpx', bot), ta = $('.cpx-ta', bot), att = $('.cpx-att', bot);
-  const ctT = tplOf('context-meter'), ft = ctT && ta && $('.ctm-ft', ctT.content).cloneNode(true);
-  if (ft){ $('.muted', ft).remove(); const rb = $('.ctm-ring', ft); rb.removeAttribute('aria-expanded'); $('.cpx-eff', bot).before(ft); }
+  // the context ring is the meter's own ring, as a button of its own in the composer's bar, before the mode
+  const ctT = tplOf('context-meter'), rs = ctT && ta && $('.ctm-ring svg', ctT.content);
+  const ft = rs && html(`<span class="ctm-ft"><button class="ctm-ring" aria-label="Context">${rs.outerHTML}</button></span>`);
+  if (ft) $('.cpx-mode', bot).before(ft);
   const ring = v => { if (!ft) return; const rb = $('.ctm-ring', ft), fl = $('.fl', ft); fl.style.strokeDasharray = v + ' 100'; fl.style.opacity = v ? '' : '0';
     rb.dataset.tip = 'Context ' + v + '% full'; rb.setAttribute('aria-label', 'Context, ' + v + '% full'); };
   const input = () => ta && ta.dispatchEvent(new Event('input'));
@@ -3701,7 +3749,7 @@ export function AgentHarness({
         const box = add(html('<div class="lva-turn"></div>'));
         const th = html(`<div class="lva-th"><span class="think on" style="color:var(--fg2)"><i></i><i></i><i></i><i></i></span><span class="shim">Thinking</span></div>`);
         box.appendChild(th); status(cv, 'think', 'Thinking'); await k.wait(1100);
-        const tb = html(`<button class="lva-th lva-tb" aria-expanded="false"><span>Thought for 1s</span>${I('chev-d','xs')}</button>`);
+        const tb = html(`<button class="lva-th lva-tb" aria-expanded="false"><span>${steps.length} steps · 1s</span>${I('chev-d','xs')}</button>`);
         const tl = html(`<div class="fold shut lva-tl"><div><ul class="lva-tlist">${steps.map(x => `<li>${x}</li>`).join('')}</ul></div></div>`);
         th.replaceWith(tb); tb.after(tl);
         tb.onclick = () => { const s = tl.classList.toggle('shut'); tb.setAttribute('aria-expanded', !s); };

@@ -1,42 +1,42 @@
 'use client';
 // The animated preview from designme.dev, rebuilt from the React component: an example of driving it from your own state.
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Thinking, type ThinkingStep } from '../components/thinking/Thinking';
-import { useScript } from './useScript';
+import { useScript, useStory } from './useScript';
 
-/* ---------- Thinking: the trace is written step by step, then folds away ---------- */
-type Plan = Omit<ThinkingStep, 'state' | 'label'> & { run: string; done: string; dead?: boolean; count?: number; ms: number };
-const THOUGHTS: Plan[] = [
-  { mark: 'search', run: 'Searching the design system', done: 'Searched the design system', ms: 1600,
-    sources: [{ label: 'Pricing.fig', kind: 'figma', tip: 'Figma, 6 frames read' }, { label: 'tokens.ts', kind: 'ts', tip: 'src/styles/tokens.ts, 212 lines' }, { label: 'PricingCard.tsx', kind: 'tsx', tip: 'src/components/PricingCard.tsx' }, { label: 'Contrast guide', kind: 'web', tip: 'w3.org, WCAG 2.2 contrast' }],
-    moreSources: [{ label: 'Button.tsx', kind: 'tsx', tip: 'src/components/Button.tsx' }, { label: 'globals.css', kind: 'css', tip: 'src/styles/globals.css' }] },
-  { run: 'Reading 1 of 6 frames', done: 'Read 6 frames from Pricing.fig', count: 6, ms: 1500 },
-  { run: 'Checking if the old grid is in the tokens', done: "Dead end: the old grid isn't in tokens.ts", dead: true, ms: 1400 },
-  { run: 'Mapping every spacing value', done: 'Mapped 9 spacing values', ms: 1300 },
-  { run: 'Comparing desktop and mobile', done: 'Compared desktop and mobile', sub: true, ms: 1100 },
-  { run: 'Finding values off the 8px grid', done: '3 values break the 8px grid', sub: true, ms: 1000 },
-  { run: 'Merging both breakpoints', done: 'Merged both breakpoints', mark: 'hollow', ms: 1000 },
-  { run: 'Spotting cards that need a fix', done: 'Found 3 cards to fix', ms: 1200 },
-  { run: 'Drafting the fix', done: 'Drafted a 2-step fix', ms: 1300 }
+/* ---------- Thinking: each step and what it found; measuring the cards times out once and tries again; then it folds away ---------- */
+export const PRICING_STEPS: { label: string; result: string; ms: number; retry?: string; tip?: string }[] = [
+  { label: 'Open Pricing v4 in Figma', result: '6 frames, 3 plan cards', ms: 1300 },
+  { label: 'Read the spacing tokens', result: 'tokens.css, 9 spacing values', ms: 1200 },
+  { label: 'Measure the plan cards', result: '3 cards are off the 8px grid', ms: 1400, retry: "Figma didn't answer", tip: 'Pro has an 18px gap, Team 22px and Enterprise 13px' },
+  { label: 'Check text contrast', result: 'All 14 text pairs pass AA', ms: 1100 },
+  { label: 'Plan the fix', result: '2 changes, about 3 minutes', ms: 1200 }
 ];
+
 export default function ThinkingDemo() {
+  const ref = useRef<HTMLDivElement>(null);
   const [steps, setSteps] = useState<ThinkingStep[]>([]);
   const [running, setRunning] = useState(true);
+  const [open, setOpen] = useState(true);
   useScript(async ({ wait }) => {
-    await wait(800);
+    await wait(600);
     const out: ThinkingStep[] = [];
     const show = () => setSteps(out.slice());
-    for (const t of THOUGHTS) {
-      const { run, done, dead, count, ms, ...rest } = t;
-      out.push({ ...rest, label: run, state: 'running', sources: undefined, moreSources: undefined }); show();
+    for (const s of PRICING_STEPS) {
+      out.push({ label: s.label, state: 'running' }); show();
       const at = out.length - 1;
-      if (t.sources) { await wait(550); out[at] = { ...out[at], sources: t.sources, moreSources: t.moreSources }; show(); }
-      if (count) for (let n = 2; n <= count; n++) { await wait(ms / count); out[at] = { ...out[at], label: `Reading ${n} of ${count} frames` }; show(); }
-      else await wait(ms);
-      out[at] = { ...out[at], label: done, state: dead ? 'dead' : 'done' }; show();
+      await wait(s.ms);
+      if (s.retry) {
+        for (let k = 2; k > 0; k--) { out[at] = { ...out[at], state: 'retry', result: `${s.retry}. Trying again in ${k}s` }; show(); await wait(1000); }
+        out[at] = { ...out[at], state: 'running', result: 'Trying again' }; show(); await wait(900);
+      }
+      out[at] = { ...out[at], state: 'done', result: s.result, resultTip: s.tip }; show();
     }
     await wait(500); setRunning(false);
   });
-  // keeps the room the steps will fill while it runs, so the header stays put as they arrive; folding gives it back
-  return <div style={{ width: '100%', minHeight: running ? 444 : 0 }}><Thinking steps={steps} running={running} summary="3 cards to fix · 2 steps" /></div>;
+  // the preview's story: once it has folded, the person opens it again to read what the cards measured
+  useStory(ref, async ({ wait }) => {
+    await wait(16000); setOpen(true);
+  });
+  return <div ref={ref} style={{ width: '100%' }}><Thinking steps={steps} running={running} title="Checking the pricing page" summary="3 cards to fix, 2 changes planned" open={open} onOpenChange={setOpen} /></div>;
 }

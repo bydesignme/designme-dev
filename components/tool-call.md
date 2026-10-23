@@ -222,7 +222,7 @@ export function ToolCall({ message, calls, reply, open, defaultOpen = [], onOpen
 ## More in Conversation
 
 - [Live answer](https://designme.dev/components/live-answer.md): Answers that stream in with numbered sources and next steps.
-- [Composer](https://designme.dev/components/composer.md): Message input with context, environment, effort and dictation.
+- [Composer](https://designme.dev/components/composer.md): Message input with attachments, what to work on, a mode and dictation.
 - [Thread panel](https://designme.dev/components/thread-panel.md): Switch between agent threads and reply in place.
 - [Artifact card](https://designme.dev/components/artifact-card.md): A file the agent made, with a live preview and versions.
 - [Voice capture](https://designme.dev/components/voice-capture.md): Talk to the agent, then fix what it misheard before sending.

@@ -190,7 +190,7 @@ export function ActionLog({ actions, title = 'Agent activity', running = true, s
 - [Agent lanes](https://designme.dev/components/agent-lanes.md): Several agents working in parallel, each with its own lane and hand-offs.
 - [Run summary](https://designme.dev/components/run-summary.md): What the agent did, what changed and what needs you.
 - [Agent run timeline](https://designme.dev/components/agent-run-timeline.md): Every model and tool step of a run on one time axis.
-- [Context meter](https://designme.dev/components/context-meter.md): How full the context window is, with session and weekly limits, in one small popover.
+- [Context meter](https://designme.dev/components/context-meter.md): How full the context is and what fills it, with Compact to free room.
 - [Error and recovery](https://designme.dev/components/error-recovery.md): A failed step with retry, skip or hand over to a person.
 - [Run queue](https://designme.dev/components/run-queue.md): Grouped tasks with live progress, retries and a compact view.
 - [Run cost](https://designme.dev/components/run-cost.md): Live credit and token spend, with a cap that pauses the run.

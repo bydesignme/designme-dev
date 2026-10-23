@@ -99,8 +99,8 @@ export default function PermissionGateDemo() {
       r.done++;
     }
     setWorking(false);
-    setTitle(`Done. ${r.skip ? FRAMES.length - 1 : FRAMES.length} frames edited on a new page`);
-    setDetail(r.skip ? 'Plan toggle skipped, it needs Publish library' : 'Plan toggle published to the library');
+    setTitle(`Done. ${r.skip ? FRAMES.length - 1 : FRAMES.length} frames edited`);
+    setDetail(r.skip ? 'On a new page. Plan toggle skipped' : 'On a new page. Plan toggle published');
   };
 
   // the preview's story: the person ticks the risky scope, reads what it touches, leaves it off, allows, then grants it for one frame
@@ -154,7 +154,7 @@ export default function PermissionGateDemo() {
 | `onRevoke` (optional) | `() => void` | Called by Revoke, after allowing |
 | `onUndo` (optional) | `() => void` | Called by Undo, after declining |
 | `allowedDetail` (optional) | `string` | The line under "Allowed …", like "Applying the pricing fixes now". Crossfades when it changes |
-| `allowedTitle` (optional) | `string` | Replaces "Allowed 2 scopes for this task", like "Done. 6 frames edited on a new page". Crossfades when it changes |
+| `allowedTitle` (optional) | `string` | Replaces "Allowed 2 scopes for this task", like "Done. 6 frames edited". Crossfades when it changes |
 | `working` (optional) | `boolean` | The agent is still working under the permission: a spinner on a neutral row instead of the green check |
 | `meta` (optional) | `ReactNode` | Quiet text at the end of the allowed row, like an elapsed time "0:04" |
 | `followUp` (optional) | `boolean` | A follow-up ask in the middle of a run, for one more scope: the icon tile turns amber |
@@ -244,7 +244,7 @@ export interface PermissionGateProps {
   onUndo?: () => void;
   /** The line under "Allowed …", like "Applying the pricing fixes now". Crossfades when it changes */
   allowedDetail?: string;
-  /** Replaces "Allowed 2 scopes for this task", like "Done. 6 frames edited on a new page". Crossfades when it changes */
+  /** Replaces "Allowed 2 scopes for this task", like "Done. 6 frames edited". Crossfades when it changes */
   allowedTitle?: string;
   /** The agent is still working under the permission: a spinner on a neutral row instead of the green check */
   working?: boolean;

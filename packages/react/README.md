@@ -75,11 +75,11 @@ The agent's plan, notes, sources and edits, after it thinks.
 
 **Thinking** · `thinking/Thinking.tsx`  
 The live trace, written as the agent works, then folded away.  
-`steps: { label, state: 'running' | 'done' | 'dead', mark?: 'dot' | 'search' | 'hollow', sub?, sources?, moreSources? }[]`, `running`, `seconds`, `summary`, `collapseWhenDone`, `open` / `defaultOpen` / `onOpenChange`. Change a step's `label` when it finishes and it crossfades.
+`steps: { label, state: 'running' | 'retry' | 'done', result?, resultTip? }[]` (`result` is what the step found, or what it waits on while it retries; it opens under the step and crossfades), `running`, `seconds` (counts by itself when left out), `title` (the header while it runs), `summary` (the header once done: what the work came to), `collapseWhenDone`, `open` / `defaultOpen` / `onOpenChange`.
 
 **ContextMeter** · `context-meter/ContextMeter.tsx`  
-How full the context window is, with session and weekly limits, in one small popover.  
-`rows: { key, label, percent, detail?, tip?, action? }[]` (context window, session limit, weekly, or any other limit), `ring` (defaults to the first row), `title`, `model`, `effort`, `onViewUsage`, `open` / `defaultOpen` / `onOpenChange`. A row turns amber from 90%.
+How full the context is and what fills it, with Compact to free room.  
+`parts: { key, label, tokens, color?, items? }[]` (`items` is what's in it, shown on hover), `limit`, `warnAt` (share of the limit where the ring turns amber, 0.85 by default), `message` and `messageTone: 'warn' | 'ok'` (a line under the legend), `onCompact` (return a promise and the button spins), `compacted` and `onUndo`, `hint`, `open` / `defaultOpen` / `onOpenChange`. The numbers count to their new values; Escape shuts the panel.
 
 **ActionLog** · `action-log/ActionLog.tsx`  
 Every read, search, edit and command, logged as it runs.  
@@ -128,8 +128,8 @@ Switch between agent threads and reply in place.
 `threads: { id, title, color?, messages: { id?, from: 'user' | 'agent', text, sources?, thinking? }[] }[]`, `value` / `defaultValue` / `onValueChange` (the open thread), `onSend(text, threadId)`, `draft` / `defaultDraft` / `onDraftChange` (the reply being typed), `placeholder`, `bare`. `thinking: true` on a message shows a shimmering "Thinking".
 
 **Composer** · `composer/Composer.tsx`  
-Message input with context, environment, effort and dictation.  
-`value` / `defaultValue` / `onValueChange`, `placeholder`, `onSubmit({ text, attachments })`, `busy` and `onStop` (send turns into stop), `thread`, `attachments` / `defaultAttachments` / `onAttachmentsChange`, `addOptions` and `onAdd`, `projects` / `project` / `onProjectChange`, `environments` / `environment` / `onEnvironmentChange`, `handoff` / `onHandoffChange` / `handoffNote`, `tools` (more in the toolbar, before effort), `effort: 'low' | 'medium' | 'high'`, `onDictate`, `dictating`, `level`, `onDictationEnd(keep)`. Enter sends, Shift+Enter adds a line, Escape cancels dictation.
+Message input with attachments, what to work on, a mode and dictation.  
+`value` / `defaultValue` / `onValueChange`, `placeholder`, `onSubmit({ text, attachments })`, `busy` and `onStop` (send turns into stop), `thread`, `attachments` / `defaultAttachments` / `onAttachmentsChange` (`{ key, label, icon?, status?: 'loading' | 'error' | 'ready' }`; send waits for every one to load), `addOptions` and `onAdd`, `onRetry(key)` (Try again on a failed one), `contexts` / `context` / `onContextChange` (what the agent works on), `modes` / `mode` / `onModeChange` (defaults to Ask, Edit and Plan), `tools` (more in the toolbar, before the mode), `onDictate`, `dictating`, `dictationSeconds`, `onDictationEnd(keep)`. Enter sends, Shift+Enter adds a line, Escape cancels dictation.
 
 **VoiceCapture** · `voice-capture/VoiceCapture.tsx`  
 Talk to the agent, then fix what it misheard before sending.  

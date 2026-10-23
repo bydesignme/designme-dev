@@ -33,7 +33,7 @@ export interface AnswerTurn {
   state: AnswerState;
   /** The answer so far. Each new word fades in as it arrives. [1] after a word cites source 1, a blank line starts a new paragraph */
   text?: string;
-  /** What the agent did while it thought, listed under "Thought for Ns" */
+  /** What the agent did before it answered, listed under a toggle that counts them, like "3 steps · 2s" */
   thoughts?: string[];
   /** Seconds it thought for. Leave it out to count while thinking */
   thoughtFor?: number;
@@ -114,7 +114,7 @@ function Turn({ turn, followUps, onFollowUp, onRetry, onRate, onCopy, onSourceCl
       {(state === 'answering' || done) && thoughts?.length ? (
         <>
           <button type="button" className="dm-lva-th dm-lva-tb" aria-expanded={thoughtsOpen} onClick={() => setThoughtsOpen(!thoughtsOpen)}>
-            <span>Thought for {turn.thoughtFor ?? Math.max(1, counted)}s</span><Icon name="chev-d" size="xs" />
+            <span>{thoughts.length} {thoughts.length === 1 ? 'step' : 'steps'} · {turn.thoughtFor ?? Math.max(1, counted)}s</span><Icon name="chev-d" size="xs" />
           </button>
           <Fold open={thoughtsOpen}><ul className="dm-lva-tlist">{thoughts.map((t, i) => <li key={i}>{t}</li>)}</ul></Fold>
         </>
