@@ -740,8 +740,9 @@ body.ui main .comp[data-v2="pricing-cards"] .stage-inner{padding-bottom:40px!imp
 @media (min-width:641px){ body.ui main .comp[data-v2="pricing-cards"] .stage-inner{padding-bottom:56px!important} }
 /* the roadmap: a shipped idea gets a tag like the others */
 .rm-st.shipped{background:rgba(22,163,74,.12);color:#15803d}
-@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .rm-st.shipped{background:rgba(74,222,128,.12);color:#4ade80} }
-:root[data-theme="dark"] .rm-st.shipped{background:rgba(74,222,128,.12);color:#4ade80}
+/* in dark mode the changelog and roadmap tags take light text on a stronger tint, so they read clearly on the dark page */
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .chg-tag.k-new{background:rgba(96,165,250,.18);color:#a5c8ff}:root:not([data-theme="light"]) .chg-tag.k-improved,:root:not([data-theme="light"]) .rm-st.progress{background:rgba(167,139,250,.2);color:#cbbcff}:root:not([data-theme="light"]) .chg-tag.k-fixed,:root:not([data-theme="light"]) .rm-st.shipped{background:rgba(74,222,128,.16);color:#8ee8ad}:root:not([data-theme="light"]) .rm-st.idea{background:rgba(251,191,36,.18);color:#fcd57a}:root:not([data-theme="light"]) .rm-st.planned{background:rgba(255,255,255,.08);color:#c8c8c8} }
+:root[data-theme="dark"] .chg-tag.k-new{background:rgba(96,165,250,.18);color:#a5c8ff}:root[data-theme="dark"] .chg-tag.k-improved,:root[data-theme="dark"] .rm-st.progress{background:rgba(167,139,250,.2);color:#cbbcff}:root[data-theme="dark"] .chg-tag.k-fixed,:root[data-theme="dark"] .rm-st.shipped{background:rgba(74,222,128,.16);color:#8ee8ad}:root[data-theme="dark"] .rm-st.idea{background:rgba(251,191,36,.18);color:#fcd57a}:root[data-theme="dark"] .rm-st.planned{background:rgba(255,255,255,.08);color:#c8c8c8}
 """
 json.dump({ 'patches': P, 'css': CSS }, open(os.path.join(HERE, 'site-patches.json'), 'w'), indent=1)
 print(len(P), 'patches')
