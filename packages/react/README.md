@@ -4,7 +4,7 @@ React versions of the [designme.dev](https://designme.dev) components, for Next.
 
 They use the same markup and the same CSS as the site, so they look and move exactly like the previews on designme.dev, in both styles (Blueprint and Soft) and in light and dark. The difference is that each one takes props, so you drive it from your own state instead of a scripted demo.
 
-All 98 components are here, from Status pill to Currency converter, each with an example that replays its demo from the site.
+All 100 components are here, from Status pill to Currency converter, each with an example that replays its demo from the site.
 
 Each one has a page on designme.dev with its demo, its React usage, its props and its code, at `https://designme.dev/components/<name>`. To see them all running locally, run `npm run dev` here.
 
@@ -122,6 +122,14 @@ An orchestrator and its sub-agents as a tree, with cost rolled up per branch.
 **AgentInbox** · `agent-inbox/AgentInbox.tsx`  
 Every run that needs you, is running or is done, in one list.  
 `runs: { id, title, agent, color?, group: 'needs' | 'running' | 'done', detail?, failed?, why?, seconds?, ended? }[]` (running clocks count on from `seconds`), `onApprove(id)`, `onRetry(id)` (each adds its button), `title`, `status` (defaults to "2 need you", "2 running" once nothing needs you, or "All clear · 4 done today"). A group with no runs is hidden, and a run that changes group glides to its new place.
+
+**BrowserSession** · `browser-session/BrowserSession.tsx`  
+The agent browsing for you, step by step, with Pause and Take over.  
+`title`, `url` (the address bar), `search` (marks `url` as a search), `children` (the page, 156px tall: a screenshot or live view, or a wireframe drawn with the `dm-bws-pg` classes), `cursor: { x, y, down? } | null` (the agent's pointer over the page), `steps: { label, state: 'queued' | 'running' | 'waiting' | 'done', detail? }[]`, `ask: { label, onAllow }` (under the waiting step, beside Take over), `paused` / `defaultPaused` / `onPausedChange`, `inControl` / `defaultInControl` / `onInControlChange` (Take over and Hand back; the page is only usable while the person has it), `seconds` (counts by itself while it browses), `status` (defaults to Browsing, Paused, Needs you, You have control or Done), `summary` (shown once every step is done).
+
+**TraceView** · `trace-view/TraceView.tsx`  
+One agent run as a waterfall of spans, with latency and tokens.  
+`title`, `spans: { id, name, kind: 'agent' | 'llm' | 'tool' | 'retrieval', start, duration?, tokens?, input?, output?, children? }[]` (an agent span without `tokens` adds up the spans under it), `time` (seconds into the run while it streams; leave out `duration` on a span still running), `axis` (seconds the axis covers), `slowAfter` (a tool call over it turns amber and is tagged slow; 2 by default), `status`, `selected` / `defaultSelected` / `onSelectedChange` (the span whose input, output, latency and tokens show under the waterfall). The arrow keys move between spans and Escape closes the details.
 
 **AgentRunTimeline** · `agent-run-timeline/AgentRunTimeline.tsx`  
 Every model and tool step of a run on one time axis.  

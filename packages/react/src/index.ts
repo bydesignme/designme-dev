@@ -6,6 +6,8 @@ export * from './components/reasoning-trail/ReasoningTrail';
 export * from './components/thinking/Thinking';
 export * from './components/context-meter/ContextMeter';
 export * from './components/action-log/ActionLog';
+export * from './components/browser-session/BrowserSession';
+export * from './components/trace-view/TraceView';
 export * from './components/run-queue/RunQueue';
 export * from './components/run-cost/RunCost';
 export * from './components/toast/Toast';

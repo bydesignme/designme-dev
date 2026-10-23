@@ -1,0 +1,42 @@
+{
+  "summary": "Browser session shows an agent browsing the web for a person: a small browser frame with the address bar and the page it is on, the steps it takes under it, and Pause and Take over. When the page gets in its way, like a cookie banner over the table it came to read, the step turns amber, says why, and waits for the person to let it go on or take over.",
+  "use": [
+    "When an agent uses a browser on the person's behalf, to search, open sites, click and read pages.",
+    "When people should see where the agent is and what it does next, and be able to stop it at any moment.",
+    "When the agent can hit something it shouldn't decide alone, like a cookie banner, a login or a payment form, and needs a person's go-ahead.",
+    "When a person may want to step in and use the page themselves, then hand it back."
+  ],
+  "features": [
+    "`url` fills the address bar, with a padlock, or a magnifier when `search` marks it as a search. `children` is the page itself, 156px tall: a screenshot or live view of the agent's browser, or a wireframe drawn with the `dm-bws-pg` classes, as in the demo.",
+    "`cursor` draws the agent's own pointer over the page, in the accent colour, and `down` presses it.",
+    "`steps` lists what the agent does. A queued step shows a dot, the running one spins, a finished one gets a green check, and a waiting one an amber mark. Each can carry a `detail` line, like \"2 of 3 prices\".",
+    "`ask` adds a button under the waiting step, like \"Allow closing it\", with Take over beside it.",
+    "Pause holds the agent and turns into Resume. Take over hands the page to the person: the frame turns the accent colour, the page's own controls become usable, and the button reads Hand back.",
+    "The line under the title reads Browsing, Paused, Needs you, You have control or Done, with a clock that counts while the agent browses. `summary` shows under the steps once every step is done."
+  ],
+  "a11y": [
+    "The steps are an ordered list, and the running or waiting step is marked as the current step.",
+    "Pause and Take over are buttons: Pause is named Pause or Resume, and Take over is a toggle button that reads Hand back while pressed.",
+    "The line under the title is announced politely when it changes.",
+    "While the agent drives, the page is inert, so nothing in it can be focused or pressed until the person takes over.",
+    "With reduced motion nothing glides or fades; the steps and the page still change."
+  ],
+  "faq": [
+    {
+      "q": "Does the component run a browser?",
+      "a": "No. It shows one. Pass the address, a picture or live view of the page, the agent's pointer and its steps from your own agent, and handle Pause, Take over and the ask in your code."
+    },
+    {
+      "q": "What happens when the person takes over?",
+      "a": "`onInControlChange` is called with `true`, the page becomes usable and the agent's pointer hides. Hold your agent until it is called with `false`, when the person presses Hand back."
+    },
+    {
+      "q": "How did the demo close the cookie banner?",
+      "a": "Once the person allowed it, the agent pressed Reject all, so it never agreed to cookies for them. With Take over the person can close it with either button."
+    },
+    {
+      "q": "Can I show a real screenshot instead of the wireframe?",
+      "a": "Yes. Pass an image or a video as `children`. The page area is 156px tall and clips what doesn't fit."
+    }
+  ]
+}

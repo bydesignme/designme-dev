@@ -24,7 +24,7 @@ const MAP = {
   c62:'event-calendar', c63:'agenda', c49:'buttons', c52:'tooltip', c53:'search-input', c57:'country-select', c51:'social-signin',
   c55:'sign-in', c50:'form', c64:'payment-form', c54:'comments', c56:'notifications', c61:'invite', c59:'reactions', c104:'ticket-list',
   c101:'kanban', c70:'pricing-cards', c72:'onboarding-checklist', c73:'stepper', c74:'set-limit', c75:'currency-converter',
-  c110:'tool-connections', c111:'design-review', c112:'model-picker', c113:'answer-action-bar', c120:'inline-text-diff', c121:'draft-review', c114:'agent-tree', c115:'agent-inbox', c122:'voice-orb', c123:'prompt-library', c116:'steering', c117:'eval-results', c131:'knowledge-sources', c132:'scheduled-runs', c124:'segmented-control', c125:'otp-field', c126:'multi-select', c127:'profile-menu', c128:'filter-menu'
+  c110:'tool-connections', c111:'design-review', c112:'model-picker', c113:'answer-action-bar', c120:'inline-text-diff', c121:'draft-review', c114:'agent-tree', c115:'agent-inbox', c122:'voice-orb', c123:'prompt-library', c116:'steering', c117:'eval-results', c131:'knowledge-sources', c132:'scheduled-runs', c124:'segmented-control', c125:'otp-field', c126:'multi-select', c127:'profile-menu', c128:'filter-menu', c129:'browser-session', c130:'trace-view'
 };
 // cards the original page never had: each is cut from a sibling card's markup, renamed, and placed after it
 const EXTRA = [
@@ -46,7 +46,9 @@ const EXTRA = [
   { cid:'c125', id:'otp-field', reg:'otp-field', title:'OTP field', section:'Forms and inputs', after:'c55', icon:'lock' },
   { cid:'c126', id:'multi-select', reg:'multi-select', title:'Multi-select', section:'Forms and inputs', after:'c57', icon:'tag' },
   { cid:'c127', id:'profile-menu', reg:'profile-menu', title:'Profile menu', section:'Collaboration', after:'c59', icon:'person' },
-  { cid:'c128', id:'filter-menu', reg:'filter-menu', title:'Filter menu', section:'Collaboration', after:'c127', icon:'filter_list' }
+  { cid:'c128', id:'filter-menu', reg:'filter-menu', title:'Filter menu', section:'Collaboration', after:'c127', icon:'filter_list' },
+  { cid:'c129', id:'browser-session', reg:'browser-session', title:'Browser session', section:'Agent status', after:'c7', icon:'search' },
+  { cid:'c130', id:'trace-view', reg:'trace-view', title:'Trace view', section:'Agent status', after:'c129', icon:'filter_list' }
 ];
 
 /* ---------- read the Soft 2 page ---------- */
@@ -316,7 +318,7 @@ main = main.replace(/<article([^>]*\bid="(c\d+)"[^>]*)>([\s\S]*?)<\/article>/g, 
 const SECTIONS_FIRST = ['s-conversation', 's-status'], GRP = {};
 const ORDER = {
   's-conversation': ['live-answer', 'composer', 'thread-panel', 'artifact-card', 'tool-call', 'voice-capture', 'voice-orb', 'answer-action-bar', 'response-versions', 'model-picker', 'prompt-starters', 'prompt-library', 'attachment-tray', 'feedback-sheet'],
-  's-status': ['thinking', 'reasoning-trail', 'agent-lanes', 'agent-tree', 'agent-inbox', 'run-summary', 'action-log', 'agent-run-timeline', 'context-meter', 'error-recovery', 'run-queue', 'run-cost', 'toast-stack', 'toast', 'status-pill', 'step-loader'],
+  's-status': ['thinking', 'reasoning-trail', 'agent-lanes', 'agent-tree', 'agent-inbox', 'browser-session', 'trace-view', 'run-summary', 'action-log', 'agent-run-timeline', 'context-meter', 'error-recovery', 'run-queue', 'run-cost', 'toast-stack', 'toast', 'status-pill', 'step-loader'],
   's-review': ['change-review', 'plan-review', 'permission-gate', 'decision-prompt', 'proposal-card', 'design-tuner', 'rewrite-toolbar', 'launch-checklist', 'inline-text-diff', 'draft-review', 'steering', 'eval-results', 'design-review'],
   's-data': ['code-viewer', 'citation-hover', 'source-stack', 'field-extraction', 'metric-insight', 'details-panel', 'task-table'],
   's-workspace': ['automation-canvas', 'command-palette', 'memory-panel', 'model-compare', 'agent-settings', 'tool-connections', 'knowledge-sources', 'scheduled-runs', 'file-explorer', 'workspace-rail']
