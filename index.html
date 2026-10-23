@@ -7075,6 +7075,100 @@ body.ui section.faq{display:none}
 .v2 .drf-done .t span{font-size:13px}
 .v2 .drf-done .pill{background:var(--surface);color:var(--fg);box-shadow:var(--shadow)}
 .v2 .drf-done .pill:hover{box-shadow:var(--shadow-pop)}
+/* ---------- Voice orb ---------- */
+/* a hands-free voice chat: an orb that swells with whoever is talking, the accent colour for you and violet for the agent, what
+   was said under it, and mute and end below. Talking while muted says so, the way calls do */
+.v2 .vor{position:relative;width:100%;max-width:380px;margin:0 auto;padding:16px;display:flex;flex-direction:column;gap:12px;--oc:var(--faint)}
+.v2 .vor[data-m="listening"]{--oc:var(--accent)}
+.v2 .vor[data-m="speaking"]{--oc:var(--pl)}
+.v2 .vor[data-m="thinking"]{--oc:color-mix(in srgb,var(--accent) 50%,var(--pl))}
+.v2 .vor[data-m="muted"]{--oc:color-mix(in srgb,var(--muted) 55%,var(--faint))}
+.v2 .vor-top{display:flex;align-items:center;gap:8px;font-size:13px}
+.v2 .vor-dot{width:8px;height:8px;border-radius:50%;background:var(--oc);transition:background .4s}
+.v2 .vor[data-m="listening"] .vor-dot,.v2 .vor[data-m="speaking"] .vor-dot{animation:v2-vor-pulse 1.4s var(--ease-io) infinite}
+@keyframes v2-vor-pulse{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--oc) 35%,transparent)}50%{box-shadow:0 0 0 5px transparent}}
+.v2 .vor-t{margin-left:auto;font-size:12.5px}
+.v2 .vor-orb{position:relative;width:112px;height:112px;margin:8px auto;--lv:0}
+.v2 .vor-orb i{position:absolute;inset:0;border-radius:50%}
+/* round in Blueprint too, where every other corner is square: like the turning loaders, its shape is what it says */
+.v2 .vor .vor-orb i{border-radius:50%!important}
+.v2 .vor-glow{background:radial-gradient(closest-side,color-mix(in srgb,var(--oc) 28%,transparent),transparent);transform:scale(calc(1.1 + var(--lv) * .45))}
+.v2 .vor-core{background-color:color-mix(in srgb,var(--oc) 72%,var(--surface));background-image:radial-gradient(circle at 34% 28%,rgba(255,255,255,.42),rgba(255,255,255,0) 62%);box-shadow:inset 0 -8px 18px color-mix(in srgb,var(--oc) 30%,transparent);transform:scale(calc(.9 + var(--lv) * .14));transition:background-color .4s}
+.v2 .vor[data-m="thinking"] .vor-core{animation:v2-vor-br 1.6s var(--ease-io) infinite alternate}
+@keyframes v2-vor-br{from{transform:scale(.9)}to{transform:scale(.96)}}
+.v2 .vor-cap{min-height:88px;display:flex;flex-direction:column;gap:2px;text-align:center}
+.v2 .vor-who{font-size:12px;min-height:18px}
+.v2 .vor-tx{margin:0;font-size:14px;line-height:1.6;color:var(--fg)}
+.v2 .vor-tx.hint{color:var(--muted);font-size:13px}
+.v2 .vor-tx .w{animation:v2-vor-w .45s var(--ease) both}
+@keyframes v2-vor-w{from{opacity:0;filter:blur(3px)}to{opacity:1;filter:none}}
+.v2 .vor-mw{display:flex;align-items:center;gap:10px;padding:8px 8px 8px 12px;border-radius:12px;background:var(--warn-bg)}
+.v2 .vor-mw p{margin:0;flex:1;display:flex;gap:8px;font-size:13px;line-height:1.45;color:var(--fg)}
+.v2 .vor-mw p svg{color:var(--warn);flex:none;margin-top:3px}
+.v2 .vor-mw .pill,.v2 .vor-done .pill{background:var(--surface);color:var(--fg);box-shadow:var(--shadow)}
+.v2 .vor-f{display:flex;align-items:center;gap:8px;min-height:32px}
+.v2 .vor-f .sp{flex:1}
+.v2 .vor:not(.on) .vor-f{justify-content:center}
+.v2 .vor:not(.on) .vor-mute,.v2 .vor:not(.on) .vor-end,.v2 .vor:not(.on) .vor-f .sp,.v2 .vor.on .vor-go{display:none}
+.v2 .vor-mute{position:relative}
+.v2 .vor-mute[aria-pressed="true"]{background:var(--bad-bg);color:var(--bad);box-shadow:none}
+/* the slash across the microphone once it is muted */
+.v2 .vor-mute::after{content:"";position:absolute;left:50%;top:50%;width:1.5px;height:18px;margin:-9px 0 0 -.75px;border-radius:2px;background:currentColor;transform:rotate(-45deg) scaleY(0);transition:transform .25s var(--ease)}
+.v2 .vor-mute[aria-pressed="true"]::after{transform:rotate(-45deg) scaleY(1)}
+.v2 .vor-end{background:var(--bad);color:#fff}
+.v2 .vor-end:hover{background:color-mix(in srgb,var(--bad) 86%,#000)}
+.v2 .vor-done{display:flex;align-items:center;gap:12px;padding:10px 10px 10px 12px;border-radius:12px;background:var(--chip);font-size:13.5px}
+.v2 .vor-done>svg{color:var(--fg2);flex:none}
+.v2 .vor-done .t{flex:1;min-width:0;display:flex;flex-direction:column}
+.v2 .vor-done .t span{font-size:13px}
+/* ---------- Prompt library ---------- */
+/* the studio's saved prompts, each with blanks like {page}. Opening one lays its blanks out as fields, the prompt
+   fills in as they change, and it can't be used until every blank has a value */
+.v2 .plb{position:relative;width:100%;max-width:440px;margin:0 auto;padding:16px}
+.v2 .plb-list,.v2 .plb-one{display:flex;flex-direction:column;gap:12px}
+.v2 .plb-list[hidden],.v2 .plb-one[hidden]{display:none}
+.v2 .plb-h{display:flex;align-items:center;gap:8px;min-height:32px}
+.v2 .plb-ht{flex:1;min-width:0;display:flex;flex-direction:column}
+.v2 .plb-ht b{font-weight:500;font-size:14px}
+.v2 .plb-ht span{font-size:13px}
+.v2 .plb-back{margin-left:-6px;flex:none}
+.v2 .plb-rows{display:flex;flex-direction:column;margin:0 -8px}
+.v2 .plb-row{display:flex;align-items:center;gap:12px;width:100%;padding:9px 8px;border-radius:12px;text-align:left;color:var(--fg);transition:background var(--t-fast)}
+.v2 .plb-row:hover{background:var(--row)}
+.v2 .plb-ic{width:32px;height:32px;border-radius:9px;background:var(--chip);color:var(--fg2);display:grid;place-items:center;flex:none}
+.v2 .plb-rt{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+.v2 .plb-rt b{font-weight:500;font-size:13.5px}
+.v2 .plb-rt>span{font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v2 .plb-n{font-size:12px;color:var(--muted);flex:none}
+.v2 .plb-row>svg:last-child{color:var(--muted);flex:none}
+.v2 .plb-tp{margin:0;padding:10px 12px;border-radius:12px;background:var(--chip);font-size:14px;line-height:1.8;color:var(--fg)}
+.v2 .plb-s{padding:2px 5px;border-radius:6px;background:var(--accent-bg);color:var(--accent);-webkit-box-decoration-break:clone;box-decoration-break:clone;transition:background .25s,color .25s,box-shadow .25s}
+.v2 .plb-s.empty{background:var(--surface);color:var(--muted);box-shadow:inset 0 0 0 1px var(--rail)}
+.v2 .plb-s.bad{color:var(--bad);box-shadow:inset 0 0 0 1px var(--bad)}
+.v2 .plb-vars{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
+.v2 .plb-fd{display:flex;flex-direction:column;gap:5px;font-size:12.5px;font-weight:500;min-width:0}
+.v2 .plb-fd.wide{grid-column:1/-1}
+.v2 .plb-in{width:100%;border:0;outline:0;border-radius:11px;background:var(--chip);height:38px;padding:0 12px;font:inherit;font-size:13.5px;font-weight:400;color:var(--fg);transition:box-shadow .25s,background .25s}
+.v2 .plb-in::placeholder{color:var(--muted)}
+.v2 .plb-in:focus,.v2 .plb-in.ed{background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--accent),0 0 0 4px var(--accent-bg)}
+.v2 .plb-fd.bad .plb-in{box-shadow:inset 0 0 0 1.5px var(--bad)}
+.v2 .plb-er{font-size:12px;color:var(--bad);font-weight:400}
+.v2 .plb-er[hidden]{display:none}
+.v2 .plb-sel{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;height:38px;padding:0 10px 0 12px;border-radius:11px;background:var(--chip);font-size:13.5px;font-weight:400;color:var(--fg);text-align:left;transition:background .2s,box-shadow .2s}
+.v2 .plb-sel:hover{background:var(--row)}
+.v2 .plb-sel[aria-expanded="true"]{background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--accent),0 0 0 4px var(--accent-bg)}
+.v2 .plb-sel>svg{color:var(--muted);flex:none;transition:transform .32s var(--ease)}
+.v2 .plb-sel[aria-expanded="true"]>svg{transform:rotate(180deg)}
+.v2 .plb-pop{min-width:180px}
+.v2 .plb-f{display:flex;align-items:center;gap:8px;min-height:32px}
+.v2 .plb-f .sp{flex:1}
+.v2 .plb-note{font-size:13px}
+.v2 .plb-done{display:flex;align-items:center;gap:12px;padding:10px 10px 10px 12px;border-radius:12px;background:var(--ok-bg);font-size:13.5px}
+.v2 .plb-done>svg{color:var(--ok);flex:none}
+.v2 .plb-done .t{flex:1;min-width:0;display:flex;flex-direction:column}
+.v2 .plb-done .t span{font-size:13px}
+.v2 .plb-done .pill{background:var(--surface);color:var(--fg);box-shadow:var(--shadow)}
+.v2 .plb-one.used .plb-vars{opacity:.55;transition:opacity .32s}
 /* ---------- Design review ---------- */
 .v2 .drv{padding:14px;display:flex;flex-direction:column;gap:12px}
 .v2 .drv-h{display:flex;align-items:center;gap:10px}
@@ -8661,7 +8755,7 @@ body.ui section.faq{display:none}
 <aside class="side" id="side">
   <label class="side-search"><span class="ms">search</span><input id="side-q" placeholder="Search components" autocomplete="off" aria-label="Search components"><span class="kbd">/</span></label>
   <nav class="side-pages" aria-label="Site"><a class="side-p act" href="#components" aria-current="page"><span class="ms">dashboard</span>Library</a><a class="side-p" href="#/changelog"><span class="ms">history</span>Changelog</a><a class="side-p" href="#/roadmap"><span class="ms">trending_up</span>Roadmap</a><a class="side-p" href="#/faq"><span class="ms">help</span>FAQ</a></nav>
-  <nav class="side-nav" aria-label="Components"><div class="side-grp side-saved"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Saved</span><span class="side-n" id="saved-n">0</span></button><div class="side-list"><div class="side-ul" id="saved-list"></div></div></div><div class="side-lbl first">Agent components</div><div class="side-grp" data-s="s-conversation" data-grp="agent"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Conversation</span><span class="side-n">12</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c3" data-c="c3">Live answer</a><a class="side-a" href="#c6" data-c="c6">Composer</a><a class="side-a" href="#c8" data-c="c8">Thread panel</a><a class="side-a" href="#c108" data-c="c108">Artifact card</a><a class="side-a" href="#c107" data-c="c107">Tool call</a><a class="side-a" href="#c24" data-c="c24">Voice capture</a><a class="side-a" href="#c113" data-c="c113">Answer action bar</a><a class="side-a" href="#c31" data-c="c31">Response versions</a><a class="side-a" href="#c112" data-c="c112">Model picker</a><a class="side-a" href="#c29" data-c="c29">Prompt starters</a><a class="side-a" href="#c30" data-c="c30">Attachment tray</a><a class="side-a" href="#c32" data-c="c32">Feedback sheet</a></div></div></div><div class="side-grp" data-s="s-status" data-grp="agent"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Agent status</span><span class="side-n">16</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c60" data-c="c60">Thinking</a><a class="side-a" href="#c2" data-c="c2">Reasoning trail</a><a class="side-a" href="#c26" data-c="c26">Agent lanes</a><a class="side-a" href="#c114" data-c="c114">Agent tree</a><a class="side-a" href="#c115" data-c="c115">Agent inbox</a><a class="side-a" href="#c106" data-c="c106">Run summary</a><a class="side-a" href="#c7" data-c="c7">Action log</a><a class="side-a" href="#c67" data-c="c67">Agent run timeline</a><a class="side-a" href="#c23" data-c="c23">Context meter</a><a class="side-a" href="#c109" data-c="c109">Error and recovery</a><a class="side-a" href="#c5" data-c="c5">Run queue</a><a class="side-a" href="#c27" data-c="c27">Run cost</a><a class="side-a" href="#c28" data-c="c28">Toast stack</a><a class="side-a" href="#c58" data-c="c58">Toast</a><a class="side-a" href="#c22" data-c="c22">Status pill</a><a class="side-a" href="#c1" data-c="c1">Step loader</a></div></div></div><div class="side-grp" data-s="s-review" data-grp="agent"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Review and approve</span><span class="side-n">11</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c11" data-c="c11">Change review</a><a class="side-a" href="#c105" data-c="c105">Plan review</a><a class="side-a" href="#c33" data-c="c33">Permission gate</a><a class="side-a" href="#c4" data-c="c4">Decision prompt</a><a class="side-a" href="#c9" data-c="c9">Proposal card</a><a class="side-a" href="#c19" data-c="c19">Design tuner</a><a class="side-a" href="#c20" data-c="c20">Rewrite toolbar</a><a class="side-a" href="#c34" data-c="c34">Launch checklist</a><a class="side-a" href="#c120" data-c="c120">Inline text diff</a><a class="side-a" href="#c121" data-c="c121">Draft review</a><a class="side-a" href="#c111" data-c="c111">Design review</a></div></div></div><div class="side-grp" data-s="s-data" data-grp="agent"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Sources and output</span><span class="side-n">7</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c18" data-c="c18">Code viewer</a><a class="side-a" href="#c68" data-c="c68">Citation hover card</a><a class="side-a" href="#c10" data-c="c10">Source stack</a><a class="side-a" href="#c36" data-c="c36">Field extraction</a><a class="side-a" href="#c17" data-c="c17">Metric insight</a><a class="side-a" href="#c66" data-c="c66">Details panel</a><a class="side-a" href="#c13" data-c="c13">Task table</a></div></div></div><div class="side-grp" data-s="s-workspace" data-grp="agent"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Workspace</span><span class="side-n">8</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c16" data-c="c16">Automation canvas</a><a class="side-a" href="#c15" data-c="c15">Command palette</a><a class="side-a" href="#c69" data-c="c69">Memory panel</a><a class="side-a" href="#c71" data-c="c71">Model compare</a><a class="side-a" href="#c38" data-c="c38">Agent settings</a><a class="side-a" href="#c110" data-c="c110">Tools and connections</a><a class="side-a" href="#c39" data-c="c39">File explorer</a><a class="side-a" href="#c14" data-c="c14">Workspace rail</a></div></div></div><div class="side-grp" data-s="s-harness" data-grp="agent"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Harness</span><span class="side-n">1</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c99" data-c="c99">Agent harness</a></div></div></div><div class="side-lbl">App basics</div><div class="side-grp" data-s="s-charts" data-grp="basics"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Charts and tables</span><span class="side-n">9</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c41" data-c="c41">Line chart</a><a class="side-a" href="#c42" data-c="c42">Bar chart</a><a class="side-a" href="#c43" data-c="c43">Donut chart</a><a class="side-a" href="#c102" data-c="c102">Funnel chart</a><a class="side-a" href="#c103" data-c="c103">Top pages</a><a class="side-a" href="#c65" data-c="c65">Health score</a><a class="side-a" href="#c45" data-c="c45">Activity heatmap</a><a class="side-a" href="#c44" data-c="c44">Stat cards</a><a class="side-a" href="#c12" data-c="c12">Account table</a></div></div></div><div class="side-grp" data-s="s-dates" data-grp="basics"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Dates</span><span class="side-n">4</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c46" data-c="c46">Date picker</a><a class="side-a" href="#c47" data-c="c47">Date range picker</a><a class="side-a" href="#c62" data-c="c62">Event calendar</a><a class="side-a" href="#c63" data-c="c63">Agenda</a></div></div></div><div class="side-grp" data-s="s-forms" data-grp="basics"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Forms and inputs</span><span class="side-n">8</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c49" data-c="c49">Buttons</a><a class="side-a" href="#c52" data-c="c52">Tooltip</a><a class="side-a" href="#c53" data-c="c53">Search input</a><a class="side-a" href="#c57" data-c="c57">Country select</a><a class="side-a" href="#c51" data-c="c51">Social sign-in</a><a class="side-a" href="#c55" data-c="c55">Sign in</a><a class="side-a" href="#c50" data-c="c50">Form</a><a class="side-a" href="#c64" data-c="c64">Payment form</a></div></div></div><div class="side-grp" data-s="s-collab" data-grp="basics"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Collaboration</span><span class="side-n">6</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c54" data-c="c54">Comments</a><a class="side-a" href="#c56" data-c="c56">Notifications</a><a class="side-a" href="#c61" data-c="c61">Invite to collaborate</a><a class="side-a" href="#c59" data-c="c59">Reactions</a><a class="side-a" href="#c104" data-c="c104">Ticket list</a><a class="side-a" href="#c101" data-c="c101">Kanban board</a></div></div></div><div class="side-grp" data-s="s-product" data-grp="basics"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Product</span><span class="side-n">5</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c70" data-c="c70">Pricing cards</a><a class="side-a" href="#c72" data-c="c72">Onboarding checklist</a><a class="side-a" href="#c73" data-c="c73">Stepper</a><a class="side-a" href="#c74" data-c="c74">Set limit</a><a class="side-a" href="#c75" data-c="c75">Currency converter</a></div></div></div><div class="side-empty" id="side-empty"><p>No components match your search.</p><button class="suggest-btn"><span class="ms">add</span><span class="st">Suggest this component</span></button></div></nav>
+  <nav class="side-nav" aria-label="Components"><div class="side-grp side-saved"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Saved</span><span class="side-n" id="saved-n">0</span></button><div class="side-list"><div class="side-ul" id="saved-list"></div></div></div><div class="side-lbl first">Agent components</div><div class="side-grp" data-s="s-conversation" data-grp="agent"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Conversation</span><span class="side-n">14</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c3" data-c="c3">Live answer</a><a class="side-a" href="#c6" data-c="c6">Composer</a><a class="side-a" href="#c8" data-c="c8">Thread panel</a><a class="side-a" href="#c108" data-c="c108">Artifact card</a><a class="side-a" href="#c107" data-c="c107">Tool call</a><a class="side-a" href="#c24" data-c="c24">Voice capture</a><a class="side-a" href="#c122" data-c="c122">Voice orb</a><a class="side-a" href="#c113" data-c="c113">Answer action bar</a><a class="side-a" href="#c31" data-c="c31">Response versions</a><a class="side-a" href="#c112" data-c="c112">Model picker</a><a class="side-a" href="#c29" data-c="c29">Prompt starters</a><a class="side-a" href="#c123" data-c="c123">Prompt library</a><a class="side-a" href="#c30" data-c="c30">Attachment tray</a><a class="side-a" href="#c32" data-c="c32">Feedback sheet</a></div></div></div><div class="side-grp" data-s="s-status" data-grp="agent"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Agent status</span><span class="side-n">16</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c60" data-c="c60">Thinking</a><a class="side-a" href="#c2" data-c="c2">Reasoning trail</a><a class="side-a" href="#c26" data-c="c26">Agent lanes</a><a class="side-a" href="#c114" data-c="c114">Agent tree</a><a class="side-a" href="#c115" data-c="c115">Agent inbox</a><a class="side-a" href="#c106" data-c="c106">Run summary</a><a class="side-a" href="#c7" data-c="c7">Action log</a><a class="side-a" href="#c67" data-c="c67">Agent run timeline</a><a class="side-a" href="#c23" data-c="c23">Context meter</a><a class="side-a" href="#c109" data-c="c109">Error and recovery</a><a class="side-a" href="#c5" data-c="c5">Run queue</a><a class="side-a" href="#c27" data-c="c27">Run cost</a><a class="side-a" href="#c28" data-c="c28">Toast stack</a><a class="side-a" href="#c58" data-c="c58">Toast</a><a class="side-a" href="#c22" data-c="c22">Status pill</a><a class="side-a" href="#c1" data-c="c1">Step loader</a></div></div></div><div class="side-grp" data-s="s-review" data-grp="agent"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Review and approve</span><span class="side-n">11</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c11" data-c="c11">Change review</a><a class="side-a" href="#c105" data-c="c105">Plan review</a><a class="side-a" href="#c33" data-c="c33">Permission gate</a><a class="side-a" href="#c4" data-c="c4">Decision prompt</a><a class="side-a" href="#c9" data-c="c9">Proposal card</a><a class="side-a" href="#c19" data-c="c19">Design tuner</a><a class="side-a" href="#c20" data-c="c20">Rewrite toolbar</a><a class="side-a" href="#c34" data-c="c34">Launch checklist</a><a class="side-a" href="#c120" data-c="c120">Inline text diff</a><a class="side-a" href="#c121" data-c="c121">Draft review</a><a class="side-a" href="#c111" data-c="c111">Design review</a></div></div></div><div class="side-grp" data-s="s-data" data-grp="agent"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Sources and output</span><span class="side-n">7</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c18" data-c="c18">Code viewer</a><a class="side-a" href="#c68" data-c="c68">Citation hover card</a><a class="side-a" href="#c10" data-c="c10">Source stack</a><a class="side-a" href="#c36" data-c="c36">Field extraction</a><a class="side-a" href="#c17" data-c="c17">Metric insight</a><a class="side-a" href="#c66" data-c="c66">Details panel</a><a class="side-a" href="#c13" data-c="c13">Task table</a></div></div></div><div class="side-grp" data-s="s-workspace" data-grp="agent"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Workspace</span><span class="side-n">8</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c16" data-c="c16">Automation canvas</a><a class="side-a" href="#c15" data-c="c15">Command palette</a><a class="side-a" href="#c69" data-c="c69">Memory panel</a><a class="side-a" href="#c71" data-c="c71">Model compare</a><a class="side-a" href="#c38" data-c="c38">Agent settings</a><a class="side-a" href="#c110" data-c="c110">Tools and connections</a><a class="side-a" href="#c39" data-c="c39">File explorer</a><a class="side-a" href="#c14" data-c="c14">Workspace rail</a></div></div></div><div class="side-grp" data-s="s-harness" data-grp="agent"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Harness</span><span class="side-n">1</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c99" data-c="c99">Agent harness</a></div></div></div><div class="side-lbl">App basics</div><div class="side-grp" data-s="s-charts" data-grp="basics"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Charts and tables</span><span class="side-n">9</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c41" data-c="c41">Line chart</a><a class="side-a" href="#c42" data-c="c42">Bar chart</a><a class="side-a" href="#c43" data-c="c43">Donut chart</a><a class="side-a" href="#c102" data-c="c102">Funnel chart</a><a class="side-a" href="#c103" data-c="c103">Top pages</a><a class="side-a" href="#c65" data-c="c65">Health score</a><a class="side-a" href="#c45" data-c="c45">Activity heatmap</a><a class="side-a" href="#c44" data-c="c44">Stat cards</a><a class="side-a" href="#c12" data-c="c12">Account table</a></div></div></div><div class="side-grp" data-s="s-dates" data-grp="basics"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Dates</span><span class="side-n">4</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c46" data-c="c46">Date picker</a><a class="side-a" href="#c47" data-c="c47">Date range picker</a><a class="side-a" href="#c62" data-c="c62">Event calendar</a><a class="side-a" href="#c63" data-c="c63">Agenda</a></div></div></div><div class="side-grp" data-s="s-forms" data-grp="basics"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Forms and inputs</span><span class="side-n">8</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c49" data-c="c49">Buttons</a><a class="side-a" href="#c52" data-c="c52">Tooltip</a><a class="side-a" href="#c53" data-c="c53">Search input</a><a class="side-a" href="#c57" data-c="c57">Country select</a><a class="side-a" href="#c51" data-c="c51">Social sign-in</a><a class="side-a" href="#c55" data-c="c55">Sign in</a><a class="side-a" href="#c50" data-c="c50">Form</a><a class="side-a" href="#c64" data-c="c64">Payment form</a></div></div></div><div class="side-grp" data-s="s-collab" data-grp="basics"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Collaboration</span><span class="side-n">6</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c54" data-c="c54">Comments</a><a class="side-a" href="#c56" data-c="c56">Notifications</a><a class="side-a" href="#c61" data-c="c61">Invite to collaborate</a><a class="side-a" href="#c59" data-c="c59">Reactions</a><a class="side-a" href="#c104" data-c="c104">Ticket list</a><a class="side-a" href="#c101" data-c="c101">Kanban board</a></div></div></div><div class="side-grp" data-s="s-product" data-grp="basics"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Product</span><span class="side-n">5</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c70" data-c="c70">Pricing cards</a><a class="side-a" href="#c72" data-c="c72">Onboarding checklist</a><a class="side-a" href="#c73" data-c="c73">Stepper</a><a class="side-a" href="#c74" data-c="c74">Set limit</a><a class="side-a" href="#c75" data-c="c75">Currency converter</a></div></div></div><div class="side-empty" id="side-empty"><p>No components match your search.</p><button class="suggest-btn"><span class="ms">add</span><span class="st">Suggest this component</span></button></div></nav>
   <div class="side-foot">
     <a class="credit" href="https://designme.agency" target="_blank" rel="noopener"><div class="sticker" style="--sticker-mask:url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNzU5IiBoZWlnaHQ9IjYzMiIgdmlld0JveD0iMCAwIDc1OSA2MzIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxwYXRoIGQ9Ik0xNDkuNDk3IDI4My43ODRDMTQ5LjQ3NyAyODQuMDQ3IDE0OS40NzQgMjg0LjMxMSAxNDkuNDg3IDI4NC41NzVDMTU2LjM4NSAzNDAuMDM0IDE4My41NDggMzkxLjExNiAyMjUuOSA0MjguMTk2QzI2Ny45ODkgNDY1LjA0NCAzMjIuMTg4IDQ4NS41MzIgMzc4LjQxNCA0ODUuODU1TDM3OS43NDMgNDg1Ljg1OUM0MzYuNDUzIDQ4NS44NjggNDkxLjE4OCA0NjUuMzUzIDUzMy42MTkgNDI4LjIxMkM1NzUuOTEyIDM5MS4xOTQgNjAzLjA2MiAzNDAuMjE2IDYxMC4wMTggMjg0Ljg1Nkw2MTAuMDE4IDI4MS41MTJDNjEwLjAwOCAyNzcuMzM3IDYwOC4zMjQgMjczLjMxNSA2MDUuMzAzIDI3MC4zMzVDNjAyLjI3NyAyNjcuMzUxIDU5OC4xNTUgMjY1LjY1NiA1OTMuODM3IDI2NS42NTZMMTY1LjY0NyAyNjUuNjU2QzE2MS4zMzggMjY1LjY1NiAxNTcuMjI2IDI2Ny4zNDkgMTU0LjIxIDI3MC4zMzFDMTUxLjE5OCAyNzMuMzA5IDE0OS41MjQgMjc3LjMyNiAxNDkuNTIzIDI4MS40OTFMMTQ5LjUyMyAyODMuNDM3TDE0OS40OTcgMjgzLjc4NFpNMTE0LjM3OCAyNDcuMzk1QzExOC4zOTYgMjQ3LjM5MSAxMjIuMjU0IDI0NS45MTkgMTI1LjIxNCAyNDMuMjlDMTI4LjA2MyAyNDAuNzU5IDEyOS44ODcgMjM3LjMzIDEzMC4zOTYgMjMzLjYyOUwxMzAuMzk2IDIzMy4zNUwxMzAuNDM3IDIzMi45MTdDMTM2LjM1NSAxNzEuNjM0IDE2NS4xNjIgMTE0Ljc1NCAyMTEuMjAyIDczLjM2ODdDMjU3LjIzOSAzMS45ODU5IDMxNy4yMDYgOS4wNjA2MyAzNzkuMzkzIDkuMDQ0NDhMMzc5LjM5NiA5LjA0NDQ4QzQ0MS41OTMgOS4wNDU4MyA1MDEuNTc0IDMxLjk2NCA1NDcuNjI0IDczLjM0ODJDNTkzLjY3NyAxMTQuNzM1IDYyMi40OTEgMTcxLjYyNCA2MjguNDExIDIzMi45MTdMNjI4LjQ1MyAyMzMuMzVMNjI4LjQ1MyAyMzMuNjQzQzYyOC45NTMgMjM3LjM0NCA2MzAuNzczIDI0MC43NzQgNjMzLjYyMSAyNDMuMzA0QzYzNi41OCAyNDUuOTMyIDY0MC40MzcgMjQ3LjM5OSA2NDQuNDUyIDI0Ny4zOTVMNzI1LjY0NCAyNDcuMzk1QzcyOC44ODIgMjQ3LjQwNCA3MzIuMDg5IDI0OC4wNiA3MzUuMDcxIDI0OS4zMjlDNzM4LjA1NSAyNTAuNTk4IDc0MC43NTMgMjUyLjQ1MyA3NDMuMDAxIDI1NC43ODdDNzQ1LjI1MiAyNTcuMTIzIDc0Ny4wMDUgMjU5Ljg5MSA3NDguMTUxIDI2Mi45MjRDNzQ5LjI5NiAyNjUuOTU0IDc0OS44MSAyNjkuMTgzIDc0OS42NjIgMjcyLjQxOEw3NDkuNjYzIDI3Mi40MThDNzQ1LjQ4NCAzNjYuNzk3IDcwNC42MTcgNDU1LjkxOSA2MzUuNjE1IDUyMS4yMTFDNTY2LjYxNiA1ODYuNDk5IDQ3NC44MDkgNjIyLjkyNCAzNzkuMzM4IDYyMi45MjRDMjgzLjg3MiA2MjIuOTI0IDE5Mi4wNzEgNTg2LjQ5NiAxMjMuMDgxIDUyMS4yMDZDNTQuMDkzNSA0NTUuOTE3IDEzLjI0MTIgMzY2LjgwNCA5LjA3MTMzIDI3Mi40MzhMOS4wNzAzNiAyNzIuNDM4TDkuMDcwMzYgMjcyLjQzNkM5LjA3MDA3IDI3Mi40MyA5LjA2OTY3IDI3Mi40MjMgOS4wNjkzOCAyNzIuNDE3TDkuMDcwMzYgMjcyLjQxN0M4LjkyMjcyIDI2OS4xODIgOS40MzY1NSAyNjUuOTUzIDEwLjU4MTEgMjYyLjkyNEMxMS43Mjc2IDI1OS44OSAxMy40ODEgMjU3LjEyMyAxNS43MzE1IDI1NC43ODdDMTcuOTgwNSAyNTIuNDUyIDIwLjY3OTcgMjUwLjU5NyAyMy42NjIyIDI0OS4zMjlDMjYuNjQ0MyAyNDguMDYgMjkuODUwNCAyNDcuNDA0IDMzLjA4ODkgMjQ3LjM5NUwxMTQuMzc4IDI0Ny4zOTVaIiBmaWxsPSJibGFjayIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIxOC4wOTAxIi8+Cjwvc3ZnPg==)"><div class="die"><svg aria-hidden="true" focusable="false" viewBox="0 0 759 632" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M149.497 283.784C149.477 284.047 149.474 284.311 149.487 284.575C156.385 340.034 183.548 391.116 225.9 428.196C267.989 465.044 322.188 485.532 378.414 485.855L379.743 485.859C436.453 485.868 491.188 465.353 533.619 428.212C575.912 391.194 603.062 340.216 610.018 284.856L610.018 281.512C610.008 277.337 608.324 273.315 605.303 270.335C602.277 267.351 598.155 265.656 593.837 265.656L165.647 265.656C161.338 265.656 157.226 267.349 154.21 270.331C151.198 273.309 149.524 277.326 149.523 281.491L149.523 283.437L149.497 283.784ZM114.378 247.395C118.396 247.391 122.254 245.919 125.214 243.29C128.063 240.759 129.887 237.33 130.396 233.629L130.396 233.35L130.437 232.917C136.355 171.634 165.162 114.754 211.202 73.3687C257.239 31.9859 317.206 9.06063 379.393 9.04448L379.396 9.04448C441.593 9.04583 501.574 31.964 547.624 73.3482C593.677 114.735 622.491 171.624 628.411 232.917L628.453 233.35L628.453 233.643C628.953 237.344 630.773 240.774 633.621 243.304C636.58 245.932 640.437 247.399 644.452 247.395L725.644 247.395C728.882 247.404 732.089 248.06 735.071 249.329C738.055 250.598 740.753 252.453 743.001 254.787C745.252 257.123 747.005 259.891 748.151 262.924C749.296 265.954 749.81 269.183 749.662 272.418L749.663 272.418C745.484 366.797 704.617 455.919 635.615 521.211C566.616 586.499 474.809 622.924 379.338 622.924C283.872 622.924 192.071 586.496 123.081 521.206C54.0935 455.917 13.2412 366.804 9.07133 272.438L9.07036 272.438L9.07036 272.436C9.07007 272.43 9.06967 272.423 9.06938 272.417L9.07036 272.417C8.92272 269.182 9.43655 265.953 10.5811 262.924C11.7276 259.89 13.481 257.123 15.7315 254.787C17.9805 252.452 20.6797 250.597 23.6622 249.329C26.6443 248.06 29.8504 247.404 33.0889 247.395L114.378 247.395Z" fill="black" stroke="white" stroke-width="18.0901"/>
@@ -8674,7 +8768,7 @@ body.ui section.faq{display:none}
 <main id="components" class="content">
 <section class="intro">
   <h1>Components for agent-powered products</h1>
-  <p>87 free components in HTML or React, designed and built by <a href="https://designme.agency" target="_blank" rel="noopener">DesignMe</a>.</p>
+  <p>89 free components in HTML or React, designed and built by <a href="https://designme.agency" target="_blank" rel="noopener">DesignMe</a>.</p>
   <div class="intro-get"><button class="cdm-cmd intro-cmd" data-cmd="npx designme add live-answer --react" title="Copy install command"><span class="d">$</span><span class="c">npx designme add live-answer --react</span><span class="ms sm">content_copy</span></button></div>
   <div class="m-cta"><div class="t">Need expert design and dev support?</div><a class="hire-btn m-cta-btn" href="https://designme.agency" target="_blank" rel="noopener">Book a call<span class="ms">arrow_forward</span></a></div>
   </section>
@@ -8837,6 +8931,30 @@ body.ui section.faq{display:none}
   <div class="pop vcx-fix" role="menu"></div>
 </div></template>
   </article>
+  <article class="comp" id="c122" data-soft data-v2="voice-orb" data-reg="voice-orb" style="--rh-a:514px;--rc-a:402px;--rcb-a:402px;--rh-b:533px;--rc-b:421px;--rcb-b:421px;--rh-c:514px;--rc-c:402px;--rcb-c:402px;--rh-d:514px;--rc-d:402px;--rcb-d:402px;--rh-e:482px;--rc-e:402px;--rcb-e:402px">
+    <div class="comp-head">
+      <span class="ibox"><span class="ms">graphic_eq</span></span>
+      <div><h2 class="comp-title"><a href="/components/voice-orb">Voice orb</a></h2><p class="comp-desc">A hands-free voice chat, with an orb that shows who is talking.</p></div>
+      <button class="save-btn" aria-pressed="false" aria-label="Save component"><span class="ms">bookmark</span></button>
+    </div>
+    <div class="stage"><div class="stage-inner dots v2-host" data-demo><div class="v2 stage-in"></div></div></div>
+    <div class="comp-foot">
+      <span class="mono-xs">Start, mute and end. It never uses your microphone</span>
+      <div class="code-btns"><button class="ghost anim-btn" data-anim><span class="ms sm">stars</span>Animate</button><button class="ghost" data-view aria-expanded="false"><span class="ms sm">code</span><span class="vl">View code</span></button><button class="ghost" data-copy><span class="ms sm">content_copy</span>Copy code</button></div>
+    </div>
+    <template><div class="vor panel" data-m="idle">
+  <div class="vor-top"><span class="vor-dot"></span><span class="vor-st">Ready</span><span class="vor-t num muted">0:00</span></div>
+  <div class="vor-orb" aria-hidden="true"><i class="vor-glow"></i><i class="vor-core"></i></div>
+  <div class="vor-cap" aria-live="polite"><span class="vor-who muted"></span><p class="vor-tx hint">Talk to the agent about Pricing v4</p></div>
+  <div class="fold shut vor-mf"><div><div class="vor-mw"><p>{warn}<span>You're muted. Unmute so the agent can hear you.</span></p><button class="pill sm vor-un">Unmute</button></div></div></div>
+  <div class="vor-f">
+    <button class="pill ink sm vor-go">{mic}Start talking</button>
+    <button class="ib fill vor-mute" aria-label="Mute" aria-pressed="false" data-tip="Mute">{micm}</button>
+    <span class="sp"></span>
+    <button class="pill sm vor-end">End</button>
+  </div>
+</div></template>
+  </article>
   <article class="comp" id="c113" data-soft data-v2="answer-action-bar" data-reg="answer-action-bar" style="--rh-a:435px;--rc-a:323px;--rcb-a:323px;--rh-b:465px;--rc-b:353px;--rcb-b:353px;--rh-c:420px;--rc-c:276px;--rcb-c:276px;--rh-d:420px;--rc-d:276px;--rcb-d:276px;--rh-e:433px;--rc-e:353px;--rcb-e:353px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">thumb_up</span></span>
@@ -8941,6 +9059,30 @@ body.ui section.faq{display:none}
   <div class="psx-grid"></div>
   <div class="psx-in"><span class="psx-ph">Pick a starter or type your own</span><span class="psx-tx"></span><button class="psx-go" aria-label="Send" data-tip="Send" disabled>{up}</button></div>
   <button class="pill ghost sm psx-sh">{shuffle}Shuffle</button>
+</div></template>
+  </article>
+  <article class="comp" id="c123" data-soft data-v2="prompt-library" data-reg="prompt-library" style="--rh-a:487px;--rc-a:375px;--rcb-a:375px;--rh-b:506px;--rc-b:394px;--rcb-b:394px;--rh-c:487px;--rc-c:375px;--rcb-c:375px;--rh-d:487px;--rc-d:375px;--rcb-d:375px;--rh-e:474px;--rc-e:394px;--rcb-e:394px">
+    <div class="comp-head">
+      <span class="ibox"><span class="ms">edit_note</span></span>
+      <div><h2 class="comp-title"><a href="/components/prompt-library">Prompt library</a></h2><p class="comp-desc">Saved prompts with blanks to fill in before they go to the agent.</p></div>
+      <button class="save-btn" aria-pressed="false" aria-label="Save component"><span class="ms">bookmark</span></button>
+    </div>
+    <div class="stage"><div class="stage-inner dots v2-host" data-demo><div class="v2 stage-in"></div></div></div>
+    <div class="comp-foot">
+      <span class="mono-xs">Open a prompt and fill in its blanks</span>
+      <div class="code-btns"><button class="ghost anim-btn" data-anim><span class="ms sm">stars</span>Animate</button><button class="ghost" data-view aria-expanded="false"><span class="ms sm">code</span><span class="vl">View code</span></button><button class="ghost" data-copy><span class="ms sm">content_copy</span>Copy code</button></div>
+    </div>
+    <template><div class="plb panel">
+  <div class="plb-list">
+    <div class="plb-h"><div class="plb-ht"><b>Prompt library</b><span class="muted">Shared with DesignMe Studio</span></div></div>
+    <div class="plb-rows"></div>
+  </div>
+  <div class="plb-one" hidden>
+    <div class="plb-h"><button class="ib plb-back" aria-label="All prompts" data-tip="All prompts">{chevl}</button><div class="plb-ht"><b class="plb-tt"></b><span class="muted plb-vn"></span></div></div>
+    <p class="plb-tp" aria-live="polite"></p>
+    <div class="plb-vars"></div>
+    <div class="plb-f"><span class="muted plb-note">Fills in as you go</span><span class="sp"></span><button class="pill ink sm plb-use">Use prompt</button></div>
+  </div>
 </div></template>
   </article>
   <article class="comp" id="c30" data-soft data-v2="attachment-tray" data-reg="attachment-tray" style="--rh-a:462px;--rc-a:350px;--rcb-a:350px;--rh-b:464px;--rc-b:352px;--rcb-b:350px;--rh-c:464px;--rc-c:352px;--rcb-c:350px;--rh-d:465px;--rc-d:353px;--rcb-d:350px;--rh-e:433px;--rc-e:353px;--rcb-e:350px">
@@ -14612,6 +14754,133 @@ DM.def('draft-review', (r, c) => {
     await s.until(() => file); await s.beat(2);
     await s.tap(go); s.away();
     await s.until(() => done && !$('button', done));
+  });
+});
+/* ---------- Voice orb ---------- */
+DM.def('voice-orb', (r, c) => {
+  const IC = { warn:I('alert','xs'), mic:I('mic','xs'), micm:I('mic') };
+  r.innerHTML = r.innerHTML.replace(/\{(\w+)\}/g, (m, k) => IC[k] || m);
+  const root = $('.vor', r), orb = $('.vor-orb', r), st = $('.vor-st', r), tm = $('.vor-t', r), who = $('.vor-who', r), tx = $('.vor-tx', r), mf = $('.vor-mf', r), f = $('.vor-f', r), mute = $('.vor-mute', r);
+  // what is said, turn by turn. The demo plays it as a script: it never uses the microphone or makes a sound
+  const TURNS = [['You', 'Make the yearly price the default on the pricing page.'], ['Agent', 'Done. Yearly is now the default on all three plans in Pricing v4.'], ['You', 'Show the yearly saving in green too.'], ['Agent', 'Added. The saving shows in green under each yearly price.']];
+  const HINT = 'Talk to the agent about Pricing v4', LABEL = { idle:'Ready', listening:'Listening', thinking:'Thinking', speaking:'Speaking', muted:'Muted', ended:'Ended' };
+  let mode = 'idle', muted = false, talking = false, said = 0, secs = 0, run = 0, done = null, lv = 0;
+  const fmt = s => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+  // muted only changes how listening looks: the agent can still think and speak
+  const show = () => { const m = muted && mode === 'listening' ? 'muted' : mode; if (root.dataset.m !== m){ root.dataset.m = m; swap(st, LABEL[m]); } };
+  const set = m => { mode = m; show(); };
+  const notice = on => { mf.classList.toggle('shut', !on); mf.inert = !on; };
+  notice(false);
+  // the orb follows a level: a made-up voice while someone talks, a faint idle while it listens
+  if (!REDUCE) c.loop(t => {
+    const to = talking ? .5 + .28 * Math.sin(t / 90) * Math.sin(t / 233) + .16 * Math.sin(t / 57) : mode === 'listening' && !muted ? .05 + .03 * Math.sin(t / 420) : 0;
+    lv += (Math.max(0, to) - lv) * .18; orb.style.setProperty('--lv', lv.toFixed(3));
+  });
+  c.every(1000, () => { if (mode !== 'idle' && mode !== 'ended'){ secs++; tm.textContent = fmt(secs); } });
+  async function say(name, line, ms, id){
+    swap(who, name); tx.classList.remove('hint'); tx.innerHTML = ''; talking = true;
+    for (const w of line.split(' ')){ if (id !== run) return; tx.insertAdjacentHTML('beforeend', `<span class="w">${w} </span>`); await c.wait(ms); }
+    talking = false;
+  }
+  async function talk(id){
+    for (const [name, line] of TURNS){
+      if (name === 'You'){
+        set('listening'); await c.wait(1200); if (id !== run) return;
+        // they start talking while muted: say so, and wait for them to unmute
+        if (muted){ notice(true); while (muted){ await c.wait(100); if (id !== run) return; } await c.wait(400); if (id !== run) return; }
+        await say(name, line, 230, id); if (id !== run) return;
+        set('thinking'); await c.wait(1300);
+      } else { set('speaking'); await say(name, line, 190, id); if (id !== run) return; set('listening'); }
+      said++;
+    }
+  }
+  function start(){
+    const id = ++run; said = 0; secs = 0; tm.textContent = fmt(0);
+    if (done){ done.remove(); done = null; } f.hidden = false; root.classList.add('on');
+    c.run(() => talk(id));
+  }
+  function setMuted(on){
+    muted = on; mute.setAttribute('aria-pressed', on); mute.dataset.tip = on ? 'Unmute' : 'Mute';
+    if (!on) notice(false); show();
+  }
+  $('.vor-go', r).onclick = start;
+  mute.onclick = () => setMuted(!muted);
+  $('.vor-un', r).onclick = () => setMuted(false);
+  $('.vor-end', r).onclick = () => {
+    run++; talking = false; notice(false); set('ended'); root.classList.remove('on'); f.hidden = true;
+    done = html(`<div class="vor-done">${I('ok')}<span class="t">Voice chat ended<span class="muted">${fmt(secs)} · Transcript saved</span></span><button class="pill sm">Start again</button></div>`);
+    root.appendChild(done); enter(done);
+    $('button', done).onclick = () => { setMuted(false); swap(who, ''); tx.classList.add('hint'); tx.textContent = HINT; start(); };
+  };
+  // the preview's story: start, mute while the agent answers, talk while muted, unmute and go on, then end
+  c.story(async s => {
+    await s.beat(3); await s.tap($('.vor-go', r)); s.away();
+    await s.until(() => mode === 'speaking'); await s.beat(3); await s.tap(mute); s.away();
+    await s.until(() => !mf.classList.contains('shut')); await s.beat(4);
+    await s.tap($('.vor-un', r)); s.away();
+    await s.until(() => said === TURNS.length); await s.beat(3);
+    await s.tap($('.vor-end', r)); s.away(); await s.beat(1);
+  });
+});
+/* ---------- Prompt library ---------- */
+DM.def('prompt-library', (r, c) => {
+  r.innerHTML = r.innerHTML.replace('{chevl}', I('chev-l'));
+  const PAGE = { l:'Page', o:['Pricing v4', 'Home', 'Checkout'] };
+  // the studio's saved prompts. Each blank is typed in, or picked from a short list that starts on its first option
+  const P = [
+    { t:'Rewrite a section', p:'Rewrite {section} on {page} so it reads {tone}.', v:{ section:{ l:'Section', ph:'Like the plan cards', er:'Say which section to rewrite' }, page:PAGE, tone:{ l:'Tone', o:['clearer', 'friendlier', 'shorter'] } } },
+    { t:'Summarize feedback', p:'Summarize the comments on {page} into three fixes.', v:{ page:PAGE } },
+    { t:'Check the tokens', p:'Check {page} against the {library} tokens and list what drifts.', v:{ page:PAGE, library:{ l:'Library', o:['Studio UI', 'Marketing'] } } },
+    { t:'Write release notes', p:"Write release notes for {version} in the studio's voice.", v:{ version:{ l:'Version', ph:'Like Pricing v4', er:'Say which version they are for' } } }
+  ];
+  const cap = s => s[0].toUpperCase() + s.slice(1), uid = Math.random().toString(36).slice(2, 7);
+  const list = $('.plb-list', r), one = $('.plb-one', r), rows = $('.plb-rows', r), tp = $('.plb-tp', r), vars = $('.plb-vars', r), f = $('.plb-f', r), root = $('.plb', r);
+  rows.innerHTML = P.map((x, i) => `<button class="plb-row" data-i="${i}"><span class="plb-ic">${I('file-text')}</span><span class="plb-rt"><b>${x.t}</b><span>${x.p}</span></span><span class="plb-n">${Object.keys(x.v).length} ${Object.keys(x.v).length === 1 ? 'blank' : 'blanks'}</span>${I('chev-r','xs')}</button>`).join('');
+  let cur = null, vals = {}, bad = new Set(), done = null;
+  // the prompt as it reads now: filled blanks in the accent colour, empty ones by name, and red once they were needed
+  const fill = () => { tp.innerHTML = cur.p.replace(/\{(\w+)\}/g, (m, k) => `<span class="plb-s${vals[k] ? '' : ' empty'}${bad.has(k) ? ' bad' : ''}">${vals[k] || cur.v[k].l.toLowerCase()}</span>`); };
+  const err = (k, on) => { const fd = $(`.plb-fd[data-k="${k}"]`, vars), e = $('.plb-er', fd); fd.classList.toggle('bad', on); e.hidden = !on; e.textContent = on ? cur.v[k].er : ''; $('.plb-in', fd).setAttribute('aria-invalid', on); if (on) bad.add(k); else bad.delete(k); };
+  function open(i){
+    cur = P[i]; vals = {}; bad = new Set(); undo();
+    $('.plb-tt', r).textContent = cur.t; $('.plb-vn', r).textContent = `${Object.keys(cur.v).length} ${Object.keys(cur.v).length === 1 ? 'blank' : 'blanks'}`;
+    $$('.plb-pop', r).forEach(p => p.remove());
+    const keys = Object.keys(cur.v), typed = keys.filter(k => !cur.v[k].o), picked = keys.filter(k => cur.v[k].o);
+    // typed blanks take the full width; picked ones sit two to a row, and an odd one out takes the row. The blanks sit at
+    // the foot of the card, so their lists open upward over the prompt instead of past the footer
+    vars.innerHTML = [...typed, ...picked].map(k => { const v = cur.v[k], wide = !v.o || (picked.length % 2 && k === picked[picked.length - 1]);
+      if (!v.o) return `<label class="plb-fd wide" data-k="${k}"><span>${v.l}</span><input class="plb-in" placeholder="${v.ph}" aria-describedby="plb-e-${k}-${uid}"><span class="plb-er" id="plb-e-${k}-${uid}" hidden></span></label>`;
+      vals[k] = v.o[0];
+      return `<div class="plb-fd${wide ? ' wide' : ''}" data-k="${k}"><span id="plb-l-${k}-${uid}">${v.l}</span><button class="plb-sel" aria-haspopup="menu" aria-expanded="false" aria-labelledby="plb-l-${k}-${uid} plb-v-${k}-${uid}" data-pop=".plb-pop-${k}" data-pop-pos="up"><span class="v" id="plb-v-${k}-${uid}">${cap(v.o[0])}</span>${I('chev-d','xs')}</button></div>`; }).join('');
+    picked.forEach(k => {
+      const pop = html(`<div class="pop plb-pop plb-pop-${k}" role="menu" aria-label="${cur.v[k].l}">${cur.v[k].o.map((o, n) => `<button class="mi" role="menuitemradio" aria-checked="${!n}" data-close data-o="${o}"><span>${cap(o)}</span><span class="ck">${I('check','xs')}</span></button>`).join('')}</div>`);
+      root.appendChild(pop);
+      $$('.mi', pop).forEach(m => m.addEventListener('click', () => { vals[k] = m.dataset.o; $$('.mi', pop).forEach(x => x.setAttribute('aria-checked', x === m)); swap($(`#plb-v-${k}-${uid}`, vars), cap(m.dataset.o)); fill(); }));
+    });
+    $$('.plb-in', vars).forEach(inp => inp.addEventListener('input', () => { const k = inp.closest('.plb-fd').dataset.k; vals[k] = inp.value.trim(); if (vals[k] && bad.has(k)) err(k, false); fill(); }));
+    fill(); list.hidden = true; one.hidden = false; enter(one);
+  }
+  function undo(){ if (done){ done.remove(); done = null; } f.hidden = false; one.classList.remove('used'); vars.inert = false; }
+  $$('.plb-row', rows).forEach(b => b.onclick = () => open(+b.dataset.i));
+  $('.plb-back', r).onclick = () => { closePops(); one.hidden = true; list.hidden = false; enter(list); };
+  // a prompt can't be used with a blank left empty: the blank says what it needs
+  $('.plb-use', r).onclick = () => {
+    const empty = Object.keys(cur.v).filter(k => !vals[k]);
+    if (empty.length){ empty.forEach(k => err(k, true)); fill(); return; }
+    f.hidden = true; one.classList.add('used'); vars.inert = true;
+    done = html(`<div class="plb-done">${I('ok')}<span class="t">Added to your message<span class="muted">Ready to send to the agent</span></span><button class="pill sm">Undo</button></div>`);
+    one.appendChild(done); enter(done); $('button', done).onclick = undo;
+  };
+  // the preview's story: open a prompt, try to use it with a blank empty, fill it in, pick a tone, then use it
+  c.story(async s => {
+    await s.beat(3); await s.tap($('.plb-row', rows)); s.away();
+    await s.beat(3); await s.tap($('.plb-use', r)); s.away();
+    await s.beat(4);
+    const inp = $('.plb-in', vars); await s.point(inp, false); inp.classList.add('ed');
+    for (const ch of 'the plan cards'){ if (c.mine) return; inp.value += ch; inp.dispatchEvent(new Event('input')); await c.wait(70); }
+    await s.beat(1); inp.classList.remove('ed'); s.away(); await s.beat(1);
+    await s.tap($('.plb-sel', $('.plb-fd[data-k="tone"]', vars))); await s.beat(2);
+    await s.tap($('.plb-pop-tone .mi[data-o="friendlier"]', r)); s.away(); await s.beat(3);
+    await s.tap($('.plb-use', r)); s.away(); await s.beat(3);
   });
 });
 /* ---------- Design review ---------- */

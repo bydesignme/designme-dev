@@ -1451,6 +1451,100 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .drf-done .t span{font-size:13px}
 .drf-done .pill{background:var(--surface);color:var(--fg);box-shadow:var(--shadow)}
 .drf-done .pill:hover{box-shadow:var(--shadow-pop)}
+/* ---------- Voice orb ---------- */
+/* a hands-free voice chat: an orb that swells with whoever is talking, the accent colour for you and violet for the agent, what
+   was said under it, and mute and end below. Talking while muted says so, the way calls do */
+.vor{position:relative;width:100%;max-width:380px;margin:0 auto;padding:16px;display:flex;flex-direction:column;gap:12px;--oc:var(--faint)}
+.vor[data-m="listening"]{--oc:var(--accent)}
+.vor[data-m="speaking"]{--oc:var(--pl)}
+.vor[data-m="thinking"]{--oc:color-mix(in srgb,var(--accent) 50%,var(--pl))}
+.vor[data-m="muted"]{--oc:color-mix(in srgb,var(--muted) 55%,var(--faint))}
+.vor-top{display:flex;align-items:center;gap:8px;font-size:13px}
+.vor-dot{width:8px;height:8px;border-radius:50%;background:var(--oc);transition:background .4s}
+.vor[data-m="listening"] .vor-dot,.vor[data-m="speaking"] .vor-dot{animation:vor-pulse 1.4s var(--ease-io) infinite}
+@keyframes vor-pulse{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--oc) 35%,transparent)}50%{box-shadow:0 0 0 5px transparent}}
+.vor-t{margin-left:auto;font-size:12.5px}
+.vor-orb{position:relative;width:112px;height:112px;margin:8px auto;--lv:0}
+.vor-orb i{position:absolute;inset:0;border-radius:50%}
+/* round in Blueprint too, where every other corner is square: like the turning loaders, its shape is what it says */
+.vor .vor-orb i{border-radius:50%!important}
+.vor-glow{background:radial-gradient(closest-side,color-mix(in srgb,var(--oc) 28%,transparent),transparent);transform:scale(calc(1.1 + var(--lv) * .45))}
+.vor-core{background-color:color-mix(in srgb,var(--oc) 72%,var(--surface));background-image:radial-gradient(circle at 34% 28%,rgba(255,255,255,.42),rgba(255,255,255,0) 62%);box-shadow:inset 0 -8px 18px color-mix(in srgb,var(--oc) 30%,transparent);transform:scale(calc(.9 + var(--lv) * .14));transition:background-color .4s}
+.vor[data-m="thinking"] .vor-core{animation:vor-br 1.6s var(--ease-io) infinite alternate}
+@keyframes vor-br{from{transform:scale(.9)}to{transform:scale(.96)}}
+.vor-cap{min-height:88px;display:flex;flex-direction:column;gap:2px;text-align:center}
+.vor-who{font-size:12px;min-height:18px}
+.vor-tx{margin:0;font-size:14px;line-height:1.6;color:var(--fg)}
+.vor-tx.hint{color:var(--muted);font-size:13px}
+.vor-tx .w{animation:vor-w .45s var(--ease) both}
+@keyframes vor-w{from{opacity:0;filter:blur(3px)}to{opacity:1;filter:none}}
+.vor-mw{display:flex;align-items:center;gap:10px;padding:8px 8px 8px 12px;border-radius:12px;background:var(--warn-bg)}
+.vor-mw p{margin:0;flex:1;display:flex;gap:8px;font-size:13px;line-height:1.45;color:var(--fg)}
+.vor-mw p svg{color:var(--warn);flex:none;margin-top:3px}
+.vor-mw .pill,.vor-done .pill{background:var(--surface);color:var(--fg);box-shadow:var(--shadow)}
+.vor-f{display:flex;align-items:center;gap:8px;min-height:32px}
+.vor-f .sp{flex:1}
+.vor:not(.on) .vor-f{justify-content:center}
+.vor:not(.on) .vor-mute,.vor:not(.on) .vor-end,.vor:not(.on) .vor-f .sp,.vor.on .vor-go{display:none}
+.vor-mute{position:relative}
+.vor-mute[aria-pressed="true"]{background:var(--bad-bg);color:var(--bad);box-shadow:none}
+/* the slash across the microphone once it is muted */
+.vor-mute::after{content:"";position:absolute;left:50%;top:50%;width:1.5px;height:18px;margin:-9px 0 0 -.75px;border-radius:2px;background:currentColor;transform:rotate(-45deg) scaleY(0);transition:transform .25s var(--ease)}
+.vor-mute[aria-pressed="true"]::after{transform:rotate(-45deg) scaleY(1)}
+.vor-end{background:var(--bad);color:#fff}
+.vor-end:hover{background:color-mix(in srgb,var(--bad) 86%,#000)}
+.vor-done{display:flex;align-items:center;gap:12px;padding:10px 10px 10px 12px;border-radius:12px;background:var(--chip);font-size:13.5px}
+.vor-done>svg{color:var(--fg2);flex:none}
+.vor-done .t{flex:1;min-width:0;display:flex;flex-direction:column}
+.vor-done .t span{font-size:13px}
+/* ---------- Prompt library ---------- */
+/* the studio's saved prompts, each with blanks like {page}. Opening one lays its blanks out as fields, the prompt
+   fills in as they change, and it can't be used until every blank has a value */
+.plb{position:relative;width:100%;max-width:440px;margin:0 auto;padding:16px}
+.plb-list,.plb-one{display:flex;flex-direction:column;gap:12px}
+.plb-list[hidden],.plb-one[hidden]{display:none}
+.plb-h{display:flex;align-items:center;gap:8px;min-height:32px}
+.plb-ht{flex:1;min-width:0;display:flex;flex-direction:column}
+.plb-ht b{font-weight:500;font-size:14px}
+.plb-ht span{font-size:13px}
+.plb-back{margin-left:-6px;flex:none}
+.plb-rows{display:flex;flex-direction:column;margin:0 -8px}
+.plb-row{display:flex;align-items:center;gap:12px;width:100%;padding:9px 8px;border-radius:12px;text-align:left;color:var(--fg);transition:background var(--t-fast)}
+.plb-row:hover{background:var(--row)}
+.plb-ic{width:32px;height:32px;border-radius:9px;background:var(--chip);color:var(--fg2);display:grid;place-items:center;flex:none}
+.plb-rt{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+.plb-rt b{font-weight:500;font-size:13.5px}
+.plb-rt>span{font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.plb-n{font-size:12px;color:var(--muted);flex:none}
+.plb-row>svg:last-child{color:var(--muted);flex:none}
+.plb-tp{margin:0;padding:10px 12px;border-radius:12px;background:var(--chip);font-size:14px;line-height:1.8;color:var(--fg)}
+.plb-s{padding:2px 5px;border-radius:6px;background:var(--accent-bg);color:var(--accent);-webkit-box-decoration-break:clone;box-decoration-break:clone;transition:background .25s,color .25s,box-shadow .25s}
+.plb-s.empty{background:var(--surface);color:var(--muted);box-shadow:inset 0 0 0 1px var(--rail)}
+.plb-s.bad{color:var(--bad);box-shadow:inset 0 0 0 1px var(--bad)}
+.plb-vars{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
+.plb-fd{display:flex;flex-direction:column;gap:5px;font-size:12.5px;font-weight:500;min-width:0}
+.plb-fd.wide{grid-column:1/-1}
+.plb-in{width:100%;border:0;outline:0;border-radius:11px;background:var(--chip);height:38px;padding:0 12px;font:inherit;font-size:13.5px;font-weight:400;color:var(--fg);transition:box-shadow .25s,background .25s}
+.plb-in::placeholder{color:var(--muted)}
+.plb-in:focus,.plb-in.ed{background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--accent),0 0 0 4px var(--accent-bg)}
+.plb-fd.bad .plb-in{box-shadow:inset 0 0 0 1.5px var(--bad)}
+.plb-er{font-size:12px;color:var(--bad);font-weight:400}
+.plb-er[hidden]{display:none}
+.plb-sel{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;height:38px;padding:0 10px 0 12px;border-radius:11px;background:var(--chip);font-size:13.5px;font-weight:400;color:var(--fg);text-align:left;transition:background .2s,box-shadow .2s}
+.plb-sel:hover{background:var(--row)}
+.plb-sel[aria-expanded="true"]{background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--accent),0 0 0 4px var(--accent-bg)}
+.plb-sel>svg{color:var(--muted);flex:none;transition:transform .32s var(--ease)}
+.plb-sel[aria-expanded="true"]>svg{transform:rotate(180deg)}
+.plb-pop{min-width:180px}
+.plb-f{display:flex;align-items:center;gap:8px;min-height:32px}
+.plb-f .sp{flex:1}
+.plb-note{font-size:13px}
+.plb-done{display:flex;align-items:center;gap:12px;padding:10px 10px 10px 12px;border-radius:12px;background:var(--ok-bg);font-size:13.5px}
+.plb-done>svg{color:var(--ok);flex:none}
+.plb-done .t{flex:1;min-width:0;display:flex;flex-direction:column}
+.plb-done .t span{font-size:13px}
+.plb-done .pill{background:var(--surface);color:var(--fg);box-shadow:var(--shadow)}
+.plb-one.used .plb-vars{opacity:.55;transition:opacity .32s}
 /* ---------- Design review ---------- */
 .drv{padding:14px;display:flex;flex-direction:column;gap:12px}
 .drv-h{display:flex;align-items:center;gap:10px}
@@ -3017,7 +3111,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
   <header class="top">
     <div>
       <h1 id="style-h">Soft 2</h1>
-      <p id="style-p">Every component rebuilt to live inside the agent's own thread: one quiet surface per object, grey type for finished work, and slow, blurred motion only on what is happening now. 87 of 87 rebuilt so far.</p>
+      <p id="style-p">Every component rebuilt to live inside the agent's own thread: one quiet surface per object, grey type for finished work, and slow, blurred motion only on what is happening now. 89 of 89 rebuilt so far.</p>
     </div>
     <div class="ctrls">
       <div class="seg" id="style-seg" role="group" aria-label="Style"><button aria-pressed="true" data-v="soft2">Soft 2</button><button aria-pressed="false" data-v="bp2">Blueprint 2</button></div>
@@ -3323,6 +3417,23 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 </div></template>
   <div class="card-f"><span>Tap a highlighted word to fix it</span><span class="sp"></span><button class="replay" aria-label="Replay Voice capture"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
 </article>
+<article class="card" data-c="voice-orb" id="c-voice-orb">
+  <div class="card-h"><div><h3>Voice orb</h3><p>A hands-free voice chat, with an orb that shows who is talking.</p></div></div>
+  <div class="stage"><div class="stage-in"></div></div>
+  <template><div class="vor panel" data-m="idle">
+  <div class="vor-top"><span class="vor-dot"></span><span class="vor-st">Ready</span><span class="vor-t num muted">0:00</span></div>
+  <div class="vor-orb" aria-hidden="true"><i class="vor-glow"></i><i class="vor-core"></i></div>
+  <div class="vor-cap" aria-live="polite"><span class="vor-who muted"></span><p class="vor-tx hint">Talk to the agent about Pricing v4</p></div>
+  <div class="fold shut vor-mf"><div><div class="vor-mw"><p>{warn}<span>You're muted. Unmute so the agent can hear you.</span></p><button class="pill sm vor-un">Unmute</button></div></div></div>
+  <div class="vor-f">
+    <button class="pill ink sm vor-go">{mic}Start talking</button>
+    <button class="ib fill vor-mute" aria-label="Mute" aria-pressed="false" data-tip="Mute">{micm}</button>
+    <span class="sp"></span>
+    <button class="pill sm vor-end">End</button>
+  </div>
+</div></template>
+  <div class="card-f"><span>Start, mute and end. It never uses your microphone</span><span class="sp"></span><button class="replay" aria-label="Replay Voice orb"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
+</article>
 <article class="card bare" data-c="tool-call" id="c-tool-call">
   <div class="card-h"><div><h3>Tool call</h3><p>Each tool the agent calls, with its input and output.</p></div></div>
   <div class="stage"><div class="stage-in"></div></div>
@@ -3363,6 +3474,23 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
   <button class="pill ghost sm psx-sh">{shuffle}Shuffle</button>
 </div></template>
   <div class="card-f"><span>Pick a starter, or shuffle</span><span class="sp"></span><button class="replay" aria-label="Replay Prompt starters"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
+</article>
+<article class="card" data-c="prompt-library" id="c-prompt-library">
+  <div class="card-h"><div><h3>Prompt library</h3><p>Saved prompts with blanks to fill in before they go to the agent.</p></div></div>
+  <div class="stage"><div class="stage-in"></div></div>
+  <template><div class="plb panel">
+  <div class="plb-list">
+    <div class="plb-h"><div class="plb-ht"><b>Prompt library</b><span class="muted">Shared with DesignMe Studio</span></div></div>
+    <div class="plb-rows"></div>
+  </div>
+  <div class="plb-one" hidden>
+    <div class="plb-h"><button class="ib plb-back" aria-label="All prompts" data-tip="All prompts">{chevl}</button><div class="plb-ht"><b class="plb-tt"></b><span class="muted plb-vn"></span></div></div>
+    <p class="plb-tp" aria-live="polite"></p>
+    <div class="plb-vars"></div>
+    <div class="plb-f"><span class="muted plb-note">Fills in as you go</span><span class="sp"></span><button class="pill ink sm plb-use">Use prompt</button></div>
+  </div>
+</div></template>
+  <div class="card-f"><span>Open a prompt and fill in its blanks</span><span class="sp"></span><button class="replay" aria-label="Replay Prompt library"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
 </article>
 <article class="card" data-c="attachment-tray" id="c-attachment-tray">
   <div class="card-h"><div><h3>Attachment tray</h3><p>Drop files for the agent and watch each one upload.</p></div></div>
@@ -4499,7 +4627,7 @@ document.addEventListener('DOMContentLoaded', () => {
   /* style: Soft 2 or Blueprint 2, from ?style= or what this browser last picked; each style keeps its own accent */
   const STY = {
     soft2:{ h:'Soft 2', p:$('#style-p') ? $('#style-p').textContent : '', acc:'#116ff8', key:'soft2-accent', title:'Designme Soft 2' },
-    bp2:{ h:'Blueprint 2', p:"The same 87 components drawn as a technical sheet: square corners, hairline edges instead of shadows, an orange accent, and motion that wipes and ticks into place in short, hard beats.", acc:'#f76b00', key:'bp2-accent', title:'Designme Blueprint 2' }
+    bp2:{ h:'Blueprint 2', p:"The same 89 components drawn as a technical sheet: square corners, hairline edges instead of shadows, an orange accent, and motion that wipes and ticks into place in short, hard beats.", acc:'#f76b00', key:'bp2-accent', title:'Designme Blueprint 2' }
   };
   let style = 'soft2';
   try { const q = new URLSearchParams(location.search).get('style'); const ls = localStorage.getItem('designme2-style');
@@ -6385,6 +6513,133 @@ DM.def('draft-review', (r, c) => {
     await s.until(() => file); await s.beat(2);
     await s.tap(go); s.away();
     await s.until(() => done && !$('button', done));
+  });
+});
+/* ---------- Voice orb ---------- */
+DM.def('voice-orb', (r, c) => {
+  const IC = { warn:I('alert','xs'), mic:I('mic','xs'), micm:I('mic') };
+  r.innerHTML = r.innerHTML.replace(/\{(\w+)\}/g, (m, k) => IC[k] || m);
+  const root = $('.vor', r), orb = $('.vor-orb', r), st = $('.vor-st', r), tm = $('.vor-t', r), who = $('.vor-who', r), tx = $('.vor-tx', r), mf = $('.vor-mf', r), f = $('.vor-f', r), mute = $('.vor-mute', r);
+  // what is said, turn by turn. The demo plays it as a script: it never uses the microphone or makes a sound
+  const TURNS = [['You', 'Make the yearly price the default on the pricing page.'], ['Agent', 'Done. Yearly is now the default on all three plans in Pricing v4.'], ['You', 'Show the yearly saving in green too.'], ['Agent', 'Added. The saving shows in green under each yearly price.']];
+  const HINT = 'Talk to the agent about Pricing v4', LABEL = { idle:'Ready', listening:'Listening', thinking:'Thinking', speaking:'Speaking', muted:'Muted', ended:'Ended' };
+  let mode = 'idle', muted = false, talking = false, said = 0, secs = 0, run = 0, done = null, lv = 0;
+  const fmt = s => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+  // muted only changes how listening looks: the agent can still think and speak
+  const show = () => { const m = muted && mode === 'listening' ? 'muted' : mode; if (root.dataset.m !== m){ root.dataset.m = m; swap(st, LABEL[m]); } };
+  const set = m => { mode = m; show(); };
+  const notice = on => { mf.classList.toggle('shut', !on); mf.inert = !on; };
+  notice(false);
+  // the orb follows a level: a made-up voice while someone talks, a faint idle while it listens
+  if (!REDUCE) c.loop(t => {
+    const to = talking ? .5 + .28 * Math.sin(t / 90) * Math.sin(t / 233) + .16 * Math.sin(t / 57) : mode === 'listening' && !muted ? .05 + .03 * Math.sin(t / 420) : 0;
+    lv += (Math.max(0, to) - lv) * .18; orb.style.setProperty('--lv', lv.toFixed(3));
+  });
+  c.every(1000, () => { if (mode !== 'idle' && mode !== 'ended'){ secs++; tm.textContent = fmt(secs); } });
+  async function say(name, line, ms, id){
+    swap(who, name); tx.classList.remove('hint'); tx.innerHTML = ''; talking = true;
+    for (const w of line.split(' ')){ if (id !== run) return; tx.insertAdjacentHTML('beforeend', `<span class="w">${w} </span>`); await c.wait(ms); }
+    talking = false;
+  }
+  async function talk(id){
+    for (const [name, line] of TURNS){
+      if (name === 'You'){
+        set('listening'); await c.wait(1200); if (id !== run) return;
+        // they start talking while muted: say so, and wait for them to unmute
+        if (muted){ notice(true); while (muted){ await c.wait(100); if (id !== run) return; } await c.wait(400); if (id !== run) return; }
+        await say(name, line, 230, id); if (id !== run) return;
+        set('thinking'); await c.wait(1300);
+      } else { set('speaking'); await say(name, line, 190, id); if (id !== run) return; set('listening'); }
+      said++;
+    }
+  }
+  function start(){
+    const id = ++run; said = 0; secs = 0; tm.textContent = fmt(0);
+    if (done){ done.remove(); done = null; } f.hidden = false; root.classList.add('on');
+    c.run(() => talk(id));
+  }
+  function setMuted(on){
+    muted = on; mute.setAttribute('aria-pressed', on); mute.dataset.tip = on ? 'Unmute' : 'Mute';
+    if (!on) notice(false); show();
+  }
+  $('.vor-go', r).onclick = start;
+  mute.onclick = () => setMuted(!muted);
+  $('.vor-un', r).onclick = () => setMuted(false);
+  $('.vor-end', r).onclick = () => {
+    run++; talking = false; notice(false); set('ended'); root.classList.remove('on'); f.hidden = true;
+    done = html(`<div class="vor-done">${I('ok')}<span class="t">Voice chat ended<span class="muted">${fmt(secs)} · Transcript saved</span></span><button class="pill sm">Start again</button></div>`);
+    root.appendChild(done); enter(done);
+    $('button', done).onclick = () => { setMuted(false); swap(who, ''); tx.classList.add('hint'); tx.textContent = HINT; start(); };
+  };
+  // the preview's story: start, mute while the agent answers, talk while muted, unmute and go on, then end
+  c.story(async s => {
+    await s.beat(3); await s.tap($('.vor-go', r)); s.away();
+    await s.until(() => mode === 'speaking'); await s.beat(3); await s.tap(mute); s.away();
+    await s.until(() => !mf.classList.contains('shut')); await s.beat(4);
+    await s.tap($('.vor-un', r)); s.away();
+    await s.until(() => said === TURNS.length); await s.beat(3);
+    await s.tap($('.vor-end', r)); s.away(); await s.beat(1);
+  });
+});
+/* ---------- Prompt library ---------- */
+DM.def('prompt-library', (r, c) => {
+  r.innerHTML = r.innerHTML.replace('{chevl}', I('chev-l'));
+  const PAGE = { l:'Page', o:['Pricing v4', 'Home', 'Checkout'] };
+  // the studio's saved prompts. Each blank is typed in, or picked from a short list that starts on its first option
+  const P = [
+    { t:'Rewrite a section', p:'Rewrite {section} on {page} so it reads {tone}.', v:{ section:{ l:'Section', ph:'Like the plan cards', er:'Say which section to rewrite' }, page:PAGE, tone:{ l:'Tone', o:['clearer', 'friendlier', 'shorter'] } } },
+    { t:'Summarize feedback', p:'Summarize the comments on {page} into three fixes.', v:{ page:PAGE } },
+    { t:'Check the tokens', p:'Check {page} against the {library} tokens and list what drifts.', v:{ page:PAGE, library:{ l:'Library', o:['Studio UI', 'Marketing'] } } },
+    { t:'Write release notes', p:"Write release notes for {version} in the studio's voice.", v:{ version:{ l:'Version', ph:'Like Pricing v4', er:'Say which version they are for' } } }
+  ];
+  const cap = s => s[0].toUpperCase() + s.slice(1), uid = Math.random().toString(36).slice(2, 7);
+  const list = $('.plb-list', r), one = $('.plb-one', r), rows = $('.plb-rows', r), tp = $('.plb-tp', r), vars = $('.plb-vars', r), f = $('.plb-f', r), root = $('.plb', r);
+  rows.innerHTML = P.map((x, i) => `<button class="plb-row" data-i="${i}"><span class="plb-ic">${I('file-text')}</span><span class="plb-rt"><b>${x.t}</b><span>${x.p}</span></span><span class="plb-n">${Object.keys(x.v).length} ${Object.keys(x.v).length === 1 ? 'blank' : 'blanks'}</span>${I('chev-r','xs')}</button>`).join('');
+  let cur = null, vals = {}, bad = new Set(), done = null;
+  // the prompt as it reads now: filled blanks in the accent colour, empty ones by name, and red once they were needed
+  const fill = () => { tp.innerHTML = cur.p.replace(/\{(\w+)\}/g, (m, k) => `<span class="plb-s${vals[k] ? '' : ' empty'}${bad.has(k) ? ' bad' : ''}">${vals[k] || cur.v[k].l.toLowerCase()}</span>`); };
+  const err = (k, on) => { const fd = $(`.plb-fd[data-k="${k}"]`, vars), e = $('.plb-er', fd); fd.classList.toggle('bad', on); e.hidden = !on; e.textContent = on ? cur.v[k].er : ''; $('.plb-in', fd).setAttribute('aria-invalid', on); if (on) bad.add(k); else bad.delete(k); };
+  function open(i){
+    cur = P[i]; vals = {}; bad = new Set(); undo();
+    $('.plb-tt', r).textContent = cur.t; $('.plb-vn', r).textContent = `${Object.keys(cur.v).length} ${Object.keys(cur.v).length === 1 ? 'blank' : 'blanks'}`;
+    $$('.plb-pop', r).forEach(p => p.remove());
+    const keys = Object.keys(cur.v), typed = keys.filter(k => !cur.v[k].o), picked = keys.filter(k => cur.v[k].o);
+    // typed blanks take the full width; picked ones sit two to a row, and an odd one out takes the row. The blanks sit at
+    // the foot of the card, so their lists open upward over the prompt instead of past the footer
+    vars.innerHTML = [...typed, ...picked].map(k => { const v = cur.v[k], wide = !v.o || (picked.length % 2 && k === picked[picked.length - 1]);
+      if (!v.o) return `<label class="plb-fd wide" data-k="${k}"><span>${v.l}</span><input class="plb-in" placeholder="${v.ph}" aria-describedby="plb-e-${k}-${uid}"><span class="plb-er" id="plb-e-${k}-${uid}" hidden></span></label>`;
+      vals[k] = v.o[0];
+      return `<div class="plb-fd${wide ? ' wide' : ''}" data-k="${k}"><span id="plb-l-${k}-${uid}">${v.l}</span><button class="plb-sel" aria-haspopup="menu" aria-expanded="false" aria-labelledby="plb-l-${k}-${uid} plb-v-${k}-${uid}" data-pop=".plb-pop-${k}" data-pop-pos="up"><span class="v" id="plb-v-${k}-${uid}">${cap(v.o[0])}</span>${I('chev-d','xs')}</button></div>`; }).join('');
+    picked.forEach(k => {
+      const pop = html(`<div class="pop plb-pop plb-pop-${k}" role="menu" aria-label="${cur.v[k].l}">${cur.v[k].o.map((o, n) => `<button class="mi" role="menuitemradio" aria-checked="${!n}" data-close data-o="${o}"><span>${cap(o)}</span><span class="ck">${I('check','xs')}</span></button>`).join('')}</div>`);
+      root.appendChild(pop);
+      $$('.mi', pop).forEach(m => m.addEventListener('click', () => { vals[k] = m.dataset.o; $$('.mi', pop).forEach(x => x.setAttribute('aria-checked', x === m)); swap($(`#plb-v-${k}-${uid}`, vars), cap(m.dataset.o)); fill(); }));
+    });
+    $$('.plb-in', vars).forEach(inp => inp.addEventListener('input', () => { const k = inp.closest('.plb-fd').dataset.k; vals[k] = inp.value.trim(); if (vals[k] && bad.has(k)) err(k, false); fill(); }));
+    fill(); list.hidden = true; one.hidden = false; enter(one);
+  }
+  function undo(){ if (done){ done.remove(); done = null; } f.hidden = false; one.classList.remove('used'); vars.inert = false; }
+  $$('.plb-row', rows).forEach(b => b.onclick = () => open(+b.dataset.i));
+  $('.plb-back', r).onclick = () => { closePops(); one.hidden = true; list.hidden = false; enter(list); };
+  // a prompt can't be used with a blank left empty: the blank says what it needs
+  $('.plb-use', r).onclick = () => {
+    const empty = Object.keys(cur.v).filter(k => !vals[k]);
+    if (empty.length){ empty.forEach(k => err(k, true)); fill(); return; }
+    f.hidden = true; one.classList.add('used'); vars.inert = true;
+    done = html(`<div class="plb-done">${I('ok')}<span class="t">Added to your message<span class="muted">Ready to send to the agent</span></span><button class="pill sm">Undo</button></div>`);
+    one.appendChild(done); enter(done); $('button', done).onclick = undo;
+  };
+  // the preview's story: open a prompt, try to use it with a blank empty, fill it in, pick a tone, then use it
+  c.story(async s => {
+    await s.beat(3); await s.tap($('.plb-row', rows)); s.away();
+    await s.beat(3); await s.tap($('.plb-use', r)); s.away();
+    await s.beat(4);
+    const inp = $('.plb-in', vars); await s.point(inp, false); inp.classList.add('ed');
+    for (const ch of 'the plan cards'){ if (c.mine) return; inp.value += ch; inp.dispatchEvent(new Event('input')); await c.wait(70); }
+    await s.beat(1); inp.classList.remove('ed'); s.away(); await s.beat(1);
+    await s.tap($('.plb-sel', $('.plb-fd[data-k="tone"]', vars))); await s.beat(2);
+    await s.tap($('.plb-pop-tone .mi[data-o="friendlier"]', r)); s.away(); await s.beat(3);
+    await s.tap($('.plb-use', r)); s.away(); await s.beat(3);
   });
 });
 /* ---------- Design review ---------- */
