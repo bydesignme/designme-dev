@@ -58,7 +58,7 @@ const cssA = soft.indexOf('<style>\n[hidden]') + '<style>'.length;
 // on designme.dev the dark stage is a neutral #1c1c1c, so the components' dark greys drop their blue (Soft) and warm (Blueprint)
 // tint and sit one step lighter than the stage, the same grey the site's panels used before
 const NEUTRAL_DARK = { '--page':'#111111', '--stage':'#1c1c1c', '--surface':'#262626', '--raised':'#2c2c2c', '--fg':'#f2f2f2', '--fg2':'#ababab',
-  '--muted':'#8c8c8c', '--faint':'#555555', '--rail':'#414141', '--line':'#333333', '--chip':'#303030', '--hover':'#373737', '--press':'#3f3f3f',
+  '--muted':'#9a9a9a', '--faint':'#555555', '--rail':'#414141', '--line':'#333333', '--chip':'#303030', '--hover':'#373737', '--press':'#3f3f3f',
   '--wash':'#2c2c2c', '--soft':'#323232', '--soft-h':'#3a3a3a', '--dis':'#5f5f5f', '--ink':'#f2f2f2', '--on-ink':'#161616' };
 function neutralDark(text){
   const root = postcss.parse(text);

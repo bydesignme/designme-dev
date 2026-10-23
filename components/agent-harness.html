@@ -199,7 +199,7 @@
 .rsu-it .mono{font-size:12.5px}
 .rsu-need{justify-content:flex-start}
 .rsu-need .rsu-nt{flex:1;min-width:0}
-.rsu-it i{font-style:normal}.rsu-it .a{color:var(--add)}.rsu-it .x{color:var(--del)}.rsu-it .z{color:var(--faint)}
+.rsu-it i{font-style:normal}.rsu-it .a{color:var(--add)}.rsu-it .x{color:var(--del)}.rsu-it .z{color:var(--muted)}
 .rsu.undone .rsu-it:not(.rsu-need){opacity:.45;filter:grayscale(1)}
 .rsu.undone .rsu-it .mono{text-decoration:line-through}
 .rsu-acts{display:flex;gap:6px;margin-top:14px}
@@ -289,7 +289,7 @@
 .erx-o{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;font-size:13px;text-align:left;color:var(--fg2);transition:background .25s,color .25s}
 .erx-o:hover{background:var(--row);color:var(--fg)}
 .erx-o.on{background:var(--sel);color:var(--fg)}
-.erx-o i{width:15px;height:15px;border-radius:50%;box-shadow:inset 0 0 0 1.5px var(--faint);flex:none;transition:box-shadow .35s var(--ease)}
+.erx-o i{width:15px;height:15px;border-radius:50%;box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--muted) 80%,var(--surface));flex:none;transition:box-shadow .35s var(--ease)}
 .erx-o.on i{box-shadow:inset 0 0 0 4.5px var(--accent-mark,var(--accent))}
 </style><style>/* ---------- Change review ---------- */
 .crx{display:grid;grid-template-columns:210px 1fr;overflow:hidden;min-height:330px}
@@ -314,9 +314,10 @@
 .crx-hh .sp{flex:1}
 .crx-hh .pill{height:24px;padding:0 9px;font-size:12px}
 .crx-l{display:flex;position:relative;white-space:pre;padding-right:10px}
-.crx-l .ln{width:36px;text-align:right;padding-right:10px;color:var(--faint);flex:none;user-select:none}
+.crx-l .ln{width:36px;text-align:right;padding-right:10px;color:var(--muted);flex:none;user-select:none}
 .crx-l.add{background:var(--ok-bg)}.crx-l.add .c::before{content:"+ ";color:var(--ok)}
 .crx-l.del{background:var(--bad-bg)}.crx-l.del .c::before{content:"− ";color:var(--bad)}
+.crx-l:is(.add,.del) .ln{color:var(--fg2)}
 .crx-l.ctx .c::before{content:"  "}
 .crx-l .cm{position:absolute;left:4px;top:3px;width:18px;height:18px;border-radius:6px;background:var(--accent);color:var(--on-accent);display:grid;place-items:center;opacity:0;transform:scale(.7);transition:opacity .2s,transform .25s var(--ease)}
 .crx-l:hover .cm{opacity:1;transform:none}
@@ -378,17 +379,19 @@
 .pgx-o{display:flex;align-items:center;gap:12px;padding:8px;border-radius:10px;cursor:pointer;font-size:13.5px;transition:background .25s}
 .pgx-o:hover{background:var(--row)}
 .pgx-o input{position:absolute;opacity:0;pointer-events:none}
-.pgx-o .bx{width:18px;height:18px;border-radius:6px;box-shadow:inset 0 0 0 1.5px var(--faint);display:grid;place-items:center;color:transparent;flex:none;transition:background .3s var(--ease),box-shadow .3s,color .3s}
+.pgx-o .bx{width:18px;height:18px;border-radius:6px;box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--muted) 80%,var(--surface));display:grid;place-items:center;color:transparent;flex:none;transition:background .3s var(--ease),box-shadow .3s,color .3s}
 .pgx-o .bx svg{transform:scale(.4);transition:transform .35s var(--ease)}
-.pgx-o input:checked+.bx{background:var(--accent);box-shadow:none;color:var(--on-accent)}
+.pgx-o input:checked+.bx{background:var(--accent);box-shadow:inset 0 0 0 1px var(--accent-mark,var(--accent));color:var(--on-accent)}
 .pgx-o input:checked+.bx svg{transform:none}
 .pgx-o input:focus-visible+.bx{box-shadow:0 0 0 3px var(--accent-bg)}
 .pgx-o .t{flex:1;min-width:0}
 .pgx-o .d{display:block;font-size:12px;color:var(--muted)}
 .pgx-f{display:flex;align-items:center;gap:6px;padding-top:12px;border-top:1px solid var(--line)}
 .pgx-f .sp{flex:1}
+/* on a narrow stage the duration gets its own row, and the two buttons stay together under it on the right */
+@container (max-width:340px){.pgx-f{flex-wrap:wrap}.pgx-f .sp{flex-basis:100%}.pgx-no{margin:8px 0 0 auto}.pgx-ok{margin-top:8px}}
 /* how long: a small dropdown, the way a menu of choices usually looks */
-.pgx-db{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 8px 0 10px;margin-left:-2px;border-radius:var(--r-pill);font-size:13px;color:var(--fg2);transition:background .16s,color .16s}
+.pgx-db{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 8px 0 10px;margin-left:-2px;border-radius:var(--r-pill);font-size:13px;color:var(--fg2);white-space:nowrap;transition:background .16s,color .16s}
 .pgx-db:hover,.pgx-db[aria-expanded="true"]{background:var(--chip);color:var(--fg)}
 .pgx-db>svg{color:var(--muted);transition:transform .32s var(--ease)}
 .pgx-db[aria-expanded="true"]>svg{transform:rotate(180deg)}
@@ -399,7 +402,7 @@
 .pgx-done .pill{background:var(--surface);color:var(--fg);box-shadow:var(--shadow)}
 .pgx-done .pill:hover{background:var(--surface);box-shadow:var(--shadow-pop)}
 .pgx-done .t{flex:1;color:var(--fg)}
-.pgx-done .t span{display:block;font-size:12px;color:var(--muted)}
+.pgx-done .t span{display:block;font-size:12px;color:var(--fg2)}
 .pgx-done>svg{color:var(--ok)}
 /* while the agent works under the permission: a neutral row with a spinner, a live line and a clock; green once done */
 .pgx-done.run{background:var(--chip)}
@@ -3474,10 +3477,10 @@ export function AgentHarness({
   r.innerHTML = r.innerHTML.replace('{chev}', I('chev-d','xs'));
   const S = [
     ['web','Baymard: pricing page UX','baymard.com',.92,'B','var(--pb)'],
-    ['web','Annual vs monthly anchoring study','cxl.com',.88,'C','#d9480f'],
+    ['web','Annual vs monthly anchoring study','cxl.com',.88,'C','var(--pp)'],
     ['file','Q3 conversion export.csv','Drive',.84,'CSV','var(--pm)'],
     ['figma','Pricing v4, frame 2','Figma',.8,'F','var(--pl)'],
-    ['web','Stripe billing docs','stripe.com',.66,'S','#635bff'],
+    ['web','Stripe billing docs','stripe.com',.66,'S','var(--pl)'],
     ['file','Pricing research notes','Notion',.61,'N','var(--fg2)'],
     ['figma','Checkout flow','Figma',.52,'F','var(--pl)'],
     ['web','NN/g on price framing','nngroup.com',.48,'N','var(--fg2)']

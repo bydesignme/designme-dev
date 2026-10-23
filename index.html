@@ -53,13 +53,16 @@
     v['--ink-rgb'] = c.join(',');
     // text on accent fills: whichever of near-black or white reads better
     var L = lum(rgb(v['--accent-hi'] || base)), onDark = (L + .05) / (lum([18,10,2]) + .05), onWhite = 1.05 / (L + .05);
-    v['--on-accent'] = onWhite >= 3 ? '#ffffff' : '#120a02';
-    // as text it needs 4.5:1 on the surface, and as lines and chart marks 3:1: it is darkened on a light page (lightened on a dark
-    // one) until it gets there, and text falls back to the ink if that takes more than 40%
-    var fill = rgb(v['--accent'] || base), surf = dark ? [38,38,38] : [255,255,255], to = dark ? W : K;
+    // measured on the fill itself: white when it reaches 4.5:1, otherwise whichever of the two reads better
+    L = lum(rgb(v['--accent'] || base)); onDark = (L + .05) / (lum([18,10,2]) + .05); onWhite = 1.05 / (L + .05);
+    v['--on-accent'] = onWhite >= 4.5 || onWhite >= onDark ? '#ffffff' : '#120a02';
+    // as text it needs 4.5:1, and as lines and chart marks 3:1, on the surface and on the chips and tinted rows it sits on: it
+    // is darkened on a light page (lightened on a dark one) until it gets there, and text falls back to the ink if that takes
+    // more than 40%
+    var fill = rgb(v['--accent'] || base), chip = dark ? [52,52,52] : [236,236,236], to = dark ? W : K;
     function ratio(a, b){ var x = lum(a), y = lum(b); return (Math.max(x, y) + .05) / (Math.min(x, y) + .05); }
-    function reach(need, cap){ for (var i = 0; i <= 100; i += 2){ var m = mix(fill, to, i / 100); if (ratio(m, surf) >= need) return i / 100 <= cap ? hex(m) : null; } return null; }
-    v['--accent-mark'] = reach(3, 1); v['--accent-fg'] = reach(4.5, .4) || (dark ? '#f2f2f2' : '#111318');
+    function reach(need, cap, on){ for (var i = 0; i <= 100; i += 2){ var m = mix(fill, to, i / 100); if (ratio(m, on) >= need) return i / 100 <= cap ? hex(m) : null; } return null; }
+    v['--accent-mark'] = reach(3, 1, chip); v['--accent-fg'] = reach(4.5, .4, mix(chip, fill, .12)) || (dark ? '#f2f2f2' : '#111318');
     for (var k in v) s.setProperty(k, v[k]);
   };
   try { var a = localStorage.getItem('dmui-accent'); if (a && a !== 'default') window.dmAccent(a); } catch(e) {}
@@ -5748,19 +5751,19 @@ body.ui main .comp[data-v2="pricing-cards"] .stage-inner{padding-bottom:40px!imp
 .v2{
   --motion:soft;
   --page:#f7f7f7; --stage:#f9f9f9; --surface:#ffffff; --raised:#ffffff;
-  --fg:#171717; --fg2:#525252; --muted:#737373; --faint:#c4c4c4; --rail:#d4d4d4; --line:#e8e8e8;
+  --fg:#171717; --fg2:#525252; --muted:#6a6a6a; --faint:#c4c4c4; --rail:#d4d4d4; --line:#e8e8e8;
   --chip:#f3f3f3; --hover:#ebebeb; --press:#e3e3e3; --wash:#f9f9f9; --row:color-mix(in srgb,var(--fg) 4%,transparent);
   --soft:#ececec; --soft-h:#e3e3e3; --soft-ring:inset 0 0 0 1px rgba(0,0,0,.06); --dis:#a6a6a6;
   --shadow-lift:0 0 0 1px rgba(0,0,0,.1),0 2px 4px rgba(0,0,0,.04),0 16px 32px -10px rgba(0,0,0,.16);
-  /* the accent has three roles: --accent fills (with --on-accent on top), --accent-fg is text and icons in the accent (4.5:1 on
-     the surface) and --accent-mark is lines, rings and chart marks (3:1). A light accent like lime keeps its fills and gets a
-     darker mark and ink-coloured text on a light page */ --sel:color-mix(in srgb,var(--accent) 6%,transparent);
+  /* the accent has three roles: --accent fills (with --on-accent on top, 4.5:1), --accent-fg is text and icons in the accent
+     (4.5:1 on the surface, and on the chips and tints it sits on) and --accent-mark is lines, rings and chart marks (3:1). A
+     light accent like lime keeps its fills and gets a darker mark and ink-coloured text on a light page */ --sel:color-mix(in srgb,var(--accent) 6%,transparent);
   --ink:#1b1b1f; --on-ink:#ffffff;
-  --ok:#15803d; --ok-bg:#e8f6ee; --warn:#b45309; --warn-bg:#fdf3df; --bad:#d93c3c; --bad-bg:#fdecec;
-  --merge:#8250df; --merge-bg:#f2ecfd; --add:#1a7f37; --del:#cf222e;
-  --pb:#1563d6; --pb-bg:#eaf2ff; --pl:#6b47d6; --pl-bg:#f2edff; --pm:#138a57; --pm-bg:#e7f8f0; --pp:#c2610f; --pp-bg:#fff2e6;
-  --pr:#cf3653; --pr-bg:#ffeef1; --py:#9a7404; --py-bg:#fffae3; --pk:#c1307a; --pk-bg:#fff0f7; --pt:#0f818a; --pt-bg:#e6f9fa;
-  --ts:#3178c6; --react:#0ea5c6;
+  --ok:#147c3b; --ok-bg:#e8f6ee; --warn:#b25209; --warn-bg:#fdf3df; --bad:#c13535; --bad-bg:#fdecec;
+  --merge:#8250df; --merge-bg:#f2ecfd; --add:#187633; --del:#c7212c;
+  --pb:#1460d0; --pb-bg:#eaf2ff; --pl:#6b47d6; --pl-bg:#f2edff; --pm:#10754a; --pm-bg:#e7f8f0; --pp:#ad560d; --pp-bg:#fff2e6;
+  --pr:#c93451; --pr-bg:#ffeef1; --py:#8b6804; --py-bg:#fffae3; --pk:#c1307a; --pk-bg:#fff0f7; --pt:#0e757e; --pt-bg:#e6f9fa;
+  --ts:#3178c6; --react:#0a7891;
   /* every raised surface carries its own hairline edge, so nothing needs a separate ring */
   --shadow:0 0 0 1px rgba(0,0,0,.07),0 1px 2px rgba(0,0,0,.04),0 8px 16px -8px rgba(0,0,0,.08);
   --shadow-pop:0 0 0 1px rgba(0,0,0,.08),0 1px 1px rgba(0,0,0,.02),0 4px 8px -4px rgba(0,0,0,.04),0 16px 24px -8px rgba(0,0,0,.06);
@@ -5774,26 +5777,26 @@ body.ui main .comp[data-v2="pricing-cards"] .stage-inner{padding-bottom:40px!imp
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .v2{
   --page:#111111; --stage:#1c1c1c; --surface:#262626; --raised:#2c2c2c;
-  --fg:#f2f2f2; --fg2:#ababab; --muted:#8c8c8c; --faint:#555555; --rail:#414141; --line:#333333;
+  --fg:#f2f2f2; --fg2:#ababab; --muted:#9a9a9a; --faint:#555555; --rail:#414141; --line:#333333;
   --chip:#303030; --hover:#373737; --press:#3f3f3f; --wash:#2c2c2c; --row:color-mix(in srgb,var(--fg) 5.5%,transparent);
   --soft:#323232; --soft-h:#3a3a3a; --soft-ring:inset 0 0 0 1px rgba(255,255,255,.07); --dis:#5f5f5f;
   --shadow-lift:0 0 0 1px rgba(255,255,255,.16),0 2px 4px rgba(0,0,0,.3),0 16px 32px -10px rgba(0,0,0,.6); --sel:color-mix(in srgb,var(--accent) 9%,transparent);
   --ink:#f2f2f2; --on-ink:#161616;
-  --ok:#3ccf7e; --ok-bg:rgba(60,207,126,.13); --warn:#f0b43c; --warn-bg:rgba(240,180,60,.13); --bad:#ff6b6b; --bad-bg:rgba(255,107,107,.13);
-  --merge:#a98bff; --merge-bg:rgba(169,139,255,.15); --add:#3ccf7e; --del:#ff6b74;
+  --ok:#3ccf7e; --ok-bg:rgba(60,207,126,.13); --warn:#f0b43c; --warn-bg:rgba(240,180,60,.13); --bad:#ff8383; --bad-bg:rgba(255,107,107,.13);
+  --merge:#a98bff; --merge-bg:rgba(169,139,255,.15); --add:#3ccf7e; --del:#ff7b83;
   --pb:#7fb0ff; --pb-bg:rgba(90,150,255,.18); --pl:#b9a1ff; --pl-bg:rgba(155,125,255,.18); --pm:#5fd6a0; --pm-bg:rgba(70,205,150,.16); --pp:#ffb072; --pp-bg:rgba(255,155,80,.17);
   --pr:#ff8ea2; --pr-bg:rgba(255,105,130,.17); --py:#f0cd5a; --py-bg:rgba(240,200,60,.15); --pk:#ff8cc6; --pk-bg:rgba(255,100,175,.16); --pt:#5fd8df; --pt-bg:rgba(60,200,210,.16);
   --ts:#6aa6ff; --react:#3dd0ee;
   --shadow:0 0 0 1px rgba(255,255,255,.08),0 1px 2px rgba(0,0,0,.3),0 8px 16px -8px rgba(0,0,0,.4); --shadow-pop:0 0 0 1px rgba(255,255,255,.1),0 4px 8px -4px rgba(0,0,0,.4),0 16px 32px -8px rgba(0,0,0,.5); --shadow-toast:0 0 0 1px rgba(255,255,255,.1),0 4px 12px rgba(0,0,0,.4); --hl:rgba(240,200,60,.3); --hl-ok:rgba(60,207,126,.24); color-scheme:dark}}
 :root[data-theme="dark"] .v2{
   --page:#111111; --stage:#1c1c1c; --surface:#262626; --raised:#2c2c2c;
-  --fg:#f2f2f2; --fg2:#ababab; --muted:#8c8c8c; --faint:#555555; --rail:#414141; --line:#333333;
+  --fg:#f2f2f2; --fg2:#ababab; --muted:#9a9a9a; --faint:#555555; --rail:#414141; --line:#333333;
   --chip:#303030; --hover:#373737; --press:#3f3f3f; --wash:#2c2c2c; --row:color-mix(in srgb,var(--fg) 5.5%,transparent);
   --soft:#323232; --soft-h:#3a3a3a; --soft-ring:inset 0 0 0 1px rgba(255,255,255,.07); --dis:#5f5f5f;
   --shadow-lift:0 0 0 1px rgba(255,255,255,.16),0 2px 4px rgba(0,0,0,.3),0 16px 32px -10px rgba(0,0,0,.6); --sel:color-mix(in srgb,var(--accent) 9%,transparent);
   --ink:#f2f2f2; --on-ink:#161616;
-  --ok:#3ccf7e; --ok-bg:rgba(60,207,126,.13); --warn:#f0b43c; --warn-bg:rgba(240,180,60,.13); --bad:#ff6b6b; --bad-bg:rgba(255,107,107,.13);
-  --merge:#a98bff; --merge-bg:rgba(169,139,255,.15); --add:#3ccf7e; --del:#ff6b74;
+  --ok:#3ccf7e; --ok-bg:rgba(60,207,126,.13); --warn:#f0b43c; --warn-bg:rgba(240,180,60,.13); --bad:#ff8383; --bad-bg:rgba(255,107,107,.13);
+  --merge:#a98bff; --merge-bg:rgba(169,139,255,.15); --add:#3ccf7e; --del:#ff7b83;
   --pb:#7fb0ff; --pb-bg:rgba(90,150,255,.18); --pl:#b9a1ff; --pl-bg:rgba(155,125,255,.18); --pm:#5fd6a0; --pm-bg:rgba(70,205,150,.16); --pp:#ffb072; --pp-bg:rgba(255,155,80,.17);
   --pr:#ff8ea2; --pr-bg:rgba(255,105,130,.17); --py:#f0cd5a; --py-bg:rgba(240,200,60,.15); --pk:#ff8cc6; --pk-bg:rgba(255,100,175,.16); --pt:#5fd8df; --pt-bg:rgba(60,200,210,.16);
   --ts:#6aa6ff; --react:#3dd0ee;
@@ -5861,10 +5864,19 @@ body.ui main .comp[data-v2="pricing-cards"] .stage-inner{padding-bottom:40px!imp
 .v2 code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1px 5px;border-radius:5px}
 .v2 .av{width:22px;height:22px;border-radius:50%;display:inline-grid;place-items:center;font-size:10px;font-weight:500;color:#fff;flex:none}
 .v2 .hr{height:1px;background:var(--line);border:0;margin:0}
-.v2 .toggle{width:30px;height:18px;border-radius:9px;background:var(--faint);position:relative;flex:none;transition:background var(--t-fast)}
+/* an off switch and an empty box are drawn in a grey that holds 3:1 against the surface; an accent fill keeps a hairline of the
+   accent's mark, so a light accent like lime still has an edge */
+.v2 .toggle{width:30px;height:18px;border-radius:9px;background:color-mix(in srgb,var(--muted) 80%,var(--surface));position:relative;flex:none;transition:background var(--t-fast)}
 .v2 .toggle::after{content:"";position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.2);transition:transform var(--t) var(--ease)}
-.v2 .toggle[aria-checked="true"]{background:var(--accent)}
+.v2 .toggle[aria-checked="true"]{background:var(--accent);box-shadow:inset 0 0 0 1px var(--accent-mark,var(--accent))}
 .v2 .toggle[aria-checked="true"]::after{transform:translateX(12px);background:var(--on-accent,#fff)}
+/* on a touch screen the small buttons, switches and boxes get a tap area of at least 32px, and the smallest links and icon
+   buttons one of at least 24px, without changing how they look or where anything sits */
+@media (pointer:coarse){
+  .v2 :is(.pill.sm,.crx-hh .pill,.spl-in .pill,.thp-send,.ste-go,.cmx-go,.toggle,.ttx-cb,.obx-ck,.rq-retry,.cpx-att .fchip :is(.x,.rt),.dtp-add,.ahx-tx,.ivx-ch button,.sgx-bk,.prx-alt-t,.fex-fix){position:relative}
+  .v2 :is(.pill.sm,.crx-hh .pill,.spl-in .pill,.thp-send,.ste-go,.cmx-go,.toggle,.ttx-cb,.obx-ck)::before{content:"";position:absolute;inset:min(0px,(100% - 32px) / 2)}
+  .v2 :is(.rq-retry,.cpx-att .fchip :is(.x,.rt),.dtp-add,.ahx-tx,.ivx-ch button,.sgx-bk,.prx-alt-t,.fex-fix)::before{content:"";position:absolute;inset:min(0px,(100% - 24px) / 2)}
+}
 .v2 .seg2{display:inline-flex;padding:2px;background:var(--chip);border-radius:var(--r-pill);position:relative}
 .v2 .seg2 button{position:relative;z-index:1;height:26px;padding:0 11px;border-radius:var(--r-pill);font-size:12.5px;color:var(--fg2);transition:color var(--t-fast)}
 .v2 .seg2 button[aria-pressed="true"]{color:var(--fg)}
@@ -5932,8 +5944,8 @@ body.ui main .comp[data-v2="pricing-cards"] .stage-inner{padding-bottom:40px!imp
 .v2 .copied,.v2 .copied:hover{color:var(--ok)!important}
 .v2 .tip .kbd{background:rgba(255,255,255,.14);color:inherit;margin-left:6px}
 :root[data-theme="dark"] .v2 .tip .kbd{background:rgba(0,0,0,.1)}
-:root[data-theme="dark"] .v2 .av{color:#151518!important}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .v2 .av{color:#151518!important}}
+:root[data-theme="dark"] .v2 :is(.av,.ssx-ics span){color:#151518!important}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .v2 :is(.av,.ssx-ics span){color:#151518!important}}
 .v2 .pop{position:absolute;z-index:50;min-width:200px;background:var(--raised);border-radius:14px;box-shadow:var(--shadow-pop);padding:6px;opacity:0;pointer-events:none;transform:translateY(6px) scale(.98);transform-origin:var(--origin,top left);filter:blur(3px);transition:opacity .2s var(--ease),transform .35s var(--ease),filter .2s var(--ease)}
 .v2 .pop.open{opacity:1;pointer-events:auto;transform:none;filter:none}
 .v2 .pop .ph{padding:6px 8px 4px;font-size:11.5px;color:var(--muted)}
@@ -5941,6 +5953,8 @@ body.ui main .comp[data-v2="pricing-cards"] .stage-inner{padding-bottom:40px!imp
 .v2 .mi:hover,.v2 .mi.hl{background:var(--row)}
 .v2 .mi .i{color:var(--fg2)}
 .v2 .mi .d{display:block;font-size:12px;color:var(--muted)}
+/* on a hovered or picked row's tint the line under an item steps up, so it keeps 4.5:1 in dark mode */
+.v2 .mi:is(:hover,.hl,[aria-checked="true"]) .d{color:var(--fg2)}
 .v2 .mi .r{margin-left:auto;color:var(--muted);font-size:12px}
 .v2 .mi .ck{margin-left:auto;color:var(--accent-fg,var(--accent));opacity:0;transition:opacity var(--t-fast)}
 .v2 .mi[aria-checked="true"] .ck{opacity:1}
@@ -6370,7 +6384,7 @@ body.ui main .comp[data-v2="pricing-cards"] .stage-inner{padding-bottom:40px!imp
 .v2 .pcx-pr{display:flex;flex-wrap:wrap;align-items:baseline;gap:0 6px}
 .v2 .pcx-pr b{font-size:14px;font-weight:500;letter-spacing:-.02em}
 .v2 .pcx-pr span{flex-basis:100%;min-height:18px;font-size:12px;color:var(--muted)}
-.v2 .pcx-pr s{font-size:13px;color:var(--faint)}
+.v2 .pcx-pr s{font-size:13px;color:var(--muted)}
 .v2 .pcx-tot{font-size:12px;color:var(--fg2);min-height:16px}
 .v2 .pcx-li{display:flex;flex-direction:column;gap:7px;font-size:13px;color:var(--fg2);margin:4px 0}
 .v2 .pcx-li span{display:flex;align-items:center;gap:8px}
@@ -6400,9 +6414,9 @@ body.ui main .comp[data-v2="pricing-cards"] .stage-inner{padding-bottom:40px!imp
 .v2 .obx-s{display:flex;align-items:center;gap:21px;padding:8px 8px 8px 9px;border-radius:10px;font-size:13px;cursor:pointer;transition:background .2s}
 .v2 .obx-s.run{cursor:default}
 .v2 .obx-s:hover{background:var(--row)}
-.v2 .obx-ck{width:20px;height:20px;border-radius:50%;box-shadow:inset 0 0 0 1.5px var(--faint);display:grid;place-items:center;color:transparent;flex:none;transition:background .3s var(--ease),box-shadow .3s,color .3s}
+.v2 .obx-ck{width:20px;height:20px;border-radius:50%;box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--muted) 80%,var(--surface));display:grid;place-items:center;color:transparent;flex:none;transition:background .3s var(--ease),box-shadow .3s,color .3s}
 .v2 .obx-ck svg{transform:scale(.4);transition:transform .4s var(--ease)}
-.v2 .obx-s.done .obx-ck{background:var(--ok);box-shadow:none;color:#fff}
+.v2 .obx-s.done .obx-ck{background:var(--ok);box-shadow:none;color:var(--on-ink)}
 .v2 .obx-s.done .obx-ck svg{transform:none}
 .v2 .obx-s.run .obx-ck{box-shadow:none;color:var(--accent-fg,var(--accent))}
 .v2 .obx-s .t{flex:1;display:flex;flex-direction:column;min-width:0}
@@ -6491,7 +6505,7 @@ body.ui main .comp[data-v2="pricing-cards"] .stage-inner{padding-bottom:40px!imp
 .v2 .slx-opt{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:12.5px}
 .v2 .slx-sg button{font-size:12px;height:28px;padding:0 10px}
 /* ---------- Currency converter ---------- */
-.v2 .ccx{padding:14px;display:flex;flex-direction:column;gap:6px;max-width:340px;margin:0 auto;width:100%;position:relative}
+.v2 .ccx{padding:16px;display:flex;flex-direction:column;gap:6px;max-width:340px;margin:0 auto;width:100%;position:relative}
 .v2 .ccx-row{display:flex;align-items:center;gap:8px;padding:10px 10px 10px 14px;border-radius:14px;background:var(--chip);transition:box-shadow .25s,background .25s}
 .v2 .ccx-row:focus-within{background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--accent-mark,var(--accent))}
 .v2 .ccx-in{flex:1;display:flex;flex-direction:column;min-width:0;font-size:11.5px}
@@ -6522,7 +6536,7 @@ body.ui main .comp[data-v2="pricing-cards"] .stage-inner{padding-bottom:40px!imp
 .v2 .rsu-it .mono{font-size:12.5px}
 .v2 .rsu-need{justify-content:flex-start}
 .v2 .rsu-need .rsu-nt{flex:1;min-width:0}
-.v2 .rsu-it i{font-style:normal}.v2 .rsu-it .a{color:var(--add)}.v2 .rsu-it .x{color:var(--del)}.v2 .rsu-it .z{color:var(--faint)}
+.v2 .rsu-it i{font-style:normal}.v2 .rsu-it .a{color:var(--add)}.v2 .rsu-it .x{color:var(--del)}.v2 .rsu-it .z{color:var(--muted)}
 .v2 .rsu.undone .rsu-it:not(.rsu-need){opacity:.45;filter:grayscale(1)}
 .v2 .rsu.undone .rsu-it .mono{text-decoration:line-through}
 .v2 .rsu-acts{display:flex;gap:6px;margin-top:14px}
@@ -6546,7 +6560,7 @@ body.ui main .comp[data-v2="pricing-cards"] .stage-inner{padding-bottom:40px!imp
 .v2 .erx-o{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;font-size:13px;text-align:left;color:var(--fg2);transition:background .25s,color .25s}
 .v2 .erx-o:hover{background:var(--row);color:var(--fg)}
 .v2 .erx-o.on{background:var(--sel);color:var(--fg)}
-.v2 .erx-o i{width:15px;height:15px;border-radius:50%;box-shadow:inset 0 0 0 1.5px var(--faint);flex:none;transition:box-shadow .35s var(--ease)}
+.v2 .erx-o i{width:15px;height:15px;border-radius:50%;box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--muted) 80%,var(--surface));flex:none;transition:box-shadow .35s var(--ease)}
 .v2 .erx-o.on i{box-shadow:inset 0 0 0 4.5px var(--accent-mark,var(--accent))}
 /* ---------- Agent lanes ---------- */
 .v2 .aln{padding:8px}
@@ -6654,6 +6668,7 @@ body.ui main .comp[data-v2="pricing-cards"] .stage-inner{padding-bottom:40px!imp
 .v2 .thp-in{display:flex;align-items:center;gap:8px;margin:0 10px 10px;padding:4px 4px 4px 14px;border-radius:999px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--rail);transition:box-shadow .25s}
 .v2 .thp-in:focus-within{box-shadow:inset 0 0 0 1px var(--accent-mark,var(--accent)),0 0 0 4px var(--accent-bg)}
 .v2 .thp-field{flex:1;min-width:0;border:0;outline:0;background:none;font-size:13.5px;height:30px}
+.v2 .thp-field::placeholder{color:var(--muted)}
 .v2 .thp-send{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:var(--on-accent,#fff);transition:opacity .25s,transform .15s}
 .v2 .thp-send[disabled]{opacity:1;cursor:not-allowed;background:var(--rail);color:var(--surface)}
 .v2 .thp-send:active{transform:scale(.92)}
@@ -6830,7 +6845,7 @@ body.ui main .comp[data-v2="pricing-cards"] .stage-inner{padding-bottom:40px!imp
 .v2 .fbx-dn.on{background:var(--bad-bg);color:var(--bad)}
 .v2 .fbx-st{font-size:12.5px;margin-left:6px}
 .v2 .fbx-box>div{margin-inline:-16px;padding-inline:16px}
-.v2 .fbx-in{padding:14px;display:flex;flex-direction:column;gap:10px;margin:4px 0 18px}
+.v2 .fbx-in{padding:16px;display:flex;flex-direction:column;gap:10px;margin:4px 0 18px}
 .v2 .fbx-q{font-size:13.5px;font-weight:500}
 .v2 .fbx-ch{display:flex;flex-wrap:wrap;gap:6px}
 .v2 .fbx-ch .chip.on{background:var(--sel);color:var(--accent-fg,var(--accent));box-shadow:none}
@@ -6853,7 +6868,8 @@ body.ui main .comp[data-v2="pricing-cards"] .stage-inner{padding-bottom:40px!imp
 .v2 .mpk-tr[aria-expanded="true"]>svg{transform:rotate(180deg)}
 .v2 .mpk-tr:focus-visible{outline:2px solid color-mix(in srgb,var(--accent-mark,var(--accent)) 45%,transparent);outline-offset:2px}
 .v2 .mpk-ef{font-weight:400;font-size:12.5px}
-.v2 .mpk-mk{width:20px;height:20px;border-radius:6px;display:grid;place-items:center;font-size:11px;font-weight:500;color:#fff;background:var(--mc,var(--fg2));flex:none;transition:background .32s}
+/* each model's mark carries the letter colour that reads on it (--mt): on the accent fill that is --on-accent */
+.v2 .mpk-mk{width:20px;height:20px;border-radius:6px;display:grid;place-items:center;font-size:11px;font-weight:500;color:var(--mt,var(--on-ink));background:var(--mc,var(--fg2));flex:none;transition:background .32s}
 .v2 .mpk-p{padding:6px;display:flex;flex-direction:column}
 .v2 .mpk-hd,.v2 .mpk-o{display:grid;grid-template-columns:20px minmax(0,1fr) repeat(3,34px);align-items:center;gap:10px}
 .v2 .mpk-hd{padding:4px 10px 2px;font-size:11px;color:var(--muted)}
@@ -6861,6 +6877,7 @@ body.ui main .comp[data-v2="pricing-cards"] .stage-inner{padding-bottom:40px!imp
 .v2 .mpk-o{width:100%;padding:8px 10px;border-radius:12px;text-align:left;font-size:13px;transition:background .16s}
 .v2 .mpk-o:hover{background:var(--row)}
 .v2 .mpk-o[aria-checked="true"]{background:var(--sel)}
+.v2 .mpk-o[aria-checked="true"] .d{color:var(--fg2)}
 .v2 .mpk-o:focus-visible{outline:2px solid color-mix(in srgb,var(--accent-mark,var(--accent)) 45%,transparent);outline-offset:-2px}
 .v2 .mpk-o .t{display:flex;flex-direction:column;min-width:0}
 .v2 .mpk-o .t b{font-weight:500;display:flex;align-items:center;gap:6px}
@@ -6869,7 +6886,7 @@ body.ui main .comp[data-v2="pricing-cards"] .stage-inner{padding-bottom:40px!imp
 .v2 .mpk-o .ck .spin{width:10px;height:10px;color:var(--muted)}
 .v2 .mpk-o .d{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .v2 .mpk-o.busy .d{color:var(--warn)}
-.v2 .mpk-o.busy .mpk-mk{background:var(--warn)}
+.v2 .mpk-o.busy .mpk-mk{background:var(--warn);color:var(--on-ink)}
 .v2 .mpk-m{display:flex;gap:2px;height:8px}
 .v2 .mpk-m i{flex:1;border-radius:2px;background:var(--rail);transition:background .32s}
 .v2 .mpk-m i.on{background:var(--fg2)}
@@ -6891,7 +6908,8 @@ body.ui main .comp[data-v2="pricing-cards"] .stage-inner{padding-bottom:40px!imp
 .v2 .mpk-note{margin:0;padding:0 2px;font-size:12.5px;min-height:20px;display:flex;align-items:center;gap:6px}
 .v2 .mpk-note svg{color:var(--ok);flex:none}
 /* phones: the line under each name wraps, and the meters keep room for their labels */
-@media (max-width:480px){.v2 .mpk-hd,.v2 .mpk-o{grid-template-columns:20px minmax(0,1fr) repeat(3,36px);gap:7px}.v2 .mpk-hd{font-size:10.5px;padding-inline:8px}.v2 .mpk-o{padding-inline:8px}.v2 .mpk-o .d{white-space:normal}}
+/* on a phone the meters close up so a model's line keeps two or three words to a row */
+@media (max-width:480px){.v2 .mpk-hd,.v2 .mpk-o{grid-template-columns:20px minmax(0,1fr) repeat(3,34px);gap:6px}.v2 .mpk-hd{font-size:10.5px;padding-inline:6px}.v2 .mpk-o{padding-inline:6px}.v2 .mpk-o .d{white-space:normal}}
 /* ---------- Answer action bar ---------- */
 /* every action on an answer in one raised rail under it: copy, regenerate with its versions, thumbs, and read aloud, which
    widens into a progress bar and a clock and lights each word as it reads it */
@@ -6999,7 +7017,8 @@ body.ui main .comp[data-v2="pricing-cards"] .stage-inner{padding-bottom:40px!imp
 .v2 .rwx-s{border-radius:5px;cursor:text;transition:background .3s,color .3s;padding:1px 0;box-decoration-break:clone;-webkit-box-decoration-break:clone}
 .v2 .rwx-s:hover{background:var(--chip);color:var(--fg)}
 .v2 .rwx-s.sel{background:var(--sel);color:var(--fg)}
-.v2 .rwx-s del{color:var(--muted);text-decoration-color:var(--bad);opacity:.8}
+.v2 .rwx-s.sel del{color:var(--fg2)}
+.v2 .rwx-s del{color:var(--muted);text-decoration-color:var(--bad)}
 .v2 .rwx-s ins{text-decoration:none;color:var(--fg)}
 .v2 .rwx-s ins .w{animation:v2-rww .4s var(--ease) both}
 @keyframes v2-rww{from{opacity:0;filter:blur(3px)}to{opacity:1;filter:none}}
@@ -7026,7 +7045,7 @@ body.ui main .comp[data-v2="pricing-cards"] .stage-inner{padding-bottom:40px!imp
 .v2 .dtx-li span{display:flex;align-items:center;gap:7px}
 .v2 .dtx-li svg{color:var(--accent-fg,var(--accent))}
 .v2 .dtx-cta{width:100%;border-radius:calc(var(--rad) * .6)}
-.v2 .dtx-insp{padding:14px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.v2 .dtx-insp{padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0}
 .v2 .dtx-ih{display:flex;align-items:baseline;justify-content:space-between;font-size:13.5px}
 .v2 .dtx-ih b{font-weight:500}
 .v2 .dtx-st{font-size:12px}
@@ -7057,17 +7076,19 @@ body.ui main .comp[data-v2="pricing-cards"] .stage-inner{padding-bottom:40px!imp
 .v2 .pgx-o{display:flex;align-items:center;gap:12px;padding:8px;border-radius:10px;cursor:pointer;font-size:13.5px;transition:background .25s}
 .v2 .pgx-o:hover{background:var(--row)}
 .v2 .pgx-o input{position:absolute;opacity:0;pointer-events:none}
-.v2 .pgx-o .bx{width:18px;height:18px;border-radius:6px;box-shadow:inset 0 0 0 1.5px var(--faint);display:grid;place-items:center;color:transparent;flex:none;transition:background .3s var(--ease),box-shadow .3s,color .3s}
+.v2 .pgx-o .bx{width:18px;height:18px;border-radius:6px;box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--muted) 80%,var(--surface));display:grid;place-items:center;color:transparent;flex:none;transition:background .3s var(--ease),box-shadow .3s,color .3s}
 .v2 .pgx-o .bx svg{transform:scale(.4);transition:transform .35s var(--ease)}
-.v2 .pgx-o input:checked+.bx{background:var(--accent);box-shadow:none;color:var(--on-accent,#fff)}
+.v2 .pgx-o input:checked+.bx{background:var(--accent);box-shadow:inset 0 0 0 1px var(--accent-mark,var(--accent));color:var(--on-accent,#fff)}
 .v2 .pgx-o input:checked+.bx svg{transform:none}
 .v2 .pgx-o input:focus-visible+.bx{box-shadow:0 0 0 3px var(--accent-bg)}
 .v2 .pgx-o .t{flex:1;min-width:0}
 .v2 .pgx-o .d{display:block;font-size:12px;color:var(--muted)}
 .v2 .pgx-f{display:flex;align-items:center;gap:6px;padding-top:12px;border-top:1px solid var(--line)}
 .v2 .pgx-f .sp{flex:1}
+/* on a narrow stage the duration gets its own row, and the two buttons stay together under it on the right */
+@container (max-width:340px){.v2 .pgx-f{flex-wrap:wrap}.v2 .pgx-f .sp{flex-basis:100%}.v2 .pgx-no{margin:8px 0 0 auto}.v2 .pgx-ok{margin-top:8px}}
 /* how long: a small dropdown, the way a menu of choices usually looks */
-.v2 .pgx-db{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 8px 0 10px;margin-left:-2px;border-radius:var(--r-pill);font-size:13px;color:var(--fg2);transition:background .16s,color .16s}
+.v2 .pgx-db{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 8px 0 10px;margin-left:-2px;border-radius:var(--r-pill);font-size:13px;color:var(--fg2);white-space:nowrap;transition:background .16s,color .16s}
 .v2 .pgx-db:hover,.v2 .pgx-db[aria-expanded="true"]{background:var(--chip);color:var(--fg)}
 .v2 .pgx-db>svg{color:var(--muted);transition:transform .32s var(--ease)}
 .v2 .pgx-db[aria-expanded="true"]>svg{transform:rotate(180deg)}
@@ -7078,7 +7099,7 @@ body.ui main .comp[data-v2="pricing-cards"] .stage-inner{padding-bottom:40px!imp
 .v2 .pgx-done .pill{background:var(--surface);color:var(--fg);box-shadow:var(--shadow)}
 .v2 .pgx-done .pill:hover{background:var(--surface);box-shadow:var(--shadow-pop)}
 .v2 .pgx-done .t{flex:1;color:var(--fg)}
-.v2 .pgx-done .t span{display:block;font-size:12px;color:var(--muted)}
+.v2 .pgx-done .t span{display:block;font-size:12px;color:var(--fg2)}
 .v2 .pgx-done>svg{color:var(--ok)}
 /* while the agent works under the permission: a neutral row with a spinner, a live line and a clock; green once done */
 .v2 .pgx-done.run{background:var(--chip)}
@@ -7237,9 +7258,10 @@ body.ui main .comp[data-v2="pricing-cards"] .stage-inner{padding-bottom:40px!imp
 .v2 .crx-hh .sp{flex:1}
 .v2 .crx-hh .pill{height:24px;padding:0 9px;font-size:12px}
 .v2 .crx-l{display:flex;position:relative;white-space:pre;padding-right:10px}
-.v2 .crx-l .ln{width:36px;text-align:right;padding-right:10px;color:var(--faint);flex:none;user-select:none}
+.v2 .crx-l .ln{width:36px;text-align:right;padding-right:10px;color:var(--muted);flex:none;user-select:none}
 .v2 .crx-l.add{background:var(--ok-bg)}.v2 .crx-l.add .c::before{content:"+ ";color:var(--ok)}
 .v2 .crx-l.del{background:var(--bad-bg)}.v2 .crx-l.del .c::before{content:"− ";color:var(--bad)}
+.v2 .crx-l:is(.add,.del) .ln{color:var(--fg2)}
 .v2 .crx-l.ctx .c::before{content:"  "}
 .v2 .crx-l .cm{position:absolute;left:4px;top:3px;width:18px;height:18px;border-radius:6px;background:var(--accent);color:var(--on-accent,#fff);display:grid;place-items:center;opacity:0;transform:scale(.7);transition:opacity .2s,transform .25s var(--ease)}
 .v2 .crx-l:hover .cm{opacity:1;transform:none}
@@ -7321,6 +7343,7 @@ body.ui main .comp[data-v2="pricing-cards"] .stage-inner{padding-bottom:40px!imp
 .v2 .drf-done.bin>svg,.v2 .drf-done.later>svg{color:var(--fg2)}
 .v2 .drf-done .t{flex:1;min-width:0;display:flex;flex-direction:column}
 .v2 .drf-done .t span{font-size:13px}
+.v2 .drf-done .t .muted{color:var(--fg2)}
 .v2 .drf-done .pill{background:var(--surface);color:var(--fg);box-shadow:var(--shadow)}
 .v2 .drf-done .pill:hover{box-shadow:var(--shadow-pop)}
 /* ---------- Voice orb ---------- */
@@ -7375,7 +7398,7 @@ body.ui main .comp[data-v2="pricing-cards"] .stage-inner{padding-bottom:40px!imp
 /* the slash across the microphone once it is muted */
 .v2 .vor-mute::after{content:"";position:absolute;left:50%;top:50%;width:1.5px;height:18px;margin:-9px 0 0 -.75px;border-radius:2px;background:currentColor;transform:rotate(-45deg) scaleY(0);transition:transform .25s var(--ease)}
 .v2 .vor-mute[aria-pressed="true"]::after{transform:rotate(-45deg) scaleY(1)}
-.v2 .vor-end{background:var(--bad);color:#fff}
+.v2 .vor-end{background:var(--bad);color:var(--on-ink)}
 .v2 .vor-end:hover{background:color-mix(in srgb,var(--bad) 86%,#000)}
 .v2 .vor-done{display:flex;align-items:center;gap:12px;padding:10px 10px 10px 12px;border-radius:12px;background:var(--chip);font-size:13.5px}
 .v2 .vor-done>svg{color:var(--fg2);flex:none}
@@ -7427,6 +7450,7 @@ body.ui main .comp[data-v2="pricing-cards"] .stage-inner{padding-bottom:40px!imp
 .v2 .plb-done>svg{color:var(--ok);flex:none}
 .v2 .plb-done .t{flex:1;min-width:0;display:flex;flex-direction:column}
 .v2 .plb-done .t span{font-size:13px}
+.v2 .plb-done .t .muted{color:var(--fg2)}
 .v2 .plb-done .pill{background:var(--surface);color:var(--fg);box-shadow:var(--shadow)}
 .v2 .plb-one.used .plb-vars{opacity:.55;transition:opacity .32s}
 /* ---------- Steering ---------- */
@@ -7509,7 +7533,7 @@ body.ui main .comp[data-v2="pricing-cards"] .stage-inner{padding-bottom:40px!imp
 .v2 .evr-ch{display:grid;color:var(--muted)}
 .v2 .evr-ch svg{transition:transform .32s var(--ease)}
 .v2 .evr-r[aria-expanded="false"] .evr-ch svg{transform:rotate(-90deg)}
-.v2 .evr-i.fail{background:var(--bad-bg)}
+.v2 .evr-i.fail{background:var(--bad-bg)}.v2 .evr-i.fail :is(.evr-tm,.evr-kv .k){color:var(--fg2)}
 .v2 .evr-d.shut>div{visibility:hidden;transition:visibility 0s var(--t)}
 .v2 .evr-dd{display:flex;flex-direction:column;gap:4px;padding:0 10px 10px 36px;font-size:12.5px}
 .v2 .evr-kv{display:flex;gap:8px}
@@ -7519,7 +7543,7 @@ body.ui main .comp[data-v2="pricing-cards"] .stage-inner{padding-bottom:40px!imp
 .v2 .evr-fix:hover{background:var(--surface);box-shadow:var(--shadow-pop)}
 .v2 .evr-none{margin:0;padding:10px;font-size:12.5px;color:var(--muted)}
 /* ---------- Design review ---------- */
-.v2 .drv{padding:14px;display:flex;flex-direction:column;gap:12px}
+.v2 .drv{padding:16px;display:flex;flex-direction:column;gap:12px}
 .v2 .drv-h{display:flex;align-items:center;gap:10px}
 .v2 .drv-ic{width:32px;height:32px;border-radius:10px;background:var(--pb-bg);color:var(--pb);display:grid;place-items:center;flex:none;transition:background .4s,color .4s}
 .v2 .drv.live .drv-ic{background:var(--ok-bg);color:var(--ok)}
@@ -7581,7 +7605,7 @@ body.ui main .comp[data-v2="pricing-cards"] .stage-inner{padding-bottom:40px!imp
 .v2 .ssx-s .ib{width:24px;height:24px;opacity:0;transition:opacity .2s}
 .v2 .ssx-s:hover .ib{opacity:1}
 /* ---------- Metric insight ---------- */
-.v2 .mix{padding:14px;display:flex;flex-direction:column;gap:10px}
+.v2 .mix{padding:16px;display:flex;flex-direction:column;gap:10px}
 .v2 .mix-h{display:flex;align-items:center;justify-content:space-between;font-size:12.5px}
 .v2 .mix-rg button{font-size:11.5px;padding:0 8px;height:24px}
 .v2 .mix-v{display:flex;align-items:baseline;gap:8px}
@@ -7656,15 +7680,16 @@ body.ui main .comp[data-v2="pricing-cards"] .stage-inner{padding-bottom:40px!imp
 .v2 .ttx-t td.num{color:var(--fg2)}
 .v2 .ttx-t td.up{color:var(--muted)}
 /* checkboxes: the tick springs in; select-all shows a dash while only some rows are picked */
-.v2 .ttx-cb{display:grid;place-items:center;width:16px;height:16px;border-radius:5px;box-shadow:inset 0 0 0 1.5px var(--faint);color:var(--on-accent,#fff);transition:background-color .2s,box-shadow .2s}
+.v2 .ttx-cb{display:grid;place-items:center;width:16px;height:16px;border-radius:5px;box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--muted) 80%,var(--surface));color:var(--on-accent,#fff);transition:background-color .2s,box-shadow .2s}
 .v2 .ttx-cb:hover{box-shadow:inset 0 0 0 1.5px var(--muted)}
-.v2 .ttx-cb[aria-checked="true"],.v2 .ttx-cb[aria-checked="mixed"]{background:var(--accent);box-shadow:none}
+.v2 .ttx-cb[aria-checked="true"],.v2 .ttx-cb[aria-checked="mixed"]{background:var(--accent);box-shadow:inset 0 0 0 1px var(--accent-mark,var(--accent))}
 .v2 .ttx-cb svg{grid-area:1/1;width:11px;height:11px;opacity:0;transform:scale(.4);transition:opacity .15s,transform .3s cubic-bezier(.34,1.4,.64,1)}
 .v2 .ttx-cb[aria-checked="true"] .ck-y,.v2 .ttx-cb[aria-checked="mixed"] .ck-m{opacity:1;transform:none}
 /* status: a soft pill in the status colour; Running, Done and Failed have their own, Queued and Paused stay grey */
 .v2 .ttx-st{--sc:var(--muted);display:inline-flex;align-items:center;height:22px;padding:0 9px 0 7px;border-radius:var(--r-pill);font-size:12px;font-weight:500;color:var(--sc);background:color-mix(in srgb,var(--sc) 11%,transparent);transition:color .35s var(--ease),background-color .35s var(--ease)}
 .v2 .ttx-st .sv{display:inline-flex;align-items:center;gap:6px}
-.v2 .ttx-st[data-s="run"]{--sc:var(--accent)}
+/* running reads in the accent's text colour on a tint of its mark, so a light accent like lime stays legible */
+.v2 .ttx-st[data-s="run"]{--sc:var(--accent-fg,var(--accent));background:color-mix(in srgb,var(--accent-mark,var(--accent)) 11%,transparent)}
 .v2 .ttx-st[data-s="done"]{--sc:var(--ok)}
 .v2 .ttx-st[data-s="fail"]{--sc:var(--bad)}
 .v2 .ttx-st .spin{width:10px;height:10px}
@@ -7699,7 +7724,7 @@ body.ui main .comp[data-v2="pricing-cards"] .stage-inner{padding-bottom:40px!imp
 .v2 .cvx-l:hover{background:var(--row)}
 .v2 .cvx-l.new{background:color-mix(in srgb,var(--ok) 6%,transparent)}
 .v2 .cvx-l.on,.v2 .cvx-l.on:hover{background:var(--sel)}
-.v2 .cvx-l .n{width:42px;text-align:right;padding-right:16px;color:var(--faint);user-select:none;flex:none;transition:color .2s}
+.v2 .cvx-l .n{width:42px;text-align:right;padding-right:16px;color:var(--muted);user-select:none;flex:none;transition:color .2s}
 .v2 .cvx-l.new .n{color:var(--ok)}
 .v2 .cvx-l.on .n{color:var(--accent-fg,var(--accent))}
 .v2 .cvx-l .c{white-space:pre}
@@ -7790,23 +7815,23 @@ body.ui main .comp[data-v2="pricing-cards"] .stage-inner{padding-bottom:40px!imp
 @media (max-width:720px){.v2 .fex{grid-template-columns:1fr}}
 .v2 .fex-doc{border-radius:18px;background:var(--chip);padding:20px;display:grid;place-items:center;min-width:0;position:relative;overflow:hidden}
 /* the invoice is paper: white ink-on-paper in light mode, a dark document in dark mode */
-.v2 .fex-pg{--pg:#fff;--pg-fg:#1d2330;--pg-mut:#7a8291;--pg-line:#e6e8ec;--pg-hl:17,111,248;--pg-ring:#116ff8;--pg-warn:232,155,20;--pg-wring:#e89b14;--pg-sh:0 1px 2px rgba(0,0,0,.08),0 8px 30px rgba(0,0,0,.08);
+.v2 .fex-pg{--pg:#fff;--pg-fg:#1d2330;--pg-mut:#687080;--pg-line:#e6e8ec;--pg-hl:var(--accent-mark,var(--accent));--pg-ring:var(--accent-mark,var(--accent));--pg-warn:232,155,20;--pg-wring:#e89b14;--pg-sh:0 1px 2px rgba(0,0,0,.08),0 8px 30px rgba(0,0,0,.08);
   width:min(330px,100%);background:var(--pg);color:var(--pg-fg);border-radius:6px;padding:20px 22px;box-shadow:var(--pg-sh);font-size:12px;display:flex;flex-direction:column;gap:8px;position:relative}
 :root[data-theme="dark"] .v2 .fex-doc{background:color-mix(in srgb,var(--chip) 40%,var(--stage))}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .v2 .fex-doc{background:color-mix(in srgb,var(--chip) 40%,var(--stage))}}
-:root[data-theme="dark"] .v2 .fex-pg{--pg:var(--raised);--pg-fg:var(--fg);--pg-mut:var(--muted);--pg-line:var(--line);--pg-hl:61,139,255;--pg-ring:#3d8bff;--pg-warn:240,168,48;--pg-wring:#f0a830;--pg-sh:0 0 0 1px var(--line),0 10px 30px rgba(0,0,0,.4)}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .v2 .fex-pg{--pg:var(--raised);--pg-fg:var(--fg);--pg-mut:var(--muted);--pg-line:var(--line);--pg-hl:61,139,255;--pg-ring:#3d8bff;--pg-warn:240,168,48;--pg-wring:#f0a830;--pg-sh:0 0 0 1px var(--line),0 10px 30px rgba(0,0,0,.4)}}
+:root[data-theme="dark"] .v2 .fex-pg{--pg:var(--raised);--pg-fg:var(--fg);--pg-mut:var(--muted);--pg-line:var(--line);--pg-warn:240,168,48;--pg-wring:#f0a830;--pg-sh:0 0 0 1px var(--line),0 10px 30px rgba(0,0,0,.4)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .v2 .fex-pg{--pg:var(--raised);--pg-fg:var(--fg);--pg-mut:var(--muted);--pg-line:var(--line);--pg-warn:240,168,48;--pg-wring:#f0a830;--pg-sh:0 0 0 1px var(--line),0 10px 30px rgba(0,0,0,.4)}}
 .v2 .fex-pg .muted{color:var(--pg-mut)}
 .v2 .fex-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;font-size:13px}
 .v2 .fex-z{position:relative;padding:2px 4px;margin:0 -4px;border-radius:4px;transition:background .3s,box-shadow .3s}
-.v2 .fex-z.scan{background:rgba(var(--pg-hl),.08)}
-.v2 .fex-z.hl{background:rgba(var(--pg-hl),.12);box-shadow:0 0 0 1.5px var(--pg-ring)}
+.v2 .fex-z.scan{background:color-mix(in srgb,var(--pg-hl) 8%,transparent)}
+.v2 .fex-z.hl{background:color-mix(in srgb,var(--pg-hl) 12%,transparent);box-shadow:0 0 0 1.5px var(--pg-ring)}
 .v2 .fex-z.warn.hl{background:rgba(var(--pg-warn),.14);box-shadow:0 0 0 1.5px var(--pg-wring)}
 .v2 .fex-tb{border-top:1px solid var(--pg-line);border-bottom:1px solid var(--pg-line);padding:6px 0;display:flex;flex-direction:column;gap:4px}
 .v2 .fex-li{display:flex;justify-content:space-between;gap:10px}
 .v2 .fex-tot{display:flex;justify-content:space-between;font-weight:500;font-size:13px}
 .v2 .fex-smudge .num{filter:blur(.4px)}
-.v2 .fex-beam{position:absolute;left:0;right:0;height:40px;background:linear-gradient(180deg,transparent,rgba(var(--pg-hl,17,111,248),.12),transparent);pointer-events:none;top:-40px}
+.v2 .fex-beam{position:absolute;left:0;right:0;height:40px;background:linear-gradient(180deg,transparent,color-mix(in srgb,var(--pg-hl) 12%,transparent),transparent);pointer-events:none;top:-40px}
 .v2 .fex-beam.go{animation:v2-fexb 2.6s var(--ease-io) both}
 @keyframes v2-fexb{to{top:100%}}
 .v2 .fex-side{padding:12px;display:flex;flex-direction:column;gap:8px;min-width:0}
@@ -7912,7 +7937,7 @@ body.ui main .comp[data-v2="pricing-cards"] .stage-inner{padding-bottom:40px!imp
 .v2 .fxp-n .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .v2 .fxp-n .bd{font-family:var(--mono);font-size:10.5px;font-weight:500;width:14px;text-align:center}
 .v2 .fxp-n .bd.M{color:var(--warn)}.v2 .fxp-n .bd.A{color:var(--ok)}.v2 .fxp-n .bd.D{color:var(--bad)}
-.v2 .fxp-n.D .nm{text-decoration:line-through;opacity:.6}
+.v2 .fxp-n.D .nm{text-decoration:line-through;color:var(--muted)}
 .v2 .fxp-n .ag{width:6px;height:6px;border-radius:50%;background:var(--accent)}
 .v2 .fxp-k{display:grid;grid-template-rows:1fr;transition:grid-template-rows .4s var(--ease)}
 .v2 .fxp-k.shut{grid-template-rows:0fr}
@@ -8298,7 +8323,7 @@ body.ui main .comp[data-v2="pricing-cards"] .stage-inner{padding-bottom:40px!imp
   .v2 .ahx-pi{width:100%}
 }
 /* ---------- Line chart ---------- */
-.v2 .lnx{padding:14px;display:flex;flex-direction:column;gap:10px}
+.v2 .lnx{padding:16px;display:flex;flex-direction:column;gap:10px}
 .v2 .lnx-h{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap}
 .v2 .lnx-h>div:first-child{display:flex;flex-direction:column;font-size:12.5px}
 .v2 .lnx-v{font-size:14px;font-weight:500;letter-spacing:-.02em;color:var(--fg)}
@@ -8323,7 +8348,7 @@ body.ui main .comp[data-v2="pricing-cards"] .stage-inner{padding-bottom:40px!imp
 .v2 .lnx-ch:hover .lnx-pt.on{opacity:1}
 .v2 .lnx-ax{display:flex;justify-content:space-between;font-size:11px}
 /* ---------- Bar chart ---------- */
-.v2 .bcx{padding:14px;display:flex;flex-direction:column;gap:12px}
+.v2 .bcx{padding:16px;display:flex;flex-direction:column;gap:12px}
 .v2 .bcx-h{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
 .v2 .bcx-h>div:first-child{display:flex;flex-direction:column;font-size:12.5px}
 .v2 .bcx-v{font-size:14px;font-weight:500;letter-spacing:-.02em}
@@ -8365,7 +8390,7 @@ body.ui main .comp[data-v2="pricing-cards"] .stage-inner{padding-bottom:40px!imp
 .v2 .dnx-r .t{flex:1}
 .v2 .dnx-r .v{color:var(--muted);font-size:12px}
 /* ---------- Funnel ---------- */
-.v2 .fnx{padding:14px;display:flex;flex-direction:column;gap:12px}
+.v2 .fnx{padding:16px;display:flex;flex-direction:column;gap:12px}
 .v2 .fnx-h{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:13.5px;flex-wrap:wrap}
 .v2 .fnx-h b{font-weight:500}
 .v2 .fnx-sg button{font-size:12px;height:26px;padding:0 9px}
@@ -8373,8 +8398,9 @@ body.ui main .comp[data-v2="pricing-cards"] .stage-inner{padding-bottom:40px!imp
 .v2 .fnx-r{display:grid;grid-template-columns:118px 1fr 48px;align-items:center;gap:10px;font-size:12.5px;padding:2px 0;border-radius:8px}
 .v2 .fnx-r .k{color:var(--fg2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .v2 .fnx-r .tr{height:26px;border-radius:8px;background:var(--chip);position:relative;overflow:hidden}
-.v2 .fnx-r .bar{position:absolute;inset:0 auto 0 0;border-radius:8px;background:var(--accent-mark,var(--accent));transition:width .9s var(--ease),opacity .3s}
-.v2 .fnx-r .n{position:absolute;left:10px;top:0;bottom:0;display:flex;align-items:center;color:#fff;font-size:11.5px;font-weight:500;transition:left .9s var(--ease),color .3s}
+/* the bar is an accent fill, so its count reads in --on-accent; its edge in the mark keeps a light accent visible on the track */
+.v2 .fnx-r .bar{position:absolute;inset:0 auto 0 0;border-radius:8px;background:var(--accent);box-shadow:inset 0 0 0 1px var(--accent-mark,var(--accent));transition:width .9s var(--ease),opacity .3s}
+.v2 .fnx-r .n{position:absolute;left:10px;top:0;bottom:0;display:flex;align-items:center;color:var(--on-accent,#fff);font-size:11.5px;font-weight:500;transition:left .9s var(--ease),color .3s}
 .v2 .fnx-r .n.out{color:var(--fg2)}
 .v2 .fnx-r .v{text-align:right;color:var(--muted);font-size:12px}
 .v2 .fnx-r.drop .v{color:var(--bad);font-weight:500}
@@ -8382,7 +8408,7 @@ body.ui main .comp[data-v2="pricing-cards"] .stage-inner{padding-bottom:40px!imp
 .v2 .fnx-ins{display:flex;gap:8px;font-size:12.5px;line-height:1.5;color:var(--fg2);padding:10px 12px;border-radius:12px;background:var(--accent-bg)}
 .v2 .fnx-ic{color:var(--accent-fg,var(--accent));display:grid;margin-top:2px}
 /* ---------- Top pages ---------- */
-.v2 .tpx{padding:14px;display:flex;flex-direction:column;gap:10px}
+.v2 .tpx{padding:16px;display:flex;flex-direction:column;gap:10px}
 .v2 .tpx-h{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:0 2px}
 .v2 .tpx-h>div:first-child{display:flex;flex-direction:column;font-size:13.5px}
 .v2 .tpx-h b{font-weight:500}
@@ -8401,7 +8427,7 @@ body.ui main .comp[data-v2="pricing-cards"] .stage-inner{padding-bottom:40px!imp
 .v2 .tpx-r .n{font-size:13px;font-weight:500;min-width:52px;text-align:right}
 .v2 .tpx-r .ch{min-width:52px;justify-content:center}
 /* ---------- Health score ---------- */
-.v2 .hsx{padding:14px;display:flex;flex-direction:column;gap:12px;--hs-ok:#16b558;--hs-bad:#e5383b}
+.v2 .hsx{padding:16px;display:flex;flex-direction:column;gap:12px;--hs-ok:#16b558;--hs-bad:#e5383b}
 :root[data-theme="dark"] .v2 .hsx{--hs-ok:#34d27a;--hs-bad:#ff5c5f}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .v2 .hsx{--hs-ok:#34d27a;--hs-bad:#ff5c5f}}
 .v2 .hsx-top{display:flex;align-items:center;gap:14px}
@@ -8429,7 +8455,7 @@ body.ui main .comp[data-v2="pricing-cards"] .stage-inner{padding-bottom:40px!imp
 .v2 .hsx-d{padding:0 8px 10px 8px;font-size:12.5px;color:var(--fg2);display:flex;align-items:center;gap:10px;line-height:1.45}
 .v2 .hsx-d span{flex:1}
 /* ---------- Activity heatmap ---------- */
-.v2 .hmx{padding:14px;display:flex;flex-direction:column;gap:10px}
+.v2 .hmx{padding:16px;display:flex;flex-direction:column;gap:10px}
 .v2 .hmx-h{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .v2 .hmx-h>div:first-child{display:flex;flex-direction:column;font-size:13.5px}
 .v2 .hmx-h b{font-weight:500}
@@ -8451,7 +8477,7 @@ body.ui main .comp[data-v2="pricing-cards"] .stage-inner{padding-bottom:40px!imp
 .v2 .scx-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
 @media (max-width:820px){.v2 .scx-grid{grid-template-columns:repeat(2,1fr)}}
 @media (max-width:420px){.v2 .scx-grid{grid-template-columns:1fr}}
-.v2 .scx-c{padding:14px;display:flex;flex-direction:column;gap:6px;transition:transform .45s var(--ease),box-shadow .3s;min-width:0}
+.v2 .scx-c{padding:16px;display:flex;flex-direction:column;gap:6px;transition:transform .45s var(--ease),box-shadow .3s;min-width:0}
 .v2 .scx-c:hover{transform:translateY(-2px);box-shadow:var(--shadow-pop)}
 .v2 .scx-k{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--muted)}
 .v2 .scx-k .ic{display:grid;color:var(--fg2)}
@@ -8513,7 +8539,7 @@ body.ui main .comp[data-v2="pricing-cards"] .stage-inner{padding-bottom:40px!imp
 @keyframes v2-dpkr{from{opacity:0;transform:translateX(24px);filter:blur(3px)}}
 .v2 .dpk-d{height:32px;border-radius:9px;font-size:12.5px;color:var(--fg);transition:background .2s,color .2s;position:relative}
 .v2 .dpk-d:hover{background:var(--chip)}
-.v2 .dpk-d.o{color:var(--faint)}
+.v2 .dpk-d.o{color:var(--muted)}
 .v2 .dpk-d.t::after{content:"";position:absolute;left:50%;bottom:4px;width:4px;height:4px;margin-left:-2px;border-radius:50%;background:var(--accent-mark,var(--accent))}
 .v2 .dpk-d.s{background:var(--accent);color:var(--on-accent,#fff)}
 .v2 .dpk-d.s::after{background:var(--on-accent,#fff)}
@@ -8628,9 +8654,9 @@ body.ui main .comp[data-v2="pricing-cards"] .stage-inner{padding-bottom:40px!imp
 .v2 .ecx-note .i{color:var(--accent-fg,var(--accent));margin-top:2px}
 .v2 .ecx-pa{display:flex;justify-content:flex-end;gap:6px;margin-top:12px}
 .v2 .ecx-e b{display:block;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.v2 .ecx-e span{opacity:.8;font-size:10.5px}
+.v2 .ecx-e span{font-size:10.5px}
 .v2 .ecx-e.sug{background:var(--surface)!important;color:var(--accent-fg,var(--accent))!important;box-shadow:inset 0 0 0 1.5px var(--accent-mark,var(--accent));animation:v2-ecs .6s var(--ease) both}
-.v2 .ecx-e.sug.alt{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--accent-mark,var(--accent)) 40%,transparent);opacity:.8}
+.v2 .ecx-e.sug.alt{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--accent-mark,var(--accent)) 40%,transparent)}
 @keyframes v2-ecs{from{opacity:0;transform:scale(.92);filter:blur(3px)}}
 .v2 .ecx-sg{display:flex;gap:4px;margin-top:4px}
 .v2 .ecx-sg button{font-size:10.5px;padding:2px 6px;border-radius:5px;background:var(--accent);color:var(--on-accent,#fff)}
@@ -8649,7 +8675,8 @@ body.ui main .comp[data-v2="pricing-cards"] .stage-inner{padding-bottom:40px!imp
 .v2 .agx-e:hover{background:var(--row)}
 /* the open event needs no fill of its own: it sits on the panel's white and its prep notes show it is open */
 .v2 .agx-e.open,.v2 .agx-e.open:hover{background:var(--surface)}
-.v2 .agx-e.past{opacity:.5}
+/* a past event: its title steps down to muted and its bar fades, the text stays readable */
+.v2 .agx-e.past .t b{color:var(--muted)}.v2 .agx-e.past .bar{opacity:.5}
 .v2 .agx-e .tm{font-size:12px;color:var(--muted);padding-top:1px}
 .v2 .agx-e .bar{border-radius:2px;background:var(--accent-mark,var(--accent))}
 .v2 .agx-e .t{display:flex;flex-direction:column;font-size:13px;min-width:0}
@@ -8833,6 +8860,7 @@ body.ui main .comp[data-v2="pricing-cards"] .stage-inner{padding-bottom:40px!imp
 @keyframes v2-sgin{from{opacity:0;transform:translateX(20px);filter:blur(4px)}}
 .v2 .sgx-f{display:flex;flex-direction:column;gap:5px;font-size:12.5px;font-weight:500}
 .v2 .sgx-f input{height:40px;border:0;outline:0;border-radius:11px;background:var(--chip);padding:0 12px;font:inherit;font-size:13.5px;font-weight:400;color:var(--fg);transition:box-shadow .25s,background .25s}
+.v2 .sgx-f input::placeholder{color:var(--muted)}
 .v2 .sgx-f input:focus{background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--accent-mark,var(--accent)),0 0 0 4px var(--accent-bg)}
 .v2 .sgx-f.bad input{box-shadow:inset 0 0 0 1.5px var(--bad);animation:v2-sgsh .4s}
 @keyframes v2-sgsh{20%,60%{transform:translateX(-4px)}40%,80%{transform:translateX(4px)}}
@@ -8986,7 +9014,7 @@ body.ui main .comp[data-v2="pricing-cards"] .stage-inner{padding-bottom:40px!imp
 @keyframes v2-ntn{from{opacity:0;transform:translateY(-10px);filter:blur(4px)}}
 .v2 .ntx-e{padding:40px 10px;text-align:center;font-size:13px;color:var(--muted)}
 /* ---------- Invite ---------- */
-.v2 .ivx{padding:14px;display:flex;flex-direction:column;gap:10px;max-width:420px;margin:0 auto;width:100%}
+.v2 .ivx{padding:16px;display:flex;flex-direction:column;gap:10px;max-width:420px;margin:0 auto;width:100%}
 .v2 .ivx-h{display:flex;flex-direction:column;font-size:14px;margin:0 -14px 2px;padding:0 14px 12px;border-bottom:1px solid var(--line)}
 .v2 .ivx-h b{font-weight:500}
 .v2 .ivx-h .muted{font-size:12px}
@@ -9188,7 +9216,7 @@ body.ui main .comp[data-v2="pricing-cards"] .stage-inner{padding-bottom:40px!imp
 :root:not([data-style="soft"]) .v2{
   --motion:bp;
   --page:#f3f3f0; --stage:#fafaf8; --surface:#ffffff; --raised:#ffffff;
-  --fg:#121212; --fg2:#4a4a46; --muted:#72726c; --faint:#bdbdb6; --rail:#d2d2cb; --line:#e3e3dd;
+  --fg:#121212; --fg2:#4a4a46; --muted:#6a6a64; --faint:#bdbdb6; --rail:#d2d2cb; --line:#e3e3dd;
   --chip:#f1f1ed; --hover:#e8e8e3; --press:#dededa; --wash:#f6f6f3; --row:color-mix(in srgb,var(--fg) 4%,transparent);
   --soft:#ebebe6; --soft-h:#e1e1db; --soft-ring:inset 0 0 0 1px rgba(20,20,12,.09); --dis:#a3a39c; --sel:color-mix(in srgb,var(--accent) 7%,transparent);
   --ink:#121212; --on-ink:#ffffff;
@@ -9202,7 +9230,7 @@ body.ui main .comp[data-v2="pricing-cards"] .stage-inner{padding-bottom:40px!imp
 }
 @media (prefers-color-scheme:dark){:root:not([data-style="soft"]):not([data-theme="light"]) .v2{
   --page:#111111; --stage:#1c1c1c; --surface:#262626; --raised:#2c2c2c;
-  --fg:#f2f2f2; --fg2:#ababab; --muted:#8c8c8c; --faint:#555555; --rail:#414141; --line:#333333;
+  --fg:#f2f2f2; --fg2:#ababab; --muted:#9a9a9a; --faint:#555555; --rail:#414141; --line:#333333;
   --chip:#303030; --hover:#373737; --press:#3f3f3f; --wash:#2c2c2c; --row:color-mix(in srgb,var(--fg) 5.5%,transparent);
   --soft:#323232; --soft-h:#3a3a3a; --soft-ring:inset 0 0 0 1px rgba(255,255,255,.08); --dis:#5f5f5f; --sel:color-mix(in srgb,var(--accent) 10%,transparent);
   --ink:#f2f2f2; --on-ink:#161616;
@@ -9215,7 +9243,7 @@ body.ui main .comp[data-v2="pricing-cards"] .stage-inner{padding-bottom:40px!imp
   --t-fast:.14s; --t:.3s; --t-slow:.44s}}
 :root:not([data-style="soft"])[data-theme="dark"] .v2{
   --page:#111111; --stage:#1c1c1c; --surface:#262626; --raised:#2c2c2c;
-  --fg:#f2f2f2; --fg2:#ababab; --muted:#8c8c8c; --faint:#555555; --rail:#414141; --line:#333333;
+  --fg:#f2f2f2; --fg2:#ababab; --muted:#9a9a9a; --faint:#555555; --rail:#414141; --line:#333333;
   --chip:#303030; --hover:#373737; --press:#3f3f3f; --wash:#2c2c2c; --row:color-mix(in srgb,var(--fg) 5.5%,transparent);
   --soft:#323232; --soft-h:#3a3a3a; --soft-ring:inset 0 0 0 1px rgba(255,255,255,.08); --dis:#5f5f5f; --sel:color-mix(in srgb,var(--accent) 10%,transparent);
   --ink:#f2f2f2; --on-ink:#161616;
@@ -9296,12 +9324,15 @@ body.ui main .comp[data-v2="pricing-cards"] .stage-inner{padding-bottom:40px!imp
 @media (max-width:389px){.lib-sec .comp>.stage{min-height:var(--rh-m,420px)}.lib-sec .comp>.stage .v2.stage-in{min-height:var(--rc-m,0px)}:root:not([data-style="soft"]) .lib-sec .comp>.stage .v2.stage-in{min-height:var(--rcb-m,var(--rc-m,0px))}}
 </style>
 <style id="accent-roles">
-:root:not([data-style="soft"]){--accent:#d4f84a;--accent-hi:#d4f84a;--accent-bg:rgba(212,248,74,.18);--accent-muted:#6c7e26;--accent-icon-bg:rgba(212,248,74,.14);--accent-icon-line:rgba(134,156,47,.45);--accent-fill:#f8fde6;--on-accent:#121212;--accent-fg:#111318;--accent-mark:#869c2f}
+:root:not([data-style="soft"]){--accent:#d4f84a;--accent-hi:#d4f84a;--accent-bg:rgba(212,248,74,.18);--accent-muted:#6c7e26;--accent-icon-bg:rgba(212,248,74,.14);--accent-icon-line:rgba(134,156,47,.45);--accent-fill:#f8fde6;--on-accent:#121212;--accent-fg:#111318;--accent-mark:#7a8e2b}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]):not([data-style="soft"]){--accent:#d4f84a;--accent-hi:#dcfa6a;--accent-bg:rgba(212,248,74,.12);--accent-muted:rgba(212,248,74,.55);--accent-icon-bg:rgba(212,248,74,.06);--accent-icon-line:rgba(212,248,74,.2);--accent-fill:#1c1f10;--accent-fg:#d4f84a;--accent-mark:#d4f84a}}
 :root[data-theme="dark"]:not([data-style="soft"]){--accent:#d4f84a;--accent-hi:#dcfa6a;--accent-bg:rgba(212,248,74,.12);--accent-muted:rgba(212,248,74,.55);--accent-icon-bg:rgba(212,248,74,.06);--accent-icon-line:rgba(212,248,74,.2);--accent-fill:#1c1f10;--accent-fg:#d4f84a;--accent-mark:#d4f84a}
-/* these sit outside the site's layers, so they apply to Blueprint only; Soft keeps its own blue, which reads as text and as a
-   line at 4.5:1 or more */
-:root[data-style="soft"]{--on-accent:#ffffff;--accent-fg:var(--accent);--accent-mark:var(--accent)}
+/* these sit outside the site's layers, so they apply to Blueprint only. Soft keeps its own blue for fills and marks; as text it
+   takes a slightly deeper blue in light mode (a lighter one in dark), so it reads at 4.5:1 on chips and tinted rows too, and in
+   dark mode the blue fill is too light for white text, so text on it is dark */
+:root[data-style="soft"]{--on-accent:#ffffff;--accent-fg:#0f5fd5;--accent-mark:var(--accent)}
+@media (prefers-color-scheme: dark){:root[data-style="soft"]:not([data-theme="light"]){--on-accent:#121212;--accent-fg:#6fa8ff}}
+:root[data-style="soft"][data-theme="dark"]{--on-accent:#121212;--accent-fg:#6fa8ff}
 </style>
 </head>
 <body class="ui">
@@ -9692,7 +9723,7 @@ body.ui main .comp[data-v2="pricing-cards"] .stage-inner{padding-bottom:40px!imp
   </div>
 </div></template>
   </article>
-  <article class="comp" id="c112" data-soft data-v2="model-picker" data-reg="model-picker" style="--rh-a:536px;--rc-a:424px;--rcb-a:424px;--rh-b:560px;--rc-b:448px;--rcb-b:448px;--rh-c:536px;--rc-c:424px;--rcb-c:424px;--rh-d:542px;--rc-d:430px;--rcb-d:424px;--rh-e:536px;--rc-e:424px;--rcb-e:424px;--rh-f:536px;--rc-f:424px;--rcb-f:424px;--rh-g:540px;--rc-g:424px;--rcb-g:428px;--rh-h:542px;--rc-h:430px;--rcb-h:424px;--rh-i:540px;--rc-i:424px;--rcb-i:428px;--rh-j:504px;--rc-j:424px;--rcb-j:424px;--rh-k:540px;--rc-k:460px;--rcb-k:460px;--rh-l:558px;--rc-l:478px;--rcb-l:478px;--rh-m:633px;--rc-m:553px;--rcb-m:553px">
+  <article class="comp" id="c112" data-soft data-v2="model-picker" data-reg="model-picker" style="--rh-a:536px;--rc-a:424px;--rcb-a:424px;--rh-b:560px;--rc-b:448px;--rcb-b:448px;--rh-c:536px;--rc-c:424px;--rcb-c:424px;--rh-d:536px;--rc-d:424px;--rcb-d:424px;--rh-e:542px;--rc-e:430px;--rcb-e:424px;--rh-f:536px;--rc-f:424px;--rcb-f:424px;--rh-g:542px;--rc-g:430px;--rcb-g:424px;--rh-h:542px;--rc-h:430px;--rcb-h:424px;--rh-i:536px;--rc-i:424px;--rcb-i:424px;--rh-j:510px;--rc-j:430px;--rcb-j:428px;--rh-k:540px;--rc-k:460px;--rcb-k:460px;--rh-l:558px;--rc-l:478px;--rcb-l:478px;--rh-m:638px;--rc-m:558px;--rcb-m:553px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">tune</span></span>
       <div><h2 class="comp-title"><a href="/components/model-picker">Model picker</a></h2><p class="comp-desc">Pick a model by speed, quality and cost, and how hard it thinks.</p></div>
@@ -9783,7 +9814,7 @@ body.ui main .comp[data-v2="pricing-cards"] .stage-inner{padding-bottom:40px!imp
   <div class="atx-sum muted"></div>
 </div></template>
   </article>
-  <article class="comp" id="c32" data-soft data-v2="feedback-sheet" data-reg="feedback-sheet" style="--rh-a:444px;--rc-a:332px;--rcb-a:332px;--rh-b:475px;--rc-b:363px;--rcb-b:363px;--rh-c:444px;--rc-c:332px;--rcb-c:332px;--rh-d:444px;--rc-d:332px;--rcb-d:332px;--rh-e:444px;--rc-e:332px;--rcb-e:332px;--rh-f:444px;--rc-f:332px;--rcb-f:332px;--rh-g:444px;--rc-g:332px;--rcb-g:332px;--rh-h:444px;--rc-h:332px;--rcb-h:332px;--rh-i:444px;--rc-i:332px;--rcb-i:332px;--rh-j:420px;--rc-j:332px;--rcb-j:332px;--rh-k:435px;--rc-k:355px;--rcb-k:355px;--rh-l:435px;--rc-l:355px;--rcb-l:355px;--rh-m:435px;--rc-m:355px;--rcb-m:355px">
+  <article class="comp" id="c32" data-soft data-v2="feedback-sheet" data-reg="feedback-sheet" style="--rh-a:448px;--rc-a:336px;--rcb-a:336px;--rh-b:479px;--rc-b:367px;--rcb-b:367px;--rh-c:448px;--rc-c:336px;--rcb-c:336px;--rh-d:448px;--rc-d:336px;--rcb-d:336px;--rh-e:448px;--rc-e:336px;--rcb-e:336px;--rh-f:448px;--rc-f:336px;--rcb-f:336px;--rh-g:448px;--rc-g:336px;--rcb-g:336px;--rh-h:448px;--rc-h:336px;--rcb-h:336px;--rh-i:448px;--rc-i:336px;--rcb-i:336px;--rh-j:420px;--rc-j:336px;--rcb-j:336px;--rh-k:439px;--rc-k:359px;--rcb-k:359px;--rh-l:439px;--rc-l:359px;--rcb-l:359px;--rh-m:439px;--rc-m:359px;--rcb-m:359px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">thumb_up</span></span>
       <div><h2 class="comp-title"><a href="/components/feedback-sheet">Feedback sheet</a></h2><p class="comp-desc">Rate an answer and tell the agent what missed.</p></div>
@@ -10238,7 +10269,7 @@ body.ui main .comp[data-v2="pricing-cards"] .stage-inner{padding-bottom:40px!imp
   <div class="plx-f"><span class="muted plx-n">Click a step to edit it</span><button class="pill ghost sm plx-chg">Ask for changes</button><button class="pill ink sm plx-go">Approve plan</button></div>
 </div></template>
   </article>
-  <article class="comp" id="c33" data-soft data-v2="permission-gate" data-reg="permission-gate" style="--rh-a:420px;--rc-a:301px;--rcb-a:301px;--rh-b:420px;--rc-b:301px;--rcb-b:301px;--rh-c:420px;--rc-c:301px;--rcb-c:301px;--rh-d:420px;--rc-d:301px;--rcb-d:301px;--rh-e:420px;--rc-e:301px;--rcb-e:301px;--rh-f:420px;--rc-f:301px;--rcb-f:301px;--rh-g:420px;--rc-g:301px;--rcb-g:301px;--rh-h:420px;--rc-h:301px;--rcb-h:301px;--rh-i:420px;--rc-i:301px;--rcb-i:301px;--rh-j:420px;--rc-j:301px;--rcb-j:301px;--rh-k:420px;--rc-k:301px;--rcb-k:301px;--rh-l:420px;--rc-l:301px;--rcb-l:301px;--rh-m:420px;--rc-m:301px;--rcb-m:301px">
+  <article class="comp" id="c33" data-soft data-v2="permission-gate" data-reg="permission-gate" style="--rh-a:420px;--rc-a:301px;--rcb-a:301px;--rh-b:461px;--rc-b:349px;--rcb-b:349px;--rh-c:420px;--rc-c:301px;--rcb-c:301px;--rh-d:420px;--rc-d:301px;--rcb-d:301px;--rh-e:420px;--rc-e:301px;--rcb-e:301px;--rh-f:420px;--rc-f:301px;--rcb-f:301px;--rh-g:420px;--rc-g:301px;--rcb-g:301px;--rh-h:420px;--rc-h:301px;--rcb-h:301px;--rh-i:420px;--rc-i:301px;--rcb-i:301px;--rh-j:420px;--rc-j:301px;--rcb-j:301px;--rh-k:420px;--rc-k:301px;--rcb-k:301px;--rh-l:429px;--rc-l:349px;--rcb-l:349px;--rh-m:429px;--rc-m:349px;--rcb-m:349px">
     <div class="comp-head">
       <span class="ibox accent"><span class="ms">lock</span></span>
       <div><h2 class="comp-title"><a href="/components/permission-gate">Permission gate</a></h2><p class="comp-desc">The agent asks before it touches something new.</p></div>
@@ -10341,7 +10372,7 @@ body.ui main .comp[data-v2="pricing-cards"] .stage-inner{padding-bottom:40px!imp
   <div class="prx-f"><button class="pill ghost sm prx-no">Not now</button><button class="pill ink sm prx-ok">Accept</button></div>
 </div></template>
   </article>
-  <article class="comp wide" id="c19" data-soft data-v2="design-tuner" data-reg="design-tuner" style="--rh-a:420px;--rc-a:300px;--rcb-a:300px;--rh-b:420px;--rc-b:300px;--rcb-b:300px;--rh-c:690px;--rc-c:578px;--rcb-c:578px;--rh-d:420px;--rc-d:300px;--rcb-d:300px;--rh-e:420px;--rc-e:300px;--rcb-e:300px;--rh-f:420px;--rc-f:300px;--rcb-f:300px;--rh-g:420px;--rc-g:300px;--rcb-g:300px;--rh-h:690px;--rc-h:578px;--rcb-h:578px;--rh-i:690px;--rc-i:578px;--rcb-i:578px;--rh-j:676px;--rc-j:596px;--rcb-j:596px;--rh-k:676px;--rc-k:596px;--rcb-k:596px;--rh-l:676px;--rc-l:596px;--rcb-l:596px;--rh-m:676px;--rc-m:596px;--rcb-m:596px">
+  <article class="comp wide" id="c19" data-soft data-v2="design-tuner" data-reg="design-tuner" style="--rh-a:420px;--rc-a:303px;--rcb-a:303px;--rh-b:420px;--rc-b:303px;--rcb-b:303px;--rh-c:694px;--rc-c:582px;--rcb-c:582px;--rh-d:420px;--rc-d:303px;--rcb-d:303px;--rh-e:420px;--rc-e:303px;--rcb-e:303px;--rh-f:420px;--rc-f:303px;--rcb-f:303px;--rh-g:420px;--rc-g:303px;--rcb-g:303px;--rh-h:694px;--rc-h:582px;--rcb-h:582px;--rh-i:712px;--rc-i:600px;--rcb-i:600px;--rh-j:680px;--rc-j:600px;--rcb-j:600px;--rh-k:680px;--rc-k:600px;--rcb-k:600px;--rh-l:680px;--rc-l:600px;--rcb-l:600px;--rh-m:680px;--rc-m:600px;--rcb-m:600px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">tune</span></span>
       <div><h2 class="comp-title"><a href="/components/design-tuner">Design tuner</a></h2><p class="comp-desc">Tweak a component by hand or let the agent tune it.</p></div>
@@ -10491,7 +10522,7 @@ body.ui main .comp[data-v2="pricing-cards"] .stage-inner{padding-bottom:40px!imp
   <p class="evr-none" hidden>No failed cases</p>
 </div></template>
   </article>
-  <article class="comp wide" id="c111" data-soft data-v2="design-review" data-reg="design-review" style="--rh-a:420px;--rc-a:295px;--rcb-a:295px;--rh-b:420px;--rc-b:295px;--rcb-b:295px;--rh-c:532px;--rc-c:420px;--rcb-c:420px;--rh-d:420px;--rc-d:295px;--rcb-d:295px;--rh-e:420px;--rc-e:295px;--rcb-e:295px;--rh-f:420px;--rc-f:295px;--rcb-f:295px;--rh-g:420px;--rc-g:295px;--rcb-g:295px;--rh-h:532px;--rc-h:420px;--rcb-h:420px;--rh-i:532px;--rc-i:420px;--rcb-i:420px;--rh-j:500px;--rc-j:420px;--rcb-j:420px;--rh-k:518px;--rc-k:438px;--rcb-k:438px;--rh-l:536px;--rc-l:456px;--rcb-l:456px;--rh-m:546px;--rc-m:466px;--rcb-m:466px">
+  <article class="comp wide" id="c111" data-soft data-v2="design-review" data-reg="design-review" style="--rh-a:420px;--rc-a:299px;--rcb-a:299px;--rh-b:420px;--rc-b:299px;--rcb-b:299px;--rh-c:536px;--rc-c:424px;--rcb-c:424px;--rh-d:420px;--rc-d:299px;--rcb-d:299px;--rh-e:420px;--rc-e:299px;--rcb-e:299px;--rh-f:420px;--rc-f:299px;--rcb-f:299px;--rh-g:420px;--rc-g:299px;--rcb-g:299px;--rh-h:536px;--rc-h:424px;--rcb-h:424px;--rh-i:536px;--rc-i:424px;--rcb-i:424px;--rh-j:504px;--rc-j:424px;--rcb-j:424px;--rh-k:522px;--rc-k:442px;--rcb-k:442px;--rh-l:540px;--rc-l:460px;--rcb-l:460px;--rh-m:568px;--rc-m:488px;--rcb-m:488px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">group</span></span>
       <div><h2 class="comp-title"><a href="/components/design-review">Design review</a></h2><p class="comp-desc">Checks run, a teammate asks for a change, the agent makes it, and you ship.</p></div>
@@ -10626,7 +10657,7 @@ body.ui main .comp[data-v2="pricing-cards"] .stage-inner{padding-bottom:40px!imp
   </div>
 </div></template>
   </article>
-  <article class="comp" id="c17" data-soft data-v2="metric-insight" data-reg="metric-insight" style="--rh-a:420px;--rc-a:267px;--rcb-a:266px;--rh-b:420px;--rc-b:286px;--rcb-b:286px;--rh-c:420px;--rc-c:267px;--rcb-c:266px;--rh-d:420px;--rc-d:267px;--rcb-d:266px;--rh-e:420px;--rc-e:267px;--rcb-e:266px;--rh-f:420px;--rc-f:267px;--rcb-f:266px;--rh-g:420px;--rc-g:267px;--rcb-g:266px;--rh-h:420px;--rc-h:267px;--rcb-h:266px;--rh-i:420px;--rc-i:267px;--rcb-i:266px;--rh-j:420px;--rc-j:267px;--rcb-j:266px;--rh-k:420px;--rc-k:267px;--rcb-k:266px;--rh-l:420px;--rc-l:286px;--rcb-l:286px;--rh-m:420px;--rc-m:286px;--rcb-m:286px">
+  <article class="comp" id="c17" data-soft data-v2="metric-insight" data-reg="metric-insight" style="--rh-a:420px;--rc-a:271px;--rcb-a:270px;--rh-b:420px;--rc-b:290px;--rcb-b:290px;--rh-c:420px;--rc-c:271px;--rcb-c:270px;--rh-d:420px;--rc-d:271px;--rcb-d:270px;--rh-e:420px;--rc-e:271px;--rcb-e:270px;--rh-f:420px;--rc-f:271px;--rcb-f:270px;--rh-g:420px;--rc-g:271px;--rcb-g:270px;--rh-h:420px;--rc-h:271px;--rcb-h:270px;--rh-i:420px;--rc-i:271px;--rcb-i:270px;--rh-j:420px;--rc-j:271px;--rcb-j:270px;--rh-k:420px;--rc-k:271px;--rcb-k:270px;--rh-l:420px;--rc-l:290px;--rcb-l:290px;--rh-m:420px;--rc-m:290px;--rcb-m:290px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">trending_up</span></span>
       <div><h2 class="comp-title"><a href="/components/metric-insight">Metric insight</a></h2><p class="comp-desc">A number, its trend, and the agent's read on why it moved.</p></div>
@@ -10962,7 +10993,7 @@ body.ui main .comp[data-v2="pricing-cards"] .stage-inner{padding-bottom:40px!imp
 <section class="lib-sec" id="s-charts" data-grp="basics">
   <div class="sec-head"><div><span class="sec-no">01</span><h2>Charts and tables</h2><p>Lightweight charts and tables for dashboards and reports, drawn in plain SVG and HTML.</p></div></div>
   <div class="sec-body" id="s-charts-body"><div class="sec-uf"><div class="grid">
-  <article class="comp" id="c41" data-soft data-v2="line-chart" data-reg="line-chart" style="--rh-a:420px;--rc-a:255px;--rcb-a:255px;--rh-b:420px;--rc-b:255px;--rcb-b:255px;--rh-c:420px;--rc-c:255px;--rcb-c:255px;--rh-d:420px;--rc-d:255px;--rcb-d:255px;--rh-e:420px;--rc-e:255px;--rcb-e:255px;--rh-f:420px;--rc-f:255px;--rcb-f:255px;--rh-g:420px;--rc-g:255px;--rcb-g:255px;--rh-h:420px;--rc-h:255px;--rcb-h:255px;--rh-i:420px;--rc-i:255px;--rcb-i:255px;--rh-j:420px;--rc-j:255px;--rcb-j:255px;--rh-k:420px;--rc-k:255px;--rcb-k:255px;--rh-l:420px;--rc-l:255px;--rcb-l:255px;--rh-m:420px;--rc-m:291px;--rcb-m:291px">
+  <article class="comp" id="c41" data-soft data-v2="line-chart" data-reg="line-chart" style="--rh-a:420px;--rc-a:259px;--rcb-a:259px;--rh-b:420px;--rc-b:259px;--rcb-b:259px;--rh-c:420px;--rc-c:259px;--rcb-c:259px;--rh-d:420px;--rc-d:259px;--rcb-d:259px;--rh-e:420px;--rc-e:259px;--rcb-e:259px;--rh-f:420px;--rc-f:259px;--rcb-f:259px;--rh-g:420px;--rc-g:259px;--rcb-g:259px;--rh-h:420px;--rc-h:259px;--rcb-h:259px;--rh-i:420px;--rc-i:259px;--rcb-i:259px;--rh-j:420px;--rc-j:259px;--rcb-j:259px;--rh-k:420px;--rc-k:259px;--rcb-k:259px;--rh-l:420px;--rc-l:259px;--rcb-l:259px;--rh-m:420px;--rc-m:295px;--rcb-m:295px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">trending_up</span></span>
       <div><h2 class="comp-title"><a href="/components/line-chart">Line chart</a></h2><p class="comp-desc">Two series over time with a hover readout and toggles.</p></div>
@@ -10979,7 +11010,7 @@ body.ui main .comp[data-v2="pricing-cards"] .stage-inner{padding-bottom:40px!imp
   <div class="lnx-ax muted num"><span>Jan</span><span>Mar</span><span>May</span><span>Jul</span><span>Sep</span><span>Nov</span></div>
 </div></template>
   </article>
-  <article class="comp" id="c42" data-soft data-v2="bar-chart" data-reg="bar-chart" style="--rh-a:420px;--rc-a:260px;--rcb-a:260px;--rh-b:420px;--rc-b:260px;--rcb-b:260px;--rh-c:420px;--rc-c:260px;--rcb-c:260px;--rh-d:420px;--rc-d:260px;--rcb-d:260px;--rh-e:420px;--rc-e:260px;--rcb-e:260px;--rh-f:420px;--rc-f:260px;--rcb-f:260px;--rh-g:420px;--rc-g:260px;--rcb-g:260px;--rh-h:420px;--rc-h:260px;--rcb-h:260px;--rh-i:420px;--rc-i:260px;--rcb-i:260px;--rh-j:420px;--rc-j:260px;--rcb-j:260px;--rh-k:420px;--rc-k:260px;--rcb-k:260px;--rh-l:420px;--rc-l:260px;--rcb-l:260px;--rh-m:420px;--rc-m:260px;--rcb-m:260px">
+  <article class="comp" id="c42" data-soft data-v2="bar-chart" data-reg="bar-chart" style="--rh-a:420px;--rc-a:264px;--rcb-a:264px;--rh-b:420px;--rc-b:264px;--rcb-b:264px;--rh-c:420px;--rc-c:264px;--rcb-c:264px;--rh-d:420px;--rc-d:264px;--rcb-d:264px;--rh-e:420px;--rc-e:264px;--rcb-e:264px;--rh-f:420px;--rc-f:264px;--rcb-f:264px;--rh-g:420px;--rc-g:264px;--rcb-g:264px;--rh-h:420px;--rc-h:264px;--rcb-h:264px;--rh-i:420px;--rc-i:264px;--rcb-i:264px;--rh-j:420px;--rc-j:264px;--rcb-j:264px;--rh-k:420px;--rc-k:264px;--rcb-k:264px;--rh-l:420px;--rc-l:264px;--rcb-l:264px;--rh-m:420px;--rc-m:264px;--rcb-m:264px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">bar_chart</span></span>
       <div><h2 class="comp-title"><a href="/components/bar-chart">Bar chart</a></h2><p class="comp-desc">Weekly agent runs, split by outcome, with a range switch.</p></div>
@@ -11012,7 +11043,7 @@ body.ui main .comp[data-v2="pricing-cards"] .stage-inner{padding-bottom:40px!imp
   <div class="dnx-lg"></div>
 </div></template>
   </article>
-  <article class="comp" id="c102" data-soft data-v2="funnel" data-reg="funnel-chart" style="--rh-a:426px;--rc-a:314px;--rcb-a:314px;--rh-b:445px;--rc-b:333px;--rcb-b:333px;--rh-c:426px;--rc-c:314px;--rcb-c:314px;--rh-d:426px;--rc-d:314px;--rcb-d:314px;--rh-e:426px;--rc-e:314px;--rcb-e:314px;--rh-f:426px;--rc-f:314px;--rcb-f:314px;--rh-g:426px;--rc-g:314px;--rcb-g:314px;--rh-h:426px;--rc-h:314px;--rcb-h:314px;--rh-i:426px;--rc-i:314px;--rcb-i:314px;--rh-j:420px;--rc-j:314px;--rcb-j:314px;--rh-k:420px;--rc-k:314px;--rcb-k:314px;--rh-l:420px;--rc-l:314px;--rcb-l:314px;--rh-m:420px;--rc-m:333px;--rcb-m:333px">
+  <article class="comp" id="c102" data-soft data-v2="funnel" data-reg="funnel-chart" style="--rh-a:430px;--rc-a:318px;--rcb-a:318px;--rh-b:449px;--rc-b:337px;--rcb-b:337px;--rh-c:430px;--rc-c:318px;--rcb-c:318px;--rh-d:430px;--rc-d:318px;--rcb-d:318px;--rh-e:430px;--rc-e:318px;--rcb-e:318px;--rh-f:430px;--rc-f:318px;--rcb-f:318px;--rh-g:430px;--rc-g:318px;--rcb-g:318px;--rh-h:430px;--rc-h:318px;--rcb-h:318px;--rh-i:430px;--rc-i:318px;--rcb-i:318px;--rh-j:420px;--rc-j:318px;--rcb-j:318px;--rh-k:420px;--rc-k:318px;--rcb-k:318px;--rh-l:420px;--rc-l:318px;--rcb-l:318px;--rh-m:420px;--rc-m:337px;--rcb-m:337px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">grid_view</span></span>
       <div><h2 class="comp-title"><a href="/components/funnel-chart">Funnel chart</a></h2><p class="comp-desc">Signup to paid, with the biggest drop called out by the agent.</p></div>
@@ -11029,7 +11060,7 @@ body.ui main .comp[data-v2="pricing-cards"] .stage-inner{padding-bottom:40px!imp
   <div class="fnx-ins"><span class="fnx-ic">{spark}</span><span class="fnx-t"></span></div>
 </div></template>
   </article>
-  <article class="comp" id="c103" data-soft data-v2="top-pages" data-reg="top-pages" style="--rh-a:489px;--rc-a:377px;--rcb-a:377px;--rh-b:507px;--rc-b:395px;--rcb-b:395px;--rh-c:489px;--rc-c:377px;--rcb-c:377px;--rh-d:489px;--rc-d:377px;--rcb-d:377px;--rh-e:489px;--rc-e:377px;--rcb-e:377px;--rh-f:489px;--rc-f:377px;--rcb-f:377px;--rh-g:489px;--rc-g:377px;--rcb-g:377px;--rh-h:489px;--rc-h:377px;--rcb-h:377px;--rh-i:489px;--rc-i:377px;--rcb-i:377px;--rh-j:457px;--rc-j:377px;--rcb-j:377px;--rh-k:457px;--rc-k:377px;--rcb-k:377px;--rh-l:457px;--rc-l:377px;--rcb-l:377px;--rh-m:475px;--rc-m:395px;--rcb-m:395px">
+  <article class="comp" id="c103" data-soft data-v2="top-pages" data-reg="top-pages" style="--rh-a:493px;--rc-a:381px;--rcb-a:381px;--rh-b:511px;--rc-b:399px;--rcb-b:399px;--rh-c:493px;--rc-c:381px;--rcb-c:381px;--rh-d:493px;--rc-d:381px;--rcb-d:381px;--rh-e:493px;--rc-e:381px;--rcb-e:381px;--rh-f:493px;--rc-f:381px;--rcb-f:381px;--rh-g:493px;--rc-g:381px;--rcb-g:381px;--rh-h:493px;--rc-h:381px;--rcb-h:381px;--rh-i:493px;--rc-i:381px;--rcb-i:381px;--rh-j:461px;--rc-j:381px;--rcb-j:381px;--rh-k:461px;--rc-k:381px;--rcb-k:381px;--rh-l:479px;--rc-l:399px;--rcb-l:399px;--rh-m:479px;--rc-m:399px;--rcb-m:399px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">grid_view</span></span>
       <div><h2 class="comp-title"><a href="/components/top-pages">Top pages</a></h2><p class="comp-desc">Most visited pages with share of traffic and a quick sort.</p></div>
@@ -11045,7 +11076,7 @@ body.ui main .comp[data-v2="pricing-cards"] .stage-inner{padding-bottom:40px!imp
   <div class="tpx-list"></div>
 </div></template>
   </article>
-  <article class="comp" data-soft id="c65" data-v2="health-score" data-reg="health-score" style="--rh-a:420px;--rc-a:275px;--rcb-a:275px;--rh-b:420px;--rc-b:281px;--rcb-b:281px;--rh-c:420px;--rc-c:275px;--rcb-c:275px;--rh-d:420px;--rc-d:275px;--rcb-d:275px;--rh-e:420px;--rc-e:275px;--rcb-e:275px;--rh-f:420px;--rc-f:275px;--rcb-f:275px;--rh-g:420px;--rc-g:275px;--rcb-g:275px;--rh-h:420px;--rc-h:275px;--rcb-h:275px;--rh-i:420px;--rc-i:275px;--rcb-i:275px;--rh-j:420px;--rc-j:275px;--rcb-j:275px;--rh-k:420px;--rc-k:275px;--rcb-k:275px;--rh-l:420px;--rc-l:275px;--rcb-l:275px;--rh-m:420px;--rc-m:300px;--rcb-m:300px">
+  <article class="comp" data-soft id="c65" data-v2="health-score" data-reg="health-score" style="--rh-a:420px;--rc-a:277px;--rcb-a:277px;--rh-b:420px;--rc-b:283px;--rcb-b:283px;--rh-c:420px;--rc-c:277px;--rcb-c:277px;--rh-d:420px;--rc-d:277px;--rcb-d:277px;--rh-e:420px;--rc-e:277px;--rcb-e:277px;--rh-f:420px;--rc-f:277px;--rcb-f:277px;--rh-g:420px;--rc-g:277px;--rcb-g:277px;--rh-h:420px;--rc-h:277px;--rcb-h:277px;--rh-i:420px;--rc-i:277px;--rcb-i:277px;--rh-j:420px;--rc-j:277px;--rcb-j:277px;--rh-k:420px;--rc-k:277px;--rcb-k:277px;--rh-l:420px;--rc-l:277px;--rcb-l:277px;--rh-m:420px;--rc-m:302px;--rcb-m:302px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">readiness_score</span></span>
       <div><h2 class="comp-title"><a href="/components/health-score">Health score</a></h2><p class="comp-desc">A design system score made of a few checks you can open.</p></div>
@@ -11064,7 +11095,7 @@ body.ui main .comp[data-v2="pricing-cards"] .stage-inner{padding-bottom:40px!imp
   <div class="hsx-list"></div>
 </div></template>
   </article>
-  <article class="comp wide" id="c45" data-soft data-v2="activity-heatmap" data-reg="activity-heatmap" style="--rh-a:420px;--rc-a:247px;--rcb-a:247px;--rh-b:420px;--rc-b:247px;--rcb-b:247px;--rh-c:420px;--rc-c:247px;--rcb-c:247px;--rh-d:420px;--rc-d:247px;--rcb-d:247px;--rh-e:420px;--rc-e:247px;--rcb-e:247px;--rh-f:420px;--rc-f:247px;--rcb-f:247px;--rh-g:420px;--rc-g:247px;--rcb-g:247px;--rh-h:420px;--rc-h:247px;--rcb-h:247px;--rh-i:420px;--rc-i:247px;--rcb-i:247px;--rh-j:420px;--rc-j:247px;--rcb-j:247px;--rh-k:420px;--rc-k:265px;--rcb-k:265px;--rh-l:420px;--rc-l:265px;--rcb-l:265px;--rh-m:420px;--rc-m:265px;--rcb-m:265px">
+  <article class="comp wide" id="c45" data-soft data-v2="activity-heatmap" data-reg="activity-heatmap" style="--rh-a:420px;--rc-a:251px;--rcb-a:251px;--rh-b:420px;--rc-b:251px;--rcb-b:251px;--rh-c:420px;--rc-c:251px;--rcb-c:251px;--rh-d:420px;--rc-d:251px;--rcb-d:251px;--rh-e:420px;--rc-e:251px;--rcb-e:251px;--rh-f:420px;--rc-f:251px;--rcb-f:251px;--rh-g:420px;--rc-g:251px;--rcb-g:251px;--rh-h:420px;--rc-h:251px;--rcb-h:251px;--rh-i:420px;--rc-i:251px;--rcb-i:251px;--rh-j:420px;--rc-j:251px;--rcb-j:251px;--rh-k:420px;--rc-k:269px;--rcb-k:269px;--rh-l:420px;--rc-l:269px;--rcb-l:269px;--rh-m:420px;--rc-m:269px;--rcb-m:269px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">grid_on</span></span>
       <div><h2 class="comp-title"><a href="/components/activity-heatmap">Activity heatmap</a></h2><p class="comp-desc">When the agent and the team were busy, by day and hour.</p></div>
@@ -11082,7 +11113,7 @@ body.ui main .comp[data-v2="pricing-cards"] .stage-inner{padding-bottom:40px!imp
   <div class="hmx-lg muted">Less<i style="--a:.08"></i><i style="--a:.3"></i><i style="--a:.55"></i><i style="--a:.85"></i>More</div>
 </div></template>
   </article>
-  <article class="comp wide" id="c44" data-soft data-v2="stat-cards" data-reg="stat-cards" style="--rh-a:420px;--rc-a:158px;--rcb-a:158px;--rh-b:420px;--rc-b:158px;--rcb-b:158px;--rh-c:420px;--rc-c:177px;--rcb-c:177px;--rh-d:420px;--rc-d:158px;--rcb-d:158px;--rh-e:420px;--rc-e:158px;--rcb-e:158px;--rh-f:420px;--rc-f:286px;--rcb-f:286px;--rh-g:420px;--rc-g:286px;--rcb-g:286px;--rh-h:420px;--rc-h:286px;--rcb-h:286px;--rh-i:420px;--rc-i:286px;--rcb-i:286px;--rh-j:420px;--rc-j:286px;--rcb-j:286px;--rh-k:420px;--rc-k:286px;--rcb-k:286px;--rh-l:621px;--rc-l:541px;--rcb-l:541px;--rh-m:621px;--rc-m:541px;--rcb-m:541px">
+  <article class="comp wide" id="c44" data-soft data-v2="stat-cards" data-reg="stat-cards" style="--rh-a:420px;--rc-a:162px;--rcb-a:162px;--rh-b:420px;--rc-b:162px;--rcb-b:162px;--rh-c:420px;--rc-c:181px;--rcb-c:181px;--rh-d:420px;--rc-d:162px;--rcb-d:162px;--rh-e:420px;--rc-e:162px;--rcb-e:162px;--rh-f:420px;--rc-f:294px;--rcb-f:294px;--rh-g:420px;--rc-g:294px;--rcb-g:294px;--rh-h:420px;--rc-h:294px;--rcb-h:294px;--rh-i:420px;--rc-i:294px;--rcb-i:294px;--rh-j:420px;--rc-j:294px;--rcb-j:294px;--rh-k:420px;--rc-k:294px;--rcb-k:294px;--rh-l:637px;--rc-l:557px;--rcb-l:557px;--rh-m:637px;--rc-m:557px;--rcb-m:557px">
     <div class="comp-head">
       <span class="ibox accent"><span class="ms">dashboard</span></span>
       <div><h2 class="comp-title"><a href="/components/stat-cards">Stat cards</a></h2><p class="comp-desc">Four headline numbers with sparklines and a period switch.</p></div>
@@ -11456,7 +11487,7 @@ body.ui main .comp[data-v2="pricing-cards"] .stage-inner{padding-bottom:40px!imp
   <div class="ntx-list"></div>
 </div></template>
   </article>
-  <article class="comp" data-soft id="c61" data-v2="invite" data-reg="invite-to-collaborate" style="--rh-a:433px;--rc-a:321px;--rcb-a:321px;--rh-b:466px;--rc-b:354px;--rcb-b:354px;--rh-c:433px;--rc-c:321px;--rcb-c:321px;--rh-d:433px;--rc-d:321px;--rcb-d:321px;--rh-e:433px;--rc-e:321px;--rcb-e:321px;--rh-f:433px;--rc-f:321px;--rcb-f:321px;--rh-g:433px;--rc-g:321px;--rcb-g:321px;--rh-h:433px;--rc-h:321px;--rcb-h:321px;--rh-i:433px;--rc-i:321px;--rcb-i:321px;--rh-j:420px;--rc-j:321px;--rcb-j:321px;--rh-k:420px;--rc-k:323px;--rcb-k:323px;--rh-l:420px;--rc-l:321px;--rcb-l:321px;--rh-m:452px;--rc-m:372px;--rcb-m:372px">
+  <article class="comp" data-soft id="c61" data-v2="invite" data-reg="invite-to-collaborate" style="--rh-a:439px;--rc-a:327px;--rcb-a:327px;--rh-b:470px;--rc-b:358px;--rcb-b:358px;--rh-c:437px;--rc-c:325px;--rcb-c:325px;--rh-d:437px;--rc-d:325px;--rcb-d:325px;--rh-e:437px;--rc-e:325px;--rcb-e:325px;--rh-f:437px;--rc-f:325px;--rcb-f:325px;--rh-g:437px;--rc-g:325px;--rcb-g:325px;--rh-h:437px;--rc-h:325px;--rcb-h:325px;--rh-i:437px;--rc-i:325px;--rcb-i:325px;--rh-j:420px;--rc-j:325px;--rcb-j:325px;--rh-k:420px;--rc-k:327px;--rcb-k:327px;--rh-l:420px;--rc-l:325px;--rcb-l:325px;--rh-m:456px;--rc-m:376px;--rcb-m:376px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">person_add</span></span>
       <div><h2 class="comp-title"><a href="/components/invite-to-collaborate">Invite to collaborate</a></h2><p class="comp-desc">Add teammates by email as chips, set their role, send.</p></div>
@@ -11657,7 +11688,7 @@ body.ui main .comp[data-v2="pricing-cards"] .stage-inner{padding-bottom:40px!imp
   <div class="slx-opt"><span class="muted">At the limit</span><div class="seg2 slx-sg" role="group" aria-label="At the limit"><button aria-pressed="true" data-v="pause">Pause runs</button><button aria-pressed="false" data-v="ask">Ask me</button><button aria-pressed="false" data-v="keep">Keep going</button></div></div>
 </div></template>
   </article>
-  <article class="comp" data-soft id="c75" data-v2="currency-converter" data-reg="currency-converter" style="--rh-a:420px;--rc-a:185px;--rcb-a:185px;--rh-b:420px;--rc-b:185px;--rcb-b:185px;--rh-c:420px;--rc-c:185px;--rcb-c:185px;--rh-d:420px;--rc-d:185px;--rcb-d:185px;--rh-e:420px;--rc-e:185px;--rcb-e:185px;--rh-f:420px;--rc-f:185px;--rcb-f:185px;--rh-g:420px;--rc-g:185px;--rcb-g:185px;--rh-h:420px;--rc-h:185px;--rcb-h:185px;--rh-i:420px;--rc-i:185px;--rcb-i:185px;--rh-j:420px;--rc-j:185px;--rcb-j:185px;--rh-k:420px;--rc-k:185px;--rcb-k:185px;--rh-l:420px;--rc-l:185px;--rcb-l:185px;--rh-m:420px;--rc-m:185px;--rcb-m:185px">
+  <article class="comp" data-soft id="c75" data-v2="currency-converter" data-reg="currency-converter" style="--rh-a:420px;--rc-a:189px;--rcb-a:189px;--rh-b:420px;--rc-b:189px;--rcb-b:189px;--rh-c:420px;--rc-c:189px;--rcb-c:189px;--rh-d:420px;--rc-d:189px;--rcb-d:189px;--rh-e:420px;--rc-e:189px;--rcb-e:189px;--rh-f:420px;--rc-f:189px;--rcb-f:189px;--rh-g:420px;--rc-g:189px;--rcb-g:189px;--rh-h:420px;--rc-h:189px;--rcb-h:189px;--rh-i:420px;--rc-i:189px;--rcb-i:189px;--rh-j:420px;--rc-j:189px;--rcb-j:189px;--rh-k:420px;--rc-k:189px;--rcb-k:189px;--rh-l:420px;--rc-l:189px;--rcb-l:189px;--rh-m:420px;--rc-m:189px;--rcb-m:189px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">trending_up</span></span>
       <div><h2 class="comp-title"><a href="/components/currency-converter">Currency converter</a></h2><p class="comp-desc">Show plan prices in local currency, with a swap and live rate.</p></div>
@@ -13820,7 +13851,10 @@ function showTip(el){
   tip.innerHTML = el.dataset.tip.replace(/</g,'&lt;') + (k ? `<span class="kbd">${k}</span>` : '');
   tip.style.left = '0px'; tip.style.top = '0px'; tip.classList.add('show');
   const r = el.getBoundingClientRect(), w = tip.offsetWidth, h = tip.offsetHeight;
-  let x = r.left + r.width / 2 - w / 2; x = Math.max(8, Math.min(innerWidth - w - 8, x));
+  // it stays inside the component's stage when it fits there, so on a phone it never runs past the card's edge
+  const st = el.closest('.stage-in'), sb = st && st.parentElement.getBoundingClientRect();
+  const lo = sb && sb.width >= w + 16 ? Math.max(8, sb.left + 8) : 8, hi = sb && sb.width >= w + 16 ? Math.min(innerWidth, sb.right) - w - 8 : innerWidth - w - 8;
+  let x = r.left + r.width / 2 - w / 2; x = Math.max(lo, Math.min(hi, x));
   let y = r.top - h - 8; if (y < 8) y = r.bottom + 8;
   tip.style.left = x + 'px'; tip.style.top = y + 'px';
 }
@@ -15311,21 +15345,21 @@ DM.def('model-picker', (r, c) => {
   // speed, quality and cost out of five, and the numbers behind them: tokens a second, and a typical reply's seconds and
   // price with no thinking (the same three models and figures as Model compare)
   const M = [
-    { n:'Opus 5.5', m:'O', c:'var(--c2)', d:'Deepest reasoning, slower', s:2, q:5, p:5, tps:38, sec:9, cost:.021 },
-    { n:'Sonnet 5.5', m:'S', c:'var(--c1)', d:'Balanced, the default for design work', s:4, q:4, p:2, tps:74, sec:4, cost:.006 },
-    { n:'Haiku 5.5', m:'H', c:'var(--c3)', d:'Fastest, for quick edits', s:5, q:3, p:1, tps:142, sec:1.5, cost:.001 }
+    { n:'Opus 5.5', m:'O', c:'var(--c2)', t:'var(--on-ink)', d:'Deepest reasoning, slower', s:2, q:5, p:5, tps:38, sec:9, cost:.021 },
+    { n:'Sonnet 5.5', m:'S', c:'var(--accent)', t:'var(--on-accent)', d:'Balanced, the default for design work', s:4, q:4, p:2, tps:74, sec:4, cost:.006 },
+    { n:'Haiku 5.5', m:'H', c:'var(--c3)', t:'#121212', d:'Fastest, for quick edits', s:5, q:3, p:1, tps:142, sec:1.5, cost:.001 }
   ];
   // thinking effort, and what it may spend
   const E = [['Off', 'Answers straight away'], ['Low', 'Up to 2k thinking tokens'], ['Medium', 'Up to 8k thinking tokens'], ['High', 'Up to 24k thinking tokens']];
   const list = $('.mpk-list', r), tr = $('.mpk-tr', r), fold = $('.mpk-fold', r), sgf = $('.mpk-sgf', r), sgt = $('.mpk-sgt', r), note = $('.mpk-note', r), thd = $('.mpk-thd', r), ev = $('.mpk-ev', r), items = $$('.mpk-pop .mi', r);
   const meter = (v, tip) => `<span class="mpk-m" data-tip="${tip}">${[1, 2, 3, 4, 5].map(k => `<i${k <= v ? ' class="on"' : ''}></i>`).join('')}</span>`;
-  list.innerHTML = M.map((x, i) => `<button class="mpk-o" role="radio" aria-checked="false" tabindex="-1" data-i="${i}"><span class="mpk-mk" style="--mc:${x.c}">${x.m}</span><span class="t"><b>${x.n}<span class="ck">${I('check','xs')}</span></b><span class="d">${x.d}</span></span>${meter(x.s, x.tps + ' tokens a second')}${meter(x.q, 'Quality ' + x.q + ' of 5')}${meter(x.p, '$' + x.cost.toFixed(3) + ' a reply')}</button>`).join('');
+  list.innerHTML = M.map((x, i) => `<button class="mpk-o" role="radio" aria-checked="false" tabindex="-1" data-i="${i}"><span class="mpk-mk" style="--mc:${x.c};--mt:${x.t}">${x.m}</span><span class="t"><b>${x.n}<span class="ck">${I('check','xs')}</span></b><span class="d">${x.d}</span></span>${meter(x.s, x.tps + ' tokens a second')}${meter(x.q, 'Quality ' + x.q + ' of 5')}${meter(x.p, '$' + x.cost.toFixed(3) + ' a reply')}</button>`).join('');
   const rows = $$('.mpk-o', list);
   // Opus is at capacity when the demo starts (busy is its wait in seconds), and free again once you've waited it out
   let cur = 1, eff = 2, busy = 20, waiting = false;
   function paint(){
     rows.forEach((b, i) => { b.setAttribute('aria-checked', i === cur); b.tabIndex = i === cur ? 0 : -1; });
-    const mk = $('.mpk-mk', tr); mk.style.setProperty('--mc', M[cur].c); mk.textContent = M[cur].m;
+    const mk = $('.mpk-mk', tr); mk.style.setProperty('--mc', M[cur].c); mk.style.setProperty('--mt', M[cur].t); mk.textContent = M[cur].m;
     swap($('.mpk-nm', tr), M[cur].n); swap($('.mpk-ef', tr), E[eff][0]); swap(thd, E[eff][1]); swap(ev, E[eff][0]);
     items.forEach((m, i) => m.setAttribute('aria-checked', i === eff));
   }
@@ -15927,7 +15961,8 @@ DM.def('inline-text-diff', (r, c) => {
     bar.style.top = ((cr.bottom - rb.top) / k + 6) + 'px';
   }
   function decide(i, s){ E[i].s = s; chunks[i].classList.remove('acc', 'rej'); chunks[i].classList.add(s); tally(); }
-  const pick = s => { const i = cur, back = bar.contains(document.activeElement); close(); decide(i, s); if (back) chunks[i].focus({ preventScroll:true }); };
+  // a click anywhere else on the page can close the toolbar between the story's taps, and then there is no edit to decide
+  const pick = s => { const i = cur; if (i < 0) return; const back = bar.contains(document.activeElement); close(); decide(i, s); if (back) chunks[i].focus({ preventScroll:true }); };
   chunks.forEach((el, i) => { el.onclick = () => cur === i ? close() : open(i); el.onkeydown = ev => { if (ev.key === 'Enter' || ev.key === ' '){ ev.preventDefault(); el.click(); } }; });
   $('.itd-acc', r).onclick = () => pick('acc');
   $('.itd-rej', r).onclick = () => pick('rej');
@@ -16418,10 +16453,10 @@ DM.def('source-stack', (r, c) => {
   r.innerHTML = r.innerHTML.replace('{chev}', I('chev-d','xs'));
   const S = [
     ['web','Baymard: pricing page UX','baymard.com',.92,'B','var(--pb)'],
-    ['web','Annual vs monthly anchoring study','cxl.com',.88,'C','#d9480f'],
+    ['web','Annual vs monthly anchoring study','cxl.com',.88,'C','var(--pp)'],
     ['file','Q3 conversion export.csv','Drive',.84,'CSV','var(--pm)'],
     ['figma','Pricing v4, frame 2','Figma',.8,'F','var(--pl)'],
-    ['web','Stripe billing docs','stripe.com',.66,'S','#635bff'],
+    ['web','Stripe billing docs','stripe.com',.66,'S','var(--pl)'],
     ['file','Pricing research notes','Notion',.61,'N','var(--fg2)'],
     ['figma','Checkout flow','Figma',.52,'F','var(--pl)'],
     ['web','NN/g on price framing','nngroup.com',.48,'N','var(--fg2)']
@@ -16902,7 +16937,7 @@ DM.def('automation-canvas', (r, c) => {
   const N = [
     { id:'t', ic:'clock', col:'var(--py)', t:'Schedule', d:'Mondays 9:00', y:.5, f:['When', ['Mondays 9:00','Every weekday','On new Figma version']] },
     { id:'a', ic:'figma', col:'var(--pl)', t:'Read frames', d:'Pricing, Checkout', y:.28, f:['Frames', ['Pricing, Checkout','All frames','Changed this week']] },
-    { id:'b', ic:'spark', col:'var(--accent-mark,var(--accent))', t:'Agent: audit', d:'Contrast, tokens', y:.72, f:['Checks', ['Contrast, tokens','Everything','Accessibility only']] },
+    { id:'b', ic:'spark', col:'var(--accent-mark,var(--accent))', fg:'var(--accent-fg,var(--accent))', t:'Agent: audit', d:'Contrast, tokens', y:.72, f:['Checks', ['Contrast, tokens','Everything','Accessibility only']] },
     { id:'c', ic:'send', col:'var(--pm)', t:'Post summary', d:'#design in Slack', y:.5, f:['Channel', ['#design in Slack','Email the team','Linear ticket']] }
   ];
   const E = [['t','a'],['t','b'],['a','c'],['b','c']];
@@ -16912,7 +16947,7 @@ DM.def('automation-canvas', (r, c) => {
   // so the wires on the left and right are the same length at any width. A step you dragged keeps where you put it
   const wide = (n, W, w) => { const pad = Math.max(20, W * .06); return { x:{ t:pad + w / 2, a:W / 2, b:W / 2, c:W - pad - w / 2 }[n.id] / W, y:n.y }; };
   const pos = (n, W, w) => (narrow() ? n.um : n.uw) || (narrow() ? { x:{ t:.5, a:.28, b:.72, c:.5 }[n.id], y:{ t:.13, a:.42, b:.62, c:.88 }[n.id] } : wide(n, W, w));
-  nodes.innerHTML = N.map(n => `<button class="acx-n" data-id="${n.id}"><span class="ic" style="color:${n.col};background:color-mix(in srgb,${n.col} 14%,transparent)">${I(n.ic,'xs')}</span><span class="t"><b>${n.t}</b><span class="d">${n.d}</span></span></button>`).join('');
+  nodes.innerHTML = N.map(n => `<button class="acx-n" data-id="${n.id}"><span class="ic" style="color:${n.fg || n.col};background:color-mix(in srgb,${n.col} 14%,transparent)">${I(n.ic,'xs')}</span><span class="t"><b>${n.t}</b><span class="d">${n.d}</span></span></button>`).join('');
   const el = id => $(`.acx-n[data-id="${id}"]`, nodes);
   function layout(){
     const W = cv.clientWidth, H = cv.clientHeight, small = narrow() || W < 700;
@@ -17032,23 +17067,23 @@ DM.def('memory-panel', (r, c) => {
 DM.def('model-compare', (r, c) => {
   r.innerHTML = r.innerHTML.replace('{up}', I('up'));
   const MOD = {
-    Opus:{ k:'O', c:'var(--c2)', d:'Most capable, slower', ms:2400, tps:38, cost:.021, o:'Pro gives every designer an agent that knows your tokens, so reviews take minutes, not days.' },
-    Sonnet:{ k:'S', c:'var(--c1)', d:'Balanced speed and quality', ms:1300, tps:74, cost:.006, o:'Ship polished pages faster with an agent that checks every frame for you.' },
-    Haiku:{ k:'H', c:'var(--c3)', d:'Fastest, lowest cost', ms:600, tps:142, cost:.001, o:'Your design QA, on autopilot.' }
+    Opus:{ k:'O', c:'var(--c2)', t:'var(--on-ink)', d:'Most capable, slower', ms:2400, tps:38, cost:.021, o:'Pro gives every designer an agent that knows your tokens, so reviews take minutes, not days.' },
+    Sonnet:{ k:'S', c:'var(--accent)', t:'var(--on-accent)', d:'Balanced speed and quality', ms:1300, tps:74, cost:.006, o:'Ship polished pages faster with an agent that checks every frame for you.' },
+    Haiku:{ k:'H', c:'var(--c3)', t:'#121212', d:'Fastest, lowest cost', ms:600, tps:142, cost:.001, o:'Your design QA, on autopilot.' }
   };
   const generic = { Opus:'Here is a considered take, with the trade-offs spelled out and one clear recommendation at the end.', Sonnet:'Here is a clear, direct answer with the two points that matter most.', Haiku:'Short answer: yes, and here is the one line why.' };
   const cols = $('.mcx-cols', r), q = $('.mcx-q', r), go = $('.mcx-go', r), cnt = $('.mcx-n', r), DEF = q.value, MAX = 3;
   const C = []; let uid = 0, asked = '', busy = 0;
-  const menu = (id, cur) => `<div class="pop mcx-pop ${id}" role="menu">${Object.keys(MOD).map(n => `<button class="mi" role="menuitemradio" data-close data-m="${n}" aria-checked="${n === cur}"><span class="mcx-mk" style="background:${MOD[n].c}">${MOD[n].k}</span><span>${n}<span class="d">${MOD[n].d}</span></span><span class="ck">${I('check','xs')}</span></button>`).join('')}</div>`;
+  const menu = (id, cur) => `<div class="pop mcx-pop ${id}" role="menu">${Object.keys(MOD).map(n => `<button class="mi" role="menuitemradio" data-close data-m="${n}" aria-checked="${n === cur}"><span class="mcx-mk" style="background:${MOD[n].c};color:${MOD[n].t}">${MOD[n].k}</span><span>${n}<span class="d">${MOD[n].d}</span></span><span class="ck">${I('check','xs')}</span></button>`).join('')}</div>`;
   /* the empty slot: add a model back, up to three side by side */
   const slot = html(`<div class="mcx-add"><button class="mcx-addb" data-pop=".mcx-pa" data-pop-pos="down" data-pop-align="end" aria-haspopup="menu"><span class="ic">${I('plus','s')}</span>Add a model<span class="d">Compare up to 3</span></button><div class="pop mcx-pop mcx-pa" role="menu"></div></div>`);
   function sync(){
     cnt.textContent = 'Sends to ' + C.length + (C.length > 1 ? ' models' : ' model');
     C.forEach(col => { const x = $('.mcx-x', col.el); x.hidden = C.length < 2; });
-    if (C.length < MAX){ cols.appendChild(slot); $('.mcx-pa', slot).innerHTML = Object.keys(MOD).map(n => `<button class="mi" role="menuitem" data-close data-m="${n}"><span class="mcx-mk" style="background:${MOD[n].c}">${MOD[n].k}</span><span>${n}<span class="d">${MOD[n].d}</span></span></button>`).join(''); $$('.mcx-pa .mi', slot).forEach(b => b.onclick = () => addCol(b.dataset.m, true)); }
+    if (C.length < MAX){ cols.appendChild(slot); $('.mcx-pa', slot).innerHTML = Object.keys(MOD).map(n => `<button class="mi" role="menuitem" data-close data-m="${n}"><span class="mcx-mk" style="background:${MOD[n].c};color:${MOD[n].t}">${MOD[n].k}</span><span>${n}<span class="d">${MOD[n].d}</span></span></button>`).join(''); $$('.mcx-pa .mi', slot).forEach(b => b.onclick = () => addCol(b.dataset.m, true)); }
     else slot.remove();
   }
-  function head(col){ const m = MOD[col.m]; $('.mcx-sel', col.el).innerHTML = `<span class="mcx-mk" style="background:${m.c}">${m.k}</span>${col.m}${I('chev-d','xs')}`; $$('.mi', col.el).forEach(x => x.setAttribute('aria-checked', x.dataset.m === col.m)); }
+  function head(col){ const m = MOD[col.m]; $('.mcx-sel', col.el).innerHTML = `<span class="mcx-mk" style="background:${m.c};color:${m.t}">${m.k}</span>${col.m}${I('chev-d','xs')}`; $$('.mi', col.el).forEach(x => x.setAttribute('aria-checked', x.dataset.m === col.m)); }
   function addCol(m, fresh){
     const id = 'mcx-p' + (uid++), el = html(`<div class="mcx-c panel"><div class="mcx-h"><button class="mcx-sel" data-pop=".${id}" aria-haspopup="menu"></button><button class="ib mcx-x" aria-label="Remove model" data-tip="Remove">${I('x','xs')}</button></div>${menu(id, m)}<div class="mcx-o"><div class="mcx-a"><span class="ph">Waiting for a prompt</span></div></div><div class="mcx-f"><span class="mcx-m num">No run yet</span><button class="pill soft sm mcx-pick" disabled>Use this</button></div></div>`);
     const col = { m, el, run:0 }; C.push(col); cols.insertBefore(el, slot.parentNode === cols ? slot : null); head(col);
@@ -18626,14 +18661,14 @@ DM.def('notifications', (r, c) => {
   ];
   const list = $('.ntx-list', r), ct = $('.ntx-ct', r); let f = 'all';
   const count = (bump) => { const n = N.filter(x => !x.read).length; ct.textContent = n; ct.classList.toggle('z', !n); if (bump){ ct.classList.remove('bump'); void ct.offsetWidth; ct.classList.add('bump'); } };
-  const row = x => `<button class="ntx-n${x.read ? ' read' : ''}"><span class="ic" ${x.ic ? `style="color:${x.col};background:color-mix(in srgb,${x.col} 13%,transparent)"` : ''}>${x.ic ? I(x.ic,'xs') : AV(x.av[0], x.av[1])}</span><span class="t">${x.t}<span>${x.w}</span></span><span class="u"></span></button>`;
+  const row = x => `<button class="ntx-n${x.read ? ' read' : ''}"><span class="ic" ${x.ic ? `style="color:${x.fg || x.col};background:color-mix(in srgb,${x.col} 13%,transparent)"` : ''}>${x.ic ? I(x.ic,'xs') : AV(x.av[0], x.av[1])}</span><span class="t">${x.t}<span>${x.w}</span></span><span class="u"></span></button>`;
   function paint(anim){ const L = N.filter(x => f === 'all' || x.k === f); list.innerHTML = L.length ? L.map(row).join('') : '<div class="ntx-e">Nothing here yet</div>';
     $$('.ntx-n', list).forEach((b, i) => b.onclick = () => { L[i].read = !L[i].read; b.classList.toggle('read', L[i].read); count(); });
     if (anim) stagger($$('.ntx-n', list), 40); count(); }
   seg($('.ntx-tabs .seg2', r), v => { f = v; paint(true); });
   $('.ntx-all', r).onclick = () => { N.forEach(x => x.read = true); $$('.ntx-n', list).forEach((b, i) => c.later(i * 50, () => b.classList.add('read'))); count(); };
   paint(true);
-  const incoming = [{ k:'agent', ic:'spark', col:'var(--accent-mark,var(--accent))', t:'<b>Weekly design QA</b> started on 12 frames', w:'Just now' }, { k:'men', av:['AR','var(--pp)'], t:'<b>Ari</b> replied: “Looks great, ship it”', w:'Just now' }];
+  const incoming = [{ k:'agent', ic:'spark', col:'var(--accent-mark,var(--accent))', fg:'var(--accent-fg,var(--accent))', t:'<b>Weekly design QA</b> started on 12 frames', w:'Just now' }, { k:'men', av:['AR','var(--pp)'], t:'<b>Ari</b> replied: “Looks great, ship it”', w:'Just now' }];
   incoming.forEach((x, i) => c.later(2200 + i * 2600, () => { N.unshift(x); if (f === 'all' || f === x.k){ const el = html(row(x)); el.classList.add('new'); list.prepend(el); $('.ntx-e', list)?.remove(); el.onclick = () => { x.read = !x.read; el.classList.toggle('read', x.read); count(); }; } count(true); }));
 });
 /* ---------- Invite ---------- */

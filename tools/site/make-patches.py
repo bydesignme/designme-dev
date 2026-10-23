@@ -747,26 +747,32 @@ body.ui main .comp[data-v2="pricing-cards"] .stage-inner{padding-bottom:40px!imp
 
 # ---------- the accent: lime by default in Blueprint, and readable in any colour ----------
 # Blueprint's default accent is lime. The accent has three roles: fills (--accent, with --on-accent on top), text and icons
-# (--accent-fg, 4.5:1 on the surface) and lines, rings and chart marks (--accent-mark, 3:1). These sit outside the site layer so
-# they win over the original page's own tokens
+# (--accent-fg, 4.5:1) and lines, rings and chart marks (--accent-mark, 3:1), both on the surface and on the chips it sits on.
+# These sit outside the site layer so they win over the original page's own tokens
 patch("""</head>""", """<style id="accent-roles">
-:root:not([data-style="soft"]){--accent:#d4f84a;--accent-hi:#d4f84a;--accent-bg:rgba(212,248,74,.18);--accent-muted:#6c7e26;--accent-icon-bg:rgba(212,248,74,.14);--accent-icon-line:rgba(134,156,47,.45);--accent-fill:#f8fde6;--on-accent:#121212;--accent-fg:#111318;--accent-mark:#869c2f}
+:root:not([data-style="soft"]){--accent:#d4f84a;--accent-hi:#d4f84a;--accent-bg:rgba(212,248,74,.18);--accent-muted:#6c7e26;--accent-icon-bg:rgba(212,248,74,.14);--accent-icon-line:rgba(134,156,47,.45);--accent-fill:#f8fde6;--on-accent:#121212;--accent-fg:#111318;--accent-mark:#7a8e2b}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]):not([data-style="soft"]){--accent:#d4f84a;--accent-hi:#dcfa6a;--accent-bg:rgba(212,248,74,.12);--accent-muted:rgba(212,248,74,.55);--accent-icon-bg:rgba(212,248,74,.06);--accent-icon-line:rgba(212,248,74,.2);--accent-fill:#1c1f10;--accent-fg:#d4f84a;--accent-mark:#d4f84a}}
 :root[data-theme="dark"]:not([data-style="soft"]){--accent:#d4f84a;--accent-hi:#dcfa6a;--accent-bg:rgba(212,248,74,.12);--accent-muted:rgba(212,248,74,.55);--accent-icon-bg:rgba(212,248,74,.06);--accent-icon-line:rgba(212,248,74,.2);--accent-fill:#1c1f10;--accent-fg:#d4f84a;--accent-mark:#d4f84a}
-/* these sit outside the site's layers, so they apply to Blueprint only; Soft keeps its own blue, which reads as text and as a
-   line at 4.5:1 or more */
-:root[data-style="soft"]{--on-accent:#ffffff;--accent-fg:var(--accent);--accent-mark:var(--accent)}
+/* these sit outside the site's layers, so they apply to Blueprint only. Soft keeps its own blue for fills and marks; as text it
+   takes a slightly deeper blue in light mode (a lighter one in dark), so it reads at 4.5:1 on chips and tinted rows too, and in
+   dark mode the blue fill is too light for white text, so text on it is dark */
+:root[data-style="soft"]{--on-accent:#ffffff;--accent-fg:#0f5fd5;--accent-mark:var(--accent)}
+@media (prefers-color-scheme: dark){:root[data-style="soft"]:not([data-theme="light"]){--on-accent:#121212;--accent-fg:#6fa8ff}}
+:root[data-style="soft"][data-theme="dark"]{--on-accent:#121212;--accent-fg:#6fa8ff}
 </style>
 </head>""")
 # a picked colour gets the same treatment: the shades for text and for marks are worked out from it
 patch("""'--pb-tx','--on-accent'];""", """'--pb-tx','--on-accent','--accent-fg','--accent-mark'];""")
-patch("""    v['--on-accent'] = onWhite >= 3 ? '#ffffff' : '#120a02';""", """    v['--on-accent'] = onWhite >= 3 ? '#ffffff' : '#120a02';
-    // as text it needs 4.5:1 on the surface, and as lines and chart marks 3:1: it is darkened on a light page (lightened on a dark
-    // one) until it gets there, and text falls back to the ink if that takes more than 40%
-    var fill = rgb(v['--accent'] || base), surf = dark ? [38,38,38] : [255,255,255], to = dark ? W : K;
+patch("""    v['--on-accent'] = onWhite >= 3 ? '#ffffff' : '#120a02';""", """    // measured on the fill itself: white when it reaches 4.5:1, otherwise whichever of the two reads better
+    L = lum(rgb(v['--accent'] || base)); onDark = (L + .05) / (lum([18,10,2]) + .05); onWhite = 1.05 / (L + .05);
+    v['--on-accent'] = onWhite >= 4.5 || onWhite >= onDark ? '#ffffff' : '#120a02';
+    // as text it needs 4.5:1, and as lines and chart marks 3:1, on the surface and on the chips and tinted rows it sits on: it
+    // is darkened on a light page (lightened on a dark one) until it gets there, and text falls back to the ink if that takes
+    // more than 40%
+    var fill = rgb(v['--accent'] || base), chip = dark ? [52,52,52] : [236,236,236], to = dark ? W : K;
     function ratio(a, b){ var x = lum(a), y = lum(b); return (Math.max(x, y) + .05) / (Math.min(x, y) + .05); }
-    function reach(need, cap){ for (var i = 0; i <= 100; i += 2){ var m = mix(fill, to, i / 100); if (ratio(m, surf) >= need) return i / 100 <= cap ? hex(m) : null; } return null; }
-    v['--accent-mark'] = reach(3, 1); v['--accent-fg'] = reach(4.5, .4) || (dark ? '#f2f2f2' : '#111318');""")
+    function reach(need, cap, on){ for (var i = 0; i <= 100; i += 2){ var m = mix(fill, to, i / 100); if (ratio(m, on) >= need) return i / 100 <= cap ? hex(m) : null; } return null; }
+    v['--accent-mark'] = reach(3, 1, chip); v['--accent-fg'] = reach(4.5, .4, mix(chip, fill, .12)) || (dark ? '#f2f2f2' : '#111318');""")
 patch("""'Orange, the Blueprint default'""", """'Lime, the Blueprint default'""")
 
 json.dump({ 'patches': P, 'css': CSS }, open(os.path.join(HERE, 'site-patches.json'), 'w'), indent=1)
