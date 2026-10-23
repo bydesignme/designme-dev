@@ -186,10 +186,15 @@ patch("""  /* ---------- book a call button: fill grows from the pointer -------
     // the component page steps through both sets, so on its way out it shows the set its last component is in
     window.dmFollow = follow;
     const target = h => { if (/^#\\/./.test(h)) return $$('main .comp').find(c => slugOf(c.querySelector('.comp-title').textContent) === h.slice(2)); try { return h.length > 1 ? document.querySelector(h) : null; } catch(e){ return null; } };
-    document.addEventListener('click', e => { const a = e.target.closest('a[href^="#"],[data-id]'); if (a) follow(a.dataset.id ? document.getElementById(a.dataset.id) : target(a.getAttribute('href'))); }, true);
-    addEventListener('hashchange', () => follow(target(location.hash)));
-    addEventListener('popstate', () => follow(target(location.hash)));
-    follow(target(location.hash));
+    // anything below both sets (the questions, the footer) lays both sets out first, so the page has its full length before
+    // the jump, and App basics can't arrive halfway down and push the target further away
+    const below = el => !!el && !el.closest('.lib-sec') && !!($('main').compareDocumentPosition(el) & Node.DOCUMENT_POSITION_FOLLOWING);
+    const all = () => { if (both()) return; root.dataset.grp = 'agent'; root.classList.add('grp-cont'); dispatchEvent(new Event('resize')); };
+    const go = el => { if (below(el)) all(); else follow(el); };
+    document.addEventListener('click', e => { const a = e.target.closest('a[href^="#"],[data-id]'); if (a) go(a.dataset.id ? document.getElementById(a.dataset.id) : target(a.getAttribute('href'))); }, true);
+    addEventListener('hashchange', () => go(target(location.hash)));
+    addEventListener('popstate', () => go(target(location.hash)));
+    go(target(location.hash));
   }
   /* ---------- book a call button: fill grows from the pointer ---------- */""")
 # the phone menu's search counted one card too few
@@ -377,6 +382,16 @@ patch("""aria-label="Search components"><span class="kbd">/</span></label>""",
       """aria-label="Search components"><span class="kbd">/</span></label>
   <nav class="side-pages" aria-label="Site"><a class="side-p act" href="#components" aria-current="page"><span class="ms">dashboard</span>Library</a><a class="side-p" href="#/changelog"><span class="ms">history</span>Changelog</a><a class="side-p" href="#/roadmap"><span class="ms">trending_up</span>Roadmap</a><a class="side-p" href="#faq"><span class="ms">help</span>FAQ</a></nav>""")
 
+# Changelog and Roadmap keep the sidebar beside them (on wider screens), and the sidebar marks the page that's open
+patch("""    document.addEventListener('click', e => {
+      const a = e.target.closest('a[href="#/changelog"], a[href="#/roadmap"], a[href="#/privacy"]'); if (!a) return;""",
+      """    // the sidebar's pages: Library, or the page open over it
+    { const markSide = () => { const h = pv.classList.contains('open') ? location.hash : '#components';
+        $$('.side-p').forEach(a => { const on = a.getAttribute('href') === h; a.classList.toggle('act', on); if (on) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); }); };
+      new MutationObserver(markSide).observe(pv, { attributes:true, attributeFilter:['class'] }); }
+    document.addEventListener('click', e => {
+      const a = e.target.closest('a[href="#/changelog"], a[href="#/roadmap"], a[href="#/privacy"]'); if (!a) return;""")
+
 CSS = """.comp-title a{color:inherit;text-decoration:inherit}
 /* component page: an arrow either side of the component, halfway down the screen, centred in the space beside it.
    Hovering one names the component it goes to underneath it, never wider than that space, so nothing covers the component.
@@ -543,6 +558,34 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
   body.ui .top .top-actions{min-height:28px}
   body.ui .top .top-actions:not(:has(#acc)) #style-seg{margin-right:36px}
 }
+/* ================= round 2 ================= */
+/* one width for every page: 1400px, the sidebar included */
+.layout,.top-in{max-width:1400px}
+@media (min-width:961px){
+  .intro::after,.grp-next::before{left:calc((100% - min(100%, 1400px)) / 2 + 264px)}
+  /* Changelog and Roadmap open beside the sidebar and under the header, which stay where they are */
+  .pv{top:var(--hh);left:calc((100vw - min(100vw, 1400px)) / 2 + 264px)}
+  .pv>.dv-bar{display:none}
+}
+/* lighter frames: the line is there, but quiet */
+body.ui main .comp{border-color:color-mix(in srgb,var(--sh-line) 50%,transparent)}
+body.ui main .comp:hover{border-color:var(--sh-line)}
+/* the sidebar's icons move on hover: the grid turns, the clock winds back, the arrow climbs, the question mark tilts */
+.side-p .ms svg{transition:transform .42s cubic-bezier(.34,1.56,.64,1)}
+.side-p[href="#components"]:hover .ms svg{transform:rotate(90deg)}
+.side-p[href="#/changelog"]:hover .ms svg{transform:rotate(-50deg)}
+.side-p[href="#/roadmap"]:hover .ms svg{transform:translate(2px,-2px)}
+.side-p[href="#faq"]:hover .ms svg{animation:side-tilt .6s cubic-bezier(.36,0,.2,1)}
+@keyframes side-tilt{30%{transform:rotate(-16deg)}65%{transform:rotate(10deg)}100%{transform:none}}
+@media (prefers-reduced-motion:reduce){ .side-p .ms svg{transition:none;animation:none!important;transform:none!important} }
+/* nothing on the site is heavier than medium, and nothing but a page's title is bigger than 14px */
+body.ui :is(h1,h2,h3,h4,b,strong,button,.acc-t,.side-lbl,.st,.t,.nd-t,.chg-v,.chg-tag,.rm-st,.rm-t,.rm-n span,.su-btn,.cdm-copy,.cdm-shared,.dv-copy):not(.v2 *){font-weight:500}
+body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
+/* calmer previews: each component sits small in the middle of its stage, with room all round */
+@media (min-width:641px){ body.ui main .comp .stage-inner{padding:56px 48px 72px} }
+/* Changelog and Roadmap: the same title and text as every other page */
+.pv-h h1{font-size:20px;font-weight:500;letter-spacing:-.01em}
+.pv-h p{font-size:14px}
 """
 json.dump({ 'patches': P, 'css': CSS }, open(os.path.join(HERE, 'site-patches.json'), 'w'), indent=1)
 print(len(P), 'patches')

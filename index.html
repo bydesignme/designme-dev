@@ -5621,6 +5621,34 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
   body.ui .top .top-actions{min-height:28px}
   body.ui .top .top-actions:not(:has(#acc)) #style-seg{margin-right:36px}
 }
+/* ================= round 2 ================= */
+/* one width for every page: 1400px, the sidebar included */
+.layout,.top-in{max-width:1400px}
+@media (min-width:961px){
+  .intro::after,.grp-next::before{left:calc((100% - min(100%, 1400px)) / 2 + 264px)}
+  /* Changelog and Roadmap open beside the sidebar and under the header, which stay where they are */
+  .pv{top:var(--hh);left:calc((100vw - min(100vw, 1400px)) / 2 + 264px)}
+  .pv>.dv-bar{display:none}
+}
+/* lighter frames: the line is there, but quiet */
+body.ui main .comp{border-color:color-mix(in srgb,var(--sh-line) 50%,transparent)}
+body.ui main .comp:hover{border-color:var(--sh-line)}
+/* the sidebar's icons move on hover: the grid turns, the clock winds back, the arrow climbs, the question mark tilts */
+.side-p .ms svg{transition:transform .42s cubic-bezier(.34,1.56,.64,1)}
+.side-p[href="#components"]:hover .ms svg{transform:rotate(90deg)}
+.side-p[href="#/changelog"]:hover .ms svg{transform:rotate(-50deg)}
+.side-p[href="#/roadmap"]:hover .ms svg{transform:translate(2px,-2px)}
+.side-p[href="#faq"]:hover .ms svg{animation:side-tilt .6s cubic-bezier(.36,0,.2,1)}
+@keyframes side-tilt{30%{transform:rotate(-16deg)}65%{transform:rotate(10deg)}100%{transform:none}}
+@media (prefers-reduced-motion:reduce){ .side-p .ms svg{transition:none;animation:none!important;transform:none!important} }
+/* nothing on the site is heavier than medium, and nothing but a page's title is bigger than 14px */
+body.ui :is(h1,h2,h3,h4,b,strong,button,.acc-t,.side-lbl,.st,.t,.nd-t,.chg-v,.chg-tag,.rm-st,.rm-t,.rm-n span,.su-btn,.cdm-copy,.cdm-shared,.dv-copy):not(.v2 *){font-weight:500}
+body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
+/* calmer previews: each component sits small in the middle of its stage, with room all round */
+@media (min-width:641px){ body.ui main .comp .stage-inner{padding:56px 48px 72px} }
+/* Changelog and Roadmap: the same title and text as every other page */
+.pv-h h1{font-size:20px;font-weight:500;letter-spacing:-.01em}
+.pv-h p{font-size:14px}
 
 }
 </style>
@@ -5687,6 +5715,8 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
 .v2 *{box-sizing:border-box}
 .v2 button,.v2 input,.v2 textarea,.v2 select{font:inherit;color:inherit}
 .v2 button{background:none;border:0;padding:0;cursor:pointer}
+/* one weight for emphasis: medium, never bold */
+.v2 b,.v2 strong{font-weight:500}
 .v2 :focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
 .v2.stage-in{width:100%;max-width:440px;min-width:0;position:relative;container-type:inline-size}
 .v2.stage-in.wide{max-width:720px}
@@ -5735,13 +5765,13 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
 .v2 .fchip{display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 10px 0 8px;border-radius:var(--r-pill);background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);font-size:12.5px;color:var(--fg);white-space:nowrap}
 .v2 .fchip.lnk{cursor:pointer;transition:background var(--t-fast),box-shadow var(--t-fast)}
 .v2 .fchip.lnk:hover{background:var(--chip);box-shadow:inset 0 0 0 1px var(--rail)}
-.v2 .ft{font-family:var(--mono);font-size:9.5px;font-weight:600;color:var(--ts);letter-spacing:.02em}
+.v2 .ft{font-family:var(--mono);font-size:9.5px;font-weight:500;color:var(--ts);letter-spacing:.02em}
 .v2 .ft.re{color:var(--react)}.v2 .ft.fg{color:var(--pl)}.v2 .ft.pdf{color:var(--pr)}.v2 .ft.csv{color:var(--pm)}
 .v2 .kbd{font-family:var(--mono);font-size:10.5px;padding:1px 5px;border-radius:5px;background:var(--chip);color:var(--fg2)}
 .v2 .pill .kbd{display:inline-grid;place-items:center;min-width:18px;height:18px;padding:0 4px;margin-right:-6px}
 .v2 .pill.ink .kbd,.v2 .pill.accent .kbd{background:color-mix(in srgb,currentColor 18%,transparent);color:inherit}
 .v2 code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1px 5px;border-radius:5px}
-.v2 .av{width:22px;height:22px;border-radius:50%;display:inline-grid;place-items:center;font-size:10px;font-weight:600;color:#fff;flex:none}
+.v2 .av{width:22px;height:22px;border-radius:50%;display:inline-grid;place-items:center;font-size:10px;font-weight:500;color:#fff;flex:none}
 .v2 .hr{height:1px;background:var(--line);border:0;margin:0}
 .v2 .toggle{width:30px;height:18px;border-radius:9px;background:var(--faint);position:relative;flex:none;transition:background var(--t-fast)}
 .v2 .toggle::after{content:"";position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.2);transition:transform var(--t) var(--ease)}
@@ -5759,7 +5789,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
 .v2 .dm>.demo{flex:none;display:flex;justify-content:center}
 
 .v2 .bub{align-self:flex-end;max-width:85%;background:var(--hover);border-radius:16px;padding:9px 13px;font-size:14px;line-height:1.45}
-.v2 .msg{margin:0;font-size:14.5px;line-height:1.65}
+.v2 .msg{margin:0;font-size:14px;line-height:1.65}
 
 /* ---------- status glyphs ---------- */
 .v2 .spin{width:12px;height:12px;border-radius:50%;border:1.5px solid currentColor;border-right-color:transparent;animation:v2-rot .8s linear infinite;flex:none;display:inline-block}
@@ -5933,7 +5963,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
 .v2 .ctm-pop{width:100%;padding:14px 16px 16px;border-radius:16px;box-shadow:var(--shadow-pop);transform-origin:bottom right;transition:opacity .25s var(--ease),transform .4s var(--ease),filter .25s}
 .v2 .ctm.shut .ctm-pop{opacity:0;transform:translateY(6px) scale(.98);filter:blur(3px);pointer-events:none}
 .v2 .ctm-ph{display:flex;align-items:center;justify-content:space-between;margin:-4px -6px 8px 0}
-.v2 .ctm-ph b{font-size:15px;font-weight:600}
+.v2 .ctm-ph b{font-size:14px;font-weight:500}
 .v2 .ctm-ib{width:28px;height:28px;color:var(--fg2)}
 .v2 .ctm-rows{display:flex;flex-direction:column;gap:16px}
 .v2 .ctm-r{display:grid;grid-template-columns:1fr auto;align-items:baseline;row-gap:8px}
@@ -5999,7 +6029,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
 .v2 .rc-h{display:flex;align-items:center;justify-content:space-between;font-size:12.5px}
 .v2 .rc-st{transition:background .3s,color .3s}
 .v2 .rc-big{margin-top:6px;font-size:13px}
-.v2 .rc-n{font-size:30px;font-weight:600;letter-spacing:-.8px}
+.v2 .rc-n{font-size:20px;font-weight:500;letter-spacing:-.8px}
 .v2 .rc-track{position:relative;height:6px;border-radius:4px;background:var(--chip);margin:14px 0 16px}
 .v2 .rc-fill{height:100%;width:0;border-radius:4px;background:var(--accent);transition:background .4s}
 .v2 .rc-cap{position:absolute;left:90%;top:-5px;bottom:-5px;width:2px;border-radius:1px;background:var(--fg2);transition:opacity .3s}
@@ -6052,7 +6082,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
 .v2 .pcx-c .nm{font-size:14px;font-weight:500}
 .v2 .pcx-c .ds{font-size:12.5px;color:var(--muted);margin-top:-8px}
 .v2 .pcx-pr{display:flex;flex-wrap:wrap;align-items:baseline;gap:0 6px}
-.v2 .pcx-pr b{font-size:30px;font-weight:600;letter-spacing:-.02em}
+.v2 .pcx-pr b{font-size:20px;font-weight:500;letter-spacing:-.02em}
 .v2 .pcx-pr span{flex-basis:100%;min-height:18px;font-size:12px;color:var(--muted)}
 .v2 .pcx-pr s{font-size:13px;color:var(--faint)}
 .v2 .pcx-tot{font-size:12px;color:var(--fg2);min-height:16px}
@@ -6118,7 +6148,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
 .v2 .stx-body.inr{animation:v2-stxr .45s var(--ease) both}.v2 .stx-body.inl{animation:v2-stxl .45s var(--ease) both}
 @keyframes v2-stxr{from{opacity:0;transform:translateX(24px);filter:blur(4px)}}
 @keyframes v2-stxl{from{opacity:0;transform:translateX(-24px);filter:blur(4px)}}
-.v2 .stx-body h4{margin:0;font-size:14.5px;font-weight:500}
+.v2 .stx-body h4{margin:0;font-size:14px;font-weight:500}
 .v2 .stx-body p{margin:0;font-size:12.5px;color:var(--muted)}
 .v2 .stx-opts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 @media (max-width:520px){.v2 .stx-opts{grid-template-columns:1fr}}
@@ -6130,7 +6160,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
 .v2 .stx-f{display:flex;justify-content:space-between}
 .v2 .stx-bk[disabled]{visibility:hidden}
 .v2 .stx-dn{display:flex;flex-direction:column;align-items:center;gap:6px;padding:18px 0;text-align:center;font-size:13px}
-.v2 .stx-dn>b{font-size:14.5px;font-weight:500}
+.v2 .stx-dn>b{font-size:14px;font-weight:500}
 /* finished: the check pops and draws itself, a soft ring spreads from it, and a little confetti bursts out once */
 .v2 .stx-ok{position:relative;width:44px;height:44px;margin-bottom:6px}
 .v2 .stx-ok svg{display:block;width:44px;height:44px;overflow:visible}
@@ -6152,7 +6182,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
 .v2 .slx-h>div{display:flex;flex-direction:column;font-size:14px}
 .v2 .slx-h b{font-weight:500}
 .v2 .slx-h .muted{font-size:12px}
-.v2 .slx-v{display:inline-flex;align-items:baseline;font-size:24px;font-weight:600!important;letter-spacing:-.02em;margin:-3px -7px 0 0;padding:1px 7px;border-radius:9px;cursor:text;transition:background-color .2s var(--ease),box-shadow .2s var(--ease)}
+.v2 .slx-v{display:inline-flex;align-items:baseline;font-size:20px;font-weight:500!important;letter-spacing:-.02em;margin:-3px -7px 0 0;padding:1px 7px;border-radius:9px;cursor:text;transition:background-color .2s var(--ease),box-shadow .2s var(--ease)}
 /* the budget reads as a figure until you click it, then you can type a new one */
 .v2 .slx-v:hover{background:var(--row)}
 .v2 .slx-v:focus-within{background:var(--row);box-shadow:inset 0 0 0 1px var(--rail)}
@@ -6179,7 +6209,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
 .v2 .ccx-row{display:flex;align-items:center;gap:8px;padding:10px 10px 10px 14px;border-radius:14px;background:var(--chip);transition:box-shadow .25s,background .25s}
 .v2 .ccx-row:focus-within{background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--accent)}
 .v2 .ccx-in{flex:1;display:flex;flex-direction:column;min-width:0;font-size:11.5px}
-.v2 .ccx-a,.v2 .ccx-b{border:0;outline:0;background:transparent;font:inherit;font-size:24px;font-weight:600;letter-spacing:-.02em;color:var(--fg);padding:0;width:100%;min-width:0}
+.v2 .ccx-a,.v2 .ccx-b{border:0;outline:0;background:transparent;font:inherit;font-size:20px;font-weight:500;letter-spacing:-.02em;color:var(--fg);padding:0;width:100%;min-width:0}
 .v2 .ccx-cur{display:flex;align-items:center;gap:6px;height:34px;padding:0 10px;border-radius:10px;background:var(--surface);box-shadow:0 1px 2px rgba(0,0,0,.06);font-size:13px;font-weight:500}
 .v2 .ccx-cur .cd{font-family:var(--mono);font-size:12px}
 .v2 .ccx-sw{align-self:center;width:32px;height:32px;margin:-16px 0;z-index:1;border-radius:50%;background:var(--surface);box-shadow:var(--shadow),0 0 0 4px var(--surface);display:grid;place-items:center;color:var(--fg2);transition:transform .5s var(--ease),color .2s}
@@ -6197,7 +6227,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
 .v2 .rsu-t{font-weight:500}
 .v2 .rsu-s{font-size:12.5px}
 .v2 .rsu-more{margin-left:auto}
-.v2 .rsu-title{margin:14px 0 0;font-size:14.5px;font-weight:500;line-height:1.45}
+.v2 .rsu-title{margin:14px 0 0;font-size:14px;font-weight:500;line-height:1.45}
 .v2 .rsu-stats{display:flex;flex-wrap:wrap;gap:4px 16px;margin-top:6px;font-size:12.5px;color:var(--muted)}
 .v2 .rsu-stats b{font-weight:500;color:var(--fg2)}
 .v2 .rsu-sec{padding-top:12px;margin-top:14px;border-top:1px solid var(--line)}
@@ -6295,10 +6325,10 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
 .v2 .lva-tb>.i{transition:transform .2s var(--ease)}
 .v2 .lva-tb[aria-expanded="true"]>.i{transform:rotate(180deg)}
 .v2 .lva-tlist{list-style:none;margin:0;padding:2px 0 2px 12px;border-left:1px solid var(--rail);display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted)}
-.v2 .lva-p{margin:0;font-size:14.5px;line-height:1.65}
+.v2 .lva-p{margin:0;font-size:14px;line-height:1.65}
 .v2 .lva-p .w{display:inline;animation:v2-lvw .5s var(--ease) both}
 @keyframes v2-lvw{from{opacity:0;filter:blur(3px)}to{opacity:1;filter:none}}
-.v2 .cite{display:inline-grid;place-items:center;min-width:17px;height:17px;padding:0 4px;margin:0 2px;border-radius:5px;background:var(--hover);font-size:10.5px;font-weight:600;color:var(--fg2);vertical-align:2px;cursor:default;transition:background .2s,color .2s}
+.v2 .cite{display:inline-grid;place-items:center;min-width:17px;height:17px;padding:0 4px;margin:0 2px;border-radius:5px;background:var(--hover);font-size:10.5px;font-weight:500;color:var(--fg2);vertical-align:2px;cursor:default;transition:background .2s,color .2s}
 .v2 .cite:hover,.v2 .cite.on{background:var(--accent-bg);color:var(--accent)}
 .v2 .lva-p .cite{animation:v2-lvw .5s var(--ease) both}
 .v2 .lva-src{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--muted)}
@@ -6307,7 +6337,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
 .v2 .lva-sb>.i{color:var(--muted);transition:transform .35s var(--ease)}
 .v2 .lva-sb[aria-expanded="true"]>.i{transform:rotate(180deg)}
 .v2 .lva-fav{display:flex}
-.v2 .lva-fav span{width:18px;height:18px;border-radius:5px;display:grid;place-items:center;font-size:9.5px;font-weight:600;color:#fff;margin-left:-4px;box-shadow:0 0 0 1.5px var(--surface);transition:margin .3s var(--ease)}
+.v2 .lva-fav span{width:18px;height:18px;border-radius:5px;display:grid;place-items:center;font-size:9.5px;font-weight:500;color:#fff;margin-left:-4px;box-shadow:0 0 0 1.5px var(--surface);transition:margin .3s var(--ease)}
 .v2 .lva-fav span:first-child{margin-left:0}
 .v2 .lva-sb:hover .lva-fav span:not(:first-child){margin-left:2px}
 .v2 .lva-acts{display:flex;gap:2px;margin-left:-6px}
@@ -6315,7 +6345,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
 .v2 .lva-ll{display:flex;flex-direction:column;gap:2px}
 .v2 .lva-s{display:flex;align-items:center;gap:10px;width:100%;padding:7px 8px;border-radius:10px;font-size:13px;text-align:left;color:var(--fg);transition:background .2s}
 .v2 .lva-s:hover,.v2 .lva-s.on{background:var(--row)}
-.v2 .lva-s .n{width:17px;height:17px;border-radius:5px;background:var(--hover);display:grid;place-items:center;font-size:10.5px;font-weight:600;color:var(--fg2);flex:none;transition:background .2s,color .2s}
+.v2 .lva-s .n{width:17px;height:17px;border-radius:5px;background:var(--hover);display:grid;place-items:center;font-size:10.5px;font-weight:500;color:var(--fg2);flex:none;transition:background .2s,color .2s}
 .v2 .lva-s:hover .n,.v2 .lva-s.on .n{background:var(--accent-bg);color:var(--accent)}
 .v2 .lva-s .d{color:var(--muted);font-size:12px;margin-right:auto;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .v2 .lva-s>.i{color:var(--muted);opacity:0;transition:opacity .2s}
@@ -6352,7 +6382,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
 .v2 .cpx-att:empty{display:none}
 .v2 .cpx-att .fchip .x{display:grid;place-items:center;width:16px;height:16px;border-radius:50%;margin-right:-4px;color:var(--muted)}
 .v2 .cpx-att .fchip .x:hover{background:var(--chip);color:var(--fg)}
-.v2 .cpx-ta{display:block;width:100%;border:0;outline:0;resize:none;background:none;color:var(--fg);font:inherit;font-size:14.5px;line-height:1.5;padding:15px 17px 4px;min-height:54px;max-height:160px;transition:color .4s}
+.v2 .cpx-ta{display:block;width:100%;border:0;outline:0;resize:none;background:none;color:var(--fg);font:inherit;font-size:14px;line-height:1.5;padding:15px 17px 4px;min-height:54px;max-height:160px;transition:color .4s}
 .v2 .cpx-ta::placeholder{color:var(--muted)}
 .v2 .cpx-box[data-mode="voice"] .cpx-ta{color:var(--muted);font-style:italic}
 .v2 .cpx-rows{display:grid;padding:6px 10px 10px}
@@ -6396,7 +6426,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
 .v2 .vcx-t{margin-left:auto;font-size:12.5px}
 .v2 .vcx-wave{display:block;width:100%;height:56px;margin:12px 0 8px;transition:opacity .4s,height .5s var(--ease)}
 .v2 .vcx.done .vcx-wave{opacity:0;height:0;margin:0 0 12px}
-.v2 .vcx-tx{margin:0;min-height:72px;font-size:15px;line-height:1.6;color:var(--fg);transition:min-height .4s var(--ease)}
+.v2 .vcx-tx{margin:0;min-height:72px;font-size:14px;line-height:1.6;color:var(--fg);transition:min-height .4s var(--ease)}
 .v2 .vcx.done .vcx-tx{min-height:0}
 .v2 .vcx-tx .w{animation:v2-lvw .45s var(--ease) both}
 @keyframes v2-lvw{from{opacity:0;filter:blur(3px)}to{opacity:1;filter:none}}
@@ -6428,10 +6458,10 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
 .v2 .afx{overflow:hidden}
 .v2 .afx-prev{padding:16px;background:var(--chip)}
 .v2 .afx-doc{padding:16px 16px 12px;background:var(--surface);border-radius:12px;box-shadow:var(--shadow)}
-.v2 .afx-dh{font-weight:600;font-size:14px}
+.v2 .afx-dh{font-weight:500;font-size:14px}
 .v2 .afx-dp{margin-top:4px;font-size:12.5px;line-height:1.5;color:var(--fg2);min-height:38px;text-wrap:pretty}
 .v2 .afx-kp{display:flex;align-items:baseline;gap:8px;margin-top:10px}
-.v2 .afx-kp b{font-size:22px;font-weight:600;letter-spacing:-.02em}
+.v2 .afx-kp b{font-size:20px;font-weight:500;letter-spacing:-.02em}
 .v2 .afx-d{font-size:12px;color:var(--ok)}
 .v2 .afx-ch{display:block;width:100%;height:56px;margin-top:8px;overflow:visible}
 .v2 .afx-ch .ln{fill:none;stroke:var(--accent);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
@@ -6481,7 +6511,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
 .v2 .atx-sample{color:var(--accent);font-weight:500;position:relative;z-index:1}
 .v2 .atx-list{display:flex;flex-direction:column;gap:6px}
 .v2 .atx-it{display:flex;align-items:center;gap:10px;padding:8px 8px 8px 10px;border-radius:14px;background:var(--surface);box-shadow:var(--shadow)}
-.v2 .atx-ti{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;flex:none;font-family:var(--mono);font-size:9.5px;font-weight:600}
+.v2 .atx-ti{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;flex:none;font-family:var(--mono);font-size:9.5px;font-weight:500}
 .v2 .atx-n{flex:1;min-width:0;font-size:13px}
 .v2 .atx-n span{display:block;font-size:12px;color:var(--muted)}
 .v2 .atx-ring{width:22px;height:22px}
@@ -6535,7 +6565,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
 .v2 .dpx-dots i.on{width:16px;background:var(--accent)}
 .v2 .dpx-dots i.done{background:var(--accent);opacity:.4}
 .v2 .dpx-body{min-height:168px}
-.v2 .dpx-q{font-size:14.5px;font-weight:500;margin-bottom:10px;text-wrap:balance}
+.v2 .dpx-q{font-size:14px;font-weight:500;margin-bottom:10px;text-wrap:balance}
 .v2 .dpx-o{display:flex;align-items:center;gap:10px;width:calc(100% + 20px);margin-inline:-10px;padding:9px 10px;border-radius:12px;font-size:13.5px;text-align:left;color:var(--fg2);transition:background .25s,color .25s}
 .v2 .dpx-o:hover{background:var(--row);color:var(--fg)}
 .v2 .dpx-o.on{background:var(--sel);color:var(--fg)}
@@ -6605,7 +6635,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
 .v2 .dtx-card{--rad:16px;--pad:18px;--gap:12px;--sh:.08;width:min(250px,100%);background:var(--surface);border-radius:var(--rad);padding:var(--pad);display:flex;flex-direction:column;gap:var(--gap);box-shadow:0 1px 2px rgba(0,0,0,var(--sh)),0 8px 24px rgba(0,0,0,calc(var(--sh) * .8))}
 .v2 .dtx-tg{align-self:flex-start}
 .v2 .dtx-pr{display:flex;align-items:baseline;gap:6px}
-.v2 .dtx-pr b{font-size:28px;font-weight:600;letter-spacing:-.02em}
+.v2 .dtx-pr b{font-size:20px;font-weight:500;letter-spacing:-.02em}
 .v2 .dtx-pr span{font-size:12px}
 .v2 .dtx-li{display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--fg2)}
 .v2 .dtx-li span{display:flex;align-items:center;gap:7px}
@@ -6707,7 +6737,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
 .v2 .plx-tm{margin-left:auto;font-size:12px;color:var(--muted)}
 .v2 .plx-tm:empty{display:none}
 .v2 .plx-s .n .spin{width:10px;height:10px}
-.v2 .plx-s .t:focus{background:var(--surface);box-shadow:0 0 0 1.5px var(--accent)}
+.v2 .plx-s .t:focus,.v2 .plx-s .t.ed{background:var(--surface);box-shadow:0 0 0 1.5px var(--accent)}
 .v2 .plx-s .ib{width:24px;height:24px;opacity:0;transition:opacity .2s}
 .v2 .plx-s:hover .ib,.v2 .plx-s .ib:focus-visible{opacity:1}
 .v2 .plx-s.off{opacity:.45}
@@ -6800,7 +6830,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
 .v2 .ssx-pill>svg{transition:transform .4s var(--ease)}
 .v2 .ssx-pill[aria-expanded="true"]>svg{transform:rotate(180deg)}
 .v2 .ssx-ics{display:flex}
-.v2 .ssx-ics span{width:20px;height:20px;border-radius:50%;display:grid;place-items:center;font-size:9px;font-weight:600;color:#fff;box-shadow:0 0 0 2px var(--chip);margin-right:-6px;transition:margin .4s var(--ease)}
+.v2 .ssx-ics span{width:20px;height:20px;border-radius:50%;display:grid;place-items:center;font-size:9px;font-weight:500;color:#fff;box-shadow:0 0 0 2px var(--chip);margin-right:-6px;transition:margin .4s var(--ease)}
 .v2 .ssx-pill:hover .ssx-ics span{margin-right:-3px}
 .v2 .ssx-ics span:last-child{margin-right:0}
 .v2 .ssx-box{width:100%}
@@ -6810,7 +6840,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
 .v2 .ssx-list{display:flex;flex-direction:column;gap:2px;margin-inline:-6px}
 .v2 .ssx-s{display:flex;align-items:center;gap:10px;padding:7px 6px;border-radius:10px;font-size:13px;transition:background .25s}
 .v2 .ssx-s:hover{background:var(--row)}
-.v2 .ssx-s .fv{width:22px;height:22px;border-radius:7px;display:grid;place-items:center;font-size:9.5px;font-weight:600;flex:none}
+.v2 .ssx-s .fv{width:22px;height:22px;border-radius:7px;display:grid;place-items:center;font-size:9.5px;font-weight:500;flex:none}
 .v2 .ssx-s .t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .v2 .ssx-s .h{font-size:12px;color:var(--muted)}
 .v2 .ssx-s .rel{width:36px;height:4px;border-radius:2px;background:var(--line);overflow:hidden;flex:none}
@@ -6823,7 +6853,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
 .v2 .mix-h{display:flex;align-items:center;justify-content:space-between;font-size:12.5px}
 .v2 .mix-rg button{font-size:11.5px;padding:0 8px;height:24px}
 .v2 .mix-v{display:flex;align-items:baseline;gap:8px}
-.v2 .mix-v b{font-size:30px;font-weight:600;letter-spacing:-.02em}
+.v2 .mix-v b{font-size:20px;font-weight:500;letter-spacing:-.02em}
 .v2 .mix-ch{position:relative;height:90px;cursor:crosshair}
 .v2 .mix-svg{width:100%;height:100%;display:block;overflow:visible}
 .v2 .mix-l{stroke-dasharray:var(--len);stroke-dashoffset:var(--len);transition:stroke-dashoffset 1.2s var(--ease)}
@@ -6973,7 +7003,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
 .v2 .chx-card.show{opacity:1;pointer-events:auto;animation:v2-chxin .5s var(--ease) both}
 @keyframes v2-chxin{from{opacity:0;transform:translateY(10px) scale(.985);filter:blur(3px)}60%{filter:blur(0)}to{opacity:1;transform:none;filter:none}}
 .v2 .chx-sh{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted)}
-.v2 .chx-sh .fv{width:20px;height:20px;border-radius:6px;display:grid;place-items:center;font-size:9px;font-weight:600;color:#fff;flex:none}
+.v2 .chx-sh .fv{width:20px;height:20px;border-radius:6px;display:grid;place-items:center;font-size:9px;font-weight:500;color:#fff;flex:none}
 .v2 .chx-t{font-size:13px;font-weight:500;margin:8px 0 6px}
 .v2 .chx-q{font-size:12.5px;line-height:1.55;color:var(--fg2);padding-left:10px;box-shadow:inset 2px 0 0 var(--accent)}
 .v2 .chx-q mark{background:var(--sel);color:var(--fg);border-radius:3px;padding:0 2px}
@@ -7000,7 +7030,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
 .v2 .fex-z.warn.hl{background:rgba(var(--pg-warn),.14);box-shadow:0 0 0 1.5px var(--pg-wring)}
 .v2 .fex-tb{border-top:1px solid var(--pg-line);border-bottom:1px solid var(--pg-line);padding:6px 0;display:flex;flex-direction:column;gap:4px}
 .v2 .fex-li{display:flex;justify-content:space-between;gap:10px}
-.v2 .fex-tot{display:flex;justify-content:space-between;font-weight:600;font-size:13px}
+.v2 .fex-tot{display:flex;justify-content:space-between;font-weight:500;font-size:13px}
 .v2 .fex-smudge .num{filter:blur(.4px)}
 .v2 .fex-beam{position:absolute;left:0;right:0;height:40px;background:linear-gradient(180deg,transparent,rgba(var(--pg-hl,17,111,248),.12),transparent);pointer-events:none;top:-40px}
 .v2 .fex-beam.go{animation:v2-fexb 2.6s var(--ease-io) both}
@@ -7028,7 +7058,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
 .v2 .wrx.wide .wrx-rail{width:188px}
 .v2 .wrx-ws{display:flex;align-items:center;gap:10px;padding:2px 2px 10px;white-space:nowrap}
 .v2 .wrx-lg .logo{width:20px;height:20px}
-.v2 .wrx-lg{width:34px;height:34px;border-radius:11px;background:var(--ink);color:var(--on-ink);display:grid;place-items:center;font-weight:600;flex:none}
+.v2 .wrx-lg{width:34px;height:34px;border-radius:11px;background:var(--ink);color:var(--on-ink);display:grid;place-items:center;font-weight:500;flex:none}
 .v2 .wrx-lb{white-space:nowrap;opacity:0;transform:translateX(-6px);filter:blur(3px);transition:opacity .3s,transform .45s var(--ease),filter .3s;display:flex;flex-direction:column;font-size:13px;line-height:1.3}
 .v2 .wrx-lb .muted{font-size:11.5px}
 .v2 .wrx.wide .wrx-lb{opacity:1;transform:none;filter:none;transition-delay:.08s}
@@ -7037,7 +7067,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
 .v2 .wrx-i{position:relative;display:flex;align-items:center;gap:12px;height:36px;padding:0 10px;border-radius:11px;color:var(--fg2);white-space:nowrap;transition:color .2s}
 .v2 .wrx-i:hover{color:var(--fg)}
 .v2 .wrx-i.on{color:var(--fg)}
-.v2 .wrx-i .bd{position:absolute;left:19px;top:4px;min-width:15px;height:15px;padding:0 4px;border-radius:8px;background:var(--accent);color:#fff;font-size:9.5px;font-weight:600;display:grid;place-items:center;box-shadow:0 0 0 2px var(--surface)}
+.v2 .wrx-i .bd{position:absolute;left:19px;top:4px;min-width:15px;height:15px;padding:0 4px;border-radius:8px;background:var(--accent);color:#fff;font-size:9.5px;font-weight:500;display:grid;place-items:center;box-shadow:0 0 0 2px var(--surface)}
 .v2 .wrx-i .wrx-lb{flex-direction:row}
 .v2 .wrx-sp{flex:1}
 .v2 .wrx-runs{display:flex;flex-direction:column;gap:2px;margin-bottom:6px}
@@ -7049,14 +7079,14 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
 .v2 .wrx-pin svg{transition:transform .5s var(--ease)}
 .v2 .wrx.wide .wrx-pin svg{transform:scaleX(-1)}
 .v2 .wrx-main{flex:1;min-width:0;padding:18px;display:flex;flex-direction:column;gap:14px}
-.v2 .wrx-mh{font-size:15px;font-weight:500}
+.v2 .wrx-mh{font-size:14px;font-weight:500}
 .v2 .wrx-sk{display:flex;flex-direction:column;gap:9px}
 .v2 .wrx-sk i{display:block;height:9px;border-radius:5px;background:var(--chip)}
 .v2 .wrx-sk i.b{height:120px;width:100%;border-radius:14px;margin-top:6px}
 /* ---------- Command palette ---------- */
 .v2 .cpl{overflow:hidden;display:flex;flex-direction:column;box-shadow:var(--shadow-pop)}
 .v2 .cpl-in{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--line);color:var(--muted)}
-.v2 .cpl-q{flex:1;min-width:0;border:0;outline:0;background:transparent;font:inherit;font-size:14.5px;color:var(--fg)}
+.v2 .cpl-q{flex:1;min-width:0;border:0;outline:0;background:transparent;font:inherit;font-size:14px;color:var(--fg)}
 .v2 .cpl-q::placeholder{color:var(--muted)}
 .v2 .cpl-list{padding:6px;height:236px;overflow-y:auto;position:relative}
 .v2 .cpl-g{font-size:11.5px;color:var(--muted);padding:8px 8px 4px}
@@ -7106,7 +7136,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
 .v2 .fxp-n.open .cv{transform:rotate(90deg)}
 .v2 .fxp-n .ic{color:var(--muted);display:grid}
 .v2 .fxp-n .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.v2 .fxp-n .bd{font-family:var(--mono);font-size:10.5px;font-weight:600;width:14px;text-align:center}
+.v2 .fxp-n .bd{font-family:var(--mono);font-size:10.5px;font-weight:500;width:14px;text-align:center}
 .v2 .fxp-n .bd.M{color:var(--warn)}.v2 .fxp-n .bd.A{color:var(--ok)}.v2 .fxp-n .bd.D{color:var(--bad)}
 .v2 .fxp-n.D .nm{text-decoration:line-through;opacity:.6}
 .v2 .fxp-n .ag{width:6px;height:6px;border-radius:50%;background:var(--accent)}
@@ -7190,7 +7220,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
 .v2 .mcx-sel{display:inline-flex;align-items:center;gap:7px;height:32px;padding:0 8px 0 6px;border-radius:9px;font-size:13px;font-weight:500;min-width:0;transition:background .2s}
 .v2 .mcx-sel:hover,.v2 .mcx-sel[aria-expanded="true"]{background:var(--chip)}
 .v2 .mcx-sel>.i{color:var(--muted)}
-.v2 .mcx-mk{width:20px;height:20px;border-radius:6px;display:grid;place-items:center;font-size:10px;font-weight:600;color:#fff;flex:none}
+.v2 .mcx-mk{width:20px;height:20px;border-radius:6px;display:grid;place-items:center;font-size:10px;font-weight:500;color:#fff;flex:none}
 .v2 .mcx-x{width:26px;height:26px;margin-left:auto;color:var(--muted)}
 .v2 .mcx-o{flex:1;display:flex;flex-direction:column;gap:10px;padding:12px}
 .v2 .mcx-o .bub{font-size:13px;padding:7px 11px;border-radius:14px;max-width:92%}
@@ -7261,12 +7291,12 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
 .v2 .ahx-side{flex:none;width:236px;display:flex;flex-direction:column;gap:2px;padding:10px;background:color-mix(in srgb,var(--surface) 50%,var(--page));border-right:1px solid var(--line);transition:margin-left var(--t) var(--ease),transform var(--t) var(--ease),box-shadow var(--t) var(--ease)}
 .v2 .ahx.ns .ahx-side{margin-left:-236px}
 .v2 .ahx-ws{display:flex;align-items:center;gap:2px;margin-bottom:6px}
-.v2 .ahx-wsb{flex:1;min-width:0;display:flex;align-items:center;gap:9px;height:34px;padding:0 8px 0 7px;border-radius:10px;font-size:13.5px;font-weight:600;color:var(--fg);transition:background var(--t-fast)}
+.v2 .ahx-wsb{flex:1;min-width:0;display:flex;align-items:center;gap:9px;height:34px;padding:0 8px 0 7px;border-radius:10px;font-size:13.5px;font-weight:500;color:var(--fg);transition:background var(--t-fast)}
 .v2 .ahx-wsb:hover,.v2 .ahx-wsb[aria-expanded="true"]{background:var(--row)}
 .v2 .ahx-wsb .t{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .v2 .ahx-wsb>.i{color:var(--muted);transition:transform var(--t) var(--ease)}
 .v2 .ahx-wsb[aria-expanded="true"]>.i{transform:rotate(180deg)}
-.v2 .ahx-lg{width:20px;height:20px;border-radius:6px;display:grid;place-items:center;flex:none;background:var(--ink);color:var(--on-ink);font-size:11px;font-weight:600;transition:background var(--t) var(--ease)}
+.v2 .ahx-lg{width:20px;height:20px;border-radius:6px;display:grid;place-items:center;flex:none;background:var(--ink);color:var(--on-ink);font-size:11px;font-weight:500;transition:background var(--t) var(--ease)}
 .v2 .ahx-ws .ib,.v2 .ahx-top>.ib,.v2 .ahx-lh .ib{width:28px;height:28px;color:var(--muted)}
 .v2 .ahx-ws .ib:hover,.v2 .ahx-top>.ib:hover,.v2 .ahx-lh .ib:hover{color:var(--fg)}
 .v2 .ahx-wsp{width:212px}
@@ -7317,7 +7347,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
 .v2 .ahx-main:not(.home) .ahx-home{display:none}
 .v2 .ahx-main.home :is(.ahx-feed,.ahx-bot){visibility:hidden}
 .v2 .ahx-hw{width:100%;max-width:600px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
-.v2 .ahx-hi{display:flex;flex-direction:column;padding:0 4px;margin-bottom:6px;font-size:22px;font-weight:500;letter-spacing:-.4px;line-height:1.3}
+.v2 .ahx-hi{display:flex;flex-direction:column;padding:0 4px;margin-bottom:6px;font-size:14px;font-weight:500;letter-spacing:-.4px;line-height:1.3}
 .v2 .ahx-hi span{color:var(--muted)}
 .v2 .ahx-hi h4{margin:0;font:inherit;color:var(--fg)}
 .v2 .ahx-sg{display:flex;flex-direction:column;gap:1px;margin-top:4px}
@@ -7391,7 +7421,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
   .v2 .ahx-tab{flex-basis:150px;min-width:96px}
   .v2 .ahx-tab:not(.on) .ahx-tx{display:none}
   .v2 .ahx-home{padding:16px 14px 28px}
-  .v2 .ahx-hi{font-size:20px}
+  .v2 .ahx-hi{font-size:14px}
   .v2 .ahx-col{padding:18px 16px 24px}
   .v2 .ahx-bot{padding:0 10px 10px}
   .v2 .ahx-pane{position:absolute;z-index:4;top:0;right:0;bottom:0;border-left:0}
@@ -7402,7 +7432,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
 .v2 .lnx{padding:14px;display:flex;flex-direction:column;gap:10px}
 .v2 .lnx-h{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap}
 .v2 .lnx-h>div:first-child{display:flex;flex-direction:column;font-size:12.5px}
-.v2 .lnx-v{font-size:26px;font-weight:600;letter-spacing:-.02em;color:var(--fg)}
+.v2 .lnx-v{font-size:20px;font-weight:500;letter-spacing:-.02em;color:var(--fg)}
 .v2 .lnx-lg{display:flex;gap:4px}
 .v2 .lnx-k{display:flex;align-items:center;gap:6px;height:26px;padding:0 9px;border-radius:999px;font-size:12px;color:var(--muted);transition:color .2s,background .2s}
 .v2 .lnx-k:hover{background:var(--chip)}
@@ -7427,7 +7457,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
 .v2 .bcx{padding:14px;display:flex;flex-direction:column;gap:12px}
 .v2 .bcx-h{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
 .v2 .bcx-h>div:first-child{display:flex;flex-direction:column;font-size:12.5px}
-.v2 .bcx-v{font-size:26px;font-weight:600;letter-spacing:-.02em}
+.v2 .bcx-v{font-size:20px;font-weight:500;letter-spacing:-.02em}
 .v2 .bcx-rg button{font-size:12px;height:26px;padding:0 10px}
 .v2 .bcx-ch{display:flex;align-items:flex-end;gap:8px;height:150px;position:relative}
 .v2 .bcx-b{flex:1;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:stretch;gap:0;position:relative;cursor:default}
@@ -7455,7 +7485,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
 .v2 .dnx-ring.hov circle:not(.hl){opacity:.3}
 .v2 .dnx-c{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none}
 .v2 .dnx-ring circle{cursor:default}
-.v2 .dnx-c b{font-size:22px;font-weight:600;letter-spacing:-.02em}
+.v2 .dnx-c b{font-size:20px;font-weight:500;letter-spacing:-.02em}
 .v2 .dnx-c span{font-size:11.5px}
 .v2 .dnx-lg{display:flex;flex-direction:column;gap:2px;flex:1;min-width:170px}
 .v2 .dnx-r{display:flex;align-items:center;gap:9px;padding:6px 8px;border-radius:9px;font-size:13px;transition:background .2s;cursor:default}
@@ -7510,7 +7540,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
 .v2 .hsx-g .tr{stroke:var(--line)}
 .v2 .hsx-g .fl{stroke:var(--accent);stroke-dasharray:157;stroke-dashoffset:157;transition:stroke-dashoffset 1.2s var(--ease),stroke .4s}
 .v2 .hsx-v{position:absolute;left:0;right:0;bottom:0;display:flex;flex-direction:column;align-items:center;line-height:1.1}
-.v2 .hsx-v b{font-size:24px;font-weight:600}
+.v2 .hsx-v b{font-size:20px;font-weight:500}
 .v2 .hsx-v span{font-size:11px}
 .v2 .hsx-s{display:flex;flex-direction:column;font-size:13.5px}
 .v2 .hsx-s b{font-weight:500}
@@ -7555,7 +7585,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
 .v2 .scx-k{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--muted)}
 .v2 .scx-k .ic{display:grid;color:var(--fg2)}
 .v2 .scx-v{display:flex;align-items:baseline;gap:8px}
-.v2 .scx-v b{font-size:24px;font-weight:600;letter-spacing:-.02em}
+.v2 .scx-v b{font-size:20px;font-weight:500;letter-spacing:-.02em}
 .v2 .scx-d{font-size:12px;font-weight:500}
 .v2 .scx-d.up{color:var(--ok)}.v2 .scx-d.dn{color:var(--bad)}
 .v2 .scx-sp{height:34px;margin-top:4px}
@@ -7578,7 +7608,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
 .v2 .atb tr.row:hover{background:var(--row)}
 .v2 .atb tr.row.open{background:var(--wash)}
 .v2 .atb .nm{display:flex;align-items:center;gap:9px;font-weight:500}
-.v2 .atb .lg{width:24px;height:24px;border-radius:7px;display:grid;place-items:center;font-size:10px;font-weight:600;color:#fff}
+.v2 .atb .lg{width:24px;height:24px;border-radius:7px;display:grid;place-items:center;font-size:10px;font-weight:500;color:#fff}
 .v2 .atb .hb{display:flex;align-items:center;gap:8px}
 .v2 .atb .hb i{width:54px;height:5px;border-radius:3px;background:var(--line);overflow:hidden;display:block}
 .v2 .atb .hb i b{display:block;height:100%;border-radius:3px}
@@ -7837,7 +7867,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
 .v2 .ssi-h{display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center}
 .v2 .ssi-lg{width:44px;height:44px;border-radius:14px;background:var(--ink);color:var(--on-ink);display:grid;place-items:center}
 .v2 .ssi-lg .logo{width:26px;height:26px}
-.v2 .ssi-h b{font-weight:500;font-size:15px}
+.v2 .ssi-h b{font-weight:500;font-size:14px}
 .v2 .ssi-list{display:flex;flex-direction:column;gap:8px;width:100%}
 .v2 .ssi-b{position:relative;display:flex;align-items:center;justify-content:center;gap:10px;height:42px;padding:0 18px;border-radius:999px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--rail);font-size:13.5px;font-weight:500;transition:background .2s,box-shadow .2s,transform .15s}
 .v2 .ssi-b:hover{background:var(--wash);box-shadow:inset 0 0 0 1px var(--faint)}
@@ -7845,7 +7875,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
 .v2 .ssi-b .mk{width:18px;height:18px;display:grid;place-items:center;flex:none}
 .v2 .ssi-b .mk svg,.v2 .ssi-b .mk img{width:18px;height:18px;display:block}
 .v2 .ssi-b .mk .i{width:16px;height:16px}
-.v2 .ssi-b .mk .lt{min-width:18px;height:18px;padding:0 3px;border-radius:5px;background:var(--ink);color:var(--on-ink);display:grid;place-items:center;font-size:10px;font-weight:600}
+.v2 .ssi-b .mk .lt{min-width:18px;height:18px;padding:0 3px;border-radius:5px;background:var(--ink);color:var(--on-ink);display:grid;place-items:center;font-size:10px;font-weight:500}
 .v2 .ssi-b .last{position:absolute;top:-8px;right:22px;font-size:10.5px;font-weight:500;color:var(--fg2);background:var(--surface);box-shadow:inset 0 0 0 1px var(--rail);padding:1px 7px;border-radius:999px}
 .v2 .ssi-b.last-used{box-shadow:inset 0 0 0 1px var(--fg2)}
 .v2 .ssi-b.busy{pointer-events:none}
@@ -7855,11 +7885,11 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
 .v2 .ssi-mail{font-size:12.5px;color:var(--fg2);padding:4px 10px;border-radius:999px;transition:color .2s,background .2s}
 .v2 .ssi-mail:hover{color:var(--fg);background:var(--chip)}
 .v2 .ssi-ok{display:flex;flex-direction:column;align-items:center;gap:8px;padding:8px 0 4px;text-align:center;font-size:13px}
-.v2 .ssi-ok .av{width:44px;height:44px;font-size:15px}
+.v2 .ssi-ok .av{width:44px;height:44px;font-size:14px}
 /* ---------- Sign in ---------- */
 .v2 .sgx{padding:20px;max-width:320px;margin:0 auto;width:100%;overflow:hidden}
 .v2 .sgx-st{display:flex;flex-direction:column;gap:6px}
-.v2 .sgx-st>b{font-weight:500;font-size:15px}
+.v2 .sgx-st>b{font-weight:500;font-size:14px}
 .v2 .sgx-st>.muted{font-size:12.5px;margin-bottom:8px}
 .v2 .sgx-st.in{animation:v2-sgin .5s var(--ease) both}
 @keyframes v2-sgin{from{opacity:0;transform:translateX(20px);filter:blur(4px)}}
@@ -7873,7 +7903,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
 .v2 .sgx-bk{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--muted);align-self:flex-start;margin-bottom:6px}
 .v2 .sgx-bk:hover{color:var(--fg)}
 .v2 .sgx-code{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
-.v2 .sgx-code input{width:100%;height:46px;border:0;outline:0;border-radius:11px;background:var(--chip);text-align:center;font:inherit;font-family:var(--mono);font-size:18px;color:var(--fg);transition:box-shadow .25s,background .25s,transform .3s var(--ease)}
+.v2 .sgx-code input{width:100%;height:46px;border:0;outline:0;border-radius:11px;background:var(--chip);text-align:center;font:inherit;font-family:var(--mono);font-size:14px;color:var(--fg);transition:box-shadow .25s,background .25s,transform .3s var(--ease)}
 .v2 .sgx-code input:focus{background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--accent)}
 .v2 .sgx-code input.f{transform:scale(1.04)}
 .v2 .sgx-code{cursor:pointer}
@@ -7895,7 +7925,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
 @keyframes v2-sgbar{to{width:100%}}
 .v2 .sgx-rs{font-size:12px;margin-top:6px}
 .v2 .sgx-done{display:flex;flex-direction:column;align-items:center;gap:8px;padding:20px 0;font-size:13px;text-align:center}
-.v2 .sgx-done>b{font-weight:500;font-size:15px}
+.v2 .sgx-done>b{font-weight:500;font-size:14px}
 /* ---------- Form ---------- */
 .v2 .fmx{padding:16px;display:flex;flex-direction:column;gap:12px;max-width:380px;margin:0 auto;width:100%}
 .v2 .fmx-h{display:flex;align-items:center;justify-content:space-between;gap:8px}
@@ -7931,7 +7961,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
 .v2 .pyx-f.bad .pyx-in{box-shadow:inset 0 0 0 1.5px var(--bad)}
 .v2 .pyx-in input{flex:1;min-width:0;border:0;outline:0;background:transparent;font:inherit;font-family:var(--mono);font-size:13.5px;font-weight:400;color:var(--fg);letter-spacing:.02em}
 .v2 .pyx-in input::placeholder{color:var(--muted)}
-.v2 .pyx-br{font-size:10px;font-weight:700;letter-spacing:.04em;padding:3px 6px;border-radius:5px;opacity:0;transform:scale(.8);transition:opacity .3s,transform .35s var(--ease)}
+.v2 .pyx-br{font-size:10px;font-weight:500;letter-spacing:.04em;padding:3px 6px;border-radius:5px;opacity:0;transform:scale(.8);transition:opacity .3s,transform .35s var(--ease)}
 .v2 .pyx-br.on{opacity:1;transform:none}
 .v2 .pyx-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .v2 .pyx-sum{display:flex;flex-direction:column;gap:6px;padding:12px;border-radius:12px;background:var(--chip);font-size:12.5px;color:var(--fg2)}
@@ -7947,7 +7977,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
 .v2 .cmx{padding:12px;display:flex;flex-direction:column;gap:10px;min-height:340px}
 .v2 .cmx-h{display:flex;align-items:center;gap:8px;font-size:13.5px;margin:0 -12px;padding:0 12px 10px;border-bottom:1px solid var(--line)}
 .v2 .cmx-h b{font-weight:500;flex:1}
-.v2 .cmx-pin{width:22px;height:22px;border-radius:50% 50% 50% 4px;background:var(--accent);color:#fff;display:grid;place-items:center;font-size:11px;font-weight:600}
+.v2 .cmx-pin{width:22px;height:22px;border-radius:50% 50% 50% 4px;background:var(--accent);color:#fff;display:grid;place-items:center;font-size:11px;font-weight:500}
 .v2 .cmx-th{display:flex;flex-direction:column;gap:12px;flex:1}
 .v2 .cmx-c{display:flex;gap:9px}
 .v2 .cmx-c .av{width:26px;height:26px;font-size:10px;flex:none}
@@ -7973,7 +8003,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
 .v2 .ntx{padding:12px;display:flex;flex-direction:column;gap:8px;min-height:360px}
 .v2 .ntx-h{display:flex;align-items:center;gap:8px;margin:0 -12px 2px;padding:2px 12px 10px 16px;font-size:14px;border-bottom:1px solid var(--line)}
 .v2 .ntx-h b{font-weight:500}
-.v2 .ntx-ct{min-width:20px;height:20px;padding:0 6px;border-radius:999px;background:var(--accent);color:#fff;font-size:11px;font-weight:600;display:grid;place-items:center;transition:transform .35s var(--ease),opacity .3s}
+.v2 .ntx-ct{min-width:20px;height:20px;padding:0 6px;border-radius:999px;background:var(--accent);color:#fff;font-size:11px;font-weight:500;display:grid;place-items:center;transition:transform .35s var(--ease),opacity .3s}
 .v2 .ntx-ct.z{opacity:0;transform:scale(.5)}
 .v2 .ntx-ct.bump{animation:v2-ntb .45s var(--ease)}
 @keyframes v2-ntb{40%{transform:scale(1.3)}}
@@ -8365,7 +8395,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
 <section class="lib-sec" id="s-conversation" data-grp="agent">
   <div class="sec-head"><div><span class="sec-no">01</span><h2>Conversation</h2><p>Everything for asking, answering and replying, by text or by voice.</p></div></div>
   <div class="sec-body" id="s-conversation-body"><div class="sec-uf"><div class="grid">
-  <article class="comp" id="c3" data-soft data-v2="live-answer" data-reg="live-answer" style="--rh-a:501px;--rc-a:377px;--rh-b:522px;--rc-b:398px;--rh-c:501px;--rc-c:377px;--rh-d:501px;--rc-d:377px;--rh-e:546px;--rc-e:422px">
+  <article class="comp" id="c3" data-soft data-v2="live-answer" data-reg="live-answer" style="--rh-a:505px;--rc-a:377px;--rh-b:544px;--rc-b:416px;--rh-c:505px;--rc-c:377px;--rh-d:505px;--rc-d:377px;--rh-e:540px;--rc-e:416px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">edit_note</span></span>
       <div><h2 class="comp-title"><a href="/components/live-answer">Live answer</a></h2><p class="comp-desc">Answers that stream in with numbered sources and next steps.</p></div>
@@ -8448,7 +8478,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
   </div>
 </div></template>
   </article>
-  <article class="comp" id="c8" data-soft data-v2="thread-panel" data-reg="thread-panel" style="--rh-a:484px;--rc-a:360px;--rh-b:484px;--rc-b:360px;--rh-c:484px;--rc-c:360px;--rh-d:484px;--rc-d:360px;--rh-e:484px;--rc-e:360px">
+  <article class="comp" id="c8" data-soft data-v2="thread-panel" data-reg="thread-panel" style="--rh-a:488px;--rc-a:360px;--rh-b:488px;--rc-b:360px;--rh-c:488px;--rc-c:360px;--rh-d:488px;--rc-d:360px;--rh-e:484px;--rc-e:360px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">chat_bubble</span></span>
       <div><h2 class="comp-title"><a href="/components/thread-panel">Thread panel</a></h2><p class="comp-desc">Switch between agent threads and reply in place.</p></div>
@@ -8465,7 +8495,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
   <form class="thp-in"><input class="thp-field" aria-label="Reply" placeholder="Reply to the agent"><button class="thp-send" aria-label="Send" data-tip="Send" data-tip-k="↵" disabled>{up}</button></form>
 </div></template>
   </article>
-  <article class="comp" id="c108" data-soft data-v2="artifact-card" data-reg="artifact-card" style="--rh-a:485px;--rc-a:361px;--rh-b:485px;--rc-b:361px;--rh-c:485px;--rc-c:361px;--rh-d:485px;--rc-d:361px;--rh-e:485px;--rc-e:361px">
+  <article class="comp" id="c108" data-soft data-v2="artifact-card" data-reg="artifact-card" style="--rh-a:486px;--rc-a:358px;--rh-b:486px;--rc-b:358px;--rh-c:486px;--rc-c:358px;--rh-d:486px;--rc-d:358px;--rh-e:482px;--rc-e:358px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">description</span></span>
       <div><h2 class="comp-title"><a href="/components/artifact-card">Artifact card</a></h2><p class="comp-desc">A file the agent made, with a live preview and versions.</p></div>
@@ -8493,7 +8523,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
   <div class="afx-vers"><div class="seg2" role="group" aria-label="Version"><button aria-pressed="false" data-v="0">v1</button><button aria-pressed="false" data-v="1">v2</button><button aria-pressed="true" data-v="2">v3</button></div><span class="afx-note muted">Final, with your fixes</span></div>
 </div></template>
   </article>
-  <article class="comp" id="c107" data-soft data-v2="tool-call" data-reg="tool-call" style="--rh-a:478px;--rc-a:354px;--rh-b:478px;--rc-b:354px;--rh-c:478px;--rc-c:354px;--rh-d:478px;--rc-d:354px;--rh-e:497px;--rc-e:373px">
+  <article class="comp" id="c107" data-soft data-v2="tool-call" data-reg="tool-call" style="--rh-a:478px;--rc-a:350px;--rh-b:478px;--rc-b:350px;--rh-c:478px;--rc-c:350px;--rh-d:478px;--rc-d:350px;--rh-e:493px;--rc-e:369px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">terminal</span></span>
       <div><h2 class="comp-title"><a href="/components/tool-call">Tool call</a></h2><p class="comp-desc">Each tool the agent calls, with its input and output.</p></div>
@@ -8534,7 +8564,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
   <div class="pop vcx-fix" role="menu"></div>
 </div></template>
   </article>
-  <article class="comp" id="c31" data-soft data-v2="response-versions" data-reg="response-versions" style="--rh-a:420px;--rc-a:163px;--rh-b:420px;--rc-b:163px;--rh-c:420px;--rc-c:163px;--rh-d:420px;--rc-d:163px;--rh-e:420px;--rc-e:183px">
+  <article class="comp" id="c31" data-soft data-v2="response-versions" data-reg="response-versions" style="--rh-a:420px;--rc-a:163px;--rh-b:420px;--rc-b:183px;--rh-c:420px;--rc-c:163px;--rh-d:420px;--rc-d:163px;--rh-e:420px;--rc-e:183px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">refresh</span></span>
       <div><h2 class="comp-title"><a href="/components/response-versions">Response versions</a></h2><p class="comp-desc">Regenerate an answer and flip between versions.</p></div>
@@ -8558,7 +8588,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
   </div>
 </div></template>
   </article>
-  <article class="comp" id="c29" data-soft data-v2="prompt-starters" data-reg="prompt-starters" style="--rh-a:469px;--rc-a:345px;--rh-b:469px;--rc-b:345px;--rh-c:469px;--rc-c:345px;--rh-d:469px;--rc-d:345px;--rh-e:502px;--rc-e:378px">
+  <article class="comp" id="c29" data-soft data-v2="prompt-starters" data-reg="prompt-starters" style="--rh-a:466px;--rc-a:338px;--rh-b:500px;--rc-b:372px;--rh-c:466px;--rc-c:338px;--rh-d:466px;--rc-d:338px;--rh-e:496px;--rc-e:372px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">stars</span></span>
       <div><h2 class="comp-title"><a href="/components/prompt-starters">Prompt starters</a></h2><p class="comp-desc">Suggested tasks that fill the composer in one click.</p></div>
@@ -8575,7 +8605,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
   <button class="pill ghost sm psx-sh">{shuffle}Shuffle</button>
 </div></template>
   </article>
-  <article class="comp" id="c30" data-soft data-v2="attachment-tray" data-reg="attachment-tray" style="--rh-a:474px;--rc-a:350px;--rh-b:474px;--rc-b:350px;--rh-c:474px;--rc-c:350px;--rh-d:474px;--rc-d:350px;--rh-e:474px;--rc-e:350px">
+  <article class="comp" id="c30" data-soft data-v2="attachment-tray" data-reg="attachment-tray" style="--rh-a:478px;--rc-a:350px;--rh-b:478px;--rc-b:350px;--rh-c:478px;--rc-c:350px;--rh-d:478px;--rc-d:350px;--rh-e:474px;--rc-e:350px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">attach_file</span></span>
       <div><h2 class="comp-title"><a href="/components/attachment-tray">Attachment tray</a></h2><p class="comp-desc">Drop files for the agent and watch each one upload.</p></div>
@@ -8594,7 +8624,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
   <div class="atx-sum muted"></div>
 </div></template>
   </article>
-  <article class="comp" id="c32" data-soft data-v2="feedback-sheet" data-reg="feedback-sheet" style="--rh-a:458px;--rc-a:334px;--rh-b:490px;--rc-b:366px;--rh-c:458px;--rc-c:334px;--rh-d:458px;--rc-d:334px;--rh-e:482px;--rc-e:358px">
+  <article class="comp" id="c32" data-soft data-v2="feedback-sheet" data-reg="feedback-sheet" style="--rh-a:460px;--rc-a:332px;--rh-b:491px;--rc-b:363px;--rh-c:460px;--rc-c:332px;--rh-d:460px;--rc-d:332px;--rh-e:479px;--rc-e:355px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">thumb_up</span></span>
       <div><h2 class="comp-title"><a href="/components/feedback-sheet">Feedback sheet</a></h2><p class="comp-desc">Rate an answer and tell the agent what missed.</p></div>
@@ -8626,7 +8656,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
 <section class="lib-sec" id="s-status" data-grp="agent">
   <div class="sec-head"><div><span class="sec-no">02</span><h2>Agent status</h2><p>Show what the agent is doing, how far along it is, and what it is working with.</p></div></div>
   <div class="sec-body" id="s-status-body"><div class="sec-uf"><div class="grid">
-  <article class="comp" data-soft id="c60" data-v2="thinking" data-reg="thinking" style="--rh-a:568px;--rc-a:444px;--rh-b:569px;--rc-b:445px;--rh-c:568px;--rc-c:444px;--rh-d:568px;--rc-d:444px;--rh-e:590px;--rc-e:466px">
+  <article class="comp" data-soft id="c60" data-v2="thinking" data-reg="thinking" style="--rh-a:572px;--rc-a:444px;--rh-b:573px;--rc-b:445px;--rh-c:572px;--rc-c:444px;--rh-d:572px;--rc-d:444px;--rh-e:590px;--rc-e:466px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">stars</span></span>
       <div><h2 class="comp-title"><a href="/components/thinking">Thinking</a></h2><p class="comp-desc">The live trace, written as the agent works, then folded away.</p></div>
@@ -8646,7 +8676,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
   <div class="fold tk-fold"><div><ol class="tk-list"></ol></div></div>
 </div></template>
   </article>
-  <article class="comp" id="c2" data-soft data-v2="reasoning-trail" data-reg="reasoning-trail" style="--rh-a:452px;--rc-a:328px;--rh-b:452px;--rc-b:328px;--rh-c:452px;--rc-c:328px;--rh-d:452px;--rc-d:328px;--rh-e:452px;--rc-e:328px">
+  <article class="comp" id="c2" data-soft data-v2="reasoning-trail" data-reg="reasoning-trail" style="--rh-a:456px;--rc-a:328px;--rh-b:456px;--rc-b:328px;--rh-c:456px;--rc-c:328px;--rh-d:456px;--rc-d:328px;--rh-e:452px;--rc-e:328px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">stars</span></span>
       <div><h2 class="comp-title"><a href="/components/reasoning-trail">Reasoning trail</a></h2><p class="comp-desc">The agent's plan, notes, sources and edits, after it thinks.</p></div>
@@ -8691,7 +8721,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
   <div class="aln-rows"></div>
 </div></template>
   </article>
-  <article class="comp" id="c106" data-soft data-v2="run-summary" data-reg="run-summary" style="--rh-a:540px;--rc-a:416px;--rh-b:551px;--rc-b:427px;--rh-c:540px;--rc-c:416px;--rh-d:540px;--rc-d:416px;--rh-e:551px;--rc-e:427px">
+  <article class="comp" id="c106" data-soft data-v2="run-summary" data-reg="run-summary" style="--rh-a:542px;--rc-a:414px;--rh-b:553px;--rc-b:425px;--rh-c:522px;--rc-c:394px;--rh-d:522px;--rc-d:394px;--rh-e:549px;--rc-e:425px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">check_circle</span></span>
       <div><h2 class="comp-title"><a href="/components/run-summary">Run summary</a></h2><p class="comp-desc">What the agent did, what changed and what needs you.</p></div>
@@ -8722,7 +8752,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
   <div class="rsu-acts"><button class="pill ink sm">Open changes</button><button class="pill ghost sm rsu-undo">Undo all</button></div>
 </div></template>
   </article>
-  <article class="comp" id="c7" data-soft data-v2="action-log" data-reg="action-log" style="--rh-a:450px;--rc-a:326px;--rh-b:450px;--rc-b:326px;--rh-c:450px;--rc-c:326px;--rh-d:450px;--rc-d:326px;--rh-e:489px;--rc-e:365px">
+  <article class="comp" id="c7" data-soft data-v2="action-log" data-reg="action-log" style="--rh-a:454px;--rc-a:326px;--rh-b:472px;--rc-b:344px;--rh-c:454px;--rc-c:326px;--rh-d:454px;--rc-d:326px;--rh-e:489px;--rc-e:365px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">bolt</span></span>
       <div><h2 class="comp-title"><a href="/components/action-log">Action log</a></h2><p class="comp-desc">Every read, search, edit and command, logged as it runs.</p></div>
@@ -8738,7 +8768,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
   <ol class="alg-list"></ol>
 </div></template>
   </article>
-  <article class="comp wide" data-soft id="c67" data-v2="agent-run-timeline" data-reg="agent-run-timeline" style="--rh-a:480px;--rc-a:356px;--rh-b:480px;--rc-b:356px;--rh-c:480px;--rc-c:356px;--rh-d:480px;--rc-d:356px;--rh-e:501px;--rc-e:377px">
+  <article class="comp wide" data-soft id="c67" data-v2="agent-run-timeline" data-reg="agent-run-timeline" style="--rh-a:484px;--rc-a:356px;--rh-b:484px;--rc-b:356px;--rh-c:484px;--rc-c:356px;--rh-d:484px;--rc-d:356px;--rh-e:501px;--rc-e:377px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">graphic_eq</span></span>
       <div><h2 class="comp-title"><a href="/components/agent-run-timeline">Agent run timeline</a></h2><p class="comp-desc">Every model and tool step of a run on one time axis.</p></div>
@@ -8759,7 +8789,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
   <div class="art-f muted num"></div>
 </div></template>
   </article>
-  <article class="comp" id="c23" data-soft data-v2="context-meter" data-reg="context-meter" style="--rh-a:445px;--rc-a:321px;--rh-b:445px;--rc-b:321px;--rh-c:445px;--rc-c:321px;--rh-d:445px;--rc-d:321px;--rh-e:445px;--rc-e:321px">
+  <article class="comp" id="c23" data-soft data-v2="context-meter" data-reg="context-meter" style="--rh-a:449px;--rc-a:321px;--rh-b:449px;--rc-b:321px;--rh-c:449px;--rc-c:321px;--rh-d:449px;--rc-d:321px;--rh-e:445px;--rc-e:321px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">dashboard</span></span>
       <div><h2 class="comp-title"><a href="/components/context-meter">Context meter</a></h2><p class="comp-desc">How full the context window is, with session and weekly limits, in one small popover.</p></div>
@@ -8778,7 +8808,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
   <div class="ctm-ft"><span>Opus 5.5</span><span class="muted">Extra</span><button class="ctm-ring" aria-expanded="true" aria-label="Usage"><svg viewBox="0 0 20 20" aria-hidden="true"><circle class="tr" cx="10" cy="10" r="7.5"/><circle class="fl" cx="10" cy="10" r="7.5" pathLength="100"/></svg></button></div>
 </div></template>
   </article>
-  <article class="comp" id="c109" data-soft data-v2="error-recovery" data-reg="error-recovery" style="--rh-a:510px;--rc-a:386px;--rh-b:510px;--rc-b:386px;--rh-c:510px;--rc-c:386px;--rh-d:510px;--rc-d:386px;--rh-e:549px;--rc-e:425px">
+  <article class="comp" id="c109" data-soft data-v2="error-recovery" data-reg="error-recovery" style="--rh-a:514px;--rc-a:386px;--rh-b:553px;--rc-b:425px;--rh-c:514px;--rc-c:386px;--rh-d:514px;--rc-d:386px;--rh-e:549px;--rc-e:425px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">nearby_error</span></span>
       <div><h2 class="comp-title"><a href="/components/error-recovery">Error and recovery</a></h2><p class="comp-desc">A failed step with retry, skip or hand over to a person.</p></div>
@@ -8803,7 +8833,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
   </div></div></div>
 </div></template>
   </article>
-  <article class="comp" id="c5" data-soft data-v2="run-queue" data-reg="run-queue" style="--rh-a:536px;--rc-a:412px;--rh-b:536px;--rc-b:412px;--rh-c:536px;--rc-c:412px;--rh-d:536px;--rc-d:412px;--rh-e:555px;--rc-e:431px">
+  <article class="comp" id="c5" data-soft data-v2="run-queue" data-reg="run-queue" style="--rh-a:540px;--rc-a:412px;--rh-b:540px;--rc-b:412px;--rh-c:540px;--rc-c:412px;--rh-d:540px;--rc-d:412px;--rh-e:555px;--rc-e:431px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">readiness_score</span></span>
       <div><h2 class="comp-title"><a href="/components/run-queue">Run queue</a></h2><p class="comp-desc">Grouped tasks with live progress, retries and a compact view.</p></div>
@@ -8819,7 +8849,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
   <div class="rq-list panel"></div>
 </div></template>
   </article>
-  <article class="comp" id="c27" data-soft data-v2="run-cost" data-reg="run-cost" style="--rh-a:420px;--rc-a:289px;--rh-b:420px;--rc-b:289px;--rh-c:420px;--rc-c:289px;--rh-d:420px;--rc-d:289px;--rh-e:420px;--rc-e:289px">
+  <article class="comp" id="c27" data-soft data-v2="run-cost" data-reg="run-cost" style="--rh-a:420px;--rc-a:274px;--rh-b:420px;--rc-b:274px;--rh-c:420px;--rc-c:274px;--rh-d:420px;--rc-d:274px;--rh-e:420px;--rc-e:274px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">bolt</span></span>
       <div><h2 class="comp-title"><a href="/components/run-cost">Run cost</a></h2><p class="comp-desc">Live credit and token spend, with a cap that pauses the run.</p></div>
@@ -8845,7 +8875,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
   </div>
 </div></template>
   </article>
-  <article class="comp" id="c28" data-soft data-v2="toast-stack" data-reg="toast-stack" style="--rh-a:452px;--rc-a:328px;--rh-b:452px;--rc-b:328px;--rh-c:452px;--rc-c:328px;--rh-d:452px;--rc-d:328px;--rh-e:452px;--rc-e:328px">
+  <article class="comp" id="c28" data-soft data-v2="toast-stack" data-reg="toast-stack" style="--rh-a:456px;--rc-a:328px;--rh-b:456px;--rc-b:328px;--rh-c:456px;--rc-c:328px;--rh-d:456px;--rc-d:328px;--rh-e:452px;--rc-e:328px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">notifications</span></span>
       <div><h2 class="comp-title"><a href="/components/toast-stack">Toast stack</a></h2><p class="comp-desc">Agent notifications that stack and fan out on hover.</p></div>
@@ -8861,7 +8891,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
   <div class="demo"><button class="pill soft sm tsk-add"><svg class="i s"><use href="#i-bell"/></svg>Send notification</button></div>
 </div></template>
   </article>
-  <article class="comp" data-soft id="c58" data-v2="toast" data-reg="toast" style="--rh-a:452px;--rc-a:328px;--rh-b:452px;--rc-b:328px;--rh-c:452px;--rc-c:328px;--rh-d:452px;--rc-d:328px;--rh-e:452px;--rc-e:328px">
+  <article class="comp" data-soft id="c58" data-v2="toast" data-reg="toast" style="--rh-a:456px;--rc-a:328px;--rh-b:456px;--rc-b:328px;--rh-c:456px;--rc-c:328px;--rh-d:456px;--rc-d:328px;--rh-e:452px;--rc-e:328px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">check_circle</span></span>
       <div><h2 class="comp-title"><a href="/components/toast">Toast</a></h2><p class="comp-desc">One notification that changes shape with its state.</p></div>
@@ -8882,7 +8912,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
   <div class="demo"><div class="seg2" role="group" aria-label="State"><button aria-pressed="true" data-v="ok">Success</button><button aria-pressed="false" data-v="err">Error</button><button aria-pressed="false" data-v="info">Info</button><button aria-pressed="false" data-v="load">Loading</button></div></div>
 </div></template>
   </article>
-  <article class="comp" id="c22" data-soft data-v2="status-pill" data-reg="status-pill" style="--rh-a:452px;--rc-a:328px;--rh-b:452px;--rc-b:328px;--rh-c:452px;--rc-c:328px;--rh-d:452px;--rc-d:328px;--rh-e:452px;--rc-e:328px">
+  <article class="comp" id="c22" data-soft data-v2="status-pill" data-reg="status-pill" style="--rh-a:456px;--rc-a:328px;--rh-b:456px;--rc-b:328px;--rh-c:456px;--rc-c:328px;--rh-d:456px;--rc-d:328px;--rh-e:452px;--rc-e:328px">
     <div class="comp-head">
       <span class="ibox accent"><span class="ms">readiness_score</span></span>
       <div><h2 class="comp-title"><a href="/components/status-pill">Status pill</a></h2><p class="comp-desc">One live line for what the agent is doing right now.</p></div>
@@ -8903,7 +8933,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
   <div class="demo"><div class="seg2" role="group" aria-label="Variant"><button aria-pressed="true" data-v="pill">Pill</button><button aria-pressed="false" data-v="bar">Bar</button></div></div>
 </div></template>
   </article>
-  <article class="comp" id="c1" data-soft data-v2="step-loader" data-reg="step-loader" style="--rh-a:452px;--rc-a:328px;--rh-b:452px;--rc-b:328px;--rh-c:452px;--rc-c:328px;--rh-d:452px;--rc-d:328px;--rh-e:452px;--rc-e:328px">
+  <article class="comp" id="c1" data-soft data-v2="step-loader" data-reg="step-loader" style="--rh-a:456px;--rc-a:328px;--rh-b:456px;--rc-b:328px;--rh-c:456px;--rc-c:328px;--rh-d:456px;--rc-d:328px;--rh-e:452px;--rc-e:328px">
     <div class="comp-head">
       <span class="ibox accent"><span class="ms">graphic_eq</span></span>
       <div><h2 class="comp-title"><a href="/components/step-loader">Step loader</a></h2><p class="comp-desc">Named steps with a progress track and four loaders.</p></div>
@@ -8939,7 +8969,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
 <section class="lib-sec" id="s-review" data-grp="agent">
   <div class="sec-head"><div><span class="sec-no">03</span><h2>Review and approve</h2><p>Moments where a person checks, steers or signs off on the agent's work.</p></div></div>
   <div class="sec-body" id="s-review-body"><div class="sec-uf"><div class="grid">
-  <article class="comp wide" id="c11" data-soft data-v2="change-review" data-reg="change-review" style="--rh-a:454px;--rc-a:330px;--rh-b:454px;--rc-b:330px;--rh-c:454px;--rc-c:330px;--rh-d:551px;--rc-d:427px;--rh-e:587px;--rc-e:463px">
+  <article class="comp wide" id="c11" data-soft data-v2="change-review" data-reg="change-review" style="--rh-a:458px;--rc-a:330px;--rh-b:458px;--rc-b:330px;--rh-c:458px;--rc-c:330px;--rh-d:555px;--rc-d:427px;--rh-e:587px;--rc-e:463px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">grid_on</span></span>
       <div><h2 class="comp-title"><a href="/components/change-review">Change review</a></h2><p class="comp-desc">Accept or reject each change the agent made, file by file.</p></div>
@@ -8961,7 +8991,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
   </div>
 </div></template>
   </article>
-  <article class="comp" id="c105" data-soft data-v2="plan-review" data-reg="plan-review" style="--rh-a:507px;--rc-a:383px;--rh-b:565px;--rc-b:441px;--rh-c:507px;--rc-c:383px;--rh-d:507px;--rc-d:383px;--rh-e:585px;--rc-e:461px">
+  <article class="comp" id="c105" data-soft data-v2="plan-review" data-reg="plan-review" style="--rh-a:530px;--rc-a:402px;--rh-b:589px;--rc-b:461px;--rh-c:511px;--rc-c:383px;--rh-d:511px;--rc-d:383px;--rh-e:585px;--rc-e:461px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">account_tree</span></span>
       <div><h2 class="comp-title"><a href="/components/plan-review">Plan review</a></h2><p class="comp-desc">Check the agent's plan, edit steps, then let it run.</p></div>
@@ -8979,7 +9009,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
   <div class="plx-f"><span class="muted plx-n">Click a step to edit it</span><button class="pill ghost sm plx-chg">Ask for changes</button><button class="pill ink sm plx-go">Approve plan</button></div>
 </div></template>
   </article>
-  <article class="comp" id="c33" data-soft data-v2="permission-gate" data-reg="permission-gate" style="--rh-a:450px;--rc-a:326px;--rh-b:450px;--rc-b:326px;--rh-c:450px;--rc-c:326px;--rh-d:450px;--rc-d:326px;--rh-e:450px;--rc-e:326px">
+  <article class="comp" id="c33" data-soft data-v2="permission-gate" data-reg="permission-gate" style="--rh-a:454px;--rc-a:326px;--rh-b:454px;--rc-b:326px;--rh-c:454px;--rc-c:326px;--rh-d:454px;--rc-d:326px;--rh-e:450px;--rc-e:326px">
     <div class="comp-head">
       <span class="ibox accent"><span class="ms">lock</span></span>
       <div><h2 class="comp-title"><a href="/components/permission-gate">Permission gate</a></h2><p class="comp-desc">The agent asks before it touches something new.</p></div>
@@ -9001,7 +9031,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
   <div class="pgx-f"><button class="pill ghost sm pgx-no">Not now</button><button class="pill ink sm pgx-ok">Allow 2 scopes</button></div>
 </div></template>
   </article>
-  <article class="comp" id="c4" data-soft data-v2="decision-prompt" data-reg="decision-prompt" style="--rh-a:420px;--rc-a:270px;--rh-b:420px;--rc-b:270px;--rh-c:420px;--rc-c:270px;--rh-d:420px;--rc-d:270px;--rh-e:420px;--rc-e:271px">
+  <article class="comp" id="c4" data-soft data-v2="decision-prompt" data-reg="decision-prompt" style="--rh-a:420px;--rc-a:270px;--rh-b:420px;--rc-b:270px;--rh-c:420px;--rc-c:270px;--rh-d:420px;--rc-d:270px;--rh-e:420px;--rc-e:270px">
     <div class="comp-head">
       <span class="ibox accent"><span class="ms">nearby_error</span></span>
       <div><h2 class="comp-title"><a href="/components/decision-prompt">Decision prompt</a></h2><p class="comp-desc">The agent asks a few quick questions before it starts.</p></div>
@@ -9038,7 +9068,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
   <div class="prx-f"><button class="pill ghost sm prx-no">Not now</button><button class="pill ink sm prx-ok">Accept</button></div>
 </div></template>
   </article>
-  <article class="comp wide" id="c19" data-soft data-v2="design-tuner" data-reg="design-tuner" style="--rh-a:427px;--rc-a:303px;--rh-b:427px;--rc-b:303px;--rh-c:705px;--rc-c:581px;--rh-d:705px;--rc-d:581px;--rh-e:722px;--rc-e:598px">
+  <article class="comp wide" id="c19" data-soft data-v2="design-tuner" data-reg="design-tuner" style="--rh-a:428px;--rc-a:300px;--rh-b:428px;--rc-b:300px;--rh-c:706px;--rc-c:578px;--rh-d:706px;--rc-d:578px;--rh-e:720px;--rc-e:596px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">tune</span></span>
       <div><h2 class="comp-title"><a href="/components/design-tuner">Design tuner</a></h2><p class="comp-desc">Tweak a component by hand or let the agent tune it.</p></div>
@@ -9063,7 +9093,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
   </div>
 </div></template>
   </article>
-  <article class="comp" id="c20" data-soft data-v2="rewrite-toolbar" data-reg="rewrite-toolbar" style="--rh-a:420px;--rc-a:231px;--rh-b:420px;--rc-b:280px;--rh-c:420px;--rc-c:231px;--rh-d:420px;--rc-d:231px;--rh-e:453px;--rc-e:329px">
+  <article class="comp" id="c20" data-soft data-v2="rewrite-toolbar" data-reg="rewrite-toolbar" style="--rh-a:420px;--rc-a:231px;--rh-b:433px;--rc-b:305px;--rh-c:420px;--rc-c:231px;--rh-d:420px;--rc-d:231px;--rh-e:453px;--rc-e:329px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">edit_note</span></span>
       <div><h2 class="comp-title"><a href="/components/rewrite-toolbar">Rewrite toolbar</a></h2><p class="comp-desc">Select a sentence and let the agent rewrite it in place.</p></div>
@@ -9082,7 +9112,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
   </div>
 </div></template>
   </article>
-  <article class="comp" id="c34" data-soft data-v2="launch-checklist" data-reg="launch-checklist" style="--rh-a:529px;--rc-a:405px;--rh-b:529px;--rc-b:405px;--rh-c:529px;--rc-c:405px;--rh-d:529px;--rc-d:405px;--rh-e:529px;--rc-e:405px">
+  <article class="comp" id="c34" data-soft data-v2="launch-checklist" data-reg="launch-checklist" style="--rh-a:533px;--rc-a:405px;--rh-b:533px;--rc-b:405px;--rh-c:533px;--rc-c:405px;--rh-d:533px;--rc-d:405px;--rh-e:529px;--rc-e:405px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">checklist</span></span>
       <div><h2 class="comp-title"><a href="/components/launch-checklist">Launch checklist</a></h2><p class="comp-desc">The agent checks a design before it ships, and fixes what fails.</p></div>
@@ -9099,7 +9129,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
   <div class="lcx-list"></div>
 </div></template>
   </article>
-  <article class="comp wide" id="c111" data-soft data-v2="design-review" data-reg="design-review" style="--rh-a:420px;--rc-a:295px;--rh-b:420px;--rc-b:295px;--rh-c:544px;--rc-c:420px;--rh-d:544px;--rc-d:420px;--rh-e:590px;--rc-e:466px">
+  <article class="comp wide" id="c111" data-soft data-v2="design-review" data-reg="design-review" style="--rh-a:423px;--rc-a:295px;--rh-b:423px;--rc-b:295px;--rh-c:548px;--rc-c:420px;--rh-d:548px;--rc-d:420px;--rh-e:590px;--rc-e:466px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">group</span></span>
       <div><h2 class="comp-title"><a href="/components/design-review">Design review</a></h2><p class="comp-desc">Checks run, a teammate asks for a change, the agent makes it, and you ship.</p></div>
@@ -9132,7 +9162,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
 <section class="lib-sec" id="s-data" data-grp="agent">
   <div class="sec-head"><div><span class="sec-no">04</span><h2>Sources and output</h2><p>What the agent read, what it produced and where each answer came from.</p></div></div>
   <div class="sec-body" id="s-data-body"><div class="sec-uf"><div class="grid">
-  <article class="comp wide" id="c18" data-soft data-v2="code-viewer" data-reg="code-viewer" style="--rh-a:469px;--rc-a:345px;--rh-b:469px;--rc-b:345px;--rh-c:488px;--rc-c:364px;--rh-d:488px;--rc-d:364px;--rh-e:525px;--rc-e:401px">
+  <article class="comp wide" id="c18" data-soft data-v2="code-viewer" data-reg="code-viewer" style="--rh-a:473px;--rc-a:345px;--rh-b:473px;--rc-b:345px;--rh-c:492px;--rc-c:364px;--rh-d:492px;--rc-d:364px;--rh-e:525px;--rc-e:401px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">code</span></span>
       <div><h2 class="comp-title"><a href="/components/code-viewer">Code viewer</a></h2><p class="comp-desc">Code the agent wrote, with line notes you can ask about.</p></div>
@@ -9148,7 +9178,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
   <div class="cvx-body"><pre class="cvx-code"></pre></div>
 </div></template>
   </article>
-  <article class="comp" data-soft id="c68" data-v2="citation-hover" data-reg="citation-hover-card" style="--rh-a:420px;--rc-a:255px;--rh-b:420px;--rc-b:281px;--rh-c:420px;--rc-c:255px;--rh-d:420px;--rc-d:255px;--rh-e:431px;--rc-e:307px">
+  <article class="comp" data-soft id="c68" data-v2="citation-hover" data-reg="citation-hover-card" style="--rh-a:420px;--rc-a:251px;--rh-b:430px;--rc-b:302px;--rh-c:420px;--rc-c:251px;--rh-d:420px;--rc-d:251px;--rh-e:426px;--rc-e:302px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">link</span></span>
       <div><h2 class="comp-title"><a href="/components/citation-hover-card">Citation hover card</a></h2><p class="comp-desc">Hover a citation to see the exact passage it came from.</p></div>
@@ -9164,7 +9194,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
   <div class="chx-card panel keep" role="dialog" aria-label="Source"><div class="chx-in"></div></div>
 </div></template>
   </article>
-  <article class="comp" id="c10" data-soft data-v2="source-stack" data-reg="source-stack" style="--rh-a:578px;--rc-a:454px;--rh-b:578px;--rc-b:454px;--rh-c:578px;--rc-c:454px;--rh-d:578px;--rc-d:454px;--rh-e:602px;--rc-e:478px">
+  <article class="comp" id="c10" data-soft data-v2="source-stack" data-reg="source-stack" style="--rh-a:581px;--rc-a:453px;--rh-b:604px;--rc-b:476px;--rh-c:581px;--rc-c:453px;--rh-d:581px;--rc-d:453px;--rh-e:600px;--rc-e:476px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">description</span></span>
       <div><h2 class="comp-title"><a href="/components/source-stack">Source stack</a></h2><p class="comp-desc">Everything the agent read, folded into one quiet pill.</p></div>
@@ -9184,7 +9214,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
   </div></div></div>
 </div></template>
   </article>
-  <article class="comp wide" id="c36" data-soft data-v2="field-extraction" data-reg="field-extraction" style="--rh-a:435px;--rc-a:311px;--rh-b:435px;--rc-b:311px;--rh-c:545px;--rc-c:421px;--rh-d:689px;--rc-d:565px;--rh-e:689px;--rc-e:565px">
+  <article class="comp wide" id="c36" data-soft data-v2="field-extraction" data-reg="field-extraction" style="--rh-a:439px;--rc-a:311px;--rh-b:439px;--rc-b:311px;--rh-c:604px;--rc-c:476px;--rh-d:693px;--rc-d:565px;--rh-e:689px;--rc-e:565px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">document_scanner</span></span>
       <div><h2 class="comp-title"><a href="/components/field-extraction">Field extraction</a></h2><p class="comp-desc">The agent pulls fields out of a document and shows where each came from.</p></div>
@@ -9217,7 +9247,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
   </div>
 </div></template>
   </article>
-  <article class="comp" id="c17" data-soft data-v2="metric-insight" data-reg="metric-insight" style="--rh-a:420px;--rc-a:289px;--rh-b:432px;--rc-b:308px;--rh-c:420px;--rc-c:289px;--rh-d:420px;--rc-d:289px;--rh-e:432px;--rc-e:308px">
+  <article class="comp" id="c17" data-soft data-v2="metric-insight" data-reg="metric-insight" style="--rh-a:420px;--rc-a:274px;--rh-b:421px;--rc-b:293px;--rh-c:420px;--rc-c:274px;--rh-d:420px;--rc-d:274px;--rh-e:420px;--rc-e:293px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">trending_up</span></span>
       <div><h2 class="comp-title"><a href="/components/metric-insight">Metric insight</a></h2><p class="comp-desc">A number, its trend, and the agent's read on why it moved.</p></div>
@@ -9237,7 +9267,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
   <div class="fold shut mix-box"><div><div class="mix-rs"></div></div></div>
 </div></template>
   </article>
-  <article class="comp" data-soft id="c66" data-v2="details-panel" data-reg="details-panel" style="--rh-a:530px;--rc-a:406px;--rh-b:530px;--rc-b:406px;--rh-c:530px;--rc-c:406px;--rh-d:530px;--rc-d:406px;--rh-e:530px;--rc-e:406px">
+  <article class="comp" data-soft id="c66" data-v2="details-panel" data-reg="details-panel" style="--rh-a:534px;--rc-a:406px;--rh-b:534px;--rc-b:406px;--rh-c:534px;--rc-c:406px;--rh-d:534px;--rc-d:406px;--rh-e:530px;--rc-e:406px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">dashboard</span></span>
       <div><h2 class="comp-title"><a href="/components/details-panel">Details panel</a></h2><p class="comp-desc">Properties of a run you can change in place.</p></div>
@@ -9273,7 +9303,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
   </div>
 </div></template>
   </article>
-  <article class="comp wide" id="c13" data-soft data-v2="task-table" data-reg="task-table" style="--rh-a:486px;--rc-a:362px;--rh-b:486px;--rc-b:362px;--rh-c:486px;--rc-c:362px;--rh-d:486px;--rc-d:362px;--rh-e:486px;--rc-e:362px">
+  <article class="comp wide" id="c13" data-soft data-v2="task-table" data-reg="task-table" style="--rh-a:490px;--rc-a:362px;--rh-b:490px;--rc-b:362px;--rh-c:490px;--rc-c:362px;--rh-d:490px;--rc-d:362px;--rh-e:486px;--rc-e:362px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">filter_list</span></span>
       <div><h2 class="comp-title"><a href="/components/task-table">Task table</a></h2><p class="comp-desc">Agent tasks in a sortable table with bulk actions.</p></div>
@@ -9300,7 +9330,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
 <section class="lib-sec" id="s-workspace" data-grp="agent">
   <div class="sec-head"><div><span class="sec-no">05</span><h2>Workspace</h2><p>Navigation, search, settings, models and automations around the agent.</p></div></div>
   <div class="sec-body" id="s-workspace-body"><div class="sec-uf"><div class="grid">
-  <article class="comp wide" id="c16" data-soft data-v2="automation-canvas" data-reg="automation-canvas" style="--rh-a:462px;--rc-a:338px;--rh-b:462px;--rc-b:338px;--rh-c:462px;--rc-c:338px;--rh-d:582px;--rc-d:458px;--rh-e:610px;--rc-e:486px">
+  <article class="comp wide" id="c16" data-soft data-v2="automation-canvas" data-reg="automation-canvas" style="--rh-a:466px;--rc-a:338px;--rh-b:466px;--rc-b:338px;--rh-c:466px;--rc-c:338px;--rh-d:586px;--rc-d:458px;--rh-e:610px;--rc-e:486px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">account_tree</span></span>
       <div><h2 class="comp-title"><a href="/components/automation-canvas">Automation canvas</a></h2><p class="comp-desc">A trigger, a few agent steps, and a run you can watch flow through.</p></div>
@@ -9320,7 +9350,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
   </div>
 </div></template>
   </article>
-  <article class="comp" id="c15" data-soft data-v2="command-palette" data-reg="command-palette" style="--rh-a:443px;--rc-a:319px;--rh-b:443px;--rc-b:319px;--rh-c:443px;--rc-c:319px;--rh-d:443px;--rc-d:319px;--rh-e:443px;--rc-e:319px">
+  <article class="comp" id="c15" data-soft data-v2="command-palette" data-reg="command-palette" style="--rh-a:447px;--rc-a:319px;--rh-b:447px;--rc-b:319px;--rh-c:447px;--rc-c:319px;--rh-d:447px;--rc-d:319px;--rh-e:443px;--rc-e:319px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">search</span></span>
       <div><h2 class="comp-title"><a href="/components/command-palette">Command palette</a></h2><p class="comp-desc">Jump anywhere or hand a task to the agent from one box.</p></div>
@@ -9337,7 +9367,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
   <div class="cpl-f muted"><span><span class="kbd">↑</span><span class="kbd">↓</span> move</span><span><span class="kbd">↵</span> run</span><span class="cpl-st"></span></div>
 </div></template>
   </article>
-  <article class="comp" data-soft id="c69" data-v2="memory-panel" data-reg="memory-panel" style="--rh-a:617px;--rc-a:493px;--rh-b:714px;--rc-b:590px;--rh-c:617px;--rc-c:493px;--rh-d:617px;--rc-d:493px;--rh-e:773px;--rc-e:649px">
+  <article class="comp" data-soft id="c69" data-v2="memory-panel" data-reg="memory-panel" style="--rh-a:621px;--rc-a:493px;--rh-b:738px;--rc-b:610px;--rh-c:621px;--rc-c:493px;--rh-d:621px;--rc-d:493px;--rh-e:773px;--rc-e:649px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">history</span></span>
       <div><h2 class="comp-title"><a href="/components/memory-panel">Memory panel</a></h2><p class="comp-desc">What the agent remembers about your team, editable and removable.</p></div>
@@ -9353,7 +9383,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
   <div class="mmx-list"></div>
 </div></template>
   </article>
-  <article class="comp wide" data-soft id="c71" data-v2="model-compare" data-reg="model-compare" style="--rh-a:440px;--rc-a:316px;--rh-b:440px;--rc-b:316px;--rh-c:480px;--rc-c:356px;--rh-d:956px;--rc-d:832px;--rh-e:956px;--rc-e:832px">
+  <article class="comp wide" data-soft id="c71" data-v2="model-compare" data-reg="model-compare" style="--rh-a:444px;--rc-a:316px;--rh-b:444px;--rc-b:316px;--rh-c:505px;--rc-c:377px;--rh-d:960px;--rc-d:832px;--rh-e:956px;--rc-e:832px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">splitscreen</span></span>
       <div><h2 class="comp-title"><a href="/components/model-compare">Model compare</a></h2><p class="comp-desc">Run one prompt on three models side by side and keep the best.</p></div>
@@ -9369,7 +9399,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
   <form class="mcx-in"><input class="mcx-q" value="Write a one line value prop for the Pro plan" aria-label="Prompt for every model" spellcheck="false"><span class="mcx-n muted">Sends to 3 models</span><button class="mcx-go" aria-label="Send to every model" data-tip="Send to every model" data-tip-k="↵">{up}</button></form>
 </div></template>
   </article>
-  <article class="comp" id="c38" data-soft data-v2="agent-settings" data-reg="agent-settings" style="--rh-a:589px;--rc-a:465px;--rh-b:589px;--rc-b:465px;--rh-c:589px;--rc-c:465px;--rh-d:589px;--rc-d:465px;--rh-e:607px;--rc-e:483px">
+  <article class="comp" id="c38" data-soft data-v2="agent-settings" data-reg="agent-settings" style="--rh-a:593px;--rc-a:465px;--rh-b:611px;--rc-b:483px;--rh-c:593px;--rc-c:465px;--rh-d:593px;--rc-d:465px;--rh-e:607px;--rc-e:483px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">settings</span></span>
       <div><h2 class="comp-title"><a href="/components/agent-settings">Agent settings</a></h2><p class="comp-desc">How much the agent may do alone, with a save bar for changes.</p></div>
@@ -9390,7 +9420,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
   <div class="asx-bar"><span>Unsaved changes</span><button class="pill ghost sm asx-rs">Reset</button><button class="pill accent sm asx-sv">Save</button></div>
 </div></template>
   </article>
-  <article class="comp" id="c110" data-soft data-v2="tool-connections" data-reg="tool-connections" style="--rh-a:506px;--rc-a:382px;--rh-b:506px;--rc-b:382px;--rh-c:506px;--rc-c:382px;--rh-d:506px;--rc-d:382px;--rh-e:526px;--rc-e:402px">
+  <article class="comp" id="c110" data-soft data-v2="tool-connections" data-reg="tool-connections" style="--rh-a:510px;--rc-a:382px;--rh-b:510px;--rc-b:382px;--rh-c:510px;--rc-c:382px;--rh-d:510px;--rc-d:382px;--rh-e:526px;--rc-e:402px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">link</span></span>
       <div><h2 class="comp-title"><a href="/components/tool-connections">Tools and connections</a></h2><p class="comp-desc">The tools the agent can reach, and how much it may do with each.</p></div>
@@ -9408,7 +9438,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
   <div class="pop hnx-pop" role="menu"></div>
 </div></template>
   </article>
-  <article class="comp" id="c39" data-soft data-v2="file-explorer" data-reg="file-explorer" style="--rh-a:504px;--rc-a:380px;--rh-b:504px;--rc-b:380px;--rh-c:504px;--rc-c:380px;--rh-d:504px;--rc-d:380px;--rh-e:504px;--rc-e:380px">
+  <article class="comp" id="c39" data-soft data-v2="file-explorer" data-reg="file-explorer" style="--rh-a:508px;--rc-a:380px;--rh-b:508px;--rc-b:380px;--rh-c:508px;--rc-c:380px;--rh-d:508px;--rc-d:380px;--rh-e:504px;--rc-e:380px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">folder</span></span>
       <div><h2 class="comp-title"><a href="/components/file-explorer">File explorer</a></h2><p class="comp-desc">Project files, with the ones the agent touched marked.</p></div>
@@ -9425,7 +9455,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
   <div class="fxp-f muted"><span class="fxp-st"></span></div>
 </div></template>
   </article>
-  <article class="comp" id="c14" data-soft data-v2="workspace-rail" data-reg="workspace-rail" style="--rh-a:555px;--rc-a:431px;--rh-b:555px;--rc-b:431px;--rh-c:555px;--rc-c:431px;--rh-d:555px;--rc-d:431px;--rh-e:555px;--rc-e:431px">
+  <article class="comp" id="c14" data-soft data-v2="workspace-rail" data-reg="workspace-rail" style="--rh-a:559px;--rc-a:431px;--rh-b:559px;--rc-b:431px;--rh-c:559px;--rc-c:431px;--rh-d:559px;--rc-d:431px;--rh-e:555px;--rc-e:431px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">view_sidebar</span></span>
       <div><h2 class="comp-title"><a href="/components/workspace-rail">Workspace rail</a></h2><p class="comp-desc">A slim app rail that opens into a labelled sidebar.</p></div>
@@ -9453,7 +9483,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
 <section class="lib-sec" id="s-harness" data-grp="agent">
   <div class="sec-head"><div><span class="sec-no">06</span><h2>Harness</h2><p>A live agent conversation built only from the components above. Pick a starter and watch them work together.</p></div></div>
   <div class="sec-body" id="s-harness-body"><div class="sec-uf"><div class="grid">
-  <article class="comp wide" data-soft id="c99" data-v2="harness" data-reg="agent-harness" style="--rh-a:744px;--rc-a:620px;--rh-b:744px;--rc-b:620px;--rh-c:744px;--rc-c:620px;--rh-d:744px;--rc-d:620px;--rh-e:744px;--rc-e:620px">
+  <article class="comp wide" data-soft id="c99" data-v2="harness" data-reg="agent-harness" style="--rh-a:748px;--rc-a:620px;--rh-b:748px;--rc-b:620px;--rh-c:748px;--rc-c:620px;--rh-d:748px;--rc-d:620px;--rh-e:744px;--rc-e:620px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">stars</span></span>
       <div><h2 class="comp-title"><a href="/components/agent-harness">Agent harness</a></h2><p class="comp-desc">Every component working together in one agent app.</p></div>
@@ -9509,7 +9539,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
 <section class="lib-sec" id="s-charts" data-grp="basics">
   <div class="sec-head"><div><span class="sec-no">01</span><h2>Charts and tables</h2><p>Lightweight charts and tables for dashboards and reports, drawn in plain SVG and HTML.</p></div></div>
   <div class="sec-body" id="s-charts-body"><div class="sec-uf"><div class="grid">
-  <article class="comp" id="c41" data-soft data-v2="line-chart" data-reg="line-chart" style="--rh-a:420px;--rc-a:273px;--rh-b:420px;--rc-b:273px;--rh-c:420px;--rc-c:273px;--rh-d:420px;--rc-d:273px;--rh-e:433px;--rc-e:309px">
+  <article class="comp" id="c41" data-soft data-v2="line-chart" data-reg="line-chart" style="--rh-a:420px;--rc-a:264px;--rh-b:420px;--rc-b:264px;--rh-c:420px;--rc-c:264px;--rh-d:420px;--rc-d:264px;--rh-e:424px;--rc-e:300px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">trending_up</span></span>
       <div><h2 class="comp-title"><a href="/components/line-chart">Line chart</a></h2><p class="comp-desc">Two series over time with a hover readout and toggles.</p></div>
@@ -9526,7 +9556,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
   <div class="lnx-ax muted num"><span>Jan</span><span>Mar</span><span>May</span><span>Jul</span><span>Sep</span><span>Nov</span></div>
 </div></template>
   </article>
-  <article class="comp" id="c42" data-soft data-v2="bar-chart" data-reg="bar-chart" style="--rh-a:420px;--rc-a:278px;--rh-b:420px;--rc-b:278px;--rh-c:420px;--rc-c:278px;--rh-d:420px;--rc-d:278px;--rh-e:420px;--rc-e:278px">
+  <article class="comp" id="c42" data-soft data-v2="bar-chart" data-reg="bar-chart" style="--rh-a:420px;--rc-a:269px;--rh-b:420px;--rc-b:269px;--rh-c:420px;--rc-c:269px;--rh-d:420px;--rc-d:269px;--rh-e:420px;--rc-e:269px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">bar_chart</span></span>
       <div><h2 class="comp-title"><a href="/components/bar-chart">Bar chart</a></h2><p class="comp-desc">Weekly agent runs, split by outcome, with a range switch.</p></div>
@@ -9543,7 +9573,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
   <div class="bcx-lg muted"><span><i style="background:var(--c1)"></i>Shipped</span><span><i style="background:var(--c2)"></i>Needed review</span><span><i style="background:var(--c4)"></i>Failed</span></div>
 </div></template>
   </article>
-  <article class="comp" id="c43" data-soft data-v2="donut-chart" data-reg="donut-chart" style="--rh-a:420px;--rc-a:198px;--rh-b:492px;--rc-b:368px;--rh-c:420px;--rc-c:198px;--rh-d:420px;--rc-d:198px;--rh-e:492px;--rc-e:368px">
+  <article class="comp" id="c43" data-soft data-v2="donut-chart" data-reg="donut-chart" style="--rh-a:420px;--rc-a:217px;--rh-b:496px;--rc-b:368px;--rh-c:420px;--rc-c:198px;--rh-d:420px;--rc-d:198px;--rh-e:492px;--rc-e:368px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">donut</span></span>
       <div><h2 class="comp-title"><a href="/components/donut-chart">Donut chart</a></h2><p class="comp-desc">Where the agent's time went, by kind of task.</p></div>
@@ -9559,7 +9589,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
   <div class="dnx-lg"></div>
 </div></template>
   </article>
-  <article class="comp" id="c102" data-soft data-v2="funnel" data-reg="funnel-chart" style="--rh-a:438px;--rc-a:314px;--rh-b:438px;--rc-b:314px;--rh-c:438px;--rc-c:314px;--rh-d:438px;--rc-d:314px;--rh-e:457px;--rc-e:333px">
+  <article class="comp" id="c102" data-soft data-v2="funnel" data-reg="funnel-chart" style="--rh-a:442px;--rc-a:314px;--rh-b:461px;--rc-b:333px;--rh-c:442px;--rc-c:314px;--rh-d:442px;--rc-d:314px;--rh-e:457px;--rc-e:333px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">grid_view</span></span>
       <div><h2 class="comp-title"><a href="/components/funnel-chart">Funnel chart</a></h2><p class="comp-desc">Signup to paid, with the biggest drop called out by the agent.</p></div>
@@ -9576,7 +9606,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
   <div class="fnx-ins"><span class="fnx-ic">{spark}</span><span class="fnx-t"></span></div>
 </div></template>
   </article>
-  <article class="comp" id="c103" data-soft data-v2="top-pages" data-reg="top-pages" style="--rh-a:501px;--rc-a:377px;--rh-b:501px;--rc-b:377px;--rh-c:501px;--rc-c:377px;--rh-d:501px;--rc-d:377px;--rh-e:519px;--rc-e:395px">
+  <article class="comp" id="c103" data-soft data-v2="top-pages" data-reg="top-pages" style="--rh-a:505px;--rc-a:377px;--rh-b:523px;--rc-b:395px;--rh-c:505px;--rc-c:377px;--rh-d:505px;--rc-d:377px;--rh-e:519px;--rc-e:395px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">grid_view</span></span>
       <div><h2 class="comp-title"><a href="/components/top-pages">Top pages</a></h2><p class="comp-desc">Most visited pages with share of traffic and a quick sort.</p></div>
@@ -9592,7 +9622,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
   <div class="tpx-list"></div>
 </div></template>
   </article>
-  <article class="comp" data-soft id="c65" data-v2="health-score" data-reg="health-score" style="--rh-a:420px;--rc-a:260px;--rh-b:420px;--rc-b:260px;--rh-c:420px;--rc-c:260px;--rh-d:420px;--rc-d:260px;--rh-e:420px;--rc-e:286px">
+  <article class="comp" data-soft id="c65" data-v2="health-score" data-reg="health-score" style="--rh-a:420px;--rc-a:260px;--rh-b:420px;--rc-b:266px;--rh-c:420px;--rc-c:260px;--rh-d:420px;--rc-d:260px;--rh-e:420px;--rc-e:286px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">readiness_score</span></span>
       <div><h2 class="comp-title"><a href="/components/health-score">Health score</a></h2><p class="comp-desc">A design system score made of a few checks you can open.</p></div>
@@ -9629,7 +9659,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
   <div class="hmx-lg muted">Less<i style="--a:.08"></i><i style="--a:.3"></i><i style="--a:.55"></i><i style="--a:.85"></i>More</div>
 </div></template>
   </article>
-  <article class="comp wide" id="c44" data-soft data-v2="stat-cards" data-reg="stat-cards" style="--rh-a:420px;--rc-a:173px;--rh-b:420px;--rc-b:173px;--rh-c:420px;--rc-c:173px;--rh-d:440px;--rc-d:316px;--rh-e:725px;--rc-e:601px">
+  <article class="comp wide" id="c44" data-soft data-v2="stat-cards" data-reg="stat-cards" style="--rh-a:420px;--rc-a:167px;--rh-b:420px;--rc-b:167px;--rh-c:420px;--rc-c:186px;--rh-d:432px;--rc-d:304px;--rh-e:701px;--rc-e:577px">
     <div class="comp-head">
       <span class="ibox accent"><span class="ms">dashboard</span></span>
       <div><h2 class="comp-title"><a href="/components/stat-cards">Stat cards</a></h2><p class="comp-desc">Four headline numbers with sparklines and a period switch.</p></div>
@@ -9645,7 +9675,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
   <div class="scx-grid"></div>
 </div></template>
   </article>
-  <article class="comp wide" id="c12" data-soft data-v2="account-table" data-reg="account-table" style="--rh-a:521px;--rc-a:397px;--rh-b:521px;--rc-b:397px;--rh-c:521px;--rc-c:397px;--rh-d:521px;--rc-d:397px;--rh-e:553px;--rc-e:429px">
+  <article class="comp wide" id="c12" data-soft data-v2="account-table" data-reg="account-table" style="--rh-a:525px;--rc-a:397px;--rh-b:525px;--rc-b:397px;--rh-c:525px;--rc-c:397px;--rh-d:525px;--rc-d:397px;--rh-e:553px;--rc-e:429px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">person</span></span>
       <div><h2 class="comp-title"><a href="/components/account-table">Account table</a></h2><p class="comp-desc">Customer accounts with health, plan and an agent note per row.</p></div>
@@ -9666,7 +9696,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
 <section class="lib-sec" id="s-dates" data-grp="basics">
   <div class="sec-head"><div><span class="sec-no">02</span><h2>Dates</h2><p>Pickers for single dates and date ranges.</p></div></div>
   <div class="sec-body" id="s-dates-body"><div class="sec-uf"><div class="grid">
-  <article class="comp" id="c46" data-soft data-v2="date-picker" data-reg="date-picker" style="--rh-a:524px;--rc-a:400px;--rh-b:524px;--rc-b:400px;--rh-c:524px;--rc-c:400px;--rh-d:524px;--rc-d:400px;--rh-e:524px;--rc-e:400px">
+  <article class="comp" id="c46" data-soft data-v2="date-picker" data-reg="date-picker" style="--rh-a:528px;--rc-a:400px;--rh-b:528px;--rc-b:400px;--rh-c:528px;--rc-c:400px;--rh-d:528px;--rc-d:400px;--rh-e:524px;--rc-e:400px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">calendar</span></span>
       <div><h2 class="comp-title"><a href="/components/date-picker">Date picker</a></h2><p class="comp-desc">A field that opens a calendar, with quick picks and natural language.</p></div>
@@ -9688,7 +9718,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
   </div>
 </div></template>
   </article>
-  <article class="comp wide" id="c47" data-soft data-v2="date-range-picker" data-reg="date-range-picker" style="--rh-a:433px;--rc-a:309px;--rh-b:433px;--rc-b:309px;--rh-c:433px;--rc-c:309px;--rh-d:487px;--rc-d:363px;--rh-e:560px;--rc-e:436px">
+  <article class="comp wide" id="c47" data-soft data-v2="date-range-picker" data-reg="date-range-picker" style="--rh-a:437px;--rc-a:309px;--rh-b:437px;--rc-b:309px;--rh-c:463px;--rc-c:335px;--rh-d:491px;--rc-d:363px;--rh-e:560px;--rc-e:436px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">calendar</span></span>
       <div><h2 class="comp-title"><a href="/components/date-range-picker">Date range picker</a></h2><p class="comp-desc">Pick a start and end across two months, or use a preset.</p></div>
@@ -9708,7 +9738,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
   </div>
 </div></template>
   </article>
-  <article class="comp wide" data-soft id="c62" data-v2="event-calendar" data-reg="event-calendar" style="--rh-a:557px;--rc-a:433px;--rh-b:557px;--rc-b:433px;--rh-c:557px;--rc-c:433px;--rh-d:557px;--rc-d:433px;--rh-e:586px;--rc-e:462px">
+  <article class="comp wide" data-soft id="c62" data-v2="event-calendar" data-reg="event-calendar" style="--rh-a:561px;--rc-a:433px;--rh-b:561px;--rc-b:433px;--rh-c:561px;--rc-c:433px;--rh-d:561px;--rc-d:433px;--rh-e:586px;--rc-e:462px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">calendar</span></span>
       <div><h2 class="comp-title"><a href="/components/event-calendar">Event calendar</a></h2><p class="comp-desc">A week view where the agent finds a free slot for you.</p></div>
@@ -9724,7 +9754,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
   <div class="ecx-sc"><div class="ecx-grid"><div class="ecx-tm"></div></div></div>
 </div></template>
   </article>
-  <article class="comp" data-soft id="c63" data-v2="agenda" data-reg="agenda" style="--rh-a:656px;--rc-a:532px;--rh-b:675px;--rc-b:551px;--rh-c:656px;--rc-c:532px;--rh-d:656px;--rc-d:532px;--rh-e:712px;--rc-e:588px">
+  <article class="comp" data-soft id="c63" data-v2="agenda" data-reg="agenda" style="--rh-a:660px;--rc-a:532px;--rh-b:716px;--rc-b:588px;--rh-c:660px;--rc-c:532px;--rh-d:660px;--rc-d:532px;--rh-e:712px;--rc-e:588px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">schedule</span></span>
       <div><h2 class="comp-title"><a href="/components/agenda">Agenda</a></h2><p class="comp-desc">Today's schedule with a live now line and agent prep notes.</p></div>
@@ -9745,7 +9775,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
 <section class="lib-sec" id="s-forms" data-grp="basics">
   <div class="sec-head"><div><span class="sec-no">03</span><h2>Forms and inputs</h2><p>Buttons, fields, pickers and sign-in flows for any product.</p></div></div>
   <div class="sec-body" id="s-forms-body"><div class="sec-uf"><div class="grid">
-  <article class="comp wide" data-soft id="c49" data-v2="buttons" data-reg="buttons" style="--rh-a:420px;--rc-a:178px;--rh-b:420px;--rc-b:178px;--rh-c:420px;--rc-c:218px;--rh-d:420px;--rc-d:178px;--rh-e:524px;--rc-e:400px">
+  <article class="comp wide" data-soft id="c49" data-v2="buttons" data-reg="buttons" style="--rh-a:420px;--rc-a:178px;--rh-b:420px;--rc-b:178px;--rh-c:420px;--rc-c:258px;--rh-d:420px;--rc-d:258px;--rh-e:524px;--rc-e:400px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">bolt</span></span>
       <div><h2 class="comp-title"><a href="/components/buttons">Buttons</a></h2><p class="comp-desc">Every button style, with loading, success and hold-to-confirm states.</p></div>
@@ -9788,7 +9818,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
   <p class="muted ttp-n">Labels wait a moment, then follow you instantly between buttons.</p>
 </div></template>
   </article>
-  <article class="comp" data-soft id="c53" data-v2="search-input" data-reg="search-input" style="--rh-a:444px;--rc-a:320px;--rh-b:444px;--rc-b:320px;--rh-c:444px;--rc-c:320px;--rh-d:444px;--rc-d:320px;--rh-e:444px;--rc-e:320px">
+  <article class="comp" data-soft id="c53" data-v2="search-input" data-reg="search-input" style="--rh-a:448px;--rc-a:320px;--rh-b:448px;--rc-b:320px;--rh-c:448px;--rc-c:320px;--rh-d:448px;--rc-d:320px;--rh-e:444px;--rc-e:320px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">search</span></span>
       <div><h2 class="comp-title"><a href="/components/search-input">Search input</a></h2><p class="comp-desc">Search with scoped filters, recent queries and an agent answer.</p></div>
@@ -9824,7 +9854,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
   <span class="muted csx-h">Used for tax and currency</span>
 </div></template>
   </article>
-  <article class="comp" data-soft id="c51" data-v2="social-signin" data-reg="social-sign-in" style="--rh-a:529px;--rc-a:405px;--rh-b:529px;--rc-b:405px;--rh-c:529px;--rc-c:405px;--rh-d:529px;--rc-d:405px;--rh-e:529px;--rc-e:405px">
+  <article class="comp" data-soft id="c51" data-v2="social-signin" data-reg="social-sign-in" style="--rh-a:531px;--rc-a:403px;--rh-b:531px;--rc-b:403px;--rh-c:531px;--rc-c:403px;--rh-d:531px;--rc-d:403px;--rh-e:527px;--rc-e:403px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">person</span></span>
       <div><h2 class="comp-title"><a href="/components/social-sign-in">Social sign-in</a></h2><p class="comp-desc">One-tap providers that remember the last one you used.</p></div>
@@ -9842,7 +9872,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
   <button class="ssi-mail">Continue with email</button>
 </div></template>
   </article>
-  <article class="comp" data-soft id="c55" data-v2="sign-in" data-reg="sign-in" style="--rh-a:420px;--rc-a:233px;--rh-b:420px;--rc-b:233px;--rh-c:420px;--rc-c:233px;--rh-d:420px;--rc-d:233px;--rh-e:420px;--rc-e:233px">
+  <article class="comp" data-soft id="c55" data-v2="sign-in" data-reg="sign-in" style="--rh-a:420px;--rc-a:232px;--rh-b:420px;--rc-b:232px;--rh-c:420px;--rc-c:232px;--rh-d:420px;--rc-d:232px;--rh-e:420px;--rc-e:232px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">lock</span></span>
       <div><h2 class="comp-title"><a href="/components/sign-in">Sign in</a></h2><p class="comp-desc">Email first, then a one-time code that fills itself in.</p></div>
@@ -9868,7 +9898,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
   </div>
 </div></template>
   </article>
-  <article class="comp" data-soft id="c50" data-v2="form" data-reg="form" style="--rh-a:536px;--rc-a:412px;--rh-b:536px;--rc-b:412px;--rh-c:536px;--rc-c:412px;--rh-d:536px;--rc-d:412px;--rh-e:550px;--rc-e:426px">
+  <article class="comp" data-soft id="c50" data-v2="form" data-reg="form" style="--rh-a:540px;--rc-a:412px;--rh-b:548px;--rc-b:420px;--rh-c:540px;--rc-c:412px;--rh-d:540px;--rc-d:412px;--rh-e:550px;--rc-e:426px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">edit_note</span></span>
       <div><h2 class="comp-title"><a href="/components/form">Form</a></h2><p class="comp-desc">A project brief with inline checks and an agent that drafts the rest.</p></div>
@@ -9888,7 +9918,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
   <div class="fmx-ft"><span class="fmx-ms muted"></span><button class="pill ink sm fmx-go" type="submit">Create brief</button></div>
 </form></template>
   </article>
-  <article class="comp wide" data-soft id="c64" data-v2="payment-form" data-reg="payment-form" style="--rh-a:543px;--rc-a:419px;--rh-b:543px;--rc-b:419px;--rh-c:543px;--rc-c:419px;--rh-d:543px;--rc-d:419px;--rh-e:583px;--rc-e:459px">
+  <article class="comp wide" data-soft id="c64" data-v2="payment-form" data-reg="payment-form" style="--rh-a:547px;--rc-a:419px;--rh-b:547px;--rc-b:419px;--rh-c:547px;--rc-c:419px;--rh-d:547px;--rc-d:419px;--rh-e:583px;--rc-e:459px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">lock</span></span>
       <div><h2 class="comp-title"><a href="/components/payment-form">Payment form</a></h2><p class="comp-desc">Card details with live formatting, brand detection and a clear total.</p></div>
@@ -9914,7 +9944,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
 <section class="lib-sec" id="s-collab" data-grp="basics">
   <div class="sec-head"><div><span class="sec-no">04</span><h2>Collaboration</h2><p>Threads, inboxes and boards for teams working alongside an agent.</p></div></div>
   <div class="sec-body" id="s-collab-body"><div class="sec-uf"><div class="grid">
-  <article class="comp" data-soft id="c54" data-v2="comments" data-reg="comments" style="--rh-a:500px;--rc-a:376px;--rh-b:539px;--rc-b:415px;--rh-c:500px;--rc-c:376px;--rh-d:500px;--rc-d:376px;--rh-e:597px;--rc-e:473px">
+  <article class="comp" data-soft id="c54" data-v2="comments" data-reg="comments" style="--rh-a:523px;--rc-a:395px;--rh-b:601px;--rc-b:473px;--rh-c:504px;--rc-c:376px;--rh-d:504px;--rc-d:376px;--rh-e:597px;--rc-e:473px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">chat_bubble</span></span>
       <div><h2 class="comp-title"><a href="/components/comments">Comments</a></h2><p class="comp-desc">A design thread where you can @mention the agent and it replies.</p></div>
@@ -9931,7 +9961,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
   <div class="cmx-in"><div class="cmx-box"><input placeholder="Reply, or @agent to ask" aria-label="Reply" spellcheck="false"><button class="cmx-go" aria-label="Send" disabled>{up}</button></div><div class="pop cmx-men" role="listbox"></div></div>
 </div></template>
   </article>
-  <article class="comp" data-soft id="c56" data-v2="notifications" data-reg="notifications" style="--rh-a:571px;--rc-a:447px;--rh-b:608px;--rc-b:484px;--rh-c:571px;--rc-c:447px;--rh-d:571px;--rc-d:447px;--rh-e:684px;--rc-e:560px">
+  <article class="comp" data-soft id="c56" data-v2="notifications" data-reg="notifications" style="--rh-a:575px;--rc-a:447px;--rh-b:669px;--rc-b:541px;--rh-c:575px;--rc-c:447px;--rh-d:575px;--rc-d:447px;--rh-e:684px;--rc-e:560px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">notifications</span></span>
       <div><h2 class="comp-title"><a href="/components/notifications">Notifications</a></h2><p class="comp-desc">An inbox where agent updates and mentions arrive live.</p></div>
@@ -9948,7 +9978,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
   <div class="ntx-list"></div>
 </div></template>
   </article>
-  <article class="comp" data-soft id="c61" data-v2="invite" data-reg="invite-to-collaborate" style="--rh-a:445px;--rc-a:321px;--rh-b:447px;--rc-b:323px;--rh-c:445px;--rc-c:321px;--rh-d:445px;--rc-d:321px;--rh-e:496px;--rc-e:372px">
+  <article class="comp" data-soft id="c61" data-v2="invite" data-reg="invite-to-collaborate" style="--rh-a:449px;--rc-a:321px;--rh-b:482px;--rc-b:354px;--rh-c:449px;--rc-c:321px;--rh-d:449px;--rc-d:321px;--rh-e:496px;--rc-e:372px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">person_add</span></span>
       <div><h2 class="comp-title"><a href="/components/invite-to-collaborate">Invite to collaborate</a></h2><p class="comp-desc">Add teammates by email as chips, set their role, send.</p></div>
@@ -9985,7 +10015,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
   <div class="pop rxx-pk" role="menu"><div class="rxx-grid"></div></div>
 </div></template>
   </article>
-  <article class="comp wide" id="c104" data-soft data-v2="ticket-list" data-reg="ticket-list" style="--rh-a:542px;--rc-a:418px;--rh-b:542px;--rc-b:418px;--rh-c:542px;--rc-c:418px;--rh-d:542px;--rc-d:418px;--rh-e:579px;--rc-e:455px">
+  <article class="comp wide" id="c104" data-soft data-v2="ticket-list" data-reg="ticket-list" style="--rh-a:546px;--rc-a:418px;--rh-b:546px;--rc-b:418px;--rh-c:546px;--rc-c:418px;--rh-d:546px;--rc-d:418px;--rh-e:579px;--rc-e:455px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">grid_view</span></span>
       <div><h2 class="comp-title"><a href="/components/ticket-list">Ticket list</a></h2><p class="comp-desc">Support tickets the agent has triaged, with suggested replies.</p></div>
@@ -10001,7 +10031,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
   <div class="tkx-list"></div>
 </div></template>
   </article>
-  <article class="comp wide" id="c101" data-soft data-v2="kanban" data-reg="kanban-board" style="--rh-a:479px;--rc-a:355px;--rh-b:479px;--rc-b:355px;--rh-c:497px;--rc-c:373px;--rh-d:497px;--rc-d:373px;--rh-e:497px;--rc-e:373px">
+  <article class="comp wide" id="c101" data-soft data-v2="kanban" data-reg="kanban-board" style="--rh-a:483px;--rc-a:355px;--rh-b:483px;--rc-b:355px;--rh-c:501px;--rc-c:373px;--rh-d:501px;--rc-d:373px;--rh-e:497px;--rc-e:373px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">grid_view</span></span>
       <div><h2 class="comp-title"><a href="/components/kanban-board">Kanban board</a></h2><p class="comp-desc">A board where you and the agent move cards, with drag and drop.</p></div>
@@ -10022,7 +10052,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
 <section class="lib-sec" id="s-product" data-grp="basics">
   <div class="sec-head"><div><span class="sec-no">05</span><h2>Product</h2><p>Pricing, onboarding, setup flows and spending limits for the rest of your product.</p></div></div>
   <div class="sec-body" id="s-product-body"><div class="sec-uf"><div class="grid">
-  <article class="comp wide" data-soft id="c70" data-v2="pricing-cards" data-reg="pricing-cards" style="--rh-a:526px;--rc-a:402px;--rh-b:526px;--rc-b:402px;--rh-c:602px;--rc-c:478px;--rh-d:1205px;--rc-d:1081px;--rh-e:1237px;--rc-e:1113px">
+  <article class="comp wide" data-soft id="c70" data-v2="pricing-cards" data-reg="pricing-cards" style="--rh-a:505px;--rc-a:387px;--rh-b:505px;--rc-b:387px;--rh-c:600px;--rc-c:482px;--rh-d:1154px;--rc-d:1036px;--rh-e:1192px;--rc-e:1068px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">bolt</span></span>
       <div><h2 class="comp-title"><a href="/components/pricing-cards">Pricing cards</a></h2><p class="comp-desc">Three plans with a billing switch and a seat slider.</p></div>
@@ -10039,7 +10069,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
   <div class="pcx-grid"></div>
 </div></template>
   </article>
-  <article class="comp" data-soft id="c72" data-v2="onboarding-checklist" data-reg="onboarding-checklist" style="--rh-a:469px;--rc-a:345px;--rh-b:487px;--rc-b:363px;--rh-c:469px;--rc-c:345px;--rh-d:469px;--rc-d:345px;--rh-e:562px;--rc-e:438px">
+  <article class="comp" data-soft id="c72" data-v2="onboarding-checklist" data-reg="onboarding-checklist" style="--rh-a:473px;--rc-a:345px;--rh-b:566px;--rc-b:438px;--rh-c:473px;--rc-c:345px;--rh-d:473px;--rc-d:345px;--rh-e:562px;--rc-e:438px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">checklist</span></span>
       <div><h2 class="comp-title"><a href="/components/onboarding-checklist">Onboarding checklist</a></h2><p class="comp-desc">First steps with a progress ring, and the agent can do some for you.</p></div>
@@ -10055,7 +10085,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
   <div class="fold obx-fold"><div><div class="obx-list"></div></div></div>
 </div></template>
   </article>
-  <article class="comp" data-soft id="c73" data-v2="stepper" data-reg="stepper" style="--rh-a:420px;--rc-a:266px;--rh-b:420px;--rc-b:266px;--rh-c:420px;--rc-c:266px;--rh-d:420px;--rc-d:266px;--rh-e:511px;--rc-e:387px">
+  <article class="comp" data-soft id="c73" data-v2="stepper" data-reg="stepper" style="--rh-a:420px;--rc-a:266px;--rh-b:420px;--rc-b:266px;--rh-c:420px;--rc-c:266px;--rh-d:420px;--rc-d:266px;--rh-e:510px;--rc-e:386px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">account_tree</span></span>
       <div><h2 class="comp-title"><a href="/components/stepper">Stepper</a></h2><p class="comp-desc">A multi-step setup with a progress track that fills as you go.</p></div>
@@ -10072,7 +10102,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
   <div class="stx-f"><button class="pill ghost sm stx-bk">Back</button><button class="pill ink sm stx-nx">Continue</button></div>
 </div></template>
   </article>
-  <article class="comp" data-soft id="c74" data-v2="set-limit" data-reg="set-limit" style="--rh-a:420px;--rc-a:232px;--rh-b:420px;--rc-b:251px;--rh-c:420px;--rc-c:232px;--rh-d:420px;--rc-d:232px;--rh-e:420px;--rc-e:280px">
+  <article class="comp" data-soft id="c74" data-v2="set-limit" data-reg="set-limit" style="--rh-a:420px;--rc-a:232px;--rh-b:420px;--rc-b:280px;--rh-c:420px;--rc-c:232px;--rh-d:420px;--rc-d:232px;--rh-e:420px;--rc-e:280px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">tune</span></span>
       <div><h2 class="comp-title"><a href="/components/set-limit">Set limit</a></h2><p class="comp-desc">A monthly agent budget with a draggable cap and a forecast.</p></div>
@@ -10091,7 +10121,7 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
   <div class="slx-opt"><span class="muted">At the limit</span><div class="seg2 slx-sg" role="group" aria-label="At the limit"><button aria-pressed="true" data-v="pause">Pause runs</button><button aria-pressed="false" data-v="ask">Ask me</button><button aria-pressed="false" data-v="keep">Keep going</button></div></div>
 </div></template>
   </article>
-  <article class="comp" data-soft id="c75" data-v2="currency-converter" data-reg="currency-converter" style="--rh-a:420px;--rc-a:215px;--rh-b:420px;--rc-b:215px;--rh-c:420px;--rc-c:215px;--rh-d:420px;--rc-d:215px;--rh-e:420px;--rc-e:215px">
+  <article class="comp" data-soft id="c75" data-v2="currency-converter" data-reg="currency-converter" style="--rh-a:420px;--rc-a:203px;--rh-b:420px;--rc-b:203px;--rh-c:420px;--rc-c:203px;--rh-d:420px;--rc-d:203px;--rh-e:420px;--rc-e:203px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">trending_up</span></span>
       <div><h2 class="comp-title"><a href="/components/currency-converter">Currency converter</a></h2><p class="comp-desc">Show plan prices in local currency, with a swap and live rate.</p></div>
@@ -10986,10 +11016,15 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
     // the component page steps through both sets, so on its way out it shows the set its last component is in
     window.dmFollow = follow;
     const target = h => { if (/^#\/./.test(h)) return $$('main .comp').find(c => slugOf(c.querySelector('.comp-title').textContent) === h.slice(2)); try { return h.length > 1 ? document.querySelector(h) : null; } catch(e){ return null; } };
-    document.addEventListener('click', e => { const a = e.target.closest('a[href^="#"],[data-id]'); if (a) follow(a.dataset.id ? document.getElementById(a.dataset.id) : target(a.getAttribute('href'))); }, true);
-    addEventListener('hashchange', () => follow(target(location.hash)));
-    addEventListener('popstate', () => follow(target(location.hash)));
-    follow(target(location.hash));
+    // anything below both sets (the questions, the footer) lays both sets out first, so the page has its full length before
+    // the jump, and App basics can't arrive halfway down and push the target further away
+    const below = el => !!el && !el.closest('.lib-sec') && !!($('main').compareDocumentPosition(el) & Node.DOCUMENT_POSITION_FOLLOWING);
+    const all = () => { if (both()) return; root.dataset.grp = 'agent'; root.classList.add('grp-cont'); dispatchEvent(new Event('resize')); };
+    const go = el => { if (below(el)) all(); else follow(el); };
+    document.addEventListener('click', e => { const a = e.target.closest('a[href^="#"],[data-id]'); if (a) go(a.dataset.id ? document.getElementById(a.dataset.id) : target(a.getAttribute('href'))); }, true);
+    addEventListener('hashchange', () => go(target(location.hash)));
+    addEventListener('popstate', () => go(target(location.hash)));
+    go(target(location.hash));
   }
   /* ---------- book a call button: fill grows from the pointer ---------- */
   {
@@ -11766,6 +11801,10 @@ body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
       if (push) history.pushState({ pv:name }, '', '#/' + name);
     }
     function close(push = true){ if (!pv.classList.contains('open')) return; if (pv._leave){ pv._leave(); pv._leave = null; } pv.classList.remove('open'); document.documentElement.style.overflow = ''; Sound.play('close'); if (push) history.pushState({}, '', location.pathname + location.search); }
+    // the sidebar's pages: Library, or the page open over it
+    { const markSide = () => { const h = pv.classList.contains('open') ? location.hash : '#components';
+        $$('.side-p').forEach(a => { const on = a.getAttribute('href') === h; a.classList.toggle('act', on); if (on) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); }); };
+      new MutationObserver(markSide).observe(pv, { attributes:true, attributeFilter:['class'] }); }
     document.addEventListener('click', e => {
       const a = e.target.closest('a[href="#/changelog"], a[href="#/roadmap"], a[href="#/privacy"]'); if (!a) return;
       e.preventDefault(); if ($('.dv.open')) $('#dv-x').click(); open(a.getAttribute('href').slice(2));
@@ -12108,7 +12147,10 @@ function ctl(){
       },
       tap: async el => {
         await s.point(el, false); hand.classList.remove('down'); void hand.offsetWidth; hand.classList.add('down');
-        await sleep(160); check(); el.click(); c.later(340, () => hand && hand.classList.remove('down'));
+        // a label is pressed through its control: clicking the label itself would focus the control, and the page would
+        // scroll to it while the visitor reads somewhere else. Whatever the press does, the page stays where it is
+        await sleep(160); check(); const y = scrollY, x = scrollX; (el.matches('label') && el.control ? el.control : el).click(); if (scrollY !== y || scrollX !== x) scrollTo(x, y);
+        c.later(340, () => hand && hand.classList.remove('down'));
       },
       away: () => { unTip(); if (hand) hand.classList.remove('on', 'down'); },
       until: async f => { while (!f()){ check(); await sleep(100); } check(); }
@@ -12750,7 +12792,7 @@ DM.def('set-limit', (r, c) => {
   const goTo = n => { const id = ++glide, from = cap; tween(from, n, 450, x => { if (id === glide){ cap = Math.round(x); upd(); } }); };
   const commit = () => { const n = vin.value === '' ? before : Math.max(MIN, Math.min(MAX, parseInt(vin.value, 10))); vin.value = n; fit(); if (n !== cap) goTo(n); };
   // a click selects the whole figure at once, so typing replaces it
-  v.addEventListener('pointerdown', e => { if (document.activeElement !== vin){ e.preventDefault(); vin.focus(); } });
+  v.addEventListener('pointerdown', e => { if (document.activeElement !== vin){ e.preventDefault(); vin.focus({ preventScroll:true }); } });
   vin.onfocus = () => { touched = true; before = cap; vin.select(); };
   vin.oninput = () => { vin.value = vin.value.replace(/\D/g, '').slice(0, 4); fit(); const n = +vin.value; if (vin.value && n >= MIN && n <= MAX) goTo(n); };
   vin.onkeydown = e => {
@@ -13019,7 +13061,7 @@ DM.def('composer', (r, c) => {
   /* plus menu */
   const ATT = { file:['file-text','brief.pdf'], shot:['image','Screenshot 10.42'], figma:['figma','Pricing / Desktop'] };
   $$('[data-add]', r).forEach(b => b.onclick = () => { const a = ATT[b.dataset.add]; const ch = html(`<span class="fchip">${I(a[0],'xs')}${a[1]}<button class="x" aria-label="Remove ${a[1]}">${I('x','xs')}</button></span>`); att.appendChild(ch); enter(ch); $('.x', ch).onclick = () => { ch.classList.add('leave'); setTimeout(() => { ch.remove(); sync(); }, 300); }; sync(); });
-  $$('[data-ins]', r).forEach(b => b.onclick = () => { ta.value += (ta.value && !ta.value.endsWith(' ') ? ' ' : '') + b.dataset.ins; ta.focus(); sync(); });
+  $$('[data-ins]', r).forEach(b => b.onclick = () => { ta.value += (ta.value && !ta.value.endsWith(' ') ? ' ' : '') + b.dataset.ins; ta.focus({ preventScroll:true }); sync(); });
   const radio = (sel, attr, fn) => $$(sel, r).forEach(b => b.onclick = () => { $$(sel, r).forEach(x => x.setAttribute('aria-checked', x === b)); fn(b.dataset[attr]); });
   radio('[data-proj]', 'proj', v => swap($('.cpx-proj', r), v));
   radio('[data-env]', 'env', v => { swap($('.cpx-env', r), v); const ch = $('[data-pop=".pp-env"]', r); ch.querySelector('svg').outerHTML = I({ Local:'laptop', Worktree:'branch', Cloud:'cloud' }[v]); });
@@ -13051,7 +13093,7 @@ DM.def('composer', (r, c) => {
       for (const w of said.split(' ')){ speaking = 6; ta.value += (ta.value ? ' ' : '') + w; grow(); await k.wait(150 + Math.random() * 140 + (/[?.,]$/.test(w) ? 520 : 0)); }
     });
   }
-  function stopVoice(keep){ if (vc) vc.stop(); box.dataset.mode = 'idle'; ta.placeholder = 'Ask anything, or type / for skills'; if (!keep) ta.value = before; sync(); ta.focus(); }
+  function stopVoice(keep){ if (vc) vc.stop(); box.dataset.mode = 'idle'; ta.placeholder = 'Ask anything, or type / for skills'; if (!keep) ta.value = before; sync(); ta.focus({ preventScroll:true }); }
   $('.cpx-mic', r).onclick = dictate;
   $('.cpx-cancel', r).onclick = () => stopVoice(false);
   $('.cpx-ok', r).onclick = () => stopVoice(true);
@@ -13178,8 +13220,8 @@ DM.def('artifact-card', (r, c) => {
 DM.def('prompt-starters', (r, c) => {
   r.innerHTML = r.innerHTML.replace('{up}', I('up')).replace('{shuffle}', I('refresh','xs'));
   const sets = [
-    [['grid','var(--pb)','var(--pb-bg)','Audit a page','Check the pricing page for spacing and contrast','Audit the pricing page for spacing and contrast issues and list fixes.'],['edit','var(--pl)','var(--pl-bg)','Rewrite copy','Make the onboarding intro shorter','Rewrite the onboarding intro so it is shorter and clearer.'],['code','var(--pm)','var(--pm-bg)','Export tokens','Turn colour and spacing into CSS variables','Export the colour and spacing tokens as CSS variables.'],['layers','var(--pp)','var(--pp-bg)','Compare frames','Diff the mobile and desktop frames','Compare the mobile and desktop frames and list the differences.']],
-    [['chart','var(--pt)','var(--pt-bg)','Explain a metric','Why did activation drop last week','Explain why activation dropped last week, with sources.'],['mail','var(--pk)','var(--pk-bg)','Draft an email','Announce the new pricing to customers','Draft an email announcing the new pricing to existing customers.'],['bug','var(--pr)','var(--pr-bg)','Find a bug','Trace why checkout logs people out','Find out why checkout logs people out and suggest a fix.'],['figma','var(--pl)','var(--pl-bg)','Build from Figma','Turn the hero frame into code','Build the hero frame from Figma as a React component.']]
+    [['grid','var(--pb)','var(--pb-bg)','Audit a page','Check the pricing page for spacing and contrast','Audit pricing for spacing and contrast'],['edit','var(--pl)','var(--pl-bg)','Rewrite copy','Make the onboarding intro shorter','Make the onboarding intro shorter'],['code','var(--pm)','var(--pm-bg)','Export tokens','Turn colour and spacing into CSS variables','Export the tokens as CSS variables'],['layers','var(--pp)','var(--pp-bg)','Compare frames','Diff the mobile and desktop frames','Diff the mobile and desktop frames']],
+    [['chart','var(--pt)','var(--pt-bg)','Explain a metric','Why did activation drop last week','Why did activation drop last week?'],['mail','var(--pk)','var(--pk-bg)','Draft an email','Announce the new pricing to customers','Announce the new pricing by email'],['bug','var(--pr)','var(--pr-bg)','Find a bug','Trace why checkout logs people out','Fix checkout logging people out'],['figma','var(--pl)','var(--pl-bg)','Build from Figma','Turn the hero frame into code','Build the hero frame in React']]
   ];
   let si = 0;
   const grid = $('.psx-grid', r), tx = $('.psx-tx', r), inp = $('.psx-in', r), go = $('.psx-go', r);
@@ -13197,10 +13239,8 @@ DM.def('prompt-starters', (r, c) => {
   }
   $('.psx-sh', r).onclick = () => { si = (si + 1) % sets.length; tx.innerHTML = ''; inp.classList.remove('has'); go.disabled = true; paint(); };
   go.onclick = () => { tx.innerHTML = '<span class="w">Sent to the agent</span>'; go.disabled = true; $$('.psx-c', grid).forEach(x => x.classList.remove('on')); };
+  // the box starts empty: a starter fills it when someone picks one, in one short line
   paint();
-  // once the card has settled, the first starter is picked and fills the box, unless someone got there first
-  let touched = false; c.on(r, 'pointerdown', () => { touched = true; }, true);
-  c.later(1700, () => { if (!touched && si === 0 && !$('.psx-c.on', grid)) pick($('.psx-c', grid)); });
 });
 /* ---------- Attachment tray ---------- */
 DM.def('attachment-tray', (r, c) => {
@@ -13584,7 +13624,7 @@ DM.def('plan-review', (r, c) => {
     $('.plx-x', s).onclick = () => { const off = s.classList.toggle('off'); $('.plx-x', s).dataset.tip = off ? 'Include step' : 'Skip step'; $('.plx-x', s).setAttribute('aria-label', off ? 'Include step' : 'Skip step'); $('.plx-x', s).innerHTML = I(off ? 'undo' : 'x', 'xs'); count(); };
   }
   $$('.plx-s', list).forEach((s, i) => bind(s, S[i][1]));
-  $('.plx-add', r).onclick = () => { const s = html(row(['New step'], $$('.plx-s', list).length)); list.appendChild(s); enter(s); bind(s); count(); const t = $('.t', s); t.focus(); document.getSelection().selectAllChildren(t); };
+  $('.plx-add', r).onclick = () => { const s = html(row(['New step'], $$('.plx-s', list).length)); list.appendChild(s); enter(s); bind(s); count(); const t = $('.t', s); t.focus({ preventScroll:true }); document.getSelection().selectAllChildren(t); };
   $('.plx-chg', r).onclick = () => { swap($('.plx-n', r), 'Tell the agent what to change in chat'); };
   const clock = ms => { const s = Math.floor(ms / 1000); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };
   const note = (s, text, tone) => { const d = $('.d', s); d.className = 'd on' + (tone ? ' ' + tone : ''); swap(d.firstElementChild, text); };
@@ -13619,10 +13659,11 @@ DM.def('plan-review', (r, c) => {
   c.story(async s => {
     await s.beat(3);
     const step = $$('.plx-s', list)[2], t = $('.t', step);
-    await s.tap(t); t.focus(); document.getSelection().selectAllChildren(t); document.getSelection().collapseToEnd(); await s.beat(1);
+    // the step looks focused while the person types, without real focus: a caret would make the page follow it
+    await s.tap(t); t.classList.add('ed'); await s.beat(1);
     for (const ch of ' each'){ t.textContent = t.textContent.slice(0, -1); await s.beat(.12); }
     for (const ch of ', annual price first'){ t.textContent += ch; await s.beat(.09); }
-    await s.beat(1); t.blur(); await s.beat(2);
+    await s.beat(1); t.classList.remove('ed'); t.onblur(); await s.beat(2);
     await s.tap(go); s.away();
     await s.until(() => $('.plx-f .pill.soft', r));
   });
@@ -13649,7 +13690,7 @@ DM.def('change-review', (r, c) => {
       const setS = s => { h.s = h.s === s ? '' : s; hk.className = 'crx-hk ' + h.s; fileState(i); };
       $('.hk-k', hk).onclick = () => setS('kept'); $('.hk-u', hk).onclick = () => setS('undone');
       $$('.cm', hk).forEach(b => b.onclick = () => { const ln = b.closest('.crx-l'); if (ln.nextElementSibling?.classList.contains('crx-cmt')) return;
-        const box = html(`<div class="crx-cmt"><input placeholder="Ask the agent about this line"><button class="pill accent sm">Send</button></div>`); ln.after(box); enter(box); const inp = $('input', box); inp.focus();
+        const box = html(`<div class="crx-cmt"><input placeholder="Ask the agent about this line"><button class="pill accent sm">Send</button></div>`); ln.after(box); enter(box); const inp = $('input', box); inp.focus({ preventScroll:true });
         const send = () => { const v = inp.value.trim() || 'Why this change?'; box.className = 'crx-cmt sent'; box.innerHTML = `${I('at','xs')}<span>${esc(v)}</span>`; enter(box); };
         $('button', box).onclick = send; inp.onkeydown = e => { if (e.key === 'Enter') send(); if (e.key === 'Escape') box.remove(); }; });
     });
@@ -13967,7 +14008,7 @@ DM.def('field-extraction', (r, c) => {
     if (warn) z(f[0]).classList.add('warn');
     el.onmouseenter = () => z(f[0]).classList.add('hl'); el.onmouseleave = () => z(f[0]).classList.remove('hl');
     const fx = $('.fex-fix', el);
-    if (fx) fx.onclick = () => { const v = $('.v', el); v.contentEditable = 'true'; v.textContent = '2026-11-1'; v.focus(); const s = document.getSelection(); s.selectAllChildren(v); s.collapseToEnd(); z(f[0]).classList.add('hl'); swap(st, 'Type the day you see');
+    if (fx) fx.onclick = () => { const v = $('.v', el); v.contentEditable = 'true'; v.textContent = '2026-11-1'; v.focus({ preventScroll:true }); const s = document.getSelection(); s.selectAllChildren(v); s.collapseToEnd(); z(f[0]).classList.add('hl'); swap(st, 'Type the day you see');
       const done = () => { v.contentEditable = 'false'; z(f[0]).classList.remove('hl', 'warn'); el.classList.remove('warn'); const cf = $('.fex-cf', el); cf.innerHTML = `<i><b style="width:100%"></b></i>Fixed`; enter(cf); go.disabled = false; swap(st, 'All fields confirmed'); };
       v.onkeydown = e => { if (e.key === 'Enter'){ e.preventDefault(); if (!/\d\d$/.test(v.textContent)) v.textContent = '2026-11-14'; done(); } }; v.onblur = () => { if (v.isContentEditable){ if (!/\d\d$/.test(v.textContent)) v.textContent = '2026-11-14'; done(); } }; };
     return el;
@@ -14195,7 +14236,7 @@ DM.def('memory-panel', (r, c) => {
   function item(m){
     const el = html(`<div class="mmx-m" data-id="${m.id}"><span class="dot" style="color:${col(m.k)}"></span><span class="t" spellcheck="false">${m.t}<span class="src" contenteditable="false">${m.s}</span></span><span class="acts"><button class="ib ed" aria-label="Edit" data-tip="Edit">${I('edit','xs')}</button><button class="ib rm" aria-label="Forget" data-tip="Forget">${I('trash','xs')}</button></span></div>`);
     const t = $('.t', el); if (m.isNew) el.classList.add('new');
-    $('.ed', el).onclick = () => { const src = $('.src', t); src.remove(); t.contentEditable = 'true'; t.focus(); const s = document.getSelection(); s.selectAllChildren(t); s.collapseToEnd();
+    $('.ed', el).onclick = () => { const src = $('.src', t); src.remove(); t.contentEditable = 'true'; t.focus({ preventScroll:true }); const s = document.getSelection(); s.selectAllChildren(t); s.collapseToEnd();
       const done = () => { t.contentEditable = 'false'; m.t = t.textContent.trim() || m.t; m.s = 'Edited by you, just now'; t.textContent = m.t; t.appendChild(src); src.textContent = m.s; };
       t.onkeydown = e => { if (e.key === 'Enter'){ e.preventDefault(); t.blur(); } }; t.onblur = done; };
     $('.rm', el).onclick = () => { const i = M.indexOf(m); M.splice(i, 1); count();
@@ -14663,7 +14704,7 @@ DM.def('harness', (r, c) => {
   }
   const sf = $('.ahx-sf', r), si = $('.ahx-si', r), none = $('.ahx-none', r);
   const filter = () => { const v = si.value.trim().toLowerCase(); let k = 0; CV.forEach(cv => { const on = !v || cv.title.toLowerCase().includes(v); cv.row.hidden = !on; k += on; }); none.hidden = k > 0; };
-  const search = o => { sf.classList.toggle('shut', !o); if (o) si.focus(); else { si.value = ''; filter(); } };
+  const search = o => { sf.classList.toggle('shut', !o); if (o) si.focus({ preventScroll:true }); else { si.value = ''; filter(); } };
   $('.ahx-sb', r).onclick = () => search(sf.classList.contains('shut'));
   si.oninput = filter;
   si.onkeydown = e => { if (e.key === 'Escape'){ e.stopPropagation(); search(false); } };
@@ -15352,9 +15393,9 @@ DM.def('sign-in', (r, c) => {
   const fill = () => c.run(async () => { if (checking) return; for (let j = 0; j < 6; j++){ if (ins[j].value) continue; ins[j].value = CODE[j]; ins[j].classList.add('f'); const el = ins[j]; c.later(160, () => el.classList.remove('f')); await c.wait(110); } check(); });
   code.onpointerdown = e => { if (!ins.every(i => i.value)){ e.preventDefault(); fill(); } };
   ins.forEach((i, k) => {
-    i.oninput = () => { i.value = i.value.replace(/\D/g, '').slice(-1); if (i.value){ i.classList.add('f'); c.later(150, () => i.classList.remove('f')); if (ins[k + 1]) ins[k + 1].focus(); } check(); };
-    i.onkeydown = e => { if (e.key === 'Backspace' && !i.value && ins[k - 1]){ ins[k - 1].focus(); ins[k - 1].value = ''; } };
-    i.onpaste = e => { const t = (e.clipboardData.getData('text') || '').replace(/\D/g, '').slice(0, 6); if (!t) return; e.preventDefault(); t.split('').forEach((d, j) => { if (ins[j]) ins[j].value = d; }); ins[Math.min(5, t.length)].focus(); check(); };
+    i.oninput = () => { i.value = i.value.replace(/\D/g, '').slice(-1); if (i.value){ i.classList.add('f'); c.later(150, () => i.classList.remove('f')); if (ins[k + 1]) ins[k + 1].focus({ preventScroll:true }); } check(); };
+    i.onkeydown = e => { if (e.key === 'Backspace' && !i.value && ins[k - 1]){ ins[k - 1].focus({ preventScroll:true }); ins[k - 1].value = ''; } };
+    i.onpaste = e => { const t = (e.clipboardData.getData('text') || '').replace(/\D/g, '').slice(0, 6); if (!t) return; e.preventDefault(); t.split('').forEach((d, j) => { if (ins[j]) ins[j].value = d; }); ins[Math.min(5, t.length)].focus({ preventScroll:true }); check(); };
   });
   c.later(1000, () => c.run(async () => { for (const ch of 'maya@studio.com'){ em.value += ch; await c.wait(40); } await c.wait(300); send(true); await c.wait(1400); for (const [j, d] of [...CODE.slice(0, 4)].entries()){ ins[j].value = d; ins[j].classList.add('f'); c.later(150, () => ins[j].classList.remove('f')); await c.wait(160); } }));
 });
@@ -15430,7 +15471,7 @@ DM.def('comments', (r, c) => {
   const opts = [['DA','agent','Design agent'],['MK','maya','Maya Kim'],['JO','jon','Jon Ortiz']];
   inp.oninput = () => { go.disabled = !inp.value.trim(); const m = inp.value.match(/@(\w*)$/);
     if (m){ const list = opts.filter(o => o[1].startsWith(m[1].toLowerCase())); men.innerHTML = list.map(o => `<button class="mi" data-h="${o[1]}">${AV(o[0], P[o[0]][1]).replace('class="av" style="', 'class="av" style="width:20px;height:20px;font-size:9px;')}<span>${o[2]}<span class="d">@${o[1]}</span></span></button>`).join(''); men.classList.toggle('open', list.length > 0);
-      $$('.mi', men).forEach(b => b.onmousedown = e => { e.preventDefault(); inp.value = inp.value.replace(/@\w*$/, '@' + b.dataset.h + ' '); men.classList.remove('open'); go.disabled = false; inp.focus(); }); }
+      $$('.mi', men).forEach(b => b.onmousedown = e => { e.preventDefault(); inp.value = inp.value.replace(/@\w*$/, '@' + b.dataset.h + ' '); men.classList.remove('open'); go.disabled = false; inp.focus({ preventScroll:true }); }); }
     else men.classList.remove('open'); };
   inp.onkeydown = e => { if (e.key === 'Enter'){ const f = $('.mi', men); if (men.classList.contains('open') && f){ f.onmousedown(e); } else send(); } if (e.key === 'Escape') men.classList.remove('open'); };
   go.onclick = send;
@@ -15517,7 +15558,7 @@ DM.def('ticket-list', (r, c) => {
     $$('.tkx-t', list).forEach((el, i) => { const t = L[i];
       $('.tkx-r', el).onclick = () => { open = open === t ? null : t; paint(); const d = $('.tkx-d', list); if (d) stagger([...d.children], 50); };
       const sd = $('.sd', el); if (sd) sd.onclick = () => c.run(async () => { sd.innerHTML = '<span class="spin"></span>'; await c.wait(700); t.s = $('.tx', el).textContent; t.st = 'done'; open = null; el.classList.add('leave'); await c.wait(330); paint(); });
-      const ed = $('.ed', el); if (ed) ed.onclick = () => { const tx = $('.tx', el); tx.focus(); const s = document.getSelection(); s.selectAllChildren(tx); s.collapseToEnd(); };
+      const ed = $('.ed', el); if (ed) ed.onclick = () => { const tx = $('.tx', el); tx.focus({ preventScroll:true }); const s = document.getSelection(); s.selectAllChildren(tx); s.collapseToEnd(); };
     });
   }
   seg($('.tkx-sg', r), v => { f = v; open = null; paint(true); });
@@ -15561,7 +15602,7 @@ DM.def('kanban', (r, c) => {
       c.offs.push(() => { document.removeEventListener('pointermove', move); document.removeEventListener('pointerup', up); ghost?.remove(); });
     });
   }
-  $$('.kbx-ch .ib', wrap).forEach(b => b.onclick = () => { const col = b.closest('.kbx-c').dataset.c; const k = { id:Date.now(), c:col, t:'New card', tag:['k','Idea'], who:['MK','var(--pl)'] }; K.push(k); paint(); const el = $(`.kbx-k[data-id="${k.id}"]`, wrap); enter(el); const t = $('.t', el); editing = true; t.contentEditable = 'true'; t.focus(); document.getSelection().selectAllChildren(t); t.onblur = () => { editing = false; t.contentEditable = 'false'; k.t = t.textContent.trim() || 'New card'; }; t.onkeydown = e => { if (e.key === 'Enter'){ e.preventDefault(); t.blur(); } }; });
+  $$('.kbx-ch .ib', wrap).forEach(b => b.onclick = () => { const col = b.closest('.kbx-c').dataset.c; const k = { id:Date.now(), c:col, t:'New card', tag:['k','Idea'], who:['MK','var(--pl)'] }; K.push(k); paint(); const el = $(`.kbx-k[data-id="${k.id}"]`, wrap); enter(el); const t = $('.t', el); editing = true; t.contentEditable = 'true'; t.focus({ preventScroll:true }); document.getSelection().selectAllChildren(t); t.onblur = () => { editing = false; t.contentEditable = 'false'; k.t = t.textContent.trim() || 'New card'; }; t.onkeydown = e => { if (e.key === 'Enter'){ e.preventDefault(); t.blur(); } }; });
   paint();
   c.every(600, () => { if (dragging || editing) return; const k = K.find(x => x.run != null); if (!k) return; k.run = Math.min(1, k.run + .08); const el = $(`.kbx-k[data-id="${k.id}"] .kbx-pr i`, wrap); if (el) el.style.width = k.run * 100 + '%';
     if (k.run >= 1){ K = K.filter(x => x !== k); k.c = 'done'; delete k.run; K.push(k); paint(); const n = $(`.kbx-k[data-id="${k.id}"]`, wrap); enter(n);

@@ -46,7 +46,10 @@ function ctl(){
       },
       tap: async el => {
         await s.point(el, false); hand.classList.remove('down'); void hand.offsetWidth; hand.classList.add('down');
-        await sleep(160); check(); el.click(); c.later(340, () => hand && hand.classList.remove('down'));
+        // a label is pressed through its control: clicking the label itself would focus the control, and the page would
+        // scroll to it while the visitor reads somewhere else. Whatever the press does, the page stays where it is
+        await sleep(160); check(); const y = scrollY, x = scrollX; (el.matches('label') && el.control ? el.control : el).click(); if (scrollY !== y || scrollX !== x) scrollTo(x, y);
+        c.later(340, () => hand && hand.classList.remove('down'));
       },
       away: () => { unTip(); if (hand) hand.classList.remove('on', 'down'); },
       until: async f => { while (!f()){ check(); await sleep(100); } check(); }

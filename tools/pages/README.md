@@ -1,15 +1,16 @@
 # Component pages
 
-The pages beside the homepage, built with Astro: `/components`, a page per section (`/components/agent-status`… by its
-id, like `/components/status`) and a page per component (`/components/composer`), a Markdown copy of each component page
-(`/components/composer.md`) for AI tools, and the sitemap.
+The pages beside the homepage, built with Astro: a page per component (`/components/composer`), a Markdown copy of each
+(`/components/composer.md`) for AI tools, the sitemap and `_redirects`. The homepage lists every component, so there is no
+separate list: `/components` redirects to it, and each old section page (`/components/status`) to its section there
+(`/#s-status`).
 
 The homepage itself is still built by `tools/site`. These pages read what that build writes, so build it first:
 
 ```sh
 cd ../site && npm run build      # writes ../pages/data/site.json, the sections and cards in page order
 cd ../pages && npm install
-npm run build                    # builds into dist/, then copies components.html, components/ and sitemap.xml to the repository root
+npm run build                    # builds into dist/, then copies components/ and sitemap.xml to the repository root and writes _redirects
 ```
 
 (or `npm run pages` from `tools/site`). Cloudflare Pages serves the repository as it is, so the built pages are committed,
@@ -46,8 +47,8 @@ file still gets a page, with its one-line description.
 
 - `src/lib/data.mjs` reads everything the pages show.
 - `src/layouts/Page.astro` is the frame: head, header, footer, light and dark.
-- `src/components/ComponentPage.astro` and `SectionPage.astro` are the two kinds of page under `/components/<name>`.
-- `src/pages/components.astro` is the list of every component; `src/pages/components/[slug].md.ts` the Markdown copies;
+- `src/components/ComponentPage.astro` is the page under `/components/<name>`.
+- `src/pages/components/[slug].md.ts` writes the Markdown copies;
   `src/pages/components/assets/` the shared core for the demos; `src/pages/sitemap.xml.ts` the sitemap.
 - `shots.mjs` takes the pictures (see above).
 - `publish.mjs` copies the build to the repository root and stops if the build holds anything it doesn't expect.

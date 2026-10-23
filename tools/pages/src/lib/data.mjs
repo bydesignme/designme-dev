@@ -17,7 +17,8 @@ const maybe = (...p) => { const f = path.join(ROOT, ...p); return fs.existsSync(
 const site = read('tools/pages/data/site.json');
 export const SETS = site.sets;
 export const LOGO = site.logo;
-export const SECTIONS = site.sections.map(s => ({ ...s, set:SETS[s.grp], url:`/components/${s.slug}` }));
+// a section lives on the homepage, which lists every component; /components/<section> redirects there (see publish.mjs)
+export const SECTIONS = site.sections.map(s => ({ ...s, set:SETS[s.grp], url:`/#${s.id}` }));
 
 /* ---- the props of a React component, from its TypeScript interfaces and their doc comments ---- */
 function propsOf(src){

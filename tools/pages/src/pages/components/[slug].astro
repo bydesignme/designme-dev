@@ -1,13 +1,10 @@
 ---
-// /components/<component> and /components/<section> share one route: their names never overlap
+// /components/<component>: one page per component. The list and the sections live on the homepage
 import ComponentPage from '../../components/ComponentPage.astro';
-import SectionPage from '../../components/SectionPage.astro';
-import { COMPONENTS, SECTIONS } from '../../lib/data.mjs';
+import { COMPONENTS } from '../../lib/data.mjs';
 export function getStaticPaths(){
-  const taken = new Set(COMPONENTS.map(c => c.slug));
-  for (const s of SECTIONS) if (taken.has(s.slug)) throw new Error(`section and component share the address /components/${s.slug}`);
-  return [...COMPONENTS.map(c => ({ params:{ slug:c.slug }, props:{ c } })), ...SECTIONS.map(s => ({ params:{ slug:s.slug }, props:{ s } }))];
+  return COMPONENTS.map(c => ({ params:{ slug:c.slug }, props:{ c } }));
 }
-const { c, s } = Astro.props;
+const { c } = Astro.props;
 ---
-{c ? <ComponentPage c={c} /> : <SectionPage s={s} />}
+<ComponentPage c={c} />
