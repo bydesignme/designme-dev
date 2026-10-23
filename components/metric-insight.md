@@ -286,6 +286,7 @@ function Marker({ at, label }: { at: number; label: string }) {
 ## More in Sources and output
 
 - [Code viewer](https://designme.dev/components/code-viewer.md): Code the agent wrote, with line notes you can ask about.
+- [Terminal stream](https://designme.dev/components/terminal-stream.md): Shell commands the agent runs, with their output as it streams in.
 - [Citation hover card](https://designme.dev/components/citation-hover-card.md): Hover a citation to see the exact passage it came from.
 - [Source stack](https://designme.dev/components/source-stack.md): Everything the agent read, folded into one quiet pill.
 - [Field extraction](https://designme.dev/components/field-extraction.md): The agent pulls fields out of a document and shows where each came from.
