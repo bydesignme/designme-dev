@@ -1,0 +1,41 @@
+{
+  "summary": "Steering lets a person change an agent's course while it works, without stopping the run. The steps show what the agent is doing now, and a message box under them takes a correction. The message waits for the step in progress, then applies from the next one, and when it changes work that's already done the agent says so and offers to redo it.",
+  "use": [
+    "When an agent runs for a while and people spot a wrong turn before it finishes, like the wrong colour or the wrong file.",
+    "When stopping and starting over would throw away good work, and a correction should only change what comes next.",
+    "When a correction can touch work already done, and the person should decide whether that work is redone.",
+    "When people should see that their message landed: waiting, then applied."
+  ],
+  "features": [
+    "`steps` lists the run, each with a `title`, a `detail` that crossfades when it changes, and a `status` of `queued`, `running` or `done`. A step that a message added has `fromYou`, which shows a \"From you\" tag.",
+    "Your messages sit on the right. A `queued` one says \"Applies after this step\" with a small spinner, and an `applied` one shows a check.",
+    "The agent's replies sit on the left. `warn` makes one amber, for a heads-up like \"The Pro card is already violet\", and `actions` adds white and filled buttons under it. Once you answer, `answer` takes the buttons' place and the amber goes.",
+    "The line under the title reads \"Step 2 of 4\", or Done, with a clock that counts until every step is done, or shows `seconds`.",
+    "Once every step is done a green line sums it up, like \"Done in 0:14 · 1 change from you\"; `summary` changes it or, set to `false`, hides it. The message box then says the run has finished.",
+    "Enter or the send button sends; the button stays off while the box is empty."
+  ],
+  "a11y": [
+    "The steps are an ordered list labelled \"Steps\".",
+    "The message box is a form with a labelled input, so Enter sends, and the send button is named Send.",
+    "New messages, the agent's replies and the step line under the title are announced politely.",
+    "The answer buttons are real buttons, named by their labels."
+  ],
+  "faq": [
+    {
+      "q": "Does it decide what a message changes?",
+      "a": "No. `onSend` gives you the text. Your agent decides what to do with it: add it to `messages` as `queued`, mark it `applied` when it's taken up, and add the agent's reply."
+    },
+    {
+      "q": "Why does a message wait for the step in progress?",
+      "a": "Changing a step halfway through can leave its work half done. Applying from the next step keeps each step whole, and the agent can still offer to redo one that's finished."
+    },
+    {
+      "q": "Can people stop the run instead?",
+      "a": "Not from this component. Put your own stop button next to it if your agent can stop mid-step."
+    },
+    {
+      "q": "Can I add steps while it runs?",
+      "a": "Yes. Pass a new `steps` list with the step where it goes, and mark it `fromYou` if a message asked for it."
+    }
+  ]
+}

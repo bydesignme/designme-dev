@@ -313,5 +313,7 @@ export function DesignReview({
 - [Launch checklist](https://designme.dev/components/launch-checklist.md): The agent checks a design before it ships, and fixes what fails.
 - [Inline text diff](https://designme.dev/components/inline-text-diff.md): The agent's edits to a piece of copy, accepted or rejected one by one.
 - [Draft review](https://designme.dev/components/draft-review.md): An email the agent drafted, to check and edit before it sends.
+- [Steering](https://designme.dev/components/steering.md): Change the agent's course while it works, without starting over.
+- [Eval results](https://designme.dev/components/eval-results.md): An eval run case by case, against the run before.
 
 All components: https://designme.dev/llms.txt

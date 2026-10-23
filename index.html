@@ -7169,6 +7169,95 @@ body.ui section.faq{display:none}
 .v2 .plb-done .t span{font-size:13px}
 .v2 .plb-done .pill{background:var(--surface);color:var(--fg);box-shadow:var(--shadow)}
 .v2 .plb-one.used .plb-vars{opacity:.55;transition:opacity .32s}
+/* ---------- Steering ---------- */
+/* a run you can steer while it works: its steps, what you told it and what it said back, and a message box. A message
+   waits for the step in progress, then applies from the next one; when it changes work already done, the agent asks */
+.v2 .ste{width:100%;max-width:440px;margin:0 auto;padding:6px;display:flex;flex-direction:column}
+.v2 .ste-h{display:flex;flex-direction:column;padding:8px 10px 10px;border-bottom:1px solid var(--line)}
+.v2 .ste-h b{font-weight:500;font-size:14px}
+.v2 .ste-st{font-size:12.5px}
+.v2 .ste-steps{list-style:none;margin:0;padding:4px 0}
+.v2 .ste-s{display:flex;align-items:center;gap:10px;min-height:44px;padding:5px 10px;border-radius:10px;font-size:13px}
+.v2 .ste-g{width:16px;height:16px;display:grid;place-items:center;flex:none;color:var(--faint)}
+.v2 .ste-g .spin{width:11px;height:11px;color:var(--accent)}
+.v2 .ste-s.done .ste-g{color:var(--ok)}
+.v2 .ste-t{flex:1;min-width:0;display:flex;flex-direction:column}
+.v2 .ste-t b{font-weight:500}
+.v2 .ste-t span{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v2 .ste-s.queued .ste-t b{color:var(--fg2)}
+.v2 .ste-log{display:flex;flex-direction:column;gap:8px;padding:2px 4px 10px}
+.v2 .ste-log:empty{display:none}
+/* what you sent, on the right, with whether it is waiting or applied */
+.v2 .ste-me{align-self:flex-end;max-width:85%;display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+.v2 .ste-me p{margin:0;padding:7px 12px;border-radius:14px 14px 4px 14px;background:var(--chip);font-size:13px;line-height:1.45}
+.v2 .ste-q{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--muted)}
+.v2 .ste-q .spin{width:9px;height:9px}
+.v2 .ste-q svg{color:var(--ok)}
+/* what the agent said back; a heads-up is amber, with white buttons, until you answer it */
+.v2 .ste-ag{display:flex;gap:10px;padding:10px 12px;border-radius:12px;background:var(--row);font-size:13px;line-height:1.45}
+.v2 .ste-ag>svg{flex:none;margin-top:3px;color:var(--accent)}
+.v2 .ste-ag.warn{background:var(--warn-bg)}
+.v2 .ste-ag.warn>svg{color:var(--warn)}
+.v2 .ste-ag .t{flex:1;min-width:0;display:flex;flex-direction:column;gap:8px}
+.v2 .ste-ag p{margin:0}
+.v2 .ste-acts{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:6px}
+.v2 .ste-ag .pill.ghost{background:var(--surface);color:var(--fg);box-shadow:var(--shadow)}
+.v2 .ste-ag .pill.ghost:hover{box-shadow:var(--shadow-pop)}
+.v2 .ste-ag .muted{font-size:12px}
+.v2 .ste-sum{display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:12px;background:var(--ok-bg);font-size:13px}
+.v2 .ste-sum svg{color:var(--ok);flex:none}
+.v2 .ste-box{display:flex;align-items:center;gap:6px;height:40px;margin:0 4px 4px;padding:0 5px 0 14px;border-radius:999px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--rail);transition:box-shadow .25s}
+.v2 .ste-box:focus-within,.v2 .ste-box.f{box-shadow:inset 0 0 0 1px var(--accent),0 0 0 4px var(--accent-bg)}
+.v2 .ste-box input{flex:1;min-width:0;border:0;outline:0;background:transparent;font:inherit;font-size:13px;color:var(--fg)}
+.v2 .ste-box input::placeholder{color:var(--muted)}
+.v2 .ste-go{width:30px;height:30px;border-radius:50%;background:var(--accent);color:#fff;display:grid;place-items:center;flex:none;transition:background .2s}
+.v2 .ste-go[disabled]{cursor:not-allowed;background:var(--rail);color:var(--surface)}
+/* ---------- Eval results ---------- */
+/* an eval suite's latest run: one bar segment per case, the pass count against the run before, and the cases, all or
+   just the failed ones. A failed case opens to show what was expected and what came back, with a fix that reruns it */
+.v2 .evr{width:100%;max-width:440px;margin:0 auto;padding:6px;display:flex;flex-direction:column}
+.v2 .evr-h{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 10px 10px}
+.v2 .evr-ht{display:flex;flex-direction:column;min-width:0}
+.v2 .evr-ht b{font-weight:500;font-size:14px}
+.v2 .evr-st{font-size:12.5px}
+.v2 .evr-run{flex:none}
+.v2 .evr-run .spin{width:10px;height:10px}
+.v2 .evr-sum{display:flex;flex-direction:column;gap:8px;padding:12px 10px;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.v2 .evr-segs{display:flex;gap:3px}
+.v2 .evr-segs i{flex:1;height:6px;border-radius:3px;background:var(--rail);transition:background .3s}
+.v2 .evr-segs i.pass{background:var(--ok)}
+.v2 .evr-segs i.fail{background:var(--bad)}
+.v2 .evr-segs i.run{background:var(--accent);animation:v2-evrrun 1s ease-in-out infinite}
+@keyframes v2-evrrun{50%{opacity:.4}}
+.v2 .evr-nums{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:20px;font-size:13px}
+.v2 .evr-dl:empty{display:none}
+.v2 .evr-tabs{padding:10px 4px 4px}
+.v2 .evr-tabs .n{color:var(--muted);margin-left:2px}
+.v2 .evr-tabs .n:empty{display:none}
+.v2 .evr-list{display:flex;flex-direction:column}
+/* a case folds away when the filter hides it, and stays hidden once shut so nothing measures it */
+.v2 .evr-w.shut>div{visibility:hidden;transition:visibility 0s var(--t)}
+.v2 .evr-i{display:flex;flex-direction:column;border-radius:10px;transition:background .2s}
+.v2 .evr-r{display:flex;align-items:center;gap:10px;width:100%;min-height:38px;padding:6px 10px;border-radius:10px;font-size:13px;text-align:left;color:var(--fg)}
+.v2 .evr-g{width:16px;height:16px;display:grid;place-items:center;flex:none;color:var(--faint)}
+.v2 .evr-g .spin{width:11px;height:11px;color:var(--accent)}
+.v2 .evr-i.pass .evr-g{color:var(--ok)}
+.v2 .evr-i.fail .evr-g{color:var(--bad)}
+.v2 .evr-n{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v2 .evr-i.queued .evr-n{color:var(--fg2)}
+.v2 .evr-tm{font-size:12px;color:var(--muted)}
+.v2 .evr-ch{display:grid;color:var(--muted)}
+.v2 .evr-ch svg{transition:transform .32s var(--ease)}
+.v2 .evr-r[aria-expanded="false"] .evr-ch svg{transform:rotate(-90deg)}
+.v2 .evr-i.fail{background:var(--bad-bg)}
+.v2 .evr-d.shut>div{visibility:hidden;transition:visibility 0s var(--t)}
+.v2 .evr-dd{display:flex;flex-direction:column;gap:4px;padding:0 10px 10px 36px;font-size:12.5px}
+.v2 .evr-kv{display:flex;gap:8px}
+.v2 .evr-kv .k{width:58px;flex:none;color:var(--muted)}
+.v2 .evr-kv .bad{color:var(--bad)}
+.v2 .evr-fix{align-self:flex-start;margin-top:6px;background:var(--surface);color:var(--fg);box-shadow:var(--shadow)}
+.v2 .evr-fix:hover{background:var(--surface);box-shadow:var(--shadow-pop)}
+.v2 .evr-none{margin:0;padding:10px;font-size:12.5px;color:var(--muted)}
 /* ---------- Design review ---------- */
 .v2 .drv{padding:14px;display:flex;flex-direction:column;gap:12px}
 .v2 .drv-h{display:flex;align-items:center;gap:10px}
@@ -8755,7 +8844,7 @@ body.ui section.faq{display:none}
 <aside class="side" id="side">
   <label class="side-search"><span class="ms">search</span><input id="side-q" placeholder="Search components" autocomplete="off" aria-label="Search components"><span class="kbd">/</span></label>
   <nav class="side-pages" aria-label="Site"><a class="side-p act" href="#components" aria-current="page"><span class="ms">dashboard</span>Library</a><a class="side-p" href="#/changelog"><span class="ms">history</span>Changelog</a><a class="side-p" href="#/roadmap"><span class="ms">trending_up</span>Roadmap</a><a class="side-p" href="#/faq"><span class="ms">help</span>FAQ</a></nav>
-  <nav class="side-nav" aria-label="Components"><div class="side-grp side-saved"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Saved</span><span class="side-n" id="saved-n">0</span></button><div class="side-list"><div class="side-ul" id="saved-list"></div></div></div><div class="side-lbl first">Agent components</div><div class="side-grp" data-s="s-conversation" data-grp="agent"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Conversation</span><span class="side-n">14</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c3" data-c="c3">Live answer</a><a class="side-a" href="#c6" data-c="c6">Composer</a><a class="side-a" href="#c8" data-c="c8">Thread panel</a><a class="side-a" href="#c108" data-c="c108">Artifact card</a><a class="side-a" href="#c107" data-c="c107">Tool call</a><a class="side-a" href="#c24" data-c="c24">Voice capture</a><a class="side-a" href="#c122" data-c="c122">Voice orb</a><a class="side-a" href="#c113" data-c="c113">Answer action bar</a><a class="side-a" href="#c31" data-c="c31">Response versions</a><a class="side-a" href="#c112" data-c="c112">Model picker</a><a class="side-a" href="#c29" data-c="c29">Prompt starters</a><a class="side-a" href="#c123" data-c="c123">Prompt library</a><a class="side-a" href="#c30" data-c="c30">Attachment tray</a><a class="side-a" href="#c32" data-c="c32">Feedback sheet</a></div></div></div><div class="side-grp" data-s="s-status" data-grp="agent"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Agent status</span><span class="side-n">16</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c60" data-c="c60">Thinking</a><a class="side-a" href="#c2" data-c="c2">Reasoning trail</a><a class="side-a" href="#c26" data-c="c26">Agent lanes</a><a class="side-a" href="#c114" data-c="c114">Agent tree</a><a class="side-a" href="#c115" data-c="c115">Agent inbox</a><a class="side-a" href="#c106" data-c="c106">Run summary</a><a class="side-a" href="#c7" data-c="c7">Action log</a><a class="side-a" href="#c67" data-c="c67">Agent run timeline</a><a class="side-a" href="#c23" data-c="c23">Context meter</a><a class="side-a" href="#c109" data-c="c109">Error and recovery</a><a class="side-a" href="#c5" data-c="c5">Run queue</a><a class="side-a" href="#c27" data-c="c27">Run cost</a><a class="side-a" href="#c28" data-c="c28">Toast stack</a><a class="side-a" href="#c58" data-c="c58">Toast</a><a class="side-a" href="#c22" data-c="c22">Status pill</a><a class="side-a" href="#c1" data-c="c1">Step loader</a></div></div></div><div class="side-grp" data-s="s-review" data-grp="agent"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Review and approve</span><span class="side-n">11</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c11" data-c="c11">Change review</a><a class="side-a" href="#c105" data-c="c105">Plan review</a><a class="side-a" href="#c33" data-c="c33">Permission gate</a><a class="side-a" href="#c4" data-c="c4">Decision prompt</a><a class="side-a" href="#c9" data-c="c9">Proposal card</a><a class="side-a" href="#c19" data-c="c19">Design tuner</a><a class="side-a" href="#c20" data-c="c20">Rewrite toolbar</a><a class="side-a" href="#c34" data-c="c34">Launch checklist</a><a class="side-a" href="#c120" data-c="c120">Inline text diff</a><a class="side-a" href="#c121" data-c="c121">Draft review</a><a class="side-a" href="#c111" data-c="c111">Design review</a></div></div></div><div class="side-grp" data-s="s-data" data-grp="agent"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Sources and output</span><span class="side-n">7</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c18" data-c="c18">Code viewer</a><a class="side-a" href="#c68" data-c="c68">Citation hover card</a><a class="side-a" href="#c10" data-c="c10">Source stack</a><a class="side-a" href="#c36" data-c="c36">Field extraction</a><a class="side-a" href="#c17" data-c="c17">Metric insight</a><a class="side-a" href="#c66" data-c="c66">Details panel</a><a class="side-a" href="#c13" data-c="c13">Task table</a></div></div></div><div class="side-grp" data-s="s-workspace" data-grp="agent"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Workspace</span><span class="side-n">8</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c16" data-c="c16">Automation canvas</a><a class="side-a" href="#c15" data-c="c15">Command palette</a><a class="side-a" href="#c69" data-c="c69">Memory panel</a><a class="side-a" href="#c71" data-c="c71">Model compare</a><a class="side-a" href="#c38" data-c="c38">Agent settings</a><a class="side-a" href="#c110" data-c="c110">Tools and connections</a><a class="side-a" href="#c39" data-c="c39">File explorer</a><a class="side-a" href="#c14" data-c="c14">Workspace rail</a></div></div></div><div class="side-grp" data-s="s-harness" data-grp="agent"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Harness</span><span class="side-n">1</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c99" data-c="c99">Agent harness</a></div></div></div><div class="side-lbl">App basics</div><div class="side-grp" data-s="s-charts" data-grp="basics"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Charts and tables</span><span class="side-n">9</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c41" data-c="c41">Line chart</a><a class="side-a" href="#c42" data-c="c42">Bar chart</a><a class="side-a" href="#c43" data-c="c43">Donut chart</a><a class="side-a" href="#c102" data-c="c102">Funnel chart</a><a class="side-a" href="#c103" data-c="c103">Top pages</a><a class="side-a" href="#c65" data-c="c65">Health score</a><a class="side-a" href="#c45" data-c="c45">Activity heatmap</a><a class="side-a" href="#c44" data-c="c44">Stat cards</a><a class="side-a" href="#c12" data-c="c12">Account table</a></div></div></div><div class="side-grp" data-s="s-dates" data-grp="basics"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Dates</span><span class="side-n">4</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c46" data-c="c46">Date picker</a><a class="side-a" href="#c47" data-c="c47">Date range picker</a><a class="side-a" href="#c62" data-c="c62">Event calendar</a><a class="side-a" href="#c63" data-c="c63">Agenda</a></div></div></div><div class="side-grp" data-s="s-forms" data-grp="basics"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Forms and inputs</span><span class="side-n">8</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c49" data-c="c49">Buttons</a><a class="side-a" href="#c52" data-c="c52">Tooltip</a><a class="side-a" href="#c53" data-c="c53">Search input</a><a class="side-a" href="#c57" data-c="c57">Country select</a><a class="side-a" href="#c51" data-c="c51">Social sign-in</a><a class="side-a" href="#c55" data-c="c55">Sign in</a><a class="side-a" href="#c50" data-c="c50">Form</a><a class="side-a" href="#c64" data-c="c64">Payment form</a></div></div></div><div class="side-grp" data-s="s-collab" data-grp="basics"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Collaboration</span><span class="side-n">6</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c54" data-c="c54">Comments</a><a class="side-a" href="#c56" data-c="c56">Notifications</a><a class="side-a" href="#c61" data-c="c61">Invite to collaborate</a><a class="side-a" href="#c59" data-c="c59">Reactions</a><a class="side-a" href="#c104" data-c="c104">Ticket list</a><a class="side-a" href="#c101" data-c="c101">Kanban board</a></div></div></div><div class="side-grp" data-s="s-product" data-grp="basics"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Product</span><span class="side-n">5</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c70" data-c="c70">Pricing cards</a><a class="side-a" href="#c72" data-c="c72">Onboarding checklist</a><a class="side-a" href="#c73" data-c="c73">Stepper</a><a class="side-a" href="#c74" data-c="c74">Set limit</a><a class="side-a" href="#c75" data-c="c75">Currency converter</a></div></div></div><div class="side-empty" id="side-empty"><p>No components match your search.</p><button class="suggest-btn"><span class="ms">add</span><span class="st">Suggest this component</span></button></div></nav>
+  <nav class="side-nav" aria-label="Components"><div class="side-grp side-saved"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Saved</span><span class="side-n" id="saved-n">0</span></button><div class="side-list"><div class="side-ul" id="saved-list"></div></div></div><div class="side-lbl first">Agent components</div><div class="side-grp" data-s="s-conversation" data-grp="agent"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Conversation</span><span class="side-n">14</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c3" data-c="c3">Live answer</a><a class="side-a" href="#c6" data-c="c6">Composer</a><a class="side-a" href="#c8" data-c="c8">Thread panel</a><a class="side-a" href="#c108" data-c="c108">Artifact card</a><a class="side-a" href="#c107" data-c="c107">Tool call</a><a class="side-a" href="#c24" data-c="c24">Voice capture</a><a class="side-a" href="#c122" data-c="c122">Voice orb</a><a class="side-a" href="#c113" data-c="c113">Answer action bar</a><a class="side-a" href="#c31" data-c="c31">Response versions</a><a class="side-a" href="#c112" data-c="c112">Model picker</a><a class="side-a" href="#c29" data-c="c29">Prompt starters</a><a class="side-a" href="#c123" data-c="c123">Prompt library</a><a class="side-a" href="#c30" data-c="c30">Attachment tray</a><a class="side-a" href="#c32" data-c="c32">Feedback sheet</a></div></div></div><div class="side-grp" data-s="s-status" data-grp="agent"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Agent status</span><span class="side-n">16</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c60" data-c="c60">Thinking</a><a class="side-a" href="#c2" data-c="c2">Reasoning trail</a><a class="side-a" href="#c26" data-c="c26">Agent lanes</a><a class="side-a" href="#c114" data-c="c114">Agent tree</a><a class="side-a" href="#c115" data-c="c115">Agent inbox</a><a class="side-a" href="#c106" data-c="c106">Run summary</a><a class="side-a" href="#c7" data-c="c7">Action log</a><a class="side-a" href="#c67" data-c="c67">Agent run timeline</a><a class="side-a" href="#c23" data-c="c23">Context meter</a><a class="side-a" href="#c109" data-c="c109">Error and recovery</a><a class="side-a" href="#c5" data-c="c5">Run queue</a><a class="side-a" href="#c27" data-c="c27">Run cost</a><a class="side-a" href="#c28" data-c="c28">Toast stack</a><a class="side-a" href="#c58" data-c="c58">Toast</a><a class="side-a" href="#c22" data-c="c22">Status pill</a><a class="side-a" href="#c1" data-c="c1">Step loader</a></div></div></div><div class="side-grp" data-s="s-review" data-grp="agent"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Review and approve</span><span class="side-n">13</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c11" data-c="c11">Change review</a><a class="side-a" href="#c105" data-c="c105">Plan review</a><a class="side-a" href="#c33" data-c="c33">Permission gate</a><a class="side-a" href="#c4" data-c="c4">Decision prompt</a><a class="side-a" href="#c9" data-c="c9">Proposal card</a><a class="side-a" href="#c19" data-c="c19">Design tuner</a><a class="side-a" href="#c20" data-c="c20">Rewrite toolbar</a><a class="side-a" href="#c34" data-c="c34">Launch checklist</a><a class="side-a" href="#c120" data-c="c120">Inline text diff</a><a class="side-a" href="#c121" data-c="c121">Draft review</a><a class="side-a" href="#c116" data-c="c116">Steering</a><a class="side-a" href="#c117" data-c="c117">Eval results</a><a class="side-a" href="#c111" data-c="c111">Design review</a></div></div></div><div class="side-grp" data-s="s-data" data-grp="agent"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Sources and output</span><span class="side-n">7</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c18" data-c="c18">Code viewer</a><a class="side-a" href="#c68" data-c="c68">Citation hover card</a><a class="side-a" href="#c10" data-c="c10">Source stack</a><a class="side-a" href="#c36" data-c="c36">Field extraction</a><a class="side-a" href="#c17" data-c="c17">Metric insight</a><a class="side-a" href="#c66" data-c="c66">Details panel</a><a class="side-a" href="#c13" data-c="c13">Task table</a></div></div></div><div class="side-grp" data-s="s-workspace" data-grp="agent"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Workspace</span><span class="side-n">8</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c16" data-c="c16">Automation canvas</a><a class="side-a" href="#c15" data-c="c15">Command palette</a><a class="side-a" href="#c69" data-c="c69">Memory panel</a><a class="side-a" href="#c71" data-c="c71">Model compare</a><a class="side-a" href="#c38" data-c="c38">Agent settings</a><a class="side-a" href="#c110" data-c="c110">Tools and connections</a><a class="side-a" href="#c39" data-c="c39">File explorer</a><a class="side-a" href="#c14" data-c="c14">Workspace rail</a></div></div></div><div class="side-grp" data-s="s-harness" data-grp="agent"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Harness</span><span class="side-n">1</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c99" data-c="c99">Agent harness</a></div></div></div><div class="side-lbl">App basics</div><div class="side-grp" data-s="s-charts" data-grp="basics"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Charts and tables</span><span class="side-n">9</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c41" data-c="c41">Line chart</a><a class="side-a" href="#c42" data-c="c42">Bar chart</a><a class="side-a" href="#c43" data-c="c43">Donut chart</a><a class="side-a" href="#c102" data-c="c102">Funnel chart</a><a class="side-a" href="#c103" data-c="c103">Top pages</a><a class="side-a" href="#c65" data-c="c65">Health score</a><a class="side-a" href="#c45" data-c="c45">Activity heatmap</a><a class="side-a" href="#c44" data-c="c44">Stat cards</a><a class="side-a" href="#c12" data-c="c12">Account table</a></div></div></div><div class="side-grp" data-s="s-dates" data-grp="basics"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Dates</span><span class="side-n">4</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c46" data-c="c46">Date picker</a><a class="side-a" href="#c47" data-c="c47">Date range picker</a><a class="side-a" href="#c62" data-c="c62">Event calendar</a><a class="side-a" href="#c63" data-c="c63">Agenda</a></div></div></div><div class="side-grp" data-s="s-forms" data-grp="basics"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Forms and inputs</span><span class="side-n">8</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c49" data-c="c49">Buttons</a><a class="side-a" href="#c52" data-c="c52">Tooltip</a><a class="side-a" href="#c53" data-c="c53">Search input</a><a class="side-a" href="#c57" data-c="c57">Country select</a><a class="side-a" href="#c51" data-c="c51">Social sign-in</a><a class="side-a" href="#c55" data-c="c55">Sign in</a><a class="side-a" href="#c50" data-c="c50">Form</a><a class="side-a" href="#c64" data-c="c64">Payment form</a></div></div></div><div class="side-grp" data-s="s-collab" data-grp="basics"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Collaboration</span><span class="side-n">6</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c54" data-c="c54">Comments</a><a class="side-a" href="#c56" data-c="c56">Notifications</a><a class="side-a" href="#c61" data-c="c61">Invite to collaborate</a><a class="side-a" href="#c59" data-c="c59">Reactions</a><a class="side-a" href="#c104" data-c="c104">Ticket list</a><a class="side-a" href="#c101" data-c="c101">Kanban board</a></div></div></div><div class="side-grp" data-s="s-product" data-grp="basics"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Product</span><span class="side-n">5</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c70" data-c="c70">Pricing cards</a><a class="side-a" href="#c72" data-c="c72">Onboarding checklist</a><a class="side-a" href="#c73" data-c="c73">Stepper</a><a class="side-a" href="#c74" data-c="c74">Set limit</a><a class="side-a" href="#c75" data-c="c75">Currency converter</a></div></div></div><div class="side-empty" id="side-empty"><p>No components match your search.</p><button class="suggest-btn"><span class="ms">add</span><span class="st">Suggest this component</span></button></div></nav>
   <div class="side-foot">
     <a class="credit" href="https://designme.agency" target="_blank" rel="noopener"><div class="sticker" style="--sticker-mask:url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNzU5IiBoZWlnaHQ9IjYzMiIgdmlld0JveD0iMCAwIDc1OSA2MzIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxwYXRoIGQ9Ik0xNDkuNDk3IDI4My43ODRDMTQ5LjQ3NyAyODQuMDQ3IDE0OS40NzQgMjg0LjMxMSAxNDkuNDg3IDI4NC41NzVDMTU2LjM4NSAzNDAuMDM0IDE4My41NDggMzkxLjExNiAyMjUuOSA0MjguMTk2QzI2Ny45ODkgNDY1LjA0NCAzMjIuMTg4IDQ4NS41MzIgMzc4LjQxNCA0ODUuODU1TDM3OS43NDMgNDg1Ljg1OUM0MzYuNDUzIDQ4NS44NjggNDkxLjE4OCA0NjUuMzUzIDUzMy42MTkgNDI4LjIxMkM1NzUuOTEyIDM5MS4xOTQgNjAzLjA2MiAzNDAuMjE2IDYxMC4wMTggMjg0Ljg1Nkw2MTAuMDE4IDI4MS41MTJDNjEwLjAwOCAyNzcuMzM3IDYwOC4zMjQgMjczLjMxNSA2MDUuMzAzIDI3MC4zMzVDNjAyLjI3NyAyNjcuMzUxIDU5OC4xNTUgMjY1LjY1NiA1OTMuODM3IDI2NS42NTZMMTY1LjY0NyAyNjUuNjU2QzE2MS4zMzggMjY1LjY1NiAxNTcuMjI2IDI2Ny4zNDkgMTU0LjIxIDI3MC4zMzFDMTUxLjE5OCAyNzMuMzA5IDE0OS41MjQgMjc3LjMyNiAxNDkuNTIzIDI4MS40OTFMMTQ5LjUyMyAyODMuNDM3TDE0OS40OTcgMjgzLjc4NFpNMTE0LjM3OCAyNDcuMzk1QzExOC4zOTYgMjQ3LjM5MSAxMjIuMjU0IDI0NS45MTkgMTI1LjIxNCAyNDMuMjlDMTI4LjA2MyAyNDAuNzU5IDEyOS44ODcgMjM3LjMzIDEzMC4zOTYgMjMzLjYyOUwxMzAuMzk2IDIzMy4zNUwxMzAuNDM3IDIzMi45MTdDMTM2LjM1NSAxNzEuNjM0IDE2NS4xNjIgMTE0Ljc1NCAyMTEuMjAyIDczLjM2ODdDMjU3LjIzOSAzMS45ODU5IDMxNy4yMDYgOS4wNjA2MyAzNzkuMzkzIDkuMDQ0NDhMMzc5LjM5NiA5LjA0NDQ4QzQ0MS41OTMgOS4wNDU4MyA1MDEuNTc0IDMxLjk2NCA1NDcuNjI0IDczLjM0ODJDNTkzLjY3NyAxMTQuNzM1IDYyMi40OTEgMTcxLjYyNCA2MjguNDExIDIzMi45MTdMNjI4LjQ1MyAyMzMuMzVMNjI4LjQ1MyAyMzMuNjQzQzYyOC45NTMgMjM3LjM0NCA2MzAuNzczIDI0MC43NzQgNjMzLjYyMSAyNDMuMzA0QzYzNi41OCAyNDUuOTMyIDY0MC40MzcgMjQ3LjM5OSA2NDQuNDUyIDI0Ny4zOTVMNzI1LjY0NCAyNDcuMzk1QzcyOC44ODIgMjQ3LjQwNCA3MzIuMDg5IDI0OC4wNiA3MzUuMDcxIDI0OS4zMjlDNzM4LjA1NSAyNTAuNTk4IDc0MC43NTMgMjUyLjQ1MyA3NDMuMDAxIDI1NC43ODdDNzQ1LjI1MiAyNTcuMTIzIDc0Ny4wMDUgMjU5Ljg5MSA3NDguMTUxIDI2Mi45MjRDNzQ5LjI5NiAyNjUuOTU0IDc0OS44MSAyNjkuMTgzIDc0OS42NjIgMjcyLjQxOEw3NDkuNjYzIDI3Mi40MThDNzQ1LjQ4NCAzNjYuNzk3IDcwNC42MTcgNDU1LjkxOSA2MzUuNjE1IDUyMS4yMTFDNTY2LjYxNiA1ODYuNDk5IDQ3NC44MDkgNjIyLjkyNCAzNzkuMzM4IDYyMi45MjRDMjgzLjg3MiA2MjIuOTI0IDE5Mi4wNzEgNTg2LjQ5NiAxMjMuMDgxIDUyMS4yMDZDNTQuMDkzNSA0NTUuOTE3IDEzLjI0MTIgMzY2LjgwNCA5LjA3MTMzIDI3Mi40MzhMOS4wNzAzNiAyNzIuNDM4TDkuMDcwMzYgMjcyLjQzNkM5LjA3MDA3IDI3Mi40MyA5LjA2OTY3IDI3Mi40MjMgOS4wNjkzOCAyNzIuNDE3TDkuMDcwMzYgMjcyLjQxN0M4LjkyMjcyIDI2OS4xODIgOS40MzY1NSAyNjUuOTUzIDEwLjU4MTEgMjYyLjkyNEMxMS43Mjc2IDI1OS44OSAxMy40ODEgMjU3LjEyMyAxNS43MzE1IDI1NC43ODdDMTcuOTgwNSAyNTIuNDUyIDIwLjY3OTcgMjUwLjU5NyAyMy42NjIyIDI0OS4zMjlDMjYuNjQ0MyAyNDguMDYgMjkuODUwNCAyNDcuNDA0IDMzLjA4ODkgMjQ3LjM5NUwxMTQuMzc4IDI0Ny4zOTVaIiBmaWxsPSJibGFjayIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIxOC4wOTAxIi8+Cjwvc3ZnPg==)"><div class="die"><svg aria-hidden="true" focusable="false" viewBox="0 0 759 632" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M149.497 283.784C149.477 284.047 149.474 284.311 149.487 284.575C156.385 340.034 183.548 391.116 225.9 428.196C267.989 465.044 322.188 485.532 378.414 485.855L379.743 485.859C436.453 485.868 491.188 465.353 533.619 428.212C575.912 391.194 603.062 340.216 610.018 284.856L610.018 281.512C610.008 277.337 608.324 273.315 605.303 270.335C602.277 267.351 598.155 265.656 593.837 265.656L165.647 265.656C161.338 265.656 157.226 267.349 154.21 270.331C151.198 273.309 149.524 277.326 149.523 281.491L149.523 283.437L149.497 283.784ZM114.378 247.395C118.396 247.391 122.254 245.919 125.214 243.29C128.063 240.759 129.887 237.33 130.396 233.629L130.396 233.35L130.437 232.917C136.355 171.634 165.162 114.754 211.202 73.3687C257.239 31.9859 317.206 9.06063 379.393 9.04448L379.396 9.04448C441.593 9.04583 501.574 31.964 547.624 73.3482C593.677 114.735 622.491 171.624 628.411 232.917L628.453 233.35L628.453 233.643C628.953 237.344 630.773 240.774 633.621 243.304C636.58 245.932 640.437 247.399 644.452 247.395L725.644 247.395C728.882 247.404 732.089 248.06 735.071 249.329C738.055 250.598 740.753 252.453 743.001 254.787C745.252 257.123 747.005 259.891 748.151 262.924C749.296 265.954 749.81 269.183 749.662 272.418L749.663 272.418C745.484 366.797 704.617 455.919 635.615 521.211C566.616 586.499 474.809 622.924 379.338 622.924C283.872 622.924 192.071 586.496 123.081 521.206C54.0935 455.917 13.2412 366.804 9.07133 272.438L9.07036 272.438L9.07036 272.436C9.07007 272.43 9.06967 272.423 9.06938 272.417L9.07036 272.417C8.92272 269.182 9.43655 265.953 10.5811 262.924C11.7276 259.89 13.481 257.123 15.7315 254.787C17.9805 252.452 20.6797 250.597 23.6622 249.329C26.6443 248.06 29.8504 247.404 33.0889 247.395L114.378 247.395Z" fill="black" stroke="white" stroke-width="18.0901"/>
@@ -8768,7 +8857,7 @@ body.ui section.faq{display:none}
 <main id="components" class="content">
 <section class="intro">
   <h1>Components for agent-powered products</h1>
-  <p>89 free components in HTML or React, designed and built by <a href="https://designme.agency" target="_blank" rel="noopener">DesignMe</a>.</p>
+  <p>91 free components in HTML or React, designed and built by <a href="https://designme.agency" target="_blank" rel="noopener">DesignMe</a>.</p>
   <div class="intro-get"><button class="cdm-cmd intro-cmd" data-cmd="npx designme add live-answer --react" title="Copy install command"><span class="d">$</span><span class="c">npx designme add live-answer --react</span><span class="ms sm">content_copy</span></button></div>
   <div class="m-cta"><div class="t">Need expert design and dev support?</div><a class="hire-btn m-cta-btn" href="https://designme.agency" target="_blank" rel="noopener">Book a call<span class="ms">arrow_forward</span></a></div>
   </section>
@@ -9698,6 +9787,43 @@ body.ui section.faq{display:none}
     <button class="mi" role="menuitemradio" aria-checked="false" data-close data-w="Tomorrow at 09:00"><span>Tomorrow at 09:00<span class="d">The start of Maya's day</span></span><span class="ck">{chk}</span></button>
     <button class="mi" role="menuitemradio" aria-checked="false" data-close data-w="Monday at 09:00"><span>Monday at 09:00<span class="d">The start of next week</span></span><span class="ck">{chk}</span></button>
   </div>
+</div></template>
+  </article>
+  <article class="comp" id="c116" data-soft data-v2="steering" data-reg="steering" style="--rh-a:678px;--rc-a:566px;--rcb-a:566px;--rh-b:697px;--rc-b:585px;--rcb-b:585px;--rh-c:678px;--rc-c:566px;--rcb-c:566px;--rh-d:678px;--rc-d:566px;--rcb-d:566px;--rh-e:665px;--rc-e:585px;--rcb-e:585px">
+    <div class="comp-head">
+      <span class="ibox"><span class="ms">shuffle</span></span>
+      <div><h2 class="comp-title"><a href="/components/steering">Steering</a></h2><p class="comp-desc">Change the agent's course while it works, without starting over.</p></div>
+      <button class="save-btn" aria-pressed="false" aria-label="Save component"><span class="ms">bookmark</span></button>
+    </div>
+    <div class="stage"><div class="stage-inner dots v2-host" data-demo><div class="v2 stage-in"></div></div></div>
+    <div class="comp-foot">
+      <span class="mono-xs">Send a change mid-run</span>
+      <div class="code-btns"><button class="ghost anim-btn" data-anim><span class="ms sm">stars</span>Animate</button><button class="ghost" data-view aria-expanded="false"><span class="ms sm">code</span><span class="vl">View code</span></button><button class="ghost" data-copy><span class="ms sm">content_copy</span>Copy code</button></div>
+    </div>
+    <template><div class="ste panel">
+  <div class="ste-h"><b>Redesign the pricing page</b><span class="muted ste-st"><span class="m" aria-live="polite">Step 2 of 4</span> · <span class="num ck">0:00</span></span></div>
+  <ol class="ste-steps" aria-label="Steps"></ol>
+  <div class="ste-log" aria-live="polite"></div>
+  <form class="ste-box"><input placeholder="Steer the agent while it works" aria-label="Message the agent" spellcheck="false" autocomplete="off"><button class="ste-go" aria-label="Send" disabled>{up}</button></form>
+</div></template>
+  </article>
+  <article class="comp" id="c117" data-soft data-v2="eval-results" data-reg="eval-results" style="--rh-a:606px;--rc-a:494px;--rcb-a:478px;--rh-b:628px;--rc-b:513px;--rcb-b:516px;--rh-c:606px;--rc-c:494px;--rcb-c:478px;--rh-d:606px;--rc-d:494px;--rcb-d:478px;--rh-e:593px;--rc-e:513px;--rcb-e:497px">
+    <div class="comp-head">
+      <span class="ibox"><span class="ms">readiness_score</span></span>
+      <div><h2 class="comp-title"><a href="/components/eval-results">Eval results</a></h2><p class="comp-desc">An eval run case by case, against the run before.</p></div>
+      <button class="save-btn" aria-pressed="false" aria-label="Save component"><span class="ms">bookmark</span></button>
+    </div>
+    <div class="stage"><div class="stage-inner dots v2-host" data-demo><div class="v2 stage-in"></div></div></div>
+    <div class="comp-foot">
+      <span class="mono-xs">Run the evals, open a failed case</span>
+      <div class="code-btns"><button class="ghost anim-btn" data-anim><span class="ms sm">stars</span>Animate</button><button class="ghost" data-view aria-expanded="false"><span class="ms sm">code</span><span class="vl">View code</span></button><button class="ghost" data-copy><span class="ms sm">content_copy</span>Copy code</button></div>
+    </div>
+    <template><div class="evr panel">
+  <div class="evr-h"><div class="evr-ht"><b>Pricing copy evals</b><span class="muted evr-st">Copy agent · 8 cases · run 2h ago</span></div><button class="pill ink sm evr-run">{play}Run evals</button></div>
+  <div class="evr-sum"><div class="evr-segs" aria-hidden="true"></div><div class="evr-nums"><span class="evr-pass num" aria-live="polite"></span><span class="tag evr-dl"></span></div></div>
+  <div class="evr-tabs"><div class="seg2" role="group" aria-label="Show"><button aria-pressed="true" data-v="all">All <span class="n num"></span></button><button aria-pressed="false" data-v="fail">Failed <span class="n num"></span></button></div></div>
+  <div class="evr-list" role="list" aria-label="Cases"></div>
+  <p class="evr-none" hidden>No failed cases</p>
 </div></template>
   </article>
   <article class="comp wide" id="c111" data-soft data-v2="design-review" data-reg="design-review" style="--rh-a:420px;--rc-a:303px;--rcb-a:295px;--rh-b:420px;--rc-b:303px;--rcb-b:295px;--rh-c:532px;--rc-c:420px;--rcb-c:420px;--rh-d:532px;--rc-d:420px;--rcb-d:420px;--rh-e:536px;--rc-e:456px;--rcb-e:456px">
@@ -14881,6 +15007,198 @@ DM.def('prompt-library', (r, c) => {
     await s.tap($('.plb-sel', $('.plb-fd[data-k="tone"]', vars))); await s.beat(2);
     await s.tap($('.plb-pop-tone .mi[data-o="friendlier"]', r)); s.away(); await s.beat(3);
     await s.tap($('.plb-use', r)); s.away(); await s.beat(3);
+  });
+});
+/* ---------- Steering ---------- */
+DM.def('steering', (r, c) => {
+  r.innerHTML = r.innerHTML.replace('{up}', I('up','xs'));
+  // the run: four steps on the pricing page. A card step paints its card in the current accent, and remembers which,
+  // so a change of mind can find the cards that already have the old one
+  const S = [
+    { id:'read', t:'Read Pricing v4', d:'3 frames, 14 layers', s:'done' },
+    { id:'pro', card:'Pro', t:'Update the Pro card', s:'run', ms:7500 },
+    { id:'team', card:'Team', t:'Update the Team card', d:'Pricing v4, frame 3', s:'queued', ms:3500 },
+    { id:'ship', t:'Export to staging', d:'designme.studio/pricing', s:'queued', ms:2500 }
+  ];
+  const steps = $('.ste-steps', r), log = $('.ste-log', r), box = $('.ste-box', r), inp = $('input', box), go = $('.ste-go', r), st = $('.ste-st', r), mode = $('.m', st), ck = $('.ck', st);
+  let hue = 'violet', ended = false, running = false;
+  const queue = [];
+  const G = { run:'<span class="spin"></span>', done:I('ok','xs'), queued:'<span class="dot"></span>' };
+  const doing = x => x.card ? `Setting the accent to ${hue}` : x.d;
+  function row(x){
+    x.el = html(`<li class="ste-s ${x.s}"><span class="ste-g">${G[x.s]}</span><span class="ste-t"><b>${x.t}</b><span>${x.s === 'run' ? doing(x) : x.d || 'Pricing v4, frame 2'}</span></span>${x.mine ? '<span class="tag b">From you</span>' : ''}</li>`);
+    return x.el;
+  }
+  S.forEach(x => steps.appendChild(row(x)));
+  function set(x, s, d){ x.s = s; x.el.className = 'ste-s ' + s; const g = $('.ste-g', x.el); g.innerHTML = G[s]; enter(g); if (d) swap($('.ste-t span', x.el), d); }
+  const where = () => { const i = S.findIndex(x => x.s === 'run'); swap(mode, ended ? 'Done' : `Step ${i + 1} of ${S.length}`); };
+  // the clock runs until the last step is done
+  const t0 = performance.now(); let tEnd = 0;
+  const clock = () => { const s = Math.floor(((tEnd || performance.now()) - t0) / 1000); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };
+  c.every(250, () => { ck.textContent = clock(); });
+  // a message waits for the step in progress, then the agent takes it up before the next one
+  const ready = () => { go.disabled = ended || !inp.value.trim(); };
+  inp.oninput = ready;
+  c.on(box, 'submit', e => {
+    e.preventDefault(); const text = inp.value.trim(); if (!text || ended) return;
+    inp.value = ''; box.classList.remove('f'); ready();
+    const m = html(`<div class="ste-me"><p></p><span class="ste-q"><span class="spin"></span>Applies after this step</span></div>`);
+    $('p', m).textContent = text; log.appendChild(m); enter(m);
+    queue.push({ text, el:m });
+    if (!running) apply();
+  });
+  // what the agent says back, with buttons when it needs you to choose
+  function say(text, warn, acts){
+    const a = html(`<div class="ste-ag${warn ? ' warn' : ''}">${warn ? I('alert','xs') : I('spark','xs')}<div class="t"><p></p>${acts ? '<div class="ste-acts"></div>' : ''}</div></div>`);
+    $('p', a).textContent = text; log.appendChild(a); enter(a);
+    if (acts) acts.forEach(([label, ink, fn]) => { const b = html(`<button class="pill sm ${ink ? 'ink' : 'ghost'}">${label}</button>`); b.onclick = () => { $('.ste-acts', a).replaceWith(html(`<span class="muted">${fn()}</span>`)); a.classList.remove('warn'); a.firstElementChild.outerHTML = I('spark','xs'); }; $('.ste-acts', a).appendChild(b); });
+  }
+  function apply(){
+    while (queue.length){
+      const q = queue.shift(), tag = $('.ste-q', q.el);
+      tag.innerHTML = I('check','xs') + (S.some(x => x.s !== 'done') ? 'Applied' : 'Noted'); enter(tag);
+      const left = S.some(x => x.s !== 'done');
+      if (!left){ say("The run had finished, so I'll keep this for the next one."); continue; }
+      if (!/blue|accent|library/i.test(q.text)){ say("Got it. I'll follow that from the next step."); continue; }
+      // a change of accent: what's still to come uses it, and a card already painted the old way is offered a redo
+      hue = 'library blue';
+      const old = S.filter(x => x.card && x.s === 'done' && x.hue === 'violet' && !S.some(y => y.redo === x.id));
+      const run = S.find(x => x.s === 'run'); if (run && run.card) swap($('.ste-t span', run.el), doing(run));
+      if (!old.length){ say('Got it. From here the accent is color.accent.500 from the library.'); continue; }
+      const names = old.map(x => x.card).join(' and ');
+      say(`Got it. From here the accent is color.accent.500. The ${names} card${old.length > 1 ? 's are' : ' is'} already violet.`, true, [
+        ['Leave it', false, () => `Kept the ${names} card as it is`],
+        [`Redo the ${names} card${old.length > 1 ? 's' : ''}`, true, () => { old.forEach(redo); return `Added a step to redo the ${names} card${old.length > 1 ? 's' : ''}`; }]
+      ]);
+    }
+  }
+  // a redo goes in before the export if the export hasn't started, otherwise at the end
+  function redo(x){
+    const n = { id:'redo-' + x.id, redo:x.id, card:x.card, mine:true, t:`Redo the ${x.card} card`, d:'Accent to library blue', s:'queued', ms:2000 };
+    const ship = S.find(y => y.id === 'ship'), at = ship.s === 'queued' ? S.indexOf(ship) : S.length;
+    S.splice(at, 0, n); steps.insertBefore(row(n), S[at + 1] ? S[at + 1].el : null);
+    const li = n.el; li.style.height = '0px'; li.style.minHeight = '0px'; li.style.overflow = 'hidden'; li.style.opacity = '0';
+    requestAnimationFrame(() => { li.style.transition = 'height .4s var(--ease),min-height .4s var(--ease),opacity .4s'; li.style.height = '44px'; li.style.minHeight = '44px'; li.style.opacity = '1'; c.later(450, () => { li.removeAttribute('style'); }); });
+    if (ended){ ended = false; tEnd = 0; $('.ste-sum', r)?.remove(); inp.disabled = false; inp.placeholder = 'Steer the agent while it works'; ready(); c.run(work); }
+    where();
+  }
+  // the agent works through the steps; between two steps it takes up what you sent
+  async function work(){
+    running = true;
+    for (let x = S.find(y => y.s === 'run' || y.s === 'queued'); x; x = S.find(y => y.s === 'run' || y.s === 'queued')){
+      if (x.s !== 'run') set(x, 'run', doing(x));
+      where();
+      await c.wait(x.ms);
+      if (x.card) x.hue = hue;
+      set(x, 'done', x.card ? (x.hue === 'violet' ? 'Accent set to violet' : 'Accent set to library blue') : x.id === 'ship' ? 'Live on designme.studio/pricing' : x.d);
+      apply();
+    }
+    running = false; ended = true; tEnd = performance.now(); where();
+    inp.disabled = true; inp.placeholder = 'The run has finished'; ready();
+    const n = $$('.ste-me', r).length;
+    $('.ste-sum', r)?.remove();
+    const sum = html(`<div class="ste-sum">${I('ok','xs')}<span>Done in ${clock()}${n ? ` · ${n} change${n > 1 ? 's' : ''} from you` : ''}</span></div>`);
+    log.appendChild(sum); enter(sum);
+  }
+  c.run(work);
+  // the preview's story: read what the agent is doing, tell it to use the library's blue, and have it redo the card
+  // that was already violet
+  c.story(async s => {
+    await s.beat(2);
+    await s.point($('.ste-t span', S[1].el), false); await s.beat(1);
+    await s.tap(inp); box.classList.add('f');
+    // typed a few letters at a time, so a busy page (few, longer timers) types it as fast as a quiet one
+    const msg = 'Use our library blue, not violet';
+    for (let i = 0; i < msg.length; i += 3){ inp.value = msg.slice(0, i + 3); ready(); await s.beat(.15); }
+    await s.beat(1); await s.tap(go); s.away();
+    await s.until(() => $('.ste-acts .ink', r)); await s.beat(3);
+    await s.tap($('.ste-acts .ink', r)); s.away();
+    await s.until(() => ended); await s.beat(2);
+  });
+});
+/* ---------- Eval results ---------- */
+DM.def('eval-results', (r, c) => {
+  r.innerHTML = r.innerHTML.replace('{play}', I('play','xs'));
+  // eight checks on the pricing page's copy. The price check fails after the copy agent's latest edit, until it's fixed
+  const K = [
+    { n:'Names the Pro seat limit', tm:'0.6s' },
+    { n:'Prices match the billing table', tm:'0.9s', bad:true, exp:'$24 a seat, billed yearly', got:'$29 a seat, billed yearly', src:'Billing table, Pro row' },
+    { n:'Mentions the yearly discount', tm:'0.5s' },
+    { n:'Makes no “unlimited” claims', tm:'0.4s' },
+    { n:'Team plan lists SSO', tm:'0.5s' },
+    { n:'Reads at grade 8 or below', tm:'0.7s' },
+    { n:'One call to action per plan', tm:'0.5s' },
+    { n:'Free plan says no card is needed', tm:'0.6s' }
+  ].map(k => ({ ...k, s:'pass' }));
+  const LAST = 8;
+  const list = $('.evr-list', r), segs = $('.evr-segs', r), pass = $('.evr-pass', r), dl = $('.evr-dl', r), st = $('.evr-st', r), run = $('.evr-run', r), none = $('.evr-none', r), sg = $('.evr-tabs .seg2', r);
+  const G = { run:'<span class="spin"></span>', pass:I('ok','xs'), fail:I('alert','xs'), queued:'<span class="dot"></span>' };
+  let filter = 'all', busy = false, ran = false;
+  K.forEach((k, i) => {
+    k.w = html(`<div class="fold evr-w"><div><div class="evr-i" role="listitem"></div></div></div>`); k.el = $('.evr-i', k.w); k.i = i; list.appendChild(k.w);
+    k.seg = document.createElement('i'); segs.appendChild(k.seg);
+  });
+  // a case's row: a failed one is a button that opens what was expected and what came back
+  function paint(k, fresh){
+    const open = k.s === 'fail' && k.open;
+    k.el.className = 'evr-i ' + k.s;
+    const g = `<span class="evr-g">${G[k.s]}</span><span class="evr-n">${k.n}</span><span class="evr-tm num">${k.s === 'pass' || k.s === 'fail' ? k.tm : ''}</span>`;
+    k.el.innerHTML = k.s === 'fail'
+      ? `<button class="evr-r" aria-expanded="${!!open}">${g}<span class="evr-ch">${I('chev-d','xs')}</span></button><div class="fold evr-d${open ? '' : ' shut'}"><div><div class="evr-dd"><span class="evr-kv"><span class="k">Expected</span><span>${k.exp}</span></span><span class="evr-kv"><span class="k">Got</span><span class="bad">${k.got}</span></span><span class="evr-kv"><span class="k">Source</span><span>${k.src}</span></span><button class="pill sm evr-fix">Use $24 and rerun</button></div></div></div>`
+      : `<div class="evr-r">${g}</div>`;
+    if (k.s === 'fail'){
+      const d = $('.evr-d', k.el); d.inert = !open;
+      $('.evr-r', k.el).onclick = () => { k.open = !k.open; $('.evr-r', k.el).setAttribute('aria-expanded', k.open); d.classList.toggle('shut', !k.open); d.inert = !k.open; };
+      $('.evr-fix', k.el).onclick = () => fix(k);
+    }
+    if (fresh) enter($('.evr-g', k.el));
+    k.seg.className = k.s;
+  }
+  function counts(){
+    const p = K.filter(k => k.s === 'pass').length, f = K.filter(k => k.s === 'fail').length, done = K.every(k => k.s === 'pass' || k.s === 'fail');
+    swap(pass, done ? `${p} of ${K.length} passed` : busy ? `Running ${K.filter(k => k.s === 'pass' || k.s === 'fail').length + 1} of ${K.length}` : 'Running the case again');
+    const d = !ran || !done ? '' : p < LAST ? `${LAST - p} fewer than the last run` : 'All passing';
+    if (dl.textContent !== d){ dl.textContent = d; dl.className = 'tag evr-dl ' + (p < LAST ? 'bad' : 'ok'); if (d) enter(dl); }
+    $('[data-v="all"] .n', sg).textContent = K.length; $('[data-v="fail"] .n', sg).textContent = f;
+    show();
+  }
+  // All shows every case; Failed folds the others away
+  function show(){
+    K.forEach(k => { const on = filter === 'all' || k.s === 'fail'; k.w.classList.toggle('shut', !on); k.w.inert = !on; });
+    none.hidden = !(filter === 'fail' && !K.some(k => k.s === 'fail'));
+  }
+  seg(sg, v => { filter = v; show(); });
+  K.forEach(k => paint(k)); counts();
+  // a run checks the cases one after another; the price check fails until the copy is fixed
+  run.onclick = () => c.run(async () => {
+    if (busy) return; busy = true; ran = true; run.disabled = true; run.innerHTML = '<span class="spin"></span>Running';
+    K.forEach(k => { k.s = 'queued'; k.open = false; paint(k); }); counts();
+    for (const k of K){
+      k.s = 'run'; paint(k, true); counts();
+      await c.wait(500);
+      k.s = k.bad ? 'fail' : 'pass'; paint(k, true); counts();
+    }
+    busy = false; run.disabled = false; run.innerHTML = I('play','xs') + 'Run again'; swap(st, 'Copy agent · 8 cases · run just now');
+  });
+  // the fix changes the copy to the billing table's price and runs that case again
+  function fix(k){
+    if (busy) return;
+    c.run(async () => {
+      k.bad = false; k.open = false; k.s = 'run'; paint(k, true); counts();
+      await c.wait(1000);
+      k.s = 'pass'; paint(k, true); counts();
+    });
+  }
+  // the preview's story: run the evals, see one fail against the last run, open it, take the fix, and see all eight pass
+  c.story(async s => {
+    await s.beat(3);
+    await s.tap(run); s.away();
+    await s.until(() => !busy); await s.beat(3);
+    await s.tap($('[data-v="fail"]', sg)); s.away(); await s.beat(2);
+    await s.tap($('.evr-i.fail .evr-r', r)); s.away(); await s.beat(3);
+    await s.tap($('.evr-fix', r)); s.away();
+    await s.until(() => K.every(k => k.s === 'pass')); await s.beat(2);
+    await s.tap($('[data-v="all"]', sg)); s.away(); await s.beat(2);
   });
 });
 /* ---------- Design review ---------- */
