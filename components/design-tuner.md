@@ -256,6 +256,7 @@ export function DesignTuner({ params = PARAMS, values, defaultValues, onValuesCh
 - [Change review](https://designme.dev/components/change-review.md): Accept or reject each change the agent made, file by file.
 - [Plan review](https://designme.dev/components/plan-review.md): Check the agent's plan, edit steps, then let it run.
 - [Permission gate](https://designme.dev/components/permission-gate.md): The agent asks before it touches something new.
+- [Hand-off to a person](https://designme.dev/components/human-handoff.md): The agent hands a conversation to a person, with what they need to pick it up.
 - [Decision prompt](https://designme.dev/components/decision-prompt.md): The agent asks a few quick questions before it starts.
 - [Proposal card](https://designme.dev/components/proposal-card.md): A suggested change with confidence, alternatives and undo.
 - [Rewrite toolbar](https://designme.dev/components/rewrite-toolbar.md): Select a sentence and let the agent rewrite it in place.

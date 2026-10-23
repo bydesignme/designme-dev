@@ -1,0 +1,37 @@
+{
+  "summary": "Hand-off to a person shows an agent passing a conversation to a human. It says why, like \"Refund over $500 needs a person\", who it is assigned to with their team and whether they are free, and when the reply is due, counting down. Beside that is the context they need to pick it up: a short summary, a few key facts and a link to the whole conversation. Under the assignee is what the customer was told, with Edit, and a row at the foot says where it stands. If the person can't take it, Reassign opens a small menu of who else can.",
+  "use": [
+    "When an agent reaches something it isn't allowed to do, like a large refund, and a person has to take over.",
+    "When the person picking it up should not have to read the whole conversation to know what is going on.",
+    "When there is a target time to reply and people need to see how much of it is left.",
+    "When whoever was assigned is away or busy, and someone needs to pass it on quickly."
+  ],
+  "features": [
+    "`reason` sits under the title. `assignee` shows an avatar, name, `team` and `presence`, with a green dot for `tone: 'ok'` or amber for `'warn'`. While `assignee` is null a spinner and `finding` fill the row.",
+    "`people` adds Reassign, a small menu of who else can take it with their team and presence. Picking someone calls `onReassign`.",
+    "`secondsLeft` reads \"Reply due in 14 min\" and empties a bar over `targetSeconds` (15 minutes by default). Under five minutes it turns amber, and at zero it reads overdue.",
+    "`summary`, `facts` (label and value rows) and `link` are the context passed along.",
+    "`message` is what the customer was told. `onMessageChange` adds Edit: the message turns editable, then Save or Cancel, and `edited` adds \"· edited\" to its label.",
+    "`status` is the row at the foot: neutral with a spinner while it waits, amber with an alert when the person can't take it, and green with the person's avatar once they have, like \"With Alex · agent paused\".",
+    "On wide screens the assignment and the context sit side by side; below 600px they stack."
+  ],
+  "a11y": [
+    "Reassign says whether its menu is open. Each person is a menu item that marks the current one with `aria-checked`, and Escape closes the menu.",
+    "The time left is a progress bar labelled \"Time left to reply\", with the seconds left as its value.",
+    "The message is a textbox that is read-only until Edit is pressed, and the status row is a polite live region, so changes like \"Alex joined\" are announced."
+  ],
+  "faq": [
+    {
+      "q": "Does it assign the conversation or notify anyone?",
+      "a": "No. It shows the `assignee` and `status` you pass. Your code routes the conversation, checks who is free, and calls back when they accept; `onReassign` tells you who was picked."
+    },
+    {
+      "q": "Does the timer count down by itself?",
+      "a": "No. Pass `secondsLeft` and update it, for example once a second, from the time the reply is due. The line and the bar follow it."
+    },
+    {
+      "q": "Does editing the message send the change to the customer?",
+      "a": "No. Save calls `onMessageChange` with the new text. Update the message where the customer sees it, then pass it back with `edited`."
+    }
+  ]
+}

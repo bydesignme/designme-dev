@@ -1,0 +1,36 @@
+{
+  "summary": "Terminal stream shows the shell commands an agent runs as a compact terminal panel. The header has the working directory and how the run is going, with Stop while it runs and Copy. Each command shows as a `$ npm run build` line with its output streaming in underneath, and ends with a check or a red exit code, and how long it took. Output longer than five lines folds to its last four behind a \"Show 24 more lines\" button, and when the run is over a line at the foot sums it up, like \"3 commands · 0:18 · passed\".",
+  "use": [
+    "When an agent installs, builds and tests code, and people want to see what it ran and what came back.",
+    "When a command fails and people need the failing lines, the agent's reading of them and the fix in one place.",
+    "When long output like a build log should be there if wanted, without filling the panel.",
+    "When people need a way to stop a run that is going wrong, or to copy the whole run into an issue or a chat."
+  ],
+  "features": [
+    "`entries` are commands, notes and edits, oldest first. A command has a `status` of `running`, `ok`, `failed` or `stopped`, with a spinner, a check, a red \"Exit 1\" tag (from `exitCode`) or a Stopped tag, and its `duration`.",
+    "Output lines can be coloured with a `tone`: `ok` green, `bad` red or `muted` grey. Lines wrap inside the panel, so a long line never scrolls the page sideways.",
+    "Output longer than `tail` + 1 lines folds to its last `tail` lines (4 by default) behind a \"Show N more lines\" button that opens the rest.",
+    "A note (`kind: 'note'`) is a line from the agent between commands, and an edit (`kind: 'edit'`) is a file it changed, with the lines added and removed once it is done.",
+    "The header shows `cwd` and the run's `status`, with `elapsed` beside Running. `onStop` adds a Stop button while it runs, and Copy copies the whole run as text.",
+    "Once the run is over, `summary` folds open at the foot. By default it counts each command once, however many times it ran, then gives `elapsed` and the result."
+  ],
+  "a11y": [
+    "The output is a log region labelled \"Terminal output\", so screen readers can follow it as it arrives.",
+    "\"Show N more lines\" is a button that says whether the folded lines are open, and the folded lines can't be reached with Tab while they are shut.",
+    "Stop and Copy are labelled buttons, and Copy says \"Copied to clipboard\" in a tooltip once it has copied."
+  ],
+  "faq": [
+    {
+      "q": "Does it run the commands?",
+      "a": "No. It shows the `entries` you pass. Your code runs the commands, streams their output into `output`, and sets each one's `status` and `duration`. `onStop` tells you when someone pressed Stop."
+    },
+    {
+      "q": "Why does the summary say 3 commands when 4 ran?",
+      "a": "It counts each command once, however many times it ran, so a test run again after a fix doesn't add one. Pass your own `summary` to say it another way, or `false` to hide it."
+    },
+    {
+      "q": "Can it show colours from the shell?",
+      "a": "Not ANSI codes. Give each line a `tone` instead: `ok`, `bad` or `muted`."
+    }
+  ]
+}

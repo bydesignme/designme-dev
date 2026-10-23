@@ -1406,6 +1406,74 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .pgx-ic{transition:background .32s var(--ease)}
 .pgx.esc .pgx-ic{background:var(--warn-bg)}
 .pgx-scope{display:flex;flex-direction:column;gap:12px}
+
+/* ---------- Hand-off to a person ---------- */
+/* the agent passes a conversation to a person: why, who has it (with Reassign), when the reply is due, what they need to
+   pick it up, and what the customer was told. The type and spacing are Draft review's; the two columns stack when narrow */
+.hox{position:relative;width:100%;margin:0 auto;padding:16px;display:flex;flex-direction:column;gap:12px}
+.hox-h{display:flex;align-items:center;gap:12px}
+.hox-ic{width:32px;height:32px;border-radius:9px;background:var(--chip);color:var(--fg2);display:grid;place-items:center;flex:none}
+.hox-ht{flex:1;min-width:0;display:flex;flex-direction:column}
+.hox-ht b{font-weight:500;font-size:14px}
+.hox-ht span{font-size:13px}
+.hox-b{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px 24px;align-items:start;padding-top:12px;border-top:1px solid var(--line)}
+@container (max-width:600px){.hox-b{grid-template-columns:minmax(0,1fr)}.hox-col+.hox-col{padding-top:12px;border-top:1px solid var(--line)}}
+.hox-col{display:flex;flex-direction:column;gap:8px;min-width:0}
+.hox-lb{font-size:12px;color:var(--muted)}
+.hox-who{display:flex;align-items:center;gap:10px;min-height:40px}
+.hox-av{width:28px;height:28px;display:grid;place-items:center;flex:none;border-radius:50%;background:var(--chip);color:var(--fg2)}
+.hox-av .av{width:28px;height:28px;font-size:11px}
+.hox-wt{flex:1;min-width:0;display:flex;flex-direction:column}
+.hox-wt b{font-weight:500;font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hox-wd{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hox-wd .dot{color:var(--faint)}
+.hox-wd.ok .dot{color:var(--ok)}
+.hox-wd.warn,.hox-wd.warn .dot{color:var(--warn)}
+/* Reassign: a small dropdown, like the one for how long in Permission gate */
+.hox-rb{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 8px 0 10px;border-radius:var(--r-pill);font-size:13px;color:var(--fg2);flex:none;transition:background .16s,color .16s}
+.hox-rb:hover,.hox-rb[aria-expanded="true"]{background:var(--chip);color:var(--fg)}
+.hox-rb>svg{color:var(--muted);transition:transform .32s var(--ease)}
+.hox-rb[aria-expanded="true"]>svg{transform:rotate(180deg)}
+.hox-rb[disabled]{opacity:.45;background:none}
+.hox-pop{min-width:240px}
+.hox-pop .mi .av{width:20px;height:20px;font-size:9px}
+.hox-pop .mi>span:not(.ck):not(.av){flex:1;min-width:0}
+/* when the reply is due: the line counts down and the bar empties, amber in the last five minutes */
+.hox-sla{display:flex;flex-direction:column;gap:8px;padding-top:8px}
+.hox-sl{display:flex;align-items:center;gap:8px;font-size:13px}
+.hox-sl>svg{color:var(--fg2);flex:none}
+.hox-sl .muted{margin-left:auto;font-size:12px;white-space:nowrap}
+.hox-due{min-width:0}
+.hox-bar{height:4px;border-radius:2px;background:var(--chip);overflow:hidden}
+.hox-bar i{display:block;height:100%;width:100%;border-radius:inherit;background:var(--fg2);transition:width 1s linear,background .3s}
+.hox-sla.warn .hox-sl>svg,.hox-sla.warn .hox-due{color:var(--warn)}
+.hox-sla.warn .hox-bar i{background:var(--warn)}
+.hox-sla.bad .hox-sl>svg,.hox-sla.bad .hox-due{color:var(--bad)}
+.hox-sum{margin:0;font-size:13px;line-height:1.5;color:var(--fg2)}
+.hox-facts{display:flex;flex-direction:column;border-bottom:1px solid var(--line)}
+.hox-f{display:flex;align-items:center;gap:10px;min-height:32px;border-top:1px solid var(--line);font-size:13px}
+.hox-f .k{width:72px;flex:none;color:var(--muted)}
+.hox-f .v{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hox-lnk{align-self:flex-start;max-width:100%}
+.hox-lnk>span{overflow:hidden;text-overflow:ellipsis}
+/* what the customer was told, editable in place */
+.hox-ms{display:flex;flex-direction:column;gap:8px;margin-top:4px;padding-top:12px;border-top:1px solid var(--line)}
+.hox-mh{display:flex;align-items:center;gap:8px;min-height:28px}
+.hox-mh .sp{flex:1}
+.hox-mb{padding:10px 12px;border-radius:12px;background:var(--chip);font-size:13.5px;line-height:1.5;outline:0;transition:box-shadow var(--t-fast),background var(--t-fast)}
+.hox-mb[contenteditable="true"]{background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--accent-mark,var(--accent)),0 0 0 4px var(--accent-bg)}
+/* where it stands, in one row at the foot: neutral while it waits, amber when the person can't take it, green once they have */
+.hox-st{display:flex;align-items:center;gap:12px;padding:10px 10px 10px 12px;border-radius:12px;background:var(--chip);font-size:13.5px;transition:background .32s}
+.hox-st.warn{background:var(--warn-bg)}
+.hox-st.ok{background:var(--ok-bg)}
+.hox-st .g{width:18px;height:18px;display:grid;place-items:center;flex:none;color:var(--fg2)}
+.hox-st.warn .g{color:var(--warn)}
+.hox-st.ok .g{color:var(--ok)}
+.hox-st .g .av{width:18px;height:18px;font-size:8.5px}
+.hox-st .t{flex:1;min-width:0;display:flex;flex-direction:column}
+.hox-st .t b{font-weight:400}
+.hox-st .t>span{font-size:13px;color:var(--muted)}
+.hox-st .t,.hox-sum,.hox-mb,.tmx-note>span{text-wrap:pretty}
 /* ---------- Launch checklist ---------- */
 .lcx{padding:14px;display:flex;flex-direction:column;gap:12px}
 .lcx-h{display:flex;align-items:center;justify-content:space-between;gap:10px}
@@ -1954,6 +2022,45 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .cvx-code .k{color:var(--pp)}.cvx-code .s{color:var(--pm)}.cvx-code .f{color:var(--pb)}.cvx-code .cm{color:var(--muted);font-style:italic}.cvx-code .tg{color:var(--pr)}.cvx-code .at{color:var(--py)}
 .cvx-note{margin:4px 14px 8px 42px;padding:8px 10px;border-radius:10px;background:var(--chip);font-family:var(--sans);font-size:12.5px;line-height:1.5;white-space:normal;color:var(--fg2);display:flex;gap:8px}
 .cvx-note>svg{color:var(--accent);flex:none;margin-top:3px}
+
+/* ---------- Terminal stream ---------- */
+/* the shell commands the agent runs, as a compact terminal: where it runs and how it is going in the header, then each
+   command with its output streaming in under it, and an exit code or a check with how long it took. Output longer than
+   five lines folds to its last four. The type and rhythm are Code viewer's: 12px mono on a 1.8 line height */
+.tmx{overflow:hidden;display:flex;flex-direction:column}
+.tmx-h{display:flex;align-items:center;gap:8px;height:44px;padding:0 8px 0 14px;border-bottom:1px solid var(--line)}
+.tmx-ic{display:grid;place-items:center;color:var(--fg2);flex:none}
+.tmx-cwd{min-width:0;flex:0 1 auto;font-family:var(--mono);font-size:12px;color:var(--fg2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tmx-st{display:inline-flex;align-items:center;gap:6px;min-width:0;font-size:12px;color:var(--muted);white-space:nowrap}
+.tmx-st .g{display:grid;place-items:center;flex:none}
+.tmx-st .spin{width:10px;height:10px}
+.tmx-st.ok .g{color:var(--ok)}
+.tmx-h .sp{flex:1}
+.tmx-body{padding:8px 0;font-family:var(--mono);font-size:12px;line-height:1.8}
+.tmx-blk+.tmx-blk{margin-top:4px}
+.tmx-cmd{display:flex;align-items:center;gap:8px;padding:0 14px}
+.tmx-p{width:12px;flex:none;display:grid;place-items:center;color:var(--muted)}
+.tmx-c{flex:1;min-width:0;font-weight:500;color:var(--fg);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tmx-m{display:inline-flex;align-items:center;gap:6px;font-family:var(--sans);font-size:12px;color:var(--muted);white-space:nowrap;flex:none}
+.tmx-m .g{display:grid;place-items:center}
+.tmx-m .spin{width:10px;height:10px}
+.tmx-m .ok{color:var(--ok)}
+.tmx-m .add{color:var(--add)}.tmx-m .del{color:var(--del)}
+/* the output wraps inside the panel, so a long line never pushes the page sideways */
+.tmx-o{padding:0 14px 0 34px;color:var(--fg2);white-space:pre-wrap;overflow-wrap:anywhere}
+.tmx-l.ok{color:var(--ok)}.tmx-l.bad{color:var(--bad)}.tmx-l.mu{color:var(--muted)}
+.tmx-more{display:flex;align-items:center;gap:6px;margin-left:34px;font-family:var(--sans);font-size:12px;line-height:inherit;color:var(--muted);transition:color var(--t-fast)}
+.tmx-more:hover{color:var(--fg)}
+.tmx-more svg{transition:transform var(--t) var(--ease)}
+.tmx-more[aria-expanded="true"] svg{transform:rotate(180deg)}
+/* folded lines are hidden once they have folded away, so nothing measures the clipped part as if it were drawn */
+.tmx-blk .fold.shut>div{visibility:hidden;transition:visibility 0s var(--t)}
+.tmx-note{margin:4px 14px;padding:8px 10px;border-radius:10px;background:var(--chip);font-family:var(--sans);font-size:12.5px;line-height:1.5;color:var(--fg2);display:flex;gap:8px}
+.tmx-note>svg{color:var(--accent-fg,var(--accent));flex:none;margin-top:3px}
+.tmx-f{display:flex;align-items:center;gap:8px;padding:10px 14px;border-top:1px solid var(--line);font-size:13px}
+.tmx-f .g{display:grid;place-items:center;flex:none;color:var(--ok)}
+.tmx-f.stop .g{color:var(--muted)}.tmx-f.bad .g{color:var(--bad)}
+@container (max-width:420px){.tmx-ic{display:none}.tmx-h{padding-left:12px}.tmx-cmd{padding:0 12px}.tmx-o{padding:0 12px}.tmx-more{margin-left:12px}.tmx-note{margin-inline:12px}.tmx-f{padding-inline:12px}}
 
 /* ---------- Details panel ---------- */
 .dtp{padding:12px;display:flex;flex-direction:column;gap:6px}
@@ -3607,7 +3714,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
   <header class="top">
     <div>
       <h1 id="style-h">Soft 2</h1>
-      <p id="style-p">Every component rebuilt to live inside the agent's own thread: one quiet surface per object, grey type for finished work, and slow, blurred motion only on what is happening now. 100 of 100 rebuilt so far.</p>
+      <p id="style-p">Every component rebuilt to live inside the agent's own thread: one quiet surface per object, grey type for finished work, and slow, blurred motion only on what is happening now. 102 of 102 rebuilt so far.</p>
     </div>
     <div class="ctrls">
       <div class="seg" id="style-seg" role="group" aria-label="Style"><button aria-pressed="true" data-v="soft2">Soft 2</button><button aria-pressed="false" data-v="bp2">Blueprint 2</button></div>
@@ -4183,6 +4290,39 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 </div></template>
   <div class="card-f"><span>Choose scopes and how long, then allow</span><span class="sp"></span><button class="replay" aria-label="Replay Permission gate"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
 </article>
+<article class="card wide" data-c="human-handoff" id="c-human-handoff">
+  <div class="card-h"><div><h3>Hand-off to a person</h3><p>The agent hands a conversation to a person, with what they need to pick it up.</p></div></div>
+  <div class="stage"><div class="stage-in"></div></div>
+  <template><div class="hox panel">
+  <div class="hox-h"><span class="hox-ic">{user}</span><div class="hox-ht"><b>Handed off to a person</b><span class="muted">Refund over $500 needs a person</span></div></div>
+  <div class="hox-b">
+    <div class="hox-col">
+      <span class="hox-lb">Assigned to</span>
+      <div class="hox-who"><span class="hox-av"><span class="spin"></span></span><span class="hox-wt"><b class="hox-wn">Finding someone</b><span class="hox-wd"><span class="hox-wv">Billing team</span></span></span><button class="hox-rb" aria-haspopup="menu" aria-expanded="false" data-pop=".hox-pop" data-pop-align="end" data-pop-pos="down" disabled>Reassign{chev}</button></div>
+      <div class="hox-sla"><div class="hox-sl">{clock}<span class="hox-due num">Reply due in 14 min</span><span class="muted">15 min target</span></div><div class="hox-bar" role="progressbar" aria-label="Time left to reply" aria-valuemin="0" aria-valuemax="900"><i></i></div></div>
+      <div class="hox-ms">
+        <div class="hox-mh"><span class="hox-lb hox-ml">Sent to Dana</span><span class="sp"></span><button class="pill ghost sm hox-no" hidden>Cancel</button><button class="pill ghost sm hox-ed">{edit}Edit</button></div>
+        <div class="hox-mb" role="textbox" aria-multiline="true" aria-readonly="true" aria-label="Message sent to Dana" spellcheck="false">Thanks, Dana. A refund this size needs someone on our billing team, so I've passed your conversation to them. They'll reply here within 15 minutes.</div>
+      </div>
+    </div>
+    <div class="hox-col">
+      <span class="hox-lb">Context passed along</span>
+      <p class="hox-sum">Dana was charged twice for her annual plan on Oct 21 and wants one charge back. The agent confirmed the duplicate, but can't refund more than $500.</p>
+      <div class="hox-facts">
+        <div class="hox-f"><span class="k">Amount</span><span class="v num">$588.00</span></div>
+        <div class="hox-f"><span class="k">Customer</span><span class="v">Dana Lee · Pro since 2023</span></div>
+        <div class="hox-f"><span class="k">Order</span><span class="v num">#48213 · charged twice</span></div>
+      </div>
+      <button class="fchip lnk hox-lnk" data-tip="Opens the whole conversation">{link}<span>View conversation · 12 messages</span></button>
+    </div>
+  </div>
+  <div class="hox-st" aria-live="polite"><span class="g"><span class="spin"></span></span><span class="t"><b class="hox-sa">Handing off to Billing</b><span class="hox-sb">The agent has stopped replying to Dana</span></span></div>
+  <div class="pop hox-pop" role="menu" aria-label="Reassign to">
+    <div class="ph">Reassign to</div>
+  </div>
+</div></template>
+  <div class="card-f"><span>Reassign it, or edit what the customer was told</span><span class="sp"></span><button class="replay" aria-label="Replay Hand-off to a person"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
+</article>
 <article class="card bare" data-c="launch-checklist" id="c-launch-checklist">
   <div class="card-h"><div><h3>Launch checklist</h3><p>The agent checks a design before it ships, and fixes what fails.</p></div></div>
   <div class="stage"><div class="stage-in"></div></div>
@@ -4353,6 +4493,16 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
   <div class="cvx-body"><pre class="cvx-code"></pre></div>
 </div></template>
   <div class="card-f"><span>Switch files, click a line to ask</span><span class="sp"></span><button class="replay" aria-label="Replay Code viewer"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
+</article>
+<article class="card wide" data-c="terminal-stream" id="c-terminal-stream">
+  <div class="card-h"><div><h3>Terminal stream</h3><p>Shell commands the agent runs, with their output as it streams in.</p></div></div>
+  <div class="stage"><div class="stage-in"></div></div>
+  <template><div class="tmx panel" data-reveal="flat">
+  <div class="tmx-h"><span class="tmx-ic">{term}</span><span class="tmx-cwd">~/acme/web</span><span class="tmx-st"><span class="g"><span class="spin"></span></span><span class="tmx-sv num">Starting</span></span><span class="sp"></span><button class="pill ghost sm tmx-stop" aria-label="Stop the running command">{stop}Stop</button><button class="ib tmx-cp" aria-label="Copy the output" data-tip="Copy">{copy}</button></div>
+  <div class="tmx-body" role="log" aria-label="Terminal output"></div>
+  <div class="fold shut tmx-ff"><div><div class="tmx-f"><span class="g"></span><span class="tmx-fs num"></span></div></div></div>
+</div></template>
+  <div class="card-f"><span>Open the folded output, stop a command or copy it all</span><span class="sp"></span><button class="replay" aria-label="Replay Terminal stream"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
 </article>
 <article class="card" data-c="details-panel" id="c-details-panel">
   <div class="card-h"><div><h3>Details panel</h3><p>Properties of a run you can change in place.</p></div></div>
@@ -5275,7 +5425,7 @@ document.addEventListener('DOMContentLoaded', () => {
   /* style: Soft 2 or Blueprint 2, from ?style= or what this browser last picked; each style keeps its own accent */
   const STY = {
     soft2:{ h:'Soft 2', p:$('#style-p') ? $('#style-p').textContent : '', acc:'#116ff8', key:'soft2-accent', title:'Designme Soft 2' },
-    bp2:{ h:'Blueprint 2', p:"The same 100 components drawn as a technical sheet: square corners, hairline edges instead of shadows, a lime accent, and motion that wipes and ticks into place in short, hard beats.", acc:'#d4f84a', key:'bp2-accent', title:'Designme Blueprint 2' }
+    bp2:{ h:'Blueprint 2', p:"The same 102 components drawn as a technical sheet: square corners, hairline edges instead of shadows, a lime accent, and motion that wipes and ticks into place in short, hard beats.", acc:'#d4f84a', key:'bp2-accent', title:'Designme Blueprint 2' }
   };
   let style = 'soft2';
   try { const q = new URLSearchParams(location.search).get('style'); const ls = localStorage.getItem('designme2-style');
@@ -7124,6 +7274,78 @@ DM.def('permission-gate', (r, c) => {
     await s.until(() => panel && panel.classList.contains('ok'));
   });
 });
+/* ---------- Hand-off to a person ---------- */
+DM.def('human-handoff', (r, c) => {
+  const IC = { user:I('user'), chev:I('chev-d','xs'), clock:I('clock'), link:I('link','xs'), edit:I('edit','xs') };
+  r.innerHTML = r.innerHTML.replace(/\{(\w+)\}/g, (m, k) => IC[k] || m);
+  const root = $('.hox', r), rb = $('.hox-rb', r), av = $('.hox-av', r), wn = $('.hox-wn', r), wd = $('.hox-wd', r), pop = $('.hox-pop', r);
+  const sla = $('.hox-sla', r), due = $('.hox-due', r), bar = $('.hox-bar', r), fill = $('.hox-bar i', r);
+  const row = $('.hox-st', r), sa = $('.hox-sa', r), sb = $('.hox-sb', r), mb = $('.hox-mb', r), ed = $('.hox-ed', r), no = $('.hox-no', r), ml = $('.hox-ml', r);
+  // the billing team: someone free takes the conversation in a few seconds, someone in a call takes longer, and someone
+  // who is out never does
+  const P = [
+    { k:'alex', n:'Alex Rivera', i:'AR', bg:'var(--pm)', on:'Available', tone:'ok', wait:2500 },
+    { k:'sam', n:'Sam Ortiz', i:'SO', bg:'var(--pp)', on:'In a call', tone:'', wait:6000 },
+    { k:'maya', n:'Maya Chen', i:'MC', bg:'var(--pl)', on:'Out until 2pm', tone:'warn' }
+  ];
+  const first = p => p.n.split(' ')[0];
+  pop.insertAdjacentHTML('beforeend', P.map(p => `<button class="mi" role="menuitemradio" aria-checked="false" data-close data-k="${p.k}">${AV(p.i, p.bg)}<span>${p.n}<span class="d">Billing · ${p.on}</span></span><span class="ck">${I('check','xs')}</span></button>`).join(''));
+  // when the reply is due: 15 minutes from the hand-off, counting down by the second; amber under five minutes
+  const TARGET = 900;
+  let left = 846;
+  const showDue = () => {
+    const m = Math.floor(left / 60);
+    due.textContent = left <= 0 ? 'Reply overdue' : m < 1 ? 'Reply due in under a minute' : `Reply due in ${m} min`;
+    sla.classList.toggle('warn', left > 0 && left < 300); sla.classList.toggle('bad', left <= 0);
+    fill.style.width = Math.max(0, left / TARGET * 100) + '%'; bar.setAttribute('aria-valuenow', Math.max(0, left));
+  };
+  showDue(); c.every(1000, () => { left--; showDue(); });
+  // the row at the foot says where it stands
+  const state = (tone, glyph, a, b) => { row.className = 'hox-st' + (tone ? ' ' + tone : ''); $('.g', row).innerHTML = glyph; swap(sa, a); swap(sb, b); };
+  let who = null, run = 0, phase = 'finding';
+  function assign(p){
+    const id = ++run; who = p; phase = 'waiting';
+    av.innerHTML = AV(p.i, p.bg); enter(av.firstElementChild);
+    swap(wn, p.n); wd.className = 'hox-wd'; wd.innerHTML = '<span>Billing</span>';
+    $$('.mi', pop).forEach(m => m.setAttribute('aria-checked', m.dataset.k === p.k)); rb.disabled = false;
+    state('', '<span class="spin"></span>', `Waiting for ${first(p)} to accept`, 'The agent has stopped replying to Dana');
+    // their status comes back a moment later
+    c.later(1600, () => {
+      if (id !== run) return;
+      wd.className = 'hox-wd' + (p.tone ? ' ' + p.tone : ''); wd.innerHTML = `<span class="dot"></span><span>Billing · ${p.on}</span>`; enter(wd);
+      if (!p.wait){ phase = 'away'; state('warn', I('alert'), `${first(p)} is out until 2pm`, 'The reply is due before then. Reassign it to someone who is free.'); return; }
+      c.later(p.wait, () => {
+        if (id !== run) return;
+        phase = 'joined'; state('ok', AV(p.i, p.bg), `${first(p)} joined`, 'Reading the conversation');
+        c.later(1800, () => { if (id !== run) return; phase = 'with'; state('ok', AV(p.i, p.bg), `With ${first(p)} · agent paused`, `The agent won't reply while ${first(p)} has it`); });
+      });
+    });
+  }
+  $$('.mi', pop).forEach(m => m.addEventListener('click', () => { const p = P.find(x => x.k === m.dataset.k); if (p !== who) assign(p); }));
+  c.later(1500, () => assign(P[2]));
+  // what the customer was told can be corrected in place
+  let said = mb.textContent, editing = false;
+  const edit = on => {
+    editing = on; mb.contentEditable = on ? 'true' : 'false'; mb.setAttribute('aria-readonly', !on); no.hidden = !on;
+    ed.className = 'pill sm hox-ed ' + (on ? 'ink' : 'ghost'); ed.innerHTML = on ? 'Save' : I('edit','xs') + 'Edit';
+    if (on){ mb.focus(); const s = getSelection(); s.selectAllChildren(mb); s.collapseToEnd(); }
+  };
+  ed.onclick = () => {
+    if (!editing) return edit(true);
+    const t = mb.textContent.trim();
+    if (t && t !== said){ said = t; swap(ml, 'Sent to Dana · edited'); } else mb.textContent = said;
+    edit(false);
+  };
+  no.onclick = () => { mb.textContent = said; edit(false); };
+  // the preview's story: Maya is assigned but is out, so the person reassigns it to Alex, who takes it
+  c.story(async s => {
+    await s.until(() => phase === 'away'); await s.beat(4);
+    await s.tap(rb); await s.beat(2);
+    await s.point($('.mi[data-k="sam"]', pop), false); await s.beat(1);
+    await s.tap($('.mi[data-k="alex"]', pop)); s.away();
+    await s.until(() => phase === 'with'); await s.beat(6);
+  });
+});
 /* ---------- Launch checklist ---------- */
 DM.def('launch-checklist', (r, c) => {
   r.innerHTML = r.innerHTML.replace('{play}', I('play','xs'));
@@ -7970,6 +8192,102 @@ DM.def('code-viewer', (r, c) => {
   cp.onclick = () => { const txt = F[cur].src.map(l => l[0].replace(/<[^>]+>/g, '').replace(/&lt;/g,'<').replace(/&gt;/g,'>')).join('\n'); copied(cp, txt); };
   show(0);
   c.later(1200, () => { if (!$('.cvx-note', code)) ask($$('.cvx-l', code)[6]); });
+});
+/* ---------- Terminal stream ---------- */
+DM.def('terminal-stream', (r, c) => {
+  const IC = { term:I('term'), stop:I('stop','xs'), copy:I('copy') };
+  r.innerHTML = r.innerHTML.replace(/\{(\w+)\}/g, (m, k) => IC[k] || m);
+  const body = $('.tmx-body', r), st = $('.tmx-st', r), sv = $('.tmx-sv', r), stop = $('.tmx-stop', r), cp = $('.tmx-cp', r), ff = $('.tmx-ff', r), foot = $('.tmx-f', r);
+  // what the agent does: each command with the lines it prints and how long it takes, then the one line where it says what
+  // went wrong and the edit that fixes it. [text, tone] marks a line ok (green), bad (red) or mu (grey)
+  const F = (n, kb) => 'dist/' + n.padEnd(22) + kb.padStart(6) + ' kB';
+  const BUILD = [['> acme-web@2.4.0 build', 'mu'], ['> vite build', 'mu'], 'vite v6.2.1 building for production...', 'transforming...', ['✓ 1284 modules transformed.', 'ok'], 'rendering chunks...', 'computing gzip size...',
+    ...[['index.html', '0.46'], ['assets/Home-1c9e.js', '3.12'], ['assets/Pricing-3f9a.js', '12.40'], ['assets/Cart-7b21.js', '9.86'], ['assets/Account-a04d.js', '7.31'], ['assets/Billing-52ce.js', '6.94'],
+      ['assets/Bills-e8f3.js', '5.27'], ['assets/Team-0d6a.js', '4.88'], ['assets/Prefs-9a1b.js', '6.02'], ['assets/Docs-44f0.js', '8.15'], ['assets/Search-b7c2.js', '2.96'], ['assets/Modal-61de.js', '1.84'],
+      ['assets/Chart-ef09.js', '21.73'], ['assets/Table-3a7e.js', '11.09'], ['assets/Form-c1d4.js', '4.41'], ['assets/Toast-8e2f.js', '1.12'], ['assets/dates-29bb.js', '18.30'], ['assets/vendor-8c1e.js', '98.12'],
+      ['assets/index-4f2a.js', '42.31'], ['assets/index-9b7d.css', '18.92']].map(([n, kb]) => F(n, kb)), ['✓ built in 6.1s', 'ok']];
+  const S = [
+    { cmd:'npm install', ms:1900, out:['added 412 packages in 1.9s', 'found 0 vulnerabilities'] },
+    { cmd:'npm run build', ms:6100, out:BUILD },
+    { cmd:'npm test', ms:3400, exit:1, out:[['RUN  v3.0.5 ~/acme/web', 'mu'], ['✓ src/lib/cart.test.ts (14 tests)', 'ok'], ['× src/lib/price.test.ts (1 failed)', 'bad'], ['  × formats a yearly price', 'bad'],
+      ['    Expected: "$240/yr"', 'ok'], ['    Received: "$240.00/yr"', 'bad'], ['Tests  1 failed | 23 passed (24)', 'bad']] },
+    { note:'The test expects whole dollars, but formatPrice always adds cents. Dropping them for round amounts.', ms:1500 },
+    { edit:'src/lib/price.ts', add:2, del:1, ms:1500 },
+    { cmd:'npm test', ms:2900, out:[['✓ src/lib/cart.test.ts (14 tests)', 'ok'], ['✓ src/lib/price.test.ts (10 tests)', 'ok'], ['Tests  24 passed (24)', 'ok']] }
+  ];
+  // output longer than five lines folds to its last four, behind a button that says how many are hidden
+  const TAIL = 4, GAP = 200;
+  let vt = 0, halt = false, over = false;
+  const log = [], ran = [];
+  const clock = ms => { const s = Math.floor(ms / 1000); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };
+  const sec = ms => (ms / 1000).toFixed(1) + ' s';
+  // time passes in steps of a quarter second at most, so the clock in the header keeps up; false once Stop is pressed
+  const pass = async (ms, each) => {
+    for (let t = 0; t < ms;){ if (halt) return false; const d = Math.min(250, ms - t); await c.wait(d); t += d; vt += d; if (!over) sv.textContent = 'Running · ' + clock(vt); each && each(t); }
+    return !halt;
+  };
+  // a command or an edit: what it is on the left, a spinner and its time on the right
+  function row(mark, text){
+    const el = html(`<div class="tmx-blk"><div class="tmx-cmd"><span class="tmx-p">${mark}</span><span class="tmx-c"></span><span class="tmx-m"><span class="g"><span class="spin"></span></span><span class="t num"></span></span></div></div>`);
+    $('.tmx-c', el).textContent = text; body.appendChild(el); enter(el); return el;
+  }
+  function lines(el){
+    const more = html(`<button class="tmx-more" aria-expanded="false" hidden>${I('chev-d','xs')}<span></span></button>`), hid = html('<div class="fold shut"><div class="tmx-o"></div></div>'), tail = html('<div class="tmx-o"></div>');
+    const inner = hid.firstElementChild; hid.inert = true; el.append(more, hid, tail);
+    const label = () => { const n = inner.children.length, open = !hid.classList.contains('shut'); $('span', more).textContent = open ? 'Show fewer lines' : `Show ${n} more line${n > 1 ? 's' : ''}`; more.setAttribute('aria-expanded', open); };
+    more.onclick = () => { hid.inert = hid.classList.toggle('shut'); label(); };
+    return ([text, tone]) => {
+      const l = document.createElement('div'); l.className = 'tmx-l' + (tone ? ' ' + tone : ''); l.textContent = text; tail.appendChild(l);
+      if (inner.children.length + tail.children.length > TAIL + 1) while (tail.children.length > TAIL) inner.appendChild(tail.firstElementChild);
+      if (inner.children.length){ more.hidden = false; label(); }
+    };
+  }
+  const halted = el => { $('.tmx-m .g', el).innerHTML = '<span class="tag">Stopped</span>'; };
+  function finish(how){
+    over = true; stop.hidden = true;
+    st.classList.toggle('ok', how === 'passed'); $('.g', st).innerHTML = I(how === 'passed' ? 'check' : 'stop', 'xs'); sv.textContent = how === 'passed' ? 'Passed' : how === 'failed' ? 'Failed' : 'Stopped';
+    // each command counts once, however many times it ran
+    const n = new Set(ran).size;
+    $('.tmx-fs', foot).textContent = `${n} command${n === 1 ? '' : 's'} · ${clock(vt)} · ${how}`;
+    foot.className = 'tmx-f' + (how === 'stopped' ? ' stop' : how === 'failed' ? ' bad' : ''); $('.g', foot).innerHTML = I(how === 'passed' ? 'ok' : how === 'failed' ? 'alert' : 'stop');
+    ff.classList.remove('shut');
+  }
+  stop.onclick = () => { halt = true; };
+  cp.onclick = () => copied(cp, log.join('\n'));
+  c.run(async () => {
+    let last = 0;
+    for (const k of S){
+      if (!await pass(GAP)) return finish('stopped');
+      if (k.note){
+        const n = html(`<div class="tmx-note">${I('spark','xs')}<span></span></div>`); $('span', n).textContent = k.note; body.appendChild(n); enter(n); log.push('# ' + k.note);
+        if (!await pass(k.ms)) return finish('stopped');
+        continue;
+      }
+      if (k.edit){
+        const el = row(I('edit','xs'), 'Edit ' + k.edit);
+        if (!await pass(k.ms)){ halted(el); return finish('stopped'); }
+        $('.tmx-m', el).innerHTML = `<span class="add">+${k.add}</span><span class="del">−${k.del}</span>`; log.push(`# Edited ${k.edit} (+${k.add} −${k.del})`);
+        continue;
+      }
+      const el = row('$', k.cmd), t = $('.tmx-m .t', el), add = lines(el), per = k.ms / k.out.length;
+      ran.push(k.cmd); log.push('$ ' + k.cmd); t.textContent = sec(0);
+      let at = 0;
+      for (const ln of k.out){
+        const ok = await pass(per, d => { t.textContent = sec(at + d); }); at += per;
+        if (!ok){ add(['^C', 'mu']); log.push('^C'); halted(el); return finish('stopped'); }
+        const pair = Array.isArray(ln) ? ln : [ln, '']; add(pair); log.push(pair[0]);
+      }
+      t.textContent = sec(k.ms); last = k.exit || 0;
+      $('.tmx-m .g', el).innerHTML = k.exit ? `<span class="tag bad">Exit ${k.exit}</span>` : `<span class="ok">${I('check','xs')}</span>`;
+    }
+    finish(last ? 'failed' : 'passed');
+  });
+  // the preview's story: the agent runs, fails a test, fixes it and passes; then the person copies the whole run
+  c.story(async s => {
+    await s.until(() => over);
+    await s.beat(2);
+    await s.tap(cp); await s.beat(3);
+  });
 });
 /* ---------- Details panel ---------- */
 DM.def('details-panel', (r, c) => {
