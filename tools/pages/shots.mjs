@@ -15,9 +15,10 @@ const { chromium } = createRequire(import.meta.url)(process.env.PW || 'playwrigh
 const site = JSON.parse(fs.readFileSync(path.join(HERE, 'data/site.json'), 'utf8'));
 const only = process.argv.slice(2);
 const names = site.sections.flatMap(s => s.cards.map(c => c.reg)).filter(n => !only.length || only.includes(n));
-// most demos have settled after 6 seconds; these cycle, so they are taken at a moment that shows them whole, and Design
-// review's story runs longer, so it is taken once it is approved
-const WAIT = { toast:2600, 'status-pill':3300, 'design-review':9500 };
+// most demos have settled after 6 seconds; these cycle, so they are taken at a moment that shows them whole. The longer
+// stories are taken at the end that tells them: Design review once approved, Model picker once Sonnet on high is set,
+// and Answer action bar on its second version
+const WAIT = { toast:2600, 'status-pill':3300, 'design-review':9500, 'model-picker':13000, 'answer-action-bar':17000 };
 const OUT = { thumbs:path.join(HERE, 'public/components/thumbs'), og:path.join(HERE, 'public/components/og') };
 Object.values(OUT).forEach(d => fs.mkdirSync(d, { recursive:true }));
 
@@ -50,8 +51,8 @@ for (const theme of ['light', 'dark']){
   for (const name of names){
     const page = await ctx.newPage();
     await page.goto(`${base}/components/${name}`, { waitUntil:'load' });
-    // the header and the bar are hidden, and a short demo gets room for a picture of the right shape
-    await page.addStyleTag({ content:'.cp-anim,.pg-top,.cp-bar{visibility:hidden!important}.pg-demo{min-height:max(560px,calc(var(--h-a) + 112px))!important}' });
+    // the header, the bar and a story's pointer are hidden, and a short demo gets room for a picture of the right shape
+    await page.addStyleTag({ content:'.cp-anim,.pg-top,.cp-bar,.hand{visibility:hidden!important}.pg-demo{min-height:max(560px,calc(var(--h-a) + 112px))!important}' });
     await page.evaluate(() => document.fonts.ready);
     await page.waitForTimeout(WAIT[name] || 6000);
     const r = await page.evaluate(() => {

@@ -954,6 +954,100 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .fbx-n{font-size:12px;flex:1;min-width:0}
 .fbx-thx{display:flex;align-items:center;gap:8px;font-size:13px;padding:10px 12px;border-radius:12px;background:var(--ok-bg);color:var(--ok)}
 @media (max-width:480px){.fbx-n{display:none}}
+/* ---------- Model picker ---------- */
+/* a trigger that names the model and how hard it thinks, over the open list: speed, quality and cost as five-step meters
+   with the real numbers on hover, the thinking effort under them, and what the next reply will take */
+.mpk{display:flex;flex-direction:column;gap:8px;width:100%;max-width:420px;margin:0 auto}
+.mpk-top{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 2px}
+.mpk-lb{font-size:12.5px}
+.mpk-tr{display:inline-flex;align-items:center;gap:7px;height:32px;padding:0 10px 0 6px;border-radius:var(--r-pill);background:var(--surface);box-shadow:var(--shadow);font-size:13px;font-weight:500;white-space:nowrap;transition:box-shadow .16s}
+.mpk-tr:hover{box-shadow:var(--shadow-pop)}
+.mpk-tr>svg{color:var(--muted);transition:transform .32s var(--ease)}
+.mpk-tr[aria-expanded="true"]>svg{transform:rotate(180deg)}
+.mpk-tr:focus-visible{outline:2px solid color-mix(in srgb,var(--accent) 45%,transparent);outline-offset:2px}
+.mpk-ef{font-weight:400;font-size:12.5px}
+.mpk-mk{width:20px;height:20px;border-radius:6px;display:grid;place-items:center;font-size:11px;font-weight:500;color:#fff;background:var(--mc,var(--fg2));flex:none;transition:background .32s}
+.mpk-p{padding:6px;display:flex;flex-direction:column}
+.mpk-hd,.mpk-o{display:grid;grid-template-columns:20px minmax(0,1fr) repeat(3,34px);align-items:center;gap:10px}
+.mpk-hd{padding:4px 10px 2px;font-size:11px;color:var(--muted)}
+.mpk-hd span{text-align:center}
+.mpk-o{width:100%;padding:8px 10px;border-radius:12px;text-align:left;font-size:13px;transition:background .16s}
+.mpk-o:hover{background:var(--row)}
+.mpk-o[aria-checked="true"]{background:var(--sel)}
+.mpk-o:focus-visible{outline:2px solid color-mix(in srgb,var(--accent) 45%,transparent);outline-offset:-2px}
+.mpk-o .t{display:flex;flex-direction:column;min-width:0}
+.mpk-o .t b{font-weight:500;display:flex;align-items:center;gap:6px}
+.mpk-o .ck{display:grid;color:var(--accent);opacity:0;transform:scale(.6);transition:opacity .16s,transform .32s var(--ease)}
+.mpk-o[aria-checked="true"] .ck,.mpk-o .ck:has(.spin){opacity:1;transform:none}
+.mpk-o .ck .spin{width:10px;height:10px;color:var(--muted)}
+.mpk-o .d{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mpk-o.busy .d{color:var(--warn)}
+.mpk-o.busy .mpk-mk{background:var(--warn)}
+.mpk-m{display:flex;gap:2px;height:8px}
+.mpk-m i{flex:1;border-radius:2px;background:var(--rail);transition:background .32s}
+.mpk-m i.on{background:var(--fg2)}
+.mpk-o[aria-checked="true"]:not(.busy) .mpk-m i.on{background:var(--accent)}
+/* the way out when a model can't take the request: wait for it, or a close match that starts now */
+.mpk-sg{margin:4px 4px 2px;padding:10px 12px;border-radius:12px;background:var(--warn-bg);display:flex;flex-direction:column;gap:8px}
+.mpk-sgt{margin:0;font-size:12.5px;line-height:1.45}
+.mpk-sga{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:6px}
+.mpk-th{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px 12px;padding:12px 10px 6px;margin:6px 4px 0;border-top:1px solid var(--line)}
+.mpk-thh{display:flex;flex-direction:column;min-width:0;font-size:13px}
+.mpk-thh b{font-weight:500;display:flex;align-items:center;gap:6px}
+.mpk-thh b svg{color:var(--muted)}
+.mpk-thd{font-size:12px}
+.mpk-f{padding:4px 10px 6px;font-size:12px;color:var(--muted)}
+.mpk-est b{color:var(--fg);font-weight:500}
+.mpk-note{margin:0;padding:0 2px;font-size:12.5px;min-height:20px;display:flex;align-items:center;gap:6px}
+.mpk-note svg{color:var(--ok);flex:none}
+/* phones: the line under each name wraps, and the meters keep room for their labels */
+@media (max-width:480px){.mpk-hd,.mpk-o{grid-template-columns:20px minmax(0,1fr) repeat(3,36px);gap:7px}.mpk-hd{font-size:10.5px;padding-inline:8px}.mpk-o{padding-inline:8px}.mpk-o .d{white-space:normal}}
+/* ---------- Answer action bar ---------- */
+/* every action on an answer in one raised rail under it: copy, regenerate with its versions, thumbs, and read aloud, which
+   widens into a progress bar and a clock and lights each word as it reads it */
+.aab{display:flex;flex-direction:column;gap:12px}
+.aab-t{min-height:78px}
+.aab-t .w{transition:background .16s,color .16s;border-radius:4px}
+.aab-t .w.in{animation:aabw .42s var(--ease) both}
+@keyframes aabw{from{opacity:0;filter:blur(4px)}to{opacity:1;filter:none}}
+.aab-t.out{animation:aabo .32s var(--ease) both}
+@keyframes aabo{to{opacity:0;filter:blur(4px);transform:translateY(-2px)}}
+.aab-t .nw{background:var(--hl-ok);border-radius:0}
+.aab-t .w.rd{background:var(--accent-bg);color:var(--accent)}
+.aab-row{display:flex;align-items:center;flex-wrap:wrap;gap:8px 12px}
+.aab-bar{display:inline-flex;align-items:center;gap:1px;padding:3px;border-radius:var(--r-pill);background:var(--surface);box-shadow:var(--shadow)}
+.aab-bar .ib{width:28px;height:28px}
+.aab-bar .ib[disabled]{opacity:.3;pointer-events:none}
+.aab-bar .ib svg{transition:transform .42s var(--ease)}
+.aab-re.go svg{transform:rotate(360deg)}
+.aab-up[aria-pressed="true"]{color:var(--ok);background:var(--ok-bg)}
+.aab-dn[aria-pressed="true"]{color:var(--bad);background:var(--bad-bg)}
+.aab-up[aria-pressed="true"] svg,.aab-dn[aria-pressed="true"] svg{transform:scale(1.1) rotate(-8deg)}
+.aab-sep{width:1px;height:16px;background:var(--line);margin:0 4px}
+/* the version pager only takes room once there is a second version */
+.aab-pg{display:inline-flex;align-items:center;max-width:0;overflow:hidden;opacity:0;transition:max-width .42s var(--ease),opacity .32s}
+.aab-pg.on{max-width:96px;opacity:1}
+.aab-pg .ib{width:24px;height:24px}
+.aab-n{font-size:12px;color:var(--muted);min-width:32px;text-align:center}
+.aab-rd{display:inline-flex;align-items:center;height:28px;padding:0 7px;border-radius:var(--r-pill);color:var(--fg2);transition:background .16s,color .16s}
+.aab-rd:hover{background:var(--hover)}
+.aab-rd .ic{display:grid;place-items:center;width:14px}
+.aab-rd[aria-pressed="true"]{background:var(--accent-bg);color:var(--accent)}
+.aab-rd.paused{background:var(--chip);color:var(--fg2)}
+.aab-pr{width:0;height:3px;border-radius:2px;background:color-mix(in srgb,currentColor 22%,transparent);overflow:hidden;margin-left:0;transition:width .42s var(--ease),margin .42s var(--ease)}
+.aab-pr i{display:block;height:100%;width:0;background:currentColor;border-radius:inherit}
+.aab-tm{font-size:11.5px;max-width:0;overflow:hidden;white-space:nowrap;transition:max-width .42s var(--ease),margin .42s var(--ease)}
+.aab-rd.on .aab-pr{width:56px;margin-left:8px}
+.aab-rd.on .aab-tm{max-width:80px;margin-left:8px}
+.aab-meta{font-size:12px}
+.aab-wy{display:flex;flex-direction:column;gap:8px;padding:2px 0 4px}
+.aab-wq{font-size:13px;font-weight:500}
+.aab-ch{display:flex;flex-wrap:wrap;gap:6px}
+.aab-ch .chip.on{background:var(--sel);color:var(--accent);box-shadow:none}
+.aab-st{margin:0;min-height:20px;font-size:12.5px;display:flex;align-items:center;gap:6px}
+.aab-st.warn{color:var(--warn)}
+.aab-st.ok svg{color:var(--ok);flex:none}
+@media (max-width:480px){.aab-rd.on .aab-tm{display:none}.aab-rd.on .aab-pr{width:40px}}
 /* ---------- Decision prompt ---------- */
 /* the agent asks in the chat: no container; with .panel it becomes a card */
 .dpx{padding:16px 0;display:flex;flex-direction:column;gap:12px;outline:0;border-radius:var(--r-in)}
@@ -2754,7 +2848,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
   <header class="top">
     <div>
       <h1 id="style-h">Soft 2</h1>
-      <p id="style-p">Every component rebuilt to live inside the agent's own thread: one quiet surface per object, grey type for finished work, and slow, blurred motion only on what is happening now. 80 of 80 rebuilt so far.</p>
+      <p id="style-p">Every component rebuilt to live inside the agent's own thread: one quiet surface per object, grey type for finished work, and slow, blurred motion only on what is happening now. 83 of 83 rebuilt so far.</p>
     </div>
     <div class="ctrls">
       <div class="seg" id="style-seg" role="group" aria-label="Style"><button aria-pressed="true" data-v="soft2">Soft 2</button><button aria-pressed="false" data-v="bp2">Blueprint 2</button></div>
@@ -3142,6 +3236,52 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
   </div></div></div>
 </div></template>
   <div class="card-f"><span>Thumbs down opens the reasons</span><span class="sp"></span><button class="replay" aria-label="Replay Feedback sheet"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
+</article>
+<article class="card" data-c="model-picker" id="c-model-picker">
+  <div class="card-h"><div><h3>Model picker</h3><p>Pick a model by speed, quality and cost, and how hard it thinks.</p></div></div>
+  <div class="stage"><div class="stage-in"></div></div>
+  <template><div class="mpk">
+  <div class="mpk-top"><span class="muted mpk-lb">Model for this chat</span><button class="mpk-tr" aria-haspopup="true" aria-expanded="true"><span class="mpk-mk"></span><span class="mpk-nm"></span><span class="mpk-ef muted"></span>{chev}</button></div>
+  <div class="fold mpk-fold"><div><div class="mpk-p panel">
+    <div class="mpk-hd" aria-hidden="true"><span></span><span></span><span>Speed</span><span>Quality</span><span>Cost</span></div>
+    <div class="mpk-list" role="radiogroup" aria-label="Model"></div>
+    <div class="fold shut mpk-sgf"><div><div class="mpk-sg" aria-live="polite"><p class="mpk-sgt"></p><div class="mpk-sga"><button class="pill ghost sm mpk-wait">Wait for Opus</button><button class="pill ink sm mpk-use">Use Sonnet on high</button></div></div></div></div>
+    <div class="mpk-th">
+      <div class="mpk-thh"><b>{brain}Thinking</b><span class="muted mpk-thd"></span></div>
+      <div class="seg2 mpk-seg" role="group" aria-label="Thinking effort"><button aria-pressed="false" data-v="0">Off</button><button aria-pressed="false" data-v="1">Low</button><button aria-pressed="true" data-v="2">Medium</button><button aria-pressed="false" data-v="3">High</button></div>
+    </div>
+    <div class="mpk-f"><span class="mpk-est num"></span></div>
+  </div></div></div>
+  <p class="mpk-note muted" aria-live="polite"></p>
+</div></template>
+  <div class="card-f"><span>Hover a meter, pick a model, set the thinking</span><span class="sp"></span><button class="replay" aria-label="Replay Model picker"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
+</article>
+<article class="card bare" data-c="answer-action-bar" id="c-answer-action-bar">
+  <div class="card-h"><div><h3>Answer action bar</h3><p>Copy, regenerate, rate and listen to an answer from one row under it.</p></div></div>
+  <div class="stage"><div class="stage-in"></div></div>
+  <template><div class="aab">
+  <div class="bub">How much do people save on the yearly Pro plan?</div>
+  <p class="msg aab-t" aria-live="polite"></p>
+  <div class="aab-row">
+    <div class="aab-bar" role="toolbar" aria-label="Answer actions">
+      <button class="ib aab-cp" aria-label="Copy" data-tip="Copy">{copy}</button>
+      <button class="ib aab-re" aria-label="Regenerate" data-tip="Regenerate">{re}</button>
+      <span class="aab-pg"><button class="ib aab-prev" aria-label="Previous version" data-tip="Previous version">{l}</button><span class="aab-n num" aria-live="polite">1 / 1</span><button class="ib aab-next" aria-label="Next version" data-tip="Next version">{rr}</button></span>
+      <span class="aab-sep" aria-hidden="true"></span>
+      <button class="ib aab-up" aria-label="Good answer" aria-pressed="false" data-tip="Good answer">{up}</button>
+      <button class="ib aab-dn" aria-label="Bad answer" aria-pressed="false" data-tip="Bad answer">{dn}</button>
+      <span class="aab-sep" aria-hidden="true"></span>
+      <button class="aab-rd" aria-label="Read aloud" aria-pressed="false" data-tip="Read aloud"><span class="ic">{vol}</span><span class="aab-pr" aria-hidden="true"><i></i></span><span class="aab-tm num"></span></button>
+    </div>
+    <span class="aab-meta muted num"></span>
+  </div>
+  <div class="fold shut aab-why"><div><div class="aab-wy">
+    <span class="aab-wq">What was off?</span>
+    <div class="aab-ch"><button class="chip sm">Wrong numbers</button><button class="chip sm">Too long</button><button class="chip sm">Not our tone</button><button class="chip sm">Missed the brief</button></div>
+  </div></div></div>
+  <p class="aab-st muted" aria-live="polite"></p>
+</div></template>
+  <div class="card-f"><span>Listen, rate it down, pick why, then copy the fix</span><span class="sp"></span><button class="replay" aria-label="Replay Answer action bar"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
 </article>
 </div>
 <div class="sec-h" id="s-review"><h2>Review and approve</h2><p>Where a person checks, steers or signs off on the agent's work.</p></div>
@@ -4137,7 +4277,7 @@ document.addEventListener('DOMContentLoaded', () => {
   /* style: Soft 2 or Blueprint 2, from ?style= or what this browser last picked; each style keeps its own accent */
   const STY = {
     soft2:{ h:'Soft 2', p:$('#style-p') ? $('#style-p').textContent : '', acc:'#116ff8', key:'soft2-accent', title:'Designme Soft 2' },
-    bp2:{ h:'Blueprint 2', p:"The same 80 components drawn as a technical sheet: square corners, hairline edges instead of shadows, an orange accent, and motion that wipes and ticks into place in short, hard beats.", acc:'#f76b00', key:'bp2-accent', title:'Designme Blueprint 2' }
+    bp2:{ h:'Blueprint 2', p:"The same 83 components drawn as a technical sheet: square corners, hairline edges instead of shadows, an orange accent, and motion that wipes and ticks into place in short, hard beats.", acc:'#f76b00', key:'bp2-accent', title:'Designme Blueprint 2' }
   };
   let style = 'soft2';
   try { const q = new URLSearchParams(location.search).get('style'); const ls = localStorage.getItem('designme2-style');
@@ -5192,6 +5332,173 @@ DM.def('feedback-sheet', (r, c) => {
     await beat(700); ta.classList.add('typing');
     for (const ch of 'Keep our 8px spacing scale'){ ta.value += ch; ready(); await beat(34 + Math.random() * 40); }
     await beat(650); ta.classList.remove('typing'); go.click();
+  });
+});
+/* ---------- Model picker ---------- */
+DM.def('model-picker', (r, c) => {
+  r.innerHTML = r.innerHTML.replace('{chev}', I('chev-d','xs')).replace('{brain}', I('brain','xs'));
+  // speed, quality and cost out of five, and the numbers behind them: tokens a second, and a typical reply's seconds and
+  // price with no thinking (the same three models and figures as Model compare)
+  const M = [
+    { n:'Opus 5.5', m:'O', c:'var(--c2)', d:'Deepest reasoning, slower', s:2, q:5, p:5, tps:38, sec:9, cost:.021 },
+    { n:'Sonnet 5.5', m:'S', c:'var(--c1)', d:'Balanced, the default for design work', s:4, q:4, p:2, tps:74, sec:4, cost:.006 },
+    { n:'Haiku 5.5', m:'H', c:'var(--c3)', d:'Fastest, for quick edits', s:5, q:3, p:1, tps:142, sec:1.5, cost:.001 }
+  ];
+  // thinking effort: what it may spend, and how it stretches a typical reply's time and price
+  const E = [['Off', 'Answers straight away', 1, 1], ['Low', 'Up to 2k thinking tokens', 1.6, 1.3], ['Medium', 'Up to 8k thinking tokens', 2.6, 1.8], ['High', 'Up to 24k thinking tokens', 4.2, 2.7]];
+  const list = $('.mpk-list', r), tr = $('.mpk-tr', r), fold = $('.mpk-fold', r), sgf = $('.mpk-sgf', r), sgt = $('.mpk-sgt', r), est = $('.mpk-est', r), note = $('.mpk-note', r), thd = $('.mpk-thd', r);
+  const meter = (v, tip) => `<span class="mpk-m" data-tip="${tip}">${[1, 2, 3, 4, 5].map(k => `<i${k <= v ? ' class="on"' : ''}></i>`).join('')}</span>`;
+  list.innerHTML = M.map((x, i) => `<button class="mpk-o" role="radio" aria-checked="false" tabindex="-1" data-i="${i}"><span class="mpk-mk" style="--mc:${x.c}">${x.m}</span><span class="t"><b>${x.n}<span class="ck">${I('check','xs')}</span></b><span class="d">${x.d}</span></span>${meter(x.s, x.tps + ' tokens a second')}${meter(x.q, 'Quality ' + x.q + ' of 5')}${meter(x.p, '$' + x.cost.toFixed(3) + ' a reply')}</button>`).join('');
+  const rows = $$('.mpk-o', list);
+  // Opus is at capacity when the demo starts (busy is its wait in seconds), and free again once you've waited it out
+  let cur = 1, eff = 2, busy = 20, shown = null, waiting = false;
+  const seconds = (i, e) => M[i].sec * E[e][2], price = (i, e) => M[i].cost * E[e][3];
+  // the estimate counts to its new numbers
+  function estimate(){
+    const to = { s:seconds(cur, eff), p:price(cur, eff) }, from = shown || to; shown = to;
+    tween(0, 1, 420, k => { if (!c.dead) est.innerHTML = `Next reply about <b>${Math.round(from.s + (to.s - from.s) * k)}s</b> and <b>$${(from.p + (to.p - from.p) * k).toFixed(3)}</b>`; });
+  }
+  function paint(){
+    rows.forEach((b, i) => { b.setAttribute('aria-checked', i === cur); b.tabIndex = i === cur ? 0 : -1; });
+    const mk = $('.mpk-mk', tr); mk.style.setProperty('--mc', M[cur].c); mk.textContent = M[cur].m;
+    swap($('.mpk-nm', tr), M[cur].n); swap($('.mpk-ef', tr), E[eff][0]); swap(thd, E[eff][1]); estimate();
+  }
+  const say = t => { note.innerHTML = t ? `${I('ok','xs')}<span>${t}</span>` : ''; if (t) enter(note); };
+  const sg = on => { sgf.classList.toggle('shut', !on); sgf.inert = !on; };
+  sg(false);
+  seg($('.mpk-seg', r), v => { eff = +v; paint(); say(''); });
+  function choose(i){ cur = i; sg(false); paint(); say(`Set for this chat: ${M[cur].n}, ${E[eff][0].toLowerCase()} thinking`); }
+  // picking a model checks it can take the request first; a busy one offers a wait, or a close match that starts now
+  function pick(i){
+    if (i !== 0 || !busy) return choose(i);
+    if (waiting) return;
+    const row = rows[0], d = $('.d', row), ck = $('.ck', row);
+    ck.innerHTML = '<span class="spin"></span>'; swap(d, 'Checking it can take this chat'); say('');
+    c.run(async () => {
+      await c.wait(1000);
+      ck.innerHTML = I('check','xs'); row.classList.add('busy'); swap(d, `At capacity, about ${busy}s wait`);
+      sgt.textContent = `Opus 5.5 is at capacity for about ${busy}s. Sonnet 5.5 on high thinking comes close on long reviews and starts now.`; sg(true);
+    });
+  }
+  rows.forEach((b, i) => b.onclick = () => pick(i));
+  // arrow keys move through the models, as in any radio group
+  c.on(list, 'keydown', e => {
+    const k = { ArrowDown:1, ArrowRight:1, ArrowUp:-1, ArrowLeft:-1 }[e.key]; if (!k) return;
+    e.preventDefault(); const i = (rows.indexOf(document.activeElement) + k + rows.length) % rows.length; rows[i].focus({ preventScroll:true }); pick(i);
+  });
+  $('.mpk-use', r).onclick = () => { cur = 1; sg(false); $('.mpk-seg [data-v="3"]', r).click(); choose(1); };
+  $('.mpk-wait', r).onclick = () => c.run(async () => {
+    sg(false); waiting = true; const d = $('.d', rows[0]);
+    for (let w = busy; w > 0; w--){ d.textContent = `Starts in ${w}s`; await c.wait(1000); }
+    busy = 0; waiting = false; rows[0].classList.remove('busy'); swap(d, M[0].d); choose(0);
+  });
+  // the trigger opens and closes the list; Escape closes it and gives the trigger the focus back
+  const open = v => { fold.classList.toggle('shut', !v); fold.inert = !v; tr.setAttribute('aria-expanded', v); };
+  tr.onclick = () => open(tr.getAttribute('aria-expanded') !== 'true');
+  c.on(r, 'keydown', e => { if (e.key === 'Escape' && tr.getAttribute('aria-expanded') === 'true'){ open(false); tr.focus({ preventScroll:true }); } });
+  paint();
+  // the preview's story: compare the meters, ask for Opus, find it busy, and take the close match on high thinking
+  c.story(async s => {
+    await s.beat(3);
+    await s.point($$('.mpk-m', rows[2])[2]); await s.beat(3);
+    await s.point($$('.mpk-m', rows[0])[1]); await s.beat(3);
+    await s.tap(rows[0]); s.away();
+    await s.until(() => !sgf.classList.contains('shut')); await s.beat(5);
+    await s.tap($('.mpk-use', r)); s.away();
+    await s.beat(4);
+  });
+});
+/* ---------- Answer action bar ---------- */
+DM.def('answer-action-bar', (r, c) => {
+  r.innerHTML = r.innerHTML.replace('{copy}', I('copy')).replace('{re}', I('refresh')).replace('{l}', I('chev-l','xs')).replace('{rr}', I('chev-r','xs'))
+    .replace('{up}', I('up-thumb')).replace('{dn}', I('down-thumb')).replace('{vol}', I('vol','xs'));
+  // the versions a regenerate writes, in turn. [[…]] marks what changed from the version before; $24 to $19 a month saves 21%
+  const POOL = [
+    { t:'Pro is $24 a month, or $19 a month when billed yearly. That saves 15%, and yearly is the option the new pricing page shows first.', meta:'Sonnet 5.5 · 6.2s' },
+    { t:'Pro is $24 a month, or $19 a month billed yearly, which saves [[21%, or $60 a year]]. The new pricing page shows the yearly price first.', meta:'Sonnet 5.5 · 4.8s' },
+    { t:'Billed yearly, Pro drops from $24 to $19 a month: [[$60 back each year]], about 21%. That is why the pricing page leads with yearly.', meta:'Sonnet 5.5 · 5.1s' }
+  ];
+  const t = $('.aab-t', r), pg = $('.aab-pg', r), n = $('.aab-n', r), pv = $('.aab-prev', r), nx = $('.aab-next', r), re = $('.aab-re', r), cp = $('.aab-cp', r);
+  const up = $('.aab-up', r), dn = $('.aab-dn', r), rd = $('.aab-rd', r), bar = $('.aab-pr i', r), tm = $('.aab-tm', r), meta = $('.aab-meta', r), why = $('.aab-why', r), st = $('.aab-st', r), chips = $$('.aab-ch .chip', r);
+  // every version keeps its own rating
+  const vers = [{ ...POOL[0], rate:'' }]; let cur = 0, busy = false, failOnce = false;
+  const plain = v => v.t.replace(/\[\[|\]\]/g, '');
+  // each word's HTML, with the space before it; inside the changed phrase the space is highlighted too, so the phrase reads as one
+  const words = v => { let on = false; return v.t.split(' ').map((w, i) => { const a = w.startsWith('[['), b = w.includes(']]'), inner = on && !a; if (a) on = true;
+    const s = (i ? `<span${inner ? ' class="nw"' : ''}> </span>` : '') + `<span class="w${on ? ' nw' : ''}">${w.replace(/\[\[|\]\]/g, '')}</span>`; if (b) on = false; return s; }); };
+  const status = (text, tone) => { st.className = 'aab-st muted' + (tone ? ' ' + tone : ''); if (tone === 'ok') { st.innerHTML = `${I('ok','xs')}<span>${text}</span>`; enter(st); } else swap(st, text); };
+  function nav(){
+    n.textContent = (cur + 1) + ' / ' + vers.length; pg.classList.toggle('on', vers.length > 1); pg.inert = vers.length < 2;
+    pv.disabled = cur === 0 || busy; nx.disabled = cur === vers.length - 1 || busy; re.disabled = busy;
+    up.setAttribute('aria-pressed', vers[cur].rate === 'up'); dn.setAttribute('aria-pressed', vers[cur].rate === 'down');
+    swap(meta, vers[cur].meta);
+  }
+  // a version streams in word by word; paging between versions shows one at once
+  async function stream(v){
+    t.classList.add('out'); await c.wait(260); t.classList.remove('out'); t.innerHTML = '';
+    const ws = words(v);
+    for (let i = 0; i < ws.length; i++){ t.insertAdjacentHTML('beforeend', ws[i]); t.lastElementChild.classList.add('in'); await c.wait(38); }
+  }
+  async function show(i){ stop(); cur = i; nav(); t.classList.add('out'); await c.wait(240); t.classList.remove('out'); t.innerHTML = words(vers[i]).join(''); $$('.w', t).forEach((w, k) => { w.classList.add('in'); w.style.animationDelay = k * 10 + 'ms'; }); }
+  pv.onclick = () => c.run(() => show(cur - 1));
+  nx.onclick = () => c.run(() => show(cur + 1));
+  // regenerate writes the next version; a dropped connection is retried once with a countdown
+  function regenerate(note){
+    if (busy) return; stop(); busy = true; re.classList.add('go'); c.later(700, () => re.classList.remove('go')); nav();
+    c.run(async () => {
+      if (failOnce){ failOnce = false;
+        status('Writing a new version' + (note ? ' with your note' : '')); st.classList.add('shim'); await c.wait(1200); st.classList.remove('shim');
+        for (let k = 2; k > 0; k--){ status(`Couldn't reach Sonnet 5.5. Retrying in ${k}s`, 'warn'); await c.wait(1000); }
+      }
+      status('Writing a new version' + (note ? ' with your note' : '')); st.classList.add('shim');
+      const v = { ...POOL[Math.min(vers.length, POOL.length - 1)], rate:'' }; vers.push(v); cur = vers.length - 1; nav();
+      await stream(v); busy = false; nav(); st.classList.remove('shim');
+      status(cur === 1 ? 'Version 2 fixes the saving: 21%, not 15%' : `Version ${cur + 1} of ${vers.length}`, 'ok');
+    });
+  }
+  re.onclick = () => regenerate();
+  cp.onclick = () => { copied(cp, plain(vers[cur])); status('Copied without the highlights', 'ok'); };
+  // thumbs: up is a quiet thanks; down asks why, and a reason writes a version that answers it
+  up.onclick = () => { const v = vers[cur]; v.rate = v.rate === 'up' ? '' : 'up'; why.classList.add('shut'); nav(); status(v.rate ? 'Thanks, noted for this project' : ''); };
+  dn.onclick = () => { const v = vers[cur]; v.rate = v.rate === 'down' ? '' : 'down'; why.classList.toggle('shut', v.rate !== 'down'); why.inert = v.rate !== 'down'; nav(); status(''); chips.forEach(x => x.classList.remove('on')); };
+  chips.forEach(ch => ch.onclick = () => { chips.forEach(x => x.classList.toggle('on', x === ch)); c.later(400, () => { why.classList.add('shut'); why.inert = true; failOnce = vers.length === 1; regenerate(ch.textContent); }); });
+  why.inert = true;
+  // read aloud: about 0.28s a word, each word lit as it's read, with a progress bar and a clock
+  let reading = 0, pos = 0;
+  const clock = s => Math.floor(s / 60) + ':' + String(Math.floor(s) % 60).padStart(2, '0');
+  const icon = k => { $('.ic', rd).innerHTML = I(k, 'xs'); };
+  // stop drops the place (a new version, another page); pause keeps it, so the bar, the clock and the lit word stay
+  function stop(){ if (reading) clearInterval(reading); reading = 0; pos = 0; rd.classList.remove('on', 'paused'); rd.setAttribute('aria-pressed', 'false'); rd.setAttribute('aria-label', 'Read aloud'); rd.dataset.tip = 'Read aloud'; icon('vol'); bar.style.width = '0%'; $$('.w.rd', t).forEach(w => w.classList.remove('rd')); }
+  function pause(){ clearInterval(reading); reading = 0; rd.classList.add('paused'); rd.setAttribute('aria-pressed', 'false'); rd.setAttribute('aria-label', 'Resume reading'); rd.dataset.tip = 'Resume'; icon('play'); }
+  rd.onclick = () => {
+    if (reading) return pause();
+    const ws = $$('.w', t); if (!ws.length || busy) return;
+    const total = ws.length * .28;
+    rd.classList.add('on'); rd.classList.remove('paused'); rd.setAttribute('aria-pressed', 'true'); rd.setAttribute('aria-label', 'Pause reading'); rd.dataset.tip = 'Pause'; icon('pause');
+    reading = c.every(100, () => {
+      pos += 100 / 280; const i = Math.min(ws.length - 1, Math.floor(pos));
+      ws.forEach((w, k) => w.classList.toggle('rd', k === i));
+      bar.style.width = Math.min(100, pos / ws.length * 100) + '%'; tm.textContent = clock(pos * .28) + ' / ' + clock(total);
+      if (pos >= ws.length) stop();
+    });
+  };
+  // Left and Right move between the toolbar's buttons, skipping any that are switched off
+  c.on($('.aab-bar', r), 'keydown', e => {
+    const k = { ArrowRight:1, ArrowLeft:-1 }[e.key]; if (!k) return;
+    const bs = $$('.aab-bar button', r).filter(b => !b.disabled && !b.closest('[inert]')), i = bs.indexOf(document.activeElement);
+    if (i < 0) return; e.preventDefault(); bs[(i + k + bs.length) % bs.length].focus({ preventScroll:true });
+  });
+  nav();
+  c.run(async () => { busy = true; nav(); await c.wait(300); await stream(vers[0]); busy = false; nav(); });
+  // the preview's story: listen, hear a wrong number, rate it down, say why, ride out a dropped connection, copy the fix
+  c.story(async s => {
+    await s.until(() => !busy); await s.beat(2);
+    await s.tap(rd); s.away(); await s.beat(7);
+    await s.tap(rd); await s.beat(1);
+    await s.tap(dn); s.away(); await s.beat(3);
+    await s.tap(chips[0]); s.away();
+    await s.until(() => vers.length > 1 && !busy); await s.beat(3);
+    await s.tap(cp); s.away(); await s.beat(1);
   });
 });
 /* ---------- Decision prompt ---------- */

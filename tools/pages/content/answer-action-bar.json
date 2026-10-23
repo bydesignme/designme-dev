@@ -1,0 +1,41 @@
+{
+  "summary": "Answer action bar is the row of actions under an agent's answer: copy, regenerate with a pager through the versions, thumbs up or down, and read aloud. A thumbs down asks why with a few reasons, a new version highlights what changed, and reading lights each word as it goes.",
+  "use": [
+    "Under every answer in a chat, when people need to copy, retry, rate or listen to it without leaving the thread.",
+    "When a regenerated answer should keep the earlier versions a click away, with what changed easy to spot.",
+    "When a thumbs down should capture a reason the agent can act on, not just a count.",
+    "When people listen to answers, and you want them to see where the voice is and pause on a word."
+  ],
+  "features": [
+    "Copy writes the answer's plain text to the clipboard, and its icon turns into a check with a \"Copied to clipboard\" tooltip for about 1.6 seconds.",
+    "Regenerate calls `onRegenerate` and spins. With a second version, a pager slides in with previous and next and a count like \"2 / 2\". While `streaming`, new words fade in, and paging and reading wait.",
+    "A version's `changed` phrase is highlighted in green, so a new version shows what it fixed. Its `meta` sits after the bar, like \"Sonnet 5.5 · 4.8s\".",
+    "Thumbs up and down are toggles, one rating per version. A thumbs down opens \"What was off?\" with `reasons`, which default to Wrong numbers, Too long, Not our tone and Missed the brief. Picking one calls `onReason` and closes it.",
+    "Read aloud widens into a progress bar and a clock, like \"0:04 / 0:07\", and lights each word in turn, 0.28 seconds a word by default. Pressing it again pauses and keeps the place; it doesn't speak, so connect your own text to speech through `reading` and `onReadingChange`.",
+    "`status` adds a quiet line under the bar. `statusTone` turns it amber for a problem like a dropped connection, or gives it a green check once something worked."
+  ],
+  "a11y": [
+    "The buttons sit in a toolbar labelled \"Answer actions\", and each has its own label, like \"Copy\" or \"Previous version\". Left and Right move between them, skipping any that are switched off.",
+    "The thumbs use `aria-pressed`, and so does read aloud while it plays. Its label changes between Read aloud, Pause reading and Resume reading.",
+    "The answer, the version count and the status line are live regions, so a new version or a retry is announced.",
+    "The reasons after a thumbs down are plain buttons in the tab order."
+  ],
+  "faq": [
+    {
+      "q": "Does read aloud speak the answer?",
+      "a": "No. It runs a clock that lights each word in turn and shows the progress. Drive `reading` from your own text to speech, and set `secondsPerWord` to match its pace."
+    },
+    {
+      "q": "How do I show what a new version changed?",
+      "a": "Pass the changed phrase as the version's `changed`. It must appear in the text exactly as written, and the words it covers are highlighted."
+    },
+    {
+      "q": "Where do the ratings go?",
+      "a": "`onRate` is called with the version's index and `'up'`, `'down'` or `null` when a thumb is pressed again. Pass `rating` on each version to control them, or leave it out and the bar keeps one rating per version itself."
+    },
+    {
+      "q": "Can I hide regenerate?",
+      "a": "Yes. Leave out `onRegenerate` and the button isn't shown. The pager still appears whenever there are two or more versions."
+    }
+  ]
+}
