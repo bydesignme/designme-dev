@@ -205,6 +205,10 @@ Tweak a component by hand or let the agent tune it.
 The agent asks before it touches something new.  
 `title`, `subtitle`, `icon`, `scopes: { key, label, detail?, risk?, riskDetail? }[]` (`riskDetail` is what the risk tag shows on hover), `value` / `defaultValue` / `onValueChange` (the ticked keys), `durations` (picked from a small dropdown in the footer), `durationDetails` (the line under each in its menu), `duration` / `defaultDuration` / `onDurationChange`, `status` / `defaultStatus` / `onStatusChange` (`'asking' | 'allowed' | 'declined'`), `onAllow(keys, duration)` (return a promise and the button spins until it settles), `onDecline`, `onRevoke`, `onUndo`, `allowedTitle` and `allowedDetail` (the two lines once allowed; both crossfade), `working` (a spinner on a neutral row while the agent works under the permission), `meta` (quiet text at the end of that row, like an elapsed time), `followUp` (a second ask mid-run for one more scope: the icon tile turns amber), `declineLabel` (defaults to Not now), `declinedTitle`, `declinedDetail`, `bare` (on by default: it sits in the chat with no card; `false` draws the card).
 
+**HumanHandoff** · `human-handoff/HumanHandoff.tsx`  
+The agent hands a conversation to a person, with what they need to pick it up.  
+`title`, `reason` (why it handed off), `assignee: { name, initials?, color?, team?, presence?, tone?: 'ok' | 'warn' } | null` (null while it finds someone; `finding: { title, detail? }` fills the row meanwhile), `people` (adds Reassign, a small menu of who else can take it) and `onReassign(person)`, `secondsLeft` ("Reply due in 14 min", amber under five minutes, overdue at 0) and `targetSeconds` (the bar's whole window, 900 by default), `summary`, `facts: { label, value }[]`, `link: { label, href?, onClick?, tip? }` (the whole conversation), `message` and `messageLabel` (what the customer was told), `onMessageChange(text)` (adds Edit; the message turns editable, then Save or Cancel), `edited`, `status: { tone?: 'wait' | 'warn' | 'ok', title, detail?, person? }` (the row at the foot: a spinner while it waits, amber with an alert, green with the person's avatar), `labels`. The two columns stack below 600px.
+
 **LaunchChecklist** · `launch-checklist/LaunchChecklist.tsx`  
 The agent checks a design before it ships, and fixes what fails.  
 `checks: { label, state: 'wait' | 'run' | 'ok' | 'bad', note?, onFix? }[]`, `title`, `status`, `action: { label, icon?, accent?, disabled?, onClick }`, `bare`.
@@ -254,6 +258,10 @@ Agent tasks in a sortable table with bulk actions.
 **CodeViewer** · `code-viewer/CodeViewer.tsx`  
 Code the agent wrote, with line notes you can ask about.  
 `files: { name, lines: { code, changed?, note? }[] }[]` (`code` is a string or tokens `[kind, text]` with kind `k | s | f | cm | tg | at`), `file` / `defaultFile` / `onFileChange`, `line` / `defaultLine` / `onLineChange` (the line whose note is open), `delay`, `unchangedNote`, `onCopy(text)`.
+
+**TerminalStream** · `terminal-stream/TerminalStream.tsx`  
+Shell commands the agent runs, with their output as it streams in.  
+`cwd`, `entries` (oldest first: a command `{ command, output?, status: 'running' | 'ok' | 'failed' | 'stopped', exitCode?, duration? }`, a note `{ kind: 'note', text }` for what the agent says between commands, or an edit `{ kind: 'edit', file, added?, removed?, status?: 'running' | 'done' | 'stopped' }`; an output line is a string or `{ text, tone?: 'ok' | 'bad' | 'muted' }`), `status: 'running' | 'passed' | 'failed' | 'stopped'` (left out, it follows the entries), `elapsed` (beside Running in the header, and in the summary), `summary` (defaults to "3 commands · 0:18 · passed", counting each command once however many times it ran; `false` hides it), `tail` (output longer than `tail` + 1 lines folds to its last `tail`, 4 by default, behind "Show 24 more lines"), `onStop` (adds Stop while it runs), `onCopy(text)`, `labels`. Output wraps inside the panel, so long lines never scroll the page sideways.
 
 **DetailsPanel** · `details-panel/DetailsPanel.tsx`  
 Properties of a run you can change in place.  
