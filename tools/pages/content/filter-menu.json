@@ -1,0 +1,36 @@
+{
+  "summary": "Filter menu is the filter bar above a list. A Filter button opens a menu in two steps, a field and then its value, and each filter in use shows as a chip that reads like a sentence, \"Status is Open\". A chip's operator flips with a click, its × takes it off, and the count of matches and Clear all sit under the chips.",
+  "use": [
+    "When a list can be narrowed by a few known fields, like status, owner or date.",
+    "When people should see at a glance which filters are on, and take one off without opening a menu.",
+    "When the number of matches matters, so people know how far a filter narrowed the list before they read it.",
+    "When a filter sometimes needs to read the other way, like \"is not\" or \"older than\"."
+  ],
+  "features": [
+    "The menu's first step lists the fields, each with its icon and, once used, its value. Picking one shows its values, with a back row to return.",
+    "Each value can show how many items picking it would leave, with the other filters kept (`countFor`). The value in use is checked.",
+    "One filter per field: picking a new value for a field replaces the old one. A new chip pops in; the ones already there keep still.",
+    "Clicking a chip's operator flips it between the field's two `operators`, \"is\" and \"is not\" by default, or \"within\" and \"older than\" for a date.",
+    "The count reads \"24 issues\", or \"4 of 24 issues\" once a filter is on, and crossfades as it changes. Clear all takes every filter off. The first few matches show under it, with \"and 5 more\" for the rest, or a line saying nothing matches."
+  ],
+  "a11y": [
+    "The Filter button has `aria-haspopup=\"menu\"` and `aria-expanded`. Enter, Space or the down arrow opens the menu on its first field, the up arrow on its last.",
+    "Each step is a `role=\"menu\"`. Fields are `menuitem`s with `aria-haspopup=\"menu\"`, and values are `menuitemradio` items with `aria-checked`.",
+    "Inside, the arrow keys move and wrap, Home and End jump to the ends, the right arrow opens a field's values and the left arrow goes back. Escape closes the menu and gives the focus back to the Filter button; picking a value does too.",
+    "The chips are a list named \"Filters\". Each operator and × button is labelled with the whole filter, like \"Remove filter Status is Open\". The count is a polite live region."
+  ],
+  "faq": [
+    {
+      "q": "Does it filter my data?",
+      "a": "No. It keeps the filters and calls `onFiltersChange`. Filter your own data with them, and pass back `count`, `total` and the first few `results`."
+    },
+    {
+      "q": "Can a field take several values, like Status is Open or In progress?",
+      "a": "Not as built: each field holds one value, and a new pick replaces it. For several, keep a list of values per field in your own state and show it in the chip's `chip` text."
+    },
+    {
+      "q": "Can I add my own fields?",
+      "a": "Yes. Each field in `fields` has a `key`, a `label`, an optional `icon`, its two `operators`, and its `options`, each with an optional `glyph` like a dot or an avatar."
+    }
+  ]
+}

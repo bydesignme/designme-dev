@@ -24,7 +24,7 @@ const MAP = {
   c62:'event-calendar', c63:'agenda', c49:'buttons', c52:'tooltip', c53:'search-input', c57:'country-select', c51:'social-signin',
   c55:'sign-in', c50:'form', c64:'payment-form', c54:'comments', c56:'notifications', c61:'invite', c59:'reactions', c104:'ticket-list',
   c101:'kanban', c70:'pricing-cards', c72:'onboarding-checklist', c73:'stepper', c74:'set-limit', c75:'currency-converter',
-  c110:'tool-connections', c111:'design-review', c112:'model-picker', c113:'answer-action-bar', c120:'inline-text-diff', c121:'draft-review', c114:'agent-tree', c115:'agent-inbox', c122:'voice-orb', c123:'prompt-library', c116:'steering', c117:'eval-results', c131:'knowledge-sources', c132:'scheduled-runs', c124:'segmented-control', c125:'otp-field', c126:'multi-select'
+  c110:'tool-connections', c111:'design-review', c112:'model-picker', c113:'answer-action-bar', c120:'inline-text-diff', c121:'draft-review', c114:'agent-tree', c115:'agent-inbox', c122:'voice-orb', c123:'prompt-library', c116:'steering', c117:'eval-results', c131:'knowledge-sources', c132:'scheduled-runs', c124:'segmented-control', c125:'otp-field', c126:'multi-select', c127:'profile-menu', c128:'filter-menu'
 };
 // cards the original page never had: each is cut from a sibling card's markup, renamed, and placed after it
 const EXTRA = [
@@ -44,7 +44,9 @@ const EXTRA = [
   { cid:'c132', id:'scheduled-runs', reg:'scheduled-runs', title:'Scheduled runs', section:'Workspace', after:'c131', icon:'schedule' },
   { cid:'c124', id:'segmented-control', reg:'segmented-control', title:'Segmented control', section:'Dates', after:'c46', icon:'splitscreen' },
   { cid:'c125', id:'otp-field', reg:'otp-field', title:'OTP field', section:'Forms and inputs', after:'c55', icon:'lock' },
-  { cid:'c126', id:'multi-select', reg:'multi-select', title:'Multi-select', section:'Forms and inputs', after:'c57', icon:'tag' }
+  { cid:'c126', id:'multi-select', reg:'multi-select', title:'Multi-select', section:'Forms and inputs', after:'c57', icon:'tag' },
+  { cid:'c127', id:'profile-menu', reg:'profile-menu', title:'Profile menu', section:'Collaboration', after:'c59', icon:'person' },
+  { cid:'c128', id:'filter-menu', reg:'filter-menu', title:'Filter menu', section:'Collaboration', after:'c127', icon:'filter_list' }
 ];
 
 /* ---------- read the Soft 2 page ---------- */

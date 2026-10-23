@@ -9,7 +9,8 @@
 .otp-in .sep{flex:none;width:8px;height:1.5px;border-radius:1px;background:var(--rail);margin:0 2px}
 .otp-d{flex:1 1 0;min-width:0;max-width:40px;height:48px;padding:0;border:0;outline:0;border-radius:11px;background:var(--chip);text-align:center;font:inherit;font-family:var(--mono);font-size:14px;font-weight:500;color:var(--fg);caret-color:var(--accent-mark,var(--accent));transition:box-shadow .25s,background .25s,color .25s,transform .25s var(--ease)}
 .otp-d:focus,.otp-d.f{background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--accent-mark,var(--accent)),0 0 0 4px var(--accent-bg)}
-.otp-d.pop{transform:scale(1.06)}
+/* (not .pop, which is the shared popover class and would hide the box) */
+.otp-d.bump{transform:scale(1.06)}
 .otp-in.vf .otp-d{color:var(--fg2)}
 .otp-in.bad .otp-d{background:var(--bad-bg);color:var(--bad);box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--bad) 55%,transparent)}
 .otp-in.bad{animation:otpsh .42s}
@@ -191,7 +192,7 @@ export function OtpField({ title = &#39;Check your email&#39;, description, icon
         {digits.map((d, i) =&gt; (
           &lt;span key={i} style={{ display: &#39;contents&#39; }}&gt;
             {i === half &amp;&amp; &lt;span className=&quot;dm-sep&quot; aria-hidden=&quot;true&quot; /&gt;}
-            &lt;input ref={el =&gt; { ins.current[i] = el; }} className={cx(&#39;dm-otp-d&#39;, popped === i &amp;&amp; &#39;dm-pop&#39;)} value={d} readOnly={locked}
+            &lt;input ref={el =&gt; { ins.current[i] = el; }} className={cx(&#39;dm-otp-d&#39;, popped === i &amp;&amp; &#39;dm-bump&#39;)} value={d} readOnly={locked}
               inputMode=&quot;numeric&quot; pattern=&quot;[0-9]*&quot; maxLength={1} autoComplete={i ? &#39;off&#39; : &#39;one-time-code&#39;} aria-label={`Digit ${i + 1} of ${length}`}
               aria-invalid={status === &#39;error&#39; || undefined} onKeyDown={onKey(i)} onFocus={e =&gt; e.target.select()}
               onChange={e =&gt; { const v = e.target.value.replace(/\D/g, &#39;&#39;); if (v.length &gt; 1) fill(v); else if (v) put(i, v); }}
@@ -206,7 +207,7 @@ export function OtpField({ title = &#39;Check your email&#39;, description, icon
     &lt;/div&gt;
   );
 }
-</code></pre></details><details class="cp-file"><summary>otp-field.css<span class="l">React · 25 lines</span></summary><pre class="cp-pre"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+</code></pre></details><details class="cp-file"><summary>otp-field.css<span class="l">React · 26 lines</span></summary><pre class="cp-pre"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- OTP field ---------- */
 /* a one-time code, one box per digit: typing moves along, Backspace moves back, and a paste fills every box. A wrong
    code shakes and turns red; typing again starts it over */
@@ -218,7 +219,8 @@ export function OtpField({ title = &#39;Check your email&#39;, description, icon
 .dm-otp-in .dm-sep{flex:none;width:8px;height:1.5px;border-radius:1px;background:var(--dm-rail);margin:0 2px}
 .dm-otp-d{flex:1 1 0;min-width:0;max-width:40px;height:48px;padding:0;border:0;outline:0;border-radius:11px;background:var(--dm-chip);text-align:center;font:inherit;font-family:var(--dm-mono);font-size:14px;font-weight:500;color:var(--dm-fg);caret-color:var(--dm-accent-mark,var(--dm-accent));transition:box-shadow .25s,background .25s,color .25s,transform .25s var(--dm-ease)}
 .dm-otp-d:focus,.dm-otp-d.dm-f{background:var(--dm-surface);box-shadow:inset 0 0 0 1.5px var(--dm-accent-mark,var(--dm-accent)),0 0 0 4px var(--dm-accent-bg)}
-.dm-otp-d.dm-pop{transform:scale(1.06)}
+/* (not .pop, which is the shared popover class and would hide the box) */
+.dm-otp-d.dm-bump{transform:scale(1.06)}
 .dm-otp-in.dm-vf .dm-otp-d{color:var(--dm-fg2)}
 .dm-otp-in.dm-bad .dm-otp-d{background:var(--dm-bad-bg);color:var(--dm-bad);box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--dm-bad) 55%,transparent)}
 .dm-otp-in.dm-bad{animation:dm-otpsh .42s}
@@ -243,7 +245,7 @@ export function OtpField({ title = &#39;Check your email&#39;, description, icon
 &lt;/div&gt;
   &lt;/template&gt;
 &lt;/div&gt;
-</code></pre></details><details class="cp-file"><summary>otp-field.css<span class="l">HTML · 24 lines</span></summary><pre class="cp-pre"><code>/* ---------- OTP field ---------- */
+</code></pre></details><details class="cp-file"><summary>otp-field.css<span class="l">HTML · 25 lines</span></summary><pre class="cp-pre"><code>/* ---------- OTP field ---------- */
 /* a one-time code, one box per digit: typing moves along, Backspace moves back, and a paste fills every box. A wrong
    code shakes and turns red; typing again starts it over */
 .otp{position:relative;width:100%;max-width:360px;margin:0 auto;padding:22px 20px 18px;display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center}
@@ -254,7 +256,8 @@ export function OtpField({ title = &#39;Check your email&#39;, description, icon
 .otp-in .sep{flex:none;width:8px;height:1.5px;border-radius:1px;background:var(--rail);margin:0 2px}
 .otp-d{flex:1 1 0;min-width:0;max-width:40px;height:48px;padding:0;border:0;outline:0;border-radius:11px;background:var(--chip);text-align:center;font:inherit;font-family:var(--mono);font-size:14px;font-weight:500;color:var(--fg);caret-color:var(--accent-mark,var(--accent));transition:box-shadow .25s,background .25s,color .25s,transform .25s var(--ease)}
 .otp-d:focus,.otp-d.f{background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--accent-mark,var(--accent)),0 0 0 4px var(--accent-bg)}
-.otp-d.pop{transform:scale(1.06)}
+/* (not .pop, which is the shared popover class and would hide the box) */
+.otp-d.bump{transform:scale(1.06)}
 .otp-in.vf .otp-d{color:var(--fg2)}
 .otp-in.bad .otp-d{background:var(--bad-bg);color:var(--bad);box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--bad) 55%,transparent)}
 .otp-in.bad{animation:otpsh .42s}
@@ -277,7 +280,7 @@ export function OtpField({ title = &#39;Check your email&#39;, description, icon
   let state = &#39;idle&#39;, tries = 3;
   const say = (h, cls) =&gt; { msg.className = &#39;otp-m&#39; + (cls ? &#39; &#39; + cls : &#39;&#39;); msg.innerHTML = h; if (h) enter(msg); };
   const code = () =&gt; ins.map(i =&gt; i.value).join(&#39;&#39;);
-  const pop = el =&gt; { el.classList.add(&#39;pop&#39;); c.later(160, () =&gt; el.classList.remove(&#39;pop&#39;)); };
+  const pop = el =&gt; { el.classList.add(&#39;bump&#39;); c.later(160, () =&gt; el.classList.remove(&#39;bump&#39;)); };
   // a wrong code stays red until you type again, which starts it over
   function fresh(){ if (state !== &#39;bad&#39;) return; state = &#39;idle&#39;; box.classList.remove(&#39;bad&#39;); ins.forEach(i =&gt; { i.value = &#39;&#39;; i.removeAttribute(&#39;aria-invalid&#39;); }); say(&#39;&#39;); }
   function put(i, d){ fresh(); ins[i].value = d; pop(ins[i]); if (code().length === 6) verify(); }
@@ -371,7 +374,7 @@ export function OtpField({ title = &#39;Check your email&#39;, description, icon
   let state = 'idle', tries = 3;
   const say = (h, cls) => { msg.className = 'otp-m' + (cls ? ' ' + cls : ''); msg.innerHTML = h; if (h) enter(msg); };
   const code = () => ins.map(i => i.value).join('');
-  const pop = el => { el.classList.add('pop'); c.later(160, () => el.classList.remove('pop')); };
+  const pop = el => { el.classList.add('bump'); c.later(160, () => el.classList.remove('bump')); };
   // a wrong code stays red until you type again, which starts it over
   function fresh(){ if (state !== 'bad') return; state = 'idle'; box.classList.remove('bad'); ins.forEach(i => { i.value = ''; i.removeAttribute('aria-invalid'); }); say(''); }
   function put(i, d){ fresh(); ins[i].value = d; pop(ins[i]); if (code().length === 6) verify(); }

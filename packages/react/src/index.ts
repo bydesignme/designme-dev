@@ -89,6 +89,8 @@ export * from './components/comments/Comments';
 export * from './components/notifications/Notifications';
 export * from './components/invite-to-collaborate/InviteToCollaborate';
 export * from './components/reactions/Reactions';
+export * from './components/profile-menu/ProfileMenu';
+export * from './components/filter-menu/FilterMenu';
 export * from './components/ticket-list/TicketList';
 export * from './components/kanban-board/KanbanBoard';
 export * from './components/pricing-cards/PricingCards';

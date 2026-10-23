@@ -2,7 +2,7 @@
 import type { ReactElement } from 'react';
 import { cx } from './cx';
 
-export type IconName = 'minus' | 'plus' | 'x' | 'check' | 'chev-r' | 'chev-l' | 'chev-d' | 'chev-u' | 'up' | 'right' | 'search' | 'folder' | 'laptop' | 'cloud' | 'mic' | 'file' | 'file-text' | 'image' | 'clip' | 'at' | 'slash' | 'spark' | 'bolt' | 'pr' | 'merge' | 'branch' | 'warn' | 'info' | 'alert' | 'ok' | 'clock' | 'play' | 'pause' | 'stop' | 'refresh' | 'copy' | 'ext' | 'link' | 'eye' | 'lock' | 'shield' | 'user' | 'users' | 'bell' | 'cal' | 'gear' | 'sliders' | 'trash' | 'edit' | 'more' | 'up-thumb' | 'down-thumb' | 'term' | 'code' | 'globe' | 'db' | 'table' | 'chart' | 'bars' | 'layers' | 'grid' | 'list' | 'filter' | 'sort' | 'pin' | 'star' | 'bookmark' | 'send' | 'mail' | 'home' | 'cmd' | 'cpu' | 'coins' | 'gauge' | 'flag' | 'wand' | 'book' | 'down' | 'upload' | 'monitor' | 'grip' | 'figma' | 'react' | 'undo' | 'history' | 'brain' | 'dollar' | 'heart' | 'smile' | 'hash' | 'panel' | 'max' | 'wave' | 'vol' | 'target' | 'rocket' | 'palette';
+export type IconName = 'minus' | 'plus' | 'x' | 'check' | 'chev-r' | 'chev-l' | 'chev-d' | 'chev-u' | 'up' | 'right' | 'search' | 'folder' | 'laptop' | 'cloud' | 'mic' | 'file' | 'file-text' | 'image' | 'clip' | 'at' | 'slash' | 'spark' | 'bolt' | 'pr' | 'merge' | 'branch' | 'warn' | 'info' | 'alert' | 'ok' | 'clock' | 'play' | 'pause' | 'stop' | 'refresh' | 'copy' | 'ext' | 'link' | 'eye' | 'lock' | 'shield' | 'user' | 'users' | 'bell' | 'cal' | 'gear' | 'sliders' | 'trash' | 'edit' | 'more' | 'up-thumb' | 'down-thumb' | 'term' | 'code' | 'globe' | 'db' | 'table' | 'chart' | 'bars' | 'layers' | 'grid' | 'list' | 'filter' | 'sort' | 'pin' | 'star' | 'bookmark' | 'send' | 'mail' | 'home' | 'cmd' | 'cpu' | 'coins' | 'gauge' | 'flag' | 'wand' | 'book' | 'down' | 'upload' | 'monitor' | 'grip' | 'figma' | 'react' | 'undo' | 'history' | 'brain' | 'dollar' | 'heart' | 'smile' | 'hash' | 'panel' | 'max' | 'wave' | 'vol' | 'target' | 'rocket' | 'palette' | 'moon' | 'keyboard' | 'logout';
 
 const SHAPES: Record<IconName, ReactElement> = {
   'minus': <><path d="M5 12h14"/></>,
@@ -101,7 +101,10 @@ const SHAPES: Record<IconName, ReactElement> = {
   'vol': <><path d="M5 9.5h3.5L13 5v14l-4.5-4.5H5zM16.5 9a4 4 0 0 1 0 6M19 6.5a7.5 7.5 0 0 1 0 11"/></>,
   'target': <><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r=".8"/></>,
   'rocket': <><path d="M5 15c-1.5 1-2 3.5-2 6 2.5 0 5-.5 6-2M14.5 4.5c3-1.3 5.4-1.2 5.4-1.2s.1 2.4-1.2 5.4c-1.3 3-4.7 6.6-8.2 8.5l-3.2-3.2c1.9-3.5 5.5-6.9 7.2-9.5z"/><circle cx="15" cy="9" r="1.5"/></>,
-  'palette': <><path d="M12 3.5a8.5 8.5 0 0 0 0 17c1.4 0 1.8-1 1.4-2-.5-1.2.3-2.5 1.6-2.5h2a3.5 3.5 0 0 0 3.5-3.5c0-5-3.8-9-8.5-9z"/><circle cx="7.8" cy="11" r="1"/><circle cx="10.5" cy="7.3" r="1"/><circle cx="15" cy="7.5" r="1"/></>
+  'palette': <><path d="M12 3.5a8.5 8.5 0 0 0 0 17c1.4 0 1.8-1 1.4-2-.5-1.2.3-2.5 1.6-2.5h2a3.5 3.5 0 0 0 3.5-3.5c0-5-3.8-9-8.5-9z"/><circle cx="7.8" cy="11" r="1"/><circle cx="10.5" cy="7.3" r="1"/><circle cx="15" cy="7.5" r="1"/></>,
+  'moon': <><path d="M19.5 14.2A7.8 7.8 0 0 1 9.8 4.5a7.8 7.8 0 1 0 9.7 9.7z"/></>,
+  'keyboard': <><rect x="2.5" y="6" width="19" height="12" rx="2"/><path d="M6.5 10h.01M10 10h.01M14 10h.01M17.5 10h.01M8 14h8"/></>,
+  'logout': <><path d="M14 4.5H7a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h7M10.5 12H20M16.5 8.5 20 12l-3.5 3.5"/></>
 };
 const BOXES: Partial<Record<IconName, string>> = { };
 

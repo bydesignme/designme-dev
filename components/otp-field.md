@@ -230,7 +230,7 @@ export function OtpField({ title = 'Check your email', description, icon = 'mail
         {digits.map((d, i) => (
           <span key={i} style={{ display: 'contents' }}>
             {i === half && <span className="dm-sep" aria-hidden="true" />}
-            <input ref={el => { ins.current[i] = el; }} className={cx('dm-otp-d', popped === i && 'dm-pop')} value={d} readOnly={locked}
+            <input ref={el => { ins.current[i] = el; }} className={cx('dm-otp-d', popped === i && 'dm-bump')} value={d} readOnly={locked}
               inputMode="numeric" pattern="[0-9]*" maxLength={1} autoComplete={i ? 'off' : 'one-time-code'} aria-label={`Digit ${i + 1} of ${length}`}
               aria-invalid={status === 'error' || undefined} onKeyDown={onKey(i)} onFocus={e => e.target.select()}
               onChange={e => { const v = e.target.value.replace(/\D/g, ''); if (v.length > 1) fill(v); else if (v) put(i, v); }}
