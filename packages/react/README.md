@@ -6,7 +6,7 @@ They use the same markup and the same CSS as the site, so they look and move exa
 
 All 81 components are here, from Status pill to Currency converter, each with an example that replays its demo from the site.
 
-Preview: https://designme.dev/packages/react/preview/
+Each one has a page on designme.dev with its demo, its React usage, its props and its code, at `https://designme.dev/components/<name>`. To see them all running locally, run `npm run dev` here.
 
 ## Add them to a project
 
@@ -423,9 +423,9 @@ The components are built from a few small pieces in `src/lib`, exported from `sr
 The CSS and the icons are generated from the site's component registry, so a design change on designme.dev reaches these components with one command:
 
 ```sh
-npm install      # only needed for the preview and the type check
+npm install      # only needed for the playground and the type check
 npm run sync     # copies the latest styles, icons, logos and flags from ../../r and rewrites src/index.ts
 npm run check    # type check
-npm run build    # rebuilds preview/
+npm run dev      # the playground: every component with its example, at localhost
 npm run registry # rewrites ../../r/react, what npx designme add --react installs
 ```

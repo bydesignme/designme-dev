@@ -2,10 +2,11 @@
 // The frame every page shares: head and metadata, the header and the footer, set in the homepage's type and colours.
 // Colours are --pg- tokens, so they never collide with the components' own tokens on the same page.
 // Text styles (the same as the homepage's):
-//   .pg-h1   the page heading, 26px semibold (24px on phones)
-//   .pg-lead the line under it, 14.5px in grey
-//   .pg-sh   a section header: a small number, a 17px heading and a 14px line, with a full-width line under it
-//   .pg-t    a component's name, 14px semibold; .pg-d its description, 13px in a lighter grey
+//   .pg-h1   the page heading, 24px medium
+//   .pg-lead the line under it, 14px in grey
+//   .pg-sh   a section header: a small number and a 14px heading, the 14px line under them, and a rule under the column
+//   .pg-t    a component's name, 14px medium; .pg-d its description, 14px in grey
+// Everything else is 14px too. The header, the bars and the content share one centred column (.pg-wrap)
 import { LOGO, SITE } from '../lib/data.mjs';
 const { title, description, path, jsonld = [], image = '/og.png' } = Astro.props;
 const url = SITE + path;
@@ -31,7 +32,7 @@ const url = SITE + path;
 <link rel="alternate" type="text/plain" title="All components for AI tools" href="/llms.txt">
 <link rel="preload" href="/fonts/inter-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/fonts/inter-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin>
-<script is:inline>try{var t=localStorage.getItem('dmui-theme');if(t)document.documentElement.setAttribute('data-theme',t);var s=localStorage.getItem('dmui-style');if(s==='soft')document.documentElement.setAttribute('data-style','soft')}catch(e){}</script>
+<script is:inline>try{var t=localStorage.getItem('dmui-theme');if(t)document.documentElement.setAttribute('data-theme',t);var s=localStorage.getItem('dmui-style')||'soft';if(s==='soft')document.documentElement.setAttribute('data-style','soft')}catch(e){}</script>
 {jsonld.map(j => <script type="application/ld+json" is:inline set:html={JSON.stringify(j)} />)}
 <slot name="head" />
 <style is:inline>
@@ -48,26 +49,27 @@ const url = SITE + path;
 :root[data-theme="dark"]{--pg-bg:#0b0c0f;--pg-fg:#ededee;--pg-dim:#a1a3ab;--pg-muted:#76787f;--pg-line:rgba(255,255,255,.08);--pg-line2:rgba(255,255,255,.14);--pg-soft:#16171b;--pg-chip:rgba(255,255,255,.06);--pg-ink:#f5f5f4;--pg-on-ink:#111318;--pg-top:rgba(11,12,15,.86);color-scheme:dark}
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%;scroll-padding-top:calc(var(--pg-head) + 64px)}
-body{margin:0;background:var(--pg-bg);color:var(--pg-fg);font:14.5px/1.6 var(--pg-sans);letter-spacing:-.006em;-webkit-font-smoothing:antialiased}
+body{margin:0;background:var(--pg-bg);color:var(--pg-fg);font:14px/1.6 var(--pg-sans);letter-spacing:-.006em;-webkit-font-smoothing:antialiased}
 a{color:inherit}
 :focus-visible{outline:2px solid var(--pg-fg);outline-offset:2px}
 
-/* header: full width, as on the homepage */
-.pg-top{position:sticky;top:0;z-index:50;height:var(--pg-head);background:var(--pg-top);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-bottom:1px solid var(--pg-line)}
-.pg-top-in{height:100%;padding:0 32px;display:flex;align-items:center;gap:6px}
+/* header: its logo, links and switches sit in the content's column, and so does the line under it */
+.pg-top{position:sticky;top:0;z-index:50;height:var(--pg-head);background:var(--pg-top);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
+.pg-top-in{height:100%;max-width:1160px;margin:0 auto;padding:0 32px;display:flex;align-items:center;gap:6px;position:relative}
+.pg-top-in::after{content:"";position:absolute;left:32px;right:32px;bottom:0;height:1px;background:var(--pg-line)}
 .pg-logo{display:block;color:var(--pg-fg);margin-right:48px}
 .pg-logo svg{display:block;height:22px;width:auto}
 .pg-nav{display:flex;gap:4px}
-.pg-nav a{display:inline-flex;align-items:center;height:32px;padding:0 10px;border-radius:999px;font-size:13.5px;font-weight:500;color:var(--pg-dim);text-decoration:none;transition:color .2s,background-color .2s}
+.pg-nav a{display:inline-flex;align-items:center;height:28px;padding:0 10px;border-radius:8px;font-size:14px;font-weight:400;color:var(--pg-dim);text-decoration:none;transition:color .2s,background-color .2s}
 .pg-nav a:hover{color:var(--pg-fg);background:var(--pg-chip)}
 .pg-nav a[aria-current="page"]{color:var(--pg-fg)}
 .pg-sp{flex:1}
-.pg-seg{display:inline-flex;padding:3px;border-radius:999px;background:var(--pg-chip)}
-.pg-seg button{height:26px;padding:0 12px;border:0;border-radius:999px;background:none;color:var(--pg-dim);font:500 12.5px/1 var(--pg-sans);cursor:pointer;transition:color .2s}
+.pg-seg{display:inline-flex;padding:2px;border-radius:999px;background:var(--pg-chip)}
+.pg-seg button{height:24px;padding:0 10px;border:0;border-radius:999px;background:none;color:var(--pg-dim);font:500 13px/1 var(--pg-sans);cursor:pointer;transition:color .2s}
 .pg-seg button:hover{color:var(--pg-fg)}
 .pg-seg button[aria-pressed="true"]{background:var(--pg-bg);color:var(--pg-fg);box-shadow:0 1px 2px rgba(17,19,24,.08),0 0 0 .5px rgba(17,19,24,.06)}
-.pg-seg svg{display:block;width:15px;height:15px}
-.pg-seg.icons button{width:32px;padding:0;display:grid;place-items:center}
+.pg-seg svg{display:block;width:14px;height:14px}
+.pg-seg.icons button{width:26px;padding:0;display:grid;place-items:center}
 
 /* the page column: the width the homepage's content has */
 .pg-wrap{max-width:1160px;margin:0 auto;padding:0 32px}
@@ -75,8 +77,8 @@ a{color:inherit}
 .pg-crumbs{display:flex;flex-wrap:wrap;gap:6px;font-size:13px;color:var(--pg-muted)}
 .pg-crumbs a{color:var(--pg-dim);text-decoration:none}
 .pg-crumbs a:hover{color:var(--pg-fg)}
-.pg-h1{margin:14px 0 0;font-size:26px;line-height:1.2;font-weight:600;letter-spacing:-.022em;color:var(--pg-fg);text-wrap:balance}
-.pg-lead{margin:8px 0 0;font-size:14.5px;line-height:1.6;color:var(--pg-dim);max-width:72ch}
+.pg-h1{margin:14px 0 0;font-size:24px;line-height:1.25;font-weight:500;letter-spacing:-.022em;color:var(--pg-fg);text-wrap:balance}
+.pg-lead{margin:8px 0 0;font-size:14px;line-height:1.6;color:var(--pg-dim);max-width:72ch}
 .pg-lead code,.pg-code{font:500 12.5px/1.4 var(--pg-mono);font-variant-ligatures:none;background:var(--pg-chip);padding:2px 6px;border-radius:6px;color:var(--pg-fg)}
 /* the install line under a heading, like the homepage's */
 .pg-cmd{display:inline-flex;align-items:center;gap:8px;height:32px;margin:16px 0 0;padding:0 6px 0 10px;border-radius:9px;box-shadow:inset 0 0 0 1px var(--pg-line2);background:var(--pg-bg);font:500 12px/1 var(--pg-mono);font-variant-ligatures:none;max-width:100%}
@@ -85,35 +87,37 @@ a{color:inherit}
 .pg-cmd button{display:grid;place-items:center;width:24px;height:24px;border:0;border-radius:6px;background:none;color:var(--pg-muted);cursor:pointer}
 .pg-cmd button:hover{color:var(--pg-fg);background:var(--pg-chip)}
 .pg-cmd svg{width:14px;height:14px}
-/* section header, as on the homepage */
-.pg-sh{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 10px;padding:44px 0 20px;margin:0 0 24px;border-bottom:1px solid var(--pg-line)}
-.pg-sh .n{font:500 11.5px/1.5 var(--pg-mono);color:var(--pg-muted)}
-.pg-sh h2{margin:0;font-size:17px;line-height:1.5;font-weight:600;letter-spacing:-.015em}
-.pg-sh p{margin:0;font-size:14px;color:var(--pg-fg);opacity:.6}
-.pg-t{font-size:14px;line-height:1.4;font-weight:600;letter-spacing:-.015em;color:var(--pg-fg)}
-.pg-d{font-size:13px;line-height:1.45;color:var(--pg-muted)}
-/* a component card: its name and description, then a picture of it on the grey stage */
-.pg-cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:32px 20px}
-.pg-card{display:flex;flex-direction:column;gap:2px;text-decoration:none}
-.pg-card .pg-t{transition:text-decoration-color .2s;text-decoration:underline transparent;text-underline-offset:3px}
-.pg-card:hover .pg-t{text-decoration-color:var(--pg-line2)}
-.pg-thumb{position:relative;margin-top:12px;aspect-ratio:16/10;border-radius:12px;background:var(--pg-soft);overflow:hidden}
+/* section header: the number and the heading on one line, what the section is under them */
+.pg-sh{display:flex;align-items:baseline;flex-wrap:wrap;gap:2px 10px;padding:56px 0 18px;margin:0 0 24px;border-bottom:1px solid var(--pg-line)}
+.pg-sh .n{font:500 12px/1.5 var(--pg-mono);color:var(--pg-muted)}
+.pg-sh h2{margin:0;font-size:14px;line-height:20px;font-weight:500;letter-spacing:0}
+.pg-sh p{flex-basis:100%;margin:0;font-size:14px;line-height:20px;color:var(--pg-dim)}
+.pg-t{font-size:14px;line-height:20px;font-weight:500;letter-spacing:0;color:var(--pg-fg)}
+.pg-d{font-size:14px;line-height:20px;color:var(--pg-dim)}
+/* a component card: a light frame with its picture on the grey stage, and its name and one line under it */
+.pg-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
+.pg-card{display:flex;flex-direction:column;padding:5px;border-radius:16px;box-shadow:inset 0 0 0 1px var(--pg-line);text-decoration:none;transition:box-shadow .16s ease}
+.pg-card:hover{box-shadow:inset 0 0 0 1px var(--pg-line2)}
+.pg-card .pg-thumb{order:-1}
+.pg-card .pg-t{margin:10px 6px 0}
+.pg-card .pg-d{margin:0 6px 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pg-thumb{position:relative;aspect-ratio:16/10;border-radius:12px;background:var(--pg-soft);overflow:hidden}
 .pg-thumb img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .5s cubic-bezier(.16,1,.3,1)}
 .pg-card:hover .pg-thumb img{transform:scale(1.025)}
 .pg-thumb .dk{display:none}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .pg-thumb .lt{display:none}:root:not([data-theme="light"]) .pg-thumb .dk{display:block}}
 :root[data-theme="dark"] .pg-thumb .lt{display:none}
 :root[data-theme="dark"] .pg-thumb .dk{display:block}
-@media (max-width:1100px){.pg-cards{grid-template-columns:repeat(3,minmax(0,1fr))}}
-@media (max-width:820px){.pg-cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:860px){.pg-cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (max-width:520px){.pg-cards{grid-template-columns:minmax(0,1fr)}}
 
-.pg-foot{border-top:1px solid var(--pg-line);color:var(--pg-muted);font-size:13px}
+.pg-foot{color:var(--pg-muted);font-size:14px}
+.pg-foot .pg-wrap>div{border-top:1px solid var(--pg-line)}
 .pg-foot-in{padding-block:28px 40px;display:flex;flex-wrap:wrap;gap:10px 24px;justify-content:space-between}
 .pg-foot nav{display:flex;flex-wrap:wrap;gap:18px}
 .pg-foot a{color:var(--pg-dim);text-decoration:none}
 .pg-foot a:hover{color:var(--pg-fg)}
-@media (max-width:960px){.pg-top-in{padding:0 18px}.pg-logo{margin-right:16px}.pg-wrap{padding:0 18px}.pg-top .pg-style{display:none}}
+@media (max-width:960px){.pg-top-in{padding:0 18px}.pg-top-in::after{left:18px;right:18px}.pg-logo{margin-right:16px}.pg-wrap{padding:0 18px}.pg-top .pg-style{display:none}}
 @media (max-width:640px){:root{--pg-head:53px}.pg-logo svg{height:18px}.pg-nav .pg-wide{display:none}.pg-h1{font-size:24px}.pg-main{padding-top:28px}}
 @media (max-width:400px){.pg-nav .pg-cl{display:none}}
 </style>
@@ -123,8 +127,8 @@ a{color:inherit}
   <a class="pg-logo" href="/" aria-label="Designme.dev home" set:html={LOGO} />
   <nav class="pg-nav" aria-label="Site">
     <a href="/components" aria-current={path.startsWith('/components') ? 'page' : undefined}>Components</a>
-    <a href="/packages/react/preview/" class="pg-wide">React preview</a>
     <a href="/#/changelog" class="pg-cl">Changelog</a>
+    <a href="/#/roadmap" class="pg-wide">Roadmap</a>
   </nav>
   <span class="pg-sp"></span>
   <div class="pg-seg pg-style" role="group" aria-label="Style"><button type="button" data-style-set="bp">Blueprint</button><button type="button" data-style-set="soft">Soft</button></div>
@@ -136,7 +140,7 @@ a{color:inherit}
 <main class="pg-main"><slot /></main>
 <footer class="pg-foot"><div class="pg-wrap"><div class="pg-foot-in">
   <span>Free and MIT licensed. Built by <a href="https://designme.agency">DesignMe</a>.</span>
-  <nav aria-label="More"><a href="/components">All components</a><a href="/#/changelog">Changelog</a><a href="/llms.txt">llms.txt</a><a href="/">Home</a></nav>
+  <nav aria-label="More"><a href="/components">All components</a><a href="/#/changelog">Changelog</a><a href="/#/roadmap">Roadmap</a><a href="/llms.txt">llms.txt</a><a href="/">Home</a></nav>
 </div></div></footer>
 <script is:inline>
 // light and dark, and Blueprint or Soft, shared with the rest of the site through the same saved settings

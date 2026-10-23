@@ -25,7 +25,7 @@ npm install          # acorn and postcss
 npm run base         # writes site-main.html, the original page, from git history (needs a full clone, not a shallow one)
 npm run patches      # only after editing make-patches.py: rewrites site-patches.json
 npm run build        # writes ../../index.html, ../../code-data.json, ../../r/*.json, ../../llms.txt and ../../404.html
-npm run react        # regenerates the React CSS, registry (r/react) and preview from the new build
+npm run react        # regenerates the React CSS and registry (r/react) from the new build, and type-checks them
 npm run pages        # builds the component pages, their Markdown copies and the sitemap (see ../pages/README.md)
 ```
 

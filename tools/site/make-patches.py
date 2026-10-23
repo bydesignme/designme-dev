@@ -134,7 +134,7 @@ patch("""  $$('[data-copy]').forEach(btn => btn.addEventListener('click', async 
 # ---------- the intro: one short line, the React install command, then a switch between the two sets ----------
 RX_CMD = 'npx designme add live-answer --react'
 patch("""<p>46 components for showing an agent's work, from status and conversation to review, sources and workspace, plus 32 app basics for the dashboard around it, designed and built by the <a href="https://designme.agency" target="_blank" rel="noopener">DesignMe</a> team.</p>""",
-      """<p>81 free components in HTML or <a href="/packages/react/preview/">React</a>, designed and built by <a href="https://designme.agency" target="_blank" rel="noopener">DesignMe</a>.</p>
+      """<p>81 free components in HTML or React, designed and built by <a href="https://designme.agency" target="_blank" rel="noopener">DesignMe</a>.</p>
   <div class="intro-get"><button class="cdm-cmd intro-cmd" data-cmd=\"""" + RX_CMD + """\" title="Copy install command"><span class="d">$</span><span class="c">""" + RX_CMD + """</span><span class="ms sm">content_copy</span></button></div>""")
 # the two group introductions become one switch: Agent components or App basics
 patch("""<div class="grp-intro"><span class="k">46 components</span><h2>Agent components</h2><p>Everything for showing an agent's work, from the first plan to the final summary.</p></div>""",
@@ -359,13 +359,23 @@ patch("""    // sound starts off and stays on once someone turns it on
 patch("""      set(v){ on = v; try { localStorage.setItem('dmui-sound', v ? 'on' : 'off'); } catch(e) {} if (v) ensure(); }""",
       """      set(v){ on = v; if (v) ensure(); }""")
 
-patch("""Your theme, style, sound setting and saved components""", """Your theme, style and saved components""")
+patch("""Your theme, style, sound setting and saved components""", """Your theme, style and accent colour""")
 patch("""add it once for the tokens, icons, sound and helpers.""", """add it once for the tokens, icons and helpers.""")
 
 # the card title is a link to the component's own page: a plain click opens the component here, as before, and a click
 # meant for a new tab follows the link
 patch("""      c.querySelector('.comp-title').addEventListener('click', () => { if (!dv.contains(c)) open(c); });""",
       """      c.querySelector('.comp-title').addEventListener('click', e => { if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button) return; e.preventDefault(); if (!dv.contains(c)) open(c); });""")
+
+# ---------- restyle: Soft first, the site's pages in the sidebar, no saved list ----------
+# Soft is the style a first visit opens in; a visitor who picks Blueprint keeps it
+patch("""var st=localStorage.getItem("dmui-style");if(st)document.documentElement.setAttribute("data-style",st)""",
+      """var st=localStorage.getItem("dmui-style")||"soft";if(st==="soft")document.documentElement.setAttribute("data-style",st)""")
+# Changelog, Roadmap and FAQ leave the header for the top of the sidebar, under Library, the page you're on
+patch("""  <nav class="top-links" aria-label="Site"><a href="#/changelog">Changelog</a><a href="#/roadmap">Roadmap</a><a href="#faq">FAQ</a></nav>\n""", "")
+patch("""aria-label="Search components"><span class="kbd">/</span></label>""",
+      """aria-label="Search components"><span class="kbd">/</span></label>
+  <nav class="side-pages" aria-label="Site"><a class="side-p act" href="#components" aria-current="page"><span class="ms">dashboard</span>Library</a><a class="side-p" href="#/changelog"><span class="ms">history</span>Changelog</a><a class="side-p" href="#/roadmap"><span class="ms">trending_up</span>Roadmap</a><a class="side-p" href="#faq"><span class="ms">help</span>FAQ</a></nav>""")
 
 CSS = """.comp-title a{color:inherit;text-decoration:inherit}
 /* component page: an arrow either side of the component, halfway down the screen, centred in the space beside it.
@@ -472,6 +482,66 @@ body.ui .dv-slot .stage>.code-btns{top:10px;right:20px}
 @media (min-width:961px){
   body.ui .top .top-actions{min-height:36px}
   body.ui .top .top-actions:not(:has(#acc)) #style-seg{margin-right:44px}
+}
+/* ================= restyle: a calm library. 14px type, lighter headings, small controls ================= */
+/* each card is one light frame: the preview on its grey stage, and under it the name and one line */
+body.ui .lib-sec .grid{gap:24px;align-items:stretch}
+body.ui main .comp{display:flex;flex-direction:column;padding:5px;background:var(--sh-bg);border:1px solid var(--sh-line);border-radius:16px;corner-shape:round;transition:border-color .16s ease}
+body.ui main .comp:hover{border-color:var(--sh-line-2)}
+body.ui main .comp>.stage{order:1;flex:1 0 auto;display:flex;flex-direction:column}
+body.ui main .comp>.stage>.stage-inner{flex:1 0 auto}
+body.ui main .comp>.comp-foot{order:2}
+body.ui main .comp>.comp-head{order:3;display:flex;align-items:center;gap:8px;padding:11px 6px 7px 10px}
+body.ui main .comp-head>div{flex:1;min-width:0}
+body.ui .comp-title{font-size:14px;font-weight:500;letter-spacing:0;line-height:20px}
+body.ui .comp-desc{margin:1px 0 0;font-size:14px;line-height:20px;color:var(--sh-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+body.ui main .comp-head .exp-btn{align-self:center;margin-left:0;width:28px;height:28px}
+/* the stage keeps its rounded corners inside the frame; the hint under it goes, the preview says it by itself */
+body.ui main .stage-inner{border-radius:12px 12px 0 0}
+body.ui main .comp-foot{min-height:12px;padding:0 12px 12px;border-radius:0 0 12px 12px}
+body.ui main .comp-foot .mono-xs{display:none}
+/* no saved list: the bookmark, its sidebar group and its filter are gone */
+body.ui .save-btn,body.ui .side-saved,body.ui .flt-i[data-v="saved"]{display:none!important}
+/* section names: the same size as a card's name, the line beside them like a card's line */
+body.ui .lib-sec .sec-head{padding:40px 0 14px;margin-bottom:20px}
+body.ui .sec-head .sec-no{font-size:12px}
+body.ui .sec-head h2{font-size:14px;font-weight:500;letter-spacing:0;line-height:20px}
+body.ui .sec-head p{font-size:14px;line-height:20px;color:var(--sh-dim);opacity:1}
+.grp-next h2{font-size:14px;font-weight:500;letter-spacing:0}
+/* the intro */
+.intro h1{font-size:24px;font-weight:500;letter-spacing:-.02em}
+.intro p{font-size:14px}
+/* Agent components or App basics: a small switch */
+.grp-sw{padding:2px;border-radius:9px}
+.grp-sw button{height:28px;padding:0 12px;border-radius:7px;font-size:13px}
+.grp-ind{top:2px;bottom:2px;left:2px;border-radius:7px}
+/* the sidebar: the site's pages first, then the components, all at 14px */
+.side-pages{display:flex;flex-direction:column;gap:1px;margin:0 0 20px}
+.side-p{display:flex;align-items:center;gap:10px;height:32px;padding:0 10px;border-radius:8px;font-size:14px;color:var(--sh-dim);text-decoration:none;transition:background-color .16s ease,color .16s ease;corner-shape:round}
+.side-p:hover{background:var(--sh-act);color:var(--sh-text)}
+.side-p.act{background:var(--sh-chip);color:var(--sh-text);font-weight:500}
+.side-p .ms{display:inline-grid;place-items:center;width:16px;height:16px;font-size:16px;color:var(--sh-muted)}
+.side-p.act .ms{color:var(--sh-text)}
+body.ui .side-h{font-size:14px;font-weight:500}
+body.ui .side-a{font-size:14px}
+body.ui .side-search input{font-size:14px}
+.m-links a,.m-sec,.m-lbl,.m-cta .t,.nd-t,.content-empty .t,.faq-i,.faq-q{font-size:14px!important}
+body.ui .faq h2{font-size:14px;font-weight:500;letter-spacing:0}
+/* the header's controls: 28px, quieter */
+body.ui .top .style-seg{height:28px;padding:2px}
+body.ui .top .style-seg .seg-ind{top:2px;bottom:2px}
+body.ui .top .style-seg button{height:24px;padding:0 10px;font-size:13px}
+body.ui .top .acc-btn{width:28px;height:28px}
+body.ui .top .theme-sw{width:52px;height:28px}
+body.ui .top .theme-sw .ts-thumb{top:2px;left:2px;width:22px;height:22px}
+body.ui .top .theme-sw[aria-checked="true"] .ts-thumb{transform:translateX(24px)}
+body.ui .top .theme-sw .ts-ic .ms{font-size:14px}
+body.ui .top .sound-btn,body.ui .top .flt-btn{height:28px}
+body.ui .top .sound-btn{width:28px;padding:0;justify-content:center}
+body.ui .top .flt-btn{padding:0 9px 0 11px;font-size:13px}
+@media (min-width:961px){
+  body.ui .top .top-actions{min-height:28px}
+  body.ui .top .top-actions:not(:has(#acc)) #style-seg{margin-right:36px}
 }
 """
 json.dump({ 'patches': P, 'css': CSS }, open(os.path.join(HERE, 'site-patches.json'), 'w'), indent=1)

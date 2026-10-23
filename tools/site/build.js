@@ -465,7 +465,7 @@ Every class, CSS variable and animation name starts with \`dm-\` in the React ve
       md += sec.cards.map(c => `- [${c.t}](https://designme.dev/components/${c.reg}.md): ${c.d} Install: \`npx designme add ${c.reg}\``).join('\n') + '\n';
     }
   }
-  md += `\n## Optional\n\n- [All components](https://designme.dev/components): every component, by section, with a page each.\n- [The homepage](https://designme.dev/): every demo on one page, in both styles.\n- [Registry](https://designme.dev/r/react/composer.json): each component's React source as JSON, at /r/react/<name>.json (HTML at /r/<name>.json).\n- [React preview](https://designme.dev/packages/react/preview/): every React component rendered.\n`;
+  md += `\n## Optional\n\n- [All components](https://designme.dev/components): every component, by section, with a page each.\n- [The homepage](https://designme.dev/): every demo on one page, in both styles.\n- [Registry](https://designme.dev/r/react/composer.json): each component's React source as JSON, at /r/react/<name>.json (HTML at /r/<name>.json).\n`;
   if (count !== done.length) warn.push(`llms.txt lists ${count} of ${done.length} components`);
   // the same sections and cards, in page order, for the component pages that tools/pages builds
   const PAGES_DATA = path.resolve(__dirname, '../pages/data/site.json');

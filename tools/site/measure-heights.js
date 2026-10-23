@@ -26,7 +26,7 @@ const server = http.createServer((req, res) => {
   const out = {}, outHost = {};
   for (const [band, width] of BANDS) for (const style of STYLES){
     const page = await browser.newPage({ viewport: { width, height: 900 } });
-    await page.addInitScript(s => { try { if (s === 'soft') localStorage.setItem('dmui-style', 'soft'); else localStorage.removeItem('dmui-style'); localStorage.setItem('dmui-theme', 'light'); } catch(e){} }, style);
+    await page.addInitScript(s => { try { localStorage.setItem('dmui-style', s === 'soft' ? 'soft' : 'blueprint'); localStorage.setItem('dmui-theme', 'light'); } catch(e){} }, style);
     await page.goto(url, { waitUntil: 'load' });
     await page.evaluate(() => document.fonts.ready);
     const got = await page.evaluate(async ({ PLAY, EVERY }) => {
