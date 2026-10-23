@@ -6463,6 +6463,100 @@ body.ui .dv-slot .stage>.code-btns{top:10px;right:20px}
 .v2 .fbx-n{font-size:12px;flex:1;min-width:0}
 .v2 .fbx-thx{display:flex;align-items:center;gap:8px;font-size:13px;padding:10px 12px;border-radius:12px;background:var(--ok-bg);color:var(--ok)}
 @media (max-width:480px){.v2 .fbx-n{display:none}}
+/* ---------- Model picker ---------- */
+/* a trigger that names the model and how hard it thinks, over the open list: speed, quality and cost as five-step meters
+   with the real numbers on hover, the thinking effort under them, and what the next reply will take */
+.v2 .mpk{display:flex;flex-direction:column;gap:8px;width:100%;max-width:420px;margin:0 auto}
+.v2 .mpk-top{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 2px}
+.v2 .mpk-lb{font-size:12.5px}
+.v2 .mpk-tr{display:inline-flex;align-items:center;gap:7px;height:32px;padding:0 10px 0 6px;border-radius:var(--r-pill);background:var(--surface);box-shadow:var(--shadow);font-size:13px;font-weight:500;white-space:nowrap;transition:box-shadow .16s}
+.v2 .mpk-tr:hover{box-shadow:var(--shadow-pop)}
+.v2 .mpk-tr>svg{color:var(--muted);transition:transform .32s var(--ease)}
+.v2 .mpk-tr[aria-expanded="true"]>svg{transform:rotate(180deg)}
+.v2 .mpk-tr:focus-visible{outline:2px solid color-mix(in srgb,var(--accent) 45%,transparent);outline-offset:2px}
+.v2 .mpk-ef{font-weight:400;font-size:12.5px}
+.v2 .mpk-mk{width:20px;height:20px;border-radius:6px;display:grid;place-items:center;font-size:11px;font-weight:600;color:#fff;background:var(--mc,var(--fg2));flex:none;transition:background .32s}
+.v2 .mpk-p{padding:6px;display:flex;flex-direction:column}
+.v2 .mpk-hd,.v2 .mpk-o{display:grid;grid-template-columns:20px minmax(0,1fr) repeat(3,34px);align-items:center;gap:10px}
+.v2 .mpk-hd{padding:4px 10px 2px;font-size:11px;color:var(--muted)}
+.v2 .mpk-hd span{text-align:center}
+.v2 .mpk-o{width:100%;padding:8px 10px;border-radius:12px;text-align:left;font-size:13px;transition:background .16s}
+.v2 .mpk-o:hover{background:var(--row)}
+.v2 .mpk-o[aria-checked="true"]{background:var(--sel)}
+.v2 .mpk-o:focus-visible{outline:2px solid color-mix(in srgb,var(--accent) 45%,transparent);outline-offset:-2px}
+.v2 .mpk-o .t{display:flex;flex-direction:column;min-width:0}
+.v2 .mpk-o .t b{font-weight:500;display:flex;align-items:center;gap:6px}
+.v2 .mpk-o .ck{display:grid;color:var(--accent);opacity:0;transform:scale(.6);transition:opacity .16s,transform .32s var(--ease)}
+.v2 .mpk-o[aria-checked="true"] .ck,.v2 .mpk-o .ck:has(.spin){opacity:1;transform:none}
+.v2 .mpk-o .ck .spin{width:10px;height:10px;color:var(--muted)}
+.v2 .mpk-o .d{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v2 .mpk-o.busy .d{color:var(--warn)}
+.v2 .mpk-o.busy .mpk-mk{background:var(--warn)}
+.v2 .mpk-m{display:flex;gap:2px;height:8px}
+.v2 .mpk-m i{flex:1;border-radius:2px;background:var(--rail);transition:background .32s}
+.v2 .mpk-m i.on{background:var(--fg2)}
+.v2 .mpk-o[aria-checked="true"]:not(.busy) .mpk-m i.on{background:var(--accent)}
+/* the way out when a model can't take the request: wait for it, or a close match that starts now */
+.v2 .mpk-sg{margin:4px 4px 2px;padding:10px 12px;border-radius:12px;background:var(--warn-bg);display:flex;flex-direction:column;gap:8px}
+.v2 .mpk-sgt{margin:0;font-size:12.5px;line-height:1.45}
+.v2 .mpk-sga{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:6px}
+.v2 .mpk-th{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px 12px;padding:12px 10px 6px;margin:6px 4px 0;border-top:1px solid var(--line)}
+.v2 .mpk-thh{display:flex;flex-direction:column;min-width:0;font-size:13px}
+.v2 .mpk-thh b{font-weight:500;display:flex;align-items:center;gap:6px}
+.v2 .mpk-thh b svg{color:var(--muted)}
+.v2 .mpk-thd{font-size:12px}
+.v2 .mpk-f{padding:4px 10px 6px;font-size:12px;color:var(--muted)}
+.v2 .mpk-est b{color:var(--fg);font-weight:500}
+.v2 .mpk-note{margin:0;padding:0 2px;font-size:12.5px;min-height:20px;display:flex;align-items:center;gap:6px}
+.v2 .mpk-note svg{color:var(--ok);flex:none}
+/* phones: the line under each name wraps, and the meters keep room for their labels */
+@media (max-width:480px){.v2 .mpk-hd,.v2 .mpk-o{grid-template-columns:20px minmax(0,1fr) repeat(3,36px);gap:7px}.v2 .mpk-hd{font-size:10.5px;padding-inline:8px}.v2 .mpk-o{padding-inline:8px}.v2 .mpk-o .d{white-space:normal}}
+/* ---------- Answer action bar ---------- */
+/* every action on an answer in one raised rail under it: copy, regenerate with its versions, thumbs, and read aloud, which
+   widens into a progress bar and a clock and lights each word as it reads it */
+.v2 .aab{display:flex;flex-direction:column;gap:12px}
+.v2 .aab-t{min-height:78px}
+.v2 .aab-t .w{transition:background .16s,color .16s;border-radius:4px}
+.v2 .aab-t .w.in{animation:v2-aabw .42s var(--ease) both}
+@keyframes v2-aabw{from{opacity:0;filter:blur(4px)}to{opacity:1;filter:none}}
+.v2 .aab-t.out{animation:v2-aabo .32s var(--ease) both}
+@keyframes v2-aabo{to{opacity:0;filter:blur(4px);transform:translateY(-2px)}}
+.v2 .aab-t .nw{background:var(--hl-ok);border-radius:0}
+.v2 .aab-t .w.rd{background:var(--accent-bg);color:var(--accent)}
+.v2 .aab-row{display:flex;align-items:center;flex-wrap:wrap;gap:8px 12px}
+.v2 .aab-bar{display:inline-flex;align-items:center;gap:1px;padding:3px;border-radius:var(--r-pill);background:var(--surface);box-shadow:var(--shadow)}
+.v2 .aab-bar .ib{width:28px;height:28px}
+.v2 .aab-bar .ib[disabled]{opacity:.3;pointer-events:none}
+.v2 .aab-bar .ib svg{transition:transform .42s var(--ease)}
+.v2 .aab-re.go svg{transform:rotate(360deg)}
+.v2 .aab-up[aria-pressed="true"]{color:var(--ok);background:var(--ok-bg)}
+.v2 .aab-dn[aria-pressed="true"]{color:var(--bad);background:var(--bad-bg)}
+.v2 .aab-up[aria-pressed="true"] svg,.v2 .aab-dn[aria-pressed="true"] svg{transform:scale(1.1) rotate(-8deg)}
+.v2 .aab-sep{width:1px;height:16px;background:var(--line);margin:0 4px}
+/* the version pager only takes room once there is a second version */
+.v2 .aab-pg{display:inline-flex;align-items:center;max-width:0;overflow:hidden;opacity:0;transition:max-width .42s var(--ease),opacity .32s}
+.v2 .aab-pg.on{max-width:96px;opacity:1}
+.v2 .aab-pg .ib{width:24px;height:24px}
+.v2 .aab-n{font-size:12px;color:var(--muted);min-width:32px;text-align:center}
+.v2 .aab-rd{display:inline-flex;align-items:center;height:28px;padding:0 7px;border-radius:var(--r-pill);color:var(--fg2);transition:background .16s,color .16s}
+.v2 .aab-rd:hover{background:var(--hover)}
+.v2 .aab-rd .ic{display:grid;place-items:center;width:14px}
+.v2 .aab-rd[aria-pressed="true"]{background:var(--accent-bg);color:var(--accent)}
+.v2 .aab-rd.paused{background:var(--chip);color:var(--fg2)}
+.v2 .aab-pr{width:0;height:3px;border-radius:2px;background:color-mix(in srgb,currentColor 22%,transparent);overflow:hidden;margin-left:0;transition:width .42s var(--ease),margin .42s var(--ease)}
+.v2 .aab-pr i{display:block;height:100%;width:0;background:currentColor;border-radius:inherit}
+.v2 .aab-tm{font-size:11.5px;max-width:0;overflow:hidden;white-space:nowrap;transition:max-width .42s var(--ease),margin .42s var(--ease)}
+.v2 .aab-rd.on .aab-pr{width:56px;margin-left:8px}
+.v2 .aab-rd.on .aab-tm{max-width:80px;margin-left:8px}
+.v2 .aab-meta{font-size:12px}
+.v2 .aab-wy{display:flex;flex-direction:column;gap:8px;padding:2px 0 4px}
+.v2 .aab-wq{font-size:13px;font-weight:500}
+.v2 .aab-ch{display:flex;flex-wrap:wrap;gap:6px}
+.v2 .aab-ch .chip.on{background:var(--sel);color:var(--accent);box-shadow:none}
+.v2 .aab-st{margin:0;min-height:20px;font-size:12.5px;display:flex;align-items:center;gap:6px}
+.v2 .aab-st.warn{color:var(--warn)}
+.v2 .aab-st.ok svg{color:var(--ok);flex:none}
+@media (max-width:480px){.v2 .aab-rd.on .aab-tm{display:none}.v2 .aab-rd.on .aab-pr{width:40px}}
 /* ---------- Decision prompt ---------- */
 /* the agent asks in the chat: no container; with .panel it becomes a card */
 .v2 .dpx{padding:16px 0;display:flex;flex-direction:column;gap:12px;outline:0;border-radius:var(--r-in)}
@@ -8283,7 +8377,7 @@ body.ui .dv-slot .stage>.code-btns{top:10px;right:20px}
 <div class="layout">
 <aside class="side" id="side">
   <label class="side-search"><span class="ms">search</span><input id="side-q" placeholder="Search components" autocomplete="off" aria-label="Search components"><span class="kbd">/</span></label>
-  <nav class="side-nav" aria-label="Components"><div class="side-grp side-saved"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Saved</span><span class="side-n" id="saved-n">0</span></button><div class="side-list"><div class="side-ul" id="saved-list"></div></div></div><div class="side-lbl first">Agent components</div><div class="side-grp" data-s="s-conversation" data-grp="agent"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Conversation</span><span class="side-n">10</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c3" data-c="c3">Live answer</a><a class="side-a" href="#c6" data-c="c6">Composer</a><a class="side-a" href="#c8" data-c="c8">Thread panel</a><a class="side-a" href="#c108" data-c="c108">Artifact card</a><a class="side-a" href="#c107" data-c="c107">Tool call</a><a class="side-a" href="#c24" data-c="c24">Voice capture</a><a class="side-a" href="#c31" data-c="c31">Response versions</a><a class="side-a" href="#c29" data-c="c29">Prompt starters</a><a class="side-a" href="#c30" data-c="c30">Attachment tray</a><a class="side-a" href="#c32" data-c="c32">Feedback sheet</a></div></div></div><div class="side-grp" data-s="s-status" data-grp="agent"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Agent status</span><span class="side-n">14</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c60" data-c="c60">Thinking</a><a class="side-a" href="#c2" data-c="c2">Reasoning trail</a><a class="side-a" href="#c26" data-c="c26">Agent lanes</a><a class="side-a" href="#c106" data-c="c106">Run summary</a><a class="side-a" href="#c7" data-c="c7">Action log</a><a class="side-a" href="#c67" data-c="c67">Agent run timeline</a><a class="side-a" href="#c23" data-c="c23">Context meter</a><a class="side-a" href="#c109" data-c="c109">Error and recovery</a><a class="side-a" href="#c5" data-c="c5">Run queue</a><a class="side-a" href="#c27" data-c="c27">Run cost</a><a class="side-a" href="#c28" data-c="c28">Toast stack</a><a class="side-a" href="#c58" data-c="c58">Toast</a><a class="side-a" href="#c22" data-c="c22">Status pill</a><a class="side-a" href="#c1" data-c="c1">Step loader</a></div></div></div><div class="side-grp" data-s="s-review" data-grp="agent"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Review and approve</span><span class="side-n">9</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c11" data-c="c11">Change review</a><a class="side-a" href="#c105" data-c="c105">Plan review</a><a class="side-a" href="#c33" data-c="c33">Permission gate</a><a class="side-a" href="#c4" data-c="c4">Decision prompt</a><a class="side-a" href="#c9" data-c="c9">Proposal card</a><a class="side-a" href="#c19" data-c="c19">Design tuner</a><a class="side-a" href="#c20" data-c="c20">Rewrite toolbar</a><a class="side-a" href="#c34" data-c="c34">Launch checklist</a><a class="side-a" href="#c111" data-c="c111">Design review</a></div></div></div><div class="side-grp" data-s="s-data" data-grp="agent"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Sources and output</span><span class="side-n">7</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c18" data-c="c18">Code viewer</a><a class="side-a" href="#c68" data-c="c68">Citation hover card</a><a class="side-a" href="#c10" data-c="c10">Source stack</a><a class="side-a" href="#c36" data-c="c36">Field extraction</a><a class="side-a" href="#c17" data-c="c17">Metric insight</a><a class="side-a" href="#c66" data-c="c66">Details panel</a><a class="side-a" href="#c13" data-c="c13">Task table</a></div></div></div><div class="side-grp" data-s="s-workspace" data-grp="agent"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Workspace</span><span class="side-n">8</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c16" data-c="c16">Automation canvas</a><a class="side-a" href="#c15" data-c="c15">Command palette</a><a class="side-a" href="#c69" data-c="c69">Memory panel</a><a class="side-a" href="#c71" data-c="c71">Model compare</a><a class="side-a" href="#c38" data-c="c38">Agent settings</a><a class="side-a" href="#c110" data-c="c110">Tools and connections</a><a class="side-a" href="#c39" data-c="c39">File explorer</a><a class="side-a" href="#c14" data-c="c14">Workspace rail</a></div></div></div><div class="side-grp" data-s="s-harness" data-grp="agent"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Harness</span><span class="side-n">1</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c99" data-c="c99">Agent harness</a></div></div></div><div class="side-lbl">App basics</div><div class="side-grp" data-s="s-charts" data-grp="basics"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Charts and tables</span><span class="side-n">9</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c41" data-c="c41">Line chart</a><a class="side-a" href="#c42" data-c="c42">Bar chart</a><a class="side-a" href="#c43" data-c="c43">Donut chart</a><a class="side-a" href="#c102" data-c="c102">Funnel chart</a><a class="side-a" href="#c103" data-c="c103">Top pages</a><a class="side-a" href="#c65" data-c="c65">Health score</a><a class="side-a" href="#c45" data-c="c45">Activity heatmap</a><a class="side-a" href="#c44" data-c="c44">Stat cards</a><a class="side-a" href="#c12" data-c="c12">Account table</a></div></div></div><div class="side-grp" data-s="s-dates" data-grp="basics"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Dates</span><span class="side-n">4</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c46" data-c="c46">Date picker</a><a class="side-a" href="#c47" data-c="c47">Date range picker</a><a class="side-a" href="#c62" data-c="c62">Event calendar</a><a class="side-a" href="#c63" data-c="c63">Agenda</a></div></div></div><div class="side-grp" data-s="s-forms" data-grp="basics"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Forms and inputs</span><span class="side-n">8</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c49" data-c="c49">Buttons</a><a class="side-a" href="#c52" data-c="c52">Tooltip</a><a class="side-a" href="#c53" data-c="c53">Search input</a><a class="side-a" href="#c57" data-c="c57">Country select</a><a class="side-a" href="#c51" data-c="c51">Social sign-in</a><a class="side-a" href="#c55" data-c="c55">Sign in</a><a class="side-a" href="#c50" data-c="c50">Form</a><a class="side-a" href="#c64" data-c="c64">Payment form</a></div></div></div><div class="side-grp" data-s="s-collab" data-grp="basics"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Collaboration</span><span class="side-n">6</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c54" data-c="c54">Comments</a><a class="side-a" href="#c56" data-c="c56">Notifications</a><a class="side-a" href="#c61" data-c="c61">Invite to collaborate</a><a class="side-a" href="#c59" data-c="c59">Reactions</a><a class="side-a" href="#c104" data-c="c104">Ticket list</a><a class="side-a" href="#c101" data-c="c101">Kanban board</a></div></div></div><div class="side-grp" data-s="s-product" data-grp="basics"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Product</span><span class="side-n">5</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c70" data-c="c70">Pricing cards</a><a class="side-a" href="#c72" data-c="c72">Onboarding checklist</a><a class="side-a" href="#c73" data-c="c73">Stepper</a><a class="side-a" href="#c74" data-c="c74">Set limit</a><a class="side-a" href="#c75" data-c="c75">Currency converter</a></div></div></div><div class="side-empty" id="side-empty"><p>No components match your search.</p><button class="suggest-btn"><span class="ms">add</span><span class="st">Suggest this component</span></button></div></nav>
+  <nav class="side-nav" aria-label="Components"><div class="side-grp side-saved"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Saved</span><span class="side-n" id="saved-n">0</span></button><div class="side-list"><div class="side-ul" id="saved-list"></div></div></div><div class="side-lbl first">Agent components</div><div class="side-grp" data-s="s-conversation" data-grp="agent"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Conversation</span><span class="side-n">12</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c3" data-c="c3">Live answer</a><a class="side-a" href="#c6" data-c="c6">Composer</a><a class="side-a" href="#c8" data-c="c8">Thread panel</a><a class="side-a" href="#c108" data-c="c108">Artifact card</a><a class="side-a" href="#c107" data-c="c107">Tool call</a><a class="side-a" href="#c24" data-c="c24">Voice capture</a><a class="side-a" href="#c113" data-c="c113">Answer action bar</a><a class="side-a" href="#c31" data-c="c31">Response versions</a><a class="side-a" href="#c112" data-c="c112">Model picker</a><a class="side-a" href="#c29" data-c="c29">Prompt starters</a><a class="side-a" href="#c30" data-c="c30">Attachment tray</a><a class="side-a" href="#c32" data-c="c32">Feedback sheet</a></div></div></div><div class="side-grp" data-s="s-status" data-grp="agent"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Agent status</span><span class="side-n">14</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c60" data-c="c60">Thinking</a><a class="side-a" href="#c2" data-c="c2">Reasoning trail</a><a class="side-a" href="#c26" data-c="c26">Agent lanes</a><a class="side-a" href="#c106" data-c="c106">Run summary</a><a class="side-a" href="#c7" data-c="c7">Action log</a><a class="side-a" href="#c67" data-c="c67">Agent run timeline</a><a class="side-a" href="#c23" data-c="c23">Context meter</a><a class="side-a" href="#c109" data-c="c109">Error and recovery</a><a class="side-a" href="#c5" data-c="c5">Run queue</a><a class="side-a" href="#c27" data-c="c27">Run cost</a><a class="side-a" href="#c28" data-c="c28">Toast stack</a><a class="side-a" href="#c58" data-c="c58">Toast</a><a class="side-a" href="#c22" data-c="c22">Status pill</a><a class="side-a" href="#c1" data-c="c1">Step loader</a></div></div></div><div class="side-grp" data-s="s-review" data-grp="agent"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Review and approve</span><span class="side-n">9</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c11" data-c="c11">Change review</a><a class="side-a" href="#c105" data-c="c105">Plan review</a><a class="side-a" href="#c33" data-c="c33">Permission gate</a><a class="side-a" href="#c4" data-c="c4">Decision prompt</a><a class="side-a" href="#c9" data-c="c9">Proposal card</a><a class="side-a" href="#c19" data-c="c19">Design tuner</a><a class="side-a" href="#c20" data-c="c20">Rewrite toolbar</a><a class="side-a" href="#c34" data-c="c34">Launch checklist</a><a class="side-a" href="#c111" data-c="c111">Design review</a></div></div></div><div class="side-grp" data-s="s-data" data-grp="agent"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Sources and output</span><span class="side-n">7</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c18" data-c="c18">Code viewer</a><a class="side-a" href="#c68" data-c="c68">Citation hover card</a><a class="side-a" href="#c10" data-c="c10">Source stack</a><a class="side-a" href="#c36" data-c="c36">Field extraction</a><a class="side-a" href="#c17" data-c="c17">Metric insight</a><a class="side-a" href="#c66" data-c="c66">Details panel</a><a class="side-a" href="#c13" data-c="c13">Task table</a></div></div></div><div class="side-grp" data-s="s-workspace" data-grp="agent"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Workspace</span><span class="side-n">8</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c16" data-c="c16">Automation canvas</a><a class="side-a" href="#c15" data-c="c15">Command palette</a><a class="side-a" href="#c69" data-c="c69">Memory panel</a><a class="side-a" href="#c71" data-c="c71">Model compare</a><a class="side-a" href="#c38" data-c="c38">Agent settings</a><a class="side-a" href="#c110" data-c="c110">Tools and connections</a><a class="side-a" href="#c39" data-c="c39">File explorer</a><a class="side-a" href="#c14" data-c="c14">Workspace rail</a></div></div></div><div class="side-grp" data-s="s-harness" data-grp="agent"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Harness</span><span class="side-n">1</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c99" data-c="c99">Agent harness</a></div></div></div><div class="side-lbl">App basics</div><div class="side-grp" data-s="s-charts" data-grp="basics"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Charts and tables</span><span class="side-n">9</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c41" data-c="c41">Line chart</a><a class="side-a" href="#c42" data-c="c42">Bar chart</a><a class="side-a" href="#c43" data-c="c43">Donut chart</a><a class="side-a" href="#c102" data-c="c102">Funnel chart</a><a class="side-a" href="#c103" data-c="c103">Top pages</a><a class="side-a" href="#c65" data-c="c65">Health score</a><a class="side-a" href="#c45" data-c="c45">Activity heatmap</a><a class="side-a" href="#c44" data-c="c44">Stat cards</a><a class="side-a" href="#c12" data-c="c12">Account table</a></div></div></div><div class="side-grp" data-s="s-dates" data-grp="basics"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Dates</span><span class="side-n">4</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c46" data-c="c46">Date picker</a><a class="side-a" href="#c47" data-c="c47">Date range picker</a><a class="side-a" href="#c62" data-c="c62">Event calendar</a><a class="side-a" href="#c63" data-c="c63">Agenda</a></div></div></div><div class="side-grp" data-s="s-forms" data-grp="basics"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Forms and inputs</span><span class="side-n">8</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c49" data-c="c49">Buttons</a><a class="side-a" href="#c52" data-c="c52">Tooltip</a><a class="side-a" href="#c53" data-c="c53">Search input</a><a class="side-a" href="#c57" data-c="c57">Country select</a><a class="side-a" href="#c51" data-c="c51">Social sign-in</a><a class="side-a" href="#c55" data-c="c55">Sign in</a><a class="side-a" href="#c50" data-c="c50">Form</a><a class="side-a" href="#c64" data-c="c64">Payment form</a></div></div></div><div class="side-grp" data-s="s-collab" data-grp="basics"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Collaboration</span><span class="side-n">6</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c54" data-c="c54">Comments</a><a class="side-a" href="#c56" data-c="c56">Notifications</a><a class="side-a" href="#c61" data-c="c61">Invite to collaborate</a><a class="side-a" href="#c59" data-c="c59">Reactions</a><a class="side-a" href="#c104" data-c="c104">Ticket list</a><a class="side-a" href="#c101" data-c="c101">Kanban board</a></div></div></div><div class="side-grp" data-s="s-product" data-grp="basics"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Product</span><span class="side-n">5</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c70" data-c="c70">Pricing cards</a><a class="side-a" href="#c72" data-c="c72">Onboarding checklist</a><a class="side-a" href="#c73" data-c="c73">Stepper</a><a class="side-a" href="#c74" data-c="c74">Set limit</a><a class="side-a" href="#c75" data-c="c75">Currency converter</a></div></div></div><div class="side-empty" id="side-empty"><p>No components match your search.</p><button class="suggest-btn"><span class="ms">add</span><span class="st">Suggest this component</span></button></div></nav>
   <div class="side-foot">
     <a class="credit" href="https://designme.agency" target="_blank" rel="noopener"><div class="sticker" style="--sticker-mask:url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNzU5IiBoZWlnaHQ9IjYzMiIgdmlld0JveD0iMCAwIDc1OSA2MzIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxwYXRoIGQ9Ik0xNDkuNDk3IDI4My43ODRDMTQ5LjQ3NyAyODQuMDQ3IDE0OS40NzQgMjg0LjMxMSAxNDkuNDg3IDI4NC41NzVDMTU2LjM4NSAzNDAuMDM0IDE4My41NDggMzkxLjExNiAyMjUuOSA0MjguMTk2QzI2Ny45ODkgNDY1LjA0NCAzMjIuMTg4IDQ4NS41MzIgMzc4LjQxNCA0ODUuODU1TDM3OS43NDMgNDg1Ljg1OUM0MzYuNDUzIDQ4NS44NjggNDkxLjE4OCA0NjUuMzUzIDUzMy42MTkgNDI4LjIxMkM1NzUuOTEyIDM5MS4xOTQgNjAzLjA2MiAzNDAuMjE2IDYxMC4wMTggMjg0Ljg1Nkw2MTAuMDE4IDI4MS41MTJDNjEwLjAwOCAyNzcuMzM3IDYwOC4zMjQgMjczLjMxNSA2MDUuMzAzIDI3MC4zMzVDNjAyLjI3NyAyNjcuMzUxIDU5OC4xNTUgMjY1LjY1NiA1OTMuODM3IDI2NS42NTZMMTY1LjY0NyAyNjUuNjU2QzE2MS4zMzggMjY1LjY1NiAxNTcuMjI2IDI2Ny4zNDkgMTU0LjIxIDI3MC4zMzFDMTUxLjE5OCAyNzMuMzA5IDE0OS41MjQgMjc3LjMyNiAxNDkuNTIzIDI4MS40OTFMMTQ5LjUyMyAyODMuNDM3TDE0OS40OTcgMjgzLjc4NFpNMTE0LjM3OCAyNDcuMzk1QzExOC4zOTYgMjQ3LjM5MSAxMjIuMjU0IDI0NS45MTkgMTI1LjIxNCAyNDMuMjlDMTI4LjA2MyAyNDAuNzU5IDEyOS44ODcgMjM3LjMzIDEzMC4zOTYgMjMzLjYyOUwxMzAuMzk2IDIzMy4zNUwxMzAuNDM3IDIzMi45MTdDMTM2LjM1NSAxNzEuNjM0IDE2NS4xNjIgMTE0Ljc1NCAyMTEuMjAyIDczLjM2ODdDMjU3LjIzOSAzMS45ODU5IDMxNy4yMDYgOS4wNjA2MyAzNzkuMzkzIDkuMDQ0NDhMMzc5LjM5NiA5LjA0NDQ4QzQ0MS41OTMgOS4wNDU4MyA1MDEuNTc0IDMxLjk2NCA1NDcuNjI0IDczLjM0ODJDNTkzLjY3NyAxMTQuNzM1IDYyMi40OTEgMTcxLjYyNCA2MjguNDExIDIzMi45MTdMNjI4LjQ1MyAyMzMuMzVMNjI4LjQ1MyAyMzMuNjQzQzYyOC45NTMgMjM3LjM0NCA2MzAuNzczIDI0MC43NzQgNjMzLjYyMSAyNDMuMzA0QzYzNi41OCAyNDUuOTMyIDY0MC40MzcgMjQ3LjM5OSA2NDQuNDUyIDI0Ny4zOTVMNzI1LjY0NCAyNDcuMzk1QzcyOC44ODIgMjQ3LjQwNCA3MzIuMDg5IDI0OC4wNiA3MzUuMDcxIDI0OS4zMjlDNzM4LjA1NSAyNTAuNTk4IDc0MC43NTMgMjUyLjQ1MyA3NDMuMDAxIDI1NC43ODdDNzQ1LjI1MiAyNTcuMTIzIDc0Ny4wMDUgMjU5Ljg5MSA3NDguMTUxIDI2Mi45MjRDNzQ5LjI5NiAyNjUuOTU0IDc0OS44MSAyNjkuMTgzIDc0OS42NjIgMjcyLjQxOEw3NDkuNjYzIDI3Mi40MThDNzQ1LjQ4NCAzNjYuNzk3IDcwNC42MTcgNDU1LjkxOSA2MzUuNjE1IDUyMS4yMTFDNTY2LjYxNiA1ODYuNDk5IDQ3NC44MDkgNjIyLjkyNCAzNzkuMzM4IDYyMi45MjRDMjgzLjg3MiA2MjIuOTI0IDE5Mi4wNzEgNTg2LjQ5NiAxMjMuMDgxIDUyMS4yMDZDNTQuMDkzNSA0NTUuOTE3IDEzLjI0MTIgMzY2LjgwNCA5LjA3MTMzIDI3Mi40MzhMOS4wNzAzNiAyNzIuNDM4TDkuMDcwMzYgMjcyLjQzNkM5LjA3MDA3IDI3Mi40MyA5LjA2OTY3IDI3Mi40MjMgOS4wNjkzOCAyNzIuNDE3TDkuMDcwMzYgMjcyLjQxN0M4LjkyMjcyIDI2OS4xODIgOS40MzY1NSAyNjUuOTUzIDEwLjU4MTEgMjYyLjkyNEMxMS43Mjc2IDI1OS44OSAxMy40ODEgMjU3LjEyMyAxNS43MzE1IDI1NC43ODdDMTcuOTgwNSAyNTIuNDUyIDIwLjY3OTcgMjUwLjU5NyAyMy42NjIyIDI0OS4zMjlDMjYuNjQ0MyAyNDguMDYgMjkuODUwNCAyNDcuNDA0IDMzLjA4ODkgMjQ3LjM5NUwxMTQuMzc4IDI0Ny4zOTVaIiBmaWxsPSJibGFjayIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIxOC4wOTAxIi8+Cjwvc3ZnPg==)"><div class="die"><svg aria-hidden="true" focusable="false" viewBox="0 0 759 632" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M149.497 283.784C149.477 284.047 149.474 284.311 149.487 284.575C156.385 340.034 183.548 391.116 225.9 428.196C267.989 465.044 322.188 485.532 378.414 485.855L379.743 485.859C436.453 485.868 491.188 465.353 533.619 428.212C575.912 391.194 603.062 340.216 610.018 284.856L610.018 281.512C610.008 277.337 608.324 273.315 605.303 270.335C602.277 267.351 598.155 265.656 593.837 265.656L165.647 265.656C161.338 265.656 157.226 267.349 154.21 270.331C151.198 273.309 149.524 277.326 149.523 281.491L149.523 283.437L149.497 283.784ZM114.378 247.395C118.396 247.391 122.254 245.919 125.214 243.29C128.063 240.759 129.887 237.33 130.396 233.629L130.396 233.35L130.437 232.917C136.355 171.634 165.162 114.754 211.202 73.3687C257.239 31.9859 317.206 9.06063 379.393 9.04448L379.396 9.04448C441.593 9.04583 501.574 31.964 547.624 73.3482C593.677 114.735 622.491 171.624 628.411 232.917L628.453 233.35L628.453 233.643C628.953 237.344 630.773 240.774 633.621 243.304C636.58 245.932 640.437 247.399 644.452 247.395L725.644 247.395C728.882 247.404 732.089 248.06 735.071 249.329C738.055 250.598 740.753 252.453 743.001 254.787C745.252 257.123 747.005 259.891 748.151 262.924C749.296 265.954 749.81 269.183 749.662 272.418L749.663 272.418C745.484 366.797 704.617 455.919 635.615 521.211C566.616 586.499 474.809 622.924 379.338 622.924C283.872 622.924 192.071 586.496 123.081 521.206C54.0935 455.917 13.2412 366.804 9.07133 272.438L9.07036 272.438L9.07036 272.436C9.07007 272.43 9.06967 272.423 9.06938 272.417L9.07036 272.417C8.92272 269.182 9.43655 265.953 10.5811 262.924C11.7276 259.89 13.481 257.123 15.7315 254.787C17.9805 252.452 20.6797 250.597 23.6622 249.329C26.6443 248.06 29.8504 247.404 33.0889 247.395L114.378 247.395Z" fill="black" stroke="white" stroke-width="18.0901"/>
@@ -8296,7 +8390,7 @@ body.ui .dv-slot .stage>.code-btns{top:10px;right:20px}
 <main id="components" class="content">
 <section class="intro">
   <h1>Components for agent-powered products</h1>
-  <p>81 free components in HTML or <a href="/packages/react/preview/">React</a>, designed and built by <a href="https://designme.agency" target="_blank" rel="noopener">DesignMe</a>.</p>
+  <p>83 free components in HTML or <a href="/packages/react/preview/">React</a>, designed and built by <a href="https://designme.agency" target="_blank" rel="noopener">DesignMe</a>.</p>
   <div class="intro-get"><button class="cdm-cmd intro-cmd" data-cmd="npx designme add live-answer --react" title="Copy install command"><span class="d">$</span><span class="c">npx designme add live-answer --react</span><span class="ms sm">content_copy</span></button></div>
   <div class="m-cta"><div class="t">Need expert design and dev support?</div><a class="hire-btn m-cta-btn" href="https://designme.agency" target="_blank" rel="noopener">Book a call<span class="ms">arrow_forward</span></a></div>
   </section>
@@ -8474,6 +8568,40 @@ body.ui .dv-slot .stage>.code-btns{top:10px;right:20px}
   <div class="pop vcx-fix" role="menu"></div>
 </div></template>
   </article>
+  <article class="comp" id="c113" data-soft data-v2="answer-action-bar" data-reg="answer-action-bar" style="--rh-a:420px;--rc-a:276px;--rh-b:477px;--rc-b:353px;--rh-c:420px;--rc-c:276px;--rh-d:420px;--rc-d:276px;--rh-e:494px;--rc-e:370px">
+    <div class="comp-head">
+      <span class="ibox"><span class="ms">thumb_up</span></span>
+      <div><h2 class="comp-title"><a href="/components/answer-action-bar">Answer action bar</a></h2><p class="comp-desc">Copy, regenerate, rate and listen to an answer from one row under it.</p></div>
+      <button class="save-btn" aria-pressed="false" aria-label="Save component"><span class="ms">bookmark</span></button>
+    </div>
+    <div class="stage"><div class="stage-inner dots v2-host" data-demo><div class="v2 stage-in bare"></div></div></div>
+    <div class="comp-foot">
+      <span class="mono-xs">Listen, rate it down, pick why, then copy the fix</span>
+      <div class="code-btns"><button class="ghost anim-btn" data-anim><span class="ms sm">stars</span>Animate</button><button class="ghost" data-view aria-expanded="false"><span class="ms sm">code</span><span class="vl">View code</span></button><button class="ghost" data-copy><span class="ms sm">content_copy</span>Copy code</button></div>
+    </div>
+    <template><div class="aab">
+  <div class="bub">How much do people save on the yearly Pro plan?</div>
+  <p class="msg aab-t" aria-live="polite"></p>
+  <div class="aab-row">
+    <div class="aab-bar" role="toolbar" aria-label="Answer actions">
+      <button class="ib aab-cp" aria-label="Copy" data-tip="Copy">{copy}</button>
+      <button class="ib aab-re" aria-label="Regenerate" data-tip="Regenerate">{re}</button>
+      <span class="aab-pg"><button class="ib aab-prev" aria-label="Previous version" data-tip="Previous version">{l}</button><span class="aab-n num" aria-live="polite">1 / 1</span><button class="ib aab-next" aria-label="Next version" data-tip="Next version">{rr}</button></span>
+      <span class="aab-sep" aria-hidden="true"></span>
+      <button class="ib aab-up" aria-label="Good answer" aria-pressed="false" data-tip="Good answer">{up}</button>
+      <button class="ib aab-dn" aria-label="Bad answer" aria-pressed="false" data-tip="Bad answer">{dn}</button>
+      <span class="aab-sep" aria-hidden="true"></span>
+      <button class="aab-rd" aria-label="Read aloud" aria-pressed="false" data-tip="Read aloud"><span class="ic">{vol}</span><span class="aab-pr" aria-hidden="true"><i></i></span><span class="aab-tm num"></span></button>
+    </div>
+    <span class="aab-meta muted num"></span>
+  </div>
+  <div class="fold shut aab-why"><div><div class="aab-wy">
+    <span class="aab-wq">What was off?</span>
+    <div class="aab-ch"><button class="chip sm">Wrong numbers</button><button class="chip sm">Too long</button><button class="chip sm">Not our tone</button><button class="chip sm">Missed the brief</button></div>
+  </div></div></div>
+  <p class="aab-st muted" aria-live="polite"></p>
+</div></template>
+  </article>
   <article class="comp" id="c31" data-soft data-v2="response-versions" data-reg="response-versions" style="--rh-a:420px;--rc-a:163px;--rh-b:420px;--rc-b:163px;--rh-c:420px;--rc-c:163px;--rh-d:420px;--rc-d:163px;--rh-e:420px;--rc-e:183px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">refresh</span></span>
@@ -8496,6 +8624,32 @@ body.ui .dv-slot .stage>.code-btns{top:10px;right:20px}
       <span class="rvx-st muted"></span>
     </div>
   </div>
+</div></template>
+  </article>
+  <article class="comp" id="c112" data-soft data-v2="model-picker" data-reg="model-picker" style="--rh-a:576px;--rc-a:452px;--rh-b:632px;--rc-b:508px;--rh-c:576px;--rc-c:452px;--rh-d:576px;--rc-d:452px;--rh-e:709px;--rc-e:585px">
+    <div class="comp-head">
+      <span class="ibox"><span class="ms">tune</span></span>
+      <div><h2 class="comp-title"><a href="/components/model-picker">Model picker</a></h2><p class="comp-desc">Pick a model by speed, quality and cost, and how hard it thinks.</p></div>
+      <button class="save-btn" aria-pressed="false" aria-label="Save component"><span class="ms">bookmark</span></button>
+    </div>
+    <div class="stage"><div class="stage-inner dots v2-host" data-demo><div class="v2 stage-in"></div></div></div>
+    <div class="comp-foot">
+      <span class="mono-xs">Hover a meter, pick a model, set the thinking</span>
+      <div class="code-btns"><button class="ghost anim-btn" data-anim><span class="ms sm">stars</span>Animate</button><button class="ghost" data-view aria-expanded="false"><span class="ms sm">code</span><span class="vl">View code</span></button><button class="ghost" data-copy><span class="ms sm">content_copy</span>Copy code</button></div>
+    </div>
+    <template><div class="mpk">
+  <div class="mpk-top"><span class="muted mpk-lb">Model for this chat</span><button class="mpk-tr" aria-haspopup="true" aria-expanded="true"><span class="mpk-mk"></span><span class="mpk-nm"></span><span class="mpk-ef muted"></span>{chev}</button></div>
+  <div class="fold mpk-fold"><div><div class="mpk-p panel">
+    <div class="mpk-hd" aria-hidden="true"><span></span><span></span><span>Speed</span><span>Quality</span><span>Cost</span></div>
+    <div class="mpk-list" role="radiogroup" aria-label="Model"></div>
+    <div class="fold shut mpk-sgf"><div><div class="mpk-sg" aria-live="polite"><p class="mpk-sgt"></p><div class="mpk-sga"><button class="pill ghost sm mpk-wait">Wait for Opus</button><button class="pill ink sm mpk-use">Use Sonnet on high</button></div></div></div></div>
+    <div class="mpk-th">
+      <div class="mpk-thh"><b>{brain}Thinking</b><span class="muted mpk-thd"></span></div>
+      <div class="seg2 mpk-seg" role="group" aria-label="Thinking effort"><button aria-pressed="false" data-v="0">Off</button><button aria-pressed="false" data-v="1">Low</button><button aria-pressed="true" data-v="2">Medium</button><button aria-pressed="false" data-v="3">High</button></div>
+    </div>
+    <div class="mpk-f"><span class="mpk-est num"></span></div>
+  </div></div></div>
+  <p class="mpk-note muted" aria-live="polite"></p>
 </div></template>
   </article>
   <article class="comp" id="c29" data-soft data-v2="prompt-starters" data-reg="prompt-starters" style="--rh-a:469px;--rc-a:345px;--rh-b:469px;--rc-b:345px;--rh-c:469px;--rc-c:345px;--rh-d:469px;--rc-d:345px;--rh-e:502px;--rc-e:378px">
@@ -13240,6 +13394,173 @@ DM.def('feedback-sheet', (r, c) => {
     await beat(700); ta.classList.add('typing');
     for (const ch of 'Keep our 8px spacing scale'){ ta.value += ch; ready(); await beat(34 + Math.random() * 40); }
     await beat(650); ta.classList.remove('typing'); go.click();
+  });
+});
+/* ---------- Model picker ---------- */
+DM.def('model-picker', (r, c) => {
+  r.innerHTML = r.innerHTML.replace('{chev}', I('chev-d','xs')).replace('{brain}', I('brain','xs'));
+  // speed, quality and cost out of five, and the numbers behind them: tokens a second, and a typical reply's seconds and
+  // price with no thinking (the same three models and figures as Model compare)
+  const M = [
+    { n:'Opus 5.5', m:'O', c:'var(--c2)', d:'Deepest reasoning, slower', s:2, q:5, p:5, tps:38, sec:9, cost:.021 },
+    { n:'Sonnet 5.5', m:'S', c:'var(--c1)', d:'Balanced, the default for design work', s:4, q:4, p:2, tps:74, sec:4, cost:.006 },
+    { n:'Haiku 5.5', m:'H', c:'var(--c3)', d:'Fastest, for quick edits', s:5, q:3, p:1, tps:142, sec:1.5, cost:.001 }
+  ];
+  // thinking effort: what it may spend, and how it stretches a typical reply's time and price
+  const E = [['Off', 'Answers straight away', 1, 1], ['Low', 'Up to 2k thinking tokens', 1.6, 1.3], ['Medium', 'Up to 8k thinking tokens', 2.6, 1.8], ['High', 'Up to 24k thinking tokens', 4.2, 2.7]];
+  const list = $('.mpk-list', r), tr = $('.mpk-tr', r), fold = $('.mpk-fold', r), sgf = $('.mpk-sgf', r), sgt = $('.mpk-sgt', r), est = $('.mpk-est', r), note = $('.mpk-note', r), thd = $('.mpk-thd', r);
+  const meter = (v, tip) => `<span class="mpk-m" data-tip="${tip}">${[1, 2, 3, 4, 5].map(k => `<i${k <= v ? ' class="on"' : ''}></i>`).join('')}</span>`;
+  list.innerHTML = M.map((x, i) => `<button class="mpk-o" role="radio" aria-checked="false" tabindex="-1" data-i="${i}"><span class="mpk-mk" style="--mc:${x.c}">${x.m}</span><span class="t"><b>${x.n}<span class="ck">${I('check','xs')}</span></b><span class="d">${x.d}</span></span>${meter(x.s, x.tps + ' tokens a second')}${meter(x.q, 'Quality ' + x.q + ' of 5')}${meter(x.p, '$' + x.cost.toFixed(3) + ' a reply')}</button>`).join('');
+  const rows = $$('.mpk-o', list);
+  // Opus is at capacity when the demo starts (busy is its wait in seconds), and free again once you've waited it out
+  let cur = 1, eff = 2, busy = 20, shown = null, waiting = false;
+  const seconds = (i, e) => M[i].sec * E[e][2], price = (i, e) => M[i].cost * E[e][3];
+  // the estimate counts to its new numbers
+  function estimate(){
+    const to = { s:seconds(cur, eff), p:price(cur, eff) }, from = shown || to; shown = to;
+    tween(0, 1, 420, k => { if (!c.dead) est.innerHTML = `Next reply about <b>${Math.round(from.s + (to.s - from.s) * k)}s</b> and <b>$${(from.p + (to.p - from.p) * k).toFixed(3)}</b>`; });
+  }
+  function paint(){
+    rows.forEach((b, i) => { b.setAttribute('aria-checked', i === cur); b.tabIndex = i === cur ? 0 : -1; });
+    const mk = $('.mpk-mk', tr); mk.style.setProperty('--mc', M[cur].c); mk.textContent = M[cur].m;
+    swap($('.mpk-nm', tr), M[cur].n); swap($('.mpk-ef', tr), E[eff][0]); swap(thd, E[eff][1]); estimate();
+  }
+  const say = t => { note.innerHTML = t ? `${I('ok','xs')}<span>${t}</span>` : ''; if (t) enter(note); };
+  const sg = on => { sgf.classList.toggle('shut', !on); sgf.inert = !on; };
+  sg(false);
+  seg($('.mpk-seg', r), v => { eff = +v; paint(); say(''); });
+  function choose(i){ cur = i; sg(false); paint(); say(`Set for this chat: ${M[cur].n}, ${E[eff][0].toLowerCase()} thinking`); }
+  // picking a model checks it can take the request first; a busy one offers a wait, or a close match that starts now
+  function pick(i){
+    if (i !== 0 || !busy) return choose(i);
+    if (waiting) return;
+    const row = rows[0], d = $('.d', row), ck = $('.ck', row);
+    ck.innerHTML = '<span class="spin"></span>'; swap(d, 'Checking it can take this chat'); say('');
+    c.run(async () => {
+      await c.wait(1000);
+      ck.innerHTML = I('check','xs'); row.classList.add('busy'); swap(d, `At capacity, about ${busy}s wait`);
+      sgt.textContent = `Opus 5.5 is at capacity for about ${busy}s. Sonnet 5.5 on high thinking comes close on long reviews and starts now.`; sg(true);
+    });
+  }
+  rows.forEach((b, i) => b.onclick = () => pick(i));
+  // arrow keys move through the models, as in any radio group
+  c.on(list, 'keydown', e => {
+    const k = { ArrowDown:1, ArrowRight:1, ArrowUp:-1, ArrowLeft:-1 }[e.key]; if (!k) return;
+    e.preventDefault(); const i = (rows.indexOf(document.activeElement) + k + rows.length) % rows.length; rows[i].focus(); pick(i);
+  });
+  $('.mpk-use', r).onclick = () => { cur = 1; sg(false); $('.mpk-seg [data-v="3"]', r).click(); choose(1); };
+  $('.mpk-wait', r).onclick = () => c.run(async () => {
+    sg(false); waiting = true; const d = $('.d', rows[0]);
+    for (let w = busy; w > 0; w--){ d.textContent = `Starts in ${w}s`; await c.wait(1000); }
+    busy = 0; waiting = false; rows[0].classList.remove('busy'); swap(d, M[0].d); choose(0);
+  });
+  // the trigger opens and closes the list; Escape closes it and gives the trigger the focus back
+  const open = v => { fold.classList.toggle('shut', !v); fold.inert = !v; tr.setAttribute('aria-expanded', v); };
+  tr.onclick = () => open(tr.getAttribute('aria-expanded') !== 'true');
+  c.on(r, 'keydown', e => { if (e.key === 'Escape' && tr.getAttribute('aria-expanded') === 'true'){ open(false); tr.focus(); } });
+  paint();
+  // the preview's story: compare the meters, ask for Opus, find it busy, and take the close match on high thinking
+  c.story(async s => {
+    await s.beat(3);
+    await s.point($$('.mpk-m', rows[2])[2]); await s.beat(3);
+    await s.point($$('.mpk-m', rows[0])[1]); await s.beat(3);
+    await s.tap(rows[0]); s.away();
+    await s.until(() => !sgf.classList.contains('shut')); await s.beat(5);
+    await s.tap($('.mpk-use', r)); s.away();
+    await s.beat(4);
+  });
+});
+/* ---------- Answer action bar ---------- */
+DM.def('answer-action-bar', (r, c) => {
+  r.innerHTML = r.innerHTML.replace('{copy}', I('copy')).replace('{re}', I('refresh')).replace('{l}', I('chev-l','xs')).replace('{rr}', I('chev-r','xs'))
+    .replace('{up}', I('up-thumb')).replace('{dn}', I('down-thumb')).replace('{vol}', I('vol','xs'));
+  // the versions a regenerate writes, in turn. [[…]] marks what changed from the version before; $24 to $19 a month saves 21%
+  const POOL = [
+    { t:'Pro is $24 a month, or $19 a month when billed yearly. That saves 15%, and yearly is the option the new pricing page shows first.', meta:'Sonnet 5.5 · 6.2s' },
+    { t:'Pro is $24 a month, or $19 a month billed yearly, which saves [[21%, or $60 a year]]. The new pricing page shows the yearly price first.', meta:'Sonnet 5.5 · 4.8s' },
+    { t:'Billed yearly, Pro drops from $24 to $19 a month: [[$60 back each year]], about 21%. That is why the pricing page leads with yearly.', meta:'Sonnet 5.5 · 5.1s' }
+  ];
+  const t = $('.aab-t', r), pg = $('.aab-pg', r), n = $('.aab-n', r), pv = $('.aab-prev', r), nx = $('.aab-next', r), re = $('.aab-re', r), cp = $('.aab-cp', r);
+  const up = $('.aab-up', r), dn = $('.aab-dn', r), rd = $('.aab-rd', r), bar = $('.aab-pr i', r), tm = $('.aab-tm', r), meta = $('.aab-meta', r), why = $('.aab-why', r), st = $('.aab-st', r), chips = $$('.aab-ch .chip', r);
+  // every version keeps its own rating
+  const vers = [{ ...POOL[0], rate:'' }]; let cur = 0, busy = false, failOnce = false;
+  const plain = v => v.t.replace(/\[\[|\]\]/g, '');
+  // each word's HTML, with the space before it; inside the changed phrase the space is highlighted too, so the phrase reads as one
+  const words = v => { let on = false; return v.t.split(' ').map((w, i) => { const a = w.startsWith('[['), b = w.includes(']]'), inner = on && !a; if (a) on = true;
+    const s = (i ? `<span${inner ? ' class="nw"' : ''}> </span>` : '') + `<span class="w${on ? ' nw' : ''}">${w.replace(/\[\[|\]\]/g, '')}</span>`; if (b) on = false; return s; }); };
+  const status = (text, tone) => { st.className = 'aab-st muted' + (tone ? ' ' + tone : ''); if (tone === 'ok') { st.innerHTML = `${I('ok','xs')}<span>${text}</span>`; enter(st); } else swap(st, text); };
+  function nav(){
+    n.textContent = (cur + 1) + ' / ' + vers.length; pg.classList.toggle('on', vers.length > 1); pg.inert = vers.length < 2;
+    pv.disabled = cur === 0 || busy; nx.disabled = cur === vers.length - 1 || busy; re.disabled = busy;
+    up.setAttribute('aria-pressed', vers[cur].rate === 'up'); dn.setAttribute('aria-pressed', vers[cur].rate === 'down');
+    swap(meta, vers[cur].meta);
+  }
+  // a version streams in word by word; paging between versions shows one at once
+  async function stream(v){
+    t.classList.add('out'); await c.wait(260); t.classList.remove('out'); t.innerHTML = '';
+    const ws = words(v);
+    for (let i = 0; i < ws.length; i++){ t.insertAdjacentHTML('beforeend', ws[i]); t.lastElementChild.classList.add('in'); await c.wait(38); }
+  }
+  async function show(i){ stop(); cur = i; nav(); t.classList.add('out'); await c.wait(240); t.classList.remove('out'); t.innerHTML = words(vers[i]).join(''); $$('.w', t).forEach((w, k) => { w.classList.add('in'); w.style.animationDelay = k * 10 + 'ms'; }); }
+  pv.onclick = () => c.run(() => show(cur - 1));
+  nx.onclick = () => c.run(() => show(cur + 1));
+  // regenerate writes the next version; a dropped connection is retried once with a countdown
+  function regenerate(note){
+    if (busy) return; stop(); busy = true; re.classList.add('go'); c.later(700, () => re.classList.remove('go')); nav();
+    c.run(async () => {
+      if (failOnce){ failOnce = false;
+        status('Writing a new version' + (note ? ' with your note' : '')); st.classList.add('shim'); await c.wait(1200); st.classList.remove('shim');
+        for (let k = 2; k > 0; k--){ status(`Couldn't reach Sonnet 5.5. Retrying in ${k}s`, 'warn'); await c.wait(1000); }
+      }
+      status('Writing a new version' + (note ? ' with your note' : '')); st.classList.add('shim');
+      const v = { ...POOL[Math.min(vers.length, POOL.length - 1)], rate:'' }; vers.push(v); cur = vers.length - 1; nav();
+      await stream(v); busy = false; nav(); st.classList.remove('shim');
+      status(cur === 1 ? 'Version 2 fixes the saving: 21%, not 15%' : `Version ${cur + 1} of ${vers.length}`, 'ok');
+    });
+  }
+  re.onclick = () => regenerate();
+  cp.onclick = () => { copied(cp, plain(vers[cur])); status('Copied without the highlights', 'ok'); };
+  // thumbs: up is a quiet thanks; down asks why, and a reason writes a version that answers it
+  up.onclick = () => { const v = vers[cur]; v.rate = v.rate === 'up' ? '' : 'up'; why.classList.add('shut'); nav(); status(v.rate ? 'Thanks, noted for this project' : ''); };
+  dn.onclick = () => { const v = vers[cur]; v.rate = v.rate === 'down' ? '' : 'down'; why.classList.toggle('shut', v.rate !== 'down'); why.inert = v.rate !== 'down'; nav(); status(''); chips.forEach(x => x.classList.remove('on')); };
+  chips.forEach(ch => ch.onclick = () => { chips.forEach(x => x.classList.toggle('on', x === ch)); c.later(400, () => { why.classList.add('shut'); why.inert = true; failOnce = vers.length === 1; regenerate(ch.textContent); }); });
+  why.inert = true;
+  // read aloud: about 0.28s a word, each word lit as it's read, with a progress bar and a clock
+  let reading = 0, pos = 0;
+  const clock = s => Math.floor(s / 60) + ':' + String(Math.floor(s) % 60).padStart(2, '0');
+  const icon = k => { $('.ic', rd).innerHTML = I(k, 'xs'); };
+  // stop drops the place (a new version, another page); pause keeps it, so the bar, the clock and the lit word stay
+  function stop(){ if (reading) clearInterval(reading); reading = 0; pos = 0; rd.classList.remove('on', 'paused'); rd.setAttribute('aria-pressed', 'false'); rd.setAttribute('aria-label', 'Read aloud'); rd.dataset.tip = 'Read aloud'; icon('vol'); bar.style.width = '0%'; $$('.w.rd', t).forEach(w => w.classList.remove('rd')); }
+  function pause(){ clearInterval(reading); reading = 0; rd.classList.add('paused'); rd.setAttribute('aria-pressed', 'false'); rd.setAttribute('aria-label', 'Resume reading'); rd.dataset.tip = 'Resume'; icon('play'); }
+  rd.onclick = () => {
+    if (reading) return pause();
+    const ws = $$('.w', t); if (!ws.length || busy) return;
+    const total = ws.length * .28;
+    rd.classList.add('on'); rd.classList.remove('paused'); rd.setAttribute('aria-pressed', 'true'); rd.setAttribute('aria-label', 'Pause reading'); rd.dataset.tip = 'Pause'; icon('pause');
+    reading = c.every(100, () => {
+      pos += 100 / 280; const i = Math.min(ws.length - 1, Math.floor(pos));
+      ws.forEach((w, k) => w.classList.toggle('rd', k === i));
+      bar.style.width = Math.min(100, pos / ws.length * 100) + '%'; tm.textContent = clock(pos * .28) + ' / ' + clock(total);
+      if (pos >= ws.length) stop();
+    });
+  };
+  // Left and Right move between the toolbar's buttons, skipping any that are switched off
+  c.on($('.aab-bar', r), 'keydown', e => {
+    const k = { ArrowRight:1, ArrowLeft:-1 }[e.key]; if (!k) return;
+    const bs = $$('.aab-bar button', r).filter(b => !b.disabled && !b.closest('[inert]')), i = bs.indexOf(document.activeElement);
+    if (i < 0) return; e.preventDefault(); bs[(i + k + bs.length) % bs.length].focus();
+  });
+  nav();
+  c.run(async () => { busy = true; nav(); await c.wait(300); await stream(vers[0]); busy = false; nav(); });
+  // the preview's story: listen, hear a wrong number, rate it down, say why, ride out a dropped connection, copy the fix
+  c.story(async s => {
+    await s.until(() => !busy); await s.beat(2);
+    await s.tap(rd); s.away(); await s.beat(7);
+    await s.tap(rd); await s.beat(1);
+    await s.tap(dn); s.away(); await s.beat(3);
+    await s.tap(chips[0]); s.away();
+    await s.until(() => vers.length > 1 && !busy); await s.beat(3);
+    await s.tap(cp); s.away(); await s.beat(1);
   });
 });
 /* ---------- Decision prompt ---------- */

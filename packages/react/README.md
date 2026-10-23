@@ -4,7 +4,7 @@ React versions of the [designme.dev](https://designme.dev) components, for Next.
 
 They use the same markup and the same CSS as the site, so they look and move exactly like the previews on designme.dev, in both styles (Blueprint and Soft) and in light and dark. The difference is that each one takes props, so you drive it from your own state instead of a scripted demo.
 
-All 81 components are here, from Status pill to Currency converter, each with an example that replays its demo from the site.
+All 83 components are here, from Status pill to Currency converter, each with an example that replays its demo from the site.
 
 Preview: https://designme.dev/packages/react/preview/
 
@@ -143,6 +143,10 @@ Each tool the agent calls, with its input and output.
 A file the agent made, with a live preview and versions.  
 `title`, `versions: { label, text, values, value?, change?, meta?, note? }[]`, `axis`, `range`, `icon`, `link` (adds Copy link), `href` (adds Open in a new tab), `onOpen` and `openLabel` (an open button that calls you instead, like opening the file beside a chat), `version` / `defaultVersion` / `onVersionChange`. The chart draws itself in and redraws when the version changes.
 
+**ModelPicker** · `model-picker/ModelPicker.tsx`  
+Pick a model by speed, quality and cost, and how hard it thinks.  
+`models: { id, name, mark?, color?, note?, speed, quality, cost, speedDetail?, qualityDetail?, costDetail?, status?: 'ready' | 'checking' | 'busy', statusText? }[]` (speed, quality and cost from 1 to 5, drawn as five-step meters; the details show on hover; busy turns the row amber), `value` / `defaultValue` / `onValueChange` (called for any row, busy or not, so you can check the model first), `efforts: { label, detail? }[]` (defaults to Off, Low, Medium and High), `effort` / `defaultEffort` / `onEffortChange`, `estimate` (the line at the foot, like what the next reply will take), `suggestion: { text, actions: { label, onClick }[] }` (a way out when the picked model can't start), `note` (a confirmation with a green check), `label`, `open` / `defaultOpen` / `onOpenChange`. Arrow keys move through the models; Escape closes the list and focuses the trigger.
+
 **PromptStarters** · `prompt-starters/PromptStarters.tsx`  
 Suggested tasks that fill the composer in one click.  
 `starters: { icon, tone?, title, description, prompt }[]`, `value` / `defaultValue` / `onValueChange` (the picked title), `onSend(prompt)`, `onShuffle` (shows Shuffle; pass a new set and it staggers in), `placeholder`, `sentLabel`.
@@ -150,6 +154,10 @@ Suggested tasks that fill the composer in one click.
 **AttachmentTray** · `attachment-tray/AttachmentTray.tsx`  
 Drop files for the agent and watch each one upload.  
 `files: { id, name, size, progress }[]` (at 100 the ring turns into a check), `onFiles(files)` (dropped or picked), `onRemove(id)`, `title`, `action: { label, onClick }`, `accept`, `summary`, `dragging` (shows the drop zone as if a file were over it; the dashed edge stops and turns accent).
+
+**AnswerActionBar** · `answer-action-bar/AnswerActionBar.tsx`  
+Copy, regenerate, rate and listen to an answer from one row under it.  
+`question`, `versions: { text, changed?, meta?, rating? }[]` (`changed` is a phrase in the text to highlight, `meta` the quiet text after the bar), `version` / `defaultVersion` / `onVersionChange` (the pager appears with a second version), `streaming` (new words fade in; paging and reading wait), `onRegenerate`, `onCopy(text)` (copy turns into a check), `onRate(index, rating)` (one rating per version), `reasons` and `onReason(index, reason)` (a thumbs down asks why), `status` and `statusTone: 'warn' | 'ok'`, `reading` / `defaultReading` / `onReadingChange` (`'idle' | 'playing' | 'paused'`: playing lights each word in turn on its own clock, `secondsPerWord`, default 0.28; it doesn't speak, so connect your own text to speech), `bare`. Left and Right move between the buttons.
 
 **ResponseVersions** · `response-versions/ResponseVersions.tsx`  
 Regenerate an answer and flip between versions.  
