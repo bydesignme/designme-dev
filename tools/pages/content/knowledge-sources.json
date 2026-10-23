@@ -1,0 +1,32 @@
+{
+  "summary": "A list of what an agent knows: uploaded files, websites it crawls and connected folders of docs, each with how far it has been indexed. A source is queued, indexing with a progress bar and a count, ready with when it last synced, or failed with the reason. A failed source can offer a fix, like reading a scanned PDF with OCR, and every source has Re-sync and Remove. It answers the question \"what does this agent know, and is it up to date?\"",
+  "use": [
+    "When people give an agent its own knowledge, like help docs, a product site or a shared drive, and need to see what it has read.",
+    "When indexing takes a while and people should see it progress instead of waiting on a blank list.",
+    "When a source can fail for a reason people can act on, like a scanned PDF or a site that blocks crawlers.",
+    "In an agent's settings, next to its tools and memory."
+  ],
+  "features": [
+    "Each source in `sources` shows its type's icon (`kind` of `files`, `web` or `folder`), its `name`, and a line under it that follows its `state`.",
+    "The dot on the icon is the state at a glance: grey while `queued`, a turning ring while `indexing`, green when `ready` and red when `failed`.",
+    "While indexing, the line becomes a progress bar and a count, like \"64 of 142 pages\", from `done` and `count`; `unit` switches pages to files.",
+    "A ready source reads like \"142 pages · Synced 2m ago\" from its `synced`; a queued one reads \"Queued\", or your own `note`.",
+    "A failed source shows its `error` in red, with a button labelled with its `fix` that calls `onFix`, and a Remove button when you pass `onRemove`.",
+    "Each row has a menu with Re-sync (`onResync`, unavailable while the source waits or indexes) and Remove (`onRemove`).",
+    "Add source opens a menu with an option for each handler you pass: Upload files opens the file picker and calls `onUpload` with the files; Add a website asks for an address and calls `onAddWebsite` with it, without http(s)://; Connect a folder lists `folders` and calls `onConnectFolder`.",
+    "The line under the title counts the sources and adds up their `chunks`, like \"4 sources · 1,204 chunks\", or shows your own `status`."
+  ],
+  "a11y": [
+    "The sources form a list, and each row's menu button is named for its source, like \"Actions for Product docs\".",
+    "An indexing source's bar is a progressbar with its count as its value.",
+    "The menus have role=\"menu\"; their buttons expose aria-expanded and aria-haspopup, and Escape closes a menu; in React, focus goes back to its button.",
+    "The line under the title is announced politely when it changes.",
+    "With reduced motion, rows appear without their entrance and text changes without the crossfade."
+  ],
+  "faq": [
+    {"q": "Does the component index anything?", "a": "No. It shows what you tell it. Run the indexing in your own code and update each source's `state` and `done` as it goes; the bar and count follow."},
+    {"q": "How do I show the website being added?", "a": "Handle `onAddWebsite`: add a source with `kind: 'web'` and `state: 'queued'`, then move it to `indexing` and `ready` as your crawler works. Pass `address` and `onAddressChange` if you want to fill in the field yourself."},
+    {"q": "Why doesn't the chunk count include a source that is still indexing?", "a": "The total adds up `chunks`, so leave a source's `chunks` out until it has been indexed. Keep it while a source re-syncs if its old index still answers questions."},
+    {"q": "Can a failed source offer something other than OCR?", "a": "Yes. `fix` is any label, like \"Sign in again\" or \"Try a smaller file\", and `onFix` gets the source's key."}
+  ]
+}
