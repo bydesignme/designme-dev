@@ -12,12 +12,15 @@
 .mix-ch.in .mix-a{opacity:1}
 .mix-x{opacity:0;transition:opacity .2s}
 .mix-ch:hover .mix-x,.mix-ch:hover .mix-dot{opacity:1}
-.mix-dot{position:absolute;width:9px;height:9px;margin:-4.5px;border-radius:50%;background:var(--surface);box-shadow:0 0 0 2px var(--accent);opacity:0;transition:opacity .2s;pointer-events:none}
-.mix-mk{position:absolute;top:-4px;width:18px;height:18px;margin-left:-9px;border-radius:50%;background:var(--accent);color:#fff;display:grid;place-items:center;opacity:0;transform:scale(.5);transition:opacity .4s 1.1s,transform .5s 1.1s var(--ease)}
-.mix-ch.in .mix-mk{opacity:1;transform:none}
-.mix-mk svg{width:10px;height:10px}
+.mix-dot{position:absolute;width:9px;height:9px;margin:-4.5px;border-radius:50%;background:var(--surface);box-shadow:0 0 0 2px var(--accent-mark,var(--accent));opacity:0;transition:opacity .2s;pointer-events:none}
+/* the change it explains is marked where it happened: a small date label at the top of a dashed guide down through the chart */
+.mix-mk{position:absolute;top:-14px;bottom:0;display:flex;flex-direction:column;align-items:center;transform:translateX(-50%);opacity:0;transition:opacity .4s 1.1s;pointer-events:none}
+.mix-mk b{pointer-events:auto;display:inline-flex;align-items:center;gap:4px;height:20px;padding:0 7px;border-radius:var(--r-pill);background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);font-size:11.5px;font-weight:500;color:var(--fg2);white-space:nowrap}
+.mix-mk b svg{width:10px;height:10px;color:var(--accent-fg,var(--accent))}
+.mix-mk::after{content:"";flex:1;border-left:1px dashed var(--faint)}
+.mix-ch.in .mix-mk{opacity:1}
 .mix-ins{display:flex;gap:8px;align-items:flex-start;font-size:13px;line-height:1.5;color:var(--fg2)}
-.mix-ic{color:var(--accent);display:grid;margin-top:2px}
+.mix-ic{color:var(--accent-fg,var(--accent));display:grid;margin-top:2px}
 .mix-why{align-self:flex-start}
 /* a lighter button than the soft pill, like the other quiet asks */
 .pill.soft.mix-why{background:var(--chip);box-shadow:none}
@@ -53,7 +56,7 @@
 <div class="mix panel">
   <div class="mix-h"><span class="muted">Trial to paid</span><div class="seg2 mix-rg" role="group" aria-label="Range"><button aria-pressed="false" data-v="7">7d</button><button aria-pressed="true" data-v="30">30d</button><button aria-pressed="false" data-v="90">90d</button></div></div>
   <div class="mix-v"><b class="num mix-n">0%</b><span class="tag ok mix-d num">+0.0 pts</span></div>
-  <div class="mix-ch"><svg class="mix-svg" viewBox="0 0 300 90" preserveAspectRatio="none"><defs><linearGradient id="mixg" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="var(--accent)" stop-opacity=".18"/><stop offset="1" stop-color="var(--accent)" stop-opacity="0"/></linearGradient></defs><path class="mix-a" fill="url(#mixg)"/><path class="mix-l" fill="none" stroke="var(--accent)" stroke-width="2" vector-effect="non-scaling-stroke" stroke-linejoin="round"/><line class="mix-x" y1="0" y2="90" stroke="var(--faint)" stroke-dasharray="2 3" vector-effect="non-scaling-stroke"/></svg><span class="mix-dot"></span><span class="mix-mk" style="left:58%">{spark}</span></div>
+  <div class="mix-ch"><svg class="mix-svg" viewBox="0 0 300 90" preserveAspectRatio="none"><defs><linearGradient id="mixg" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="var(--accent-mark,var(--accent))" stop-opacity=".18"/><stop offset="1" stop-color="var(--accent-mark,var(--accent))" stop-opacity="0"/></linearGradient></defs><path class="mix-a" fill="url(#mixg)"/><path class="mix-l" fill="none" stroke="var(--accent-mark,var(--accent))" stroke-width="2" vector-effect="non-scaling-stroke" stroke-linejoin="round"/><line class="mix-x" y1="0" y2="90" stroke="var(--faint)" stroke-dasharray="2 3" vector-effect="non-scaling-stroke"/></svg><span class="mix-dot"></span><span class="mix-mk" style="left:58%"><b>{spark}Sep 18</b></span></div>
   <div class="mix-ins"><span class="mix-ic">{spark}</span><span class="mix-t">Jumped after the pricing page update on Sep 18.</span></div>
   <button class="pill soft sm mix-why">Why did it move?</button>
   <div class="fold shut mix-box"><div><div class="mix-rs"></div></div></div>
@@ -253,7 +256,7 @@ function Marker({ at, label }: { at: number; label: string }) {
   }, []);
   return &lt;Tip label={label}&gt;&lt;span ref={ref} className=&quot;dm-mix-mk&quot; style={{ left: at * 100 + &#39;%&#39;, opacity: 0, transform: &#39;scale(.5)&#39; }}&gt;&lt;Icon name=&quot;spark&quot; size=&quot;xs&quot; /&gt;&lt;/span&gt;&lt;/Tip&gt;;
 }
-</code></pre></details><details class="cp-file"><summary>metric-insight.css<span class="l">React · 33 lines</span></summary><pre class="cp-pre"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+</code></pre></details><details class="cp-file"><summary>metric-insight.css<span class="l">React · 36 lines</span></summary><pre class="cp-pre"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Metric insight ---------- */
 .dm-mix{padding:14px;display:flex;flex-direction:column;gap:10px}
 .dm-mix-h{display:flex;align-items:center;justify-content:space-between;font-size:12.5px}
@@ -268,12 +271,15 @@ function Marker({ at, label }: { at: number; label: string }) {
 .dm-mix-ch.dm-in .dm-mix-a{opacity:1}
 .dm-mix-x{opacity:0;transition:opacity .2s}
 .dm-mix-ch:hover .dm-mix-x,.dm-mix-ch:hover .dm-mix-dot{opacity:1}
-.dm-mix-dot{position:absolute;width:9px;height:9px;margin:-4.5px;border-radius:50%;background:var(--dm-surface);box-shadow:0 0 0 2px var(--dm-accent);opacity:0;transition:opacity .2s;pointer-events:none}
-.dm-mix-mk{position:absolute;top:-4px;width:18px;height:18px;margin-left:-9px;border-radius:50%;background:var(--dm-accent);color:#fff;display:grid;place-items:center;opacity:0;transform:scale(.5);transition:opacity .4s 1.1s,transform .5s 1.1s var(--dm-ease)}
-.dm-mix-ch.dm-in .dm-mix-mk{opacity:1;transform:none}
-.dm-mix-mk svg{width:10px;height:10px}
+.dm-mix-dot{position:absolute;width:9px;height:9px;margin:-4.5px;border-radius:50%;background:var(--dm-surface);box-shadow:0 0 0 2px var(--dm-accent-mark,var(--dm-accent));opacity:0;transition:opacity .2s;pointer-events:none}
+/* the change it explains is marked where it happened: a small date label at the top of a dashed guide down through the chart */
+.dm-mix-mk{position:absolute;top:-14px;bottom:0;display:flex;flex-direction:column;align-items:center;transform:translateX(-50%);opacity:0;transition:opacity .4s 1.1s;pointer-events:none}
+.dm-mix-mk b{pointer-events:auto;display:inline-flex;align-items:center;gap:4px;height:20px;padding:0 7px;border-radius:var(--dm-r-pill);background:var(--dm-surface);box-shadow:inset 0 0 0 1px var(--dm-line);font-size:11.5px;font-weight:500;color:var(--dm-fg2);white-space:nowrap}
+.dm-mix-mk b svg{width:10px;height:10px;color:var(--dm-accent-fg,var(--dm-accent))}
+.dm-mix-mk::after{content:&quot;&quot;;flex:1;border-left:1px dashed var(--dm-faint)}
+.dm-mix-ch.dm-in .dm-mix-mk{opacity:1}
 .dm-mix-ins{display:flex;gap:8px;align-items:flex-start;font-size:13px;line-height:1.5;color:var(--dm-fg2)}
-.dm-mix-ic{color:var(--dm-accent);display:grid;margin-top:2px}
+.dm-mix-ic{color:var(--dm-accent-fg,var(--dm-accent));display:grid;margin-top:2px}
 .dm-mix-why{align-self:flex-start}
 /* a lighter button than the soft pill, like the other quiet asks */
 .dm-pill.dm-soft.dm-mix-why{background:var(--dm-chip);box-shadow:none}
@@ -291,14 +297,14 @@ function Marker({ at, label }: { at: number; label: string }) {
 &lt;div class=&quot;mix panel&quot;&gt;
   &lt;div class=&quot;mix-h&quot;&gt;&lt;span class=&quot;muted&quot;&gt;Trial to paid&lt;/span&gt;&lt;div class=&quot;seg2 mix-rg&quot; role=&quot;group&quot; aria-label=&quot;Range&quot;&gt;&lt;button aria-pressed=&quot;false&quot; data-v=&quot;7&quot;&gt;7d&lt;/button&gt;&lt;button aria-pressed=&quot;true&quot; data-v=&quot;30&quot;&gt;30d&lt;/button&gt;&lt;button aria-pressed=&quot;false&quot; data-v=&quot;90&quot;&gt;90d&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;
   &lt;div class=&quot;mix-v&quot;&gt;&lt;b class=&quot;num mix-n&quot;&gt;0%&lt;/b&gt;&lt;span class=&quot;tag ok mix-d num&quot;&gt;+0.0 pts&lt;/span&gt;&lt;/div&gt;
-  &lt;div class=&quot;mix-ch&quot;&gt;&lt;svg class=&quot;mix-svg&quot; viewBox=&quot;0 0 300 90&quot; preserveAspectRatio=&quot;none&quot;&gt;&lt;defs&gt;&lt;linearGradient id=&quot;mixg&quot; x1=&quot;0&quot; x2=&quot;0&quot; y1=&quot;0&quot; y2=&quot;1&quot;&gt;&lt;stop offset=&quot;0&quot; stop-color=&quot;var(--accent)&quot; stop-opacity=&quot;.18&quot;/&gt;&lt;stop offset=&quot;1&quot; stop-color=&quot;var(--accent)&quot; stop-opacity=&quot;0&quot;/&gt;&lt;/linearGradient&gt;&lt;/defs&gt;&lt;path class=&quot;mix-a&quot; fill=&quot;url(#mixg)&quot;/&gt;&lt;path class=&quot;mix-l&quot; fill=&quot;none&quot; stroke=&quot;var(--accent)&quot; stroke-width=&quot;2&quot; vector-effect=&quot;non-scaling-stroke&quot; stroke-linejoin=&quot;round&quot;/&gt;&lt;line class=&quot;mix-x&quot; y1=&quot;0&quot; y2=&quot;90&quot; stroke=&quot;var(--faint)&quot; stroke-dasharray=&quot;2 3&quot; vector-effect=&quot;non-scaling-stroke&quot;/&gt;&lt;/svg&gt;&lt;span class=&quot;mix-dot&quot;&gt;&lt;/span&gt;&lt;span class=&quot;mix-mk&quot; style=&quot;left:58%&quot;&gt;{spark}&lt;/span&gt;&lt;/div&gt;
+  &lt;div class=&quot;mix-ch&quot;&gt;&lt;svg class=&quot;mix-svg&quot; viewBox=&quot;0 0 300 90&quot; preserveAspectRatio=&quot;none&quot;&gt;&lt;defs&gt;&lt;linearGradient id=&quot;mixg&quot; x1=&quot;0&quot; x2=&quot;0&quot; y1=&quot;0&quot; y2=&quot;1&quot;&gt;&lt;stop offset=&quot;0&quot; stop-color=&quot;var(--accent-mark,var(--accent))&quot; stop-opacity=&quot;.18&quot;/&gt;&lt;stop offset=&quot;1&quot; stop-color=&quot;var(--accent-mark,var(--accent))&quot; stop-opacity=&quot;0&quot;/&gt;&lt;/linearGradient&gt;&lt;/defs&gt;&lt;path class=&quot;mix-a&quot; fill=&quot;url(#mixg)&quot;/&gt;&lt;path class=&quot;mix-l&quot; fill=&quot;none&quot; stroke=&quot;var(--accent-mark,var(--accent))&quot; stroke-width=&quot;2&quot; vector-effect=&quot;non-scaling-stroke&quot; stroke-linejoin=&quot;round&quot;/&gt;&lt;line class=&quot;mix-x&quot; y1=&quot;0&quot; y2=&quot;90&quot; stroke=&quot;var(--faint)&quot; stroke-dasharray=&quot;2 3&quot; vector-effect=&quot;non-scaling-stroke&quot;/&gt;&lt;/svg&gt;&lt;span class=&quot;mix-dot&quot;&gt;&lt;/span&gt;&lt;span class=&quot;mix-mk&quot; style=&quot;left:58%&quot;&gt;&lt;b&gt;{spark}Sep 18&lt;/b&gt;&lt;/span&gt;&lt;/div&gt;
   &lt;div class=&quot;mix-ins&quot;&gt;&lt;span class=&quot;mix-ic&quot;&gt;{spark}&lt;/span&gt;&lt;span class=&quot;mix-t&quot;&gt;Jumped after the pricing page update on Sep 18.&lt;/span&gt;&lt;/div&gt;
   &lt;button class=&quot;pill soft sm mix-why&quot;&gt;Why did it move?&lt;/button&gt;
   &lt;div class=&quot;fold shut mix-box&quot;&gt;&lt;div&gt;&lt;div class=&quot;mix-rs&quot;&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;
 &lt;/div&gt;
   &lt;/template&gt;
 &lt;/div&gt;
-</code></pre></details><details class="cp-file"><summary>metric-insight.css<span class="l">HTML · 32 lines</span></summary><pre class="cp-pre"><code>/* ---------- Metric insight ---------- */
+</code></pre></details><details class="cp-file"><summary>metric-insight.css<span class="l">HTML · 35 lines</span></summary><pre class="cp-pre"><code>/* ---------- Metric insight ---------- */
 .mix{padding:14px;display:flex;flex-direction:column;gap:10px}
 .mix-h{display:flex;align-items:center;justify-content:space-between;font-size:12.5px}
 .mix-rg button{font-size:11.5px;padding:0 8px;height:24px}
@@ -312,12 +318,15 @@ function Marker({ at, label }: { at: number; label: string }) {
 .mix-ch.in .mix-a{opacity:1}
 .mix-x{opacity:0;transition:opacity .2s}
 .mix-ch:hover .mix-x,.mix-ch:hover .mix-dot{opacity:1}
-.mix-dot{position:absolute;width:9px;height:9px;margin:-4.5px;border-radius:50%;background:var(--surface);box-shadow:0 0 0 2px var(--accent);opacity:0;transition:opacity .2s;pointer-events:none}
-.mix-mk{position:absolute;top:-4px;width:18px;height:18px;margin-left:-9px;border-radius:50%;background:var(--accent);color:#fff;display:grid;place-items:center;opacity:0;transform:scale(.5);transition:opacity .4s 1.1s,transform .5s 1.1s var(--ease)}
-.mix-ch.in .mix-mk{opacity:1;transform:none}
-.mix-mk svg{width:10px;height:10px}
+.mix-dot{position:absolute;width:9px;height:9px;margin:-4.5px;border-radius:50%;background:var(--surface);box-shadow:0 0 0 2px var(--accent-mark,var(--accent));opacity:0;transition:opacity .2s;pointer-events:none}
+/* the change it explains is marked where it happened: a small date label at the top of a dashed guide down through the chart */
+.mix-mk{position:absolute;top:-14px;bottom:0;display:flex;flex-direction:column;align-items:center;transform:translateX(-50%);opacity:0;transition:opacity .4s 1.1s;pointer-events:none}
+.mix-mk b{pointer-events:auto;display:inline-flex;align-items:center;gap:4px;height:20px;padding:0 7px;border-radius:var(--r-pill);background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);font-size:11.5px;font-weight:500;color:var(--fg2);white-space:nowrap}
+.mix-mk b svg{width:10px;height:10px;color:var(--accent-fg,var(--accent))}
+.mix-mk::after{content:&quot;&quot;;flex:1;border-left:1px dashed var(--faint)}
+.mix-ch.in .mix-mk{opacity:1}
 .mix-ins{display:flex;gap:8px;align-items:flex-start;font-size:13px;line-height:1.5;color:var(--fg2)}
-.mix-ic{color:var(--accent);display:grid;margin-top:2px}
+.mix-ic{color:var(--accent-fg,var(--accent));display:grid;margin-top:2px}
 .mix-why{align-self:flex-start}
 /* a lighter button than the soft pill, like the other quiet asks */
 .pill.soft.mix-why{background:var(--chip);box-shadow:none}
@@ -359,12 +368,12 @@ function Marker({ at, label }: { at: number; label: string }) {
   // once drawn, drop the dashes so a later resize can&#39;t cut the line short
   c.on(l, &#39;transitionend&#39;, e =&gt; { if (e.propertyName === &#39;stroke-dashoffset&#39; &amp;&amp; ch.classList.contains(&#39;in&#39;)) l.style.strokeDasharray = &#39;none&#39;; });
   seg($(&#39;.mix-rg&#39;, r), v =&gt; { cur = +v; draw(cur); });
-  mk.dataset.tip = &#39;Pricing page update shipped&#39;;
+  $(&#39;b&#39;, mk).dataset.tip = &#39;Pricing page update shipped&#39;;
   const why = $(&#39;.mix-why&#39;, r), box = $(&#39;.mix-box&#39;, r), rs = $(&#39;.mix-rs&#39;, r);
   why.onclick = () =&gt; c.run(async () =&gt; {
     if (!box.classList.contains(&#39;shut&#39;)){ box.classList.add(&#39;shut&#39;); why.setAttribute(&#39;aria-expanded&#39;, &#39;false&#39;); swap(why, &#39;Why did it move?&#39;); return; }
     why.innerHTML = &#39;&lt;span class=&quot;think on&quot;&gt;&lt;i&gt;&lt;/i&gt;&lt;i&gt;&lt;/i&gt;&lt;i&gt;&lt;/i&gt;&lt;i&gt;&lt;/i&gt;&lt;/span&gt;Looking into it&#39;; await c.wait(900);
-    const R = [[&#39;Annual plan shown first&#39;, 54, &#39;var(--accent)&#39;], [&#39;One CTA per card&#39;, 27, &#39;var(--pl)&#39;], [&#39;Seasonal traffic&#39;, 12, &#39;var(--pt)&#39;], [&#39;Unexplained&#39;, 7, &#39;var(--faint)&#39;]];
+    const R = [[&#39;Annual plan shown first&#39;, 54, &#39;var(--accent-mark,var(--accent))&#39;], [&#39;One CTA per card&#39;, 27, &#39;var(--pl)&#39;], [&#39;Seasonal traffic&#39;, 12, &#39;var(--pt)&#39;], [&#39;Unexplained&#39;, 7, &#39;var(--faint)&#39;]];
     rs.innerHTML = R.map(q =&gt; `&lt;div class=&quot;mix-r&quot;&gt;&lt;span class=&quot;dot&quot; style=&quot;color:${q[2]}&quot;&gt;&lt;/span&gt;&lt;span class=&quot;t&quot;&gt;${q[0]}&lt;/span&gt;&lt;span class=&quot;bar&quot;&gt;&lt;i style=&quot;width:${q[1]}%;background:${q[2]}&quot;&gt;&lt;/i&gt;&lt;/span&gt;&lt;span class=&quot;v num&quot;&gt;${q[1]}%&lt;/span&gt;&lt;/div&gt;`).join(&#39;&#39;);
     box.classList.remove(&#39;shut&#39;); why.setAttribute(&#39;aria-expanded&#39;, &#39;true&#39;); stagger($$(&#39;.mix-r&#39;, rs), 60); swap(why, &#39;Hide the breakdown&#39;);
   });
@@ -433,12 +442,12 @@ function Marker({ at, label }: { at: number; label: string }) {
   // once drawn, drop the dashes so a later resize can't cut the line short
   c.on(l, 'transitionend', e => { if (e.propertyName === 'stroke-dashoffset' && ch.classList.contains('in')) l.style.strokeDasharray = 'none'; });
   seg($('.mix-rg', r), v => { cur = +v; draw(cur); });
-  mk.dataset.tip = 'Pricing page update shipped';
+  $('b', mk).dataset.tip = 'Pricing page update shipped';
   const why = $('.mix-why', r), box = $('.mix-box', r), rs = $('.mix-rs', r);
   why.onclick = () => c.run(async () => {
     if (!box.classList.contains('shut')){ box.classList.add('shut'); why.setAttribute('aria-expanded', 'false'); swap(why, 'Why did it move?'); return; }
     why.innerHTML = '<span class="think on"><i></i><i></i><i></i><i></i></span>Looking into it'; await c.wait(900);
-    const R = [['Annual plan shown first', 54, 'var(--accent)'], ['One CTA per card', 27, 'var(--pl)'], ['Seasonal traffic', 12, 'var(--pt)'], ['Unexplained', 7, 'var(--faint)']];
+    const R = [['Annual plan shown first', 54, 'var(--accent-mark,var(--accent))'], ['One CTA per card', 27, 'var(--pl)'], ['Seasonal traffic', 12, 'var(--pt)'], ['Unexplained', 7, 'var(--faint)']];
     rs.innerHTML = R.map(q => `<div class="mix-r"><span class="dot" style="color:${q[2]}"></span><span class="t">${q[0]}</span><span class="bar"><i style="width:${q[1]}%;background:${q[2]}"></i></span><span class="v num">${q[1]}%</span></div>`).join('');
     box.classList.remove('shut'); why.setAttribute('aria-expanded', 'true'); stagger($$('.mix-r', rs), 60); swap(why, 'Hide the breakdown');
   });

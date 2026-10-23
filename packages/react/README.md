@@ -27,6 +27,8 @@ Or by hand:
 
 Every class, CSS variable and animation name starts with `dm-` (`.dm-panel`, `--dm-accent`, `dm-enter`), so the components sit next to Tailwind, shadcn/ui or your own CSS without either side changing the other. To retheme them, override the variables, for example `:root { --dm-accent: #7c3aed }`.
 
+The accent has three roles, so a light colour stays readable: `--dm-accent` is for fills (buttons, switches, selected states) with `--dm-on-accent` for text and icons on them, `--dm-accent-fg` is the accent as text and icons (aim for 4.5:1 on the surface), and `--dm-accent-mark` is lines, borders, focus rings and chart marks (3:1). Blueprint's default is lime: lime fills with dark icons, lime text and marks in dark mode, and in light mode ink text with a darker lime (`#869c2f`) for marks. When you set your own accent, set all four, for example `:root { --dm-accent: #ffe600; --dm-on-accent: #121212; --dm-accent-fg: #111318; --dm-accent-mark: #a39300 }`.
+
 ```tsx
 import { StatusPill } from '@/components/designme';
 

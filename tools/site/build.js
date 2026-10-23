@@ -57,7 +57,14 @@ function neutralDark(text){
   });
   return root.toString();
 }
-const CSS = neutralDark(soft.slice(cssA, soft.indexOf('</style>', cssA)));
+// the accent's roles: a fill stays var(--accent); text and icons in it take --accent-fg, and lines, borders, rings and chart marks
+// take --accent-mark, each falling back to the accent. A light accent like lime then keeps its fills and stays readable as text
+function accentRoles(text){
+  const ROLE = { color:'fg', 'caret-color':'fg', 'text-decoration-color':'fg', 'text-decoration':'fg', 'text-emphasis-color':'fg' };
+  return text.replace(/(^|[;{\s])((?:color|caret-color|text-decoration(?:-color)?|text-emphasis-color|stroke|fill|outline(?:-color)?|border(?:-[a-z-]+)?|box-shadow|column-rule(?:-color)?)\s*:)([^;{}]*)/g,
+    (m, pre, prop, val) => pre + prop + val.replace(/(?<!--accent-(?:fg|mark),)var\(--accent\)/g, `var(--accent-${ROLE[prop.slice(0, -1).trim()] || 'mark'},var(--accent))`));
+}
+const CSS = accentRoles(neutralDark(soft.slice(cssA, soft.indexOf('</style>', cssA))));
 const spriteM = soft.match(/<svg xmlns="http:\/\/www.w3.org\/2000\/svg" style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true">[\s\S]*?<\/svg>/);
 const SPRITE = spriteM[0];
 const scrA = soft.indexOf('<script>', spriteM.index + SPRITE.length) + '<script>'.length;
@@ -126,7 +133,7 @@ css.walkAtRules('media', at => { if (!at.nodes || !at.nodes.length) at.remove();
 // the accent comes from the site's accent picker; only the shades derived from it are set here
 css.walkRules(rule => {
   if (!rule.selectors.some(s => /\.v2$/.test(s))) return;
-  rule.walkDecls(/^--(accent|accent-2|accent-bg|on-accent)$/, d => d.remove());
+  rule.walkDecls(/^--(accent|accent-2|accent-bg|on-accent|accent-fg|accent-mark)$/, d => d.remove());
 });
 const scoped = css.toString();
 const V2CSS = `/* ===== Soft 2 and Blueprint 2 components: scoped to .v2, so the site's styles and these never touch ===== */
