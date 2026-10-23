@@ -85,11 +85,13 @@ export default function VoiceOrbDemo() {
     if (!matchMedia('(prefers-reduced-motion: reduce)').matches) raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
   }, [state, muted]);
+  // the clock runs from start to end, whatever happens between
+  const live = state !== 'idle' && state !== 'ended';
   useEffect(() => {
-    if (state === 'idle' || state === 'ended') return;
+    if (!live) return;
     const t = setInterval(() => setSecs(s => s + 1), 1000);
     return () => clearInterval(t);
-  }, [state]);
+  }, [live]);
 
   const say = async (speaker: string, line: string, ms: number, id: number, n: number) => {
     const words = line.split(' '); talking.current = true;
