@@ -24,7 +24,7 @@ const MAP = {
   c62:'event-calendar', c63:'agenda', c49:'buttons', c52:'tooltip', c53:'search-input', c57:'country-select', c51:'social-signin',
   c55:'sign-in', c50:'form', c64:'payment-form', c54:'comments', c56:'notifications', c61:'invite', c59:'reactions', c104:'ticket-list',
   c101:'kanban', c70:'pricing-cards', c72:'onboarding-checklist', c73:'stepper', c74:'set-limit', c75:'currency-converter',
-  c110:'tool-connections', c111:'design-review', c112:'model-picker', c113:'answer-action-bar', c120:'inline-text-diff', c121:'draft-review', c114:'agent-tree', c115:'agent-inbox'
+  c110:'tool-connections', c111:'design-review', c112:'model-picker', c113:'answer-action-bar', c120:'inline-text-diff', c121:'draft-review', c114:'agent-tree', c115:'agent-inbox', c116:'steering', c117:'eval-results'
 };
 // cards the original page never had: each is cut from a sibling card's markup, renamed, and placed after it
 const EXTRA = [
@@ -35,7 +35,9 @@ const EXTRA = [
   { cid:'c120', id:'inline-text-diff', reg:'inline-text-diff', title:'Inline text diff', section:'Review and approve', after:'c34', icon:'spellcheck' },
   { cid:'c121', id:'draft-review', reg:'draft-review', title:'Draft review', section:'Review and approve', after:'c34', icon:'alternate_email' },
   { cid:'c114', id:'agent-tree', reg:'agent-tree', title:'Agent tree', section:'Agent status', after:'c26', icon:'account_tree' },
-  { cid:'c115', id:'agent-inbox', reg:'agent-inbox', title:'Agent inbox', section:'Agent status', after:'c114', icon:'notifications' }
+  { cid:'c115', id:'agent-inbox', reg:'agent-inbox', title:'Agent inbox', section:'Agent status', after:'c114', icon:'notifications' },
+  { cid:'c116', id:'steering', reg:'steering', title:'Steering', section:'Review and approve', after:'c121', icon:'shuffle' },
+  { cid:'c117', id:'eval-results', reg:'eval-results', title:'Eval results', section:'Review and approve', after:'c116', icon:'readiness_score' }
 ];
 
 /* ---------- read the Soft 2 page ---------- */
@@ -299,7 +301,7 @@ const SECTIONS_FIRST = ['s-conversation', 's-status'], GRP = {};
 const ORDER = {
   's-conversation': ['live-answer', 'composer', 'thread-panel', 'artifact-card', 'tool-call', 'voice-capture', 'answer-action-bar', 'response-versions', 'model-picker', 'prompt-starters', 'attachment-tray', 'feedback-sheet'],
   's-status': ['thinking', 'reasoning-trail', 'agent-lanes', 'agent-tree', 'agent-inbox', 'run-summary', 'action-log', 'agent-run-timeline', 'context-meter', 'error-recovery', 'run-queue', 'run-cost', 'toast-stack', 'toast', 'status-pill', 'step-loader'],
-  's-review': ['change-review', 'plan-review', 'permission-gate', 'decision-prompt', 'proposal-card', 'design-tuner', 'rewrite-toolbar', 'launch-checklist', 'inline-text-diff', 'draft-review', 'design-review'],
+  's-review': ['change-review', 'plan-review', 'permission-gate', 'decision-prompt', 'proposal-card', 'design-tuner', 'rewrite-toolbar', 'launch-checklist', 'inline-text-diff', 'draft-review', 'steering', 'eval-results', 'design-review'],
   's-data': ['code-viewer', 'citation-hover', 'source-stack', 'field-extraction', 'metric-insight', 'details-panel', 'task-table'],
   's-workspace': ['automation-canvas', 'command-palette', 'memory-panel', 'model-compare', 'agent-settings', 'tool-connections', 'file-explorer', 'workspace-rail']
 };

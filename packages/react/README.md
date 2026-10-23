@@ -4,7 +4,7 @@ React versions of the [designme.dev](https://designme.dev) components, for Next.
 
 They use the same markup and the same CSS as the site, so they look and move exactly like the previews on designme.dev, in both styles (Blueprint and Soft) and in light and dark. The difference is that each one takes props, so you drive it from your own state instead of a scripted demo.
 
-All 87 components are here, from Status pill to Currency converter, each with an example that replays its demo from the site.
+All 89 components are here, from Status pill to Currency converter, each with an example that replays its demo from the site.
 
 Each one has a page on designme.dev with its demo, its React usage, its props and its code, at `https://designme.dev/components/<name>`. To see them all running locally, run `npm run dev` here.
 
@@ -208,6 +208,14 @@ The agent's edits to a piece of copy, accepted or rejected one by one.
 **DraftReview** · `draft-review/DraftReview.tsx`  
 An email the agent drafted, to check and edit before it sends.  
 `title`, `subtitle`, `to: { name, initials?, color? }[]`, `subject` / `onSubjectChange`, `body` (paragraphs split by blank lines; it stays editable, read edits from `onBodyChange(text)`), `attachments: { name, size?, loading? }[]`, `warning: { text, actions: { label, onClick, primary? }[] }` (folds open above the buttons, like an attachment the message mentions but nothing attached), `phase: 'draft' | 'sending' | 'undo' | 'sent' | 'scheduled' | 'discarded'`, `sendOptions: { key, label, detail? }[]` (now, tomorrow at 09:00 or Monday at 09:00 by default, from a dropdown beside Send; any key but `now` turns the button into Schedule), `sendOption` / `defaultSendOption` / `onSendOptionChange`, `onSend(option)`, `onDiscard`, `onUndo` (undoes a send in its window, cancels a scheduled one or brings back a discarded draft), `undoLeft` (seconds shown while the phase is `undo`), `labels`.
+
+**Steering** · `steering/Steering.tsx`  
+Change the agent's course while it works, without starting over.  
+`title`, `steps: { id, title, detail?, status: 'queued' | 'running' | 'done', fromYou? }[]`, `messages: { id, from: 'you' | 'agent', text, state?: 'queued' | 'applied', warn?, actions?: { label, onClick }[], answer? }[]` (yours wait as `queued` until the agent takes them up; the agent's last action is filled, and `answer` takes the buttons' place), `onSend(text)`, `value` / `defaultValue` / `onValueChange`, `placeholder`, `status` (defaults to "Step 2 of 4" or Done), `seconds` (counts by itself until every step is done), `summary` (defaults to "Done in 0:14 · 1 change from you"; `false` hides it).
+
+**EvalResults** · `eval-results/EvalResults.tsx`  
+An eval run case by case, against the run before.  
+`title`, `subtitle`, `cases: { id, name, status: 'queued' | 'running' | 'pass' | 'fail', time?, expected?, got?, source?, fix?: { label, onClick } }[]` (a failed case opens to show expected, got and source), `onRun` (adds the button), `running`, `runLabel`, `previousPassed` (adds "1 fewer than the last run" or "All passing" once the run settles), `filter: 'all' | 'fail'` / `defaultFilter` / `onFilterChange`, `open` / `defaultOpen` / `onOpenChange`.
 
 **DesignReview** · `design-review/DesignReview.tsx`  
 Checks run, a teammate asks for a change, the agent makes it, and you ship.  

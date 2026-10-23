@@ -246,6 +246,8 @@ export function InlineTextDiff({ title, parts, decisions, defaultDecisions = {},
 - [Rewrite toolbar](https://designme.dev/components/rewrite-toolbar.md): Select a sentence and let the agent rewrite it in place.
 - [Launch checklist](https://designme.dev/components/launch-checklist.md): The agent checks a design before it ships, and fixes what fails.
 - [Draft review](https://designme.dev/components/draft-review.md): An email the agent drafted, to check and edit before it sends.
+- [Steering](https://designme.dev/components/steering.md): Change the agent's course while it works, without starting over.
+- [Eval results](https://designme.dev/components/eval-results.md): An eval run case by case, against the run before.
 - [Design review](https://designme.dev/components/design-review.md): Checks run, a teammate asks for a change, the agent makes it, and you ship.
 
 All components: https://designme.dev/llms.txt

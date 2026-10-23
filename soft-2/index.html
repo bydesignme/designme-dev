@@ -1451,6 +1451,95 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .drf-done .t span{font-size:13px}
 .drf-done .pill{background:var(--surface);color:var(--fg);box-shadow:var(--shadow)}
 .drf-done .pill:hover{box-shadow:var(--shadow-pop)}
+/* ---------- Steering ---------- */
+/* a run you can steer while it works: its steps, what you told it and what it said back, and a message box. A message
+   waits for the step in progress, then applies from the next one; when it changes work already done, the agent asks */
+.ste{width:100%;max-width:440px;margin:0 auto;padding:6px;display:flex;flex-direction:column}
+.ste-h{display:flex;flex-direction:column;padding:8px 10px 10px;border-bottom:1px solid var(--line)}
+.ste-h b{font-weight:500;font-size:14px}
+.ste-st{font-size:12.5px}
+.ste-steps{list-style:none;margin:0;padding:4px 0}
+.ste-s{display:flex;align-items:center;gap:10px;min-height:44px;padding:5px 10px;border-radius:10px;font-size:13px}
+.ste-g{width:16px;height:16px;display:grid;place-items:center;flex:none;color:var(--faint)}
+.ste-g .spin{width:11px;height:11px;color:var(--accent)}
+.ste-s.done .ste-g{color:var(--ok)}
+.ste-t{flex:1;min-width:0;display:flex;flex-direction:column}
+.ste-t b{font-weight:500}
+.ste-t span{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ste-s.queued .ste-t b{color:var(--fg2)}
+.ste-log{display:flex;flex-direction:column;gap:8px;padding:2px 4px 10px}
+.ste-log:empty{display:none}
+/* what you sent, on the right, with whether it is waiting or applied */
+.ste-me{align-self:flex-end;max-width:85%;display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+.ste-me p{margin:0;padding:7px 12px;border-radius:14px 14px 4px 14px;background:var(--chip);font-size:13px;line-height:1.45}
+.ste-q{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--muted)}
+.ste-q .spin{width:9px;height:9px}
+.ste-q svg{color:var(--ok)}
+/* what the agent said back; a heads-up is amber, with white buttons, until you answer it */
+.ste-ag{display:flex;gap:10px;padding:10px 12px;border-radius:12px;background:var(--row);font-size:13px;line-height:1.45}
+.ste-ag>svg{flex:none;margin-top:3px;color:var(--accent)}
+.ste-ag.warn{background:var(--warn-bg)}
+.ste-ag.warn>svg{color:var(--warn)}
+.ste-ag .t{flex:1;min-width:0;display:flex;flex-direction:column;gap:8px}
+.ste-ag p{margin:0}
+.ste-acts{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:6px}
+.ste-ag .pill.ghost{background:var(--surface);color:var(--fg);box-shadow:var(--shadow)}
+.ste-ag .pill.ghost:hover{box-shadow:var(--shadow-pop)}
+.ste-ag .muted{font-size:12px}
+.ste-sum{display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:12px;background:var(--ok-bg);font-size:13px}
+.ste-sum svg{color:var(--ok);flex:none}
+.ste-box{display:flex;align-items:center;gap:6px;height:40px;margin:0 4px 4px;padding:0 5px 0 14px;border-radius:999px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--rail);transition:box-shadow .25s}
+.ste-box:focus-within,.ste-box.f{box-shadow:inset 0 0 0 1px var(--accent),0 0 0 4px var(--accent-bg)}
+.ste-box input{flex:1;min-width:0;border:0;outline:0;background:transparent;font:inherit;font-size:13px;color:var(--fg)}
+.ste-box input::placeholder{color:var(--muted)}
+.ste-go{width:30px;height:30px;border-radius:50%;background:var(--accent);color:#fff;display:grid;place-items:center;flex:none;transition:background .2s}
+.ste-go[disabled]{cursor:not-allowed;background:var(--rail);color:var(--surface)}
+/* ---------- Eval results ---------- */
+/* an eval suite's latest run: one bar segment per case, the pass count against the run before, and the cases, all or
+   just the failed ones. A failed case opens to show what was expected and what came back, with a fix that reruns it */
+.evr{width:100%;max-width:440px;margin:0 auto;padding:6px;display:flex;flex-direction:column}
+.evr-h{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 10px 10px}
+.evr-ht{display:flex;flex-direction:column;min-width:0}
+.evr-ht b{font-weight:500;font-size:14px}
+.evr-st{font-size:12.5px}
+.evr-run{flex:none}
+.evr-run .spin{width:10px;height:10px}
+.evr-sum{display:flex;flex-direction:column;gap:8px;padding:12px 10px;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.evr-segs{display:flex;gap:3px}
+.evr-segs i{flex:1;height:6px;border-radius:3px;background:var(--rail);transition:background .3s}
+.evr-segs i.pass{background:var(--ok)}
+.evr-segs i.fail{background:var(--bad)}
+.evr-segs i.run{background:var(--accent);animation:evrrun 1s ease-in-out infinite}
+@keyframes evrrun{50%{opacity:.4}}
+.evr-nums{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:20px;font-size:13px}
+.evr-dl:empty{display:none}
+.evr-tabs{padding:10px 4px 4px}
+.evr-tabs .n{color:var(--muted);margin-left:2px}
+.evr-tabs .n:empty{display:none}
+.evr-list{display:flex;flex-direction:column}
+/* a case folds away when the filter hides it, and stays hidden once shut so nothing measures it */
+.evr-w.shut>div{visibility:hidden;transition:visibility 0s var(--t)}
+.evr-i{display:flex;flex-direction:column;border-radius:10px;transition:background .2s}
+.evr-r{display:flex;align-items:center;gap:10px;width:100%;min-height:38px;padding:6px 10px;border-radius:10px;font-size:13px;text-align:left;color:var(--fg)}
+.evr-g{width:16px;height:16px;display:grid;place-items:center;flex:none;color:var(--faint)}
+.evr-g .spin{width:11px;height:11px;color:var(--accent)}
+.evr-i.pass .evr-g{color:var(--ok)}
+.evr-i.fail .evr-g{color:var(--bad)}
+.evr-n{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.evr-i.queued .evr-n{color:var(--fg2)}
+.evr-tm{font-size:12px;color:var(--muted)}
+.evr-ch{display:grid;color:var(--muted)}
+.evr-ch svg{transition:transform .32s var(--ease)}
+.evr-r[aria-expanded="false"] .evr-ch svg{transform:rotate(-90deg)}
+.evr-i.fail{background:var(--bad-bg)}
+.evr-d.shut>div{visibility:hidden;transition:visibility 0s var(--t)}
+.evr-dd{display:flex;flex-direction:column;gap:4px;padding:0 10px 10px 36px;font-size:12.5px}
+.evr-kv{display:flex;gap:8px}
+.evr-kv .k{width:58px;flex:none;color:var(--muted)}
+.evr-kv .bad{color:var(--bad)}
+.evr-fix{align-self:flex-start;margin-top:6px;background:var(--surface);color:var(--fg);box-shadow:var(--shadow)}
+.evr-fix:hover{background:var(--surface);box-shadow:var(--shadow-pop)}
+.evr-none{margin:0;padding:10px;font-size:12.5px;color:var(--muted)}
 /* ---------- Design review ---------- */
 .drv{padding:14px;display:flex;flex-direction:column;gap:12px}
 .drv-h{display:flex;align-items:center;gap:10px}
@@ -3017,7 +3106,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
   <header class="top">
     <div>
       <h1 id="style-h">Soft 2</h1>
-      <p id="style-p">Every component rebuilt to live inside the agent's own thread: one quiet surface per object, grey type for finished work, and slow, blurred motion only on what is happening now. 87 of 87 rebuilt so far.</p>
+      <p id="style-p">Every component rebuilt to live inside the agent's own thread: one quiet surface per object, grey type for finished work, and slow, blurred motion only on what is happening now. 89 of 89 rebuilt so far.</p>
     </div>
     <div class="ctrls">
       <div class="seg" id="style-seg" role="group" aria-label="Style"><button aria-pressed="true" data-v="soft2">Soft 2</button><button aria-pressed="false" data-v="bp2">Blueprint 2</button></div>
@@ -3611,6 +3700,29 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
   </div>
 </div></template>
   <div class="card-f"><span>Edit the draft, then send, schedule or discard it</span><span class="sp"></span><button class="replay" aria-label="Replay Draft review"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
+</article>
+<article class="card" data-c="steering" id="c-steering">
+  <div class="card-h"><div><h3>Steering</h3><p>Change the agent's course while it works, without starting over.</p></div></div>
+  <div class="stage"><div class="stage-in"></div></div>
+  <template><div class="ste panel">
+  <div class="ste-h"><b>Redesign the pricing page</b><span class="muted ste-st"><span class="m" aria-live="polite">Step 2 of 4</span> · <span class="num ck">0:00</span></span></div>
+  <ol class="ste-steps" aria-label="Steps"></ol>
+  <div class="ste-log" aria-live="polite"></div>
+  <form class="ste-box"><input placeholder="Steer the agent while it works" aria-label="Message the agent" spellcheck="false" autocomplete="off"><button class="ste-go" aria-label="Send" disabled>{up}</button></form>
+</div></template>
+  <div class="card-f"><span>Send a change mid-run</span><span class="sp"></span><button class="replay" aria-label="Replay Steering"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
+</article>
+<article class="card" data-c="eval-results" id="c-eval-results">
+  <div class="card-h"><div><h3>Eval results</h3><p>An eval run case by case, against the run before.</p></div></div>
+  <div class="stage"><div class="stage-in"></div></div>
+  <template><div class="evr panel">
+  <div class="evr-h"><div class="evr-ht"><b>Pricing copy evals</b><span class="muted evr-st">Copy agent · 8 cases · run 2h ago</span></div><button class="pill ink sm evr-run">{play}Run evals</button></div>
+  <div class="evr-sum"><div class="evr-segs" aria-hidden="true"></div><div class="evr-nums"><span class="evr-pass num" aria-live="polite"></span><span class="tag evr-dl"></span></div></div>
+  <div class="evr-tabs"><div class="seg2" role="group" aria-label="Show"><button aria-pressed="true" data-v="all">All <span class="n num"></span></button><button aria-pressed="false" data-v="fail">Failed <span class="n num"></span></button></div></div>
+  <div class="evr-list" role="list" aria-label="Cases"></div>
+  <p class="evr-none" hidden>No failed cases</p>
+</div></template>
+  <div class="card-f"><span>Run the evals, open a failed case</span><span class="sp"></span><button class="replay" aria-label="Replay Eval results"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
 </article>
 <article class="card wide" data-c="design-review" id="c-design-review">
   <div class="card-h"><div><h3>Design review</h3><p>Checks run, a teammate asks for a change, the agent makes it, and you ship.</p></div></div>
@@ -4499,7 +4611,7 @@ document.addEventListener('DOMContentLoaded', () => {
   /* style: Soft 2 or Blueprint 2, from ?style= or what this browser last picked; each style keeps its own accent */
   const STY = {
     soft2:{ h:'Soft 2', p:$('#style-p') ? $('#style-p').textContent : '', acc:'#116ff8', key:'soft2-accent', title:'Designme Soft 2' },
-    bp2:{ h:'Blueprint 2', p:"The same 87 components drawn as a technical sheet: square corners, hairline edges instead of shadows, an orange accent, and motion that wipes and ticks into place in short, hard beats.", acc:'#f76b00', key:'bp2-accent', title:'Designme Blueprint 2' }
+    bp2:{ h:'Blueprint 2', p:"The same 89 components drawn as a technical sheet: square corners, hairline edges instead of shadows, an orange accent, and motion that wipes and ticks into place in short, hard beats.", acc:'#f76b00', key:'bp2-accent', title:'Designme Blueprint 2' }
   };
   let style = 'soft2';
   try { const q = new URLSearchParams(location.search).get('style'); const ls = localStorage.getItem('designme2-style');
@@ -6385,6 +6497,198 @@ DM.def('draft-review', (r, c) => {
     await s.until(() => file); await s.beat(2);
     await s.tap(go); s.away();
     await s.until(() => done && !$('button', done));
+  });
+});
+/* ---------- Steering ---------- */
+DM.def('steering', (r, c) => {
+  r.innerHTML = r.innerHTML.replace('{up}', I('up','xs'));
+  // the run: four steps on the pricing page. A card step paints its card in the current accent, and remembers which,
+  // so a change of mind can find the cards that already have the old one
+  const S = [
+    { id:'read', t:'Read Pricing v4', d:'3 frames, 14 layers', s:'done' },
+    { id:'pro', card:'Pro', t:'Update the Pro card', s:'run', ms:7500 },
+    { id:'team', card:'Team', t:'Update the Team card', d:'Pricing v4, frame 3', s:'queued', ms:3500 },
+    { id:'ship', t:'Export to staging', d:'designme.studio/pricing', s:'queued', ms:2500 }
+  ];
+  const steps = $('.ste-steps', r), log = $('.ste-log', r), box = $('.ste-box', r), inp = $('input', box), go = $('.ste-go', r), st = $('.ste-st', r), mode = $('.m', st), ck = $('.ck', st);
+  let hue = 'violet', ended = false, running = false;
+  const queue = [];
+  const G = { run:'<span class="spin"></span>', done:I('ok','xs'), queued:'<span class="dot"></span>' };
+  const doing = x => x.card ? `Setting the accent to ${hue}` : x.d;
+  function row(x){
+    x.el = html(`<li class="ste-s ${x.s}"><span class="ste-g">${G[x.s]}</span><span class="ste-t"><b>${x.t}</b><span>${x.s === 'run' ? doing(x) : x.d || 'Pricing v4, frame 2'}</span></span>${x.mine ? '<span class="tag b">From you</span>' : ''}</li>`);
+    return x.el;
+  }
+  S.forEach(x => steps.appendChild(row(x)));
+  function set(x, s, d){ x.s = s; x.el.className = 'ste-s ' + s; const g = $('.ste-g', x.el); g.innerHTML = G[s]; enter(g); if (d) swap($('.ste-t span', x.el), d); }
+  const where = () => { const i = S.findIndex(x => x.s === 'run'); swap(mode, ended ? 'Done' : `Step ${i + 1} of ${S.length}`); };
+  // the clock runs until the last step is done
+  const t0 = performance.now(); let tEnd = 0;
+  const clock = () => { const s = Math.floor(((tEnd || performance.now()) - t0) / 1000); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };
+  c.every(250, () => { ck.textContent = clock(); });
+  // a message waits for the step in progress, then the agent takes it up before the next one
+  const ready = () => { go.disabled = ended || !inp.value.trim(); };
+  inp.oninput = ready;
+  c.on(box, 'submit', e => {
+    e.preventDefault(); const text = inp.value.trim(); if (!text || ended) return;
+    inp.value = ''; box.classList.remove('f'); ready();
+    const m = html(`<div class="ste-me"><p></p><span class="ste-q"><span class="spin"></span>Applies after this step</span></div>`);
+    $('p', m).textContent = text; log.appendChild(m); enter(m);
+    queue.push({ text, el:m });
+    if (!running) apply();
+  });
+  // what the agent says back, with buttons when it needs you to choose
+  function say(text, warn, acts){
+    const a = html(`<div class="ste-ag${warn ? ' warn' : ''}">${warn ? I('alert','xs') : I('spark','xs')}<div class="t"><p></p>${acts ? '<div class="ste-acts"></div>' : ''}</div></div>`);
+    $('p', a).textContent = text; log.appendChild(a); enter(a);
+    if (acts) acts.forEach(([label, ink, fn]) => { const b = html(`<button class="pill sm ${ink ? 'ink' : 'ghost'}">${label}</button>`); b.onclick = () => { $('.ste-acts', a).replaceWith(html(`<span class="muted">${fn()}</span>`)); a.classList.remove('warn'); a.firstElementChild.outerHTML = I('spark','xs'); }; $('.ste-acts', a).appendChild(b); });
+  }
+  function apply(){
+    while (queue.length){
+      const q = queue.shift(), tag = $('.ste-q', q.el);
+      tag.innerHTML = I('check','xs') + (S.some(x => x.s !== 'done') ? 'Applied' : 'Noted'); enter(tag);
+      const left = S.some(x => x.s !== 'done');
+      if (!left){ say("The run had finished, so I'll keep this for the next one."); continue; }
+      if (!/blue|accent|library/i.test(q.text)){ say("Got it. I'll follow that from the next step."); continue; }
+      // a change of accent: what's still to come uses it, and a card already painted the old way is offered a redo
+      hue = 'library blue';
+      const old = S.filter(x => x.card && x.s === 'done' && x.hue === 'violet' && !S.some(y => y.redo === x.id));
+      const run = S.find(x => x.s === 'run'); if (run && run.card) swap($('.ste-t span', run.el), doing(run));
+      if (!old.length){ say('Got it. From here the accent is color.accent.500 from the library.'); continue; }
+      const names = old.map(x => x.card).join(' and ');
+      say(`Got it. From here the accent is color.accent.500. The ${names} card${old.length > 1 ? 's are' : ' is'} already violet.`, true, [
+        ['Leave it', false, () => `Kept the ${names} card as it is`],
+        [`Redo the ${names} card${old.length > 1 ? 's' : ''}`, true, () => { old.forEach(redo); return `Added a step to redo the ${names} card${old.length > 1 ? 's' : ''}`; }]
+      ]);
+    }
+  }
+  // a redo goes in before the export if the export hasn't started, otherwise at the end
+  function redo(x){
+    const n = { id:'redo-' + x.id, redo:x.id, card:x.card, mine:true, t:`Redo the ${x.card} card`, d:'Accent to library blue', s:'queued', ms:2000 };
+    const ship = S.find(y => y.id === 'ship'), at = ship.s === 'queued' ? S.indexOf(ship) : S.length;
+    S.splice(at, 0, n); steps.insertBefore(row(n), S[at + 1] ? S[at + 1].el : null);
+    const li = n.el; li.style.height = '0px'; li.style.minHeight = '0px'; li.style.overflow = 'hidden'; li.style.opacity = '0';
+    requestAnimationFrame(() => { li.style.transition = 'height .4s var(--ease),min-height .4s var(--ease),opacity .4s'; li.style.height = '44px'; li.style.minHeight = '44px'; li.style.opacity = '1'; c.later(450, () => { li.removeAttribute('style'); }); });
+    if (ended){ ended = false; tEnd = 0; $('.ste-sum', r)?.remove(); inp.disabled = false; inp.placeholder = 'Steer the agent while it works'; ready(); c.run(work); }
+    where();
+  }
+  // the agent works through the steps; between two steps it takes up what you sent
+  async function work(){
+    running = true;
+    for (let x = S.find(y => y.s === 'run' || y.s === 'queued'); x; x = S.find(y => y.s === 'run' || y.s === 'queued')){
+      if (x.s !== 'run') set(x, 'run', doing(x));
+      where();
+      await c.wait(x.ms);
+      if (x.card) x.hue = hue;
+      set(x, 'done', x.card ? (x.hue === 'violet' ? 'Accent set to violet' : 'Accent set to library blue') : x.id === 'ship' ? 'Live on designme.studio/pricing' : x.d);
+      apply();
+    }
+    running = false; ended = true; tEnd = performance.now(); where();
+    inp.disabled = true; inp.placeholder = 'The run has finished'; ready();
+    const n = $$('.ste-me', r).length;
+    $('.ste-sum', r)?.remove();
+    const sum = html(`<div class="ste-sum">${I('ok','xs')}<span>Done in ${clock()}${n ? ` · ${n} change${n > 1 ? 's' : ''} from you` : ''}</span></div>`);
+    log.appendChild(sum); enter(sum);
+  }
+  c.run(work);
+  // the preview's story: read what the agent is doing, tell it to use the library's blue, and have it redo the card
+  // that was already violet
+  c.story(async s => {
+    await s.beat(2);
+    await s.point($('.ste-t span', S[1].el), false); await s.beat(1);
+    await s.tap(inp); box.classList.add('f');
+    // typed a few letters at a time, so a busy page (few, longer timers) types it as fast as a quiet one
+    const msg = 'Use our library blue, not violet';
+    for (let i = 0; i < msg.length; i += 3){ inp.value = msg.slice(0, i + 3); ready(); await s.beat(.15); }
+    await s.beat(1); await s.tap(go); s.away();
+    await s.until(() => $('.ste-acts .ink', r)); await s.beat(3);
+    await s.tap($('.ste-acts .ink', r)); s.away();
+    await s.until(() => ended); await s.beat(2);
+  });
+});
+/* ---------- Eval results ---------- */
+DM.def('eval-results', (r, c) => {
+  r.innerHTML = r.innerHTML.replace('{play}', I('play','xs'));
+  // eight checks on the pricing page's copy. The price check fails after the copy agent's latest edit, until it's fixed
+  const K = [
+    { n:'Names the Pro seat limit', tm:'0.6s' },
+    { n:'Prices match the billing table', tm:'0.9s', bad:true, exp:'$24 a seat, billed yearly', got:'$29 a seat, billed yearly', src:'Billing table, Pro row' },
+    { n:'Mentions the yearly discount', tm:'0.5s' },
+    { n:'Makes no “unlimited” claims', tm:'0.4s' },
+    { n:'Team plan lists SSO', tm:'0.5s' },
+    { n:'Reads at grade 8 or below', tm:'0.7s' },
+    { n:'One call to action per plan', tm:'0.5s' },
+    { n:'Free plan says no card is needed', tm:'0.6s' }
+  ].map(k => ({ ...k, s:'pass' }));
+  const LAST = 8;
+  const list = $('.evr-list', r), segs = $('.evr-segs', r), pass = $('.evr-pass', r), dl = $('.evr-dl', r), st = $('.evr-st', r), run = $('.evr-run', r), none = $('.evr-none', r), sg = $('.evr-tabs .seg2', r);
+  const G = { run:'<span class="spin"></span>', pass:I('ok','xs'), fail:I('alert','xs'), queued:'<span class="dot"></span>' };
+  let filter = 'all', busy = false, ran = false;
+  K.forEach((k, i) => {
+    k.w = html(`<div class="fold evr-w"><div><div class="evr-i" role="listitem"></div></div></div>`); k.el = $('.evr-i', k.w); k.i = i; list.appendChild(k.w);
+    k.seg = document.createElement('i'); segs.appendChild(k.seg);
+  });
+  // a case's row: a failed one is a button that opens what was expected and what came back
+  function paint(k, fresh){
+    const open = k.s === 'fail' && k.open;
+    k.el.className = 'evr-i ' + k.s;
+    const g = `<span class="evr-g">${G[k.s]}</span><span class="evr-n">${k.n}</span><span class="evr-tm num">${k.s === 'pass' || k.s === 'fail' ? k.tm : ''}</span>`;
+    k.el.innerHTML = k.s === 'fail'
+      ? `<button class="evr-r" aria-expanded="${!!open}">${g}<span class="evr-ch">${I('chev-d','xs')}</span></button><div class="fold evr-d${open ? '' : ' shut'}"><div><div class="evr-dd"><span class="evr-kv"><span class="k">Expected</span><span>${k.exp}</span></span><span class="evr-kv"><span class="k">Got</span><span class="bad">${k.got}</span></span><span class="evr-kv"><span class="k">Source</span><span>${k.src}</span></span><button class="pill sm evr-fix">Use $24 and rerun</button></div></div></div>`
+      : `<div class="evr-r">${g}</div>`;
+    if (k.s === 'fail'){
+      const d = $('.evr-d', k.el); d.inert = !open;
+      $('.evr-r', k.el).onclick = () => { k.open = !k.open; $('.evr-r', k.el).setAttribute('aria-expanded', k.open); d.classList.toggle('shut', !k.open); d.inert = !k.open; };
+      $('.evr-fix', k.el).onclick = () => fix(k);
+    }
+    if (fresh) enter($('.evr-g', k.el));
+    k.seg.className = k.s;
+  }
+  function counts(){
+    const p = K.filter(k => k.s === 'pass').length, f = K.filter(k => k.s === 'fail').length, done = K.every(k => k.s === 'pass' || k.s === 'fail');
+    swap(pass, done ? `${p} of ${K.length} passed` : busy ? `Running ${K.filter(k => k.s === 'pass' || k.s === 'fail').length + 1} of ${K.length}` : 'Running the case again');
+    const d = !ran || !done ? '' : p < LAST ? `${LAST - p} fewer than the last run` : 'All passing';
+    if (dl.textContent !== d){ dl.textContent = d; dl.className = 'tag evr-dl ' + (p < LAST ? 'bad' : 'ok'); if (d) enter(dl); }
+    $('[data-v="all"] .n', sg).textContent = K.length; $('[data-v="fail"] .n', sg).textContent = f;
+    show();
+  }
+  // All shows every case; Failed folds the others away
+  function show(){
+    K.forEach(k => { const on = filter === 'all' || k.s === 'fail'; k.w.classList.toggle('shut', !on); k.w.inert = !on; });
+    none.hidden = !(filter === 'fail' && !K.some(k => k.s === 'fail'));
+  }
+  seg(sg, v => { filter = v; show(); });
+  K.forEach(k => paint(k)); counts();
+  // a run checks the cases one after another; the price check fails until the copy is fixed
+  run.onclick = () => c.run(async () => {
+    if (busy) return; busy = true; ran = true; run.disabled = true; run.innerHTML = '<span class="spin"></span>Running';
+    K.forEach(k => { k.s = 'queued'; k.open = false; paint(k); }); counts();
+    for (const k of K){
+      k.s = 'run'; paint(k, true); counts();
+      await c.wait(500);
+      k.s = k.bad ? 'fail' : 'pass'; paint(k, true); counts();
+    }
+    busy = false; run.disabled = false; run.innerHTML = I('play','xs') + 'Run again'; swap(st, 'Copy agent · 8 cases · run just now');
+  });
+  // the fix changes the copy to the billing table's price and runs that case again
+  function fix(k){
+    if (busy) return;
+    c.run(async () => {
+      k.bad = false; k.open = false; k.s = 'run'; paint(k, true); counts();
+      await c.wait(1000);
+      k.s = 'pass'; paint(k, true); counts();
+    });
+  }
+  // the preview's story: run the evals, see one fail against the last run, open it, take the fix, and see all eight pass
+  c.story(async s => {
+    await s.beat(3);
+    await s.tap(run); s.away();
+    await s.until(() => !busy); await s.beat(3);
+    await s.tap($('[data-v="fail"]', sg)); s.away(); await s.beat(2);
+    await s.tap($('.evr-i.fail .evr-r', r)); s.away(); await s.beat(3);
+    await s.tap($('.evr-fix', r)); s.away();
+    await s.until(() => K.every(k => k.s === 'pass')); await s.beat(2);
+    await s.tap($('[data-v="all"]', sg)); s.away(); await s.beat(2);
   });
 });
 /* ---------- Design review ---------- */
