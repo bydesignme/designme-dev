@@ -7,7 +7,7 @@
 .hsx-g svg{width:100%;height:100%;overflow:visible}
 .hsx-g path{fill:none;stroke-width:9;stroke-linecap:round}
 .hsx-g .tr{stroke:var(--line)}
-.hsx-g .fl{stroke:var(--accent);stroke-dasharray:157;stroke-dashoffset:157;transition:stroke-dashoffset 1.2s var(--ease),stroke .4s}
+.hsx-g .fl{stroke:var(--accent-mark,var(--accent));stroke-dasharray:157;stroke-dashoffset:157;transition:stroke-dashoffset 1.2s var(--ease),stroke .4s}
 .hsx-v{position:absolute;left:0;right:0;bottom:0;display:flex;flex-direction:column;align-items:center;line-height:1.1}
 .hsx-v b{font-size:14px;font-weight:500}
 .hsx-v span{font-size:11px}
@@ -196,7 +196,7 @@ export function HealthScore({ checks, title = &#39;Design system health&#39;, sc
 .dm-hsx-g svg{width:100%;height:100%;overflow:visible}
 .dm-hsx-g path{fill:none;stroke-width:9;stroke-linecap:round}
 .dm-hsx-g .dm-tr{stroke:var(--dm-line)}
-.dm-hsx-g .dm-fl{stroke:var(--dm-accent);stroke-dasharray:157;stroke-dashoffset:157;transition:stroke-dashoffset 1.2s var(--dm-ease),stroke .4s}
+.dm-hsx-g .dm-fl{stroke:var(--dm-accent-mark,var(--dm-accent));stroke-dasharray:157;stroke-dashoffset:157;transition:stroke-dashoffset 1.2s var(--dm-ease),stroke .4s}
 .dm-hsx-v{position:absolute;left:0;right:0;bottom:0;display:flex;flex-direction:column;align-items:center;line-height:1.1}
 .dm-hsx-v b{font-size:14px;font-weight:500}
 .dm-hsx-v span{font-size:11px}
@@ -236,7 +236,7 @@ export function HealthScore({ checks, title = &#39;Design system health&#39;, sc
 .hsx-g svg{width:100%;height:100%;overflow:visible}
 .hsx-g path{fill:none;stroke-width:9;stroke-linecap:round}
 .hsx-g .tr{stroke:var(--line)}
-.hsx-g .fl{stroke:var(--accent);stroke-dasharray:157;stroke-dashoffset:157;transition:stroke-dashoffset 1.2s var(--ease),stroke .4s}
+.hsx-g .fl{stroke:var(--accent-mark,var(--accent));stroke-dasharray:157;stroke-dashoffset:157;transition:stroke-dashoffset 1.2s var(--ease),stroke .4s}
 .hsx-v{position:absolute;left:0;right:0;bottom:0;display:flex;flex-direction:column;align-items:center;line-height:1.1}
 .hsx-v b{font-size:14px;font-weight:500}
 .hsx-v span{font-size:11px}
@@ -259,7 +259,7 @@ export function HealthScore({ checks, title = &#39;Design system health&#39;, sc
   const K = [[&#39;Token usage&#39;,96,&#39;All colours come from the library&#39;],[&#39;Contrast&#39;,88,&#39;2 text pairs below AA on the pricing page&#39;,1],[&#39;Component reuse&#39;,74,&#39;11 detached instances in Checkout&#39;,1],[&#39;Naming&#39;,91,&#39;Layer names follow the convention&#39;]];
   const list = $(&#39;.hsx-list&#39;, r), fl = $(&#39;.hsx-g .fl&#39;, r), vb = $(&#39;.hsx-v b&#39;, r), st = $(&#39;.hsx-st&#39;, r);
   let score = 0;
-  const col = v =&gt; v &gt;= 90 ? &#39;var(--hs-ok)&#39; : v &gt;= 80 ? &#39;var(--accent)&#39; : &#39;var(--hs-bad)&#39;;
+  const col = v =&gt; v &gt;= 90 ? &#39;var(--hs-ok)&#39; : v &gt;= 80 ? &#39;var(--accent-mark,var(--accent))&#39; : &#39;var(--hs-bad)&#39;;
   function total(){ const t = Math.round(K.reduce((a, k) =&gt; a + k[1], 0) / K.length); fl.style.strokeDashoffset = 157 * (1 - t / 100); fl.style.stroke = col(t); tween(score, t, 1000, n =&gt; { score = n; vb.textContent = Math.round(n); }); const n = K.filter(k =&gt; k[1] &lt; 90).length; swap(st, n ? (t &gt;= 85 ? &#39;Good&#39; : &#39;Fair&#39;) + &#39;, &#39; + n + (n &gt; 1 ? &#39; checks need&#39; : &#39; check needs&#39;) + &#39; work&#39; : &#39;Excellent, all checks pass&#39;); }
   list.innerHTML = K.map(k =&gt; `&lt;div class=&quot;hsx-c&quot;&gt;&lt;button class=&quot;hsx-ch&quot;&gt;&lt;span class=&quot;t&quot;&gt;${k[0]}&lt;/span&gt;&lt;span class=&quot;bar&quot;&gt;&lt;i style=&quot;width:0&quot;&gt;&lt;/i&gt;&lt;/span&gt;&lt;span class=&quot;v num&quot;&gt;${k[1]}&lt;/span&gt;${I(&#39;chev-r&#39;,&#39;xs&#39;)}&lt;/button&gt;&lt;div class=&quot;fold shut&quot;&gt;&lt;div&gt;&lt;div class=&quot;hsx-d&quot;&gt;&lt;span&gt;${k[2]}&lt;/span&gt;${k[3] ? `&lt;button class=&quot;pill soft sm&quot;&gt;${I(&#39;wand&#39;,&#39;xs&#39;)}Fix&lt;/button&gt;` : &#39;&#39;}&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;`).join(&#39;&#39;);
   $$(&#39;.hsx-c&#39;, list).forEach((el, i) =&gt; {
@@ -308,7 +308,7 @@ export function HealthScore({ checks, title = &#39;Design system health&#39;, sc
   const K = [['Token usage',96,'All colours come from the library'],['Contrast',88,'2 text pairs below AA on the pricing page',1],['Component reuse',74,'11 detached instances in Checkout',1],['Naming',91,'Layer names follow the convention']];
   const list = $('.hsx-list', r), fl = $('.hsx-g .fl', r), vb = $('.hsx-v b', r), st = $('.hsx-st', r);
   let score = 0;
-  const col = v => v >= 90 ? 'var(--hs-ok)' : v >= 80 ? 'var(--accent)' : 'var(--hs-bad)';
+  const col = v => v >= 90 ? 'var(--hs-ok)' : v >= 80 ? 'var(--accent-mark,var(--accent))' : 'var(--hs-bad)';
   function total(){ const t = Math.round(K.reduce((a, k) => a + k[1], 0) / K.length); fl.style.strokeDashoffset = 157 * (1 - t / 100); fl.style.stroke = col(t); tween(score, t, 1000, n => { score = n; vb.textContent = Math.round(n); }); const n = K.filter(k => k[1] < 90).length; swap(st, n ? (t >= 85 ? 'Good' : 'Fair') + ', ' + n + (n > 1 ? ' checks need' : ' check needs') + ' work' : 'Excellent, all checks pass'); }
   list.innerHTML = K.map(k => `<div class="hsx-c"><button class="hsx-ch"><span class="t">${k[0]}</span><span class="bar"><i style="width:0"></i></span><span class="v num">${k[1]}</span>${I('chev-r','xs')}</button><div class="fold shut"><div><div class="hsx-d"><span>${k[2]}</span>${k[3] ? `<button class="pill soft sm">${I('wand','xs')}Fix</button>` : ''}</div></div></div></div>`).join('');
   $$('.hsx-c', list).forEach((el, i) => {

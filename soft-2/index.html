@@ -23,7 +23,10 @@
   --chip:#f3f3f3; --hover:#ebebeb; --press:#e3e3e3; --wash:#f9f9f9; --row:color-mix(in srgb,var(--fg) 4%,transparent);
   --soft:#ececec; --soft-h:#e3e3e3; --soft-ring:inset 0 0 0 1px rgba(0,0,0,.06); --dis:#a6a6a6;
   --shadow-lift:0 0 0 1px rgba(0,0,0,.1),0 2px 4px rgba(0,0,0,.04),0 16px 32px -10px rgba(0,0,0,.16);
-  --accent:#116ff8; --accent-2:#0b5ed7; --accent-bg:#eaf2ff; --on-accent:#ffffff; --sel:color-mix(in srgb,var(--accent) 6%,transparent);
+  /* the accent has three roles: --accent fills (with --on-accent on top), --accent-fg is text and icons in the accent (4.5:1 on
+     the surface) and --accent-mark is lines, rings and chart marks (3:1). A light accent like lime keeps its fills and gets a
+     darker mark and ink-coloured text on a light page */
+  --accent:#116ff8; --accent-2:#0b5ed7; --accent-bg:#eaf2ff; --on-accent:#ffffff; --accent-fg:#116ff8; --accent-mark:#116ff8; --sel:color-mix(in srgb,var(--accent) 6%,transparent);
   --ink:#1b1b1f; --on-ink:#ffffff;
   --ok:#15803d; --ok-bg:#e8f6ee; --warn:#b45309; --warn-bg:#fdf3df; --bad:#d93c3c; --bad-bg:#fdecec;
   --merge:#8250df; --merge-bg:#f2ecfd; --add:#1a7f37; --del:#cf222e;
@@ -47,7 +50,7 @@
   --chip:#26262b; --hover:#2e2e34; --press:#36363d; --wash:#232328; --row:color-mix(in srgb,var(--fg) 5.5%,transparent);
   --soft:#2b2b31; --soft-h:#34343b; --soft-ring:inset 0 0 0 1px rgba(255,255,255,.07); --dis:#5d5d66;
   --shadow-lift:0 0 0 1px rgba(255,255,255,.16),0 2px 4px rgba(0,0,0,.3),0 16px 32px -10px rgba(0,0,0,.6);
-  --accent:#3d8bff; --accent-2:#5b9bff; --accent-bg:rgba(61,139,255,.12); --on-accent:#ffffff; --sel:color-mix(in srgb,var(--accent) 9%,transparent);
+  --accent:#3d8bff; --accent-2:#5b9bff; --accent-bg:rgba(61,139,255,.12); --on-accent:#ffffff; --accent-fg:#3d8bff; --accent-mark:#3d8bff; --sel:color-mix(in srgb,var(--accent) 9%,transparent);
   --ink:#f2f2f4; --on-ink:#151518;
   --ok:#3ccf7e; --ok-bg:rgba(60,207,126,.13); --warn:#f0b43c; --warn-bg:rgba(240,180,60,.13); --bad:#ff6b6b; --bad-bg:rgba(255,107,107,.13);
   --merge:#a98bff; --merge-bg:rgba(169,139,255,.15); --add:#3ccf7e; --del:#ff6b74;
@@ -61,7 +64,7 @@
   --chip:#26262b; --hover:#2e2e34; --press:#36363d; --wash:#232328; --row:color-mix(in srgb,var(--fg) 5.5%,transparent);
   --soft:#2b2b31; --soft-h:#34343b; --soft-ring:inset 0 0 0 1px rgba(255,255,255,.07); --dis:#5d5d66;
   --shadow-lift:0 0 0 1px rgba(255,255,255,.16),0 2px 4px rgba(0,0,0,.3),0 16px 32px -10px rgba(0,0,0,.6);
-  --accent:#3d8bff; --accent-2:#5b9bff; --accent-bg:rgba(61,139,255,.12); --on-accent:#ffffff; --sel:color-mix(in srgb,var(--accent) 9%,transparent);
+  --accent:#3d8bff; --accent-2:#5b9bff; --accent-bg:rgba(61,139,255,.12); --on-accent:#ffffff; --accent-fg:#3d8bff; --accent-mark:#3d8bff; --sel:color-mix(in srgb,var(--accent) 9%,transparent);
   --ink:#f2f2f4; --on-ink:#151518;
   --ok:#3ccf7e; --ok-bg:rgba(60,207,126,.13); --warn:#f0b43c; --warn-bg:rgba(240,180,60,.13); --bad:#ff6b6b; --bad-bg:rgba(255,107,107,.13);
   --merge:#a98bff; --merge-bg:rgba(169,139,255,.15); --add:#3ccf7e; --del:#ff6b74;
@@ -177,7 +180,7 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .toggle{width:30px;height:18px;border-radius:9px;background:var(--faint);position:relative;flex:none;transition:background var(--t-fast)}
 .toggle::after{content:"";position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.2);transition:transform var(--t) var(--ease)}
 .toggle[aria-checked="true"]{background:var(--accent)}
-.toggle[aria-checked="true"]::after{transform:translateX(12px)}
+.toggle[aria-checked="true"]::after{transform:translateX(12px);background:var(--on-accent)}
 .seg2{display:inline-flex;padding:2px;background:var(--chip);border-radius:var(--r-pill);position:relative}
 .seg2 button{position:relative;z-index:1;height:26px;padding:0 11px;border-radius:var(--r-pill);font-size:12.5px;color:var(--fg2);transition:color var(--t-fast)}
 .seg2 button[aria-pressed="true"]{color:var(--fg)}
@@ -268,9 +271,11 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 /* bare: components that live in the chat stream sit on the chat surface, no card */
 .card.bare .stage-in .panel:not(.keep){background:none;box-shadow:none;padding-left:0;padding-right:0;border-radius:0}
 /* chart palette, saturated */
-:root{--c1:#116ff8;--c2:#7c4dff;--c3:#00b37e;--c4:#ff8a00;--c5:#ff4d6d;--c6:#00b8d9}
-:root[data-theme="dark"]{--c1:#3d8bff;--c2:#9b7bff;--c3:#22c993;--c4:#ffa033;--c5:#ff6b85;--c6:#22cce8}
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--c1:#3d8bff;--c2:#9b7bff;--c3:#22c993;--c4:#ffa033;--c5:#ff6b85;--c6:#22cce8}}
+:root{--c1:var(--accent-mark,var(--accent));--c2:#7c4dff;--c3:#00b37e;--c4:#ff8a00;--c5:#ff4d6d;--c6:#00b8d9}
+/* the accent as a ramp, for charts whose parts are shares of one thing: full strength, then lighter steps toward the surface */
+:root{--a1:var(--c1);--a2:color-mix(in oklab,var(--c1) 72%,var(--surface));--a3:color-mix(in oklab,var(--c1) 50%,var(--surface));--a4:color-mix(in oklab,var(--c1) 32%,var(--surface))}
+:root[data-theme="dark"]{--c1:var(--accent-mark,var(--accent));--c2:#9b7bff;--c3:#22c993;--c4:#ffa033;--c5:#ff6b85;--c6:#22cce8}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--c1:var(--accent-mark,var(--accent));--c2:#9b7bff;--c3:#22c993;--c4:#ffa033;--c5:#ff6b85;--c6:#22cce8}}
 
 /* ---------- Status pill ---------- */
 .spl-stage{min-height:44px;justify-content:center}
@@ -288,7 +293,7 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .spl-track{position:absolute;left:16px;right:16px;bottom:13px;height:3px;border-radius:2px;background:var(--line);overflow:hidden;opacity:0;transition:opacity .16s}
 .spl.bar .spl-track{opacity:1;transition:opacity .4s var(--ease) .1s}
 .spl.mo .spl-track{opacity:0;transition:opacity .16s}
-.spl-fill{height:100%;width:0;border-radius:inherit;background:var(--accent);transition:width .8s var(--ease)}
+.spl-fill{height:100%;width:0;border-radius:inherit;background:var(--accent-mark,var(--accent));transition:width .8s var(--ease)}
 .spl-pill{position:relative}
 /* ---------- Step loader ---------- */
 .stl .dm-main{gap:10px}
@@ -301,7 +306,7 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .stl-row[aria-expanded="true"] .stl-chev{transform:rotate(180deg)}
 .stl-track{display:flex;gap:4px;width:250px}
 .stl-track i{flex:1;height:3px;border-radius:2px;background:var(--line);position:relative;overflow:hidden}
-.stl-track i::after{content:"";position:absolute;inset:0;background:var(--accent);transform:scaleX(0);transform-origin:left;transition:transform .9s var(--ease)}
+.stl-track i::after{content:"";position:absolute;inset:0;background:var(--accent-mark,var(--accent));transform:scaleX(0);transform-origin:left;transition:transform .9s var(--ease)}
 .stl-track i.on::after{transform:scaleX(1)}
 .stl-track i.run::after{transform:scaleX(.45);transition-duration:2.2s}
 .stl-fold{width:250px}
@@ -438,7 +443,7 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .rq-gh .g{width:18px;height:18px;display:grid;place-items:center;flex:none}
 .rq-gh .m{margin-left:auto;font-weight:400;font-size:12.5px;color:var(--muted)}
 .rq-bar{height:2px;margin:-2px 10px 4px 38px;border-radius:2px;background:var(--line);overflow:hidden}
-.rq-bar i{display:block;height:100%;width:0;background:var(--accent);transition:width .8s var(--ease)}
+.rq-bar i{display:block;height:100%;width:0;background:var(--accent-mark,var(--accent));transition:width .8s var(--ease)}
 .rq-sub{display:flex;align-items:center;gap:10px;padding:5px 10px 5px 38px;font-size:13px;color:var(--fg2)}
 .rq-sub .g{width:14px;display:grid;place-items:center;flex:none}
 .rq-sub .m{margin-left:auto;font-size:12px;color:var(--muted)}
@@ -514,7 +519,7 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .rc-big{margin-top:6px;font-size:13px}
 .rc-n{font-size:14px;font-weight:500;letter-spacing:-.8px}
 .rc-track{position:relative;height:6px;border-radius:4px;background:var(--chip);margin:14px 0 16px}
-.rc-fill{height:100%;width:0;border-radius:4px;background:var(--accent);transition:background .4s}
+.rc-fill{height:100%;width:0;border-radius:4px;background:var(--accent-mark,var(--accent));transition:background .4s}
 .rc-cap{position:absolute;left:90%;top:-5px;bottom:-5px;width:2px;border-radius:1px;background:var(--fg2);transition:opacity .3s}
 .rc-cap::before{content:"";position:absolute;inset:-6px -8px}
 .rc-rows{display:flex;flex-direction:column;gap:2px}
@@ -620,9 +625,9 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .stx-st.on{color:var(--fg)}
 .stx-st.on .n{box-shadow:inset 0 0 0 1.5px var(--accent),0 0 0 4px var(--accent-bg);color:var(--accent)}
 .stx-st.done{color:var(--fg2);cursor:pointer}
-.stx-st.done .n{background:var(--accent);box-shadow:none;color:#fff}
+.stx-st.done .n{background:var(--accent);box-shadow:none;color:var(--on-accent)}
 .stx-ln{flex:1;height:2px;margin:0 10px;border-radius:1px;background:var(--line);position:relative;overflow:hidden;min-width:16px}
-.stx-ln i{position:absolute;inset:0;background:var(--accent);transform:scaleX(0);transform-origin:left;transition:transform .5s var(--ease)}
+.stx-ln i{position:absolute;inset:0;background:var(--accent-mark,var(--accent));transform:scaleX(0);transform-origin:left;transition:transform .5s var(--ease)}
 .stx-ln.full i{transform:none}
 @media (max-width:520px){.stx-st .lb{display:none}.stx-st.on .lb{display:inline}}
 /* each step sits in the middle, the same distance from the track above and the buttons below */
@@ -671,7 +676,7 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .slx-v:focus-within{background:var(--row);box-shadow:inset 0 0 0 1px var(--rail)}
 .slx-in{width:3ch;min-width:1ch;padding:0;margin:0;border:0;background:none;font:inherit;font-variant-numeric:tabular-nums;letter-spacing:inherit;color:inherit;text-align:right;outline:none;caret-color:var(--accent)}
 .slx-bar{position:relative;height:12px;border-radius:6px;background:var(--chip);margin:18px 0 6px;touch-action:none;cursor:pointer}
-.slx-used{position:absolute;left:0;top:0;bottom:0;border-radius:6px;background:var(--accent);transition:width .8s var(--ease);z-index:1}
+.slx-used{position:absolute;left:0;top:0;bottom:0;border-radius:6px;background:var(--accent-mark,var(--accent));transition:width .8s var(--ease);z-index:1}
 .slx-fc{position:absolute;left:0;top:0;bottom:0;border-radius:6px;background:repeating-linear-gradient(-45deg,color-mix(in srgb,var(--accent) 35%,transparent) 0 4px,color-mix(in srgb,var(--accent) 15%,transparent) 4px 8px);transition:width .8s var(--ease)}
 .slx-k{position:absolute;top:50%;width:6px;height:26px;margin:-13px 0 0 -3px;border-radius:var(--r-pill);background:var(--fg);z-index:2;cursor:grab;transition:transform .2s}
 .slx-k:hover,.slx-k.drag{box-shadow:0 0 0 4px var(--accent-bg)}
@@ -851,7 +856,7 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .thp-in{display:flex;align-items:center;gap:8px;margin:0 10px 10px;padding:4px 4px 4px 14px;border-radius:999px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--rail);transition:box-shadow .25s}
 .thp-in:focus-within{box-shadow:inset 0 0 0 1px var(--accent),0 0 0 4px var(--accent-bg)}
 .thp-field{flex:1;min-width:0;border:0;outline:0;background:none;font-size:13.5px;height:30px}
-.thp-send{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:#fff;transition:opacity .25s,transform .15s}
+.thp-send{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:var(--on-accent);transition:opacity .25s,transform .15s}
 .thp-send[disabled]{opacity:1;cursor:not-allowed;background:var(--rail);color:var(--surface)}
 .thp-send:active{transform:scale(.92)}
 /* ---------- Composer ---------- */
@@ -940,8 +945,9 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .tcx-io .k{color:var(--pb)}.tcx-io .s{color:var(--pm)}.tcx-io .n{color:var(--pp)}
 /* ---------- Artifact card ---------- */
 .afx{overflow:hidden}
-.afx-prev{padding:16px;background:var(--chip)}
-.afx-doc{padding:16px 16px 12px;background:var(--surface);border-radius:12px;box-shadow:var(--shadow)}
+/* one card: the document is drawn flat at the top, and a hairline sets it apart from its name and versions below */
+.afx-prev{border-bottom:1px solid var(--line)}
+.afx-doc{padding:16px 16px 12px}
 .afx-dh{font-weight:500;font-size:14px}
 .afx-dp{margin-top:4px;font-size:12.5px;line-height:1.5;color:var(--fg2);min-height:38px;text-wrap:pretty}
 .afx-kp{display:flex;align-items:baseline;gap:8px;margin-top:10px}
@@ -975,7 +981,7 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .psx-tx{flex:1;min-width:0}
 .psx-tx .w{animation:lvw .4s var(--ease) both}
 @keyframes lvw{from{opacity:0;filter:blur(3px)}to{opacity:1;filter:none}}
-.psx-go{margin-left:auto;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:#fff;flex:none;transition:opacity .3s}
+.psx-go{margin-left:auto;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:var(--on-accent);flex:none;transition:opacity .3s}
 .psx-go[disabled]{opacity:1;cursor:not-allowed;background:var(--rail);color:var(--surface)}
 .psx-sh svg{transition:transform .6s var(--ease)}
 .psx-sh:hover svg{transform:rotate(180deg)}
@@ -1069,7 +1075,7 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .mpk-m{display:flex;gap:2px;height:8px}
 .mpk-m i{flex:1;border-radius:2px;background:var(--rail);transition:background .32s}
 .mpk-m i.on{background:var(--fg2)}
-.mpk-o[aria-checked="true"]:not(.busy) .mpk-m i.on{background:var(--accent)}
+.mpk-o[aria-checked="true"]:not(.busy) .mpk-m i.on{background:var(--accent-mark,var(--accent))}
 /* the way out when a model can't take the request: wait for it, or a close match that starts now */
 .mpk-sg{margin:4px 4px 2px;padding:10px 12px;border-radius:12px;background:var(--warn-bg);display:flex;flex-direction:column;gap:8px}
 .mpk-sgt{margin:0;font-size:12.5px;line-height:1.45}
@@ -1143,8 +1149,8 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .dpx-k{font-size:12px}
 .dpx-dots{display:flex;gap:4px}
 .dpx-dots i{width:6px;height:6px;border-radius:3px;background:var(--line);transition:width .45s var(--ease),background .35s}
-.dpx-dots i.on{width:16px;background:var(--accent)}
-.dpx-dots i.done{background:var(--accent);opacity:.4}
+.dpx-dots i.on{width:16px;background:var(--accent-mark,var(--accent))}
+.dpx-dots i.done{background:var(--accent-mark,var(--accent));opacity:.4}
 .dpx-body{min-height:168px}
 .dpx-q{font-size:14px;font-weight:500;margin-bottom:10px;text-wrap:balance}
 .dpx-o{display:flex;align-items:center;gap:10px;width:calc(100% + 20px);margin-inline:-10px;padding:9px 10px;border-radius:12px;font-size:13.5px;text-align:left;color:var(--fg2);transition:background .25s,color .25s}
@@ -1232,7 +1238,7 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .dtx-r.hot .v{color:var(--accent)}
 .dtx-sl{position:relative;height:22px;display:flex;align-items:center;cursor:pointer;touch-action:none}
 .dtx-sl::before{content:"";position:absolute;left:0;right:0;height:4px;border-radius:2px;background:var(--line)}
-.dtx-sl .f{position:absolute;left:0;height:4px;border-radius:2px;background:var(--accent)}
+.dtx-sl .f{position:absolute;left:0;height:4px;border-radius:2px;background:var(--accent-mark,var(--accent))}
 .dtx-sl .k{position:absolute;width:14px;height:14px;margin-left:-7px;border-radius:50%;background:#fff;box-shadow:0 0 0 1px var(--line),0 1px 3px rgba(0,0,0,.18);transition:transform .2s}
 .dtx-sl:hover .k,.dtx-sl.drag .k,.dtx-sl:focus-visible .k{transform:scale(1.15)}
 .dtx-sl:focus-visible{outline-offset:4px}
@@ -1255,7 +1261,7 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .pgx-o input{position:absolute;opacity:0;pointer-events:none}
 .pgx-o .bx{width:18px;height:18px;border-radius:6px;box-shadow:inset 0 0 0 1.5px var(--faint);display:grid;place-items:center;color:transparent;flex:none;transition:background .3s var(--ease),box-shadow .3s,color .3s}
 .pgx-o .bx svg{transform:scale(.4);transition:transform .35s var(--ease)}
-.pgx-o input:checked+.bx{background:var(--accent);box-shadow:none;color:#fff}
+.pgx-o input:checked+.bx{background:var(--accent);box-shadow:none;color:var(--on-accent)}
 .pgx-o input:checked+.bx svg{transform:none}
 .pgx-o input:focus-visible+.bx{box-shadow:0 0 0 3px var(--accent-bg)}
 .pgx-o .t{flex:1;min-width:0}
@@ -1362,7 +1368,7 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .lcx-st{font-size:12.5px}
 .lcx-bar{display:flex;gap:3px}
 .lcx-bar i{flex:1;height:5px;border-radius:3px;background:var(--line);transition:background .45s var(--ease)}
-.lcx-bar i.ok{background:var(--ok)}.lcx-bar i.bad{background:var(--bad)}.lcx-bar i.run{background:var(--accent);opacity:.5}
+.lcx-bar i.ok{background:var(--ok)}.lcx-bar i.bad{background:var(--bad)}.lcx-bar i.run{background:var(--accent-mark,var(--accent));opacity:.5}
 .lcx-list{display:flex;flex-direction:column}
 .lcx-r{display:flex;align-items:center;gap:10px;padding:7px 4px;font-size:13px;border-radius:10px;min-height:38px}
 .lcx-r .g{width:18px;height:18px;display:grid;place-items:center;flex:none;color:var(--faint)}
@@ -1437,7 +1443,7 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .crx-l.add{background:var(--ok-bg)}.crx-l.add .c::before{content:"+ ";color:var(--ok)}
 .crx-l.del{background:var(--bad-bg)}.crx-l.del .c::before{content:"− ";color:var(--bad)}
 .crx-l.ctx .c::before{content:"  "}
-.crx-l .cm{position:absolute;left:4px;top:3px;width:18px;height:18px;border-radius:6px;background:var(--accent);color:#fff;display:grid;place-items:center;opacity:0;transform:scale(.7);transition:opacity .2s,transform .25s var(--ease)}
+.crx-l .cm{position:absolute;left:4px;top:3px;width:18px;height:18px;border-radius:6px;background:var(--accent);color:var(--on-accent);display:grid;place-items:center;opacity:0;transform:scale(.7);transition:opacity .2s,transform .25s var(--ease)}
 .crx-l:hover .cm{opacity:1;transform:none}
 .crx-hk.kept .crx-l.del{display:none}.crx-hk.kept .crx-l.add{background:transparent}.crx-hk.kept .crx-l.add .c::before{content:"  "}
 .crx-hk.undone .crx-l.add{display:none}.crx-hk.undone .crx-l.del{background:transparent}.crx-hk.undone .crx-l.del .c::before{content:"  "}
@@ -1666,7 +1672,7 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .ste-box:focus-within,.ste-box.f{box-shadow:inset 0 0 0 1px var(--accent),0 0 0 4px var(--accent-bg)}
 .ste-box input{flex:1;min-width:0;border:0;outline:0;background:transparent;font:inherit;font-size:13px;color:var(--fg)}
 .ste-box input::placeholder{color:var(--muted)}
-.ste-go{width:30px;height:30px;border-radius:50%;background:var(--accent);color:#fff;display:grid;place-items:center;flex:none;transition:background .2s}
+.ste-go{width:30px;height:30px;border-radius:50%;background:var(--accent);color:var(--on-accent);display:grid;place-items:center;flex:none;transition:background .2s}
 .ste-go[disabled]{cursor:not-allowed;background:var(--rail);color:var(--surface)}
 /* ---------- Eval results ---------- */
 /* an eval suite's latest run: one bar segment per case, the pass count against the run before, and the cases, all or
@@ -1683,7 +1689,7 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .evr-segs i{flex:1;height:6px;border-radius:3px;background:var(--rail);transition:background .3s}
 .evr-segs i.pass{background:var(--ok)}
 .evr-segs i.fail{background:var(--bad)}
-.evr-segs i.run{background:var(--accent);animation:evrrun 1s ease-in-out infinite}
+.evr-segs i.run{background:var(--accent-mark,var(--accent));animation:evrrun 1s ease-in-out infinite}
 @keyframes evrrun{50%{opacity:.4}}
 .evr-nums{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:20px;font-size:13px}
 .evr-dl:empty{display:none}
@@ -1772,7 +1778,7 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .ssx-s .t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .ssx-s .h{font-size:12px;color:var(--muted)}
 .ssx-s .rel{width:36px;height:4px;border-radius:2px;background:var(--line);overflow:hidden;flex:none}
-.ssx-s .rel i{display:block;height:100%;background:var(--accent);border-radius:2px;transform-origin:left;animation:ssrel .8s var(--ease) both}
+.ssx-s .rel i{display:block;height:100%;background:var(--accent-mark,var(--accent));border-radius:2px;transform-origin:left;animation:ssrel .8s var(--ease) both}
 @keyframes ssrel{from{transform:scaleX(0)}}
 .ssx-s .ib{width:24px;height:24px;opacity:0;transition:opacity .2s}
 .ssx-s:hover .ib{opacity:1}
@@ -1791,9 +1797,12 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .mix-x{opacity:0;transition:opacity .2s}
 .mix-ch:hover .mix-x,.mix-ch:hover .mix-dot{opacity:1}
 .mix-dot{position:absolute;width:9px;height:9px;margin:-4.5px;border-radius:50%;background:var(--surface);box-shadow:0 0 0 2px var(--accent);opacity:0;transition:opacity .2s;pointer-events:none}
-.mix-mk{position:absolute;top:-4px;width:18px;height:18px;margin-left:-9px;border-radius:50%;background:var(--accent);color:#fff;display:grid;place-items:center;opacity:0;transform:scale(.5);transition:opacity .4s 1.1s,transform .5s 1.1s var(--ease)}
-.mix-ch.in .mix-mk{opacity:1;transform:none}
-.mix-mk svg{width:10px;height:10px}
+/* the change it explains is marked where it happened: a small date label at the top of a dashed guide down through the chart */
+.mix-mk{position:absolute;top:-14px;bottom:0;display:flex;flex-direction:column;align-items:center;transform:translateX(-50%);opacity:0;transition:opacity .4s 1.1s;pointer-events:none}
+.mix-mk b{pointer-events:auto;display:inline-flex;align-items:center;gap:4px;height:20px;padding:0 7px;border-radius:var(--r-pill);background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);font-size:11.5px;font-weight:500;color:var(--fg2);white-space:nowrap}
+.mix-mk b svg{width:10px;height:10px;color:var(--accent-fg,var(--accent))}
+.mix-mk::after{content:"";flex:1;border-left:1px dashed var(--faint)}
+.mix-ch.in .mix-mk{opacity:1}
 .mix-ins{display:flex;gap:8px;align-items:flex-start;font-size:13px;line-height:1.5;color:var(--fg2)}
 .mix-ic{color:var(--accent);display:grid;margin-top:2px}
 .mix-why{align-self:flex-start}
@@ -2032,7 +2041,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .wrx-i{position:relative;display:flex;align-items:center;gap:12px;height:36px;padding:0 10px;border-radius:11px;color:var(--fg2);white-space:nowrap;transition:color .2s}
 .wrx-i:hover{color:var(--fg)}
 .wrx-i.on{color:var(--fg)}
-.wrx-i .bd{position:absolute;left:19px;top:4px;min-width:15px;height:15px;padding:0 4px;border-radius:8px;background:var(--accent);color:#fff;font-size:9.5px;font-weight:500;display:grid;place-items:center;box-shadow:0 0 0 2px var(--surface)}
+.wrx-i .bd{position:absolute;left:19px;top:4px;min-width:15px;height:15px;padding:0 4px;border-radius:8px;background:var(--accent);color:var(--on-accent);font-size:9.5px;font-weight:500;display:grid;place-items:center;box-shadow:0 0 0 2px var(--surface)}
 .wrx-i .wrx-lb{flex-direction:row}
 .wrx-sp{flex:1}
 .wrx-runs{display:flex;flex-direction:column;gap:2px;margin-bottom:6px}
@@ -2060,7 +2069,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .cpl-i.hl .ic{background:var(--surface);color:var(--accent)}
 .cpl-i .k{margin-left:auto;display:flex;gap:3px}
 .cpl-i mark{background:transparent;color:var(--accent);font-weight:500}
-.cpl-i.ask .ic{background:var(--accent);color:#fff}
+.cpl-i.ask .ic{background:var(--accent);color:var(--on-accent)}
 .cpl-hl{position:absolute;left:6px;right:6px;height:36px;border-radius:10px;background:var(--chip);transition:top .25s var(--ease);z-index:0}
 .cpl-f{display:flex;gap:14px;align-items:center;padding:8px 14px;border-top:1px solid var(--line);font-size:11.5px}
 .cpl-f .kbd{margin-right:3px}
@@ -2333,6 +2342,8 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .ahx-fs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px}
 .ahx-fs:last-child{margin-bottom:0}
 .ahx-msg{min-width:0}
+/* a component in the chat lines up with the messages on the left, instead of centring itself as it does on its own */
+.ahx-col .ahx-msg>*{margin-left:0;margin-right:auto}
 /* chat components sit on the chat itself, the way a bare card shows them; an artifact and a diff keep their card */
 .ahx-msg:not(.box)>.panel:not(.keep){background:none;box-shadow:none;padding-left:0;padding-right:0;border-radius:0}
 /* in the chat a finished question set closes up behind its answers */
@@ -2429,8 +2440,8 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .bcx-st{display:flex;flex-direction:column-reverse;gap:2px;border-radius:7px;overflow:hidden;transition:opacity .25s}
 .bcx-st i{display:block;height:0;transition:height .7s var(--ease)}
 .bcx-st i:nth-child(1){background:var(--c1)}
-.bcx-st i:nth-child(2){background:var(--c2)}
-.bcx-st i:nth-child(3){background:var(--c4)}
+.bcx-st i:nth-child(2){background:var(--a3)}
+.bcx-st i:nth-child(3){background:var(--bad)}
 .bcx-ch:hover .bcx-b:not(:hover) .bcx-st{opacity:.4}
 .bcx-l{font-size:11px;color:var(--muted);text-align:center;margin-top:6px;height:14px}
 .bcx-tt{position:absolute;bottom:calc(100% + 6px);left:50%;transform:translate(-50%,4px);padding:6px 9px;border-radius:10px;background:var(--ink);color:var(--on-ink);font-size:11.5px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .2s,transform .25s var(--ease);z-index:2;display:flex;flex-direction:column}
@@ -2469,7 +2480,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .fnx-r{display:grid;grid-template-columns:118px 1fr 48px;align-items:center;gap:10px;font-size:12.5px;padding:2px 0;border-radius:8px}
 .fnx-r .k{color:var(--fg2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .fnx-r .tr{height:26px;border-radius:8px;background:var(--chip);position:relative;overflow:hidden}
-.fnx-r .bar{position:absolute;inset:0 auto 0 0;border-radius:8px;background:var(--accent);transition:width .9s var(--ease),opacity .3s}
+.fnx-r .bar{position:absolute;inset:0 auto 0 0;border-radius:8px;background:var(--accent-mark,var(--accent));transition:width .9s var(--ease),opacity .3s}
 .fnx-r .n{position:absolute;left:10px;top:0;bottom:0;display:flex;align-items:center;color:#fff;font-size:11.5px;font-weight:500;transition:left .9s var(--ease),color .3s}
 .fnx-r .n.out{color:var(--fg2)}
 .fnx-r .v{text-align:right;color:var(--muted);font-size:12px}
@@ -2493,7 +2504,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .tpx-r .p{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tpx-r .tr{height:4px;border-radius:2px;background:var(--chip);overflow:hidden}
 .tpx-r:hover .tr{background:var(--surface)}
-.tpx-r .tr i{display:block;height:100%;width:0;border-radius:2px;background:var(--accent);transition:width .9s var(--ease)}
+.tpx-r .tr i{display:block;height:100%;width:0;border-radius:2px;background:var(--accent-mark,var(--accent));transition:width .9s var(--ease)}
 .tpx-r .n{font-size:13px;font-weight:500;min-width:52px;text-align:right}
 .tpx-r .ch{min-width:52px;justify-content:center}
 /* ---------- Health score ---------- */
@@ -2610,7 +2621,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .dpk-d{height:32px;border-radius:9px;font-size:12.5px;color:var(--fg);transition:background .2s,color .2s;position:relative}
 .dpk-d:hover{background:var(--chip)}
 .dpk-d.o{color:var(--faint)}
-.dpk-d.t::after{content:"";position:absolute;left:50%;bottom:4px;width:4px;height:4px;margin-left:-2px;border-radius:50%;background:var(--accent)}
+.dpk-d.t::after{content:"";position:absolute;left:50%;bottom:4px;width:4px;height:4px;margin-left:-2px;border-radius:50%;background:var(--accent-mark,var(--accent))}
 .dpk-d.s{background:var(--accent);color:var(--on-accent)}
 .dpk-d.s::after{background:var(--on-accent)}
 .dpk-d.s{animation:dpks .35s var(--ease)}
@@ -2709,7 +2720,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .agx-e.open,.agx-e.open:hover{background:var(--surface)}
 .agx-e.past{opacity:.5}
 .agx-e .tm{font-size:12px;color:var(--muted);padding-top:1px}
-.agx-e .bar{border-radius:2px;background:var(--accent)}
+.agx-e .bar{border-radius:2px;background:var(--accent-mark,var(--accent))}
 .agx-e .t{display:flex;flex-direction:column;font-size:13px;min-width:0}
 .agx-e .t b{font-weight:500}
 .agx-e .t span{font-size:12px;color:var(--muted)}
@@ -2719,8 +2730,8 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .agx-prep div{display:flex;gap:7px;align-items:flex-start}
 .agx-prep svg{color:var(--accent);margin-top:3px;flex:none}
 .agx-now{display:flex;align-items:center;gap:6px;margin:2px 0;font-size:11px;color:var(--accent);font-weight:500;padding-left:6px}
-.agx-now::after{content:"";flex:1;height:2px;background:var(--accent);border-radius:1px}
-.agx-now i{width:7px;height:7px;border-radius:50%;background:var(--accent);animation:agnow 2s ease-in-out infinite}
+.agx-now::after{content:"";flex:1;height:2px;background:var(--accent-mark,var(--accent));border-radius:1px}
+.agx-now i{width:7px;height:7px;border-radius:50%;background:var(--accent-mark,var(--accent));animation:agnow 2s ease-in-out infinite}
 @keyframes agnow{50%{box-shadow:0 0 0 5px var(--accent-bg)}}
 .agx-join{margin-top:8px;align-self:flex-start}
 /* ---------- Buttons ---------- */
@@ -2944,7 +2955,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .cmx{padding:12px;display:flex;flex-direction:column;gap:10px;min-height:340px}
 .cmx-h{display:flex;align-items:center;gap:8px;font-size:13.5px;margin:0 -12px;padding:0 12px 10px;border-bottom:1px solid var(--line)}
 .cmx-h b{font-weight:500;flex:1}
-.cmx-pin{width:22px;height:22px;border-radius:50% 50% 50% 4px;background:var(--accent);color:#fff;display:grid;place-items:center;font-size:11px;font-weight:500}
+.cmx-pin{width:22px;height:22px;border-radius:50% 50% 50% 4px;background:var(--accent);color:var(--on-accent);display:grid;place-items:center;font-size:11px;font-weight:500}
 .cmx-th{display:flex;flex-direction:column;gap:12px;flex:1}
 .cmx-c{display:flex;gap:9px}
 .cmx-c .av{width:26px;height:26px;font-size:10px;flex:none}
@@ -2961,7 +2972,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .cmx-box:focus-within{box-shadow:inset 0 0 0 1px var(--accent),0 0 0 4px var(--accent-bg)}
 .cmx-box input{flex:1;min-width:0;border:0;outline:0;background:transparent;font:inherit;font-size:13px;color:var(--fg)}
 .cmx-box input::placeholder{color:var(--muted)}
-.cmx-go{width:30px;height:30px;border-radius:50%;background:var(--accent);color:#fff;display:grid;place-items:center;transition:opacity .2s,transform .2s}
+.cmx-go{width:30px;height:30px;border-radius:50%;background:var(--accent);color:var(--on-accent);display:grid;place-items:center;transition:opacity .2s,transform .2s}
 .cmx-go[disabled]{opacity:1;cursor:not-allowed;background:var(--rail);color:var(--surface)}
 .cmx-men{bottom:46px;left:0;min-width:210px}
 .cmx.done .cmx-th,.cmx.done .cmx-in{opacity:.45;pointer-events:none;transition:opacity .4s}
@@ -2970,7 +2981,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .ntx{padding:12px;display:flex;flex-direction:column;gap:8px;min-height:360px}
 .ntx-h{display:flex;align-items:center;gap:8px;margin:0 -12px 2px;padding:2px 12px 10px 16px;font-size:14px;border-bottom:1px solid var(--line)}
 .ntx-h b{font-weight:500}
-.ntx-ct{min-width:20px;height:20px;padding:0 6px;border-radius:999px;background:var(--accent);color:#fff;font-size:11px;font-weight:500;display:grid;place-items:center;transition:transform .35s var(--ease),opacity .3s}
+.ntx-ct{min-width:20px;height:20px;padding:0 6px;border-radius:999px;background:var(--accent);color:var(--on-accent);font-size:11px;font-weight:500;display:grid;place-items:center;transition:transform .35s var(--ease),opacity .3s}
 .ntx-ct.z{opacity:0;transform:scale(.5)}
 .ntx-ct.bump{animation:ntb .45s var(--ease)}
 @keyframes ntb{40%{transform:scale(1.3)}}
@@ -2984,7 +2995,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .ntx-n .t{flex:1;min-width:0;font-size:13px;line-height:1.45;color:var(--fg2)}
 .ntx-n .t b{font-weight:500;color:var(--fg)}
 .ntx-n .t span{display:block;font-size:11.5px;color:var(--muted);margin-top:2px}
-.ntx-n .u{width:7px;height:7px;border-radius:50%;background:var(--accent);margin-top:6px;flex:none;transition:transform .3s var(--ease),opacity .3s}
+.ntx-n .u{width:7px;height:7px;border-radius:50%;background:var(--accent-mark,var(--accent));margin-top:6px;flex:none;transition:transform .3s var(--ease),opacity .3s}
 .ntx-n.read .u{transform:scale(0);opacity:0}
 .ntx-n.read .t{color:var(--muted)}
 .ntx-n.new{animation:ntn .6s var(--ease) both}
@@ -3023,7 +3034,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .rxx{padding:14px 0;display:flex;flex-direction:column;gap:10px}
 .rxx.panel{padding:14px}
 .rxx-m{display:flex;gap:10px}
-.rxx-ic{width:30px;height:30px;border-radius:10px;background:var(--accent);color:#fff;display:grid;place-items:center;flex:none}
+.rxx-ic{width:30px;height:30px;border-radius:10px;background:var(--accent);color:var(--on-accent);display:grid;place-items:center;flex:none}
 .rxx-b{display:flex;flex-direction:column;font-size:13.5px;line-height:1.5;min-width:0}
 .rxx-n{display:flex;gap:6px;align-items:baseline;font-size:13px}
 .rxx-n b{font-weight:500}
@@ -3105,18 +3116,18 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .kbx-k.agent{box-shadow:0 0 0 1.5px var(--accent),var(--shadow)}
 .kbx-ph{border-radius:13px;background:color-mix(in srgb,var(--accent) 8%,transparent);border:1.5px dashed color-mix(in srgb,var(--accent) 50%,transparent)}
 .kbx-pr{height:3px;border-radius:2px;background:var(--line);overflow:hidden}
-.kbx-pr i{display:block;height:100%;background:var(--accent);width:0;transition:width .3s linear}
+.kbx-pr i{display:block;height:100%;background:var(--accent-mark,var(--accent));width:0;transition:width .3s linear}
 
 /* ---------- Blueprint 2 ---------- */
 /* Blueprint 2: the same components drawn as a technical sheet. Square corners, hairline edges instead of shadows,
-   an orange accent, and motion that wipes and ticks into place in short, hard beats instead of blurring in */
+   a lime accent, and motion that wipes and ticks into place in short, hard beats instead of blurring in */
 :root[data-style="bp"]{
   --motion:bp;
   --page:#f3f3f0; --stage:#fafaf8; --surface:#ffffff; --raised:#ffffff;
   --fg:#121212; --fg2:#4a4a46; --muted:#72726c; --faint:#bdbdb6; --rail:#d2d2cb; --line:#e3e3dd;
   --chip:#f1f1ed; --hover:#e8e8e3; --press:#dededa; --wash:#f6f6f3; --row:color-mix(in srgb,var(--fg) 4%,transparent);
   --soft:#ebebe6; --soft-h:#e1e1db; --soft-ring:inset 0 0 0 1px rgba(20,20,12,.09); --dis:#a3a39c;
-  --accent:#f76b00; --accent-2:#d65c00; --accent-bg:#fff2e8; --on-accent:#ffffff; --sel:color-mix(in srgb,var(--accent) 7%,transparent);
+  --accent:#d4f84a; --accent-2:#c3e637; --accent-bg:#f7fde0; --on-accent:#121212; --accent-fg:var(--fg); --accent-mark:#869c2f; --sel:color-mix(in srgb,var(--accent) 7%,transparent);
   --ink:#121212; --on-ink:#ffffff;
   --shadow:0 0 0 1px var(--line);
   --shadow-pop:0 0 0 1px var(--rail),0 12px 28px -14px rgba(20,20,12,.22);
@@ -3131,7 +3142,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
   --fg:#f1f1ee; --fg2:#adada7; --muted:#8a8a84; --faint:#4c4c48; --rail:#3b3b38; --line:#2a2a28;
   --chip:#242422; --hover:#2c2c2a; --press:#353532; --wash:#1f1f1d; --row:color-mix(in srgb,var(--fg) 5.5%,transparent);
   --soft:#272725; --soft-h:#31312e; --soft-ring:inset 0 0 0 1px rgba(255,255,255,.08); --dis:#5f5f5a;
-  --accent:#ff850d; --accent-2:#ff9b3d; --accent-bg:rgba(255,133,13,.12); --on-accent:#ffffff; --sel:color-mix(in srgb,var(--accent) 10%,transparent);
+  --accent:#d4f84a; --accent-2:#e0fa75; --accent-bg:rgba(212,248,74,.12); --on-accent:#121212; --accent-fg:#d4f84a; --accent-mark:#d4f84a; --sel:color-mix(in srgb,var(--accent) 10%,transparent);
   --ink:#f1f1ee; --on-ink:#121211;
   --shadow:0 0 0 1px var(--line);
   --shadow-pop:0 0 0 1px var(--rail),0 16px 32px -14px rgba(0,0,0,.7);
@@ -3145,7 +3156,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
   --fg:#f1f1ee; --fg2:#adada7; --muted:#8a8a84; --faint:#4c4c48; --rail:#3b3b38; --line:#2a2a28;
   --chip:#242422; --hover:#2c2c2a; --press:#353532; --wash:#1f1f1d; --row:color-mix(in srgb,var(--fg) 5.5%,transparent);
   --soft:#272725; --soft-h:#31312e; --soft-ring:inset 0 0 0 1px rgba(255,255,255,.08); --dis:#5f5f5a;
-  --accent:#ff850d; --accent-2:#ff9b3d; --accent-bg:rgba(255,133,13,.12); --on-accent:#ffffff; --sel:color-mix(in srgb,var(--accent) 10%,transparent);
+  --accent:#d4f84a; --accent-2:#e0fa75; --accent-bg:rgba(212,248,74,.12); --on-accent:#121212; --accent-fg:#d4f84a; --accent-mark:#d4f84a; --sel:color-mix(in srgb,var(--accent) 10%,transparent);
   --ink:#f1f1ee; --on-ink:#121211;
   --shadow:0 0 0 1px var(--line);
   --shadow-pop:0 0 0 1px var(--rail),0 16px 32px -14px rgba(0,0,0,.7);
@@ -3482,7 +3493,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
   <div class="stage"><div class="stage-in"></div></div>
   <template><div class="rsu panel">
   <div class="rsu-h"><span class="rsu-g">{ok}</span><div><div class="rsu-t">Run complete</div><div class="rsu-s muted">Finished in 12m 40s</div></div><button class="ib rsu-more" aria-label="More" data-tip="Run details">{more}</button></div>
-  <p class="rsu-title">Tightened the pricing cards and moved them onto spacing tokens</p>
+  <p class="rsu-title">Pricing cards now use spacing tokens</p>
   <div class="rsu-stats">
     <span><b class="num" data-n="6">0</b> files</span>
     <span><b class="num" data-n="14">0</b> steps</span>
@@ -3661,7 +3672,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
     <div class="afx-dh">Churn analysis, Q3</div>
     <div class="afx-dp">Churn rose in July, then settled once onboarding emails went out.</div>
     <div class="afx-kp"><b class="num afx-v">3.1%</b><span class="afx-d">−2.7 pts since July</span></div>
-    <svg class="afx-ch" viewBox="0 0 300 56" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="afx-g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--accent);stop-opacity:.16"/><stop offset="1" style="stop-color:var(--accent);stop-opacity:0"/></linearGradient></defs><path class="ar"/><path class="ln"/></svg>
+    <svg class="afx-ch" viewBox="0 0 300 56" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="afx-g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--accent-mark,var(--accent));stop-opacity:.16"/><stop offset="1" style="stop-color:var(--accent-mark,var(--accent));stop-opacity:0"/></linearGradient></defs><path class="ar"/><path class="ln"/></svg>
     <div class="afx-ax"><span>Apr</span><span>May</span><span>Jun</span><span>Jul</span><span>Aug</span><span>Sep</span></div>
   </div></div>
   <div class="afx-meta">
@@ -4048,7 +4059,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
   <template><div class="mix panel">
   <div class="mix-h"><span class="muted">Trial to paid</span><div class="seg2 mix-rg" role="group" aria-label="Range"><button aria-pressed="false" data-v="7">7d</button><button aria-pressed="true" data-v="30">30d</button><button aria-pressed="false" data-v="90">90d</button></div></div>
   <div class="mix-v"><b class="num mix-n">0%</b><span class="tag ok mix-d num">+0.0 pts</span></div>
-  <div class="mix-ch"><svg class="mix-svg" viewBox="0 0 300 90" preserveAspectRatio="none"><defs><linearGradient id="mixg" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="var(--accent)" stop-opacity=".18"/><stop offset="1" stop-color="var(--accent)" stop-opacity="0"/></linearGradient></defs><path class="mix-a" fill="url(#mixg)"/><path class="mix-l" fill="none" stroke="var(--accent)" stroke-width="2" vector-effect="non-scaling-stroke" stroke-linejoin="round"/><line class="mix-x" y1="0" y2="90" stroke="var(--faint)" stroke-dasharray="2 3" vector-effect="non-scaling-stroke"/></svg><span class="mix-dot"></span><span class="mix-mk" style="left:58%">{spark}</span></div>
+  <div class="mix-ch"><svg class="mix-svg" viewBox="0 0 300 90" preserveAspectRatio="none"><defs><linearGradient id="mixg" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="var(--accent-mark,var(--accent))" stop-opacity=".18"/><stop offset="1" stop-color="var(--accent-mark,var(--accent))" stop-opacity="0"/></linearGradient></defs><path class="mix-a" fill="url(#mixg)"/><path class="mix-l" fill="none" stroke="var(--accent-mark,var(--accent))" stroke-width="2" vector-effect="non-scaling-stroke" stroke-linejoin="round"/><line class="mix-x" y1="0" y2="90" stroke="var(--faint)" stroke-dasharray="2 3" vector-effect="non-scaling-stroke"/></svg><span class="mix-dot"></span><span class="mix-mk" style="left:58%"><b>{spark}Sep 18</b></span></div>
   <div class="mix-ins"><span class="mix-ic">{spark}</span><span class="mix-t">Jumped after the pricing page update on Sep 18.</span></div>
   <button class="pill soft sm mix-why">Why did it move?</button>
   <div class="fold shut mix-box"><div><div class="mix-rs"></div></div></div>
@@ -4097,8 +4108,8 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
   <div class="dtp-sec">
     <button class="dtp-sh" aria-expanded="true">{chev}<span>Properties</span></button>
     <div class="fold dtp-f1"><div><div class="dtp-rows">
-      <div class="dtp-r"><span class="k">Status</span><button class="dtp-v dtp-stat" data-pop=".dtp-pst"><span class="dot" style="color:var(--accent)"></span><span>In review</span></button>
-        <div class="pop dtp-pst" role="menu"><button class="mi" data-close data-s="In progress" data-c="var(--py)"><span class="dot" style="color:var(--py)"></span><span>In progress</span></button><button class="mi" data-close data-s="In review" data-c="var(--accent)"><span class="dot" style="color:var(--accent)"></span><span>In review</span></button><button class="mi" data-close data-s="Shipped" data-c="var(--ok)"><span class="dot" style="color:var(--ok)"></span><span>Shipped</span></button></div></div>
+      <div class="dtp-r"><span class="k">Status</span><button class="dtp-v dtp-stat" data-pop=".dtp-pst"><span class="dot" style="color:var(--accent-mark,var(--accent))"></span><span>In review</span></button>
+        <div class="pop dtp-pst" role="menu"><button class="mi" data-close data-s="In progress" data-c="var(--py)"><span class="dot" style="color:var(--py)"></span><span>In progress</span></button><button class="mi" data-close data-s="In review" data-c="var(--accent-mark,var(--accent))"><span class="dot" style="color:var(--accent-mark,var(--accent))"></span><span>In review</span></button><button class="mi" data-close data-s="Shipped" data-c="var(--ok)"><span class="dot" style="color:var(--ok)"></span><span>Shipped</span></button></div></div>
       <div class="dtp-r"><span class="k">Owner</span><button class="dtp-v dtp-own" data-pop=".dtp-pow">{avm}<span>Maya Kim</span></button>
         <div class="pop dtp-pow" role="menu"><button class="mi" data-close data-o="Maya Kim" data-i="MK" data-c="var(--pl)">{avm}<span>Maya Kim</span></button><button class="mi" data-close data-o="Jon Ortiz" data-i="JO" data-c="var(--pm)">{avj}<span>Jon Ortiz</span></button><button class="mi" data-close data-o="Design agent" data-i="DA" data-c="var(--pb)">{ava}<span>Design agent</span></button></div></div>
       <div class="dtp-r"><span class="k">Model</span><button class="dtp-v" data-pop=".dtp-pmo"><span class="dtp-mo">Opus</span>{chevd}</button>
@@ -4301,7 +4312,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
   <div class="card-h"><div><h3>Line chart</h3><p>Two series over time with a hover readout and toggles.</p></div></div>
   <div class="stage"><div class="stage-in"></div></div>
   <template><div class="lnx panel">
-  <div class="lnx-h"><div><span class="muted">Active editors</span><b class="num lnx-v">0</b></div><div class="lnx-lg"><button class="lnx-k on" data-s="0"><i style="background:var(--accent)"></i>This year</button><button class="lnx-k on" data-s="1"><i style="background:var(--faint)"></i>Last year</button></div></div>
+  <div class="lnx-h"><div><span class="muted">Active editors</span><b class="num lnx-v">0</b></div><div class="lnx-lg"><button class="lnx-k on" data-s="0"><i style="background:var(--accent-mark,var(--accent))"></i>This year</button><button class="lnx-k on" data-s="1"><i style="background:var(--faint)"></i>Last year</button></div></div>
   <div class="lnx-ch"><svg class="lnx-svg" viewBox="0 0 320 140" preserveAspectRatio="none"></svg><div class="lnx-x"></div><div class="lnx-tt"><b class="num"></b><span></span></div></div>
   <div class="lnx-ax muted num"><span>Jan</span><span>Mar</span><span>May</span><span>Jul</span><span>Sep</span><span>Nov</span></div>
 </div></template>
@@ -4313,7 +4324,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
   <template><div class="bcx panel">
   <div class="bcx-h"><div><span class="muted">Agent runs</span><b class="num bcx-v">0</b></div><div class="seg2 bcx-rg" role="group" aria-label="Range"><button aria-pressed="true" data-v="w">Week</button><button aria-pressed="false" data-v="m">Month</button></div></div>
   <div class="bcx-ch"></div>
-  <div class="bcx-lg muted"><span><i style="background:var(--c1)"></i>Shipped</span><span><i style="background:var(--c2)"></i>Needed review</span><span><i style="background:var(--c4)"></i>Failed</span></div>
+  <div class="bcx-lg muted"><span><i style="background:var(--c1)"></i>Shipped</span><span><i style="background:var(--a3)"></i>Needed review</span><span><i style="background:var(--bad)"></i>Failed</span></div>
 </div></template>
   <div class="card-f"><span>Hover a bar, switch the range</span><span class="sp"></span><button class="replay" aria-label="Replay Bar chart"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
 </article>
@@ -4646,7 +4657,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
   <template><div class="slx panel">
   <div class="slx-h"><div><b>Monthly agent budget</b><span class="muted">Resets Nov 1</span></div><label class="num slx-v" data-tip="Type a budget"><span class="cur">$</span><input class="slx-in" inputmode="numeric" autocomplete="off" aria-label="Monthly budget, in dollars" value="200"></label></div>
   <div class="slx-bar"><div class="slx-used"></div><div class="slx-fc"></div><button class="slx-k" role="slider" aria-label="Budget cap" aria-valuemin="50" aria-valuemax="500"><span class="slx-tt num">$200</span></button></div>
-  <div class="slx-lg muted"><span><i style="background:var(--accent)"></i>Spent <b class="num slx-sp">$128</b></span><span><i class="fc"></i>Forecast <b class="num slx-fv">$184</b></span></div>
+  <div class="slx-lg muted"><span><i style="background:var(--accent-mark,var(--accent))"></i>Spent <b class="num slx-sp">$128</b></span><span><i class="fc"></i>Forecast <b class="num slx-fv">$184</b></span></div>
   <div class="slx-warn"></div>
   <div class="slx-opt"><span class="muted">At the limit</span><div class="seg2 slx-sg" role="group" aria-label="At the limit"><button aria-pressed="true" data-v="pause">Pause runs</button><button aria-pressed="false" data-v="ask">Ask me</button><button aria-pressed="false" data-v="keep">Keep going</button></div></div>
 </div></template>
@@ -4902,7 +4913,7 @@ document.addEventListener('DOMContentLoaded', () => {
   /* style: Soft 2 or Blueprint 2, from ?style= or what this browser last picked; each style keeps its own accent */
   const STY = {
     soft2:{ h:'Soft 2', p:$('#style-p') ? $('#style-p').textContent : '', acc:'#116ff8', key:'soft2-accent', title:'Designme Soft 2' },
-    bp2:{ h:'Blueprint 2', p:"The same 93 components drawn as a technical sheet: square corners, hairline edges instead of shadows, an orange accent, and motion that wipes and ticks into place in short, hard beats.", acc:'#f76b00', key:'bp2-accent', title:'Designme Blueprint 2' }
+    bp2:{ h:'Blueprint 2', p:"The same 93 components drawn as a technical sheet: square corners, hairline edges instead of shadows, a lime accent, and motion that wipes and ticks into place in short, hard beats.", acc:'#d4f84a', key:'bp2-accent', title:'Designme Blueprint 2' }
   };
   let style = 'soft2';
   try { const q = new URLSearchParams(location.search).get('style'); const ls = localStorage.getItem('designme2-style');
@@ -5374,7 +5385,7 @@ DM.def('run-cost', (r, c) => {
   go.onclick = () => {
     if (running){ stop('Stopped'); swap(gl(), 'Resume'); return; }
     if (used >= 2000){ used = inT = outT = tools = 0; paint(); }
-    running = true; status('Running', 'b'); swap(gl(), 'Stop'); go.className = 'pill soft sm rc-go'; fill.style.background = 'var(--accent)';
+    running = true; status('Running', 'b'); swap(gl(), 'Stop'); go.className = 'pill soft sm rc-go'; fill.style.background = 'var(--accent-mark,var(--accent))';
     loop = c.every(90, () => {
       used = Math.min(2000, used + 8 + Math.random() * 18); inT += 120 + Math.random() * 220; outT += 30 + Math.random() * 70; if (Math.random() < .12) tools++;
       paint();
@@ -5546,7 +5557,7 @@ DM.def('stepper', (r, c) => {
     if (REDUCE) return;
     const bp = getComputedStyle(r).getPropertyValue('--motion').trim() === 'bp';
     const box = document.createElement('span'); box.className = 'stx-conf'; at.appendChild(box);
-    const COL = ['var(--accent)', 'var(--ok)', 'var(--c2)', 'var(--c4)', 'var(--c5)', 'var(--c6)'], N = 22;
+    const COL = ['var(--accent-mark,var(--accent))', 'var(--ok)', 'var(--c2)', 'var(--c4)', 'var(--c5)', 'var(--c6)'], N = 22;
     for (let k = 0; k < N; k++){
       const p = document.createElement('i'), round = k % 3 === 0, a = -Math.PI / 2 + (k / (N - 1) - .5) * Math.PI * 1.5 + Math.sin(k * 7.3) * .18;
       const d = 46 + (k * 37 % 30), w = round ? 5 : 3 + k % 2, h = round ? 5 : 7 + k % 3;
@@ -6071,7 +6082,7 @@ DM.def('attachment-tray', (r, c) => {
   let read = 0;
   function add(name, bytes, i = 0){
     const k = kind(name);
-    const it = html(`<div class="atx-it"><span class="atx-ti" style="color:${k[1]};background:${k[2]}">${k[0]}</span><span class="atx-n">${name.replace(/</g,'&lt;')}<span>${size(bytes)}</span></span><svg class="atx-ring" viewBox="0 0 22 22"><circle cx="11" cy="11" r="8" fill="none" stroke="var(--line)" stroke-width="2"/><circle cx="11" cy="11" r="8" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-dasharray="50.3" stroke-dashoffset="50.3" transform="rotate(-90 11 11)"/></svg><button class="ib" aria-label="Remove" data-tip="Remove">${I('x','xs')}</button></div>`);
+    const it = html(`<div class="atx-it"><span class="atx-ti" style="color:${k[1]};background:${k[2]}">${k[0]}</span><span class="atx-n">${name.replace(/</g,'&lt;')}<span>${size(bytes)}</span></span><svg class="atx-ring" viewBox="0 0 22 22"><circle cx="11" cy="11" r="8" fill="none" stroke="var(--line)" stroke-width="2"/><circle cx="11" cy="11" r="8" fill="none" stroke="var(--accent-mark,var(--accent))" stroke-width="2" stroke-linecap="round" stroke-dasharray="50.3" stroke-dashoffset="50.3" transform="rotate(-90 11 11)"/></svg><button class="ib" aria-label="Remove" data-tip="Remove">${I('x','xs')}</button></div>`);
     list.appendChild(it); enter(it, i * 80);
     $('.ib', it).onclick = () => { it.classList.add('leave'); setTimeout(() => it.remove(), 320); };
     const ring = $$('circle', it)[1]; let p = 0;
@@ -6737,7 +6748,7 @@ DM.def('change-review', (r, c) => {
   files.innerHTML = F.map((f, i) => `<button class="crx-f" data-i="${i}"><span class="ft ${f.n.endsWith('tsx') ? 're' : ''}">${f.n.split('.').pop().toUpperCase()}</span><span class="nm">${f.n}</span><span class="st"><span class="dot"></span></span></button>`).join('');
   let cur = 0;
   const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;');
-  function fileState(i){ const hs = F[i].h, b = $$('.crx-f', files)[i]; const all = s => hs.every(h => h.s === s); b.classList.toggle('kept', all('kept')); b.classList.toggle('undone', all('undone')); $('.st', b).innerHTML = all('kept') ? I('check','xs') : all('undone') ? I('undo','xs') : hs.some(h => h.s) ? '<span class="dot" style="color:var(--accent)"></span>' : '<span class="dot"></span>'; }
+  function fileState(i){ const hs = F[i].h, b = $$('.crx-f', files)[i]; const all = s => hs.every(h => h.s === s); b.classList.toggle('kept', all('kept')); b.classList.toggle('undone', all('undone')); $('.st', b).innerHTML = all('kept') ? I('check','xs') : all('undone') ? I('undo','xs') : hs.some(h => h.s) ? '<span class="dot" style="color:var(--accent-mark,var(--accent))"></span>' : '<span class="dot"></span>'; }
   function show(i, quiet){
     cur = i; $$('.crx-f', files).forEach((b, j) => b.classList.toggle('on', j === i)); swap(fn, 'src/' + F[i].n);
     diff.innerHTML = F[i].h.map((h, k) => `<div class="crx-hk ${h.s}" data-k="${k}"><div class="crx-hh">${I('spark','xs')}<span>${h.t}</span><span class="sp"></span><button class="pill ghost hk-u">Undo</button><button class="pill soft hk-k">Keep</button></div>${h.l.map(l => `<div class="crx-l ${l[0]}"><span class="ln">${l[1]}</span><span class="c">${esc(l[2])}</span><button class="cm" aria-label="Comment on line" data-tip="Comment">${I('plus','xs')}</button></div>`).join('')}</div>`).join('');
@@ -7325,12 +7336,12 @@ DM.def('metric-insight', (r, c) => {
   // once drawn, drop the dashes so a later resize can't cut the line short
   c.on(l, 'transitionend', e => { if (e.propertyName === 'stroke-dashoffset' && ch.classList.contains('in')) l.style.strokeDasharray = 'none'; });
   seg($('.mix-rg', r), v => { cur = +v; draw(cur); });
-  mk.dataset.tip = 'Pricing page update shipped';
+  $('b', mk).dataset.tip = 'Pricing page update shipped';
   const why = $('.mix-why', r), box = $('.mix-box', r), rs = $('.mix-rs', r);
   why.onclick = () => c.run(async () => {
     if (!box.classList.contains('shut')){ box.classList.add('shut'); why.setAttribute('aria-expanded', 'false'); swap(why, 'Why did it move?'); return; }
     why.innerHTML = '<span class="think on"><i></i><i></i><i></i><i></i></span>Looking into it'; await c.wait(900);
-    const R = [['Annual plan shown first', 54, 'var(--accent)'], ['One CTA per card', 27, 'var(--pl)'], ['Seasonal traffic', 12, 'var(--pt)'], ['Unexplained', 7, 'var(--faint)']];
+    const R = [['Annual plan shown first', 54, 'var(--accent-mark,var(--accent))'], ['One CTA per card', 27, 'var(--pl)'], ['Seasonal traffic', 12, 'var(--pt)'], ['Unexplained', 7, 'var(--faint)']];
     rs.innerHTML = R.map(q => `<div class="mix-r"><span class="dot" style="color:${q[2]}"></span><span class="t">${q[0]}</span><span class="bar"><i style="width:${q[1]}%;background:${q[2]}"></i></span><span class="v num">${q[1]}%</span></div>`).join('');
     box.classList.remove('shut'); why.setAttribute('aria-expanded', 'true'); stagger($$('.mix-r', rs), 60); swap(why, 'Hide the breakdown');
   });
@@ -7759,7 +7770,7 @@ DM.def('automation-canvas', (r, c) => {
   const N = [
     { id:'t', ic:'clock', col:'var(--py)', t:'Schedule', d:'Mondays 9:00', y:.5, f:['When', ['Mondays 9:00','Every weekday','On new Figma version']] },
     { id:'a', ic:'figma', col:'var(--pl)', t:'Read frames', d:'Pricing, Checkout', y:.28, f:['Frames', ['Pricing, Checkout','All frames','Changed this week']] },
-    { id:'b', ic:'spark', col:'var(--accent)', t:'Agent: audit', d:'Contrast, tokens', y:.72, f:['Checks', ['Contrast, tokens','Everything','Accessibility only']] },
+    { id:'b', ic:'spark', col:'var(--accent-mark,var(--accent))', t:'Agent: audit', d:'Contrast, tokens', y:.72, f:['Checks', ['Contrast, tokens','Everything','Accessibility only']] },
     { id:'c', ic:'send', col:'var(--pm)', t:'Post summary', d:'#design in Slack', y:.5, f:['Channel', ['#design in Slack','Email the team','Linear ticket']] }
   ];
   const E = [['t','a'],['t','b'],['a','c'],['b','c']];
@@ -8196,7 +8207,7 @@ DM.def('harness', (r, c) => {
   const conv = (title, o) => Object.assign({ id:'c' + ++n, title, st:IDLE, ctx:4, state:'idle' }, o);
   const column = cv => { if (!cv.col){ cv.col = html('<div class="ahx-col off" aria-hidden="true"></div>'); cols.appendChild(cv.col); } return cv.col; };
   const stateOf = g => g === 'ok' ? 'done' : g === 'wait' ? 'wait' : g === 'idle' ? 'idle' : 'run';
-  const markOf = cv => cv.unread ? '<span class="dot" style="color:var(--accent)"></span>' : cv.state === 'run' ? '<span class="spin"></span>'
+  const markOf = cv => cv.unread ? '<span class="dot" style="color:var(--accent-mark,var(--accent))"></span>' : cv.state === 'run' ? '<span class="spin"></span>'
     : cv.state === 'wait' ? '<span class="dot" style="color:var(--warn)"></span>' : '';
   // the quiet mark on a chat's row and its tab: unread, working, or waiting on you
   function mark(cv){
@@ -8491,10 +8502,10 @@ DM.def('line-chart', (r, c) => {
   const lo = 500, hi = 1700, P = s => s.map((d, i) => [i / 11 * 320, 136 - (d - lo) / (hi - lo) * 128]);
   const smooth = p => p.map((q, i) => { if (!i) return `M${q[0]} ${q[1]}`; const a = p[i - 1], m = (q[0] - a[0]) / 2; return `C${a[0] + m} ${a[1]} ${q[0] - m} ${q[1]} ${q[0]} ${q[1]}`; }).join(' ');
   const pa = P(A), pb = P(B);
-  svg.innerHTML = `<defs><linearGradient id="lng" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="var(--accent)" stop-opacity=".16"/><stop offset="1" stop-color="var(--accent)" stop-opacity="0"/></linearGradient><clipPath id="lnc"><rect class="lnr" x="0" y="-10" width="0" height="160"/></clipPath></defs>` +
+  svg.innerHTML = `<defs><linearGradient id="lng" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="var(--accent-mark,var(--accent))" stop-opacity=".16"/><stop offset="1" stop-color="var(--accent-mark,var(--accent))" stop-opacity="0"/></linearGradient><clipPath id="lnc"><rect class="lnr" x="0" y="-10" width="0" height="160"/></clipPath></defs>` +
     [35, 70, 105].map(y => `<line class="gl" x1="0" x2="320" y1="${y}" y2="${y}"/>`).join('') +
-    `<g clip-path="url(#lnc)"><path class="ar" d="${smooth(pa)} L320 140 L0 140 Z" fill="url(#lng)"/><path class="ln l1" d="${smooth(pb)}" stroke="var(--faint)" stroke-dasharray="4 4"/><path class="ln l0" d="${smooth(pa)}" stroke="var(--accent)"/></g>`;
-  ch.insertAdjacentHTML('beforeend', '<span class="lnx-pt on" style="color:var(--accent)"></span><span class="lnx-pt on" style="color:var(--faint)"></span>');
+    `<g clip-path="url(#lnc)"><path class="ar" d="${smooth(pa)} L320 140 L0 140 Z" fill="url(#lng)"/><path class="ln l1" d="${smooth(pb)}" stroke="var(--faint)" stroke-dasharray="4 4"/><path class="ln l0" d="${smooth(pa)}" stroke="var(--accent-mark,var(--accent))"/></g>`;
+  ch.insertAdjacentHTML('beforeend', '<span class="lnx-pt on" style="color:var(--accent-mark,var(--accent))"></span><span class="lnx-pt on" style="color:var(--faint)"></span>');
   const pts = $$('.lnx-pt', ch), on = [true, true];
   // the line draws and the number counts once the chart has risen into view, so the draw is seen from its start
   v.textContent = '0';
@@ -8533,7 +8544,7 @@ DM.def('bar-chart', (r, c) => {
 });
 /* ---------- Donut chart ---------- */
 DM.def('donut-chart', (r, c) => {
-  const D = [['Design reviews',14.2,'var(--c1)'],['Code changes',9.6,'var(--c2)'],['Research',6.1,'var(--c3)'],['Copy edits',3.4,'var(--c4)'],['Other',1.7,'var(--faint)']];
+  const D = [['Design reviews',14.2,'var(--a1)'],['Code changes',9.6,'var(--a2)'],['Research',6.1,'var(--a3)'],['Copy edits',3.4,'var(--a4)'],['Other',1.7,'var(--faint)']];
   const tot = D.reduce((a, d) => a + d[1], 0), C = 2 * Math.PI * 48, gap = 2;
   const svg = $('svg', r), lg = $('.dnx-lg', r), ring = $('.dnx-ring', r), v = $('.dnx-v', r), l = $('.dnx-l', r);
   let off = 0;
@@ -8590,7 +8601,7 @@ DM.def('health-score', (r, c) => {
   const K = [['Token usage',96,'All colours come from the library'],['Contrast',88,'2 text pairs below AA on the pricing page',1],['Component reuse',74,'11 detached instances in Checkout',1],['Naming',91,'Layer names follow the convention']];
   const list = $('.hsx-list', r), fl = $('.hsx-g .fl', r), vb = $('.hsx-v b', r), st = $('.hsx-st', r);
   let score = 0;
-  const col = v => v >= 90 ? 'var(--hs-ok)' : v >= 80 ? 'var(--accent)' : 'var(--hs-bad)';
+  const col = v => v >= 90 ? 'var(--hs-ok)' : v >= 80 ? 'var(--accent-mark,var(--accent))' : 'var(--hs-bad)';
   function total(){ const t = Math.round(K.reduce((a, k) => a + k[1], 0) / K.length); fl.style.strokeDashoffset = 157 * (1 - t / 100); fl.style.stroke = col(t); tween(score, t, 1000, n => { score = n; vb.textContent = Math.round(n); }); const n = K.filter(k => k[1] < 90).length; swap(st, n ? (t >= 85 ? 'Good' : 'Fair') + ', ' + n + (n > 1 ? ' checks need' : ' check needs') + ' work' : 'Excellent, all checks pass'); }
   list.innerHTML = K.map(k => `<div class="hsx-c"><button class="hsx-ch"><span class="t">${k[0]}</span><span class="bar"><i style="width:0"></i></span><span class="v num">${k[1]}</span>${I('chev-r','xs')}</button><div class="fold shut"><div><div class="hsx-d"><span>${k[2]}</span>${k[3] ? `<button class="pill soft sm">${I('wand','xs')}Fix</button>` : ''}</div></div></div></div>`).join('');
   $$('.hsx-c', list).forEach((el, i) => {
@@ -8628,7 +8639,7 @@ DM.def('stat-cards', (r, c) => {
     ['coins','Agent spend',[[84,-6],[341,-3],[960,8]],'$',[6,5,6,5,4,4,4,3]]
   ];
   const grid = $('.scx-grid', r); let per = 1;
-  grid.innerHTML = S.map((s, i) => `<div class="scx-c panel"><span class="scx-k"><span class="ic">${I(s[0],'xs')}</span>${s[1]}</span><div class="scx-v"><b class="num">0</b><span class="scx-d num"></span></div><div class="scx-sp"><svg viewBox="0 0 100 30" preserveAspectRatio="none"><path stroke="${i === 3 ? 'var(--pt)' : 'var(--accent)'}" d="M0 30 L100 30"/></svg></div></div>`).join('');
+  grid.innerHTML = S.map((s, i) => `<div class="scx-c panel"><span class="scx-k"><span class="ic">${I(s[0],'xs')}</span>${s[1]}</span><div class="scx-v"><b class="num">0</b><span class="scx-d num"></span></div><div class="scx-sp"><svg viewBox="0 0 100 30" preserveAspectRatio="none"><path stroke="${i === 3 ? 'var(--pt)' : 'var(--accent-mark,var(--accent))'}" d="M0 30 L100 30"/></svg></div></div>`).join('');
   const cards = $$('.scx-c', grid), cur = S.map(() => 0);
   const fmt = (s, v) => s[3] === '$' ? '$' + Math.round(v).toLocaleString('en-US') : Math.round(v).toLocaleString('en-US') + s[3];
   function draw(p){
@@ -8901,7 +8912,7 @@ DM.def('tooltip', (r, c) => {
   const P = [['MK','var(--pl)','Maya Kim','Design lead','Editing Pricing, frame 2'],['DA','var(--pb)','Design agent','Working for Maya','Auditing contrast, 2 of 6 checks']];
   const card = $('.ttp-card', r), ci = $('.ttp-ci', r), root = $('.ttp', r); let t;
   $$('.ttp-av', r).forEach(b => { b.onmouseenter = () => { clearTimeout(t); t = setTimeout(() => { const p = P[+b.dataset.card];
-      ci.innerHTML = `<div class="ttp-ch">${AV(p[0], p[1])}<div><b>${p[2]}</b><span>${p[3]}</span></div></div><div class="ttp-cs">${p[0] === 'DA' ? '<span class="think on" style="color:var(--accent)"><i></i><i></i><i></i><i></i></span>' : '<span class="dot"></span>'}${p[4]}</div>`;
+      ci.innerHTML = `<div class="ttp-ch">${AV(p[0], p[1])}<div><b>${p[2]}</b><span>${p[3]}</span></div></div><div class="ttp-cs">${p[0] === 'DA' ? '<span class="think on" style="color:var(--accent-mark,var(--accent))"><i></i><i></i><i></i><i></i></span>' : '<span class="dot"></span>'}${p[4]}</div>`;
       const rr = root.getBoundingClientRect(), br = b.getBoundingClientRect(); let x = br.left - rr.left + br.width / 2 - 115; x = Math.max(0, Math.min(x, rr.width - 230));
       card.style.left = x + 'px'; card.style.top = (br.bottom - rr.top + 10) + 'px'; card.classList.add('show'); }, 300); };
     b.onmouseleave = () => { clearTimeout(t); card.classList.remove('show'); }; });
@@ -9017,7 +9028,7 @@ DM.def('sign-in', (r, c) => {
     if (!/^\S+@\S+\.\S+$/.test(v)){ const f = em.parentElement; f.classList.remove('bad'); void f.offsetWidth; f.classList.add('bad'); swap(err, v ? 'That email looks incomplete' : 'Enter your email'); return; }
     em.parentElement.classList.remove('bad'); swap(err, ''); go.innerHTML = '<span class="spin"></span>'; await c.wait(800);
     s1.hidden = true; s2.hidden = false; s2.classList.remove('in'); void s2.offsetWidth; s2.classList.add('in'); $('.sgx-to', r).textContent = v; if (demo !== true) ins[0].focus({ preventScroll:true });
-    let n = 30; const ns = $('.sgx-rs .num', r); const iv = c.every(1000, () => { if (checking || !ns.isConnected) return clearInterval(iv); n--; ns.textContent = n; if (n <= 0){ clearInterval(iv); $('.sgx-rs', r).innerHTML = '<button style="color:var(--accent);font-weight:500">Resend code</button>'; } });
+    let n = 30; const ns = $('.sgx-rs .num', r); const iv = c.every(1000, () => { if (checking || !ns.isConnected) return clearInterval(iv); n--; ns.textContent = n; if (n <= 0){ clearInterval(iv); $('.sgx-rs', r).innerHTML = '<button style="color:var(--accent-fg,var(--accent));font-weight:500">Resend code</button>'; } });
   });
   go.onclick = () => send(); em.onkeydown = e => { if (e.key === 'Enter') send(); };
   $('.sgx-bk', r).onclick = () => { s2.hidden = true; s1.hidden = false; s1.classList.remove('in'); void s1.offsetWidth; s1.classList.add('in'); go.textContent = 'Send code'; ins.forEach(i => i.value = ''); };
@@ -9102,7 +9113,7 @@ DM.def('comments', (r, c) => {
   add('MK', 'The secondary button feels too faint next to the CTA.', '2h');
   add('JO', 'Agree. Can we keep it outlined though?', '1h');
   async function agent(q){
-    const el = add('DA', '', 'now', true), tx = $('.tx', el); tx.innerHTML = '<span class="think on" style="color:var(--accent)"><i></i><i></i><i></i><i></i></span>'; await c.wait(900); tx.innerHTML = '';
+    const el = add('DA', '', 'now', true), tx = $('.tx', el); tx.innerHTML = '<span class="think on" style="color:var(--accent-mark,var(--accent))"><i></i><i></i><i></i><i></i></span>'; await c.wait(900); tx.innerHTML = '';
     const a = /outline|border/i.test(q + ' outlined') ? 'Kept it outlined and raised the text to #5B6472, which passes AA at 5.9 : 1. Want me to apply it to the other 2 frames?' : 'On it. I will post the change here when it is ready.';
     for (const w of a.split(' ')){ tx.insertAdjacentHTML('beforeend', `<span class="w">${w} </span>`); await c.wait(40); }
     const act = html(`<div class="act"><button class="pill accent sm">Apply to all</button><button class="pill ghost sm">Just this one</button></div>`); $('.b', el).appendChild(act); enter(act);
@@ -9137,7 +9148,7 @@ DM.def('notifications', (r, c) => {
   seg($('.ntx-tabs .seg2', r), v => { f = v; paint(true); });
   $('.ntx-all', r).onclick = () => { N.forEach(x => x.read = true); $$('.ntx-n', list).forEach((b, i) => c.later(i * 50, () => b.classList.add('read'))); count(); };
   paint(true);
-  const incoming = [{ k:'agent', ic:'spark', col:'var(--accent)', t:'<b>Weekly design QA</b> started on 12 frames', w:'Just now' }, { k:'men', av:['AR','var(--pp)'], t:'<b>Ari</b> replied: “Looks great, ship it”', w:'Just now' }];
+  const incoming = [{ k:'agent', ic:'spark', col:'var(--accent-mark,var(--accent))', t:'<b>Weekly design QA</b> started on 12 frames', w:'Just now' }, { k:'men', av:['AR','var(--pp)'], t:'<b>Ari</b> replied: “Looks great, ship it”', w:'Just now' }];
   incoming.forEach((x, i) => c.later(2200 + i * 2600, () => { N.unshift(x); if (f === 'all' || f === x.k){ const el = html(row(x)); el.classList.add('new'); list.prepend(el); $('.ntx-e', list)?.remove(); el.onclick = () => { x.read = !x.read; el.classList.toggle('read', x.read); count(); }; } count(true); }));
 });
 /* ---------- Invite ---------- */
@@ -9188,7 +9199,7 @@ DM.def('ticket-list', (r, c) => {
   const T = [
     { p:'var(--bad)', pn:'Urgent', t:'Agent stopped mid export', f:'Northwind', a:['MK','var(--pl)'], w:'4m', q:'The token export stopped at 60% and nothing has happened for 20 minutes.', s:'Sorry about that. The run paused at your $5 spend cap. I have raised it for this run and it finished just now. Your tokens are in the Exports tab.', st:'open' },
     { p:'var(--warn)', pn:'High', t:'Figma frames not syncing', f:'Lumen Labs', a:['JO','var(--pm)'], w:'22m', q:'New frames from this morning are not showing up in DesignMe.', s:'The Figma token for your workspace expired yesterday. Reconnect it from Settings, then the frames will sync within a minute.', st:'open' },
-    { p:'var(--accent)', pn:'Normal', t:'How do I share a run?', f:'Orbit', a:['DA','var(--pb)'], w:'1h', q:'Can I send an agent run to someone outside my team?', s:'Yes. Open the run, click Share, and turn on "Anyone with the link". They can view it without an account.', st:'open' },
+    { p:'var(--accent-mark,var(--accent))', pn:'Normal', t:'How do I share a run?', f:'Orbit', a:['DA','var(--pb)'], w:'1h', q:'Can I send an agent run to someone outside my team?', s:'Yes. Open the run, click Share, and turn on "Anyone with the link". They can view it without an account.', st:'open' },
     { p:'var(--faint)', pn:'Low', t:'Invoice address change', f:'Kite Health', a:['MK','var(--pl)'], w:'2d', q:'', s:'', st:'done' }
   ];
   const list = $('.tkx-list', r); let f = 'open', open = null;

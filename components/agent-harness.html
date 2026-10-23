@@ -15,7 +15,7 @@
 .lva-p .w{display:inline;animation:lvw .5s var(--ease) both}
 @keyframes lvw{from{opacity:0;filter:blur(3px)}to{opacity:1;filter:none}}
 .cite{display:inline-grid;place-items:center;min-width:17px;height:17px;padding:0 4px;margin:0 2px;border-radius:5px;background:var(--hover);font-size:10.5px;font-weight:500;color:var(--fg2);vertical-align:2px;cursor:default;transition:background .2s,color .2s}
-.cite:hover,.cite.on{background:var(--accent-bg);color:var(--accent)}
+.cite:hover,.cite.on{background:var(--accent-bg);color:var(--accent-fg,var(--accent))}
 .lva-p .cite{animation:lvw .5s var(--ease) both}
 .lva-src{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--muted)}
 .lva-sb{display:inline-flex;align-items:center;gap:8px;height:28px;padding:0 9px 0 5px;border-radius:var(--r-pill);color:var(--fg2);transition:background .2s,color .2s}
@@ -32,7 +32,7 @@
 .lva-s{display:flex;align-items:center;gap:10px;width:100%;padding:7px 8px;border-radius:10px;font-size:13px;text-align:left;color:var(--fg);transition:background .2s}
 .lva-s:hover,.lva-s.on{background:var(--row)}
 .lva-s .n{width:17px;height:17px;border-radius:5px;background:var(--hover);display:grid;place-items:center;font-size:10.5px;font-weight:500;color:var(--fg2);flex:none;transition:background .2s,color .2s}
-.lva-s:hover .n,.lva-s.on .n{background:var(--accent-bg);color:var(--accent)}
+.lva-s:hover .n,.lva-s.on .n{background:var(--accent-bg);color:var(--accent-fg,var(--accent))}
 .lva-s .d{color:var(--muted);font-size:12px;margin-right:auto;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .lva-s>.i{color:var(--muted);opacity:0;transition:opacity .2s}
 .lva-s:hover>.i{opacity:1}
@@ -88,15 +88,16 @@
 @media (max-width:480px){.cpx-bar .cpx-ctx>span{max-width:88px}}
 </style><style>/* ---------- Artifact card ---------- */
 .afx{overflow:hidden}
-.afx-prev{padding:16px;background:var(--chip)}
-.afx-doc{padding:16px 16px 12px;background:var(--surface);border-radius:12px;box-shadow:var(--shadow)}
+/* one card: the document is drawn flat at the top, and a hairline sets it apart from its name and versions below */
+.afx-prev{border-bottom:1px solid var(--line)}
+.afx-doc{padding:16px 16px 12px}
 .afx-dh{font-weight:500;font-size:14px}
 .afx-dp{margin-top:4px;font-size:12.5px;line-height:1.5;color:var(--fg2);min-height:38px;text-wrap:pretty}
 .afx-kp{display:flex;align-items:baseline;gap:8px;margin-top:10px}
 .afx-kp b{font-size:14px;font-weight:500;letter-spacing:-.02em}
 .afx-d{font-size:12px;color:var(--ok)}
 .afx-ch{display:block;width:100%;height:56px;margin-top:8px;overflow:visible}
-.afx-ch .ln{fill:none;stroke:var(--accent);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
+.afx-ch .ln{fill:none;stroke:var(--accent-mark,var(--accent));stroke-width:2;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
 .afx-ch .ar{fill:url(#afx-g)}
 .afx-ax{display:flex;justify-content:space-between;margin-top:6px;font-size:10.5px;color:var(--muted)}
 .afx-meta{display:flex;align-items:center;gap:10px;padding:14px 9px 10px 16px}
@@ -267,7 +268,7 @@
 .ctm-ring svg{width:18px;height:18px;transform:rotate(-90deg);overflow:visible}
 .ctm-ring circle{fill:none;stroke-width:2.6}
 .ctm-ring .tr{stroke:var(--rail)}
-.ctm-ring .fl{stroke:var(--accent);stroke-linecap:round;stroke-dasharray:0 100;transition:stroke-dasharray .42s var(--ease),stroke .32s}
+.ctm-ring .fl{stroke:var(--accent-mark,var(--accent));stroke-linecap:round;stroke-dasharray:0 100;transition:stroke-dasharray .42s var(--ease),stroke .32s}
 .ctm.hot .ctm-ring .fl{stroke:var(--warn)}
 </style><style>/* ---------- Error and recovery ---------- */
 .erx{padding:8px}
@@ -289,7 +290,7 @@
 .erx-o:hover{background:var(--row);color:var(--fg)}
 .erx-o.on{background:var(--sel);color:var(--fg)}
 .erx-o i{width:15px;height:15px;border-radius:50%;box-shadow:inset 0 0 0 1.5px var(--faint);flex:none;transition:box-shadow .35s var(--ease)}
-.erx-o.on i{box-shadow:inset 0 0 0 4.5px var(--accent)}
+.erx-o.on i{box-shadow:inset 0 0 0 4.5px var(--accent-mark,var(--accent))}
 </style><style>/* ---------- Change review ---------- */
 .crx{display:grid;grid-template-columns:210px 1fr;overflow:hidden;min-height:330px}
 @media (max-width:720px){.crx{grid-template-columns:1fr}.crx-side{border-right:0!important;border-bottom:1px solid var(--line)}}
@@ -317,7 +318,7 @@
 .crx-l.add{background:var(--ok-bg)}.crx-l.add .c::before{content:"+ ";color:var(--ok)}
 .crx-l.del{background:var(--bad-bg)}.crx-l.del .c::before{content:"− ";color:var(--bad)}
 .crx-l.ctx .c::before{content:"  "}
-.crx-l .cm{position:absolute;left:4px;top:3px;width:18px;height:18px;border-radius:6px;background:var(--accent);color:#fff;display:grid;place-items:center;opacity:0;transform:scale(.7);transition:opacity .2s,transform .25s var(--ease)}
+.crx-l .cm{position:absolute;left:4px;top:3px;width:18px;height:18px;border-radius:6px;background:var(--accent);color:var(--on-accent);display:grid;place-items:center;opacity:0;transform:scale(.7);transition:opacity .2s,transform .25s var(--ease)}
 .crx-l:hover .cm{opacity:1;transform:none}
 .crx-hk.kept .crx-l.del{display:none}.crx-hk.kept .crx-l.add{background:transparent}.crx-hk.kept .crx-l.add .c::before{content:"  "}
 .crx-hk.undone .crx-l.add{display:none}.crx-hk.undone .crx-l.del{background:transparent}.crx-hk.undone .crx-l.del .c::before{content:"  "}
@@ -330,7 +331,7 @@
 .plx{padding:14px 0;display:flex;flex-direction:column;gap:10px}
 .plx.panel{padding:14px}
 .plx-h{display:flex;align-items:center;gap:10px}
-.plx-mk{color:var(--accent)}
+.plx-mk{color:var(--accent-fg,var(--accent))}
 .plx-ht{display:flex;flex-direction:column;min-width:0}
 .plx-ht b{font-weight:500;font-size:13.5px}
 .plx-st{font-size:12.5px}
@@ -349,15 +350,15 @@
 .plx-tm{margin-left:auto;font-size:12px;color:var(--muted)}
 .plx-tm:empty{display:none}
 .plx-s .n .spin{width:10px;height:10px}
-.plx-s .t:focus,.plx-s .t.ed{background:var(--surface);box-shadow:0 0 0 1.5px var(--accent)}
+.plx-s .t:focus,.plx-s .t.ed{background:var(--surface);box-shadow:0 0 0 1.5px var(--accent-mark,var(--accent))}
 .plx-s .ib{width:24px;height:24px;opacity:0;transition:opacity .2s}
 .plx-s:hover .ib,.plx-s .ib:focus-visible{opacity:1}
 .plx-s.off{opacity:.45}
 .plx-s.off .t{text-decoration:line-through}
-.plx-s.run .n{background:var(--accent-bg);color:var(--accent)}
+.plx-s.run .n{background:var(--accent-bg);color:var(--accent-fg,var(--accent))}
 .plx-s.done .n{background:var(--ok-bg);color:var(--ok)}
 .plx-s.retry .n{background:var(--warn-bg);color:var(--warn)}
-.plx-s.edited .t::after{content:"edited";margin-left:6px;font-size:11px;color:var(--accent)}
+.plx-s.edited .t::after{content:"edited";margin-left:6px;font-size:11px;color:var(--accent-fg,var(--accent))}
 .plx-add{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--fg2);padding:4px 10px;margin-inline:-10px;align-self:flex-start;border-radius:999px}
 .plx-add:hover{color:var(--fg);background:var(--chip)}
 .plx-f{display:flex;align-items:center;gap:6px}
@@ -379,7 +380,7 @@
 .pgx-o input{position:absolute;opacity:0;pointer-events:none}
 .pgx-o .bx{width:18px;height:18px;border-radius:6px;box-shadow:inset 0 0 0 1.5px var(--faint);display:grid;place-items:center;color:transparent;flex:none;transition:background .3s var(--ease),box-shadow .3s,color .3s}
 .pgx-o .bx svg{transform:scale(.4);transition:transform .35s var(--ease)}
-.pgx-o input:checked+.bx{background:var(--accent);box-shadow:none;color:#fff}
+.pgx-o input:checked+.bx{background:var(--accent);box-shadow:none;color:var(--on-accent)}
 .pgx-o input:checked+.bx svg{transform:none}
 .pgx-o input:focus-visible+.bx{box-shadow:0 0 0 3px var(--accent-bg)}
 .pgx-o .t{flex:1;min-width:0}
@@ -414,13 +415,13 @@
 /* the agent asks in the chat: no container; with .panel it becomes a card */
 .dpx{padding:16px 0;display:flex;flex-direction:column;gap:12px;outline:0;border-radius:var(--r-in)}
 .dpx.panel{padding:16px;border-radius:var(--r-card)}
-.dpx:focus-visible{outline:2px solid color-mix(in srgb,var(--accent) 45%,transparent);outline-offset:6px}
+.dpx:focus-visible{outline:2px solid color-mix(in srgb,var(--accent-mark,var(--accent)) 45%,transparent);outline-offset:6px}
 .dpx-h{display:flex;align-items:center;justify-content:space-between}
 .dpx-k{font-size:12px}
 .dpx-dots{display:flex;gap:4px}
 .dpx-dots i{width:6px;height:6px;border-radius:3px;background:var(--line);transition:width .45s var(--ease),background .35s}
-.dpx-dots i.on{width:16px;background:var(--accent)}
-.dpx-dots i.done{background:var(--accent);opacity:.4}
+.dpx-dots i.on{width:16px;background:var(--accent-mark,var(--accent))}
+.dpx-dots i.done{background:var(--accent-mark,var(--accent));opacity:.4}
 .dpx-body{min-height:168px}
 .dpx-q{font-size:14px;font-weight:500;margin-bottom:10px;text-wrap:balance}
 .dpx-o{display:flex;align-items:center;gap:10px;width:calc(100% + 20px);margin-inline:-10px;padding:9px 10px;border-radius:12px;font-size:13.5px;text-align:left;color:var(--fg2);transition:background .25s,color .25s}
@@ -456,7 +457,7 @@
 .ssx-s .t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .ssx-s .h{font-size:12px;color:var(--muted)}
 .ssx-s .rel{width:36px;height:4px;border-radius:2px;background:var(--line);overflow:hidden;flex:none}
-.ssx-s .rel i{display:block;height:100%;background:var(--accent);border-radius:2px;transform-origin:left;animation:ssrel .8s var(--ease) both}
+.ssx-s .rel i{display:block;height:100%;background:var(--accent-mark,var(--accent));border-radius:2px;transform-origin:left;animation:ssrel .8s var(--ease) both}
 @keyframes ssrel{from{transform:scaleX(0)}}
 .ssx-s .ib{width:24px;height:24px;opacity:0;transition:opacity .2s}
 .ssx-s:hover .ib{opacity:1}
@@ -545,6 +546,8 @@
 .ahx-fs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px}
 .ahx-fs:last-child{margin-bottom:0}
 .ahx-msg{min-width:0}
+/* a component in the chat lines up with the messages on the left, instead of centring itself as it does on its own */
+.ahx-col .ahx-msg>*{margin-left:0;margin-right:auto}
 /* chat components sit on the chat itself, the way a bare card shows them; an artifact and a diff keep their card */
 .ahx-msg:not(.box)>.panel:not(.keep){background:none;box-shadow:none;padding-left:0;padding-right:0;border-radius:0}
 /* in the chat a finished question set closes up behind its answers */
@@ -730,7 +733,7 @@
     <div class="afx-dh">Churn analysis, Q3</div>
     <div class="afx-dp">Churn rose in July, then settled once onboarding emails went out.</div>
     <div class="afx-kp"><b class="num afx-v">3.1%</b><span class="afx-d">−2.7 pts since July</span></div>
-    <svg class="afx-ch" viewBox="0 0 300 56" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="afx-g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--accent);stop-opacity:.16"/><stop offset="1" style="stop-color:var(--accent);stop-opacity:0"/></linearGradient></defs><path class="ar"/><path class="ln"/></svg>
+    <svg class="afx-ch" viewBox="0 0 300 56" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="afx-g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--accent-mark,var(--accent));stop-opacity:.16"/><stop offset="1" style="stop-color:var(--accent-mark,var(--accent));stop-opacity:0"/></linearGradient></defs><path class="ar"/><path class="ln"/></svg>
     <div class="afx-ax"><span>Apr</span><span>May</span><span>Jun</span><span>Jul</span><span>Aug</span><span>Sep</span></div>
   </div></div>
   <div class="afx-meta">
@@ -784,7 +787,7 @@
   <template>
 <div class="rsu panel">
   <div class="rsu-h"><span class="rsu-g">{ok}</span><div><div class="rsu-t">Run complete</div><div class="rsu-s muted">Finished in 12m 40s</div></div><button class="ib rsu-more" aria-label="More" data-tip="Run details">{more}</button></div>
-  <p class="rsu-title">Tightened the pricing cards and moved them onto spacing tokens</p>
+  <p class="rsu-title">Pricing cards now use spacing tokens</p>
   <div class="rsu-stats">
     <span><b class="num" data-n="6">0</b> files</span>
     <span><b class="num" data-n="14">0</b> steps</span>
@@ -1022,7 +1025,7 @@ const GATE = {
 };
 const PLAN = [&#39;Read the pricing frames and the brand tokens&#39;, &#39;Compare against the three competitor pages&#39;, &#39;Simplify the plan cards to one CTA each&#39;,
   &#39;Move the FAQ below the comparison table&#39;, &#39;Write a summary of every change&#39;];
-const SUMMARY = { subtitle: &#39;Finished in 12m 40s&#39;, summary: &#39;Tightened the pricing cards and moved them onto spacing tokens&#39;,
+const SUMMARY = { subtitle: &#39;Finished in 12m 40s&#39;, summary: &#39;Pricing cards now use spacing tokens&#39;,
   stats: [{ label: &#39;files&#39;, value: 6 }, { label: &#39;steps&#39;, value: 14 }, { label: &#39;tokens&#39;, value: 182, suffix: &#39;k&#39; }, { label: &#39;cost&#39;, value: 0.84, prefix: &#39;$&#39;, decimals: 2 }],
   changes: [{ file: &#39;PricingCard.tsx&#39;, added: 24, removed: 18 }, { file: &#39;tokens.css&#39;, added: 9, removed: 2 }, { file: &#39;Pricing.test.tsx&#39;, added: 31, removed: 0 }],
   needs: [{ key: &#39;badge&#39;, text: &#39;The yearly badge overlaps the price on mobile&#39;, action: { label: &#39;Review&#39;, onClick: () =&gt; {} } }], onDetails: () =&gt; {}, onOpenChanges: () =&gt; {} };
@@ -2003,7 +2006,7 @@ export function AgentHarness({
     &lt;/div&gt;
   );
 }
-</code></pre></details><details class="cp-file"><summary>agent-harness.css<span class="l">React · 147 lines</span></summary><pre class="cp-pre"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+</code></pre></details><details class="cp-file"><summary>agent-harness.css<span class="l">React · 149 lines</span></summary><pre class="cp-pre"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Agent harness ---------- */
 /* a whole agent app in one card: chats down the side, tabs across the top, a New chat home with suggestions, and the
    conversations themselves, told with the components above */
@@ -2089,6 +2092,8 @@ export function AgentHarness({
 .dm-ahx-fs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px}
 .dm-ahx-fs:last-child{margin-bottom:0}
 .dm-ahx-msg{min-width:0}
+/* a component in the chat lines up with the messages on the left, instead of centring itself as it does on its own */
+.dm-ahx-col .dm-ahx-msg&gt;*{margin-left:0;margin-right:auto}
 /* chat components sit on the chat itself, the way a bare card shows them; an artifact and a diff keep their card */
 .dm-ahx-msg:not(.dm-box)&gt;.dm-panel:not(.dm-keep){background:none;box-shadow:none;padding-left:0;padding-right:0;border-radius:0}
 /* in the chat a finished question set closes up behind its answers */
@@ -2192,7 +2197,7 @@ export function AgentHarness({
 &lt;/div&gt;
   &lt;/template&gt;
 &lt;/div&gt;
-</code></pre></details><details class="cp-file"><summary>agent-harness.css<span class="l">HTML · 146 lines</span></summary><pre class="cp-pre"><code>/* ---------- Agent harness ---------- */
+</code></pre></details><details class="cp-file"><summary>agent-harness.css<span class="l">HTML · 148 lines</span></summary><pre class="cp-pre"><code>/* ---------- Agent harness ---------- */
 /* a whole agent app in one card: chats down the side, tabs across the top, a New chat home with suggestions, and the
    conversations themselves, told with the components above */
 .card.wide .stage-in:has(&gt;.ahx){max-width:960px}
@@ -2277,6 +2282,8 @@ export function AgentHarness({
 .ahx-fs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px}
 .ahx-fs:last-child{margin-bottom:0}
 .ahx-msg{min-width:0}
+/* a component in the chat lines up with the messages on the left, instead of centring itself as it does on its own */
+.ahx-col .ahx-msg&gt;*{margin-left:0;margin-right:auto}
 /* chat components sit on the chat itself, the way a bare card shows them; an artifact and a diff keep their card */
 .ahx-msg:not(.box)&gt;.panel:not(.keep){background:none;box-shadow:none;padding-left:0;padding-right:0;border-radius:0}
 /* in the chat a finished question set closes up behind its answers */
@@ -2527,7 +2534,7 @@ export function AgentHarness({
   const conv = (title, o) =&gt; Object.assign({ id:&#39;c&#39; + ++n, title, st:IDLE, ctx:4, state:&#39;idle&#39; }, o);
   const column = cv =&gt; { if (!cv.col){ cv.col = html(&#39;&lt;div class=&quot;ahx-col off&quot; aria-hidden=&quot;true&quot;&gt;&lt;/div&gt;&#39;); cols.appendChild(cv.col); } return cv.col; };
   const stateOf = g =&gt; g === &#39;ok&#39; ? &#39;done&#39; : g === &#39;wait&#39; ? &#39;wait&#39; : g === &#39;idle&#39; ? &#39;idle&#39; : &#39;run&#39;;
-  const markOf = cv =&gt; cv.unread ? &#39;&lt;span class=&quot;dot&quot; style=&quot;color:var(--accent)&quot;&gt;&lt;/span&gt;&#39; : cv.state === &#39;run&#39; ? &#39;&lt;span class=&quot;spin&quot;&gt;&lt;/span&gt;&#39;
+  const markOf = cv =&gt; cv.unread ? &#39;&lt;span class=&quot;dot&quot; style=&quot;color:var(--accent-mark,var(--accent))&quot;&gt;&lt;/span&gt;&#39; : cv.state === &#39;run&#39; ? &#39;&lt;span class=&quot;spin&quot;&gt;&lt;/span&gt;&#39;
     : cv.state === &#39;wait&#39; ? &#39;&lt;span class=&quot;dot&quot; style=&quot;color:var(--warn)&quot;&gt;&lt;/span&gt;&#39; : &#39;&#39;;
   // the quiet mark on a chat&#39;s row and its tab: unread, working, or waiting on you
   function mark(cv){
@@ -3261,7 +3268,7 @@ export function AgentHarness({
   files.innerHTML = F.map((f, i) => `<button class="crx-f" data-i="${i}"><span class="ft ${f.n.endsWith('tsx') ? 're' : ''}">${f.n.split('.').pop().toUpperCase()}</span><span class="nm">${f.n}</span><span class="st"><span class="dot"></span></span></button>`).join('');
   let cur = 0;
   const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;');
-  function fileState(i){ const hs = F[i].h, b = $$('.crx-f', files)[i]; const all = s => hs.every(h => h.s === s); b.classList.toggle('kept', all('kept')); b.classList.toggle('undone', all('undone')); $('.st', b).innerHTML = all('kept') ? I('check','xs') : all('undone') ? I('undo','xs') : hs.some(h => h.s) ? '<span class="dot" style="color:var(--accent)"></span>' : '<span class="dot"></span>'; }
+  function fileState(i){ const hs = F[i].h, b = $$('.crx-f', files)[i]; const all = s => hs.every(h => h.s === s); b.classList.toggle('kept', all('kept')); b.classList.toggle('undone', all('undone')); $('.st', b).innerHTML = all('kept') ? I('check','xs') : all('undone') ? I('undo','xs') : hs.some(h => h.s) ? '<span class="dot" style="color:var(--accent-mark,var(--accent))"></span>' : '<span class="dot"></span>'; }
   function show(i, quiet){
     cur = i; $$('.crx-f', files).forEach((b, j) => b.classList.toggle('on', j === i)); swap(fn, 'src/' + F[i].n);
     diff.innerHTML = F[i].h.map((h, k) => `<div class="crx-hk ${h.s}" data-k="${k}"><div class="crx-hh">${I('spark','xs')}<span>${h.t}</span><span class="sp"></span><button class="pill ghost hk-u">Undo</button><button class="pill soft hk-k">Keep</button></div>${h.l.map(l => `<div class="crx-l ${l[0]}"><span class="ln">${l[1]}</span><span class="c">${esc(l[2])}</span><button class="cm" aria-label="Comment on line" data-tip="Comment">${I('plus','xs')}</button></div>`).join('')}</div>`).join('');
@@ -3676,7 +3683,7 @@ export function AgentHarness({
   const conv = (title, o) => Object.assign({ id:'c' + ++n, title, st:IDLE, ctx:4, state:'idle' }, o);
   const column = cv => { if (!cv.col){ cv.col = html('<div class="ahx-col off" aria-hidden="true"></div>'); cols.appendChild(cv.col); } return cv.col; };
   const stateOf = g => g === 'ok' ? 'done' : g === 'wait' ? 'wait' : g === 'idle' ? 'idle' : 'run';
-  const markOf = cv => cv.unread ? '<span class="dot" style="color:var(--accent)"></span>' : cv.state === 'run' ? '<span class="spin"></span>'
+  const markOf = cv => cv.unread ? '<span class="dot" style="color:var(--accent-mark,var(--accent))"></span>' : cv.state === 'run' ? '<span class="spin"></span>'
     : cv.state === 'wait' ? '<span class="dot" style="color:var(--warn)"></span>' : '';
   // the quiet mark on a chat's row and its tab: unread, working, or waiting on you
   function mark(cv){

@@ -1,7 +1,7 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Date picker: free UI component for React and HTML | Designme.dev</title><meta name="description" content="A field that opens a calendar, with quick picks and natural language. Free and MIT licensed, as HTML or a typed React component, in two styles with light and dark mode."><link rel="canonical" href="https://designme.dev/components/date-picker"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><meta property="og:type" content="website"><meta property="og:site_name" content="Designme.dev"><meta property="og:title" content="Date picker: free UI component for React and HTML | Designme.dev"><meta property="og:description" content="A field that opens a calendar, with quick picks and natural language. Free and MIT licensed, as HTML or a typed React component, in two styles with light and dark mode."><meta property="og:url" content="https://designme.dev/components/date-picker"><meta property="og:image" content="https://designme.dev/components/og/date-picker.jpg"><meta name="twitter:card" content="summary_large_image"><link rel="alternate" type="text/plain" title="All components for AI tools" href="/llms.txt"><link rel="preload" href="/fonts/inter-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin><link rel="preload" href="/fonts/inter-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin><script>try{var t=localStorage.getItem('dmui-theme');if(t)document.documentElement.setAttribute('data-theme',t);var s=localStorage.getItem('dmui-style')||'soft';if(s==='soft')document.documentElement.setAttribute('data-style','soft')}catch(e){}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareSourceCode","name":"Date picker","description":"A date field that opens a small calendar, with a text box at the top that reads plain English like \"next friday\" or \"in 2 weeks\". Quick picks such as Today and Tomorrow sit under the box, and the month grid below works with mouse or keyboard. It suits agent products where people set a due date or launch date the way they would say it.","url":"https://designme.dev/components/date-picker","image":"https://designme.dev/components/og/date-picker.jpg","programmingLanguage":["HTML","CSS","JavaScript","TypeScript"],"runtimePlatform":"Web browser","license":"https://opensource.org/licenses/MIT","isAccessibleForFree":true,"keywords":"Date picker, Dates, UI component, React component, HTML component","author":{"@type":"Organization","name":"DesignMe","url":"https://designme.agency"},"isPartOf":{"@type":"WebSite","name":"Designme.dev","url":"https://designme.dev/"}}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Library","item":"https://designme.dev/"},{"@type":"ListItem","position":2,"name":"Dates","item":"https://designme.dev/#s-dates"},{"@type":"ListItem","position":3,"name":"Date picker","item":"https://designme.dev/components/date-picker"}]}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does \"friday\" pick if today is Friday?","acceptedAnswer":{"@type":"Answer","text":"The default parser always picks the next one, so it returns the Friday a week later, never today. \"next friday\" works the same way."}},{"@type":"Question","name":"Can I use my own natural language parser?","acceptedAnswer":{"@type":"Answer","text":"Yes. Pass parse, a function that takes the typed text and today's date and returns a Date or null. You could call your agent or a library like chrono from there, as long as it returns synchronously."}},{"@type":"Question","name":"Why should I pass today when rendering on the server?","acceptedAnswer":{"@type":"Answer","text":"The today dot and the presets are based on the current date. Passing today keeps server and client output the same and makes demos and tests repeatable."}},{"@type":"Question","name":"Can I change the quick picks?","acceptedAnswer":{"@type":"Answer","text":"Yes. Pass presets as a list of a label and a number of days after today, like { label: 'Next sprint', days: 14 }."}}]}</script><link rel="stylesheet" href="/components/assets/core.css"><style>/* ---------- Date picker ---------- */
 .dpk{position:relative;display:flex;justify-content:center;min-height:400px;align-items:flex-start;padding-top:6px}
 .dpk-f{display:flex;align-items:center;gap:10px;height:40px;padding:0 12px;border-radius:12px;background:var(--surface);box-shadow:var(--shadow);font-size:13.5px;min-width:250px;transition:box-shadow .25s}
-.dpk-f[aria-expanded="true"]{box-shadow:0 0 0 1.5px var(--accent),0 0 0 4px var(--accent-bg)}
+.dpk-f[aria-expanded="true"]{box-shadow:0 0 0 1.5px var(--accent-mark,var(--accent)),0 0 0 4px var(--accent-bg)}
 .dpk-f>svg:first-child{color:var(--muted)}
 .dpk-val{flex:1;text-align:left;color:var(--fg)}
 .dpk-val.ph{color:var(--muted)}
@@ -23,7 +23,7 @@
 .dpk-d{height:32px;border-radius:9px;font-size:12.5px;color:var(--fg);transition:background .2s,color .2s;position:relative}
 .dpk-d:hover{background:var(--chip)}
 .dpk-d.o{color:var(--faint)}
-.dpk-d.t::after{content:"";position:absolute;left:50%;bottom:4px;width:4px;height:4px;margin-left:-2px;border-radius:50%;background:var(--accent)}
+.dpk-d.t::after{content:"";position:absolute;left:50%;bottom:4px;width:4px;height:4px;margin-left:-2px;border-radius:50%;background:var(--accent-mark,var(--accent))}
 .dpk-d.s{background:var(--accent);color:var(--on-accent)}
 .dpk-d.s::after{background:var(--on-accent)}
 .dpk-d.s{animation:dpks .35s var(--ease)}
@@ -230,7 +230,7 @@ export function DatePicker({
 /* ---------- Date picker ---------- */
 .dm-dpk{position:relative;display:flex;justify-content:center;min-height:400px;align-items:flex-start;padding-top:6px}
 .dm-dpk-f{display:flex;align-items:center;gap:10px;height:40px;padding:0 12px;border-radius:12px;background:var(--dm-surface);box-shadow:var(--dm-shadow);font-size:13.5px;min-width:250px;transition:box-shadow .25s}
-.dm-dpk-f[aria-expanded=&quot;true&quot;]{box-shadow:0 0 0 1.5px var(--dm-accent),0 0 0 4px var(--dm-accent-bg)}
+.dm-dpk-f[aria-expanded=&quot;true&quot;]{box-shadow:0 0 0 1.5px var(--dm-accent-mark,var(--dm-accent)),0 0 0 4px var(--dm-accent-bg)}
 .dm-dpk-f&gt;svg:first-child{color:var(--dm-muted)}
 .dm-dpk-val{flex:1;text-align:left;color:var(--dm-fg)}
 .dm-dpk-val.dm-ph{color:var(--dm-muted)}
@@ -252,7 +252,7 @@ export function DatePicker({
 .dm-dpk-d{height:32px;border-radius:9px;font-size:12.5px;color:var(--dm-fg);transition:background .2s,color .2s;position:relative}
 .dm-dpk-d:hover{background:var(--dm-chip)}
 .dm-dpk-d.dm-o{color:var(--dm-faint)}
-.dm-dpk-d.dm-t::after{content:&quot;&quot;;position:absolute;left:50%;bottom:4px;width:4px;height:4px;margin-left:-2px;border-radius:50%;background:var(--dm-accent)}
+.dm-dpk-d.dm-t::after{content:&quot;&quot;;position:absolute;left:50%;bottom:4px;width:4px;height:4px;margin-left:-2px;border-radius:50%;background:var(--dm-accent-mark,var(--dm-accent))}
 .dm-dpk-d.dm-s{background:var(--dm-accent);color:var(--dm-on-accent)}
 .dm-dpk-d.dm-s::after{background:var(--dm-on-accent)}
 .dm-dpk-d.dm-s{animation:dm-dpks .35s var(--dm-ease)}
@@ -275,7 +275,7 @@ export function DatePicker({
 </code></pre></details><details class="cp-file"><summary>date-picker.css<span class="l">HTML · 31 lines</span></summary><pre class="cp-pre"><code>/* ---------- Date picker ---------- */
 .dpk{position:relative;display:flex;justify-content:center;min-height:400px;align-items:flex-start;padding-top:6px}
 .dpk-f{display:flex;align-items:center;gap:10px;height:40px;padding:0 12px;border-radius:12px;background:var(--surface);box-shadow:var(--shadow);font-size:13.5px;min-width:250px;transition:box-shadow .25s}
-.dpk-f[aria-expanded=&quot;true&quot;]{box-shadow:0 0 0 1.5px var(--accent),0 0 0 4px var(--accent-bg)}
+.dpk-f[aria-expanded=&quot;true&quot;]{box-shadow:0 0 0 1.5px var(--accent-mark,var(--accent)),0 0 0 4px var(--accent-bg)}
 .dpk-f&gt;svg:first-child{color:var(--muted)}
 .dpk-val{flex:1;text-align:left;color:var(--fg)}
 .dpk-val.ph{color:var(--muted)}
@@ -297,7 +297,7 @@ export function DatePicker({
 .dpk-d{height:32px;border-radius:9px;font-size:12.5px;color:var(--fg);transition:background .2s,color .2s;position:relative}
 .dpk-d:hover{background:var(--chip)}
 .dpk-d.o{color:var(--faint)}
-.dpk-d.t::after{content:&quot;&quot;;position:absolute;left:50%;bottom:4px;width:4px;height:4px;margin-left:-2px;border-radius:50%;background:var(--accent)}
+.dpk-d.t::after{content:&quot;&quot;;position:absolute;left:50%;bottom:4px;width:4px;height:4px;margin-left:-2px;border-radius:50%;background:var(--accent-mark,var(--accent))}
 .dpk-d.s{background:var(--accent);color:var(--on-accent)}
 .dpk-d.s::after{background:var(--on-accent)}
 .dpk-d.s{animation:dpks .35s var(--ease)}
