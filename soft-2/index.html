@@ -445,6 +445,69 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .rq-sub.wait{color:var(--muted)}
 .rq-retry{height:22px;padding:0 9px;border-radius:999px;background:var(--chip);font-size:11.5px;color:var(--fg);transition:background .2s}
 .rq-retry:hover,.rq-retry.on{background:var(--hover)}
+/* ---------- Agent tree ---------- */
+/* an orchestrator and its sub-agents as a tree: a chevron folds a branch, each row shows its task, status and cost, and a
+   branch's cost is its own plus everything under it */
+.atr{width:100%;max-width:440px;margin:0 auto;padding:6px}
+.atr-h{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 10px 10px}
+.atr-ht{display:flex;flex-direction:column;min-width:0}
+.atr-ht b{font-weight:500;font-size:14px}
+.atr-st{font-size:12.5px}
+.atr-tot{font-size:14px;font-weight:500}
+.atr-tree{display:flex;flex-direction:column;padding-top:4px;border-top:1px solid var(--line)}
+.atr-n{display:flex;align-items:center;gap:8px;min-height:44px;padding:5px 10px 5px calc(4px + var(--lv,0) * 20px);border-radius:10px;font-size:13px;outline:0;transition:background .16s}
+.atr-n:hover{background:var(--row)}
+.atr-n:focus-visible{box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--accent) 45%,transparent)}
+.atr-tg{width:20px;height:20px;display:grid;place-items:center;flex:none;border-radius:6px;color:var(--muted);transition:background .16s,color .16s}
+.atr-tg:hover{background:var(--chip);color:var(--fg)}
+.atr-tg svg{transition:transform .32s var(--ease)}
+.atr-n[aria-expanded="false"] .atr-tg svg{transform:rotate(-90deg)}
+.atr-sp{width:20px;flex:none}
+.atr-g{width:16px;height:16px;display:grid;place-items:center;flex:none;color:var(--faint)}
+.atr-g .spin{width:11px;height:11px;color:var(--accent)}
+.atr-n.done .atr-g{color:var(--ok)}
+.atr-n.fail .atr-g{color:var(--bad)}
+.atr-t{flex:1;min-width:0;display:flex;flex-direction:column}
+.atr-t b{font-weight:500}
+.atr-t span{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.atr-n.fail .atr-t span{color:var(--bad)}
+.atr-n.queued .atr-t b{color:var(--fg2)}
+.atr-c{font-size:12.5px;color:var(--fg2);min-width:44px;text-align:right}
+.atr-n.queued .atr-c{color:var(--muted)}
+/* the way out of a failed step: a white button on its red-tinted row */
+.atr-n.fail{background:var(--bad-bg)}
+.atr-fix{flex:none;align-self:flex-start;margin-top:4px;background:var(--surface);color:var(--fg);box-shadow:var(--shadow)}
+.atr-fix:hover{background:var(--surface);box-shadow:var(--shadow-pop)}
+/* a folded branch keeps its children's space shut; the guide line marks the level */
+.atr-kids{position:relative}
+.atr-kids::before{content:"";position:absolute;top:2px;bottom:6px;left:calc(14px + var(--lv,0) * 20px);width:1px;background:var(--line)}
+.atr-sum{display:flex;align-items:center;gap:8px;margin:8px 4px 2px;padding:10px 12px;border-radius:12px;background:var(--ok-bg);font-size:13px}
+.atr-sum svg{color:var(--ok);flex:none}
+/* ---------- Agent inbox ---------- */
+/* every run in one list, grouped by what it needs: Needs you, Running, Done. A run glides to its new group when it moves */
+.aib{width:100%;max-width:440px;margin:0 auto;padding:6px}
+.aib-h{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding:8px 10px 6px}
+.aib-h b{font-weight:500;font-size:14px}
+.aib-st{font-size:12.5px}
+.aib-g{display:flex;flex-direction:column}
+.aib-gh{display:flex;align-items:center;gap:8px;padding:12px 10px 4px;font-size:12px;color:var(--muted)}
+.aib-gh .n{font-variant-numeric:tabular-nums}
+.aib-gl{display:flex;flex-direction:column}
+.aib-i{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;font-size:13px;transition:background .16s}
+.aib-i:hover{background:var(--row)}
+.aib-i.mv{position:relative;z-index:1;background:var(--surface);box-shadow:var(--shadow)}
+.aib-i.mv.fail{background:var(--bad-bg)}
+.aib-av{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;flex:none;font-size:11px;font-weight:500}
+.aib-t{flex:1;min-width:0;display:flex;flex-direction:column}
+.aib-t b{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.aib-t span{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.aib-i.fail .aib-t span{color:var(--bad)}
+.aib-r{display:flex;align-items:center;gap:6px;flex:none;font-size:12.5px;color:var(--fg2)}
+.aib-r .spin{width:11px;height:11px;color:var(--accent)}
+.aib-r .ok{color:var(--ok);display:grid}
+.aib-i.fail{background:var(--bad-bg)}
+.aib-i.fail .aib-r .pill{background:var(--surface);color:var(--fg);box-shadow:var(--shadow)}
+.aib-none{padding:6px 10px 8px;font-size:12.5px;color:var(--muted)}
 /* ---------- Run cost ---------- */
 .rc{padding:18px}
 .rc-h{display:flex;align-items:center;justify-content:space-between;font-size:12.5px}
@@ -2954,7 +3017,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
   <header class="top">
     <div>
       <h1 id="style-h">Soft 2</h1>
-      <p id="style-p">Every component rebuilt to live inside the agent's own thread: one quiet surface per object, grey type for finished work, and slow, blurred motion only on what is happening now. 83 of 83 rebuilt so far.</p>
+      <p id="style-p">Every component rebuilt to live inside the agent's own thread: one quiet surface per object, grey type for finished work, and slow, blurred motion only on what is happening now. 87 of 87 rebuilt so far.</p>
     </div>
     <div class="ctrls">
       <div class="seg" id="style-seg" role="group" aria-label="Style"><button aria-pressed="true" data-v="soft2">Soft 2</button><button aria-pressed="false" data-v="bp2">Blueprint 2</button></div>
@@ -3055,6 +3118,24 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
   <div class="rq-list panel"></div>
 </div></template>
   <div class="card-f"><span>Retry the failed step, try Compact</span><span class="sp"></span><button class="replay" aria-label="Replay Run queue"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
+</article>
+<article class="card" data-c="agent-tree" id="c-agent-tree">
+  <div class="card-h"><div><h3>Agent tree</h3><p>An orchestrator and its sub-agents, with cost rolled up per branch.</p></div></div>
+  <div class="stage"><div class="stage-in"></div></div>
+  <template><div class="atr panel">
+  <div class="atr-h"><div class="atr-ht"><b>Redesign the pricing page</b><span class="muted atr-st">3 agents working</span></div><span class="atr-tot num">$0.00</span></div>
+  <div class="atr-tree" role="tree" aria-label="Agents"></div>
+</div></template>
+  <div class="card-f"><span>Fold a branch, hover a cost</span><span class="sp"></span><button class="replay" aria-label="Replay Agent tree"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
+</article>
+<article class="card" data-c="agent-inbox" id="c-agent-inbox">
+  <div class="card-h"><div><h3>Agent inbox</h3><p>Every run that needs you, is running or is done, in one list.</p></div></div>
+  <div class="stage"><div class="stage-in"></div></div>
+  <template><div class="aib panel">
+  <div class="aib-h"><b>Inbox</b><span class="muted aib-st" aria-live="polite"></span></div>
+  <div class="aib-gs"></div>
+</div></template>
+  <div class="card-f"><span>Approve a run, retry a failure</span><span class="sp"></span><button class="replay" aria-label="Replay Agent inbox"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
 </article>
 <article class="card bare" data-c="run-cost" id="c-run-cost">
   <div class="card-h"><div><h3>Run cost</h3><p>Live credit and token spend, with a cap that pauses the run.</p></div></div>
@@ -4418,7 +4499,7 @@ document.addEventListener('DOMContentLoaded', () => {
   /* style: Soft 2 or Blueprint 2, from ?style= or what this browser last picked; each style keeps its own accent */
   const STY = {
     soft2:{ h:'Soft 2', p:$('#style-p') ? $('#style-p').textContent : '', acc:'#116ff8', key:'soft2-accent', title:'Designme Soft 2' },
-    bp2:{ h:'Blueprint 2', p:"The same 83 components drawn as a technical sheet: square corners, hairline edges instead of shadows, an orange accent, and motion that wipes and ticks into place in short, hard beats.", acc:'#f76b00', key:'bp2-accent', title:'Designme Blueprint 2' }
+    bp2:{ h:'Blueprint 2', p:"The same 87 components drawn as a technical sheet: square corners, hairline edges instead of shadows, an orange accent, and motion that wipes and ticks into place in short, hard beats.", acc:'#f76b00', key:'bp2-accent', title:'Designme Blueprint 2' }
   };
   let style = 'soft2';
   try { const q = new URLSearchParams(location.search).get('style'); const ls = localStorage.getItem('designme2-style');
@@ -4715,6 +4796,164 @@ DM.def('run-queue', (r, c) => {
     setG(g, ok, 'Done'); doneCount++; swap(all, doneCount + ' of 3 done');
   }
   c.run(async () => { await c.wait(600); for (const g of G) await runGroup(g); });
+});
+/* ---------- Agent tree ---------- */
+DM.def('agent-tree', (r, c) => {
+  // the run: an orchestrator, its three agents and their steps. cost is what each spends on its own, in dollars; a branch
+  // shows its own cost plus everything under it
+  const T = { id:'root', n:'Orchestrator', t:'Plans the work and hands it out', cost:.04, s:'run', kids:[
+    { id:'res', n:'Research agent', t:'Compare 3 competitor pricing pages', cost:.02, s:'done', kids:[
+      { id:'res1', n:'Read the 3 pricing pages', t:'3 pages, 9.4k words', cost:.06, s:'done' },
+      { id:'res2', n:'Summarise their plans', t:'Notes added to Pricing v4', cost:.04, s:'done' } ] },
+    { id:'des', n:'Design agent', t:'Rework the plan cards in Figma', cost:.02, s:'run', kids:[
+      { id:'des1', n:'Update the Pro card', t:'Pricing v4, frame 2', cost:.03, s:'run' },
+      { id:'des2', n:'Update the Team card', t:'Pricing v4, frame 3', cost:0, s:'queued' },
+      { id:'des3', n:'Apply library tokens', t:'Colour and spacing', cost:0, s:'queued' } ] },
+    { id:'cop', n:'Copy agent', t:'Rewrite the plan descriptions', cost:0, s:'queued' } ] };
+  const tree = $('.atr-tree', r), stEl = $('.atr-st', r), tot = $('.atr-tot', r), root = $('.atr', r);
+  const all = []; (function walk(n, lv, p){ n.lv = lv; n.parent = p; all.push(n); (n.kids || []).forEach(k => walk(k, lv + 1, n)); })(T, 0, null);
+  const by = id => all.find(n => n.id === id), kids = n => !!(n.kids && n.kids.length);
+  const sum = n => n.cost + (n.kids || []).reduce((a, k) => a + sum(k), 0), money = v => '$' + v.toFixed(2);
+  const G = { run:'<span class="spin"></span>', done:I('ok','xs'), fail:I('alert','xs'), queued:'<span class="dot"></span>' };
+  function build(n){
+    const row = html(`<div class="atr-n ${n.s}" role="treeitem" aria-level="${n.lv + 1}"${kids(n) ? ' aria-expanded="true"' : ''} tabindex="-1" style="--lv:${n.lv}">${kids(n) ? `<span class="atr-tg" aria-hidden="true">${I('chev-d','xs')}</span>` : '<span class="atr-sp"></span>'}<span class="atr-g">${G[n.s]}</span><span class="atr-t"><b>${n.n}</b><span>${n.t}</span></span><span class="atr-c num"></span></div>`);
+    n.el = row; const out = [row];
+    if (kids(n)){ const f = html(`<div class="fold atr-kids" role="group" style="--lv:${n.lv}"><div></div></div>`); n.kids.forEach(k => build(k).forEach(e => f.firstElementChild.appendChild(e))); n.fold = f; out.push(f); }
+    return out;
+  }
+  build(T).forEach(e => tree.appendChild(e)); T.el.tabIndex = 0;
+  // each branch folds by its row (or its chevron); folded, it keeps its total
+  function toggle(n, open){
+    if (!kids(n)) return; const o = open ?? n.el.getAttribute('aria-expanded') !== 'true';
+    n.el.setAttribute('aria-expanded', o); n.fold.classList.toggle('shut', !o); n.fold.inert = !o;
+  }
+  function paint(){
+    all.forEach(n => { const ce = $('.atr-c', n.el), v = kids(n) ? sum(n) : n.cost;
+      ce.textContent = n.s === 'queued' && !v ? '–' : money(v);
+      if (kids(n)){ const k = n.kids.length, what = n.lv ? (k > 1 ? ' steps ' : ' step ') : (k > 1 ? ' agents ' : ' agent ');
+        ce.dataset.tip = `Its own ${money(n.cost)}, ${k}${what}${money(sum(n) - n.cost)}`; } });
+    tot.textContent = money(sum(T));
+  }
+  // the line under the title: what the run is doing, and a clock
+  const t0 = performance.now(); let ended = 0;
+  const clock = () => { const s = Math.floor(((ended || performance.now()) - t0) / 1000); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };
+  stEl.innerHTML = '<span class="m" aria-live="polite">Running</span> · <span class="num ck">0:00</span>';
+  const setMode = m => swap($('.m', stEl), m);
+  // whatever is running spends as it goes, so its cost and every total above it count up
+  c.every(100, () => { all.forEach(n => { if (n.s === 'run') n.cost += n.lv ? .0016 : .0006; }); paint(); $('.ck', stEl).textContent = clock(); });
+  paint();
+  function step(n, s, t){ n.s = s; n.el.className = 'atr-n ' + s; const g = $('.atr-g', n.el); g.innerHTML = G[s]; enter(g); if (t !== undefined) swap($('.atr-t span', n.el), t); paint(); }
+  // clicking a branch folds it; the arrow keys move through the tree as in any tree view
+  c.on(tree, 'click', e => { const row = e.target.closest('.atr-n'); if (!row || e.target.closest('.atr-fix')) return; const n = all.find(x => x.el === row); all.forEach(x => x.el.tabIndex = x === n ? 0 : -1); toggle(n); });
+  const visible = () => all.filter(n => { for (let p = n.parent; p; p = p.parent) if (p.el.getAttribute('aria-expanded') === 'false') return false; return true; });
+  c.on(tree, 'keydown', e => {
+    const v = visible(), i = v.findIndex(n => n.el === document.activeElement); if (i < 0) return;
+    const n = v[i], open = n.el.getAttribute('aria-expanded') === 'true'; let go = null;
+    if (e.key === 'ArrowDown') go = v[i + 1]; else if (e.key === 'ArrowUp') go = v[i - 1];
+    else if (e.key === 'ArrowRight'){ if (kids(n) && !open) toggle(n, true); else if (kids(n)) go = n.kids[0]; }
+    else if (e.key === 'ArrowLeft'){ if (kids(n) && open) toggle(n, false); else go = n.parent; }
+    else if (e.key === 'Enter' || e.key === ' ') toggle(n);
+    else if (e.key === 'Home') go = v[0]; else if (e.key === 'End') go = v[v.length - 1];
+    else return;
+    e.preventDefault(); if (go){ all.forEach(x => x.el.tabIndex = -1); go.el.tabIndex = 0; go.el.focus({ preventScroll:true }); }
+  });
+  // the run: the design agent works through its steps, one fails on a token the library doesn't have, and the fix it offers
+  // waits for you
+  c.run(async () => {
+    await c.wait(2000); step(by('des1'), 'done'); step(by('des2'), 'run');
+    await c.wait(2500); step(by('des2'), 'done'); step(by('des3'), 'run');
+    await c.wait(2000);
+    const tk = by('des3'); step(tk, 'fail', "color.accent.600 isn't in the library"); setMode('1 step failed');
+    const fix = html(`<button class="pill sm atr-fix">Use color.accent.500</button>`); $('.atr-t', tk.el).appendChild(fix); enter(fix);
+    await new Promise(res => { fix.onclick = res; });
+    fix.remove(); step(tk, 'run', 'Using color.accent.500'); setMode('Running');
+    await c.wait(2000); step(tk, 'done', 'Colour and spacing, from the library'); step(by('des'), 'done'); step(by('cop'), 'run');
+    await c.wait(3000); step(by('cop'), 'done'); step(T, 'done'); ended = performance.now(); setMode('Done');
+    const sm = html(`<div class="atr-sum">${I('ok','xs')}<span>Done in ${clock()} · 3 agents · ${money(sum(T))}</span></div>`); root.appendChild(sm); enter(sm);
+  });
+  // the finished research starts folded, as a done branch would
+  toggle(by('res'), false);
+  // the preview's story: read a branch's cost, take the fix when a step fails, and fold the design branch once it's done
+  c.story(async s => {
+    await s.beat(3);
+    await s.point($('.atr-c', by('des').el)); await s.beat(4); s.away();
+    await s.until(() => $('.atr-fix', r)); await s.beat(4);
+    await s.tap($('.atr-fix', r)); s.away();
+    await s.until(() => T.s === 'done'); await s.beat(2);
+    await s.tap(by('des').el); s.away(); await s.beat(1);
+  });
+});
+/* ---------- Agent inbox ---------- */
+DM.def('agent-inbox', (r, c) => {
+  // the runs, grouped by what they need: one waits for approval, one failed and can be retried, two are running with their
+  // clocks, two are done
+  const A = { 'Design agent':['D','var(--pl)'], 'Build agent':['B','var(--pm)'], 'Research agent':['R','var(--pt)'], 'Copy agent':['C','var(--pp)'], 'QA agent':['Q','var(--pb)'] };
+  const R = [
+    { id:'pub', t:'Publish the pricing page', a:'Design agent', g:'needs', why:'Waiting for your approval' },
+    { id:'tok', t:'Export tokens to CSS', a:'Build agent', g:'needs', fail:true, why:'Failed: rate limited by Figma', tip:'Figma answered 429 at 10:42. Safe to retry' },
+    { id:'cards', t:'Rework the plan cards', a:'Design agent', g:'run', sec:102, doing:'Editing frame 3 of 6' },
+    { id:'cmp', t:'Compare 3 competitor pages', a:'Research agent', g:'run', sec:38, doing:'Reading page 3 of 3' },
+    { id:'copy', t:'Rewrite plan descriptions', a:'Copy agent', g:'done', ago:'12m ago' },
+    { id:'aud', t:'Audit pricing contrast', a:'QA agent', g:'done', ago:'25m ago' }
+  ];
+  const GR = [['needs', 'Needs you', 'Nothing needs you'], ['run', 'Running', 'Nothing running'], ['done', 'Done', 'Nothing done yet']];
+  const gs = $('.aib-gs', r), st = $('.aib-st', r);
+  gs.innerHTML = GR.map(([k, n, none]) => `<section class="aib-g" data-g="${k}" aria-label="${n}"><div class="aib-gh"><span>${n}</span><span class="n"></span></div><div class="aib-gl" role="list"></div><p class="aib-none" hidden>${none}</p></section>`).join('');
+  const clock = s => Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
+  const meta = x => x.g === 'needs' ? x.why : x.g === 'run' ? x.doing : x.a;
+  const right = x => x.g === 'needs' ? (x.fail ? `<button class="pill sm aib-go" aria-label="Retry ${x.t}">${I('refresh','xs')}Retry</button>` : `<button class="pill ink sm aib-go" aria-label="Approve ${x.t}">Approve</button>`)
+    : x.g === 'run' ? `<span class="spin"></span><span class="num aib-ck">${clock(x.sec)}</span>` : `<span class="ok">${I('ok','xs')}</span><span>${x.ago}</span>`;
+  function row(x){
+    const [m, col] = A[x.a];
+    x.el = html(`<div class="aib-i" role="listitem"><span class="aib-av" style="color:${col};background:color-mix(in srgb,${col} 13%,transparent)" aria-hidden="true">${m}</span><span class="aib-t"><b>${x.t}</b><span></span></span><span class="aib-r"></span></div>`);
+    update(x, true); return x.el;
+  }
+  function update(x, now){
+    const el = x.el, sp = $('.aib-t span', el), rr = $('.aib-r', el);
+    el.classList.toggle('fail', !!x.fail && x.g === 'needs');
+    if (x.tip && x.g === 'needs') sp.dataset.tip = x.tip; else delete sp.dataset.tip;
+    if (now){ sp.textContent = meta(x); rr.innerHTML = right(x); } else { swap(sp, meta(x)); rr.innerHTML = right(x); enter(rr); }
+    const b = $('.aib-go', el); if (b) b.onclick = () => act(x);
+  }
+  const list = g => $(`.aib-g[data-g="${g}"] .aib-gl`, gs);
+  R.forEach(x => list(x.g).appendChild(row(x)));
+  function counts(){
+    GR.forEach(([k]) => { const n = R.filter(x => x.g === k).length, sec = $(`.aib-g[data-g="${k}"]`, gs); $('.n', sec).textContent = n || ''; $('.aib-none', sec).hidden = !!n; });
+    const need = R.filter(x => x.g === 'needs').length, done = R.filter(x => x.g === 'done').length;
+    const t = need ? `${need} need${need > 1 ? '' : 's'} you` : `All clear · ${done} done today`;
+    if (!st.textContent) st.textContent = t; else swap(st, t);
+  }
+  counts();
+  // a run that moves glides to its place in the new group: rows and group titles are measured before and after, and eased
+  // from where they were; the moving row rides above the rest, and an empty line that appears fades in
+  const ease = getComputedStyle(r).getPropertyValue('--ease').trim() || 'ease';
+  const shown = () => $$('.aib-gh,.aib-i,.aib-none:not([hidden])', gs);
+  function move(x, g){
+    const first = new Map(shown().map(e => [e, e.getBoundingClientRect().top]));
+    x.g = g; update(x); list(g).prepend(x.el); counts();
+    if (REDUCE) return;
+    x.el.classList.add('mv'); c.later(440, () => x.el.classList.remove('mv'));
+    shown().forEach(e => { if (!first.has(e)) return enter(e); const d = first.get(e) - e.getBoundingClientRect().top; if (Math.abs(d) > 1) e.animate([{ transform:`translateY(${d}px)` }, { transform:'none' }], { duration:420, easing:ease }); });
+  }
+  // every running run's clock ticks
+  c.every(1000, () => R.forEach(x => { if (x.g === 'run'){ x.sec++; const ck = $('.aib-ck', x.el); if (ck) ck.textContent = clock(x.sec); } }));
+  // Approve starts the run and Retry tries a failed one again; either runs, then lands in Done
+  function act(x){
+    const retry = !!x.fail; x.fail = false; x.sec = 0; x.doing = retry ? 'Retrying the export' : 'Publishing to designme.studio/pricing';
+    move(x, 'run');
+    c.later(retry ? 5000 : 4000, () => { x.ago = 'Just now'; move(x, 'done'); });
+  }
+  // the research run finishes on its own while you look
+  c.later(6000, () => { const x = R.find(y => y.id === 'cmp'); if (x.g === 'run'){ x.ago = 'Just now'; move(x, 'done'); } });
+  // the preview's story: read why the export failed, approve the publish, and retry the export
+  c.story(async s => {
+    const by = id => R.find(x => x.id === id);
+    await s.beat(3);
+    await s.point($('.aib-t span', by('tok').el)); await s.beat(3);
+    await s.tap($('.aib-go', by('pub').el)); s.away(); await s.beat(5);
+    await s.tap($('.aib-go', by('tok').el)); s.away();
+    await s.until(() => by('tok').g === 'done' && by('pub').g === 'done'); await s.beat(3);
+  });
 });
 /* ---------- Run cost ---------- */
 DM.def('run-cost', (r, c) => {

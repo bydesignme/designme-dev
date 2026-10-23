@@ -17,8 +17,9 @@ const only = process.argv.slice(2);
 const names = site.sections.flatMap(s => s.cards.map(c => c.reg)).filter(n => !only.length || only.includes(n));
 // most demos have settled after 6 seconds; these cycle, so they are taken at a moment that shows them whole. The longer
 // stories are taken at the end that tells them: Design review once approved, Model picker once Sonnet on high is set,
-// and Answer action bar on its second version, and Inline text diff while the edit the agent isn't sure of says why
-const WAIT = { toast:2600, 'status-pill':3300, 'design-review':9500, 'model-picker':13000, 'answer-action-bar':17000, composer:18000, thinking:11000, 'context-meter':10500, 'inline-text-diff':9500 };
+// and Answer action bar on its second version, Inline text diff while the edit the agent isn't sure of says why, Agent tree
+// once the run is done, folded and summed up, and Agent inbox with the publish approved and the failed export still waiting for Retry
+const WAIT = { toast:2600, 'status-pill':3300, 'design-review':9500, 'model-picker':13000, 'answer-action-bar':17000, composer:18000, thinking:11000, 'context-meter':10500, 'inline-text-diff':9500, 'agent-tree':16500, 'agent-inbox':5000 };
 const OUT = { thumbs:path.join(HERE, 'public/components/thumbs'), og:path.join(HERE, 'public/components/og') };
 Object.values(OUT).forEach(d => fs.mkdirSync(d, { recursive:true }));
 

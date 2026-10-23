@@ -4,7 +4,7 @@ React versions of the [designme.dev](https://designme.dev) components, for Next.
 
 They use the same markup and the same CSS as the site, so they look and move exactly like the previews on designme.dev, in both styles (Blueprint and Soft) and in light and dark. The difference is that each one takes props, so you drive it from your own state instead of a scripted demo.
 
-All 85 components are here, from Status pill to Currency converter, each with an example that replays its demo from the site.
+All 87 components are here, from Status pill to Currency converter, each with an example that replays its demo from the site.
 
 Each one has a page on designme.dev with its demo, its React usage, its props and its code, at `https://designme.dev/components/<name>`. To see them all running locally, run `npm run dev` here.
 
@@ -112,6 +112,14 @@ A failed step with retry, skip or hand over to a person.
 **AgentLanes** · `agent-lanes/AgentLanes.tsx`  
 Several agents working in parallel, each with its own lane and hand-offs.  
 `lanes: { key, name, icon, tone?, status: 'queued' | 'waiting' | 'working' | 'paused' | 'done', activity, steps?, done?, log?: { text, time? }[] }[]`, `title`, `seconds` (counts by itself when left out), `paused` / `defaultPaused` / `onPausedChange` (adds Pause all and Resume), `handoff: { from, to, what }` (clear it and the banner slides away), `expanded` / `defaultExpanded` / `onExpandedChange`, `bare`.
+
+**AgentTree** · `agent-tree/AgentTree.tsx`  
+An orchestrator and its sub-agents as a tree, with cost rolled up per branch.  
+`root: { id, name, task, status: 'queued' | 'running' | 'done' | 'failed', cost?, fix?: { label, onClick }, children? }` (a branch shows its own cost plus everything under it, split on hover), `title`, `status` (defaults to Running, "1 step failed" or Done), `seconds` (counts by itself until the root is done), `summary` (defaults to "Done in 0:14 · 3 agents · $0.66"; `false` hides it), `collapsed` / `defaultCollapsed` / `onCollapsedChange`, `formatCost`. The arrow keys move through it as a tree view.
+
+**AgentInbox** · `agent-inbox/AgentInbox.tsx`  
+Every run that needs you, is running or is done, in one list.  
+`runs: { id, title, agent, color?, group: 'needs' | 'running' | 'done', detail?, failed?, why?, seconds?, ended? }[]` (running clocks count on from `seconds`), `onApprove(id)`, `onRetry(id)` (each adds its button), `title`, `status` (defaults to "2 need you" or "All clear · 4 done today"). A run that changes group glides to its new place.
 
 **AgentRunTimeline** · `agent-run-timeline/AgentRunTimeline.tsx`  
 Every model and tool step of a run on one time axis.  

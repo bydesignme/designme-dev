@@ -13,6 +13,8 @@ export * from './components/toast-stack/ToastStack';
 export * from './components/run-summary/RunSummary';
 export * from './components/error-recovery/ErrorRecovery';
 export * from './components/agent-lanes/AgentLanes';
+export * from './components/agent-tree/AgentTree';
+export * from './components/agent-inbox/AgentInbox';
 export * from './components/agent-run-timeline/AgentRunTimeline';
 export * from './components/live-answer/LiveAnswer';
 export * from './components/thread-panel/ThreadPanel';

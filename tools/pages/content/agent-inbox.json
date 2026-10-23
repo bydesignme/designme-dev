@@ -1,0 +1,41 @@
+{
+  "summary": "Agent inbox puts every agent run in one list, grouped by what it needs from you: Needs you, Running and Done. A run waiting for you has Approve, a failed one has Retry, and the running ones have live clocks. When a run changes group it glides to its new place, so you can follow it.",
+  "use": [
+    "When several agents run at once and people need one place to see which ones are waiting for them.",
+    "When some runs need a person's approval before they go on, like publishing a page.",
+    "When a run can fail for a reason that a retry fixes, like a rate limit, and people should retry it from the list.",
+    "When people want to see what finished recently, and when."
+  ],
+  "features": [
+    "`runs` is the list. Each run has a `title`, the `agent` running it, a `group` of `needs`, `running` or `done`, and a `detail` line, like \"Waiting for your approval\" or \"Editing frame 3 of 6\".",
+    "Each group shows its count, or a quiet line when it's empty, like \"Nothing needs you\". The line beside the title reads \"2 need you\", or \"All clear · 4 done today\".",
+    "`onApprove` adds a filled Approve button to the runs that need you. A run with `failed` turns red and gets a white Retry button instead, through `onRetry`; `why` adds a tooltip on its detail line.",
+    "A running run spins and its clock counts on from its `seconds`. A finished one shows a green check, when it `ended`, and its agent.",
+    "Each row starts with the agent's first letter on its `color`.",
+    "When a run moves to another group, every row and group title glides to its new place and the moving row rides above the rest."
+  ],
+  "a11y": [
+    "Each group is a labelled `section`, and its runs form a list.",
+    "Approve and Retry are buttons named for their run, like \"Approve Publish the pricing page\".",
+    "The line beside the title is announced politely when it changes.",
+    "With reduced motion the rows move without gliding."
+  ],
+  "faq": [
+    {
+      "q": "Does Approve start the run?",
+      "a": "No. It calls `onApprove` with the run's id. Start the run in your own code and move it to `running`, then to `done` when it ends."
+    },
+    {
+      "q": "Where does a moved run go in its group?",
+      "a": "Wherever it sits in `runs`. The demo puts a moved run first, so the latest change is at the top."
+    },
+    {
+      "q": "Do the clocks need updating every second?",
+      "a": "No. Pass the `seconds` a run has been going and its clock counts on by itself. Pass a new value and it counts on from that."
+    },
+    {
+      "q": "Can I name the groups differently?",
+      "a": "Not yet. The groups are Needs you, Running and Done; `title` and `status` change the header."
+    }
+  ]
+}

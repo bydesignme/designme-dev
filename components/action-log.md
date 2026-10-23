@@ -188,6 +188,8 @@ export function ActionLog({ actions, title = 'Agent activity', running = true, s
 - [Thinking](https://designme.dev/components/thinking.md): The live trace, written as the agent works, then folded away.
 - [Reasoning trail](https://designme.dev/components/reasoning-trail.md): The agent's plan, notes, sources and edits, after it thinks.
 - [Agent lanes](https://designme.dev/components/agent-lanes.md): Several agents working in parallel, each with its own lane and hand-offs.
+- [Agent tree](https://designme.dev/components/agent-tree.md): An orchestrator and its sub-agents, with cost rolled up per branch.
+- [Agent inbox](https://designme.dev/components/agent-inbox.md): Every run that needs you, is running or is done, in one list.
 - [Run summary](https://designme.dev/components/run-summary.md): What the agent did, what changed and what needs you.
 - [Agent run timeline](https://designme.dev/components/agent-run-timeline.md): Every model and tool step of a run on one time axis.
 - [Context meter](https://designme.dev/components/context-meter.md): How full the context is and what fills it, with Compact to free room.
