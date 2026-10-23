@@ -3,7 +3,7 @@
 // for, how to use it in React, its props, its code, questions, and the components beside it. Every section opens with
 // the homepage's section header, and a bar of links to them sticks under the header as you scroll.
 import Page from '../layouts/Page.astro';
-import { SITE, COMPONENTS, borrows } from '../lib/data.mjs';
+import { SITE, COMPONENTS, BANDS, borrows } from '../lib/data.mjs';
 // the cards under More in … play their component live while they're on screen; one that tells its story with other
 // components (Agent harness) keeps its picture
 const full = x => COMPONENTS.find(y => y.reg === x.reg);
@@ -17,7 +17,10 @@ const lent = borrows(c);
 const others = sec.cards.filter(x => x.reg !== c.reg), shown = others.slice(0, 8);
 const cmdHtml = `npx designme add ${c.reg}`, cmdReact = `npx designme add ${c.reg} --react`;
 const importLine = rx ? `import { ${rx.component} } from '@/components/designme/${c.reg}/${rx.component}';` : '';
-const [ha, , , , he] = c.height;
+// the demo's height: the widest layout's, then on a phone the height measured for that phone's width (--h-e and on)
+const ha = c.height[0], phone = BANDS.map(([b, w], i) => [b, w, i]).filter(([, w]) => w <= 640);
+const demoVars = [`--h-a:${ha}px`, ...phone.map(([b, , i]) => `--h-${b}:${c.height[i]}px`)].join(';');
+const demoCss = phone.map(([b], k) => `@media (max-width:${k ? phone[k - 1][1] - 1 : 640}px){.cp-demo .pg-demo{min-height:calc(var(--h-${b}) + 24px)}}`).join('');
 const about = copy.summary ? [['When to use it', copy.use], ['What it does', copy.features], ['Accessibility', copy.a11y]].filter(([, l]) => l && l.length) : [];
 // the sections, in order: each one gets its number, its link in the bar and its header
 const SECS = [
@@ -51,6 +54,8 @@ const files = [
 ].filter(f => f.name && f.code);
 const copyIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg>';
 const lines = s => s.split('\n').length;
+// a command in words that each stay whole, so on a phone it wraps at a space and never inside a name or after its --
+const words = cmd => cmd.split(' ').map(w => `<span class="cp-w">${w.replace(/&/g, '&amp;').replace(/</g, '&lt;')}</span>`).join(' ');
 ---
 <Page title={title} description={description} path={c.url} jsonld={jsonld} image={`/components/og/${c.reg}.jpg`}>
   <Fragment slot="head">
@@ -146,8 +151,40 @@ const lines = s => s.split('\n').length;
       .pg-thumb:has(.pg-live.on) img{opacity:0}
       .pg-live .hand{display:none}
       @media (max-width:900px){.cp-two{grid-template-columns:minmax(0,1fr)}}
-      @media (max-width:640px){.pg-demo{padding:52px 12px 28px;min-height:var(--h-e)}.cp-bar{margin-top:28px}}
+      /* phones: the component in the middle of its stage, with Animate's 52px above it and the same below (the stage is
+         measured with 40px each side, so it grows by the 24px more), and 16px at its sides like the page's gutter */
+      @media (max-width:640px){
+        .pg-demo{padding:52px 16px}
+        .cp-demo{margin-top:24px}
+        .cp-bar{margin-top:32px}
+        /* the section links run to the window's edges, so the last one is cut by the edge and reads as more to scroll to */
+        .cp-bar .pg-wrap{padding:0}
+        .cp-bar nav{padding:0 6px;scroll-padding:0 16px}
+        .cp-bar a:first-child{margin-left:0}
+        /* an install command wraps rather than scrolling out of sight */
+        .cp-line{height:auto;min-height:44px;padding:7px 6px 7px 14px}
+        .cp-line code{overflow:visible;white-space:normal;overflow-wrap:anywhere;line-height:1.5}
+        .cp-line .cp-w{white-space:nowrap}
+        .cp-two{gap:24px}
+        /* props: each prop is a short block (its name, its type, what it does) instead of a table to scroll sideways */
+        .cp-props{overflow:visible}
+        .cp-props table{min-width:0}
+        .cp-props thead{display:none}
+        .cp-props table,.cp-props tbody,.cp-props tr,.cp-props td{display:block;width:auto}
+        .cp-props tr{padding:12px 0;border-bottom:1px solid var(--pg-line)}
+        .cp-props tr:first-child{border-top:1px solid var(--pg-line)}
+        .cp-props td{padding:0;border:0}
+        .cp-props td:first-child{display:flex;align-items:baseline;gap:8px;width:auto;white-space:normal}
+        .cp-props .opt{margin:0}
+        .cp-props td:nth-child(2){width:auto;margin-top:4px}
+        .cp-props td:nth-child(2) code{font-size:12.5px;color:var(--pg-muted)}
+        .cp-props td:nth-child(3){margin-top:4px}
+        .cp-pre{padding:14px 16px}
+        details.cp-file summary{padding:0 14px}
+        .cp-pn{margin-top:48px}
+      }
     </style>
+    <style is:inline set:html={demoCss} />
   </Fragment>
 
   <div class="pg-wrap">
@@ -158,7 +195,7 @@ const lines = s => s.split('\n').length;
 
     <section class="cp-demo" aria-label={`${c.title} demo`}>
       <button type="button" class="cp-anim" id="cp-replay"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>Animate</button>
-      <div class="pg-demo stage-inner" style={`--h-a:${ha}px;--h-e:${he}px`} set:html={c.html.html} />
+      <div class="pg-demo stage-inner" style={demoVars} set:html={c.html.html} />
     </section>
     {lent.length > 0 && <div hidden aria-hidden="true" set:html={lent.map(x => x.html.html).join('\n')} />}
   </div>
@@ -169,8 +206,8 @@ const lines = s => s.split('\n').length;
     <section class="cp-sec" id="install">
       <div class="pg-sh"><span class="n">{S.install.n}</span><h2>{S.install.name}</h2><p>{S.install.line}</p></div>
       <div class="cp-two">
-        <div class="cp-box"><h3 class="pg-t">HTML, CSS and JavaScript</h3><div class="cp-line"><span class="d">$</span><code>{cmdHtml}</code><button class="cp-copy" type="button" data-copy={cmdHtml} data-label="Copy">Copy</button></div></div>
-        <div class="cp-box"><h3 class="pg-t">React</h3><div class="cp-line"><span class="d">$</span><code>{cmdReact}</code><button class="cp-copy" type="button" data-copy={cmdReact} data-label="Copy">Copy</button></div></div>
+        <div class="cp-box"><h3 class="pg-t">HTML, CSS and JavaScript</h3><div class="cp-line"><span class="d">$</span><code set:html={words(cmdHtml)} /><button class="cp-copy" type="button" data-copy={cmdHtml} data-label="Copy">Copy</button></div></div>
+        <div class="cp-box"><h3 class="pg-t">React</h3><div class="cp-line"><span class="d">$</span><code set:html={words(cmdReact)} /><button class="cp-copy" type="button" data-copy={cmdReact} data-label="Copy">Copy</button></div></div>
       </div>
       <p class="cp-note">The CLI copies the source into your project, so you own it and can change anything. The HTML version lands in <code>./designme</code> with the shared core and a <code>demo.html</code>. The React version lands in <code>src/components/designme</code> and needs React 19; it works in Next.js, Vite and Astro.</p>
     </section>

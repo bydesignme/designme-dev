@@ -5674,6 +5674,59 @@ body.ui section.faq{display:none}
 /* Changelog and Roadmap: the same title and text as every other page */
 .pv-h h1{font-size:20px;font-weight:500;letter-spacing:-.01em}
 .pv-h p{font-size:14px}
+/* ================= round 4: phones and tablets ================= */
+/* one gutter for every page edge: 24px on a tablet, 16px on a phone, for the header, the library, its sidebar and the pages
+   that open over it (Changelog, Roadmap, FAQ) */
+@media (max-width:960px){
+  .top-in{padding:0 24px}
+  .layout{padding:0 24px}
+  .dv-bar{padding:8px 24px}
+  .pv-in{padding:28px 24px 72px}
+  /* the full list of components stays in the menu: under the cards it was a second, very long index after the footer */
+  .side .side-nav{display:none}
+  /* and its links to the pages repeat the footer's just above, so the sidebar ends the page with its credit line only,
+     on the same edge as everything else */
+  .side .side-pages{display:none}
+  .side{padding:28px 0 40px}
+  .side-foot{padding:0}
+}
+@media (max-width:640px){
+  .top-in{padding:0 16px;gap:8px}
+  .layout{padding:0 16px}
+  .dv-bar{padding:8px 16px}
+  .pv-in{padding:24px 16px 64px}
+  .to-top{right:16px;bottom:16px}
+}
+/* section names on a narrow screen: the number and the name on one line, the line about them right under it */
+@media (max-width:960px){
+  .sec-head>div{row-gap:2px}
+  body.ui .sec-head p{flex-basis:100%;margin-top:0}
+  body.ui .lib-sec .sec-head{padding:40px 0 14px;margin-bottom:20px}
+  .grp-sw+.lib-sec .sec-head{padding-top:28px}
+}
+/* a card's buttons on a touch screen: an icon row in the footer, beside the name, with the line about it under both.
+   The script moves them there; until it has, they stay out of the stage so they never cover the component */
+@media (hover:none){
+  body.ui main .stage>.code-btns{display:none}
+  body.ui main .comp>.comp-head{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;column-gap:0;padding:11px 4px 7px 10px}
+  body.ui main .comp-head>div{display:contents}
+  body.ui main .comp-head .comp-title{grid-row:1;grid-column:1;width:auto;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  body.ui main .comp-head .comp-desc{grid-row:2;grid-column:1/-1;margin:0;padding-right:6px}
+  body.ui main .comp-head>.code-btns{grid-row:1;grid-column:2;display:flex;gap:0;margin:-8px 0 -8px 8px}
+  body.ui main .comp-head>.exp-btn{grid-row:1;grid-column:3;width:36px;height:36px;margin:-8px 0}
+  body.ui main .comp-head>.code-btns .cb-l,body.ui main .comp-head>.code-btns .vl{display:none}
+  body.ui main .comp-head>.code-btns .ghost{display:inline-grid;place-items:center;width:36px;height:36px;padding:0;border:0;border-radius:999px;background:none;color:var(--sh-muted);box-shadow:none}
+  body.ui main .comp-head>.code-btns .ghost:active,body.ui main .comp-head>.exp-btn:active{background:var(--sh-chip);color:var(--sh-text)}
+  body.ui main .comp-head>.code-btns .anim-btn::after{display:none}
+}
+/* Pricing cards: the original page kept 62px under them, to balance buttons that once sat over the top of the stage; now
+   they get the same room above and below as every other component */
+body.ui main .comp[data-v2="pricing-cards"] .stage-inner{padding-bottom:40px!important}
+@media (min-width:641px){ body.ui main .comp[data-v2="pricing-cards"] .stage-inner{padding-bottom:56px!important} }
+/* the roadmap: a shipped idea gets a tag like the others */
+.rm-st.shipped{background:rgba(22,163,74,.12);color:#15803d}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .rm-st.shipped{background:rgba(74,222,128,.12);color:#4ade80} }
+:root[data-theme="dark"] .rm-st.shipped{background:rgba(74,222,128,.12);color:#4ade80}
 
 }
 </style>
@@ -7957,6 +8010,8 @@ body.ui section.faq{display:none}
 .v2 .bcx-b:hover .bcx-tt{opacity:1;transform:translate(-50%,0)}
 .v2 .bcx-b:first-child .bcx-tt{left:0;transform:translate(0,4px)}.v2 .bcx-b:first-child:hover .bcx-tt{transform:none}
 .v2 .bcx-b:last-child .bcx-tt{left:auto;right:0;transform:translate(0,4px)}.v2 .bcx-b:last-child:hover .bcx-tt{transform:none}
+/* on a phone the bars are too thin for the second and second-last tips to sit centred without passing the edge */
+@container (max-width:400px){.v2 .bcx-b:nth-child(2) .bcx-tt{left:0;transform:translate(0,4px)}.v2 .bcx-b:nth-child(2):hover .bcx-tt{transform:none}.v2 .bcx-b:nth-last-child(2) .bcx-tt{left:auto;right:0;transform:translate(0,4px)}.v2 .bcx-b:nth-last-child(2):hover .bcx-tt{transform:none}}
 .v2 .bcx-lg{display:flex;gap:14px;font-size:12px;flex-wrap:wrap}
 .v2 .bcx-lg span{display:flex;align-items:center;gap:6px}
 .v2 .bcx-lg i{width:8px;height:8px;border-radius:3px}
@@ -8727,7 +8782,15 @@ body.ui section.faq{display:none}
 @media (max-width:1439px){.lib-sec .comp>.stage{min-height:var(--rh-b,420px)}.lib-sec .comp>.stage .v2.stage-in{min-height:var(--rc-b,0px)}:root:not([data-style="soft"]) .lib-sec .comp>.stage .v2.stage-in{min-height:var(--rcb-b,var(--rc-b,0px))}}
 @media (max-width:1180px){.lib-sec .comp>.stage{min-height:var(--rh-c,420px)}.lib-sec .comp>.stage .v2.stage-in{min-height:var(--rc-c,0px)}:root:not([data-style="soft"]) .lib-sec .comp>.stage .v2.stage-in{min-height:var(--rcb-c,var(--rc-c,0px))}}
 @media (max-width:960px){.lib-sec .comp>.stage{min-height:var(--rh-d,420px)}.lib-sec .comp>.stage .v2.stage-in{min-height:var(--rc-d,0px)}:root:not([data-style="soft"]) .lib-sec .comp>.stage .v2.stage-in{min-height:var(--rcb-d,var(--rc-d,0px))}}
-@media (max-width:640px){.lib-sec .comp>.stage{min-height:var(--rh-e,420px)}.lib-sec .comp>.stage .v2.stage-in{min-height:var(--rc-e,0px)}:root:not([data-style="soft"]) .lib-sec .comp>.stage .v2.stage-in{min-height:var(--rcb-e,var(--rc-e,0px))}}
+@media (max-width:879px){.lib-sec .comp>.stage{min-height:var(--rh-e,420px)}.lib-sec .comp>.stage .v2.stage-in{min-height:var(--rc-e,0px)}:root:not([data-style="soft"]) .lib-sec .comp>.stage .v2.stage-in{min-height:var(--rcb-e,var(--rc-e,0px))}}
+@media (max-width:833px){.lib-sec .comp>.stage{min-height:var(--rh-f,420px)}.lib-sec .comp>.stage .v2.stage-in{min-height:var(--rc-f,0px)}:root:not([data-style="soft"]) .lib-sec .comp>.stage .v2.stage-in{min-height:var(--rcb-f,var(--rc-f,0px))}}
+@media (max-width:819px){.lib-sec .comp>.stage{min-height:var(--rh-g,420px)}.lib-sec .comp>.stage .v2.stage-in{min-height:var(--rc-g,0px)}:root:not([data-style="soft"]) .lib-sec .comp>.stage .v2.stage-in{min-height:var(--rcb-g,var(--rc-g,0px))}}
+@media (max-width:767px){.lib-sec .comp>.stage{min-height:var(--rh-h,420px)}.lib-sec .comp>.stage .v2.stage-in{min-height:var(--rc-h,0px)}:root:not([data-style="soft"]) .lib-sec .comp>.stage .v2.stage-in{min-height:var(--rcb-h,var(--rc-h,0px))}}
+@media (max-width:743px){.lib-sec .comp>.stage{min-height:var(--rh-i,420px)}.lib-sec .comp>.stage .v2.stage-in{min-height:var(--rc-i,0px)}:root:not([data-style="soft"]) .lib-sec .comp>.stage .v2.stage-in{min-height:var(--rcb-i,var(--rc-i,0px))}}
+@media (max-width:640px){.lib-sec .comp>.stage{min-height:var(--rh-j,420px)}.lib-sec .comp>.stage .v2.stage-in{min-height:var(--rc-j,0px)}:root:not([data-style="soft"]) .lib-sec .comp>.stage .v2.stage-in{min-height:var(--rcb-j,var(--rc-j,0px))}}
+@media (max-width:519px){.lib-sec .comp>.stage{min-height:var(--rh-k,420px)}.lib-sec .comp>.stage .v2.stage-in{min-height:var(--rc-k,0px)}:root:not([data-style="soft"]) .lib-sec .comp>.stage .v2.stage-in{min-height:var(--rcb-k,var(--rc-k,0px))}}
+@media (max-width:429px){.lib-sec .comp>.stage{min-height:var(--rh-l,420px)}.lib-sec .comp>.stage .v2.stage-in{min-height:var(--rc-l,0px)}:root:not([data-style="soft"]) .lib-sec .comp>.stage .v2.stage-in{min-height:var(--rcb-l,var(--rc-l,0px))}}
+@media (max-width:389px){.lib-sec .comp>.stage{min-height:var(--rh-m,420px)}.lib-sec .comp>.stage .v2.stage-in{min-height:var(--rc-m,0px)}:root:not([data-style="soft"]) .lib-sec .comp>.stage .v2.stage-in{min-height:var(--rcb-m,var(--rc-m,0px))}}
 </style>
 </head>
 <body class="ui">
@@ -8879,7 +8942,7 @@ body.ui section.faq{display:none}
 <section class="lib-sec" id="s-conversation" data-grp="agent">
   <div class="sec-head"><div><span class="sec-no">01</span><h2>Conversation</h2><p>Everything for asking, answering and replying, by text or by voice.</p></div></div>
   <div class="sec-body" id="s-conversation-body"><div class="sec-uf"><div class="grid">
-  <article class="comp" id="c3" data-soft data-v2="live-answer" data-reg="live-answer" style="--rh-a:493px;--rc-a:381px;--rcb-a:377px;--rh-b:551px;--rc-b:439px;--rcb-b:439px;--rh-c:495px;--rc-c:383px;--rcb-c:377px;--rh-d:495px;--rc-d:383px;--rcb-d:377px;--rh-e:496px;--rc-e:416px;--rcb-e:416px">
+  <article class="comp" id="c3" data-soft data-v2="live-answer" data-reg="live-answer" style="--rh-a:489px;--rc-a:377px;--rcb-a:377px;--rh-b:551px;--rc-b:439px;--rcb-b:439px;--rh-c:489px;--rc-c:377px;--rcb-c:377px;--rh-d:489px;--rc-d:377px;--rcb-d:377px;--rh-e:489px;--rc-e:377px;--rcb-e:377px;--rh-f:489px;--rc-f:377px;--rcb-f:377px;--rh-g:489px;--rc-g:377px;--rcb-g:377px;--rh-h:489px;--rc-h:377px;--rcb-h:377px;--rh-i:489px;--rc-i:377px;--rcb-i:377px;--rh-j:457px;--rc-j:377px;--rcb-j:377px;--rh-k:477px;--rc-k:397px;--rcb-k:397px;--rh-l:496px;--rc-l:416px;--rcb-l:416px;--rh-m:519px;--rc-m:439px;--rcb-m:439px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">edit_note</span></span>
       <div><h2 class="comp-title"><a href="/components/live-answer">Live answer</a></h2><p class="comp-desc">Answers that stream in with numbered sources and next steps.</p></div>
@@ -8895,7 +8958,7 @@ body.ui section.faq{display:none}
   <div class="lva-a"></div>
 </div></template>
   </article>
-  <article class="comp" id="c6" data-soft data-v2="composer" data-reg="composer" style="--rh-a:600px;--rc-a:220px;--rcb-a:220px;--rh-b:600px;--rc-b:261px;--rcb-b:261px;--rh-c:600px;--rc-c:220px;--rcb-c:220px;--rh-d:600px;--rc-d:220px;--rcb-d:220px;--rh-e:600px;--rc-e:261px;--rcb-e:261px">
+  <article class="comp" id="c6" data-soft data-v2="composer" data-reg="composer" style="--rh-a:600px;--rc-a:102px;--rcb-a:102px;--rh-b:600px;--rc-b:102px;--rcb-b:102px;--rh-c:600px;--rc-c:102px;--rcb-c:102px;--rh-d:600px;--rc-d:102px;--rcb-d:102px;--rh-e:600px;--rc-e:102px;--rcb-e:102px;--rh-f:600px;--rc-f:102px;--rcb-f:102px;--rh-g:600px;--rc-g:102px;--rcb-g:102px;--rh-h:600px;--rc-h:102px;--rcb-h:102px;--rh-i:600px;--rc-i:102px;--rcb-i:102px;--rh-j:600px;--rc-j:102px;--rcb-j:102px;--rh-k:600px;--rc-k:102px;--rcb-k:102px;--rh-l:600px;--rc-l:102px;--rcb-l:102px;--rh-m:600px;--rc-m:102px;--rcb-m:102px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">terminal</span></span>
       <div><h2 class="comp-title"><a href="/components/composer">Composer</a></h2><p class="comp-desc">Message input with attachments, what to work on, a mode and dictation.</p></div>
@@ -8947,7 +9010,7 @@ body.ui section.faq{display:none}
   </div>
 </div></template>
   </article>
-  <article class="comp" id="c8" data-soft data-v2="thread-panel" data-reg="thread-panel" style="--rh-a:480px;--rc-a:368px;--rcb-a:360px;--rh-b:481px;--rc-b:369px;--rcb-b:360px;--rh-c:480px;--rc-c:368px;--rcb-c:360px;--rh-d:480px;--rc-d:368px;--rcb-d:360px;--rh-e:448px;--rc-e:368px;--rcb-e:360px">
+  <article class="comp" id="c8" data-soft data-v2="thread-panel" data-reg="thread-panel" style="--rh-a:472px;--rc-a:360px;--rcb-a:360px;--rh-b:472px;--rc-b:360px;--rcb-b:360px;--rh-c:472px;--rc-c:360px;--rcb-c:360px;--rh-d:472px;--rc-d:360px;--rcb-d:360px;--rh-e:472px;--rc-e:360px;--rcb-e:360px;--rh-f:472px;--rc-f:360px;--rcb-f:360px;--rh-g:472px;--rc-g:360px;--rcb-g:360px;--rh-h:472px;--rc-h:360px;--rcb-h:360px;--rh-i:472px;--rc-i:360px;--rcb-i:360px;--rh-j:440px;--rc-j:360px;--rcb-j:360px;--rh-k:440px;--rc-k:360px;--rcb-k:360px;--rh-l:440px;--rc-l:360px;--rcb-l:360px;--rh-m:440px;--rc-m:360px;--rcb-m:360px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">chat_bubble</span></span>
       <div><h2 class="comp-title"><a href="/components/thread-panel">Thread panel</a></h2><p class="comp-desc">Switch between agent threads and reply in place.</p></div>
@@ -8964,7 +9027,7 @@ body.ui section.faq{display:none}
   <form class="thp-in"><input class="thp-field" aria-label="Reply" placeholder="Reply to the agent"><button class="thp-send" aria-label="Send" data-tip="Send" data-tip-k="↵" disabled>{up}</button></form>
 </div></template>
   </article>
-  <article class="comp" id="c108" data-soft data-v2="artifact-card" data-reg="artifact-card" style="--rh-a:467px;--rc-a:355px;--rcb-a:349px;--rh-b:469px;--rc-b:357px;--rcb-b:349px;--rh-c:467px;--rc-c:355px;--rcb-c:349px;--rh-d:467px;--rc-d:355px;--rcb-d:349px;--rh-e:435px;--rc-e:355px;--rcb-e:349px">
+  <article class="comp" id="c108" data-soft data-v2="artifact-card" data-reg="artifact-card" style="--rh-a:461px;--rc-a:349px;--rcb-a:349px;--rh-b:461px;--rc-b:349px;--rcb-b:349px;--rh-c:461px;--rc-c:349px;--rcb-c:349px;--rh-d:461px;--rc-d:349px;--rcb-d:349px;--rh-e:461px;--rc-e:349px;--rcb-e:349px;--rh-f:461px;--rc-f:349px;--rcb-f:349px;--rh-g:461px;--rc-g:349px;--rcb-g:349px;--rh-h:461px;--rc-h:349px;--rcb-h:349px;--rh-i:461px;--rc-i:349px;--rcb-i:349px;--rh-j:429px;--rc-j:349px;--rcb-j:349px;--rh-k:429px;--rc-k:349px;--rcb-k:349px;--rh-l:429px;--rc-l:349px;--rcb-l:349px;--rh-m:429px;--rc-m:349px;--rcb-m:349px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">description</span></span>
       <div><h2 class="comp-title"><a href="/components/artifact-card">Artifact card</a></h2><p class="comp-desc">A file the agent made, with a live preview and versions.</p></div>
@@ -8992,7 +9055,7 @@ body.ui section.faq{display:none}
   <div class="afx-vers"><div class="seg2" role="group" aria-label="Version"><button aria-pressed="false" data-v="0">v1</button><button aria-pressed="false" data-v="1">v2</button><button aria-pressed="true" data-v="2">v3</button></div><span class="afx-note muted">Final, with your fixes</span></div>
 </div></template>
   </article>
-  <article class="comp" id="c107" data-soft data-v2="tool-call" data-reg="tool-call" style="--rh-a:539px;--rc-a:427px;--rcb-a:427px;--rh-b:557px;--rc-b:445px;--rcb-b:445px;--rh-c:539px;--rc-c:427px;--rcb-c:427px;--rh-d:539px;--rc-d:427px;--rcb-d:427px;--rh-e:525px;--rc-e:445px;--rcb-e:445px">
+  <article class="comp" id="c107" data-soft data-v2="tool-call" data-reg="tool-call" style="--rh-a:539px;--rc-a:427px;--rcb-a:427px;--rh-b:557px;--rc-b:445px;--rcb-b:445px;--rh-c:539px;--rc-c:427px;--rcb-c:427px;--rh-d:539px;--rc-d:427px;--rcb-d:427px;--rh-e:539px;--rc-e:427px;--rcb-e:427px;--rh-f:539px;--rc-f:427px;--rcb-f:427px;--rh-g:539px;--rc-g:427px;--rcb-g:427px;--rh-h:539px;--rc-h:427px;--rcb-h:427px;--rh-i:539px;--rc-i:427px;--rcb-i:427px;--rh-j:507px;--rc-j:427px;--rcb-j:427px;--rh-k:507px;--rc-k:427px;--rcb-k:427px;--rh-l:507px;--rc-l:427px;--rcb-l:427px;--rh-m:544px;--rc-m:464px;--rcb-m:464px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">terminal</span></span>
       <div><h2 class="comp-title"><a href="/components/tool-call">Tool call</a></h2><p class="comp-desc">Each tool the agent calls, with its input and output.</p></div>
@@ -9009,7 +9072,7 @@ body.ui section.faq{display:none}
   <p class="msg tcx-end">Two plans changed. I updated their prices and the yearly saving on the page.</p>
 </div></template>
   </article>
-  <article class="comp" id="c24" data-soft data-v2="voice-capture" data-reg="voice-capture" style="--rh-a:420px;--rc-a:253px;--rcb-a:248px;--rh-b:420px;--rc-b:256px;--rcb-b:248px;--rh-c:420px;--rc-c:254px;--rcb-c:248px;--rh-d:420px;--rc-d:254px;--rcb-d:248px;--rh-e:420px;--rc-e:253px;--rcb-e:248px">
+  <article class="comp" id="c24" data-soft data-v2="voice-capture" data-reg="voice-capture" style="--rh-a:420px;--rc-a:248px;--rcb-a:248px;--rh-b:420px;--rc-b:248px;--rcb-b:248px;--rh-c:420px;--rc-c:248px;--rcb-c:248px;--rh-d:420px;--rc-d:248px;--rcb-d:248px;--rh-e:420px;--rc-e:248px;--rcb-e:248px;--rh-f:420px;--rc-f:248px;--rcb-f:248px;--rh-g:420px;--rc-g:248px;--rcb-g:248px;--rh-h:420px;--rc-h:248px;--rcb-h:248px;--rh-i:420px;--rc-i:248px;--rcb-i:248px;--rh-j:420px;--rc-j:248px;--rcb-j:248px;--rh-k:420px;--rc-k:248px;--rcb-k:248px;--rh-l:420px;--rc-l:248px;--rcb-l:248px;--rh-m:420px;--rc-m:248px;--rcb-m:248px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">mic</span></span>
       <div><h2 class="comp-title"><a href="/components/voice-capture">Voice capture</a></h2><p class="comp-desc">Talk to the agent, then fix what it misheard before sending.</p></div>
@@ -9033,7 +9096,7 @@ body.ui section.faq{display:none}
   <div class="pop vcx-fix" role="menu"></div>
 </div></template>
   </article>
-  <article class="comp" id="c122" data-soft data-v2="voice-orb" data-reg="voice-orb" style="--rh-a:514px;--rc-a:402px;--rcb-a:402px;--rh-b:533px;--rc-b:421px;--rcb-b:421px;--rh-c:514px;--rc-c:402px;--rcb-c:402px;--rh-d:514px;--rc-d:402px;--rcb-d:402px;--rh-e:482px;--rc-e:402px;--rcb-e:402px">
+  <article class="comp" id="c122" data-soft data-v2="voice-orb" data-reg="voice-orb">
     <div class="comp-head">
       <span class="ibox"><span class="ms">graphic_eq</span></span>
       <div><h2 class="comp-title"><a href="/components/voice-orb">Voice orb</a></h2><p class="comp-desc">A hands-free voice chat, with an orb that shows who is talking.</p></div>
@@ -9057,7 +9120,7 @@ body.ui section.faq{display:none}
   </div>
 </div></template>
   </article>
-  <article class="comp" id="c113" data-soft data-v2="answer-action-bar" data-reg="answer-action-bar" style="--rh-a:435px;--rc-a:323px;--rcb-a:323px;--rh-b:465px;--rc-b:353px;--rcb-b:353px;--rh-c:420px;--rc-c:276px;--rcb-c:276px;--rh-d:420px;--rc-d:276px;--rcb-d:276px;--rh-e:433px;--rc-e:353px;--rcb-e:353px">
+  <article class="comp" id="c113" data-soft data-v2="answer-action-bar" data-reg="answer-action-bar" style="--rh-a:435px;--rc-a:323px;--rcb-a:323px;--rh-b:465px;--rc-b:353px;--rcb-b:353px;--rh-c:420px;--rc-c:276px;--rcb-c:276px;--rh-d:420px;--rc-d:276px;--rcb-d:276px;--rh-e:420px;--rc-e:276px;--rcb-e:276px;--rh-f:420px;--rc-f:276px;--rcb-f:276px;--rh-g:420px;--rc-g:276px;--rcb-g:276px;--rh-h:420px;--rc-h:276px;--rcb-h:276px;--rh-i:420px;--rc-i:276px;--rcb-i:276px;--rh-j:420px;--rc-j:276px;--rcb-j:276px;--rh-k:420px;--rc-k:327px;--rcb-k:327px;--rh-l:433px;--rc-l:353px;--rcb-l:353px;--rh-m:447px;--rc-m:367px;--rcb-m:367px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">thumb_up</span></span>
       <div><h2 class="comp-title"><a href="/components/answer-action-bar">Answer action bar</a></h2><p class="comp-desc">Copy, regenerate, rate and listen to an answer from one row under it.</p></div>
@@ -9091,7 +9154,7 @@ body.ui section.faq{display:none}
   <p class="aab-st muted" aria-live="polite"></p>
 </div></template>
   </article>
-  <article class="comp" id="c31" data-soft data-v2="response-versions" data-reg="response-versions" style="--rh-a:420px;--rc-a:185px;--rcb-a:167px;--rh-b:420px;--rc-b:205px;--rcb-b:187px;--rh-c:420px;--rc-c:185px;--rcb-c:167px;--rh-d:420px;--rc-d:185px;--rcb-d:167px;--rh-e:420px;--rc-e:205px;--rcb-e:187px">
+  <article class="comp" id="c31" data-soft data-v2="response-versions" data-reg="response-versions" style="--rh-a:420px;--rc-a:163px;--rcb-a:163px;--rh-b:420px;--rc-b:183px;--rcb-b:183px;--rh-c:420px;--rc-c:163px;--rcb-c:163px;--rh-d:420px;--rc-d:163px;--rcb-d:163px;--rh-e:420px;--rc-e:163px;--rcb-e:163px;--rh-f:420px;--rc-f:163px;--rcb-f:163px;--rh-g:420px;--rc-g:163px;--rcb-g:163px;--rh-h:420px;--rc-h:163px;--rcb-h:163px;--rh-i:420px;--rc-i:163px;--rcb-i:163px;--rh-j:420px;--rc-j:163px;--rcb-j:163px;--rh-k:420px;--rc-k:163px;--rcb-k:163px;--rh-l:420px;--rc-l:163px;--rcb-l:163px;--rh-m:420px;--rc-m:183px;--rcb-m:183px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">refresh</span></span>
       <div><h2 class="comp-title"><a href="/components/response-versions">Response versions</a></h2><p class="comp-desc">Regenerate an answer and flip between versions.</p></div>
@@ -9115,7 +9178,7 @@ body.ui section.faq{display:none}
   </div>
 </div></template>
   </article>
-  <article class="comp" id="c112" data-soft data-v2="model-picker" data-reg="model-picker" style="--rh-a:536px;--rc-a:424px;--rcb-a:424px;--rh-b:560px;--rc-b:448px;--rcb-b:448px;--rh-c:539px;--rc-c:424px;--rcb-c:427px;--rh-d:540px;--rc-d:424px;--rcb-d:428px;--rh-e:576px;--rc-e:496px;--rcb-e:496px">
+  <article class="comp" id="c112" data-soft data-v2="model-picker" data-reg="model-picker" style="--rh-a:542px;--rc-a:430px;--rcb-a:424px;--rh-b:560px;--rc-b:448px;--rcb-b:448px;--rh-c:536px;--rc-c:424px;--rcb-c:424px;--rh-d:536px;--rc-d:424px;--rcb-d:424px;--rh-e:536px;--rc-e:424px;--rcb-e:424px;--rh-f:536px;--rc-f:424px;--rcb-f:424px;--rh-g:536px;--rc-g:424px;--rcb-g:424px;--rh-h:536px;--rc-h:424px;--rcb-h:424px;--rh-i:536px;--rc-i:424px;--rcb-i:424px;--rh-j:504px;--rc-j:424px;--rcb-j:424px;--rh-k:540px;--rc-k:460px;--rcb-k:460px;--rh-l:558px;--rc-l:478px;--rcb-l:478px;--rh-m:636px;--rc-m:553px;--rcb-m:556px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">tune</span></span>
       <div><h2 class="comp-title"><a href="/components/model-picker">Model picker</a></h2><p class="comp-desc">Pick a model by speed, quality and cost, and how hard it thinks.</p></div>
@@ -9146,7 +9209,7 @@ body.ui section.faq{display:none}
   <p class="mpk-note muted" aria-live="polite"></p>
 </div></template>
   </article>
-  <article class="comp" id="c29" data-soft data-v2="prompt-starters" data-reg="prompt-starters" style="--rh-a:464px;--rc-a:352px;--rcb-a:338px;--rh-b:498px;--rc-b:386px;--rcb-b:372px;--rh-c:464px;--rc-c:352px;--rcb-c:338px;--rh-d:464px;--rc-d:352px;--rcb-d:338px;--rh-e:466px;--rc-e:386px;--rcb-e:372px">
+  <article class="comp" id="c29" data-soft data-v2="prompt-starters" data-reg="prompt-starters" style="--rh-a:450px;--rc-a:338px;--rcb-a:338px;--rh-b:484px;--rc-b:372px;--rcb-b:372px;--rh-c:450px;--rc-c:338px;--rcb-c:338px;--rh-d:450px;--rc-d:338px;--rcb-d:338px;--rh-e:450px;--rc-e:338px;--rcb-e:338px;--rh-f:450px;--rc-f:338px;--rcb-f:338px;--rh-g:450px;--rc-g:338px;--rcb-g:338px;--rh-h:450px;--rc-h:338px;--rcb-h:338px;--rh-i:450px;--rc-i:338px;--rcb-i:338px;--rh-j:420px;--rc-j:338px;--rcb-j:338px;--rh-k:420px;--rc-k:338px;--rcb-k:338px;--rh-l:452px;--rc-l:372px;--rcb-l:372px;--rh-m:452px;--rc-m:372px;--rcb-m:372px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">stars</span></span>
       <div><h2 class="comp-title"><a href="/components/prompt-starters">Prompt starters</a></h2><p class="comp-desc">Suggested tasks that fill the composer in one click.</p></div>
@@ -9163,7 +9226,7 @@ body.ui section.faq{display:none}
   <button class="pill ghost sm psx-sh">{shuffle}Shuffle</button>
 </div></template>
   </article>
-  <article class="comp" id="c123" data-soft data-v2="prompt-library" data-reg="prompt-library" style="--rh-a:487px;--rc-a:375px;--rcb-a:375px;--rh-b:506px;--rc-b:394px;--rcb-b:394px;--rh-c:487px;--rc-c:375px;--rcb-c:375px;--rh-d:487px;--rc-d:375px;--rcb-d:375px;--rh-e:474px;--rc-e:394px;--rcb-e:394px">
+  <article class="comp" id="c123" data-soft data-v2="prompt-library" data-reg="prompt-library">
     <div class="comp-head">
       <span class="ibox"><span class="ms">edit_note</span></span>
       <div><h2 class="comp-title"><a href="/components/prompt-library">Prompt library</a></h2><p class="comp-desc">Saved prompts with blanks to fill in before they go to the agent.</p></div>
@@ -9187,7 +9250,7 @@ body.ui section.faq{display:none}
   </div>
 </div></template>
   </article>
-  <article class="comp" id="c30" data-soft data-v2="attachment-tray" data-reg="attachment-tray" style="--rh-a:462px;--rc-a:350px;--rcb-a:350px;--rh-b:464px;--rc-b:352px;--rcb-b:350px;--rh-c:464px;--rc-c:352px;--rcb-c:350px;--rh-d:465px;--rc-d:353px;--rcb-d:350px;--rh-e:433px;--rc-e:353px;--rcb-e:350px">
+  <article class="comp" id="c30" data-soft data-v2="attachment-tray" data-reg="attachment-tray" style="--rh-a:462px;--rc-a:350px;--rcb-a:350px;--rh-b:462px;--rc-b:350px;--rcb-b:350px;--rh-c:462px;--rc-c:350px;--rcb-c:350px;--rh-d:462px;--rc-d:350px;--rcb-d:350px;--rh-e:462px;--rc-e:350px;--rcb-e:350px;--rh-f:462px;--rc-f:350px;--rcb-f:350px;--rh-g:462px;--rc-g:350px;--rcb-g:350px;--rh-h:462px;--rc-h:350px;--rcb-h:350px;--rh-i:462px;--rc-i:350px;--rcb-i:350px;--rh-j:430px;--rc-j:350px;--rcb-j:350px;--rh-k:430px;--rc-k:350px;--rcb-k:350px;--rh-l:430px;--rc-l:350px;--rcb-l:350px;--rh-m:430px;--rc-m:350px;--rcb-m:350px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">attach_file</span></span>
       <div><h2 class="comp-title"><a href="/components/attachment-tray">Attachment tray</a></h2><p class="comp-desc">Drop files for the agent and watch each one upload.</p></div>
@@ -9206,7 +9269,7 @@ body.ui section.faq{display:none}
   <div class="atx-sum muted"></div>
 </div></template>
   </article>
-  <article class="comp" id="c32" data-soft data-v2="feedback-sheet" data-reg="feedback-sheet" style="--rh-a:444px;--rc-a:332px;--rcb-a:332px;--rh-b:475px;--rc-b:363px;--rcb-b:363px;--rh-c:444px;--rc-c:332px;--rcb-c:332px;--rh-d:444px;--rc-d:332px;--rcb-d:332px;--rh-e:435px;--rc-e:355px;--rcb-e:355px">
+  <article class="comp" id="c32" data-soft data-v2="feedback-sheet" data-reg="feedback-sheet" style="--rh-a:444px;--rc-a:332px;--rcb-a:332px;--rh-b:475px;--rc-b:363px;--rcb-b:363px;--rh-c:444px;--rc-c:332px;--rcb-c:332px;--rh-d:444px;--rc-d:332px;--rcb-d:332px;--rh-e:444px;--rc-e:332px;--rcb-e:332px;--rh-f:444px;--rc-f:332px;--rcb-f:332px;--rh-g:444px;--rc-g:332px;--rcb-g:332px;--rh-h:444px;--rc-h:332px;--rcb-h:332px;--rh-i:444px;--rc-i:332px;--rcb-i:332px;--rh-j:420px;--rc-j:332px;--rcb-j:332px;--rh-k:435px;--rc-k:355px;--rcb-k:355px;--rh-l:435px;--rc-l:355px;--rcb-l:355px;--rh-m:435px;--rc-m:355px;--rcb-m:355px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">thumb_up</span></span>
       <div><h2 class="comp-title"><a href="/components/feedback-sheet">Feedback sheet</a></h2><p class="comp-desc">Rate an answer and tell the agent what missed.</p></div>
@@ -9238,7 +9301,7 @@ body.ui section.faq{display:none}
 <section class="lib-sec" id="s-status" data-grp="agent">
   <div class="sec-head"><div><span class="sec-no">02</span><h2>Agent status</h2><p>Show what the agent is doing, how far along it is, and what it is working with.</p></div></div>
   <div class="sec-body" id="s-status-body"><div class="sec-uf"><div class="grid">
-  <article class="comp" data-soft id="c60" data-v2="thinking" data-reg="thinking" style="--rh-a:420px;--rc-a:302px;--rcb-a:302px;--rh-b:435px;--rc-b:323px;--rcb-b:323px;--rh-c:420px;--rc-c:302px;--rcb-c:302px;--rh-d:420px;--rc-d:302px;--rcb-d:302px;--rh-e:420px;--rc-e:302px;--rcb-e:302px">
+  <article class="comp" data-soft id="c60" data-v2="thinking" data-reg="thinking" style="--rh-a:556px;--rc-a:444px;--rcb-a:444px;--rh-b:558px;--rc-b:446px;--rcb-b:445px;--rh-c:556px;--rc-c:444px;--rcb-c:444px;--rh-d:556px;--rc-d:444px;--rcb-d:444px;--rh-e:556px;--rc-e:444px;--rcb-e:444px;--rh-f:556px;--rc-f:444px;--rcb-f:444px;--rh-g:556px;--rc-g:444px;--rcb-g:444px;--rh-h:556px;--rc-h:444px;--rcb-h:444px;--rh-i:556px;--rc-i:444px;--rcb-i:444px;--rh-j:524px;--rc-j:444px;--rcb-j:444px;--rh-k:526px;--rc-k:445px;--rcb-k:446px;--rh-l:526px;--rc-l:445px;--rcb-l:446px;--rh-m:567px;--rc-m:487px;--rcb-m:487px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">stars</span></span>
       <div><h2 class="comp-title"><a href="/components/thinking">Thinking</a></h2><p class="comp-desc">The live trace, written as the agent works, then folded away.</p></div>
@@ -9258,7 +9321,7 @@ body.ui section.faq{display:none}
   <div class="fold tk-fold"><div><ol class="tk-list" aria-live="polite"></ol></div></div>
 </div></template>
   </article>
-  <article class="comp" id="c2" data-soft data-v2="reasoning-trail" data-reg="reasoning-trail" style="--rh-a:445px;--rc-a:333px;--rcb-a:328px;--rh-b:449px;--rc-b:337px;--rcb-b:328px;--rh-c:447px;--rc-c:335px;--rcb-c:328px;--rh-d:447px;--rc-d:335px;--rcb-d:328px;--rh-e:420px;--rc-e:332px;--rcb-e:328px">
+  <article class="comp" id="c2" data-soft data-v2="reasoning-trail" data-reg="reasoning-trail" style="--rh-a:440px;--rc-a:328px;--rcb-a:328px;--rh-b:440px;--rc-b:328px;--rcb-b:328px;--rh-c:440px;--rc-c:328px;--rcb-c:328px;--rh-d:440px;--rc-d:328px;--rcb-d:328px;--rh-e:440px;--rc-e:328px;--rcb-e:328px;--rh-f:440px;--rc-f:328px;--rcb-f:328px;--rh-g:440px;--rc-g:328px;--rcb-g:328px;--rh-h:440px;--rc-h:328px;--rcb-h:328px;--rh-i:440px;--rc-i:328px;--rcb-i:328px;--rh-j:420px;--rc-j:328px;--rcb-j:328px;--rh-k:420px;--rc-k:328px;--rcb-k:328px;--rh-l:420px;--rc-l:328px;--rcb-l:328px;--rh-m:420px;--rc-m:328px;--rcb-m:328px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">stars</span></span>
       <div><h2 class="comp-title"><a href="/components/reasoning-trail">Reasoning trail</a></h2><p class="comp-desc">The agent's plan, notes, sources and edits, after it thinks.</p></div>
@@ -9287,7 +9350,7 @@ body.ui section.faq{display:none}
   <div class="demo"><div class="seg2" role="group" aria-label="View"><button aria-pressed="true" data-v="plan">Plan</button><button aria-pressed="false" data-v="notes">Notes</button><button aria-pressed="false" data-v="sources">Sources</button><button aria-pressed="false" data-v="edits">Edits</button></div></div>
 </div></template>
   </article>
-  <article class="comp wide" id="c26" data-soft data-v2="agent-lanes" data-reg="agent-lanes" style="--rh-a:424px;--rc-a:312px;--rcb-a:312px;--rh-b:424px;--rc-b:312px;--rcb-b:312px;--rh-c:424px;--rc-c:312px;--rcb-c:312px;--rh-d:424px;--rc-d:312px;--rcb-d:312px;--rh-e:420px;--rc-e:312px;--rcb-e:312px">
+  <article class="comp wide" id="c26" data-soft data-v2="agent-lanes" data-reg="agent-lanes" style="--rh-a:424px;--rc-a:312px;--rcb-a:312px;--rh-b:424px;--rc-b:312px;--rcb-b:312px;--rh-c:424px;--rc-c:312px;--rcb-c:312px;--rh-d:424px;--rc-d:312px;--rcb-d:312px;--rh-e:424px;--rc-e:312px;--rcb-e:312px;--rh-f:424px;--rc-f:312px;--rcb-f:312px;--rh-g:424px;--rc-g:312px;--rcb-g:312px;--rh-h:424px;--rc-h:312px;--rcb-h:312px;--rh-i:424px;--rc-i:312px;--rcb-i:312px;--rh-j:420px;--rc-j:312px;--rcb-j:312px;--rh-k:420px;--rc-k:312px;--rcb-k:312px;--rh-l:420px;--rc-l:312px;--rcb-l:312px;--rh-m:420px;--rc-m:314px;--rcb-m:314px">
     <div class="comp-head">
       <span class="ibox accent"><span class="ms">group</span></span>
       <div><h2 class="comp-title"><a href="/components/agent-lanes">Agent lanes</a></h2><p class="comp-desc">Several agents working in parallel, each with its own lane and hand-offs.</p></div>
@@ -9303,7 +9366,7 @@ body.ui section.faq{display:none}
   <div class="aln-rows"></div>
 </div></template>
   </article>
-  <article class="comp wide" id="c114" data-soft data-v2="agent-tree" data-reg="agent-tree" style="--rh-a:569px;--rc-a:457px;--rcb-a:457px;--rh-b:569px;--rc-b:457px;--rcb-b:457px;--rh-c:569px;--rc-c:457px;--rcb-c:457px;--rh-d:569px;--rc-d:457px;--rcb-d:457px;--rh-e:537px;--rc-e:457px;--rcb-e:457px">
+  <article class="comp wide" id="c114" data-soft data-v2="agent-tree" data-reg="agent-tree">
     <div class="comp-head">
       <span class="ibox accent"><span class="ms">group</span></span>
       <div><h2 class="comp-title"><a href="/components/agent-tree">Agent tree</a></h2><p class="comp-desc">An orchestrator and its sub-agents, with cost rolled up per branch.</p></div>
@@ -9319,7 +9382,7 @@ body.ui section.faq{display:none}
   <div class="atr-tree" role="tree" aria-label="Agents"></div>
 </div></template>
   </article>
-  <article class="comp wide" id="c115" data-soft data-v2="agent-inbox" data-reg="agent-inbox" style="--rh-a:599px;--rc-a:487px;--rcb-a:471px;--rh-b:599px;--rc-b:487px;--rcb-b:471px;--rh-c:599px;--rc-c:487px;--rcb-c:471px;--rh-d:599px;--rc-d:487px;--rcb-d:471px;--rh-e:567px;--rc-e:487px;--rcb-e:471px">
+  <article class="comp wide" id="c115" data-soft data-v2="agent-inbox" data-reg="agent-inbox">
     <div class="comp-head">
       <span class="ibox accent"><span class="ms">group</span></span>
       <div><h2 class="comp-title"><a href="/components/agent-inbox">Agent inbox</a></h2><p class="comp-desc">Every run that needs you, is running or is done, in one list.</p></div>
@@ -9335,7 +9398,7 @@ body.ui section.faq{display:none}
   <div class="aib-gs"></div>
 </div></template>
   </article>
-  <article class="comp" id="c106" data-soft data-v2="run-summary" data-reg="run-summary" style="--rh-a:531px;--rc-a:419px;--rcb-a:414px;--rh-b:545px;--rc-b:433px;--rcb-b:425px;--rh-c:512px;--rc-c:400px;--rcb-c:394px;--rh-d:512px;--rc-d:400px;--rcb-d:394px;--rh-e:509px;--rc-e:429px;--rcb-e:425px">
+  <article class="comp" id="c106" data-soft data-v2="run-summary" data-reg="run-summary" style="--rh-a:526px;--rc-a:414px;--rcb-a:414px;--rh-b:537px;--rc-b:425px;--rcb-b:425px;--rh-c:506px;--rc-c:394px;--rcb-c:394px;--rh-d:506px;--rc-d:394px;--rcb-d:394px;--rh-e:506px;--rc-e:394px;--rcb-e:394px;--rh-f:506px;--rc-f:394px;--rcb-f:394px;--rh-g:506px;--rc-g:394px;--rcb-g:394px;--rh-h:506px;--rc-h:394px;--rcb-h:394px;--rh-i:506px;--rc-i:394px;--rcb-i:394px;--rh-j:474px;--rc-j:394px;--rcb-j:394px;--rh-k:505px;--rc-k:425px;--rcb-k:425px;--rh-l:505px;--rc-l:425px;--rcb-l:425px;--rh-m:505px;--rc-m:425px;--rcb-m:425px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">check_circle</span></span>
       <div><h2 class="comp-title"><a href="/components/run-summary">Run summary</a></h2><p class="comp-desc">What the agent did, what changed and what needs you.</p></div>
@@ -9366,7 +9429,7 @@ body.ui section.faq{display:none}
   <div class="rsu-acts"><button class="pill ink sm">Open changes</button><button class="pill ghost sm rsu-undo">Undo all</button></div>
 </div></template>
   </article>
-  <article class="comp" id="c7" data-soft data-v2="action-log" data-reg="action-log" style="--rh-a:485px;--rc-a:373px;--rcb-a:372px;--rh-b:501px;--rc-b:389px;--rcb-b:389px;--rh-c:489px;--rc-c:377px;--rcb-c:374px;--rh-d:487px;--rc-d:373px;--rcb-d:375px;--rh-e:457px;--rc-e:377px;--rcb-e:375px">
+  <article class="comp" id="c7" data-soft data-v2="action-log" data-reg="action-log" style="--rh-a:483px;--rc-a:371px;--rcb-a:371px;--rh-b:501px;--rc-b:389px;--rcb-b:389px;--rh-c:489px;--rc-c:377px;--rcb-c:371px;--rh-d:483px;--rc-d:371px;--rcb-d:371px;--rh-e:483px;--rc-e:371px;--rcb-e:371px;--rh-f:483px;--rc-f:371px;--rcb-f:371px;--rh-g:483px;--rc-g:371px;--rcb-g:371px;--rh-h:484px;--rc-h:372px;--rcb-h:371px;--rh-i:483px;--rc-i:371px;--rcb-i:371px;--rh-j:455px;--rc-j:371px;--rcb-j:375px;--rh-k:457px;--rc-k:377px;--rcb-k:371px;--rh-l:455px;--rc-l:371px;--rcb-l:375px;--rh-m:490px;--rc-m:410px;--rcb-m:410px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">bolt</span></span>
       <div><h2 class="comp-title"><a href="/components/action-log">Action log</a></h2><p class="comp-desc">Every read, search, edit and command, logged as it runs.</p></div>
@@ -9382,7 +9445,7 @@ body.ui section.faq{display:none}
   <ol class="alg-list"></ol>
 </div></template>
   </article>
-  <article class="comp wide" data-soft id="c67" data-v2="agent-run-timeline" data-reg="agent-run-timeline" style="--rh-a:474px;--rc-a:362px;--rcb-a:356px;--rh-b:476px;--rc-b:364px;--rcb-b:356px;--rh-c:474px;--rc-c:362px;--rcb-c:356px;--rh-d:474px;--rc-d:362px;--rcb-d:356px;--rh-e:463px;--rc-e:383px;--rcb-e:377px">
+  <article class="comp wide" data-soft id="c67" data-v2="agent-run-timeline" data-reg="agent-run-timeline" style="--rh-a:468px;--rc-a:356px;--rcb-a:356px;--rh-b:468px;--rc-b:356px;--rcb-b:356px;--rh-c:468px;--rc-c:356px;--rcb-c:356px;--rh-d:468px;--rc-d:356px;--rcb-d:356px;--rh-e:468px;--rc-e:356px;--rcb-e:356px;--rh-f:468px;--rc-f:356px;--rcb-f:356px;--rh-g:468px;--rc-g:356px;--rcb-g:356px;--rh-h:468px;--rc-h:356px;--rcb-h:356px;--rh-i:468px;--rc-i:356px;--rcb-i:356px;--rh-j:436px;--rc-j:356px;--rcb-j:356px;--rh-k:436px;--rc-k:356px;--rcb-k:356px;--rh-l:457px;--rc-l:377px;--rcb-l:356px;--rh-m:457px;--rc-m:377px;--rcb-m:377px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">graphic_eq</span></span>
       <div><h2 class="comp-title"><a href="/components/agent-run-timeline">Agent run timeline</a></h2><p class="comp-desc">Every model and tool step of a run on one time axis.</p></div>
@@ -9403,7 +9466,7 @@ body.ui section.faq{display:none}
   <div class="art-f muted num"></div>
 </div></template>
   </article>
-  <article class="comp" id="c23" data-soft data-v2="context-meter" data-reg="context-meter" style="--rh-a:443px;--rc-a:331px;--rcb-a:317px;--rh-b:447px;--rc-b:335px;--rcb-b:335px;--rh-c:443px;--rc-c:331px;--rcb-c:317px;--rh-d:443px;--rc-d:331px;--rcb-d:317px;--rh-e:420px;--rc-e:331px;--rcb-e:317px">
+  <article class="comp" id="c23" data-soft data-v2="context-meter" data-reg="context-meter" style="--rh-a:433px;--rc-a:321px;--rcb-a:321px;--rh-b:433px;--rc-b:321px;--rcb-b:321px;--rh-c:433px;--rc-c:321px;--rcb-c:321px;--rh-d:433px;--rc-d:321px;--rcb-d:321px;--rh-e:433px;--rc-e:321px;--rcb-e:321px;--rh-f:433px;--rc-f:321px;--rcb-f:321px;--rh-g:433px;--rc-g:321px;--rcb-g:321px;--rh-h:433px;--rc-h:321px;--rcb-h:321px;--rh-i:433px;--rc-i:321px;--rcb-i:321px;--rh-j:420px;--rc-j:321px;--rcb-j:321px;--rh-k:420px;--rc-k:321px;--rcb-k:321px;--rh-l:420px;--rc-l:321px;--rcb-l:321px;--rh-m:420px;--rc-m:321px;--rcb-m:321px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">dashboard</span></span>
       <div><h2 class="comp-title"><a href="/components/context-meter">Context meter</a></h2><p class="comp-desc">How full the context is and what fills it, with Compact to free room.</p></div>
@@ -9425,7 +9488,7 @@ body.ui section.faq{display:none}
   </div>
 </div></template>
   </article>
-  <article class="comp" id="c109" data-soft data-v2="error-recovery" data-reg="error-recovery" style="--rh-a:502px;--rc-a:390px;--rcb-a:386px;--rh-b:546px;--rc-b:434px;--rcb-b:425px;--rh-c:504px;--rc-c:392px;--rcb-c:386px;--rh-d:504px;--rc-d:392px;--rcb-d:386px;--rh-e:509px;--rc-e:429px;--rcb-e:425px">
+  <article class="comp" id="c109" data-soft data-v2="error-recovery" data-reg="error-recovery" style="--rh-a:498px;--rc-a:386px;--rcb-a:386px;--rh-b:537px;--rc-b:425px;--rcb-b:425px;--rh-c:498px;--rc-c:386px;--rcb-c:386px;--rh-d:498px;--rc-d:386px;--rcb-d:386px;--rh-e:498px;--rc-e:386px;--rcb-e:386px;--rh-f:498px;--rc-f:386px;--rcb-f:386px;--rh-g:498px;--rc-g:386px;--rcb-g:386px;--rh-h:498px;--rc-h:386px;--rcb-h:386px;--rh-i:498px;--rc-i:386px;--rcb-i:386px;--rh-j:466px;--rc-j:386px;--rcb-j:386px;--rh-k:466px;--rc-k:386px;--rcb-k:386px;--rh-l:505px;--rc-l:425px;--rcb-l:425px;--rh-m:505px;--rc-m:425px;--rcb-m:425px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">nearby_error</span></span>
       <div><h2 class="comp-title"><a href="/components/error-recovery">Error and recovery</a></h2><p class="comp-desc">A failed step with retry, skip or hand over to a person.</p></div>
@@ -9450,7 +9513,7 @@ body.ui section.faq{display:none}
   </div></div></div>
 </div></template>
   </article>
-  <article class="comp" id="c5" data-soft data-v2="run-queue" data-reg="run-queue" style="--rh-a:536px;--rc-a:424px;--rcb-a:412px;--rh-b:536px;--rc-b:424px;--rcb-b:412px;--rh-c:536px;--rc-c:424px;--rcb-c:412px;--rh-d:536px;--rc-d:424px;--rcb-d:412px;--rh-e:504px;--rc-e:424px;--rcb-e:412px">
+  <article class="comp" id="c5" data-soft data-v2="run-queue" data-reg="run-queue" style="--rh-a:524px;--rc-a:412px;--rcb-a:412px;--rh-b:524px;--rc-b:412px;--rcb-b:412px;--rh-c:524px;--rc-c:412px;--rcb-c:412px;--rh-d:524px;--rc-d:412px;--rcb-d:412px;--rh-e:524px;--rc-e:412px;--rcb-e:412px;--rh-f:524px;--rc-f:412px;--rcb-f:412px;--rh-g:524px;--rc-g:412px;--rcb-g:412px;--rh-h:524px;--rc-h:412px;--rcb-h:412px;--rh-i:524px;--rc-i:412px;--rcb-i:412px;--rh-j:492px;--rc-j:412px;--rcb-j:412px;--rh-k:492px;--rc-k:412px;--rcb-k:412px;--rh-l:492px;--rc-l:412px;--rcb-l:412px;--rh-m:511px;--rc-m:431px;--rcb-m:431px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">readiness_score</span></span>
       <div><h2 class="comp-title"><a href="/components/run-queue">Run queue</a></h2><p class="comp-desc">Grouped tasks with live progress, retries and a compact view.</p></div>
@@ -9466,7 +9529,7 @@ body.ui section.faq{display:none}
   <div class="rq-list panel"></div>
 </div></template>
   </article>
-  <article class="comp" id="c27" data-soft data-v2="run-cost" data-reg="run-cost" style="--rh-a:420px;--rc-a:270px;--rcb-a:264px;--rh-b:420px;--rc-b:274px;--rcb-b:264px;--rh-c:420px;--rc-c:272px;--rcb-c:264px;--rh-d:420px;--rc-d:272px;--rcb-d:264px;--rh-e:420px;--rc-e:269px;--rcb-e:264px">
+  <article class="comp" id="c27" data-soft data-v2="run-cost" data-reg="run-cost" style="--rh-a:420px;--rc-a:265px;--rcb-a:264px;--rh-b:420px;--rc-b:265px;--rcb-b:264px;--rh-c:420px;--rc-c:265px;--rcb-c:264px;--rh-d:420px;--rc-d:265px;--rcb-d:264px;--rh-e:420px;--rc-e:265px;--rcb-e:264px;--rh-f:420px;--rc-f:265px;--rcb-f:264px;--rh-g:420px;--rc-g:265px;--rcb-g:264px;--rh-h:420px;--rc-h:265px;--rcb-h:264px;--rh-i:420px;--rc-i:265px;--rcb-i:264px;--rh-j:420px;--rc-j:265px;--rcb-j:264px;--rh-k:420px;--rc-k:265px;--rcb-k:264px;--rh-l:420px;--rc-l:265px;--rcb-l:264px;--rh-m:420px;--rc-m:265px;--rcb-m:264px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">bolt</span></span>
       <div><h2 class="comp-title"><a href="/components/run-cost">Run cost</a></h2><p class="comp-desc">Live credit and token spend, with a cap that pauses the run.</p></div>
@@ -9492,7 +9555,7 @@ body.ui section.faq{display:none}
   </div>
 </div></template>
   </article>
-  <article class="comp" id="c28" data-soft data-v2="toast-stack" data-reg="toast-stack" style="--rh-a:445px;--rc-a:333px;--rcb-a:328px;--rh-b:449px;--rc-b:337px;--rcb-b:328px;--rh-c:447px;--rc-c:335px;--rcb-c:328px;--rh-d:447px;--rc-d:335px;--rcb-d:328px;--rh-e:420px;--rc-e:332px;--rcb-e:328px">
+  <article class="comp" id="c28" data-soft data-v2="toast-stack" data-reg="toast-stack" style="--rh-a:440px;--rc-a:328px;--rcb-a:328px;--rh-b:440px;--rc-b:328px;--rcb-b:328px;--rh-c:440px;--rc-c:328px;--rcb-c:328px;--rh-d:440px;--rc-d:328px;--rcb-d:328px;--rh-e:440px;--rc-e:328px;--rcb-e:328px;--rh-f:440px;--rc-f:328px;--rcb-f:328px;--rh-g:440px;--rc-g:328px;--rcb-g:328px;--rh-h:440px;--rc-h:328px;--rcb-h:328px;--rh-i:440px;--rc-i:328px;--rcb-i:328px;--rh-j:420px;--rc-j:328px;--rcb-j:328px;--rh-k:420px;--rc-k:328px;--rcb-k:328px;--rh-l:420px;--rc-l:328px;--rcb-l:328px;--rh-m:420px;--rc-m:328px;--rcb-m:328px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">notifications</span></span>
       <div><h2 class="comp-title"><a href="/components/toast-stack">Toast stack</a></h2><p class="comp-desc">Agent notifications that stack and fan out on hover.</p></div>
@@ -9508,7 +9571,7 @@ body.ui section.faq{display:none}
   <div class="demo"><button class="pill soft sm tsk-add"><svg class="i s"><use href="#i-bell"/></svg>Send notification</button></div>
 </div></template>
   </article>
-  <article class="comp" data-soft id="c58" data-v2="toast" data-reg="toast" style="--rh-a:445px;--rc-a:333px;--rcb-a:328px;--rh-b:449px;--rc-b:337px;--rcb-b:328px;--rh-c:447px;--rc-c:335px;--rcb-c:328px;--rh-d:447px;--rc-d:335px;--rcb-d:328px;--rh-e:420px;--rc-e:332px;--rcb-e:328px">
+  <article class="comp" data-soft id="c58" data-v2="toast" data-reg="toast" style="--rh-a:440px;--rc-a:328px;--rcb-a:328px;--rh-b:440px;--rc-b:328px;--rcb-b:328px;--rh-c:440px;--rc-c:328px;--rcb-c:328px;--rh-d:440px;--rc-d:328px;--rcb-d:328px;--rh-e:440px;--rc-e:328px;--rcb-e:328px;--rh-f:440px;--rc-f:328px;--rcb-f:328px;--rh-g:440px;--rc-g:328px;--rcb-g:328px;--rh-h:440px;--rc-h:328px;--rcb-h:328px;--rh-i:440px;--rc-i:328px;--rcb-i:328px;--rh-j:420px;--rc-j:328px;--rcb-j:328px;--rh-k:420px;--rc-k:328px;--rcb-k:328px;--rh-l:420px;--rc-l:328px;--rcb-l:328px;--rh-m:420px;--rc-m:328px;--rcb-m:328px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">check_circle</span></span>
       <div><h2 class="comp-title"><a href="/components/toast">Toast</a></h2><p class="comp-desc">One notification that changes shape with its state.</p></div>
@@ -9529,7 +9592,7 @@ body.ui section.faq{display:none}
   <div class="demo"><div class="seg2" role="group" aria-label="State"><button aria-pressed="true" data-v="ok">Success</button><button aria-pressed="false" data-v="err">Error</button><button aria-pressed="false" data-v="info">Info</button><button aria-pressed="false" data-v="load">Loading</button></div></div>
 </div></template>
   </article>
-  <article class="comp" id="c22" data-soft data-v2="status-pill" data-reg="status-pill" style="--rh-a:445px;--rc-a:333px;--rcb-a:328px;--rh-b:449px;--rc-b:337px;--rcb-b:328px;--rh-c:447px;--rc-c:335px;--rcb-c:328px;--rh-d:447px;--rc-d:335px;--rcb-d:328px;--rh-e:420px;--rc-e:332px;--rcb-e:328px">
+  <article class="comp" id="c22" data-soft data-v2="status-pill" data-reg="status-pill" style="--rh-a:440px;--rc-a:328px;--rcb-a:328px;--rh-b:440px;--rc-b:328px;--rcb-b:328px;--rh-c:440px;--rc-c:328px;--rcb-c:328px;--rh-d:440px;--rc-d:328px;--rcb-d:328px;--rh-e:440px;--rc-e:328px;--rcb-e:328px;--rh-f:440px;--rc-f:328px;--rcb-f:328px;--rh-g:440px;--rc-g:328px;--rcb-g:328px;--rh-h:440px;--rc-h:328px;--rcb-h:328px;--rh-i:440px;--rc-i:328px;--rcb-i:328px;--rh-j:420px;--rc-j:328px;--rcb-j:328px;--rh-k:420px;--rc-k:328px;--rcb-k:328px;--rh-l:420px;--rc-l:328px;--rcb-l:328px;--rh-m:420px;--rc-m:328px;--rcb-m:328px">
     <div class="comp-head">
       <span class="ibox accent"><span class="ms">readiness_score</span></span>
       <div><h2 class="comp-title"><a href="/components/status-pill">Status pill</a></h2><p class="comp-desc">One live line for what the agent is doing right now.</p></div>
@@ -9550,7 +9613,7 @@ body.ui section.faq{display:none}
   <div class="demo"><div class="seg2" role="group" aria-label="Variant"><button aria-pressed="true" data-v="pill">Pill</button><button aria-pressed="false" data-v="bar">Bar</button></div></div>
 </div></template>
   </article>
-  <article class="comp" id="c1" data-soft data-v2="step-loader" data-reg="step-loader" style="--rh-a:466px;--rc-a:354px;--rcb-a:340px;--rh-b:466px;--rc-b:354px;--rcb-b:340px;--rh-c:466px;--rc-c:354px;--rcb-c:340px;--rh-d:466px;--rc-d:354px;--rcb-d:340px;--rh-e:434px;--rc-e:354px;--rcb-e:340px">
+  <article class="comp" id="c1" data-soft data-v2="step-loader" data-reg="step-loader" style="--rh-a:452px;--rc-a:340px;--rcb-a:340px;--rh-b:452px;--rc-b:340px;--rcb-b:340px;--rh-c:452px;--rc-c:340px;--rcb-c:340px;--rh-d:452px;--rc-d:340px;--rcb-d:340px;--rh-e:452px;--rc-e:340px;--rcb-e:340px;--rh-f:452px;--rc-f:340px;--rcb-f:340px;--rh-g:452px;--rc-g:340px;--rcb-g:340px;--rh-h:452px;--rc-h:340px;--rcb-h:340px;--rh-i:452px;--rc-i:340px;--rcb-i:340px;--rh-j:420px;--rc-j:340px;--rcb-j:340px;--rh-k:420px;--rc-k:340px;--rcb-k:340px;--rh-l:420px;--rc-l:340px;--rcb-l:340px;--rh-m:420px;--rc-m:340px;--rcb-m:340px">
     <div class="comp-head">
       <span class="ibox accent"><span class="ms">graphic_eq</span></span>
       <div><h2 class="comp-title"><a href="/components/step-loader">Step loader</a></h2><p class="comp-desc">Named steps with a progress track and four loaders.</p></div>
@@ -9586,7 +9649,7 @@ body.ui section.faq{display:none}
 <section class="lib-sec" id="s-review" data-grp="agent">
   <div class="sec-head"><div><span class="sec-no">03</span><h2>Review and approve</h2><p>Moments where a person checks, steers or signs off on the agent's work.</p></div></div>
   <div class="sec-body" id="s-review-body"><div class="sec-uf"><div class="grid">
-  <article class="comp wide" id="c11" data-soft data-v2="change-review" data-reg="change-review" style="--rh-a:454px;--rc-a:342px;--rcb-a:334px;--rh-b:451px;--rc-b:339px;--rcb-b:334px;--rh-c:449px;--rc-c:337px;--rcb-c:330px;--rh-d:561px;--rc-d:449px;--rcb-d:431px;--rh-e:529px;--rc-e:449px;--rcb-e:431px">
+  <article class="comp wide" id="c11" data-soft data-v2="change-review" data-reg="change-review" style="--rh-a:442px;--rc-a:330px;--rcb-a:330px;--rh-b:442px;--rc-b:330px;--rcb-b:330px;--rh-c:442px;--rc-c:330px;--rcb-c:330px;--rh-d:442px;--rc-d:330px;--rcb-d:330px;--rh-e:442px;--rc-e:330px;--rcb-e:330px;--rh-f:442px;--rc-f:330px;--rcb-f:330px;--rh-g:442px;--rc-g:330px;--rcb-g:330px;--rh-h:442px;--rc-h:330px;--rcb-h:330px;--rh-i:539px;--rc-i:427px;--rcb-i:427px;--rh-j:507px;--rc-j:427px;--rcb-j:427px;--rh-k:507px;--rc-k:427px;--rcb-k:427px;--rh-l:507px;--rc-l:427px;--rcb-l:427px;--rh-m:543px;--rc-m:463px;--rcb-m:463px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">grid_on</span></span>
       <div><h2 class="comp-title"><a href="/components/change-review">Change review</a></h2><p class="comp-desc">Accept or reject each change the agent made, file by file.</p></div>
@@ -9608,7 +9671,7 @@ body.ui section.faq{display:none}
   </div>
 </div></template>
   </article>
-  <article class="comp" id="c105" data-soft data-v2="plan-review" data-reg="plan-review" style="--rh-a:514px;--rc-a:402px;--rcb-a:402px;--rh-b:573px;--rc-b:461px;--rcb-b:461px;--rh-c:495px;--rc-c:383px;--rcb-c:383px;--rh-d:495px;--rc-d:383px;--rcb-d:383px;--rh-e:541px;--rc-e:461px;--rcb-e:461px">
+  <article class="comp" id="c105" data-soft data-v2="plan-review" data-reg="plan-review" style="--rh-a:514px;--rc-a:402px;--rcb-a:402px;--rh-b:573px;--rc-b:461px;--rcb-b:461px;--rh-c:495px;--rc-c:383px;--rcb-c:383px;--rh-d:495px;--rc-d:383px;--rcb-d:383px;--rh-e:495px;--rc-e:383px;--rcb-e:383px;--rh-f:495px;--rc-f:383px;--rcb-f:383px;--rh-g:495px;--rc-g:383px;--rcb-g:383px;--rh-h:495px;--rc-h:383px;--rcb-h:383px;--rh-i:495px;--rc-i:383px;--rcb-i:383px;--rh-j:463px;--rc-j:383px;--rcb-j:383px;--rh-k:482px;--rc-k:402px;--rcb-k:402px;--rh-l:541px;--rc-l:461px;--rcb-l:461px;--rh-m:541px;--rc-m:461px;--rcb-m:461px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">account_tree</span></span>
       <div><h2 class="comp-title"><a href="/components/plan-review">Plan review</a></h2><p class="comp-desc">Check the agent's plan, edit steps, then let it run.</p></div>
@@ -9626,7 +9689,7 @@ body.ui section.faq{display:none}
   <div class="plx-f"><span class="muted plx-n">Click a step to edit it</span><button class="pill ghost sm plx-chg">Ask for changes</button><button class="pill ink sm plx-go">Approve plan</button></div>
 </div></template>
   </article>
-  <article class="comp" id="c33" data-soft data-v2="permission-gate" data-reg="permission-gate" style="--rh-a:420px;--rc-a:307px;--rcb-a:301px;--rh-b:424px;--rc-b:312px;--rcb-b:301px;--rh-c:420px;--rc-c:307px;--rcb-c:301px;--rh-d:420px;--rc-d:307px;--rcb-d:301px;--rh-e:420px;--rc-e:312px;--rcb-e:301px">
+  <article class="comp" id="c33" data-soft data-v2="permission-gate" data-reg="permission-gate" style="--rh-a:420px;--rc-a:301px;--rcb-a:301px;--rh-b:420px;--rc-b:301px;--rcb-b:301px;--rh-c:420px;--rc-c:301px;--rcb-c:301px;--rh-d:420px;--rc-d:301px;--rcb-d:301px;--rh-e:420px;--rc-e:301px;--rcb-e:301px;--rh-f:420px;--rc-f:301px;--rcb-f:301px;--rh-g:420px;--rc-g:301px;--rcb-g:301px;--rh-h:420px;--rc-h:301px;--rcb-h:301px;--rh-i:420px;--rc-i:301px;--rcb-i:301px;--rh-j:420px;--rc-j:301px;--rcb-j:301px;--rh-k:420px;--rc-k:301px;--rcb-k:301px;--rh-l:420px;--rc-l:301px;--rcb-l:301px;--rh-m:420px;--rc-m:301px;--rcb-m:301px">
     <div class="comp-head">
       <span class="ibox accent"><span class="ms">lock</span></span>
       <div><h2 class="comp-title"><a href="/components/permission-gate">Permission gate</a></h2><p class="comp-desc">The agent asks before it touches something new.</p></div>
@@ -9652,7 +9715,7 @@ body.ui section.faq{display:none}
   </div>
 </div></template>
   </article>
-  <article class="comp" id="c4" data-soft data-v2="decision-prompt" data-reg="decision-prompt" style="--rh-a:420px;--rc-a:276px;--rcb-a:270px;--rh-b:420px;--rc-b:279px;--rcb-b:270px;--rh-c:420px;--rc-c:277px;--rcb-c:270px;--rh-d:420px;--rc-d:277px;--rcb-d:270px;--rh-e:420px;--rc-e:276px;--rcb-e:270px">
+  <article class="comp" id="c4" data-soft data-v2="decision-prompt" data-reg="decision-prompt" style="--rh-a:420px;--rc-a:270px;--rcb-a:270px;--rh-b:420px;--rc-b:270px;--rcb-b:270px;--rh-c:420px;--rc-c:270px;--rcb-c:270px;--rh-d:420px;--rc-d:270px;--rcb-d:270px;--rh-e:420px;--rc-e:270px;--rcb-e:270px;--rh-f:420px;--rc-f:270px;--rcb-f:270px;--rh-g:420px;--rc-g:270px;--rcb-g:270px;--rh-h:420px;--rc-h:270px;--rcb-h:270px;--rh-i:420px;--rc-i:270px;--rcb-i:270px;--rh-j:420px;--rc-j:270px;--rcb-j:270px;--rh-k:420px;--rc-k:270px;--rcb-k:270px;--rh-l:420px;--rc-l:270px;--rcb-l:270px;--rh-m:420px;--rc-m:270px;--rcb-m:270px">
     <div class="comp-head">
       <span class="ibox accent"><span class="ms">nearby_error</span></span>
       <div><h2 class="comp-title"><a href="/components/decision-prompt">Decision prompt</a></h2><p class="comp-desc">The agent asks a few quick questions before it starts.</p></div>
@@ -9669,7 +9732,7 @@ body.ui section.faq{display:none}
   <div class="dpx-f"><button class="pill ghost sm dpx-skip">Skip</button><button class="pill ink sm dpx-go">Continue <span class="kbd">↵</span></button></div>
 </div></template>
   </article>
-  <article class="comp" id="c9" data-soft data-v2="proposal-card" data-reg="proposal-card" style="--rh-a:420px;--rc-a:264px;--rcb-a:249px;--rh-b:420px;--rc-b:283px;--rcb-b:268px;--rh-c:420px;--rc-c:264px;--rcb-c:249px;--rh-d:420px;--rc-d:264px;--rcb-d:249px;--rh-e:420px;--rc-e:264px;--rcb-e:249px">
+  <article class="comp" id="c9" data-soft data-v2="proposal-card" data-reg="proposal-card" style="--rh-a:420px;--rc-a:250px;--rcb-a:249px;--rh-b:420px;--rc-b:269px;--rcb-b:268px;--rh-c:420px;--rc-c:250px;--rcb-c:249px;--rh-d:420px;--rc-d:250px;--rcb-d:249px;--rh-e:420px;--rc-e:250px;--rcb-e:249px;--rh-f:420px;--rc-f:250px;--rcb-f:249px;--rh-g:420px;--rc-g:250px;--rcb-g:249px;--rh-h:420px;--rc-h:250px;--rcb-h:249px;--rh-i:420px;--rc-i:250px;--rcb-i:249px;--rh-j:420px;--rc-j:250px;--rcb-j:249px;--rh-k:420px;--rc-k:250px;--rcb-k:249px;--rh-l:420px;--rc-l:250px;--rcb-l:249px;--rh-m:420px;--rc-m:290px;--rcb-m:289px">
     <div class="comp-head">
       <span class="ibox accent"><span class="ms">stars</span></span>
       <div><h2 class="comp-title"><a href="/components/proposal-card">Proposal card</a></h2><p class="comp-desc">A suggested change with confidence, alternatives and undo.</p></div>
@@ -9689,7 +9752,7 @@ body.ui section.faq{display:none}
   <div class="prx-f"><button class="pill ghost sm prx-no">Not now</button><button class="pill ink sm prx-ok">Accept</button></div>
 </div></template>
   </article>
-  <article class="comp wide" id="c19" data-soft data-v2="design-tuner" data-reg="design-tuner" style="--rh-a:426px;--rc-a:314px;--rcb-a:304px;--rh-b:426px;--rc-b:314px;--rcb-b:304px;--rh-c:690px;--rc-c:578px;--rcb-c:578px;--rh-d:690px;--rc-d:578px;--rcb-d:578px;--rh-e:676px;--rc-e:596px;--rcb-e:596px">
+  <article class="comp wide" id="c19" data-soft data-v2="design-tuner" data-reg="design-tuner" style="--rh-a:420px;--rc-a:300px;--rcb-a:300px;--rh-b:420px;--rc-b:300px;--rcb-b:300px;--rh-c:690px;--rc-c:578px;--rcb-c:578px;--rh-d:420px;--rc-d:300px;--rcb-d:300px;--rh-e:420px;--rc-e:300px;--rcb-e:300px;--rh-f:420px;--rc-f:300px;--rcb-f:300px;--rh-g:420px;--rc-g:300px;--rcb-g:300px;--rh-h:690px;--rc-h:578px;--rcb-h:578px;--rh-i:690px;--rc-i:578px;--rcb-i:578px;--rh-j:676px;--rc-j:596px;--rcb-j:596px;--rh-k:676px;--rc-k:596px;--rcb-k:596px;--rh-l:676px;--rc-l:596px;--rcb-l:596px;--rh-m:676px;--rc-m:596px;--rcb-m:596px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">tune</span></span>
       <div><h2 class="comp-title"><a href="/components/design-tuner">Design tuner</a></h2><p class="comp-desc">Tweak a component by hand or let the agent tune it.</p></div>
@@ -9714,7 +9777,7 @@ body.ui section.faq{display:none}
   </div>
 </div></template>
   </article>
-  <article class="comp" id="c20" data-soft data-v2="rewrite-toolbar" data-reg="rewrite-toolbar" style="--rh-a:420px;--rc-a:231px;--rcb-a:231px;--rh-b:420px;--rc-b:305px;--rcb-b:305px;--rh-c:420px;--rc-c:231px;--rcb-c:231px;--rh-d:420px;--rc-d:231px;--rcb-d:231px;--rh-e:420px;--rc-e:305px;--rcb-e:305px">
+  <article class="comp" id="c20" data-soft data-v2="rewrite-toolbar" data-reg="rewrite-toolbar" style="--rh-a:420px;--rc-a:231px;--rcb-a:231px;--rh-b:420px;--rc-b:305px;--rcb-b:305px;--rh-c:420px;--rc-c:231px;--rcb-c:231px;--rh-d:420px;--rc-d:231px;--rcb-d:231px;--rh-e:420px;--rc-e:231px;--rcb-e:231px;--rh-f:420px;--rc-f:231px;--rcb-f:231px;--rh-g:420px;--rc-g:231px;--rcb-g:231px;--rh-h:420px;--rc-h:231px;--rcb-h:231px;--rh-i:420px;--rc-i:231px;--rcb-i:231px;--rh-j:420px;--rc-j:231px;--rcb-j:231px;--rh-k:420px;--rc-k:256px;--rcb-k:256px;--rh-l:420px;--rc-l:305px;--rcb-l:305px;--rh-m:420px;--rc-m:329px;--rcb-m:329px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">edit_note</span></span>
       <div><h2 class="comp-title"><a href="/components/rewrite-toolbar">Rewrite toolbar</a></h2><p class="comp-desc">Select a sentence and let the agent rewrite it in place.</p></div>
@@ -9733,7 +9796,7 @@ body.ui section.faq{display:none}
   </div>
 </div></template>
   </article>
-  <article class="comp" id="c34" data-soft data-v2="launch-checklist" data-reg="launch-checklist" style="--rh-a:517px;--rc-a:405px;--rcb-a:405px;--rh-b:517px;--rc-b:405px;--rcb-b:405px;--rh-c:517px;--rc-c:405px;--rcb-c:405px;--rh-d:517px;--rc-d:405px;--rcb-d:405px;--rh-e:485px;--rc-e:405px;--rcb-e:405px">
+  <article class="comp" id="c34" data-soft data-v2="launch-checklist" data-reg="launch-checklist" style="--rh-a:517px;--rc-a:405px;--rcb-a:405px;--rh-b:517px;--rc-b:405px;--rcb-b:405px;--rh-c:517px;--rc-c:405px;--rcb-c:405px;--rh-d:517px;--rc-d:405px;--rcb-d:405px;--rh-e:517px;--rc-e:405px;--rcb-e:405px;--rh-f:517px;--rc-f:405px;--rcb-f:405px;--rh-g:517px;--rc-g:405px;--rcb-g:405px;--rh-h:517px;--rc-h:405px;--rcb-h:405px;--rh-i:517px;--rc-i:405px;--rcb-i:405px;--rh-j:485px;--rc-j:405px;--rcb-j:405px;--rh-k:485px;--rc-k:405px;--rcb-k:405px;--rh-l:485px;--rc-l:405px;--rcb-l:405px;--rh-m:485px;--rc-m:405px;--rcb-m:405px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">checklist</span></span>
       <div><h2 class="comp-title"><a href="/components/launch-checklist">Launch checklist</a></h2><p class="comp-desc">The agent checks a design before it ships, and fixes what fails.</p></div>
@@ -9750,7 +9813,7 @@ body.ui section.faq{display:none}
   <div class="lcx-list"></div>
 </div></template>
   </article>
-  <article class="comp" id="c120" data-soft data-v2="inline-text-diff" data-reg="inline-text-diff" style="--rh-a:420px;--rc-a:238px;--rcb-a:238px;--rh-b:420px;--rc-b:289px;--rcb-b:289px;--rh-c:420px;--rc-c:238px;--rcb-c:238px;--rh-d:420px;--rc-d:238px;--rcb-d:238px;--rh-e:420px;--rc-e:263px;--rcb-e:263px">
+  <article class="comp" id="c120" data-soft data-v2="inline-text-diff" data-reg="inline-text-diff">
     <div class="comp-head">
       <span class="ibox"><span class="ms">spellcheck</span></span>
       <div><h2 class="comp-title"><a href="/components/inline-text-diff">Inline text diff</a></h2><p class="comp-desc">The agent's edits to a piece of copy, accepted or rejected one by one.</p></div>
@@ -9771,7 +9834,7 @@ body.ui section.faq{display:none}
   </div>
 </div></template>
   </article>
-  <article class="comp" id="c121" data-soft data-v2="draft-review" data-reg="draft-review" style="--rh-a:611px;--rc-a:499px;--rcb-a:499px;--rh-b:706px;--rc-b:594px;--rcb-b:594px;--rh-c:626px;--rc-c:477px;--rcb-c:514px;--rh-d:631px;--rc-d:477px;--rcb-d:519px;--rh-e:651px;--rc-e:571px;--rcb-e:571px">
+  <article class="comp" id="c121" data-soft data-v2="draft-review" data-reg="draft-review">
     <div class="comp-head">
       <span class="ibox"><span class="ms">alternate_email</span></span>
       <div><h2 class="comp-title"><a href="/components/draft-review">Draft review</a></h2><p class="comp-desc">An email the agent drafted, to check and edit before it sends.</p></div>
@@ -9802,7 +9865,7 @@ body.ui section.faq{display:none}
   </div>
 </div></template>
   </article>
-  <article class="comp" id="c116" data-soft data-v2="steering" data-reg="steering" style="--rh-a:678px;--rc-a:566px;--rcb-a:566px;--rh-b:697px;--rc-b:585px;--rcb-b:585px;--rh-c:678px;--rc-c:566px;--rcb-c:566px;--rh-d:678px;--rc-d:566px;--rcb-d:566px;--rh-e:665px;--rc-e:585px;--rcb-e:585px">
+  <article class="comp" id="c116" data-soft data-v2="steering" data-reg="steering">
     <div class="comp-head">
       <span class="ibox"><span class="ms">shuffle</span></span>
       <div><h2 class="comp-title"><a href="/components/steering">Steering</a></h2><p class="comp-desc">Change the agent's course while it works, without starting over.</p></div>
@@ -9820,7 +9883,7 @@ body.ui section.faq{display:none}
   <form class="ste-box"><input placeholder="Steer the agent while it works" aria-label="Message the agent" spellcheck="false" autocomplete="off"><button class="ste-go" aria-label="Send" disabled>{up}</button></form>
 </div></template>
   </article>
-  <article class="comp" id="c117" data-soft data-v2="eval-results" data-reg="eval-results" style="--rh-a:606px;--rc-a:494px;--rcb-a:478px;--rh-b:628px;--rc-b:513px;--rcb-b:516px;--rh-c:606px;--rc-c:494px;--rcb-c:478px;--rh-d:606px;--rc-d:494px;--rcb-d:478px;--rh-e:593px;--rc-e:513px;--rcb-e:497px">
+  <article class="comp" id="c117" data-soft data-v2="eval-results" data-reg="eval-results">
     <div class="comp-head">
       <span class="ibox"><span class="ms">readiness_score</span></span>
       <div><h2 class="comp-title"><a href="/components/eval-results">Eval results</a></h2><p class="comp-desc">An eval run case by case, against the run before.</p></div>
@@ -9839,7 +9902,7 @@ body.ui section.faq{display:none}
   <p class="evr-none" hidden>No failed cases</p>
 </div></template>
   </article>
-  <article class="comp wide" id="c111" data-soft data-v2="design-review" data-reg="design-review" style="--rh-a:420px;--rc-a:303px;--rcb-a:295px;--rh-b:420px;--rc-b:303px;--rcb-b:295px;--rh-c:532px;--rc-c:420px;--rcb-c:420px;--rh-d:532px;--rc-d:420px;--rcb-d:420px;--rh-e:536px;--rc-e:456px;--rcb-e:456px">
+  <article class="comp wide" id="c111" data-soft data-v2="design-review" data-reg="design-review" style="--rh-a:420px;--rc-a:295px;--rcb-a:295px;--rh-b:420px;--rc-b:295px;--rcb-b:295px;--rh-c:532px;--rc-c:420px;--rcb-c:420px;--rh-d:420px;--rc-d:295px;--rcb-d:295px;--rh-e:420px;--rc-e:295px;--rcb-e:295px;--rh-f:420px;--rc-f:295px;--rcb-f:295px;--rh-g:420px;--rc-g:295px;--rcb-g:295px;--rh-h:532px;--rc-h:420px;--rcb-h:420px;--rh-i:532px;--rc-i:420px;--rcb-i:420px;--rh-j:500px;--rc-j:420px;--rcb-j:420px;--rh-k:518px;--rc-k:438px;--rcb-k:438px;--rh-l:536px;--rc-l:456px;--rcb-l:456px;--rh-m:546px;--rc-m:466px;--rcb-m:466px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">group</span></span>
       <div><h2 class="comp-title"><a href="/components/design-review">Design review</a></h2><p class="comp-desc">Checks run, a teammate asks for a change, the agent makes it, and you ship.</p></div>
@@ -9872,7 +9935,7 @@ body.ui section.faq{display:none}
 <section class="lib-sec" id="s-data" data-grp="agent">
   <div class="sec-head"><div><span class="sec-no">04</span><h2>Sources and output</h2><p>What the agent read, what it produced and where each answer came from.</p></div></div>
   <div class="sec-body" id="s-data-body"><div class="sec-uf"><div class="grid">
-  <article class="comp wide" id="c18" data-soft data-v2="code-viewer" data-reg="code-viewer" style="--rh-a:457px;--rc-a:345px;--rcb-a:345px;--rh-b:457px;--rc-b:345px;--rcb-b:345px;--rh-c:476px;--rc-c:364px;--rcb-c:364px;--rh-d:476px;--rc-d:364px;--rcb-d:364px;--rh-e:462px;--rc-e:382px;--rcb-e:382px">
+  <article class="comp wide" id="c18" data-soft data-v2="code-viewer" data-reg="code-viewer" style="--rh-a:457px;--rc-a:345px;--rcb-a:345px;--rh-b:457px;--rc-b:345px;--rcb-b:345px;--rh-c:476px;--rc-c:364px;--rcb-c:364px;--rh-d:457px;--rc-d:345px;--rcb-d:345px;--rh-e:476px;--rc-e:364px;--rcb-e:364px;--rh-f:476px;--rc-f:364px;--rcb-f:364px;--rh-g:476px;--rc-g:364px;--rcb-g:364px;--rh-h:476px;--rc-h:364px;--rcb-h:364px;--rh-i:476px;--rc-i:364px;--rcb-i:364px;--rh-j:444px;--rc-j:364px;--rcb-j:364px;--rh-k:462px;--rc-k:382px;--rcb-k:382px;--rh-l:462px;--rc-l:382px;--rcb-l:382px;--rh-m:481px;--rc-m:401px;--rcb-m:401px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">code</span></span>
       <div><h2 class="comp-title"><a href="/components/code-viewer">Code viewer</a></h2><p class="comp-desc">Code the agent wrote, with line notes you can ask about.</p></div>
@@ -9888,7 +9951,7 @@ body.ui section.faq{display:none}
   <div class="cvx-body"><pre class="cvx-code"></pre></div>
 </div></template>
   </article>
-  <article class="comp" data-soft id="c68" data-v2="citation-hover" data-reg="citation-hover-card" style="--rh-a:420px;--rc-a:256px;--rcb-a:251px;--rh-b:422px;--rc-b:310px;--rcb-b:302px;--rh-c:420px;--rc-c:257px;--rcb-c:251px;--rh-d:420px;--rc-d:257px;--rcb-d:251px;--rh-e:420px;--rc-e:280px;--rcb-e:276px">
+  <article class="comp" data-soft id="c68" data-v2="citation-hover" data-reg="citation-hover-card" style="--rh-a:420px;--rc-a:251px;--rcb-a:251px;--rh-b:420px;--rc-b:302px;--rcb-b:302px;--rh-c:420px;--rc-c:251px;--rcb-c:251px;--rh-d:420px;--rc-d:251px;--rcb-d:251px;--rh-e:420px;--rc-e:251px;--rcb-e:251px;--rh-f:420px;--rc-f:251px;--rcb-f:251px;--rh-g:420px;--rc-g:251px;--rcb-g:251px;--rh-h:420px;--rc-h:251px;--rcb-h:251px;--rh-i:420px;--rc-i:251px;--rcb-i:251px;--rh-j:420px;--rc-j:251px;--rcb-j:251px;--rh-k:420px;--rc-k:276px;--rcb-k:276px;--rh-l:420px;--rc-l:276px;--rcb-l:276px;--rh-m:420px;--rc-m:302px;--rcb-m:302px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">link</span></span>
       <div><h2 class="comp-title"><a href="/components/citation-hover-card">Citation hover card</a></h2><p class="comp-desc">Hover a citation to see the exact passage it came from.</p></div>
@@ -9904,7 +9967,7 @@ body.ui section.faq{display:none}
   <div class="chx-card panel keep" role="dialog" aria-label="Source"><div class="chx-in"></div></div>
 </div></template>
   </article>
-  <article class="comp" id="c10" data-soft data-v2="source-stack" data-reg="source-stack" style="--rh-a:565px;--rc-a:453px;--rcb-a:453px;--rh-b:588px;--rc-b:476px;--rcb-b:476px;--rh-c:565px;--rc-c:453px;--rcb-c:453px;--rh-d:565px;--rc-d:453px;--rcb-d:453px;--rh-e:556px;--rc-e:476px;--rcb-e:476px">
+  <article class="comp" id="c10" data-soft data-v2="source-stack" data-reg="source-stack" style="--rh-a:565px;--rc-a:453px;--rcb-a:453px;--rh-b:588px;--rc-b:476px;--rcb-b:476px;--rh-c:565px;--rc-c:453px;--rcb-c:453px;--rh-d:565px;--rc-d:453px;--rcb-d:453px;--rh-e:565px;--rc-e:453px;--rcb-e:453px;--rh-f:565px;--rc-f:453px;--rcb-f:453px;--rh-g:565px;--rc-g:453px;--rcb-g:453px;--rh-h:565px;--rc-h:453px;--rcb-h:453px;--rh-i:565px;--rc-i:453px;--rcb-i:453px;--rh-j:533px;--rc-j:453px;--rcb-j:453px;--rh-k:533px;--rc-k:453px;--rcb-k:453px;--rh-l:556px;--rc-l:476px;--rcb-l:476px;--rh-m:556px;--rc-m:476px;--rcb-m:476px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">description</span></span>
       <div><h2 class="comp-title"><a href="/components/source-stack">Source stack</a></h2><p class="comp-desc">Everything the agent read, folded into one quiet pill.</p></div>
@@ -9924,7 +9987,7 @@ body.ui section.faq{display:none}
   </div></div></div>
 </div></template>
   </article>
-  <article class="comp wide" id="c36" data-soft data-v2="field-extraction" data-reg="field-extraction" style="--rh-a:463px;--rc-a:351px;--rcb-a:351px;--rh-b:463px;--rc-b:351px;--rcb-b:351px;--rh-c:628px;--rc-c:516px;--rcb-c:516px;--rh-d:677px;--rc-d:565px;--rcb-d:565px;--rh-e:645px;--rc-e:565px;--rcb-e:565px">
+  <article class="comp wide" id="c36" data-soft data-v2="field-extraction" data-reg="field-extraction" style="--rh-a:463px;--rc-a:351px;--rcb-a:351px;--rh-b:463px;--rc-b:351px;--rcb-b:351px;--rh-c:628px;--rc-c:516px;--rcb-c:516px;--rh-d:463px;--rc-d:351px;--rcb-d:351px;--rh-e:463px;--rc-e:351px;--rcb-e:351px;--rh-f:463px;--rc-f:351px;--rcb-f:351px;--rh-g:463px;--rc-g:351px;--rcb-g:351px;--rh-h:517px;--rc-h:405px;--rcb-h:405px;--rh-i:677px;--rc-i:565px;--rcb-i:565px;--rh-j:645px;--rc-j:565px;--rcb-j:565px;--rh-k:645px;--rc-k:565px;--rcb-k:565px;--rh-l:645px;--rc-l:565px;--rcb-l:565px;--rh-m:645px;--rc-m:565px;--rcb-m:565px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">document_scanner</span></span>
       <div><h2 class="comp-title"><a href="/components/field-extraction">Field extraction</a></h2><p class="comp-desc">The agent pulls fields out of a document and shows where each came from.</p></div>
@@ -9957,7 +10020,7 @@ body.ui section.faq{display:none}
   </div>
 </div></template>
   </article>
-  <article class="comp" id="c17" data-soft data-v2="metric-insight" data-reg="metric-insight" style="--rh-a:420px;--rc-a:271px;--rcb-a:266px;--rh-b:420px;--rc-b:294px;--rcb-b:286px;--rh-c:420px;--rc-c:273px;--rcb-c:266px;--rh-d:420px;--rc-d:273px;--rcb-d:266px;--rh-e:420px;--rc-e:290px;--rcb-e:286px">
+  <article class="comp" id="c17" data-soft data-v2="metric-insight" data-reg="metric-insight" style="--rh-a:420px;--rc-a:267px;--rcb-a:266px;--rh-b:420px;--rc-b:286px;--rcb-b:286px;--rh-c:420px;--rc-c:267px;--rcb-c:266px;--rh-d:420px;--rc-d:267px;--rcb-d:266px;--rh-e:420px;--rc-e:267px;--rcb-e:266px;--rh-f:420px;--rc-f:267px;--rcb-f:266px;--rh-g:420px;--rc-g:267px;--rcb-g:266px;--rh-h:420px;--rc-h:267px;--rcb-h:266px;--rh-i:420px;--rc-i:267px;--rcb-i:266px;--rh-j:420px;--rc-j:267px;--rcb-j:266px;--rh-k:420px;--rc-k:267px;--rcb-k:266px;--rh-l:420px;--rc-l:286px;--rcb-l:286px;--rh-m:420px;--rc-m:286px;--rcb-m:286px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">trending_up</span></span>
       <div><h2 class="comp-title"><a href="/components/metric-insight">Metric insight</a></h2><p class="comp-desc">A number, its trend, and the agent's read on why it moved.</p></div>
@@ -9977,7 +10040,7 @@ body.ui section.faq{display:none}
   <div class="fold shut mix-box"><div><div class="mix-rs"></div></div></div>
 </div></template>
   </article>
-  <article class="comp" data-soft id="c66" data-v2="details-panel" data-reg="details-panel" style="--rh-a:528px;--rc-a:416px;--rcb-a:406px;--rh-b:528px;--rc-b:416px;--rcb-b:406px;--rh-c:528px;--rc-c:416px;--rcb-c:406px;--rh-d:528px;--rc-d:416px;--rcb-d:406px;--rh-e:496px;--rc-e:416px;--rcb-e:406px">
+  <article class="comp" data-soft id="c66" data-v2="details-panel" data-reg="details-panel" style="--rh-a:518px;--rc-a:406px;--rcb-a:406px;--rh-b:518px;--rc-b:406px;--rcb-b:406px;--rh-c:518px;--rc-c:406px;--rcb-c:406px;--rh-d:518px;--rc-d:406px;--rcb-d:406px;--rh-e:518px;--rc-e:406px;--rcb-e:406px;--rh-f:518px;--rc-f:406px;--rcb-f:406px;--rh-g:518px;--rc-g:406px;--rcb-g:406px;--rh-h:518px;--rc-h:406px;--rcb-h:406px;--rh-i:518px;--rc-i:406px;--rcb-i:406px;--rh-j:486px;--rc-j:406px;--rcb-j:406px;--rh-k:486px;--rc-k:406px;--rcb-k:406px;--rh-l:486px;--rc-l:406px;--rcb-l:406px;--rh-m:486px;--rc-m:406px;--rcb-m:406px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">dashboard</span></span>
       <div><h2 class="comp-title"><a href="/components/details-panel">Details panel</a></h2><p class="comp-desc">Properties of a run you can change in place.</p></div>
@@ -10013,7 +10076,7 @@ body.ui section.faq{display:none}
   </div>
 </div></template>
   </article>
-  <article class="comp wide" id="c13" data-soft data-v2="task-table" data-reg="task-table" style="--rh-a:494px;--rc-a:382px;--rcb-a:366px;--rh-b:494px;--rc-b:382px;--rcb-b:366px;--rh-c:494px;--rc-c:382px;--rcb-c:366px;--rh-d:494px;--rc-d:382px;--rcb-d:366px;--rh-e:462px;--rc-e:382px;--rcb-e:366px">
+  <article class="comp wide" id="c13" data-soft data-v2="task-table" data-reg="task-table" style="--rh-a:474px;--rc-a:362px;--rcb-a:362px;--rh-b:474px;--rc-b:362px;--rcb-b:362px;--rh-c:474px;--rc-c:362px;--rcb-c:362px;--rh-d:475px;--rc-d:362px;--rcb-d:363px;--rh-e:474px;--rc-e:362px;--rcb-e:362px;--rh-f:474px;--rc-f:362px;--rcb-f:362px;--rh-g:475px;--rc-g:363px;--rcb-g:362px;--rh-h:474px;--rc-h:362px;--rcb-h:362px;--rh-i:474px;--rc-i:362px;--rcb-i:362px;--rh-j:442px;--rc-j:362px;--rcb-j:362px;--rh-k:443px;--rc-k:362px;--rcb-k:363px;--rh-l:442px;--rc-l:362px;--rcb-l:362px;--rh-m:442px;--rc-m:362px;--rcb-m:362px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">filter_list</span></span>
       <div><h2 class="comp-title"><a href="/components/task-table">Task table</a></h2><p class="comp-desc">Agent tasks in a sortable table with bulk actions.</p></div>
@@ -10040,7 +10103,7 @@ body.ui section.faq{display:none}
 <section class="lib-sec" id="s-workspace" data-grp="agent">
   <div class="sec-head"><div><span class="sec-no">05</span><h2>Workspace</h2><p>Navigation, search, settings, models and automations around the agent.</p></div></div>
   <div class="sec-body" id="s-workspace-body"><div class="sec-uf"><div class="grid">
-  <article class="comp wide" id="c16" data-soft data-v2="automation-canvas" data-reg="automation-canvas" style="--rh-a:464px;--rc-a:352px;--rcb-a:338px;--rh-b:464px;--rc-b:352px;--rcb-b:338px;--rh-c:464px;--rc-c:352px;--rcb-c:338px;--rh-d:584px;--rc-d:472px;--rcb-d:458px;--rh-e:580px;--rc-e:500px;--rcb-e:486px">
+  <article class="comp wide" id="c16" data-soft data-v2="automation-canvas" data-reg="automation-canvas" style="--rh-a:450px;--rc-a:338px;--rcb-a:338px;--rh-b:450px;--rc-b:338px;--rcb-b:338px;--rh-c:450px;--rc-c:338px;--rcb-c:338px;--rh-d:450px;--rc-d:338px;--rcb-d:338px;--rh-e:450px;--rc-e:338px;--rcb-e:338px;--rh-f:450px;--rc-f:338px;--rcb-f:338px;--rh-g:450px;--rc-g:338px;--rcb-g:338px;--rh-h:450px;--rc-h:338px;--rcb-h:338px;--rh-i:570px;--rc-i:458px;--rcb-i:458px;--rh-j:538px;--rc-j:458px;--rcb-j:458px;--rh-k:566px;--rc-k:486px;--rcb-k:486px;--rh-l:566px;--rc-l:486px;--rcb-l:486px;--rh-m:566px;--rc-m:486px;--rcb-m:486px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">account_tree</span></span>
       <div><h2 class="comp-title"><a href="/components/automation-canvas">Automation canvas</a></h2><p class="comp-desc">A trigger, a few agent steps, and a run you can watch flow through.</p></div>
@@ -10060,7 +10123,7 @@ body.ui section.faq{display:none}
   </div>
 </div></template>
   </article>
-  <article class="comp" id="c15" data-soft data-v2="command-palette" data-reg="command-palette" style="--rh-a:594px;--rc-a:482px;--rcb-a:467px;--rh-b:594px;--rc-b:482px;--rcb-b:466px;--rh-c:594px;--rc-c:482px;--rcb-c:469px;--rh-d:594px;--rc-d:482px;--rcb-d:468px;--rh-e:562px;--rc-e:482px;--rcb-e:466px">
+  <article class="comp" id="c15" data-soft data-v2="command-palette" data-reg="command-palette" style="--rh-a:578px;--rc-a:466px;--rcb-a:466px;--rh-b:578px;--rc-b:466px;--rcb-b:466px;--rh-c:578px;--rc-c:466px;--rcb-c:466px;--rh-d:578px;--rc-d:466px;--rcb-d:466px;--rh-e:578px;--rc-e:466px;--rcb-e:466px;--rh-f:578px;--rc-f:466px;--rcb-f:466px;--rh-g:578px;--rc-g:466px;--rcb-g:466px;--rh-h:578px;--rc-h:466px;--rcb-h:466px;--rh-i:578px;--rc-i:466px;--rcb-i:466px;--rh-j:546px;--rc-j:466px;--rcb-j:466px;--rh-k:546px;--rc-k:466px;--rcb-k:466px;--rh-l:546px;--rc-l:466px;--rcb-l:466px;--rh-m:546px;--rc-m:466px;--rcb-m:466px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">search</span></span>
       <div><h2 class="comp-title"><a href="/components/command-palette">Command palette</a></h2><p class="comp-desc">Jump anywhere or hand a task to the agent from one box.</p></div>
@@ -10077,7 +10140,7 @@ body.ui section.faq{display:none}
   <div class="cpl-f muted"><span><span class="kbd">↑</span><span class="kbd">↓</span> move</span><span><span class="kbd">↵</span> run</span><span class="cpl-st"></span></div>
 </div></template>
   </article>
-  <article class="comp" data-soft id="c69" data-v2="memory-panel" data-reg="memory-panel" style="--rh-a:605px;--rc-a:493px;--rcb-a:493px;--rh-b:722px;--rc-b:610px;--rcb-b:610px;--rh-c:605px;--rc-c:493px;--rcb-c:493px;--rh-d:605px;--rc-d:493px;--rcb-d:493px;--rh-e:690px;--rc-e:610px;--rcb-e:610px">
+  <article class="comp" data-soft id="c69" data-v2="memory-panel" data-reg="memory-panel" style="--rh-a:605px;--rc-a:493px;--rcb-a:493px;--rh-b:722px;--rc-b:610px;--rcb-b:610px;--rh-c:605px;--rc-c:493px;--rcb-c:493px;--rh-d:605px;--rc-d:493px;--rcb-d:493px;--rh-e:605px;--rc-e:493px;--rcb-e:493px;--rh-f:605px;--rc-f:493px;--rcb-f:493px;--rh-g:605px;--rc-g:493px;--rcb-g:493px;--rh-h:605px;--rc-h:493px;--rcb-h:493px;--rh-i:605px;--rc-i:493px;--rcb-i:493px;--rh-j:573px;--rc-j:493px;--rcb-j:493px;--rh-k:651px;--rc-k:571px;--rcb-k:571px;--rh-l:690px;--rc-l:610px;--rcb-l:610px;--rh-m:729px;--rc-m:649px;--rcb-m:649px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">history</span></span>
       <div><h2 class="comp-title"><a href="/components/memory-panel">Memory panel</a></h2><p class="comp-desc">What the agent remembers about your team, editable and removable.</p></div>
@@ -10093,7 +10156,7 @@ body.ui section.faq{display:none}
   <div class="mmx-list"></div>
 </div></template>
   </article>
-  <article class="comp wide" data-soft id="c71" data-v2="model-compare" data-reg="model-compare" style="--rh-a:436px;--rc-a:324px;--rcb-a:316px;--rh-b:436px;--rc-b:324px;--rcb-b:316px;--rh-c:489px;--rc-c:377px;--rcb-c:377px;--rh-d:960px;--rc-d:848px;--rcb-d:833px;--rh-e:928px;--rc-e:848px;--rcb-e:832px">
+  <article class="comp wide" data-soft id="c71" data-v2="model-compare" data-reg="model-compare" style="--rh-a:428px;--rc-a:316px;--rcb-a:316px;--rh-b:428px;--rc-b:316px;--rcb-b:316px;--rh-c:489px;--rc-c:377px;--rcb-c:377px;--rh-d:428px;--rc-d:316px;--rcb-d:316px;--rh-e:428px;--rc-e:316px;--rcb-e:316px;--rh-f:428px;--rc-f:316px;--rcb-f:316px;--rh-g:428px;--rc-g:316px;--rcb-g:316px;--rh-h:447px;--rc-h:335px;--rcb-h:335px;--rh-i:944px;--rc-i:832px;--rcb-i:832px;--rh-j:912px;--rc-j:832px;--rcb-j:832px;--rh-k:912px;--rc-k:832px;--rcb-k:832px;--rh-l:912px;--rc-l:832px;--rcb-l:832px;--rh-m:912px;--rc-m:832px;--rcb-m:832px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">splitscreen</span></span>
       <div><h2 class="comp-title"><a href="/components/model-compare">Model compare</a></h2><p class="comp-desc">Run one prompt on three models side by side and keep the best.</p></div>
@@ -10109,7 +10172,7 @@ body.ui section.faq{display:none}
   <form class="mcx-in"><input class="mcx-q" value="Write a one line value prop for the Pro plan" aria-label="Prompt for every model" spellcheck="false"><span class="mcx-n muted">Sends to 3 models</span><button class="mcx-go" aria-label="Send to every model" data-tip="Send to every model" data-tip-k="↵">{up}</button></form>
 </div></template>
   </article>
-  <article class="comp" id="c38" data-soft data-v2="agent-settings" data-reg="agent-settings" style="--rh-a:587px;--rc-a:475px;--rcb-a:465px;--rh-b:605px;--rc-b:493px;--rcb-b:483px;--rh-c:587px;--rc-c:475px;--rcb-c:465px;--rh-d:587px;--rc-d:475px;--rcb-d:465px;--rh-e:573px;--rc-e:493px;--rcb-e:483px">
+  <article class="comp" id="c38" data-soft data-v2="agent-settings" data-reg="agent-settings" style="--rh-a:577px;--rc-a:465px;--rcb-a:465px;--rh-b:595px;--rc-b:483px;--rcb-b:483px;--rh-c:577px;--rc-c:465px;--rcb-c:465px;--rh-d:577px;--rc-d:465px;--rcb-d:465px;--rh-e:577px;--rc-e:465px;--rcb-e:465px;--rh-f:577px;--rc-f:465px;--rcb-f:465px;--rh-g:577px;--rc-g:465px;--rcb-g:465px;--rh-h:577px;--rc-h:465px;--rcb-h:465px;--rh-i:577px;--rc-i:465px;--rcb-i:465px;--rh-j:545px;--rc-j:465px;--rcb-j:465px;--rh-k:545px;--rc-k:465px;--rcb-k:465px;--rh-l:563px;--rc-l:483px;--rcb-l:483px;--rh-m:563px;--rc-m:483px;--rcb-m:483px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">settings</span></span>
       <div><h2 class="comp-title"><a href="/components/agent-settings">Agent settings</a></h2><p class="comp-desc">How much the agent may do alone, with a save bar for changes.</p></div>
@@ -10130,7 +10193,7 @@ body.ui section.faq{display:none}
   <div class="asx-bar"><span>Unsaved changes</span><button class="pill ghost sm asx-rs">Reset</button><button class="pill accent sm asx-sv">Save</button></div>
 </div></template>
   </article>
-  <article class="comp" id="c110" data-soft data-v2="tool-connections" data-reg="tool-connections" style="--rh-a:499px;--rc-a:387px;--rcb-a:382px;--rh-b:502px;--rc-b:390px;--rcb-b:382px;--rh-c:500px;--rc-c:388px;--rcb-c:382px;--rh-d:500px;--rc-d:388px;--rcb-d:382px;--rh-e:466px;--rc-e:386px;--rcb-e:382px">
+  <article class="comp" id="c110" data-soft data-v2="tool-connections" data-reg="tool-connections" style="--rh-a:494px;--rc-a:382px;--rcb-a:382px;--rh-b:494px;--rc-b:382px;--rcb-b:382px;--rh-c:494px;--rc-c:382px;--rcb-c:382px;--rh-d:494px;--rc-d:382px;--rcb-d:382px;--rh-e:494px;--rc-e:382px;--rcb-e:382px;--rh-f:494px;--rc-f:382px;--rcb-f:382px;--rh-g:494px;--rc-g:382px;--rcb-g:382px;--rh-h:494px;--rc-h:382px;--rcb-h:382px;--rh-i:494px;--rc-i:382px;--rcb-i:382px;--rh-j:462px;--rc-j:382px;--rcb-j:382px;--rh-k:462px;--rc-k:382px;--rcb-k:382px;--rh-l:462px;--rc-l:382px;--rcb-l:382px;--rh-m:502px;--rc-m:422px;--rcb-m:422px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">link</span></span>
       <div><h2 class="comp-title"><a href="/components/tool-connections">Tools and connections</a></h2><p class="comp-desc">The tools the agent can reach, and how much it may do with each.</p></div>
@@ -10148,7 +10211,7 @@ body.ui section.faq{display:none}
   <div class="pop hnx-pop" role="menu"></div>
 </div></template>
   </article>
-  <article class="comp" id="c39" data-soft data-v2="file-explorer" data-reg="file-explorer" style="--rh-a:565px;--rc-a:453px;--rcb-a:441px;--rh-b:565px;--rc-b:453px;--rcb-b:439px;--rh-c:565px;--rc-c:453px;--rcb-c:442px;--rh-d:565px;--rc-d:453px;--rcb-d:441px;--rh-e:533px;--rc-e:453px;--rcb-e:439px">
+  <article class="comp" id="c39" data-soft data-v2="file-explorer" data-reg="file-explorer" style="--rh-a:550px;--rc-a:438px;--rcb-a:438px;--rh-b:550px;--rc-b:438px;--rcb-b:438px;--rh-c:550px;--rc-c:438px;--rcb-c:438px;--rh-d:550px;--rc-d:438px;--rcb-d:438px;--rh-e:550px;--rc-e:438px;--rcb-e:438px;--rh-f:550px;--rc-f:438px;--rcb-f:438px;--rh-g:550px;--rc-g:438px;--rcb-g:438px;--rh-h:550px;--rc-h:438px;--rcb-h:438px;--rh-i:550px;--rc-i:438px;--rcb-i:438px;--rh-j:518px;--rc-j:438px;--rcb-j:438px;--rh-k:518px;--rc-k:438px;--rcb-k:438px;--rh-l:518px;--rc-l:438px;--rcb-l:438px;--rh-m:518px;--rc-m:438px;--rcb-m:438px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">folder</span></span>
       <div><h2 class="comp-title"><a href="/components/file-explorer">File explorer</a></h2><p class="comp-desc">Project files, with the ones the agent touched marked.</p></div>
@@ -10165,7 +10228,7 @@ body.ui section.faq{display:none}
   <div class="fxp-f muted"><span class="fxp-st"></span></div>
 </div></template>
   </article>
-  <article class="comp" id="c14" data-soft data-v2="workspace-rail" data-reg="workspace-rail" style="--rh-a:543px;--rc-a:431px;--rcb-a:431px;--rh-b:543px;--rc-b:431px;--rcb-b:431px;--rh-c:543px;--rc-c:431px;--rcb-c:431px;--rh-d:543px;--rc-d:431px;--rcb-d:431px;--rh-e:511px;--rc-e:431px;--rcb-e:431px">
+  <article class="comp" id="c14" data-soft data-v2="workspace-rail" data-reg="workspace-rail" style="--rh-a:543px;--rc-a:431px;--rcb-a:431px;--rh-b:543px;--rc-b:431px;--rcb-b:431px;--rh-c:543px;--rc-c:431px;--rcb-c:431px;--rh-d:543px;--rc-d:431px;--rcb-d:431px;--rh-e:543px;--rc-e:431px;--rcb-e:431px;--rh-f:543px;--rc-f:431px;--rcb-f:431px;--rh-g:543px;--rc-g:431px;--rcb-g:431px;--rh-h:543px;--rc-h:431px;--rcb-h:431px;--rh-i:543px;--rc-i:431px;--rcb-i:431px;--rh-j:511px;--rc-j:431px;--rcb-j:431px;--rh-k:511px;--rc-k:431px;--rcb-k:431px;--rh-l:511px;--rc-l:431px;--rcb-l:431px;--rh-m:511px;--rc-m:431px;--rcb-m:431px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">view_sidebar</span></span>
       <div><h2 class="comp-title"><a href="/components/workspace-rail">Workspace rail</a></h2><p class="comp-desc">A slim app rail that opens into a labelled sidebar.</p></div>
@@ -10193,7 +10256,7 @@ body.ui section.faq{display:none}
 <section class="lib-sec" id="s-harness" data-grp="agent">
   <div class="sec-head"><div><span class="sec-no">06</span><h2>Harness</h2><p>A live agent conversation built only from the components above. Pick a starter and watch them work together.</p></div></div>
   <div class="sec-body" id="s-harness-body"><div class="sec-uf"><div class="grid">
-  <article class="comp wide" data-soft id="c99" data-v2="harness" data-reg="agent-harness" style="--rh-a:754px;--rc-a:642px;--rcb-a:624px;--rh-b:754px;--rc-b:642px;--rcb-b:624px;--rh-c:754px;--rc-c:642px;--rcb-c:624px;--rh-d:754px;--rc-d:642px;--rcb-d:624px;--rh-e:722px;--rc-e:642px;--rcb-e:624px">
+  <article class="comp wide" data-soft id="c99" data-v2="harness" data-reg="agent-harness" style="--rh-a:732px;--rc-a:620px;--rcb-a:620px;--rh-b:732px;--rc-b:620px;--rcb-b:620px;--rh-c:732px;--rc-c:620px;--rcb-c:620px;--rh-d:732px;--rc-d:620px;--rcb-d:620px;--rh-e:732px;--rc-e:620px;--rcb-e:620px;--rh-f:732px;--rc-f:620px;--rcb-f:620px;--rh-g:732px;--rc-g:620px;--rcb-g:620px;--rh-h:732px;--rc-h:620px;--rcb-h:620px;--rh-i:732px;--rc-i:620px;--rcb-i:620px;--rh-j:700px;--rc-j:620px;--rcb-j:620px;--rh-k:700px;--rc-k:620px;--rcb-k:620px;--rh-l:700px;--rc-l:620px;--rcb-l:620px;--rh-m:700px;--rc-m:620px;--rcb-m:620px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">stars</span></span>
       <div><h2 class="comp-title"><a href="/components/agent-harness">Agent harness</a></h2><p class="comp-desc">Every component working together in one agent app.</p></div>
@@ -10249,7 +10312,7 @@ body.ui section.faq{display:none}
 <section class="lib-sec" id="s-charts" data-grp="basics">
   <div class="sec-head"><div><span class="sec-no">01</span><h2>Charts and tables</h2><p>Lightweight charts and tables for dashboards and reports, drawn in plain SVG and HTML.</p></div></div>
   <div class="sec-body" id="s-charts-body"><div class="sec-uf"><div class="grid">
-  <article class="comp" id="c41" data-soft data-v2="line-chart" data-reg="line-chart" style="--rh-a:420px;--rc-a:263px;--rcb-a:255px;--rh-b:420px;--rc-b:263px;--rcb-b:255px;--rh-c:420px;--rc-c:263px;--rcb-c:255px;--rh-d:420px;--rc-d:263px;--rcb-d:255px;--rh-e:420px;--rc-e:263px;--rcb-e:255px">
+  <article class="comp" id="c41" data-soft data-v2="line-chart" data-reg="line-chart" style="--rh-a:420px;--rc-a:255px;--rcb-a:255px;--rh-b:420px;--rc-b:255px;--rcb-b:255px;--rh-c:420px;--rc-c:255px;--rcb-c:255px;--rh-d:420px;--rc-d:255px;--rcb-d:255px;--rh-e:420px;--rc-e:255px;--rcb-e:255px;--rh-f:420px;--rc-f:255px;--rcb-f:255px;--rh-g:420px;--rc-g:255px;--rcb-g:255px;--rh-h:420px;--rc-h:255px;--rcb-h:255px;--rh-i:420px;--rc-i:255px;--rcb-i:255px;--rh-j:420px;--rc-j:255px;--rcb-j:255px;--rh-k:420px;--rc-k:255px;--rcb-k:255px;--rh-l:420px;--rc-l:255px;--rcb-l:255px;--rh-m:420px;--rc-m:291px;--rcb-m:291px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">trending_up</span></span>
       <div><h2 class="comp-title"><a href="/components/line-chart">Line chart</a></h2><p class="comp-desc">Two series over time with a hover readout and toggles.</p></div>
@@ -10266,7 +10329,7 @@ body.ui section.faq{display:none}
   <div class="lnx-ax muted num"><span>Jan</span><span>Mar</span><span>May</span><span>Jul</span><span>Sep</span><span>Nov</span></div>
 </div></template>
   </article>
-  <article class="comp" id="c42" data-soft data-v2="bar-chart" data-reg="bar-chart" style="--rh-a:420px;--rc-a:268px;--rcb-a:260px;--rh-b:420px;--rc-b:268px;--rcb-b:260px;--rh-c:420px;--rc-c:268px;--rcb-c:260px;--rh-d:420px;--rc-d:268px;--rcb-d:260px;--rh-e:420px;--rc-e:268px;--rcb-e:260px">
+  <article class="comp" id="c42" data-soft data-v2="bar-chart" data-reg="bar-chart" style="--rh-a:420px;--rc-a:260px;--rcb-a:260px;--rh-b:420px;--rc-b:260px;--rcb-b:260px;--rh-c:420px;--rc-c:260px;--rcb-c:260px;--rh-d:420px;--rc-d:260px;--rcb-d:260px;--rh-e:420px;--rc-e:260px;--rcb-e:260px;--rh-f:420px;--rc-f:260px;--rcb-f:260px;--rh-g:420px;--rc-g:260px;--rcb-g:260px;--rh-h:420px;--rc-h:260px;--rcb-h:260px;--rh-i:420px;--rc-i:260px;--rcb-i:260px;--rh-j:420px;--rc-j:260px;--rcb-j:260px;--rh-k:420px;--rc-k:260px;--rcb-k:260px;--rh-l:420px;--rc-l:260px;--rcb-l:260px;--rh-m:420px;--rc-m:260px;--rcb-m:260px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">bar_chart</span></span>
       <div><h2 class="comp-title"><a href="/components/bar-chart">Bar chart</a></h2><p class="comp-desc">Weekly agent runs, split by outcome, with a range switch.</p></div>
@@ -10283,7 +10346,7 @@ body.ui section.faq{display:none}
   <div class="bcx-lg muted"><span><i style="background:var(--c1)"></i>Shipped</span><span><i style="background:var(--c2)"></i>Needed review</span><span><i style="background:var(--c4)"></i>Failed</span></div>
 </div></template>
   </article>
-  <article class="comp" id="c43" data-soft data-v2="donut-chart" data-reg="donut-chart" style="--rh-a:420px;--rc-a:223px;--rcb-a:217px;--rh-b:488px;--rc-b:376px;--rcb-b:368px;--rh-c:420px;--rc-c:204px;--rcb-c:198px;--rh-d:420px;--rc-d:204px;--rcb-d:198px;--rh-e:454px;--rc-e:374px;--rcb-e:368px">
+  <article class="comp" id="c43" data-soft data-v2="donut-chart" data-reg="donut-chart" style="--rh-a:420px;--rc-a:217px;--rcb-a:217px;--rh-b:480px;--rc-b:368px;--rcb-b:368px;--rh-c:420px;--rc-c:198px;--rcb-c:198px;--rh-d:420px;--rc-d:198px;--rcb-d:198px;--rh-e:420px;--rc-e:198px;--rcb-e:198px;--rh-f:420px;--rc-f:198px;--rcb-f:198px;--rh-g:420px;--rc-g:198px;--rcb-g:198px;--rh-h:420px;--rc-h:198px;--rcb-h:198px;--rh-i:420px;--rc-i:198px;--rcb-i:198px;--rh-j:420px;--rc-j:198px;--rcb-j:198px;--rh-k:448px;--rc-k:368px;--rcb-k:368px;--rh-l:448px;--rc-l:368px;--rcb-l:368px;--rh-m:448px;--rc-m:368px;--rcb-m:368px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">donut</span></span>
       <div><h2 class="comp-title"><a href="/components/donut-chart">Donut chart</a></h2><p class="comp-desc">Where the agent's time went, by kind of task.</p></div>
@@ -10299,7 +10362,7 @@ body.ui section.faq{display:none}
   <div class="dnx-lg"></div>
 </div></template>
   </article>
-  <article class="comp" id="c102" data-soft data-v2="funnel" data-reg="funnel-chart" style="--rh-a:426px;--rc-a:314px;--rcb-a:314px;--rh-b:445px;--rc-b:333px;--rcb-b:333px;--rh-c:426px;--rc-c:314px;--rcb-c:314px;--rh-d:426px;--rc-d:314px;--rcb-d:314px;--rh-e:420px;--rc-e:314px;--rcb-e:314px">
+  <article class="comp" id="c102" data-soft data-v2="funnel" data-reg="funnel-chart" style="--rh-a:426px;--rc-a:314px;--rcb-a:314px;--rh-b:445px;--rc-b:333px;--rcb-b:333px;--rh-c:426px;--rc-c:314px;--rcb-c:314px;--rh-d:426px;--rc-d:314px;--rcb-d:314px;--rh-e:426px;--rc-e:314px;--rcb-e:314px;--rh-f:426px;--rc-f:314px;--rcb-f:314px;--rh-g:426px;--rc-g:314px;--rcb-g:314px;--rh-h:426px;--rc-h:314px;--rcb-h:314px;--rh-i:426px;--rc-i:314px;--rcb-i:314px;--rh-j:420px;--rc-j:314px;--rcb-j:314px;--rh-k:420px;--rc-k:314px;--rcb-k:314px;--rh-l:420px;--rc-l:314px;--rcb-l:314px;--rh-m:420px;--rc-m:333px;--rcb-m:333px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">grid_view</span></span>
       <div><h2 class="comp-title"><a href="/components/funnel-chart">Funnel chart</a></h2><p class="comp-desc">Signup to paid, with the biggest drop called out by the agent.</p></div>
@@ -10316,7 +10379,7 @@ body.ui section.faq{display:none}
   <div class="fnx-ins"><span class="fnx-ic">{spark}</span><span class="fnx-t"></span></div>
 </div></template>
   </article>
-  <article class="comp" id="c103" data-soft data-v2="top-pages" data-reg="top-pages" style="--rh-a:493px;--rc-a:381px;--rcb-a:377px;--rh-b:507px;--rc-b:395px;--rcb-b:395px;--rh-c:495px;--rc-c:383px;--rcb-c:377px;--rh-d:495px;--rc-d:383px;--rcb-d:377px;--rh-e:478px;--rc-e:398px;--rcb-e:395px">
+  <article class="comp" id="c103" data-soft data-v2="top-pages" data-reg="top-pages" style="--rh-a:489px;--rc-a:377px;--rcb-a:377px;--rh-b:507px;--rc-b:395px;--rcb-b:395px;--rh-c:489px;--rc-c:377px;--rcb-c:377px;--rh-d:489px;--rc-d:377px;--rcb-d:377px;--rh-e:489px;--rc-e:377px;--rcb-e:377px;--rh-f:489px;--rc-f:377px;--rcb-f:377px;--rh-g:489px;--rc-g:377px;--rcb-g:377px;--rh-h:489px;--rc-h:377px;--rcb-h:377px;--rh-i:489px;--rc-i:377px;--rcb-i:377px;--rh-j:457px;--rc-j:377px;--rcb-j:377px;--rh-k:457px;--rc-k:377px;--rcb-k:377px;--rh-l:457px;--rc-l:377px;--rcb-l:377px;--rh-m:475px;--rc-m:395px;--rcb-m:395px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">grid_view</span></span>
       <div><h2 class="comp-title"><a href="/components/top-pages">Top pages</a></h2><p class="comp-desc">Most visited pages with share of traffic and a quick sort.</p></div>
@@ -10332,7 +10395,7 @@ body.ui section.faq{display:none}
   <div class="tpx-list"></div>
 </div></template>
   </article>
-  <article class="comp" data-soft id="c65" data-v2="health-score" data-reg="health-score" style="--rh-a:420px;--rc-a:297px;--rcb-a:279px;--rh-b:420px;--rc-b:303px;--rcb-b:285px;--rh-c:420px;--rc-c:297px;--rcb-c:279px;--rh-d:420px;--rc-d:297px;--rcb-d:279px;--rh-e:420px;--rc-e:297px;--rcb-e:279px">
+  <article class="comp" data-soft id="c65" data-v2="health-score" data-reg="health-score" style="--rh-a:420px;--rc-a:275px;--rcb-a:275px;--rh-b:420px;--rc-b:281px;--rcb-b:281px;--rh-c:420px;--rc-c:275px;--rcb-c:275px;--rh-d:420px;--rc-d:275px;--rcb-d:275px;--rh-e:420px;--rc-e:275px;--rcb-e:275px;--rh-f:420px;--rc-f:275px;--rcb-f:275px;--rh-g:420px;--rc-g:275px;--rcb-g:275px;--rh-h:420px;--rc-h:275px;--rcb-h:275px;--rh-i:420px;--rc-i:275px;--rcb-i:275px;--rh-j:420px;--rc-j:275px;--rcb-j:275px;--rh-k:420px;--rc-k:275px;--rcb-k:275px;--rh-l:420px;--rc-l:275px;--rcb-l:275px;--rh-m:420px;--rc-m:300px;--rcb-m:300px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">readiness_score</span></span>
       <div><h2 class="comp-title"><a href="/components/health-score">Health score</a></h2><p class="comp-desc">A design system score made of a few checks you can open.</p></div>
@@ -10351,7 +10414,7 @@ body.ui section.faq{display:none}
   <div class="hsx-list"></div>
 </div></template>
   </article>
-  <article class="comp wide" id="c45" data-soft data-v2="activity-heatmap" data-reg="activity-heatmap" style="--rh-a:420px;--rc-a:252px;--rcb-a:247px;--rh-b:420px;--rc-b:255px;--rcb-b:247px;--rh-c:420px;--rc-c:253px;--rcb-c:247px;--rh-d:420px;--rc-d:253px;--rcb-d:247px;--rh-e:420px;--rc-e:265px;--rcb-e:265px">
+  <article class="comp wide" id="c45" data-soft data-v2="activity-heatmap" data-reg="activity-heatmap" style="--rh-a:420px;--rc-a:247px;--rcb-a:247px;--rh-b:420px;--rc-b:247px;--rcb-b:247px;--rh-c:420px;--rc-c:247px;--rcb-c:247px;--rh-d:420px;--rc-d:247px;--rcb-d:247px;--rh-e:420px;--rc-e:247px;--rcb-e:247px;--rh-f:420px;--rc-f:247px;--rcb-f:247px;--rh-g:420px;--rc-g:247px;--rcb-g:247px;--rh-h:420px;--rc-h:247px;--rcb-h:247px;--rh-i:420px;--rc-i:247px;--rcb-i:247px;--rh-j:420px;--rc-j:247px;--rcb-j:247px;--rh-k:420px;--rc-k:265px;--rcb-k:265px;--rh-l:420px;--rc-l:265px;--rcb-l:265px;--rh-m:420px;--rc-m:265px;--rcb-m:265px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">grid_on</span></span>
       <div><h2 class="comp-title"><a href="/components/activity-heatmap">Activity heatmap</a></h2><p class="comp-desc">When the agent and the team were busy, by day and hour.</p></div>
@@ -10369,7 +10432,7 @@ body.ui section.faq{display:none}
   <div class="hmx-lg muted">Less<i style="--a:.08"></i><i style="--a:.3"></i><i style="--a:.55"></i><i style="--a:.85"></i>More</div>
 </div></template>
   </article>
-  <article class="comp wide" id="c44" data-soft data-v2="stat-cards" data-reg="stat-cards" style="--rh-a:420px;--rc-a:175px;--rcb-a:166px;--rh-b:420px;--rc-b:178px;--rcb-b:166px;--rh-c:420px;--rc-c:196px;--rcb-c:185px;--rh-d:420px;--rc-d:300px;--rcb-d:286px;--rh-e:635px;--rc-e:555px;--rcb-e:541px">
+  <article class="comp wide" id="c44" data-soft data-v2="stat-cards" data-reg="stat-cards" style="--rh-a:420px;--rc-a:158px;--rcb-a:158px;--rh-b:420px;--rc-b:158px;--rcb-b:158px;--rh-c:420px;--rc-c:177px;--rcb-c:177px;--rh-d:420px;--rc-d:158px;--rcb-d:158px;--rh-e:420px;--rc-e:158px;--rcb-e:158px;--rh-f:420px;--rc-f:286px;--rcb-f:286px;--rh-g:420px;--rc-g:286px;--rcb-g:286px;--rh-h:420px;--rc-h:286px;--rcb-h:286px;--rh-i:420px;--rc-i:286px;--rcb-i:286px;--rh-j:420px;--rc-j:286px;--rcb-j:286px;--rh-k:420px;--rc-k:286px;--rcb-k:286px;--rh-l:621px;--rc-l:541px;--rcb-l:541px;--rh-m:621px;--rc-m:541px;--rcb-m:541px">
     <div class="comp-head">
       <span class="ibox accent"><span class="ms">dashboard</span></span>
       <div><h2 class="comp-title"><a href="/components/stat-cards">Stat cards</a></h2><p class="comp-desc">Four headline numbers with sparklines and a period switch.</p></div>
@@ -10385,7 +10448,7 @@ body.ui section.faq{display:none}
   <div class="scx-grid"></div>
 </div></template>
   </article>
-  <article class="comp wide" id="c12" data-soft data-v2="account-table" data-reg="account-table" style="--rh-a:510px;--rc-a:398px;--rcb-a:397px;--rh-b:509px;--rc-b:397px;--rcb-b:397px;--rh-c:509px;--rc-c:397px;--rcb-c:397px;--rh-d:509px;--rc-d:397px;--rcb-d:397px;--rh-e:509px;--rc-e:429px;--rcb-e:429px">
+  <article class="comp wide" id="c12" data-soft data-v2="account-table" data-reg="account-table" style="--rh-a:509px;--rc-a:397px;--rcb-a:397px;--rh-b:509px;--rc-b:397px;--rcb-b:397px;--rh-c:509px;--rc-c:397px;--rcb-c:397px;--rh-d:509px;--rc-d:397px;--rcb-d:397px;--rh-e:509px;--rc-e:397px;--rcb-e:397px;--rh-f:509px;--rc-f:397px;--rcb-f:397px;--rh-g:509px;--rc-g:397px;--rcb-g:397px;--rh-h:509px;--rc-h:397px;--rcb-h:397px;--rh-i:509px;--rc-i:397px;--rcb-i:397px;--rh-j:477px;--rc-j:397px;--rcb-j:397px;--rh-k:509px;--rc-k:429px;--rcb-k:429px;--rh-l:509px;--rc-l:429px;--rcb-l:429px;--rh-m:509px;--rc-m:429px;--rcb-m:429px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">person</span></span>
       <div><h2 class="comp-title"><a href="/components/account-table">Account table</a></h2><p class="comp-desc">Customer accounts with health, plan and an agent note per row.</p></div>
@@ -10406,7 +10469,7 @@ body.ui section.faq{display:none}
 <section class="lib-sec" id="s-dates" data-grp="basics">
   <div class="sec-head"><div><span class="sec-no">02</span><h2>Dates</h2><p>Pickers for single dates and date ranges.</p></div></div>
   <div class="sec-body" id="s-dates-body"><div class="sec-uf"><div class="grid">
-  <article class="comp" id="c46" data-soft data-v2="date-picker" data-reg="date-picker" style="--rh-a:517px;--rc-a:405px;--rcb-a:400px;--rh-b:521px;--rc-b:409px;--rcb-b:400px;--rh-c:519px;--rc-c:407px;--rcb-c:400px;--rh-d:519px;--rc-d:407px;--rcb-d:400px;--rh-e:484px;--rc-e:404px;--rcb-e:400px">
+  <article class="comp" id="c46" data-soft data-v2="date-picker" data-reg="date-picker" style="--rh-a:512px;--rc-a:400px;--rcb-a:400px;--rh-b:512px;--rc-b:400px;--rcb-b:400px;--rh-c:512px;--rc-c:400px;--rcb-c:400px;--rh-d:512px;--rc-d:400px;--rcb-d:400px;--rh-e:512px;--rc-e:400px;--rcb-e:400px;--rh-f:512px;--rc-f:400px;--rcb-f:400px;--rh-g:512px;--rc-g:400px;--rcb-g:400px;--rh-h:512px;--rc-h:400px;--rcb-h:400px;--rh-i:512px;--rc-i:400px;--rcb-i:400px;--rh-j:480px;--rc-j:400px;--rcb-j:400px;--rh-k:480px;--rc-k:400px;--rcb-k:400px;--rh-l:480px;--rc-l:400px;--rcb-l:400px;--rh-m:480px;--rc-m:400px;--rcb-m:400px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">calendar</span></span>
       <div><h2 class="comp-title"><a href="/components/date-picker">Date picker</a></h2><p class="comp-desc">A field that opens a calendar, with quick picks and natural language.</p></div>
@@ -10428,7 +10491,7 @@ body.ui section.faq{display:none}
   </div>
 </div></template>
   </article>
-  <article class="comp wide" id="c47" data-soft data-v2="date-range-picker" data-reg="date-range-picker" style="--rh-a:435px;--rc-a:323px;--rcb-a:309px;--rh-b:435px;--rc-b:323px;--rcb-b:309px;--rh-c:447px;--rc-c:335px;--rcb-c:335px;--rh-d:489px;--rc-d:377px;--rcb-d:363px;--rh-e:504px;--rc-e:424px;--rcb-e:424px">
+  <article class="comp wide" id="c47" data-soft data-v2="date-range-picker" data-reg="date-range-picker" style="--rh-a:421px;--rc-a:309px;--rcb-a:309px;--rh-b:421px;--rc-b:309px;--rcb-b:309px;--rh-c:447px;--rc-c:335px;--rcb-c:335px;--rh-d:421px;--rc-d:309px;--rcb-d:309px;--rh-e:421px;--rc-e:309px;--rcb-e:309px;--rh-f:421px;--rc-f:309px;--rcb-f:309px;--rh-g:421px;--rc-g:309px;--rcb-g:309px;--rh-h:421px;--rc-h:309px;--rcb-h:309px;--rh-i:475px;--rc-i:363px;--rcb-i:363px;--rh-j:443px;--rc-j:363px;--rcb-j:363px;--rh-k:504px;--rc-k:424px;--rcb-k:424px;--rh-l:504px;--rc-l:424px;--rcb-l:424px;--rh-m:516px;--rc-m:436px;--rcb-m:436px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">calendar</span></span>
       <div><h2 class="comp-title"><a href="/components/date-range-picker">Date range picker</a></h2><p class="comp-desc">Pick a start and end across two months, or use a preset.</p></div>
@@ -10448,7 +10511,7 @@ body.ui section.faq{display:none}
   </div>
 </div></template>
   </article>
-  <article class="comp wide" data-soft id="c62" data-v2="event-calendar" data-reg="event-calendar" style="--rh-a:567px;--rc-a:455px;--rcb-a:437px;--rh-b:567px;--rc-b:455px;--rcb-b:437px;--rh-c:567px;--rc-c:455px;--rcb-c:437px;--rh-d:567px;--rc-d:455px;--rcb-d:437px;--rh-e:564px;--rc-e:484px;--rcb-e:466px">
+  <article class="comp wide" data-soft id="c62" data-v2="event-calendar" data-reg="event-calendar" style="--rh-a:545px;--rc-a:433px;--rcb-a:433px;--rh-b:545px;--rc-b:433px;--rcb-b:433px;--rh-c:545px;--rc-c:433px;--rcb-c:433px;--rh-d:545px;--rc-d:433px;--rcb-d:433px;--rh-e:545px;--rc-e:433px;--rcb-e:433px;--rh-f:545px;--rc-f:433px;--rcb-f:433px;--rh-g:545px;--rc-g:433px;--rcb-g:433px;--rh-h:545px;--rc-h:433px;--rcb-h:433px;--rh-i:545px;--rc-i:433px;--rcb-i:433px;--rh-j:513px;--rc-j:433px;--rcb-j:433px;--rh-k:542px;--rc-k:462px;--rcb-k:462px;--rh-l:542px;--rc-l:462px;--rcb-l:462px;--rh-m:542px;--rc-m:462px;--rcb-m:462px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">calendar</span></span>
       <div><h2 class="comp-title"><a href="/components/event-calendar">Event calendar</a></h2><p class="comp-desc">A week view where the agent finds a free slot for you.</p></div>
@@ -10464,7 +10527,7 @@ body.ui section.faq{display:none}
   <div class="ecx-sc"><div class="ecx-grid"><div class="ecx-tm"></div></div></div>
 </div></template>
   </article>
-  <article class="comp" data-soft id="c63" data-v2="agenda" data-reg="agenda" style="--rh-a:644px;--rc-a:532px;--rcb-a:532px;--rh-b:700px;--rc-b:588px;--rcb-b:588px;--rh-c:644px;--rc-c:532px;--rcb-c:532px;--rh-d:644px;--rc-d:532px;--rcb-d:532px;--rh-e:668px;--rc-e:588px;--rcb-e:588px">
+  <article class="comp" data-soft id="c63" data-v2="agenda" data-reg="agenda" style="--rh-a:644px;--rc-a:532px;--rcb-a:532px;--rh-b:700px;--rc-b:588px;--rcb-b:588px;--rh-c:644px;--rc-c:532px;--rcb-c:532px;--rh-d:644px;--rc-d:532px;--rcb-d:532px;--rh-e:644px;--rc-e:532px;--rcb-e:532px;--rh-f:644px;--rc-f:532px;--rcb-f:532px;--rh-g:644px;--rc-g:532px;--rcb-g:532px;--rh-h:644px;--rc-h:532px;--rcb-h:532px;--rh-i:644px;--rc-i:532px;--rcb-i:532px;--rh-j:612px;--rc-j:532px;--rcb-j:532px;--rh-k:612px;--rc-k:532px;--rcb-k:532px;--rh-l:668px;--rc-l:588px;--rcb-l:588px;--rh-m:668px;--rc-m:588px;--rcb-m:588px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">schedule</span></span>
       <div><h2 class="comp-title"><a href="/components/agenda">Agenda</a></h2><p class="comp-desc">Today's schedule with a live now line and agent prep notes.</p></div>
@@ -10485,7 +10548,7 @@ body.ui section.faq{display:none}
 <section class="lib-sec" id="s-forms" data-grp="basics">
   <div class="sec-head"><div><span class="sec-no">03</span><h2>Forms and inputs</h2><p>Buttons, fields, pickers and sign-in flows for any product.</p></div></div>
   <div class="sec-body" id="s-forms-body"><div class="sec-uf"><div class="grid">
-  <article class="comp wide" data-soft id="c49" data-v2="buttons" data-reg="buttons" style="--rh-a:420px;--rc-a:200px;--rcb-a:182px;--rh-b:420px;--rc-b:200px;--rcb-b:182px;--rh-c:420px;--rc-c:280px;--rcb-c:262px;--rh-d:420px;--rc-d:280px;--rcb-d:262px;--rh-e:502px;--rc-e:422px;--rcb-e:404px">
+  <article class="comp wide" data-soft id="c49" data-v2="buttons" data-reg="buttons" style="--rh-a:420px;--rc-a:178px;--rcb-a:178px;--rh-b:420px;--rc-b:178px;--rcb-b:178px;--rh-c:420px;--rc-c:258px;--rcb-c:258px;--rh-d:420px;--rc-d:178px;--rcb-d:178px;--rh-e:420px;--rc-e:178px;--rcb-e:178px;--rh-f:420px;--rc-f:178px;--rcb-f:178px;--rh-g:420px;--rc-g:178px;--rcb-g:178px;--rh-h:420px;--rc-h:178px;--rcb-h:178px;--rh-i:420px;--rc-i:258px;--rcb-i:258px;--rh-j:442px;--rc-j:362px;--rcb-j:362px;--rh-k:442px;--rc-k:362px;--rcb-k:362px;--rh-l:480px;--rc-l:400px;--rcb-l:400px;--rh-m:480px;--rc-m:400px;--rcb-m:400px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">bolt</span></span>
       <div><h2 class="comp-title"><a href="/components/buttons">Buttons</a></h2><p class="comp-desc">Every button style, with loading, success and hold-to-confirm states.</p></div>
@@ -10503,7 +10566,7 @@ body.ui section.faq{display:none}
   <div class="btx-row"><span class="btx-l muted">Sizes</span><button class="pill accent sm">Small</button><button class="pill accent">Default</button><button class="pill accent btx-lg">Large</button></div>
 </div></template>
   </article>
-  <article class="comp" data-soft id="c52" data-v2="tooltip" data-reg="tooltip" style="--rh-a:420px;--rc-a:205px;--rcb-a:200px;--rh-b:420px;--rc-b:209px;--rcb-b:200px;--rh-c:420px;--rc-c:207px;--rcb-c:200px;--rh-d:420px;--rc-d:207px;--rcb-d:200px;--rh-e:420px;--rc-e:204px;--rcb-e:200px">
+  <article class="comp" data-soft id="c52" data-v2="tooltip" data-reg="tooltip" style="--rh-a:420px;--rc-a:200px;--rcb-a:200px;--rh-b:420px;--rc-b:200px;--rcb-b:200px;--rh-c:420px;--rc-c:200px;--rcb-c:200px;--rh-d:420px;--rc-d:200px;--rcb-d:200px;--rh-e:420px;--rc-e:200px;--rcb-e:200px;--rh-f:420px;--rc-f:200px;--rcb-f:200px;--rh-g:420px;--rc-g:200px;--rcb-g:200px;--rh-h:420px;--rc-h:200px;--rcb-h:200px;--rh-i:420px;--rc-i:200px;--rcb-i:200px;--rh-j:420px;--rc-j:200px;--rcb-j:200px;--rh-k:420px;--rc-k:200px;--rcb-k:200px;--rh-l:420px;--rc-l:200px;--rcb-l:200px;--rh-m:420px;--rc-m:200px;--rcb-m:200px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">help</span></span>
       <div><h2 class="comp-title"><a href="/components/tooltip">Tooltip</a></h2><p class="comp-desc">Quiet labels on hover, with shortcuts and a richer preview card.</p></div>
@@ -10528,7 +10591,7 @@ body.ui section.faq{display:none}
   <p class="muted ttp-n">Labels wait a moment, then follow you instantly between buttons.</p>
 </div></template>
   </article>
-  <article class="comp" data-soft id="c53" data-v2="search-input" data-reg="search-input" style="--rh-a:437px;--rc-a:325px;--rcb-a:320px;--rh-b:441px;--rc-b:329px;--rcb-b:320px;--rh-c:439px;--rc-c:327px;--rcb-c:320px;--rh-d:439px;--rc-d:327px;--rcb-d:320px;--rh-e:420px;--rc-e:324px;--rcb-e:320px">
+  <article class="comp" data-soft id="c53" data-v2="search-input" data-reg="search-input" style="--rh-a:432px;--rc-a:320px;--rcb-a:320px;--rh-b:432px;--rc-b:320px;--rcb-b:320px;--rh-c:432px;--rc-c:320px;--rcb-c:320px;--rh-d:432px;--rc-d:320px;--rcb-d:320px;--rh-e:432px;--rc-e:320px;--rcb-e:320px;--rh-f:432px;--rc-f:320px;--rcb-f:320px;--rh-g:432px;--rc-g:320px;--rcb-g:320px;--rh-h:432px;--rc-h:320px;--rcb-h:320px;--rh-i:432px;--rc-i:320px;--rcb-i:320px;--rh-j:420px;--rc-j:320px;--rcb-j:320px;--rh-k:420px;--rc-k:320px;--rcb-k:320px;--rh-l:420px;--rc-l:320px;--rcb-l:320px;--rh-m:420px;--rc-m:320px;--rcb-m:320px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">search</span></span>
       <div><h2 class="comp-title"><a href="/components/search-input">Search input</a></h2><p class="comp-desc">Search with scoped filters, recent queries and an agent answer.</p></div>
@@ -10546,7 +10609,7 @@ body.ui section.faq{display:none}
   </div>
 </div></template>
   </article>
-  <article class="comp" data-soft id="c57" data-v2="country-select" data-reg="country-select" style="--rh-a:647px;--rc-a:535px;--rcb-a:522px;--rh-b:634px;--rc-b:522px;--rcb-b:522px;--rh-c:647px;--rc-c:535px;--rcb-c:535px;--rh-d:647px;--rc-d:535px;--rcb-d:522px;--rh-e:602px;--rc-e:522px;--rcb-e:522px">
+  <article class="comp" data-soft id="c57" data-v2="country-select" data-reg="country-select" style="--rh-a:647px;--rc-a:535px;--rcb-a:535px;--rh-b:647px;--rc-b:535px;--rcb-b:522px;--rh-c:647px;--rc-c:535px;--rcb-c:535px;--rh-d:647px;--rc-d:535px;--rcb-d:535px;--rh-e:647px;--rc-e:535px;--rcb-e:535px;--rh-f:647px;--rc-f:535px;--rcb-f:535px;--rh-g:647px;--rc-g:535px;--rcb-g:522px;--rh-h:647px;--rc-h:535px;--rcb-h:535px;--rh-i:647px;--rc-i:535px;--rcb-i:522px;--rh-j:615px;--rc-j:535px;--rcb-j:535px;--rh-k:615px;--rc-k:535px;--rcb-k:535px;--rh-l:615px;--rc-l:535px;--rcb-l:522px;--rh-m:615px;--rc-m:535px;--rcb-m:535px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">filter_list</span></span>
       <div><h2 class="comp-title"><a href="/components/country-select">Country select</a></h2><p class="comp-desc">A searchable select with country codes, currency and keyboard support.</p></div>
@@ -10564,7 +10627,7 @@ body.ui section.faq{display:none}
   <span class="muted csx-h">Used for tax and currency</span>
 </div></template>
   </article>
-  <article class="comp" data-soft id="c51" data-v2="social-signin" data-reg="social-sign-in" style="--rh-a:520px;--rc-a:408px;--rcb-a:403px;--rh-b:524px;--rc-b:412px;--rcb-b:403px;--rh-c:522px;--rc-c:410px;--rcb-c:403px;--rh-d:522px;--rc-d:410px;--rcb-d:403px;--rh-e:487px;--rc-e:407px;--rcb-e:403px">
+  <article class="comp" data-soft id="c51" data-v2="social-signin" data-reg="social-sign-in" style="--rh-a:515px;--rc-a:403px;--rcb-a:403px;--rh-b:515px;--rc-b:403px;--rcb-b:403px;--rh-c:515px;--rc-c:403px;--rcb-c:403px;--rh-d:515px;--rc-d:403px;--rcb-d:403px;--rh-e:515px;--rc-e:403px;--rcb-e:403px;--rh-f:515px;--rc-f:403px;--rcb-f:403px;--rh-g:515px;--rc-g:403px;--rcb-g:403px;--rh-h:515px;--rc-h:403px;--rcb-h:403px;--rh-i:515px;--rc-i:403px;--rcb-i:403px;--rh-j:483px;--rc-j:403px;--rcb-j:403px;--rh-k:483px;--rc-k:403px;--rcb-k:403px;--rh-l:483px;--rc-l:403px;--rcb-l:403px;--rh-m:483px;--rc-m:403px;--rcb-m:403px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">person</span></span>
       <div><h2 class="comp-title"><a href="/components/social-sign-in">Social sign-in</a></h2><p class="comp-desc">One-tap providers that remember the last one you used.</p></div>
@@ -10582,7 +10645,7 @@ body.ui section.faq{display:none}
   <button class="ssi-mail">Continue with email</button>
 </div></template>
   </article>
-  <article class="comp" data-soft id="c55" data-v2="sign-in" data-reg="sign-in" style="--rh-a:420px;--rc-a:237px;--rcb-a:232px;--rh-b:420px;--rc-b:240px;--rcb-b:232px;--rh-c:420px;--rc-c:238px;--rcb-c:232px;--rh-d:420px;--rc-d:238px;--rcb-d:232px;--rh-e:420px;--rc-e:235px;--rcb-e:232px">
+  <article class="comp" data-soft id="c55" data-v2="sign-in" data-reg="sign-in" style="--rh-a:420px;--rc-a:232px;--rcb-a:232px;--rh-b:420px;--rc-b:232px;--rcb-b:232px;--rh-c:420px;--rc-c:232px;--rcb-c:232px;--rh-d:420px;--rc-d:232px;--rcb-d:232px;--rh-e:420px;--rc-e:232px;--rcb-e:232px;--rh-f:420px;--rc-f:232px;--rcb-f:232px;--rh-g:420px;--rc-g:232px;--rcb-g:232px;--rh-h:420px;--rc-h:232px;--rcb-h:232px;--rh-i:420px;--rc-i:232px;--rcb-i:232px;--rh-j:420px;--rc-j:232px;--rcb-j:232px;--rh-k:420px;--rc-k:232px;--rcb-k:232px;--rh-l:420px;--rc-l:232px;--rcb-l:232px;--rh-m:420px;--rc-m:232px;--rcb-m:232px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">lock</span></span>
       <div><h2 class="comp-title"><a href="/components/sign-in">Sign in</a></h2><p class="comp-desc">Email first, then a one-time code that fills itself in.</p></div>
@@ -10608,7 +10671,7 @@ body.ui section.faq{display:none}
   </div>
 </div></template>
   </article>
-  <article class="comp" data-soft id="c50" data-v2="form" data-reg="form" style="--rh-a:530px;--rc-a:418px;--rcb-a:412px;--rh-b:533px;--rc-b:421px;--rcb-b:420px;--rh-c:531px;--rc-c:419px;--rcb-c:412px;--rh-d:531px;--rc-d:419px;--rcb-d:412px;--rh-e:498px;--rc-e:418px;--rcb-e:412px">
+  <article class="comp" data-soft id="c50" data-v2="form" data-reg="form" style="--rh-a:524px;--rc-a:412px;--rcb-a:412px;--rh-b:532px;--rc-b:420px;--rcb-b:420px;--rh-c:524px;--rc-c:412px;--rcb-c:412px;--rh-d:524px;--rc-d:412px;--rcb-d:412px;--rh-e:524px;--rc-e:412px;--rcb-e:412px;--rh-f:524px;--rc-f:412px;--rcb-f:412px;--rh-g:524px;--rc-g:412px;--rcb-g:412px;--rh-h:524px;--rc-h:412px;--rcb-h:412px;--rh-i:524px;--rc-i:412px;--rcb-i:412px;--rh-j:492px;--rc-j:412px;--rcb-j:412px;--rh-k:492px;--rc-k:412px;--rcb-k:412px;--rh-l:492px;--rc-l:412px;--rcb-l:412px;--rh-m:506px;--rc-m:426px;--rcb-m:426px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">edit_note</span></span>
       <div><h2 class="comp-title"><a href="/components/form">Form</a></h2><p class="comp-desc">A project brief with inline checks and an agent that drafts the rest.</p></div>
@@ -10628,7 +10691,7 @@ body.ui section.faq{display:none}
   <div class="fmx-ft"><span class="fmx-ms muted"></span><button class="pill ink sm fmx-go" type="submit">Create brief</button></div>
 </form></template>
   </article>
-  <article class="comp wide" data-soft id="c64" data-v2="payment-form" data-reg="payment-form" style="--rh-a:536px;--rc-a:424px;--rcb-a:419px;--rh-b:539px;--rc-b:427px;--rcb-b:419px;--rh-c:537px;--rc-c:425px;--rcb-c:419px;--rh-d:537px;--rc-d:425px;--rcb-d:419px;--rh-e:542px;--rc-e:462px;--rcb-e:459px">
+  <article class="comp wide" data-soft id="c64" data-v2="payment-form" data-reg="payment-form" style="--rh-a:531px;--rc-a:419px;--rcb-a:419px;--rh-b:531px;--rc-b:419px;--rcb-b:419px;--rh-c:531px;--rc-c:419px;--rcb-c:419px;--rh-d:531px;--rc-d:419px;--rcb-d:419px;--rh-e:531px;--rc-e:419px;--rcb-e:419px;--rh-f:531px;--rc-f:419px;--rcb-f:419px;--rh-g:531px;--rc-g:419px;--rcb-g:419px;--rh-h:531px;--rc-h:419px;--rcb-h:419px;--rh-i:531px;--rc-i:419px;--rcb-i:419px;--rh-j:499px;--rc-j:419px;--rcb-j:419px;--rh-k:499px;--rc-k:419px;--rcb-k:419px;--rh-l:499px;--rc-l:419px;--rcb-l:419px;--rh-m:539px;--rc-m:459px;--rcb-m:459px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">lock</span></span>
       <div><h2 class="comp-title"><a href="/components/payment-form">Payment form</a></h2><p class="comp-desc">Card details with live formatting, brand detection and a clear total.</p></div>
@@ -10654,7 +10717,7 @@ body.ui section.faq{display:none}
 <section class="lib-sec" id="s-collab" data-grp="basics">
   <div class="sec-head"><div><span class="sec-no">04</span><h2>Collaboration</h2><p>Threads, inboxes and boards for teams working alongside an agent.</p></div></div>
   <div class="sec-body" id="s-collab-body"><div class="sec-uf"><div class="grid">
-  <article class="comp" data-soft id="c54" data-v2="comments" data-reg="comments" style="--rh-a:507px;--rc-a:395px;--rcb-a:395px;--rh-b:585px;--rc-b:473px;--rcb-b:473px;--rh-c:488px;--rc-c:376px;--rcb-c:376px;--rh-d:488px;--rc-d:376px;--rcb-d:376px;--rh-e:534px;--rc-e:454px;--rcb-e:454px">
+  <article class="comp" data-soft id="c54" data-v2="comments" data-reg="comments" style="--rh-a:507px;--rc-a:395px;--rcb-a:395px;--rh-b:585px;--rc-b:473px;--rcb-b:473px;--rh-c:488px;--rc-c:376px;--rcb-c:376px;--rh-d:488px;--rc-d:376px;--rcb-d:376px;--rh-e:488px;--rc-e:376px;--rcb-e:376px;--rh-f:488px;--rc-f:376px;--rcb-f:376px;--rh-g:488px;--rc-g:376px;--rcb-g:376px;--rh-h:488px;--rc-h:376px;--rcb-h:376px;--rh-i:488px;--rc-i:376px;--rcb-i:376px;--rh-j:456px;--rc-j:376px;--rcb-j:376px;--rh-k:495px;--rc-k:415px;--rcb-k:415px;--rh-l:534px;--rc-l:454px;--rcb-l:454px;--rh-m:553px;--rc-m:473px;--rcb-m:473px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">chat_bubble</span></span>
       <div><h2 class="comp-title"><a href="/components/comments">Comments</a></h2><p class="comp-desc">A design thread where you can @mention the agent and it replies.</p></div>
@@ -10671,7 +10734,7 @@ body.ui section.faq{display:none}
   <div class="cmx-in"><div class="cmx-box"><input placeholder="Reply, or @agent to ask" aria-label="Reply" spellcheck="false"><button class="cmx-go" aria-label="Send" disabled>{up}</button></div><div class="pop cmx-men" role="listbox"></div></div>
 </div></template>
   </article>
-  <article class="comp" data-soft id="c56" data-v2="notifications" data-reg="notifications" style="--rh-a:559px;--rc-a:447px;--rcb-a:447px;--rh-b:653px;--rc-b:541px;--rcb-b:541px;--rh-c:559px;--rc-c:447px;--rcb-c:447px;--rh-d:559px;--rc-d:447px;--rcb-d:447px;--rh-e:621px;--rc-e:541px;--rcb-e:541px">
+  <article class="comp" data-soft id="c56" data-v2="notifications" data-reg="notifications" style="--rh-a:559px;--rc-a:447px;--rcb-a:447px;--rh-b:653px;--rc-b:541px;--rcb-b:541px;--rh-c:559px;--rc-c:447px;--rcb-c:447px;--rh-d:559px;--rc-d:447px;--rcb-d:447px;--rh-e:559px;--rc-e:447px;--rcb-e:447px;--rh-f:559px;--rc-f:447px;--rcb-f:447px;--rh-g:559px;--rc-g:447px;--rcb-g:447px;--rh-h:559px;--rc-h:447px;--rcb-h:447px;--rh-i:559px;--rc-i:447px;--rcb-i:447px;--rh-j:527px;--rc-j:447px;--rcb-j:447px;--rh-k:545px;--rc-k:465px;--rcb-k:465px;--rh-l:602px;--rc-l:522px;--rcb-l:522px;--rh-m:640px;--rc-m:560px;--rcb-m:560px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">notifications</span></span>
       <div><h2 class="comp-title"><a href="/components/notifications">Notifications</a></h2><p class="comp-desc">An inbox where agent updates and mentions arrive live.</p></div>
@@ -10688,7 +10751,7 @@ body.ui section.faq{display:none}
   <div class="ntx-list"></div>
 </div></template>
   </article>
-  <article class="comp" data-soft id="c61" data-v2="invite" data-reg="invite-to-collaborate" style="--rh-a:433px;--rc-a:321px;--rcb-a:321px;--rh-b:466px;--rc-b:354px;--rcb-b:354px;--rh-c:433px;--rc-c:321px;--rcb-c:321px;--rh-d:433px;--rc-d:321px;--rcb-d:321px;--rh-e:420px;--rc-e:321px;--rcb-e:321px">
+  <article class="comp" data-soft id="c61" data-v2="invite" data-reg="invite-to-collaborate" style="--rh-a:433px;--rc-a:321px;--rcb-a:321px;--rh-b:466px;--rc-b:354px;--rcb-b:354px;--rh-c:433px;--rc-c:321px;--rcb-c:321px;--rh-d:433px;--rc-d:321px;--rcb-d:321px;--rh-e:433px;--rc-e:321px;--rcb-e:321px;--rh-f:433px;--rc-f:321px;--rcb-f:321px;--rh-g:433px;--rc-g:321px;--rcb-g:321px;--rh-h:433px;--rc-h:321px;--rcb-h:321px;--rh-i:433px;--rc-i:321px;--rcb-i:321px;--rh-j:420px;--rc-j:321px;--rcb-j:321px;--rh-k:420px;--rc-k:323px;--rcb-k:323px;--rh-l:420px;--rc-l:321px;--rcb-l:321px;--rh-m:452px;--rc-m:372px;--rcb-m:372px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">person_add</span></span>
       <div><h2 class="comp-title"><a href="/components/invite-to-collaborate">Invite to collaborate</a></h2><p class="comp-desc">Add teammates by email as chips, set their role, send.</p></div>
@@ -10708,7 +10771,7 @@ body.ui section.faq{display:none}
   <div class="ivx-ft"><button class="pill ghost sm ivx-link">{link}Copy link</button><button class="pill ink sm ivx-go" disabled>Send invites</button></div>
 </div></template>
   </article>
-  <article class="comp" data-soft id="c59" data-v2="reactions" data-reg="reactions" style="--rh-a:420px;--rc-a:136px;--rcb-a:128px;--rh-b:420px;--rc-b:157px;--rcb-b:149px;--rh-c:420px;--rc-c:136px;--rcb-c:128px;--rh-d:420px;--rc-d:136px;--rcb-d:128px;--rh-e:420px;--rc-e:157px;--rcb-e:149px">
+  <article class="comp" data-soft id="c59" data-v2="reactions" data-reg="reactions" style="--rh-a:420px;--rc-a:128px;--rcb-a:128px;--rh-b:420px;--rc-b:149px;--rcb-b:149px;--rh-c:420px;--rc-c:128px;--rcb-c:128px;--rh-d:420px;--rc-d:128px;--rcb-d:128px;--rh-e:420px;--rc-e:128px;--rcb-e:128px;--rh-f:420px;--rc-f:128px;--rcb-f:128px;--rh-g:420px;--rc-g:128px;--rcb-g:128px;--rh-h:420px;--rc-h:128px;--rcb-h:128px;--rh-i:420px;--rc-i:128px;--rcb-i:128px;--rh-j:420px;--rc-j:128px;--rcb-j:128px;--rh-k:420px;--rc-k:128px;--rcb-k:128px;--rh-l:420px;--rc-l:149px;--rcb-l:149px;--rh-m:420px;--rc-m:149px;--rcb-m:149px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">thumb_up</span></span>
       <div><h2 class="comp-title"><a href="/components/reactions">Reactions</a></h2><p class="comp-desc">Quick reactions on an agent update, with counts that pop.</p></div>
@@ -10725,7 +10788,7 @@ body.ui section.faq{display:none}
   <div class="pop rxx-pk" role="menu"><div class="rxx-grid"></div></div>
 </div></template>
   </article>
-  <article class="comp wide" id="c104" data-soft data-v2="ticket-list" data-reg="ticket-list" style="--rh-a:530px;--rc-a:418px;--rcb-a:418px;--rh-b:530px;--rc-b:418px;--rcb-b:418px;--rh-c:530px;--rc-c:418px;--rcb-c:418px;--rh-d:530px;--rc-d:418px;--rcb-d:418px;--rh-e:517px;--rc-e:437px;--rcb-e:437px">
+  <article class="comp wide" id="c104" data-soft data-v2="ticket-list" data-reg="ticket-list" style="--rh-a:530px;--rc-a:418px;--rcb-a:418px;--rh-b:530px;--rc-b:418px;--rcb-b:418px;--rh-c:530px;--rc-c:418px;--rcb-c:418px;--rh-d:530px;--rc-d:418px;--rcb-d:418px;--rh-e:530px;--rc-e:418px;--rcb-e:418px;--rh-f:530px;--rc-f:418px;--rcb-f:418px;--rh-g:530px;--rc-g:418px;--rcb-g:418px;--rh-h:530px;--rc-h:418px;--rcb-h:418px;--rh-i:530px;--rc-i:418px;--rcb-i:418px;--rh-j:498px;--rc-j:418px;--rcb-j:418px;--rh-k:517px;--rc-k:437px;--rcb-k:437px;--rh-l:517px;--rc-l:437px;--rcb-l:437px;--rh-m:554px;--rc-m:474px;--rcb-m:474px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">grid_view</span></span>
       <div><h2 class="comp-title"><a href="/components/ticket-list">Ticket list</a></h2><p class="comp-desc">Support tickets the agent has triaged, with suggested replies.</p></div>
@@ -10741,7 +10804,7 @@ body.ui section.faq{display:none}
   <div class="tkx-list"></div>
 </div></template>
   </article>
-  <article class="comp wide" id="c101" data-soft data-v2="kanban" data-reg="kanban-board" style="--rh-a:467px;--rc-a:355px;--rcb-a:355px;--rh-b:467px;--rc-b:355px;--rcb-b:355px;--rh-c:485px;--rc-c:373px;--rcb-c:373px;--rh-d:485px;--rc-d:373px;--rcb-d:373px;--rh-e:453px;--rc-e:373px;--rcb-e:373px">
+  <article class="comp wide" id="c101" data-soft data-v2="kanban" data-reg="kanban-board" style="--rh-a:467px;--rc-a:355px;--rcb-a:355px;--rh-b:467px;--rc-b:355px;--rcb-b:355px;--rh-c:485px;--rc-c:373px;--rcb-c:373px;--rh-d:467px;--rc-d:355px;--rcb-d:355px;--rh-e:467px;--rc-e:355px;--rcb-e:355px;--rh-f:467px;--rc-f:355px;--rcb-f:355px;--rh-g:485px;--rc-g:373px;--rcb-g:373px;--rh-h:485px;--rc-h:373px;--rcb-h:373px;--rh-i:485px;--rc-i:373px;--rcb-i:373px;--rh-j:453px;--rc-j:373px;--rcb-j:373px;--rh-k:453px;--rc-k:373px;--rcb-k:373px;--rh-l:453px;--rc-l:373px;--rcb-l:373px;--rh-m:453px;--rc-m:373px;--rcb-m:373px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">grid_view</span></span>
       <div><h2 class="comp-title"><a href="/components/kanban-board">Kanban board</a></h2><p class="comp-desc">A board where you and the agent move cards, with drag and drop.</p></div>
@@ -10762,7 +10825,7 @@ body.ui section.faq{display:none}
 <section class="lib-sec" id="s-product" data-grp="basics">
   <div class="sec-head"><div><span class="sec-no">05</span><h2>Product</h2><p>Pricing, onboarding, setup flows and spending limits for the rest of your product.</p></div></div>
   <div class="sec-body" id="s-product-body"><div class="sec-uf"><div class="grid">
-  <article class="comp wide" data-soft id="c70" data-v2="pricing-cards" data-reg="pricing-cards" style="--rh-a:513px;--rc-a:395px;--rcb-a:387px;--rh-b:517px;--rc-b:399px;--rcb-b:387px;--rh-c:611px;--rc-c:493px;--rcb-c:482px;--rh-d:1133px;--rc-d:1015px;--rcb-d:1009px;--rh-e:1160px;--rc-e:1058px;--rcb-e:1049px">
+  <article class="comp wide" data-soft id="c70" data-v2="pricing-cards" data-reg="pricing-cards" style="--rh-a:491px;--rc-a:379px;--rcb-a:379px;--rh-b:491px;--rc-b:379px;--rcb-b:379px;--rh-c:586px;--rc-c:474px;--rcb-c:474px;--rh-d:491px;--rc-d:379px;--rcb-d:379px;--rh-e:528px;--rc-e:416px;--rcb-e:416px;--rh-f:528px;--rc-f:416px;--rcb-f:416px;--rh-g:528px;--rc-g:416px;--rcb-g:416px;--rh-h:1121px;--rc-h:1009px;--rcb-h:1009px;--rh-i:1121px;--rc-i:1009px;--rcb-i:1009px;--rh-j:1089px;--rc-j:1009px;--rcb-j:1009px;--rh-k:1121px;--rc-k:1041px;--rcb-k:1041px;--rh-l:1121px;--rc-l:1041px;--rcb-l:1041px;--rh-m:1121px;--rc-m:1041px;--rcb-m:1041px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">bolt</span></span>
       <div><h2 class="comp-title"><a href="/components/pricing-cards">Pricing cards</a></h2><p class="comp-desc">Three plans with a billing switch and a seat slider.</p></div>
@@ -10779,7 +10842,7 @@ body.ui section.faq{display:none}
   <div class="pcx-grid"></div>
 </div></template>
   </article>
-  <article class="comp" data-soft id="c72" data-v2="onboarding-checklist" data-reg="onboarding-checklist" style="--rh-a:467px;--rc-a:355px;--rcb-a:345px;--rh-b:560px;--rc-b:448px;--rcb-b:438px;--rh-c:467px;--rc-c:355px;--rcb-c:345px;--rh-d:467px;--rc-d:355px;--rcb-d:345px;--rh-e:489px;--rc-e:409px;--rcb-e:399px">
+  <article class="comp" data-soft id="c72" data-v2="onboarding-checklist" data-reg="onboarding-checklist" style="--rh-a:457px;--rc-a:345px;--rcb-a:345px;--rh-b:550px;--rc-b:438px;--rcb-b:438px;--rh-c:457px;--rc-c:345px;--rcb-c:345px;--rh-d:457px;--rc-d:345px;--rcb-d:345px;--rh-e:457px;--rc-e:345px;--rcb-e:345px;--rh-f:457px;--rc-f:345px;--rcb-f:345px;--rh-g:457px;--rc-g:345px;--rcb-g:345px;--rh-h:457px;--rc-h:345px;--rcb-h:345px;--rh-i:457px;--rc-i:345px;--rcb-i:345px;--rh-j:425px;--rc-j:345px;--rcb-j:345px;--rh-k:443px;--rc-k:363px;--rcb-k:363px;--rh-l:461px;--rc-l:381px;--rcb-l:381px;--rh-m:536px;--rc-m:456px;--rcb-m:456px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">checklist</span></span>
       <div><h2 class="comp-title"><a href="/components/onboarding-checklist">Onboarding checklist</a></h2><p class="comp-desc">First steps with a progress ring, and the agent can do some for you.</p></div>
@@ -10795,7 +10858,7 @@ body.ui section.faq{display:none}
   <div class="fold obx-fold"><div><div class="obx-list"></div></div></div>
 </div></template>
   </article>
-  <article class="comp" data-soft id="c73" data-v2="stepper" data-reg="stepper" style="--rh-a:420px;--rc-a:272px;--rcb-a:266px;--rh-b:420px;--rc-b:275px;--rcb-b:266px;--rh-c:420px;--rc-c:273px;--rcb-c:266px;--rh-d:420px;--rc-d:273px;--rcb-d:266px;--rh-e:472px;--rc-e:392px;--rcb-e:386px">
+  <article class="comp" data-soft id="c73" data-v2="stepper" data-reg="stepper" style="--rh-a:420px;--rc-a:266px;--rcb-a:266px;--rh-b:420px;--rc-b:266px;--rcb-b:266px;--rh-c:420px;--rc-c:266px;--rcb-c:266px;--rh-d:420px;--rc-d:266px;--rcb-d:266px;--rh-e:420px;--rc-e:266px;--rcb-e:266px;--rh-f:420px;--rc-f:266px;--rcb-f:266px;--rh-g:420px;--rc-g:266px;--rcb-g:266px;--rh-h:420px;--rc-h:266px;--rcb-h:266px;--rh-i:420px;--rc-i:266px;--rcb-i:266px;--rh-j:466px;--rc-j:386px;--rcb-j:386px;--rh-k:466px;--rc-k:386px;--rcb-k:386px;--rh-l:466px;--rc-l:386px;--rcb-l:386px;--rh-m:466px;--rc-m:386px;--rcb-m:386px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">account_tree</span></span>
       <div><h2 class="comp-title"><a href="/components/stepper">Stepper</a></h2><p class="comp-desc">A multi-step setup with a progress track that fills as you go.</p></div>
@@ -10812,7 +10875,7 @@ body.ui section.faq{display:none}
   <div class="stx-f"><button class="pill ghost sm stx-bk">Back</button><button class="pill ink sm stx-nx">Continue</button></div>
 </div></template>
   </article>
-  <article class="comp" data-soft id="c74" data-v2="set-limit" data-reg="set-limit" style="--rh-a:420px;--rc-a:237px;--rcb-a:232px;--rh-b:420px;--rc-b:280px;--rcb-b:280px;--rh-c:420px;--rc-c:238px;--rcb-c:232px;--rh-d:420px;--rc-d:238px;--rcb-d:232px;--rh-e:420px;--rc-e:280px;--rcb-e:280px">
+  <article class="comp" data-soft id="c74" data-v2="set-limit" data-reg="set-limit" style="--rh-a:420px;--rc-a:232px;--rcb-a:232px;--rh-b:420px;--rc-b:280px;--rcb-b:280px;--rh-c:420px;--rc-c:232px;--rcb-c:232px;--rh-d:420px;--rc-d:232px;--rcb-d:232px;--rh-e:420px;--rc-e:232px;--rcb-e:232px;--rh-f:420px;--rc-f:232px;--rcb-f:232px;--rh-g:420px;--rc-g:232px;--rcb-g:232px;--rh-h:420px;--rc-h:232px;--rcb-h:232px;--rh-i:420px;--rc-i:232px;--rcb-i:232px;--rh-j:420px;--rc-j:232px;--rcb-j:232px;--rh-k:420px;--rc-k:251px;--rcb-k:251px;--rh-l:420px;--rc-l:280px;--rcb-l:280px;--rh-m:420px;--rc-m:280px;--rcb-m:280px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">tune</span></span>
       <div><h2 class="comp-title"><a href="/components/set-limit">Set limit</a></h2><p class="comp-desc">A monthly agent budget with a draggable cap and a forecast.</p></div>
@@ -10831,7 +10894,7 @@ body.ui section.faq{display:none}
   <div class="slx-opt"><span class="muted">At the limit</span><div class="seg2 slx-sg" role="group" aria-label="At the limit"><button aria-pressed="true" data-v="pause">Pause runs</button><button aria-pressed="false" data-v="ask">Ask me</button><button aria-pressed="false" data-v="keep">Keep going</button></div></div>
 </div></template>
   </article>
-  <article class="comp" data-soft id="c75" data-v2="currency-converter" data-reg="currency-converter" style="--rh-a:420px;--rc-a:190px;--rcb-a:185px;--rh-b:420px;--rc-b:193px;--rcb-b:185px;--rh-c:420px;--rc-c:191px;--rcb-c:185px;--rh-d:420px;--rc-d:191px;--rcb-d:185px;--rh-e:420px;--rc-e:188px;--rcb-e:185px">
+  <article class="comp" data-soft id="c75" data-v2="currency-converter" data-reg="currency-converter" style="--rh-a:420px;--rc-a:185px;--rcb-a:185px;--rh-b:420px;--rc-b:185px;--rcb-b:185px;--rh-c:420px;--rc-c:185px;--rcb-c:185px;--rh-d:420px;--rc-d:185px;--rcb-d:185px;--rh-e:420px;--rc-e:185px;--rcb-e:185px;--rh-f:420px;--rc-f:185px;--rcb-f:185px;--rh-g:420px;--rc-g:185px;--rcb-g:185px;--rh-h:420px;--rc-h:185px;--rcb-h:185px;--rh-i:420px;--rc-i:185px;--rcb-i:185px;--rh-j:420px;--rc-j:185px;--rcb-j:185px;--rh-k:420px;--rc-k:185px;--rcb-k:185px;--rh-l:420px;--rc-l:185px;--rcb-l:185px;--rh-m:420px;--rc-m:185px;--rcb-m:185px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">trending_up</span></span>
       <div><h2 class="comp-title"><a href="/components/currency-converter">Currency converter</a></h2><p class="comp-desc">Show plan prices in local currency, with a swap and live rate.</p></div>
@@ -11525,15 +11588,29 @@ body.ui section.faq{display:none}
     const cur = root.getAttribute('data-style') || 'blueprint';
     $$('button', seg).forEach(b => b.classList.toggle('on', b.dataset.v === cur));
     const relayout = () => { dispatchEvent(new Event('resize')); };
+    const touch = matchMedia('(hover: none)');
+    const NAME = { anim:n => 'Animate ' + n, view:n => 'View the code of ' + n, copy:n => 'Copy the code of ' + n };
     function placeCodeBtns(){
       const soft = root.getAttribute('data-style') === 'soft';
       $$('.comp').forEach(c => {
         const btns = c.querySelector('.code-btns'); if (!btns) return;
-        if (!btns._home){ btns._home = btns.parentElement; btns._next = btns.nextSibling; }
+        if (!btns._home){
+          btns._home = btns.parentElement; btns._next = btns.nextSibling;
+          // each label goes in a span the icon row can hide, and the button is named after the component
+          const t = c.querySelector('.comp-title'), n = t ? t.textContent.trim() : '';
+          $$('button', btns).forEach(b => {
+            [...b.childNodes].forEach(x => { if (x.nodeType === 3 && x.textContent.trim()){ const s = document.createElement('span'); s.className = 'cb-l'; x.replaceWith(s); s.appendChild(x); } });
+            const k = b.hasAttribute('data-anim') ? 'anim' : b.hasAttribute('data-view') ? 'view' : b.hasAttribute('data-copy') ? 'copy' : '';
+            if (k && n) b.setAttribute('aria-label', NAME[k](n));
+          });
+        }
+        const head = touch.matches && c.closest('main') && c.querySelector(':scope>.comp-head');
+        if (head){ if (btns.parentElement !== head) head.insertBefore(btns, head.querySelector(':scope>.exp-btn,:scope>.save-btn')); return; }
         const st = c.querySelector('.stage'); if (btns.parentElement !== st) st.appendChild(btns);
       });
     }
     placeCodeBtns();
+    if (touch.addEventListener) touch.addEventListener('change', placeCodeBtns);
     // keep the component you're looking at in place while the styles swap
     function anchor(){
       const hh = $('.top').offsetHeight, c = $$('.comp').find(el => el.getBoundingClientRect().bottom > hh + 10);
