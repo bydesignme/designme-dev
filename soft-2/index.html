@@ -1315,6 +1315,79 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .crx-cmt{font-family:var(--sans);margin:4px 10px 6px 36px;display:flex;gap:6px;align-items:center;padding:6px;border-radius:10px;background:var(--surface);box-shadow:var(--shadow)}
 .crx-cmt input{flex:1;min-width:0;border:0;outline:0;background:transparent;font:inherit;font-size:12.5px;color:var(--fg);padding:0 6px}
 .crx-cmt.sent{background:var(--sel);box-shadow:none;font-size:12.5px;padding:6px 10px}
+/* ---------- Inline text diff ---------- */
+/* a piece of copy with the agent's edits marked inline, struck and added; each edit opens a small toolbar to accept or
+   reject it, and an edit the agent isn't sure of says why */
+.itd{position:relative;width:100%;max-width:440px;margin:0 auto;padding:16px;display:flex;flex-direction:column;gap:12px}
+.itd-h{display:flex;align-items:center;gap:12px}
+.itd-ht{flex:1;min-width:0;display:flex;flex-direction:column}
+.itd-ht b{font-weight:500;font-size:14px}
+.itd-st{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.itd-a{display:flex;gap:6px;flex:none}
+.itd-t{margin:0;font-size:14px;line-height:1.8;color:var(--fg)}
+.itd-c{padding:2px 1px;border-radius:5px;cursor:pointer;outline:0;transition:background .16s;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+.itd-c:hover,.itd-c.on{background:var(--row)}
+.itd-c:focus-visible{box-shadow:0 0 0 2px var(--accent-bg)}
+.itd-c del{color:var(--del);text-decoration:line-through;text-decoration-thickness:1px;background:color-mix(in srgb,var(--del) 9%,transparent);border-radius:3px;padding:0 2px}
+.itd-c ins{color:var(--add);text-decoration:none;background:color-mix(in srgb,var(--add) 11%,transparent);border-radius:3px;padding:0 2px;margin-left:3px}
+.itd-c.unsure ins{color:var(--warn);background:var(--warn-bg)}
+.itd-c.acc del,.itd-c.rej ins{display:none}
+.itd-c.acc ins,.itd-c.rej del{color:inherit;background:none;text-decoration:none;margin:0;padding:0}
+.itd-bar{position:absolute;left:0;top:0;z-index:5;display:flex;flex-direction:column;gap:8px;padding:8px;width:max-content;max-width:260px;border-radius:12px;background:var(--raised);box-shadow:var(--shadow-pop);opacity:0;transform:translateY(-4px);visibility:hidden;pointer-events:none;transition:opacity .16s,transform .32s var(--ease),visibility 0s .32s}
+.itd-bar.open{opacity:1;transform:none;visibility:visible;pointer-events:auto;transition-delay:0s}
+.itd-why{margin:0;display:flex;gap:6px;font-size:13px;line-height:1.45;color:var(--warn)}
+.itd-why svg{flex:none;margin-top:3px}
+.itd-bb{display:flex;gap:6px}
+.itd-f{margin:0;display:flex;align-items:center;gap:6px;font-size:13px;min-height:20px}
+.itd-f svg{color:var(--ok)}
+/* ---------- Draft review ---------- */
+/* what the agent wrote, laid out like the email it is: who it goes to, the subject, the message and what is attached,
+   then send now or later, or discard. Before sending it checks for an attachment the message mentions, and after
+   sending there is a short window to undo */
+.drf{position:relative;width:100%;max-width:440px;margin:0 auto;padding:16px;display:flex;flex-direction:column;gap:12px}
+.drf-h{display:flex;align-items:center;gap:12px}
+.drf-ag{width:32px;height:32px;border-radius:9px;background:var(--chip);color:var(--fg2);display:grid;place-items:center;flex:none}
+.drf-ht{flex:1;min-width:0;display:flex;flex-direction:column}
+.drf-ht b{font-weight:500;font-size:14px}
+.drf-ht span{font-size:13px}
+.drf-fs{display:flex;flex-direction:column;border-top:1px solid var(--line)}
+.drf-r{display:flex;align-items:center;gap:10px;min-height:40px;border-bottom:1px solid var(--line);font-size:13.5px}
+.drf-l{width:52px;flex:none;color:var(--muted);font-size:13px}
+.drf-p{display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 10px 0 3px;border-radius:var(--r-pill);background:var(--chip);font-size:13px}
+.drf-p .av{width:20px;height:20px;font-size:9px}
+.drf-s{flex:1;min-width:0;height:38px;padding:0;border:0;background:none;outline:0;font:inherit;font-size:13.5px;color:var(--fg)}
+.drf-b{font-size:14px;line-height:1.6;color:var(--fg);outline:0;border-radius:6px}
+.drf-b:focus-visible{box-shadow:0 0 0 2px var(--accent-bg)}
+.drf-att{display:flex;flex-wrap:wrap;gap:6px}
+.drf-att:empty{display:none}
+.drf-file{display:inline-flex;align-items:center;gap:8px;height:30px;padding:0 10px;border-radius:8px;background:var(--chip);font-size:13px}
+.drf-file>svg{color:var(--fg2)}
+.drf-file .muted{font-size:12px;display:inline-flex;align-items:center}
+.drf-file .spin{width:10px;height:10px}
+/* the shut warning is hidden once it has folded away, so nothing measures the clipped part as if it were drawn */
+.drf-wf.shut>div{visibility:hidden;transition:visibility 0s var(--t)}
+.drf-w{padding:10px 12px;border-radius:12px;background:var(--warn-bg);display:flex;flex-direction:column;gap:10px}
+.drf-w p{margin:0;display:flex;gap:8px;font-size:13px;line-height:1.45;color:var(--fg)}
+.drf-w p svg{color:var(--warn);flex:none;margin-top:3px}
+.drf-wa{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:6px}
+.drf-w .pill.ghost{background:var(--surface);color:var(--fg);box-shadow:var(--shadow)}
+.drf-f{display:flex;align-items:center;gap:8px}
+.drf-f .sp{flex:1}
+.drf-when{font-size:13px}
+.drf-mg{display:flex;gap:1px;flex:none}
+.drf-go{border-radius:999px 0 0 999px;padding-right:12px}
+.drf-dd{border-radius:0 999px 999px 0;padding:0 9px}
+.drf-pop{min-width:220px}
+.drf.sent .drf-fs,.drf.sent .drf-b,.drf.sent .drf-att{opacity:.55;transition:opacity .32s}
+.drf-done{display:flex;align-items:center;gap:12px;padding:10px 10px 10px 12px;border-radius:12px;background:var(--ok-bg);font-size:13.5px}
+.drf-done.bin{background:var(--chip)}
+.drf-done.later{background:var(--pb-bg)}
+.drf-done>svg{color:var(--ok);flex:none}
+.drf-done.bin>svg,.drf-done.later>svg{color:var(--fg2)}
+.drf-done .t{flex:1;min-width:0;display:flex;flex-direction:column}
+.drf-done .t span{font-size:13px}
+.drf-done .pill{background:var(--surface);color:var(--fg);box-shadow:var(--shadow)}
+.drf-done .pill:hover{box-shadow:var(--shadow-pop)}
 /* ---------- Design review ---------- */
 .drv{padding:14px;display:flex;flex-direction:column;gap:12px}
 .drv-h{display:flex;align-items:center;gap:10px}
@@ -3419,6 +3492,44 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
   </div>
 </div></template>
   <div class="card-f"><span>Keep or undo each change, comment on a line</span><span class="sp"></span><button class="replay" aria-label="Replay Change review"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
+</article>
+<article class="card" data-c="inline-text-diff" id="c-inline-text-diff">
+  <div class="card-h"><div><h3>Inline text diff</h3><p>The agent's edits to a piece of copy, accepted or rejected one by one.</p></div></div>
+  <div class="stage"><div class="stage-in"></div></div>
+  <template><div class="itd panel">
+  <div class="itd-h"><div class="itd-ht"><b>Pricing intro</b><span class="muted itd-st">4 edits to review</span></div><div class="itd-a"><button class="pill ghost sm itd-no">Reject all</button><button class="pill ink sm itd-ok">Accept all</button></div></div>
+  <p class="itd-t"></p>
+  <p class="itd-f muted" aria-live="polite"></p>
+  <div class="itd-bar" role="dialog" aria-label="Edit">
+    <p class="itd-why">{warn}<span></span></p>
+    <div class="itd-bb"><button class="pill ink sm itd-acc">{chk}Accept</button><button class="pill ghost sm itd-rej">{x}Reject</button></div>
+  </div>
+</div></template>
+  <div class="card-f"><span>Click an edit to accept or reject it</span><span class="sp"></span><button class="replay" aria-label="Replay Inline text diff"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
+</article>
+<article class="card" data-c="draft-review" id="c-draft-review">
+  <div class="card-h"><div><h3>Draft review</h3><p>An email the agent drafted, to check and edit before it sends.</p></div></div>
+  <div class="stage"><div class="stage-in"></div></div>
+  <template><div class="drf panel">
+  <div class="drf-h"><span class="drf-ag">{spark}</span><div class="drf-ht"><b>Draft from the agent</b><span class="muted">After the pricing review with Maya</span></div><span class="tag drf-tag">Not sent</span></div>
+  <div class="drf-fs">
+    <div class="drf-r"><span class="drf-l">To</span><span class="drf-p">{av}Maya Kim</span></div>
+    <label class="drf-r"><span class="drf-l">Subject</span><input class="drf-s" value="Pricing v4: what changed" aria-label="Subject"></label>
+  </div>
+  <div class="drf-b" contenteditable="true" role="textbox" aria-multiline="true" aria-label="Message" spellcheck="false">Hi Maya,<br><br>Here's what changed on the pricing page: one button per plan, the yearly price first, and the FAQ under the comparison table. The full list is in the attached summary.<br><br>Ready for your sign-off when you are.</div>
+  <div class="drf-att"></div>
+  <div class="fold shut drf-wf"><div><div class="drf-w"><p>{warn}<span>You mention an attachment, but nothing is attached.</span></p><div class="drf-wa"><button class="pill ghost sm drf-any">Send anyway</button><button class="pill ink sm drf-at">{clip}Attach the summary</button></div></div></div></div>
+  <div class="drf-f">
+    <button class="pill ghost sm drf-x">{trash}Discard</button><span class="sp"></span><span class="muted drf-when"></span>
+    <div class="drf-mg"><button class="pill ink sm drf-go">{send}Send</button><button class="pill ink sm drf-dd" aria-label="When to send" aria-haspopup="menu" aria-expanded="false" data-pop=".drf-pop" data-pop-align="end">{chev}</button></div>
+  </div>
+  <div class="pop drf-pop" role="menu" aria-label="When to send">
+    <button class="mi" role="menuitemradio" aria-checked="true" data-close data-w="now"><span>Send now</span><span class="ck">{chk}</span></button>
+    <button class="mi" role="menuitemradio" aria-checked="false" data-close data-w="Tomorrow at 09:00"><span>Tomorrow at 09:00<span class="d">The start of Maya's day</span></span><span class="ck">{chk}</span></button>
+    <button class="mi" role="menuitemradio" aria-checked="false" data-close data-w="Monday at 09:00"><span>Monday at 09:00<span class="d">The start of next week</span></span><span class="ck">{chk}</span></button>
+  </div>
+</div></template>
+  <div class="card-f"><span>Edit the draft, then send, schedule or discard it</span><span class="sp"></span><button class="replay" aria-label="Replay Draft review"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
 </article>
 <article class="card wide" data-c="design-review" id="c-design-review">
   <div class="card-h"><div><h3>Design review</h3><p>Checks run, a teammate asks for a change, the agent makes it, and you ship.</p></div></div>
@@ -5929,6 +6040,113 @@ DM.def('change-review', (r, c) => {
   const bulk = s => { F[cur].h.forEach(h => h.s = s); fileState(cur); show(cur); if (s === 'kept' && cur < F.length - 1) c.later(500, () => show(cur + 1)); };
   $('.crx-ok', r).onclick = () => bulk('kept'); $('.crx-rej', r).onclick = () => bulk('undone');
   F.forEach((_, i) => fileState(i)); show(0, true);
+});
+/* ---------- Inline text diff ---------- */
+DM.def('inline-text-diff', (r, c) => {
+  r.innerHTML = r.innerHTML.replace('{chk}', I('check','xs')).replace('{x}', I('x','xs')).replace('{warn}', I('alert','xs'));
+  // the copy, and the agent's edits to it: what it said, what the agent suggests, and why, when the agent isn't sure
+  const T = [{ o:'Pick', n:'Choose' }, ' a plan that ', { o:'fits your team', n:'grows with your studio' }, '. Every plan ', { o:'includes', n:'comes with' }, ' unlimited projects, and ', { o:'you can cancel at any time', n:'your first month is free', why:'Not in the pricing brief: there is no free month' }, '.'];
+  const E = T.filter(x => typeof x === 'object');
+  const root = $('.itd', r), tx = $('.itd-t', r), st = $('.itd-st', r), bar = $('.itd-bar', r), why = $('.itd-why', r), f = $('.itd-f', r), acts = $('.itd-a', r);
+  tx.innerHTML = T.map(x => typeof x === 'string' ? x : `<span class="itd-c${x.why ? ' unsure' : ''}" role="button" tabindex="0" aria-haspopup="dialog" aria-expanded="false"><del>${x.o}</del><ins>${x.n}</ins></span>`).join('');
+  const chunks = $$('.itd-c', tx);
+  E.forEach((e, i) => { e.s = ''; chunks[i].setAttribute('aria-label', `Edit ${i + 1} of ${E.length}: ${e.o}, suggested ${e.n}`); });
+  let cur = -1;
+  function tally(){
+    const n = E.filter(e => !e.s).length, a = E.filter(e => e.s === 'acc').length;
+    swap(st, n === E.length ? `${n} edits to review` : n ? `${n} of ${E.length} left` : `${a} accepted, ${E.length - a} rejected`);
+    if (!n && !f.textContent){ acts.hidden = true; f.innerHTML = `${I('ok','xs')}<span>Saved to Pricing v4</span>`; enter(f); }
+  }
+  const close = () => { bar.classList.remove('open'); bar.inert = true; chunks.forEach(x => { x.classList.remove('on'); x.setAttribute('aria-expanded', false); }); cur = -1; };
+  // the toolbar opens under the edit's last line; inside a scaled preview the offsets are divided by its scale
+  function open(i){
+    cur = i; const el = chunks[i], e = E[i];
+    chunks.forEach((x, k) => { x.classList.toggle('on', k === i); x.setAttribute('aria-expanded', k === i); });
+    why.hidden = !e.why; $('span', why).textContent = e.why || '';
+    const rb = root.getBoundingClientRect(), k = rb.width / root.offsetWidth || 1, rs = el.getClientRects(), cr = rs[rs.length - 1] || el.getBoundingClientRect();
+    bar.inert = false; bar.classList.add('open');
+    bar.style.left = Math.max(12, Math.min((cr.left - rb.left) / k, root.offsetWidth - bar.offsetWidth - 12)) + 'px';
+    bar.style.top = ((cr.bottom - rb.top) / k + 6) + 'px';
+  }
+  function decide(i, s){ E[i].s = s; chunks[i].classList.remove('acc', 'rej'); chunks[i].classList.add(s); tally(); }
+  const pick = s => { const i = cur, back = bar.contains(document.activeElement); close(); decide(i, s); if (back) chunks[i].focus({ preventScroll:true }); };
+  chunks.forEach((el, i) => { el.onclick = () => cur === i ? close() : open(i); el.onkeydown = ev => { if (ev.key === 'Enter' || ev.key === ' '){ ev.preventDefault(); el.click(); } }; });
+  $('.itd-acc', r).onclick = () => pick('acc');
+  $('.itd-rej', r).onclick = () => pick('rej');
+  $('.itd-ok', r).onclick = () => { close(); E.forEach((e, i) => { if (!e.s) decide(i, 'acc'); }); };
+  $('.itd-no', r).onclick = () => { close(); E.forEach((e, i) => { if (!e.s) decide(i, 'rej'); }); };
+  // Escape or a click elsewhere closes the toolbar
+  c.on(r, 'keydown', ev => { if (ev.key === 'Escape' && cur >= 0){ const el = chunks[cur]; close(); el.focus({ preventScroll:true }); } });
+  c.on(document, 'pointerdown', ev => { if (cur >= 0 && !bar.contains(ev.target) && !ev.target.closest('.itd-c')) close(); });
+  bar.inert = true; tally();
+  // the preview's story: accept two edits, read why the agent isn't sure of one and reject it, then accept the rest
+  c.story(async s => {
+    await s.beat(4);
+    await s.tap(chunks[0]); await s.beat(2); await s.tap($('.itd-acc', r)); await s.beat(1);
+    await s.tap(chunks[1]); await s.beat(2); await s.tap($('.itd-acc', r)); await s.beat(1);
+    await s.tap(chunks[3]); await s.beat(5); await s.tap($('.itd-rej', r)); await s.beat(3);
+    await s.tap($('.itd-ok', r)); s.away();
+    await s.beat(3);
+  });
+});
+/* ---------- Draft review ---------- */
+DM.def('draft-review', (r, c) => {
+  const IC = { spark:I('spark'), warn:I('alert','xs'), clip:I('clip','xs'), send:I('send','xs'), chev:I('chev-d','xs'), chk:I('check','xs'), trash:I('trash','xs'), av:AV('MK','var(--pl)') };
+  r.innerHTML = r.innerHTML.replace(/\{(\w+)\}/g, (m, k) => IC[k] || m);
+  const root = $('.drf', r), go = $('.drf-go', r), dd = $('.drf-dd', r), att = $('.drf-att', r), wf = $('.drf-wf', r), when = $('.drf-when', r), f = $('.drf-f', r), tag = $('.drf-tag', r), body = $('.drf-b', r), fields = [$('.drf-fs', r), body, att];
+  const items = $$('.drf-pop .mi', r);
+  let at = 'now', file = false, done = null, run = 0;
+  const label = () => (at === 'now' ? I('send','xs') + 'Send' : I('clock','xs') + 'Schedule');
+  // when to send: now, or a set time from the menu beside the button
+  items.forEach(m => m.addEventListener('click', () => { at = m.dataset.w; items.forEach(x => x.setAttribute('aria-checked', x === m)); go.innerHTML = label(); swap(when, at === 'now' ? '' : at); }));
+  const warn = on => { wf.classList.toggle('shut', !on); wf.inert = !on; };
+  warn(false);
+  // the result of sending, scheduling or discarding takes the footer's place, with a white button to take it back
+  function row(ic, t, sub, btn, fn, cls){
+    f.hidden = true; root.classList.add('sent'); fields.forEach(e => e.inert = true); body.contentEditable = 'false';
+    done = html(`<div class="drf-done ${cls || ''}">${ic}<span class="t">${t}<span class="muted drf-sub">${sub}</span></span>${btn ? `<button class="pill sm">${btn}</button>` : ''}</div>`);
+    root.appendChild(done); enter(done); if (btn) $('button', done).onclick = fn; return done;
+  }
+  function back(){
+    run++; if (done){ done.remove(); done = null; }
+    f.hidden = false; root.classList.remove('sent'); fields.forEach(e => e.inert = false); body.contentEditable = 'true';
+    go.disabled = dd.disabled = false; go.innerHTML = label(); swap(tag, 'Not sent'); tag.className = 'tag drf-tag';
+  }
+  function send(force){
+    // the message talks about an attachment that isn't there: say so before it goes
+    if (!force && !file && /attach/i.test(body.textContent)){ warn(true); return; }
+    warn(false);
+    const id = ++run;
+    c.run(async () => {
+      go.disabled = dd.disabled = true; go.innerHTML = `<span class="spin"></span>${at === 'now' ? 'Sending' : 'Scheduling'}`;
+      await c.wait(900); if (id !== run) return;
+      if (at !== 'now'){ row(I('clock'), `Scheduled for ${at.replace(/^\w/, ch => ch.toLowerCase())}`, 'To Maya Kim', 'Cancel', back, 'later'); swap(tag, 'Scheduled'); tag.className = 'tag b drf-tag'; return; }
+      // a few seconds to take it back before it really goes
+      const d = row(I('ok'), 'Sent to Maya Kim', 'You can undo for 5s', 'Undo', back), sub = $('.drf-sub', d);
+      for (let k = 5; k > 0; k--){ sub.textContent = `You can undo for ${k}s`; await c.wait(1000); if (id !== run) return; }
+      $('button', d).remove(); swap(sub, 'Delivered just now'); swap(tag, 'Sent'); tag.className = 'tag ok drf-tag';
+    });
+  }
+  go.onclick = () => send(false);
+  $('.drf-any', r).onclick = () => send(true);
+  $('.drf-at', r).onclick = () => c.run(async () => {
+    if (file) return; warn(false);
+    const chip = html(`<span class="drf-file">${I('file','xs')}<span>Pricing v4 summary.pdf</span><span class="muted drf-fz"><span class="spin"></span></span></span>`);
+    att.appendChild(chip); enter(chip);
+    await c.wait(1200); $('.drf-fz', chip).textContent = '240 KB'; file = true;
+  });
+  $('.drf-x', r).onclick = () => { warn(false); row(I('trash','xs'), 'Draft discarded', 'Nothing was sent', 'Undo', back, 'bin'); };
+  // the preview's story: send, get stopped by the missing attachment, attach it, send, and let the undo window pass
+  c.story(async s => {
+    await s.beat(3);
+    await s.point(body, false); await s.beat(3);
+    await s.tap(go); s.away();
+    await s.until(() => !wf.classList.contains('shut')); await s.beat(5);
+    await s.tap($('.drf-at', r)); s.away();
+    await s.until(() => file); await s.beat(2);
+    await s.tap(go); s.away();
+    await s.until(() => done && !$('button', done));
+  });
 });
 /* ---------- Design review ---------- */
 DM.def('design-review', (r, c) => {

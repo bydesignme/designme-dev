@@ -260,6 +260,8 @@ export function DesignTuner({ params = PARAMS, values, defaultValues, onValuesCh
 - [Proposal card](https://designme.dev/components/proposal-card.md): A suggested change with confidence, alternatives and undo.
 - [Rewrite toolbar](https://designme.dev/components/rewrite-toolbar.md): Select a sentence and let the agent rewrite it in place.
 - [Launch checklist](https://designme.dev/components/launch-checklist.md): The agent checks a design before it ships, and fixes what fails.
+- [Inline text diff](https://designme.dev/components/inline-text-diff.md): The agent's edits to a piece of copy, accepted or rejected one by one.
+- [Draft review](https://designme.dev/components/draft-review.md): An email the agent drafted, to check and edit before it sends.
 - [Design review](https://designme.dev/components/design-review.md): Checks run, a teammate asks for a change, the agent makes it, and you ship.
 
 All components: https://designme.dev/llms.txt
