@@ -4,7 +4,7 @@ React versions of the [designme.dev](https://designme.dev) components, for Next.
 
 They use the same markup and the same CSS as the site, so they look and move exactly like the previews on designme.dev, in both styles (Blueprint and Soft) and in light and dark. The difference is that each one takes props, so you drive it from your own state instead of a scripted demo.
 
-All 91 components are here, from Status pill to Currency converter, each with an example that replays its demo from the site.
+All 94 components are here, from Status pill to Currency converter, each with an example that replays its demo from the site.
 
 Each one has a page on designme.dev with its demo, its React usage, its props and its code, at `https://designme.dev/components/<name>`. To see them all running locally, run `npm run dev` here.
 
@@ -351,6 +351,10 @@ Customer accounts with health, plan and an agent note per row.
 A field that opens a calendar, with quick picks and natural language.  
 `value` / `defaultValue` / `onValueChange` (`Date | null`), `month` / `defaultMonth` / `onMonthChange`, `open` / `defaultOpen` / `onOpenChange`, `query` / `defaultQuery` / `onQueryChange` (typed text like "next friday" or "in 2 weeks" picks a day), `parse`, `today` (pass it when rendering on a server), `placeholder`, `queryPlaceholder`, `presets: { label, days }[]`, `format`, `locale`, `weekStartsOn: 0 | 1`. Arrow keys, Home, End and Page Up / Page Down move around the calendar.
 
+**SegmentedControl** · `segmented-control/SegmentedControl.tsx`  
+Switch between views of the same thing, with a sliding indicator.  
+`options: { value, label }[]`, `value` / `defaultValue` / `onValueChange`, `label` (names the group), `as: 'tabs' | 'radio'` (tabs by default, for switching a panel: give the panel `id="<id>-panel"` and `aria-labelledby="<id>-<value>"`), `id`. ← and → move and pick, Home and End jump to the ends.
+
 **DateRangePicker** · `date-range-picker/DateRangePicker.tsx`  
 Pick a start and end across two months, or use a preset.  
 `value` / `defaultValue` / `onValueChange` (`{ start, end }`, `end` is null while picking), `month` / `defaultMonth` / `onMonthChange` (the left month), `presets: { key, label, range(today) }[]` (defaults to `DateRangePickerPresets`), `today`, `onApply({ start, end })`, `format`, `locale`, `weekStartsOn`. Hovering previews the range.
@@ -381,6 +385,10 @@ Search with scoped filters, recent queries and an agent answer.
 A searchable select with country codes, currency and keyboard support.  
 `countries: { code, name, currency, flag? }[]` (defaults to twelve countries with built-in flags), `value` / `defaultValue` / `onValueChange` (the country code), `open` / `defaultOpen` / `onOpenChange`, `query` / `defaultQuery` / `onQueryChange`, `label`, `hint`, `pickedHint(country)`, `placeholder`, `suggestedLabel`, `emptyLabel`. Typing filters by name or code; ↑, ↓, Enter and Escape work as in any select.
 
+**MultiSelect** · `multi-select/MultiSelect.tsx`  
+A combobox that filters as you type and keeps your picks as chips.  
+`label`, `options: { value, label?, meta? }[]`, `value` / `defaultValue` / `onValueChange` (the picked values, in order), `query` / `defaultQuery` / `onQueryChange`, `open` / `defaultOpen` / `onOpenChange`, `placeholder`, `hint`, `empty`. ↑ and ↓ move through the list, Enter picks or unpicks, Escape closes it, and Backspace in an empty box removes the last chip.
+
 **SocialSignIn** · `social-sign-in/SocialSignIn.tsx`  
 One-tap providers that remember the last one you used.  
 `providers: { key, label, brand? or icon? or letters? }[]` (defaults to Google, GitHub, Figma and SSO), `user: { name, initials, color? }`, `lastUsed` / `defaultLastUsed` / `onLastUsedChange`, `signedIn` / `defaultSignedIn` / `onSignedInChange`, `onSignIn(provider)` (return a promise and the button spins; resolving to false stays signed out), `onSignOut`, `onEmail`, `title`, `logo`, `emailLabel`.
@@ -388,6 +396,10 @@ One-tap providers that remember the last one you used.
 **SignIn** · `sign-in/SignIn.tsx`  
 Email first, then a one-time code that fills itself in.  
 `email` / `defaultEmail` / `onEmailChange`, `onSendCode(email)` (return a promise to spin; a rejection's message shows under the field), `step` / `defaultStep` / `onStepChange` (`'email' | 'code' | 'done'`), `code` / `defaultCode` / `onCodeChange`, `codeLength`, `onVerify(code, email)` (return false for a wrong code), `resendIn`, `onResend`, `onSignedIn(email)`, and the titles and labels. A pasted or autofilled code spreads over the boxes.
+
+**OtpField** · `otp-field/OtpField.tsx`  
+A one-time code, one box per digit, that fills from a paste.  
+`value` / `defaultValue` / `onValueChange`, `onComplete(code)` (once every box is filled), `status: 'idle' | 'checking' | 'error' | 'success'` (error shakes the boxes red and typing again starts the code over; success locks them green), `message`, `length` (6 by default, in two halves), `title`, `description`, `icon`, `footer` (like a resend link). The first box asks for `autocomplete="one-time-code"`; Backspace and the arrow keys move between boxes.
 
 **Form** · `form/Form.tsx`  
 A project brief with inline checks and an agent that drafts the rest.  

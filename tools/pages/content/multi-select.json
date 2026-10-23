@@ -1,0 +1,41 @@
+{
+  "summary": "Multi-select is a combobox for picking several things from a long list. Typing filters the list, the arrow keys move through it and Enter picks, and each pick becomes a chip in the box with its own remove button. Backspace in an empty box takes the last chip off, so a wrong pick is one key away from gone.",
+  "use": [
+    "When people pick several items from a list too long to show at once, like tags, teammates or labels.",
+    "When people know what they want and would rather type a few letters than scroll.",
+    "When the picks should stay visible as chips that are easy to remove one by one.",
+    "Not for picking one item: use a select or a combobox with a single value then."
+  ],
+  "features": [
+    "`options` are the choices, each with a `value`, an optional `label` and quiet `meta` at the end of the row, like how many files carry a tag.",
+    "`value`, `defaultValue` and `onValueChange` hold the picks in the order they were made, shown as chips before the text box.",
+    "Typing filters the list by name; `query` and `onQueryChange` hold the text, and `empty` is the line when nothing matches.",
+    "Each row has a checkbox: Enter or a click picks a row that isn't picked and unpicks one that is. The box clears for the next search.",
+    "Each chip has a remove button, and Backspace in an empty box removes the last chip.",
+    "The list opens under the box and moves down as the chips wrap onto more lines. `open`, `defaultOpen` and `onOpenChange` hold whether it's open; a click outside closes it."
+  ],
+  "a11y": [
+    "The text box has `role=\"combobox\"` with `aria-expanded`, `aria-controls` and `aria-autocomplete=\"list\"`, and the label is tied to it.",
+    "The list is a `listbox` with `aria-multiselectable`, and each row an `option` with `aria-selected`.",
+    "The focus stays in the text box: ↑ and ↓ move the highlight, which `aria-activedescendant` points to, Enter picks, and Escape closes the list.",
+    "Each chip's remove button is named for its tag, like \"Remove Pricing\"."
+  ],
+  "faq": [
+    {
+      "q": "Can people add a tag that isn't in the list?",
+      "a": "Not by default. Add a row for the typed text to `options` when nothing matches, and pick it in `onValueChange`."
+    },
+    {
+      "q": "Does it search a server?",
+      "a": "It filters the `options` you pass. To search a server, pass `query` and `onQueryChange`, fetch as the query changes, and pass the results as `options`."
+    },
+    {
+      "q": "Can I limit how many are picked?",
+      "a": "Yes. In `onValueChange`, ignore a change that would go over the limit, and say so in the `hint`."
+    },
+    {
+      "q": "Why does the list stay open after a pick?",
+      "a": "People usually pick several in a row. Escape, Tab or a click outside closes it."
+    }
+  ]
+}

@@ -317,8 +317,10 @@ export function Form({
 - [Tooltip](https://designme.dev/components/tooltip.md): Quiet labels on hover, with shortcuts and a richer preview card.
 - [Search input](https://designme.dev/components/search-input.md): Search with scoped filters, recent queries and an agent answer.
 - [Country select](https://designme.dev/components/country-select.md): A searchable select with country codes, currency and keyboard support.
+- [Multi-select](https://designme.dev/components/multi-select.md): A combobox that filters as you type and keeps your picks as chips.
 - [Social sign-in](https://designme.dev/components/social-sign-in.md): One-tap providers that remember the last one you used.
 - [Sign in](https://designme.dev/components/sign-in.md): Email first, then a one-time code that fills itself in.
+- [OTP field](https://designme.dev/components/otp-field.md): A one-time code, one box per digit, that fills from a paste.
 - [Payment form](https://designme.dev/components/payment-form.md): Card details with live formatting, brand detection and a clear total.
 
 All components: https://designme.dev/llms.txt
