@@ -32,16 +32,22 @@ npm run pages        # builds the component pages, their Markdown copies and the
 After changing a component's size, or adding one, measure the cards again and rebuild:
 
 ```sh
-PW=$(npm root -g)/playwright node measure-heights.js   # about five minutes; or npm i playwright and leave PW out
+PW=$(npm root -g)/playwright node measure-heights.js   # about half an hour; or npm i playwright and leave PW out
+ONLY=k,l,m PW=$(npm root -g)/playwright node measure-heights.js   # just those bands (here the phones), keeping the rest
 npm run build
 ```
 
-`measure-heights.js` plays every component at one width per layout (1440, where the 1400px layout stops growing, then
-1181, 961, 641, and 390 for phones) in both styles, and writes to `card-heights.json` the tallest each card's stage gets
-and the tallest each component gets in each style, open lists and popovers included. The build gives every card that
-height from the start, and the component its own tallest size inside it, so nothing below a card moves, a component grows
-downwards instead of creeping up while it plays, and at its tallest it sits in the middle of its stage, with the same
-room above and below. The build warns about a card with no measurement.
+Add `PW_EXEC=/path/to/chromium` to use a Chromium of your own. `measure-heights.js` plays every component at a series of
+widths (1440, where the 1400px layout stops growing, then 1181 and 961; 880, 834, 820, 768, 744 and 641 for tablets; 520,
+430, 390 and 360 for phones; each width covers the screens from it up to the next) in both styles, and writes to
+`card-heights.json` the tallest each card's stage gets and the tallest each component gets in each style, open lists and
+popovers included. Phones and tablets get several widths because a component wraps more on every narrower screen, so a
+height measured at one width leaves it off-centre at another. Entrances play eight times as fast while it measures, so a
+part still sliding into place doesn't count as height. The build gives every card that height from the start, and the
+component its own tallest size inside it, so nothing below a card moves, a component grows downwards instead of creeping
+up while it plays, and at its tallest it sits in the middle of its stage, with the same room above and below. The build
+warns about a card with no measurement, and the measuring lists anything that reaches above a component or past the sides
+of its stage.
 
 The site's sounds are recordings from Kenney's Interface Sounds and UI Audio packs (CC0, in `sounds-src` with their
 licences). `make-sounds.py` puts the ones in use into `sounds/ui.wav`, with `sounds/ui.json` saying where each starts and

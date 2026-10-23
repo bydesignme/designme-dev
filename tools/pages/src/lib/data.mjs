@@ -51,8 +51,10 @@ const core = read('r/core.json');
 export const CORE = { css:core.files.find(f => f.path.endsWith('.css')).content, js:core.files.find(f => f.path.endsWith('.js')).content };
 
 // how tall each card's stage gets while its demo plays, popovers included (tools/site/measure-heights.js), widest layout
-// first, phone last: the demo keeps that height, as the homepage's cards do
-const HEIGHTS = read('tools/site/card-heights.json').heights;
+// first, the narrowest phone last: the demo keeps that height, as the homepage's cards do. BANDS names each one and the
+// screen width it was measured at
+const MEASURED = read('tools/site/card-heights.json'), HEIGHTS = MEASURED.heights;
+export const BANDS = MEASURED.bands;
 
 export const COMPONENTS = SECTIONS.flatMap(sec => sec.cards.map(card => {
   const html = read('r', card.reg + '.json'), rx = maybe('r/react', card.reg + '.json');
@@ -65,7 +67,7 @@ export const COMPONENTS = SECTIONS.flatMap(sec => sec.cards.map(card => {
     html:{ html:f('.html'), css:f('.css'), js:f('.js'), needs:html.dependencies || [] },
     react:rx && { component:rx.component, tsx:rx.files[0].content, css:rx.files[1]?.content || '', tsxPath:rx.files[0].path, cssPath:rx.files[1]?.path, example:rx.example?.content || '', props:ifaces },
     copy:maybe('tools/pages/content', card.reg + '.json'),
-    height:(HEIGHTS[card.v2] || [420, 0, 0, 0, 420]),
+    height:(HEIGHTS[card.v2] || BANDS.map(() => 420)),
   };
 }));
 COMPONENTS.forEach((c, i) => { c.prev = COMPONENTS[(i - 1 + COMPONENTS.length) % COMPONENTS.length]; c.next = COMPONENTS[(i + 1) % COMPONENTS.length]; });

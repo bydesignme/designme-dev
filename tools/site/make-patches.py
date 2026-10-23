@@ -435,6 +435,41 @@ patch("""They work with a keyboard, use proper roles and labels, and respect red
       """They use proper roles and labels and respect reduced motion, and most work fully with a keyboard. A few, like Kanban and File explorer, are still getting their keyboard support.""")
 patch("""Every week. Each release is listed in the """, """Often. Each release is listed in the """)
 
+# ---------- a card's buttons on a touch screen ----------
+# with a mouse they appear over the stage on hover; a touch screen has no hover, so there they sit in the card's footer row,
+# beside its name, as a row of icons that never covers the component or its text. Each keeps its name for screen readers
+patch("""    function placeCodeBtns(){
+      const soft = root.getAttribute('data-style') === 'soft';
+      $$('.comp').forEach(c => {
+        const btns = c.querySelector('.code-btns'); if (!btns) return;
+        if (!btns._home){ btns._home = btns.parentElement; btns._next = btns.nextSibling; }
+        const st = c.querySelector('.stage'); if (btns.parentElement !== st) st.appendChild(btns);
+      });
+    }
+    placeCodeBtns();""", """    const touch = matchMedia('(hover: none)');
+    const NAME = { anim:n => 'Animate ' + n, view:n => 'View the code of ' + n, copy:n => 'Copy the code of ' + n };
+    function placeCodeBtns(){
+      const soft = root.getAttribute('data-style') === 'soft';
+      $$('.comp').forEach(c => {
+        const btns = c.querySelector('.code-btns'); if (!btns) return;
+        if (!btns._home){
+          btns._home = btns.parentElement; btns._next = btns.nextSibling;
+          // each label goes in a span the icon row can hide, and the button is named after the component
+          const t = c.querySelector('.comp-title'), n = t ? t.textContent.trim() : '';
+          $$('button', btns).forEach(b => {
+            [...b.childNodes].forEach(x => { if (x.nodeType === 3 && x.textContent.trim()){ const s = document.createElement('span'); s.className = 'cb-l'; x.replaceWith(s); s.appendChild(x); } });
+            const k = b.hasAttribute('data-anim') ? 'anim' : b.hasAttribute('data-view') ? 'view' : b.hasAttribute('data-copy') ? 'copy' : '';
+            if (k && n) b.setAttribute('aria-label', NAME[k](n));
+          });
+        }
+        const head = touch.matches && c.closest('main') && c.querySelector(':scope>.comp-head');
+        if (head){ if (btns.parentElement !== head) head.insertBefore(btns, head.querySelector(':scope>.exp-btn,:scope>.save-btn')); return; }
+        const st = c.querySelector('.stage'); if (btns.parentElement !== st) st.appendChild(btns);
+      });
+    }
+    placeCodeBtns();
+    if (touch.addEventListener) touch.addEventListener('change', placeCodeBtns);""")
+
 CSS = """.comp-title a{color:inherit;text-decoration:inherit}
 /* component page: an arrow either side of the component, halfway down the screen, centred in the space beside it.
    Hovering one names the component it goes to underneath it, never wider than that space, so nothing covers the component.
@@ -654,6 +689,59 @@ body.ui section.faq{display:none}
 /* Changelog and Roadmap: the same title and text as every other page */
 .pv-h h1{font-size:20px;font-weight:500;letter-spacing:-.01em}
 .pv-h p{font-size:14px}
+/* ================= round 4: phones and tablets ================= */
+/* one gutter for every page edge: 24px on a tablet, 16px on a phone, for the header, the library, its sidebar and the pages
+   that open over it (Changelog, Roadmap, FAQ) */
+@media (max-width:960px){
+  .top-in{padding:0 24px}
+  .layout{padding:0 24px}
+  .dv-bar{padding:8px 24px}
+  .pv-in{padding:28px 24px 72px}
+  /* the full list of components stays in the menu: under the cards it was a second, very long index after the footer */
+  .side .side-nav{display:none}
+  /* and its links to the pages repeat the footer's just above, so the sidebar ends the page with its credit line only,
+     on the same edge as everything else */
+  .side .side-pages{display:none}
+  .side{padding:28px 0 40px}
+  .side-foot{padding:0}
+}
+@media (max-width:640px){
+  .top-in{padding:0 16px;gap:8px}
+  .layout{padding:0 16px}
+  .dv-bar{padding:8px 16px}
+  .pv-in{padding:24px 16px 64px}
+  .to-top{right:16px;bottom:16px}
+}
+/* section names on a narrow screen: the number and the name on one line, the line about them right under it */
+@media (max-width:960px){
+  .sec-head>div{row-gap:2px}
+  body.ui .sec-head p{flex-basis:100%;margin-top:0}
+  body.ui .lib-sec .sec-head{padding:40px 0 14px;margin-bottom:20px}
+  .grp-sw+.lib-sec .sec-head{padding-top:28px}
+}
+/* a card's buttons on a touch screen: an icon row in the footer, beside the name, with the line about it under both.
+   The script moves them there; until it has, they stay out of the stage so they never cover the component */
+@media (hover:none){
+  body.ui main .stage>.code-btns{display:none}
+  body.ui main .comp>.comp-head{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;column-gap:0;padding:11px 4px 7px 10px}
+  body.ui main .comp-head>div{display:contents}
+  body.ui main .comp-head .comp-title{grid-row:1;grid-column:1;width:auto;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  body.ui main .comp-head .comp-desc{grid-row:2;grid-column:1/-1;margin:0;padding-right:6px}
+  body.ui main .comp-head>.code-btns{grid-row:1;grid-column:2;display:flex;gap:0;margin:-8px 0 -8px 8px}
+  body.ui main .comp-head>.exp-btn{grid-row:1;grid-column:3;width:36px;height:36px;margin:-8px 0}
+  body.ui main .comp-head>.code-btns .cb-l,body.ui main .comp-head>.code-btns .vl{display:none}
+  body.ui main .comp-head>.code-btns .ghost{display:inline-grid;place-items:center;width:36px;height:36px;padding:0;border:0;border-radius:999px;background:none;color:var(--sh-muted);box-shadow:none}
+  body.ui main .comp-head>.code-btns .ghost:active,body.ui main .comp-head>.exp-btn:active{background:var(--sh-chip);color:var(--sh-text)}
+  body.ui main .comp-head>.code-btns .anim-btn::after{display:none}
+}
+/* Pricing cards: the original page kept 62px under them, to balance buttons that once sat over the top of the stage; now
+   they get the same room above and below as every other component */
+body.ui main .comp[data-v2="pricing-cards"] .stage-inner{padding-bottom:40px!important}
+@media (min-width:641px){ body.ui main .comp[data-v2="pricing-cards"] .stage-inner{padding-bottom:56px!important} }
+/* the roadmap: a shipped idea gets a tag like the others */
+.rm-st.shipped{background:rgba(22,163,74,.12);color:#15803d}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .rm-st.shipped{background:rgba(74,222,128,.12);color:#4ade80} }
+:root[data-theme="dark"] .rm-st.shipped{background:rgba(74,222,128,.12);color:#4ade80}
 """
 json.dump({ 'patches': P, 'css': CSS }, open(os.path.join(HERE, 'site-patches.json'), 'w'), indent=1)
 print(len(P), 'patches')
