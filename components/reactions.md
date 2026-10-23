@@ -284,6 +284,8 @@ export function Reactions({ author, time, message, icon = 'spark', reactions, de
 - [Comments](https://designme.dev/components/comments.md): A design thread where you can @mention the agent and it replies.
 - [Notifications](https://designme.dev/components/notifications.md): An inbox where agent updates and mentions arrive live.
 - [Invite to collaborate](https://designme.dev/components/invite-to-collaborate.md): Add teammates by email as chips, set their role, send.
+- [Profile menu](https://designme.dev/components/profile-menu.md): The account menu behind an avatar: switch workspace, theme, shortcuts and sign out.
+- [Filter menu](https://designme.dev/components/filter-menu.md): Add filters from a menu, see them as chips, and watch the count change.
 - [Ticket list](https://designme.dev/components/ticket-list.md): Support tickets the agent has triaged, with suggested replies.
 - [Kanban board](https://designme.dev/components/kanban-board.md): A board where you and the agent move cards, with drag and drop.
 

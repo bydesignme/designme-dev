@@ -24,7 +24,7 @@ const MAP = {
   c62:'event-calendar', c63:'agenda', c49:'buttons', c52:'tooltip', c53:'search-input', c57:'country-select', c51:'social-signin',
   c55:'sign-in', c50:'form', c64:'payment-form', c54:'comments', c56:'notifications', c61:'invite', c59:'reactions', c104:'ticket-list',
   c101:'kanban', c70:'pricing-cards', c72:'onboarding-checklist', c73:'stepper', c74:'set-limit', c75:'currency-converter',
-  c110:'tool-connections', c111:'design-review', c112:'model-picker', c113:'answer-action-bar', c120:'inline-text-diff', c121:'draft-review', c114:'agent-tree', c115:'agent-inbox', c122:'voice-orb', c123:'prompt-library', c116:'steering', c117:'eval-results'
+  c110:'tool-connections', c111:'design-review', c112:'model-picker', c113:'answer-action-bar', c120:'inline-text-diff', c121:'draft-review', c114:'agent-tree', c115:'agent-inbox', c122:'voice-orb', c123:'prompt-library', c116:'steering', c117:'eval-results', c127:'profile-menu', c128:'filter-menu'
 };
 // cards the original page never had: each is cut from a sibling card's markup, renamed, and placed after it
 const EXTRA = [
@@ -39,7 +39,9 @@ const EXTRA = [
   { cid:'c122', id:'voice-orb', reg:'voice-orb', title:'Voice orb', section:'Conversation', after:'c24', icon:'graphic_eq' },
   { cid:'c123', id:'prompt-library', reg:'prompt-library', title:'Prompt library', section:'Conversation', after:'c29', icon:'edit_note' },
   { cid:'c116', id:'steering', reg:'steering', title:'Steering', section:'Review and approve', after:'c121', icon:'shuffle' },
-  { cid:'c117', id:'eval-results', reg:'eval-results', title:'Eval results', section:'Review and approve', after:'c116', icon:'readiness_score' }
+  { cid:'c117', id:'eval-results', reg:'eval-results', title:'Eval results', section:'Review and approve', after:'c116', icon:'readiness_score' },
+  { cid:'c127', id:'profile-menu', reg:'profile-menu', title:'Profile menu', section:'Collaboration', after:'c59', icon:'person' },
+  { cid:'c128', id:'filter-menu', reg:'filter-menu', title:'Filter menu', section:'Collaboration', after:'c127', icon:'filter_list' }
 ];
 
 /* ---------- read the Soft 2 page ---------- */

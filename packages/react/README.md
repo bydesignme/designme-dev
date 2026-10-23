@@ -4,7 +4,7 @@ React versions of the [designme.dev](https://designme.dev) components, for Next.
 
 They use the same markup and the same CSS as the site, so they look and move exactly like the previews on designme.dev, in both styles (Blueprint and Soft) and in light and dark. The difference is that each one takes props, so you drive it from your own state instead of a scripted demo.
 
-All 91 components are here, from Status pill to Currency converter, each with an example that replays its demo from the site.
+All 93 components are here, from Status pill to Currency converter, each with an example that replays its demo from the site.
 
 Each one has a page on designme.dev with its demo, its React usage, its props and its code, at `https://designme.dev/components/<name>`. To see them all running locally, run `npm run dev` here.
 
@@ -414,6 +414,14 @@ Add teammates by email as chips, set their role, send.
 **Reactions** · `reactions/Reactions.tsx`  
 Quick reactions on an agent update, with counts that pop.  
 `author`, `time`, `message`, `icon`, `reactions` / `defaultReactions` / `onReactionsChange` (`{ emoji, count, people?, mine? }[]`), `emojis` (the picker), `meLabel`, `addLabel`. Clicking a reaction toggles yours and the count rolls; tips read like "You, Maya, Jon and 2 more", `bare` (on by default: it sits in the chat with no card; `false` draws the card).
+
+**ProfileMenu** · `profile-menu/ProfileMenu.tsx`  
+The account menu behind an avatar: switch workspace, theme, shortcuts and sign out.  
+`user: { name, email, initials?, color? }`, `workspaces: { id, name, detail?, initial?, tint? }[]`, `workspace` / `defaultWorkspace` / `onWorkspaceChange`, `context` (the line under the workspace name), `dark` / `defaultDark` / `onDarkChange` (the theme switch only reports; apply the theme yourself), `themeLabel`, `shortcuts: { keys, label }[]` (defaults to the menu's own keys), `shortcutsOpen` / `defaultShortcutsOpen` / `onShortcutsOpenChange`, `signedIn` / `defaultSignedIn` / `onSignedInChange`, `note`, `open` / `defaultOpen` / `onOpenChange`. A `role="menu"` with `menuitemradio` workspaces and a `menuitemcheckbox` theme switch; the arrow keys, Home and End move through it, Escape closes it and gives the focus back to the avatar, and ? opens the shortcuts.
+
+**FilterMenu** · `filter-menu/FilterMenu.tsx`  
+Add filters from a menu, see them as chips, and watch the count change.  
+`fields: { key, label, icon?, operators?, options: { value, label, chip?, glyph? }[] }[]`, `filters` / `defaultFilters` / `onFiltersChange` (`{ field, value, negate? }[]`, one per field), `total`, `count`, `noun`, `countFor(field, value)` (the number beside each value), `results: { id, title, dot?, avatar?, meta? }[]` (the first few matches), `emptyLabel`, `label`, `clearLabel`, `open` / `defaultOpen` / `onOpenChange`. The menu has two steps, a field and then its value; the right and left arrows move between them. Clicking a chip's operator flips it ("is" to "is not"), its × removes it.
 
 **TicketList** · `ticket-list/TicketList.tsx`  
 Support tickets the agent has triaged, with suggested replies.  

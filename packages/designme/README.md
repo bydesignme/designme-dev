@@ -1,6 +1,6 @@
 # designme
 
-Free UI components for AI agent products, 59 agent components plus 32 app basics, from [designme.dev](https://designme.dev). Each one is plain HTML, CSS and JavaScript, in two styles, Blueprint and Soft, with light and dark mode.
+Free UI components for AI agent products, 59 agent components plus 34 app basics, from [designme.dev](https://designme.dev). Each one is plain HTML, CSS and JavaScript, in two styles, Blueprint and Soft, with light and dark mode.
 
 ```
 npx designme add status-pill thinking composer
