@@ -512,6 +512,120 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .aib-r .ok{color:var(--ok);display:grid}
 .aib-i.fail{background:var(--bad-bg)}
 .aib-i.fail .aib-r .pill{background:var(--surface);color:var(--fg);box-shadow:var(--shadow)}
+/* ---------- Browser session ---------- */
+/* the agent browsing for you: a small browser frame with the page it is on drawn as a wireframe, the steps under it, and
+   Pause and Take over. When the page gets in its way it stops and asks, and with Take over the page is yours to use */
+.bws{width:100%;max-width:440px;margin:0 auto;padding:6px}
+.bws-h{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 10px 10px}
+.bws-ht{display:flex;flex-direction:column;min-width:0}
+.bws-ht b{font-weight:500;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bws-st{font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bws-ctl{display:flex;align-items:center;gap:4px;flex:none}
+.bws-take[aria-pressed="true"]{background:var(--accent-bg);color:var(--accent-fg,var(--accent));box-shadow:none}
+.bws-win{margin:0 4px;border-radius:var(--r-in);border:1px solid var(--line);overflow:hidden;transition:border-color .3s}
+.bws.you .bws-win{border-color:var(--accent-mark,var(--accent))}
+.bws-bar{display:flex;align-items:center;gap:8px;height:36px;padding:0 8px 0 10px;background:var(--wash);border-bottom:1px solid var(--line)}
+.bws-dots{display:flex;gap:4px;flex:none}
+.bws-dots i{width:7px;height:7px;border-radius:50%;background:var(--faint)}
+.bws-url{flex:1;min-width:0;display:flex;align-items:center;gap:6px;height:24px;padding:0 10px;border-radius:var(--r-pill);background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);font-size:12px;color:var(--fg2)}
+.bws-url .i{color:var(--muted)}
+.bws-url span{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bws-vp{position:relative;height:156px;overflow:hidden;background:var(--surface)}
+/* the page itself, drawn small: real words where they matter, grey lines for the rest */
+.bws-pg{position:absolute;left:0;right:0;top:0;padding:12px 14px;display:flex;flex-direction:column;gap:10px;font-size:12px;color:var(--fg2);transition:transform .8s var(--ease)}
+.bws-ln{display:block;height:6px;border-radius:3px;background:var(--chip)}
+.bws-nav{display:flex;align-items:center;gap:12px;font-size:11.5px;color:var(--muted);white-space:nowrap}
+.bws-nav b{display:flex;align-items:center;gap:6px;margin-right:auto;font-weight:500;color:var(--fg)}
+.bws-nav b::before{content:"";width:12px;height:12px;border-radius:4px;background:var(--fg)}
+.bws-nav .on{color:var(--fg)}
+.bws-hd{font-size:13px;font-weight:500;color:var(--fg)}
+.bws-q{display:flex;align-items:center;gap:6px;height:26px;padding:0 10px;border-radius:var(--r-pill);box-shadow:inset 0 0 0 1px var(--line);color:var(--fg);white-space:nowrap;overflow:hidden}
+.bws-res{display:flex;flex-direction:column;gap:2px;min-width:0}
+.bws-res b{font-weight:500;color:var(--pb);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;align-self:flex-start;max-width:100%}
+.bws-res span{font-size:11.5px;color:var(--muted)}
+.bws-cta{align-self:flex-start;height:22px;padding:0 10px;display:inline-flex;align-items:center;border-radius:var(--r-pill);background:var(--chip);font-size:11.5px;color:var(--fg2)}
+.bws-tb{display:flex;flex-direction:column;border-radius:8px;box-shadow:inset 0 0 0 1px var(--line)}
+.bws-tb div{display:flex;justify-content:space-between;gap:12px;padding:5px 10px;border-top:1px solid var(--line)}
+.bws-tb div:first-child{border-top:0;font-size:11.5px;color:var(--muted)}
+.bws-tb .num{padding:0 4px;margin:0 -4px;border-radius:4px;color:var(--fg);transition:background .3s,color .3s}
+/* a price the agent has taken is marked like a highlighter, in the accent fill */
+.bws-tb .num.hit{background:var(--accent);color:var(--on-accent)}
+/* what the agent is about to press gets a ring, and its own pointer glides there */
+.bws-vp .aim{outline:1.5px solid var(--accent-mark,var(--accent));outline-offset:2px;border-radius:4px}
+.bws-cur{position:absolute;left:0;top:0;width:14px;height:14px;z-index:2;color:var(--accent-mark,var(--accent));pointer-events:none;opacity:0;transition:transform .7s var(--ease),opacity .2s}
+.bws-cur.on{opacity:1}
+.bws-cur svg{display:block;width:14px;height:14px;transition:transform .16s var(--ease)}
+.bws-cur svg path{fill:currentColor;stroke:var(--surface);stroke-width:1.4;stroke-linejoin:round}
+.bws-cur.down svg{transform:scale(.8)}
+/* the page's own cookie banner, the thing in the agent's way */
+.bws-ck{position:absolute;left:8px;right:8px;bottom:8px;z-index:1;display:flex;align-items:center;gap:6px;padding:6px 6px 6px 10px;border-radius:10px;background:var(--raised);box-shadow:var(--shadow-pop);font-size:12px;color:var(--fg);transform:translateY(calc(100% + 12px));transition:transform .5s var(--ease)}
+.bws-ck.on{transform:none}
+.bws-ck span{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bws-ck button{flex:none;height:24px;padding:0 9px;border-radius:var(--r-pill);font-size:11.5px;background:var(--chip);color:var(--fg)}
+.bws-ck button+button{background:var(--ink);color:var(--on-ink)}
+.bws:not(.you) .bws-ck button{cursor:default}
+.bws-steps{list-style:none;margin:0;padding:8px 0 0;display:flex;flex-direction:column}
+.bws-s{display:flex;align-items:flex-start;gap:10px;padding:6px 10px;font-size:13px;color:var(--muted)}
+.bws-s .g{width:16px;height:19.5px;display:grid;place-items:center;flex:none;color:var(--faint)}
+.bws-s .g .spin{width:11px;height:11px;color:var(--accent-fg,var(--accent))}
+.bws-s.done{color:var(--fg2)}.bws-s.done .g{color:var(--ok)}
+.bws-s.run,.bws-s.wait{color:var(--fg)}
+.bws-s.wait .g{color:var(--warn)}
+.bws.paused .bws-s .g .spin{animation-play-state:paused;color:var(--muted)}
+.bws-t{flex:1;min-width:0;display:flex;flex-direction:column}
+.bws-t>span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bws-t .d{font-size:12px;color:var(--muted)}
+.bws-s.wait .d{color:var(--warn)}
+.bws-ask{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:8px}
+.bws-sum{display:flex;align-items:center;gap:8px;margin:8px 4px 2px;padding:10px 12px;border-radius:12px;background:var(--ok-bg);font-size:13px}
+.bws-sum svg{color:var(--ok);flex:none}
+.bws-sum span{min-width:0}
+/* ---------- Trace view ---------- */
+/* one agent run as a waterfall: every span on a shared time axis, nested under the span that started it, with its tokens
+   and latency. A span over its time budget turns amber, and any span opens to show its input and output */
+.trv{width:100%;max-width:440px;margin:0 auto;padding:6px;container-type:inline-size;--cols:minmax(0,11fr) minmax(0,8fr) 40px 44px}
+.trv-h{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 10px 10px}
+.trv-ht{display:flex;flex-direction:column;min-width:0}
+.trv-ht b{font-weight:500;font-size:14px}
+.trv-st{font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.trv-tot{font-size:14px;font-weight:500;flex:none}
+.trv-ax,.trv-r{display:grid;grid-template-columns:var(--cols);align-items:center;gap:8px;padding:0 10px}
+.trv-ax{height:30px;border-top:1px solid var(--line);font-size:12px;color:var(--muted)}
+.trv-tk,.trv-ms{text-align:right;white-space:nowrap}
+.trv-sc{position:relative;height:18px}
+.trv-sc span{position:absolute;top:0;transform:translateX(-50%);font-size:12px}
+.trv-sc span:first-child{transform:none}
+.trv-rows{display:flex;flex-direction:column;padding-bottom:4px}
+.trv-r{width:100%;min-height:32px;border-radius:10px;font-size:13px;text-align:left;transition:background .16s}
+.trv-r:hover{background:var(--row)}
+.trv-r[aria-expanded="true"]{background:var(--sel)}
+.trv-r:focus-visible{outline:0;box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--accent-mark,var(--accent)) 45%,transparent)}
+.trv-n{display:flex;align-items:center;gap:6px;min-width:0;padding-left:calc(var(--lv,0) * 12px)}
+.trv-k{width:18px;height:18px;display:grid;place-items:center;flex:none;border-radius:5px;color:color-mix(in srgb,var(--k) 78%,var(--fg));background:color-mix(in srgb,var(--k) 13%,transparent)}
+.trv-nm{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.trv-r.root .trv-nm{font-weight:500}
+.trv-n .tag{flex:none}
+/* the bar sits on the run's time axis; faint lines mark each second */
+.trv-b{position:relative;height:20px;background:linear-gradient(to right,var(--line) 1px,transparent 1px) 0 0/20% 100%}
+.trv-b i{position:absolute;top:6px;height:8px;min-width:2px;border-radius:3px;background:var(--k);transition:background .3s}
+.trv-r.run .trv-b i{opacity:.6}
+.trv-r.slow .trv-b i{background:var(--warn)}
+.trv-r .trv-tk{font-size:12px;color:var(--muted)}
+.trv-r .trv-ms{font-size:12.5px;color:var(--fg2)}
+.trv-r.slow .trv-ms{color:var(--warn)}
+.trv-dc{display:flex;flex-direction:column;gap:10px;margin-top:2px;padding:6px 10px 8px;border-top:1px solid var(--line)}
+.trv-dh{display:flex;align-items:center;gap:8px;min-width:0;font-size:13px}
+.trv-dh b{min-width:0;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.trv-dh .ib{margin:0 -6px 0 auto}
+.trv-kv{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.trv-kv div{display:flex;flex-direction:column;min-width:0}
+.trv-kv span{font-size:12px;color:var(--muted)}
+.trv-kv b{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.trv-io{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:6px 10px;font-size:12px;color:var(--muted)}
+.trv-io code{font-family:var(--mono);font-size:12px;color:var(--fg2);background:var(--chip);padding:5px 8px;border-radius:var(--r-sm);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* narrow: the names keep their room. Tokens move into each span's details, and the slow tag leaves the amber bar and
+   time to say it (the time keeps its tooltip) */
+@container (max-width:330px){.trv-ax,.trv-r{grid-template-columns:minmax(0,1fr) 72px 44px}.trv-tk,.trv-n .tag{display:none}.trv-n{padding-left:calc(var(--lv,0) * 8px)}}
 /* ---------- Run cost ---------- */
 .rc{padding:18px}
 .rc-h{display:flex;align-items:center;justify-content:space-between;font-size:12.5px}
@@ -3493,7 +3607,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
   <header class="top">
     <div>
       <h1 id="style-h">Soft 2</h1>
-      <p id="style-p">Every component rebuilt to live inside the agent's own thread: one quiet surface per object, grey type for finished work, and slow, blurred motion only on what is happening now. 98 of 98 rebuilt so far.</p>
+      <p id="style-p">Every component rebuilt to live inside the agent's own thread: one quiet surface per object, grey type for finished work, and slow, blurred motion only on what is happening now. 100 of 100 rebuilt so far.</p>
     </div>
     <div class="ctrls">
       <div class="seg" id="style-seg" role="group" aria-label="Style"><button aria-pressed="true" data-v="soft2">Soft 2</button><button aria-pressed="false" data-v="bp2">Blueprint 2</button></div>
@@ -3612,6 +3726,27 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
   <div class="aib-gs"></div>
 </div></template>
   <div class="card-f"><span>Approve a run, retry a failure</span><span class="sp"></span><button class="replay" aria-label="Replay Agent inbox"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
+</article>
+<article class="card" data-c="browser-session" id="c-browser-session">
+  <div class="card-h"><div><h3>Browser session</h3><p>The agent browsing for you, step by step, with Pause and Take over.</p></div></div>
+  <div class="stage"><div class="stage-in"></div></div>
+  <template><div class="bws panel">
+  <div class="bws-h"><div class="bws-ht"><b>Pricing research</b><span class="muted bws-st" aria-live="polite"></span></div><div class="bws-ctl"><button class="ib bws-pause" aria-label="Pause" data-tip="Pause">{pause}</button><button class="pill line sm bws-take" aria-pressed="false">Take over</button></div></div>
+  <div class="bws-win"><div class="bws-bar"><span class="bws-dots" aria-hidden="true"><i></i><i></i><i></i></span><div class="bws-url">{search}<span></span></div></div><div class="bws-vp"></div></div>
+  <ol class="bws-steps" aria-label="Steps"></ol>
+</div></template>
+  <div class="card-f"><span>Allow it past the banner, or take over</span><span class="sp"></span><button class="replay" aria-label="Replay Browser session"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
+</article>
+<article class="card" data-c="trace-view" id="c-trace-view">
+  <div class="card-h"><div><h3>Trace view</h3><p>One agent run as a waterfall of spans, with latency and tokens.</p></div></div>
+  <div class="stage"><div class="stage-in"></div></div>
+  <template><div class="trv panel">
+  <div class="trv-h"><div class="trv-ht"><b>Pricing research</b><span class="muted trv-st" aria-live="polite"></span></div><span class="trv-tot num">0.00s</span></div>
+  <div class="trv-ax" aria-hidden="true"><span>Span</span><span class="trv-sc"></span><span class="trv-tk">Tokens</span><span class="trv-ms">Time</span></div>
+  <div class="trv-rows" role="group" aria-label="Spans"></div>
+  <div class="fold shut trv-dt" inert><div><div class="trv-dc" role="region" aria-label="Span details"></div></div></div>
+</div></template>
+  <div class="card-f"><span>Open a span to see its input and output</span><span class="sp"></span><button class="replay" aria-label="Replay Trace view"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
 </article>
 <article class="card bare" data-c="run-cost" id="c-run-cost">
   <div class="card-h"><div><h3>Run cost</h3><p>Live credit and token spend, with a cap that pauses the run.</p></div></div>
@@ -5140,7 +5275,7 @@ document.addEventListener('DOMContentLoaded', () => {
   /* style: Soft 2 or Blueprint 2, from ?style= or what this browser last picked; each style keeps its own accent */
   const STY = {
     soft2:{ h:'Soft 2', p:$('#style-p') ? $('#style-p').textContent : '', acc:'#116ff8', key:'soft2-accent', title:'Designme Soft 2' },
-    bp2:{ h:'Blueprint 2', p:"The same 98 components drawn as a technical sheet: square corners, hairline edges instead of shadows, a lime accent, and motion that wipes and ticks into place in short, hard beats.", acc:'#d4f84a', key:'bp2-accent', title:'Designme Blueprint 2' }
+    bp2:{ h:'Blueprint 2', p:"The same 100 components drawn as a technical sheet: square corners, hairline edges instead of shadows, a lime accent, and motion that wipes and ticks into place in short, hard beats.", acc:'#d4f84a', key:'bp2-accent', title:'Designme Blueprint 2' }
   };
   let style = 'soft2';
   try { const q = new URLSearchParams(location.search).get('style'); const ls = localStorage.getItem('designme2-style');
@@ -5595,6 +5730,204 @@ DM.def('agent-inbox', (r, c) => {
     await s.tap($('.aib-go', by('pub').el)); s.away(); await s.beat(5);
     await s.tap($('.aib-go', by('tok').el)); s.away();
     await s.until(() => by('tok').g === 'done' && by('pub').g === 'done'); await s.beat(3);
+  });
+});
+/* ---------- Browser session ---------- */
+DM.def('browser-session', (r, c) => {
+  r.innerHTML = r.innerHTML.replace('{pause}', I('pause')).replace('{search}', I('search','xs'));
+  const root = $('.bws', r), stEl = $('.bws-st', r), vp = $('.bws-vp', r), url = $('.bws-url', r), list = $('.bws-steps', r);
+  const pauseB = $('.bws-pause', r), takeB = $('.bws-take', r);
+  // the steps the agent planned, and the pages it passes through, drawn small: a search, the site, its pricing page
+  const S = [{ t:'Search "northwind pricing"' }, { t:'Open northwind.app' }, { t:'Click "Pricing"' }, { t:'Read the plans table' }, { t:'Extract prices' }];
+  const NAV = on => `<div class="bws-nav"><b>Northwind</b><span>Product</span><span data-k="pricing"${on ? ' class="on"' : ''}>Pricing</span><span>Docs</span></div>`;
+  const PAGES = {
+    search:`<div class="bws-pg"><div class="bws-q">${I('search','xs')}<span>northwind pricing</span></div>
+      <div class="bws-res"><b data-k="site">Northwind · Docs your team reads</b><span>northwind.app</span></div>
+      <div class="bws-res"><b>Northwind review: is it worth it?</b><span>softwarenotes.io</span></div>
+      <div class="bws-res"><b>Northwind alternatives</b><span>stackcompare.com</span></div></div>`,
+    home:`<div class="bws-pg">${NAV(false)}<div class="bws-hd">Docs your team actually reads</div><span class="bws-ln" style="width:92%"></span><span class="bws-ln" style="width:68%"></span><span class="bws-cta">Start free</span></div>`,
+    pricing:`<div class="bws-pg">${NAV(true)}<div class="bws-hd">Plans and pricing</div><span class="bws-ln" style="width:78%"></span>
+      <div class="bws-tb"><div><span>Plan</span><span>Per seat, monthly</span></div><div><span>Starter</span><span class="num">$8</span></div><div><span>Team</span><span class="num">$16</span></div><div><span>Business</span><span class="num">$32</span></div></div><span class="bws-ln" style="width:64%"></span><span class="bws-ln" style="width:40%"></span></div>`
+  };
+  const G = { queued:'<span class="dot"></span>', run:'<span class="spin"></span>', wait:I('alert','xs'), done:I('ok','xs') };
+  S.forEach(x => { x.el = html(`<li class="bws-s queued"><span class="g">${G.queued}</span><span class="bws-t"><span>${x.t}</span><span class="d" hidden></span></span></li>`); list.appendChild(x.el); });
+  function step(i, s, d){
+    const x = S[i], de = $('.d', x.el); if (x.s === s && de.textContent === (d || '')) return;
+    x.s = s; x.el.className = 'bws-s ' + s; const g = $('.g', x.el); g.innerHTML = G[s]; enter(g);
+    if (s === 'run' || s === 'wait') x.el.setAttribute('aria-current', 'step'); else x.el.removeAttribute('aria-current');
+    if (!d){ de.hidden = true; de.textContent = ''; } else if (de.hidden){ de.textContent = d; de.hidden = false; enter(de); } else swap(de, d);
+  }
+  // the page's cookie banner waits below the fold of the viewport, and the agent's own pointer above it
+  const ck = html('<div class="bws-ck"><span>This site uses cookies</span><button type="button">Reject all</button><button type="button">Accept all</button></div>');
+  const cur = html('<span class="bws-cur" aria-hidden="true"><svg viewBox="0 0 14 14"><path d="M2 1.5l9.5 5-4.2 1.2-2 4.3z"/></svg></span>');
+  vp.append(ck, cur);
+  function page(k, u){
+    const old = $('.bws-pg', vp), pg = html(PAGES[k]); vp.insertBefore(pg, ck); if (old) old.remove(); enter(pg);
+    $('svg', url).outerHTML = I(k === 'search' ? 'search' : 'lock', 'xs'); swap($('span', url), u);
+  }
+  // the person can pause the agent or take the page over; either holds it wherever it is, and it waits for them when
+  // the page blocks it
+  let paused = false, you = false, blocked = false, finished = false, secs = 0, unblock = null;
+  const held = () => paused || you;
+  async function act(ms){ for (let left = ms; left > 0;){ await c.wait(100); if (!held()) left -= 100; } }
+  async function aim(el){
+    const v = vp.getBoundingClientRect(), b = el.getBoundingClientRect(), x = b.left - v.left + Math.min(b.width * .5, 36), y = b.top - v.top + b.height * .6;
+    if (!cur.classList.contains('on')){ cur.style.transition = 'none'; cur.style.transform = `translate(${x + 30}px,${y + 40}px)`; void cur.offsetWidth; cur.style.transition = ''; cur.classList.add('on'); }
+    cur.style.transform = `translate(${x}px,${y}px)`; el.classList.add('aim');
+    await act(800); cur.classList.add('down'); await act(200); cur.classList.remove('down'); el.classList.remove('aim');
+  }
+  const clock = () => Math.floor(secs / 60) + ':' + String(secs % 60).padStart(2, '0');
+  stEl.innerHTML = '<span class="m">Browsing</span> · <span class="num ck">0:00</span>';
+  c.every(1000, () => { if (!held() && !blocked && !finished){ secs++; $('.ck', stEl).textContent = clock(); } });
+  function update(){
+    root.classList.toggle('you', you); root.classList.toggle('paused', paused && !you);
+    swap($('.m', stEl), finished ? 'Done' : you ? 'You have control' : paused ? 'Paused' : blocked ? 'Needs you' : 'Browsing');
+    const pl = paused ? 'Resume' : 'Pause'; pauseB.innerHTML = I(paused ? 'play' : 'pause'); pauseB.setAttribute('aria-label', pl); pauseB.dataset.tip = pl;
+    pauseB.disabled = you || finished; takeB.disabled = finished;
+    takeB.setAttribute('aria-pressed', you); takeB.textContent = you ? 'Hand back' : 'Take over';
+    // while the person has the page, its buttons are theirs and the agent's pointer steps aside
+    vp.inert = !you; cur.style.visibility = you ? 'hidden' : '';
+    const ask = $('.bws-ask', r);
+    if (blocked && !you && !ask) showAsk(); else if ((!blocked || you) && ask) ask.remove();
+    if (blocked) step(3, 'wait', you ? 'Close the banner, then hand back' : 'A cookie banner covers the table');
+  }
+  function showAsk(){
+    const ask = html('<div class="bws-ask"><button class="pill ink sm bws-allow">Allow closing it</button><button class="pill soft sm bws-you">Take over</button></div>');
+    $('.bws-t', S[3].el).appendChild(ask); enter(ask);
+    $('.bws-allow', ask).onclick = () => c.run(async () => {
+      // the agent closes it the privacy-friendly way, with Reject all
+      blocked = false; update(); step(3, 'run', 'Closing the banner');
+      await aim($('button', ck)); ck.classList.remove('on'); unblock();
+    });
+    $('.bws-you', ask).onclick = () => takeB.click();
+  }
+  pauseB.onclick = () => { paused = !paused; update(); };
+  takeB.onclick = () => { you = !you; if (you) paused = false; update(); };
+  // with the page in hand, either banner button closes it
+  $$('button', ck).forEach(b => b.onclick = () => { if (!you || !blocked) return; ck.classList.remove('on'); blocked = false; update(); unblock(); });
+  // the run: search, open the site, go to pricing and scroll to the table, where a cookie banner covers it and the agent
+  // asks before touching it. Once it is gone, it reads the table and takes the three prices
+  c.run(async () => {
+    page('search', 'northwind pricing'); step(0, 'run');
+    await act(1800); step(0, 'done'); step(1, 'run');
+    await aim($('[data-k="site"]', vp)); page('home', 'northwind.app');
+    await act(1200); step(1, 'done'); step(2, 'run');
+    await aim($('[data-k="pricing"]', vp)); page('pricing', 'northwind.app/pricing');
+    await act(1000); step(2, 'done'); step(3, 'run');
+    await act(600);
+    const pg = $('.bws-pg', vp); pg.style.transform = `translateY(${-Math.max(0, Math.min(pg.offsetHeight - vp.clientHeight, $('.bws-tb', pg).offsetTop - 8))}px)`;
+    await act(1200); ck.classList.add('on'); await act(500);
+    blocked = true; update();
+    await new Promise(res => { unblock = res; });
+    step(3, 'run');
+    await act(1400); step(3, 'done', '3 plans, priced per seat'); step(4, 'run', '0 of 3 prices');
+    const cells = $$('.bws-tb .num', vp);
+    for (let i = 0; i < cells.length; i++){ await aim(cells[i]); cells[i].classList.add('hit'); step(4, 'run', `${i + 1} of 3 prices`); }
+    await act(500); cur.classList.remove('on');
+    finished = true; step(4, 'done', '$8, $16 and $32 per seat'); update();
+    const sm = html(`<div class="bws-sum">${I('ok','xs')}<span>Done · 3 prices saved to Pricing research</span></div>`); root.appendChild(sm); enter(sm);
+  });
+  update();
+  // the preview's story: the agent stops at the cookie banner, the person allows it to close it, and it finishes
+  c.story(async s => {
+    await s.until(() => $('.bws-allow', r)); await s.beat(3);
+    await s.tap($('.bws-allow', r)); s.away();
+    await s.until(() => finished); await s.beat(3);
+  });
+});
+/* ---------- Trace view ---------- */
+DM.def('trace-view', (r, c) => {
+  // the kinds of span, each with its mark and colour: the identity slots of the chart palette, and grey for the agents
+  // that hold the other spans. The name is always on the mark, in a tooltip, and in the span's label
+  const K = { agent:['Agent','cpu','var(--muted)'], llm:['LLM call','spark','var(--c2)'], tool:['Tool call','term','var(--c6)'], ret:['Retrieval','search','var(--c3)'] };
+  // one run, in seconds from its start. A tool call that takes longer than SLOW seconds is flagged
+  const SPAN = 5, SLOW = 2, PACE = 1.5;
+  const S = [
+    { id:'run', k:'agent', n:'Pricing research', s:0, d:4.82, lv:0, in:"Compare Northwind's plans with ours", out:'3 prices saved to Pricing research' },
+    { id:'plan', k:'llm', n:'Plan the steps', s:.04, d:.62, tk:1240, lv:1, in:'The task and 2 earlier messages', out:'Search notes, fetch the page, summarise' },
+    { id:'notes', k:'ret', n:'Search saved notes', s:.7, d:.38, tk:910, lv:1, in:'"northwind pricing", top 4', out:'4 notes, best match 0.82' },
+    { id:'fetch', k:'tool', n:'fetch_page', s:1.12, d:2.46, tk:3120, lv:1, in:'GET northwind.app/pricing', out:'200 OK, 48 KB, 3 plans' },
+    { id:'sum', k:'agent', n:'Summariser', s:3.62, d:1.02, lv:1, in:'The page and 4 notes', out:'A 120-word summary' },
+    { id:'write', k:'llm', n:'Write the summary', s:3.66, d:.94, tk:2380, lv:2, in:'Page text and notes, 2,050 tokens', out:'120 words, 3 prices' },
+    { id:'ans', k:'llm', n:'Final answer', s:4.66, d:.16, tk:560, lv:1, in:'The summary', out:'3 prices saved to Pricing research' }
+  ];
+  const END = Math.max(...S.map(x => x.s + x.d));
+  // an agent span counts the tokens of every span under it
+  S.forEach((x, i) => { x.kids = []; for (let j = i + 1; j < S.length && S[j].lv > x.lv; j++) x.kids.push(S[j]); });
+  const rows = $('.trv-rows', r), stEl = $('.trv-st', r), tot = $('.trv-tot', r), dt = $('.trv-dt', r), dc = $('.trv-dc', r);
+  $('.trv-sc', r).innerHTML = Array.from({ length:Math.ceil(SPAN / 2) }, (_, i) => `<span style="left:${i * 2 / SPAN * 100}%">${i * 2}s</span>`).join('');
+  const sec = v => v.toFixed(2) + 's', tks = v => v >= 1000 ? (v / 1000).toFixed(1) + 'k' : String(Math.round(v));
+  let T = 0, sel = null, said = '';
+  S.forEach(x => {
+    const [kind, icon, col] = K[x.k];
+    x.el = html(`<button type="button" class="trv-r${x.lv ? '' : ' root'}" aria-expanded="false" style="--k:${col};--lv:${x.lv}" hidden><span class="trv-n"><span class="trv-k" data-tip="${kind}">${I(icon,'xs')}</span><span class="trv-nm">${x.n}</span></span><span class="trv-b"><i style="left:${x.s / SPAN * 100}%"></i></span><span class="trv-tk num"></span><span class="trv-ms num"></span></button>`);
+    x.el.onclick = () => open(x === sel ? null : x);
+    rows.appendChild(x.el);
+  });
+  // where the run is: each span shows once it starts, its bar and its numbers grow while it runs
+  const took = x => Math.max(0, Math.min(T, x.s + x.d) - x.s);
+  const used = x => x.k === 'agent' ? x.kids.reduce((a, k) => a + (k.k === 'agent' ? 0 : used(k)), 0) : x.tk * Math.min(1, took(x) / x.d);
+  function paint(){
+    let shown = 0;
+    S.forEach(x => {
+      if (T < x.s) return; shown++;
+      if (x.el.hidden){ x.el.hidden = false; enter(x.el); }
+      const w = took(x), run = T < x.s + x.d, kind = K[x.k][0];
+      x.el.classList.toggle('run', run);
+      $('.trv-b i', x.el).style.width = (w / SPAN * 100) + '%';
+      $('.trv-ms', x.el).textContent = sec(w); $('.trv-tk', x.el).textContent = tks(used(x));
+      if (x.k === 'tool' && w > SLOW && !x.slow){
+        x.slow = true; x.el.classList.add('slow');
+        const why = `Over the ${SLOW}s budget for a tool call`, tg = html(`<span class="tag warn" data-tip="${why}">slow</span>`); $('.trv-n', x.el).appendChild(tg); enter(tg);
+        $('.trv-ms', x.el).dataset.tip = why;
+      }
+      x.el.setAttribute('aria-label', `${x.n}, ${kind}, ${run ? 'running, ' : ''}${sec(w)}, ${Math.round(used(x)).toLocaleString('en-US')} tokens${x.slow ? ', slow' : ''}`);
+    });
+    tot.textContent = sec(Math.min(T, END));
+    const slow = S.filter(x => x.slow).length;
+    const line = T >= END ? `Done · ${S.length} spans${slow ? `, ${slow} slow` : ''}` : `Running · ${shown} span${shown > 1 ? 's' : ''}`;
+    if (line !== said){ said = line; swap($('.m', stEl), line); }
+    if (sel) fill();
+  }
+  // a span's details: what went in, what came out, how long it took and what it used
+  function open(x){
+    if (sel) sel.el.setAttribute('aria-expanded', 'false');
+    sel = x; dt.classList.toggle('shut', !x); dt.inert = !x;
+    if (!x) return;
+    x.el.setAttribute('aria-expanded', 'true');
+    const [kind, icon, col] = K[x.k];
+    dc.innerHTML = `<div class="trv-dh"><span class="trv-k" style="--k:${col}">${I(icon,'xs')}</span><b>${x.n}</b>${x.slow ? '<span class="tag warn">slow</span>' : ''}<button class="ib trv-x" aria-label="Close details" data-tip="Close">${I('x')}</button></div>
+      <div class="trv-kv"><div><span>Kind</span><b>${kind}</b></div><div><span>Latency</span><b class="num lt"></b></div><div><span>Tokens</span><b class="num tk"></b></div></div>
+      <div class="trv-io"><span>Input</span><code>${x.in}</code><span>Output</span><code class="out"></code></div>`;
+    // closing hands focus back to the span, if it was inside the details
+    $('.trv-x', dc).onclick = () => { const el = sel.el, back = dc.contains(document.activeElement); open(null); if (back) el.focus({ preventScroll:true }); };
+    fill(); enter(dc);
+  }
+  function fill(){
+    const x = sel, done = T >= x.s + x.d;
+    $('.lt', dc).textContent = sec(took(x)); $('.tk', dc).textContent = Math.round(used(x)).toLocaleString('en-US');
+    const o = $('.out', dc), t = done ? x.out : 'Running…'; if (o.textContent !== t) o.textContent = t;
+  }
+  // the arrow keys move between spans, and Escape shuts the details
+  c.on(r, 'keydown', e => {
+    if (e.key === 'Escape' && sel){ const el = sel.el; open(null); el.focus({ preventScroll:true }); return; }
+    const vis = S.filter(x => !x.el.hidden), i = vis.findIndex(x => x.el === document.activeElement); if (i < 0) return;
+    const go = e.key === 'ArrowDown' ? vis[i + 1] : e.key === 'ArrowUp' ? vis[i - 1] : e.key === 'Home' ? vis[0] : e.key === 'End' ? vis[vis.length - 1] : undefined;
+    if (go === undefined && !['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(e.key)) return;
+    e.preventDefault(); if (go) go.el.focus({ preventScroll:true });
+  });
+  stEl.innerHTML = '<span class="m">Running</span>';
+  // the run streams in at a pace a person can follow: one second of the run every PACE seconds
+  c.later(600, () => { const t0 = performance.now(); c.loop(t => { T = Math.min(END, (t - t0) / 1000 / PACE); paint(); return T < END ? undefined : false; }); });
+  // the preview's story: the fetch runs long and turns amber, the person reads why, opens it, then closes it
+  c.story(async s => {
+    const f = S.find(x => x.id === 'fetch');
+    await s.until(() => f.slow); await s.beat(2);
+    // on a narrow card the tag is hidden, and the time carries the same tooltip
+    const tg = $('.tag', f.el); await s.point(tg.offsetWidth ? tg : $('.trv-ms', f.el)); await s.beat(3); s.away();
+    await s.until(() => T >= END); await s.beat(1);
+    await s.tap(f.el); s.away(); await s.beat(8);
+    await s.tap($('.trv-x', r)); s.away(); await s.beat(2);
   });
 });
 /* ---------- Run cost ---------- */
