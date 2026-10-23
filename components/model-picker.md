@@ -15,12 +15,12 @@ The CLI copies the source into your project, so you own it and can change anythi
 
 ## About
 
-Model picker is the control a person uses to choose which model answers in a chat, and how hard it thinks first. Each model shows its speed, quality and cost as five-step meters with the real figures on hover, the thinking effort sits underneath, and the foot of the list says what the next reply will take. When the picked model can't take the request, the picker says why and offers a way out.
+Model picker is the control a person uses to choose which model answers in a chat, and how hard it thinks first. Each model shows its speed, quality and cost as five-step meters with the real figures on hover, and the thinking effort sits underneath in a small dropdown. When the picked model can't take the request, the picker says why and offers a way out.
 
 ### When to use it
 
 - When people choose between models that trade speed, quality and cost, and should see those trade-offs before they pick.
-- When a model can think before it answers and people should set how much, with an idea of what it costs in time and money.
+- When a model can think before it answers and people should set how much, with a note of what each level may spend.
 - When a model can be at capacity or unavailable, and you want to offer a wait or a close match instead of an error.
 - When the choice applies to one chat and people need a quiet confirmation of what is set.
 
@@ -30,15 +30,15 @@ Model picker is the control a person uses to choose which model answers in a cha
 - The picked row is tinted and checked, and its meters turn the accent colour. The trigger above the list shows the picked model and effort, and both crossfade when they change.
 - A model's `status` can be `checking`, which spins beside its name, or `busy`, which turns its tile and line amber. `statusText` replaces the note, like "At capacity, about 20s wait".
 - `suggestion` opens a short message under the list with its buttons, the last one filled, like Wait for Opus and Use Sonnet on high. It opens and closes by its height.
-- The thinking effort is a segmented control. `efforts` defaults to Off, Low, Medium and High, each with a line shown under "Thinking", like "Up to 8k thinking tokens".
-- `estimate` fills the foot of the list, and `note` adds a confirmation with a green check under the picker. The trigger opens and closes the list.
+- The thinking effort is a small dropdown under the list. `efforts` defaults to Off, Low, Medium and High, each with a line shown in the menu and under "Thinking", like "Up to 8k thinking tokens".
+- `note` adds a confirmation with a green check under the picker. The trigger opens and closes the list.
 
 ### Accessibility
 
 - The models form a radio group labelled "Model". Each row is a button with `role="radio"` and `aria-checked`, and only the picked one is in the tab order.
 - Arrow keys move to the next or previous model and pick it, wrapping at the ends.
 - The trigger has `aria-expanded`. Escape closes the list and moves the focus back to the trigger.
-- The thinking effort is a group labelled "Thinking effort" whose buttons use `aria-pressed`, and the suggestion and the confirmation are live regions.
+- The thinking effort is a menu button with `aria-haspopup` and `aria-expanded`; its levels are `menuitemradio` items with `aria-checked`. The suggestion and the confirmation are announced as they change.
 
 ## Usage in React
 
@@ -51,19 +51,17 @@ import { ModelPicker } from '@/components/designme/model-picker/ModelPicker';
 ```tsx
 'use client';
 // The animated preview from designme.dev, rebuilt from the React component: an example of driving it from your own state.
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { ModelPicker, type ModelOption } from './ModelPicker';
 import { useStory, useWait } from '../lib/useScript';
 
 /* ---------- Model picker: ask for Opus, find it at capacity, and take a close match on high thinking ---------- */
-// the same three models and figures as Model compare: tokens a second, and a typical reply's seconds and price with no thinking
+// the same three models and figures as Model compare: tokens a second, and a typical reply's price with no thinking
 const BASE = [
-  { id: 'opus', name: 'Opus 5.5', color: 'var(--dm-c2)', note: 'Deepest reasoning, slower', speed: 2, quality: 5, cost: 5, tps: 38, sec: 9, price: .021 },
-  { id: 'sonnet', name: 'Sonnet 5.5', color: 'var(--dm-c1)', note: 'Balanced, the default for design work', speed: 4, quality: 4, cost: 2, tps: 74, sec: 4, price: .006 },
-  { id: 'haiku', name: 'Haiku 5.5', color: 'var(--dm-c3)', note: 'Fastest, for quick edits', speed: 5, quality: 3, cost: 1, tps: 142, sec: 1.5, price: .001 }
+  { id: 'opus', name: 'Opus 5.5', color: 'var(--dm-c2)', note: 'Deepest reasoning, slower', speed: 2, quality: 5, cost: 5, tps: 38, price: .021 },
+  { id: 'sonnet', name: 'Sonnet 5.5', color: 'var(--dm-c1)', note: 'Balanced, the default for design work', speed: 4, quality: 4, cost: 2, tps: 74, price: .006 },
+  { id: 'haiku', name: 'Haiku 5.5', color: 'var(--dm-c3)', note: 'Fastest, for quick edits', speed: 5, quality: 3, cost: 1, tps: 142, price: .001 }
 ];
-// how each thinking effort stretches a typical reply's time and price
-const STRETCH: Record<string, [number, number]> = { Off: [1, 1], Low: [1.6, 1.3], Medium: [2.6, 1.8], High: [4.2, 2.7] };
 
 export default function ModelPickerDemo() {
   const ref = useRef<HTMLDivElement>(null);
@@ -91,17 +89,6 @@ export default function ModelPickerDemo() {
     setBusy(0); setOpus({}); set('opus');
   };
 
-  // the estimate counts to its new numbers
-  const m = BASE.find(x => x.id === value)!, [ts, tp] = STRETCH[effort];
-  const target = { s: m.sec * ts, p: m.price * tp };
-  const [shown, setShown] = useState(target);
-  useEffect(() => {
-    const from = shown, t0 = performance.now(); let raf = 0;
-    const step = (t: number) => { const k = Math.min(1, (t - t0) / 420), e = 1 - Math.pow(1 - k, 3);
-      setShown({ s: from.s + (target.s - from.s) * e, p: from.p + (target.p - from.p) * e }); if (k < 1) raf = requestAnimationFrame(step); };
-    raf = requestAnimationFrame(step); return () => cancelAnimationFrame(raf);
-  }, [target.s, target.p]); // eslint-disable-line react-hooks/exhaustive-deps
-
   const models: ModelOption[] = BASE.map(x => ({
     id: x.id, name: x.name, color: x.color, note: x.note, speed: x.speed, quality: x.quality, cost: x.cost,
     speedDetail: `${x.tps} tokens a second`, qualityDetail: `Quality ${x.quality} of 5`, costDetail: `$${x.price.toFixed(3)} a reply`,
@@ -118,7 +105,6 @@ export default function ModelPickerDemo() {
     <div ref={ref} style={{ width: '100%' }}>
       <ModelPicker models={models} value={value} onValueChange={id => void pick(id)} effort={effort} onEffortChange={e => { setEffort(e); setNote(undefined); }}
         open={open} onOpenChange={setOpen} note={note}
-        estimate={<>Next reply about <b>{Math.round(shown.s)}s</b> and <b>${shown.p.toFixed(3)}</b></>}
         suggestion={offer ? {
           text: `Opus 5.5 is at capacity for about ${busy}s. Sonnet 5.5 on high thinking comes close on long reviews and starts now.`,
           actions: [{ label: 'Wait for Opus', onClick: () => void waitForOpus() }, { label: 'Use Sonnet on high', onClick: () => { setEffort('High'); set('sonnet', 'High'); } }]
@@ -140,7 +126,6 @@ export default function ModelPickerDemo() {
 | `effort` (optional) | `string` |  |
 | `defaultEffort` (optional) | `string` |  |
 | `onEffortChange` (optional) | `(effort: string) => void` |  |
-| `estimate` (optional) | `ReactNode` | The line at the foot of the list, like what the next reply will take |
 | `suggestion` (optional) | `{ text: ReactNode; actions: { label: string; onClick: () => void }[] }` | A way out when the picked model can't take the request: a short text and its buttons, the last one filled |
 | `note` (optional) | `string` | The confirmation under the picker, like "Set for this chat: Sonnet 5.5, high thinking". Shown with a green check |
 | `label` (optional) | `ReactNode` | The label beside the trigger. Defaults to "Model for this chat" |
@@ -155,9 +140,9 @@ export default function ModelPickerDemo() {
 
 No. It calls `onValueChange` with the id of any row that is picked, busy or not. Check the model in your own code, set its `status` to `checking` and then `busy` or `ready`, and pass a `suggestion` if it can't start.
 
-**Where do the meters and the estimate come from?**
+**Where do the meters come from?**
 
-From you. Give each model `speed`, `quality` and `cost` from 1 to 5, and the figures behind them in the detail props. `estimate` is any content, so you can work out the next reply's time and price however your provider charges.
+From you. Give each model `speed`, `quality` and `cost` from 1 to 5, and the figures behind them in the detail props, like "74 tokens a second" or "$0.006 a reply".
 
 **Can I use my own effort levels?**
 
@@ -177,7 +162,8 @@ import { useEffect, useRef, useState, type KeyboardEvent, type ReactNode } from 
 import { cx } from '../lib/cx';
 import { useControllable } from '../lib/hooks';
 import { Icon } from '../lib/icons';
-import { enter, Fold, Seg, Spin, Swap, Tip } from '../lib/motion';
+import { enter, Fold, Spin, Swap, Tip } from '../lib/motion';
+import { usePopover } from '../lib/popover';
 import '../designme.css';
 import './model-picker.css';
 
@@ -224,8 +210,6 @@ export interface ModelPickerProps {
   effort?: string;
   defaultEffort?: string;
   onEffortChange?: (effort: string) => void;
-  /** The line at the foot of the list, like what the next reply will take */
-  estimate?: ReactNode;
   /** A way out when the picked model can't take the request: a short text and its buttons, the last one filled */
   suggestion?: { text: ReactNode; actions: { label: string; onClick: () => void }[] };
   /** The confirmation under the picker, like "Set for this chat: Sonnet 5.5, high thinking". Shown with a green check */
@@ -251,11 +235,13 @@ const Meter = ({ value, tip }: { value: number; tip?: string }) => {
 
 /** Choose the model for a chat by speed, quality and cost, and how hard it thinks, with what the next reply will take. */
 export function ModelPicker({
-  models, value, defaultValue, onValueChange, efforts = EFFORTS, effort, defaultEffort, onEffortChange, estimate, suggestion, note,
+  models, value, defaultValue, onValueChange, efforts = EFFORTS, effort, defaultEffort, onEffortChange, suggestion, note,
   label = 'Model for this chat', open, defaultOpen = true, onOpenChange, className
 }: ModelPickerProps) {
   const [cur, setCur] = useControllable(value, defaultValue ?? models[0]?.id ?? '', onValueChange);
   const [eff, setEff] = useControllable(effort, defaultEffort ?? efforts[Math.min(2, efforts.length - 1)]?.label ?? '', onEffortChange);
+  // thinking effort is a small dropdown under the list
+  const effMenu = usePopover({ align: 'end' });
   const [isOpen, setOpen] = useControllable(open, defaultOpen, onOpenChange);
   const picked = models.find(m => m.id === cur) ?? models[0];
   const rows = useRef<(HTMLButtonElement | null)[]>([]);
@@ -308,11 +294,17 @@ export function ModelPicker({
           </Fold>
           <div className="dm-mpk-th">
             <div className="dm-mpk-thh"><b><Icon name="brain" size="xs" />Thinking</b><Swap className="dm-muted dm-mpk-thd">{efforts.find(e => e.label === eff)?.detail ?? ''}</Swap></div>
-            <Seg label="Thinking effort" value={eff} onChange={setEff} options={efforts.map(e => ({ value: e.label, label: e.label }))} className="dm-mpk-seg" />
+            <button {...effMenu.trigger} type="button" className="dm-mpk-eb" aria-label="Thinking effort"><Swap className="dm-mpk-ev">{eff}</Swap><Icon name="chev-d" size="xs" /></button>
           </div>
-          {estimate !== undefined && <div className="dm-mpk-f"><span className="dm-mpk-est dm-num">{estimate}</span></div>}
         </div>
       </Fold>
+      <div {...effMenu.pop} className={cx(effMenu.pop.className, 'dm-mpk-pop')} role="menu" aria-label="Thinking effort">
+        {efforts.map(e => (
+          <button key={e.label} type="button" className="dm-mi" role="menuitemradio" aria-checked={e.label === eff} onClick={() => { setEff(e.label); effMenu.closeSoon(); }}>
+            <span>{e.label}{e.detail && <span className="dm-d">{e.detail}</span>}</span><span className="dm-ck"><Icon name="check" size="xs" /></span>
+          </button>
+        ))}
+      </div>
       <p className="dm-mpk-note dm-muted" aria-live="polite">
         {note && <><Icon name="ok" size="xs" /><span key={noteKey} {...enter()}>{note}</span></>}
       </p>

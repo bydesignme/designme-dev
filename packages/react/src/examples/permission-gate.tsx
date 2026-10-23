@@ -46,8 +46,8 @@ export default function PermissionGateDemo() {
       r.done++;
     }
     setWorking(false);
-    setTitle(`Done. ${r.skip ? FRAMES.length - 1 : FRAMES.length} frames edited on a new page`);
-    setDetail(r.skip ? 'Plan toggle skipped, it needs Publish library' : 'Plan toggle published to the library');
+    setTitle(`Done. ${r.skip ? FRAMES.length - 1 : FRAMES.length} frames edited`);
+    setDetail(r.skip ? 'On a new page. Plan toggle skipped' : 'On a new page. Plan toggle published');
   };
 
   // the preview's story: the person ticks the risky scope, reads what it touches, leaves it off, allows, then grants it for one frame
@@ -61,7 +61,7 @@ export default function PermissionGateDemo() {
   const r = run.current;
   return (
     <div ref={ref} style={{ width: '100%' }}>
-      <PermissionGate icon={<Icon name="figma" />}
+      <PermissionGate bare={false} icon={<Icon name="figma" />} durationDetails={{ 'This task': 'Until the pricing fixes are done', Today: 'Until midnight', Always: 'Until you revoke it' }}
         title={more ? 'Also allow Publish library?' : 'Allow the agent to edit Figma?'}
         subtitle={more ? `${FRAMES[LIB]}, frame ${LIB + 1} of ${FRAMES.length}, is a library component` : 'It needs this to apply the pricing fixes'}
         scopes={more ? MORE : FIRST} value={value} onValueChange={setValue} duration={duration} onDurationChange={setDuration}
@@ -70,7 +70,7 @@ export default function PermissionGateDemo() {
         onDecline={() => { if (!more) return; r.skip = true; setMore(false); void work(); }}
         onRevoke={() => { run.current = { granted: 0, publish: false, skip: false, done: 0, id: r.id + 1 }; setValue(['read', 'edit']); setMs(0); setWorking(false); }}
         working={working} meta={clock(ms)} allowedDetail={detail}
-        allowedTitle={title ?? `Allowed ${r.granted} ${r.granted > 1 ? 'scopes' : 'scope'} for ${duration.toLowerCase()}`}
+        allowedTitle={title ?? `Allowed ${r.granted} ${r.granted > 1 ? 'scopes' : 'scope'} ${duration === 'Always' ? 'always' : 'for ' + duration.toLowerCase()}`}
         declinedTitle="The agent will skip the Figma edits" declinedDetail="It will list the fixes in chat instead" />
     </div>
   );

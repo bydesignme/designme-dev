@@ -36,10 +36,12 @@ PW=$(npm root -g)/playwright node measure-heights.js   # about five minutes; or 
 npm run build
 ```
 
-`measure-heights.js` plays every component at the narrowest width of each layout (1400, 1181, 961, 641 and 360px) in
-both styles and writes the tallest each card's stage and each component get to `card-heights.json`. The build gives every
-card that height from the start, and the component its own tallest size inside it, so nothing below a card moves and a
-component grows downwards instead of creeping up while it plays. The build warns about a card with no measurement.
+`measure-heights.js` plays every component at one width per layout (1440, where the 1400px layout stops growing, then
+1181, 961, 641, and 390 for phones) in both styles, and writes to `card-heights.json` the tallest each card's stage gets
+and the tallest each component gets in each style, open lists and popovers included. The build gives every card that
+height from the start, and the component its own tallest size inside it, so nothing below a card moves, a component grows
+downwards instead of creeping up while it plays, and at its tallest it sits in the middle of its stage, with the same
+room above and below. The build warns about a card with no measurement.
 
 The site's sounds are recordings from Kenney's Interface Sounds and UI Audio packs (CC0, in `sounds-src` with their
 licences). `make-sounds.py` puts the ones in use into `sounds/ui.wav`, with `sounds/ui.json` saying where each starts and

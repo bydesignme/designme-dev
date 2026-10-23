@@ -46,6 +46,8 @@ export interface ToolConnectionsProps {
   onConnect?: (tool: ToolConnectionsTool) => void;
   /** Adds a Test all button. Report progress through each tool's status and note */
   onTest?: () => void;
+  /** A test is running: Test all shows a spinner and waits */
+  testing?: boolean;
   /** Called by the Reconnect button of a tool whose status is error */
   onReconnect?: (key: string) => void;
   title?: string;
@@ -64,9 +66,11 @@ const PERMS: { value: ToolConnectionsPermission; label: string; tip: string }[] 
 function Permission({ name, value, onChange }: { name: string; value: ToolConnectionsPermission; onChange: (p: ToolConnectionsPermission) => void }) {
   const ref = useRef<HTMLDivElement>(null);
   const [knob, setKnob] = useState<CSSProperties>({});
+  // the knob slides when the choice changes; when the row first appears it is simply in place
+  const placed = useRef(false);
   useIsoLayoutEffect(() => {
     const el = ref.current; if (!el) return;
-    const place = () => { const b = el.querySelector<HTMLElement>('[aria-pressed="true"]'); if (b) setKnob({ left: b.offsetLeft, width: b.offsetWidth }); };
+    const place = () => { const b = el.querySelector<HTMLElement>('[aria-pressed="true"]'); if (b){ setKnob({ left: b.offsetLeft, width: b.offsetWidth, transition: placed.current ? undefined : 'none' }); placed.current = true; } };
     place();
     const ro = new ResizeObserver(place); ro.observe(el);
     return () => ro.disconnect();
@@ -85,7 +89,7 @@ const Mark = ({ tool }: { tool: ToolConnectionsTool }) => tool.brand
   : <span className="dm-ic" style={tool.color ? { color: tool.color, background: `color-mix(in srgb,${tool.color} 12%,transparent)` } : undefined}>{tool.icon && <Icon name={tool.icon} size="xs" />}</span>;
 
 /** The tools the agent can reach, and how much it may do with each. */
-export function ToolConnections({ tools, defaultTools = [], onToolsChange, available = [], onConnect, onTest, onReconnect, title = 'Tools and connections', status, className }: ToolConnectionsProps) {
+export function ToolConnections({ tools, defaultTools = [], onToolsChange, available = [], onConnect, onTest, testing = false, onReconnect, title = 'Tools and connections', status, className }: ToolConnectionsProps) {
   const [list, setList] = useControllable(tools, defaultTools, onToolsChange);
   const menu = usePopover({ side: 'up' });
   const perm = (t: ToolConnectionsTool) => t.permission ?? 'ask';
@@ -113,7 +117,7 @@ export function ToolConnections({ tools, defaultTools = [], onToolsChange, avail
     <div data-dm="" className={cx('dm-hnx dm-panel', className)}>
       <div className="dm-hnx-h">
         <div><b>{title}</b><Swap className="dm-muted dm-hnx-st">{status ?? connected + ' connected'}</Swap></div>
-        {onTest && <button type="button" className="dm-pill dm-ghost dm-sm dm-hnx-test" onClick={onTest}><Icon name="refresh" size="xs" />Test all</button>}
+        {onTest && <button type="button" className="dm-pill dm-ghost dm-sm dm-hnx-test" onClick={onTest} disabled={testing}>{testing ? <><Spin />Testing</> : <><Icon name="refresh" size="xs" />Test all</>}</button>}
       </div>
       <div className="dm-hnx-list">
         {list.map(t => {

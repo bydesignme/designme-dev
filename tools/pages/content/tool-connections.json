@@ -10,7 +10,7 @@
     "Each row shows a service logo (`brand`) or an icon on a tinted tile, a name and a detail line.",
     "An Off, Ask or Allow switch per tool, defaulting to Ask; a tool set to Off is dimmed and not counted as connected.",
     "\"Connect a tool\" opens a menu of `available` tools not yet in the list; a picked tool joins with \"Just connected\" and Ask, and `onConnect` is called.",
-    "Passing `onTest` adds a Test all button; you report progress through each tool's `status` and `note`.",
+    "Passing `onTest` adds a Test all button, and `testing` shows a spinner on it while a test runs. You report each tool's progress through its `status`: 'testing' puts a small spinner on its status dot, without changing its line.",
     "A tool with `status: 'error'` shows a Reconnect button that calls `onReconnect`, with a spinner while `status` is 'reconnecting'.",
     "The line under the title counts connected tools, or shows your own `status` text."
   ],
@@ -20,7 +20,7 @@
     "The \"Connect a tool\" button exposes aria-expanded and aria-haspopup, and its menu has role=\"menu\"; Escape closes it and returns focus to the button."
   ],
   "faq": [
-    {"q": "How do I show a connection test in progress?", "a": "Handle `onTest` and update `tools`: set a tool's `status` to 'testing' with a `note` like \"Testing\", then to 'ok' or 'error'. The `note` replaces the detail line while it is set."},
+    {"q": "How do I show a connection test in progress?", "a": "Handle `onTest` and update `tools`: set `testing`, and each tool's `status` to 'testing' (a small spinner on its dot), then to 'ok' or 'error'. A `note`, like \"Token expired. Reconnect to use it\", replaces the detail line while it is set."},
     {"q": "What does Reconnect do?", "a": "It calls `onReconnect` with the tool's key. Set that tool's `status` to 'reconnecting' while you refresh the token, then back to 'ok' and the row comes back with its permission switch."},
     {"q": "How do I save permission changes?", "a": "Pass `tools` and `onToolsChange`. Every switch change and newly connected tool comes back as the full updated list."},
     {"q": "Can I use a tool that has no logo?", "a": "Yes. Leave out `brand` and set `icon` and `color`; the icon sits on a tile tinted with that colour."}

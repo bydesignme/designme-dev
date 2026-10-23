@@ -3,7 +3,8 @@ import { useEffect, useState, type ReactNode } from 'react';
 import { cx } from '../../lib/cx';
 import { useControllable } from '../../lib/hooks';
 import { Icon } from '../../lib/icons';
-import { enter, Seg, Spin, Swap, Tip } from '../../lib/motion';
+import { enter, Spin, Swap, Tip } from '../../lib/motion';
+import { usePopover } from '../../lib/popover';
 import '../../designme.css';
 import './permission-gate.css';
 
@@ -34,8 +35,10 @@ export interface PermissionGateProps {
   value?: string[];
   defaultValue?: string[];
   onValueChange?: (keys: string[]) => void;
-  /** How long the permission lasts. Defaults to This task, Today and Always */
+  /** How long the permission lasts, picked from a small dropdown in the footer. Defaults to This task, Today and Always */
   durations?: string[];
+  /** The quiet line under each duration in its menu, by duration, like { Today: 'Until midnight' } */
+  durationDetails?: Record<string, string>;
   duration?: string;
   defaultDuration?: string;
   onDurationChange?: (duration: string) => void;
@@ -52,7 +55,7 @@ export interface PermissionGateProps {
   onUndo?: () => void;
   /** The line under "Allowed …", like "Applying the pricing fixes now". Crossfades when it changes */
   allowedDetail?: string;
-  /** Replaces "Allowed 2 scopes for this task", like "Done. 6 frames edited on a new page". Crossfades when it changes */
+  /** Replaces "Allowed 2 scopes for this task", like "Done. 6 frames edited". Crossfades when it changes */
   allowedTitle?: string;
   /** The agent is still working under the permission: a spinner on a neutral row instead of the green check */
   working?: boolean;
@@ -71,15 +74,20 @@ export interface PermissionGateProps {
 }
 
 const DURATIONS = ['This task', 'Today', 'Always'];
+const DETAILS: Record<string, string> = { 'This task': 'Until the task is done', Today: 'Until midnight', Always: 'Until you revoke it' };
+// "For this task" in the menu and "for this task" after Allowed; Always reads as it is
+const durLabel = (d: string) => /^always$/i.test(d) ? d : 'For ' + d.toLowerCase();
+const durSpan = (d: string) => /^always$/i.test(d) ? 'always' : 'for ' + d.toLowerCase();
 
 /** The agent asks before it acts: pick the scopes and how long they last, then allow or decline. */
 export function PermissionGate({
-  title, subtitle, icon, scopes, value, defaultValue = [], onValueChange, durations = DURATIONS, duration, defaultDuration, onDurationChange,
+  title, subtitle, icon, scopes, value, defaultValue = [], onValueChange, durations = DURATIONS, durationDetails = DETAILS, duration, defaultDuration, onDurationChange,
   status, defaultStatus = 'asking', onStatusChange, onAllow, onDecline, onRevoke, onUndo, allowedDetail, allowedTitle, working = false, meta, followUp = false,
   declineLabel = 'Not now', declinedTitle = 'The agent will skip these changes', declinedDetail, bare = true, className
 }: PermissionGateProps) {
   const [ticked, setTicked] = useControllable(value, defaultValue, onValueChange);
   const [dur, setDur] = useControllable(duration, defaultDuration ?? durations[0], onDurationChange);
+  const durMenu = usePopover();
   const [state, setState] = useControllable(status, defaultStatus, onStatusChange);
   const [waiting, setWaiting] = useState(false);
   // a revoked permission fades out before the scopes come back
@@ -124,11 +132,9 @@ export function PermissionGate({
               </label>
             ))}
           </div>
-          <div key={'du' + again(1).key} className={cx('dm-pgx-dur', again(1).className)} style={again(1).style}>
-            <span className="dm-muted">For</span>
-            <Seg label="Duration" value={dur} onChange={setDur} options={durations.map(d => ({ value: d, label: d }))} />
-          </div>
-          <div key={'f' + again(2).key} className={cx('dm-pgx-f', again(2).className)} style={again(2).style}>
+          <div key={'f' + again(1).key} className={cx('dm-pgx-f', again(1).className)} style={again(1).style}>
+            <button {...durMenu.trigger} type="button" className="dm-pgx-db" aria-label="How long"><Swap className="dm-pgx-dv">{durLabel(dur)}</Swap><Icon name="chev-d" size="xs" /></button>
+            <span className="dm-sp" />
             <button type="button" className="dm-pill dm-ghost dm-sm dm-pgx-no" onClick={decline}>{declineLabel}</button>
             <button type="button" className="dm-pill dm-ink dm-sm dm-pgx-ok" disabled={!n} onClick={allow}>
               {waiting ? <Spin /> : <Swap>{n ? `Allow ${n} ${n > 1 ? 'scopes' : 'scope'}` : 'Pick a scope'}</Swap>}
@@ -136,11 +142,18 @@ export function PermissionGate({
           </div>
         </>
       )}
+      <div {...durMenu.pop} className={cx(durMenu.pop.className, 'dm-pgx-pop')} role="menu" aria-label="How long">
+        {durations.map(d => (
+          <button key={d} type="button" className="dm-mi" role="menuitemradio" aria-checked={d === dur} onClick={() => { setDur(d); durMenu.closeSoon(); }}>
+            <span>{durLabel(d)}{durationDetails[d] && <span className="dm-d">{durationDetails[d]}</span>}</span><span className="dm-ck"><Icon name="check" size="xs" /></span>
+          </button>
+        ))}
+      </div>
       {state === 'allowed' && (
         <div className={cx('dm-pgx-done', working ? 'dm-run' : 'dm-ok', leaving ? 'dm-leave' : 'dm-enter')}>
           <span className="dm-g">{working ? <Spin /> : <Icon name="ok" />}</span>
           <span className="dm-t">
-            <b className="dm-pgx-a"><Swap>{allowedTitle ?? `Allowed ${granted || n} ${(granted || n) > 1 ? 'scopes' : 'scope'} for ${dur.toLowerCase()}`}</Swap></b>
+            <b className="dm-pgx-a"><Swap>{allowedTitle ?? `Allowed ${granted || n} ${(granted || n) > 1 ? 'scopes' : 'scope'} ${durSpan(dur)}`}</Swap></b>
             {allowedDetail !== undefined && <Swap>{allowedDetail}</Swap>}
           </span>
           {meta !== undefined && <span className="dm-pgx-tm dm-num">{meta}</span>}

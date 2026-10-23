@@ -29,7 +29,7 @@ A list of the tools and services an agent is connected to, each with a three-way
 - Each row shows a service logo (`brand`) or an icon on a tinted tile, a name and a detail line.
 - An Off, Ask or Allow switch per tool, defaulting to Ask; a tool set to Off is dimmed and not counted as connected.
 - "Connect a tool" opens a menu of `available` tools not yet in the list; a picked tool joins with "Just connected" and Ask, and `onConnect` is called.
-- Passing `onTest` adds a Test all button; you report progress through each tool's `status` and `note`.
+- Passing `onTest` adds a Test all button, and `testing` shows a spinner on it while a test runs. You report each tool's progress through its `status`: 'testing' puts a small spinner on its status dot, without changing its line.
 - A tool with `status: 'error'` shows a Reconnect button that calls `onReconnect`, with a spinner while `status` is 'reconnecting'.
 - The line under the title counts connected tools, or shows your own `status` text.
 
@@ -51,10 +51,10 @@ import { ToolConnections } from '@/components/designme/tool-connections/ToolConn
 'use client';
 // The animated preview from designme.dev, rebuilt from the React component: an example of driving it from your own state.
 import { useEffect, useRef, useState } from 'react';
-import { useScript, useWait } from '../lib/useScript';
+import { useStory, useWait } from '../lib/useScript';
 import { ToolConnections, type ToolConnectionsTool } from './ToolConnections';
 
-/* ---------- Agent harness: five tools with their permissions; Test all finds Slack's token expired, Reconnect fixes it ---------- */
+/* ---------- Tools and connections: five tools with their permissions; Test all finds Slack's token expired, Reconnect fixes it ---------- */
 const TOOLS: ToolConnectionsTool[] = [
   { key: 'figma', name: 'Figma', detail: 'Read and edit frames', brand: 'figma', permission: 'ask' },
   { key: 'github', name: 'GitHub', detail: 'designme/web, PRs only', brand: 'github', permission: 'off' },
@@ -69,37 +69,43 @@ const MORE: ToolConnectionsTool[] = [
 ];
 
 export default function ToolConnectionsDemo() {
+  const ref = useRef<HTMLDivElement>(null);
   const [tools, setTools] = useState(TOOLS);
   const [status, setStatus] = useState<string>();
+  const [testing, setTesting] = useState(false);
   const wait = useWait();
   const latest = useRef(tools);
   useEffect(() => { latest.current = tools; });
   const patch = (key: string, p: Partial<ToolConnectionsTool>) => setTools(ts => ts.map(t => t.key === key ? { ...t, ...p } : t));
 
-  // checks every tool the agent may use, one after another; Slack's token has run out
+  // every tool the agent may use shows a small spinner at once, and they settle one by one; Slack's token has run out
   const test = async () => {
     const rows = latest.current.filter(t => t.permission !== 'off' && t.status !== 'error');
+    setTesting(true); setStatus(`Testing ${rows.length} connections`);
+    rows.forEach(t => patch(t.key, { status: 'testing' }));
     for (const t of rows) {
-      patch(t.key, { status: 'testing', note: 'Testing' });
-      await wait(420);
-      patch(t.key, t.key === 'slack' ? { status: 'error', note: 'Token expired. Reconnect' } : { status: 'ok', note: undefined });
+      await wait(600);
+      patch(t.key, t.key === 'slack' ? { status: 'error', note: 'Token expired. Reconnect to use it' } : { status: 'ok' });
     }
-    const bad = rows.filter(t => t.key === 'slack').length;
-    setStatus(`${rows.length - bad} of ${rows.length} healthy`);
+    const bad = rows.some(t => t.key === 'slack') ? 1 : 0;
+    setTesting(false); setStatus(`${rows.length - bad} of ${rows.length} healthy`);
   };
   const reconnect = async (key: string) => {
     patch(key, { status: 'reconnecting' });
-    await wait(800);
-    patch(key, { status: 'ok', note: undefined }); setStatus(undefined);
+    await wait(900);
+    const on = latest.current.filter(t => t.permission !== 'off').length;
+    patch(key, { status: 'ok', note: undefined }); setStatus(`${on} of ${on} healthy`);
   };
 
-  // the connections are tested once on its own; Reconnect is left for you
-  const yours = useRef(false);
-  useScript(async ({ wait }) => { await wait(1800); if (!yours.current) await test(); });
+  // the preview's story: test everything, find Slack's token expired, and reconnect it
+  useStory(ref, async ({ wait, press }) => {
+    await wait(1500); press('.dm-hnx-test');
+    await wait(4 * 600 + 1500); press('.dm-hnx-t.dm-err .dm-pill');
+  });
 
   return (
-    <div style={{ width: '100%' }} onPointerDownCapture={e => { if (e.isTrusted) yours.current = true; }}>
-      <ToolConnections tools={tools} onToolsChange={ts => { setTools(ts); setStatus(undefined); }} available={MORE} onTest={test} onReconnect={reconnect} status={status} />
+    <div ref={ref} style={{ width: '100%' }}>
+      <ToolConnections tools={tools} onToolsChange={ts => { setTools(ts); setStatus(undefined); }} available={MORE} onTest={test} testing={testing} onReconnect={reconnect} status={status} />
     </div>
   );
 }
@@ -115,6 +121,7 @@ export default function ToolConnectionsDemo() {
 | `available` (optional) | `ToolConnectionsTool[]` | Tools that can be connected, listed under Connect a tool. Ones already connected are left out |
 | `onConnect` (optional) | `(tool: ToolConnectionsTool) => void` | Called with a tool picked from Connect a tool. It joins the list with "Just connected" and Ask |
 | `onTest` (optional) | `() => void` | Adds a Test all button. Report progress through each tool's status and note |
+| `testing` (optional) | `boolean` | A test is running: Test all shows a spinner and waits |
 | `onReconnect` (optional) | `(key: string) => void` | Called by the Reconnect button of a tool whose status is error |
 | `title` (optional) | `string` |  |
 | `status` (optional) | `string` | The line under the title. Defaults to how many tools are connected |
@@ -124,7 +131,7 @@ export default function ToolConnectionsDemo() {
 
 **How do I show a connection test in progress?**
 
-Handle `onTest` and update `tools`: set a tool's `status` to 'testing' with a `note` like "Testing", then to 'ok' or 'error'. The `note` replaces the detail line while it is set.
+Handle `onTest` and update `tools`: set `testing`, and each tool's `status` to 'testing' (a small spinner on its dot), then to 'ok' or 'error'. A `note`, like "Token expired. Reconnect to use it", replaces the detail line while it is set.
 
 **What does Reconnect do?**
 
@@ -191,6 +198,8 @@ export interface ToolConnectionsProps {
   onConnect?: (tool: ToolConnectionsTool) => void;
   /** Adds a Test all button. Report progress through each tool's status and note */
   onTest?: () => void;
+  /** A test is running: Test all shows a spinner and waits */
+  testing?: boolean;
   /** Called by the Reconnect button of a tool whose status is error */
   onReconnect?: (key: string) => void;
   title?: string;
@@ -209,9 +218,11 @@ const PERMS: { value: ToolConnectionsPermission; label: string; tip: string }[] 
 function Permission({ name, value, onChange }: { name: string; value: ToolConnectionsPermission; onChange: (p: ToolConnectionsPermission) => void }) {
   const ref = useRef<HTMLDivElement>(null);
   const [knob, setKnob] = useState<CSSProperties>({});
+  // the knob slides when the choice changes; when the row first appears it is simply in place
+  const placed = useRef(false);
   useIsoLayoutEffect(() => {
     const el = ref.current; if (!el) return;
-    const place = () => { const b = el.querySelector<HTMLElement>('[aria-pressed="true"]'); if (b) setKnob({ left: b.offsetLeft, width: b.offsetWidth }); };
+    const place = () => { const b = el.querySelector<HTMLElement>('[aria-pressed="true"]'); if (b){ setKnob({ left: b.offsetLeft, width: b.offsetWidth, transition: placed.current ? undefined : 'none' }); placed.current = true; } };
     place();
     const ro = new ResizeObserver(place); ro.observe(el);
     return () => ro.disconnect();
@@ -230,7 +241,7 @@ const Mark = ({ tool }: { tool: ToolConnectionsTool }) => tool.brand
   : <span className="dm-ic" style={tool.color ? { color: tool.color, background: `color-mix(in srgb,${tool.color} 12%,transparent)` } : undefined}>{tool.icon && <Icon name={tool.icon} size="xs" />}</span>;
 
 /** The tools the agent can reach, and how much it may do with each. */
-export function ToolConnections({ tools, defaultTools = [], onToolsChange, available = [], onConnect, onTest, onReconnect, title = 'Tools and connections', status, className }: ToolConnectionsProps) {
+export function ToolConnections({ tools, defaultTools = [], onToolsChange, available = [], onConnect, onTest, testing = false, onReconnect, title = 'Tools and connections', status, className }: ToolConnectionsProps) {
   const [list, setList] = useControllable(tools, defaultTools, onToolsChange);
   const menu = usePopover({ side: 'up' });
   const perm = (t: ToolConnectionsTool) => t.permission ?? 'ask';
@@ -258,7 +269,7 @@ export function ToolConnections({ tools, defaultTools = [], onToolsChange, avail
     <div data-dm="" className={cx('dm-hnx dm-panel', className)}>
       <div className="dm-hnx-h">
         <div><b>{title}</b><Swap className="dm-muted dm-hnx-st">{status ?? connected + ' connected'}</Swap></div>
-        {onTest && <button type="button" className="dm-pill dm-ghost dm-sm dm-hnx-test" onClick={onTest}><Icon name="refresh" size="xs" />Test all</button>}
+        {onTest && <button type="button" className="dm-pill dm-ghost dm-sm dm-hnx-test" onClick={onTest} disabled={testing}>{testing ? <><Spin />Testing</> : <><Icon name="refresh" size="xs" />Test all</>}</button>}
       </div>
       <div className="dm-hnx-list">
         {list.map(t => {

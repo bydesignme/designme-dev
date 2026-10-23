@@ -145,7 +145,7 @@ A file the agent made, with a live preview and versions.
 
 **ModelPicker** · `model-picker/ModelPicker.tsx`  
 Pick a model by speed, quality and cost, and how hard it thinks.  
-`models: { id, name, mark?, color?, note?, speed, quality, cost, speedDetail?, qualityDetail?, costDetail?, status?: 'ready' | 'checking' | 'busy', statusText? }[]` (speed, quality and cost from 1 to 5, drawn as five-step meters; the details show on hover; busy turns the row amber), `value` / `defaultValue` / `onValueChange` (called for any row, busy or not, so you can check the model first), `efforts: { label, detail? }[]` (defaults to Off, Low, Medium and High), `effort` / `defaultEffort` / `onEffortChange`, `estimate` (the line at the foot, like what the next reply will take), `suggestion: { text, actions: { label, onClick }[] }` (a way out when the picked model can't start), `note` (a confirmation with a green check), `label`, `open` / `defaultOpen` / `onOpenChange`. Arrow keys move through the models; Escape closes the list and focuses the trigger.
+`models: { id, name, mark?, color?, note?, speed, quality, cost, speedDetail?, qualityDetail?, costDetail?, status?: 'ready' | 'checking' | 'busy', statusText? }[]` (speed, quality and cost from 1 to 5, drawn as five-step meters; the details show on hover; busy turns the row amber), `value` / `defaultValue` / `onValueChange` (called for any row, busy or not, so you can check the model first), `efforts: { label, detail? }[]` (defaults to Off, Low, Medium and High), `effort` / `defaultEffort` / `onEffortChange` (a small dropdown under the list), `suggestion: { text, actions: { label, onClick }[] }` (a way out when the picked model can't start), `note` (a confirmation with a green check), `label`, `open` / `defaultOpen` / `onOpenChange`. Arrow keys move through the models; Escape closes the list and focuses the trigger.
 
 **PromptStarters** · `prompt-starters/PromptStarters.tsx`  
 Suggested tasks that fill the composer in one click.  
@@ -187,7 +187,7 @@ Tweak a component by hand or let the agent tune it.
 
 **PermissionGate** · `permission-gate/PermissionGate.tsx`  
 The agent asks before it touches something new.  
-`title`, `subtitle`, `icon`, `scopes: { key, label, detail?, risk?, riskDetail? }[]` (`riskDetail` is what the risk tag shows on hover), `value` / `defaultValue` / `onValueChange` (the ticked keys), `durations`, `duration` / `defaultDuration` / `onDurationChange`, `status` / `defaultStatus` / `onStatusChange` (`'asking' | 'allowed' | 'declined'`), `onAllow(keys, duration)` (return a promise and the button spins until it settles), `onDecline`, `onRevoke`, `onUndo`, `allowedTitle` and `allowedDetail` (the two lines once allowed; both crossfade), `working` (a spinner on a neutral row while the agent works under the permission), `meta` (quiet text at the end of that row, like an elapsed time), `followUp` (a second ask mid-run for one more scope: the icon tile turns amber), `declineLabel` (defaults to Not now), `declinedTitle`, `declinedDetail`, `bare` (on by default: it sits in the chat with no card; `false` draws the card).
+`title`, `subtitle`, `icon`, `scopes: { key, label, detail?, risk?, riskDetail? }[]` (`riskDetail` is what the risk tag shows on hover), `value` / `defaultValue` / `onValueChange` (the ticked keys), `durations` (picked from a small dropdown in the footer), `durationDetails` (the line under each in its menu), `duration` / `defaultDuration` / `onDurationChange`, `status` / `defaultStatus` / `onStatusChange` (`'asking' | 'allowed' | 'declined'`), `onAllow(keys, duration)` (return a promise and the button spins until it settles), `onDecline`, `onRevoke`, `onUndo`, `allowedTitle` and `allowedDetail` (the two lines once allowed; both crossfade), `working` (a spinner on a neutral row while the agent works under the permission), `meta` (quiet text at the end of that row, like an elapsed time), `followUp` (a second ask mid-run for one more scope: the icon tile turns amber), `declineLabel` (defaults to Not now), `declinedTitle`, `declinedDetail`, `bare` (on by default: it sits in the chat with no card; `false` draws the card).
 
 **LaunchChecklist** · `launch-checklist/LaunchChecklist.tsx`  
 The agent checks a design before it ships, and fixes what fails.  
@@ -267,7 +267,7 @@ Run one prompt on three models side by side and keep the best.
 
 **ToolConnections** · `tool-connections/ToolConnections.tsx`  
 The tools the agent can reach, and how much it may do with each.  
-`tools` / `defaultTools` / `onToolsChange` (`{ key, name, detail?, brand? or icon? and color?, permission?: 'off' | 'ask' | 'allow', status?: 'ok' | 'testing' | 'error' | 'reconnecting', note? }[]`), `available` and `onConnect(tool)` (the Connect a tool menu), `onTest` (adds Test all), `onReconnect(key)`, `title`, `status`.
+`tools` / `defaultTools` / `onToolsChange` (`{ key, name, detail?, brand? or icon? and color?, permission?: 'off' | 'ask' | 'allow', status?: 'ok' | 'testing' | 'error' | 'reconnecting', note? }[]`), `available` and `onConnect(tool)` (the Connect a tool menu), `onTest` (adds Test all), `testing` (Test all shows a spinner while a test runs), `onReconnect(key)`, `title`, `status`.
 
 ### Harness
 

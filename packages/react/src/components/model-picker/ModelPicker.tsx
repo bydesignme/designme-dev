@@ -3,7 +3,8 @@ import { useEffect, useRef, useState, type KeyboardEvent, type ReactNode } from 
 import { cx } from '../../lib/cx';
 import { useControllable } from '../../lib/hooks';
 import { Icon } from '../../lib/icons';
-import { enter, Fold, Seg, Spin, Swap, Tip } from '../../lib/motion';
+import { enter, Fold, Spin, Swap, Tip } from '../../lib/motion';
+import { usePopover } from '../../lib/popover';
 import '../../designme.css';
 import './model-picker.css';
 
@@ -50,8 +51,6 @@ export interface ModelPickerProps {
   effort?: string;
   defaultEffort?: string;
   onEffortChange?: (effort: string) => void;
-  /** The line at the foot of the list, like what the next reply will take */
-  estimate?: ReactNode;
   /** A way out when the picked model can't take the request: a short text and its buttons, the last one filled */
   suggestion?: { text: ReactNode; actions: { label: string; onClick: () => void }[] };
   /** The confirmation under the picker, like "Set for this chat: Sonnet 5.5, high thinking". Shown with a green check */
@@ -77,11 +76,13 @@ const Meter = ({ value, tip }: { value: number; tip?: string }) => {
 
 /** Choose the model for a chat by speed, quality and cost, and how hard it thinks, with what the next reply will take. */
 export function ModelPicker({
-  models, value, defaultValue, onValueChange, efforts = EFFORTS, effort, defaultEffort, onEffortChange, estimate, suggestion, note,
+  models, value, defaultValue, onValueChange, efforts = EFFORTS, effort, defaultEffort, onEffortChange, suggestion, note,
   label = 'Model for this chat', open, defaultOpen = true, onOpenChange, className
 }: ModelPickerProps) {
   const [cur, setCur] = useControllable(value, defaultValue ?? models[0]?.id ?? '', onValueChange);
   const [eff, setEff] = useControllable(effort, defaultEffort ?? efforts[Math.min(2, efforts.length - 1)]?.label ?? '', onEffortChange);
+  // thinking effort is a small dropdown under the list
+  const effMenu = usePopover({ align: 'end' });
   const [isOpen, setOpen] = useControllable(open, defaultOpen, onOpenChange);
   const picked = models.find(m => m.id === cur) ?? models[0];
   const rows = useRef<(HTMLButtonElement | null)[]>([]);
@@ -134,11 +135,17 @@ export function ModelPicker({
           </Fold>
           <div className="dm-mpk-th">
             <div className="dm-mpk-thh"><b><Icon name="brain" size="xs" />Thinking</b><Swap className="dm-muted dm-mpk-thd">{efforts.find(e => e.label === eff)?.detail ?? ''}</Swap></div>
-            <Seg label="Thinking effort" value={eff} onChange={setEff} options={efforts.map(e => ({ value: e.label, label: e.label }))} className="dm-mpk-seg" />
+            <button {...effMenu.trigger} type="button" className="dm-mpk-eb" aria-label="Thinking effort"><Swap className="dm-mpk-ev">{eff}</Swap><Icon name="chev-d" size="xs" /></button>
           </div>
-          {estimate !== undefined && <div className="dm-mpk-f"><span className="dm-mpk-est dm-num">{estimate}</span></div>}
         </div>
       </Fold>
+      <div {...effMenu.pop} className={cx(effMenu.pop.className, 'dm-mpk-pop')} role="menu" aria-label="Thinking effort">
+        {efforts.map(e => (
+          <button key={e.label} type="button" className="dm-mi" role="menuitemradio" aria-checked={e.label === eff} onClick={() => { setEff(e.label); effMenu.closeSoon(); }}>
+            <span>{e.label}{e.detail && <span className="dm-d">{e.detail}</span>}</span><span className="dm-ck"><Icon name="check" size="xs" /></span>
+          </button>
+        ))}
+      </div>
       <p className="dm-mpk-note dm-muted" aria-live="polite">
         {note && <><Icon name="ok" size="xs" /><span key={noteKey} {...enter()}>{note}</span></>}
       </p>

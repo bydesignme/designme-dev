@@ -5638,14 +5638,39 @@ body.ui main .comp:hover{border-color:var(--sh-line)}
 .side-p[href="#components"]:hover .ms svg{transform:rotate(90deg)}
 .side-p[href="#/changelog"]:hover .ms svg{transform:rotate(-50deg)}
 .side-p[href="#/roadmap"]:hover .ms svg{transform:translate(2px,-2px)}
-.side-p[href="#faq"]:hover .ms svg{animation:side-tilt .6s cubic-bezier(.36,0,.2,1)}
+.side-p[href="#/faq"]:hover .ms svg{animation:side-tilt .6s cubic-bezier(.36,0,.2,1)}
 @keyframes side-tilt{30%{transform:rotate(-16deg)}65%{transform:rotate(10deg)}100%{transform:none}}
 @media (prefers-reduced-motion:reduce){ .side-p .ms svg{transition:none;animation:none!important;transform:none!important} }
 /* nothing on the site is heavier than medium, and nothing but a page's title is bigger than 14px */
 body.ui :is(h1,h2,h3,h4,b,strong,button,.acc-t,.side-lbl,.st,.t,.nd-t,.chg-v,.chg-tag,.rm-st,.rm-t,.rm-n span,.su-btn,.cdm-copy,.cdm-shared,.dv-copy):not(.v2 *){font-weight:500}
 body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
 /* calmer previews: each component sits small in the middle of its stage, with room all round */
-@media (min-width:641px){ body.ui main .comp .stage-inner{padding:56px 48px 72px} }
+/* the same room above and below, so a component at its tallest sits in the middle */
+body.ui main .comp .stage-inner{padding:40px 16px}
+@media (min-width:641px){ body.ui main .comp .stage-inner{padding:56px 48px} }
+/* ================= round 3 ================= */
+/* FAQ is a page of its own now: the homepage doesn't repeat it at the bottom */
+body.ui section.faq{display:none}
+@media (min-width:961px){
+  /* Changelog, Roadmap and FAQ sit in the middle of the column between the sidebar's edge and the end of the header */
+  .pv{padding-right:calc((100vw - min(100vw, 1400px)) / 2 + 32px)}
+}
+/* the roadmap's suggestion box: a field like the sidebar's search, and a button like the site's other buttons */
+.rm-add{gap:8px;padding:0;border:0;border-radius:0;background:none}
+.rm-add input{height:36px;padding:0 14px;border:1px solid var(--sh-line);border-radius:999px;background:var(--sh-card);transition:border-color .2s,box-shadow .2s}
+.rm-add input:focus{border-color:var(--sh-blue);box-shadow:0 0 0 3px rgba(17,111,248,.12)}
+.rm-add .su-btn,.su-btn{width:auto;height:36px;padding:0 16px;border-radius:999px;background:var(--sh-chip);border:1px solid var(--sh-line);color:var(--sh-text);font-size:14px;font-weight:500}
+.su-btn:hover{opacity:1;border-color:var(--sh-line-2)}
+/* the FAQ page: the list, then two ways to ask for more */
+.faq-slot{margin-top:24px}
+.faq-slot .faq-list{margin:0}
+.faq-more{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:40px}
+.faq-card{display:flex;flex-direction:column;align-items:flex-start;gap:4px;padding:16px;border:1px solid color-mix(in srgb,var(--sh-line) 50%,transparent);border-radius:16px;font-size:14px}
+.faq-card b{font-weight:500;color:var(--sh-text)}
+.faq-card p{margin:0 0 10px;color:var(--sh-dim)}
+.pv-btn{display:inline-flex;align-items:center;height:32px;margin-top:auto;padding:0 14px;border-radius:999px;background:var(--sh-chip);border:1px solid var(--sh-line);color:var(--sh-text);font-size:14px;font-weight:500;text-decoration:none;transition:border-color .2s}
+.pv-btn:hover{border-color:var(--sh-line-2)}
+@media (max-width:640px){ .faq-more{grid-template-columns:minmax(0,1fr)} }
 /* Changelog and Roadmap: the same title and text as every other page */
 .pv-h h1{font-size:20px;font-weight:500;letter-spacing:-.01em}
 .pv-h p{font-size:14px}
@@ -5833,6 +5858,9 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
 .v2 .sw.out{opacity:0;filter:blur(3px);transform:translateY(3px)}
 .v2 .fold{display:grid;grid-template-rows:1fr;transition:grid-template-rows var(--t) var(--ease),opacity var(--t) var(--ease)}
 .v2 .fold>*{overflow:hidden;min-height:0}
+/* shadows inside an open fold aren't cut off: the clip leaves room round its edge (a shut fold is invisible anyway) */
+.v2 .fold{grid-template-columns:minmax(0,1fr)}
+.v2 .fold>*{overflow:clip;overflow-clip-margin:12px;min-width:0}
 .v2 .fold.shut{grid-template-rows:0fr;opacity:0}
 
 /* ---------- tooltip and popover ---------- */
@@ -6029,7 +6057,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
 .v2 .rc-h{display:flex;align-items:center;justify-content:space-between;font-size:12.5px}
 .v2 .rc-st{transition:background .3s,color .3s}
 .v2 .rc-big{margin-top:6px;font-size:13px}
-.v2 .rc-n{font-size:20px;font-weight:500;letter-spacing:-.8px}
+.v2 .rc-n{font-size:14px;font-weight:500;letter-spacing:-.8px}
 .v2 .rc-track{position:relative;height:6px;border-radius:4px;background:var(--chip);margin:14px 0 16px}
 .v2 .rc-fill{height:100%;width:0;border-radius:4px;background:var(--accent);transition:background .4s}
 .v2 .rc-cap{position:absolute;left:90%;top:-5px;bottom:-5px;width:2px;border-radius:1px;background:var(--fg2);transition:opacity .3s}
@@ -6082,7 +6110,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
 .v2 .pcx-c .nm{font-size:14px;font-weight:500}
 .v2 .pcx-c .ds{font-size:12.5px;color:var(--muted);margin-top:-8px}
 .v2 .pcx-pr{display:flex;flex-wrap:wrap;align-items:baseline;gap:0 6px}
-.v2 .pcx-pr b{font-size:20px;font-weight:500;letter-spacing:-.02em}
+.v2 .pcx-pr b{font-size:14px;font-weight:500;letter-spacing:-.02em}
 .v2 .pcx-pr span{flex-basis:100%;min-height:18px;font-size:12px;color:var(--muted)}
 .v2 .pcx-pr s{font-size:13px;color:var(--faint)}
 .v2 .pcx-tot{font-size:12px;color:var(--fg2);min-height:16px}
@@ -6182,7 +6210,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
 .v2 .slx-h>div{display:flex;flex-direction:column;font-size:14px}
 .v2 .slx-h b{font-weight:500}
 .v2 .slx-h .muted{font-size:12px}
-.v2 .slx-v{display:inline-flex;align-items:baseline;font-size:20px;font-weight:500!important;letter-spacing:-.02em;margin:-3px -7px 0 0;padding:1px 7px;border-radius:9px;cursor:text;transition:background-color .2s var(--ease),box-shadow .2s var(--ease)}
+.v2 .slx-v{display:inline-flex;align-items:baseline;font-size:14px;font-weight:500!important;letter-spacing:-.02em;margin:-3px -7px 0 0;padding:1px 7px;border-radius:9px;cursor:text;transition:background-color .2s var(--ease),box-shadow .2s var(--ease)}
 /* the budget reads as a figure until you click it, then you can type a new one */
 .v2 .slx-v:hover{background:var(--row)}
 .v2 .slx-v:focus-within{background:var(--row);box-shadow:inset 0 0 0 1px var(--rail)}
@@ -6209,7 +6237,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
 .v2 .ccx-row{display:flex;align-items:center;gap:8px;padding:10px 10px 10px 14px;border-radius:14px;background:var(--chip);transition:box-shadow .25s,background .25s}
 .v2 .ccx-row:focus-within{background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--accent)}
 .v2 .ccx-in{flex:1;display:flex;flex-direction:column;min-width:0;font-size:11.5px}
-.v2 .ccx-a,.v2 .ccx-b{border:0;outline:0;background:transparent;font:inherit;font-size:20px;font-weight:500;letter-spacing:-.02em;color:var(--fg);padding:0;width:100%;min-width:0}
+.v2 .ccx-a,.v2 .ccx-b{border:0;outline:0;background:transparent;font:inherit;font-size:14px;font-weight:500;letter-spacing:-.02em;color:var(--fg);padding:0;width:100%;min-width:0}
 .v2 .ccx-cur{display:flex;align-items:center;gap:6px;height:34px;padding:0 10px;border-radius:10px;background:var(--surface);box-shadow:0 1px 2px rgba(0,0,0,.06);font-size:13px;font-weight:500}
 .v2 .ccx-cur .cd{font-family:var(--mono);font-size:12px}
 .v2 .ccx-sw{align-self:center;width:32px;height:32px;margin:-16px 0;z-index:1;border-radius:50%;background:var(--surface);box-shadow:var(--shadow),0 0 0 4px var(--surface);display:grid;place-items:center;color:var(--fg2);transition:transform .5s var(--ease),color .2s}
@@ -6461,7 +6489,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
 .v2 .afx-dh{font-weight:500;font-size:14px}
 .v2 .afx-dp{margin-top:4px;font-size:12.5px;line-height:1.5;color:var(--fg2);min-height:38px;text-wrap:pretty}
 .v2 .afx-kp{display:flex;align-items:baseline;gap:8px;margin-top:10px}
-.v2 .afx-kp b{font-size:20px;font-weight:500;letter-spacing:-.02em}
+.v2 .afx-kp b{font-size:14px;font-weight:500;letter-spacing:-.02em}
 .v2 .afx-d{font-size:12px;color:var(--ok)}
 .v2 .afx-ch{display:block;width:100%;height:56px;margin-top:8px;overflow:visible}
 .v2 .afx-ch .ln{fill:none;stroke:var(--accent);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
@@ -6555,8 +6583,8 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
 @media (max-width:480px){.v2 .fbx-n{display:none}}
 /* ---------- Model picker ---------- */
 /* a trigger that names the model and how hard it thinks, over the open list: speed, quality and cost as five-step meters
-   with the real numbers on hover, the thinking effort under them, and what the next reply will take */
-.v2 .mpk{display:flex;flex-direction:column;gap:8px;width:100%;max-width:420px;margin:0 auto}
+   with the real numbers on hover, and the thinking effort under them as a small dropdown */
+.v2 .mpk{position:relative;display:flex;flex-direction:column;gap:8px;width:100%;max-width:420px;margin:0 auto}
 .v2 .mpk-top{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 2px}
 .v2 .mpk-lb{font-size:12.5px}
 .v2 .mpk-tr{display:inline-flex;align-items:center;gap:7px;height:32px;padding:0 10px 0 6px;border-radius:var(--r-pill);background:var(--surface);box-shadow:var(--shadow);font-size:13px;font-weight:500;white-space:nowrap;transition:box-shadow .16s}
@@ -6595,8 +6623,11 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
 .v2 .mpk-thh b{font-weight:500;display:flex;align-items:center;gap:6px}
 .v2 .mpk-thh b svg{color:var(--muted)}
 .v2 .mpk-thd{font-size:12px}
-.v2 .mpk-f{padding:4px 10px 6px;font-size:12px;color:var(--muted)}
-.v2 .mpk-est b{color:var(--fg);font-weight:500}
+.v2 .mpk-eb{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 8px 0 10px;border-radius:var(--r-pill);background:var(--chip);font-size:13px;transition:background .16s}
+.v2 .mpk-eb:hover,.v2 .mpk-eb[aria-expanded="true"]{background:var(--hover)}
+.v2 .mpk-eb>svg{color:var(--muted);transition:transform .32s var(--ease)}
+.v2 .mpk-eb[aria-expanded="true"]>svg{transform:rotate(180deg)}
+.v2 .mpk-pop{min-width:220px}
 .v2 .mpk-note{margin:0;padding:0 2px;font-size:12.5px;min-height:20px;display:flex;align-items:center;gap:6px}
 .v2 .mpk-note svg{color:var(--ok);flex:none}
 /* phones: the line under each name wraps, and the meters keep room for their labels */
@@ -6729,7 +6760,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
 .v2 .dtx-card{--rad:16px;--pad:18px;--gap:12px;--sh:.08;width:min(250px,100%);background:var(--surface);border-radius:var(--rad);padding:var(--pad);display:flex;flex-direction:column;gap:var(--gap);box-shadow:0 1px 2px rgba(0,0,0,var(--sh)),0 8px 24px rgba(0,0,0,calc(var(--sh) * .8))}
 .v2 .dtx-tg{align-self:flex-start}
 .v2 .dtx-pr{display:flex;align-items:baseline;gap:6px}
-.v2 .dtx-pr b{font-size:20px;font-weight:500;letter-spacing:-.02em}
+.v2 .dtx-pr b{font-size:14px;font-weight:500;letter-spacing:-.02em}
 .v2 .dtx-pr span{font-size:12px}
 .v2 .dtx-li{display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--fg2)}
 .v2 .dtx-li span{display:flex;align-items:center;gap:7px}
@@ -6753,16 +6784,17 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
 .v2 .dtx-go.busy{pointer-events:none}
 .v2 .dtx-note{font-size:12px;color:var(--fg2);padding:8px 10px;border-radius:10px;background:var(--accent-bg);line-height:1.45}
 /* ---------- Permission gate ---------- */
-/* the agent asks in the chat: no container; with .panel it becomes a card */
-.v2 .pgx{padding:14px 0;display:flex;flex-direction:column;gap:12px}
-.v2 .pgx.panel{padding:14px}
-.v2 .pgx-h{display:flex;gap:10px;align-items:center}
-.v2 .pgx-ic{width:34px;height:34px;border-radius:10px;background:var(--chip);display:grid;place-items:center;flex:none}
+/* the agent asks in the chat as one card: the question, the scopes to tick, and a footer with how long and the two
+   answers. Without .panel it sits flat in the thread */
+.v2 .pgx{position:relative;width:100%;max-width:400px;margin:0 auto;padding:4px 0;display:flex;flex-direction:column;gap:12px}
+.v2 .pgx.panel{padding:16px}
+.v2 .pgx-h{display:flex;gap:12px;align-items:center}
+.v2 .pgx-ic{width:32px;height:32px;border-radius:9px;background:var(--chip);display:grid;place-items:center;flex:none}
 .v2 .pgx-ht{display:flex;flex-direction:column;min-width:0}
-.v2 .pgx-ht b{font-weight:500;font-size:13.5px}
-.v2 .pgx-ht span{font-size:12.5px}
-.v2 .pgx-sc{display:flex;flex-direction:column;gap:2px;margin-inline:-8px}
-.v2 .pgx-o{display:flex;align-items:center;gap:10px;padding:8px;border-radius:10px;cursor:pointer;font-size:13px;transition:background .25s}
+.v2 .pgx-ht b{font-weight:500;font-size:14px}
+.v2 .pgx-ht span{font-size:13px}
+.v2 .pgx-sc{display:flex;flex-direction:column;margin-inline:-8px}
+.v2 .pgx-o{display:flex;align-items:center;gap:12px;padding:8px;border-radius:10px;cursor:pointer;font-size:13.5px;transition:background .25s}
 .v2 .pgx-o:hover{background:var(--row)}
 .v2 .pgx-o input{position:absolute;opacity:0;pointer-events:none}
 .v2 .pgx-o .bx{width:18px;height:18px;border-radius:6px;box-shadow:inset 0 0 0 1.5px var(--faint);display:grid;place-items:center;color:transparent;flex:none;transition:background .3s var(--ease),box-shadow .3s,color .3s}
@@ -6772,10 +6804,19 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
 .v2 .pgx-o input:focus-visible+.bx{box-shadow:0 0 0 3px var(--accent-bg)}
 .v2 .pgx-o .t{flex:1;min-width:0}
 .v2 .pgx-o .d{display:block;font-size:12px;color:var(--muted)}
-.v2 .pgx-dur{display:flex;align-items:center;gap:10px;font-size:12.5px}
-.v2 .pgx-f{display:flex;justify-content:flex-end;gap:6px}
+.v2 .pgx-f{display:flex;align-items:center;gap:6px;padding-top:12px;border-top:1px solid var(--line)}
+.v2 .pgx-f .sp{flex:1}
+/* how long: a small dropdown, the way a menu of choices usually looks */
+.v2 .pgx-db{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 8px 0 10px;margin-left:-2px;border-radius:var(--r-pill);font-size:13px;color:var(--fg2);transition:background .16s,color .16s}
+.v2 .pgx-db:hover,.v2 .pgx-db[aria-expanded="true"]{background:var(--chip);color:var(--fg)}
+.v2 .pgx-db>svg{color:var(--muted);transition:transform .32s var(--ease)}
+.v2 .pgx-db[aria-expanded="true"]>svg{transform:rotate(180deg)}
+.v2 .pgx-pop{min-width:230px}
 .v2 .pgx-ok[disabled]{opacity:1;background:var(--chip);color:var(--faint)}
-.v2 .pgx-done{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;background:var(--ok-bg);font-size:13px}
+.v2 .pgx-done{display:flex;align-items:center;gap:12px;padding:10px 10px 10px 12px;border-radius:12px;background:var(--ok-bg);font-size:13.5px}
+/* its button is a white pill on the tinted row */
+.v2 .pgx-done .pill{background:var(--surface);color:var(--fg);box-shadow:var(--shadow)}
+.v2 .pgx-done .pill:hover{background:var(--surface);box-shadow:var(--shadow-pop)}
 .v2 .pgx-done .t{flex:1;color:var(--fg)}
 .v2 .pgx-done .t span{display:block;font-size:12px;color:var(--muted)}
 .v2 .pgx-done>svg{color:var(--ok)}
@@ -6947,7 +6988,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
 .v2 .mix-h{display:flex;align-items:center;justify-content:space-between;font-size:12.5px}
 .v2 .mix-rg button{font-size:11.5px;padding:0 8px;height:24px}
 .v2 .mix-v{display:flex;align-items:baseline;gap:8px}
-.v2 .mix-v b{font-size:20px;font-weight:500;letter-spacing:-.02em}
+.v2 .mix-v b{font-size:14px;font-weight:500;letter-spacing:-.02em}
 .v2 .mix-ch{position:relative;height:90px;cursor:crosshair}
 .v2 .mix-svg{width:100%;height:100%;display:block;overflow:visible}
 .v2 .mix-l{stroke-dasharray:var(--len);stroke-dashoffset:var(--len);transition:stroke-dashoffset 1.2s var(--ease)}
@@ -7361,8 +7402,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
 .v2 .hnx-t .ic.brandic{background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);color:var(--fg)}
 .v2 .hnx-t .ic .brand{width:15px;height:15px}
 .v2 .hnx-t.err .ic::after{background:var(--bad)}
-.v2 .hnx-t.chk .ic::after{background:var(--accent);animation:v2-hnp 1s ease-in-out infinite}
-@keyframes v2-hnp{50%{transform:scale(1.4);opacity:.5}}
+.v2 .hnx-t.chk .ic::after{width:10px;height:10px;right:-3px;bottom:-3px;box-sizing:border-box;background:var(--surface);border:1.5px solid var(--accent);border-right-color:transparent;box-shadow:0 0 0 2px var(--surface);animation:v2-rot .8s linear infinite}
 .v2 .hnx-t .t{flex:1;min-width:0;display:flex;flex-direction:column}
 .v2 .hnx-t .t span{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .v2 .hnx-t.err .t span{color:var(--bad)}
@@ -7526,7 +7566,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
 .v2 .lnx{padding:14px;display:flex;flex-direction:column;gap:10px}
 .v2 .lnx-h{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap}
 .v2 .lnx-h>div:first-child{display:flex;flex-direction:column;font-size:12.5px}
-.v2 .lnx-v{font-size:20px;font-weight:500;letter-spacing:-.02em;color:var(--fg)}
+.v2 .lnx-v{font-size:14px;font-weight:500;letter-spacing:-.02em;color:var(--fg)}
 .v2 .lnx-lg{display:flex;gap:4px}
 .v2 .lnx-k{display:flex;align-items:center;gap:6px;height:26px;padding:0 9px;border-radius:999px;font-size:12px;color:var(--muted);transition:color .2s,background .2s}
 .v2 .lnx-k:hover{background:var(--chip)}
@@ -7551,7 +7591,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
 .v2 .bcx{padding:14px;display:flex;flex-direction:column;gap:12px}
 .v2 .bcx-h{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
 .v2 .bcx-h>div:first-child{display:flex;flex-direction:column;font-size:12.5px}
-.v2 .bcx-v{font-size:20px;font-weight:500;letter-spacing:-.02em}
+.v2 .bcx-v{font-size:14px;font-weight:500;letter-spacing:-.02em}
 .v2 .bcx-rg button{font-size:12px;height:26px;padding:0 10px}
 .v2 .bcx-ch{display:flex;align-items:flex-end;gap:8px;height:150px;position:relative}
 .v2 .bcx-b{flex:1;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:stretch;gap:0;position:relative;cursor:default}
@@ -7579,7 +7619,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
 .v2 .dnx-ring.hov circle:not(.hl){opacity:.3}
 .v2 .dnx-c{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none}
 .v2 .dnx-ring circle{cursor:default}
-.v2 .dnx-c b{font-size:20px;font-weight:500;letter-spacing:-.02em}
+.v2 .dnx-c b{font-size:14px;font-weight:500;letter-spacing:-.02em}
 .v2 .dnx-c span{font-size:11.5px}
 .v2 .dnx-lg{display:flex;flex-direction:column;gap:2px;flex:1;min-width:170px}
 .v2 .dnx-r{display:flex;align-items:center;gap:9px;padding:6px 8px;border-radius:9px;font-size:13px;transition:background .2s;cursor:default}
@@ -7634,7 +7674,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
 .v2 .hsx-g .tr{stroke:var(--line)}
 .v2 .hsx-g .fl{stroke:var(--accent);stroke-dasharray:157;stroke-dashoffset:157;transition:stroke-dashoffset 1.2s var(--ease),stroke .4s}
 .v2 .hsx-v{position:absolute;left:0;right:0;bottom:0;display:flex;flex-direction:column;align-items:center;line-height:1.1}
-.v2 .hsx-v b{font-size:20px;font-weight:500}
+.v2 .hsx-v b{font-size:14px;font-weight:500}
 .v2 .hsx-v span{font-size:11px}
 .v2 .hsx-s{display:flex;flex-direction:column;font-size:13.5px}
 .v2 .hsx-s b{font-weight:500}
@@ -7679,7 +7719,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
 .v2 .scx-k{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--muted)}
 .v2 .scx-k .ic{display:grid;color:var(--fg2)}
 .v2 .scx-v{display:flex;align-items:baseline;gap:8px}
-.v2 .scx-v b{font-size:20px;font-weight:500;letter-spacing:-.02em}
+.v2 .scx-v b{font-size:14px;font-weight:500;letter-spacing:-.02em}
 .v2 .scx-d{font-size:12px;font-weight:500}
 .v2 .scx-d.up{color:var(--ok)}.v2 .scx-d.dn{color:var(--bad)}
 .v2 .scx-sp{height:34px;margin-top:4px}
@@ -8333,11 +8373,11 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
 .v2-host{overflow:visible}
 </style>
 <style id="card-heights">
-.lib-sec .comp>.stage{min-height:var(--rh-a,420px)}.lib-sec .comp>.stage .v2.stage-in{min-height:var(--rc-a,0px)}
-@media (max-width:1399px){.lib-sec .comp>.stage{min-height:var(--rh-b,420px)}.lib-sec .comp>.stage .v2.stage-in{min-height:var(--rc-b,0px)}}
-@media (max-width:1180px){.lib-sec .comp>.stage{min-height:var(--rh-c,420px)}.lib-sec .comp>.stage .v2.stage-in{min-height:var(--rc-c,0px)}}
-@media (max-width:960px){.lib-sec .comp>.stage{min-height:var(--rh-d,420px)}.lib-sec .comp>.stage .v2.stage-in{min-height:var(--rc-d,0px)}}
-@media (max-width:640px){.lib-sec .comp>.stage{min-height:var(--rh-e,420px)}.lib-sec .comp>.stage .v2.stage-in{min-height:var(--rc-e,0px)}}
+.lib-sec .comp>.stage{min-height:var(--rh-a,420px)}.lib-sec .comp>.stage .v2.stage-in{min-height:var(--rc-a,0px)}:root:not([data-style="soft"]) .lib-sec .comp>.stage .v2.stage-in{min-height:var(--rcb-a,var(--rc-a,0px))}
+@media (max-width:1439px){.lib-sec .comp>.stage{min-height:var(--rh-b,420px)}.lib-sec .comp>.stage .v2.stage-in{min-height:var(--rc-b,0px)}:root:not([data-style="soft"]) .lib-sec .comp>.stage .v2.stage-in{min-height:var(--rcb-b,var(--rc-b,0px))}}
+@media (max-width:1180px){.lib-sec .comp>.stage{min-height:var(--rh-c,420px)}.lib-sec .comp>.stage .v2.stage-in{min-height:var(--rc-c,0px)}:root:not([data-style="soft"]) .lib-sec .comp>.stage .v2.stage-in{min-height:var(--rcb-c,var(--rc-c,0px))}}
+@media (max-width:960px){.lib-sec .comp>.stage{min-height:var(--rh-d,420px)}.lib-sec .comp>.stage .v2.stage-in{min-height:var(--rc-d,0px)}:root:not([data-style="soft"]) .lib-sec .comp>.stage .v2.stage-in{min-height:var(--rcb-d,var(--rc-d,0px))}}
+@media (max-width:640px){.lib-sec .comp>.stage{min-height:var(--rh-e,420px)}.lib-sec .comp>.stage .v2.stage-in{min-height:var(--rc-e,0px)}:root:not([data-style="soft"]) .lib-sec .comp>.stage .v2.stage-in{min-height:var(--rcb-e,var(--rc-e,0px))}}
 </style>
 </head>
 <body class="ui">
@@ -8466,7 +8506,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
 <div class="layout">
 <aside class="side" id="side">
   <label class="side-search"><span class="ms">search</span><input id="side-q" placeholder="Search components" autocomplete="off" aria-label="Search components"><span class="kbd">/</span></label>
-  <nav class="side-pages" aria-label="Site"><a class="side-p act" href="#components" aria-current="page"><span class="ms">dashboard</span>Library</a><a class="side-p" href="#/changelog"><span class="ms">history</span>Changelog</a><a class="side-p" href="#/roadmap"><span class="ms">trending_up</span>Roadmap</a><a class="side-p" href="#faq"><span class="ms">help</span>FAQ</a></nav>
+  <nav class="side-pages" aria-label="Site"><a class="side-p act" href="#components" aria-current="page"><span class="ms">dashboard</span>Library</a><a class="side-p" href="#/changelog"><span class="ms">history</span>Changelog</a><a class="side-p" href="#/roadmap"><span class="ms">trending_up</span>Roadmap</a><a class="side-p" href="#/faq"><span class="ms">help</span>FAQ</a></nav>
   <nav class="side-nav" aria-label="Components"><div class="side-grp side-saved"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Saved</span><span class="side-n" id="saved-n">0</span></button><div class="side-list"><div class="side-ul" id="saved-list"></div></div></div><div class="side-lbl first">Agent components</div><div class="side-grp" data-s="s-conversation" data-grp="agent"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Conversation</span><span class="side-n">12</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c3" data-c="c3">Live answer</a><a class="side-a" href="#c6" data-c="c6">Composer</a><a class="side-a" href="#c8" data-c="c8">Thread panel</a><a class="side-a" href="#c108" data-c="c108">Artifact card</a><a class="side-a" href="#c107" data-c="c107">Tool call</a><a class="side-a" href="#c24" data-c="c24">Voice capture</a><a class="side-a" href="#c113" data-c="c113">Answer action bar</a><a class="side-a" href="#c31" data-c="c31">Response versions</a><a class="side-a" href="#c112" data-c="c112">Model picker</a><a class="side-a" href="#c29" data-c="c29">Prompt starters</a><a class="side-a" href="#c30" data-c="c30">Attachment tray</a><a class="side-a" href="#c32" data-c="c32">Feedback sheet</a></div></div></div><div class="side-grp" data-s="s-status" data-grp="agent"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Agent status</span><span class="side-n">14</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c60" data-c="c60">Thinking</a><a class="side-a" href="#c2" data-c="c2">Reasoning trail</a><a class="side-a" href="#c26" data-c="c26">Agent lanes</a><a class="side-a" href="#c106" data-c="c106">Run summary</a><a class="side-a" href="#c7" data-c="c7">Action log</a><a class="side-a" href="#c67" data-c="c67">Agent run timeline</a><a class="side-a" href="#c23" data-c="c23">Context meter</a><a class="side-a" href="#c109" data-c="c109">Error and recovery</a><a class="side-a" href="#c5" data-c="c5">Run queue</a><a class="side-a" href="#c27" data-c="c27">Run cost</a><a class="side-a" href="#c28" data-c="c28">Toast stack</a><a class="side-a" href="#c58" data-c="c58">Toast</a><a class="side-a" href="#c22" data-c="c22">Status pill</a><a class="side-a" href="#c1" data-c="c1">Step loader</a></div></div></div><div class="side-grp" data-s="s-review" data-grp="agent"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Review and approve</span><span class="side-n">9</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c11" data-c="c11">Change review</a><a class="side-a" href="#c105" data-c="c105">Plan review</a><a class="side-a" href="#c33" data-c="c33">Permission gate</a><a class="side-a" href="#c4" data-c="c4">Decision prompt</a><a class="side-a" href="#c9" data-c="c9">Proposal card</a><a class="side-a" href="#c19" data-c="c19">Design tuner</a><a class="side-a" href="#c20" data-c="c20">Rewrite toolbar</a><a class="side-a" href="#c34" data-c="c34">Launch checklist</a><a class="side-a" href="#c111" data-c="c111">Design review</a></div></div></div><div class="side-grp" data-s="s-data" data-grp="agent"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Sources and output</span><span class="side-n">7</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c18" data-c="c18">Code viewer</a><a class="side-a" href="#c68" data-c="c68">Citation hover card</a><a class="side-a" href="#c10" data-c="c10">Source stack</a><a class="side-a" href="#c36" data-c="c36">Field extraction</a><a class="side-a" href="#c17" data-c="c17">Metric insight</a><a class="side-a" href="#c66" data-c="c66">Details panel</a><a class="side-a" href="#c13" data-c="c13">Task table</a></div></div></div><div class="side-grp" data-s="s-workspace" data-grp="agent"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Workspace</span><span class="side-n">8</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c16" data-c="c16">Automation canvas</a><a class="side-a" href="#c15" data-c="c15">Command palette</a><a class="side-a" href="#c69" data-c="c69">Memory panel</a><a class="side-a" href="#c71" data-c="c71">Model compare</a><a class="side-a" href="#c38" data-c="c38">Agent settings</a><a class="side-a" href="#c110" data-c="c110">Tools and connections</a><a class="side-a" href="#c39" data-c="c39">File explorer</a><a class="side-a" href="#c14" data-c="c14">Workspace rail</a></div></div></div><div class="side-grp" data-s="s-harness" data-grp="agent"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Harness</span><span class="side-n">1</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c99" data-c="c99">Agent harness</a></div></div></div><div class="side-lbl">App basics</div><div class="side-grp" data-s="s-charts" data-grp="basics"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Charts and tables</span><span class="side-n">9</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c41" data-c="c41">Line chart</a><a class="side-a" href="#c42" data-c="c42">Bar chart</a><a class="side-a" href="#c43" data-c="c43">Donut chart</a><a class="side-a" href="#c102" data-c="c102">Funnel chart</a><a class="side-a" href="#c103" data-c="c103">Top pages</a><a class="side-a" href="#c65" data-c="c65">Health score</a><a class="side-a" href="#c45" data-c="c45">Activity heatmap</a><a class="side-a" href="#c44" data-c="c44">Stat cards</a><a class="side-a" href="#c12" data-c="c12">Account table</a></div></div></div><div class="side-grp" data-s="s-dates" data-grp="basics"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Dates</span><span class="side-n">4</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c46" data-c="c46">Date picker</a><a class="side-a" href="#c47" data-c="c47">Date range picker</a><a class="side-a" href="#c62" data-c="c62">Event calendar</a><a class="side-a" href="#c63" data-c="c63">Agenda</a></div></div></div><div class="side-grp" data-s="s-forms" data-grp="basics"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Forms and inputs</span><span class="side-n">8</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c49" data-c="c49">Buttons</a><a class="side-a" href="#c52" data-c="c52">Tooltip</a><a class="side-a" href="#c53" data-c="c53">Search input</a><a class="side-a" href="#c57" data-c="c57">Country select</a><a class="side-a" href="#c51" data-c="c51">Social sign-in</a><a class="side-a" href="#c55" data-c="c55">Sign in</a><a class="side-a" href="#c50" data-c="c50">Form</a><a class="side-a" href="#c64" data-c="c64">Payment form</a></div></div></div><div class="side-grp" data-s="s-collab" data-grp="basics"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Collaboration</span><span class="side-n">6</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c54" data-c="c54">Comments</a><a class="side-a" href="#c56" data-c="c56">Notifications</a><a class="side-a" href="#c61" data-c="c61">Invite to collaborate</a><a class="side-a" href="#c59" data-c="c59">Reactions</a><a class="side-a" href="#c104" data-c="c104">Ticket list</a><a class="side-a" href="#c101" data-c="c101">Kanban board</a></div></div></div><div class="side-grp" data-s="s-product" data-grp="basics"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Product</span><span class="side-n">5</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c70" data-c="c70">Pricing cards</a><a class="side-a" href="#c72" data-c="c72">Onboarding checklist</a><a class="side-a" href="#c73" data-c="c73">Stepper</a><a class="side-a" href="#c74" data-c="c74">Set limit</a><a class="side-a" href="#c75" data-c="c75">Currency converter</a></div></div></div><div class="side-empty" id="side-empty"><p>No components match your search.</p><button class="suggest-btn"><span class="ms">add</span><span class="st">Suggest this component</span></button></div></nav>
   <div class="side-foot">
     <a class="credit" href="https://designme.agency" target="_blank" rel="noopener"><div class="sticker" style="--sticker-mask:url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNzU5IiBoZWlnaHQ9IjYzMiIgdmlld0JveD0iMCAwIDc1OSA2MzIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxwYXRoIGQ9Ik0xNDkuNDk3IDI4My43ODRDMTQ5LjQ3NyAyODQuMDQ3IDE0OS40NzQgMjg0LjMxMSAxNDkuNDg3IDI4NC41NzVDMTU2LjM4NSAzNDAuMDM0IDE4My41NDggMzkxLjExNiAyMjUuOSA0MjguMTk2QzI2Ny45ODkgNDY1LjA0NCAzMjIuMTg4IDQ4NS41MzIgMzc4LjQxNCA0ODUuODU1TDM3OS43NDMgNDg1Ljg1OUM0MzYuNDUzIDQ4NS44NjggNDkxLjE4OCA0NjUuMzUzIDUzMy42MTkgNDI4LjIxMkM1NzUuOTEyIDM5MS4xOTQgNjAzLjA2MiAzNDAuMjE2IDYxMC4wMTggMjg0Ljg1Nkw2MTAuMDE4IDI4MS41MTJDNjEwLjAwOCAyNzcuMzM3IDYwOC4zMjQgMjczLjMxNSA2MDUuMzAzIDI3MC4zMzVDNjAyLjI3NyAyNjcuMzUxIDU5OC4xNTUgMjY1LjY1NiA1OTMuODM3IDI2NS42NTZMMTY1LjY0NyAyNjUuNjU2QzE2MS4zMzggMjY1LjY1NiAxNTcuMjI2IDI2Ny4zNDkgMTU0LjIxIDI3MC4zMzFDMTUxLjE5OCAyNzMuMzA5IDE0OS41MjQgMjc3LjMyNiAxNDkuNTIzIDI4MS40OTFMMTQ5LjUyMyAyODMuNDM3TDE0OS40OTcgMjgzLjc4NFpNMTE0LjM3OCAyNDcuMzk1QzExOC4zOTYgMjQ3LjM5MSAxMjIuMjU0IDI0NS45MTkgMTI1LjIxNCAyNDMuMjlDMTI4LjA2MyAyNDAuNzU5IDEyOS44ODcgMjM3LjMzIDEzMC4zOTYgMjMzLjYyOUwxMzAuMzk2IDIzMy4zNUwxMzAuNDM3IDIzMi45MTdDMTM2LjM1NSAxNzEuNjM0IDE2NS4xNjIgMTE0Ljc1NCAyMTEuMjAyIDczLjM2ODdDMjU3LjIzOSAzMS45ODU5IDMxNy4yMDYgOS4wNjA2MyAzNzkuMzkzIDkuMDQ0NDhMMzc5LjM5NiA5LjA0NDQ4QzQ0MS41OTMgOS4wNDU4MyA1MDEuNTc0IDMxLjk2NCA1NDcuNjI0IDczLjM0ODJDNTkzLjY3NyAxMTQuNzM1IDYyMi40OTEgMTcxLjYyNCA2MjguNDExIDIzMi45MTdMNjI4LjQ1MyAyMzMuMzVMNjI4LjQ1MyAyMzMuNjQzQzYyOC45NTMgMjM3LjM0NCA2MzAuNzczIDI0MC43NzQgNjMzLjYyMSAyNDMuMzA0QzYzNi41OCAyNDUuOTMyIDY0MC40MzcgMjQ3LjM5OSA2NDQuNDUyIDI0Ny4zOTVMNzI1LjY0NCAyNDcuMzk1QzcyOC44ODIgMjQ3LjQwNCA3MzIuMDg5IDI0OC4wNiA3MzUuMDcxIDI0OS4zMjlDNzM4LjA1NSAyNTAuNTk4IDc0MC43NTMgMjUyLjQ1MyA3NDMuMDAxIDI1NC43ODdDNzQ1LjI1MiAyNTcuMTIzIDc0Ny4wMDUgMjU5Ljg5MSA3NDguMTUxIDI2Mi45MjRDNzQ5LjI5NiAyNjUuOTU0IDc0OS44MSAyNjkuMTgzIDc0OS42NjIgMjcyLjQxOEw3NDkuNjYzIDI3Mi40MThDNzQ1LjQ4NCAzNjYuNzk3IDcwNC42MTcgNDU1LjkxOSA2MzUuNjE1IDUyMS4yMTFDNTY2LjYxNiA1ODYuNDk5IDQ3NC44MDkgNjIyLjkyNCAzNzkuMzM4IDYyMi45MjRDMjgzLjg3MiA2MjIuOTI0IDE5Mi4wNzEgNTg2LjQ5NiAxMjMuMDgxIDUyMS4yMDZDNTQuMDkzNSA0NTUuOTE3IDEzLjI0MTIgMzY2LjgwNCA5LjA3MTMzIDI3Mi40MzhMOS4wNzAzNiAyNzIuNDM4TDkuMDcwMzYgMjcyLjQzNkM5LjA3MDA3IDI3Mi40MyA5LjA2OTY3IDI3Mi40MjMgOS4wNjkzOCAyNzIuNDE3TDkuMDcwMzYgMjcyLjQxN0M4LjkyMjcyIDI2OS4xODIgOS40MzY1NSAyNjUuOTUzIDEwLjU4MTEgMjYyLjkyNEMxMS43Mjc2IDI1OS44OSAxMy40ODEgMjU3LjEyMyAxNS43MzE1IDI1NC43ODdDMTcuOTgwNSAyNTIuNDUyIDIwLjY3OTcgMjUwLjU5NyAyMy42NjIyIDI0OS4zMjlDMjYuNjQ0MyAyNDguMDYgMjkuODUwNCAyNDcuNDA0IDMzLjA4ODkgMjQ3LjM5NUwxMTQuMzc4IDI0Ny4zOTVaIiBmaWxsPSJibGFjayIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIxOC4wOTAxIi8+Cjwvc3ZnPg==)"><div class="die"><svg aria-hidden="true" focusable="false" viewBox="0 0 759 632" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -8489,7 +8529,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
 <section class="lib-sec" id="s-conversation" data-grp="agent">
   <div class="sec-head"><div><span class="sec-no">01</span><h2>Conversation</h2><p>Everything for asking, answering and replying, by text or by voice.</p></div></div>
   <div class="sec-body" id="s-conversation-body"><div class="sec-uf"><div class="grid">
-  <article class="comp" id="c3" data-soft data-v2="live-answer" data-reg="live-answer" style="--rh-a:505px;--rc-a:377px;--rh-b:544px;--rc-b:416px;--rh-c:505px;--rc-c:377px;--rh-d:505px;--rc-d:377px;--rh-e:540px;--rc-e:416px">
+  <article class="comp" id="c3" data-soft data-v2="live-answer" data-reg="live-answer" style="--rh-a:494px;--rc-a:382px;--rcb-a:377px;--rh-b:551px;--rc-b:439px;--rcb-b:439px;--rh-c:494px;--rc-c:382px;--rcb-c:377px;--rh-d:493px;--rc-d:381px;--rcb-d:381px;--rh-e:496px;--rc-e:416px;--rcb-e:416px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">edit_note</span></span>
       <div><h2 class="comp-title"><a href="/components/live-answer">Live answer</a></h2><p class="comp-desc">Answers that stream in with numbered sources and next steps.</p></div>
@@ -8505,7 +8545,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
   <div class="lva-a"></div>
 </div></template>
   </article>
-  <article class="comp" id="c6" data-soft data-v2="composer" data-reg="composer" style="--rh-a:600px;--rc-a:102px;--rh-b:600px;--rc-b:102px;--rh-c:600px;--rc-c:102px;--rh-d:600px;--rc-d:102px;--rh-e:600px;--rc-e:102px">
+  <article class="comp" id="c6" data-soft data-v2="composer" data-reg="composer" style="--rh-a:600px;--rc-a:116px;--rcb-a:102px;--rh-b:600px;--rc-b:116px;--rcb-b:102px;--rh-c:600px;--rc-c:116px;--rcb-c:102px;--rh-d:600px;--rc-d:116px;--rcb-d:106px;--rh-e:600px;--rc-e:116px;--rcb-e:103px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">terminal</span></span>
       <div><h2 class="comp-title"><a href="/components/composer">Composer</a></h2><p class="comp-desc">Message input with context, environment, effort and dictation.</p></div>
@@ -8572,7 +8612,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
   </div>
 </div></template>
   </article>
-  <article class="comp" id="c8" data-soft data-v2="thread-panel" data-reg="thread-panel" style="--rh-a:488px;--rc-a:360px;--rh-b:488px;--rc-b:360px;--rh-c:488px;--rc-c:360px;--rh-d:488px;--rc-d:360px;--rh-e:484px;--rc-e:360px">
+  <article class="comp" id="c8" data-soft data-v2="thread-panel" data-reg="thread-panel" style="--rh-a:480px;--rc-a:368px;--rcb-a:360px;--rh-b:480px;--rc-b:368px;--rcb-b:360px;--rh-c:480px;--rc-c:368px;--rcb-c:360px;--rh-d:480px;--rc-d:368px;--rcb-d:360px;--rh-e:448px;--rc-e:368px;--rcb-e:360px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">chat_bubble</span></span>
       <div><h2 class="comp-title"><a href="/components/thread-panel">Thread panel</a></h2><p class="comp-desc">Switch between agent threads and reply in place.</p></div>
@@ -8589,7 +8629,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
   <form class="thp-in"><input class="thp-field" aria-label="Reply" placeholder="Reply to the agent"><button class="thp-send" aria-label="Send" data-tip="Send" data-tip-k="↵" disabled>{up}</button></form>
 </div></template>
   </article>
-  <article class="comp" id="c108" data-soft data-v2="artifact-card" data-reg="artifact-card" style="--rh-a:486px;--rc-a:358px;--rh-b:486px;--rc-b:358px;--rh-c:486px;--rc-c:358px;--rh-d:486px;--rc-d:358px;--rh-e:482px;--rc-e:358px">
+  <article class="comp" id="c108" data-soft data-v2="artifact-card" data-reg="artifact-card" style="--rh-a:467px;--rc-a:355px;--rcb-a:349px;--rh-b:467px;--rc-b:355px;--rcb-b:349px;--rh-c:467px;--rc-c:355px;--rcb-c:349px;--rh-d:467px;--rc-d:355px;--rcb-d:349px;--rh-e:435px;--rc-e:355px;--rcb-e:350px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">description</span></span>
       <div><h2 class="comp-title"><a href="/components/artifact-card">Artifact card</a></h2><p class="comp-desc">A file the agent made, with a live preview and versions.</p></div>
@@ -8617,7 +8657,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
   <div class="afx-vers"><div class="seg2" role="group" aria-label="Version"><button aria-pressed="false" data-v="0">v1</button><button aria-pressed="false" data-v="1">v2</button><button aria-pressed="true" data-v="2">v3</button></div><span class="afx-note muted">Final, with your fixes</span></div>
 </div></template>
   </article>
-  <article class="comp" id="c107" data-soft data-v2="tool-call" data-reg="tool-call" style="--rh-a:478px;--rc-a:350px;--rh-b:478px;--rc-b:350px;--rh-c:478px;--rc-c:350px;--rh-d:478px;--rc-d:350px;--rh-e:493px;--rc-e:369px">
+  <article class="comp" id="c107" data-soft data-v2="tool-call" data-reg="tool-call" style="--rh-a:539px;--rc-a:427px;--rcb-a:427px;--rh-b:557px;--rc-b:445px;--rcb-b:445px;--rh-c:539px;--rc-c:427px;--rcb-c:427px;--rh-d:539px;--rc-d:427px;--rcb-d:427px;--rh-e:525px;--rc-e:445px;--rcb-e:445px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">terminal</span></span>
       <div><h2 class="comp-title"><a href="/components/tool-call">Tool call</a></h2><p class="comp-desc">Each tool the agent calls, with its input and output.</p></div>
@@ -8634,7 +8674,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
   <p class="msg tcx-end">Two plans changed. I updated their prices and the yearly saving on the page.</p>
 </div></template>
   </article>
-  <article class="comp" id="c24" data-soft data-v2="voice-capture" data-reg="voice-capture" style="--rh-a:420px;--rc-a:248px;--rh-b:420px;--rc-b:248px;--rh-c:420px;--rc-c:248px;--rh-d:420px;--rc-d:248px;--rh-e:420px;--rc-e:248px">
+  <article class="comp" id="c24" data-soft data-v2="voice-capture" data-reg="voice-capture" style="--rh-a:420px;--rc-a:253px;--rcb-a:248px;--rh-b:420px;--rc-b:254px;--rcb-b:248px;--rh-c:420px;--rc-c:253px;--rcb-c:248px;--rh-d:420px;--rc-d:253px;--rcb-d:248px;--rh-e:420px;--rc-e:253px;--rcb-e:248px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">mic</span></span>
       <div><h2 class="comp-title"><a href="/components/voice-capture">Voice capture</a></h2><p class="comp-desc">Talk to the agent, then fix what it misheard before sending.</p></div>
@@ -8658,7 +8698,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
   <div class="pop vcx-fix" role="menu"></div>
 </div></template>
   </article>
-  <article class="comp" id="c113" data-soft data-v2="answer-action-bar" data-reg="answer-action-bar" style="--rh-a:451px;--rc-a:323px;--rh-b:481px;--rc-b:353px;--rh-c:420px;--rc-c:276px;--rh-d:420px;--rc-d:276px;--rh-e:491px;--rc-e:367px">
+  <article class="comp" id="c113" data-soft data-v2="answer-action-bar" data-reg="answer-action-bar" style="--rh-a:435px;--rc-a:323px;--rcb-a:323px;--rh-b:465px;--rc-b:353px;--rcb-b:353px;--rh-c:420px;--rc-c:276px;--rcb-c:276px;--rh-d:420px;--rc-d:276px;--rcb-d:276px;--rh-e:433px;--rc-e:353px;--rcb-e:353px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">thumb_up</span></span>
       <div><h2 class="comp-title"><a href="/components/answer-action-bar">Answer action bar</a></h2><p class="comp-desc">Copy, regenerate, rate and listen to an answer from one row under it.</p></div>
@@ -8692,7 +8732,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
   <p class="aab-st muted" aria-live="polite"></p>
 </div></template>
   </article>
-  <article class="comp" id="c31" data-soft data-v2="response-versions" data-reg="response-versions" style="--rh-a:420px;--rc-a:163px;--rh-b:420px;--rc-b:183px;--rh-c:420px;--rc-c:163px;--rh-d:420px;--rc-d:163px;--rh-e:420px;--rc-e:183px">
+  <article class="comp" id="c31" data-soft data-v2="response-versions" data-reg="response-versions" style="--rh-a:420px;--rc-a:185px;--rcb-a:167px;--rh-b:420px;--rc-b:205px;--rcb-b:187px;--rh-c:420px;--rc-c:185px;--rcb-c:167px;--rh-d:420px;--rc-d:185px;--rcb-d:167px;--rh-e:420px;--rc-e:205px;--rcb-e:187px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">refresh</span></span>
       <div><h2 class="comp-title"><a href="/components/response-versions">Response versions</a></h2><p class="comp-desc">Regenerate an answer and flip between versions.</p></div>
@@ -8716,7 +8756,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
   </div>
 </div></template>
   </article>
-  <article class="comp" id="c112" data-soft data-v2="model-picker" data-reg="model-picker" style="--rh-a:580px;--rc-a:452px;--rh-b:642px;--rc-b:514px;--rh-c:580px;--rc-c:452px;--rh-d:580px;--rc-d:452px;--rh-e:743px;--rc-e:619px">
+  <article class="comp" id="c112" data-soft data-v2="model-picker" data-reg="model-picker" style="--rh-a:540px;--rc-a:424px;--rcb-a:428px;--rh-b:561px;--rc-b:448px;--rcb-b:449px;--rh-c:536px;--rc-c:424px;--rcb-c:424px;--rh-d:536px;--rc-d:424px;--rcb-d:424px;--rh-e:576px;--rc-e:496px;--rcb-e:496px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">tune</span></span>
       <div><h2 class="comp-title"><a href="/components/model-picker">Model picker</a></h2><p class="comp-desc">Pick a model by speed, quality and cost, and how hard it thinks.</p></div>
@@ -8735,14 +8775,19 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
     <div class="fold shut mpk-sgf"><div><div class="mpk-sg" aria-live="polite"><p class="mpk-sgt"></p><div class="mpk-sga"><button class="pill ghost sm mpk-wait">Wait for Opus</button><button class="pill ink sm mpk-use">Use Sonnet on high</button></div></div></div></div>
     <div class="mpk-th">
       <div class="mpk-thh"><b>{brain}Thinking</b><span class="muted mpk-thd"></span></div>
-      <div class="seg2 mpk-seg" role="group" aria-label="Thinking effort"><button aria-pressed="false" data-v="0">Off</button><button aria-pressed="false" data-v="1">Low</button><button aria-pressed="true" data-v="2">Medium</button><button aria-pressed="false" data-v="3">High</button></div>
+      <button class="mpk-eb" aria-haspopup="menu" aria-expanded="false" aria-label="Thinking effort" data-pop=".mpk-pop" data-pop-align="end"><span class="mpk-ev">Medium</span>{chev}</button>
     </div>
-    <div class="mpk-f"><span class="mpk-est num"></span></div>
   </div></div></div>
+  <div class="pop mpk-pop" role="menu" aria-label="Thinking effort">
+    <button class="mi" role="menuitemradio" aria-checked="false" data-close data-v="0"><span>Off<span class="d">Answers straight away</span></span><span class="ck">{chk}</span></button>
+    <button class="mi" role="menuitemradio" aria-checked="false" data-close data-v="1"><span>Low<span class="d">Up to 2k thinking tokens</span></span><span class="ck">{chk}</span></button>
+    <button class="mi" role="menuitemradio" aria-checked="true" data-close data-v="2"><span>Medium<span class="d">Up to 8k thinking tokens</span></span><span class="ck">{chk}</span></button>
+    <button class="mi" role="menuitemradio" aria-checked="false" data-close data-v="3"><span>High<span class="d">Up to 24k thinking tokens</span></span><span class="ck">{chk}</span></button>
+  </div>
   <p class="mpk-note muted" aria-live="polite"></p>
 </div></template>
   </article>
-  <article class="comp" id="c29" data-soft data-v2="prompt-starters" data-reg="prompt-starters" style="--rh-a:466px;--rc-a:338px;--rh-b:500px;--rc-b:372px;--rh-c:466px;--rc-c:338px;--rh-d:466px;--rc-d:338px;--rh-e:496px;--rc-e:372px">
+  <article class="comp" id="c29" data-soft data-v2="prompt-starters" data-reg="prompt-starters" style="--rh-a:464px;--rc-a:352px;--rcb-a:338px;--rh-b:498px;--rc-b:386px;--rcb-b:372px;--rh-c:464px;--rc-c:352px;--rcb-c:338px;--rh-d:464px;--rc-d:352px;--rcb-d:338px;--rh-e:466px;--rc-e:386px;--rcb-e:372px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">stars</span></span>
       <div><h2 class="comp-title"><a href="/components/prompt-starters">Prompt starters</a></h2><p class="comp-desc">Suggested tasks that fill the composer in one click.</p></div>
@@ -8759,7 +8804,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
   <button class="pill ghost sm psx-sh">{shuffle}Shuffle</button>
 </div></template>
   </article>
-  <article class="comp" id="c30" data-soft data-v2="attachment-tray" data-reg="attachment-tray" style="--rh-a:478px;--rc-a:350px;--rh-b:478px;--rc-b:350px;--rh-c:478px;--rc-c:350px;--rh-d:478px;--rc-d:350px;--rh-e:474px;--rc-e:350px">
+  <article class="comp" id="c30" data-soft data-v2="attachment-tray" data-reg="attachment-tray" style="--rh-a:464px;--rc-a:352px;--rcb-a:350px;--rh-b:464px;--rc-b:352px;--rcb-b:350px;--rh-c:462px;--rc-c:350px;--rcb-c:350px;--rh-d:464px;--rc-d:352px;--rcb-d:350px;--rh-e:432px;--rc-e:352px;--rcb-e:350px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">attach_file</span></span>
       <div><h2 class="comp-title"><a href="/components/attachment-tray">Attachment tray</a></h2><p class="comp-desc">Drop files for the agent and watch each one upload.</p></div>
@@ -8778,7 +8823,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
   <div class="atx-sum muted"></div>
 </div></template>
   </article>
-  <article class="comp" id="c32" data-soft data-v2="feedback-sheet" data-reg="feedback-sheet" style="--rh-a:460px;--rc-a:332px;--rh-b:491px;--rc-b:363px;--rh-c:460px;--rc-c:332px;--rh-d:460px;--rc-d:332px;--rh-e:479px;--rc-e:355px">
+  <article class="comp" id="c32" data-soft data-v2="feedback-sheet" data-reg="feedback-sheet" style="--rh-a:444px;--rc-a:332px;--rcb-a:332px;--rh-b:475px;--rc-b:363px;--rcb-b:363px;--rh-c:444px;--rc-c:332px;--rcb-c:332px;--rh-d:444px;--rc-d:332px;--rcb-d:332px;--rh-e:435px;--rc-e:355px;--rcb-e:355px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">thumb_up</span></span>
       <div><h2 class="comp-title"><a href="/components/feedback-sheet">Feedback sheet</a></h2><p class="comp-desc">Rate an answer and tell the agent what missed.</p></div>
@@ -8810,7 +8855,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
 <section class="lib-sec" id="s-status" data-grp="agent">
   <div class="sec-head"><div><span class="sec-no">02</span><h2>Agent status</h2><p>Show what the agent is doing, how far along it is, and what it is working with.</p></div></div>
   <div class="sec-body" id="s-status-body"><div class="sec-uf"><div class="grid">
-  <article class="comp" data-soft id="c60" data-v2="thinking" data-reg="thinking" style="--rh-a:572px;--rc-a:444px;--rh-b:573px;--rc-b:445px;--rh-c:572px;--rc-c:444px;--rh-d:572px;--rc-d:444px;--rh-e:590px;--rc-e:466px">
+  <article class="comp" data-soft id="c60" data-v2="thinking" data-reg="thinking" style="--rh-a:562px;--rc-a:450px;--rcb-a:444px;--rh-b:563px;--rc-b:451px;--rcb-b:449px;--rh-c:562px;--rc-c:450px;--rcb-c:444px;--rh-d:560px;--rc-d:448px;--rcb-d:444px;--rh-e:529px;--rc-e:449px;--rcb-e:449px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">stars</span></span>
       <div><h2 class="comp-title"><a href="/components/thinking">Thinking</a></h2><p class="comp-desc">The live trace, written as the agent works, then folded away.</p></div>
@@ -8830,7 +8875,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
   <div class="fold tk-fold"><div><ol class="tk-list"></ol></div></div>
 </div></template>
   </article>
-  <article class="comp" id="c2" data-soft data-v2="reasoning-trail" data-reg="reasoning-trail" style="--rh-a:456px;--rc-a:328px;--rh-b:456px;--rc-b:328px;--rh-c:456px;--rc-c:328px;--rh-d:456px;--rc-d:328px;--rh-e:452px;--rc-e:328px">
+  <article class="comp" id="c2" data-soft data-v2="reasoning-trail" data-reg="reasoning-trail" style="--rh-a:446px;--rc-a:334px;--rcb-a:328px;--rh-b:447px;--rc-b:335px;--rcb-b:328px;--rh-c:446px;--rc-c:334px;--rcb-c:328px;--rh-d:444px;--rc-d:332px;--rcb-d:328px;--rh-e:420px;--rc-e:333px;--rcb-e:328px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">stars</span></span>
       <div><h2 class="comp-title"><a href="/components/reasoning-trail">Reasoning trail</a></h2><p class="comp-desc">The agent's plan, notes, sources and edits, after it thinks.</p></div>
@@ -8859,7 +8904,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
   <div class="demo"><div class="seg2" role="group" aria-label="View"><button aria-pressed="true" data-v="plan">Plan</button><button aria-pressed="false" data-v="notes">Notes</button><button aria-pressed="false" data-v="sources">Sources</button><button aria-pressed="false" data-v="edits">Edits</button></div></div>
 </div></template>
   </article>
-  <article class="comp wide" id="c26" data-soft data-v2="agent-lanes" data-reg="agent-lanes" style="--rh-a:420px;--rc-a:279px;--rh-b:420px;--rc-b:279px;--rh-c:420px;--rc-c:279px;--rh-d:420px;--rc-d:279px;--rh-e:436px;--rc-e:312px">
+  <article class="comp wide" id="c26" data-soft data-v2="agent-lanes" data-reg="agent-lanes" style="--rh-a:424px;--rc-a:312px;--rcb-a:312px;--rh-b:424px;--rc-b:312px;--rcb-b:312px;--rh-c:424px;--rc-c:312px;--rcb-c:312px;--rh-d:424px;--rc-d:312px;--rcb-d:312px;--rh-e:420px;--rc-e:312px;--rcb-e:312px">
     <div class="comp-head">
       <span class="ibox accent"><span class="ms">group</span></span>
       <div><h2 class="comp-title"><a href="/components/agent-lanes">Agent lanes</a></h2><p class="comp-desc">Several agents working in parallel, each with its own lane and hand-offs.</p></div>
@@ -8875,7 +8920,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
   <div class="aln-rows"></div>
 </div></template>
   </article>
-  <article class="comp" id="c106" data-soft data-v2="run-summary" data-reg="run-summary" style="--rh-a:542px;--rc-a:414px;--rh-b:553px;--rc-b:425px;--rh-c:522px;--rc-c:394px;--rh-d:522px;--rc-d:394px;--rh-e:549px;--rc-e:425px">
+  <article class="comp" id="c106" data-soft data-v2="run-summary" data-reg="run-summary" style="--rh-a:531px;--rc-a:419px;--rcb-a:414px;--rh-b:543px;--rc-b:431px;--rcb-b:425px;--rh-c:511px;--rc-c:399px;--rcb-c:394px;--rh-d:510px;--rc-d:398px;--rcb-d:394px;--rh-e:510px;--rc-e:430px;--rcb-e:425px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">check_circle</span></span>
       <div><h2 class="comp-title"><a href="/components/run-summary">Run summary</a></h2><p class="comp-desc">What the agent did, what changed and what needs you.</p></div>
@@ -8906,7 +8951,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
   <div class="rsu-acts"><button class="pill ink sm">Open changes</button><button class="pill ghost sm rsu-undo">Undo all</button></div>
 </div></template>
   </article>
-  <article class="comp" id="c7" data-soft data-v2="action-log" data-reg="action-log" style="--rh-a:454px;--rc-a:326px;--rh-b:472px;--rc-b:344px;--rh-c:454px;--rc-c:326px;--rh-d:454px;--rc-d:326px;--rh-e:489px;--rc-e:365px">
+  <article class="comp" id="c7" data-soft data-v2="action-log" data-reg="action-log" style="--rh-a:487px;--rc-a:373px;--rcb-a:375px;--rh-b:501px;--rc-b:389px;--rcb-b:389px;--rh-c:484px;--rc-c:372px;--rcb-c:372px;--rh-d:487px;--rc-d:372px;--rcb-d:375px;--rh-e:453px;--rc-e:373px;--rcb-e:372px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">bolt</span></span>
       <div><h2 class="comp-title"><a href="/components/action-log">Action log</a></h2><p class="comp-desc">Every read, search, edit and command, logged as it runs.</p></div>
@@ -8922,7 +8967,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
   <ol class="alg-list"></ol>
 </div></template>
   </article>
-  <article class="comp wide" data-soft id="c67" data-v2="agent-run-timeline" data-reg="agent-run-timeline" style="--rh-a:484px;--rc-a:356px;--rh-b:484px;--rc-b:356px;--rh-c:484px;--rc-c:356px;--rh-d:484px;--rc-d:356px;--rh-e:501px;--rc-e:377px">
+  <article class="comp wide" data-soft id="c67" data-v2="agent-run-timeline" data-reg="agent-run-timeline" style="--rh-a:474px;--rc-a:362px;--rcb-a:356px;--rh-b:474px;--rc-b:362px;--rcb-b:356px;--rh-c:474px;--rc-c:362px;--rcb-c:356px;--rh-d:474px;--rc-d:362px;--rcb-d:356px;--rh-e:463px;--rc-e:383px;--rcb-e:377px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">graphic_eq</span></span>
       <div><h2 class="comp-title"><a href="/components/agent-run-timeline">Agent run timeline</a></h2><p class="comp-desc">Every model and tool step of a run on one time axis.</p></div>
@@ -8943,7 +8988,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
   <div class="art-f muted num"></div>
 </div></template>
   </article>
-  <article class="comp" id="c23" data-soft data-v2="context-meter" data-reg="context-meter" style="--rh-a:449px;--rc-a:321px;--rh-b:449px;--rc-b:321px;--rh-c:449px;--rc-c:321px;--rh-d:449px;--rc-d:321px;--rh-e:445px;--rc-e:321px">
+  <article class="comp" id="c23" data-soft data-v2="context-meter" data-reg="context-meter" style="--rh-a:455px;--rc-a:343px;--rcb-a:325px;--rh-b:455px;--rc-b:343px;--rcb-b:325px;--rh-c:455px;--rc-c:343px;--rcb-c:325px;--rh-d:455px;--rc-d:343px;--rcb-d:325px;--rh-e:423px;--rc-e:343px;--rcb-e:325px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">dashboard</span></span>
       <div><h2 class="comp-title"><a href="/components/context-meter">Context meter</a></h2><p class="comp-desc">How full the context window is, with session and weekly limits, in one small popover.</p></div>
@@ -8962,7 +9007,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
   <div class="ctm-ft"><span>Opus 5.5</span><span class="muted">Extra</span><button class="ctm-ring" aria-expanded="true" aria-label="Usage"><svg viewBox="0 0 20 20" aria-hidden="true"><circle class="tr" cx="10" cy="10" r="7.5"/><circle class="fl" cx="10" cy="10" r="7.5" pathLength="100"/></svg></button></div>
 </div></template>
   </article>
-  <article class="comp" id="c109" data-soft data-v2="error-recovery" data-reg="error-recovery" style="--rh-a:514px;--rc-a:386px;--rh-b:553px;--rc-b:425px;--rh-c:514px;--rc-c:386px;--rh-d:514px;--rc-d:386px;--rh-e:549px;--rc-e:425px">
+  <article class="comp" id="c109" data-soft data-v2="error-recovery" data-reg="error-recovery" style="--rh-a:503px;--rc-a:391px;--rcb-a:386px;--rh-b:544px;--rc-b:432px;--rcb-b:425px;--rh-c:503px;--rc-c:391px;--rcb-c:386px;--rh-d:502px;--rc-d:390px;--rcb-d:386px;--rh-e:510px;--rc-e:430px;--rcb-e:425px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">nearby_error</span></span>
       <div><h2 class="comp-title"><a href="/components/error-recovery">Error and recovery</a></h2><p class="comp-desc">A failed step with retry, skip or hand over to a person.</p></div>
@@ -8987,7 +9032,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
   </div></div></div>
 </div></template>
   </article>
-  <article class="comp" id="c5" data-soft data-v2="run-queue" data-reg="run-queue" style="--rh-a:540px;--rc-a:412px;--rh-b:540px;--rc-b:412px;--rh-c:540px;--rc-c:412px;--rh-d:540px;--rc-d:412px;--rh-e:555px;--rc-e:431px">
+  <article class="comp" id="c5" data-soft data-v2="run-queue" data-reg="run-queue" style="--rh-a:536px;--rc-a:424px;--rcb-a:412px;--rh-b:536px;--rc-b:424px;--rcb-b:412px;--rh-c:536px;--rc-c:424px;--rcb-c:412px;--rh-d:536px;--rc-d:424px;--rcb-d:412px;--rh-e:504px;--rc-e:424px;--rcb-e:412px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">readiness_score</span></span>
       <div><h2 class="comp-title"><a href="/components/run-queue">Run queue</a></h2><p class="comp-desc">Grouped tasks with live progress, retries and a compact view.</p></div>
@@ -9003,7 +9048,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
   <div class="rq-list panel"></div>
 </div></template>
   </article>
-  <article class="comp" id="c27" data-soft data-v2="run-cost" data-reg="run-cost" style="--rh-a:420px;--rc-a:274px;--rh-b:420px;--rc-b:274px;--rh-c:420px;--rc-c:274px;--rh-d:420px;--rc-d:274px;--rh-e:420px;--rc-e:274px">
+  <article class="comp" id="c27" data-soft data-v2="run-cost" data-reg="run-cost" style="--rh-a:420px;--rc-a:271px;--rcb-a:264px;--rh-b:420px;--rc-b:272px;--rcb-b:264px;--rh-c:420px;--rc-c:271px;--rcb-c:264px;--rh-d:420px;--rc-d:269px;--rcb-d:264px;--rh-e:420px;--rc-e:270px;--rcb-e:264px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">bolt</span></span>
       <div><h2 class="comp-title"><a href="/components/run-cost">Run cost</a></h2><p class="comp-desc">Live credit and token spend, with a cap that pauses the run.</p></div>
@@ -9029,7 +9074,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
   </div>
 </div></template>
   </article>
-  <article class="comp" id="c28" data-soft data-v2="toast-stack" data-reg="toast-stack" style="--rh-a:456px;--rc-a:328px;--rh-b:456px;--rc-b:328px;--rh-c:456px;--rc-c:328px;--rh-d:456px;--rc-d:328px;--rh-e:452px;--rc-e:328px">
+  <article class="comp" id="c28" data-soft data-v2="toast-stack" data-reg="toast-stack" style="--rh-a:446px;--rc-a:334px;--rcb-a:328px;--rh-b:447px;--rc-b:335px;--rcb-b:328px;--rh-c:446px;--rc-c:334px;--rcb-c:328px;--rh-d:444px;--rc-d:332px;--rcb-d:328px;--rh-e:420px;--rc-e:333px;--rcb-e:328px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">notifications</span></span>
       <div><h2 class="comp-title"><a href="/components/toast-stack">Toast stack</a></h2><p class="comp-desc">Agent notifications that stack and fan out on hover.</p></div>
@@ -9045,7 +9090,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
   <div class="demo"><button class="pill soft sm tsk-add"><svg class="i s"><use href="#i-bell"/></svg>Send notification</button></div>
 </div></template>
   </article>
-  <article class="comp" data-soft id="c58" data-v2="toast" data-reg="toast" style="--rh-a:456px;--rc-a:328px;--rh-b:456px;--rc-b:328px;--rh-c:456px;--rc-c:328px;--rh-d:456px;--rc-d:328px;--rh-e:452px;--rc-e:328px">
+  <article class="comp" data-soft id="c58" data-v2="toast" data-reg="toast" style="--rh-a:446px;--rc-a:334px;--rcb-a:328px;--rh-b:447px;--rc-b:335px;--rcb-b:328px;--rh-c:446px;--rc-c:334px;--rcb-c:328px;--rh-d:444px;--rc-d:332px;--rcb-d:328px;--rh-e:420px;--rc-e:333px;--rcb-e:328px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">check_circle</span></span>
       <div><h2 class="comp-title"><a href="/components/toast">Toast</a></h2><p class="comp-desc">One notification that changes shape with its state.</p></div>
@@ -9066,7 +9111,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
   <div class="demo"><div class="seg2" role="group" aria-label="State"><button aria-pressed="true" data-v="ok">Success</button><button aria-pressed="false" data-v="err">Error</button><button aria-pressed="false" data-v="info">Info</button><button aria-pressed="false" data-v="load">Loading</button></div></div>
 </div></template>
   </article>
-  <article class="comp" id="c22" data-soft data-v2="status-pill" data-reg="status-pill" style="--rh-a:456px;--rc-a:328px;--rh-b:456px;--rc-b:328px;--rh-c:456px;--rc-c:328px;--rh-d:456px;--rc-d:328px;--rh-e:452px;--rc-e:328px">
+  <article class="comp" id="c22" data-soft data-v2="status-pill" data-reg="status-pill" style="--rh-a:446px;--rc-a:334px;--rcb-a:328px;--rh-b:447px;--rc-b:335px;--rcb-b:328px;--rh-c:446px;--rc-c:334px;--rcb-c:328px;--rh-d:444px;--rc-d:332px;--rcb-d:328px;--rh-e:420px;--rc-e:333px;--rcb-e:328px">
     <div class="comp-head">
       <span class="ibox accent"><span class="ms">readiness_score</span></span>
       <div><h2 class="comp-title"><a href="/components/status-pill">Status pill</a></h2><p class="comp-desc">One live line for what the agent is doing right now.</p></div>
@@ -9087,7 +9132,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
   <div class="demo"><div class="seg2" role="group" aria-label="Variant"><button aria-pressed="true" data-v="pill">Pill</button><button aria-pressed="false" data-v="bar">Bar</button></div></div>
 </div></template>
   </article>
-  <article class="comp" id="c1" data-soft data-v2="step-loader" data-reg="step-loader" style="--rh-a:456px;--rc-a:328px;--rh-b:456px;--rc-b:328px;--rh-c:456px;--rc-c:328px;--rh-d:456px;--rc-d:328px;--rh-e:452px;--rc-e:328px">
+  <article class="comp" id="c1" data-soft data-v2="step-loader" data-reg="step-loader" style="--rh-a:466px;--rc-a:354px;--rcb-a:340px;--rh-b:466px;--rc-b:354px;--rcb-b:340px;--rh-c:466px;--rc-c:354px;--rcb-c:340px;--rh-d:466px;--rc-d:354px;--rcb-d:340px;--rh-e:434px;--rc-e:354px;--rcb-e:340px">
     <div class="comp-head">
       <span class="ibox accent"><span class="ms">graphic_eq</span></span>
       <div><h2 class="comp-title"><a href="/components/step-loader">Step loader</a></h2><p class="comp-desc">Named steps with a progress track and four loaders.</p></div>
@@ -9123,7 +9168,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
 <section class="lib-sec" id="s-review" data-grp="agent">
   <div class="sec-head"><div><span class="sec-no">03</span><h2>Review and approve</h2><p>Moments where a person checks, steers or signs off on the agent's work.</p></div></div>
   <div class="sec-body" id="s-review-body"><div class="sec-uf"><div class="grid">
-  <article class="comp wide" id="c11" data-soft data-v2="change-review" data-reg="change-review" style="--rh-a:458px;--rc-a:330px;--rh-b:458px;--rc-b:330px;--rh-c:458px;--rc-c:330px;--rh-d:555px;--rc-d:427px;--rh-e:587px;--rc-e:463px">
+  <article class="comp wide" id="c11" data-soft data-v2="change-review" data-reg="change-review" style="--rh-a:455px;--rc-a:343px;--rcb-a:334px;--rh-b:449px;--rc-b:337px;--rcb-b:330px;--rh-c:455px;--rc-c:343px;--rcb-c:334px;--rh-d:561px;--rc-d:449px;--rcb-d:431px;--rh-e:529px;--rc-e:449px;--rcb-e:431px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">grid_on</span></span>
       <div><h2 class="comp-title"><a href="/components/change-review">Change review</a></h2><p class="comp-desc">Accept or reject each change the agent made, file by file.</p></div>
@@ -9145,7 +9190,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
   </div>
 </div></template>
   </article>
-  <article class="comp" id="c105" data-soft data-v2="plan-review" data-reg="plan-review" style="--rh-a:530px;--rc-a:402px;--rh-b:589px;--rc-b:461px;--rh-c:511px;--rc-c:383px;--rh-d:511px;--rc-d:383px;--rh-e:585px;--rc-e:461px">
+  <article class="comp" id="c105" data-soft data-v2="plan-review" data-reg="plan-review" style="--rh-a:514px;--rc-a:402px;--rcb-a:402px;--rh-b:573px;--rc-b:461px;--rcb-b:461px;--rh-c:495px;--rc-c:383px;--rcb-c:383px;--rh-d:495px;--rc-d:383px;--rcb-d:383px;--rh-e:541px;--rc-e:461px;--rcb-e:461px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">account_tree</span></span>
       <div><h2 class="comp-title"><a href="/components/plan-review">Plan review</a></h2><p class="comp-desc">Check the agent's plan, edit steps, then let it run.</p></div>
@@ -9163,7 +9208,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
   <div class="plx-f"><span class="muted plx-n">Click a step to edit it</span><button class="pill ghost sm plx-chg">Ask for changes</button><button class="pill ink sm plx-go">Approve plan</button></div>
 </div></template>
   </article>
-  <article class="comp" id="c33" data-soft data-v2="permission-gate" data-reg="permission-gate" style="--rh-a:454px;--rc-a:326px;--rh-b:454px;--rc-b:326px;--rh-c:454px;--rc-c:326px;--rh-d:454px;--rc-d:326px;--rh-e:450px;--rc-e:326px">
+  <article class="comp" id="c33" data-soft data-v2="permission-gate" data-reg="permission-gate" style="--rh-a:420px;--rc-a:307px;--rcb-a:301px;--rh-b:424px;--rc-b:312px;--rcb-b:301px;--rh-c:420px;--rc-c:307px;--rcb-c:301px;--rh-d:420px;--rc-d:307px;--rcb-d:301px;--rh-e:420px;--rc-e:312px;--rcb-e:301px">
     <div class="comp-head">
       <span class="ibox accent"><span class="ms">lock</span></span>
       <div><h2 class="comp-title"><a href="/components/permission-gate">Permission gate</a></h2><p class="comp-desc">The agent asks before it touches something new.</p></div>
@@ -9174,18 +9219,22 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
       <span class="mono-xs">Choose scopes and how long, then allow</span>
       <div class="code-btns"><button class="ghost anim-btn" data-anim><span class="ms sm">stars</span>Animate</button><button class="ghost" data-view aria-expanded="false"><span class="ms sm">code</span><span class="vl">View code</span></button><button class="ghost" data-copy><span class="ms sm">content_copy</span>Copy code</button></div>
     </div>
-    <template><div class="pgx">
+    <template><div class="pgx panel">
   <div class="pgx-h"><span class="pgx-ic">{figma}</span><div class="pgx-ht"><b>Allow the agent to edit Figma?</b><span class="muted">It needs this to apply the pricing fixes</span></div></div>
   <div class="pgx-sc">
     <label class="pgx-o" data-k="read"><input type="checkbox" checked><span class="bx">{chk}</span><span class="t">Read frames<span class="d">Pricing, Checkout</span></span></label>
     <label class="pgx-o" data-k="edit"><input type="checkbox" checked><span class="bx">{chk}</span><span class="t">Edit frames<span class="d">Only on a new page</span></span></label>
     <label class="pgx-o" data-k="publish"><input type="checkbox"><span class="bx">{chk}</span><span class="t">Publish library<span class="d">Affects 4 other files</span></span><span class="tag warn" data-tip="Checkout, Marketing site, Email kit and Docs use this library">Risky</span></label>
   </div>
-  <div class="pgx-dur"><span class="muted">For</span><div class="seg2" role="group" aria-label="Duration"><button aria-pressed="true">This task</button><button aria-pressed="false">Today</button><button aria-pressed="false">Always</button></div></div>
-  <div class="pgx-f"><button class="pill ghost sm pgx-no">Not now</button><button class="pill ink sm pgx-ok">Allow 2 scopes</button></div>
+  <div class="pgx-f"><button class="pgx-db" aria-haspopup="menu" aria-expanded="false" aria-label="How long" data-pop=".pgx-pop"><span class="pgx-dv">For this task</span>{chev}</button><span class="sp"></span><button class="pill ghost sm pgx-no">Not now</button><button class="pill ink sm pgx-ok">Allow 2 scopes</button></div>
+  <div class="pop pgx-pop" role="menu" aria-label="How long">
+    <button class="mi" role="menuitemradio" aria-checked="true" data-close data-v="This task"><span>For this task<span class="d">Until the pricing fixes are done</span></span><span class="ck">{chk}</span></button>
+    <button class="mi" role="menuitemradio" aria-checked="false" data-close data-v="Today"><span>For today<span class="d">Until midnight</span></span><span class="ck">{chk}</span></button>
+    <button class="mi" role="menuitemradio" aria-checked="false" data-close data-v="Always"><span>Always<span class="d">Until you revoke it</span></span><span class="ck">{chk}</span></button>
+  </div>
 </div></template>
   </article>
-  <article class="comp" id="c4" data-soft data-v2="decision-prompt" data-reg="decision-prompt" style="--rh-a:420px;--rc-a:270px;--rh-b:420px;--rc-b:270px;--rh-c:420px;--rc-c:270px;--rh-d:420px;--rc-d:270px;--rh-e:420px;--rc-e:270px">
+  <article class="comp" id="c4" data-soft data-v2="decision-prompt" data-reg="decision-prompt" style="--rh-a:420px;--rc-a:276px;--rcb-a:270px;--rh-b:420px;--rc-b:277px;--rcb-b:270px;--rh-c:420px;--rc-c:276px;--rcb-c:270px;--rh-d:420px;--rc-d:276px;--rcb-d:270px;--rh-e:420px;--rc-e:276px;--rcb-e:270px">
     <div class="comp-head">
       <span class="ibox accent"><span class="ms">nearby_error</span></span>
       <div><h2 class="comp-title"><a href="/components/decision-prompt">Decision prompt</a></h2><p class="comp-desc">The agent asks a few quick questions before it starts.</p></div>
@@ -9202,7 +9251,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
   <div class="dpx-f"><button class="pill ghost sm dpx-skip">Skip</button><button class="pill ink sm dpx-go">Continue <span class="kbd">↵</span></button></div>
 </div></template>
   </article>
-  <article class="comp" id="c9" data-soft data-v2="proposal-card" data-reg="proposal-card" style="--rh-a:420px;--rc-a:233px;--rh-b:420px;--rc-b:233px;--rh-c:420px;--rc-c:233px;--rh-d:420px;--rc-d:233px;--rh-e:420px;--rc-e:253px">
+  <article class="comp" id="c9" data-soft data-v2="proposal-card" data-reg="proposal-card" style="--rh-a:420px;--rc-a:264px;--rcb-a:249px;--rh-b:420px;--rc-b:283px;--rcb-b:268px;--rh-c:420px;--rc-c:264px;--rcb-c:249px;--rh-d:420px;--rc-d:264px;--rcb-d:249px;--rh-e:420px;--rc-e:264px;--rcb-e:249px">
     <div class="comp-head">
       <span class="ibox accent"><span class="ms">stars</span></span>
       <div><h2 class="comp-title"><a href="/components/proposal-card">Proposal card</a></h2><p class="comp-desc">A suggested change with confidence, alternatives and undo.</p></div>
@@ -9222,7 +9271,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
   <div class="prx-f"><button class="pill ghost sm prx-no">Not now</button><button class="pill ink sm prx-ok">Accept</button></div>
 </div></template>
   </article>
-  <article class="comp wide" id="c19" data-soft data-v2="design-tuner" data-reg="design-tuner" style="--rh-a:428px;--rc-a:300px;--rh-b:428px;--rc-b:300px;--rh-c:706px;--rc-c:578px;--rh-d:706px;--rc-d:578px;--rh-e:720px;--rc-e:596px">
+  <article class="comp wide" id="c19" data-soft data-v2="design-tuner" data-reg="design-tuner" style="--rh-a:426px;--rc-a:314px;--rcb-a:304px;--rh-b:426px;--rc-b:314px;--rcb-b:300px;--rh-c:690px;--rc-c:578px;--rcb-c:578px;--rh-d:690px;--rc-d:578px;--rcb-d:578px;--rh-e:676px;--rc-e:596px;--rcb-e:596px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">tune</span></span>
       <div><h2 class="comp-title"><a href="/components/design-tuner">Design tuner</a></h2><p class="comp-desc">Tweak a component by hand or let the agent tune it.</p></div>
@@ -9247,7 +9296,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
   </div>
 </div></template>
   </article>
-  <article class="comp" id="c20" data-soft data-v2="rewrite-toolbar" data-reg="rewrite-toolbar" style="--rh-a:420px;--rc-a:231px;--rh-b:433px;--rc-b:305px;--rh-c:420px;--rc-c:231px;--rh-d:420px;--rc-d:231px;--rh-e:453px;--rc-e:329px">
+  <article class="comp" id="c20" data-soft data-v2="rewrite-toolbar" data-reg="rewrite-toolbar" style="--rh-a:420px;--rc-a:231px;--rcb-a:231px;--rh-b:420px;--rc-b:305px;--rcb-b:305px;--rh-c:420px;--rc-c:231px;--rcb-c:231px;--rh-d:420px;--rc-d:231px;--rcb-d:231px;--rh-e:420px;--rc-e:305px;--rcb-e:305px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">edit_note</span></span>
       <div><h2 class="comp-title"><a href="/components/rewrite-toolbar">Rewrite toolbar</a></h2><p class="comp-desc">Select a sentence and let the agent rewrite it in place.</p></div>
@@ -9266,7 +9315,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
   </div>
 </div></template>
   </article>
-  <article class="comp" id="c34" data-soft data-v2="launch-checklist" data-reg="launch-checklist" style="--rh-a:533px;--rc-a:405px;--rh-b:533px;--rc-b:405px;--rh-c:533px;--rc-c:405px;--rh-d:533px;--rc-d:405px;--rh-e:529px;--rc-e:405px">
+  <article class="comp" id="c34" data-soft data-v2="launch-checklist" data-reg="launch-checklist" style="--rh-a:517px;--rc-a:405px;--rcb-a:405px;--rh-b:517px;--rc-b:405px;--rcb-b:405px;--rh-c:517px;--rc-c:405px;--rcb-c:405px;--rh-d:517px;--rc-d:405px;--rcb-d:405px;--rh-e:485px;--rc-e:405px;--rcb-e:405px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">checklist</span></span>
       <div><h2 class="comp-title"><a href="/components/launch-checklist">Launch checklist</a></h2><p class="comp-desc">The agent checks a design before it ships, and fixes what fails.</p></div>
@@ -9283,7 +9332,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
   <div class="lcx-list"></div>
 </div></template>
   </article>
-  <article class="comp wide" id="c111" data-soft data-v2="design-review" data-reg="design-review" style="--rh-a:423px;--rc-a:295px;--rh-b:423px;--rc-b:295px;--rh-c:548px;--rc-c:420px;--rh-d:548px;--rc-d:420px;--rh-e:590px;--rc-e:466px">
+  <article class="comp wide" id="c111" data-soft data-v2="design-review" data-reg="design-review" style="--rh-a:420px;--rc-a:303px;--rcb-a:295px;--rh-b:420px;--rc-b:303px;--rcb-b:295px;--rh-c:532px;--rc-c:420px;--rcb-c:420px;--rh-d:532px;--rc-d:420px;--rcb-d:420px;--rh-e:536px;--rc-e:456px;--rcb-e:456px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">group</span></span>
       <div><h2 class="comp-title"><a href="/components/design-review">Design review</a></h2><p class="comp-desc">Checks run, a teammate asks for a change, the agent makes it, and you ship.</p></div>
@@ -9316,7 +9365,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
 <section class="lib-sec" id="s-data" data-grp="agent">
   <div class="sec-head"><div><span class="sec-no">04</span><h2>Sources and output</h2><p>What the agent read, what it produced and where each answer came from.</p></div></div>
   <div class="sec-body" id="s-data-body"><div class="sec-uf"><div class="grid">
-  <article class="comp wide" id="c18" data-soft data-v2="code-viewer" data-reg="code-viewer" style="--rh-a:473px;--rc-a:345px;--rh-b:473px;--rc-b:345px;--rh-c:492px;--rc-c:364px;--rh-d:492px;--rc-d:364px;--rh-e:525px;--rc-e:401px">
+  <article class="comp wide" id="c18" data-soft data-v2="code-viewer" data-reg="code-viewer" style="--rh-a:457px;--rc-a:345px;--rcb-a:345px;--rh-b:457px;--rc-b:345px;--rcb-b:345px;--rh-c:476px;--rc-c:364px;--rcb-c:364px;--rh-d:476px;--rc-d:364px;--rcb-d:364px;--rh-e:462px;--rc-e:382px;--rcb-e:382px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">code</span></span>
       <div><h2 class="comp-title"><a href="/components/code-viewer">Code viewer</a></h2><p class="comp-desc">Code the agent wrote, with line notes you can ask about.</p></div>
@@ -9332,7 +9381,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
   <div class="cvx-body"><pre class="cvx-code"></pre></div>
 </div></template>
   </article>
-  <article class="comp" data-soft id="c68" data-v2="citation-hover" data-reg="citation-hover-card" style="--rh-a:420px;--rc-a:251px;--rh-b:430px;--rc-b:302px;--rh-c:420px;--rc-c:251px;--rh-d:420px;--rc-d:251px;--rh-e:426px;--rc-e:302px">
+  <article class="comp" data-soft id="c68" data-v2="citation-hover" data-reg="citation-hover-card" style="--rh-a:420px;--rc-a:256px;--rcb-a:251px;--rh-b:420px;--rc-b:308px;--rcb-b:302px;--rh-c:420px;--rc-c:256px;--rcb-c:251px;--rh-d:420px;--rc-d:255px;--rcb-d:251px;--rh-e:420px;--rc-e:281px;--rcb-e:276px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">link</span></span>
       <div><h2 class="comp-title"><a href="/components/citation-hover-card">Citation hover card</a></h2><p class="comp-desc">Hover a citation to see the exact passage it came from.</p></div>
@@ -9348,7 +9397,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
   <div class="chx-card panel keep" role="dialog" aria-label="Source"><div class="chx-in"></div></div>
 </div></template>
   </article>
-  <article class="comp" id="c10" data-soft data-v2="source-stack" data-reg="source-stack" style="--rh-a:581px;--rc-a:453px;--rh-b:604px;--rc-b:476px;--rh-c:581px;--rc-c:453px;--rh-d:581px;--rc-d:453px;--rh-e:600px;--rc-e:476px">
+  <article class="comp" id="c10" data-soft data-v2="source-stack" data-reg="source-stack" style="--rh-a:565px;--rc-a:453px;--rcb-a:453px;--rh-b:588px;--rc-b:476px;--rcb-b:476px;--rh-c:565px;--rc-c:453px;--rcb-c:453px;--rh-d:565px;--rc-d:453px;--rcb-d:453px;--rh-e:556px;--rc-e:476px;--rcb-e:476px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">description</span></span>
       <div><h2 class="comp-title"><a href="/components/source-stack">Source stack</a></h2><p class="comp-desc">Everything the agent read, folded into one quiet pill.</p></div>
@@ -9368,7 +9417,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
   </div></div></div>
 </div></template>
   </article>
-  <article class="comp wide" id="c36" data-soft data-v2="field-extraction" data-reg="field-extraction" style="--rh-a:439px;--rc-a:311px;--rh-b:439px;--rc-b:311px;--rh-c:604px;--rc-c:476px;--rh-d:693px;--rc-d:565px;--rh-e:689px;--rc-e:565px">
+  <article class="comp wide" id="c36" data-soft data-v2="field-extraction" data-reg="field-extraction" style="--rh-a:463px;--rc-a:351px;--rcb-a:351px;--rh-b:463px;--rc-b:351px;--rcb-b:351px;--rh-c:628px;--rc-c:516px;--rcb-c:516px;--rh-d:677px;--rc-d:565px;--rcb-d:565px;--rh-e:645px;--rc-e:565px;--rcb-e:565px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">document_scanner</span></span>
       <div><h2 class="comp-title"><a href="/components/field-extraction">Field extraction</a></h2><p class="comp-desc">The agent pulls fields out of a document and shows where each came from.</p></div>
@@ -9401,7 +9450,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
   </div>
 </div></template>
   </article>
-  <article class="comp" id="c17" data-soft data-v2="metric-insight" data-reg="metric-insight" style="--rh-a:420px;--rc-a:274px;--rh-b:421px;--rc-b:293px;--rh-c:420px;--rc-c:274px;--rh-d:420px;--rc-d:274px;--rh-e:420px;--rc-e:293px">
+  <article class="comp" id="c17" data-soft data-v2="metric-insight" data-reg="metric-insight" style="--rh-a:420px;--rc-a:272px;--rcb-a:266px;--rh-b:420px;--rc-b:292px;--rcb-b:286px;--rh-c:420px;--rc-c:272px;--rcb-c:266px;--rh-d:420px;--rc-d:271px;--rcb-d:266px;--rh-e:420px;--rc-e:291px;--rcb-e:286px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">trending_up</span></span>
       <div><h2 class="comp-title"><a href="/components/metric-insight">Metric insight</a></h2><p class="comp-desc">A number, its trend, and the agent's read on why it moved.</p></div>
@@ -9421,7 +9470,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
   <div class="fold shut mix-box"><div><div class="mix-rs"></div></div></div>
 </div></template>
   </article>
-  <article class="comp" data-soft id="c66" data-v2="details-panel" data-reg="details-panel" style="--rh-a:534px;--rc-a:406px;--rh-b:534px;--rc-b:406px;--rh-c:534px;--rc-c:406px;--rh-d:534px;--rc-d:406px;--rh-e:530px;--rc-e:406px">
+  <article class="comp" data-soft id="c66" data-v2="details-panel" data-reg="details-panel" style="--rh-a:528px;--rc-a:416px;--rcb-a:406px;--rh-b:528px;--rc-b:416px;--rcb-b:406px;--rh-c:528px;--rc-c:416px;--rcb-c:406px;--rh-d:528px;--rc-d:416px;--rcb-d:406px;--rh-e:496px;--rc-e:416px;--rcb-e:406px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">dashboard</span></span>
       <div><h2 class="comp-title"><a href="/components/details-panel">Details panel</a></h2><p class="comp-desc">Properties of a run you can change in place.</p></div>
@@ -9457,7 +9506,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
   </div>
 </div></template>
   </article>
-  <article class="comp wide" id="c13" data-soft data-v2="task-table" data-reg="task-table" style="--rh-a:490px;--rc-a:362px;--rh-b:490px;--rc-b:362px;--rh-c:490px;--rc-c:362px;--rh-d:490px;--rc-d:362px;--rh-e:486px;--rc-e:362px">
+  <article class="comp wide" id="c13" data-soft data-v2="task-table" data-reg="task-table" style="--rh-a:494px;--rc-a:382px;--rcb-a:366px;--rh-b:494px;--rc-b:382px;--rcb-b:366px;--rh-c:494px;--rc-c:382px;--rcb-c:366px;--rh-d:494px;--rc-d:382px;--rcb-d:366px;--rh-e:462px;--rc-e:382px;--rcb-e:366px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">filter_list</span></span>
       <div><h2 class="comp-title"><a href="/components/task-table">Task table</a></h2><p class="comp-desc">Agent tasks in a sortable table with bulk actions.</p></div>
@@ -9484,7 +9533,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
 <section class="lib-sec" id="s-workspace" data-grp="agent">
   <div class="sec-head"><div><span class="sec-no">05</span><h2>Workspace</h2><p>Navigation, search, settings, models and automations around the agent.</p></div></div>
   <div class="sec-body" id="s-workspace-body"><div class="sec-uf"><div class="grid">
-  <article class="comp wide" id="c16" data-soft data-v2="automation-canvas" data-reg="automation-canvas" style="--rh-a:466px;--rc-a:338px;--rh-b:466px;--rc-b:338px;--rh-c:466px;--rc-c:338px;--rh-d:586px;--rc-d:458px;--rh-e:610px;--rc-e:486px">
+  <article class="comp wide" id="c16" data-soft data-v2="automation-canvas" data-reg="automation-canvas" style="--rh-a:464px;--rc-a:352px;--rcb-a:338px;--rh-b:464px;--rc-b:352px;--rcb-b:338px;--rh-c:464px;--rc-c:352px;--rcb-c:338px;--rh-d:584px;--rc-d:472px;--rcb-d:458px;--rh-e:580px;--rc-e:500px;--rcb-e:486px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">account_tree</span></span>
       <div><h2 class="comp-title"><a href="/components/automation-canvas">Automation canvas</a></h2><p class="comp-desc">A trigger, a few agent steps, and a run you can watch flow through.</p></div>
@@ -9504,7 +9553,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
   </div>
 </div></template>
   </article>
-  <article class="comp" id="c15" data-soft data-v2="command-palette" data-reg="command-palette" style="--rh-a:447px;--rc-a:319px;--rh-b:447px;--rc-b:319px;--rh-c:447px;--rc-c:319px;--rh-d:447px;--rc-d:319px;--rh-e:443px;--rc-e:319px">
+  <article class="comp" id="c15" data-soft data-v2="command-palette" data-reg="command-palette" style="--rh-a:594px;--rc-a:482px;--rcb-a:466px;--rh-b:594px;--rc-b:482px;--rcb-b:467px;--rh-c:594px;--rc-c:482px;--rcb-c:467px;--rh-d:594px;--rc-d:482px;--rcb-d:466px;--rh-e:562px;--rc-e:482px;--rcb-e:470px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">search</span></span>
       <div><h2 class="comp-title"><a href="/components/command-palette">Command palette</a></h2><p class="comp-desc">Jump anywhere or hand a task to the agent from one box.</p></div>
@@ -9521,7 +9570,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
   <div class="cpl-f muted"><span><span class="kbd">↑</span><span class="kbd">↓</span> move</span><span><span class="kbd">↵</span> run</span><span class="cpl-st"></span></div>
 </div></template>
   </article>
-  <article class="comp" data-soft id="c69" data-v2="memory-panel" data-reg="memory-panel" style="--rh-a:621px;--rc-a:493px;--rh-b:738px;--rc-b:610px;--rh-c:621px;--rc-c:493px;--rh-d:621px;--rc-d:493px;--rh-e:773px;--rc-e:649px">
+  <article class="comp" data-soft id="c69" data-v2="memory-panel" data-reg="memory-panel" style="--rh-a:605px;--rc-a:493px;--rcb-a:493px;--rh-b:722px;--rc-b:610px;--rcb-b:610px;--rh-c:605px;--rc-c:493px;--rcb-c:493px;--rh-d:605px;--rc-d:493px;--rcb-d:493px;--rh-e:690px;--rc-e:610px;--rcb-e:610px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">history</span></span>
       <div><h2 class="comp-title"><a href="/components/memory-panel">Memory panel</a></h2><p class="comp-desc">What the agent remembers about your team, editable and removable.</p></div>
@@ -9537,7 +9586,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
   <div class="mmx-list"></div>
 </div></template>
   </article>
-  <article class="comp wide" data-soft id="c71" data-v2="model-compare" data-reg="model-compare" style="--rh-a:444px;--rc-a:316px;--rh-b:444px;--rc-b:316px;--rh-c:505px;--rc-c:377px;--rh-d:960px;--rc-d:832px;--rh-e:956px;--rc-e:832px">
+  <article class="comp wide" data-soft id="c71" data-v2="model-compare" data-reg="model-compare" style="--rh-a:436px;--rc-a:324px;--rcb-a:316px;--rh-b:436px;--rc-b:324px;--rcb-b:316px;--rh-c:489px;--rc-c:377px;--rcb-c:377px;--rh-d:960px;--rc-d:848px;--rcb-d:832px;--rh-e:928px;--rc-e:848px;--rcb-e:834px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">splitscreen</span></span>
       <div><h2 class="comp-title"><a href="/components/model-compare">Model compare</a></h2><p class="comp-desc">Run one prompt on three models side by side and keep the best.</p></div>
@@ -9553,7 +9602,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
   <form class="mcx-in"><input class="mcx-q" value="Write a one line value prop for the Pro plan" aria-label="Prompt for every model" spellcheck="false"><span class="mcx-n muted">Sends to 3 models</span><button class="mcx-go" aria-label="Send to every model" data-tip="Send to every model" data-tip-k="↵">{up}</button></form>
 </div></template>
   </article>
-  <article class="comp" id="c38" data-soft data-v2="agent-settings" data-reg="agent-settings" style="--rh-a:593px;--rc-a:465px;--rh-b:611px;--rc-b:483px;--rh-c:593px;--rc-c:465px;--rh-d:593px;--rc-d:465px;--rh-e:607px;--rc-e:483px">
+  <article class="comp" id="c38" data-soft data-v2="agent-settings" data-reg="agent-settings" style="--rh-a:587px;--rc-a:475px;--rcb-a:465px;--rh-b:605px;--rc-b:493px;--rcb-b:483px;--rh-c:587px;--rc-c:475px;--rcb-c:465px;--rh-d:587px;--rc-d:475px;--rcb-d:465px;--rh-e:573px;--rc-e:493px;--rcb-e:483px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">settings</span></span>
       <div><h2 class="comp-title"><a href="/components/agent-settings">Agent settings</a></h2><p class="comp-desc">How much the agent may do alone, with a save bar for changes.</p></div>
@@ -9574,7 +9623,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
   <div class="asx-bar"><span>Unsaved changes</span><button class="pill ghost sm asx-rs">Reset</button><button class="pill accent sm asx-sv">Save</button></div>
 </div></template>
   </article>
-  <article class="comp" id="c110" data-soft data-v2="tool-connections" data-reg="tool-connections" style="--rh-a:510px;--rc-a:382px;--rh-b:510px;--rc-b:382px;--rh-c:510px;--rc-c:382px;--rh-d:510px;--rc-d:382px;--rh-e:526px;--rc-e:402px">
+  <article class="comp" id="c110" data-soft data-v2="tool-connections" data-reg="tool-connections" style="--rh-a:499px;--rc-a:387px;--rcb-a:382px;--rh-b:500px;--rc-b:388px;--rcb-b:382px;--rh-c:499px;--rc-c:387px;--rcb-c:382px;--rh-d:498px;--rc-d:386px;--rcb-d:382px;--rh-e:467px;--rc-e:387px;--rcb-e:382px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">link</span></span>
       <div><h2 class="comp-title"><a href="/components/tool-connections">Tools and connections</a></h2><p class="comp-desc">The tools the agent can reach, and how much it may do with each.</p></div>
@@ -9592,7 +9641,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
   <div class="pop hnx-pop" role="menu"></div>
 </div></template>
   </article>
-  <article class="comp" id="c39" data-soft data-v2="file-explorer" data-reg="file-explorer" style="--rh-a:508px;--rc-a:380px;--rh-b:508px;--rc-b:380px;--rh-c:508px;--rc-c:380px;--rh-d:508px;--rc-d:380px;--rh-e:504px;--rc-e:380px">
+  <article class="comp" id="c39" data-soft data-v2="file-explorer" data-reg="file-explorer" style="--rh-a:565px;--rc-a:453px;--rcb-a:439px;--rh-b:565px;--rc-b:453px;--rcb-b:440px;--rh-c:565px;--rc-c:453px;--rcb-c:441px;--rh-d:565px;--rc-d:453px;--rcb-d:439px;--rh-e:533px;--rc-e:453px;--rcb-e:442px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">folder</span></span>
       <div><h2 class="comp-title"><a href="/components/file-explorer">File explorer</a></h2><p class="comp-desc">Project files, with the ones the agent touched marked.</p></div>
@@ -9609,7 +9658,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
   <div class="fxp-f muted"><span class="fxp-st"></span></div>
 </div></template>
   </article>
-  <article class="comp" id="c14" data-soft data-v2="workspace-rail" data-reg="workspace-rail" style="--rh-a:559px;--rc-a:431px;--rh-b:559px;--rc-b:431px;--rh-c:559px;--rc-c:431px;--rh-d:559px;--rc-d:431px;--rh-e:555px;--rc-e:431px">
+  <article class="comp" id="c14" data-soft data-v2="workspace-rail" data-reg="workspace-rail" style="--rh-a:543px;--rc-a:431px;--rcb-a:431px;--rh-b:543px;--rc-b:431px;--rcb-b:431px;--rh-c:543px;--rc-c:431px;--rcb-c:431px;--rh-d:543px;--rc-d:431px;--rcb-d:431px;--rh-e:511px;--rc-e:431px;--rcb-e:431px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">view_sidebar</span></span>
       <div><h2 class="comp-title"><a href="/components/workspace-rail">Workspace rail</a></h2><p class="comp-desc">A slim app rail that opens into a labelled sidebar.</p></div>
@@ -9637,7 +9686,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
 <section class="lib-sec" id="s-harness" data-grp="agent">
   <div class="sec-head"><div><span class="sec-no">06</span><h2>Harness</h2><p>A live agent conversation built only from the components above. Pick a starter and watch them work together.</p></div></div>
   <div class="sec-body" id="s-harness-body"><div class="sec-uf"><div class="grid">
-  <article class="comp wide" data-soft id="c99" data-v2="harness" data-reg="agent-harness" style="--rh-a:748px;--rc-a:620px;--rh-b:748px;--rc-b:620px;--rh-c:748px;--rc-c:620px;--rh-d:748px;--rc-d:620px;--rh-e:744px;--rc-e:620px">
+  <article class="comp wide" data-soft id="c99" data-v2="harness" data-reg="agent-harness" style="--rh-a:754px;--rc-a:642px;--rcb-a:624px;--rh-b:754px;--rc-b:642px;--rcb-b:624px;--rh-c:754px;--rc-c:642px;--rcb-c:624px;--rh-d:754px;--rc-d:642px;--rcb-d:624px;--rh-e:722px;--rc-e:642px;--rcb-e:624px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">stars</span></span>
       <div><h2 class="comp-title"><a href="/components/agent-harness">Agent harness</a></h2><p class="comp-desc">Every component working together in one agent app.</p></div>
@@ -9693,7 +9742,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
 <section class="lib-sec" id="s-charts" data-grp="basics">
   <div class="sec-head"><div><span class="sec-no">01</span><h2>Charts and tables</h2><p>Lightweight charts and tables for dashboards and reports, drawn in plain SVG and HTML.</p></div></div>
   <div class="sec-body" id="s-charts-body"><div class="sec-uf"><div class="grid">
-  <article class="comp" id="c41" data-soft data-v2="line-chart" data-reg="line-chart" style="--rh-a:420px;--rc-a:264px;--rh-b:420px;--rc-b:264px;--rh-c:420px;--rc-c:264px;--rh-d:420px;--rc-d:264px;--rh-e:424px;--rc-e:300px">
+  <article class="comp" id="c41" data-soft data-v2="line-chart" data-reg="line-chart" style="--rh-a:420px;--rc-a:263px;--rcb-a:255px;--rh-b:420px;--rc-b:263px;--rcb-b:255px;--rh-c:420px;--rc-c:263px;--rcb-c:255px;--rh-d:420px;--rc-d:263px;--rcb-d:255px;--rh-e:420px;--rc-e:263px;--rcb-e:255px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">trending_up</span></span>
       <div><h2 class="comp-title"><a href="/components/line-chart">Line chart</a></h2><p class="comp-desc">Two series over time with a hover readout and toggles.</p></div>
@@ -9710,7 +9759,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
   <div class="lnx-ax muted num"><span>Jan</span><span>Mar</span><span>May</span><span>Jul</span><span>Sep</span><span>Nov</span></div>
 </div></template>
   </article>
-  <article class="comp" id="c42" data-soft data-v2="bar-chart" data-reg="bar-chart" style="--rh-a:420px;--rc-a:269px;--rh-b:420px;--rc-b:269px;--rh-c:420px;--rc-c:269px;--rh-d:420px;--rc-d:269px;--rh-e:420px;--rc-e:269px">
+  <article class="comp" id="c42" data-soft data-v2="bar-chart" data-reg="bar-chart" style="--rh-a:420px;--rc-a:268px;--rcb-a:260px;--rh-b:420px;--rc-b:268px;--rcb-b:260px;--rh-c:420px;--rc-c:268px;--rcb-c:260px;--rh-d:420px;--rc-d:268px;--rcb-d:260px;--rh-e:420px;--rc-e:268px;--rcb-e:260px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">bar_chart</span></span>
       <div><h2 class="comp-title"><a href="/components/bar-chart">Bar chart</a></h2><p class="comp-desc">Weekly agent runs, split by outcome, with a range switch.</p></div>
@@ -9727,7 +9776,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
   <div class="bcx-lg muted"><span><i style="background:var(--c1)"></i>Shipped</span><span><i style="background:var(--c2)"></i>Needed review</span><span><i style="background:var(--c4)"></i>Failed</span></div>
 </div></template>
   </article>
-  <article class="comp" id="c43" data-soft data-v2="donut-chart" data-reg="donut-chart" style="--rh-a:420px;--rc-a:217px;--rh-b:496px;--rc-b:368px;--rh-c:420px;--rc-c:198px;--rh-d:420px;--rc-d:198px;--rh-e:492px;--rc-e:368px">
+  <article class="comp" id="c43" data-soft data-v2="donut-chart" data-reg="donut-chart" style="--rh-a:420px;--rc-a:223px;--rcb-a:217px;--rh-b:486px;--rc-b:374px;--rcb-b:368px;--rh-c:420px;--rc-c:204px;--rcb-c:198px;--rh-d:420px;--rc-d:204px;--rcb-d:198px;--rh-e:454px;--rc-e:374px;--rcb-e:368px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">donut</span></span>
       <div><h2 class="comp-title"><a href="/components/donut-chart">Donut chart</a></h2><p class="comp-desc">Where the agent's time went, by kind of task.</p></div>
@@ -9743,7 +9792,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
   <div class="dnx-lg"></div>
 </div></template>
   </article>
-  <article class="comp" id="c102" data-soft data-v2="funnel" data-reg="funnel-chart" style="--rh-a:442px;--rc-a:314px;--rh-b:461px;--rc-b:333px;--rh-c:442px;--rc-c:314px;--rh-d:442px;--rc-d:314px;--rh-e:457px;--rc-e:333px">
+  <article class="comp" id="c102" data-soft data-v2="funnel" data-reg="funnel-chart" style="--rh-a:426px;--rc-a:314px;--rcb-a:314px;--rh-b:445px;--rc-b:333px;--rcb-b:333px;--rh-c:426px;--rc-c:314px;--rcb-c:314px;--rh-d:426px;--rc-d:314px;--rcb-d:314px;--rh-e:420px;--rc-e:314px;--rcb-e:314px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">grid_view</span></span>
       <div><h2 class="comp-title"><a href="/components/funnel-chart">Funnel chart</a></h2><p class="comp-desc">Signup to paid, with the biggest drop called out by the agent.</p></div>
@@ -9760,7 +9809,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
   <div class="fnx-ins"><span class="fnx-ic">{spark}</span><span class="fnx-t"></span></div>
 </div></template>
   </article>
-  <article class="comp" id="c103" data-soft data-v2="top-pages" data-reg="top-pages" style="--rh-a:505px;--rc-a:377px;--rh-b:523px;--rc-b:395px;--rh-c:505px;--rc-c:377px;--rh-d:505px;--rc-d:377px;--rh-e:519px;--rc-e:395px">
+  <article class="comp" id="c103" data-soft data-v2="top-pages" data-reg="top-pages" style="--rh-a:494px;--rc-a:382px;--rcb-a:377px;--rh-b:513px;--rc-b:401px;--rcb-b:395px;--rh-c:494px;--rc-c:382px;--rcb-c:377px;--rh-d:493px;--rc-d:381px;--rcb-d:377px;--rh-e:479px;--rc-e:399px;--rcb-e:395px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">grid_view</span></span>
       <div><h2 class="comp-title"><a href="/components/top-pages">Top pages</a></h2><p class="comp-desc">Most visited pages with share of traffic and a quick sort.</p></div>
@@ -9776,7 +9825,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
   <div class="tpx-list"></div>
 </div></template>
   </article>
-  <article class="comp" data-soft id="c65" data-v2="health-score" data-reg="health-score" style="--rh-a:420px;--rc-a:260px;--rh-b:420px;--rc-b:266px;--rh-c:420px;--rc-c:260px;--rh-d:420px;--rc-d:260px;--rh-e:420px;--rc-e:286px">
+  <article class="comp" data-soft id="c65" data-v2="health-score" data-reg="health-score" style="--rh-a:420px;--rc-a:297px;--rcb-a:279px;--rh-b:420px;--rc-b:303px;--rcb-b:285px;--rh-c:420px;--rc-c:297px;--rcb-c:279px;--rh-d:420px;--rc-d:297px;--rcb-d:279px;--rh-e:420px;--rc-e:297px;--rcb-e:279px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">readiness_score</span></span>
       <div><h2 class="comp-title"><a href="/components/health-score">Health score</a></h2><p class="comp-desc">A design system score made of a few checks you can open.</p></div>
@@ -9795,7 +9844,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
   <div class="hsx-list"></div>
 </div></template>
   </article>
-  <article class="comp wide" id="c45" data-soft data-v2="activity-heatmap" data-reg="activity-heatmap" style="--rh-a:420px;--rc-a:247px;--rh-b:420px;--rc-b:247px;--rh-c:420px;--rc-c:247px;--rh-d:420px;--rc-d:247px;--rh-e:420px;--rc-e:265px">
+  <article class="comp wide" id="c45" data-soft data-v2="activity-heatmap" data-reg="activity-heatmap" style="--rh-a:420px;--rc-a:252px;--rcb-a:247px;--rh-b:420px;--rc-b:253px;--rcb-b:247px;--rh-c:420px;--rc-c:252px;--rcb-c:247px;--rh-d:420px;--rc-d:252px;--rcb-d:247px;--rh-e:420px;--rc-e:265px;--rcb-e:265px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">grid_on</span></span>
       <div><h2 class="comp-title"><a href="/components/activity-heatmap">Activity heatmap</a></h2><p class="comp-desc">When the agent and the team were busy, by day and hour.</p></div>
@@ -9813,7 +9862,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
   <div class="hmx-lg muted">Less<i style="--a:.08"></i><i style="--a:.3"></i><i style="--a:.55"></i><i style="--a:.85"></i>More</div>
 </div></template>
   </article>
-  <article class="comp wide" id="c44" data-soft data-v2="stat-cards" data-reg="stat-cards" style="--rh-a:420px;--rc-a:167px;--rh-b:420px;--rc-b:167px;--rh-c:420px;--rc-c:186px;--rh-d:432px;--rc-d:304px;--rh-e:701px;--rc-e:577px">
+  <article class="comp wide" id="c44" data-soft data-v2="stat-cards" data-reg="stat-cards" style="--rh-a:420px;--rc-a:176px;--rcb-a:166px;--rh-b:420px;--rc-b:177px;--rcb-b:166px;--rh-c:420px;--rc-c:195px;--rcb-c:185px;--rh-d:420px;--rc-d:304px;--rcb-d:294px;--rh-e:635px;--rc-e:555px;--rcb-e:543px">
     <div class="comp-head">
       <span class="ibox accent"><span class="ms">dashboard</span></span>
       <div><h2 class="comp-title"><a href="/components/stat-cards">Stat cards</a></h2><p class="comp-desc">Four headline numbers with sparklines and a period switch.</p></div>
@@ -9829,7 +9878,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
   <div class="scx-grid"></div>
 </div></template>
   </article>
-  <article class="comp wide" id="c12" data-soft data-v2="account-table" data-reg="account-table" style="--rh-a:525px;--rc-a:397px;--rh-b:525px;--rc-b:397px;--rh-c:525px;--rc-c:397px;--rh-d:525px;--rc-d:397px;--rh-e:553px;--rc-e:429px">
+  <article class="comp wide" id="c12" data-soft data-v2="account-table" data-reg="account-table" style="--rh-a:509px;--rc-a:397px;--rcb-a:397px;--rh-b:509px;--rc-b:397px;--rcb-b:397px;--rh-c:509px;--rc-c:397px;--rcb-c:397px;--rh-d:509px;--rc-d:397px;--rcb-d:397px;--rh-e:509px;--rc-e:429px;--rcb-e:429px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">person</span></span>
       <div><h2 class="comp-title"><a href="/components/account-table">Account table</a></h2><p class="comp-desc">Customer accounts with health, plan and an agent note per row.</p></div>
@@ -9850,7 +9899,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
 <section class="lib-sec" id="s-dates" data-grp="basics">
   <div class="sec-head"><div><span class="sec-no">02</span><h2>Dates</h2><p>Pickers for single dates and date ranges.</p></div></div>
   <div class="sec-body" id="s-dates-body"><div class="sec-uf"><div class="grid">
-  <article class="comp" id="c46" data-soft data-v2="date-picker" data-reg="date-picker" style="--rh-a:528px;--rc-a:400px;--rh-b:528px;--rc-b:400px;--rh-c:528px;--rc-c:400px;--rh-d:528px;--rc-d:400px;--rh-e:524px;--rc-e:400px">
+  <article class="comp" id="c46" data-soft data-v2="date-picker" data-reg="date-picker" style="--rh-a:518px;--rc-a:406px;--rcb-a:400px;--rh-b:519px;--rc-b:407px;--rcb-b:400px;--rh-c:518px;--rc-c:406px;--rcb-c:400px;--rh-d:516px;--rc-d:404px;--rcb-d:400px;--rh-e:485px;--rc-e:405px;--rcb-e:400px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">calendar</span></span>
       <div><h2 class="comp-title"><a href="/components/date-picker">Date picker</a></h2><p class="comp-desc">A field that opens a calendar, with quick picks and natural language.</p></div>
@@ -9872,7 +9921,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
   </div>
 </div></template>
   </article>
-  <article class="comp wide" id="c47" data-soft data-v2="date-range-picker" data-reg="date-range-picker" style="--rh-a:437px;--rc-a:309px;--rh-b:437px;--rc-b:309px;--rh-c:463px;--rc-c:335px;--rh-d:491px;--rc-d:363px;--rh-e:560px;--rc-e:436px">
+  <article class="comp wide" id="c47" data-soft data-v2="date-range-picker" data-reg="date-range-picker" style="--rh-a:435px;--rc-a:323px;--rcb-a:309px;--rh-b:435px;--rc-b:323px;--rcb-b:309px;--rh-c:447px;--rc-c:335px;--rcb-c:335px;--rh-d:489px;--rc-d:377px;--rcb-d:363px;--rh-e:504px;--rc-e:424px;--rcb-e:424px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">calendar</span></span>
       <div><h2 class="comp-title"><a href="/components/date-range-picker">Date range picker</a></h2><p class="comp-desc">Pick a start and end across two months, or use a preset.</p></div>
@@ -9892,7 +9941,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
   </div>
 </div></template>
   </article>
-  <article class="comp wide" data-soft id="c62" data-v2="event-calendar" data-reg="event-calendar" style="--rh-a:561px;--rc-a:433px;--rh-b:561px;--rc-b:433px;--rh-c:561px;--rc-c:433px;--rh-d:561px;--rc-d:433px;--rh-e:586px;--rc-e:462px">
+  <article class="comp wide" data-soft id="c62" data-v2="event-calendar" data-reg="event-calendar" style="--rh-a:567px;--rc-a:455px;--rcb-a:437px;--rh-b:567px;--rc-b:455px;--rcb-b:437px;--rh-c:567px;--rc-c:455px;--rcb-c:437px;--rh-d:567px;--rc-d:455px;--rcb-d:437px;--rh-e:564px;--rc-e:484px;--rcb-e:466px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">calendar</span></span>
       <div><h2 class="comp-title"><a href="/components/event-calendar">Event calendar</a></h2><p class="comp-desc">A week view where the agent finds a free slot for you.</p></div>
@@ -9908,7 +9957,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
   <div class="ecx-sc"><div class="ecx-grid"><div class="ecx-tm"></div></div></div>
 </div></template>
   </article>
-  <article class="comp" data-soft id="c63" data-v2="agenda" data-reg="agenda" style="--rh-a:660px;--rc-a:532px;--rh-b:716px;--rc-b:588px;--rh-c:660px;--rc-c:532px;--rh-d:660px;--rc-d:532px;--rh-e:712px;--rc-e:588px">
+  <article class="comp" data-soft id="c63" data-v2="agenda" data-reg="agenda" style="--rh-a:644px;--rc-a:532px;--rcb-a:532px;--rh-b:700px;--rc-b:588px;--rcb-b:588px;--rh-c:644px;--rc-c:532px;--rcb-c:532px;--rh-d:644px;--rc-d:532px;--rcb-d:532px;--rh-e:668px;--rc-e:588px;--rcb-e:588px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">schedule</span></span>
       <div><h2 class="comp-title"><a href="/components/agenda">Agenda</a></h2><p class="comp-desc">Today's schedule with a live now line and agent prep notes.</p></div>
@@ -9929,7 +9978,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
 <section class="lib-sec" id="s-forms" data-grp="basics">
   <div class="sec-head"><div><span class="sec-no">03</span><h2>Forms and inputs</h2><p>Buttons, fields, pickers and sign-in flows for any product.</p></div></div>
   <div class="sec-body" id="s-forms-body"><div class="sec-uf"><div class="grid">
-  <article class="comp wide" data-soft id="c49" data-v2="buttons" data-reg="buttons" style="--rh-a:420px;--rc-a:178px;--rh-b:420px;--rc-b:178px;--rh-c:420px;--rc-c:258px;--rh-d:420px;--rc-d:258px;--rh-e:524px;--rc-e:400px">
+  <article class="comp wide" data-soft id="c49" data-v2="buttons" data-reg="buttons" style="--rh-a:420px;--rc-a:200px;--rcb-a:182px;--rh-b:420px;--rc-b:200px;--rcb-b:182px;--rh-c:420px;--rc-c:280px;--rcb-c:262px;--rh-d:420px;--rc-d:280px;--rcb-d:262px;--rh-e:502px;--rc-e:422px;--rcb-e:404px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">bolt</span></span>
       <div><h2 class="comp-title"><a href="/components/buttons">Buttons</a></h2><p class="comp-desc">Every button style, with loading, success and hold-to-confirm states.</p></div>
@@ -9947,7 +9996,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
   <div class="btx-row"><span class="btx-l muted">Sizes</span><button class="pill accent sm">Small</button><button class="pill accent">Default</button><button class="pill accent btx-lg">Large</button></div>
 </div></template>
   </article>
-  <article class="comp" data-soft id="c52" data-v2="tooltip" data-reg="tooltip" style="--rh-a:420px;--rc-a:200px;--rh-b:420px;--rc-b:200px;--rh-c:420px;--rc-c:200px;--rh-d:420px;--rc-d:200px;--rh-e:420px;--rc-e:200px">
+  <article class="comp" data-soft id="c52" data-v2="tooltip" data-reg="tooltip" style="--rh-a:420px;--rc-a:206px;--rcb-a:200px;--rh-b:420px;--rc-b:207px;--rcb-b:200px;--rh-c:420px;--rc-c:206px;--rcb-c:200px;--rh-d:420px;--rc-d:204px;--rcb-d:200px;--rh-e:420px;--rc-e:205px;--rcb-e:200px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">help</span></span>
       <div><h2 class="comp-title"><a href="/components/tooltip">Tooltip</a></h2><p class="comp-desc">Quiet labels on hover, with shortcuts and a richer preview card.</p></div>
@@ -9972,7 +10021,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
   <p class="muted ttp-n">Labels wait a moment, then follow you instantly between buttons.</p>
 </div></template>
   </article>
-  <article class="comp" data-soft id="c53" data-v2="search-input" data-reg="search-input" style="--rh-a:448px;--rc-a:320px;--rh-b:448px;--rc-b:320px;--rh-c:448px;--rc-c:320px;--rh-d:448px;--rc-d:320px;--rh-e:444px;--rc-e:320px">
+  <article class="comp" data-soft id="c53" data-v2="search-input" data-reg="search-input" style="--rh-a:438px;--rc-a:326px;--rcb-a:320px;--rh-b:439px;--rc-b:327px;--rcb-b:320px;--rh-c:438px;--rc-c:326px;--rcb-c:320px;--rh-d:436px;--rc-d:324px;--rcb-d:320px;--rh-e:420px;--rc-e:325px;--rcb-e:320px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">search</span></span>
       <div><h2 class="comp-title"><a href="/components/search-input">Search input</a></h2><p class="comp-desc">Search with scoped filters, recent queries and an agent answer.</p></div>
@@ -9990,7 +10039,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
   </div>
 </div></template>
   </article>
-  <article class="comp" data-soft id="c57" data-v2="country-select" data-reg="country-select" style="--rh-a:520px;--rc-a:330px;--rh-b:520px;--rc-b:330px;--rh-c:520px;--rc-c:330px;--rh-d:520px;--rc-d:330px;--rh-e:520px;--rc-e:330px">
+  <article class="comp" data-soft id="c57" data-v2="country-select" data-reg="country-select" style="--rh-a:647px;--rc-a:535px;--rcb-a:535px;--rh-b:639px;--rc-b:522px;--rcb-b:527px;--rh-c:645px;--rc-c:522px;--rcb-c:533px;--rh-d:647px;--rc-d:522px;--rcb-d:535px;--rh-e:602px;--rc-e:522px;--rcb-e:522px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">filter_list</span></span>
       <div><h2 class="comp-title"><a href="/components/country-select">Country select</a></h2><p class="comp-desc">A searchable select with country codes, currency and keyboard support.</p></div>
@@ -10008,7 +10057,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
   <span class="muted csx-h">Used for tax and currency</span>
 </div></template>
   </article>
-  <article class="comp" data-soft id="c51" data-v2="social-signin" data-reg="social-sign-in" style="--rh-a:531px;--rc-a:403px;--rh-b:531px;--rc-b:403px;--rh-c:531px;--rc-c:403px;--rh-d:531px;--rc-d:403px;--rh-e:527px;--rc-e:403px">
+  <article class="comp" data-soft id="c51" data-v2="social-signin" data-reg="social-sign-in" style="--rh-a:521px;--rc-a:409px;--rcb-a:403px;--rh-b:522px;--rc-b:410px;--rcb-b:403px;--rh-c:521px;--rc-c:409px;--rcb-c:403px;--rh-d:519px;--rc-d:407px;--rcb-d:403px;--rh-e:488px;--rc-e:408px;--rcb-e:403px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">person</span></span>
       <div><h2 class="comp-title"><a href="/components/social-sign-in">Social sign-in</a></h2><p class="comp-desc">One-tap providers that remember the last one you used.</p></div>
@@ -10026,7 +10075,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
   <button class="ssi-mail">Continue with email</button>
 </div></template>
   </article>
-  <article class="comp" data-soft id="c55" data-v2="sign-in" data-reg="sign-in" style="--rh-a:420px;--rc-a:232px;--rh-b:420px;--rc-b:232px;--rh-c:420px;--rc-c:232px;--rh-d:420px;--rc-d:232px;--rh-e:420px;--rc-e:232px">
+  <article class="comp" data-soft id="c55" data-v2="sign-in" data-reg="sign-in" style="--rh-a:420px;--rc-a:237px;--rcb-a:232px;--rh-b:420px;--rc-b:238px;--rcb-b:232px;--rh-c:420px;--rc-c:237px;--rcb-c:232px;--rh-d:420px;--rc-d:236px;--rcb-d:232px;--rh-e:420px;--rc-e:237px;--rcb-e:232px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">lock</span></span>
       <div><h2 class="comp-title"><a href="/components/sign-in">Sign in</a></h2><p class="comp-desc">Email first, then a one-time code that fills itself in.</p></div>
@@ -10052,7 +10101,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
   </div>
 </div></template>
   </article>
-  <article class="comp" data-soft id="c50" data-v2="form" data-reg="form" style="--rh-a:540px;--rc-a:412px;--rh-b:548px;--rc-b:420px;--rh-c:540px;--rc-c:412px;--rh-d:540px;--rc-d:412px;--rh-e:550px;--rc-e:426px">
+  <article class="comp" data-soft id="c50" data-v2="form" data-reg="form" style="--rh-a:530px;--rc-a:418px;--rcb-a:412px;--rh-b:532px;--rc-b:420px;--rcb-b:420px;--rh-c:530px;--rc-c:418px;--rcb-c:412px;--rh-d:530px;--rc-d:418px;--rcb-d:412px;--rh-e:498px;--rc-e:418px;--rcb-e:412px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">edit_note</span></span>
       <div><h2 class="comp-title"><a href="/components/form">Form</a></h2><p class="comp-desc">A project brief with inline checks and an agent that drafts the rest.</p></div>
@@ -10072,7 +10121,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
   <div class="fmx-ft"><span class="fmx-ms muted"></span><button class="pill ink sm fmx-go" type="submit">Create brief</button></div>
 </form></template>
   </article>
-  <article class="comp wide" data-soft id="c64" data-v2="payment-form" data-reg="payment-form" style="--rh-a:547px;--rc-a:419px;--rh-b:547px;--rc-b:419px;--rh-c:547px;--rc-c:419px;--rh-d:547px;--rc-d:419px;--rh-e:583px;--rc-e:459px">
+  <article class="comp wide" data-soft id="c64" data-v2="payment-form" data-reg="payment-form" style="--rh-a:536px;--rc-a:424px;--rcb-a:419px;--rh-b:537px;--rc-b:425px;--rcb-b:419px;--rh-c:536px;--rc-c:424px;--rcb-c:419px;--rh-d:535px;--rc-d:423px;--rcb-d:419px;--rh-e:544px;--rc-e:464px;--rcb-e:459px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">lock</span></span>
       <div><h2 class="comp-title"><a href="/components/payment-form">Payment form</a></h2><p class="comp-desc">Card details with live formatting, brand detection and a clear total.</p></div>
@@ -10098,7 +10147,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
 <section class="lib-sec" id="s-collab" data-grp="basics">
   <div class="sec-head"><div><span class="sec-no">04</span><h2>Collaboration</h2><p>Threads, inboxes and boards for teams working alongside an agent.</p></div></div>
   <div class="sec-body" id="s-collab-body"><div class="sec-uf"><div class="grid">
-  <article class="comp" data-soft id="c54" data-v2="comments" data-reg="comments" style="--rh-a:523px;--rc-a:395px;--rh-b:601px;--rc-b:473px;--rh-c:504px;--rc-c:376px;--rh-d:504px;--rc-d:376px;--rh-e:597px;--rc-e:473px">
+  <article class="comp" data-soft id="c54" data-v2="comments" data-reg="comments" style="--rh-a:507px;--rc-a:395px;--rcb-a:395px;--rh-b:585px;--rc-b:473px;--rcb-b:473px;--rh-c:488px;--rc-c:376px;--rcb-c:376px;--rh-d:488px;--rc-d:376px;--rcb-d:376px;--rh-e:534px;--rc-e:454px;--rcb-e:454px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">chat_bubble</span></span>
       <div><h2 class="comp-title"><a href="/components/comments">Comments</a></h2><p class="comp-desc">A design thread where you can @mention the agent and it replies.</p></div>
@@ -10115,7 +10164,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
   <div class="cmx-in"><div class="cmx-box"><input placeholder="Reply, or @agent to ask" aria-label="Reply" spellcheck="false"><button class="cmx-go" aria-label="Send" disabled>{up}</button></div><div class="pop cmx-men" role="listbox"></div></div>
 </div></template>
   </article>
-  <article class="comp" data-soft id="c56" data-v2="notifications" data-reg="notifications" style="--rh-a:575px;--rc-a:447px;--rh-b:669px;--rc-b:541px;--rh-c:575px;--rc-c:447px;--rh-d:575px;--rc-d:447px;--rh-e:684px;--rc-e:560px">
+  <article class="comp" data-soft id="c56" data-v2="notifications" data-reg="notifications" style="--rh-a:559px;--rc-a:447px;--rcb-a:447px;--rh-b:653px;--rc-b:541px;--rcb-b:541px;--rh-c:559px;--rc-c:447px;--rcb-c:447px;--rh-d:559px;--rc-d:447px;--rcb-d:447px;--rh-e:621px;--rc-e:541px;--rcb-e:541px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">notifications</span></span>
       <div><h2 class="comp-title"><a href="/components/notifications">Notifications</a></h2><p class="comp-desc">An inbox where agent updates and mentions arrive live.</p></div>
@@ -10132,7 +10181,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
   <div class="ntx-list"></div>
 </div></template>
   </article>
-  <article class="comp" data-soft id="c61" data-v2="invite" data-reg="invite-to-collaborate" style="--rh-a:449px;--rc-a:321px;--rh-b:482px;--rc-b:354px;--rh-c:449px;--rc-c:321px;--rh-d:449px;--rc-d:321px;--rh-e:496px;--rc-e:372px">
+  <article class="comp" data-soft id="c61" data-v2="invite" data-reg="invite-to-collaborate" style="--rh-a:433px;--rc-a:321px;--rcb-a:321px;--rh-b:466px;--rc-b:354px;--rcb-b:354px;--rh-c:433px;--rc-c:321px;--rcb-c:321px;--rh-d:433px;--rc-d:321px;--rcb-d:321px;--rh-e:420px;--rc-e:321px;--rcb-e:321px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">person_add</span></span>
       <div><h2 class="comp-title"><a href="/components/invite-to-collaborate">Invite to collaborate</a></h2><p class="comp-desc">Add teammates by email as chips, set their role, send.</p></div>
@@ -10152,7 +10201,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
   <div class="ivx-ft"><button class="pill ghost sm ivx-link">{link}Copy link</button><button class="pill ink sm ivx-go" disabled>Send invites</button></div>
 </div></template>
   </article>
-  <article class="comp" data-soft id="c59" data-v2="reactions" data-reg="reactions" style="--rh-a:420px;--rc-a:128px;--rh-b:420px;--rc-b:149px;--rh-c:420px;--rc-c:128px;--rh-d:420px;--rc-d:128px;--rh-e:420px;--rc-e:149px">
+  <article class="comp" data-soft id="c59" data-v2="reactions" data-reg="reactions" style="--rh-a:420px;--rc-a:136px;--rcb-a:128px;--rh-b:420px;--rc-b:157px;--rcb-b:149px;--rh-c:420px;--rc-c:136px;--rcb-c:128px;--rh-d:420px;--rc-d:136px;--rcb-d:128px;--rh-e:420px;--rc-e:157px;--rcb-e:149px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">thumb_up</span></span>
       <div><h2 class="comp-title"><a href="/components/reactions">Reactions</a></h2><p class="comp-desc">Quick reactions on an agent update, with counts that pop.</p></div>
@@ -10169,7 +10218,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
   <div class="pop rxx-pk" role="menu"><div class="rxx-grid"></div></div>
 </div></template>
   </article>
-  <article class="comp wide" id="c104" data-soft data-v2="ticket-list" data-reg="ticket-list" style="--rh-a:546px;--rc-a:418px;--rh-b:546px;--rc-b:418px;--rh-c:546px;--rc-c:418px;--rh-d:546px;--rc-d:418px;--rh-e:579px;--rc-e:455px">
+  <article class="comp wide" id="c104" data-soft data-v2="ticket-list" data-reg="ticket-list" style="--rh-a:530px;--rc-a:418px;--rcb-a:418px;--rh-b:530px;--rc-b:418px;--rcb-b:418px;--rh-c:530px;--rc-c:418px;--rcb-c:418px;--rh-d:530px;--rc-d:418px;--rcb-d:418px;--rh-e:517px;--rc-e:437px;--rcb-e:437px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">grid_view</span></span>
       <div><h2 class="comp-title"><a href="/components/ticket-list">Ticket list</a></h2><p class="comp-desc">Support tickets the agent has triaged, with suggested replies.</p></div>
@@ -10185,7 +10234,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
   <div class="tkx-list"></div>
 </div></template>
   </article>
-  <article class="comp wide" id="c101" data-soft data-v2="kanban" data-reg="kanban-board" style="--rh-a:483px;--rc-a:355px;--rh-b:483px;--rc-b:355px;--rh-c:501px;--rc-c:373px;--rh-d:501px;--rc-d:373px;--rh-e:497px;--rc-e:373px">
+  <article class="comp wide" id="c101" data-soft data-v2="kanban" data-reg="kanban-board" style="--rh-a:467px;--rc-a:355px;--rcb-a:355px;--rh-b:467px;--rc-b:355px;--rcb-b:355px;--rh-c:485px;--rc-c:373px;--rcb-c:373px;--rh-d:485px;--rc-d:373px;--rcb-d:373px;--rh-e:453px;--rc-e:373px;--rcb-e:373px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">grid_view</span></span>
       <div><h2 class="comp-title"><a href="/components/kanban-board">Kanban board</a></h2><p class="comp-desc">A board where you and the agent move cards, with drag and drop.</p></div>
@@ -10206,7 +10255,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
 <section class="lib-sec" id="s-product" data-grp="basics">
   <div class="sec-head"><div><span class="sec-no">05</span><h2>Product</h2><p>Pricing, onboarding, setup flows and spending limits for the rest of your product.</p></div></div>
   <div class="sec-body" id="s-product-body"><div class="sec-uf"><div class="grid">
-  <article class="comp wide" data-soft id="c70" data-v2="pricing-cards" data-reg="pricing-cards" style="--rh-a:505px;--rc-a:387px;--rh-b:505px;--rc-b:387px;--rh-c:600px;--rc-c:482px;--rh-d:1154px;--rc-d:1036px;--rh-e:1192px;--rc-e:1068px">
+  <article class="comp wide" data-soft id="c70" data-v2="pricing-cards" data-reg="pricing-cards" style="--rh-a:515px;--rc-a:397px;--rcb-a:387px;--rh-b:516px;--rc-b:398px;--rcb-b:387px;--rh-c:610px;--rc-c:492px;--rcb-c:482px;--rh-d:1135px;--rc-d:1015px;--rcb-d:1017px;--rh-e:1151px;--rc-e:1047px;--rcb-e:1049px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">bolt</span></span>
       <div><h2 class="comp-title"><a href="/components/pricing-cards">Pricing cards</a></h2><p class="comp-desc">Three plans with a billing switch and a seat slider.</p></div>
@@ -10223,7 +10272,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
   <div class="pcx-grid"></div>
 </div></template>
   </article>
-  <article class="comp" data-soft id="c72" data-v2="onboarding-checklist" data-reg="onboarding-checklist" style="--rh-a:473px;--rc-a:345px;--rh-b:566px;--rc-b:438px;--rh-c:473px;--rc-c:345px;--rh-d:473px;--rc-d:345px;--rh-e:562px;--rc-e:438px">
+  <article class="comp" data-soft id="c72" data-v2="onboarding-checklist" data-reg="onboarding-checklist" style="--rh-a:467px;--rc-a:355px;--rcb-a:345px;--rh-b:560px;--rc-b:448px;--rcb-b:438px;--rh-c:467px;--rc-c:355px;--rcb-c:345px;--rh-d:467px;--rc-d:355px;--rcb-d:345px;--rh-e:489px;--rc-e:409px;--rcb-e:399px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">checklist</span></span>
       <div><h2 class="comp-title"><a href="/components/onboarding-checklist">Onboarding checklist</a></h2><p class="comp-desc">First steps with a progress ring, and the agent can do some for you.</p></div>
@@ -10239,7 +10288,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
   <div class="fold obx-fold"><div><div class="obx-list"></div></div></div>
 </div></template>
   </article>
-  <article class="comp" data-soft id="c73" data-v2="stepper" data-reg="stepper" style="--rh-a:420px;--rc-a:266px;--rh-b:420px;--rc-b:266px;--rh-c:420px;--rc-c:266px;--rh-d:420px;--rc-d:266px;--rh-e:510px;--rc-e:386px">
+  <article class="comp" data-soft id="c73" data-v2="stepper" data-reg="stepper" style="--rh-a:420px;--rc-a:272px;--rcb-a:266px;--rh-b:420px;--rc-b:273px;--rcb-b:266px;--rh-c:420px;--rc-c:272px;--rcb-c:266px;--rh-d:420px;--rc-d:272px;--rcb-d:266px;--rh-e:472px;--rc-e:392px;--rcb-e:386px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">account_tree</span></span>
       <div><h2 class="comp-title"><a href="/components/stepper">Stepper</a></h2><p class="comp-desc">A multi-step setup with a progress track that fills as you go.</p></div>
@@ -10256,7 +10305,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
   <div class="stx-f"><button class="pill ghost sm stx-bk">Back</button><button class="pill ink sm stx-nx">Continue</button></div>
 </div></template>
   </article>
-  <article class="comp" data-soft id="c74" data-v2="set-limit" data-reg="set-limit" style="--rh-a:420px;--rc-a:232px;--rh-b:420px;--rc-b:280px;--rh-c:420px;--rc-c:232px;--rh-d:420px;--rc-d:232px;--rh-e:420px;--rc-e:280px">
+  <article class="comp" data-soft id="c74" data-v2="set-limit" data-reg="set-limit" style="--rh-a:420px;--rc-a:237px;--rcb-a:232px;--rh-b:420px;--rc-b:280px;--rcb-b:280px;--rh-c:420px;--rc-c:237px;--rcb-c:232px;--rh-d:420px;--rc-d:237px;--rcb-d:232px;--rh-e:420px;--rc-e:280px;--rcb-e:280px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">tune</span></span>
       <div><h2 class="comp-title"><a href="/components/set-limit">Set limit</a></h2><p class="comp-desc">A monthly agent budget with a draggable cap and a forecast.</p></div>
@@ -10275,7 +10324,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
   <div class="slx-opt"><span class="muted">At the limit</span><div class="seg2 slx-sg" role="group" aria-label="At the limit"><button aria-pressed="true" data-v="pause">Pause runs</button><button aria-pressed="false" data-v="ask">Ask me</button><button aria-pressed="false" data-v="keep">Keep going</button></div></div>
 </div></template>
   </article>
-  <article class="comp" data-soft id="c75" data-v2="currency-converter" data-reg="currency-converter" style="--rh-a:420px;--rc-a:203px;--rh-b:420px;--rc-b:203px;--rh-c:420px;--rc-c:203px;--rh-d:420px;--rc-d:203px;--rh-e:420px;--rc-e:203px">
+  <article class="comp" data-soft id="c75" data-v2="currency-converter" data-reg="currency-converter" style="--rh-a:420px;--rc-a:190px;--rcb-a:185px;--rh-b:420px;--rc-b:191px;--rcb-b:185px;--rh-c:420px;--rc-c:190px;--rcb-c:185px;--rh-d:420px;--rc-d:189px;--rcb-d:185px;--rh-e:420px;--rc-e:190px;--rcb-e:185px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">trending_up</span></span>
       <div><h2 class="comp-title"><a href="/components/currency-converter">Currency converter</a></h2><p class="comp-desc">Show plan prices in local currency, with a swap and live rate.</p></div>
@@ -10304,19 +10353,19 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
   <div class="faq-head"><h2>Questions</h2><p>What people usually ask before they start using the library.</p></div>
   <div class="faq-list" id="faq-list">
     <div class="faq-i"><button class="faq-q" aria-expanded="false"><span>Is it free to use?</span><span class="ms sm faq-ic">add</span></button><div class="unfold"><div class="uf"><div class="faq-a">Yes. Every component is free for personal and commercial projects under the MIT licence, so you can use, change and ship it in client work.</div></div></div></div>
-    <div class="faq-i"><button class="faq-q" aria-expanded="false"><span>What do I get when I copy a component?</span><span class="ms sm faq-ic">add</span></button><div class="unfold"><div class="uf"><div class="faq-a">The HTML, CSS and JavaScript for that component. It needs the shared core once, which holds the tokens, icons, sound and small helpers, and you can copy that from the code view, or run npx designme add with the component name and both land in your project.</div></div></div></div>
+    <div class="faq-i"><button class="faq-q" aria-expanded="false"><span>What do I get when I copy a component?</span><span class="ms sm faq-ic">add</span></button><div class="unfold"><div class="uf"><div class="faq-a">The HTML, CSS and JavaScript for that component. It needs the shared core once, which holds the tokens, icons and small helpers, and you can copy that from the code view, or run npx designme add with the component name and both land in your project.</div></div></div></div>
     <div class="faq-i"><button class="faq-q" aria-expanded="false"><span>Does it work with React, Next.js and Tailwind?</span><span class="ms sm faq-ic">add</span></button><div class="unfold"><div class="uf"><div class="faq-a">Yes. Every component has a React version for Next.js, React and Astro: run npx designme add with the component name and --react, and the component lands in your project with its styles. A Tailwind version is in progress on the <a href="#/roadmap">roadmap</a>.</div></div></div></div>
     <div class="faq-i"><button class="faq-q" aria-expanded="false"><span>Is there a Figma file?</span><span class="ms sm faq-ic">add</span></button><div class="unfold"><div class="uf"><div class="faq-a">It's coming. The Figma library is in progress on the <a href="#/roadmap">roadmap</a>, with every component in Blueprint and Soft, light and dark mode and five accent colours, all built on variables so you can restyle it in one place. Sign up and you'll get it as soon as it lands.</div></div></div></div>
     <div class="faq-i"><button class="faq-q" aria-expanded="false"><span>Can I use the components in Webflow or Framer?</span><span class="ms sm faq-ic">add</span></button><div class="unfold"><div class="uf"><div class="faq-a">Webflow and Framer exports are coming soon. Until then the HTML version works in a Webflow embed or a Framer code component.</div></div></div></div>
     <div class="faq-i"><button class="faq-q" aria-expanded="false"><span>What are Blueprint and Soft?</span><span class="ms sm faq-ic">add</span></button><div class="unfold"><div class="uf"><div class="faq-a">Two visual styles for the same components. Blueprint is technical and square with an orange accent, Soft is rounded with pastel colours, and both work in light and dark mode.</div></div></div></div>
-    <div class="faq-i"><button class="faq-q" aria-expanded="false"><span>Are the components accessible?</span><span class="ms sm faq-ic">add</span></button><div class="unfold"><div class="uf"><div class="faq-a">They work with a keyboard, use proper roles and labels, and respect reduced motion. Test them in your own product too, since accessibility depends on how they are used.</div></div></div></div>
-    <div class="faq-i"><button class="faq-q" aria-expanded="false"><span>How often do new components come out?</span><span class="ms sm faq-ic">add</span></button><div class="unfold"><div class="uf"><div class="faq-a">Every week. Each release is listed in the <a href="#/changelog">changelog</a>, and subscribers get it first.</div></div></div></div>
+    <div class="faq-i"><button class="faq-q" aria-expanded="false"><span>Are the components accessible?</span><span class="ms sm faq-ic">add</span></button><div class="unfold"><div class="uf"><div class="faq-a">They use proper roles and labels and respect reduced motion, and most work fully with a keyboard. A few, like Kanban and File explorer, are still getting their keyboard support. Test them in your own product too, since accessibility depends on how they are used.</div></div></div></div>
+    <div class="faq-i"><button class="faq-q" aria-expanded="false"><span>How often do new components come out?</span><span class="ms sm faq-ic">add</span></button><div class="unfold"><div class="uf"><div class="faq-a">Often. Each release is listed in the <a href="#/changelog">changelog</a>, and subscribers get it first.</div></div></div></div>
     <div class="faq-i"><button class="faq-q" aria-expanded="false"><span>Can I request a component?</span><span class="ms sm faq-ic">add</span></button><div class="unfold"><div class="uf"><div class="faq-a">Yes. Suggest it on the <a href="#/roadmap">roadmap</a> and upvote the ones you want, and we build the most wanted first.</div></div></div></div>
     <div class="faq-i"><button class="faq-q" aria-expanded="false"><span>Who made this?</span><span class="ms sm faq-ic">add</span></button><div class="unfold"><div class="uf"><div class="faq-a">The team at <a href="https://designme.agency" target="_blank" rel="noopener">DesignMe</a>, a design and development studio working with startups and enterprises. If you need help building your product, you can book a call with us.</div></div></div></div>
   </div>
 </section>
 <footer class="site-foot">
-  <div class="sf-links"><a href="#/changelog">Changelog</a><a href="#/roadmap">Roadmap</a><a href="#faq">FAQ</a><a href="#/privacy">Privacy</a><a href="https://designme.agency" target="_blank" rel="noopener">DesignMe</a></div>
+  <div class="sf-links"><a href="#/changelog">Changelog</a><a href="#/roadmap">Roadmap</a><a href="#/faq">FAQ</a><a href="#/privacy">Privacy</a><a href="https://designme.agency" target="_blank" rel="noopener">DesignMe</a></div>
   <p class="sf-credits">Free under the MIT licence. Avatars by DiceBear, Micah style by Micah Lanier (CC BY 4.0). Icons by Phosphor (MIT), flags by circle-flags (MIT), brand logos by Simple Icons (CC0), fonts Inter and JetBrains Mono (SIL OFL). Brand names and logos belong to their owners.</p>
 </footer>
 </main>
@@ -11496,6 +11545,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
       setTimeout(() => dispatchEvent(new Event('resize')), 60);
     }
     function open(c, push = true){
+      if (c && c.dataset.reg){ location.href = '/components/' + c.dataset.reg; return; }
       if (!c) return;
       const was = dv.classList.contains('open');
       mount(c);
@@ -11515,8 +11565,8 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
     // the entry points: an expand button that is always visible, and the component title
     $$('main .comp').forEach(c => {
       const head = c.querySelector('.comp-head'), save = head.querySelector('.save-btn'); if (!head) return;
-      const b = document.createElement('button'); b.className = 'exp-btn'; b.title = 'Open full screen';
-      b.setAttribute('aria-label', 'Open ' + c.querySelector('.comp-title').textContent + ' full screen');
+      const b = document.createElement('button'); b.className = 'exp-btn'; b.title = 'Open its page';
+      b.setAttribute('aria-label', 'Open the ' + c.querySelector('.comp-title').textContent + ' page');
       b.innerHTML = ic('open_in_full','sm'); save ? save.before(b) : head.appendChild(b);
       b.addEventListener('click', () => open(c));
       c.querySelector('.comp-title').addEventListener('click', e => { if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button) return; e.preventDefault(); if (!dv.contains(c)) open(c); });
@@ -11946,7 +11996,18 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
         if (on) bringControls(dv);
         else returnControls(); }).observe(dv, { attributes:true, attributeFilter:['class'] }); } }
 
-    const PAGES = { changelog:[changelog,'Changelog'], roadmap:[roadmap,'Roadmap'], privacy:[privacy,'Privacy'] };
+    // the questions: the homepage's list moves onto this page while it's open (it keeps its open and close), and back after
+    const faqHome = $('#faq');
+    function faq(){
+      inEl.innerHTML = `<div class="pv-h"><span class="dv-sec">FAQ</span><h1>Questions</h1><p>What people usually ask before they start using the library.</p></div><div class="faq-slot"></div>
+        <div class="faq-more">
+          <div class="faq-card"><b>Have a question we didn't answer?</b><p>Write to us and someone from the DesignMe team will reply.</p><a class="pv-btn" href="mailto:hello@designme.agency">Email hello@designme.agency</a></div>
+          <div class="faq-card"><b>Missing a component?</b><p>Suggest it on the roadmap and upvote the ideas you want most.</p><a class="pv-btn" href="#/roadmap">Suggest a component</a></div>
+        </div>`;
+      $('.faq-slot', inEl).appendChild($('#faq-list'));
+      pv._leave = () => faqHome.appendChild($('#faq-list'));
+    }
+    const PAGES = { changelog:[changelog,'Changelog'], roadmap:[roadmap,'Roadmap'], faq:[faq,'FAQ'], privacy:[privacy,'Privacy'] };
     function open(name, push = true){
       if (pv._leave){ pv._leave(); pv._leave = null; }
       PAGES[name][0](); $('#pv-crumb').textContent = PAGES[name][1]; $$('.pv-nav a', pv).forEach(a => a.classList.toggle('on', a.getAttribute('href') === '#/' + (name === 'demos' ? 'lab' : name)));
@@ -11960,7 +12021,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
         $$('.side-p').forEach(a => { const on = a.getAttribute('href') === h; a.classList.toggle('act', on); if (on) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); }); };
       new MutationObserver(markSide).observe(pv, { attributes:true, attributeFilter:['class'] }); }
     document.addEventListener('click', e => {
-      const a = e.target.closest('a[href="#/changelog"], a[href="#/roadmap"], a[href="#/privacy"]'); if (!a) return;
+      const a = e.target.closest('a[href="#/changelog"], a[href="#/roadmap"], a[href="#/faq"], a[href="#/privacy"]'); if (!a) return;
       e.preventDefault(); if ($('.dv.open')) $('#dv-x').click(); open(a.getAttribute('href').slice(2));
     });
     // "Suggest this component" from an empty search goes to the roadmap with the idea filled in
@@ -11970,9 +12031,9 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
     }, true);
     $('#pv-back').addEventListener('click', () => close());
     document.addEventListener('keydown', e => { if (e.key === 'Escape' && pv.classList.contains('open')) close(); });
-    const route = push => { const m = location.hash.match(/^#\/(changelog|roadmap|privacy)$/); if (m) open(m[1], push); else close(false); };
+    const route = push => { const m = location.hash.match(/^#\/(changelog|roadmap|faq|privacy)$/); if (m) open(m[1], push); else close(false); };
     addEventListener('popstate', () => route(false));
-    if (/^#\/(changelog|roadmap|privacy)$/.test(location.hash)) setTimeout(() => route(false), 250);
+    if (/^#\/(changelog|roadmap|faq|privacy)$/.test(location.hash)) setTimeout(() => route(false), 250);
   }
 
   /* ---------- faq ---------- */
@@ -12016,7 +12077,7 @@ body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
       <label class="m-search mi-in">${ic('search','sm')}<input id="m-q" type="search" placeholder="Search ${$$('main .comp').length} components" autocomplete="off" aria-label="Search components"></label>
       <div class="m-res mi-in" id="m-res"></div>
       <div class="m-secs mi-in" id="m-secs">${sections.map(([id, n]) => `<a href="#${id}" class="m-sec">${n}</a>`).join('')}</div>
-      <div class="m-links mi-in"><a href="#/changelog">Changelog</a><a href="#/roadmap">Roadmap</a><a href="#faq">FAQ</a></div>
+      <div class="m-links mi-in"><a href="#/changelog">Changelog</a><a href="#/roadmap">Roadmap</a><a href="#/faq">FAQ</a></div>
       <div class="m-set mi-in"><span class="m-lbl">Style</span><span id="m-seg-slot"></span></div>
       <div class="m-set mi-in"><span class="m-lbl">Appearance</span><span class="m-ctrl"><span id="m-theme-slot"></span><span id="m-sound-slot"></span></span></div>
       <div class="m-cta mi-in"><div class="t">Need expert design and dev support?</div><a class="hire-btn m-cta-btn" href="https://designme.agency" target="_blank" rel="noopener">Book a call<span class="ms">arrow_forward</span></a></div>
@@ -13498,7 +13559,7 @@ DM.def('feedback-sheet', (r, c) => {
 });
 /* ---------- Model picker ---------- */
 DM.def('model-picker', (r, c) => {
-  r.innerHTML = r.innerHTML.replace('{chev}', I('chev-d','xs')).replace('{brain}', I('brain','xs'));
+  r.innerHTML = r.innerHTML.replace(/\{chev\}/g, I('chev-d','xs')).replace('{brain}', I('brain','xs')).replace(/\{chk\}/g, I('check','xs'));
   // speed, quality and cost out of five, and the numbers behind them: tokens a second, and a typical reply's seconds and
   // price with no thinking (the same three models and figures as Model compare)
   const M = [
@@ -13506,29 +13567,25 @@ DM.def('model-picker', (r, c) => {
     { n:'Sonnet 5.5', m:'S', c:'var(--c1)', d:'Balanced, the default for design work', s:4, q:4, p:2, tps:74, sec:4, cost:.006 },
     { n:'Haiku 5.5', m:'H', c:'var(--c3)', d:'Fastest, for quick edits', s:5, q:3, p:1, tps:142, sec:1.5, cost:.001 }
   ];
-  // thinking effort: what it may spend, and how it stretches a typical reply's time and price
-  const E = [['Off', 'Answers straight away', 1, 1], ['Low', 'Up to 2k thinking tokens', 1.6, 1.3], ['Medium', 'Up to 8k thinking tokens', 2.6, 1.8], ['High', 'Up to 24k thinking tokens', 4.2, 2.7]];
-  const list = $('.mpk-list', r), tr = $('.mpk-tr', r), fold = $('.mpk-fold', r), sgf = $('.mpk-sgf', r), sgt = $('.mpk-sgt', r), est = $('.mpk-est', r), note = $('.mpk-note', r), thd = $('.mpk-thd', r);
+  // thinking effort, and what it may spend
+  const E = [['Off', 'Answers straight away'], ['Low', 'Up to 2k thinking tokens'], ['Medium', 'Up to 8k thinking tokens'], ['High', 'Up to 24k thinking tokens']];
+  const list = $('.mpk-list', r), tr = $('.mpk-tr', r), fold = $('.mpk-fold', r), sgf = $('.mpk-sgf', r), sgt = $('.mpk-sgt', r), note = $('.mpk-note', r), thd = $('.mpk-thd', r), ev = $('.mpk-ev', r), items = $$('.mpk-pop .mi', r);
   const meter = (v, tip) => `<span class="mpk-m" data-tip="${tip}">${[1, 2, 3, 4, 5].map(k => `<i${k <= v ? ' class="on"' : ''}></i>`).join('')}</span>`;
   list.innerHTML = M.map((x, i) => `<button class="mpk-o" role="radio" aria-checked="false" tabindex="-1" data-i="${i}"><span class="mpk-mk" style="--mc:${x.c}">${x.m}</span><span class="t"><b>${x.n}<span class="ck">${I('check','xs')}</span></b><span class="d">${x.d}</span></span>${meter(x.s, x.tps + ' tokens a second')}${meter(x.q, 'Quality ' + x.q + ' of 5')}${meter(x.p, '$' + x.cost.toFixed(3) + ' a reply')}</button>`).join('');
   const rows = $$('.mpk-o', list);
   // Opus is at capacity when the demo starts (busy is its wait in seconds), and free again once you've waited it out
-  let cur = 1, eff = 2, busy = 20, shown = null, waiting = false;
-  const seconds = (i, e) => M[i].sec * E[e][2], price = (i, e) => M[i].cost * E[e][3];
-  // the estimate counts to its new numbers
-  function estimate(){
-    const to = { s:seconds(cur, eff), p:price(cur, eff) }, from = shown || to; shown = to;
-    tween(0, 1, 420, k => { if (!c.dead) est.innerHTML = `Next reply about <b>${Math.round(from.s + (to.s - from.s) * k)}s</b> and <b>$${(from.p + (to.p - from.p) * k).toFixed(3)}</b>`; });
-  }
+  let cur = 1, eff = 2, busy = 20, waiting = false;
   function paint(){
     rows.forEach((b, i) => { b.setAttribute('aria-checked', i === cur); b.tabIndex = i === cur ? 0 : -1; });
     const mk = $('.mpk-mk', tr); mk.style.setProperty('--mc', M[cur].c); mk.textContent = M[cur].m;
-    swap($('.mpk-nm', tr), M[cur].n); swap($('.mpk-ef', tr), E[eff][0]); swap(thd, E[eff][1]); estimate();
+    swap($('.mpk-nm', tr), M[cur].n); swap($('.mpk-ef', tr), E[eff][0]); swap(thd, E[eff][1]); swap(ev, E[eff][0]);
+    items.forEach((m, i) => m.setAttribute('aria-checked', i === eff));
   }
   const say = t => { note.innerHTML = t ? `${I('ok','xs')}<span>${t}</span>` : ''; if (t) enter(note); };
   const sg = on => { sgf.classList.toggle('shut', !on); sgf.inert = !on; };
   sg(false);
-  seg($('.mpk-seg', r), v => { eff = +v; paint(); say(''); });
+  // thinking effort: a small dropdown of the four levels, each with what it may spend
+  items.forEach((m, i) => m.addEventListener('click', () => { eff = i; paint(); say(''); }));
   function choose(i){ cur = i; sg(false); paint(); say(`Set for this chat: ${M[cur].n}, ${E[eff][0].toLowerCase()} thinking`); }
   // picking a model checks it can take the request first; a busy one offers a wait, or a close match that starts now
   function pick(i){
@@ -13548,7 +13605,7 @@ DM.def('model-picker', (r, c) => {
     const k = { ArrowDown:1, ArrowRight:1, ArrowUp:-1, ArrowLeft:-1 }[e.key]; if (!k) return;
     e.preventDefault(); const i = (rows.indexOf(document.activeElement) + k + rows.length) % rows.length; rows[i].focus({ preventScroll:true }); pick(i);
   });
-  $('.mpk-use', r).onclick = () => { cur = 1; sg(false); $('.mpk-seg [data-v="3"]', r).click(); choose(1); };
+  $('.mpk-use', r).onclick = () => { eff = 3; choose(1); };
   $('.mpk-wait', r).onclick = () => c.run(async () => {
     sg(false); waiting = true; const d = $('.d', rows[0]);
     for (let w = busy; w > 0; w--){ d.textContent = `Starts in ${w}s`; await c.wait(1000); }
@@ -13803,16 +13860,17 @@ DM.def('design-tuner', (r, c) => {
 });
 /* ---------- Permission gate ---------- */
 DM.def('permission-gate', (r, c) => {
-  r.innerHTML = r.innerHTML.replace('{figma}', I('figma')).replace(/\{chk\}/g, I('check','xs'));
+  r.innerHTML = r.innerHTML.replace('{figma}', I('figma')).replace(/\{chk\}/g, I('check','xs')).replace('{chev}', I('chev-d','xs'));
   const root = $('.pgx', r), ok = $('.pgx-ok', r), no = $('.pgx-no', r), sc = $('.pgx-sc', r), title = $('.pgx-ht b', r), sub = $('.pgx-ht .muted', r);
   const first = { sc:sc.innerHTML, title:title.textContent, sub:sub.textContent, no:no.textContent };
   const boxes = () => $$('.pgx-o input', sc);
+  // how long: This task, Today or Always, from the dropdown in the footer
   let dur = 'This task';
+  const span = () => dur === 'Always' ? 'always' : 'for ' + dur.toLowerCase();
   const count = () => { const n = boxes().filter(b => b.checked).length; ok.disabled = !n; swap(ok, n ? 'Allow ' + n + (n > 1 ? ' scopes' : ' scope') : 'Pick a scope'); };
   c.on(sc, 'change', count);
-  seg($('.seg2', r), v => dur = v);
-  $$('.seg2 button', r).forEach(b => b.dataset.v = b.textContent);
-  const body = [...root.children].slice(1);
+  $$('.pgx-pop .mi', r).forEach(m => m.addEventListener('click', () => { dur = m.dataset.v; $$('.pgx-pop .mi', r).forEach(x => x.setAttribute('aria-checked', x === m)); swap($('.pgx-dv', r), dur === 'Always' ? 'Always' : 'For ' + dur.toLowerCase()); }));
+  const body = [sc, $('.pgx-f', r)];
   const show = on => { body.forEach(e => e.hidden = !on); if (on) stagger(body, 50); };
   // the frames the agent edits once it may. Plan toggle is a library component, so editing it needs Publish library
   const F = ['Hero', 'Plan cards', 'Compare table', 'FAQ', 'Plan toggle', 'Checkout summary'], LIB = 4;
@@ -13827,7 +13885,7 @@ DM.def('permission-gate', (r, c) => {
   function work(){
     const id = ++run; if (!panel) row();
     const a = $('.pgx-a', panel), d = $('.pgx-d', panel), tm = $('.pgx-tm', panel);
-    swap(a, `Allowed ${granted} ${granted > 1 ? 'scopes' : 'scope'} for ${dur.toLowerCase()}`);
+    swap(a, `Allowed ${granted} ${granted > 1 ? 'scopes' : 'scope'} ${span()}`);
     const t0 = performance.now(), now = () => ms + performance.now() - t0;
     tm.textContent = clock(Math.floor(ms / 1000));
     c.run(async () => {
@@ -13840,8 +13898,8 @@ DM.def('permission-gate', (r, c) => {
           done++;
         }
         panel.classList.replace('run', 'ok'); const g = $('.g', panel); g.innerHTML = I('ok'); enter(g);
-        swap(a, skip ? `Done. ${F.length - 1} frames edited on a new page` : `Done. ${F.length} frames edited on a new page`);
-        swap(d, skip ? 'Plan toggle skipped, it needs Publish library' : 'Plan toggle published to the library');
+        swap(a, skip ? `Done. ${F.length - 1} frames edited` : `Done. ${F.length} frames edited`);
+        swap(d, skip ? 'On a new page. Plan toggle skipped' : 'On a new page. Plan toggle published');
       } finally { clearInterval(tick); if (run === id) ms = now(); }
     });
   }
@@ -13867,7 +13925,7 @@ DM.def('permission-gate', (r, c) => {
     show(false);
     if (root.classList.contains('esc')){ root.classList.remove('esc'); swap(title, first.title); swap(sub, first.sub); }
     // placed inside another component (Agent harness), it reports back without the run
-    if (!c.card){ row(); swap($('.pgx-a', panel), `Allowed ${granted} ${granted > 1 ? 'scopes' : 'scope'} for ${dur.toLowerCase()}`); swap($('.pgx-d', panel), 'Applying the pricing fixes now'); $('.pgx-tm', panel).remove();
+    if (!c.card){ row(); swap($('.pgx-a', panel), `Allowed ${granted} ${granted > 1 ? 'scopes' : 'scope'} ${span()}`); swap($('.pgx-d', panel), 'Applying the pricing fixes now'); $('.pgx-tm', panel).remove();
       c.later(1400, () => { if (!panel) return; panel.classList.replace('run', 'ok'); $('.g', panel).innerHTML = I('ok'); swap($('.pgx-d', panel), 'Done. 6 frames edited on a new page'); }); return; }
     work();
   });
@@ -14656,11 +14714,12 @@ DM.def('tool-connections', (r, c) => {
   function row(t){
     const el = html(`<div class="hnx-t${t[4] === 0 ? ' off' : ''}">${t[0][0] === '@' ? `<span class="ic brandic">${BRAND[t[0].slice(1)]}</span>` : `<span class="ic" style="color:${t[3]};background:color-mix(in srgb,${t[3]} 12%,transparent)">${I(t[0],'xs')}</span>`}<span class="t">${t[1]}<span>${t[2]}</span></span><div class="hnx-pm" role="group" aria-label="${t[1]} permission"><span class="kn"></span>${PM.map((p, i) => `<button aria-pressed="${i === t[4]}" data-tip="${['Agent cannot use it','Agent asks first','Agent uses it freely'][i]}">${p}</button>`).join('')}</div></div>`);
     const g = $('.hnx-pm', el), kn = $('.kn', g), bs = $$('button', g);
-    const place = () => { const b = bs[t[4]]; kn.style.left = b.offsetLeft + 'px'; kn.style.width = b.offsetWidth + 'px'; };
+    // the knob slides when a choice changes; when the row first appears it is simply in place
+    const place = now => { const b = bs[t[4]]; if (now) kn.style.transition = 'none'; kn.style.left = b.offsetLeft + 'px'; kn.style.width = b.offsetWidth + 'px'; if (now){ void kn.offsetWidth; kn.style.transition = ''; } };
     bs.forEach((b, i) => b.onclick = () => { t[4] = i; bs.forEach((x, j) => x.setAttribute('aria-pressed', j === i)); place(); el.classList.toggle('off', i === 0); count(); });
     // a click with the mouse doesn't take focus, so it never leaves a focus ring; the keyboard still reaches every option
     bs.forEach(b => b.onmousedown = e => e.preventDefault());
-    requestAnimationFrame(place); new ResizeObserver(place).observe(g);
+    requestAnimationFrame(() => place(true)); new ResizeObserver(() => place(true)).observe(g);
     el._t = t; return el;
   }
   // the first count is written straight in, so the header doesn't crossfade from the template's number on load
@@ -14669,21 +14728,29 @@ DM.def('tool-connections', (r, c) => {
   function menu(){ pop.innerHTML = ADD.length ? ADD.map((a, i) => `<button class="mi" data-close data-i="${i}">${I(a[0],'xs')}<span>${a[1]}</span></button>`).join('') : '<div class="ph" style="padding:8px;font-size:12.5px;color:var(--muted)">All tools connected</div>';
     $$('.mi', pop).forEach(m => m.addEventListener('click', () => { const a = ADD.splice(+m.dataset.i, 1)[0]; const t = [a[0], a[1], 'Just connected', a[2], 1]; T.push(t); const el = row(t); list.appendChild(el); enter(el); count(); menu(); })); }
   menu();
-  $('.hnx-test', r).onclick = () => c.run(async () => {
+  // Test all: every connected tool shows a small spinner at once, and they settle one by one; only a failure changes its line
+  const test = $('.hnx-test', r), testWas = test.innerHTML;
+  test.onclick = () => c.run(async () => {
     const rows = [...list.children].filter(el => el._t[4] > 0);
-    for (const el of rows){ el.classList.add('chk'); const s = $('.t span', el), was = el._t[2]; swap(s, 'Testing'); await c.wait(420);
-      el.classList.remove('chk');
-      if (el._t[1] === 'Slack'){ el.classList.add('err'); swap(s, 'Token expired. Reconnect'); }
-      else swap(s, was);
+    test.disabled = true; test.innerHTML = '<span class="spin"></span>Testing'; swap(st, 'Testing ' + rows.length + ' connections');
+    rows.forEach(el => el.classList.add('chk'));
+    for (const el of rows){ await c.wait(600); el.classList.remove('chk');
+      if (el._t[1] === 'Slack'){ el.classList.add('err'); swap($('.t span', el), 'Token expired. Reconnect to use it'); }
     }
+    test.disabled = false; test.innerHTML = testWas;
     swap(st, rows.filter(el => !el.classList.contains('err')).length + ' of ' + rows.length + ' healthy');
     const bad = [...list.children].find(el => el.classList.contains('err'));
     if (bad){ const b = html(`<button class="pill accent sm">Reconnect</button>`); $('.hnx-pm', bad).replaceWith(b); enter(b);
-      b.onclick = () => c.run(async () => { b.innerHTML = '<span class="spin"></span>'; await c.wait(800); bad.classList.remove('err'); swap($('.t span', bad), bad._t[2]); const n = row(bad._t); bad.replaceWith(n); enter(n); count(); }); }
+      b.onclick = () => c.run(async () => { b.innerHTML = '<span class="spin"></span>'; await c.wait(900); bad.classList.remove('err'); const n = row(bad._t); bad.replaceWith(n); swap(st, [...list.children].filter(el => el._t[4] > 0).length + ' of ' + [...list.children].filter(el => el._t[4] > 0).length + ' healthy'); }); }
   });
-  // the preview tests the connections once on its own; Reconnect is left for you
-  let mine = false; c.on(r, 'pointerdown', e => { if (e.isTrusted) mine = true; }, true);
-  c.later(1800, () => { if (!mine) $('.hnx-test', r).click(); });
+  // the preview's story: test everything, Slack's token has expired, reconnect it, and every connection is healthy
+  c.story(async s => {
+    await s.beat(3);
+    await s.tap(test); s.away();
+    await s.until(() => $('.hnx-t.err .pill', list)); await s.beat(3);
+    await s.tap($('.hnx-t.err .pill', list)); s.away();
+    await s.until(() => !$('.hnx-t.err', list)); await s.beat(1);
+  });
 });
 /* ---------- Agent harness ---------- */
 /* an agent app made only of the components above. Nothing plays by itself: it opens on New chat, a story plays once when

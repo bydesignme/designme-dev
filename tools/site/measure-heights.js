@@ -7,7 +7,7 @@ const { chromium } = require(process.env.PW || 'playwright');
 
 const ROOT = path.resolve(__dirname, '../..');
 // the bands build.js writes: --rh-a for 1400px and wider, --rh-b down to 1181px, and so on
-const BANDS = [['a', 1400], ['b', 1181], ['c', 961], ['d', 641], ['e', 360]];
+const BANDS = [['a', 1440], ['b', 1181], ['c', 961], ['d', 641], ['e', 390]];
 const STYLES = ['bp', 'soft'];
 const PLAY = 24000, EVERY = 200;
 
@@ -23,7 +23,8 @@ const server = http.createServer((req, res) => {
   await new Promise(r => server.listen(0, '127.0.0.1', r));
   const url = `http://127.0.0.1:${server.address().port}/`;
   const browser = await chromium.launch();
-  const out = {}, outHost = {};
+  // the stage keeps the taller of the two styles; the component's own height is kept per style, so each sits centred
+  const out = {}, outHost = {}, outBp = {};
   for (const [band, width] of BANDS) for (const style of STYLES){
     const page = await browser.newPage({ viewport: { width, height: 900 } });
     await page.addInitScript(s => { try { localStorage.setItem('dmui-style', s === 'soft' ? 'soft' : 'blueprint'); localStorage.setItem('dmui-theme', 'light'); } catch(e){} }, style);
@@ -46,17 +47,28 @@ const server = http.createServer((req, res) => {
       const max = new Map(), hmax = new Map();
       for (let t = 0; t <= PLAY; t += EVERY){
         comps.forEach(c => { const h = c.querySelector(':scope>.stage').getBoundingClientRect().height; if (h > (max.get(c) || 0)) max.set(c, h);
-          const hh = c.querySelector('.v2.stage-in').getBoundingClientRect().height; if (hh > (hmax.get(c) || 0)) hmax.set(c, hh); });
+          // the component's height is everything it draws below its top, open lists and popovers included, so its tallest
+          // moment fits the stage and sits centred in it
+          const sin = c.querySelector('.v2.stage-in'), top = sin.getBoundingClientRect().top; let bot = sin.getBoundingClientRect().bottom;
+          for (const e of sin.querySelectorAll('*')){
+            if (e.closest('svg') && e.tagName !== 'svg') continue;
+            const cs = getComputedStyle(e); if (cs.display === 'none' || cs.visibility === 'hidden' || +cs.opacity === 0 || e.closest('.pop:not(.open),.hand')) continue;
+            const b = e.getBoundingClientRect(); if (b.width >= 1 && b.height >= 1 && b.bottom > bot) bot = b.bottom;
+          }
+          const hh = bot - top; if (hh > (hmax.get(c) || 0)) hmax.set(c, hh);
+          // and the stage around it keeps its padding above and below
+          const inner = c.querySelector('.stage-inner'), ics = getComputedStyle(inner), need = hh + parseFloat(ics.paddingTop) + parseFloat(ics.paddingBottom);
+          if (need > (max.get(c) || 0)) max.set(c, need); });
         await new Promise(r => setTimeout(r, EVERY));
       }
       return Object.fromEntries(comps.map(c => [c.dataset.v2, [Math.ceil(Math.max(max.get(c), base.get(c))), Math.ceil(hmax.get(c))]]));
     }, { PLAY, EVERY });
-    for (const [id, [h, hh]] of Object.entries(got)){ const o = out[id] || (out[id] = {}), oh = outHost[id] || (outHost[id] = {}); o[band] = Math.max(o[band] || 0, h); oh[band] = Math.max(oh[band] || 0, hh); }
+    for (const [id, [h, hh]] of Object.entries(got)){ const o = out[id] || (out[id] = {}), host = style === 'bp' ? outBp : outHost, oh = host[id] || (host[id] = {}); o[band] = Math.max(o[band] || 0, h); oh[band] = Math.max(oh[band] || 0, hh); }
     console.log(`${band} ${width}px ${style}: ${Object.keys(got).length} cards`);
     await page.close();
   }
   await browser.close(); server.close();
   const sorted = (o) => Object.fromEntries(Object.keys(o).sort().map(id => [id, BANDS.map(([b]) => o[id][b])]));
-  fs.writeFileSync(path.join(__dirname, 'card-heights.json'), JSON.stringify({ bands: BANDS, heights: sorted(out), components: sorted(outHost) }, null, 1) + '\n');
+  fs.writeFileSync(path.join(__dirname, 'card-heights.json'), JSON.stringify({ bands: BANDS, heights: sorted(out), components: sorted(outHost), componentsBp: sorted(outBp) }, null, 1) + '\n');
   console.log('wrote card-heights.json');
 })().catch(e => { console.error(e); process.exit(1); });

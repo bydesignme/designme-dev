@@ -6,7 +6,8 @@
 //   .pg-lead the line under it, 14px in grey
 //   .pg-sh   a section header: a small number and a 14px heading, the 14px line under them, and a rule under the column
 //   .pg-t    a component's name, 14px medium; .pg-d its description, 14px in grey
-// Everything else is 14px too. The header, the bars and the content share one centred column (.pg-wrap)
+// Everything else is 14px too. The header's row is 1400px wide and the content's column (.pg-wrap) 960px; the lines
+// under the header and the section bar, and over the footer, run the full width of the window
 import { LOGO, SITE } from '../lib/data.mjs';
 const { title, description, path, jsonld = [], image = '/og.png' } = Astro.props;
 const url = SITE + path;
@@ -53,10 +54,9 @@ body{margin:0;background:var(--pg-bg);color:var(--pg-fg);font:14px/1.6 var(--pg-
 a{color:inherit}
 :focus-visible{outline:2px solid var(--pg-fg);outline-offset:2px}
 
-/* header: its logo, links and switches sit in the content's column, and so does the line under it */
-.pg-top{position:sticky;top:0;z-index:50;height:var(--pg-head);background:var(--pg-top);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
-.pg-top-in{height:100%;max-width:1400px;margin:0 auto;padding:0 32px;display:flex;align-items:center;gap:6px;position:relative}
-.pg-top-in::after{content:"";position:absolute;left:32px;right:32px;bottom:0;height:1px;background:var(--pg-line)}
+/* header: its logo, links and switches in a 1400px row, with a line under it across the whole window */
+.pg-top{position:sticky;top:0;z-index:50;height:var(--pg-head);background:var(--pg-top);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-bottom:1px solid var(--pg-line)}
+.pg-top-in{height:100%;max-width:1400px;margin:0 auto;padding:0 32px;display:flex;align-items:center;gap:6px}
 .pg-logo{display:block;color:var(--pg-fg);margin-right:48px}
 .pg-logo svg{display:block;height:22px;width:auto}
 .pg-nav{display:flex;gap:4px}
@@ -71,8 +71,8 @@ a{color:inherit}
 .pg-seg svg{display:block;width:14px;height:14px}
 .pg-seg.icons button{width:26px;padding:0;display:grid;place-items:center}
 
-/* the page column: 1400px, the width every page on the site has */
-.pg-wrap{max-width:1400px;margin:0 auto;padding:0 32px}
+/* the page column: 960px of content */
+.pg-wrap{max-width:1024px;margin:0 auto;padding:0 32px}
 .pg-main{padding:40px 0 96px}
 .pg-crumbs{display:flex;flex-wrap:wrap;gap:6px;font-size:13px;color:var(--pg-muted)}
 .pg-crumbs a{color:var(--pg-dim);text-decoration:none}
@@ -114,13 +114,12 @@ a{color:inherit}
 @media (max-width:860px){.pg-cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (max-width:520px){.pg-cards{grid-template-columns:minmax(0,1fr)}}
 
-.pg-foot{color:var(--pg-muted);font-size:14px}
-.pg-foot .pg-wrap>div{border-top:1px solid var(--pg-line)}
+.pg-foot{color:var(--pg-muted);font-size:14px;border-top:1px solid var(--pg-line)}
 .pg-foot-in{padding-block:28px 40px;display:flex;flex-wrap:wrap;gap:10px 24px;justify-content:space-between}
 .pg-foot nav{display:flex;flex-wrap:wrap;gap:18px}
 .pg-foot a{color:var(--pg-dim);text-decoration:none}
 .pg-foot a:hover{color:var(--pg-fg)}
-@media (max-width:960px){.pg-top-in{padding:0 18px}.pg-top-in::after{left:18px;right:18px}.pg-logo{margin-right:16px}.pg-wrap{padding:0 18px}.pg-top .pg-style{display:none}}
+@media (max-width:960px){.pg-top-in{padding:0 18px}.pg-logo{margin-right:16px}.pg-wrap{padding:0 18px}.pg-top .pg-style{display:none}}
 @media (max-width:640px){:root{--pg-head:53px}.pg-logo svg{height:18px}.pg-nav .pg-wide{display:none}.pg-h1{font-size:20px}.pg-main{padding-top:28px}}
 @media (max-width:400px){.pg-nav .pg-cl{display:none}}
 </style>

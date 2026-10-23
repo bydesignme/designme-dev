@@ -380,7 +380,7 @@ patch("""var st=localStorage.getItem("dmui-style");if(st)document.documentElemen
 patch("""  <nav class="top-links" aria-label="Site"><a href="#/changelog">Changelog</a><a href="#/roadmap">Roadmap</a><a href="#faq">FAQ</a></nav>\n""", "")
 patch("""aria-label="Search components"><span class="kbd">/</span></label>""",
       """aria-label="Search components"><span class="kbd">/</span></label>
-  <nav class="side-pages" aria-label="Site"><a class="side-p act" href="#components" aria-current="page"><span class="ms">dashboard</span>Library</a><a class="side-p" href="#/changelog"><span class="ms">history</span>Changelog</a><a class="side-p" href="#/roadmap"><span class="ms">trending_up</span>Roadmap</a><a class="side-p" href="#faq"><span class="ms">help</span>FAQ</a></nav>""")
+  <nav class="side-pages" aria-label="Site"><a class="side-p act" href="#components" aria-current="page"><span class="ms">dashboard</span>Library</a><a class="side-p" href="#/changelog"><span class="ms">history</span>Changelog</a><a class="side-p" href="#/roadmap"><span class="ms">trending_up</span>Roadmap</a><a class="side-p" href="#/faq"><span class="ms">help</span>FAQ</a></nav>""")
 
 # Changelog and Roadmap keep the sidebar beside them (on wider screens), and the sidebar marks the page that's open
 patch("""    document.addEventListener('click', e => {
@@ -391,6 +391,49 @@ patch("""    document.addEventListener('click', e => {
       new MutationObserver(markSide).observe(pv, { attributes:true, attributeFilter:['class'] }); }
     document.addEventListener('click', e => {
       const a = e.target.closest('a[href="#/changelog"], a[href="#/roadmap"], a[href="#/privacy"]'); if (!a) return;""")
+
+# every component has its own page: a card's title and its expand button go there, and an old in-page address (/#/composer)
+# forwards to it, instead of opening the old full-screen view
+patch("""    function open(c, push = true){
+      if (!c) return;
+      const was = dv.classList.contains('open');""", """    function open(c, push = true){
+      if (c && c.dataset.reg){ location.href = '/components/' + c.dataset.reg; return; }
+      if (!c) return;
+      const was = dv.classList.contains('open');""")
+patch("""const b = document.createElement('button'); b.className = 'exp-btn'; b.title = 'Open full screen';
+      b.setAttribute('aria-label', 'Open ' + c.querySelector('.comp-title').textContent + ' full screen');""",
+      """const b = document.createElement('button'); b.className = 'exp-btn'; b.title = 'Open its page';
+      b.setAttribute('aria-label', 'Open the ' + c.querySelector('.comp-title').textContent + ' page');""")
+
+# ---------- FAQ: a page of its own, beside the sidebar like Changelog and Roadmap, with a way to ask or suggest more ----------
+patch("""    const PAGES = { changelog:[changelog,'Changelog'], roadmap:[roadmap,'Roadmap'], privacy:[privacy,'Privacy'] };""",
+      """    // the questions: the homepage's list moves onto this page while it's open (it keeps its open and close), and back after
+    const faqHome = $('#faq');
+    function faq(){
+      inEl.innerHTML = `<div class="pv-h"><span class="dv-sec">FAQ</span><h1>Questions</h1><p>What people usually ask before they start using the library.</p></div><div class="faq-slot"></div>
+        <div class="faq-more">
+          <div class="faq-card"><b>Have a question we didn't answer?</b><p>Write to us and someone from the DesignMe team will reply.</p><a class="pv-btn" href="mailto:hello@designme.agency">Email hello@designme.agency</a></div>
+          <div class="faq-card"><b>Missing a component?</b><p>Suggest it on the roadmap and upvote the ideas you want most.</p><a class="pv-btn" href="#/roadmap">Suggest a component</a></div>
+        </div>`;
+      $('.faq-slot', inEl).appendChild($('#faq-list'));
+      pv._leave = () => faqHome.appendChild($('#faq-list'));
+    }
+    const PAGES = { changelog:[changelog,'Changelog'], roadmap:[roadmap,'Roadmap'], faq:[faq,'FAQ'], privacy:[privacy,'Privacy'] };""")
+patch("""      const a = e.target.closest('a[href="#/changelog"], a[href="#/roadmap"], a[href="#/privacy"]'); if (!a) return;""",
+      """      const a = e.target.closest('a[href="#/changelog"], a[href="#/roadmap"], a[href="#/faq"], a[href="#/privacy"]'); if (!a) return;""")
+patch("""    const route = push => { const m = location.hash.match(/^#\\/(changelog|roadmap|privacy)$/); if (m) open(m[1], push); else close(false); };""",
+      """    const route = push => { const m = location.hash.match(/^#\\/(changelog|roadmap|faq|privacy)$/); if (m) open(m[1], push); else close(false); };""")
+patch("""    if (/^#\\/(changelog|roadmap|privacy)$/.test(location.hash)) setTimeout(() => route(false), 250);""",
+      """    if (/^#\\/(changelog|roadmap|faq|privacy)$/.test(location.hash)) setTimeout(() => route(false), 250);""")
+patch("""<div class="sf-links"><a href="#/changelog">Changelog</a><a href="#/roadmap">Roadmap</a><a href="#faq">FAQ</a>""",
+      """<div class="sf-links"><a href="#/changelog">Changelog</a><a href="#/roadmap">Roadmap</a><a href="#/faq">FAQ</a>""")
+patch("""      <div class="m-links mi-in"><a href="#/changelog">Changelog</a><a href="#/roadmap">Roadmap</a><a href="#faq">FAQ</a></div>""",
+      """      <div class="m-links mi-in"><a href="#/changelog">Changelog</a><a href="#/roadmap">Roadmap</a><a href="#/faq">FAQ</a></div>""")
+# answers that have to be true of the code
+patch("""It needs the shared core once, which holds the tokens, icons, sound and small helpers,""", """It needs the shared core once, which holds the tokens, icons and small helpers,""")
+patch("""They work with a keyboard, use proper roles and labels, and respect reduced motion.""",
+      """They use proper roles and labels and respect reduced motion, and most work fully with a keyboard. A few, like Kanban and File explorer, are still getting their keyboard support.""")
+patch("""Every week. Each release is listed in the """, """Often. Each release is listed in the """)
 
 CSS = """.comp-title a{color:inherit;text-decoration:inherit}
 /* component page: an arrow either side of the component, halfway down the screen, centred in the space beside it.
@@ -575,14 +618,39 @@ body.ui main .comp:hover{border-color:var(--sh-line)}
 .side-p[href="#components"]:hover .ms svg{transform:rotate(90deg)}
 .side-p[href="#/changelog"]:hover .ms svg{transform:rotate(-50deg)}
 .side-p[href="#/roadmap"]:hover .ms svg{transform:translate(2px,-2px)}
-.side-p[href="#faq"]:hover .ms svg{animation:side-tilt .6s cubic-bezier(.36,0,.2,1)}
+.side-p[href="#/faq"]:hover .ms svg{animation:side-tilt .6s cubic-bezier(.36,0,.2,1)}
 @keyframes side-tilt{30%{transform:rotate(-16deg)}65%{transform:rotate(10deg)}100%{transform:none}}
 @media (prefers-reduced-motion:reduce){ .side-p .ms svg{transition:none;animation:none!important;transform:none!important} }
 /* nothing on the site is heavier than medium, and nothing but a page's title is bigger than 14px */
 body.ui :is(h1,h2,h3,h4,b,strong,button,.acc-t,.side-lbl,.st,.t,.nd-t,.chg-v,.chg-tag,.rm-st,.rm-t,.rm-n span,.su-btn,.cdm-copy,.cdm-shared,.dv-copy):not(.v2 *){font-weight:500}
 body.ui :is(h2,h3,.rm-t,.nl-head h2):not(.v2 *){font-size:14px;letter-spacing:0}
 /* calmer previews: each component sits small in the middle of its stage, with room all round */
-@media (min-width:641px){ body.ui main .comp .stage-inner{padding:56px 48px 72px} }
+/* the same room above and below, so a component at its tallest sits in the middle */
+body.ui main .comp .stage-inner{padding:40px 16px}
+@media (min-width:641px){ body.ui main .comp .stage-inner{padding:56px 48px} }
+/* ================= round 3 ================= */
+/* FAQ is a page of its own now: the homepage doesn't repeat it at the bottom */
+body.ui section.faq{display:none}
+@media (min-width:961px){
+  /* Changelog, Roadmap and FAQ sit in the middle of the column between the sidebar's edge and the end of the header */
+  .pv{padding-right:calc((100vw - min(100vw, 1400px)) / 2 + 32px)}
+}
+/* the roadmap's suggestion box: a field like the sidebar's search, and a button like the site's other buttons */
+.rm-add{gap:8px;padding:0;border:0;border-radius:0;background:none}
+.rm-add input{height:36px;padding:0 14px;border:1px solid var(--sh-line);border-radius:999px;background:var(--sh-card);transition:border-color .2s,box-shadow .2s}
+.rm-add input:focus{border-color:var(--sh-blue);box-shadow:0 0 0 3px rgba(17,111,248,.12)}
+.rm-add .su-btn,.su-btn{width:auto;height:36px;padding:0 16px;border-radius:999px;background:var(--sh-chip);border:1px solid var(--sh-line);color:var(--sh-text);font-size:14px;font-weight:500}
+.su-btn:hover{opacity:1;border-color:var(--sh-line-2)}
+/* the FAQ page: the list, then two ways to ask for more */
+.faq-slot{margin-top:24px}
+.faq-slot .faq-list{margin:0}
+.faq-more{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:40px}
+.faq-card{display:flex;flex-direction:column;align-items:flex-start;gap:4px;padding:16px;border:1px solid color-mix(in srgb,var(--sh-line) 50%,transparent);border-radius:16px;font-size:14px}
+.faq-card b{font-weight:500;color:var(--sh-text)}
+.faq-card p{margin:0 0 10px;color:var(--sh-dim)}
+.pv-btn{display:inline-flex;align-items:center;height:32px;margin-top:auto;padding:0 14px;border-radius:999px;background:var(--sh-chip);border:1px solid var(--sh-line);color:var(--sh-text);font-size:14px;font-weight:500;text-decoration:none;transition:border-color .2s}
+.pv-btn:hover{border-color:var(--sh-line-2)}
+@media (max-width:640px){ .faq-more{grid-template-columns:minmax(0,1fr)} }
 /* Changelog and Roadmap: the same title and text as every other page */
 .pv-h h1{font-size:20px;font-weight:500;letter-spacing:-.01em}
 .pv-h p{font-size:14px}
