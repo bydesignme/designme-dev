@@ -1,0 +1,41 @@
+{
+  "summary": "Agent tree shows an orchestrator and the sub-agents it hands work to, as a tree a person can fold. Every row has its task, a status and what it has spent, and each branch adds up its own cost and everything under it, so you can see where the money went. When a step fails, its row turns red and offers the fix in place.",
+  "use": [
+    "When one agent splits a job across sub-agents and people need to see who is doing what, and what is still queued.",
+    "When a run spends money as it goes and people should see the cost per agent and per step, not just the total.",
+    "When a step can fail and the run should wait for a person to take the fix it offers.",
+    "When the tree gets long and finished branches should fold away."
+  ],
+  "features": [
+    "`root` is the orchestrator; each node has a `name`, a `task`, a `status` of `queued`, `running`, `done` or `failed`, its own `cost` in dollars, and `children`.",
+    "A branch shows its own cost plus everything under it. Hover its cost to see the split, like \"Its own $0.02, 3 steps $0.26\". The total sits beside the title.",
+    "A running node spins, a finished one turns to a green check, and a failed one to a red alert on a red-tinted row. A changed `task` crossfades.",
+    "`fix` adds a white button under a failed step's task, like Use color.accent.500.",
+    "Click a branch, or its chevron, to fold it. `collapsed`, `defaultCollapsed` and `onCollapsedChange` hold which branches are folded.",
+    "The line under the title reads Running, \"1 step failed\" or Done, with a clock that counts until the root is done, or shows `seconds`. Once the root is done a green line sums it up, like \"Done in 0:14 · 3 agents · $0.66\"; `summary` changes it or, set to `false`, hides it."
+  ],
+  "a11y": [
+    "The rows form a tree with `role=\"tree\"`. Each row is a `treeitem` with `aria-level`, and a branch has `aria-expanded`.",
+    "Only one row is in the tab order. Up and Down move through the rows you can see, Right opens a branch or moves into it, Left closes it or moves to its parent, Home and End jump to the first and last row, and Enter or Space folds a branch.",
+    "A folded branch is inert, so its rows can't be reached until it opens.",
+    "The status line under the title is announced politely when it changes."
+  ],
+  "faq": [
+    {
+      "q": "Does it keep track of costs?",
+      "a": "No. Give each node the `cost` it spent on its own and the tree adds up the branches. Update the costs as your run reports them and the totals follow."
+    },
+    {
+      "q": "Can it show more than three levels?",
+      "a": "Yes. Nodes can nest as deep as your run does; each level indents a step further, with a guide line down the side."
+    },
+    {
+      "q": "What does the fix button do?",
+      "a": "Whatever you pass as its `onClick`. In the demo it lets the failed step run again with the token the library has."
+    },
+    {
+      "q": "Can costs be in another currency?",
+      "a": "Yes. Pass `formatCost`, which gets each amount and returns the text to show."
+    }
+  ]
+}
