@@ -4,7 +4,7 @@ React versions of the [designme.dev](https://designme.dev) components, for Next.
 
 They use the same markup and the same CSS as the site, so they look and move exactly like the previews on designme.dev, in both styles (Blueprint and Soft) and in light and dark. The difference is that each one takes props, so you drive it from your own state instead of a scripted demo.
 
-All 87 components are here, from Status pill to Currency converter, each with an example that replays its demo from the site.
+All 89 components are here, from Status pill to Currency converter, each with an example that replays its demo from the site.
 
 Each one has a page on designme.dev with its demo, its React usage, its props and its code, at `https://designme.dev/components/<name>`. To see them all running locally, run `npm run dev` here.
 
@@ -143,6 +143,10 @@ Message input with attachments, what to work on, a mode and dictation.
 Talk to the agent, then fix what it misheard before sending.  
 `words: (string | { text, alternatives? })[]` (words with alternatives get a highlight and a "Did you mean" menu), `state` / `defaultState` / `onStateChange` (`'listening' | 'paused' | 'review' | 'sent' | 'cancelled'`), `seconds`, `level` (0 to 1, or a function read about 20 times a second, for example from an AnalyserNode), `status`, `onSend(text)`, `onFix(index, text)`, `onRecordAgain`. It never opens the microphone itself.
 
+**VoiceOrb** · `voice-orb/VoiceOrb.tsx`  
+A hands-free voice chat, with an orb that shows who is talking.  
+`state: 'idle' | 'listening' | 'thinking' | 'speaking' | 'ended'` (the accent colour while it listens, violet while the agent speaks), `level` (0 to 1; the orb swells with it, so feed it from your audio or a made-up curve), `muted` / `onMutedChange` (listening shows as Muted and the mute button is pressed), `mutedNotice` (shows "You're muted" with Unmute, for someone talking while muted), `caption: { speaker, text, id? }` (each word fades in; a new `id` or speaker starts a new line), `hint`, `elapsed` (seconds), `onStart`, `onEnd`, `onRestart` (from the row once it has ended), `endedDetail`, `labels`. It never opens the microphone or plays sound itself.
+
 **ToolCall** · `tool-call/ToolCall.tsx`  
 Each tool the agent calls, with its input and output.  
 `message`, `calls: { key, server?, name, icon?, state: 'queued' | 'running' | 'done', duration?, input?, output? }[]` (input and output are JSON values, shown highlighted), `reply` (fades in once every call is done), `open` / `defaultOpen` / `onOpenChange` (the keys of the open calls).
@@ -158,6 +162,10 @@ Pick a model by speed, quality and cost, and how hard it thinks.
 **PromptStarters** · `prompt-starters/PromptStarters.tsx`  
 Suggested tasks that fill the composer in one click.  
 `starters: { icon, tone?, title, description, prompt }[]`, `value` / `defaultValue` / `onValueChange` (the picked title), `onSend(prompt)`, `onShuffle` (shows Shuffle; pass a new set and it staggers in), `placeholder`, `sentLabel`.
+
+**PromptLibrary** · `prompt-library/PromptLibrary.tsx`  
+Saved prompts with blanks to fill in before they go to the agent.  
+`prompts: { id, title, template, blanks }[]` (`template` writes each blank as `{key}`; `blanks` maps each key to `{ label, placeholder?, options?, error? }`: with `options` it is a dropdown that starts on the first, without it a text field), `title`, `subtitle`, `open` / `defaultOpen` / `onOpenChange` (the open prompt's id, or null for the list), `values` / `defaultValues` / `onValuesChange` (the open prompt's blanks by key), `onUse(text, prompt, values)` (only once every blank has a value; an empty one says what it needs), `onUndo`, `labels`.
 
 **AttachmentTray** · `attachment-tray/AttachmentTray.tsx`  
 Drop files for the agent and watch each one upload.  
