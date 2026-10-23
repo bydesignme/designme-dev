@@ -24,14 +24,16 @@ const MAP = {
   c62:'event-calendar', c63:'agenda', c49:'buttons', c52:'tooltip', c53:'search-input', c57:'country-select', c51:'social-signin',
   c55:'sign-in', c50:'form', c64:'payment-form', c54:'comments', c56:'notifications', c61:'invite', c59:'reactions', c104:'ticket-list',
   c101:'kanban', c70:'pricing-cards', c72:'onboarding-checklist', c73:'stepper', c74:'set-limit', c75:'currency-converter',
-  c110:'tool-connections', c111:'design-review', c112:'model-picker', c113:'answer-action-bar'
+  c110:'tool-connections', c111:'design-review', c112:'model-picker', c113:'answer-action-bar', c120:'inline-text-diff', c121:'draft-review'
 };
 // cards the original page never had: each is cut from a sibling card's markup, renamed, and placed after it
 const EXTRA = [
   { cid:'c110', id:'tool-connections', reg:'tool-connections', title:'Tools and connections', section:'Workspace', after:'c38', icon:'link' },
   { cid:'c111', id:'design-review', reg:'design-review', title:'Design review', section:'Review and approve', after:'c34', icon:'group' },
   { cid:'c112', id:'model-picker', reg:'model-picker', title:'Model picker', section:'Conversation', after:'c6', icon:'tune' },
-  { cid:'c113', id:'answer-action-bar', reg:'answer-action-bar', title:'Answer action bar', section:'Conversation', after:'c31', icon:'thumb_up' }
+  { cid:'c113', id:'answer-action-bar', reg:'answer-action-bar', title:'Answer action bar', section:'Conversation', after:'c31', icon:'thumb_up' },
+  { cid:'c120', id:'inline-text-diff', reg:'inline-text-diff', title:'Inline text diff', section:'Review and approve', after:'c34', icon:'spellcheck' },
+  { cid:'c121', id:'draft-review', reg:'draft-review', title:'Draft review', section:'Review and approve', after:'c34', icon:'alternate_email' }
 ];
 
 /* ---------- read the Soft 2 page ---------- */
@@ -295,7 +297,7 @@ const SECTIONS_FIRST = ['s-conversation', 's-status'], GRP = {};
 const ORDER = {
   's-conversation': ['live-answer', 'composer', 'thread-panel', 'artifact-card', 'tool-call', 'voice-capture', 'answer-action-bar', 'response-versions', 'model-picker', 'prompt-starters', 'attachment-tray', 'feedback-sheet'],
   's-status': ['thinking', 'reasoning-trail', 'agent-lanes', 'run-summary', 'action-log', 'agent-run-timeline', 'context-meter', 'error-recovery', 'run-queue', 'run-cost', 'toast-stack', 'toast', 'status-pill', 'step-loader'],
-  's-review': ['change-review', 'plan-review', 'permission-gate', 'decision-prompt', 'proposal-card', 'design-tuner', 'rewrite-toolbar', 'launch-checklist', 'design-review'],
+  's-review': ['change-review', 'plan-review', 'permission-gate', 'decision-prompt', 'proposal-card', 'design-tuner', 'rewrite-toolbar', 'launch-checklist', 'inline-text-diff', 'draft-review', 'design-review'],
   's-data': ['code-viewer', 'citation-hover', 'source-stack', 'field-extraction', 'metric-insight', 'details-panel', 'task-table'],
   's-workspace': ['automation-canvas', 'command-palette', 'memory-panel', 'model-compare', 'agent-settings', 'tool-connections', 'file-explorer', 'workspace-rail']
 };

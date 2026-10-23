@@ -4,7 +4,7 @@ React versions of the [designme.dev](https://designme.dev) components, for Next.
 
 They use the same markup and the same CSS as the site, so they look and move exactly like the previews on designme.dev, in both styles (Blueprint and Soft) and in light and dark. The difference is that each one takes props, so you drive it from your own state instead of a scripted demo.
 
-All 83 components are here, from Status pill to Currency converter, each with an example that replays its demo from the site.
+All 85 components are here, from Status pill to Currency converter, each with an example that replays its demo from the site.
 
 Each one has a page on designme.dev with its demo, its React usage, its props and its code, at `https://designme.dev/components/<name>`. To see them all running locally, run `npm run dev` here.
 
@@ -192,6 +192,14 @@ The agent asks before it touches something new.
 **LaunchChecklist** · `launch-checklist/LaunchChecklist.tsx`  
 The agent checks a design before it ships, and fixes what fails.  
 `checks: { label, state: 'wait' | 'run' | 'ok' | 'bad', note?, onFix? }[]`, `title`, `status`, `action: { label, icon?, accent?, disabled?, onClick }`, `bare`.
+
+**InlineTextDiff** · `inline-text-diff/InlineTextDiff.tsx`  
+The agent's edits to a piece of copy, accepted or rejected one by one.  
+`title`, `parts: (string | { key, from, to, note? })[]` (the copy in order, with the edits between the plain runs; `note` marks an edit the agent isn't sure of and shows above its buttons), `decisions` / `defaultDecisions` / `onDecisionsChange` (`'accepted' | 'rejected'` per edit key), `doneLabel` (the line once every edit is decided), `labels`. Click an edit, or press Enter on it, to open its Accept and Reject toolbar; Escape closes it. Accept all and Reject all take every edit still waiting.
+
+**DraftReview** · `draft-review/DraftReview.tsx`  
+An email the agent drafted, to check and edit before it sends.  
+`title`, `subtitle`, `to: { name, initials?, color? }[]`, `subject` / `onSubjectChange`, `body` (paragraphs split by blank lines; it stays editable, read edits from `onBodyChange(text)`), `attachments: { name, size?, loading? }[]`, `warning: { text, actions: { label, onClick, primary? }[] }` (folds open above the buttons, like an attachment the message mentions but nothing attached), `phase: 'draft' | 'sending' | 'undo' | 'sent' | 'scheduled' | 'discarded'`, `sendOptions: { key, label, detail? }[]` (now, tomorrow at 09:00 or Monday at 09:00 by default, from a dropdown beside Send; any key but `now` turns the button into Schedule), `sendOption` / `defaultSendOption` / `onSendOptionChange`, `onSend(option)`, `onDiscard`, `onUndo` (undoes a send in its window, cancels a scheduled one or brings back a discarded draft), `undoLeft` (seconds shown while the phase is `undo`), `labels`.
 
 **DesignReview** · `design-review/DesignReview.tsx`  
 Checks run, a teammate asks for a change, the agent makes it, and you ship.  

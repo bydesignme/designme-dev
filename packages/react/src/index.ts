@@ -32,6 +32,8 @@ export * from './components/rewrite-toolbar/RewriteToolbar';
 export * from './components/design-tuner/DesignTuner';
 export * from './components/permission-gate/PermissionGate';
 export * from './components/launch-checklist/LaunchChecklist';
+export * from './components/draft-review/DraftReview';
+export * from './components/inline-text-diff/InlineTextDiff';
 export * from './components/design-review/DesignReview';
 export * from './components/plan-review/PlanReview';
 export * from './components/change-review/ChangeReview';
