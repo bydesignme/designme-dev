@@ -1,0 +1,31 @@
+{
+  "summary": "A list of tasks an agent runs on a schedule, like a weekly design QA. Each row says its schedule in words, when it runs next and how its last run went, with Run now and an on/off switch. A run whose last attempt failed says why and can offer a fix, a paused one dims and says Paused, and New schedule makes another from Every day, Every Monday or Custom days.",
+  "use": [
+    "When people set an agent to repeat work, like checking pages every week or syncing tokens every morning.",
+    "When people need to see at a glance which recurring runs passed and which failed.",
+    "When a run fails for a reason people can fix, like an expired token, and should run again once it is fixed.",
+    "When people want to pause a recurring run without deleting it."
+  ],
+  "features": [
+    "Each run in `runs` shows its `name`, its `schedule` in words with its `next` run, and its last `result`: \"Passed 5 days ago\", \"Failed: Figma token expired\", \"Running now\" or \"No runs yet\".",
+    "The dot on its icon follows the result: green when it passed, red when it failed, a turning ring while it runs, grey when it is paused or has never run. Its tile shows a service logo (`brand`) or an `icon` on a tint of its `color`.",
+    "`onRunNow` adds a Run now button to each row; it is unavailable while the run is running or paused.",
+    "The switch pauses and resumes a run (`enabled`), and the change comes back through `onRunsChange`. A paused row dims and reads \"Paused\" in place of its next run.",
+    "A failed run with a `fix` shows a button with that label that calls `onFix`; set `fixing` to spin it.",
+    "`onCreate` adds New schedule: a form with the task, Every day, Every Monday or Custom days, and a line saying when the first run would be. Create hands over the task, the days, the schedule in words and when it runs next.",
+    "The line under the title reads like \"3 active · 1 failed\", adding \"1 paused\" when one is paused, or shows your own `status`."
+  ],
+  "a11y": [
+    "The runs form a list. Each Run now button is named for its run, like \"Run Weekly design QA now\".",
+    "Each switch has role=\"switch\" and aria-checked, is named for its run, and has a Pause or Resume tooltip.",
+    "New schedule opens a dialog; its Repeat options are a labelled group of pressed buttons, and the Custom days are buttons named in full, like \"Wednesday\".",
+    "The line under the title is announced politely when it changes.",
+    "With reduced motion, rows appear without their entrance and text changes without the crossfade."
+  ],
+  "faq": [
+    {"q": "Does Run now start the run?", "a": "No. It calls `onRunNow` with the run's key. Start it in your own code, set its `result` to 'running', and to 'passed' or 'failed' when it ends."},
+    {"q": "How do I show a fix like reconnecting a service?", "a": "Give the failed run a `fix` label, like \"Reconnect Figma\". When `onFix` is called, set `fixing` while you reconnect, then run it again and update its `result`."},
+    {"q": "What time do new schedules run at?", "a": "At `time`, 9:00 unless you change it, with `hour` set to match so the form can say when the first run is. The days come back as numbers, 0 for Monday to 6 for Sunday."},
+    {"q": "Can I write schedules my own way?", "a": "Yes. `schedule` and `next` are plain text, so \"Weekdays at 8:30\" or \"Next tomorrow\" work as well."}
+  ]
+}

@@ -24,7 +24,7 @@ const MAP = {
   c62:'event-calendar', c63:'agenda', c49:'buttons', c52:'tooltip', c53:'search-input', c57:'country-select', c51:'social-signin',
   c55:'sign-in', c50:'form', c64:'payment-form', c54:'comments', c56:'notifications', c61:'invite', c59:'reactions', c104:'ticket-list',
   c101:'kanban', c70:'pricing-cards', c72:'onboarding-checklist', c73:'stepper', c74:'set-limit', c75:'currency-converter',
-  c110:'tool-connections', c111:'design-review', c112:'model-picker', c113:'answer-action-bar', c120:'inline-text-diff', c121:'draft-review', c114:'agent-tree', c115:'agent-inbox', c122:'voice-orb', c123:'prompt-library', c116:'steering', c117:'eval-results'
+  c110:'tool-connections', c111:'design-review', c112:'model-picker', c113:'answer-action-bar', c120:'inline-text-diff', c121:'draft-review', c114:'agent-tree', c115:'agent-inbox', c122:'voice-orb', c123:'prompt-library', c116:'steering', c117:'eval-results', c131:'knowledge-sources', c132:'scheduled-runs'
 };
 // cards the original page never had: each is cut from a sibling card's markup, renamed, and placed after it
 const EXTRA = [
@@ -39,7 +39,9 @@ const EXTRA = [
   { cid:'c122', id:'voice-orb', reg:'voice-orb', title:'Voice orb', section:'Conversation', after:'c24', icon:'graphic_eq' },
   { cid:'c123', id:'prompt-library', reg:'prompt-library', title:'Prompt library', section:'Conversation', after:'c29', icon:'edit_note' },
   { cid:'c116', id:'steering', reg:'steering', title:'Steering', section:'Review and approve', after:'c121', icon:'shuffle' },
-  { cid:'c117', id:'eval-results', reg:'eval-results', title:'Eval results', section:'Review and approve', after:'c116', icon:'readiness_score' }
+  { cid:'c117', id:'eval-results', reg:'eval-results', title:'Eval results', section:'Review and approve', after:'c116', icon:'readiness_score' },
+  { cid:'c131', id:'knowledge-sources', reg:'knowledge-sources', title:'Knowledge sources', section:'Workspace', after:'c110', icon:'description' },
+  { cid:'c132', id:'scheduled-runs', reg:'scheduled-runs', title:'Scheduled runs', section:'Workspace', after:'c131', icon:'schedule' }
 ];
 
 /* ---------- read the Soft 2 page ---------- */
@@ -312,7 +314,7 @@ const ORDER = {
   's-status': ['thinking', 'reasoning-trail', 'agent-lanes', 'agent-tree', 'agent-inbox', 'run-summary', 'action-log', 'agent-run-timeline', 'context-meter', 'error-recovery', 'run-queue', 'run-cost', 'toast-stack', 'toast', 'status-pill', 'step-loader'],
   's-review': ['change-review', 'plan-review', 'permission-gate', 'decision-prompt', 'proposal-card', 'design-tuner', 'rewrite-toolbar', 'launch-checklist', 'inline-text-diff', 'draft-review', 'steering', 'eval-results', 'design-review'],
   's-data': ['code-viewer', 'citation-hover', 'source-stack', 'field-extraction', 'metric-insight', 'details-panel', 'task-table'],
-  's-workspace': ['automation-canvas', 'command-palette', 'memory-panel', 'model-compare', 'agent-settings', 'tool-connections', 'file-explorer', 'workspace-rail']
+  's-workspace': ['automation-canvas', 'command-palette', 'memory-panel', 'model-compare', 'agent-settings', 'tool-connections', 'knowledge-sources', 'scheduled-runs', 'file-explorer', 'workspace-rail']
 };
 {
   const secRe = id => new RegExp(`<section class="lib-sec" id="${id}">[\\s\\S]*?</section>`);

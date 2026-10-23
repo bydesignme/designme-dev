@@ -4,7 +4,7 @@ React versions of the [designme.dev](https://designme.dev) components, for Next.
 
 They use the same markup and the same CSS as the site, so they look and move exactly like the previews on designme.dev, in both styles (Blueprint and Soft) and in light and dark. The difference is that each one takes props, so you drive it from your own state instead of a scripted demo.
 
-All 91 components are here, from Status pill to Currency converter, each with an example that replays its demo from the site.
+All 93 components are here, from Status pill to Currency converter, each with an example that replays its demo from the site.
 
 Each one has a page on designme.dev with its demo, its React usage, its props and its code, at `https://designme.dev/components/<name>`. To see them all running locally, run `npm run dev` here.
 
@@ -302,6 +302,14 @@ Run one prompt on three models side by side and keep the best.
 **ToolConnections** · `tool-connections/ToolConnections.tsx`  
 The tools the agent can reach, and how much it may do with each.  
 `tools` / `defaultTools` / `onToolsChange` (`{ key, name, detail?, brand? or icon? and color?, permission?: 'off' | 'ask' | 'allow', status?: 'ok' | 'testing' | 'error' | 'reconnecting', note? }[]`), `available` and `onConnect(tool)` (the Connect a tool menu), `onTest` (adds Test all), `testing` (Test all shows a spinner while a test runs), `onReconnect(key)`, `title`, `status`.
+
+**KnowledgeSources** · `knowledge-sources/KnowledgeSources.tsx`  
+The files, sites and folders the agent knows, and how far each is indexed.  
+`sources: { key, name, kind: 'files' | 'web' | 'folder', count, unit?: 'pages' | 'files', state: 'queued' | 'indexing' | 'ready' | 'failed', done?, synced?, error?, fix?, note?, chunks? }[]`, `onUpload(files)`, `onAddWebsite(address)`, `address` / `defaultAddress` / `onAddressChange`, `folders: { key, name, detail? }[]` and `onConnectFolder(key)` (the Add source menu shows each option you handle), `onResync(key)`, `onRemove(key)`, `onFix(key)` (the button a failed source shows, labelled with its `fix`), `title`, `status`. Indexing shows a bar and "64 of 142 pages"; the line under the title adds up the sources' `chunks`.
+
+**ScheduledRuns** · `scheduled-runs/ScheduledRuns.tsx`  
+Tasks the agent runs on a schedule, with their last result and a switch.  
+`runs` / `defaultRuns` / `onRunsChange` (`{ key, name, schedule, next?, enabled?, result?: 'passed' | 'failed' | 'running' | 'never', ago?, error?, fix?, fixing?, brand? or icon? and color? }[]`), `onRunNow(key)` (adds Run now), `onFix(key)` (the button a failed run shows, labelled with its `fix`), `onCreate({ task, repeat, days, schedule, next })` (adds New schedule: Every day, Every Monday or Custom days), `time`, `hour`, `title`, `status`. The switch pauses a run: its row dims and says Paused.
 
 ### Harness
 

@@ -252,6 +252,8 @@ export function AgentSettings({
 - [Memory panel](https://designme.dev/components/memory-panel.md): What the agent remembers about your team, editable and removable.
 - [Model compare](https://designme.dev/components/model-compare.md): Run one prompt on three models side by side and keep the best.
 - [Tools and connections](https://designme.dev/components/tool-connections.md): The tools the agent can reach, and how much it may do with each.
+- [Knowledge sources](https://designme.dev/components/knowledge-sources.md): The files, sites and folders the agent knows, and how far each is indexed.
+- [Scheduled runs](https://designme.dev/components/scheduled-runs.md): Tasks the agent runs on a schedule, with their last result and a switch.
 - [File explorer](https://designme.dev/components/file-explorer.md): Project files, with the ones the agent touched marked.
 - [Workspace rail](https://designme.dev/components/workspace-rail.md): A slim app rail that opens into a labelled sidebar.
 
