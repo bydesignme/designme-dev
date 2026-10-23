@@ -27,7 +27,7 @@ Agent inbox puts every agent run in one list, grouped by what it needs from you:
 ### What it does
 
 - `runs` is the list. Each run has a `title`, the `agent` running it, a `group` of `needs`, `running` or `done`, and a `detail` line, like "Waiting for your approval" or "Editing frame 3 of 6".
-- Each group shows its count, or a quiet line when it's empty, like "Nothing needs you". The line beside the title reads "2 need you", or "All clear · 4 done today".
+- Each group shows its count, and a group with nothing in it is hidden. The line beside the title reads "2 need you", then "2 running" once nothing needs you, and "All clear · 4 done today" when every run is done.
 - `onApprove` adds a filled Approve button to the runs that need you. A run with `failed` turns red and gets a white Retry button instead, through `onRetry`; `why` adds a tooltip on its detail line.
 - A running run spins and its clock counts on from its `seconds`. A finished one shows a green check, when it `ended`, and its agent.
 - Each row starts with the agent's first letter on its `color`.
@@ -105,7 +105,7 @@ export default function AgentInboxDemo() {
 | `onApprove` (optional) | `(id: string) => void` | Adds Approve to the runs that need you and haven't failed |
 | `onRetry` (optional) | `(id: string) => void` | Adds Retry to the runs that failed |
 | `title` (optional) | `string` | Defaults to "Inbox" |
-| `status` (optional) | `string` | The line beside the title. Defaults to "2 need you", or "All clear · 4 done today" |
+| `status` (optional) | `string` | The line beside the title. Defaults to "2 need you", then "2 running" once nothing needs you, then "All clear · 4 done today" |
 | `className` (optional) | `string` |  |
 
 ## Questions
@@ -171,12 +171,12 @@ export interface AgentInboxProps {
   onRetry?: (id: string) => void;
   /** Defaults to "Inbox" */
   title?: string;
-  /** The line beside the title. Defaults to "2 need you", or "All clear · 4 done today" */
+  /** The line beside the title. Defaults to "2 need you", then "2 running" once nothing needs you, then "All clear · 4 done today" */
   status?: string;
   className?: string;
 }
 
-const GROUPS: [InboxGroup, string, string][] = [['needs', 'Needs you', 'Nothing needs you'], ['running', 'Running', 'Nothing running'], ['done', 'Done', 'Nothing done yet']];
+const GROUPS: [InboxGroup, string][] = [['needs', 'Needs you'], ['running', 'Running'], ['done', 'Done']];
 const clock = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
 
 /** Every agent run in one list, grouped as Needs you, Running and Done, with live clocks on the running ones. Approve
@@ -197,11 +197,11 @@ export function AgentInbox({ runs, onApprove, onRetry, title = 'Inbox', status, 
   };
   for (const id of [...base.current.keys()]) if (!runs.some(r => r.id === id && r.group === 'running')) base.current.delete(id);
 
-  const need = runs.filter(r => r.group === 'needs').length, done = runs.filter(r => r.group === 'done').length;
-  const line = status ?? (need ? `${need} need${need > 1 ? '' : 's'} you` : `All clear · ${done} done today`);
+  const need = runs.filter(r => r.group === 'needs').length, running = runs.filter(r => r.group === 'running').length, done = runs.filter(r => r.group === 'done').length;
+  const line = status ?? (need ? `${need} need${need > 1 ? '' : 's'} you` : running ? `${running} running` : `All clear · ${done} done today`);
 
   // a run that changes group glides there: rows and group titles are measured after each move and eased from where
-  // they were, the moving row rides above the rest, and a line that appears fades in
+  // they were, the moving row rides above the rest, and a group that comes back fades in
   const where = useRef(new Map<string, number>());
   const groupOf = useRef(new Map<string, InboxGroup>());
   const sig = runs.map(r => r.id + ':' + r.group).join();
@@ -225,11 +225,13 @@ export function AgentInbox({ runs, onApprove, onRetry, title = 'Inbox', status, 
     <div data-dm="" className={cx('dm-aib dm-panel', className)}>
       <div className="dm-aib-h"><b>{title}</b><span aria-live="polite"><Swap className="dm-muted dm-aib-st">{line}</Swap></span></div>
       <div ref={list}>
-        {GROUPS.map(([g, name, none]) => {
+        {GROUPS.map(([g, name]) => {
           const rows = runs.filter(r => r.group === g);
+          // a group with nothing in it goes away
+          if (!rows.length) return null;
           return (
             <section key={g} className="dm-aib-g" aria-label={name}>
-              <div className="dm-aib-gh" data-k={'h:' + g}><span>{name}</span><span className="dm-n">{rows.length || ''}</span></div>
+              <div className="dm-aib-gh" data-k={'h:' + g}><span>{name}</span><span className="dm-n">{rows.length}</span></div>
               <div className="dm-aib-gl" role="list">
                 {rows.map(r => {
                   const col = r.color ?? 'var(--dm-accent)', fail = g === 'needs' && !!r.failed;
@@ -246,7 +248,6 @@ export function AgentInbox({ runs, onApprove, onRetry, title = 'Inbox', status, 
                   );
                 })}
               </div>
-              {!rows.length && <p className="dm-aib-none" data-k={'n:' + g}>{none}</p>}
             </section>
           );
         })}

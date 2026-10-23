@@ -119,7 +119,7 @@ An orchestrator and its sub-agents as a tree, with cost rolled up per branch.
 
 **AgentInbox** · `agent-inbox/AgentInbox.tsx`  
 Every run that needs you, is running or is done, in one list.  
-`runs: { id, title, agent, color?, group: 'needs' | 'running' | 'done', detail?, failed?, why?, seconds?, ended? }[]` (running clocks count on from `seconds`), `onApprove(id)`, `onRetry(id)` (each adds its button), `title`, `status` (defaults to "2 need you" or "All clear · 4 done today"). A run that changes group glides to its new place.
+`runs: { id, title, agent, color?, group: 'needs' | 'running' | 'done', detail?, failed?, why?, seconds?, ended? }[]` (running clocks count on from `seconds`), `onApprove(id)`, `onRetry(id)` (each adds its button), `title`, `status` (defaults to "2 need you", "2 running" once nothing needs you, or "All clear · 4 done today"). A group with no runs is hidden, and a run that changes group glides to its new place.
 
 **AgentRunTimeline** · `agent-run-timeline/AgentRunTimeline.tsx`  
 Every model and tool step of a run on one time axis.  
@@ -145,7 +145,7 @@ Talk to the agent, then fix what it misheard before sending.
 
 **VoiceOrb** · `voice-orb/VoiceOrb.tsx`  
 A hands-free voice chat, with an orb that shows who is talking.  
-`state: 'idle' | 'listening' | 'thinking' | 'speaking' | 'ended'` (the accent colour while it listens, violet while the agent speaks), `level` (0 to 1; the orb swells with it, so feed it from your audio or a made-up curve), `muted` / `onMutedChange` (listening shows as Muted and the mute button is pressed), `mutedNotice` (shows "You're muted" with Unmute, for someone talking while muted), `caption: { speaker, text, id? }` (each word fades in; a new `id` or speaker starts a new line), `hint`, `elapsed` (seconds), `onStart`, `onEnd`, `onRestart` (from the row once it has ended), `endedDetail`, `labels`. It never opens the microphone or plays sound itself.
+`state: 'idle' | 'listening' | 'thinking' | 'speaking' | 'ended'` (the accent colour while it listens, violet while the agent speaks), `level` (0 to 1; the orb swells, its light flows faster and its glow brightens with it, so feed it from your audio or a made-up curve. The light inside is a small WebGL shader; without WebGL the orb keeps a plain gradient), `muted` / `onMutedChange` (listening shows as Muted and the mute button is pressed), `mutedNotice` (shows "You're muted" with Unmute, for someone talking while muted), `caption: { speaker, text, id? }` (each word fades in; a new `id` or speaker starts a new line), `hint`, `elapsed` (seconds), `onStart`, `onEnd`, `onRestart` (from the row once it has ended), `endedDetail`, `labels`. It never opens the microphone or plays sound itself.
 
 **ToolCall** · `tool-call/ToolCall.tsx`  
 Each tool the agent calls, with its input and output.  

@@ -1,11 +1,12 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Voice orb: AI agent UI component for React and HTML | Designme.dev</title><meta name="description" content="A hands-free voice chat, with an orb that shows who is talking. Free and MIT licensed, as HTML or a typed React component, in two styles with light and dark mode."><link rel="canonical" href="https://designme.dev/components/voice-orb"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><meta property="og:type" content="website"><meta property="og:site_name" content="Designme.dev"><meta property="og:title" content="Voice orb: AI agent UI component for React and HTML | Designme.dev"><meta property="og:description" content="A hands-free voice chat, with an orb that shows who is talking. Free and MIT licensed, as HTML or a typed React component, in two styles with light and dark mode."><meta property="og:url" content="https://designme.dev/components/voice-orb"><meta property="og:image" content="https://designme.dev/components/og/voice-orb.jpg"><meta name="twitter:card" content="summary_large_image"><link rel="alternate" type="text/plain" title="All components for AI tools" href="/llms.txt"><link rel="preload" href="/fonts/inter-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin><link rel="preload" href="/fonts/inter-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin><script>try{var t=localStorage.getItem('dmui-theme');if(t)document.documentElement.setAttribute('data-theme',t);var s=localStorage.getItem('dmui-style')||'soft';if(s==='soft')document.documentElement.setAttribute('data-style','soft')}catch(e){}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareSourceCode","name":"Voice orb","description":"Voice orb is the screen for a hands-free voice chat with the agent. An orb in the middle swells with whoever is talking, in the accent colour while it listens to you and violet while the agent speaks, with what was said written under it word by word. Below sit mute and end, and someone who talks while muted is told so, with a button to unmute.","url":"https://designme.dev/components/voice-orb","image":"https://designme.dev/components/og/voice-orb.jpg","programmingLanguage":["HTML","CSS","JavaScript","TypeScript"],"runtimePlatform":"Web browser","license":"https://opensource.org/licenses/MIT","isAccessibleForFree":true,"keywords":"Voice orb, Conversation, AI agent UI, React component, HTML component","author":{"@type":"Organization","name":"DesignMe","url":"https://designme.agency"},"isPartOf":{"@type":"WebSite","name":"Designme.dev","url":"https://designme.dev/"}}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Library","item":"https://designme.dev/"},{"@type":"ListItem","position":2,"name":"Conversation","item":"https://designme.dev/#s-conversation"},{"@type":"ListItem","position":3,"name":"Voice orb","item":"https://designme.dev/components/voice-orb"}]}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does it use the microphone or play sound?","acceptedAnswer":{"@type":"Answer","text":"No. It draws the state, level and caption you pass. Your code records, transcribes and plays the agent's voice. The demo plays a written script and never asks for the microphone."}},{"@type":"Question","name":"How is it different from Voice capture?","acceptedAnswer":{"@type":"Answer","text":"Voice capture records one message to check and fix before sending. Voice orb is a back-and-forth conversation, with the agent answering out loud."}},{"@type":"Question","name":"How do I drive the orb from real audio?","acceptedAnswer":{"@type":"Answer","text":"Read the loudness from your audio, for example with a Web Audio AnalyserNode, scale it to 0 to 1, and pass it as level on each animation frame."}}]}</script><link rel="stylesheet" href="/components/assets/core.css"><style>/* ---------- Voice orb ---------- */
 /* a hands-free voice chat: an orb that swells with whoever is talking, the accent colour for you and violet for the agent, what
    was said under it, and mute and end below. Talking while muted says so, the way calls do */
-.vor{position:relative;width:100%;max-width:380px;margin:0 auto;padding:16px;display:flex;flex-direction:column;gap:12px;--oc:var(--faint)}
-.vor[data-m="listening"]{--oc:var(--accent)}
-.vor[data-m="speaking"]{--oc:var(--pl)}
-.vor[data-m="thinking"]{--oc:color-mix(in srgb,var(--accent) 50%,var(--pl))}
-.vor[data-m="muted"]{--oc:color-mix(in srgb,var(--muted) 55%,var(--faint))}
+.vor{position:relative;width:100%;max-width:380px;margin:0 auto;padding:16px;display:flex;flex-direction:column;gap:12px;--oc:var(--faint);--oc2:var(--muted)}
+/* --oc is whoever is talking, --oc2 the second colour that flows through the orb with it */
+.vor[data-m="listening"]{--oc:var(--accent);--oc2:color-mix(in srgb,var(--pl) 45%,var(--accent))}
+.vor[data-m="speaking"]{--oc:var(--pl);--oc2:color-mix(in srgb,var(--accent) 45%,var(--pl))}
+.vor[data-m="thinking"]{--oc:color-mix(in srgb,var(--accent) 50%,var(--pl));--oc2:var(--accent)}
+.vor[data-m="muted"]{--oc:color-mix(in srgb,var(--muted) 55%,var(--faint));--oc2:var(--faint)}
 .vor-top{display:flex;align-items:center;gap:8px;font-size:13px}
 .vor-dot{width:8px;height:8px;border-radius:50%;background:var(--oc);transition:background .4s}
 .vor[data-m="listening"] .vor-dot,.vor[data-m="speaking"] .vor-dot{animation:vor-pulse 1.4s var(--ease-io) infinite}
@@ -15,10 +16,21 @@
 .vor-orb i{position:absolute;inset:0;border-radius:50%}
 /* round in Blueprint too, where every other corner is square: like the turning loaders, its shape is what it says */
 .vor .vor-orb i{border-radius:50%!important}
-.vor-glow{background:radial-gradient(closest-side,color-mix(in srgb,var(--oc) 28%,transparent),transparent);transform:scale(calc(1.1 + var(--lv) * .45))}
-.vor-core{background-color:color-mix(in srgb,var(--oc) 72%,var(--surface));background-image:radial-gradient(circle at 34% 28%,rgba(255,255,255,.42),rgba(255,255,255,0) 62%);box-shadow:inset 0 -8px 18px color-mix(in srgb,var(--oc) 30%,transparent);transform:scale(calc(.9 + var(--lv) * .14));transition:background-color .4s}
+/* the glow: both colours turning slowly behind the orb and fading out from its edge (a mask, not a blur, so Blueprint keeps
+   it too), brighter and wider the louder the voice */
+.vor .vor-orb .vor-glow{inset:-30px;background:conic-gradient(from 0deg,var(--oc),var(--oc2),var(--oc));-webkit-mask:radial-gradient(closest-side,#000 48%,transparent);mask:radial-gradient(closest-side,#000 48%,transparent);opacity:calc(.3 + var(--lv) * .45);transform:scale(calc(.9 + var(--lv) * .3));animation:vor-spin 9s linear infinite;transition:opacity .4s}
+.vor[data-m="idle"] .vor-orb .vor-glow,.vor[data-m="ended"] .vor-orb .vor-glow,.vor[data-m="muted"] .vor-orb .vor-glow{opacity:.16}
+@keyframes vor-spin{to{rotate:360deg}}
+.vor-core{overflow:hidden;background-color:color-mix(in srgb,var(--oc) 72%,var(--surface));background-image:radial-gradient(circle at 34% 28%,rgba(255,255,255,.42),rgba(255,255,255,0) 62%);box-shadow:inset 0 -8px 18px color-mix(in srgb,var(--oc) 30%,transparent),0 0 0 1px color-mix(in srgb,var(--oc) 20%,transparent);transform:scale(calc(.9 + var(--lv) * .14));transition:background-color .4s}
+/* the flowing inside, drawn over the plain gradient once WebGL is there */
+.vor-gl{position:absolute;inset:0;width:100%;height:100%;border-radius:50%;opacity:0;transition:opacity .4s}
+.vor-gl.on{opacity:1}
+/* reads the second colour as it eases from one speaker to the next */
+.vor-pc{visibility:hidden;background:var(--oc2);transition:background .4s}
+.vor-cap,.vor-mf,.vor-f{position:relative}
 .vor[data-m="thinking"] .vor-core{animation:vor-br 1.6s var(--ease-io) infinite alternate}
 @keyframes vor-br{from{transform:scale(.9)}to{transform:scale(.96)}}
+@media (prefers-reduced-motion:reduce){.vor-glow{animation:none}}
 .vor-cap{min-height:88px;display:flex;flex-direction:column;gap:2px;text-align:center}
 .vor-who{font-size:12px;min-height:18px}
 .vor-tx{margin:0;font-size:14px;line-height:1.6;color:var(--fg)}
@@ -67,7 +79,7 @@
   <template>
 <div class="vor panel" data-m="idle">
   <div class="vor-top"><span class="vor-dot"></span><span class="vor-st">Ready</span><span class="vor-t num muted">0:00</span></div>
-  <div class="vor-orb" aria-hidden="true"><i class="vor-glow"></i><i class="vor-core"></i></div>
+  <div class="vor-orb" aria-hidden="true"><i class="vor-glow"></i><i class="vor-pc"></i><i class="vor-core"><canvas class="vor-gl"></canvas></i></div>
   <div class="vor-cap" aria-live="polite"><span class="vor-who muted"></span><p class="vor-tx hint">Talk to the agent about Pricing v4</p></div>
   <div class="fold shut vor-mf"><div><div class="vor-mw"><p>{warn}<span>You're muted. Unmute so the agent can hear you.</span></p><button class="pill sm vor-un">Unmute</button></div></div></div>
   <div class="vor-f">
@@ -79,7 +91,7 @@
 </div>
   </template>
 </div>
-</div></section></div><div class="cp-bar"><div class="pg-wrap"><nav aria-label="On this page"><a href="#install">Install</a><a href="#about">About</a><a href="#usage">Usage</a><a href="#props">Props</a><a href="#code">Code</a><a href="#questions">Questions</a><a href="#more">More</a></nav></div></div><div class="pg-wrap"><section class="cp-sec" id="install"><div class="pg-sh"><span class="n">01</span><h2>Install</h2><p>Add it to your project with the CLI.</p></div><div class="cp-two"><div class="cp-box"><h3 class="pg-t">HTML, CSS and JavaScript</h3><div class="cp-line"><span class="d">$</span><code>npx designme add voice-orb</code><button class="cp-copy" type="button" data-copy="npx designme add voice-orb" data-label="Copy">Copy</button></div></div><div class="cp-box"><h3 class="pg-t">React</h3><div class="cp-line"><span class="d">$</span><code>npx designme add voice-orb --react</code><button class="cp-copy" type="button" data-copy="npx designme add voice-orb --react" data-label="Copy">Copy</button></div></div></div><p class="cp-note">The CLI copies the source into your project, so you own it and can change anything. The HTML version lands in <code>./designme</code> with the shared core and a <code>demo.html</code>. The React version lands in <code>src/components/designme</code> and needs React 19; it works in Next.js, Vite and Astro.</p></section><section class="cp-sec" id="about"><div class="pg-sh"><span class="n">02</span><h2>About</h2><p>What it is for and what it does.</p></div><p class="cp-sum">Voice orb is the screen for a hands-free voice chat with the agent. An orb in the middle swells with whoever is talking, in the accent colour while it listens to you and violet while the agent speaks, with what was said written under it word by word. Below sit mute and end, and someone who talks while muted is told so, with a button to unmute.</p><div class="cp-gap"><div class="cp-tl" role="tablist" aria-label="About"><button type="button" role="tab" id="ab-t0" aria-controls="ab-p0" aria-selected="true" tabindex="0">When to use it</button><button type="button" role="tab" id="ab-t1" aria-controls="ab-p1" aria-selected="false" tabindex="-1">What it does</button><button type="button" role="tab" id="ab-t2" aria-controls="ab-p2" aria-selected="false" tabindex="-1">Accessibility</button></div><div class="cp-tp" role="tabpanel" id="ab-p0" aria-labelledby="ab-t0"><ul><li>When people talk to the agent instead of typing, and need to see that it is listening.</li><li>When it should be clear at a glance whose turn it is: yours, the agent's, or the agent thinking.</li><li>When people mute often, and should find out straight away when they talk into a muted microphone.</li><li>When the chat should end with a record of it, like a saved transcript.</li></ul></div><div class="cp-tp" role="tabpanel" id="ab-p1" aria-labelledby="ab-t1" hidden><ul><li><code>state</code> moves through <code>idle</code>, <code>listening</code>, <code>thinking</code>, <code>speaking</code> and <code>ended</code>. The status line, its dot and the orb's colour follow it.</li><li><code>level</code> from 0 to 1 sets how far the orb swells. Feed it from your audio, or from a made-up curve as the demo does.</li><li><code>caption</code> shows what was said last and who said it, each new word fading in.</li><li><code>muted</code> / <code>onMutedChange</code> drive the mute button. While muted, listening shows as Muted and a slash crosses the microphone.</li><li><code>mutedNotice</code> folds open "You're muted" with an Unmute button, for when your code hears someone talking while muted.</li><li>The timer shows <code>elapsed</code> in minutes and seconds. Once <code>ended</code>, the buttons give way to a row with the length, and Start again when you pass <code>onRestart</code>.</li></ul></div><div class="cp-tp" role="tabpanel" id="ab-p2" aria-labelledby="ab-t2" hidden><ul><li>The orb is decorative and hidden from screen readers; the status line names the state in words.</li><li>The caption is an <code>aria-live="polite"</code> region, so what is said is read out.</li><li>The mute button is labelled "Mute" and uses <code>aria-pressed</code> to say whether the microphone is off.</li></ul></div></div></section><section class="cp-sec" id="usage"><div class="pg-sh"><span class="n">03</span><h2>Usage</h2><p>Import it and drive it from your own state.</p></div><div class="cp-box"><h3 class="pg-t">Import</h3><pre class="cp-pre"><code>import { VoiceOrb } from &#39;@/components/designme/voice-orb/VoiceOrb&#39;;</code></pre></div><div class="cp-box cp-gap"><h3 class="pg-t">Example</h3><p class="pg-d">The demo above as a React component, 82 lines you can copy.</p><pre class="cp-pre"><code>&#39;use client&#39;;
+</div></section></div><div class="cp-bar"><div class="pg-wrap"><nav aria-label="On this page"><a href="#install">Install</a><a href="#about">About</a><a href="#usage">Usage</a><a href="#props">Props</a><a href="#code">Code</a><a href="#questions">Questions</a><a href="#more">More</a></nav></div></div><div class="pg-wrap"><section class="cp-sec" id="install"><div class="pg-sh"><span class="n">01</span><h2>Install</h2><p>Add it to your project with the CLI.</p></div><div class="cp-two"><div class="cp-box"><h3 class="pg-t">HTML, CSS and JavaScript</h3><div class="cp-line"><span class="d">$</span><code>npx designme add voice-orb</code><button class="cp-copy" type="button" data-copy="npx designme add voice-orb" data-label="Copy">Copy</button></div></div><div class="cp-box"><h3 class="pg-t">React</h3><div class="cp-line"><span class="d">$</span><code>npx designme add voice-orb --react</code><button class="cp-copy" type="button" data-copy="npx designme add voice-orb --react" data-label="Copy">Copy</button></div></div></div><p class="cp-note">The CLI copies the source into your project, so you own it and can change anything. The HTML version lands in <code>./designme</code> with the shared core and a <code>demo.html</code>. The React version lands in <code>src/components/designme</code> and needs React 19; it works in Next.js, Vite and Astro.</p></section><section class="cp-sec" id="about"><div class="pg-sh"><span class="n">02</span><h2>About</h2><p>What it is for and what it does.</p></div><p class="cp-sum">Voice orb is the screen for a hands-free voice chat with the agent. An orb in the middle swells with whoever is talking, in the accent colour while it listens to you and violet while the agent speaks, with what was said written under it word by word. Below sit mute and end, and someone who talks while muted is told so, with a button to unmute.</p><div class="cp-gap"><div class="cp-tl" role="tablist" aria-label="About"><button type="button" role="tab" id="ab-t0" aria-controls="ab-p0" aria-selected="true" tabindex="0">When to use it</button><button type="button" role="tab" id="ab-t1" aria-controls="ab-p1" aria-selected="false" tabindex="-1">What it does</button><button type="button" role="tab" id="ab-t2" aria-controls="ab-p2" aria-selected="false" tabindex="-1">Accessibility</button></div><div class="cp-tp" role="tabpanel" id="ab-p0" aria-labelledby="ab-t0"><ul><li>When people talk to the agent instead of typing, and need to see that it is listening.</li><li>When it should be clear at a glance whose turn it is: yours, the agent's, or the agent thinking.</li><li>When people mute often, and should find out straight away when they talk into a muted microphone.</li><li>When the chat should end with a record of it, like a saved transcript.</li></ul></div><div class="cp-tp" role="tabpanel" id="ab-p1" aria-labelledby="ab-t1" hidden><ul><li><code>state</code> moves through <code>idle</code>, <code>listening</code>, <code>thinking</code>, <code>speaking</code> and <code>ended</code>. The status line, its dot and the orb's colour follow it.</li><li><code>level</code> from 0 to 1 sets how far the orb swells, how fast the light inside it flows and how bright its glow is. Feed it from your audio, or from a made-up curve as the demo does.</li><li>Inside the orb, light flows in two colours of whoever is talking, drawn by a small WebGL shader, and a soft glow turns behind it. Without WebGL the orb keeps a plain gradient, and with reduced motion it holds still.</li><li><code>caption</code> shows what was said last and who said it, each new word fading in.</li><li><code>muted</code> / <code>onMutedChange</code> drive the mute button. While muted, listening shows as Muted and a slash crosses the microphone.</li><li><code>mutedNotice</code> folds open "You're muted" with an Unmute button, for when your code hears someone talking while muted.</li><li>The timer shows <code>elapsed</code> in minutes and seconds. Once <code>ended</code>, the buttons give way to a row with the length, and Start again when you pass <code>onRestart</code>.</li></ul></div><div class="cp-tp" role="tabpanel" id="ab-p2" aria-labelledby="ab-t2" hidden><ul><li>The orb is decorative and hidden from screen readers; the status line names the state in words.</li><li>The caption is an <code>aria-live="polite"</code> region, so what is said is read out.</li><li>The mute button is labelled "Mute" and uses <code>aria-pressed</code> to say whether the microphone is off.</li></ul></div></div></section><section class="cp-sec" id="usage"><div class="pg-sh"><span class="n">03</span><h2>Usage</h2><p>Import it and drive it from your own state.</p></div><div class="cp-box"><h3 class="pg-t">Import</h3><pre class="cp-pre"><code>import { VoiceOrb } from &#39;@/components/designme/voice-orb/VoiceOrb&#39;;</code></pre></div><div class="cp-box cp-gap"><h3 class="pg-t">Example</h3><p class="pg-d">The demo above as a React component, 82 lines you can copy.</p><pre class="cp-pre"><code>&#39;use client&#39;;
 // The animated preview from designme.dev, rebuilt from the React component: an example of driving it from your own state.
 import { useEffect, useRef, useState } from &#39;react&#39;;
 import { VoiceOrb, type VoiceState } from &#39;./VoiceOrb&#39;;
@@ -160,10 +172,11 @@ export default function VoiceOrbDemo() {
     &lt;/div&gt;
   );
 }
-</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything VoiceOrb takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>state</code><span class="opt">required</span></td><td><code>VoiceState</code></td><td></td></tr><tr><td><code>level</code></td><td><code>number</code></td><td>How loud whoever is talking is, 0 to 1. The orb swells with it. Feed it from your audio, or from a made-up curve</td></tr><tr><td><code>muted</code></td><td><code>boolean</code></td><td>Your microphone is off. Listening shows as Muted, and the mute button is pressed</td></tr><tr><td><code>onMutedChange</code></td><td><code>(muted: boolean) =&gt; void</code></td><td></td></tr><tr><td><code>mutedNotice</code></td><td><code>boolean</code></td><td>Shows &quot;You&#39;re muted&quot; with an Unmute button, for when someone talks while muted</td></tr><tr><td><code>caption</code></td><td><code>{ speaker: string; text: string; id?: string }</code></td><td>What was said last and who said it. Each word fades in as it arrives; a new `id` (or speaker) starts a new line</td></tr><tr><td><code>hint</code></td><td><code>string</code></td><td>Shown before anything is said, like &quot;Talk to the agent about Pricing v4&quot;</td></tr><tr><td><code>elapsed</code></td><td><code>number</code></td><td>Seconds since the chat started, shown top right</td></tr><tr><td><code>onStart</code></td><td><code>() =&gt; void</code></td><td></td></tr><tr><td><code>onEnd</code></td><td><code>() =&gt; void</code></td><td></td></tr><tr><td><code>onRestart</code></td><td><code>() =&gt; void</code></td><td>Start again, from the row that shows once the chat has ended</td></tr><tr><td><code>endedDetail</code></td><td><code>string</code></td><td>The quiet line under &quot;Voice chat ended&quot;. Defaults to the length and &quot;Transcript saved&quot;</td></tr><tr><td><code>labels</code></td><td><code>{ ready?: string; listening?: string; thinking?: string; speaking?: string; muted?: string; ended?: string; start?: string; end?: string; mute?: string; unmute?: string; mutedNotice?: string; endedTitle?: string; restart?: string }</code></td><td></td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>VoiceOrb.tsx<span class="l">React · 82 lines</span></summary><pre class="cp-pre"><code>&#39;use client&#39;;
-import type { CSSProperties } from &#39;react&#39;;
+</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything VoiceOrb takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>state</code><span class="opt">required</span></td><td><code>VoiceState</code></td><td></td></tr><tr><td><code>level</code></td><td><code>number</code></td><td>How loud whoever is talking is, 0 to 1. The orb swells with it. Feed it from your audio, or from a made-up curve</td></tr><tr><td><code>muted</code></td><td><code>boolean</code></td><td>Your microphone is off. Listening shows as Muted, and the mute button is pressed</td></tr><tr><td><code>onMutedChange</code></td><td><code>(muted: boolean) =&gt; void</code></td><td></td></tr><tr><td><code>mutedNotice</code></td><td><code>boolean</code></td><td>Shows &quot;You&#39;re muted&quot; with an Unmute button, for when someone talks while muted</td></tr><tr><td><code>caption</code></td><td><code>{ speaker: string; text: string; id?: string }</code></td><td>What was said last and who said it. Each word fades in as it arrives; a new `id` (or speaker) starts a new line</td></tr><tr><td><code>hint</code></td><td><code>string</code></td><td>Shown before anything is said, like &quot;Talk to the agent about Pricing v4&quot;</td></tr><tr><td><code>elapsed</code></td><td><code>number</code></td><td>Seconds since the chat started, shown top right</td></tr><tr><td><code>onStart</code></td><td><code>() =&gt; void</code></td><td></td></tr><tr><td><code>onEnd</code></td><td><code>() =&gt; void</code></td><td></td></tr><tr><td><code>onRestart</code></td><td><code>() =&gt; void</code></td><td>Start again, from the row that shows once the chat has ended</td></tr><tr><td><code>endedDetail</code></td><td><code>string</code></td><td>The quiet line under &quot;Voice chat ended&quot;. Defaults to the length and &quot;Transcript saved&quot;</td></tr><tr><td><code>labels</code></td><td><code>{ ready?: string; listening?: string; thinking?: string; speaking?: string; muted?: string; ended?: string; start?: string; end?: string; mute?: string; unmute?: string; mutedNotice?: string; endedTitle?: string; restart?: string }</code></td><td></td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>VoiceOrb.tsx<span class="l">React · 154 lines</span></summary><pre class="cp-pre"><code>&#39;use client&#39;;
+import { useEffect, useRef, useState, type CSSProperties } from &#39;react&#39;;
 import { cx } from &#39;../lib/cx&#39;;
 import { Icon } from &#39;../lib/icons&#39;;
+import { useReducedMotion } from &#39;../lib/hooks&#39;;
 import { Fold, Swap, Tip } from &#39;../lib/motion&#39;;
 import &#39;../designme.css&#39;;
 import &#39;./voice-orb.css&#39;;
@@ -213,7 +226,7 @@ export function VoiceOrb({
     &lt;div data-dm=&quot;&quot; className={className} style={{ width: &#39;100%&#39; }}&gt;
       &lt;div className={cx(&#39;dm-vor dm-panel&#39;, on &amp;&amp; &#39;dm-on&#39;)} data-m={m}&gt;
         &lt;div className=&quot;dm-vor-top&quot;&gt;&lt;span className=&quot;dm-vor-dot&quot; /&gt;&lt;Swap className=&quot;dm-vor-st&quot;&gt;{status}&lt;/Swap&gt;&lt;span className=&quot;dm-vor-t dm-num dm-muted&quot;&gt;{fmt(elapsed)}&lt;/span&gt;&lt;/div&gt;
-        &lt;div className=&quot;dm-vor-orb&quot; aria-hidden=&quot;true&quot; style={{ &#39;--dm-lv&#39;: Math.max(0, Math.min(1, level)).toFixed(3) } as CSSProperties}&gt;&lt;i className=&quot;dm-vor-glow&quot; /&gt;&lt;i className=&quot;dm-vor-core&quot; /&gt;&lt;/div&gt;
+        &lt;div className=&quot;dm-vor-orb&quot; aria-hidden=&quot;true&quot; style={{ &#39;--dm-lv&#39;: Math.max(0, Math.min(1, level)).toFixed(3) } as CSSProperties}&gt;&lt;i className=&quot;dm-vor-glow&quot; /&gt;&lt;i className=&quot;dm-vor-pc&quot; /&gt;&lt;i className=&quot;dm-vor-core&quot;&gt;&lt;OrbLight level={level} /&gt;&lt;/i&gt;&lt;/div&gt;
         &lt;div className=&quot;dm-vor-cap&quot; aria-live=&quot;polite&quot;&gt;
           &lt;Swap className=&quot;dm-vor-who dm-muted&quot;&gt;{caption?.speaker ?? &#39;&#39;}&lt;/Swap&gt;
           {caption
@@ -241,15 +254,87 @@ export function VoiceOrb({
     &lt;/div&gt;
   );
 }
-</code></pre></details><details class="cp-file"><summary>voice-orb.css<span class="l">React · 48 lines</span></summary><pre class="cp-pre"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+
+/** Light flowing inside the orb in the colours of whoever is talking, faster and brighter as they get louder. Without WebGL the
+    core keeps its plain gradient; with reduced motion it is one still frame, drawn again when the speaker changes */
+function OrbLight({ level }: { level: number }) {
+  const ref = useRef&lt;HTMLCanvasElement&gt;(null), lv = useRef(level), reduce = useReducedMotion();
+  const [on, setOn] = useState(false);
+  lv.current = Math.max(0, Math.min(1, level));
+  useEffect(() =&gt; {
+    const cv = ref.current, box = cv?.closest&lt;HTMLElement&gt;(&#39;.dm-vor&#39;); if (!cv || !box) return;
+    const s = orbShader(cv); if (!s) return;
+    setOn(true);
+    const dot = box.querySelector(&#39;.dm-vor-dot&#39;)!, pc = box.querySelector(&#39;.dm-vor-pc&#39;)!;
+    const draw = (ms: number) =&gt; s.paint(ms, lv.current, getComputedStyle(dot).backgroundColor, getComputedStyle(pc).backgroundColor);
+    let raf = 0, seen = true, flow = 0, last = 0, dead = false;
+    const io = new IntersectionObserver(e =&gt; { seen = e[0].isIntersecting; }); io.observe(cv);
+    const mo = new MutationObserver(() =&gt; setTimeout(() =&gt; { if (!dead) draw(flow); }, 450));
+    if (reduce) { draw(0); mo.observe(box, { attributes: true, attributeFilter: [&#39;data-m&#39;] }); }
+    else {
+      const tick = (t: number) =&gt; { flow += Math.min(50, t - (last || t)) * (1 + lv.current * 2.5); last = t; if (seen) draw(flow); raf = requestAnimationFrame(tick); };
+      raf = requestAnimationFrame(tick);
+    }
+    // the context is let go once the canvas has left the page, not when an effect merely runs again on the same canvas
+    return () =&gt; { dead = true; cancelAnimationFrame(raf); io.disconnect(); mo.disconnect(); setTimeout(() =&gt; { if (!cv.isConnected) s.lose(); }); };
+  }, [reduce]);
+  return &lt;canvas ref={ref} className={cx(&#39;dm-vor-gl&#39;, on &amp;&amp; &#39;dm-on&#39;)} /&gt;;
+}
+
+// a sphere of slowly flowing light, for Voice orb: domain-warped noise in two colours, a darker rim and a highlight up top.
+// Returns paint(ms, level 0 to 1, colour, second colour) and lose(), or null where WebGL is not available
+const FRAG = `precision mediump float;
+uniform vec2 R;uniform float T,L;uniform vec3 A,B;
+float h(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
+float n(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(h(i),h(i+vec2(1,0)),f.x),mix(h(i+vec2(0,1)),h(i+1.),f.x),f.y);}
+float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i&lt;4;i++){v+=a*n(p);p=p*2.03+vec2(1.7,9.2);a*=.5;}return v;}
+void main(){
+  vec2 u=(gl_FragCoord.xy*2.-R)/R.y;float r=length(u),t=T*.00018;
+  vec2 q=vec2(fbm(u*1.4+vec2(0.,t)),fbm(u*1.4+vec2(5.2,-t*.8)));
+  vec2 w=vec2(fbm(u*1.7+q*2.4+vec2(1.7-t*.7,9.2)),fbm(u*1.7+q*2.4+vec2(8.3,2.8+t*.6)));
+  float f=fbm(u*1.3+w*2.2);
+  vec3 c=mix(A*.62,A,smoothstep(.25,.7,f));
+  c=mix(c,B,smoothstep(.4,.85,w.x)*.75);
+  c=mix(c,mix(A,vec3(1.),.6),smoothstep(.6,1.05,f+w.y*.35)*(.45+L*.4));
+  c*=1.-smoothstep(.5,1.,r)*.3;
+  c+=pow(max(0.,1.-length(u-vec2(-.34,.42))/.75),2.)*.3;
+  float a=1.-smoothstep(.97,1.,r);gl_FragColor=vec4(c*a,a);
+}`;
+
+function orbShader(cv: HTMLCanvasElement) {
+  const gl = cv.getContext(&#39;webgl&#39;, { premultipliedAlpha: true, antialias: true }); if (!gl) return null;
+  const sh = (type: number, src: string) =&gt; { const s = gl.createShader(type)!; gl.shaderSource(s, src); gl.compileShader(s); return s; };
+  const pr = gl.createProgram()!;
+  gl.attachShader(pr, sh(gl.VERTEX_SHADER, &#39;attribute vec2 p;void main(){gl_Position=vec4(p,0.,1.);}&#39;));
+  gl.attachShader(pr, sh(gl.FRAGMENT_SHADER, FRAG));
+  gl.linkProgram(pr); if (!gl.getProgramParameter(pr, gl.LINK_STATUS)) return null;
+  gl.useProgram(pr);
+  gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer()); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
+  const at = gl.getAttribLocation(pr, &#39;p&#39;); gl.enableVertexAttribArray(at); gl.vertexAttribPointer(at, 2, gl.FLOAT, false, 0, 0);
+  const U = (k: string) =&gt; gl.getUniformLocation(pr, k), uR = U(&#39;R&#39;), uT = U(&#39;T&#39;), uL = U(&#39;L&#39;), uA = U(&#39;A&#39;), uB = U(&#39;B&#39;);
+  // a computed colour to 0 to 1 channels. Mid-transition it can come as oklab() or color(), so a 1px canvas reads it
+  const px = document.createElement(&#39;canvas&#39;).getContext(&#39;2d&#39;, { willReadFrequently: true })!; px.canvas.width = px.canvas.height = 1;
+  const rgb = (s: string) =&gt; { px.clearRect(0, 0, 1, 1); px.fillStyle = &#39;#000&#39;; px.fillStyle = s; px.fillRect(0, 0, 1, 1); const d = px.getImageData(0, 0, 1, 1).data; return [d[0] / 255, d[1] / 255, d[2] / 255]; };
+  return {
+    paint(ms: number, lv: number, a: string, b: string) {
+      const d = Math.min(2, devicePixelRatio || 1), w = Math.round(cv.clientWidth * d) || 1;
+      if (cv.width !== w) { cv.width = cv.height = w; gl.viewport(0, 0, w, w); }
+      gl.uniform2f(uR, w, w); gl.uniform1f(uT, ms); gl.uniform1f(uL, lv); gl.uniform3fv(uA, rgb(a)); gl.uniform3fv(uB, rgb(b));
+      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    },
+    lose() { gl.getExtension(&#39;WEBGL_lose_context&#39;)?.loseContext(); }
+  };
+}
+</code></pre></details><details class="cp-file"><summary>voice-orb.css<span class="l">React · 60 lines</span></summary><pre class="cp-pre"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Voice orb ---------- */
 /* a hands-free voice chat: an orb that swells with whoever is talking, the accent colour for you and violet for the agent, what
    was said under it, and mute and end below. Talking while muted says so, the way calls do */
-.dm-vor{position:relative;width:100%;max-width:380px;margin:0 auto;padding:16px;display:flex;flex-direction:column;gap:12px;--dm-oc:var(--dm-faint)}
-.dm-vor[data-m=&quot;listening&quot;]{--dm-oc:var(--dm-accent)}
-.dm-vor[data-m=&quot;speaking&quot;]{--dm-oc:var(--dm-pl)}
-.dm-vor[data-m=&quot;thinking&quot;]{--dm-oc:color-mix(in srgb,var(--dm-accent) 50%,var(--dm-pl))}
-.dm-vor[data-m=&quot;muted&quot;]{--dm-oc:color-mix(in srgb,var(--dm-muted) 55%,var(--dm-faint))}
+.dm-vor{position:relative;width:100%;max-width:380px;margin:0 auto;padding:16px;display:flex;flex-direction:column;gap:12px;--dm-oc:var(--dm-faint);--dm-oc2:var(--dm-muted)}
+/* --oc is whoever is talking, --oc2 the second colour that flows through the orb with it */
+.dm-vor[data-m=&quot;listening&quot;]{--dm-oc:var(--dm-accent);--dm-oc2:color-mix(in srgb,var(--dm-pl) 45%,var(--dm-accent))}
+.dm-vor[data-m=&quot;speaking&quot;]{--dm-oc:var(--dm-pl);--dm-oc2:color-mix(in srgb,var(--dm-accent) 45%,var(--dm-pl))}
+.dm-vor[data-m=&quot;thinking&quot;]{--dm-oc:color-mix(in srgb,var(--dm-accent) 50%,var(--dm-pl));--dm-oc2:var(--dm-accent)}
+.dm-vor[data-m=&quot;muted&quot;]{--dm-oc:color-mix(in srgb,var(--dm-muted) 55%,var(--dm-faint));--dm-oc2:var(--dm-faint)}
 .dm-vor-top{display:flex;align-items:center;gap:8px;font-size:13px}
 .dm-vor-dot{width:8px;height:8px;border-radius:50%;background:var(--dm-oc);transition:background .4s}
 .dm-vor[data-m=&quot;listening&quot;] .dm-vor-dot,.dm-vor[data-m=&quot;speaking&quot;] .dm-vor-dot{animation:dm-vor-pulse 1.4s var(--dm-ease-io) infinite}
@@ -259,10 +344,21 @@ export function VoiceOrb({
 .dm-vor-orb i{position:absolute;inset:0;border-radius:50%}
 /* round in Blueprint too, where every other corner is square: like the turning loaders, its shape is what it says */
 .dm-vor .dm-vor-orb i{border-radius:50%!important}
-.dm-vor-glow{background:radial-gradient(closest-side,color-mix(in srgb,var(--dm-oc) 28%,transparent),transparent);transform:scale(calc(1.1 + var(--dm-lv) * .45))}
-.dm-vor-core{background-color:color-mix(in srgb,var(--dm-oc) 72%,var(--dm-surface));background-image:radial-gradient(circle at 34% 28%,rgba(255,255,255,.42),rgba(255,255,255,0) 62%);box-shadow:inset 0 -8px 18px color-mix(in srgb,var(--dm-oc) 30%,transparent);transform:scale(calc(.9 + var(--dm-lv) * .14));transition:background-color .4s}
+/* the glow: both colours turning slowly behind the orb and fading out from its edge (a mask, not a blur, so Blueprint keeps
+   it too), brighter and wider the louder the voice */
+.dm-vor .dm-vor-orb .dm-vor-glow{inset:-30px;background:conic-gradient(from 0deg,var(--dm-oc),var(--dm-oc2),var(--dm-oc));-webkit-mask:radial-gradient(closest-side,#000 48%,transparent);mask:radial-gradient(closest-side,#000 48%,transparent);opacity:calc(.3 + var(--dm-lv) * .45);transform:scale(calc(.9 + var(--dm-lv) * .3));animation:dm-vor-spin 9s linear infinite;transition:opacity .4s}
+.dm-vor[data-m=&quot;idle&quot;] .dm-vor-orb .dm-vor-glow,.dm-vor[data-m=&quot;ended&quot;] .dm-vor-orb .dm-vor-glow,.dm-vor[data-m=&quot;muted&quot;] .dm-vor-orb .dm-vor-glow{opacity:.16}
+@keyframes dm-vor-spin{to{rotate:360deg}}
+.dm-vor-core{overflow:hidden;background-color:color-mix(in srgb,var(--dm-oc) 72%,var(--dm-surface));background-image:radial-gradient(circle at 34% 28%,rgba(255,255,255,.42),rgba(255,255,255,0) 62%);box-shadow:inset 0 -8px 18px color-mix(in srgb,var(--dm-oc) 30%,transparent),0 0 0 1px color-mix(in srgb,var(--dm-oc) 20%,transparent);transform:scale(calc(.9 + var(--dm-lv) * .14));transition:background-color .4s}
+/* the flowing inside, drawn over the plain gradient once WebGL is there */
+.dm-vor-gl{position:absolute;inset:0;width:100%;height:100%;border-radius:50%;opacity:0;transition:opacity .4s}
+.dm-vor-gl.dm-on{opacity:1}
+/* reads the second colour as it eases from one speaker to the next */
+.dm-vor-pc{visibility:hidden;background:var(--dm-oc2);transition:background .4s}
+.dm-vor-cap,.dm-vor-mf,.dm-vor-f{position:relative}
 .dm-vor[data-m=&quot;thinking&quot;] .dm-vor-core{animation:dm-vor-br 1.6s var(--dm-ease-io) infinite alternate}
 @keyframes dm-vor-br{from{transform:scale(.9)}to{transform:scale(.96)}}
+@media (prefers-reduced-motion:reduce){.dm-vor-glow{animation:none}}
 .dm-vor-cap{min-height:88px;display:flex;flex-direction:column;gap:2px;text-align:center}
 .dm-vor-who{font-size:12px;min-height:18px}
 .dm-vor-tx{margin:0;font-size:14px;line-height:1.6;color:var(--dm-fg)}
@@ -293,7 +389,7 @@ export function VoiceOrb({
   &lt;template&gt;
 &lt;div class=&quot;vor panel&quot; data-m=&quot;idle&quot;&gt;
   &lt;div class=&quot;vor-top&quot;&gt;&lt;span class=&quot;vor-dot&quot;&gt;&lt;/span&gt;&lt;span class=&quot;vor-st&quot;&gt;Ready&lt;/span&gt;&lt;span class=&quot;vor-t num muted&quot;&gt;0:00&lt;/span&gt;&lt;/div&gt;
-  &lt;div class=&quot;vor-orb&quot; aria-hidden=&quot;true&quot;&gt;&lt;i class=&quot;vor-glow&quot;&gt;&lt;/i&gt;&lt;i class=&quot;vor-core&quot;&gt;&lt;/i&gt;&lt;/div&gt;
+  &lt;div class=&quot;vor-orb&quot; aria-hidden=&quot;true&quot;&gt;&lt;i class=&quot;vor-glow&quot;&gt;&lt;/i&gt;&lt;i class=&quot;vor-pc&quot;&gt;&lt;/i&gt;&lt;i class=&quot;vor-core&quot;&gt;&lt;canvas class=&quot;vor-gl&quot;&gt;&lt;/canvas&gt;&lt;/i&gt;&lt;/div&gt;
   &lt;div class=&quot;vor-cap&quot; aria-live=&quot;polite&quot;&gt;&lt;span class=&quot;vor-who muted&quot;&gt;&lt;/span&gt;&lt;p class=&quot;vor-tx hint&quot;&gt;Talk to the agent about Pricing v4&lt;/p&gt;&lt;/div&gt;
   &lt;div class=&quot;fold shut vor-mf&quot;&gt;&lt;div&gt;&lt;div class=&quot;vor-mw&quot;&gt;&lt;p&gt;{warn}&lt;span&gt;You&#39;re muted. Unmute so the agent can hear you.&lt;/span&gt;&lt;/p&gt;&lt;button class=&quot;pill sm vor-un&quot;&gt;Unmute&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;
   &lt;div class=&quot;vor-f&quot;&gt;
@@ -305,14 +401,15 @@ export function VoiceOrb({
 &lt;/div&gt;
   &lt;/template&gt;
 &lt;/div&gt;
-</code></pre></details><details class="cp-file"><summary>voice-orb.css<span class="l">HTML · 47 lines</span></summary><pre class="cp-pre"><code>/* ---------- Voice orb ---------- */
+</code></pre></details><details class="cp-file"><summary>voice-orb.css<span class="l">HTML · 59 lines</span></summary><pre class="cp-pre"><code>/* ---------- Voice orb ---------- */
 /* a hands-free voice chat: an orb that swells with whoever is talking, the accent colour for you and violet for the agent, what
    was said under it, and mute and end below. Talking while muted says so, the way calls do */
-.vor{position:relative;width:100%;max-width:380px;margin:0 auto;padding:16px;display:flex;flex-direction:column;gap:12px;--oc:var(--faint)}
-.vor[data-m=&quot;listening&quot;]{--oc:var(--accent)}
-.vor[data-m=&quot;speaking&quot;]{--oc:var(--pl)}
-.vor[data-m=&quot;thinking&quot;]{--oc:color-mix(in srgb,var(--accent) 50%,var(--pl))}
-.vor[data-m=&quot;muted&quot;]{--oc:color-mix(in srgb,var(--muted) 55%,var(--faint))}
+.vor{position:relative;width:100%;max-width:380px;margin:0 auto;padding:16px;display:flex;flex-direction:column;gap:12px;--oc:var(--faint);--oc2:var(--muted)}
+/* --oc is whoever is talking, --oc2 the second colour that flows through the orb with it */
+.vor[data-m=&quot;listening&quot;]{--oc:var(--accent);--oc2:color-mix(in srgb,var(--pl) 45%,var(--accent))}
+.vor[data-m=&quot;speaking&quot;]{--oc:var(--pl);--oc2:color-mix(in srgb,var(--accent) 45%,var(--pl))}
+.vor[data-m=&quot;thinking&quot;]{--oc:color-mix(in srgb,var(--accent) 50%,var(--pl));--oc2:var(--accent)}
+.vor[data-m=&quot;muted&quot;]{--oc:color-mix(in srgb,var(--muted) 55%,var(--faint));--oc2:var(--faint)}
 .vor-top{display:flex;align-items:center;gap:8px;font-size:13px}
 .vor-dot{width:8px;height:8px;border-radius:50%;background:var(--oc);transition:background .4s}
 .vor[data-m=&quot;listening&quot;] .vor-dot,.vor[data-m=&quot;speaking&quot;] .vor-dot{animation:vor-pulse 1.4s var(--ease-io) infinite}
@@ -322,10 +419,21 @@ export function VoiceOrb({
 .vor-orb i{position:absolute;inset:0;border-radius:50%}
 /* round in Blueprint too, where every other corner is square: like the turning loaders, its shape is what it says */
 .vor .vor-orb i{border-radius:50%!important}
-.vor-glow{background:radial-gradient(closest-side,color-mix(in srgb,var(--oc) 28%,transparent),transparent);transform:scale(calc(1.1 + var(--lv) * .45))}
-.vor-core{background-color:color-mix(in srgb,var(--oc) 72%,var(--surface));background-image:radial-gradient(circle at 34% 28%,rgba(255,255,255,.42),rgba(255,255,255,0) 62%);box-shadow:inset 0 -8px 18px color-mix(in srgb,var(--oc) 30%,transparent);transform:scale(calc(.9 + var(--lv) * .14));transition:background-color .4s}
+/* the glow: both colours turning slowly behind the orb and fading out from its edge (a mask, not a blur, so Blueprint keeps
+   it too), brighter and wider the louder the voice */
+.vor .vor-orb .vor-glow{inset:-30px;background:conic-gradient(from 0deg,var(--oc),var(--oc2),var(--oc));-webkit-mask:radial-gradient(closest-side,#000 48%,transparent);mask:radial-gradient(closest-side,#000 48%,transparent);opacity:calc(.3 + var(--lv) * .45);transform:scale(calc(.9 + var(--lv) * .3));animation:vor-spin 9s linear infinite;transition:opacity .4s}
+.vor[data-m=&quot;idle&quot;] .vor-orb .vor-glow,.vor[data-m=&quot;ended&quot;] .vor-orb .vor-glow,.vor[data-m=&quot;muted&quot;] .vor-orb .vor-glow{opacity:.16}
+@keyframes vor-spin{to{rotate:360deg}}
+.vor-core{overflow:hidden;background-color:color-mix(in srgb,var(--oc) 72%,var(--surface));background-image:radial-gradient(circle at 34% 28%,rgba(255,255,255,.42),rgba(255,255,255,0) 62%);box-shadow:inset 0 -8px 18px color-mix(in srgb,var(--oc) 30%,transparent),0 0 0 1px color-mix(in srgb,var(--oc) 20%,transparent);transform:scale(calc(.9 + var(--lv) * .14));transition:background-color .4s}
+/* the flowing inside, drawn over the plain gradient once WebGL is there */
+.vor-gl{position:absolute;inset:0;width:100%;height:100%;border-radius:50%;opacity:0;transition:opacity .4s}
+.vor-gl.on{opacity:1}
+/* reads the second colour as it eases from one speaker to the next */
+.vor-pc{visibility:hidden;background:var(--oc2);transition:background .4s}
+.vor-cap,.vor-mf,.vor-f{position:relative}
 .vor[data-m=&quot;thinking&quot;] .vor-core{animation:vor-br 1.6s var(--ease-io) infinite alternate}
 @keyframes vor-br{from{transform:scale(.9)}to{transform:scale(.96)}}
+@media (prefers-reduced-motion:reduce){.vor-glow{animation:none}}
 .vor-cap{min-height:88px;display:flex;flex-direction:column;gap:2px;text-align:center}
 .vor-who{font-size:12px;min-height:18px}
 .vor-tx{margin:0;font-size:14px;line-height:1.6;color:var(--fg)}
@@ -351,7 +459,7 @@ export function VoiceOrb({
 .vor-done&gt;svg{color:var(--fg2);flex:none}
 .vor-done .t{flex:1;min-width:0;display:flex;flex-direction:column}
 .vor-done .t span{font-size:13px}
-</code></pre></details><details class="cp-file"><summary>voice-orb.js<span class="l">HTML · 66 lines</span></summary><pre class="cp-pre"><code>DM.def(&#39;voice-orb&#39;, (r, c) =&gt; {
+</code></pre></details><details class="cp-file"><summary>voice-orb.js<span class="l">HTML · 76 lines</span></summary><pre class="cp-pre"><code>DM.def(&#39;voice-orb&#39;, (r, c) =&gt; {
   const IC = { warn:I(&#39;alert&#39;,&#39;xs&#39;), mic:I(&#39;mic&#39;,&#39;xs&#39;), micm:I(&#39;mic&#39;) };
   r.innerHTML = r.innerHTML.replace(/\{(\w+)\}/g, (m, k) =&gt; IC[k] || m);
   const root = $(&#39;.vor&#39;, r), orb = $(&#39;.vor-orb&#39;, r), st = $(&#39;.vor-st&#39;, r), tm = $(&#39;.vor-t&#39;, r), who = $(&#39;.vor-who&#39;, r), tx = $(&#39;.vor-tx&#39;, r), mf = $(&#39;.vor-mf&#39;, r), f = $(&#39;.vor-f&#39;, r), mute = $(&#39;.vor-mute&#39;, r);
@@ -365,11 +473,21 @@ export function VoiceOrb({
   const set = m =&gt; { mode = m; show(); };
   const notice = on =&gt; { mf.classList.toggle(&#39;shut&#39;, !on); mf.inert = !on; };
   notice(false);
+  // inside the orb, light flows in the two colours of whoever is talking, faster and brighter as they get louder: a small
+  // WebGL shader of warped noise, shaded as a sphere. Without WebGL the core keeps its plain gradient
+  const paint = orbShader($(&#39;.vor-gl&#39;, orb), c), dot = $(&#39;.vor-dot&#39;, r), pc = $(&#39;.vor-pc&#39;, orb);
+  let seen = true, flow = 0, last = 0;
+  if (paint &amp;&amp; &#39;IntersectionObserver&#39; in window){ const io = new IntersectionObserver(e =&gt; { seen = e[0].isIntersecting; }); io.observe(orb); c.offs.push(() =&gt; io.disconnect()); }
+  const draw = t =&gt; paint &amp;&amp; paint(t, lv, getComputedStyle(dot).backgroundColor, getComputedStyle(pc).backgroundColor);
   // the orb follows a level: a made-up voice while someone talks, a faint idle while it listens
   if (!REDUCE) c.loop(t =&gt; {
     const to = talking ? .5 + .28 * Math.sin(t / 90) * Math.sin(t / 233) + .16 * Math.sin(t / 57) : mode === &#39;listening&#39; &amp;&amp; !muted ? .05 + .03 * Math.sin(t / 420) : 0;
     lv += (Math.max(0, to) - lv) * .18; orb.style.setProperty(&#39;--lv&#39;, lv.toFixed(3));
+    flow += Math.min(50, t - (last || t)) * (1 + lv * 2.5); last = t;
+    if (seen) draw(flow);
   });
+  // with reduced motion it is still: one frame, drawn again when the colours change
+  else if (paint){ draw(0); new MutationObserver(() =&gt; c.later(450, () =&gt; draw(0))).observe(root, { attributes:true, attributeFilter:[&#39;data-m&#39;] }); }
   c.every(1000, () =&gt; { if (mode !== &#39;idle&#39; &amp;&amp; mode !== &#39;ended&#39;){ secs++; tm.textContent = fmt(secs); } });
   async function say(name, line, ms, id){
     swap(who, name); tx.classList.remove(&#39;hint&#39;); tx.innerHTML = &#39;&#39;; talking = true;
@@ -463,11 +581,21 @@ export function VoiceOrb({
   const set = m => { mode = m; show(); };
   const notice = on => { mf.classList.toggle('shut', !on); mf.inert = !on; };
   notice(false);
+  // inside the orb, light flows in the two colours of whoever is talking, faster and brighter as they get louder: a small
+  // WebGL shader of warped noise, shaded as a sphere. Without WebGL the core keeps its plain gradient
+  const paint = orbShader($('.vor-gl', orb), c), dot = $('.vor-dot', r), pc = $('.vor-pc', orb);
+  let seen = true, flow = 0, last = 0;
+  if (paint && 'IntersectionObserver' in window){ const io = new IntersectionObserver(e => { seen = e[0].isIntersecting; }); io.observe(orb); c.offs.push(() => io.disconnect()); }
+  const draw = t => paint && paint(t, lv, getComputedStyle(dot).backgroundColor, getComputedStyle(pc).backgroundColor);
   // the orb follows a level: a made-up voice while someone talks, a faint idle while it listens
   if (!REDUCE) c.loop(t => {
     const to = talking ? .5 + .28 * Math.sin(t / 90) * Math.sin(t / 233) + .16 * Math.sin(t / 57) : mode === 'listening' && !muted ? .05 + .03 * Math.sin(t / 420) : 0;
     lv += (Math.max(0, to) - lv) * .18; orb.style.setProperty('--lv', lv.toFixed(3));
+    flow += Math.min(50, t - (last || t)) * (1 + lv * 2.5); last = t;
+    if (seen) draw(flow);
   });
+  // with reduced motion it is still: one frame, drawn again when the colours change
+  else if (paint){ draw(0); new MutationObserver(() => c.later(450, () => draw(0))).observe(root, { attributes:true, attributeFilter:['data-m'] }); }
   c.every(1000, () => { if (mode !== 'idle' && mode !== 'ended'){ secs++; tm.textContent = fmt(secs); } });
   async function say(name, line, ms, id){
     swap(who, name); tx.classList.remove('hint'); tx.innerHTML = ''; talking = true;

@@ -6131,7 +6131,6 @@ body.ui section.faq{display:none}
 .v2 .aib-r .ok{color:var(--ok);display:grid}
 .v2 .aib-i.fail{background:var(--bad-bg)}
 .v2 .aib-i.fail .aib-r .pill{background:var(--surface);color:var(--fg);box-shadow:var(--shadow)}
-.v2 .aib-none{padding:6px 10px 8px;font-size:12.5px;color:var(--muted)}
 /* ---------- Run cost ---------- */
 .v2 .rc{padding:18px}
 .v2 .rc-h{display:flex;align-items:center;justify-content:space-between;font-size:12.5px}
@@ -7058,7 +7057,8 @@ body.ui section.faq{display:none}
 .v2 .drf-w p svg{color:var(--warn);flex:none;margin-top:3px}
 .v2 .drf-wa{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:6px}
 .v2 .drf-w .pill.ghost{background:var(--surface);color:var(--fg);box-shadow:var(--shadow)}
-.v2 .drf-f{display:flex;align-items:center;gap:8px}
+/* a hairline sets the buttons apart from the message, as in a mail composer */
+.v2 .drf-f{display:flex;align-items:center;gap:8px;padding-top:12px;border-top:1px solid var(--line)}
 .v2 .drf-f .sp{flex:1}
 .v2 .drf-when{font-size:13px}
 .v2 .drf-mg{display:flex;gap:1px;flex:none}
@@ -7078,11 +7078,12 @@ body.ui section.faq{display:none}
 /* ---------- Voice orb ---------- */
 /* a hands-free voice chat: an orb that swells with whoever is talking, the accent colour for you and violet for the agent, what
    was said under it, and mute and end below. Talking while muted says so, the way calls do */
-.v2 .vor{position:relative;width:100%;max-width:380px;margin:0 auto;padding:16px;display:flex;flex-direction:column;gap:12px;--oc:var(--faint)}
-.v2 .vor[data-m="listening"]{--oc:var(--accent)}
-.v2 .vor[data-m="speaking"]{--oc:var(--pl)}
-.v2 .vor[data-m="thinking"]{--oc:color-mix(in srgb,var(--accent) 50%,var(--pl))}
-.v2 .vor[data-m="muted"]{--oc:color-mix(in srgb,var(--muted) 55%,var(--faint))}
+.v2 .vor{position:relative;width:100%;max-width:380px;margin:0 auto;padding:16px;display:flex;flex-direction:column;gap:12px;--oc:var(--faint);--oc2:var(--muted)}
+/* --oc is whoever is talking, --oc2 the second colour that flows through the orb with it */
+.v2 .vor[data-m="listening"]{--oc:var(--accent);--oc2:color-mix(in srgb,var(--pl) 45%,var(--accent))}
+.v2 .vor[data-m="speaking"]{--oc:var(--pl);--oc2:color-mix(in srgb,var(--accent) 45%,var(--pl))}
+.v2 .vor[data-m="thinking"]{--oc:color-mix(in srgb,var(--accent) 50%,var(--pl));--oc2:var(--accent)}
+.v2 .vor[data-m="muted"]{--oc:color-mix(in srgb,var(--muted) 55%,var(--faint));--oc2:var(--faint)}
 .v2 .vor-top{display:flex;align-items:center;gap:8px;font-size:13px}
 .v2 .vor-dot{width:8px;height:8px;border-radius:50%;background:var(--oc);transition:background .4s}
 .v2 .vor[data-m="listening"] .vor-dot,.v2 .vor[data-m="speaking"] .vor-dot{animation:v2-vor-pulse 1.4s var(--ease-io) infinite}
@@ -7092,10 +7093,21 @@ body.ui section.faq{display:none}
 .v2 .vor-orb i{position:absolute;inset:0;border-radius:50%}
 /* round in Blueprint too, where every other corner is square: like the turning loaders, its shape is what it says */
 .v2 .vor .vor-orb i{border-radius:50%!important}
-.v2 .vor-glow{background:radial-gradient(closest-side,color-mix(in srgb,var(--oc) 28%,transparent),transparent);transform:scale(calc(1.1 + var(--lv) * .45))}
-.v2 .vor-core{background-color:color-mix(in srgb,var(--oc) 72%,var(--surface));background-image:radial-gradient(circle at 34% 28%,rgba(255,255,255,.42),rgba(255,255,255,0) 62%);box-shadow:inset 0 -8px 18px color-mix(in srgb,var(--oc) 30%,transparent);transform:scale(calc(.9 + var(--lv) * .14));transition:background-color .4s}
+/* the glow: both colours turning slowly behind the orb and fading out from its edge (a mask, not a blur, so Blueprint keeps
+   it too), brighter and wider the louder the voice */
+.v2 .vor .vor-orb .vor-glow{inset:-30px;background:conic-gradient(from 0deg,var(--oc),var(--oc2),var(--oc));-webkit-mask:radial-gradient(closest-side,#000 48%,transparent);mask:radial-gradient(closest-side,#000 48%,transparent);opacity:calc(.3 + var(--lv) * .45);transform:scale(calc(.9 + var(--lv) * .3));animation:v2-vor-spin 9s linear infinite;transition:opacity .4s}
+.v2 .vor[data-m="idle"] .vor-orb .vor-glow,.v2 .vor[data-m="ended"] .vor-orb .vor-glow,.v2 .vor[data-m="muted"] .vor-orb .vor-glow{opacity:.16}
+@keyframes v2-vor-spin{to{rotate:360deg}}
+.v2 .vor-core{overflow:hidden;background-color:color-mix(in srgb,var(--oc) 72%,var(--surface));background-image:radial-gradient(circle at 34% 28%,rgba(255,255,255,.42),rgba(255,255,255,0) 62%);box-shadow:inset 0 -8px 18px color-mix(in srgb,var(--oc) 30%,transparent),0 0 0 1px color-mix(in srgb,var(--oc) 20%,transparent);transform:scale(calc(.9 + var(--lv) * .14));transition:background-color .4s}
+/* the flowing inside, drawn over the plain gradient once WebGL is there */
+.v2 .vor-gl{position:absolute;inset:0;width:100%;height:100%;border-radius:50%;opacity:0;transition:opacity .4s}
+.v2 .vor-gl.on{opacity:1}
+/* reads the second colour as it eases from one speaker to the next */
+.v2 .vor-pc{visibility:hidden;background:var(--oc2);transition:background .4s}
+.v2 .vor-cap,.v2 .vor-mf,.v2 .vor-f{position:relative}
 .v2 .vor[data-m="thinking"] .vor-core{animation:v2-vor-br 1.6s var(--ease-io) infinite alternate}
 @keyframes v2-vor-br{from{transform:scale(.9)}to{transform:scale(.96)}}
+@media (prefers-reduced-motion:reduce){.v2 .vor-glow{animation:none}}
 .v2 .vor-cap{min-height:88px;display:flex;flex-direction:column;gap:2px;text-align:center}
 .v2 .vor-who{font-size:12px;min-height:18px}
 .v2 .vor-tx{margin:0;font-size:14px;line-height:1.6;color:var(--fg)}
@@ -7622,7 +7634,8 @@ body.ui section.faq{display:none}
 .v2 .acx-name{font-weight:500}
 .v2 .acx-sp{flex:1}
 .v2 .acx-st{font-size:12.5px}
-.v2 .acx-cv{position:relative;height:300px;border-radius:18px;background:var(--chip);background-image:radial-gradient(circle,var(--line) 1px,transparent 1.2px);background-size:18px 18px;overflow:hidden}
+/* the canvas reads as a workflow editor: a dot every 16px, fading toward the edges so the steps sit in the middle of it */
+.v2 .acx-cv{position:relative;height:300px;border-radius:18px;overflow:hidden;background-color:var(--chip);background-image:radial-gradient(ellipse at center,transparent 55%,var(--chip) 100%),radial-gradient(circle at 8px 8px,color-mix(in srgb,var(--fg) 20%,transparent) 1.1px,transparent 1.6px);background-size:100% 100%,16px 16px;background-position:0 0,center}
 .v2 .acx-svg{position:absolute;inset:0;width:100%;height:100%}
 .v2 .acx-svg path{fill:none;stroke:var(--faint);stroke-width:1.5;transition:stroke .6s var(--ease)}
 /* on arrival the wires draw in after the steps have landed */
@@ -9033,7 +9046,7 @@ body.ui section.faq{display:none}
     </div>
     <template><div class="vor panel" data-m="idle">
   <div class="vor-top"><span class="vor-dot"></span><span class="vor-st">Ready</span><span class="vor-t num muted">0:00</span></div>
-  <div class="vor-orb" aria-hidden="true"><i class="vor-glow"></i><i class="vor-core"></i></div>
+  <div class="vor-orb" aria-hidden="true"><i class="vor-glow"></i><i class="vor-pc"></i><i class="vor-core"><canvas class="vor-gl"></canvas></i></div>
   <div class="vor-cap" aria-live="polite"><span class="vor-who muted"></span><p class="vor-tx hint">Talk to the agent about Pricing v4</p></div>
   <div class="fold shut vor-mf"><div><div class="vor-mw"><p>{warn}<span>You're muted. Unmute so the agent can hear you.</span></p><button class="pill sm vor-un">Unmute</button></div></div></div>
   <div class="vor-f">
@@ -13391,9 +13404,9 @@ DM.def('agent-inbox', (r, c) => {
     { id:'copy', t:'Rewrite plan descriptions', a:'Copy agent', g:'done', ago:'12m ago' },
     { id:'aud', t:'Audit pricing contrast', a:'QA agent', g:'done', ago:'25m ago' }
   ];
-  const GR = [['needs', 'Needs you', 'Nothing needs you'], ['run', 'Running', 'Nothing running'], ['done', 'Done', 'Nothing done yet']];
+  const GR = [['needs', 'Needs you'], ['run', 'Running'], ['done', 'Done']];
   const gs = $('.aib-gs', r), st = $('.aib-st', r);
-  gs.innerHTML = GR.map(([k, n, none]) => `<section class="aib-g" data-g="${k}" aria-label="${n}"><div class="aib-gh"><span>${n}</span><span class="n"></span></div><div class="aib-gl" role="list"></div><p class="aib-none" hidden>${none}</p></section>`).join('');
+  gs.innerHTML = GR.map(([k, n]) => `<section class="aib-g" data-g="${k}" aria-label="${n}"><div class="aib-gh"><span>${n}</span><span class="n"></span></div><div class="aib-gl" role="list"></div></section>`).join('');
   const clock = s => Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
   const meta = x => x.g === 'needs' ? x.why : x.g === 'run' ? x.doing : x.a;
   const right = x => x.g === 'needs' ? (x.fail ? `<button class="pill sm aib-go" aria-label="Retry ${x.t}">${I('refresh','xs')}Retry</button>` : `<button class="pill ink sm aib-go" aria-label="Approve ${x.t}">Approve</button>`)
@@ -13413,16 +13426,17 @@ DM.def('agent-inbox', (r, c) => {
   const list = g => $(`.aib-g[data-g="${g}"] .aib-gl`, gs);
   R.forEach(x => list(x.g).appendChild(row(x)));
   function counts(){
-    GR.forEach(([k]) => { const n = R.filter(x => x.g === k).length, sec = $(`.aib-g[data-g="${k}"]`, gs); $('.n', sec).textContent = n || ''; $('.aib-none', sec).hidden = !!n; });
-    const need = R.filter(x => x.g === 'needs').length, done = R.filter(x => x.g === 'done').length;
-    const t = need ? `${need} need${need > 1 ? '' : 's'} you` : `All clear · ${done} done today`;
+    // a group with nothing in it goes away, and the line at the top says what is left
+    GR.forEach(([k]) => { const n = R.filter(x => x.g === k).length, sec = $(`.aib-g[data-g="${k}"]`, gs); $('.n', sec).textContent = n; sec.hidden = !n; });
+    const need = R.filter(x => x.g === 'needs').length, run = R.filter(x => x.g === 'run').length, done = R.filter(x => x.g === 'done').length;
+    const t = need ? `${need} need${need > 1 ? '' : 's'} you` : run ? `${run} running` : `All clear · ${done} done today`;
     if (!st.textContent) st.textContent = t; else swap(st, t);
   }
   counts();
   // a run that moves glides to its place in the new group: rows and group titles are measured before and after, and eased
-  // from where they were; the moving row rides above the rest, and an empty line that appears fades in
+  // from where they were; the moving row rides above the rest, and a group that comes back fades in
   const ease = getComputedStyle(r).getPropertyValue('--ease').trim() || 'ease';
-  const shown = () => $$('.aib-gh,.aib-i,.aib-none:not([hidden])', gs);
+  const shown = () => $$('.aib-g:not([hidden]) .aib-gh,.aib-g:not([hidden]) .aib-i', gs);
   function move(x, g){
     const first = new Map(shown().map(e => [e, e.getBoundingClientRect().top]));
     x.g = g; update(x); list(g).prepend(x.el); counts();
@@ -14883,6 +14897,48 @@ DM.def('draft-review', (r, c) => {
   });
 });
 /* ---------- Voice orb ---------- */
+// a sphere of slowly flowing light, for Voice orb: domain-warped noise in two colours, a darker rim and a highlight up top.
+// Returns paint(ms, level 0 to 1, colour, second colour), or null where WebGL is not available. The context is let go
+// when the component stops
+function orbShader(cv, c){
+  const gl = cv.getContext('webgl', { premultipliedAlpha:true, antialias:true }); if (!gl) return null;
+  const sh = (type, src) => { const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); return s; };
+  const pr = gl.createProgram();
+  gl.attachShader(pr, sh(gl.VERTEX_SHADER, 'attribute vec2 p;void main(){gl_Position=vec4(p,0.,1.);}'));
+  gl.attachShader(pr, sh(gl.FRAGMENT_SHADER, `precision mediump float;
+uniform vec2 R;uniform float T,L;uniform vec3 A,B;
+float h(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
+float n(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(h(i),h(i+vec2(1,0)),f.x),mix(h(i+vec2(0,1)),h(i+1.),f.x),f.y);}
+float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<4;i++){v+=a*n(p);p=p*2.03+vec2(1.7,9.2);a*=.5;}return v;}
+void main(){
+  vec2 u=(gl_FragCoord.xy*2.-R)/R.y;float r=length(u),t=T*.00018;
+  vec2 q=vec2(fbm(u*1.4+vec2(0.,t)),fbm(u*1.4+vec2(5.2,-t*.8)));
+  vec2 w=vec2(fbm(u*1.7+q*2.4+vec2(1.7-t*.7,9.2)),fbm(u*1.7+q*2.4+vec2(8.3,2.8+t*.6)));
+  float f=fbm(u*1.3+w*2.2);
+  vec3 c=mix(A*.62,A,smoothstep(.25,.7,f));
+  c=mix(c,B,smoothstep(.4,.85,w.x)*.75);
+  c=mix(c,mix(A,vec3(1.),.6),smoothstep(.6,1.05,f+w.y*.35)*(.45+L*.4));
+  c*=1.-smoothstep(.5,1.,r)*.3;
+  c+=pow(max(0.,1.-length(u-vec2(-.34,.42))/.75),2.)*.3;
+  float a=1.-smoothstep(.97,1.,r);gl_FragColor=vec4(c*a,a);
+}`));
+  gl.linkProgram(pr); if (!gl.getProgramParameter(pr, gl.LINK_STATUS)) return null;
+  gl.useProgram(pr);
+  gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer()); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
+  const at = gl.getAttribLocation(pr, 'p'); gl.enableVertexAttribArray(at); gl.vertexAttribPointer(at, 2, gl.FLOAT, false, 0, 0);
+  const U = k => gl.getUniformLocation(pr, k), uR = U('R'), uT = U('T'), uL = U('L'), uA = U('A'), uB = U('B');
+  // a computed colour to 0 to 1 channels. Mid-transition it can come as oklab() or color(), so a 1px canvas reads it
+  const px = document.createElement('canvas').getContext('2d', { willReadFrequently:true }); px.canvas.width = px.canvas.height = 1;
+  const rgb = s => { px.clearRect(0, 0, 1, 1); px.fillStyle = '#000'; px.fillStyle = s; px.fillRect(0, 0, 1, 1); const d = px.getImageData(0, 0, 1, 1).data; return [d[0] / 255, d[1] / 255, d[2] / 255]; };
+  c.offs.push(() => { const x = gl.getExtension('WEBGL_lose_context'); if (x) x.loseContext(); });
+  cv.classList.add('on');
+  return (ms, lv, a, b) => {
+    const d = Math.min(2, devicePixelRatio || 1), w = Math.round(cv.clientWidth * d) || 1;
+    if (cv.width !== w){ cv.width = cv.height = w; gl.viewport(0, 0, w, w); }
+    gl.uniform2f(uR, w, w); gl.uniform1f(uT, ms); gl.uniform1f(uL, lv); gl.uniform3fv(uA, rgb(a)); gl.uniform3fv(uB, rgb(b));
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+  };
+}
 DM.def('voice-orb', (r, c) => {
   const IC = { warn:I('alert','xs'), mic:I('mic','xs'), micm:I('mic') };
   r.innerHTML = r.innerHTML.replace(/\{(\w+)\}/g, (m, k) => IC[k] || m);
@@ -14897,11 +14953,21 @@ DM.def('voice-orb', (r, c) => {
   const set = m => { mode = m; show(); };
   const notice = on => { mf.classList.toggle('shut', !on); mf.inert = !on; };
   notice(false);
+  // inside the orb, light flows in the two colours of whoever is talking, faster and brighter as they get louder: a small
+  // WebGL shader of warped noise, shaded as a sphere. Without WebGL the core keeps its plain gradient
+  const paint = orbShader($('.vor-gl', orb), c), dot = $('.vor-dot', r), pc = $('.vor-pc', orb);
+  let seen = true, flow = 0, last = 0;
+  if (paint && 'IntersectionObserver' in window){ const io = new IntersectionObserver(e => { seen = e[0].isIntersecting; }); io.observe(orb); c.offs.push(() => io.disconnect()); }
+  const draw = t => paint && paint(t, lv, getComputedStyle(dot).backgroundColor, getComputedStyle(pc).backgroundColor);
   // the orb follows a level: a made-up voice while someone talks, a faint idle while it listens
   if (!REDUCE) c.loop(t => {
     const to = talking ? .5 + .28 * Math.sin(t / 90) * Math.sin(t / 233) + .16 * Math.sin(t / 57) : mode === 'listening' && !muted ? .05 + .03 * Math.sin(t / 420) : 0;
     lv += (Math.max(0, to) - lv) * .18; orb.style.setProperty('--lv', lv.toFixed(3));
+    flow += Math.min(50, t - (last || t)) * (1 + lv * 2.5); last = t;
+    if (seen) draw(flow);
   });
+  // with reduced motion it is still: one frame, drawn again when the colours change
+  else if (paint){ draw(0); new MutationObserver(() => c.later(450, () => draw(0))).observe(root, { attributes:true, attributeFilter:['data-m'] }); }
   c.every(1000, () => { if (mode !== 'idle' && mode !== 'ended'){ secs++; tm.textContent = fmt(secs); } });
   async function say(name, line, ms, id){
     swap(who, name); tx.classList.remove('hint'); tx.innerHTML = ''; talking = true;
