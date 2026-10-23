@@ -3,7 +3,7 @@ import { useEffect, useState, type ReactNode } from 'react';
 import { cx } from '../../lib/cx';
 import { useControllable } from '../../lib/hooks';
 import { Icon } from '../../lib/icons';
-import { enter, Seg, Spin, Swap } from '../../lib/motion';
+import { enter, Seg, Spin, Swap, Tip } from '../../lib/motion';
 import '../../designme.css';
 import './permission-gate.css';
 
@@ -16,6 +16,8 @@ export interface PermissionScope {
   detail?: string;
   /** A warning tag after it, like "Risky" */
   risk?: string;
+  /** What the risk tag reveals on hover, like "Checkout, Marketing site, Email kit and Docs use this library" */
+  riskDetail?: string;
 }
 
 export type PermissionStatus = 'asking' | 'allowed' | 'declined';
@@ -50,6 +52,16 @@ export interface PermissionGateProps {
   onUndo?: () => void;
   /** The line under "Allowed …", like "Applying the pricing fixes now". Crossfades when it changes */
   allowedDetail?: string;
+  /** Replaces "Allowed 2 scopes for this task", like "Done. 6 frames edited on a new page". Crossfades when it changes */
+  allowedTitle?: string;
+  /** The agent is still working under the permission: a spinner on a neutral row instead of the green check */
+  working?: boolean;
+  /** Quiet text at the end of the allowed row, like an elapsed time "0:04" */
+  meta?: ReactNode;
+  /** A follow-up ask in the middle of a run, for one more scope: the icon tile turns amber */
+  followUp?: boolean;
+  /** The decline button. Defaults to "Not now"; a follow-up ask might say "Skip this frame" */
+  declineLabel?: string;
   /** Shown after Not now */
   declinedTitle?: ReactNode;
   declinedDetail?: ReactNode;
@@ -63,8 +75,8 @@ const DURATIONS = ['This task', 'Today', 'Always'];
 /** The agent asks before it acts: pick the scopes and how long they last, then allow or decline. */
 export function PermissionGate({
   title, subtitle, icon, scopes, value, defaultValue = [], onValueChange, durations = DURATIONS, duration, defaultDuration, onDurationChange,
-  status, defaultStatus = 'asking', onStatusChange, onAllow, onDecline, onRevoke, onUndo, allowedDetail, declinedTitle = 'The agent will skip these changes',
-  declinedDetail, bare = true, className
+  status, defaultStatus = 'asking', onStatusChange, onAllow, onDecline, onRevoke, onUndo, allowedDetail, allowedTitle, working = false, meta, followUp = false,
+  declineLabel = 'Not now', declinedTitle = 'The agent will skip these changes', declinedDetail, bare = true, className
 }: PermissionGateProps) {
   const [ticked, setTicked] = useControllable(value, defaultValue, onValueChange);
   const [dur, setDur] = useControllable(duration, defaultDuration ?? durations[0], onDurationChange);
@@ -95,7 +107,7 @@ export function PermissionGate({
   const again = (i: number) => (back ? { className: 'dm-enter', style: enter(i * 50).style, key: back } : { className: undefined, style: undefined, key: 0 });
 
   return (
-    <div data-dm="" className={cx('dm-pgx', !bare && 'dm-panel', className)}>
+    <div data-dm="" className={cx('dm-pgx', !bare && 'dm-panel', followUp && state === 'asking' && 'dm-esc', className)}>
       <div className="dm-pgx-h">
         <span className="dm-pgx-ic">{icon ?? <Icon name="shield" />}</span>
         <div className="dm-pgx-ht"><b>{title}</b>{subtitle && <span className="dm-muted">{subtitle}</span>}</div>
@@ -108,7 +120,7 @@ export function PermissionGate({
                 <input type="checkbox" checked={ticked.includes(s.key)} onChange={() => toggle(s.key)} />
                 <span className="dm-bx"><Icon name="check" size="xs" /></span>
                 <span className="dm-t">{s.label}{s.detail && <span className="dm-d">{s.detail}</span>}</span>
-                {s.risk && <span className="dm-tag dm-warn">{s.risk}</span>}
+                {s.risk && (s.riskDetail ? <Tip label={s.riskDetail}><span className="dm-tag dm-warn">{s.risk}</span></Tip> : <span className="dm-tag dm-warn">{s.risk}</span>)}
               </label>
             ))}
           </div>
@@ -117,7 +129,7 @@ export function PermissionGate({
             <Seg label="Duration" value={dur} onChange={setDur} options={durations.map(d => ({ value: d, label: d }))} />
           </div>
           <div key={'f' + again(2).key} className={cx('dm-pgx-f', again(2).className)} style={again(2).style}>
-            <button type="button" className="dm-pill dm-ghost dm-sm dm-pgx-no" onClick={decline}>Not now</button>
+            <button type="button" className="dm-pill dm-ghost dm-sm dm-pgx-no" onClick={decline}>{declineLabel}</button>
             <button type="button" className="dm-pill dm-ink dm-sm dm-pgx-ok" disabled={!n} onClick={allow}>
               {waiting ? <Spin /> : <Swap>{n ? `Allow ${n} ${n > 1 ? 'scopes' : 'scope'}` : 'Pick a scope'}</Swap>}
             </button>
@@ -125,9 +137,13 @@ export function PermissionGate({
         </>
       )}
       {state === 'allowed' && (
-        <div className={cx('dm-pgx-done', leaving ? 'dm-leave' : 'dm-enter')}>
-          <Icon name="ok" />
-          <span className="dm-t">Allowed {granted || n} {(granted || n) > 1 ? 'scopes' : 'scope'} for {dur.toLowerCase()}{allowedDetail !== undefined && <Swap>{allowedDetail}</Swap>}</span>
+        <div className={cx('dm-pgx-done', working ? 'dm-run' : 'dm-ok', leaving ? 'dm-leave' : 'dm-enter')}>
+          <span className="dm-g">{working ? <Spin /> : <Icon name="ok" />}</span>
+          <span className="dm-t">
+            <b className="dm-pgx-a"><Swap>{allowedTitle ?? `Allowed ${granted || n} ${(granted || n) > 1 ? 'scopes' : 'scope'} for ${dur.toLowerCase()}`}</Swap></b>
+            {allowedDetail !== undefined && <Swap>{allowedDetail}</Swap>}
+          </span>
+          {meta !== undefined && <span className="dm-pgx-tm dm-num">{meta}</span>}
           <button type="button" className="dm-pill dm-ghost dm-sm" onClick={() => setLeaving(true)}>Revoke</button>
         </div>
       )}

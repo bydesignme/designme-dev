@@ -1,9 +1,9 @@
 'use client';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { cx } from '../../lib/cx';
 import { useControllable } from '../../lib/hooks';
 import { Icon } from '../../lib/icons';
-import { Swap, Think, Tip } from '../../lib/motion';
+import { Spin, Swap, Think, Tip } from '../../lib/motion';
 import '../../designme.css';
 import './plan-review.css';
 
@@ -14,8 +14,10 @@ export interface PlanReviewStep {
   skipped?: boolean;
   /** Marks a step the person rewrote */
   edited?: boolean;
-  /** run while the agent works on it, done once it has */
-  state?: 'run' | 'done';
+  /** run while the agent works on it, retry while it waits out a problem (a rate limit, a timeout), done once it has */
+  state?: 'run' | 'retry' | 'done';
+  /** The line the step reports, under it: what it found, or what it waits on. Opens and crossfades when it changes */
+  detail?: string;
 }
 
 export type PlanPhase = 'review' | 'running' | 'done';
@@ -33,6 +35,8 @@ export interface PlanReviewProps {
   status?: string;
   /** The quiet line in the footer. Defaults to a hint for each phase */
   note?: string;
+  /** Quiet text at the end of the header, like an elapsed time "0:04" */
+  meta?: ReactNode;
   onApprove?: () => void;
   onRequestChanges?: () => void;
   onStop?: () => void;
@@ -46,7 +50,7 @@ const NOTE: Record<PlanPhase, string> = { review: 'Click a step to edit it', run
 let added = 0;
 
 /** A plan the agent proposes before it starts: edit a step, skip it, add one, then approve. */
-export function PlanReview({ title, steps, defaultSteps = [], onStepsChange, phase = 'review', status, note, onApprove, onRequestChanges, onStop, onSeeChanges, bare = true, className }: PlanReviewProps) {
+export function PlanReview({ title, steps, defaultSteps = [], onStepsChange, phase = 'review', status, note, meta, onApprove, onRequestChanges, onStop, onSeeChanges, bare = true, className }: PlanReviewProps) {
   const [list, setList] = useControllable(steps, defaultSteps, onStepsChange);
   const live = useRef(list);
   useEffect(() => { live.current = list; });
@@ -74,6 +78,7 @@ export function PlanReview({ title, steps, defaultSteps = [], onStepsChange, pha
       <div className="dm-plx-h">
         <Think on={phase === 'running'} className="dm-plx-mk" />
         <div className="dm-plx-ht"><b>{title}</b><Swap className="dm-muted dm-plx-st">{status ?? `${included.length} steps, about ${Math.max(1, Math.round(included.length * .8))} min`}</Swap></div>
+        {meta !== undefined && <span className="dm-plx-tm dm-num">{meta}</span>}
       </div>
       <ol className="dm-plx-list">
         {list.map((s, i) => {
@@ -83,12 +88,15 @@ export function PlanReview({ title, steps, defaultSteps = [], onStepsChange, pha
             <li key={s.id} className={cx('dm-plx-s', entering && 'dm-enter', s.skipped && 'dm-off', s.state && 'dm-' + s.state, s.edited && 'dm-edited')}
               style={entering ? { animationDelay: (first.current.has(s.id) ? 100 + i * 60 : 0) + 'ms' } : undefined}
               onAnimationEnd={e => { if (e.target === e.currentTarget) setEntered(prev => new Set(prev).add(s.id)); }}>
-              <span className="dm-n">{s.state === 'done' ? <Icon name="check" size="xs" /> : num}</span>
-              <span className="dm-t" ref={el => { if (el) textRefs.current.set(s.id, el); else textRefs.current.delete(s.id); }}
+              <span className="dm-n">{s.state === 'done' ? <Icon name="check" size="xs" /> : s.state === 'run' ? <Spin /> : s.state === 'retry' ? <Icon name="clock" size="xs" /> : num}</span>
+              <span className="dm-b">
+              <span className={cx('dm-t', s.state === 'run' && 'dm-shim')} ref={el => { if (el) textRefs.current.set(s.id, el); else textRefs.current.delete(s.id); }}
                 contentEditable={editable} suppressContentEditableWarning spellCheck={false} role={editable ? 'textbox' : undefined} aria-label={editable ? `Step ${num}` : undefined}
                 onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); e.currentTarget.blur(); } }}
                 onBlur={e => { const text = e.currentTarget.textContent ?? ''; if (text !== s.text) update(s.id, { text, edited: text.trim() !== original.current.get(s.id) }); }}>
                 {s.text}
+              </span>
+              <span className={cx('dm-d', s.detail && 'dm-on', s.state === 'retry' && 'dm-warn')}><Swap>{s.detail ?? ''}</Swap></span>
               </span>
               {editable && (
                 <Tip label={s.skipped ? 'Include step' : 'Skip step'}>

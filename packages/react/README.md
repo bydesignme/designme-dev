@@ -179,7 +179,7 @@ Tweak a component by hand or let the agent tune it.
 
 **PermissionGate** · `permission-gate/PermissionGate.tsx`  
 The agent asks before it touches something new.  
-`title`, `subtitle`, `icon`, `scopes: { key, label, detail?, risk? }[]`, `value` / `defaultValue` / `onValueChange` (the ticked keys), `durations`, `duration` / `defaultDuration` / `onDurationChange`, `status` / `defaultStatus` / `onStatusChange` (`'asking' | 'allowed' | 'declined'`), `onAllow(keys, duration)` (return a promise and the button spins until it settles), `onDecline`, `onRevoke`, `onUndo`, `allowedDetail`, `declinedTitle`, `declinedDetail`, `bare` (on by default: it sits in the chat with no card; `false` draws the card).
+`title`, `subtitle`, `icon`, `scopes: { key, label, detail?, risk?, riskDetail? }[]` (`riskDetail` is what the risk tag shows on hover), `value` / `defaultValue` / `onValueChange` (the ticked keys), `durations`, `duration` / `defaultDuration` / `onDurationChange`, `status` / `defaultStatus` / `onStatusChange` (`'asking' | 'allowed' | 'declined'`), `onAllow(keys, duration)` (return a promise and the button spins until it settles), `onDecline`, `onRevoke`, `onUndo`, `allowedTitle` and `allowedDetail` (the two lines once allowed; both crossfade), `working` (a spinner on a neutral row while the agent works under the permission), `meta` (quiet text at the end of that row, like an elapsed time), `followUp` (a second ask mid-run for one more scope: the icon tile turns amber), `declineLabel` (defaults to Not now), `declinedTitle`, `declinedDetail`, `bare` (on by default: it sits in the chat with no card; `false` draws the card).
 
 **LaunchChecklist** · `launch-checklist/LaunchChecklist.tsx`  
 The agent checks a design before it ships, and fixes what fails.  
@@ -191,7 +191,7 @@ Checks run, a teammate asks for a change, the agent makes it, and you ship.
 
 **PlanReview** · `plan-review/PlanReview.tsx`  
 Check the agent's plan, edit steps, then let it run.  
-`title`, `steps` / `defaultSteps` / `onStepsChange` (`{ id, text, skipped?, edited?, state?: 'run' | 'done' }[]`; people can edit a step in place, skip one or add one), `phase: 'review' | 'running' | 'done'`, `status`, `note`, `onApprove`, `onRequestChanges`, `onStop`, `onSeeChanges`, `bare` (on by default: it sits in the chat with no card; `false` draws the card).
+`title`, `steps` / `defaultSteps` / `onStepsChange` (`{ id, text, skipped?, edited?, state?: 'run' | 'retry' | 'done', detail? }[]`; `detail` is the line a step reports under it, and `retry` shows it waiting out a problem; people can edit a step in place, skip one or add one), `phase: 'review' | 'running' | 'done'`, `status`, `note`, `meta` (quiet text at the end of the header, like an elapsed time), `onApprove`, `onRequestChanges`, `onStop`, `onSeeChanges`, `bare` (on by default: it sits in the chat with no card; `false` draws the card).
 
 **ChangeReview** · `change-review/ChangeReview.tsx`  
 Accept or reject each change the agent made, file by file.  

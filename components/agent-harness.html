@@ -321,7 +321,16 @@
 .plx-s:hover{background:var(--row)}
 .plx-s .n{width:20px;height:20px;border-radius:50%;background:var(--chip);display:grid;place-items:center;font-size:11px;font-family:var(--mono);color:var(--fg2);flex:none;transition:background .35s,color .35s}
 .plx-s:hover .n{background:var(--surface)}
-.plx-s .t{flex:1;min-width:0;outline:0;border-radius:5px;padding:1px 3px;margin:0 -3px;line-height:1.5}
+.plx-s .b{flex:1;min-width:0;display:flex;flex-direction:column}
+.plx-s .t{min-width:0;outline:0;border-radius:5px;padding:1px 3px;margin:0 -3px;line-height:1.5}
+/* the line a step reports: it opens under the step, in the step's colour while it waits on something */
+.plx-s .d{font-size:12px;color:var(--muted);display:grid;grid-template-rows:0fr;transition:grid-template-rows .32s var(--ease)}
+.plx-s .d.on{grid-template-rows:1fr}
+.plx-s .d>span{overflow:hidden;min-height:0}
+.plx-s .d.warn{color:var(--warn)}
+.plx-tm{margin-left:auto;font-size:12px;color:var(--muted)}
+.plx-tm:empty{display:none}
+.plx-s .n .spin{width:10px;height:10px}
 .plx-s .t:focus{background:var(--surface);box-shadow:0 0 0 1.5px var(--accent)}
 .plx-s .ib{width:24px;height:24px;opacity:0;transition:opacity .2s}
 .plx-s:hover .ib,.plx-s .ib:focus-visible{opacity:1}
@@ -329,6 +338,7 @@
 .plx-s.off .t{text-decoration:line-through}
 .plx-s.run .n{background:var(--accent-bg);color:var(--accent)}
 .plx-s.done .n{background:var(--ok-bg);color:var(--ok)}
+.plx-s.retry .n{background:var(--warn-bg);color:var(--warn)}
 .plx-s.edited .t::after{content:"edited";margin-left:6px;font-size:11px;color:var(--accent)}
 .plx-add{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--fg2);padding:4px 10px;margin-inline:-10px;align-self:flex-start;border-radius:999px}
 .plx-add:hover{color:var(--fg);background:var(--chip)}
@@ -362,6 +372,15 @@
 .pgx-done .t{flex:1;color:var(--fg)}
 .pgx-done .t span{display:block;font-size:12px;color:var(--muted)}
 .pgx-done>svg{color:var(--ok)}
+/* while the agent works under the permission: a neutral row with a spinner, a live line and a clock; green once done */
+.pgx-done.run{background:var(--chip)}
+.pgx-done .g{width:18px;height:18px;display:grid;place-items:center;flex:none;color:var(--fg2)}
+.pgx-done.ok .g{color:var(--ok)}
+.pgx-done .t b{display:block;font-weight:400}
+.pgx-tm{font-size:12px;color:var(--muted)}
+/* asking again mid-run, for one more scope: the tile turns amber */
+.pgx-ic{transition:background .32s var(--ease)}
+.pgx.esc .pgx-ic{background:var(--warn-bg)}
 .pgx-scope{display:flex;flex-direction:column;gap:12px}
 </style><style>/* ---------- Decision prompt ---------- */
 /* the agent asks in the chat: no container; with .panel it becomes a card */
@@ -835,7 +854,7 @@
   <div class="stage-in"></div>
   <template>
 <div class="plx">
-  <div class="plx-h"><span class="think plx-mk"><i></i><i></i><i></i><i></i></span><div class="plx-ht"><b>Plan: redesign the pricing page</b><span class="muted plx-st">5 steps, about 4 min</span></div></div>
+  <div class="plx-h"><span class="think plx-mk"><i></i><i></i><i></i><i></i></span><div class="plx-ht"><b>Plan: redesign the pricing page</b><span class="muted plx-st">5 steps, about 4 min</span></div><span class="plx-tm num" aria-label="Elapsed"></span></div>
   <ol class="plx-list"></ol>
   <button class="plx-add">{plus}Add a step</button>
   <div class="plx-f"><span class="muted plx-n">Click a step to edit it</span><button class="pill ghost sm plx-chg">Ask for changes</button><button class="pill ink sm plx-go">Approve plan</button></div>
@@ -849,9 +868,9 @@
 <div class="pgx">
   <div class="pgx-h"><span class="pgx-ic">{figma}</span><div class="pgx-ht"><b>Allow the agent to edit Figma?</b><span class="muted">It needs this to apply the pricing fixes</span></div></div>
   <div class="pgx-sc">
-    <label class="pgx-o"><input type="checkbox" checked><span class="bx">{chk}</span><span class="t">Read frames<span class="d">Pricing, Checkout</span></span></label>
-    <label class="pgx-o"><input type="checkbox" checked><span class="bx">{chk}</span><span class="t">Edit frames<span class="d">Only on a new page</span></span></label>
-    <label class="pgx-o"><input type="checkbox"><span class="bx">{chk}</span><span class="t">Publish library<span class="d">Affects 4 other files</span></span><span class="tag warn">Risky</span></label>
+    <label class="pgx-o" data-k="read"><input type="checkbox" checked><span class="bx">{chk}</span><span class="t">Read frames<span class="d">Pricing, Checkout</span></span></label>
+    <label class="pgx-o" data-k="edit"><input type="checkbox" checked><span class="bx">{chk}</span><span class="t">Edit frames<span class="d">Only on a new page</span></span></label>
+    <label class="pgx-o" data-k="publish"><input type="checkbox"><span class="bx">{chk}</span><span class="t">Publish library<span class="d">Affects 4 other files</span></span><span class="tag warn" data-tip="Checkout, Marketing site, Email kit and Docs use this library">Risky</span></label>
   </div>
   <div class="pgx-dur"><span class="muted">For</span><div class="seg2" role="group" aria-label="Duration"><button aria-pressed="true">This task</button><button aria-pressed="false">Today</button><button aria-pressed="false">Always</button></div></div>
   <div class="pgx-f"><button class="pill ghost sm pgx-no">Not now</button><button class="pill ink sm pgx-ok">Allow 2 scopes</button></div>
@@ -3204,54 +3223,155 @@ export function AgentHarness({
 });
 </script><script>DM.def('plan-review', (r, c) => {
   r.innerHTML = r.innerHTML.replace('{plus}', I('plus','xs'));
-  const S = ['Read the pricing frames and the brand tokens', 'Compare against the three competitor pages', 'Simplify the plan cards to one CTA each', 'Move the FAQ below the comparison table', 'Write a summary of every change'];
-  const list = $('.plx-list', r), st = $('.plx-st', r), go = $('.plx-go', r), f = $('.plx-f', r);
-  const row = (t, i) => `<li class="plx-s"><span class="n">${i + 1}</span><span class="t" contenteditable="true" spellcheck="false">${t}</span><button class="ib plx-x" aria-label="Skip step" data-tip="Skip step">${I('x','xs')}</button></li>`;
+  // each step, and the line it reports when it's done
+  const S = [
+    ['Read the pricing frames and the brand tokens', '6 frames and 42 tokens read'],
+    ['Compare against the three competitor pages', '3 pages compared'],
+    ['Simplify the plan cards to one CTA each', 'Plan cards now have one CTA each'],
+    ['Move the FAQ below the comparison table', 'FAQ now sits under the table'],
+    ['Write a summary of every change', 'Summary added to Pricing v4']
+  ];
+  const list = $('.plx-list', r), st = $('.plx-st', r), tm = $('.plx-tm', r), go = $('.plx-go', r), f = $('.plx-f', r);
+  const row = (t, i) => `<li class="plx-s"><span class="n">${i + 1}</span><span class="b"><span class="t" contenteditable="true" spellcheck="false" role="textbox" aria-label="Step ${i + 1}">${t[0]}</span><span class="d"><span></span></span></span><button class="ib plx-x" aria-label="Skip step" data-tip="Skip step">${I('x','xs')}</button></li>`;
   list.innerHTML = S.map(row).join(''); stagger($$('.plx-s', list), 60, 100);
   const count = () => { const on = $$('.plx-s:not(.off)', list); on.forEach((s, i) => $('.n', s).textContent = i + 1); $$('.plx-s.off .n', list).forEach(n => n.textContent = '–'); swap(st, on.length + ' steps, about ' + Math.max(1, Math.round(on.length * .8)) + ' min'); };
-  function bind(s){
-    const t = $('.t', s), orig = t.textContent;
+  function bind(s, done){
+    const t = $('.t', s), orig = t.textContent; s._done = done || 'Done';
     t.onkeydown = e => { if (e.key === 'Enter'){ e.preventDefault(); t.blur(); } };
-    t.onblur = () => s.classList.toggle('edited', t.textContent.trim() !== orig);
-    $('.plx-x', s).onclick = () => { const off = s.classList.toggle('off'); $('.plx-x', s).dataset.tip = off ? 'Include step' : 'Skip step'; $('.plx-x', s).innerHTML = I(off ? 'undo' : 'x', 'xs'); count(); };
+    t.onblur = () => { const ed = t.textContent.trim() !== orig; s.classList.toggle('edited', ed); if (ed) s._done = 'Done as you wrote it'; };
+    $('.plx-x', s).onclick = () => { const off = s.classList.toggle('off'); $('.plx-x', s).dataset.tip = off ? 'Include step' : 'Skip step'; $('.plx-x', s).setAttribute('aria-label', off ? 'Include step' : 'Skip step'); $('.plx-x', s).innerHTML = I(off ? 'undo' : 'x', 'xs'); count(); };
   }
-  $$('.plx-s', list).forEach(bind);
-  $('.plx-add', r).onclick = () => { const s = html(row('New step', 0)); list.appendChild(s); enter(s); bind(s); count(); const t = $('.t', s); t.focus(); document.getSelection().selectAllChildren(t); };
+  $$('.plx-s', list).forEach((s, i) => bind(s, S[i][1]));
+  $('.plx-add', r).onclick = () => { const s = html(row(['New step'], $$('.plx-s', list).length)); list.appendChild(s); enter(s); bind(s); count(); const t = $('.t', s); t.focus(); document.getSelection().selectAllChildren(t); };
   $('.plx-chg', r).onclick = () => { swap($('.plx-n', r), 'Tell the agent what to change in chat'); };
+  const clock = ms => { const s = Math.floor(ms / 1000); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };
+  const note = (s, text, tone) => { const d = $('.d', s); d.className = 'd on' + (tone ? ' ' + tone : ''); swap(d.firstElementChild, text); };
   go.onclick = () => c.run(async () => {
-    $$('.t', list).forEach(t => t.contentEditable = 'false'); $('.plx-add', r).hidden = true;
+    $$('.t', list).forEach(t => { t.contentEditable = 'false'; t.removeAttribute('role'); }); $('.plx-add', r).hidden = true;
     // the approved plan is fixed: the skip buttons keep their space but can't be used
     $$('.plx-x', list).forEach(b => { b.disabled = true; b.style.visibility = 'hidden'; });
     f.innerHTML = `<span class="muted plx-n">Running the approved plan</span><button class="pill ghost sm plx-stop">${I('stop','xs')}Stop</button>`; stagger([...f.children], 50);
     let stop = false; $('.plx-stop', f).onclick = () => stop = true;
     $('.plx-mk', r).classList.add('on');
-    const on = $$('.plx-s:not(.off)', list);
-    for (let i = 0; i < on.length && !stop; i++){
-      const s = on[i]; s.classList.add('run'); swap(st, 'Step ' + (i + 1) + ' of ' + on.length); await c.wait(900);
-      s.classList.remove('run'); s.classList.add('done'); $('.n', s).innerHTML = I('check','xs');
-    }
+    const t0 = performance.now(), tick = c.every(250, () => tm.textContent = clock(performance.now() - t0)); tm.textContent = '0:00'; enter(tm);
+    const on = $$('.plx-s:not(.off)', list), n = s => $('.n', s), txt = s => $('.t', s);
+    try {
+      for (let i = 0; i < on.length && !stop; i++){
+        const s = on[i]; s.classList.add('run'); txt(s).classList.add('shim'); n(s).innerHTML = '<span class="spin"></span>'; swap(st, 'Step ' + (i + 1) + ' of ' + on.length); await c.wait(900);
+        // the second step hits a rate limit: the agent waits it out, counting down, and tries again
+        if (s === $$('.plx-s', list)[1] && !stop){
+          s.classList.replace('run', 'retry'); txt(s).classList.remove('shim'); n(s).innerHTML = I('clock','xs');
+          for (let k = 3; k > 0 && !stop; k--){ note(s, `Rate limited by the browser tool. Retrying in ${k}s`, 'warn'); await c.wait(1000); }
+          if (stop) break;
+          s.classList.replace('retry', 'run'); txt(s).classList.add('shim'); n(s).innerHTML = '<span class="spin"></span>'; note(s, 'Retrying'); await c.wait(700);
+          s._done += ', after 1 retry';
+        }
+        s.classList.remove('run'); txt(s).classList.remove('shim'); s.classList.add('done'); n(s).innerHTML = I('check','xs'); enter(n(s).firstElementChild); note(s, s._done);
+      }
+    } finally { clearInterval(tick); }
     $('.plx-mk', r).classList.remove('on');
-    swap(st, stop ? 'Stopped, progress kept' : 'Done. 4 frames updated'); f.innerHTML = `<span class="muted plx-n"></span><button class="pill soft sm">${I('eye','xs')}See changes</button>`; enter(f.lastElementChild);
+    $$('.plx-s.run', list).forEach(s => { s.classList.remove('run', 'retry'); txt(s).classList.remove('shim'); n(s).textContent = '–'; note(s, 'Not started'); });
+    swap(st, stop ? 'Stopped, progress kept' : 'Done in ' + clock(performance.now() - t0) + '. 4 frames updated'); f.innerHTML = `<span class="muted plx-n"></span><button class="pill soft sm">${I('eye','xs')}See changes</button>`; enter(f.lastElementChild);
+  });
+  // the preview's story: rewrite a step, approve, and watch the agent work through a rate limit to the end
+  c.story(async s => {
+    await s.beat(3);
+    const step = $$('.plx-s', list)[2], t = $('.t', step);
+    await s.tap(t); t.focus(); document.getSelection().selectAllChildren(t); document.getSelection().collapseToEnd(); await s.beat(1);
+    for (const ch of ' each'){ t.textContent = t.textContent.slice(0, -1); await s.beat(.12); }
+    for (const ch of ', annual price first'){ t.textContent += ch; await s.beat(.09); }
+    await s.beat(1); t.blur(); await s.beat(2);
+    await s.tap(go); s.away();
+    await s.until(() => $('.plx-f .pill.soft', r));
   });
 });
 </script><script>DM.def('permission-gate', (r, c) => {
   r.innerHTML = r.innerHTML.replace('{figma}', I('figma')).replace(/\{chk\}/g, I('check','xs'));
-  const root = $('.pgx', r), ok = $('.pgx-ok', r), boxes = $$('.pgx-o input', r);
+  const root = $('.pgx', r), ok = $('.pgx-ok', r), no = $('.pgx-no', r), sc = $('.pgx-sc', r), title = $('.pgx-ht b', r), sub = $('.pgx-ht .muted', r);
+  const first = { sc:sc.innerHTML, title:title.textContent, sub:sub.textContent, no:no.textContent };
+  const boxes = () => $$('.pgx-o input', sc);
   let dur = 'This task';
-  const count = () => { const n = boxes.filter(b => b.checked).length; ok.disabled = !n; swap(ok, n ? 'Allow ' + n + (n > 1 ? ' scopes' : ' scope') : 'Pick a scope'); };
-  boxes.forEach(b => b.onchange = count);
+  const count = () => { const n = boxes().filter(b => b.checked).length; ok.disabled = !n; swap(ok, n ? 'Allow ' + n + (n > 1 ? ' scopes' : ' scope') : 'Pick a scope'); };
+  c.on(sc, 'change', count);
   seg($('.seg2', r), v => dur = v);
   $$('.seg2 button', r).forEach(b => b.dataset.v = b.textContent);
   const body = [...root.children].slice(1);
-  function granted(n){
-    body.forEach(e => e.hidden = true);
-    const d = html(`<div class="pgx-done">${I('ok')}<span class="t">Allowed ${n} ${n > 1 ? 'scopes' : 'scope'} for ${dur.toLowerCase()}<span>Applying the pricing fixes now</span></span><button class="pill ghost sm">Revoke</button></div>`);
-    root.appendChild(d); enter(d);
-    c.later(1400, () => { const s = $('.t span', d); if (s) swap(s, 'Done. 6 frames edited on a new page'); });
-    $('button', d).onclick = () => { d.classList.add('leave'); c.later(300, () => { d.remove(); body.forEach(e => e.hidden = false); stagger(body, 50); }); };
+  const show = on => { body.forEach(e => e.hidden = !on); if (on) stagger(body, 50); };
+  // the frames the agent edits once it may. Plan toggle is a library component, so editing it needs Publish library
+  const F = ['Hero', 'Plan cards', 'Compare table', 'FAQ', 'Plan toggle', 'Checkout summary'], LIB = 4;
+  const clock = s => Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
+  // the clock counts the agent's working time only, not the time it waits for you
+  let granted = 0, publish = false, skip = false, done = 0, ms = 0, run = 0, panel = null;
+  function row(){
+    panel = html(`<div class="pgx-done run"><span class="g"><span class="spin"></span></span><span class="t"><b class="pgx-a"></b><span class="pgx-d"></span></span><span class="pgx-tm num"></span><button class="pill ghost sm">Revoke</button></div>`);
+    root.appendChild(panel); enter(panel); $('button', panel).onclick = revoke;
   }
-  ok.onclick = () => c.run(async () => { const n = boxes.filter(b => b.checked).length; ok.innerHTML = '<span class="spin"></span>'; await c.wait(600); granted(n); count(); });
-  $('.pgx-no', r).onclick = () => { body.forEach(e => e.hidden = true); const d = html(`<div class="pgx-done" style="background:var(--chip)">${I('info')}<span class="t">The agent will skip the Figma edits<span>It will list the fixes in chat instead</span></span><button class="pill ghost sm">Undo</button></div>`); root.appendChild(d); enter(d); $('button', d).onclick = () => { d.remove(); body.forEach(e => e.hidden = false); stagger(body, 50); }; };
+  // the agent works through the frames under what it was given, and stops to ask when it reaches one it may not touch
+  function work(){
+    const id = ++run; if (!panel) row();
+    const a = $('.pgx-a', panel), d = $('.pgx-d', panel), tm = $('.pgx-tm', panel);
+    swap(a, `Allowed ${granted} ${granted > 1 ? 'scopes' : 'scope'} for ${dur.toLowerCase()}`);
+    const t0 = performance.now(), now = () => ms + performance.now() - t0;
+    tm.textContent = clock(Math.floor(ms / 1000));
+    c.run(async () => {
+      const tick = c.every(250, () => { if (run === id) tm.textContent = clock(Math.floor(now() / 1000)); });
+      try {
+        while (done < F.length){
+          if (done === LIB && !publish && !skip) return ask();
+          swap(d, done === LIB && skip ? `Skipping ${F[done]}` : `Editing ${F[done]} · ${done + 1} of ${F.length}`);
+          await c.wait(900); if (run !== id) return;
+          done++;
+        }
+        panel.classList.replace('run', 'ok'); const g = $('.g', panel); g.innerHTML = I('ok'); enter(g);
+        swap(a, skip ? `Done. ${F.length - 1} frames edited on a new page` : `Done. ${F.length} frames edited on a new page`);
+        swap(d, skip ? 'Plan toggle skipped, it needs Publish library' : 'Plan toggle published to the library');
+      } finally { clearInterval(tick); if (run === id) ms = now(); }
+    });
+  }
+  // asks again, for only the scope it now needs
+  function ask(){
+    const p = panel; panel = null; p.classList.add('leave');
+    root.classList.add('esc'); swap(title, 'Also allow Publish library?'); swap(sub, `${F[LIB]}, frame ${LIB + 1} of ${F.length}, is a library component`);
+    c.later(300, () => {
+      p.remove();
+      sc.innerHTML = `<label class="pgx-o" data-k="publish"><input type="checkbox" checked><span class="bx">${I('check','xs')}</span><span class="t">Publish library<span class="d">Updates Checkout, Marketing site, Email kit and Docs</span></span><span class="tag warn">Risky</span></label>`;
+      no.textContent = 'Skip this frame'; count(); show(true);
+    });
+  }
+  function reset(){
+    run++; granted = done = ms = 0; publish = skip = false;
+    root.classList.remove('esc'); sc.innerHTML = first.sc; swap(title, first.title); swap(sub, first.sub); no.textContent = first.no; count();
+  }
+  function revoke(){ const p = panel; panel = null; run++; p.classList.add('leave'); c.later(300, () => { p.remove(); reset(); show(true); }); }
+  ok.onclick = () => c.run(async () => {
+    const picked = boxes().filter(b => b.checked); if (!picked.length) return;
+    granted += picked.length; if (picked.some(b => b.closest('.pgx-o').dataset.k === 'publish')) publish = true;
+    ok.innerHTML = '<span class="spin"></span>'; await c.wait(500);
+    show(false);
+    if (root.classList.contains('esc')){ root.classList.remove('esc'); swap(title, first.title); swap(sub, first.sub); }
+    // placed inside another component (Agent harness), it reports back without the run
+    if (!c.card){ row(); swap($('.pgx-a', panel), `Allowed ${granted} ${granted > 1 ? 'scopes' : 'scope'} for ${dur.toLowerCase()}`); swap($('.pgx-d', panel), 'Applying the pricing fixes now'); $('.pgx-tm', panel).remove();
+      c.later(1400, () => { if (!panel) return; panel.classList.replace('run', 'ok'); $('.g', panel).innerHTML = I('ok'); swap($('.pgx-d', panel), 'Done. 6 frames edited on a new page'); }); return; }
+    work();
+  });
+  no.onclick = () => {
+    if (root.classList.contains('esc')){ skip = true; show(false); root.classList.remove('esc'); swap(title, first.title); swap(sub, first.sub); work(); return; }
+    show(false); const d = html(`<div class="pgx-done" style="background:var(--chip)">${I('info')}<span class="t">The agent will skip the Figma edits<span>It will list the fixes in chat instead</span></span><button class="pill ghost sm">Undo</button></div>`);
+    root.appendChild(d); enter(d); $('button', d).onclick = () => { d.remove(); show(true); };
+  };
+  // the preview's story: hold back the risky scope, allow the rest, then grant it when the agent needs it for one frame
+  c.story(async s => {
+    await s.beat(3);
+    const pub = $('[data-k="publish"]', sc);
+    await s.tap(pub); await s.beat(1);
+    await s.point($('.tag', pub)); await s.beat(3);
+    await s.tap(pub); await s.beat(2);
+    await s.tap(ok); s.away();
+    await s.until(() => root.classList.contains('esc') && !sc.hidden);
+    await s.beat(4);
+    await s.tap(ok); s.away();
+    await s.until(() => panel && panel.classList.contains('ok'));
+  });
 });
 </script><script>DM.def('decision-prompt', (r, c) => {
   const Q = [

@@ -20,6 +20,45 @@ function ctl(){
   c.on = (el, ev, fn, o) => { el.addEventListener(ev, fn, o); c.offs.push(() => el.removeEventListener(ev, fn, o)); };
   c.stop = () => { c.dead = true; c.t.forEach(clearTimeout); c.iv.forEach(clearInterval); c.rafs.forEach(cancelAnimationFrame); c.offs.forEach(f => f()); };
   c.run = async fn => { try { await fn(); } catch(e) { if (e !== 'stop') console.error(e); } };
+  /* a preview's story: a person and the agent take turns on a grid of half-second beats. s.beat(n) waits n beats,
+     s.tap(el) moves a pointer to el and presses it, s.point(el) rests the pointer on el (showing its tooltip), s.away()
+     puts the pointer down. The visitor takes over with their first real click or key, and the story stops where it is.
+     s.until(f) waits until f() is true. At the end it holds the final state for two seconds, then plays again from the
+     start while the card is on screen.
+     With reduced motion the pointer jumps instead of gliding, and the story plays once */
+  c.mine = false;
+  c.story = fn => c.run(async () => {
+    const st = c.st; let hand = null, tipped = null;
+    const check = () => { if (c.mine || c.dead) throw 'stop'; };
+    const sleep = ms => new Promise((res, rej) => { c.t.push(setTimeout(() => c.dead ? rej('stop') : res(), ms)); });
+    const unTip = () => { if (tipped){ tipped.dispatchEvent(new PointerEvent('pointerout', { bubbles:true })); tipped = null; } };
+    const s = {
+      beat: async (n = 1) => { check(); await sleep(n * 500); check(); },
+      point: async (el, tip = true) => {
+        check(); unTip();
+        if (!hand){ hand = html('<span class="hand" aria-hidden="true"><svg viewBox="0 0 18 18"><path d="M3 2l11.5 6.1-5 1.5-2.4 5z"/></svg></span>'); if (getComputedStyle(st).position === 'static') st.style.position = 'relative'; st.appendChild(hand); }
+        const h = hand.parentElement.getBoundingClientRect(), b = el.getBoundingClientRect();
+        const x = b.left - h.left + Math.min(b.width * .62, b.width - 10), y = b.top - h.top + b.height * .58;
+        if (!hand.classList.contains('on')){ hand.style.transition = 'none'; hand.style.transform = `translate(${x + 26}px,${y + 30}px)`; void hand.offsetWidth; hand.style.transition = ''; hand.classList.add('on'); }
+        hand.style.transform = `translate(${x}px,${y}px)`;
+        await sleep(REDUCE ? 0 : 420); check();
+        if (tip && el.closest('[data-tip]')){ tipped = el.closest('[data-tip]'); tipped.dispatchEvent(new PointerEvent('pointerover', { bubbles:true })); }
+      },
+      tap: async el => {
+        await s.point(el, false); hand.classList.remove('down'); void hand.offsetWidth; hand.classList.add('down');
+        await sleep(160); check(); el.click(); c.later(340, () => hand && hand.classList.remove('down'));
+      },
+      away: () => { unTip(); if (hand) hand.classList.remove('on', 'down'); },
+      until: async f => { while (!f()){ check(); await sleep(100); } check(); }
+    };
+    // only a card plays a story; a component placed inside another (as in Agent harness) waits for its host
+    if (!c.card) return;
+    try { await fn(s); } finally { if (c.mine || c.dead) s.away(); }
+    s.away();
+    if (REDUCE) return;
+    await s.beat(4);
+    DM.again(c.card);
+  });
   return c;
 }
 /* blur crossfade for text that changes */
@@ -78,14 +117,32 @@ function seg(el, onChange){
 const DM = {
   defs:{},
   def(id, fn){ this.defs[id] = fn; },
-  mount(card){
+  mount(card, again){
     const id = card.dataset.c, st = $('.stage-in', card), tpl = $('template', card);
     if (card._c) card._c.stop();
     if (openPop && card.contains(openPop.pop)) closePops();
     st.innerHTML = ''; st.append(tpl.content.cloneNode(true));
-    const c = ctl(); card._c = c;
+    const c = ctl(); card._c = c; c.card = card; c.st = st;
+    // the visitor's first real click or key in the component stops its story (c.story)
+    const mine = e => { if (e.isTrusted) c.mine = true; };
+    c.on(st, 'pointerdown', mine, true); c.on(st, 'keydown', mine, true);
     try { this.defs[id] && this.defs[id](st, c, card); } catch(e){ console.error(id, e); }
-    reveal(st);
+    if (!again) reveal(st);
+  },
+  /* a story starts again once its card is on screen, the tab is open and no pointer rests on it: the finished run
+     fades out and a fresh one fades in, without the entrance */
+  again(card){
+    const c = card._c; if (!c || c.dead) return;
+    const ready = () => { const b = card.getBoundingClientRect(); return !document.hidden && b.bottom > innerHeight * .15 && b.top < innerHeight * .85 && !card.matches(':hover'); };
+    let gone = false;
+    const go = () => {
+      if (gone || card._c !== c || c.dead || c.mine || !ready()) return;
+      gone = true; io.disconnect();
+      const st = $('.stage-in', card), out = st.animate([{ opacity:1 }, { opacity:0 }], { duration:320, easing:'ease-out', fill:'forwards' });
+      out.finished.then(() => { if (card._c === c && !c.dead && !c.mine){ DM.mount(card, true); st.animate([{ opacity:0 }, { opacity:1 }], { duration:320, easing:'ease-out' }); } out.cancel(); }).catch(() => {});
+    };
+    const io = new IntersectionObserver(go, { threshold:[0, .25, .5, 1] }); io.observe(card); c.offs.push(() => io.disconnect());
+    c.on(document, 'visibilitychange', go); c.on(card, 'pointerleave', go);
   }
 };
 

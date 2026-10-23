@@ -25,6 +25,15 @@
 .pgx-done .t{flex:1;color:var(--fg)}
 .pgx-done .t span{display:block;font-size:12px;color:var(--muted)}
 .pgx-done>svg{color:var(--ok)}
+/* while the agent works under the permission: a neutral row with a spinner, a live line and a clock; green once done */
+.pgx-done.run{background:var(--chip)}
+.pgx-done .g{width:18px;height:18px;display:grid;place-items:center;flex:none;color:var(--fg2)}
+.pgx-done.ok .g{color:var(--ok)}
+.pgx-done .t b{display:block;font-weight:400}
+.pgx-tm{font-size:12px;color:var(--muted)}
+/* asking again mid-run, for one more scope: the tile turns amber */
+.pgx-ic{transition:background .32s var(--ease)}
+.pgx.esc .pgx-ic{background:var(--warn-bg)}
 .pgx-scope{display:flex;flex-direction:column;gap:12px}
 </style><style>
 @font-face{font-family:Inter;font-style:normal;font-weight:400;font-display:swap;src:url(/fonts/inter-latin-400-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
@@ -51,51 +60,98 @@
 <div class="pgx">
   <div class="pgx-h"><span class="pgx-ic">{figma}</span><div class="pgx-ht"><b>Allow the agent to edit Figma?</b><span class="muted">It needs this to apply the pricing fixes</span></div></div>
   <div class="pgx-sc">
-    <label class="pgx-o"><input type="checkbox" checked><span class="bx">{chk}</span><span class="t">Read frames<span class="d">Pricing, Checkout</span></span></label>
-    <label class="pgx-o"><input type="checkbox" checked><span class="bx">{chk}</span><span class="t">Edit frames<span class="d">Only on a new page</span></span></label>
-    <label class="pgx-o"><input type="checkbox"><span class="bx">{chk}</span><span class="t">Publish library<span class="d">Affects 4 other files</span></span><span class="tag warn">Risky</span></label>
+    <label class="pgx-o" data-k="read"><input type="checkbox" checked><span class="bx">{chk}</span><span class="t">Read frames<span class="d">Pricing, Checkout</span></span></label>
+    <label class="pgx-o" data-k="edit"><input type="checkbox" checked><span class="bx">{chk}</span><span class="t">Edit frames<span class="d">Only on a new page</span></span></label>
+    <label class="pgx-o" data-k="publish"><input type="checkbox"><span class="bx">{chk}</span><span class="t">Publish library<span class="d">Affects 4 other files</span></span><span class="tag warn" data-tip="Checkout, Marketing site, Email kit and Docs use this library">Risky</span></label>
   </div>
   <div class="pgx-dur"><span class="muted">For</span><div class="seg2" role="group" aria-label="Duration"><button aria-pressed="true">This task</button><button aria-pressed="false">Today</button><button aria-pressed="false">Always</button></div></div>
   <div class="pgx-f"><button class="pill ghost sm pgx-no">Not now</button><button class="pill ink sm pgx-ok">Allow 2 scopes</button></div>
 </div>
   </template>
 </div>
-</div></section></div><div class="cp-bar"><div class="pg-wrap"><nav aria-label="On this page"><a href="#install">Install</a><a href="#about">About</a><a href="#usage">Usage</a><a href="#props">Props</a><a href="#code">Code</a><a href="#questions">Questions</a><a href="#more">More</a></nav></div></div><div class="pg-wrap"><section class="cp-sec" id="install"><div class="pg-sh"><span class="n">01</span><h2>Install</h2><p>Add it to your project with the CLI.</p></div><div class="cp-two"><div class="cp-box"><h3 class="pg-t">HTML, CSS and JavaScript</h3><div class="cp-line"><span class="d">$</span><code>npx designme add permission-gate</code><button class="cp-copy" type="button" data-copy="npx designme add permission-gate" data-label="Copy">Copy</button></div></div><div class="cp-box"><h3 class="pg-t">React</h3><div class="cp-line"><span class="d">$</span><code>npx designme add permission-gate --react</code><button class="cp-copy" type="button" data-copy="npx designme add permission-gate --react" data-label="Copy">Copy</button></div></div></div><p class="cp-note">The CLI copies the source into your project, so you own it and can change anything. The HTML version lands in <code>./designme</code> with the shared core and a <code>demo.html</code>. The React version lands in <code>src/components/designme</code> and needs React 19; it works in Next.js, Vite and Astro.</p></section><section class="cp-sec" id="about"><div class="pg-sh"><span class="n">02</span><h2>About</h2><p>What it is for and what it does.</p></div><p class="cp-sum">Permission gate is the card an agent shows when it wants to do something it has not been allowed to do yet, like editing Figma frames. The person ticks which scopes to grant, picks how long the permission lasts, and allows or declines, and they can revoke or undo that choice afterwards.</p><div class="cp-cols cp-gap" style="--n:3"><div><h3 class="pg-t">When to use it</h3><ul><li>When the agent is about to use a new tool or touch a new part of a workspace for the first time.</li><li>When a request bundles several powers and people should be able to grant only some of them.</li><li>When one of the scopes is risky, like publishing a shared library, and you want it flagged.</li><li>When a permission should last only for this task or for today.</li></ul></div><div><h3 class="pg-t">What it does</h3><ul><li>Each scope has a checkbox, a <code>label</code>, an optional <code>detail</code> line and an optional <code>risk</code> tag such as "Risky".</li><li>A segmented control picks the duration. <code>durations</code> defaults to This task, Today and Always.</li><li>The Allow button counts the ticked scopes, like "Allow 2 scopes". It reads "Pick a scope" and stays disabled when none are ticked.</li><li><code>onAllow</code> receives the ticked keys and the duration. Return a promise and the button shows a spinner until it settles.</li><li>After allowing, the card shows what was granted and for how long, with an <code>allowedDetail</code> line that crossfades and a Revoke button.</li><li>After Not now, the card shows <code>declinedTitle</code> and <code>declinedDetail</code> with an Undo button that brings the scopes back.</li></ul></div><div><h3 class="pg-t">Accessibility</h3><ul><li>Each scope is a native checkbox inside its label, so the whole row is clickable and keyboard reachable.</li><li>The duration picker is a group labelled "Duration" whose buttons use <code>aria-pressed</code>.</li><li>The Allow button is a disabled button until at least one scope is ticked.</li></ul></div></div></section><section class="cp-sec" id="usage"><div class="pg-sh"><span class="n">03</span><h2>Usage</h2><p>Import it and drive it from your own state.</p></div><div class="cp-box"><h3 class="pg-t">Import</h3><pre class="cp-pre"><code>import { PermissionGate } from &#39;@/components/designme/permission-gate/PermissionGate&#39;;</code></pre></div><div class="cp-box cp-gap"><h3 class="pg-t">Example</h3><p class="pg-d">The demo above as a React component, 31 lines you can copy.</p><pre class="cp-pre"><code>&#39;use client&#39;;
+</div></section></div><div class="cp-bar"><div class="pg-wrap"><nav aria-label="On this page"><a href="#install">Install</a><a href="#about">About</a><a href="#usage">Usage</a><a href="#props">Props</a><a href="#code">Code</a><a href="#questions">Questions</a><a href="#more">More</a></nav></div></div><div class="pg-wrap"><section class="cp-sec" id="install"><div class="pg-sh"><span class="n">01</span><h2>Install</h2><p>Add it to your project with the CLI.</p></div><div class="cp-two"><div class="cp-box"><h3 class="pg-t">HTML, CSS and JavaScript</h3><div class="cp-line"><span class="d">$</span><code>npx designme add permission-gate</code><button class="cp-copy" type="button" data-copy="npx designme add permission-gate" data-label="Copy">Copy</button></div></div><div class="cp-box"><h3 class="pg-t">React</h3><div class="cp-line"><span class="d">$</span><code>npx designme add permission-gate --react</code><button class="cp-copy" type="button" data-copy="npx designme add permission-gate --react" data-label="Copy">Copy</button></div></div></div><p class="cp-note">The CLI copies the source into your project, so you own it and can change anything. The HTML version lands in <code>./designme</code> with the shared core and a <code>demo.html</code>. The React version lands in <code>src/components/designme</code> and needs React 19; it works in Next.js, Vite and Astro.</p></section><section class="cp-sec" id="about"><div class="pg-sh"><span class="n">02</span><h2>About</h2><p>What it is for and what it does.</p></div><p class="cp-sum">Permission gate is the card an agent shows when it wants to do something it has not been allowed to do yet, like editing Figma frames. The person ticks which scopes to grant, picks how long the permission lasts, and allows or declines, and they can revoke or undo that choice afterwards.</p><div class="cp-cols cp-gap" style="--n:3"><div><h3 class="pg-t">When to use it</h3><ul><li>When the agent is about to use a new tool or touch a new part of a workspace for the first time.</li><li>When a request bundles several powers and people should be able to grant only some of them.</li><li>When the agent is already running and reaches something it needs one more scope for, so it asks again for just that scope.</li><li>When one of the scopes is risky, like publishing a shared library, and you want it flagged.</li><li>When a permission should last only for this task or for today.</li></ul></div><div><h3 class="pg-t">What it does</h3><ul><li>Each scope has a checkbox, a <code>label</code>, an optional <code>detail</code> line and an optional <code>risk</code> tag such as "Risky".</li><li>A segmented control picks the duration. <code>durations</code> defaults to This task, Today and Always.</li><li>The Allow button counts the ticked scopes, like "Allow 2 scopes". It reads "Pick a scope" and stays disabled when none are ticked.</li><li><code>onAllow</code> receives the ticked keys and the duration. Return a promise and the button shows a spinner until it settles.</li><li>After allowing, the card shows what was granted and for how long, with an <code>allowedDetail</code> line that crossfades and a Revoke button. <code>allowedTitle</code> replaces the first line, like "Done. 6 frames edited on a new page".</li><li>While the agent works under the permission, <code>working</code> shows a spinner on a neutral row instead of the green check, and <code>meta</code> adds quiet text at the end of it, like an elapsed time.</li><li><code>followUp</code> marks a second ask in the middle of a run, for one more scope: the icon tile turns amber, and <code>declineLabel</code> can say what declining means, like "Skip this frame". A scope's <code>riskDetail</code> is what its risk tag shows on hover.</li><li>After Not now, the card shows <code>declinedTitle</code> and <code>declinedDetail</code> with an Undo button that brings the scopes back.</li></ul></div><div><h3 class="pg-t">Accessibility</h3><ul><li>Each scope is a native checkbox inside its label, so the whole row is clickable and keyboard reachable.</li><li>The duration picker is a group labelled "Duration" whose buttons use <code>aria-pressed</code>.</li><li>The Allow button is a disabled button until at least one scope is ticked.</li></ul></div></div></section><section class="cp-sec" id="usage"><div class="pg-sh"><span class="n">03</span><h2>Usage</h2><p>Import it and drive it from your own state.</p></div><div class="cp-box"><h3 class="pg-t">Import</h3><pre class="cp-pre"><code>import { PermissionGate } from &#39;@/components/designme/permission-gate/PermissionGate&#39;;</code></pre></div><div class="cp-box cp-gap"><h3 class="pg-t">Example</h3><p class="pg-d">The demo above as a React component, 78 lines you can copy.</p><pre class="cp-pre"><code>&#39;use client&#39;;
 // The animated preview from designme.dev, rebuilt from the React component: an example of driving it from your own state.
-import { useState } from &#39;react&#39;;
-import { PermissionGate, type PermissionStatus } from &#39;./PermissionGate&#39;;
+import { useEffect, useRef, useState } from &#39;react&#39;;
+import { PermissionGate, type PermissionScope, type PermissionStatus } from &#39;./PermissionGate&#39;;
 import { Icon } from &#39;../lib/icons&#39;;
-import { useScript } from &#39;../lib/useScript&#39;;
+import { useStory, useWait } from &#39;../lib/useScript&#39;;
 
-/* ---------- Permission gate: two scopes ticked; allow them and the agent reports back ---------- */
+/* ---------- Permission gate: hold back the risky scope, allow the rest, and grant it when the agent needs it for one frame ---------- */
+const FIRST: PermissionScope[] = [
+  { key: &#39;read&#39;, label: &#39;Read frames&#39;, detail: &#39;Pricing, Checkout&#39; },
+  { key: &#39;edit&#39;, label: &#39;Edit frames&#39;, detail: &#39;Only on a new page&#39; },
+  { key: &#39;publish&#39;, label: &#39;Publish library&#39;, detail: &#39;Affects 4 other files&#39;, risk: &#39;Risky&#39;, riskDetail: &#39;Checkout, Marketing site, Email kit and Docs use this library&#39; }
+];
+const MORE: PermissionScope[] = [{ key: &#39;publish&#39;, label: &#39;Publish library&#39;, detail: &#39;Updates Checkout, Marketing site, Email kit and Docs&#39;, risk: &#39;Risky&#39; }];
+// the frames the agent edits once it may. Plan toggle is a library component, so editing it needs Publish library
+const FRAMES = [&#39;Hero&#39;, &#39;Plan cards&#39;, &#39;Compare table&#39;, &#39;FAQ&#39;, &#39;Plan toggle&#39;, &#39;Checkout summary&#39;], LIB = 4;
+const clock = (ms: number) =&gt; { const s = Math.floor(ms / 1000); return Math.floor(s / 60) + &#39;:&#39; + String(s % 60).padStart(2, &#39;0&#39;); };
+
 export default function PermissionGateDemo() {
+  const ref = useRef&lt;HTMLDivElement&gt;(null);
+  const wait = useWait();
+  const [more, setMore] = useState(false);
+  const [value, setValue] = useState([&#39;read&#39;, &#39;edit&#39;]);
+  const [duration, setDuration] = useState(&#39;This task&#39;);
   const [status, setStatus] = useState&lt;PermissionStatus&gt;(&#39;asking&#39;);
-  const [detail, setDetail] = useState(&#39;Applying the pricing fixes now&#39;);
-  useScript(async ({ wait }) =&gt; {
-    if (status !== &#39;allowed&#39;) return;
-    setDetail(&#39;Applying the pricing fixes now&#39;); await wait(1400);
-    setDetail(&#39;Done. 6 frames edited on a new page&#39;);
-  }, [status]);
+  const [working, setWorking] = useState(false);
+  const [title, setTitle] = useState&lt;string&gt;();
+  const [detail, setDetail] = useState&lt;string&gt;();
+  const run = useRef({ granted: 0, publish: false, skip: false, done: 0, id: 0 });
+  // the clock counts the agent&#39;s working time only, not the time it waits for you
+  const [ms, setMs] = useState(0);
+  useEffect(() =&gt; {
+    if (!working) return;
+    const from = performance.now() - ms, t = setInterval(() =&gt; setMs(performance.now() - from), 250);
+    return () =&gt; clearInterval(t);
+  }, [working]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // the agent works through the frames under what it was given, and stops to ask when it reaches one it may not touch
+  const work = async () =&gt; {
+    const r = run.current, id = ++r.id;
+    setStatus(&#39;allowed&#39;); setWorking(true); setTitle(undefined);
+    while (r.done &lt; FRAMES.length) {
+      if (r.done === LIB &amp;&amp; !r.publish &amp;&amp; !r.skip) { setWorking(false); setMore(true); setValue([&#39;publish&#39;]); setStatus(&#39;asking&#39;); return; }
+      setDetail(r.done === LIB &amp;&amp; r.skip ? `Skipping ${FRAMES[r.done]}` : `Editing ${FRAMES[r.done]} · ${r.done + 1} of ${FRAMES.length}`);
+      await wait(900); if (r.id !== id) return;
+      r.done++;
+    }
+    setWorking(false);
+    setTitle(`Done. ${r.skip ? FRAMES.length - 1 : FRAMES.length} frames edited on a new page`);
+    setDetail(r.skip ? &#39;Plan toggle skipped, it needs Publish library&#39; : &#39;Plan toggle published to the library&#39;);
+  };
+
+  // the preview&#39;s story: the person ticks the risky scope, reads what it touches, leaves it off, allows, then grants it for one frame
+  useStory(ref, async ({ wait, press }) =&gt; {
+    await wait(1500); setValue([&#39;read&#39;, &#39;edit&#39;, &#39;publish&#39;]);
+    await wait(2500); setValue([&#39;read&#39;, &#39;edit&#39;]);
+    await wait(1000); press(&#39;.dm-pgx-ok&#39;);
+    await wait(500 + 4 * 900 + 2000); press(&#39;.dm-pgx-ok&#39;);
+  });
+
+  const r = run.current;
   return (
-    &lt;div style={{ width: &#39;100%&#39; }}&gt;
-      &lt;PermissionGate icon={&lt;Icon name=&quot;figma&quot; /&gt;} title=&quot;Allow the agent to edit Figma?&quot; subtitle=&quot;It needs this to apply the pricing fixes&quot;
-        scopes={[
-          { key: &#39;read&#39;, label: &#39;Read frames&#39;, detail: &#39;Pricing, Checkout&#39; },
-          { key: &#39;edit&#39;, label: &#39;Edit frames&#39;, detail: &#39;Only on a new page&#39; },
-          { key: &#39;publish&#39;, label: &#39;Publish library&#39;, detail: &#39;Affects 4 other files&#39;, risk: &#39;Risky&#39; }
-        ]}
-        defaultValue={[&#39;read&#39;, &#39;edit&#39;]} status={status} onStatusChange={setStatus}
-        onAllow={() =&gt; new Promise&lt;void&gt;(res =&gt; setTimeout(res, 600))} allowedDetail={detail}
+    &lt;div ref={ref} style={{ width: &#39;100%&#39; }}&gt;
+      &lt;PermissionGate icon={&lt;Icon name=&quot;figma&quot; /&gt;}
+        title={more ? &#39;Also allow Publish library?&#39; : &#39;Allow the agent to edit Figma?&#39;}
+        subtitle={more ? `${FRAMES[LIB]}, frame ${LIB + 1} of ${FRAMES.length}, is a library component` : &#39;It needs this to apply the pricing fixes&#39;}
+        scopes={more ? MORE : FIRST} value={value} onValueChange={setValue} duration={duration} onDurationChange={setDuration}
+        status={status} onStatusChange={setStatus} followUp={more} declineLabel={more ? &#39;Skip this frame&#39; : &#39;Not now&#39;}
+        onAllow={async keys =&gt; { r.granted += keys.length; if (keys.includes(&#39;publish&#39;)) r.publish = true; await wait(500); setMore(false); void work(); }}
+        onDecline={() =&gt; { if (!more) return; r.skip = true; setMore(false); void work(); }}
+        onRevoke={() =&gt; { run.current = { granted: 0, publish: false, skip: false, done: 0, id: r.id + 1 }; setValue([&#39;read&#39;, &#39;edit&#39;]); setMs(0); setWorking(false); }}
+        working={working} meta={clock(ms)} allowedDetail={detail}
+        allowedTitle={title ?? `Allowed ${r.granted} ${r.granted &gt; 1 ? &#39;scopes&#39; : &#39;scope&#39;} for ${duration.toLowerCase()}`}
         declinedTitle=&quot;The agent will skip the Figma edits&quot; declinedDetail=&quot;It will list the fixes in chat instead&quot; /&gt;
     &lt;/div&gt;
   );
 }
-</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything PermissionGate takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>title</code><span class="opt">required</span></td><td><code>ReactNode</code></td><td>The question, like &quot;Allow the agent to edit Figma?&quot;</td></tr><tr><td><code>subtitle</code></td><td><code>ReactNode</code></td><td>Why it asks</td></tr><tr><td><code>icon</code></td><td><code>ReactNode</code></td><td>Shown in the tile beside the question. Defaults to a shield</td></tr><tr><td><code>scopes</code><span class="opt">required</span></td><td><code>PermissionScope[]</code></td><td></td></tr><tr><td><code>value</code></td><td><code>string[]</code></td><td>Keys of the ticked scopes. Leave it out to let the checkboxes hold their own</td></tr><tr><td><code>defaultValue</code></td><td><code>string[]</code></td><td></td></tr><tr><td><code>onValueChange</code></td><td><code>(keys: string[]) =&gt; void</code></td><td></td></tr><tr><td><code>durations</code></td><td><code>string[]</code></td><td>How long the permission lasts. Defaults to This task, Today and Always</td></tr><tr><td><code>duration</code></td><td><code>string</code></td><td></td></tr><tr><td><code>defaultDuration</code></td><td><code>string</code></td><td></td></tr><tr><td><code>onDurationChange</code></td><td><code>(duration: string) =&gt; void</code></td><td></td></tr><tr><td><code>status</code></td><td><code>PermissionStatus</code></td><td>asking, allowed or declined. Leave it out to let the buttons move it</td></tr><tr><td><code>defaultStatus</code></td><td><code>PermissionStatus</code></td><td></td></tr><tr><td><code>onStatusChange</code></td><td><code>(status: PermissionStatus) =&gt; void</code></td><td></td></tr><tr><td><code>onAllow</code></td><td><code>(keys: string[], duration: string) =&gt; void | Promise&lt;void&gt;</code></td><td>Called with the ticked scopes and the duration. Return a promise and the button spins until it settles</td></tr><tr><td><code>onDecline</code></td><td><code>() =&gt; void</code></td><td></td></tr><tr><td><code>onRevoke</code></td><td><code>() =&gt; void</code></td><td>Called by Revoke, after allowing</td></tr><tr><td><code>onUndo</code></td><td><code>() =&gt; void</code></td><td>Called by Undo, after declining</td></tr><tr><td><code>allowedDetail</code></td><td><code>string</code></td><td>The line under &quot;Allowed …&quot;, like &quot;Applying the pricing fixes now&quot;. Crossfades when it changes</td></tr><tr><td><code>declinedTitle</code></td><td><code>ReactNode</code></td><td>Shown after Not now</td></tr><tr><td><code>declinedDetail</code></td><td><code>ReactNode</code></td><td></td></tr><tr><td><code>bare</code></td><td><code>boolean</code></td><td>Sits flat in a chat thread (the default, as on designme.dev). Set false to give it a card of its own</td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>PermissionGate.tsx<span class="l">React · 144 lines</span></summary><pre class="cp-pre"><code>&#39;use client&#39;;
+</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything PermissionGate takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>title</code><span class="opt">required</span></td><td><code>ReactNode</code></td><td>The question, like &quot;Allow the agent to edit Figma?&quot;</td></tr><tr><td><code>subtitle</code></td><td><code>ReactNode</code></td><td>Why it asks</td></tr><tr><td><code>icon</code></td><td><code>ReactNode</code></td><td>Shown in the tile beside the question. Defaults to a shield</td></tr><tr><td><code>scopes</code><span class="opt">required</span></td><td><code>PermissionScope[]</code></td><td></td></tr><tr><td><code>value</code></td><td><code>string[]</code></td><td>Keys of the ticked scopes. Leave it out to let the checkboxes hold their own</td></tr><tr><td><code>defaultValue</code></td><td><code>string[]</code></td><td></td></tr><tr><td><code>onValueChange</code></td><td><code>(keys: string[]) =&gt; void</code></td><td></td></tr><tr><td><code>durations</code></td><td><code>string[]</code></td><td>How long the permission lasts. Defaults to This task, Today and Always</td></tr><tr><td><code>duration</code></td><td><code>string</code></td><td></td></tr><tr><td><code>defaultDuration</code></td><td><code>string</code></td><td></td></tr><tr><td><code>onDurationChange</code></td><td><code>(duration: string) =&gt; void</code></td><td></td></tr><tr><td><code>status</code></td><td><code>PermissionStatus</code></td><td>asking, allowed or declined. Leave it out to let the buttons move it</td></tr><tr><td><code>defaultStatus</code></td><td><code>PermissionStatus</code></td><td></td></tr><tr><td><code>onStatusChange</code></td><td><code>(status: PermissionStatus) =&gt; void</code></td><td></td></tr><tr><td><code>onAllow</code></td><td><code>(keys: string[], duration: string) =&gt; void | Promise&lt;void&gt;</code></td><td>Called with the ticked scopes and the duration. Return a promise and the button spins until it settles</td></tr><tr><td><code>onDecline</code></td><td><code>() =&gt; void</code></td><td></td></tr><tr><td><code>onRevoke</code></td><td><code>() =&gt; void</code></td><td>Called by Revoke, after allowing</td></tr><tr><td><code>onUndo</code></td><td><code>() =&gt; void</code></td><td>Called by Undo, after declining</td></tr><tr><td><code>allowedDetail</code></td><td><code>string</code></td><td>The line under &quot;Allowed …&quot;, like &quot;Applying the pricing fixes now&quot;. Crossfades when it changes</td></tr><tr><td><code>allowedTitle</code></td><td><code>string</code></td><td>Replaces &quot;Allowed 2 scopes for this task&quot;, like &quot;Done. 6 frames edited on a new page&quot;. Crossfades when it changes</td></tr><tr><td><code>working</code></td><td><code>boolean</code></td><td>The agent is still working under the permission: a spinner on a neutral row instead of the green check</td></tr><tr><td><code>meta</code></td><td><code>ReactNode</code></td><td>Quiet text at the end of the allowed row, like an elapsed time &quot;0:04&quot;</td></tr><tr><td><code>followUp</code></td><td><code>boolean</code></td><td>A follow-up ask in the middle of a run, for one more scope: the icon tile turns amber</td></tr><tr><td><code>declineLabel</code></td><td><code>string</code></td><td>The decline button. Defaults to &quot;Not now&quot;; a follow-up ask might say &quot;Skip this frame&quot;</td></tr><tr><td><code>declinedTitle</code></td><td><code>ReactNode</code></td><td>Shown after Not now</td></tr><tr><td><code>declinedDetail</code></td><td><code>ReactNode</code></td><td></td></tr><tr><td><code>bare</code></td><td><code>boolean</code></td><td>Sits flat in a chat thread (the default, as on designme.dev). Set false to give it a card of its own</td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>PermissionGate.tsx<span class="l">React · 160 lines</span></summary><pre class="cp-pre"><code>&#39;use client&#39;;
 import { useEffect, useState, type ReactNode } from &#39;react&#39;;
 import { cx } from &#39;../lib/cx&#39;;
 import { useControllable } from &#39;../lib/hooks&#39;;
 import { Icon } from &#39;../lib/icons&#39;;
-import { enter, Seg, Spin, Swap } from &#39;../lib/motion&#39;;
+import { enter, Seg, Spin, Swap, Tip } from &#39;../lib/motion&#39;;
 import &#39;../designme.css&#39;;
 import &#39;./permission-gate.css&#39;;
 
@@ -108,6 +164,8 @@ export interface PermissionScope {
   detail?: string;
   /** A warning tag after it, like &quot;Risky&quot; */
   risk?: string;
+  /** What the risk tag reveals on hover, like &quot;Checkout, Marketing site, Email kit and Docs use this library&quot; */
+  riskDetail?: string;
 }
 
 export type PermissionStatus = &#39;asking&#39; | &#39;allowed&#39; | &#39;declined&#39;;
@@ -142,6 +200,16 @@ export interface PermissionGateProps {
   onUndo?: () =&gt; void;
   /** The line under &quot;Allowed …&quot;, like &quot;Applying the pricing fixes now&quot;. Crossfades when it changes */
   allowedDetail?: string;
+  /** Replaces &quot;Allowed 2 scopes for this task&quot;, like &quot;Done. 6 frames edited on a new page&quot;. Crossfades when it changes */
+  allowedTitle?: string;
+  /** The agent is still working under the permission: a spinner on a neutral row instead of the green check */
+  working?: boolean;
+  /** Quiet text at the end of the allowed row, like an elapsed time &quot;0:04&quot; */
+  meta?: ReactNode;
+  /** A follow-up ask in the middle of a run, for one more scope: the icon tile turns amber */
+  followUp?: boolean;
+  /** The decline button. Defaults to &quot;Not now&quot;; a follow-up ask might say &quot;Skip this frame&quot; */
+  declineLabel?: string;
   /** Shown after Not now */
   declinedTitle?: ReactNode;
   declinedDetail?: ReactNode;
@@ -155,8 +223,8 @@ const DURATIONS = [&#39;This task&#39;, &#39;Today&#39;, &#39;Always&#39;];
 /** The agent asks before it acts: pick the scopes and how long they last, then allow or decline. */
 export function PermissionGate({
   title, subtitle, icon, scopes, value, defaultValue = [], onValueChange, durations = DURATIONS, duration, defaultDuration, onDurationChange,
-  status, defaultStatus = &#39;asking&#39;, onStatusChange, onAllow, onDecline, onRevoke, onUndo, allowedDetail, declinedTitle = &#39;The agent will skip these changes&#39;,
-  declinedDetail, bare = true, className
+  status, defaultStatus = &#39;asking&#39;, onStatusChange, onAllow, onDecline, onRevoke, onUndo, allowedDetail, allowedTitle, working = false, meta, followUp = false,
+  declineLabel = &#39;Not now&#39;, declinedTitle = &#39;The agent will skip these changes&#39;, declinedDetail, bare = true, className
 }: PermissionGateProps) {
   const [ticked, setTicked] = useControllable(value, defaultValue, onValueChange);
   const [dur, setDur] = useControllable(duration, defaultDuration ?? durations[0], onDurationChange);
@@ -187,7 +255,7 @@ export function PermissionGate({
   const again = (i: number) =&gt; (back ? { className: &#39;dm-enter&#39;, style: enter(i * 50).style, key: back } : { className: undefined, style: undefined, key: 0 });
 
   return (
-    &lt;div data-dm=&quot;&quot; className={cx(&#39;dm-pgx&#39;, !bare &amp;&amp; &#39;dm-panel&#39;, className)}&gt;
+    &lt;div data-dm=&quot;&quot; className={cx(&#39;dm-pgx&#39;, !bare &amp;&amp; &#39;dm-panel&#39;, followUp &amp;&amp; state === &#39;asking&#39; &amp;&amp; &#39;dm-esc&#39;, className)}&gt;
       &lt;div className=&quot;dm-pgx-h&quot;&gt;
         &lt;span className=&quot;dm-pgx-ic&quot;&gt;{icon ?? &lt;Icon name=&quot;shield&quot; /&gt;}&lt;/span&gt;
         &lt;div className=&quot;dm-pgx-ht&quot;&gt;&lt;b&gt;{title}&lt;/b&gt;{subtitle &amp;&amp; &lt;span className=&quot;dm-muted&quot;&gt;{subtitle}&lt;/span&gt;}&lt;/div&gt;
@@ -200,7 +268,7 @@ export function PermissionGate({
                 &lt;input type=&quot;checkbox&quot; checked={ticked.includes(s.key)} onChange={() =&gt; toggle(s.key)} /&gt;
                 &lt;span className=&quot;dm-bx&quot;&gt;&lt;Icon name=&quot;check&quot; size=&quot;xs&quot; /&gt;&lt;/span&gt;
                 &lt;span className=&quot;dm-t&quot;&gt;{s.label}{s.detail &amp;&amp; &lt;span className=&quot;dm-d&quot;&gt;{s.detail}&lt;/span&gt;}&lt;/span&gt;
-                {s.risk &amp;&amp; &lt;span className=&quot;dm-tag dm-warn&quot;&gt;{s.risk}&lt;/span&gt;}
+                {s.risk &amp;&amp; (s.riskDetail ? &lt;Tip label={s.riskDetail}&gt;&lt;span className=&quot;dm-tag dm-warn&quot;&gt;{s.risk}&lt;/span&gt;&lt;/Tip&gt; : &lt;span className=&quot;dm-tag dm-warn&quot;&gt;{s.risk}&lt;/span&gt;)}
               &lt;/label&gt;
             ))}
           &lt;/div&gt;
@@ -209,7 +277,7 @@ export function PermissionGate({
             &lt;Seg label=&quot;Duration&quot; value={dur} onChange={setDur} options={durations.map(d =&gt; ({ value: d, label: d }))} /&gt;
           &lt;/div&gt;
           &lt;div key={&#39;f&#39; + again(2).key} className={cx(&#39;dm-pgx-f&#39;, again(2).className)} style={again(2).style}&gt;
-            &lt;button type=&quot;button&quot; className=&quot;dm-pill dm-ghost dm-sm dm-pgx-no&quot; onClick={decline}&gt;Not now&lt;/button&gt;
+            &lt;button type=&quot;button&quot; className=&quot;dm-pill dm-ghost dm-sm dm-pgx-no&quot; onClick={decline}&gt;{declineLabel}&lt;/button&gt;
             &lt;button type=&quot;button&quot; className=&quot;dm-pill dm-ink dm-sm dm-pgx-ok&quot; disabled={!n} onClick={allow}&gt;
               {waiting ? &lt;Spin /&gt; : &lt;Swap&gt;{n ? `Allow ${n} ${n &gt; 1 ? &#39;scopes&#39; : &#39;scope&#39;}` : &#39;Pick a scope&#39;}&lt;/Swap&gt;}
             &lt;/button&gt;
@@ -217,9 +285,13 @@ export function PermissionGate({
         &lt;/&gt;
       )}
       {state === &#39;allowed&#39; &amp;&amp; (
-        &lt;div className={cx(&#39;dm-pgx-done&#39;, leaving ? &#39;dm-leave&#39; : &#39;dm-enter&#39;)}&gt;
-          &lt;Icon name=&quot;ok&quot; /&gt;
-          &lt;span className=&quot;dm-t&quot;&gt;Allowed {granted || n} {(granted || n) &gt; 1 ? &#39;scopes&#39; : &#39;scope&#39;} for {dur.toLowerCase()}{allowedDetail !== undefined &amp;&amp; &lt;Swap&gt;{allowedDetail}&lt;/Swap&gt;}&lt;/span&gt;
+        &lt;div className={cx(&#39;dm-pgx-done&#39;, working ? &#39;dm-run&#39; : &#39;dm-ok&#39;, leaving ? &#39;dm-leave&#39; : &#39;dm-enter&#39;)}&gt;
+          &lt;span className=&quot;dm-g&quot;&gt;{working ? &lt;Spin /&gt; : &lt;Icon name=&quot;ok&quot; /&gt;}&lt;/span&gt;
+          &lt;span className=&quot;dm-t&quot;&gt;
+            &lt;b className=&quot;dm-pgx-a&quot;&gt;&lt;Swap&gt;{allowedTitle ?? `Allowed ${granted || n} ${(granted || n) &gt; 1 ? &#39;scopes&#39; : &#39;scope&#39;} for ${dur.toLowerCase()}`}&lt;/Swap&gt;&lt;/b&gt;
+            {allowedDetail !== undefined &amp;&amp; &lt;Swap&gt;{allowedDetail}&lt;/Swap&gt;}
+          &lt;/span&gt;
+          {meta !== undefined &amp;&amp; &lt;span className=&quot;dm-pgx-tm dm-num&quot;&gt;{meta}&lt;/span&gt;}
           &lt;button type=&quot;button&quot; className=&quot;dm-pill dm-ghost dm-sm&quot; onClick={() =&gt; setLeaving(true)}&gt;Revoke&lt;/button&gt;
         &lt;/div&gt;
       )}
@@ -233,7 +305,7 @@ export function PermissionGate({
     &lt;/div&gt;
   );
 }
-</code></pre></details><details class="cp-file"><summary>permission-gate.css<span class="l">React · 30 lines</span></summary><pre class="cp-pre"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+</code></pre></details><details class="cp-file"><summary>permission-gate.css<span class="l">React · 39 lines</span></summary><pre class="cp-pre"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Permission gate ---------- */
 /* the agent asks in the chat: no container; with .panel it becomes a card */
 .dm-pgx{padding:14px 0;display:flex;flex-direction:column;gap:12px}
@@ -261,6 +333,15 @@ export function PermissionGate({
 .dm-pgx-done .dm-t{flex:1;color:var(--dm-fg)}
 .dm-pgx-done .dm-t span{display:block;font-size:12px;color:var(--dm-muted)}
 .dm-pgx-done&gt;svg{color:var(--dm-ok)}
+/* while the agent works under the permission: a neutral row with a spinner, a live line and a clock; green once done */
+.dm-pgx-done.dm-run{background:var(--dm-chip)}
+.dm-pgx-done .dm-g{width:18px;height:18px;display:grid;place-items:center;flex:none;color:var(--dm-fg2)}
+.dm-pgx-done.dm-ok .dm-g{color:var(--dm-ok)}
+.dm-pgx-done .dm-t b{display:block;font-weight:400}
+.dm-pgx-tm{font-size:12px;color:var(--dm-muted)}
+/* asking again mid-run, for one more scope: the tile turns amber */
+.dm-pgx-ic{transition:background .32s var(--dm-ease)}
+.dm-pgx.dm-esc .dm-pgx-ic{background:var(--dm-warn-bg)}
 .dm-pgx-scope{display:flex;flex-direction:column;gap:12px}
 </code></pre></details><details class="cp-file"><summary>permission-gate.html<span class="l">HTML · 16 lines</span></summary><pre class="cp-pre"><code>&lt;div class=&quot;card bare&quot; data-c=&quot;permission-gate&quot;&gt;
   &lt;div class=&quot;stage-in&quot;&gt;&lt;/div&gt;
@@ -268,16 +349,16 @@ export function PermissionGate({
 &lt;div class=&quot;pgx&quot;&gt;
   &lt;div class=&quot;pgx-h&quot;&gt;&lt;span class=&quot;pgx-ic&quot;&gt;{figma}&lt;/span&gt;&lt;div class=&quot;pgx-ht&quot;&gt;&lt;b&gt;Allow the agent to edit Figma?&lt;/b&gt;&lt;span class=&quot;muted&quot;&gt;It needs this to apply the pricing fixes&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;
   &lt;div class=&quot;pgx-sc&quot;&gt;
-    &lt;label class=&quot;pgx-o&quot;&gt;&lt;input type=&quot;checkbox&quot; checked&gt;&lt;span class=&quot;bx&quot;&gt;{chk}&lt;/span&gt;&lt;span class=&quot;t&quot;&gt;Read frames&lt;span class=&quot;d&quot;&gt;Pricing, Checkout&lt;/span&gt;&lt;/span&gt;&lt;/label&gt;
-    &lt;label class=&quot;pgx-o&quot;&gt;&lt;input type=&quot;checkbox&quot; checked&gt;&lt;span class=&quot;bx&quot;&gt;{chk}&lt;/span&gt;&lt;span class=&quot;t&quot;&gt;Edit frames&lt;span class=&quot;d&quot;&gt;Only on a new page&lt;/span&gt;&lt;/span&gt;&lt;/label&gt;
-    &lt;label class=&quot;pgx-o&quot;&gt;&lt;input type=&quot;checkbox&quot;&gt;&lt;span class=&quot;bx&quot;&gt;{chk}&lt;/span&gt;&lt;span class=&quot;t&quot;&gt;Publish library&lt;span class=&quot;d&quot;&gt;Affects 4 other files&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;tag warn&quot;&gt;Risky&lt;/span&gt;&lt;/label&gt;
+    &lt;label class=&quot;pgx-o&quot; data-k=&quot;read&quot;&gt;&lt;input type=&quot;checkbox&quot; checked&gt;&lt;span class=&quot;bx&quot;&gt;{chk}&lt;/span&gt;&lt;span class=&quot;t&quot;&gt;Read frames&lt;span class=&quot;d&quot;&gt;Pricing, Checkout&lt;/span&gt;&lt;/span&gt;&lt;/label&gt;
+    &lt;label class=&quot;pgx-o&quot; data-k=&quot;edit&quot;&gt;&lt;input type=&quot;checkbox&quot; checked&gt;&lt;span class=&quot;bx&quot;&gt;{chk}&lt;/span&gt;&lt;span class=&quot;t&quot;&gt;Edit frames&lt;span class=&quot;d&quot;&gt;Only on a new page&lt;/span&gt;&lt;/span&gt;&lt;/label&gt;
+    &lt;label class=&quot;pgx-o&quot; data-k=&quot;publish&quot;&gt;&lt;input type=&quot;checkbox&quot;&gt;&lt;span class=&quot;bx&quot;&gt;{chk}&lt;/span&gt;&lt;span class=&quot;t&quot;&gt;Publish library&lt;span class=&quot;d&quot;&gt;Affects 4 other files&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;tag warn&quot; data-tip=&quot;Checkout, Marketing site, Email kit and Docs use this library&quot;&gt;Risky&lt;/span&gt;&lt;/label&gt;
   &lt;/div&gt;
   &lt;div class=&quot;pgx-dur&quot;&gt;&lt;span class=&quot;muted&quot;&gt;For&lt;/span&gt;&lt;div class=&quot;seg2&quot; role=&quot;group&quot; aria-label=&quot;Duration&quot;&gt;&lt;button aria-pressed=&quot;true&quot;&gt;This task&lt;/button&gt;&lt;button aria-pressed=&quot;false&quot;&gt;Today&lt;/button&gt;&lt;button aria-pressed=&quot;false&quot;&gt;Always&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;
   &lt;div class=&quot;pgx-f&quot;&gt;&lt;button class=&quot;pill ghost sm pgx-no&quot;&gt;Not now&lt;/button&gt;&lt;button class=&quot;pill ink sm pgx-ok&quot;&gt;Allow 2 scopes&lt;/button&gt;&lt;/div&gt;
 &lt;/div&gt;
   &lt;/template&gt;
 &lt;/div&gt;
-</code></pre></details><details class="cp-file"><summary>permission-gate.css<span class="l">HTML · 29 lines</span></summary><pre class="cp-pre"><code>/* ---------- Permission gate ---------- */
+</code></pre></details><details class="cp-file"><summary>permission-gate.css<span class="l">HTML · 38 lines</span></summary><pre class="cp-pre"><code>/* ---------- Permission gate ---------- */
 /* the agent asks in the chat: no container; with .panel it becomes a card */
 .pgx{padding:14px 0;display:flex;flex-direction:column;gap:12px}
 .pgx.panel{padding:14px}
@@ -304,25 +385,103 @@ export function PermissionGate({
 .pgx-done .t{flex:1;color:var(--fg)}
 .pgx-done .t span{display:block;font-size:12px;color:var(--muted)}
 .pgx-done&gt;svg{color:var(--ok)}
+/* while the agent works under the permission: a neutral row with a spinner, a live line and a clock; green once done */
+.pgx-done.run{background:var(--chip)}
+.pgx-done .g{width:18px;height:18px;display:grid;place-items:center;flex:none;color:var(--fg2)}
+.pgx-done.ok .g{color:var(--ok)}
+.pgx-done .t b{display:block;font-weight:400}
+.pgx-tm{font-size:12px;color:var(--muted)}
+/* asking again mid-run, for one more scope: the tile turns amber */
+.pgx-ic{transition:background .32s var(--ease)}
+.pgx.esc .pgx-ic{background:var(--warn-bg)}
 .pgx-scope{display:flex;flex-direction:column;gap:12px}
-</code></pre></details><details class="cp-file"><summary>permission-gate.js<span class="l">HTML · 20 lines</span></summary><pre class="cp-pre"><code>DM.def(&#39;permission-gate&#39;, (r, c) =&gt; {
+</code></pre></details><details class="cp-file"><summary>permission-gate.js<span class="l">HTML · 89 lines</span></summary><pre class="cp-pre"><code>DM.def(&#39;permission-gate&#39;, (r, c) =&gt; {
   r.innerHTML = r.innerHTML.replace(&#39;{figma}&#39;, I(&#39;figma&#39;)).replace(/\{chk\}/g, I(&#39;check&#39;,&#39;xs&#39;));
-  const root = $(&#39;.pgx&#39;, r), ok = $(&#39;.pgx-ok&#39;, r), boxes = $$(&#39;.pgx-o input&#39;, r);
+  const root = $(&#39;.pgx&#39;, r), ok = $(&#39;.pgx-ok&#39;, r), no = $(&#39;.pgx-no&#39;, r), sc = $(&#39;.pgx-sc&#39;, r), title = $(&#39;.pgx-ht b&#39;, r), sub = $(&#39;.pgx-ht .muted&#39;, r);
+  const first = { sc:sc.innerHTML, title:title.textContent, sub:sub.textContent, no:no.textContent };
+  const boxes = () =&gt; $$(&#39;.pgx-o input&#39;, sc);
   let dur = &#39;This task&#39;;
-  const count = () =&gt; { const n = boxes.filter(b =&gt; b.checked).length; ok.disabled = !n; swap(ok, n ? &#39;Allow &#39; + n + (n &gt; 1 ? &#39; scopes&#39; : &#39; scope&#39;) : &#39;Pick a scope&#39;); };
-  boxes.forEach(b =&gt; b.onchange = count);
+  const count = () =&gt; { const n = boxes().filter(b =&gt; b.checked).length; ok.disabled = !n; swap(ok, n ? &#39;Allow &#39; + n + (n &gt; 1 ? &#39; scopes&#39; : &#39; scope&#39;) : &#39;Pick a scope&#39;); };
+  c.on(sc, &#39;change&#39;, count);
   seg($(&#39;.seg2&#39;, r), v =&gt; dur = v);
   $$(&#39;.seg2 button&#39;, r).forEach(b =&gt; b.dataset.v = b.textContent);
   const body = [...root.children].slice(1);
-  function granted(n){
-    body.forEach(e =&gt; e.hidden = true);
-    const d = html(`&lt;div class=&quot;pgx-done&quot;&gt;${I(&#39;ok&#39;)}&lt;span class=&quot;t&quot;&gt;Allowed ${n} ${n &gt; 1 ? &#39;scopes&#39; : &#39;scope&#39;} for ${dur.toLowerCase()}&lt;span&gt;Applying the pricing fixes now&lt;/span&gt;&lt;/span&gt;&lt;button class=&quot;pill ghost sm&quot;&gt;Revoke&lt;/button&gt;&lt;/div&gt;`);
-    root.appendChild(d); enter(d);
-    c.later(1400, () =&gt; { const s = $(&#39;.t span&#39;, d); if (s) swap(s, &#39;Done. 6 frames edited on a new page&#39;); });
-    $(&#39;button&#39;, d).onclick = () =&gt; { d.classList.add(&#39;leave&#39;); c.later(300, () =&gt; { d.remove(); body.forEach(e =&gt; e.hidden = false); stagger(body, 50); }); };
+  const show = on =&gt; { body.forEach(e =&gt; e.hidden = !on); if (on) stagger(body, 50); };
+  // the frames the agent edits once it may. Plan toggle is a library component, so editing it needs Publish library
+  const F = [&#39;Hero&#39;, &#39;Plan cards&#39;, &#39;Compare table&#39;, &#39;FAQ&#39;, &#39;Plan toggle&#39;, &#39;Checkout summary&#39;], LIB = 4;
+  const clock = s =&gt; Math.floor(s / 60) + &#39;:&#39; + String(s % 60).padStart(2, &#39;0&#39;);
+  // the clock counts the agent&#39;s working time only, not the time it waits for you
+  let granted = 0, publish = false, skip = false, done = 0, ms = 0, run = 0, panel = null;
+  function row(){
+    panel = html(`&lt;div class=&quot;pgx-done run&quot;&gt;&lt;span class=&quot;g&quot;&gt;&lt;span class=&quot;spin&quot;&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;t&quot;&gt;&lt;b class=&quot;pgx-a&quot;&gt;&lt;/b&gt;&lt;span class=&quot;pgx-d&quot;&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;pgx-tm num&quot;&gt;&lt;/span&gt;&lt;button class=&quot;pill ghost sm&quot;&gt;Revoke&lt;/button&gt;&lt;/div&gt;`);
+    root.appendChild(panel); enter(panel); $(&#39;button&#39;, panel).onclick = revoke;
   }
-  ok.onclick = () =&gt; c.run(async () =&gt; { const n = boxes.filter(b =&gt; b.checked).length; ok.innerHTML = &#39;&lt;span class=&quot;spin&quot;&gt;&lt;/span&gt;&#39;; await c.wait(600); granted(n); count(); });
-  $(&#39;.pgx-no&#39;, r).onclick = () =&gt; { body.forEach(e =&gt; e.hidden = true); const d = html(`&lt;div class=&quot;pgx-done&quot; style=&quot;background:var(--chip)&quot;&gt;${I(&#39;info&#39;)}&lt;span class=&quot;t&quot;&gt;The agent will skip the Figma edits&lt;span&gt;It will list the fixes in chat instead&lt;/span&gt;&lt;/span&gt;&lt;button class=&quot;pill ghost sm&quot;&gt;Undo&lt;/button&gt;&lt;/div&gt;`); root.appendChild(d); enter(d); $(&#39;button&#39;, d).onclick = () =&gt; { d.remove(); body.forEach(e =&gt; e.hidden = false); stagger(body, 50); }; };
+  // the agent works through the frames under what it was given, and stops to ask when it reaches one it may not touch
+  function work(){
+    const id = ++run; if (!panel) row();
+    const a = $(&#39;.pgx-a&#39;, panel), d = $(&#39;.pgx-d&#39;, panel), tm = $(&#39;.pgx-tm&#39;, panel);
+    swap(a, `Allowed ${granted} ${granted &gt; 1 ? &#39;scopes&#39; : &#39;scope&#39;} for ${dur.toLowerCase()}`);
+    const t0 = performance.now(), now = () =&gt; ms + performance.now() - t0;
+    tm.textContent = clock(Math.floor(ms / 1000));
+    c.run(async () =&gt; {
+      const tick = c.every(250, () =&gt; { if (run === id) tm.textContent = clock(Math.floor(now() / 1000)); });
+      try {
+        while (done &lt; F.length){
+          if (done === LIB &amp;&amp; !publish &amp;&amp; !skip) return ask();
+          swap(d, done === LIB &amp;&amp; skip ? `Skipping ${F[done]}` : `Editing ${F[done]} · ${done + 1} of ${F.length}`);
+          await c.wait(900); if (run !== id) return;
+          done++;
+        }
+        panel.classList.replace(&#39;run&#39;, &#39;ok&#39;); const g = $(&#39;.g&#39;, panel); g.innerHTML = I(&#39;ok&#39;); enter(g);
+        swap(a, skip ? `Done. ${F.length - 1} frames edited on a new page` : `Done. ${F.length} frames edited on a new page`);
+        swap(d, skip ? &#39;Plan toggle skipped, it needs Publish library&#39; : &#39;Plan toggle published to the library&#39;);
+      } finally { clearInterval(tick); if (run === id) ms = now(); }
+    });
+  }
+  // asks again, for only the scope it now needs
+  function ask(){
+    const p = panel; panel = null; p.classList.add(&#39;leave&#39;);
+    root.classList.add(&#39;esc&#39;); swap(title, &#39;Also allow Publish library?&#39;); swap(sub, `${F[LIB]}, frame ${LIB + 1} of ${F.length}, is a library component`);
+    c.later(300, () =&gt; {
+      p.remove();
+      sc.innerHTML = `&lt;label class=&quot;pgx-o&quot; data-k=&quot;publish&quot;&gt;&lt;input type=&quot;checkbox&quot; checked&gt;&lt;span class=&quot;bx&quot;&gt;${I(&#39;check&#39;,&#39;xs&#39;)}&lt;/span&gt;&lt;span class=&quot;t&quot;&gt;Publish library&lt;span class=&quot;d&quot;&gt;Updates Checkout, Marketing site, Email kit and Docs&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;tag warn&quot;&gt;Risky&lt;/span&gt;&lt;/label&gt;`;
+      no.textContent = &#39;Skip this frame&#39;; count(); show(true);
+    });
+  }
+  function reset(){
+    run++; granted = done = ms = 0; publish = skip = false;
+    root.classList.remove(&#39;esc&#39;); sc.innerHTML = first.sc; swap(title, first.title); swap(sub, first.sub); no.textContent = first.no; count();
+  }
+  function revoke(){ const p = panel; panel = null; run++; p.classList.add(&#39;leave&#39;); c.later(300, () =&gt; { p.remove(); reset(); show(true); }); }
+  ok.onclick = () =&gt; c.run(async () =&gt; {
+    const picked = boxes().filter(b =&gt; b.checked); if (!picked.length) return;
+    granted += picked.length; if (picked.some(b =&gt; b.closest(&#39;.pgx-o&#39;).dataset.k === &#39;publish&#39;)) publish = true;
+    ok.innerHTML = &#39;&lt;span class=&quot;spin&quot;&gt;&lt;/span&gt;&#39;; await c.wait(500);
+    show(false);
+    if (root.classList.contains(&#39;esc&#39;)){ root.classList.remove(&#39;esc&#39;); swap(title, first.title); swap(sub, first.sub); }
+    // placed inside another component (Agent harness), it reports back without the run
+    if (!c.card){ row(); swap($(&#39;.pgx-a&#39;, panel), `Allowed ${granted} ${granted &gt; 1 ? &#39;scopes&#39; : &#39;scope&#39;} for ${dur.toLowerCase()}`); swap($(&#39;.pgx-d&#39;, panel), &#39;Applying the pricing fixes now&#39;); $(&#39;.pgx-tm&#39;, panel).remove();
+      c.later(1400, () =&gt; { if (!panel) return; panel.classList.replace(&#39;run&#39;, &#39;ok&#39;); $(&#39;.g&#39;, panel).innerHTML = I(&#39;ok&#39;); swap($(&#39;.pgx-d&#39;, panel), &#39;Done. 6 frames edited on a new page&#39;); }); return; }
+    work();
+  });
+  no.onclick = () =&gt; {
+    if (root.classList.contains(&#39;esc&#39;)){ skip = true; show(false); root.classList.remove(&#39;esc&#39;); swap(title, first.title); swap(sub, first.sub); work(); return; }
+    show(false); const d = html(`&lt;div class=&quot;pgx-done&quot; style=&quot;background:var(--chip)&quot;&gt;${I(&#39;info&#39;)}&lt;span class=&quot;t&quot;&gt;The agent will skip the Figma edits&lt;span&gt;It will list the fixes in chat instead&lt;/span&gt;&lt;/span&gt;&lt;button class=&quot;pill ghost sm&quot;&gt;Undo&lt;/button&gt;&lt;/div&gt;`);
+    root.appendChild(d); enter(d); $(&#39;button&#39;, d).onclick = () =&gt; { d.remove(); show(true); };
+  };
+  // the preview&#39;s story: hold back the risky scope, allow the rest, then grant it when the agent needs it for one frame
+  c.story(async s =&gt; {
+    await s.beat(3);
+    const pub = $(&#39;[data-k=&quot;publish&quot;]&#39;, sc);
+    await s.tap(pub); await s.beat(1);
+    await s.point($(&#39;.tag&#39;, pub)); await s.beat(3);
+    await s.tap(pub); await s.beat(2);
+    await s.tap(ok); s.away();
+    await s.until(() =&gt; root.classList.contains(&#39;esc&#39;) &amp;&amp; !sc.hidden);
+    await s.beat(4);
+    await s.tap(ok); s.away();
+    await s.until(() =&gt; panel &amp;&amp; panel.classList.contains(&#39;ok&#39;));
+  });
 });
 </code></pre></details></div></section><section class="cp-sec" id="questions"><div class="pg-sh"><span class="n">06</span><h2>Questions</h2><p>What people ask about it.</p></div><dl class="cp-qs"><div><dt class="pg-t">Can the agent wait for the permission before it continues?</dt><dd>Yes. Make <code>onAllow</code> return a promise that resolves once your agent has the grant. The button spins while it waits, then the card switches to the allowed state.</dd></div><div><dt class="pg-t">How do I pre-tick the safe scopes?</dt><dd>Pass their keys in <code>defaultValue</code>, or control the ticks with <code>value</code> and <code>onValueChange</code>. Scopes you leave out start unticked.</dd></div><div><dt class="pg-t">What happens when the person presses Revoke?</dt><dd>The allowed message fades out, the card returns to asking with the scopes shown again, and <code>onRevoke</code> is called so you can withdraw the grant.</dd></div><div><dt class="pg-t">Can I use my own durations?</dt><dd>Yes. Pass any list of strings as <code>durations</code>. The first one is picked by default unless you set <code>defaultDuration</code> or <code>duration</code>.</dd></div></dl></section><section class="cp-sec" id="more"><div class="pg-sh"><span class="n">07</span><h2>More in Review and approve</h2><p>Moments where a person checks, steers or signs off on the agent&#39;s work.</p></div><div class="pg-cards"><a class="pg-card" href="/components/change-review"><span class="pg-t">Change review</span><span class="pg-d">Accept or reject each change the agent made, file by file.</span><span class="pg-thumb"><img class="lt" src="/components/thumbs/change-review-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/change-review-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></a><a class="pg-card" href="/components/plan-review"><span class="pg-t">Plan review</span><span class="pg-d">Check the agent&#39;s plan, edit steps, then let it run.</span><span class="pg-thumb"><img class="lt" src="/components/thumbs/plan-review-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/plan-review-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></a><a class="pg-card" href="/components/decision-prompt"><span class="pg-t">Decision prompt</span><span class="pg-d">The agent asks a few quick questions before it starts.</span><span class="pg-thumb"><img class="lt" src="/components/thumbs/decision-prompt-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/decision-prompt-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></a><a class="pg-card" href="/components/proposal-card"><span class="pg-t">Proposal card</span><span class="pg-d">A suggested change with confidence, alternatives and undo.</span><span class="pg-thumb"><img class="lt" src="/components/thumbs/proposal-card-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/proposal-card-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></a><a class="pg-card" href="/components/design-tuner"><span class="pg-t">Design tuner</span><span class="pg-d">Tweak a component by hand or let the agent tune it.</span><span class="pg-thumb"><img class="lt" src="/components/thumbs/design-tuner-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/design-tuner-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></a><a class="pg-card" href="/components/rewrite-toolbar"><span class="pg-t">Rewrite toolbar</span><span class="pg-d">Select a sentence and let the agent rewrite it in place.</span><span class="pg-thumb"><img class="lt" src="/components/thumbs/rewrite-toolbar-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/rewrite-toolbar-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></a><a class="pg-card" href="/components/launch-checklist"><span class="pg-t">Launch checklist</span><span class="pg-d">The agent checks a design before it ships, and fixes what fails.</span><span class="pg-thumb"><img class="lt" src="/components/thumbs/launch-checklist-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/launch-checklist-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></a><a class="pg-card" href="/components/design-review"><span class="pg-t">Design review</span><span class="pg-d">Checks run, a teammate asks for a change, the agent makes it, and you ship.</span><span class="pg-thumb"><img class="lt" src="/components/thumbs/design-review-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/design-review-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></a></div></section><nav class="cp-pn" aria-label="Previous and next component"><a href="/components/plan-review" rel="prev"><span class="pg-d">Previous</span><span class="pg-t">Plan review</span></a><a href="/components/decision-prompt" rel="next" class="n"><span class="pg-d">Next</span><span class="pg-t">Decision prompt</span></a></nav></div></main><footer class="pg-foot"><div class="pg-wrap"><div class="pg-foot-in"><span>Free and MIT licensed. Built by <a href="https://designme.agency">DesignMe</a>.</span><nav aria-label="More"><a href="/components">All components</a><a href="/#/changelog">Changelog</a><a href="/llms.txt">llms.txt</a><a href="/">Home</a></nav></div></div></footer><script>
 // light and dark, and Blueprint or Soft, shared with the rest of the site through the same saved settings
@@ -359,22 +518,91 @@ export function PermissionGate({
 })();
 </script><script src="/components/assets/core.js"></script><script>DM.def('permission-gate', (r, c) => {
   r.innerHTML = r.innerHTML.replace('{figma}', I('figma')).replace(/\{chk\}/g, I('check','xs'));
-  const root = $('.pgx', r), ok = $('.pgx-ok', r), boxes = $$('.pgx-o input', r);
+  const root = $('.pgx', r), ok = $('.pgx-ok', r), no = $('.pgx-no', r), sc = $('.pgx-sc', r), title = $('.pgx-ht b', r), sub = $('.pgx-ht .muted', r);
+  const first = { sc:sc.innerHTML, title:title.textContent, sub:sub.textContent, no:no.textContent };
+  const boxes = () => $$('.pgx-o input', sc);
   let dur = 'This task';
-  const count = () => { const n = boxes.filter(b => b.checked).length; ok.disabled = !n; swap(ok, n ? 'Allow ' + n + (n > 1 ? ' scopes' : ' scope') : 'Pick a scope'); };
-  boxes.forEach(b => b.onchange = count);
+  const count = () => { const n = boxes().filter(b => b.checked).length; ok.disabled = !n; swap(ok, n ? 'Allow ' + n + (n > 1 ? ' scopes' : ' scope') : 'Pick a scope'); };
+  c.on(sc, 'change', count);
   seg($('.seg2', r), v => dur = v);
   $$('.seg2 button', r).forEach(b => b.dataset.v = b.textContent);
   const body = [...root.children].slice(1);
-  function granted(n){
-    body.forEach(e => e.hidden = true);
-    const d = html(`<div class="pgx-done">${I('ok')}<span class="t">Allowed ${n} ${n > 1 ? 'scopes' : 'scope'} for ${dur.toLowerCase()}<span>Applying the pricing fixes now</span></span><button class="pill ghost sm">Revoke</button></div>`);
-    root.appendChild(d); enter(d);
-    c.later(1400, () => { const s = $('.t span', d); if (s) swap(s, 'Done. 6 frames edited on a new page'); });
-    $('button', d).onclick = () => { d.classList.add('leave'); c.later(300, () => { d.remove(); body.forEach(e => e.hidden = false); stagger(body, 50); }); };
+  const show = on => { body.forEach(e => e.hidden = !on); if (on) stagger(body, 50); };
+  // the frames the agent edits once it may. Plan toggle is a library component, so editing it needs Publish library
+  const F = ['Hero', 'Plan cards', 'Compare table', 'FAQ', 'Plan toggle', 'Checkout summary'], LIB = 4;
+  const clock = s => Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
+  // the clock counts the agent's working time only, not the time it waits for you
+  let granted = 0, publish = false, skip = false, done = 0, ms = 0, run = 0, panel = null;
+  function row(){
+    panel = html(`<div class="pgx-done run"><span class="g"><span class="spin"></span></span><span class="t"><b class="pgx-a"></b><span class="pgx-d"></span></span><span class="pgx-tm num"></span><button class="pill ghost sm">Revoke</button></div>`);
+    root.appendChild(panel); enter(panel); $('button', panel).onclick = revoke;
   }
-  ok.onclick = () => c.run(async () => { const n = boxes.filter(b => b.checked).length; ok.innerHTML = '<span class="spin"></span>'; await c.wait(600); granted(n); count(); });
-  $('.pgx-no', r).onclick = () => { body.forEach(e => e.hidden = true); const d = html(`<div class="pgx-done" style="background:var(--chip)">${I('info')}<span class="t">The agent will skip the Figma edits<span>It will list the fixes in chat instead</span></span><button class="pill ghost sm">Undo</button></div>`); root.appendChild(d); enter(d); $('button', d).onclick = () => { d.remove(); body.forEach(e => e.hidden = false); stagger(body, 50); }; };
+  // the agent works through the frames under what it was given, and stops to ask when it reaches one it may not touch
+  function work(){
+    const id = ++run; if (!panel) row();
+    const a = $('.pgx-a', panel), d = $('.pgx-d', panel), tm = $('.pgx-tm', panel);
+    swap(a, `Allowed ${granted} ${granted > 1 ? 'scopes' : 'scope'} for ${dur.toLowerCase()}`);
+    const t0 = performance.now(), now = () => ms + performance.now() - t0;
+    tm.textContent = clock(Math.floor(ms / 1000));
+    c.run(async () => {
+      const tick = c.every(250, () => { if (run === id) tm.textContent = clock(Math.floor(now() / 1000)); });
+      try {
+        while (done < F.length){
+          if (done === LIB && !publish && !skip) return ask();
+          swap(d, done === LIB && skip ? `Skipping ${F[done]}` : `Editing ${F[done]} · ${done + 1} of ${F.length}`);
+          await c.wait(900); if (run !== id) return;
+          done++;
+        }
+        panel.classList.replace('run', 'ok'); const g = $('.g', panel); g.innerHTML = I('ok'); enter(g);
+        swap(a, skip ? `Done. ${F.length - 1} frames edited on a new page` : `Done. ${F.length} frames edited on a new page`);
+        swap(d, skip ? 'Plan toggle skipped, it needs Publish library' : 'Plan toggle published to the library');
+      } finally { clearInterval(tick); if (run === id) ms = now(); }
+    });
+  }
+  // asks again, for only the scope it now needs
+  function ask(){
+    const p = panel; panel = null; p.classList.add('leave');
+    root.classList.add('esc'); swap(title, 'Also allow Publish library?'); swap(sub, `${F[LIB]}, frame ${LIB + 1} of ${F.length}, is a library component`);
+    c.later(300, () => {
+      p.remove();
+      sc.innerHTML = `<label class="pgx-o" data-k="publish"><input type="checkbox" checked><span class="bx">${I('check','xs')}</span><span class="t">Publish library<span class="d">Updates Checkout, Marketing site, Email kit and Docs</span></span><span class="tag warn">Risky</span></label>`;
+      no.textContent = 'Skip this frame'; count(); show(true);
+    });
+  }
+  function reset(){
+    run++; granted = done = ms = 0; publish = skip = false;
+    root.classList.remove('esc'); sc.innerHTML = first.sc; swap(title, first.title); swap(sub, first.sub); no.textContent = first.no; count();
+  }
+  function revoke(){ const p = panel; panel = null; run++; p.classList.add('leave'); c.later(300, () => { p.remove(); reset(); show(true); }); }
+  ok.onclick = () => c.run(async () => {
+    const picked = boxes().filter(b => b.checked); if (!picked.length) return;
+    granted += picked.length; if (picked.some(b => b.closest('.pgx-o').dataset.k === 'publish')) publish = true;
+    ok.innerHTML = '<span class="spin"></span>'; await c.wait(500);
+    show(false);
+    if (root.classList.contains('esc')){ root.classList.remove('esc'); swap(title, first.title); swap(sub, first.sub); }
+    // placed inside another component (Agent harness), it reports back without the run
+    if (!c.card){ row(); swap($('.pgx-a', panel), `Allowed ${granted} ${granted > 1 ? 'scopes' : 'scope'} for ${dur.toLowerCase()}`); swap($('.pgx-d', panel), 'Applying the pricing fixes now'); $('.pgx-tm', panel).remove();
+      c.later(1400, () => { if (!panel) return; panel.classList.replace('run', 'ok'); $('.g', panel).innerHTML = I('ok'); swap($('.pgx-d', panel), 'Done. 6 frames edited on a new page'); }); return; }
+    work();
+  });
+  no.onclick = () => {
+    if (root.classList.contains('esc')){ skip = true; show(false); root.classList.remove('esc'); swap(title, first.title); swap(sub, first.sub); work(); return; }
+    show(false); const d = html(`<div class="pgx-done" style="background:var(--chip)">${I('info')}<span class="t">The agent will skip the Figma edits<span>It will list the fixes in chat instead</span></span><button class="pill ghost sm">Undo</button></div>`);
+    root.appendChild(d); enter(d); $('button', d).onclick = () => { d.remove(); show(true); };
+  };
+  // the preview's story: hold back the risky scope, allow the rest, then grant it when the agent needs it for one frame
+  c.story(async s => {
+    await s.beat(3);
+    const pub = $('[data-k="publish"]', sc);
+    await s.tap(pub); await s.beat(1);
+    await s.point($('.tag', pub)); await s.beat(3);
+    await s.tap(pub); await s.beat(2);
+    await s.tap(ok); s.away();
+    await s.until(() => root.classList.contains('esc') && !sc.hidden);
+    await s.beat(4);
+    await s.tap(ok); s.away();
+    await s.until(() => panel && panel.classList.contains('ok'));
+  });
 });
 </script><script>
     (function(){
