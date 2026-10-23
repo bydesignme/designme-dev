@@ -147,7 +147,7 @@ export interface AgentHarnessProps {
   onDraftChange?: (draft: string) => void;
   /** The composer's placeholder on New chat, in a chat, and while the agent works */
   placeholders?: { home?: string; reply?: string; working?: string };
-  /** Anything else for the composer: projects, environments, attachments, effort, dictation */
+  /** Anything else for the composer: what it works on, its mode, attachments, dictation */
   composer?: Omit<ComposerProps, 'value' | 'defaultValue' | 'onValueChange' | 'onSubmit' | 'thread' | 'tools' | 'className' | 'placeholder'>;
   className?: string;
 }
@@ -267,10 +267,8 @@ export function AgentHarness({
   /* the composer's settings live here, so they stay put when it moves between New chat and the foot of a chat */
   const cp = composer ?? {};
   const [att, setAtt] = useControllable(cp.attachments, cp.defaultAttachments ?? [], cp.onAttachmentsChange);
-  const [proj, setProj] = useControllable(cp.project, cp.defaultProject ?? cp.projects?.[0]?.value ?? '', cp.onProjectChange);
-  const [env, setEnv] = useControllable(cp.environment, cp.defaultEnvironment ?? cp.environments?.[0]?.value ?? '', cp.onEnvironmentChange);
-  const [cloud, setCloud] = useControllable(cp.handoff, cp.defaultHandoff ?? false, cp.onHandoffChange);
-  const [eff, setEff] = useControllable(cp.effort, cp.defaultEffort ?? 'medium', cp.onEffortChange);
+  const [ctxPick, setCtxPick] = useControllable(cp.context, cp.defaultContext ?? cp.contexts?.[0]?.value ?? '', cp.onContextChange);
+  const [mode, setMode] = useControllable(cp.mode, cp.defaultMode ?? cp.modes?.[0]?.value ?? 'ask', cp.onModeChange);
 
   /* each tab keeps its own draft */
   const drafts = useRef(new Map<string, string>());
@@ -387,8 +385,7 @@ export function AgentHarness({
   const ph = home ? placeholders?.home ?? 'Ask the agent to do something' : busy ? placeholders?.working ?? 'The agent is working…' : placeholders?.reply ?? 'Reply';
   const box = (
     <Composer {...cp} value={text} onValueChange={setText} onSubmit={send} placeholder={ph}
-      attachments={att} onAttachmentsChange={setAtt} project={proj} onProjectChange={setProj} environment={env} onEnvironmentChange={setEnv}
-      handoff={cloud} onHandoffChange={setCloud} effort={eff} onEffortChange={setEff}
+      attachments={att} onAttachmentsChange={setAtt} context={ctxPick} onContextChange={setCtxPick} mode={mode} onModeChange={setMode}
       tools={
         <div className="dm-ctm-ft">
           {model && <span>{model}</span>}

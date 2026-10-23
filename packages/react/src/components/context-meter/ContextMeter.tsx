@@ -1,88 +1,121 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { cx } from '../../lib/cx';
 import { useControllable, useTween } from '../../lib/hooks';
 import { Icon } from '../../lib/icons';
-import { Swap, Tip } from '../../lib/motion';
+import { Spin, Swap, Tip } from '../../lib/motion';
 import '../../designme.css';
 import './context-meter.css';
 
-export interface UsageRow {
+/** One kind of thing in the context */
+export interface ContextPart {
   key: string;
-  /** Like "Context window", "Session limit" or "Weekly" */
+  /** Like "Files", "Tool output" or "Chat" */
   label: string;
-  /** 0 to 100. From 90 the bar turns amber */
-  percent: number;
-  /** The quiet line under the bar, like "136k of 200k tokens" or "Resets Sun 10:00 PM" */
-  detail?: string;
-  /** Shown when you hover the bar, like what is filling the context */
-  tip?: string;
-  /** A small button at the end of the detail line, like Compact */
-  action?: { label: string; onClick: () => void };
+  /** How many tokens it takes */
+  tokens: number;
+  /** Its colour in the bar and the legend. Defaults to blue, teal, violet and grey, in order */
+  color?: string;
+  /** What is in it, shown when you hover its row, like "PricingCard.tsx 18.2k, tokens.css 6.1k" */
+  items?: string;
 }
 
 export interface ContextMeterProps {
-  rows: UsageRow[];
-  /** How full the ring is, 0 to 100. Defaults to the first row */
-  ring?: number;
-  title?: string;
-  /** Shown beside the ring, like "Opus 5.5" */
-  model?: string;
-  /** Shown after the model, quieter, like "Extra" */
-  effort?: string;
-  /** Adds a button in the corner that opens your usage page */
-  onViewUsage?: () => void;
-  /** Whether the popover is open. Leave it out to let the ring toggle it */
+  parts: ContextPart[];
+  /** The size of the context window, in tokens, like 200000 */
+  limit: number;
+  /** From this share of the limit (0 to 1) the ring turns amber. Defaults to 0.85 */
+  warnAt?: number;
+  /** A line under the legend, like "Freed 41.2k tokens. 9 decisions kept". Crossfades when it changes */
+  message?: string;
+  /** warn shows the message in amber with a warning sign, ok in green with a check */
+  messageTone?: 'warn' | 'ok';
+  /** Called by Compact. Return a promise and the button spins until it settles */
+  onCompact?: () => void | Promise<void>;
+  /** Set once the context is compacted: the button turns into Undo, which calls onUndo */
+  compacted?: boolean;
+  onUndo?: () => void;
+  /** The quiet line beside the button. Defaults to what Compact does */
+  hint?: string;
+  /** Whether the panel is open. Leave it out to let the pill toggle it */
   open?: boolean;
   defaultOpen?: boolean;
   onOpenChange?: (open: boolean) => void;
   className?: string;
 }
 
-function Row({ row, ready }: { row: UsageRow; ready: boolean }) {
-  const pct = Math.max(0, Math.min(100, row.percent)), shown = Math.round(useTween(ready ? pct : 0, 1000, 0));
-  const bar = <span className="dm-ctm-tr" role="meter" aria-label={row.label} aria-valuemin={0} aria-valuemax={100} aria-valuenow={pct}><i style={{ width: (ready ? pct : 0) + '%' }} /></span>;
-  return (
-    <div className={cx('dm-ctm-r', pct >= 90 && 'dm-hot')}>
-      <span className="dm-l">{row.label}</span>
-      <span className="dm-p dm-num">{shown}% used</span>
-      {row.tip ? <Tip label={row.tip}>{bar}</Tip> : bar}
-      {(row.detail || row.action) && (
-        <span className="dm-s">
-          {row.detail && <Swap className="dm-t">{row.detail}</Swap>}
-          {row.action && <button type="button" className="dm-ctm-go" onClick={row.action.onClick}><Swap>{row.action.label}</Swap></button>}
-        </span>
-      )}
-    </div>
-  );
+const PALETTE = ['var(--dm-pb)', 'var(--dm-pt)', 'var(--dm-pl)', 'var(--dm-faint)'];
+const k = (n: number) => (n / 1000).toFixed(1) + 'k';
+
+/** A number that counts to its new value */
+function Count({ value, ms = 900, format }: { value: number; ms?: number; format: (n: number) => string }) {
+  return <>{format(useTween(value, ms, 0))}</>;
 }
 
-/** How full the context window is, with any other limits, in one small popover that opens from a ring. */
-export function ContextMeter({ rows, ring, title = 'Usage', model, effort, onViewUsage, open, defaultOpen = true, onOpenChange, className }: ContextMeterProps) {
+/** How full the context is and what fills it: a pill with a ring that opens one bar split by kind, a legend whose rows list
+ *  what is in them, and Compact. Escape closes it. */
+export function ContextMeter({ parts, limit, warnAt = .85, message, messageTone = 'ok', onCompact, compacted = false, onUndo,
+  hint = 'Summarises older turns', open, defaultOpen = true, onOpenChange, className }: ContextMeterProps) {
   const [isOpen, setOpen] = useControllable(open, defaultOpen, onOpenChange);
-  // the bars and the ring fill in a moment after the meter appears
+  const [busy, setBusy] = useState(false);
+  const [lit, setLit] = useState<string | null>(null);
+  // the bar, the ring and the numbers fill in a moment after the meter appears
   const [ready, setReady] = useState(false);
   useEffect(() => { const t = setTimeout(() => setReady(true), 300); return () => clearTimeout(t); }, []);
-  const fill = Math.max(0, Math.min(100, ring ?? rows[0]?.percent ?? 0));
+  const total = parts.reduce((t, p) => t + p.tokens, 0), share = ready ? total / limit : 0, pct = Math.round(share * 100);
+  const root = useRef<HTMLDivElement>(null), tg = useRef<HTMLButtonElement>(null);
+  // Escape shuts the panel while the pointer or the focus is on the meter
+  useEffect(() => {
+    if (!isOpen) return;
+    const key = (e: KeyboardEvent) => {
+      const el = root.current; if (e.key !== 'Escape' || !el) return;
+      const inside = el.contains(document.activeElement);
+      if (inside || el.matches(':hover')) { setOpen(false); if (inside) tg.current?.focus({ preventScroll: true }); }
+    };
+    document.addEventListener('keydown', key);
+    return () => document.removeEventListener('keydown', key);
+  }, [isOpen]); // eslint-disable-line react-hooks/exhaustive-deps
+  const compact = async () => {
+    if (busy) return;
+    if (compacted) { onUndo?.(); return; }
+    setBusy(true);
+    try { await onCompact?.(); } finally { setBusy(false); }
+  };
 
   return (
-    <div data-dm="" className={cx('dm-ctm', !isOpen && 'dm-shut', className)}>
-      <div className="dm-ctm-pop dm-panel" role="dialog" aria-label={title} inert={!isOpen}>
-        <div className="dm-ctm-ph">
-          <b>{title}</b>
-          {onViewUsage && <Tip label="View usage"><button type="button" className="dm-ib dm-ctm-ib" aria-label="View usage" onClick={onViewUsage}><Icon name="bars" /></button></Tip>}
+    <div ref={root} data-dm="" className={cx('dm-ctm', share >= warnAt && 'dm-hot', className)} data-open={isOpen ? '1' : '0'}>
+      <button ref={tg} type="button" className="dm-ctm-tg" aria-expanded={isOpen} aria-label={`Context, ${pct}% used`} onClick={() => setOpen(!isOpen)}>
+        <span className="dm-ctm-ring" aria-hidden="true">
+          <svg viewBox="0 0 20 20"><circle className="dm-tr" cx="10" cy="10" r="7.5" /><circle className="dm-fl" cx="10" cy="10" r="7.5" pathLength={100} style={{ strokeDasharray: `${pct} 100` }} /></svg>
+        </span>
+        <span><span className="dm-ctm-pc dm-num"><Count value={ready ? total : 0} format={n => Math.round(n / limit * 100) + '%'} /></span> of context used</span>
+        <Icon name="chev-d" size="xs" />
+      </button>
+      <div className="dm-ctm-pop dm-panel" role="region" aria-label="What fills the context" inert={!isOpen}>
+        <div className="dm-ctm-ph"><span>In context</span><span className="dm-num"><b className="dm-ctm-tot"><Count value={ready ? total : 0} format={k} /></b> of {Math.round(limit / 1000)}k tokens</span></div>
+        <div className={cx('dm-ctm-bar', lit && 'dm-hl')} aria-hidden="true">
+          {parts.map((p, i) => <i key={p.key} className={lit === p.key ? 'dm-on' : undefined} style={{ width: (ready ? p.tokens / limit * 100 : 0) + '%', '--dm-c': p.color ?? PALETTE[i % PALETTE.length] } as CSSProperties} />)}
         </div>
-        <div className="dm-ctm-rows">{rows.map(r => <Row key={r.key} row={r} ready={ready} />)}</div>
-      </div>
-      <div className="dm-ctm-ft">
-        {model && <span>{model}</span>}
-        {effort && <span className="dm-muted">{effort}</span>}
-        <button type="button" className="dm-ctm-ring" aria-expanded={isOpen} aria-label={`${title}, ${fill}% full`} onClick={() => setOpen(!isOpen)}>
-          <svg viewBox="0 0 20 20" aria-hidden="true">
-            <circle className="dm-tr" cx="10" cy="10" r="7.5" />
-            <circle className="dm-fl" cx="10" cy="10" r="7.5" pathLength={100} style={{ strokeDasharray: `${ready ? fill : 0} 100`, stroke: fill >= 90 ? 'var(--dm-warn)' : undefined }} />
-          </svg>
-        </button>
+        <div className="dm-ctm-leg" onPointerLeave={() => setLit(null)}>
+          {parts.map((p, i) => {
+            const row = (
+              <div key={p.key} className="dm-ctm-l" style={{ '--dm-c': p.color ?? PALETTE[i % PALETTE.length] } as CSSProperties}
+                onPointerEnter={() => setLit(p.key)} onFocus={() => setLit(p.key)} onBlur={() => setLit(null)} tabIndex={p.items ? 0 : undefined}>
+                <span className="dm-sw" />{p.label}<span className="dm-v dm-num"><Count value={ready ? p.tokens : 0} format={k} /></span>
+              </div>
+            );
+            return p.items ? <Tip key={p.key} label={p.items}>{row}</Tip> : row;
+          })}
+        </div>
+        <div className={cx('dm-ctm-msg', message && 'dm-on', message && 'dm-' + messageTone)} aria-live="polite">
+          <span>{message && <><Icon name={messageTone === 'warn' ? 'warn' : 'ok'} size="xs" /><Swap>{message}</Swap></>}</span>
+        </div>
+        {(onCompact || onUndo) && (
+          <div className="dm-ctm-f">
+            <Swap className="dm-ctm-hint">{hint}</Swap>
+            <button type="button" className="dm-pill dm-ghost dm-sm dm-ctm-go" onClick={compact}>{busy ? <><Spin />Compacting</> : compacted ? 'Undo' : 'Compact'}</button>
+          </div>
+        )}
       </div>
     </div>
   );

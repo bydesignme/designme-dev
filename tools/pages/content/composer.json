@@ -1,41 +1,42 @@
 {
-  "summary": "Composer is the box where a person writes a task for a coding or work agent and sends it. Besides the text, it lets them add files and context, pick the project and where the task runs, turn on cloud hand-off, set how much effort the agent spends, and dictate instead of typing.",
+  "summary": "Composer is the box where a person writes a task for a design or coding agent and sends it. Besides the text, it lets them attach files and frames, pick what the agent works on, choose what the agent may do (ask, edit or plan), and dictate instead of typing.",
   "use": [
-    "When people give your agent tasks that run in a local folder, a separate worktree or the cloud.",
-    "When a message often comes with files, screenshots or links that should travel with it.",
-    "When you want people to choose how hard the agent works on a task before they send it.",
+    "When a message often comes with files, frames or screenshots that should travel with it, and some of them take a moment to load.",
+    "When the agent can work on more than one file or project and people should see, and change, which one it is on.",
+    "When people should decide up front whether the agent only answers, makes changes, or writes a plan first.",
     "When people should be able to stop the agent while it answers, from the same button they used to send."
   ],
   "features": [
     "The text box grows as you type, up to 160px. Enter sends, Shift+Enter adds a new line, and `onSubmit` receives the trimmed text and the attachments before the box clears.",
-    "Attachments show as chips above the text, each with its own remove button. The + menu lists `addOptions` and calls `onAdd`, and it can also insert @ to mention a file or / to use a skill.",
-    "Toolbar menus pick the project (`projects`), where it runs (`environments`, which defaults to Local, Worktree and Cloud) and effort (low, medium or high). A switch in its own popover turns on cloud hand-off.",
+    "Attachments show as chips above the text. A chip can be loading, with a spinner, or failed, in red with a Try again button that calls `onRetry`. Send waits until every attachment has loaded.",
+    "The attach menu lists `addOptions`, which default to a file, a Figma frame and a screenshot, and calls `onAdd` with the one picked.",
+    "A chip in the toolbar shows what the agent works on, from `contexts`, and opens a menu to switch it. It only shows when you pass `contexts`.",
+    "The mode chip picks what the agent may do from `modes`, which default to Ask (answer only, change nothing), Edit (change frames on a new page) and Plan (propose steps before it starts). `tools` adds your own controls just before it.",
     "While `busy` is true, the Send button becomes a Stop button that calls `onStop`.",
-    "When `onDictate` is set, a microphone button appears. With `dictating` on, the toolbar turns into a live waveform driven by `level`, with Cancel to restore the earlier text and Done to keep what was heard.",
-    "`thread` places your conversation above the box, and `tools` adds your own controls, like a model picker, before the effort button."
+    "When `onDictate` is set, a microphone button appears. With `dictating` on, the toolbar shows a red dot, Listening and a clock, with Cancel to restore the earlier text and Done to keep what was heard."
   ],
   "a11y": [
-    "The menus use `role=\"menu\"` with `menuitemradio` and `aria-checked` for the current pick, and their buttons carry `aria-expanded` and `aria-haspopup`.",
-    "Escape or a click outside closes an open menu, and Escape cancels dictation.",
-    "The cloud hand-off control is a `role=\"switch\"` with `aria-checked`, and each attachment's remove button is labelled with the file name.",
+    "The menus use `role=\"menu\"`, the Working on and mode menus mark the current pick with `menuitemradio` and `aria-checked`, and each button that opens a menu reports `aria-expanded`.",
+    "Escape or a click outside closes an open menu, and Escape in the text box cancels dictation.",
+    "Each attachment's remove button is labelled with its name, and a failed attachment's retry button is labelled Try again.",
     "The thread area above the box is an `aria-live=\"polite\"` region."
   ],
   "faq": [
     {
       "q": "Does the composer record audio itself?",
-      "a": "No. `onDictate` tells you the person pressed the microphone, and you start listening, set `dictating` and write what you hear into `value`. Pass `level` as a number or a function, for example one that reads an audio analyser, to drive the waveform."
+      "a": "No. `onDictate` tells you the person pressed the microphone, and you start listening, set `dictating` and write what you hear into `value`. The clock counts by itself, or pass `dictationSeconds`."
     },
     {
       "q": "What happens to the text when dictation is cancelled?",
-      "a": "The composer remembers the text from before dictation started. Cancel, or Escape, puts it back and calls `onDictationEnd(false)`, while Done keeps the dictated text and calls `onDictationEnd(true)`."
+      "a": "The composer remembers the text from before dictation started. Cancel, or Escape in the text box, puts it back and calls `onDictationEnd(false)`, while Done keeps the dictated text and calls `onDictationEnd(true)`."
     },
     {
-      "q": "Where does the project chip come from?",
-      "a": "It only shows when you pass `projects`. Pick the current one with `project` or `defaultProject`, and listen with `onProjectChange`."
+      "q": "How do I show a file that is still uploading or failed?",
+      "a": "Give the attachment `status: 'loading'` while it uploads and `'error'` if it fails. Send stays disabled until every attachment is ready, and Try again on a failed one calls `onRetry` with its key."
     },
     {
       "q": "Can people send a message with only an attachment?",
-      "a": "Yes. Send is enabled when there is text or at least one attachment, and it is disabled while `busy` is true."
+      "a": "Yes. Send is enabled as soon as there is text or an attachment, once every attachment has loaded, and it is disabled while `busy` is true."
     }
   ]
 }

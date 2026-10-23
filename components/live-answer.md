@@ -361,7 +361,7 @@ export function LiveAnswer({ turns, followUps, onFollowUp, onRetry, onRate, onCo
 
 ## More in Conversation
 
-- [Composer](https://designme.dev/components/composer.md): Message input with context, environment, effort and dictation.
+- [Composer](https://designme.dev/components/composer.md): Message input with attachments, what to work on, a mode and dictation.
 - [Thread panel](https://designme.dev/components/thread-panel.md): Switch between agent threads and reply in place.
 - [Artifact card](https://designme.dev/components/artifact-card.md): A file the agent made, with a live preview and versions.
 - [Tool call](https://designme.dev/components/tool-call.md): Each tool the agent calls, with its input and output.

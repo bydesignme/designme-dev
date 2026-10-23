@@ -1,6 +1,6 @@
 # Context meter
 
-> How full the context window is, with session and weekly limits, in one small popover.
+> How full the context is and what fills it, with Compact to free room.
 
 Agent components / Agent status. Free and MIT licensed, as plain HTML, CSS and JavaScript or as a typed React component, in two styles (Soft and Blueprint) with light and dark mode. Live demo: https://designme.dev/components/context-meter
 
@@ -15,28 +15,31 @@ The CLI copies the source into your project, so you own it and can change anythi
 
 ## About
 
-Context meter is a small ring next to the model name that shows how full the agent's context window is. Clicking it opens a usage popover with a bar for each limit, like the context window, the session limit and a weekly cap, each with a detail line and an optional action such as Compact.
+Context meter shows how full an agent's context window is and what fills it. A small pill with a ring and a percentage opens a panel with one bar split by kind (files, tool output, chat, instructions), a legend whose rows list what is in them on hover, and a Compact button that frees room and says how much.
 
 ### When to use it
 
-- When long conversations can fill the model's context and people should see it coming before answers get worse.
-- When your plan has session or weekly limits and people want to know how much is left and when it resets.
-- When you offer a way to free up context, like compacting the thread, and want it next to the number it changes.
+- When long agent sessions run close to the context limit and people should see it coming.
+- When people want to know why the context is full, not only how full it is.
+- When your agent can compact a session, and people should decide when and see what it freed.
+- When a new tool result can suddenly take a large share and you want to warn about it.
 
 ### What it does
 
-- Each row in `rows` has a `label`, a `percent` from 0 to 100 and an optional `detail` line. The bar and its "N% used" count fill in a moment after the meter appears.
-- From 90% a bar turns amber, and so does the ring when it is that full.
-- A row's `tip` shows when you hover its bar, for example what is filling the context. A row's `action` adds a small button after its detail line, and its label crossfades when it changes.
-- The ring follows the first row unless you pass `ring`. `model` and `effort` appear beside it.
-- Clicking the ring opens and closes the popover. It starts open, and `open`, `defaultOpen` and `onOpenChange` let you control it.
-- `onViewUsage` adds a button in the popover's corner that opens your usage page, and `title` replaces the "Usage" heading.
+- `parts` are the kinds of thing in the context, each with a `label`, a `tokens` count, an optional `color` and `items`, the list shown on hover. `limit` is the size of the window.
+- The pill shows the ring and the share used. From `warnAt` of the limit, 85% by default, the ring turns amber.
+- The bar and the numbers count to their new values whenever `parts` change, so a compaction counts down.
+- Hovering a legend row lights its share of the bar and shows its `items`.
+- `message` adds a line under the legend, in amber with a warning sign for `messageTone: 'warn'` or in green with a check for `'ok'`, like "Freed 41.2k tokens. 9 decisions kept". The line keeps its room while empty, so a message fades in without the panel changing height.
+- Compact calls `onCompact`. Return a promise and the button spins until it settles. Set `compacted` and the button becomes Undo, which calls `onUndo`.
+- The pill opens and shuts the panel, and `open`, `defaultOpen` and `onOpenChange` let you control it. The panel keeps its room while shut, so nothing around it moves.
 
 ### Accessibility
 
-- Each bar is a `role="meter"` with `aria-valuenow` from 0 to 100, labelled with its row label.
-- The ring is a button with `aria-expanded` and a label like "Usage, 68% full".
-- The popover is a `role="dialog"` named by its title, and it is `inert` while closed.
+- The pill is a button with `aria-expanded` and a label that includes the share used, like "Context, 68% used".
+- The panel is a region labelled "What fills the context", and it is inert while shut so its controls can't be reached.
+- Escape shuts the panel while the pointer or the focus is on the meter, and moves the focus back to the pill if it was inside.
+- The message line is an `aria-live="polite"` region, so a warning or the compaction result is announced.
 
 ## Usage in React
 
@@ -49,28 +52,51 @@ import { ContextMeter } from '@/components/designme/context-meter/ContextMeter';
 ```tsx
 'use client';
 // The animated preview from designme.dev, rebuilt from the React component: an example of driving it from your own state.
-import { useState } from 'react';
-import { ContextMeter, type UsageRow } from './ContextMeter';
+import { useEffect, useRef, useState } from 'react';
+import { ContextMeter, type ContextPart } from './ContextMeter';
+import { useStory, useWait } from '../lib/useScript';
 
-/* ---------- Context meter: a ring beside the model opens usage; compact frees the context ---------- */
+/* ---------- Context meter: what fills it, new tool output takes it close to the limit, Compact frees room ---------- */
+const START: ContextPart[] = [
+  { key: 'files', label: 'Files', tokens: 56200, items: 'Pricing.fig export 31.9k, PricingCard.tsx 18.2k, tokens.css 6.1k' },
+  { key: 'tools', label: 'Tool output', tokens: 41800, items: 'Contrast check 17.4k, Figma frames 15.6k, grid audit 8.8k' },
+  { key: 'chat', label: 'Chat', tokens: 32100, items: '48 turns with Maya Kim since 09:12' },
+  { key: 'sys', label: 'Instructions', tokens: 6300, items: 'Studio guidelines 4.1k, pricing brief 2.2k' }
+];
+const LIMIT = 200000;
+const sum = (ps: ContextPart[]) => ps.reduce((t, p) => t + p.tokens, 0);
+const set = (ps: ContextPart[], key: string, tokens: number) => ps.map(p => p.key === key ? { ...p, tokens } : p);
+
 export default function ContextMeterDemo() {
-  const [phase, setPhase] = useState<'full' | 'busy' | 'compact'>('full');
-  const compact = () => {
-    if (phase === 'compact') { setPhase('full'); return; }
-    if (phase === 'busy') return;
-    setPhase('busy'); setTimeout(() => setPhase('compact'), 900);
+  const ref = useRef<HTMLDivElement>(null);
+  const wait = useWait();
+  const [parts, setParts] = useState(START);
+  const [before, setBefore] = useState<ContextPart[] | null>(null);
+  const [message, setMessage] = useState<{ text: string; tone: 'warn' | 'ok' }>();
+  const [open, setOpen] = useState(true);
+  const live = useRef(parts);
+  useEffect(() => { live.current = parts; });
+  const at = (ps: ContextPart[], key: string) => ps.find(p => p.key === key)!.tokens;
+  // Compact turns older turns into a summary and trims old tool output
+  const compact = async () => {
+    await wait(1000);
+    const next = set(set(parts, 'chat', 4600), 'tools', at(parts, 'tools') - 13700);
+    setBefore(parts); setParts(next);
+    setMessage({ text: `Freed ${((sum(parts) - sum(next)) / 1000).toFixed(1)}k tokens. 9 decisions kept`, tone: 'ok' });
   };
-  const rows: UsageRow[] = [
-    { key: 'ctx', label: 'Context window', percent: phase === 'compact' ? 38 : 68,
-      detail: phase === 'busy' ? 'Summarising the thread' : phase === 'compact' ? '76k of 200k tokens, 9 decisions kept' : '136k of 200k tokens',
-      tip: 'Files 56k · Conversation 60k · Tool results 20k',
-      action: { label: phase === 'busy' ? 'Compacting' : phase === 'compact' ? 'Undo' : 'Compact', onClick: compact } },
-    { key: 'session', label: 'Session limit', percent: 4, detail: 'Resets in 4 hr 39 min' },
-    { key: 'week', label: 'Weekly', percent: 16, detail: 'Resets Sun 10:00 PM' }
-  ];
+  const undo = () => { if (before) setParts(before); setBefore(null); setMessage(undefined); };
+  // the preview's story: new tool output lands and takes it close to the limit, the person compacts, then shuts the panel
+  useStory(ref, async ({ wait, press }) => {
+    await wait(8000);
+    const next = set(live.current, 'tools', at(live.current, 'tools') + 38500);
+    setParts(next); setMessage({ text: `${Math.round(sum(next) / LIMIT * 100)}% full. Older turns start to drop at 200k`, tone: 'warn' });
+    await wait(2000); press('.dm-ctm-go');
+    await wait(3500); setOpen(false);
+  });
   return (
-    <div style={{ width: '100%', maxWidth: 330, marginInline: 'auto' }}>
-      <ContextMeter rows={rows} model="Opus 5.5" effort="Extra" onViewUsage={() => {}} />
+    <div ref={ref} style={{ width: '100%' }}>
+      <ContextMeter parts={parts} limit={LIMIT} message={message?.text} messageTone={message?.tone} onCompact={compact} compacted={!!before} onUndo={undo}
+        hint={before ? 'Older turns are now a summary' : undefined} open={open} onOpenChange={setOpen} />
     </div>
   );
 }
@@ -80,30 +106,33 @@ export default function ContextMeterDemo() {
 
 | Prop | Type | What it does |
 | --- | --- | --- |
-| `rows` | `UsageRow[]` |  |
-| `ring` (optional) | `number` | How full the ring is, 0 to 100. Defaults to the first row |
-| `title` (optional) | `string` |  |
-| `model` (optional) | `string` | Shown beside the ring, like "Opus 5.5" |
-| `effort` (optional) | `string` | Shown after the model, quieter, like "Extra" |
-| `onViewUsage` (optional) | `() => void` | Adds a button in the corner that opens your usage page |
-| `open` (optional) | `boolean` | Whether the popover is open. Leave it out to let the ring toggle it |
+| `parts` | `ContextPart[]` |  |
+| `limit` | `number` | The size of the context window, in tokens, like 200000 |
+| `warnAt` (optional) | `number` | From this share of the limit (0 to 1) the ring turns amber. Defaults to 0.85 |
+| `message` (optional) | `string` | A line under the legend, like "Freed 41.2k tokens. 9 decisions kept". Crossfades when it changes |
+| `messageTone` (optional) | `'warn' \| 'ok'` | warn shows the message in amber with a warning sign, ok in green with a check |
+| `onCompact` (optional) | `() => void \| Promise<void>` | Called by Compact. Return a promise and the button spins until it settles |
+| `compacted` (optional) | `boolean` | Set once the context is compacted: the button turns into Undo, which calls onUndo |
+| `onUndo` (optional) | `() => void` |  |
+| `hint` (optional) | `string` | The quiet line beside the button. Defaults to what Compact does |
+| `open` (optional) | `boolean` | Whether the panel is open. Leave it out to let the pill toggle it |
 | `defaultOpen` (optional) | `boolean` |  |
 | `onOpenChange` (optional) | `(open: boolean) => void` |  |
 | `className` (optional) | `string` |  |
 
 ## Questions
 
-**How do I add a Compact button to the context row?**
+**What should the parts be?**
 
-Give that row an `action` with a `label` and an `onClick`. Change the label to something like "Compacting" while it runs, then update `percent` and `detail` when it is done.
+Whatever your agent can tell apart. Files, tool output, chat and instructions work for most agents. Put the largest items of each into `items` so people can see what to drop.
 
-**Can the ring show something other than the context window?**
+**How do I show what a compaction freed?**
 
-Yes. By default it follows the first row, so either put the limit you care about first or pass `ring` with its own percentage.
+Make `onCompact` return a promise, update `parts` with the smaller counts when it resolves, set `compacted`, and pass the difference as `message` with `messageTone: 'ok'`. The numbers count down by themselves.
 
-**Does the popover close when I click outside it?**
+**When does it turn amber?**
 
-No. Only the ring opens and closes it. Control `open` yourself if you want it to close on an outside click or on Escape.
+When the tokens in `parts` add up to `warnAt` of `limit` or more. `warnAt` is 0.85 unless you change it.
 
 ## Source
 
@@ -111,90 +140,123 @@ No. Only the ring opens and closes it. Control `open` yourself if you want it to
 
 ```tsx
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { cx } from '../lib/cx';
 import { useControllable, useTween } from '../lib/hooks';
 import { Icon } from '../lib/icons';
-import { Swap, Tip } from '../lib/motion';
+import { Spin, Swap, Tip } from '../lib/motion';
 import '../designme.css';
 import './context-meter.css';
 
-export interface UsageRow {
+/** One kind of thing in the context */
+export interface ContextPart {
   key: string;
-  /** Like "Context window", "Session limit" or "Weekly" */
+  /** Like "Files", "Tool output" or "Chat" */
   label: string;
-  /** 0 to 100. From 90 the bar turns amber */
-  percent: number;
-  /** The quiet line under the bar, like "136k of 200k tokens" or "Resets Sun 10:00 PM" */
-  detail?: string;
-  /** Shown when you hover the bar, like what is filling the context */
-  tip?: string;
-  /** A small button at the end of the detail line, like Compact */
-  action?: { label: string; onClick: () => void };
+  /** How many tokens it takes */
+  tokens: number;
+  /** Its colour in the bar and the legend. Defaults to blue, teal, violet and grey, in order */
+  color?: string;
+  /** What is in it, shown when you hover its row, like "PricingCard.tsx 18.2k, tokens.css 6.1k" */
+  items?: string;
 }
 
 export interface ContextMeterProps {
-  rows: UsageRow[];
-  /** How full the ring is, 0 to 100. Defaults to the first row */
-  ring?: number;
-  title?: string;
-  /** Shown beside the ring, like "Opus 5.5" */
-  model?: string;
-  /** Shown after the model, quieter, like "Extra" */
-  effort?: string;
-  /** Adds a button in the corner that opens your usage page */
-  onViewUsage?: () => void;
-  /** Whether the popover is open. Leave it out to let the ring toggle it */
+  parts: ContextPart[];
+  /** The size of the context window, in tokens, like 200000 */
+  limit: number;
+  /** From this share of the limit (0 to 1) the ring turns amber. Defaults to 0.85 */
+  warnAt?: number;
+  /** A line under the legend, like "Freed 41.2k tokens. 9 decisions kept". Crossfades when it changes */
+  message?: string;
+  /** warn shows the message in amber with a warning sign, ok in green with a check */
+  messageTone?: 'warn' | 'ok';
+  /** Called by Compact. Return a promise and the button spins until it settles */
+  onCompact?: () => void | Promise<void>;
+  /** Set once the context is compacted: the button turns into Undo, which calls onUndo */
+  compacted?: boolean;
+  onUndo?: () => void;
+  /** The quiet line beside the button. Defaults to what Compact does */
+  hint?: string;
+  /** Whether the panel is open. Leave it out to let the pill toggle it */
   open?: boolean;
   defaultOpen?: boolean;
   onOpenChange?: (open: boolean) => void;
   className?: string;
 }
 
-function Row({ row, ready }: { row: UsageRow; ready: boolean }) {
-  const pct = Math.max(0, Math.min(100, row.percent)), shown = Math.round(useTween(ready ? pct : 0, 1000, 0));
-  const bar = <span className="dm-ctm-tr" role="meter" aria-label={row.label} aria-valuemin={0} aria-valuemax={100} aria-valuenow={pct}><i style={{ width: (ready ? pct : 0) + '%' }} /></span>;
-  return (
-    <div className={cx('dm-ctm-r', pct >= 90 && 'dm-hot')}>
-      <span className="dm-l">{row.label}</span>
-      <span className="dm-p dm-num">{shown}% used</span>
-      {row.tip ? <Tip label={row.tip}>{bar}</Tip> : bar}
-      {(row.detail || row.action) && (
-        <span className="dm-s">
-          {row.detail && <Swap className="dm-t">{row.detail}</Swap>}
-          {row.action && <button type="button" className="dm-ctm-go" onClick={row.action.onClick}><Swap>{row.action.label}</Swap></button>}
-        </span>
-      )}
-    </div>
-  );
+const PALETTE = ['var(--dm-pb)', 'var(--dm-pt)', 'var(--dm-pl)', 'var(--dm-faint)'];
+const k = (n: number) => (n / 1000).toFixed(1) + 'k';
+
+/** A number that counts to its new value */
+function Count({ value, ms = 900, format }: { value: number; ms?: number; format: (n: number) => string }) {
+  return <>{format(useTween(value, ms, 0))}</>;
 }
 
-/** How full the context window is, with any other limits, in one small popover that opens from a ring. */
-export function ContextMeter({ rows, ring, title = 'Usage', model, effort, onViewUsage, open, defaultOpen = true, onOpenChange, className }: ContextMeterProps) {
+/** How full the context is and what fills it: a pill with a ring that opens one bar split by kind, a legend whose rows list
+ *  what is in them, and Compact. Escape closes it. */
+export function ContextMeter({ parts, limit, warnAt = .85, message, messageTone = 'ok', onCompact, compacted = false, onUndo,
+  hint = 'Summarises older turns', open, defaultOpen = true, onOpenChange, className }: ContextMeterProps) {
   const [isOpen, setOpen] = useControllable(open, defaultOpen, onOpenChange);
-  // the bars and the ring fill in a moment after the meter appears
+  const [busy, setBusy] = useState(false);
+  const [lit, setLit] = useState<string | null>(null);
+  // the bar, the ring and the numbers fill in a moment after the meter appears
   const [ready, setReady] = useState(false);
   useEffect(() => { const t = setTimeout(() => setReady(true), 300); return () => clearTimeout(t); }, []);
-  const fill = Math.max(0, Math.min(100, ring ?? rows[0]?.percent ?? 0));
+  const total = parts.reduce((t, p) => t + p.tokens, 0), share = ready ? total / limit : 0, pct = Math.round(share * 100);
+  const root = useRef<HTMLDivElement>(null), tg = useRef<HTMLButtonElement>(null);
+  // Escape shuts the panel while the pointer or the focus is on the meter
+  useEffect(() => {
+    if (!isOpen) return;
+    const key = (e: KeyboardEvent) => {
+      const el = root.current; if (e.key !== 'Escape' || !el) return;
+      const inside = el.contains(document.activeElement);
+      if (inside || el.matches(':hover')) { setOpen(false); if (inside) tg.current?.focus({ preventScroll: true }); }
+    };
+    document.addEventListener('keydown', key);
+    return () => document.removeEventListener('keydown', key);
+  }, [isOpen]); // eslint-disable-line react-hooks/exhaustive-deps
+  const compact = async () => {
+    if (busy) return;
+    if (compacted) { onUndo?.(); return; }
+    setBusy(true);
+    try { await onCompact?.(); } finally { setBusy(false); }
+  };
 
   return (
-    <div data-dm="" className={cx('dm-ctm', !isOpen && 'dm-shut', className)}>
-      <div className="dm-ctm-pop dm-panel" role="dialog" aria-label={title} inert={!isOpen}>
-        <div className="dm-ctm-ph">
-          <b>{title}</b>
-          {onViewUsage && <Tip label="View usage"><button type="button" className="dm-ib dm-ctm-ib" aria-label="View usage" onClick={onViewUsage}><Icon name="bars" /></button></Tip>}
+    <div ref={root} data-dm="" className={cx('dm-ctm', share >= warnAt && 'dm-hot', className)} data-open={isOpen ? '1' : '0'}>
+      <button ref={tg} type="button" className="dm-ctm-tg" aria-expanded={isOpen} aria-label={`Context, ${pct}% used`} onClick={() => setOpen(!isOpen)}>
+        <span className="dm-ctm-ring" aria-hidden="true">
+          <svg viewBox="0 0 20 20"><circle className="dm-tr" cx="10" cy="10" r="7.5" /><circle className="dm-fl" cx="10" cy="10" r="7.5" pathLength={100} style={{ strokeDasharray: `${pct} 100` }} /></svg>
+        </span>
+        <span><span className="dm-ctm-pc dm-num"><Count value={ready ? total : 0} format={n => Math.round(n / limit * 100) + '%'} /></span> of context used</span>
+        <Icon name="chev-d" size="xs" />
+      </button>
+      <div className="dm-ctm-pop dm-panel" role="region" aria-label="What fills the context" inert={!isOpen}>
+        <div className="dm-ctm-ph"><span>In context</span><span className="dm-num"><b className="dm-ctm-tot"><Count value={ready ? total : 0} format={k} /></b> of {Math.round(limit / 1000)}k tokens</span></div>
+        <div className={cx('dm-ctm-bar', lit && 'dm-hl')} aria-hidden="true">
+          {parts.map((p, i) => <i key={p.key} className={lit === p.key ? 'dm-on' : undefined} style={{ width: (ready ? p.tokens / limit * 100 : 0) + '%', '--dm-c': p.color ?? PALETTE[i % PALETTE.length] } as CSSProperties} />)}
         </div>
-        <div className="dm-ctm-rows">{rows.map(r => <Row key={r.key} row={r} ready={ready} />)}</div>
-      </div>
-      <div className="dm-ctm-ft">
-        {model && <span>{model}</span>}
-        {effort && <span className="dm-muted">{effort}</span>}
-        <button type="button" className="dm-ctm-ring" aria-expanded={isOpen} aria-label={`${title}, ${fill}% full`} onClick={() => setOpen(!isOpen)}>
-          <svg viewBox="0 0 20 20" aria-hidden="true">
-            <circle className="dm-tr" cx="10" cy="10" r="7.5" />
-            <circle className="dm-fl" cx="10" cy="10" r="7.5" pathLength={100} style={{ strokeDasharray: `${ready ? fill : 0} 100`, stroke: fill >= 90 ? 'var(--dm-warn)' : undefined }} />
-          </svg>
-        </button>
+        <div className="dm-ctm-leg" onPointerLeave={() => setLit(null)}>
+          {parts.map((p, i) => {
+            const row = (
+              <div key={p.key} className="dm-ctm-l" style={{ '--dm-c': p.color ?? PALETTE[i % PALETTE.length] } as CSSProperties}
+                onPointerEnter={() => setLit(p.key)} onFocus={() => setLit(p.key)} onBlur={() => setLit(null)} tabIndex={p.items ? 0 : undefined}>
+                <span className="dm-sw" />{p.label}<span className="dm-v dm-num"><Count value={ready ? p.tokens : 0} format={k} /></span>
+              </div>
+            );
+            return p.items ? <Tip key={p.key} label={p.items}>{row}</Tip> : row;
+          })}
+        </div>
+        <div className={cx('dm-ctm-msg', message && 'dm-on', message && 'dm-' + messageTone)} aria-live="polite">
+          <span>{message && <><Icon name={messageTone === 'warn' ? 'warn' : 'ok'} size="xs" /><Swap>{message}</Swap></>}</span>
+        </div>
+        {(onCompact || onUndo) && (
+          <div className="dm-ctm-f">
+            <Swap className="dm-ctm-hint">{hint}</Swap>
+            <button type="button" className="dm-pill dm-ghost dm-sm dm-ctm-go" onClick={compact}>{busy ? <><Spin />Compacting</> : compacted ? 'Undo' : 'Compact'}</button>
+          </div>
+        )}
       </div>
     </div>
   );

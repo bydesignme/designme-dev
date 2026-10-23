@@ -67,21 +67,17 @@ const FOLLOW: Record<Story, string[] | undefined> = {
 };
 const sourcesOf = (src: Src[]): AnswerSource[] => src.map((s, i) => ({ n: i + 1, mark: s[0], color: s[1], title: s[2], detail: s[3], tip: s[2] }));
 
-type Thought = Omit<ThinkingStep, 'state' | 'label'> & { run: string; done: string; dead?: boolean; count?: number; ms: number };
+// each step and what it found; measuring the cards times out once and tries again
+type Thought = { label: string; result: string; ms: number; retry?: string; tip?: string };
 const THOUGHTS: Thought[] = [
-  { mark: 'search', run: 'Searching the design system', done: 'Searched the design system', ms: 1600,
-    sources: [{ label: 'Pricing.fig', kind: 'figma', tip: 'Figma, 6 frames read' }, { label: 'tokens.ts', kind: 'ts', tip: 'src/styles/tokens.ts, 212 lines' }, { label: 'PricingCard.tsx', kind: 'tsx', tip: 'src/components/PricingCard.tsx' }, { label: 'Contrast guide', kind: 'web', tip: 'w3.org, WCAG 2.2 contrast' }],
-    moreSources: [{ label: 'Button.tsx', kind: 'tsx', tip: 'src/components/Button.tsx' }, { label: 'globals.css', kind: 'css', tip: 'src/styles/globals.css' }] },
-  { run: 'Reading 1 of 6 frames', done: 'Read 6 frames from Pricing.fig', count: 6, ms: 1500 },
-  { run: 'Checking if the old grid is in the tokens', done: "Dead end: the old grid isn't in tokens.ts", dead: true, ms: 1400 },
-  { run: 'Mapping every spacing value', done: 'Mapped 9 spacing values', ms: 1300 },
-  { run: 'Comparing desktop and mobile', done: 'Compared desktop and mobile', sub: true, ms: 1100 },
-  { run: 'Finding values off the 8px grid', done: '3 values break the 8px grid', sub: true, ms: 1000 },
-  { run: 'Merging both breakpoints', done: 'Merged both breakpoints', mark: 'hollow', ms: 1000 },
-  { run: 'Spotting cards that need a fix', done: 'Found 3 cards to fix', ms: 1200 },
-  { run: 'Drafting the fix', done: 'Drafted a 2-step fix', ms: 1300 }
+  { label: 'Open Pricing v4 in Figma', result: '6 frames, 3 plan cards', ms: 1300 },
+  { label: 'Read the spacing tokens', result: 'tokens.css, 9 spacing values', ms: 1200 },
+  { label: 'Measure the plan cards', result: '3 cards are off the 8px grid', ms: 1400, retry: "Figma didn't answer", tip: 'Pro has an 18px gap, Team 22px and Enterprise 13px' },
+  { label: 'Check text contrast', result: 'All 14 text pairs pass AA', ms: 1100 },
+  { label: 'Plan the fix', result: '2 changes, about 3 minutes', ms: 1200 }
 ];
-const doneThoughts = (): ThinkingStep[] => THOUGHTS.map(({ run, done, dead, count, ms, ...rest }) => ({ ...rest, label: done, state: dead ? 'dead' : 'done' }));
+const TRACE = { title: 'Checking the pricing page', summary: '3 cards to fix, 2 changes planned' };
+const doneThoughts = (): ThinkingStep[] => THOUGHTS.map(t => ({ label: t.label, state: 'done', result: t.result, resultTip: t.tip }));
 const CALLS: ToolCallItem[] = [
   { key: 'plans', icon: 'db', server: 'billing', name: 'list_plan_changes', state: 'queued', duration: '412 ms',
     input: { since: '2026-10-01' }, output: [{ plan: 'Pro', price: 24 }, { plan: 'Team', price: 48 }] },
@@ -184,7 +180,7 @@ const PAST = (openDoc: () => void): Conv[] => [
   { id: 'pricing', title: S.pricing.title, state: 'done', context: 46, status: { state: 'done', label: 'Done', meta: '6 files changed' }, followUps: FOLLOW.pricing, blocks: [
     user(S.pricing.ask),
     { key: 'g1', kind: 'group', label: 'Checked 6 frames and 2 plan prices', state: 'done', seconds: 11, blocks: [
-      { key: 'tk', kind: 'thinking', props: { steps: doneThoughts(), running: false, seconds: 9, summary: '3 cards to fix · 2 steps', defaultOpen: false } },
+      { key: 'tk', kind: 'thinking', props: { steps: doneThoughts(), running: false, seconds: 9, ...TRACE, defaultOpen: false } },
       { key: 'tc', kind: 'tool-call', props: { calls: CALLS.map(c => ({ ...c, state: 'done' })), defaultOpen: ['plans'], ...CALL_TEXT } }
     ] },
     say('s1', 'Three cards break the 8px grid, and the Figma frames still show the old prices. To fix them I need edit access to Pricing.fig.'),
@@ -337,19 +333,20 @@ export default function AgentHarnessDemo() {
     async pricing(t) {
       await t.ask(); t.ctx(12);
       const g = t.group('g1', 'Checking the pricing page');
-      // the trace plays at twice its own pace here
+      // the trace plays at twice its own pace here, except the retry's countdown, which counts real seconds
       const steps: ThinkingStep[] = [], t0 = performance.now();
-      const trace = (running = true) => t.put({ key: 'tk', kind: 'thinking', props: { steps: steps.slice(), running, summary: '3 cards to fix · 2 steps', collapseWhenDone: true } }, 'g1');
+      const trace = (running = true) => t.put({ key: 'tk', kind: 'thinking', props: { steps: steps.slice(), running, ...TRACE, collapseWhenDone: true } }, 'g1');
       const tick = () => t.status({ state: 'thinking', label: 'Thinking', meta: Math.round((performance.now() - t0) / 1000) + 's' });
       trace(); await t.wait(400);
       for (const th of THOUGHTS) {
-        const { run, done, dead, count, ms, ...rest } = th;
-        steps.push({ ...rest, label: run, state: 'running', sources: undefined, moreSources: undefined }); trace(); tick();
+        steps.push({ label: th.label, state: 'running' }); trace(); tick();
         const at = steps.length - 1;
-        if (th.sources) { await t.wait(275); steps[at] = { ...steps[at], sources: th.sources, moreSources: th.moreSources }; trace(); }
-        if (count) for (let k = 2; k <= count; k++) { await t.wait(ms / count / 2); steps[at] = { ...steps[at], label: `Reading ${k} of ${count} frames` }; trace(); tick(); }
-        else await t.wait(ms / 2);
-        steps[at] = { ...steps[at], label: done, state: dead ? 'dead' : 'done' }; trace(); tick();
+        await t.wait(th.ms / 2);
+        if (th.retry) {
+          for (let k = 2; k > 0; k--) { steps[at] = { ...steps[at], state: 'retry', result: `${th.retry}. Trying again in ${k}s` }; trace(); tick(); await t.wait(1000); }
+          steps[at] = { ...steps[at], state: 'running', result: 'Trying again' }; trace(); await t.wait(450);
+        }
+        steps[at] = { ...steps[at], state: 'done', result: th.result, resultTip: th.tip }; trace(); tick();
       }
       await t.wait(250); trace(false); t.ctx(21); await t.wait(400);
       let calls = CALLS;
@@ -563,7 +560,7 @@ export default function AgentHarnessDemo() {
         onFollowUp={(text, id) => converse(id, text)}
         workspaces={[{ name: 'DesignMe Studio', mark: 'D' }, { name: 'Personal', mark: 'P', color: 'var(--dm-pl)' }]}
         panel={docPanel} onPanelClose={() => setPanel(null)} model="Opus 5.5"
-        composer={{ projects: [{ value: 'acme-webapp', detail: '~/code/acme-webapp', icon: 'folder' }, { value: 'marketing-site', detail: '~/code/marketing-site', icon: 'folder' }] }} />
+        composer={{ contexts: [{ value: 'Pricing v4', detail: 'Figma, 6 frames', icon: 'figma' }, { value: 'Marketing site', detail: 'Code, main branch', icon: 'code' }] }} />
     </div>
   );
 }
