@@ -214,6 +214,7 @@ export function Agenda({ items, title = 'Today', subtitle, count, now, open, def
 ## More in Dates
 
 - [Date picker](https://designme.dev/components/date-picker.md): A field that opens a calendar, with quick picks and natural language.
+- [Segmented control](https://designme.dev/components/segmented-control.md): Switch between views of the same thing, with a sliding indicator.
 - [Date range picker](https://designme.dev/components/date-range-picker.md): Pick a start and end across two months, or use a preset.
 - [Event calendar](https://designme.dev/components/event-calendar.md): A week view where the agent finds a free slot for you.
 

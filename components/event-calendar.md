@@ -481,6 +481,7 @@ export function EventCalendar({
 ## More in Dates
 
 - [Date picker](https://designme.dev/components/date-picker.md): A field that opens a calendar, with quick picks and natural language.
+- [Segmented control](https://designme.dev/components/segmented-control.md): Switch between views of the same thing, with a sliding indicator.
 - [Date range picker](https://designme.dev/components/date-range-picker.md): Pick a start and end across two months, or use a preset.
 - [Agenda](https://designme.dev/components/agenda.md): Today's schedule with a live now line and agent prep notes.
 

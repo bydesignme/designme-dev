@@ -8298,6 +8298,44 @@ body.ui main .comp[data-v2="pricing-cards"] .stage-inner{padding-bottom:40px!imp
 .v2 .dpk-d.s::after{background:var(--on-accent,#fff)}
 .v2 .dpk-d.s{animation:v2-dpks .35s var(--ease)}
 @keyframes v2-dpks{from{transform:scale(.8)}}
+/* ---------- Segmented control ---------- */
+/* one choice from a few views of the same thing: the picked one sits on a white knob that slides to it. It is a tab
+   list, so the arrow keys move along it and the panel under it changes with it */
+.v2 .sgc{width:100%;max-width:400px;margin:0 auto;padding:16px;display:flex;flex-direction:column;gap:14px}
+.v2 .sgc-h{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.v2 .sgc-ht{display:flex;flex-direction:column;min-width:0}
+.v2 .sgc-ht b{font-weight:500;font-size:14px}
+.v2 .sgc-r{font-size:12.5px}
+.v2 .sgc-seg{position:relative;display:inline-flex;padding:3px;border-radius:var(--r-pill);background:var(--chip);flex:none}
+.v2 .sgc-k{position:absolute;top:3px;bottom:3px;left:3px;width:0;border-radius:var(--r-pill);background:var(--surface);box-shadow:var(--shadow);transition:left .42s var(--ease),width .42s var(--ease)}
+.v2 .sgc-seg button{position:relative;z-index:1;height:30px;padding:0 14px;border-radius:var(--r-pill);font-size:13px;color:var(--fg2);outline:0;transition:color .2s}
+.v2 .sgc-seg button:hover,.v2 .sgc-seg button[aria-selected="true"],.v2 .sgc-seg button[aria-checked="true"]{color:var(--fg)}
+.v2 .sgc-seg button:focus-visible{box-shadow:0 0 0 2px var(--accent-mark,var(--accent))}
+.v2 .sgc-p{height:178px;border-radius:12px;outline:0}
+.v2 .sgc-p:focus-visible{box-shadow:0 0 0 2px var(--accent-bg)}
+.v2 .sgc-in{height:100%;transition:opacity .16s,filter .16s,transform .2s var(--ease)}
+.v2 .sgc-in.out{opacity:0;filter:blur(3px);transform:translateY(4px)}
+/* the day: its events in order */
+.v2 .sgc-day{display:flex;flex-direction:column;gap:6px}
+.v2 .sgc-ev{display:flex;align-items:center;gap:12px;min-height:50px;padding:6px 12px;border-radius:12px;background:var(--row);font-size:13px}
+.v2 .sgc-ev i{width:3px;align-self:stretch;margin:4px 0;border-radius:2px;background:var(--c);flex:none}
+.v2 .sgc-ev .t{flex:1;min-width:0;display:flex;flex-direction:column}
+.v2 .sgc-ev .t span{font-size:12px;color:var(--muted)}
+/* the week: how busy each day is */
+.v2 .sgc-wk{height:100%;display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.v2 .sgc-d{display:flex;flex-direction:column;align-items:center;gap:6px;font-size:12px;color:var(--muted)}
+.v2 .sgc-d .n{font-size:12px;color:var(--fg2)}
+.v2 .sgc-bar{flex:1;width:100%;max-width:30px;border-radius:8px;background:var(--chip);display:flex;align-items:flex-end;overflow:hidden}
+.v2 .sgc-bar i{display:block;width:100%;border-radius:8px;background:color-mix(in srgb,var(--accent-mark,var(--accent)) 35%,transparent)}
+.v2 .sgc-d.now{color:var(--fg)}
+.v2 .sgc-d.now .sgc-bar i{background:var(--accent-mark,var(--accent))}
+/* the month: a dot on each day with something on */
+.v2 .sgc-mo{display:grid;grid-template-columns:repeat(7,1fr);gap:2px 4px;font-size:12px;text-align:center}
+.v2 .sgc-mo .w{font-size:11px;color:var(--muted);padding-bottom:2px}
+.v2 .sgc-mo .d{position:relative;height:26px;display:grid;place-items:center;border-radius:8px;color:var(--fg2)}
+.v2 .sgc-mo .d.e::after{content:"";position:absolute;bottom:2px;left:50%;width:4px;height:4px;margin-left:-2px;border-radius:50%;background:var(--accent-mark,var(--accent))}
+.v2 .sgc-mo .d.now{background:var(--ink);color:var(--on-ink)}
+.v2 .sgc-mo .d.now::after{background:var(--on-ink)}
 /* ---------- Date range picker ---------- */
 .v2 .drx{display:grid;grid-template-columns:160px 1fr;overflow:hidden}
 @media (max-width:720px){.v2 .drx{grid-template-columns:1fr}.v2 .drx-side{flex-direction:row!important;flex-wrap:wrap;border-right:0!important;border-bottom:1px solid var(--line)}}
@@ -8512,6 +8550,35 @@ body.ui main .comp[data-v2="pricing-cards"] .stage-inner{padding-bottom:40px!imp
 .v2 .csx-o[aria-selected="true"] .ck{color:var(--accent-fg,var(--accent));display:grid}
 .v2 .csx-o .ck{display:none}
 .v2 .csx-g{font-size:11px;color:var(--muted);padding:6px 8px 2px}
+/* ---------- Multi-select ---------- */
+/* a combobox that keeps what you pick as chips: typing filters the list, the arrows move through it, Enter picks or
+   unpicks, Escape closes it, and Backspace in an empty box takes the last chip off */
+.v2 .msc{position:relative;width:100%;max-width:320px;margin:0 auto;display:flex;flex-direction:column;gap:6px;min-height:330px}
+.v2 .msc-l{font-size:12.5px;font-weight:500}
+.v2 .msc-f{position:relative;display:flex;flex-wrap:wrap;align-items:center;gap:6px;min-height:42px;padding:6px 8px;border-radius:12px;background:var(--surface);box-shadow:var(--shadow);cursor:text;transition:box-shadow .25s}
+.v2 .msc-f:focus-within,.v2 .msc-f.f{box-shadow:0 0 0 1.5px var(--accent-mark,var(--accent)),0 0 0 4px var(--accent-bg)}
+.v2 .msc-q{flex:1;min-width:80px;height:28px;border:0;outline:0;background:transparent;padding:0 4px;font:inherit;font-size:13px;color:var(--fg)}
+.v2 .msc-q::placeholder{color:var(--muted)}
+.v2 .msc-c{display:inline-flex;align-items:center;gap:2px;height:26px;padding:0 3px 0 10px;border-radius:var(--r-pill);background:var(--chip);font-size:12.5px;white-space:nowrap}
+.v2 .msc-c button{width:20px;height:20px;border-radius:50%;display:grid;place-items:center;color:var(--muted);transition:background .2s,color .2s}
+.v2 .msc-c button:hover{background:var(--wash);color:var(--fg)}
+.v2 .msc-c.go{animation:v2-mscout .22s var(--ease) forwards}
+@keyframes v2-mscout{to{opacity:0;transform:scale(.85)}}
+/* the key just pressed, while the preview plays */
+.v2 .msc-key{position:absolute;right:8px;top:50%;transform:translateY(-50%);opacity:0;transition:opacity .2s}
+.v2 .msc-key.on{opacity:1}
+.v2 .msc-pop{position:absolute;top:76px;left:0;right:0;z-index:5;padding:6px;border-radius:14px;background:var(--raised);box-shadow:var(--shadow-pop);opacity:0;transform:translateY(-4px) scale(.98);transform-origin:top;filter:blur(3px);pointer-events:none;transition:opacity .2s,transform .35s var(--ease),filter .2s,top .25s var(--ease)}
+.v2 .msc-pop.open{opacity:1;transform:none;filter:none;pointer-events:auto}
+.v2 .msc-list{max-height:210px;overflow-y:auto;display:flex;flex-direction:column}
+.v2 .msc-o{display:flex;align-items:center;gap:10px;min-height:34px;padding:6px 8px;border-radius:9px;font-size:13px;cursor:pointer;flex:none}
+.v2 .msc-o.hl{background:var(--wash)}
+.v2 .msc-o .bx{width:16px;height:16px;border-radius:5px;box-shadow:inset 0 0 0 1.5px var(--rail);display:grid;place-items:center;color:transparent;flex:none;transition:background .2s,box-shadow .2s,color .2s}
+.v2 .msc-o[aria-selected="true"] .bx{background:var(--accent);box-shadow:none;color:var(--on-accent,#fff)}
+.v2 .msc-o .n{margin-left:auto;font-size:12px;color:var(--muted)}
+.v2 .msc-none{padding:8px;font-size:12.5px;color:var(--muted)}
+.v2 .msc-h{font-size:12px}
+/* the open list covers the hint under the box, so the hint steps aside instead of peeking out above the list */
+.v2 .msc:has(.msc-pop.open) .msc-h{visibility:hidden}
 /* ---------- Social sign-in ---------- */
 .v2 .ssi{padding:28px 22px 20px;display:flex;flex-direction:column;align-items:center;gap:14px;max-width:320px;margin:0 auto;width:100%}
 .v2 .ssi-h{display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center}
@@ -8576,6 +8643,30 @@ body.ui main .comp[data-v2="pricing-cards"] .stage-inner{padding-bottom:40px!imp
 .v2 .sgx-rs{font-size:12px;margin-top:6px}
 .v2 .sgx-done{display:flex;flex-direction:column;align-items:center;gap:8px;padding:20px 0;font-size:13px;text-align:center}
 .v2 .sgx-done>b{font-weight:500;font-size:14px}
+/* ---------- OTP field ---------- */
+/* a one-time code, one box per digit: typing moves along, Backspace moves back, and a paste fills every box. A wrong
+   code shakes and turns red; typing again starts it over */
+.v2 .otp{position:relative;width:100%;max-width:360px;margin:0 auto;padding:22px 20px 18px;display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center}
+.v2 .otp-ic{width:40px;height:40px;border-radius:12px;background:var(--chip);color:var(--fg2);display:grid;place-items:center;margin-bottom:6px}
+.v2 .otp-t{font-weight:500;font-size:14px}
+.v2 .otp-s{margin:0 0 10px;font-size:13px;line-height:1.45;max-width:260px}
+.v2 .otp-in{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;max-width:286px}
+.v2 .otp-in .sep{flex:none;width:8px;height:1.5px;border-radius:1px;background:var(--rail);margin:0 2px}
+.v2 .otp-d{flex:1 1 0;min-width:0;max-width:40px;height:48px;padding:0;border:0;outline:0;border-radius:11px;background:var(--chip);text-align:center;font:inherit;font-family:var(--mono);font-size:14px;font-weight:500;color:var(--fg);caret-color:var(--accent-mark,var(--accent));transition:box-shadow .25s,background .25s,color .25s,transform .25s var(--ease)}
+.v2 .otp-d:focus,.v2 .otp-d.f{background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--accent-mark,var(--accent)),0 0 0 4px var(--accent-bg)}
+/* (not .pop, which is the shared popover class and would hide the box) */
+.v2 .otp-d.bump{transform:scale(1.06)}
+.v2 .otp-in.vf .otp-d{color:var(--fg2)}
+.v2 .otp-in.bad .otp-d{background:var(--bad-bg);color:var(--bad);box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--bad) 55%,transparent)}
+.v2 .otp-in.bad{animation:v2-otpsh .42s}
+@keyframes v2-otpsh{20%{transform:translateX(-6px)}40%{transform:translateX(5px)}60%{transform:translateX(-3px)}80%{transform:translateX(2px)}}
+.v2 .otp-in.ok .otp-d{background:var(--ok-bg);color:var(--ok);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--ok) 35%,transparent)}
+.v2 .otp-m{margin:8px 0 0;min-height:20px;display:inline-flex;align-items:center;justify-content:center;gap:6px;font-size:12.5px;color:var(--fg2)}
+.v2 .otp-m .spin{width:11px;height:11px}
+.v2 .otp-m.bad{color:var(--bad)}
+.v2 .otp-m.ok{color:var(--ok)}
+.v2 .otp-f{margin:2px 0 0;font-size:12.5px}
+.v2 .otp-f button{color:var(--accent-fg,var(--accent));font-weight:500;font-size:12.5px}
 /* ---------- Form ---------- */
 .v2 .fmx{padding:16px;display:flex;flex-direction:column;gap:12px;max-width:380px;margin:0 auto;width:100%}
 .v2 .fmx-h{display:flex;align-items:center;justify-content:space-between;gap:8px}
@@ -9039,7 +9130,7 @@ body.ui main .comp[data-v2="pricing-cards"] .stage-inner{padding-bottom:40px!imp
 <aside class="side" id="side">
   <label class="side-search"><span class="ms">search</span><input id="side-q" placeholder="Search components" autocomplete="off" aria-label="Search components"><span class="kbd">/</span></label>
   <nav class="side-pages" aria-label="Site"><a class="side-p act" href="#components" aria-current="page"><span class="ms">dashboard</span>Library</a><a class="side-p" href="#/changelog"><span class="ms">history</span>Changelog</a><a class="side-p" href="#/roadmap"><span class="ms">trending_up</span>Roadmap</a><a class="side-p" href="#/faq"><span class="ms">help</span>FAQ</a></nav>
-  <nav class="side-nav" aria-label="Components"><div class="side-grp side-saved"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Saved</span><span class="side-n" id="saved-n">0</span></button><div class="side-list"><div class="side-ul" id="saved-list"></div></div></div><div class="side-lbl first">Agent components</div><div class="side-grp" data-s="s-conversation" data-grp="agent"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Conversation</span><span class="side-n">14</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c3" data-c="c3">Live answer</a><a class="side-a" href="#c6" data-c="c6">Composer</a><a class="side-a" href="#c8" data-c="c8">Thread panel</a><a class="side-a" href="#c108" data-c="c108">Artifact card</a><a class="side-a" href="#c107" data-c="c107">Tool call</a><a class="side-a" href="#c24" data-c="c24">Voice capture</a><a class="side-a" href="#c122" data-c="c122">Voice orb</a><a class="side-a" href="#c113" data-c="c113">Answer action bar</a><a class="side-a" href="#c31" data-c="c31">Response versions</a><a class="side-a" href="#c112" data-c="c112">Model picker</a><a class="side-a" href="#c29" data-c="c29">Prompt starters</a><a class="side-a" href="#c123" data-c="c123">Prompt library</a><a class="side-a" href="#c30" data-c="c30">Attachment tray</a><a class="side-a" href="#c32" data-c="c32">Feedback sheet</a></div></div></div><div class="side-grp" data-s="s-status" data-grp="agent"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Agent status</span><span class="side-n">16</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c60" data-c="c60">Thinking</a><a class="side-a" href="#c2" data-c="c2">Reasoning trail</a><a class="side-a" href="#c26" data-c="c26">Agent lanes</a><a class="side-a" href="#c114" data-c="c114">Agent tree</a><a class="side-a" href="#c115" data-c="c115">Agent inbox</a><a class="side-a" href="#c106" data-c="c106">Run summary</a><a class="side-a" href="#c7" data-c="c7">Action log</a><a class="side-a" href="#c67" data-c="c67">Agent run timeline</a><a class="side-a" href="#c23" data-c="c23">Context meter</a><a class="side-a" href="#c109" data-c="c109">Error and recovery</a><a class="side-a" href="#c5" data-c="c5">Run queue</a><a class="side-a" href="#c27" data-c="c27">Run cost</a><a class="side-a" href="#c28" data-c="c28">Toast stack</a><a class="side-a" href="#c58" data-c="c58">Toast</a><a class="side-a" href="#c22" data-c="c22">Status pill</a><a class="side-a" href="#c1" data-c="c1">Step loader</a></div></div></div><div class="side-grp" data-s="s-review" data-grp="agent"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Review and approve</span><span class="side-n">13</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c11" data-c="c11">Change review</a><a class="side-a" href="#c105" data-c="c105">Plan review</a><a class="side-a" href="#c33" data-c="c33">Permission gate</a><a class="side-a" href="#c4" data-c="c4">Decision prompt</a><a class="side-a" href="#c9" data-c="c9">Proposal card</a><a class="side-a" href="#c19" data-c="c19">Design tuner</a><a class="side-a" href="#c20" data-c="c20">Rewrite toolbar</a><a class="side-a" href="#c34" data-c="c34">Launch checklist</a><a class="side-a" href="#c120" data-c="c120">Inline text diff</a><a class="side-a" href="#c121" data-c="c121">Draft review</a><a class="side-a" href="#c116" data-c="c116">Steering</a><a class="side-a" href="#c117" data-c="c117">Eval results</a><a class="side-a" href="#c111" data-c="c111">Design review</a></div></div></div><div class="side-grp" data-s="s-data" data-grp="agent"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Sources and output</span><span class="side-n">7</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c18" data-c="c18">Code viewer</a><a class="side-a" href="#c68" data-c="c68">Citation hover card</a><a class="side-a" href="#c10" data-c="c10">Source stack</a><a class="side-a" href="#c36" data-c="c36">Field extraction</a><a class="side-a" href="#c17" data-c="c17">Metric insight</a><a class="side-a" href="#c66" data-c="c66">Details panel</a><a class="side-a" href="#c13" data-c="c13">Task table</a></div></div></div><div class="side-grp" data-s="s-workspace" data-grp="agent"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Workspace</span><span class="side-n">10</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c16" data-c="c16">Automation canvas</a><a class="side-a" href="#c15" data-c="c15">Command palette</a><a class="side-a" href="#c69" data-c="c69">Memory panel</a><a class="side-a" href="#c71" data-c="c71">Model compare</a><a class="side-a" href="#c38" data-c="c38">Agent settings</a><a class="side-a" href="#c110" data-c="c110">Tools and connections</a><a class="side-a" href="#c131" data-c="c131">Knowledge sources</a><a class="side-a" href="#c132" data-c="c132">Scheduled runs</a><a class="side-a" href="#c39" data-c="c39">File explorer</a><a class="side-a" href="#c14" data-c="c14">Workspace rail</a></div></div></div><div class="side-grp" data-s="s-harness" data-grp="agent"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Harness</span><span class="side-n">1</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c99" data-c="c99">Agent harness</a></div></div></div><div class="side-lbl">App basics</div><div class="side-grp" data-s="s-charts" data-grp="basics"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Charts and tables</span><span class="side-n">9</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c41" data-c="c41">Line chart</a><a class="side-a" href="#c42" data-c="c42">Bar chart</a><a class="side-a" href="#c43" data-c="c43">Donut chart</a><a class="side-a" href="#c102" data-c="c102">Funnel chart</a><a class="side-a" href="#c103" data-c="c103">Top pages</a><a class="side-a" href="#c65" data-c="c65">Health score</a><a class="side-a" href="#c45" data-c="c45">Activity heatmap</a><a class="side-a" href="#c44" data-c="c44">Stat cards</a><a class="side-a" href="#c12" data-c="c12">Account table</a></div></div></div><div class="side-grp" data-s="s-dates" data-grp="basics"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Dates</span><span class="side-n">4</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c46" data-c="c46">Date picker</a><a class="side-a" href="#c47" data-c="c47">Date range picker</a><a class="side-a" href="#c62" data-c="c62">Event calendar</a><a class="side-a" href="#c63" data-c="c63">Agenda</a></div></div></div><div class="side-grp" data-s="s-forms" data-grp="basics"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Forms and inputs</span><span class="side-n">8</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c49" data-c="c49">Buttons</a><a class="side-a" href="#c52" data-c="c52">Tooltip</a><a class="side-a" href="#c53" data-c="c53">Search input</a><a class="side-a" href="#c57" data-c="c57">Country select</a><a class="side-a" href="#c51" data-c="c51">Social sign-in</a><a class="side-a" href="#c55" data-c="c55">Sign in</a><a class="side-a" href="#c50" data-c="c50">Form</a><a class="side-a" href="#c64" data-c="c64">Payment form</a></div></div></div><div class="side-grp" data-s="s-collab" data-grp="basics"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Collaboration</span><span class="side-n">6</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c54" data-c="c54">Comments</a><a class="side-a" href="#c56" data-c="c56">Notifications</a><a class="side-a" href="#c61" data-c="c61">Invite to collaborate</a><a class="side-a" href="#c59" data-c="c59">Reactions</a><a class="side-a" href="#c104" data-c="c104">Ticket list</a><a class="side-a" href="#c101" data-c="c101">Kanban board</a></div></div></div><div class="side-grp" data-s="s-product" data-grp="basics"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Product</span><span class="side-n">5</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c70" data-c="c70">Pricing cards</a><a class="side-a" href="#c72" data-c="c72">Onboarding checklist</a><a class="side-a" href="#c73" data-c="c73">Stepper</a><a class="side-a" href="#c74" data-c="c74">Set limit</a><a class="side-a" href="#c75" data-c="c75">Currency converter</a></div></div></div><div class="side-empty" id="side-empty"><p>No components match your search.</p><button class="suggest-btn"><span class="ms">add</span><span class="st">Suggest this component</span></button></div></nav>
+  <nav class="side-nav" aria-label="Components"><div class="side-grp side-saved"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Saved</span><span class="side-n" id="saved-n">0</span></button><div class="side-list"><div class="side-ul" id="saved-list"></div></div></div><div class="side-lbl first">Agent components</div><div class="side-grp" data-s="s-conversation" data-grp="agent"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Conversation</span><span class="side-n">14</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c3" data-c="c3">Live answer</a><a class="side-a" href="#c6" data-c="c6">Composer</a><a class="side-a" href="#c8" data-c="c8">Thread panel</a><a class="side-a" href="#c108" data-c="c108">Artifact card</a><a class="side-a" href="#c107" data-c="c107">Tool call</a><a class="side-a" href="#c24" data-c="c24">Voice capture</a><a class="side-a" href="#c122" data-c="c122">Voice orb</a><a class="side-a" href="#c113" data-c="c113">Answer action bar</a><a class="side-a" href="#c31" data-c="c31">Response versions</a><a class="side-a" href="#c112" data-c="c112">Model picker</a><a class="side-a" href="#c29" data-c="c29">Prompt starters</a><a class="side-a" href="#c123" data-c="c123">Prompt library</a><a class="side-a" href="#c30" data-c="c30">Attachment tray</a><a class="side-a" href="#c32" data-c="c32">Feedback sheet</a></div></div></div><div class="side-grp" data-s="s-status" data-grp="agent"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Agent status</span><span class="side-n">16</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c60" data-c="c60">Thinking</a><a class="side-a" href="#c2" data-c="c2">Reasoning trail</a><a class="side-a" href="#c26" data-c="c26">Agent lanes</a><a class="side-a" href="#c114" data-c="c114">Agent tree</a><a class="side-a" href="#c115" data-c="c115">Agent inbox</a><a class="side-a" href="#c106" data-c="c106">Run summary</a><a class="side-a" href="#c7" data-c="c7">Action log</a><a class="side-a" href="#c67" data-c="c67">Agent run timeline</a><a class="side-a" href="#c23" data-c="c23">Context meter</a><a class="side-a" href="#c109" data-c="c109">Error and recovery</a><a class="side-a" href="#c5" data-c="c5">Run queue</a><a class="side-a" href="#c27" data-c="c27">Run cost</a><a class="side-a" href="#c28" data-c="c28">Toast stack</a><a class="side-a" href="#c58" data-c="c58">Toast</a><a class="side-a" href="#c22" data-c="c22">Status pill</a><a class="side-a" href="#c1" data-c="c1">Step loader</a></div></div></div><div class="side-grp" data-s="s-review" data-grp="agent"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Review and approve</span><span class="side-n">13</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c11" data-c="c11">Change review</a><a class="side-a" href="#c105" data-c="c105">Plan review</a><a class="side-a" href="#c33" data-c="c33">Permission gate</a><a class="side-a" href="#c4" data-c="c4">Decision prompt</a><a class="side-a" href="#c9" data-c="c9">Proposal card</a><a class="side-a" href="#c19" data-c="c19">Design tuner</a><a class="side-a" href="#c20" data-c="c20">Rewrite toolbar</a><a class="side-a" href="#c34" data-c="c34">Launch checklist</a><a class="side-a" href="#c120" data-c="c120">Inline text diff</a><a class="side-a" href="#c121" data-c="c121">Draft review</a><a class="side-a" href="#c116" data-c="c116">Steering</a><a class="side-a" href="#c117" data-c="c117">Eval results</a><a class="side-a" href="#c111" data-c="c111">Design review</a></div></div></div><div class="side-grp" data-s="s-data" data-grp="agent"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Sources and output</span><span class="side-n">7</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c18" data-c="c18">Code viewer</a><a class="side-a" href="#c68" data-c="c68">Citation hover card</a><a class="side-a" href="#c10" data-c="c10">Source stack</a><a class="side-a" href="#c36" data-c="c36">Field extraction</a><a class="side-a" href="#c17" data-c="c17">Metric insight</a><a class="side-a" href="#c66" data-c="c66">Details panel</a><a class="side-a" href="#c13" data-c="c13">Task table</a></div></div></div><div class="side-grp" data-s="s-workspace" data-grp="agent"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Workspace</span><span class="side-n">10</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c16" data-c="c16">Automation canvas</a><a class="side-a" href="#c15" data-c="c15">Command palette</a><a class="side-a" href="#c69" data-c="c69">Memory panel</a><a class="side-a" href="#c71" data-c="c71">Model compare</a><a class="side-a" href="#c38" data-c="c38">Agent settings</a><a class="side-a" href="#c110" data-c="c110">Tools and connections</a><a class="side-a" href="#c131" data-c="c131">Knowledge sources</a><a class="side-a" href="#c132" data-c="c132">Scheduled runs</a><a class="side-a" href="#c39" data-c="c39">File explorer</a><a class="side-a" href="#c14" data-c="c14">Workspace rail</a></div></div></div><div class="side-grp" data-s="s-harness" data-grp="agent"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Harness</span><span class="side-n">1</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c99" data-c="c99">Agent harness</a></div></div></div><div class="side-lbl">App basics</div><div class="side-grp" data-s="s-charts" data-grp="basics"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Charts and tables</span><span class="side-n">9</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c41" data-c="c41">Line chart</a><a class="side-a" href="#c42" data-c="c42">Bar chart</a><a class="side-a" href="#c43" data-c="c43">Donut chart</a><a class="side-a" href="#c102" data-c="c102">Funnel chart</a><a class="side-a" href="#c103" data-c="c103">Top pages</a><a class="side-a" href="#c65" data-c="c65">Health score</a><a class="side-a" href="#c45" data-c="c45">Activity heatmap</a><a class="side-a" href="#c44" data-c="c44">Stat cards</a><a class="side-a" href="#c12" data-c="c12">Account table</a></div></div></div><div class="side-grp" data-s="s-dates" data-grp="basics"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Dates</span><span class="side-n">5</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c46" data-c="c46">Date picker</a><a class="side-a" href="#c124" data-c="c124">Segmented control</a><a class="side-a" href="#c47" data-c="c47">Date range picker</a><a class="side-a" href="#c62" data-c="c62">Event calendar</a><a class="side-a" href="#c63" data-c="c63">Agenda</a></div></div></div><div class="side-grp" data-s="s-forms" data-grp="basics"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Forms and inputs</span><span class="side-n">10</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c49" data-c="c49">Buttons</a><a class="side-a" href="#c52" data-c="c52">Tooltip</a><a class="side-a" href="#c53" data-c="c53">Search input</a><a class="side-a" href="#c57" data-c="c57">Country select</a><a class="side-a" href="#c126" data-c="c126">Multi-select</a><a class="side-a" href="#c51" data-c="c51">Social sign-in</a><a class="side-a" href="#c55" data-c="c55">Sign in</a><a class="side-a" href="#c125" data-c="c125">OTP field</a><a class="side-a" href="#c50" data-c="c50">Form</a><a class="side-a" href="#c64" data-c="c64">Payment form</a></div></div></div><div class="side-grp" data-s="s-collab" data-grp="basics"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Collaboration</span><span class="side-n">6</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c54" data-c="c54">Comments</a><a class="side-a" href="#c56" data-c="c56">Notifications</a><a class="side-a" href="#c61" data-c="c61">Invite to collaborate</a><a class="side-a" href="#c59" data-c="c59">Reactions</a><a class="side-a" href="#c104" data-c="c104">Ticket list</a><a class="side-a" href="#c101" data-c="c101">Kanban board</a></div></div></div><div class="side-grp" data-s="s-product" data-grp="basics"><button class="side-h" aria-expanded="true"><span class="ms chev">expand_more</span><span class="nm">Product</span><span class="side-n">5</span></button><div class="side-list"><div class="side-ul"><a class="side-a" href="#c70" data-c="c70">Pricing cards</a><a class="side-a" href="#c72" data-c="c72">Onboarding checklist</a><a class="side-a" href="#c73" data-c="c73">Stepper</a><a class="side-a" href="#c74" data-c="c74">Set limit</a><a class="side-a" href="#c75" data-c="c75">Currency converter</a></div></div></div><div class="side-empty" id="side-empty"><p>No components match your search.</p><button class="suggest-btn"><span class="ms">add</span><span class="st">Suggest this component</span></button></div></nav>
   <div class="side-foot">
     <a class="credit" href="https://designme.agency" target="_blank" rel="noopener"><div class="sticker" style="--sticker-mask:url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNzU5IiBoZWlnaHQ9IjYzMiIgdmlld0JveD0iMCAwIDc1OSA2MzIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxwYXRoIGQ9Ik0xNDkuNDk3IDI4My43ODRDMTQ5LjQ3NyAyODQuMDQ3IDE0OS40NzQgMjg0LjMxMSAxNDkuNDg3IDI4NC41NzVDMTU2LjM4NSAzNDAuMDM0IDE4My41NDggMzkxLjExNiAyMjUuOSA0MjguMTk2QzI2Ny45ODkgNDY1LjA0NCAzMjIuMTg4IDQ4NS41MzIgMzc4LjQxNCA0ODUuODU1TDM3OS43NDMgNDg1Ljg1OUM0MzYuNDUzIDQ4NS44NjggNDkxLjE4OCA0NjUuMzUzIDUzMy42MTkgNDI4LjIxMkM1NzUuOTEyIDM5MS4xOTQgNjAzLjA2MiAzNDAuMjE2IDYxMC4wMTggMjg0Ljg1Nkw2MTAuMDE4IDI4MS41MTJDNjEwLjAwOCAyNzcuMzM3IDYwOC4zMjQgMjczLjMxNSA2MDUuMzAzIDI3MC4zMzVDNjAyLjI3NyAyNjcuMzUxIDU5OC4xNTUgMjY1LjY1NiA1OTMuODM3IDI2NS42NTZMMTY1LjY0NyAyNjUuNjU2QzE2MS4zMzggMjY1LjY1NiAxNTcuMjI2IDI2Ny4zNDkgMTU0LjIxIDI3MC4zMzFDMTUxLjE5OCAyNzMuMzA5IDE0OS41MjQgMjc3LjMyNiAxNDkuNTIzIDI4MS40OTFMMTQ5LjUyMyAyODMuNDM3TDE0OS40OTcgMjgzLjc4NFpNMTE0LjM3OCAyNDcuMzk1QzExOC4zOTYgMjQ3LjM5MSAxMjIuMjU0IDI0NS45MTkgMTI1LjIxNCAyNDMuMjlDMTI4LjA2MyAyNDAuNzU5IDEyOS44ODcgMjM3LjMzIDEzMC4zOTYgMjMzLjYyOUwxMzAuMzk2IDIzMy4zNUwxMzAuNDM3IDIzMi45MTdDMTM2LjM1NSAxNzEuNjM0IDE2NS4xNjIgMTE0Ljc1NCAyMTEuMjAyIDczLjM2ODdDMjU3LjIzOSAzMS45ODU5IDMxNy4yMDYgOS4wNjA2MyAzNzkuMzkzIDkuMDQ0NDhMMzc5LjM5NiA5LjA0NDQ4QzQ0MS41OTMgOS4wNDU4MyA1MDEuNTc0IDMxLjk2NCA1NDcuNjI0IDczLjM0ODJDNTkzLjY3NyAxMTQuNzM1IDYyMi40OTEgMTcxLjYyNCA2MjguNDExIDIzMi45MTdMNjI4LjQ1MyAyMzMuMzVMNjI4LjQ1MyAyMzMuNjQzQzYyOC45NTMgMjM3LjM0NCA2MzAuNzczIDI0MC43NzQgNjMzLjYyMSAyNDMuMzA0QzYzNi41OCAyNDUuOTMyIDY0MC40MzcgMjQ3LjM5OSA2NDQuNDUyIDI0Ny4zOTVMNzI1LjY0NCAyNDcuMzk1QzcyOC44ODIgMjQ3LjQwNCA3MzIuMDg5IDI0OC4wNiA3MzUuMDcxIDI0OS4zMjlDNzM4LjA1NSAyNTAuNTk4IDc0MC43NTMgMjUyLjQ1MyA3NDMuMDAxIDI1NC43ODdDNzQ1LjI1MiAyNTcuMTIzIDc0Ny4wMDUgMjU5Ljg5MSA3NDguMTUxIDI2Mi45MjRDNzQ5LjI5NiAyNjUuOTU0IDc0OS44MSAyNjkuMTgzIDc0OS42NjIgMjcyLjQxOEw3NDkuNjYzIDI3Mi40MThDNzQ1LjQ4NCAzNjYuNzk3IDcwNC42MTcgNDU1LjkxOSA2MzUuNjE1IDUyMS4yMTFDNTY2LjYxNiA1ODYuNDk5IDQ3NC44MDkgNjIyLjkyNCAzNzkuMzM4IDYyMi45MjRDMjgzLjg3MiA2MjIuOTI0IDE5Mi4wNzEgNTg2LjQ5NiAxMjMuMDgxIDUyMS4yMDZDNTQuMDkzNSA0NTUuOTE3IDEzLjI0MTIgMzY2LjgwNCA5LjA3MTMzIDI3Mi40MzhMOS4wNzAzNiAyNzIuNDM4TDkuMDcwMzYgMjcyLjQzNkM5LjA3MDA3IDI3Mi40MyA5LjA2OTY3IDI3Mi40MjMgOS4wNjkzOCAyNzIuNDE3TDkuMDcwMzYgMjcyLjQxN0M4LjkyMjcyIDI2OS4xODIgOS40MzY1NSAyNjUuOTUzIDEwLjU4MTEgMjYyLjkyNEMxMS43Mjc2IDI1OS44OSAxMy40ODEgMjU3LjEyMyAxNS43MzE1IDI1NC43ODdDMTcuOTgwNSAyNTIuNDUyIDIwLjY3OTcgMjUwLjU5NyAyMy42NjIyIDI0OS4zMjlDMjYuNjQ0MyAyNDguMDYgMjkuODUwNCAyNDcuNDA0IDMzLjA4ODkgMjQ3LjM5NUwxMTQuMzc4IDI0Ny4zOTVaIiBmaWxsPSJibGFjayIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIxOC4wOTAxIi8+Cjwvc3ZnPg==)"><div class="die"><svg aria-hidden="true" focusable="false" viewBox="0 0 759 632" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M149.497 283.784C149.477 284.047 149.474 284.311 149.487 284.575C156.385 340.034 183.548 391.116 225.9 428.196C267.989 465.044 322.188 485.532 378.414 485.855L379.743 485.859C436.453 485.868 491.188 465.353 533.619 428.212C575.912 391.194 603.062 340.216 610.018 284.856L610.018 281.512C610.008 277.337 608.324 273.315 605.303 270.335C602.277 267.351 598.155 265.656 593.837 265.656L165.647 265.656C161.338 265.656 157.226 267.349 154.21 270.331C151.198 273.309 149.524 277.326 149.523 281.491L149.523 283.437L149.497 283.784ZM114.378 247.395C118.396 247.391 122.254 245.919 125.214 243.29C128.063 240.759 129.887 237.33 130.396 233.629L130.396 233.35L130.437 232.917C136.355 171.634 165.162 114.754 211.202 73.3687C257.239 31.9859 317.206 9.06063 379.393 9.04448L379.396 9.04448C441.593 9.04583 501.574 31.964 547.624 73.3482C593.677 114.735 622.491 171.624 628.411 232.917L628.453 233.35L628.453 233.643C628.953 237.344 630.773 240.774 633.621 243.304C636.58 245.932 640.437 247.399 644.452 247.395L725.644 247.395C728.882 247.404 732.089 248.06 735.071 249.329C738.055 250.598 740.753 252.453 743.001 254.787C745.252 257.123 747.005 259.891 748.151 262.924C749.296 265.954 749.81 269.183 749.662 272.418L749.663 272.418C745.484 366.797 704.617 455.919 635.615 521.211C566.616 586.499 474.809 622.924 379.338 622.924C283.872 622.924 192.071 586.496 123.081 521.206C54.0935 455.917 13.2412 366.804 9.07133 272.438L9.07036 272.438L9.07036 272.436C9.07007 272.43 9.06967 272.423 9.06938 272.417L9.07036 272.417C8.92272 269.182 9.43655 265.953 10.5811 262.924C11.7276 259.89 13.481 257.123 15.7315 254.787C17.9805 252.452 20.6797 250.597 23.6622 249.329C26.6443 248.06 29.8504 247.404 33.0889 247.395L114.378 247.395Z" fill="black" stroke="white" stroke-width="18.0901"/>
@@ -9052,7 +9143,7 @@ body.ui main .comp[data-v2="pricing-cards"] .stage-inner{padding-bottom:40px!imp
 <main id="components" class="content">
 <section class="intro">
   <h1>Components for agent-powered products</h1>
-  <p>93 free components in HTML or React, designed and built by <a href="https://designme.agency" target="_blank" rel="noopener">DesignMe</a>.</p>
+  <p>96 free components in HTML or React, designed and built by <a href="https://designme.agency" target="_blank" rel="noopener">DesignMe</a>.</p>
   <div class="intro-get"><button class="cdm-cmd intro-cmd" data-cmd="npx designme add live-answer --react" title="Copy install command"><span class="d">$</span><span class="c">npx designme add live-answer --react</span><span class="ms sm">content_copy</span></button></div>
   <div class="m-cta"><div class="t">Need expert design and dev support?</div><a class="hire-btn m-cta-btn" href="https://designme.agency" target="_blank" rel="noopener">Book a call<span class="ms">arrow_forward</span></a></div>
   </section>
@@ -10654,6 +10745,23 @@ body.ui main .comp[data-v2="pricing-cards"] .stage-inner{padding-bottom:40px!imp
   </div>
 </div></template>
   </article>
+  <article class="comp" id="c124" data-soft data-v2="segmented-control" data-reg="segmented-control" style="--rh-a:420px;--rc-a:264px;--rcb-a:264px;--rh-b:424px;--rc-b:312px;--rcb-b:312px;--rh-c:420px;--rc-c:264px;--rcb-c:264px;--rh-d:420px;--rc-d:264px;--rcb-d:264px;--rh-e:420px;--rc-e:264px;--rcb-e:264px;--rh-f:420px;--rc-f:264px;--rcb-f:264px;--rh-g:420px;--rc-g:264px;--rcb-g:264px;--rh-h:420px;--rc-h:264px;--rcb-h:264px;--rh-i:420px;--rc-i:264px;--rcb-i:264px;--rh-j:420px;--rc-j:264px;--rcb-j:264px;--rh-k:420px;--rc-k:264px;--rcb-k:264px;--rh-l:420px;--rc-l:312px;--rcb-l:312px;--rh-m:420px;--rc-m:312px;--rcb-m:312px">
+    <div class="comp-head">
+      <span class="ibox"><span class="ms">splitscreen</span></span>
+      <div><h2 class="comp-title"><a href="/components/segmented-control">Segmented control</a></h2><p class="comp-desc">Switch between views of the same thing, with a sliding indicator.</p></div>
+      <button class="save-btn" aria-pressed="false" aria-label="Save component"><span class="ms">bookmark</span></button>
+    </div>
+    <div class="stage"><div class="stage-inner dots v2-host" data-demo><div class="v2 stage-in"></div></div></div>
+    <div class="comp-foot">
+      <span class="mono-xs">Pick a view, or use the arrow keys</span>
+      <div class="code-btns"><button class="ghost anim-btn" data-anim><span class="ms sm">stars</span>Animate</button><button class="ghost" data-view aria-expanded="false"><span class="ms sm">code</span><span class="vl">View code</span></button><button class="ghost" data-copy><span class="ms sm">content_copy</span>Copy code</button></div>
+    </div>
+    <template><div class="sgc panel">
+  <div class="sgc-h"><div class="sgc-ht"><b>Pricing launch</b><span class="muted sgc-r" aria-live="polite">Friday, Oct 23</span></div>
+    <div class="sgc-seg" role="tablist" aria-label="View"><span class="sgc-k" aria-hidden="true"></span><button role="tab" aria-selected="true" data-v="day">Day</button><button role="tab" aria-selected="false" tabindex="-1" data-v="week">Week</button><button role="tab" aria-selected="false" tabindex="-1" data-v="month">Month</button></div></div>
+  <div class="sgc-p" role="tabpanel" tabindex="0"><div class="sgc-in"></div></div>
+</div></template>
+  </article>
   <article class="comp wide" id="c47" data-soft data-v2="date-range-picker" data-reg="date-range-picker" style="--rh-a:421px;--rc-a:309px;--rcb-a:309px;--rh-b:421px;--rc-b:309px;--rcb-b:309px;--rh-c:447px;--rc-c:335px;--rcb-c:335px;--rh-d:421px;--rc-d:309px;--rcb-d:309px;--rh-e:421px;--rc-e:309px;--rcb-e:309px;--rh-f:421px;--rc-f:309px;--rcb-f:309px;--rh-g:421px;--rc-g:309px;--rcb-g:309px;--rh-h:421px;--rc-h:309px;--rcb-h:309px;--rh-i:475px;--rc-i:363px;--rcb-i:363px;--rh-j:443px;--rc-j:363px;--rcb-j:363px;--rh-k:504px;--rc-k:424px;--rcb-k:424px;--rh-l:504px;--rc-l:424px;--rcb-l:424px;--rh-m:516px;--rc-m:436px;--rcb-m:436px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">calendar</span></span>
@@ -10790,6 +10898,24 @@ body.ui main .comp[data-v2="pricing-cards"] .stage-inner{padding-bottom:40px!imp
   <span class="muted csx-h">Used for tax and currency</span>
 </div></template>
   </article>
+  <article class="comp" data-soft id="c126" data-v2="multi-select" data-reg="multi-select" style="--rh-a:565px;--rc-a:453px;--rcb-a:453px;--rh-b:565px;--rc-b:453px;--rcb-b:453px;--rh-c:565px;--rc-c:453px;--rcb-c:453px;--rh-d:565px;--rc-d:453px;--rcb-d:453px;--rh-e:565px;--rc-e:453px;--rcb-e:453px;--rh-f:565px;--rc-f:453px;--rcb-f:453px;--rh-g:565px;--rc-g:453px;--rcb-g:453px;--rh-h:565px;--rc-h:453px;--rcb-h:453px;--rh-i:565px;--rc-i:453px;--rcb-i:453px;--rh-j:533px;--rc-j:453px;--rcb-j:453px;--rh-k:533px;--rc-k:453px;--rcb-k:453px;--rh-l:533px;--rc-l:453px;--rcb-l:453px;--rh-m:533px;--rc-m:453px;--rcb-m:453px">
+    <div class="comp-head">
+      <span class="ibox"><span class="ms">tag</span></span>
+      <div><h2 class="comp-title"><a href="/components/multi-select">Multi-select</a></h2><p class="comp-desc">A combobox that filters as you type and keeps your picks as chips.</p></div>
+      <button class="save-btn" aria-pressed="false" aria-label="Save component"><span class="ms">bookmark</span></button>
+    </div>
+    <div class="stage"><div class="stage-inner dots v2-host" data-demo><div class="v2 stage-in"></div></div></div>
+    <div class="comp-foot">
+      <span class="mono-xs">Type, pick with the arrows and Enter</span>
+      <div class="code-btns"><button class="ghost anim-btn" data-anim><span class="ms sm">stars</span>Animate</button><button class="ghost" data-view aria-expanded="false"><span class="ms sm">code</span><span class="vl">View code</span></button><button class="ghost" data-copy><span class="ms sm">content_copy</span>Copy code</button></div>
+    </div>
+    <template><div class="msc">
+  <label class="msc-l">Tags</label>
+  <div class="msc-f"><input class="msc-q" role="combobox" aria-expanded="false" aria-autocomplete="list" aria-haspopup="listbox" placeholder="Add a tag" spellcheck="false" autocomplete="off"><span class="kbd msc-key" aria-hidden="true"></span></div>
+  <div class="msc-pop"><div class="msc-list" role="listbox" aria-multiselectable="true" aria-label="Tags"></div></div>
+  <span class="muted msc-h">Type to filter. Backspace removes the last tag.</span>
+</div></template>
+  </article>
   <article class="comp" data-soft id="c51" data-v2="social-signin" data-reg="social-sign-in" style="--rh-a:515px;--rc-a:403px;--rcb-a:403px;--rh-b:515px;--rc-b:403px;--rcb-b:403px;--rh-c:515px;--rc-c:403px;--rcb-c:403px;--rh-d:515px;--rc-d:403px;--rcb-d:403px;--rh-e:515px;--rc-e:403px;--rcb-e:403px;--rh-f:515px;--rc-f:403px;--rcb-f:403px;--rh-g:515px;--rc-g:403px;--rcb-g:403px;--rh-h:515px;--rc-h:403px;--rcb-h:403px;--rh-i:515px;--rc-i:403px;--rcb-i:403px;--rh-j:483px;--rc-j:403px;--rcb-j:403px;--rh-k:483px;--rc-k:403px;--rcb-k:403px;--rh-l:483px;--rc-l:403px;--rcb-l:403px;--rh-m:483px;--rc-m:403px;--rcb-m:403px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">person</span></span>
@@ -10832,6 +10958,26 @@ body.ui main .comp[data-v2="pricing-cards"] .stage-inner{padding-bottom:40px!imp
     <div class="sgx-code"></div>
     <span class="muted sgx-rs">Resend in <span class="num">30</span>s · <span class="sgx-hint">Click the code to fill it</span></span>
   </div>
+</div></template>
+  </article>
+  <article class="comp" data-soft id="c125" data-v2="otp-field" data-reg="otp-field" style="--rh-a:420px;--rc-a:282px;--rcb-a:282px;--rh-b:420px;--rc-b:282px;--rcb-b:282px;--rh-c:420px;--rc-c:282px;--rcb-c:282px;--rh-d:420px;--rc-d:282px;--rcb-d:282px;--rh-e:420px;--rc-e:282px;--rcb-e:282px;--rh-f:420px;--rc-f:282px;--rcb-f:282px;--rh-g:420px;--rc-g:282px;--rcb-g:282px;--rh-h:420px;--rc-h:282px;--rcb-h:282px;--rh-i:420px;--rc-i:282px;--rcb-i:282px;--rh-j:420px;--rc-j:282px;--rcb-j:282px;--rh-k:420px;--rc-k:282px;--rcb-k:282px;--rh-l:420px;--rc-l:282px;--rcb-l:282px;--rh-m:420px;--rc-m:282px;--rcb-m:282px">
+    <div class="comp-head">
+      <span class="ibox"><span class="ms">lock</span></span>
+      <div><h2 class="comp-title"><a href="/components/otp-field">OTP field</a></h2><p class="comp-desc">A one-time code, one box per digit, that fills from a paste.</p></div>
+      <button class="save-btn" aria-pressed="false" aria-label="Save component"><span class="ms">bookmark</span></button>
+    </div>
+    <div class="stage"><div class="stage-inner dots v2-host" data-demo><div class="v2 stage-in"></div></div></div>
+    <div class="comp-foot">
+      <span class="mono-xs">Paste or type the code</span>
+      <div class="code-btns"><button class="ghost anim-btn" data-anim><span class="ms sm">stars</span>Animate</button><button class="ghost" data-view aria-expanded="false"><span class="ms sm">code</span><span class="vl">View code</span></button><button class="ghost" data-copy><span class="ms sm">content_copy</span>Copy code</button></div>
+    </div>
+    <template><div class="otp panel">
+  <span class="otp-ic">{mail}</span>
+  <b class="otp-t">Check your email</b>
+  <p class="muted otp-s">Enter the 6-digit code we sent to maya@designme.studio</p>
+  <div class="otp-in" role="group" aria-label="Verification code"></div>
+  <p class="otp-m" aria-live="polite"></p>
+  <p class="muted otp-f"><span class="otp-rs">Resend code in <span class="num">0:30</span></span></p>
 </div></template>
   </article>
   <article class="comp" data-soft id="c50" data-v2="form" data-reg="form" style="--rh-a:524px;--rc-a:412px;--rcb-a:412px;--rh-b:532px;--rc-b:420px;--rcb-b:420px;--rh-c:524px;--rc-c:412px;--rcb-c:412px;--rh-d:524px;--rc-d:412px;--rcb-d:412px;--rh-e:524px;--rc-e:412px;--rcb-e:412px;--rh-f:524px;--rc-f:412px;--rcb-f:412px;--rh-g:524px;--rc-g:412px;--rcb-g:412px;--rh-h:524px;--rc-h:412px;--rcb-h:412px;--rh-i:524px;--rc-i:412px;--rcb-i:412px;--rh-j:492px;--rc-j:412px;--rcb-j:412px;--rh-k:492px;--rc-k:412px;--rcb-k:412px;--rh-l:492px;--rc-l:412px;--rcb-l:412px;--rh-m:506px;--rc-m:426px;--rcb-m:426px">
@@ -17057,6 +17203,51 @@ DM.def('date-picker', (r, c) => {
   paint();
   c.later(800, () => { f.click(); c.later(500, () => { const i = $('.dpk-nl', r); const s = 'next friday'; let k = 0; const iv = c.every(70, () => { i.value = s.slice(0, ++k); i.oninput({ target:i }); if (k >= s.length) clearInterval(iv); }); }); });
 });
+/* ---------- Segmented control ---------- */
+DM.def('segmented-control', (r, c) => {
+  const uid = Math.random().toString(36).slice(2, 7);
+  const seg = $('.sgc-seg', r), knob = $('.sgc-k', r), tabs = $$('[role="tab"]', seg), panel = $('.sgc-p', r), inner = $('.sgc-in', r), range = $('.sgc-r', r);
+  tabs.forEach(t => { t.id = `sgc-${t.dataset.v}-${uid}`; t.setAttribute('aria-controls', 'sgc-p-' + uid); });
+  panel.id = 'sgc-p-' + uid;
+  // the pricing launch in October 2026, seen as a day, a week or a month. Today is Friday the 23rd
+  const DAY = [['09:30', 'Pricing review with Maya', 'Pricing v4, frames 1 to 3', 'var(--pl)'], ['13:00', 'Export tokens to CSS', 'Build agent', 'var(--pm)'], ['16:00', 'Ship pricing v4', 'designme.studio/pricing', 'var(--pb)']];
+  const WEEK = [['Mon', 19, 2], ['Tue', 20, 4], ['Wed', 21, 1], ['Thu', 22, 2], ['Fri', 23, 3], ['Sat', 24, 0], ['Sun', 25, 0]];
+  const BUSY = [2, 6, 7, 9, 13, 14, 15, 16, 19, 20, 21, 22, 23, 27, 28, 29, 30];
+  const V = {
+    day:['Friday, Oct 23', () => `<div class="sgc-day">${DAY.map(([t, n, d, col]) => `<div class="sgc-ev" style="--c:${col}"><span class="num muted">${t}</span><i></i><span class="t">${n}<span>${d}</span></span></div>`).join('')}</div>`],
+    week:['Oct 19 – 25', () => `<div class="sgc-wk">${WEEK.map(([d, n, k]) => `<div class="sgc-d${n === 23 ? ' now' : ''}"><span class="n num">${k || ''}</span><span class="sgc-bar"><i style="height:${k * 25}%"></i></span><span>${d}</span></div>`).join('')}</div>`],
+    month:['October 2026', () => `<div class="sgc-mo">${['M','T','W','T','F','S','S'].map(w => `<span class="w">${w}</span>`).join('')}${'<span></span>'.repeat(3)}${Array.from({ length:31 }, (_, i) => `<span class="d num${BUSY.includes(i + 1) ? ' e' : ''}${i + 1 === 23 ? ' now' : ''}">${i + 1}</span>`).join('')}</div>`]
+  };
+  // the knob slides to the picked tab and takes its width
+  const place = () => { const t = tabs.find(x => x.getAttribute('aria-selected') === 'true'); knob.style.left = t.offsetLeft + 'px'; knob.style.width = t.offsetWidth + 'px'; };
+  let cur = 'day', n = 0;
+  function pick(t, focus){
+    tabs.forEach(x => { const on = x === t; x.setAttribute('aria-selected', on); x.tabIndex = on ? 0 : -1; });
+    panel.setAttribute('aria-labelledby', t.id); place();
+    if (focus) t.focus({ preventScroll:true });
+    if (t.dataset.v === cur) return; cur = t.dataset.v; const id = ++n;
+    swap(range, V[cur][0]);
+    inner.classList.add('out');
+    c.later(REDUCE ? 0 : 160, () => { if (id !== n) return; inner.innerHTML = V[cur][1](); inner.classList.remove('out'); });
+  }
+  tabs.forEach(t => t.onclick = () => pick(t));
+  // the arrow keys move along the tabs and pick as they go; Home and End jump to the ends
+  seg.onkeydown = e => {
+    const i = tabs.indexOf(document.activeElement); if (i < 0) return;
+    const go = { ArrowRight:i + 1, ArrowLeft:i - 1, Home:0, End:tabs.length - 1 }[e.key]; if (go === undefined) return;
+    e.preventDefault(); pick(tabs[(go + tabs.length) % tabs.length], true);
+  };
+  inner.innerHTML = V.day[1](); pick(tabs[0]);
+  knob.style.transition = 'none'; requestAnimationFrame(() => { place(); requestAnimationFrame(() => { knob.style.transition = ''; }); });
+  const ro = new ResizeObserver(place); ro.observe(seg); c.offs.push(() => ro.disconnect());
+  // the preview's story: look at the week, then the month, then settle on the week
+  c.story(async s => {
+    await s.beat(3);
+    await s.tap(tabs[1]); s.away(); await s.beat(5);
+    await s.tap(tabs[2]); s.away(); await s.beat(5);
+    await s.tap(tabs[1]); s.away(); await s.beat(3);
+  });
+});
 /* ---------- Date range picker ---------- */
 DM.def('date-range-picker', (r, c) => {
   r.innerHTML = r.innerHTML.replace('{right}', I('right','xs'));
@@ -17344,6 +17535,70 @@ DM.def('country-select', (r, c) => {
   $('.csx-v', f).textContent = sel[0]; f.insertAdjacentHTML('afterbegin', ''); $('.csx-fl', f).outerHTML = flag(sel);
   c.later(900, () => c.run(async () => { open(true); await c.wait(500); for (const ch of 'ger'){ q.value += ch; paint(); await c.wait(160); } }));
 });
+/* ---------- Multi-select ---------- */
+DM.def('multi-select', (r, c) => {
+  const uid = Math.random().toString(36).slice(2, 7);
+  // tags for the pricing page, and how many files carry each
+  const T = [['Accessibility', 14], ['Billing', 9], ['Copy', 22], ['Design system', 31], ['Launch', 12], ['Mobile', 18], ['Onboarding', 7], ['Pricing', 16], ['Research', 11], ['Tokens', 25], ['Tooltips', 6]];
+  const f = $('.msc-f', r), q = $('.msc-q', r), pop = $('.msc-pop', r), list = $('.msc-list', r), key = $('.msc-key', r), label = $('.msc-l', r);
+  q.id = 'msc-q-' + uid; label.htmlFor = q.id; list.id = 'msc-l-' + uid; q.setAttribute('aria-controls', list.id);
+  let picked = ['Launch'], hi = 0, opts = [];
+  // the chips sit in the box before the input, each with its own remove button
+  function chips(){
+    $$('.msc-c', f).forEach(ch => ch.remove());
+    picked.forEach(t => { const ch = html(`<span class="msc-c" data-t="${t}">${t}<button aria-label="Remove ${t}">${I('x','xs')}</button></span>`); $('button', ch).onclick = e => { e.stopPropagation(); remove(t); }; f.insertBefore(ch, q); });
+    place();
+  }
+  const place = () => { pop.style.top = (f.offsetTop + f.offsetHeight + 6) + 'px'; };
+  function paint(){
+    const v = q.value.trim().toLowerCase(), m = T.filter(([t]) => !v || t.toLowerCase().includes(v));
+    list.innerHTML = m.length ? m.map(([t, n], i) => `<div class="msc-o" role="option" id="msc-o-${i}-${uid}" aria-selected="${picked.includes(t)}" data-t="${t}"><span class="bx">${I('check','xs')}</span>${t}<span class="n num">${n}</span></div>`).join('') : '<div class="msc-none">No tags match</div>';
+    opts = $$('.msc-o', list); hi = Math.min(hi, Math.max(0, opts.length - 1)); move(0);
+    opts.forEach((o, i) => { o.onmousemove = () => { if (hi !== i){ hi = i; move(0); } }; o.onmousedown = e => e.preventDefault(); o.onclick = () => toggle(o.dataset.t); });
+  }
+  function move(d){
+    if (!opts.length){ q.removeAttribute('aria-activedescendant'); return; }
+    hi = (hi + d + opts.length) % opts.length; opts.forEach((o, i) => o.classList.toggle('hl', i === hi));
+    q.setAttribute('aria-activedescendant', opts[hi].id);
+    const o = opts[hi], top = o.offsetTop, bot = top + o.offsetHeight;
+    if (top < list.scrollTop) list.scrollTop = top; else if (bot > list.scrollTop + list.clientHeight) list.scrollTop = bot - list.clientHeight;
+  }
+  const isOpen = () => pop.classList.contains('open');
+  function open(){ if (isOpen()) return; place(); pop.classList.add('open'); q.setAttribute('aria-expanded', 'true'); hi = 0; paint(); }
+  function close(){ pop.classList.remove('open'); q.setAttribute('aria-expanded', 'false'); q.removeAttribute('aria-activedescendant'); }
+  // Enter or a click picks a tag, or unpicks one already picked; the box clears for the next one
+  function toggle(t){ picked = picked.includes(t) ? picked.filter(x => x !== t) : [...picked, t]; q.value = ''; chips(); paint(); hi = Math.max(0, opts.findIndex(o => o.dataset.t === t)); move(0); }
+  function remove(t){ const ch = $(`.msc-c[data-t="${t}"]`, f); picked = picked.filter(x => x !== t); if (ch && !REDUCE){ ch.classList.add('go'); c.later(220, () => { chips(); if (isOpen()) paint(); }); } else { chips(); if (isOpen()) paint(); } }
+  // a click on the box opens the list; only a real click takes the focus, so the preview never moves the page
+  f.onclick = e => { if (e.target.closest('.msc-c')) return; if (e.isTrusted) q.focus({ preventScroll:true }); open(); };
+  q.oninput = () => { open(); hi = 0; paint(); };
+  q.onkeydown = e => {
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp'){ e.preventDefault(); if (!isOpen()) return open(); move(e.key === 'ArrowDown' ? 1 : -1); }
+    else if (e.key === 'Enter'){ e.preventDefault(); if (isOpen() && opts[hi]) toggle(opts[hi].dataset.t); else open(); }
+    else if (e.key === 'Escape'){ if (isOpen()){ e.preventDefault(); close(); } }
+    else if (e.key === 'Backspace' && !q.value && picked.length) remove(picked[picked.length - 1]);
+    else if (e.key === 'Tab') close();
+  };
+  c.on(document, 'pointerdown', e => { if (!r.contains(e.target)) close(); });
+  chips();
+  // the preview's story types and presses keys in the box without taking the focus, and shows each key as it goes
+  const press = async (s, k, label) => { key.textContent = label || k; key.classList.add('on'); q.dispatchEvent(new KeyboardEvent('keydown', { key:k, bubbles:true })); await s.beat(2); key.classList.remove('on'); };
+  const type = async (s, text) => { for (const ch of text){ q.value += ch; q.oninput(); await s.beat(.4); } };
+  // the preview's story: add Pricing, pick Tooltips by mistake and take it off with Backspace, then add Tokens
+  c.story(async s => {
+    await s.beat(3);
+    await s.tap(f); f.classList.add('f'); open(); s.away(); await s.beat(2);
+    await type(s, 'pri'); await s.beat(1);
+    await press(s, 'Enter');
+    await type(s, 'to'); await s.beat(1);
+    await press(s, 'ArrowDown', '↓');
+    await press(s, 'Enter'); await s.beat(1);
+    await press(s, 'Backspace');
+    await type(s, 'tok'); await s.beat(1);
+    await press(s, 'Enter');
+    await press(s, 'Escape', 'Esc'); f.classList.remove('f'); await s.beat(2);
+  });
+});
 /* ---------- Social sign-in ---------- */
 DM.def('social-signin', (r, c) => {
   const P = [['Google','google'],['GitHub','github'],['Figma','figma'],['SSO','']];
@@ -17398,6 +17653,68 @@ DM.def('sign-in', (r, c) => {
     i.onpaste = e => { const t = (e.clipboardData.getData('text') || '').replace(/\D/g, '').slice(0, 6); if (!t) return; e.preventDefault(); t.split('').forEach((d, j) => { if (ins[j]) ins[j].value = d; }); ins[Math.min(5, t.length)].focus({ preventScroll:true }); check(); };
   });
   c.later(1000, () => c.run(async () => { for (const ch of 'maya@studio.com'){ em.value += ch; await c.wait(40); } await c.wait(300); send(true); await c.wait(1400); for (const [j, d] of [...CODE.slice(0, 4)].entries()){ ins[j].value = d; ins[j].classList.add('f'); c.later(150, () => ins[j].classList.remove('f')); await c.wait(160); } }));
+});
+/* ---------- OTP field ---------- */
+DM.def('otp-field', (r, c) => {
+  r.innerHTML = r.innerHTML.replace('{mail}', I('mail'));
+  const CODE = '482157';
+  const box = $('.otp-in', r), msg = $('.otp-m', r), rs = $('.otp-rs', r);
+  // one box per digit, with a short dash between the two halves. The first box carries autocomplete="one-time-code",
+  // so a phone can offer the code from a message
+  box.innerHTML = Array.from({ length:6 }, (_, i) => `${i === 3 ? '<span class="sep" aria-hidden="true"></span>' : ''}<input class="otp-d" inputmode="numeric" pattern="[0-9]*" maxlength="1" autocomplete="${i ? 'off' : 'one-time-code'}" aria-label="Digit ${i + 1} of 6">`).join('');
+  const ins = $$('.otp-d', box);
+  let state = 'idle', tries = 3;
+  const say = (h, cls) => { msg.className = 'otp-m' + (cls ? ' ' + cls : ''); msg.innerHTML = h; if (h) enter(msg); };
+  const code = () => ins.map(i => i.value).join('');
+  const pop = el => { el.classList.add('bump'); c.later(160, () => el.classList.remove('bump')); };
+  // a wrong code stays red until you type again, which starts it over
+  function fresh(){ if (state !== 'bad') return; state = 'idle'; box.classList.remove('bad'); ins.forEach(i => { i.value = ''; i.removeAttribute('aria-invalid'); }); say(''); }
+  function put(i, d){ fresh(); ins[i].value = d; pop(ins[i]); if (code().length === 6) verify(); }
+  // the code is checked as soon as the last box is filled
+  function verify(){
+    if (state !== 'idle') return; state = 'vf';
+    c.run(async () => {
+      box.classList.add('vf'); ins.forEach(i => { i.readOnly = true; i.blur(); }); say('<span class="spin"></span>Checking the code');
+      await c.wait(900); box.classList.remove('vf'); ins.forEach(i => i.readOnly = false);
+      if (code() === CODE){
+        state = 'ok'; box.classList.add('ok'); ins.forEach(i => i.readOnly = true);
+        say(`${I('ok','xs')}Email verified`, 'ok'); rs.parentElement.hidden = true; return;
+      }
+      state = 'bad'; tries--; box.classList.remove('bad'); void box.offsetWidth; box.classList.add('bad'); ins.forEach(i => i.setAttribute('aria-invalid', 'true'));
+      say(`${I('alert','xs')}That code doesn't match. ${tries ? `${tries} ${tries === 1 ? 'try' : 'tries'} left` : 'Send a new code to try again'}`, 'bad');
+    });
+  }
+  // typing a digit fills the box and moves on; Backspace clears it, or the one before; the arrows move; a paste fills
+  // every box from the first
+  ins.forEach((inp, i) => {
+    inp.oninput = () => { const d = inp.value.replace(/\D/g, ''); inp.value = ''; if (!d) return; if (d.length > 1) return fill(d); put(i, d); if (ins[i + 1] && state === 'idle') ins[i + 1].focus(); };
+    inp.onkeydown = e => {
+      if (e.key === 'Backspace'){ e.preventDefault(); if (state === 'bad'){ fresh(); ins[0].focus(); } else if (inp.value){ inp.value = ''; } else if (ins[i - 1]){ ins[i - 1].value = ''; ins[i - 1].focus(); } }
+      else if (e.key === 'ArrowLeft' && ins[i - 1]){ e.preventDefault(); ins[i - 1].focus(); }
+      else if (e.key === 'ArrowRight' && ins[i + 1]){ e.preventDefault(); ins[i + 1].focus(); }
+      else if (/^\d$/.test(e.key) && inp.value){ e.preventDefault(); const j = state === 'bad' ? 0 : i; put(j, e.key); if (ins[j + 1] && state === 'idle') ins[j + 1].focus(); }
+    };
+    inp.onpaste = e => { e.preventDefault(); fill((e.clipboardData || window.clipboardData).getData('text')); };
+    inp.onfocus = () => inp.select();
+  });
+  function fill(text, focus = true){
+    const d = text.replace(/\D/g, '').slice(0, 6); if (!d) return;
+    fresh(); ins.forEach((inp, i) => { inp.value = d[i] || ''; if (d[i]) c.later(i * 40, () => pop(inp)); });
+    if (d.length === 6) verify(); else if (focus) ins[d.length].focus();
+  }
+  // the resend link waits thirty seconds
+  let left = 30; const ns = $('.num', rs);
+  const iv = c.every(1000, () => { if (state === 'ok') return clearInterval(iv); left--; ns.textContent = '0:' + String(left).padStart(2, '0'); if (left <= 0){ clearInterval(iv); rs.innerHTML = '<button>Resend code</button>'; $('button', rs).onclick = () => { rs.textContent = 'A new code is on its way'; }; } });
+  // the preview's story: paste a code with two digits swapped, see it fail, and type the right one
+  c.story(async s => {
+    await s.beat(3);
+    await s.tap(ins[0]); ins[0].classList.add('f'); s.away();
+    await s.beat(1); ins[0].classList.remove('f'); fill('482175', false);
+    await s.until(() => state === 'bad'); await s.beat(4);
+    for (let i = 0; i < 6; i++){ ins.forEach((x, k) => x.classList.toggle('f', k === i)); put(i, CODE[i]); await s.beat(1); }
+    ins.forEach(x => x.classList.remove('f'));
+    await s.until(() => state === 'ok'); await s.beat(2);
+  });
 });
 /* ---------- Form ---------- */
 DM.def('form', (r, c) => {
