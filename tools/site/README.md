@@ -34,6 +34,7 @@ After changing a component's size, or adding one, measure the cards again and re
 ```sh
 PW=$(npm root -g)/playwright node measure-heights.js   # about half an hour; or npm i playwright and leave PW out
 ONLY=k,l,m PW=$(npm root -g)/playwright node measure-heights.js   # just those bands (here the phones), keeping the rest
+COMPS=run-summary PW=$(npm root -g)/playwright node measure-heights.js   # just those components, keeping every other one
 npm run build
 ```
 

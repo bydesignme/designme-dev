@@ -8,7 +8,10 @@
   --chip:#f3f3f3; --hover:#ebebeb; --press:#e3e3e3; --wash:#f9f9f9; --row:color-mix(in srgb,var(--fg) 4%,transparent);
   --soft:#ececec; --soft-h:#e3e3e3; --soft-ring:inset 0 0 0 1px rgba(0,0,0,.06); --dis:#a6a6a6;
   --shadow-lift:0 0 0 1px rgba(0,0,0,.1),0 2px 4px rgba(0,0,0,.04),0 16px 32px -10px rgba(0,0,0,.16);
-  --accent:#116ff8; --accent-2:#0b5ed7; --accent-bg:#eaf2ff; --on-accent:#ffffff; --sel:color-mix(in srgb,var(--accent) 6%,transparent);
+  /* the accent has three roles: --accent fills (with --on-accent on top), --accent-fg is text and icons in the accent (4.5:1 on
+     the surface) and --accent-mark is lines, rings and chart marks (3:1). A light accent like lime keeps its fills and gets a
+     darker mark and ink-coloured text on a light page */
+  --accent:#116ff8; --accent-2:#0b5ed7; --accent-bg:#eaf2ff; --on-accent:#ffffff; --accent-fg:#116ff8; --accent-mark:#116ff8; --sel:color-mix(in srgb,var(--accent) 6%,transparent);
   --ink:#1b1b1f; --on-ink:#ffffff;
   --ok:#15803d; --ok-bg:#e8f6ee; --warn:#b45309; --warn-bg:#fdf3df; --bad:#d93c3c; --bad-bg:#fdecec;
   --merge:#8250df; --merge-bg:#f2ecfd; --add:#1a7f37; --del:#cf222e;
@@ -32,7 +35,7 @@
   --chip:#303030; --hover:#373737; --press:#3f3f3f; --wash:#2c2c2c; --row:color-mix(in srgb,var(--fg) 5.5%,transparent);
   --soft:#323232; --soft-h:#3a3a3a; --soft-ring:inset 0 0 0 1px rgba(255,255,255,.07); --dis:#5f5f5f;
   --shadow-lift:0 0 0 1px rgba(255,255,255,.16),0 2px 4px rgba(0,0,0,.3),0 16px 32px -10px rgba(0,0,0,.6);
-  --accent:#3d8bff; --accent-2:#5b9bff; --accent-bg:rgba(61,139,255,.12); --on-accent:#ffffff; --sel:color-mix(in srgb,var(--accent) 9%,transparent);
+  --accent:#3d8bff; --accent-2:#5b9bff; --accent-bg:rgba(61,139,255,.12); --on-accent:#ffffff; --accent-fg:#3d8bff; --accent-mark:#3d8bff; --sel:color-mix(in srgb,var(--accent) 9%,transparent);
   --ink:#f2f2f2; --on-ink:#161616;
   --ok:#3ccf7e; --ok-bg:rgba(60,207,126,.13); --warn:#f0b43c; --warn-bg:rgba(240,180,60,.13); --bad:#ff6b6b; --bad-bg:rgba(255,107,107,.13);
   --merge:#a98bff; --merge-bg:rgba(169,139,255,.15); --add:#3ccf7e; --del:#ff6b74;
@@ -46,7 +49,7 @@
   --chip:#303030; --hover:#373737; --press:#3f3f3f; --wash:#2c2c2c; --row:color-mix(in srgb,var(--fg) 5.5%,transparent);
   --soft:#323232; --soft-h:#3a3a3a; --soft-ring:inset 0 0 0 1px rgba(255,255,255,.07); --dis:#5f5f5f;
   --shadow-lift:0 0 0 1px rgba(255,255,255,.16),0 2px 4px rgba(0,0,0,.3),0 16px 32px -10px rgba(0,0,0,.6);
-  --accent:#3d8bff; --accent-2:#5b9bff; --accent-bg:rgba(61,139,255,.12); --on-accent:#ffffff; --sel:color-mix(in srgb,var(--accent) 9%,transparent);
+  --accent:#3d8bff; --accent-2:#5b9bff; --accent-bg:rgba(61,139,255,.12); --on-accent:#ffffff; --accent-fg:#3d8bff; --accent-mark:#3d8bff; --sel:color-mix(in srgb,var(--accent) 9%,transparent);
   --ink:#f2f2f2; --on-ink:#161616;
   --ok:#3ccf7e; --ok-bg:rgba(60,207,126,.13); --warn:#f0b43c; --warn-bg:rgba(240,180,60,.13); --bad:#ff6b6b; --bad-bg:rgba(255,107,107,.13);
   --merge:#a98bff; --merge-bg:rgba(169,139,255,.15); --add:#3ccf7e; --del:#ff6b74;
@@ -61,7 +64,7 @@
 :where([data-c]) button{background:none;border:0;padding:0;cursor:pointer}
 /* one weight for emphasis: medium, never bold */
 b,strong{font-weight:500}
-:where([data-c]) :focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
+:where([data-c]) :focus-visible{outline:2px solid var(--accent-mark,var(--accent));outline-offset:2px;border-radius:6px}
 .stage-in{width:100%;max-width:440px;min-width:0;position:relative;container-type:inline-size}
 .card.wide .stage-in{max-width:720px}
 
@@ -82,7 +85,7 @@ b,strong{font-weight:500}
 .ib:active{transform:scale(.94)}
 .ib.fill{background:var(--soft);box-shadow:var(--soft-ring)}
 .ib.fill:hover{background:var(--soft-h)}
-.ib.on{background:var(--accent-bg);color:var(--accent)}
+.ib.on{background:var(--accent-bg);color:var(--accent-fg,var(--accent))}
 .chip{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 12px;border-radius:var(--r-pill);font-size:13px;color:var(--fg2);background:var(--chip);white-space:nowrap;transition:background var(--t-fast),color var(--t-fast),box-shadow var(--t-fast)}
 .chip:hover{background:var(--hover);color:var(--fg)}
 .chip.on{background:var(--surface);color:var(--fg);box-shadow:inset 0 0 0 1px var(--line)}
@@ -120,7 +123,7 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .toggle{width:30px;height:18px;border-radius:9px;background:var(--faint);position:relative;flex:none;transition:background var(--t-fast)}
 .toggle::after{content:"";position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.2);transition:transform var(--t) var(--ease)}
 .toggle[aria-checked="true"]{background:var(--accent)}
-.toggle[aria-checked="true"]::after{transform:translateX(12px)}
+.toggle[aria-checked="true"]::after{transform:translateX(12px);background:var(--on-accent)}
 .seg2{display:inline-flex;padding:2px;background:var(--chip);border-radius:var(--r-pill);position:relative}
 .seg2 button{position:relative;z-index:1;height:26px;padding:0 11px;border-radius:var(--r-pill);font-size:12.5px;color:var(--fg2);transition:color var(--t-fast)}
 .seg2 button[aria-pressed="true"]{color:var(--fg)}
@@ -198,7 +201,7 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .mi .i{color:var(--fg2)}
 .mi .d{display:block;font-size:12px;color:var(--muted)}
 .mi .r{margin-left:auto;color:var(--muted);font-size:12px}
-.mi .ck{margin-left:auto;color:var(--accent);opacity:0;transition:opacity var(--t-fast)}
+.mi .ck{margin-left:auto;color:var(--accent-fg,var(--accent));opacity:0;transition:opacity var(--t-fast)}
 .mi[aria-checked="true"] .ck{opacity:1}
 .mi[aria-checked="true"]{background:var(--row);font-weight:500}
 .pop .sep{height:1px;background:var(--line);margin:4px 2px}
@@ -211,20 +214,22 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 /* bare: components that live in the chat stream sit on the chat surface, no card */
 .card.bare .stage-in .panel:not(.keep){background:none;box-shadow:none;padding-left:0;padding-right:0;border-radius:0}
 /* chart palette, saturated */
-:root{--c1:#116ff8;--c2:#7c4dff;--c3:#00b37e;--c4:#ff8a00;--c5:#ff4d6d;--c6:#00b8d9}
-:root[data-theme="dark"]{--c1:#3d8bff;--c2:#9b7bff;--c3:#22c993;--c4:#ffa033;--c5:#ff6b85;--c6:#22cce8}
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--c1:#3d8bff;--c2:#9b7bff;--c3:#22c993;--c4:#ffa033;--c5:#ff6b85;--c6:#22cce8}}
+:root{--c1:var(--accent-mark,var(--accent));--c2:#7c4dff;--c3:#00b37e;--c4:#ff8a00;--c5:#ff4d6d;--c6:#00b8d9}
+/* the accent as a ramp, for charts whose parts are shares of one thing: full strength, then lighter steps toward the surface */
+:root{--a1:var(--c1);--a2:color-mix(in oklab,var(--c1) 72%,var(--surface));--a3:color-mix(in oklab,var(--c1) 50%,var(--surface));--a4:color-mix(in oklab,var(--c1) 32%,var(--surface))}
+:root[data-theme="dark"]{--c1:var(--accent-mark,var(--accent));--c2:#9b7bff;--c3:#22c993;--c4:#ffa033;--c5:#ff6b85;--c6:#22cce8}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--c1:var(--accent-mark,var(--accent));--c2:#9b7bff;--c3:#22c993;--c4:#ffa033;--c5:#ff6b85;--c6:#22cce8}}
 
 /* ---------- Blueprint 2 ---------- */
 /* Blueprint 2: the same components drawn as a technical sheet. Square corners, hairline edges instead of shadows,
-   an orange accent, and motion that wipes and ticks into place in short, hard beats instead of blurring in */
+   a lime accent, and motion that wipes and ticks into place in short, hard beats instead of blurring in */
 :root:not([data-style="soft"]){
   --motion:bp;
   --page:#f3f3f0; --stage:#fafaf8; --surface:#ffffff; --raised:#ffffff;
   --fg:#121212; --fg2:#4a4a46; --muted:#72726c; --faint:#bdbdb6; --rail:#d2d2cb; --line:#e3e3dd;
   --chip:#f1f1ed; --hover:#e8e8e3; --press:#dededa; --wash:#f6f6f3; --row:color-mix(in srgb,var(--fg) 4%,transparent);
   --soft:#ebebe6; --soft-h:#e1e1db; --soft-ring:inset 0 0 0 1px rgba(20,20,12,.09); --dis:#a3a39c;
-  --accent:#f76b00; --accent-2:#d65c00; --accent-bg:#fff2e8; --on-accent:#ffffff; --sel:color-mix(in srgb,var(--accent) 7%,transparent);
+  --accent:#d4f84a; --accent-2:#c3e637; --accent-bg:#f7fde0; --on-accent:#121212; --accent-fg:var(--fg); --accent-mark:#869c2f; --sel:color-mix(in srgb,var(--accent) 7%,transparent);
   --ink:#121212; --on-ink:#ffffff;
   --shadow:0 0 0 1px var(--line);
   --shadow-pop:0 0 0 1px var(--rail),0 12px 28px -14px rgba(20,20,12,.22);
@@ -239,7 +244,7 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
   --fg:#f2f2f2; --fg2:#ababab; --muted:#8c8c8c; --faint:#555555; --rail:#414141; --line:#333333;
   --chip:#303030; --hover:#373737; --press:#3f3f3f; --wash:#2c2c2c; --row:color-mix(in srgb,var(--fg) 5.5%,transparent);
   --soft:#323232; --soft-h:#3a3a3a; --soft-ring:inset 0 0 0 1px rgba(255,255,255,.08); --dis:#5f5f5f;
-  --accent:#ff850d; --accent-2:#ff9b3d; --accent-bg:rgba(255,133,13,.12); --on-accent:#ffffff; --sel:color-mix(in srgb,var(--accent) 10%,transparent);
+  --accent:#d4f84a; --accent-2:#e0fa75; --accent-bg:rgba(212,248,74,.12); --on-accent:#121212; --accent-fg:#d4f84a; --accent-mark:#d4f84a; --sel:color-mix(in srgb,var(--accent) 10%,transparent);
   --ink:#f2f2f2; --on-ink:#161616;
   --shadow:0 0 0 1px var(--line);
   --shadow-pop:0 0 0 1px var(--rail),0 16px 32px -14px rgba(0,0,0,.7);
@@ -253,7 +258,7 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
   --fg:#f2f2f2; --fg2:#ababab; --muted:#8c8c8c; --faint:#555555; --rail:#414141; --line:#333333;
   --chip:#303030; --hover:#373737; --press:#3f3f3f; --wash:#2c2c2c; --row:color-mix(in srgb,var(--fg) 5.5%,transparent);
   --soft:#323232; --soft-h:#3a3a3a; --soft-ring:inset 0 0 0 1px rgba(255,255,255,.08); --dis:#5f5f5f;
-  --accent:#ff850d; --accent-2:#ff9b3d; --accent-bg:rgba(255,133,13,.12); --on-accent:#ffffff; --sel:color-mix(in srgb,var(--accent) 10%,transparent);
+  --accent:#d4f84a; --accent-2:#e0fa75; --accent-bg:rgba(212,248,74,.12); --on-accent:#121212; --accent-fg:#d4f84a; --accent-mark:#d4f84a; --sel:color-mix(in srgb,var(--accent) 10%,transparent);
   --ink:#f2f2f2; --on-ink:#161616;
   --shadow:0 0 0 1px var(--line);
   --shadow-pop:0 0 0 1px var(--rail),0 16px 32px -14px rgba(0,0,0,.7);

@@ -13,6 +13,8 @@ const ROOT = path.resolve(__dirname, '../..');
 const BANDS = [['a', 1440], ['b', 1181], ['c', 961], ['d', 880], ['e', 834], ['f', 820], ['g', 768], ['h', 744], ['i', 641], ['j', 520], ['k', 430], ['l', 390], ['m', 360]];
 // ONLY=d,e measures just those bands and keeps the rest from card-heights.json as it is
 const ONLY = process.env.ONLY ? process.env.ONLY.split(',') : null;
+// COMPS=run-summary,toast measures just those components and keeps every other one from card-heights.json as it is
+const COMPS = process.env.COMPS ? process.env.COMPS.split(',') : null;
 const STYLES = ['bp', 'soft'];
 const PLAY = 24000, EVERY = 200;
 
@@ -37,6 +39,14 @@ const server = http.createServer((req, res) => {
     BANDS.forEach(([b], i) => { if (ONLY.includes(b)) return; const j = old.bands.findIndex(([ob, ow]) => ob === b && ow === BANDS[i][1]); if (j < 0) throw new Error(`band ${b} isn't in card-heights.json: measure it too`);
       for (const [all, key] of [[out, 'heights'], [outHost, 'components'], [outBp, 'componentsBp']]) for (const id in old[key]) (all[id] || (all[id] = {}))[b] = old[key][id][j]; });
   }
+  if (COMPS){
+    const old = JSON.parse(fs.readFileSync(path.join(__dirname, 'card-heights.json'), 'utf8'));
+    if (old.bands.map(x => x.join()).join() !== BANDS.map(x => x.join()).join()) throw new Error('card-heights.json has other bands: measure everything');
+    for (const [all, key] of [[out, 'heights'], [outHost, 'components'], [outBp, 'componentsBp']]) for (const id in old[key]){
+      if (COMPS.includes(id)) continue;
+      all[id] = Object.fromEntries(BANDS.map(([b], j) => [b, old[key][id][j]]));
+    }
+  }
   for (const [band, width] of BANDS) for (const style of STYLES){
     if (ONLY && !ONLY.includes(band)) continue;
     const page = await browser.newPage({ viewport: { width, height: 900 } });
@@ -47,12 +57,12 @@ const server = http.createServer((req, res) => {
     // while its parts are still sliding into place; the story's own timers keep their pace
     const cdp = await page.context().newCDPSession(page);
     await cdp.send('Animation.enable'); await cdp.send('Animation.setPlaybackRate', { playbackRate: 8 });
-    const got = await page.evaluate(async ({ PLAY, EVERY }) => {
+    const got = await page.evaluate(async ({ PLAY, EVERY, COMPS }) => {
       // the heights the site would give each stage without these numbers (some cards ask for more than the 420px default)
       const reserved = document.getElementById('card-heights'); if (reserved) reserved.disabled = true;
       // both sets of cards, Agent components and App basics, are laid out while they're measured
       document.documentElement.classList.add('grp-all');
-      const comps = [...document.querySelectorAll('.lib-sec .comp[data-v2]')];
+      const comps = [...document.querySelectorAll('.lib-sec .comp[data-v2]')].filter(c => !COMPS || COMPS.includes(c.dataset.v2));
       const base = new Map(comps.map(c => [c, parseFloat(getComputedStyle(c.querySelector(':scope>.stage')).minHeight) || 0]));
       // then each stage at its own height: no minimum, and not stretched to match the card beside it
       const st = document.createElement('style');
@@ -87,7 +97,7 @@ const server = http.createServer((req, res) => {
           if (need > (max.get(c) || 0)) max.set(c, need); });
       }
       return Object.fromEntries(comps.map(c => [c.dataset.v2, [Math.ceil(Math.max(max.get(c), base.get(c))), Math.ceil(hmax.get(c)), Math.round(out.get(c).up), Math.round(out.get(c).side)]]));
-    }, { PLAY, EVERY });
+    }, { PLAY, EVERY, COMPS });
     for (const [id, [h, hh, up, side]] of Object.entries(got)){
       if (up > 1 || side > 1) spill.push(`${id} at ${width}px in ${style}: ${up > 1 ? up + 'px above its top ' : ''}${side > 1 ? side + 'px past a side of its stage' : ''}`);
       const o = out[id] || (out[id] = {}), host = style === 'bp' ? outBp : outHost, oh = host[id] || (host[id] = {}); o[band] = Math.max(o[band] || 0, h); oh[band] = Math.max(oh[band] || 0, hh); }
