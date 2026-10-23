@@ -454,23 +454,23 @@ export function ModelCompare({
 </code></pre></details><details class="cp-file"><summary>model-compare.js<span class="l">HTML · 64 lines</span></summary><pre class="cp-pre"><code>DM.def(&#39;model-compare&#39;, (r, c) =&gt; {
   r.innerHTML = r.innerHTML.replace(&#39;{up}&#39;, I(&#39;up&#39;));
   const MOD = {
-    Opus:{ k:&#39;O&#39;, c:&#39;var(--c2)&#39;, d:&#39;Most capable, slower&#39;, ms:2400, tps:38, cost:.021, o:&#39;Pro gives every designer an agent that knows your tokens, so reviews take minutes, not days.&#39; },
-    Sonnet:{ k:&#39;S&#39;, c:&#39;var(--c1)&#39;, d:&#39;Balanced speed and quality&#39;, ms:1300, tps:74, cost:.006, o:&#39;Ship polished pages faster with an agent that checks every frame for you.&#39; },
-    Haiku:{ k:&#39;H&#39;, c:&#39;var(--c3)&#39;, d:&#39;Fastest, lowest cost&#39;, ms:600, tps:142, cost:.001, o:&#39;Your design QA, on autopilot.&#39; }
+    Opus:{ k:&#39;O&#39;, c:&#39;var(--c2)&#39;, t:&#39;var(--on-ink)&#39;, d:&#39;Most capable, slower&#39;, ms:2400, tps:38, cost:.021, o:&#39;Pro gives every designer an agent that knows your tokens, so reviews take minutes, not days.&#39; },
+    Sonnet:{ k:&#39;S&#39;, c:&#39;var(--accent)&#39;, t:&#39;var(--on-accent)&#39;, d:&#39;Balanced speed and quality&#39;, ms:1300, tps:74, cost:.006, o:&#39;Ship polished pages faster with an agent that checks every frame for you.&#39; },
+    Haiku:{ k:&#39;H&#39;, c:&#39;var(--c3)&#39;, t:&#39;#121212&#39;, d:&#39;Fastest, lowest cost&#39;, ms:600, tps:142, cost:.001, o:&#39;Your design QA, on autopilot.&#39; }
   };
   const generic = { Opus:&#39;Here is a considered take, with the trade-offs spelled out and one clear recommendation at the end.&#39;, Sonnet:&#39;Here is a clear, direct answer with the two points that matter most.&#39;, Haiku:&#39;Short answer: yes, and here is the one line why.&#39; };
   const cols = $(&#39;.mcx-cols&#39;, r), q = $(&#39;.mcx-q&#39;, r), go = $(&#39;.mcx-go&#39;, r), cnt = $(&#39;.mcx-n&#39;, r), DEF = q.value, MAX = 3;
   const C = []; let uid = 0, asked = &#39;&#39;, busy = 0;
-  const menu = (id, cur) =&gt; `&lt;div class=&quot;pop mcx-pop ${id}&quot; role=&quot;menu&quot;&gt;${Object.keys(MOD).map(n =&gt; `&lt;button class=&quot;mi&quot; role=&quot;menuitemradio&quot; data-close data-m=&quot;${n}&quot; aria-checked=&quot;${n === cur}&quot;&gt;&lt;span class=&quot;mcx-mk&quot; style=&quot;background:${MOD[n].c}&quot;&gt;${MOD[n].k}&lt;/span&gt;&lt;span&gt;${n}&lt;span class=&quot;d&quot;&gt;${MOD[n].d}&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;ck&quot;&gt;${I(&#39;check&#39;,&#39;xs&#39;)}&lt;/span&gt;&lt;/button&gt;`).join(&#39;&#39;)}&lt;/div&gt;`;
+  const menu = (id, cur) =&gt; `&lt;div class=&quot;pop mcx-pop ${id}&quot; role=&quot;menu&quot;&gt;${Object.keys(MOD).map(n =&gt; `&lt;button class=&quot;mi&quot; role=&quot;menuitemradio&quot; data-close data-m=&quot;${n}&quot; aria-checked=&quot;${n === cur}&quot;&gt;&lt;span class=&quot;mcx-mk&quot; style=&quot;background:${MOD[n].c};color:${MOD[n].t}&quot;&gt;${MOD[n].k}&lt;/span&gt;&lt;span&gt;${n}&lt;span class=&quot;d&quot;&gt;${MOD[n].d}&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;ck&quot;&gt;${I(&#39;check&#39;,&#39;xs&#39;)}&lt;/span&gt;&lt;/button&gt;`).join(&#39;&#39;)}&lt;/div&gt;`;
   /* the empty slot: add a model back, up to three side by side */
   const slot = html(`&lt;div class=&quot;mcx-add&quot;&gt;&lt;button class=&quot;mcx-addb&quot; data-pop=&quot;.mcx-pa&quot; data-pop-pos=&quot;down&quot; data-pop-align=&quot;end&quot; aria-haspopup=&quot;menu&quot;&gt;&lt;span class=&quot;ic&quot;&gt;${I(&#39;plus&#39;,&#39;s&#39;)}&lt;/span&gt;Add a model&lt;span class=&quot;d&quot;&gt;Compare up to 3&lt;/span&gt;&lt;/button&gt;&lt;div class=&quot;pop mcx-pop mcx-pa&quot; role=&quot;menu&quot;&gt;&lt;/div&gt;&lt;/div&gt;`);
   function sync(){
     cnt.textContent = &#39;Sends to &#39; + C.length + (C.length &gt; 1 ? &#39; models&#39; : &#39; model&#39;);
     C.forEach(col =&gt; { const x = $(&#39;.mcx-x&#39;, col.el); x.hidden = C.length &lt; 2; });
-    if (C.length &lt; MAX){ cols.appendChild(slot); $(&#39;.mcx-pa&#39;, slot).innerHTML = Object.keys(MOD).map(n =&gt; `&lt;button class=&quot;mi&quot; role=&quot;menuitem&quot; data-close data-m=&quot;${n}&quot;&gt;&lt;span class=&quot;mcx-mk&quot; style=&quot;background:${MOD[n].c}&quot;&gt;${MOD[n].k}&lt;/span&gt;&lt;span&gt;${n}&lt;span class=&quot;d&quot;&gt;${MOD[n].d}&lt;/span&gt;&lt;/span&gt;&lt;/button&gt;`).join(&#39;&#39;); $$(&#39;.mcx-pa .mi&#39;, slot).forEach(b =&gt; b.onclick = () =&gt; addCol(b.dataset.m, true)); }
+    if (C.length &lt; MAX){ cols.appendChild(slot); $(&#39;.mcx-pa&#39;, slot).innerHTML = Object.keys(MOD).map(n =&gt; `&lt;button class=&quot;mi&quot; role=&quot;menuitem&quot; data-close data-m=&quot;${n}&quot;&gt;&lt;span class=&quot;mcx-mk&quot; style=&quot;background:${MOD[n].c};color:${MOD[n].t}&quot;&gt;${MOD[n].k}&lt;/span&gt;&lt;span&gt;${n}&lt;span class=&quot;d&quot;&gt;${MOD[n].d}&lt;/span&gt;&lt;/span&gt;&lt;/button&gt;`).join(&#39;&#39;); $$(&#39;.mcx-pa .mi&#39;, slot).forEach(b =&gt; b.onclick = () =&gt; addCol(b.dataset.m, true)); }
     else slot.remove();
   }
-  function head(col){ const m = MOD[col.m]; $(&#39;.mcx-sel&#39;, col.el).innerHTML = `&lt;span class=&quot;mcx-mk&quot; style=&quot;background:${m.c}&quot;&gt;${m.k}&lt;/span&gt;${col.m}${I(&#39;chev-d&#39;,&#39;xs&#39;)}`; $$(&#39;.mi&#39;, col.el).forEach(x =&gt; x.setAttribute(&#39;aria-checked&#39;, x.dataset.m === col.m)); }
+  function head(col){ const m = MOD[col.m]; $(&#39;.mcx-sel&#39;, col.el).innerHTML = `&lt;span class=&quot;mcx-mk&quot; style=&quot;background:${m.c};color:${m.t}&quot;&gt;${m.k}&lt;/span&gt;${col.m}${I(&#39;chev-d&#39;,&#39;xs&#39;)}`; $$(&#39;.mi&#39;, col.el).forEach(x =&gt; x.setAttribute(&#39;aria-checked&#39;, x.dataset.m === col.m)); }
   function addCol(m, fresh){
     const id = &#39;mcx-p&#39; + (uid++), el = html(`&lt;div class=&quot;mcx-c panel&quot;&gt;&lt;div class=&quot;mcx-h&quot;&gt;&lt;button class=&quot;mcx-sel&quot; data-pop=&quot;.${id}&quot; aria-haspopup=&quot;menu&quot;&gt;&lt;/button&gt;&lt;button class=&quot;ib mcx-x&quot; aria-label=&quot;Remove model&quot; data-tip=&quot;Remove&quot;&gt;${I(&#39;x&#39;,&#39;xs&#39;)}&lt;/button&gt;&lt;/div&gt;${menu(id, m)}&lt;div class=&quot;mcx-o&quot;&gt;&lt;div class=&quot;mcx-a&quot;&gt;&lt;span class=&quot;ph&quot;&gt;Waiting for a prompt&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;mcx-f&quot;&gt;&lt;span class=&quot;mcx-m num&quot;&gt;No run yet&lt;/span&gt;&lt;button class=&quot;pill soft sm mcx-pick&quot; disabled&gt;Use this&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;`);
     const col = { m, el, run:0 }; C.push(col); cols.insertBefore(el, slot.parentNode === cols ? slot : null); head(col);
@@ -550,23 +550,23 @@ export function ModelCompare({
 </script><script src="/components/assets/core.js"></script><script>DM.def('model-compare', (r, c) => {
   r.innerHTML = r.innerHTML.replace('{up}', I('up'));
   const MOD = {
-    Opus:{ k:'O', c:'var(--c2)', d:'Most capable, slower', ms:2400, tps:38, cost:.021, o:'Pro gives every designer an agent that knows your tokens, so reviews take minutes, not days.' },
-    Sonnet:{ k:'S', c:'var(--c1)', d:'Balanced speed and quality', ms:1300, tps:74, cost:.006, o:'Ship polished pages faster with an agent that checks every frame for you.' },
-    Haiku:{ k:'H', c:'var(--c3)', d:'Fastest, lowest cost', ms:600, tps:142, cost:.001, o:'Your design QA, on autopilot.' }
+    Opus:{ k:'O', c:'var(--c2)', t:'var(--on-ink)', d:'Most capable, slower', ms:2400, tps:38, cost:.021, o:'Pro gives every designer an agent that knows your tokens, so reviews take minutes, not days.' },
+    Sonnet:{ k:'S', c:'var(--accent)', t:'var(--on-accent)', d:'Balanced speed and quality', ms:1300, tps:74, cost:.006, o:'Ship polished pages faster with an agent that checks every frame for you.' },
+    Haiku:{ k:'H', c:'var(--c3)', t:'#121212', d:'Fastest, lowest cost', ms:600, tps:142, cost:.001, o:'Your design QA, on autopilot.' }
   };
   const generic = { Opus:'Here is a considered take, with the trade-offs spelled out and one clear recommendation at the end.', Sonnet:'Here is a clear, direct answer with the two points that matter most.', Haiku:'Short answer: yes, and here is the one line why.' };
   const cols = $('.mcx-cols', r), q = $('.mcx-q', r), go = $('.mcx-go', r), cnt = $('.mcx-n', r), DEF = q.value, MAX = 3;
   const C = []; let uid = 0, asked = '', busy = 0;
-  const menu = (id, cur) => `<div class="pop mcx-pop ${id}" role="menu">${Object.keys(MOD).map(n => `<button class="mi" role="menuitemradio" data-close data-m="${n}" aria-checked="${n === cur}"><span class="mcx-mk" style="background:${MOD[n].c}">${MOD[n].k}</span><span>${n}<span class="d">${MOD[n].d}</span></span><span class="ck">${I('check','xs')}</span></button>`).join('')}</div>`;
+  const menu = (id, cur) => `<div class="pop mcx-pop ${id}" role="menu">${Object.keys(MOD).map(n => `<button class="mi" role="menuitemradio" data-close data-m="${n}" aria-checked="${n === cur}"><span class="mcx-mk" style="background:${MOD[n].c};color:${MOD[n].t}">${MOD[n].k}</span><span>${n}<span class="d">${MOD[n].d}</span></span><span class="ck">${I('check','xs')}</span></button>`).join('')}</div>`;
   /* the empty slot: add a model back, up to three side by side */
   const slot = html(`<div class="mcx-add"><button class="mcx-addb" data-pop=".mcx-pa" data-pop-pos="down" data-pop-align="end" aria-haspopup="menu"><span class="ic">${I('plus','s')}</span>Add a model<span class="d">Compare up to 3</span></button><div class="pop mcx-pop mcx-pa" role="menu"></div></div>`);
   function sync(){
     cnt.textContent = 'Sends to ' + C.length + (C.length > 1 ? ' models' : ' model');
     C.forEach(col => { const x = $('.mcx-x', col.el); x.hidden = C.length < 2; });
-    if (C.length < MAX){ cols.appendChild(slot); $('.mcx-pa', slot).innerHTML = Object.keys(MOD).map(n => `<button class="mi" role="menuitem" data-close data-m="${n}"><span class="mcx-mk" style="background:${MOD[n].c}">${MOD[n].k}</span><span>${n}<span class="d">${MOD[n].d}</span></span></button>`).join(''); $$('.mcx-pa .mi', slot).forEach(b => b.onclick = () => addCol(b.dataset.m, true)); }
+    if (C.length < MAX){ cols.appendChild(slot); $('.mcx-pa', slot).innerHTML = Object.keys(MOD).map(n => `<button class="mi" role="menuitem" data-close data-m="${n}"><span class="mcx-mk" style="background:${MOD[n].c};color:${MOD[n].t}">${MOD[n].k}</span><span>${n}<span class="d">${MOD[n].d}</span></span></button>`).join(''); $$('.mcx-pa .mi', slot).forEach(b => b.onclick = () => addCol(b.dataset.m, true)); }
     else slot.remove();
   }
-  function head(col){ const m = MOD[col.m]; $('.mcx-sel', col.el).innerHTML = `<span class="mcx-mk" style="background:${m.c}">${m.k}</span>${col.m}${I('chev-d','xs')}`; $$('.mi', col.el).forEach(x => x.setAttribute('aria-checked', x.dataset.m === col.m)); }
+  function head(col){ const m = MOD[col.m]; $('.mcx-sel', col.el).innerHTML = `<span class="mcx-mk" style="background:${m.c};color:${m.t}">${m.k}</span>${col.m}${I('chev-d','xs')}`; $$('.mi', col.el).forEach(x => x.setAttribute('aria-checked', x.dataset.m === col.m)); }
   function addCol(m, fresh){
     const id = 'mcx-p' + (uid++), el = html(`<div class="mcx-c panel"><div class="mcx-h"><button class="mcx-sel" data-pop=".${id}" aria-haspopup="menu"></button><button class="ib mcx-x" aria-label="Remove model" data-tip="Remove">${I('x','xs')}</button></div>${menu(id, m)}<div class="mcx-o"><div class="mcx-a"><span class="ph">Waiting for a prompt</span></div></div><div class="mcx-f"><span class="mcx-m num">No run yet</span><button class="pill soft sm mcx-pick" disabled>Use this</button></div></div>`);
     const col = { m, el, run:0 }; C.push(col); cols.insertBefore(el, slot.parentNode === cols ? slot : null); head(col);

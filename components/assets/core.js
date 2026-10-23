@@ -157,7 +157,10 @@ function showTip(el){
   tip.innerHTML = el.dataset.tip.replace(/</g,'&lt;') + (k ? `<span class="kbd">${k}</span>` : '');
   tip.style.left = '0px'; tip.style.top = '0px'; tip.classList.add('show');
   const r = el.getBoundingClientRect(), w = tip.offsetWidth, h = tip.offsetHeight;
-  let x = r.left + r.width / 2 - w / 2; x = Math.max(8, Math.min(innerWidth - w - 8, x));
+  // it stays inside the component's stage when it fits there, so on a phone it never runs past the card's edge
+  const st = el.closest('.stage-in'), sb = st && st.parentElement.getBoundingClientRect();
+  const lo = sb && sb.width >= w + 16 ? Math.max(8, sb.left + 8) : 8, hi = sb && sb.width >= w + 16 ? Math.min(innerWidth, sb.right) - w - 8 : innerWidth - w - 8;
+  let x = r.left + r.width / 2 - w / 2; x = Math.max(lo, Math.min(hi, x));
   let y = r.top - h - 8; if (y < 8) y = r.bottom + 8;
   tip.style.left = x + 'px'; tip.style.top = y + 'px';
 }

@@ -271,7 +271,7 @@ export function InlineTextDiff({ title, parts, decisions, defaultDecisions = {},
 .itd-bb{display:flex;gap:6px}
 .itd-f{margin:0;display:flex;align-items:center;gap:6px;font-size:13px;min-height:20px}
 .itd-f svg{color:var(--ok)}
-</code></pre></details><details class="cp-file"><summary>inline-text-diff.js<span class="l">HTML · 48 lines</span></summary><pre class="cp-pre"><code>DM.def(&#39;inline-text-diff&#39;, (r, c) =&gt; {
+</code></pre></details><details class="cp-file"><summary>inline-text-diff.js<span class="l">HTML · 49 lines</span></summary><pre class="cp-pre"><code>DM.def(&#39;inline-text-diff&#39;, (r, c) =&gt; {
   r.innerHTML = r.innerHTML.replace(&#39;{chk}&#39;, I(&#39;check&#39;,&#39;xs&#39;)).replace(&#39;{x}&#39;, I(&#39;x&#39;,&#39;xs&#39;)).replace(&#39;{warn}&#39;, I(&#39;alert&#39;,&#39;xs&#39;));
   // the copy, and the agent&#39;s edits to it: what it said, what the agent suggests, and why, when the agent isn&#39;t sure
   const T = [{ o:&#39;Pick&#39;, n:&#39;Choose&#39; }, &#39; a plan that &#39;, { o:&#39;fits your team&#39;, n:&#39;grows with your studio&#39; }, &#39;. Every plan &#39;, { o:&#39;includes&#39;, n:&#39;comes with&#39; }, &#39; unlimited projects, and &#39;, { o:&#39;you can cancel at any time&#39;, n:&#39;your first month is free&#39;, why:&#39;Not in the pricing brief: there is no free month&#39; }, &#39;.&#39;];
@@ -298,7 +298,8 @@ export function InlineTextDiff({ title, parts, decisions, defaultDecisions = {},
     bar.style.top = ((cr.bottom - rb.top) / k + 6) + &#39;px&#39;;
   }
   function decide(i, s){ E[i].s = s; chunks[i].classList.remove(&#39;acc&#39;, &#39;rej&#39;); chunks[i].classList.add(s); tally(); }
-  const pick = s =&gt; { const i = cur, back = bar.contains(document.activeElement); close(); decide(i, s); if (back) chunks[i].focus({ preventScroll:true }); };
+  // a click anywhere else on the page can close the toolbar between the story&#39;s taps, and then there is no edit to decide
+  const pick = s =&gt; { const i = cur; if (i &lt; 0) return; const back = bar.contains(document.activeElement); close(); decide(i, s); if (back) chunks[i].focus({ preventScroll:true }); };
   chunks.forEach((el, i) =&gt; { el.onclick = () =&gt; cur === i ? close() : open(i); el.onkeydown = ev =&gt; { if (ev.key === &#39;Enter&#39; || ev.key === &#39; &#39;){ ev.preventDefault(); el.click(); } }; });
   $(&#39;.itd-acc&#39;, r).onclick = () =&gt; pick(&#39;acc&#39;);
   $(&#39;.itd-rej&#39;, r).onclick = () =&gt; pick(&#39;rej&#39;);
@@ -378,7 +379,8 @@ export function InlineTextDiff({ title, parts, decisions, defaultDecisions = {},
     bar.style.top = ((cr.bottom - rb.top) / k + 6) + 'px';
   }
   function decide(i, s){ E[i].s = s; chunks[i].classList.remove('acc', 'rej'); chunks[i].classList.add(s); tally(); }
-  const pick = s => { const i = cur, back = bar.contains(document.activeElement); close(); decide(i, s); if (back) chunks[i].focus({ preventScroll:true }); };
+  // a click anywhere else on the page can close the toolbar between the story's taps, and then there is no edit to decide
+  const pick = s => { const i = cur; if (i < 0) return; const back = bar.contains(document.activeElement); close(); decide(i, s); if (back) chunks[i].focus({ preventScroll:true }); };
   chunks.forEach((el, i) => { el.onclick = () => cur === i ? close() : open(i); el.onkeydown = ev => { if (ev.key === 'Enter' || ev.key === ' '){ ev.preventDefault(); el.click(); } }; });
   $('.itd-acc', r).onclick = () => pick('acc');
   $('.itd-rej', r).onclick = () => pick('rej');

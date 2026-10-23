@@ -494,7 +494,7 @@ export function AutomationCanvas({
   const N = [
     { id:&#39;t&#39;, ic:&#39;clock&#39;, col:&#39;var(--py)&#39;, t:&#39;Schedule&#39;, d:&#39;Mondays 9:00&#39;, y:.5, f:[&#39;When&#39;, [&#39;Mondays 9:00&#39;,&#39;Every weekday&#39;,&#39;On new Figma version&#39;]] },
     { id:&#39;a&#39;, ic:&#39;figma&#39;, col:&#39;var(--pl)&#39;, t:&#39;Read frames&#39;, d:&#39;Pricing, Checkout&#39;, y:.28, f:[&#39;Frames&#39;, [&#39;Pricing, Checkout&#39;,&#39;All frames&#39;,&#39;Changed this week&#39;]] },
-    { id:&#39;b&#39;, ic:&#39;spark&#39;, col:&#39;var(--accent-mark,var(--accent))&#39;, t:&#39;Agent: audit&#39;, d:&#39;Contrast, tokens&#39;, y:.72, f:[&#39;Checks&#39;, [&#39;Contrast, tokens&#39;,&#39;Everything&#39;,&#39;Accessibility only&#39;]] },
+    { id:&#39;b&#39;, ic:&#39;spark&#39;, col:&#39;var(--accent-mark,var(--accent))&#39;, fg:&#39;var(--accent-fg,var(--accent))&#39;, t:&#39;Agent: audit&#39;, d:&#39;Contrast, tokens&#39;, y:.72, f:[&#39;Checks&#39;, [&#39;Contrast, tokens&#39;,&#39;Everything&#39;,&#39;Accessibility only&#39;]] },
     { id:&#39;c&#39;, ic:&#39;send&#39;, col:&#39;var(--pm)&#39;, t:&#39;Post summary&#39;, d:&#39;#design in Slack&#39;, y:.5, f:[&#39;Channel&#39;, [&#39;#design in Slack&#39;,&#39;Email the team&#39;,&#39;Linear ticket&#39;]] }
   ];
   const E = [[&#39;t&#39;,&#39;a&#39;],[&#39;t&#39;,&#39;b&#39;],[&#39;a&#39;,&#39;c&#39;],[&#39;b&#39;,&#39;c&#39;]];
@@ -504,7 +504,7 @@ export function AutomationCanvas({
   // so the wires on the left and right are the same length at any width. A step you dragged keeps where you put it
   const wide = (n, W, w) =&gt; { const pad = Math.max(20, W * .06); return { x:{ t:pad + w / 2, a:W / 2, b:W / 2, c:W - pad - w / 2 }[n.id] / W, y:n.y }; };
   const pos = (n, W, w) =&gt; (narrow() ? n.um : n.uw) || (narrow() ? { x:{ t:.5, a:.28, b:.72, c:.5 }[n.id], y:{ t:.13, a:.42, b:.62, c:.88 }[n.id] } : wide(n, W, w));
-  nodes.innerHTML = N.map(n =&gt; `&lt;button class=&quot;acx-n&quot; data-id=&quot;${n.id}&quot;&gt;&lt;span class=&quot;ic&quot; style=&quot;color:${n.col};background:color-mix(in srgb,${n.col} 14%,transparent)&quot;&gt;${I(n.ic,&#39;xs&#39;)}&lt;/span&gt;&lt;span class=&quot;t&quot;&gt;&lt;b&gt;${n.t}&lt;/b&gt;&lt;span class=&quot;d&quot;&gt;${n.d}&lt;/span&gt;&lt;/span&gt;&lt;/button&gt;`).join(&#39;&#39;);
+  nodes.innerHTML = N.map(n =&gt; `&lt;button class=&quot;acx-n&quot; data-id=&quot;${n.id}&quot;&gt;&lt;span class=&quot;ic&quot; style=&quot;color:${n.fg || n.col};background:color-mix(in srgb,${n.col} 14%,transparent)&quot;&gt;${I(n.ic,&#39;xs&#39;)}&lt;/span&gt;&lt;span class=&quot;t&quot;&gt;&lt;b&gt;${n.t}&lt;/b&gt;&lt;span class=&quot;d&quot;&gt;${n.d}&lt;/span&gt;&lt;/span&gt;&lt;/button&gt;`).join(&#39;&#39;);
   const el = id =&gt; $(`.acx-n[data-id=&quot;${id}&quot;]`, nodes);
   function layout(){
     const W = cv.clientWidth, H = cv.clientHeight, small = narrow() || W &lt; 700;
@@ -621,7 +621,7 @@ export function AutomationCanvas({
   const N = [
     { id:'t', ic:'clock', col:'var(--py)', t:'Schedule', d:'Mondays 9:00', y:.5, f:['When', ['Mondays 9:00','Every weekday','On new Figma version']] },
     { id:'a', ic:'figma', col:'var(--pl)', t:'Read frames', d:'Pricing, Checkout', y:.28, f:['Frames', ['Pricing, Checkout','All frames','Changed this week']] },
-    { id:'b', ic:'spark', col:'var(--accent-mark,var(--accent))', t:'Agent: audit', d:'Contrast, tokens', y:.72, f:['Checks', ['Contrast, tokens','Everything','Accessibility only']] },
+    { id:'b', ic:'spark', col:'var(--accent-mark,var(--accent))', fg:'var(--accent-fg,var(--accent))', t:'Agent: audit', d:'Contrast, tokens', y:.72, f:['Checks', ['Contrast, tokens','Everything','Accessibility only']] },
     { id:'c', ic:'send', col:'var(--pm)', t:'Post summary', d:'#design in Slack', y:.5, f:['Channel', ['#design in Slack','Email the team','Linear ticket']] }
   ];
   const E = [['t','a'],['t','b'],['a','c'],['b','c']];
@@ -631,7 +631,7 @@ export function AutomationCanvas({
   // so the wires on the left and right are the same length at any width. A step you dragged keeps where you put it
   const wide = (n, W, w) => { const pad = Math.max(20, W * .06); return { x:{ t:pad + w / 2, a:W / 2, b:W / 2, c:W - pad - w / 2 }[n.id] / W, y:n.y }; };
   const pos = (n, W, w) => (narrow() ? n.um : n.uw) || (narrow() ? { x:{ t:.5, a:.28, b:.72, c:.5 }[n.id], y:{ t:.13, a:.42, b:.62, c:.88 }[n.id] } : wide(n, W, w));
-  nodes.innerHTML = N.map(n => `<button class="acx-n" data-id="${n.id}"><span class="ic" style="color:${n.col};background:color-mix(in srgb,${n.col} 14%,transparent)">${I(n.ic,'xs')}</span><span class="t"><b>${n.t}</b><span class="d">${n.d}</span></span></button>`).join('');
+  nodes.innerHTML = N.map(n => `<button class="acx-n" data-id="${n.id}"><span class="ic" style="color:${n.fg || n.col};background:color-mix(in srgb,${n.col} 14%,transparent)">${I(n.ic,'xs')}</span><span class="t"><b>${n.t}</b><span class="d">${n.d}</span></span></button>`).join('');
   const el = id => $(`.acx-n[data-id="${id}"]`, nodes);
   function layout(){
     const W = cv.clientWidth, H = cv.clientHeight, small = narrow() || W < 700;
