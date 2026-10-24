@@ -64,19 +64,21 @@ const COUNTRIES: CountrySelectCountry[] = [
   { code: 'SE', name: 'Sweden', currency: 'SEK' }, { code: 'AU', name: 'Australia', currency: 'AUD' }
 ];
 
-/* ---------- Country select: the list opens and someone types "ger" ---------- */
+/* ---------- Country select: the list opens, someone types "ger" and picks Germany ---------- */
 export default function CountrySelectDemo() {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
+  const [value, setValue] = useState('GB');
   useScript(async ({ wait }) => {
     await wait(900); setQuery(''); setOpen(true);
     await wait(500);
     let typed = '';
     for (const ch of 'ger') { typed += ch; setQuery(typed); await wait(160); }
+    await wait(1100); setValue('DE'); setOpen(false);
   });
   return (
     <div style={{ width: '100%' }}>
-      <CountrySelect countries={COUNTRIES} defaultValue="GB" open={open} onOpenChange={setOpen} query={query} onQueryChange={setQuery} />
+      <CountrySelect countries={COUNTRIES} value={value} onValueChange={setValue} open={open} onOpenChange={setOpen} query={query} onQueryChange={setQuery} />
     </div>
   );
 }

@@ -3,7 +3,11 @@
 :where([data-dm]) [hidden]{display:none!important}
 /* hold(): an end state centred in the height its component had */
 .dm-held{display:flex;flex-direction:column;justify-content:center}
-.dm-glide{transform:translateY(var(--dm-gy,0px));transition:transform var(--dm-t) var(--dm-ease)}
+/* the glide starts fast in both styles, so the field is on its way up before an opening list reaches the stage's edge */
+.dm-glide{transform:translateY(var(--dm-gy,0px));transition:transform var(--dm-t) cubic-bezier(.22,1,.36,1)}
+/* and a list that opens under a gliding field fades in a beat after it starts to move */
+.dm-glide>.dm-csx-pop.dm-open{transition-delay:.08s}
+.dm-glide>.dm-msc-pop.dm-open{transition-delay:.08s,.08s,.08s,0s}
 /* Soft 2: one quiet surface per object, grey type for finished work, motion only on what is happening now */
 :root{
   --dm-motion:soft;
