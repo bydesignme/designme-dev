@@ -8,13 +8,17 @@ Designme.dev docs. The same page with navigation: https://designme.dev/docs/acce
 
 Components use the ARIA pattern that fits what they do. For example:
 
-- Menus are a `menu` of `menuitem` rows, and the button that opens one reports `aria-expanded` ([Buttons](https://designme.dev/components/buttons.md)).
-- Lists you pick from are a `listbox` of `option` rows. The search box that drives one is a `combobox` ([Command palette](https://designme.dev/components/command-palette.md), [Country select](https://designme.dev/components/country-select.md)).
-- A single choice is a `radiogroup`, and an on or off setting is a `switch` with `aria-checked` ([Decision prompt](https://designme.dev/components/decision-prompt.md), [Agent settings](https://designme.dev/components/agent-settings.md)).
-- Tabs use `tablist`, `tab` and `aria-selected` ([Code viewer](https://designme.dev/components/code-viewer.md), [Thread panel](https://designme.dev/components/thread-panel.md), [Segmented control](https://designme.dev/components/segmented-control.md)).
-- Sliders set `aria-valuenow` and `aria-valuetext` ([Design tuner](https://designme.dev/components/design-tuner.md)). A file tree is a `tree` of `treeitem` rows ([File explorer](https://designme.dev/components/file-explorer.md)).
-- Popovers like the calendar are a labelled `dialog` ([Date picker](https://designme.dev/components/date-picker.md), [Citation hover card](https://designme.dev/components/citation-hover-card.md)).
-- Toggle buttons report their state with `aria-pressed`, and icon-only buttons have a label ([Buttons](https://designme.dev/components/buttons.md), [Line chart](https://designme.dev/components/line-chart.md)).
+| Pattern | Roles and states | For example |
+| --- | --- | --- |
+| Menus | A `menu` of `menuitem` rows. The button that opens one reports `aria-expanded` | [Buttons](https://designme.dev/components/buttons.md) |
+| Lists you pick from | A `listbox` of `option` rows. The search box that drives one is a `combobox` | [Command palette](https://designme.dev/components/command-palette.md), [Country select](https://designme.dev/components/country-select.md) |
+| A single choice | A `radiogroup` | [Decision prompt](https://designme.dev/components/decision-prompt.md) |
+| On or off settings | A `switch` with `aria-checked` | [Agent settings](https://designme.dev/components/agent-settings.md) |
+| Tabs | `tablist`, `tab` and `aria-selected` | [Code viewer](https://designme.dev/components/code-viewer.md), [Thread panel](https://designme.dev/components/thread-panel.md), [Segmented control](https://designme.dev/components/segmented-control.md) |
+| Sliders | `aria-valuenow` and `aria-valuetext` | [Design tuner](https://designme.dev/components/design-tuner.md) |
+| File trees | A `tree` of `treeitem` rows | [File explorer](https://designme.dev/components/file-explorer.md) |
+| Popovers | A labelled `dialog`, like the calendar | [Date picker](https://designme.dev/components/date-picker.md), [Citation hover card](https://designme.dev/components/citation-hover-card.md) |
+| Toggle and icon buttons | Toggles report their state with `aria-pressed`. Icon-only buttons have a label | [Buttons](https://designme.dev/components/buttons.md), [Line chart](https://designme.dev/components/line-chart.md) |
 
 ## Live updates
 
@@ -24,25 +28,47 @@ Decorative motion, like status glyphs and the wires of a canvas, is `aria-hidden
 
 ## Keyboard
 
-- Escape closes menus and popovers, for example in [Composer](https://designme.dev/components/composer.md) and [Date picker](https://designme.dev/components/date-picker.md). In [Buttons](https://designme.dev/components/buttons.md), [Country select](https://designme.dev/components/country-select.md) and [Date picker](https://designme.dev/components/date-picker.md) it also returns focus to the button or field that opened them.
-- Arrow keys move through lists, menus and toolbars ([Command palette](https://designme.dev/components/command-palette.md), [Country select](https://designme.dev/components/country-select.md), [Answer action bar](https://designme.dev/components/answer-action-bar.md)).
-- In the date pickers, the arrows move a day or a week, Home and End go to the start and end of the week, and Page Up and Page Down move a month, or a year with Shift ([Date picker](https://designme.dev/components/date-picker.md), [Date range picker](https://designme.dev/components/date-range-picker.md)).
-- Number keys 1 to 9 pick an option in [Decision prompt](https://designme.dev/components/decision-prompt.md).
-- Focus shows as a 2px ring in the accent's mark colour, using `:focus-visible`.
+| Keys | What they do | Where |
+| --- | --- | --- |
+| Esc | Closes menus and popovers | [Composer](https://designme.dev/components/composer.md), [Date picker](https://designme.dev/components/date-picker.md) |
+| Esc | Also returns focus to the button or field that opened them | [Buttons](https://designme.dev/components/buttons.md), [Country select](https://designme.dev/components/country-select.md), [Date picker](https://designme.dev/components/date-picker.md) |
+| ↑ ↓ ← → | Move through lists, menus and toolbars | [Command palette](https://designme.dev/components/command-palette.md), [Country select](https://designme.dev/components/country-select.md), [Answer action bar](https://designme.dev/components/answer-action-bar.md) |
+| ← → ↑ ↓ | In the date pickers, move a day or a week | [Date picker](https://designme.dev/components/date-picker.md), [Date range picker](https://designme.dev/components/date-range-picker.md) |
+| Home End | Go to the start and end of the week | [Date picker](https://designme.dev/components/date-picker.md), [Date range picker](https://designme.dev/components/date-range-picker.md) |
+| Page Up Page Down | Move a month, or a year with Shift | [Date picker](https://designme.dev/components/date-picker.md), [Date range picker](https://designme.dev/components/date-range-picker.md) |
+| 1 … 9 | Pick an option | [Decision prompt](https://designme.dev/components/decision-prompt.md) |
 
-Most components work fully with a keyboard. A few, like [Kanban board](https://designme.dev/components/kanban-board.md) and [File explorer](https://designme.dev/components/file-explorer.md), are still getting their keyboard support.
+Focus shows as a 2px ring in the accent's mark colour, using `:focus-visible`.
+
+> Most components work fully with a keyboard. A few, like [Kanban board](https://designme.dev/components/kanban-board.md) and [File explorer](https://designme.dev/components/file-explorer.md), are still getting their keyboard support.
 
 ## Reduced motion
 
-When the device asks for less motion (`prefers-reduced-motion: reduce`), the shared CSS cuts every CSS animation and transition inside the components to almost nothing.
+When the device asks for less motion (`prefers-reduced-motion: reduce`), the components cut it in two places:
 
-The scripts check it too. The HTML version reads `REDUCE`, which the core sets from the same setting. React components that animate from script use the `useReducedMotion()` hook from `lib/hooks.ts`. Count-ups finish at once, rows move without gliding, and the content still changes.
+### In the CSS
+
+The shared CSS cuts every CSS animation and transition inside the components to almost nothing.
+
+### In the scripts
+
+The HTML version reads `REDUCE`, which the core sets from the same setting. React components that animate from script use the `useReducedMotion()` hook from `lib/hooks.ts`.
+
+Count-ups finish at once, rows move without gliding, and the content still changes.
 
 ## Contrast
 
-- The accent has separate roles for fills, text and marks. Text in the accent aims for 4.5:1 and marks for 3:1, on the surface and on the grey chips and tinted rows they sit on. See [Theming](https://designme.dev/docs/theming.md).
-- Blueprint's lime is too light for text on white, so in light mode accent text uses the ink colour and marks a darker lime.
-- An off switch and an empty box are drawn in a grey that holds 3:1 against the surface. An accent fill keeps a thin edge in the mark colour, so a light accent still has an outline.
+### Text and marks
+
+The accent has separate roles for fills, text and marks. Text in the accent aims for 4.5:1 and marks for 3:1, on the surface and on the grey chips and tinted rows they sit on. See [Theming](https://designme.dev/docs/theming.md).
+
+### A light accent
+
+Blueprint's lime is too light for text on white, so in light mode accent text uses the ink colour and marks a darker lime.
+
+### Edges
+
+An off switch and an empty box are drawn in a grey that holds 3:1 against the surface. An accent fill keeps a thin edge in the mark colour, so a light accent still has an outline.
 
 ## For each component
 

@@ -46,12 +46,18 @@ file still gets a page, with its one-line description.
 ## Files
 
 - `src/lib/data.mjs` reads everything the pages show.
-- `src/layouts/Page.astro` is the frame: head, header, footer, light and dark.
+- `src/layouts/Page.astro` is the frame: head, header, footer, light and dark. The header has no links, like the
+  homepage's: the logo leads home, and the site's pages are in the sidebar.
+- `src/components/SiteShell.astro` lays out a docs page and a component page the same way: the sidebar (`SideNav.astro`:
+  Library, Docs, Changelog, Roadmap and FAQ with the homepage's icons, then every component group), the page, and On this
+  page on the right on wide screens. The page you're on gets a light fill and a short segment on the rail its list hangs
+  from. Below 960px the sidebar becomes a menu above the page.
 - `src/components/ComponentPage.astro` is the page under `/components/<name>`.
-- `src/components/DocsPage.astro` is a docs page under `/docs/<page>`: a sidebar with the docs above the component groups,
-  and the page's text. The text lives in `src/lib/docs.mjs` (titles and order in `src/lib/docs-list.json`, which
-  `tools/site/build.js` also reads for `llms.txt`). Every claim there has to be true of the code, as with the written copy.
-  `src/pages/docs/[slug].md.ts` writes their Markdown copies.
+- `src/components/DocsPage.astro` is a docs page under `/docs/<page>`. Its text and visuals are blocks in `src/lib/docs.mjs`
+  (titles and order in `src/lib/docs-list.json`, which `tools/site/build.js` also reads for `llms.txt`), drawn by
+  `DocsBlocks.astro`: steps, tabs, file trees, the groups, live previews of a component in both styles, and the accent's
+  roles (read from the shared core, so they match the code). Every claim there has to be true of the code, as with the
+  written copy. `src/pages/docs/[slug].md.ts` writes their Markdown copies.
 - `src/pages/components/[slug].md.ts` writes the Markdown copies;
   `src/pages/components/assets/` the shared core for the demos; `src/pages/sitemap.xml.ts` the sitemap.
 - `shots.mjs` takes the pictures (see above).

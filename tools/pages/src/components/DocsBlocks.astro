@@ -1,0 +1,104 @@
+---
+// The blocks of a docs page (see src/lib/docs.mjs for what each one is). Steps, tabs and columns hold blocks of their own,
+// so this draws itself for them. `id` keeps the ids of tabs unique on the page
+import { FONT_CSS, ACCENTS, icon } from '../lib/data.mjs';
+import { GROUPS, comp, inlineHtml } from '../lib/docs.mjs';
+const { blocks, id = 'b' } = Astro.props;
+const LANG = { sh:'Terminal', html:'HTML', tsx:'React', js:'JavaScript', css:'CSS', text:'Text' };
+const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+const folder = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 6.5h6l2 2h9v10h-17z"/></svg>';
+const file = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M6.5 3.5h7l4 4v13h-11z"/><path d="M13.5 3.5v4h4"/></svg>';
+const tree = entries => '<ul>' + entries.map(e => Array.isArray(e)
+  ? `<li><span class="dc-tn">${folder}${esc(e[0])}</span>${tree(e[1])}</li>`
+  : `<li><span class="dc-tn">${file}${esc(e)}</span></li>`).join('') + '</ul>';
+// a live preview: the component's own page on the shared core, in one style and theme, inside a frame
+const frame = (reg, style, theme) => {
+  const c = comp(reg), dark = theme === 'dark';
+  return `<!doctype html><html lang="en"${style === 'soft' ? ' data-style="soft"' : ''} data-theme="${theme}"><head><meta charset="utf-8">`
+    + `<style>${FONT_CSS}</style><link rel="stylesheet" href="/components/assets/core.css"><style>${c.html.css}</style>`
+    + `<style>html,body{margin:0;height:100%;overflow:hidden;background:${dark ? '#1c1c1c' : '#fafafa'};${dark ? 'color-scheme:dark;' : ''}font:14px/1.6 Inter,ui-sans-serif,system-ui,sans-serif;-webkit-font-smoothing:antialiased}`
+    + `.pg-demo{box-sizing:border-box;height:100%;display:grid;grid-template-columns:minmax(0,1fr);place-items:center;padding:16px}.pg-demo>.card{min-width:0;width:100%;display:grid;place-items:center}</style>`
+    + `</head><body><div class="pg-demo stage-inner">${c.html.html}</div><script src="/components/assets/core.js"></script><script>${c.html.js}</script></body></html>`;
+};
+const VARIANTS = [['soft', 'light'], ['soft', 'dark'], ['bp', 'light'], ['bp', 'dark']];
+const NAME = { soft:'Soft', bp:'Blueprint', light:'Light', dark:'Dark' };
+// the accents the homepage's picker offers, in its order
+// the same swatches as the homepage's picker: Default is the style's own accent, and its twin is left out
+const PICKS = [['default', 'Default'], ['#d4f84a', 'Lime'], ['#116ff8', 'Blue'], ['#7c5cff', 'Violet'], ['#e8366f', 'Rose'], ['#12a150', 'Green'], ['#0ea5a4', 'Teal'], ['#ff850d', 'Orange']];
+const ROLES = [['accent', 'Fill', '--accent'], ['onAccent', 'On fill', '--on-accent'], ['accentFg', 'Text', '--accent-fg'], ['accentMark', 'Mark', '--accent-mark'], ['accentBg', 'Tint', '--accent-bg']];
+---
+{blocks.map((b, k) => {
+  const key = `${id}-${k}`;
+  switch (b[0]){
+    case 'p': return <p set:html={inlineHtml(b[1])} />;
+    case 'ul': return <ul>{b[1].map(x => <li set:html={inlineHtml(x)} />)}</ul>;
+    case 'ol': return <ol>{b[1].map(x => <li set:html={inlineHtml(x)} />)}</ol>;
+    case 'note': return <div class="dc-note"><p set:html={inlineHtml(b[1])} /></div>;
+    case 'code': return <div class="dc-code" data-lang={b[1]}>
+      <div class="dc-code-h"><span>{b[3] || LANG[b[1]] || b[1]}</span><button class="dc-copy" type="button" data-copy={b[2]} data-label="Copy" aria-label={`Copy ${(b[3] || LANG[b[1]] || 'code').toLowerCase()}`}><span set:html={icon('content_copy')} />Copy</button></div>
+      <pre><code>{b[2]}</code></pre></div>;
+    case 'table': return <div class="dc-tw"><table><thead><tr>{b[1].map(h => <th>{h}</th>)}</tr></thead><tbody>{b[2].map(r => <tr>{r.map((c, i) => <td data-h={b[1][i]} set:html={inlineHtml(c)} />)}</tr>)}</tbody></table></div>;
+    case 'steps': return <ol class="dc-steps">{b[1].map(([t, inner], i) => <li class="dc-step">
+      <span class="dc-step-n" aria-hidden="true">{i + 1}</span>
+      <div class="dc-step-b"><h3 class="dc-h3">{t}</h3><Astro.self blocks={inner} id={`${key}-${i}`} /></div>
+    </li>)}</ol>;
+    case 'tabs': return <div class="dc-tabs">
+      <div class="dc-tl" role="tablist">{b[1].map(([t], i) => <button type="button" role="tab" id={`${key}-t${i}`} aria-controls={`${key}-p${i}`} aria-selected={i === 0 ? 'true' : 'false'} tabindex={i === 0 ? 0 : -1}>{t}</button>)}</div>
+      {b[1].map(([, inner], i) => <div class="dc-tp" role="tabpanel" id={`${key}-p${i}`} aria-labelledby={`${key}-t${i}`} hidden={i !== 0}><Astro.self blocks={inner} id={`${key}-${i}`} /></div>)}
+    </div>;
+    case 'cols': return <div class="dc-cols" data-n={b[1].length}>{b[1].map(([t, inner], i) => <div class="dc-col"><h3 class="dc-h3">{t}</h3><Astro.self blocks={inner} id={`${key}-${i}`} /></div>)}</div>;
+    case 'tree': return <figure class="dc-tree"><figcaption>{b[1]}</figcaption><div set:html={tree(b[2])} /></figure>;
+    case 'cards': return <div class="dc-cards">{b[1].map(([t, d, href, ic]) => <a class="dc-card" href={href}>
+      <span class="dc-card-i" set:html={icon(ic)} /><span class="dc-card-b"><span class="pg-t">{t}</span><span class="pg-d">{d}</span></span>
+      <span class="dc-card-go" set:html={icon('arrow_forward')} />
+    </a>)}</div>;
+    case 'keys': return <div class="dc-tw dc-keys"><table><thead><tr><th>Keys</th><th>What they do</th><th>Where</th></tr></thead><tbody>
+      {b[1].map(([keys, what, where]) => <tr><td data-h="Keys"><span class="dc-kbds">{keys.map(x => x === '…' ? <span class="dc-to">to</span> : <kbd>{x}</kbd>)}</span></td><td data-h="What they do">{what}</td><td data-h="Where" set:html={where.map(r => `<a href="/components/${r}">${comp(r).title}</a>`).join(', ')} /></tr>)}
+    </tbody></table></div>;
+    case 'groups': return <div class="dc-groups">{GROUPS.map(G => <div class="dc-gset">
+      <h3 class="dc-gset-h"><span>{G.name}</span><span class="dc-n">{G.n}</span></h3>
+      <div class="dc-glist">{G.secs.map(sec => <div class="dc-grow">
+        <span class="pg-thumb dc-gthumb" aria-hidden="true"><img class="lt" src={`/components/thumbs/${sec.cards[0].reg}-light.webp`} alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src={`/components/thumbs/${sec.cards[0].reg}-dark.webp`} alt="" width="640" height="400" loading="lazy" decoding="async"></span>
+        <div class="dc-gbody">
+          <div class="dc-ghead"><a class="pg-t" href={sec.url}>{sec.title}</a><span class="dc-n">{sec.cards.length}</span></div>
+          <p class="pg-d">{sec.about}</p>
+          <ul class="dc-glinks" aria-label={`${sec.title} components`}>{sec.cards.map(c => <li><a href={`/components/${c.reg}`}>{c.title}</a></li>)}</ul>
+        </div>
+      </div>)}</div>
+    </div>)}</div>;
+    case 'styles': { const c = comp(b[1]); return <figure class="dc-styles">
+      <div class="dc-sgrid" inert>{VARIANTS.map(([s, t]) => <div class="dc-scell" data-theme-of={t}>
+        <div class="dc-sframe"><iframe title={`${c.title} in ${NAME[s]}, ${NAME[t].toLowerCase()}`} srcdoc={frame(b[1], s, t)} loading="lazy" tabindex="-1" scrolling="no"></iframe></div>
+        <span class="dc-scap"><b>{NAME[s]}</b> {NAME[t]}</span>
+      </div>)}</div>
+      <figcaption>The same <a href={c.url}>{c.title}</a>, live, in both styles and both themes.</figcaption>
+    </figure>; }
+    case 'swatches': return <div class="dc-sw">{VARIANTS.map(([s, t]) => { const v = ACCENTS[`${s}-${t}`]; return <div class="dc-swp" style={`--s:${v.surface};--f:${v.fg};--l:${v.line}`}>
+      <div class="dc-swp-h"><b>{NAME[s]}</b> {NAME[t]}</div>
+      {ROLES.map(([k, n, varName]) => <div class="dc-swr">
+        <span class={`dc-swc dc-swc-${k}`} style={`--a:${v.accent};--on:${v.onAccent};--fgA:${v.accentFg};--mk:${v.accentMark};--bgA:${v.accentBg}`} aria-hidden="true">{(k === 'onAccent' || k === 'accentFg') ? 'Aa' : ''}</span>
+        <span class="dc-swt"><span class="dc-swn">{n}</span><span class="dc-swv" title={varName}>{v[k]}</span></span>
+      </div>)}
+    </div>; })}</div>;
+    case 'preview': return <div class="dc-pv" data-pv>
+      <div class="dc-pv-bar">
+        <span class="dc-pv-l" id={`${key}-l`}>Accent</span>
+        <div class="dc-pv-picks" role="radiogroup" aria-labelledby={`${key}-l`}>
+          {PICKS.map(([v, n], i) => <button type="button" role="radio" class="dc-pick" data-v={v} aria-checked={i === 0 ? 'true' : 'false'} tabindex={i === 0 ? 0 : -1} aria-label={n} title={n} style={v !== 'default' ? `--sw:${v}` : undefined}></button>)}
+          <label class="dc-pick dc-pick-any" title="Any colour"><input type="color" value="#e8366f" aria-label="Any colour" /></label>
+        </div>
+        <span class="dc-pv-now" aria-live="polite"></span>
+      </div>
+      <div class="dc-pv-stage" aria-hidden="true">
+        <div class="dc-pv-item"><span class="dc-pv-btn">Approve</span><span class="dc-pv-cap">Fill, on fill</span></div>
+        <div class="dc-pv-item"><span class="dc-pv-switch"><i></i></span><span class="dc-pv-cap">Fill</span></div>
+        <div class="dc-pv-item"><span class="dc-pv-chip">Selected</span><span class="dc-pv-cap">Tint, text</span></div>
+        <div class="dc-pv-item"><span class="dc-pv-link">View the run</span><span class="dc-pv-cap">Text</span></div>
+        <div class="dc-pv-item dc-pv-wide"><svg class="dc-pv-chart" viewBox="0 0 160 56" preserveAspectRatio="none"><path class="ar" d="M0 44 L27 36 L53 40 L80 22 L107 28 L133 12 L160 16 L160 56 L0 56Z"/><path class="ln" d="M0 44 L27 36 L53 40 L80 22 L107 28 L133 12 L160 16" vector-effect="non-scaling-stroke"/></svg><span class="dc-pv-cap">Mark</span></div>
+      </div>
+      <div class="dc-pv-roles">{ROLES.map(([k, n, varName]) => <div class="dc-pv-role" data-var={varName}><span class={`dc-swc dc-swc-${k}`}>{(k === 'onAccent' || k === 'accentFg') ? 'Aa' : ''}</span><span class="dc-swt"><span class="dc-swn">{n}</span><span class="dc-swv"></span></span></div>)}</div>
+      <p class="dc-pv-note">In the style and theme you're looking at. A picked accent gets its roles worked out the way the homepage's picker does, here only.</p>
+    </div>;
+    default: throw new Error('docs: no block called ' + b[0]);
+  }
+})}

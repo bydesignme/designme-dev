@@ -774,6 +774,8 @@ patch("""    v['--on-accent'] = onWhite >= 3 ? '#ffffff' : '#120a02';""", """   
     function reach(need, cap, on){ for (var i = 0; i <= 100; i += 2){ var m = mix(fill, to, i / 100); if (ratio(m, on) >= need) return i / 100 <= cap ? hex(m) : null; } return null; }
     v['--accent-mark'] = reach(3, 1, chip); v['--accent-fg'] = reach(4.5, .4, mix(chip, fill, .12)) || (dark ? '#f2f2f2' : '#111318');""")
 patch("""'Orange, the Blueprint default'""", """'Lime, the Blueprint default'""")
+# a picked accent in Blueprint dark tints selected rows, chips and icon wells too, as lime does by default
+patch("""if (!soft && dark){ v['--accent'] = hex(mix(c, W, .1)); v['--accent-hi'] = hex(mix(c, W, .16)); v['--accent-muted'] = rgba(c, .51); v['--accent-icon-line'] = rgba(c, .17); }""", """if (!soft && dark){ v['--accent'] = hex(mix(c, W, .1)); v['--accent-hi'] = hex(mix(c, W, .16)); v['--accent-muted'] = rgba(c, .51); v['--accent-icon-line'] = rgba(c, .17); v['--accent-bg'] = rgba(c, .12); v['--accent-icon-bg'] = rgba(c, .06); v['--accent-fill'] = hex(mix([18,18,18], c, .08)); }""")
 # the accent picker's Default swatch is the style's own default, lime in Blueprint and blue in Soft, as a plain dot; the
 # other swatch for that same colour is left out, and Orange, Blueprint's old default, moves to the end of the row
 patch(""".acc-sw{position:relative;width:28px;height:28px;flex:none;border-radius:50%;background:var(--sw,#ff850d);""", """.acc-sw{position:relative;width:28px;height:28px;flex:none;border-radius:50%;background:var(--sw,#d4f84a);""")
@@ -820,6 +822,13 @@ body.ui .top .gh-pill.has-n .gh-l{display:none}
 @media (max-width:960px){ body.ui .top .gh-pill{height:32px;margin-right:8px;padding:0 12px 0 10px} }
 /* the sidebar's Docs page: its icon lifts on hover, like the others move */
 .side-p[href="/docs/introduction"]:hover .ms svg{transform:translateY(-2px)}
+/* each group's list hangs off a thin rail, and the component in view gets a light fill and a short bright segment on the rail,
+   level with its row, as in the docs' sidebar (tools/pages/src/components/SiteShell.astro). The list clips what overflows
+   it while it folds, so the rail is drawn inside it rather than as its border, where the segment would be cut off */
+.side-ul{border-left:0;padding-left:11px;background:linear-gradient(var(--sh-line-2),var(--sh-line-2)) 0 0/1px 100% no-repeat}
+.side-ul .side-a{position:relative}
+.side-a.act{background:var(--sh-chip)}
+.side-ul .side-a.act::before{content:"";position:absolute;left:-11px;top:7px;bottom:7px;width:2px;border-radius:2px;background:var(--accent-mark)}
 """
 
 json.dump({ 'patches': P, 'css': CSS },open(os.path.join(HERE, 'site-patches.json'), 'w'), indent=1)

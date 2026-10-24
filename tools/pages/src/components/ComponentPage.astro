@@ -1,9 +1,12 @@
 ---
 // One component: its live demo (the same HTML, CSS and JS that npx designme add installs), how to install it, what it is
 // for, how to use it in React, its props, its code, questions, and the components beside it. Every section opens with
-// the homepage's section header, and a bar of links to them sticks under the header as you scroll.
+// the homepage's section header. It sits in the frame the docs share (SiteShell): the sidebar with its group open and it
+// marked, and on wide screens what is on the page on the right; on narrower screens a bar of links to the sections sticks
+// under the header instead.
 import Page from '../layouts/Page.astro';
-import { SITE, COMPONENTS, BANDS, borrows } from '../lib/data.mjs';
+import SiteShell from './SiteShell.astro';
+import { SITE, COMPONENTS, BANDS, borrows, icon } from '../lib/data.mjs';
 // the cards under More in … play their component live while they're on screen; one that tells its story with other
 // components (Agent harness) keeps its picture
 const full = x => COMPONENTS.find(y => y.reg === x.reg);
@@ -33,6 +36,7 @@ const SECS = [
   others.length && ['more', `More in ${sec.title}`, sec.about],
 ].filter(Boolean).map((s, i) => ({ id:s[0], name:s[1], line:s[2], n:String(i + 1).padStart(2, '0') }));
 const S = Object.fromEntries(SECS.map(s => [s.id, s]));
+const toc = SECS.map(s => ({ id:s.id, label:s.name }));
 const jsonld = [
   { '@context':'https://schema.org', '@type':'SoftwareSourceCode', name:c.title, description:copy.summary || c.desc, url:SITE + c.url,
     image:`${SITE}/components/og/${c.reg}.jpg`,
@@ -75,6 +79,10 @@ const words = cmd => cmd.split(' ').map(w => `<span class="cp-w">${w.replace(/&/
       .pg-demo>.card{min-width:0;align-self:stretch;display:grid;place-items:center}
       /* the links to each section stick under the header, in the content's column, with a line under them across the window */
       .cp-bar{position:sticky;top:var(--pg-head);z-index:40;margin-top:40px;background:var(--pg-top);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-bottom:1px solid var(--pg-line)}
+      /* on wide screens On this page, on the right, does the bar's work */
+      @media (min-width:1200px){.cp-bar{display:none}}
+      /* on a tablet and a phone the bar runs to the window's edges */
+      @media (max-width:960px){.cp-bar{margin-left:-24px;margin-right:-24px;padding:0 24px}}
       .cp-bar nav{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none}
       .cp-bar nav::-webkit-scrollbar{display:none}
       .cp-bar a{position:relative;flex:none;display:inline-flex;align-items:center;height:46px;padding:0 10px;font-size:14px;font-weight:400;color:var(--pg-dim);text-decoration:none;transition:color .2s}
@@ -83,7 +91,7 @@ const words = cmd => cmd.split(' ').map(w => `<span class="cp-w">${w.replace(/&/
       .cp-bar a::after{content:"";position:absolute;left:10px;right:10px;bottom:0;height:2px;border-radius:2px;background:var(--pg-fg);transform:scaleX(0);transition:transform .3s cubic-bezier(.16,1,.3,1)}
       .cp-bar a.on::after{transform:scaleX(1)}
       .cp-sec{scroll-margin-top:calc(var(--pg-head) + 48px);padding-bottom:24px}
-      .cp-sec:first-child .pg-sh{padding-top:36px}
+      .cp-bar+.cp-sec .pg-sh{padding-top:36px}
       .cp-sec h3{margin:0 0 10px}
       .cp-sec p{margin:0;max-width:72ch}
       .cp-sec .pg-sh p{max-width:none}
@@ -139,11 +147,6 @@ const words = cmd => cmd.split(' ').map(w => `<span class="cp-w">${w.replace(/&/
       .cp-qs dd{margin:0;color:var(--pg-dim)}
       .cp-all{display:inline-block;margin-top:28px;font-size:14px;font-weight:500;color:var(--pg-dim);text-decoration:none}
       .cp-all:hover{color:var(--pg-fg)}
-      /* previous and next */
-      .cp-pn{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:64px;padding-top:24px;border-top:1px solid var(--pg-line)}
-      .cp-pn a{display:flex;flex-direction:column;gap:2px;text-decoration:none}
-      .cp-pn .n{align-items:flex-end;text-align:right}
-      .cp-pn a:hover .pg-t{text-decoration:underline;text-decoration-color:var(--pg-line2);text-underline-offset:3px}
       /* a live preview inside a card: the component at its own size, scaled to fit the picture's box, over the picture */
       .pg-thumb .pg-live{position:absolute;left:50%;top:50%;width:var(--vw);min-height:0;padding:0;display:block;transform:translate(-50%,-50%) scale(var(--k));pointer-events:none;opacity:0;transition:opacity .32s ease}
       .pg-thumb .pg-live.on{opacity:1}
@@ -158,7 +161,7 @@ const words = cmd => cmd.split(' ').map(w => `<span class="cp-w">${w.replace(/&/
         .cp-demo{margin-top:24px}
         .cp-bar{margin-top:32px}
         /* the section links run to the window's edges, so the last one is cut by the edge and reads as more to scroll to */
-        .cp-bar .pg-wrap{padding:0}
+        .cp-bar{margin-left:-16px;margin-right:-16px;padding:0}
         .cp-bar nav{padding:0 6px;scroll-padding:0 16px}
         .cp-bar a:first-child{margin-left:0}
         /* an install command wraps rather than scrolling out of sight */
@@ -181,13 +184,12 @@ const words = cmd => cmd.split(' ').map(w => `<span class="cp-w">${w.replace(/&/
         .cp-props td:nth-child(3){margin-top:4px}
         .cp-pre{padding:14px 16px}
         details.cp-file summary{padding:0 14px}
-        .cp-pn{margin-top:48px}
       }
     </style>
     <style is:inline set:html={demoCss} />
   </Fragment>
 
-  <div class="pg-wrap">
+  <SiteShell reg={c.reg} where={sec.title} title={c.title} toc={toc}>
     <nav class="pg-crumbs" aria-label="Breadcrumb"><a href="/">Library</a><span>/</span><a href={sec.url}>{sec.title}</a></nav>
     <h1 class="pg-h1">{c.title}</h1>
     <p class="pg-lead">{c.desc} Free and MIT licensed, as HTML or a typed React component, in two styles with light and dark mode.</p>
@@ -198,11 +200,9 @@ const words = cmd => cmd.split(' ').map(w => `<span class="cp-w">${w.replace(/&/
       <div class="pg-demo stage-inner" style={demoVars} set:html={c.html.html} />
     </section>
     {lent.length > 0 && <div hidden aria-hidden="true" set:html={lent.map(x => x.html.html).join('\n')} />}
-  </div>
 
-  <div class="cp-bar"><div class="pg-wrap"><nav aria-label="On this page">{SECS.map(s => <a href={`#${s.id}`}>{s.id === 'more' ? 'More' : s.name}</a>)}</nav></div></div>
+    <div class="cp-bar"><nav aria-label="Sections">{SECS.map(s => <a href={`#${s.id}`}>{s.id === 'more' ? 'More' : s.name}</a>)}</nav></div>
 
-  <div class="pg-wrap">
     <section class="cp-sec" id="install">
       <div class="pg-sh"><span class="n">{S.install.n}</span><h2>{S.install.name}</h2><p>{S.install.line}</p></div>
       <div class="cp-two">
@@ -259,11 +259,11 @@ const words = cmd => cmd.split(' ').map(w => `<span class="cp-w">${w.replace(/&/
       {others.length > shown.length && <a class="cp-all" href={sec.url}>All {sec.cards.length} in {sec.title} →</a>}
     </section>}
 
-    <nav class="cp-pn" aria-label="Previous and next component">
-      <a href={c.prev.url} rel="prev"><span class="pg-d">Previous</span><span class="pg-t">{c.prev.title}</span></a>
-      <a href={c.next.url} rel="next" class="n"><span class="pg-d">Next</span><span class="pg-t">{c.next.title}</span></a>
+    <nav class="dc-pn" aria-label="Previous and next component">
+      <a href={c.prev.url} rel="prev"><span class="pg-d"><Fragment set:html={icon('arrow_back')} />Previous</span><span class="pg-t">{c.prev.title}</span></a>
+      <a href={c.next.url} rel="next" class="n"><span class="pg-d">Next<Fragment set:html={icon('arrow_forward')} /></span><span class="pg-t">{c.next.title}</span></a>
     </nav>
-  </div>
+  </SiteShell>
 
   <Fragment slot="end">
     <script is:inline src="/components/assets/core.js"></script>

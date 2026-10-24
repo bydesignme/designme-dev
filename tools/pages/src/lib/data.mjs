@@ -91,3 +91,35 @@ export function demoCoreCss(){
   }
   return css;
 }
+
+// the sidebar's icons: the homepage's own (tools/site/build.js copies them into site.json)
+export const ICONS = site.icons || {};
+export const icon = (name, cls = '') => {
+  if (!ICONS[name]) throw new Error('no icon called ' + name + ': add it to the list in tools/site/build.js');
+  return `<svg${cls ? ` class="${cls}"` : ''} viewBox="0 0 256 256" fill="currentColor" aria-hidden="true">${ICONS[name]}</svg>`;
+};
+
+/* ---- the accent's roles in each style and theme, read from the shared core, so the docs show what the code sets ---- */
+export const ACCENTS = (() => {
+  const blocks = [...CORE.css.replace(/\/\*[\s\S]*?\*\//g, "").matchAll(/([^{}]*)\{([^{}]*)\}/g)].map(m => ({ sel:m[1].replace(/\/\*[\s\S]*?\*\//g, '').trim(), body:m[2] }));
+  const get = (sel, prop) => {
+    const b = blocks.find(x => x.sel === sel && new RegExp(`(^|;)\\s*${prop}\\s*:`).test(x.body));
+    if (!b) throw new Error(`core.css: no ${prop} for ${sel}`);
+    return b.body.match(new RegExp(`(?:^|;)\\s*${prop}\\s*:\\s*([^;]+)`))[1].trim();
+  };
+  const SEL = {
+    soft:{ light:':root', dark:':root[data-theme="dark"]' },
+    bp:{ light:':root:not([data-style="soft"])', dark:':root:not([data-style="soft"])[data-theme="dark"]' },
+  };
+  const out = {};
+  for (const [style, themes] of Object.entries(SEL)) for (const [theme, sel] of Object.entries(themes)){
+    const v = p => { let x = get(sel, p); const r = x.match(/^var\((--[\w-]+)\)$/); if (r) x = get(sel, r[1]); return x; };
+    out[style + '-' + theme] = { style, theme, surface:v('--surface'), fg:v('--fg'), chip:v('--chip'), line:v('--line'),
+      accent:v('--accent'), onAccent:v('--on-accent'), accentFg:v('--accent-fg'), accentMark:v('--accent-mark'), accentBg:v('--accent-bg') };
+  }
+  return out;
+})();
+
+// the site's fonts: Inter and JetBrains Mono, self-hosted. Every page's head has them, and so do the live previews in the docs,
+// which are pages of their own inside a frame
+export const FONT_CSS = `@font-face{font-family:Inter;font-style:normal;font-weight:400;font-display:swap;src:url(/fonts/inter-latin-400-normal.woff2) format(\'woff2\');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}\n@font-face{font-family:Inter;font-style:normal;font-weight:500;font-display:swap;src:url(/fonts/inter-latin-500-normal.woff2) format(\'woff2\');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}\n@font-face{font-family:Inter;font-style:normal;font-weight:600;font-display:swap;src:url(/fonts/inter-latin-600-normal.woff2) format(\'woff2\');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}\n@font-face{font-family:Inter;font-style:normal;font-weight:700;font-display:swap;src:url(/fonts/inter-latin-700-normal.woff2) format(\'woff2\');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}\n@font-face{font-family:"JetBrains Mono";font-style:normal;font-weight:500;font-display:swap;src:url(/fonts/jetbrains-mono-latin-500-normal.woff2) format(\'woff2\');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}`;

@@ -101,7 +101,12 @@ const SECTIONS = {};
 { const re = /\/\* -+ (.+?) -+ \*\/\n/g; let m, prev = null;
   while ((m = re.exec(CSS))){ if (prev) SECTIONS[prev.name] = CSS.slice(prev.end, m.index).trim(); prev = { name:m[1], end:m.index + m[0].length }; }
   if (prev) SECTIONS[prev.name] = CSS.slice(prev.end).trim(); }
-const defOf = id => { const a = DEFS_JS.indexOf(`DM.def('${id}'`); if (a < 0) return ''; const b = DEFS_JS.indexOf('\n});', a) + 4; return DEFS_JS.slice(a, b); };
+// a component's DM.def block, with any helpers its section keeps just before it (like Voice orb's shader), so the code
+// people copy runs on its own
+const defOf = id => { const a = DEFS_JS.indexOf(`DM.def('${id}'`); if (a < 0) return ''; const b = DEFS_JS.indexOf('\n});', a) + 4;
+  const h = DEFS_JS.lastIndexOf('/* ---------- ', a), he = h < 0 ? -1 : DEFS_JS.indexOf('*/\n', h);
+  const start = he > 0 && he < a && !DEFS_JS.slice(he, a).includes('DM.def(') ? he + 3 : a;
+  return DEFS_JS.slice(start, b).trim(); };
 
 /* ---------- CSS: scope everything to .v2, keyed to the site's style and theme ---------- */
 const SHELL = /(^|[\s>+~(,])(\.wrap|\.top|\.ctrls|\.acc|\.acc-[\w-]+|\.sec-h|\.grp-h|\.grid|\.card-h|\.card-f|\.replay|\.seg(?![\w-])|body|html)(?![\w-])/;
@@ -505,7 +510,13 @@ Every class, CSS variable and animation name starts with \`dm-\` in the React ve
   fs.mkdirSync(path.dirname(PAGES_DATA), { recursive:true });
   const cardsAll = [...site.matchAll(/<article\b([^>]*)>[\s\S]*?class="comp-title">([\s\S]*?)<\/h2>[\s\S]*?class="comp-desc">([\s\S]*?)<\/p>/g)];
   const meta = {}; for (const [, attrs] of cardsAll){ const reg = (attrs.match(/data-reg="([\w-]+)"/) || [])[1]; if (reg) meta[reg] = { v2:(attrs.match(/data-v2="([\w-]+)"/) || [])[1], wide:/class="comp wide/.test(attrs) }; }
-  fs.writeFileSync(PAGES_DATA, JSON.stringify({ sets:SETS, logo:site.match(/<a[^>]*class="brand"[\s\S]*?(<svg[\s\S]*?<\/svg>)<\/a>/)[1], sections:secs.filter(x => x.cards.length).map(x => ({
+  // the sidebar's icons (the site's own Phosphor set, which the homepage draws in its sidebar in both styles), so the docs and
+  // component pages draw the same Library, Docs, Changelog, Roadmap and FAQ rows
+  const shell = JSON.parse(site.match(/const PH_SHELL = (\{.*?\});\n/)[1]), icons = {};
+  for (const k of ['dashboard', 'description', 'history', 'trending_up', 'help', 'expand_more', 'terminal', 'tune', 'stars', 'check_circle', 'arrow_forward', 'arrow_back', 'code', 'content_copy']){
+    if (!shell[k]) throw new Error('no sidebar icon called ' + k); icons[k] = shell[k];
+  }
+  fs.writeFileSync(PAGES_DATA, JSON.stringify({ sets:SETS, logo:site.match(/<a[^>]*class="brand"[\s\S]*?(<svg[\s\S]*?<\/svg>)<\/a>/)[1], icons, sections:secs.filter(x => x.cards.length).map(x => ({
     slug:x.id.replace(/^s-/, ''), ...x,
     cards:x.cards.map(c => ({ reg:c.reg, title:c.t, desc:c.d, ...meta[c.reg] })) })) }, null, 1));
   fs.writeFileSync(path.join(path.dirname(OUT), 'llms.txt'), md);
