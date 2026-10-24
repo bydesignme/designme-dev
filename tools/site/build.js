@@ -58,8 +58,8 @@ const EXTRA = [
 const cssA = soft.indexOf('<style>\n[hidden]') + '<style>'.length;
 // on designme.dev the dark stage is a neutral #1c1c1c, so the components' dark greys drop their blue (Soft) and warm (Blueprint)
 // tint and sit one step lighter than the stage, the same grey the site's panels used before
-const NEUTRAL_DARK = { '--page':'#111111', '--stage':'#1c1c1c', '--surface':'#262626', '--raised':'#2c2c2c', '--fg':'#f2f2f2', '--fg2':'#ababab',
-  '--muted':'#9a9a9a', '--faint':'#555555', '--rail':'#414141', '--line':'#333333', '--chip':'#303030', '--hover':'#373737', '--press':'#3f3f3f',
+const NEUTRAL_DARK = { '--page':'#111111', '--stage':'#1c1c1c', '--surface':'#262626', '--raised':'#2c2c2c', '--fg':'#f2f2f2', '--fg2':'#c9c9c9',
+  '--muted':'#c0c0c0', '--faint':'#555555', '--rail':'#414141', '--line':'#333333', '--chip':'#303030', '--hover':'#373737', '--press':'#3f3f3f',
   '--wash':'#2c2c2c', '--soft':'#323232', '--soft-h':'#3a3a3a', '--dis':'#5f5f5f', '--ink':'#f2f2f2', '--on-ink':'#161616' };
 function neutralDark(text){
   const root = postcss.parse(text);
@@ -163,6 +163,10 @@ ${scoped}
   --accent-2:color-mix(in srgb,var(--accent) 86%,#000);--accent-bg:color-mix(in srgb,var(--accent) 9%,transparent)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .v2{--accent-2:color-mix(in srgb,var(--accent) 84%,#fff);--accent-bg:color-mix(in srgb,var(--accent) 13%,transparent)}}
 :root[data-theme="dark"] .v2{--accent-2:color-mix(in srgb,var(--accent) 84%,#fff);--accent-bg:color-mix(in srgb,var(--accent) 13%,transparent)}
+/* hovering a filled button moves its fill away from its text colour: darker under white text, lighter under dark text,
+   so the label keeps its contrast in every style, theme and picked accent */
+@supports (color:rgb(from red r g b)){.v2,:root:not([data-theme="light"]) .v2,:root[data-theme="dark"] .v2{--accent-2:color-mix(in srgb,var(--accent) 86%,rgb(from var(--on-accent) calc(255 - r) calc(255 - g) calc(255 - b)))}}
+@supports not (color:rgb(from red r g b)){:root:not([data-style="soft"]) .v2,:root:not([data-style="soft"]):not([data-theme="light"]) .v2{--accent-2:color-mix(in srgb,var(--accent) 86%,#fff)}:root[data-style="soft"] .v2,:root[data-style="soft"]:not([data-theme="light"]) .v2{--accent-2:color-mix(in srgb,var(--accent) 86%,#000)}}
 .v2.stage-in{display:block}
 .v2-layer{position:static}
 /* the variant switch lives in the card footer on the site */

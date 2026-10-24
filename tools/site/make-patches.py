@@ -855,5 +855,10 @@ CSS += """
 """
 # the rich text editor shipped, so the roadmap's own list (used when the live one can't load) says so
 patch("""['editor','Rich text editor','A minimal editor with an inline AI menu.','planned','Conversation'],""", """['editor','Rich text editor','A minimal editor with an inline AI menu.','shipped','Conversation'],""")
+# grey text in dark mode reaches APCA Lc 60 or more: secondary text about Lc 70, quieter text about Lc 60
+CSS += """
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--sh-dim:#c6c8ce;--sh-muted:#b6b8bf;--text-dim:#c6c8ce;--muted:#b6b8bf}}
+:root[data-theme="dark"]{--sh-dim:#c6c8ce;--sh-muted:#b6b8bf;--text-dim:#c6c8ce;--muted:#b6b8bf}
+"""
 json.dump({ 'patches': P, 'css': CSS },open(os.path.join(HERE, 'site-patches.json'), 'w'), indent=1)
 print(len(P), 'patches')
