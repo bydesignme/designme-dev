@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { cx } from '../../lib/cx';
 import { useControllable } from '../../lib/hooks';
 import { Icon } from '../../lib/icons';
@@ -95,11 +95,15 @@ export function PermissionGate({
   // the scopes play their entrance when they come back, not when the card first appears
   const [back, setBack] = useState(0);
   const [granted, setGranted] = useState(0);
+  // the scopes give way to a shorter result row: the gate keeps the height it had and centres the row in it, until Revoke or Undo
+  const root = useRef<HTMLDivElement>(null);
+  const [held, setHeld] = useState<number>();
+  const hold = () => setHeld(h => h ?? root.current?.offsetHeight);
   const n = ticked.length;
 
   useEffect(() => {
     if (!leaving) return;
-    const t = setTimeout(() => { setLeaving(false); setState('asking'); setBack(b => b + 1); onRevoke?.(); }, 300);
+    const t = setTimeout(() => { setLeaving(false); setHeld(undefined); setState('asking'); setBack(b => b + 1); onRevoke?.(); }, 300);
     return () => clearTimeout(t);
   }, [leaving]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -108,14 +112,14 @@ export function PermissionGate({
     if (!n || waiting) return;
     setWaiting(true); setGranted(n);
     try { await onAllow?.(ticked, dur); } finally { setWaiting(false); }
-    setState('allowed');
+    hold(); setState('allowed');
   };
-  const decline = () => { setState('declined'); onDecline?.(); };
-  const undo = () => { setState('asking'); setBack(b => b + 1); onUndo?.(); };
+  const decline = () => { hold(); setState('declined'); onDecline?.(); };
+  const undo = () => { setHeld(undefined); setState('asking'); setBack(b => b + 1); onUndo?.(); };
   const again = (i: number) => (back ? { className: 'dm-enter', style: enter(i * 50).style, key: back } : { className: undefined, style: undefined, key: 0 });
 
   return (
-    <div data-dm="" className={cx('dm-pgx', !bare && 'dm-panel', followUp && state === 'asking' && 'dm-esc', className)}>
+    <div data-dm="" ref={root} className={cx('dm-pgx', !bare && 'dm-panel', followUp && state === 'asking' && 'dm-esc', held && 'dm-held', className)} style={held ? { minHeight: held } : undefined}>
       <div className="dm-pgx-h">
         <span className="dm-pgx-ic">{icon ?? <Icon name="shield" />}</span>
         <div className="dm-pgx-ht"><b>{title}</b>{subtitle && <span className="dm-muted">{subtitle}</span>}</div>

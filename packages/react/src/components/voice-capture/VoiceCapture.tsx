@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { cx } from '../../lib/cx';
-import { useControllable } from '../../lib/hooks';
+import { useControllable, useIsoLayoutEffect } from '../../lib/hooks';
 import { Icon } from '../../lib/icons';
 import { Swap, Tip } from '../../lib/motion';
 import '../../designme.css';
@@ -50,6 +50,11 @@ export function VoiceCapture({ words, state, defaultState = 'listening', onState
   const root = useRef<HTMLDivElement>(null);
   const wave = useRef<HTMLCanvasElement>(null);
   const pop = useRef<HTMLDivElement>(null);
+  // once recording stops the wave folds away: the box keeps the height it had while recording and centres the words in it
+  const liveHeight = useRef<number | undefined>(undefined);
+  const [held, setHeld] = useState<number>();
+  useIsoLayoutEffect(() => { if (live && root.current) liveHeight.current = root.current.offsetHeight; });
+  useIsoLayoutEffect(() => { setHeld(live ? undefined : liveHeight.current); }, [live]);
 
   // the clock counts while listening, unless the parent passes seconds
   const [count, setCount] = useState(0);
@@ -123,7 +128,7 @@ export function VoiceCapture({ words, state, defaultState = 'listening', onState
   const again = () => { setCount(0); setFixes({}); setMenuOpen(false); samples.current = []; onRecordAgain?.(); setState('listening'); };
 
   return (
-    <div data-dm="" ref={root} className={cx('dm-vcx dm-panel', now === 'paused' && 'dm-paused', !live && 'dm-done', className)}>
+    <div data-dm="" ref={root} className={cx('dm-vcx dm-panel', now === 'paused' && 'dm-paused', !live && 'dm-done', held && 'dm-held', className)} style={held ? { minHeight: held } : undefined}>
       <div className="dm-vcx-top">
         <span className="dm-vcx-dot" />
         <Swap className="dm-vcx-st">{status ?? STATUS[now]}</Swap>

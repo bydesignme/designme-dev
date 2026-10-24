@@ -69,7 +69,7 @@ export default function SocialSignInDemo() {
     &lt;/div&gt;
   );
 }
-</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything SocialSignIn takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>providers</code></td><td><code>SocialSignInProvider[]</code></td><td>Defaults to Google, GitHub, Figma and SSO</td></tr><tr><td><code>lastUsed</code></td><td><code>string | null</code></td><td>The provider used last time, by key. It gets an outline and a &quot;Last used&quot; badge</td></tr><tr><td><code>defaultLastUsed</code></td><td><code>string | null</code></td><td></td></tr><tr><td><code>onLastUsedChange</code></td><td><code>(key: string | null) =&gt; void</code></td><td></td></tr><tr><td><code>signedIn</code></td><td><code>string | null</code></td><td>The provider the person is signed in with, by key, or null. Signing in sets it, Sign out clears it</td></tr><tr><td><code>defaultSignedIn</code></td><td><code>string | null</code></td><td></td></tr><tr><td><code>onSignedInChange</code></td><td><code>(key: string | null) =&gt; void</code></td><td></td></tr><tr><td><code>onSignIn</code></td><td><code>(provider: SocialSignInProvider) =&gt; unknown</code></td><td>Called when a provider is clicked. Return a promise and its button spins until it settles; resolve to false or reject to stay signed out</td></tr><tr><td><code>onSignOut</code></td><td><code>() =&gt; void</code></td><td></td></tr><tr><td><code>onEmail</code></td><td><code>() =&gt; void</code></td><td>Adds a link under the providers</td></tr><tr><td><code>user</code></td><td><code>SocialSignInUser</code></td><td></td></tr><tr><td><code>title</code></td><td><code>string</code></td><td></td></tr><tr><td><code>logo</code></td><td><code>ReactNode</code></td><td>Your logo, on the dark tile at the top. Defaults to the DesignMe mark</td></tr><tr><td><code>emailLabel</code></td><td><code>string</code></td><td></td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>SocialSignIn.tsx<span class="l">React · 122 lines</span></summary><pre class="cp-pre"><code>&#39;use client&#39;;
+</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything SocialSignIn takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>providers</code></td><td><code>SocialSignInProvider[]</code></td><td>Defaults to Google, GitHub, Figma and SSO</td></tr><tr><td><code>lastUsed</code></td><td><code>string | null</code></td><td>The provider used last time, by key. It gets an outline and a &quot;Last used&quot; badge</td></tr><tr><td><code>defaultLastUsed</code></td><td><code>string | null</code></td><td></td></tr><tr><td><code>onLastUsedChange</code></td><td><code>(key: string | null) =&gt; void</code></td><td></td></tr><tr><td><code>signedIn</code></td><td><code>string | null</code></td><td>The provider the person is signed in with, by key, or null. Signing in sets it, Sign out clears it</td></tr><tr><td><code>defaultSignedIn</code></td><td><code>string | null</code></td><td></td></tr><tr><td><code>onSignedInChange</code></td><td><code>(key: string | null) =&gt; void</code></td><td></td></tr><tr><td><code>onSignIn</code></td><td><code>(provider: SocialSignInProvider) =&gt; unknown</code></td><td>Called when a provider is clicked. Return a promise and its button spins until it settles; resolve to false or reject to stay signed out</td></tr><tr><td><code>onSignOut</code></td><td><code>() =&gt; void</code></td><td></td></tr><tr><td><code>onEmail</code></td><td><code>() =&gt; void</code></td><td>Adds a link under the providers</td></tr><tr><td><code>user</code></td><td><code>SocialSignInUser</code></td><td></td></tr><tr><td><code>title</code></td><td><code>string</code></td><td></td></tr><tr><td><code>logo</code></td><td><code>ReactNode</code></td><td>Your logo, on the dark tile at the top. Defaults to the DesignMe mark</td></tr><tr><td><code>emailLabel</code></td><td><code>string</code></td><td></td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>SocialSignIn.tsx<span class="l">React · 125 lines</span></summary><pre class="cp-pre"><code>&#39;use client&#39;;
 import { useEffect, useRef, useState, type ReactNode } from &#39;react&#39;;
 import { Brand, type BrandName } from &#39;../lib/brands&#39;;
 import { cx } from &#39;../lib/cx&#39;;
@@ -143,24 +143,27 @@ export function SocialSignIn({ providers = PROVIDERS, lastUsed, defaultLastUsed 
   const [last, setLast] = useControllable(lastUsed, defaultLastUsed, onLastUsedChange);
   const [session, setSession] = useControllable(signedIn, defaultSignedIn, onSignedInChange);
   const [busy, setBusy] = useState&lt;string | null&gt;(null);
+  // signing in swaps the providers for a shorter welcome: it keeps the height it had and centres the welcome in it
+  const [held, setHeld] = useState&lt;number&gt;();
+  const root = useRef&lt;HTMLDivElement&gt;(null);
   const alive = useRef(true);
   useEffect(() =&gt; { alive.current = true; return () =&gt; { alive.current = false; }; }, []);
 
   const signIn = (p: SocialSignInProvider) =&gt; {
     if (busy) return;
-    const done = (ok: unknown) =&gt; { if (!alive.current) return; setBusy(null); if (ok === false) return; setLast(p.key); setSession(p.key); };
+    const done = (ok: unknown) =&gt; { if (!alive.current) return; setBusy(null); if (ok === false) return; setHeld(root.current?.offsetHeight); setLast(p.key); setSession(p.key); };
     const out = onSignIn?.(p);
     if (out &amp;&amp; typeof (out as Promise&lt;unknown&gt;).then === &#39;function&#39;) {
       setBusy(p.key);
       (out as Promise&lt;unknown&gt;).then(done, () =&gt; { if (alive.current) setBusy(null); });
     } else done(out);
   };
-  const signOut = () =&gt; { setSession(null); onSignOut?.(); };
+  const signOut = () =&gt; { setHeld(undefined); setSession(null); onSignOut?.(); };
   const who = providers.find(p =&gt; p.key === session);
   const step = (i: number) =&gt; (user ? i : i - 1) * 60;
 
   return (
-    &lt;div data-dm=&quot;&quot; className={cx(&#39;dm-ssi dm-panel&#39;, className)}&gt;
+    &lt;div data-dm=&quot;&quot; ref={root} className={cx(&#39;dm-ssi dm-panel&#39;, session &amp;&amp; held &amp;&amp; &#39;dm-held&#39;, className)} style={session &amp;&amp; held ? { minHeight: held } : undefined}&gt;
       {session ? (
         &lt;div className=&quot;dm-ssi-ok&quot;&gt;
           {/* the welcome comes in a line at a time */}
@@ -261,10 +264,10 @@ export function SocialSignIn({ providers = PROVIDERS, lastUsed, defaultLastUsed 
     $$(&#39;.ssi-b&#39;, list).forEach(b =&gt; b.onclick = () =&gt; c.run(async () =&gt; {
       b.classList.add(&#39;busy&#39;); list.classList.add(&#39;wait&#39;); $(&#39;.mk&#39;, b).innerHTML = &#39;&lt;span class=&quot;spin&quot;&gt;&lt;/span&gt;&#39;;
       await c.wait(1100); last = b.dataset.p;
-      const kids = [...root.children]; kids.forEach(k =&gt; k.hidden = true);
+      hold(root); const kids = [...root.children]; kids.forEach(k =&gt; k.hidden = true);
       const ok = html(`&lt;div class=&quot;ssi-ok&quot;&gt;${AV(&#39;MK&#39;,&#39;var(--pl)&#39;)}&lt;b&gt;Welcome back, Maya&lt;/b&gt;&lt;span class=&quot;muted&quot;&gt;Signed in with ${last}&lt;/span&gt;&lt;button class=&quot;pill ghost sm&quot;&gt;Sign out&lt;/button&gt;&lt;/div&gt;`);
       root.appendChild(ok); stagger([...ok.children], 60);
-      $(&#39;button&#39;, ok).onclick = () =&gt; { ok.remove(); kids.forEach(k =&gt; k.hidden = false); list.classList.remove(&#39;wait&#39;); paint(); };
+      $(&#39;button&#39;, ok).onclick = () =&gt; { ok.remove(); release(root); kids.forEach(k =&gt; k.hidden = false); list.classList.remove(&#39;wait&#39;); paint(); };
     }));
   }
   paint();
@@ -313,10 +316,10 @@ export function SocialSignIn({ providers = PROVIDERS, lastUsed, defaultLastUsed 
     $$('.ssi-b', list).forEach(b => b.onclick = () => c.run(async () => {
       b.classList.add('busy'); list.classList.add('wait'); $('.mk', b).innerHTML = '<span class="spin"></span>';
       await c.wait(1100); last = b.dataset.p;
-      const kids = [...root.children]; kids.forEach(k => k.hidden = true);
+      hold(root); const kids = [...root.children]; kids.forEach(k => k.hidden = true);
       const ok = html(`<div class="ssi-ok">${AV('MK','var(--pl)')}<b>Welcome back, Maya</b><span class="muted">Signed in with ${last}</span><button class="pill ghost sm">Sign out</button></div>`);
       root.appendChild(ok); stagger([...ok.children], 60);
-      $('button', ok).onclick = () => { ok.remove(); kids.forEach(k => k.hidden = false); list.classList.remove('wait'); paint(); };
+      $('button', ok).onclick = () => { ok.remove(); release(root); kids.forEach(k => k.hidden = false); list.classList.remove('wait'); paint(); };
     }));
   }
   paint();

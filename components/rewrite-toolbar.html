@@ -83,7 +83,7 @@ export default function RewriteToolbarDemo() {
     &lt;/div&gt;
   );
 }
-</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything RewriteToolbar takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>title</code><span class="opt">required</span></td><td><code>ReactNode</code></td><td>The document&#39;s name</td></tr><tr><td><code>kind</code></td><td><code>string</code></td><td>The file type tag in front of the name. Defaults to DOC</td></tr><tr><td><code>sentences</code></td><td><code>string[]</code></td><td>The text, one sentence each, so a click picks a sentence</td></tr><tr><td><code>defaultSentences</code></td><td><code>string[]</code></td><td></td></tr><tr><td><code>onSentencesChange</code></td><td><code>(sentences: string[]) =&gt; void</code></td><td>Called with every sentence once a rewrite is accepted</td></tr><tr><td><code>selected</code></td><td><code>number | null</code></td><td>Index of the sentence with the toolbar on it, or null. Leave it out to let clicks pick it</td></tr><tr><td><code>defaultSelected</code></td><td><code>number | null</code></td><td></td></tr><tr><td><code>onSelectedChange</code></td><td><code>(index: number | null) =&gt; void</code></td><td></td></tr><tr><td><code>actions</code></td><td><code>RewriteAction[]</code></td><td>Defaults to Clearer, Shorter and Friendlier</td></tr><tr><td><code>onRewrite</code><span class="opt">required</span></td><td><code>(sentence: string, action: string, index: number) =&gt; Promise&lt;string&gt; | string</code></td><td>Writes the new sentence. While it works the toolbar says Rewriting; the answer is then written in word by word. If it throws, the sentence is left as it was</td></tr><tr><td><code>onAsk</code></td><td><code>(sentence: string, index: number) =&gt; void</code></td><td>The wand at the end of the toolbar. Left out, it rewrites with the first action</td></tr><tr><td><code>askLabel</code></td><td><code>string</code></td><td>The tip on the wand</td></tr><tr><td><code>askShortcut</code></td><td><code>string</code></td><td>The shortcut shown in that tip</td></tr><tr><td><code>ref</code></td><td><code>Ref&lt;RewriteToolbarHandle&gt;</code></td><td></td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>RewriteToolbar.tsx<span class="l">React · 171 lines</span></summary><pre class="cp-pre"><code>&#39;use client&#39;;
+</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything RewriteToolbar takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>title</code><span class="opt">required</span></td><td><code>ReactNode</code></td><td>The document&#39;s name</td></tr><tr><td><code>kind</code></td><td><code>string</code></td><td>The file type tag in front of the name. Defaults to DOC</td></tr><tr><td><code>sentences</code></td><td><code>string[]</code></td><td>The text, one sentence each, so a click picks a sentence</td></tr><tr><td><code>defaultSentences</code></td><td><code>string[]</code></td><td></td></tr><tr><td><code>onSentencesChange</code></td><td><code>(sentences: string[]) =&gt; void</code></td><td>Called with every sentence once a rewrite is accepted</td></tr><tr><td><code>selected</code></td><td><code>number | null</code></td><td>Index of the sentence with the toolbar on it, or null. Leave it out to let clicks pick it</td></tr><tr><td><code>defaultSelected</code></td><td><code>number | null</code></td><td></td></tr><tr><td><code>onSelectedChange</code></td><td><code>(index: number | null) =&gt; void</code></td><td></td></tr><tr><td><code>actions</code></td><td><code>RewriteAction[]</code></td><td>Defaults to Clearer, Shorter and Friendlier</td></tr><tr><td><code>onRewrite</code><span class="opt">required</span></td><td><code>(sentence: string, action: string, index: number) =&gt; Promise&lt;string&gt; | string</code></td><td>Writes the new sentence. While it works the toolbar says Rewriting; the answer is then written in word by word. If it throws, the sentence is left as it was</td></tr><tr><td><code>onAsk</code></td><td><code>(sentence: string, index: number) =&gt; void</code></td><td>The wand at the end of the toolbar. Left out, it rewrites with the first action</td></tr><tr><td><code>askLabel</code></td><td><code>string</code></td><td>The tip on the wand</td></tr><tr><td><code>askShortcut</code></td><td><code>string</code></td><td>The shortcut shown in that tip</td></tr><tr><td><code>ref</code></td><td><code>Ref&lt;RewriteToolbarHandle&gt;</code></td><td></td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>RewriteToolbar.tsx<span class="l">React · 173 lines</span></summary><pre class="cp-pre"><code>&#39;use client&#39;;
 import { useEffect, useImperativeHandle, useRef, useState, type ReactNode, type Ref } from &#39;react&#39;;
 import { cx } from &#39;../lib/cx&#39;;
 import { useControllable, useIsoLayoutEffect, useReducedMotion } from &#39;../lib/hooks&#39;;
@@ -157,6 +157,8 @@ export function RewriteToolbar({
   const head = useRef&lt;HTMLDivElement&gt;(null);
   const spans = useRef&lt;(HTMLSpanElement | null)[]&gt;([]);
   const [at, setAt] = useState&lt;{ left: number; top: number }&gt;({ left: 0, top: 0 });
+  // keeping a shorter sentence keeps the doc&#39;s height, with the text centred in it, so it doesn&#39;t shrink under the reader
+  const [held, setHeld] = useState&lt;number&gt;();
   const busy = job !== null;
   // the toolbar turns to Rewritten one beat after the last word, as the site does
   const phase = !busy ? &#39;menu&#39; : job.text !== undefined &amp;&amp; job.shown &gt; words(job.text).length ? &#39;review&#39; : &#39;working&#39;;
@@ -207,14 +209,14 @@ export function RewriteToolbar({
   };
   const finish = (keep: boolean) =&gt; {
     if (!job?.text) return;
-    if (keep) setText(text.map((s, i) =&gt; i === job.index ? job.text! : s));
+    if (keep) { const h = root.current?.offsetHeight; setHeld(was =&gt; Math.max(was ?? 0, h ?? 0) || undefined); setText(text.map((s, i) =&gt; i === job.index ? job.text! : s)); }
     setJob(null); setSel(null); setStatus(keep ? &#39;Saved&#39; : &#39;Click a sentence&#39;);
   };
 
   useImperativeHandle(ref, () =&gt; ({ rewrite, accept: () =&gt; finish(true), undo: () =&gt; finish(false) }));
 
   return (
-    &lt;div data-dm=&quot;&quot; ref={root} className={cx(&#39;dm-rwx dm-panel&#39;, className)}&gt;
+    &lt;div data-dm=&quot;&quot; ref={root} className={cx(&#39;dm-rwx dm-panel&#39;, held &amp;&amp; &#39;dm-held&#39;, className)} style={held ? { minHeight: held } : undefined}&gt;
       &lt;div ref={head} className=&quot;dm-rwx-h&quot;&gt;&lt;span className=&quot;dm-ft&quot;&gt;{kind}&lt;/span&gt;&lt;span&gt;{title}&lt;/span&gt;&lt;Swap className=&quot;dm-muted dm-rwx-st&quot;&gt;{status}&lt;/Swap&gt;&lt;/div&gt;
       &lt;div className=&quot;dm-rwx-doc&quot;&gt;
         {text.map((s, i) =&gt; {
@@ -310,7 +312,7 @@ const words = (s: string) =&gt; s.split(&#39; &#39;);
 .rwx-tb.act{padding:4px 4px 4px 12px}
 .rwx-tb .lbl{font-size:12.5px;margin-right:6px;display:flex;align-items:center;gap:7px}
 .rwx-tb .pill.sm{height:28px}
-</code></pre></details><details class="cp-file"><summary>rewrite-toolbar.js<span class="l">HTML · 48 lines</span></summary><pre class="cp-pre"><code>DM.def(&#39;rewrite-toolbar&#39;, (r, c) =&gt; {
+</code></pre></details><details class="cp-file"><summary>rewrite-toolbar.js<span class="l">HTML · 49 lines</span></summary><pre class="cp-pre"><code>DM.def(&#39;rewrite-toolbar&#39;, (r, c) =&gt; {
   r.innerHTML = r.innerHTML.replace(&#39;{spark}&#39;, I(&#39;spark&#39;,&#39;xs&#39;)).replace(&#39;{at}&#39;, I(&#39;wand&#39;,&#39;xs&#39;));
   const S = [
     [&#39;Welcome to DesignMe, a place where you and your team can work together with an agent on all of your design files in one place.&#39;, { clear:&#39;DesignMe is where your team and an agent design together.&#39;, short:&#39;Design with your team and an agent.&#39;, warm:&#39;Welcome in. This is where you, your team and your agent make things together.&#39; }],
@@ -342,7 +344,8 @@ const words = (s: string) =&gt; s.split(&#39; &#39;);
       el.innerHTML = `&lt;del&gt;${old}&lt;/del&gt; &lt;ins&gt;&lt;/ins&gt;`; const ins = $(&#39;ins&#39;, el); place(el); await c.wait(350);
       for (const w of nw.split(&#39; &#39;)){ ins.insertAdjacentHTML(&#39;beforeend&#39;, `&lt;span class=&quot;w&quot;&gt;${w} &lt;/span&gt;`); await c.wait(55); }
       tb.innerHTML = `&lt;span class=&quot;lbl&quot;&gt;${I(&#39;check&#39;,&#39;xs&#39;)}Rewritten&lt;/span&gt;&lt;button class=&quot;rwx-b rwx-un&quot;&gt;Undo&lt;/button&gt;&lt;button class=&quot;pill accent sm rwx-ok&quot;&gt;Accept&lt;/button&gt;`; place(el);
-      $(&#39;.rwx-ok&#39;, tb).onclick = () =&gt; { el.textContent = nw; S[i][0] = nw; el.classList.remove(&#39;sel&#39;); hide(); busy = false; swap(st, &#39;Saved&#39;); };
+      // keeping a shorter sentence keeps the doc&#39;s height, with the text centred in it (hold), so the card doesn&#39;t shrink
+      $(&#39;.rwx-ok&#39;, tb).onclick = () =&gt; { hold(box); el.textContent = nw; S[i][0] = nw; el.classList.remove(&#39;sel&#39;); hide(); busy = false; swap(st, &#39;Saved&#39;); };
       $(&#39;.rwx-un&#39;, tb).onclick = () =&gt; { el.textContent = old; el.classList.remove(&#39;sel&#39;); hide(); busy = false; swap(st, &#39;Click a sentence&#39;); };
     });
   }
@@ -422,7 +425,8 @@ const words = (s: string) =&gt; s.split(&#39; &#39;);
       el.innerHTML = `<del>${old}</del> <ins></ins>`; const ins = $('ins', el); place(el); await c.wait(350);
       for (const w of nw.split(' ')){ ins.insertAdjacentHTML('beforeend', `<span class="w">${w} </span>`); await c.wait(55); }
       tb.innerHTML = `<span class="lbl">${I('check','xs')}Rewritten</span><button class="rwx-b rwx-un">Undo</button><button class="pill accent sm rwx-ok">Accept</button>`; place(el);
-      $('.rwx-ok', tb).onclick = () => { el.textContent = nw; S[i][0] = nw; el.classList.remove('sel'); hide(); busy = false; swap(st, 'Saved'); };
+      // keeping a shorter sentence keeps the doc's height, with the text centred in it (hold), so the card doesn't shrink
+      $('.rwx-ok', tb).onclick = () => { hold(box); el.textContent = nw; S[i][0] = nw; el.classList.remove('sel'); hide(); busy = false; swap(st, 'Saved'); };
       $('.rwx-un', tb).onclick = () => { el.textContent = old; el.classList.remove('sel'); hide(); busy = false; swap(st, 'Click a sentence'); };
     });
   }

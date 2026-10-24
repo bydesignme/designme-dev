@@ -146,7 +146,7 @@ export default function TaskTableDemo() {
     &lt;/div&gt;
   );
 }
-</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything TaskTable takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>tasks</code><span class="opt">required</span></td><td><code>Task[]</code></td><td></td></tr><tr><td><code>title</code></td><td><code>string</code></td><td>The name in the header. Defaults to &quot;Agent tasks&quot;</td></tr><tr><td><code>summary</code></td><td><code>string</code></td><td>The quiet line beside the name. Defaults to a count of tasks and how many are running</td></tr><tr><td><code>selected</code></td><td><code>string[]</code></td><td>Ids of the selected tasks. Leave it out to let the checkboxes and rows toggle it</td></tr><tr><td><code>defaultSelected</code></td><td><code>string[]</code></td><td></td></tr><tr><td><code>onSelectedChange</code></td><td><code>(ids: string[]) =&gt; void</code></td><td></td></tr><tr><td><code>sort</code></td><td><code>TaskSort</code></td><td>The column the rows are sorted by. Leave it out to let the headers set it. Defaults to updated, newest first</td></tr><tr><td><code>defaultSort</code></td><td><code>TaskSort</code></td><td></td></tr><tr><td><code>onSortChange</code></td><td><code>(sort: TaskSort) =&gt; void</code></td><td></td></tr><tr><td><code>onAction</code></td><td><code>(action: TaskAction, ids: string[]) =&gt; void</code></td><td>A button in the header while tasks are selected. The selection clears after it; cancelled rows slide away first</td></tr><tr><td><code>empty</code></td><td><code>ReactNode</code></td><td>What shows when there are no tasks. Defaults to a short &quot;No agent tasks&quot; note</td></tr><tr><td><code>emptyAction</code></td><td><code>{ label: string; onClick: () =&gt; void }</code></td><td>A button under the empty note, like { label: &#39;Bring them back&#39;, onClick }</td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>TaskTable.tsx<span class="l">React · 185 lines</span></summary><pre class="cp-pre"><code>&#39;use client&#39;;
+</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything TaskTable takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>tasks</code><span class="opt">required</span></td><td><code>Task[]</code></td><td></td></tr><tr><td><code>title</code></td><td><code>string</code></td><td>The name in the header. Defaults to &quot;Agent tasks&quot;</td></tr><tr><td><code>summary</code></td><td><code>string</code></td><td>The quiet line beside the name. Defaults to a count of tasks and how many are running</td></tr><tr><td><code>selected</code></td><td><code>string[]</code></td><td>Ids of the selected tasks. Leave it out to let the checkboxes and rows toggle it</td></tr><tr><td><code>defaultSelected</code></td><td><code>string[]</code></td><td></td></tr><tr><td><code>onSelectedChange</code></td><td><code>(ids: string[]) =&gt; void</code></td><td></td></tr><tr><td><code>sort</code></td><td><code>TaskSort</code></td><td>The column the rows are sorted by. Leave it out to let the headers set it. Defaults to updated, newest first</td></tr><tr><td><code>defaultSort</code></td><td><code>TaskSort</code></td><td></td></tr><tr><td><code>onSortChange</code></td><td><code>(sort: TaskSort) =&gt; void</code></td><td></td></tr><tr><td><code>onAction</code></td><td><code>(action: TaskAction, ids: string[]) =&gt; void</code></td><td>A button in the header while tasks are selected. The selection clears after it; cancelled rows slide away first</td></tr><tr><td><code>empty</code></td><td><code>ReactNode</code></td><td>What shows when there are no tasks. Defaults to a short &quot;No agent tasks&quot; note</td></tr><tr><td><code>emptyAction</code></td><td><code>{ label: string; onClick: () =&gt; void }</code></td><td>A button under the empty note, like { label: &#39;Bring them back&#39;, onClick }</td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>TaskTable.tsx<span class="l">React · 197 lines</span></summary><pre class="cp-pre"><code>&#39;use client&#39;;
 import { useRef, useState, type ReactNode } from &#39;react&#39;;
 import { cx } from &#39;../lib/cx&#39;;
 import { useControllable, useIsoLayoutEffect, useReducedMotion } from &#39;../lib/hooks&#39;;
@@ -254,6 +254,18 @@ export function TaskTable({
     was.current = now;
   });
 
+  // the empty state keeps the height the table had, centred in it, so the card doesn&#39;t shrink when the last task goes
+  const panel = useRef&lt;HTMLDivElement&gt;(null), emptyCell = useRef&lt;HTMLTableCellElement&gt;(null);
+  const full = useRef&lt;number | undefined&gt;(undefined);
+  const [pad, setPad] = useState&lt;{ paddingTop: number; paddingBottom: number }&gt;();
+  useIsoLayoutEffect(() =&gt; { if (tasks.length &amp;&amp; panel.current) full.current = panel.current.offsetHeight; });
+  useIsoLayoutEffect(() =&gt; {
+    const p = panel.current, td = emptyCell.current;
+    if (tasks.length || !p || !td || !full.current) { setPad(undefined); return; }
+    const d = full.current - p.offsetHeight, cs = getComputedStyle(td);
+    setPad(d &gt; 1 ? { paddingTop: parseFloat(cs.paddingTop) + d / 2, paddingBottom: parseFloat(cs.paddingBottom) + d / 2 } : undefined);
+  }, [tasks.length === 0]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const toggle = (id: string) =&gt; setSel(sel.includes(id) ? sel.filter(x =&gt; x !== id) : [...sel, id]);
   const sortBy = (key: TaskSortKey) =&gt; setBy(key === by.key ? { key, desc: !by.desc } : { key, desc: false });
   const act = (a: TaskAction) =&gt; {
@@ -265,7 +277,7 @@ export function TaskTable({
 
   return (
     &lt;div data-dm=&quot;&quot; className={cx(&#39;dm-ttx-box&#39;, className)} style={{ containerType: &#39;inline-size&#39;, width: &#39;100%&#39; }}&gt;
-      &lt;div className={cx(&#39;dm-ttx dm-panel&#39;, n &gt; 0 &amp;&amp; &#39;dm-selecting&#39;)}&gt;
+      &lt;div ref={panel} className={cx(&#39;dm-ttx dm-panel&#39;, n &gt; 0 &amp;&amp; &#39;dm-selecting&#39;)}&gt;
         &lt;div className=&quot;dm-ttx-hd&quot;&gt;
           &lt;div className=&quot;dm-ttx-ti&quot; inert={n &gt; 0}&gt;&lt;b&gt;{title}&lt;/b&gt;&lt;Swap className=&quot;dm-muted dm-num dm-ttx-sum&quot;&gt;{line}&lt;/Swap&gt;&lt;/div&gt;
           &lt;div className=&quot;dm-ttx-sb&quot; inert={n === 0}&gt;
@@ -311,7 +323,7 @@ export function TaskTable({
               })}
               {!tasks.length &amp;&amp; (
                 &lt;tr className=&quot;dm-ttx-empty dm-enter&quot;&gt;
-                  &lt;td colSpan={6}&gt;
+                  &lt;td colSpan={6} ref={emptyCell} style={pad}&gt;
                     {empty ?? (
                       &lt;div className=&quot;dm-ttx-em&quot;&gt;
                         &lt;span className=&quot;dm-ic&quot;&gt;&lt;Icon name=&quot;check&quot; /&gt;&lt;/span&gt;
@@ -488,7 +500,7 @@ export function TaskTable({
 @container (max-width:560px){.ttx-t{min-width:0}.ttx-t th:nth-child(6),.ttx-t td:nth-child(6){display:none}.ttx-t th:nth-child(5),.ttx-t td:nth-child(5){padding-right:16px}.ttx-t td.nm{width:100%;max-width:0;overflow:hidden;text-overflow:ellipsis}}
 @container (max-width:420px){.ttx-t th:nth-child(5),.ttx-t td:nth-child(5){display:none}.ttx-t th:nth-child(4),.ttx-t td:nth-child(4){padding-right:16px}.ttx-t .ag{font-size:0;gap:0}.ttx-sb{padding-right:6px}.ttx-sb .pill{padding:0 9px}.ttx-sb .pill .i{display:none}}
 @container (max-width:340px){.ttx-ti{padding:0 12px}.ttx-sb{gap:0;padding:0 4px 0 12px}.ttx-n{margin-right:4px}.ttx-sb .pill{padding:0 7px}.ttx-t th.ck,.ttx-t td.ck{padding-left:12px}.ttx-t th:nth-child(4),.ttx-t td:nth-child(4){padding-right:12px}}
-</code></pre></details><details class="cp-file"><summary>task-table.js<span class="l">HTML · 82 lines</span></summary><pre class="cp-pre"><code>DM.def(&#39;task-table&#39;, (r, c) =&gt; {
+</code></pre></details><details class="cp-file"><summary>task-table.js<span class="l">HTML · 87 lines</span></summary><pre class="cp-pre"><code>DM.def(&#39;task-table&#39;, (r, c) =&gt; {
   r.innerHTML = r.innerHTML.replace(&#39;{pause}&#39;, I(&#39;pause&#39;,&#39;xs&#39;)).replace(&#39;{refresh}&#39;, I(&#39;refresh&#39;,&#39;xs&#39;)).replace(&#39;{x}&#39;, I(&#39;x&#39;,&#39;xs&#39;));
   const ST = { run:[&#39;Running&#39;,&#39;&lt;span class=&quot;spin&quot;&gt;&lt;/span&gt;&#39;], done:[&#39;Done&#39;, I(&#39;ok&#39;,&#39;xs&#39;)], fail:[&#39;Failed&#39;, I(&#39;alert&#39;,&#39;xs&#39;)], wait:[&#39;Queued&#39;,&#39;&lt;span class=&quot;dot&quot;&gt;&lt;/span&gt;&#39;], pause:[&#39;Paused&#39;, I(&#39;pause&#39;,&#39;xs&#39;)] };
   const SEED = [
@@ -538,17 +550,22 @@ export function TaskTable({
   // cancelled rows slide away and the rest close up; when nothing is left the table says so
   function leave(ids){
     const out = T.filter(t =&gt; ids.includes(t.id)); T = T.filter(t =&gt; !ids.includes(t.id));
+    // the table&#39;s height as it was, for the empty state that takes the last rows&#39; place
+    const had = T.length ? 0 : box.getBoundingClientRect().height;
     const go = () =&gt; { const first = new Map(T.map(t =&gt; [t.id, rows.get(t.id).getBoundingClientRect().top]));
       out.forEach(t =&gt; { rows.get(t.id).remove(); rows.delete(t.id); });
       if (!REDUCE) T.forEach(t =&gt; { const el = rows.get(t.id), d = first.get(t.id) - el.getBoundingClientRect().top; if (Math.abs(d) &gt; 1) el.animate([{ transform:`translateY(${d}px)` }, { transform:&#39;none&#39; }], { duration:480, easing:ease }); });
-      if (!T.length) empty(); sync(); };
+      if (!T.length) empty(had); sync(); };
     if (REDUCE) return go();
     out.forEach(t =&gt; rows.get(t.id).classList.add(&#39;ttx-out&#39;));
     c.later(250, go);
   }
-  function empty(){
+  // the empty state keeps the height the table had, centred in it, so the card doesn&#39;t shrink to the top of its stage
+  function empty(had){
     const tr = html(`&lt;tr class=&quot;ttx-empty&quot;&gt;&lt;td colspan=&quot;6&quot;&gt;&lt;div class=&quot;ttx-em&quot;&gt;&lt;span class=&quot;ic&quot;&gt;${I(&#39;check&#39;)}&lt;/span&gt;&lt;b&gt;No agent tasks&lt;/b&gt;&lt;span&gt;Everything has finished or been cancelled.&lt;/span&gt;&lt;button class=&quot;pill ghost sm&quot;&gt;${I(&#39;refresh&#39;,&#39;xs&#39;)}Bring them back&lt;/button&gt;&lt;/div&gt;&lt;/td&gt;&lt;/tr&gt;`);
     tb.appendChild(tr); enter(tr);
+    const d = had - box.getBoundingClientRect().height, td = tr.firstElementChild;
+    if (d &gt; 1){ const cs = getComputedStyle(td); td.style.paddingTop = parseFloat(cs.paddingTop) + d / 2 + &#39;px&#39;; td.style.paddingBottom = parseFloat(cs.paddingBottom) + d / 2 + &#39;px&#39;; }
     $(&#39;.pill&#39;, tr).onclick = e =&gt; { e.stopPropagation(); tr.remove(); T = seed(); T.forEach(make); order(false); sync(); stagger([...tb.children], 30); };
   }
   $$(&#39;.ttx-s&#39;, r).forEach(b =&gt; b.onclick = () =&gt; { const k = +b.dataset.k; if (k === key) desc = !desc; else { key = k; desc = false; } order(true); });
@@ -652,17 +669,22 @@ export function TaskTable({
   // cancelled rows slide away and the rest close up; when nothing is left the table says so
   function leave(ids){
     const out = T.filter(t => ids.includes(t.id)); T = T.filter(t => !ids.includes(t.id));
+    // the table's height as it was, for the empty state that takes the last rows' place
+    const had = T.length ? 0 : box.getBoundingClientRect().height;
     const go = () => { const first = new Map(T.map(t => [t.id, rows.get(t.id).getBoundingClientRect().top]));
       out.forEach(t => { rows.get(t.id).remove(); rows.delete(t.id); });
       if (!REDUCE) T.forEach(t => { const el = rows.get(t.id), d = first.get(t.id) - el.getBoundingClientRect().top; if (Math.abs(d) > 1) el.animate([{ transform:`translateY(${d}px)` }, { transform:'none' }], { duration:480, easing:ease }); });
-      if (!T.length) empty(); sync(); };
+      if (!T.length) empty(had); sync(); };
     if (REDUCE) return go();
     out.forEach(t => rows.get(t.id).classList.add('ttx-out'));
     c.later(250, go);
   }
-  function empty(){
+  // the empty state keeps the height the table had, centred in it, so the card doesn't shrink to the top of its stage
+  function empty(had){
     const tr = html(`<tr class="ttx-empty"><td colspan="6"><div class="ttx-em"><span class="ic">${I('check')}</span><b>No agent tasks</b><span>Everything has finished or been cancelled.</span><button class="pill ghost sm">${I('refresh','xs')}Bring them back</button></div></td></tr>`);
     tb.appendChild(tr); enter(tr);
+    const d = had - box.getBoundingClientRect().height, td = tr.firstElementChild;
+    if (d > 1){ const cs = getComputedStyle(td); td.style.paddingTop = parseFloat(cs.paddingTop) + d / 2 + 'px'; td.style.paddingBottom = parseFloat(cs.paddingBottom) + d / 2 + 'px'; }
     $('.pill', tr).onclick = e => { e.stopPropagation(); tr.remove(); T = seed(); T.forEach(make); order(false); sync(); stagger([...tb.children], 30); };
   }
   $$('.ttx-s', r).forEach(b => b.onclick = () => { const k = +b.dataset.k; if (k === key) desc = !desc; else { key = k; desc = false; } order(true); });

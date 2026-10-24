@@ -96,10 +96,10 @@ function Take({ onRecordAgain }: { onRecordAgain: () =&gt; void }) {
     &lt;/div&gt;
   );
 }
-</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything VoiceCapture takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>words</code><span class="opt">required</span></td><td><code>Array&lt;string | HeardWord&gt;</code></td><td>The words heard so far, in order. Add to the end as they arrive and each one fades in</td></tr><tr><td><code>state</code></td><td><code>VoiceCaptureState</code></td><td>listening and paused record, review asks the person to check the words, sent and cancelled are the end. Leave it out to let the buttons move it along</td></tr><tr><td><code>defaultState</code></td><td><code>VoiceCaptureState</code></td><td></td></tr><tr><td><code>onStateChange</code></td><td><code>(state: VoiceCaptureState) =&gt; void</code></td><td></td></tr><tr><td><code>seconds</code></td><td><code>number</code></td><td>Seconds recorded. Leave it out to let it count while listening</td></tr><tr><td><code>level</code></td><td><code>number | (() =&gt; number)</code></td><td>The input level from 0 to 1, drawn into the wave about 20 times a second. Pass a function to read the microphone on every sample (for example from an AnalyserNode) without re-rendering</td></tr><tr><td><code>status</code></td><td><code>string</code></td><td>The status line. Defaults to Listening, Paused, Check what I heard, Sent or Cancelled</td></tr><tr><td><code>onSend</code></td><td><code>(text: string) =&gt; void</code></td><td>Called with the checked transcript when the person presses Done in review</td></tr><tr><td><code>onFix</code></td><td><code>(index: number, text: string) =&gt; void</code></td><td>Called when the person picks one of a word&#39;s alternatives</td></tr><tr><td><code>onRecordAgain</code></td><td><code>() =&gt; void</code></td><td>Called by Record again, once the capture is sent or cancelled. Clear your words and start listening again</td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>VoiceCapture.tsx<span class="l">React · 177 lines</span></summary><pre class="cp-pre"><code>&#39;use client&#39;;
+</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything VoiceCapture takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>words</code><span class="opt">required</span></td><td><code>Array&lt;string | HeardWord&gt;</code></td><td>The words heard so far, in order. Add to the end as they arrive and each one fades in</td></tr><tr><td><code>state</code></td><td><code>VoiceCaptureState</code></td><td>listening and paused record, review asks the person to check the words, sent and cancelled are the end. Leave it out to let the buttons move it along</td></tr><tr><td><code>defaultState</code></td><td><code>VoiceCaptureState</code></td><td></td></tr><tr><td><code>onStateChange</code></td><td><code>(state: VoiceCaptureState) =&gt; void</code></td><td></td></tr><tr><td><code>seconds</code></td><td><code>number</code></td><td>Seconds recorded. Leave it out to let it count while listening</td></tr><tr><td><code>level</code></td><td><code>number | (() =&gt; number)</code></td><td>The input level from 0 to 1, drawn into the wave about 20 times a second. Pass a function to read the microphone on every sample (for example from an AnalyserNode) without re-rendering</td></tr><tr><td><code>status</code></td><td><code>string</code></td><td>The status line. Defaults to Listening, Paused, Check what I heard, Sent or Cancelled</td></tr><tr><td><code>onSend</code></td><td><code>(text: string) =&gt; void</code></td><td>Called with the checked transcript when the person presses Done in review</td></tr><tr><td><code>onFix</code></td><td><code>(index: number, text: string) =&gt; void</code></td><td>Called when the person picks one of a word&#39;s alternatives</td></tr><tr><td><code>onRecordAgain</code></td><td><code>() =&gt; void</code></td><td>Called by Record again, once the capture is sent or cancelled. Clear your words and start listening again</td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>VoiceCapture.tsx<span class="l">React · 182 lines</span></summary><pre class="cp-pre"><code>&#39;use client&#39;;
 import { useEffect, useRef, useState, type CSSProperties } from &#39;react&#39;;
 import { cx } from &#39;../lib/cx&#39;;
-import { useControllable } from &#39;../lib/hooks&#39;;
+import { useControllable, useIsoLayoutEffect } from &#39;../lib/hooks&#39;;
 import { Icon } from &#39;../lib/icons&#39;;
 import { Swap, Tip } from &#39;../lib/motion&#39;;
 import &#39;../designme.css&#39;;
@@ -148,6 +148,11 @@ export function VoiceCapture({ words, state, defaultState = &#39;listening&#39;,
   const root = useRef&lt;HTMLDivElement&gt;(null);
   const wave = useRef&lt;HTMLCanvasElement&gt;(null);
   const pop = useRef&lt;HTMLDivElement&gt;(null);
+  // once recording stops the wave folds away: the box keeps the height it had while recording and centres the words in it
+  const liveHeight = useRef&lt;number | undefined&gt;(undefined);
+  const [held, setHeld] = useState&lt;number&gt;();
+  useIsoLayoutEffect(() =&gt; { if (live &amp;&amp; root.current) liveHeight.current = root.current.offsetHeight; });
+  useIsoLayoutEffect(() =&gt; { setHeld(live ? undefined : liveHeight.current); }, [live]);
 
   // the clock counts while listening, unless the parent passes seconds
   const [count, setCount] = useState(0);
@@ -221,7 +226,7 @@ export function VoiceCapture({ words, state, defaultState = &#39;listening&#39;,
   const again = () =&gt; { setCount(0); setFixes({}); setMenuOpen(false); samples.current = []; onRecordAgain?.(); setState(&#39;listening&#39;); };
 
   return (
-    &lt;div data-dm=&quot;&quot; ref={root} className={cx(&#39;dm-vcx dm-panel&#39;, now === &#39;paused&#39; &amp;&amp; &#39;dm-paused&#39;, !live &amp;&amp; &#39;dm-done&#39;, className)}&gt;
+    &lt;div data-dm=&quot;&quot; ref={root} className={cx(&#39;dm-vcx dm-panel&#39;, now === &#39;paused&#39; &amp;&amp; &#39;dm-paused&#39;, !live &amp;&amp; &#39;dm-done&#39;, held &amp;&amp; &#39;dm-held&#39;, className)} style={held ? { minHeight: held } : undefined}&gt;
       &lt;div className=&quot;dm-vcx-top&quot;&gt;
         &lt;span className=&quot;dm-vcx-dot&quot; /&gt;
         &lt;Swap className=&quot;dm-vcx-st&quot;&gt;{status ?? STATUS[now]}&lt;/Swap&gt;
@@ -326,7 +331,7 @@ export function VoiceCapture({ words, state, defaultState = &#39;listening&#39;,
 .vcx-tx .low.fixed{background:var(--hl-ok)}
 .vcx-acts{display:flex;align-items:center;gap:8px;margin-top:16px;min-height:32px}
 .vcx-fix{width:220px}
-</code></pre></details><details class="cp-file"><summary>voice-capture.js<span class="l">HTML · 49 lines</span></summary><pre class="cp-pre"><code>DM.def(&#39;voice-capture&#39;, (r, c) =&gt; {
+</code></pre></details><details class="cp-file"><summary>voice-capture.js<span class="l">HTML · 50 lines</span></summary><pre class="cp-pre"><code>DM.def(&#39;voice-capture&#39;, (r, c) =&gt; {
   r.innerHTML = r.innerHTML.replace(&#39;{pause}&#39;, I(&#39;pause&#39;));
   const box = $(&#39;.vcx&#39;, r), tx = $(&#39;.vcx-tx&#39;, r), cv = $(&#39;.vcx-wave&#39;, r), st = $(&#39;.vcx-st&#39;, r), pop = $(&#39;.vcx-fix&#39;, r);
   const words = &#39;Move the yearly toggle above the cards and make the save badge say 20% off for annual plans&#39;.split(&#39; &#39;);
@@ -347,12 +352,13 @@ export function VoiceCapture({ words, state, defaultState = &#39;listening&#39;,
   const pb = $(&#39;.vcx-pause&#39;, r);
   pb.onclick = () =&gt; { paused = !paused; box.classList.toggle(&#39;paused&#39;, paused); pb.innerHTML = I(paused ? &#39;mic&#39; : &#39;pause&#39;); pb.dataset.tip = paused ? &#39;Resume&#39; : &#39;Pause&#39;; swap(st, paused ? &#39;Paused&#39; : &#39;Listening&#39;); };
   function finish(){
-    done = true; box.classList.add(&#39;done&#39;); swap(st, &#39;Check what I heard&#39;); pb.remove();
+    // the wave folds away for the review: the box keeps the height it had while recording, with the words centred in it
+    hold(box); done = true; box.classList.add(&#39;done&#39;); swap(st, &#39;Check what I heard&#39;); pb.remove();
     $$(&#39;.low&#39;, tx).forEach(l =&gt; { l.dataset.tip = &#39;Not sure about this word&#39;; });
   }
   const settle = t =&gt; { $(&#39;.vcx-acts&#39;, r).innerHTML = `&lt;span class=&quot;muted&quot; style=&quot;font-size:12.5px&quot;&gt;${t}&lt;/span&gt;&lt;span class=&quot;sp&quot;&gt;&lt;/span&gt;&lt;button class=&quot;pill ghost sm vcx-again&quot;&gt;${I(&#39;refresh&#39;,&#39;xs&#39;)}Record again&lt;/button&gt;`; $(&#39;.vcx-again&#39;, r).onclick = () =&gt; DM.mount(r.closest(&#39;.card&#39;)); };
   $(&#39;.vcx-done&#39;, r).onclick = () =&gt; { if (!done) finish(); else { swap(st, &#39;Sent&#39;); settle(&#39;Sent to the agent&#39;); } };
-  $(&#39;.vcx-x&#39;, r).onclick = () =&gt; { done = true; tx.innerHTML = &#39;&#39;; pb.remove(); box.classList.add(&#39;done&#39;); swap(st, &#39;Cancelled&#39;); settle(&#39;Nothing was sent&#39;); };
+  $(&#39;.vcx-x&#39;, r).onclick = () =&gt; { if (!done) hold(box); done = true; tx.innerHTML = &#39;&#39;; pb.remove(); box.classList.add(&#39;done&#39;); swap(st, &#39;Cancelled&#39;); settle(&#39;Nothing was sent&#39;); };
   c.on(tx, &#39;click&#39;, e =&gt; {
     const l = e.target.closest(&#39;.low&#39;); if (!l) return;
     const alts = low[l.dataset.i];
@@ -428,12 +434,13 @@ export function VoiceCapture({ words, state, defaultState = &#39;listening&#39;,
   const pb = $('.vcx-pause', r);
   pb.onclick = () => { paused = !paused; box.classList.toggle('paused', paused); pb.innerHTML = I(paused ? 'mic' : 'pause'); pb.dataset.tip = paused ? 'Resume' : 'Pause'; swap(st, paused ? 'Paused' : 'Listening'); };
   function finish(){
-    done = true; box.classList.add('done'); swap(st, 'Check what I heard'); pb.remove();
+    // the wave folds away for the review: the box keeps the height it had while recording, with the words centred in it
+    hold(box); done = true; box.classList.add('done'); swap(st, 'Check what I heard'); pb.remove();
     $$('.low', tx).forEach(l => { l.dataset.tip = 'Not sure about this word'; });
   }
   const settle = t => { $('.vcx-acts', r).innerHTML = `<span class="muted" style="font-size:12.5px">${t}</span><span class="sp"></span><button class="pill ghost sm vcx-again">${I('refresh','xs')}Record again</button>`; $('.vcx-again', r).onclick = () => DM.mount(r.closest('.card')); };
   $('.vcx-done', r).onclick = () => { if (!done) finish(); else { swap(st, 'Sent'); settle('Sent to the agent'); } };
-  $('.vcx-x', r).onclick = () => { done = true; tx.innerHTML = ''; pb.remove(); box.classList.add('done'); swap(st, 'Cancelled'); settle('Nothing was sent'); };
+  $('.vcx-x', r).onclick = () => { if (!done) hold(box); done = true; tx.innerHTML = ''; pb.remove(); box.classList.add('done'); swap(st, 'Cancelled'); settle('Nothing was sent'); };
   c.on(tx, 'click', e => {
     const l = e.target.closest('.low'); if (!l) return;
     const alts = low[l.dataset.i];

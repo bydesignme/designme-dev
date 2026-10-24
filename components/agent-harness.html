@@ -3367,7 +3367,8 @@ export function AgentHarness({
   c.on(sc, 'change', count);
   $$('.pgx-pop .mi', r).forEach(m => m.addEventListener('click', () => { dur = m.dataset.v; $$('.pgx-pop .mi', r).forEach(x => x.setAttribute('aria-checked', x === m)); swap($('.pgx-dv', r), dur === 'Always' ? 'Always' : 'For ' + dur.toLowerCase()); }));
   const body = [sc, $('.pgx-f', r)];
-  const show = on => { body.forEach(e => e.hidden = !on); if (on) stagger(body, 50); };
+  // the scopes give way to a shorter result row: on the card it keeps the height it had and centres the row (hold)
+  const show = on => { if (!on && c.card && !root.classList.contains('held')) hold(root); body.forEach(e => e.hidden = !on); if (on) stagger(body, 50); };
   // the frames the agent edits once it may. Plan toggle is a library component, so editing it needs Publish library
   const F = ['Hero', 'Plan cards', 'Compare table', 'FAQ', 'Plan toggle', 'Checkout summary'], LIB = 4;
   const clock = s => Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
@@ -3413,7 +3414,7 @@ export function AgentHarness({
     run++; granted = done = ms = 0; publish = skip = false;
     root.classList.remove('esc'); sc.innerHTML = first.sc; swap(title, first.title); swap(sub, first.sub); no.textContent = first.no; count();
   }
-  function revoke(){ const p = panel; panel = null; run++; p.classList.add('leave'); c.later(300, () => { p.remove(); reset(); show(true); }); }
+  function revoke(){ const p = panel; panel = null; run++; p.classList.add('leave'); c.later(300, () => { p.remove(); release(root); reset(); show(true); }); }
   ok.onclick = () => c.run(async () => {
     const picked = boxes().filter(b => b.checked); if (!picked.length) return;
     granted += picked.length; if (picked.some(b => b.closest('.pgx-o').dataset.k === 'publish')) publish = true;
@@ -3428,7 +3429,7 @@ export function AgentHarness({
   no.onclick = () => {
     if (root.classList.contains('esc')){ skip = true; show(false); root.classList.remove('esc'); swap(title, first.title); swap(sub, first.sub); work(); return; }
     show(false); const d = html(`<div class="pgx-done" style="background:var(--chip)">${I('info')}<span class="t">The agent will skip the Figma edits<span>It will list the fixes in chat instead</span></span><button class="pill ghost sm">Undo</button></div>`);
-    root.appendChild(d); enter(d); $('button', d).onclick = () => { d.remove(); show(true); };
+    root.appendChild(d); enter(d); $('button', d).onclick = () => { d.remove(); release(root); show(true); };
   };
   // the preview's story: hold back the risky scope, allow the rest, then grant it when the agent needs it for one frame
   c.story(async s => {
