@@ -12,6 +12,11 @@ every session and every agent.
 - Change only what was asked. If a change would bring back or alter something the owner didn't mention (a layout,
   a nav, a colour), ask first.
 
+## Brand
+- The DesignMe wordmark is fixed: never redraw, retype or restyle its letters. Use its existing vector paths as they
+  are. Logo work may only change the ".dev" part, add an icon beside it, or show the same paths as an outline (a
+  "blueprint" of the logo).
+
 ## Site structure
 - Site navigation lives in the left sidebar: Library (the homepage, selected), Docs, Changelog, Roadmap and FAQ.
   There is no top nav in the header on any page. The header holds the logo, the GitHub stars pill, the style switch and
