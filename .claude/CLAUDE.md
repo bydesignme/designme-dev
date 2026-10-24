@@ -16,7 +16,16 @@ every session and every agent.
 - Site navigation lives in the left sidebar: Library (the homepage, selected), Docs, Changelog, Roadmap and FAQ.
   There is no top nav in the header on any page. The header holds the logo, the GitHub stars pill, the style switch and
   the theme switch.
+- The sidebar is the same on every page (homepage, Changelog, Roadmap, FAQ, Docs, component pages): the search field,
+  the site links, the compact component groups, and the "work with us" CTA pinned bottom left. Moving between pages
+  only moves the active state; nothing in the sidebar jumps or disappears.
+- Hover and active fills in the sidebar are light and quiet. Don't make them darker or more saturated.
 - The homepage is the component library. There is no separate components page.
+
+## Layout
+- Cards (a border, a fill, padding) are only for things you can click. Facts, requirements, frameworks, notes and
+  descriptions are plain text or a plain list, one under another, with no card, border or padding.
+- In-page links (tables of contents, section anchors) scroll smoothly, and not at all with reduced motion.
 
 ## Type and colour
 - All text is 14px or smaller, and nothing is heavier than weight 500. Page titles (`.pg-h1`) are the one exception.
@@ -25,6 +34,9 @@ every session and every agent.
   `--on-accent` (dark) icons and text on accent fills.
 - Accents have roles: `--accent` fills, `--accent-fg` text (4.5:1), `--accent-mark` lines, rings and chart marks (3:1),
   `--accent-bg` / `--sel` tints. Charts follow the accent.
+- Every colour pairing must pass a contrast check before it ships: text 4.5:1 (WCAG 2) and APCA Lc 60 or more for
+  small text, marks 3:1. Choose text on a fill with APCA; WCAG 2 alone picks black on saturated mid-tones like violet,
+  which is hard to read.
 - Highlights like "Everyone is free" use the accent tint (`--sel` with the accent as text), not a solid accent fill.
 
 ## Components
