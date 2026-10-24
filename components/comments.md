@@ -53,7 +53,7 @@ import { Comments } from '@/components/designme/comments/Comments';
 // The animated preview from designme.dev, rebuilt from the React component: an example of driving it from your own state.
 import { useCallback, useRef, useState } from 'react';
 import { Comments, type CommentsEntry, type CommentsPerson } from './Comments';
-import { useScript, useWait } from '../lib/useScript';
+import { useStory, useWait } from '../lib/useScript';
 
 /* ---------- Comments: Maya asks the agent in the thread; it thinks, writes its answer, then offers to apply it ---------- */
 const AGENT: CommentsPerson = { name: 'Design agent', initials: 'DA', color: 'var(--dm-pb)', handle: 'agent' };
@@ -93,16 +93,19 @@ export default function CommentsDemo() {
     if (/@agent/i.test(text)) reply(text);
   }, [reply]);
 
-  // Maya types the question a letter at a time, then sends it
-  useScript(async ({ wait }) => {
+  // Maya types the question a letter at a time, then sends it. Clicking, focusing or typing in it takes over, and what she
+  // had typed goes
+  const ref = useRef<HTMLDivElement>(null);
+  useStory(ref, async ({ wait, taken }) => {
     await wait(1000);
+    taken(() => setDraft(''));
     for (let i = 1; i <= ASK.length; i++) { setDraft(ASK.slice(0, i)); await wait(28); }
     await wait(300);
     setDraft(''); send(ASK);
   });
 
   return (
-    <div style={{ width: '100%' }}>
+    <div ref={ref} style={{ width: '100%' }}>
       <Comments title="Pricing, frame 2" comments={comments} people={[AGENT, MAYA, JON]} value={draft} onValueChange={setDraft} onSend={send} />
     </div>
   );

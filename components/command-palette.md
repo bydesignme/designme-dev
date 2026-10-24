@@ -51,9 +51,9 @@ import { CommandPalette } from '@/components/designme/command-palette/CommandPal
 ```tsx
 'use client';
 // The animated preview from designme.dev, rebuilt from the React component: an example of driving it from your own state.
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { CommandPalette, type CommandPaletteItem } from './CommandPalette';
-import { useScript } from '../lib/useScript';
+import { useStory } from '../lib/useScript';
 
 const COMMANDS: CommandPaletteItem[] = [
   { group: 'Agent', icon: 'spark', label: 'Audit this page for contrast', keys: ['⌘', 'J'] },
@@ -70,13 +70,17 @@ const COMMANDS: CommandPaletteItem[] = [
 /* ---------- Command palette: someone types "tok" and the list narrows as they go ---------- */
 export default function CommandPaletteDemo() {
   const [query, setQuery] = useState('');
-  useScript(async ({ wait }) => {
+  const ref = useRef<HTMLDivElement>(null);
+  // clicking, focusing or typing in it takes over, and what it had typed goes
+  useStory(ref, async ({ wait, taken }) => {
     await wait(1500);
-    let typed = '';
+    let typed = '', typing = true;
+    taken(() => { if (typing) setQuery(''); });
     for (const ch of 'tok') { typed += ch; setQuery(typed); await wait(180); }
+    typing = false;
   });
   return (
-    <div style={{ width: '100%' }}>
+    <div ref={ref} style={{ width: '100%' }}>
       <CommandPalette items={COMMANDS} query={query} onQueryChange={setQuery} />
     </div>
   );

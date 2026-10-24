@@ -12,8 +12,8 @@ export default function DetailsPanelDemo() {
   const [model, setModel] = useState('Opus');
   const [usage, setUsage] = useState<[number, number]>([0, 0]);
   const [tags, setTags] = useState<DetailsPanelTag[]>([{ label: 'Pricing', tone: 'blue' }, { label: 'Web', tone: 'orange' }]);
-  // the usage counts up a moment after the panel appears
-  useScript(async ({ wait }) => { await wait(700); setUsage(COST.Opus); });
+  // the usage counts up a moment after the panel appears, unless a model you picked is counting already
+  useScript(async ({ wait }) => { await wait(700); setUsage(u => (u[0] ? u : COST.Opus)); });
   const pickModel = (m: string) => { setModel(m); setUsage(COST[m]); };
   const added = tags.length - 2;
 

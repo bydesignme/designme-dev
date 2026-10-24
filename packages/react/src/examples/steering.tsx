@@ -76,8 +76,10 @@ export default function SteeringDemo() {
   };
 
   // the preview's story: tell the agent to use the library's blue, then have it redo the card that was already violet
-  useStory(ref, async ({ wait, press }) => {
+  // taking over while it types takes the letters back
+  useStory(ref, async ({ wait, press, taken }) => {
     await wait(2500);
+    taken(() => setDraft(''));
     for (const ch of 'Use our library blue, not violet') { setDraft(d => d + ch); await wait(40); }
     await wait(500); press('.dm-ste-go');
     await wait(5200); press('.dm-ste-acts .dm-ink');

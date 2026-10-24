@@ -50,9 +50,9 @@ import { Agenda } from '@/components/designme/agenda/Agenda';
 ```tsx
 'use client';
 // The animated preview from designme.dev, rebuilt from the React component: an example of driving it from your own state.
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Agenda, type AgendaItem } from './Agenda';
-import { useScript } from '../lib/useScript';
+import { useStory } from '../lib/useScript';
 
 const P = {
   MK: { initials: 'MK', color: 'var(--dm-pl)' }, JO: { initials: 'JO', color: 'var(--dm-pm)' }, AR: { initials: 'AR', color: 'var(--dm-pp)' },
@@ -71,8 +71,10 @@ const ITEMS: AgendaItem[] = [
 export default function AgendaDemo() {
   const [open, setOpen] = useState<string | null>(null);
   // a moment in, the agent opens its notes for the next big meeting
-  useScript(async ({ wait }) => { await wait(1000); setOpen('pricing'); });
-  return <div style={{ width: '100%' }}><Agenda items={ITEMS} subtitle="Monday, Oct 19" now="10:42" open={open} onOpenChange={setOpen} /></div>;
+  // the preview opens one meeting on its own, unless you take over first
+  const ref = useRef<HTMLDivElement>(null);
+  useStory(ref, async ({ wait }) => { await wait(1000); setOpen('pricing'); });
+  return <div ref={ref} style={{ width: '100%' }}><Agenda items={ITEMS} subtitle="Monday, Oct 19" now="10:42" open={open} onOpenChange={setOpen} /></div>;
 }
 ```
 

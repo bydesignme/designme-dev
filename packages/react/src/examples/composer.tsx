@@ -60,11 +60,15 @@ export default function ComposerDemo() {
   };
 
   // the preview's story: the person attaches a frame, it won't open, they try again, write the ask, switch to Edit and send
-  useStory(ref, async ({ wait, press }) => {
+  // taking over while it writes takes the words back
+  useStory(ref, async ({ wait, press, taken }) => {
     await wait(1500); add('figma');
     await wait(2500); press('.dm-rt');
     await wait(1500);
+    let writing = true;
+    taken(() => { if (writing) setText(''); });
     for (const w of 'Tighten the spacing on the plan cards'.split(' ')) { setText(t => t + (t ? ' ' : '') + w); await wait(150); }
+    writing = false;
     await wait(1000); press('.dm-cpx-mode');
     await wait(1500); press('.dm-pp-mode .dm-mi:nth-of-type(2)');
     await wait(1000); press('.dm-cpx-send');

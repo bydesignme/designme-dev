@@ -52,7 +52,7 @@ import { Form } from '@/components/designme/form/Form';
 'use client';
 // The animated preview from designme.dev, rebuilt from the React component: an example of driving it from your own state.
 import { useRef, useState } from 'react';
-import { useScript, useWait } from '../lib/useScript';
+import { useScript, useTakeover, useWait } from '../lib/useScript';
 import { Form, type FormField, type FormHandle, type FormValues } from './Form';
 
 const FIELDS: FormField[] = [
@@ -82,11 +82,12 @@ export default function FormDemo() {
   };
 
   // a moment after it appears, the agent drafts the brief, unless someone has started on it
-  const form = useRef<FormHandle>(null), touched = useRef(false);
-  useScript(async s => { await s.wait(1400); if (!touched.current && !latest.current.name) await form.current?.draft(); });
+  // the preview has the agent fill it in once on its own, unless you take over first
+  const form = useRef<FormHandle>(null), ref = useRef<HTMLDivElement>(null), mine = useTakeover(ref);
+  useScript(async s => { await s.wait(1400); if (!mine() && !latest.current.name) await form.current?.draft(); });
 
   return (
-    <div style={{ width: '100%' }} onPointerDown={() => { touched.current = true; }} onKeyDown={() => { touched.current = true; }}>
+    <div ref={ref} style={{ width: '100%' }}>
       <Form ref={form} fields={FIELDS} values={values} onValuesChange={set} onDraft={draft} onSubmit={() => wait(800)} />
     </div>
   );

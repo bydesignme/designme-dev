@@ -1,6 +1,7 @@
 'use client';
+import { useRef, type KeyboardEvent } from 'react';
 import { cx } from '../../lib/cx';
-import { useControllable, useSeconds } from '../../lib/hooks';
+import { useControllable, useIsoLayoutEffect, useReducedMotion, useSeconds } from '../../lib/hooks';
 import { Icon } from '../../lib/icons';
 import { Dot, enter, Fold, Pulse, SourceChip, Swap, Think, type Source } from '../../lib/motion';
 import '../../designme.css';
@@ -59,6 +60,27 @@ export function ReasoningTrail({ running = false, seconds, title, plan, notes, s
   const tab = has[picked] ? picked : VIEWS.find(v => has[v]) ?? picked;
   const [isOpen, setOpen] = useControllable(open, defaultOpen, onOpenChange);
   const head = title ?? (running ? 'Reasoning' : `Reasoned for ${Math.max(secs, 1)}s`);
+  // Enter and Space open and fold it as a click does, and aria-expanded always says which
+  const onHeadKey = (e: KeyboardEvent<HTMLButtonElement>) => {
+    if ((e.key !== 'Enter' && e.key !== ' ') || e.altKey || e.ctrlKey || e.metaKey) return;
+    e.preventDefault(); if (!e.repeat) setOpen(!isOpen);
+  };
+
+  // switching views grows or shrinks the open trail to its new height instead of jumping to it
+  const reduce = useReducedMotion();
+  const bodyRef = useRef<HTMLDivElement>(null), seen = useRef({ tab, h: 0 }), anim = useRef<Animation | null>(null);
+  useIsoLayoutEffect(() => {
+    const el = bodyRef.current; if (!el) return;
+    if (anim.current?.playState === 'running' && seen.current.tab === tab) return;
+    const to = el.offsetHeight, from = seen.current.h, moved = seen.current.tab !== tab;
+    seen.current = { tab, h: to };
+    if (!moved || !isOpen || reduce || !from || Math.abs(from - to) < 1 || !el.animate) return;
+    const cs = getComputedStyle(el), ms = parseFloat(cs.getPropertyValue('--dm-t')) * 1000 || 450;
+    anim.current?.cancel(); el.style.overflow = 'hidden';
+    const a = el.animate([{ height: from + 'px' }, { height: to + 'px' }], { duration: ms, easing: cs.getPropertyValue('--dm-ease').trim() || 'ease' });
+    a.onfinish = a.oncancel = () => { el.style.overflow = ''; if (anim.current === a) anim.current = null; };
+    anim.current = a;
+  });
 
   const body = () => {
     if (tab === 'plan') return plan?.map((p, i) => (
@@ -78,7 +100,7 @@ export function ReasoningTrail({ running = false, seconds, title, plan, notes, s
 
   return (
     <div data-dm="" className={cx('dm-rtr', !bare && 'dm-panel', className)} style={bare ? { paddingInline: 0 } : undefined}>
-      <button type="button" className="dm-rtr-h" aria-expanded={isOpen} onClick={() => setOpen(!isOpen)}>
+      <button type="button" className="dm-rtr-h" aria-expanded={isOpen} onClick={() => setOpen(!isOpen)} onKeyDown={onHeadKey}>
         <Think on={running} className="dm-rtr-mark" />
         <Swap className={cx('dm-rtr-title', running && 'dm-shim')}>{head}</Swap>
         <span className="dm-rtr-time dm-num dm-muted">{running ? secs + 's' : ''}</span>
@@ -86,7 +108,7 @@ export function ReasoningTrail({ running = false, seconds, title, plan, notes, s
       </button>
       <Fold open={isOpen} className="dm-rtr-fold">
         {/* keyed by view, so switching views plays the entrance again */}
-        <div className="dm-rtr-body" key={tab}>{body()}</div>
+        <div className="dm-rtr-body" key={tab} ref={bodyRef}>{body()}</div>
       </Fold>
     </div>
   );

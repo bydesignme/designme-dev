@@ -50,9 +50,9 @@ import { TicketList } from '@/components/designme/ticket-list/TicketList';
 ```tsx
 'use client';
 // The animated preview from designme.dev, rebuilt from the React component: an example of driving it from your own state.
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { TicketList, type TicketListTicket } from './TicketList';
-import { useScript } from '../lib/useScript';
+import { useStory } from '../lib/useScript';
 
 /* ---------- Ticket list: four triaged tickets, the urgent one opens with the agent's reply ---------- */
 const MAYA = { initials: 'MK', color: 'var(--dm-pl)' };
@@ -71,8 +71,10 @@ const TICKETS: TicketListTicket[] = [
 
 export default function TicketListDemo() {
   const [open, setOpen] = useState<string | null>(null);
-  useScript(async ({ wait }) => { await wait(1000); setOpen(o => o ?? 'export'); });
-  return <TicketList defaultTickets={TICKETS} open={open} onOpenChange={setOpen} onSend={() => new Promise(res => setTimeout(res, 700))} />;
+  // the preview opens the first ticket on its own, unless you take over first
+  const ref = useRef<HTMLDivElement>(null);
+  useStory(ref, async ({ wait }) => { await wait(1000); setOpen(o => o ?? 'export'); });
+  return <div ref={ref} style={{ display: 'contents' }}><TicketList defaultTickets={TICKETS} open={open} onOpenChange={setOpen} onSend={() => new Promise(res => setTimeout(res, 700))} /></div>;
 }
 ```
 

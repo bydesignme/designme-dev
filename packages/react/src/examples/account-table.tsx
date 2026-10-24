@@ -1,8 +1,8 @@
 'use client';
 // The preview from designme.dev, rebuilt from the React component: the rows come in, then the agent opens the account it is worried about.
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { AccountTable, type AccountTableAccount } from '../components/account-table/AccountTable';
-import { useScript } from './useScript';
+import { useStory } from './useScript';
 
 const ACCOUNTS: AccountTableAccount[] = [
   { name: 'Northwind', color: '#2f6fde', plan: 'Enterprise', seats: 120, health: 92, mrr: '$14,400', note: 'Expanding. Design team added 18 seats this month.' },
@@ -16,9 +16,11 @@ const ACCOUNTS: AccountTableAccount[] = [
 /* ---------- Account table: search, plan filters, and a row that opens on what the agent noticed ---------- */
 export default function AccountTableDemo() {
   const [open, setOpen] = useState<string | null>(null);
-  useScript(async ({ wait }) => { await wait(1200); setOpen(o => o ?? 'Lumen Labs'); });
+  // the preview opens one account's note on its own, unless you take over first
+  const ref = useRef<HTMLDivElement>(null);
+  useStory(ref, async ({ wait }) => { await wait(1200); setOpen(o => o ?? 'Lumen Labs'); });
   return (
-    <div style={{ width: '100%' }}>
+    <div ref={ref} style={{ width: '100%' }}>
       <AccountTable accounts={ACCOUNTS} plans={['Team', 'Pro', 'Enterprise']} open={open} onOpenChange={setOpen}
         action={{ label: 'Draft email', doneLabel: 'Draft ready', onClick: () => new Promise(r => setTimeout(r, 800)) }} />
     </div>

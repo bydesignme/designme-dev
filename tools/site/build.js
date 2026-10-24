@@ -370,28 +370,25 @@ const ORDER = {
   GRP.cur = 'agent'; const head = mark(main.slice(0, cut)); GRP.cur = 'basics'; main = head + mark(main.slice(cut));
 }
 site = site.slice(0, mainA) + main + site.slice(mainB);
-// the sidebar follows: its groups in section order, and its links in card order
+// the sidebar's component groups are written from the main list, the same one the component pages' sidebar reads (through
+// tools/pages/data/site.json, below): each section's group, in section order, with the section's name, its count, and a
+// link to each of its cards in card order under the card's own title. So the sidebar and the page can't drift apart
 {
-  // a new card's link goes after its sibling's, and its section counts one more
-  for (const x of EXTRA){
-    const link = `<a class="side-a" href="#${x.after}" data-c="${x.after}">`, at = site.indexOf(link); if (at < 0) throw new Error('no side link ' + x.after);
-    const close = site.indexOf('</a>', at) + 4;
-    site = site.slice(0, close) + `<a class="side-a" href="#${x.cid}" data-c="${x.cid}">${x.title}</a>` + site.slice(close);
-    const n = site.lastIndexOf('<span class="side-n">', at) + '<span class="side-n">'.length, e = site.indexOf('<', n);
-    site = site.slice(0, n) + (+site.slice(n, e) + 1) + site.slice(e);
-  }
   const grp = id => { const a = site.indexOf(`<div class="side-grp" data-s="${id}"`); if (a < 0) throw new Error('no side group ' + id); return a; };
   const [ga, gb] = SECTIONS_FIRST.map(grp), next = i => site.indexOf('<div class="side-grp" data-s="', i + 10), gEnd = next(ga);
   if (next(gb) !== ga) throw new Error('side groups not next to each other');
   site = site.slice(0, gb) + site.slice(ga, gEnd) + site.slice(gb, ga) + site.slice(gEnd);
   site = site.replace(/<div class="side-grp" data-s="([\w-]+)">/g, (m, id) => { if (!GRP[id]) throw new Error('no set for ' + id); return `<div class="side-grp" data-s="${id}" data-grp="${GRP[id]}">`; });
-  for (const [sid, ids] of Object.entries(ORDER)){
-    const a = site.indexOf('<div class="side-ul">', grp(sid)) + '<div class="side-ul">'.length, b = site.indexOf('</div>', a);
-    const links = site.slice(a, b).match(/<a class="side-a"[^>]*>[^<]*<\/a>/g);
-    const cidOf = id => (main.match(new RegExp(`id="(c\\d+)"[^>]*data-v2="${id}"`)) || [])[1];
-    const out = ids.map(id => { const l = links.find(x => x.includes(`data-c="${cidOf(id)}"`)); if (!l) throw new Error('no side link for ' + id); return l; });
-    if (out.length !== links.length) throw new Error('side links of ' + sid);
-    site = site.slice(0, a) + out.join('') + site.slice(b);
+  const secs = [...main.matchAll(/<section class="lib-sec" id="([\w-]+)"[^>]*>([\s\S]*?)<\/section>/g)];
+  const groups = (site.match(/<div class="side-grp" data-s="s-/g) || []).length;
+  if (secs.length !== groups) throw new Error(`${secs.length} sections on the page but ${groups} groups in the sidebar`);
+  for (const [, sid, body] of secs){
+    const name = body.match(/<h2>([^<]*)<\/h2>/)[1];
+    const cards = [...body.matchAll(/<article\b[^>]*\bid="(c\d+)"[^>]*>[\s\S]*?class="comp-title">([^<]*)</g)].map(([, cid, t]) => `<a class="side-a" href="#${cid}" data-c="${cid}">${t}</a>`);
+    if (!cards.length) throw new Error('no cards in ' + sid);
+    const g = grp(sid), head = site.indexOf('</button>', g), ul = site.indexOf('<div class="side-ul">', g) + '<div class="side-ul">'.length, end = site.indexOf('</div>', ul);
+    const btn = site.slice(g, head).replace(/(<span class="nm">)[^<]*(<\/span>)/, (m, x, y) => x + name + y).replace(/(<span class="side-n">)\d+(<\/span>)/, (m, x, y) => x + cards.length + y);
+    site = site.slice(0, g) + btn + site.slice(head, ul) + cards.join('') + site.slice(end);
   }
 }
 const missing = Object.keys(MAP).filter(k => !done.includes(k));
@@ -421,9 +418,29 @@ const REG_CORE_CSS = `/* Designme shared core: tokens for Blueprint (default) an
   + regCss(CSS.slice(0, CSS.indexOf('/* ---------- Status pill ---------- */')) + '\n' + CSS.slice(CSS.indexOf('/* ---------- Blueprint 2 ---------- */')))
   + `\n/* a component card: the template renders into .stage-in */\n[data-c]{width:440px;max-width:100%;font-family:var(--sans);font-size:14px;line-height:1.5;color:var(--fg);-webkit-font-smoothing:antialiased}\n[data-c].wide{width:720px}\n`;
 const REG_CORE_JS = CORE_JS.trim() + `\n\n/* ---------- icons: the sprite every <use href="#i-..."> points at ---------- */\nconst SPRITE = ${JSON.stringify(SPRITE)};\n`
-  + `/* ---------- mount: every [data-c] card renders its template when it scrolls into view ---------- */\ndocument.addEventListener('DOMContentLoaded', () => {\n  if (!document.getElementById('i-check')) document.body.insertAdjacentHTML('afterbegin', SPRITE);\n  document.body.appendChild(tip);\n  const io = new IntersectionObserver(es => es.forEach(en => { if (en.isIntersecting){ io.unobserve(en.target); DM.mount(en.target); } }), { threshold:.25 });\n  $$('[data-c]').forEach(card => io.observe(card));\n});\n`;
+  + `/* ---------- mount: every card (a [data-c] with its .stage-in) starts its component when it scrolls into view ---------- */\ndocument.addEventListener('DOMContentLoaded', () => {\n  if (!document.getElementById('i-check')) document.body.insertAdjacentHTML('afterbegin', SPRITE);\n  document.body.appendChild(tip);\n  const io = new IntersectionObserver(es => es.forEach(en => { if (en.isIntersecting){ io.unobserve(en.target); DM.mount(en.target); } }), { threshold:.25 });\n  // a menu item inside a component can carry a data-c of its own (a colour), so only a card with a stage counts\n  $$('[data-c]').filter(card => $(':scope > .stage-in', card)).forEach(card => io.observe(card));\n});\n`;
+/* the markup as you would write it: the component's template with its icons drawn in where the template keeps a {name}
+   for them, the way its script draws them as it mounts. The script's own statements up to that replacement run here, on
+   the template's text, with the core's icon and avatar helpers; the core mounts markup written out like this as it is */
+const vm = require('vm');
+const HELPERS = ['const I = ', 'const AV = ', 'const BRAND = ', 'const FLAG = ', 'const FLAGS = '].map(h => {
+  const line = CORE_JS.split('\n').find(l => l.startsWith(h)); if (!line) throw new Error('core helper not found: ' + h); return line; }).join('\n');
+const markupOf = id => {
+  const C = CARDS[id], src = defOf(id), at = src.indexOf(`DM.def('${id}'`);
+  if (at < 0 || !/\{[\w-]+\}/.test(C.tpl)) return C.tpl;
+  const fn = acorn.parse(src.slice(at), { ecmaVersion:'latest' }).body[0].expression.arguments[1], body = fn.body.body;
+  const k = body.findIndex(st => st.type === 'ExpressionStatement' && /^r\.innerHTML\s*=\s*r\.innerHTML/.test(src.slice(at).slice(st.start, st.end)));
+  if (k < 0){ warn.push('no placeholder statement for ' + id); return C.tpl; }
+  const run = body.slice(0, k + 1).map(st => src.slice(at).slice(st.start, st.end)).join('\n');
+  const r = { innerHTML:C.tpl };
+  try { vm.runInNewContext(`const REDUCE = false;\n${HELPERS}\n${run}`, { r, navigator:{ platform:'', userAgent:'' }, encodeURIComponent }); }
+  catch(e){ warn.push(`placeholders of ${id} not drawn: ${e.message}`); return C.tpl; }
+  if (/\{(?:[a-z][\w-]*)\}/.test(r.innerHTML.replace(/\$\{[^}]*\}/g, ''))) warn.push('placeholder left in ' + id + ': ' + r.innerHTML.match(/\{[a-z][\w-]*\}/)[0]);
+  return r.innerHTML;
+};
 const regHtml = id => { const C = CARDS[id], cls = ['card', ...C.cls.filter(c => c === 'wide' || c === 'bare')].join(' ');
-  return `<div class="${cls}" data-c="${id}">\n  <div class="stage-in"></div>\n  <template>\n${C.tpl.trim()}\n  </template>\n</div>\n`; };
+  const inner = markupOf(id).trim().split('\n').map(l => l.trim() ? '    ' + l : '').join('\n');
+  return `<div class="${cls}" data-c="${id}">\n  <div class="stage-in">\n${inner}\n  </div>\n</div>\n`; };
 const regOne = id => { const C = CARDS[id], sec = SECTIONS[C.title] || ''; if (!sec) warn.push('no CSS section for ' + C.title);
   return { html:regHtml(id), css:`/* ---------- ${C.title} ---------- */\n` + regCss(sec), js:defOf(id) + '\n' }; };
 

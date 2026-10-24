@@ -30,12 +30,12 @@ Reasoning trail is a foldable record of how an agent worked through a task: its 
 - Plan steps are done (a check and their `detail`), now (a pulse and "Working") or next (a grey dot and "Next").
 - Notes are plain lines, sources are file and link chips with tooltips, and edits list each file with its removed and added lines.
 - While `running` is true, the header shimmers and counts seconds, unless you pass `seconds`. `title` replaces the default header text.
-- Clicking the header folds the trail open or shut, controlled with `open` and `onOpenChange` or left to the component. Switching views plays the entrance again.
+- Clicking the header, or pressing Enter or Space on it, folds the trail open or shut, controlled with `open` and `onOpenChange` or left to the component. Switching views grows or shrinks the open trail to its new height and plays the entrance again.
 - It sits flat in a chat thread by default, and `bare={false}` gives it a card of its own.
 
 ### Accessibility
 
-- The header is a button with `aria-expanded`.
+- The header is a button with `aria-expanded`, which follows every click, Enter and Space.
 - When folded, the body is `inert` and `aria-hidden`, so its chips leave the tab order.
 - The thinking glyph and status dots are decorative and hidden from screen readers.
 
@@ -51,13 +51,19 @@ import { ReasoningTrail } from '@/components/designme/reasoning-trail/ReasoningT
 'use client';
 // The animated preview from designme.dev, rebuilt from the React component: an example of driving it from your own state.
 import { useState } from 'react';
-import { ReasoningTrail, type PlanStep, type ReasoningTrailView } from './ReasoningTrail';
+import { ReasoningTrail, type PlanStep, type ReasoningTrailProps, type ReasoningTrailView } from './ReasoningTrail';
 import { Seg } from '../lib/motion';
 import { Demo } from '../lib/Demo';
 import { useScript } from '../lib/useScript';
 
 /* ---------- Reasoning trail: the plan fills in, then the trail settles ---------- */
+const VIEWS: ReasoningTrailView[] = ['plan', 'notes', 'sources', 'edits'];
 const PLAN = [['Open the onboarding file', '4 frames'], ['Compare it with the design system', '12 components'], ['Find spacing that breaks the 8px grid', '3 frames'], ['Draft fixes for review', 'Ready']];
+const CONTENT: Pick<ReasoningTrailProps, 'notes' | 'sources' | 'edits'> = {
+  notes: ['The hero card uses 20px padding, every other card uses 24px.', 'Mobile frames already follow the grid, desktop drifted.', 'Two buttons use a hard-coded grey instead of a token.'],
+  sources: [{ label: 'Onboarding.fig', kind: 'figma', tip: 'Figma, 4 frames read' }, { label: 'tokens.ts', kind: 'ts', tip: 'src/styles/tokens.ts, 212 lines' }, { label: 'Card.tsx', kind: 'tsx', tip: 'src/components/Card.tsx, 2 edits' }, { label: 'Spacing guide', kind: 'web', tip: 'designme.dev/guide/spacing' }],
+  edits: [{ file: 'Card.tsx', detail: '2 lines', removed: ['padding: 20px;'], added: ['padding: var(--space-6);'] }, { file: 'Button.tsx', detail: '1 line', removed: ['color: #8a8a8a;'], added: ['color: var(--text-dim);'] }]
+};
 export default function ReasoningTrailDemo() {
   const [done, setDone] = useState(0);
   const [view, setView] = useState<ReasoningTrailView>('plan');
@@ -66,10 +72,18 @@ export default function ReasoningTrailDemo() {
   const plan: PlanStep[] = PLAN.map(([label, detail], i) => ({ label, detail, state: i < done ? 'done' : i === done ? 'now' : 'next' }));
   return (
     <Demo switcher={<Seg label="View" value={view} onChange={setView} options={[{ value: 'plan', label: 'Plan' }, { value: 'notes', label: 'Notes' }, { value: 'sources', label: 'Sources' }, { value: 'edits', label: 'Edits' }]} />}>
-      <ReasoningTrail running={running} plan={plan} view={view}
-        notes={['The hero card uses 20px padding, every other card uses 24px.', 'Mobile frames already follow the grid, desktop drifted.', 'Two buttons use a hard-coded grey instead of a token.']}
-        sources={[{ label: 'Onboarding.fig', kind: 'figma', tip: 'Figma, 4 frames read' }, { label: 'tokens.ts', kind: 'ts', tip: 'src/styles/tokens.ts, 212 lines' }, { label: 'Card.tsx', kind: 'tsx', tip: 'src/components/Card.tsx, 2 edits' }, { label: 'Spacing guide', kind: 'web', tip: 'designme.dev/guide/spacing' }]}
-        edits={[{ file: 'Card.tsx', detail: '2 lines', removed: ['padding: 20px;'], added: ['padding: var(--space-6);'] }, { file: 'Button.tsx', detail: '1 line', removed: ['color: #8a8a8a;'], added: ['color: var(--text-dim);'] }]} />
+      {/* the preview keeps the room of its tallest view, so the switcher under it stays put: a hidden copy of each view
+          sits in the same grid cell, and the trail you see is centred in it */}
+      <div style={{ display: 'grid', width: '100%' }}>
+        {VIEWS.map(v => (
+          <div key={v} aria-hidden="true" inert style={{ gridArea: '1 / 1', visibility: 'hidden', pointerEvents: 'none' }}>
+            <ReasoningTrail plan={plan} view={v} seconds={0} {...CONTENT} />
+          </div>
+        ))}
+        <div style={{ gridArea: '1 / 1', alignSelf: 'center', minWidth: 0 }}>
+          <ReasoningTrail running={running} plan={plan} view={view} {...CONTENT} />
+        </div>
+      </div>
     </Demo>
   );
 }
@@ -99,7 +113,7 @@ export default function ReasoningTrailDemo() {
 
 **Does the trail come with Plan, Notes, Sources and Edits tabs?**
 
-No. The component shows whichever view you pass in `view`, and you supply the switcher. The designme.dev demo puts a segmented control next to it.
+No. The component shows whichever view you pass in `view`, and you supply the switcher. The designme.dev demo puts a segmented control under it and keeps the room of the tallest view, so the control stays put as you switch.
 
 **How do I show progress through the plan?**
 
@@ -115,8 +129,9 @@ An edit has a `file`, an optional `detail` like "2 lines", and `removed` and `ad
 
 ```tsx
 'use client';
+import { useRef, type KeyboardEvent } from 'react';
 import { cx } from '../lib/cx';
-import { useControllable, useSeconds } from '../lib/hooks';
+import { useControllable, useIsoLayoutEffect, useReducedMotion, useSeconds } from '../lib/hooks';
 import { Icon } from '../lib/icons';
 import { Dot, enter, Fold, Pulse, SourceChip, Swap, Think, type Source } from '../lib/motion';
 import '../designme.css';
@@ -175,6 +190,27 @@ export function ReasoningTrail({ running = false, seconds, title, plan, notes, s
   const tab = has[picked] ? picked : VIEWS.find(v => has[v]) ?? picked;
   const [isOpen, setOpen] = useControllable(open, defaultOpen, onOpenChange);
   const head = title ?? (running ? 'Reasoning' : `Reasoned for ${Math.max(secs, 1)}s`);
+  // Enter and Space open and fold it as a click does, and aria-expanded always says which
+  const onHeadKey = (e: KeyboardEvent<HTMLButtonElement>) => {
+    if ((e.key !== 'Enter' && e.key !== ' ') || e.altKey || e.ctrlKey || e.metaKey) return;
+    e.preventDefault(); if (!e.repeat) setOpen(!isOpen);
+  };
+
+  // switching views grows or shrinks the open trail to its new height instead of jumping to it
+  const reduce = useReducedMotion();
+  const bodyRef = useRef<HTMLDivElement>(null), seen = useRef({ tab, h: 0 }), anim = useRef<Animation | null>(null);
+  useIsoLayoutEffect(() => {
+    const el = bodyRef.current; if (!el) return;
+    if (anim.current?.playState === 'running' && seen.current.tab === tab) return;
+    const to = el.offsetHeight, from = seen.current.h, moved = seen.current.tab !== tab;
+    seen.current = { tab, h: to };
+    if (!moved || !isOpen || reduce || !from || Math.abs(from - to) < 1 || !el.animate) return;
+    const cs = getComputedStyle(el), ms = parseFloat(cs.getPropertyValue('--dm-t')) * 1000 || 450;
+    anim.current?.cancel(); el.style.overflow = 'hidden';
+    const a = el.animate([{ height: from + 'px' }, { height: to + 'px' }], { duration: ms, easing: cs.getPropertyValue('--dm-ease').trim() || 'ease' });
+    a.onfinish = a.oncancel = () => { el.style.overflow = ''; if (anim.current === a) anim.current = null; };
+    anim.current = a;
+  });
 
   const body = () => {
     if (tab === 'plan') return plan?.map((p, i) => (
@@ -194,7 +230,7 @@ export function ReasoningTrail({ running = false, seconds, title, plan, notes, s
 
   return (
     <div data-dm="" className={cx('dm-rtr', !bare && 'dm-panel', className)} style={bare ? { paddingInline: 0 } : undefined}>
-      <button type="button" className="dm-rtr-h" aria-expanded={isOpen} onClick={() => setOpen(!isOpen)}>
+      <button type="button" className="dm-rtr-h" aria-expanded={isOpen} onClick={() => setOpen(!isOpen)} onKeyDown={onHeadKey}>
         <Think on={running} className="dm-rtr-mark" />
         <Swap className={cx('dm-rtr-title', running && 'dm-shim')}>{head}</Swap>
         <span className="dm-rtr-time dm-num dm-muted">{running ? secs + 's' : ''}</span>
@@ -202,7 +238,7 @@ export function ReasoningTrail({ running = false, seconds, title, plan, notes, s
       </button>
       <Fold open={isOpen} className="dm-rtr-fold">
         {/* keyed by view, so switching views plays the entrance again */}
-        <div className="dm-rtr-body" key={tab}>{body()}</div>
+        <div className="dm-rtr-body" key={tab} ref={bodyRef}>{body()}</div>
       </Fold>
     </div>
   );

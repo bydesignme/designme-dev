@@ -52,7 +52,7 @@ import { ModelCompare } from '@/components/designme/model-compare/ModelCompare';
 // The animated preview from designme.dev, rebuilt from the React component: an example of driving it from your own state.
 import { useCallback, useRef, useState } from 'react';
 import { ModelCompare, type ModelCompareAnswer, type ModelCompareColumn, type ModelCompareModel } from './ModelCompare';
-import { useScript, useWait } from '../lib/useScript';
+import { useScript, useTakeover, useWait } from '../lib/useScript';
 
 /* ---------- Model compare: one prompt goes to three models, each streams its answer, the fastest and cheapest turn green ---------- */
 const MODELS: ModelCompareModel[] = [
@@ -98,10 +98,12 @@ export default function ModelCompareDemo() {
     setColumns(next);
   };
 
-  useScript(async ({ wait }) => { await wait(1200); send(FIRST, columns); });
+  // the preview sends its question once on its own, unless you take over first
+  const ref = useRef<HTMLDivElement>(null), mine = useTakeover(ref);
+  useScript(async ({ wait }) => { await wait(1200); if (!mine()) send(FIRST, columns); });
 
   return (
-    <div style={{ width: '100%' }}>
+    <div ref={ref} style={{ width: '100%' }}>
       <ModelCompare models={MODELS} columns={columns} onColumnsChange={change} defaultPrompt={FIRST} asked={asked} answers={answers}
         onSend={send} onRun={c => asked && run(c, asked)} />
     </div>

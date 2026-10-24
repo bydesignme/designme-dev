@@ -70,8 +70,10 @@ export function CitationHoverCard({ text, sources, openLabel = 'Open source', on
   useEffect(() => {
     const down = (e: PointerEvent) => { const t = e.target as Element; if (!card.current?.contains(t) && !t.closest?.('.dm-chx-c')) hide(true); };
     const resize = () => hide(true);
-    document.addEventListener('pointerdown', down); addEventListener('resize', resize);
-    return () => { document.removeEventListener('pointerdown', down); removeEventListener('resize', resize); clearTimeout(hideT.current); clearTimeout(showT.current); };
+    // Escape puts the card away while the focus or the pointer is on the answer, and leaves the focus where it was
+    const key = (e: KeyboardEvent) => { const b = box.current; if (e.key === 'Escape' && cur.current !== null && b && (b.contains(document.activeElement) || b.matches(':hover'))) { e.preventDefault(); hide(true); } };
+    document.addEventListener('pointerdown', down); document.addEventListener('keydown', key); addEventListener('resize', resize);
+    return () => { document.removeEventListener('pointerdown', down); document.removeEventListener('keydown', key); removeEventListener('resize', resize); clearTimeout(hideT.current); clearTimeout(showT.current); };
   }, []);
 
   // a card opened or closed from outside
@@ -86,8 +88,8 @@ export function CitationHoverCard({ text, sources, openLabel = 'Open source', on
     if (!sources[i]) return <Fragment key={key}>[{n}]</Fragment>;
     return (
       <button type="button" key={key} ref={el => { if (el && !marks.current.has(i)) marks.current.set(i, el); }} className={cx('dm-chx-c', at?.i === i && 'dm-on')} aria-label={`Source ${n}: ${sources[i].title}`}
-        onPointerEnter={e => { const el = e.currentTarget; clearTimeout(showT.current); clearTimeout(hideT.current); showT.current = setTimeout(() => show(i, el), cur.current !== null ? 0 : 90); }}
-        onPointerLeave={() => { clearTimeout(showT.current); hide(); }}
+        onPointerEnter={e => { if (e.pointerType === 'touch') return; const el = e.currentTarget; clearTimeout(showT.current); clearTimeout(hideT.current); showT.current = setTimeout(() => show(i, el), cur.current !== null ? 0 : 90); }}
+        onPointerLeave={e => { if (e.pointerType === 'touch') return; clearTimeout(showT.current); hide(); }}
         onFocus={e => show(i, e.currentTarget)} onBlur={() => hide()}
         // touch has no hover: a tap shows the card, the next tap anywhere else hides it
         onClick={e => { if (cur.current !== i) show(i, e.currentTarget); }}>{n}</button>
@@ -105,7 +107,7 @@ export function CitationHoverCard({ text, sources, openLabel = 'Open source', on
       {paragraphs}
       <div key={at?.n ?? 0} ref={card} className={cx('dm-chx-card dm-panel', open && 'dm-show')} role="dialog" aria-label="Source"
         style={at ? { left: at.x, top: at.y } : undefined}
-        onPointerEnter={() => clearTimeout(hideT.current)} onPointerLeave={() => hide()}>
+        onPointerEnter={() => clearTimeout(hideT.current)} onPointerLeave={e => { if (e.pointerType !== 'touch') hide(); }}>
         {s && (
           <div className="dm-chx-in">
             <div className="dm-chx-sh"><span className="dm-fv" style={{ background: s.color }}>{s.mark}</span><span>{s.site}</span></div>

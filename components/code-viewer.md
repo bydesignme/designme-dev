@@ -51,9 +51,9 @@ import { CodeViewer } from '@/components/designme/code-viewer/CodeViewer';
 ```tsx
 'use client';
 // The animated preview from designme.dev, rebuilt from the React component: an example of driving it from your own state.
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { CodeViewer, type CodeFile, type CodePiece, type CodeToken } from './CodeViewer';
-import { useScript } from '../lib/useScript';
+import { useStory } from '../lib/useScript';
 
 /** Turns "<k>return</k> (" into highlight pieces, so the code below reads like code */
 const hl = (src: string): CodePiece[] => src.split(/(<(?:k|s|f|cm|tg|at)>.*?<\/(?:k|s|f|cm|tg|at)>)/).filter(Boolean)
@@ -85,8 +85,10 @@ const FILES: CodeFile[] = [
 
 export default function CodeViewerDemo() {
   const [line, setLine] = useState<number | null>(null);
-  useScript(async ({ wait }) => { await wait(1200); setLine(l => l ?? 6); });
-  return <div style={{ width: '100%' }}><CodeViewer files={FILES} line={line} onLineChange={setLine} /></div>;
+  const ref = useRef<HTMLDivElement>(null);
+  // the preview asks about one line on its own, unless you take over first
+  useStory(ref, async ({ wait }) => { await wait(1200); setLine(l => l ?? 6); });
+  return <div ref={ref} style={{ width: '100%' }}><CodeViewer files={FILES} line={line} onLineChange={setLine} /></div>;
 }
 ```
 

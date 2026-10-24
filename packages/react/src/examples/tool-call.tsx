@@ -1,8 +1,8 @@
 'use client';
 // The animated preview from designme.dev, rebuilt from the React component: an example of driving it from your own state.
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { ToolCall, type ToolCallItem } from '../components/tool-call/ToolCall';
-import { useScript } from './useScript';
+import { useScript, useTakeover } from './useScript';
 
 /* ---------- Tool call: two calls run one after the other, then the answer comes in and the first call opens ---------- */
 const CALLS: ToolCallItem[] = [
@@ -14,16 +14,18 @@ const CALLS: ToolCallItem[] = [
 export default function ToolCallDemo() {
   const [calls, setCalls] = useState(CALLS);
   const [open, setOpen] = useState<string[]>([]);
+  const ref = useRef<HTMLDivElement>(null), mine = useTakeover(ref);
   useScript(async ({ wait }) => {
     await wait(600);
     for (const k of CALLS.map(c => c.key)) {
       setCalls(cs => cs.map(c => c.key === k ? { ...c, state: 'running' } : c)); await wait(1300);
       setCalls(cs => cs.map(c => c.key === k ? { ...c, state: 'done' } : c));
     }
-    setOpen(o => o.includes('plans') ? o.filter(k => k !== 'plans') : [...o, 'plans']);
+    // the preview opens the first call to show what came back, unless you have taken over
+    if (!mine()) setOpen(o => o.includes('plans') ? o.filter(k => k !== 'plans') : [...o, 'plans']);
   });
   return (
-    <div style={{ width: '100%' }}>
+    <div ref={ref} style={{ width: '100%' }}>
       <ToolCall calls={calls} open={open} onOpenChange={setOpen}
         message="Checking which plans changed this month before I update the pricing page."
         reply="Two plans changed. I updated their prices and the yearly saving on the page." />

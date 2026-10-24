@@ -2,7 +2,7 @@
 // The animated preview from designme.dev, rebuilt from the React component: an example of driving it from your own state.
 import { useCallback, useRef, useState } from 'react';
 import { EventCalendar, type EventCalendarEvent, type EventCalendarPerson, type EventCalendarSuggestion, type EventCalendarTone } from '../components/event-calendar/EventCalendar';
-import { useScript, useWait } from './useScript';
+import { useStory, useWait } from './useScript';
 
 const WEEK = new Date(2026, 9, 19);
 const at = (day: number, hour: number) => new Date(2026, 9, 19 + day, Math.floor(hour), Math.round((hour % 1) * 60));
@@ -35,10 +35,12 @@ export default function EventCalendarDemo() {
     await wait(1300);
     setSuggestions(SLOTS); setFinding(false); setLabel('Everyone is free Wed 1:30');
   }, [wait]);
-  useScript(async ({ wait }) => { await wait(1200); await ask(); });
+  // the preview asks the agent for a slot once on its own, unless you take over first
+  const ref = useRef<HTMLDivElement>(null);
+  useStory(ref, async s => { await s.wait(1200); await ask(); });
 
   return (
-    <div style={{ width: '100%' }}>
+    <div ref={ref} style={{ width: '100%' }}>
       <EventCalendar week={WEEK} now={new Date(2026, 9, 19, 10, 42)} events={events} onEventsChange={setEvents}
         newEvent={{ tone: 'pink', people: people('New event') }}
         onPrepNotes={() => wait(1200).then(() => "Notes ready: last week's decisions and 3 open questions.")} onJoin={() => {}}

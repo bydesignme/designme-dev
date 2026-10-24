@@ -1,13 +1,19 @@
 'use client';
 // The animated preview from designme.dev, rebuilt from the React component: an example of driving it from your own state.
 import { useState } from 'react';
-import { ReasoningTrail, type PlanStep, type ReasoningTrailView } from '../components/reasoning-trail/ReasoningTrail';
+import { ReasoningTrail, type PlanStep, type ReasoningTrailProps, type ReasoningTrailView } from '../components/reasoning-trail/ReasoningTrail';
 import { Seg } from '../lib/motion';
 import { Demo } from './Demo';
 import { useScript } from './useScript';
 
 /* ---------- Reasoning trail: the plan fills in, then the trail settles ---------- */
+const VIEWS: ReasoningTrailView[] = ['plan', 'notes', 'sources', 'edits'];
 const PLAN = [['Open the onboarding file', '4 frames'], ['Compare it with the design system', '12 components'], ['Find spacing that breaks the 8px grid', '3 frames'], ['Draft fixes for review', 'Ready']];
+const CONTENT: Pick<ReasoningTrailProps, 'notes' | 'sources' | 'edits'> = {
+  notes: ['The hero card uses 20px padding, every other card uses 24px.', 'Mobile frames already follow the grid, desktop drifted.', 'Two buttons use a hard-coded grey instead of a token.'],
+  sources: [{ label: 'Onboarding.fig', kind: 'figma', tip: 'Figma, 4 frames read' }, { label: 'tokens.ts', kind: 'ts', tip: 'src/styles/tokens.ts, 212 lines' }, { label: 'Card.tsx', kind: 'tsx', tip: 'src/components/Card.tsx, 2 edits' }, { label: 'Spacing guide', kind: 'web', tip: 'designme.dev/guide/spacing' }],
+  edits: [{ file: 'Card.tsx', detail: '2 lines', removed: ['padding: 20px;'], added: ['padding: var(--space-6);'] }, { file: 'Button.tsx', detail: '1 line', removed: ['color: #8a8a8a;'], added: ['color: var(--text-dim);'] }]
+};
 export default function ReasoningTrailDemo() {
   const [done, setDone] = useState(0);
   const [view, setView] = useState<ReasoningTrailView>('plan');
@@ -16,10 +22,18 @@ export default function ReasoningTrailDemo() {
   const plan: PlanStep[] = PLAN.map(([label, detail], i) => ({ label, detail, state: i < done ? 'done' : i === done ? 'now' : 'next' }));
   return (
     <Demo switcher={<Seg label="View" value={view} onChange={setView} options={[{ value: 'plan', label: 'Plan' }, { value: 'notes', label: 'Notes' }, { value: 'sources', label: 'Sources' }, { value: 'edits', label: 'Edits' }]} />}>
-      <ReasoningTrail running={running} plan={plan} view={view}
-        notes={['The hero card uses 20px padding, every other card uses 24px.', 'Mobile frames already follow the grid, desktop drifted.', 'Two buttons use a hard-coded grey instead of a token.']}
-        sources={[{ label: 'Onboarding.fig', kind: 'figma', tip: 'Figma, 4 frames read' }, { label: 'tokens.ts', kind: 'ts', tip: 'src/styles/tokens.ts, 212 lines' }, { label: 'Card.tsx', kind: 'tsx', tip: 'src/components/Card.tsx, 2 edits' }, { label: 'Spacing guide', kind: 'web', tip: 'designme.dev/guide/spacing' }]}
-        edits={[{ file: 'Card.tsx', detail: '2 lines', removed: ['padding: 20px;'], added: ['padding: var(--space-6);'] }, { file: 'Button.tsx', detail: '1 line', removed: ['color: #8a8a8a;'], added: ['color: var(--text-dim);'] }]} />
+      {/* the preview keeps the room of its tallest view, so the switcher under it stays put: a hidden copy of each view
+          sits in the same grid cell, and the trail you see is centred in it */}
+      <div style={{ display: 'grid', width: '100%' }}>
+        {VIEWS.map(v => (
+          <div key={v} aria-hidden="true" inert style={{ gridArea: '1 / 1', visibility: 'hidden', pointerEvents: 'none' }}>
+            <ReasoningTrail plan={plan} view={v} seconds={0} {...CONTENT} />
+          </div>
+        ))}
+        <div style={{ gridArea: '1 / 1', alignSelf: 'center', minWidth: 0 }}>
+          <ReasoningTrail running={running} plan={plan} view={view} {...CONTENT} />
+        </div>
+      </div>
     </Demo>
   );
 }

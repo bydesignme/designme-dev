@@ -50,7 +50,7 @@ import { AttachmentTray } from '@/components/designme/attachment-tray/Attachment
 'use client';
 // The animated preview from designme.dev, rebuilt from the React component: an example of driving it from your own state.
 import { useEffect, useRef, useState } from 'react';
-import { useScript } from '../lib/useScript';
+import { useStory } from '../lib/useScript';
 import { AttachmentTray, type Attachment } from './AttachmentTray';
 
 /* ---------- Attachment tray: dropped or picked files upload one by one; sample files show the flow ---------- */
@@ -75,14 +75,15 @@ export default function AttachmentTrayDemo() {
     }, 70);
     timers.current.push(iv);
   });
-  // once it has entered, three sample files drop in and upload, unless files are already there
-  useScript(async s => {
+  // once it has entered, three sample files drop in and upload, unless files are already there or you have taken over
+  const ref = useRef<HTMLDivElement>(null);
+  useStory(ref, async s => {
     await s.wait(950); if (count.current) return;
-    setDragging(true); await s.wait(500); setDragging(false);
+    setDragging(true); s.taken(() => setDragging(false)); await s.wait(500); setDragging(false);
     if (!count.current) add(SAMPLES);
   });
   return (
-    <div style={{ width: '100%' }}>
+    <div ref={ref} style={{ width: '100%' }}>
       <AttachmentTray files={files} dragging={dragging} action={{ label: 'add sample files', onClick: () => add(SAMPLES) }}
         onFiles={fs => add(fs.map(f => [f.name, f.size]))} onRemove={id => setFiles(fs => fs.filter(f => f.id !== id))} />
     </div>

@@ -1,8 +1,8 @@
 'use client';
 // The animated preview from designme.dev, rebuilt from the React component: an example of driving it from your own state.
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { TicketList, type TicketListTicket } from '../components/ticket-list/TicketList';
-import { useScript } from './useScript';
+import { useStory } from './useScript';
 
 /* ---------- Ticket list: four triaged tickets, the urgent one opens with the agent's reply ---------- */
 const MAYA = { initials: 'MK', color: 'var(--dm-pl)' };
@@ -21,6 +21,8 @@ const TICKETS: TicketListTicket[] = [
 
 export default function TicketListDemo() {
   const [open, setOpen] = useState<string | null>(null);
-  useScript(async ({ wait }) => { await wait(1000); setOpen(o => o ?? 'export'); });
-  return <TicketList defaultTickets={TICKETS} open={open} onOpenChange={setOpen} onSend={() => new Promise(res => setTimeout(res, 700))} />;
+  // the preview opens the first ticket on its own, unless you take over first
+  const ref = useRef<HTMLDivElement>(null);
+  useStory(ref, async ({ wait }) => { await wait(1000); setOpen(o => o ?? 'export'); });
+  return <div ref={ref} style={{ display: 'contents' }}><TicketList defaultTickets={TICKETS} open={open} onOpenChange={setOpen} onSend={() => new Promise(res => setTimeout(res, 700))} /></div>;
 }

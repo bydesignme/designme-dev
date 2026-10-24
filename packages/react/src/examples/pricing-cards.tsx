@@ -1,7 +1,7 @@
 'use client';
 // The preview from designme.dev, rebuilt from the React component: switch the billing period or drag the editors slider.
 import { useRef, useState } from 'react';
-import { useScript } from './useScript';
+import { useStory } from './useScript';
 import { PricingCards, type PricingPeriod, type PricingPlan } from '../components/pricing-cards/PricingCards';
 
 const PLANS: PricingPlan[] = [
@@ -12,11 +12,11 @@ const PLANS: PricingPlan[] = [
 
 export default function PricingCardsDemo() {
   const [period, setPeriod] = useState<PricingPeriod>('yearly');
-  // once it has appeared it shows the switch at work: monthly, then back to yearly. Touching it takes over
-  const touched = useRef(false);
-  useScript(async ({ wait }) => {
-    await wait(1900); if (touched.current) return; setPeriod('monthly');
-    await wait(2000); if (touched.current) return; setPeriod('yearly');
+  // once it has appeared it shows the switch at work: monthly, then back to yearly. Clicking, focusing or typing in it takes over
+  const ref = useRef<HTMLDivElement>(null);
+  useStory(ref, async ({ wait }) => {
+    await wait(1900); setPeriod('monthly');
+    await wait(2000); setPeriod('yearly');
   });
-  return <div style={{ width: '100%' }} onPointerDown={() => { touched.current = true; }}><PricingCards plans={PLANS} period={period} onPeriodChange={setPeriod} /></div>;
+  return <div ref={ref} style={{ width: '100%' }}><PricingCards plans={PLANS} period={period} onPeriodChange={setPeriod} /></div>;
 }

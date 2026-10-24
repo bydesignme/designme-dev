@@ -15,10 +15,13 @@ export default function SignInDemo() {
   const wait = useWait();
 
   // the preview's story; anyone can take over and go through it with their own email and any 6 digits
-  useStory(ref, async ({ wait, press }) => {
+  useStory(ref, async ({ wait, press, taken }) => {
     await wait(1000);
-    let typed = '';
+    // taking over while it types takes the letters back
+    let typed = '', typing = true;
+    taken(() => { if (typing) setEmail(''); });
     for (const ch of 'maya@studio.com') { typed += ch; setEmail(typed); await wait(40); }
+    typing = false;
     await wait(500); press('.dm-sgx-go');
     await wait(2800); press('.dm-sgx-cp');
     await wait(1000); setCode(CODE);

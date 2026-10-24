@@ -2,7 +2,7 @@
 // The animated preview from designme.dev, rebuilt from the React component: an example of driving it from your own state.
 import { useRef, useState } from 'react';
 import { RewriteToolbar, type RewriteToolbarHandle } from '../components/rewrite-toolbar/RewriteToolbar';
-import { useScript } from './useScript';
+import { useStory } from './useScript';
 
 /* ---------- Rewrite toolbar: the first sentence is picked, made clearer and kept ---------- */
 const TEXT = [
@@ -17,15 +17,15 @@ const REWRITES: Record<string, string>[] = [
 ];
 export default function RewriteToolbarDemo() {
   const [selected, setSelected] = useState<number | null>(null);
-  const toolbar = useRef<RewriteToolbarHandle>(null), yours = useRef(false);
-  // plays once on its own: picks the first sentence, makes it clearer and keeps it. A click of yours takes over
-  useScript(async ({ wait }) => {
-    await wait(1300); if (yours.current) return; setSelected(s => s ?? 0);
-    await wait(1200); if (yours.current) return; toolbar.current?.rewrite('clear');
-    await wait(2600); if (yours.current) return; toolbar.current?.accept();
+  const toolbar = useRef<RewriteToolbarHandle>(null), ref = useRef<HTMLDivElement>(null);
+  // plays once on its own: picks the first sentence, makes it clearer and keeps it. Clicking, focusing or typing in it takes over
+  useStory(ref, async ({ wait }) => {
+    await wait(1300); setSelected(s => s ?? 0);
+    await wait(1200); toolbar.current?.rewrite('clear');
+    await wait(2600); toolbar.current?.accept();
   });
   return (
-    <div style={{ width: '100%' }} onPointerDownCapture={e => { if (e.isTrusted) yours.current = true; }}>
+    <div ref={ref} style={{ width: '100%' }}>
       <RewriteToolbar ref={toolbar} title="Onboarding intro" defaultSentences={TEXT} selected={selected} onSelectedChange={setSelected}
         onRewrite={(_, action, i) => new Promise<string>(res => setTimeout(() => res(REWRITES[i][action]), 350))} />
     </div>

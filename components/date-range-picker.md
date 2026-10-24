@@ -245,7 +245,7 @@ export function DateRangePicker({
           <div className={cx('dm-drx-in', !start && 'dm-on')}><span className="dm-muted">From</span><b className="dm-drx-a"><Swap>{start ? show(start) : '–'}</Swap></b></div>
           <Icon name="right" size="xs" />
           <div className={cx('dm-drx-in', !!start && !end && 'dm-on')}><span className="dm-muted">To</span><b className="dm-drx-b"><Swap>{end ? show(end) : '–'}</Swap></b></div>
-          <span className="dm-drx-n dm-muted">{start && end ? `${daysBetween(start, end) + 1} days` : start ? 'Pick an end date' : 'Pick a start date'}</span>
+          <span className="dm-drx-n dm-muted">{start && end ? `${daysBetween(start, end) + 1} ${daysBetween(start, end) ? 'days' : 'day'}` : start ? 'Pick an end date' : 'Pick a start date'}</span>
         </div>
         <div ref={cals} className="dm-drx-cals" onMouseLeave={() => setHover(null)} onKeyDown={keys}>
           {months.map((mo, o) => (

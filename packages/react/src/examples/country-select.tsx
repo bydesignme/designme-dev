@@ -1,8 +1,8 @@
 'use client';
 // The animated preview from designme.dev, rebuilt from the React component: an example of driving it from your own state.
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { CountrySelect, type CountrySelectCountry } from '../components/country-select/CountrySelect';
-import { useScript } from './useScript';
+import { useStory } from './useScript';
 
 const COUNTRIES: CountrySelectCountry[] = [
   { code: 'US', name: 'United States', currency: 'USD' }, { code: 'GB', name: 'United Kingdom', currency: 'GBP' },
@@ -15,10 +15,12 @@ const COUNTRIES: CountrySelectCountry[] = [
 
 /* ---------- Country select: the list opens, someone types "ger" and picks Germany ---------- */
 export default function CountrySelectDemo() {
+  const ref = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [value, setValue] = useState('GB');
-  useScript(async ({ wait }) => {
+  // the story stops at the visitor's first click or key, so it never types into their search or picks over their choice
+  useStory(ref, async ({ wait }) => {
     await wait(900); setQuery(''); setOpen(true);
     await wait(500);
     let typed = '';
@@ -26,7 +28,7 @@ export default function CountrySelectDemo() {
     await wait(1100); setValue('DE'); setOpen(false);
   });
   return (
-    <div style={{ width: '100%' }}>
+    <div ref={ref} style={{ width: '100%' }}>
       <CountrySelect countries={COUNTRIES} value={value} onValueChange={setValue} open={open} onOpenChange={setOpen} query={query} onQueryChange={setQuery} />
     </div>
   );

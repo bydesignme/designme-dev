@@ -2,7 +2,7 @@
 // The animated preview from designme.dev, rebuilt from the React component: an example of driving it from your own state.
 import { useRef, useState } from 'react';
 import { TaskTable, type Task, type TaskAction } from '../components/task-table/TaskTable';
-import { useScript } from './useScript';
+import { useStory } from './useScript';
 
 /* ---------- Task table: six agent tasks; two get picked after a moment, then retried ---------- */
 const DESIGN = { name: 'Design', initials: 'DS', color: 'var(--dm-pb)' };
@@ -26,16 +26,16 @@ const apply = (list: Task[], a: TaskAction, ids: string[]): Task[] => a === 'can
 export default function TaskTableDemo() {
   const [tasks, setTasks] = useState(TASKS);
   const [selected, setSelected] = useState<string[]>([]);
-  // the preview picks two tasks and retries them, unless you start clicking first
-  const yours = useRef(false);
-  useScript(async ({ wait }) => {
-    await wait(1600); if (yours.current) return;
+  // the preview picks two tasks and retries them, unless you take over first
+  const ref = useRef<HTMLDivElement>(null);
+  useStory(ref, async ({ wait }) => {
+    await wait(1600);
     setSelected(s => s.length ? s : ['2', '5']);
-    await wait(1900); if (yours.current) return;
+    await wait(1900);
     setTasks(list => apply(list, 'retry', ['2', '5'])); setSelected([]);
   });
   return (
-    <div style={{ width: '100%' }} onPointerDownCapture={e => { if (e.isTrusted) yours.current = true; }}>
+    <div ref={ref} style={{ width: '100%' }}>
       <TaskTable tasks={tasks} selected={selected} onSelectedChange={setSelected}
         onAction={(a, ids) => setTasks(list => apply(list, a, ids))}
         emptyAction={{ label: 'Bring them back', onClick: () => setTasks(TASKS) }} />

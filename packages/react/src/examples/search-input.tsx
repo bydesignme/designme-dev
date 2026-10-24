@@ -1,8 +1,8 @@
 'use client';
 // The animated preview from designme.dev, rebuilt from the React component: an example of driving it from your own state.
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { SearchInput, type SearchInputItem, type SearchInputSource } from '../components/search-input/SearchInput';
-import { useScript } from './useScript';
+import { useStory } from './useScript';
 
 const ITEMS: SearchInputItem[] = [
   { icon: 'figma', label: 'Pricing v4', source: 'Figma' }, { icon: 'figma', label: 'Pricing mobile', source: 'Figma' },
@@ -19,11 +19,15 @@ export default function SearchInputDemo() {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState('');
   const [answer, setAnswer] = useState('');
-  useScript(async ({ wait }) => {
+  // the preview types a question on its own; clicking, focusing or typing in it takes over, and what it had typed goes
+  const ref = useRef<HTMLDivElement>(null);
+  useStory(ref, async ({ wait, taken }) => {
     await wait(900); setOpen(true);
     await wait(600);
-    let typed = '';
+    let typed = '', typing = true;
+    taken(() => { if (typing) setValue(''); });
     for (const ch of 'why did pricing change?') { typed += ch; setValue(typed); await wait(45); }
+    typing = false;
   });
   // a question gets an answer, a word every 45ms, which keeps going while the question is still being typed
   const v = value.trim(), asking = v.split(' ').length > 2 || v.endsWith('?');
@@ -34,7 +38,7 @@ export default function SearchInputDemo() {
     return () => clearInterval(id);
   }, [asking]);
   return (
-    <div style={{ width: '100%' }}>
+    <div ref={ref} style={{ width: '100%' }}>
       <SearchInput items={ITEMS} sources={SOURCES} recent={RECENT} value={value} onValueChange={setValue} open={open} onOpenChange={setOpen}
         answer={asking ? answer : undefined} />
     </div>

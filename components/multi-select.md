@@ -66,8 +66,10 @@ export default function MultiSelectDemo() {
   const [open, setOpen] = useState(false);
 
   // the preview's story types and presses keys in the box without taking the focus
-  useStory(ref, async ({ wait }) => {
+  useStory(ref, async ({ wait, taken }) => {
     const key = (k: string) => ref.current?.querySelector('[role="combobox"]')?.dispatchEvent(new KeyboardEvent('keydown', { key: k, bubbles: true }));
+    // taking over takes back the letters it was typing
+    taken(() => setQuery(''));
     const type = async (t: string) => { for (const ch of t) { setQuery(q => q + ch); await wait(200); } };
     await wait(1500); setOpen(true);
     await wait(1000); await type('pri'); await wait(500); key('Enter');

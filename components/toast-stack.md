@@ -54,7 +54,7 @@ import { ToastStack } from '@/components/designme/toast-stack/ToastStack';
 import { useRef, useState } from 'react';
 import { ToastStack, type StackToast } from './ToastStack';
 import { Icon } from '../lib/icons';
-import { useScript } from '../lib/useScript';
+import { useScript, useTakeover } from '../lib/useScript';
 
 /* ---------- Toast stack: three notifications arrive, then one now and then; the button sends more, hover fans them out ---------- */
 const POOL: Omit<StackToast, 'id'>[] = [
@@ -76,13 +76,14 @@ export default function ToastStackDemo() {
     });
   };
   const hover = useRef(false);
+  const ref = useRef<HTMLDivElement>(null), mine = useTakeover(ref);
   useScript(async ({ wait }) => {
     for (let i = 0; i < 3; i++) { await wait(i ? 700 : 400); add(); }
-    // a new one now and then, held back while the stack is fanned out under the pointer
-    for (;;) { await wait(3800); if (!hover.current) add(); }
+    // a new one now and then, held back while the stack is fanned out under the pointer, until you take over
+    for (;;) { await wait(3800); if (mine()) return; if (!hover.current) add(); }
   });
   return (
-    <div style={{ width: '100%', minHeight: 260, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 32 }}>
+    <div ref={ref} style={{ width: '100%', minHeight: 260, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 32 }}>
       <div style={{ marginBlock: 'auto', width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }} onPointerEnter={() => { hover.current = true; }} onPointerLeave={() => { hover.current = false; }}>
         <ToastStack toasts={toasts} onDismiss={id => setToasts(list => list.filter(t => t.id !== id))} />
       </div>

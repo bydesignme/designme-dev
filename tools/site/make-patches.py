@@ -860,5 +860,42 @@ CSS += """
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--sh-dim:#c6c8ce;--sh-muted:#b6b8bf;--text-dim:#c6c8ce;--muted:#b6b8bf}}
 :root[data-theme="dark"]{--sh-dim:#c6c8ce;--sh-muted:#b6b8bf;--text-dim:#c6c8ce;--muted:#b6b8bf}
 """
+# ---------- Escape shuts the accent picker wherever the focus is, and gives the focus back to its dot when it was inside ----------
+patch("""    document.addEventListener('keydown', e => { if (e.key === 'Escape' && pop.classList.contains('open')) close(); });""",
+      """    document.addEventListener('keydown', e => { if (e.key === 'Escape' && pop.classList.contains('open')){ const back = pop.contains(document.activeElement); close(); if (back) btn.focus(); } }, true);""")
+
+# ---------- copying says it worked: the button turns to Copied with a check for a moment and a half, and the toast that
+# says what was copied is a polite live region, so screen readers hear it too ----------
+patch("""<div class="toast" id="toast">Copied</div>""", """<div class="toast" id="toast" role="status" aria-live="polite"></div>""")
+# the same message twice in a row is read out again
+patch("""function showToast(msg){ toast.textContent = msg; toast.classList.add('show');""",
+      """function showToast(msg){ toast.textContent = ''; requestAnimationFrame(() => { toast.textContent = msg; }); toast.classList.add('show');""")
+patch("""  // a copy before the code has arrived waits for it; Safari only allows that through a ClipboardItem made during the click""",
+      """  // a copy button that worked says so for a moment and a half: its icon turns into a check and its word (Copy, Copy code)
+  // into Copied. Its width holds, so nothing beside it moves
+  function copiedOn(btn){
+    if (!btn) return;
+    // its word is its last bit of text that isn't the icon, or the $ and command of an install line, which stay as they are
+    const ms = btn.querySelector('.ms'), word = [...btn.childNodes].filter(n => !(n.nodeType === 1 && n.matches('.ms,.d,.c')) && n.textContent.trim()).pop();
+    const st = btn._cp || (btn._cp = { ic:ms && (ms.dataset.ic || ms.textContent.trim()), word:word && word.textContent });
+    clearTimeout(st.t); btn.style.minWidth = btn.offsetWidth + 'px'; btn.classList.add('copied');
+    if (ms) ms.textContent = 'check';
+    if (word) word.textContent = 'Copied';
+    st.t = setTimeout(() => { if (ms && st.ic) ms.textContent = st.ic; if (word) word.textContent = st.word; btn.classList.remove('copied'); btn.style.minWidth = ''; }, 1500);
+  }
+  // a copy before the code has arrived waits for it; Safari only allows that through a ClipboardItem made during the click""")
+patch("""  $$('[data-cmd]').forEach(b => b.addEventListener('click', async () => { if (await copyText(b.dataset.cmd)){ Sound.play('copy'); showToast('Install command copied'); } }));""",
+      """  $$('[data-cmd]').forEach(b => b.addEventListener('click', async () => { if (await copyText(b.dataset.cmd)){ Sound.play('copy'); copiedOn(b); showToast('Install command copied'); } }));""")
+patch("""    if (ok) Sound.play('copy');
+    showToast(ok ? 'Copied' : 'Copy not available here');""", """    if (ok){ Sound.play('copy'); copiedOn(btn); }
+    showToast(ok ? 'Copied' : 'Copy not available here');""")
+patch("""if (await copyText(tab === 'shared' || react ? textFor(tab) : bundle(id))){ Sound.play('copy'); showToast(""",
+      """if (await copyText(tab === 'shared' || react ? textFor(tab) : bundle(id))){ Sound.play('copy'); copiedOn($('#cdm-copy', m)); showToast(""")
+patch("""    $('#cdm-cmd', m).addEventListener('click', async () => { if (await copyText($('#cdm-cmd-t', m).textContent)){ Sound.play('copy'); showToast('Install command copied'); } });""",
+      """    $('#cdm-cmd', m).addEventListener('click', async () => { if (await copyText($('#cdm-cmd-t', m).textContent)){ Sound.play('copy'); copiedOn($('#cdm-cmd', m)); showToast('Install command copied'); } });""")
+patch("""if (await copyText(tab === 'shared' || react ? textFor(tab) : bundle(cur.id))){ Sound.play('copy'); showToast(""",
+      """if (await copyText(tab === 'shared' || react ? textFor(tab) : bundle(cur.id))){ Sound.play('copy'); copiedOn($('#dv-copy')); showToast(""")
+patch("""    $('#dv-cmd').addEventListener('click', async () => { if (await copyText($('#dv-cmd-t').textContent)){ Sound.play('copy'); showToast('Install command copied'); } });""",
+      """    $('#dv-cmd').addEventListener('click', async () => { if (await copyText($('#dv-cmd-t').textContent)){ Sound.play('copy'); copiedOn($('#dv-cmd')); showToast('Install command copied'); } });""")
 json.dump({ 'patches': P, 'css': CSS },open(os.path.join(HERE, 'site-patches.json'), 'w'), indent=1)
 print(len(P), 'patches')

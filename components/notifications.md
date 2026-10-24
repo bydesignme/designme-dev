@@ -50,9 +50,9 @@ import { Notifications } from '@/components/designme/notifications/Notifications
 ```tsx
 'use client';
 // The animated preview from designme.dev, rebuilt from the React component: an example of driving it from your own state.
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Notifications, type NotificationsItem } from './Notifications';
-import { useScript } from '../lib/useScript';
+import { useStory } from '../lib/useScript';
 
 /* ---------- Notifications: an inbox where two new items arrive while you watch ---------- */
 const START: NotificationsItem[] = [
@@ -67,13 +67,16 @@ const INCOMING: NotificationsItem[] = [
 ];
 
 export default function NotificationsDemo() {
+  const ref = useRef<HTMLDivElement>(null);
   const [items, setItems] = useState(START);
-  useScript(async ({ wait }) => {
+  // two items arrive while you watch; your first click or key in the inbox stops them, so a filter you picked or a
+  // Mark all read stays as you left it
+  useStory(ref, async ({ wait }) => {
     await wait(2200);
     for (const x of INCOMING) { setItems(xs => [x, ...xs]); await wait(2600); }
   });
   return (
-    <div style={{ width: '100%' }}>
+    <div ref={ref} style={{ width: '100%' }}>
       <Notifications items={items} onItemsChange={setItems} />
     </div>
   );

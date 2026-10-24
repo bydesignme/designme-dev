@@ -90,12 +90,16 @@ export default function KnowledgeSourcesDemo() {
   }, []);
 
   // the preview's story: add the docs site, which waits its turn, then read the scanned PDF again with OCR
-  useStory(ref, async ({ wait, press }) => {
+  useStory(ref, async ({ wait, press, taken }) => {
     await wait(1500); press('.dm-ksx-add');
     await wait(1000); press('.dm-ksx-pop .dm-mi:nth-child(2)');
     await wait(500);
     const url = 'designme.dev/docs';
+    // taking over while it types takes the letters back
+    let typing = true;
+    taken(() => { if (typing) setAddress(''); });
     for (let k = 1; k <= url.length; k++) { setAddress(url.slice(0, k)); await wait(50); }
+    typing = false;
     await wait(500); press('.dm-ksx-pop button[type="submit"]');
     const failed = () => ref.current?.querySelector('.dm-ksx-s[data-st="failed"]');
     for (let k = 0; k < 150 && !failed(); k++) await wait(100);

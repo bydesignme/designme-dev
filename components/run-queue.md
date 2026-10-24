@@ -50,7 +50,7 @@ import { RunQueue } from '@/components/designme/run-queue/RunQueue';
 // The animated preview from designme.dev, rebuilt from the React component: an example of driving it from your own state.
 import { useRef, useState } from 'react';
 import { RunQueue, type RunGroup } from './RunQueue';
-import { useScript } from '../lib/useScript';
+import { useScript, useTakeover } from '../lib/useScript';
 
 /* ---------- Run queue: three tasks run in turn; one step fails and waits for Retry, and retries by itself after a moment ---------- */
 const TASKS: { title: string; steps: [string, string, boolean?][] }[] = [
@@ -62,6 +62,7 @@ const TASKS: { title: string; steps: [string, string, boolean?][] }[] = [
 export default function RunQueueDemo() {
   const [groups, setGroups] = useState<RunGroup[]>(() => TASKS.map(t => ({ title: t.title, state: 'queued', steps: t.steps.map(([label, meta]) => ({ label, meta, state: 'queued' })) })));
   const retry = useRef<() => void>(undefined);
+  const ref = useRef<HTMLDivElement>(null), mine = useTakeover(ref);
   const edit = (gi: number, g: Partial<RunGroup>, si?: number, s?: Partial<RunGroup['steps'][number]>) =>
     setGroups(all => all.map((x, k) => k !== gi ? x : { ...x, ...g, steps: x.steps.map((y, j) => (j === si ? { ...y, ...s } : y)) }));
   useScript(async ({ wait }) => {
@@ -73,8 +74,8 @@ export default function RunQueueDemo() {
         await wait(900);
         if (TASKS[gi].steps[si][2] && !retried) {
           edit(gi, { state: 'failed' }, si, { state: 'failed' });
-          // waits for Retry, and carries on by itself after a moment so the run never stalls
-          await Promise.race([new Promise<void>(res => { retry.current = res; }), wait(2800)]);
+          // waits for Retry, and carries on by itself after a moment so the run never stalls, until you take over
+          await new Promise<void>(res => { retry.current = res; wait(2800).then(() => { if (!mine()) res(); }); });
           retried = true; si--;
           edit(gi, { state: 'running', meta: 'Retrying' });
           continue;
@@ -84,7 +85,7 @@ export default function RunQueueDemo() {
       edit(gi, { state: 'done', meta: undefined });
     }
   });
-  return <div style={{ width: '100%' }}><RunQueue groups={groups} onRetry={() => retry.current?.()} /></div>;
+  return <div ref={ref} style={{ width: '100%' }}><RunQueue groups={groups} onRetry={() => retry.current?.()} /></div>;
 }
 ```
 

@@ -51,9 +51,9 @@ import { SourceStack } from '@/components/designme/source-stack/SourceStack';
 ```tsx
 'use client';
 // The animated preview from designme.dev, rebuilt from the React component: the sources open a moment after the answer appears.
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { SourceStack, type StackSource } from './SourceStack';
-import { useScript } from '../lib/useScript';
+import { useStory } from '../lib/useScript';
 
 const open = () => {};
 const SOURCES: StackSource[] = [
@@ -69,9 +69,11 @@ const SOURCES: StackSource[] = [
 
 export default function SourceStackDemo() {
   const [isOpen, setOpen] = useState(false);
-  useScript(async ({ wait }) => { await wait(1100); setOpen(true); });
+  const ref = useRef<HTMLDivElement>(null);
+  // the sources open on their own a moment after it appears, unless you take over first
+  useStory(ref, async ({ wait }) => { await wait(1100); setOpen(true); });
   return (
-    <div style={{ width: '100%' }}>
+    <div ref={ref} style={{ width: '100%' }}>
       <SourceStack sources={SOURCES} open={isOpen} onOpenChange={setOpen}>
         Annual plans convert about 18% better when the monthly price is shown crossed out next to them.
       </SourceStack>

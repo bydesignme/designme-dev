@@ -1,8 +1,8 @@
 'use client';
 // The animated preview from designme.dev, rebuilt from the React component: an example of driving it from your own state.
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { InviteToCollaborate, type InviteToCollaborateMember } from '../components/invite-to-collaborate/InviteToCollaborate';
-import { useScript } from './useScript';
+import { useStory } from './useScript';
 
 /* ---------- Invite to collaborate: two addresses are typed in, one of them not quite right ---------- */
 const TEAM: InviteToCollaborateMember[] = [
@@ -20,8 +20,11 @@ export default function InviteToCollaborateDemo() {
   // a comma turns what is typed so far into a chip, the same as typing one in the field
   const commit = (text: string) => { const part = text.trim(); if (part) setEmails(es => (es.includes(part) ? es : [...es, part])); setDraft(''); };
 
-  useScript(async ({ wait }) => {
+  // the preview adds two people on its own; clicking, focusing or typing in it takes over, and what it had typed goes
+  const ref = useRef<HTMLDivElement>(null);
+  useStory(ref, async ({ wait, taken }) => {
     await wait(900);
+    taken(() => setDraft(''));
     let text = '';
     for (const ch of TYPED) {
       if (ch === ',') { commit(text); text = ''; } else { text += ch; setDraft(text); }
@@ -40,7 +43,7 @@ export default function InviteToCollaborateDemo() {
   };
 
   return (
-    <div style={{ width: '100%' }}>
+    <div ref={ref} style={{ width: '100%' }}>
       <InviteToCollaborate emails={emails} onEmailsChange={setEmails} draft={draft} onDraftChange={setDraft} members={members} onSend={send}
         suggestions={[{ email: 'ari@studio.com', initials: 'AR', color: 'var(--dm-pp)' }, { email: 'sam@studio.com', initials: 'SL', color: 'var(--dm-pt)' }]}
         link="https://designme.dev/join/pricing-refresh" />

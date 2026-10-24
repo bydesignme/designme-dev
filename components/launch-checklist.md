@@ -51,7 +51,7 @@ import { LaunchChecklist } from '@/components/designme/launch-checklist/LaunchCh
 // The animated preview from designme.dev, rebuilt from the React component: an example of driving it from your own state.
 import { useEffect, useRef, useState } from 'react';
 import { LaunchChecklist, type CheckState, type LaunchChecklistProps } from './LaunchChecklist';
-import { useScript } from '../lib/useScript';
+import { useScript, useTakeover } from '../lib/useScript';
 
 /* ---------- Launch checklist: six checks run in turn, two fail and get fixed, then it ships ---------- */
 const CHECKS: [label: string, problem: string | null, result: string][] = [
@@ -72,8 +72,9 @@ export default function LaunchChecklistDemo() {
   const [runs, setRuns] = useState(0);
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
   useEffect(() => () => timers.current.forEach(clearTimeout), []);
-  // the checks run once on its own; the fixes are left for you
-  useScript(async ({ wait }) => { await wait(1300); setRuns(r => r || 1); });
+  // the checks run once on its own, unless you take over first; the fixes are left for you
+  const ref = useRef<HTMLDivElement>(null), mine = useTakeover(ref);
+  useScript(async ({ wait }) => { await wait(1300); if (!mine()) setRuns(r => r || 1); });
   const set = (i: number, row: Row) => setRows(rs => rs.map((r, k) => k === i ? row : r));
   const tally = (rs: Row[]) => { const bad = rs.filter(r => r.state === 'bad').length; setStatus(bad ? `${bad} to fix before shipping` : 'All clear, ready to ship'); };
 
@@ -100,7 +101,7 @@ export default function LaunchChecklistDemo() {
     : { label: 'Run checks', icon: 'play', disabled: phase === 'running', onClick: () => setRuns(r => r + 1) };
 
   return (
-    <div style={{ width: '100%' }}>
+    <div ref={ref} style={{ width: '100%' }}>
       <LaunchChecklist title="Ready to ship pricing?" status={status} action={action}
         checks={rows.map((r, i) => ({ label: CHECKS[i][0], state: r.state, note: r.note, onFix: r.state === 'bad' ? () => fix(i) : undefined }))} />
     </div>

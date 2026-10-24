@@ -2,6 +2,7 @@
 // The animated preview from designme.dev, rebuilt from the React component: an example of driving it from your own state.
 import { useEffect, useRef, useState } from 'react';
 import { RunCost, type RunCostStatus } from '../components/run-cost/RunCost';
+import { useTakeover } from './useScript';
 
 /* ---------- Run cost: the run starts by itself and burns credits until the cap pauses it; raise the cap to finish ---------- */
 const BUDGET = 2000;
@@ -25,9 +26,9 @@ export default function RunCostDemo() {
     return () => clearInterval(id);
   }, [status]);
 
-  // the run starts by itself once the card has settled, unless someone got there first
-  const touched = useRef(false);
-  useEffect(() => { const t = setTimeout(() => { if (!touched.current) setStatus(s => (s === 'idle' ? 'running' : s)); }, 1500); return () => clearTimeout(t); }, []);
+  // the run starts by itself once the card has settled, unless you take over first
+  const ref = useRef<HTMLDivElement>(null), mine = useTakeover(ref);
+  useEffect(() => { const t = setTimeout(() => { if (!mine()) setStatus(s => (s === 'idle' ? 'running' : s)); }, 1500); return () => clearTimeout(t); }, [mine]);
 
   const act = () => {
     if (status === 'running') return setStatus('stopped');
@@ -38,7 +39,7 @@ export default function RunCostDemo() {
   };
 
   return (
-    <div style={{ width: '100%' }} onPointerDownCapture={() => { touched.current = true; }}>
+    <div ref={ref} style={{ width: '100%' }}>
       <RunCost used={n.used} budget={BUDGET} capOn={capOn} onCapChange={setCapOn} status={status} onAction={act}
         rows={[{ label: 'Input tokens', value: n.input }, { label: 'Output tokens', value: n.output }, { label: 'Tool calls', value: n.tools }]} />
     </div>

@@ -20,11 +20,15 @@ export default function PromptLibraryDemo() {
   const [values, setValues] = useState<Record<string, string>>({});
 
   // the preview's story, on the same beats as the site's
-  useStory(ref, async ({ wait, press }) => {
+  useStory(ref, async ({ wait, press, taken }) => {
     await wait(2100); press('[data-prompt="rewrite"]');
     await wait(2100); press('.dm-plb-use');
     await wait(2500);
+    // taking over while it types takes the letters back
+    let typing = true;
+    taken(() => { if (typing) setValues(v => ({ ...v, section: '' })); });
     for (let k = 1; k <= 14; k++) { setValues(v => ({ ...v, section: 'the plan cards'.slice(0, k) })); await wait(70); }
+    typing = false;
     await wait(1600); press('.dm-plb-fd:nth-child(3) .dm-plb-sel');
     await wait(1600); press('.dm-plb-pop.dm-open .dm-mi:nth-child(2)');
     await wait(2100); press('.dm-plb-use');

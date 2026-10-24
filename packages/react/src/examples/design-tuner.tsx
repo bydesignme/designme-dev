@@ -2,7 +2,7 @@
 // The animated preview from designme.dev, rebuilt from the React component: an example of driving it from your own state.
 import { useEffect, useRef, useState } from 'react';
 import { DesignTuner } from '../components/design-tuner/DesignTuner';
-import { useScript } from './useScript';
+import { useScript, useTakeover } from './useScript';
 
 /* ---------- Design tuner: drag the sliders, or let the agent tune each one in turn ---------- */
 const START = { rad: 16, pad: 18, gap: 12, sh: .08 };
@@ -13,10 +13,10 @@ export default function DesignTunerDemo() {
   const [active, setActive] = useState<string>();
   const [note, setNote] = useState<string>();
   const [runs, setRuns] = useState(0);
-  const live = useRef(values), yours = useRef(false);
+  const live = useRef(values), ref = useRef<HTMLDivElement>(null), mine = useTakeover(ref);
   useEffect(() => { live.current = values; });
-  // the agent tunes once on its own, unless you reach for a slider or the button first
-  useScript(async ({ wait }) => { await wait(1600); if (!yours.current) setRuns(r => r || 1); });
+  // the agent tunes once on its own, unless you take over first
+  useScript(async ({ wait }) => { await wait(1600); if (!mine()) setRuns(r => r || 1); });
   // each run aims at the other set of values, so Tune again always has something to do
   useScript(async ({ wait }) => {
     if (runs <= 0) return;
@@ -32,9 +32,9 @@ export default function DesignTunerDemo() {
     setStatus('Tuned by agent'); setRuns(r => -r);
   }, [runs > 0 ? runs : 0]);
   return (
-    <div style={{ width: '100%' }}>
-      <DesignTuner values={values} onValuesChange={v => { yours.current = true; setValues(v); setStatus('Edited by you'); }} status={status} active={active}
-        tuning={runs > 0} note={note} actionLabel={runs ? 'Tune again' : 'Tune with agent'} onTune={() => { yours.current = true; setRuns(r => Math.abs(r) + 1); }} />
+    <div ref={ref} style={{ width: '100%' }}>
+      <DesignTuner values={values} onValuesChange={v => { setValues(v); setStatus('Edited by you'); }} status={status} active={active}
+        tuning={runs > 0} note={note} actionLabel={runs ? 'Tune again' : 'Tune with agent'} onTune={() => setRuns(r => Math.abs(r) + 1)} />
     </div>
   );
 }

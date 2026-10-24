@@ -52,7 +52,7 @@ import { Tooltip } from '@/components/designme/tooltip/Tooltip';
 'use client';
 // The tooltip card from designme.dev: a toolbar with shortcut tips and two people with a card each.
 import { useRef, useState } from 'react';
-import { useScript } from '../lib/useScript';
+import { useScript, useTakeover } from '../lib/useScript';
 import { Tooltip, type TooltipPerson } from './Tooltip';
 
 const PEOPLE: TooltipPerson[] = [
@@ -64,15 +64,17 @@ export default function TooltipDemo() {
   const [tip, setTip] = useState<string | null>();
   const [card, setCard] = useState<string | null>();
   // once it has appeared it shows what it does: a shortcut tip, then the agent's card. Pointing at it takes over
-  const touched = useRef(false);
+  // pointing at it takes over, as does clicking, focusing or typing in it
+  const touched = useRef(false), ref = useRef<HTMLDivElement>(null), mine = useTakeover(ref, () => setTip(undefined));
+  const yours = () => touched.current || mine();
   useScript(async ({ wait }) => {
-    await wait(1300); if (touched.current) return;
-    setTip('ask'); await wait(1700); setTip(undefined); if (touched.current) return;
-    await wait(500); if (touched.current) return;
+    await wait(1300); if (yours()) return;
+    setTip('ask'); await wait(1700); setTip(undefined); if (yours()) return;
+    await wait(500); if (yours()) return;
     setCard('da'); await wait(2600); setCard(null);
   });
   return (
-    <div style={{ width: '100%' }} onPointerEnter={() => { touched.current = true; setTip(undefined); }}>
+    <div ref={ref} style={{ width: '100%' }} onPointerEnter={() => { touched.current = true; setTip(undefined); }}>
       <Tooltip people={PEOPLE} openTip={tip} openCard={card} note="Labels wait a moment, then follow you instantly between buttons." />
     </div>
   );

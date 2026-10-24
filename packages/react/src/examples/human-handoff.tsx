@@ -2,7 +2,7 @@
 // The animated preview from designme.dev, rebuilt from the React component: an example of driving it from your own state.
 import { useEffect, useRef, useState } from 'react';
 import { HumanHandoff, type HandoffPerson, type HandoffStatus } from '../components/human-handoff/HumanHandoff';
-import { useStory, useWait } from './useScript';
+import { useStory, useTakeover, useWait } from './useScript';
 
 /* ---------- Hand-off to a person: Maya is assigned but is out, so the person reassigns it to Alex, who takes it ---------- */
 // someone free takes the conversation in a few seconds, someone in a call takes longer, and someone who is out never does
@@ -41,8 +41,9 @@ export default function HumanHandoffDemo() {
     await wait(1800); if (id !== run.current) return;
     setStatus({ tone: 'ok', person: p, title: `With ${first(p)} · agent paused`, detail: `The agent won't reply while ${first(p)} has it` });
   };
-  // the agent finds someone on the team a moment after it hands off
-  useEffect(() => { const t = setTimeout(() => void assign(TEAM[2]), 1500); return () => { clearTimeout(t); run.current++; }; }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  // the agent finds someone on the team a moment after it hands off, unless you have picked someone first
+  const mine = useTakeover(ref);
+  useEffect(() => { const t = setTimeout(() => { if (!mine()) void assign(TEAM[2]); }, 1500); return () => { clearTimeout(t); run.current++; }; }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // the preview's story, on the same beats as the site's
   useStory(ref, async ({ wait, press }) => {

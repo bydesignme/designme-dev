@@ -1,11 +1,11 @@
 'use client';
 // The animated preview from designme.dev, rebuilt from the React component: an example of driving it from your own state.
 import { useRef, useState } from 'react';
-import { useScript } from './useScript';
+import { useStory, useWait } from './useScript';
 import { FeedbackSheet, type Feedback, type FeedbackRating } from '../components/feedback-sheet/FeedbackSheet';
 
 /* ---------- Feedback sheet: thumbs under an answer; thumbs down opens a short sheet. It plays a thumbs down by itself,
-   and anything you do inside it takes over ---------- */
+   and clicking, focusing or typing inside it takes over ---------- */
 const NOTE = 'Keep our 8px spacing scale';
 
 export default function FeedbackSheetDemo() {
@@ -16,25 +16,24 @@ export default function FeedbackSheetDemo() {
   const [typing, setTyping] = useState(false);
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState<Feedback | null>(null);
-  const auto = useRef(true);
-  const mine = () => { auto.current = false; setTyping(false); };
+  const ref = useRef<HTMLDivElement>(null), later = useWait();
 
-  useScript(async s => {
-    // each beat stops the run once a person has taken over
-    const beat = async (ms: number) => { await s.wait(ms); if (!auto.current) throw new Error('stop'); };
-    try {
-      await beat(1500); setRating('down'); setOpen(true);
-      await beat(1000); setSelected(['Ignored my tokens']);
-      await beat(700); setTyping(true);
-      for (let i = 1; i <= NOTE.length; i++) { setComment(NOTE.slice(0, i)); await beat(34 + Math.random() * 40); }
-      await beat(650); setTyping(false); setSending(true);
-      await beat(800); setSending(false); setOpen(false);
-      await beat(300); setSent({ reasons: ['Ignored my tokens'], comment: NOTE });
-    } catch { /* a person took over */ }
+  useStory(ref, async ({ wait, taken }) => {
+    // taking over while it types takes its note back
+    let writing = false;
+    taken(() => { setTyping(false); if (writing) setComment(''); });
+    await wait(1500); setRating('down'); setOpen(true);
+    await wait(1000); setSelected(['Ignored my tokens']);
+    await wait(700); setTyping(true); writing = true;
+    for (let i = 1; i <= NOTE.length; i++) { setComment(NOTE.slice(0, i)); await wait(34 + Math.random() * 40); }
+    await wait(650); writing = false; setTyping(false); setSending(true);
+    // once sent, it goes through whatever happens next
+    await later(800); setSending(false); setOpen(false);
+    await later(300); setSent({ reasons: ['Ignored my tokens'], comment: NOTE });
   });
 
   return (
-    <div style={{ width: '100%' }} onPointerDownCapture={mine} onKeyDownCapture={mine}>
+    <div ref={ref} style={{ width: '100%' }}>
       <FeedbackSheet rating={rating} onRatingChange={setRating} open={open} onOpenChange={setOpen} selected={selected} onSelectedChange={setSelected}
         comment={comment} onCommentChange={setComment} typing={typing} sending={sending || undefined} sent={sent} onSentChange={setSent}
         onSubmit={() => new Promise(res => setTimeout(res, 800))}>
