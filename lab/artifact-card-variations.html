@@ -1,0 +1,740 @@
+<!doctype html>
+<html lang="en" data-style="soft">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Artifact card variations · Designme.dev</title>
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<script>
+/* the page opens in the style and theme the site last used */
+(function(){ var d = document.documentElement, dark = matchMedia('(prefers-color-scheme: dark)').matches, s = 'soft', t = null;
+  try { s = localStorage.getItem('dmui-style') || 'soft'; t = localStorage.getItem('dmui-theme'); } catch(e){}
+  if (s === 'soft') d.setAttribute('data-style', 'soft'); else d.removeAttribute('data-style');
+  d.setAttribute('data-theme', t === 'dark' || t === 'light' ? t : (dark ? 'dark' : 'light')); })();
+</script>
+<style>
+@font-face{font-family:Inter;font-style:normal;font-weight:400;font-display:swap;src:url(../fonts/inter-latin-400-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:Inter;font-style:normal;font-weight:500;font-display:swap;src:url(../fonts/inter-latin-500-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:Inter;font-style:normal;font-weight:400;font-display:swap;src:url(../fonts/inter-latin-ext-400-normal.woff2) format('woff2');unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+1E00-1E9F,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
+@font-face{font-family:Inter;font-style:normal;font-weight:500;font-display:swap;src:url(../fonts/inter-latin-ext-500-normal.woff2) format('woff2');unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+1E00-1E9F,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
+</style>
+<link rel="stylesheet" href="../components/assets/core.css">
+<style>
+/* ---------- tokens this page adds ---------- */
+/* secondary text: the core's grey in light mode; in dark mode a lighter grey, because #9a9a9a on the dark surface reaches
+   4.5:1 but only Lc 45 in APCA, under the Lc 60 small text needs */
+:root{--t2:var(--muted)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--t2:#c0c0c0}}
+:root[data-theme="dark"]{--t2:#c0c0c0}
+
+/* ---------- the page ---------- */
+html,body{margin:0;background:var(--page)}
+body{font-family:var(--sans);font-size:14px;line-height:1.5;color:var(--fg);-webkit-font-smoothing:antialiased}
+:where(.lab) button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+:where(.lab) :focus-visible{outline:2px solid var(--accent-mark,var(--accent));outline-offset:2px;border-radius:6px}
+.sr{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.lab{max-width:1360px;margin:0 auto;padding:40px 32px 72px}
+.lab-h{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px 24px;padding-bottom:24px;border-bottom:1px solid var(--line)}
+.lab-h h1{margin:0;font-size:20px;font-weight:500;line-height:1.3;letter-spacing:-.022em;text-wrap:balance}
+.lab-h p{margin:6px 0 0;max-width:640px;font-size:14px;line-height:1.55;color:var(--t2);text-wrap:pretty}
+.lab-ctl{display:flex;flex-wrap:wrap;gap:8px}
+.lab-ctl .seg2 button{color:var(--t2)}
+.lab-ctl .seg2 button[aria-pressed="true"]{color:var(--fg)}
+.lab-g{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:44px 24px;margin-top:32px}
+@media (max-width:1079px){.lab-g{grid-template-columns:minmax(0,1fr)}}
+.fr{min-width:0}
+.fr-h{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px}
+.fr-h h2{margin:0;display:flex;align-items:baseline;gap:8px;font-size:14px;font-weight:500;line-height:1.4}
+.fr-n{font-size:12.5px;font-weight:400;color:var(--t2);font-variant-numeric:tabular-nums}
+.fr-h p{margin:2px 0 0;max-width:540px;font-size:13px;line-height:1.5;color:var(--t2);text-wrap:pretty}
+.fr-rp{flex:none;display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 11px;border-radius:var(--r-pill);background:var(--chip);font-size:12.5px;color:var(--fg);transition:background var(--t-fast)}
+.fr-rp:hover{background:var(--hover)}
+.fr-rp .i{color:var(--fg2)}
+/* the stage: each variation sits centred in it, and an opened file covers it */
+.fr-st{position:relative;height:520px;border-radius:var(--r-card);background:var(--stage);box-shadow:inset 0 0 0 1px var(--line)}
+.fr-st>[data-c]{position:absolute;inset:0;width:auto;max-width:none;border-radius:inherit}
+.fr-st .stage-in{max-width:none;height:100%;display:flex;align-items:center;justify-content:center;padding:24px 20px;border-radius:inherit}
+:root:not([data-style="soft"]) .fr-st{border-radius:0;background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:24px 24px;background-position:-1px -1px}
+:root:not([data-style="soft"]) :is(.fr-rp,.lab-ctl .seg2,.lab-ctl .seg2 *){border-radius:0}
+@media (max-width:640px){.lab{padding:28px 16px 56px}.fr-st{height:500px}.fr-st .stage-in{padding:16px 12px}.fr-h{flex-wrap:wrap}}
+@media (prefers-reduced-motion:reduce){.lab *,.lab *::before,.lab *::after,.tip{transition-duration:.01ms!important;animation-duration:.01ms!important}}
+
+/* ---------- parts every variation shares ---------- */
+.av-wrap{position:relative;width:100%;transition:transform var(--t) var(--ease)}
+.av-ic{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;flex:none;background:var(--accent-bg);color:var(--accent-fg,var(--accent))}
+.av-ic .spin{display:none}
+.is-writing .av-ic .spin{display:inline-block}
+.is-writing .av-ic svg{display:none}
+.av-meta{display:flex;align-items:center;min-width:0;height:20px;font-size:12.5px;color:var(--t2);white-space:nowrap}
+.av-meta .f{display:flex;align-items:center;gap:5px;min-width:0}
+.av-meta .w{display:none;overflow:hidden;text-overflow:ellipsis}
+.is-writing .av-meta .w{display:inline}
+.is-writing .av-meta .f{display:none}
+.av-meta .m-when{overflow:hidden;text-overflow:ellipsis;min-width:0}
+/* versions: a quiet "v3" that opens a menu */
+.av-vb{position:relative;z-index:1;display:inline-flex;align-items:center;gap:1px;height:20px;padding:0 3px 0 5px;margin:0 -2px;border-radius:6px;font-size:12.5px;font-weight:500;color:var(--fg);transition:background var(--t-fast)}
+.av-vb:hover,.av-vb[aria-expanded="true"]{background:var(--chip)}
+.av-vb .i{color:var(--fg2)}
+.av-menu{width:264px;max-width:calc(100% - 16px)}
+.av-menu:not(.open){visibility:hidden;transition:opacity .2s var(--ease),transform .35s var(--ease),filter .2s var(--ease),visibility 0s .35s}
+.av-menu .ph{color:var(--t2)}
+.av-menu .mi{align-items:flex-start;gap:8px}
+.av-menu .mi:focus-visible{outline-offset:-2px;background:var(--row)}
+.av-menu .mi-b{display:flex;flex-direction:column;min-width:0}
+.av-menu .mi-w{font-weight:400;color:var(--t2)}
+.av-menu .mi .d,.av-menu .mi:is(:hover,.hl,[aria-checked="true"]) .d{color:var(--t2);font-weight:400;white-space:normal}
+.av-menu .mi .ck{margin-top:3px}
+/* the whole card opens the file: Open stretches over it, and the other buttons sit above */
+.av-card{position:relative}
+.av-card .av-open::after{content:"";position:absolute;inset:0;border-radius:inherit}
+.av-card .av-open{transform:none!important}
+.av-card :is(.av-copy,.av-dl,.av-vb){position:relative;z-index:1}
+.copied .lbl{color:var(--fg)}
+/* the opened file: a sheet over the stage, the stage fading back behind it */
+.av-sh{position:absolute;inset:0;z-index:20;border-radius:inherit;overflow:hidden}
+.av-scrim{position:absolute;inset:0;background:color-mix(in srgb,var(--stage) 78%,transparent)}
+.av-pan{position:absolute;display:flex;flex-direction:column;background:var(--surface);border-radius:var(--r-card);box-shadow:var(--shadow-pop);overflow:hidden;outline:none}
+/* a view fills the stage, its text in a centred column; a page is narrower and grows out of the preview it came from */
+.av-pan.view{inset:8px}
+.av-pan.view .av-pb{padding-inline:max(18px,calc((100% - 540px) / 2))}
+.av-pan.view .av-pf{padding-inline:max(14px,calc((100% - 544px) / 2))}
+.av-pan.page{inset:16px;margin:auto;width:min(440px,calc(100% - 32px));transform-origin:0 0}
+.av-ph{display:flex;align-items:center;gap:10px;padding:10px 8px 10px 14px;border-bottom:1px solid var(--line)}
+.av-ph .av-ic{width:30px;height:30px;border-radius:8px}
+.av-ptx{flex:1;min-width:0}
+.av-pt{font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.av-pm{font-size:12.5px;color:var(--t2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.av-pb{flex:1;min-height:0;overflow:auto;padding:14px 18px 18px;font-size:13.5px;line-height:1.6;outline:none}
+.av-pb:focus-visible{box-shadow:inset 0 0 0 2px var(--accent-mark)}
+.av-pb h3{margin:16px 0 4px;font-size:12.5px;font-weight:500;color:var(--t2)}
+.av-pb p{margin:0}
+.av-pb :is(ul,ol){margin:0;padding-left:18px}
+.av-pb li+li{margin-top:3px}
+.av-pb li::marker{color:var(--fg2)}
+.av-tb{width:100%;border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums}
+.av-tb :is(th,td){padding:7px 8px;border-bottom:1px solid var(--line);text-align:left;font-weight:400}
+.av-tb thead th{font-size:12.5px;color:var(--t2);font-weight:500}
+.av-tb .num{text-align:right}
+.av-tb tbody th{font-weight:500}
+.av-pf{display:flex;align-items:center;gap:6px;padding:10px 14px;border-top:1px solid var(--line)}
+.av-pf .pill .lbl{min-width:58px;text-align:left}
+.av-pf .pill.copied{color:var(--fg)!important}
+.av-pf .pill.copied .i{color:var(--ok)}
+
+/* ---------- 1 · compact file card ---------- */
+.v1{max-width:440px;display:flex;flex-direction:column;gap:14px}
+.v1-a{margin:0;font-size:14px;line-height:1.6;text-wrap:pretty}
+.v1-list{display:flex;flex-direction:column;gap:8px}
+.v1-card{display:flex;align-items:center;gap:12px;padding:10px 8px 10px 10px;border-radius:var(--r-in);background:var(--surface);box-shadow:var(--shadow);transition:background var(--t-fast),box-shadow var(--t-fast);overflow:hidden}
+.v1-card:not(.is-writing):hover{background:var(--wash)}
+:root:not([data-style="soft"]) .v1-card:not(.is-writing):hover{box-shadow:0 0 0 1px var(--rail)}
+.v1-tx{flex:1;min-width:0}
+.v1-t{font-size:13.5px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v1-act{display:flex;align-items:center;gap:2px;flex:none;transition:opacity var(--t) var(--ease)}
+.v1-act .pill{margin-left:4px;gap:6px;padding:0 10px}
+.is-writing .v1-act{opacity:0;visibility:hidden}
+.v1-bar{position:absolute;left:0;right:0;bottom:0;height:2px;background:var(--accent-mark);transform-origin:left center;transform:scaleX(0);opacity:0;transition:transform .9s var(--ease),opacity .3s var(--ease)}
+.is-writing .v1-bar{opacity:1}
+/* in a narrow column the meta drops the word "edited" before it truncates */
+@container (max-width:400px){.m-ed{display:none}.av-meta .f{gap:4px}.av-card .av-ic{width:32px;height:32px;border-radius:9px}.av-card :is(.av-copy,.av-dl,.ib.av-open){width:28px;height:28px}.v1-act,.v2-act{gap:0}.v1-card{padding-right:6px}.v2-meta{gap:10px;padding-right:6px}.v2-meta .av-ic{display:none}}
+@container (max-width:400px){.v1-act .pill .lbl{display:none}.v1-act .pill{width:28px;height:28px;padding:0;margin-left:2px}.v1-card{gap:10px}}
+
+/* ---------- 2 · card with a preview ---------- */
+.v2{width:min(100%,380px)}
+.v2-card{border-radius:var(--r-card);background:var(--surface);box-shadow:var(--shadow);transition:box-shadow var(--t-fast)}
+.v2-card:not(.is-writing):hover{box-shadow:var(--shadow-pop)}
+:root:not([data-style="soft"]) .v2-card:not(.is-writing):hover{box-shadow:0 0 0 1px var(--rail)}
+.v2-prev{position:relative;height:164px;overflow:hidden;padding:18px 22px 0;border-radius:var(--r-card) var(--r-card) 0 0;background:var(--stage);border-bottom:1px solid var(--line)}
+.v2-page{height:100%;padding:14px 16px 0;border-radius:8px 8px 0 0;background:var(--surface);box-shadow:var(--shadow);transition:transform var(--t) var(--ease)}
+.v2-card:not(.is-writing):hover .v2-page{transform:translateY(-3px)}
+.v2-k{font-size:11px;line-height:16px;color:var(--t2)}
+.v2-k .w,.is-writing .v2-k .f{display:none}
+.is-writing .v2-k .w{display:inline}
+.v2-h{margin-top:2px;font-size:13px;font-weight:500;line-height:18px}
+.v2-p{margin:6px 0 0;min-height:54px;font-size:11.5px;line-height:18px;color:var(--fg);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.v2-p .caret{display:inline-block;width:1.5px;height:12px;margin-left:1px;vertical-align:-2px;background:var(--accent-mark);animation:bpblink 1s steps(1,end) infinite}
+.v2-ls{display:flex;flex-direction:column;gap:8px;margin-top:10px;-webkit-mask-image:linear-gradient(#000 0,transparent 44px);mask-image:linear-gradient(#000 0,transparent 44px)}
+.v2-ls i{display:block;height:4px;border-radius:2px;width:var(--w);background:color-mix(in srgb,var(--fg) 16%,var(--surface));transform-origin:left center;transition:width var(--t) var(--ease)}
+.is-writing .v2-ls i{transform:scaleX(0)}
+.v2-meta{display:flex;align-items:center;gap:12px;padding:12px 8px 12px 14px}
+.v2-tx{flex:1;min-width:0}
+.v2-t{font-size:13.5px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v2-act{display:flex;align-items:center;gap:2px;flex:none;transition:opacity var(--t) var(--ease)}
+.is-writing .v2-act{opacity:0;visibility:hidden}
+
+/* ---------- 3 · inline attachment ---------- */
+.v3{max-width:440px;display:flex;flex-direction:column;gap:14px}
+.v3-msg{display:flex;flex-direction:column;gap:10px}
+.v3-msg p{margin:0;font-size:14px;line-height:1.6;text-wrap:pretty}
+.v3-chip{display:inline-flex;align-items:center;align-self:flex-start;max-width:100%;height:34px;border-radius:var(--r-pill);background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);transition:box-shadow var(--t-fast),background var(--t-fast)}
+.v3-chip:not(.is-writing):is(:hover,:focus-within,.pin){box-shadow:inset 0 0 0 1px var(--rail),0 1px 2px rgba(0,0,0,.05)}
+.v3-main{display:inline-flex;align-items:center;gap:8px;min-width:0;height:34px;padding:0 12px 0 10px;border-radius:var(--r-pill);font-size:13px}
+.v3-main:focus-visible{outline-offset:-2px!important}
+.v3-ic{display:grid;place-items:center;width:16px;height:16px;flex:none;color:var(--accent-fg,var(--accent))}
+.v3-ic .spin{display:none;width:11px;height:11px}
+.is-writing .v3-ic .spin{display:inline-block}
+.is-writing .v3-ic svg{display:none}
+.v3-t{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.v3-m{color:var(--t2);white-space:nowrap;font-size:12.5px}
+.v3-m .w{display:none}
+.v3-m .f{display:inline-flex;gap:4px}
+.is-writing .v3-m .w{display:inline}
+.is-writing .v3-m .f{display:none}
+/* the tray: versions, copy and download, folded away until the chip is hovered or focused */
+.v3-tray{display:grid;grid-template-columns:0fr;opacity:0;transition:grid-template-columns var(--t) var(--ease),opacity var(--t-fast) var(--ease)}
+.v3-tray>span{display:flex;align-items:center;min-width:0;overflow:hidden}
+.v3-tray>span>:last-child{margin-right:3px}
+.v3-chip:not(.is-writing):is(:hover,:focus-within,.pin) .v3-tray{grid-template-columns:1fr;opacity:1}
+.v3-tray .ib{width:28px;height:28px}
+.v3-tray .ib:focus-visible{outline-offset:-2px}
+.v3-sep{flex:none;width:1px;height:16px;margin-right:3px;background:var(--line)}
+@media (hover:none){.v3-chip:not(.is-writing) .v3-tray{grid-template-columns:1fr;opacity:1}}
+@container (max-width:400px){.v3-m :is(.m-when,.m-sep){display:none}}
+
+/* ---------- 4 · version stack ---------- */
+.v4{display:flex;flex-direction:column;align-items:center;gap:18px;--sw:168px;--sh:218px;--fx:min(122px,calc((100cqw - var(--sw) - 24px) / 2));--ln:color-mix(in srgb,var(--fg) 52%,var(--surface))}
+@container (max-width:440px){.v4{--sw:112px;--sh:146px}}
+.v4-desk{position:relative;width:var(--sw);height:calc(var(--sh) + 24px);perspective:1100px}
+/* in Soft the stack casts a soft shadow on the desk, which fades as the sheets fan out */
+.v4-desk::before{content:"";position:absolute;left:4%;right:4%;bottom:-10px;height:26px;border-radius:50%;background:radial-gradient(closest-side,rgba(0,0,0,.13),transparent);transition:opacity var(--t) var(--ease)}
+:root[data-theme="dark"] .v4-desk::before{background:radial-gradient(closest-side,rgba(0,0,0,.5),transparent)}
+:root:not([data-style="soft"]) .v4-desk::before,.v4.fan .v4-desk::before{opacity:0}
+.v4-stack{position:absolute;inset:0;transform-style:preserve-3d;transform:rotateX(16deg) rotateZ(-2deg);transition:transform var(--t-slow) var(--ease)}
+.v4:not(.fan):not(.is-writing) .v4-desk:hover .v4-stack{transform:rotateX(6deg) translateY(-4px)}
+.v4.fan .v4-stack{transform:none}
+.v4-sh{position:absolute;left:0;top:12px;width:var(--sw);height:var(--sh);padding:0;text-align:left;border-radius:10px;background:var(--surface);box-shadow:var(--shadow);transition:transform var(--t-slow) var(--ease),box-shadow var(--t) var(--ease)}
+.v4-sh:focus-visible{outline-offset:3px}
+.v4:not(.fan) .v4-sh[aria-checked="true"]{box-shadow:var(--shadow-pop)}
+.v4.is-writing .v4-sh{cursor:default}
+.v4-pg{position:absolute;inset:0;display:flex;flex-direction:column;padding:12px;border-radius:inherit;overflow:hidden}
+.v4-k{display:flex;align-items:center;justify-content:space-between;font-size:11px;line-height:14px;color:var(--t2)}
+.v4-h{min-height:32px;margin-top:4px;font-size:12.5px;font-weight:500;line-height:16px;color:var(--fg)}
+.v4-ls{display:flex;flex-direction:column;gap:7px;margin-top:10px}
+.v4-r{position:relative;display:flex;align-items:center;gap:5px;height:4px}
+.v4-r i{display:block;height:3px;border-radius:2px;width:var(--w);background:var(--ln);transform-origin:left center}
+.v4-r b{flex:none;width:4px;height:4px;border-radius:50%;background:var(--ln)}
+.v4-r.n b{width:6px;height:6px;margin:0 -1px;background:var(--accent-mark)}
+.v4-gap{height:3px}
+.v4 .blank .v4-r :is(i,b){transform:scaleX(0)}
+.v4-pen{position:absolute;left:0;top:0;width:7px;height:7px;border-radius:50%;background:var(--accent-mark);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent-mark) 25%,transparent);opacity:0;pointer-events:none}
+@container (max-width:440px){.v4-ls{gap:6px;margin-top:8px}.v4-ls>:nth-child(n+7){display:none}}
+.v4-tab{position:absolute;left:50%;top:calc(100% + 10px);display:inline-flex;align-items:center;gap:4px;transform:translateX(-50%);white-space:nowrap;font-size:11.5px;color:var(--t2);opacity:0;transition:opacity var(--t) var(--ease)}
+.v4-tab .i{display:none;color:var(--accent-fg,var(--accent))}
+.v4.fan .v4-tab{opacity:1}
+.v4-sh[aria-checked="true"] .v4-tab{color:var(--fg);font-weight:500}
+.v4-sh[aria-checked="true"] .v4-tab .i{display:inline-block}
+@container (max-width:440px){.v4-tab .ta{display:none}}
+.v4-cap{display:flex;flex-direction:column;align-items:center;max-width:100%;text-align:center;transition:margin var(--t) var(--ease)}
+.v4.fan .v4-cap{margin-top:22px}
+.v4-t{font-size:14px;font-weight:500}
+.v4-m{justify-content:center;max-width:100%}
+.v4-note{padding-top:2px;font-size:12.5px;color:var(--fg)}
+.v4-act{display:flex;align-items:center;gap:4px;transition:opacity var(--t) var(--ease)}
+.v4-act .pill{gap:6px}
+.v4.is-writing .v4-act{opacity:0;visibility:hidden}
+</style>
+</head>
+<body>
+<main class="lab">
+  <header class="lab-h">
+    <div>
+      <h1>Artifact card: four variations</h1>
+      <p>Four ways to show a file the agent made, all with the same report: Pricing page review, in three versions. Each one plays its writing state first. Open it, switch versions, copy or download it, or press Replay.</p>
+    </div>
+    <div class="lab-ctl">
+      <div class="seg2" id="sw-style" role="group" aria-label="Style"><button type="button" data-v="soft" aria-pressed="true">Soft</button><button type="button" data-v="blueprint" aria-pressed="false">Blueprint</button></div>
+      <div class="seg2" id="sw-theme" role="group" aria-label="Theme"><button type="button" data-v="light" aria-pressed="true">Light</button><button type="button" data-v="dark" aria-pressed="false">Dark</button></div>
+    </div>
+  </header>
+
+  <div class="lab-g">
+    <section class="fr" aria-labelledby="h-v1">
+      <div class="fr-h">
+        <div><h2 id="h-v1"><span class="fr-n">1</span>Compact file card</h2><p>The pattern people already know: an icon, the name, one line of meta and Open. Dense enough to stack several in a thread.</p></div>
+        <button type="button" class="fr-rp" aria-label="Replay the compact file card"><svg class="i s" aria-hidden="true"><use href="#i-refresh"/></svg>Replay</button>
+      </div>
+      <div class="fr-st pg-demo">
+        <div class="card" data-c="afv-compact"><div class="stage-in"></div><template>
+          <div class="av-wrap v1">
+            <div class="bub">Review our pricing page and tell me what to fix first.</div>
+            <p class="v1-a">I went through the page from top to bottom and checked our prices against three competitors. Both are below.</p>
+            <div class="v1-list">
+              <div class="v1-card av-card" data-a="table">
+                <span class="av-ic"><span class="spin" aria-hidden="true"></span><svg class="i" aria-hidden="true"><use href="#i-table"/></svg></span>
+                <div class="v1-tx"><div class="v1-t">Competitor prices</div><div class="av-meta"><span class="f"><span>Table</span><span aria-hidden="true">·</span><span>v1</span><span aria-hidden="true">·</span><span class="m-when"><span class="m-ed">edited </span>1 hour ago</span></span></div></div>
+                <div class="v1-act">
+                  <button type="button" class="ib av-copy" aria-label="Copy Competitor prices" data-tip="Copy"><svg class="i" aria-hidden="true"><use href="#i-copy"/></svg></button>
+                  <button type="button" class="ib av-dl" aria-label="Download Competitor prices" data-tip="Download"><svg class="i" aria-hidden="true"><use href="#i-down"/></svg></button>
+                  <button type="button" class="pill sm soft av-open" aria-label="Open Competitor prices"><svg class="i s" aria-hidden="true"><use href="#i-panel"/></svg><span class="lbl">Open</span></button>
+                </div>
+              </div>
+              <div class="v1-card av-card is-writing" data-a="report">
+                <span class="av-ic"><span class="spin" aria-hidden="true"></span><svg class="i" aria-hidden="true"><use href="#i-file-text"/></svg></span>
+                <div class="v1-tx"><div class="v1-t">Pricing page review</div><div class="av-meta"><span class="w shim">Reading the page…</span><span class="f"><span>Report</span><span aria-hidden="true">·</span><button type="button" class="av-vb"><span class="vb-t">v3</span><svg class="i xs" aria-hidden="true"><use href="#i-chev-d"/></svg></button><span aria-hidden="true">·</span><span class="m-when"><span class="m-ed">edited </span>just now</span></span></div></div>
+                <div class="v1-act">
+                  <button type="button" class="ib av-copy" aria-label="Copy Pricing page review" data-tip="Copy"><svg class="i" aria-hidden="true"><use href="#i-copy"/></svg></button>
+                  <button type="button" class="ib av-dl" aria-label="Download Pricing page review" data-tip="Download"><svg class="i" aria-hidden="true"><use href="#i-down"/></svg></button>
+                  <button type="button" class="pill sm soft av-open" aria-label="Open Pricing page review"><svg class="i s" aria-hidden="true"><use href="#i-panel"/></svg><span class="lbl">Open</span></button>
+                </div>
+                <span class="v1-bar" aria-hidden="true"></span>
+              </div>
+            </div>
+          </div>
+        </template></div>
+      </div>
+    </section>
+
+    <section class="fr" aria-labelledby="h-v2">
+      <div class="fr-h">
+        <div><h2 id="h-v2"><span class="fr-n">2</span>Card with a preview</h2><p>The same card with the first page showing, so drafts are easy to tell apart. The page grows into the reader when you open it.</p></div>
+        <button type="button" class="fr-rp" aria-label="Replay the card with a preview"><svg class="i s" aria-hidden="true"><use href="#i-refresh"/></svg>Replay</button>
+      </div>
+      <div class="fr-st pg-demo">
+        <div class="card" data-c="afv-preview"><div class="stage-in"></div><template>
+          <div class="av-wrap v2">
+            <div class="v2-card av-card is-writing">
+              <div class="v2-prev" aria-hidden="true">
+                <div class="v2-page">
+                  <div class="v2-k"><span class="w">Writing…</span><span class="f">Report · v3</span></div>
+                  <div class="v2-h">Pricing page review</div>
+                  <p class="v2-p"></p>
+                  <div class="v2-ls"><i></i><i></i><i></i><i></i></div>
+                </div>
+              </div>
+              <div class="v2-meta">
+                <span class="av-ic"><span class="spin" aria-hidden="true"></span><svg class="i" aria-hidden="true"><use href="#i-file-text"/></svg></span>
+                <div class="v2-tx"><div class="v2-t">Pricing page review</div><div class="av-meta"><span class="w shim">Reading the page…</span><span class="f"><span>Report</span><span aria-hidden="true">·</span><button type="button" class="av-vb"><span class="vb-t">v3</span><svg class="i xs" aria-hidden="true"><use href="#i-chev-d"/></svg></button><span aria-hidden="true">·</span><span class="m-when"><span class="m-ed">edited </span>just now</span></span></div></div>
+                <div class="v2-act">
+                  <button type="button" class="ib av-copy" aria-label="Copy Pricing page review" data-tip="Copy"><svg class="i" aria-hidden="true"><use href="#i-copy"/></svg></button>
+                  <button type="button" class="ib av-dl" aria-label="Download Pricing page review" data-tip="Download"><svg class="i" aria-hidden="true"><use href="#i-down"/></svg></button>
+                  <button type="button" class="ib av-open" aria-label="Open Pricing page review" data-tip="Open"><svg class="i" aria-hidden="true"><use href="#i-max"/></svg></button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </template></div>
+      </div>
+    </section>
+
+    <section class="fr" aria-labelledby="h-v3">
+      <div class="fr-h">
+        <div><h2 id="h-v3"><span class="fr-n">3</span>Inline attachment</h2><p>One line inside the message, like a file you attached. Versions and actions fold out on hover or focus, so the reply stays prose.</p></div>
+        <button type="button" class="fr-rp" aria-label="Replay the inline attachment"><svg class="i s" aria-hidden="true"><use href="#i-refresh"/></svg>Replay</button>
+      </div>
+      <div class="fr-st pg-demo">
+        <div class="card" data-c="afv-inline"><div class="stage-in"></div><template>
+          <div class="av-wrap v3">
+            <div class="bub">Review our pricing page and tell me what to fix first.</div>
+            <div class="v3-msg">
+              <p>I went through the pricing page from top to bottom and wrote up what to fix first.</p>
+              <span class="v3-chip is-writing">
+                <button type="button" class="v3-main" disabled><span class="v3-ic"><span class="spin" aria-hidden="true"></span><svg class="i s" aria-hidden="true"><use href="#i-file-text"/></svg></span><span class="sr">Open </span><span class="v3-t">Pricing page review</span><span class="v3-m"><span class="w shim">Writing…</span><span class="f"><span class="m-v">v3</span><span class="m-sep" aria-hidden="true">·</span><span class="m-when"><span class="m-ed">edited </span>just now</span></span></span></button>
+                <span class="v3-tray"><span>
+                  <span class="v3-sep" aria-hidden="true"></span>
+                  <button type="button" class="ib av-vb3" aria-label="Versions" data-tip="Versions"><svg class="i s" aria-hidden="true"><use href="#i-history"/></svg></button>
+                  <button type="button" class="ib av-copy" aria-label="Copy Pricing page review" data-tip="Copy"><svg class="i s" aria-hidden="true"><use href="#i-copy"/></svg></button>
+                  <button type="button" class="ib av-dl" aria-label="Download Pricing page review" data-tip="Download"><svg class="i s" aria-hidden="true"><use href="#i-down"/></svg></button>
+                </span></span>
+              </span>
+              <p>The short version: the plan table is where people stall, and three small changes should move most of them on.</p>
+            </div>
+          </div>
+        </template></div>
+      </div>
+    </section>
+
+    <section class="fr" aria-labelledby="h-v4">
+      <div class="fr-h">
+        <div><h2 id="h-v4"><span class="fr-n">4</span>Version stack</h2><p>The report as a stack of paper. You watch the new page being written onto it, and fan the sheets out to pick a version.</p></div>
+        <button type="button" class="fr-rp" aria-label="Replay the version stack"><svg class="i s" aria-hidden="true"><use href="#i-refresh"/></svg>Replay</button>
+      </div>
+      <div class="fr-st pg-demo">
+        <div class="card" data-c="afv-stack"><div class="stage-in"></div><template>
+          <div class="av-wrap v4 is-writing">
+            <div class="v4-desk"><div class="v4-stack" role="menu" aria-label="Versions of Pricing page review" aria-hidden="true"></div></div>
+            <div class="v4-cap">
+              <div class="v4-t">Pricing page review</div>
+              <div class="av-meta v4-m"><span class="w shim">Reading the page…</span><span class="f"><span>Report</span><span aria-hidden="true">·</span><span class="m-v">v3</span><span aria-hidden="true">·</span><span class="m-when"><span class="m-ed">edited </span>just now</span></span></div>
+              <div class="fold shut v4-nw"><div><div class="v4-note"></div></div></div>
+            </div>
+            <div class="v4-act">
+              <button type="button" class="pill sm line v4-fan" aria-haspopup="menu" aria-expanded="false"><svg class="i s" aria-hidden="true"><use href="#i-layers"/></svg><span>Versions</span></button>
+              <button type="button" class="ib av-copy" aria-label="Copy Pricing page review" data-tip="Copy"><svg class="i" aria-hidden="true"><use href="#i-copy"/></svg></button>
+              <button type="button" class="ib av-dl" aria-label="Download Pricing page review" data-tip="Download"><svg class="i" aria-hidden="true"><use href="#i-down"/></svg></button>
+              <button type="button" class="pill sm soft av-open" aria-label="Open Pricing page review"><svg class="i s" aria-hidden="true"><use href="#i-max"/></svg><span>Open</span></button>
+            </div>
+          </div>
+        </template></div>
+      </div>
+    </section>
+  </div>
+</main>
+<script src="../components/assets/core.js"></script>
+<script>
+/* ---------- the artifact: one report, three versions ---------- */
+const F = {
+  look:'The three plans look alike at a glance.',
+  year:'The yearly switch hides what a month costs.',
+  cancel:'Nothing near the buttons says you can cancel any time.',
+  faq:'The FAQ repeats the plan table instead of answering doubts.',
+  price:'Team costs 16% more than similar plans elsewhere, and the page never says why.'
+};
+const VER = [
+  { ago:'2 hours ago', when:'edited 2 hours ago', note:'First pass, four findings',
+    changes:['Read the page from top to bottom', 'Listed four findings in page order'],
+    summary:'People reach the plan table and stall. Most of what slows them down is clarity, not price.',
+    findings:[F.look, F.year, F.cancel, F.faq] },
+  { ago:'40 min ago', when:'edited 40 min ago', note:'Added a competitor price check',
+    changes:['Compared Team with three competitors', 'Dropped the FAQ finding, which overlapped another'],
+    summary:'People reach the plan table and stall. Team also costs more than similar plans elsewhere, and the page never says why.',
+    findings:[F.look, F.year, F.cancel, F.price] },
+  { ago:'just now', when:'edited just now', note:'Fixes, ordered by impact',
+    changes:['Turned each finding into a fix', 'Ordered the fixes by how many people they reach'],
+    summary:'People reach the plan table and stall. Three changes should move most of them on, and none of them touch the price.',
+    findings:[F.look, F.year, F.cancel, F.price],
+    fixes:['Show the monthly price beside the yearly one.', 'Mark Team as the plan most people choose.', 'Put “Cancel any time” under each button.'] }
+];
+const REPORT = { title:'Pricing page review', kind:'Report', icon:'file-text', file:'pricing-page-review', ext:'md', mime:'text/markdown', versions:VER };
+const TABLE = { title:'Competitor prices', kind:'Table', icon:'table', file:'competitor-prices', ext:'csv', mime:'text/csv', versions:[
+  { ago:'1 hour ago', when:'edited 1 hour ago', note:'Team and Business at three competitors', changes:['Collected list prices, billed monthly'],
+    rows:[['Plan', 'Ours', 'Northwind', 'Halcyon', 'Fernway'], ['Team', '$29', '$22', '$25', '$28'], ['Business', '$79', '$69', '$75', '$89']] }] };
+const PHASES = ['Reading the page…', 'Writing the findings…', 'Ordering the fixes…'];
+
+const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
+const whenHTML = v => `<span class="m-ed">edited </span>${v.ago}`;
+const meta = (a, i) => `${a.kind} · v${i + 1} · ${a.versions[i].when}`;
+function text(a, i){
+  const v = a.versions[i];
+  if (a.ext === 'csv') return v.rows.map(r => r.join(',')).join('\n') + '\n';
+  let s = `# ${a.title}\n\nv${i + 1}, ${v.when}\n\n## Summary\n\n${v.summary}\n\n## Findings\n\n${v.findings.map(f => '- ' + f).join('\n')}\n`;
+  if (v.fixes) s += `\n## What to fix first\n\n${v.fixes.map((f, k) => (k + 1) + '. ' + f).join('\n')}\n`;
+  return s + `\n## Changes in v${i + 1}\n\n${v.changes.map(f => '- ' + f).join('\n')}\n`;
+}
+function body(a, i){
+  const v = a.versions[i], li = l => l.map(x => `<li>${esc(x)}</li>`).join('');
+  const chg = `<h3>Changes in v${i + 1}</h3><ul>${li(v.changes)}</ul>`;
+  if (a.ext === 'csv') return `<table class="av-tb"><thead><tr>${v.rows[0].map((h, k) => `<th scope="col"${k ? ' class="num"' : ''}>${h}</th>`).join('')}</tr></thead><tbody>${v.rows.slice(1).map(r => `<tr>${r.map((x, k) => k ? `<td class="num">${x}</td>` : `<th scope="row">${x}</th>`).join('')}</tr>`).join('')}</tbody></table>${chg}`;
+  return `<p>${esc(v.summary)}</p><h3>Findings</h3><ul>${li(v.findings)}</ul>${v.fixes ? `<h3>What to fix first</h3><ol>${li(v.fixes)}</ol>` : ''}${chg}`;
+}
+/* which version a card shows; the parts that depend on it subscribe */
+function model(a){ const m = { a, i:a.versions.length - 1, subs:[] }; m.on = f => m.subs.push(f); m.set = i => { if (i === m.i) return; m.i = i; m.subs.forEach(f => f(i)); }; return m; }
+
+/* ---------- helpers ---------- */
+const sleep = (c, ms) => new Promise((res, rej) => { c.t.push(setTimeout(() => c.dead ? rej('stop') : res(), ms)); });
+const cssMs = (el, v, f = 1) => { const s = getComputedStyle(el).getPropertyValue(v).trim(); return (s.endsWith('ms') ? parseFloat(s) : parseFloat(s) * 1000) * f || 300; };
+const cssEase = el => getComputedStyle(el).getPropertyValue('--ease').trim() || 'ease';
+let uid = 0;
+/* a polite status line, so copying, downloading and switching versions are announced too */
+function say(st, msg){
+  let r = $('.av-live', st);
+  if (!r){ r = html('<div class="av-live sr" role="status" aria-live="polite"></div>'); st.append(r); }
+  r.textContent = ''; setTimeout(() => { r.textContent = msg; }, 60);
+}
+/* feedback on a button that did something: a check, a word in the tooltip or the label, then back */
+function flash(btn, label){
+  const use = $('use', btn), lb = $('.lbl', btn);
+  const o = btn._fl || (btn._fl = { href:use && use.getAttribute('href'), tip:btn.dataset.tip, txt:lb && lb.textContent });
+  clearTimeout(o.t);
+  if (use) use.setAttribute('href', '#i-check');
+  if (lb) lb.textContent = label;
+  btn.classList.add('copied');
+  if (o.tip !== undefined){ btn.dataset.tip = label; showTip(btn); }
+  o.t = setTimeout(() => {
+    if (use) use.setAttribute('href', o.href);
+    if (lb) lb.textContent = o.txt;
+    btn.classList.remove('copied');
+    if (o.tip !== undefined){ btn.dataset.tip = o.tip; if (tipFor === btn) hideTip(); }
+  }, 1600);
+}
+function doCopy(st, btn, m){
+  try { navigator.clipboard.writeText(text(m.a, m.i)).catch(() => {}); } catch(e){}
+  flash(btn, 'Copied'); say(st, `Copied ${m.a.title}, v${m.i + 1}, to the clipboard`);
+}
+function doDownload(st, btn, m){
+  const name = `${m.a.file}-v${m.i + 1}.${m.a.ext}`, url = URL.createObjectURL(new Blob([text(m.a, m.i)], { type:m.a.mime }));
+  const a = document.createElement('a'); a.href = url; a.download = name; a.hidden = true; document.body.append(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 5000);
+  flash(btn, 'Downloaded'); say(st, `Downloaded ${name}`);
+}
+/* the content moves up as a menu opens under it, so the two sit centred together, as dropdowns do across the library */
+function glide(wrap, st, menu){
+  if (!menu){ wrap.style.transform = ''; return; }
+  const cur = new DOMMatrixReadOnly(getComputedStyle(wrap).transform).m42, w = wrap.getBoundingClientRect(), s = st.getBoundingClientRect();
+  const mt = parseFloat(menu.style.top) || 0, top = w.top - cur + Math.min(0, mt), bot = w.top - cur + Math.max(w.height, mt + menu.offsetHeight);
+  const pad = parseFloat(getComputedStyle(st).paddingTop) || 0;
+  const d = Math.max(s.top + Math.min(pad, 8) - top, s.top + (s.height - (bot - top)) / 2 - top);
+  wrap.style.transform = Math.abs(d) > .5 ? `translateY(${Math.round(d)}px)` : '';
+}
+/* versions menu: a menu button with one radio item per version, newest first. Arrow keys move, Enter picks, Esc closes */
+function vmenu(c, st, m, btn, wrap, o = {}){
+  const id = 'avm' + (++uid), vs = m.a.versions;
+  const menu = html(`<div class="pop av-menu" id="${id}" role="menu" aria-label="Versions of ${esc(m.a.title)}" inert><div class="ph" aria-hidden="true">Versions</div>${vs.map((v, k) => k).reverse().map(k => `<button type="button" class="mi" role="menuitemradio" tabindex="-1" data-i="${k}" aria-checked="false"><span class="mi-b"><span class="mi-t">v${k + 1}<span class="mi-w"> · ${vs[k].ago}</span></span><span class="d">${esc(vs[k].note)}</span></span><svg class="i s ck" aria-hidden="true"><use href="#i-check"/></svg></button>`).join('')}</div>`);
+  wrap.append(menu);
+  btn.setAttribute('aria-haspopup', 'menu'); btn.setAttribute('aria-expanded', 'false'); btn.setAttribute('aria-controls', id);
+  const items = () => $$('.mi', menu);
+  let open = false;
+  const place = () => {
+    const wr = wrap.getBoundingClientRect(), br = btn.getBoundingClientRect(), sr = st.getBoundingClientRect(), mw = menu.offsetWidth;
+    const lo = Math.max(sr.left + 8, wr.left), hi = Math.min(sr.right - 8, wr.right) - mw, x = Math.max(lo, Math.min(br.left - 6, hi));
+    menu.style.left = Math.round(x - wr.left) + 'px'; menu.style.top = Math.round(br.bottom - wr.top + 6) + 'px';
+  };
+  const show = () => {
+    items().forEach(b => b.setAttribute('aria-checked', String(+b.dataset.i === m.i)));
+    open = true; hideTip(); menu.inert = false; place(); menu.classList.add('open'); btn.setAttribute('aria-expanded', 'true');
+    o.onOpen && o.onOpen(); glide(wrap, st, menu);
+    (items().find(b => b.getAttribute('aria-checked') === 'true') || items()[0]).focus({ preventScroll:true });
+  };
+  const hide = refocus => {
+    if (!open) return; open = false; menu.classList.remove('open'); btn.setAttribute('aria-expanded', 'false');
+    if (refocus) btn.focus({ preventScroll:true });
+    menu.inert = true; glide(wrap, st, null); o.onClose && o.onClose();
+  };
+  c.on(btn, 'click', e => { e.stopPropagation(); open ? hide(false) : show(); });
+  c.on(btn, 'keydown', e => { if (e.key === 'ArrowDown' || e.key === 'ArrowUp'){ e.preventDefault(); show(); } });
+  c.on(menu, 'keydown', e => {
+    const it = items(), k = it.indexOf(document.activeElement);
+    if (e.key === 'ArrowDown'){ e.preventDefault(); it[(k + 1) % it.length].focus(); }
+    else if (e.key === 'ArrowUp'){ e.preventDefault(); it[(k - 1 + it.length) % it.length].focus(); }
+    else if (e.key === 'Home'){ e.preventDefault(); it[0].focus(); }
+    else if (e.key === 'End'){ e.preventDefault(); it[it.length - 1].focus(); }
+    else if (e.key === 'Escape'){ e.preventDefault(); e.stopPropagation(); hide(true); }
+    else if (e.key === 'Tab'){ hide(false); }
+  });
+  c.on(menu, 'click', e => { const b = e.target.closest('.mi'); if (!b) return; m.set(+b.dataset.i); hide(true); });
+  c.on(document, 'pointerdown', e => { if (open && !menu.contains(e.target) && !btn.contains(e.target)) hide(false); });
+  c.on(window, 'resize', () => hide(false));
+  return { hide };
+}
+/* the opened file: a view that slides in over the stage, or a page that grows out of the preview it came from. It is a modal dialog inside the
+   stage: focus moves in and stays in, Esc or the scrim closes it, and focus goes back to what opened it */
+function sheet(c, st, m, wrap, { kind = 'view', opener, src = null } = {}){
+  if (st._sheet && st.contains(st._sheet)) return;
+  const id = 'avs' + (++uid);
+  const layer = html(`<div class="av-sh"><div class="av-scrim"></div><div class="av-pan ${kind}" role="dialog" aria-modal="true" aria-labelledby="${id}" tabindex="-1">
+    <div class="av-ph"><span class="av-ic" aria-hidden="true">${I(m.a.icon, '')}</span><div class="av-ptx"><div class="av-pt" id="${id}">${esc(m.a.title)}</div><div class="av-pm">${meta(m.a, m.i)}</div></div><button type="button" class="ib av-x" aria-label="Close" data-tip="Close" data-tip-k="Esc">${I('x', '')}</button></div>
+    <div class="av-pb" tabindex="0" role="region" aria-label="${esc(m.a.title)}, v${m.i + 1}">${body(m.a, m.i)}</div>
+    <div class="av-pf"><button type="button" class="pill sm line av-copy">${I('copy')}<span class="lbl">Copy</span></button><button type="button" class="pill sm line av-dl">${I('down')}<span class="lbl">Download</span></button></div>
+  </div></div>`);
+  st.append(layer); st._sheet = layer; wrap.inert = true; hideTip();
+  const pan = $('.av-pan', layer), scrim = $('.av-scrim', layer), D = cssMs(st, '--t', kind === 'page' ? 1.3 : 1.1), E = cssEase(st);
+  const morph = back => {
+    const r = src.getBoundingClientRect(), t = pan.getBoundingClientRect();
+    const f = { transform:`translate(${r.left - t.left}px,${r.top - t.top}px) scale(${r.width / t.width},${r.height / t.height})` };
+    const kids = [...pan.children];
+    kids.forEach(k => k.animate(back ? [{ opacity:1 }, { opacity:0, offset:.4 }, { opacity:0 }] : [{ opacity:0 }, { opacity:0, offset:.45 }, { opacity:1 }], { duration:D, fill:back ? 'forwards' : 'none' }));
+    return pan.animate(back ? [{ transform:'none' }, f] : [f, { transform:'none' }], { duration:D, easing:E, fill:back ? 'forwards' : 'none' }).finished;
+  };
+  if (!REDUCE){
+    scrim.animate([{ opacity:0 }, { opacity:1 }], { duration:D, easing:'ease-out' });
+    if (src) morph(false).catch(() => {});
+    else pan.animate([{ transform:'translateX(calc(100% + 16px))' }, { transform:'none' }], { duration:D, easing:E });
+  }
+  if (src) src.style.visibility = 'hidden';
+  $('.av-x', layer).focus({ preventScroll:true });
+  let closing = false;
+  const close = async () => {
+    if (closing) return; closing = true; hideTip();
+    if (!REDUCE){
+      const out = D * .8;
+      scrim.animate([{ opacity:1 }, { opacity:0 }], { duration:out, fill:'forwards' });
+      try { await (src ? morph(true) : pan.animate([{ transform:'none' }, { transform:'translateX(calc(100% + 16px))' }], { duration:out, easing:E, fill:'forwards' }).finished); } catch(e){}
+    }
+    if (c.dead) return;
+    layer.remove(); st._sheet = null; wrap.inert = false; if (src) src.style.visibility = '';
+    opener.focus({ preventScroll:true });
+  };
+  $('.av-x', layer).addEventListener('click', close);
+  scrim.addEventListener('click', close);
+  $('.av-copy', layer).addEventListener('click', e => doCopy(st, e.currentTarget, m));
+  $('.av-dl', layer).addEventListener('click', e => doDownload(st, e.currentTarget, m));
+  layer.addEventListener('keydown', e => {
+    if (e.key === 'Escape'){ e.preventDefault(); e.stopPropagation(); close(); return; }
+    if (e.key !== 'Tab') return;
+    const f = $$('button,[tabindex="0"]', pan), first = f[0], last = f[f.length - 1];
+    if (e.shiftKey && (document.activeElement === first || document.activeElement === pan)){ e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last){ e.preventDefault(); first.focus(); }
+  });
+  say(st, `Opened ${m.a.title}, v${m.i + 1}`);
+}
+/* the writing state settles into the finished card: icon, meta and actions come in together */
+function settle(el, st, m){ el.classList.remove('is-writing'); const f = $('.av-meta .f, .v3-m .f', el); if (f) enter(f); say(st, `${m.a.title} is ready, v${m.i + 1}`); }
+function phases(c, w, step){ return (async () => { for (let k = 0; k < PHASES.length; k++){ if (w) swap(w, PHASES[k]); step && step(k); await sleep(c, REDUCE ? 500 : 1100); } })(); }
+/* a version change updates the meta line and the version button */
+function bindMeta(st, root, m){
+  const vb = $('.av-vb', root), when = $('.m-when', root);
+  const sync = i => {
+    if (vb){ $('.vb-t', vb).textContent = 'v' + (i + 1); vb.setAttribute('aria-label', `v${i + 1} of ${m.a.versions.length} versions`); }
+    $$('.m-v', root).forEach(e => { e.textContent = 'v' + (i + 1); });
+    if (when) swap(when, whenHTML(m.a.versions[i]), true);
+  };
+  sync(m.i); m.on(i => { sync(i); say(st, `Showing v${i + 1}, ${m.a.versions[i].when}`); });
+}
+
+/* ---------- 1 · compact file card ---------- */
+DM.def('afv-compact', (st, c) => {
+  const wrap = $('.av-wrap', st);
+  [[TABLE, 'table'], [REPORT, 'report']].forEach(([a, key]) => {
+    const card = $(`[data-a="${key}"]`, st), m = model(a), op = $('.av-open', card);
+    bindMeta(st, card, m);
+    const vb = $('.av-vb', card); if (vb) vmenu(c, st, m, vb, wrap);
+    c.on($('.av-copy', card), 'click', e => doCopy(st, e.currentTarget, m));
+    c.on($('.av-dl', card), 'click', e => doDownload(st, e.currentTarget, m));
+    c.on(op, 'click', () => sheet(c, st, m, wrap, { kind:'view', opener:op }));
+    if (key !== 'report') return;
+    const bar = $('.v1-bar', card);
+    c.run(async () => {
+      await sleep(c, 300);
+      await phases(c, $('.av-meta .w', card), k => { bar.style.transform = `scaleX(${(k + 1) / PHASES.length})`; });
+      settle(card, st, m);
+    });
+  });
+});
+
+/* ---------- 2 · card with a preview ---------- */
+DM.def('afv-preview', (st, c) => {
+  const wrap = $('.av-wrap', st), card = $('.v2-card', st), m = model(REPORT), op = $('.av-open', card), p = $('.v2-p', st);
+  const W = [[96, 88, 70, 82], [92, 84, 90, 64], [90, 78, 86, 72]];
+  const fill = i => { $$('.v2-ls i', st).forEach((e, k) => e.style.setProperty('--w', W[i][k] + '%')); };
+  bindMeta(st, card, m); fill(m.i);
+  m.on(i => { swap($('.v2-k .f', st), `Report · v${i + 1}`); swap(p, VER[i].summary); fill(i); });
+  vmenu(c, st, m, $('.av-vb', card), wrap);
+  c.on($('.av-copy', card), 'click', e => doCopy(st, e.currentTarget, m));
+  c.on($('.av-dl', card), 'click', e => doDownload(st, e.currentTarget, m));
+  c.on(op, 'click', () => sheet(c, st, m, wrap, { kind:'page', opener:op, src:$('.v2-page', st) }));
+  c.run(async () => {
+    await sleep(c, 300);
+    await phases(c, $('.av-meta .w', card), k => {
+      if (k === 1){
+        // the summary is written out a few letters at a time, with a caret
+        const s = VER[2].summary;
+        if (REDUCE){ p.textContent = s; return; }
+        let n = 0; const caret = '<span class="caret"></span>';
+        const id = c.every(22, () => { n = Math.min(s.length, n + 3); p.innerHTML = esc(s.slice(0, n)) + caret; if (n >= s.length) clearInterval(id); });
+      }
+      if (k === 2){ p.textContent = VER[2].summary; if (!REDUCE) $$('.v2-ls i', st).forEach((e, j) => e.animate([{ transform:'scaleX(0)' }, { transform:'scaleX(1)' }], { duration:420, delay:j * 180, easing:cssEase(st), fill:'forwards' })); }
+    });
+    p.textContent = VER[2].summary;
+    $$('.v2-ls i', st).forEach(e => e.getAnimations().forEach(a => a.cancel()));
+    settle(card, st, m);
+  });
+});
+
+/* ---------- 3 · inline attachment ---------- */
+DM.def('afv-inline', (st, c) => {
+  const wrap = $('.av-wrap', st), chip = $('.v3-chip', st), main = $('.v3-main', st), m = model(REPORT);
+  bindMeta(st, chip, m);
+  vmenu(c, st, m, $('.av-vb3', st), wrap, { onOpen:() => chip.classList.add('pin'), onClose:() => chip.classList.remove('pin') });
+  c.on($('.av-copy', chip), 'click', e => doCopy(st, e.currentTarget, m));
+  c.on($('.av-dl', chip), 'click', e => doDownload(st, e.currentTarget, m));
+  c.on(main, 'click', () => sheet(c, st, m, wrap, { kind:'view', opener:main }));
+  c.run(async () => {
+    await sleep(c, 300);
+    await phases(c, $('.v3-m .w', chip));
+    main.disabled = false; settle(chip, st, m);
+  });
+});
+
+/* ---------- 4 · version stack ---------- */
+const LINES = [
+  [['p', 94], ['p', 72], ['s'], ['b', 82], ['b', 74], ['b', 66], ['b', 78], ['s'], ['p', 88], ['p', 52]],
+  [['p', 92], ['p', 86], ['p', 56], ['s'], ['b', 80], ['b', 72], ['b', 86], ['b', 64], ['s'], ['p', 70]],
+  [['p', 90], ['p', 78], ['s'], ['n', 84], ['n', 70], ['n', 78], ['s'], ['b', 76], ['b', 68], ['b', 82]]
+];
+const REST = ['none', 'translate(9px,-7px) rotate(3.5deg)', 'translate(-9px,-12px) rotate(-4deg)'];
+DM.def('afv-stack', (st, c) => {
+  const wrap = $('.av-wrap', st), root = $('.v4', st), stack = $('.v4-stack', st), tog = $('.v4-fan', st), op = $('.av-open', st), m = model(REPORT);
+  stack.innerHTML = VER.map((v, k) => `<button type="button" class="v4-sh${k === 2 ? ' blank' : ''}" role="menuitemradio" tabindex="-1" data-i="${k}" aria-checked="${k === 2}" aria-label="v${k + 1}, ${v.when}: ${esc(v.note)}"><span class="v4-pg" aria-hidden="true"><span class="v4-k"><span>${k === 2 ? 'Writing…' : 'v' + (k + 1)}</span></span><span class="v4-h">${k === 2 ? '' : 'Pricing page review'}</span><span class="v4-ls">${LINES[k].map(([t, w]) => t === 's' ? '<span class="v4-gap"></span>' : `<span class="v4-r ${t}">${t === 'p' ? '' : '<b></b>'}<i style="--w:${w}%"></i></span>`).join('')}</span>${k === 2 ? '<span class="v4-pen"></span>' : ''}</span><span class="v4-tab" aria-hidden="true">${I('check', 'xs')}<span>v${k + 1}</span><span class="ta"> · ${v.ago}</span></span></button>`).join('');
+  const sheets = $$('.v4-sh', st), note = $('.v4-note', st), nw = $('.v4-nw', st);
+  tog.setAttribute('aria-controls', stack.id = 'avk' + (++uid));
+  bindMeta(st, $('.v4-cap', st), m);
+  let fanned = false, peek = null, writing = true;
+  const layout = () => sheets.forEach((sh, k) => {
+    let tf, z;
+    if (fanned){ const o = k - 1; tf = `translate(calc(${o} * var(--fx)),${Math.abs(o) * 6 + (peek === k ? -8 : 0)}px) rotate(${o * 6}deg)`; z = peek === k ? 5 : k + 1; }
+    else { const rest = [2, 1, 0].filter(x => x !== m.i), d = k === m.i ? 0 : rest.indexOf(k) + 1; tf = REST[d]; z = 3 - d; }
+    sh.style.transform = tf; sh.style.zIndex = z;
+    sh.setAttribute('aria-checked', String(k === m.i));
+  });
+  // while the sheets are fanned, the caption reads out the one under the pointer or the focus
+  const caption = k => {
+    const i = k == null ? m.i : k;
+    $('.v4-m .f', st).innerHTML = `<span>Report</span><span aria-hidden="true">·</span><span class="m-v">v${i + 1}</span><span aria-hidden="true">·</span><span class="m-when">${whenHTML(VER[i])}</span>`;
+    note.textContent = VER[i].note;
+  };
+  const setFan = (on, focus) => {
+    if (writing) return;
+    fanned = on; peek = null; root.classList.toggle('fan', on);
+    tog.setAttribute('aria-expanded', String(on)); stack.setAttribute('aria-hidden', String(!on));
+    sheets.forEach(sh => { sh.tabIndex = on && +sh.dataset.i === m.i ? 0 : -1; });
+    nw.classList.toggle('shut', !on); layout(); caption();
+    if (on && focus) sheets[m.i].focus({ preventScroll:true });
+  };
+  const pick = k => { m.set(k); setFan(false); tog.focus({ preventScroll:true }); };
+  m.on(() => { layout(); caption(); });
+  layout(); caption();
+  c.on(tog, 'click', () => setFan(!fanned, true));
+  sheets.forEach((sh, k) => {
+    c.on(sh, 'click', () => { if (writing) return; if (fanned) pick(k); else op.click(); });
+    const look = on => { if (!fanned) return; peek = on ? k : null; layout(); caption(peek); };
+    c.on(sh, 'pointerenter', () => look(true)); c.on(sh, 'pointerleave', () => look(false));
+    c.on(sh, 'focus', () => look(true)); c.on(sh, 'blur', () => look(false));
+  });
+  c.on(stack, 'keydown', e => {
+    if (!fanned) return;
+    const k = sheets.indexOf(document.activeElement); let n = null;
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') n = Math.min(2, k + 1);
+    else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') n = Math.max(0, k - 1);
+    else if (e.key === 'Home') n = 0; else if (e.key === 'End') n = 2;
+    else if (e.key === 'Escape'){ e.preventDefault(); e.stopPropagation(); setFan(false); tog.focus({ preventScroll:true }); return; }
+    else if (e.key === 'Tab'){ setFan(false); return; }
+    if (n != null){ e.preventDefault(); sheets.forEach((sh, j) => { sh.tabIndex = j === n ? 0 : -1; }); sheets[n].focus(); }
+  });
+  c.on(document, 'pointerdown', e => { if (fanned && !stack.contains(e.target) && !tog.contains(e.target)) setFan(false); });
+  c.on($('.av-copy', st), 'click', e => doCopy(st, e.currentTarget, m));
+  c.on($('.av-dl', st), 'click', e => doDownload(st, e.currentTarget, m));
+  c.on(op, 'click', () => { if (writing) return; setFan(false); sheet(c, st, m, wrap, { kind:'page', opener:op, src:sheets[m.i] }); });
+  // writing: a blank sheet drops onto the stack, the title is typed, and a pen draws each line of the new page
+  c.run(async () => {
+    const top = sheets[2], pg = $('.v4-pg', top), pen = $('.v4-pen', top), title = $('.v4-h', top), kick = $('.v4-k span', top), E = cssEase(st);
+    if (!REDUCE) top.animate([{ transform:'translateY(-36px)', opacity:0 }, { transform:'none', opacity:1 }], { duration:cssMs(st, '--t-slow'), easing:E, composite:'add' });
+    await sleep(c, 300);
+    const w = $('.v4-m .w', st);
+    swap(w, PHASES[0]);
+    const T = 'Pricing page review';
+    if (REDUCE){ await sleep(c, 500); title.textContent = T; }
+    else for (let n = 1; n <= T.length; n++){ title.textContent = T.slice(0, n); await sleep(c, 40); }
+    await sleep(c, REDUCE ? 0 : 250);
+    swap(w, PHASES[1]);
+    const rows = $$('.v4-r', top).filter(r => r.offsetParent);
+    for (let j = 0; j < rows.length; j++){
+      const r = rows[j], line = $('i', r), dot = $('b', r);
+      if (j === 3) swap(w, PHASES[2]);
+      if (REDUCE){ await sleep(c, 150); continue; }
+      const x0 = r.offsetLeft + line.offsetLeft, x1 = x0 + line.offsetWidth, y = r.offsetTop + r.offsetHeight / 2 - 3.5, ms = 260 + line.offsetWidth * 1.4;
+      if (dot) dot.animate([{ transform:'scaleX(0)' }, { transform:'none' }], { duration:120, fill:'forwards' });
+      line.animate([{ transform:'scaleX(0)' }, { transform:'scaleX(1)' }], { duration:ms, easing:'cubic-bezier(.4,0,.3,1)', fill:'forwards' });
+      pen.animate([{ transform:`translate(${x0 - 3}px,${y}px)`, opacity:1 }, { transform:`translate(${x1 - 3}px,${y}px)`, opacity:1 }], { duration:ms, easing:'cubic-bezier(.4,0,.3,1)', fill:'forwards' });
+      await sleep(c, ms + 70);
+    }
+    pen.getAnimations().forEach(a => a.cancel());
+    $$('.v4-r :is(i,b)', top).forEach(e => e.getAnimations().forEach(a => a.cancel()));
+    top.classList.remove('blank'); title.textContent = T; kick.textContent = 'v3';
+    if (!REDUCE) top.animate([{ transform:'translateY(-6px)' }, { transform:'none' }], { duration:cssMs(st, '--t'), easing:E, composite:'add' });
+    writing = false; settle(root, st, m);
+  });
+});
+
+/* ---------- the page: style, theme and replay ---------- */
+{
+  const d = document.documentElement;
+  const mark = (sel, v) => $$(sel + ' button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === v)));
+  mark('#sw-style', d.dataset.style === 'soft' ? 'soft' : 'blueprint');
+  mark('#sw-theme', d.dataset.theme === 'dark' ? 'dark' : 'light');
+  seg($('#sw-style'), v => { if (v === 'soft') d.dataset.style = 'soft'; else delete d.dataset.style; try { localStorage.setItem('dmui-style', v); } catch(e){} });
+  seg($('#sw-theme'), v => { d.dataset.theme = v; try { localStorage.setItem('dmui-theme', v); } catch(e){} });
+  $$('.fr-rp').forEach(b => b.addEventListener('click', () => { const card = b.closest('.fr').querySelector('[data-c]'); DM.mount(card, !!card._c); }));
+}
+</script>
+</body>
+</html>
