@@ -85,9 +85,10 @@ const server = http.createServer((req, res) => {
             if (e.closest('svg') && e.tagName !== 'svg') continue;
             const cs = getComputedStyle(e); if (cs.display === 'none' || cs.visibility === 'hidden' || +cs.opacity === 0 || e.closest('.pop:not(.open),.hand')) continue;
             const b = e.getBoundingClientRect(); if (b.width < 1 || b.height < 1) continue;
-            if (b.bottom > bot) bot = b.bottom;
-            // (a part its own box cuts off, like a scanning beam or a scrolled list, doesn't count)
-            let sc = false; for (let a = e.parentElement; a && a !== sin; a = a.parentElement){ const s = getComputedStyle(a); if (/(auto|scroll|hidden|clip)/.test(s.overflowX + s.overflowY)){ sc = true; break; } }
+            // (a part its own box cuts off, like a scanning beam or a scrolled list, doesn't count: rows scrolled out of a list
+            // only reach as far down as the list does)
+            let sc = false, cut = Infinity; for (let a = e.parentElement; a && a !== sin; a = a.parentElement){ const s = getComputedStyle(a); if (/(auto|scroll|hidden|clip)/.test(s.overflowX + s.overflowY)){ if (!sc) sc = true; if (/(auto|scroll|hidden|clip)/.test(s.overflowY)) cut = Math.min(cut, a.getBoundingClientRect().bottom); } }
+            if (Math.min(b.bottom, cut) > bot) bot = Math.min(b.bottom, cut);
             if (!sc){ o.up = Math.max(o.up, top - b.top); o.side = Math.max(o.side, sb.left - b.left, b.right - sb.right); }
           }
           out.set(c, o);
