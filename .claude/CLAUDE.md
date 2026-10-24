@@ -1,0 +1,46 @@
+# Working on designme.dev
+
+Standing decisions from the owner. Read them before changing anything, and check new work against them. They apply to
+every session and every agent.
+
+## Process
+- Work on `staging`. Touch `main` only when the owner says "push live". No pull requests unless asked.
+- Push in small batches and say what changed.
+- Never ask for npm credentials. Don't make the repository public without the owner's say-so.
+- Every claim in copy or docs must be true of the code.
+- Don't copy other component libraries' designs, layouts, copy or mascots. Use standard UX patterns, not creative ones.
+- Change only what was asked. If a change would bring back or alter something the owner didn't mention (a layout,
+  a nav, a colour), ask first.
+
+## Site structure
+- Site navigation lives in the left sidebar: Library (the homepage, selected), Docs, Changelog, Roadmap and FAQ.
+  There is no top nav in the header on any page. The header holds the logo, the GitHub stars pill, the style switch and
+  the theme switch.
+- The homepage is the component library. There is no separate components page.
+
+## Type and colour
+- All text is 14px or smaller, and nothing is heavier than weight 500. Page titles (`.pg-h1`) are the one exception.
+- No monospace fonts in the interface, keyboard hints included. Code blocks and inline code are the exception.
+- Soft is the site's default style; Blueprint's default accent is lime `#d4f84a`. Primary buttons use the accent, with
+  `--on-accent` (dark) icons and text on accent fills.
+- Accents have roles: `--accent` fills, `--accent-fg` text (4.5:1), `--accent-mark` lines, rings and chart marks (3:1),
+  `--accent-bg` / `--sel` tints. Charts follow the accent.
+- Highlights like "Everyone is free" use the accent tint (`--sel` with the accent as text), not a solid accent fill.
+
+## Components
+- Every component sits centred in its stage at every moment: its tallest state, its end state, and closed dropdowns.
+  End states that are shorter keep their height with `hold()` / `release()`. Dropdowns use `centre()`: the closed field
+  sits centred and glides up as its list opens.
+- Each component ships in HTML (`soft-2/index.html`) and React (`packages/react`), with its docs copy in
+  `tools/pages/content/<id>.json`. Change all three together.
+
+## QA before every push
+- Both styles (Soft and Blueprint), light and dark, at 1440, 768, 390 and 360.
+- No console errors and no sideways scroll.
+- The type rules above.
+- Centring checked at every settled moment, not only the tallest one.
+- Card heights re-measured (`COMPS=<ids> node tools/site/measure-heights.js`) when a component's height changes.
+
+## Build
+From `tools/site`: `npm run patches` (when `make-patches.py` changed), `npm run build`, `npm run react`, `npm run pages`.
+`index.html`, `components/` and `docs/` are generated: edit the sources, not the output.

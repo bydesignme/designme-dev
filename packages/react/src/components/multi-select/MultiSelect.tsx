@@ -35,13 +35,15 @@ export interface MultiSelectProps {
   hint?: string;
   /** Shown when nothing matches. Defaults to "No tags match" */
   empty?: string;
+  /** The button beside the label that takes every pick off, shown while something is picked. Defaults to "Clear all" */
+  clearLabel?: string;
   className?: string;
 }
 
 /** A combobox that keeps what you pick as chips. Typing filters the list, the arrow keys move through it, Enter picks
     or unpicks, Escape closes it, and Backspace in an empty box takes the last chip off. */
 export function MultiSelect({ label, options, value, defaultValue = [], onValueChange, query, defaultQuery = '', onQueryChange, open, defaultOpen = false, onOpenChange,
-  placeholder = 'Add a tag', hint = 'Type to filter. Backspace removes the last tag.', empty = 'No tags match', className }: MultiSelectProps) {
+  placeholder = 'Add a tag', hint = 'Type to filter. Backspace removes the last tag.', empty = 'No tags match', clearLabel = 'Clear all', className }: MultiSelectProps) {
   const id = 'dm-msc' + useId().replace(/:/g, '');
   const [picked, setPicked] = useControllable(value, defaultValue, onValueChange);
   const [q, setQ] = useControllable(query, defaultQuery, onQueryChange);
@@ -86,7 +88,11 @@ export function MultiSelect({ label, options, value, defaultValue = [], onValueC
 
   return (
     <div ref={root} data-dm="" className={cx('dm-msc', className)}>
-      <label className="dm-msc-l" htmlFor={`${id}-q`}>{label}</label>
+      {/* Clear all takes every chip off at once; the cursor goes back to the box, so the next tag can be typed straight away */}
+      <div className="dm-msc-top">
+        <label className="dm-msc-l" htmlFor={`${id}-q`}>{label}</label>
+        {picked.length > 0 && <button type="button" className="dm-msc-clr" onMouseDown={e => e.preventDefault()} onClick={() => { setPicked([]); input.current?.focus(); }}>{clearLabel}</button>}
+      </div>
       <div ref={field} className="dm-msc-f" onClick={e => { if ((e.target as Element).closest('.dm-msc-c')) return; input.current?.focus(); setOpen(true); }}>
         {picked.map(v => (
           <span key={v} className="dm-msc-c">{name(v)}

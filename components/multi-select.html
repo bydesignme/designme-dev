@@ -2,7 +2,10 @@
 /* a combobox that keeps what you pick as chips: typing filters the list, the arrows move through it, Enter picks or
    unpicks, Escape closes it, and Backspace in an empty box takes the last chip off */
 .msc{position:relative;width:100%;max-width:320px;margin:0 auto;display:flex;flex-direction:column;gap:6px}
+.msc-top{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:22px}
 .msc-l{font-size:12.5px;font-weight:500}
+.msc-clr{height:22px;padding:0 6px;margin-right:-6px;border-radius:6px;font-size:12px;color:var(--muted);transition:color .2s,background .2s}
+.msc-clr:hover{color:var(--fg);background:var(--chip)}
 .msc-f{position:relative;display:flex;flex-wrap:wrap;align-items:center;gap:6px;min-height:42px;padding:6px 8px;border-radius:12px;background:var(--surface);box-shadow:var(--shadow);cursor:text;transition:box-shadow .25s}
 .msc-f:focus-within,.msc-f.f{box-shadow:0 0 0 1.5px var(--accent-mark,var(--accent)),0 0 0 4px var(--accent-bg)}
 .msc-q{flex:1;min-width:80px;height:28px;border:0;outline:0;background:transparent;padding:0 4px;font:inherit;font-size:13px;color:var(--fg)}
@@ -50,14 +53,14 @@
   <div class="stage-in"></div>
   <template>
 <div class="msc">
-  <label class="msc-l">Tags</label>
+  <div class="msc-top"><label class="msc-l">Tags</label><button class="msc-clr" hidden>Clear all</button></div>
   <div class="msc-f"><input class="msc-q" role="combobox" aria-expanded="false" aria-autocomplete="list" aria-haspopup="listbox" placeholder="Add a tag" spellcheck="false" autocomplete="off"><span class="kbd msc-key" aria-hidden="true"></span></div>
   <div class="msc-pop"><div class="msc-list" role="listbox" aria-multiselectable="true" aria-label="Tags"></div></div>
   <span class="muted msc-h">Type to filter. Backspace removes the last tag.</span>
 </div>
   </template>
 </div>
-</div></section></div><div class="cp-bar"><div class="pg-wrap"><nav aria-label="On this page"><a href="#install">Install</a><a href="#about">About</a><a href="#usage">Usage</a><a href="#props">Props</a><a href="#code">Code</a><a href="#questions">Questions</a><a href="#more">More</a></nav></div></div><div class="pg-wrap"><section class="cp-sec" id="install"><div class="pg-sh"><span class="n">01</span><h2>Install</h2><p>Add it to your project with the CLI.</p></div><div class="cp-two"><div class="cp-box"><h3 class="pg-t">HTML, CSS and JavaScript</h3><div class="cp-line"><span class="d">$</span><code><span class="cp-w">npx</span> <span class="cp-w">designme</span> <span class="cp-w">add</span> <span class="cp-w">multi-select</span></code><button class="cp-copy" type="button" data-copy="npx designme add multi-select" data-label="Copy">Copy</button></div></div><div class="cp-box"><h3 class="pg-t">React</h3><div class="cp-line"><span class="d">$</span><code><span class="cp-w">npx</span> <span class="cp-w">designme</span> <span class="cp-w">add</span> <span class="cp-w">multi-select</span> <span class="cp-w">--react</span></code><button class="cp-copy" type="button" data-copy="npx designme add multi-select --react" data-label="Copy">Copy</button></div></div></div><p class="cp-note">The CLI copies the source into your project, so you own it and can change anything. The HTML version lands in <code>./designme</code> with the shared core and a <code>demo.html</code>. The React version lands in <code>src/components/designme</code> and needs React 19; it works in Next.js, Vite and Astro.</p></section><section class="cp-sec" id="about"><div class="pg-sh"><span class="n">02</span><h2>About</h2><p>What it is for and what it does.</p></div><p class="cp-sum">Multi-select is a combobox for picking several things from a long list. Typing filters the list, the arrow keys move through it and Enter picks, and each pick becomes a chip in the box with its own remove button. Backspace in an empty box takes the last chip off, so a wrong pick is one key away from gone.</p><div class="cp-gap"><div class="cp-tl" role="tablist" aria-label="About"><button type="button" role="tab" id="ab-t0" aria-controls="ab-p0" aria-selected="true" tabindex="0">When to use it</button><button type="button" role="tab" id="ab-t1" aria-controls="ab-p1" aria-selected="false" tabindex="-1">What it does</button><button type="button" role="tab" id="ab-t2" aria-controls="ab-p2" aria-selected="false" tabindex="-1">Accessibility</button></div><div class="cp-tp" role="tabpanel" id="ab-p0" aria-labelledby="ab-t0"><ul><li>When people pick several items from a list too long to show at once, like tags, teammates or labels.</li><li>When people know what they want and would rather type a few letters than scroll.</li><li>When the picks should stay visible as chips that are easy to remove one by one.</li><li>Not for picking one item: use a select or a combobox with a single value then.</li></ul></div><div class="cp-tp" role="tabpanel" id="ab-p1" aria-labelledby="ab-t1" hidden><ul><li><code>options</code> are the choices, each with a <code>value</code>, an optional <code>label</code> and quiet <code>meta</code> at the end of the row, like how many files carry a tag.</li><li><code>value</code>, <code>defaultValue</code> and <code>onValueChange</code> hold the picks in the order they were made, shown as chips before the text box.</li><li>Typing filters the list by name; <code>query</code> and <code>onQueryChange</code> hold the text, and <code>empty</code> is the line when nothing matches.</li><li>Each row has a checkbox: Enter or a click picks a row that isn't picked and unpicks one that is. The box clears for the next search.</li><li>Each chip has a remove button, and Backspace in an empty box removes the last chip.</li><li>The list opens under the box and moves down as the chips wrap onto more lines. <code>open</code>, <code>defaultOpen</code> and <code>onOpenChange</code> hold whether it's open; a click outside closes it.</li></ul></div><div class="cp-tp" role="tabpanel" id="ab-p2" aria-labelledby="ab-t2" hidden><ul><li>The text box has <code>role="combobox"</code> with <code>aria-expanded</code>, <code>aria-controls</code> and <code>aria-autocomplete="list"</code>, and the label is tied to it.</li><li>The list is a <code>listbox</code> with <code>aria-multiselectable</code>, and each row an <code>option</code> with <code>aria-selected</code>.</li><li>The focus stays in the text box: ↑ and ↓ move the highlight, which <code>aria-activedescendant</code> points to, Enter picks, and Escape closes the list.</li><li>Each chip's remove button is named for its tag, like "Remove Pricing".</li></ul></div></div></section><section class="cp-sec" id="usage"><div class="pg-sh"><span class="n">03</span><h2>Usage</h2><p>Import it and drive it from your own state.</p></div><div class="cp-box"><h3 class="pg-t">Import</h3><pre class="cp-pre"><code>import { MultiSelect } from &#39;@/components/designme/multi-select/MultiSelect&#39;;</code></pre></div><div class="cp-box cp-gap"><h3 class="pg-t">Example</h3><p class="pg-d">The demo above as a React component, 37 lines you can copy.</p><pre class="cp-pre"><code>&#39;use client&#39;;
+</div></section></div><div class="cp-bar"><div class="pg-wrap"><nav aria-label="On this page"><a href="#install">Install</a><a href="#about">About</a><a href="#usage">Usage</a><a href="#props">Props</a><a href="#code">Code</a><a href="#questions">Questions</a><a href="#more">More</a></nav></div></div><div class="pg-wrap"><section class="cp-sec" id="install"><div class="pg-sh"><span class="n">01</span><h2>Install</h2><p>Add it to your project with the CLI.</p></div><div class="cp-two"><div class="cp-box"><h3 class="pg-t">HTML, CSS and JavaScript</h3><div class="cp-line"><span class="d">$</span><code><span class="cp-w">npx</span> <span class="cp-w">designme</span> <span class="cp-w">add</span> <span class="cp-w">multi-select</span></code><button class="cp-copy" type="button" data-copy="npx designme add multi-select" data-label="Copy">Copy</button></div></div><div class="cp-box"><h3 class="pg-t">React</h3><div class="cp-line"><span class="d">$</span><code><span class="cp-w">npx</span> <span class="cp-w">designme</span> <span class="cp-w">add</span> <span class="cp-w">multi-select</span> <span class="cp-w">--react</span></code><button class="cp-copy" type="button" data-copy="npx designme add multi-select --react" data-label="Copy">Copy</button></div></div></div><p class="cp-note">The CLI copies the source into your project, so you own it and can change anything. The HTML version lands in <code>./designme</code> with the shared core and a <code>demo.html</code>. The React version lands in <code>src/components/designme</code> and needs React 19; it works in Next.js, Vite and Astro.</p></section><section class="cp-sec" id="about"><div class="pg-sh"><span class="n">02</span><h2>About</h2><p>What it is for and what it does.</p></div><p class="cp-sum">Multi-select is a combobox for picking several things from a long list. Typing filters the list, the arrow keys move through it and Enter picks, and each pick becomes a chip in the box with its own remove button. Backspace in an empty box takes the last chip off, so a wrong pick is one key away from gone.</p><div class="cp-gap"><div class="cp-tl" role="tablist" aria-label="About"><button type="button" role="tab" id="ab-t0" aria-controls="ab-p0" aria-selected="true" tabindex="0">When to use it</button><button type="button" role="tab" id="ab-t1" aria-controls="ab-p1" aria-selected="false" tabindex="-1">What it does</button><button type="button" role="tab" id="ab-t2" aria-controls="ab-p2" aria-selected="false" tabindex="-1">Accessibility</button></div><div class="cp-tp" role="tabpanel" id="ab-p0" aria-labelledby="ab-t0"><ul><li>When people pick several items from a list too long to show at once, like tags, teammates or labels.</li><li>When people know what they want and would rather type a few letters than scroll.</li><li>When the picks should stay visible as chips that are easy to remove one by one.</li><li>Not for picking one item: use a select or a combobox with a single value then.</li></ul></div><div class="cp-tp" role="tabpanel" id="ab-p1" aria-labelledby="ab-t1" hidden><ul><li><code>options</code> are the choices, each with a <code>value</code>, an optional <code>label</code> and quiet <code>meta</code> at the end of the row, like how many files carry a tag.</li><li><code>value</code>, <code>defaultValue</code> and <code>onValueChange</code> hold the picks in the order they were made, shown as chips before the text box.</li><li>Typing filters the list by name; <code>query</code> and <code>onQueryChange</code> hold the text, and <code>empty</code> is the line when nothing matches.</li><li>Each row has a checkbox: Enter or a click picks a row that isn't picked and unpicks one that is. The box clears for the next search.</li><li>Each chip has a remove button, and Backspace in an empty box removes the last chip. While anything is picked, Clear all beside the label takes every chip off and puts the cursor back in the box; <code>clearLabel</code> changes its words.</li><li>The list opens under the box and moves down as the chips wrap onto more lines. <code>open</code>, <code>defaultOpen</code> and <code>onOpenChange</code> hold whether it's open; a click outside closes it.</li></ul></div><div class="cp-tp" role="tabpanel" id="ab-p2" aria-labelledby="ab-t2" hidden><ul><li>The text box has <code>role="combobox"</code> with <code>aria-expanded</code>, <code>aria-controls</code> and <code>aria-autocomplete="list"</code>, and the label is tied to it.</li><li>The list is a <code>listbox</code> with <code>aria-multiselectable</code>, and each row an <code>option</code> with <code>aria-selected</code>.</li><li>The focus stays in the text box: ↑ and ↓ move the highlight, which <code>aria-activedescendant</code> points to, Enter picks, and Escape closes the list.</li><li>Each chip's remove button is named for its tag, like "Remove Pricing".</li></ul></div></div></section><section class="cp-sec" id="usage"><div class="pg-sh"><span class="n">03</span><h2>Usage</h2><p>Import it and drive it from your own state.</p></div><div class="cp-box"><h3 class="pg-t">Import</h3><pre class="cp-pre"><code>import { MultiSelect } from &#39;@/components/designme/multi-select/MultiSelect&#39;;</code></pre></div><div class="cp-box cp-gap"><h3 class="pg-t">Example</h3><p class="pg-d">The demo above as a React component, 37 lines you can copy.</p><pre class="cp-pre"><code>&#39;use client&#39;;
 // The animated preview from designme.dev, rebuilt from the React component: an example of driving it from your own state.
 import { useRef, useState } from &#39;react&#39;;
 import { MultiSelect } from &#39;./MultiSelect&#39;;
@@ -93,7 +96,7 @@ export default function MultiSelectDemo() {
     &lt;/div&gt;
   );
 }
-</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything MultiSelect takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>label</code><span class="opt">required</span></td><td><code>string</code></td><td>Like &quot;Tags&quot;</td></tr><tr><td><code>options</code><span class="opt">required</span></td><td><code>MultiSelectOption[]</code></td><td></td></tr><tr><td><code>value</code></td><td><code>string[]</code></td><td>What&#39;s picked, in the order it was picked</td></tr><tr><td><code>defaultValue</code></td><td><code>string[]</code></td><td></td></tr><tr><td><code>onValueChange</code></td><td><code>(value: string[]) =&gt; void</code></td><td></td></tr><tr><td><code>query</code></td><td><code>string</code></td><td>What&#39;s typed in the box. It filters the list</td></tr><tr><td><code>defaultQuery</code></td><td><code>string</code></td><td></td></tr><tr><td><code>onQueryChange</code></td><td><code>(query: string) =&gt; void</code></td><td></td></tr><tr><td><code>open</code></td><td><code>boolean</code></td><td></td></tr><tr><td><code>defaultOpen</code></td><td><code>boolean</code></td><td></td></tr><tr><td><code>onOpenChange</code></td><td><code>(open: boolean) =&gt; void</code></td><td></td></tr><tr><td><code>placeholder</code></td><td><code>string</code></td><td>Defaults to &quot;Add a tag&quot;</td></tr><tr><td><code>hint</code></td><td><code>string</code></td><td>The quiet line under the box. Defaults to &quot;Type to filter. Backspace removes the last tag.&quot;</td></tr><tr><td><code>empty</code></td><td><code>string</code></td><td>Shown when nothing matches. Defaults to &quot;No tags match&quot;</td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>MultiSelect.tsx<span class="l">React · 114 lines</span></summary><pre class="cp-pre"><code>&#39;use client&#39;;
+</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything MultiSelect takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>label</code><span class="opt">required</span></td><td><code>string</code></td><td>Like &quot;Tags&quot;</td></tr><tr><td><code>options</code><span class="opt">required</span></td><td><code>MultiSelectOption[]</code></td><td></td></tr><tr><td><code>value</code></td><td><code>string[]</code></td><td>What&#39;s picked, in the order it was picked</td></tr><tr><td><code>defaultValue</code></td><td><code>string[]</code></td><td></td></tr><tr><td><code>onValueChange</code></td><td><code>(value: string[]) =&gt; void</code></td><td></td></tr><tr><td><code>query</code></td><td><code>string</code></td><td>What&#39;s typed in the box. It filters the list</td></tr><tr><td><code>defaultQuery</code></td><td><code>string</code></td><td></td></tr><tr><td><code>onQueryChange</code></td><td><code>(query: string) =&gt; void</code></td><td></td></tr><tr><td><code>open</code></td><td><code>boolean</code></td><td></td></tr><tr><td><code>defaultOpen</code></td><td><code>boolean</code></td><td></td></tr><tr><td><code>onOpenChange</code></td><td><code>(open: boolean) =&gt; void</code></td><td></td></tr><tr><td><code>placeholder</code></td><td><code>string</code></td><td>Defaults to &quot;Add a tag&quot;</td></tr><tr><td><code>hint</code></td><td><code>string</code></td><td>The quiet line under the box. Defaults to &quot;Type to filter. Backspace removes the last tag.&quot;</td></tr><tr><td><code>empty</code></td><td><code>string</code></td><td>Shown when nothing matches. Defaults to &quot;No tags match&quot;</td></tr><tr><td><code>clearLabel</code></td><td><code>string</code></td><td>The button beside the label that takes every pick off, shown while something is picked. Defaults to &quot;Clear all&quot;</td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>MultiSelect.tsx<span class="l">React · 120 lines</span></summary><pre class="cp-pre"><code>&#39;use client&#39;;
 import { useEffect, useId, useRef, useState, type KeyboardEvent } from &#39;react&#39;;
 import { cx } from &#39;../lib/cx&#39;;
 import { useControllable, useIsoLayoutEffect } from &#39;../lib/hooks&#39;;
@@ -130,13 +133,15 @@ export interface MultiSelectProps {
   hint?: string;
   /** Shown when nothing matches. Defaults to &quot;No tags match&quot; */
   empty?: string;
+  /** The button beside the label that takes every pick off, shown while something is picked. Defaults to &quot;Clear all&quot; */
+  clearLabel?: string;
   className?: string;
 }
 
 /** A combobox that keeps what you pick as chips. Typing filters the list, the arrow keys move through it, Enter picks
     or unpicks, Escape closes it, and Backspace in an empty box takes the last chip off. */
 export function MultiSelect({ label, options, value, defaultValue = [], onValueChange, query, defaultQuery = &#39;&#39;, onQueryChange, open, defaultOpen = false, onOpenChange,
-  placeholder = &#39;Add a tag&#39;, hint = &#39;Type to filter. Backspace removes the last tag.&#39;, empty = &#39;No tags match&#39;, className }: MultiSelectProps) {
+  placeholder = &#39;Add a tag&#39;, hint = &#39;Type to filter. Backspace removes the last tag.&#39;, empty = &#39;No tags match&#39;, clearLabel = &#39;Clear all&#39;, className }: MultiSelectProps) {
   const id = &#39;dm-msc&#39; + useId().replace(/:/g, &#39;&#39;);
   const [picked, setPicked] = useControllable(value, defaultValue, onValueChange);
   const [q, setQ] = useControllable(query, defaultQuery, onQueryChange);
@@ -181,7 +186,11 @@ export function MultiSelect({ label, options, value, defaultValue = [], onValueC
 
   return (
     &lt;div ref={root} data-dm=&quot;&quot; className={cx(&#39;dm-msc&#39;, className)}&gt;
-      &lt;label className=&quot;dm-msc-l&quot; htmlFor={`${id}-q`}&gt;{label}&lt;/label&gt;
+      {/* Clear all takes every chip off at once; the cursor goes back to the box, so the next tag can be typed straight away */}
+      &lt;div className=&quot;dm-msc-top&quot;&gt;
+        &lt;label className=&quot;dm-msc-l&quot; htmlFor={`${id}-q`}&gt;{label}&lt;/label&gt;
+        {picked.length &gt; 0 &amp;&amp; &lt;button type=&quot;button&quot; className=&quot;dm-msc-clr&quot; onMouseDown={e =&gt; e.preventDefault()} onClick={() =&gt; { setPicked([]); input.current?.focus(); }}&gt;{clearLabel}&lt;/button&gt;}
+      &lt;/div&gt;
       &lt;div ref={field} className=&quot;dm-msc-f&quot; onClick={e =&gt; { if ((e.target as Element).closest(&#39;.dm-msc-c&#39;)) return; input.current?.focus(); setOpen(true); }}&gt;
         {picked.map(v =&gt; (
           &lt;span key={v} className=&quot;dm-msc-c&quot;&gt;{name(v)}
@@ -206,12 +215,15 @@ export function MultiSelect({ label, options, value, defaultValue = [], onValueC
     &lt;/div&gt;
   );
 }
-</code></pre></details><details class="cp-file"><summary>multi-select.css<span class="l">React · 31 lines</span></summary><pre class="cp-pre"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+</code></pre></details><details class="cp-file"><summary>multi-select.css<span class="l">React · 34 lines</span></summary><pre class="cp-pre"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Multi-select ---------- */
 /* a combobox that keeps what you pick as chips: typing filters the list, the arrows move through it, Enter picks or
    unpicks, Escape closes it, and Backspace in an empty box takes the last chip off */
 .dm-msc{position:relative;width:100%;max-width:320px;margin:0 auto;display:flex;flex-direction:column;gap:6px}
+.dm-msc-top{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:22px}
 .dm-msc-l{font-size:12.5px;font-weight:500}
+.dm-msc-clr{height:22px;padding:0 6px;margin-right:-6px;border-radius:6px;font-size:12px;color:var(--dm-muted);transition:color .2s,background .2s}
+.dm-msc-clr:hover{color:var(--dm-fg);background:var(--dm-chip)}
 .dm-msc-f{position:relative;display:flex;flex-wrap:wrap;align-items:center;gap:6px;min-height:42px;padding:6px 8px;border-radius:12px;background:var(--dm-surface);box-shadow:var(--dm-shadow);cursor:text;transition:box-shadow .25s}
 .dm-msc-f:focus-within,.dm-msc-f.dm-f{box-shadow:0 0 0 1.5px var(--dm-accent-mark,var(--dm-accent)),0 0 0 4px var(--dm-accent-bg)}
 .dm-msc-q{flex:1;min-width:80px;height:28px;border:0;outline:0;background:transparent;padding:0 4px;font:inherit;font-size:13px;color:var(--dm-fg)}
@@ -240,18 +252,21 @@ export function MultiSelect({ label, options, value, defaultValue = [], onValueC
   &lt;div class=&quot;stage-in&quot;&gt;&lt;/div&gt;
   &lt;template&gt;
 &lt;div class=&quot;msc&quot;&gt;
-  &lt;label class=&quot;msc-l&quot;&gt;Tags&lt;/label&gt;
+  &lt;div class=&quot;msc-top&quot;&gt;&lt;label class=&quot;msc-l&quot;&gt;Tags&lt;/label&gt;&lt;button class=&quot;msc-clr&quot; hidden&gt;Clear all&lt;/button&gt;&lt;/div&gt;
   &lt;div class=&quot;msc-f&quot;&gt;&lt;input class=&quot;msc-q&quot; role=&quot;combobox&quot; aria-expanded=&quot;false&quot; aria-autocomplete=&quot;list&quot; aria-haspopup=&quot;listbox&quot; placeholder=&quot;Add a tag&quot; spellcheck=&quot;false&quot; autocomplete=&quot;off&quot;&gt;&lt;span class=&quot;kbd msc-key&quot; aria-hidden=&quot;true&quot;&gt;&lt;/span&gt;&lt;/div&gt;
   &lt;div class=&quot;msc-pop&quot;&gt;&lt;div class=&quot;msc-list&quot; role=&quot;listbox&quot; aria-multiselectable=&quot;true&quot; aria-label=&quot;Tags&quot;&gt;&lt;/div&gt;&lt;/div&gt;
   &lt;span class=&quot;muted msc-h&quot;&gt;Type to filter. Backspace removes the last tag.&lt;/span&gt;
 &lt;/div&gt;
   &lt;/template&gt;
 &lt;/div&gt;
-</code></pre></details><details class="cp-file"><summary>multi-select.css<span class="l">HTML · 30 lines</span></summary><pre class="cp-pre"><code>/* ---------- Multi-select ---------- */
+</code></pre></details><details class="cp-file"><summary>multi-select.css<span class="l">HTML · 33 lines</span></summary><pre class="cp-pre"><code>/* ---------- Multi-select ---------- */
 /* a combobox that keeps what you pick as chips: typing filters the list, the arrows move through it, Enter picks or
    unpicks, Escape closes it, and Backspace in an empty box takes the last chip off */
 .msc{position:relative;width:100%;max-width:320px;margin:0 auto;display:flex;flex-direction:column;gap:6px}
+.msc-top{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:22px}
 .msc-l{font-size:12.5px;font-weight:500}
+.msc-clr{height:22px;padding:0 6px;margin-right:-6px;border-radius:6px;font-size:12px;color:var(--muted);transition:color .2s,background .2s}
+.msc-clr:hover{color:var(--fg);background:var(--chip)}
 .msc-f{position:relative;display:flex;flex-wrap:wrap;align-items:center;gap:6px;min-height:42px;padding:6px 8px;border-radius:12px;background:var(--surface);box-shadow:var(--shadow);cursor:text;transition:box-shadow .25s}
 .msc-f:focus-within,.msc-f.f{box-shadow:0 0 0 1.5px var(--accent-mark,var(--accent)),0 0 0 4px var(--accent-bg)}
 .msc-q{flex:1;min-width:80px;height:28px;border:0;outline:0;background:transparent;padding:0 4px;font:inherit;font-size:13px;color:var(--fg)}
@@ -276,17 +291,19 @@ export function MultiSelect({ label, options, value, defaultValue = [], onValueC
 .msc-h{font-size:12px}
 /* the open list covers the hint under the box, so the hint steps aside instead of peeking out above the list */
 .msc:has(.msc-pop.open) .msc-h{visibility:hidden}
-</code></pre></details><details class="cp-file"><summary>multi-select.js<span class="l">HTML · 66 lines</span></summary><pre class="cp-pre"><code>DM.def(&#39;multi-select&#39;, (r, c) =&gt; {
+</code></pre></details><details class="cp-file"><summary>multi-select.js<span class="l">HTML · 71 lines</span></summary><pre class="cp-pre"><code>DM.def(&#39;multi-select&#39;, (r, c) =&gt; {
   const uid = Math.random().toString(36).slice(2, 7);
   // tags for the pricing page, and how many files carry each
   const T = [[&#39;Accessibility&#39;, 14], [&#39;Billing&#39;, 9], [&#39;Copy&#39;, 22], [&#39;Design system&#39;, 31], [&#39;Launch&#39;, 12], [&#39;Mobile&#39;, 18], [&#39;Onboarding&#39;, 7], [&#39;Pricing&#39;, 16], [&#39;Research&#39;, 11], [&#39;Tokens&#39;, 25], [&#39;Tooltips&#39;, 6]];
   const f = $(&#39;.msc-f&#39;, r), q = $(&#39;.msc-q&#39;, r), pop = $(&#39;.msc-pop&#39;, r), list = $(&#39;.msc-list&#39;, r), key = $(&#39;.msc-key&#39;, r), label = $(&#39;.msc-l&#39;, r);
   q.id = &#39;msc-q-&#39; + uid; label.htmlFor = q.id; list.id = &#39;msc-l-&#39; + uid; q.setAttribute(&#39;aria-controls&#39;, list.id);
   let picked = [&#39;Launch&#39;], hi = 0, opts = [];
+  const clr = $(&#39;.msc-clr&#39;, r);
   // the chips sit in the box before the input, each with its own remove button
   function chips(){
     $$(&#39;.msc-c&#39;, f).forEach(ch =&gt; ch.remove());
     picked.forEach(t =&gt; { const ch = html(`&lt;span class=&quot;msc-c&quot; data-t=&quot;${t}&quot;&gt;${t}&lt;button aria-label=&quot;Remove ${t}&quot;&gt;${I(&#39;x&#39;,&#39;xs&#39;)}&lt;/button&gt;&lt;/span&gt;`); $(&#39;button&#39;, ch).onclick = e =&gt; { e.stopPropagation(); remove(t); }; f.insertBefore(ch, q); });
+    clr.hidden = !picked.length;
     place();
   }
   const place = () =&gt; { pop.style.top = (f.offsetTop + f.offsetHeight + 6) + &#39;px&#39;; };
@@ -322,6 +339,9 @@ export function MultiSelect({ label, options, value, defaultValue = [], onValueC
     else if (e.key === &#39;Tab&#39;) close();
   };
   c.on(document, &#39;pointerdown&#39;, e =&gt; { if (!r.contains(e.target)) close(); });
+  // Clear all takes every chip off at once; the cursor goes back to the box, so the next tag can be typed straight away
+  clr.onmousedown = e =&gt; e.preventDefault();
+  clr.onclick = e =&gt; { picked = []; chips(); if (isOpen()) paint(); if (e.isTrusted) q.focus({ preventScroll:true }); };
   chips();
   // the preview&#39;s story types and presses keys in the box without taking the focus, and shows each key as it goes
   const press = async (s, k, label) =&gt; { key.textContent = label || k; key.classList.add(&#39;on&#39;); q.dispatchEvent(new KeyboardEvent(&#39;keydown&#39;, { key:k, bubbles:true })); await s.beat(2); key.classList.remove(&#39;on&#39;); };
@@ -397,10 +417,12 @@ export function MultiSelect({ label, options, value, defaultValue = [], onValueC
   const f = $('.msc-f', r), q = $('.msc-q', r), pop = $('.msc-pop', r), list = $('.msc-list', r), key = $('.msc-key', r), label = $('.msc-l', r);
   q.id = 'msc-q-' + uid; label.htmlFor = q.id; list.id = 'msc-l-' + uid; q.setAttribute('aria-controls', list.id);
   let picked = ['Launch'], hi = 0, opts = [];
+  const clr = $('.msc-clr', r);
   // the chips sit in the box before the input, each with its own remove button
   function chips(){
     $$('.msc-c', f).forEach(ch => ch.remove());
     picked.forEach(t => { const ch = html(`<span class="msc-c" data-t="${t}">${t}<button aria-label="Remove ${t}">${I('x','xs')}</button></span>`); $('button', ch).onclick = e => { e.stopPropagation(); remove(t); }; f.insertBefore(ch, q); });
+    clr.hidden = !picked.length;
     place();
   }
   const place = () => { pop.style.top = (f.offsetTop + f.offsetHeight + 6) + 'px'; };
@@ -436,6 +458,9 @@ export function MultiSelect({ label, options, value, defaultValue = [], onValueC
     else if (e.key === 'Tab') close();
   };
   c.on(document, 'pointerdown', e => { if (!r.contains(e.target)) close(); });
+  // Clear all takes every chip off at once; the cursor goes back to the box, so the next tag can be typed straight away
+  clr.onmousedown = e => e.preventDefault();
+  clr.onclick = e => { picked = []; chips(); if (isOpen()) paint(); if (e.isTrusted) q.focus({ preventScroll:true }); };
   chips();
   // the preview's story types and presses keys in the box without taking the focus, and shows each key as it goes
   const press = async (s, k, label) => { key.textContent = label || k; key.classList.add('on'); q.dispatchEvent(new KeyboardEvent('keydown', { key:k, bubbles:true })); await s.beat(2); key.classList.remove('on'); };
