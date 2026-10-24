@@ -254,21 +254,6 @@ export function SearchInput({ items, sources = [], recent = [], value, defaultVa
     grow.current = el.animate([{ height: from + 'px', boxSizing: 'border-box', overflow: 'hidden' }, { height: to + 'px', boxSizing: 'border-box', overflow: 'hidden' }], { duration: 280, easing: 'cubic-bezier(.22,1,.36,1)' });
   });
 
-  // the box sits centred whatever it shows: just the field when closed, the field and its list when open.
-  // It aims for the list's own height, not the one it is easing through, so it heads straight for where it will end up
-  const boxEl = useRef<HTMLDivElement>(null), rowEl = useRef<HTMLDivElement>(null);
-  useIsoLayoutEffect(() => {
-    const six = root.current, box = boxEl.current, rw = rowEl.current; if (!six || !box || !rw || typeof ResizeObserver === 'undefined') return;
-    const place = () => {
-      const l = list.current, last = l?.lastElementChild as HTMLElement | null | undefined;
-      const full = !isOpen || !l ? 0 : last ? 1 + last.offsetTop + last.offsetHeight + parseFloat(getComputedStyle(last).marginBottom) + 8 : l.offsetHeight;
-      box.style.setProperty('--dm-y', Math.max(0, (six.clientHeight - rw.offsetHeight - full) / 2) + 'px');
-    };
-    place();
-    const ro = new ResizeObserver(place); ro.observe(six); if (list.current) ro.observe(list.current);
-    return () => ro.disconnect();
-  });
-
   // the highlight only moves with the arrow keys, and starts afresh with each new list
   const [hi, setHi] = useState({ at: -1, for: paint });
   const cur = hi.for === paint && hi.at < rows.length ? hi.at : -1;
@@ -306,8 +291,8 @@ export function SearchInput({ items, sources = [], recent = [], value, defaultVa
   const words = answer?.split(' ').filter(Boolean) ?? [];
   return (
     <div data-dm="" ref={root} className={cx('dm-six', className)}>
-      <div ref={boxEl} className={cx('dm-six-box', isOpen && 'dm-f')}>
-        <div ref={rowEl} className="dm-six-in">
+      <div className={cx('dm-six-box', isOpen && 'dm-f')}>
+        <div className="dm-six-in">
           <Icon name="search" size="xs" />
           <span className="dm-six-chips">
             {sc && <span key={sc} className="dm-six-ch dm-enter">{sc}<button type="button" aria-label="Remove filter" onMouseDown={e => { e.preventDefault(); setScope(null); }}><Icon name="x" size="xs" /></button></span>}
