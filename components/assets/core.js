@@ -75,6 +75,11 @@ function tween(from, to, ms, step, ease = t => 1 - Math.pow(1 - t, 3)){
 }
 function enter(el, delay = 0){ if (!el) return el; el.classList.remove('enter'); void el.offsetWidth; el.style.animationDelay = delay + 'ms'; el.classList.add('enter'); return el; }
 function stagger(els, step = 60, base = 0){ els.forEach((e, i) => enter(e, base + i * step)); }
+/* a component that swaps what it shows for a shorter end state (a confirmation, a summary) keeps the height it had, so it
+   stays centred in its stage instead of shrinking to the top of it; .held centres the end state inside that height.
+   release() lets it size to its content again, for Start over and the like */
+function hold(el){ if (!el) return el; el.style.minHeight = Math.ceil(el.getBoundingClientRect().height) + 'px'; el.classList.add('held'); return el; }
+function release(el){ if (el){ el.style.minHeight = ''; el.classList.remove('held'); } return el; }
 /* entrance: when a component mounts, its container rises into place and its parts follow one after another.
    Soft rises out of a blur; Blueprint wipes down and ticks its parts in, in short hard beats. Each animation only
    names where it starts, so it ends on whatever the element's own styles say, and leaves nothing behind */
