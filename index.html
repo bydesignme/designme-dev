@@ -62,13 +62,13 @@
     var fl = rgb(v['--accent'] || base), INK = [18,10,2], useW = Math.abs(apca(W, fl)) >= Math.abs(apca(INK, fl)), onC = useW ? W : INK;
     for (var j = 0; j <= 40; j += 2){ var f2 = mix(fl, useW ? K : W, j / 100); if (ratio(onC, f2) >= 4.5 && Math.abs(apca(onC, f2)) >= 60){ fl = f2; break; } }
     v['--accent'] = hex(fl); if (soft && !dark) v['--ink'] = v['--accent']; v['--on-accent'] = useW ? '#ffffff' : '#120a02';
-    // as text it needs 4.5:1, and as lines and chart marks 3:1, on the surface and on the chips and tinted rows it sits on: it
-    // is darkened on a light page (lightened on a dark one) until it gets there, and text falls back to the ink if that takes
-    // more than 40%
+    // as text it needs 4.5:1 and APCA Lc 60, and as lines and chart marks 3:1, on the surface and on the chips and tinted rows it
+    // sits on: it is darkened on a light page (lightened on a dark one) until it gets there, and text falls back to the ink if
+    // that takes more than 40%
     var fill = rgb(v['--accent'] || base), chip = dark ? [52,52,52] : [236,236,236], to = dark ? W : K;
     function ratio(a, b){ var x = lum(a), y = lum(b); return (Math.max(x, y) + .05) / (Math.min(x, y) + .05); }
-    function reach(need, cap, on){ for (var i = 0; i <= 100; i += 2){ var m = mix(fill, to, i / 100); if (ratio(m, on) >= need) return i / 100 <= cap ? hex(m) : null; } return null; }
-    v['--accent-mark'] = reach(3, 1, chip); v['--accent-fg'] = reach(4.5, .4, mix(chip, fill, .12)) || (dark ? '#f2f2f2' : '#111318');
+    function reach(need, cap, on, lc){ for (var i = 0; i <= 100; i += 2){ var m = mix(fill, to, i / 100); if (ratio(m, on) >= need && (!lc || Math.abs(apca(m, on)) >= lc)) return i / 100 <= cap ? hex(m) : null; } return null; }
+    v['--accent-mark'] = reach(3, 1, chip); v['--accent-fg'] = reach(4.5, .4, mix(chip, fill, .12), 60) || (dark ? '#f2f2f2' : '#111318');
     for (var k in v) s.setProperty(k, v[k]);
   };
   try { var a = localStorage.getItem('dmui-accent'); if (a && a !== 'default') window.dmAccent(a); } catch(e) {}
@@ -5754,12 +5754,12 @@ body.ui .top .gh-pill.has-n .gh-l{display:none}
 @media (max-width:960px){ body.ui .top .gh-pill{height:32px;margin-right:8px;padding:0 12px 0 10px} }
 /* the sidebar's Docs page: its icon lifts on hover, like the others move */
 .side-p[href="/docs/introduction"]:hover .ms svg{transform:translateY(-2px)}
-/* each group's list hangs off a thin rail, and the component in view gets a light fill and a short bright segment on the rail,
-   level with its row, as in the docs' sidebar (tools/pages/src/components/SiteShell.astro). The list clips what overflows
-   it while it folds, so the rail is drawn inside it rather than as its border, where the segment would be cut off */
+/* each group's list hangs off a thin rail, and the component in view gets a short bright segment on the rail, level with its
+   row, over the same light fill as before (--sh-act), as in the docs' sidebar (tools/pages/src/components/SiteShell.astro).
+   The list clips what overflows it while it folds, so the rail is drawn inside it rather than as its border, where the
+   segment would be cut off */
 .side-ul{border-left:0;padding-left:11px;background:linear-gradient(var(--sh-line-2),var(--sh-line-2)) 0 0/1px 100% no-repeat}
 .side-ul .side-a{position:relative}
-.side-a.act{background:var(--sh-chip)}
 .side-ul .side-a.act::before{content:"";position:absolute;left:-11px;top:7px;bottom:7px;width:2px;border-radius:2px;background:var(--accent-mark)}
 
 }
@@ -12628,6 +12628,8 @@ body.ui .top .gh-pill.has-n .gh-l{display:none}
     const sq = $('#side-q');
     sq.addEventListener('input', () => { query = sq.value; applyView(); Sound.play('stream'); });
     sq.addEventListener('keydown', e => { if (e.key === 'Escape'){ sq.value = ''; query = ''; applyView(); sq.blur(); } });
+    { let q0 = ''; try { q0 = (new URLSearchParams(location.search).get('q') || '').trim(); } catch(e){}
+      if (q0){ sq.value = q0; query = q0; applyView(); } }
     document.addEventListener('keydown', e => {
       if (e.key === '/' && !e.target.matches('input,textarea,select,[contenteditable="true"]')){ e.preventDefault(); sq.focus(); Sound.play('open'); }
     });

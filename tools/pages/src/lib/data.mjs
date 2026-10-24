@@ -17,6 +17,8 @@ const maybe = (...p) => { const f = path.join(ROOT, ...p); return fs.existsSync(
 const site = read('tools/pages/data/site.json');
 export const SETS = site.sets;
 export const LOGO = site.logo;
+// the foot of the homepage's sidebar: the DesignMe sticker and credit line, and Book a call (tools/site/build.js copies it)
+export const SIDE_FOOT = site.sideFoot || '';
 // a section lives on the homepage, which lists every component; /components/<section> redirects there (see publish.mjs)
 export const SECTIONS = site.sections.map(s => ({ ...s, set:SETS[s.grp], url:`/#${s.id}` }));
 

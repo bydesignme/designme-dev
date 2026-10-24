@@ -12,11 +12,12 @@
 //   ['table', [heads…], [[cells…]…]]
 //   ['steps', [[title, [blocks…]]…]]          numbered steps along a line
 //   ['tabs', [[label, [blocks…]]…]]           one panel at a time, picked from a switch
-//   ['cols', [[title, [blocks…]]…]]           panels side by side
+//   ['items', [[title, [blocks…]]…]]          a plain list: each item's name, then what it says, one under another
 //   ['tree', label, [entry…]]                 where files land: an entry is 'name' or ['folder/', [entry…]]
 //   ['cards', [[title, text, href, icon]…]]   links as cards
 //   ['keys', [[[key…], text, [component…]]…]] keys, what they do and where
-//   ['groups'], ['styles', component], ['swatches'], ['preview']   the visuals, drawn from the library itself
+//   ['agents', text]                          every agent component by group, each a plain link, then one line of text
+//   ['styles', component], ['swatches'], ['preview']   the visuals, drawn from the library itself
 import fs from 'node:fs';
 import path from 'node:path';
 import { ROOT, SITE, SECTIONS, SETS, COMPONENTS } from './data.mjs';
@@ -64,20 +65,17 @@ const BODY = {
       ]],
       ['Two styles, light and dark', [
         ['styles', 'decision-prompt'],
-        ['cols', [
+        ['items', [
           ['Soft', [['p', 'Quiet, rounded surfaces with a blue accent. designme.dev opens in Soft.']]],
           ['Blueprint', [['p', 'The same components drawn as a technical sheet, with square corners, hairline edges and a lime accent.']]],
         ]],
         ['p', `Each style has a light and a dark theme. Switch them in the header of any page here. In your own project, two attributes on \`<html>\` pick them. See ${D('theming')}.`],
       ]],
       ['What is in it', [
-        ['groups'],
+        ['agents', `There are also ${nOf('basics')} app basics, like charts, date pickers and forms, for the product around the agent. They are all in the [library](/#${inSet('basics')[0].id}).`],
       ]],
       ['HTML or React', [
-        ['cols', [
-          ['HTML, CSS and JavaScript', [['p', 'On a small shared core that holds the tokens, icons and helpers.']]],
-          ['React', [['p', 'A typed React component for React 19, with no dependencies beyond React. It works in Next.js, Vite and Astro.']]],
-        ]],
+        ['p', 'Every component comes in two versions. One is HTML, CSS and JavaScript on a small shared core that holds the tokens, icons and helpers. The other is a typed React component for React 19, with no dependencies beyond React, that works in Next.js, Vite and Astro.'],
         ['p', `Either way, the CLI copies the source into your project, so it is yours to change. See ${D('installation')}.`],
       ]],
       ['Free and MIT licensed', [
@@ -99,7 +97,7 @@ const BODY = {
     lead: 'Add components with the designme CLI. It copies their source into your project, so you own it.',
     sections: [
       ['Before you start', [
-        ['cols', [
+        ['items', [
           ['Node 18 or later', [['p', 'To run the CLI.']]],
           ['React 19', [['p', 'For the React components.']]],
         ]],
@@ -145,7 +143,7 @@ const BODY = {
         ['note', 'Every class, CSS variable and animation name starts with `dm-`, so the components sit beside Tailwind, shadcn/ui or your own CSS without clashing.'],
       ]],
       ['Frameworks', [
-        ['cols', [
+        ['items', [
           ['Next.js', [['p', 'App Router: every component file starts with `\'use client\'`, so you can render them from server components.'], ['p', 'Pages Router: import `designme.css` and each component\'s `.css` in `pages/_app.tsx`, and delete the two CSS imports at the top of those components.']]],
           ['React with Vite', [['p', 'Nothing extra to set up.']]],
           ['Astro', [['p', 'Add the React integration with `npx astro add react`. Hydrate the components that change over time, for example with `client:visible`.']]],
@@ -167,7 +165,7 @@ const BODY = {
     lead: 'Two attributes on `<html>` pick the style and the theme, and one accent colours the rest.',
     sections: [
       ['Style', [
-        ['cols', [
+        ['items', [
           ['Blueprint', [['p', 'What the components draw by default.'], ['code', 'html', '<html>']]],
           ['Soft', [['p', 'Add `data-style="soft"` to `<html>`.'], ['code', 'html', '<html data-style="soft">']]],
         ]],
@@ -207,8 +205,8 @@ const BODY = {
       ['Picking an accent on designme.dev', [
         ['p', 'On the homepage, the dot beside the style switch picks an accent. On smaller screens it is in the menu. The site then works out the other roles from your colour:'],
         ['ul', [
-          'Text on a fill is white when white reaches 4.5:1, otherwise whichever of white or near-black reads better.',
-          'Text and marks start from your colour and are darkened on a light page, or lightened on a dark one, until they reach 4.5:1 and 3:1. If text would need too big a change, it uses the ink colour instead.',
+          'Text on a fill is white or near-black, whichever APCA says reads better. The fill then moves a little darker or lighter until that text reaches 4.5:1 and APCA Lc 60.',
+          'Text and marks start from your colour and are darkened on a light page, or lightened on a dark one, until text reaches 4.5:1 and APCA Lc 60, and marks 3:1. If text would need too big a change, it uses the ink colour instead.',
         ]],
         ['p', 'This runs on the site only. In your project, set the roles yourself as shown above.'],
       ]],
@@ -257,14 +255,14 @@ const BODY = {
       ]],
       ['Reduced motion', [
         ['p', 'When the device asks for less motion (`prefers-reduced-motion: reduce`), the components cut it in two places:'],
-        ['cols', [
+        ['items', [
           ['In the CSS', [['p', 'The shared CSS cuts every CSS animation and transition inside the components to almost nothing.']]],
           ['In the scripts', [['p', 'The HTML version reads `REDUCE`, which the core sets from the same setting. React components that animate from script use the `useReducedMotion()` hook from `lib/hooks.ts`.']]],
         ]],
         ['p', 'Count-ups finish at once, rows move without gliding, and the content still changes.'],
       ]],
       ['Contrast', [
-        ['cols', [
+        ['items', [
           ['Text and marks', [['p', `The accent has separate roles for fills, text and marks. Text in the accent aims for 4.5:1 and marks for 3:1, on the surface and on the grey chips and tinted rows they sit on. See ${D('theming')}.`]]],
           ['A light accent', [['p', 'Blueprint\'s lime is too light for text on white, so in light mode accent text uses the ink colour and marks a darker lime.']]],
           ['Edges', [['p', 'An off switch and an empty box are drawn in a grey that holds 3:1 against the surface. An accent fill keeps a thin edge in the mark colour, so a light accent still has an outline.']]],
@@ -292,7 +290,7 @@ const BODY = {
       ]],
       ['Markdown pages', [
         ['p', 'Each component\'s Markdown page has:'],
-        ['cols', [
+        ['items', [
           ['About', [['p', 'What the component is for, when to use it and what it does.']]],
           ['Install', [['p', 'Its install commands for HTML and React.']]],
           ['Accessibility', [['p', 'Its accessibility notes and questions.']]],
@@ -326,8 +324,9 @@ export const DOCS = LIST.map((d, i) => {
   return { ...d, url:`/docs/${d.slug}`, lead:b.lead, sections:b.sections.map(([h, blocks]) => ({ id:slugify(h), h, blocks })), n:i };
 });
 DOCS.forEach((d, i) => { d.prev = DOCS[i - 1] || null; d.next = DOCS[i + 1] || null; });
-// the groups, for the overview on the introduction
+// the groups, for the list of agent components on the introduction
 export const GROUPS = Object.keys(SETS).map(g => ({ g, name:SETS[g], n:nOf(g), secs:inSet(g) }));
+export const AGENT = GROUPS.find(G => G.g === 'agent');
 
 /* ---- inline text: `code` and [label](url) ---- */
 const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');

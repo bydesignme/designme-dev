@@ -2,7 +2,7 @@
 // The blocks of a docs page (see src/lib/docs.mjs for what each one is). Steps, tabs and columns hold blocks of their own,
 // so this draws itself for them. `id` keeps the ids of tabs unique on the page
 import { FONT_CSS, ACCENTS, icon } from '../lib/data.mjs';
-import { GROUPS, comp, inlineHtml } from '../lib/docs.mjs';
+import { AGENT, comp, inlineHtml } from '../lib/docs.mjs';
 const { blocks, id = 'b' } = Astro.props;
 const LANG = { sh:'Terminal', html:'HTML', tsx:'React', js:'JavaScript', css:'CSS', text:'Text' };
 const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -33,7 +33,7 @@ const ROLES = [['accent', 'Fill', '--accent'], ['onAccent', 'On fill', '--on-acc
     case 'p': return <p set:html={inlineHtml(b[1])} />;
     case 'ul': return <ul>{b[1].map(x => <li set:html={inlineHtml(x)} />)}</ul>;
     case 'ol': return <ol>{b[1].map(x => <li set:html={inlineHtml(x)} />)}</ol>;
-    case 'note': return <div class="dc-note"><p set:html={inlineHtml(b[1])} /></div>;
+    case 'note': return <p set:html={inlineHtml(b[1])} />;
     case 'code': return <div class="dc-code" data-lang={b[1]}>
       <div class="dc-code-h"><span>{b[3] || LANG[b[1]] || b[1]}</span><button class="dc-copy" type="button" data-copy={b[2]} data-label="Copy" aria-label={`Copy ${(b[3] || LANG[b[1]] || 'code').toLowerCase()}`}><span set:html={icon('content_copy')} />Copy</button></div>
       <pre><code>{b[2]}</code></pre></div>;
@@ -46,7 +46,7 @@ const ROLES = [['accent', 'Fill', '--accent'], ['onAccent', 'On fill', '--on-acc
       <div class="dc-tl" role="tablist">{b[1].map(([t], i) => <button type="button" role="tab" id={`${key}-t${i}`} aria-controls={`${key}-p${i}`} aria-selected={i === 0 ? 'true' : 'false'} tabindex={i === 0 ? 0 : -1}>{t}</button>)}</div>
       {b[1].map(([, inner], i) => <div class="dc-tp" role="tabpanel" id={`${key}-p${i}`} aria-labelledby={`${key}-t${i}`} hidden={i !== 0}><Astro.self blocks={inner} id={`${key}-${i}`} /></div>)}
     </div>;
-    case 'cols': return <div class="dc-cols" data-n={b[1].length}>{b[1].map(([t, inner], i) => <div class="dc-col"><h3 class="dc-h3">{t}</h3><Astro.self blocks={inner} id={`${key}-${i}`} /></div>)}</div>;
+    case 'items': return <ul class="dc-items">{b[1].map(([t, inner], i) => <li><h3 class="dc-h3">{t}</h3><Astro.self blocks={inner} id={`${key}-${i}`} /></li>)}</ul>;
     case 'tree': return <figure class="dc-tree"><figcaption>{b[1]}</figcaption><div set:html={tree(b[2])} /></figure>;
     case 'cards': return <div class="dc-cards">{b[1].map(([t, d, href, ic]) => <a class="dc-card" href={href}>
       <span class="dc-card-i" set:html={icon(ic)} /><span class="dc-card-b"><span class="pg-t">{t}</span><span class="pg-d">{d}</span></span>
@@ -55,17 +55,12 @@ const ROLES = [['accent', 'Fill', '--accent'], ['onAccent', 'On fill', '--on-acc
     case 'keys': return <div class="dc-tw dc-keys"><table><thead><tr><th>Keys</th><th>What they do</th><th>Where</th></tr></thead><tbody>
       {b[1].map(([keys, what, where]) => <tr><td data-h="Keys"><span class="dc-kbds">{keys.map(x => x === '…' ? <span class="dc-to">to</span> : <kbd>{x}</kbd>)}</span></td><td data-h="What they do">{what}</td><td data-h="Where" set:html={where.map(r => `<a href="/components/${r}">${comp(r).title}</a>`).join(', ')} /></tr>)}
     </tbody></table></div>;
-    case 'groups': return <div class="dc-groups">{GROUPS.map(G => <div class="dc-gset">
-      <h3 class="dc-gset-h"><span>{G.name}</span><span class="dc-n">{G.n}</span></h3>
-      <div class="dc-glist">{G.secs.map(sec => <div class="dc-grow">
-        <span class="pg-thumb dc-gthumb" aria-hidden="true"><img class="lt" src={`/components/thumbs/${sec.cards[0].reg}-light.webp`} alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src={`/components/thumbs/${sec.cards[0].reg}-dark.webp`} alt="" width="640" height="400" loading="lazy" decoding="async"></span>
-        <div class="dc-gbody">
-          <div class="dc-ghead"><a class="pg-t" href={sec.url}>{sec.title}</a><span class="dc-n">{sec.cards.length}</span></div>
-          <p class="pg-d">{sec.about}</p>
-          <ul class="dc-glinks" aria-label={`${sec.title} components`}>{sec.cards.map(c => <li><a href={`/components/${c.reg}`}>{c.title}</a></li>)}</ul>
-        </div>
-      </div>)}</div>
-    </div>)}</div>;
+    case 'agents': return <div class="dc-agents">
+      {AGENT.secs.map(sec => <div class="dc-agrp"><h3 class="dc-h3">{sec.title}</h3>
+        <ul class="dc-alist" aria-label={sec.title}>{sec.cards.map(c => <li><a href={`/components/${c.reg}`}>{c.title}</a></li>)}</ul>
+      </div>)}
+      <p set:html={inlineHtml(b[1])} />
+    </div>;
     case 'styles': { const c = comp(b[1]); return <figure class="dc-styles">
       <div class="dc-sgrid" inert>{VARIANTS.map(([s, t]) => <div class="dc-scell" data-theme-of={t}>
         <div class="dc-sframe"><iframe title={`${c.title} in ${NAME[s]}, ${NAME[t].toLowerCase()}`} srcdoc={frame(b[1], s, t)} loading="lazy" tabindex="-1" scrolling="no"></iframe></div>
@@ -73,13 +68,12 @@ const ROLES = [['accent', 'Fill', '--accent'], ['onAccent', 'On fill', '--on-acc
       </div>)}</div>
       <figcaption>The same <a href={c.url}>{c.title}</a>, live, in both styles and both themes.</figcaption>
     </figure>; }
-    case 'swatches': return <div class="dc-sw">{VARIANTS.map(([s, t]) => { const v = ACCENTS[`${s}-${t}`]; return <div class="dc-swp" style={`--s:${v.surface};--f:${v.fg};--l:${v.line}`}>
-      <div class="dc-swp-h"><b>{NAME[s]}</b> {NAME[t]}</div>
-      {ROLES.map(([k, n, varName]) => <div class="dc-swr">
-        <span class={`dc-swc dc-swc-${k}`} style={`--a:${v.accent};--on:${v.onAccent};--fgA:${v.accentFg};--mk:${v.accentMark};--bgA:${v.accentBg}`} aria-hidden="true">{(k === 'onAccent' || k === 'accentFg') ? 'Aa' : ''}</span>
-        <span class="dc-swt"><span class="dc-swn">{n}</span><span class="dc-swv" title={varName}>{v[k]}</span></span>
-      </div>)}
-    </div>; })}</div>;
+    case 'swatches': return <div class="dc-tw dc-swtab"><table><thead><tr><th>Role</th>{VARIANTS.map(([s, t]) => <th>{NAME[s]} {NAME[t].toLowerCase()}</th>)}</tr></thead><tbody>
+      {ROLES.map(([k, n, varName]) => <tr><td data-h="Role">{n}<span class="dc-swvar">{varName}</span></td>{VARIANTS.map(([s, t]) => { const v = ACCENTS[`${s}-${t}`]; return <td data-h={`${NAME[s]} ${NAME[t].toLowerCase()}`}><span class="dc-swcell">
+        <span class={`dc-swc dc-swc-${k}`} style={`--s:${v.surface};--l:${v.line};--a:${v.accent};--on:${v.onAccent};--fgA:${v.accentFg};--mk:${v.accentMark};--bgA:${v.accentBg}`} aria-hidden="true">{(k === 'onAccent' || k === 'accentFg') ? 'Aa' : ''}</span>
+        <span class="dc-swv">{v[k]}</span>
+      </span></td>; })}</tr>)}
+    </tbody></table></div>;
     case 'preview': return <div class="dc-pv" data-pv>
       <div class="dc-pv-bar">
         <span class="dc-pv-l" id={`${key}-l`}>Accent</span>
