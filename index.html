@@ -5759,6 +5759,7 @@ body.ui .top .gh-pill.has-n .gh-l{display:none}
 .v2 [hidden]{display:none!important}
 /* hold(): an end state centred in the height its component had */
 .v2 .held{display:flex;flex-direction:column;justify-content:center}
+.v2 .glide{transform:translateY(var(--gy,0px));transition:transform var(--t) var(--ease)}
 /* Soft 2: one quiet surface per object, grey type for finished work, motion only on what is happening now */
 .v2{
   --motion:soft;
@@ -8821,7 +8822,7 @@ body.ui .top .gh-pill.has-n .gh-l{display:none}
 .v2 .six-ans .w.done{animation:none}
 @keyframes v2-sxw{from{opacity:0;filter:blur(3px)}}
 /* ---------- Country select ---------- */
-.v2 .csx{width:100%;max-width:300px;margin:0 auto;display:flex;flex-direction:column;gap:6px;position:relative;min-height:330px}
+.v2 .csx{width:100%;max-width:300px;margin:0 auto;display:flex;flex-direction:column;gap:6px;position:relative}
 .v2 .csx-l{font-size:12.5px;font-weight:500}
 .v2 .csx-f{display:flex;align-items:center;gap:10px;height:40px;padding:0 12px;border-radius:12px;background:var(--surface);box-shadow:var(--shadow);font-size:13.5px;text-align:left;transition:box-shadow .25s}
 .v2 .csx-f[aria-expanded="true"]{box-shadow:0 0 0 1.5px var(--accent-mark,var(--accent)),0 0 0 4px var(--accent-bg)}
@@ -8844,7 +8845,7 @@ body.ui .top .gh-pill.has-n .gh-l{display:none}
 /* ---------- Multi-select ---------- */
 /* a combobox that keeps what you pick as chips: typing filters the list, the arrows move through it, Enter picks or
    unpicks, Escape closes it, and Backspace in an empty box takes the last chip off */
-.v2 .msc{position:relative;width:100%;max-width:320px;margin:0 auto;display:flex;flex-direction:column;gap:6px;min-height:330px}
+.v2 .msc{position:relative;width:100%;max-width:320px;margin:0 auto;display:flex;flex-direction:column;gap:6px}
 .v2 .msc-l{font-size:12.5px;font-weight:500}
 .v2 .msc-f{position:relative;display:flex;flex-wrap:wrap;align-items:center;gap:6px;min-height:42px;padding:6px 8px;border-radius:12px;background:var(--surface);box-shadow:var(--shadow);cursor:text;transition:box-shadow .25s}
 .v2 .msc-f:focus-within,.v2 .msc-f.f{box-shadow:0 0 0 1.5px var(--accent-mark,var(--accent)),0 0 0 4px var(--accent-bg)}
@@ -13847,6 +13848,17 @@ function stagger(els, step = 60, base = 0){ els.forEach((e, i) => enter(e, base 
    release() lets it size to its content again, for Start over and the like */
 function hold(el){ if (!el) return el; el.style.minHeight = Math.ceil(el.getBoundingClientRect().height) + 'px'; el.classList.add('held'); return el; }
 function release(el){ if (el){ el.style.minHeight = ''; el.classList.remove('held'); } return el; }
+/* centre(): keeps a field centred in the room its stage keeps for it, and glides it up as its list opens, so the field
+   and the list sit centred together. showing() is the height on show once things settle; the glide runs at the speed
+   folds and lists open with, so the two move as one */
+function centre(c, el, showing, watch = []){
+  const room = el.closest('.stage-in') || el.parentElement;
+  const place = () => el.style.setProperty('--gy', Math.max(0, Math.round((room.clientHeight - showing()) / 2)) + 'px');
+  el.classList.add('glide'); el.style.transition = 'none'; place();
+  requestAnimationFrame(() => requestAnimationFrame(() => { el.style.transition = ''; }));
+  const ro = new ResizeObserver(place); [room, el, ...watch].forEach(n => ro.observe(n)); c.offs.push(() => ro.disconnect());
+  return place;
+}
 /* entrance: when a component mounts, its container rises into place and its parts follow one after another.
    Soft rises out of a blur; Blueprint wipes down and ticks its parts in, in short hard beats. Each animation only
    names where it starts, so it ends on whatever the element's own styles say, and leaves nothing behind */
@@ -15474,7 +15486,12 @@ DM.def('model-picker', (r, c) => {
     busy = 0; waiting = false; rows[0].classList.remove('busy'); swap(d, M[0].d); choose(0);
   });
   // the trigger opens and closes the list; Escape closes it and gives the trigger the focus back
-  const open = v => { fold.classList.toggle('shut', !v); fold.inert = !v; tr.setAttribute('aria-expanded', v); };
+  // the trigger sits centred on its own, and glides up as the list folds open; it aims for the open list's own height,
+  // not the one it is easing through, so the two move as one
+  const mpk = $('.mpk', r), effp = $('.mpk-pop', r);
+  const centred = centre(c, mpk, () => { const shut = fold.classList.contains('shut'); let h = mpk.offsetHeight - fold.offsetHeight + (shut ? 0 : fold.firstElementChild.scrollHeight);
+    return effp.classList.contains('open') ? Math.max(h, effp.offsetTop + effp.offsetHeight) : h; }, [fold.firstElementChild, effp]);
+  const open = v => { fold.classList.toggle('shut', !v); fold.inert = !v; tr.setAttribute('aria-expanded', v); centred(); };
   tr.onclick = () => open(tr.getAttribute('aria-expanded') !== 'true');
   c.on(r, 'keydown', e => { if (e.key === 'Escape' && tr.getAttribute('aria-expanded') === 'true'){ open(false); tr.focus({ preventScroll:true }); } });
   paint();
@@ -18516,8 +18533,10 @@ DM.def('country-select', (r, c) => {
     opts.forEach((o, i) => { o.onmouseenter = () => { hi = i; move(0); }; o.onclick = () => { setSel(C.find(x => x[1] === o.dataset.c)); close(); }; });
   }
   function move(d){ if (!opts.length) return; hi = (hi + d + opts.length) % opts.length; opts.forEach((o, i) => o.classList.toggle('hl', i === hi)); opts[hi].scrollIntoView({ block:'nearest' }); }
-  function open(demo){ pop.classList.add('open'); f.setAttribute('aria-expanded', 'true'); q.value = ''; paint(); if (!demo) q.focus({ preventScroll:true }); }
-  function close(){ pop.classList.remove('open'); f.setAttribute('aria-expanded', 'false'); }
+  // the field sits centred on its own, and glides up to make room as the list opens
+  const box = $('.csx', r), centred = centre(c, box, () => pop.classList.contains('open') ? Math.max(box.offsetHeight, pop.offsetTop + pop.offsetHeight) : box.offsetHeight, [pop]);
+  function open(demo){ pop.classList.add('open'); f.setAttribute('aria-expanded', 'true'); q.value = ''; paint(); centred(); if (!demo) q.focus({ preventScroll:true }); }
+  function close(){ pop.classList.remove('open'); f.setAttribute('aria-expanded', 'false'); centred(); }
   f.onclick = () => pop.classList.contains('open') ? close() : open();
   q.oninput = paint;
   q.onkeydown = e => { if (e.key === 'ArrowDown'){ move(1); e.preventDefault(); } else if (e.key === 'ArrowUp'){ move(-1); e.preventDefault(); } else if (e.key === 'Enter' && opts[hi]){ opts[hi].click(); } else if (e.key === 'Escape') close(); };
@@ -18554,8 +18573,10 @@ DM.def('multi-select', (r, c) => {
     if (top < list.scrollTop) list.scrollTop = top; else if (bot > list.scrollTop + list.clientHeight) list.scrollTop = bot - list.clientHeight;
   }
   const isOpen = () => pop.classList.contains('open');
-  function open(){ if (isOpen()) return; place(); pop.classList.add('open'); q.setAttribute('aria-expanded', 'true'); hi = 0; paint(); }
-  function close(){ pop.classList.remove('open'); q.setAttribute('aria-expanded', 'false'); q.removeAttribute('aria-activedescendant'); }
+  // the box sits centred on its own, and glides up to make room as the list opens
+  const box = $('.msc', r), centred = centre(c, box, () => isOpen() ? Math.max(box.offsetHeight, pop.offsetTop + pop.offsetHeight) : box.offsetHeight, [pop]);
+  function open(){ if (isOpen()) return; place(); pop.classList.add('open'); q.setAttribute('aria-expanded', 'true'); hi = 0; paint(); centred(); }
+  function close(){ pop.classList.remove('open'); q.setAttribute('aria-expanded', 'false'); q.removeAttribute('aria-activedescendant'); centred(); }
   // Enter or a click picks a tag, or unpicks one already picked; the box clears for the next one
   function toggle(t){ picked = picked.includes(t) ? picked.filter(x => x !== t) : [...picked, t]; q.value = ''; chips(); paint(); hi = Math.max(0, opts.findIndex(o => o.dataset.t === t)); move(0); }
   function remove(t){ const ch = $(`.msc-c[data-t="${t}"]`, f); picked = picked.filter(x => x !== t); if (ch && !REDUCE){ ch.classList.add('go'); c.later(220, () => { chips(); if (isOpen()) paint(); }); } else { chips(); if (isOpen()) paint(); } }

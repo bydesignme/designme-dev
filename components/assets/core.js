@@ -80,6 +80,17 @@ function stagger(els, step = 60, base = 0){ els.forEach((e, i) => enter(e, base 
    release() lets it size to its content again, for Start over and the like */
 function hold(el){ if (!el) return el; el.style.minHeight = Math.ceil(el.getBoundingClientRect().height) + 'px'; el.classList.add('held'); return el; }
 function release(el){ if (el){ el.style.minHeight = ''; el.classList.remove('held'); } return el; }
+/* centre(): keeps a field centred in the room its stage keeps for it, and glides it up as its list opens, so the field
+   and the list sit centred together. showing() is the height on show once things settle; the glide runs at the speed
+   folds and lists open with, so the two move as one */
+function centre(c, el, showing, watch = []){
+  const room = el.closest('.stage-in') || el.parentElement;
+  const place = () => el.style.setProperty('--gy', Math.max(0, Math.round((room.clientHeight - showing()) / 2)) + 'px');
+  el.classList.add('glide'); el.style.transition = 'none'; place();
+  requestAnimationFrame(() => requestAnimationFrame(() => { el.style.transition = ''; }));
+  const ro = new ResizeObserver(place); [room, el, ...watch].forEach(n => ro.observe(n)); c.offs.push(() => ro.disconnect());
+  return place;
+}
 /* entrance: when a component mounts, its container rises into place and its parts follow one after another.
    Soft rises out of a blur; Blueprint wipes down and ticks its parts in, in short hard beats. Each animation only
    names where it starts, so it ends on whatever the element's own styles say, and leaves nothing behind */

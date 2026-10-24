@@ -445,7 +445,7 @@ export function ModelPicker({
 /* phones: the line under each name wraps, and the meters keep room for their labels */
 /* on a phone the meters close up so a model&#39;s line keeps two or three words to a row */
 @media (max-width:480px){.mpk-hd,.mpk-o{grid-template-columns:20px minmax(0,1fr) repeat(3,34px);gap:6px}.mpk-hd{font-size:10.5px;padding-inline:6px}.mpk-o{padding-inline:6px}.mpk-o .d{white-space:normal}}
-</code></pre></details><details class="cp-file"><summary>model-picker.js<span class="l">HTML · 70 lines</span></summary><pre class="cp-pre"><code>DM.def(&#39;model-picker&#39;, (r, c) =&gt; {
+</code></pre></details><details class="cp-file"><summary>model-picker.js<span class="l">HTML · 75 lines</span></summary><pre class="cp-pre"><code>DM.def(&#39;model-picker&#39;, (r, c) =&gt; {
   r.innerHTML = r.innerHTML.replace(/\{chev\}/g, I(&#39;chev-d&#39;,&#39;xs&#39;)).replace(&#39;{brain}&#39;, I(&#39;brain&#39;,&#39;xs&#39;)).replace(/\{chk\}/g, I(&#39;check&#39;,&#39;xs&#39;));
   // speed, quality and cost out of five, and the numbers behind them: tokens a second, and a typical reply&#39;s seconds and
   // price with no thinking (the same three models and figures as Model compare)
@@ -499,7 +499,12 @@ export function ModelPicker({
     busy = 0; waiting = false; rows[0].classList.remove(&#39;busy&#39;); swap(d, M[0].d); choose(0);
   });
   // the trigger opens and closes the list; Escape closes it and gives the trigger the focus back
-  const open = v =&gt; { fold.classList.toggle(&#39;shut&#39;, !v); fold.inert = !v; tr.setAttribute(&#39;aria-expanded&#39;, v); };
+  // the trigger sits centred on its own, and glides up as the list folds open; it aims for the open list&#39;s own height,
+  // not the one it is easing through, so the two move as one
+  const mpk = $(&#39;.mpk&#39;, r), effp = $(&#39;.mpk-pop&#39;, r);
+  const centred = centre(c, mpk, () =&gt; { const shut = fold.classList.contains(&#39;shut&#39;); let h = mpk.offsetHeight - fold.offsetHeight + (shut ? 0 : fold.firstElementChild.scrollHeight);
+    return effp.classList.contains(&#39;open&#39;) ? Math.max(h, effp.offsetTop + effp.offsetHeight) : h; }, [fold.firstElementChild, effp]);
+  const open = v =&gt; { fold.classList.toggle(&#39;shut&#39;, !v); fold.inert = !v; tr.setAttribute(&#39;aria-expanded&#39;, v); centred(); };
   tr.onclick = () =&gt; open(tr.getAttribute(&#39;aria-expanded&#39;) !== &#39;true&#39;);
   c.on(r, &#39;keydown&#39;, e =&gt; { if (e.key === &#39;Escape&#39; &amp;&amp; tr.getAttribute(&#39;aria-expanded&#39;) === &#39;true&#39;){ open(false); tr.focus({ preventScroll:true }); } });
   paint();
@@ -617,7 +622,12 @@ export function ModelPicker({
     busy = 0; waiting = false; rows[0].classList.remove('busy'); swap(d, M[0].d); choose(0);
   });
   // the trigger opens and closes the list; Escape closes it and gives the trigger the focus back
-  const open = v => { fold.classList.toggle('shut', !v); fold.inert = !v; tr.setAttribute('aria-expanded', v); };
+  // the trigger sits centred on its own, and glides up as the list folds open; it aims for the open list's own height,
+  // not the one it is easing through, so the two move as one
+  const mpk = $('.mpk', r), effp = $('.mpk-pop', r);
+  const centred = centre(c, mpk, () => { const shut = fold.classList.contains('shut'); let h = mpk.offsetHeight - fold.offsetHeight + (shut ? 0 : fold.firstElementChild.scrollHeight);
+    return effp.classList.contains('open') ? Math.max(h, effp.offsetTop + effp.offsetHeight) : h; }, [fold.firstElementChild, effp]);
+  const open = v => { fold.classList.toggle('shut', !v); fold.inert = !v; tr.setAttribute('aria-expanded', v); centred(); };
   tr.onclick = () => open(tr.getAttribute('aria-expanded') !== 'true');
   c.on(r, 'keydown', e => { if (e.key === 'Escape' && tr.getAttribute('aria-expanded') === 'true'){ open(false); tr.focus({ preventScroll:true }); } });
   paint();
