@@ -380,7 +380,7 @@ patch("""var st=localStorage.getItem("dmui-style");if(st)document.documentElemen
 patch("""  <nav class="top-links" aria-label="Site"><a href="#/changelog">Changelog</a><a href="#/roadmap">Roadmap</a><a href="#faq">FAQ</a></nav>\n""", "")
 patch("""aria-label="Search components"><span class="kbd">/</span></label>""",
       """aria-label="Search components"><span class="kbd">/</span></label>
-  <nav class="side-pages" aria-label="Site"><a class="side-p act" href="#components" aria-current="page"><span class="ms">dashboard</span>Library</a><a class="side-p" href="#/changelog"><span class="ms">history</span>Changelog</a><a class="side-p" href="#/roadmap"><span class="ms">trending_up</span>Roadmap</a><a class="side-p" href="#/faq"><span class="ms">help</span>FAQ</a></nav>""")
+  <nav class="side-pages" aria-label="Site"><a class="side-p act" href="#components" aria-current="page"><span class="ms">dashboard</span>Library</a><a class="side-p" href="/docs/introduction"><span class="ms">description</span>Docs</a><a class="side-p" href="#/changelog"><span class="ms">history</span>Changelog</a><a class="side-p" href="#/roadmap"><span class="ms">trending_up</span>Roadmap</a><a class="side-p" href="#/faq"><span class="ms">help</span>FAQ</a></nav>""")
 
 # Changelog and Roadmap keep the sidebar beside them (on wider screens), and the sidebar marks the page that's open
 patch("""    document.addEventListener('click', e => {
@@ -426,9 +426,9 @@ patch("""    const route = push => { const m = location.hash.match(/^#\\/(change
 patch("""    if (/^#\\/(changelog|roadmap|privacy)$/.test(location.hash)) setTimeout(() => route(false), 250);""",
       """    if (/^#\\/(changelog|roadmap|faq|privacy)$/.test(location.hash)) setTimeout(() => route(false), 250);""")
 patch("""<div class="sf-links"><a href="#/changelog">Changelog</a><a href="#/roadmap">Roadmap</a><a href="#faq">FAQ</a>""",
-      """<div class="sf-links"><a href="#/changelog">Changelog</a><a href="#/roadmap">Roadmap</a><a href="#/faq">FAQ</a>""")
+      """<div class="sf-links"><a href="/docs/introduction">Docs</a><a href="#/changelog">Changelog</a><a href="#/roadmap">Roadmap</a><a href="#/faq">FAQ</a>""")
 patch("""      <div class="m-links mi-in"><a href="#/changelog">Changelog</a><a href="#/roadmap">Roadmap</a><a href="#faq">FAQ</a></div>""",
-      """      <div class="m-links mi-in"><a href="#/changelog">Changelog</a><a href="#/roadmap">Roadmap</a><a href="#/faq">FAQ</a></div>""")
+      """      <div class="m-links mi-in"><a href="/docs/introduction">Docs</a><a href="#/changelog">Changelog</a><a href="#/roadmap">Roadmap</a><a href="#/faq">FAQ</a></div>""")
 # answers that have to be true of the code
 patch("""It needs the shared core once, which holds the tokens, icons, sound and small helpers,""", """It needs the shared core once, which holds the tokens, icons and small helpers,""")
 patch("""They work with a keyboard, use proper roles and labels, and respect reduced motion.""",
@@ -775,5 +775,44 @@ patch("""    v['--on-accent'] = onWhite >= 3 ? '#ffffff' : '#120a02';""", """   
     v['--accent-mark'] = reach(3, 1, chip); v['--accent-fg'] = reach(4.5, .4, mix(chip, fill, .12)) || (dark ? '#f2f2f2' : '#111318');""")
 patch("""'Orange, the Blueprint default'""", """'Lime, the Blueprint default'""")
 
-json.dump({ 'patches': P, 'css': CSS }, open(os.path.join(HERE, 'site-patches.json'), 'w'), indent=1)
+# ---------- the GitHub pill: the repository's stars in the header ----------
+# It shows the star count when GitHub answers, fetched once a session; until then, or when it doesn't (a private repository
+# answers 404), it reads "Star on GitHub". The component pages' header has the same pill (tools/pages/src/layouts/Page.astro)
+GH_MARK = '<path fill="currentColor" d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/>'
+patch("""  <div class="top-actions">
+    <div class="seg style-seg" id="style-seg\"""", """  <div class="top-actions">
+    <a class="gh-pill" href="https://github.com/bydesignme/designme-dev" aria-label="Star designme.dev on GitHub" data-gh-stars><svg viewBox="0 0 24 24" aria-hidden="true">""" + GH_MARK + """</svg><span class="gh-l">Star on GitHub</span><span class="gh-n" hidden></span></a>
+    <div class="seg style-seg" id="style-seg\"""")
+patch("""</header>""", """</header>
+<script>
+// the GitHub pill: the star count once a session, or "Star on GitHub" when GitHub doesn't answer. A failed request is still
+// logged by the browser itself; everything else is caught
+(function(){
+  var pills = document.querySelectorAll('[data-gh-stars]'), KEY = 'dm-gh-stars';
+  if (!pills.length) return;
+  var fmt = function(n){ return n < 1000 ? String(n) : n < 1e6 ? (Math.floor(n / 100) / 10) + 'k' : (Math.floor(n / 1e5) / 10) + 'm'; };
+  var show = function(n){ pills.forEach(function(a){ var c = a.querySelector('.gh-n'); c.textContent = fmt(n); c.hidden = false; a.classList.add('has-n'); a.setAttribute('aria-label', 'Star designme.dev on GitHub, ' + n.toLocaleString('en') + ' stars'); }); };
+  var saved = null; try { saved = sessionStorage.getItem(KEY); } catch(e){}
+  if (saved !== null){ if (/^\\d+$/.test(saved)) show(+saved); return; }
+  if (!window.fetch) return;
+  var keep = function(v){ try { sessionStorage.setItem(KEY, v); } catch(e){} };
+  fetch('https://api.github.com/repos/bydesignme/designme-dev').then(function(r){ return r.ok ? r.json() : null; }).then(function(d){
+    var n = d && typeof d.stargazers_count === 'number' ? d.stargazers_count : null;
+    keep(n === null ? '-' : String(n)); if (n !== null) show(n);
+  }).catch(function(){ keep('-'); });
+})();
+</script>""")
+CSS += """
+/* the GitHub pill, like the header's other 28px controls; on a phone it sits beside the menu button */
+body.ui .top .gh-pill{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 11px 0 9px;border:1px solid var(--sh-line);border-radius:999px;background:var(--sh-card);color:var(--sh-text);font-family:var(--sans);font-size:13px;font-weight:500;line-height:1;text-decoration:none;white-space:nowrap;transition:border-color .2s;corner-shape:round}
+body.ui .top .gh-pill:hover{border-color:var(--sh-line-2)}
+body.ui .top .gh-pill svg{display:block;width:14px;height:14px;flex:none}
+body.ui .top .gh-pill .gh-n{font-variant-numeric:tabular-nums}
+body.ui .top .gh-pill.has-n .gh-l{display:none}
+@media (max-width:960px){ body.ui .top .gh-pill{height:32px;margin-right:8px;padding:0 12px 0 10px} }
+/* the sidebar's Docs page: its icon lifts on hover, like the others move */
+.side-p[href="/docs/introduction"]:hover .ms svg{transform:translateY(-2px)}
+"""
+
+json.dump({ 'patches': P, 'css': CSS },open(os.path.join(HERE, 'site-patches.json'), 'w'), indent=1)
 print(len(P), 'patches')

@@ -1,7 +1,7 @@
 # Component pages
 
 The pages beside the homepage, built with Astro: a page per component (`/components/composer`), a Markdown copy of each
-(`/components/composer.md`) for AI tools, the sitemap and `_redirects`. The homepage lists every component, so there is no
+(`/components/composer.md`) for AI tools, the docs (`/docs/introduction` and its `.md`), the sitemap and `_redirects`. The homepage lists every component, so there is no
 separate list: `/components` redirects to it, and each old section page (`/components/status`) to its section there
 (`/#s-status`).
 
@@ -48,9 +48,14 @@ file still gets a page, with its one-line description.
 - `src/lib/data.mjs` reads everything the pages show.
 - `src/layouts/Page.astro` is the frame: head, header, footer, light and dark.
 - `src/components/ComponentPage.astro` is the page under `/components/<name>`.
+- `src/components/DocsPage.astro` is a docs page under `/docs/<page>`: a sidebar with the docs above the component groups,
+  and the page's text. The text lives in `src/lib/docs.mjs` (titles and order in `src/lib/docs-list.json`, which
+  `tools/site/build.js` also reads for `llms.txt`). Every claim there has to be true of the code, as with the written copy.
+  `src/pages/docs/[slug].md.ts` writes their Markdown copies.
 - `src/pages/components/[slug].md.ts` writes the Markdown copies;
   `src/pages/components/assets/` the shared core for the demos; `src/pages/sitemap.xml.ts` the sitemap.
 - `shots.mjs` takes the pictures (see above).
-- `publish.mjs` copies the build to the repository root and stops if the build holds anything it doesn't expect.
+- `publish.mjs` copies the build (`components/`, `docs/` and `sitemap.xml`) to the repository root and stops if the build holds
+  anything it doesn't expect.
 
 Astro is pinned to 7.3.8, the newest release that runs on Node 22.12.

@@ -1,0 +1,149 @@
+---
+// One docs page under /docs/<page>: a sidebar with the docs first and then every component group, like the homepage's
+// sidebar, and the page's text beside it. On a phone and a tablet the sidebar gives way to a Docs menu above the text.
+import Page from '../layouts/Page.astro';
+import { SITE, SECTIONS, SETS } from '../lib/data.mjs';
+import { DOCS, inlineHtml } from '../lib/docs.mjs';
+const { d } = Astro.props;
+const title = `${d.title}: Docs | Designme.dev`;
+const jsonld = [
+  { '@context':'https://schema.org', '@type':'TechArticle', headline:d.title, description:d.desc, url:SITE + d.url,
+    author:{ '@type':'Organization', name:'DesignMe', url:'https://designme.agency' }, isPartOf:{ '@type':'WebSite', name:'Designme.dev', url:SITE + '/' } },
+  { '@context':'https://schema.org', '@type':'BreadcrumbList', itemListElement:[
+    { '@type':'ListItem', position:1, name:'Docs', item:SITE + DOCS[0].url },
+    { '@type':'ListItem', position:2, name:d.title, item:SITE + d.url } ] },
+];
+const sets = Object.keys(SETS).map(g => ({ g, name:SETS[g], secs:SECTIONS.filter(s => s.grp === g) }));
+const chev = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
+const docLinks = DOCS.map(x => ({ ...x, on:x.slug === d.slug }));
+---
+<Page title={title} description={d.desc} path={d.url} jsonld={jsonld}>
+  <Fragment slot="head">
+    <link rel="alternate" type="text/markdown" title={`${d.title} as Markdown`} href={`${d.url}.md`}>
+    <style is:global>
+      /* the sidebar and the page side by side, in the header's 1400px row; the sidebar's line runs from the header down */
+      .dc{display:grid;grid-template-columns:264px minmax(0,1fr);max-width:1400px;margin:0 auto;padding:0 32px}
+      .pg-main:has(.dc){padding:0}
+      .dc-side{position:sticky;top:var(--pg-head);align-self:start;height:calc(100vh - var(--pg-head));overflow-y:auto;padding:28px 20px 40px 0;border-right:1px solid var(--pg-line);scrollbar-width:thin;scrollbar-color:var(--pg-line2) transparent}
+      /* a group: its name, a chevron and a count, then its pages along a thin line, like the homepage's sidebar */
+      .dc-grp{margin:0 0 4px}
+      .dc-grp>summary{display:flex;align-items:center;gap:6px;height:34px;padding:0 6px 0 4px;border-radius:8px;font-size:14px;font-weight:500;color:var(--pg-fg);cursor:pointer;list-style:none;user-select:none}
+      .dc-grp>summary::-webkit-details-marker{display:none}
+      .dc-grp>summary:hover{background:var(--pg-chip)}
+      .dc-grp>summary svg{flex:none;width:14px;height:14px;margin:0 2px;color:var(--pg-muted);transform:rotate(-90deg);transition:transform .3s cubic-bezier(.16,1,.3,1)}
+      .dc-grp[open]>summary svg{transform:none}
+      .dc-grp>summary .nm{flex:1}
+      .dc-n{display:inline-grid;place-items:center;min-width:24px;height:22px;padding:0 6px;border-radius:7px;box-shadow:inset 0 0 0 1px var(--pg-line);font-size:12px;font-weight:500;color:var(--pg-dim)}
+      .dc-ul{display:flex;flex-direction:column;gap:1px;margin:2px 0 8px 13px;padding-left:10px;border-left:1px solid var(--pg-line)}
+      .dc-ul a{display:block;padding:5px 10px;border-radius:8px;font-size:14px;line-height:20px;color:var(--pg-dim);text-decoration:none;transition:color .16s ease,background-color .16s ease}
+      .dc-ul a:hover{color:var(--pg-fg);background:var(--pg-chip)}
+      .dc-ul a[aria-current="page"]{color:var(--pg-fg);background:var(--pg-chip);font-weight:500}
+      .dc-lbl{padding:18px 4px 6px;font-size:12px;font-weight:500;color:var(--pg-muted)}
+      /* the page */
+      .dc-main{min-width:0;padding:40px 0 96px 56px}
+      .dc-body{max-width:720px}
+      .dc-sec{scroll-margin-top:calc(var(--pg-head) + 24px)}
+      .dc-sec h2{margin:40px 0 12px;padding-top:24px;border-top:1px solid var(--pg-line);font-size:14px;line-height:20px;font-weight:500;color:var(--pg-fg)}
+      .dc-sec h2 a{color:inherit;text-decoration:none}
+      .dc-sec p{margin:0 0 12px;color:var(--pg-dim)}
+      .dc-sec ul,.dc-sec ol{margin:0 0 12px;padding-left:20px;color:var(--pg-dim)}
+      .dc-sec li{margin:0 0 8px}
+      .dc-sec li::marker{color:var(--pg-muted)}
+      .dc-body :is(p,li,td) a{color:var(--pg-fg);text-decoration:underline;text-decoration-color:var(--pg-line2);text-underline-offset:3px;transition:text-decoration-color .16s}
+      .dc-body :is(p,li,td) a:hover{text-decoration-color:currentColor}
+      .dc-body code{font:500 12.5px/1.4 var(--pg-mono);font-variant-ligatures:none;background:var(--pg-chip);padding:1px 5px;border-radius:5px;color:var(--pg-fg)}
+      /* a block of code, with Copy in its corner */
+      .dc-code{position:relative;margin:0 0 16px}
+      .dc-code pre{margin:0;overflow-x:auto;padding:14px 84px 14px 16px;border-radius:12px;background:var(--pg-soft);box-shadow:inset 0 0 0 1px var(--pg-line);font:500 12.5px/1.65 var(--pg-mono);font-variant-ligatures:none;tab-size:2;color:var(--pg-fg)}
+      .dc-code pre code{background:none;padding:0;font:inherit;border-radius:0}
+      /* plain text, like a prompt, wraps instead of running under Copy */
+      .dc-code[data-lang="text"] pre{white-space:pre-wrap;overflow-wrap:anywhere}
+      .dc-copy{position:absolute;top:8px;right:8px;display:inline-flex;align-items:center;height:28px;padding:0 11px;border:0;border-radius:999px;background:var(--pg-bg);color:var(--pg-fg);box-shadow:inset 0 0 0 1px var(--pg-line2);font:500 13px/1 var(--pg-sans);cursor:pointer;transition:background-color .2s}
+      .dc-copy:hover{background:var(--pg-chip)}
+      /* a table: plain rows, and on a phone each row a short block */
+      .dc-tw{overflow-x:auto;margin:0 0 16px}
+      .dc-tw table{width:100%;border-collapse:collapse;font-size:14px}
+      .dc-tw th{text-align:left;font-weight:500;color:var(--pg-muted);padding:0 12px 10px 0;border-bottom:1px solid var(--pg-line)}
+      .dc-tw td{padding:10px 12px 10px 0;border-bottom:1px solid var(--pg-line);vertical-align:top;color:var(--pg-dim)}
+      .dc-tw td:not(:last-child){white-space:nowrap}
+      .dc-md{display:inline-flex;align-items:center;gap:6px;margin-top:16px;font-size:13px;color:var(--pg-dim)}
+      /* previous and next, as on the component pages */
+      .dc-pn{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:56px;padding-top:24px;border-top:1px solid var(--pg-line)}
+      .dc-pn a{display:flex;flex-direction:column;gap:2px;text-decoration:none}
+      .dc-pn .n{grid-column:2;align-items:flex-end;text-align:right}
+      .dc-pn a:hover .pg-t{text-decoration:underline;text-decoration-color:var(--pg-line2);text-underline-offset:3px}
+      /* the Docs menu, for screens without the sidebar */
+      .dc-mnav{display:none;margin:0 0 20px;border-radius:12px;box-shadow:inset 0 0 0 1px var(--pg-line2)}
+      .dc-mnav>summary{display:flex;align-items:center;gap:8px;height:44px;padding:0 14px;cursor:pointer;list-style:none;font-size:14px;color:var(--pg-dim)}
+      .dc-mnav>summary::-webkit-details-marker{display:none}
+      .dc-mnav>summary b{font-weight:500;color:var(--pg-fg)}
+      .dc-mnav>summary svg{width:14px;height:14px;margin-left:auto;color:var(--pg-muted);transition:transform .3s cubic-bezier(.16,1,.3,1)}
+      .dc-mnav[open]>summary svg{transform:rotate(180deg)}
+      .dc-mnav .dc-ul{margin:0 8px 10px 8px;padding:8px 0 0;border-left:0;border-top:1px solid var(--pg-line)}
+      @media (prefers-reduced-motion:reduce){.dc-grp>summary svg,.dc-mnav>summary svg{transition:none}}
+      @media (max-width:960px){
+        .dc{display:block;padding:0 24px}
+        .dc-side{display:none}
+        .dc-main{padding:28px 0 72px}
+        .dc-mnav{display:block}
+        /* the Docs menu above already says where you are */
+        .dc-body>.pg-crumbs{display:none}
+        .dc-body>.pg-h1{margin-top:0}
+      }
+      @media (max-width:640px){
+        .dc{padding:0 16px}
+        .dc-main{padding:24px 0 64px}
+        .dc-code pre{padding:14px 16px 52px}
+        .dc-copy{top:auto;bottom:8px}
+        .dc-tw{overflow:visible}
+        .dc-tw thead{display:none}
+        .dc-tw table,.dc-tw tbody,.dc-tw tr,.dc-tw td{display:block}
+        .dc-tw tr{padding:10px 0;border-bottom:1px solid var(--pg-line)}
+        .dc-tw tr:first-child{border-top:1px solid var(--pg-line)}
+        .dc-tw td{padding:0;border:0;white-space:normal!important}
+        .dc-tw td+td{margin-top:4px}
+      }
+    </style>
+  </Fragment>
+
+  <div class="dc">
+    <aside class="dc-side" aria-label="Docs and components">
+      <details class="dc-grp" open><summary><Fragment set:html={chev} /><span class="nm">Docs</span><span class="dc-n">{DOCS.length}</span></summary>
+        <nav class="dc-ul" aria-label="Docs">{docLinks.map(x => <a href={x.url} aria-current={x.on ? 'page' : undefined}>{x.title}</a>)}</nav>
+      </details>
+      {sets.map(s => <>
+        <div class="dc-lbl">{s.name}</div>
+        {s.secs.map(sec => <details class="dc-grp"><summary><Fragment set:html={chev} /><span class="nm">{sec.title}</span><span class="dc-n">{sec.cards.length}</span></summary>
+          <nav class="dc-ul" aria-label={sec.title}>{sec.cards.map(c => <a href={`/components/${c.reg}`}>{c.title}</a>)}</nav>
+        </details>)}
+      </>)}
+    </aside>
+
+    <article class="dc-main">
+      <details class="dc-mnav"><summary>Docs<span aria-hidden="true">/</span><b>{d.title}</b><Fragment set:html={chev} /></summary>
+        <nav class="dc-ul" aria-label="Docs">{docLinks.map(x => <a href={x.url} aria-current={x.on ? 'page' : undefined}>{x.title}</a>)}<a href="/">All components</a></nav>
+      </details>
+      <div class="dc-body">
+        <nav class="pg-crumbs" aria-label="Breadcrumb"><a href={DOCS[0].url}>Docs</a><span>/</span><span>{d.title}</span></nav>
+        <h1 class="pg-h1">{d.title}</h1>
+        <p class="pg-lead" set:html={inlineHtml(d.lead)} />
+        {d.sections.map(sec => <section class="dc-sec" id={sec.id}>
+          <h2><a href={`#${sec.id}`}>{sec.h}</a></h2>
+          {sec.blocks.map(b =>
+            b[0] === 'p' ? <p set:html={inlineHtml(b[1])} /> :
+            b[0] === 'ul' ? <ul>{b[1].map(x => <li set:html={inlineHtml(x)} />)}</ul> :
+            b[0] === 'ol' ? <ol>{b[1].map(x => <li set:html={inlineHtml(x)} />)}</ol> :
+            b[0] === 'code' ? <div class="dc-code" data-lang={b[1]}><pre><code>{b[2]}</code></pre><button class="dc-copy" type="button" data-copy={b[2]} data-label="Copy" aria-label="Copy code">Copy</button></div> :
+            b[0] === 'table' ? <div class="dc-tw"><table><thead><tr>{b[1].map(h => <th>{h}</th>)}</tr></thead><tbody>{b[2].map(r => <tr>{r.map(c => <td set:html={inlineHtml(c)} />)}</tr>)}</tbody></table></div> : null
+          )}
+        </section>)}
+        <p class="dc-md">This page as Markdown: <a href={`${d.url}.md`}>{d.slug}.md</a></p>
+        <nav class="dc-pn" aria-label="Previous and next page">
+          {d.prev && <a href={d.prev.url} rel="prev"><span class="pg-d">Previous</span><span class="pg-t">{d.prev.title}</span></a>}
+          {d.next && <a href={d.next.url} rel="next" class="n"><span class="pg-d">Next</span><span class="pg-t">{d.next.title}</span></a>}
+        </nav>
+      </div>
+    </article>
+  </div>
+
+</Page>

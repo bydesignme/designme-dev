@@ -488,6 +488,9 @@ Install with the CLI, which copies each component's source into your project so 
 
 Every class, CSS variable and animation name starts with \`dm-\` in the React version, so the components sit beside Tailwind or any other CSS. Each component below links to its page as Markdown: what it is for, how to install and use it, its React props, questions and its React source. The same page with a live demo is at the same address without \`.md\`, and every component is listed at https://designme.dev/components.
 `;
+  // the docs pages that tools/pages builds, each as Markdown too
+  const DOCS = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../pages/src/lib/docs-list.json'), 'utf8'));
+  md += `\n## Docs\n\n` + DOCS.map(d => `- [${d.title}](https://designme.dev/docs/${d.slug}.md): ${d.desc}`).join('\n') + '\n';
   for (const g of Object.keys(SETS)){
     md += `\n## ${SETS[g]}\n`;
     for (const sec of secs.filter(x => x.grp === g && x.cards.length)){
