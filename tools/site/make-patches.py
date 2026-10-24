@@ -845,5 +845,13 @@ body.ui .top .gh-pill.has-n .gh-l{display:none}
 .side-ul .side-a.act::before{content:"";position:absolute;left:-11px;top:7px;bottom:7px;width:2px;border-radius:2px;background:var(--accent-mark)}
 """
 
+# Blueprint stages carry a faint square grid, the one from the artifact card lab, at a fifth of its strength so it is
+# only just there
+CSS += """
+:root:not([data-style="soft"]){--bp-grid:rgba(20,20,12,.018)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]):not([data-style="soft"]){--bp-grid:rgba(255,255,255,.014)}}
+:root[data-theme="dark"]:not([data-style="soft"]){--bp-grid:rgba(255,255,255,.014)}
+:root:not([data-style="soft"]) body.ui .lib-sec .stage-inner{background-image:linear-gradient(var(--bp-grid) 1px,transparent 1px),linear-gradient(90deg,var(--bp-grid) 1px,transparent 1px);background-size:24px 24px;background-position:-1px -1px}
+"""
 json.dump({ 'patches': P, 'css': CSS },open(os.path.join(HERE, 'site-patches.json'), 'w'), indent=1)
 print(len(P), 'patches')
