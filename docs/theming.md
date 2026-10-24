@@ -88,8 +88,8 @@ In React, use the same names with `dm-` in front: `--dm-accent`, `--dm-on-accent
 
 On the homepage, the dot beside the style switch picks an accent. On smaller screens it is in the menu. The site then works out the other roles from your colour:
 
-- Text on a fill is white when white reaches 4.5:1, otherwise whichever of white or near-black reads better.
-- Text and marks start from your colour and are darkened on a light page, or lightened on a dark one, until they reach 4.5:1 and 3:1. If text would need too big a change, it uses the ink colour instead.
+- Text on a fill is white or near-black, whichever APCA says reads better. The fill then moves a little darker or lighter until that text reaches 4.5:1 and APCA Lc 60.
+- Text and marks start from your colour and are darkened on a light page, or lightened on a dark one, until text reaches 4.5:1 and APCA Lc 60, and marks 3:1. If text would need too big a change, it uses the ink colour instead.
 
 This runs on the site only. In your project, set the roles yourself as shown above.
 

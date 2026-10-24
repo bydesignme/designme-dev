@@ -24,8 +24,8 @@ const toc = d.sections.map(s => ({ id:s.id, label:s.h }));
     <link rel="stylesheet" href="/components/assets/core.css">
     <style is:global>
       /* text: 14px, grey, with dark links; a section opens with its name over a line */
-      /* a section you jump to lands with its name just under the header */
-      .dc-sec{scroll-margin-top:-40px}
+      /* a section you jump to lands with its line 24px under the header and its name 24px under that */
+      .dc-sec{scroll-margin-top:24px}
       .dc-sec>h2{margin:48px 0 16px;padding-top:24px;border-top:1px solid var(--pg-line);font-size:14px;line-height:20px;font-weight:500;color:var(--pg-fg)}
       .dc-sec>h2 a{color:inherit;text-decoration:none}
       .dc-body p{margin:0 0 12px;color:var(--pg-dim);max-width:72ch}
@@ -37,7 +37,7 @@ const toc = d.sections.map(s => ({ id:s.id, label:s.h }));
       .dc-body code.nw{white-space:nowrap}
       .dc-body code{font:500 12.5px/1.4 var(--pg-mono);font-variant-ligatures:none;background:var(--pg-chip);padding:1px 5px;border-radius:5px;color:var(--pg-fg)}
       .dc-h3{margin:0 0 6px;font-size:14px;line-height:20px;font-weight:500;color:var(--pg-fg)}
-      .dc-body>*:last-child,.dc-step-b>*:last-child,.dc-col>*:last-child,.dc-tp>*:last-child,.dc-note>*:last-child{margin-bottom:0}
+      .dc-body>*:last-child,.dc-step-b>*:last-child,.dc-items>li>*:last-child,.dc-tp>*:last-child{margin-bottom:0}
 
       /* a block of code: its name and Copy in a bar over it */
       .dc-code{margin:0 0 16px;border-radius:12px;background:var(--pg-soft);box-shadow:inset 0 0 0 1px var(--pg-line);overflow:hidden}
@@ -49,9 +49,6 @@ const toc = d.sections.map(s => ({ id:s.id, label:s.h }));
       .dc-copy:hover{background:var(--pg-chip)}
       .dc-copy span{display:grid}
       .dc-copy svg{width:14px;height:14px}
-
-      /* a note: a quiet box */
-      .dc-note{margin:0 0 16px;padding:12px 16px;border-radius:12px;background:var(--pg-soft);box-shadow:inset 0 0 0 1px var(--pg-line)}
 
       /* a table: plain rows */
       .dc-tw{overflow-x:auto;margin:0 0 16px}
@@ -83,16 +80,16 @@ const toc = d.sections.map(s => ({ id:s.id, label:s.h }));
       .dc-tl button[aria-selected="true"]{background:var(--pg-bg);color:var(--pg-fg);box-shadow:0 1px 2px rgba(17,19,24,.08),0 0 0 .5px rgba(17,19,24,.06)}
       .dc-tp:focus-visible{outline-offset:6px;border-radius:4px}
 
-      /* panels side by side */
-      .dc-cols{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:0 0 16px}
-      .dc-cols[data-n="3"]{grid-template-columns:repeat(3,minmax(0,1fr))}
-      .dc-cols[data-n="6"]{grid-template-columns:repeat(3,minmax(0,1fr))}
-      .dc-col{min-width:0;padding:14px 16px;border-radius:12px;box-shadow:inset 0 0 0 1px var(--pg-line)}
-      .dc-col p{font-size:14px}
-      .dc-col .dc-code{margin-top:10px}
+      /* facts, requirements and notes: a plain list, each item's name over what it says, one under another. Only things you
+         can click get a card */
+      .dc-body .dc-items{list-style:none;margin:0 0 16px;padding:0;display:flex;flex-direction:column;gap:16px}
+      .dc-body .dc-items>li{margin:0}
+      .dc-items .dc-h3{margin:0 0 2px}
+      .dc-items p{margin:0 0 8px}
+      .dc-items .dc-code{margin:10px 0 0}
 
-      /* where files land */
-      .dc-tree{margin:0 0 16px;padding:12px 16px 14px;border-radius:12px;box-shadow:inset 0 0 0 1px var(--pg-line)}
+      /* where files land: a plain tree */
+      .dc-tree{margin:0 0 16px}
       .dc-tree figcaption{margin:0 0 8px;font-size:13px;color:var(--pg-muted)}
       .dc-tree ul{list-style:none;margin:0;padding:0}
       .dc-tree ul ul{margin-left:7px;padding-left:14px;border-left:1px solid var(--pg-line)}
@@ -111,21 +108,12 @@ const toc = d.sections.map(s => ({ id:s.id, label:s.h }));
       .dc-card-go svg{width:14px;height:14px}
       .dc-card:hover .dc-card-go{color:var(--pg-fg);transform:translateX(2px)}
 
-      /* the groups: each with a picture of its first component, its count and every component in it */
-      .dc-gset+.dc-gset{margin-top:28px}
-      .dc-gset-h{display:flex;align-items:center;gap:8px;margin:0 0 12px;font-size:14px;font-weight:500;color:var(--pg-fg)}
-      .dc-glist{display:flex;flex-direction:column;border-top:1px solid var(--pg-line)}
-      .dc-grow{display:grid;grid-template-columns:160px minmax(0,1fr);gap:20px;padding:16px 0;border-bottom:1px solid var(--pg-line)}
-      .dc-gthumb{border-radius:10px}
-      .dc-gbody{min-width:0}
-      .dc-ghead{display:flex;align-items:center;gap:8px;margin:0 0 2px}
-      .dc-ghead a{text-decoration:none}
-      .dc-ghead a:hover{text-decoration:underline;text-decoration-color:var(--pg-line2);text-underline-offset:3px}
-      .dc-gbody>.pg-d{margin:0 0 8px}
-      .dc-glinks{display:flex;flex-wrap:wrap;gap:4px;margin:0!important;padding:0!important;list-style:none}
-      .dc-glinks li{margin:0}
-      .dc-glinks a{display:inline-flex;align-items:center;height:26px;padding:0 9px;border-radius:999px;background:var(--pg-chip);font-size:13px;color:var(--pg-dim);text-decoration:none;transition:color .16s,background-color .16s}
-      .dc-glinks a:hover{color:var(--pg-fg);background:var(--pg-line)}
+      /* the agent components by group, each a plain link, in columns */
+      .dc-agrp{margin:0 0 20px}
+      .dc-agrp .dc-h3{margin:0 0 6px}
+      .dc-body .dc-alist{columns:3 180px;column-gap:24px;margin:0;padding:0;list-style:none}
+      .dc-body .dc-alist li{margin:0;padding:3px 0;break-inside:avoid}
+      .dc-agents>p{margin-top:4px}
 
       /* the two styles: four live frames, scaled to fit their cell */
       .dc-styles{margin:0 0 16px}
@@ -138,22 +126,26 @@ const toc = d.sections.map(s => ({ id:s.id, label:s.h }));
       .dc-scap b{font-weight:500;color:var(--pg-fg)}
       .dc-styles figcaption{margin-top:12px;font-size:13px;color:var(--pg-muted)}
 
-      /* the default accents: one panel per style and theme, on that theme's surface */
-      .dc-sw{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:0 0 16px}
-      .dc-swp{min-width:0;padding:12px;border-radius:12px;background:var(--s);color:var(--f);box-shadow:inset 0 0 0 1px var(--l)}
-      .dc-swp-h{margin:0 0 10px;font-size:13px;opacity:.75}
-      .dc-swp-h b{font-weight:500}
-      .dc-swr,.dc-pv-role{display:flex;align-items:center;gap:10px;min-width:0}
-      .dc-swr+.dc-swr{margin-top:8px}
-      .dc-swc{flex:none;display:grid;place-items:center;width:28px;height:28px;border-radius:8px;font-size:12px;font-weight:500;box-shadow:inset 0 0 0 1px color-mix(in srgb,currentColor 12%,transparent)}
+      /* the default accents: a table of the roles in each style and theme, each value with a swatch drawn on that theme's
+         surface */
+      .dc-swtab td:first-child{color:var(--pg-fg)}
+      .dc-swvar{display:block;font-size:12px;color:var(--pg-muted)}
+      .dc-swcell{display:inline-flex;align-items:center;gap:8px}
+      .dc-swv{font-size:12px;color:var(--pg-dim);font-variant-numeric:tabular-nums;white-space:nowrap}
+      .dc-swc{flex:none;display:grid;place-items:center;width:24px;height:24px;border-radius:7px;background:var(--s,transparent);box-shadow:inset 0 0 0 1px var(--l,var(--pg-line));font-size:11px;font-weight:500}
       .dc-swc-accent{background:var(--a)}
       .dc-swc-onAccent{background:var(--a);color:var(--on)}
       .dc-swc-accentFg{color:var(--fgA)}
       .dc-swc-accentMark{box-shadow:inset 0 0 0 2px var(--mk)}
-      .dc-swc-accentBg{background:var(--bgA)}
+      .dc-swc-accentBg{background:linear-gradient(var(--bgA),var(--bgA)),var(--s,transparent)}
       .dc-swt{display:flex;flex-direction:column;min-width:0;line-height:18px}
       .dc-swn{font-size:13px}
-      .dc-swv{font-size:12px;opacity:.65;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-variant-numeric:tabular-nums}
+      .dc-pv-role{display:flex;align-items:center;gap:10px;min-width:0}
+      .dc-pv .dc-swv{color:var(--pv-dim)}
+      /* the preview's small grey text holds 4.5:1 and APCA Lc 60 on the stage and the page, in both themes */
+      .dc-pv{--pv-dim:#5b5f6b}
+      @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .dc-pv{--pv-dim:#bcbec5}}
+      :root[data-theme="dark"] .dc-pv{--pv-dim:#bcbec5}
 
       /* the accent's roles in use, in the style and theme you're looking at, and in any accent you pick */
       .dc-pv{--a:var(--accent);--on:var(--on-accent);--fgA:var(--accent-fg);--mk:var(--accent-mark);--bgA:var(--accent-bg);margin:0 0 16px;border-radius:14px;box-shadow:inset 0 0 0 1px var(--pg-line);overflow:hidden}
@@ -167,10 +159,10 @@ const toc = d.sections.map(s => ({ id:s.id, label:s.h }));
       .dc-pick-any{background:conic-gradient(#ff5f5f,#ffd23f,#3ddc97,#3d8bff,#b06bff,#ff5f5f)}
       .dc-pick-any input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}
       .dc-pick-any:focus-within{outline:2px solid var(--pg-fg);outline-offset:2px}
-      .dc-pv-now{margin-left:auto;font-size:13px;color:var(--pg-muted)}
+      .dc-pv-now{margin-left:auto;font-size:13px;color:var(--pv-dim)}
       .dc-pv-stage{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:center;gap:28px 36px;padding:32px 20px 24px;background:var(--surface,var(--pg-bg));color:var(--fg,var(--pg-fg))}
       .dc-pv-item{display:flex;flex-direction:column;align-items:center;gap:10px}
-      .dc-pv-cap{font-size:12px;color:var(--pg-muted)}
+      .dc-pv-cap{font-size:12px;color:var(--pv-dim)}
       .dc-pv-btn{display:inline-flex;align-items:center;height:32px;padding:0 14px;border-radius:999px;background:var(--a);color:var(--on);box-shadow:inset 0 0 0 1px var(--mk);font-size:13px;font-weight:500}
       .dc-pv-switch{position:relative;display:block;width:36px;height:20px;border-radius:999px;background:var(--a);box-shadow:inset 0 0 0 1px var(--mk)}
       .dc-pv-switch i{position:absolute;top:3px;right:3px;width:14px;height:14px;border-radius:999px;background:var(--on)}
@@ -181,18 +173,16 @@ const toc = d.sections.map(s => ({ id:s.id, label:s.h }));
       .dc-pv-chart .ar{fill:color-mix(in srgb,var(--mk) 12%,transparent)}
       :root:not([data-style="soft"]) .dc-pv-btn,:root:not([data-style="soft"]) .dc-pv-chip,:root:not([data-style="soft"]) .dc-pv-switch,:root:not([data-style="soft"]) .dc-pv-switch i{border-radius:0}
       .dc-pv-roles{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;padding:12px 14px;border-top:1px solid var(--pg-line);color:var(--pg-fg)}
-      .dc-pv-note{margin:0!important;padding:10px 14px;border-top:1px solid var(--pg-line);font-size:13px;color:var(--pg-muted)!important;max-width:none!important}
-      .dc-pv-role .dc-swc{width:24px;height:24px;border-radius:7px;font-size:11px}
+      .dc-pv-note{margin:0!important;padding:10px 14px;border-top:1px solid var(--pg-line);font-size:13px;color:var(--pv-dim)!important;max-width:none!important}
 
       .dc-md{display:inline-flex;align-items:center;gap:6px;margin-top:40px;font-size:13px;color:var(--pg-dim)}
       @media (max-width:1100px){
-        .dc-sw{grid-template-columns:repeat(2,minmax(0,1fr))}
         .dc-pv-roles{grid-template-columns:repeat(3,minmax(0,1fr))}
       }
       @media (max-width:640px){
-        .dc-cols,.dc-cols[data-n="3"],.dc-cols[data-n="6"],.dc-cards{grid-template-columns:minmax(0,1fr)}
+        .dc-cards{grid-template-columns:minmax(0,1fr)}
+        .dc-body .dc-alist{columns:2}
         .dc-sgrid{gap:10px}
-        .dc-grow{grid-template-columns:96px minmax(0,1fr);gap:14px}
         .dc-pv-roles{grid-template-columns:repeat(2,minmax(0,1fr))}
         .dc-pv-now{flex-basis:100%;margin-left:0}
         .dc-pv-stage{gap:24px 28px}
@@ -207,7 +197,6 @@ const toc = d.sections.map(s => ({ id:s.id, label:s.h }));
         .dc-tw:has(th:nth-child(3)) td+td::before{content:attr(data-h) ": ";color:var(--pg-muted)}
         .dc-step{column-gap:12px}
       }
-      @media (max-width:400px){.dc-sw{grid-template-columns:minmax(0,1fr)}}
     </style>
   </Fragment>
 
@@ -269,8 +258,8 @@ const toc = d.sections.map(s => ({ id:s.id, label:s.h }));
         for (var j = 0; j <= 40; j += 2){ var f2 = mix(fl, useW ? K : W, j / 100); if (ratio(onC, f2) >= 4.5 && Math.abs(apca(onC, f2)) >= 60){ fl = f2; break; } }
         v['--accent'] = hex(fl); v['--on-accent'] = useW ? '#ffffff' : '#120a02';
         var fill = rgb(v['--accent'] || base), chip = dark ? [52,52,52] : [236,236,236], to = dark ? W : K;
-        function reach(need, cap, on){ for (var i = 0; i <= 100; i += 2){ var m = mix(fill, to, i / 100); if (ratio(m, on) >= need) return i / 100 <= cap ? hex(m) : null; } return null; }
-        v['--accent-mark'] = reach(3, 1, chip); v['--accent-fg'] = reach(4.5, .4, mix(chip, fill, .12)) || (dark ? '#f2f2f2' : '#111318');
+        function reach(need, cap, on, lc){ for (var i = 0; i <= 100; i += 2){ var m = mix(fill, to, i / 100); if (ratio(m, on) >= need && (!lc || Math.abs(apca(m, on)) >= lc)) return i / 100 <= cap ? hex(m) : null; } return null; }
+        v['--accent-mark'] = reach(3, 1, chip); v['--accent-fg'] = reach(4.5, .4, mix(chip, fill, .12), 60) || (dark ? '#f2f2f2' : '#111318');
         return v;
       }
       var KEYS = ['--accent','--accent-bg','--on-accent','--accent-fg','--accent-mark'];

@@ -1,7 +1,8 @@
 ---
-// The frame of a docs page and a component page, laid out like the homepage: the sidebar on the left (the site's pages,
-// then every component group), the page in the middle, and on wide screens what is on this page on the right, with the
-// section you're reading marked as you scroll. Below 960px the sidebar gives way to a menu above the page, as the docs had.
+// The frame of a docs page and a component page, laid out like the homepage: the homepage's own sidebar on the left (search,
+// the site's pages, the component groups and Book a call), the page in the middle, and on wide screens what is on this page
+// on the right, with the section you're reading marked as you scroll. Below 960px the sidebar gives way to a menu above the
+// page, as on the homepage, with the same search, pages and Book a call.
 //   doc   the docs page this is (its slug), or
 //   reg   the component this is
 //   where and title   the menu's label on smaller screens: "Docs / Theming", "Conversation / Composer"
@@ -12,45 +13,123 @@ const { doc = null, reg = null, where, title, toc = [] } = Astro.props;
 const chev = icon('expand_more');
 ---
 <style is:global>
-  /* the sidebar and the page side by side, in the header's 1400px row: the sidebar is 232px with its line on the right, as on
-     the homepage, and the page starts 48px after it */
+  /* the sidebar and the page side by side, in the header's 1400px row: the sidebar is 232px, as on the homepage, and the page
+     starts 48px after it */
   .dc{display:grid;grid-template-columns:232px minmax(0,1fr);max-width:1400px;margin:0 auto;padding:0 32px}
   .pg-main:has(.dc){padding:0}
-  .dc-side{position:sticky;top:var(--pg-head);align-self:start;height:calc(100vh - var(--pg-head));overflow-y:auto;padding:28px 20px 40px 0;border-right:1px solid var(--pg-line);scrollbar-width:thin;scrollbar-color:var(--pg-line2) transparent;overscroll-behavior:contain}
-  /* the site's pages: an icon and a name, like the homepage's sidebar. The section you're in reads in medium text */
-  .dc-pages{display:flex;flex-direction:column;gap:1px;margin:0 0 20px}
-  .dc-p{display:flex;align-items:center;gap:10px;height:32px;padding:0 10px;border-radius:8px;font-size:14px;color:var(--pg-dim);text-decoration:none;transition:background-color .16s ease,color .16s ease}
-  .dc-p:hover{background:var(--pg-chip);color:var(--pg-fg)}
-  .dc-p.on{color:var(--pg-fg);font-weight:500}
-  .dc-ic{display:grid;place-items:center;width:16px;height:16px;flex:none;color:var(--pg-muted)}
-  .dc-ic svg{display:block;width:16px;height:16px;transition:transform .42s cubic-bezier(.34,1.56,.64,1)}
-  .dc-p.on .dc-ic{color:var(--pg-fg)}
+
+  /* ---- the homepage's sidebar ----
+     The same markup and class names as the homepage's (tools/site: site-main.html and make-patches.py), with the sizes and
+     colours it ends up with there, so the two match pixel for pixel and only the active state moves between pages. Its
+     colours are the homepage's --sh- tokens, which differ a little from this page's own in dark mode. Hover and the row
+     you're on share the homepage's light fill (--sh-act); the page you're on (Library or Docs) takes the chip grey */
+  :root{--sh-side:#ffffff;--sh-bg:#ffffff;--sh-card:#ffffff;--sh-line:rgba(17,19,24,.08);--sh-line-2:rgba(17,19,24,.14);--sh-chip:#f1f1f3;--sh-act:#fafafa;--sh-text:#111318;--sh-dim:#5b5f6b;--sh-muted:#8b8f99;--sh-blue:#116ff8;--sh-mark:#7a8e2b;--sh-ease:cubic-bezier(.22,1,.36,1)}
+  :root[data-style="soft"]{--sh-mark:#116ff8}
+  @media (prefers-color-scheme:dark){
+    :root:not([data-theme="light"]){--sh-side:#111111;--sh-bg:#111111;--sh-card:#181818;--sh-line:rgba(255,255,255,.09);--sh-line-2:rgba(255,255,255,.16);--sh-chip:rgba(255,255,255,.07);--sh-act:#1d1d1d;--sh-text:#f2f2f2;--sh-dim:#a3a3a3;--sh-muted:#737373;--sh-mark:#d4f84a}
+    :root[data-style="soft"]:not([data-theme="light"]){--sh-mark:#4b92ff}
+  }
+  :root[data-theme="dark"]{--sh-side:#111111;--sh-bg:#111111;--sh-card:#181818;--sh-line:rgba(255,255,255,.09);--sh-line-2:rgba(255,255,255,.16);--sh-chip:rgba(255,255,255,.07);--sh-act:#1d1d1d;--sh-text:#f2f2f2;--sh-dim:#a3a3a3;--sh-muted:#737373;--sh-mark:#d4f84a}
+  :root[data-style="soft"][data-theme="dark"]{--sh-mark:#4b92ff}
+  /* it stays put under the header, the groups scroll inside it, and the DesignMe credit and Book a call are pinned to its
+     bottom. Its background and the line on its right reach the window's left edge, as on the homepage */
+  .side{position:sticky;top:var(--pg-head);align-self:start;height:calc(100vh - var(--pg-head));display:flex;flex-direction:column;min-width:0;padding:28px 20px 22px 0;isolation:isolate;font:400 16px/1.5 var(--pg-sans);letter-spacing:-.006em;color:var(--sh-text)}
+  .side::before{content:"";position:absolute;top:0;bottom:0;right:0;left:-100vw;z-index:-1;background:var(--sh-side);border-right:1px solid var(--sh-line)}
+  :is(.side,.dc-mnav-in) button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+  :is(.side,.dc-mnav-in) .ms{display:inline-flex;align-items:center;justify-content:center;flex:none;width:1em;height:1em;font-size:20px;line-height:1;overflow:hidden;user-select:none}
+  :is(.side,.dc-mnav-in) .ms svg{display:block;width:1em;height:1em;fill:currentColor}
+  /* the search field */
+  .side-search{display:flex;align-items:center;gap:8px;height:36px;margin:0 0 18px;padding:0 6px 0 12px;background:var(--sh-card);border:1px solid var(--sh-line);border-radius:999px;transition:border-color .2s,box-shadow .2s}
+  .side-search:focus-within{border-color:var(--sh-blue);box-shadow:0 0 0 3px rgba(17,111,248,.12)}
+  .side-search .ms{color:var(--sh-muted);font-size:15px}
+  .side-search input{flex:1;min-width:0;margin:0;padding:1px 2px;background:transparent;border:0;border-radius:0;outline:0;font:inherit;font-size:14px;letter-spacing:normal;color:var(--sh-text)}
+  .side-search input::placeholder{color:var(--sh-muted);opacity:1}
+  .side-search .kbd{display:inline-flex;align-items:center;padding:1px 7px;border:1px solid var(--sh-line);border-radius:6px;background:var(--sh-bg);font:500 11.5px/1.5 var(--pg-sans);color:var(--sh-muted)}
+  html:root .side-search .kbd{box-shadow:none}
+  :root[data-style="soft"] .side-search .kbd{border-color:transparent;letter-spacing:normal}
+  /* the site's pages */
+  .side-pages{display:flex;flex-direction:column;gap:1px;margin:0 0 20px}
+  .side-p{display:flex;align-items:center;gap:10px;height:32px;padding:0 10px;border-radius:8px;font-size:14px;color:var(--sh-dim);text-decoration:none;transition:background-color .16s ease,color .16s ease}
+  .side-p:hover{background:var(--sh-act);color:var(--sh-text)}
+  .side-p.act{background:var(--sh-chip);color:var(--sh-text);font-weight:500}
+  .side-p .ms{display:inline-grid;place-items:center;width:16px;height:16px;font-size:16px;color:var(--sh-muted)}
+  .side-p.act .ms{color:var(--sh-text)}
   /* the icons move on hover, as on the homepage: the grid turns, the page lifts, the clock winds back, the arrow climbs, the
      question mark tilts */
-  .dc-p[data-p="dashboard"]:hover .dc-ic svg{transform:rotate(90deg)}
-  .dc-p[data-p="description"]:hover .dc-ic svg{transform:translateY(-2px)}
-  .dc-p[data-p="history"]:hover .dc-ic svg{transform:rotate(-50deg)}
-  .dc-p[data-p="trending_up"]:hover .dc-ic svg{transform:translate(2px,-2px)}
-  .dc-p[data-p="help"]:hover .dc-ic svg{animation:dc-tilt .6s cubic-bezier(.36,0,.2,1)}
-  @keyframes dc-tilt{30%{transform:rotate(-16deg)}65%{transform:rotate(10deg)}100%{transform:none}}
-  /* a list hangs off a thin rail. The page you're on has a light fill and a short bright segment on the rail, level with it */
-  .dc-ul{display:flex;flex-direction:column;gap:1px;margin:2px 0 8px 17px;padding-left:10px;border-left:1px solid var(--pg-line2)}
-  .dc-ul a{position:relative;display:block;padding:5px 10px;border-radius:8px;font-size:14px;line-height:20px;color:var(--pg-dim);text-decoration:none;transition:color .16s ease,background-color .16s ease}
-  .dc-ul a:hover{color:var(--pg-fg);background:var(--pg-chip)}
-  .dc-ul a[aria-current="page"]{color:var(--pg-fg);background:var(--pg-chip)}
-  .dc-ul a[aria-current="page"]::before{content:"";position:absolute;left:-11px;top:7px;bottom:7px;width:2px;border-radius:2px;background:var(--accent-mark,var(--pg-fg))}
-  /* the component groups: a name, a chevron and a count, as on the homepage */
-  .dc-lbl{padding:14px 10px 6px;font-size:12px;font-weight:500;color:var(--pg-muted)}
-  .dc-grp{margin:0 0 2px}
-  .dc-grp>summary{display:flex;align-items:center;gap:6px;height:34px;padding:0 6px 0 4px;border-radius:8px;font-size:14px;font-weight:500;color:var(--pg-fg);cursor:pointer;list-style:none;user-select:none}
-  .dc-grp>summary::-webkit-details-marker{display:none}
-  .dc-grp>summary:hover{background:var(--pg-chip)}
-  .dc-chev{display:grid;place-items:center;width:18px;height:18px;flex:none;margin:0 2px 0 0;color:var(--pg-muted);transform:rotate(-90deg);transition:transform .3s cubic-bezier(.16,1,.3,1)}
-  .dc-chev svg{width:14px;height:14px}
-  .dc-grp[open]>summary .dc-chev{transform:none}
-  .dc-grp>summary .nm{flex:1}
-  .dc-grp .dc-ul{margin-left:13px}
-  .dc-n{display:inline-grid;place-items:center;min-width:24px;height:22px;padding:0 6px;border-radius:11px;box-shadow:inset 0 0 0 1px var(--pg-line);font-size:12px;font-weight:500;color:var(--pg-dim);font-variant-numeric:tabular-nums}
+  .side-p .ms svg{transition:transform .42s cubic-bezier(.34,1.56,.64,1)}
+  .side-p[data-p="dashboard"]:hover .ms svg{transform:rotate(90deg)}
+  .side-p[data-p="description"]:hover .ms svg{transform:translateY(-2px)}
+  .side-p[data-p="history"]:hover .ms svg{transform:rotate(-50deg)}
+  .side-p[data-p="trending_up"]:hover .ms svg{transform:translate(2px,-2px)}
+  .side-p[data-p="help"]:hover .ms svg{animation:side-tilt .6s cubic-bezier(.36,0,.2,1)}
+  @keyframes side-tilt{30%{transform:rotate(-16deg)}65%{transform:rotate(10deg)}100%{transform:none}}
+  /* the component groups: a chevron, the name and a count, and the list folding under it on a thin rail */
+  .side-nav{flex:1;min-height:0;display:flex;flex-direction:column;overflow-y:auto;padding-right:2px;scrollbar-width:thin;scrollbar-color:var(--sh-line) transparent;overscroll-behavior:contain}
+  .side-grp{margin-bottom:4px}
+  :is(.side,.dc-mnav-in) .side-h{display:flex;align-items:center;justify-content:space-between;gap:6px;width:100%;margin:0 0 2px;padding:7px 6px 7px 4px;font:500 14px/1.5 var(--pg-sans);letter-spacing:normal;color:var(--sh-text);text-align:left;transition:color .2s}
+  .side-h .chev{display:grid;place-items:center;width:18px;height:18px;font-size:14px;color:var(--sh-muted);transition:transform .35s var(--sh-ease)}
+  .side-grp.closed .side-h .chev{transform:rotate(-90deg)}
+  .side-h .nm{flex:1}
+  .side-n{display:inline-grid;place-items:center;min-width:24px;height:22px;padding:0 6px;border:1px solid var(--sh-line);border-radius:7px;corner-shape:squircle;background:var(--sh-bg);font-size:11.5px;font-weight:500;color:var(--sh-dim)}
+  @supports (corner-shape:squircle){.side-n{border-radius:11px}}
+  .side-list{display:grid;grid-template-rows:1fr;transition:grid-template-rows .4s var(--sh-ease),opacity .3s ease}
+  .side-list>.side-ul{min-height:0;overflow:hidden}
+  .side-grp.closed .side-list{grid-template-rows:0fr;opacity:0}
+  .side-ul{margin:0 0 6px 13px;padding-left:11px;background:linear-gradient(var(--sh-line-2),var(--sh-line-2)) 0 0/1px 100% no-repeat}
+  /* a row: the one you're on gets the same light fill as a hover, and a short bright segment on the rail, level with it */
+  .side-a{position:relative;display:block;padding:5px 10px;border-radius:8px;font-size:14px;color:var(--sh-dim);text-decoration:none;transition:color .2s ease,background-color .2s ease}
+  .side-a:hover{color:var(--sh-text);background:var(--sh-act)}
+  .side-a.act{color:var(--sh-text);background:var(--sh-act)}
+  .side-ul .side-a.act::before{content:"";position:absolute;left:-11px;top:7px;bottom:7px;width:2px;border-radius:2px;background:var(--sh-mark)}
+  .side-a.hide{display:none}
+  /* Docs opens into its five pages, on a rail under its icon */
+  .side-docs{margin:2px 0 6px 17px}
+  /* one set of groups at a time, as on the homepage; a search looks across both, with their names over them */
+  .side-lbl{display:none;padding:14px 4px 6px;font-size:11px;font-weight:500;letter-spacing:.04em;text-transform:uppercase;color:var(--sh-muted)}
+  .side-nav>.side-lbl:first-child{padding-top:6px}
+  .side-nav[data-set="agent"] [data-grp="basics"],.side-nav[data-set="basics"] [data-grp="agent"]{display:none}
+  .side-nav[data-set="all"] .side-lbl{display:block}
+  .side-empty{display:none;order:2;padding:8px 6px}
+  .side-empty.show{display:flex}
+  .side-empty p{margin:0;font-size:13px;line-height:1.5;color:var(--sh-dim)}
+  /* the foot: the DesignMe sticker and credit, and Book a call */
+  .side-foot{margin-top:10px;padding:16px 10px 0;border-top:1px solid var(--sh-line)}
+  .credit{display:block;color:inherit;text-decoration:none}
+  .credit p{margin:0;font-size:12.5px;line-height:1.5;color:var(--sh-muted)}
+  .credit .u{color:var(--sh-text);border-bottom:1px solid var(--sh-line-2);transition:border-color .2s}
+  .credit:hover .u{border-color:var(--sh-text)}
+  .sticker{position:relative;width:37px;margin:2px 0 12px 3px;transform:rotate(-8deg);filter:drop-shadow(0 3px 4px rgba(17,19,24,.18)) drop-shadow(0 .5px .5px rgba(17,19,24,.15));transition:transform .4s cubic-bezier(.34,1.56,.64,1);cursor:default}
+  .sticker:hover,.credit:hover .sticker{transform:rotate(2deg) scale(1.1)}
+  .sticker .die{filter:drop-shadow(1.2px 0 0 #fff) drop-shadow(-1.2px 0 0 #fff) drop-shadow(0 1.2px 0 #fff) drop-shadow(0 -1.2px 0 #fff)}
+  .sticker svg{display:block;width:100%;height:auto}
+  .sticker svg path{fill:#111111}
+  .sticker .gloss{position:absolute;inset:0;pointer-events:none;-webkit-mask:var(--sticker-mask) center/contain no-repeat;mask:var(--sticker-mask) center/contain no-repeat;background:linear-gradient(115deg,transparent 38%,rgba(255,255,255,.85) 50%,transparent 62%);background-size:260% 100%;background-position:160% 0;animation:sticker-gloss 5s ease-in-out 1.6s infinite}
+  @keyframes sticker-gloss{0%{background-position:160% 0}22%{background-position:-60% 0}100%{background-position:-60% 0}}
+  @media (prefers-color-scheme:dark){
+    :root:not([data-theme="light"]) .sticker svg path{fill:#ffffff}
+    :root:not([data-theme="light"]) .sticker .die{filter:drop-shadow(1.2px 0 0 #111) drop-shadow(-1.2px 0 0 #111) drop-shadow(0 1.2px 0 #111) drop-shadow(0 -1.2px 0 #111)}
+    :root:not([data-theme="light"]) .sticker .gloss{background-image:linear-gradient(115deg,transparent 38%,rgba(17,17,17,.35) 50%,transparent 62%)}
+  }
+  :root[data-theme="dark"] .sticker svg path{fill:#ffffff}
+  :root[data-theme="dark"] .sticker .die{filter:drop-shadow(1.2px 0 0 #111) drop-shadow(-1.2px 0 0 #111) drop-shadow(0 1.2px 0 #111) drop-shadow(0 -1.2px 0 #111)}
+  :root[data-theme="dark"] .sticker .gloss{background-image:linear-gradient(115deg,transparent 38%,rgba(17,17,17,.35) 50%,transparent 62%)}
+  .side-cta-d{margin:14px 0 0;font-size:12.5px;line-height:1.5;color:var(--sh-dim)}
+  /* Book a call: the blue fill grows from where the pointer comes in */
+  .hire-btn{position:relative;display:inline-flex;align-items:center;gap:8px;height:32px;margin-top:10px;padding:0 12px 0 14px;border:1px solid var(--sh-line);border-radius:999px;background:var(--sh-chip);color:var(--sh-text);font-size:13px;font-weight:500;line-height:1.5;text-decoration:none;overflow:hidden;isolation:isolate;transition:background-color .25s ease,border-color .25s ease,color .25s ease}
+  .hire-btn .ms{font-size:14px;transition:transform .35s cubic-bezier(.34,1.56,.64,1)}
+  .hire-btn::before{content:"";position:absolute;left:var(--x,50%);top:var(--y,50%);z-index:-1;width:260px;height:260px;margin:-130px 0 0 -130px;border-radius:50%;background:var(--sh-blue);opacity:.9;transform:scale(0);transition:transform .6s cubic-bezier(.22,1,.36,1),opacity .3s ease}
+  .hire-btn::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:0;background:linear-gradient(115deg,transparent 35%,rgba(255,255,255,.55) 50%,transparent 65%);background-size:260% 100%;background-position:160% 0}
+  .hire-btn:hover{color:#fff;border-color:var(--sh-blue)}
+  .hire-btn:hover::before{transform:scale(1);opacity:1}
+  .hire-btn:hover::after{animation:hire-gloss 1s ease .38s 1 both}
+  .hire-btn:hover .ms{transform:translateX(3px)}
+  @keyframes hire-gloss{0%{opacity:1;background-position:160% 0}100%{opacity:1;background-position:-60% 0}}
+  @media (prefers-reduced-motion:reduce){
+    .side-p .ms svg{transition:none;animation:none!important;transform:none!important}
+    .sticker .gloss{animation:none;display:none}
+    .side-h .chev,.side-list,.hire-btn::before,.hire-btn .ms{transition:none}
+    .hire-btn:hover::after{animation:none}
+  }
 
   /* the page, and on wide screens what is on it, on the right */
   .dc-main{min-width:0;display:grid;grid-template-columns:minmax(0,760px);align-items:start;padding:40px 0 96px 48px}
@@ -69,7 +148,7 @@ const chev = icon('expand_more');
   .dc-toc-ind::before{content:"";position:absolute;inset:6px 0;border-radius:2px;background:var(--accent-mark,var(--pg-fg))}
   .dc-toc-ind.on{opacity:1}
 
-  /* previous and next: two cards at the end of the page */
+  /* previous and next: two cards at the end of the page, links both */
   .dc-pn{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:64px}
   .dc-pn a{display:flex;flex-direction:column;gap:2px;padding:14px 16px;border-radius:12px;box-shadow:inset 0 0 0 1px var(--pg-line);text-decoration:none;transition:box-shadow .16s ease,background-color .16s ease}
   .dc-pn a:hover{box-shadow:inset 0 0 0 1px var(--pg-line2);background:var(--pg-soft)}
@@ -77,24 +156,26 @@ const chev = icon('expand_more');
   .dc-pn .pg-d{display:inline-flex;align-items:center;gap:6px;font-size:13px}
   .dc-pn .pg-d svg{width:14px;height:14px}
 
-  /* the menu for screens without the sidebar */
+  /* the menu for screens without the sidebar: the same search, pages, component's group and Book a call */
   .dc-mnav{display:none;margin:0 0 24px;border-radius:12px;box-shadow:inset 0 0 0 1px var(--pg-line2)}
   .dc-mnav>summary{display:flex;align-items:center;gap:8px;min-height:44px;padding:0 14px;cursor:pointer;list-style:none;font-size:14px;color:var(--pg-dim)}
   .dc-mnav>summary::-webkit-details-marker{display:none}
   .dc-mnav>summary b{font-weight:500;color:var(--pg-fg)}
-  .dc-mnav>summary .dc-chev{margin-left:auto;transform:none}
+  .dc-chev{display:grid;place-items:center;width:18px;height:18px;flex:none;margin-left:auto;color:var(--pg-muted);transition:transform .3s cubic-bezier(.16,1,.3,1)}
+  .dc-chev svg{width:14px;height:14px}
   .dc-mnav[open]>summary .dc-chev{transform:rotate(180deg)}
-  .dc-mnav-in{padding:8px 8px 4px;border-top:1px solid var(--pg-line)}
-  .dc-mnav-in .dc-pages{margin-bottom:8px}
-  .dc-mnav-in .dc-lbl{padding-top:6px}
-  /* in the menu, the current component's group only: its name lines up with the pages above, its list under their icons */
-  .dc-grp-h{display:flex;align-items:center;gap:6px;height:34px;padding:0 6px 0 10px;font-size:14px;font-weight:500;color:var(--pg-fg)}
-  .dc-grp-h .nm{flex:1}
-  .dc-grp-only .dc-ul{margin-left:17px}
-  @media (prefers-reduced-motion:reduce){.dc-chev,.dc-ic svg,.dc-toc-ind{transition:none!important;animation:none!important}}
+  .dc-mnav-in{padding:12px 8px 14px;border-top:1px solid var(--pg-line);font:400 16px/1.5 var(--pg-sans);letter-spacing:-.006em;color:var(--sh-text)}
+  .dc-mnav-in .side-search{margin:0 0 12px}
+  .dc-mnav-in .side-search .kbd{display:none}
+  /* in the menu, the groups stay folded away apart from the component's own, until you search */
+  .dc-mnav-in .side-nav{overflow:visible;padding:0}
+  .dc-mnav-in .side-nav:not([data-set="all"]) .side-grp:not(.cur){display:none}
+  .dc-mnav-in .side-pages{margin-bottom:12px}
+  .dc-mnav-in .side-foot{margin-top:8px;padding:14px 10px 0}
+  @media (prefers-reduced-motion:reduce){.dc-chev,.dc-toc-ind{transition:none!important;animation:none!important}}
   @media (max-width:960px){
     .dc{display:block;padding:0 24px}
-    .dc-side{display:none}
+    .side{display:none}
     .dc-main{display:block;padding:28px 0 72px}
     .dc-mnav{display:block}
     /* the menu already says where you are */
@@ -109,16 +190,11 @@ const chev = icon('expand_more');
   }
 </style>
 <div class="dc">
-  <aside class="dc-side" id="dc-side" aria-label="Site and components"><SideNav doc={doc} reg={reg} /></aside>
-  <script is:inline>
-  // the sidebar opens scrolled so the page you're on is in view, a third of the way down
-  (function(){ var s = document.getElementById('dc-side'), a = s && s.querySelector('a[aria-current="page"]'); if (!a) return;
-    var r = a.getBoundingClientRect(), b = s.getBoundingClientRect(); if (r.bottom > b.bottom - 24) s.scrollTop += r.top - b.top - b.height / 3; })();
-  </script>
+  <aside class="side" id="side" aria-label="Site and components"><SideNav doc={doc} reg={reg} /></aside>
   <div class="dc-main">
     <div class="dc-body">
       <details class="dc-mnav"><summary>{where}<span aria-hidden="true">/</span><b>{title}</b><span class="dc-chev" set:html={chev} /></summary>
-        <div class="dc-mnav-in"><SideNav doc={doc} reg={reg} groups="current" /></div>
+        <div class="dc-mnav-in"><SideNav doc={doc} reg={reg} mode="menu" /></div>
       </details>
       <slot />
     </div>
@@ -128,28 +204,79 @@ const chev = icon('expand_more');
   </div>
 </div>
 <script is:inline>
+// the sidebar, as the homepage's behaves
+(function(){
+  var side = document.getElementById('side');
+  // the groups' list scrolls so the component you're on is in view, a third of the way down, when it would be out of sight
+  var nav = side && side.querySelector('.side-nav'), cur = nav && nav.querySelector('.side-a.act');
+  if (cur){ var r = cur.getBoundingClientRect(), b = nav.getBoundingClientRect(); if (r.bottom > b.bottom - 8 || r.top < b.top) nav.scrollTop += r.top - b.top - b.height / 3; }
+  // a group folds and opens on its name
+  [].slice.call(document.querySelectorAll('.side-grp > .side-h')).forEach(function(h){
+    h.addEventListener('click', function(){ var g = h.parentNode, open = g.classList.toggle('closed') === false; h.setAttribute('aria-expanded', String(open)); });
+  });
+  // search: typing filters the components in the sidebar the way it does on the homepage (by name, description or group), and
+  // Enter opens the library filtered by the same words. Esc clears it, and / jumps to it from anywhere on the page
+  [].slice.call(document.querySelectorAll('.side-search input')).forEach(function(inp){
+    var list = inp.closest('.side,.dc-mnav-in').querySelector('.side-nav'), base = list.dataset.set, empty = list.querySelector('.side-empty');
+    var apply = function(){
+      var q = inp.value.trim().toLowerCase(), shown = 0;
+      list.dataset.set = q ? 'all' : base;
+      [].slice.call(list.querySelectorAll('.side-grp')).forEach(function(g){
+        var sec = (g.dataset.s || '').toLowerCase(), n = 0;
+        [].slice.call(g.querySelectorAll('.side-a')).forEach(function(a){
+          var ok = !q || a.textContent.toLowerCase().indexOf(q) > -1 || (a.dataset.d || '').toLowerCase().indexOf(q) > -1 || sec.indexOf(q) > -1;
+          a.classList.toggle('hide', !ok); if (ok) n++;
+        });
+        g.style.display = n ? '' : 'none';
+        if (q && n){ g.classList.remove('closed'); g.querySelector('.side-h').setAttribute('aria-expanded', 'true'); }
+        shown += n;
+      });
+      [].slice.call(list.querySelectorAll('.side-lbl')).forEach(function(l){ l.style.display = q && !list.querySelector('.side-grp[data-grp="' + l.dataset.grp + '"]:not([style*="none"])') ? 'none' : ''; });
+      empty.classList.toggle('show', !!q && !shown);
+    };
+    inp.addEventListener('input', apply);
+    inp.addEventListener('keydown', function(e){
+      if (e.key === 'Escape'){ inp.value = ''; apply(); inp.blur(); }
+      else if (e.key === 'Enter' && inp.value.trim()){ e.preventDefault(); location.href = '/?q=' + encodeURIComponent(inp.value.trim()); }
+    });
+  });
+  document.addEventListener('keydown', function(e){
+    if (e.key !== '/' || e.metaKey || e.ctrlKey || e.altKey || e.target.closest('input,textarea,select,[contenteditable="true"]')) return;
+    var i = document.getElementById('side-q'); if (!i || !i.offsetParent) return;
+    e.preventDefault(); i.focus();
+  });
+  // Book a call: its fill grows from where the pointer comes in, and shrinks back to where it leaves
+  [].slice.call(document.querySelectorAll('.hire-btn')).forEach(function(hb){
+    var at = function(e){ var r = hb.getBoundingClientRect(); hb.style.setProperty('--x', (e.clientX - r.left) + 'px'); hb.style.setProperty('--y', (e.clientY - r.top) + 'px'); };
+    hb.addEventListener('pointerenter', at); hb.addEventListener('pointerleave', at);
+  });
+})();
 // On this page: the section you're reading is the last one whose top has passed a line 120px under the header,
 // or the last section once the page can't scroll further; its link turns dark and the marker slides to it. A section you
-// jump to, from its link or the address, stays marked while it is still in the top half of the window, even if it is too
-// short to reach that line
+// jump to, from its link or the address, stays marked while the page glides there, and afterwards while it is still in the
+// top half of the window, even if it is too short to reach that line
 (function(){
   var toc = document.querySelector('.dc-toc'); if (!toc) return;
   var links = [].slice.call(toc.querySelectorAll('a')), ind = toc.querySelector('.dc-toc-ind');
   var secs = links.map(function(a){ return document.getElementById(decodeURIComponent(a.hash.slice(1))); });
-  var cur = -2, pin = -1;
+  var cur = -2, pin = -1, gliding = 0;
   var mark = function(){
     if (!toc.offsetParent) return;
     var head = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--pg-head')) || 53, y = head + 120, on = 0;
     secs.forEach(function(s, i){ if (s && s.getBoundingClientRect().top <= y) on = i; });
     if (innerHeight + scrollY >= document.documentElement.scrollHeight - 4) on = secs.length - 1;
-    if (pin > -1){ var t = secs[pin].getBoundingClientRect().top; if (t >= -8 && t <= innerHeight / 2) on = pin; else pin = -1; }
+    if (pin > -1){
+      if (gliding && Date.now() - gliding < 1500) on = pin;
+      else { gliding = 0; var t = secs[pin].getBoundingClientRect().top; if (t >= -8 && t <= innerHeight / 2) on = pin; else pin = -1; }
+    }
     if (on === cur) return; cur = on;
     links.forEach(function(a, i){ a.classList.toggle('on', i === on); if (i === on) a.setAttribute('aria-current', 'location'); else a.removeAttribute('aria-current'); });
     var a = links[on]; ind.style.transform = 'translateY(' + a.offsetTop + 'px)'; ind.style.height = a.offsetHeight + 'px'; ind.classList.add('on');
   };
-  var jump = function(hash){ var i = links.findIndex(function(a){ return a.hash === hash; }); if (i > -1){ pin = i; cur = -2; } };
+  var jump = function(hash){ var i = links.findIndex(function(a){ return a.hash === hash; }); if (i > -1){ pin = i; cur = -2; gliding = Date.now(); } };
   links.forEach(function(a){ a.addEventListener('click', function(){ jump(a.hash); setTimeout(mark, 50); }); });
   addEventListener('hashchange', function(){ jump(location.hash); mark(); });
+  addEventListener('scrollend', function(){ if (gliding){ gliding = 0; mark(); } });
   jump(location.hash);
   addEventListener('scroll', mark, { passive:true });
   addEventListener('resize', function(){ cur = -2; mark(); });
