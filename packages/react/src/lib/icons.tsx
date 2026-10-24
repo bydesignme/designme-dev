@@ -2,7 +2,7 @@
 import type { ReactElement } from 'react';
 import { cx } from './cx';
 
-export type IconName = 'minus' | 'plus' | 'x' | 'check' | 'chev-r' | 'chev-l' | 'chev-d' | 'chev-u' | 'up' | 'right' | 'search' | 'folder' | 'laptop' | 'cloud' | 'mic' | 'file' | 'file-text' | 'image' | 'clip' | 'at' | 'slash' | 'spark' | 'bolt' | 'pr' | 'merge' | 'branch' | 'warn' | 'info' | 'alert' | 'ok' | 'clock' | 'play' | 'pause' | 'stop' | 'refresh' | 'copy' | 'ext' | 'link' | 'eye' | 'lock' | 'shield' | 'user' | 'users' | 'bell' | 'cal' | 'gear' | 'sliders' | 'trash' | 'edit' | 'more' | 'up-thumb' | 'down-thumb' | 'term' | 'code' | 'globe' | 'db' | 'table' | 'chart' | 'bars' | 'layers' | 'grid' | 'list' | 'filter' | 'sort' | 'pin' | 'star' | 'bookmark' | 'send' | 'mail' | 'home' | 'cmd' | 'cpu' | 'coins' | 'gauge' | 'flag' | 'wand' | 'book' | 'down' | 'upload' | 'monitor' | 'grip' | 'figma' | 'react' | 'undo' | 'history' | 'brain' | 'dollar' | 'heart' | 'smile' | 'hash' | 'panel' | 'max' | 'wave' | 'vol' | 'target' | 'rocket' | 'palette' | 'moon' | 'keyboard' | 'logout';
+export type IconName = 'minus' | 'plus' | 'x' | 'check' | 'chev-r' | 'chev-l' | 'chev-d' | 'chev-u' | 'up' | 'right' | 'search' | 'folder' | 'laptop' | 'cloud' | 'mic' | 'file' | 'file-text' | 'image' | 'clip' | 'at' | 'slash' | 'spark' | 'bolt' | 'pr' | 'merge' | 'branch' | 'warn' | 'info' | 'alert' | 'ok' | 'clock' | 'play' | 'pause' | 'stop' | 'refresh' | 'copy' | 'ext' | 'link' | 'eye' | 'lock' | 'shield' | 'user' | 'users' | 'bell' | 'cal' | 'gear' | 'sliders' | 'trash' | 'edit' | 'more' | 'up-thumb' | 'down-thumb' | 'term' | 'code' | 'globe' | 'db' | 'table' | 'chart' | 'bars' | 'layers' | 'grid' | 'list' | 'filter' | 'sort' | 'pin' | 'star' | 'bookmark' | 'send' | 'mail' | 'home' | 'cmd' | 'cpu' | 'coins' | 'gauge' | 'flag' | 'wand' | 'book' | 'down' | 'upload' | 'monitor' | 'grip' | 'figma' | 'react' | 'undo' | 'redo' | 'bold' | 'italic' | 'heading' | 'list-ol' | 'quote' | 'history' | 'brain' | 'dollar' | 'heart' | 'smile' | 'hash' | 'panel' | 'max' | 'wave' | 'vol' | 'target' | 'rocket' | 'palette' | 'moon' | 'keyboard' | 'logout';
 
 const SHAPES: Record<IconName, ReactElement> = {
   'minus': <><path d="M5 12h14"/></>,
@@ -89,6 +89,12 @@ const SHAPES: Record<IconName, ReactElement> = {
   'figma': <><path d="M9 3h3v6H9a3 3 0 0 1 0-6zM12 3h3a3 3 0 0 1 0 6h-3zM9 9h3v6H9a3 3 0 0 1 0-6zM15 9a3 3 0 1 1 0 6 3 3 0 0 1 0-6zM9 15h3v3a3 3 0 1 1-3-3z"/></>,
   'react': <><ellipse cx="12" cy="12" rx="9" ry="3.6"/><ellipse cx="12" cy="12" rx="9" ry="3.6" transform="rotate(60 12 12)"/><ellipse cx="12" cy="12" rx="9" ry="3.6" transform="rotate(120 12 12)"/></>,
   'undo': <><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></>,
+  'redo': <><path d="m15 14 5-5-5-5"/><path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13"/></>,
+  'bold': <><path d="M7 5h6a3.5 3.5 0 0 1 0 7H7zM7 12h7a3.5 3.5 0 0 1 0 7H7z"/></>,
+  'italic': <><path d="M10 5h8M6 19h8M14.5 5l-5 14"/></>,
+  'heading': <><path d="M6 5v14M17 5v14M6 12h11"/></>,
+  'list-ol': <><path d="M10.5 6.5H20M10.5 12H20M10.5 17.5H20M4.5 5l1.5-1v5M4 14.2c.3-.7.9-1 1.5-1 .8 0 1.5.5 1.5 1.3 0 1.2-3 2.1-3 3.5h3"/></>,
+  'quote': <><path d="M10 6.5c-2.9.9-4.5 3.2-4.5 6.5v4h4v-4H6M18.5 6.5c-2.9.9-4.5 3.2-4.5 6.5v4h4v-4h-3.5"/></>,
   'history': <><path d="M3.5 12a8.5 8.5 0 1 0 2.5-6M3.5 4v4h4M12 7.5V12l3 2"/></>,
   'brain': <><path d="M9.5 4.5a2.5 2.5 0 0 0-2.5 2.5 3 3 0 0 0-2.2 5 3 3 0 0 0 1.7 5A3 3 0 0 0 12 18V6.5a2 2 0 0 0-2.5-2zM14.5 4.5A2.5 2.5 0 0 1 17 7a3 3 0 0 1 2.2 5 3 3 0 0 1-1.7 5A3 3 0 0 1 12 18"/></>,
   'dollar': <><path d="M12 3v18M16.5 7.5c-.6-1.6-2.3-2.5-4.5-2.5-2.5 0-4.3 1.2-4.3 3.2 0 4.6 9 2.4 9 7.2 0 2-1.9 3.4-4.7 3.4-2.4 0-4.2-1-4.8-2.8"/></>,

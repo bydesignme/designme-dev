@@ -4,7 +4,7 @@ React versions of the [designme.dev](https://designme.dev) components, for Next.
 
 They use the same markup and the same CSS as the site, so they look and move exactly like the previews on designme.dev, in both styles (Blueprint and Soft) and in light and dark. The difference is that each one takes props, so you drive it from your own state instead of a scripted demo.
 
-All 102 components are here, from Status pill to Currency converter, each with an example that replays its demo from the site.
+All 103 components are here, from Status pill to Currency converter, each with an example that replays its demo from the site.
 
 Each one has a page on designme.dev with its demo, its React usage, its props and its code, at `https://designme.dev/components/<name>`. To see them all running locally, run `npm run dev` here.
 
@@ -164,6 +164,10 @@ Each tool the agent calls, with its input and output.
 **ArtifactCard** · `artifact-card/ArtifactCard.tsx`  
 A file the agent made, with a live preview and versions.  
 `title`, `versions: { label, text, values, value?, change?, meta?, note? }[]`, `axis`, `range`, `icon`, `link` (adds Copy link), `href` (adds Open in a new tab), `onOpen` and `openLabel` (an open button that calls you instead, like opening the file beside a chat), `version` / `defaultVersion` / `onVersionChange`. The chart draws itself in and redraws when the version changes.
+
+**RichTextEditor** · `rich-text-editor/RichTextEditor.tsx`  
+A minimal editor with an inline AI menu that streams a suggestion to accept or discard.  
+`value` / `defaultValue` / `onValueChange` (HTML in a few tags: `p`, `h2`, `ul`, `ol`, `li`, `blockquote`, and `b`, `i`, `code` and `a href` inside them; anything else is cleaned out, as on paste), `onChange` (the same as `onValueChange`), `placeholder`, `label` (the text box's name, Draft by default), `hint`, `ai({ action, text, before, after, document, signal })` (return a string, a promise of one, or an async iterable of chunks to stream it in; defaults to a demo that streams canned text, and `false` hides the AI), `aiActions: { key, label, icon?, kind?: 'swap' | 'add' }[]` (defaults to Improve writing, Make shorter, Fix grammar and Continue writing), `onSuggestion({ action, text, accepted })`. A ref can `type`, `select`, `format`, `ask`, `accept`, `discard`, `undo` and `redo`. Shortcuts: ⌘B, ⌘I, ⌘E (code), ⌘K (link), ⌘⌥1 (heading), ⌘⇧8, ⌘⇧7 and ⌘⇧9 (lists and quote), ⌘J (the AI menu), or / at the start of a line; Tab or Enter accepts a suggestion and Escape discards it.
 
 **ModelPicker** · `model-picker/ModelPicker.tsx`  
 Pick a model by speed, quality and cost, and how hard it thinks.  

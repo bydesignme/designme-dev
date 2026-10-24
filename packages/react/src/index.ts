@@ -26,6 +26,7 @@ export * from './components/voice-capture/VoiceCapture';
 export * from './components/voice-orb/VoiceOrb';
 export * from './components/tool-call/ToolCall';
 export * from './components/artifact-card/ArtifactCard';
+export * from './components/rich-text-editor/RichTextEditor';
 export * from './components/prompt-starters/PromptStarters';
 export * from './components/prompt-library/PromptLibrary';
 export * from './components/attachment-tray/AttachmentTray';
