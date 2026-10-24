@@ -400,8 +400,15 @@
         if (!soft && dark){ v['--accent'] = hex(mix(c, W, .1)); v['--accent-bg'] = rgba(c, .12); }
         if (soft && !dark){ v['--accent'] = base; v['--accent-bg'] = hex(mix(W, c, .09)); }
         if (soft && dark){ v['--accent'] = hex(mix(c, W, .2)); v['--accent-bg'] = rgba(c, .16); }
-        var L = lum(rgb(v['--accent'] || base)), onDark = (L + .05) / (lum([18,10,2]) + .05), onWhite = 1.05 / (L + .05);
-        v['--on-accent'] = onWhite >= 4.5 || onWhite >= onDark ? '#ffffff' : '#120a02';
+        // text on a fill: white or near-black, whichever APCA (the contrast model behind WCAG 3) says reads better. WCAG 2's ratio
+        // favours black on saturated mid-tones like violet, where white reads far better. The fill then moves a little darker
+        // (white text) or lighter (dark text) until its text also reaches 4.5:1 and Lc 60
+        function apca(t, b){ var y = function(c){ var Y = .2126729 * Math.pow(c[0] / 255, 2.4) + .7151522 * Math.pow(c[1] / 255, 2.4) + .072175 * Math.pow(c[2] / 255, 2.4); return Y < .022 ? Y + Math.pow(.022 - Y, 1.414) : Y; };
+      var yt = y(t), yb = y(b); if (Math.abs(yb - yt) < .0005) return 0; var s = yb > yt ? (Math.pow(yb, .56) - Math.pow(yt, .57)) * 1.14 : (Math.pow(yb, .65) - Math.pow(yt, .62)) * 1.14;
+      return Math.abs(s) < .1 ? 0 : (s > 0 ? s - .027 : s + .027) * 100; }
+        var fl = rgb(v['--accent'] || base), INK = [18,10,2], useW = Math.abs(apca(W, fl)) >= Math.abs(apca(INK, fl)), onC = useW ? W : INK;
+        for (var j = 0; j <= 40; j += 2){ var f2 = mix(fl, useW ? K : W, j / 100); if (ratio(onC, f2) >= 4.5 && Math.abs(apca(onC, f2)) >= 60){ fl = f2; break; } }
+        v['--accent'] = hex(fl); v['--on-accent'] = useW ? '#ffffff' : '#120a02';
         var fill = rgb(v['--accent'] || base), chip = dark ? [52,52,52] : [236,236,236], to = dark ? W : K;
         function reach(need, cap, on){ for (var i = 0; i <= 100; i += 2){ var m = mix(fill, to, i / 100); if (ratio(m, on) >= need) return i / 100 <= cap ? hex(m) : null; } return null; }
         v['--accent-mark'] = reach(3, 1, chip); v['--accent-fg'] = reach(4.5, .4, mix(chip, fill, .12)) || (dark ? '#f2f2f2' : '#111318');

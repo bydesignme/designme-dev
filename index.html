@@ -53,9 +53,15 @@
     v['--ink-rgb'] = c.join(',');
     // text on accent fills: whichever of near-black or white reads better
     var L = lum(rgb(v['--accent-hi'] || base)), onDark = (L + .05) / (lum([18,10,2]) + .05), onWhite = 1.05 / (L + .05);
-    // measured on the fill itself: white when it reaches 4.5:1, otherwise whichever of the two reads better
-    L = lum(rgb(v['--accent'] || base)); onDark = (L + .05) / (lum([18,10,2]) + .05); onWhite = 1.05 / (L + .05);
-    v['--on-accent'] = onWhite >= 4.5 || onWhite >= onDark ? '#ffffff' : '#120a02';
+    // text on a fill: white or near-black, whichever APCA (the contrast model behind WCAG 3) says reads better. WCAG 2's ratio
+    // favours black on saturated mid-tones like violet, where white reads far better. The fill then moves a little darker
+    // (white text) or lighter (dark text) until its text also reaches 4.5:1 and Lc 60
+    function apca(t, b){ var y = function(c){ var Y = .2126729 * Math.pow(c[0] / 255, 2.4) + .7151522 * Math.pow(c[1] / 255, 2.4) + .072175 * Math.pow(c[2] / 255, 2.4); return Y < .022 ? Y + Math.pow(.022 - Y, 1.414) : Y; };
+      var yt = y(t), yb = y(b); if (Math.abs(yb - yt) < .0005) return 0; var s = yb > yt ? (Math.pow(yb, .56) - Math.pow(yt, .57)) * 1.14 : (Math.pow(yb, .65) - Math.pow(yt, .62)) * 1.14;
+      return Math.abs(s) < .1 ? 0 : (s > 0 ? s - .027 : s + .027) * 100; }
+    var fl = rgb(v['--accent'] || base), INK = [18,10,2], useW = Math.abs(apca(W, fl)) >= Math.abs(apca(INK, fl)), onC = useW ? W : INK;
+    for (var j = 0; j <= 40; j += 2){ var f2 = mix(fl, useW ? K : W, j / 100); if (ratio(onC, f2) >= 4.5 && Math.abs(apca(onC, f2)) >= 60){ fl = f2; break; } }
+    v['--accent'] = hex(fl); if (soft && !dark) v['--ink'] = v['--accent']; v['--on-accent'] = useW ? '#ffffff' : '#120a02';
     // as text it needs 4.5:1, and as lines and chart marks 3:1, on the surface and on the chips and tinted rows it sits on: it
     // is darkened on a light page (lightened on a dark one) until it gets there, and text falls back to the ink if that takes
     // more than 40%
