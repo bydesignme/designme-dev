@@ -50,6 +50,7 @@ const server = http.createServer((req, res) => {
   for (const [band, width] of BANDS) for (const style of STYLES){
     if (ONLY && !ONLY.includes(band)) continue;
     const page = await browser.newPage({ viewport: { width, height: 900 } });
+    await page.addInitScript(() => { window.DM_NO_IDLE = true; });
     await page.addInitScript(s => { try { localStorage.setItem('dmui-style', s === 'soft' ? 'soft' : 'blueprint'); localStorage.setItem('dmui-theme', 'light'); } catch(e){} }, style);
     await page.goto(url, { waitUntil: 'load' });
     await page.evaluate(() => document.fonts.ready);

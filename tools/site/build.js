@@ -158,6 +158,10 @@ const V2CSS = `/* ===== Soft 2 and Blueprint 2 components: scoped to .v2, so the
 /* svg is left out of the reset (it would drop presentation attributes), so its colour is reset on its own; the site's .s is a code colour */
 :where(.v2) svg{color:inherit}
 ${scoped}
+/* a card far from the screen is hidden and its animations paused (see dm-idle in the mount script) */
+/* its contents are skipped entirely (no layout, paint or layers) while the stage keeps its measured height */
+.comp.dm-idle .stage-in{content-visibility:hidden}
+.comp.dm-idle .stage-in *,.comp.dm-idle .stage-in *::before,.comp.dm-idle .stage-in *::after{animation-play-state:paused!important}
 /* base for the mount root, which sits inside the site's stage */
 .v2{font-family:var(--sans);font-size:14px;line-height:1.5;color:var(--fg);font-weight:400;letter-spacing:normal;text-align:left;-webkit-font-smoothing:antialiased;
   --accent-2:color-mix(in srgb,var(--accent) 86%,#000);--accent-bg:color-mix(in srgb,var(--accent) 9%,transparent)}
@@ -206,6 +210,10 @@ ${defs}
   };
   const mount = comp => { DM.mount(comp); syncTabs(comp); };
   const io = new IntersectionObserver(es => es.forEach(en => { if (en.isIntersecting){ io.unobserve(en.target); mount(en.target); } }), { threshold:.2 });
+  // a card far from the screen stops drawing: its demo is hidden (the space it takes stays) and its CSS animations pause,
+  // so a long visit never piles up a hundred running demos for the browser to paint. They pick up again a screen or so
+  // before scrolling back into view. The height measuring script turns this off, since it reads every card at once
+  if (!window.DM_NO_IDLE){ const idle = new IntersectionObserver(es => es.forEach(en => en.target.classList.toggle('dm-idle', !en.isIntersecting)), { rootMargin:'1000px 0px' }); $$('.comp[data-v2]').forEach(comp => idle.observe(comp)); }
   $$('.comp[data-v2]').forEach(comp => {
     io.observe(comp);
     const g = $('.comp-foot [data-tabs]', comp);
