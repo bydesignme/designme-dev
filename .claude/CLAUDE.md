@@ -37,6 +37,9 @@ every session and every agent.
 - No monospace fonts in the interface, keyboard hints included. Code blocks and inline code are the exception.
 - Soft is the site's default style; Blueprint's default accent is lime `#d4f84a`. Primary buttons use the accent, with
   `--on-accent` icons and text on accent fills: dark on Blueprint's lime, white on Soft's blue.
+- Greys: one neutral scale for the site chrome and Soft (no blue-tinted greys anywhere). Blueprint keeps its warm greys
+  as their own named set.
+- Primary buttons are `.pill.primary` (on the accent). There are no ink buttons for now.
 - Accents have roles: `--accent` fills, `--accent-fg` text (4.5:1), `--accent-mark` lines, rings and chart marks (3:1),
   `--accent-bg` / `--sel` tints. Charts follow the accent.
 - Every colour pairing must pass a contrast check before it ships: text 4.5:1 (WCAG 2) and APCA Lc 60 or more for
@@ -44,7 +47,15 @@ every session and every agent.
   which is hard to read.
 - Highlights like "Everyone is free" use the accent tint (`--sel` with the accent as text), not a solid accent fill.
 
+## Spacing and radius
+- Use the spacing tokens (4px scale) and radius tokens for new and changed CSS. Existing off-scale values are snapped
+  later in a separate pass, one category at a time, with before/after screenshots for the owner to review.
+
 ## Components
+- Installed code must look like its style with no wrapper: Blueprint with no `data-style`, Soft with
+  `data-style="soft"`. Nothing may depend on a page's demo stage.
+- Demos (scripted autoplay) stop for good the moment a person clicks, focuses or types inside the component, and stay
+  stopped until Animate/replay is pressed.
 - Every component sits centred in its stage at every moment: its tallest state, its end state, and closed dropdowns.
   End states that are shorter keep their height with `hold()` / `release()`. Dropdowns use `centre()`: the closed field
   sits centred and glides up as its list opens.
