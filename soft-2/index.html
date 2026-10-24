@@ -186,9 +186,9 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 /* on a touch screen the small buttons, switches and boxes get a tap area of at least 32px, and the smallest links and icon
    buttons one of at least 24px, without changing how they look or where anything sits */
 @media (pointer:coarse){
-  :is(.pill.sm,.crx-hh .pill,.spl-in .pill,.thp-send,.ste-go,.cmx-go,.toggle,.ttx-cb,.obx-ck,.rq-retry,.cpx-att .fchip :is(.x,.rt),.dtp-add,.ahx-tx,.ivx-ch button,.sgx-bk,.prx-alt-t,.fex-fix){position:relative}
+  :is(.pill.sm,.crx-hh .pill,.spl-in .pill,.thp-send,.ste-go,.cmx-go,.toggle,.ttx-cb,.obx-ck,.rq-retry,.cpx-att .fchip :is(.x,.rt),.dtp-add,.ahx-tx,.ivx-ch button,.sgx-bk,.prx-alt-t,.fex-fix,.msc-c button,.flm-ch .op,.tmx-more){position:relative}
   :is(.pill.sm,.crx-hh .pill,.spl-in .pill,.thp-send,.ste-go,.cmx-go,.toggle,.ttx-cb,.obx-ck)::before{content:"";position:absolute;inset:min(0px,(100% - 32px) / 2)}
-  :is(.rq-retry,.cpx-att .fchip :is(.x,.rt),.dtp-add,.ahx-tx,.ivx-ch button,.sgx-bk,.prx-alt-t,.fex-fix)::before{content:"";position:absolute;inset:min(0px,(100% - 24px) / 2)}
+  :is(.rq-retry,.cpx-att .fchip :is(.x,.rt),.dtp-add,.ahx-tx,.ivx-ch button,.sgx-bk,.prx-alt-t,.fex-fix,.msc-c button,.flm-ch .op,.tmx-more)::before{content:"";position:absolute;inset:min(0px,(100% - 24px) / 2)}
 }
 .seg2{display:inline-flex;padding:2px;background:var(--chip);border-radius:var(--r-pill);position:relative}
 .seg2 button{position:relative;z-index:1;height:26px;padding:0 11px;border-radius:var(--r-pill);font-size:12.5px;color:var(--fg2);transition:color var(--t-fast)}
@@ -610,9 +610,10 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .trv-r{width:100%;min-height:32px;border-radius:10px;font-size:13px;text-align:left;transition:background .16s}
 .trv-r:hover{background:var(--row)}
 .trv-r[aria-expanded="true"]{background:var(--sel)}
+.trv-r[aria-expanded="true"] .trv-tk{color:var(--fg2)}
 .trv-r:focus-visible{outline:0;box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--accent-mark,var(--accent)) 45%,transparent)}
 .trv-n{display:flex;align-items:center;gap:6px;min-width:0;padding-left:calc(var(--lv,0) * 12px)}
-.trv-k{width:18px;height:18px;display:grid;place-items:center;flex:none;border-radius:5px;color:color-mix(in srgb,var(--k) 78%,var(--fg));background:color-mix(in srgb,var(--k) 13%,transparent)}
+.trv-k{width:18px;height:18px;display:grid;place-items:center;flex:none;border-radius:5px;color:color-mix(in srgb,var(--k) 70%,var(--fg));background:color-mix(in srgb,var(--k) 13%,transparent)}
 .trv-nm{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .trv-r.root .trv-nm{font-weight:500}
 .trv-n .tag{flex:none}
@@ -1490,10 +1491,11 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .hox-st .g .av{width:18px;height:18px;font-size:8.5px}
 .hox-st .t{flex:1;min-width:0;display:flex;flex-direction:column}
 .hox-st .t b{font-weight:400}
-.hox-st .t>span{font-size:13px;color:var(--muted)}
+/* the second line sits on the row's tint, so it is fg2 rather than muted */
+.hox-st .t>span{font-size:13px;color:var(--fg2)}
 .hox-st .t,.hox-sum,.hox-mb,.tmx-note>span{text-wrap:pretty}
 /* ---------- Launch checklist ---------- */
-.lcx{padding:14px;display:flex;flex-direction:column;gap:12px}
+.lcx{padding:16px;display:flex;flex-direction:column;gap:12px}
 .lcx-h{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .lcx-h>div{display:flex;flex-direction:column}
 .lcx-h b{font-weight:500;font-size:13.5px}
@@ -2135,6 +2137,8 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 :root[data-theme="dark"] .fex-pg{--pg:var(--raised);--pg-fg:var(--fg);--pg-mut:var(--muted);--pg-line:var(--line);--pg-warn:240,168,48;--pg-wring:#f0a830;--pg-sh:0 0 0 1px var(--line),0 10px 30px rgba(0,0,0,.4)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .fex-pg{--pg:var(--raised);--pg-fg:var(--fg);--pg-mut:var(--muted);--pg-line:var(--line);--pg-warn:240,168,48;--pg-wring:#f0a830;--pg-sh:0 0 0 1px var(--line),0 10px 30px rgba(0,0,0,.4)}}
 .fex-pg .muted{color:var(--pg-mut)}
+/* a label under the scan's tint or a highlight leans toward the ink, so it keeps 4.5:1 with any accent */
+.fex-z:is(.scan,.hl) .muted{color:color-mix(in srgb,var(--pg-mut) 70%,var(--pg-fg))}
 .fex-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;font-size:13px}
 .fex-z{position:relative;padding:2px 4px;margin:0 -4px;border-radius:4px;transition:background .3s,box-shadow .3s}
 .fex-z.scan{background:color-mix(in srgb,var(--pg-hl) 8%,transparent)}
@@ -2457,9 +2461,10 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 /* the name shares its line with Run now and the switch; the schedule and the result below it take the full width */
 .shx-r .ic{grid-row:1/4}
 .shx-r .t{display:contents}
-.shx-r :is(.nm,.d,.res){grid-column:2/-1;transition:opacity .3s}
+.shx-r :is(.nm,.d,.res){grid-column:2/-1;transition:color .3s}
 .shx-r .nm{grid-column:2}
-.shx-r.off :is(.ic,.nm,.d,.res){opacity:.5}
+/* a paused one dims: its tile fades, and its name and result step down to muted, so the text stays readable */
+.shx-r.off .ic{opacity:.5}.shx-r.off :is(.nm,.res .i){color:var(--muted)}
 .shx-r .nm,.shx-r .d{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .shx-r .d{font-size:12px;color:var(--muted)}
 .shx-r .res{display:flex;align-items:center;gap:5px;min-width:0;height:18px;font-size:12px;color:var(--muted)}
@@ -3061,7 +3066,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .ttp-ch .av{width:34px;height:34px;font-size:12px}
 .ttp-ch div{display:flex;flex-direction:column;font-size:13px}
 .ttp-ch b{font-weight:500}
-.ttp-ch span{font-size:12px;color:var(--muted)}
+.ttp-ch div span{font-size:12px;color:var(--muted)}
 .ttp-cs{display:flex;align-items:center;gap:6px;margin-top:10px;font-size:12px;color:var(--fg2)}
 .ttp-cs .dot{color:var(--ok)}
 .ttp-n{font-size:12.5px;text-align:center}
@@ -3133,8 +3138,8 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .msc-list{max-height:210px;overflow-y:auto;display:flex;flex-direction:column}
 .msc-o{display:flex;align-items:center;gap:10px;min-height:34px;padding:6px 8px;border-radius:9px;font-size:13px;cursor:pointer;flex:none}
 .msc-o.hl{background:var(--wash)}
-.msc-o .bx{width:16px;height:16px;border-radius:5px;box-shadow:inset 0 0 0 1.5px var(--rail);display:grid;place-items:center;color:transparent;flex:none;transition:background .2s,box-shadow .2s,color .2s}
-.msc-o[aria-selected="true"] .bx{background:var(--accent);box-shadow:none;color:var(--on-accent)}
+.msc-o .bx{width:16px;height:16px;border-radius:5px;box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--muted) 80%,var(--surface));display:grid;place-items:center;color:transparent;flex:none;transition:background .2s,box-shadow .2s,color .2s}
+.msc-o[aria-selected="true"] .bx{background:var(--accent);box-shadow:inset 0 0 0 1px var(--accent-mark,var(--accent));color:var(--on-accent)}
 .msc-o .n{margin-left:auto;font-size:12px;color:var(--muted)}
 .msc-none{padding:8px;font-size:12.5px;color:var(--muted)}
 .msc-h{font-size:12px}
@@ -3397,8 +3402,10 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .pfm{position:relative;width:100%;max-width:400px;margin:0 auto;display:flex;flex-direction:column;gap:10px}
 .pfm-bar{display:flex;align-items:center;gap:10px;min-height:52px;padding:8px 8px 8px 12px;border-radius:14px}
 .pfm-lg{width:26px;height:26px;border-radius:8px;display:grid;place-items:center;flex:none;font-size:12px;font-weight:500;background:var(--chip);color:var(--fg2);transition:background var(--t) var(--ease),color var(--t) var(--ease)}
-.pfm-lg[data-t="pb"]{background:var(--pb-bg);color:var(--pb)}.pfm-lg[data-t="pp"]{background:var(--pp-bg);color:var(--pp)}.pfm-lg[data-t="pl"]{background:var(--pl-bg);color:var(--pl)}.pfm-lg[data-t="pm"]{background:var(--pm-bg);color:var(--pm)}
-.pfm-lg[data-t="pr"]{background:var(--pr-bg);color:var(--pr)}.pfm-lg[data-t="py"]{background:var(--py-bg);color:var(--py)}.pfm-lg[data-t="pk"]{background:var(--pk-bg);color:var(--pk)}.pfm-lg[data-t="pt"]{background:var(--pt-bg);color:var(--pt)}
+.pfm-lg[data-t="pb"]{--tb:var(--pb-bg);--tc:var(--pb)}.pfm-lg[data-t="pp"]{--tb:var(--pp-bg);--tc:var(--pp)}.pfm-lg[data-t="pl"]{--tb:var(--pl-bg);--tc:var(--pl)}.pfm-lg[data-t="pm"]{--tb:var(--pm-bg);--tc:var(--pm)}
+.pfm-lg[data-t="pr"]{--tb:var(--pr-bg);--tc:var(--pr)}.pfm-lg[data-t="py"]{--tb:var(--py-bg);--tc:var(--py)}.pfm-lg[data-t="pk"]{--tb:var(--pk-bg);--tc:var(--pk)}.pfm-lg[data-t="pt"]{--tb:var(--pt-bg);--tc:var(--pt)}
+/* the letter leans a little toward the text colour, so it reads at 4.5:1 on its tint in dark mode too, on a hovered row as well */
+.pfm-lg[data-t]{background:var(--tb);color:color-mix(in srgb,var(--tc) 80%,var(--fg))}
 .pfm-ws{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.3}
 .pfm-wn{font-size:13.5px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
 .pfm-ws .muted{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -3421,7 +3428,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .pfm-th[aria-checked="true"]{background:none;font-weight:400}
 .pfm-th[aria-checked="true"]:hover,.pfm-th.hl{background:var(--row)}
 .pfm-th .toggle{margin-left:auto}
-.pfm-th[aria-checked="true"] .toggle{background:var(--accent)}
+.pfm-th[aria-checked="true"] .toggle{background:var(--accent);box-shadow:inset 0 0 0 1px var(--accent-mark,var(--accent))}
 .pfm-th[aria-checked="true"] .toggle::after{transform:translateX(12px);background:var(--on-accent)}
 .pfm-ky .kbd{margin-left:auto}
 .pfm-keys{padding:10px 12px 12px;border-radius:14px}
@@ -8786,7 +8793,8 @@ DM.def('knowledge-sources', (r, c) => {
   }
   function paint(x, now){
     const d = $('.d', x.el); x.el.dataset.st = x.st;
-    if (x.st === 'indexing'){ d.innerHTML = `<span class="ksx-bar" role="progressbar" aria-label="Indexing ${x.name.replace(/[<&"]/g, '')}" aria-valuemin="0" aria-valuemax="${x.n}"><i style="width:0"></i></span><span class="num"></span>`; prog(x); }
+    // the bar goes through the same swap as the line before it, so a line still swapping in can't land on top of it
+    if (x.st === 'indexing'){ const bar = `<span class="ksx-bar" role="progressbar" aria-label="Indexing ${x.name.replace(/[<&"]/g, '')}" aria-valuemin="0" aria-valuemax="${x.n}"><i style="width:0"></i></span><span class="num"></span>`; if (now){ d.innerHTML = bar; prog(x); } else swap(d, bar, true); }
     else { const t = document.createElement('span'); t.textContent = line(x); if (now) d.replaceChildren(t); else swap(d, t.outerHTML, true); }
     const fx = $('.ksx-fx', x.el), on = x.st === 'failed';
     if (on) $('.ksx-fix', x.el).textContent = x.fail.fix;

@@ -113,11 +113,21 @@ export function ProfileMenu({
     if (go) { e.preventDefault(); go.focus(); } else if (e.key === 'Tab') setTimeout(() => menu.close());
   };
   const showKeys = (on: boolean) => setKeysOpen(on);
+  // the menu opens over whatever sits under the bar, so the component keeps room for it below the bar: centred in a
+  // stage, the open menu still ends inside it
+  const bar = useRef<HTMLDivElement>(null);
+  const [room, setRoom] = useState<number>();
+  useEffect(() => {
+    const fit = () => { if (bar.current && pop.current) setRoom(Math.ceil(bar.current.offsetHeight + 6 + pop.current.offsetHeight)); };
+    fit(); const ro = new ResizeObserver(fit);
+    if (bar.current) ro.observe(bar.current); if (pop.current) ro.observe(pop.current);
+    return () => ro.disconnect();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <div data-dm="" className={cx('dm-pfm', className)}
+    <div data-dm="" className={cx('dm-pfm', className)} style={room ? { minHeight: room } : undefined}
       onKeyDown={e => { if (e.key === '?' && !(e.target as HTMLElement).matches('input,textarea')) { e.preventDefault(); menu.close(); showKeys(!keysOpen); } }}>
-      <div className="dm-pfm-bar dm-panel">
+      <div ref={bar} className="dm-pfm-bar dm-panel">
         {cur && <span className="dm-pfm-lg" data-t={cur.tint}>{cur.initial ?? cur.name[0]}</span>}
         <span className="dm-pfm-ws"><Swap className="dm-pfm-wn">{cur?.name ?? ''}</Swap>{context && <span className="dm-muted">{context}</span>}</span>
         {isIn ? (

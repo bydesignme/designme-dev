@@ -406,7 +406,7 @@ export function KnowledgeSources({ sources, onUpload, onAddWebsite, address, def
 .ksx-in input{flex:1;min-width:0;height:100%;border:0;outline:0;background:transparent;font:inherit;font-size:13px;color:var(--fg)}
 .ksx-in input::placeholder{color:var(--muted)}
 .ksx-in .pill{height:28px}
-</code></pre></details><details class="cp-file"><summary>knowledge-sources.js<span class="l">HTML · 103 lines</span></summary><pre class="cp-pre"><code>DM.def(&#39;knowledge-sources&#39;, (r, c) =&gt; {
+</code></pre></details><details class="cp-file"><summary>knowledge-sources.js<span class="l">HTML · 104 lines</span></summary><pre class="cp-pre"><code>DM.def(&#39;knowledge-sources&#39;, (r, c) =&gt; {
   r.innerHTML = r.innerHTML.replace(&#39;{plus}&#39;, I(&#39;plus&#39;,&#39;xs&#39;)).replace(&#39;{refresh}&#39;, I(&#39;refresh&#39;,&#39;xs&#39;)).replace(&#39;{trash}&#39;, I(&#39;trash&#39;,&#39;xs&#39;));
   // a source&#39;s type gives it its icon: uploaded files, a website the agent crawls, or a connected folder of docs
   const KIND = { files:[&#39;file-text&#39;,&#39;var(--pp)&#39;], web:[&#39;globe&#39;,&#39;var(--pb)&#39;], folder:[&#39;folder&#39;,&#39;var(--pm)&#39;] };
@@ -438,7 +438,8 @@ export function KnowledgeSources({ sources, onUpload, onAddWebsite, address, def
   }
   function paint(x, now){
     const d = $(&#39;.d&#39;, x.el); x.el.dataset.st = x.st;
-    if (x.st === &#39;indexing&#39;){ d.innerHTML = `&lt;span class=&quot;ksx-bar&quot; role=&quot;progressbar&quot; aria-label=&quot;Indexing ${x.name.replace(/[&lt;&amp;&quot;]/g, &#39;&#39;)}&quot; aria-valuemin=&quot;0&quot; aria-valuemax=&quot;${x.n}&quot;&gt;&lt;i style=&quot;width:0&quot;&gt;&lt;/i&gt;&lt;/span&gt;&lt;span class=&quot;num&quot;&gt;&lt;/span&gt;`; prog(x); }
+    // the bar goes through the same swap as the line before it, so a line still swapping in can&#39;t land on top of it
+    if (x.st === &#39;indexing&#39;){ const bar = `&lt;span class=&quot;ksx-bar&quot; role=&quot;progressbar&quot; aria-label=&quot;Indexing ${x.name.replace(/[&lt;&amp;&quot;]/g, &#39;&#39;)}&quot; aria-valuemin=&quot;0&quot; aria-valuemax=&quot;${x.n}&quot;&gt;&lt;i style=&quot;width:0&quot;&gt;&lt;/i&gt;&lt;/span&gt;&lt;span class=&quot;num&quot;&gt;&lt;/span&gt;`; if (now){ d.innerHTML = bar; prog(x); } else swap(d, bar, true); }
     else { const t = document.createElement(&#39;span&#39;); t.textContent = line(x); if (now) d.replaceChildren(t); else swap(d, t.outerHTML, true); }
     const fx = $(&#39;.ksx-fx&#39;, x.el), on = x.st === &#39;failed&#39;;
     if (on) $(&#39;.ksx-fix&#39;, x.el).textContent = x.fail.fix;
@@ -573,7 +574,8 @@ export function KnowledgeSources({ sources, onUpload, onAddWebsite, address, def
   }
   function paint(x, now){
     const d = $('.d', x.el); x.el.dataset.st = x.st;
-    if (x.st === 'indexing'){ d.innerHTML = `<span class="ksx-bar" role="progressbar" aria-label="Indexing ${x.name.replace(/[<&"]/g, '')}" aria-valuemin="0" aria-valuemax="${x.n}"><i style="width:0"></i></span><span class="num"></span>`; prog(x); }
+    // the bar goes through the same swap as the line before it, so a line still swapping in can't land on top of it
+    if (x.st === 'indexing'){ const bar = `<span class="ksx-bar" role="progressbar" aria-label="Indexing ${x.name.replace(/[<&"]/g, '')}" aria-valuemin="0" aria-valuemax="${x.n}"><i style="width:0"></i></span><span class="num"></span>`; if (now){ d.innerHTML = bar; prog(x); } else swap(d, bar, true); }
     else { const t = document.createElement('span'); t.textContent = line(x); if (now) d.replaceChildren(t); else swap(d, t.outerHTML, true); }
     const fx = $('.ksx-fx', x.el), on = x.st === 'failed';
     if (on) $('.ksx-fix', x.el).textContent = x.fail.fix;
