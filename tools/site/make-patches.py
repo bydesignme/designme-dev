@@ -134,7 +134,7 @@ patch("""  $$('[data-copy]').forEach(btn => btn.addEventListener('click', async 
 # ---------- the intro: one short line, the React install command, then a switch between the two sets ----------
 RX_CMD = 'npx designme add live-answer --react'
 patch("""<p>46 components for showing an agent's work, from status and conversation to review, sources and workspace, plus 32 app basics for the dashboard around it, designed and built by the <a href="https://designme.agency" target="_blank" rel="noopener">DesignMe</a> team.</p>""",
-      """<p>102 free components in HTML or React, designed and built by <a href="https://designme.agency" target="_blank" rel="noopener">DesignMe</a>.</p>
+      """<p>103 free components in HTML or React, designed and built by <a href="https://designme.agency" target="_blank" rel="noopener">DesignMe</a>.</p>
   <div class="intro-get"><button class="cdm-cmd intro-cmd" data-cmd=\"""" + RX_CMD + """\" title="Copy install command"><span class="d">$</span><span class="c">""" + RX_CMD + """</span><span class="ms sm">content_copy</span></button></div>""")
 # the two group introductions become one switch: Agent components or App basics
 patch("""<div class="grp-intro"><span class="k">46 components</span><h2>Agent components</h2><p>Everything for showing an agent's work, from the first plan to the final summary.</p></div>""",
@@ -853,5 +853,7 @@ CSS += """
 :root[data-theme="dark"]:not([data-style="soft"]){--bp-grid:rgba(255,255,255,.014)}
 :root:not([data-style="soft"]) body.ui .lib-sec .stage-inner{background-image:linear-gradient(var(--bp-grid) 1px,transparent 1px),linear-gradient(90deg,var(--bp-grid) 1px,transparent 1px);background-size:24px 24px;background-position:-1px -1px}
 """
+# the rich text editor shipped, so the roadmap's own list (used when the live one can't load) says so
+patch("""['editor','Rich text editor','A minimal editor with an inline AI menu.','planned','Conversation'],""", """['editor','Rich text editor','A minimal editor with an inline AI menu.','shipped','Conversation'],""")
 json.dump({ 'patches': P, 'css': CSS },open(os.path.join(HERE, 'site-patches.json'), 'w'), indent=1)
 print(len(P), 'patches')
