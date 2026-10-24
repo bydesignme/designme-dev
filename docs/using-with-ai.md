@@ -4,36 +4,31 @@
 
 Designme.dev docs. The same page with navigation: https://designme.dev/docs/using-with-ai
 
-## Markdown pages
+## Point an agent at them
 
-Add `.md` to a component's address:
+### 1. Give it llms.txt
+
+So it can pick the components for your screen.
+
+```text
+https://designme.dev/llms.txt
+```
+
+### 2. Give it the Markdown page of each component it picks
+
+Add `.md` to a component's address.
 
 ```text
 https://designme.dev/components/composer.md
 ```
 
-Each one has:
+### 3. Ask it to install them with the CLI
 
-- What the component is for, when to use it and what it does
-- Its install commands for HTML and React
-- Its accessibility notes and questions
-- The React import, an example and a table of props
-- The full React source, as the CLI installs it
-- Links to the other components in its section
+Rather than write them from memory.
 
-These docs have Markdown copies too, like `https://designme.dev/docs/theming.md`.
-
-## llms.txt
-
-[https://designme.dev/llms.txt](https://designme.dev/llms.txt) lists every component by section, each with one line about it, its Markdown page and its install command. It also lists these docs. Start an agent there when it needs to choose components.
-
-The CLI installs from the registry: each component as JSON, at `/r/<name>.json` for HTML and `/r/react/<name>.json` for React.
-
-## Point an agent at them
-
-1. Give it llms.txt, so it can pick the components for your screen.
-2. Give it the Markdown page of each component it picks.
-3. Ask it to install them with the CLI, rather than write them from memory.
+```sh
+npx designme add composer --react
+```
 
 Agents that can fetch a URL can read these pages themselves. Otherwise, open the page and paste it in.
 
@@ -46,6 +41,42 @@ For each one, read its .md page, then install it with:
 Keep the installed files as they are and drive the components through their props from our state.
 Use the Soft style: add data-style="soft" to <html>.
 ```
+
+## Markdown pages
+
+Each component's Markdown page has:
+
+### About
+
+What the component is for, when to use it and what it does.
+
+### Install
+
+Its install commands for HTML and React.
+
+### Accessibility
+
+Its accessibility notes and questions.
+
+### React
+
+The React import, an example and a table of props.
+
+### Source
+
+The full React source, as the CLI installs it.
+
+### Related
+
+Links to the other components in its section.
+
+These docs have Markdown copies too, like `https://designme.dev/docs/theming.md`.
+
+## llms.txt
+
+[https://designme.dev/llms.txt](https://designme.dev/llms.txt) lists every component by section, each with one line about it, its Markdown page and its install command. It also lists these docs. Start an agent there when it needs to choose components.
+
+The CLI installs from the registry: each component as JSON, at `/r/<name>.json` for HTML and `/r/react/<name>.json` for React.
 
 ## Tips
 

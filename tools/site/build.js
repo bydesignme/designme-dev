@@ -505,7 +505,13 @@ Every class, CSS variable and animation name starts with \`dm-\` in the React ve
   fs.mkdirSync(path.dirname(PAGES_DATA), { recursive:true });
   const cardsAll = [...site.matchAll(/<article\b([^>]*)>[\s\S]*?class="comp-title">([\s\S]*?)<\/h2>[\s\S]*?class="comp-desc">([\s\S]*?)<\/p>/g)];
   const meta = {}; for (const [, attrs] of cardsAll){ const reg = (attrs.match(/data-reg="([\w-]+)"/) || [])[1]; if (reg) meta[reg] = { v2:(attrs.match(/data-v2="([\w-]+)"/) || [])[1], wide:/class="comp wide/.test(attrs) }; }
-  fs.writeFileSync(PAGES_DATA, JSON.stringify({ sets:SETS, logo:site.match(/<a[^>]*class="brand"[\s\S]*?(<svg[\s\S]*?<\/svg>)<\/a>/)[1], sections:secs.filter(x => x.cards.length).map(x => ({
+  // the sidebar's icons (the site's own Phosphor set, which the homepage draws in its sidebar in both styles), so the docs and
+  // component pages draw the same Library, Docs, Changelog, Roadmap and FAQ rows
+  const shell = JSON.parse(site.match(/const PH_SHELL = (\{.*?\});\n/)[1]), icons = {};
+  for (const k of ['dashboard', 'description', 'history', 'trending_up', 'help', 'expand_more', 'terminal', 'tune', 'stars', 'check_circle', 'arrow_forward', 'arrow_back', 'code', 'content_copy']){
+    if (!shell[k]) throw new Error('no sidebar icon called ' + k); icons[k] = shell[k];
+  }
+  fs.writeFileSync(PAGES_DATA, JSON.stringify({ sets:SETS, logo:site.match(/<a[^>]*class="brand"[\s\S]*?(<svg[\s\S]*?<\/svg>)<\/a>/)[1], icons, sections:secs.filter(x => x.cards.length).map(x => ({
     slug:x.id.replace(/^s-/, ''), ...x,
     cards:x.cards.map(c => ({ reg:c.reg, title:c.t, desc:c.d, ...meta[c.reg] })) })) }, null, 1));
   fs.writeFileSync(path.join(path.dirname(OUT), 'llms.txt'), md);
