@@ -168,6 +168,13 @@ export function InlineTextDiff({ title, parts, decisions, defaultDecisions = {},
   const open = edits.find(e => e.key === cur);
   // the toolbar keeps the last edit's note while it fades out
   const last = useRef<TextEdit | undefined>(undefined); if (open) last.current = open;
+  // each decision folds an edit into plain text, and the last swaps the actions for a short note: from the first one the
+  // card keeps the height it had with every edit open, and centres what is left in it
+  const fresh = left === edits.length;
+  const openHeight = useRef<number | undefined>(undefined);
+  const [held, setHeld] = useState<number>();
+  useLayoutEffect(() => { if (fresh && root.current) openHeight.current = root.current.offsetHeight; });
+  useLayoutEffect(() => { setHeld(fresh ? undefined : openHeight.current); }, [fresh]);
 
   // the toolbar opens under the edit's last line; inside a scaled preview the offsets are divided by its scale
   useLayoutEffect(() => {
@@ -194,7 +201,7 @@ export function InlineTextDiff({ title, parts, decisions, defaultDecisions = {},
   return (
     <div data-dm="" className={className} style={{ width: '100%' }}
       onKeyDown={e => { if (e.key === 'Escape' && cur) { const el = chunks.current.get(cur); setCur(null); el?.focus({ preventScroll: true }); } }}>
-      <div ref={root} className="dm-itd dm-panel">
+      <div ref={root} className={cx('dm-itd dm-panel', held && 'dm-held')} style={held ? { minHeight: held } : undefined}>
         <div className="dm-itd-h">
           <div className="dm-itd-ht"><b>{title}</b><Swap className="dm-muted dm-itd-st">{status}</Swap></div>
           {left > 0 && (

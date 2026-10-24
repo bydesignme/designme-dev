@@ -240,6 +240,18 @@ export function TaskTable({
     was.current = now;
   });
 
+  // the empty state keeps the height the table had, centred in it, so the card doesn't shrink when the last task goes
+  const panel = useRef<HTMLDivElement>(null), emptyCell = useRef<HTMLTableCellElement>(null);
+  const full = useRef<number | undefined>(undefined);
+  const [pad, setPad] = useState<{ paddingTop: number; paddingBottom: number }>();
+  useIsoLayoutEffect(() => { if (tasks.length && panel.current) full.current = panel.current.offsetHeight; });
+  useIsoLayoutEffect(() => {
+    const p = panel.current, td = emptyCell.current;
+    if (tasks.length || !p || !td || !full.current) { setPad(undefined); return; }
+    const d = full.current - p.offsetHeight, cs = getComputedStyle(td);
+    setPad(d > 1 ? { paddingTop: parseFloat(cs.paddingTop) + d / 2, paddingBottom: parseFloat(cs.paddingBottom) + d / 2 } : undefined);
+  }, [tasks.length === 0]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const toggle = (id: string) => setSel(sel.includes(id) ? sel.filter(x => x !== id) : [...sel, id]);
   const sortBy = (key: TaskSortKey) => setBy(key === by.key ? { key, desc: !by.desc } : { key, desc: false });
   const act = (a: TaskAction) => {
@@ -251,7 +263,7 @@ export function TaskTable({
 
   return (
     <div data-dm="" className={cx('dm-ttx-box', className)} style={{ containerType: 'inline-size', width: '100%' }}>
-      <div className={cx('dm-ttx dm-panel', n > 0 && 'dm-selecting')}>
+      <div ref={panel} className={cx('dm-ttx dm-panel', n > 0 && 'dm-selecting')}>
         <div className="dm-ttx-hd">
           <div className="dm-ttx-ti" inert={n > 0}><b>{title}</b><Swap className="dm-muted dm-num dm-ttx-sum">{line}</Swap></div>
           <div className="dm-ttx-sb" inert={n === 0}>
@@ -297,7 +309,7 @@ export function TaskTable({
               })}
               {!tasks.length && (
                 <tr className="dm-ttx-empty dm-enter">
-                  <td colSpan={6}>
+                  <td colSpan={6} ref={emptyCell} style={pad}>
                     {empty ?? (
                       <div className="dm-ttx-em">
                         <span className="dm-ic"><Icon name="check" /></span>

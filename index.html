@@ -15207,12 +15207,13 @@ DM.def('voice-capture', (r, c) => {
   const pb = $('.vcx-pause', r);
   pb.onclick = () => { paused = !paused; box.classList.toggle('paused', paused); pb.innerHTML = I(paused ? 'mic' : 'pause'); pb.dataset.tip = paused ? 'Resume' : 'Pause'; swap(st, paused ? 'Paused' : 'Listening'); };
   function finish(){
-    done = true; box.classList.add('done'); swap(st, 'Check what I heard'); pb.remove();
+    // the wave folds away for the review: the box keeps the height it had while recording, with the words centred in it
+    hold(box); done = true; box.classList.add('done'); swap(st, 'Check what I heard'); pb.remove();
     $$('.low', tx).forEach(l => { l.dataset.tip = 'Not sure about this word'; });
   }
   const settle = t => { $('.vcx-acts', r).innerHTML = `<span class="muted" style="font-size:12.5px">${t}</span><span class="sp"></span><button class="pill ghost sm vcx-again">${I('refresh','xs')}Record again</button>`; $('.vcx-again', r).onclick = () => DM.mount(r.closest('.comp')); };
   $('.vcx-done', r).onclick = () => { if (!done) finish(); else { swap(st, 'Sent'); settle('Sent to the agent'); } };
-  $('.vcx-x', r).onclick = () => { done = true; tx.innerHTML = ''; pb.remove(); box.classList.add('done'); swap(st, 'Cancelled'); settle('Nothing was sent'); };
+  $('.vcx-x', r).onclick = () => { if (!done) hold(box); done = true; tx.innerHTML = ''; pb.remove(); box.classList.add('done'); swap(st, 'Cancelled'); settle('Nothing was sent'); };
   c.on(tx, 'click', e => {
     const l = e.target.closest('.low'); if (!l) return;
     const alts = low[l.dataset.i];
@@ -15671,7 +15672,8 @@ DM.def('rewrite-toolbar', (r, c) => {
       el.innerHTML = `<del>${old}</del> <ins></ins>`; const ins = $('ins', el); place(el); await c.wait(350);
       for (const w of nw.split(' ')){ ins.insertAdjacentHTML('beforeend', `<span class="w">${w} </span>`); await c.wait(55); }
       tb.innerHTML = `<span class="lbl">${I('check','xs')}Rewritten</span><button class="rwx-b rwx-un">Undo</button><button class="pill accent sm rwx-ok">Accept</button>`; place(el);
-      $('.rwx-ok', tb).onclick = () => { el.textContent = nw; S[i][0] = nw; el.classList.remove('sel'); hide(); busy = false; swap(st, 'Saved'); };
+      // keeping a shorter sentence keeps the doc's height, with the text centred in it (hold), so the card doesn't shrink
+      $('.rwx-ok', tb).onclick = () => { hold(box); el.textContent = nw; S[i][0] = nw; el.classList.remove('sel'); hide(); busy = false; swap(st, 'Saved'); };
       $('.rwx-un', tb).onclick = () => { el.textContent = old; el.classList.remove('sel'); hide(); busy = false; swap(st, 'Click a sentence'); };
     });
   }
@@ -15732,7 +15734,8 @@ DM.def('permission-gate', (r, c) => {
   c.on(sc, 'change', count);
   $$('.pgx-pop .mi', r).forEach(m => m.addEventListener('click', () => { dur = m.dataset.v; $$('.pgx-pop .mi', r).forEach(x => x.setAttribute('aria-checked', x === m)); swap($('.pgx-dv', r), dur === 'Always' ? 'Always' : 'For ' + dur.toLowerCase()); }));
   const body = [sc, $('.pgx-f', r)];
-  const show = on => { body.forEach(e => e.hidden = !on); if (on) stagger(body, 50); };
+  // the scopes give way to a shorter result row: on the card it keeps the height it had and centres the row (hold)
+  const show = on => { if (!on && c.card && !root.classList.contains('held')) hold(root); body.forEach(e => e.hidden = !on); if (on) stagger(body, 50); };
   // the frames the agent edits once it may. Plan toggle is a library component, so editing it needs Publish library
   const F = ['Hero', 'Plan cards', 'Compare table', 'FAQ', 'Plan toggle', 'Checkout summary'], LIB = 4;
   const clock = s => Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
@@ -15778,7 +15781,7 @@ DM.def('permission-gate', (r, c) => {
     run++; granted = done = ms = 0; publish = skip = false;
     root.classList.remove('esc'); sc.innerHTML = first.sc; swap(title, first.title); swap(sub, first.sub); no.textContent = first.no; count();
   }
-  function revoke(){ const p = panel; panel = null; run++; p.classList.add('leave'); c.later(300, () => { p.remove(); reset(); show(true); }); }
+  function revoke(){ const p = panel; panel = null; run++; p.classList.add('leave'); c.later(300, () => { p.remove(); release(root); reset(); show(true); }); }
   ok.onclick = () => c.run(async () => {
     const picked = boxes().filter(b => b.checked); if (!picked.length) return;
     granted += picked.length; if (picked.some(b => b.closest('.pgx-o').dataset.k === 'publish')) publish = true;
@@ -15793,7 +15796,7 @@ DM.def('permission-gate', (r, c) => {
   no.onclick = () => {
     if (root.classList.contains('esc')){ skip = true; show(false); root.classList.remove('esc'); swap(title, first.title); swap(sub, first.sub); work(); return; }
     show(false); const d = html(`<div class="pgx-done" style="background:var(--chip)">${I('info')}<span class="t">The agent will skip the Figma edits<span>It will list the fixes in chat instead</span></span><button class="pill ghost sm">Undo</button></div>`);
-    root.appendChild(d); enter(d); $('button', d).onclick = () => { d.remove(); show(true); };
+    root.appendChild(d); enter(d); $('button', d).onclick = () => { d.remove(); release(root); show(true); };
   };
   // the preview's story: hold back the risky scope, allow the rest, then grant it when the agent needs it for one frame
   c.story(async s => {
@@ -16039,7 +16042,9 @@ DM.def('inline-text-diff', (r, c) => {
     bar.style.left = Math.max(12, Math.min((cr.left - rb.left) / k, root.offsetWidth - bar.offsetWidth - 12)) + 'px';
     bar.style.top = ((cr.bottom - rb.top) / k + 6) + 'px';
   }
-  function decide(i, s){ E[i].s = s; chunks[i].classList.remove('acc', 'rej'); chunks[i].classList.add(s); tally(); }
+  // each decision folds an edit into plain text, and the last swaps the actions for a short note: from the first one the
+  // card keeps the height it had with every edit open, and centres what is left in it (hold)
+  function decide(i, s){ if (!root.classList.contains('held')) hold(root); E[i].s = s; chunks[i].classList.remove('acc', 'rej'); chunks[i].classList.add(s); tally(); }
   // a click anywhere else on the page can close the toolbar between the story's taps, and then there is no edit to decide
   const pick = s => { const i = cur; if (i < 0) return; const back = bar.contains(document.activeElement); close(); decide(i, s); if (back) chunks[i].focus({ preventScroll:true }); };
   chunks.forEach((el, i) => { el.onclick = () => cur === i ? close() : open(i); el.onkeydown = ev => { if (ev.key === 'Enter' || ev.key === ' '){ ev.preventDefault(); el.click(); } }; });
@@ -16644,17 +16649,22 @@ DM.def('task-table', (r, c) => {
   // cancelled rows slide away and the rest close up; when nothing is left the table says so
   function leave(ids){
     const out = T.filter(t => ids.includes(t.id)); T = T.filter(t => !ids.includes(t.id));
+    // the table's height as it was, for the empty state that takes the last rows' place
+    const had = T.length ? 0 : box.getBoundingClientRect().height;
     const go = () => { const first = new Map(T.map(t => [t.id, rows.get(t.id).getBoundingClientRect().top]));
       out.forEach(t => { rows.get(t.id).remove(); rows.delete(t.id); });
       if (!REDUCE) T.forEach(t => { const el = rows.get(t.id), d = first.get(t.id) - el.getBoundingClientRect().top; if (Math.abs(d) > 1) el.animate([{ transform:`translateY(${d}px)` }, { transform:'none' }], { duration:480, easing:ease }); });
-      if (!T.length) empty(); sync(); };
+      if (!T.length) empty(had); sync(); };
     if (REDUCE) return go();
     out.forEach(t => rows.get(t.id).classList.add('ttx-out'));
     c.later(250, go);
   }
-  function empty(){
+  // the empty state keeps the height the table had, centred in it, so the card doesn't shrink to the top of its stage
+  function empty(had){
     const tr = html(`<tr class="ttx-empty"><td colspan="6"><div class="ttx-em"><span class="ic">${I('check')}</span><b>No agent tasks</b><span>Everything has finished or been cancelled.</span><button class="pill ghost sm">${I('refresh','xs')}Bring them back</button></div></td></tr>`);
     tb.appendChild(tr); enter(tr);
+    const d = had - box.getBoundingClientRect().height, td = tr.firstElementChild;
+    if (d > 1){ const cs = getComputedStyle(td); td.style.paddingTop = parseFloat(cs.paddingTop) + d / 2 + 'px'; td.style.paddingBottom = parseFloat(cs.paddingBottom) + d / 2 + 'px'; }
     $('.pill', tr).onclick = e => { e.stopPropagation(); tr.remove(); T = seed(); T.forEach(make); order(false); sync(); stagger([...tb.children], 30); };
   }
   $$('.ttx-s', r).forEach(b => b.onclick = () => { const k = +b.dataset.k; if (k === key) desc = !desc; else { key = k; desc = false; } order(true); });
@@ -17243,13 +17253,15 @@ DM.def('tool-connections', (r, c) => {
     test.disabled = true; test.innerHTML = '<span class="spin"></span>Testing'; swap(st, 'Testing ' + rows.length + ' connections');
     rows.forEach(el => el.classList.add('chk'));
     for (const el of rows){ await c.wait(600); el.classList.remove('chk');
-      if (el._t[1] === 'Slack'){ el.classList.add('err'); swap($('.t span', el), 'Token expired. Reconnect to use it'); }
+      if (el._t[1] === 'Slack' && !el._t.ok){ el.classList.add('err'); swap($('.t span', el), 'Token expired. Reconnect to use it'); }
     }
     test.disabled = false; test.innerHTML = testWas;
     swap(st, rows.filter(el => !el.classList.contains('err')).length + ' of ' + rows.length + ' healthy');
     const bad = [...list.children].find(el => el.classList.contains('err'));
-    if (bad){ const b = html(`<button class="pill accent sm">Reconnect</button>`); $('.hnx-pm', bad).replaceWith(b); enter(b);
-      b.onclick = () => c.run(async () => { b.innerHTML = '<span class="spin"></span>'; await c.wait(900); bad.classList.remove('err'); const n = row(bad._t); bad.replaceWith(n); swap(st, [...list.children].filter(el => el._t[4] > 0).length + ' of ' + [...list.children].filter(el => el._t[4] > 0).length + ' healthy'); }); }
+    // a second test finds the row already offering Reconnect, so it keeps that button
+    const pm = bad && $('.hnx-pm', bad);
+    if (pm){ const b = html(`<button class="pill accent sm">Reconnect</button>`); pm.replaceWith(b); enter(b);
+      b.onclick = () => c.run(async () => { b.innerHTML = '<span class="spin"></span>'; await c.wait(900); bad.classList.remove('err'); bad._t.ok = true; const n = row(bad._t); bad.replaceWith(n); swap(st, [...list.children].filter(el => el._t[4] > 0).length + ' of ' + [...list.children].filter(el => el._t[4] > 0).length + ' healthy'); }); }
   });
   // the preview's story: test everything, Slack's token has expired, reconnect it, and every connection is healthy
   c.story(async s => {
@@ -18589,10 +18601,10 @@ DM.def('social-signin', (r, c) => {
     $$('.ssi-b', list).forEach(b => b.onclick = () => c.run(async () => {
       b.classList.add('busy'); list.classList.add('wait'); $('.mk', b).innerHTML = '<span class="spin"></span>';
       await c.wait(1100); last = b.dataset.p;
-      const kids = [...root.children]; kids.forEach(k => k.hidden = true);
+      hold(root); const kids = [...root.children]; kids.forEach(k => k.hidden = true);
       const ok = html(`<div class="ssi-ok">${AV('MK','var(--pl)')}<b>Welcome back, Maya</b><span class="muted">Signed in with ${last}</span><button class="pill ghost sm">Sign out</button></div>`);
       root.appendChild(ok); stagger([...ok.children], 60);
-      $('button', ok).onclick = () => { ok.remove(); kids.forEach(k => k.hidden = false); list.classList.remove('wait'); paint(); };
+      $('button', ok).onclick = () => { ok.remove(); release(root); kids.forEach(k => k.hidden = false); list.classList.remove('wait'); paint(); };
     }));
   }
   paint();

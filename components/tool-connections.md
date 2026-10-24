@@ -79,22 +79,23 @@ export default function ToolConnectionsDemo() {
   const patch = (key: string, p: Partial<ToolConnectionsTool>) => setTools(ts => ts.map(t => t.key === key ? { ...t, ...p } : t));
 
   // every tool the agent may use shows a small spinner at once, and they settle one by one; Slack's token has run out
+  const fixed = useRef(new Set<string>());
   const test = async () => {
     const rows = latest.current.filter(t => t.permission !== 'off' && t.status !== 'error');
     setTesting(true); setStatus(`Testing ${rows.length} connections`);
     rows.forEach(t => patch(t.key, { status: 'testing' }));
     for (const t of rows) {
       await wait(600);
-      patch(t.key, t.key === 'slack' ? { status: 'error', note: 'Token expired. Reconnect to use it' } : { status: 'ok' });
+      patch(t.key, t.key === 'slack' && !fixed.current.has(t.key) ? { status: 'error', note: 'Token expired. Reconnect to use it' } : { status: 'ok' });
     }
-    const bad = rows.some(t => t.key === 'slack') ? 1 : 0;
+    const bad = rows.some(t => t.key === 'slack' && !fixed.current.has(t.key)) ? 1 : 0;
     setTesting(false); setStatus(`${rows.length - bad} of ${rows.length} healthy`);
   };
   const reconnect = async (key: string) => {
     patch(key, { status: 'reconnecting' });
     await wait(900);
     const on = latest.current.filter(t => t.permission !== 'off').length;
-    patch(key, { status: 'ok', note: undefined }); setStatus(`${on} of ${on} healthy`);
+    fixed.current.add(key); patch(key, { status: 'ok', note: undefined }); setStatus(`${on} of ${on} healthy`);
   };
 
   // the preview's story: test everything, find Slack's token expired, and reconnect it

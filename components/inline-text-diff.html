@@ -87,7 +87,7 @@ export default function InlineTextDiffDemo() {
     &lt;/div&gt;
   );
 }
-</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything InlineTextDiff takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>title</code><span class="opt">required</span></td><td><code>string</code></td><td>What the copy is, like &quot;Pricing intro&quot;</td></tr><tr><td><code>parts</code><span class="opt">required</span></td><td><code>TextPart[]</code></td><td>The copy in order: plain strings, with the edits between them</td></tr><tr><td><code>decisions</code></td><td><code>Record&lt;string, EditDecision&gt;</code></td><td>What was decided for each edit, by key. Leave an edit out while it waits</td></tr><tr><td><code>defaultDecisions</code></td><td><code>Record&lt;string, EditDecision&gt;</code></td><td></td></tr><tr><td><code>onDecisionsChange</code></td><td><code>(decisions: Record&lt;string, EditDecision&gt;) =&gt; void</code></td><td></td></tr><tr><td><code>doneLabel</code></td><td><code>string</code></td><td>The line that replaces the buttons once every edit is decided, like &quot;Saved to Pricing v4&quot;</td></tr><tr><td><code>labels</code></td><td><code>{ accept?: string; reject?: string; acceptAll?: string; rejectAll?: string }</code></td><td></td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>InlineTextDiff.tsx<span class="l">React · 121 lines</span></summary><pre class="cp-pre"><code>&#39;use client&#39;;
+</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything InlineTextDiff takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>title</code><span class="opt">required</span></td><td><code>string</code></td><td>What the copy is, like &quot;Pricing intro&quot;</td></tr><tr><td><code>parts</code><span class="opt">required</span></td><td><code>TextPart[]</code></td><td>The copy in order: plain strings, with the edits between them</td></tr><tr><td><code>decisions</code></td><td><code>Record&lt;string, EditDecision&gt;</code></td><td>What was decided for each edit, by key. Leave an edit out while it waits</td></tr><tr><td><code>defaultDecisions</code></td><td><code>Record&lt;string, EditDecision&gt;</code></td><td></td></tr><tr><td><code>onDecisionsChange</code></td><td><code>(decisions: Record&lt;string, EditDecision&gt;) =&gt; void</code></td><td></td></tr><tr><td><code>doneLabel</code></td><td><code>string</code></td><td>The line that replaces the buttons once every edit is decided, like &quot;Saved to Pricing v4&quot;</td></tr><tr><td><code>labels</code></td><td><code>{ accept?: string; reject?: string; acceptAll?: string; rejectAll?: string }</code></td><td></td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>InlineTextDiff.tsx<span class="l">React · 128 lines</span></summary><pre class="cp-pre"><code>&#39;use client&#39;;
 import { Fragment, useEffect, useLayoutEffect, useRef, useState } from &#39;react&#39;;
 import { cx } from &#39;../lib/cx&#39;;
 import { useControllable } from &#39;../lib/hooks&#39;;
@@ -142,6 +142,13 @@ export function InlineTextDiff({ title, parts, decisions, defaultDecisions = {},
   const open = edits.find(e =&gt; e.key === cur);
   // the toolbar keeps the last edit&#39;s note while it fades out
   const last = useRef&lt;TextEdit | undefined&gt;(undefined); if (open) last.current = open;
+  // each decision folds an edit into plain text, and the last swaps the actions for a short note: from the first one the
+  // card keeps the height it had with every edit open, and centres what is left in it
+  const fresh = left === edits.length;
+  const openHeight = useRef&lt;number | undefined&gt;(undefined);
+  const [held, setHeld] = useState&lt;number&gt;();
+  useLayoutEffect(() =&gt; { if (fresh &amp;&amp; root.current) openHeight.current = root.current.offsetHeight; });
+  useLayoutEffect(() =&gt; { setHeld(fresh ? undefined : openHeight.current); }, [fresh]);
 
   // the toolbar opens under the edit&#39;s last line; inside a scaled preview the offsets are divided by its scale
   useLayoutEffect(() =&gt; {
@@ -168,7 +175,7 @@ export function InlineTextDiff({ title, parts, decisions, defaultDecisions = {},
   return (
     &lt;div data-dm=&quot;&quot; className={className} style={{ width: &#39;100%&#39; }}
       onKeyDown={e =&gt; { if (e.key === &#39;Escape&#39; &amp;&amp; cur) { const el = chunks.current.get(cur); setCur(null); el?.focus({ preventScroll: true }); } }}&gt;
-      &lt;div ref={root} className=&quot;dm-itd dm-panel&quot;&gt;
+      &lt;div ref={root} className={cx(&#39;dm-itd dm-panel&#39;, held &amp;&amp; &#39;dm-held&#39;)} style={held ? { minHeight: held } : undefined}&gt;
         &lt;div className=&quot;dm-itd-h&quot;&gt;
           &lt;div className=&quot;dm-itd-ht&quot;&gt;&lt;b&gt;{title}&lt;/b&gt;&lt;Swap className=&quot;dm-muted dm-itd-st&quot;&gt;{status}&lt;/Swap&gt;&lt;/div&gt;
           {left &gt; 0 &amp;&amp; (
@@ -272,7 +279,7 @@ export function InlineTextDiff({ title, parts, decisions, defaultDecisions = {},
 .itd-bb{display:flex;gap:6px}
 .itd-f{margin:0;display:flex;align-items:center;gap:6px;font-size:13px;min-height:20px}
 .itd-f svg{color:var(--ok)}
-</code></pre></details><details class="cp-file"><summary>inline-text-diff.js<span class="l">HTML · 49 lines</span></summary><pre class="cp-pre"><code>DM.def(&#39;inline-text-diff&#39;, (r, c) =&gt; {
+</code></pre></details><details class="cp-file"><summary>inline-text-diff.js<span class="l">HTML · 51 lines</span></summary><pre class="cp-pre"><code>DM.def(&#39;inline-text-diff&#39;, (r, c) =&gt; {
   r.innerHTML = r.innerHTML.replace(&#39;{chk}&#39;, I(&#39;check&#39;,&#39;xs&#39;)).replace(&#39;{x}&#39;, I(&#39;x&#39;,&#39;xs&#39;)).replace(&#39;{warn}&#39;, I(&#39;alert&#39;,&#39;xs&#39;));
   // the copy, and the agent&#39;s edits to it: what it said, what the agent suggests, and why, when the agent isn&#39;t sure
   const T = [{ o:&#39;Pick&#39;, n:&#39;Choose&#39; }, &#39; a plan that &#39;, { o:&#39;fits your team&#39;, n:&#39;grows with your studio&#39; }, &#39;. Every plan &#39;, { o:&#39;includes&#39;, n:&#39;comes with&#39; }, &#39; unlimited projects, and &#39;, { o:&#39;you can cancel at any time&#39;, n:&#39;your first month is free&#39;, why:&#39;Not in the pricing brief: there is no free month&#39; }, &#39;.&#39;];
@@ -298,7 +305,9 @@ export function InlineTextDiff({ title, parts, decisions, defaultDecisions = {},
     bar.style.left = Math.max(12, Math.min((cr.left - rb.left) / k, root.offsetWidth - bar.offsetWidth - 12)) + &#39;px&#39;;
     bar.style.top = ((cr.bottom - rb.top) / k + 6) + &#39;px&#39;;
   }
-  function decide(i, s){ E[i].s = s; chunks[i].classList.remove(&#39;acc&#39;, &#39;rej&#39;); chunks[i].classList.add(s); tally(); }
+  // each decision folds an edit into plain text, and the last swaps the actions for a short note: from the first one the
+  // card keeps the height it had with every edit open, and centres what is left in it (hold)
+  function decide(i, s){ if (!root.classList.contains(&#39;held&#39;)) hold(root); E[i].s = s; chunks[i].classList.remove(&#39;acc&#39;, &#39;rej&#39;); chunks[i].classList.add(s); tally(); }
   // a click anywhere else on the page can close the toolbar between the story&#39;s taps, and then there is no edit to decide
   const pick = s =&gt; { const i = cur; if (i &lt; 0) return; const back = bar.contains(document.activeElement); close(); decide(i, s); if (back) chunks[i].focus({ preventScroll:true }); };
   chunks.forEach((el, i) =&gt; { el.onclick = () =&gt; cur === i ? close() : open(i); el.onkeydown = ev =&gt; { if (ev.key === &#39;Enter&#39; || ev.key === &#39; &#39;){ ev.preventDefault(); el.click(); } }; });
@@ -395,7 +404,9 @@ export function InlineTextDiff({ title, parts, decisions, defaultDecisions = {},
     bar.style.left = Math.max(12, Math.min((cr.left - rb.left) / k, root.offsetWidth - bar.offsetWidth - 12)) + 'px';
     bar.style.top = ((cr.bottom - rb.top) / k + 6) + 'px';
   }
-  function decide(i, s){ E[i].s = s; chunks[i].classList.remove('acc', 'rej'); chunks[i].classList.add(s); tally(); }
+  // each decision folds an edit into plain text, and the last swaps the actions for a short note: from the first one the
+  // card keeps the height it had with every edit open, and centres what is left in it (hold)
+  function decide(i, s){ if (!root.classList.contains('held')) hold(root); E[i].s = s; chunks[i].classList.remove('acc', 'rej'); chunks[i].classList.add(s); tally(); }
   // a click anywhere else on the page can close the toolbar between the story's taps, and then there is no edit to decide
   const pick = s => { const i = cur; if (i < 0) return; const back = bar.contains(document.activeElement); close(); decide(i, s); if (back) chunks[i].focus({ preventScroll:true }); };
   chunks.forEach((el, i) => { el.onclick = () => cur === i ? close() : open(i); el.onkeydown = ev => { if (ev.key === 'Enter' || ev.key === ' '){ ev.preventDefault(); el.click(); } }; });

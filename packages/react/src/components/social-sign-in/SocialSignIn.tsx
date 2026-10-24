@@ -72,24 +72,27 @@ export function SocialSignIn({ providers = PROVIDERS, lastUsed, defaultLastUsed 
   const [last, setLast] = useControllable(lastUsed, defaultLastUsed, onLastUsedChange);
   const [session, setSession] = useControllable(signedIn, defaultSignedIn, onSignedInChange);
   const [busy, setBusy] = useState<string | null>(null);
+  // signing in swaps the providers for a shorter welcome: it keeps the height it had and centres the welcome in it
+  const [held, setHeld] = useState<number>();
+  const root = useRef<HTMLDivElement>(null);
   const alive = useRef(true);
   useEffect(() => { alive.current = true; return () => { alive.current = false; }; }, []);
 
   const signIn = (p: SocialSignInProvider) => {
     if (busy) return;
-    const done = (ok: unknown) => { if (!alive.current) return; setBusy(null); if (ok === false) return; setLast(p.key); setSession(p.key); };
+    const done = (ok: unknown) => { if (!alive.current) return; setBusy(null); if (ok === false) return; setHeld(root.current?.offsetHeight); setLast(p.key); setSession(p.key); };
     const out = onSignIn?.(p);
     if (out && typeof (out as Promise<unknown>).then === 'function') {
       setBusy(p.key);
       (out as Promise<unknown>).then(done, () => { if (alive.current) setBusy(null); });
     } else done(out);
   };
-  const signOut = () => { setSession(null); onSignOut?.(); };
+  const signOut = () => { setHeld(undefined); setSession(null); onSignOut?.(); };
   const who = providers.find(p => p.key === session);
   const step = (i: number) => (user ? i : i - 1) * 60;
 
   return (
-    <div data-dm="" className={cx('dm-ssi dm-panel', className)}>
+    <div data-dm="" ref={root} className={cx('dm-ssi dm-panel', session && held && 'dm-held', className)} style={session && held ? { minHeight: held } : undefined}>
       {session ? (
         <div className="dm-ssi-ok">
           {/* the welcome comes in a line at a time */}
