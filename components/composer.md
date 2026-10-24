@@ -426,6 +426,7 @@ export function Composer({
 - [Live answer](https://designme.dev/components/live-answer.md): Answers that stream in with numbered sources and next steps.
 - [Thread panel](https://designme.dev/components/thread-panel.md): Switch between agent threads and reply in place.
 - [Artifact card](https://designme.dev/components/artifact-card.md): A file the agent made, with a live preview and versions.
+- [Rich text editor](https://designme.dev/components/rich-text-editor.md): A minimal editor with an inline AI menu that streams a suggestion to accept or discard.
 - [Tool call](https://designme.dev/components/tool-call.md): Each tool the agent calls, with its input and output.
 - [Voice capture](https://designme.dev/components/voice-capture.md): Talk to the agent, then fix what it misheard before sending.
 - [Voice orb](https://designme.dev/components/voice-orb.md): A hands-free voice chat, with an orb that shows who is talking.

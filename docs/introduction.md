@@ -6,7 +6,7 @@ Designme.dev docs. The same page with navigation: https://designme.dev/docs/intr
 
 ## What it is
 
-102 free components: 65 for the agent itself, like status pills, reasoning trails, tool calls, permission gates, plan reviews and run summaries, and 37 app basics around it.
+103 free components: 66 for the agent itself, like status pills, reasoning trails, tool calls, permission gates, plan reviews and run summaries, and 37 app basics around it.
 
 Every component plays as a demo on the [homepage](https://designme.dev/), and has a page of its own with its install command, React props, code and questions.
 
@@ -30,6 +30,7 @@ Each style has a light and a dark theme. Switch them in the header of any page h
 - [Composer](https://designme.dev/components/composer.md)
 - [Thread panel](https://designme.dev/components/thread-panel.md)
 - [Artifact card](https://designme.dev/components/artifact-card.md)
+- [Rich text editor](https://designme.dev/components/rich-text-editor.md)
 - [Tool call](https://designme.dev/components/tool-call.md)
 - [Voice capture](https://designme.dev/components/voice-capture.md)
 - [Voice orb](https://designme.dev/components/voice-orb.md)

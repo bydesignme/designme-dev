@@ -331,6 +331,7 @@ function orbShader(cv: HTMLCanvasElement) {
 - [Composer](https://designme.dev/components/composer.md): Message input with attachments, what to work on, a mode and dictation.
 - [Thread panel](https://designme.dev/components/thread-panel.md): Switch between agent threads and reply in place.
 - [Artifact card](https://designme.dev/components/artifact-card.md): A file the agent made, with a live preview and versions.
+- [Rich text editor](https://designme.dev/components/rich-text-editor.md): A minimal editor with an inline AI menu that streams a suggestion to accept or discard.
 - [Tool call](https://designme.dev/components/tool-call.md): Each tool the agent calls, with its input and output.
 - [Voice capture](https://designme.dev/components/voice-capture.md): Talk to the agent, then fix what it misheard before sending.
 - [Answer action bar](https://designme.dev/components/answer-action-bar.md): Copy, regenerate, rate and listen to an answer from one row under it.
