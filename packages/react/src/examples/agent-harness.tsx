@@ -136,16 +136,24 @@ const ANSWER_SOURCES: AnswerSource[] = [
   { n: 2, mark: 'N', color: '#0ea5a4', title: 'Session notes', detail: 'Notion, 8 interviews', tip: 'Session notes from 8 interviews' },
   { n: 3, mark: 'S', color: '#f97316', title: 'Onboarding.fig', detail: 'Figma, step 2', tip: 'Onboarding.fig, step 2' }
 ];
+// the report the dropoff chat writes, in three versions, and the monthly churn each one charts in the panel
 const MONTHS = ['April', 'May', 'June', 'July', 'August', 'September'], AXIS = ['Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'];
-const VERSIONS: ArtifactVersion[] = [
-  { text: 'First pass at churn by month, sources still to check.', values: [3.4, 3.9, 4.3, 4.1, 3.8, 3.6], meta: 'v1, edited yesterday', note: 'First draft' },
-  { text: 'Churn rose in July, the spike lines up with the pricing change.', values: [3.4, 3.9, 4.1, 5.8, 4.7, 3.9], meta: 'v2, edited 1 hour ago', note: 'Added the July spike' },
-  { text: 'Churn rose in July, then settled once onboarding emails went out.', values: [3.4, 3.9, 4.1, 5.8, 4.5, 3.1], meta: 'v3, edited 2 min ago', note: 'Final, with your fixes' }
-].map((d, i) => {
+const CHURN = [
+  { text: 'First pass at churn by month, sources still to check.', values: [3.4, 3.9, 4.3, 4.1, 3.8, 3.6], meta: 'edited yesterday', note: 'First draft',
+    findings: ['Churn peaked at 4.3% in June and eased to 3.6% by September.'], changes: ['Charted churn by month, April to September'] },
+  { text: 'Churn rose in July, the spike lines up with the pricing change.', values: [3.4, 3.9, 4.1, 5.8, 4.7, 3.9], meta: 'edited 1 hour ago', note: 'Added the July spike',
+    findings: ['Churn jumped to 5.8% in July, the month the new prices went live.', 'It eased to 3.9% by September.'], changes: ['Checked the billing export against Amplitude', 'Added the July spike'] },
+  { text: 'Churn rose in July, then settled once onboarding emails went out.', values: [3.4, 3.9, 4.1, 5.8, 4.5, 3.1], meta: 'edited 2 min ago', note: 'Final, with your fixes',
+    findings: ['Churn jumped to 5.8% in July, the month the new prices went live.', 'It fell to 3.1% in September, after the onboarding emails went out in August.'], changes: ['Added the onboarding emails', 'Applied your fixes'] }
+].map(d => {
   const last = d.values[d.values.length - 1], top = Math.max(...d.values);
-  return { ...d, label: 'v' + (i + 1), value: last.toFixed(1) + '%', change: '−' + (top - last).toFixed(1) + ' pts since ' + MONTHS[d.values.indexOf(top)] };
+  return { ...d, value: last.toFixed(1) + '%', change: '−' + (top - last).toFixed(1) + ' pts since ' + MONTHS[d.values.indexOf(top)] };
 });
-const DOC = { title: 'Churn analysis, Q3', versions: VERSIONS, axis: AXIS, range: [2.6, 6.2] as [number, number], link: 'https://designme.dev/a/churn-q3', openLabel: 'Open beside the chat' };
+const VERSIONS: ArtifactVersion[] = CHURN.map((d, i) => ({ title: 'Churn analysis, Q3', meta: d.meta, note: d.note, summary: d.text,
+  content: `# Churn analysis, Q3\n\n## Summary\n\n${d.text}\n\n## Findings\n\n${d.findings.map(f => '- ' + f).join('\n')}\n\n## Changes in v${i + 1}\n\n${d.changes.map(f => '- ' + f).join('\n')}\n` }));
+const DOC = { versions: VERSIONS, kind: 'Report', fileName: 'churn-analysis-q3', openLabel: 'Open beside the chat' };
+const DOC_TITLE = 'Churn analysis, Q3', DOC_LINK = 'https://designme.dev/a/churn-q3', RANGE: [number, number] = [2.6, 6.2];
+const DOC_STEPS = ['Reading the billing export…', 'Charting churn by month…', 'Checking the July spike…'];
 const SOURCES: StackSource[] = [
   { kind: 'web', title: 'Baymard: pricing page UX', host: 'baymard.com', relevance: .92, mark: 'B', color: 'var(--dm-pb)' },
   { kind: 'web', title: 'Annual vs monthly anchoring study', host: 'cxl.com', relevance: .88, mark: 'C', color: '#d9480f' },
@@ -227,16 +235,19 @@ const curve = (p: [number, number][]) => p.reduce((d, q, k, a) => {
   const p0 = a[k - 2] || a[k - 1], p1 = a[k - 1], p3 = a[k + 1] || q, t = .18;
   return d + ` C${p1[0] + (q[0] - p0[0]) * t} ${p1[1] + (q[1] - p0[1]) * t} ${q[0] - (p3[0] - p1[0]) * t} ${q[1] - (p3[1] - p1[1]) * t} ${q[0]} ${q[1]}`;
 }, '');
-function DocPanel({ v }: { v: ArtifactVersion }) {
-  const [lo, hi] = DOC.range, d = curve(v.values.map((y, k): [number, number] => [k / (v.values.length - 1) * W, 52 - (y - lo) / (hi - lo) * 46]));
+function DocPanel({ v }: { v: (typeof CHURN)[number] }) {
+  const [lo, hi] = RANGE, d = curve(v.values.map((y, k): [number, number] => [k / (v.values.length - 1) * W, 52 - (y - lo) / (hi - lo) * 46]));
   return (
     <>
-      <div className="dm-afx-doc dm-enter" style={{ animationDelay: '140ms' }}>
-        <div className="dm-afx-dh">{DOC.title}</div>
-        <div className="dm-afx-dp">{v.text}</div>
-        <div className="dm-afx-kp"><b className="dm-num dm-afx-v">{v.value}</b><span className="dm-afx-d">{v.change}</span></div>
-        <svg className="dm-afx-ch" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" aria-hidden="true"><path className="dm-ar" d={`${d} L${W} ${H} L0 ${H} Z`} /><path className="dm-ln" d={d} /></svg>
-        <div className="dm-afx-ax">{AXIS.map(a => <span key={a}>{a}</span>)}</div>
+      <div className="dm-ahx-doc dm-enter" style={{ animationDelay: '140ms' }}>
+        <div className="dm-ahx-dh">{DOC_TITLE}</div>
+        <div className="dm-ahx-dp">{v.text}</div>
+        <div className="dm-ahx-kp"><b className="dm-num">{v.value}</b><span className="dm-ahx-dd">{v.change}</span></div>
+        <svg className="dm-ahx-ch" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" aria-hidden="true">
+          <defs><linearGradient id="ahx-g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style={{ stopColor: 'var(--dm-accent-mark,var(--dm-accent))', stopOpacity: .16 }} /><stop offset="1" style={{ stopColor: 'var(--dm-accent-mark,var(--dm-accent))', stopOpacity: 0 }} /></linearGradient></defs>
+          <path fill="url(#ahx-g)" d={`${d} L${W} ${H} L0 ${H} Z`} /><path className="dm-ln" d={d} />
+        </svg>
+        <div className="dm-ahx-ax">{AXIS.map(a => <span key={a}>{a}</span>)}</div>
       </div>
       <div className="dm-ahx-pn dm-enter" style={{ animationDelay: '210ms' }}>
         <b>What moved it</b><p>The July spike lines up with the pricing change on July 3. Churn settled once the onboarding emails went out in August.</p>
@@ -458,11 +469,11 @@ export default function AgentHarnessDemo() {
       t.ctx(19); await t.wait(700);
       await t.say('s1', "I also put last quarter's churn numbers in a doc you can share with the team.");
       t.status({ state: 'working', label: 'Writing the doc' });
-      // the agent writes the doc in three versions, unless the person picks one first
-      let picked = false;
-      const doc = (v: number) => { t.put({ key: 'af', kind: 'artifact-card', props: { ...DOC, version: v, onVersionChange: x => { picked = true; doc(x); }, onOpen: () => { setVersion(v); setPanel('doc'); } } }); };
-      doc(0); t.ctx(24);
-      t.wait(2300).then(() => { if (!picked) doc(1); }); t.wait(4100).then(() => { if (!picked) doc(2); });
+      // the agent writes the doc, its card showing each step, then it settles on the latest version
+      const doc = (v: number, step?: number) => { t.put({ key: 'af', kind: 'artifact-card', props: { ...DOC, version: v, state: step == null ? 'ready' : 'writing', status: DOC_STEPS[step ?? 0],
+        progress: ((step ?? 0) + 1) / DOC_STEPS.length, onVersionChange: x => doc(x), onOpen: () => { setVersion(v); setPanel('doc'); } } }); };
+      doc(2, 0); t.ctx(24);
+      t.wait(1400).then(() => doc(2, 1)); t.wait(2500).then(() => doc(2, 2)); t.wait(3600).then(() => doc(2));
       await t.wait(4600); t.end('Answered', '3 sources');
     },
 
@@ -547,7 +558,7 @@ export default function AgentHarnessDemo() {
 
   // opening a chat clears its unread dot
   const seen = (ts: AgentHarnessTab[], key: string) => { const id = ts.find(t => t.key === key)?.chat; if (id) edit(id, c => c.unread ? { ...c, unread: false } : c); };
-  const docPanel: AgentHarnessPanel | null = panel === 'doc' ? { title: DOC.title, link: DOC.link, children: <DocPanel v={VERSIONS[version]} /> } : null;
+  const docPanel: AgentHarnessPanel | null = panel === 'doc' ? { title: DOC_TITLE, link: DOC_LINK, children: <DocPanel v={CHURN[version]} /> } : null;
   return (
     <div style={{ width: '100%' }}>
       <AgentHarness conversations={convs} tabs={tabs} onTabsChange={ts => { setTabs(ts); seen(ts, tab); }} tab={tab} onTabChange={key => { setTab(key); seen(tabs, key); }}

@@ -1,34 +1,37 @@
 {
-  "summary": "Artifact card shows a file the agent produced, like a report, as a small preview with its name, a line of text, a headline number and a line chart. When the agent has made several versions, a switcher lets the person flip between them and the preview redraws to match.",
+  "summary": "Artifact card shows a file the agent made, like a report or a table, in one of four variants: a compact row, a card with its first page showing, a chip inside the message, or a stack of its versions. It shows the agent writing the file, then lets people open it in a reader, pick a version, copy it or download it.",
   "use": [
-    "When your agent writes a report or analysis and you want to show the result in the chat instead of a bare file link.",
-    "When the agent revises its work and people need to compare drafts side by side in time.",
-    "When the file can be opened elsewhere, like in a panel beside the chat or a new tab, and people need a link to share."
+    "When your agent writes a report, a table or a draft and you want to show it in the chat instead of a bare file link.",
+    "When the agent revises its work and people need to see which version they're looking at, and go back to an earlier one.",
+    "When people should be able to read the file, copy it or save it without leaving the conversation."
   ],
   "features": [
-    "Each entry in `versions` sets the preview's text, the chart's `values`, an optional headline `value` and `change`, the `meta` line under the file name and a `note` about what changed.",
-    "With more than one version, a segmented switcher appears. It shows the latest version by default and can be controlled with `version` and `onVersionChange`.",
-    "The chart starts flat, draws itself a moment after the card appears, and eases to the new line when the version changes. The text swaps with a short blur.",
-    "`axis` adds labels under the chart, and `range` fixes its bottom and top. Without `range`, it fits the lowest and highest values with a little room.",
-    "`link` adds a Copy link button that confirms with a check. `onOpen` adds an open button with your own `openLabel`, and `href` opens the address in a new tab when `onOpen` is not set."
+    "`variant` picks the look. `compact` is a row with an icon, the name, one line of meta, Copy, Download and Open. `preview` adds the file's first page above the name: its kind and version, its title, a few lines of its summary and faint drawn lines for the rest. `inline` is a chip that sits in a message, with Versions, Copy and Download folding out on hover or focus (always shown on touch screens). `stack` draws a sheet for each version, with Versions, Copy, Download and Open under it.",
+    "While `state` is `writing`, the icon turns into a spinner, the meta line shows `status`, and the actions wait. The compact card draws `progress` along its bottom edge, the preview shows Writing… and a caret after its summary, and the stack drops a blank sheet on top, types the title and draws its lines with a pen. When `state` turns `ready`, the meta line and the actions come in.",
+    "With more than one version, the version on the meta line opens a menu of every version, newest first, with when it was made and what changed. Picking one updates the meta line and the preview. It shows the latest version by default and can be controlled with `version` and `onVersionChange`.",
+    "In the stack, the shown version stands on top and the older sheets sit just behind it. Pointing at the stack or focusing it with the keyboard, they peek out a few pixels up and to the left. Versions lays the sheets out side by side to pick one, and the caption reads out the one under the pointer or the focus.",
+    "Copy puts the version's `content` on the clipboard and Download saves it as `fileName-v3.ext`. Each button shows a check and says Copied or Downloaded for a moment, then calls `onCopy` or `onDownload`.",
+    "Open shows a reader over the card's nearest positioned ancestor: the version's content with its headings, lists and paragraphs (or a table, when `ext` is `csv`), and Copy and Download at the foot. From the preview and the stack, the reader grows out of the page it came from. Pass `onOpen` to open the file somewhere else instead, like a panel beside the chat, and `openLabel` to say so in the button's tip."
   ],
   "a11y": [
-    "The version switcher is a `role=\"group\"` labelled \"Version\", and the current version's button has `aria-pressed=\"true\"`.",
-    "The icon buttons have `aria-label`s, and the decorative chart is `aria-hidden`.",
-    "With `prefers-reduced-motion: reduce`, the chart jumps to its new line instead of easing."
+    "The version button has `aria-haspopup=\"menu\"` and `aria-expanded`, and its menu is a `role=\"menu\"` of `menuitemradio` items with `aria-checked` on the version shown. Arrow keys, Home and End move through it, Enter picks, and Esc closes it and gives the button its focus back.",
+    "In the stack, Versions has `aria-haspopup=\"menu\"` and `aria-expanded`, and the laid-out sheets are `menuitemradio` items that the arrow keys move between. Esc puts them back.",
+    "The reader is a `role=\"dialog\"` with `aria-modal`. Focus moves to Close when it opens and stays inside it, Esc or a click on the stage behind closes it, and focus goes back to what opened it.",
+    "A polite status line announces when the file is ready, which version is shown, and when it was copied, downloaded or opened. The icon buttons have `aria-label`s, and the drawn first page and the drawings on the sheets are `aria-hidden`.",
+    "With `prefers-reduced-motion: reduce`, the reader opens without growing or sliding, the stack skips the drop, the typing and the pen, and the peek moves without a transition."
   ],
   "faq": [
     {
-      "q": "Can the preview show something other than a line chart?",
-      "a": "Not as written. The preview draws the title, the version's text, an optional headline number and a line chart from `values`. Since the source is copied into your project, you can change the preview markup there."
+      "q": "Which variant should I use?",
+      "a": "Compact where several files can land in one thread. Preview when people need to tell drafts apart at a glance. Inline when the file belongs in the sentence, like an attachment. Stack when the versions are the point, like a document the agent keeps revising."
     },
     {
-      "q": "How do I play through the agent's drafts as they arrive?",
-      "a": "Add each new draft to `versions` and set `version` to its index from your own state. Leave `version` out and the card opens on the latest one and lets the switcher change it."
+      "q": "How do I show the agent writing the file?",
+      "a": "Render the card with `state=\"writing\"` as soon as the agent starts, and update `status` (and `progress` for the compact card) as it works. Pass the content you have so far, then set `state` to `ready` when the file is done."
     },
     {
-      "q": "Do I need both `link` and `href`?",
-      "a": "No. When you pass only `href`, the card uses it for the copy button too. Pass `link` when the shareable link differs from the address that opens the file."
+      "q": "Can Open show the file in my own panel?",
+      "a": "Yes. Pass `onOpen` and the card calls it with the version shown instead of opening its reader; the Agent harness opens the report beside the chat this way. Without `onOpen`, the reader covers the card's nearest positioned ancestor, so give your chat column `position: relative`."
     }
   ]
 }

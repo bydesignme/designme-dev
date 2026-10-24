@@ -1,34 +1,96 @@
 'use client';
 // The animated preview from designme.dev, rebuilt from the React component: an example of driving it from your own state.
 import { useRef, useState } from 'react';
-import { useScript } from './useScript';
-import { ArtifactCard, type ArtifactVersion } from '../components/artifact-card/ArtifactCard';
+import { ArtifactCard, type ArtifactCardProps, type ArtifactVersion } from '../components/artifact-card/ArtifactCard';
+import { Seg } from '../lib/motion';
+import { Demo } from './Demo';
+import { useScript, useStory } from './useScript';
 
-/* ---------- Artifact card: a churn report in three versions that play through once; the chart redraws as you switch ---------- */
-const MONTHS = ['April', 'May', 'June', 'July', 'August', 'September'];
+/* ---------- Artifact card: a pricing page review in three versions, written while you watch, shown four ways ---------- */
+const F = {
+  look: 'The three plans look alike at a glance.',
+  year: 'The yearly switch hides what a month costs.',
+  cancel: 'Nothing near the buttons says you can cancel any time.',
+  faq: 'The FAQ repeats the plan table instead of answering doubts.',
+  price: 'Team costs 16% more than similar plans elsewhere, and the page never says why.'
+};
 const DRAFTS = [
-  { text: 'First pass at churn by month, sources still to check.', values: [3.4, 3.9, 4.3, 4.1, 3.8, 3.6], meta: 'v1, edited yesterday', note: 'First draft' },
-  { text: 'Churn rose in July, the spike lines up with the pricing change.', values: [3.4, 3.9, 4.1, 5.8, 4.7, 3.9], meta: 'v2, edited 1 hour ago', note: 'Added the July spike' },
-  { text: 'Churn rose in July, then settled once onboarding emails went out.', values: [3.4, 3.9, 4.1, 5.8, 4.5, 3.1], meta: 'v3, edited 2 min ago', note: 'Final, with your fixes' }
+  { meta: 'edited 2 hours ago', note: 'First pass, four findings', findings: [F.look, F.year, F.cancel, F.faq], fixes: [] as string[],
+    summary: 'People reach the plan table and stall. Most of what slows them down is clarity, not price.',
+    changes: ['Read the page from top to bottom', 'Listed four findings in page order'] },
+  { meta: 'edited 40 min ago', note: 'Added a competitor price check', findings: [F.look, F.year, F.cancel, F.price], fixes: [],
+    summary: 'People reach the plan table and stall. Team also costs more than similar plans elsewhere, and the page never says why.',
+    changes: ['Compared Team with three competitors', 'Dropped the FAQ finding, which overlapped another'] },
+  { meta: 'edited just now', note: 'Fixes, ordered by impact', findings: [F.look, F.year, F.cancel, F.price],
+    fixes: ['Show the monthly price beside the yearly one.', 'Mark Team as the plan most people choose.', 'Put “Cancel any time” under each button.'],
+    summary: 'People reach the plan table and stall. Three changes should move most of them on, and none of them touch the price.',
+    changes: ['Turned each finding into a fix', 'Ordered the fixes by how many people they reach'] }
 ];
-// the headline is the latest month, the change is measured from the peak
-const VERSIONS: ArtifactVersion[] = DRAFTS.map((d, i) => {
-  const last = d.values[d.values.length - 1], top = Math.max(...d.values);
-  return { ...d, label: 'v' + (i + 1), value: last.toFixed(1) + '%', change: '−' + (top - last).toFixed(1) + ' pts since ' + MONTHS[d.values.indexOf(top)] };
-});
+// each version as the Markdown that Copy copies, Download saves and the reader shows
+const VERSIONS: ArtifactVersion[] = DRAFTS.map((d, i) => ({
+  title: 'Pricing page review', meta: d.meta, note: d.note, summary: d.summary,
+  content: `# Pricing page review\n\n## Summary\n\n${d.summary}\n\n## Findings\n\n${d.findings.map(f => '- ' + f).join('\n')}\n`
+    + (d.fixes.length ? `\n## What to fix first\n\n${d.fixes.map((f, k) => `${k + 1}. ${f}`).join('\n')}\n` : '')
+    + `\n## Changes in v${i + 1}\n\n${d.changes.map(f => '- ' + f).join('\n')}\n`
+}));
+const TABLE: ArtifactVersion[] = [{ title: 'Competitor prices', meta: 'edited 1 hour ago', note: 'Team and Business at three competitors',
+  content: 'Plan,Ours,Northwind,Halcyon,Fernway\nTeam,$29,$22,$25,$28\nBusiness,$79,$69,$75,$89\n' }];
+const STEPS = ['Reading the page…', 'Writing the findings…', 'Ordering the fixes…'];
+type Variant = NonNullable<ArtifactCardProps['variant']>;
+const ASK = 'Review our pricing page and tell me what to fix first.';
 
 export default function ArtifactCardDemo() {
-  // the agent's versions play through once, first draft to final, unless someone picks one first
-  const [version, setVersion] = useState(0);
-  const touched = useRef(false);
+  const ref = useRef<HTMLDivElement>(null);
+  const [variant, setVariant] = useState<Variant>('compact');
+  const [version, setVersion] = useState(2);
+  // where the writing is: a step while it runs, then done; the summary is written out a few letters at a time
+  const [step, setStep] = useState(0);
+  const [chars, setChars] = useState<number | null>(null);
+  const writing = step < STEPS.length;
+  // each variant plays the writing state again when it comes in
   useScript(async ({ wait }) => {
-    await wait(2300); if (!touched.current) setVersion(1);
-    await wait(1800); if (!touched.current) setVersion(2);
+    setStep(0); setChars(0); await wait(1400);
+    setStep(1);
+    for (let n = 0; n < DRAFTS[2].summary.length; n += 3) { setChars(n); await wait(22); }
+    setChars(null); await wait(300);
+    setStep(2); await wait(1100);
+    setStep(STEPS.length);
+  }, [variant]);
+  // the preview's story: once the report is written, someone opens its versions, reads v2 and goes back to v3
+  useStory(ref, async ({ wait, press }) => {
+    await wait(5600); press('.dm-afx-vb');
+    await wait(1000); press('.dm-afx-menu .dm-mi[data-i="1"]');
+    await wait(2000); press('.dm-afx-vb');
+    await wait(1000); press('.dm-afx-menu .dm-mi[data-i="2"]');
   });
+
+  const versions = writing && chars != null ? VERSIONS.map((x, i) => i === 2 ? { ...x, summary: DRAFTS[2].summary.slice(0, chars) } : x) : VERSIONS;
+  const report = (
+    <ArtifactCard variant={variant} versions={versions} version={writing ? 2 : version} onVersionChange={setVersion} kind="Report" fileName="pricing-page-review"
+      state={writing ? 'writing' : 'ready'} status={STEPS[Math.min(step, STEPS.length - 1)]} progress={(step + 1) / STEPS.length} />
+  );
+  const body = variant === 'compact' ? (
+    <div className="dm-afx-cp" data-dm="">
+      <div className="dm-bub">{ASK}</div>
+      <p className="dm-afx-cp-a">I went through the page from top to bottom and checked our prices against three competitors. Both are below.</p>
+      <div className="dm-afx-cp-list"><ArtifactCard versions={TABLE} kind="Table" icon="table" ext="csv" fileName="competitor-prices" />{report}</div>
+    </div>
+  ) : variant === 'inline' ? (
+    <div className="dm-afx-in" data-dm="">
+      <div className="dm-bub">{ASK}</div>
+      <div className="dm-afx-in-msg">
+        <p>I went through the pricing page from top to bottom and wrote up what to fix first.</p>
+        {report}
+        <p>The short version: the plan table is where people stall, and three small changes should move most of them on.</p>
+      </div>
+    </div>
+  ) : report;
+
   return (
-    <div style={{ width: '100%' }} onPointerDownCapture={() => { touched.current = true; }}>
-      <ArtifactCard title="Churn analysis, Q3" versions={VERSIONS} version={version} onVersionChange={setVersion} axis={['Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep']} range={[2.6, 6.2]}
-        link="https://designme.dev/a/churn-q3" href="https://designme.dev/a/churn-q3" />
+    <div ref={ref} style={{ width: '100%', position: 'relative' }}>
+      <Demo switcher={<Seg label="Variant" value={variant} onChange={setVariant} options={[{ value: 'compact', label: 'Compact' }, { value: 'preview', label: 'Preview' }, { value: 'inline', label: 'Inline' }, { value: 'stack', label: 'Stack' }]} />}>
+        {body}
+      </Demo>
     </div>
   );
 }

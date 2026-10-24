@@ -264,7 +264,7 @@ export function ThreadPanel({ threads, value, defaultValue, onValueChange, onSen
 
 - [Live answer](https://designme.dev/components/live-answer.md): Answers that stream in with numbered sources and next steps.
 - [Composer](https://designme.dev/components/composer.md): Message input with attachments, what to work on, a mode and dictation.
-- [Artifact card](https://designme.dev/components/artifact-card.md): A file the agent made, with a live preview and versions.
+- [Artifact card](https://designme.dev/components/artifact-card.md): A file the agent made, with its versions, Open, Copy and Download.
 - [Rich text editor](https://designme.dev/components/rich-text-editor.md): A minimal editor with an inline AI menu that streams a suggestion to accept or discard.
 - [Tool call](https://designme.dev/components/tool-call.md): Each tool the agent calls, with its input and output.
 - [Voice capture](https://designme.dev/components/voice-capture.md): Talk to the agent, then fix what it misheard before sending.
