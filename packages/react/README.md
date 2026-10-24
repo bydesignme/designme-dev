@@ -162,8 +162,8 @@ Each tool the agent calls, with its input and output.
 `message`, `calls: { key, server?, name, icon?, state: 'queued' | 'running' | 'done', duration?, input?, output? }[]` (input and output are JSON values, shown highlighted), `reply` (fades in once every call is done), `open` / `defaultOpen` / `onOpenChange` (the keys of the open calls).
 
 **ArtifactCard** · `artifact-card/ArtifactCard.tsx`  
-A file the agent made, with a live preview and versions.  
-`title`, `versions: { label, text, values, value?, change?, meta?, note? }[]`, `axis`, `range`, `icon`, `link` (adds Copy link), `href` (adds Open in a new tab), `onOpen` and `openLabel` (an open button that calls you instead, like opening the file beside a chat), `version` / `defaultVersion` / `onVersionChange`. The chart draws itself in and redraws when the version changes.
+A file the agent made, with its versions, Open, Copy and Download.  
+`variant: 'compact' | 'preview' | 'inline' | 'stack'` (a row, a card with its first page, a chip inside a message, or a stack of its versions), `versions: { title, meta, note?, content, summary? }[]` (oldest first; `content` is the Markdown, or CSV, that the reader shows, Copy copies and Download saves), `version` / `defaultVersion` / `onVersionChange` (a menu of every version, newest first; the stack lays its sheets out instead), `state: 'writing' | 'ready'` with `status` and `progress` (a spinner and the status line while writing; the actions come in when it's ready), `kind`, `icon`, `fileName`, `ext`, `onOpen` and `openLabel` (opens the file your own way instead of the card's reader, which covers its nearest positioned ancestor), `onCopy`, `onDownload`.
 
 **ModelPicker** · `model-picker/ModelPicker.tsx`  
 Pick a model by speed, quality and cost, and how hard it thinks.  
