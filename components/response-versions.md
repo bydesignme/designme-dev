@@ -221,7 +221,7 @@ export function ResponseVersions({ prompt, versions, version, defaultVersion = 0
 - [Live answer](https://designme.dev/components/live-answer.md): Answers that stream in with numbered sources and next steps.
 - [Composer](https://designme.dev/components/composer.md): Message input with attachments, what to work on, a mode and dictation.
 - [Thread panel](https://designme.dev/components/thread-panel.md): Switch between agent threads and reply in place.
-- [Artifact card](https://designme.dev/components/artifact-card.md): A file the agent made, with a live preview and versions.
+- [Artifact card](https://designme.dev/components/artifact-card.md): A file the agent made, with its versions, Open, Copy and Download.
 - [Tool call](https://designme.dev/components/tool-call.md): Each tool the agent calls, with its input and output.
 - [Voice capture](https://designme.dev/components/voice-capture.md): Talk to the agent, then fix what it misheard before sending.
 - [Voice orb](https://designme.dev/components/voice-orb.md): A hands-free voice chat, with an orb that shows who is talking.
