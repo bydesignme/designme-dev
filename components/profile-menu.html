@@ -3,8 +3,10 @@
 .pfm{position:relative;width:100%;max-width:400px;margin:0 auto;display:flex;flex-direction:column;gap:10px}
 .pfm-bar{display:flex;align-items:center;gap:10px;min-height:52px;padding:8px 8px 8px 12px;border-radius:14px}
 .pfm-lg{width:26px;height:26px;border-radius:8px;display:grid;place-items:center;flex:none;font-size:12px;font-weight:500;background:var(--chip);color:var(--fg2);transition:background var(--t) var(--ease),color var(--t) var(--ease)}
-.pfm-lg[data-t="pb"]{background:var(--pb-bg);color:var(--pb)}.pfm-lg[data-t="pp"]{background:var(--pp-bg);color:var(--pp)}.pfm-lg[data-t="pl"]{background:var(--pl-bg);color:var(--pl)}.pfm-lg[data-t="pm"]{background:var(--pm-bg);color:var(--pm)}
-.pfm-lg[data-t="pr"]{background:var(--pr-bg);color:var(--pr)}.pfm-lg[data-t="py"]{background:var(--py-bg);color:var(--py)}.pfm-lg[data-t="pk"]{background:var(--pk-bg);color:var(--pk)}.pfm-lg[data-t="pt"]{background:var(--pt-bg);color:var(--pt)}
+.pfm-lg[data-t="pb"]{--tb:var(--pb-bg);--tc:var(--pb)}.pfm-lg[data-t="pp"]{--tb:var(--pp-bg);--tc:var(--pp)}.pfm-lg[data-t="pl"]{--tb:var(--pl-bg);--tc:var(--pl)}.pfm-lg[data-t="pm"]{--tb:var(--pm-bg);--tc:var(--pm)}
+.pfm-lg[data-t="pr"]{--tb:var(--pr-bg);--tc:var(--pr)}.pfm-lg[data-t="py"]{--tb:var(--py-bg);--tc:var(--py)}.pfm-lg[data-t="pk"]{--tb:var(--pk-bg);--tc:var(--pk)}.pfm-lg[data-t="pt"]{--tb:var(--pt-bg);--tc:var(--pt)}
+/* the letter leans a little toward the text colour, so it reads at 4.5:1 on its tint in dark mode too, on a hovered row as well */
+.pfm-lg[data-t]{background:var(--tb);color:color-mix(in srgb,var(--tc) 80%,var(--fg))}
 .pfm-ws{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.3}
 .pfm-wn{font-size:13.5px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
 .pfm-ws .muted{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -27,7 +29,7 @@
 .pfm-th[aria-checked="true"]{background:none;font-weight:400}
 .pfm-th[aria-checked="true"]:hover,.pfm-th.hl{background:var(--row)}
 .pfm-th .toggle{margin-left:auto}
-.pfm-th[aria-checked="true"] .toggle{background:var(--accent)}
+.pfm-th[aria-checked="true"] .toggle{background:var(--accent);box-shadow:inset 0 0 0 1px var(--accent-mark,var(--accent))}
 .pfm-th[aria-checked="true"] .toggle::after{transform:translateX(12px);background:var(--on-accent)}
 .pfm-ky .kbd{margin-left:auto}
 .pfm-keys{padding:10px 12px 12px;border-radius:14px}
@@ -124,7 +126,7 @@ export default function ProfileMenuDemo() {
     &lt;/div&gt;
   );
 }
-</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything ProfileMenu takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>user</code><span class="opt">required</span></td><td><code>{ name: string; email: string; initials?: string; color?: string }</code></td><td>The person signed in. `color` is the avatar&#39;s colour, like &#39;var(--dm-pl)&#39;</td></tr><tr><td><code>workspaces</code><span class="opt">required</span></td><td><code>ProfileMenuWorkspace[]</code></td><td></td></tr><tr><td><code>workspace</code></td><td><code>string</code></td><td>The current workspace&#39;s id. Leave it out to let the menu switch it</td></tr><tr><td><code>defaultWorkspace</code></td><td><code>string</code></td><td></td></tr><tr><td><code>onWorkspaceChange</code></td><td><code>(id: string) =&gt; void</code></td><td></td></tr><tr><td><code>context</code></td><td><code>ReactNode</code></td><td>The quiet line under the workspace name in the bar, like the page you&#39;re on</td></tr><tr><td><code>dark</code></td><td><code>boolean</code></td><td>The theme switch. It only reports the change: apply the theme in `onDarkChange`</td></tr><tr><td><code>defaultDark</code></td><td><code>boolean</code></td><td></td></tr><tr><td><code>onDarkChange</code></td><td><code>(dark: boolean) =&gt; void</code></td><td></td></tr><tr><td><code>themeLabel</code></td><td><code>string</code></td><td>Defaults to &quot;Dark theme&quot;</td></tr><tr><td><code>shortcuts</code></td><td><code>ProfileMenuShortcut[]</code></td><td>The list Keyboard shortcuts opens. Defaults to the keys this menu answers to</td></tr><tr><td><code>shortcutsOpen</code></td><td><code>boolean</code></td><td>Whether that list is open. Keyboard shortcuts, or ? anywhere in the component, opens it</td></tr><tr><td><code>defaultShortcutsOpen</code></td><td><code>boolean</code></td><td></td></tr><tr><td><code>onShortcutsOpenChange</code></td><td><code>(open: boolean) =&gt; void</code></td><td></td></tr><tr><td><code>signedIn</code></td><td><code>boolean</code></td><td>Sign out swaps the avatar for a Sign in button, which swaps it back</td></tr><tr><td><code>defaultSignedIn</code></td><td><code>boolean</code></td><td></td></tr><tr><td><code>onSignedInChange</code></td><td><code>(signedIn: boolean) =&gt; void</code></td><td></td></tr><tr><td><code>note</code></td><td><code>string</code></td><td>A confirmation under the bar, like &quot;Switched to Acme Labs&quot;. Shown with a green check</td></tr><tr><td><code>open</code></td><td><code>boolean</code></td><td>Whether the menu is open. Leave it out to let the avatar, Escape and a click outside open and close it</td></tr><tr><td><code>defaultOpen</code></td><td><code>boolean</code></td><td></td></tr><tr><td><code>onOpenChange</code></td><td><code>(open: boolean) =&gt; void</code></td><td></td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>ProfileMenu.tsx<span class="l">React · 175 lines</span></summary><pre class="cp-pre"><code>&#39;use client&#39;;
+</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything ProfileMenu takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>user</code><span class="opt">required</span></td><td><code>{ name: string; email: string; initials?: string; color?: string }</code></td><td>The person signed in. `color` is the avatar&#39;s colour, like &#39;var(--dm-pl)&#39;</td></tr><tr><td><code>workspaces</code><span class="opt">required</span></td><td><code>ProfileMenuWorkspace[]</code></td><td></td></tr><tr><td><code>workspace</code></td><td><code>string</code></td><td>The current workspace&#39;s id. Leave it out to let the menu switch it</td></tr><tr><td><code>defaultWorkspace</code></td><td><code>string</code></td><td></td></tr><tr><td><code>onWorkspaceChange</code></td><td><code>(id: string) =&gt; void</code></td><td></td></tr><tr><td><code>context</code></td><td><code>ReactNode</code></td><td>The quiet line under the workspace name in the bar, like the page you&#39;re on</td></tr><tr><td><code>dark</code></td><td><code>boolean</code></td><td>The theme switch. It only reports the change: apply the theme in `onDarkChange`</td></tr><tr><td><code>defaultDark</code></td><td><code>boolean</code></td><td></td></tr><tr><td><code>onDarkChange</code></td><td><code>(dark: boolean) =&gt; void</code></td><td></td></tr><tr><td><code>themeLabel</code></td><td><code>string</code></td><td>Defaults to &quot;Dark theme&quot;</td></tr><tr><td><code>shortcuts</code></td><td><code>ProfileMenuShortcut[]</code></td><td>The list Keyboard shortcuts opens. Defaults to the keys this menu answers to</td></tr><tr><td><code>shortcutsOpen</code></td><td><code>boolean</code></td><td>Whether that list is open. Keyboard shortcuts, or ? anywhere in the component, opens it</td></tr><tr><td><code>defaultShortcutsOpen</code></td><td><code>boolean</code></td><td></td></tr><tr><td><code>onShortcutsOpenChange</code></td><td><code>(open: boolean) =&gt; void</code></td><td></td></tr><tr><td><code>signedIn</code></td><td><code>boolean</code></td><td>Sign out swaps the avatar for a Sign in button, which swaps it back</td></tr><tr><td><code>defaultSignedIn</code></td><td><code>boolean</code></td><td></td></tr><tr><td><code>onSignedInChange</code></td><td><code>(signedIn: boolean) =&gt; void</code></td><td></td></tr><tr><td><code>note</code></td><td><code>string</code></td><td>A confirmation under the bar, like &quot;Switched to Acme Labs&quot;. Shown with a green check</td></tr><tr><td><code>open</code></td><td><code>boolean</code></td><td>Whether the menu is open. Leave it out to let the avatar, Escape and a click outside open and close it</td></tr><tr><td><code>defaultOpen</code></td><td><code>boolean</code></td><td></td></tr><tr><td><code>onOpenChange</code></td><td><code>(open: boolean) =&gt; void</code></td><td></td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>ProfileMenu.tsx<span class="l">React · 185 lines</span></summary><pre class="cp-pre"><code>&#39;use client&#39;;
 import { useEffect, useId, useRef, useState, type KeyboardEvent, type MouseEvent, type ReactNode } from &#39;react&#39;;
 import { cx } from &#39;../lib/cx&#39;;
 import { useControllable } from &#39;../lib/hooks&#39;;
@@ -239,11 +241,21 @@ export function ProfileMenu({
     if (go) { e.preventDefault(); go.focus(); } else if (e.key === &#39;Tab&#39;) setTimeout(() =&gt; menu.close());
   };
   const showKeys = (on: boolean) =&gt; setKeysOpen(on);
+  // the menu opens over whatever sits under the bar, so the component keeps room for it below the bar: centred in a
+  // stage, the open menu still ends inside it
+  const bar = useRef&lt;HTMLDivElement&gt;(null);
+  const [room, setRoom] = useState&lt;number&gt;();
+  useEffect(() =&gt; {
+    const fit = () =&gt; { if (bar.current &amp;&amp; pop.current) setRoom(Math.ceil(bar.current.offsetHeight + 6 + pop.current.offsetHeight)); };
+    fit(); const ro = new ResizeObserver(fit);
+    if (bar.current) ro.observe(bar.current); if (pop.current) ro.observe(pop.current);
+    return () =&gt; ro.disconnect();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    &lt;div data-dm=&quot;&quot; className={cx(&#39;dm-pfm&#39;, className)}
+    &lt;div data-dm=&quot;&quot; className={cx(&#39;dm-pfm&#39;, className)} style={room ? { minHeight: room } : undefined}
       onKeyDown={e =&gt; { if (e.key === &#39;?&#39; &amp;&amp; !(e.target as HTMLElement).matches(&#39;input,textarea&#39;)) { e.preventDefault(); menu.close(); showKeys(!keysOpen); } }}&gt;
-      &lt;div className=&quot;dm-pfm-bar dm-panel&quot;&gt;
+      &lt;div ref={bar} className=&quot;dm-pfm-bar dm-panel&quot;&gt;
         {cur &amp;&amp; &lt;span className=&quot;dm-pfm-lg&quot; data-t={cur.tint}&gt;{cur.initial ?? cur.name[0]}&lt;/span&gt;}
         &lt;span className=&quot;dm-pfm-ws&quot;&gt;&lt;Swap className=&quot;dm-pfm-wn&quot;&gt;{cur?.name ?? &#39;&#39;}&lt;/Swap&gt;{context &amp;&amp; &lt;span className=&quot;dm-muted&quot;&gt;{context}&lt;/span&gt;}&lt;/span&gt;
         {isIn ? (
@@ -298,14 +310,16 @@ export function ProfileMenu({
     &lt;/div&gt;
   );
 }
-</code></pre></details><details class="cp-file"><summary>profile-menu.css<span class="l">React · 43 lines</span></summary><pre class="cp-pre"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+</code></pre></details><details class="cp-file"><summary>profile-menu.css<span class="l">React · 45 lines</span></summary><pre class="cp-pre"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Profile menu ---------- */
 /* an app&#39;s top bar with the account behind the avatar. The menu opens under it, lined up with its right edge */
 .dm-pfm{position:relative;width:100%;max-width:400px;margin:0 auto;display:flex;flex-direction:column;gap:10px}
 .dm-pfm-bar{display:flex;align-items:center;gap:10px;min-height:52px;padding:8px 8px 8px 12px;border-radius:14px}
 .dm-pfm-lg{width:26px;height:26px;border-radius:8px;display:grid;place-items:center;flex:none;font-size:12px;font-weight:500;background:var(--dm-chip);color:var(--dm-fg2);transition:background var(--dm-t) var(--dm-ease),color var(--dm-t) var(--dm-ease)}
-.dm-pfm-lg[data-t=&quot;pb&quot;]{background:var(--dm-pb-bg);color:var(--dm-pb)}.dm-pfm-lg[data-t=&quot;pp&quot;]{background:var(--dm-pp-bg);color:var(--dm-pp)}.dm-pfm-lg[data-t=&quot;pl&quot;]{background:var(--dm-pl-bg);color:var(--dm-pl)}.dm-pfm-lg[data-t=&quot;pm&quot;]{background:var(--dm-pm-bg);color:var(--dm-pm)}
-.dm-pfm-lg[data-t=&quot;pr&quot;]{background:var(--dm-pr-bg);color:var(--dm-pr)}.dm-pfm-lg[data-t=&quot;py&quot;]{background:var(--dm-py-bg);color:var(--dm-py)}.dm-pfm-lg[data-t=&quot;pk&quot;]{background:var(--dm-pk-bg);color:var(--dm-pk)}.dm-pfm-lg[data-t=&quot;pt&quot;]{background:var(--dm-pt-bg);color:var(--dm-pt)}
+.dm-pfm-lg[data-t=&quot;pb&quot;]{--dm-tb:var(--dm-pb-bg);--dm-tc:var(--dm-pb)}.dm-pfm-lg[data-t=&quot;pp&quot;]{--dm-tb:var(--dm-pp-bg);--dm-tc:var(--dm-pp)}.dm-pfm-lg[data-t=&quot;pl&quot;]{--dm-tb:var(--dm-pl-bg);--dm-tc:var(--dm-pl)}.dm-pfm-lg[data-t=&quot;pm&quot;]{--dm-tb:var(--dm-pm-bg);--dm-tc:var(--dm-pm)}
+.dm-pfm-lg[data-t=&quot;pr&quot;]{--dm-tb:var(--dm-pr-bg);--dm-tc:var(--dm-pr)}.dm-pfm-lg[data-t=&quot;py&quot;]{--dm-tb:var(--dm-py-bg);--dm-tc:var(--dm-py)}.dm-pfm-lg[data-t=&quot;pk&quot;]{--dm-tb:var(--dm-pk-bg);--dm-tc:var(--dm-pk)}.dm-pfm-lg[data-t=&quot;pt&quot;]{--dm-tb:var(--dm-pt-bg);--dm-tc:var(--dm-pt)}
+/* the letter leans a little toward the text colour, so it reads at 4.5:1 on its tint in dark mode too, on a hovered row as well */
+.dm-pfm-lg[data-t]{background:var(--dm-tb);color:color-mix(in srgb,var(--dm-tc) 80%,var(--dm-fg))}
 .dm-pfm-ws{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.3}
 .dm-pfm-wn{font-size:13.5px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
 .dm-pfm-ws .dm-muted{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -328,7 +342,7 @@ export function ProfileMenu({
 .dm-pfm-th[aria-checked=&quot;true&quot;]{background:none;font-weight:400}
 .dm-pfm-th[aria-checked=&quot;true&quot;]:hover,.dm-pfm-th.dm-hl{background:var(--dm-row)}
 .dm-pfm-th .dm-toggle{margin-left:auto}
-.dm-pfm-th[aria-checked=&quot;true&quot;] .dm-toggle{background:var(--dm-accent)}
+.dm-pfm-th[aria-checked=&quot;true&quot;] .dm-toggle{background:var(--dm-accent);box-shadow:inset 0 0 0 1px var(--dm-accent-mark,var(--dm-accent))}
 .dm-pfm-th[aria-checked=&quot;true&quot;] .dm-toggle::after{transform:translateX(12px);background:var(--dm-on-accent)}
 .dm-pfm-ky .dm-kbd{margin-left:auto}
 .dm-pfm-keys{padding:10px 12px 12px;border-radius:14px}
@@ -367,13 +381,15 @@ export function ProfileMenu({
 &lt;/div&gt;
   &lt;/template&gt;
 &lt;/div&gt;
-</code></pre></details><details class="cp-file"><summary>profile-menu.css<span class="l">HTML · 42 lines</span></summary><pre class="cp-pre"><code>/* ---------- Profile menu ---------- */
+</code></pre></details><details class="cp-file"><summary>profile-menu.css<span class="l">HTML · 44 lines</span></summary><pre class="cp-pre"><code>/* ---------- Profile menu ---------- */
 /* an app&#39;s top bar with the account behind the avatar. The menu opens under it, lined up with its right edge */
 .pfm{position:relative;width:100%;max-width:400px;margin:0 auto;display:flex;flex-direction:column;gap:10px}
 .pfm-bar{display:flex;align-items:center;gap:10px;min-height:52px;padding:8px 8px 8px 12px;border-radius:14px}
 .pfm-lg{width:26px;height:26px;border-radius:8px;display:grid;place-items:center;flex:none;font-size:12px;font-weight:500;background:var(--chip);color:var(--fg2);transition:background var(--t) var(--ease),color var(--t) var(--ease)}
-.pfm-lg[data-t=&quot;pb&quot;]{background:var(--pb-bg);color:var(--pb)}.pfm-lg[data-t=&quot;pp&quot;]{background:var(--pp-bg);color:var(--pp)}.pfm-lg[data-t=&quot;pl&quot;]{background:var(--pl-bg);color:var(--pl)}.pfm-lg[data-t=&quot;pm&quot;]{background:var(--pm-bg);color:var(--pm)}
-.pfm-lg[data-t=&quot;pr&quot;]{background:var(--pr-bg);color:var(--pr)}.pfm-lg[data-t=&quot;py&quot;]{background:var(--py-bg);color:var(--py)}.pfm-lg[data-t=&quot;pk&quot;]{background:var(--pk-bg);color:var(--pk)}.pfm-lg[data-t=&quot;pt&quot;]{background:var(--pt-bg);color:var(--pt)}
+.pfm-lg[data-t=&quot;pb&quot;]{--tb:var(--pb-bg);--tc:var(--pb)}.pfm-lg[data-t=&quot;pp&quot;]{--tb:var(--pp-bg);--tc:var(--pp)}.pfm-lg[data-t=&quot;pl&quot;]{--tb:var(--pl-bg);--tc:var(--pl)}.pfm-lg[data-t=&quot;pm&quot;]{--tb:var(--pm-bg);--tc:var(--pm)}
+.pfm-lg[data-t=&quot;pr&quot;]{--tb:var(--pr-bg);--tc:var(--pr)}.pfm-lg[data-t=&quot;py&quot;]{--tb:var(--py-bg);--tc:var(--py)}.pfm-lg[data-t=&quot;pk&quot;]{--tb:var(--pk-bg);--tc:var(--pk)}.pfm-lg[data-t=&quot;pt&quot;]{--tb:var(--pt-bg);--tc:var(--pt)}
+/* the letter leans a little toward the text colour, so it reads at 4.5:1 on its tint in dark mode too, on a hovered row as well */
+.pfm-lg[data-t]{background:var(--tb);color:color-mix(in srgb,var(--tc) 80%,var(--fg))}
 .pfm-ws{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.3}
 .pfm-wn{font-size:13.5px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
 .pfm-ws .muted{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -396,7 +412,7 @@ export function ProfileMenu({
 .pfm-th[aria-checked=&quot;true&quot;]{background:none;font-weight:400}
 .pfm-th[aria-checked=&quot;true&quot;]:hover,.pfm-th.hl{background:var(--row)}
 .pfm-th .toggle{margin-left:auto}
-.pfm-th[aria-checked=&quot;true&quot;] .toggle{background:var(--accent)}
+.pfm-th[aria-checked=&quot;true&quot;] .toggle{background:var(--accent);box-shadow:inset 0 0 0 1px var(--accent-mark,var(--accent))}
 .pfm-th[aria-checked=&quot;true&quot;] .toggle::after{transform:translateX(12px);background:var(--on-accent)}
 .pfm-ky .kbd{margin-left:auto}
 .pfm-keys{padding:10px 12px 12px;border-radius:14px}
