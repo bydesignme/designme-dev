@@ -30,7 +30,7 @@ Segmented control is a row of two to five choices where exactly one is picked, s
 - `value`, `defaultValue` and `onValueChange` hold the pick.
 - `as="tabs"` (the default) makes it a tab list for switching a panel; `as="radio"` makes it a radio group for setting an option.
 - `id` ties the tabs to their panel: the panel takes `id="<id>-panel"` and `aria-labelledby="<id>-<value>"`.
-- The demo switches the pricing launch between a day of events, a week of busy bars and a month with a dot on each busy day, and the range under the title crossfades with it.
+- The demo switches the pricing launch between a day of events, a week with each day's first event and a count of the rest, and a month with a dot on each busy day, and the range under the title crossfades with it.
 
 ### Accessibility
 
@@ -59,7 +59,11 @@ import { useStory } from '../lib/useScript';
 type View = 'day' | 'week' | 'month';
 // the pricing launch in October 2026. Today is Friday the 23rd
 const DAY = [['09:30', 'Pricing review with Maya', 'Pricing v4, frames 1 to 3', 'var(--dm-pl)'], ['13:00', 'Export tokens to CSS', 'Build agent', 'var(--dm-pm)'], ['16:00', 'Ship pricing v4', 'designme.studio/pricing', 'var(--dm-pb)']];
-const WEEK: [string, number, number][] = [['Mon', 19, 2], ['Tue', 20, 4], ['Wed', 21, 1], ['Thu', 22, 2], ['Fri', 23, 3], ['Sat', 24, 0], ['Sun', 25, 0]];
+// the week: each day's events, earliest first. Friday's are the day above
+const WEEK: [string, number, string[][]][] = [['Mon', 19, [['10:00', 'Kickoff with Maya', 'var(--dm-pl)'], ['15:00', 'Brief the agents', 'var(--dm-pm)']]],
+  ['Tue', 20, [['10:00', 'Wireframe review', 'var(--dm-pl)'], ['11:30', 'Copy for the plan cards', 'var(--dm-pt)'], ['14:00', 'Token audit', 'var(--dm-pm)'], ['16:00', 'Stakeholder check-in', 'var(--dm-pb)']]],
+  ['Wed', 21, [['11:00', 'Copy pass', 'var(--dm-pt)']]], ['Thu', 22, [['14:00', 'Design QA', 'var(--dm-pb)'], ['16:30', 'Fix contrast issues', 'var(--dm-pm)']]],
+  ['Fri', 23, DAY.map(([t, n, , c]) => [t, n, c])], ['Sat', 24, []], ['Sun', 25, []]];
 const BUSY = [2, 6, 7, 9, 13, 14, 15, 16, 19, 20, 21, 22, 23, 27, 28, 29, 30];
 const RANGE: Record<View, string> = { day: 'Friday, Oct 23', week: 'Oct 19 – 25', month: 'October 2026' };
 
@@ -71,7 +75,14 @@ function Panel({ view }: { view: View }) {
   );
   if (view === 'week') return (
     <div className="dm-sgc-wk">
-      {WEEK.map(([d, n, k]) => <div key={d} className={n === 23 ? 'dm-sgc-d dm-now' : 'dm-sgc-d'}><span className="dm-n dm-num">{k || ''}</span><span className="dm-sgc-bar"><i style={{ height: `${k * 25}%` }} /></span><span>{d}</span></div>)}
+      {WEEK.map(([d, n, ev]) => (
+        <div key={d} className={['dm-sgc-wr', n === 23 && 'dm-now', !ev.length && 'dm-none'].filter(Boolean).join(' ')}>
+          <span className="dm-d">{d} {n}</span>
+          {ev.length
+            ? <><span className="dm-e" style={{ '--dm-c': ev[0][2] } as CSSProperties}><i /><span className="dm-tm dm-num">{ev[0][0]}</span><span>{ev[0][1]}</span></span>{ev.length > 1 && <span className="dm-more">+{ev.length - 1} more</span>}</>
+            : <span className="dm-e">Nothing planned</span>}
+        </div>
+      ))}
     </div>
   );
   return (
