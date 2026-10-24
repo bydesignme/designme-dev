@@ -25,6 +25,10 @@ const NAME = { soft:'Soft', bp:'Blueprint', light:'Light', dark:'Dark' };
 // the accents the homepage's picker offers, in its order
 // the same swatches as the homepage's picker: Default is the style's own accent, and its twin is left out
 const PICKS = [['default', 'Default'], ['#d4f84a', 'Lime'], ['#116ff8', 'Blue'], ['#7c5cff', 'Violet'], ['#e8366f', 'Rose'], ['#12a150', 'Green'], ['#0ea5a4', 'Teal'], ['#ff850d', 'Orange']];
+// a tint reads as its colour and how much of it shows, like "#ff850d · 8%", so every value fits on one line
+const shortColour = (v: string) => { const m = String(v).match(/^rgba?\(\s*(\d+)[,\s]+(\d+)[,\s]+(\d+)(?:[,\s/]+([\d.]+%?))?\s*\)$/); if (!m) return v;
+  const hx = '#' + [m[1], m[2], m[3]].map(n => (+n).toString(16).padStart(2, '0')).join('');
+  if (m[4] === undefined) return hx; const al = m[4].endsWith('%') ? parseFloat(m[4]) : parseFloat(m[4]) * 100; return al >= 100 ? hx : `${hx} · ${Math.round(al)}%`; };
 const ROLES = [['accent', 'Fill', '--accent'], ['onAccent', 'On fill', '--on-accent'], ['accentFg', 'Text', '--accent-fg'], ['accentMark', 'Mark', '--accent-mark'], ['accentBg', 'Tint', '--accent-bg']];
 ---
 {blocks.map((b, k) => {
@@ -71,7 +75,7 @@ const ROLES = [['accent', 'Fill', '--accent'], ['onAccent', 'On fill', '--on-acc
     case 'swatches': return <div class="dc-tw dc-swtab"><table><thead><tr><th>Role</th>{VARIANTS.map(([s, t]) => <th>{NAME[s]} {NAME[t].toLowerCase()}</th>)}</tr></thead><tbody>
       {ROLES.map(([k, n, varName]) => <tr><td data-h="Role">{n}<span class="dc-swvar">{varName}</span></td>{VARIANTS.map(([s, t]) => { const v = ACCENTS[`${s}-${t}`]; return <td data-h={`${NAME[s]} ${NAME[t].toLowerCase()}`}><span class="dc-swcell">
         <span class={`dc-swc dc-swc-${k}`} style={`--s:${v.surface};--l:${v.line};--a:${v.accent};--on:${v.onAccent};--fgA:${v.accentFg};--mk:${v.accentMark};--bgA:${v.accentBg}`} aria-hidden="true">{(k === 'onAccent' || k === 'accentFg') ? 'Aa' : ''}</span>
-        <span class="dc-swv">{v[k]}</span>
+        <span class="dc-swv">{shortColour(v[k])}</span>
       </span></td>; })}</tr>)}
     </tbody></table></div>;
     case 'preview': return <div class="dc-pv" data-pv>

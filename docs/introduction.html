@@ -478,7 +478,11 @@
         KEYS.forEach(function(k){ pv.style.removeProperty(k); });
         if (cur !== 'default'){ var v = roles(cur, soft, dark); for (var k in v) if (v[k]) pv.style.setProperty(k, v[k]); }
         var cs = getComputedStyle(pv);
-        out.forEach(function(r){ r.querySelector('.dc-swv').textContent = cs.getPropertyValue(r.dataset.var).trim(); });
+        // a tint reads as its colour and how much of it shows, like "#ff850d · 8%", so every value fits on one line
+        var short = function(v){ var m = v.match(/^rgba?\(\s*(\d+)[,\s]+(\d+)[,\s]+(\d+)(?:[,\s/]+([\d.]+%?))?\s*\)$/); if (!m) return v;
+          var hx = '#' + [m[1], m[2], m[3]].map(function(n){ return (+n).toString(16).padStart(2, '0'); }).join('');
+          if (m[4] === undefined) return hx; var al = m[4].endsWith('%') ? parseFloat(m[4]) : parseFloat(m[4]) * 100; return al >= 100 ? hx : hx + ' · ' + Math.round(al) + '%'; };
+        out.forEach(function(r){ r.querySelector('.dc-swv').textContent = short(cs.getPropertyValue(r.dataset.var).trim()); });
         var known = picks.some(function(b){ return b.dataset.v === cur; });
         picks.forEach(function(b){ var on = b.dataset.v === cur; b.setAttribute('aria-checked', String(on)); b.tabIndex = on || (!known && b === picks[0]) ? 0 : -1; });
         any.classList.toggle('on', !known); if (!known) any.style.setProperty('--sw', cur);
