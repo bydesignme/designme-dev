@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
 import { cx } from '../../lib/cx';
 import { useControllable, useReducedMotion } from '../../lib/hooks';
 import { Icon } from '../../lib/icons';
@@ -104,10 +104,13 @@ export function Stepper({ steps, step, defaultStep = 0, onStepChange, values, de
   const celebrate = finished && seen.dir > 0;
   const ok = useRef<HTMLSpanElement>(null);
   const reduce = useReducedMotion();
+  // the finished screen drops the track and keeps the height the steps had, centred in it
+  const root = useRef<HTMLDivElement>(null), tall = useRef(0);
+  useLayoutEffect(() => { if (!finished && root.current) tall.current = root.current.offsetHeight; });
   useEffect(() => { if (celebrate && !reduce && ok.current) return burst(ok.current); }, [celebrate, seen.key, reduce]);
 
   return (
-    <div data-dm="" className={cx('dm-stx', !bare && 'dm-panel', finished && 'dm-fin', className)}>
+    <div data-dm="" ref={root} className={cx('dm-stx', !bare && 'dm-panel', finished && 'dm-fin', finished && tall.current > 0 && 'dm-held', className)} style={finished && tall.current ? { minHeight: tall.current } : undefined}>
       <div className="dm-stx-track">
         {steps.map((st, i) => [
           // a finished step on the track takes you back to it

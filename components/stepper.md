@@ -30,7 +30,7 @@ Stepper walks a person through a short setup one question at a time, with a trac
 - Continue slides the next step in from the right, and Back slides the previous one in from the left.
 - Completed steps on the track show a check and can be clicked to go back to them.
 - `onNext` runs before moving on; returning false, or a promise of false, keeps the person on the step, and Continue is disabled while it is pending.
-- Finish calls `onFinish` with the picks, and the done screen lists the chosen options unless you set `doneDetail`.
+- Finish calls `onFinish` with the picks, and the done screen lists the chosen options unless you set `doneDetail`. The track is hidden there, and the screen keeps the height the steps had, with the confirmation centred in it.
 - Start over returns to the first step, and `bare` (the default) sits flat in a chat thread.
 
 ### Accessibility
@@ -106,7 +106,7 @@ Yes. Give the step `content` with your own fields and leave out `options`. The c
 
 ```tsx
 'use client';
-import { useEffect, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
 import { cx } from '../lib/cx';
 import { useControllable, useReducedMotion } from '../lib/hooks';
 import { Icon } from '../lib/icons';
@@ -211,10 +211,13 @@ export function Stepper({ steps, step, defaultStep = 0, onStepChange, values, de
   const celebrate = finished && seen.dir > 0;
   const ok = useRef<HTMLSpanElement>(null);
   const reduce = useReducedMotion();
+  // the finished screen drops the track and keeps the height the steps had, centred in it
+  const root = useRef<HTMLDivElement>(null), tall = useRef(0);
+  useLayoutEffect(() => { if (!finished && root.current) tall.current = root.current.offsetHeight; });
   useEffect(() => { if (celebrate && !reduce && ok.current) return burst(ok.current); }, [celebrate, seen.key, reduce]);
 
   return (
-    <div data-dm="" className={cx('dm-stx', !bare && 'dm-panel', finished && 'dm-fin', className)}>
+    <div data-dm="" ref={root} className={cx('dm-stx', !bare && 'dm-panel', finished && 'dm-fin', finished && tall.current > 0 && 'dm-held', className)} style={finished && tall.current ? { minHeight: tall.current } : undefined}>
       <div className="dm-stx-track">
         {steps.map((st, i) => [
           // a finished step on the track takes you back to it

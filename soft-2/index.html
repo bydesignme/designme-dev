@@ -781,6 +781,9 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 /* once it's done there is nothing to go back to: Start over sits alone in the middle */
 .stx.fin .stx-f{justify-content:center}
 .stx.fin .stx-bk{display:none}
+/* finished: the track has done its job, so only the success shows, centred in the height the steps had */
+.stx.fin .stx-track{display:none}
+.stx.fin .stx-vp{min-height:0}.stx.fin .stx-dn{padding:0 0 8px}
 .stx-bk[disabled]{visibility:hidden}
 .stx-dn{display:flex;flex-direction:column;align-items:center;gap:6px;padding:18px 0;text-align:center;font-size:13px}
 .stx-dn>b{font-size:14px;font-weight:500}
@@ -3085,8 +3088,11 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .ttp-n{font-size:12.5px;text-align:center}
 /* ---------- Search input ---------- */
 .six{min-height:320px;display:flex;justify-content:center;align-items:flex-start}
-.six-box{width:100%;max-width:420px;background:var(--surface);border-radius:20px;box-shadow:var(--shadow);transition:box-shadow .35s var(--ease),transform .35s var(--ease)}
-.six-box.f{box-shadow:var(--shadow-lift);transform:translateY(-1px)}
+/* --y keeps the box centred in the room its longest list needs, closed or open; place() sets it */
+.six-box{width:100%;max-width:420px;background:var(--surface);border-radius:20px;box-shadow:var(--shadow);transform:translateY(var(--y,0px));transition:box-shadow .35s var(--ease),transform .35s var(--ease)}
+.six-box.f{box-shadow:var(--shadow-lift);transform:translateY(calc(var(--y,0px) - 1px))}
+/* Blueprint's lifted edge is a light hairline, which reads as a white ring on a dark sheet; the focused field steps up one line instead */
+:root[data-style="bp"] .six-box.f{box-shadow:0 0 0 1px var(--rail)}
 .six-in>svg{transition:color .25s}
 .six-box.f .six-in>svg{color:var(--fg)}
 .six-in{display:flex;align-items:center;gap:8px;height:46px;padding:0 10px 0 14px;color:var(--muted)}
@@ -3096,7 +3102,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .six-ch{display:inline-flex;align-items:center;gap:4px;height:24px;padding:0 4px 0 8px;border-radius:7px;background:var(--accent-bg);color:var(--accent);font-size:12px;font-weight:500;white-space:nowrap}
 .six-ch button{display:grid;opacity:.6}.six-ch button:hover{opacity:1}
 .six-x{width:26px;height:26px}
-.six-res{padding:4px 6px 8px;border-top:1px solid var(--line)}
+.six-res{position:relative;padding:4px 6px 8px;border-top:1px solid var(--line)}
 .six-g{font-size:11.5px;color:var(--muted);padding:8px 8px 4px}
 .six-it{display:flex;align-items:center;gap:10px;width:100%;padding:7px 8px;border-radius:10px;font-size:13px;text-align:left;transition:background .15s}
 .six-it:hover,.six-it.hl{background:var(--row)}
@@ -6312,13 +6318,14 @@ DM.def('stepper', (r, c) => {
     cur = i; sts.forEach((s, j) => { s.classList.toggle('on', j === i); s.classList.toggle('done', j < i); $('.n', s).innerHTML = j < i ? I('check','xs') : j + 1; });
     lns.forEach((l, j) => l.classList.toggle('full', j < i));
     if (i >= S.length){
+      if (!stx.classList.contains('fin')) hold(stx);
       body.innerHTML = `<div class="stx-dn"><span class="stx-ok"><svg viewBox="0 0 44 44" aria-hidden="true"><circle class="c" cx="22" cy="22" r="20"/><path class="k" d="M14 22.5l5.5 5.5L30.5 16.5"/></svg></span><b>You're set up</b><span class="muted">${S.map((s, k) => s[3][pick[k]][0]).join(' · ')}</span></div>`;
       bk.disabled = true; nx.textContent = 'Start over'; stx.classList.add('fin');
       // arriving here from Finish is the moment to celebrate; the screen itself doesn't slide
       if (dir > 0){ const dn = $('.stx-dn', body); dn.classList.add('go'); enter($('b', dn), 260); enter($('.muted', dn), 340); burst($('.stx-ok', dn)); }
       return;
     }
-    else { stx.classList.remove('fin'); const s = S[i]; body.innerHTML = `<h4>${s[1]}</h4><p>${s[2]}</p><div class="stx-opts">${s[3].map((o, k) => `<button class="stx-o${pick[i] === k ? ' on' : ''}" data-k="${k}"><b style="font-weight:500">${o[0]}</b><span>${o[1]}</span></button>`).join('')}</div>`;
+    else { if (stx.classList.contains('fin')){ stx.classList.remove('fin'); release(stx); } const s = S[i]; body.innerHTML = `<h4>${s[1]}</h4><p>${s[2]}</p><div class="stx-opts">${s[3].map((o, k) => `<button class="stx-o${pick[i] === k ? ' on' : ''}" data-k="${k}"><b style="font-weight:500">${o[0]}</b><span>${o[1]}</span></button>`).join('')}</div>`;
       $$('.stx-o', body).forEach(b => b.onclick = () => { pick[i] = +b.dataset.k; $$('.stx-o', body).forEach(x => x.classList.toggle('on', x === b)); });
       bk.disabled = i === 0; nx.textContent = i === S.length - 1 ? 'Finish' : 'Continue'; }
     if (dir){ body.classList.remove('inr','inl'); void body.offsetWidth; body.classList.add(dir > 0 ? 'inr' : 'inl'); }
@@ -9933,7 +9940,7 @@ DM.def('tooltip', (r, c) => {
 /* ---------- Search input ---------- */
 DM.def('search-input', (r, c) => {
   r.innerHTML = r.innerHTML.replace('{search}', I('search','xs')).replace('{x}', I('x','xs'));
-  const box = $('.six-box', r), inp = $('.six-in input', r), dd = $('.six-dd', r), res = $('.six-res', r), chips = $('.six-chips', r), xB = $('.six-x', r), k = $('.six-k', r);
+  const six = $('.six', r), row = $('.six-in', r), box = $('.six-box', r), inp = $('.six-in input', r), dd = $('.six-dd', r), res = $('.six-res', r), chips = $('.six-chips', r), xB = $('.six-x', r), k = $('.six-k', r);
   const ITEMS = [['figma','Pricing v4','Figma'],['figma','Pricing mobile','Figma'],['file-text','Pricing research notes','Notion'],['code','PricingCard.tsx','GitHub'],['figma','Checkout flow','Figma'],['file-text','Brand voice guide','Notion'],['code','tokens.css','GitHub']];
   const SC = { figma:'Figma', notion:'Notion', github:'GitHub' };
   let scope = null, at = null, ans = 0, rows = new Set(), grow = null;
@@ -9961,15 +9968,22 @@ DM.def('search-input', (r, c) => {
     else { if (at){ clearInterval(at); at = null; } ans = 0; }
     const h1 = res.offsetHeight;
     if (h0 && h1 !== h0 && !REDUCE) grow = res.animate([{ height:h0 + 'px', boxSizing:'border-box', overflow:'hidden' }, { height:h1 + 'px', boxSizing:'border-box', overflow:'hidden' }], { duration:280, easing:'cubic-bezier(.22,1,.36,1)' });
+    place();
     $$('.six-it[data-q]', res).forEach(b => b.onmousedown = e => { e.preventDefault(); inp.value = b.dataset.q; paint(); });
     $$('.six-it[data-sc]', res).forEach(b => b.onmousedown = e => { e.preventDefault(); scope = b.dataset.sc; inp.value = inp.value.replace(/@\w*$/, ''); chips.innerHTML = `<span class="six-ch">${scope}<button aria-label="Remove filter">${I('x','xs')}</button></span>`; enter(chips.firstChild); $('button', chips).onmousedown = ev => { ev.preventDefault(); scope = null; chips.innerHTML = ''; paint(); }; paint(); });
   }
+  // the box sits centred whatever it shows: just the field when closed, the field and its list when open
+  // the list's own height, not the one it is easing through, so the box heads straight for where it will end up
+  function full(){ const l = res.lastElementChild; return l ? 1 + l.offsetTop + l.offsetHeight + parseFloat(getComputedStyle(l).marginBottom) + 8 : res.offsetHeight; }
+  function place(){ const h = row.offsetHeight + (dd.classList.contains('shut') ? 0 : full()); box.style.setProperty('--y', Math.max(0, (six.clientHeight - h) / 2) + 'px'); }
+  function shut(){ box.classList.remove('f'); dd.classList.add('shut'); place(); }
   inp.onfocus = () => { box.classList.add('f'); dd.classList.remove('shut'); paint(); };
-  inp.onblur = () => { box.classList.remove('f'); dd.classList.add('shut'); };
+  inp.onblur = shut;
   inp.oninput = paint;
   inp.onkeydown = e => { if (e.key === 'Backspace' && !inp.value && scope){ scope = null; chips.innerHTML = ''; paint(); } if (e.key === 'Escape') inp.blur(); };
   xB.onmousedown = e => { e.preventDefault(); inp.value = ''; scope = null; chips.innerHTML = ''; paint(); };
-  c.on(document, 'pointerdown', e => { if (!r.contains(e.target) && document.activeElement !== inp){ box.classList.remove('f'); dd.classList.add('shut'); } });
+  c.on(document, 'pointerdown', e => { if (!r.contains(e.target) && document.activeElement !== inp) shut(); });
+  const ro = new ResizeObserver(place); ro.observe(six); ro.observe(res); c.offs.push(() => ro.disconnect());
   c.later(900, () => c.run(async () => { box.classList.add('f'); dd.classList.remove('shut'); paint(); await c.wait(600); for (const ch of 'why did pricing change?'){ inp.value += ch; paint(); await c.wait(45); } }));
 });
 /* ---------- Country select ---------- */

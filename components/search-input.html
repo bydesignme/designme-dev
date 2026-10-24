@@ -1,7 +1,10 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Search input: free UI component for React and HTML | Designme.dev</title><meta name="description" content="Search with scoped filters, recent queries and an agent answer. Free and MIT licensed, as HTML or a typed React component, in two styles with light and dark mode."><link rel="canonical" href="https://designme.dev/components/search-input"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><meta property="og:type" content="website"><meta property="og:site_name" content="Designme.dev"><meta property="og:title" content="Search input: free UI component for React and HTML | Designme.dev"><meta property="og:description" content="Search with scoped filters, recent queries and an agent answer. Free and MIT licensed, as HTML or a typed React component, in two styles with light and dark mode."><meta property="og:url" content="https://designme.dev/components/search-input"><meta property="og:image" content="https://designme.dev/components/og/search-input.jpg"><meta name="twitter:card" content="summary_large_image"><link rel="alternate" type="text/plain" title="All components for AI tools" href="/llms.txt"><link rel="preload" href="/fonts/inter-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin><link rel="preload" href="/fonts/inter-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin><script>try{var t=localStorage.getItem('dmui-theme');if(t)document.documentElement.setAttribute('data-theme',t);var s=localStorage.getItem('dmui-style')||'soft';if(s==='soft')document.documentElement.setAttribute('data-style','soft')}catch(e){}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareSourceCode","name":"Search input","description":"Search input is a search box that lifts open to show recent searches, matching results, and an answer from the agent above them. Typing @ lists sources such as Figma or Notion, and picking one narrows the search to that source with a removable chip. It lets a person find a file directly or ask a question and get a written answer in the same box.","url":"https://designme.dev/components/search-input","image":"https://designme.dev/components/og/search-input.jpg","programmingLanguage":["HTML","CSS","JavaScript","TypeScript"],"runtimePlatform":"Web browser","license":"https://opensource.org/licenses/MIT","isAccessibleForFree":true,"keywords":"Search input, Forms and inputs, UI component, React component, HTML component","author":{"@type":"Organization","name":"DesignMe","url":"https://designme.agency"},"isPartOf":{"@type":"WebSite","name":"Designme.dev","url":"https://designme.dev/"}}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Library","item":"https://designme.dev/"},{"@type":"ListItem","position":2,"name":"Forms and inputs","item":"https://designme.dev/#s-forms"},{"@type":"ListItem","position":3,"name":"Search input","item":"https://designme.dev/components/search-input"}]}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I stream the agent's answer into the results?","acceptedAnswer":{"@type":"Answer","text":"Pass the text so far as answer and update it as tokens arrive. Each word is its own span, so new words fade in while earlier ones stay put."}},{"@type":"Question","name":"What happens when the person presses Enter without picking a result?","acceptedAnswer":{"@type":"Answer","text":"onSubmit is called with the trimmed search and the current source filter, or null. That is the place to send the question to your agent."}},{"@type":"Question","name":"Can I use my own matching, like fuzzy search?","acceptedAnswer":{"@type":"Answer","text":"Yes. Pass filter(item, search) and return true for the items to keep. The source filter is still applied first."}}]}</script><link rel="stylesheet" href="/components/assets/core.css"><style>/* ---------- Search input ---------- */
 .six{min-height:320px;display:flex;justify-content:center;align-items:flex-start}
-.six-box{width:100%;max-width:420px;background:var(--surface);border-radius:20px;box-shadow:var(--shadow);transition:box-shadow .35s var(--ease),transform .35s var(--ease)}
-.six-box.f{box-shadow:var(--shadow-lift);transform:translateY(-1px)}
+/* --y keeps the box centred in the room its longest list needs, closed or open; place() sets it */
+.six-box{width:100%;max-width:420px;background:var(--surface);border-radius:20px;box-shadow:var(--shadow);transform:translateY(var(--y,0px));transition:box-shadow .35s var(--ease),transform .35s var(--ease)}
+.six-box.f{box-shadow:var(--shadow-lift);transform:translateY(calc(var(--y,0px) - 1px))}
+/* Blueprint's lifted edge is a light hairline, which reads as a white ring on a dark sheet; the focused field steps up one line instead */
+:root:not([data-style="soft"]) .six-box.f{box-shadow:0 0 0 1px var(--rail)}
 .six-in>svg{transition:color .25s}
 .six-box.f .six-in>svg{color:var(--fg)}
 .six-in{display:flex;align-items:center;gap:8px;height:46px;padding:0 10px 0 14px;color:var(--muted)}
@@ -11,7 +14,7 @@
 .six-ch{display:inline-flex;align-items:center;gap:4px;height:24px;padding:0 4px 0 8px;border-radius:7px;background:var(--accent-bg);color:var(--accent-fg,var(--accent));font-size:12px;font-weight:500;white-space:nowrap}
 .six-ch button{display:grid;opacity:.6}.six-ch button:hover{opacity:1}
 .six-x{width:26px;height:26px}
-.six-res{padding:4px 6px 8px;border-top:1px solid var(--line)}
+.six-res{position:relative;padding:4px 6px 8px;border-top:1px solid var(--line)}
 .six-g{font-size:11.5px;color:var(--muted);padding:8px 8px 4px}
 .six-it{display:flex;align-items:center;gap:10px;width:100%;padding:7px 8px;border-radius:10px;font-size:13px;text-align:left;transition:background .15s}
 .six-it:hover,.six-it.hl{background:var(--row)}
@@ -94,7 +97,7 @@ export default function SearchInputDemo() {
     &lt;/div&gt;
   );
 }
-</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything SearchInput takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>items</code><span class="opt">required</span></td><td><code>SearchInputItem[]</code></td><td></td></tr><tr><td><code>sources</code></td><td><code>SearchInputSource[]</code></td><td>Typing @ lists these, and picking one adds it as a filter chip</td></tr><tr><td><code>recent</code></td><td><code>string[]</code></td><td>Earlier searches, shown while the box is empty</td></tr><tr><td><code>value</code></td><td><code>string</code></td><td>What is typed. Leave it out to let the box hold its own</td></tr><tr><td><code>defaultValue</code></td><td><code>string</code></td><td></td></tr><tr><td><code>onValueChange</code></td><td><code>(value: string) =&gt; void</code></td><td></td></tr><tr><td><code>scope</code></td><td><code>string | null</code></td><td>The source filter, by label, or null. Backspace in an empty box removes it</td></tr><tr><td><code>defaultScope</code></td><td><code>string | null</code></td><td></td></tr><tr><td><code>onScopeChange</code></td><td><code>(scope: string | null) =&gt; void</code></td><td></td></tr><tr><td><code>open</code></td><td><code>boolean</code></td><td>Whether the box is lifted with its results open. Focus opens it and leaving closes it when you leave it out</td></tr><tr><td><code>defaultOpen</code></td><td><code>boolean</code></td><td></td></tr><tr><td><code>onOpenChange</code></td><td><code>(open: boolean) =&gt; void</code></td><td></td></tr><tr><td><code>answer</code></td><td><code>string</code></td><td>An answer from the agent, shown above the results. Feed it as it grows and each new word fades in</td></tr><tr><td><code>filter</code></td><td><code>(item: SearchInputItem, search: string) =&gt; boolean</code></td><td>Which items match the search. By default an item matches the whole search or any word longer than two letters</td></tr><tr><td><code>onSelect</code></td><td><code>(item: SearchInputItem) =&gt; void</code></td><td>Called when a result is picked, by click or Enter</td></tr><tr><td><code>onSubmit</code></td><td><code>(search: string, scope: string | null) =&gt; void</code></td><td>Called by Enter when no row is highlighted, with the search and the source filter</td></tr><tr><td><code>placeholder</code></td><td><code>string</code></td><td></td></tr><tr><td><code>shortcut</code></td><td><code>string</code></td><td>The key hint at the end of the empty box</td></tr><tr><td><code>emptyLabel</code></td><td><code>string</code></td><td>What the list says when nothing matches</td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>SearchInput.tsx<span class="l">React · 190 lines</span></summary><pre class="cp-pre"><code>&#39;use client&#39;;
+</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything SearchInput takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>items</code><span class="opt">required</span></td><td><code>SearchInputItem[]</code></td><td></td></tr><tr><td><code>sources</code></td><td><code>SearchInputSource[]</code></td><td>Typing @ lists these, and picking one adds it as a filter chip</td></tr><tr><td><code>recent</code></td><td><code>string[]</code></td><td>Earlier searches, shown while the box is empty</td></tr><tr><td><code>value</code></td><td><code>string</code></td><td>What is typed. Leave it out to let the box hold its own</td></tr><tr><td><code>defaultValue</code></td><td><code>string</code></td><td></td></tr><tr><td><code>onValueChange</code></td><td><code>(value: string) =&gt; void</code></td><td></td></tr><tr><td><code>scope</code></td><td><code>string | null</code></td><td>The source filter, by label, or null. Backspace in an empty box removes it</td></tr><tr><td><code>defaultScope</code></td><td><code>string | null</code></td><td></td></tr><tr><td><code>onScopeChange</code></td><td><code>(scope: string | null) =&gt; void</code></td><td></td></tr><tr><td><code>open</code></td><td><code>boolean</code></td><td>Whether the box is lifted with its results open. Focus opens it and leaving closes it when you leave it out</td></tr><tr><td><code>defaultOpen</code></td><td><code>boolean</code></td><td></td></tr><tr><td><code>onOpenChange</code></td><td><code>(open: boolean) =&gt; void</code></td><td></td></tr><tr><td><code>answer</code></td><td><code>string</code></td><td>An answer from the agent, shown above the results. Feed it as it grows and each new word fades in</td></tr><tr><td><code>filter</code></td><td><code>(item: SearchInputItem, search: string) =&gt; boolean</code></td><td>Which items match the search. By default an item matches the whole search or any word longer than two letters</td></tr><tr><td><code>onSelect</code></td><td><code>(item: SearchInputItem) =&gt; void</code></td><td>Called when a result is picked, by click or Enter</td></tr><tr><td><code>onSubmit</code></td><td><code>(search: string, scope: string | null) =&gt; void</code></td><td>Called by Enter when no row is highlighted, with the search and the source filter</td></tr><tr><td><code>placeholder</code></td><td><code>string</code></td><td></td></tr><tr><td><code>shortcut</code></td><td><code>string</code></td><td>The key hint at the end of the empty box</td></tr><tr><td><code>emptyLabel</code></td><td><code>string</code></td><td>What the list says when nothing matches</td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>SearchInput.tsx<span class="l">React · 205 lines</span></summary><pre class="cp-pre"><code>&#39;use client&#39;;
 import { useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from &#39;react&#39;;
 import { cx } from &#39;../lib/cx&#39;;
 import { useControllable, useIsoLayoutEffect, useReducedMotion } from &#39;../lib/hooks&#39;;
@@ -211,6 +214,21 @@ export function SearchInput({ items, sources = [], recent = [], value, defaultVa
     grow.current = el.animate([{ height: from + &#39;px&#39;, boxSizing: &#39;border-box&#39;, overflow: &#39;hidden&#39; }, { height: to + &#39;px&#39;, boxSizing: &#39;border-box&#39;, overflow: &#39;hidden&#39; }], { duration: 280, easing: &#39;cubic-bezier(.22,1,.36,1)&#39; });
   });
 
+  // the box sits centred whatever it shows: just the field when closed, the field and its list when open.
+  // It aims for the list&#39;s own height, not the one it is easing through, so it heads straight for where it will end up
+  const boxEl = useRef&lt;HTMLDivElement&gt;(null), rowEl = useRef&lt;HTMLDivElement&gt;(null);
+  useIsoLayoutEffect(() =&gt; {
+    const six = root.current, box = boxEl.current, rw = rowEl.current; if (!six || !box || !rw || typeof ResizeObserver === &#39;undefined&#39;) return;
+    const place = () =&gt; {
+      const l = list.current, last = l?.lastElementChild as HTMLElement | null | undefined;
+      const full = !isOpen || !l ? 0 : last ? 1 + last.offsetTop + last.offsetHeight + parseFloat(getComputedStyle(last).marginBottom) + 8 : l.offsetHeight;
+      box.style.setProperty(&#39;--dm-y&#39;, Math.max(0, (six.clientHeight - rw.offsetHeight - full) / 2) + &#39;px&#39;);
+    };
+    place();
+    const ro = new ResizeObserver(place); ro.observe(six); if (list.current) ro.observe(list.current);
+    return () =&gt; ro.disconnect();
+  });
+
   // the highlight only moves with the arrow keys, and starts afresh with each new list
   const [hi, setHi] = useState({ at: -1, for: paint });
   const cur = hi.for === paint &amp;&amp; hi.at &lt; rows.length ? hi.at : -1;
@@ -248,8 +266,8 @@ export function SearchInput({ items, sources = [], recent = [], value, defaultVa
   const words = answer?.split(&#39; &#39;).filter(Boolean) ?? [];
   return (
     &lt;div data-dm=&quot;&quot; ref={root} className={cx(&#39;dm-six&#39;, className)}&gt;
-      &lt;div className={cx(&#39;dm-six-box&#39;, isOpen &amp;&amp; &#39;dm-f&#39;)}&gt;
-        &lt;div className=&quot;dm-six-in&quot;&gt;
+      &lt;div ref={boxEl} className={cx(&#39;dm-six-box&#39;, isOpen &amp;&amp; &#39;dm-f&#39;)}&gt;
+        &lt;div ref={rowEl} className=&quot;dm-six-in&quot;&gt;
           &lt;Icon name=&quot;search&quot; size=&quot;xs&quot; /&gt;
           &lt;span className=&quot;dm-six-chips&quot;&gt;
             {sc &amp;&amp; &lt;span key={sc} className=&quot;dm-six-ch dm-enter&quot;&gt;{sc}&lt;button type=&quot;button&quot; aria-label=&quot;Remove filter&quot; onMouseDown={e =&gt; { e.preventDefault(); setScope(null); }}&gt;&lt;Icon name=&quot;x&quot; size=&quot;xs&quot; /&gt;&lt;/button&gt;&lt;/span&gt;}
@@ -283,11 +301,14 @@ export function SearchInput({ items, sources = [], recent = [], value, defaultVa
     &lt;/div&gt;
   );
 }
-</code></pre></details><details class="cp-file"><summary>search-input.css<span class="l">React · 27 lines</span></summary><pre class="cp-pre"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+</code></pre></details><details class="cp-file"><summary>search-input.css<span class="l">React · 30 lines</span></summary><pre class="cp-pre"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Search input ---------- */
 .dm-six{min-height:320px;display:flex;justify-content:center;align-items:flex-start}
-.dm-six-box{width:100%;max-width:420px;background:var(--dm-surface);border-radius:20px;box-shadow:var(--dm-shadow);transition:box-shadow .35s var(--dm-ease),transform .35s var(--dm-ease)}
-.dm-six-box.dm-f{box-shadow:var(--dm-shadow-lift);transform:translateY(-1px)}
+/* --y keeps the box centred in the room its longest list needs, closed or open; place() sets it */
+.dm-six-box{width:100%;max-width:420px;background:var(--dm-surface);border-radius:20px;box-shadow:var(--dm-shadow);transform:translateY(var(--dm-y,0px));transition:box-shadow .35s var(--dm-ease),transform .35s var(--dm-ease)}
+.dm-six-box.dm-f{box-shadow:var(--dm-shadow-lift);transform:translateY(calc(var(--dm-y,0px) - 1px))}
+/* Blueprint&#39;s lifted edge is a light hairline, which reads as a white ring on a dark sheet; the focused field steps up one line instead */
+:root:not([data-style=&quot;soft&quot;]) .dm-six-box.dm-f{box-shadow:0 0 0 1px var(--dm-rail)}
 .dm-six-in&gt;svg{transition:color .25s}
 .dm-six-box.dm-f .dm-six-in&gt;svg{color:var(--dm-fg)}
 .dm-six-in{display:flex;align-items:center;gap:8px;height:46px;padding:0 10px 0 14px;color:var(--dm-muted)}
@@ -297,7 +318,7 @@ export function SearchInput({ items, sources = [], recent = [], value, defaultVa
 .dm-six-ch{display:inline-flex;align-items:center;gap:4px;height:24px;padding:0 4px 0 8px;border-radius:7px;background:var(--dm-accent-bg);color:var(--dm-accent-fg,var(--dm-accent));font-size:12px;font-weight:500;white-space:nowrap}
 .dm-six-ch button{display:grid;opacity:.6}.dm-six-ch button:hover{opacity:1}
 .dm-six-x{width:26px;height:26px}
-.dm-six-res{padding:4px 6px 8px;border-top:1px solid var(--dm-line)}
+.dm-six-res{position:relative;padding:4px 6px 8px;border-top:1px solid var(--dm-line)}
 .dm-six-g{font-size:11.5px;color:var(--dm-muted);padding:8px 8px 4px}
 .dm-six-it{display:flex;align-items:center;gap:10px;width:100%;padding:7px 8px;border-radius:10px;font-size:13px;text-align:left;transition:background .15s}
 .dm-six-it:hover,.dm-six-it.dm-hl{background:var(--dm-row)}
@@ -320,10 +341,13 @@ export function SearchInput({ items, sources = [], recent = [], value, defaultVa
 &lt;/div&gt;
   &lt;/template&gt;
 &lt;/div&gt;
-</code></pre></details><details class="cp-file"><summary>search-input.css<span class="l">HTML · 26 lines</span></summary><pre class="cp-pre"><code>/* ---------- Search input ---------- */
+</code></pre></details><details class="cp-file"><summary>search-input.css<span class="l">HTML · 29 lines</span></summary><pre class="cp-pre"><code>/* ---------- Search input ---------- */
 .six{min-height:320px;display:flex;justify-content:center;align-items:flex-start}
-.six-box{width:100%;max-width:420px;background:var(--surface);border-radius:20px;box-shadow:var(--shadow);transition:box-shadow .35s var(--ease),transform .35s var(--ease)}
-.six-box.f{box-shadow:var(--shadow-lift);transform:translateY(-1px)}
+/* --y keeps the box centred in the room its longest list needs, closed or open; place() sets it */
+.six-box{width:100%;max-width:420px;background:var(--surface);border-radius:20px;box-shadow:var(--shadow);transform:translateY(var(--y,0px));transition:box-shadow .35s var(--ease),transform .35s var(--ease)}
+.six-box.f{box-shadow:var(--shadow-lift);transform:translateY(calc(var(--y,0px) - 1px))}
+/* Blueprint&#39;s lifted edge is a light hairline, which reads as a white ring on a dark sheet; the focused field steps up one line instead */
+:root:not([data-style=&quot;soft&quot;]) .six-box.f{box-shadow:0 0 0 1px var(--rail)}
 .six-in&gt;svg{transition:color .25s}
 .six-box.f .six-in&gt;svg{color:var(--fg)}
 .six-in{display:flex;align-items:center;gap:8px;height:46px;padding:0 10px 0 14px;color:var(--muted)}
@@ -333,7 +357,7 @@ export function SearchInput({ items, sources = [], recent = [], value, defaultVa
 .six-ch{display:inline-flex;align-items:center;gap:4px;height:24px;padding:0 4px 0 8px;border-radius:7px;background:var(--accent-bg);color:var(--accent-fg,var(--accent));font-size:12px;font-weight:500;white-space:nowrap}
 .six-ch button{display:grid;opacity:.6}.six-ch button:hover{opacity:1}
 .six-x{width:26px;height:26px}
-.six-res{padding:4px 6px 8px;border-top:1px solid var(--line)}
+.six-res{position:relative;padding:4px 6px 8px;border-top:1px solid var(--line)}
 .six-g{font-size:11.5px;color:var(--muted);padding:8px 8px 4px}
 .six-it{display:flex;align-items:center;gap:10px;width:100%;padding:7px 8px;border-radius:10px;font-size:13px;text-align:left;transition:background .15s}
 .six-it:hover,.six-it.hl{background:var(--row)}
@@ -345,9 +369,9 @@ export function SearchInput({ items, sources = [], recent = [], value, defaultVa
 .six-ans .w{animation:sxw .4s var(--ease) both}
 .six-ans .w.done{animation:none}
 @keyframes sxw{from{opacity:0;filter:blur(3px)}}
-</code></pre></details><details class="cp-file"><summary>search-input.js<span class="l">HTML · 42 lines</span></summary><pre class="cp-pre"><code>DM.def(&#39;search-input&#39;, (r, c) =&gt; {
+</code></pre></details><details class="cp-file"><summary>search-input.js<span class="l">HTML · 49 lines</span></summary><pre class="cp-pre"><code>DM.def(&#39;search-input&#39;, (r, c) =&gt; {
   r.innerHTML = r.innerHTML.replace(&#39;{search}&#39;, I(&#39;search&#39;,&#39;xs&#39;)).replace(&#39;{x}&#39;, I(&#39;x&#39;,&#39;xs&#39;));
-  const box = $(&#39;.six-box&#39;, r), inp = $(&#39;.six-in input&#39;, r), dd = $(&#39;.six-dd&#39;, r), res = $(&#39;.six-res&#39;, r), chips = $(&#39;.six-chips&#39;, r), xB = $(&#39;.six-x&#39;, r), k = $(&#39;.six-k&#39;, r);
+  const six = $(&#39;.six&#39;, r), row = $(&#39;.six-in&#39;, r), box = $(&#39;.six-box&#39;, r), inp = $(&#39;.six-in input&#39;, r), dd = $(&#39;.six-dd&#39;, r), res = $(&#39;.six-res&#39;, r), chips = $(&#39;.six-chips&#39;, r), xB = $(&#39;.six-x&#39;, r), k = $(&#39;.six-k&#39;, r);
   const ITEMS = [[&#39;figma&#39;,&#39;Pricing v4&#39;,&#39;Figma&#39;],[&#39;figma&#39;,&#39;Pricing mobile&#39;,&#39;Figma&#39;],[&#39;file-text&#39;,&#39;Pricing research notes&#39;,&#39;Notion&#39;],[&#39;code&#39;,&#39;PricingCard.tsx&#39;,&#39;GitHub&#39;],[&#39;figma&#39;,&#39;Checkout flow&#39;,&#39;Figma&#39;],[&#39;file-text&#39;,&#39;Brand voice guide&#39;,&#39;Notion&#39;],[&#39;code&#39;,&#39;tokens.css&#39;,&#39;GitHub&#39;]];
   const SC = { figma:&#39;Figma&#39;, notion:&#39;Notion&#39;, github:&#39;GitHub&#39; };
   let scope = null, at = null, ans = 0, rows = new Set(), grow = null;
@@ -375,15 +399,22 @@ export function SearchInput({ items, sources = [], recent = [], value, defaultVa
     else { if (at){ clearInterval(at); at = null; } ans = 0; }
     const h1 = res.offsetHeight;
     if (h0 &amp;&amp; h1 !== h0 &amp;&amp; !REDUCE) grow = res.animate([{ height:h0 + &#39;px&#39;, boxSizing:&#39;border-box&#39;, overflow:&#39;hidden&#39; }, { height:h1 + &#39;px&#39;, boxSizing:&#39;border-box&#39;, overflow:&#39;hidden&#39; }], { duration:280, easing:&#39;cubic-bezier(.22,1,.36,1)&#39; });
+    place();
     $$(&#39;.six-it[data-q]&#39;, res).forEach(b =&gt; b.onmousedown = e =&gt; { e.preventDefault(); inp.value = b.dataset.q; paint(); });
     $$(&#39;.six-it[data-sc]&#39;, res).forEach(b =&gt; b.onmousedown = e =&gt; { e.preventDefault(); scope = b.dataset.sc; inp.value = inp.value.replace(/@\w*$/, &#39;&#39;); chips.innerHTML = `&lt;span class=&quot;six-ch&quot;&gt;${scope}&lt;button aria-label=&quot;Remove filter&quot;&gt;${I(&#39;x&#39;,&#39;xs&#39;)}&lt;/button&gt;&lt;/span&gt;`; enter(chips.firstChild); $(&#39;button&#39;, chips).onmousedown = ev =&gt; { ev.preventDefault(); scope = null; chips.innerHTML = &#39;&#39;; paint(); }; paint(); });
   }
+  // the box sits centred whatever it shows: just the field when closed, the field and its list when open
+  // the list&#39;s own height, not the one it is easing through, so the box heads straight for where it will end up
+  function full(){ const l = res.lastElementChild; return l ? 1 + l.offsetTop + l.offsetHeight + parseFloat(getComputedStyle(l).marginBottom) + 8 : res.offsetHeight; }
+  function place(){ const h = row.offsetHeight + (dd.classList.contains(&#39;shut&#39;) ? 0 : full()); box.style.setProperty(&#39;--y&#39;, Math.max(0, (six.clientHeight - h) / 2) + &#39;px&#39;); }
+  function shut(){ box.classList.remove(&#39;f&#39;); dd.classList.add(&#39;shut&#39;); place(); }
   inp.onfocus = () =&gt; { box.classList.add(&#39;f&#39;); dd.classList.remove(&#39;shut&#39;); paint(); };
-  inp.onblur = () =&gt; { box.classList.remove(&#39;f&#39;); dd.classList.add(&#39;shut&#39;); };
+  inp.onblur = shut;
   inp.oninput = paint;
   inp.onkeydown = e =&gt; { if (e.key === &#39;Backspace&#39; &amp;&amp; !inp.value &amp;&amp; scope){ scope = null; chips.innerHTML = &#39;&#39;; paint(); } if (e.key === &#39;Escape&#39;) inp.blur(); };
   xB.onmousedown = e =&gt; { e.preventDefault(); inp.value = &#39;&#39;; scope = null; chips.innerHTML = &#39;&#39;; paint(); };
-  c.on(document, &#39;pointerdown&#39;, e =&gt; { if (!r.contains(e.target) &amp;&amp; document.activeElement !== inp){ box.classList.remove(&#39;f&#39;); dd.classList.add(&#39;shut&#39;); } });
+  c.on(document, &#39;pointerdown&#39;, e =&gt; { if (!r.contains(e.target) &amp;&amp; document.activeElement !== inp) shut(); });
+  const ro = new ResizeObserver(place); ro.observe(six); ro.observe(res); c.offs.push(() =&gt; ro.disconnect());
   c.later(900, () =&gt; c.run(async () =&gt; { box.classList.add(&#39;f&#39;); dd.classList.remove(&#39;shut&#39;); paint(); await c.wait(600); for (const ch of &#39;why did pricing change?&#39;){ inp.value += ch; paint(); await c.wait(45); } }));
 });
 </code></pre></details></div></section><section class="cp-sec" id="questions"><div class="pg-sh"><span class="n">06</span><h2>Questions</h2><p>What people ask about it.</p></div><dl class="cp-qs"><div><dt class="pg-t">How do I stream the agent's answer into the results?</dt><dd>Pass the text so far as <code>answer</code> and update it as tokens arrive. Each word is its own span, so new words fade in while earlier ones stay put.</dd></div><div><dt class="pg-t">What happens when the person presses Enter without picking a result?</dt><dd><code>onSubmit</code> is called with the trimmed search and the current source filter, or null. That is the place to send the question to your agent.</dd></div><div><dt class="pg-t">Can I use my own matching, like fuzzy search?</dt><dd>Yes. Pass <code>filter(item, search)</code> and return true for the items to keep. The source filter is still applied first.</dd></div></dl></section><section class="cp-sec" id="more"><div class="pg-sh"><span class="n">07</span><h2>More in Forms and inputs</h2><p>Buttons, fields, pickers and sign-in flows for any product.</p></div><div class="pg-cards"><div class="pg-card"><a class="pg-t pg-link" href="/components/buttons">Buttons</a><span class="pg-d">Every button style, with loading, success and hold-to-confirm states.</span><span class="pg-thumb" data-reg="buttons" data-h="420" data-wide="1"><img class="lt" src="/components/thumbs/buttons-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/buttons-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></div><div class="pg-card"><a class="pg-t pg-link" href="/components/tooltip">Tooltip</a><span class="pg-d">Quiet labels on hover, with shortcuts and a richer preview card.</span><span class="pg-thumb" data-reg="tooltip" data-h="420"><img class="lt" src="/components/thumbs/tooltip-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/tooltip-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></div><div class="pg-card"><a class="pg-t pg-link" href="/components/country-select">Country select</a><span class="pg-d">A searchable select with country codes, currency and keyboard support.</span><span class="pg-thumb" data-reg="country-select" data-h="647"><img class="lt" src="/components/thumbs/country-select-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/country-select-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></div><div class="pg-card"><a class="pg-t pg-link" href="/components/multi-select">Multi-select</a><span class="pg-d">A combobox that filters as you type and keeps your picks as chips.</span><span class="pg-thumb" data-reg="multi-select" data-h="565"><img class="lt" src="/components/thumbs/multi-select-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/multi-select-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></div><div class="pg-card"><a class="pg-t pg-link" href="/components/social-sign-in">Social sign-in</a><span class="pg-d">One-tap providers that remember the last one you used.</span><span class="pg-thumb" data-reg="social-sign-in" data-h="515"><img class="lt" src="/components/thumbs/social-sign-in-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/social-sign-in-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></div><div class="pg-card"><a class="pg-t pg-link" href="/components/sign-in">Sign in</a><span class="pg-d">Email first, then the one-time code from the email, copied or typed in.</span><span class="pg-thumb" data-reg="sign-in" data-h="420"><img class="lt" src="/components/thumbs/sign-in-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/sign-in-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></div><div class="pg-card"><a class="pg-t pg-link" href="/components/otp-field">OTP field</a><span class="pg-d">A one-time code, one box per digit, that fills from a paste.</span><span class="pg-thumb" data-reg="otp-field" data-h="420"><img class="lt" src="/components/thumbs/otp-field-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/otp-field-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></div><div class="pg-card"><a class="pg-t pg-link" href="/components/form">Form</a><span class="pg-d">A project brief with inline checks and an agent that drafts the rest.</span><span class="pg-thumb" data-reg="form" data-h="524"><img class="lt" src="/components/thumbs/form-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/form-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></div></div><a class="cp-all" href="/#s-forms">All 10 in Forms and inputs →</a></section><nav class="cp-pn" aria-label="Previous and next component"><a href="/components/tooltip" rel="prev"><span class="pg-d">Previous</span><span class="pg-t">Tooltip</span></a><a href="/components/country-select" rel="next" class="n"><span class="pg-d">Next</span><span class="pg-t">Country select</span></a></nav></div></main><footer class="pg-foot"><div class="pg-wrap"><div class="pg-foot-in"><span>Free and MIT licensed. Built by <a href="https://designme.agency">DesignMe</a>.</span><nav aria-label="More"><a href="/">All components</a><a href="/#/changelog">Changelog</a><a href="/#/roadmap">Roadmap</a><a href="/llms.txt">llms.txt</a><a href="/">Home</a></nav></div></div></footer><script>
@@ -421,7 +452,7 @@ export function SearchInput({ items, sources = [], recent = [], value, defaultVa
 })();
 </script><script src="/components/assets/core.js"></script><script>DM.def('search-input', (r, c) => {
   r.innerHTML = r.innerHTML.replace('{search}', I('search','xs')).replace('{x}', I('x','xs'));
-  const box = $('.six-box', r), inp = $('.six-in input', r), dd = $('.six-dd', r), res = $('.six-res', r), chips = $('.six-chips', r), xB = $('.six-x', r), k = $('.six-k', r);
+  const six = $('.six', r), row = $('.six-in', r), box = $('.six-box', r), inp = $('.six-in input', r), dd = $('.six-dd', r), res = $('.six-res', r), chips = $('.six-chips', r), xB = $('.six-x', r), k = $('.six-k', r);
   const ITEMS = [['figma','Pricing v4','Figma'],['figma','Pricing mobile','Figma'],['file-text','Pricing research notes','Notion'],['code','PricingCard.tsx','GitHub'],['figma','Checkout flow','Figma'],['file-text','Brand voice guide','Notion'],['code','tokens.css','GitHub']];
   const SC = { figma:'Figma', notion:'Notion', github:'GitHub' };
   let scope = null, at = null, ans = 0, rows = new Set(), grow = null;
@@ -449,15 +480,22 @@ export function SearchInput({ items, sources = [], recent = [], value, defaultVa
     else { if (at){ clearInterval(at); at = null; } ans = 0; }
     const h1 = res.offsetHeight;
     if (h0 && h1 !== h0 && !REDUCE) grow = res.animate([{ height:h0 + 'px', boxSizing:'border-box', overflow:'hidden' }, { height:h1 + 'px', boxSizing:'border-box', overflow:'hidden' }], { duration:280, easing:'cubic-bezier(.22,1,.36,1)' });
+    place();
     $$('.six-it[data-q]', res).forEach(b => b.onmousedown = e => { e.preventDefault(); inp.value = b.dataset.q; paint(); });
     $$('.six-it[data-sc]', res).forEach(b => b.onmousedown = e => { e.preventDefault(); scope = b.dataset.sc; inp.value = inp.value.replace(/@\w*$/, ''); chips.innerHTML = `<span class="six-ch">${scope}<button aria-label="Remove filter">${I('x','xs')}</button></span>`; enter(chips.firstChild); $('button', chips).onmousedown = ev => { ev.preventDefault(); scope = null; chips.innerHTML = ''; paint(); }; paint(); });
   }
+  // the box sits centred whatever it shows: just the field when closed, the field and its list when open
+  // the list's own height, not the one it is easing through, so the box heads straight for where it will end up
+  function full(){ const l = res.lastElementChild; return l ? 1 + l.offsetTop + l.offsetHeight + parseFloat(getComputedStyle(l).marginBottom) + 8 : res.offsetHeight; }
+  function place(){ const h = row.offsetHeight + (dd.classList.contains('shut') ? 0 : full()); box.style.setProperty('--y', Math.max(0, (six.clientHeight - h) / 2) + 'px'); }
+  function shut(){ box.classList.remove('f'); dd.classList.add('shut'); place(); }
   inp.onfocus = () => { box.classList.add('f'); dd.classList.remove('shut'); paint(); };
-  inp.onblur = () => { box.classList.remove('f'); dd.classList.add('shut'); };
+  inp.onblur = shut;
   inp.oninput = paint;
   inp.onkeydown = e => { if (e.key === 'Backspace' && !inp.value && scope){ scope = null; chips.innerHTML = ''; paint(); } if (e.key === 'Escape') inp.blur(); };
   xB.onmousedown = e => { e.preventDefault(); inp.value = ''; scope = null; chips.innerHTML = ''; paint(); };
-  c.on(document, 'pointerdown', e => { if (!r.contains(e.target) && document.activeElement !== inp){ box.classList.remove('f'); dd.classList.add('shut'); } });
+  c.on(document, 'pointerdown', e => { if (!r.contains(e.target) && document.activeElement !== inp) shut(); });
+  const ro = new ResizeObserver(place); ro.observe(six); ro.observe(res); c.offs.push(() => ro.disconnect());
   c.later(900, () => c.run(async () => { box.classList.add('f'); dd.classList.remove('shut'); paint(); await c.wait(600); for (const ch of 'why did pricing change?'){ inp.value += ch; paint(); await c.wait(45); } }));
 });
 </script><script>
