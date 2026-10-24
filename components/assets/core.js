@@ -84,8 +84,17 @@ function release(el){ if (el){ el.style.minHeight = ''; el.classList.remove('hel
    and the list sit centred together. showing() is the height on show once things settle; the glide runs at the speed
    folds and lists open with, so the two move as one */
 function centre(c, el, showing, watch = []){
-  const room = el.closest('.stage-in') || el.parentElement;
-  const place = () => el.style.setProperty('--gy', Math.max(0, Math.round((room.clientHeight - showing()) / 2)) + 'px');
+  // the room is the stage you see, whichever page the component is on: the homepage card keeps space for the open list
+  // above and below, a component page centres the component in its own stage
+  const room = el.closest('.stage-inner') || el.closest('.stage-in') || el.parentElement;
+  const place = () => {
+    if (!room.clientHeight) return;
+    const rs = getComputedStyle(room), rr = room.getBoundingClientRect(), pt = parseFloat(rs.paddingTop) || 0, pb = parseFloat(rs.paddingBottom) || 0;
+    const now = new DOMMatrixReadOnly(getComputedStyle(el).transform).m42, top = el.getBoundingClientRect().top - now - rr.top;
+    // where the top goes so what is showing sits centred, but never above the stage's own padding
+    const want = pt + (room.clientHeight - pt - pb - showing()) / 2;
+    el.style.setProperty('--gy', Math.round(Math.max(pt, want) - top) + 'px');
+  };
   el.classList.add('glide'); el.style.transition = 'none'; place();
   requestAnimationFrame(() => requestAnimationFrame(() => { el.style.transition = ''; }));
   const ro = new ResizeObserver(place); [room, el, ...watch].forEach(n => ro.observe(n)); c.offs.push(() => ro.disconnect());
