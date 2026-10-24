@@ -193,7 +193,7 @@ const BODY = {
       ['The defaults', [
         ['swatches'],
         ['ul', [
-          'Soft is blue: `#116ff8` in light mode, with white text on it, and `#3d8bff` in dark mode, with dark text on it.',
+          'Soft is blue, `#116ff8`, with white text on it, in light and dark mode. Accent text is `#0f5fd5` in light mode and `#9dc4ff` in dark mode.',
           'Blueprint is lime, `#d4f84a`, with dark text and icons on it. In dark mode, text and marks are lime too. In light mode, lime is too light to read on white, so accent text uses the ink colour and marks use a darker lime, `#7a8e2b`.',
         ]],
       ]],

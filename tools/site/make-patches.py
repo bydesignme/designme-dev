@@ -765,8 +765,8 @@ patch("""</head>""", """<style id="accent-roles">
    takes a slightly deeper blue in light mode (a lighter one in dark), so it reads at 4.5:1 on chips and tinted rows too, and in
    dark mode the blue fill is too light for white text, so text on it is dark */
 :root[data-style="soft"]{--on-accent:#ffffff;--accent-fg:#0f5fd5;--accent-mark:var(--accent)}
-@media (prefers-color-scheme: dark){:root[data-style="soft"]:not([data-theme="light"]){--on-accent:#121212;--accent-fg:#6fa8ff}}
-:root[data-style="soft"][data-theme="dark"]{--on-accent:#121212;--accent-fg:#6fa8ff}
+@media (prefers-color-scheme: dark){:root[data-style="soft"]:not([data-theme="light"]){--accent:#116ff8;--accent-2:#0f63de;--accent-hi:#116ff8;--ink:#116ff8;--ink-hover:#0f63de;--on-ink:#ffffff;--on-accent:#ffffff;--accent-fg:#9dc4ff}}
+:root[data-style="soft"][data-theme="dark"]{--accent:#116ff8;--accent-2:#0f63de;--accent-hi:#116ff8;--ink:#116ff8;--ink-hover:#0f63de;--on-ink:#ffffff;--on-accent:#ffffff;--accent-fg:#9dc4ff}
 </style>
 </head>""")
 # a picked colour gets the same treatment: the shades for text and for marks are worked out from it

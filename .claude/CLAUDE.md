@@ -31,7 +31,7 @@ every session and every agent.
 - All text is 14px or smaller, and nothing is heavier than weight 500. Page titles (`.pg-h1`) are the one exception.
 - No monospace fonts in the interface, keyboard hints included. Code blocks and inline code are the exception.
 - Soft is the site's default style; Blueprint's default accent is lime `#d4f84a`. Primary buttons use the accent, with
-  `--on-accent` (dark) icons and text on accent fills.
+  `--on-accent` icons and text on accent fills: dark on Blueprint's lime, white on Soft's blue.
 - Accents have roles: `--accent` fills, `--accent-fg` text (4.5:1), `--accent-mark` lines, rings and chart marks (3:1),
   `--accent-bg` / `--sel` tints. Charts follow the accent.
 - Every colour pairing must pass a contrast check before it ships: text 4.5:1 (WCAG 2) and APCA Lc 60 or more for

@@ -58,13 +58,13 @@ The contrast targets hold on the surface, and on the grey chips and tinted rows 
 
 | Role | Soft light | Soft dark | Blueprint light | Blueprint dark |
 | --- | --- | --- | --- | --- |
-| Fill, `--accent` | `#116ff8` | `#3d8bff` | `#d4f84a` | `#d4f84a` |
-| On fill, `--on-accent` | `#ffffff` | `#121212` | `#121212` | `#121212` |
-| Text, `--accent-fg` | `#0f5fd5` | `#6fa8ff` | `#121212` | `#d4f84a` |
+| Fill, `--accent` | `#116ff8` | `#116ff8` | `#d4f84a` | `#d4f84a` |
+| On fill, `--on-accent` | `#ffffff` | `#ffffff` | `#121212` | `#121212` |
+| Text, `--accent-fg` | `#0f5fd5` | `#9dc4ff` | `#121212` | `#d4f84a` |
 | Mark, `--accent-mark` | `#116ff8` | `#3d8bff` | `#7a8e2b` | `#d4f84a` |
 | Tint, `--accent-bg` | `#eaf2ff` | `rgba(61,139,255,.12)` | `#f7fde0` | `rgba(212,248,74,.12)` |
 
-- Soft is blue: `#116ff8` in light mode, with white text on it, and `#3d8bff` in dark mode, with dark text on it.
+- Soft is blue, `#116ff8`, with white text on it, in light and dark mode. Accent text is `#0f5fd5` in light mode and `#9dc4ff` in dark mode.
 - Blueprint is lime, `#d4f84a`, with dark text and icons on it. In dark mode, text and marks are lime too. In light mode, lime is too light to read on white, so accent text uses the ink colour and marks use a darker lime, `#7a8e2b`.
 
 ## Your own accent
