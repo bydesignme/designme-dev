@@ -424,7 +424,7 @@ export function ProfileMenu({
 .pfm-kl dd{margin:0;color:var(--fg2);min-width:0}
 .pfm-note{margin:0;min-height:20px;display:flex;align-items:center;justify-content:center;gap:6px;font-size:12.5px;text-align:center}
 .pfm-note .i{color:var(--ok)}
-</code></pre></details><details class="cp-file"><summary>profile-menu.js<span class="l">HTML · 78 lines</span></summary><pre class="cp-pre"><code>DM.def(&#39;profile-menu&#39;, (r, c) =&gt; {
+</code></pre></details><details class="cp-file"><summary>profile-menu.js<span class="l">HTML · 89 lines</span></summary><pre class="cp-pre"><code>DM.def(&#39;profile-menu&#39;, (r, c) =&gt; {
   r.innerHTML = r.innerHTML.replace(&#39;{chev}&#39;, I(&#39;chev-d&#39;,&#39;xs&#39;)).replace(&#39;{moon}&#39;, I(&#39;moon&#39;)).replace(&#39;{keyboard}&#39;, I(&#39;keyboard&#39;)).replace(&#39;{logout}&#39;, I(&#39;logout&#39;)).replace(&#39;{x}&#39;, I(&#39;x&#39;,&#39;xs&#39;));
   // the workspaces this account belongs to: initial, name, plan and the tint of its tile
   const WS = [[&#39;N&#39;, &#39;Northwind&#39;, &#39;Pro, 12 members&#39;, &#39;pb&#39;], [&#39;A&#39;, &#39;Acme Labs&#39;, &#39;Free, 3 members&#39;, &#39;pp&#39;], [&#39;P&#39;, &#39;Personal&#39;, &#39;Just you&#39;, &#39;pl&#39;]];
@@ -479,7 +479,18 @@ export function ProfileMenu({
     ws = i; paint(); swap(wn, WS[ws][1]); say(`Switched to ${WS[ws][1]}`);
   }));
   // the theme is a switch: the menu stays open so the change shows where it was made
-  th.addEventListener(&#39;click&#39;, () =&gt; { dark = !dark; paint(); say(`Theme set to ${dark ? &#39;dark&#39; : &#39;light&#39;}`); });
+  // a real click switches the page too, through its own theme button where there is one; the preview&#39;s story only flips the
+  // switch, so the page doesn&#39;t flash between themes while the demo loops
+  const pageDark = () =&gt; root.dataset.theme ? root.dataset.theme === &#39;dark&#39; : matchMedia(&#39;(prefers-color-scheme: dark)&#39;).matches;
+  th.addEventListener(&#39;click&#39;, e =&gt; {
+    dark = !dark; paint(); say(`Theme set to ${dark ? &#39;dark&#39; : &#39;light&#39;}`);
+    if (!e.isTrusted || pageDark() === dark) return;
+    const btn = document.getElementById(&#39;theme-btn&#39;);
+    if (btn) btn.click(); else { root.dataset.theme = dark ? &#39;dark&#39; : &#39;light&#39;; try { localStorage.setItem(&#39;dmui-theme&#39;, root.dataset.theme); } catch(err){} }
+  });
+  // and when the page&#39;s theme changes from anywhere else, the switch follows it
+  const mo = new MutationObserver(() =&gt; { if (pageDark() !== dark){ dark = pageDark(); paint(); } });
+  mo.observe(root, { attributes:true, attributeFilter:[&#39;data-theme&#39;] }); c.offs.push(() =&gt; mo.disconnect());
   // Keyboard shortcuts, or ? anywhere in the component, opens the list of the keys the menu answers to
   const keys = on =&gt; { kf.classList.toggle(&#39;shut&#39;, !on); kf.inert = !on; };
   keys(false);
@@ -589,7 +600,18 @@ export function ProfileMenu({
     ws = i; paint(); swap(wn, WS[ws][1]); say(`Switched to ${WS[ws][1]}`);
   }));
   // the theme is a switch: the menu stays open so the change shows where it was made
-  th.addEventListener('click', () => { dark = !dark; paint(); say(`Theme set to ${dark ? 'dark' : 'light'}`); });
+  // a real click switches the page too, through its own theme button where there is one; the preview's story only flips the
+  // switch, so the page doesn't flash between themes while the demo loops
+  const pageDark = () => root.dataset.theme ? root.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+  th.addEventListener('click', e => {
+    dark = !dark; paint(); say(`Theme set to ${dark ? 'dark' : 'light'}`);
+    if (!e.isTrusted || pageDark() === dark) return;
+    const btn = document.getElementById('theme-btn');
+    if (btn) btn.click(); else { root.dataset.theme = dark ? 'dark' : 'light'; try { localStorage.setItem('dmui-theme', root.dataset.theme); } catch(err){} }
+  });
+  // and when the page's theme changes from anywhere else, the switch follows it
+  const mo = new MutationObserver(() => { if (pageDark() !== dark){ dark = pageDark(); paint(); } });
+  mo.observe(root, { attributes:true, attributeFilter:['data-theme'] }); c.offs.push(() => mo.disconnect());
   // Keyboard shortcuts, or ? anywhere in the component, opens the list of the keys the menu answers to
   const keys = on => { kf.classList.toggle('shut', !on); kf.inert = !on; };
   keys(false);

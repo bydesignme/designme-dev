@@ -214,7 +214,7 @@ export function Stepper({ steps, step, defaultStep = 0, onStepChange, values, de
   useEffect(() => { if (celebrate && !reduce && ok.current) return burst(ok.current); }, [celebrate, seen.key, reduce]);
 
   return (
-    <div data-dm="" className={cx('dm-stx', !bare && 'dm-panel', className)}>
+    <div data-dm="" className={cx('dm-stx', !bare && 'dm-panel', finished && 'dm-fin', className)}>
       <div className="dm-stx-track">
         {steps.map((st, i) => [
           // a finished step on the track takes you back to it

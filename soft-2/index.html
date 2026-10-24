@@ -151,8 +151,9 @@ b,strong{font-weight:500}
 .chip.sm{height:24px;padding:0 9px;font-size:12px}
 .pill{display:inline-flex;align-items:center;justify-content:center;gap:7px;height:32px;padding:0 14px;border-radius:var(--r-pill);font-size:13px;font-weight:500;white-space:nowrap;transition:background var(--t-fast),color var(--t-fast),opacity var(--t-fast),transform .15s}
 .pill:active{transform:scale(.97)}
-.pill.ink{background:var(--ink);color:var(--on-ink)}
-.pill.ink:hover{opacity:.88}
+/* the primary action is the accent, with --on-accent on it, so it follows the accent and stays readable in any colour */
+.pill.ink{background:var(--accent);color:var(--on-accent)}
+.pill.ink:hover{background:var(--accent-2)}
 .pill.accent{background:var(--accent);color:var(--on-accent)}
 .pill.accent:hover,.pill.accent.hl{background:var(--accent-2)}
 .pill.soft{background:var(--soft);color:var(--fg);box-shadow:var(--soft-ring)}
@@ -714,12 +715,14 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .obx-rw{position:relative;width:38px;height:38px;flex:none}
 .obx-ring{width:38px;height:38px;transform:rotate(-90deg);display:block}
 /* everything done: a green check grows in the middle of the ring */
-.obx-rk{position:absolute;inset:7px;border-radius:50%;background:var(--ok);color:#fff;display:grid;place-items:center;opacity:0;transform:scale(.4);transition:opacity .35s var(--ease),transform .55s var(--ease)}
+.obx-rk{position:absolute;inset:7px;border-radius:50%;background:var(--accent);color:var(--on-accent);display:grid;place-items:center;opacity:0;transform:scale(.4);transition:opacity .35s var(--ease),transform .55s var(--ease)}
 .obx-rw.full .obx-rk{opacity:1;transform:none}
+/* round in Blueprint too: it sits inside the round ring */
+.obx .obx-rw .obx-rk{border-radius:50%!important}
 .obx-ring circle{fill:none;stroke-width:3.5;stroke-linecap:round}
 .obx-ring .tr{stroke:var(--line)}
 .obx-ring .fl{stroke:var(--accent);stroke-dasharray:100.5;stroke-dashoffset:100.5;transition:stroke-dashoffset .8s var(--ease),stroke .4s}
-.obx-ring.full .fl{stroke:var(--ok)}
+.obx-ring.full .fl{stroke:var(--accent-mark,var(--accent))}
 .obx-ht{flex:1;display:flex;flex-direction:column;font-size:14px}
 .obx-ht b{font-weight:500}
 .obx-st{font-size:12px}
@@ -732,7 +735,7 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .obx-s:hover{background:var(--row)}
 .obx-ck{width:20px;height:20px;border-radius:50%;box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--muted) 80%,var(--surface));display:grid;place-items:center;color:transparent;flex:none;transition:background .3s var(--ease),box-shadow .3s,color .3s}
 .obx-ck svg{transform:scale(.4);transition:transform .4s var(--ease)}
-.obx-s.done .obx-ck{background:var(--ok);box-shadow:none;color:var(--on-ink)}
+.obx-s.done .obx-ck{background:var(--accent);box-shadow:none;color:var(--on-accent)}
 .obx-s.done .obx-ck svg{transform:none}
 .obx-s.run .obx-ck{box-shadow:none;color:var(--accent)}
 .obx-s .t{flex:1;display:flex;flex-direction:column;min-width:0}
@@ -742,7 +745,8 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .obx-s .pill{opacity:0;transition:opacity .2s}
 .obx-s:hover .pill,.obx-s .pill:focus-visible{opacity:1}
 .obx-s.done .pill,.obx-s.run .pill{display:none}
-.obx-dn{display:flex;align-items:center;gap:8px;padding:10px;border-radius:12px;background:var(--ok-bg);color:var(--ok);font-size:13px;margin-top:4px}
+.obx-dn{display:flex;align-items:center;gap:8px;padding:10px;border-radius:12px;background:var(--accent-bg);color:var(--fg);font-size:13px;margin-top:4px}
+.obx-dn svg{color:var(--accent-fg,var(--accent));flex:none}
 /* ---------- Stepper ---------- */
 /* the agent walks you through setup in the chat: no container; with .panel it becomes a card */
 .stx{padding:16px 0;display:flex;flex-direction:column;gap:16px}
@@ -774,21 +778,24 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 /* the picked option: a white tile with a ring you can see at a glance, in light and dark */
 .stx-o.on,.stx-o.on:hover{background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--fg2),0 1px 2px rgba(0,0,0,.04)}
 .stx-f{display:flex;justify-content:space-between}
+/* once it's done there is nothing to go back to: Start over sits alone in the middle */
+.stx.fin .stx-f{justify-content:center}
+.stx.fin .stx-bk{display:none}
 .stx-bk[disabled]{visibility:hidden}
 .stx-dn{display:flex;flex-direction:column;align-items:center;gap:6px;padding:18px 0;text-align:center;font-size:13px}
 .stx-dn>b{font-size:14px;font-weight:500}
 /* finished: the check pops and draws itself, a soft ring spreads from it, and a little confetti bursts out once */
 .stx-ok{position:relative;width:44px;height:44px;margin-bottom:6px}
 .stx-ok svg{display:block;width:44px;height:44px;overflow:visible}
-.stx-ok .c{fill:var(--ok);transform-origin:center;transform-box:fill-box}
-.stx-ok .k{fill:none;stroke:#fff;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:24}
+.stx-ok .c{fill:var(--accent);transform-origin:center;transform-box:fill-box}
+.stx-ok .k{fill:none;stroke:var(--on-accent);stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:24}
 .stx-ok::after{content:"";position:absolute;inset:0;border-radius:50%;pointer-events:none}
 .stx-dn.go .stx-ok .c{animation:stxpop .6s var(--ease) both}
 .stx-dn.go .stx-ok .k{animation:stxdraw .42s var(--ease) .26s both}
 .stx-dn.go .stx-ok::after{animation:stxring 1.2s var(--ease) .18s}
 @keyframes stxpop{from{transform:scale(.3);opacity:0}60%{transform:scale(1.08);opacity:1}to{transform:none;opacity:1}}
 @keyframes stxdraw{from{stroke-dashoffset:24}to{stroke-dashoffset:0}}
-@keyframes stxring{from{box-shadow:0 0 0 0 color-mix(in srgb,var(--ok) 32%,transparent)}to{box-shadow:0 0 0 20px color-mix(in srgb,var(--ok) 0%,transparent)}}
+@keyframes stxring{from{box-shadow:0 0 0 0 color-mix(in srgb,var(--accent) 40%,transparent)}to{box-shadow:0 0 0 20px color-mix(in srgb,var(--accent) 0%,transparent)}}
 .stx-conf{position:absolute;left:50%;top:50%;width:0;height:0;pointer-events:none}
 .stx-conf i{position:absolute;left:0;top:0;border-radius:2px;opacity:0}
 .stx-conf i.d{border-radius:50%}
@@ -3196,7 +3203,14 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .sgx-code input{width:100%;height:46px;border:0;outline:0;border-radius:11px;background:var(--chip);text-align:center;font:inherit;font-family:var(--mono);font-size:14px;color:var(--fg);transition:box-shadow .25s,background .25s,transform .3s var(--ease)}
 .sgx-code input:focus{background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--accent)}
 .sgx-code input.f{transform:scale(1.04)}
-.sgx-code{cursor:pointer}
+/* the email with the code, the way a phone shows it as it arrives */
+.sgx-nt{display:flex;align-items:center;gap:10px;padding:10px 10px 10px 12px;margin-bottom:10px;border-radius:14px;background:var(--raised);box-shadow:var(--shadow-pop);font-size:12.5px;line-height:1.4}
+.sgx-ni{width:30px;height:30px;border-radius:9px;background:var(--accent);color:var(--on-accent);display:grid;place-items:center;flex:none}
+.sgx-nt .t{flex:1;min-width:0;display:flex;flex-direction:column}
+.sgx-nt .t b{font-weight:500;font-size:12.5px}
+.sgx-nt .t b .muted{font-weight:400;font-size:12px;margin-left:4px}
+.sgx-nt .t .num{color:var(--fg);font-weight:500}
+.sgx-cp{flex:none}
 .sgx-code input{caret-color:var(--accent)}
 .sgx-code.vf input{animation:sgvf 1s var(--ease-io) infinite;animation-delay:calc(var(--i) * 90ms)}
 @keyframes sgvf{50%{background:var(--hover);transform:translateY(-2px)}}
@@ -3207,11 +3221,11 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .sgx-v.ok{color:var(--ok)}
 .sgx-hint{color:var(--fg2)}
 .sgx-ck{width:52px;height:52px;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
-.sgx-ck circle{stroke:var(--ok);stroke-dasharray:151;stroke-dashoffset:151;animation:sgdraw .7s var(--ease) forwards}
-.sgx-ck path{stroke:var(--ok);stroke-dasharray:30;stroke-dashoffset:30;animation:sgdraw .4s var(--ease) .55s forwards}
+.sgx-ck circle{stroke:var(--accent-mark,var(--accent));stroke-dasharray:151;stroke-dashoffset:151;animation:sgdraw .7s var(--ease) forwards}
+.sgx-ck path{stroke:var(--accent-mark,var(--accent));stroke-dasharray:30;stroke-dashoffset:30;animation:sgdraw .4s var(--ease) .55s forwards}
 @keyframes sgdraw{to{stroke-dashoffset:0}}
 .sgx-bar{width:120px;height:3px;border-radius:2px;background:var(--line);overflow:hidden;margin-top:4px}
-.sgx-bar i{display:block;height:100%;width:0;background:var(--ok);animation:sgbar 1.8s var(--ease) .6s forwards}
+.sgx-bar i{display:block;height:100%;width:0;background:var(--accent-mark,var(--accent));animation:sgbar 1.8s var(--ease) .6s forwards}
 @keyframes sgbar{to{width:100%}}
 .sgx-rs{font-size:12px;margin-top:6px}
 .sgx-done{display:flex;flex-direction:column;align-items:center;gap:8px;padding:20px 0;font-size:13px;text-align:center}
@@ -5005,7 +5019,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
   <div class="card-f"><span>Pick a provider</span><span class="sp"></span><button class="replay" aria-label="Replay Social sign-in"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
 </article>
 <article class="card" data-c="sign-in" id="c-sign-in">
-  <div class="card-h"><div><h3>Sign in</h3><p>Email first, then a one-time code that fills itself in.</p></div></div>
+  <div class="card-h"><div><h3>Sign in</h3><p>Email first, then the one-time code from the email, copied or typed in.</p></div></div>
   <div class="stage"><div class="stage-in"></div></div>
   <template><div class="sgx panel">
   <div class="sgx-st sgx-1">
@@ -5015,13 +5029,14 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
     <button class="pill ink sgx-go">Send code</button>
   </div>
   <div class="sgx-st sgx-2" hidden>
+    <div class="fold shut sgx-ntf"><div><div class="sgx-nt" role="status"><span class="sgx-ni">{mail}</span><span class="t"><b>Designme <span class="muted">now</span></b><span>Your sign-in code is <span class="num">482 157</span></span></span><button class="pill sm sgx-cp">Copy code</button></div></div></div>
     <button class="sgx-bk">{l}<span class="sgx-to"></span></button>
     <b>Check your inbox</b><span class="muted">Enter the 6 digit code</span>
     <div class="sgx-code"></div>
-    <span class="muted sgx-rs">Resend in <span class="num">30</span>s · <span class="sgx-hint">Click the code to fill it</span></span>
+    <span class="muted sgx-rs">Resend in <span class="num">30</span>s · <span class="sgx-hint">Copy it from the email above</span></span>
   </div>
 </div></template>
-  <div class="card-f"><span>Enter any email, then the code</span><span class="sp"></span><button class="replay" aria-label="Replay Sign in"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
+  <div class="card-f"><span>Enter any email, then copy the code from the email</span><span class="sp"></span><button class="replay" aria-label="Replay Sign in"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
 </article>
 <article class="card" data-c="otp-field" id="c-otp-field">
   <div class="card-h"><div><h3>OTP field</h3><p>A one-time code, one box per digit, that fills from a paste.</p></div></div>
@@ -6289,7 +6304,7 @@ DM.def('stepper', (r, c) => {
     ['Agent','How should the agent work?','You can change this any time.',[['Ask first','Safest'],['Balanced','Recommended'],['Autopilot','Fastest']]],
     ['Connect','Where do your designs live?','Pick one to start.',[['Figma','Frames and tokens'],['GitHub','Code and PRs'],['Both','Full loop']]]
   ];
-  const track = $('.stx-track', r), body = $('.stx-body', r), bk = $('.stx-bk', r), nx = $('.stx-nx', r);
+  const stx = $('.stx', r), track = $('.stx-track', r), body = $('.stx-body', r), bk = $('.stx-bk', r), nx = $('.stx-nx', r);
   let cur = 0, pick = [0, 1, 2];
   track.innerHTML = S.map((s, i) => `<div class="stx-st" data-i="${i}"><span class="n">${i + 1}</span><span class="lb">${s[0]}</span></div>` + (i < S.length - 1 ? '<div class="stx-ln"><i></i></div>' : '')).join('');
   const sts = $$('.stx-st', track), lns = $$('.stx-ln', track);
@@ -6298,12 +6313,12 @@ DM.def('stepper', (r, c) => {
     lns.forEach((l, j) => l.classList.toggle('full', j < i));
     if (i >= S.length){
       body.innerHTML = `<div class="stx-dn"><span class="stx-ok"><svg viewBox="0 0 44 44" aria-hidden="true"><circle class="c" cx="22" cy="22" r="20"/><path class="k" d="M14 22.5l5.5 5.5L30.5 16.5"/></svg></span><b>You're set up</b><span class="muted">${S.map((s, k) => s[3][pick[k]][0]).join(' · ')}</span></div>`;
-      bk.disabled = false; nx.textContent = 'Start over';
+      bk.disabled = true; nx.textContent = 'Start over'; stx.classList.add('fin');
       // arriving here from Finish is the moment to celebrate; the screen itself doesn't slide
       if (dir > 0){ const dn = $('.stx-dn', body); dn.classList.add('go'); enter($('b', dn), 260); enter($('.muted', dn), 340); burst($('.stx-ok', dn)); }
       return;
     }
-    else { const s = S[i]; body.innerHTML = `<h4>${s[1]}</h4><p>${s[2]}</p><div class="stx-opts">${s[3].map((o, k) => `<button class="stx-o${pick[i] === k ? ' on' : ''}" data-k="${k}"><b style="font-weight:500">${o[0]}</b><span>${o[1]}</span></button>`).join('')}</div>`;
+    else { stx.classList.remove('fin'); const s = S[i]; body.innerHTML = `<h4>${s[1]}</h4><p>${s[2]}</p><div class="stx-opts">${s[3].map((o, k) => `<button class="stx-o${pick[i] === k ? ' on' : ''}" data-k="${k}"><b style="font-weight:500">${o[0]}</b><span>${o[1]}</span></button>`).join('')}</div>`;
       $$('.stx-o', body).forEach(b => b.onclick = () => { pick[i] = +b.dataset.k; $$('.stx-o', body).forEach(x => x.classList.toggle('on', x === b)); });
       bk.disabled = i === 0; nx.textContent = i === S.length - 1 ? 'Finish' : 'Continue'; }
     if (dir){ body.classList.remove('inr','inl'); void body.offsetWidth; body.classList.add(dir > 0 ? 'inr' : 'inl'); }
@@ -10071,16 +10086,16 @@ DM.def('social-signin', (r, c) => {
 });
 /* ---------- Sign in ---------- */
 DM.def('sign-in', (r, c) => {
-  r.innerHTML = r.innerHTML.replace('{l}', I('chev-l','xs'));
-  const s1 = $('.sgx-1', r), s2 = $('.sgx-2', r), em = $('.sgx-em', r), err = $('.sgx-err', r), go = $('.sgx-go', r), code = $('.sgx-code', r);
-  code.innerHTML = Array.from({ length:6 }, (_, i) => `<input inputmode="numeric" maxlength="1" aria-label="Digit ${i + 1}" style="--i:${i}">`).join('');
+  r.innerHTML = r.innerHTML.replace('{l}', I('chev-l','xs')).replace('{mail}', I('mail','xs'));
+  const card = $('.sgx', r), ntf = $('.sgx-ntf', r), cp = $('.sgx-cp', r), s1 = $('.sgx-1', r), s2 = $('.sgx-2', r), em = $('.sgx-em', r), err = $('.sgx-err', r), go = $('.sgx-go', r), code = $('.sgx-code', r);
+  code.innerHTML = Array.from({ length:6 }, (_, i) => `<input inputmode="numeric" maxlength="1" autocomplete="${i ? 'off' : 'one-time-code'}" aria-label="Digit ${i + 1}" style="--i:${i}">`).join('');
   const CODE = '482157';
   const ins = $$('input', code);
   const send = demo => c.run(async () => {
     const v = em.value.trim();
     if (!/^\S+@\S+\.\S+$/.test(v)){ const f = em.parentElement; f.classList.remove('bad'); void f.offsetWidth; f.classList.add('bad'); swap(err, v ? 'That email looks incomplete' : 'Enter your email'); return; }
     em.parentElement.classList.remove('bad'); swap(err, ''); go.innerHTML = '<span class="spin"></span>'; await c.wait(800);
-    s1.hidden = true; s2.hidden = false; s2.classList.remove('in'); void s2.offsetWidth; s2.classList.add('in'); $('.sgx-to', r).textContent = v; if (demo !== true) ins[0].focus({ preventScroll:true });
+    s1.hidden = true; s2.hidden = false; s2.classList.remove('in'); void s2.offsetWidth; s2.classList.add('in'); $('.sgx-to', r).textContent = v; if (demo !== true) ins[0].focus({ preventScroll:true }); c.later(900, () => ntf.classList.remove('shut'));
     let n = 30; const ns = $('.sgx-rs .num', r); const iv = c.every(1000, () => { if (checking || !ns.isConnected) return clearInterval(iv); n--; ns.textContent = n; if (n <= 0){ clearInterval(iv); $('.sgx-rs', r).innerHTML = '<button style="color:var(--accent-fg,var(--accent));font-weight:500">Resend code</button>'; } });
   });
   go.onclick = () => send(); em.onkeydown = e => { if (e.key === 'Enter') send(); };
@@ -10091,18 +10106,27 @@ DM.def('sign-in', (r, c) => {
     const rs = $('.sgx-rs', r); ins.forEach(i => { i.blur(); i.readOnly = true; });
     code.classList.add('vf'); rs.innerHTML = '<span class="sgx-v"><span class="spin"></span>Verifying code</span>'; await c.wait(1100);
     code.classList.remove('vf'); code.classList.add('ok'); rs.innerHTML = `<span class="sgx-v ok">${I('check','xs')}Code confirmed</span>`; enter(rs.firstChild); await c.wait(1100);
-    const card = $('.sgx', r); [...card.children].forEach(k => k.hidden = true);
+    hold(card); [...card.children].forEach(k => k.hidden = true);
     const d = html(`<div class="sgx-done"><svg class="sgx-ck" viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="24"/><path d="m16 27 7 7 13-14"/></svg><b>You're in</b><span class="muted">Opening your workspace</span><span class="sgx-bar"><i></i></span></div>`);
     card.appendChild(d); stagger([...d.children].slice(1), 90, 250); }); }
-  /* clicking the code fills the rest from the email, one digit at a time */
-  const fill = () => c.run(async () => { if (checking) return; for (let j = 0; j < 6; j++){ if (ins[j].value) continue; ins[j].value = CODE[j]; ins[j].classList.add('f'); const el = ins[j]; c.later(160, () => el.classList.remove('f')); await c.wait(110); } check(); });
-  code.onpointerdown = e => { if (!ins.every(i => i.value)){ e.preventDefault(); fill(); } };
+  // a pasted code fills every box from the first; any 6 digits go through in the demo
+  const paste = t => { t = t.replace(/\D/g, '').slice(0, 6); if (!t || checking) return; t.split('').forEach((d, j) => { if (ins[j]){ ins[j].value = d; ins[j].classList.add('f'); const el = ins[j]; c.later(150, () => el.classList.remove('f')); } }); ins[Math.min(5, t.length)].focus({ preventScroll:true }); check(); };
+  // Copy puts the code on the clipboard, the way a phone offers it from the email; then it is pasted into the boxes
+  cp.onclick = () => { try { navigator.clipboard.writeText(CODE).catch(() => {}); } catch(e){} swap(cp, 'Copied'); cp.disabled = true; swap($('.sgx-hint', r), 'Paste it into the first box'); const at = ins.find(i => !i.value); if (at) at.focus({ preventScroll:true }); };
   ins.forEach((i, k) => {
     i.oninput = () => { i.value = i.value.replace(/\D/g, '').slice(-1); if (i.value){ i.classList.add('f'); c.later(150, () => i.classList.remove('f')); if (ins[k + 1]) ins[k + 1].focus({ preventScroll:true }); } check(); };
     i.onkeydown = e => { if (e.key === 'Backspace' && !i.value && ins[k - 1]){ ins[k - 1].focus({ preventScroll:true }); ins[k - 1].value = ''; } };
-    i.onpaste = e => { const t = (e.clipboardData.getData('text') || '').replace(/\D/g, '').slice(0, 6); if (!t) return; e.preventDefault(); t.split('').forEach((d, j) => { if (ins[j]) ins[j].value = d; }); ins[Math.min(5, t.length)].focus({ preventScroll:true }); check(); };
+    i.onpaste = e => { const t = (e.clipboardData.getData('text') || '').replace(/\D/g, ''); if (!t) return; e.preventDefault(); paste(t); };
   });
-  c.later(1000, () => c.run(async () => { for (const ch of 'maya@studio.com'){ em.value += ch; await c.wait(40); } await c.wait(300); send(true); await c.wait(1400); for (const [j, d] of [...CODE.slice(0, 4)].entries()){ ins[j].value = d; ins[j].classList.add('f'); c.later(150, () => ins[j].classList.remove('f')); await c.wait(160); } }));
+  // the preview's story: type an email and send it, the email arrives, copy its code and paste it in. The visitor can take
+  // over at any point and go through it with their own email and any 6 digits
+  c.story(async s => {
+    await s.beat(2); await s.tap(em); for (const ch of 'maya@studio.com'){ em.value += ch; await s.beat(.08); }
+    await s.beat(1); await s.tap(go); s.away();
+    await s.until(() => !ntf.classList.contains('shut')); await s.beat(3);
+    await s.tap(cp); s.away(); await s.beat(2);
+    paste(CODE); await s.until(() => !!$('.sgx-done', r)); await s.beat(4);
+  });
 });
 /* ---------- OTP field ---------- */
 DM.def('otp-field', (r, c) => {
@@ -10365,7 +10389,18 @@ DM.def('profile-menu', (r, c) => {
     ws = i; paint(); swap(wn, WS[ws][1]); say(`Switched to ${WS[ws][1]}`);
   }));
   // the theme is a switch: the menu stays open so the change shows where it was made
-  th.addEventListener('click', () => { dark = !dark; paint(); say(`Theme set to ${dark ? 'dark' : 'light'}`); });
+  // a real click switches the page too, through its own theme button where there is one; the preview's story only flips the
+  // switch, so the page doesn't flash between themes while the demo loops
+  const pageDark = () => root.dataset.theme ? root.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+  th.addEventListener('click', e => {
+    dark = !dark; paint(); say(`Theme set to ${dark ? 'dark' : 'light'}`);
+    if (!e.isTrusted || pageDark() === dark) return;
+    const btn = document.getElementById('theme-btn');
+    if (btn) btn.click(); else { root.dataset.theme = dark ? 'dark' : 'light'; try { localStorage.setItem('dmui-theme', root.dataset.theme); } catch(err){} }
+  });
+  // and when the page's theme changes from anywhere else, the switch follows it
+  const mo = new MutationObserver(() => { if (pageDark() !== dark){ dark = pageDark(); paint(); } });
+  mo.observe(root, { attributes:true, attributeFilter:['data-theme'] }); c.offs.push(() => mo.disconnect());
   // Keyboard shortcuts, or ? anywhere in the component, opens the list of the keys the menu answers to
   const keys = on => { kf.classList.toggle('shut', !on); kf.inert = !on; };
   keys(false);

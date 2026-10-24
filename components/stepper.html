@@ -29,21 +29,24 @@
 /* the picked option: a white tile with a ring you can see at a glance, in light and dark */
 .stx-o.on,.stx-o.on:hover{background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--fg2),0 1px 2px rgba(0,0,0,.04)}
 .stx-f{display:flex;justify-content:space-between}
+/* once it's done there is nothing to go back to: Start over sits alone in the middle */
+.stx.fin .stx-f{justify-content:center}
+.stx.fin .stx-bk{display:none}
 .stx-bk[disabled]{visibility:hidden}
 .stx-dn{display:flex;flex-direction:column;align-items:center;gap:6px;padding:18px 0;text-align:center;font-size:13px}
 .stx-dn>b{font-size:14px;font-weight:500}
 /* finished: the check pops and draws itself, a soft ring spreads from it, and a little confetti bursts out once */
 .stx-ok{position:relative;width:44px;height:44px;margin-bottom:6px}
 .stx-ok svg{display:block;width:44px;height:44px;overflow:visible}
-.stx-ok .c{fill:var(--ok);transform-origin:center;transform-box:fill-box}
-.stx-ok .k{fill:none;stroke:#fff;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:24}
+.stx-ok .c{fill:var(--accent-mark,var(--accent));transform-origin:center;transform-box:fill-box}
+.stx-ok .k{fill:none;stroke:var(--on-accent);stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:24}
 .stx-ok::after{content:"";position:absolute;inset:0;border-radius:50%;pointer-events:none}
 .stx-dn.go .stx-ok .c{animation:stxpop .6s var(--ease) both}
 .stx-dn.go .stx-ok .k{animation:stxdraw .42s var(--ease) .26s both}
 .stx-dn.go .stx-ok::after{animation:stxring 1.2s var(--ease) .18s}
 @keyframes stxpop{from{transform:scale(.3);opacity:0}60%{transform:scale(1.08);opacity:1}to{transform:none;opacity:1}}
 @keyframes stxdraw{from{stroke-dashoffset:24}to{stroke-dashoffset:0}}
-@keyframes stxring{from{box-shadow:0 0 0 0 color-mix(in srgb,var(--ok) 32%,transparent)}to{box-shadow:0 0 0 20px color-mix(in srgb,var(--ok) 0%,transparent)}}
+@keyframes stxring{from{box-shadow:0 0 0 0 color-mix(in srgb,var(--accent-mark,var(--accent)) 40%,transparent)}to{box-shadow:0 0 0 20px color-mix(in srgb,var(--accent-mark,var(--accent)) 0%,transparent)}}
 .stx-conf{position:absolute;left:50%;top:50%;width:0;height:0;pointer-events:none}
 .stx-conf i{position:absolute;left:0;top:0;border-radius:2px;opacity:0}
 .stx-conf i.d{border-radius:50%}
@@ -197,7 +200,7 @@ export function Stepper({ steps, step, defaultStep = 0, onStepChange, values, de
   useEffect(() =&gt; { if (celebrate &amp;&amp; !reduce &amp;&amp; ok.current) return burst(ok.current); }, [celebrate, seen.key, reduce]);
 
   return (
-    &lt;div data-dm=&quot;&quot; className={cx(&#39;dm-stx&#39;, !bare &amp;&amp; &#39;dm-panel&#39;, className)}&gt;
+    &lt;div data-dm=&quot;&quot; className={cx(&#39;dm-stx&#39;, !bare &amp;&amp; &#39;dm-panel&#39;, finished &amp;&amp; &#39;dm-fin&#39;, className)}&gt;
       &lt;div className=&quot;dm-stx-track&quot;&gt;
         {steps.map((st, i) =&gt; [
           // a finished step on the track takes you back to it
@@ -243,7 +246,7 @@ export function Stepper({ steps, step, defaultStep = 0, onStepChange, values, de
     &lt;/div&gt;
   );
 }
-</code></pre></details><details class="cp-file"><summary>stepper.css<span class="l">React · 51 lines</span></summary><pre class="cp-pre"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+</code></pre></details><details class="cp-file"><summary>stepper.css<span class="l">React · 54 lines</span></summary><pre class="cp-pre"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Stepper ---------- */
 /* the agent walks you through setup in the chat: no container; with .panel it becomes a card */
 .dm-stx{padding:16px 0;display:flex;flex-direction:column;gap:16px}
@@ -275,21 +278,24 @@ export function Stepper({ steps, step, defaultStep = 0, onStepChange, values, de
 /* the picked option: a white tile with a ring you can see at a glance, in light and dark */
 .dm-stx-o.dm-on,.dm-stx-o.dm-on:hover{background:var(--dm-surface);box-shadow:inset 0 0 0 1.5px var(--dm-fg2),0 1px 2px rgba(0,0,0,.04)}
 .dm-stx-f{display:flex;justify-content:space-between}
+/* once it&#39;s done there is nothing to go back to: Start over sits alone in the middle */
+.dm-stx.dm-fin .dm-stx-f{justify-content:center}
+.dm-stx.dm-fin .dm-stx-bk{display:none}
 .dm-stx-bk[disabled]{visibility:hidden}
 .dm-stx-dn{display:flex;flex-direction:column;align-items:center;gap:6px;padding:18px 0;text-align:center;font-size:13px}
 .dm-stx-dn&gt;b{font-size:14px;font-weight:500}
 /* finished: the check pops and draws itself, a soft ring spreads from it, and a little confetti bursts out once */
 .dm-stx-ok{position:relative;width:44px;height:44px;margin-bottom:6px}
 .dm-stx-ok svg{display:block;width:44px;height:44px;overflow:visible}
-.dm-stx-ok .dm-c{fill:var(--dm-ok);transform-origin:center;transform-box:fill-box}
-.dm-stx-ok .dm-k{fill:none;stroke:#fff;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:24}
+.dm-stx-ok .dm-c{fill:var(--dm-accent-mark,var(--dm-accent));transform-origin:center;transform-box:fill-box}
+.dm-stx-ok .dm-k{fill:none;stroke:var(--dm-on-accent);stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:24}
 .dm-stx-ok::after{content:&quot;&quot;;position:absolute;inset:0;border-radius:50%;pointer-events:none}
 .dm-stx-dn.dm-go .dm-stx-ok .dm-c{animation:dm-stxpop .6s var(--dm-ease) both}
 .dm-stx-dn.dm-go .dm-stx-ok .dm-k{animation:dm-stxdraw .42s var(--dm-ease) .26s both}
 .dm-stx-dn.dm-go .dm-stx-ok::after{animation:dm-stxring 1.2s var(--dm-ease) .18s}
 @keyframes dm-stxpop{from{transform:scale(.3);opacity:0}60%{transform:scale(1.08);opacity:1}to{transform:none;opacity:1}}
 @keyframes dm-stxdraw{from{stroke-dashoffset:24}to{stroke-dashoffset:0}}
-@keyframes dm-stxring{from{box-shadow:0 0 0 0 color-mix(in srgb,var(--dm-ok) 32%,transparent)}to{box-shadow:0 0 0 20px color-mix(in srgb,var(--dm-ok) 0%,transparent)}}
+@keyframes dm-stxring{from{box-shadow:0 0 0 0 color-mix(in srgb,var(--dm-accent-mark,var(--dm-accent)) 40%,transparent)}to{box-shadow:0 0 0 20px color-mix(in srgb,var(--dm-accent-mark,var(--dm-accent)) 0%,transparent)}}
 .dm-stx-conf{position:absolute;left:50%;top:50%;width:0;height:0;pointer-events:none}
 .dm-stx-conf i{position:absolute;left:0;top:0;border-radius:2px;opacity:0}
 .dm-stx-conf i.dm-d{border-radius:50%}
@@ -303,7 +309,7 @@ export function Stepper({ steps, step, defaultStep = 0, onStepChange, values, de
 &lt;/div&gt;
   &lt;/template&gt;
 &lt;/div&gt;
-</code></pre></details><details class="cp-file"><summary>stepper.css<span class="l">HTML · 50 lines</span></summary><pre class="cp-pre"><code>/* ---------- Stepper ---------- */
+</code></pre></details><details class="cp-file"><summary>stepper.css<span class="l">HTML · 53 lines</span></summary><pre class="cp-pre"><code>/* ---------- Stepper ---------- */
 /* the agent walks you through setup in the chat: no container; with .panel it becomes a card */
 .stx{padding:16px 0;display:flex;flex-direction:column;gap:16px}
 .stx.panel{padding:16px}
@@ -334,21 +340,24 @@ export function Stepper({ steps, step, defaultStep = 0, onStepChange, values, de
 /* the picked option: a white tile with a ring you can see at a glance, in light and dark */
 .stx-o.on,.stx-o.on:hover{background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--fg2),0 1px 2px rgba(0,0,0,.04)}
 .stx-f{display:flex;justify-content:space-between}
+/* once it&#39;s done there is nothing to go back to: Start over sits alone in the middle */
+.stx.fin .stx-f{justify-content:center}
+.stx.fin .stx-bk{display:none}
 .stx-bk[disabled]{visibility:hidden}
 .stx-dn{display:flex;flex-direction:column;align-items:center;gap:6px;padding:18px 0;text-align:center;font-size:13px}
 .stx-dn&gt;b{font-size:14px;font-weight:500}
 /* finished: the check pops and draws itself, a soft ring spreads from it, and a little confetti bursts out once */
 .stx-ok{position:relative;width:44px;height:44px;margin-bottom:6px}
 .stx-ok svg{display:block;width:44px;height:44px;overflow:visible}
-.stx-ok .c{fill:var(--ok);transform-origin:center;transform-box:fill-box}
-.stx-ok .k{fill:none;stroke:#fff;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:24}
+.stx-ok .c{fill:var(--accent-mark,var(--accent));transform-origin:center;transform-box:fill-box}
+.stx-ok .k{fill:none;stroke:var(--on-accent);stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:24}
 .stx-ok::after{content:&quot;&quot;;position:absolute;inset:0;border-radius:50%;pointer-events:none}
 .stx-dn.go .stx-ok .c{animation:stxpop .6s var(--ease) both}
 .stx-dn.go .stx-ok .k{animation:stxdraw .42s var(--ease) .26s both}
 .stx-dn.go .stx-ok::after{animation:stxring 1.2s var(--ease) .18s}
 @keyframes stxpop{from{transform:scale(.3);opacity:0}60%{transform:scale(1.08);opacity:1}to{transform:none;opacity:1}}
 @keyframes stxdraw{from{stroke-dashoffset:24}to{stroke-dashoffset:0}}
-@keyframes stxring{from{box-shadow:0 0 0 0 color-mix(in srgb,var(--ok) 32%,transparent)}to{box-shadow:0 0 0 20px color-mix(in srgb,var(--ok) 0%,transparent)}}
+@keyframes stxring{from{box-shadow:0 0 0 0 color-mix(in srgb,var(--accent-mark,var(--accent)) 40%,transparent)}to{box-shadow:0 0 0 20px color-mix(in srgb,var(--accent-mark,var(--accent)) 0%,transparent)}}
 .stx-conf{position:absolute;left:50%;top:50%;width:0;height:0;pointer-events:none}
 .stx-conf i{position:absolute;left:0;top:0;border-radius:2px;opacity:0}
 .stx-conf i.d{border-radius:50%}
@@ -358,7 +367,7 @@ export function Stepper({ steps, step, defaultStep = 0, onStepChange, values, de
     [&#39;Agent&#39;,&#39;How should the agent work?&#39;,&#39;You can change this any time.&#39;,[[&#39;Ask first&#39;,&#39;Safest&#39;],[&#39;Balanced&#39;,&#39;Recommended&#39;],[&#39;Autopilot&#39;,&#39;Fastest&#39;]]],
     [&#39;Connect&#39;,&#39;Where do your designs live?&#39;,&#39;Pick one to start.&#39;,[[&#39;Figma&#39;,&#39;Frames and tokens&#39;],[&#39;GitHub&#39;,&#39;Code and PRs&#39;],[&#39;Both&#39;,&#39;Full loop&#39;]]]
   ];
-  const track = $(&#39;.stx-track&#39;, r), body = $(&#39;.stx-body&#39;, r), bk = $(&#39;.stx-bk&#39;, r), nx = $(&#39;.stx-nx&#39;, r);
+  const stx = $(&#39;.stx&#39;, r), track = $(&#39;.stx-track&#39;, r), body = $(&#39;.stx-body&#39;, r), bk = $(&#39;.stx-bk&#39;, r), nx = $(&#39;.stx-nx&#39;, r);
   let cur = 0, pick = [0, 1, 2];
   track.innerHTML = S.map((s, i) =&gt; `&lt;div class=&quot;stx-st&quot; data-i=&quot;${i}&quot;&gt;&lt;span class=&quot;n&quot;&gt;${i + 1}&lt;/span&gt;&lt;span class=&quot;lb&quot;&gt;${s[0]}&lt;/span&gt;&lt;/div&gt;` + (i &lt; S.length - 1 ? &#39;&lt;div class=&quot;stx-ln&quot;&gt;&lt;i&gt;&lt;/i&gt;&lt;/div&gt;&#39; : &#39;&#39;)).join(&#39;&#39;);
   const sts = $$(&#39;.stx-st&#39;, track), lns = $$(&#39;.stx-ln&#39;, track);
@@ -367,12 +376,12 @@ export function Stepper({ steps, step, defaultStep = 0, onStepChange, values, de
     lns.forEach((l, j) =&gt; l.classList.toggle(&#39;full&#39;, j &lt; i));
     if (i &gt;= S.length){
       body.innerHTML = `&lt;div class=&quot;stx-dn&quot;&gt;&lt;span class=&quot;stx-ok&quot;&gt;&lt;svg viewBox=&quot;0 0 44 44&quot; aria-hidden=&quot;true&quot;&gt;&lt;circle class=&quot;c&quot; cx=&quot;22&quot; cy=&quot;22&quot; r=&quot;20&quot;/&gt;&lt;path class=&quot;k&quot; d=&quot;M14 22.5l5.5 5.5L30.5 16.5&quot;/&gt;&lt;/svg&gt;&lt;/span&gt;&lt;b&gt;You&#39;re set up&lt;/b&gt;&lt;span class=&quot;muted&quot;&gt;${S.map((s, k) =&gt; s[3][pick[k]][0]).join(&#39; · &#39;)}&lt;/span&gt;&lt;/div&gt;`;
-      bk.disabled = false; nx.textContent = &#39;Start over&#39;;
+      bk.disabled = true; nx.textContent = &#39;Start over&#39;; stx.classList.add(&#39;fin&#39;);
       // arriving here from Finish is the moment to celebrate; the screen itself doesn&#39;t slide
       if (dir &gt; 0){ const dn = $(&#39;.stx-dn&#39;, body); dn.classList.add(&#39;go&#39;); enter($(&#39;b&#39;, dn), 260); enter($(&#39;.muted&#39;, dn), 340); burst($(&#39;.stx-ok&#39;, dn)); }
       return;
     }
-    else { const s = S[i]; body.innerHTML = `&lt;h4&gt;${s[1]}&lt;/h4&gt;&lt;p&gt;${s[2]}&lt;/p&gt;&lt;div class=&quot;stx-opts&quot;&gt;${s[3].map((o, k) =&gt; `&lt;button class=&quot;stx-o${pick[i] === k ? &#39; on&#39; : &#39;&#39;}&quot; data-k=&quot;${k}&quot;&gt;&lt;b style=&quot;font-weight:500&quot;&gt;${o[0]}&lt;/b&gt;&lt;span&gt;${o[1]}&lt;/span&gt;&lt;/button&gt;`).join(&#39;&#39;)}&lt;/div&gt;`;
+    else { stx.classList.remove(&#39;fin&#39;); const s = S[i]; body.innerHTML = `&lt;h4&gt;${s[1]}&lt;/h4&gt;&lt;p&gt;${s[2]}&lt;/p&gt;&lt;div class=&quot;stx-opts&quot;&gt;${s[3].map((o, k) =&gt; `&lt;button class=&quot;stx-o${pick[i] === k ? &#39; on&#39; : &#39;&#39;}&quot; data-k=&quot;${k}&quot;&gt;&lt;b style=&quot;font-weight:500&quot;&gt;${o[0]}&lt;/b&gt;&lt;span&gt;${o[1]}&lt;/span&gt;&lt;/button&gt;`).join(&#39;&#39;)}&lt;/div&gt;`;
       $$(&#39;.stx-o&#39;, body).forEach(b =&gt; b.onclick = () =&gt; { pick[i] = +b.dataset.k; $$(&#39;.stx-o&#39;, body).forEach(x =&gt; x.classList.toggle(&#39;on&#39;, x === b)); });
       bk.disabled = i === 0; nx.textContent = i === S.length - 1 ? &#39;Finish&#39; : &#39;Continue&#39;; }
     if (dir){ body.classList.remove(&#39;inr&#39;,&#39;inl&#39;); void body.offsetWidth; body.classList.add(dir &gt; 0 ? &#39;inr&#39; : &#39;inl&#39;); }
@@ -441,7 +450,7 @@ export function Stepper({ steps, step, defaultStep = 0, onStepChange, values, de
     ['Agent','How should the agent work?','You can change this any time.',[['Ask first','Safest'],['Balanced','Recommended'],['Autopilot','Fastest']]],
     ['Connect','Where do your designs live?','Pick one to start.',[['Figma','Frames and tokens'],['GitHub','Code and PRs'],['Both','Full loop']]]
   ];
-  const track = $('.stx-track', r), body = $('.stx-body', r), bk = $('.stx-bk', r), nx = $('.stx-nx', r);
+  const stx = $('.stx', r), track = $('.stx-track', r), body = $('.stx-body', r), bk = $('.stx-bk', r), nx = $('.stx-nx', r);
   let cur = 0, pick = [0, 1, 2];
   track.innerHTML = S.map((s, i) => `<div class="stx-st" data-i="${i}"><span class="n">${i + 1}</span><span class="lb">${s[0]}</span></div>` + (i < S.length - 1 ? '<div class="stx-ln"><i></i></div>' : '')).join('');
   const sts = $$('.stx-st', track), lns = $$('.stx-ln', track);
@@ -450,12 +459,12 @@ export function Stepper({ steps, step, defaultStep = 0, onStepChange, values, de
     lns.forEach((l, j) => l.classList.toggle('full', j < i));
     if (i >= S.length){
       body.innerHTML = `<div class="stx-dn"><span class="stx-ok"><svg viewBox="0 0 44 44" aria-hidden="true"><circle class="c" cx="22" cy="22" r="20"/><path class="k" d="M14 22.5l5.5 5.5L30.5 16.5"/></svg></span><b>You're set up</b><span class="muted">${S.map((s, k) => s[3][pick[k]][0]).join(' · ')}</span></div>`;
-      bk.disabled = false; nx.textContent = 'Start over';
+      bk.disabled = true; nx.textContent = 'Start over'; stx.classList.add('fin');
       // arriving here from Finish is the moment to celebrate; the screen itself doesn't slide
       if (dir > 0){ const dn = $('.stx-dn', body); dn.classList.add('go'); enter($('b', dn), 260); enter($('.muted', dn), 340); burst($('.stx-ok', dn)); }
       return;
     }
-    else { const s = S[i]; body.innerHTML = `<h4>${s[1]}</h4><p>${s[2]}</p><div class="stx-opts">${s[3].map((o, k) => `<button class="stx-o${pick[i] === k ? ' on' : ''}" data-k="${k}"><b style="font-weight:500">${o[0]}</b><span>${o[1]}</span></button>`).join('')}</div>`;
+    else { stx.classList.remove('fin'); const s = S[i]; body.innerHTML = `<h4>${s[1]}</h4><p>${s[2]}</p><div class="stx-opts">${s[3].map((o, k) => `<button class="stx-o${pick[i] === k ? ' on' : ''}" data-k="${k}"><b style="font-weight:500">${o[0]}</b><span>${o[1]}</span></button>`).join('')}</div>`;
       $$('.stx-o', body).forEach(b => b.onclick = () => { pick[i] = +b.dataset.k; $$('.stx-o', body).forEach(x => x.classList.toggle('on', x === b)); });
       bk.disabled = i === 0; nx.textContent = i === S.length - 1 ? 'Finish' : 'Continue'; }
     if (dir){ body.classList.remove('inr','inl'); void body.offsetWidth; body.classList.add(dir > 0 ? 'inr' : 'inl'); }

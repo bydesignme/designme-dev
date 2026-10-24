@@ -3,7 +3,7 @@ import { useEffect, useRef, useState, type ClipboardEvent, type CSSProperties, t
 import { cx } from '../../lib/cx';
 import { useControllable } from '../../lib/hooks';
 import { Icon } from '../../lib/icons';
-import { enter, Spin, Swap } from '../../lib/motion';
+import { enter, Fold, Spin, Swap } from '../../lib/motion';
 import '../../designme.css';
 import './sign-in.css';
 
@@ -41,6 +41,11 @@ export interface SignInProps {
   onVerify?: (code: string, email: string) => boolean | void | Promise<boolean | void>;
   /** Called when the person clicks the code boxes while some are empty, for filling the code in for them */
   onFillRequest?: () => void;
+  /** The email with the code, shown arriving at the top of the code screen the way a phone shows it, with Copy code.
+      Copy puts `code` on the clipboard; pasting it into the boxes fills them all */
+  inbox?: { from?: ReactNode; text?: ReactNode; code: string; copyLabel?: string; copiedLabel?: string };
+  /** Called by Copy code */
+  onCopyCode?: (code: string) => void;
   /** A quiet note after the resend countdown, like "Click the code to fill it" */
   hint?: ReactNode;
   /** Seconds before the code can be sent again. Defaults to 30 */
@@ -66,7 +71,7 @@ const digit = (c: string | undefined) => (c ?? '').replace(/\D/g, '');
 export function SignIn({
   title = 'Sign in', subtitle = 'We will email you a code', label = 'Email', placeholder = 'you@studio.com', sendLabel = 'Send code',
   email, defaultEmail = '', onEmailChange, step, defaultStep = 'email', onStepChange, onSendCode, sending = false,
-  code, defaultCode = '', onCodeChange, codeLength = 6, onVerify, onFillRequest, hint, resendIn = 30, onResend, onSignedIn,
+  code, defaultCode = '', onCodeChange, codeLength = 6, onVerify, onFillRequest, inbox, onCopyCode, hint, resendIn = 30, onResend, onSignedIn,
   codeTitle = 'Check your inbox', codeSubtitle = `Enter the ${codeLength} digit code`, doneTitle = "You're in", doneDetail = 'Opening your workspace',
   emptyEmailLabel = 'Enter your email', badEmailLabel = 'That email looks incomplete', wrongCodeLabel = "That code didn't work, try again", className
 }: SignInProps) {
@@ -83,6 +88,23 @@ export function SignIn({
   const field = useRef<HTMLLabelElement>(null);
   const boxes = useRef<(HTMLInputElement | null)[]>([]);
   const focusCode = useRef(false);
+  const root = useRef<HTMLDivElement>(null);
+  // the email arrives a moment after the code screen shows, and is copied once
+  const [arrived, setArrived] = useState(false);
+  const [copied, setCopied] = useState(false);
+  useEffect(() => {
+    if (now !== 'code' || !inbox) { setArrived(false); setCopied(false); return; }
+    const t = setTimeout(() => setArrived(true), 900);
+    return () => clearTimeout(t);
+  }, [now, !!inbox]); // eslint-disable-line react-hooks/exhaustive-deps
+  const copy = () => {
+    if (!inbox) return;
+    try { navigator.clipboard?.writeText(inbox.code).catch(() => {}); } catch { /* the clipboard can be off limits; the code is still on screen */ }
+    setCopied(true); onCopyCode?.(inbox.code);
+    boxes.current.find(b => b && !b.value)?.focus({ preventScroll: true });
+  };
+  // the confirmation keeps the height the code screen had, so it stays centred where it sits
+  const [held, setHeld] = useState<number>();
 
   // a new screen slides in, except the one the form starts on; the countdown restarts with every code
   const [seen, setSeen] = useState(now);
@@ -138,7 +160,7 @@ export function SignIn({
 
   useEffect(() => {
     if (check !== 'confirmed') return;
-    const t = setTimeout(() => { setStep('done'); onSignedIn?.(mail.trim()); }, 1100);
+    const t = setTimeout(() => { setHeld(root.current?.offsetHeight); setStep('done'); onSignedIn?.(mail.trim()); }, 1100);
     return () => clearTimeout(t);
   }, [check]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -192,7 +214,7 @@ export function SignIn({
 
   const slide = moved ? 'dm-in' : undefined;
   return (
-    <div data-dm="" className={cx('dm-sgx dm-panel', className)}>
+    <div data-dm="" ref={root} className={cx('dm-sgx dm-panel', now === 'done' && held && 'dm-held', className)} style={now === 'done' && held ? { minHeight: held } : undefined}>
       {now === 'email' && (
         <form key="email" className={cx('dm-sgx-st dm-sgx-1', slide)} noValidate onSubmit={send}>
           <b>{title}</b><span className="dm-muted">{subtitle}</span>
@@ -207,6 +229,15 @@ export function SignIn({
       )}
       {now === 'code' && (
         <div key="code" className={cx('dm-sgx-st dm-sgx-2', slide)}>
+          {inbox && (
+            <Fold open={arrived} className="dm-sgx-ntf">
+              <div className="dm-sgx-nt" role="status">
+                <span className="dm-sgx-ni"><Icon name="mail" size="xs" /></span>
+                <span className="dm-t"><b>{inbox.from ?? 'Designme'} <span className="dm-muted">now</span></b><span>{inbox.text ?? <>Your sign-in code is <span className="dm-num">{inbox.code}</span></>}</span></span>
+                <button type="button" className="dm-pill dm-sm dm-sgx-cp" disabled={copied} onClick={copy}><Swap>{copied ? inbox.copiedLabel ?? 'Copied' : inbox.copyLabel ?? 'Copy code'}</Swap></button>
+              </div>
+            </Fold>
+          )}
           <button type="button" className="dm-sgx-bk" onClick={back}><Icon name="chev-l" size="xs" /><span className="dm-sgx-to">{mail.trim()}</span></button>
           <b>{codeTitle}</b><span className="dm-muted">{codeSubtitle}</span>
           <div className={cx('dm-sgx-code', check === 'verifying' && 'dm-vf', check === 'confirmed' && 'dm-ok')} role="group" aria-label="Code" onPointerDown={fill}>
@@ -221,7 +252,7 @@ export function SignIn({
               : check === 'confirmed' ? <span className="dm-sgx-v dm-ok dm-enter"><Icon name="check" size="xs" />Code confirmed</span>
               : wrong ? <span style={{ color: 'var(--dm-bad)' }}>{wrongCodeLabel}</span>
               : left > 0 ? <>Resend in <span className="dm-num">{left}</span>s{hint && <> · <span className="dm-sgx-hint">{hint}</span></>}</>
-              : <button type="button" style={{ color: 'var(--dm-accent)', fontWeight: 500 }} onClick={resend}>Resend code</button>}
+              : <button type="button" style={{ color: 'var(--dm-accent-fg,var(--dm-accent))', fontWeight: 500 }} onClick={resend}>Resend code</button>}
           </span>
         </div>
       )}

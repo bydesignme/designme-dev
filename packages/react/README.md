@@ -420,8 +420,8 @@ One-tap providers that remember the last one you used.
 `providers: { key, label, brand? or icon? or letters? }[]` (defaults to Google, GitHub, Figma and SSO), `user: { name, initials, color? }`, `lastUsed` / `defaultLastUsed` / `onLastUsedChange`, `signedIn` / `defaultSignedIn` / `onSignedInChange`, `onSignIn(provider)` (return a promise and the button spins; resolving to false stays signed out), `onSignOut`, `onEmail`, `title`, `logo`, `emailLabel`.
 
 **SignIn** · `sign-in/SignIn.tsx`  
-Email first, then a one-time code that fills itself in.  
-`email` / `defaultEmail` / `onEmailChange`, `onSendCode(email)` (return a promise to spin; a rejection's message shows under the field), `step` / `defaultStep` / `onStepChange` (`'email' | 'code' | 'done'`), `code` / `defaultCode` / `onCodeChange`, `codeLength`, `onVerify(code, email)` (return false for a wrong code), `resendIn`, `onResend`, `onSignedIn(email)`, and the titles and labels. A pasted or autofilled code spreads over the boxes.
+Email first, then the one-time code from the email, copied or typed in.  
+`email` / `defaultEmail` / `onEmailChange`, `onSendCode(email)` (return a promise to spin; a rejection's message shows under the field), `step` / `defaultStep` / `onStepChange` (`'email' | 'code' | 'done'`), `code` / `defaultCode` / `onCodeChange`, `codeLength`, `onVerify(code, email)` (return false for a wrong code), `inbox` (`{ code, from?, text?, copyLabel?, copiedLabel? }`: the email with the code arrives at the top of the code screen with Copy code) and `onCopyCode(code)`, `resendIn`, `onResend`, `onSignedIn(email)`, and the titles and labels. A pasted or autofilled code spreads over the boxes.
 
 **OtpField** · `otp-field/OtpField.tsx`  
 A one-time code, one box per digit, that fills from a paste.  

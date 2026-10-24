@@ -1,6 +1,6 @@
 # Sign in
 
-> Email first, then a one-time code that fills itself in.
+> Email first, then the one-time code from the email, copied or typed in.
 
 App basics / Forms and inputs. Free and MIT licensed, as plain HTML, CSS and JavaScript or as a typed React component, in two styles (Soft and Blueprint) with light and dark mode. Live demo: https://designme.dev/components/sign-in
 
@@ -29,9 +29,10 @@ Sign in is a passwordless sign-in card in three steps: the person enters an emai
 - The email step checks the address shape and shows `emptyEmailLabel` or `badEmailLabel`, with the field shaking on each failed try.
 - If `onSendCode` returns a promise, the button spins until it settles, and a rejection's message shows under the field.
 - The code boxes accept typing, Backspace back to the previous box, and a pasted or autofilled code that spreads across the boxes.
+- Pass `inbox` and the email with the code arrives at the top of the code screen, the way a phone shows it, with Copy code. Copy puts the code on the clipboard and calls `onCopyCode`; pasting it into the boxes fills them all.
 - Once every box is filled, `onVerify` runs; returning false clears the boxes and shows `wrongCodeLabel`.
 - A resend countdown runs from `resendIn` seconds, 30 by default, then turns into a Resend code button that calls `onResend`.
-- A confirmed code shows a check, then the done screen with `doneTitle` and calls `onSignedIn`.
+- A confirmed code shows a check, then the done screen with `doneTitle`, kept at the height the code screen had, and calls `onSignedIn`.
 
 ### Accessibility
 
@@ -53,46 +54,33 @@ import { SignIn } from '@/components/designme/sign-in/SignIn';
 // The animated preview from designme.dev, rebuilt from the React component: an example of driving it from your own state.
 import { useRef, useState } from 'react';
 import { SignIn, type SignInStep } from './SignIn';
-import { useScript, useWait } from '../lib/useScript';
+import { useStory, useWait } from '../lib/useScript';
 
 const CODE = '482157';
 
-/* ---------- Sign in: the email types itself and the code half arrives; click the boxes to fill the rest ---------- */
+/* ---------- Sign in: type an email and send it, the email arrives, copy its code and paste it in ---------- */
 export default function SignInDemo() {
+  const ref = useRef<HTMLDivElement>(null);
   const [email, setEmail] = useState('');
   const [step, setStep] = useState<SignInStep>('email');
-  const [sending, setSending] = useState(false);
   const [code, setCode] = useState('');
-  const latest = useRef('');
-  const write = (c: string) => { latest.current = c; setCode(c); };
   const wait = useWait();
 
-  useScript(async ({ wait }) => {
+  // the preview's story; anyone can take over and go through it with their own email and any 6 digits
+  useStory(ref, async ({ wait, press }) => {
     await wait(1000);
     let typed = '';
     for (const ch of 'maya@studio.com') { typed += ch; setEmail(typed); await wait(40); }
-    await wait(300);
-    // the first digits arrive 1.4s after the send, while the code screen is already up
-    setSending(true); await wait(800); setSending(false); setStep('code');
-    await wait(600);
-    for (let j = 0; j < 4; j++) { write(CODE.slice(0, j + 1)); await wait(160); }
+    await wait(500); press('.dm-sgx-go');
+    await wait(2800); press('.dm-sgx-cp');
+    await wait(1000); setCode(CODE);
   });
 
-  // clicking the boxes fills the missing digits, one at a time
-  const fill = async () => {
-    for (let j = 0; j < CODE.length; j++) {
-      const now = latest.current.padEnd(CODE.length, ' ');
-      if (now[j] !== ' ') continue;
-      write((now.slice(0, j) + CODE[j] + now.slice(j + 1)).trimEnd());
-      await wait(110);
-    }
-  };
-
   return (
-    <div style={{ width: '100%' }}>
-      <SignIn email={email} onEmailChange={setEmail} step={step} onStepChange={setStep} sending={sending}
-        code={code} onCodeChange={write} onSendCode={() => wait(800)} onVerify={() => wait(1100).then(() => true)}
-        onFillRequest={fill} hint="Click the code to fill it" />
+    <div ref={ref} style={{ width: '100%' }}>
+      <SignIn email={email} onEmailChange={setEmail} step={step} onStepChange={setStep} code={code} onCodeChange={setCode}
+        onSendCode={() => wait(800)} onVerify={() => wait(1100).then(() => true)}
+        inbox={{ code: CODE, text: <>Your sign-in code is <span className="dm-num">482 157</span></> }} hint="Copy it from the email above" />
     </div>
   );
 }
@@ -121,6 +109,8 @@ export default function SignInDemo() {
 | `codeLength` (optional) | `number` | How many boxes. Defaults to 6 |
 | `onVerify` (optional) | `(code: string, email: string) => boolean \| void \| Promise<boolean \| void>` | Called once every box is filled. Return false, or a promise of false, for a wrong code; the boxes clear and say so |
 | `onFillRequest` (optional) | `() => void` | Called when the person clicks the code boxes while some are empty, for filling the code in for them |
+| `inbox` (optional) | `{ from?: ReactNode; text?: ReactNode; code: string; copyLabel?: string; copiedLabel?: string }` | The email with the code, shown arriving at the top of the code screen the way a phone shows it, with Copy code. Copy puts `code` on the clipboard; pasting it into the boxes fills them all |
+| `onCopyCode` (optional) | `(code: string) => void` | Called by Copy code |
 | `hint` (optional) | `ReactNode` | A quiet note after the resend countdown, like "Click the code to fill it" |
 | `resendIn` (optional) | `number` | Seconds before the code can be sent again. Defaults to 30 |
 | `onResend` (optional) | `(email: string) => void` | Called by Resend code, once the countdown ends; the countdown starts again |
@@ -158,7 +148,7 @@ import { useEffect, useRef, useState, type ClipboardEvent, type CSSProperties, t
 import { cx } from '../lib/cx';
 import { useControllable } from '../lib/hooks';
 import { Icon } from '../lib/icons';
-import { enter, Spin, Swap } from '../lib/motion';
+import { enter, Fold, Spin, Swap } from '../lib/motion';
 import '../designme.css';
 import './sign-in.css';
 
@@ -196,6 +186,11 @@ export interface SignInProps {
   onVerify?: (code: string, email: string) => boolean | void | Promise<boolean | void>;
   /** Called when the person clicks the code boxes while some are empty, for filling the code in for them */
   onFillRequest?: () => void;
+  /** The email with the code, shown arriving at the top of the code screen the way a phone shows it, with Copy code.
+      Copy puts `code` on the clipboard; pasting it into the boxes fills them all */
+  inbox?: { from?: ReactNode; text?: ReactNode; code: string; copyLabel?: string; copiedLabel?: string };
+  /** Called by Copy code */
+  onCopyCode?: (code: string) => void;
   /** A quiet note after the resend countdown, like "Click the code to fill it" */
   hint?: ReactNode;
   /** Seconds before the code can be sent again. Defaults to 30 */
@@ -221,7 +216,7 @@ const digit = (c: string | undefined) => (c ?? '').replace(/\D/g, '');
 export function SignIn({
   title = 'Sign in', subtitle = 'We will email you a code', label = 'Email', placeholder = 'you@studio.com', sendLabel = 'Send code',
   email, defaultEmail = '', onEmailChange, step, defaultStep = 'email', onStepChange, onSendCode, sending = false,
-  code, defaultCode = '', onCodeChange, codeLength = 6, onVerify, onFillRequest, hint, resendIn = 30, onResend, onSignedIn,
+  code, defaultCode = '', onCodeChange, codeLength = 6, onVerify, onFillRequest, inbox, onCopyCode, hint, resendIn = 30, onResend, onSignedIn,
   codeTitle = 'Check your inbox', codeSubtitle = `Enter the ${codeLength} digit code`, doneTitle = "You're in", doneDetail = 'Opening your workspace',
   emptyEmailLabel = 'Enter your email', badEmailLabel = 'That email looks incomplete', wrongCodeLabel = "That code didn't work, try again", className
 }: SignInProps) {
@@ -238,6 +233,23 @@ export function SignIn({
   const field = useRef<HTMLLabelElement>(null);
   const boxes = useRef<(HTMLInputElement | null)[]>([]);
   const focusCode = useRef(false);
+  const root = useRef<HTMLDivElement>(null);
+  // the email arrives a moment after the code screen shows, and is copied once
+  const [arrived, setArrived] = useState(false);
+  const [copied, setCopied] = useState(false);
+  useEffect(() => {
+    if (now !== 'code' || !inbox) { setArrived(false); setCopied(false); return; }
+    const t = setTimeout(() => setArrived(true), 900);
+    return () => clearTimeout(t);
+  }, [now, !!inbox]); // eslint-disable-line react-hooks/exhaustive-deps
+  const copy = () => {
+    if (!inbox) return;
+    try { navigator.clipboard?.writeText(inbox.code).catch(() => {}); } catch { /* the clipboard can be off limits; the code is still on screen */ }
+    setCopied(true); onCopyCode?.(inbox.code);
+    boxes.current.find(b => b && !b.value)?.focus({ preventScroll: true });
+  };
+  // the confirmation keeps the height the code screen had, so it stays centred where it sits
+  const [held, setHeld] = useState<number>();
 
   // a new screen slides in, except the one the form starts on; the countdown restarts with every code
   const [seen, setSeen] = useState(now);
@@ -293,7 +305,7 @@ export function SignIn({
 
   useEffect(() => {
     if (check !== 'confirmed') return;
-    const t = setTimeout(() => { setStep('done'); onSignedIn?.(mail.trim()); }, 1100);
+    const t = setTimeout(() => { setHeld(root.current?.offsetHeight); setStep('done'); onSignedIn?.(mail.trim()); }, 1100);
     return () => clearTimeout(t);
   }, [check]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -347,7 +359,7 @@ export function SignIn({
 
   const slide = moved ? 'dm-in' : undefined;
   return (
-    <div data-dm="" className={cx('dm-sgx dm-panel', className)}>
+    <div data-dm="" ref={root} className={cx('dm-sgx dm-panel', now === 'done' && held && 'dm-held', className)} style={now === 'done' && held ? { minHeight: held } : undefined}>
       {now === 'email' && (
         <form key="email" className={cx('dm-sgx-st dm-sgx-1', slide)} noValidate onSubmit={send}>
           <b>{title}</b><span className="dm-muted">{subtitle}</span>
@@ -362,6 +374,15 @@ export function SignIn({
       )}
       {now === 'code' && (
         <div key="code" className={cx('dm-sgx-st dm-sgx-2', slide)}>
+          {inbox && (
+            <Fold open={arrived} className="dm-sgx-ntf">
+              <div className="dm-sgx-nt" role="status">
+                <span className="dm-sgx-ni"><Icon name="mail" size="xs" /></span>
+                <span className="dm-t"><b>{inbox.from ?? 'Designme'} <span className="dm-muted">now</span></b><span>{inbox.text ?? <>Your sign-in code is <span className="dm-num">{inbox.code}</span></>}</span></span>
+                <button type="button" className="dm-pill dm-sm dm-sgx-cp" disabled={copied} onClick={copy}><Swap>{copied ? inbox.copiedLabel ?? 'Copied' : inbox.copyLabel ?? 'Copy code'}</Swap></button>
+              </div>
+            </Fold>
+          )}
           <button type="button" className="dm-sgx-bk" onClick={back}><Icon name="chev-l" size="xs" /><span className="dm-sgx-to">{mail.trim()}</span></button>
           <b>{codeTitle}</b><span className="dm-muted">{codeSubtitle}</span>
           <div className={cx('dm-sgx-code', check === 'verifying' && 'dm-vf', check === 'confirmed' && 'dm-ok')} role="group" aria-label="Code" onPointerDown={fill}>
@@ -376,7 +397,7 @@ export function SignIn({
               : check === 'confirmed' ? <span className="dm-sgx-v dm-ok dm-enter"><Icon name="check" size="xs" />Code confirmed</span>
               : wrong ? <span style={{ color: 'var(--dm-bad)' }}>{wrongCodeLabel}</span>
               : left > 0 ? <>Resend in <span className="dm-num">{left}</span>s{hint && <> · <span className="dm-sgx-hint">{hint}</span></>}</>
-              : <button type="button" style={{ color: 'var(--dm-accent)', fontWeight: 500 }} onClick={resend}>Resend code</button>}
+              : <button type="button" style={{ color: 'var(--dm-accent-fg,var(--dm-accent))', fontWeight: 500 }} onClick={resend}>Resend code</button>}
           </span>
         </div>
       )}

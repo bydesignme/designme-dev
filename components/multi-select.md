@@ -252,7 +252,7 @@ export function MultiSelect({ label, options, value, defaultValue = [], onValueC
 - [Search input](https://designme.dev/components/search-input.md): Search with scoped filters, recent queries and an agent answer.
 - [Country select](https://designme.dev/components/country-select.md): A searchable select with country codes, currency and keyboard support.
 - [Social sign-in](https://designme.dev/components/social-sign-in.md): One-tap providers that remember the last one you used.
-- [Sign in](https://designme.dev/components/sign-in.md): Email first, then a one-time code that fills itself in.
+- [Sign in](https://designme.dev/components/sign-in.md): Email first, then the one-time code from the email, copied or typed in.
 - [OTP field](https://designme.dev/components/otp-field.md): A one-time code, one box per digit, that fills from a paste.
 - [Form](https://designme.dev/components/form.md): A project brief with inline checks and an agent that drafts the rest.
 - [Payment form](https://designme.dev/components/payment-form.md): Card details with live formatting, brand detection and a clear total.
