@@ -774,6 +774,14 @@ patch("""    v['--on-accent'] = onWhite >= 3 ? '#ffffff' : '#120a02';""", """   
     function reach(need, cap, on){ for (var i = 0; i <= 100; i += 2){ var m = mix(fill, to, i / 100); if (ratio(m, on) >= need) return i / 100 <= cap ? hex(m) : null; } return null; }
     v['--accent-mark'] = reach(3, 1, chip); v['--accent-fg'] = reach(4.5, .4, mix(chip, fill, .12)) || (dark ? '#f2f2f2' : '#111318');""")
 patch("""'Orange, the Blueprint default'""", """'Lime, the Blueprint default'""")
+# the accent picker's Default swatch is the style's own default, lime in Blueprint and blue in Soft, as a plain dot; the
+# other swatch for that same colour is left out, and Orange, Blueprint's old default, moves to the end of the row
+patch(""".acc-sw{position:relative;width:28px;height:28px;flex:none;border-radius:50%;background:var(--sw,#ff850d);""", """.acc-sw{position:relative;width:28px;height:28px;flex:none;border-radius:50%;background:var(--sw,#d4f84a);""")
+patch(""".acc-sw[data-v="default"]{background:conic-gradient(#ff850d 0 50%,#116ff8 50% 100%)}
+html[data-style="soft"] .acc-sw[data-v="default"]{background:conic-gradient(#116ff8 0 50%,#ff850d 50% 100%)}""", """.acc-sw[data-v="default"]{background:#d4f84a}
+html[data-style="soft"] .acc-sw[data-v="default"]{background:#116ff8}
+html:not([data-style="soft"]) .acc-sw[data-v="#d4f84a"],html[data-style="soft"] .acc-sw[data-v="#116ff8"]{display:none}""")
+patch("""const SW = [['default','Default',null],['#ff850d','Orange'],['#116ff8','Blue'],['#7c5cff','Violet'],['#e8366f','Rose'],['#12a150','Green'],['#0ea5a4','Teal']];""", """const SW = [['default','Default',null],['#d4f84a','Lime'],['#116ff8','Blue'],['#7c5cff','Violet'],['#e8366f','Rose'],['#12a150','Green'],['#0ea5a4','Teal'],['#ff850d','Orange']];""")
 
 # ---------- the GitHub pill: the repository's stars in the header ----------
 # It shows the star count when GitHub answers, fetched once a session; until then, or when it doesn't (a private repository
