@@ -7,7 +7,8 @@
 //   - on a component page, Library is the page you're on, and the component is marked in its group
 // As on the homepage, the groups of one set show at a time (Agent components, or App basics when the component is one of
 // those), and a search looks across both. `mode` is "side" for the sidebar, or "menu" for the menu that replaces it on
-// smaller screens, which has the search, the pages, the current component's group (every group while you search) and Book a call
+// smaller screens, which has the search, the pages, the current component's group (every group while you search), the settings
+// it is given (its slot: SiteShell puts the style, accent and sound there) and Book a call
 import { SECTIONS, SETS, SIDE_FOOT, icon } from '../lib/data.mjs';
 import { DOCS } from '../lib/docs.mjs';
 const { doc = null, reg = null, mode = 'side' } = Astro.props;
@@ -44,4 +45,5 @@ const qid = mode === 'side' ? 'side-q' : 'menu-q';
   </>)}
   <div class="side-empty"><p>No components match your search.</p></div>
 </nav>
+{mode !== 'side' && <slot />}
 <div class="side-foot" set:html={foot} />

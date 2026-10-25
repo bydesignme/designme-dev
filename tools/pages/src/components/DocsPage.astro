@@ -25,7 +25,7 @@ const toc = d.sections.map(s => ({ id:s.id, label:s.h }));
     <style is:global>
       /* text: 14px, grey, with dark links; a section opens with its name over a line */
       /* a section you jump to lands with its line 24px under the header and its name 24px under that */
-      .dc-sec{scroll-margin-top:24px}
+      .dc-sec{scroll-margin-top:calc(var(--pg-head) + 24px)}
       .dc-sec>h2{margin:48px 0 16px;padding-top:24px;border-top:1px solid var(--pg-line);font-size:14px;line-height:20px;font-weight:500;color:var(--pg-fg)}
       .dc-sec>h2 a{color:inherit;text-decoration:none}
       .dc-body p{margin:0 0 12px;color:var(--pg-dim);max-width:72ch}
@@ -233,35 +233,11 @@ const toc = d.sections.map(s => ({ id:s.id, label:s.h }));
       var fit = function(){ frames.forEach(function(f){ f.style.setProperty('--k', (f.clientWidth / 480).toFixed(4)); }); };
       fit(); addEventListener('resize', fit);
       // the accent preview: the roles of the accent you pick, worked out as the homepage's picker does (window.dmAccent in
-      // tools/site/make-patches.py), for the style and theme you're looking at. They apply to the preview only
+      // tools/site/make-patches.py, and window.dmAccentRoles in Page.astro), for the style and theme you're looking at. They
+      // apply to the preview only
       var pv = document.querySelector('[data-pv]'); if (!pv) return;
-      var W = [255,255,255], K = [0,0,0];
-      function rgb(h){ h = h.replace('#',''); if (h.length === 3) h = h.split('').map(function(c){ return c + c; }).join(''); return [parseInt(h.slice(0,2),16), parseInt(h.slice(2,4),16), parseInt(h.slice(4,6),16)]; }
-      function mix(a, b, t){ return [0,1,2].map(function(i){ return Math.round(a[i] + (b[i] - a[i]) * t); }); }
-      function hex(c){ return '#' + c.map(function(v){ return v.toString(16).padStart(2,'0'); }).join(''); }
-      function rgba(c, a){ return 'rgba(' + c.join(',') + ',' + a + ')'; }
-      function lum(c){ var v = c.map(function(x){ x /= 255; return x <= .03928 ? x / 12.92 : Math.pow((x + .055) / 1.055, 2.4); }); return .2126 * v[0] + .7152 * v[1] + .0722 * v[2]; }
-      function ratio(a, b){ var x = lum(a), y = lum(b); return (Math.max(x, y) + .05) / (Math.min(x, y) + .05); }
-      function roles(base, soft, dark){
-        var c = rgb(base), v = {};
-        if (!soft && !dark){ v['--accent'] = hex(mix(c, K, .06)); v['--accent-bg'] = rgba(c, .08); }
-        if (!soft && dark){ v['--accent'] = hex(mix(c, W, .1)); v['--accent-bg'] = rgba(c, .12); }
-        if (soft && !dark){ v['--accent'] = base; v['--accent-bg'] = hex(mix(W, c, .09)); }
-        if (soft && dark){ v['--accent'] = hex(mix(c, W, .2)); v['--accent-bg'] = rgba(c, .16); }
-        // text on a fill: white or near-black, whichever APCA (the contrast model behind WCAG 3) says reads better. WCAG 2's ratio
-        // favours black on saturated mid-tones like violet, where white reads far better. The fill then moves a little darker
-        // (white text) or lighter (dark text) until its text also reaches 4.5:1 and Lc 60
-        function apca(t, b){ var y = function(c){ var Y = .2126729 * Math.pow(c[0] / 255, 2.4) + .7151522 * Math.pow(c[1] / 255, 2.4) + .072175 * Math.pow(c[2] / 255, 2.4); return Y < .022 ? Y + Math.pow(.022 - Y, 1.414) : Y; };
-      var yt = y(t), yb = y(b); if (Math.abs(yb - yt) < .0005) return 0; var s = yb > yt ? (Math.pow(yb, .56) - Math.pow(yt, .57)) * 1.14 : (Math.pow(yb, .65) - Math.pow(yt, .62)) * 1.14;
-      return Math.abs(s) < .1 ? 0 : (s > 0 ? s - .027 : s + .027) * 100; }
-        var fl = rgb(v['--accent'] || base), INK = [18,10,2], useW = Math.abs(apca(W, fl)) >= Math.abs(apca(INK, fl)), onC = useW ? W : INK;
-        for (var j = 0; j <= 40; j += 2){ var f2 = mix(fl, useW ? K : W, j / 100); if (ratio(onC, f2) >= 4.5 && Math.abs(apca(onC, f2)) >= 60){ fl = f2; break; } }
-        v['--accent'] = hex(fl); v['--on-accent'] = useW ? '#ffffff' : '#120a02';
-        var fill = rgb(v['--accent'] || base), chip = dark ? [52,52,52] : [236,236,236], to = dark ? W : K;
-        function reach(need, cap, on, lc){ for (var i = 0; i <= 100; i += 2){ var m = mix(fill, to, i / 100); if (ratio(m, on) >= need && (!lc || Math.abs(apca(m, on)) >= lc)) return i / 100 <= cap ? hex(m) : null; } return null; }
-        v['--accent-mark'] = reach(3, 1, chip); v['--accent-fg'] = reach(4.5, .4, mix(chip, fill, .12), 60) || (dark ? '#f2f2f2' : '#111318');
-        return v;
-      }
+      // the roles, worked out by the same function that applies the accent picked in the menu (window.dmAccentRoles, Page.astro)
+      var roles = window.dmAccentRoles;
       var KEYS = ['--accent','--accent-bg','--on-accent','--accent-fg','--accent-mark'];
       var cur = 'default', picks = [].slice.call(pv.querySelectorAll('button.dc-pick')), any = pv.querySelector('.dc-pick-any'), input = any.querySelector('input');
       var now = pv.querySelector('.dc-pv-now'), out = [].slice.call(pv.querySelectorAll('.dc-pv-role'));
@@ -270,6 +246,15 @@ const toc = d.sections.map(s => ({ id:s.id, label:s.h }));
         var soft = root.getAttribute('data-style') === 'soft', dark = isDark();
         KEYS.forEach(function(k){ pv.style.removeProperty(k); });
         if (cur !== 'default'){ var v = roles(cur, soft, dark); for (var k in v) if (v[k]) pv.style.setProperty(k, v[k]); }
+        // Default shows the style's own accent even when another one is picked for the page: its values are read with the
+        // page's accent lifted for a moment (nothing paints in between)
+        else if (root.style.getPropertyValue('--accent')){
+          var held = {}; for (var i = 0; i < root.style.length; i++){ var n = root.style[i]; if (n.indexOf('--accent') === 0 || n === '--on-accent') held[n] = root.style.getPropertyValue(n); }
+          for (var n2 in held) root.style.removeProperty(n2);
+          var d = getComputedStyle(pv), dv = KEYS.map(function(k){ return d.getPropertyValue(k).trim(); });
+          for (var n3 in held) root.style.setProperty(n3, held[n3]);
+          KEYS.forEach(function(k, j){ pv.style.setProperty(k, dv[j]); });
+        }
         var cs = getComputedStyle(pv);
         // a tint reads as its colour and how much of it shows, like "#ff850d · 8%", so every value fits on one line
         var short = function(v){ var m = v.match(/^rgba?\(\s*(\d+)[,\s]+(\d+)[,\s]+(\d+)(?:[,\s/]+([\d.]+%?))?\s*\)$/); if (!m) return v;

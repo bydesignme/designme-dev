@@ -1,16 +1,16 @@
 /* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Event calendar ---------- */
-.dm-ecx{overflow:hidden}
+.dm-ecx{overflow:hidden;position:relative;container:ecx/inline-size}
 /* the Ask pill crossfades its words but stays a flex row, so the spark keeps its gap */
 .dm-ecx-ask.dm-sw{display:inline-flex}
 /* the Ask pill is an accent tint, like a picked preset in Date range picker */
 .dm-pill.dm-soft.dm-ecx-ask{background:var(--dm-sel);color:var(--dm-accent-fg,var(--dm-accent));box-shadow:none}
-.dm-pill.dm-soft.dm-ecx-ask:hover{background:color-mix(in srgb,var(--dm-accent) 14%,transparent)}
+@media (hover:hover) and (pointer:fine){.dm-pill.dm-soft.dm-ecx-ask:hover{background:color-mix(in srgb,var(--dm-accent) 14%,transparent)}}
 .dm-ecx-h{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid var(--dm-line);font-size:13.5px;flex-wrap:wrap}
 .dm-ecx-h b{font-weight:500}
 .dm-ecx-sp{flex:1}
 .dm-ecx-sc{overflow-x:auto}
-.dm-ecx-grid{display:grid;grid-template-columns:44px repeat(5,minmax(76px,1fr));min-width:424px;position:relative}
+.dm-ecx-grid{display:grid;grid-template-columns:44px repeat(var(--dm-days,5),minmax(76px,1fr));min-width:424px;position:relative}
 .dm-ecx-tm{grid-row:1/3;display:flex;flex-direction:column;padding-top:32px}
 .dm-ecx-tm span{height:44px;font-size:10.5px;color:var(--dm-muted);text-align:right;padding-right:8px;transform:translateY(-6px)}
 .dm-ecx-day{border-left:1px solid var(--dm-line)}
@@ -19,7 +19,7 @@
 .dm-ecx-dh.dm-t b{width:22px;height:22px;border-radius:50%;background:var(--dm-accent);color:var(--dm-on-accent);display:grid;place-items:center;font-size:11.5px}
 .dm-ecx-col{position:relative;height:352px;background-image:linear-gradient(var(--dm-line) 1px,transparent 1px);background-size:100% 44px}
 .dm-ecx-e{position:absolute;left:3px;right:3px;border-radius:8px;padding:4px 7px;font-size:11.5px;line-height:1.3;text-align:left;overflow:hidden;transition:transform .25s var(--dm-ease),box-shadow .25s}
-.dm-ecx-e:hover{transform:translateY(-1px);box-shadow:var(--dm-shadow)}
+@media (hover:hover) and (pointer:fine){.dm-ecx-e:hover{transform:translateY(-1px);box-shadow:var(--dm-shadow)}}
 .dm-ecx-e{cursor:grab;touch-action:none}
 .dm-ecx-e.dm-drag{transition:none;z-index:6;box-shadow:var(--dm-shadow-pop);cursor:grabbing}
 .dm-ecx-col{cursor:copy}
@@ -53,3 +53,23 @@
 .dm-ecx-scan{position:absolute;left:44px;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--dm-accent),transparent);top:32px;opacity:0;pointer-events:none}
 .dm-ecx-scan.dm-go{animation:dm-ecsc 1.2s var(--dm-ease-io) both}
 @keyframes dm-ecsc{0%{opacity:0;top:32px}20%{opacity:1}100%{opacity:0;top:384px}}
+/* a narrow calendar, on a phone or in a narrow card: one day at a time, picked from a row of days, so every event has room
+   for its whole title and time */
+.dm-ecx-days{display:none}
+@container ecx (max-width:519px){
+  .dm-ecx-days{display:flex;gap:4px;padding:8px 12px;border-bottom:1px solid var(--dm-line)}
+  .dm-ecx-days button{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 0;border-radius:var(--dm-r-sm);font-size:11.5px;color:var(--dm-fg2);transition:background var(--dm-t-fast),color var(--dm-t-fast)}
+  @media (hover:hover) and (pointer:fine){.dm-ecx-days button:hover{background:var(--dm-row);color:var(--dm-fg)}}
+  .dm-ecx-days button[aria-pressed="true"]{background:var(--dm-chip);color:var(--dm-fg)}
+  .dm-ecx-days b{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;font-size:13px;font-weight:500;color:var(--dm-fg)}
+  .dm-ecx-days .dm-t b{background:var(--dm-accent);color:var(--dm-on-accent)}
+  .dm-ecx-sc{overflow:visible}
+  .dm-ecx-grid{grid-template-columns:44px minmax(0,1fr);min-width:0;padding-top:8px}
+  .dm-ecx-day:not(.dm-on){display:none}
+  .dm-ecx-dh{display:none}
+  .dm-ecx-tm{grid-row:auto;padding-top:0}
+  .dm-ecx-scan{top:8px}
+  .dm-ecx-scan.dm-go{animation-name:dm-ecscn}
+  .dm-ecx-pop{max-width:calc(100% - 16px)}
+}
+@keyframes dm-ecscn{0%{opacity:0;top:8px}20%{opacity:1}100%{opacity:0;top:360px}}

@@ -1,6 +1,6 @@
 # Accessibility
 
-> What the components do for people using a keyboard, a screen reader or reduced motion, and where they still fall short.
+> What the components do for people using a keyboard, a screen reader, a touch screen or reduced motion, and where they still fall short.
 
 Designme.dev docs. The same page with navigation: https://designme.dev/docs/accessibility
 
@@ -55,6 +55,20 @@ The shared CSS cuts every CSS animation and transition inside the components to 
 The HTML version reads `REDUCE`, which the core sets from the same setting. React components that animate from script use the `useReducedMotion()` hook from `lib/hooks.ts`.
 
 Count-ups finish at once, rows move without gliding, and the content still changes.
+
+## Touch screens
+
+### Tap areas
+
+On a touch screen (`pointer: coarse`) every button, link, tab, switch and checkbox gets a tap area of at least 40px square, centred on it: a clear `::before` (or `::after`, where the component already draws with its `::before`) from the shared CSS, so how it looks doesn't change. A list or strip that scrolls can cut one off at its own edges.
+
+### Close neighbours
+
+Where two controls sit closer than that, a script in the core shrinks both tap areas evenly towards the gap between them, so a tap lands on the control nearest to it. It is `fitHits` in `core.js`, and `lib/hits.ts` in React, which every component imports.
+
+### Hover
+
+Hover styles only apply with a mouse (`@media (hover:hover) and (pointer:fine)`), so a tap never leaves one stuck on a phone.
 
 ## Contrast
 

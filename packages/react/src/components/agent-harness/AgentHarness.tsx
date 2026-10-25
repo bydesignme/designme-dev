@@ -234,7 +234,7 @@ const greet = () => { const h = new Date().getHours(); return h < 5 || h >= 18 ?
  * the Composer and a few suggestions. Nothing plays by itself: the person picks a suggestion or sends a message, and the chats
  * are lists of blocks you drive from your own state, each a bubble, the agent's words, its work folded under one line, or one
  * of the components with its own props. A chat opens in a tab, × closes it, + opens New chat. At phone width the chats slide
- * in from the side and the tabs scroll. The chat follows new messages until the person scrolls up.
+ * in from the side, and the tabs fold into the chat on screen with a count beside it that lists every open chat. The chat follows new messages until the person scrolls up.
  */
 export function AgentHarness({
   conversations, tabs, defaultTabs, onTabsChange, tab, defaultTab, onTabChange, suggestions = [], onSend, onFollowUp,
@@ -250,6 +250,8 @@ export function AgentHarness({
   const root = useRef<HTMLDivElement>(null), feed = useRef<HTMLDivElement>(null), tabsEl = useRef<HTMLDivElement>(null);
   const cols = useRef(new Map<string, HTMLDivElement>());
   const wsMenu = usePopover();
+  // on a phone the tabs fold into one, and a count of the open chats lists them all
+  const tabsMenu = usePopover({ align: 'end' });
   const [side, setSide] = useState(true), [drawer, setDrawer] = useState(false);
   const [search, setSearch] = useState(false), [query, setQuery] = useState('');
   const si = useRef<HTMLInputElement>(null);
@@ -299,6 +301,13 @@ export function AgentHarness({
     setOpen(rest);
     if (key === active) { const next = rest[Math.min(i, rest.length - 1)].key; setActive(next); setText(drafts.current.get(next) ?? ''); }
   };
+  // on a phone only the tab on screen shows, so the one coming to the front comes in
+  const shownTab = useRef(active);
+  useIsoLayoutEffect(() => {
+    if (shownTab.current === active) return; shownTab.current = active;
+    const el = tabsEl.current?.querySelector<HTMLElement>(`[data-tab="${CSS.escape(active)}"]`); if (!el || !narrow()) return;
+    el.classList.remove('dm-enter'); void el.offsetWidth; el.classList.add('dm-enter');
+  }, [active]);
   // the tab on screen is always in view, also when the status pill beside the tabs grows
   useEffect(() => {
     const box = tabsEl.current; if (!box) return;
@@ -448,6 +457,11 @@ export function AgentHarness({
               );
             })}
           </div>
+          {open.length > 1 && (
+            <Tip label="Open chats" off={tabsMenu.open}>
+              <button type="button" className="dm-ahx-tn" aria-label="Open chats" {...tabsMenu.trigger}><span className="dm-num">{open.length}</span></button>
+            </Tip>
+          )}
           <Tip label="New chat"><button type="button" className="dm-ib dm-ahx-plus" aria-label="New chat" onClick={fresh}><Icon name="plus" /></button></Tip>
           <StatusPill {...pill} className="dm-ahx-spl" />
         </div>
@@ -504,6 +518,16 @@ export function AgentHarness({
         )}
       </aside>
       <div className="dm-ahx-scrim" onClick={() => setDrawer(false)} />
+      <div {...tabsMenu.pop} className={cx(tabsMenu.pop.className, 'dm-ahx-tp')} role="menu" aria-label="Open chats">
+        {open.map(t => {
+          const c = t.chat ? conversations.find(x => x.id === t.chat) : undefined;
+          return (
+            <button key={t.key} type="button" className="dm-mi" role="menuitemradio" aria-checked={t.key === at?.key} onClick={() => { if (t.key !== at?.key) goTo(t.key); tabsMenu.closeSoon(); }}>
+              <Mark c={c} /><span className="dm-t">{c?.title ?? 'New chat'}</span><span className="dm-ck"><Icon name="check" size="xs" /></span>
+            </button>
+          );
+        })}
+      </div>
       <div {...wsMenu.pop} className={cx(wsMenu.pop.className, 'dm-ahx-wsp')} role="menu">
         {workspaces.map(w => (
           <button key={w.name} type="button" className="dm-mi" role="menuitemradio" aria-checked={w.name === wsNow?.name} onClick={() => { setWs(w.name); wsMenu.closeSoon(); }}>

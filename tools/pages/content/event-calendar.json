@@ -11,17 +11,20 @@
     "Hovering free time shows a \"+ New event\" slot, and clicking it adds an event, from `newEvent`, with a box to name it; Save keeps it and Discard removes it.",
     "The details card shows the time and the people invited, plus Prep notes when `onPrepNotes` is set (\"Writing\" shows until a returned promise settles) and Join when `onJoin` is set.",
     "With `onAsk`, the header gets the agent's button; while `finding` is true it shows a thinking mark and a scan line sweeps the week.",
-    "`suggestions` draw as outlined blocks; the first is the pick, with Book (`onBook`) and, while there are more, Other (`onSkip`). The header line reports the last move or addition, or your own `status`."
+    "`suggestions` draw as outlined blocks; the first is the pick, with Book (`onBook`) and, while there are more, Other (`onSkip`). The header line reports the last move or addition, or your own `status`.",
+    "Under 520px wide, on a phone or in a narrow card, it shows one day at a time, picked from a row of days, so every event has room for its whole title and time. It opens on today, and on the day of the agent's pick when `suggestions` arrive; control the day with `day` and `onDayChange`."
   ],
   "a11y": [
     "The details card is a role=\"dialog\" labelled \"Event\", and it is inert while closed.",
     "Escape closes the details card; in a new event's title box, Enter saves and Escape discards.",
-    "The title box is labelled \"Event title\", and the card's close button is labelled \"Close\"."
+    "The title box is labelled \"Event title\", and the card's close button is labelled \"Close\".",
+    "On a narrow calendar the row of days is a group labelled \"Day\"; each day is a button with `aria-pressed` and its full date as its label."
   ],
   "faq": [
     {"q": "Does the calendar find free slots by itself?", "a": "No. `onAsk` tells you the person pressed the agent's button. Set `finding` to true while your agent looks, then pass what it found as `suggestions` and set `finding` back to false."},
     {"q": "What should Book and Other do?", "a": "`onBook` gets the picked suggestion: add it to `events` and clear `suggestions`. `onSkip` gets the one being skipped: drop it from `suggestions` and the next one becomes the pick."},
     {"q": "How do I save events after someone drags or adds one?", "a": "Pass `events` and `onEventsChange`. Every move, new event, rename and removal comes back as the full updated list, with times as local Dates."},
+    {"q": "Does it work on a phone?", "a": "Yes. Below 520px wide the week turns into a day view with a row of days to switch between, and dragging an event moves it within that day. The width of the calendar decides, not the screen, so a narrow card on a wide screen gets the day view too."},
     {"q": "Can I show a full week or longer hours?", "a": "Yes. Set `days` to 7 for a full week, and `startHour` and `hours` for the time range, like `startHour={8}` and `hours={10}` for 8am to 6pm."}
   ]
 }

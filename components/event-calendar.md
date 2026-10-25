@@ -31,12 +31,14 @@ A work-week calendar where people drag events to a new time or day, click free t
 - The details card shows the time and the people invited, plus Prep notes when `onPrepNotes` is set ("Writing" shows until a returned promise settles) and Join when `onJoin` is set.
 - With `onAsk`, the header gets the agent's button; while `finding` is true it shows a thinking mark and a scan line sweeps the week.
 - `suggestions` draw as outlined blocks; the first is the pick, with Book (`onBook`) and, while there are more, Other (`onSkip`). The header line reports the last move or addition, or your own `status`.
+- Under 520px wide, on a phone or in a narrow card, it shows one day at a time, picked from a row of days, so every event has room for its whole title and time. It opens on today, and on the day of the agent's pick when `suggestions` arrive; control the day with `day` and `onDayChange`.
 
 ### Accessibility
 
 - The details card is a role="dialog" labelled "Event", and it is inert while closed.
 - Escape closes the details card; in a new event's title box, Enter saves and Escape discards.
 - The title box is labelled "Event title", and the card's close button is labelled "Close".
+- On a narrow calendar the row of days is a group labelled "Day"; each day is a button with `aria-pressed` and its full date as its label.
 
 ## Usage in React
 
@@ -130,6 +132,9 @@ export default function EventCalendarDemo() {
 | `onBook` (optional) | `(suggestion: EventCalendarSuggestion) => void` | Book on the picked suggestion. Add the event and clear the suggestions |
 | `onSkip` (optional) | `(suggestion: EventCalendarSuggestion) => void` | Other on the picked suggestion, shown while there are more. Drop it and the next one becomes the pick |
 | `status` (optional) | `string` | The quiet line in the header. Defaults to what the person last did, like "Moved Standup to Wed 1:15" |
+| `day` (optional) | `number` | The day a narrow calendar shows, as its place in the week (0 for the first day). A calendar under 520px wide shows one day at a time, picked from a row of days; it opens on today, and moves to the day of the agent's pick when one comes |
+| `defaultDay` (optional) | `number` |  |
+| `onDayChange` (optional) | `(day: number) => void` |  |
 | `className` (optional) | `string` |  |
 
 ## Questions
@@ -145,6 +150,10 @@ No. `onAsk` tells you the person pressed the agent's button. Set `finding` to tr
 **How do I save events after someone drags or adds one?**
 
 Pass `events` and `onEventsChange`. Every move, new event, rename and removal comes back as the full updated list, with times as local Dates.
+
+**Does it work on a phone?**
+
+Yes. Below 520px wide the week turns into a day view with a row of days to switch between, and dragging an event moves it within that day. The width of the calendar decides, not the screen, so a narrow card on a wide screen gets the day view too.
 
 **Can I show a full week or longer hours?**
 
@@ -234,6 +243,11 @@ export interface EventCalendarProps {
   onSkip?: (suggestion: EventCalendarSuggestion) => void;
   /** The quiet line in the header. Defaults to what the person last did, like "Moved Standup to Wed 1:15" */
   status?: string;
+  /** The day a narrow calendar shows, as its place in the week (0 for the first day). A calendar under 520px wide shows one
+      day at a time, picked from a row of days; it opens on today, and moves to the day of the agent's pick when one comes */
+  day?: number;
+  defaultDay?: number;
+  onDayChange?: (day: number) => void;
   className?: string;
 }
 
@@ -304,7 +318,7 @@ function Details({ event, onClose, onSave, onDiscard, onPrepNotes, onJoin }: {
 export function EventCalendar({
   events, defaultEvents = [], onEventsChange, week, days = 5, startHour = 9, hours = 8, title, now,
   selected, defaultSelected = null, onSelectedChange, newEvent, onPrepNotes, onJoin,
-  askLabel = 'Find a time', onAsk, finding = false, suggestions = [], onBook, onSkip, status, className
+  askLabel = 'Find a time', onAsk, finding = false, suggestions = [], onBook, onSkip, status, day, defaultDay, onDayChange, className
 }: EventCalendarProps) {
   const [list, setList] = useControllable(events, defaultEvents, onEventsChange);
   const [openId, setOpenId] = useControllable(selected, defaultSelected, onSelectedChange);
@@ -413,7 +427,16 @@ export function EventCalendar({
 
   const heading = title ?? (() => { const a = week, b = addDays(week, days - 1); return `${MONTHS[a.getMonth()]} ${a.getDate()} – ${b.getMonth() !== a.getMonth() ? MONTHS[b.getMonth()] + ' ' : ''}${b.getDate()}, ${b.getFullYear()}`; })();
   const today = now && inView(now) ? dayIndex(week, now) : -1;
-  const sizes: CSSProperties | undefined = days !== 5 ? { gridTemplateColumns: `44px repeat(${days},minmax(76px,1fr))` } : undefined;
+  const sizes: CSSProperties | undefined = days !== 5 ? { ['--dm-days' as string]: days } : undefined;
+  /* ---------- a narrow calendar: one day at a time ---------- */
+  const [shownDay, setShownDay] = useControllable(day, defaultDay ?? Math.max(0, today), onDayChange);
+  const daysRow = useRef<HTMLDivElement>(null);
+  const narrow = () => !!daysRow.current?.getClientRects().length;
+  const [turns, setTurns] = useState(0);
+  const pickDay = (d: number) => { if (d === shownDay) return; if (narrow()) { close(); setTurns(n => n + 1); } setShownDay(d); };
+  // the agent's pick opens on its day
+  const pick = suggestions[0], pickDayOf = pick && inView(pick.start) ? dayIndex(week, pick.start) : -1;
+  useEffect(() => { if (pickDayOf >= 0) pickDay(pickDayOf); }, [pick?.id]); // eslint-disable-line react-hooks/exhaustive-deps
   const tall: CSSProperties | undefined = hours !== 8 ? { height: hours * PX } : undefined;
   const top = (h: number) => (h - startHour) * PX + 1;
 
@@ -424,13 +447,24 @@ export function EventCalendar({
         <Swap className="dm-ecx-msg dm-muted">{status ?? msg}</Swap>
         {onAsk && <button type="button" className="dm-pill dm-soft dm-sm dm-ecx-ask" onClick={onAsk}>{finding ? <Think /> : <Icon name="spark" size="xs" />}<Swap key={finding ? 'f' : 'i'}>{askLabel}</Swap></button>}
       </div>
+      <div ref={daysRow} className="dm-ecx-days" role="group" aria-label="Day">
+        {Array.from({ length: days }, (_, d) => {
+          const date = addDays(week, d);
+          return (
+            <button key={d} type="button" className={d === today ? 'dm-t' : undefined} aria-pressed={d === shownDay} onClick={() => pickDay(d)}
+              aria-label={date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}>
+              <span>{DAYN[date.getDay()]}</span><b>{date.getDate()}</b>
+            </button>
+          );
+        })}
+      </div>
       <div className="dm-ecx-sc">
         <div className="dm-ecx-grid" style={sizes}>
           <div className="dm-ecx-tm">{Array.from({ length: hours }, (_, i) => { const h = startHour + i; return <span key={h}>{h > 12 ? h - 12 : h}{h >= 12 ? 'pm' : 'am'}</span>; })}</div>
           {Array.from({ length: days }, (_, d) => {
             const date = addDays(week, d);
             return (
-              <div key={d} className="dm-ecx-day">
+              <div key={d === shownDay ? `${d}:${turns}` : d} className={cx('dm-ecx-day', d === shownDay && 'dm-on', d === shownDay && turns > 0 && 'dm-enter')}>
                 <div className={cx('dm-ecx-dh', d === today && 'dm-t')}>{DAYN[date.getDay()]} <b>{date.getDate()}</b></div>
                 <div ref={el => { cols.current[d] = el; }} className="dm-ecx-col" data-d={d} style={tall}
                   onPointerMove={p => hover(p, d)} onPointerLeave={() => setGhost(null)} onClick={p => add(p, d)}>

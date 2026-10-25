@@ -1,6 +1,6 @@
 /* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Kanban ---------- */
-.dm-kbx{width:100%;overflow-x:auto}
+.dm-kbx{width:100%;overflow-x:auto;position:relative;container:kbx/inline-size}
 .dm-kbx-cols{display:grid;grid-template-columns:repeat(3,minmax(200px,1fr));gap:12px;min-width:640px}
 .dm-kbx-c{display:flex;flex-direction:column;gap:8px;padding:10px;border-radius:16px;background:color-mix(in srgb,var(--dm-fg) 5%,transparent);transition:background .25s,box-shadow .25s;min-height:280px}
 .dm-kbx-c.dm-over{background:var(--dm-sel);box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--dm-accent-mark,var(--dm-accent)) 40%,transparent)}
@@ -10,7 +10,7 @@
 .dm-kbx-ch .dm-ib{margin-left:auto;width:24px;height:24px}
 .dm-kbx-list{display:flex;flex-direction:column;gap:8px;flex:1}
 .dm-kbx-k{padding:11px 12px;border-radius:13px;background:var(--dm-surface);box-shadow:var(--dm-shadow);display:flex;flex-direction:column;gap:8px;cursor:grab;transition:box-shadow .25s,transform .3s var(--dm-ease),opacity .2s;touch-action:none;user-select:none}
-.dm-kbx-k:hover{box-shadow:var(--dm-shadow-pop)}
+@media (hover:hover) and (pointer:fine){.dm-kbx-k:hover{box-shadow:var(--dm-shadow-pop)}}
 .dm-kbx-k.dm-drag{opacity:.35}
 .dm-kbx-k.dm-ghost{position:fixed;z-index:100;pointer-events:none;transform:rotate(2.5deg) scale(1.03);box-shadow:var(--dm-shadow-pop);cursor:grabbing}
 .dm-kbx-k .dm-t{font-size:13px;line-height:1.4}
@@ -21,3 +21,23 @@
 .dm-kbx-ph{border-radius:13px;background:color-mix(in srgb,var(--dm-accent) 8%,transparent);border:1.5px dashed color-mix(in srgb,var(--dm-accent-mark,var(--dm-accent)) 50%,transparent)}
 .dm-kbx-pr{height:3px;border-radius:2px;background:var(--dm-line);overflow:hidden}
 .dm-kbx-pr i{display:block;height:100%;background:var(--dm-accent-mark,var(--dm-accent));width:0;transition:width .3s linear}
+/* a narrow board, on a phone or in a narrow card: one column at a time, picked with tabs, and each card moves with its menu */
+.dm-kbx-bar,.dm-kbx-mv{display:none}
+@container kbx (max-width:639px){
+  .dm-kbx{overflow:visible}
+  .dm-kbx-bar{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+  .dm-kbx-tabs{flex:1;display:flex;min-width:0}
+  .dm-kbx-tabs button{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:6px;min-width:0;padding:0 8px;white-space:nowrap}
+  .dm-kbx-tabs .dm-n{font-size:12px;color:var(--dm-muted)}
+  .dm-kbx-add{flex:none;width:30px;height:30px;color:var(--dm-muted)}
+  @media (hover:hover) and (pointer:fine){.dm-kbx-add:hover{color:var(--dm-fg)}}
+  .dm-kbx-cols{grid-template-columns:minmax(0,1fr);min-width:0}
+  .dm-kbx-c:not(.dm-on){display:none}
+  .dm-kbx-ch{display:none}
+  /* room for four cards, so the board keeps one height as the agent fills Done and you switch tabs */
+  .dm-kbx-c{min-height:320px}
+  .dm-kbx-mv{display:grid;width:24px;height:24px;margin:-4px -4px -4px 0;color:var(--dm-muted)}
+  .dm-kbx-mv[aria-expanded="true"]{color:var(--dm-fg)}
+  @media (hover:hover) and (pointer:fine){.dm-kbx-mv:hover{color:var(--dm-fg)}}
+}
+.dm-kbx-mp{min-width:176px}

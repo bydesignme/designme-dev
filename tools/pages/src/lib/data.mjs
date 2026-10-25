@@ -51,6 +51,13 @@ function propsOf(src){
 /* ---- one record per component, in page order ---- */
 const core = read('r/core.json');
 export const CORE = { css:core.files.find(f => f.path.endsWith('.css')).content, js:core.files.find(f => f.path.endsWith('.js')).content };
+// the core's tap areas for touch screens (fitHits): every page runs it for its own controls (the sidebar, the menu, the header),
+// and a component page's core.js finds it already running and uses it
+export const HITS_JS = (() => {
+  const a = CORE.js.indexOf('/* ---------- touch: tap areas that never overlap'), end = 'window.dmFitHits = fit; return fit;\n})();', b = CORE.js.indexOf(end, a);
+  if (a < 0 || b < 0) throw new Error("core.js: the tap areas' script (fitHits) is gone");
+  return '(function(){\n' + CORE.js.slice(a, b + end.length) + '\n})();';
+})();
 
 // how tall each card's stage gets while its demo plays, popovers included (tools/site/measure-heights.js), widest layout
 // first, the narrowest phone last: the demo keeps that height, as the homepage's cards do. BANDS names each one and the

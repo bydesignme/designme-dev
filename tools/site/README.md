@@ -16,6 +16,11 @@ Don't edit `index.html` or `r/*.json` by hand: the next build overwrites them.
 | The React components | `packages/react` (see its README) |
 | The component pages at `/components`, and their written copy | `tools/pages` (see its README) |
 
+Hover styles are gated in the build, not by hand: `hover-gate.js` moves every `:hover` rule into
+`@media (hover:hover) and (pointer:fine)`, so a tap on a phone never leaves one stuck. `build.js` runs it on the components'
+CSS (and so the registry, `core.css` and the React CSS) and on the site's own, `../pages/astro.config.mjs` runs it on the
+pages' styles, and the builds stop if a `:hover` rule is left outside it. Write hover rules as usual.
+
 ## Build
 
 From this folder:

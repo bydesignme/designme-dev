@@ -126,14 +126,14 @@ Avatars, icons, flags, brand logos and fonts keep their own licences. They are l
 
 - [Installation](https://designme.dev/docs/installation.md): Add components to your project with the designme CLI, as HTML, CSS and JavaScript or as React components.
 - [Theming](https://designme.dev/docs/theming.md): Switch between Soft and Blueprint, light and dark, and set your own accent and its roles.
-- [Accessibility](https://designme.dev/docs/accessibility.md): The roles, keyboard support, reduced motion and contrast work built into the components.
+- [Accessibility](https://designme.dev/docs/accessibility.md): The roles, keyboard support, touch tap areas, reduced motion and contrast work built into the components.
 - [Using with AI](https://designme.dev/docs/using-with-ai.md): Point a coding agent at the Markdown copy of every page and at llms.txt, and prompt it to install components with the CLI.
 
 ## More docs
 
 - [Installation](https://designme.dev/docs/installation.md): Add components to your project with the designme CLI, as HTML, CSS and JavaScript or as React components.
 - [Theming](https://designme.dev/docs/theming.md): Switch between Soft and Blueprint, light and dark, and set your own accent and its roles.
-- [Accessibility](https://designme.dev/docs/accessibility.md): The roles, keyboard support, reduced motion and contrast work built into the components.
+- [Accessibility](https://designme.dev/docs/accessibility.md): The roles, keyboard support, touch tap areas, reduced motion and contrast work built into the components.
 - [Using with AI](https://designme.dev/docs/using-with-ai.md): Point a coding agent at the Markdown copy of every page and at llms.txt, and prompt it to install components with the CLI.
 
 All components: https://designme.dev/llms.txt

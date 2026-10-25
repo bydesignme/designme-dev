@@ -91,6 +91,7 @@ src/components/designme/
   designme.css
   lib/
     cx.ts
+    hits.ts
     hooks.ts
     icons.tsx
     motion.tsx
@@ -154,7 +155,7 @@ The CLI downloads each component from designme.dev and skips files that are alre
 
 - [Introduction](https://designme.dev/docs/introduction.md): What designme.dev is: free components for AI agent products, in HTML or React, in two styles with light and dark mode.
 - [Theming](https://designme.dev/docs/theming.md): Switch between Soft and Blueprint, light and dark, and set your own accent and its roles.
-- [Accessibility](https://designme.dev/docs/accessibility.md): The roles, keyboard support, reduced motion and contrast work built into the components.
+- [Accessibility](https://designme.dev/docs/accessibility.md): The roles, keyboard support, touch tap areas, reduced motion and contrast work built into the components.
 - [Using with AI](https://designme.dev/docs/using-with-ai.md): Point a coding agent at the Markdown copy of every page and at llms.txt, and prompt it to install components with the CLI.
 
 All components: https://designme.dev/llms.txt

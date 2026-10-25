@@ -192,12 +192,15 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .toggle::after{content:"";position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.2);transition:transform var(--t) var(--ease)}
 .toggle[aria-checked="true"]{background:var(--accent);box-shadow:inset 0 0 0 1px var(--accent-mark,var(--accent))}
 .toggle[aria-checked="true"]::after{transform:translateX(12px);background:var(--on-accent)}
-/* on a touch screen the small buttons, switches and boxes get a tap area of at least 32px, and the smallest links and icon
-   buttons one of at least 24px, without changing how they look or where anything sits */
+/* on a touch screen every control gets a tap area of at least 40px square, centred on it, without changing how it looks or
+   where anything sits: a clear ::before (or ::after, where a component draws with its ::before) over and around it. Where
+   two controls sit closer than that, the core script (fitHits) shrinks both areas evenly, so each tap still lands on the
+   control nearest to it. Everything here weighs nothing (:where), so a component's own position or pseudo-element wins.
+   The build checks that every selector drawing with a ::before or ::after is in the lists below */
 @media (pointer:coarse){
-  :is(.pill.sm,.crx-hh .pill,.spl-in .pill,.thp-send,.ste-go,.cmx-go,.toggle,.ttx-cb,.obx-ck,.rq-retry,.cpx-att .fchip :is(.x,.rt),.dtp-add,.ahx-tx,.ivx-ch button,.sgx-bk,.prx-alt-t,.fex-fix,.msc-c button,.flm-ch .op,.tmx-more){position:relative}
-  :is(.pill.sm,.crx-hh .pill,.spl-in .pill,.thp-send,.ste-go,.cmx-go,.toggle,.ttx-cb,.obx-ck)::before{content:"";position:absolute;inset:min(0px,(100% - 32px) / 2)}
-  :is(.rq-retry,.cpx-att .fchip :is(.x,.rt),.dtp-add,.ahx-tx,.ivx-ch button,.sgx-bk,.prx-alt-t,.fex-fix,.msc-c button,.flm-ch .op,.tmx-more)::before{content:"";position:absolute;inset:min(0px,(100% - 24px) / 2)}
+  :where(.stage-in) :where(button,a[href],summary,[role="button"],[role="switch"],[role="checkbox"],[role="radio"],[role="tab"],[role="option"],[role="menuitem"],[role="menuitemradio"],[role="menuitemcheckbox"],[role="slider"],label:has(input[type="checkbox"],input[type="radio"])){position:relative;--hit-w:40px;--hit-h:40px}
+  :where(.stage-in) :where(button,a[href],summary,[role="button"],[role="switch"],[role="checkbox"],[role="radio"],[role="tab"],[role="option"],[role="menuitem"],[role="menuitemradio"],[role="menuitemcheckbox"],[role="slider"],label:has(input[type="checkbox"],input[type="radio"])):not(:where(.radar,.hand,.rtr-li:not(:last-child),.atr-kids,.bws-nav b,.rc-cap,.erx-row:not(:last-child),.rte-body.empty,.rte-hint,.afx-desk,.dtx-sl,.crx-l.add .c,.crx-l.del .c,.crx-l.ctx .c,.crx-hk.kept .crx-l.add .c,.crx-hk.undone .crx-l.del .c,.ahx-bot,.ecx-now,.ssi-or))::before,
+  :where(.stage-in) :where(button,a[href],summary,[role="button"],[role="switch"],[role="checkbox"],[role="radio"],[role="tab"],[role="option"],[role="menuitem"],[role="menuitemradio"],[role="menuitemcheckbox"],[role="slider"],label:has(input[type="checkbox"],input[type="radio"])):where(.radar,.hand,.rtr-li:not(:last-child),.atr-kids,.bws-nav b,.rc-cap,.erx-row:not(:last-child),.rte-body.empty,.rte-hint,.afx-desk,.dtx-sl,.crx-l.add .c,.crx-l.del .c,.crx-l.ctx .c,.crx-hk.kept .crx-l.add .c,.crx-hk.undone .crx-l.del .c,.ahx-bot,.ecx-now,.ssi-or):not(:where(.toggle,.radar,.pulse,.stl-track i,.stx-ok,.aln-tr i,.afx-card .afx-open,.plx-s.edited .t,.vor-mute,.mix-mk,.hnx-t .ic,.ksx-s .ic,.shx-r .ic,.dpk-d.t,.sgc-mo .d.e,.agx-now,.btx-ask,.btx-live,.ssi-or,.rxx-r))::after{content:"";position:absolute;inset:min(0px,(100% - var(--hit-h)) / 2) min(0px,(100% - var(--hit-w)) / 2);--dm-hit:1}
 }
 .seg2{display:inline-flex;padding:2px;background:var(--chip);border-radius:var(--r-pill);position:relative}
 .seg2 button{position:relative;z-index:1;height:26px;padding:0 11px;border-radius:var(--r-pill);font-size:12.5px;color:var(--fg2);transition:color var(--t-fast)}
@@ -2227,7 +2230,7 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .mix-r .v{width:44px;text-align:right;font-size:12px;color:var(--fg2)}
 @keyframes ssrel{from{transform:scaleX(0)}}
 /* ---------- Task table ---------- */
-.ttx{overflow:hidden;position:relative}
+.ttx{overflow:hidden;position:relative;container:ttx/inline-size}
 /* the header holds the table's name and a summary, or, while rows are picked, what you can do to them */
 .ttx-hd{position:relative;height:50px;border-bottom:1px solid var(--line)}
 .ttx-ti,.ttx-sb{position:absolute;inset:0;display:flex;align-items:center;transition:opacity .28s var(--ease),transform .45s var(--ease),filter .28s var(--ease)}
@@ -2293,10 +2296,29 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .ttx-em b{font-size:13.5px;font-weight:500}
 .ttx-em span{font-size:12.5px;color:var(--muted)}
 .ttx-em .pill{margin-top:10px}
-/* narrower: Updated goes, long names end in an ellipsis; on a phone Cost goes too and the agent is just its avatar */
-@container (max-width:560px){.ttx-t{min-width:0}.ttx-t th:nth-child(6),.ttx-t td:nth-child(6){display:none}.ttx-t th:nth-child(5),.ttx-t td:nth-child(5){padding-right:16px}.ttx-t td.nm{width:100%;max-width:0;overflow:hidden;text-overflow:ellipsis}}
-@container (max-width:420px){.ttx-t th:nth-child(5),.ttx-t td:nth-child(5){display:none}.ttx-t th:nth-child(4),.ttx-t td:nth-child(4){padding-right:16px}.ttx-t .ag{font-size:0;gap:0}.ttx-sb{padding-right:6px}.ttx-sb .pill{padding:0 9px}.ttx-sb .pill .i{display:none}}
-@container (max-width:340px){.ttx-ti{padding:0 12px}.ttx-sb{gap:0;padding:0 4px 0 12px}.ttx-n{margin-right:4px}.ttx-sb .pill{padding:0 7px}.ttx-t th.ck,.ttx-t td.ck{padding-left:12px}.ttx-t th:nth-child(4),.ttx-t td:nth-child(4){padding-right:12px}}
+/* narrow, on a phone or in a narrow card: each task stacks, its name and cost on top and its status, agent and last update
+   on a line under it; the header row keeps select all and the sort buttons, and the bulk actions stay in the header above */
+@container ttx (max-width:560px){
+  .ttx-t{display:block;min-width:0}
+  .ttx-t thead,.ttx-t tbody{display:block}
+  .ttx-t tr{position:relative;padding:12px 16px 12px 44px;border-bottom:1px solid var(--line)}
+  .ttx-t thead tr{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;padding-top:8px;padding-bottom:8px}
+  .ttx-t tbody tr{display:flex;flex-wrap:wrap;align-items:center;gap:4px 12px}
+  .ttx-t tbody tr:last-child{border-bottom:0}
+  .ttx-t th,.ttx-t td,.ttx-t th:last-child,.ttx-t td:last-child{display:block;height:auto;padding:0;border-bottom:0}
+  .ttx-t th.ck,.ttx-t td.ck{position:absolute;left:16px;top:14px;width:auto;padding:0}
+  .ttx-t thead th.ck{top:50%;transform:translateY(-50%)}
+  .ttx-t td.nm{order:1;flex:1 0 calc(100% - 64px);min-width:0;white-space:normal;line-height:1.45}
+  .ttx-t td:nth-child(5){order:2;margin-left:auto;font-size:12px}
+  .ttx-t td:nth-child(3){order:3}
+  .ttx-t td:nth-child(4){order:4}
+  .ttx-t td.up{order:5;margin-left:auto;font-size:12px}
+  .ttx-s:not(.on) .ar{display:none}
+  .ttx-t tbody tr.ttx-empty{display:block;padding:0}
+  .ttx-t tbody tr.ttx-empty td{padding:36px 16px 32px}
+}
+@container ttx (max-width:420px){.ttx-sb{padding-right:4px}.ttx-sb .pill{padding:0 8px}.ttx-sb .pill .i{display:none}}
+@container ttx (max-width:340px){.ttx-ti{padding:0 12px}.ttx-sb{gap:0;padding:0 4px 0 12px}.ttx-n{margin-right:4px}.ttx-t tr{padding-left:40px}.ttx-t th.ck,.ttx-t td.ck{left:12px}}
 /* ---------- Code viewer ---------- */
 .cvx{overflow:hidden;display:flex;flex-direction:column}
 .cvx-h{display:flex;align-items:center;gap:2px;height:44px;padding:0 8px;border-bottom:1px solid var(--line)}
@@ -2818,6 +2840,12 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .ahx-tab:hover .ahx-tx,.ahx-tab.on .ahx-tx,.ahx-tx:focus-visible{opacity:1}
 .ahx-tx:hover{background:var(--chip);color:var(--fg)}
 .ahx-plus{flex:none}
+.ahx-tn{display:none;place-items:center;flex:none;width:28px;height:28px;border-radius:var(--r-sm);color:var(--fg2);transition:background var(--t-fast),color var(--t-fast)}
+.ahx-tn:hover,.ahx-tn[aria-expanded="true"]{background:var(--row);color:var(--fg)}
+.ahx-tn .num{display:grid;place-items:center;min-width:18px;height:18px;padding:0 4px;border-radius:5px;box-shadow:inset 0 0 0 1.5px currentColor;font-size:11px;font-weight:500;line-height:1}
+.ahx-tp{width:232px}
+.ahx-tp .mi .t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ahx-tp .mi .ahx-mk:empty{display:grid}
 .ahx-spl{flex:none;margin-left:auto;transition:opacity var(--t) var(--ease)}
 .ahx-main.home .ahx-spl{opacity:0;pointer-events:none}
 .ahx-spl .spl-pill{height:30px;box-shadow:inset 0 0 0 1px var(--line)}
@@ -2904,7 +2932,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 @container ahm (max-width:560px){
   .ahx .ctm-ft>span,.ahx .cpx-bar .cpx-ctx,.ahx-spl .spl-in .m{display:none}
 }
-/* phone: the chats slide in from the side, the tabs scroll, the panel covers the chat */
+/* phone: the chats slide in from the side, the tabs fold into one, the panel covers the chat */
 @container ahx (max-width:620px){
   .ahx .ahx-side,.ahx.ns .ahx-side{position:absolute;z-index:6;left:0;top:0;bottom:0;width:244px;margin-left:0;background:var(--surface);transform:translateX(-101%)}
   .ahx.dr .ahx-side{transform:none;box-shadow:var(--shadow-pop)}
@@ -2913,8 +2941,15 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
   .ahx .ahx-menu{display:inline-grid}
   .ahx-top{padding:0 6px}
   .ahx-spl{display:none}
-  .ahx-tab{flex-basis:150px;min-width:96px}
-  .ahx-tab:not(.on) .ahx-tx{display:none}
+  /* the tabs fold into one: the chat on screen fills the row, and a count of the open chats lists them all */
+  .ahx-tabs{flex:1}
+  .ahx-tab:not(.on){display:none}
+  .ahx-tab.on{flex:1 1 auto;min-width:0}
+  .ahx-tn:not([hidden]){display:grid}
+  .ahx-side{visibility:hidden;transition:transform var(--t) var(--ease),box-shadow var(--t) var(--ease),visibility 0s var(--t)}
+  .ahx.dr .ahx-side{visibility:visible;transition-delay:0s}
+  .ahx-pane{visibility:hidden;transition:width var(--t) var(--ease),visibility 0s var(--t)}
+  .ahx.pn .ahx-pane{visibility:visible;transition-delay:0s}
   .ahx-home{padding:16px 14px 28px}
   .ahx-hi{font-size:14px}
   .ahx-col{padding:18px 16px 24px}
@@ -3227,7 +3262,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .drx-d.hv{background:color-mix(in srgb,var(--accent) 7%,transparent);border-radius:0}
 .drx-f{display:flex;justify-content:flex-end;gap:6px}
 /* ---------- Event calendar ---------- */
-.ecx{overflow:hidden}
+.ecx{overflow:hidden;position:relative;container:ecx/inline-size}
 /* the Ask pill crossfades its words but stays a flex row, so the spark keeps its gap */
 .ecx-ask.sw{display:inline-flex}
 /* the Ask pill is an accent tint, like a picked preset in Date range picker */
@@ -3237,7 +3272,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .ecx-h b{font-weight:500}
 .ecx-sp{flex:1}
 .ecx-sc{overflow-x:auto}
-.ecx-grid{display:grid;grid-template-columns:44px repeat(5,minmax(76px,1fr));min-width:424px;position:relative}
+.ecx-grid{display:grid;grid-template-columns:44px repeat(var(--days,5),minmax(76px,1fr));min-width:424px;position:relative}
 .ecx-tm{grid-row:1/3;display:flex;flex-direction:column;padding-top:32px}
 .ecx-tm span{height:44px;font-size:10.5px;color:var(--muted);text-align:right;padding-right:8px;transform:translateY(-6px)}
 .ecx-day{border-left:1px solid var(--line)}
@@ -3280,6 +3315,26 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .ecx-scan{position:absolute;left:44px;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--accent),transparent);top:32px;opacity:0;pointer-events:none}
 .ecx-scan.go{animation:ecsc 1.2s var(--ease-io) both}
 @keyframes ecsc{0%{opacity:0;top:32px}20%{opacity:1}100%{opacity:0;top:384px}}
+/* a narrow calendar, on a phone or in a narrow card: one day at a time, picked from a row of days, so every event has room
+   for its whole title and time */
+.ecx-days{display:none}
+@container ecx (max-width:519px){
+  .ecx-days{display:flex;gap:4px;padding:8px 12px;border-bottom:1px solid var(--line)}
+  .ecx-days button{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 0;border-radius:var(--r-sm);font-size:11.5px;color:var(--fg2);transition:background var(--t-fast),color var(--t-fast)}
+  .ecx-days button:hover{background:var(--row);color:var(--fg)}
+  .ecx-days button[aria-pressed="true"]{background:var(--chip);color:var(--fg)}
+  .ecx-days b{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;font-size:13px;font-weight:500;color:var(--fg)}
+  .ecx-days .t b{background:var(--accent);color:var(--on-accent)}
+  .ecx-sc{overflow:visible}
+  .ecx-grid{grid-template-columns:44px minmax(0,1fr);min-width:0;padding-top:8px}
+  .ecx-day:not(.on){display:none}
+  .ecx-dh{display:none}
+  .ecx-tm{grid-row:auto;padding-top:0}
+  .ecx-scan{top:8px}
+  .ecx-scan.go{animation-name:ecscn}
+  .ecx-pop{max-width:calc(100% - 16px)}
+}
+@keyframes ecscn{0%{opacity:0;top:8px}20%{opacity:1}100%{opacity:0;top:360px}}
 /* ---------- Agenda ---------- */
 .agx{padding:12px;display:flex;flex-direction:column;gap:8px}
 .agx-h{display:flex;align-items:center;justify-content:space-between;padding:2px 4px}
@@ -3821,7 +3876,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .tkx-e{padding:40px 10px;text-align:center;font-size:13px;color:var(--muted)}
 .tkx-t.leave{animation:leave .35s var(--ease) both}
 /* ---------- Kanban ---------- */
-.kbx{width:100%;overflow-x:auto}
+.kbx{width:100%;overflow-x:auto;position:relative;container:kbx/inline-size}
 .kbx-cols{display:grid;grid-template-columns:repeat(3,minmax(200px,1fr));gap:12px;min-width:640px}
 .kbx-c{display:flex;flex-direction:column;gap:8px;padding:10px;border-radius:16px;background:color-mix(in srgb,var(--fg) 5%,transparent);transition:background .25s,box-shadow .25s;min-height:280px}
 .kbx-c.over{background:var(--sel);box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--accent) 40%,transparent)}
@@ -3842,6 +3897,25 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .kbx-ph{border-radius:13px;background:color-mix(in srgb,var(--accent) 8%,transparent);border:1.5px dashed color-mix(in srgb,var(--accent) 50%,transparent)}
 .kbx-pr{height:3px;border-radius:2px;background:var(--line);overflow:hidden}
 .kbx-pr i{display:block;height:100%;background:var(--accent-mark,var(--accent));width:0;transition:width .3s linear}
+/* a narrow board, on a phone or in a narrow card: one column at a time, picked with tabs, and each card moves with its menu */
+.kbx-bar,.kbx-mv{display:none}
+@container kbx (max-width:639px){
+  .kbx{overflow:visible}
+  .kbx-bar{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+  .kbx-tabs{flex:1;display:flex;min-width:0}
+  .kbx-tabs button{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:6px;min-width:0;padding:0 8px;white-space:nowrap}
+  .kbx-tabs .n{font-size:12px;color:var(--muted)}
+  .kbx-add{flex:none;width:30px;height:30px;color:var(--muted)}
+  .kbx-add:hover{color:var(--fg)}
+  .kbx-cols{grid-template-columns:minmax(0,1fr);min-width:0}
+  .kbx-c:not(.on){display:none}
+  .kbx-ch{display:none}
+  /* room for four cards, so the board keeps one height as the agent fills Done and you switch tabs */
+  .kbx-c{min-height:320px}
+  .kbx-mv{display:grid;width:24px;height:24px;margin:-4px -4px -4px 0;color:var(--muted)}
+  .kbx-mv:hover,.kbx-mv[aria-expanded="true"]{color:var(--fg)}
+}
+.kbx-mp{min-width:176px}
 
 /* ---------- Blueprint 2 ---------- */
 /* Blueprint 2: the same components drawn as a technical sheet. Square corners, hairline edges instead of shadows,
@@ -4891,9 +4965,9 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
     <button class="dtp-sh" aria-expanded="true">{chev}<span>Properties</span></button>
     <div class="fold dtp-f1"><div><div class="dtp-rows">
       <div class="dtp-r"><span class="k">Status</span><button class="dtp-v dtp-stat" data-pop=".dtp-pst"><span class="dot" style="color:var(--accent-mark,var(--accent))"></span><span>In review</span></button>
-        <div class="pop dtp-pst" role="menu"><button class="mi" data-close data-s="In progress" data-c="var(--py)"><span class="dot" style="color:var(--py)"></span><span>In progress</span></button><button class="mi" data-close data-s="In review" data-c="var(--accent-mark,var(--accent))"><span class="dot" style="color:var(--accent-mark,var(--accent))"></span><span>In review</span></button><button class="mi" data-close data-s="Shipped" data-c="var(--ok)"><span class="dot" style="color:var(--ok)"></span><span>Shipped</span></button></div></div>
+        <div class="pop dtp-pst" role="menu"><button class="mi" data-close data-s="In progress" data-col="var(--py)"><span class="dot" style="color:var(--py)"></span><span>In progress</span></button><button class="mi" data-close data-s="In review" data-col="var(--accent-mark,var(--accent))"><span class="dot" style="color:var(--accent-mark,var(--accent))"></span><span>In review</span></button><button class="mi" data-close data-s="Shipped" data-col="var(--ok)"><span class="dot" style="color:var(--ok)"></span><span>Shipped</span></button></div></div>
       <div class="dtp-r"><span class="k">Owner</span><button class="dtp-v dtp-own" data-pop=".dtp-pow">{avm}<span>Maya Kim</span></button>
-        <div class="pop dtp-pow" role="menu"><button class="mi" data-close data-o="Maya Kim" data-i="MK" data-c="var(--pl)">{avm}<span>Maya Kim</span></button><button class="mi" data-close data-o="Jon Ortiz" data-i="JO" data-c="var(--pm)">{avj}<span>Jon Ortiz</span></button><button class="mi" data-close data-o="Design agent" data-i="DA" data-c="var(--pb)">{ava}<span>Design agent</span></button></div></div>
+        <div class="pop dtp-pow" role="menu"><button class="mi" data-close data-o="Maya Kim" data-i="MK" data-col="var(--pl)">{avm}<span>Maya Kim</span></button><button class="mi" data-close data-o="Jon Ortiz" data-i="JO" data-col="var(--pm)">{avj}<span>Jon Ortiz</span></button><button class="mi" data-close data-o="Design agent" data-i="DA" data-col="var(--pb)">{ava}<span>Design agent</span></button></div></div>
       <div class="dtp-r"><span class="k">Model</span><button class="dtp-v" data-pop=".dtp-pmo"><span class="dtp-mo">Opus</span>{chevd}</button>
         <div class="pop dtp-pmo" role="menu"><button class="mi" data-close data-m="Opus"><span>Opus<span class="d">Best for design</span></span></button><button class="mi" data-close data-m="Sonnet"><span>Sonnet<span class="d">Faster, cheaper</span></span></button><button class="mi" data-close data-m="Haiku"><span>Haiku<span class="d">Quick edits</span></span></button></div></div>
       <div class="dtp-r"><span class="k">Due</span><span class="dtp-v num">Oct 24</span></div>
@@ -5091,6 +5165,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
     <div class="ahx-top">
       <button class="ib ahx-menu" aria-label="Show chats" data-tip="Show chats">{panel}</button>
       <div class="ahx-tabs" role="tablist" aria-label="Open chats"></div>
+      <button class="ahx-tn" data-pop=".ahx-tp" data-pop-align="end" aria-haspopup="menu" aria-label="Open chats" data-tip="Open chats" hidden><span class="num">1</span></button>
       <button class="ib ahx-plus" aria-label="New chat" data-tip="New chat">{plus}</button>
       <div class="spl ahx-spl"><div class="spl-pill" aria-live="polite"><div class="spl-in"></div></div></div>
     </div>
@@ -5113,6 +5188,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
   </div></aside>
   <div class="ahx-scrim"></div>
   <div class="pop ahx-wsp" role="menu"></div>
+  <div class="pop ahx-tp" role="menu" aria-label="Open chats"></div>
 </div></template>
   <div class="card-f"><span>Pick a suggestion, open a chat, or type your own</span><span class="sp"></span><button class="replay" aria-label="Replay Agent harness"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
 </article>
@@ -5256,6 +5332,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
   <div class="stage"><div class="stage-in"></div></div>
   <template><div class="ecx panel">
   <div class="ecx-h"><b>Oct 19 – 23, 2026</b><span class="ecx-sp"></span><span class="ecx-msg muted"></span><button class="pill soft sm ecx-ask">{spark}Find 45 min for a design review</button></div>
+  <div class="ecx-days" role="group" aria-label="Day"></div>
   <div class="ecx-sc"><div class="ecx-grid"><div class="ecx-tm"></div></div></div>
 </div></template>
   <div class="card-f"><span>Open or drag an event, click a free slot to add one</span><span class="sp"></span><button class="replay" aria-label="Replay Event calendar"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
@@ -5867,6 +5944,55 @@ document.addEventListener('keydown', e => {
   closePops(); if (back && btn.isConnected) btn.focus({ preventScroll:true });
 }, true);
 addEventListener('resize', () => closePops());
+
+/* ---------- touch: tap areas that never overlap ----------
+   On a touch screen every control has a clear tap area of at least 40px square around it (the @media (pointer:coarse) block
+   in the CSS, which marks it --dm-hit). Where two controls sit closer than that, their areas shrink towards the gap between
+   them, each to half of it, so they meet halfway and a tap always lands on the control nearest to it; next to a field, which
+   has no area of its own, a control can take the whole gap. The areas on screen are fitted again, a few times a second at
+   most, as the page scrolls, resizes or changes. Nothing runs with a mouse */
+const fitHits = window.dmFitHits || (() => {
+  const CTRL = 'button,a[href],summary,label,input:not([type="hidden"]),select,textarea,[contenteditable="true"],[role="button"],[role="switch"],[role="checkbox"],[role="radio"],[role="tab"],[role="option"],[role="menuitem"],[role="menuitemradio"],[role="menuitemcheckbox"],[role="slider"]';
+  const MIN = 40, coarse = matchMedia('(pointer:coarse)'), seen = new WeakMap();
+  // whether a control has a tap area (and so can grow), read once per class
+  const grows = el => { const k = (el.getAttribute('class') || '') + '|' + (el.getAttribute('role') || ''), s = seen.get(el);
+    if (s && s.k === k) return s.v;
+    const v = ['::before', '::after'].some(w => getComputedStyle(el, w).getPropertyValue('--dm-hit').trim() === '1'); seen.set(el, { k, v }); return v; };
+  function fit(){
+    q = 0; last = performance.now(); if (!coarse.matches) return;
+    const H = innerHeight, on = [];
+    for (const el of document.querySelectorAll(CTRL)){
+      const r = el.getBoundingClientRect(); if (!r.width || !r.height || r.bottom < -80 || r.top > H + 80) continue;
+      // a control that isn't drawn (in a closed <details>, under visibility:hidden) neither grows nor stands in the way
+      if (el.checkVisibility && !el.checkVisibility({ visibilityProperty:true })) continue;
+      const g = grows(el); on.push({ el, r, g, x:g ? Math.max(0, (MIN - r.width) / 2) : 0, y:g ? Math.max(0, (MIN - r.height) / 2) : 0 });
+    }
+    for (const a of on){
+      if (!a.g) continue;
+      let ex = a.x, ey = a.y;
+      if (ex || ey) for (const b of on){
+        if (b === a || a.el.contains(b.el) || b.el.contains(a.el)) continue;
+        const gx = Math.max(b.r.left - a.r.right, a.r.left - b.r.right), gy = Math.max(b.r.top - a.r.bottom, a.r.top - b.r.bottom);
+        if ((gx < 0 && gy < 0) || gx >= ex + b.x || gy >= ey + b.y) continue;
+        const part = (gap, other) => Math.max(0, other ? gap / 2 : gap);
+        if (gy < 0 || (gx >= 0 && gx >= gy)) ex = Math.min(ex, part(gx, b.x)); else ey = Math.min(ey, part(gy, b.y));
+      }
+      const w = ex < a.x ? Math.round(a.r.width + 2 * ex) + 'px' : '', h = ey < a.y ? Math.round(a.r.height + 2 * ey) + 'px' : '';
+      if (a.el.style.getPropertyValue('--hit-w') !== w) w ? a.el.style.setProperty('--hit-w', w) : a.el.style.removeProperty('--hit-w');
+      if (a.el.style.getPropertyValue('--hit-h') !== h) h ? a.el.style.setProperty('--hit-h', h) : a.el.style.removeProperty('--hit-h');
+    }
+  }
+  let q = 0, last = -1e9, started = false;
+  const queue = () => { if (!q) q = setTimeout(() => requestAnimationFrame(fit), Math.max(16, 150 - (performance.now() - last))); };
+  const start = () => {
+    if (started || !coarse.matches) return; started = true;
+    addEventListener('scroll', queue, { passive:true, capture:true }); addEventListener('resize', queue);
+    new MutationObserver(queue).observe(document.documentElement, { childList:true, subtree:true, attributes:true, attributeFilter:['class', 'hidden', 'open', 'aria-expanded', 'aria-checked', 'aria-pressed', 'aria-selected'] });
+    queue();
+  };
+  start(); if (coarse.addEventListener) coarse.addEventListener('change', start);
+  window.dmFitHits = fit; return fit;
+})();
 
 /* ---------- boot ---------- */
 document.addEventListener('DOMContentLoaded', () => {
@@ -9881,8 +10007,8 @@ DM.def('details-panel', (r, c) => {
   const flash = el => { el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash'); };
   $$('.pop', r).forEach(pp => $('.dtp', r).appendChild(pp));
   $$('.dtp-sh', r).forEach(b => b.onclick = () => { const f = b.nextElementSibling, open = f.classList.toggle('shut') === false; b.setAttribute('aria-expanded', open); });
-  $$('.dtp-pst .mi', r).forEach(m => m.addEventListener('click', () => { const v = $('.dtp-stat', r); $('.dot', v).style.color = m.dataset.c; swap($('span:last-child', v), m.dataset.s); flash(v); }));
-  $$('.dtp-pow .mi', r).forEach(m => m.addEventListener('click', () => { const v = $('.dtp-own', r); const av = $('.av', v); av.textContent = m.dataset.i; av.style.background = m.dataset.c; enter(av); swap($('span:last-child', v), m.dataset.o); flash(v); }));
+  $$('.dtp-pst .mi', r).forEach(m => m.addEventListener('click', () => { const v = $('.dtp-stat', r); $('.dot', v).style.color = m.dataset.col; swap($('span:last-child', v), m.dataset.s); flash(v); }));
+  $$('.dtp-pow .mi', r).forEach(m => m.addEventListener('click', () => { const v = $('.dtp-own', r); const av = $('.av', v); av.textContent = m.dataset.i; av.style.background = m.dataset.col; enter(av); swap($('span:last-child', v), m.dataset.o); flash(v); }));
   const cost = { Opus:[184200, 2.76], Sonnet:[184200, .55], Haiku:[184200, .15] }; let cc = 0, ct = 0;
   const setM = m => { tween(ct, cost[m][0], 800, v => { ct = v; $('.dtp-tok', r).textContent = Math.round(v).toLocaleString('en-US'); }); tween(cc, cost[m][1], 800, v => { cc = v; $('.dtp-cost', r).textContent = '$' + v.toFixed(2); }); };
   $$('.dtp-pmo .mi', r).forEach(m => m.addEventListener('click', () => { const v = $('.dtp-mo', r); swap(v, m.dataset.m); flash(v.parentElement); setM(m.dataset.m); }));
@@ -10861,6 +10987,13 @@ DM.def('harness', (r, c) => {
   $('.ahx-scrim', r).onclick = () => drawer(false);
 
   /* ---- tabs ---- */
+  /* on a phone the tabs fold into one: the count beside it lists every open chat, and picking one brings it to the front */
+  const tn = $('.ahx-tn', r), tp = $('.ahx-tp', r);
+  const count = () => { tn.hidden = TABS.length < 2; $('.num', tn).textContent = TABS.length; };
+  tn.onclick = () => {
+    tp.innerHTML = TABS.map((x, i) => `<button class="mi" role="menuitemradio" aria-checked="${x === at}" data-close data-i="${i}"><span class="ahx-mk">${x.cv ? markOf(x.cv) : ''}</span><span class="t">${esc(x.cv ? x.cv.title : 'New chat')}</span><span class="ck">${I('check','xs')}</span></button>`).join('');
+    $$('.mi', tp).forEach(b => b.onclick = () => { const x = TABS[+b.dataset.i]; if (x && x !== at) activate(x); });
+  };
   function tab(cv, after){
     const tb = { cv, draft:'' };
     tb.el = html(`<div class="ahx-tab"><button class="ahx-tb" role="tab" aria-selected="false"><span class="ahx-mk"></span><span class="t"></span></button><button class="ahx-tx" aria-label="Close tab" data-tip="Close tab">${I('x')}</button></div>`);
@@ -10869,10 +11002,12 @@ DM.def('harness', (r, c) => {
     $('.ahx-tx', tb.el).onclick = () => close(tb);
     const i = after ? TABS.indexOf(after) + 1 : TABS.length; TABS.splice(i, 0, tb);
     tabsEl.insertBefore(tb.el, TABS[i + 1] ? TABS[i + 1].el : null);
-    enter(tb.el); if (cv) mark(cv); return tb;
+    enter(tb.el); if (cv) mark(cv); count(); return tb;
   }
   function activate(tb, first){
     if (at && at !== tb) at.draft = ta.value;
+    // on a phone only the tab on screen shows, so the one coming to the front comes in
+    if (at && at !== tb && !first && narrow()) enter(tb.el);
     at = tb;
     TABS.forEach(x => { x.el.classList.toggle('on', x === tb); $('.ahx-tb', x.el).setAttribute('aria-selected', x === tb); });
     view(tb.cv, first);
@@ -10886,7 +11021,7 @@ DM.def('harness', (r, c) => {
   }
   const tro = new ResizeObserver(() => inView(true)); tro.observe(tabsEl); c.offs.push(() => tro.disconnect());
   function close(tb){
-    const i = TABS.indexOf(tb), el = tb.el; TABS.splice(i, 1); hideTip();
+    const i = TABS.indexOf(tb), el = tb.el; TABS.splice(i, 1); hideTip(); count();
     // the tab folds shut instead of vanishing
     el.style.pointerEvents = 'none';
     if (REDUCE) el.remove(); else el.animate([{ minWidth:el.offsetWidth + 'px', flexBasis:el.offsetWidth + 'px', opacity:1 }, { minWidth:'0px', flexBasis:'0px', opacity:0 }], { duration:220, easing:'cubic-bezier(.22,1,.36,1)', fill:'forwards' }).onfinish = () => el.remove();
@@ -11378,6 +11513,18 @@ DM.def('event-calendar', (r, c) => {
   $('.ecx-tm', r).innerHTML = Array.from({ length:8 }, (_, i) => { const h = H0 + i; return `<span>${h > 12 ? h - 12 : h}${h >= 12 ? 'pm' : 'am'}</span>`; }).join('');
   grid.insertAdjacentHTML('beforeend', DAYS.map((d, i) => `<div class="ecx-day"><div class="ecx-dh${i === 0 ? ' t' : ''}">${d.split(' ')[0]} <b>${d.split(' ')[1]}</b></div><div class="ecx-col" data-d="${i}"></div></div>`).join('') + '<div class="ecx-scan"></div>');
   const col = i => $(`.ecx-col[data-d="${i}"]`, grid);
+  /* a narrow calendar shows one day: the row of days picks it, and an answer from the agent opens the day it found */
+  const days = $('.ecx-days', r);
+  days.innerHTML = DAYS.map((d, i) => `<button aria-pressed="false" data-d="${i}"${i === 0 ? ' class="t"' : ''} aria-label="${['Monday','Tuesday','Wednesday','Thursday','Friday'][i]} ${d.split(' ')[1]} October"><span>${d.split(' ')[0]}</span><b>${d.split(' ')[1]}</b></button>`).join('');
+  let day = -1;
+  const narrow = () => !!days.getClientRects().length;
+  function showDay(i){
+    if (i === day) return; const was = day; day = i;
+    $$('button', days).forEach(b => b.setAttribute('aria-pressed', +b.dataset.d === i));
+    $$('.ecx-day', grid).forEach((d, k) => d.classList.toggle('on', k === i));
+    if (was >= 0 && narrow()){ closePop(); enter(col(i).parentElement); }
+  }
+  $$('button', days).forEach(b => b.onclick = () => showDay(+b.dataset.d));
   const tm = h => { const hh = Math.floor(h), mm = Math.round((h - hh) * 60); return `${hh > 12 ? hh - 12 : hh}:${String(mm).padStart(2, '0')}`; };
   const ev = (e, cls = '') => html(`<button class="ecx-e ${cls}" style="top:${(e[1] - H0) * PX + 1}px;height:${e[2] * PX - 3}px;background:var(--p${e[4]}-bg);color:var(--p${e[4]})"><b>${e[3]}</b><span>${tm(e[1])} – ${tm(e[1] + e[2])}</span></button>`);
   const panel = $('.ecx', r), msg = $('.ecx-msg', r), pop = html('<div class="ecx-pop" role="dialog" aria-label="Event"></div>'); panel.appendChild(pop);
@@ -11412,6 +11559,7 @@ DM.def('event-calendar', (r, c) => {
         el.classList.remove('drag'); el.style.transform = ''; const was = e[0] !== nd || e[1] !== nh; e[0] = nd; e[1] = nh; col(nd).appendChild(el); el.dataset.tip = e[3] + ', ' + tm(nh);
         if (was) say(`Moved ${e[3]} to ${DAYN[nd]} ${tm(nh)}`); }; }; }
   EV.forEach((e, i) => { const el = ev(e); col(e[0]).appendChild(el); enter(el, i * 30); bind(el, e); });
+  showDay(0);
   /* now line on today's column */
   col(0).insertAdjacentHTML('beforeend', `<div class="ecx-now" style="top:${(10.7 - H0) * PX}px" data-tip="Now, 10:42"></div>`);
   /* a dashed slot follows the pointer over free time; click it to add an event there */
@@ -11434,9 +11582,10 @@ DM.def('event-calendar', (r, c) => {
     const S = [[2,13.5,.75,'Design review','b'],[4,13,.75,'Design review','b']];
     S.forEach((s, i) => { const el = ev(s, 'sug' + (i ? ' alt' : '')); if (!i) el.insertAdjacentHTML('beforeend', '<div class="ecx-sg"><button class="y">Book</button><button class="n">Other</button></div>'); col(s[0]).appendChild(el); el.style.animationDelay = i * 120 + 'ms'; el.style.height = 'auto'; el.style.minHeight = s[2] * PX - 3 + 'px'; });
     ask.innerHTML = I('spark','xs') + 'Everyone is free Wed 1:30';
+    showDay(S[0][0]);
     const best = $('.ecx-e.sug:not(.alt)', grid);
     $('.y', best).onclick = e => { e.stopPropagation(); best.classList.remove('sug'); best.style.background = 'var(--pb-bg)'; best.style.color = 'var(--pb)'; best.style.boxShadow = ''; $('.ecx-sg', best).remove(); enter(best); bind(best, S[0]); $$('.ecx-e.sug', grid).forEach(x => x.remove()); tell('Booked, invites sent to 4 people'); };
-    $('.n', best).onclick = e => { e.stopPropagation(); const alt = $('.ecx-e.sug.alt', grid); best.remove(); alt.classList.remove('alt'); alt.insertAdjacentHTML('beforeend', '<div class="ecx-sg"><button class="y">Book</button></div>'); $('.y', alt).onclick = ev2 => { ev2.stopPropagation(); alt.classList.remove('sug'); alt.style.background = 'var(--pb-bg)'; alt.style.color = 'var(--pb)'; $('.ecx-sg', alt).remove(); bind(alt, S[1]); tell('Booked Fri 1:00, invites sent'); }; tell('Next best: Fri 1:00'); };
+    $('.n', best).onclick = e => { e.stopPropagation(); const alt = $('.ecx-e.sug.alt', grid); best.remove(); alt.classList.remove('alt'); alt.insertAdjacentHTML('beforeend', '<div class="ecx-sg"><button class="y">Book</button></div>'); $('.y', alt).onclick = ev2 => { ev2.stopPropagation(); alt.classList.remove('sug'); alt.style.background = 'var(--pb-bg)'; alt.style.color = 'var(--pb)'; $('.ecx-sg', alt).remove(); bind(alt, S[1]); tell('Booked Fri 1:00, invites sent'); }; tell('Next best: Fri 1:00'); showDay(S[1][0]); };
   });
   // the preview asks the agent for a slot once on its own, unless you take over first
   c.auto(1200, () => ask.click());
@@ -12234,7 +12383,8 @@ DM.def('ticket-list', (r, c) => {
 });
 /* ---------- Kanban ---------- */
 DM.def('kanban', (r, c) => {
-  const COLS = [['todo','To do'],['doing','In progress'],['done','Done']];
+  // each column has a short name for the tabs a narrow board shows
+  const COLS = [['todo','To do','To do'],['doing','In progress','Doing'],['done','Done','Done']];
   let K = [
     { id:1, c:'todo', t:'Audit checkout for contrast', tag:['b','Design'], who:['DA','var(--pb)'] },
     { id:2, c:'todo', t:'Write release notes for pricing', tag:['l','Copy'], who:['MK','var(--pl)'] },
@@ -12244,13 +12394,29 @@ DM.def('kanban', (r, c) => {
     { id:6, c:'done', t:'One CTA per pricing card', tag:['b','Design'], who:['MK','var(--pl)'] }
   ];
   // the agent's timer repaints the board, so it waits while a card is dragged or a new title is typed
-  const wrap = $('.kbx-cols', r); let dragging = false, editing = false;
-  wrap.innerHTML = COLS.map(cl => `<div class="kbx-c" data-c="${cl[0]}"><div class="kbx-ch"><b>${cl[1]}</b><span class="n num"></span><button class="ib" aria-label="Add card" data-tip="Add card">${I('plus','xs')}</button></div><div class="kbx-list"></div></div>`).join('');
-  const card = k => `<div class="kbx-k${k.run != null ? ' agent' : ''}" data-id="${k.id}"><span class="t">${k.t}</span>${k.run != null ? `<div class="kbx-pr"><i style="width:${k.run * 100}%"></i></div>` : ''}<span class="f"><span class="tag ${k.tag[0]}">${k.tag[1]}</span>${k.run != null ? '<span class="think on"><i></i><i></i><i></i><i></i></span>' : ''}${AV(k.who[0], k.who[1])}</span></div>`;
-  function paint(){ COLS.forEach(cl => { const col = $(`.kbx-c[data-c="${cl[0]}"]`, wrap), L = K.filter(k => k.c === cl[0]); $('.kbx-list', col).innerHTML = L.map(card).join(''); $('.n', col).textContent = L.length; }); bind(); }
+  const box = $('.kbx', r), wrap = $('.kbx-cols', r); let dragging = false, editing = false;
+  wrap.innerHTML = COLS.map(cl => `<div class="kbx-c" data-col="${cl[0]}"><div class="kbx-ch"><b>${cl[1]}</b><span class="n num"></span><button class="ib" aria-label="Add card" data-tip="Add card">${I('plus','xs')}</button></div><div class="kbx-list"></div></div>`).join('');
+  /* a narrow board shows one column at a time: tabs with each column's count pick it, + adds a card to it, and a card's
+     menu moves it to another column, since there is no other column on screen to drag it to */
+  wrap.insertAdjacentHTML('beforebegin', `<div class="kbx-bar"><div class="seg2 kbx-tabs" role="group" aria-label="Column">${COLS.map(cl => `<button aria-pressed="false" data-v="${cl[0]}">${cl[2]}<span class="n num"></span></button>`).join('')}</div><button class="ib kbx-add" aria-label="Add card" data-tip="Add card">${I('plus','xs')}</button></div>`);
+  box.insertAdjacentHTML('beforeend', `<div class="pop kbx-mp" role="menu" aria-label="Move to"><div class="ph">Move to</div>${COLS.map(cl => `<button class="mi" role="menuitemradio" aria-checked="false" data-close data-to="${cl[0]}"><span>${cl[1]}</span><span class="ck">${I('check','xs')}</span></button>`).join('')}</div>`);
+  const tabs = $('.kbx-tabs', r), menu = $('.kbx-mp', r); let cur = 'doing', moving = null;
+  const segc = seg(tabs, v => show(v));
+  const narrow = () => !!$('.kbx-bar', r).getClientRects().length;
+  function show(col){
+    const was = cur; cur = col; $$('button', tabs).forEach(b => b.setAttribute('aria-pressed', b.dataset.v === col)); segc.place();
+    $$('.kbx-c', wrap).forEach(x => x.classList.toggle('on', x.dataset.col === col));
+    if (was !== col && narrow()) enter($('.kbx-c.on', wrap));
+  }
+  // what the person in the demo would do to follow the agent's card; once you take over, the board stays where you put it
+  const follow = col => c.auto(0, () => show(col));
+  const card = k => `<div class="kbx-k${k.run != null ? ' agent' : ''}" data-id="${k.id}"><span class="t">${k.t}</span>${k.run != null ? `<div class="kbx-pr"><i style="width:${k.run * 100}%"></i></div>` : ''}<span class="f"><span class="tag ${k.tag[0]}">${k.tag[1]}</span>${k.run != null ? '<span class="think on"><i></i><i></i><i></i><i></i></span>' : ''}${AV(k.who[0], k.who[1])}<button class="ib kbx-mv" aria-label="Move card" data-tip="Move to" data-pop=".kbx-mp" data-pop-align="end" aria-haspopup="menu">${I('more','xs')}</button></span></div>`;
+  let painted = false;
+  function paint(){ COLS.forEach(cl => { const col = $(`.kbx-c[data-col="${cl[0]}"]`, wrap), L = K.filter(k => k.c === cl[0]); $('.kbx-list', col).innerHTML = L.map(card).join(''); $('.n', col).textContent = L.length;
+    const n = $(`[data-v="${cl[0]}"] .n`, tabs); if (n.textContent !== String(L.length)){ n.textContent = L.length; if (painted) enter(n); } }); painted = true; bind(); }
   function bind(){
     $$('.kbx-k', wrap).forEach(el => el.onpointerdown = e => {
-      if (e.button) return; const k = K.find(x => x.id === +el.dataset.id), rc = el.getBoundingClientRect(), ox = e.clientX - rc.left, oy = e.clientY - rc.top;
+      if (e.button || e.target.closest('.kbx-mv')) return; const k = K.find(x => x.id === +el.dataset.id), rc = el.getBoundingClientRect(), ox = e.clientX - rc.left, oy = e.clientY - rc.top;
       let ghost = null, ph = null, moved = false;
       const move = ev => {
         if (!moved && Math.hypot(ev.clientX - e.clientX, ev.clientY - e.clientY) < 4) return;
@@ -12262,18 +12428,26 @@ DM.def('kanban', (r, c) => {
       };
       const up = () => { document.removeEventListener('pointermove', move); document.removeEventListener('pointerup', up);
         dragging = false; if (!moved) return; ghost.remove(); const col = ph.closest('.kbx-c');
-        if (col){ const list = $('.kbx-list', col); const idx = [...list.children].filter(x => !x.classList.contains('drag')).indexOf(ph); K = K.filter(x => x !== k); k.c = col.dataset.c; if (k.c === 'done') delete k.run;
+        if (col){ const list = $('.kbx-list', col); const idx = [...list.children].filter(x => !x.classList.contains('drag')).indexOf(ph); K = K.filter(x => x !== k); k.c = col.dataset.col; if (k.c === 'done') delete k.run;
           const same = K.filter(x => x.c === k.c); const before = same[idx]; before ? K.splice(K.indexOf(before), 0, k) : K.push(k); }
         $$('.kbx-c', wrap).forEach(x => x.classList.remove('over')); paint(); const n = $(`.kbx-k[data-id="${k.id}"]`, wrap); n.animate([{ transform:'scale(1.04)' }, { transform:'none' }], { duration:350, easing:'cubic-bezier(.2,.8,.2,1)' }); };
       document.addEventListener('pointermove', move); document.addEventListener('pointerup', up);
       c.offs.push(() => { document.removeEventListener('pointermove', move); document.removeEventListener('pointerup', up); ghost?.remove(); });
     });
+    // the menu says where the card is now; picking another column sends it to the end of that one
+    $$('.kbx-mv', wrap).forEach(b => b.onclick = () => { moving = K.find(x => x.id === +b.closest('.kbx-k').dataset.id); $$('.mi', menu).forEach(m => m.setAttribute('aria-checked', !!moving && m.dataset.to === moving.c)); });
   }
-  $$('.kbx-ch .ib', wrap).forEach(b => b.onclick = () => { const col = b.closest('.kbx-c').dataset.c; const k = { id:Date.now(), c:col, t:'New card', tag:['k','Idea'], who:['MK','var(--pl)'] }; K.push(k); paint(); const el = $(`.kbx-k[data-id="${k.id}"]`, wrap); enter(el); const t = $('.t', el); editing = true; t.contentEditable = 'true'; t.focus({ preventScroll:true }); document.getSelection().selectAllChildren(t); t.onblur = () => { editing = false; t.contentEditable = 'false'; k.t = t.textContent.trim() || 'New card'; }; t.onkeydown = e => { if (e.key === 'Enter'){ e.preventDefault(); t.blur(); } }; });
-  paint();
+  $$('.mi', menu).forEach(m => m.onclick = () => { const k = moving; moving = null; if (!k || !K.includes(k) || k.c === m.dataset.to) return;
+    const el = $(`.kbx-k[data-id="${k.id}"]`, wrap), go = () => { K = K.filter(x => x !== k); k.c = m.dataset.to; if (k.c === 'done') delete k.run; K.push(k); paint(); };
+    if (REDUCE || !el) return go();
+    el.animate([{ opacity:1, transform:'none' }, { opacity:0, transform:'translateX(12px)' }], { duration:200, easing:'ease-in', fill:'forwards' }).onfinish = go; });
+  const add = col => { const k = { id:Date.now(), c:col, t:'New card', tag:['k','Idea'], who:['MK','var(--pl)'] }; K.push(k); paint(); const el = $(`.kbx-k[data-id="${k.id}"]`, wrap); enter(el); const t = $('.t', el); editing = true; t.contentEditable = 'true'; t.focus({ preventScroll:true }); document.getSelection().selectAllChildren(t); t.onblur = () => { editing = false; t.contentEditable = 'false'; k.t = t.textContent.trim() || 'New card'; }; t.onkeydown = e => { if (e.key === 'Enter'){ e.preventDefault(); t.blur(); } }; };
+  $$('.kbx-ch .ib', wrap).forEach(b => b.onclick = () => add(b.closest('.kbx-c').dataset.col));
+  $('.kbx-add', r).onclick = () => add(cur);
+  paint(); show(cur);
   c.every(600, () => { if (dragging || editing) return; const k = K.find(x => x.run != null); if (!k) return; k.run = Math.min(1, k.run + .08); const el = $(`.kbx-k[data-id="${k.id}"] .kbx-pr i`, wrap); if (el) el.style.width = k.run * 100 + '%';
-    if (k.run >= 1){ K = K.filter(x => x !== k); k.c = 'done'; delete k.run; K.push(k); paint(); const n = $(`.kbx-k[data-id="${k.id}"]`, wrap); enter(n);
-      const nx = K.find(x => x.c === 'todo' && x.who[0] === 'DA'); if (nx){ c.later(900, function promote(){ if (dragging || editing){ c.later(300, promote); return; } K = K.filter(x => x !== nx); nx.c = 'doing'; nx.run = 0; K.splice(K.findIndex(x => x.c === 'doing'), 0, nx); paint(); enter($(`.kbx-k[data-id="${nx.id}"]`, wrap)); }); } } });
+    if (k.run >= 1){ K = K.filter(x => x !== k); k.c = 'done'; delete k.run; K.push(k); follow('done'); paint(); const n = $(`.kbx-k[data-id="${k.id}"]`, wrap); enter(n);
+      const nx = K.find(x => x.c === 'todo' && x.who[0] === 'DA'); if (nx){ c.later(900, function promote(){ if (dragging || editing){ c.later(300, promote); return; } K = K.filter(x => x !== nx); nx.c = 'doing'; nx.run = 0; K.splice(K.findIndex(x => x.c === 'doing'), 0, nx); paint(); enter($(`.kbx-k[data-id="${nx.id}"]`, wrap)); c.later(700, () => follow('doing')); }); } } });
 });
 </script>
 

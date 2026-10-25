@@ -32,6 +32,7 @@ Task table lists the tasks your agents are working on, with each task's status, 
 - While rows are selected, the header shows the count with Pause, Retry, Cancel and Clear. An action calls `onAction` with the ids and clears the selection.
 - Rows glide to their new places when the order changes, and cancelled rows slide away before `onAction` runs.
 - With no tasks, the table shows a "No agent tasks" note, or your own `empty` content, with an optional `emptyAction` button.
+- Under 560px wide, on a phone or in a narrow card, each task stacks: its name and cost on top, and its status, agent and last update on a line under it. The header row keeps select all and the sort buttons, so nothing is dropped.
 
 ### Accessibility
 
@@ -122,6 +123,10 @@ No. The rows slide out, then `onAction('cancel', ids)` is called. Remove those t
 **How is "Updated" shown?**
 
 `updated` is the number of minutes since the task last changed. It reads as "14m ago", or "Just now" at 0, and the default sort puts the smallest number first.
+
+**Does it work on a phone?**
+
+Yes. Below 560px wide the rows stack instead of scrolling sideways, and every field stays: name, cost, status, agent and when it changed. Selecting rows and the bulk actions work the same way.
 
 **Can I select rows from my own code?**
 

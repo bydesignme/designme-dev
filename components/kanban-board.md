@@ -32,11 +32,13 @@ Kanban board is a task board with columns such as To do, In progress and Done, w
 - Cards that arrive later, or are moved by someone else, come in with an entrance animation.
 - Each column's + button adds a card at the end with its title selected for typing; Enter saves and `onRename` reports it.
 - Cards can carry a coloured `tag` in one of eight tones and an `assignee` avatar, and each column header shows its count.
+- Under 640px wide, on a phone or in a narrow card, the board shows one column at a time, picked with tabs that count each column's cards (a column's `short` name labels its tab). The + beside the tabs adds to that column, and each card's menu moves it to another column. Control the column with `column` and `onColumnChange`.
 
 ### Accessibility
 
 - Each column's + button has an `aria-label`, "Add card" by default, and a tooltip.
 - The floating copy shown while dragging is `aria-hidden`, so it is not read twice.
+- On a narrow board the column tabs are a group labelled "Column" with `aria-pressed` on the one shown, and each card's menu button is labelled "Move card"; its menu lists the columns as `menuitemradio`s with the card's own column checked.
 
 ## Usage in React
 
@@ -51,10 +53,10 @@ import { KanbanBoard } from '@/components/designme/kanban-board/KanbanBoard';
 // The animated preview from designme.dev, rebuilt from the React component: an example of driving it from your own state.
 import { useEffect, useRef, useState } from 'react';
 import { KanbanBoard, type KanbanBoardCard } from './KanbanBoard';
-import { useScript } from '../lib/useScript';
+import { useScript, useTakeover } from '../lib/useScript';
 
 /* ---------- Kanban board: the design agent works through its cards while you drag the rest around ---------- */
-const COLUMNS = [{ key: 'todo', title: 'To do' }, { key: 'doing', title: 'In progress' }, { key: 'done', title: 'Done' }];
+const COLUMNS = [{ key: 'todo', title: 'To do' }, { key: 'doing', title: 'In progress', short: 'Doing' }, { key: 'done', title: 'Done' }];
 const AGENT = { initials: 'DA', color: 'var(--dm-pb)' }, MAYA = { initials: 'MK', color: 'var(--dm-pl)' };
 const DESIGN = { label: 'Design', tone: 'blue' as const }, COPY = { label: 'Copy', tone: 'purple' as const };
 const CARDS: KanbanBoardCard[] = [
@@ -72,6 +74,10 @@ export default function KanbanBoardDemo() {
   useEffect(() => { latest.current = cards; });
   const put = (next: KanbanBoardCard[]) => { latest.current = next; setCards(next); };
   const dragging = useRef(false);
+  // a narrow board shows one column: it follows the agent's card until the visitor takes over
+  const box = useRef<HTMLDivElement>(null), mine = useTakeover(box);
+  const [column, setColumn] = useState('doing');
+  const follow = (key: string) => { if (!mine()) setColumn(key); };
 
   // every 600ms the agent's card fills a little; when it is done it moves to Done and the agent picks up its next card
   useScript(async ({ wait }) => {
@@ -83,22 +89,26 @@ export default function KanbanBoardDemo() {
       const progress = Math.min(1, (card.progress ?? 0) + .08);
       if (progress < 1) { put(list.map(c => c.id === card.id ? { ...c, progress } : c)); continue; }
       put([...list.filter(c => c.id !== card.id), { ...card, column: 'done', progress: undefined }]);
+      follow('done');
       const next = latest.current.find(c => c.column === 'todo' && c.assignee === AGENT);
       if (next) wait(900).then(() => {
         const now = latest.current.find(c => c.id === next.id); if (!now) return;
         const rest = latest.current.filter(c => c.id !== next.id), at = rest.findIndex(c => c.column === 'doing');
         rest.splice(at < 0 ? rest.length : at, 0, { ...now, column: 'doing', progress: 0 });
         put(rest);
+        wait(700).then(() => follow('doing'));
       });
     }
   });
 
   return (
-    <KanbanBoard columns={COLUMNS} cards={cards}
+    <div ref={box} style={{ width: '100%' }}>
+    <KanbanBoard columns={COLUMNS} cards={cards} column={column} onColumnChange={setColumn}
       // a card dropped in Done stops being worked on
       onCardsChange={next => put(next.map(c => c.column === 'done' && c.progress != null ? { ...c, progress: undefined } : c))}
       onDraggingChange={d => { dragging.current = d; }}
-      newCard={column => ({ id: String(Date.now()), column, title: 'New card', tag: { label: 'Idea', tone: 'pink' }, assignee: MAYA })} />
+      newCard={key => ({ id: String(Date.now()), column: key, title: 'New card', tag: { label: 'Idea', tone: 'pink' }, assignee: MAYA })} />
+    </div>
   );
 }
 ```
@@ -116,6 +126,9 @@ export default function KanbanBoardDemo() {
 | `newCard` (optional) | `(column: string) => KanbanBoardCard` | Makes the card the + button adds to a column. It goes to the end of the column with its title ready to type |
 | `onRename` (optional) | `(id: string, title: string) => void` | Called when a card's title is edited |
 | `addLabel` (optional) | `string` | The + buttons' tooltip |
+| `column` (optional) | `string` | The column a narrow board shows. A board under 640px wide shows one column at a time, picked with tabs that count each column's cards, and each card gets a menu to move it to another column. Defaults to the first column |
+| `defaultColumn` (optional) | `string` |  |
+| `onColumnChange` (optional) | `(column: string) => void` |  |
 | `className` (optional) | `string` |  |
 
 ## Questions
@@ -130,7 +143,7 @@ Use `onDraggingChange`. It is called with true when a card starts moving with th
 
 **Can cards be moved with the keyboard?**
 
-Not in this version. Dragging uses pointer events only. You can still move cards from code by changing a card's `column` in `cards`.
+Dragging uses pointer events only. On a narrow board each card also has a Move card button that opens a Move to menu of the columns. You can always move cards from code by changing a card's `column` in `cards`.
 
 **What does a new card look like?**
 
@@ -147,7 +160,8 @@ import { createPortal } from 'react-dom';
 import { cx } from '../lib/cx';
 import { useControllable, useIsoLayoutEffect } from '../lib/hooks';
 import { Icon } from '../lib/icons';
-import { Avatar, Think, Tip } from '../lib/motion';
+import { Avatar, Seg, Think, Tip } from '../lib/motion';
+import { usePopover } from '../lib/popover';
 import '../designme.css';
 import './kanban-board.css';
 
@@ -157,6 +171,8 @@ export interface KanbanBoardColumn {
   key: string;
   /** Like "In progress" */
   title: string;
+  /** A shorter name for the tabs of a narrow board, like "Doing". Defaults to the title */
+  short?: string;
 }
 
 export interface KanbanBoardCard {
@@ -188,6 +204,11 @@ export interface KanbanBoardProps {
   onRename?: (id: string, title: string) => void;
   /** The + buttons' tooltip */
   addLabel?: string;
+  /** The column a narrow board shows. A board under 640px wide shows one column at a time, picked with tabs that count each
+      column's cards, and each card gets a menu to move it to another column. Defaults to the first column */
+  column?: string;
+  defaultColumn?: string;
+  onColumnChange?: (column: string) => void;
   className?: string;
 }
 
@@ -195,7 +216,7 @@ const TONE: Record<KanbanBoardTone, string> = { blue: 'dm-b', purple: 'dm-l', gr
 const uid = () => 'card-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
 
 /** What a card shows under its title; the card itself and the ghost under the pointer both use it */
-function Face({ card }: { card: KanbanBoardCard }) {
+function Face({ card, children }: { card: KanbanBoardCard; children?: ReactNode }) {
   const working = card.progress != null;
   return (
     <>
@@ -204,14 +225,16 @@ function Face({ card }: { card: KanbanBoardCard }) {
         {card.tag && <span className={cx('dm-tag', card.tag.tone && TONE[card.tag.tone])}>{card.tag.label}</span>}
         {working && <Think />}
         {card.assignee && <Avatar initials={card.assignee.initials} color={card.assignee.color} />}
+        {children}
       </span>
     </>
   );
 }
 
-function Card({ card, entering: enters, dragging, editing, onDown, onDone, setRef }: {
+function Card({ card, entering: enters, dragging, editing, onDown, onDone, setRef, moveOpen, onMoveMenu }: {
   card: KanbanBoardCard; entering: boolean; dragging: boolean; editing: boolean;
   onDown: (e: ReactPointerEvent<HTMLDivElement>) => void; onDone: (title: string) => void; setRef: (el: HTMLDivElement | null) => void;
+  moveOpen: boolean; onMoveMenu: (button: HTMLButtonElement) => void;
 }) {
   // a card that arrives after the board appears comes in once, then drops the entrance so a drag can fade it
   const [entering, setEntering] = useState(enters);
@@ -227,7 +250,11 @@ function Card({ card, entering: enters, dragging, editing, onDown, onDone, setRe
       <span key={card.title} ref={title} className="dm-t" contentEditable={editing} suppressContentEditableWarning
         onBlur={editing ? e => onDone(e.currentTarget.textContent ?? '') : undefined}
         onKeyDown={editing ? e => { if (e.key === 'Enter') { e.preventDefault(); e.currentTarget.blur(); } } : undefined}>{card.title}</span>
-      <Face card={card} />
+      <Face card={card}>
+        <Tip label="Move to" off={moveOpen}>
+          <button type="button" className="dm-ib dm-kbx-mv" aria-label="Move card" aria-haspopup="menu" aria-expanded={moveOpen} onClick={e => onMoveMenu(e.currentTarget)}><Icon name="more" size="xs" /></button>
+        </Tip>
+      </Face>
     </div>
   );
 }
@@ -236,7 +263,7 @@ interface Drag { id: string; w: number; h: number; x: number; y: number }
 interface Spot { column: string; index: number }
 
 /** A board where you and the agent move cards, with drag and drop. */
-export function KanbanBoard({ columns, cards, defaultCards = [], onCardsChange, onMove, onDraggingChange, newCard, onRename, addLabel = 'Add card', className }: KanbanBoardProps) {
+export function KanbanBoard({ columns, cards, defaultCards = [], onCardsChange, onMove, onDraggingChange, newCard, onRename, addLabel = 'Add card', column, defaultColumn, onColumnChange, className }: KanbanBoardProps) {
   const [list, setList] = useControllable(cards, defaultCards, onCardsChange);
   const latest = useRef(list);
   useEffect(() => { latest.current = list; });
@@ -262,8 +289,29 @@ export function KanbanBoard({ columns, cards, defaultCards = [], onCardsChange, 
     els.current.get(dropped.id)?.animate([{ transform: 'scale(1.04)' }, { transform: 'none' }], { duration: 350, easing: 'cubic-bezier(.2,.8,.2,1)' });
   }, [dropped]);
 
+  /* ---------- a narrow board: one column at a time, and a menu on each card to move it ---------- */
+  const [shown, setShown] = useControllable(column, defaultColumn ?? columns[0]?.key ?? '', onColumnChange);
+  const bar = useRef<HTMLDivElement>(null);
+  useIsoLayoutEffect(() => {
+    // the column coming into view comes in, the way the site's does
+    const el = cols.current.get(shown); if (!el || !bar.current?.getClientRects().length) return;
+    el.classList.remove('dm-enter'); void el.offsetWidth; el.classList.add('dm-enter');
+  }, [shown]);
+  const moveMenu = usePopover({ align: 'end' });
+  const [moving, setMoving] = useState<string | null>(null);
+  const openMove = (id: string, button: HTMLButtonElement) => {
+    const again = moveMenu.open && moving === id;
+    moveMenu.trigger.ref.current = button; setMoving(id); moveMenu.setOpen(!again);
+  };
+  const moveTo = (to: string) => {
+    moveMenu.closeSoon();
+    const card = latest.current.find(c => c.id === moving); if (!card || card.column === to) return;
+    const rest = latest.current.filter(c => c.id !== card.id), index = rest.filter(c => c.column === to).length;
+    setList([...rest, { ...card, column: to }]); onMove?.(card.id, to, index);
+  };
+
   const down = (card: KanbanBoardCard) => (e: ReactPointerEvent<HTMLDivElement>) => {
-    if (e.button || editing === card.id) return;
+    if (e.button || editing === card.id || (e.target as Element).closest('.dm-kbx-mv')) return;
     const rc = e.currentTarget.getBoundingClientRect(), sx = e.clientX, sy = e.clientY, ox = sx - rc.left, oy = sy - rc.top;
     let moved = false, at: Spot | null = null;
     const move = (ev: PointerEvent) => {
@@ -311,6 +359,11 @@ export function KanbanBoard({ columns, cards, defaultCards = [], onCardsChange, 
   const ghost = drag && list.find(c => c.id === drag.id);
   return (
     <div data-dm="" className={cx('dm-kbx', className)}>
+      <div ref={bar} className="dm-kbx-bar">
+        <Seg className="dm-kbx-tabs" label="Column" value={shown} onChange={setShown}
+          options={columns.map(col => { const n = list.filter(c => c.column === col.key).length; return { value: col.key, label: <>{col.short ?? col.title}<span key={n} className="dm-n dm-num dm-enter">{n}</span></> }; })} />
+        <Tip label={addLabel}><button type="button" className="dm-ib dm-kbx-add" aria-label={addLabel} onClick={() => add(shown)}><Icon name="plus" size="xs" /></button></Tip>
+      </div>
       <div className="dm-kbx-cols">
         {columns.map(col => {
           const here = list.filter(c => c.column === col.key);
@@ -320,11 +373,12 @@ export function KanbanBoard({ columns, cards, defaultCards = [], onCardsChange, 
           for (const c of here) {
             if (c.id !== drag?.id) { if (spot?.column === col.key && spot.index === n) items.push(hole); n++; }
             items.push(<Card key={c.id} card={c} entering={enters(c)} dragging={c.id === drag?.id} editing={editing === c.id} onDown={down(c)}
+              moveOpen={moveMenu.open && moving === c.id} onMoveMenu={b => openMove(c.id, b)}
               onDone={t => rename(c.id, t)} setRef={el => { if (el) els.current.set(c.id, el); else els.current.delete(c.id); }} />);
           }
           if (spot?.column === col.key && spot.index >= n) items.push(hole);
           return (
-            <div key={col.key} className={cx('dm-kbx-c', over === col.key && 'dm-over')} ref={el => { if (el) cols.current.set(col.key, el); else cols.current.delete(col.key); }}>
+            <div key={col.key} className={cx('dm-kbx-c', over === col.key && 'dm-over', shown === col.key && 'dm-on')} ref={el => { if (el) cols.current.set(col.key, el); else cols.current.delete(col.key); }}>
               <div className="dm-kbx-ch">
                 <b>{col.title}</b>
                 <span className="dm-n dm-num">{here.length}</span>
@@ -332,6 +386,17 @@ export function KanbanBoard({ columns, cards, defaultCards = [], onCardsChange, 
               </div>
               <div className="dm-kbx-list">{items}</div>
             </div>
+          );
+        })}
+      </div>
+      <div {...moveMenu.pop} className={cx(moveMenu.pop.className, 'dm-kbx-mp')} role="menu" aria-label="Move to">
+        <div className="dm-ph">Move to</div>
+        {columns.map(col => {
+          const here = list.find(c => c.id === moving)?.column === col.key;
+          return (
+            <button key={col.key} type="button" className="dm-mi" role="menuitemradio" aria-checked={here} onClick={() => moveTo(col.key)}>
+              <span>{col.title}</span><span className="dm-ck"><Icon name="check" size="xs" /></span>
+            </button>
           );
         })}
       </div>

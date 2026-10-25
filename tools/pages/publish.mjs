@@ -4,6 +4,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { createRequire } from 'node:module';
 const HERE = path.dirname(fileURLToPath(import.meta.url)), DIST = path.join(HERE, 'dist'), ROOT = path.resolve(HERE, '../..');
 const expected = new Set(['components', 'docs', 'sitemap.xml']);
 const extra = fs.readdirSync(DIST).filter(f => !expected.has(f));
@@ -25,6 +26,18 @@ fs.writeFileSync(path.join(ROOT, '_redirects'), [
   '# the docs start at their introduction',
   '/docs /docs/introduction 302', '/docs/ /docs/introduction 302', ''
 ].join('\n'));
+// hover styles only apply with a mouse (tools/site/hover-gate.js, run by astro.config.mjs and on the registry's CSS): check
+// no page keeps one a tap could leave stuck. The docs' live previews hold their styles in an escaped srcdoc
+{
+  const { ungated } = createRequire(import.meta.url)('../site/hover-gate.js');
+  const unesc = t => t.replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
+  const left = ['components', 'docs'].flatMap(d => fs.readdirSync(path.join(ROOT, d)).filter(f => f.endsWith('.html')).flatMap(f => {
+    const t = fs.readFileSync(path.join(ROOT, d, f), 'utf8');
+    return [...t.replace(/srcdoc="[^"]*"/g, '').matchAll(/<style[^>]*>([\s\S]*?)<\/style>/g), ...[...t.matchAll(/srcdoc="([^"]*)"/g)].flatMap(m => [...unesc(m[1]).matchAll(/<style[^>]*>([\s\S]*?)<\/style>/g)])]
+      .flatMap(m => ungated(m[1]).map(s => `${d}/${f}: ${s}`));
+  }));
+  if (left.length) throw new Error('hover styles outside (hover:hover) and (pointer:fine): ' + left.slice(0, 5).join(' | '));
+}
 const count = fs.readdirSync(path.join(ROOT, 'components')).filter(f => f.endsWith('.html')).length;
 const docs = fs.readdirSync(path.join(ROOT, 'docs')).filter(f => f.endsWith('.html')).length;
 console.log(`published ${count} pages in components/, ${docs} in docs/, sitemap.xml and _redirects`);

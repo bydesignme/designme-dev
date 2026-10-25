@@ -11,6 +11,10 @@ import SideNav from './SideNav.astro';
 import { icon } from '../lib/data.mjs';
 const { doc = null, reg = null, where, title, toc = [] } = Astro.props;
 const chev = icon('expand_more');
+// the menu's settings, the same as the homepage's: the accent swatches in the homepage picker's order (Default is the style's
+// own accent, lime in Blueprint and blue in Soft, and its twin is left out), and the sound switch's two icons
+const ACCENT_SW = [['default', 'Default'], ['#d4f84a', 'Lime'], ['#116ff8', 'Blue'], ['#7c5cff', 'Violet'], ['#e8366f', 'Rose'], ['#12a150', 'Green'], ['#0ea5a4', 'Teal'], ['#ff850d', 'Orange']];
+const SOUND_IC = '<svg class="on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9.5h3l4.5-4v13L7 14.5H4z"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/></svg><svg class="off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9.5h3l4.5-4v13L7 14.5H4z"/><path d="M16 9.5l5 5M21 9.5l-5 5"/></svg>';
 ---
 <style is:global>
   /* the sidebar and the page side by side, in the header's 1400px row: the sidebar is 232px, as on the homepage, and the page
@@ -173,6 +177,31 @@ const chev = icon('expand_more');
   .dc-mnav-in .side-pages{margin-bottom:12px}
   .dc-mnav-in .side-foot{margin-top:8px;padding:14px 10px 0}
   @media (prefers-reduced-motion:reduce){.dc-chev,.dc-toc-ind{transition:none!important;animation:none!important}}
+  /* the menu's settings, as in the homepage's menu: Blueprint or Soft, the accent and sound, each a row with its name on the
+     left. The theme stays in the header */
+  .dc-set{margin:4px 0 0;border-top:1px solid var(--sh-line)}
+  .dc-set-r{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 12px;min-height:48px;padding:8px 4px;border-bottom:1px solid var(--sh-line)}
+  /* the header's style switch, at the size it has there (the menu's own reset takes a button's padding away) */
+  .dc-set .pg-seg button{height:24px;padding:0 10px;border-radius:999px;color:var(--pg-dim);font:500 13px/1 var(--pg-sans)}
+  .dc-set .pg-seg button[aria-pressed="true"]{background:var(--pg-bg);color:var(--pg-fg)}
+  .dc-set-l{flex:none;font-size:14px;color:var(--sh-dim)}
+  /* on a narrow phone the swatches go under their name */
+  .dc-acc{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px;margin-left:auto}
+  .dc-set .dc-sw{position:relative;flex:none;width:26px;height:26px;padding:0;border:0;border-radius:50%;background:var(--sw,#d4f84a);cursor:pointer}
+  .dc-set .dc-sw[data-acc="default"]{--sw:#d4f84a}
+  :root[data-style="soft"] .dc-set .dc-sw[data-acc="default"]{--sw:#116ff8}
+  :root:not([data-style="soft"]) .dc-set .dc-sw[data-acc="#d4f84a"],:root[data-style="soft"] .dc-set .dc-sw[data-acc="#116ff8"]{display:none}
+  /* the picked swatch has a ring in the text colour, which holds 3:1 on the menu whatever the colour inside it */
+  .dc-set .dc-sw[aria-checked="true"],.dc-set .dc-sw.any.on{box-shadow:0 0 0 2px var(--pg-bg),0 0 0 4px var(--sh-text)}
+  .dc-set .dc-sw.any{background:conic-gradient(#ff4d4d,#ffb84d,#f4e04d,#4dd47a,#4dc3ff,#7a6bff,#ff4dd8,#ff4d4d)}
+  .dc-set .dc-sw.any.on{background:var(--sw)}
+  .dc-set .dc-sw.any input{position:absolute;inset:0;width:100%;height:100%;margin:0;padding:0;border:0;opacity:0;cursor:pointer}
+  .dc-set .dc-sw:focus-visible,.dc-set .dc-sw.any:has(input:focus-visible){outline:2px solid var(--pg-fg);outline-offset:4px}
+  .dc-set .dc-snd{display:grid;place-items:center;width:32px;height:32px;border-radius:999px;box-shadow:inset 0 0 0 1px var(--sh-line-2);color:var(--sh-dim)}
+  .dc-set .dc-snd[aria-pressed="true"]{color:var(--sh-text)}
+  .dc-set .dc-snd svg{width:16px;height:16px}
+  .dc-set .dc-snd .on,.dc-set .dc-snd[aria-pressed="true"] .off{display:none}
+  .dc-set .dc-snd[aria-pressed="true"] .on{display:block}
   @media (max-width:960px){
     .dc{display:block;padding:0 24px}
     .side{display:none}
@@ -194,7 +223,16 @@ const chev = icon('expand_more');
   <div class="dc-main">
     <div class="dc-body">
       <details class="dc-mnav"><summary>{where}<span aria-hidden="true">/</span><b>{title}</b><span class="dc-chev" set:html={chev} /></summary>
-        <div class="dc-mnav-in"><SideNav doc={doc} reg={reg} mode="menu" /></div>
+        <div class="dc-mnav-in"><SideNav doc={doc} reg={reg} mode="menu">
+          <div class="dc-set">
+            <div class="dc-set-r"><span class="dc-set-l" id="dc-style-l">Style</span><div class="pg-seg" role="group" aria-labelledby="dc-style-l"><button type="button" data-style-set="bp">Blueprint</button><button type="button" data-style-set="soft">Soft</button></div></div>
+            <div class="dc-set-r"><span class="dc-set-l" id="dc-acc-l">Accent</span><div class="dc-acc" role="radiogroup" aria-labelledby="dc-acc-l">
+              {ACCENT_SW.map(([v, n]) => <button type="button" class="dc-sw" role="radio" aria-checked="false" data-acc={v} aria-label={n} title={n} style={v === 'default' ? undefined : `--sw:${v}`}></button>)}
+              <label class="dc-sw any" title="Pick any colour"><input type="color" value="#ff850d" aria-label="Pick any colour"></label>
+            </div></div>
+            <div class="dc-set-r"><span class="dc-set-l">Sound</span><button type="button" class="dc-snd" aria-pressed="false" aria-label="Turn sounds on" set:html={SOUND_IC} /></div>
+          </div>
+        </SideNav></div>
       </details>
       <slot />
     </div>

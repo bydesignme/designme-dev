@@ -8,7 +8,7 @@
 //   .pg-t    a component's name, 14px medium; .pg-d its description, 14px in grey
 // Everything else is 14px too. The header's row is 1400px wide and the content's column (.pg-wrap) 960px; the lines
 // under the header and the section bar, and over the footer, run the full width of the window
-import { LOGO, SITE, FONT_CSS } from '../lib/data.mjs';
+import { LOGO, SITE, FONT_CSS, HITS_JS } from '../lib/data.mjs';
 // the GitHub pill: the repository, and GitHub's mark (Simple Icons, the same mark as the components' Brand)
 const GITHUB = 'https://github.com/bydesignme/designme-dev';
 const GH_MARK = '<path fill="currentColor" d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/>';
@@ -37,6 +37,49 @@ const url = SITE + path;
 <link rel="preload" href="/fonts/inter-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/fonts/inter-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin>
 <script is:inline>try{var t=localStorage.getItem('dmui-theme');if(t)document.documentElement.setAttribute('data-theme',t);var s=localStorage.getItem('dmui-style')||'soft';if(s==='soft')document.documentElement.setAttribute('data-style','soft')}catch(e){}</script>
+<script is:inline>
+/* the accent picked on any page of the site (dmui-accent, as the homepage's picker saves it), applied before the page paints.
+   One colour becomes the accent's roles in the style and theme you're looking at, worked out the way the homepage's picker
+   does it: the fill (--accent, and --accent-2 for hover), what sits on it (--on-accent, white or near-black, whichever APCA
+   says reads better), text and icons (--accent-fg, 4.5:1 and Lc 60), lines and marks (--accent-mark, 3:1) and the tint */
+(function(){
+  var W = [255,255,255], K = [0,0,0], KEYS = ['--accent','--accent-2','--accent-bg','--on-accent','--accent-fg','--accent-mark'];
+  function rgb(h){ h = h.replace('#',''); if (h.length === 3) h = h.split('').map(function(c){ return c + c; }).join(''); return [parseInt(h.slice(0,2),16), parseInt(h.slice(2,4),16), parseInt(h.slice(4,6),16)]; }
+  function mix(a, b, t){ return [0,1,2].map(function(i){ return Math.round(a[i] + (b[i] - a[i]) * t); }); }
+  function hex(c){ return '#' + c.map(function(v){ return v.toString(16).padStart(2,'0'); }).join(''); }
+  function rgba(c, a){ return 'rgba(' + c.join(',') + ',' + a + ')'; }
+  function lum(c){ var v = c.map(function(x){ x /= 255; return x <= .03928 ? x / 12.92 : Math.pow((x + .055) / 1.055, 2.4); }); return .2126 * v[0] + .7152 * v[1] + .0722 * v[2]; }
+  function ratio(a, b){ var x = lum(a), y = lum(b); return (Math.max(x, y) + .05) / (Math.min(x, y) + .05); }
+  function apca(t, b){ var y = function(c){ var Y = .2126729 * Math.pow(c[0] / 255, 2.4) + .7151522 * Math.pow(c[1] / 255, 2.4) + .072175 * Math.pow(c[2] / 255, 2.4); return Y < .022 ? Y + Math.pow(.022 - Y, 1.414) : Y; };
+    var yt = y(t), yb = y(b); if (Math.abs(yb - yt) < .0005) return 0; var s = yb > yt ? (Math.pow(yb, .56) - Math.pow(yt, .57)) * 1.14 : (Math.pow(yb, .65) - Math.pow(yt, .62)) * 1.14;
+    return Math.abs(s) < .1 ? 0 : (s > 0 ? s - .027 : s + .027) * 100; }
+  window.dmAccentRoles = function(base, soft, dark){
+    var c = rgb(base), v = {};
+    if (!soft && !dark){ v['--accent'] = hex(mix(c, K, .06)); v['--accent-bg'] = rgba(c, .08); }
+    if (!soft && dark){ v['--accent'] = hex(mix(c, W, .1)); v['--accent-bg'] = rgba(c, .12); }
+    if (soft && !dark){ v['--accent'] = base; v['--accent-bg'] = hex(mix(W, c, .09)); }
+    if (soft && dark){ v['--accent'] = hex(mix(c, W, .2)); v['--accent-bg'] = rgba(c, .16); }
+    var fl = rgb(v['--accent'] || base), INK = [18,10,2], useW = Math.abs(apca(W, fl)) >= Math.abs(apca(INK, fl)), onC = useW ? W : INK;
+    for (var j = 0; j <= 40; j += 2){ var f2 = mix(fl, useW ? K : W, j / 100); if (ratio(onC, f2) >= 4.5 && Math.abs(apca(onC, f2)) >= 60){ fl = f2; break; } }
+    v['--accent'] = hex(fl); v['--on-accent'] = useW ? '#ffffff' : '#120a02';
+    // hovering a fill moves it away from its text colour, as on the homepage
+    v['--accent-2'] = hex(mix(fl, useW ? K : W, .14));
+    var fill = fl, chip = dark ? [52,52,52] : [236,236,236], to = dark ? W : K;
+    function reach(need, cap, on, lc){ for (var i = 0; i <= 100; i += 2){ var m = mix(fill, to, i / 100); if (ratio(m, on) >= need && (!lc || Math.abs(apca(m, on)) >= lc)) return i / 100 <= cap ? hex(m) : null; } return null; }
+    v['--accent-mark'] = reach(3, 1, chip); v['--accent-fg'] = reach(4.5, .4, mix(chip, fill, .12), 60) || (dark ? '#f2f2f2' : '#111318');
+    return v;
+  };
+  window.dmAccent = function(base){
+    var r = document.documentElement, s = r.style;
+    KEYS.forEach(function(k){ s.removeProperty(k); });
+    if (!base || base === 'default') return;
+    var t = r.getAttribute('data-theme'), dark = t ? t === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+    var v = window.dmAccentRoles(base, r.getAttribute('data-style') === 'soft', dark);
+    for (var k in v) if (v[k]) s.setProperty(k, v[k]);
+  };
+  try { var a = localStorage.getItem('dmui-accent'); if (a && a !== 'default') window.dmAccent(a); } catch(e){}
+})();
+</script>
 {jsonld.map(j => <script type="application/ld+json" is:inline set:html={JSON.stringify(j)} />)}
 <slot name="head" />
 <style is:inline set:html={FONT_CSS} />
@@ -48,8 +91,11 @@ const url = SITE + path;
 :root[data-theme="dark"]{--pg-bg:#111111;--pg-fg:#ededee;--pg-dim:#c6c8ce;--pg-muted:#b6b8bf;--pg-line:rgba(255,255,255,.08);--pg-line2:rgba(255,255,255,.14);--pg-soft:#1c1c1c;--pg-chip:rgba(255,255,255,.06);--pg-ink:#f5f5f4;--pg-on-ink:#111318;--pg-top:rgba(17,17,17,.86);color-scheme:dark}
 *{box-sizing:border-box}
 /* in-page links (On this page, a section's heading, a component page's section bar) glide to their section, which lands
-   under the sticky header (each page's sections add their own scroll-margin-top); with reduced motion they jump */
-html{-webkit-text-size-adjust:100%;scroll-padding-top:var(--pg-head)}
+   under the sticky header: every target keeps the header's height and a little more clear above it (scroll-margin-top; a
+   page's sections set their own), and so do the page's own controls when the focus moves to them. With reduced motion
+   they jump */
+html{-webkit-text-size-adjust:100%}
+:where(.pg-main [id]:not([data-c] *), .pg-main :is(a[href],button,summary,input):not([data-c] *)){scroll-margin-top:calc(var(--pg-head) + 24px)}
 @media (prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}
 body{margin:0;background:var(--pg-bg);color:var(--pg-fg);font:14px/1.6 var(--pg-sans);letter-spacing:-.006em;-webkit-font-smoothing:antialiased}
 a{color:inherit}
@@ -133,6 +179,19 @@ a{color:inherit}
 @media (max-width:960px){:root{--pg-head:61px}.pg-top-in{padding:0 24px}.pg-wrap{padding:0 24px}.pg-top .pg-style{display:none}.pg-gh{height:32px;padding:0 12px 0 10px}}
 @media (max-width:640px){.pg-top-in{padding:0 16px}.pg-wrap{padding:0 16px}.pg-logo svg{height:14px}.pg-h1{font-size:20px}.pg-main{padding:24px 0 64px}.pg-sh{padding-top:40px;margin-bottom:20px}.pg-foot-in{padding-block:24px 32px}}
 @media (max-width:420px){.pg-top-in{gap:4px}.pg-gh{padding:0 9px 0 8px}}
+/* tap areas: on a touch screen every control of the page's own (the header, the menu, the sidebar, links and buttons in the
+   text) gets a clear area of at least 40px square around it, as the components do (their core's @media (pointer:coarse)),
+   without changing how it looks. The tap-area script below shrinks two areas that would overlap, so each tap lands on the
+   control nearest to it. It weighs nothing (:where), so a control's own position wins; one that draws with its ::before
+   uses its ::after, and a card's stretched link is left as it is. Book a call draws with both, but only on hover, which a
+   touch screen doesn't have, so there its ::before is the tap area */
+@media (pointer:coarse){
+  :where(body) :where(button,a[href],summary,[role="button"],[role="tab"],[role="switch"],[role="radio"],[role="checkbox"],label:has(input[type="color"],input[type="checkbox"],input[type="radio"])):not(:where([data-c],[data-c] *,.pg-link)){position:relative;--hit-w:40px;--hit-h:40px}
+  :where(body) :where(button,a[href],summary,[role="button"],[role="tab"],[role="switch"],[role="radio"],[role="checkbox"],label:has(input[type="color"],input[type="checkbox"],input[type="radio"])):not(:where([data-c],[data-c] *,.pg-link,.side-ul .side-a.act,.hire-btn,details.cp-file summary))::before,
+  :where(body) :where(button,a[href],summary,[role="button"],[role="tab"],[role="switch"],[role="radio"],[role="checkbox"]):where(.side-ul .side-a.act,details.cp-file summary):not(:where([data-c] *))::after{content:"";position:absolute;inset:min(0px,(100% - var(--hit-h)) / 2) min(0px,(100% - var(--hit-w)) / 2);--dm-hit:1}
+  body .hire-btn{overflow:visible}
+  body .hire-btn::before{left:auto;top:auto;width:auto;height:auto;margin:0;inset:min(0px,(100% - var(--hit-h)) / 2) min(0px,(100% - var(--hit-w)) / 2);border-radius:0;background:none;opacity:0;transform:none;transition:none;--dm-hit:1}
+}
 /* read out by screen readers, not shown */
 .pg-sr{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0}
 </style>
@@ -215,6 +274,90 @@ a{color:inherit}
   }); });
 })();
 </script>
+<script is:inline>
+// the menu's settings on a phone or tablet: Blueprint or Soft (the header's script above handles every [data-style-set]), the
+// accent and sound, saved under the homepage's own keys so a choice made on one page holds on every other: the accent in
+// local storage (dmui-accent), sound in session storage (dmui-sound), so it starts muted in a new tab, as on the homepage
+(function(){
+  var root = document.documentElement;
+  // ---- the accent: the same swatches as the homepage's picker, and the colour worked out again when the style or theme changes
+  var sws = [].slice.call(document.querySelectorAll('[data-acc]')), any = document.querySelector('.dc-sw.any'), anyIn = any && any.querySelector('input');
+  var cur = 'default'; try { cur = localStorage.getItem('dmui-accent') || 'default'; } catch(e){}
+  var apply = function(){ if (window.dmAccent) window.dmAccent(cur === 'default' ? null : cur); };
+  var mark = function(){
+    var known = sws.some(function(b){ return b.dataset.acc === cur; });
+    sws.forEach(function(b){ b.setAttribute('aria-checked', String(b.dataset.acc === cur)); });
+    if (any){ any.classList.toggle('on', !known); if (!known) any.style.setProperty('--sw', cur); else any.style.removeProperty('--sw'); }
+  };
+  var commit = function(v){ cur = v; try { localStorage.setItem('dmui-accent', v); } catch(e){} apply(); mark(); Snd.play('select'); };
+  sws.forEach(function(b){ b.addEventListener('click', function(){ commit(b.dataset.acc); }); });
+  if (anyIn){ anyIn.addEventListener('input', function(){ cur = anyIn.value; apply(); mark(); }); anyIn.addEventListener('change', function(){ commit(anyIn.value); }); }
+  new MutationObserver(apply).observe(root, { attributes:true, attributeFilter:['data-style', 'data-theme'] });
+  matchMedia('(prefers-color-scheme: dark)').addEventListener('change', apply);
+  mark();
+
+  // ---- sound: the homepage's recordings (sounds/ui.wav, which sounds/ui.json maps), fetched once sound is on
+  var Snd = (function(){
+    var on = false; try { on = sessionStorage.getItem('dmui-sound') === 'on'; } catch(e){}
+    var ctx = null, master = null, buf = null, map = null, loading = null, last = 0, VARY = { hover:.05, click:.04, tick:.04, tab:.03 };
+    function load(){
+      if (loading || !ctx) return loading;
+      loading = Promise.all([fetch('/sounds/ui.json').then(function(r){ return r.json(); }), fetch('/sounds/ui.wav').then(function(r){ return r.arrayBuffer(); })])
+        .then(function(x){ return new Promise(function(res, rej){ ctx.decodeAudioData(x[1], res, rej); }).then(function(b){ buf = b; map = x[0]; }); })
+        .catch(function(){ loading = null; });
+      return loading;
+    }
+    function ensure(){
+      if (!ctx){ var AC = window.AudioContext || window.webkitAudioContext; if (!AC) return; ctx = new AC(); master = ctx.createGain(); master.gain.value = .7; var comp = ctx.createDynamicsCompressor(); master.connect(comp); comp.connect(ctx.destination); }
+      if (ctx.state === 'suspended') ctx.resume();
+      if (on) load();
+    }
+    function sample(n){
+      var s = map && map[n]; if (!s || !on || !ctx || ctx.state !== 'running') return;
+      var src = ctx.createBufferSource(), g = ctx.createGain(), v = VARY[n] || 0;
+      src.buffer = buf; src.playbackRate.value = 1 + (Math.random() * 2 - 1) * v; g.gain.value = s[2];
+      src.connect(g); g.connect(master); src.start(ctx.currentTime, s[0], s[1]);
+    }
+    return {
+      ensure: ensure, get on(){ return on; }, get last(){ return last; },
+      play: function(n){ last = performance.now(); try { if (buf) sample(n); else if (on && load()){ var t = last; loading.then(function(){ if (performance.now() - t < 400) sample(n); }); } } catch(e){} },
+      set: function(v){ on = v; try { sessionStorage.setItem('dmui-sound', v ? 'on' : 'off'); } catch(e){} if (v) ensure(); }
+    };
+  })();
+  ['pointerdown', 'keydown'].forEach(function(ev){ document.addEventListener(ev, function(){ Snd.ensure(); }, { capture:true }); });
+  // every click and hover gets a sound, as on the homepage: anything with a pointer cursor counts, a switch or a checkbox says on
+  // or off, typing fields stay quiet, and hovers tick once per control, never while the page scrolls, and only for a mouse
+  var FIELD = 'input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),textarea,select,[contenteditable="true"]';
+  var live = function(el){ return !(el.disabled || el.getAttribute('aria-disabled') === 'true'); };
+  var control = function(t){ for (var el = t, k = 0; el && el.nodeType === 1 && k < 6; el = el.parentElement, k++){ if (el.matches(FIELD)) return null; var c = getComputedStyle(el).cursor; if (c === 'pointer') return el; if (c === 'not-allowed') return null; } return null; };
+  document.addEventListener('click', function(e){
+    if (!Snd.on || !e.isTrusted) return;
+    var el = control(e.target); if (!el || !live(el)) return;
+    var t0 = performance.now();
+    setTimeout(function(){
+      if (Snd.last >= t0) return;
+      var sw = el.closest('[role="switch"],[role="checkbox"],[role="menuitemcheckbox"],input[type="checkbox"]');
+      if (sw) Snd.play(sw.matches('input') ? (sw.checked ? 'on' : 'off') : sw.getAttribute('aria-checked') === 'true' ? 'on' : 'off');
+      else Snd.play('click');
+    }, 0);
+  }, true);
+  var over = null, lastHover = 0, still = 0;
+  var moved = function(){ still = performance.now(); over = null; };
+  addEventListener('scroll', moved, { capture:true, passive:true }); addEventListener('wheel', moved, { passive:true });
+  document.addEventListener('pointerover', function(e){
+    if (!Snd.on || e.pointerType !== 'mouse') return;
+    var el = control(e.target); if (el === over) return; over = el;
+    var now = performance.now(); if (!el || !live(el) || now - still < 180 || now - lastHover < 60) return;
+    lastHover = now; Snd.play('hover');
+  }, { passive:true });
+  // the switch in the menu
+  var sb = [].slice.call(document.querySelectorAll('.dc-snd'));
+  var paint = function(){ sb.forEach(function(b){ b.setAttribute('aria-pressed', String(Snd.on)); b.setAttribute('aria-label', Snd.on ? 'Mute sounds' : 'Turn sounds on'); b.title = Snd.on ? 'Sound on' : 'Sound off'; }); };
+  sb.forEach(function(b){ b.addEventListener('click', function(){ Snd.set(!Snd.on); paint(); if (Snd.on) Snd.play('on'); }); });
+  paint();
+})();
+</script>
+<script is:inline set:html={HITS_JS} />
 <slot name="end" />
 </body>
 </html>

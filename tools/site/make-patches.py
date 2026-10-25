@@ -444,8 +444,9 @@ patch("""    sq.addEventListener('keydown', e => { if (e.key === 'Escape'){ sq.v
       if (q0){ sq.value = q0; query = q0; applyView(); } }""")
 
 # ---------- a card's buttons on a touch screen ----------
-# with a mouse they appear over the stage on hover; a touch screen has no hover, so there they sit in the card's footer row,
-# beside its name, as a row of icons that never covers the component or its text. Each keeps its name for screen readers
+# with a mouse they appear over the stage on hover; a touch screen has no hover, and on a phone-sized window there's no room
+# above the component for them, so there they sit in the card's footer row, beside its name, as a row of icons that never
+# covers the component or its text. Each keeps its name for screen readers
 patch("""    function placeCodeBtns(){
       const soft = root.getAttribute('data-style') === 'soft';
       $$('.comp').forEach(c => {
@@ -454,7 +455,7 @@ patch("""    function placeCodeBtns(){
         const st = c.querySelector('.stage'); if (btns.parentElement !== st) st.appendChild(btns);
       });
     }
-    placeCodeBtns();""", """    const touch = matchMedia('(hover: none)');
+    placeCodeBtns();""", """    const touch = matchMedia('(hover: none), (max-width: 640px)');
     const NAME = { anim:n => 'Animate ' + n, view:n => 'View the code of ' + n, copy:n => 'Copy the code of ' + n };
     function placeCodeBtns(){
       const soft = root.getAttribute('data-style') === 'soft';
@@ -727,9 +728,10 @@ body.ui section.faq{display:none}
   body.ui .lib-sec .sec-head{padding:40px 0 14px;margin-bottom:20px}
   .grp-sw+.lib-sec .sec-head{padding-top:28px}
 }
-/* a card's buttons on a touch screen: an icon row in the footer, beside the name, with the line about it under both.
-   The script moves them there; until it has, they stay out of the stage so they never cover the component */
-@media (hover:none){
+/* a card's buttons on a touch screen, and in a phone-sized window (where the stage has no room above the component for them):
+   an icon row in the footer, beside the name, with the line about it under both. The script moves them there; until it
+   has, they stay out of the stage so they never cover the component */
+@media (hover:none),(max-width:640px){
   body.ui main .stage>.code-btns{display:none}
   body.ui main .comp>.comp-head{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;column-gap:0;padding:11px 4px 7px 10px}
   body.ui main .comp-head>div{display:contents}
@@ -897,5 +899,61 @@ patch("""if (await copyText(tab === 'shared' || react ? textFor(tab) : bundle(cu
       """if (await copyText(tab === 'shared' || react ? textFor(tab) : bundle(cur.id))){ Sound.play('copy'); copiedOn($('#dv-copy')); showToast(""")
 patch("""    $('#dv-cmd').addEventListener('click', async () => { if (await copyText($('#dv-cmd-t').textContent)){ Sound.play('copy'); showToast('Install command copied'); } });""",
       """    $('#dv-cmd').addEventListener('click', async () => { if (await copyText($('#dv-cmd-t').textContent)){ Sound.play('copy'); copiedOn($('#dv-cmd')); showToast('Install command copied'); } });""")
+# ---------- phones and tablets, round 2: the back-to-top button, anchors under the header, tap areas and sound ----------
+# back to top: it floats in the window's corner only where the page has a gutter beside the content wide enough to hold it
+# (36px, in the middle of the gutter, on screens about 1440px and wider); anywhere narrower it would cover the cards, so it
+# sits at the start of the footer instead, beside its links, where it covers nothing
+patch("""    b.innerHTML = `${ic('arrow_upward','sm')}<span class="tt-tip">Back to top</span>`; document.body.appendChild(b);
+    const paint = () => b.classList.toggle('show', scrollY > 700);
+    addEventListener('scroll', paint, { passive:true }); paint();""", """    b.innerHTML = `${ic('arrow_upward','sm')}<span class="tt-tip">Back to top</span>`;
+    const foot = $('.site-foot'), col = $('main');
+    let side = null;
+    const paint = () => b.classList.toggle('show', !side || scrollY > 700);
+    const place = () => {
+      const gut = document.documentElement.clientWidth - col.getBoundingClientRect().right, s = gut >= 52 || !foot;
+      b.style.setProperty('--tt-r', Math.max(8, Math.floor((gut - 36) / 2)) + 'px');
+      if (s !== side){ side = s; b.classList.toggle('flow', !s); if (s) document.body.appendChild(b); else foot.prepend(b); }
+      paint();
+    };
+    addEventListener('scroll', paint, { passive:true }); addEventListener('resize', place); place();""")
+# sound stays as you set it while you move between pages, and starts muted again in a new tab (session storage, the same
+# key the docs and component pages read)
+patch("""    let ctx = null, master = null, on = false, last = 0;""", """    let ctx = null, master = null, on = (() => { try { return sessionStorage.getItem('dmui-sound') === 'on'; } catch(e) { return false; } })(), last = 0;""")
+patch("""      set(v){ on = v; if (v) ensure(); }""", """      set(v){ on = v; try { sessionStorage.setItem('dmui-sound', v ? 'on' : 'off'); } catch(e) {} if (v) ensure(); }""")
+patch("""Your theme, style and accent colour are kept in your browser's local storage and are never sent to us.""",
+      """Your theme, style and accent colour are kept in your browser's local storage, and whether sound is on is kept in its session storage until you close the tab. None of it is sent to us.""")
+# the site's controls that get a tap area, and those that already draw with their ::before (they use their ::after) or with both
+HIT_CTRL = 'button,a[href],summary,[role="button"],[role="tab"],[role="switch"],[role="checkbox"],[role="radio"],[role="option"],[role="menuitemradio"],label:has(input[type="checkbox"],input[type="radio"],input[type="color"])'
+HIT_B = '.side-ul .side-a.act,.hire-btn'
+HIT_A = '.hire-btn,body.ui .brand,body.ui .code-btns .anim-btn,body.ui .top .btn.primary'
+CSS += """
+/* back to top: 36px in the middle of the gutter beside the content where there is one wide enough (the script sets --tt-r),
+   otherwise at the start of the footer, beside its links */
+.to-top{width:36px;height:36px;right:var(--tt-r,8px);bottom:24px}
+body.ui .site-foot .to-top.flow{position:relative;inset:auto;float:right;width:40px;height:40px;margin:-8px 0 0 16px;box-shadow:none}
+/* in-page links, the sidebar's and the menu's jumps, and a link to a card from another page land with their target 20px
+   under the sticky header (--hh), not behind it; with reduced motion they jump rather than glide. Focusable controls outside
+   the components keep the same room, so the focus never hides under the header either */
+html:root{scroll-padding-top:0}
+:where(main#components, main [id]:not(.v2 *), .lib-sec, main .comp, .grp-sw, .grp-next, main :is(a[href],button,summary):not(.v2 *)){scroll-margin-top:calc(var(--hh) + 20px)}
+/* a section's folding body clips its cards without being a scroll container (clip, not hidden), so a jump to its first card
+   keeps that room above it instead of stopping at the section's edge */
+.sec-body>.sec-uf{overflow:clip}
+/* tap areas: on a touch screen every control of the site's own (the header, the menu, the cards' rows, the footer) gets a
+   clear area of at least 40px square around it, as the components do (the components' core, @media (pointer:coarse)),
+   without changing how it looks. The core's script shrinks two areas that would overlap, so each tap lands on the control
+   nearest to it. It weighs nothing (:where), so a control's own position wins; one that draws with its ::before uses its
+   ::after. Book a call draws with both, but only on hover, which a touch screen doesn't have, so there its ::before is the
+   tap area */
+@media (pointer:coarse){
+  :where(body.ui) :where(""" + HIT_CTRL + """):not(:where(.v2,.v2 *)){position:relative;--hit-w:40px;--hit-h:40px}
+  :where(body.ui) :where(""" + HIT_CTRL + """):not(:where(.v2,.v2 *,""" + HIT_B + """))::before,
+  :where(body.ui) :where(""" + HIT_CTRL + """):where(""" + HIT_B + """):not(:where(.v2 *,""" + HIT_A + """))::after{content:"";position:absolute;inset:min(0px,(100% - var(--hit-h)) / 2) min(0px,(100% - var(--hit-w)) / 2);--dm-hit:1}
+  body.ui .hire-btn{overflow:visible}
+  /* a card's name keeps its ellipsis, and its link's tap area reaches past the line it sits on */
+  body.ui main .comp-head .comp-title{overflow:clip;overflow-clip-margin:12px}
+  body.ui .hire-btn::before{left:auto;top:auto;width:auto;height:auto;margin:0;inset:min(0px,(100% - var(--hit-h)) / 2) min(0px,(100% - var(--hit-w)) / 2);border-radius:0;background:none;opacity:0;transform:none;transition:none;--dm-hit:1}
+}
+"""
 json.dump({ 'patches': P, 'css': CSS },open(os.path.join(HERE, 'site-patches.json'), 'w'), indent=1)
 print(len(P), 'patches')

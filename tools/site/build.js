@@ -76,7 +76,29 @@ function accentRoles(text){
   return text.replace(/(^|[;{\s])((?:color|caret-color|text-decoration(?:-color)?|text-emphasis-color|stroke|fill|outline(?:-color)?|border(?:-[a-z-]+)?|box-shadow|column-rule(?:-color)?)\s*:)([^;{}]*)/g,
     (m, pre, prop, val) => pre + prop + val.replace(/(?<!--accent-(?:fg|mark),)var\(--accent\)/g, `var(--accent-${ROLE[prop.slice(0, -1).trim()] || 'mark'},var(--accent))`));
 }
-const CSS = accentRoles(neutralDark(soft.slice(cssA, soft.indexOf('</style>', cssA))));
+// hover styles apply only where there is a mouse (hover-gate.js): everything below, the homepage, the code viewer, the
+// registry and core.css, and the React CSS synced from them, gets them gated
+const { hoverGate, ungated } = require('./hover-gate');
+const CSS = hoverGate(accentRoles(neutralDark(soft.slice(cssA, soft.indexOf('</style>', cssA)))));
+/* the touch tap areas (the core's @media (pointer:coarse) block) draw on a control's ::before, or its ::after where the
+   component already draws with the ::before. Every selector that draws with either has to be in that block's lists, so a new
+   component's drawing is never replaced by a tap area */
+{
+  const root = postcss.parse(CSS); let hit = null; const used = { before:new Set(), after:new Set() };
+  root.walkRules(r => {
+    if (r.parent && r.parent.type === 'atrule' && /keyframes/.test(r.parent.name)) return;
+    if (r.some(d => d.prop === '--dm-hit')){ hit = r; return; }
+    if (!r.some(d => d.prop === 'content' && !/^(none|normal)$/.test(d.value.trim()))) return;
+    for (const sel of r.selectors){ const m = sel.match(/^(.*?)::?(before|after)\s*$/); if (m && !/(^|[\s>+~(])\.(card|card-h|card-f|stage)(?![\w-])/.test(m[1])) used[m[2]].add(m[1].trim()); }
+  });
+  if (!hit) throw new Error('the touch tap area rule (--dm-hit) is missing from the core CSS');
+  const list = (sel, k) => { const m = sel.match(k === 'before' ? /:not\(:where\((.*)\)\)::before$/ : /:not\(:where\((.*)\)\)::after$/); return m ? postcss.list.comma(m[1]).map(x => x.trim()) : []; };
+  const listed = { before:new Set(hit.selectors.flatMap(x => list(x, 'before'))), after:new Set(hit.selectors.flatMap(x => list(x, 'after'))) };
+  for (const k of ['before', 'after']){
+    const miss = [...used[k]].filter(x => !listed[k].has(x));
+    if (miss.length) throw new Error(`these draw with a ::${k}; add them to the touch tap area lists in soft-2/index.html: ${miss.join(', ')}`);
+  }
+}
 const spriteM = soft.match(/<svg xmlns="http:\/\/www.w3.org\/2000\/svg" style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true">[\s\S]*?<\/svg>/);
 const SPRITE = spriteM[0];
 const scrA = soft.indexOf('<script>', spriteM.index + SPRITE.length) + '<script>'.length;
@@ -121,6 +143,8 @@ function rootPart(sel){
 function scopeSel(sel){
   sel = sel.trim();
   // the stage wrappers of the gallery map onto the mount root, which carries .v2
+  // the touch tap areas are written for controls inside a stage; here that is the mount root
+  sel = sel.replace(/^:where\(\.stage-in\) /, '.v2 ');
   sel = sel.replace(/\.card\.bare \.stage-in/g, '.v2.stage-in.bare').replace(/\.card\.wide \.stage-in/g, '.v2.stage-in.wide')
            .replace(/\.stage:has\(\.dm\)>\.stage-in/g, '.v2.stage-in:has(>.dm)').replace(/^\.stage-in\b/, '.v2.stage-in');
   if (SHELL.test(sel)) return null;
@@ -274,6 +298,8 @@ const heightsOf = id => !HEIGHTS || !HEIGHTS.heights[id] ? '' : ` style="${HEIGH
   if (asks !== 4) throw new Error(`expected 4 .ask rules in the site css, found ${asks}`);
   own += '\n/* a card that spans the row can leave a gap after an odd card; let the next one fill it */\n.grid{grid-auto-flow:row dense}';
   own += SITE_PATCHES.css;
+  // the site's own hover styles are gated the same way as the components'
+  own = hoverGate(own);
   site = site.slice(0, a) + '<style>\n@layer site{' + own + '\n}\n</style>\n<style id="v2-css">\n' + V2CSS + '</style>' + HEIGHTS_CSS + site.slice(b + 8);
 }
 /* ---------- site: React components have shipped ---------- */
@@ -401,7 +427,7 @@ function regCss(text){
   root.walkRules(rule => {
     if (rule.parent.type === 'atrule' && /keyframes/.test(rule.parent.name)) return;
     const out = [...new Set(rule.selectors.map(sel => {
-      sel = sel.trim().replace(/\[data-style="bp"\]/g, ':not([data-style="soft"])').replace(/\.stage:has\(\.dm\)>\.stage-in/g, '.stage-in:has(>.dm)');
+      sel = sel.trim().replace(/\[data-style="bp"\]/g, ':not([data-style="soft"])').replace(/^:where\(\.stage-in\) /, ':where([data-c]) ').replace(/\.stage:has\(\.dm\)>\.stage-in/g, '.stage-in:has(>.dm)');
       if (SHELL.test(sel)) return null;
       if (/(^|[\s>+~(])\.stage(?![\w-])/.test(sel)) return null;
       if (/(^|[\s>+~(])\.card(?![\w-])/.test(sel) && !/\.card\.(bare|wide) \.stage-in/.test(sel)) return null;
@@ -501,6 +527,12 @@ for (const [a, b] of SITE_PATCHES.patches){
 }
 // each card's title links to the component's own page (a plain click still opens it in place, see make-patches.py)
 site = site.replace(/(<article\b[^>]*\bdata-reg="([\w-]+)"[^>]*>[\s\S]*?<h2 class="comp-title">)([^<]*)<\/h2>/g, (m, head, reg, t) => `${head}<a href="/components/${reg}">${t}</a></h2>`);
+// nothing on the page, in the registry or in core.css keeps a hover style a touch screen could get stuck in
+{
+  const left = [...site.matchAll(/<style[^>]*>([\s\S]*?)<\/style>/g)].filter(m => !m[1].includes('${')).flatMap(m => ungated(m[1]))
+    .concat(ungated(REG_CORE_CSS), ...Object.values(SECTIONS).map(ungated));
+  if (left.length) throw new Error('hover styles outside (hover:hover) and (pointer:fine): ' + left.slice(0, 5).join(' | '));
+}
 fs.writeFileSync(OUT, site);
 console.log('swapped', done.length, 'cards; size', site.length);
 
@@ -588,7 +620,7 @@ p{margin:0;color:var(--dim)}
 p code{font:12.5px ui-monospace,Menlo,monospace;color:var(--fg);background:var(--stage);padding:2px 6px;border-radius:6px;word-break:break-all}
 .hits{display:grid;gap:8px;margin:28px 0 0}
 .hit{display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:14px;background:var(--stage);color:var(--fg);text-decoration:none;transition:background .2s}
-.hit:hover{background:color-mix(in srgb,var(--fg) 6%,var(--stage))}
+@media (hover:hover) and (pointer:fine){.hit:hover{background:color-mix(in srgb,var(--fg) 6%,var(--stage))}}
 .hit div{flex:1;min-width:0}
 .hit b{display:block;font-weight:500}
 .hit span{display:block;color:var(--dim);font-size:13px}

@@ -10,6 +10,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { createRequire } from 'node:module';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const pkg = path.resolve(here, '..');
@@ -85,6 +86,14 @@ for (const [name, text] of [['core', core], ...COMPONENTS.map(n => [n, scope(own
   const bare = text.replace(/\/\*[\s\S]*?\*\//g, '').match(/(?<![\w-])--(?!dm-)[a-zA-Z][\w-]*|@keyframes\s+(?!dm-)[\w-]+/g);
   if (bare) throw new Error(`${name}: unprefixed ${[...new Set(bare)].join(', ')}`);
 }
+// hover styles come gated from the site build (tools/site/hover-gate.js), so a tap on a phone never leaves one stuck; check
+// nothing slipped past it
+{
+  const { ungated } = createRequire(import.meta.url)('../../../tools/site/hover-gate.js');
+  for (const [name, text] of [['core', core], ...COMPONENTS.map(n => [n, scope(own[n], frames)])]) {
+    const left = ungated(text); if (left.length) throw new Error(`${name}: hover styles outside (hover:hover) and (pointer:fine): ${left.slice(0, 3).join(' | ')}`);
+  }
+}
 
 /* ---------- icons: the sprite in core.js becomes JSX ---------- */
 const js = file(reg_core, 'js');
@@ -111,6 +120,20 @@ export function Icon({ name, size = 's', className }: { name: IconName; size?: '
 }
 `;
 write('src/lib/icons.tsx', out);
+
+/* ---------- tap areas on touch screens: the core's fitHits, run once in the browser ----------
+   The CSS (designme.css) gives every control a tap area of at least 40px square on a touch screen; this shrinks two that would
+   overlap, so a tap lands on the control nearest to it. lib/cx.ts, which every component imports, imports it */
+{
+  const a = js.indexOf('/* ---------- touch: tap areas that never overlap'), end = 'window.dmFitHits = fit; return fit;\n})();', b = js.indexOf(end, a);
+  if (a < 0 || b < 0) throw new Error("core.js: the tap areas' script (fitHits) is gone");
+  write('src/lib/hits.ts', `${HEAD.replace('/*', '//').replace(' */', '')}// @ts-nocheck: the core's own script, as it runs on designme.dev
+if (typeof window !== 'undefined' && typeof document !== 'undefined') {
+${js.slice(a, b + end.length)}
+}
+export {};
+`);
+}
 
 /* ---------- brand marks and flags ---------- */
 const HEAD_TS = HEAD.replace('/*', '//').replace(' */', '');

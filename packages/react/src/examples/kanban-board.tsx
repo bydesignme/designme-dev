@@ -2,10 +2,10 @@
 // The animated preview from designme.dev, rebuilt from the React component: an example of driving it from your own state.
 import { useEffect, useRef, useState } from 'react';
 import { KanbanBoard, type KanbanBoardCard } from '../components/kanban-board/KanbanBoard';
-import { useScript } from './useScript';
+import { useScript, useTakeover } from './useScript';
 
 /* ---------- Kanban board: the design agent works through its cards while you drag the rest around ---------- */
-const COLUMNS = [{ key: 'todo', title: 'To do' }, { key: 'doing', title: 'In progress' }, { key: 'done', title: 'Done' }];
+const COLUMNS = [{ key: 'todo', title: 'To do' }, { key: 'doing', title: 'In progress', short: 'Doing' }, { key: 'done', title: 'Done' }];
 const AGENT = { initials: 'DA', color: 'var(--dm-pb)' }, MAYA = { initials: 'MK', color: 'var(--dm-pl)' };
 const DESIGN = { label: 'Design', tone: 'blue' as const }, COPY = { label: 'Copy', tone: 'purple' as const };
 const CARDS: KanbanBoardCard[] = [
@@ -23,6 +23,10 @@ export default function KanbanBoardDemo() {
   useEffect(() => { latest.current = cards; });
   const put = (next: KanbanBoardCard[]) => { latest.current = next; setCards(next); };
   const dragging = useRef(false);
+  // a narrow board shows one column: it follows the agent's card until the visitor takes over
+  const box = useRef<HTMLDivElement>(null), mine = useTakeover(box);
+  const [column, setColumn] = useState('doing');
+  const follow = (key: string) => { if (!mine()) setColumn(key); };
 
   // every 600ms the agent's card fills a little; when it is done it moves to Done and the agent picks up its next card
   useScript(async ({ wait }) => {
@@ -34,21 +38,25 @@ export default function KanbanBoardDemo() {
       const progress = Math.min(1, (card.progress ?? 0) + .08);
       if (progress < 1) { put(list.map(c => c.id === card.id ? { ...c, progress } : c)); continue; }
       put([...list.filter(c => c.id !== card.id), { ...card, column: 'done', progress: undefined }]);
+      follow('done');
       const next = latest.current.find(c => c.column === 'todo' && c.assignee === AGENT);
       if (next) wait(900).then(() => {
         const now = latest.current.find(c => c.id === next.id); if (!now) return;
         const rest = latest.current.filter(c => c.id !== next.id), at = rest.findIndex(c => c.column === 'doing');
         rest.splice(at < 0 ? rest.length : at, 0, { ...now, column: 'doing', progress: 0 });
         put(rest);
+        wait(700).then(() => follow('doing'));
       });
     }
   });
 
   return (
-    <KanbanBoard columns={COLUMNS} cards={cards}
+    <div ref={box} style={{ width: '100%' }}>
+    <KanbanBoard columns={COLUMNS} cards={cards} column={column} onColumnChange={setColumn}
       // a card dropped in Done stops being worked on
       onCardsChange={next => put(next.map(c => c.column === 'done' && c.progress != null ? { ...c, progress: undefined } : c))}
       onDraggingChange={d => { dragging.current = d; }}
-      newCard={column => ({ id: String(Date.now()), column, title: 'New card', tag: { label: 'Idea', tone: 'pink' }, assignee: MAYA })} />
+      newCard={key => ({ id: String(Date.now()), column: key, title: 'New card', tag: { label: 'Idea', tone: 'pink' }, assignee: MAYA })} />
+    </div>
   );
 }

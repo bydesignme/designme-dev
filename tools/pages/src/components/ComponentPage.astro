@@ -95,9 +95,10 @@ const words = cmd => cmd.split(' ').map(w => `<span class="cp-w">${w.replace(/&/
       .cp-bar a:hover,.cp-bar a.on{color:var(--pg-fg)}
       .cp-bar a::after{content:"";position:absolute;left:10px;right:10px;bottom:0;height:2px;border-radius:2px;background:var(--pg-fg);transform:scaleX(0);transition:transform .3s cubic-bezier(.16,1,.3,1)}
       .cp-bar a.on::after{transform:scaleX(1)}
-      /* a section you jump to lands with its heading 32px under the header, or under the section bar where it shows (47px) */
-      .cp-sec{scroll-margin-top:23px;padding-bottom:24px}
-      @media (min-width:1200px){.cp-sec{scroll-margin-top:-24px}}
+      /* a section you jump to lands with its heading 32px under the header, or under the section bar where it shows (47px):
+         the header's height and the room above the heading, less the section's own padding over it */
+      .cp-sec{scroll-margin-top:calc(var(--pg-head) + 23px);padding-bottom:24px}
+      @media (min-width:1200px){.cp-sec{scroll-margin-top:calc(var(--pg-head) - 24px)}}
       .cp-bar+.cp-sec .pg-sh{padding-top:36px}
       .cp-sec h3{margin:0 0 10px}
       .cp-sec p{margin:0;max-width:72ch}
@@ -121,6 +122,9 @@ const words = cmd => cmd.split(' ').map(w => `<span class="cp-w">${w.replace(/&/
       /* about: the summary, then When to use it, What it does and Accessibility as plain text tabs, one list at a time */
       .cp-sum{font-size:14px;line-height:1.7}
       .cp-tl{display:flex;gap:4px;margin:0 0 18px;overflow-x:auto;scrollbar-width:none;box-shadow:inset 0 -1px 0 var(--pg-line)}
+      /* on a touch screen the strip scrolls with 2px more room above and below, so its tabs' 40px tap areas aren't cut off at
+         its edges; the line under the tabs stays where it was */
+      @media (pointer:coarse){.cp-tl{padding:2px 0;margin:-2px 0 16px;box-shadow:none;background:linear-gradient(var(--pg-line),var(--pg-line)) 0 calc(100% - 2px)/100% 1px no-repeat}}
       .cp-tl button:first-child{padding-left:0}
       .cp-tl button:first-child::after{left:0}
       .cp-tl button{position:relative;flex:none;height:36px;padding:0 10px;border:0;background:none;color:var(--pg-dim);font:400 14px/1 var(--pg-sans);cursor:pointer;transition:color .16s ease}
