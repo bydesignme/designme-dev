@@ -216,7 +216,7 @@ export function ErrorRecovery({ title, status, steps, question = 'How should the
               </button>
             ))}
           </div>
-          <button type="button" className="dm-pill dm-ink dm-sm dm-erx-go" onClick={() => { setOpen(false); onContinue?.(pick); }}>{continueLabel}</button>
+          <button type="button" className="dm-pill dm-primary dm-sm dm-erx-go" onClick={() => { setOpen(false); onContinue?.(pick); }}>{continueLabel}</button>
         </div>
       </Fold>
     </div>

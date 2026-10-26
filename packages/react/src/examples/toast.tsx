@@ -41,7 +41,7 @@ export default function ToastDemo() {
     if (k === 'ok') setToast({ id, tone: 'success', title: 'Changes applied', description: '4 files updated in PricingCard',
       action: { label: 'Undo', onClick: () => update(id, { title: 'Changes undone', description: 'PricingCard is back as it was', action: undefined }) } });
     if (k === 'err') setToast({ id, tone: 'error', title: 'Could not push to main', description: 'The branch is protected',
-      action: { label: 'Retry', variant: 'ink', onClick: () => {
+      action: { label: 'Retry', variant: 'primary', onClick: () => {
         setToast(t => (t && t.id === id && t.action ? { ...t, action: { ...t.action, busy: true } } : t));
         later(1200, () => { if (current.current === id) show('ok'); });
       } } });

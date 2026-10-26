@@ -117,7 +117,7 @@ export function DraftReview({
           <div className="dm-drf-w">
             <p><Icon name="alert" size="xs" /><span>{warning?.text}</span></p>
             <div className="dm-drf-wa">
-              {warning?.actions.map(a => <button key={a.label} type="button" className={cx('dm-pill dm-sm', a.primary ? 'dm-ink' : 'dm-ghost')} onClick={a.onClick}>{a.label}</button>)}
+              {warning?.actions.map(a => <button key={a.label} type="button" className={cx('dm-pill dm-sm', a.primary ? 'dm-primary' : 'dm-ghost')} onClick={a.onClick}>{a.label}</button>)}
             </div>
           </div>
         </Fold>
@@ -133,10 +133,10 @@ export function DraftReview({
             <span className="dm-sp" />
             <Swap className="dm-muted dm-drf-when">{later ? chosen.label : ''}</Swap>
             <div className="dm-drf-mg">
-              <button type="button" className="dm-pill dm-ink dm-sm dm-drf-go" disabled={busy} onClick={() => onSend?.(chosen)}>
+              <button type="button" className="dm-pill dm-primary dm-sm dm-drf-go" disabled={busy} onClick={() => onSend?.(chosen)}>
                 {busy ? <><Spin />{later ? L.scheduling : L.sending}</> : <><Icon name={later ? 'clock' : 'send'} size="xs" />{later ? L.schedule : L.send}</>}
               </button>
-              <button type="button" className="dm-pill dm-ink dm-sm dm-drf-dd" aria-label="When to send" disabled={busy} {...menu.trigger}><Icon name="chev-d" size="xs" /></button>
+              <button type="button" className="dm-pill dm-primary dm-sm dm-drf-dd" aria-label="When to send" disabled={busy} {...menu.trigger}><Icon name="chev-d" size="xs" /></button>
             </div>
             <div {...menu.pop} className={cx(menu.pop.className, 'dm-drf-pop')} role="menu" aria-label="When to send">
               {sendOptions.map(o => (

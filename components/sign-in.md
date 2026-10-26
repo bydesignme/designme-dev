@@ -372,7 +372,7 @@ export function SignIn({
               aria-invalid={bad || undefined} onChange={e => setMail(e.target.value)} />
           </label>
           <Swap className="dm-sgx-err">{error}</Swap>
-          <button type="submit" className="dm-pill dm-ink dm-sgx-go">{busy || sending ? <Spin /> : sendLabel}</button>
+          <button type="submit" className="dm-pill dm-primary dm-sgx-go">{busy || sending ? <Spin /> : sendLabel}</button>
         </form>
       )}
       {now === 'code' && (

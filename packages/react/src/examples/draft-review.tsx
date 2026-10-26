@@ -45,7 +45,7 @@ export default function DraftReviewDemo() {
   // the preview's story, on the same beats as the site's
   useStory(ref, async ({ wait, press }) => {
     await wait(4200); press('.dm-drf-go');
-    await wait(3100); press('.dm-drf-w .dm-ink');
+    await wait(3100); press('.dm-drf-w .dm-primary');
     await wait(2800); press('.dm-drf-go');
   });
 

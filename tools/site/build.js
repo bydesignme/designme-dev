@@ -60,7 +60,7 @@ const cssA = soft.indexOf('<style>\n[hidden]') + '<style>'.length;
 // tint and sit one step lighter than the stage, the same grey the site's panels used before
 const NEUTRAL_DARK = { '--page':'#111111', '--stage':'#1c1c1c', '--surface':'#262626', '--raised':'#2c2c2c', '--fg':'#f2f2f2', '--fg2':'#c9c9c9',
   '--muted':'#c0c0c0', '--faint':'#555555', '--rail':'#414141', '--line':'#333333', '--chip':'#303030', '--hover':'#373737', '--press':'#3f3f3f',
-  '--wash':'#2c2c2c', '--soft':'#323232', '--soft-h':'#3a3a3a', '--dis':'#5f5f5f', '--ink':'#f2f2f2', '--on-ink':'#161616' };
+  '--wash':'#2c2c2c', '--soft':'#323232', '--soft-h':'#3a3a3a', '--dis':'#737373', '--ink':'#f2f2f2', '--on-ink':'#161616', '--field-line':'#7a7a7a' };
 function neutralDark(text){
   const root = postcss.parse(text);
   root.walkRules(rule => {
@@ -69,6 +69,17 @@ function neutralDark(text){
   });
   return root.toString();
 }
+// the site's own styles (the original page and its patches) had blue-tinted greys; each becomes the neutral grey of the same
+// luminance, so every contrast stays where it was. The chrome's three text greys take the steps of Soft's scale instead
+// (--sh-muted's #8b8f99 was 3.2:1, #6a6a6a is 5.3:1), and none of them is used on a dark background
+const NEUTRAL_SITE = { '#111318':'#121212', '#5b5f6b':'#525252', '#8b8f99':'#6a6a6a',
+  '#080918':'#0a0a0a', '#17181d':'#181818', '#121317':'#131313', '#0b0c0f':'#0c0c0c', '#16171b':'#171717', '#111216':'#121212', '#a1a3ab':'#a3a3a3',
+  '#76787f':'#787878', '#c3c6d1':'#c6c6c6', '#0c0e20':'#0f0f0f', '#070e1d':'#0e0e0e', '#0a0b1a':'#0c0c0c', '#0b0d1f':'#0e0e0e', '#f4f5f7':'#f5f5f5',
+  '#e2e4ea':'#e4e4e4', '#4b5163':'#515151', '#f4f4f7':'#f4f4f4', '#6b6d7c':'#6e6e6e', '#f3f4f6':'#f4f4f4', '#9ca3af':'#a2a2a2', '#6b7280':'#727272',
+  '#b3b8c4':'#b8b8b8', '#5d616c':'#616161', '#151821':'#181818', '#9a9aa6':'#9b9b9b', '#ededee':'#ededed', '#f1f1f3':'#f1f1f1',
+  'rgba(17,19,24,':'rgba(18,18,18,', 'rgba(12,14,32,':'rgba(15,15,15,', 'rgba(8,9,24,':'rgba(10,10,10,', 'rgba(18,19,23,':'rgba(19,19,19,',
+  'rgba(11,12,15,':'rgba(12,12,12,', 'rgba(244,244,247,':'rgba(244,244,244,' };
+const neutralSite = text => text.replace(/#[0-9a-fA-F]{6}(?![0-9a-zA-Z])|rgba\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*,/g, m => NEUTRAL_SITE[m.toLowerCase().replace(/\s+/g, '')] || m);
 // the accent's roles: a fill stays var(--accent); text and icons in it take --accent-fg, and lines, borders, rings and chart marks
 // take --accent-mark, each falling back to the accent. A light accent like lime then keeps its fills and stays readable as text
 function accentRoles(text){
@@ -171,10 +182,19 @@ css.walkRules(rule => {
   if (!out.length) rule.remove(); else rule.selectors = out;
 });
 css.walkAtRules('media', at => { if (!at.nodes || !at.nodes.length) at.remove(); });
-// the accent comes from the site's accent picker; only the shades derived from it are set here
+// the accent's roles come from the components' own tokens, the same declarations core.css and the React CSS are made from,
+// so the cards and the component pages can't drift apart. A colour picked in the site's accent picker (window.dmAccent, which
+// sets the roles on <html> and marks it .acc-on) takes over: a role with a fixed value steps aside while one is picked, and
+// one worked out from the accent (like --accent-2, a color-mix of var(--accent)) stays and follows the picked colour
+const ROLES = /^--(accent|accent-2|accent-bg|on-accent|accent-fg|accent-mark)$/;
+const pickable = sel => sel === '.v2' ? ':root:not(.acc-on) .v2' : sel.replace(/^(:root\S*) \.v2$/, '$1:not(.acc-on) .v2');
 css.walkRules(rule => {
-  if (!rule.selectors.some(s => /\.v2$/.test(s))) return;
-  rule.walkDecls(/^--(accent|accent-2|accent-bg|on-accent|accent-fg|accent-mark)$/, d => d.remove());
+  if (!rule.selectors.some(s => /\.v2$/.test(s)) || rule.selector.includes('.acc-on')) return;
+  const fixed = []; rule.walkDecls(ROLES, d => { if (!/var\(/.test(d.value)) fixed.push(d); });
+  if (!fixed.length) return;
+  if (!rule.selectors.every(s => /^(:root\S* )?\.v2$/.test(s))) throw new Error('accent roles on a selector the picker can\'t step past: ' + rule.selector);
+  const gated = rule.clone({ selectors:rule.selectors.map(pickable) }); gated.removeAll(); fixed.forEach(d => gated.append(d.clone()));
+  fixed.forEach(d => d.remove()); rule.after(gated); if (!rule.nodes.length) rule.remove();
 });
 const scoped = css.toString();
 const V2CSS = `/* ===== Soft 2 and Blueprint 2 components: scoped to .v2, so the site's styles and these never touch ===== */
@@ -187,14 +207,7 @@ ${scoped}
 .comp.dm-idle .stage-in{content-visibility:hidden}
 .comp.dm-idle .stage-in *,.comp.dm-idle .stage-in *::before,.comp.dm-idle .stage-in *::after{animation-play-state:paused!important}
 /* base for the mount root, which sits inside the site's stage */
-.v2{font-family:var(--sans);font-size:14px;line-height:1.5;color:var(--fg);font-weight:400;letter-spacing:normal;text-align:left;-webkit-font-smoothing:antialiased;
-  --accent-2:color-mix(in srgb,var(--accent) 86%,#000);--accent-bg:color-mix(in srgb,var(--accent) 9%,transparent)}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .v2{--accent-2:color-mix(in srgb,var(--accent) 84%,#fff);--accent-bg:color-mix(in srgb,var(--accent) 13%,transparent)}}
-:root[data-theme="dark"] .v2{--accent-2:color-mix(in srgb,var(--accent) 84%,#fff);--accent-bg:color-mix(in srgb,var(--accent) 13%,transparent)}
-/* hovering a filled button moves its fill away from its text colour: darker under white text, lighter under dark text,
-   so the label keeps its contrast in every style, theme and picked accent */
-@supports (color:rgb(from red r g b)){.v2,:root:not([data-theme="light"]) .v2,:root[data-theme="dark"] .v2{--accent-2:color-mix(in srgb,var(--accent) 86%,rgb(from var(--on-accent) calc(255 - r) calc(255 - g) calc(255 - b)))}}
-@supports not (color:rgb(from red r g b)){:root:not([data-style="soft"]) .v2,:root:not([data-style="soft"]):not([data-theme="light"]) .v2{--accent-2:color-mix(in srgb,var(--accent) 86%,#fff)}:root[data-style="soft"] .v2,:root[data-style="soft"]:not([data-theme="light"]) .v2{--accent-2:color-mix(in srgb,var(--accent) 86%,#000)}}
+.v2{font-family:var(--sans);font-size:14px;line-height:1.5;color:var(--fg);font-weight:400;letter-spacing:normal;text-align:left;-webkit-font-smoothing:antialiased}
 .v2.stage-in{display:block}
 .v2-layer{position:static}
 /* the variant switch lives in the card footer on the site */
@@ -421,7 +434,38 @@ const missing = Object.keys(MAP).filter(k => !done.includes(k));
 if (missing.length) warn.push('cards not swapped: ' + missing.join(','));
 
 /* ---------- the code people copy or install: original CSS and JS, Blueprint by default and Soft with data-style="soft" ---------- */
-const ELEM = /^(\*|button|input|textarea|select|:focus-visible|\[hidden\])(?![\w-])/;
+const ELEM = /^(\*|button|input|textarea|select|b|strong|:focus-visible|\[hidden\])(?![\w-])/;
+/* the style hangs off the page, never off a stage: Blueprint is the default, Soft is data-style="soft" on <html> or on any
+   element around the components. So the base tokens (Soft's) also sit on any [data-style="soft"], and every Blueprint rule
+   steps aside inside one. Blueprint's sweeping rules (every corner square, no blur, square svg shapes) reach only what the
+   components draw: their card ([data-c]), the tooltip and the kanban drag ghost (both on <body>), never the rest of your page */
+const SOFT_HERE = '[data-style="soft"]', NOT_SOFT = ':not(:where([data-style="soft"],[data-style="soft"] *))';
+const DRAWN = ['[data-c]', '.tip', '.kbx-k.ghost'];
+// adds a condition to the element a selector picks (its last compound), ahead of any pseudo-element
+function onSubject(sel, cond){
+  let depth = 0, start = 0;
+  for (let i = 0; i < sel.length; i++){ const ch = sel[i]; if (ch === '(' || ch === '[') depth++; else if (ch === ')' || ch === ']') depth--; else if (!depth && /[\s>+~]/.test(ch)) start = i + 1; }
+  let at = sel.length; depth = 0;
+  for (let i = start; i < sel.length; i++){ const ch = sel[i]; if (ch === '(' || ch === '[') depth++; else if (ch === ')' || ch === ']') depth--; else if (!depth && sel.startsWith('::', i)){ at = i; break; } }
+  return sel.slice(0, at) + cond + sel.slice(at);
+}
+function styleScope(sel){
+  if (!sel.startsWith(':root')) return [sel];
+  // the root's own conditions: [attr] and :not(...) right after :root
+  let i = 5;
+  for (;;){
+    const close = sel[i] === '[' ? ']' : sel.startsWith(':not(', i) ? ')' : null; if (!close) break;
+    let depth = 0; for (; i < sel.length; i++){ if (sel[i] === '(' || sel[i] === '[') depth++; else if (sel[i] === ')' || sel[i] === ']'){ if (!--depth){ i++; break; } } }
+  }
+  if (i < sel.length && !/\s/.test(sel[i])) return [sel];
+  const attrs = sel.slice(5, i), rest = sel.slice(i).trim(), bp = attrs.includes(':not([data-style="soft"])');
+  if (!rest) return bp ? [sel] : [sel, attrs ? `:root${attrs} ${SOFT_HERE}` : SOFT_HERE];
+  if (!bp) return [sel];
+  let r = rest;
+  if (/^\*/.test(r)) r = `:where(${DRAWN.flatMap(x => [x, x + ' *']).join(',')})` + r.slice(1);
+  else if (/^[a-z]/.test(r)) r = `:where(${DRAWN.join(',')}) ` + r;
+  return [`:root${attrs} ${onSubject(r, NOT_SOFT)}`];
+}
 function regCss(text){
   const root = postcss.parse(text);
   root.walkRules(rule => {
@@ -434,13 +478,13 @@ function regCss(text){
       // element resets only reach inside components, never the rest of your page
       if (ELEM.test(sel)) return ':where([data-c]) ' + sel; // :where keeps the reset as weak as a bare element selector
       return sel;
-    }).filter(Boolean))];
+    }).filter(Boolean).flatMap(styleScope))];
     if (!out.length) rule.remove(); else rule.selectors = out;
   });
   root.walkAtRules('media', at => { if (!at.nodes || !at.nodes.length) at.remove(); });
   return root.toString().replace(/\n{3,}/g, '\n\n').trim() + '\n';
 }
-const REG_CORE_CSS = `/* Designme shared core: tokens for Blueprint (default) and Soft (<html data-style="soft">), light and dark (<html data-theme="dark">) */\n`
+const REG_CORE_CSS = `/* Designme shared core: tokens for Blueprint (default) and Soft (data-style="soft" on <html> or on any element around the components), light and dark (<html data-theme="dark">) */\n`
   + regCss(CSS.slice(0, CSS.indexOf('/* ---------- Status pill ---------- */')) + '\n' + CSS.slice(CSS.indexOf('/* ---------- Blueprint 2 ---------- */')))
   + `\n/* a component card: the template renders into .stage-in */\n[data-c]{width:440px;max-width:100%;font-family:var(--sans);font-size:14px;line-height:1.5;color:var(--fg);-webkit-font-smoothing:antialiased}\n[data-c].wide{width:720px}\n`;
 const REG_CORE_JS = CORE_JS.trim() + `\n\n/* ---------- icons: the sprite every <use href="#i-..."> points at ---------- */\nconst SPRITE = ${JSON.stringify(SPRITE)};\n`
@@ -533,6 +577,8 @@ site = site.replace(/(<article\b[^>]*\bdata-reg="([\w-]+)"[^>]*>[\s\S]*?<h2 clas
     .concat(ungated(REG_CORE_CSS), ...Object.values(SECTIONS).map(ungated));
   if (left.length) throw new Error('hover styles outside (hover:hover) and (pointer:fine): ' + left.slice(0, 5).join(' | '));
 }
+// the site's own styles take the neutral greys (the components' styles, #v2-css, come from soft-2/index.html already neutral)
+site = site.replace(/(<style(?![^>]*id="v2-css")[^>]*>)([\s\S]*?)(<\/style>)/g, (m, a, css, b) => a + neutralSite(css) + b);
 fs.writeFileSync(OUT, site);
 console.log('swapped', done.length, 'cards; size', site.length);
 
@@ -605,9 +651,9 @@ Every class, CSS variable and animation name starts with \`dm-\` in the React ve
 <script>try{var t=localStorage.getItem('dmui-theme');if(t)document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
 <style>
 ${fonts}
-:root{--bg:#fff;--fg:#111318;--dim:#5b5f6b;--stage:#fafafa;--line:rgba(17,19,24,.08);--ink:#111318;--on-ink:#fff;color-scheme:light}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0b0c0f;--fg:#ededee;--dim:#a1a3ab;--stage:#16171b;--line:rgba(255,255,255,.08);--ink:#f5f5f4;--on-ink:#111318;color-scheme:dark}}
-:root[data-theme="dark"]{--bg:#0b0c0f;--fg:#ededee;--dim:#a1a3ab;--stage:#16171b;--line:rgba(255,255,255,.08);--ink:#f5f5f4;--on-ink:#111318;color-scheme:dark}
+:root{--bg:#fff;--fg:#121212;--dim:#525252;--stage:#fafafa;--line:rgba(18,18,18,.08);--ink:#121212;--on-ink:#fff;color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#111111;--fg:#f2f2f2;--dim:#c9c9c9;--stage:#1c1c1c;--line:rgba(255,255,255,.08);--ink:#f5f5f5;--on-ink:#121212;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#111111;--fg:#f2f2f2;--dim:#c9c9c9;--stage:#1c1c1c;--line:rgba(255,255,255,.08);--ink:#f5f5f5;--on-ink:#121212;color-scheme:dark}
 *{box-sizing:border-box}
 body{margin:0;min-height:100vh;display:flex;flex-direction:column;background:var(--bg);color:var(--fg);font:14px/1.55 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
 header{padding:18px 24px;border-bottom:1px solid var(--line)}
@@ -629,9 +675,15 @@ p code{font:12.5px ui-monospace,Menlo,monospace;color:var(--fg);background:var(-
 .btn{display:inline-flex;align-items:center;height:36px;padding:0 16px;border-radius:999px;font-weight:500;text-decoration:none;color:var(--fg);box-shadow:inset 0 0 0 1px var(--line)}
 .btn.ink{background:var(--ink);color:var(--on-ink);box-shadow:none}
 .btn:focus-visible,.hit:focus-visible{outline:2px solid var(--fg);outline-offset:2px}
+/* Skip to content: out of sight until Tab reaches it (it is the first thing there), then a small pill top left */
+.skip{position:fixed;top:8px;left:16px;z-index:10;display:inline-flex;align-items:center;height:32px;padding:0 12px;border-radius:999px;background:var(--bg);color:var(--fg);box-shadow:inset 0 0 0 1px var(--line);font-weight:500;font-size:13px;line-height:1;text-decoration:none;white-space:nowrap;opacity:0;transform:translateY(-48px);pointer-events:none}
+.skip:focus{opacity:1;transform:none;pointer-events:auto;outline:2px solid var(--focus,var(--fg));outline-offset:2px}
+@media (prefers-reduced-motion:no-preference){.skip{transition:opacity .2s ease,transform .2s cubic-bezier(.16,1,.3,1)}}
+main:focus{outline:none}
 </style></head><body>
+<a class="skip" href="#content">Skip to content</a>
 <header><a href="/" aria-label="Designme.dev home">${logo}</a></header>
-<main>
+<main id="content" tabindex="-1">
   <div class="code">404</div>
   <h1>Page not found</h1>
   <p>There's no page at <code id="where">this address</code>.</p>

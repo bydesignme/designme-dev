@@ -273,7 +273,7 @@ export function DateRangePicker({
         </div>
         <div className="dm-drx-f">
           <button type="button" className="dm-pill dm-ghost dm-sm dm-drx-clr" onClick={() => { setHover(null); setRange(EMPTY); }}>Clear</button>
-          <button type="button" className="dm-pill dm-ink dm-sm dm-drx-ok" disabled={!start || !end} onClick={apply}>
+          <button type="button" className="dm-pill dm-primary dm-sm dm-drx-ok" disabled={!start || !end} onClick={apply}>
             {applied ? <><Icon name="check" size="xs" />Applied</> : 'Apply'}
           </button>
         </div>

@@ -23,7 +23,7 @@ Or by hand:
 1. Copy `src/` into your project, for example as `components/designme/`.
 2. That's all for the styles: each component imports the shared `designme.css` and its own small CSS file, in that order, and your bundler loads each file once.
 3. Load Inter and JetBrains Mono (the components fall back to the system font if you don't).
-4. Pick the look on `<html>`: Blueprint is the default, `data-style="soft"` switches to Soft, and `data-theme="dark"` or `data-theme="light"` fixes the theme (otherwise it follows the device).
+4. Pick the look on `<html>`: Blueprint is the default, `data-style="soft"` switches to Soft (on `<html>`, or on any element around the components to make just those Soft; tooltips sit on the page and keep its style), and `data-theme="dark"` or `data-theme="light"` fixes the theme (otherwise it follows the device).
 
 Every class, CSS variable and animation name starts with `dm-` (`.dm-panel`, `--dm-accent`, `dm-enter`), so the components sit next to Tailwind, shadcn/ui or your own CSS without either side changing the other. To retheme them, override the variables with `!important`, for example `:root { --dm-accent: #7c3aed !important }`. Each style and theme sets its tokens with a more specific selector, so a plain `:root` rule only reaches Soft in light mode.
 
@@ -97,7 +97,7 @@ Live credit and token spend, with a cap that pauses the run.
 
 **Toast** · `toast/Toast.tsx`  
 One notification that changes shape with its state.  
-`toast: { id, tone?: 'success' | 'error' | 'info' | 'loading', title, description?, action?: { label, onClick, variant?: 'ghost' | 'ink', busy? } } | null`, `onDismiss(id)`. A new `id` slides the new toast in and the old one out; the same `id` changes the text in place.
+`toast: { id, tone?: 'success' | 'error' | 'info' | 'loading', title, description?, action?: { label, onClick, variant?: 'ghost' | 'primary', busy? } } | null`, `onDismiss(id)`. A new `id` slides the new toast in and the old one out; the same `id` changes the text in place.
 
 **ToastStack** · `toast-stack/ToastStack.tsx`  
 Agent notifications that stack and fan out on hover.  
@@ -401,7 +401,7 @@ Today's schedule with a live now line and agent prep notes.
 
 **Buttons** · `buttons/Buttons.tsx`  
 Every button style, with loading, success and hold-to-confirm states.  
-`Buttons({ rows: { label, children }[] })` is the labelled sheet; the file also exports the buttons themselves. `Button`: `variant: 'accent' | 'ink' | 'soft' | 'line' | 'ghost'`, `size: 'sm' | 'md' | 'lg'`, `icon`, `busy` / `busyLabel` / `busyGlyph`, `done` / `doneLabel` / `doneIcon`, `success`, `pressed`, `tip`, `kbd`, `disabled`; an `onClick` that returns a promise runs the button by itself (busy, then done for `doneFor`, then back). `ButtonIcon`: `icon`, `label`, `kbd`, `fill`. `ButtonCopy`: `text`, `label`, `copiedLabel`, `tip`, `onCopy`. `ButtonMenu`: `label`, `items: { key, label, icon? or brand?, detail?, danger?, divider? }[]`, `onSelect(key)`, `status`, `align`, `open` / `defaultOpen` / `onOpenChange`. `ButtonIconMenu`: the same menu from an icon button: `icon`, `label`, `items`, `onSelect(key)`, `status`, `align`, `open` / `defaultOpen` / `onOpenChange`. `ButtonRun`: `state: 'idle' | 'running' | 'stopped' | 'complete'`, `seconds`, `onRun`, `onStop`. `ButtonHold`: `label`, `holdingLabel`, `doneLabel`, `onConfirm` (after holding 1.2s with a pointer, Space or Enter).
+`Buttons({ rows: { label, children }[] })` is the labelled sheet; the file also exports the buttons themselves. `Button`: `variant: 'primary' | 'accent' | 'soft' | 'line' | 'ghost'` (`'ink'`, the old name for `'primary'`, still works), `size: 'sm' | 'md' | 'lg'`, `icon`, `busy` / `busyLabel` / `busyGlyph`, `done` / `doneLabel` / `doneIcon`, `success`, `pressed`, `tip`, `kbd`, `disabled`; an `onClick` that returns a promise runs the button by itself (busy, then done for `doneFor`, then back). `ButtonIcon`: `icon`, `label`, `kbd`, `fill`. `ButtonCopy`: `text`, `label`, `copiedLabel`, `tip`, `onCopy`. `ButtonMenu`: `label`, `items: { key, label, icon? or brand?, detail?, danger?, divider? }[]`, `onSelect(key)`, `status`, `align`, `open` / `defaultOpen` / `onOpenChange`. `ButtonIconMenu`: the same menu from an icon button: `icon`, `label`, `items`, `onSelect(key)`, `status`, `align`, `open` / `defaultOpen` / `onOpenChange`. `ButtonRun`: `state: 'idle' | 'running' | 'stopped' | 'complete'`, `seconds`, `onRun`, `onStop`. `ButtonHold`: `label`, `holdingLabel`, `doneLabel`, `onConfirm` (after holding 1.2s with a pointer, Space or Enter).
 
 **Tooltip** · `tooltip/Tooltip.tsx`  
 Quiet labels on hover, with shortcuts and a richer preview card.  
@@ -477,7 +477,7 @@ A board where you and the agent move cards, with drag and drop.
 
 **PricingCards** · `pricing-cards/PricingCards.tsx`  
 Three plans with a billing switch and a seat slider.  
-`plans: { name, description?, price, priceLabel?, unit?, total?, features, action: { label, variant?: 'soft' | 'accent' | 'ink' }, popular?, fromSeats? }[]` (`price` is per editor per month, `0` is free and `null` is "Custom"; the outline moves to a plan once the editors reach its `fromSeats`), `period` / `defaultPeriod` / `onPeriodChange` (`'monthly' | 'yearly'`), `yearlyDiscount`, `seats` / `defaultSeats` / `onSeatsChange`, `minSeats`, `maxSeats`, `seatsLabel`, `popularLabel`, `onChoose(plan, { period, seats })`. Prices roll to their new value.
+`plans: { name, description?, price, priceLabel?, unit?, total?, features, action: { label, variant?: 'soft' | 'accent' | 'primary' }, popular?, fromSeats? }[]` (`price` is per editor per month, `0` is free and `null` is "Custom"; the outline moves to a plan once the editors reach its `fromSeats`), `period` / `defaultPeriod` / `onPeriodChange` (`'monthly' | 'yearly'`), `yearlyDiscount`, `seats` / `defaultSeats` / `onSeatsChange`, `minSeats`, `maxSeats`, `seatsLabel`, `popularLabel`, `onChoose(plan, { period, seats })`. Prices roll to their new value.
 
 **OnboardingChecklist** · `onboarding-checklist/OnboardingChecklist.tsx`  
 First steps with a progress ring, and the agent can do some for you.  

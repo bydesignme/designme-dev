@@ -31,6 +31,7 @@ A project file tree that marks every file the agent changed with M, A or D for m
 - The "Only changed" button hides every file the agent did not change, and the footer then reads how many files changed, worded by `summary`.
 - Clicking a file selects it, shows its path in the footer and calls `onSelectedChange`.
 - Picks a file icon from the extension, or from your own `fileIcon` function.
+- The tree scrolls inside the panel with a thin scrollbar in the style's line grey, square in Blueprint.
 
 ### Accessibility
 

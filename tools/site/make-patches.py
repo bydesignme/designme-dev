@@ -51,7 +51,7 @@ patch("""    const textFor = t => t === 'shared' ? '/* Shared core: tokens and b
 patch("""      id = cid; last = from; const c = CODE[cid], sl = slug(c.name);
       $('#cdm-t', m).textContent = c.name; $('#cdm-path', m).textContent = `components/${sl}.html`;
       $('#cdm-cmd-t', m).textContent = `npx designme add ${sl}`;
-      show('html'); m.classList.add('open');""", """      id = cid; last = from; rx = null;
+      show('html'); m.classList.add('open');""", """      id = cid; last = from; rx = null; if (from) from.setAttribute('aria-expanded', 'true');
       $('#cdm-t', m).textContent = $('.comp-title', document.getElementById(cid)).textContent; mode(fw.get());
       if (!CODE) codeReady().then(() => { if (id === cid && !tab.startsWith('rx-')) show(tab); }, () => { if (id === cid && !tab.startsWith('rx-')) pre.innerHTML = codeLines('// The code could not be loaded. Try again in a moment.'); });
       m.classList.add('open');""")
@@ -164,7 +164,7 @@ patch("""  /* ---------- book a call button: fill grows from the pointer -------
       const b = e.target.closest('button'); if (!b || b.getAttribute('aria-selected') === 'true') return;
       Sound.play('tab');
       // with both sets on the page, the switch jumps between them
-      if (cont()){ mark(b.dataset.g); (b.dataset.g === 'basics' ? next : sw).scrollIntoView({ block:'start', behavior:'smooth' }); return; }
+      if (cont()){ mark(b.dataset.g); (b.dataset.g === 'basics' ? next : sw).scrollIntoView({ block:'start', behavior:reduce ? 'auto' : 'smooth' }); return; }
       set(b.dataset.g);
       // from further down the page, the new set starts at the top
       if (sw.getBoundingClientRect().top < 0) sw.scrollIntoView({ block:'start' });
@@ -441,7 +441,18 @@ patch("""Every week. Each release is listed in the """, """Often. Each release i
 patch("""    sq.addEventListener('keydown', e => { if (e.key === 'Escape'){ sq.value = ''; query = ''; applyView(); sq.blur(); } });""",
       """    sq.addEventListener('keydown', e => { if (e.key === 'Escape'){ sq.value = ''; query = ''; applyView(); sq.blur(); } });
     { let q0 = ''; try { q0 = (new URLSearchParams(location.search).get('q') || '').trim(); } catch(e){}
-      if (q0){ sq.value = q0; query = q0; applyView(); } }""")
+      if (q0){ sq.value = q0; query = q0; applyView(); } }
+    // while there is a search, Down moves from the field to the components it found in the sidebar, Up and Down, Home and
+    // End move through them, Enter opens one, and Up from the first or Esc goes back to the field
+    { const nav = $('.side-nav'), found = () => $$('.side-a', nav).filter(a => !a.classList.contains('hide') && isShown(a));
+      sq.addEventListener('keydown', e => { if (e.key !== 'ArrowDown' || !sq.value.trim()) return; const r = found(); if (r.length){ e.preventDefault(); r[0].focus(); } });
+      nav.addEventListener('keydown', e => {
+        if (!sq.value.trim()) return;
+        const r = found(), i = r.indexOf(document.activeElement); if (i < 0) return;
+        if (e.key === 'Escape'){ e.preventDefault(); sq.focus(); return; }
+        const k = listKey(e, i, r.length); if (k === null) return;
+        e.preventDefault(); if (k < 0) sq.focus(); else r[k].focus();
+      }); }""")
 
 # ---------- a card's buttons on a touch screen ----------
 # with a mouse they appear over the stage on hover; a touch screen has no hover, and on a phone-sized window there's no room
@@ -483,8 +494,8 @@ CSS = """.comp-title a{color:inherit;text-decoration:inherit}
 /* component page: an arrow either side of the component, halfway down the screen, centred in the space beside it.
    Hovering one names the component it goes to underneath it, never wider than that space, so nothing covers the component.
    Where the space gets too narrow for a name, the arrows in the top bar take over */
-.dv-side{--gut:calc((100vw - 1180px) / 2 + 24px);position:fixed;top:50%;z-index:6;display:none;width:44px;height:44px;margin-top:-22px;border-radius:999px;background:var(--sh-card);color:var(--sh-dim);box-shadow:0 0 0 1px var(--sh-line),0 2px 10px rgba(17,19,24,.05);transition:box-shadow .25s ease,color .2s ease}
-.dv-side:hover{color:var(--sh-text);box-shadow:0 0 0 1px var(--sh-line-2),0 6px 20px rgba(17,19,24,.08)}
+.dv-side{--gut:calc((100vw - 1180px) / 2 + 24px);position:fixed;top:50%;z-index:6;display:none;width:44px;height:44px;margin-top:-22px;border-radius:999px;background:var(--sh-card);color:var(--sh-dim);box-shadow:0 0 0 1px var(--sh-line),0 2px 10px rgba(18,18,18,.05);transition:box-shadow .25s ease,color .2s ease}
+.dv-side:hover{color:var(--sh-text);box-shadow:0 0 0 1px var(--sh-line-2),0 6px 20px rgba(18,18,18,.08)}
 .dv-side.l{left:calc(var(--gut) / 2 - 22px)}
 .dv-side.r{right:calc(var(--gut) / 2 - 22px)}
 .dv-side-i{display:grid;place-items:center;width:100%;height:100%}
@@ -540,7 +551,7 @@ body.ui .content .intro{padding-bottom:0}
 .grp-sw{position:relative;display:inline-flex;gap:2px;margin:calc(var(--ig) * 2 + 1px) 0 0;padding:3px;border-radius:11px;background:var(--sh-sw);corner-shape:round}
 .grp-sw button{position:relative;z-index:1;height:32px;padding:0 15px;border-radius:8px;font-size:13.5px;font-weight:500;color:var(--sh-dim);transition:color .2s ease}
 .grp-sw button:hover,.grp-sw button[aria-selected="true"]{color:var(--sh-text)}
-.grp-ind{position:absolute;top:3px;bottom:3px;left:3px;border-radius:8px;background:var(--sh-sw-on);box-shadow:0 1px 2px rgba(17,19,24,.08),0 0 0 .5px rgba(17,19,24,.06);transition:left .4s cubic-bezier(.16,1,.3,1),width .4s cubic-bezier(.16,1,.3,1);corner-shape:round}
+.grp-ind{position:absolute;top:3px;bottom:3px;left:3px;border-radius:8px;background:var(--sh-sw-on);box-shadow:0 1px 2px rgba(18,18,18,.08),0 0 0 .5px rgba(18,18,18,.06);transition:left .4s cubic-bezier(.16,1,.3,1),width .4s cubic-bezier(.16,1,.3,1);corner-shape:round}
 .grp-sw+.lib-sec .sec-head{padding-top:28px}
 @media (max-width:640px){ .grp-sw{display:flex} .grp-sw button{flex:1;padding:0 8px} }
 :root:not(.grp-all):not(.grp-cont):not([data-grp="basics"]) [data-grp="basics"],:root[data-grp="basics"]:not(.grp-all) [data-grp="agent"]{display:none}
@@ -749,7 +760,9 @@ body.ui section.faq{display:none}
 body.ui main .comp[data-v2="pricing-cards"] .stage-inner{padding-bottom:40px!important}
 @media (min-width:641px){ body.ui main .comp[data-v2="pricing-cards"] .stage-inner{padding-bottom:56px!important} }
 /* the roadmap: a shipped idea gets a tag like the others */
-.rm-st.shipped{background:rgba(22,163,74,.12);color:#15803d}
+.rm-st.shipped{background:rgba(22,163,74,.12);color:#137739}
+/* in light mode the changelog and roadmap tags' text is deep enough to read at 4.5:1 and APCA Lc 60 on its tint */
+.chg-tag.k-new{color:#0f5fd5}.chg-tag.k-improved,.rm-st.progress{color:#6b4de3}.chg-tag.k-fixed{color:#10784d}.rm-st.idea{color:#9c5e00}
 /* in dark mode the changelog and roadmap tags take light text on a stronger tint, so they read clearly on the dark page */
 @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .chg-tag.k-new{background:rgba(96,165,250,.18);color:#a5c8ff}:root:not([data-theme="light"]) .chg-tag.k-improved,:root:not([data-theme="light"]) .rm-st.progress{background:rgba(167,139,250,.2);color:#cbbcff}:root:not([data-theme="light"]) .chg-tag.k-fixed,:root:not([data-theme="light"]) .rm-st.shipped{background:rgba(74,222,128,.16);color:#8ee8ad}:root:not([data-theme="light"]) .rm-st.idea{background:rgba(251,191,36,.18);color:#fcd57a}:root:not([data-theme="light"]) .rm-st.planned{background:rgba(255,255,255,.08);color:#c8c8c8} }
 :root[data-theme="dark"] .chg-tag.k-new{background:rgba(96,165,250,.18);color:#a5c8ff}:root[data-theme="dark"] .chg-tag.k-improved,:root[data-theme="dark"] .rm-st.progress{background:rgba(167,139,250,.2);color:#cbbcff}:root[data-theme="dark"] .chg-tag.k-fixed,:root[data-theme="dark"] .rm-st.shipped{background:rgba(74,222,128,.16);color:#8ee8ad}:root[data-theme="dark"] .rm-st.idea{background:rgba(251,191,36,.18);color:#fcd57a}:root[data-theme="dark"] .rm-st.planned{background:rgba(255,255,255,.08);color:#c8c8c8}
@@ -760,15 +773,16 @@ body.ui main .comp[data-v2="pricing-cards"] .stage-inner{padding-bottom:40px!imp
 # (--accent-fg, 4.5:1) and lines, rings and chart marks (--accent-mark, 3:1), both on the surface and on the chips it sits on.
 # These sit outside the site layer so they win over the original page's own tokens
 patch("""</head>""", """<style id="accent-roles">
-:root:not([data-style="soft"]){--accent:#d4f84a;--accent-hi:#d4f84a;--accent-bg:rgba(212,248,74,.18);--accent-muted:#6c7e26;--accent-icon-bg:rgba(212,248,74,.14);--accent-icon-line:rgba(134,156,47,.45);--accent-fill:#f8fde6;--on-accent:#121212;--accent-fg:#111318;--accent-mark:#7a8e2b}
+:root:not([data-style="soft"]){--accent:#d4f84a;--accent-hi:#d4f84a;--accent-bg:rgba(212,248,74,.18);--accent-muted:#6c7e26;--accent-icon-bg:rgba(212,248,74,.14);--accent-icon-line:rgba(134,156,47,.45);--accent-fill:#f8fde6;--on-accent:#121212;--accent-fg:#121212;--accent-mark:#7a8e2b}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]):not([data-style="soft"]){--accent:#d4f84a;--accent-hi:#dcfa6a;--accent-bg:rgba(212,248,74,.12);--accent-muted:rgba(212,248,74,.55);--accent-icon-bg:rgba(212,248,74,.06);--accent-icon-line:rgba(212,248,74,.2);--accent-fill:#1c1f10;--accent-fg:#d4f84a;--accent-mark:#d4f84a}}
 :root[data-theme="dark"]:not([data-style="soft"]){--accent:#d4f84a;--accent-hi:#dcfa6a;--accent-bg:rgba(212,248,74,.12);--accent-muted:rgba(212,248,74,.55);--accent-icon-bg:rgba(212,248,74,.06);--accent-icon-line:rgba(212,248,74,.2);--accent-fill:#1c1f10;--accent-fg:#d4f84a;--accent-mark:#d4f84a}
 /* these sit outside the site's layers, so they apply to Blueprint only. Soft keeps its own blue for fills and marks; as text it
-   takes a slightly deeper blue in light mode (a lighter one in dark), so it reads at 4.5:1 on chips and tinted rows too, and in
-   dark mode the blue fill is too light for white text, so text on it is dark */
+   takes a slightly deeper blue in light mode (a lighter one in dark), so it reads at 4.5:1 on chips and tinted rows too. In
+   dark mode its lines and rings take a lighter blue that reaches 3:1 on the dark chips, and a hovered fill gets darker, so
+   white text on it keeps 4.5:1 */
 :root[data-style="soft"]{--on-accent:#ffffff;--accent-fg:#0f5fd5;--accent-mark:var(--accent)}
-@media (prefers-color-scheme: dark){:root[data-style="soft"]:not([data-theme="light"]){--accent:#116ff8;--accent-2:#0f63de;--accent-hi:#116ff8;--ink:#116ff8;--ink-hover:#0f63de;--on-ink:#ffffff;--on-accent:#ffffff;--accent-fg:#9dc4ff}}
-:root[data-style="soft"][data-theme="dark"]{--accent:#116ff8;--accent-2:#0f63de;--accent-hi:#116ff8;--ink:#116ff8;--ink-hover:#0f63de;--on-ink:#ffffff;--on-accent:#ffffff;--accent-fg:#9dc4ff}
+@media (prefers-color-scheme: dark){:root[data-style="soft"]:not([data-theme="light"]){--accent:#116ff8;--accent-2:#0f5fd5;--accent-hi:#116ff8;--ink:#116ff8;--ink-hover:#0f5fd5;--on-ink:#ffffff;--on-accent:#ffffff;--accent-fg:#9dc4ff;--accent-mark:#3d8bff}}
+:root[data-style="soft"][data-theme="dark"]{--accent:#116ff8;--accent-2:#0f5fd5;--accent-hi:#116ff8;--ink:#116ff8;--ink-hover:#0f5fd5;--on-ink:#ffffff;--on-accent:#ffffff;--accent-fg:#9dc4ff;--accent-mark:#3d8bff}
 </style>
 </head>""")
 # a picked colour gets the same treatment: the shades for text and for marks are worked out from it
@@ -788,7 +802,7 @@ patch("""    v['--on-accent'] = onWhite >= 3 ? '#ffffff' : '#120a02';""", """   
     var fill = rgb(v['--accent'] || base), chip = dark ? [52,52,52] : [236,236,236], to = dark ? W : K;
     function ratio(a, b){ var x = lum(a), y = lum(b); return (Math.max(x, y) + .05) / (Math.min(x, y) + .05); }
     function reach(need, cap, on, lc){ for (var i = 0; i <= 100; i += 2){ var m = mix(fill, to, i / 100); if (ratio(m, on) >= need && (!lc || Math.abs(apca(m, on)) >= lc)) return i / 100 <= cap ? hex(m) : null; } return null; }
-    v['--accent-mark'] = reach(3, 1, chip); v['--accent-fg'] = reach(4.5, .4, mix(chip, fill, .12), 60) || (dark ? '#f2f2f2' : '#111318');""")
+    v['--accent-mark'] = reach(3, 1, chip); v['--accent-fg'] = reach(4.5, .4, mix(chip, fill, .12), 60) || (dark ? '#f2f2f2' : '#121212');""")
 patch("""'Orange, the Blueprint default'""", """'Lime, the Blueprint default'""")
 # a picked accent in Blueprint dark tints selected rows, chips and icon wells too, as lime does by default
 patch("""if (!soft && dark){ v['--accent'] = hex(mix(c, W, .1)); v['--accent-hi'] = hex(mix(c, W, .16)); v['--accent-muted'] = rgba(c, .51); v['--accent-icon-line'] = rgba(c, .17); }""", """if (!soft && dark){ v['--accent'] = hex(mix(c, W, .1)); v['--accent-hi'] = hex(mix(c, W, .16)); v['--accent-muted'] = rgba(c, .51); v['--accent-icon-line'] = rgba(c, .17); v['--accent-bg'] = rgba(c, .12); v['--accent-icon-bg'] = rgba(c, .06); v['--accent-fill'] = hex(mix([18,18,18], c, .08)); }""")
@@ -859,8 +873,8 @@ CSS += """
 patch("""['editor','Rich text editor','A minimal editor with an inline AI menu.','planned','Conversation'],""", """['editor','Rich text editor','A minimal editor with an inline AI menu.','shipped','Conversation'],""")
 # grey text in dark mode reaches APCA Lc 60 or more: secondary text about Lc 70, quieter text about Lc 60
 CSS += """
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--sh-dim:#c6c8ce;--sh-muted:#b6b8bf;--text-dim:#c6c8ce;--muted:#b6b8bf}}
-:root[data-theme="dark"]{--sh-dim:#c6c8ce;--sh-muted:#b6b8bf;--text-dim:#c6c8ce;--muted:#b6b8bf}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]),:root[data-style="soft"]:not([data-theme="light"]){--sh-dim:#c9c9c9;--sh-muted:#c0c0c0;--text-dim:#c9c9c9;--muted:#c0c0c0}}
+:root[data-theme="dark"],:root[data-style="soft"][data-theme="dark"]{--sh-dim:#c9c9c9;--sh-muted:#c0c0c0;--text-dim:#c9c9c9;--muted:#c0c0c0}
 """
 # ---------- Escape shuts the accent picker wherever the focus is, and gives the focus back to its dot when it was inside ----------
 patch("""    document.addEventListener('keydown', e => { if (e.key === 'Escape' && pop.classList.contains('open')) close(); });""",
@@ -955,5 +969,177 @@ html:root{scroll-padding-top:0}
   body.ui .hire-btn::before{left:auto;top:auto;width:auto;height:auto;margin:0;inset:min(0px,(100% - var(--hit-h)) / 2) min(0px,(100% - var(--hit-w)) / 2);border-radius:0;background:none;opacity:0;transform:none;transition:none;--dm-hit:1}
 }
 """
+# ================= focus and keyboard =================
+# reduced motion is read live, so turning it on or off in the system settings applies at once, without a reload. Every
+# smooth scroll and script animation of the site's own reads `reduce` when it runs. Next to it, the helpers the menus and
+# popovers below share
+patch("""  const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;""",
+      """  const reduceMq = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
+  let reduce = !!(reduceMq && reduceMq.matches);
+  if (reduceMq && reduceMq.addEventListener) reduceMq.addEventListener('change', () => { reduce = reduceMq.matches; });
+  // keyboard helpers for the site's menus and popovers: whether an element is on screen, the controls Tab reaches inside a
+  // box (a code block that scrolls counts, as the browser lets Tab reach it), Tab kept going round a list of controls, and
+  // where Up, Down, Home and End move to in a list (-1 is before the first)
+  const isShown = el => !!el && el.getClientRects().length > 0;
+  const tabbables = box => $$('a[href],button,input,select,textarea,summary,pre,[tabindex]', box).filter(el => !el.disabled && isShown(el) && getComputedStyle(el).visibility !== 'hidden' && (el.tabIndex >= 0 && !el.matches('pre:not([tabindex])') || el.matches('pre') && el.scrollHeight > el.clientHeight));
+  const trapTab = (e, list) => {
+    if (e.key !== 'Tab' || !list.length) return; e.preventDefault();
+    const d = e.shiftKey ? -1 : 1; let i = list.indexOf(document.activeElement);
+    for (let k = 0; k < list.length; k++){ i = i < 0 ? (d > 0 ? 0 : list.length - 1) : (i + d + list.length) % list.length; list[i].focus(); if (document.activeElement === list[i]) return; }
+  };
+  const listKey = (e, i, n) => e.key === 'ArrowDown' ? Math.min(i + 1, n - 1) : e.key === 'ArrowUp' ? i - 1 : e.key === 'Home' ? 0 : e.key === 'End' ? n - 1 : null;""")
+
+# ---------- Skip to content: the first thing Tab reaches. It moves the focus to the library (or to the Changelog, Roadmap or
+# FAQ page when one is open), which lands under the sticky header ----------
+patch("""<body class="ui">""", """<body class="ui">
+<a class="skip" href="#components">Skip to content</a>""")
+patch("""<main id="components" class="content">""", """<main id="components" class="content" tabindex="-1">""")
+patch("""  /* ---------- mobile menu ---------- */""", """  /* ---------- skip to content ---------- */
+  {
+    const skip = $('.skip');
+    if (skip) skip.addEventListener('click', e => {
+      const pv = $('.pv.open'), t = pv ? $('#pv-in', pv) : $('#components'); if (!t) return;
+      e.preventDefault(); if (!t.hasAttribute('tabindex')) t.setAttribute('tabindex', '-1');
+      t.focus({ preventScroll:true });
+      if (pv) pv.scrollTo({ top:0, behavior:reduce ? 'auto' : 'smooth' }); else t.scrollIntoView({ block:'start', behavior:reduce ? 'auto' : 'smooth' });
+    });
+  }
+  /* ---------- mobile menu ---------- */""")
+CSS += """
+/* Skip to content: out of sight until Tab reaches it, then a small pill top left, over the header */
+.skip{position:fixed;top:8px;left:16px;z-index:200;display:inline-flex;align-items:center;height:32px;padding:0 12px;border-radius:999px;background:var(--sh-card);color:var(--sh-text);box-shadow:inset 0 0 0 1px var(--sh-line-2);font:500 13px/1 var(--sans);letter-spacing:0;text-decoration:none;white-space:nowrap;opacity:0;transform:translateY(-48px);pointer-events:none}
+.skip:focus{opacity:1;transform:none;pointer-events:auto;outline:2px solid var(--focus,var(--accent-mark));outline-offset:2px}
+@media (prefers-reduced-motion:no-preference){ .skip{transition:opacity .2s ease,transform .2s cubic-bezier(.16,1,.3,1)} }
+/* where it sends the focus is the page itself, so it takes no ring */
+#components:focus,#pv-in:focus{outline:none}
+"""
+
+# ---------- the style switch: Blueprint or Soft as a pair of radio buttons, one Tab stop, the arrow keys move and pick ----------
+patch("""      reduce ? go() : setTimeout(go, 300);
+    });""", """      reduce ? go() : setTimeout(go, 300);
+    });
+    {
+      const sb = $$('button', seg), paintSeg = () => sb.forEach(b => { const on = b.classList.contains('on'); b.setAttribute('aria-checked', String(on)); b.tabIndex = on ? 0 : -1; });
+      seg.setAttribute('role', 'radiogroup'); sb.forEach(b => b.setAttribute('role', 'radio')); paintSeg();
+      seg.addEventListener('click', paintSeg);
+      seg.addEventListener('keydown', e => {
+        const d = e.key === 'ArrowRight' || e.key === 'ArrowDown' ? 1 : e.key === 'ArrowLeft' || e.key === 'ArrowUp' ? -1 : 0, i = sb.indexOf(document.activeElement);
+        if (!d || i < 0) return; e.preventDefault();
+        const n = sb[(i + d + sb.length) % sb.length]; n.click(); n.focus();
+      });
+    }""")
+
+# ---------- the sort menu in the header (Popular, Recent): opened from the keyboard it works as a menu does ----------
+# Enter, Space or Down opens it on the ticked item (Up on the last), Up and Down, Home and End move, Enter or Space picks and
+# gives the focus back to its button, Esc shuts it and gives the focus back, and Tab shuts it
+patch("""    document.addEventListener('keydown', e => { if (e.key === 'Escape') openF(false); });""",
+      """    document.addEventListener('keydown', e => { if (e.key === 'Escape') openF(false); });
+    {
+      const items = () => $$('.flt-i', fm).filter(isShown);
+      const paintF = () => $$('.flt-i', fm).forEach(x => { x.tabIndex = -1; x.setAttribute('aria-checked', String(x.classList.contains('on'))); });
+      const into = last => { const it = items(); if (!it.length) return; const on = it.findIndex(x => x.classList.contains('on')); it[last ? it.length - 1 : Math.max(0, on)].focus(); };
+      paintF();
+      fb.addEventListener('click', e => { if (!e.detail && fm.classList.contains('show')) into(false); });
+      fb.addEventListener('keydown', e => { if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return; e.preventDefault(); openF(true); into(e.key === 'ArrowUp'); });
+      fm.addEventListener('keydown', e => {
+        if (e.key === 'Escape'){ e.preventDefault(); openF(false); fb.focus(); return; }
+        if (e.key === 'Tab'){ openF(false); return; }
+        const it = items(), i = it.indexOf(document.activeElement); if (i < 0) return;
+        const k = e.key === 'ArrowDown' ? (i + 1) % it.length : e.key === 'ArrowUp' ? (i - 1 + it.length) % it.length : e.key === 'Home' ? 0 : e.key === 'End' ? it.length - 1 : -1;
+        if (k > -1){ e.preventDefault(); it[k].focus(); }
+      });
+      fm.addEventListener('click', e => { if (!e.target.closest('.flt-i')) return; paintF(); fb.focus(); });
+    }""")
+
+# ---------- the code view: Esc gives the focus back to View code (as before), Tab stays inside it while it's open, and its
+# tabs move with the arrow keys, Home and End ----------
+patch("""      tab = t; $$('.cdm-tab', m).forEach(b => b.setAttribute('aria-selected', b.dataset.t === t));""",
+      """      tab = t; $$('.cdm-tab', m).forEach(b => { b.setAttribute('aria-selected', b.dataset.t === t); b.tabIndex = b.dataset.t === t ? 0 : -1; });""")
+patch("""Sound.play('close'); if (last) last.focus(); }""", """Sound.play('close'); if (last){ last.setAttribute('aria-expanded', 'false'); last.focus(); } }""")
+patch("""    document.addEventListener('keydown', e => { if (e.key === 'Escape') close(); });""",
+      """    document.addEventListener('keydown', e => {
+      if (!m.classList.contains('open')) return;
+      if (e.key === 'Escape') return close();
+      trapTab(e, tabbables($('.cdm-box', m)));
+    });
+    $('.cdm-tabs', m).addEventListener('keydown', e => {
+      const ts = $$('.cdm-tab', m).filter(isShown), i = ts.indexOf(document.activeElement); if (i < 0) return;
+      const k = e.key === 'ArrowRight' ? (i + 1) % ts.length : e.key === 'ArrowLeft' ? (i - 1 + ts.length) % ts.length : e.key === 'Home' ? 0 : e.key === 'End' ? ts.length - 1 : -1;
+      if (k < 0) return; e.preventDefault(); ts[k].click(); ts[k].focus();
+    });""")
+
+# ---------- the phone menu ----------
+# opened from the keyboard, the focus goes to its search (from a tap it stays put, so no keyboard pops up); while it's open,
+# Tab goes round the menu and its button and never out to the page behind it; Esc shuts it and gives the focus back to its
+# button. Its search results move with Up and Down like the sidebar's, and a result or section it jumps to takes the focus
+patch("""      $$('.mi-in', menu).forEach((el, i) => el.animate(""", """      if (!reduce) $$('.mi-in', menu).forEach((el, i) => el.animate(""")
+patch("""    btn.addEventListener('click', () => open ? (close(), Sound.play('close')) : show());""",
+      """    btn.addEventListener('click', e => { if (open){ close(); Sound.play('close'); return; } show(); if (!e.detail) setTimeout(() => $('#m-q', menu).focus(), 0); });
+    menu.setAttribute('aria-modal', 'true');""")
+patch("""    document.addEventListener('keydown', e => { if (e.key === 'Escape' && open) close(); });""",
+      """    document.addEventListener('keydown', e => {
+      if (!open) return;
+      if (e.key === 'Escape'){ close(); btn.focus(); return; }
+      trapTab(e, [btn, ...tabbables(menu)]);
+    });""")
+patch("""      const c = $('#' + h.dataset.id); setTimeout(() => c.scrollIntoView({ block:'start', behavior:'smooth' }), 80);""",
+      """      const c = $('#' + h.dataset.id), t = c.querySelector('.comp-title a'); setTimeout(() => { if (t) t.focus({ preventScroll:true }); c.scrollIntoView({ block:'start', behavior:reduce ? 'auto' : 'smooth' }); }, 80);""")
+patch("""const sec = $(a.getAttribute('href')); setTimeout(() => sec.scrollIntoView({ block:'start', behavior:'smooth' }), 80); });""",
+      """const sec = $(a.getAttribute('href')), t = sec.querySelector('.comp-title a'); setTimeout(() => { if (t) t.focus({ preventScroll:true }); sec.scrollIntoView({ block:'start', behavior:reduce ? 'auto' : 'smooth' }); }, 80); });""")
+patch("""    res.style.display = 'none';""", """    res.style.display = 'none';
+    { const found = () => $$('.m-hit, #m-suggest', res).filter(isShown);
+      q.addEventListener('keydown', e => { if (e.key !== 'ArrowDown' || !q.value.trim()) return; const r = found(); if (r.length){ e.preventDefault(); r[0].focus(); } });
+      res.addEventListener('keydown', e => {
+        const r = found(), i = r.indexOf(document.activeElement); if (i < 0) return;
+        const k = listKey(e, i, r.length); if (k === null) return;
+        e.preventDefault(); if (k < 0) q.focus(); else r[k].focus();
+      }); }""")
+
+# ---------- the sign-up card: Esc or its close button gives the focus back to the button whose click brought it up, and it
+# keeps its name once it says you're on the list ----------
+patch("""    $('.nd-x', card).addEventListener('click', () => { try { localStorage.setItem('dmui-nudge', 'dismissed'); } catch(e) {} hide(); Sound.play('close'); track('Sign-up card closed'); });""",
+      """    let from = null;
+    $('.nd-x', card).addEventListener('click', () => { const back = card.contains(document.activeElement); try { localStorage.setItem('dmui-nudge', 'dismissed'); } catch(e) {} hide(); Sound.play('close'); track('Sign-up card closed');
+      if (back){ const t = from && from.isConnected && isShown(from) ? from : $('#components'); t.focus({ preventScroll:true }); } });""")
+patch("""if (e.target.closest('[data-copy], [data-view], .dv-copy, #dv-copy')) whenClear(show); }, true);""",
+      """const t = e.target.closest('[data-copy], [data-view], .dv-copy, #dv-copy'); if (t){ from = t; whenClear(show); } }, true);""")
+patch("""<div class="nd-t">You're on the list</div>""", """<div class="nd-t" id="nd-t">You're on the list</div>""")
+
+# ---------- the accent picker: each row of swatches is a radio group, one Tab stop (the picked swatch), and the arrow keys,
+# Home and End move through the swatches shown and pick. Opened from the keyboard, the focus goes to the picked swatch, and
+# Tab out of the picker shuts it ----------
+patch("""<button class="acc-sw" data-v="${v}" aria-label="${n}" title="${n}" ${v !== 'default' ? `style="--sw:${v}"` : ''}></button>`).join('') + `<label class="acc-sw acc-custom" title="Pick any colour" aria-label="Pick any colour"><input type="color" value="#ff850d"></label>`;""",
+      """<button class="acc-sw" role="radio" aria-checked="false" data-v="${v}" aria-label="${n}" title="${n}" ${v !== 'default' ? `style="--sw:${v}"` : ''}></button>`).join('') + `<label class="acc-sw acc-custom" title="Pick any colour"><input type="color" value="#ff850d" aria-label="Pick any colour"></label>`;""")
+patch("""<div class="acc-row">${swatches()}</div>""", """<div class="acc-row" role="radiogroup" aria-label="Accent colour">${swatches()}</div>""")
+patch("""<span class="m-acc acc-row">${swatches()}</span>""", """<span class="m-acc acc-row" role="radiogroup" aria-label="Accent colour">${swatches()}</span>""")
+patch("""      $$('.acc-sw[data-v]').forEach(b => b.classList.toggle('on', b.dataset.v === cur));""",
+      """      $$('.acc-sw[data-v]').forEach(b => { const on = b.dataset.v === cur; b.classList.toggle('on', on); b.setAttribute('aria-checked', String(on)); });
+      $$('.acc-row').forEach(row => { const all = $$('.acc-sw[data-v]', row), sws = all.filter(b => !twin(b)), on = sws.find(b => b.dataset.v === cur) || sws[0]; all.forEach(b => { b.tabIndex = b === on ? 0 : -1; }); });""")
+patch("""    const pop = $('#acc-pop'), btn = $('#acc-btn');""", """    const pop = $('#acc-pop'), btn = $('#acc-btn');
+    // the swatch the style hides, as its Default is the same colour
+    const twin = b => b.dataset.v === (document.documentElement.getAttribute('data-style') === 'soft' ? '#116ff8' : '#d4f84a');
+    document.addEventListener('keydown', e => {
+      const b = e.target.closest && e.target.closest('.acc-row .acc-sw[data-v]'); if (!b) return;
+      const sws = $$('.acc-sw[data-v]', b.parentElement).filter(x => !twin(x)), i = sws.indexOf(b);
+      const d = e.key === 'ArrowRight' || e.key === 'ArrowDown' ? 1 : e.key === 'ArrowLeft' || e.key === 'ArrowUp' ? -1 : 0;
+      const n = d ? sws[(i + d + sws.length) % sws.length] : e.key === 'Home' ? sws[0] : e.key === 'End' ? sws[sws.length - 1] : null;
+      if (!n) return; e.preventDefault(); commit(n.dataset.v, n); n.focus();
+    });""")
+patch("""    btn.addEventListener('click', e => { e.stopPropagation(); pop.classList.contains('open') ? close() : open(); });""",
+      """    btn.addEventListener('click', e => { e.stopPropagation(); if (pop.classList.contains('open')) return close(); open(); if (!e.detail){ const s = $('.acc-sw[tabindex="0"]', pop); if (s) s.focus(); } });
+    wrap.addEventListener('focusout', e => { if (pop.classList.contains('open') && e.relatedTarget && !wrap.contains(e.relatedTarget)) close(); });""")
+
+# ---------- Changelog, Roadmap and FAQ: shutting the page (Esc, or All components) gives the focus back to the link that
+# opened it, when the focus was on the page ----------
+patch("""    $('#pv-back').addEventListener('click', () => close());""", """    $('#pv-back').addEventListener('click', () => close());
+    { let from = null;
+      document.addEventListener('click', e => { const a = e.target.closest('a[href="#/changelog"], a[href="#/roadmap"], a[href="#/faq"], a[href="#/privacy"]'); if (a && !pv.contains(a)) from = a; }, true);
+      new MutationObserver(() => {
+        if (pv.classList.contains('open')) return;
+        const f = document.activeElement;
+        if (from && from.isConnected && isShown(from) && (!f || f === document.body || pv.contains(f))) from.focus({ preventScroll:true });
+        from = null;
+      }).observe(pv, { attributes:true, attributeFilter:['class'] }); }""")
+
 json.dump({ 'patches': P, 'css': CSS },open(os.path.join(HERE, 'site-patches.json'), 'w'), indent=1)
 print(len(P), 'patches')

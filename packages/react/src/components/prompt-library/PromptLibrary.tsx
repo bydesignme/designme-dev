@@ -146,7 +146,7 @@ export function PromptLibrary({
               <button type="button" className="dm-pill dm-sm" onClick={() => { setUsed(false); onUndo?.(); }}>{L.undo}</button>
             </div>
           ) : (
-            <div className="dm-plb-f"><span className="dm-muted dm-plb-note">{L.note}</span><span className="dm-sp" /><button type="button" className="dm-pill dm-ink dm-sm dm-plb-use" onClick={use}>{L.use}</button></div>
+            <div className="dm-plb-f"><span className="dm-muted dm-plb-note">{L.note}</span><span className="dm-sp" /><button type="button" className="dm-pill dm-primary dm-sm dm-plb-use" onClick={use}>{L.use}</button></div>
           )}
         </div>
       </div>

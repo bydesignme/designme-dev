@@ -71,7 +71,7 @@ export default function ButtonsDemo() {
         ]} />
       </> },
       { label: 'States', children: <>
-        <Button variant="ink" className="dm-btx-load" success fadeBack={false} busyLabel="Publishing" doneLabel="Published" onClick={() => wait(1300)}>Publish</Button>
+        <Button variant="primary" className="dm-btx-load" success fadeBack={false} busyLabel="Publishing" doneLabel="Published" onClick={() => wait(1300)}>Publish</Button>
         <ButtonCopy text={LINK} label="Copy link" />
         <ButtonHold />
         <Button variant="accent" disabled>Disabled</Button>

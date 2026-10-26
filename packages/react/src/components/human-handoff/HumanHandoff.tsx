@@ -135,7 +135,7 @@ export function HumanHandoff({
                 <span className="dm-hox-lb">{edited ? `${messageLabel} · ${L.edited}` : messageLabel}</span><span className="dm-sp" />
                 {onMessageChange && editing && <button type="button" className="dm-pill dm-ghost dm-sm" onClick={cancel}>{L.cancel}</button>}
                 {onMessageChange && (editing
-                  ? <button type="button" className="dm-pill dm-ink dm-sm" onClick={save}>{L.save}</button>
+                  ? <button type="button" className="dm-pill dm-primary dm-sm" onClick={save}>{L.save}</button>
                   : <button type="button" className="dm-pill dm-ghost dm-sm" onClick={startEdit}><Icon name="edit" size="xs" />{L.edit}</button>)}
               </div>
               <div key={rev} ref={box} className="dm-hox-mb" contentEditable={editing} suppressContentEditableWarning role="textbox" aria-multiline="true" aria-readonly={!editing}

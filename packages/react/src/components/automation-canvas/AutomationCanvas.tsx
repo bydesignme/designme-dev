@@ -216,7 +216,7 @@ export function AutomationCanvas({
         {tag && <span className="dm-tag dm-ok dm-acx-on">{tag}</span>}
         <span className="dm-acx-sp" />
         {status !== undefined && <Swap className="dm-muted dm-acx-st">{status}</Swap>}
-        {onRun && <button type="button" className="dm-pill dm-ink dm-sm dm-acx-run" onClick={() => { setSel(null); onRun(); }}><Icon name="play" size="xs" />{runLabel}</button>}
+        {onRun && <button type="button" className="dm-pill dm-primary dm-sm dm-acx-run" onClick={() => { setSel(null); onRun(); }}><Icon name="play" size="xs" />{runLabel}</button>}
       </div>
       <div className="dm-acx-cv" ref={cv} onClick={() => setSel(null)}>
         <svg ref={svg} className={cx('dm-acx-svg', intro && 'dm-intro')} aria-hidden="true">

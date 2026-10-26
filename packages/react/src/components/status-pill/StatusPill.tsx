@@ -91,7 +91,7 @@ export function StatusPill(props: StatusPillProps) {
           {view.file && <span className="dm-fchip" style={{ height: 24 }}>{view.file.type && <span className={cx('dm-ft', FT[view.file.type])}>{view.file.type.toUpperCase()}</span>}{view.file.name}</span>}
           {view.meta && <span className="dm-m">{view.meta}</span>}
           {view.action
-            ? <button type="button" className="dm-pill dm-ink dm-sm" onClick={() => props.action?.onClick()}>{view.action.label}</button>
+            ? <button type="button" className="dm-pill dm-primary dm-sm" onClick={() => props.action?.onClick()}>{view.action.label}</button>
             : <span className="dm-end" />}
         </div>
         <div className="dm-spl-track"><div className="dm-spl-fill" style={{ width: Math.max(0, Math.min(100, progress)) + '%' }} /></div>

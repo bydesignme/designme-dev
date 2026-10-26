@@ -305,7 +305,7 @@ export function Form({
       })}
       <div className="dm-fmx-ft">
         <Swap className="dm-fmx-ms dm-muted">{message}</Swap>
-        <button type="submit" className="dm-pill dm-ink dm-sm dm-fmx-go">{busy ? <Spin /> : submitLabel}</button>
+        <button type="submit" className="dm-pill dm-primary dm-sm dm-fmx-go">{busy ? <Spin /> : submitLabel}</button>
       </div>
     </form>
   );

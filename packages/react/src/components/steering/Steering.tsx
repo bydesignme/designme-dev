@@ -124,7 +124,7 @@ export function Steering({ title, steps, messages = [], onSend, value, defaultVa
                 <p>{m.text}</p>
                 {m.answer ? <span className="dm-muted">{m.answer}</span> : m.actions?.length ? (
                   <div className="dm-ste-acts">
-                    {m.actions.map((a, i) => <button key={a.label} type="button" className={cx('dm-pill dm-sm', i === m.actions!.length - 1 ? 'dm-ink' : 'dm-ghost')} onClick={a.onClick}>{a.label}</button>)}
+                    {m.actions.map((a, i) => <button key={a.label} type="button" className={cx('dm-pill dm-sm', i === m.actions!.length - 1 ? 'dm-primary' : 'dm-ghost')} onClick={a.onClick}>{a.label}</button>)}
                   </div>
                 ) : null}
               </div>

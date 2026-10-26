@@ -52,7 +52,7 @@ export function LaunchChecklist({ title = 'Ready to ship?', checks, status, acti
       <div className="dm-lcx-h">
         <div><b>{title}</b><Swap className="dm-muted dm-lcx-st">{status ?? summary(checks)}</Swap></div>
         {action && (
-          <button type="button" className={cx('dm-pill dm-sm dm-lcx-run', action.accent ? 'dm-accent' : 'dm-ink')} disabled={action.disabled} onClick={action.onClick}>
+          <button type="button" className={cx('dm-pill dm-sm dm-lcx-run', action.accent ? 'dm-accent' : 'dm-primary')} disabled={action.disabled} onClick={action.onClick}>
             {action.icon && <Icon name={action.icon} size="xs" />}{action.label}
           </button>
         )}

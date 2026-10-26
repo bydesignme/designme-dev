@@ -113,7 +113,7 @@ export function BrowserSession({ title, url, search, children, cursor, steps, as
                 {s.detail && <Swap className="dm-d">{s.detail}</Swap>}
                 {asking && (
                   <div className={cx('dm-bws-ask', enter().className)}>
-                    <button type="button" className="dm-pill dm-ink dm-sm" onClick={ask.onAllow}>{ask.label}</button>
+                    <button type="button" className="dm-pill dm-primary dm-sm" onClick={ask.onAllow}>{ask.label}</button>
                     <button type="button" className="dm-pill dm-soft dm-sm" onClick={take}>Take over</button>
                   </div>
                 )}

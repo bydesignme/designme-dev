@@ -168,7 +168,7 @@ export function VoiceCapture({ words, state, defaultState = 'listening', onState
             )}
             <span className="dm-sp" />
             <button type="button" className="dm-pill dm-ghost dm-sm dm-vcx-x" onClick={() => { setMenuOpen(false); setState('cancelled'); }}>Cancel</button>
-            <button type="button" className="dm-pill dm-ink dm-sm dm-vcx-done" onClick={done}>Done</button>
+            <button type="button" className="dm-pill dm-primary dm-sm dm-vcx-done" onClick={done}>Done</button>
           </>
         )}
       </div>

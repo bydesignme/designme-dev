@@ -87,18 +87,11 @@ export function borrows(c){
   return COMPONENTS.filter(x => x !== c && names.has(x.v2));
 }
 
-/* ---- the shared core for the demos: Blueprint's square corners and no-blur rules stay inside the demo,
-   so the page around it keeps the site's own rounded controls ---- */
+/* ---- the shared core for the demos: served as it is installed. Blueprint's sweeping rules (square corners, no blur) reach
+   only what the components draw (their [data-c] card, the tooltip), so the page around a demo keeps the site's own rounded
+   controls without the demo depending on its stage ---- */
 export function demoCoreCss(){
-  let css = CORE.css;
-  const B = ':root:not([data-style="soft"])';
-  for (const [a, b] of [
-    [`${B} *,${B} *::before,${B} *::after`, `${B} :is(.pg-demo,.tip) *,${B} :is(.pg-demo,.tip) *::before,${B} :is(.pg-demo,.tip) *::after,${B} .tip,${B} .tip::before,${B} .tip::after`],
-  ]){
-    if (!css.includes(a)) throw new Error('core.css changed: the Blueprint rule to scope is gone');
-    css = css.split(a).join(b);
-  }
-  return css;
+  return CORE.css;
 }
 
 // the sidebar's icons: the homepage's own (tools/site/build.js copies them into site.json)
@@ -111,8 +104,11 @@ export const icon = (name, cls = '') => {
 /* ---- the accent's roles in each style and theme, read from the shared core, so the docs show what the code sets ---- */
 export const ACCENTS = (() => {
   const blocks = [...CORE.css.replace(/\/\*[\s\S]*?\*\//g, "").matchAll(/([^{}]*)\{([^{}]*)\}/g)].map(m => ({ sel:m[1].replace(/\/\*[\s\S]*?\*\//g, '').trim(), body:m[2] }));
-  const get = (sel, prop) => {
-    const b = blocks.find(x => x.sel === sel && new RegExp(`(^|;)\\s*${prop}\\s*:`).test(x.body));
+  // a block is found by any selector in its list (Soft's tokens also sit on [data-style="soft"]); the last block that sets the
+  // property wins, as in the cascade
+  const has = (b, sel, prop) => b.sel.split(',').map(x => x.trim()).includes(sel) && new RegExp(`(^|;)\\s*${prop}\\s*:`).test(b.body);
+  const get = (sel, prop, base) => {
+    const b = blocks.filter(x => has(x, sel, prop)).pop() || (base && blocks.filter(x => has(x, base, prop)).pop());
     if (!b) throw new Error(`core.css: no ${prop} for ${sel}`);
     return b.body.match(new RegExp(`(?:^|;)\\s*${prop}\\s*:\\s*([^;]+)`))[1].trim();
   };
@@ -122,7 +118,11 @@ export const ACCENTS = (() => {
   };
   const out = {};
   for (const [style, themes] of Object.entries(SEL)) for (const [theme, sel] of Object.entries(themes)){
-    const v = p => { let x = get(sel, p); const r = x.match(/^var\((--[\w-]+)\)$/); if (r) x = get(sel, r[1]); return x; };
+    // Blueprint sets only what differs from the base, so a role it leaves to the base (like the tint, worked out from the
+    // accent) is read there, with the accent filled in
+    const base = SEL.soft[theme];
+    const v = p => { let x = get(sel, p, base); const r = x.match(/^var\((--[\w-]+)\)$/); if (r) x = get(sel, r[1], base);
+      return /var\(--accent\)/.test(x) ? x.replace(/var\(--accent\)/g, get(sel, '--accent', base)) : x; };
     out[style + '-' + theme] = { style, theme, surface:v('--surface'), fg:v('--fg'), chip:v('--chip'), line:v('--line'),
       accent:v('--accent'), onAccent:v('--on-accent'), accentFg:v('--accent-fg'), accentMark:v('--accent-mark'), accentBg:v('--accent-bg') };
   }

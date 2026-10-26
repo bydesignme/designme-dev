@@ -262,7 +262,7 @@ function Right({ run, group, fail, secs, fresh, onApprove, onRetry }: { run: Inb
   let body = null;
   if (group === 'needs') {
     if (fail && onRetry) body = <button type="button" className="dm-pill dm-sm dm-aib-go" aria-label={`Retry ${run.title}`} onClick={() => onRetry(run.id)}><Icon name="refresh" size="xs" />Retry</button>;
-    else if (!fail && onApprove) body = <button type="button" className="dm-pill dm-ink dm-sm dm-aib-go" aria-label={`Approve ${run.title}`} onClick={() => onApprove(run.id)}>Approve</button>;
+    else if (!fail && onApprove) body = <button type="button" className="dm-pill dm-primary dm-sm dm-aib-go" aria-label={`Approve ${run.title}`} onClick={() => onApprove(run.id)}>Approve</button>;
   } else if (group === 'running') body = <><Spin /><span className="dm-num">{clock(secs)}</span></>;
   else body = <><span className="dm-ok"><Icon name="ok" size="xs" /></span><span>{run.ended}</span></>;
   return <span className={cx('dm-aib-r', e?.className)} style={e?.style}>{body}</span>;

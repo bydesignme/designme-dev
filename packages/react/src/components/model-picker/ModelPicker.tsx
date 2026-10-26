@@ -129,7 +129,7 @@ export function ModelPicker({
             <div className="dm-mpk-sg" aria-live="polite">
               <p className="dm-mpk-sgt">{suggestion?.text}</p>
               <div className="dm-mpk-sga">
-                {suggestion?.actions.map((a, i, all) => <button key={a.label} type="button" className={cx('dm-pill dm-sm', i === all.length - 1 ? 'dm-ink' : 'dm-ghost')} onClick={a.onClick}>{a.label}</button>)}
+                {suggestion?.actions.map((a, i, all) => <button key={a.label} type="button" className={cx('dm-pill dm-sm', i === all.length - 1 ? 'dm-primary' : 'dm-ghost')} onClick={a.onClick}>{a.label}</button>)}
               </div>
             </div>
           </Fold>

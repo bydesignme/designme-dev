@@ -146,7 +146,7 @@ export function ProposalCard({
         {state === 'open' ? (
           <>
             <button type="button" className="dm-pill dm-ghost dm-sm dm-prx-no" onClick={dismiss}>Not now</button>
-            <button type="button" className="dm-pill dm-ink dm-sm dm-prx-ok" onClick={accept}>Accept</button>
+            <button type="button" className="dm-pill dm-primary dm-sm dm-prx-ok" onClick={accept}>Accept</button>
           </>
         ) : state === 'accepted' ? (
           <>

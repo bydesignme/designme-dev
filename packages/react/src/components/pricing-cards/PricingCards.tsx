@@ -23,8 +23,8 @@ export interface PricingPlan {
   /** The line above the features. Paid plans work it out from the editors and the billing period; set it for free or custom plans */
   total?: string;
   features: ReactNode[];
-  /** The button at the foot of the card. soft is quiet, accent is the one to pick, ink is for talking to sales */
-  action: { label: string; variant?: 'soft' | 'accent' | 'ink' };
+  /** The button at the foot of the card. soft is quiet, accent is the one to pick, primary is for talking to sales. ink is the old name for primary */
+  action: { label: string; variant?: 'soft' | 'accent' | 'primary' | 'ink' };
   /** Adds the "Most popular" badge and outlines the card */
   popular?: boolean;
   /** Once the editors reach this many, this card takes the outline from the popular one, like Enterprise from 25 editors */
@@ -121,7 +121,7 @@ export function PricingCards({ plans, period, defaultPeriod = 'yearly', onPeriod
               </div>
               <Total text={total} period={per} />
               <div className="dm-pcx-li">{p.features.map((f, k) => <span key={k}><Icon name="check" size="xs" />{f}</span>)}</div>
-              <button type="button" className={cx('dm-pill', 'dm-' + (p.action.variant ?? 'soft'))} onClick={() => onChoose?.(p, { period: per, seats: n })}>{p.action.label}</button>
+              <button type="button" className={cx('dm-pill', 'dm-' + ((p.action.variant === 'ink' ? 'primary' : p.action.variant) ?? 'soft'))} onClick={() => onChoose?.(p, { period: per, seats: n })}>{p.action.label}</button>
             </div>
           );
         })}

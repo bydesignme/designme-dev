@@ -169,7 +169,7 @@ export default function BrowserSessionDemo() {
   const closeBanner = () => { if (!mine || !blocked) return; setBanner(false); setBlocked(false); unblock.current?.(); };
 
   // the preview's story: the agent stops at the cookie banner, and the person lets it close it
-  useStory(ref, async ({ wait, press }) => { await wait(10000); press('.dm-bws-ask .dm-ink'); });
+  useStory(ref, async ({ wait, press }) => { await wait(10000); press('.dm-bws-ask .dm-primary'); });
 
   const shown = steps.map((s, i) => i === 3 && blocked ? { ...s, detail: mine ? 'Close the banner, then hand back' : 'A cookie banner covers the table' } : s);
   return (
@@ -344,7 +344,7 @@ export function BrowserSession({ title, url, search, children, cursor, steps, as
                 {s.detail && <Swap className="dm-d">{s.detail}</Swap>}
                 {asking && (
                   <div className={cx('dm-bws-ask', enter().className)}>
-                    <button type="button" className="dm-pill dm-ink dm-sm" onClick={ask.onAllow}>{ask.label}</button>
+                    <button type="button" className="dm-pill dm-primary dm-sm" onClick={ask.onAllow}>{ask.label}</button>
                     <button type="button" className="dm-pill dm-soft dm-sm" onClick={take}>Take over</button>
                   </div>
                 )}

@@ -70,7 +70,7 @@ export function VoiceOrb({
           </div>
         ) : (
           <div className="dm-vor-f">
-            <button type="button" className="dm-pill dm-ink dm-sm dm-vor-go" onClick={onStart}><Icon name="mic" size="xs" />{L.start}</button>
+            <button type="button" className="dm-pill dm-primary dm-sm dm-vor-go" onClick={onStart}><Icon name="mic" size="xs" />{L.start}</button>
             <Tip label={muted ? L.unmute : L.mute}><button type="button" className="dm-ib dm-fill dm-vor-mute" aria-label={L.mute} aria-pressed={muted} onClick={() => onMutedChange?.(!muted)}><Icon name="mic" /></button></Tip>
             <span className="dm-sp" />
             <button type="button" className="dm-pill dm-sm dm-vor-end" onClick={onEnd}>{L.end}</button>

@@ -285,7 +285,7 @@ export function PlanReview({ title, steps, defaultSteps = [], onStepsChange, pha
         <Swap className="dm-muted dm-plx-n">{note ?? NOTE[phase]}</Swap>
         {phase === 'review' && <>
           <button type="button" className="dm-pill dm-ghost dm-sm dm-plx-chg" onClick={onRequestChanges}>Ask for changes</button>
-          <button type="button" className="dm-pill dm-ink dm-sm dm-plx-go" onClick={onApprove}>Approve plan</button>
+          <button type="button" className="dm-pill dm-primary dm-sm dm-plx-go" onClick={onApprove}>Approve plan</button>
         </>}
         {phase === 'running' && <button type="button" className="dm-pill dm-ghost dm-sm dm-plx-stop dm-enter" style={{ animationDelay: '50ms' }} onClick={onStop}><Icon name="stop" size="xs" />Stop</button>}
         {phase === 'done' && <button type="button" className="dm-pill dm-soft dm-sm dm-enter" onClick={onSeeChanges}><Icon name="eye" size="xs" />See changes</button>}

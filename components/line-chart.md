@@ -165,7 +165,7 @@ export function LineChart({ label, series, points, axis, range, unit, compareLab
   const [lo, hi] = range ?? [min - (max - min) * .11, max + (max - min) * .08];
   const y = (d: number) => 136 - (d - lo) / (hi - lo || 1) * 128;
   const paths = series.map(s => s.values.map((d, i): [number, number] => [i / last * W, y(d)]));
-  const color = (k: number) => series[k].color ?? (k ? 'var(--dm-faint)' : 'var(--dm-accent)');
+  const color = (k: number) => series[k].color ?? (k ? 'var(--dm-muted)' : 'var(--dm-accent)');
 
   // the lines draw in from the left while the big number counts up
   const clip = useTween(W, 1400, 0);

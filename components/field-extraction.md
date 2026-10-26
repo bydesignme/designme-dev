@@ -32,6 +32,7 @@ Field extraction shows a document next to the fields an agent reads from it, suc
 - Set `fixed` on a checked field and it shows "Fixed" with a full bar.
 - `reading` sends a scan line down the page each time it turns true, and the status line crossfades as `status` changes.
 - The send button stays disabled until reading has stopped and every field is sure or fixed. `sendState` moves it through idle, sending and sent.
+- The document and the fields sit side by side, the fields' column narrowing with the component, and stack once the component itself is 560px wide or less, whatever the screen size.
 
 ### Accessibility
 
@@ -271,7 +272,7 @@ export function FieldExtraction({ page, fields, reading = false, status = '', ch
             })}
           </div>
           <div className="dm-fex-f">
-            <button type="button" className={cx('dm-pill dm-sm', sendState === 'sent' ? 'dm-soft' : 'dm-ink')} disabled={!ready} onClick={() => { if (sendState === 'idle') onSend?.(); }}>
+            <button type="button" className={cx('dm-pill dm-sm', sendState === 'sent' ? 'dm-soft' : 'dm-primary')} disabled={!ready} onClick={() => { if (sendState === 'idle') onSend?.(); }}>
               {sendState === 'sending' ? <Spin /> : sendState === 'sent' ? <><Icon name="check" size="xs" />{sentLabel}</> : sendLabel}
             </button>
           </div>

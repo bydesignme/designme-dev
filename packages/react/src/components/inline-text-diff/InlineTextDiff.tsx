@@ -92,7 +92,7 @@ export function InlineTextDiff({ title, parts, decisions, defaultDecisions = {},
           {left > 0 && (
             <div className="dm-itd-a">
               <button type="button" className="dm-pill dm-ghost dm-sm dm-itd-no" onClick={() => all('rejected')}>{L.rejectAll}</button>
-              <button type="button" className="dm-pill dm-ink dm-sm dm-itd-ok" onClick={() => all('accepted')}>{L.acceptAll}</button>
+              <button type="button" className="dm-pill dm-primary dm-sm dm-itd-ok" onClick={() => all('accepted')}>{L.acceptAll}</button>
             </div>
           )}
         </div>
@@ -117,7 +117,7 @@ export function InlineTextDiff({ title, parts, decisions, defaultDecisions = {},
         <div ref={bar} className={cx('dm-itd-bar', open && 'dm-open')} role="dialog" aria-label="Edit" inert={!open} style={at}>
           {last.current?.note && <p className="dm-itd-why"><Icon name="alert" size="xs" /><span>{last.current.note}</span></p>}
           <div className="dm-itd-bb">
-            <button type="button" className="dm-pill dm-ink dm-sm dm-itd-acc" onClick={() => decide('accepted')}><Icon name="check" size="xs" />{L.accept}</button>
+            <button type="button" className="dm-pill dm-primary dm-sm dm-itd-acc" onClick={() => decide('accepted')}><Icon name="check" size="xs" />{L.accept}</button>
             <button type="button" className="dm-pill dm-ghost dm-sm dm-itd-rej" onClick={() => decide('rejected')}><Icon name="x" size="xs" />{L.reject}</button>
           </div>
         </div>

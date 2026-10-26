@@ -58,9 +58,9 @@ import { useStory, useWait } from '../lib/useScript';
 /* ---------- Model picker: ask for Opus, find it at capacity, and take a close match on high thinking ---------- */
 // the same three models and figures as Model compare: tokens a second, and a typical reply's price with no thinking
 const BASE = [
-  { id: 'opus', name: 'Opus 5.5', color: 'var(--dm-c2)', note: 'Deepest reasoning, slower', speed: 2, quality: 5, cost: 5, tps: 38, price: .021 },
+  { id: 'opus', name: 'Opus 5.5', color: 'var(--dm-pl)', note: 'Deepest reasoning, slower', speed: 2, quality: 5, cost: 5, tps: 38, price: .021 },
   { id: 'sonnet', name: 'Sonnet 5.5', color: 'var(--dm-c1)', note: 'Balanced, the default for design work', speed: 4, quality: 4, cost: 2, tps: 74, price: .006 },
-  { id: 'haiku', name: 'Haiku 5.5', color: 'var(--dm-c3)', note: 'Fastest, for quick edits', speed: 5, quality: 3, cost: 1, tps: 142, price: .001 }
+  { id: 'haiku', name: 'Haiku 5.5', color: 'var(--dm-pm)', note: 'Fastest, for quick edits', speed: 5, quality: 3, cost: 1, tps: 142, price: .001 }
 ];
 
 export default function ModelPickerDemo() {
@@ -98,7 +98,7 @@ export default function ModelPickerDemo() {
   // the preview's story: the person asks for Opus, reads why it can't start, and takes the close match
   useStory(ref, async ({ wait, press }) => {
     await wait(5500); press('.dm-mpk-o');
-    await wait(1000 + 2500 + 900); press('.dm-mpk-sga .dm-ink');
+    await wait(1000 + 2500 + 900); press('.dm-mpk-sga .dm-primary');
   });
 
   return (
@@ -288,7 +288,7 @@ export function ModelPicker({
             <div className="dm-mpk-sg" aria-live="polite">
               <p className="dm-mpk-sgt">{suggestion?.text}</p>
               <div className="dm-mpk-sga">
-                {suggestion?.actions.map((a, i, all) => <button key={a.label} type="button" className={cx('dm-pill dm-sm', i === all.length - 1 ? 'dm-ink' : 'dm-ghost')} onClick={a.onClick}>{a.label}</button>)}
+                {suggestion?.actions.map((a, i, all) => <button key={a.label} type="button" className={cx('dm-pill dm-sm', i === all.length - 1 ? 'dm-primary' : 'dm-ghost')} onClick={a.onClick}>{a.label}</button>)}
               </div>
             </div>
           </Fold>

@@ -17,8 +17,8 @@ export interface ToastData {
   title: string;
   /** The quieter line under the title. Crossfades when it changes */
   description?: string;
-  /** A button before the close button, like Undo or Retry. busy swaps its label for a spinner */
-  action?: { label: string; onClick: () => void; variant?: 'ghost' | 'ink'; busy?: boolean };
+  /** A button before the close button, like Undo or Retry: ghost, or primary on the accent (ink, the old name, still works). busy swaps its label for a spinner */
+  action?: { label: string; onClick: () => void; variant?: 'ghost' | 'primary' | 'ink'; busy?: boolean };
 }
 
 export interface ToastProps {
@@ -43,7 +43,7 @@ function Card({ toast, leaving, onDismiss }: { toast: ToastData; leaving: boolea
       <span className="dm-g" style={{ color: tone.color, background: tone.bg }}>{tone.icon ? <Icon name={tone.icon} /> : <Spin />}</span>
       <div className="dm-tx"><b>{toast.title}</b>{toast.description !== undefined && <Swap>{toast.description}</Swap>}</div>
       <div className="dm-acts">
-        {a && <button type="button" className={cx('dm-pill dm-sm', a.variant === 'ink' ? 'dm-ink' : 'dm-ghost')} aria-busy={a.busy || undefined} onClick={() => { if (!a.busy) a.onClick(); }}>{a.busy ? <Spin /> : a.label}</button>}
+        {a && <button type="button" className={cx('dm-pill dm-sm', a.variant === 'primary' || a.variant === 'ink' ? 'dm-primary' : 'dm-ghost')} aria-busy={a.busy || undefined} onClick={() => { if (!a.busy) a.onClick(); }}>{a.busy ? <Spin /> : a.label}</button>}
         <Tip label="Dismiss"><button type="button" className="dm-ib" aria-label="Dismiss" onClick={onDismiss}><Icon name="x" /></button></Tip>
       </div>
     </div>

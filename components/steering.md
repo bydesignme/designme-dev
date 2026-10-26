@@ -133,7 +133,7 @@ export default function SteeringDemo() {
     taken(() => setDraft(''));
     for (const ch of 'Use our library blue, not violet') { setDraft(d => d + ch); await wait(40); }
     await wait(500); press('.dm-ste-go');
-    await wait(5200); press('.dm-ste-acts .dm-ink');
+    await wait(5200); press('.dm-ste-acts .dm-primary');
   });
 
   return (
@@ -310,7 +310,7 @@ export function Steering({ title, steps, messages = [], onSend, value, defaultVa
                 <p>{m.text}</p>
                 {m.answer ? <span className="dm-muted">{m.answer}</span> : m.actions?.length ? (
                   <div className="dm-ste-acts">
-                    {m.actions.map((a, i) => <button key={a.label} type="button" className={cx('dm-pill dm-sm', i === m.actions!.length - 1 ? 'dm-ink' : 'dm-ghost')} onClick={a.onClick}>{a.label}</button>)}
+                    {m.actions.map((a, i) => <button key={a.label} type="button" className={cx('dm-pill dm-sm', i === m.actions!.length - 1 ? 'dm-primary' : 'dm-ghost')} onClick={a.onClick}>{a.label}</button>)}
                   </div>
                 ) : null}
               </div>

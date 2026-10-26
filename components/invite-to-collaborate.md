@@ -322,7 +322,7 @@ export function InviteToCollaborate({ title = 'Invite to Pricing refresh', subti
             </button>
           </Tip>
         ) : <span />}
-        <button type="button" className="dm-pill dm-ink dm-sm dm-ivx-go" disabled={!busy && (!valid.length || valid.length < list.length)} aria-busy={busy} onClick={() => { if (!busy) send(); }}>
+        <button type="button" className="dm-pill dm-primary dm-sm dm-ivx-go" disabled={!busy && (!valid.length || valid.length < list.length)} aria-busy={busy} onClick={() => { if (!busy) send(); }}>
           {busy ? <Spin /> : valid.length > 1 ? `Send ${valid.length} invites` : 'Send invite'}
         </button>
       </div>

@@ -167,7 +167,7 @@ const BODY = {
       ['Style', [
         ['items', [
           ['Blueprint', [['p', 'What the components draw by default.'], ['code', 'html', '<html>']]],
-          ['Soft', [['p', 'Add `data-style="soft"` to `<html>`.'], ['code', 'html', '<html data-style="soft">']]],
+          ['Soft', [['p', 'Add `data-style="soft"` to `<html>`, or to any element around the components to make just those Soft. Tooltips sit on the page, so they keep the page\'s style.'], ['code', 'html', '<html data-style="soft">']]],
         ]],
         ['p', 'designme.dev opens in Soft and remembers the style you pick in the header.'],
       ]],
@@ -199,7 +199,7 @@ const BODY = {
       ]],
       ['Your own accent', [
         ['p', 'Set the roles together. Mark them `!important`: each style and theme sets the accent with a more specific selector, so a plain `:root` rule only reaches Soft in light mode.'],
-        ['code', 'css', `:root{\n  --accent:#ffe600 !important;       /* fills */\n  --accent-2:#f2d900 !important;     /* fills on hover */\n  --accent-bg:#fffbd6 !important;    /* tints */\n  --on-accent:#121212 !important;    /* text on fills */\n  --accent-fg:#111318 !important;    /* the accent as text, 4.5:1 */\n  --accent-mark:#988900 !important;  /* lines, rings and chart marks, 3:1 */\n}`],
+        ['code', 'css', `:root{\n  --accent:#ffe600 !important;       /* fills */\n  --accent-2:#f2d900 !important;     /* fills on hover */\n  --accent-bg:#fffbd6 !important;    /* tints */\n  --on-accent:#121212 !important;    /* text on fills */\n  --accent-fg:#121212 !important;    /* the accent as text, 4.5:1 */\n  --accent-mark:#988900 !important;  /* lines, rings and chart marks, 3:1 */\n}`],
         ['p', 'In React, use the same names with `dm-` in front: `--dm-accent`, `--dm-on-accent` and so on. For other shades in dark mode, repeat the rule under `:root[data-theme="dark"]` and under `@media (prefers-color-scheme: dark)` with `:root:not([data-theme="light"])`.'],
       ]],
       ['Picking an accent on designme.dev', [

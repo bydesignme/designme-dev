@@ -82,7 +82,7 @@ export default function SteeringDemo() {
     taken(() => setDraft(''));
     for (const ch of 'Use our library blue, not violet') { setDraft(d => d + ch); await wait(40); }
     await wait(500); press('.dm-ste-go');
-    await wait(5200); press('.dm-ste-acts .dm-ink');
+    await wait(5200); press('.dm-ste-acts .dm-primary');
   });
 
   return (

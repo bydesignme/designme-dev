@@ -29,7 +29,7 @@ Toast shows one notification at a time and lets it change as the agent's work mo
 - Four tones: `success`, `error`, `info` and `loading`. Each picks its own icon and colour, and loading shows a spinner.
 - Give the toast a new `id` and the new one rises in while the old one slips away. Keep the `id` to update the text in place.
 - The `description` line crossfades when it changes, so progress text can update without a jump.
-- An optional `action` adds a button before the close button, in a `ghost` or `ink` style.
+- An optional `action` adds a button before the close button, in a `ghost` or `primary` style (`primary` sits on the accent).
 - Set `action.busy` and the button label turns into a spinner. Clicks are ignored while it is busy.
 - The close button hides the toast straight away and calls `onDismiss`, even if your state has not cleared it yet.
 
@@ -92,7 +92,7 @@ export default function ToastDemo() {
     if (k === 'ok') setToast({ id, tone: 'success', title: 'Changes applied', description: '4 files updated in PricingCard',
       action: { label: 'Undo', onClick: () => update(id, { title: 'Changes undone', description: 'PricingCard is back as it was', action: undefined }) } });
     if (k === 'err') setToast({ id, tone: 'error', title: 'Could not push to main', description: 'The branch is protected',
-      action: { label: 'Retry', variant: 'ink', onClick: () => {
+      action: { label: 'Retry', variant: 'primary', onClick: () => {
         setToast(t => (t && t.id === id && t.action ? { ...t, action: { ...t.action, busy: true } } : t));
         later(1200, () => { if (current.current === id) show('ok'); });
       } } });
@@ -165,8 +165,8 @@ export interface ToastData {
   title: string;
   /** The quieter line under the title. Crossfades when it changes */
   description?: string;
-  /** A button before the close button, like Undo or Retry. busy swaps its label for a spinner */
-  action?: { label: string; onClick: () => void; variant?: 'ghost' | 'ink'; busy?: boolean };
+  /** A button before the close button, like Undo or Retry: ghost, or primary on the accent (ink, the old name, still works). busy swaps its label for a spinner */
+  action?: { label: string; onClick: () => void; variant?: 'ghost' | 'primary' | 'ink'; busy?: boolean };
 }
 
 export interface ToastProps {
@@ -191,7 +191,7 @@ function Card({ toast, leaving, onDismiss }: { toast: ToastData; leaving: boolea
       <span className="dm-g" style={{ color: tone.color, background: tone.bg }}>{tone.icon ? <Icon name={tone.icon} /> : <Spin />}</span>
       <div className="dm-tx"><b>{toast.title}</b>{toast.description !== undefined && <Swap>{toast.description}</Swap>}</div>
       <div className="dm-acts">
-        {a && <button type="button" className={cx('dm-pill dm-sm', a.variant === 'ink' ? 'dm-ink' : 'dm-ghost')} aria-busy={a.busy || undefined} onClick={() => { if (!a.busy) a.onClick(); }}>{a.busy ? <Spin /> : a.label}</button>}
+        {a && <button type="button" className={cx('dm-pill dm-sm', a.variant === 'primary' || a.variant === 'ink' ? 'dm-primary' : 'dm-ghost')} aria-busy={a.busy || undefined} onClick={() => { if (!a.busy) a.onClick(); }}>{a.busy ? <Spin /> : a.label}</button>}
         <Tip label="Dismiss"><button type="button" className="dm-ib" aria-label="Dismiss" onClick={onDismiss}><Icon name="x" /></button></Tip>
       </div>
     </div>

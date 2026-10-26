@@ -155,7 +155,7 @@ function Turn({ turn, followUps, onFollowUp, onRetry, onRate, onCopy, onSourceCl
             </span>
             {sources.length > 0 && (
               <button type="button" className="dm-lva-sb" aria-expanded={listOpen} onClick={() => setListOpen(!listOpen)}>
-                <span className="dm-lva-fav">{sources.map(s => <span key={s.n} style={{ background: s.color ?? 'var(--dm-c1)' }}>{s.mark ?? s.title.charAt(0)}</span>)}</span>
+                <span className="dm-lva-fav">{sources.map(s => <span key={s.n} style={{ backgroundColor: s.color ?? 'var(--dm-c1)' }}>{s.mark ?? s.title.charAt(0)}</span>)}</span>
                 {sources.length} {sources.length === 1 ? 'source' : 'sources'}<Icon name="chev-d" size="xs" />
               </button>
             )}

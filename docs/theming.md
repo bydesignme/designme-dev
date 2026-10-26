@@ -16,7 +16,7 @@ What the components draw by default.
 
 ### Soft
 
-Add `data-style="soft"` to `<html>`.
+Add `data-style="soft"` to `<html>`, or to any element around the components to make just those Soft. Tooltips sit on the page, so they keep the page's style.
 
 ```html
 <html data-style="soft">
@@ -62,7 +62,7 @@ The contrast targets hold on the surface, and on the grey chips and tinted rows 
 | On fill, `--on-accent` | `#ffffff` | `#ffffff` | `#121212` | `#121212` |
 | Text, `--accent-fg` | `#0f5fd5` | `#9dc4ff` | `#121212` | `#d4f84a` |
 | Mark, `--accent-mark` | `#116ff8` | `#3d8bff` | `#7a8e2b` | `#d4f84a` |
-| Tint, `--accent-bg` | `#eaf2ff` | `rgba(61,139,255,.12)` | `#f7fde0` | `rgba(212,248,74,.12)` |
+| Tint, `--accent-bg` | `color-mix(in srgb,#116ff8 9%,transparent)` | `color-mix(in srgb,#116ff8 13%,transparent)` | `color-mix(in srgb,#d4f84a 9%,transparent)` | `color-mix(in srgb,#d4f84a 13%,transparent)` |
 
 - Soft is blue, `#116ff8`, with white text on it, in light and dark mode. Accent text is `#0f5fd5` in light mode and `#9dc4ff` in dark mode.
 - Blueprint is lime, `#d4f84a`, with dark text and icons on it. In dark mode, text and marks are lime too. In light mode, lime is too light to read on white, so accent text uses the ink colour and marks use a darker lime, `#7a8e2b`.
@@ -77,7 +77,7 @@ Set the roles together. Mark them `!important`: each style and theme sets the ac
   --accent-2:#f2d900 !important;     /* fills on hover */
   --accent-bg:#fffbd6 !important;    /* tints */
   --on-accent:#121212 !important;    /* text on fills */
-  --accent-fg:#111318 !important;    /* the accent as text, 4.5:1 */
+  --accent-fg:#121212 !important;    /* the accent as text, 4.5:1 */
   --accent-mark:#988900 !important;  /* lines, rings and chart marks, 3:1 */
 }
 ```

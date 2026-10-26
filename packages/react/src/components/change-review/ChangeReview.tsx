@@ -123,7 +123,7 @@ export function ChangeReview({ files, file, defaultFile = 0, onFileChange, decis
           <Swap className="dm-crx-fn dm-num">{f.path ?? f.name}</Swap>
           <span className="dm-crx-sp" />
           <button type="button" className="dm-pill dm-ghost dm-sm dm-crx-rej" onClick={() => bulk('undone')}>Undo all</button>
-          <button type="button" className="dm-pill dm-ink dm-sm dm-crx-ok" onClick={() => bulk('kept')}>Keep all</button>
+          <button type="button" className="dm-pill dm-primary dm-sm dm-crx-ok" onClick={() => bulk('kept')}>Keep all</button>
         </div>
         <div className="dm-crx-diff" key={at + ':' + shown}>
           {f.hunks.map((h, k) => {

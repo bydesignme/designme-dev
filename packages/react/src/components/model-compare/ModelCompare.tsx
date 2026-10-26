@@ -14,7 +14,7 @@ export interface ModelCompareModel {
   name: string;
   /** The letter in its coloured mark, like "O" */
   mark: string;
-  /** The mark's colour, like 'var(--dm-c2)' */
+  /** The mark's colour, like 'var(--dm-pl)' */
   color: string;
   /** The quiet line under it in the pickers, like "Most capable, slower" */
   description?: string;

@@ -404,7 +404,7 @@ export function Composer({
             <span className="dm-cpx-rec"><span className="dm-cpx-dot" />Listening</span><span className="dm-cpx-tm dm-num dm-muted">{clock(dictationSeconds ?? counted)}</span>
             <span className="dm-sp" />
             <button type="button" className="dm-pill dm-ghost dm-sm dm-cpx-cancel" onClick={() => endDictation(false)}>Cancel</button>
-            <button type="button" className="dm-pill dm-ink dm-sm dm-cpx-ok" onClick={() => endDictation(true)}>Done</button>
+            <button type="button" className="dm-pill dm-primary dm-sm dm-cpx-ok" onClick={() => endDictation(true)}>Done</button>
           </div>
         </div>
 

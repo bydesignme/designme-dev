@@ -241,7 +241,7 @@ export function DesignTuner({ params = PARAMS, values, defaultValues, onValuesCh
             {params.map(p => <Slider key={p.key} param={p} value={valueOf(p)} hot={active === p.key} onChange={v => setVals({ ...vals, [p.key]: v })} />)}
           </div>
           {note && <div className="dm-dtx-note dm-enter" style={enter().style}>{note}</div>}
-          <button type="button" className={cx('dm-pill dm-ink dm-sm dm-dtx-go', tuning && 'dm-busy')} aria-busy={tuning} onClick={() => { if (!tuning) onTune?.(); }}>
+          <button type="button" className={cx('dm-pill dm-primary dm-sm dm-dtx-go', tuning && 'dm-busy')} aria-busy={tuning} onClick={() => { if (!tuning) onTune?.(); }}>
             {tuning ? <><Think />Tuning</> : <><Icon name="wand" size="xs" />{actionLabel}</>}
           </button>
         </div>

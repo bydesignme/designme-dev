@@ -255,7 +255,7 @@ export function FeedbackSheet({ children, rating, defaultRating = null, onRating
           <div className="dm-fbx-f">
             <span className="dm-muted dm-fbx-n">{note}</span>
             <button type="button" className="dm-pill dm-ghost dm-sm dm-fbx-x" onClick={() => { setOpen(false); setRate(null); }}>Cancel</button>
-            <button type="button" className="dm-pill dm-ink dm-sm dm-fbx-go" disabled={!(picked.length || comment.trim())} aria-busy={sending} onClick={send}>{sending ? <Spin /> : 'Send'}</button>
+            <button type="button" className="dm-pill dm-primary dm-sm dm-fbx-go" disabled={!(picked.length || comment.trim())} aria-busy={sending} onClick={send}>{sending ? <Spin /> : 'Send'}</button>
           </div>
         </div>
       </Fold>

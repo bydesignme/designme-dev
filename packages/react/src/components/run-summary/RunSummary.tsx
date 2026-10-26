@@ -127,7 +127,7 @@ export function RunSummary({ title = 'Run complete', undoneTitle = 'Changes undo
         const e = next();
         return (
           <div className={cx('dm-rsu-acts', e.className)} style={e.style}>
-            <button type="button" className="dm-pill dm-ink dm-sm" onClick={onOpenChanges}>Open changes</button>
+            <button type="button" className="dm-pill dm-primary dm-sm" onClick={onOpenChanges}>Open changes</button>
             <button type="button" className="dm-pill dm-ghost dm-sm dm-rsu-undo" onClick={() => setUndone(!isUndone)}><Swap>{isUndone ? 'Redo' : 'Undo all'}</Swap></button>
           </div>
         );

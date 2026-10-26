@@ -110,7 +110,7 @@ export function AccountTable({
                 <Fragment key={a.name}>
                   <tr className={cx('dm-row', isOpen && 'dm-open', enter(i * 35).className)} style={enter(i * 35).style} tabIndex={0} aria-expanded={isOpen}
                     onClick={() => toggle(a.name)} onKeyDown={e => { if ((e.key === 'Enter' || e.key === ' ') && e.target === e.currentTarget) { e.preventDefault(); toggle(a.name); } }}>
-                    <td><span className="dm-nm"><span className="dm-lg" style={{ background: a.color }}>{a.name[0]}</span>{a.name}</span></td>
+                    <td><span className="dm-nm"><span className="dm-lg" style={{ backgroundColor: a.color }}>{a.name[0]}</span>{a.name}</span></td>
                     <td><span className={cx('dm-tag', tone && TONE[tone])}>{a.plan}</span></td>
                     <td className="dm-num">{a.seats}</td>
                     <td><span className="dm-hb"><i><b style={{ width: a.health + '%', background: healthColor(a.health) }} /></i><span className="dm-num">{a.health}</span></span></td>

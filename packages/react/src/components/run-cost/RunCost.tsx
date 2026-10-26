@@ -69,7 +69,7 @@ export function RunCost({ used, budget, capAt = 90, capOn, defaultCapOn = true, 
           <button type="button" className="dm-toggle" role="switch" aria-checked={cap} aria-label={`Pause at ${capAt} percent`} />
           <span>Pause at {capAt}%</span>
         </label>
-        <button type="button" className={cx('dm-pill dm-sm dm-rc-go', status === 'running' || status === 'stopped' ? 'dm-soft' : 'dm-ink')} onClick={onAction}>
+        <button type="button" className={cx('dm-pill dm-sm dm-rc-go', status === 'running' || status === 'stopped' ? 'dm-soft' : 'dm-primary')} onClick={onAction}>
           <Swap>{actionLabel ?? ACTION[status]}</Swap>
         </button>
       </div>

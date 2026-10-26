@@ -98,7 +98,7 @@ export function DecisionPrompt({
       </div>
       <div className={cx('dm-dpx-f', done && 'dm-leave')} inert={done}>
         <button type="button" className="dm-pill dm-ghost dm-sm dm-dpx-skip" onClick={() => next(true)}>Skip</button>
-        <button type="button" className="dm-pill dm-ink dm-sm dm-dpx-go" onClick={() => next()}>Continue <span className="dm-kbd">↵</span></button>
+        <button type="button" className="dm-pill dm-primary dm-sm dm-dpx-go" onClick={() => next()}>Continue <span className="dm-kbd">↵</span></button>
       </div>
     </div>
   );

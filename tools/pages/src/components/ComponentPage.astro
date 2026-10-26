@@ -200,7 +200,7 @@ const words = cmd => cmd.split(' ').map(w => `<span class="cp-w">${w.replace(/&/
 
   <SiteShell reg={c.reg} where={sec.title} title={c.title} toc={toc}>
     <nav class="pg-crumbs" aria-label="Breadcrumb"><a href="/">Library</a><span>/</span><a href={sec.url}>{sec.title}</a></nav>
-    <h1 class="pg-h1">{c.title}</h1>
+    <h1 class="pg-h1" id="content" tabindex="-1">{c.title}</h1>
     <p class="pg-lead">{c.desc} Free and MIT licensed, as HTML or a typed React component, in two styles with light and dark mode.</p>
     <div class="pg-cmd"><span class="d">$</span><span class="c" set:html={words(cmdHtml)} /><button type="button" data-copy={cmdHtml} aria-label="Copy install command" set:html={copyIcon} /></div>
 
@@ -297,7 +297,9 @@ const words = cmd => cmd.split(' ').map(w => `<span class="cp-w">${w.replace(/&/
       addEventListener('scroll', mark, { passive:true }); addEventListener('resize', mark); mark();
       // the cards under More in …: each plays its component, scaled into its picture, while it's on screen, and stops when it
       // leaves. The component's files come from the registry (/r/<name>.json), once each
-      var REDUCE = matchMedia('(prefers-reduced-motion: reduce)').matches, got = {};
+      // with reduced motion they keep their pictures; the setting is read live, so turning it on stops the previews playing
+      // and turning it off starts them, without a reload
+      var reduceMq = matchMedia('(prefers-reduced-motion: reduce)'), got = {}, io = null, thumbs = [].slice.call(document.querySelectorAll('.pg-thumb[data-reg]'));
       var files = function(reg){ return got[reg] || (got[reg] = fetch('/r/' + reg + '.json').then(function(r){ return r.json(); }).then(function(d){
         var f = function(ext){ var x = d.files.filter(function(x){ return x.path.slice(-ext.length) === ext; })[0]; return x ? x.content : ''; };
         var st = document.createElement('style'); st.textContent = f('.css'); document.head.appendChild(st);
@@ -306,20 +308,27 @@ const words = cmd => cmd.split(' ').map(w => `<span class="cp-w">${w.replace(/&/
       })); };
       var fit = function(t){ var box = t.querySelector('.pg-live'); if (!box) return; var vw = t.dataset.wide ? 920 : 560, h = +t.dataset.h || 420;
         box.style.setProperty('--vw', vw + 'px'); box.style.setProperty('--k', Math.min(t.clientWidth / vw, t.clientHeight / h).toFixed(3)); };
-      if (!REDUCE && 'IntersectionObserver' in window && typeof DM !== 'undefined'){
-        var io = new IntersectionObserver(function(es){ es.forEach(function(en){
+      var stopOne = function(t){ var box = t.querySelector('.pg-live'), card = box && box.firstElementChild; if (card && card._c){ card._c.stop(); card._c = null; } };
+      var start = function(){
+        if (io || reduceMq.matches || !('IntersectionObserver' in window) || typeof DM === 'undefined') return;
+        io = new IntersectionObserver(function(es){ es.forEach(function(en){
           var t = en.target, box = t.querySelector('.pg-live'), card = box && box.firstElementChild;
-          if (!en.isIntersecting){ if (card && card._c){ card._c.stop(); card._c = null; } return; }
-          if (card){ fit(t); DM.mount(card); return; }
+          if (!en.isIntersecting){ stopOne(t); return; }
+          if (card){ fit(t); DM.mount(card); box.classList.add('on'); return; }
           files(t.dataset.reg).then(function(html){
+            if (!io) return;
             box = document.createElement('div'); box.className = 'pg-live pg-demo'; box.setAttribute('aria-hidden', 'true'); box.innerHTML = html;
             t.appendChild(box); fit(t); card = box.firstElementChild;
             if (card && DM.defs[card.dataset.c]){ DM.mount(card); requestAnimationFrame(function(){ box.classList.add('on'); }); }
           }).catch(function(){});
         }); }, { threshold:.3 });
-        [].slice.call(document.querySelectorAll('.pg-thumb[data-reg]')).forEach(function(t){ io.observe(t); });
-        addEventListener('resize', function(){ [].slice.call(document.querySelectorAll('.pg-thumb[data-reg]')).forEach(fit); });
-      }
+        thumbs.forEach(function(t){ io.observe(t); });
+      };
+      // stopping puts each card's picture back
+      var stop = function(){ if (!io) return; io.disconnect(); io = null; thumbs.forEach(function(t){ stopOne(t); var box = t.querySelector('.pg-live'); if (box) box.classList.remove('on'); }); };
+      addEventListener('resize', function(){ if (io) thumbs.forEach(fit); });
+      if (reduceMq.addEventListener) reduceMq.addEventListener('change', function(){ if (reduceMq.matches) stop(); else start(); });
+      start();
       // About's tabs: a click or the arrow keys show one list at a time
       var tabs = [].slice.call(document.querySelectorAll('.cp-tl [role="tab"]'));
       var pick = function(t, focus){ tabs.forEach(function(b){ var on = b === t; b.setAttribute('aria-selected', String(on)); b.tabIndex = on ? 0 : -1; document.getElementById(b.getAttribute('aria-controls')).hidden = !on; }); if (focus) t.focus(); };

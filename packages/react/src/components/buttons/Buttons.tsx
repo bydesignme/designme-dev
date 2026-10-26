@@ -9,7 +9,10 @@ import { usePopover } from '../../lib/popover';
 import '../../designme.css';
 import './buttons.css';
 
-export type ButtonVariant = 'accent' | 'ink' | 'soft' | 'line' | 'ghost';
+/** primary is the main action, on the accent. ink is the old name for primary and still works */
+export type ButtonVariant = 'primary' | 'accent' | 'soft' | 'line' | 'ghost' | 'ink';
+/** The class for a variant: ink, the old name, draws as primary */
+const variantClass = (v?: ButtonVariant) => v && 'dm-' + (v === 'ink' ? 'primary' : v);
 export type ButtonSize = 'sm' | 'md' | 'lg';
 
 // a button used on its own still needs the resets that [data-dm] gives its contents, without adding a box to the layout
@@ -39,7 +42,7 @@ const Check = () => <Icon name="check" size="xs" className="dm-enter" />;
 /* ---------- Button ---------- */
 
 export interface ButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'children' | 'onClick'> {
-  /** accent for the one main action, ink for a strong one, soft and line for the rest, ghost for the quietest. Left out, a plain pill */
+  /** primary (or accent, which looks the same) for the main action, soft and line for the rest, ghost for the quietest. Left out, a plain pill. ink is the old name for primary */
   variant?: ButtonVariant;
   size?: ButtonSize;
   /** An icon before the label: an icon name, or your own element (like a Brand) */
@@ -95,7 +98,7 @@ export function Button({ variant, size = 'md', icon, children, onClick, busy, do
   const label = isBusy ? busyLabel ?? children : isDone ? doneLabel ?? children : children;
   const button = (
     <button type="button" {...rest}
-      className={cx('dm-pill', variant && 'dm-' + variant, size === 'sm' && 'dm-sm', size === 'lg' && 'dm-btx-lg',
+      className={cx('dm-pill', variantClass(variant), size === 'sm' && 'dm-sm', size === 'lg' && 'dm-btx-lg',
         isBusy && 'dm-busy', isDone && 'dm-done', isDone && success && 'dm-btx-load dm-ok', className)}
       aria-busy={isBusy || undefined} aria-pressed={pressed} onClick={click}>
       <Face id={face} fade={fadeBack && face === 'idle'}>
@@ -159,7 +162,7 @@ export function ButtonCopy({ text, label, copiedLabel = 'Copied', tip = 'Copy', 
             <button type="button" className={cx('dm-ib dm-fill', copied && 'dm-copied', className)} aria-label={tip} onClick={click}>{mark}</button>
           </Tip>
         : <Tip label="Copied to clipboard" open={copied || undefined} off={!copied}>
-            <button type="button" className={cx('dm-pill', 'dm-' + variant, 'dm-btx-copy', copied && 'dm-copied', className)} onClick={click}>{mark}{copied ? copiedLabel : label}</button>
+            <button type="button" className={cx('dm-pill', variantClass(variant), 'dm-btx-copy', copied && 'dm-copied', className)} onClick={click}>{mark}{copied ? copiedLabel : label}</button>
           </Tip>}
     </span>
   );
@@ -217,7 +220,7 @@ export function ButtonMenu({ label, items, onSelect, status, variant = 'line', a
   const face = status ? (status.busy ? 'busy:' : 'done:') + status.label : 'idle';
   return (
     <span data-dm="" style={{ position: 'relative', display: 'inline-flex' }}>
-      <button type="button" {...menu.trigger} className={cx('dm-pill', 'dm-' + variant, className)} aria-busy={status?.busy || undefined}>
+      <button type="button" {...menu.trigger} className={cx('dm-pill', variantClass(variant), className)} aria-busy={status?.busy || undefined}>
         <Face id={face} fade={!status}>
           {status && (status.busy ? <Spin /> : <Check />)}
           {status ? status.label : label}
@@ -289,13 +292,13 @@ export interface ButtonRunProps {
 const clock = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s) % 60).padStart(2, '0')}`;
 
 /** Starts a run and shows its time; while it runs, hovering turns it into Stop. */
-export function ButtonRun({ state, seconds = 0, label = 'Run agent', onRun, onStop, variant = 'ink', className }: ButtonRunProps) {
+export function ButtonRun({ state, seconds = 0, label = 'Run agent', onRun, onStop, variant = 'primary', className }: ButtonRunProps) {
   const [hover, setHover] = useState(false);
   const running = state === 'running';
   const face = running ? (hover ? 'stop' : 'run') : state;
   return (
     <span data-dm="" style={ROOT}>
-      <button type="button" className={cx('dm-pill', 'dm-' + variant, 'dm-btx-run', running && 'dm-busy', className)} aria-busy={running || undefined}
+      <button type="button" className={cx('dm-pill', variantClass(variant), 'dm-btx-run', running && 'dm-busy', className)} aria-busy={running || undefined}
         onPointerEnter={() => setHover(true)} onPointerLeave={() => setHover(false)} onClick={() => (running ? onStop : onRun)?.()}>
         <Face id={face} fade={state === 'idle'}>
           {face === 'stop' || face === 'stopped' ? <span className="dm-sq" /> : face === 'run' ? <Spin /> : face === 'complete' ? <Check /> : null}

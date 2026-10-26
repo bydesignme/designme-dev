@@ -240,7 +240,7 @@ export function EvalResults({ title, subtitle, cases, onRun, running = false, ru
       <div className="dm-evr-h">
         <div className="dm-evr-ht"><b>{title}</b>{subtitle && <Swap className="dm-muted dm-evr-st">{subtitle}</Swap>}</div>
         {onRun && (
-          <button type="button" className="dm-pill dm-ink dm-sm dm-evr-run" disabled={running} onClick={onRun}>
+          <button type="button" className="dm-pill dm-primary dm-sm dm-evr-run" disabled={running} onClick={onRun}>
             {running ? <><Spin />Running</> : <><Icon name="play" size="xs" />{runLabel}</>}
           </button>
         )}

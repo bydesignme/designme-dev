@@ -66,13 +66,14 @@ const reg_core = read('core');
 let css = file(reg_core, 'css');
 // the registry wraps each component in a [data-c] card; React components mark their root with data-dm instead
 css = css.replace(/\/\* a component card: the template renders into \.stage-in \*\/\n\[data-c\]\{[^}]*\}\n\[data-c\]\.wide\{[^}]*\}\n?/, '');
-css = css.replace(/:where\(\[data-c\]\) /g, ':where([data-dm]) ');
+// (and Blueprint's sweeping rules, which reach only what the components draw, find them by it too)
+css = css.replace(/\[data-c\]/g, '[data-dm]');
 // :where keeps it weaker than any class, so a component's own type (or the tooltip's, which also carries data-dm) wins
 css += '\n/* every component root carries data-dm, so it starts from the same type wherever it is placed */\n'
   + ':where([data-dm]){font-family:var(--sans);font-size:14px;line-height:1.5;color:var(--fg);-webkit-font-smoothing:antialiased;text-align:left}\n';
 if (/\[data-c\]/.test(css)) throw new Error('card selector left in core css');
 // the registry's element resets are written for its [data-c] cards; a React component's root is marked data-dm instead
-const own = Object.fromEntries(COMPONENTS.map(name => [name, file(read(name), 'css').replace(/:where\(\[data-c\]\) /g, ':where([data-dm]) ')]));
+const own = Object.fromEntries(COMPONENTS.map(name => [name, file(read(name), 'css').replace(/\[data-c\]/g, '[data-dm]')]));
 for (const [name, text] of Object.entries(own)) if (/\[data-c\]/.test(text)) throw new Error(`${name}: card selector left in its css`);
 const frames = new Set([css, ...Object.values(own)].flatMap(frameNames));
 const core = scope(css, frames, true);

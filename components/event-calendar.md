@@ -301,12 +301,12 @@ function Details({ event, onClose, onSave, onDiscard, onPrepNotes, onJoin }: {
       {fresh ? (
         <div className="dm-ecx-pa">
           <button type="button" className="dm-pill dm-ghost dm-sm" onClick={onDiscard}>Discard</button>
-          <button type="button" className="dm-pill dm-ink dm-sm" onClick={() => onSave(input.current?.value ?? '')}>Save</button>
+          <button type="button" className="dm-pill dm-primary dm-sm" onClick={() => onSave(input.current?.value ?? '')}>Save</button>
         </div>
       ) : (onPrepNotes || onJoin) && (
         <div className="dm-ecx-pa">
           {onPrepNotes && prep !== 'done' && <button type="button" className="dm-pill dm-soft dm-sm" onClick={write}>{prep === 'writing' ? <><Think />Writing</> : <><Icon name="spark" size="xs" />Prep notes</>}</button>}
-          {onJoin && <button type="button" className="dm-pill dm-ink dm-sm" onClick={() => onJoin(event)}>Join</button>}
+          {onJoin && <button type="button" className="dm-pill dm-primary dm-sm" onClick={() => onJoin(event)}>Join</button>}
         </div>
       )}
     </>

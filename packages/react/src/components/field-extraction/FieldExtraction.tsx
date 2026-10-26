@@ -122,7 +122,7 @@ export function FieldExtraction({ page, fields, reading = false, status = '', ch
             })}
           </div>
           <div className="dm-fex-f">
-            <button type="button" className={cx('dm-pill dm-sm', sendState === 'sent' ? 'dm-soft' : 'dm-ink')} disabled={!ready} onClick={() => { if (sendState === 'idle') onSend?.(); }}>
+            <button type="button" className={cx('dm-pill dm-sm', sendState === 'sent' ? 'dm-soft' : 'dm-primary')} disabled={!ready} onClick={() => { if (sendState === 'idle') onSend?.(); }}>
               {sendState === 'sending' ? <Spin /> : sendState === 'sent' ? <><Icon name="check" size="xs" />{sentLabel}</> : sendLabel}
             </button>
           </div>

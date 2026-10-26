@@ -55,18 +55,20 @@ const url = SITE + path;
     return Math.abs(s) < .1 ? 0 : (s > 0 ? s - .027 : s + .027) * 100; }
   window.dmAccentRoles = function(base, soft, dark){
     var c = rgb(base), v = {};
-    if (!soft && !dark){ v['--accent'] = hex(mix(c, K, .06)); v['--accent-bg'] = rgba(c, .08); }
-    if (!soft && dark){ v['--accent'] = hex(mix(c, W, .1)); v['--accent-bg'] = rgba(c, .12); }
-    if (soft && !dark){ v['--accent'] = base; v['--accent-bg'] = hex(mix(W, c, .09)); }
-    if (soft && dark){ v['--accent'] = hex(mix(c, W, .2)); v['--accent-bg'] = rgba(c, .16); }
+    if (!soft && !dark) v['--accent'] = hex(mix(c, K, .06));
+    if (!soft && dark) v['--accent'] = hex(mix(c, W, .1));
+    if (soft && !dark) v['--accent'] = base;
+    if (soft && dark) v['--accent'] = hex(mix(c, W, .2));
     var fl = rgb(v['--accent'] || base), INK = [18,10,2], useW = Math.abs(apca(W, fl)) >= Math.abs(apca(INK, fl)), onC = useW ? W : INK;
     for (var j = 0; j <= 40; j += 2){ var f2 = mix(fl, useW ? K : W, j / 100); if (ratio(onC, f2) >= 4.5 && Math.abs(apca(onC, f2)) >= 60){ fl = f2; break; } }
     v['--accent'] = hex(fl); v['--on-accent'] = useW ? '#ffffff' : '#120a02';
-    // hovering a fill moves it away from its text colour, as on the homepage
-    v['--accent-2'] = hex(mix(fl, useW ? K : W, .14));
+    // the hover fill and the tint, as the shared core works them out from the accent (core.css, --accent-2 and --accent-bg):
+    // the fill moved 14% away from its text colour, and the accent at 9% (13% in dark mode). dmAccent leaves them to the core;
+    // the docs' accent preview shows them
+    v['--accent-2'] = hex(mix(fl, onC.map(function(x){ return 255 - x; }), .14)); v['--accent-bg'] = rgba(fl, dark ? .13 : .09);
     var fill = fl, chip = dark ? [52,52,52] : [236,236,236], to = dark ? W : K;
     function reach(need, cap, on, lc){ for (var i = 0; i <= 100; i += 2){ var m = mix(fill, to, i / 100); if (ratio(m, on) >= need && (!lc || Math.abs(apca(m, on)) >= lc)) return i / 100 <= cap ? hex(m) : null; } return null; }
-    v['--accent-mark'] = reach(3, 1, chip); v['--accent-fg'] = reach(4.5, .4, mix(chip, fill, .12), 60) || (dark ? '#f2f2f2' : '#111318');
+    v['--accent-mark'] = reach(3, 1, chip); v['--accent-fg'] = reach(4.5, .4, mix(chip, fill, .12), 60) || (dark ? '#f2f2f2' : '#121212');
     return v;
   };
   window.dmAccent = function(base){
@@ -75,6 +77,8 @@ const url = SITE + path;
     if (!base || base === 'default') return;
     var t = r.getAttribute('data-theme'), dark = t ? t === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
     var v = window.dmAccentRoles(base, r.getAttribute('data-style') === 'soft', dark);
+    // the hover fill and the tint follow the accent in the shared core, as on the homepage
+    delete v['--accent-2']; delete v['--accent-bg'];
     for (var k in v) if (v[k]) s.setProperty(k, v[k]);
   };
   try { var a = localStorage.getItem('dmui-accent'); if (a && a !== 'default') window.dmAccent(a); } catch(e){}
@@ -84,11 +88,11 @@ const url = SITE + path;
 <slot name="head" />
 <style is:inline set:html={FONT_CSS} />
 <style is:global>
-:root{--pg-bg:#fff;--pg-fg:#111318;--pg-dim:#5b5f6b;--pg-muted:#8b8f99;--pg-line:rgba(17,19,24,.08);--pg-line2:rgba(17,19,24,.14);--pg-soft:#fafafa;--pg-chip:#f1f1f3;--pg-ink:#111318;--pg-on-ink:#fff;--pg-top:rgba(255,255,255,.86);
+:root{--pg-bg:#fff;--pg-fg:#121212;--pg-dim:#525252;--pg-muted:#6a6a6a;--pg-line:rgba(18,18,18,.08);--pg-line2:rgba(18,18,18,.14);--pg-soft:#fafafa;--pg-chip:#f1f1f1;--pg-ink:#121212;--pg-on-ink:#fff;--pg-top:rgba(255,255,255,.86);
   --pg-sans:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--pg-mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;--pg-head:53px}
 /* dark mode uses the homepage's neutral greys: #111111 for the page and #1c1c1c for the stage the component sits on */
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--pg-bg:#111111;--pg-fg:#ededee;--pg-dim:#c6c8ce;--pg-muted:#b6b8bf;--pg-line:rgba(255,255,255,.08);--pg-line2:rgba(255,255,255,.14);--pg-soft:#1c1c1c;--pg-chip:rgba(255,255,255,.06);--pg-ink:#f5f5f4;--pg-on-ink:#111318;--pg-top:rgba(17,17,17,.86);color-scheme:dark}}
-:root[data-theme="dark"]{--pg-bg:#111111;--pg-fg:#ededee;--pg-dim:#c6c8ce;--pg-muted:#b6b8bf;--pg-line:rgba(255,255,255,.08);--pg-line2:rgba(255,255,255,.14);--pg-soft:#1c1c1c;--pg-chip:rgba(255,255,255,.06);--pg-ink:#f5f5f4;--pg-on-ink:#111318;--pg-top:rgba(17,17,17,.86);color-scheme:dark}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--pg-bg:#111111;--pg-fg:#f2f2f2;--pg-dim:#c9c9c9;--pg-muted:#c0c0c0;--pg-line:rgba(255,255,255,.08);--pg-line2:rgba(255,255,255,.14);--pg-soft:#1c1c1c;--pg-chip:rgba(255,255,255,.06);--pg-ink:#f5f5f4;--pg-on-ink:#121212;--pg-top:rgba(17,17,17,.86);color-scheme:dark}}
+:root[data-theme="dark"]{--pg-bg:#111111;--pg-fg:#f2f2f2;--pg-dim:#c9c9c9;--pg-muted:#c0c0c0;--pg-line:rgba(255,255,255,.08);--pg-line2:rgba(255,255,255,.14);--pg-soft:#1c1c1c;--pg-chip:rgba(255,255,255,.06);--pg-ink:#f5f5f4;--pg-on-ink:#121212;--pg-top:rgba(17,17,17,.86);color-scheme:dark}
 *{box-sizing:border-box}
 /* in-page links (On this page, a section's heading, a component page's section bar) glide to their section, which lands
    under the sticky header: every target keeps the header's height and a little more clear above it (scroll-margin-top; a
@@ -112,7 +116,7 @@ a{color:inherit}
 .pg-seg{display:inline-flex;padding:2px;border-radius:999px;background:var(--pg-chip)}
 .pg-seg button{height:24px;padding:0 10px;border:0;border-radius:999px;background:none;color:var(--pg-dim);font:500 13px/1 var(--pg-sans);cursor:pointer;transition:color .2s}
 .pg-seg button:hover{color:var(--pg-fg)}
-.pg-seg button[aria-pressed="true"]{background:var(--pg-bg);color:var(--pg-fg);box-shadow:0 1px 2px rgba(17,19,24,.08),0 0 0 .5px rgba(17,19,24,.06)}
+.pg-seg button[aria-checked="true"]{background:var(--pg-bg);color:var(--pg-fg);box-shadow:0 1px 2px rgba(18,18,18,.08),0 0 0 .5px rgba(18,18,18,.06)}
 .pg-seg svg{display:block;width:14px;height:14px}
 .pg-seg.icons button{width:26px;padding:0;display:grid;place-items:center}
 /* the GitHub pill: GitHub's mark and the star count, or "Star on GitHub" when there is no count to show */
@@ -192,20 +196,27 @@ a{color:inherit}
   body .hire-btn{overflow:visible}
   body .hire-btn::before{left:auto;top:auto;width:auto;height:auto;margin:0;inset:min(0px,(100% - var(--hit-h)) / 2) min(0px,(100% - var(--hit-w)) / 2);border-radius:0;background:none;opacity:0;transform:none;transition:none;--dm-hit:1}
 }
+/* Skip to content: out of sight until Tab reaches it (it is the first thing there), then a small pill top left, over the
+   header. It moves the focus to the page's heading (#content), which lands under the header like any anchor */
+.pg-skip{position:fixed;top:8px;left:16px;z-index:100;display:inline-flex;align-items:center;height:32px;padding:0 12px;border-radius:999px;background:var(--pg-bg);color:var(--pg-fg);box-shadow:inset 0 0 0 1px var(--pg-line2);font:500 13px/1 var(--pg-sans);letter-spacing:0;text-decoration:none;white-space:nowrap;opacity:0;transform:translateY(-48px);pointer-events:none}
+.pg-skip:focus{opacity:1;transform:none;pointer-events:auto;outline:2px solid var(--focus,var(--accent-mark,var(--pg-fg)));outline-offset:2px}
+@media (prefers-reduced-motion:no-preference){.pg-skip{transition:opacity .2s ease,transform .2s cubic-bezier(.16,1,.3,1)}}
+#content:focus{outline:none}
 /* read out by screen readers, not shown */
 .pg-sr{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0}
 </style>
 </head>
 <body>
+<a class="pg-skip" href="#content">Skip to content</a>
 <div class="pg-sr" id="pg-live" role="status" aria-live="polite"></div>
 <header class="pg-top"><div class="pg-top-in">
   <a class="pg-logo" href="/" aria-label="Designme.dev home" set:html={LOGO} />
   <span class="pg-sp"></span>
   <a class="pg-gh" href={GITHUB} aria-label="Star designme.dev on GitHub" data-gh-stars><svg viewBox="0 0 24 24" aria-hidden="true" set:html={GH_MARK} /><span class="pg-gh-l">Star on GitHub</span><span class="pg-gh-n" hidden></span></a>
-  <div class="pg-seg pg-style" role="group" aria-label="Style"><button type="button" data-style-set="bp">Blueprint</button><button type="button" data-style-set="soft">Soft</button></div>
-  <div class="pg-seg icons" role="group" aria-label="Theme">
-    <button type="button" data-theme-set="light" aria-label="Light"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button>
-    <button type="button" data-theme-set="dark" aria-label="Dark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button>
+  <div class="pg-seg pg-style" role="radiogroup" aria-label="Style"><button type="button" role="radio" aria-checked="false" data-style-set="bp">Blueprint</button><button type="button" role="radio" aria-checked="false" data-style-set="soft">Soft</button></div>
+  <div class="pg-seg icons" role="radiogroup" aria-label="Theme">
+    <button type="button" role="radio" aria-checked="false" data-theme-set="light" aria-label="Light"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button>
+    <button type="button" role="radio" aria-checked="false" data-theme-set="dark" aria-label="Dark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button>
   </div>
 </div></header>
 <main class="pg-main"><slot /></main>
@@ -214,15 +225,33 @@ a{color:inherit}
   <nav aria-label="More"><a href="/">All components</a><a href="/docs/introduction">Docs</a><a href="/#/changelog">Changelog</a><a href="/#/roadmap">Roadmap</a><a href="/llms.txt">llms.txt</a><a href="/">Home</a></nav>
 </div></div></footer>
 <script is:inline>
+// Skip to content: the focus moves to the page's heading, which glides (or, with reduced motion, jumps) under the header,
+// without changing the address
+(function(){
+  var s = document.querySelector('.pg-skip'); if (!s) return;
+  s.addEventListener('click', function(e){
+    var t = document.getElementById('content') || document.querySelector('main'); if (!t) return;
+    e.preventDefault(); if (!t.hasAttribute('tabindex')) t.setAttribute('tabindex', '-1');
+    t.focus({ preventScroll:true }); t.scrollIntoView({ block:'start' });
+  });
+})();
 // light and dark, and Blueprint or Soft, shared with the rest of the site through the same saved settings
 (function(){
   var root = document.documentElement, mq = matchMedia('(prefers-color-scheme: dark)');
   var theme = function(){ return root.getAttribute('data-theme') || (mq.matches ? 'dark' : 'light'); };
   var paint = function(){
     var t = theme(), soft = root.getAttribute('data-style') === 'soft';
-    document.querySelectorAll('[data-theme-set]').forEach(function(b){ b.setAttribute('aria-pressed', String(b.dataset.themeSet === t)); });
-    document.querySelectorAll('[data-style-set]').forEach(function(b){ b.setAttribute('aria-pressed', String((b.dataset.styleSet === 'soft') === soft)); });
+    // each switch is a pair of radio buttons with one Tab stop, the one that's picked
+    document.querySelectorAll('[data-theme-set]').forEach(function(b){ var on = b.dataset.themeSet === t; b.setAttribute('aria-checked', String(on)); b.tabIndex = on ? 0 : -1; });
+    document.querySelectorAll('[data-style-set]').forEach(function(b){ var on = (b.dataset.styleSet === 'soft') === soft; b.setAttribute('aria-checked', String(on)); b.tabIndex = on ? 0 : -1; });
   };
+  // the arrow keys move between the two and pick
+  document.querySelectorAll('.pg-seg[role="radiogroup"]').forEach(function(g){ g.addEventListener('keydown', function(e){
+    var d = e.key === 'ArrowRight' || e.key === 'ArrowDown' ? 1 : e.key === 'ArrowLeft' || e.key === 'ArrowUp' ? -1 : 0;
+    var bs = [].slice.call(g.querySelectorAll('[role="radio"]')), i = bs.indexOf(document.activeElement);
+    if (!d || i < 0) return; e.preventDefault();
+    var n = bs[(i + d + bs.length) % bs.length]; n.click(); n.focus();
+  }); });
   document.querySelectorAll('[data-theme-set]').forEach(function(b){ b.addEventListener('click', function(){
     var next = b.dataset.themeSet, sys = mq.matches ? 'dark' : 'light';
     if (next === sys){ root.removeAttribute('data-theme'); try { localStorage.removeItem('dmui-theme'); } catch(e){} }
@@ -230,7 +259,7 @@ a{color:inherit}
     paint();
   }); });
   document.querySelectorAll('[data-style-set]').forEach(function(b){ b.addEventListener('click', function(){
-    if (b.getAttribute('aria-pressed') === 'true') return;
+    if (b.getAttribute('aria-checked') === 'true') return;
     if (b.dataset.styleSet === 'soft') root.setAttribute('data-style', 'soft'); else root.removeAttribute('data-style');
     try { localStorage.setItem('dmui-style', b.dataset.styleSet === 'soft' ? 'soft' : 'bp'); } catch(e){}
     paint(); document.dispatchEvent(new CustomEvent('pg-style'));
@@ -284,15 +313,31 @@ a{color:inherit}
   var sws = [].slice.call(document.querySelectorAll('[data-acc]')), any = document.querySelector('.dc-sw.any'), anyIn = any && any.querySelector('input');
   var cur = 'default'; try { cur = localStorage.getItem('dmui-accent') || 'default'; } catch(e){}
   var apply = function(){ if (window.dmAccent) window.dmAccent(cur === 'default' ? null : cur); };
+  // the swatch the style hides, as its Default is the same colour
+  var twin = function(b){ return b.dataset.acc === (root.getAttribute('data-style') === 'soft' ? '#116ff8' : '#d4f84a'); };
   var mark = function(){
     var known = sws.some(function(b){ return b.dataset.acc === cur; });
     sws.forEach(function(b){ b.setAttribute('aria-checked', String(b.dataset.acc === cur)); });
     if (any){ any.classList.toggle('on', !known); if (!known) any.style.setProperty('--sw', cur); else any.style.removeProperty('--sw'); }
+    // one Tab stop per row of swatches: the picked one, or the first shown when the colour is one picked from the wheel
+    [].slice.call(document.querySelectorAll('.dc-acc')).forEach(function(g){
+      var all = [].slice.call(g.querySelectorAll('[data-acc]')), vis = all.filter(function(b){ return !twin(b); });
+      var on = vis.filter(function(b){ return b.dataset.acc === cur; })[0] || vis[0];
+      all.forEach(function(b){ b.tabIndex = b === on ? 0 : -1; });
+    });
   };
   var commit = function(v){ cur = v; try { localStorage.setItem('dmui-accent', v); } catch(e){} apply(); mark(); Snd.play('select'); };
   sws.forEach(function(b){ b.addEventListener('click', function(){ commit(b.dataset.acc); }); });
+  // the arrow keys, Home and End move through the swatches shown and pick
+  [].slice.call(document.querySelectorAll('.dc-acc')).forEach(function(g){ g.addEventListener('keydown', function(e){
+    var b = e.target.closest('[data-acc]'); if (!b) return;
+    var vis = [].slice.call(g.querySelectorAll('[data-acc]')).filter(function(x){ return !twin(x); }), i = vis.indexOf(b);
+    var d = e.key === 'ArrowRight' || e.key === 'ArrowDown' ? 1 : e.key === 'ArrowLeft' || e.key === 'ArrowUp' ? -1 : 0;
+    var n = d ? vis[(i + d + vis.length) % vis.length] : e.key === 'Home' ? vis[0] : e.key === 'End' ? vis[vis.length - 1] : null;
+    if (!n) return; e.preventDefault(); commit(n.dataset.acc); n.focus();
+  }); });
   if (anyIn){ anyIn.addEventListener('input', function(){ cur = anyIn.value; apply(); mark(); }); anyIn.addEventListener('change', function(){ commit(anyIn.value); }); }
-  new MutationObserver(apply).observe(root, { attributes:true, attributeFilter:['data-style', 'data-theme'] });
+  new MutationObserver(function(){ apply(); mark(); }).observe(root, { attributes:true, attributeFilter:['data-style', 'data-theme'] });
   matchMedia('(prefers-color-scheme: dark)').addEventListener('change', apply);
   mark();
 

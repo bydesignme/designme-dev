@@ -26,20 +26,22 @@
 :root{
   --motion:soft;
   --page:#f7f7f7; --stage:#f9f9f9; --surface:#ffffff; --raised:#ffffff;
-  --fg:#171717; --fg2:#525252; --muted:#6a6a6a; --faint:#c4c4c4; --rail:#d4d4d4; --line:#e8e8e8;
+  --fg:#171717; --fg2:#525252; --muted:#6a6a6a; --faint:#c4c4c4; --rail:#d4d4d4; --line:#e8e8e8; --field-line:#8c8c8c;
   --chip:#f3f3f3; --hover:#ebebeb; --press:#e3e3e3; --wash:#f9f9f9; --row:color-mix(in srgb,var(--fg) 4%,transparent);
   --soft:#ececec; --soft-h:#e3e3e3; --soft-ring:inset 0 0 0 1px rgba(0,0,0,.06); --dis:#a6a6a6;
+  /* disabled: text and icons take --dis; a control with a fill swaps it for --dis-fill (Blueprint hatches it) */
+  --dis-fill:var(--soft); --dis-hatch:none;
   --shadow-lift:0 0 0 1px rgba(0,0,0,.1),0 2px 4px rgba(0,0,0,.04),0 16px 32px -10px rgba(0,0,0,.16);
   /* the accent has three roles: --accent fills (with --on-accent on top, 4.5:1), --accent-fg is text and icons in the accent
      (4.5:1 on the surface, and on the chips and tints it sits on) and --accent-mark is lines, rings and chart marks (3:1). A
      light accent like lime keeps its fills and gets a darker mark and ink-coloured text on a light page */
-  --accent:#116ff8; --accent-2:#0b5ed7; --accent-bg:#eaf2ff; --on-accent:#ffffff; --accent-fg:#0f5fd5; --accent-mark:#116ff8; --sel:color-mix(in srgb,var(--accent) 6%,transparent);
-  --ink:#1b1b1f; --on-ink:#ffffff;
-  --ok:#147c3b; --ok-bg:#e8f6ee; --warn:#b25209; --warn-bg:#fdf3df; --bad:#c13535; --bad-bg:#fdecec;
-  --merge:#8250df; --merge-bg:#f2ecfd; --add:#187633; --del:#c7212c;
-  --pb:#1460d0; --pb-bg:#eaf2ff; --pl:#6b47d6; --pl-bg:#f2edff; --pm:#10754a; --pm-bg:#e7f8f0; --pp:#ad560d; --pp-bg:#fff2e6;
-  --pr:#c93451; --pr-bg:#ffeef1; --py:#8b6804; --py-bg:#fffae3; --pk:#c1307a; --pk-bg:#fff0f7; --pt:#0e757e; --pt-bg:#e6f9fa;
-  --ts:#3178c6; --react:#0a7891;
+  --accent:#116ff8; --on-accent:#ffffff; --accent-fg:#0f5fd5; --accent-mark:#116ff8; --sel:color-mix(in srgb,var(--accent) 6%,transparent);
+  --ink:#1b1b1b; --on-ink:#ffffff;
+  --ok:#137739; --ok-bg:#e8f6ee; --warn:#a94e09; --warn-bg:#fdf3df; --bad:#bf3434; --bad-bg:#fdecec;
+  --merge:#7c4cd4; --merge-bg:#f2ecfd; --add:#187633; --del:#c7212c;
+  --pb:#1460d0; --pb-bg:#eaf2ff; --pl:#6b47d6; --pl-bg:#f2edff; --pm:#10754a; --pm-bg:#e7f8f0; --pp:#994c0b; --pp-bg:#fff2e6;
+  --pr:#bf314d; --pr-bg:#ffeef1; --py:#856404; --py-bg:#fffae3; --pk:#b92e75; --pk-bg:#fff0f7; --pt:#0e747d; --pt-bg:#e6f9fa;
+  --ts:#2c6cb2; --react:#0a738b;
   /* every raised surface carries its own hairline edge, so nothing needs a separate ring */
   --shadow:0 0 0 1px rgba(0,0,0,.07),0 1px 2px rgba(0,0,0,.04),0 8px 16px -8px rgba(0,0,0,.08);
   --shadow-pop:0 0 0 1px rgba(0,0,0,.08),0 1px 1px rgba(0,0,0,.02),0 4px 8px -4px rgba(0,0,0,.04),0 16px 24px -8px rgba(0,0,0,.06);
@@ -52,33 +54,42 @@
   --t-fast:.22s; --t:.45s; --t-slow:.7s;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --page:#0d0d0f; --stage:#141417; --surface:#1c1c20; --raised:#232328;
-  --fg:#f2f2f4; --fg2:#c9c9cf; --muted:#bdbdc3; --faint:#4b4b53; --rail:#38383f; --line:#28282d;
-  --chip:#26262b; --hover:#2e2e34; --press:#36363d; --wash:#232328; --row:color-mix(in srgb,var(--fg) 5.5%,transparent);
-  --soft:#2b2b31; --soft-h:#34343b; --soft-ring:inset 0 0 0 1px rgba(255,255,255,.07); --dis:#5d5d66;
+  --page:#111111; --stage:#1c1c1c; --surface:#262626; --raised:#2c2c2c;
+  --fg:#f2f2f2; --fg2:#c9c9c9; --muted:#c0c0c0; --faint:#555555; --rail:#414141; --line:#333333; --field-line:#7a7a7a;
+  --chip:#303030; --hover:#373737; --press:#3f3f3f; --wash:#2c2c2c; --row:color-mix(in srgb,var(--fg) 5.5%,transparent);
+  --soft:#323232; --soft-h:#3a3a3a; --soft-ring:inset 0 0 0 1px rgba(255,255,255,.07); --dis:#737373;
   --shadow-lift:0 0 0 1px rgba(255,255,255,.16),0 2px 4px rgba(0,0,0,.3),0 16px 32px -10px rgba(0,0,0,.6);
-  --accent:#116ff8; --accent-2:#0f63de; --accent-bg:rgba(61,139,255,.12); --on-accent:#ffffff; --accent-fg:#9dc4ff; --accent-mark:#3d8bff; --sel:color-mix(in srgb,var(--accent) 9%,transparent);
-  --ink:#f2f2f4; --on-ink:#151518;
-  --ok:#3ccf7e; --ok-bg:rgba(60,207,126,.13); --warn:#f0b43c; --warn-bg:rgba(240,180,60,.13); --bad:#ff8383; --bad-bg:rgba(255,107,107,.13);
-  --merge:#a98bff; --merge-bg:rgba(169,139,255,.15); --add:#3ccf7e; --del:#ff7b83;
-  --pb:#7fb0ff; --pb-bg:rgba(90,150,255,.18); --pl:#b9a1ff; --pl-bg:rgba(155,125,255,.18); --pm:#5fd6a0; --pm-bg:rgba(70,205,150,.16); --pp:#ffb072; --pp-bg:rgba(255,155,80,.17);
-  --pr:#ff8ea2; --pr-bg:rgba(255,105,130,.17); --py:#f0cd5a; --py-bg:rgba(240,200,60,.15); --pk:#ff8cc6; --pk-bg:rgba(255,100,175,.16); --pt:#5fd8df; --pt-bg:rgba(60,200,210,.16);
-  --ts:#6aa6ff; --react:#3dd0ee;
+  --accent:#116ff8; --on-accent:#ffffff; --accent-fg:#9dc4ff; --accent-mark:#3d8bff; --sel:color-mix(in srgb,var(--accent) 9%,transparent);
+  --ink:#f2f2f2; --on-ink:#161616;
+  --ok:#63d998; --ok-bg:rgba(60,207,126,.13); --warn:#f1bb4e; --warn-bg:rgba(240,180,60,.13); --bad:#ffabab; --bad-bg:rgba(255,107,107,.13);
+  --merge:#cbb8ff; --merge-bg:rgba(169,139,255,.15); --add:#63d998; --del:#ffa9ae;
+  --pb:#a0c5ff; --pb-bg:rgba(90,150,255,.18); --pl:#cbb9ff; --pl-bg:rgba(155,125,255,.18); --pm:#6ad9a7; --pm-bg:rgba(70,205,150,.16); --pp:#ffb57a; --pp-bg:rgba(255,155,80,.17);
+  --pr:#ffadbb; --pr-bg:rgba(255,105,130,.17); --py:#f0cd5a; --py-bg:rgba(240,200,60,.15); --pk:#ffa8d4; --pk-bg:rgba(255,100,175,.16); --pt:#5fd8df; --pt-bg:rgba(60,200,210,.16);
+  --ts:#8fbcff; --react:#3dd0ee;
   --shadow:0 0 0 1px rgba(255,255,255,.08),0 1px 2px rgba(0,0,0,.3),0 8px 16px -8px rgba(0,0,0,.4); --shadow-pop:0 0 0 1px rgba(255,255,255,.1),0 4px 8px -4px rgba(0,0,0,.4),0 16px 32px -8px rgba(0,0,0,.5); --shadow-toast:0 0 0 1px rgba(255,255,255,.1),0 4px 12px rgba(0,0,0,.4); --hl:rgba(240,200,60,.3); --hl-ok:rgba(60,207,126,.24); color-scheme:dark}}
 :root[data-theme="dark"]{
-  --page:#0d0d0f; --stage:#141417; --surface:#1c1c20; --raised:#232328;
-  --fg:#f2f2f4; --fg2:#c9c9cf; --muted:#bdbdc3; --faint:#4b4b53; --rail:#38383f; --line:#28282d;
-  --chip:#26262b; --hover:#2e2e34; --press:#36363d; --wash:#232328; --row:color-mix(in srgb,var(--fg) 5.5%,transparent);
-  --soft:#2b2b31; --soft-h:#34343b; --soft-ring:inset 0 0 0 1px rgba(255,255,255,.07); --dis:#5d5d66;
+  --page:#111111; --stage:#1c1c1c; --surface:#262626; --raised:#2c2c2c;
+  --fg:#f2f2f2; --fg2:#c9c9c9; --muted:#c0c0c0; --faint:#555555; --rail:#414141; --line:#333333; --field-line:#7a7a7a;
+  --chip:#303030; --hover:#373737; --press:#3f3f3f; --wash:#2c2c2c; --row:color-mix(in srgb,var(--fg) 5.5%,transparent);
+  --soft:#323232; --soft-h:#3a3a3a; --soft-ring:inset 0 0 0 1px rgba(255,255,255,.07); --dis:#737373;
   --shadow-lift:0 0 0 1px rgba(255,255,255,.16),0 2px 4px rgba(0,0,0,.3),0 16px 32px -10px rgba(0,0,0,.6);
-  --accent:#116ff8; --accent-2:#0f63de; --accent-bg:rgba(61,139,255,.12); --on-accent:#ffffff; --accent-fg:#9dc4ff; --accent-mark:#3d8bff; --sel:color-mix(in srgb,var(--accent) 9%,transparent);
-  --ink:#f2f2f4; --on-ink:#151518;
-  --ok:#3ccf7e; --ok-bg:rgba(60,207,126,.13); --warn:#f0b43c; --warn-bg:rgba(240,180,60,.13); --bad:#ff8383; --bad-bg:rgba(255,107,107,.13);
-  --merge:#a98bff; --merge-bg:rgba(169,139,255,.15); --add:#3ccf7e; --del:#ff7b83;
-  --pb:#7fb0ff; --pb-bg:rgba(90,150,255,.18); --pl:#b9a1ff; --pl-bg:rgba(155,125,255,.18); --pm:#5fd6a0; --pm-bg:rgba(70,205,150,.16); --pp:#ffb072; --pp-bg:rgba(255,155,80,.17);
-  --pr:#ff8ea2; --pr-bg:rgba(255,105,130,.17); --py:#f0cd5a; --py-bg:rgba(240,200,60,.15); --pk:#ff8cc6; --pk-bg:rgba(255,100,175,.16); --pt:#5fd8df; --pt-bg:rgba(60,200,210,.16);
-  --ts:#6aa6ff; --react:#3dd0ee;
+  --accent:#116ff8; --on-accent:#ffffff; --accent-fg:#9dc4ff; --accent-mark:#3d8bff; --sel:color-mix(in srgb,var(--accent) 9%,transparent);
+  --ink:#f2f2f2; --on-ink:#161616;
+  --ok:#63d998; --ok-bg:rgba(60,207,126,.13); --warn:#f1bb4e; --warn-bg:rgba(240,180,60,.13); --bad:#ffabab; --bad-bg:rgba(255,107,107,.13);
+  --merge:#cbb8ff; --merge-bg:rgba(169,139,255,.15); --add:#63d998; --del:#ffa9ae;
+  --pb:#a0c5ff; --pb-bg:rgba(90,150,255,.18); --pl:#cbb9ff; --pl-bg:rgba(155,125,255,.18); --pm:#6ad9a7; --pm-bg:rgba(70,205,150,.16); --pp:#ffb57a; --pp-bg:rgba(255,155,80,.17);
+  --pr:#ffadbb; --pr-bg:rgba(255,105,130,.17); --py:#f0cd5a; --py-bg:rgba(240,200,60,.15); --pk:#ffa8d4; --pk-bg:rgba(255,100,175,.16); --pt:#5fd8df; --pt-bg:rgba(60,200,210,.16);
+  --ts:#8fbcff; --react:#3dd0ee;
   --shadow:0 0 0 1px rgba(255,255,255,.08),0 1px 2px rgba(0,0,0,.3),0 8px 16px -8px rgba(0,0,0,.4); --shadow-pop:0 0 0 1px rgba(255,255,255,.1),0 4px 8px -4px rgba(0,0,0,.4),0 16px 32px -8px rgba(0,0,0,.5); --shadow-toast:0 0 0 1px rgba(255,255,255,.1),0 4px 12px rgba(0,0,0,.4); --hl:rgba(240,200,60,.3); --hl-ok:rgba(60,207,126,.24); color-scheme:dark}
+
+/* the accent's hover fill (--accent-2) and tint (--accent-bg) are worked out from the accent, in every style and theme, so a
+   picked accent brings its own. Hovering a filled button moves its fill away from its text colour: darker under white text,
+   lighter under dark text, so the label keeps its contrast in every style, theme and accent */
+:root{--accent-2:color-mix(in srgb,var(--accent) 86%,#000);--accent-bg:color-mix(in srgb,var(--accent) 9%,transparent)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--accent-2:color-mix(in srgb,var(--accent) 84%,#fff);--accent-bg:color-mix(in srgb,var(--accent) 13%,transparent)}}
+:root[data-theme="dark"]{--accent-2:color-mix(in srgb,var(--accent) 84%,#fff);--accent-bg:color-mix(in srgb,var(--accent) 13%,transparent)}
+@supports (color:rgb(from red r g b)){:root,:root:not([data-theme="light"]),:root[data-theme="dark"]{--accent-2:color-mix(in srgb,var(--accent) 86%,rgb(from var(--on-accent) calc(255 - r) calc(255 - g) calc(255 - b)))}}
+@supports not (color:rgb(from red r g b)){:root,:root:not([data-theme="light"]),:root[data-theme="dark"]{--accent-2:color-mix(in srgb,var(--accent) 86%,#000)}:root[data-style="bp"],:root[data-style="bp"]:not([data-theme="light"]),:root[data-style="bp"][data-theme="dark"]{--accent-2:color-mix(in srgb,var(--accent) 86%,#fff)}}
 
 /* ---------- page shell ---------- */
 *{box-sizing:border-box}
@@ -157,17 +168,20 @@ b,strong{font-weight:500}
 .pill{display:inline-flex;align-items:center;justify-content:center;gap:7px;height:32px;padding:0 14px;border-radius:var(--r-pill);font-size:13px;font-weight:500;white-space:nowrap;transition:background var(--t-fast),color var(--t-fast),opacity var(--t-fast),transform .15s}
 .pill:active{transform:scale(.97)}
 /* the primary action is the accent, with --on-accent on it, so it follows the accent and stays readable in any colour */
-.pill.ink{background:var(--accent);color:var(--on-accent)}
-.pill.ink:hover{background:var(--accent-2)}
+.pill.primary{background:var(--accent);color:var(--on-accent)}
+.pill.primary:hover{background:var(--accent-2)}
 .pill.accent{background:var(--accent);color:var(--on-accent)}
 .pill.accent:hover,.pill.accent.hl{background:var(--accent-2)}
 .pill.soft{background:var(--soft);color:var(--fg);box-shadow:var(--soft-ring)}
 .pill.soft:hover{background:var(--soft-h)}
 .pill.line{background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);color:var(--fg)}
 .pill.ghost{color:var(--fg2)}.pill.ghost:hover{background:var(--chip);color:var(--fg)}
-.pill[disabled]{opacity:.4;cursor:not-allowed;transform:none}
+/* one disabled look for every control: nothing fades; its text and icons take --dis, a control with a fill swaps the fill
+   for --dis-fill with its quiet edge (hatched in Blueprint), one without keeps no fill, and the pointer says not-allowed */
+.pill[disabled],.pill[disabled]:hover{opacity:1;color:var(--dis);background:none;cursor:not-allowed;transform:none}
 button:disabled{cursor:not-allowed}
-.pill:is(.accent,.ink,.soft,.line)[disabled]{opacity:1;background:var(--soft);color:var(--dis);box-shadow:var(--soft-ring)}
+.pill:is(.accent,.primary,.soft,.line)[disabled],.pill:is(.accent,.primary,.soft,.line)[disabled]:hover{background:var(--dis-hatch),var(--dis-fill);color:var(--dis);box-shadow:var(--soft-ring)}
+.pill[disabled] .kbd{background:var(--chip);color:inherit}
 .pill.sm{height:28px;padding:0 11px;font-size:12.5px}
 .tag{display:inline-flex;align-items:center;gap:5px;height:20px;padding:0 7px;border-radius:6px;font-size:11.5px;font-weight:500;white-space:nowrap;background:var(--chip);color:var(--fg2)}
 .tag.b{background:var(--pb-bg);color:var(--pb)}.tag.l{background:var(--pl-bg);color:var(--pl)}.tag.m{background:var(--pm-bg);color:var(--pm)}.tag.p{background:var(--pp-bg);color:var(--pp)}
@@ -177,12 +191,12 @@ button:disabled{cursor:not-allowed}
 .fchip{display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 10px 0 8px;border-radius:var(--r-pill);background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);font-size:12.5px;color:var(--fg);white-space:nowrap}
 .fchip.lnk{cursor:pointer;transition:background var(--t-fast),box-shadow var(--t-fast)}
 .fchip.lnk:hover{background:var(--chip);box-shadow:inset 0 0 0 1px var(--rail)}
-.ft{font-family:var(--mono);font-size:9.5px;font-weight:500;color:var(--ts);letter-spacing:.02em}
+.ft{font-family:var(--sans);font-size:9.5px;font-weight:500;color:var(--ts);letter-spacing:.02em}
 .ft.re{color:var(--react)}.ft.fg{color:var(--pl)}.ft.pdf{color:var(--pr)}.ft.csv{color:var(--pm)}
 .kbd{font-family:inherit;font-size:11px;padding:1px 5px;border-radius:5px;background:var(--chip);color:var(--fg2)}
 .pill .kbd{display:inline-grid;place-items:center;min-width:18px;height:18px;padding:0 4px;margin-right:-6px}
 /* a key hint on a filled button sits on a slightly darker well of the fill, so white text keeps its contrast */
-.pill.ink .kbd,.pill.accent .kbd{background:color-mix(in srgb,var(--accent) 80%,#000);color:inherit}
+.pill.primary .kbd,.pill.accent .kbd{background:color-mix(in srgb,var(--accent) 80%,#000);color:inherit}
 code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1px 5px;border-radius:5px}
 .av{width:22px;height:22px;border-radius:50%;display:inline-grid;place-items:center;font-size:10px;font-weight:500;color:#fff;flex:none}
 .hr{height:1px;background:var(--line);border:0;margin:0}
@@ -269,8 +283,8 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .copied,.copied:hover{color:var(--ok)!important}
 .tip .kbd{background:rgba(255,255,255,.14);color:inherit;margin-left:6px}
 :root[data-theme="dark"] .tip .kbd{background:rgba(0,0,0,.1)}
-:root[data-theme="dark"] :is(.av,.ssx-ics span){color:#151518!important}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) :is(.av,.ssx-ics span){color:#151518!important}}
+:root[data-theme="dark"] :is(.av,.ssx-ics span){color:#0d0d0d!important}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) :is(.av,.ssx-ics span){color:#0d0d0d!important}}
 .pop{position:absolute;z-index:50;min-width:200px;background:var(--raised);border-radius:14px;box-shadow:var(--shadow-pop);padding:6px;opacity:0;pointer-events:none;transform:translateY(6px) scale(.98);transform-origin:var(--origin,top left);filter:blur(3px);transition:opacity .2s var(--ease),transform .35s var(--ease),filter .2s var(--ease)}
 .pop.open{opacity:1;pointer-events:auto;transform:none;filter:none}
 .pop .ph{padding:6px 8px 4px;font-size:11.5px;color:var(--muted)}
@@ -294,7 +308,7 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 /* bare: components that live in the chat stream sit on the chat surface, no card */
 .card.bare .stage-in .panel:not(.keep){background:none;box-shadow:none;padding-left:0;padding-right:0;border-radius:0}
 /* chart palette, saturated */
-:root{--c1:var(--accent-mark,var(--accent));--c2:#7c4dff;--c3:#00b37e;--c4:#ff8a00;--c5:#ff4d6d;--c6:#00b8d9}
+:root{--c1:var(--accent-mark,var(--accent));--c2:#7c4dff;--c3:#00a876;--c4:#e07900;--c5:#ff4d6d;--c6:#00a2bf}
 /* the accent as a ramp, for charts whose parts are shares of one thing: full strength, then lighter steps toward the surface */
 :root{--a1:var(--c1);--a2:color-mix(in oklab,var(--c1) 72%,var(--surface));--a3:color-mix(in oklab,var(--c1) 50%,var(--surface));--a4:color-mix(in oklab,var(--c1) 32%,var(--surface))}
 :root[data-theme="dark"]{--c1:var(--accent-mark,var(--accent));--c2:#9b7bff;--c3:#22c993;--c4:#ffa033;--c5:#ff6b85;--c6:#22cce8}
@@ -1000,12 +1014,12 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .thp-body .bub{font-size:13.5px}
 .thp-ag{font-size:13.5px;line-height:1.6;color:var(--fg)}
 .thp-ag .src{display:flex;gap:6px;margin-bottom:6px;flex-wrap:wrap}
-.thp-in{display:flex;align-items:center;gap:8px;margin:0 10px 10px;padding:4px 4px 4px 14px;border-radius:999px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--rail);transition:box-shadow .25s}
+.thp-in{display:flex;align-items:center;gap:8px;margin:0 10px 10px;padding:4px 4px 4px 14px;border-radius:999px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--field-line);transition:box-shadow .25s}
 .thp-in:focus-within{box-shadow:inset 0 0 0 1px var(--accent),0 0 0 4px var(--accent-bg)}
 .thp-field{flex:1;min-width:0;border:0;outline:0;background:none;font-size:13.5px;height:30px}
 .thp-field::placeholder{color:var(--muted)}
 .thp-send{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:var(--on-accent);transition:opacity .25s,transform .15s}
-.thp-send[disabled]{opacity:1;cursor:not-allowed;background:var(--rail);color:var(--surface)}
+.thp-send[disabled]{opacity:1;cursor:not-allowed;background:var(--dis-hatch),var(--dis-fill);color:var(--dis);box-shadow:var(--soft-ring)}
 .thp-send:active{transform:scale(.92)}
 /* ---------- Composer ---------- */
 .cpx{display:flex;flex-direction:column;justify-content:flex-end;gap:14px;overflow-anchor:none}
@@ -1044,7 +1058,7 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .cpx-send{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:var(--on-accent);flex:none;transition:opacity .32s,transform .16s,background .16s}
 .cpx-send:hover{background:var(--accent-2)}
 .cpx-send:active{transform:scale(.92)}
-.cpx-send[disabled]{opacity:1;cursor:not-allowed;background:var(--rail);color:var(--surface)}
+.cpx-send[disabled]{opacity:1;cursor:not-allowed;background:var(--dis-hatch),var(--dis-fill);color:var(--dis);box-shadow:var(--soft-ring)}
 /* dictation: a red dot and a clock while it listens, the words arriving in the box, then Cancel or Done */
 .cpx-rec{display:inline-flex;align-items:center;gap:8px;padding-left:8px;font-size:13px;color:var(--fg)}
 .cpx-dot{width:8px;height:8px;border-radius:50%;background:var(--bad);animation:cpxrec 1.6s var(--ease-io) infinite}
@@ -1070,7 +1084,7 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .rte-b:hover{background:var(--row);color:var(--fg)}
 /* a format the selection has: the accent's tint, with the icon in the accent's text colour */
 .rte-b:is([aria-pressed="true"],.on){background:var(--accent-bg);color:var(--accent-fg)}
-.rte-b:disabled,.rte-ai:disabled{background:none;color:var(--dis)}
+.rte-b:disabled,.rte-ai:disabled{opacity:1;cursor:not-allowed;background:none;color:var(--dis)}
 .rte-sep{width:1px;height:16px;margin:0 5px;flex:none;background:var(--line)}
 .rte-ai{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 11px 0 9px;flex:none;border-radius:var(--r-pill);font-size:13px;color:var(--fg);transition:background var(--t-fast),color var(--t-fast)}
 .rte-ai .i{color:var(--accent-fg)}
@@ -1114,20 +1128,18 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .rte-hint{min-width:0;overflow:hidden;text-overflow:ellipsis}
 .rte-hint::before{content:"·";margin-right:8px}
 .rte-idle .ib{width:28px;height:28px;flex:none}
-.rte-idle .ib:disabled{background:none;color:var(--dis)}
+.rte-idle .ib:disabled{opacity:1;cursor:not-allowed;background:none;color:var(--dis)}
 .rte-st{display:flex;align-items:center;gap:7px;flex:0 1 auto;min-width:0;font-size:13px;color:var(--rte-q2);white-space:nowrap}
 .rte-st>span:last-child{min-width:0;overflow:hidden;text-overflow:ellipsis}
 .rte-st .i{color:var(--accent-fg)}
 .rte-rev .pill{flex:none}
 .rte-rev .pill.ghost,.rte-rev .kbd,.rte-menu .ph{color:var(--rte-q2)}
 .rte-rev .pill.ghost:hover{color:var(--fg)}
-/* Accept waits for the whole suggestion; until then its key hint greys out with it */
-.rte-rev .pill[disabled] .kbd{background:var(--chip);color:inherit}
 .rte-menu{width:228px}
-.rte-menu .mi[aria-disabled="true"],.rte-menu .mi[aria-disabled="true"] .i{color:var(--dis);background:none;cursor:not-allowed}
+.rte-menu .mi[aria-disabled="true"],.rte-menu .mi[aria-disabled="true"] .i{opacity:1;cursor:not-allowed;background:none;color:var(--dis)}
 .rte-menu .mi:focus-visible{outline-offset:-2px;background:var(--row)}
 .rte-lnk{display:flex;align-items:center;gap:6px;width:304px;max-width:calc(100% - 12px);min-width:0;padding:6px}
-.rte-url{flex:1;min-width:0;height:30px;padding:0 10px;border:0;border-radius:8px;outline:0;background:var(--chip);color:var(--fg);font-size:13px}
+.rte-url{flex:1;min-width:0;height:30px;padding:0 10px;border:0;border-radius:8px;outline:0;background:var(--chip);box-shadow:inset 0 0 0 1px var(--field-line);color:var(--fg);font-size:13px}
 .rte-url::placeholder{color:var(--rte-q)}
 .rte-url:focus-visible{box-shadow:inset 0 0 0 1px var(--accent-mark)}
 .rte-url[aria-invalid="true"]{box-shadow:inset 0 0 0 1px var(--bad)}
@@ -1385,7 +1397,7 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .psx-tx .w{animation:lvw .4s var(--ease) both}
 @keyframes lvw{from{opacity:0;filter:blur(3px)}to{opacity:1;filter:none}}
 .psx-go{margin-left:auto;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:var(--on-accent);flex:none;transition:opacity .3s}
-.psx-go[disabled]{opacity:1;cursor:not-allowed;background:var(--rail);color:var(--surface)}
+.psx-go[disabled]{opacity:1;cursor:not-allowed;background:var(--dis-hatch),var(--dis-fill);color:var(--dis);box-shadow:var(--soft-ring)}
 .psx-sh svg{transition:transform .6s var(--ease)}
 .psx-sh:hover svg{transform:rotate(180deg)}
 /* ---------- Attachment tray ---------- */
@@ -1422,7 +1434,7 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .rvx-bar{display:flex;align-items:center;gap:2px;margin-left:-6px}
 .rvx-pg{display:flex;align-items:center;gap:0}
 .rvx-pg .ib{width:26px;height:26px}
-.rvx-pg .ib[disabled]{opacity:.3;pointer-events:none}
+.rvx-pg .ib[disabled]{opacity:1;cursor:not-allowed;background:none;color:var(--dis)}
 .rvx-n{font-size:12px;color:var(--muted);min-width:34px;text-align:center}
 .rvx-re svg{transition:transform .7s var(--ease)}
 .rvx-re.go svg{transform:rotate(360deg)}
@@ -1439,7 +1451,7 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .fbx-q{font-size:13.5px;font-weight:500}
 .fbx-ch{display:flex;flex-wrap:wrap;gap:6px}
 .fbx-ch .chip.on{background:var(--sel);color:var(--accent);box-shadow:none}
-.fbx-ta{width:100%;resize:none;border:0;outline:0;border-radius:12px;background:var(--chip);padding:9px 12px;font:inherit;font-size:13px;color:var(--fg);transition:box-shadow .3s}
+.fbx-ta{width:100%;resize:none;border:0;outline:0;border-radius:12px;background:var(--chip);box-shadow:inset 0 0 0 1px var(--field-line);padding:9px 12px;font:inherit;font-size:13px;color:var(--fg);transition:box-shadow .3s}
 .fbx-ta:focus,.fbx-ta.typing{box-shadow:0 0 0 2px var(--accent-bg),inset 0 0 0 1px var(--accent)}
 .fbx-ta::placeholder{color:var(--muted)}
 .fbx-f{display:flex;align-items:center;gap:6px}
@@ -1515,7 +1527,7 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .aab-row{display:flex;align-items:center;flex-wrap:wrap;gap:8px 12px}
 .aab-bar{display:inline-flex;align-items:center;gap:1px;padding:3px;border-radius:var(--r-pill);background:var(--surface);box-shadow:var(--shadow)}
 .aab-bar .ib{width:28px;height:28px}
-.aab-bar .ib[disabled]{opacity:.3;pointer-events:none}
+.aab-bar .ib[disabled]{opacity:1;cursor:not-allowed;background:none;color:var(--dis)}
 .aab-bar .ib svg{transition:transform .42s var(--ease)}
 .aab-re.go svg{transform:rotate(360deg)}
 .aab-up[aria-pressed="true"]{color:var(--ok);background:var(--ok-bg)}
@@ -1683,7 +1695,7 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .pgx-db>svg{color:var(--muted);transition:transform .32s var(--ease)}
 .pgx-db[aria-expanded="true"]>svg{transform:rotate(180deg)}
 .pgx-pop{min-width:230px}
-.pgx-ok[disabled]{opacity:1;background:var(--chip);color:var(--faint)}
+.pgx-ok[disabled]{opacity:1;cursor:not-allowed;background:var(--dis-hatch),var(--dis-fill);color:var(--dis);box-shadow:var(--soft-ring)}
 .pgx-done{display:flex;align-items:center;gap:12px;padding:10px 10px 10px 12px;border-radius:12px;background:var(--ok-bg);font-size:13.5px}
 /* its button is a white pill on the tinted row */
 .pgx-done .pill{background:var(--surface);color:var(--fg);box-shadow:var(--shadow)}
@@ -1729,7 +1741,7 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .hox-rb:hover,.hox-rb[aria-expanded="true"]{background:var(--chip);color:var(--fg)}
 .hox-rb>svg{color:var(--muted);transition:transform .32s var(--ease)}
 .hox-rb[aria-expanded="true"]>svg{transform:rotate(180deg)}
-.hox-rb[disabled]{opacity:.45;background:none}
+.hox-rb[disabled]{opacity:1;cursor:not-allowed;background:none;color:var(--dis)}
 .hox-pop{min-width:240px}
 .hox-pop .mi .av{width:20px;height:20px;font-size:9px}
 .hox-pop .mi>span:not(.ck):not(.av){flex:1;min-width:0}
@@ -2022,7 +2034,7 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .plb-vars{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
 .plb-fd{display:flex;flex-direction:column;gap:5px;font-size:12.5px;font-weight:500;min-width:0}
 .plb-fd.wide{grid-column:1/-1}
-.plb-in{width:100%;border:0;outline:0;border-radius:11px;background:var(--chip);height:38px;padding:0 12px;font:inherit;font-size:13.5px;font-weight:400;color:var(--fg);transition:box-shadow .25s,background .25s}
+.plb-in{width:100%;border:0;outline:0;border-radius:11px;background:var(--chip);box-shadow:inset 0 0 0 1px var(--field-line);height:38px;padding:0 12px;font:inherit;font-size:13.5px;font-weight:400;color:var(--fg);transition:box-shadow .25s,background .25s}
 .plb-in::placeholder{color:var(--muted)}
 .plb-in:focus,.plb-in.ed{background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--accent),0 0 0 4px var(--accent-bg)}
 .plb-fd.bad .plb-in{box-shadow:inset 0 0 0 1.5px var(--bad)}
@@ -2081,12 +2093,12 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .ste-ag .muted{font-size:12px}
 .ste-sum{display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:12px;background:var(--ok-bg);font-size:13px}
 .ste-sum svg{color:var(--ok);flex:none}
-.ste-box{display:flex;align-items:center;gap:6px;height:40px;margin:0 4px 4px;padding:0 5px 0 14px;border-radius:999px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--rail);transition:box-shadow .25s}
+.ste-box{display:flex;align-items:center;gap:6px;height:40px;margin:0 4px 4px;padding:0 5px 0 14px;border-radius:999px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--field-line);transition:box-shadow .25s}
 .ste-box:focus-within,.ste-box.f{box-shadow:inset 0 0 0 1px var(--accent),0 0 0 4px var(--accent-bg)}
 .ste-box input{flex:1;min-width:0;border:0;outline:0;background:transparent;font:inherit;font-size:13px;color:var(--fg)}
 .ste-box input::placeholder{color:var(--muted)}
 .ste-go{width:30px;height:30px;border-radius:50%;background:var(--accent);color:var(--on-accent);display:grid;place-items:center;flex:none;transition:background .2s}
-.ste-go[disabled]{cursor:not-allowed;background:var(--rail);color:var(--surface)}
+.ste-go[disabled]{opacity:1;cursor:not-allowed;background:var(--dis-hatch),var(--dis-fill);color:var(--dis);box-shadow:var(--soft-ring)}
 /* ---------- Eval results ---------- */
 /* an eval suite's latest run: one bar segment per case, the pass count against the run before, and the cases, all or
    just the failed ones. A failed case opens to show what was expected and what came back, with a fix that reruns it */
@@ -2421,11 +2433,12 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .chx-f a:hover{text-decoration:underline;text-underline-offset:2px}
 
 /* ---------- Field extraction ---------- */
-.fex{display:grid;grid-template-columns:1fr 316px;gap:14px}
-@media (max-width:720px){.fex{grid-template-columns:1fr}}
+.fex{display:grid;grid-template-columns:minmax(0,1fr) clamp(240px,44%,316px);gap:14px;width:100%;container:fex/inline-size}
+/* the document and the fields side by side while the component has room for both, whatever the screen; one above the other below that */
+@container fex (max-width:560px){.fex-doc,.fex-side{grid-column:1/-1}}
 .fex-doc{border-radius:18px;background:var(--chip);padding:20px;display:grid;place-items:center;min-width:0;position:relative;overflow:hidden}
 /* the invoice is paper: white ink-on-paper in light mode, a dark document in dark mode */
-.fex-pg{--pg:#fff;--pg-fg:#1d2330;--pg-mut:#687080;--pg-line:#e6e8ec;--pg-hl:var(--accent-mark,var(--accent));--pg-ring:var(--accent-mark,var(--accent));--pg-warn:232,155,20;--pg-wring:#e89b14;--pg-sh:0 1px 2px rgba(0,0,0,.08),0 8px 30px rgba(0,0,0,.08);
+.fex-pg{--pg:#fff;--pg-fg:#232323;--pg-mut:#6a6a6a;--pg-line:#e8e8e8;--pg-hl:var(--accent-mark,var(--accent));--pg-ring:var(--accent-mark,var(--accent));--pg-warn:232,155,20;--pg-wring:#e89b14;--pg-sh:0 1px 2px rgba(0,0,0,.08),0 8px 30px rgba(0,0,0,.08);
   width:min(330px,100%);background:var(--pg);color:var(--pg-fg);border-radius:6px;padding:20px 22px;box-shadow:var(--pg-sh);font-size:12px;display:flex;flex-direction:column;gap:8px;position:relative}
 :root[data-theme="dark"] .fex-doc{background:color-mix(in srgb,var(--chip) 40%,var(--stage))}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .fex-doc{background:color-mix(in srgb,var(--chip) 40%,var(--stage))}}
@@ -2527,7 +2540,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .asx-cap{display:flex;align-items:center;gap:6px}
 .asx-cap .ib{width:26px;height:26px}
 .asx-v{min-width:38px;text-align:center;font-size:13px}
-.asx-ta{width:100%;resize:none;border:0;outline:0;border-radius:12px;background:var(--chip);padding:9px 12px;font:inherit;font-size:13px;color:var(--fg);transition:box-shadow .3s}
+.asx-ta{width:100%;resize:none;border:0;outline:0;border-radius:12px;background:var(--chip);box-shadow:inset 0 0 0 1px var(--field-line);padding:9px 12px;font:inherit;font-size:13px;color:var(--fg);transition:box-shadow .3s}
 .asx-ta:focus{box-shadow:inset 0 0 0 1px var(--accent),0 0 0 3px var(--accent-bg)}
 .asx-bar{display:flex;align-items:center;gap:6px;padding:6px 6px 6px 14px;border-radius:999px;background:var(--ink);color:var(--on-ink);font-size:12.5px;margin-top:10px;transform:translateY(30px);opacity:0;filter:blur(4px);pointer-events:none;transition:transform .45s var(--ease),opacity .3s,filter .3s,height .45s var(--ease),margin-bottom .45s var(--ease);height:0;margin-bottom:-10px}
 .asx-bar span{flex:1}
@@ -2536,10 +2549,16 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 /* ---------- File explorer ---------- */
 .fxp{padding:8px;display:flex;flex-direction:column;gap:4px;height:380px}
 .fxp-h{display:flex;gap:4px;align-items:center}
-.fxp-s{flex:1;display:flex;align-items:center;gap:8px;height:32px;padding:0 10px;border-radius:10px;background:var(--chip);color:var(--muted)}
+.fxp-s{flex:1;display:flex;align-items:center;gap:8px;height:32px;padding:0 10px;border-radius:10px;background:var(--chip);box-shadow:inset 0 0 0 1px var(--field-line);color:var(--muted)}
 .fxp-s input{flex:1;min-width:0;border:0;outline:0;background:transparent;font:inherit;font-size:13px;color:var(--fg)}
 .fxp-s input::placeholder{color:var(--muted)}
 .fxp-tree{flex:1;overflow:auto;padding:4px 0 16px;-webkit-mask-image:linear-gradient(180deg,#000 calc(100% - 28px),transparent);mask-image:linear-gradient(180deg,#000 calc(100% - 28px),transparent)}
+/* a thin scrollbar in the style's hairline grey, not the browser's thick one */
+.fxp-tree{scrollbar-width:thin;scrollbar-color:var(--rail) transparent}
+.fxp-tree::-webkit-scrollbar{width:8px;height:8px}
+.fxp-tree::-webkit-scrollbar-track{background:transparent}
+.fxp-tree::-webkit-scrollbar-thumb{background:var(--rail);border:2px solid transparent;background-clip:padding-box;border-radius:var(--r-pill)}
+:root[data-style="bp"] .fxp-tree::-webkit-scrollbar-thumb{border-radius:0}
 .fxp-n{display:flex;align-items:center;gap:6px;width:100%;height:30px;padding-right:8px;border-radius:8px;font-size:13px;text-align:left;color:var(--fg2);transition:background .15s,color .15s}
 .fxp-n:hover{background:var(--row);color:var(--fg)}
 .fxp-n.sel{background:var(--sel);color:var(--fg)}
@@ -2632,7 +2651,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .mcx-sel{display:inline-flex;align-items:center;gap:7px;height:32px;padding:0 8px 0 6px;border-radius:9px;font-size:13px;font-weight:500;min-width:0;transition:background .2s}
 .mcx-sel:hover,.mcx-sel[aria-expanded="true"]{background:var(--chip)}
 .mcx-sel>.i{color:var(--muted)}
-.mcx-mk{width:20px;height:20px;border-radius:6px;display:grid;place-items:center;font-size:10px;font-weight:500;color:#fff;flex:none}
+.mcx-mk{width:20px;height:20px;border-radius:6px;display:grid;place-items:center;font-size:10px;font-weight:500;color:var(--on-ink);flex:none}
 .mcx-x{width:26px;height:26px;margin-left:auto;color:var(--muted)}
 .mcx-o{flex:1;display:flex;flex-direction:column;gap:10px;padding:12px}
 .mcx-o .bub{font-size:13px;padding:7px 11px;border-radius:14px;max-width:92%}
@@ -2648,7 +2667,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .mcx-m .best{color:var(--ok);font-weight:500}
 .mcx-pick{margin-left:auto}
 .mcx-pop{min-width:250px}
-.mcx-pop .mi[disabled]{opacity:.45;cursor:not-allowed}
+.mcx-pop .mi[disabled],.mcx-pop .mi[disabled] .i{opacity:1;cursor:not-allowed;background:none;color:var(--dis)}
 .mcx-add{border-radius:var(--r-card);box-shadow:inset 0 0 0 1.5px var(--rail);display:flex;align-items:center;justify-content:center;min-height:252px;position:relative;transition:background .2s,box-shadow .2s}
 .mcx-add:hover{background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--faint)}
 .mcx-addb{display:flex;flex-direction:column;align-items:center;gap:6px;font-size:13px;color:var(--fg2);padding:14px 18px;border-radius:14px;transition:background .2s,color .2s}
@@ -2662,7 +2681,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .mcx-n{font-size:12px;white-space:nowrap}
 .mcx-go{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:var(--ink);color:var(--on-ink);flex:none;transition:opacity .2s,transform .15s}
 .mcx-go:active{transform:scale(.92)}
-.mcx-go[disabled]{background:var(--rail);color:var(--surface);cursor:not-allowed}
+.mcx-go[disabled]{opacity:1;cursor:not-allowed;background:var(--dis-hatch),var(--dis-fill);color:var(--dis);box-shadow:var(--soft-ring)}
 
 /* ---------- Tools and connections ---------- */
 .hnx{padding:12px;display:flex;flex-direction:column;gap:6px}
@@ -2727,9 +2746,9 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .ksx-mpop{min-width:160px}
 .ksx-mpop .mi.del,.ksx-mpop .mi.del .i{color:var(--bad)}
 .ksx-mpop .mi.del:hover{background:var(--bad-bg)}
-.ksx-mpop .mi[disabled]{opacity:.45;background:none}
+.ksx-mpop .mi[disabled],.ksx-mpop .mi[disabled] .i{opacity:1;cursor:not-allowed;background:none;color:var(--dis)}
 .ksx-web{display:flex;flex-direction:column;gap:4px}
-.ksx-in{display:flex;align-items:center;gap:8px;height:32px;margin:0 2px 2px;padding:0 2px 0 10px;border-radius:10px;background:var(--chip);color:var(--muted);transition:box-shadow .3s}
+.ksx-in{display:flex;align-items:center;gap:8px;height:32px;margin:0 2px 2px;padding:0 2px 0 10px;border-radius:10px;background:var(--chip);box-shadow:inset 0 0 0 1px var(--field-line);color:var(--muted);transition:box-shadow .3s}
 .ksx-in:focus-within{box-shadow:inset 0 0 0 1px var(--accent-mark,var(--accent)),0 0 0 3px var(--accent-bg)}
 .ksx-in input{flex:1;min-width:0;height:100%;border:0;outline:0;background:transparent;font:inherit;font-size:13px;color:var(--fg)}
 .ksx-in input::placeholder{color:var(--muted)}
@@ -2768,7 +2787,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .shx-r[data-st="bad"] .res,.shx-r[data-st="bad"] .res .i{color:var(--bad)}
 .shx-act{grid-column:3;grid-row:1;display:flex;align-items:center;gap:8px;margin-block:-5px}
 .shx-run{width:28px;height:28px}
-.shx-run:disabled{opacity:.4;background:none;transform:none}
+.shx-run:disabled{opacity:1;cursor:not-allowed;background:none;color:var(--dis);transform:none}
 .shx-r .shx-fx{grid-column:2/-1;grid-row:4}
 .shx-fx>div{overflow-clip-margin:0}
 .shx-fx>div>div{display:flex;flex-wrap:wrap;gap:6px;padding-top:8px}
@@ -2777,7 +2796,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .shx-pop{width:272px;padding:12px}
 .shx-f{display:flex;flex-direction:column;gap:8px}
 .shx-f h4{margin:0 0 2px;font-size:13px;font-weight:500}
-.shx-in{width:100%;height:32px;border:0;outline:0;border-radius:10px;background:var(--chip);padding:0 10px;font:inherit;font-size:13px;color:var(--fg);transition:box-shadow .3s}
+.shx-in{width:100%;height:32px;border:0;outline:0;border-radius:10px;background:var(--chip);box-shadow:inset 0 0 0 1px var(--field-line);padding:0 10px;font:inherit;font-size:13px;color:var(--fg);transition:box-shadow .3s}
 .shx-in::placeholder{color:var(--muted)}
 .shx-in:focus{box-shadow:inset 0 0 0 1px var(--accent-mark,var(--accent)),0 0 0 3px var(--accent-bg)}
 .shx-rep{display:flex}
@@ -2814,7 +2833,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .ahx-cv .t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .ahx-lh{display:flex;align-items:center;justify-content:space-between;padding:12px 1px 2px 9px;font-size:11.5px;color:var(--muted)}
 .ahx-lh .ib{width:24px;height:24px}
-.ahx-si{display:block;width:100%;height:30px;margin:4px 0 6px;padding:0 10px;border:0;border-radius:9px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);font-size:12.5px;outline:0;transition:box-shadow var(--t-fast)}
+.ahx-si{display:block;width:100%;height:30px;margin:4px 0 6px;padding:0 10px;border:0;border-radius:9px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--field-line);font-size:12.5px;outline:0;transition:box-shadow var(--t-fast)}
 .ahx-si:focus{box-shadow:inset 0 0 0 1px var(--rail)}
 .ahx-si::placeholder{color:var(--muted)}
 .ahx-si::-webkit-search-cancel-button{display:none}
@@ -3127,7 +3146,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 /* ---------- Account table ---------- */
 .atb{overflow:hidden}
 .atb-h{display:flex;align-items:center;gap:8px;padding:10px;flex-wrap:wrap;border-bottom:1px solid var(--line)}
-.atb-s{display:flex;align-items:center;gap:8px;height:32px;padding:0 10px;border-radius:10px;background:var(--chip);color:var(--muted);flex:1;min-width:160px}
+.atb-s{display:flex;align-items:center;gap:8px;height:32px;padding:0 10px;border-radius:10px;background:var(--chip);box-shadow:inset 0 0 0 1px var(--field-line);color:var(--muted);flex:1;min-width:160px}
 .atb-s input{flex:1;min-width:0;border:0;outline:0;background:transparent;font:inherit;font-size:13px;color:var(--fg)}
 .atb-s input::placeholder{color:var(--muted)}
 .atb-fl{display:flex;gap:4px;flex-wrap:wrap}
@@ -3161,7 +3180,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .dpk-val.ph{color:var(--muted)}
 .dpk-f>svg:last-child{color:var(--muted)}
 .dpk-pop{width:272px;padding:10px;background:var(--surface)}
-.dpk-nl{width:100%;height:32px;border:0;outline:0;border-radius:9px;background:var(--chip);padding:0 10px;font:inherit;font-size:12.5px;color:var(--fg)}
+.dpk-nl{width:100%;height:32px;border:0;outline:0;border-radius:9px;background:var(--chip);box-shadow:inset 0 0 0 1px var(--field-line);padding:0 10px;font:inherit;font-size:12.5px;color:var(--fg)}
 .dpk-nl::placeholder{color:var(--muted)}
 .dpk-qk{display:flex;gap:4px;margin:8px 0}
 .dpk-mh{display:flex;align-items:center;justify-content:space-between;margin:4px 0}
@@ -3463,7 +3482,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .csx-h{font-size:12px}
 .csx-pop{position:absolute;top:66px;left:0;right:0;z-index:5;background:var(--raised);border-radius:14px;box-shadow:var(--shadow-pop);padding:6px;opacity:0;transform:translateY(-4px) scale(.98);transform-origin:top;filter:blur(3px);pointer-events:none;transition:opacity .2s,transform .35s var(--ease),filter .2s}
 .csx-pop.open{opacity:1;transform:none;filter:none;pointer-events:auto}
-.csx-q{width:100%;height:32px;border:0;outline:0;border-radius:9px;background:var(--chip);padding:0 10px;font:inherit;font-size:12.5px;color:var(--fg);margin-bottom:4px}
+.csx-q{width:100%;height:32px;border:0;outline:0;border-radius:9px;background:var(--chip);box-shadow:inset 0 0 0 1px var(--field-line);padding:0 10px;font:inherit;font-size:12.5px;color:var(--fg);margin-bottom:4px}
 .csx-q::placeholder{color:var(--muted)}
 .csx-list{max-height:200px;overflow-y:auto;display:flex;flex-direction:column}
 .csx-o{display:flex;align-items:center;gap:10px;padding:7px 8px;border-radius:9px;font-size:13px;text-align:left;flex:none}
@@ -3536,7 +3555,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .sgx-st.in{animation:sgin .5s var(--ease) both}
 @keyframes sgin{from{opacity:0;transform:translateX(20px);filter:blur(4px)}}
 .sgx-f{display:flex;flex-direction:column;gap:5px;font-size:12.5px;font-weight:500}
-.sgx-f input{height:40px;border:0;outline:0;border-radius:11px;background:var(--chip);padding:0 12px;font:inherit;font-size:13.5px;font-weight:400;color:var(--fg);transition:box-shadow .25s,background .25s}
+.sgx-f input{height:40px;border:0;outline:0;border-radius:11px;background:var(--chip);box-shadow:inset 0 0 0 1px var(--field-line);padding:0 12px;font:inherit;font-size:13.5px;font-weight:400;color:var(--fg);transition:box-shadow .25s,background .25s}
 .sgx-f input::placeholder{color:var(--muted)}
 .sgx-f input:focus{background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--accent),0 0 0 4px var(--accent-bg)}
 .sgx-f.bad input{box-shadow:inset 0 0 0 1.5px var(--bad);animation:sgsh .4s}
@@ -3546,7 +3565,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .sgx-bk{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--muted);align-self:flex-start;margin-bottom:6px}
 .sgx-bk:hover{color:var(--fg)}
 .sgx-code{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
-.sgx-code input{width:100%;height:46px;border:0;outline:0;border-radius:11px;background:var(--chip);text-align:center;font:inherit;font-family:var(--mono);font-size:14px;color:var(--fg);transition:box-shadow .25s,background .25s,transform .3s var(--ease)}
+.sgx-code input{width:100%;height:46px;border:0;outline:0;border-radius:11px;background:var(--chip);box-shadow:inset 0 0 0 1px var(--field-line);text-align:center;font:inherit;font-family:var(--mono);font-size:14px;color:var(--fg);transition:box-shadow .25s,background .25s,transform .3s var(--ease)}
 .sgx-code input:focus{background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--accent)}
 .sgx-code input.f{transform:scale(1.04)}
 /* the email with the code, the way a phone shows it as it arrives */
@@ -3585,7 +3604,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .otp-s{margin:0 0 10px;font-size:13px;line-height:1.45;max-width:260px}
 .otp-in{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;max-width:286px}
 .otp-in .sep{flex:none;width:8px;height:1.5px;border-radius:1px;background:var(--rail);margin:0 2px}
-.otp-d{flex:1 1 0;min-width:0;max-width:40px;height:48px;padding:0;border:0;outline:0;border-radius:11px;background:var(--chip);text-align:center;font:inherit;font-family:var(--mono);font-size:14px;font-weight:500;color:var(--fg);caret-color:var(--accent-mark,var(--accent));transition:box-shadow .25s,background .25s,color .25s,transform .25s var(--ease)}
+.otp-d{flex:1 1 0;min-width:0;max-width:40px;height:48px;padding:0;border:0;outline:0;border-radius:11px;background:var(--chip);box-shadow:inset 0 0 0 1px var(--field-line);text-align:center;font:inherit;font-family:var(--mono);font-size:14px;font-weight:500;color:var(--fg);caret-color:var(--accent-mark,var(--accent));transition:box-shadow .25s,background .25s,color .25s,transform .25s var(--ease)}
 .otp-d:focus,.otp-d.f{background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--accent-mark,var(--accent)),0 0 0 4px var(--accent-bg)}
 /* (not .pop, which is the shared popover class and would hide the box) */
 .otp-d.bump{transform:scale(1.06)}
@@ -3605,7 +3624,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .fmx-h{display:flex;align-items:center;justify-content:space-between;gap:8px}
 .fmx-h b{font-weight:500;font-size:14px}
 .fmx-f{display:flex;flex-direction:column;gap:5px;font-size:12.5px;font-weight:500;position:relative}
-.fmx-f input,.fmx-f textarea{border:0;outline:0;border-radius:11px;background:var(--chip);padding:10px 12px;font:inherit;font-size:13.5px;font-weight:400;color:var(--fg);resize:none;transition:box-shadow .25s,background .25s}
+.fmx-f input,.fmx-f textarea{border:0;outline:0;border-radius:11px;background:var(--chip);box-shadow:inset 0 0 0 1px var(--field-line);padding:10px 12px;font:inherit;font-size:13.5px;font-weight:400;color:var(--fg);resize:none;transition:box-shadow .25s,background .25s}
 .fmx-f input::placeholder,.fmx-f textarea::placeholder{color:var(--muted)}
 .fmx-f input:focus,.fmx-f textarea:focus{background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--accent),0 0 0 4px var(--accent-bg)}
 .fmx-f.bad input,.fmx-f.bad textarea{box-shadow:inset 0 0 0 1.5px var(--bad)}
@@ -3630,7 +3649,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .pyx-h .muted{font-size:12px}
 .pyx-per button{font-size:12px;height:26px;padding:0 9px}
 .pyx-f{display:flex;flex-direction:column;gap:5px;font-size:12.5px;font-weight:500;min-width:0}
-.pyx-in{display:flex;align-items:center;height:40px;border-radius:11px;background:var(--chip);padding:0 10px 0 12px;transition:box-shadow .25s,background .25s}
+.pyx-in{display:flex;align-items:center;height:40px;border-radius:11px;background:var(--chip);box-shadow:inset 0 0 0 1px var(--field-line);padding:0 10px 0 12px;transition:box-shadow .25s,background .25s}
 .pyx-in:focus-within{background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--accent),0 0 0 4px var(--accent-bg)}
 .pyx-f.bad .pyx-in{box-shadow:inset 0 0 0 1.5px var(--bad)}
 .pyx-in input{flex:1;min-width:0;border:0;outline:0;background:transparent;font:inherit;font-family:var(--mono);font-size:13.5px;font-weight:400;color:var(--fg);letter-spacing:.02em}
@@ -3664,12 +3683,12 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 @keyframes cmw{from{opacity:0;filter:blur(3px)}}
 .cmx-c .act{display:flex;gap:6px;margin-top:6px}
 .cmx-in{position:relative}
-.cmx-box{display:flex;align-items:center;gap:6px;height:40px;padding:0 5px 0 14px;border-radius:999px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--rail);transition:box-shadow .25s}
+.cmx-box{display:flex;align-items:center;gap:6px;height:40px;padding:0 5px 0 14px;border-radius:999px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--field-line);transition:box-shadow .25s}
 .cmx-box:focus-within{box-shadow:inset 0 0 0 1px var(--accent),0 0 0 4px var(--accent-bg)}
 .cmx-box input{flex:1;min-width:0;border:0;outline:0;background:transparent;font:inherit;font-size:13px;color:var(--fg)}
 .cmx-box input::placeholder{color:var(--muted)}
 .cmx-go{width:30px;height:30px;border-radius:50%;background:var(--accent);color:var(--on-accent);display:grid;place-items:center;transition:opacity .2s,transform .2s}
-.cmx-go[disabled]{opacity:1;cursor:not-allowed;background:var(--rail);color:var(--surface)}
+.cmx-go[disabled]{opacity:1;cursor:not-allowed;background:var(--dis-hatch),var(--dis-fill);color:var(--dis);box-shadow:var(--soft-ring)}
 .cmx-men{bottom:46px;left:0;min-width:210px}
 .cmx.done .cmx-th,.cmx.done .cmx-in{opacity:.45;pointer-events:none;transition:opacity .4s}
 .cmx-rv{font-size:12.5px;color:var(--ok);display:flex;align-items:center;gap:6px}
@@ -3704,7 +3723,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .ivx-h{display:flex;flex-direction:column;font-size:14px;margin:0 -14px 2px;padding:0 14px 12px;border-bottom:1px solid var(--line)}
 .ivx-h b{font-weight:500}
 .ivx-h .muted{font-size:12px}
-.ivx-f{display:flex;align-items:center;flex-wrap:wrap;gap:5px;min-height:42px;padding:5px 5px 5px 8px;border-radius:12px;background:var(--chip);transition:box-shadow .25s,background .25s}
+.ivx-f{display:flex;align-items:center;flex-wrap:wrap;gap:5px;min-height:42px;padding:5px 5px 5px 8px;border-radius:12px;background:var(--chip);box-shadow:inset 0 0 0 1px var(--field-line);transition:box-shadow .25s,background .25s}
 .ivx-f:focus-within{background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--accent),0 0 0 4px var(--accent-bg)}
 .ivx-chips{display:contents}
 .ivx-ch{display:inline-flex;align-items:center;gap:5px;height:26px;padding:0 4px 0 4px;border-radius:8px;background:var(--surface);box-shadow:0 0 0 1px var(--line);font-size:12.5px;animation:popin .4s var(--ease) backwards}
@@ -3923,45 +3942,48 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 :root[data-style="bp"]{
   --motion:bp;
   --page:#f3f3f0; --stage:#fafaf8; --surface:#ffffff; --raised:#ffffff;
-  --fg:#121212; --fg2:#4a4a46; --muted:#6a6a64; --faint:#bdbdb6; --rail:#d2d2cb; --line:#e3e3dd;
+  --fg:#121212; --fg2:#4a4a46; --muted:#666660; --faint:#bdbdb6; --rail:#d2d2cb; --line:#e3e3dd; --field-line:#8a8a84;
   --chip:#f1f1ed; --hover:#e8e8e3; --press:#dededa; --wash:#f6f6f3; --row:color-mix(in srgb,var(--fg) 4%,transparent);
   --soft:#ebebe6; --soft-h:#e1e1db; --soft-ring:inset 0 0 0 1px rgba(20,20,12,.09); --dis:#a3a39c;
-  --accent:#d4f84a; --accent-2:#c3e637; --accent-bg:#f7fde0; --on-accent:#121212; --accent-fg:var(--fg); --accent-mark:#7a8e2b; --sel:color-mix(in srgb,var(--accent) 7%,transparent);
+  --accent:#d4f84a; --on-accent:#121212; --accent-fg:var(--fg); --accent-mark:#7a8e2b; --sel:color-mix(in srgb,var(--accent) 7%,transparent);
   --ink:#121212; --on-ink:#ffffff;
   --shadow:0 0 0 1px var(--line);
   --shadow-pop:0 0 0 1px var(--rail),0 12px 28px -14px rgba(20,20,12,.22);
   --shadow-toast:0 0 0 1px var(--rail),0 10px 24px -14px rgba(20,20,12,.24);
   --shadow-lift:0 0 0 1px var(--fg);
   --grid:rgba(20,20,12,.09); --tick:#b5b5ad;
+  --dis-hatch:repeating-linear-gradient(135deg,transparent 0 4px,var(--grid) 4px 5px);
   --ease:cubic-bezier(.65,0,.25,1); --ease-io:cubic-bezier(.65,0,.25,1);
   --t-fast:.14s; --t:.3s; --t-slow:.44s;
 }
 @media (prefers-color-scheme:dark){:root[data-style="bp"]:not([data-theme="light"]){
   --page:#0e0e0d; --stage:#131312; --surface:#191918; --raised:#20201f;
-  --fg:#f1f1ee; --fg2:#cacac4; --muted:#bebeb8; --faint:#4c4c48; --rail:#3b3b38; --line:#2a2a28;
+  --fg:#f1f1ee; --fg2:#cacac4; --muted:#bebeb8; --faint:#4c4c48; --rail:#3b3b38; --line:#2a2a28; --field-line:#7b7b76;
   --chip:#242422; --hover:#2c2c2a; --press:#353532; --wash:#1f1f1d; --row:color-mix(in srgb,var(--fg) 5.5%,transparent);
-  --soft:#272725; --soft-h:#31312e; --soft-ring:inset 0 0 0 1px rgba(255,255,255,.08); --dis:#5f5f5a;
-  --accent:#d4f84a; --accent-2:#e0fa75; --accent-bg:rgba(212,248,74,.12); --on-accent:#121212; --accent-fg:#d4f84a; --accent-mark:#d4f84a; --sel:color-mix(in srgb,var(--accent) 10%,transparent);
+  --soft:#272725; --soft-h:#31312e; --soft-ring:inset 0 0 0 1px rgba(255,255,255,.08); --dis:#73736d;
+  --accent:#d4f84a; --on-accent:#121212; --accent-fg:#d4f84a; --accent-mark:#d4f84a; --sel:color-mix(in srgb,var(--accent) 10%,transparent);
   --ink:#f1f1ee; --on-ink:#121211;
   --shadow:0 0 0 1px var(--line);
   --shadow-pop:0 0 0 1px var(--rail),0 16px 32px -14px rgba(0,0,0,.7);
   --shadow-toast:0 0 0 1px var(--rail),0 12px 28px -14px rgba(0,0,0,.7);
   --shadow-lift:0 0 0 1px var(--fg2);
   --grid:rgba(255,255,255,.07); --tick:#55554f;
+  --dis-hatch:repeating-linear-gradient(135deg,transparent 0 4px,var(--grid) 4px 5px);
   --ease:cubic-bezier(.65,0,.25,1); --ease-io:cubic-bezier(.65,0,.25,1);
   --t-fast:.14s; --t:.3s; --t-slow:.44s}}
 :root[data-style="bp"][data-theme="dark"]{
   --page:#0e0e0d; --stage:#131312; --surface:#191918; --raised:#20201f;
-  --fg:#f1f1ee; --fg2:#cacac4; --muted:#bebeb8; --faint:#4c4c48; --rail:#3b3b38; --line:#2a2a28;
+  --fg:#f1f1ee; --fg2:#cacac4; --muted:#bebeb8; --faint:#4c4c48; --rail:#3b3b38; --line:#2a2a28; --field-line:#7b7b76;
   --chip:#242422; --hover:#2c2c2a; --press:#353532; --wash:#1f1f1d; --row:color-mix(in srgb,var(--fg) 5.5%,transparent);
-  --soft:#272725; --soft-h:#31312e; --soft-ring:inset 0 0 0 1px rgba(255,255,255,.08); --dis:#5f5f5a;
-  --accent:#d4f84a; --accent-2:#e0fa75; --accent-bg:rgba(212,248,74,.12); --on-accent:#121212; --accent-fg:#d4f84a; --accent-mark:#d4f84a; --sel:color-mix(in srgb,var(--accent) 10%,transparent);
+  --soft:#272725; --soft-h:#31312e; --soft-ring:inset 0 0 0 1px rgba(255,255,255,.08); --dis:#73736d;
+  --accent:#d4f84a; --on-accent:#121212; --accent-fg:#d4f84a; --accent-mark:#d4f84a; --sel:color-mix(in srgb,var(--accent) 10%,transparent);
   --ink:#f1f1ee; --on-ink:#121211;
   --shadow:0 0 0 1px var(--line);
   --shadow-pop:0 0 0 1px var(--rail),0 16px 32px -14px rgba(0,0,0,.7);
   --shadow-toast:0 0 0 1px var(--rail),0 12px 28px -14px rgba(0,0,0,.7);
   --shadow-lift:0 0 0 1px var(--fg2);
   --grid:rgba(255,255,255,.07); --tick:#55554f;
+  --dis-hatch:repeating-linear-gradient(135deg,transparent 0 4px,var(--grid) 4px 5px);
   --ease:cubic-bezier(.65,0,.25,1); --ease-io:cubic-bezier(.65,0,.25,1);
   --t-fast:.14s; --t:.3s; --t-slow:.44s}
 
@@ -4001,7 +4023,6 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 :root[data-style="bp"] .pill.line{box-shadow:inset 0 0 0 1px var(--rail)}
 :root[data-style="bp"] .pill.line:hover{background:var(--wash);box-shadow:inset 0 0 0 1px var(--faint)}
 :root[data-style="bp"] .pill:active,:root[data-style="bp"] .ib:active{transform:translateY(1px)}
-:root[data-style="bp"] .pill:is(.accent,.ink,.soft,.line)[disabled]{background-image:repeating-linear-gradient(135deg,transparent 0 4px,var(--grid) 4px 5px)}
 :root[data-style="bp"] .chip.on{box-shadow:inset 0 0 0 1px var(--rail)}
 :root[data-style="bp"] .mcx-add{box-shadow:none;outline:1px dashed var(--rail);outline-offset:-1px}
 :root[data-style="bp"] .bub{background:var(--chip);box-shadow:inset 0 0 0 1px var(--line)}
@@ -4294,7 +4315,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
   </div>
   <div class="rc-f">
     <label class="rc-cap-t"><button class="toggle" role="switch" aria-checked="true" aria-label="Pause at 90 percent"></button><span>Pause at 90%</span></label>
-    <button class="pill ink sm rc-go">Start run</button>
+    <button class="pill primary sm rc-go">Start run</button>
   </div>
 </div></template>
   <div class="card-f"><span>Start a run and watch the cap</span><span class="sp"></span><button class="replay" aria-label="Replay Run cost"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
@@ -4337,7 +4358,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
   <div class="rsu-sec"><div class="rsu-l">Needs you</div>
     <div class="rsu-it rsu-need"><span class="dot" style="color:var(--warn)"></span><span class="rsu-nt">The yearly badge overlaps the price on mobile</span><button class="pill soft sm rsu-fix">Review</button></div>
   </div>
-  <div class="rsu-acts"><button class="pill ink sm">Open changes</button><button class="pill ghost sm rsu-undo">Undo all</button></div>
+  <div class="rsu-acts"><button class="pill primary sm">Open changes</button><button class="pill ghost sm rsu-undo">Undo all</button></div>
 </div></template>
   <div class="card-f"><span>Review the open item, try Undo all</span><span class="sp"></span><button class="replay" aria-label="Replay Run summary"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
 </article>
@@ -4354,7 +4375,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
       <button class="erx-o" data-o="skip" role="radio" aria-checked="false"><i></i><span>Skip it and post the summary</span></button>
       <button class="erx-o" data-o="hand" role="radio" aria-checked="false"><i></i><span>Hand it over to Maya</span></button>
     </div>
-    <button class="pill ink sm erx-go">Continue</button>
+    <button class="pill primary sm erx-go">Continue</button>
   </div></div></div>
 </div></template>
   <div class="card-f"><span>Pick a way forward and continue</span><span class="sp"></span><button class="replay" aria-label="Replay Error and recovery"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
@@ -4425,7 +4446,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
         <span class="cpx-rec"><span class="cpx-dot"></span>Listening</span><span class="cpx-tm num muted">0:00</span>
         <span class="sp"></span>
         <button class="pill ghost sm cpx-cancel">Cancel</button>
-        <button class="pill ink sm cpx-ok">Done</button>
+        <button class="pill primary sm cpx-ok">Done</button>
       </div>
     </div>
     <div class="pop pp-plus" role="menu">
@@ -4499,7 +4520,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
     <button class="ib fill vcx-pause" aria-label="Pause" data-tip="Pause">{pause}</button>
     <span class="sp"></span>
     <button class="pill ghost sm vcx-x">Cancel</button>
-    <button class="pill ink sm vcx-done">Done</button>
+    <button class="pill primary sm vcx-done">Done</button>
   </div>
   <div class="pop vcx-fix" role="menu"></div>
 </div></template>
@@ -4514,7 +4535,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
   <div class="vor-cap" aria-live="polite"><span class="vor-who muted"></span><p class="vor-tx hint">Talk to the agent about Pricing v4</p></div>
   <div class="fold shut vor-mf"><div><div class="vor-mw"><p>{warn}<span>You're muted. Unmute so the agent can hear you.</span></p><button class="pill sm vor-un">Unmute</button></div></div></div>
   <div class="vor-f">
-    <button class="pill ink sm vor-go">{mic}Start talking</button>
+    <button class="pill primary sm vor-go">{mic}Start talking</button>
     <button class="ib fill vor-mute" aria-label="Mute" aria-pressed="false" data-tip="Mute">{micm}</button>
     <span class="sp"></span>
     <button class="pill sm vor-end">End</button>
@@ -4563,7 +4584,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
     <div class="plb-h"><button class="ib plb-back" aria-label="All prompts" data-tip="All prompts">{chevl}</button><div class="plb-ht"><b class="plb-tt"></b><span class="muted plb-vn"></span></div></div>
     <p class="plb-tp" aria-live="polite"></p>
     <div class="plb-vars"></div>
-    <div class="plb-f"><span class="muted plb-note">Fills in as you go</span><span class="sp"></span><button class="pill ink sm plb-use">Use prompt</button></div>
+    <div class="plb-f"><span class="muted plb-note">Fills in as you go</span><span class="sp"></span><button class="pill primary sm plb-use">Use prompt</button></div>
   </div>
 </div></template>
   <div class="card-f"><span>Open a prompt and fill in its blanks</span><span class="sp"></span><button class="replay" aria-label="Replay Prompt library"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
@@ -4611,7 +4632,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
     <div class="fbx-q">What went wrong?</div>
     <div class="fbx-ch"><button class="chip sm">Wrong spacing</button><button class="chip sm">Ignored my tokens</button><button class="chip sm">Too many changes</button><button class="chip sm">Broke the layout</button></div>
     <textarea class="fbx-ta" rows="2" placeholder="Anything else the agent should know"></textarea>
-    <div class="fbx-f"><span class="muted fbx-n">Shared with the agent for this project</span><button class="pill ghost sm fbx-x">Cancel</button><button class="pill ink sm fbx-go" disabled>Send</button></div>
+    <div class="fbx-f"><span class="muted fbx-n">Shared with the agent for this project</span><button class="pill ghost sm fbx-x">Cancel</button><button class="pill primary sm fbx-go" disabled>Send</button></div>
   </div></div></div>
 </div></template>
   <div class="card-f"><span>Thumbs down opens the reasons</span><span class="sp"></span><button class="replay" aria-label="Replay Feedback sheet"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
@@ -4624,7 +4645,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
   <div class="fold mpk-fold"><div><div class="mpk-p panel">
     <div class="mpk-hd" aria-hidden="true"><span></span><span></span><span>Speed</span><span>Quality</span><span>Cost</span></div>
     <div class="mpk-list" role="radiogroup" aria-label="Model"></div>
-    <div class="fold shut mpk-sgf"><div><div class="mpk-sg" aria-live="polite"><p class="mpk-sgt"></p><div class="mpk-sga"><button class="pill ghost sm mpk-wait">Wait for Opus</button><button class="pill ink sm mpk-use">Use Sonnet on high</button></div></div></div></div>
+    <div class="fold shut mpk-sgf"><div><div class="mpk-sg" aria-live="polite"><p class="mpk-sgt"></p><div class="mpk-sga"><button class="pill ghost sm mpk-wait">Wait for Opus</button><button class="pill primary sm mpk-use">Use Sonnet on high</button></div></div></div></div>
     <div class="mpk-th">
       <div class="mpk-thh"><b>{brain}Thinking</b><span class="muted mpk-thd"></span></div>
       <button class="mpk-eb" aria-haspopup="menu" aria-expanded="false" aria-label="Thinking effort" data-pop=".mpk-pop" data-pop-align="end"><span class="mpk-ev">Medium</span>{chev}</button>
@@ -4676,7 +4697,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
   <template><div class="dpx" tabindex="0">
   <div class="dpx-h"><span class="dpx-k muted num">Question 1 of 3</span><div class="dpx-dots"><i class="on"></i><i></i><i></i></div></div>
   <div class="dpx-body"></div>
-  <div class="dpx-f"><button class="pill ghost sm dpx-skip">Skip</button><button class="pill ink sm dpx-go">Continue <span class="kbd">↵</span></button></div>
+  <div class="dpx-f"><button class="pill ghost sm dpx-skip">Skip</button><button class="pill primary sm dpx-go">Continue <span class="kbd">↵</span></button></div>
 </div></template>
   <div class="card-f"><span>Pick with 1, 2, 3 or click</span><span class="sp"></span><button class="replay" aria-label="Replay Decision prompt"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
 </article>
@@ -4689,7 +4710,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
   <div class="prx-cf"><span class="muted">Confidence</span><div class="prx-seg"><i></i><i></i><i></i><i></i><i></i></div><span class="num prx-pc">0%</span></div>
   <button class="prx-alt-t">{chev}<span>2 other options</span></button>
   <div class="fold shut prx-alt"><div><div class="prx-alts"></div></div></div>
-  <div class="prx-f"><button class="pill ghost sm prx-no">Not now</button><button class="pill ink sm prx-ok">Accept</button></div>
+  <div class="prx-f"><button class="pill ghost sm prx-no">Not now</button><button class="pill primary sm prx-ok">Accept</button></div>
 </div></template>
   <div class="card-f"><span>Compare options, then accept</span><span class="sp"></span><button class="replay" aria-label="Replay Proposal card"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
 </article>
@@ -4718,7 +4739,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
   <div class="dtx-insp panel">
     <div class="dtx-ih"><b>Pricing card</b><span class="muted dtx-st">Edited by you</span></div>
     <div class="dtx-rows"></div>
-    <button class="pill ink sm dtx-go">{wand}Tune with agent</button>
+    <button class="pill primary sm dtx-go">{wand}Tune with agent</button>
   </div>
 </div></template>
   <div class="card-f"><span>Drag the sliders or tune with the agent</span><span class="sp"></span><button class="replay" aria-label="Replay Design tuner"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
@@ -4733,7 +4754,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
     <label class="pgx-o" data-k="edit"><input type="checkbox" checked><span class="bx">{chk}</span><span class="t">Edit frames<span class="d">Only on a new page</span></span></label>
     <label class="pgx-o" data-k="publish"><input type="checkbox"><span class="bx">{chk}</span><span class="t">Publish library<span class="d">Affects 4 other files</span></span><span class="tag warn" data-tip="Checkout, Marketing site, Email kit and Docs use this library">Risky</span></label>
   </div>
-  <div class="pgx-f"><button class="pgx-db" aria-haspopup="menu" aria-expanded="false" aria-label="How long" data-pop=".pgx-pop"><span class="pgx-dv">For this task</span>{chev}</button><span class="sp"></span><button class="pill ghost sm pgx-no">Not now</button><button class="pill ink sm pgx-ok">Allow 2 scopes</button></div>
+  <div class="pgx-f"><button class="pgx-db" aria-haspopup="menu" aria-expanded="false" aria-label="How long" data-pop=".pgx-pop"><span class="pgx-dv">For this task</span>{chev}</button><span class="sp"></span><button class="pill ghost sm pgx-no">Not now</button><button class="pill primary sm pgx-ok">Allow 2 scopes</button></div>
   <div class="pop pgx-pop" role="menu" aria-label="How long">
     <button class="mi" role="menuitemradio" aria-checked="true" data-close data-v="This task"><span>For this task<span class="d">Until the pricing fixes are done</span></span><span class="ck">{chk}</span></button>
     <button class="mi" role="menuitemradio" aria-checked="false" data-close data-v="Today"><span>For today<span class="d">Until midnight</span></span><span class="ck">{chk}</span></button>
@@ -4779,7 +4800,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
   <div class="card-h"><div><h3>Launch checklist</h3><p>The agent checks a design before it ships, and fixes what fails.</p></div></div>
   <div class="stage"><div class="stage-in"></div></div>
   <template><div class="lcx panel">
-  <div class="lcx-h"><div><b>Ready to ship pricing?</b><span class="muted lcx-st">6 checks</span></div><button class="pill ink sm lcx-run">{play}Run checks</button></div>
+  <div class="lcx-h"><div><b>Ready to ship pricing?</b><span class="muted lcx-st">6 checks</span></div><button class="pill primary sm lcx-run">{play}Run checks</button></div>
   <div class="lcx-bar"></div>
   <div class="lcx-list"></div>
 </div></template>
@@ -4792,7 +4813,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
   <div class="plx-h"><span class="think plx-mk"><i></i><i></i><i></i><i></i></span><div class="plx-ht"><b>Plan: redesign the pricing page</b><span class="muted plx-st">5 steps, about 4 min</span></div><span class="plx-tm num" aria-label="Elapsed"></span></div>
   <ol class="plx-list"></ol>
   <button class="plx-add">{plus}Add a step</button>
-  <div class="plx-f"><span class="muted plx-n">Click a step to edit it</span><button class="pill ghost sm plx-chg">Ask for changes</button><button class="pill ink sm plx-go">Approve plan</button></div>
+  <div class="plx-f"><span class="muted plx-n">Click a step to edit it</span><button class="pill ghost sm plx-chg">Ask for changes</button><button class="pill primary sm plx-go">Approve plan</button></div>
 </div></template>
   <div class="card-f"><span>Edit or skip a step, then approve</span><span class="sp"></span><button class="replay" aria-label="Replay Plan review"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
 </article>
@@ -4805,7 +4826,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
     <div class="crx-files"></div>
   </div>
   <div class="crx-main">
-    <div class="crx-mh"><span class="crx-fn num"></span><span class="crx-sp"></span><button class="pill ghost sm crx-rej">Undo all</button><button class="pill ink sm crx-ok">Keep all</button></div>
+    <div class="crx-mh"><span class="crx-fn num"></span><span class="crx-sp"></span><button class="pill ghost sm crx-rej">Undo all</button><button class="pill primary sm crx-ok">Keep all</button></div>
     <div class="crx-diff"></div>
   </div>
 </div></template>
@@ -4815,12 +4836,12 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
   <div class="card-h"><div><h3>Inline text diff</h3><p>The agent's edits to a piece of copy, accepted or rejected one by one.</p></div></div>
   <div class="stage"><div class="stage-in"></div></div>
   <template><div class="itd panel">
-  <div class="itd-h"><div class="itd-ht"><b>Pricing intro</b><span class="muted itd-st">4 edits to review</span></div><div class="itd-a"><button class="pill ghost sm itd-no">Reject all</button><button class="pill ink sm itd-ok">Accept all</button></div></div>
+  <div class="itd-h"><div class="itd-ht"><b>Pricing intro</b><span class="muted itd-st">4 edits to review</span></div><div class="itd-a"><button class="pill ghost sm itd-no">Reject all</button><button class="pill primary sm itd-ok">Accept all</button></div></div>
   <p class="itd-t"></p>
   <p class="itd-f muted" aria-live="polite"></p>
   <div class="itd-bar" role="dialog" aria-label="Edit">
     <p class="itd-why">{warn}<span></span></p>
-    <div class="itd-bb"><button class="pill ink sm itd-acc">{chk}Accept</button><button class="pill ghost sm itd-rej">{x}Reject</button></div>
+    <div class="itd-bb"><button class="pill primary sm itd-acc">{chk}Accept</button><button class="pill ghost sm itd-rej">{x}Reject</button></div>
   </div>
 </div></template>
   <div class="card-f"><span>Click an edit to accept or reject it</span><span class="sp"></span><button class="replay" aria-label="Replay Inline text diff"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
@@ -4836,10 +4857,10 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
   </div>
   <div class="drf-b" contenteditable="true" role="textbox" aria-multiline="true" aria-label="Message" spellcheck="false">Hi Maya,<br><br>Here's what changed on the pricing page: one button per plan, the yearly price first, and the FAQ under the comparison table. The full list is in the attached summary.<br><br>Ready for your sign-off when you are.</div>
   <div class="drf-att"></div>
-  <div class="fold shut drf-wf"><div><div class="drf-w"><p>{warn}<span>You mention an attachment, but nothing is attached.</span></p><div class="drf-wa"><button class="pill ghost sm drf-any">Send anyway</button><button class="pill ink sm drf-at">{clip}Attach the summary</button></div></div></div></div>
+  <div class="fold shut drf-wf"><div><div class="drf-w"><p>{warn}<span>You mention an attachment, but nothing is attached.</span></p><div class="drf-wa"><button class="pill ghost sm drf-any">Send anyway</button><button class="pill primary sm drf-at">{clip}Attach the summary</button></div></div></div></div>
   <div class="drf-f">
     <button class="pill ghost sm drf-x">{trash}Discard</button><span class="sp"></span><span class="muted drf-when"></span>
-    <div class="drf-mg"><button class="pill ink sm drf-go">{send}Send</button><button class="pill ink sm drf-dd" aria-label="When to send" aria-haspopup="menu" aria-expanded="false" data-pop=".drf-pop" data-pop-align="end">{chev}</button></div>
+    <div class="drf-mg"><button class="pill primary sm drf-go">{send}Send</button><button class="pill primary sm drf-dd" aria-label="When to send" aria-haspopup="menu" aria-expanded="false" data-pop=".drf-pop" data-pop-align="end">{chev}</button></div>
   </div>
   <div class="pop drf-pop" role="menu" aria-label="When to send">
     <button class="mi" role="menuitemradio" aria-checked="true" data-close data-w="now"><span>Send now</span><span class="ck">{chk}</span></button>
@@ -4864,7 +4885,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
   <div class="card-h"><div><h3>Eval results</h3><p>An eval run case by case, against the run before.</p></div></div>
   <div class="stage"><div class="stage-in"></div></div>
   <template><div class="evr panel">
-  <div class="evr-h"><div class="evr-ht"><b>Pricing copy evals</b><span class="muted evr-st">Copy agent · 8 cases · run 2h ago</span></div><button class="pill ink sm evr-run">{play}Run evals</button></div>
+  <div class="evr-h"><div class="evr-ht"><b>Pricing copy evals</b><span class="muted evr-st">Copy agent · 8 cases · run 2h ago</span></div><button class="pill primary sm evr-run">{play}Run evals</button></div>
   <div class="evr-sum"><div class="evr-segs" aria-hidden="true"></div><div class="evr-nums"><span class="evr-pass num" aria-live="polite"></span><span class="tag evr-dl"></span></div></div>
   <div class="evr-tabs"><div class="seg2" role="group" aria-label="Show"><button aria-pressed="true" data-v="all">All <span class="n num"></span></button><button aria-pressed="false" data-v="fail">Failed <span class="n num"></span></button></div></div>
   <div class="evr-list" role="list" aria-label="Cases"></div>
@@ -5015,7 +5036,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
   <div class="fex-side panel">
     <div class="fex-sh"><b>Extracted fields</b><span class="muted fex-st">Reading page 1</span></div>
     <div class="fex-list"></div>
-    <div class="fex-f"><button class="pill ink sm fex-go" disabled>Send to Sheets</button></div>
+    <div class="fex-f"><button class="pill primary sm fex-go" disabled>Send to Sheets</button></div>
   </div>
 </div></template>
   <div class="card-f"><span>Hover a field to find it, fix the unsure one</span><span class="sp"></span><button class="replay" aria-label="Replay Field extraction"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
@@ -5076,7 +5097,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
   <div class="card-h"><div><h3>Automation canvas</h3><p>A trigger, a few agent steps, and a run you can watch flow through.</p></div></div>
   <div class="stage"><div class="stage-in"></div></div>
   <template><div class="acx" data-reveal="flat">
-  <div class="acx-top"><span class="acx-name">Weekly design QA</span><span class="tag ok acx-on">On</span><span class="acx-sp"></span><span class="muted acx-st">Every Monday, 9:00</span><button class="pill ink sm acx-run">{play}Test run</button></div>
+  <div class="acx-top"><span class="acx-name">Weekly design QA</span><span class="tag ok acx-on">On</span><span class="acx-sp"></span><span class="muted acx-st">Every Monday, 9:00</span><button class="pill primary sm acx-run">{play}Test run</button></div>
   <div class="acx-cv">
     <svg class="acx-svg"></svg>
     <div class="acx-nodes"></div>
@@ -5200,7 +5221,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
   <div class="card-h"><div><h3>Line chart</h3><p>Two series over time with a hover readout and toggles.</p></div></div>
   <div class="stage"><div class="stage-in"></div></div>
   <template><div class="lnx panel">
-  <div class="lnx-h"><div><span class="muted">Active editors</span><b class="num lnx-v">0</b></div><div class="lnx-lg"><button class="lnx-k on" data-s="0"><i style="background:var(--accent-mark,var(--accent))"></i>This year</button><button class="lnx-k on" data-s="1"><i style="background:var(--faint)"></i>Last year</button></div></div>
+  <div class="lnx-h"><div><span class="muted">Active editors</span><b class="num lnx-v">0</b></div><div class="lnx-lg"><button class="lnx-k on" data-s="0"><i style="background:var(--accent-mark,var(--accent))"></i>This year</button><button class="lnx-k on" data-s="1"><i style="background:var(--muted)"></i>Last year</button></div></div>
   <div class="lnx-ch"><svg class="lnx-svg" viewBox="0 0 320 140" preserveAspectRatio="none"></svg><div class="lnx-x"></div><div class="lnx-tt"><b class="num"></b><span></span></div></div>
   <div class="lnx-ax muted num"><span>Jan</span><span>Mar</span><span>May</span><span>Jul</span><span>Sep</span><span>Nov</span></div>
 </div></template>
@@ -5322,7 +5343,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
   <div class="drx-main">
     <div class="drx-top"><div class="drx-in"><span class="muted">From</span><b class="drx-a">–</b></div>{right}<div class="drx-in"><span class="muted">To</span><b class="drx-b">–</b></div><span class="drx-n muted"></span></div>
     <div class="drx-cals"><div class="drx-cal" data-o="0"></div><div class="drx-cal" data-o="1"></div></div>
-    <div class="drx-f"><button class="pill ghost sm drx-clr">Clear</button><button class="pill ink sm drx-ok" disabled>Apply</button></div>
+    <div class="drx-f"><button class="pill ghost sm drx-clr">Clear</button><button class="pill primary sm drx-ok" disabled>Apply</button></div>
   </div>
 </div></template>
   <div class="card-f"><span>Click two days, or pick a preset</span><span class="sp"></span><button class="replay" aria-label="Replay Date range picker"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
@@ -5353,9 +5374,9 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
   <div class="card-h"><div><h3>Buttons</h3><p>Every button style, with loading, success and hold-to-confirm states.</p></div></div>
   <div class="stage"><div class="stage-in"></div></div>
   <template><div class="btx">
-  <div class="btx-row"><span class="btx-l muted">Styles</span><button class="pill accent btx-trial">Start free trial</button><button class="pill ink btx-run">Run agent</button><button class="pill soft btx-pv" aria-pressed="false">Preview</button><button class="pill line btx-share" data-pop=".btx-sp" aria-haspopup="menu">Share</button><div class="pop btx-sp" role="menu"><button class="mi" role="menuitem" data-close data-a="link">{link}Copy link</button><button class="mi" role="menuitem" data-close data-a="slack">{slack}Send to Slack<span class="r">#design</span></button><button class="mi" role="menuitem" data-close data-a="pdf">{down}Export as PDF</button></div><button class="pill ghost">Cancel</button></div>
+  <div class="btx-row"><span class="btx-l muted">Styles</span><button class="pill accent btx-trial">Start free trial</button><button class="pill primary btx-run">Run agent</button><button class="pill soft btx-pv" aria-pressed="false">Preview</button><button class="pill line btx-share" data-pop=".btx-sp" aria-haspopup="menu">Share</button><div class="pop btx-sp" role="menu"><button class="mi" role="menuitem" data-close data-a="link">{link}Copy link</button><button class="mi" role="menuitem" data-close data-a="slack">{slack}Send to Slack<span class="r">#design</span></button><button class="mi" role="menuitem" data-close data-a="pdf">{down}Export as PDF</button></div><button class="pill ghost">Cancel</button></div>
   <div class="btx-row"><span class="btx-l muted">With icon</span><button class="pill accent btx-ask">{spark}Ask agent</button><button class="pill soft btx-fig">{figma}Open in Figma</button><button class="ib fill btx-icp" aria-label="Copy" data-tip="Copy">{copy}</button><button class="ib fill btx-more" aria-label="More" data-tip="More" data-pop=".btx-mp" data-pop-align="end" aria-haspopup="menu">{more}</button><div class="pop btx-mp" role="menu"><button class="mi" role="menuitem" data-close data-a="Duplicated">{dup}Duplicate<span class="r">⌘D</span></button><button class="mi" role="menuitem" data-close data-a="Renamed">{edit}Rename</button><button class="mi" role="menuitem" data-close data-a="Moved to Website">{folder}Move to…</button><div class="sep"></div><button class="mi del" role="menuitem" data-close data-a="Moved to trash">{bin}Delete<span class="r">⌫</span></button></div></div>
-  <div class="btx-row"><span class="btx-l muted">States</span><button class="pill ink btx-load">Publish</button><button class="pill soft btx-copy">{copy}Copy link</button><button class="pill btx-hold"><span class="fill"></span><span class="lb">{trash}Hold to delete</span></button><button class="pill accent" disabled>Disabled</button></div>
+  <div class="btx-row"><span class="btx-l muted">States</span><button class="pill primary btx-load">Publish</button><button class="pill soft btx-copy">{copy}Copy link</button><button class="pill btx-hold"><span class="fill"></span><span class="lb">{trash}Hold to delete</span></button><button class="pill accent" disabled>Disabled</button></div>
   <div class="btx-row"><span class="btx-l muted">Sizes</span><button class="pill accent sm">Small</button><button class="pill accent">Default</button><button class="pill accent btx-lg">Large</button></div>
 </div></template>
   <div class="card-f"><span>Click them all, hold the delete button</span><span class="sp"></span><button class="replay" aria-label="Replay Buttons"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
@@ -5430,7 +5451,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
     <b>Sign in</b><span class="muted">We will email you a code</span>
     <label class="sgx-f"><span>Email</span><input type="email" class="sgx-em" placeholder="you@studio.com" autocomplete="off"></label>
     <span class="sgx-err"></span>
-    <button class="pill ink sgx-go">Send code</button>
+    <button class="pill primary sgx-go">Send code</button>
   </div>
   <div class="sgx-st sgx-2" hidden>
     <div class="fold shut sgx-ntf"><div><div class="sgx-nt" role="status"><span class="sgx-ni">{mail}</span><span class="t"><b>Designme <span class="muted">now</span></b><span>Your sign-in code is <span class="num">482 157</span></span></span><button class="pill sm sgx-cp">Copy code</button></div></div></div>
@@ -5464,7 +5485,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
   <label class="fmx-f"><span>Goal<i class="fmx-dr" aria-hidden="true">{spark}Drafted</i></span><textarea name="g" rows="2" placeholder="What should change, and why?"></textarea></label>
   <div class="fmx-f"><span>Type</span><div class="fmx-ty"><button type="button" class="chip sm" data-v="web">Website</button><button type="button" class="chip sm" data-v="app">App</button><button type="button" class="chip sm" data-v="brand">Brand</button></div></div>
   <label class="fmx-f"><span>Due<i class="fmx-dr" aria-hidden="true">{spark}Drafted</i></span><input name="d" type="text" placeholder="Nov 14"></label>
-  <div class="fmx-ft"><span class="fmx-ms muted"></span><button class="pill ink sm fmx-go" type="submit">Create brief</button></div>
+  <div class="fmx-ft"><span class="fmx-ms muted"></span><button class="pill primary sm fmx-go" type="submit">Create brief</button></div>
 </form></template>
   <div class="card-f"><span>Fill a field, or let the agent draft</span><span class="sp"></span><button class="replay" aria-label="Replay Form"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
 </article>
@@ -5513,7 +5534,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
   <div class="pop ivx-rp" role="menu"><button class="mi" data-close data-r="Can edit" aria-checked="true"><span>Can edit<span class="d">Change frames, run the agent</span></span><span class="ck">{chk}</span></button><button class="mi" data-close data-r="Can comment" aria-checked="false"><span>Can comment<span class="d">Leave notes, no edits</span></span><span class="ck">{chk}</span></button><button class="mi" data-close data-r="Can view" aria-checked="false"><span>Can view<span class="d">Read only</span></span><span class="ck">{chk}</span></button></div>
   <div class="ivx-sg"><span class="muted">Suggested</span></div>
   <div class="ivx-mem"></div>
-  <div class="ivx-ft"><button class="pill ghost sm ivx-link">{link}Copy link</button><button class="pill ink sm ivx-go" disabled>Send invites</button></div>
+  <div class="ivx-ft"><button class="pill ghost sm ivx-link">{link}Copy link</button><button class="pill primary sm ivx-go" disabled>Send invites</button></div>
 </div></template>
   <div class="card-f"><span>Type emails, press Enter or comma</span><span class="sp"></span><button class="replay" aria-label="Replay Invite"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
 </article>
@@ -5616,7 +5637,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
   <template><div class="stx">
   <div class="stx-track"></div>
   <div class="stx-vp"><div class="stx-body"></div></div>
-  <div class="stx-f"><button class="pill ghost sm stx-bk">Back</button><button class="pill ink sm stx-nx">Continue</button></div>
+  <div class="stx-f"><button class="pill ghost sm stx-bk">Back</button><button class="pill primary sm stx-nx">Continue</button></div>
 </div></template>
   <div class="card-f"><span>Go next and back, click a finished step</span><span class="sp"></span><button class="replay" aria-label="Replay Stepper"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
 </article>
@@ -6083,7 +6104,7 @@ DM.def('status-pill', (r, c) => {
     for (let i = 2; i <= 4; i++){ await c.wait(650); const n = $('.n', box); if (n) n.textContent = i + ' of 4'; fill.style.width = (22 + i * 8) + '%'; }
     await c.wait(700);
     set(`<span class="g" style="color:var(--fg)"><span class="spin"></span></span><span class="shim">Editing</span><span class="fchip" style="height:24px"><span class="ft re">TSX</span>PricingCard.tsx</span><span class="end"></span>`, 64); await c.wait(2000);
-    set(`<span class="g" style="color:var(--warn)"><span class="dot"></span></span><span>Waiting for your approval</span><button class="pill ink sm">Review</button>`, 72);
+    set(`<span class="g" style="color:var(--warn)"><span class="dot"></span></span><span>Waiting for your approval</span><button class="pill primary sm">Review</button>`, 72);
     /* waits for Review, and carries on by itself after a while so the loop never stalls; once you have taken over, it waits for you */
     await new Promise(res => { c.later(220, () => { const b = $('.pill', box); if (b) b.onclick = res; }); c.auto(8000, res); });
     set(`<span class="g" style="color:var(--fg)"><span class="spin"></span></span><span class="shim">Applying 4 changes</span><span class="end"></span>`, 88); await c.wait(1600);
@@ -6442,7 +6463,7 @@ DM.def('agent-inbox', (r, c) => {
   gs.innerHTML = GR.map(([k, n]) => `<section class="aib-g" data-g="${k}" aria-label="${n}"><div class="aib-gh"><span>${n}</span><span class="n"></span></div><div class="aib-gl" role="list"></div></section>`).join('');
   const clock = s => Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
   const meta = x => x.g === 'needs' ? x.why : x.g === 'run' ? x.doing : x.a;
-  const right = x => x.g === 'needs' ? (x.fail ? `<button class="pill sm aib-go" aria-label="Retry ${x.t}">${I('refresh','xs')}Retry</button>` : `<button class="pill ink sm aib-go" aria-label="Approve ${x.t}">Approve</button>`)
+  const right = x => x.g === 'needs' ? (x.fail ? `<button class="pill sm aib-go" aria-label="Retry ${x.t}">${I('refresh','xs')}Retry</button>` : `<button class="pill primary sm aib-go" aria-label="Approve ${x.t}">Approve</button>`)
     : x.g === 'run' ? `<span class="spin"></span><span class="num aib-ck">${clock(x.sec)}</span>` : `<span class="ok">${I('ok','xs')}</span><span>${x.ago}</span>`;
   function row(x){
     const [m, col] = A[x.a];
@@ -6557,7 +6578,7 @@ DM.def('browser-session', (r, c) => {
     if (blocked) step(3, 'wait', you ? 'Close the banner, then hand back' : 'A cookie banner covers the table');
   }
   function showAsk(){
-    const ask = html('<div class="bws-ask"><button class="pill ink sm bws-allow">Allow closing it</button><button class="pill soft sm bws-you">Take over</button></div>');
+    const ask = html('<div class="bws-ask"><button class="pill primary sm bws-allow">Allow closing it</button><button class="pill soft sm bws-you">Take over</button></div>');
     $('.bws-t', S[3].el).appendChild(ask); enter(ask);
     $('.bws-allow', ask).onclick = () => c.run(async () => {
       // the agent closes it the privacy-friendly way, with Reject all
@@ -6716,8 +6737,8 @@ DM.def('run-cost', (r, c) => {
       paint();
       if (used >= limit){
         used = limit; paint();
-        if (limit < 2000){ stop('Paused at 90%', 'warn'); fill.style.background = 'var(--warn)'; swap(gl(), 'Raise cap'); go.className = 'pill ink sm rc-go'; go.onclick2 = true; }
-        else { stop('Budget used', 'bad'); swap(gl(), 'Start over'); go.className = 'pill ink sm rc-go'; }
+        if (limit < 2000){ stop('Paused at 90%', 'warn'); fill.style.background = 'var(--warn)'; swap(gl(), 'Raise cap'); go.className = 'pill primary sm rc-go'; go.onclick2 = true; }
+        else { stop('Budget used', 'bad'); swap(gl(), 'Start over'); go.className = 'pill primary sm rc-go'; }
       }
     });
   };
@@ -6732,7 +6753,7 @@ DM.def('toast', (r, c) => {
   const slot = $('.tst-slot', r);
   const V = {
     ok:{ g:'ok', col:'var(--ok)', bg:'var(--ok-bg)', b:'Changes applied', s:'4 files updated in PricingCard', act:'<button class="pill ghost sm tst-undo">Undo</button>' },
-    err:{ g:'alert', col:'var(--bad)', bg:'var(--bad-bg)', b:'Could not push to main', s:'The branch is protected', act:'<button class="pill ink sm tst-retry">Retry</button>' },
+    err:{ g:'alert', col:'var(--bad)', bg:'var(--bad-bg)', b:'Could not push to main', s:'The branch is protected', act:'<button class="pill primary sm tst-retry">Retry</button>' },
     info:{ g:'info', col:'var(--pb)', bg:'var(--pb-bg)', b:'Preview is ready', s:'pricing-spacing.preview.app', act:'<button class="pill ghost sm">Open</button>' },
     load:{ g:'load', col:'var(--fg)', bg:'var(--chip)', b:'Deploying preview', s:'Building 3 pages', act:'' }
   };
@@ -6805,7 +6826,7 @@ DM.def('pricing-cards', (r, c) => {
   const P = [
     { n:'Starter', d:'For trying the agent', m:0, f:['1 project','50 agent runs a month','Figma import'], cta:['soft','Start free'] },
     { n:'Pro', d:'For growing design teams', m:24, f:['Unlimited projects','1,000 runs per editor','Shared tokens and memory','Priority models'], cta:['accent','Start free trial'], hot:1 },
-    { n:'Enterprise', d:'For design orgs', m:null, f:['SSO and audit log','Custom spend caps','Dedicated support'], cta:['ink','Talk to us'] }
+    { n:'Enterprise', d:'For design orgs', m:null, f:['SSO and audit log','Custom spend caps','Dedicated support'], cta:['primary','Talk to us'] }
   ];
   const grid = $('.pcx-grid', r), rng = $('.pcx-seats input', r), sn = $('.pcx-sn', r);
   let per = 'y', seats = 5; const shown = P.map(() => 0);
@@ -7125,7 +7146,7 @@ DM.def('live-answer', (r, c) => {
       else p.insertAdjacentHTML('beforeend', `<span class="w">${tok} </span>`);
       await c.wait(55 + Math.random() * 45);
     }
-    const src = html(`<div class="lva-src"><span class="lva-acts"><button class="ib" aria-label="Copy" data-tip="Copy">${I('copy')}</button><button class="ib" aria-label="Good answer" data-tip="Good answer">${I('up-thumb')}</button><button class="ib" aria-label="Bad answer" data-tip="Bad answer">${I('down-thumb')}</button><button class="ib" aria-label="Try again" data-tip="Try again">${I('refresh')}</button></span><button class="lva-sb" aria-expanded="false"><span class="lva-fav">${S.map(x => `<span style="background:${x[2]}">${x[1]}</span>`).join('')}</span>3 sources${I('chev-d','xs')}</button></div>`);
+    const src = html(`<div class="lva-src"><span class="lva-acts"><button class="ib" aria-label="Copy" data-tip="Copy">${I('copy')}</button><button class="ib" aria-label="Good answer" data-tip="Good answer">${I('up-thumb')}</button><button class="ib" aria-label="Bad answer" data-tip="Bad answer">${I('down-thumb')}</button><button class="ib" aria-label="Try again" data-tip="Try again">${I('refresh')}</button></span><button class="lva-sb" aria-expanded="false"><span class="lva-fav">${S.map(x => `<span style="background-color:${x[2]}">${x[1]}</span>`).join('')}</span>3 sources${I('chev-d','xs')}</button></div>`);
     const ls = html(`<div class="fold shut lva-ls"><div><div class="lva-ll">${S.map(x => `<button class="lva-s" data-n="${x[0]}"><span class="n">${x[0]}</span><span class="t">${x[3]}</span><span class="d">${x[4]}</span>${I('ext','xs')}</button>`).join('')}</div></div></div>`);
     turn.appendChild(src); turn.appendChild(ls); enter(src);
     const sb = $('.lva-sb', src), open = o => { ls.classList.toggle('shut', !o); sb.setAttribute('aria-expanded', o); };
@@ -8585,9 +8606,9 @@ DM.def('model-picker', (r, c) => {
   // speed, quality and cost out of five, and the numbers behind them: tokens a second, and a typical reply's seconds and
   // price with no thinking (the same three models and figures as Model compare)
   const M = [
-    { n:'Opus 5.5', m:'O', c:'var(--c2)', t:'var(--on-ink)', d:'Deepest reasoning, slower', s:2, q:5, p:5, tps:38, sec:9, cost:.021 },
+    { n:'Opus 5.5', m:'O', c:'var(--pl)', t:'var(--on-ink)', d:'Deepest reasoning, slower', s:2, q:5, p:5, tps:38, sec:9, cost:.021 },
     { n:'Sonnet 5.5', m:'S', c:'var(--accent)', t:'var(--on-accent)', d:'Balanced, the default for design work', s:4, q:4, p:2, tps:74, sec:4, cost:.006 },
-    { n:'Haiku 5.5', m:'H', c:'var(--c3)', t:'#121212', d:'Fastest, for quick edits', s:5, q:3, p:1, tps:142, sec:1.5, cost:.001 }
+    { n:'Haiku 5.5', m:'H', c:'var(--pm)', t:'var(--on-ink)', d:'Fastest, for quick edits', s:5, q:3, p:1, tps:142, sec:1.5, cost:.001 }
   ];
   // thinking effort, and what it may spend
   const E = [['Off', 'Answers straight away'], ['Low', 'Up to 2k thinking tokens'], ['Medium', 'Up to 8k thinking tokens'], ['High', 'Up to 24k thinking tokens']];
@@ -9030,7 +9051,7 @@ DM.def('human-handoff', (r, c) => {
   let said = mb.textContent, editing = false;
   const edit = on => {
     editing = on; mb.contentEditable = on ? 'true' : 'false'; mb.setAttribute('aria-readonly', !on); no.hidden = !on;
-    ed.className = 'pill sm hox-ed ' + (on ? 'ink' : 'ghost'); ed.innerHTML = on ? 'Save' : I('edit','xs') + 'Edit';
+    ed.className = 'pill sm hox-ed ' + (on ? 'primary' : 'ghost'); ed.innerHTML = on ? 'Save' : I('edit','xs') + 'Edit';
     if (on){ mb.focus(); const s = getSelection(); s.selectAllChildren(mb); s.collapseToEnd(); }
   };
   ed.onclick = () => {
@@ -9510,7 +9531,7 @@ DM.def('steering', (r, c) => {
   function say(text, warn, acts){
     const a = html(`<div class="ste-ag${warn ? ' warn' : ''}">${warn ? I('alert','xs') : I('spark','xs')}<div class="t"><p></p>${acts ? '<div class="ste-acts"></div>' : ''}</div></div>`);
     $('p', a).textContent = text; log.appendChild(a); enter(a);
-    if (acts) acts.forEach(([label, ink, fn]) => { const b = html(`<button class="pill sm ${ink ? 'ink' : 'ghost'}">${label}</button>`); b.onclick = () => { $('.ste-acts', a).replaceWith(html(`<span class="muted">${fn()}</span>`)); a.classList.remove('warn'); a.firstElementChild.outerHTML = I('spark','xs'); }; $('.ste-acts', a).appendChild(b); });
+    if (acts) acts.forEach(([label, ink, fn]) => { const b = html(`<button class="pill sm ${ink ? 'primary' : 'ghost'}">${label}</button>`); b.onclick = () => { $('.ste-acts', a).replaceWith(html(`<span class="muted">${fn()}</span>`)); a.classList.remove('warn'); a.firstElementChild.outerHTML = I('spark','xs'); }; $('.ste-acts', a).appendChild(b); });
   }
   function apply(){
     while (queue.length){
@@ -9570,8 +9591,8 @@ DM.def('steering', (r, c) => {
     const msg = 'Use our library blue, not violet';
     await s.type(inp, msg.match(/.{1,3}/g), { n:.15, each:ready, keep:true });
     await s.beat(1); await s.tap(go); s.away();
-    await s.until(() => $('.ste-acts .ink', r)); await s.beat(3);
-    await s.tap($('.ste-acts .ink', r)); s.away();
+    await s.until(() => $('.ste-acts .primary', r)); await s.beat(3);
+    await s.tap($('.ste-acts .primary', r)); s.away();
     await s.until(() => ended); await s.beat(2);
   });
 });
@@ -10329,9 +10350,9 @@ DM.def('memory-panel', (r, c) => {
 DM.def('model-compare', (r, c) => {
   r.innerHTML = r.innerHTML.replace('{up}', I('up'));
   const MOD = {
-    Opus:{ k:'O', c:'var(--c2)', t:'var(--on-ink)', d:'Most capable, slower', ms:2400, tps:38, cost:.021, o:'Pro gives every designer an agent that knows your tokens, so reviews take minutes, not days.' },
+    Opus:{ k:'O', c:'var(--pl)', t:'var(--on-ink)', d:'Most capable, slower', ms:2400, tps:38, cost:.021, o:'Pro gives every designer an agent that knows your tokens, so reviews take minutes, not days.' },
     Sonnet:{ k:'S', c:'var(--accent)', t:'var(--on-accent)', d:'Balanced speed and quality', ms:1300, tps:74, cost:.006, o:'Ship polished pages faster with an agent that checks every frame for you.' },
-    Haiku:{ k:'H', c:'var(--c3)', t:'#121212', d:'Fastest, lowest cost', ms:600, tps:142, cost:.001, o:'Your design QA, on autopilot.' }
+    Haiku:{ k:'H', c:'var(--pm)', t:'var(--on-ink)', d:'Fastest, lowest cost', ms:600, tps:142, cost:.001, o:'Your design QA, on autopilot.' }
   };
   const generic = { Opus:'Here is a considered take, with the trade-offs spelled out and one clear recommendation at the end.', Sonnet:'Here is a clear, direct answer with the two points that matter most.', Haiku:'Short answer: yes, and here is the one line why.' };
   const cols = $('.mcx-cols', r), q = $('.mcx-q', r), go = $('.mcx-go', r), cnt = $('.mcx-n', r), DEF = q.value, MAX = 3;
@@ -10685,7 +10706,7 @@ DM.def('harness', (r, c) => {
       m.textContent = st.m; return fit(); }
     shown = key;
     const put = () => { pin.innerHTML = G[st.g] + `<span class="${st.g === 'idle' ? 'fg2' : /think|tool|run/.test(st.g) ? 'shim' : ''}">${st.t}</span>`
-      + (st.m ? `<span class="m">${st.m}</span>` : '') + (st.act ? '<button class="pill ink sm">Review</button>' : '<span class="end"></span>');
+      + (st.m ? `<span class="m">${st.m}</span>` : '') + (st.act ? '<button class="pill primary sm">Review</button>' : '<span class="end"></span>');
       const b = $('.pill', pin); if (b) b.onclick = () => look(st.act); fit(); };
     if (now || REDUCE) return put();
     pill.style.width = pill.offsetWidth + 'px'; pin.classList.add('out');
@@ -10907,7 +10928,7 @@ DM.def('harness', (r, c) => {
           else p.insertAdjacentHTML('beforeend', `<span class="w">${esc(tok)} </span>`);
           await k.wait(40 + Math.random() * 40);
         }
-        const sr = html(`<div class="lva-src"><span class="lva-acts"><button class="ib" aria-label="Copy" data-tip="Copy">${I('copy')}</button><button class="ib" aria-label="Good answer" data-tip="Good answer">${I('up-thumb')}</button><button class="ib" aria-label="Bad answer" data-tip="Bad answer">${I('down-thumb')}</button></span><button class="lva-sb" aria-expanded="false"><span class="lva-fav">${src.map(x => `<span style="background:${x[1]}">${esc(x[0][0])}</span>`).join('')}</span>${src.length} sources${I('chev-d','xs')}</button></div>`);
+        const sr = html(`<div class="lva-src"><span class="lva-acts"><button class="ib" aria-label="Copy" data-tip="Copy">${I('copy')}</button><button class="ib" aria-label="Good answer" data-tip="Good answer">${I('up-thumb')}</button><button class="ib" aria-label="Bad answer" data-tip="Bad answer">${I('down-thumb')}</button></span><button class="lva-sb" aria-expanded="false"><span class="lva-fav">${src.map(x => `<span style="background-color:${x[1]}">${esc(x[0][0])}</span>`).join('')}</span>${src.length} sources${I('chev-d','xs')}</button></div>`);
         const ls = html(`<div class="fold shut lva-ls"><div><div class="lva-ll">${src.map((x, i) => `<button class="lva-s" data-n="${i + 1}"><span class="n">${i + 1}</span><span class="t">${esc(x[2])}</span><span class="d">${esc(x[3])}</span>${I(go ? 'right' : 'ext','xs')}</button>`).join('')}</div></div></div>`);
         box.append(sr, ls); if (!ff) enter(sr);
         const sb = $('.lva-sb', sr), show = o => { ls.classList.toggle('shut', !o); sb.setAttribute('aria-expanded', o); };
@@ -11147,8 +11168,8 @@ DM.def('line-chart', (r, c) => {
   const pa = P(A), pb = P(B);
   svg.innerHTML = `<defs><linearGradient id="lng" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="var(--accent-mark,var(--accent))" stop-opacity=".16"/><stop offset="1" stop-color="var(--accent-mark,var(--accent))" stop-opacity="0"/></linearGradient><clipPath id="lnc"><rect class="lnr" x="0" y="-10" width="0" height="160"/></clipPath></defs>` +
     [35, 70, 105].map(y => `<line class="gl" x1="0" x2="320" y1="${y}" y2="${y}"/>`).join('') +
-    `<g clip-path="url(#lnc)"><path class="ar" d="${smooth(pa)} L320 140 L0 140 Z" fill="url(#lng)"/><path class="ln l1" d="${smooth(pb)}" stroke="var(--faint)" stroke-dasharray="4 4"/><path class="ln l0" d="${smooth(pa)}" stroke="var(--accent-mark,var(--accent))"/></g>`;
-  ch.insertAdjacentHTML('beforeend', '<span class="lnx-pt on" style="color:var(--accent-mark,var(--accent))"></span><span class="lnx-pt on" style="color:var(--faint)"></span>');
+    `<g clip-path="url(#lnc)"><path class="ar" d="${smooth(pa)} L320 140 L0 140 Z" fill="url(#lng)"/><path class="ln l1" d="${smooth(pb)}" stroke="var(--muted)" stroke-dasharray="4 4"/><path class="ln l0" d="${smooth(pa)}" stroke="var(--accent-mark,var(--accent))"/></g>`;
+  ch.insertAdjacentHTML('beforeend', '<span class="lnx-pt on" style="color:var(--accent-mark,var(--accent))"></span><span class="lnx-pt on" style="color:var(--muted)"></span>');
   const pts = $$('.lnx-pt', ch), on = [true, true];
   // the line draws and the number counts once the chart has risen into view, so the draw is seen from its start
   v.textContent = '0';
@@ -11329,7 +11350,7 @@ DM.def('account-table', (r, c) => {
   const hc = h => h >= 80 ? 'var(--ok)' : h >= 60 ? 'var(--warn)' : 'var(--bad)';
   function paint(anim){
     const s = q.value.trim().toLowerCase(), rows = A.filter(a => (!plan || a[2] === plan) && (!s || a[0].toLowerCase().includes(s)));
-    tb.innerHTML = rows.length ? rows.map(a => `<tr class="row${open === a[0] ? ' open' : ''}" data-n="${a[0]}"><td><span class="nm"><span class="lg" style="background:${a[1]}">${a[0][0]}</span>${a[0]}</span></td><td><span class="tag ${a[2] === 'Enterprise' ? 'p' : a[2] === 'Pro' ? 'b' : 't'}">${a[2]}</span></td><td class="num">${a[3]}</td><td><span class="hb"><i><b style="width:${a[4]}%;background:${hc(a[4])}"></b></i><span class="num">${a[4]}</span></span></td><td class="r num">${a[5]}</td></tr>` + (open === a[0] ? `<tr class="det"><td colspan="5"><div class="fold"><div><div class="atb-note">${I('spark','xs')}<span>${a[6]}</span><button class="pill soft sm">Draft email</button></div></div></div></td></tr>` : '')).join('') : '<tr class="atb-empty"><td colspan="5">No accounts match</td></tr>';
+    tb.innerHTML = rows.length ? rows.map(a => `<tr class="row${open === a[0] ? ' open' : ''}" data-n="${a[0]}"><td><span class="nm"><span class="lg" style="background-color:${a[1]}">${a[0][0]}</span>${a[0]}</span></td><td><span class="tag ${a[2] === 'Enterprise' ? 'p' : a[2] === 'Pro' ? 'b' : 't'}">${a[2]}</span></td><td class="num">${a[3]}</td><td><span class="hb"><i><b style="width:${a[4]}%;background:${hc(a[4])}"></b></i><span class="num">${a[4]}</span></span></td><td class="r num">${a[5]}</td></tr>` + (open === a[0] ? `<tr class="det"><td colspan="5"><div class="fold"><div><div class="atb-note">${I('spark','xs')}<span>${a[6]}</span><button class="pill soft sm">Draft email</button></div></div></div></td></tr>` : '')).join('') : '<tr class="atb-empty"><td colspan="5">No accounts match</td></tr>';
     if (anim) stagger($$('tr.row', tb), 35);
     $$('tr.row', tb).forEach(tr => tr.onclick = () => { open = open === tr.dataset.n ? null : tr.dataset.n; paint(); const d = $('.atb-note', tb); if (d) enter(d); });
     const dr = $('.atb-note .pill', tb); if (dr) dr.onclick = e => { e.stopPropagation(); dr.innerHTML = '<span class="spin"></span>'; c.later(800, () => { dr.innerHTML = I('check','xs') + 'Draft ready'; }); };
@@ -11535,7 +11556,7 @@ DM.def('event-calendar', (r, c) => {
   /* the details card opens beside the event and stays inside the calendar */
   function openPop(el){
     const e = el._e; if (openFor === el){ closePop(); return; } openFor = el; const n = 2 + e[3].length % 3, fresh = e[3] === 'New event';
-    pop.innerHTML = `<div class="ecx-ph"><i style="background:var(--p${e[4]})"></i>${fresh ? '<input class="ecx-ti" placeholder="Add a title" aria-label="Event title">' : `<b>${e[3]}</b>`}<button class="ib ecx-px" aria-label="Close" data-tip="Close">${I('x','xs')}</button></div><div class="ecx-pt">${DAYN[e[0]]} ${DAYS[e[0]].split(' ')[1]} Oct · ${tm(e[1])} – ${tm(e[1] + e[2])}</div><div class="ecx-pw">${WHO.slice(0, n).map(w => AV(w[0], w[1])).join('')}<span class="muted">${n} people</span></div><div class="ecx-pa">${fresh ? '<button class="pill ghost sm ecx-del">Discard</button><button class="pill ink sm ecx-save">Save</button>' : `<button class="pill soft sm ecx-prep">${I('spark','xs')}Prep notes</button><button class="pill ink sm">Join</button>`}</div>`;
+    pop.innerHTML = `<div class="ecx-ph"><i style="background:var(--p${e[4]})"></i>${fresh ? '<input class="ecx-ti" placeholder="Add a title" aria-label="Event title">' : `<b>${e[3]}</b>`}<button class="ib ecx-px" aria-label="Close" data-tip="Close">${I('x','xs')}</button></div><div class="ecx-pt">${DAYN[e[0]]} ${DAYS[e[0]].split(' ')[1]} Oct · ${tm(e[1])} – ${tm(e[1] + e[2])}</div><div class="ecx-pw">${WHO.slice(0, n).map(w => AV(w[0], w[1])).join('')}<span class="muted">${n} people</span></div><div class="ecx-pa">${fresh ? '<button class="pill ghost sm ecx-del">Discard</button><button class="pill primary sm ecx-save">Save</button>' : `<button class="pill soft sm ecx-prep">${I('spark','xs')}Prep notes</button><button class="pill primary sm">Join</button>`}</div>`;
     const pr = panel.getBoundingClientRect(), er = el.getBoundingClientRect(), w = 248;
     let x = er.right - pr.left + 8; if (x + w > pr.width - 8) x = er.left - pr.left - w - 8; x = Math.max(8, x);
     let y = er.top - pr.top; y = Math.max(8, Math.min(y, pr.height - pop.offsetHeight - 8));

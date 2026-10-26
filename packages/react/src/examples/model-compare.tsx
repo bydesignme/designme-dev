@@ -6,9 +6,9 @@ import { useScript, useTakeover, useWait } from './useScript';
 
 /* ---------- Model compare: one prompt goes to three models, each streams its answer, the fastest and cheapest turn green ---------- */
 const MODELS: ModelCompareModel[] = [
-  { name: 'Opus', mark: 'O', color: 'var(--dm-c2)', description: 'Most capable, slower' },
+  { name: 'Opus', mark: 'O', color: 'var(--dm-pl)', description: 'Most capable, slower' },
   { name: 'Sonnet', mark: 'S', color: 'var(--dm-c1)', description: 'Balanced speed and quality' },
-  { name: 'Haiku', mark: 'H', color: 'var(--dm-c3)', description: 'Fastest, lowest cost' }
+  { name: 'Haiku', mark: 'H', color: 'var(--dm-pm)', description: 'Fastest, lowest cost' }
 ];
 // how each model behaves in the demo: time to finish, speed, cost and its answer to the first prompt
 const RUNS: Record<string, { ms: number; tps: number; cost: number; answer: string; other: string }> = {

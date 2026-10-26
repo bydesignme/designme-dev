@@ -151,7 +151,7 @@ export function Stepper({ steps, step, defaultStep = 0, onStepChange, values, de
       </div>
       <div className="dm-stx-f">
         <button type="button" className="dm-pill dm-ghost dm-sm dm-stx-bk" disabled={cur === 0} onClick={() => setCur(Math.max(0, cur - 1))}>{backLabel}</button>
-        <button type="button" className="dm-pill dm-ink dm-sm dm-stx-nx" disabled={busy} onClick={next}>{finished ? restartLabel : cur === steps.length - 1 ? finishLabel : nextLabel}</button>
+        <button type="button" className="dm-pill dm-primary dm-sm dm-stx-nx" disabled={busy} onClick={next}>{finished ? restartLabel : cur === steps.length - 1 ? finishLabel : nextLabel}</button>
       </div>
     </div>
   );
