@@ -46,18 +46,18 @@
 })();
 </script><script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareSourceCode","name":"Account table","description":"A table of customer accounts with plan, seats, a health bar and monthly revenue, which people can search and filter by plan. Clicking a row opens a note on what the agent noticed about that account, with an optional button for the next step, such as drafting an email. It suits a customer success or sales view where an agent watches accounts for risk.","url":"https://designme.dev/components/account-table","image":"https://designme.dev/components/og/account-table.jpg","programmingLanguage":["HTML","CSS","JavaScript","TypeScript"],"runtimePlatform":"Web browser","license":"https://opensource.org/licenses/MIT","isAccessibleForFree":true,"keywords":"Account table, Charts and tables, UI component, React component, HTML component","author":{"@type":"Organization","name":"DesignMe","url":"https://designme.agency"},"isPartOf":{"@type":"WebSite","name":"Designme.dev","url":"https://designme.dev/"}}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Library","item":"https://designme.dev/"},{"@type":"ListItem","position":2,"name":"Charts and tables","item":"https://designme.dev/#s-charts"},{"@type":"ListItem","position":3,"name":"Account table","item":"https://designme.dev/components/account-table"}]}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I add a \"Draft email\" button to the agent's note?","acceptedAnswer":{"@type":"Answer","text":"Pass action with a label, an optional doneLabel and an onClick that receives the account. Return a promise and the button spins until it resolves, then shows the done label. If it rejects, the button goes back to its label."}},{"@type":"Question","name":"Can the agent open a row by itself?","acceptedAnswer":{"@type":"Answer","text":"Yes. Control open with the account's name and update it from your own state, for example when the agent flags an account. Set it to null to close all rows."}},{"@type":"Question","name":"Does the table sort or format MRR for me?","acceptedAnswer":{"@type":"Answer","text":"No. Rows appear in the order of accounts, and mrr is shown as the string you pass, so format it first, like \"$14,400\"."}},{"@type":"Question","name":"Can I put links or formatting in the note?","acceptedAnswer":{"@type":"Answer","text":"Yes. note takes any React node, so it can hold links, bold text or other elements."}}]}</script><link rel="stylesheet" href="/components/assets/core.css"><style>/* ---------- Account table ---------- */
 .atb{overflow:hidden}
-.atb-h{display:flex;align-items:center;gap:8px;padding:10px;flex-wrap:wrap;border-bottom:1px solid var(--line)}
-.atb-s{display:flex;align-items:center;gap:8px;height:32px;padding:0 10px;border-radius:10px;background:var(--chip);box-shadow:inset 0 0 0 1px var(--field-line);color:var(--muted);flex:1;min-width:160px}
+.atb-h{display:flex;align-items:center;gap:var(--s-2);padding:10px;flex-wrap:wrap;border-bottom:1px solid var(--line)}
+.atb-s{display:flex;align-items:center;gap:var(--s-2);height:32px;padding:0 10px;border-radius:10px;background:var(--chip);box-shadow:inset 0 0 0 1px var(--field-line);color:var(--muted);flex:1;min-width:160px}
 .atb-s input{flex:1;min-width:0;border:0;outline:0;background:transparent;font:inherit;font-size:13px;color:var(--fg)}
 .atb-s:focus-within{box-shadow:inset 0 0 0 2px var(--focus)}
 .atb-s input::placeholder{color:var(--muted)}
-.atb-fl{display:flex;gap:4px;flex-wrap:wrap}
+.atb-fl{display:flex;gap:var(--s-1);flex-wrap:wrap}
 .atb-fl .chip.on{background:var(--ink);color:var(--on-ink);box-shadow:none}
 .atb-sc{overflow-x:auto}
 .atb table{width:100%;border-collapse:collapse;font-size:13px;min-width:560px}
-.atb th{text-align:left;font-weight:500;font-size:12px;color:var(--muted);padding:9px 12px;white-space:nowrap}
+.atb th{text-align:left;font-weight:500;font-size:12px;color:var(--muted);padding:9px var(--s-3);white-space:nowrap}
 .atb th.r,.atb td.r{text-align:right}
-.atb td{padding:9px 12px;border-top:1px solid var(--line);white-space:nowrap}
+.atb td{padding:9px var(--s-3);border-top:1px solid var(--line);white-space:nowrap}
 .atb tr.row{cursor:pointer;transition:background .2s}
 @media (hover:hover) and (pointer:fine){.atb tr.row:hover{background:var(--row)}}
 /* a row that takes the focus fills the scrolling table, which would cut an outside ring: its ring is drawn inside */
@@ -66,15 +66,15 @@
 .atb .nm{display:flex;align-items:center;gap:9px;font-weight:500}
 /* brand tiles sit a shade darker than the brand colour, so their white letter reads at 4.5:1 or more */
 .atb .lg{width:24px;height:24px;border-radius:7px;display:grid;place-items:center;font-size:10px;font-weight:500;color:#fff;background-image:linear-gradient(rgba(0,0,0,.3),rgba(0,0,0,.3))}
-.atb .hb{display:flex;align-items:center;gap:8px}
+.atb .hb{display:flex;align-items:center;gap:var(--s-2)}
 .atb .hb i{width:54px;height:5px;border-radius:3px;background:var(--line);overflow:hidden;display:block}
 .atb .hb i b{display:block;height:100%;border-radius:3px}
 .atb .hb span{font-size:12px;color:var(--fg2)}
 .atb tr.det td{padding:0;border-top:0}
-.atb-note{display:flex;align-items:center;gap:10px;padding:10px 12px 12px 45px;font-size:12.5px;color:var(--fg2);white-space:normal}
+.atb-note{display:flex;align-items:center;gap:10px;padding:10px var(--s-3) var(--s-3) 45px;font-size:12.5px;color:var(--fg2);white-space:normal}
 .atb-note>svg{color:var(--accent-fg,var(--accent));flex:none}
 .atb-note span{flex:1}
-.atb-empty td{text-align:center;color:var(--muted);padding:24px}
+.atb-empty td{text-align:center;color:var(--muted);padding:var(--s-6)}
 </style><style>@media (max-width:640px){.cp-demo .pg-demo{min-height:calc(var(--h-j) + 24px)}}@media (max-width:519px){.cp-demo .pg-demo{min-height:calc(var(--h-k) + 24px)}}@media (max-width:429px){.cp-demo .pg-demo{min-height:calc(var(--h-l) + 24px)}}@media (max-width:389px){.cp-demo .pg-demo{min-height:calc(var(--h-m) + 24px)}}</style><style>@font-face{font-family:Inter;font-style:normal;font-weight:400;font-display:swap;src:url(/fonts/inter-latin-400-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:Inter;font-style:normal;font-weight:500;font-display:swap;src:url(/fonts/inter-latin-500-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:Inter;font-style:normal;font-weight:600;font-display:swap;src:url(/fonts/inter-latin-600-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
@@ -283,18 +283,18 @@ export function AccountTable({
 </code></pre></details><details class="cp-file"><summary>account-table.css<span class="l">React · 33 lines</span></summary><pre class="cp-pre"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Account table ---------- */
 .dm-atb{overflow:hidden}
-.dm-atb-h{display:flex;align-items:center;gap:8px;padding:10px;flex-wrap:wrap;border-bottom:1px solid var(--dm-line)}
-.dm-atb-s{display:flex;align-items:center;gap:8px;height:32px;padding:0 10px;border-radius:10px;background:var(--dm-chip);box-shadow:inset 0 0 0 1px var(--dm-field-line);color:var(--dm-muted);flex:1;min-width:160px}
+.dm-atb-h{display:flex;align-items:center;gap:var(--dm-s-2);padding:10px;flex-wrap:wrap;border-bottom:1px solid var(--dm-line)}
+.dm-atb-s{display:flex;align-items:center;gap:var(--dm-s-2);height:32px;padding:0 10px;border-radius:10px;background:var(--dm-chip);box-shadow:inset 0 0 0 1px var(--dm-field-line);color:var(--dm-muted);flex:1;min-width:160px}
 .dm-atb-s input{flex:1;min-width:0;border:0;outline:0;background:transparent;font:inherit;font-size:13px;color:var(--dm-fg)}
 .dm-atb-s:focus-within{box-shadow:inset 0 0 0 2px var(--dm-focus)}
 .dm-atb-s input::placeholder{color:var(--dm-muted)}
-.dm-atb-fl{display:flex;gap:4px;flex-wrap:wrap}
+.dm-atb-fl{display:flex;gap:var(--dm-s-1);flex-wrap:wrap}
 .dm-atb-fl .dm-chip.dm-on{background:var(--dm-ink);color:var(--dm-on-ink);box-shadow:none}
 .dm-atb-sc{overflow-x:auto}
 .dm-atb table{width:100%;border-collapse:collapse;font-size:13px;min-width:560px}
-.dm-atb th{text-align:left;font-weight:500;font-size:12px;color:var(--dm-muted);padding:9px 12px;white-space:nowrap}
+.dm-atb th{text-align:left;font-weight:500;font-size:12px;color:var(--dm-muted);padding:9px var(--dm-s-3);white-space:nowrap}
 .dm-atb th.dm-r,.dm-atb td.dm-r{text-align:right}
-.dm-atb td{padding:9px 12px;border-top:1px solid var(--dm-line);white-space:nowrap}
+.dm-atb td{padding:9px var(--dm-s-3);border-top:1px solid var(--dm-line);white-space:nowrap}
 .dm-atb tr.dm-row{cursor:pointer;transition:background .2s}
 @media (hover:hover) and (pointer:fine){.dm-atb tr.dm-row:hover{background:var(--dm-row)}}
 /* a row that takes the focus fills the scrolling table, which would cut an outside ring: its ring is drawn inside */
@@ -303,15 +303,15 @@ export function AccountTable({
 .dm-atb .dm-nm{display:flex;align-items:center;gap:9px;font-weight:500}
 /* brand tiles sit a shade darker than the brand colour, so their white letter reads at 4.5:1 or more */
 .dm-atb .dm-lg{width:24px;height:24px;border-radius:7px;display:grid;place-items:center;font-size:10px;font-weight:500;color:#fff;background-image:linear-gradient(rgba(0,0,0,.3),rgba(0,0,0,.3))}
-.dm-atb .dm-hb{display:flex;align-items:center;gap:8px}
+.dm-atb .dm-hb{display:flex;align-items:center;gap:var(--dm-s-2)}
 .dm-atb .dm-hb i{width:54px;height:5px;border-radius:3px;background:var(--dm-line);overflow:hidden;display:block}
 .dm-atb .dm-hb i b{display:block;height:100%;border-radius:3px}
 .dm-atb .dm-hb span{font-size:12px;color:var(--dm-fg2)}
 .dm-atb tr.dm-det td{padding:0;border-top:0}
-.dm-atb-note{display:flex;align-items:center;gap:10px;padding:10px 12px 12px 45px;font-size:12.5px;color:var(--dm-fg2);white-space:normal}
+.dm-atb-note{display:flex;align-items:center;gap:10px;padding:10px var(--dm-s-3) var(--dm-s-3) 45px;font-size:12.5px;color:var(--dm-fg2);white-space:normal}
 .dm-atb-note&gt;svg{color:var(--dm-accent-fg,var(--dm-accent));flex:none}
 .dm-atb-note span{flex:1}
-.dm-atb-empty td{text-align:center;color:var(--dm-muted);padding:24px}
+.dm-atb-empty td{text-align:center;color:var(--dm-muted);padding:var(--dm-s-6)}
 </code></pre></details><details class="cp-file"><summary>account-table.html<span class="l">HTML · 9 lines</span></summary><pre class="cp-pre"><code>&lt;div class=&quot;card wide&quot; data-c=&quot;account-table&quot;&gt;
   &lt;div class=&quot;stage-in&quot;&gt;
     &lt;div class=&quot;atb panel&quot;&gt;
@@ -322,18 +322,18 @@ export function AccountTable({
 &lt;/div&gt;
 </code></pre></details><details class="cp-file"><summary>account-table.css<span class="l">HTML · 32 lines</span></summary><pre class="cp-pre"><code>/* ---------- Account table ---------- */
 .atb{overflow:hidden}
-.atb-h{display:flex;align-items:center;gap:8px;padding:10px;flex-wrap:wrap;border-bottom:1px solid var(--line)}
-.atb-s{display:flex;align-items:center;gap:8px;height:32px;padding:0 10px;border-radius:10px;background:var(--chip);box-shadow:inset 0 0 0 1px var(--field-line);color:var(--muted);flex:1;min-width:160px}
+.atb-h{display:flex;align-items:center;gap:var(--s-2);padding:10px;flex-wrap:wrap;border-bottom:1px solid var(--line)}
+.atb-s{display:flex;align-items:center;gap:var(--s-2);height:32px;padding:0 10px;border-radius:10px;background:var(--chip);box-shadow:inset 0 0 0 1px var(--field-line);color:var(--muted);flex:1;min-width:160px}
 .atb-s input{flex:1;min-width:0;border:0;outline:0;background:transparent;font:inherit;font-size:13px;color:var(--fg)}
 .atb-s:focus-within{box-shadow:inset 0 0 0 2px var(--focus)}
 .atb-s input::placeholder{color:var(--muted)}
-.atb-fl{display:flex;gap:4px;flex-wrap:wrap}
+.atb-fl{display:flex;gap:var(--s-1);flex-wrap:wrap}
 .atb-fl .chip.on{background:var(--ink);color:var(--on-ink);box-shadow:none}
 .atb-sc{overflow-x:auto}
 .atb table{width:100%;border-collapse:collapse;font-size:13px;min-width:560px}
-.atb th{text-align:left;font-weight:500;font-size:12px;color:var(--muted);padding:9px 12px;white-space:nowrap}
+.atb th{text-align:left;font-weight:500;font-size:12px;color:var(--muted);padding:9px var(--s-3);white-space:nowrap}
 .atb th.r,.atb td.r{text-align:right}
-.atb td{padding:9px 12px;border-top:1px solid var(--line);white-space:nowrap}
+.atb td{padding:9px var(--s-3);border-top:1px solid var(--line);white-space:nowrap}
 .atb tr.row{cursor:pointer;transition:background .2s}
 @media (hover:hover) and (pointer:fine){.atb tr.row:hover{background:var(--row)}}
 /* a row that takes the focus fills the scrolling table, which would cut an outside ring: its ring is drawn inside */
@@ -342,15 +342,15 @@ export function AccountTable({
 .atb .nm{display:flex;align-items:center;gap:9px;font-weight:500}
 /* brand tiles sit a shade darker than the brand colour, so their white letter reads at 4.5:1 or more */
 .atb .lg{width:24px;height:24px;border-radius:7px;display:grid;place-items:center;font-size:10px;font-weight:500;color:#fff;background-image:linear-gradient(rgba(0,0,0,.3),rgba(0,0,0,.3))}
-.atb .hb{display:flex;align-items:center;gap:8px}
+.atb .hb{display:flex;align-items:center;gap:var(--s-2)}
 .atb .hb i{width:54px;height:5px;border-radius:3px;background:var(--line);overflow:hidden;display:block}
 .atb .hb i b{display:block;height:100%;border-radius:3px}
 .atb .hb span{font-size:12px;color:var(--fg2)}
 .atb tr.det td{padding:0;border-top:0}
-.atb-note{display:flex;align-items:center;gap:10px;padding:10px 12px 12px 45px;font-size:12.5px;color:var(--fg2);white-space:normal}
+.atb-note{display:flex;align-items:center;gap:10px;padding:10px var(--s-3) var(--s-3) 45px;font-size:12.5px;color:var(--fg2);white-space:normal}
 .atb-note&gt;svg{color:var(--accent-fg,var(--accent));flex:none}
 .atb-note span{flex:1}
-.atb-empty td{text-align:center;color:var(--muted);padding:24px}
+.atb-empty td{text-align:center;color:var(--muted);padding:var(--s-6)}
 </code></pre></details><details class="cp-file"><summary>account-table.js<span class="l">HTML · 26 lines</span></summary><pre class="cp-pre"><code>DM.def(&#39;account-table&#39;, (r, c) =&gt; {
   r.innerHTML = r.innerHTML.replace(&#39;{search}&#39;, I(&#39;search&#39;,&#39;xs&#39;));
   const A = [

@@ -213,7 +213,8 @@ export function RewriteToolbar({
   // a new selection from outside says the same as a click does
   useEffect(() => { if (sel !== null && !busy) setStatus('Pick a rewrite'); }, [sel]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // the toolbar sits above the sentence's first line, or under its last when above would cover the header
+  // the toolbar sits above the sentence's first line, or under its last when above would cover the header. The new
+  // sentence takes its full room as soon as it arrives, so the toolbar is placed clear of it before the words come in
   useIsoLayoutEffect(() => {
     const el = sel === null ? null : spans.current[sel], tb = bar.current, box = root.current;
     if (!el || !tb || !box) return;
@@ -222,7 +223,7 @@ export function RewriteToolbar({
     let top = f.top - br.top - tb.offsetHeight - 8;
     if (top < (head.current ? head.current.getBoundingClientRect().bottom - br.top : 4)) top = rects[rects.length - 1].bottom - br.top + 8;
     setAt({ left, top });
-  }, [sel, view]);
+  }, [sel, view, job?.text]);
 
   // a click anywhere else puts the toolbar away, unless a rewrite is waiting on an answer
   const latest = useRef({ busy, setSel });
@@ -268,7 +269,7 @@ export function RewriteToolbar({
             <span key={i}>
               {i > 0 && ' '}
               <span ref={el => { spans.current[i] = el; }} className={cx('dm-rwx-s', sel === i && 'dm-sel')} onClick={e => { e.stopPropagation(); if (!mine) pick(i); }}>
-                {mine ? <><del>{job.old}</del> <ins>{job.text && words(job.text).slice(0, job.shown).map((w, k) => <span key={k} className="dm-w">{w} </span>)}</ins></> : s}
+                {mine ? <><del>{job.old}</del> <ins>{job.text && words(job.text).map((w, k) => <span key={k} className={cx('dm-w', k < job.shown && 'dm-on')}>{w} </span>)}</ins></> : s}
               </span>
             </span>
           );

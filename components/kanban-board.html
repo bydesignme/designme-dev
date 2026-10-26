@@ -46,15 +46,15 @@
 })();
 </script><script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareSourceCode","name":"Kanban board","description":"Kanban board is a task board with columns such as To do, In progress and Done, where people drag cards between columns and the agent moves its own cards as it works. A card the agent is working on gets an accent edge, a progress bar and the thinking dots. It lets a team see the agent's work in the same place as everyone else's.","url":"https://designme.dev/components/kanban-board","image":"https://designme.dev/components/og/kanban-board.jpg","programmingLanguage":["HTML","CSS","JavaScript","TypeScript"],"runtimePlatform":"Web browser","license":"https://opensource.org/licenses/MIT","isAccessibleForFree":true,"keywords":"Kanban board, Collaboration, UI component, React component, HTML component","author":{"@type":"Organization","name":"DesignMe","url":"https://designme.agency"},"isPartOf":{"@type":"WebSite","name":"Designme.dev","url":"https://designme.dev/"}}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Library","item":"https://designme.dev/"},{"@type":"ListItem","position":2,"name":"Collaboration","item":"https://designme.dev/#s-collab"},{"@type":"ListItem","position":3,"name":"Kanban board","item":"https://designme.dev/components/kanban-board"}]}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I show the agent working through its cards?","acceptedAnswer":{"@type":"Answer","text":"Control the board with cards and raise a card's progress toward 1 as the agent works. When it finishes, move the card to your done column and clear progress, as the example does."}},{"@type":"Question","name":"How do I stop the agent from moving cards while someone is dragging?","acceptedAnswer":{"@type":"Answer","text":"Use onDraggingChange. It is called with true when a card starts moving with the pointer and false when it lands, so you can pause your updates in between."}},{"@type":"Question","name":"Can cards be moved with the keyboard?","acceptedAnswer":{"@type":"Answer","text":"Dragging uses pointer events only. On a narrow board each card also has a Move card button that opens a Move to menu of the columns. You can always move cards from code by changing a card's column in cards."}},{"@type":"Question","name":"What does a new card look like?","acceptedAnswer":{"@type":"Answer","text":"By default it is titled \"New card\" with a pink Idea tag. Pass newCard(column) to return your own card, such as one already assigned to the current user."}}]}</script><link rel="stylesheet" href="/components/assets/core.css"><style>/* ---------- Kanban ---------- */
 .kbx{width:100%;overflow-x:auto;position:relative;container:kbx/inline-size}
-.kbx-cols{display:grid;grid-template-columns:repeat(3,minmax(200px,1fr));gap:12px;min-width:640px}
-.kbx-c{display:flex;flex-direction:column;gap:8px;padding:10px;border-radius:16px;background:color-mix(in srgb,var(--fg) 5%,transparent);transition:background .25s,box-shadow .25s;min-height:280px}
+.kbx-cols{display:grid;grid-template-columns:repeat(3,minmax(200px,1fr));gap:var(--s-3);min-width:640px}
+.kbx-c{display:flex;flex-direction:column;gap:var(--s-2);padding:10px;border-radius:var(--r-card);background:color-mix(in srgb,var(--fg) 5%,transparent);transition:background .25s,box-shadow .25s;min-height:280px}
 .kbx-c.over{background:var(--sel);box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--accent-mark,var(--accent)) 40%,transparent)}
-.kbx-ch{display:flex;align-items:center;gap:8px;padding:2px 4px 4px;font-size:13px}
+.kbx-ch{display:flex;align-items:center;gap:var(--s-2);padding:2px var(--s-1) var(--s-1);font-size:13px}
 .kbx-ch b{font-weight:500}
 .kbx-ch .n{font-size:12px;color:var(--muted)}
 .kbx-ch .ib{margin-left:auto;width:24px;height:24px}
-.kbx-list{display:flex;flex-direction:column;gap:8px;flex:1}
-.kbx-k{padding:11px 12px;border-radius:13px;background:var(--surface);box-shadow:var(--shadow);display:flex;flex-direction:column;gap:8px;cursor:grab;transition:box-shadow .25s,transform .3s var(--ease),opacity .2s;touch-action:none;user-select:none}
+.kbx-list{display:flex;flex-direction:column;gap:var(--s-2);flex:1}
+.kbx-k{padding:11px var(--s-3);border-radius:13px;background:var(--surface);box-shadow:var(--shadow);display:flex;flex-direction:column;gap:var(--s-2);cursor:grab;transition:box-shadow .25s,transform .3s var(--ease),opacity .2s;touch-action:none;user-select:none}
 @media (hover:hover) and (pointer:fine){.kbx-k:hover{box-shadow:var(--shadow-pop)}}
 .kbx-k.drag{opacity:.35}
 .kbx-k.ghost{position:fixed;z-index:100;pointer-events:none;transform:rotate(2.5deg) scale(1.03);box-shadow:var(--shadow-pop);cursor:grabbing}
@@ -70,9 +70,9 @@
 .kbx-bar,.kbx-mv{display:none}
 @container kbx (max-width:639px){
   .kbx{overflow:visible}
-  .kbx-bar{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+  .kbx-bar{display:flex;align-items:center;gap:var(--s-2);margin-bottom:var(--s-2)}
   .kbx-tabs{flex:1;display:flex;min-width:0}
-  .kbx-tabs button{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:6px;min-width:0;padding:0 8px;white-space:nowrap}
+  .kbx-tabs button{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:6px;min-width:0;padding:0 var(--s-2);white-space:nowrap}
   .kbx-tabs .n{font-size:12px;color:var(--muted)}
   .kbx-add{flex:none;width:30px;height:30px;color:var(--muted)}
   @media (hover:hover) and (pointer:fine){.kbx-add:hover{color:var(--fg)}}
@@ -442,15 +442,15 @@ export function KanbanBoard({ columns, cards, defaultCards = [], onCardsChange, 
 </code></pre></details><details class="cp-file"><summary>kanban-board.css<span class="l">React · 44 lines</span></summary><pre class="cp-pre"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Kanban ---------- */
 .dm-kbx{width:100%;overflow-x:auto;position:relative;container:kbx/inline-size}
-.dm-kbx-cols{display:grid;grid-template-columns:repeat(3,minmax(200px,1fr));gap:12px;min-width:640px}
-.dm-kbx-c{display:flex;flex-direction:column;gap:8px;padding:10px;border-radius:16px;background:color-mix(in srgb,var(--dm-fg) 5%,transparent);transition:background .25s,box-shadow .25s;min-height:280px}
+.dm-kbx-cols{display:grid;grid-template-columns:repeat(3,minmax(200px,1fr));gap:var(--dm-s-3);min-width:640px}
+.dm-kbx-c{display:flex;flex-direction:column;gap:var(--dm-s-2);padding:10px;border-radius:var(--dm-r-card);background:color-mix(in srgb,var(--dm-fg) 5%,transparent);transition:background .25s,box-shadow .25s;min-height:280px}
 .dm-kbx-c.dm-over{background:var(--dm-sel);box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--dm-accent-mark,var(--dm-accent)) 40%,transparent)}
-.dm-kbx-ch{display:flex;align-items:center;gap:8px;padding:2px 4px 4px;font-size:13px}
+.dm-kbx-ch{display:flex;align-items:center;gap:var(--dm-s-2);padding:2px var(--dm-s-1) var(--dm-s-1);font-size:13px}
 .dm-kbx-ch b{font-weight:500}
 .dm-kbx-ch .dm-n{font-size:12px;color:var(--dm-muted)}
 .dm-kbx-ch .dm-ib{margin-left:auto;width:24px;height:24px}
-.dm-kbx-list{display:flex;flex-direction:column;gap:8px;flex:1}
-.dm-kbx-k{padding:11px 12px;border-radius:13px;background:var(--dm-surface);box-shadow:var(--dm-shadow);display:flex;flex-direction:column;gap:8px;cursor:grab;transition:box-shadow .25s,transform .3s var(--dm-ease),opacity .2s;touch-action:none;user-select:none}
+.dm-kbx-list{display:flex;flex-direction:column;gap:var(--dm-s-2);flex:1}
+.dm-kbx-k{padding:11px var(--dm-s-3);border-radius:13px;background:var(--dm-surface);box-shadow:var(--dm-shadow);display:flex;flex-direction:column;gap:var(--dm-s-2);cursor:grab;transition:box-shadow .25s,transform .3s var(--dm-ease),opacity .2s;touch-action:none;user-select:none}
 @media (hover:hover) and (pointer:fine){.dm-kbx-k:hover{box-shadow:var(--dm-shadow-pop)}}
 .dm-kbx-k.dm-drag{opacity:.35}
 .dm-kbx-k.dm-ghost{position:fixed;z-index:100;pointer-events:none;transform:rotate(2.5deg) scale(1.03);box-shadow:var(--dm-shadow-pop);cursor:grabbing}
@@ -466,9 +466,9 @@ export function KanbanBoard({ columns, cards, defaultCards = [], onCardsChange, 
 .dm-kbx-bar,.dm-kbx-mv{display:none}
 @container kbx (max-width:639px){
   .dm-kbx{overflow:visible}
-  .dm-kbx-bar{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+  .dm-kbx-bar{display:flex;align-items:center;gap:var(--dm-s-2);margin-bottom:var(--dm-s-2)}
   .dm-kbx-tabs{flex:1;display:flex;min-width:0}
-  .dm-kbx-tabs button{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:6px;min-width:0;padding:0 8px;white-space:nowrap}
+  .dm-kbx-tabs button{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:6px;min-width:0;padding:0 var(--dm-s-2);white-space:nowrap}
   .dm-kbx-tabs .dm-n{font-size:12px;color:var(--dm-muted)}
   .dm-kbx-add{flex:none;width:30px;height:30px;color:var(--dm-muted)}
   @media (hover:hover) and (pointer:fine){.dm-kbx-add:hover{color:var(--dm-fg)}}
@@ -491,15 +491,15 @@ export function KanbanBoard({ columns, cards, defaultCards = [], onCardsChange, 
 &lt;/div&gt;
 </code></pre></details><details class="cp-file"><summary>kanban-board.css<span class="l">HTML · 43 lines</span></summary><pre class="cp-pre"><code>/* ---------- Kanban ---------- */
 .kbx{width:100%;overflow-x:auto;position:relative;container:kbx/inline-size}
-.kbx-cols{display:grid;grid-template-columns:repeat(3,minmax(200px,1fr));gap:12px;min-width:640px}
-.kbx-c{display:flex;flex-direction:column;gap:8px;padding:10px;border-radius:16px;background:color-mix(in srgb,var(--fg) 5%,transparent);transition:background .25s,box-shadow .25s;min-height:280px}
+.kbx-cols{display:grid;grid-template-columns:repeat(3,minmax(200px,1fr));gap:var(--s-3);min-width:640px}
+.kbx-c{display:flex;flex-direction:column;gap:var(--s-2);padding:10px;border-radius:var(--r-card);background:color-mix(in srgb,var(--fg) 5%,transparent);transition:background .25s,box-shadow .25s;min-height:280px}
 .kbx-c.over{background:var(--sel);box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--accent-mark,var(--accent)) 40%,transparent)}
-.kbx-ch{display:flex;align-items:center;gap:8px;padding:2px 4px 4px;font-size:13px}
+.kbx-ch{display:flex;align-items:center;gap:var(--s-2);padding:2px var(--s-1) var(--s-1);font-size:13px}
 .kbx-ch b{font-weight:500}
 .kbx-ch .n{font-size:12px;color:var(--muted)}
 .kbx-ch .ib{margin-left:auto;width:24px;height:24px}
-.kbx-list{display:flex;flex-direction:column;gap:8px;flex:1}
-.kbx-k{padding:11px 12px;border-radius:13px;background:var(--surface);box-shadow:var(--shadow);display:flex;flex-direction:column;gap:8px;cursor:grab;transition:box-shadow .25s,transform .3s var(--ease),opacity .2s;touch-action:none;user-select:none}
+.kbx-list{display:flex;flex-direction:column;gap:var(--s-2);flex:1}
+.kbx-k{padding:11px var(--s-3);border-radius:13px;background:var(--surface);box-shadow:var(--shadow);display:flex;flex-direction:column;gap:var(--s-2);cursor:grab;transition:box-shadow .25s,transform .3s var(--ease),opacity .2s;touch-action:none;user-select:none}
 @media (hover:hover) and (pointer:fine){.kbx-k:hover{box-shadow:var(--shadow-pop)}}
 .kbx-k.drag{opacity:.35}
 .kbx-k.ghost{position:fixed;z-index:100;pointer-events:none;transform:rotate(2.5deg) scale(1.03);box-shadow:var(--shadow-pop);cursor:grabbing}
@@ -515,9 +515,9 @@ export function KanbanBoard({ columns, cards, defaultCards = [], onCardsChange, 
 .kbx-bar,.kbx-mv{display:none}
 @container kbx (max-width:639px){
   .kbx{overflow:visible}
-  .kbx-bar{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+  .kbx-bar{display:flex;align-items:center;gap:var(--s-2);margin-bottom:var(--s-2)}
   .kbx-tabs{flex:1;display:flex;min-width:0}
-  .kbx-tabs button{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:6px;min-width:0;padding:0 8px;white-space:nowrap}
+  .kbx-tabs button{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:6px;min-width:0;padding:0 var(--s-2);white-space:nowrap}
   .kbx-tabs .n{font-size:12px;color:var(--muted)}
   .kbx-add{flex:none;width:30px;height:30px;color:var(--muted)}
   @media (hover:hover) and (pointer:fine){.kbx-add:hover{color:var(--fg)}}

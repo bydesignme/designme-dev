@@ -45,22 +45,22 @@
   try { var a = localStorage.getItem('dmui-accent'); if (a && a !== 'default') window.dmAccent(a); } catch(e){}
 })();
 </script><script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareSourceCode","name":"Tool call","description":"Tool call lists the tools an agent calls while it works, placed between its opening message and its answer. Each call shows its name and status, and opens to show the JSON the agent sent and the JSON that came back.","url":"https://designme.dev/components/tool-call","image":"https://designme.dev/components/og/tool-call.jpg","programmingLanguage":["HTML","CSS","JavaScript","TypeScript"],"runtimePlatform":"Web browser","license":"https://opensource.org/licenses/MIT","isAccessibleForFree":true,"keywords":"Tool call, Conversation, AI agent UI, React component, HTML component","author":{"@type":"Organization","name":"DesignMe","url":"https://designme.agency"},"isPartOf":{"@type":"WebSite","name":"Designme.dev","url":"https://designme.dev/"}}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Library","item":"https://designme.dev/"},{"@type":"ListItem","position":2,"name":"Conversation","item":"https://designme.dev/#s-conversation"},{"@type":"ListItem","position":3,"name":"Tool call","item":"https://designme.dev/components/tool-call"}]}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I update a call while it runs?","acceptedAnswer":{"@type":"Answer","text":"Keep calls in your state and change each call's state from 'queued' to 'running' to 'done' as your agent reports progress. Add output and duration when it finishes."}},{"@type":"Question","name":"What can I pass as input and output?","acceptedAnswer":{"@type":"Answer","text":"Any JSON value: strings, numbers, booleans, null, arrays and objects. Objects print on one line and each array item gets its own line."}},{"@type":"Question","name":"Can I open a call automatically when it finishes?","acceptedAnswer":{"@type":"Answer","text":"Yes. Control open from your own state and add the call's key when you mark it done, as the example does with the first call."}}]}</script><link rel="stylesheet" href="/components/assets/core.css"><style>/* ---------- Tool call ---------- */
-.tcx{display:flex;flex-direction:column;gap:12px}
-.tcx-calls{display:flex;flex-direction:column;gap:8px}
+.tcx{display:flex;flex-direction:column;gap:var(--s-3)}
+.tcx-calls{display:flex;flex-direction:column;gap:var(--s-2)}
 .tcx-end{opacity:0;transition:opacity .6s var(--ease),filter .6s,transform .6s var(--ease);filter:blur(3px);transform:translateY(4px)}
 .tcx-end.in{opacity:1;filter:none;transform:none}
 .tcx-calls{margin-inline:-8px}
-.tcx-h{display:flex;align-items:center;gap:10px;width:100%;padding:6px 8px;border-radius:10px;text-align:left;font-size:13px;transition:background .2s}
+.tcx-h{display:flex;align-items:center;gap:10px;width:100%;padding:6px var(--s-2);border-radius:10px;text-align:left;font-size:13px;transition:background .2s}
 @media (hover:hover) and (pointer:fine){.tcx-h:hover{background:var(--row)}}
-.tcx-ic{width:24px;height:24px;border-radius:8px;background:var(--chip);display:grid;place-items:center;color:var(--fg2);flex:none}
+.tcx-ic{width:24px;height:24px;border-radius:var(--r-sm);background:var(--chip);display:grid;place-items:center;color:var(--fg2);flex:none}
 .tcx-n{flex:1;min-width:0;font-family:var(--mono);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .tcx-n b{font-weight:500;color:var(--fg)}
 .tcx-n span{color:var(--muted)}
 .tcx-ms{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px}
 .tcx-chev{color:var(--muted);transition:transform .45s var(--ease)}
 .tcx-c.open .tcx-chev{transform:rotate(180deg)}
-.tcx-io{padding:2px 8px 8px 42px;display:grid;gap:8px}
-.tcx-l{font-size:11.5px;color:var(--muted);margin-bottom:4px}
+.tcx-io{padding:2px var(--s-2) var(--s-2) 42px;display:grid;gap:var(--s-2)}
+.tcx-l{font-size:11.5px;color:var(--muted);margin-bottom:var(--s-1)}
 .tcx-io pre{margin:0;padding:9px 11px;border-radius:10px;background:var(--chip);font-family:var(--mono);font-size:11.5px;line-height:1.65;white-space:pre-wrap;word-break:break-word}
 .tcx-io .k{color:var(--pb)}.tcx-io .s{color:var(--pm)}.tcx-io .n{color:var(--pp)}
 </style><style>@media (max-width:640px){.cp-demo .pg-demo{min-height:calc(var(--h-j) + 24px)}}@media (max-width:519px){.cp-demo .pg-demo{min-height:calc(var(--h-k) + 24px)}}@media (max-width:429px){.cp-demo .pg-demo{min-height:calc(var(--h-l) + 24px)}}@media (max-width:389px){.cp-demo .pg-demo{min-height:calc(var(--h-m) + 24px)}}</style><style>@font-face{font-family:Inter;font-style:normal;font-weight:400;font-display:swap;src:url(/fonts/inter-latin-400-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
@@ -239,22 +239,22 @@ export function ToolCall({ message, calls, reply, open, defaultOpen = [], onOpen
 }
 </code></pre></details><details class="cp-file"><summary>tool-call.css<span class="l">React · 21 lines</span></summary><pre class="cp-pre"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Tool call ---------- */
-.dm-tcx{display:flex;flex-direction:column;gap:12px}
-.dm-tcx-calls{display:flex;flex-direction:column;gap:8px}
+.dm-tcx{display:flex;flex-direction:column;gap:var(--dm-s-3)}
+.dm-tcx-calls{display:flex;flex-direction:column;gap:var(--dm-s-2)}
 .dm-tcx-end{opacity:0;transition:opacity .6s var(--dm-ease),filter .6s,transform .6s var(--dm-ease);filter:blur(3px);transform:translateY(4px)}
 .dm-tcx-end.dm-in{opacity:1;filter:none;transform:none}
 .dm-tcx-calls{margin-inline:-8px}
-.dm-tcx-h{display:flex;align-items:center;gap:10px;width:100%;padding:6px 8px;border-radius:10px;text-align:left;font-size:13px;transition:background .2s}
+.dm-tcx-h{display:flex;align-items:center;gap:10px;width:100%;padding:6px var(--dm-s-2);border-radius:10px;text-align:left;font-size:13px;transition:background .2s}
 @media (hover:hover) and (pointer:fine){.dm-tcx-h:hover{background:var(--dm-row)}}
-.dm-tcx-ic{width:24px;height:24px;border-radius:8px;background:var(--dm-chip);display:grid;place-items:center;color:var(--dm-fg2);flex:none}
+.dm-tcx-ic{width:24px;height:24px;border-radius:var(--dm-r-sm);background:var(--dm-chip);display:grid;place-items:center;color:var(--dm-fg2);flex:none}
 .dm-tcx-n{flex:1;min-width:0;font-family:var(--dm-mono);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .dm-tcx-n b{font-weight:500;color:var(--dm-fg)}
 .dm-tcx-n span{color:var(--dm-muted)}
 .dm-tcx-ms{font-size:12px;color:var(--dm-muted);display:flex;align-items:center;gap:6px}
 .dm-tcx-chev{color:var(--dm-muted);transition:transform .45s var(--dm-ease)}
 .dm-tcx-c.dm-open .dm-tcx-chev{transform:rotate(180deg)}
-.dm-tcx-io{padding:2px 8px 8px 42px;display:grid;gap:8px}
-.dm-tcx-l{font-size:11.5px;color:var(--dm-muted);margin-bottom:4px}
+.dm-tcx-io{padding:2px var(--dm-s-2) var(--dm-s-2) 42px;display:grid;gap:var(--dm-s-2)}
+.dm-tcx-l{font-size:11.5px;color:var(--dm-muted);margin-bottom:var(--dm-s-1)}
 .dm-tcx-io pre{margin:0;padding:9px 11px;border-radius:10px;background:var(--dm-chip);font-family:var(--dm-mono);font-size:11.5px;line-height:1.65;white-space:pre-wrap;word-break:break-word}
 .dm-tcx-io .dm-k{color:var(--dm-pb)}.dm-tcx-io .dm-s{color:var(--dm-pm)}.dm-tcx-io .dm-n{color:var(--dm-pp)}
 </code></pre></details><details class="cp-file"><summary>tool-call.html<span class="l">HTML · 10 lines</span></summary><pre class="cp-pre"><code>&lt;div class=&quot;card bare&quot; data-c=&quot;tool-call&quot;&gt;
@@ -267,22 +267,22 @@ export function ToolCall({ message, calls, reply, open, defaultOpen = [], onOpen
   &lt;/div&gt;
 &lt;/div&gt;
 </code></pre></details><details class="cp-file"><summary>tool-call.css<span class="l">HTML · 20 lines</span></summary><pre class="cp-pre"><code>/* ---------- Tool call ---------- */
-.tcx{display:flex;flex-direction:column;gap:12px}
-.tcx-calls{display:flex;flex-direction:column;gap:8px}
+.tcx{display:flex;flex-direction:column;gap:var(--s-3)}
+.tcx-calls{display:flex;flex-direction:column;gap:var(--s-2)}
 .tcx-end{opacity:0;transition:opacity .6s var(--ease),filter .6s,transform .6s var(--ease);filter:blur(3px);transform:translateY(4px)}
 .tcx-end.in{opacity:1;filter:none;transform:none}
 .tcx-calls{margin-inline:-8px}
-.tcx-h{display:flex;align-items:center;gap:10px;width:100%;padding:6px 8px;border-radius:10px;text-align:left;font-size:13px;transition:background .2s}
+.tcx-h{display:flex;align-items:center;gap:10px;width:100%;padding:6px var(--s-2);border-radius:10px;text-align:left;font-size:13px;transition:background .2s}
 @media (hover:hover) and (pointer:fine){.tcx-h:hover{background:var(--row)}}
-.tcx-ic{width:24px;height:24px;border-radius:8px;background:var(--chip);display:grid;place-items:center;color:var(--fg2);flex:none}
+.tcx-ic{width:24px;height:24px;border-radius:var(--r-sm);background:var(--chip);display:grid;place-items:center;color:var(--fg2);flex:none}
 .tcx-n{flex:1;min-width:0;font-family:var(--mono);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .tcx-n b{font-weight:500;color:var(--fg)}
 .tcx-n span{color:var(--muted)}
 .tcx-ms{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px}
 .tcx-chev{color:var(--muted);transition:transform .45s var(--ease)}
 .tcx-c.open .tcx-chev{transform:rotate(180deg)}
-.tcx-io{padding:2px 8px 8px 42px;display:grid;gap:8px}
-.tcx-l{font-size:11.5px;color:var(--muted);margin-bottom:4px}
+.tcx-io{padding:2px var(--s-2) var(--s-2) 42px;display:grid;gap:var(--s-2)}
+.tcx-l{font-size:11.5px;color:var(--muted);margin-bottom:var(--s-1)}
 .tcx-io pre{margin:0;padding:9px 11px;border-radius:10px;background:var(--chip);font-family:var(--mono);font-size:11.5px;line-height:1.65;white-space:pre-wrap;word-break:break-word}
 .tcx-io .k{color:var(--pb)}.tcx-io .s{color:var(--pm)}.tcx-io .n{color:var(--pp)}
 </code></pre></details><details class="cp-file"><summary>tool-call.js<span class="l">HTML · 28 lines</span></summary><pre class="cp-pre"><code>DM.def(&#39;tool-call&#39;, (r, c) =&gt; {

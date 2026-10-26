@@ -47,15 +47,15 @@
 </script><script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareSourceCode","name":"Permission gate","description":"Permission gate is the card an agent shows when it wants to do something it has not been allowed to do yet, like editing Figma frames. The person ticks which scopes to grant, picks how long the permission lasts, and allows or declines, and they can revoke or undo that choice afterwards.","url":"https://designme.dev/components/permission-gate","image":"https://designme.dev/components/og/permission-gate.jpg","programmingLanguage":["HTML","CSS","JavaScript","TypeScript"],"runtimePlatform":"Web browser","license":"https://opensource.org/licenses/MIT","isAccessibleForFree":true,"keywords":"Permission gate, Review and approve, AI agent UI, React component, HTML component","author":{"@type":"Organization","name":"DesignMe","url":"https://designme.agency"},"isPartOf":{"@type":"WebSite","name":"Designme.dev","url":"https://designme.dev/"}}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Library","item":"https://designme.dev/"},{"@type":"ListItem","position":2,"name":"Review and approve","item":"https://designme.dev/#s-review"},{"@type":"ListItem","position":3,"name":"Permission gate","item":"https://designme.dev/components/permission-gate"}]}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Can the agent wait for the permission before it continues?","acceptedAnswer":{"@type":"Answer","text":"Yes. Make onAllow return a promise that resolves once your agent has the grant. The button spins while it waits, then the card switches to the allowed state."}},{"@type":"Question","name":"How do I pre-tick the safe scopes?","acceptedAnswer":{"@type":"Answer","text":"Pass their keys in defaultValue, or control the ticks with value and onValueChange. Scopes you leave out start unticked."}},{"@type":"Question","name":"What happens when the person presses Revoke?","acceptedAnswer":{"@type":"Answer","text":"The allowed message fades out, the card returns to asking with the scopes shown again, and onRevoke is called so you can withdraw the grant."}},{"@type":"Question","name":"Can I use my own durations?","acceptedAnswer":{"@type":"Answer","text":"Yes. Pass any list of strings as durations. The first one is picked by default unless you set defaultDuration or duration."}}]}</script><link rel="stylesheet" href="/components/assets/core.css"><style>/* ---------- Permission gate ---------- */
 /* the agent asks in the chat as one card: the question, the scopes to tick, and a footer with how long and the two
    answers. Without .panel it sits flat in the thread */
-.pgx{position:relative;width:100%;max-width:400px;margin:0 auto;padding:4px 0;display:flex;flex-direction:column;gap:12px}
-.pgx.panel{padding:16px}
-.pgx-h{display:flex;gap:12px;align-items:center}
+.pgx{position:relative;width:100%;max-width:400px;margin:0 auto;padding:var(--s-1) 0;display:flex;flex-direction:column;gap:var(--s-3)}
+.pgx.panel{padding:var(--s-4)}
+.pgx-h{display:flex;gap:var(--s-3);align-items:center}
 .pgx-ic{width:32px;height:32px;border-radius:9px;background:var(--chip);display:grid;place-items:center;flex:none}
 .pgx-ht{display:flex;flex-direction:column;min-width:0}
 .pgx-ht b{font-weight:500;font-size:14px}
 .pgx-ht span{font-size:13px}
 .pgx-sc{display:flex;flex-direction:column;margin-inline:-8px}
-.pgx-o{display:flex;align-items:center;gap:12px;padding:8px;border-radius:10px;cursor:pointer;font-size:13.5px;transition:background .25s}
+.pgx-o{display:flex;align-items:center;gap:var(--s-3);padding:var(--s-2);border-radius:10px;cursor:pointer;font-size:13.5px;transition:background .25s}
 @media (hover:hover) and (pointer:fine){.pgx-o:hover{background:var(--row)}}
 .pgx-o input{position:absolute;opacity:0;pointer-events:none}
 .pgx-o .bx{width:18px;height:18px;border-radius:6px;box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--muted) 80%,var(--surface));display:grid;place-items:center;color:transparent;flex:none;transition:background .3s var(--ease),box-shadow .3s,color .3s}
@@ -65,19 +65,19 @@
 .pgx-o input:focus-visible+.bx{outline:2px solid var(--focus);outline-offset:2px}
 .pgx-o .t{flex:1;min-width:0}
 .pgx-o .d{display:block;font-size:12px;color:var(--muted)}
-.pgx-f{display:flex;align-items:center;gap:6px;padding-top:12px;border-top:1px solid var(--line)}
+.pgx-f{display:flex;align-items:center;gap:6px;padding-top:var(--s-3);border-top:1px solid var(--line)}
 .pgx-f .sp{flex:1}
 /* on a narrow stage the duration gets its own row, and the two buttons stay together under it on the right */
-@container (max-width:340px){.pgx-f{flex-wrap:wrap}.pgx-f .sp{flex-basis:100%}.pgx-no{margin:8px 0 0 auto}.pgx-ok{margin-top:8px}}
+@container (max-width:340px){.pgx-f{flex-wrap:wrap}.pgx-f .sp{flex-basis:100%}.pgx-no{margin:var(--s-2) 0 0 auto}.pgx-ok{margin-top:var(--s-2)}}
 /* how long: a small dropdown, the way a menu of choices usually looks */
-.pgx-db{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 8px 0 10px;margin-left:-2px;border-radius:var(--r-pill);font-size:13px;color:var(--fg2);white-space:nowrap;transition:background .16s,color .16s}
+.pgx-db{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 var(--s-2) 0 10px;margin-left:-2px;border-radius:var(--r-pill);font-size:13px;color:var(--fg2);white-space:nowrap;transition:background .16s,color .16s}
 .pgx-db[aria-expanded="true"]{background:var(--chip);color:var(--fg)}
 @media (hover:hover) and (pointer:fine){.pgx-db:hover{background:var(--chip);color:var(--fg)}}
 .pgx-db>svg{color:var(--muted);transition:transform .32s var(--ease)}
 .pgx-db[aria-expanded="true"]>svg{transform:rotate(180deg)}
 .pgx-pop{min-width:230px}
 .pgx-ok[disabled]{opacity:1;cursor:not-allowed;background:var(--dis-hatch),var(--dis-fill);color:var(--dis);box-shadow:var(--soft-ring)}
-.pgx-done{display:flex;align-items:center;gap:12px;padding:10px 10px 10px 12px;border-radius:12px;background:var(--ok-bg);font-size:13.5px}
+.pgx-done{display:flex;align-items:center;gap:var(--s-3);padding:10px 10px 10px var(--s-3);border-radius:var(--r-in);background:var(--ok-bg);font-size:13.5px}
 /* its button is a white pill on the tinted row */
 .pgx-done .pill{background:var(--surface);color:var(--fg);box-shadow:var(--shadow)}
 @media (hover:hover) and (pointer:fine){.pgx-done .pill:hover{background:var(--surface);box-shadow:var(--shadow-pop)}}
@@ -93,7 +93,7 @@
 /* asking again mid-run, for one more scope: the tile turns amber */
 .pgx-ic{transition:background .32s var(--ease)}
 .pgx.esc .pgx-ic{background:var(--warn-bg)}
-.pgx-scope{display:flex;flex-direction:column;gap:12px}
+.pgx-scope{display:flex;flex-direction:column;gap:var(--s-3)}
 </style><style>@media (max-width:640px){.cp-demo .pg-demo{min-height:calc(var(--h-j) + 24px)}}@media (max-width:519px){.cp-demo .pg-demo{min-height:calc(var(--h-k) + 24px)}}@media (max-width:429px){.cp-demo .pg-demo{min-height:calc(var(--h-l) + 24px)}}@media (max-width:389px){.cp-demo .pg-demo{min-height:calc(var(--h-m) + 24px)}}</style><style>@font-face{font-family:Inter;font-style:normal;font-weight:400;font-display:swap;src:url(/fonts/inter-latin-400-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:Inter;font-style:normal;font-weight:500;font-display:swap;src:url(/fonts/inter-latin-500-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:Inter;font-style:normal;font-weight:600;font-display:swap;src:url(/fonts/inter-latin-600-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
@@ -394,15 +394,15 @@ export function PermissionGate({
 /* ---------- Permission gate ---------- */
 /* the agent asks in the chat as one card: the question, the scopes to tick, and a footer with how long and the two
    answers. Without .panel it sits flat in the thread */
-.dm-pgx{position:relative;width:100%;max-width:400px;margin:0 auto;padding:4px 0;display:flex;flex-direction:column;gap:12px}
-.dm-pgx.dm-panel{padding:16px}
-.dm-pgx-h{display:flex;gap:12px;align-items:center}
+.dm-pgx{position:relative;width:100%;max-width:400px;margin:0 auto;padding:var(--dm-s-1) 0;display:flex;flex-direction:column;gap:var(--dm-s-3)}
+.dm-pgx.dm-panel{padding:var(--dm-s-4)}
+.dm-pgx-h{display:flex;gap:var(--dm-s-3);align-items:center}
 .dm-pgx-ic{width:32px;height:32px;border-radius:9px;background:var(--dm-chip);display:grid;place-items:center;flex:none}
 .dm-pgx-ht{display:flex;flex-direction:column;min-width:0}
 .dm-pgx-ht b{font-weight:500;font-size:14px}
 .dm-pgx-ht span{font-size:13px}
 .dm-pgx-sc{display:flex;flex-direction:column;margin-inline:-8px}
-.dm-pgx-o{display:flex;align-items:center;gap:12px;padding:8px;border-radius:10px;cursor:pointer;font-size:13.5px;transition:background .25s}
+.dm-pgx-o{display:flex;align-items:center;gap:var(--dm-s-3);padding:var(--dm-s-2);border-radius:10px;cursor:pointer;font-size:13.5px;transition:background .25s}
 @media (hover:hover) and (pointer:fine){.dm-pgx-o:hover{background:var(--dm-row)}}
 .dm-pgx-o input{position:absolute;opacity:0;pointer-events:none}
 .dm-pgx-o .dm-bx{width:18px;height:18px;border-radius:6px;box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--dm-muted) 80%,var(--dm-surface));display:grid;place-items:center;color:transparent;flex:none;transition:background .3s var(--dm-ease),box-shadow .3s,color .3s}
@@ -412,19 +412,19 @@ export function PermissionGate({
 .dm-pgx-o input:focus-visible+.dm-bx{outline:2px solid var(--dm-focus);outline-offset:2px}
 .dm-pgx-o .dm-t{flex:1;min-width:0}
 .dm-pgx-o .dm-d{display:block;font-size:12px;color:var(--dm-muted)}
-.dm-pgx-f{display:flex;align-items:center;gap:6px;padding-top:12px;border-top:1px solid var(--dm-line)}
+.dm-pgx-f{display:flex;align-items:center;gap:6px;padding-top:var(--dm-s-3);border-top:1px solid var(--dm-line)}
 .dm-pgx-f .dm-sp{flex:1}
 /* on a narrow stage the duration gets its own row, and the two buttons stay together under it on the right */
-@container (max-width:340px){.dm-pgx-f{flex-wrap:wrap}.dm-pgx-f .dm-sp{flex-basis:100%}.dm-pgx-no{margin:8px 0 0 auto}.dm-pgx-ok{margin-top:8px}}
+@container (max-width:340px){.dm-pgx-f{flex-wrap:wrap}.dm-pgx-f .dm-sp{flex-basis:100%}.dm-pgx-no{margin:var(--dm-s-2) 0 0 auto}.dm-pgx-ok{margin-top:var(--dm-s-2)}}
 /* how long: a small dropdown, the way a menu of choices usually looks */
-.dm-pgx-db{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 8px 0 10px;margin-left:-2px;border-radius:var(--dm-r-pill);font-size:13px;color:var(--dm-fg2);white-space:nowrap;transition:background .16s,color .16s}
+.dm-pgx-db{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 var(--dm-s-2) 0 10px;margin-left:-2px;border-radius:var(--dm-r-pill);font-size:13px;color:var(--dm-fg2);white-space:nowrap;transition:background .16s,color .16s}
 .dm-pgx-db[aria-expanded=&quot;true&quot;]{background:var(--dm-chip);color:var(--dm-fg)}
 @media (hover:hover) and (pointer:fine){.dm-pgx-db:hover{background:var(--dm-chip);color:var(--dm-fg)}}
 .dm-pgx-db&gt;svg{color:var(--dm-muted);transition:transform .32s var(--dm-ease)}
 .dm-pgx-db[aria-expanded=&quot;true&quot;]&gt;svg{transform:rotate(180deg)}
 .dm-pgx-pop{min-width:230px}
 .dm-pgx-ok[disabled]{opacity:1;cursor:not-allowed;background:var(--dm-dis-hatch),var(--dm-dis-fill);color:var(--dm-dis);box-shadow:var(--dm-soft-ring)}
-.dm-pgx-done{display:flex;align-items:center;gap:12px;padding:10px 10px 10px 12px;border-radius:12px;background:var(--dm-ok-bg);font-size:13.5px}
+.dm-pgx-done{display:flex;align-items:center;gap:var(--dm-s-3);padding:10px 10px 10px var(--dm-s-3);border-radius:var(--dm-r-in);background:var(--dm-ok-bg);font-size:13.5px}
 /* its button is a white pill on the tinted row */
 .dm-pgx-done .dm-pill{background:var(--dm-surface);color:var(--dm-fg);box-shadow:var(--dm-shadow)}
 @media (hover:hover) and (pointer:fine){.dm-pgx-done .dm-pill:hover{background:var(--dm-surface);box-shadow:var(--dm-shadow-pop)}}
@@ -440,7 +440,7 @@ export function PermissionGate({
 /* asking again mid-run, for one more scope: the tile turns amber */
 .dm-pgx-ic{transition:background .32s var(--dm-ease)}
 .dm-pgx.dm-esc .dm-pgx-ic{background:var(--dm-warn-bg)}
-.dm-pgx-scope{display:flex;flex-direction:column;gap:12px}
+.dm-pgx-scope{display:flex;flex-direction:column;gap:var(--dm-s-3)}
 </code></pre></details><details class="cp-file"><summary>permission-gate.html<span class="l">HTML · 19 lines</span></summary><pre class="cp-pre"><code>&lt;div class=&quot;card bare&quot; data-c=&quot;permission-gate&quot;&gt;
   &lt;div class=&quot;stage-in&quot;&gt;
     &lt;div class=&quot;pgx panel&quot;&gt;
@@ -462,15 +462,15 @@ export function PermissionGate({
 </code></pre></details><details class="cp-file"><summary>permission-gate.css<span class="l">HTML · 51 lines</span></summary><pre class="cp-pre"><code>/* ---------- Permission gate ---------- */
 /* the agent asks in the chat as one card: the question, the scopes to tick, and a footer with how long and the two
    answers. Without .panel it sits flat in the thread */
-.pgx{position:relative;width:100%;max-width:400px;margin:0 auto;padding:4px 0;display:flex;flex-direction:column;gap:12px}
-.pgx.panel{padding:16px}
-.pgx-h{display:flex;gap:12px;align-items:center}
+.pgx{position:relative;width:100%;max-width:400px;margin:0 auto;padding:var(--s-1) 0;display:flex;flex-direction:column;gap:var(--s-3)}
+.pgx.panel{padding:var(--s-4)}
+.pgx-h{display:flex;gap:var(--s-3);align-items:center}
 .pgx-ic{width:32px;height:32px;border-radius:9px;background:var(--chip);display:grid;place-items:center;flex:none}
 .pgx-ht{display:flex;flex-direction:column;min-width:0}
 .pgx-ht b{font-weight:500;font-size:14px}
 .pgx-ht span{font-size:13px}
 .pgx-sc{display:flex;flex-direction:column;margin-inline:-8px}
-.pgx-o{display:flex;align-items:center;gap:12px;padding:8px;border-radius:10px;cursor:pointer;font-size:13.5px;transition:background .25s}
+.pgx-o{display:flex;align-items:center;gap:var(--s-3);padding:var(--s-2);border-radius:10px;cursor:pointer;font-size:13.5px;transition:background .25s}
 @media (hover:hover) and (pointer:fine){.pgx-o:hover{background:var(--row)}}
 .pgx-o input{position:absolute;opacity:0;pointer-events:none}
 .pgx-o .bx{width:18px;height:18px;border-radius:6px;box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--muted) 80%,var(--surface));display:grid;place-items:center;color:transparent;flex:none;transition:background .3s var(--ease),box-shadow .3s,color .3s}
@@ -480,19 +480,19 @@ export function PermissionGate({
 .pgx-o input:focus-visible+.bx{outline:2px solid var(--focus);outline-offset:2px}
 .pgx-o .t{flex:1;min-width:0}
 .pgx-o .d{display:block;font-size:12px;color:var(--muted)}
-.pgx-f{display:flex;align-items:center;gap:6px;padding-top:12px;border-top:1px solid var(--line)}
+.pgx-f{display:flex;align-items:center;gap:6px;padding-top:var(--s-3);border-top:1px solid var(--line)}
 .pgx-f .sp{flex:1}
 /* on a narrow stage the duration gets its own row, and the two buttons stay together under it on the right */
-@container (max-width:340px){.pgx-f{flex-wrap:wrap}.pgx-f .sp{flex-basis:100%}.pgx-no{margin:8px 0 0 auto}.pgx-ok{margin-top:8px}}
+@container (max-width:340px){.pgx-f{flex-wrap:wrap}.pgx-f .sp{flex-basis:100%}.pgx-no{margin:var(--s-2) 0 0 auto}.pgx-ok{margin-top:var(--s-2)}}
 /* how long: a small dropdown, the way a menu of choices usually looks */
-.pgx-db{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 8px 0 10px;margin-left:-2px;border-radius:var(--r-pill);font-size:13px;color:var(--fg2);white-space:nowrap;transition:background .16s,color .16s}
+.pgx-db{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 var(--s-2) 0 10px;margin-left:-2px;border-radius:var(--r-pill);font-size:13px;color:var(--fg2);white-space:nowrap;transition:background .16s,color .16s}
 .pgx-db[aria-expanded=&quot;true&quot;]{background:var(--chip);color:var(--fg)}
 @media (hover:hover) and (pointer:fine){.pgx-db:hover{background:var(--chip);color:var(--fg)}}
 .pgx-db&gt;svg{color:var(--muted);transition:transform .32s var(--ease)}
 .pgx-db[aria-expanded=&quot;true&quot;]&gt;svg{transform:rotate(180deg)}
 .pgx-pop{min-width:230px}
 .pgx-ok[disabled]{opacity:1;cursor:not-allowed;background:var(--dis-hatch),var(--dis-fill);color:var(--dis);box-shadow:var(--soft-ring)}
-.pgx-done{display:flex;align-items:center;gap:12px;padding:10px 10px 10px 12px;border-radius:12px;background:var(--ok-bg);font-size:13.5px}
+.pgx-done{display:flex;align-items:center;gap:var(--s-3);padding:10px 10px 10px var(--s-3);border-radius:var(--r-in);background:var(--ok-bg);font-size:13.5px}
 /* its button is a white pill on the tinted row */
 .pgx-done .pill{background:var(--surface);color:var(--fg);box-shadow:var(--shadow)}
 @media (hover:hover) and (pointer:fine){.pgx-done .pill:hover{background:var(--surface);box-shadow:var(--shadow-pop)}}
@@ -508,7 +508,7 @@ export function PermissionGate({
 /* asking again mid-run, for one more scope: the tile turns amber */
 .pgx-ic{transition:background .32s var(--ease)}
 .pgx.esc .pgx-ic{background:var(--warn-bg)}
-.pgx-scope{display:flex;flex-direction:column;gap:12px}
+.pgx-scope{display:flex;flex-direction:column;gap:var(--s-3)}
 </code></pre></details><details class="cp-file"><summary>permission-gate.js<span class="l">HTML · 91 lines</span></summary><pre class="cp-pre"><code>DM.def(&#39;permission-gate&#39;, (r, c) =&gt; {
   r.innerHTML = r.innerHTML.replace(&#39;{figma}&#39;, I(&#39;figma&#39;)).replace(/\{chk\}/g, I(&#39;check&#39;,&#39;xs&#39;)).replace(&#39;{chev}&#39;, I(&#39;chev-d&#39;,&#39;xs&#39;));
   const root = $(&#39;.pgx&#39;, r), ok = $(&#39;.pgx-ok&#39;, r), no = $(&#39;.pgx-no&#39;, r), sc = $(&#39;.pgx-sc&#39;, r), title = $(&#39;.pgx-ht b&#39;, r), sub = $(&#39;.pgx-ht .muted&#39;, r);

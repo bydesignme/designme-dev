@@ -224,9 +224,26 @@ export function AutomationCanvas({
   const pop = nodes.find(n => n.id === popFor);
   const pb = pop && boxes[pop.id];
   let px = 0, py = 0;
+  // beside the step, or under or over it: whichever spot covers the least of the other steps (and none of this one),
+  // nearest the step when spots tie, so the popover never hides the step a run flows on to. It may hang up to 32px below
+  // the canvas, into the room around the component, when that is what keeps every step clear
   if (pb && size) {
-    px = pb.left + pb.w + 10; if (px + 240 > size.w) px = pb.left - 250; if (px < 6) px = 6;
-    py = clamp(pb.top - 40, 6, size.h - 190);
+    const W = size.w, H = size.h, pw = 240, ph = 150, G = 10, M = 6, OVER = 32;
+    const me = { l: pb.left, t: pb.top, r: pb.left + pb.w, b: pb.top + pb.h };
+    const others = nodes.filter(n => n.id !== pop.id).map(n => boxes[n.id]).map(o => ({ l: o.left, t: o.top, r: o.left + o.w, b: o.top + o.h }));
+    const cxm = (me.l + me.r) / 2, cym = (me.t + me.b) / 2;
+    const over = (x: number, y: number, o: typeof me) => Math.max(0, Math.min(x + pw, o.r) - Math.max(x, o.l)) * Math.max(0, Math.min(y + ph, o.b) - Math.max(y, o.t));
+    const ys = [me.t - 40, cym - ph / 2, me.t, me.b - ph, M, H - ph - M, H - ph + OVER], xs = [cxm - pw / 2, me.l, me.r - pw, M, W - pw - M];
+    const spots = [...ys.map(y => [me.r + G, y]), ...ys.map(y => [me.l - pw - G, y]), ...xs.map(x => [x, me.b + G]), ...xs.map(x => [x, me.t - ph - G])]
+      .flatMap(([x, y]) => [[clamp(x, M, W - pw - M), clamp(y, M, H - ph - M)], [clamp(x, M, W - pw - M), clamp(y, M, H - ph + OVER)]]);
+    let best = Infinity;
+    for (const [x, y] of spots) {
+      const hang = Math.max(0, y + ph - (H - M));
+      const sc = others.reduce((a, o) => a + over(x, y, o), 0) + over(x, y, me) * 4 + hang * 20 + Math.hypot(x + pw / 2 - cxm, y + ph / 2 - cym) / 100;
+      if (sc < best) { best = sc; px = x; py = y; }
+    }
+    // with its options open the popover moves up, if it must, to keep its list within that limit
+    if (optsOpen && pop.field) py = Math.max(M, Math.min(py, H + OVER - ph - 12 - pop.field.options.length * 32));
   }
   const pick = (n: AutomationNode, v: string) => { setVals({ ...vals, [n.id]: v }); setOptsOpen(false); };
 

@@ -47,15 +47,15 @@
 </script><script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareSourceCode","name":"Hand-off to a person","description":"Hand-off to a person shows an agent passing a conversation to a human. It says why, like \"Refund over $500 needs a person\", who it is assigned to with their team and whether they are free, and when the reply is due, counting down. Beside that is the context they need to pick it up: a short summary, a few key facts and a link to the whole conversation. Under the assignee is what the customer was told, with Edit, and a row at the foot says where it stands. If the person can't take it, Reassign opens a small menu of who else can.","url":"https://designme.dev/components/human-handoff","image":"https://designme.dev/components/og/human-handoff.jpg","programmingLanguage":["HTML","CSS","JavaScript","TypeScript"],"runtimePlatform":"Web browser","license":"https://opensource.org/licenses/MIT","isAccessibleForFree":true,"keywords":"Hand-off to a person, Review and approve, AI agent UI, React component, HTML component","author":{"@type":"Organization","name":"DesignMe","url":"https://designme.agency"},"isPartOf":{"@type":"WebSite","name":"Designme.dev","url":"https://designme.dev/"}}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Library","item":"https://designme.dev/"},{"@type":"ListItem","position":2,"name":"Review and approve","item":"https://designme.dev/#s-review"},{"@type":"ListItem","position":3,"name":"Hand-off to a person","item":"https://designme.dev/components/human-handoff"}]}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does it assign the conversation or notify anyone?","acceptedAnswer":{"@type":"Answer","text":"No. It shows the assignee and status you pass. Your code routes the conversation, checks who is free, and calls back when they accept; onReassign tells you who was picked."}},{"@type":"Question","name":"Does the timer count down by itself?","acceptedAnswer":{"@type":"Answer","text":"No. Pass secondsLeft and update it, for example once a second, from the time the reply is due. The line and the bar follow it."}},{"@type":"Question","name":"Does editing the message send the change to the customer?","acceptedAnswer":{"@type":"Answer","text":"No. Save calls onMessageChange with the new text. Update the message where the customer sees it, then pass it back with edited."}}]}</script><link rel="stylesheet" href="/components/assets/core.css"><style>/* ---------- Hand-off to a person ---------- */
 /* the agent passes a conversation to a person: why, who has it (with Reassign), when the reply is due, what they need to
    pick it up, and what the customer was told. The type and spacing are Draft review's; the two columns stack when narrow */
-.hox{position:relative;width:100%;margin:0 auto;padding:16px;display:flex;flex-direction:column;gap:12px}
-.hox-h{display:flex;align-items:center;gap:12px}
+.hox{position:relative;width:100%;margin:0 auto;padding:var(--s-4);display:flex;flex-direction:column;gap:var(--s-3)}
+.hox-h{display:flex;align-items:center;gap:var(--s-3)}
 .hox-ic{width:32px;height:32px;border-radius:9px;background:var(--chip);color:var(--fg2);display:grid;place-items:center;flex:none}
 .hox-ht{flex:1;min-width:0;display:flex;flex-direction:column}
 .hox-ht b{font-weight:500;font-size:14px}
 .hox-ht span{font-size:13px}
-.hox-b{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px 24px;align-items:start;padding-top:12px;border-top:1px solid var(--line)}
-@container (max-width:600px){.hox-b{grid-template-columns:minmax(0,1fr)}.hox-col+.hox-col{padding-top:12px;border-top:1px solid var(--line)}}
-.hox-col{display:flex;flex-direction:column;gap:8px;min-width:0}
+.hox-b{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:var(--s-4) var(--s-6);align-items:start;padding-top:var(--s-3);border-top:1px solid var(--line)}
+@container (max-width:600px){.hox-b{grid-template-columns:minmax(0,1fr)}.hox-col+.hox-col{padding-top:var(--s-3);border-top:1px solid var(--line)}}
+.hox-col{display:flex;flex-direction:column;gap:var(--s-2);min-width:0}
 .hox-lb{font-size:12px;color:var(--muted)}
 .hox-who{display:flex;align-items:center;gap:10px;min-height:40px}
 .hox-av{width:28px;height:28px;display:grid;place-items:center;flex:none;border-radius:50%;background:var(--chip);color:var(--fg2)}
@@ -67,7 +67,7 @@
 .hox-wd.ok .dot{color:var(--ok)}
 .hox-wd.warn,.hox-wd.warn .dot{color:var(--warn)}
 /* Reassign: a small dropdown, like the one for how long in Permission gate */
-.hox-rb{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 8px 0 10px;border-radius:var(--r-pill);font-size:13px;color:var(--fg2);flex:none;transition:background .16s,color .16s}
+.hox-rb{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 var(--s-2) 0 10px;border-radius:var(--r-pill);font-size:13px;color:var(--fg2);flex:none;transition:background .16s,color .16s}
 .hox-rb[aria-expanded="true"]{background:var(--chip);color:var(--fg)}
 @media (hover:hover) and (pointer:fine){.hox-rb:hover{background:var(--chip);color:var(--fg)}}
 .hox-rb>svg{color:var(--muted);transition:transform .32s var(--ease)}
@@ -77,8 +77,8 @@
 .hox-pop .mi .av{width:20px;height:20px;font-size:9px}
 .hox-pop .mi>span:not(.ck):not(.av){flex:1;min-width:0}
 /* when the reply is due: the line counts down and the bar empties, amber in the last five minutes */
-.hox-sla{display:flex;flex-direction:column;gap:8px;padding-top:8px}
-.hox-sl{display:flex;align-items:center;gap:8px;font-size:13px}
+.hox-sla{display:flex;flex-direction:column;gap:var(--s-2);padding-top:var(--s-2)}
+.hox-sl{display:flex;align-items:center;gap:var(--s-2);font-size:13px}
 .hox-sl>svg{color:var(--fg2);flex:none}
 .hox-sl .muted{margin-left:auto;font-size:12px;white-space:nowrap}
 .hox-due{min-width:0}
@@ -95,14 +95,14 @@
 .hox-lnk{align-self:flex-start;max-width:100%}
 .hox-lnk>span{overflow:hidden;text-overflow:ellipsis}
 /* what the customer was told, editable in place */
-.hox-ms{display:flex;flex-direction:column;gap:8px;margin-top:4px;padding-top:12px;border-top:1px solid var(--line)}
-.hox-mh{display:flex;align-items:center;gap:8px;min-height:28px}
+.hox-ms{display:flex;flex-direction:column;gap:var(--s-2);margin-top:var(--s-1);padding-top:var(--s-3);border-top:1px solid var(--line)}
+.hox-mh{display:flex;align-items:center;gap:var(--s-2);min-height:28px}
 .hox-mh .sp{flex:1}
-.hox-mb{padding:10px 12px;border-radius:12px;background:var(--chip);font-size:13.5px;line-height:1.5;outline:0;transition:box-shadow var(--t-fast),background var(--t-fast)}
+.hox-mb{padding:10px var(--s-3);border-radius:var(--r-in);background:var(--chip);font-size:13.5px;line-height:1.5;outline:0;transition:box-shadow var(--t-fast),background var(--t-fast)}
 .hox-mb[contenteditable="true"]{background:var(--surface);box-shadow:inset 0 0 0 1px var(--rail)}
 .hox-mb[contenteditable="true"]:focus{box-shadow:inset 0 0 0 2px var(--focus),0 0 0 4px var(--accent-bg)}
 /* where it stands, in one row at the foot: neutral while it waits, amber when the person can't take it, green once they have */
-.hox-st{display:flex;align-items:center;gap:12px;padding:10px 10px 10px 12px;border-radius:12px;background:var(--chip);font-size:13.5px;transition:background .32s}
+.hox-st{display:flex;align-items:center;gap:var(--s-3);padding:10px 10px 10px var(--s-3);border-radius:var(--r-in);background:var(--chip);font-size:13.5px;transition:background .32s}
 .hox-st.warn{background:var(--warn-bg)}
 .hox-st.ok{background:var(--ok-bg)}
 .hox-st .g{width:18px;height:18px;display:grid;place-items:center;flex:none;color:var(--fg2)}
@@ -415,15 +415,15 @@ export function HumanHandoff({
 /* ---------- Hand-off to a person ---------- */
 /* the agent passes a conversation to a person: why, who has it (with Reassign), when the reply is due, what they need to
    pick it up, and what the customer was told. The type and spacing are Draft review&#39;s; the two columns stack when narrow */
-.dm-hox{position:relative;width:100%;margin:0 auto;padding:16px;display:flex;flex-direction:column;gap:12px}
-.dm-hox-h{display:flex;align-items:center;gap:12px}
+.dm-hox{position:relative;width:100%;margin:0 auto;padding:var(--dm-s-4);display:flex;flex-direction:column;gap:var(--dm-s-3)}
+.dm-hox-h{display:flex;align-items:center;gap:var(--dm-s-3)}
 .dm-hox-ic{width:32px;height:32px;border-radius:9px;background:var(--dm-chip);color:var(--dm-fg2);display:grid;place-items:center;flex:none}
 .dm-hox-ht{flex:1;min-width:0;display:flex;flex-direction:column}
 .dm-hox-ht b{font-weight:500;font-size:14px}
 .dm-hox-ht span{font-size:13px}
-.dm-hox-b{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px 24px;align-items:start;padding-top:12px;border-top:1px solid var(--dm-line)}
-@container (max-width:600px){.dm-hox-b{grid-template-columns:minmax(0,1fr)}.dm-hox-col+.dm-hox-col{padding-top:12px;border-top:1px solid var(--dm-line)}}
-.dm-hox-col{display:flex;flex-direction:column;gap:8px;min-width:0}
+.dm-hox-b{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:var(--dm-s-4) var(--dm-s-6);align-items:start;padding-top:var(--dm-s-3);border-top:1px solid var(--dm-line)}
+@container (max-width:600px){.dm-hox-b{grid-template-columns:minmax(0,1fr)}.dm-hox-col+.dm-hox-col{padding-top:var(--dm-s-3);border-top:1px solid var(--dm-line)}}
+.dm-hox-col{display:flex;flex-direction:column;gap:var(--dm-s-2);min-width:0}
 .dm-hox-lb{font-size:12px;color:var(--dm-muted)}
 .dm-hox-who{display:flex;align-items:center;gap:10px;min-height:40px}
 .dm-hox-av{width:28px;height:28px;display:grid;place-items:center;flex:none;border-radius:50%;background:var(--dm-chip);color:var(--dm-fg2)}
@@ -435,7 +435,7 @@ export function HumanHandoff({
 .dm-hox-wd.dm-ok .dm-dot{color:var(--dm-ok)}
 .dm-hox-wd.dm-warn,.dm-hox-wd.dm-warn .dm-dot{color:var(--dm-warn)}
 /* Reassign: a small dropdown, like the one for how long in Permission gate */
-.dm-hox-rb{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 8px 0 10px;border-radius:var(--dm-r-pill);font-size:13px;color:var(--dm-fg2);flex:none;transition:background .16s,color .16s}
+.dm-hox-rb{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 var(--dm-s-2) 0 10px;border-radius:var(--dm-r-pill);font-size:13px;color:var(--dm-fg2);flex:none;transition:background .16s,color .16s}
 .dm-hox-rb[aria-expanded=&quot;true&quot;]{background:var(--dm-chip);color:var(--dm-fg)}
 @media (hover:hover) and (pointer:fine){.dm-hox-rb:hover{background:var(--dm-chip);color:var(--dm-fg)}}
 .dm-hox-rb&gt;svg{color:var(--dm-muted);transition:transform .32s var(--dm-ease)}
@@ -445,8 +445,8 @@ export function HumanHandoff({
 .dm-hox-pop .dm-mi .dm-av{width:20px;height:20px;font-size:9px}
 .dm-hox-pop .dm-mi&gt;span:not(.dm-ck):not(.dm-av){flex:1;min-width:0}
 /* when the reply is due: the line counts down and the bar empties, amber in the last five minutes */
-.dm-hox-sla{display:flex;flex-direction:column;gap:8px;padding-top:8px}
-.dm-hox-sl{display:flex;align-items:center;gap:8px;font-size:13px}
+.dm-hox-sla{display:flex;flex-direction:column;gap:var(--dm-s-2);padding-top:var(--dm-s-2)}
+.dm-hox-sl{display:flex;align-items:center;gap:var(--dm-s-2);font-size:13px}
 .dm-hox-sl&gt;svg{color:var(--dm-fg2);flex:none}
 .dm-hox-sl .dm-muted{margin-left:auto;font-size:12px;white-space:nowrap}
 .dm-hox-due{min-width:0}
@@ -463,14 +463,14 @@ export function HumanHandoff({
 .dm-hox-lnk{align-self:flex-start;max-width:100%}
 .dm-hox-lnk&gt;span{overflow:hidden;text-overflow:ellipsis}
 /* what the customer was told, editable in place */
-.dm-hox-ms{display:flex;flex-direction:column;gap:8px;margin-top:4px;padding-top:12px;border-top:1px solid var(--dm-line)}
-.dm-hox-mh{display:flex;align-items:center;gap:8px;min-height:28px}
+.dm-hox-ms{display:flex;flex-direction:column;gap:var(--dm-s-2);margin-top:var(--dm-s-1);padding-top:var(--dm-s-3);border-top:1px solid var(--dm-line)}
+.dm-hox-mh{display:flex;align-items:center;gap:var(--dm-s-2);min-height:28px}
 .dm-hox-mh .dm-sp{flex:1}
-.dm-hox-mb{padding:10px 12px;border-radius:12px;background:var(--dm-chip);font-size:13.5px;line-height:1.5;outline:0;transition:box-shadow var(--dm-t-fast),background var(--dm-t-fast)}
+.dm-hox-mb{padding:10px var(--dm-s-3);border-radius:var(--dm-r-in);background:var(--dm-chip);font-size:13.5px;line-height:1.5;outline:0;transition:box-shadow var(--dm-t-fast),background var(--dm-t-fast)}
 .dm-hox-mb[contenteditable=&quot;true&quot;]{background:var(--dm-surface);box-shadow:inset 0 0 0 1px var(--dm-rail)}
 .dm-hox-mb[contenteditable=&quot;true&quot;]:focus{box-shadow:inset 0 0 0 2px var(--dm-focus),0 0 0 4px var(--dm-accent-bg)}
 /* where it stands, in one row at the foot: neutral while it waits, amber when the person can&#39;t take it, green once they have */
-.dm-hox-st{display:flex;align-items:center;gap:12px;padding:10px 10px 10px 12px;border-radius:12px;background:var(--dm-chip);font-size:13.5px;transition:background .32s}
+.dm-hox-st{display:flex;align-items:center;gap:var(--dm-s-3);padding:10px 10px 10px var(--dm-s-3);border-radius:var(--dm-r-in);background:var(--dm-chip);font-size:13.5px;transition:background .32s}
 .dm-hox-st.dm-warn{background:var(--dm-warn-bg)}
 .dm-hox-st.dm-ok{background:var(--dm-ok-bg)}
 .dm-hox-st .dm-g{width:18px;height:18px;display:grid;place-items:center;flex:none;color:var(--dm-fg2)}
@@ -517,15 +517,15 @@ export function HumanHandoff({
 </code></pre></details><details class="cp-file"><summary>human-handoff.css<span class="l">HTML · 71 lines</span></summary><pre class="cp-pre"><code>/* ---------- Hand-off to a person ---------- */
 /* the agent passes a conversation to a person: why, who has it (with Reassign), when the reply is due, what they need to
    pick it up, and what the customer was told. The type and spacing are Draft review&#39;s; the two columns stack when narrow */
-.hox{position:relative;width:100%;margin:0 auto;padding:16px;display:flex;flex-direction:column;gap:12px}
-.hox-h{display:flex;align-items:center;gap:12px}
+.hox{position:relative;width:100%;margin:0 auto;padding:var(--s-4);display:flex;flex-direction:column;gap:var(--s-3)}
+.hox-h{display:flex;align-items:center;gap:var(--s-3)}
 .hox-ic{width:32px;height:32px;border-radius:9px;background:var(--chip);color:var(--fg2);display:grid;place-items:center;flex:none}
 .hox-ht{flex:1;min-width:0;display:flex;flex-direction:column}
 .hox-ht b{font-weight:500;font-size:14px}
 .hox-ht span{font-size:13px}
-.hox-b{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px 24px;align-items:start;padding-top:12px;border-top:1px solid var(--line)}
-@container (max-width:600px){.hox-b{grid-template-columns:minmax(0,1fr)}.hox-col+.hox-col{padding-top:12px;border-top:1px solid var(--line)}}
-.hox-col{display:flex;flex-direction:column;gap:8px;min-width:0}
+.hox-b{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:var(--s-4) var(--s-6);align-items:start;padding-top:var(--s-3);border-top:1px solid var(--line)}
+@container (max-width:600px){.hox-b{grid-template-columns:minmax(0,1fr)}.hox-col+.hox-col{padding-top:var(--s-3);border-top:1px solid var(--line)}}
+.hox-col{display:flex;flex-direction:column;gap:var(--s-2);min-width:0}
 .hox-lb{font-size:12px;color:var(--muted)}
 .hox-who{display:flex;align-items:center;gap:10px;min-height:40px}
 .hox-av{width:28px;height:28px;display:grid;place-items:center;flex:none;border-radius:50%;background:var(--chip);color:var(--fg2)}
@@ -537,7 +537,7 @@ export function HumanHandoff({
 .hox-wd.ok .dot{color:var(--ok)}
 .hox-wd.warn,.hox-wd.warn .dot{color:var(--warn)}
 /* Reassign: a small dropdown, like the one for how long in Permission gate */
-.hox-rb{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 8px 0 10px;border-radius:var(--r-pill);font-size:13px;color:var(--fg2);flex:none;transition:background .16s,color .16s}
+.hox-rb{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 var(--s-2) 0 10px;border-radius:var(--r-pill);font-size:13px;color:var(--fg2);flex:none;transition:background .16s,color .16s}
 .hox-rb[aria-expanded=&quot;true&quot;]{background:var(--chip);color:var(--fg)}
 @media (hover:hover) and (pointer:fine){.hox-rb:hover{background:var(--chip);color:var(--fg)}}
 .hox-rb&gt;svg{color:var(--muted);transition:transform .32s var(--ease)}
@@ -547,8 +547,8 @@ export function HumanHandoff({
 .hox-pop .mi .av{width:20px;height:20px;font-size:9px}
 .hox-pop .mi&gt;span:not(.ck):not(.av){flex:1;min-width:0}
 /* when the reply is due: the line counts down and the bar empties, amber in the last five minutes */
-.hox-sla{display:flex;flex-direction:column;gap:8px;padding-top:8px}
-.hox-sl{display:flex;align-items:center;gap:8px;font-size:13px}
+.hox-sla{display:flex;flex-direction:column;gap:var(--s-2);padding-top:var(--s-2)}
+.hox-sl{display:flex;align-items:center;gap:var(--s-2);font-size:13px}
 .hox-sl&gt;svg{color:var(--fg2);flex:none}
 .hox-sl .muted{margin-left:auto;font-size:12px;white-space:nowrap}
 .hox-due{min-width:0}
@@ -565,14 +565,14 @@ export function HumanHandoff({
 .hox-lnk{align-self:flex-start;max-width:100%}
 .hox-lnk&gt;span{overflow:hidden;text-overflow:ellipsis}
 /* what the customer was told, editable in place */
-.hox-ms{display:flex;flex-direction:column;gap:8px;margin-top:4px;padding-top:12px;border-top:1px solid var(--line)}
-.hox-mh{display:flex;align-items:center;gap:8px;min-height:28px}
+.hox-ms{display:flex;flex-direction:column;gap:var(--s-2);margin-top:var(--s-1);padding-top:var(--s-3);border-top:1px solid var(--line)}
+.hox-mh{display:flex;align-items:center;gap:var(--s-2);min-height:28px}
 .hox-mh .sp{flex:1}
-.hox-mb{padding:10px 12px;border-radius:12px;background:var(--chip);font-size:13.5px;line-height:1.5;outline:0;transition:box-shadow var(--t-fast),background var(--t-fast)}
+.hox-mb{padding:10px var(--s-3);border-radius:var(--r-in);background:var(--chip);font-size:13.5px;line-height:1.5;outline:0;transition:box-shadow var(--t-fast),background var(--t-fast)}
 .hox-mb[contenteditable=&quot;true&quot;]{background:var(--surface);box-shadow:inset 0 0 0 1px var(--rail)}
 .hox-mb[contenteditable=&quot;true&quot;]:focus{box-shadow:inset 0 0 0 2px var(--focus),0 0 0 4px var(--accent-bg)}
 /* where it stands, in one row at the foot: neutral while it waits, amber when the person can&#39;t take it, green once they have */
-.hox-st{display:flex;align-items:center;gap:12px;padding:10px 10px 10px 12px;border-radius:12px;background:var(--chip);font-size:13.5px;transition:background .32s}
+.hox-st{display:flex;align-items:center;gap:var(--s-3);padding:10px 10px 10px var(--s-3);border-radius:var(--r-in);background:var(--chip);font-size:13.5px;transition:background .32s}
 .hox-st.warn{background:var(--warn-bg)}
 .hox-st.ok{background:var(--ok-bg)}
 .hox-st .g{width:18px;height:18px;display:grid;place-items:center;flex:none;color:var(--fg2)}

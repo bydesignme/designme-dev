@@ -46,12 +46,12 @@
 })();
 </script><script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareSourceCode","name":"Automation canvas","description":"Automation canvas draws an agent automation as cards joined by wires: a trigger, a few agent steps and where the result goes. People can drag the cards, click one to change its setting, and press Test run to watch the run light up each step and wire in turn.","url":"https://designme.dev/components/automation-canvas","image":"https://designme.dev/components/og/automation-canvas.jpg","programmingLanguage":["HTML","CSS","JavaScript","TypeScript"],"runtimePlatform":"Web browser","license":"https://opensource.org/licenses/MIT","isAccessibleForFree":true,"keywords":"Automation canvas, Workspace, AI agent UI, React component, HTML component","author":{"@type":"Organization","name":"DesignMe","url":"https://designme.agency"},"isPartOf":{"@type":"WebSite","name":"Designme.dev","url":"https://designme.dev/"}}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Library","item":"https://designme.dev/"},{"@type":"ListItem","position":2,"name":"Workspace","item":"https://designme.dev/#s-workspace"},{"@type":"ListItem","position":3,"name":"Automation canvas","item":"https://designme.dev/components/automation-canvas"}]}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does Test run execute the automation?","acceptedAnswer":{"@type":"Answer","text":"No. It calls onRun. Your code runs the steps and updates each node's state and the flowing list, which the canvas animates."}},{"@type":"Question","name":"How do I lay it out for small screens?","acceptedAnswer":{"@type":"Answer","text":"Give nodes a narrow position. Below 560px the canvas uses those positions and wires top to bottom. Without them, nodes stack in a column down the middle."}},{"@type":"Question","name":"How do I save where people dragged the cards?","acceptedAnswer":{"@type":"Answer","text":"Handle onNodeMove(id, at, narrow). It reports the card's centre as fractions of the canvas and whether the narrow layout was in use, so you can store each layout separately."}},{"@type":"Question","name":"How do I reset the wires before a new run?","acceptedAnswer":{"@type":"Answer","text":"Clear the flowing array when the run starts. Wires stay lit for as long as they are listed in it."}}]}</script><link rel="stylesheet" href="/components/assets/core.css"><style>/* ---------- Automation canvas ---------- */
 .acx{display:flex;flex-direction:column;gap:10px;width:100%}
-.acx-top{display:flex;align-items:center;gap:8px;font-size:13px;flex-wrap:wrap}
+.acx-top{display:flex;align-items:center;gap:var(--s-2);font-size:13px;flex-wrap:wrap}
 .acx-name{font-weight:500}
 .acx-sp{flex:1}
 .acx-st{font-size:12.5px}
 /* the canvas reads as a workflow editor: a dot every 16px, fading toward the edges so the steps sit in the middle of it */
-.acx-cv{position:relative;height:300px;border-radius:18px;overflow:hidden;background-color:var(--chip);background-image:radial-gradient(ellipse at center,transparent 55%,var(--chip) 100%),radial-gradient(circle at 8px 8px,color-mix(in srgb,var(--fg) 20%,transparent) 1.1px,transparent 1.6px);background-size:100% 100%,16px 16px;background-position:0 0,center}
+.acx-cv{position:relative;height:300px;border-radius:18px;background-color:var(--chip);background-image:radial-gradient(ellipse at center,transparent 55%,var(--chip) 100%),radial-gradient(circle at 8px 8px,color-mix(in srgb,var(--fg) 20%,transparent) 1.1px,transparent 1.6px);background-size:100% 100%,16px 16px;background-position:0 0,center}
 .acx-svg{position:absolute;inset:0;width:100%;height:100%}
 .acx-svg path{fill:none;stroke:var(--faint);stroke-width:1.5;transition:stroke .6s var(--ease)}
 /* on arrival the wires draw in after the steps have landed */
@@ -68,7 +68,7 @@
 @keyframes acxs{from{opacity:0;transform:scale(.6)}}
 .acx-sv{display:grid;animation:acxsv .3s var(--ease)}
 @keyframes acxsv{from{opacity:0;filter:blur(2px)}}
-.acx-n{position:absolute;width:176px;padding:10px 12px;border-radius:14px;background:var(--surface);box-shadow:var(--shadow);display:flex;align-items:center;gap:10px;font-size:12.5px;text-align:left;transition:box-shadow .3s,left .5s var(--ease),top .5s var(--ease)}
+.acx-n{position:absolute;width:176px;padding:10px var(--s-3);border-radius:14px;background:var(--surface);box-shadow:var(--shadow);display:flex;align-items:center;gap:10px;font-size:12.5px;text-align:left;transition:box-shadow .3s,left .5s var(--ease),top .5s var(--ease)}
 @media (hover:hover) and (pointer:fine){.acx-n:hover{box-shadow:var(--shadow-pop)}}
 .acx-n{cursor:grab;touch-action:none;user-select:none}
 .acx-n.drag{cursor:grabbing;transition:box-shadow .3s;box-shadow:var(--shadow-pop);z-index:3;transform:scale(1.02)}
@@ -79,13 +79,13 @@
 .acx-n .t span{font-size:11.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .acx-n .s{position:absolute;right:-6px;top:-6px;width:18px;height:18px;border-radius:50%;display:grid;place-items:center;background:var(--surface);box-shadow:0 0 0 1px var(--line)}
 .acx-n.run{box-shadow:0 0 0 1.5px color-mix(in srgb,var(--accent-mark,var(--accent)) 55%,transparent),0 0 0 6px color-mix(in srgb,var(--accent-mark,var(--accent)) 8%,transparent),var(--shadow)}
-.acx-pop{width:240px;padding:12px}
+.acx-pop{width:240px;padding:var(--s-3)}
 .acx-pop h4{margin:0 0 10px;font-size:13px;font-weight:500}
-.acx-fl{display:flex;flex-direction:column;gap:4px;margin-bottom:10px;font-size:12px;color:var(--muted)}
+.acx-fl{display:flex;flex-direction:column;gap:var(--s-1);margin-bottom:10px;font-size:12px;color:var(--muted)}
 .acx-dd{display:flex;align-items:center;justify-content:space-between;height:32px;padding:0 10px;border-radius:9px;background:var(--accent-bg);color:var(--accent-fg,var(--accent));font-size:13px;font-weight:500}
-.acx-opts{display:none;flex-direction:column;padding:4px;border-radius:10px;background:var(--surface);box-shadow:var(--shadow-pop);margin-top:4px}
+.acx-opts{display:none;flex-direction:column;padding:var(--s-1);border-radius:10px;background:var(--surface);box-shadow:var(--shadow-pop);margin-top:var(--s-1)}
 .acx-opts.open{display:flex}
-.acx-opts .mi{font-size:12.5px;padding:6px 8px}
+.acx-opts .mi{font-size:12.5px;padding:6px var(--s-2)}
 @media (max-width:720px){.acx-cv{height:420px}}
 </style><style>@media (max-width:640px){.cp-demo .pg-demo{min-height:calc(var(--h-j) + 24px)}}@media (max-width:519px){.cp-demo .pg-demo{min-height:calc(var(--h-k) + 24px)}}@media (max-width:429px){.cp-demo .pg-demo{min-height:calc(var(--h-l) + 24px)}}@media (max-width:389px){.cp-demo .pg-demo{min-height:calc(var(--h-m) + 24px)}}</style><style>@font-face{font-family:Inter;font-style:normal;font-weight:400;font-display:swap;src:url(/fonts/inter-latin-400-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:Inter;font-style:normal;font-weight:500;font-display:swap;src:url(/fonts/inter-latin-500-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
@@ -171,7 +171,7 @@ export default function AutomationCanvasDemo() {
     &lt;/div&gt;
   );
 }
-</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything AutomationCanvas takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>name</code><span class="opt">required</span></td><td><code>string</code></td><td>The automation&#39;s name, like &quot;Weekly design QA&quot;</td></tr><tr><td><code>tag</code></td><td><code>string</code></td><td>The green tag after the name, like &quot;On&quot;. Leave it out to hide it</td></tr><tr><td><code>status</code></td><td><code>string</code></td><td>The quiet line on the right, like &quot;Every Monday, 9:00&quot;. Crossfades when it changes</td></tr><tr><td><code>nodes</code><span class="opt">required</span></td><td><code>AutomationNode[]</code></td><td></td></tr><tr><td><code>edges</code><span class="opt">required</span></td><td><code>AutomationEdge[]</code></td><td></td></tr><tr><td><code>flowing</code></td><td><code>AutomationEdge[]</code></td><td>The wires a run has reached. A soft light passes along each one as it is added, and it stays lit while it is listed; clear the list when a new run starts</td></tr><tr><td><code>balanced</code></td><td><code>boolean</code></td><td>Spread the columns of cards evenly, with the first and last the same distance in from each side, so the wires on the left and right match at any width. Set false to place every card exactly at its x. Defaults to true</td></tr><tr><td><code>selected</code></td><td><code>string | null</code></td><td>The node whose popover is open. Leave it out to let clicks pick it</td></tr><tr><td><code>defaultSelected</code></td><td><code>string | null</code></td><td></td></tr><tr><td><code>onSelectedChange</code></td><td><code>(id: string | null) =&gt; void</code></td><td></td></tr><tr><td><code>values</code></td><td><code>Record&lt;string, string&gt;</code></td><td>Each node&#39;s setting, by id. Leave it out to let the popovers keep them, starting from each node&#39;s detail</td></tr><tr><td><code>defaultValues</code></td><td><code>Record&lt;string, string&gt;</code></td><td></td></tr><tr><td><code>onValuesChange</code></td><td><code>(values: Record&lt;string, string&gt;) =&gt; void</code></td><td></td></tr><tr><td><code>onNodeMove</code></td><td><code>(id: string, at: AutomationPoint, narrow: boolean) =&gt; void</code></td><td>Called when a node is dropped after a drag, with where its centre ended up and whether the canvas was narrow</td></tr><tr><td><code>onRun</code></td><td><code>() =&gt; void</code></td><td>Adds the Test run button. The run itself is yours: drive it with each node&#39;s state and `flowing`</td></tr><tr><td><code>runLabel</code></td><td><code>string</code></td><td></td></tr><tr><td><code>doneLabel</code></td><td><code>string</code></td><td>The button that closes a popover</td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>AutomationCanvas.tsx<span class="l">React · 298 lines</span></summary><pre class="cp-pre"><code>&#39;use client&#39;;
+</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything AutomationCanvas takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>name</code><span class="opt">required</span></td><td><code>string</code></td><td>The automation&#39;s name, like &quot;Weekly design QA&quot;</td></tr><tr><td><code>tag</code></td><td><code>string</code></td><td>The green tag after the name, like &quot;On&quot;. Leave it out to hide it</td></tr><tr><td><code>status</code></td><td><code>string</code></td><td>The quiet line on the right, like &quot;Every Monday, 9:00&quot;. Crossfades when it changes</td></tr><tr><td><code>nodes</code><span class="opt">required</span></td><td><code>AutomationNode[]</code></td><td></td></tr><tr><td><code>edges</code><span class="opt">required</span></td><td><code>AutomationEdge[]</code></td><td></td></tr><tr><td><code>flowing</code></td><td><code>AutomationEdge[]</code></td><td>The wires a run has reached. A soft light passes along each one as it is added, and it stays lit while it is listed; clear the list when a new run starts</td></tr><tr><td><code>balanced</code></td><td><code>boolean</code></td><td>Spread the columns of cards evenly, with the first and last the same distance in from each side, so the wires on the left and right match at any width. Set false to place every card exactly at its x. Defaults to true</td></tr><tr><td><code>selected</code></td><td><code>string | null</code></td><td>The node whose popover is open. Leave it out to let clicks pick it</td></tr><tr><td><code>defaultSelected</code></td><td><code>string | null</code></td><td></td></tr><tr><td><code>onSelectedChange</code></td><td><code>(id: string | null) =&gt; void</code></td><td></td></tr><tr><td><code>values</code></td><td><code>Record&lt;string, string&gt;</code></td><td>Each node&#39;s setting, by id. Leave it out to let the popovers keep them, starting from each node&#39;s detail</td></tr><tr><td><code>defaultValues</code></td><td><code>Record&lt;string, string&gt;</code></td><td></td></tr><tr><td><code>onValuesChange</code></td><td><code>(values: Record&lt;string, string&gt;) =&gt; void</code></td><td></td></tr><tr><td><code>onNodeMove</code></td><td><code>(id: string, at: AutomationPoint, narrow: boolean) =&gt; void</code></td><td>Called when a node is dropped after a drag, with where its centre ended up and whether the canvas was narrow</td></tr><tr><td><code>onRun</code></td><td><code>() =&gt; void</code></td><td>Adds the Test run button. The run itself is yours: drive it with each node&#39;s state and `flowing`</td></tr><tr><td><code>runLabel</code></td><td><code>string</code></td><td></td></tr><tr><td><code>doneLabel</code></td><td><code>string</code></td><td>The button that closes a popover</td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>AutomationCanvas.tsx<span class="l">React · 315 lines</span></summary><pre class="cp-pre"><code>&#39;use client&#39;;
 import { useEffect, useRef, useState, type KeyboardEvent as ReactKeyboardEvent, type PointerEvent as ReactPointerEvent } from &#39;react&#39;;
 import { cx } from &#39;../lib/cx&#39;;
 import { useControllable, useIsoLayoutEffect, useReducedMotion } from &#39;../lib/hooks&#39;;
@@ -397,9 +397,26 @@ export function AutomationCanvas({
   const pop = nodes.find(n =&gt; n.id === popFor);
   const pb = pop &amp;&amp; boxes[pop.id];
   let px = 0, py = 0;
+  // beside the step, or under or over it: whichever spot covers the least of the other steps (and none of this one),
+  // nearest the step when spots tie, so the popover never hides the step a run flows on to. It may hang up to 32px below
+  // the canvas, into the room around the component, when that is what keeps every step clear
   if (pb &amp;&amp; size) {
-    px = pb.left + pb.w + 10; if (px + 240 &gt; size.w) px = pb.left - 250; if (px &lt; 6) px = 6;
-    py = clamp(pb.top - 40, 6, size.h - 190);
+    const W = size.w, H = size.h, pw = 240, ph = 150, G = 10, M = 6, OVER = 32;
+    const me = { l: pb.left, t: pb.top, r: pb.left + pb.w, b: pb.top + pb.h };
+    const others = nodes.filter(n =&gt; n.id !== pop.id).map(n =&gt; boxes[n.id]).map(o =&gt; ({ l: o.left, t: o.top, r: o.left + o.w, b: o.top + o.h }));
+    const cxm = (me.l + me.r) / 2, cym = (me.t + me.b) / 2;
+    const over = (x: number, y: number, o: typeof me) =&gt; Math.max(0, Math.min(x + pw, o.r) - Math.max(x, o.l)) * Math.max(0, Math.min(y + ph, o.b) - Math.max(y, o.t));
+    const ys = [me.t - 40, cym - ph / 2, me.t, me.b - ph, M, H - ph - M, H - ph + OVER], xs = [cxm - pw / 2, me.l, me.r - pw, M, W - pw - M];
+    const spots = [...ys.map(y =&gt; [me.r + G, y]), ...ys.map(y =&gt; [me.l - pw - G, y]), ...xs.map(x =&gt; [x, me.b + G]), ...xs.map(x =&gt; [x, me.t - ph - G])]
+      .flatMap(([x, y]) =&gt; [[clamp(x, M, W - pw - M), clamp(y, M, H - ph - M)], [clamp(x, M, W - pw - M), clamp(y, M, H - ph + OVER)]]);
+    let best = Infinity;
+    for (const [x, y] of spots) {
+      const hang = Math.max(0, y + ph - (H - M));
+      const sc = others.reduce((a, o) =&gt; a + over(x, y, o), 0) + over(x, y, me) * 4 + hang * 20 + Math.hypot(x + pw / 2 - cxm, y + ph / 2 - cym) / 100;
+      if (sc &lt; best) { best = sc; px = x; py = y; }
+    }
+    // with its options open the popover moves up, if it must, to keep its list within that limit
+    if (optsOpen &amp;&amp; pop.field) py = Math.max(M, Math.min(py, H + OVER - ph - 12 - pop.field.options.length * 32));
   }
   const pick = (n: AutomationNode, v: string) =&gt; { setVals({ ...vals, [n.id]: v }); setOptsOpen(false); };
 
@@ -471,12 +488,12 @@ export function AutomationCanvas({
 </code></pre></details><details class="cp-file"><summary>automation-canvas.css<span class="l">React · 45 lines</span></summary><pre class="cp-pre"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Automation canvas ---------- */
 .dm-acx{display:flex;flex-direction:column;gap:10px;width:100%}
-.dm-acx-top{display:flex;align-items:center;gap:8px;font-size:13px;flex-wrap:wrap}
+.dm-acx-top{display:flex;align-items:center;gap:var(--dm-s-2);font-size:13px;flex-wrap:wrap}
 .dm-acx-name{font-weight:500}
 .dm-acx-sp{flex:1}
 .dm-acx-st{font-size:12.5px}
 /* the canvas reads as a workflow editor: a dot every 16px, fading toward the edges so the steps sit in the middle of it */
-.dm-acx-cv{position:relative;height:300px;border-radius:18px;overflow:hidden;background-color:var(--dm-chip);background-image:radial-gradient(ellipse at center,transparent 55%,var(--dm-chip) 100%),radial-gradient(circle at 8px 8px,color-mix(in srgb,var(--dm-fg) 20%,transparent) 1.1px,transparent 1.6px);background-size:100% 100%,16px 16px;background-position:0 0,center}
+.dm-acx-cv{position:relative;height:300px;border-radius:18px;background-color:var(--dm-chip);background-image:radial-gradient(ellipse at center,transparent 55%,var(--dm-chip) 100%),radial-gradient(circle at 8px 8px,color-mix(in srgb,var(--dm-fg) 20%,transparent) 1.1px,transparent 1.6px);background-size:100% 100%,16px 16px;background-position:0 0,center}
 .dm-acx-svg{position:absolute;inset:0;width:100%;height:100%}
 .dm-acx-svg path{fill:none;stroke:var(--dm-faint);stroke-width:1.5;transition:stroke .6s var(--dm-ease)}
 /* on arrival the wires draw in after the steps have landed */
@@ -493,7 +510,7 @@ export function AutomationCanvas({
 @keyframes dm-acxs{from{opacity:0;transform:scale(.6)}}
 .dm-acx-sv{display:grid;animation:dm-acxsv .3s var(--dm-ease)}
 @keyframes dm-acxsv{from{opacity:0;filter:blur(2px)}}
-.dm-acx-n{position:absolute;width:176px;padding:10px 12px;border-radius:14px;background:var(--dm-surface);box-shadow:var(--dm-shadow);display:flex;align-items:center;gap:10px;font-size:12.5px;text-align:left;transition:box-shadow .3s,left .5s var(--dm-ease),top .5s var(--dm-ease)}
+.dm-acx-n{position:absolute;width:176px;padding:10px var(--dm-s-3);border-radius:14px;background:var(--dm-surface);box-shadow:var(--dm-shadow);display:flex;align-items:center;gap:10px;font-size:12.5px;text-align:left;transition:box-shadow .3s,left .5s var(--dm-ease),top .5s var(--dm-ease)}
 @media (hover:hover) and (pointer:fine){.dm-acx-n:hover{box-shadow:var(--dm-shadow-pop)}}
 .dm-acx-n{cursor:grab;touch-action:none;user-select:none}
 .dm-acx-n.dm-drag{cursor:grabbing;transition:box-shadow .3s;box-shadow:var(--dm-shadow-pop);z-index:3;transform:scale(1.02)}
@@ -504,13 +521,13 @@ export function AutomationCanvas({
 .dm-acx-n .dm-t span{font-size:11.5px;color:var(--dm-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dm-acx-n .dm-s{position:absolute;right:-6px;top:-6px;width:18px;height:18px;border-radius:50%;display:grid;place-items:center;background:var(--dm-surface);box-shadow:0 0 0 1px var(--dm-line)}
 .dm-acx-n.dm-run{box-shadow:0 0 0 1.5px color-mix(in srgb,var(--dm-accent-mark,var(--dm-accent)) 55%,transparent),0 0 0 6px color-mix(in srgb,var(--dm-accent-mark,var(--dm-accent)) 8%,transparent),var(--dm-shadow)}
-.dm-acx-pop{width:240px;padding:12px}
+.dm-acx-pop{width:240px;padding:var(--dm-s-3)}
 .dm-acx-pop h4{margin:0 0 10px;font-size:13px;font-weight:500}
-.dm-acx-fl{display:flex;flex-direction:column;gap:4px;margin-bottom:10px;font-size:12px;color:var(--dm-muted)}
+.dm-acx-fl{display:flex;flex-direction:column;gap:var(--dm-s-1);margin-bottom:10px;font-size:12px;color:var(--dm-muted)}
 .dm-acx-dd{display:flex;align-items:center;justify-content:space-between;height:32px;padding:0 10px;border-radius:9px;background:var(--dm-accent-bg);color:var(--dm-accent-fg,var(--dm-accent));font-size:13px;font-weight:500}
-.dm-acx-opts{display:none;flex-direction:column;padding:4px;border-radius:10px;background:var(--dm-surface);box-shadow:var(--dm-shadow-pop);margin-top:4px}
+.dm-acx-opts{display:none;flex-direction:column;padding:var(--dm-s-1);border-radius:10px;background:var(--dm-surface);box-shadow:var(--dm-shadow-pop);margin-top:var(--dm-s-1)}
 .dm-acx-opts.dm-open{display:flex}
-.dm-acx-opts .dm-mi{font-size:12.5px;padding:6px 8px}
+.dm-acx-opts .dm-mi{font-size:12.5px;padding:6px var(--dm-s-2)}
 @media (max-width:720px){.dm-acx-cv{height:420px}}
 </code></pre></details><details class="cp-file"><summary>automation-canvas.html<span class="l">HTML · 13 lines</span></summary><pre class="cp-pre"><code>&lt;div class=&quot;card wide&quot; data-c=&quot;automation-canvas&quot;&gt;
   &lt;div class=&quot;stage-in&quot;&gt;
@@ -526,12 +543,12 @@ export function AutomationCanvas({
 &lt;/div&gt;
 </code></pre></details><details class="cp-file"><summary>automation-canvas.css<span class="l">HTML · 44 lines</span></summary><pre class="cp-pre"><code>/* ---------- Automation canvas ---------- */
 .acx{display:flex;flex-direction:column;gap:10px;width:100%}
-.acx-top{display:flex;align-items:center;gap:8px;font-size:13px;flex-wrap:wrap}
+.acx-top{display:flex;align-items:center;gap:var(--s-2);font-size:13px;flex-wrap:wrap}
 .acx-name{font-weight:500}
 .acx-sp{flex:1}
 .acx-st{font-size:12.5px}
 /* the canvas reads as a workflow editor: a dot every 16px, fading toward the edges so the steps sit in the middle of it */
-.acx-cv{position:relative;height:300px;border-radius:18px;overflow:hidden;background-color:var(--chip);background-image:radial-gradient(ellipse at center,transparent 55%,var(--chip) 100%),radial-gradient(circle at 8px 8px,color-mix(in srgb,var(--fg) 20%,transparent) 1.1px,transparent 1.6px);background-size:100% 100%,16px 16px;background-position:0 0,center}
+.acx-cv{position:relative;height:300px;border-radius:18px;background-color:var(--chip);background-image:radial-gradient(ellipse at center,transparent 55%,var(--chip) 100%),radial-gradient(circle at 8px 8px,color-mix(in srgb,var(--fg) 20%,transparent) 1.1px,transparent 1.6px);background-size:100% 100%,16px 16px;background-position:0 0,center}
 .acx-svg{position:absolute;inset:0;width:100%;height:100%}
 .acx-svg path{fill:none;stroke:var(--faint);stroke-width:1.5;transition:stroke .6s var(--ease)}
 /* on arrival the wires draw in after the steps have landed */
@@ -548,7 +565,7 @@ export function AutomationCanvas({
 @keyframes acxs{from{opacity:0;transform:scale(.6)}}
 .acx-sv{display:grid;animation:acxsv .3s var(--ease)}
 @keyframes acxsv{from{opacity:0;filter:blur(2px)}}
-.acx-n{position:absolute;width:176px;padding:10px 12px;border-radius:14px;background:var(--surface);box-shadow:var(--shadow);display:flex;align-items:center;gap:10px;font-size:12.5px;text-align:left;transition:box-shadow .3s,left .5s var(--ease),top .5s var(--ease)}
+.acx-n{position:absolute;width:176px;padding:10px var(--s-3);border-radius:14px;background:var(--surface);box-shadow:var(--shadow);display:flex;align-items:center;gap:10px;font-size:12.5px;text-align:left;transition:box-shadow .3s,left .5s var(--ease),top .5s var(--ease)}
 @media (hover:hover) and (pointer:fine){.acx-n:hover{box-shadow:var(--shadow-pop)}}
 .acx-n{cursor:grab;touch-action:none;user-select:none}
 .acx-n.drag{cursor:grabbing;transition:box-shadow .3s;box-shadow:var(--shadow-pop);z-index:3;transform:scale(1.02)}
@@ -559,15 +576,15 @@ export function AutomationCanvas({
 .acx-n .t span{font-size:11.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .acx-n .s{position:absolute;right:-6px;top:-6px;width:18px;height:18px;border-radius:50%;display:grid;place-items:center;background:var(--surface);box-shadow:0 0 0 1px var(--line)}
 .acx-n.run{box-shadow:0 0 0 1.5px color-mix(in srgb,var(--accent-mark,var(--accent)) 55%,transparent),0 0 0 6px color-mix(in srgb,var(--accent-mark,var(--accent)) 8%,transparent),var(--shadow)}
-.acx-pop{width:240px;padding:12px}
+.acx-pop{width:240px;padding:var(--s-3)}
 .acx-pop h4{margin:0 0 10px;font-size:13px;font-weight:500}
-.acx-fl{display:flex;flex-direction:column;gap:4px;margin-bottom:10px;font-size:12px;color:var(--muted)}
+.acx-fl{display:flex;flex-direction:column;gap:var(--s-1);margin-bottom:10px;font-size:12px;color:var(--muted)}
 .acx-dd{display:flex;align-items:center;justify-content:space-between;height:32px;padding:0 10px;border-radius:9px;background:var(--accent-bg);color:var(--accent-fg,var(--accent));font-size:13px;font-weight:500}
-.acx-opts{display:none;flex-direction:column;padding:4px;border-radius:10px;background:var(--surface);box-shadow:var(--shadow-pop);margin-top:4px}
+.acx-opts{display:none;flex-direction:column;padding:var(--s-1);border-radius:10px;background:var(--surface);box-shadow:var(--shadow-pop);margin-top:var(--s-1)}
 .acx-opts.open{display:flex}
-.acx-opts .mi{font-size:12.5px;padding:6px 8px}
+.acx-opts .mi{font-size:12.5px;padding:6px var(--s-2)}
 @media (max-width:720px){.acx-cv{height:420px}}
-</code></pre></details><details class="cp-file"><summary>automation-canvas.js<span class="l">HTML · 109 lines</span></summary><pre class="cp-pre"><code>DM.def(&#39;automation-canvas&#39;, (r, c) =&gt; {
+</code></pre></details><details class="cp-file"><summary>automation-canvas.js<span class="l">HTML · 122 lines</span></summary><pre class="cp-pre"><code>DM.def(&#39;automation-canvas&#39;, (r, c) =&gt; {
   r.innerHTML = r.innerHTML.replace(&#39;{play}&#39;, I(&#39;play&#39;,&#39;xs&#39;));
   const N = [
     { id:&#39;t&#39;, ic:&#39;clock&#39;, col:&#39;var(--py)&#39;, t:&#39;Schedule&#39;, d:&#39;Mondays 9:00&#39;, y:.5, f:[&#39;When&#39;, [&#39;Mondays 9:00&#39;,&#39;Every weekday&#39;,&#39;On new Figma version&#39;]] },
@@ -609,11 +626,24 @@ export function AutomationCanvas({
     const b = el(n.id); $$(&#39;.acx-n&#39;, nodes).forEach(x =&gt; x.classList.toggle(&#39;sel&#39;, x === b)); selN = n;
     pop.innerHTML = `&lt;h4 id=&quot;acx-h-${n.id}-${uid}&quot;&gt;${n.t}&lt;/h4&gt;&lt;div class=&quot;acx-fl&quot;&gt;&lt;span id=&quot;acx-f-${n.id}-${uid}&quot;&gt;${n.f[0]}&lt;/span&gt;&lt;button class=&quot;acx-dd&quot; aria-haspopup=&quot;menu&quot; aria-expanded=&quot;false&quot; aria-labelledby=&quot;acx-f-${n.id}-${uid} acx-v-${n.id}-${uid}&quot;&gt;&lt;span id=&quot;acx-v-${n.id}-${uid}&quot;&gt;${n.d}&lt;/span&gt;${I(&#39;chev-d&#39;,&#39;xs&#39;)}&lt;/button&gt;&lt;div class=&quot;acx-opts&quot; role=&quot;menu&quot; aria-labelledby=&quot;acx-f-${n.id}-${uid}&quot;&gt;${n.f[1].map(o =&gt; `&lt;button class=&quot;mi&quot; role=&quot;menuitemradio&quot; tabindex=&quot;-1&quot; aria-checked=&quot;${o === n.d}&quot;&gt;&lt;span&gt;${o}&lt;/span&gt;&lt;span class=&quot;ck&quot;&gt;${I(&#39;check&#39;,&#39;xs&#39;)}&lt;/span&gt;&lt;/button&gt;`).join(&#39;&#39;)}&lt;/div&gt;&lt;/div&gt;&lt;button class=&quot;pill soft sm acx-done&quot;&gt;Done&lt;/button&gt;`;
     pop.setAttribute(&#39;aria-labelledby&#39;, `acx-h-${n.id}-${uid}`);
-    const W = cv.clientWidth; let x = b.offsetLeft + b.offsetWidth + 10; if (x + 240 &gt; W) x = b.offsetLeft - 250; if (x &lt; 6) x = 6;
-    let y = b.offsetTop - 40; y = Math.max(6, Math.min(y, cv.clientHeight - 190));
-    pop.style.left = x + &#39;px&#39;; pop.style.top = y + &#39;px&#39;; pop.style.position = &#39;absolute&#39;; pop.classList.add(&#39;open&#39;); pop.inert = false;
+    // beside the step, or under or over it: whichever spot covers the least of the other steps (and none of this one),
+    // nearest the step when spots tie, so the popover never hides the step a run flows on to. It may hang up to 32px below
+    // the canvas, into the room around the component, when that is what keeps every step clear
+    const W = cv.clientWidth, H = cv.clientHeight, pw = pop.offsetWidth || 240, ph = pop.offsetHeight || 150, G = 10, M = 6, OVER = 32;
+    const box = n =&gt; ({ l:n.offsetLeft, t:n.offsetTop, r:n.offsetLeft + n.offsetWidth, b:n.offsetTop + n.offsetHeight });
+    const me = box(b), others = $$(&#39;.acx-n&#39;, nodes).filter(x =&gt; x !== b).map(box);
+    const cx = (me.l + me.r) / 2, cy = (me.t + me.b) / 2, cl = (v, lo, hi) =&gt; Math.max(lo, Math.min(hi, v));
+    const over = (x, y, o) =&gt; Math.max(0, Math.min(x + pw, o.r) - Math.max(x, o.l)) * Math.max(0, Math.min(y + ph, o.b) - Math.max(y, o.t));
+    const ys = [me.t - 40, cy - ph / 2, me.t, me.b - ph, M, H - ph - M, H - ph + OVER], xs = [cx - pw / 2, me.l, me.r - pw, M, W - pw - M];
+    const spots = [...ys.map(y =&gt; [me.r + G, y]), ...ys.map(y =&gt; [me.l - pw - G, y]), ...xs.map(x =&gt; [x, me.b + G]), ...xs.map(x =&gt; [x, me.t - ph - G])]
+      .flatMap(([x, y]) =&gt; [[cl(x, M, W - pw - M), cl(y, M, H - ph - M)], [cl(x, M, W - pw - M), cl(y, M, H - ph + OVER)]]);
+    let best = null, bs = Infinity;
+    for (const [x, y] of spots){ const hang = Math.max(0, y + ph - (H - M)); const sc = others.reduce((a, o) =&gt; a + over(x, y, o), 0) + over(x, y, me) * 4 + hang * 20 + Math.hypot(x + pw / 2 - cx, y + ph / 2 - cy) / 100; if (sc &lt; bs){ bs = sc; best = [x, y]; } }
+    pop.style.left = best[0] + &#39;px&#39;; pop.style.top = best[1] + &#39;px&#39;; pop.style.position = &#39;absolute&#39;; pop.classList.add(&#39;open&#39;); pop.inert = false;
     const dd = $(&#39;.acx-dd&#39;, pop), ops = $(&#39;.acx-opts&#39;, pop), mis = $$(&#39;.mi&#39;, ops);
-    const list = (on, focus) =&gt; { ops.classList.toggle(&#39;open&#39;, on); dd.setAttribute(&#39;aria-expanded&#39;, on);
+    const top0 = best[1];
+    const fit = () =&gt; { pop.style.top = Math.max(M, Math.min(top0, H + OVER - pop.offsetHeight)) + &#39;px&#39;; };
+    const list = (on, focus) =&gt; { ops.classList.toggle(&#39;open&#39;, on); dd.setAttribute(&#39;aria-expanded&#39;, on); fit();
       if (on &amp;&amp; focus){ const m = focus === &#39;last&#39; ? mis[mis.length - 1] : mis.find(x =&gt; x.getAttribute(&#39;aria-checked&#39;) === &#39;true&#39;) || mis[0]; m.focus({ preventScroll:true }); }
       if (!on &amp;&amp; ops.contains(document.activeElement)) dd.focus({ preventScroll:true }); };
     dd.onclick = e =&gt; { e.stopPropagation(); list(!ops.classList.contains(&#39;open&#39;), e.isTrusted &amp;&amp; !e.detail &amp;&amp; &#39;first&#39;); };
@@ -1040,11 +1070,24 @@ const fitHits = window.dmFitHits || (() => {
     const b = el(n.id); $$('.acx-n', nodes).forEach(x => x.classList.toggle('sel', x === b)); selN = n;
     pop.innerHTML = `<h4 id="acx-h-${n.id}-${uid}">${n.t}</h4><div class="acx-fl"><span id="acx-f-${n.id}-${uid}">${n.f[0]}</span><button class="acx-dd" aria-haspopup="menu" aria-expanded="false" aria-labelledby="acx-f-${n.id}-${uid} acx-v-${n.id}-${uid}"><span id="acx-v-${n.id}-${uid}">${n.d}</span>${I('chev-d','xs')}</button><div class="acx-opts" role="menu" aria-labelledby="acx-f-${n.id}-${uid}">${n.f[1].map(o => `<button class="mi" role="menuitemradio" tabindex="-1" aria-checked="${o === n.d}"><span>${o}</span><span class="ck">${I('check','xs')}</span></button>`).join('')}</div></div><button class="pill soft sm acx-done">Done</button>`;
     pop.setAttribute('aria-labelledby', `acx-h-${n.id}-${uid}`);
-    const W = cv.clientWidth; let x = b.offsetLeft + b.offsetWidth + 10; if (x + 240 > W) x = b.offsetLeft - 250; if (x < 6) x = 6;
-    let y = b.offsetTop - 40; y = Math.max(6, Math.min(y, cv.clientHeight - 190));
-    pop.style.left = x + 'px'; pop.style.top = y + 'px'; pop.style.position = 'absolute'; pop.classList.add('open'); pop.inert = false;
+    // beside the step, or under or over it: whichever spot covers the least of the other steps (and none of this one),
+    // nearest the step when spots tie, so the popover never hides the step a run flows on to. It may hang up to 32px below
+    // the canvas, into the room around the component, when that is what keeps every step clear
+    const W = cv.clientWidth, H = cv.clientHeight, pw = pop.offsetWidth || 240, ph = pop.offsetHeight || 150, G = 10, M = 6, OVER = 32;
+    const box = n => ({ l:n.offsetLeft, t:n.offsetTop, r:n.offsetLeft + n.offsetWidth, b:n.offsetTop + n.offsetHeight });
+    const me = box(b), others = $$('.acx-n', nodes).filter(x => x !== b).map(box);
+    const cx = (me.l + me.r) / 2, cy = (me.t + me.b) / 2, cl = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+    const over = (x, y, o) => Math.max(0, Math.min(x + pw, o.r) - Math.max(x, o.l)) * Math.max(0, Math.min(y + ph, o.b) - Math.max(y, o.t));
+    const ys = [me.t - 40, cy - ph / 2, me.t, me.b - ph, M, H - ph - M, H - ph + OVER], xs = [cx - pw / 2, me.l, me.r - pw, M, W - pw - M];
+    const spots = [...ys.map(y => [me.r + G, y]), ...ys.map(y => [me.l - pw - G, y]), ...xs.map(x => [x, me.b + G]), ...xs.map(x => [x, me.t - ph - G])]
+      .flatMap(([x, y]) => [[cl(x, M, W - pw - M), cl(y, M, H - ph - M)], [cl(x, M, W - pw - M), cl(y, M, H - ph + OVER)]]);
+    let best = null, bs = Infinity;
+    for (const [x, y] of spots){ const hang = Math.max(0, y + ph - (H - M)); const sc = others.reduce((a, o) => a + over(x, y, o), 0) + over(x, y, me) * 4 + hang * 20 + Math.hypot(x + pw / 2 - cx, y + ph / 2 - cy) / 100; if (sc < bs){ bs = sc; best = [x, y]; } }
+    pop.style.left = best[0] + 'px'; pop.style.top = best[1] + 'px'; pop.style.position = 'absolute'; pop.classList.add('open'); pop.inert = false;
     const dd = $('.acx-dd', pop), ops = $('.acx-opts', pop), mis = $$('.mi', ops);
-    const list = (on, focus) => { ops.classList.toggle('open', on); dd.setAttribute('aria-expanded', on);
+    const top0 = best[1];
+    const fit = () => { pop.style.top = Math.max(M, Math.min(top0, H + OVER - pop.offsetHeight)) + 'px'; };
+    const list = (on, focus) => { ops.classList.toggle('open', on); dd.setAttribute('aria-expanded', on); fit();
       if (on && focus){ const m = focus === 'last' ? mis[mis.length - 1] : mis.find(x => x.getAttribute('aria-checked') === 'true') || mis[0]; m.focus({ preventScroll:true }); }
       if (!on && ops.contains(document.activeElement)) dd.focus({ preventScroll:true }); };
     dd.onclick = e => { e.stopPropagation(); list(!ops.classList.contains('open'), e.isTrusted && !e.detail && 'first'); };

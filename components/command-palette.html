@@ -46,23 +46,28 @@
 })();
 </script><script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareSourceCode","name":"Command palette","description":"A search box with a list of commands under it, grouped by heading, where a person can jump to a page, run an action, or pass what they typed to the agent. As soon as something is typed, the list narrows and a last row, \"Ask the agent\", sends the text to the agent instead. It gives an agent product one keyboard-first place to start anything.","url":"https://designme.dev/components/command-palette","image":"https://designme.dev/components/og/command-palette.jpg","programmingLanguage":["HTML","CSS","JavaScript","TypeScript"],"runtimePlatform":"Web browser","license":"https://opensource.org/licenses/MIT","isAccessibleForFree":true,"keywords":"Command palette, Workspace, AI agent UI, React component, HTML component","author":{"@type":"Organization","name":"DesignMe","url":"https://designme.agency"},"isPartOf":{"@type":"WebSite","name":"Designme.dev","url":"https://designme.dev/"}}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Library","item":"https://designme.dev/"},{"@type":"ListItem","position":2,"name":"Workspace","item":"https://designme.dev/#s-workspace"},{"@type":"ListItem","position":3,"name":"Command palette","item":"https://designme.dev/components/command-palette"}]}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I send a free-text request to the agent?","acceptedAnswer":{"@type":"Answer","text":"Pass onAsk. When the box has text, the last row reads \"Ask the agent\" with the typed text, and running it calls onAsk with the trimmed query."}},{"@type":"Question","name":"How does the filter match commands?","acceptedAnswer":{"@type":"Answer","text":"Each letter of the query must appear in the label in the same order, though not side by side. So \"tok\" matches \"Export tokens as CSS variables\"."}},{"@type":"Question","name":"How do I close the palette with Escape?","acceptedAnswer":{"@type":"Answer","text":"Pass onClose. The first Escape clears any text, and the next Escape, on an empty box, calls onClose so you can hide the palette."}},{"@type":"Question","name":"Can I focus the input when the palette opens?","acceptedAnswer":{"@type":"Answer","text":"Yes. Set autoFocus and the cursor goes into the box when it appears."}}]}</script><link rel="stylesheet" href="/components/assets/core.css"><style>/* ---------- Command palette ---------- */
 .cpl{overflow:hidden;display:flex;flex-direction:column;box-shadow:var(--shadow-pop)}
-.cpl-in{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--line);color:var(--muted)}
+.cpl-in{display:flex;align-items:center;gap:10px;padding:var(--s-3) 14px;border-bottom:1px solid var(--line);color:var(--muted)}
 .cpl-q{flex:1;min-width:0;border:0;outline:0;background:transparent;font:inherit;font-size:14px;color:var(--fg)}
 .cpl-q::placeholder{color:var(--muted)}
 /* the palette rings while its search box has the focus; a row that takes the focus rings on its own */
 .cpl:has(.cpl-q:focus-visible){box-shadow:0 0 0 2px var(--focus),var(--shadow-pop)}
 .cpl-list{padding:6px;height:236px;overflow-y:auto;position:relative}
-.cpl-g{font-size:11.5px;color:var(--muted);padding:8px 8px 4px}
-.cpl-i{display:flex;align-items:center;gap:10px;width:100%;height:36px;padding:0 8px;border-radius:10px;font-size:13.5px;text-align:left;color:var(--fg);position:relative;z-index:1}
+/* while there is more list below, its last row fades out at the edge instead of being cut off by the footer */
+.cpl-list.more{-webkit-mask-image:linear-gradient(to bottom,#000 calc(100% - 32px),transparent);mask-image:linear-gradient(to bottom,#000 calc(100% - 32px),transparent)}
+.cpl-g{font-size:11.5px;color:var(--muted);padding:var(--s-2) var(--s-2) var(--s-1)}
+.cpl-i{display:flex;align-items:center;gap:10px;width:100%;height:36px;padding:0 var(--s-2);border-radius:10px;font-size:13.5px;text-align:left;color:var(--fg);position:relative;z-index:1}
 .cpl-i .ic{width:24px;height:24px;border-radius:7px;display:grid;place-items:center;background:var(--chip);color:var(--fg2);flex:none;transition:background .2s,color .2s}
 .cpl-i.hl .ic{background:var(--surface);color:var(--accent-fg,var(--accent))}
-.cpl-i .k{margin-left:auto;display:flex;gap:3px}
+/* a label too long for a narrow palette ends in an ellipsis on its one line, so it never spills out of its row */
+.cpl-i .t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cpl-i .k{margin-left:auto;display:flex;gap:3px;flex:none}
 .cpl-i mark{background:transparent;color:var(--accent-fg,var(--accent));font-weight:500}
 .cpl-i.ask .ic{background:var(--accent);color:var(--on-accent)}
 .cpl-hl{position:absolute;left:6px;right:6px;height:36px;border-radius:10px;background:var(--chip);transition:top .25s var(--ease);z-index:0}
-.cpl-f{display:flex;gap:14px;align-items:center;padding:8px 14px;border-top:1px solid var(--line);font-size:11.5px}
+.cpl-f{display:flex;gap:14px;align-items:center;padding:var(--s-2) 14px;border-top:1px solid var(--line);font-size:11.5px}
+.cpl-f>span{flex:none;white-space:nowrap}
 .cpl-f .kbd{margin-right:3px}
-.cpl-st{margin-left:auto;color:var(--fg2)}
+.cpl-f>.cpl-st{flex:0 1 auto;min-width:0;margin-left:auto;color:var(--fg2);overflow:hidden;text-overflow:ellipsis}
 .cpl-empty{padding:30px 10px;text-align:center;font-size:13px;color:var(--muted)}
 </style><style>@media (max-width:640px){.cp-demo .pg-demo{min-height:calc(var(--h-j) + 24px)}}@media (max-width:519px){.cp-demo .pg-demo{min-height:calc(var(--h-k) + 24px)}}@media (max-width:429px){.cp-demo .pg-demo{min-height:calc(var(--h-l) + 24px)}}@media (max-width:389px){.cp-demo .pg-demo{min-height:calc(var(--h-m) + 24px)}}</style><style>@font-face{font-family:Inter;font-style:normal;font-weight:400;font-display:swap;src:url(/fonts/inter-latin-400-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:Inter;font-style:normal;font-weight:500;font-display:swap;src:url(/fonts/inter-latin-500-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
@@ -134,7 +139,7 @@ export default function CommandPaletteDemo() {
     &lt;/div&gt;
   );
 }
-</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything CommandPalette takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>items</code><span class="opt">required</span></td><td><code>CommandPaletteItem[]</code></td><td></td></tr><tr><td><code>query</code></td><td><code>string</code></td><td>What is typed in the box. Leave it out to let the box hold its own</td></tr><tr><td><code>defaultQuery</code></td><td><code>string</code></td><td></td></tr><tr><td><code>onQueryChange</code></td><td><code>(query: string) =&gt; void</code></td><td></td></tr><tr><td><code>onRun</code></td><td><code>(item: CommandPaletteItem) =&gt; void</code></td><td>Called when a command runs, by click or Enter</td></tr><tr><td><code>onAsk</code></td><td><code>(query: string) =&gt; void</code></td><td>Called with the typed text when the last row, &quot;Ask the agent&quot;, runs</td></tr><tr><td><code>onClose</code></td><td><code>() =&gt; void</code></td><td>Called by Escape when the box is already empty</td></tr><tr><td><code>placeholder</code></td><td><code>string</code></td><td></td></tr><tr><td><code>status</code></td><td><code>string</code></td><td>The quiet text at the end of the footer. Defaults to what ran last</td></tr><tr><td><code>autoFocus</code></td><td><code>boolean</code></td><td>Puts the cursor in the box when it appears</td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>CommandPalette.tsx<span class="l">React · 128 lines</span></summary><pre class="cp-pre"><code>&#39;use client&#39;;
+</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything CommandPalette takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>items</code><span class="opt">required</span></td><td><code>CommandPaletteItem[]</code></td><td></td></tr><tr><td><code>query</code></td><td><code>string</code></td><td>What is typed in the box. Leave it out to let the box hold its own</td></tr><tr><td><code>defaultQuery</code></td><td><code>string</code></td><td></td></tr><tr><td><code>onQueryChange</code></td><td><code>(query: string) =&gt; void</code></td><td></td></tr><tr><td><code>onRun</code></td><td><code>(item: CommandPaletteItem) =&gt; void</code></td><td>Called when a command runs, by click or Enter</td></tr><tr><td><code>onAsk</code></td><td><code>(query: string) =&gt; void</code></td><td>Called with the typed text when the last row, &quot;Ask the agent&quot;, runs</td></tr><tr><td><code>onClose</code></td><td><code>() =&gt; void</code></td><td>Called by Escape when the box is already empty</td></tr><tr><td><code>placeholder</code></td><td><code>string</code></td><td></td></tr><tr><td><code>status</code></td><td><code>string</code></td><td>The quiet text at the end of the footer. Defaults to what ran last</td></tr><tr><td><code>autoFocus</code></td><td><code>boolean</code></td><td>Puts the cursor in the box when it appears</td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>CommandPalette.tsx<span class="l">React · 133 lines</span></summary><pre class="cp-pre"><code>&#39;use client&#39;;
 import { Fragment, useId, useRef, useState, type KeyboardEvent } from &#39;react&#39;;
 import { cx } from &#39;../lib/cx&#39;;
 import { useControllable, useIsoLayoutEffect, useReducedMotion } from &#39;../lib/hooks&#39;;
@@ -209,6 +214,11 @@ export function CommandPalette({ items, query, defaultQuery = &#39;&#39;, onQuer
     if (b.offsetTop &lt; l.scrollTop || b.offsetTop + 36 &gt; l.scrollTop + l.clientHeight) l.scrollTo({ top: b.offsetTop - 40, behavior: reduce ? &#39;auto&#39; : &#39;smooth&#39; });
   }, [at, v, rows.length, reduce]);
 
+  // while there is more list below, its last row fades out at the edge instead of being cut off by the footer
+  const [more, setMore] = useState(false);
+  const edge = () =&gt; { const l = list.current; if (l) setMore(l.scrollTop + l.clientHeight &lt; l.scrollHeight - 2); };
+  useIsoLayoutEffect(edge, [v, rows.length]);
+
   const move = (d: number) =&gt; { if (rows.length) setHi({ at: (at + d + rows.length) % rows.length, for: v }); };
   const run = (i: number) =&gt; {
     const row = rows[i], b = btns.current[i];
@@ -234,7 +244,7 @@ export function CommandPalette({ items, query, defaultQuery = &#39;&#39;, onQuer
           onChange={e =&gt; setQ(e.target.value)} onKeyDown={key} /&gt;
         &lt;span className=&quot;dm-kbd&quot;&gt;esc&lt;/span&gt;
       &lt;/div&gt;
-      &lt;div className=&quot;dm-cpl-list&quot; role=&quot;listbox&quot; id={`${id}-list`} aria-label=&quot;Commands&quot; tabIndex={-1} ref={list}&gt;
+      &lt;div className={cx(&#39;dm-cpl-list&#39;, more &amp;&amp; &#39;dm-more&#39;)} role=&quot;listbox&quot; id={`${id}-list`} aria-label=&quot;Commands&quot; tabIndex={-1} ref={list} onScroll={edge}&gt;
         {/* a new list starts the highlight afresh, so it jumps into place instead of sliding */}
         &lt;span key={v} className=&quot;dm-cpl-hl&quot; style={{ top: top?.for === v ? top.px : undefined }} /&gt;
         {rows.map((row, i) =&gt; {
@@ -246,7 +256,7 @@ export function CommandPalette({ items, query, defaultQuery = &#39;&#39;, onQuer
               &lt;button type=&quot;button&quot; ref={el =&gt; { btns.current[i] = el; }} className={cx(&#39;dm-cpl-i&#39;, !row &amp;&amp; &#39;dm-ask&#39;, i === at &amp;&amp; &#39;dm-hl&#39;)}
                 role=&quot;option&quot; id={`${id}-${i}`} tabIndex={-1} aria-selected={i === at} onMouseEnter={() =&gt; setHi({ at: i, for: v })} onClick={() =&gt; run(i)}&gt;
                 &lt;span className=&quot;dm-ic&quot;&gt;&lt;Icon name={row ? row.icon : &#39;up&#39;} size=&quot;xs&quot; /&gt;&lt;/span&gt;
-                &lt;span&gt;{row ? marked(row.label, v) : &lt;&gt;Ask the agent: “{v}”&lt;/&gt;}&lt;/span&gt;
+                &lt;span className=&quot;dm-t&quot;&gt;{row ? marked(row.label, v) : &lt;&gt;Ask the agent: “{v}”&lt;/&gt;}&lt;/span&gt;
                 {row?.keys &amp;&amp; &lt;span className=&quot;dm-k&quot;&gt;{row.keys.map((k, j) =&gt; &lt;span key={j} className=&quot;dm-kbd&quot;&gt;{k}&lt;/span&gt;)}&lt;/span&gt;}
               &lt;/button&gt;
             &lt;/Fragment&gt;
@@ -261,26 +271,31 @@ export function CommandPalette({ items, query, defaultQuery = &#39;&#39;, onQuer
     &lt;/div&gt;
   );
 }
-</code></pre></details><details class="cp-file"><summary>command-palette.css<span class="l">React · 22 lines</span></summary><pre class="cp-pre"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+</code></pre></details><details class="cp-file"><summary>command-palette.css<span class="l">React · 27 lines</span></summary><pre class="cp-pre"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Command palette ---------- */
 .dm-cpl{overflow:hidden;display:flex;flex-direction:column;box-shadow:var(--dm-shadow-pop)}
-.dm-cpl-in{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--dm-line);color:var(--dm-muted)}
+.dm-cpl-in{display:flex;align-items:center;gap:10px;padding:var(--dm-s-3) 14px;border-bottom:1px solid var(--dm-line);color:var(--dm-muted)}
 .dm-cpl-q{flex:1;min-width:0;border:0;outline:0;background:transparent;font:inherit;font-size:14px;color:var(--dm-fg)}
 .dm-cpl-q::placeholder{color:var(--dm-muted)}
 /* the palette rings while its search box has the focus; a row that takes the focus rings on its own */
 .dm-cpl:has(.dm-cpl-q:focus-visible){box-shadow:0 0 0 2px var(--dm-focus),var(--dm-shadow-pop)}
 .dm-cpl-list{padding:6px;height:236px;overflow-y:auto;position:relative}
-.dm-cpl-g{font-size:11.5px;color:var(--dm-muted);padding:8px 8px 4px}
-.dm-cpl-i{display:flex;align-items:center;gap:10px;width:100%;height:36px;padding:0 8px;border-radius:10px;font-size:13.5px;text-align:left;color:var(--dm-fg);position:relative;z-index:1}
+/* while there is more list below, its last row fades out at the edge instead of being cut off by the footer */
+.dm-cpl-list.dm-more{-webkit-mask-image:linear-gradient(to bottom,#000 calc(100% - 32px),transparent);mask-image:linear-gradient(to bottom,#000 calc(100% - 32px),transparent)}
+.dm-cpl-g{font-size:11.5px;color:var(--dm-muted);padding:var(--dm-s-2) var(--dm-s-2) var(--dm-s-1)}
+.dm-cpl-i{display:flex;align-items:center;gap:10px;width:100%;height:36px;padding:0 var(--dm-s-2);border-radius:10px;font-size:13.5px;text-align:left;color:var(--dm-fg);position:relative;z-index:1}
 .dm-cpl-i .dm-ic{width:24px;height:24px;border-radius:7px;display:grid;place-items:center;background:var(--dm-chip);color:var(--dm-fg2);flex:none;transition:background .2s,color .2s}
 .dm-cpl-i.dm-hl .dm-ic{background:var(--dm-surface);color:var(--dm-accent-fg,var(--dm-accent))}
-.dm-cpl-i .dm-k{margin-left:auto;display:flex;gap:3px}
+/* a label too long for a narrow palette ends in an ellipsis on its one line, so it never spills out of its row */
+.dm-cpl-i .dm-t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dm-cpl-i .dm-k{margin-left:auto;display:flex;gap:3px;flex:none}
 .dm-cpl-i mark{background:transparent;color:var(--dm-accent-fg,var(--dm-accent));font-weight:500}
 .dm-cpl-i.dm-ask .dm-ic{background:var(--dm-accent);color:var(--dm-on-accent)}
 .dm-cpl-hl{position:absolute;left:6px;right:6px;height:36px;border-radius:10px;background:var(--dm-chip);transition:top .25s var(--dm-ease);z-index:0}
-.dm-cpl-f{display:flex;gap:14px;align-items:center;padding:8px 14px;border-top:1px solid var(--dm-line);font-size:11.5px}
+.dm-cpl-f{display:flex;gap:14px;align-items:center;padding:var(--dm-s-2) 14px;border-top:1px solid var(--dm-line);font-size:11.5px}
+.dm-cpl-f&gt;span{flex:none;white-space:nowrap}
 .dm-cpl-f .dm-kbd{margin-right:3px}
-.dm-cpl-st{margin-left:auto;color:var(--dm-fg2)}
+.dm-cpl-f&gt;.dm-cpl-st{flex:0 1 auto;min-width:0;margin-left:auto;color:var(--dm-fg2);overflow:hidden;text-overflow:ellipsis}
 .dm-cpl-empty{padding:30px 10px;text-align:center;font-size:13px;color:var(--dm-muted)}
 </code></pre></details><details class="cp-file"><summary>command-palette.html<span class="l">HTML · 10 lines</span></summary><pre class="cp-pre"><code>&lt;div class=&quot;card&quot; data-c=&quot;command-palette&quot;&gt;
   &lt;div class=&quot;stage-in&quot;&gt;
@@ -291,27 +306,32 @@ export function CommandPalette({ items, query, defaultQuery = &#39;&#39;, onQuer
     &lt;/div&gt;
   &lt;/div&gt;
 &lt;/div&gt;
-</code></pre></details><details class="cp-file"><summary>command-palette.css<span class="l">HTML · 21 lines</span></summary><pre class="cp-pre"><code>/* ---------- Command palette ---------- */
+</code></pre></details><details class="cp-file"><summary>command-palette.css<span class="l">HTML · 26 lines</span></summary><pre class="cp-pre"><code>/* ---------- Command palette ---------- */
 .cpl{overflow:hidden;display:flex;flex-direction:column;box-shadow:var(--shadow-pop)}
-.cpl-in{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--line);color:var(--muted)}
+.cpl-in{display:flex;align-items:center;gap:10px;padding:var(--s-3) 14px;border-bottom:1px solid var(--line);color:var(--muted)}
 .cpl-q{flex:1;min-width:0;border:0;outline:0;background:transparent;font:inherit;font-size:14px;color:var(--fg)}
 .cpl-q::placeholder{color:var(--muted)}
 /* the palette rings while its search box has the focus; a row that takes the focus rings on its own */
 .cpl:has(.cpl-q:focus-visible){box-shadow:0 0 0 2px var(--focus),var(--shadow-pop)}
 .cpl-list{padding:6px;height:236px;overflow-y:auto;position:relative}
-.cpl-g{font-size:11.5px;color:var(--muted);padding:8px 8px 4px}
-.cpl-i{display:flex;align-items:center;gap:10px;width:100%;height:36px;padding:0 8px;border-radius:10px;font-size:13.5px;text-align:left;color:var(--fg);position:relative;z-index:1}
+/* while there is more list below, its last row fades out at the edge instead of being cut off by the footer */
+.cpl-list.more{-webkit-mask-image:linear-gradient(to bottom,#000 calc(100% - 32px),transparent);mask-image:linear-gradient(to bottom,#000 calc(100% - 32px),transparent)}
+.cpl-g{font-size:11.5px;color:var(--muted);padding:var(--s-2) var(--s-2) var(--s-1)}
+.cpl-i{display:flex;align-items:center;gap:10px;width:100%;height:36px;padding:0 var(--s-2);border-radius:10px;font-size:13.5px;text-align:left;color:var(--fg);position:relative;z-index:1}
 .cpl-i .ic{width:24px;height:24px;border-radius:7px;display:grid;place-items:center;background:var(--chip);color:var(--fg2);flex:none;transition:background .2s,color .2s}
 .cpl-i.hl .ic{background:var(--surface);color:var(--accent-fg,var(--accent))}
-.cpl-i .k{margin-left:auto;display:flex;gap:3px}
+/* a label too long for a narrow palette ends in an ellipsis on its one line, so it never spills out of its row */
+.cpl-i .t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cpl-i .k{margin-left:auto;display:flex;gap:3px;flex:none}
 .cpl-i mark{background:transparent;color:var(--accent-fg,var(--accent));font-weight:500}
 .cpl-i.ask .ic{background:var(--accent);color:var(--on-accent)}
 .cpl-hl{position:absolute;left:6px;right:6px;height:36px;border-radius:10px;background:var(--chip);transition:top .25s var(--ease);z-index:0}
-.cpl-f{display:flex;gap:14px;align-items:center;padding:8px 14px;border-top:1px solid var(--line);font-size:11.5px}
+.cpl-f{display:flex;gap:14px;align-items:center;padding:var(--s-2) 14px;border-top:1px solid var(--line);font-size:11.5px}
+.cpl-f&gt;span{flex:none;white-space:nowrap}
 .cpl-f .kbd{margin-right:3px}
-.cpl-st{margin-left:auto;color:var(--fg2)}
+.cpl-f&gt;.cpl-st{flex:0 1 auto;min-width:0;margin-left:auto;color:var(--fg2);overflow:hidden;text-overflow:ellipsis}
 .cpl-empty{padding:30px 10px;text-align:center;font-size:13px;color:var(--muted)}
-</code></pre></details><details class="cp-file"><summary>command-palette.js<span class="l">HTML · 39 lines</span></summary><pre class="cp-pre"><code>DM.def(&#39;command-palette&#39;, (r, c) =&gt; {
+</code></pre></details><details class="cp-file"><summary>command-palette.js<span class="l">HTML · 41 lines</span></summary><pre class="cp-pre"><code>DM.def(&#39;command-palette&#39;, (r, c) =&gt; {
   r.innerHTML = r.innerHTML.replace(&#39;{search}&#39;, I(&#39;search&#39;));
   const C = [
     [&#39;Agent&#39;,&#39;spark&#39;,&#39;Audit this page for contrast&#39;,[&#39;⌘&#39;,&#39;J&#39;]],
@@ -334,14 +354,16 @@ export function CommandPalette({ items, query, defaultQuery = &#39;&#39;, onQuer
     const m = C.filter(x =&gt; !re || re.test(x[2]));
     let h = &#39;&lt;span class=&quot;cpl-hl&quot;&gt;&lt;/span&gt;&#39;, g = &#39;&#39;;
     m.forEach(x =&gt; { if (x[0] !== g){ g = x[0]; h += `&lt;div class=&quot;cpl-g&quot;&gt;${g}&lt;/div&gt;`; } const label = v ? x[2].replace(new RegExp(v.split(&#39;&#39;).map(esc).join(&#39;|&#39;), &#39;gi&#39;), s =&gt; `&lt;mark&gt;${s}&lt;/mark&gt;`) : x[2];
-      h += `&lt;button class=&quot;cpl-i&quot; role=&quot;option&quot; data-t=&quot;${x[2]}&quot;&gt;${&#39;&lt;span class=&quot;ic&quot;&gt;&#39; + I(x[1],&#39;xs&#39;) + &#39;&lt;/span&gt;&#39;}&lt;span&gt;${label}&lt;/span&gt;${x[3] ? `&lt;span class=&quot;k&quot;&gt;${x[3].map(k =&gt; `&lt;span class=&quot;kbd&quot;&gt;${k}&lt;/span&gt;`).join(&#39;&#39;)}&lt;/span&gt;` : &#39;&#39;}&lt;/button&gt;`; });
-    if (v) h += `&lt;div class=&quot;cpl-g&quot;&gt;Ask&lt;/div&gt;&lt;button class=&quot;cpl-i ask&quot; data-t=&quot;${v.replace(/&quot;/g,&#39;&amp;quot;&#39;)}&quot; data-ask=&quot;1&quot;&gt;&lt;span class=&quot;ic&quot;&gt;${I(&#39;up&#39;,&#39;xs&#39;)}&lt;/span&gt;&lt;span&gt;Ask the agent: “${v.replace(/&lt;/g,&#39;&amp;lt;&#39;)}”&lt;/span&gt;&lt;/button&gt;`;
+      h += `&lt;button class=&quot;cpl-i&quot; role=&quot;option&quot; data-t=&quot;${x[2]}&quot;&gt;${&#39;&lt;span class=&quot;ic&quot;&gt;&#39; + I(x[1],&#39;xs&#39;) + &#39;&lt;/span&gt;&#39;}&lt;span class=&quot;t&quot;&gt;${label}&lt;/span&gt;${x[3] ? `&lt;span class=&quot;k&quot;&gt;${x[3].map(k =&gt; `&lt;span class=&quot;kbd&quot;&gt;${k}&lt;/span&gt;`).join(&#39;&#39;)}&lt;/span&gt;` : &#39;&#39;}&lt;/button&gt;`; });
+    if (v) h += `&lt;div class=&quot;cpl-g&quot;&gt;Ask&lt;/div&gt;&lt;button class=&quot;cpl-i ask&quot; data-t=&quot;${v.replace(/&quot;/g,&#39;&amp;quot;&#39;)}&quot; data-ask=&quot;1&quot;&gt;&lt;span class=&quot;ic&quot;&gt;${I(&#39;up&#39;,&#39;xs&#39;)}&lt;/span&gt;&lt;span class=&quot;t&quot;&gt;Ask the agent: “${v.replace(/&lt;/g,&#39;&amp;lt;&#39;)}”&lt;/span&gt;&lt;/button&gt;`;
     list.innerHTML = h; items = $$(&#39;.cpl-i&#39;, list); hi = 0;
     // the search box keeps the focus and points at the highlighted row (aria-activedescendant), so the rows are not tab stops
     items.forEach((b, i) =&gt; { b.id = list.id + &#39;-&#39; + i; b.tabIndex = -1; b.setAttribute(&#39;role&#39;, &#39;option&#39;); b.onmouseenter = () =&gt; move(i - hi); b.onclick = () =&gt; run(b); });
-    if (!items.length) q.removeAttribute(&#39;aria-activedescendant&#39;); move(0);
+    if (!items.length) q.removeAttribute(&#39;aria-activedescendant&#39;); move(0); edge();
   }
   function move(d){ if (!items.length) return; hi = (hi + d + items.length) % items.length; items.forEach((b, i) =&gt; { b.classList.toggle(&#39;hl&#39;, i === hi); b.setAttribute(&#39;aria-selected&#39;, i === hi); }); const b = items[hi], hl = $(&#39;.cpl-hl&#39;, list); q.setAttribute(&#39;aria-activedescendant&#39;, b.id); hl.style.top = b.offsetTop + &#39;px&#39;; if (b.offsetTop &lt; list.scrollTop || b.offsetTop + 36 &gt; list.scrollTop + list.clientHeight) list.scrollTo({ top:b.offsetTop - 40, behavior:REDUCE ? &#39;auto&#39; : &#39;smooth&#39; }); }
+  const edge = () =&gt; list.classList.toggle(&#39;more&#39;, list.scrollTop + list.clientHeight &lt; list.scrollHeight - 2);
+  c.on(list, &#39;scroll&#39;, edge, { passive:true });
   function run(b){ swap(st, b.dataset.ask ? &#39;Sent to the agent&#39; : &#39;Ran: &#39; + b.dataset.t); b.animate([{ transform:&#39;scale(1)&#39; },{ transform:&#39;scale(.98)&#39; },{ transform:&#39;scale(1)&#39; }], { duration:260, easing:&#39;ease-out&#39; }); }
   q.oninput = paint;
   q.onkeydown = e =&gt; { if (e.key === &#39;ArrowDown&#39;){ move(1); e.preventDefault(); } else if (e.key === &#39;ArrowUp&#39;){ move(-1); e.preventDefault(); } else if (e.key === &#39;Enter&#39; &amp;&amp; items[hi]) run(items[hi]); else if (e.key === &#39;Escape&#39;){ q.value = &#39;&#39;; paint(); } };
@@ -695,14 +717,16 @@ const fitHits = window.dmFitHits || (() => {
     const m = C.filter(x => !re || re.test(x[2]));
     let h = '<span class="cpl-hl"></span>', g = '';
     m.forEach(x => { if (x[0] !== g){ g = x[0]; h += `<div class="cpl-g">${g}</div>`; } const label = v ? x[2].replace(new RegExp(v.split('').map(esc).join('|'), 'gi'), s => `<mark>${s}</mark>`) : x[2];
-      h += `<button class="cpl-i" role="option" data-t="${x[2]}">${'<span class="ic">' + I(x[1],'xs') + '</span>'}<span>${label}</span>${x[3] ? `<span class="k">${x[3].map(k => `<span class="kbd">${k}</span>`).join('')}</span>` : ''}</button>`; });
-    if (v) h += `<div class="cpl-g">Ask</div><button class="cpl-i ask" data-t="${v.replace(/"/g,'&quot;')}" data-ask="1"><span class="ic">${I('up','xs')}</span><span>Ask the agent: “${v.replace(/</g,'&lt;')}”</span></button>`;
+      h += `<button class="cpl-i" role="option" data-t="${x[2]}">${'<span class="ic">' + I(x[1],'xs') + '</span>'}<span class="t">${label}</span>${x[3] ? `<span class="k">${x[3].map(k => `<span class="kbd">${k}</span>`).join('')}</span>` : ''}</button>`; });
+    if (v) h += `<div class="cpl-g">Ask</div><button class="cpl-i ask" data-t="${v.replace(/"/g,'&quot;')}" data-ask="1"><span class="ic">${I('up','xs')}</span><span class="t">Ask the agent: “${v.replace(/</g,'&lt;')}”</span></button>`;
     list.innerHTML = h; items = $$('.cpl-i', list); hi = 0;
     // the search box keeps the focus and points at the highlighted row (aria-activedescendant), so the rows are not tab stops
     items.forEach((b, i) => { b.id = list.id + '-' + i; b.tabIndex = -1; b.setAttribute('role', 'option'); b.onmouseenter = () => move(i - hi); b.onclick = () => run(b); });
-    if (!items.length) q.removeAttribute('aria-activedescendant'); move(0);
+    if (!items.length) q.removeAttribute('aria-activedescendant'); move(0); edge();
   }
   function move(d){ if (!items.length) return; hi = (hi + d + items.length) % items.length; items.forEach((b, i) => { b.classList.toggle('hl', i === hi); b.setAttribute('aria-selected', i === hi); }); const b = items[hi], hl = $('.cpl-hl', list); q.setAttribute('aria-activedescendant', b.id); hl.style.top = b.offsetTop + 'px'; if (b.offsetTop < list.scrollTop || b.offsetTop + 36 > list.scrollTop + list.clientHeight) list.scrollTo({ top:b.offsetTop - 40, behavior:REDUCE ? 'auto' : 'smooth' }); }
+  const edge = () => list.classList.toggle('more', list.scrollTop + list.clientHeight < list.scrollHeight - 2);
+  c.on(list, 'scroll', edge, { passive:true });
   function run(b){ swap(st, b.dataset.ask ? 'Sent to the agent' : 'Ran: ' + b.dataset.t); b.animate([{ transform:'scale(1)' },{ transform:'scale(.98)' },{ transform:'scale(1)' }], { duration:260, easing:'ease-out' }); }
   q.oninput = paint;
   q.onkeydown = e => { if (e.key === 'ArrowDown'){ move(1); e.preventDefault(); } else if (e.key === 'ArrowUp'){ move(-1); e.preventDefault(); } else if (e.key === 'Enter' && items[hi]) run(items[hi]); else if (e.key === 'Escape'){ q.value = ''; paint(); } };

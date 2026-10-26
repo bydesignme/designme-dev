@@ -46,15 +46,16 @@
 })();
 </script><script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareSourceCode","name":"Ticket list","description":"Ticket list is a support queue where the agent has already triaged each ticket and drafted a reply. Rows show a priority dot, the customer, how long they have waited and who the ticket is assigned to. Opening a ticket shows the customer's message and the suggested reply, which a person can edit before choosing Send and solve.","url":"https://designme.dev/components/ticket-list","image":"https://designme.dev/components/og/ticket-list.jpg","programmingLanguage":["HTML","CSS","JavaScript","TypeScript"],"runtimePlatform":"Web browser","license":"https://opensource.org/licenses/MIT","isAccessibleForFree":true,"keywords":"Ticket list, Collaboration, UI component, React component, HTML component","author":{"@type":"Organization","name":"DesignMe","url":"https://designme.agency"},"isPartOf":{"@type":"WebSite","name":"Designme.dev","url":"https://designme.dev/"}}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Library","item":"https://designme.dev/"},{"@type":"ListItem","position":2,"name":"Collaboration","item":"https://designme.dev/#s-collab"},{"@type":"ListItem","position":3,"name":"Ticket list","item":"https://designme.dev/components/ticket-list"}]}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does the reply that gets sent include the person's edits?","acceptedAnswer":{"@type":"Answer","text":"Yes. onSend receives the text currently in the reply box, edited or not. That text is also saved on the ticket when it moves to Solved."}},{"@type":"Question","name":"What happens if sending fails?","acceptedAnswer":{"@type":"Answer","text":"If the promise from onSend rejects, the spinner stops and the ticket stays open, so the person can try again."}},{"@type":"Question","name":"How do I open the most urgent ticket for the person?","acceptedAnswer":{"@type":"Answer","text":"Control open with onOpenChange and set it to that ticket's id. The example opens the urgent ticket a second after it loads."}}]}</script><link rel="stylesheet" href="/components/assets/core.css"><style>/* ---------- Ticket list ---------- */
 /* rows run edge to edge inside the panel, so there is one surface instead of nested ones */
-.tkx{padding:12px 0 0;display:flex;flex-direction:column;gap:6px;min-height:340px;overflow:hidden}
-.tkx-h{display:flex;align-items:center;justify-content:space-between;padding:0 16px 4px;font-size:14px}
+/* the panel fits the tickets it lists, however few are left */
+.tkx{padding:var(--s-3) 0 0;display:flex;flex-direction:column;gap:6px;overflow:hidden}
+.tkx-h{display:flex;align-items:center;justify-content:space-between;padding:0 var(--s-4) var(--s-1);font-size:14px}
 .tkx-h b{font-weight:500}
 .tkx-sg button{font-size:12px;height:26px;padding:0 9px}
 .tkx-list{display:flex;flex-direction:column}
 .tkx-t{transition:background .2s;box-shadow:inset 0 1px 0 var(--line)}
 @media (hover:hover) and (pointer:fine){.tkx-t:hover{background:var(--row)}}
 .tkx-t.open{background:color-mix(in srgb,var(--wash) 50%,var(--surface))}
-.tkx-r{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:10px;width:100%;padding:10px 16px;text-align:left}
+.tkx-r{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:10px;width:100%;padding:10px var(--s-4);text-align:left}
 /* rows fill the card, whose rounded edge would cut an outside ring: theirs is drawn inside */
 .tkx-r:focus-visible{outline-offset:-2px}
 .tkx-r .pr{display:flex;align-items:center;justify-content:center;width:18px;height:18px}
@@ -65,12 +66,13 @@
 .tkx-r .m{display:flex;align-items:center;gap:6px}
 .tkx-r .m .av{width:20px;height:20px;font-size:9px}
 .tkx-r .w{font-size:11.5px;color:var(--muted)}
-.tkx-d{padding:0 16px 14px 44px;display:flex;flex-direction:column;gap:8px}
+.tkx-d{padding:0 var(--s-4) 14px 44px;display:flex;flex-direction:column;gap:var(--s-2)}
 .tkx-q{font-size:12.5px;line-height:1.5;color:var(--fg2)}
-.tkx-s{padding:10px 12px;border-radius:12px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);font-size:12.5px;line-height:1.5;color:var(--fg)}
-.tkx-s .lb{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--accent-fg,var(--accent));font-weight:500;margin-bottom:4px}
-.tkx-s [contenteditable]{outline:0;border-radius:6px}
-.tkx-s [contenteditable]:focus{box-shadow:0 0 0 2px var(--focus);padding:2px 4px;margin:-2px -4px}
+.tkx-s{padding:10px var(--s-3);border-radius:var(--r-in);background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);font-size:12.5px;line-height:1.5;color:var(--fg)}
+.tkx-s .lb{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--accent-fg,var(--accent));font-weight:500;margin-bottom:var(--s-1)}
+/* the reply reads as text you can edit: the text cursor over it, and an accent caret once it has focus */
+.tkx-s [contenteditable]{outline:0;border-radius:6px;cursor:text;caret-color:var(--accent-fg,var(--accent))}
+.tkx-s [contenteditable]:focus{box-shadow:0 0 0 2px var(--focus);padding:2px var(--s-1);margin:-2px -4px}
 .tkx-a{display:flex;gap:6px;justify-content:flex-end}
 .tkx-e{padding:40px 10px;text-align:center;font-size:13px;color:var(--muted)}
 .tkx-t.leave{animation:leave .35s var(--ease) both}
@@ -107,7 +109,7 @@
     </div>
   </div>
 </div>
-</div></section><div class="cp-bar"><nav aria-label="Sections"><a href="#install">Install</a><a href="#about">About</a><a href="#usage">Usage</a><a href="#props">Props</a><a href="#code">Code</a><a href="#questions">Questions</a><a href="#more">More</a></nav></div><section class="cp-sec" id="install"><div class="pg-sh"><span class="n">01</span><h2>Install</h2><p>Add it to your project with the CLI.</p></div><div class="cp-two"><div class="cp-box"><h3 class="pg-t">HTML, CSS and JavaScript</h3><div class="cp-line"><span class="d">$</span><code><span class="cp-w">npx</span> <span class="cp-w">designme</span> <span class="cp-w">add</span> <span class="cp-w">ticket-list</span></code><button class="cp-copy" type="button" data-copy="npx designme add ticket-list" data-label="Copy">Copy</button></div></div><div class="cp-box"><h3 class="pg-t">React</h3><div class="cp-line"><span class="d">$</span><code><span class="cp-w">npx</span> <span class="cp-w">designme</span> <span class="cp-w">add</span> <span class="cp-w">ticket-list</span> <span class="cp-w">--react</span></code><button class="cp-copy" type="button" data-copy="npx designme add ticket-list --react" data-label="Copy">Copy</button></div></div></div><p class="cp-note">The CLI copies the source into your project, so you own it and can change anything. The HTML version lands in <code>./designme</code> with the shared core and a <code>demo.html</code>. The React version lands in <code>src/components/designme</code> and needs React 19; it works in Next.js, Vite and Astro.</p></section><section class="cp-sec" id="about"><div class="pg-sh"><span class="n">02</span><h2>About</h2><p>What it is for and what it does.</p></div><p class="cp-sum">Ticket list is a support queue where the agent has already triaged each ticket and drafted a reply. Rows show a priority dot, the customer, how long they have waited and who the ticket is assigned to. Opening a ticket shows the customer's message and the suggested reply, which a person can edit before choosing Send and solve.</p><div class="cp-gap"><div class="cp-tl" role="tablist" aria-label="About"><button type="button" role="tab" id="ab-t0" aria-controls="ab-p0" aria-selected="true" tabindex="0">When to use it</button><button type="button" role="tab" id="ab-t1" aria-controls="ab-p1" aria-selected="false" tabindex="-1">What it does</button><button type="button" role="tab" id="ab-t2" aria-controls="ab-p2" aria-selected="false" tabindex="-1">Accessibility</button></div><div class="cp-tp" role="tabpanel" id="ab-p0" aria-labelledby="ab-t0"><ul><li>When an agent triages incoming support tickets and drafts answers for a person to approve</li><li>When a support lead wants urgent tickets to stand out by colour</li><li>When replies should be edited in place before they go out</li><li>When solved tickets should leave the open queue but stay one click away</li></ul></div><div class="cp-tp" role="tabpanel" id="ab-p1" aria-labelledby="ab-t1" hidden><ul><li>A coloured dot marks <code>priority</code>: urgent red, high amber, normal accent and low grey, with the name in a tooltip.</li><li>While shut, each row shows the customer and a preview of their <code>question</code>, plus the <code>waiting</code> time and assignee avatar.</li><li>Opening a row shows the question and the agent's <code>reply</code> in an editable box; Edit puts the cursor at the end of it.</li><li>Send and solve calls <code>onSend</code> with the ticket and the reply as edited; a promise shows a spinner, then the row fades out and moves to Solved.</li><li>An Open and Solved switch filters the list, and an empty filter shows <code>emptyLabel</code>, "All caught up" by default.</li><li><code>tickets</code>, <code>filter</code> and <code>open</code> can each be controlled or left to the component.</li></ul></div><div class="cp-tp" role="tabpanel" id="ab-p2" aria-labelledby="ab-t2" hidden><ul><li>Each ticket row is a button with <code>aria-expanded</code> reporting whether it is open.</li><li>The Send and solve button sets <code>aria-busy</code> while sending.</li><li>The Open and Solved switch is a <code>group</code> labelled Filter, with <code>aria-pressed</code> on each option.</li></ul></div></div></section><section class="cp-sec" id="usage"><div class="pg-sh"><span class="n">03</span><h2>Usage</h2><p>Import it and drive it from your own state.</p></div><div class="cp-box"><h3 class="pg-t">Import</h3><pre class="cp-pre"><code>import { TicketList } from &#39;@/components/designme/ticket-list/TicketList&#39;;</code></pre></div><div class="cp-box cp-gap"><h3 class="pg-t">Example</h3><p class="pg-d">The demo above as a React component, 29 lines you can copy.</p><pre class="cp-pre"><code>&#39;use client&#39;;
+</div></section><div class="cp-bar"><nav aria-label="Sections"><a href="#install">Install</a><a href="#about">About</a><a href="#usage">Usage</a><a href="#props">Props</a><a href="#code">Code</a><a href="#questions">Questions</a><a href="#more">More</a></nav></div><section class="cp-sec" id="install"><div class="pg-sh"><span class="n">01</span><h2>Install</h2><p>Add it to your project with the CLI.</p></div><div class="cp-two"><div class="cp-box"><h3 class="pg-t">HTML, CSS and JavaScript</h3><div class="cp-line"><span class="d">$</span><code><span class="cp-w">npx</span> <span class="cp-w">designme</span> <span class="cp-w">add</span> <span class="cp-w">ticket-list</span></code><button class="cp-copy" type="button" data-copy="npx designme add ticket-list" data-label="Copy">Copy</button></div></div><div class="cp-box"><h3 class="pg-t">React</h3><div class="cp-line"><span class="d">$</span><code><span class="cp-w">npx</span> <span class="cp-w">designme</span> <span class="cp-w">add</span> <span class="cp-w">ticket-list</span> <span class="cp-w">--react</span></code><button class="cp-copy" type="button" data-copy="npx designme add ticket-list --react" data-label="Copy">Copy</button></div></div></div><p class="cp-note">The CLI copies the source into your project, so you own it and can change anything. The HTML version lands in <code>./designme</code> with the shared core and a <code>demo.html</code>. The React version lands in <code>src/components/designme</code> and needs React 19; it works in Next.js, Vite and Astro.</p></section><section class="cp-sec" id="about"><div class="pg-sh"><span class="n">02</span><h2>About</h2><p>What it is for and what it does.</p></div><p class="cp-sum">Ticket list is a support queue where the agent has already triaged each ticket and drafted a reply. Rows show a priority dot, the customer, how long they have waited and who the ticket is assigned to. Opening a ticket shows the customer's message and the suggested reply, which a person can edit before choosing Send and solve.</p><div class="cp-gap"><div class="cp-tl" role="tablist" aria-label="About"><button type="button" role="tab" id="ab-t0" aria-controls="ab-p0" aria-selected="true" tabindex="0">When to use it</button><button type="button" role="tab" id="ab-t1" aria-controls="ab-p1" aria-selected="false" tabindex="-1">What it does</button><button type="button" role="tab" id="ab-t2" aria-controls="ab-p2" aria-selected="false" tabindex="-1">Accessibility</button></div><div class="cp-tp" role="tabpanel" id="ab-p0" aria-labelledby="ab-t0"><ul><li>When an agent triages incoming support tickets and drafts answers for a person to approve</li><li>When a support lead wants urgent tickets to stand out by colour</li><li>When replies should be edited in place before they go out</li><li>When solved tickets should leave the open queue but stay one click away</li></ul></div><div class="cp-tp" role="tabpanel" id="ab-p1" aria-labelledby="ab-t1" hidden><ul><li>A coloured dot marks <code>priority</code>: urgent red, high amber, normal accent and low grey, with the name in a tooltip.</li><li>While shut, each row shows the customer and a preview of their <code>question</code>, plus the <code>waiting</code> time and assignee avatar.</li><li>Opening a row shows the question and the agent's <code>reply</code> in an editable box; Edit puts the cursor at the end of it.</li><li>Send and solve calls <code>onSend</code> with the ticket and the reply as edited; a promise shows a spinner, then the row fades out, folds its height away so the rows under it slide up, and moves to Solved.</li><li>An Open and Solved switch filters the list, and an empty filter shows <code>emptyLabel</code>, "All caught up" by default.</li><li><code>tickets</code>, <code>filter</code> and <code>open</code> can each be controlled or left to the component.</li></ul></div><div class="cp-tp" role="tabpanel" id="ab-p2" aria-labelledby="ab-t2" hidden><ul><li>Each ticket row is a button with <code>aria-expanded</code> reporting whether it is open.</li><li>The Send and solve button sets <code>aria-busy</code> while sending.</li><li>The Open and Solved switch is a <code>group</code> labelled Filter, with <code>aria-pressed</code> on each option.</li></ul></div></div></section><section class="cp-sec" id="usage"><div class="pg-sh"><span class="n">03</span><h2>Usage</h2><p>Import it and drive it from your own state.</p></div><div class="cp-box"><h3 class="pg-t">Import</h3><pre class="cp-pre"><code>import { TicketList } from &#39;@/components/designme/ticket-list/TicketList&#39;;</code></pre></div><div class="cp-box cp-gap"><h3 class="pg-t">Example</h3><p class="pg-d">The demo above as a React component, 29 lines you can copy.</p><pre class="cp-pre"><code>&#39;use client&#39;;
 // The animated preview from designme.dev, rebuilt from the React component: an example of driving it from your own state.
 import { useRef, useState } from &#39;react&#39;;
 import { TicketList, type TicketListTicket } from &#39;./TicketList&#39;;
@@ -135,10 +137,10 @@ export default function TicketListDemo() {
   useStory(ref, async ({ wait }) =&gt; { await wait(1000); setOpen(o =&gt; o ?? &#39;export&#39;); });
   return &lt;div ref={ref} style={{ display: &#39;contents&#39; }}&gt;&lt;TicketList defaultTickets={TICKETS} open={open} onOpenChange={setOpen} onSend={() =&gt; new Promise(res =&gt; setTimeout(res, 700))} /&gt;&lt;/div&gt;;
 }
-</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything TicketList takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>tickets</code></td><td><code>TicketListTicket[]</code></td><td>The tickets. Leave it out to let Send and solve move them to Solved by itself</td></tr><tr><td><code>defaultTickets</code></td><td><code>TicketListTicket[]</code></td><td></td></tr><tr><td><code>onTicketsChange</code></td><td><code>(tickets: TicketListTicket[]) =&gt; void</code></td><td></td></tr><tr><td><code>filter</code></td><td><code>TicketListStatus</code></td><td>Which tickets show. Leave it out to let the switch change it</td></tr><tr><td><code>defaultFilter</code></td><td><code>TicketListStatus</code></td><td></td></tr><tr><td><code>onFilterChange</code></td><td><code>(filter: TicketListStatus) =&gt; void</code></td><td></td></tr><tr><td><code>open</code></td><td><code>string | null</code></td><td>The id of the open ticket, or null. Leave it out to let the rows open and shut</td></tr><tr><td><code>defaultOpen</code></td><td><code>string | null</code></td><td></td></tr><tr><td><code>onOpenChange</code></td><td><code>(id: string | null) =&gt; void</code></td><td></td></tr><tr><td><code>onSend</code></td><td><code>(ticket: TicketListTicket, reply: string) =&gt; void | Promise&lt;void&gt;</code></td><td>Sends the reply, edited or not. Return a promise and the button spins until it settles; then the ticket fades out and is solved</td></tr><tr><td><code>title</code></td><td><code>string</code></td><td></td></tr><tr><td><code>filterLabels</code></td><td><code>Record&lt;TicketListStatus, string&gt;</code></td><td>The switch&#39;s two labels</td></tr><tr><td><code>emptyLabel</code></td><td><code>string</code></td><td>Shown when no ticket matches the filter</td></tr><tr><td><code>replyLabel</code></td><td><code>string</code></td><td></td></tr><tr><td><code>editLabel</code></td><td><code>string</code></td><td></td></tr><tr><td><code>sendLabel</code></td><td><code>string</code></td><td></td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>TicketList.tsx<span class="l">React · 149 lines</span></summary><pre class="cp-pre"><code>&#39;use client&#39;;
+</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything TicketList takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>tickets</code></td><td><code>TicketListTicket[]</code></td><td>The tickets. Leave it out to let Send and solve move them to Solved by itself</td></tr><tr><td><code>defaultTickets</code></td><td><code>TicketListTicket[]</code></td><td></td></tr><tr><td><code>onTicketsChange</code></td><td><code>(tickets: TicketListTicket[]) =&gt; void</code></td><td></td></tr><tr><td><code>filter</code></td><td><code>TicketListStatus</code></td><td>Which tickets show. Leave it out to let the switch change it</td></tr><tr><td><code>defaultFilter</code></td><td><code>TicketListStatus</code></td><td></td></tr><tr><td><code>onFilterChange</code></td><td><code>(filter: TicketListStatus) =&gt; void</code></td><td></td></tr><tr><td><code>open</code></td><td><code>string | null</code></td><td>The id of the open ticket, or null. Leave it out to let the rows open and shut</td></tr><tr><td><code>defaultOpen</code></td><td><code>string | null</code></td><td></td></tr><tr><td><code>onOpenChange</code></td><td><code>(id: string | null) =&gt; void</code></td><td></td></tr><tr><td><code>onSend</code></td><td><code>(ticket: TicketListTicket, reply: string) =&gt; void | Promise&lt;void&gt;</code></td><td>Sends the reply, edited or not. Return a promise and the button spins until it settles; then the ticket fades out and is solved</td></tr><tr><td><code>title</code></td><td><code>string</code></td><td></td></tr><tr><td><code>filterLabels</code></td><td><code>Record&lt;TicketListStatus, string&gt;</code></td><td>The switch&#39;s two labels</td></tr><tr><td><code>emptyLabel</code></td><td><code>string</code></td><td>Shown when no ticket matches the filter</td></tr><tr><td><code>replyLabel</code></td><td><code>string</code></td><td></td></tr><tr><td><code>editLabel</code></td><td><code>string</code></td><td></td></tr><tr><td><code>sendLabel</code></td><td><code>string</code></td><td></td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>TicketList.tsx<span class="l">React · 162 lines</span></summary><pre class="cp-pre"><code>&#39;use client&#39;;
 import { useEffect, useRef, useState, type AnimationEvent } from &#39;react&#39;;
 import { cx } from &#39;../lib/cx&#39;;
-import { useControllable } from &#39;../lib/hooks&#39;;
+import { useControllable, useReducedMotion } from &#39;../lib/hooks&#39;;
 import { Icon } from &#39;../lib/icons&#39;;
 import { Avatar, enter, Seg, Spin, Tip } from &#39;../lib/motion&#39;;
 import &#39;../designme.css&#39;;
@@ -199,6 +201,9 @@ const PRIORITY: Record&lt;TicketListPriority, { label: string; color: string }&g
   low: { label: &#39;Low&#39;, color: &#39;var(--dm-faint)&#39; }
 };
 
+// how long a solved ticket takes to fade, then to fold its height away
+const FADE = 330, FOLD = 260;
+
 function Ticket({ ticket, index, isOpen, leaving, busy, onToggle, onSend, labels }: {
   ticket: TicketListTicket; index: number; isOpen: boolean; leaving: boolean; busy: boolean;
   onToggle: () =&gt; void; onSend: (reply: string) =&gt; void; labels: { reply: string; edit: string; send: string };
@@ -206,6 +211,15 @@ function Ticket({ ticket, index, isOpen, leaving, busy, onToggle, onSend, labels
   // rows come in one after another, then drop the entrance so a later fade-out starts on time
   const [entering, setEntering] = useState(true);
   const text = useRef&lt;HTMLDivElement&gt;(null);
+  const row = useRef&lt;HTMLDivElement&gt;(null);
+  const reduce = useReducedMotion();
+  // a solved ticket fades, then folds its height away, so the tickets under it slide up instead of jumping
+  useEffect(() =&gt; {
+    const el = row.current; if (!leaving || !el || reduce) return;
+    el.style.overflow = &#39;hidden&#39;;
+    const a = el.animate([{ height: el.offsetHeight + &#39;px&#39; }, { height: &#39;0px&#39; }], { duration: FOLD, delay: FADE, easing: &#39;cubic-bezier(.22,1,.36,1)&#39;, fill: &#39;forwards&#39; });
+    return () =&gt; a.cancel();
+  }, [leaving, reduce]);
   const p = PRIORITY[ticket.priority ?? &#39;normal&#39;];
   const edit = () =&gt; {
     const el = text.current; if (!el) return;
@@ -213,7 +227,7 @@ function Ticket({ ticket, index, isOpen, leaving, busy, onToggle, onSend, labels
     const sel = document.getSelection(); sel?.selectAllChildren(el); sel?.collapseToEnd();
   };
   return (
-    &lt;div className={cx(&#39;dm-tkx-t&#39;, isOpen &amp;&amp; &#39;dm-open&#39;, entering &amp;&amp; &#39;dm-enter&#39;, leaving &amp;&amp; &#39;dm-leave&#39;)} style={entering ? enter(index * 40).style : undefined}
+    &lt;div ref={row} className={cx(&#39;dm-tkx-t&#39;, isOpen &amp;&amp; &#39;dm-open&#39;, entering &amp;&amp; &#39;dm-enter&#39;, leaving &amp;&amp; &#39;dm-leave&#39;)} style={entering ? enter(index * 40).style : undefined}
       onAnimationEnd={(e: AnimationEvent) =&gt; { if (e.target === e.currentTarget &amp;&amp; entering) setEntering(false); }}&gt;
       &lt;button type=&quot;button&quot; className=&quot;dm-tkx-r&quot; aria-expanded={isOpen} onClick={leaving ? undefined : onToggle}&gt;
         &lt;Tip label={p.label}&gt;&lt;span className=&quot;dm-pr&quot;&gt;&lt;span className=&quot;dm-dot&quot; style={{ color: p.color }} /&gt;&lt;/span&gt;&lt;/Tip&gt;
@@ -247,6 +261,7 @@ export function TicketList({ tickets, defaultTickets = [], onTicketsChange, filt
   const [openId, setOpen] = useControllable(open, defaultOpen, onOpenChange);
   const [busy, setBusy] = useState&lt;string | null&gt;(null);
   const [leaving, setLeaving] = useState&lt;string | null&gt;(null);
+  const reduce = useReducedMotion();
   const alive = useRef(true);
   useEffect(() =&gt; () =&gt; { alive.current = false; }, []);
   // the latest list, for when a send settles after other changes
@@ -258,7 +273,7 @@ export function TicketList({ tickets, defaultTickets = [], onTicketsChange, filt
     try { await onSend?.(t, reply); } catch { if (alive.current) setBusy(null); return; }
     if (!alive.current) return;
     setLeaving(t.id);
-    await new Promise(res =&gt; setTimeout(res, 330));
+    await new Promise(res =&gt; setTimeout(res, reduce ? 0 : FADE + FOLD));
     if (!alive.current) return;
     setBusy(null); setLeaving(null); setOpen(null);
     setList(latest.current.map(x =&gt; x.id === t.id ? { ...x, status: &#39;done&#39;, reply } : x));
@@ -283,18 +298,19 @@ export function TicketList({ tickets, defaultTickets = [], onTicketsChange, filt
     &lt;/div&gt;
   );
 }
-</code></pre></details><details class="cp-file"><summary>ticket-list.css<span class="l">React · 32 lines</span></summary><pre class="cp-pre"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+</code></pre></details><details class="cp-file"><summary>ticket-list.css<span class="l">React · 34 lines</span></summary><pre class="cp-pre"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Ticket list ---------- */
 /* rows run edge to edge inside the panel, so there is one surface instead of nested ones */
-.dm-tkx{padding:12px 0 0;display:flex;flex-direction:column;gap:6px;min-height:340px;overflow:hidden}
-.dm-tkx-h{display:flex;align-items:center;justify-content:space-between;padding:0 16px 4px;font-size:14px}
+/* the panel fits the tickets it lists, however few are left */
+.dm-tkx{padding:var(--dm-s-3) 0 0;display:flex;flex-direction:column;gap:6px;overflow:hidden}
+.dm-tkx-h{display:flex;align-items:center;justify-content:space-between;padding:0 var(--dm-s-4) var(--dm-s-1);font-size:14px}
 .dm-tkx-h b{font-weight:500}
 .dm-tkx-sg button{font-size:12px;height:26px;padding:0 9px}
 .dm-tkx-list{display:flex;flex-direction:column}
 .dm-tkx-t{transition:background .2s;box-shadow:inset 0 1px 0 var(--dm-line)}
 @media (hover:hover) and (pointer:fine){.dm-tkx-t:hover{background:var(--dm-row)}}
 .dm-tkx-t.dm-open{background:color-mix(in srgb,var(--dm-wash) 50%,var(--dm-surface))}
-.dm-tkx-r{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:10px;width:100%;padding:10px 16px;text-align:left}
+.dm-tkx-r{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:10px;width:100%;padding:10px var(--dm-s-4);text-align:left}
 /* rows fill the card, whose rounded edge would cut an outside ring: theirs is drawn inside */
 .dm-tkx-r:focus-visible{outline-offset:-2px}
 .dm-tkx-r .dm-pr{display:flex;align-items:center;justify-content:center;width:18px;height:18px}
@@ -305,12 +321,13 @@ export function TicketList({ tickets, defaultTickets = [], onTicketsChange, filt
 .dm-tkx-r .dm-m{display:flex;align-items:center;gap:6px}
 .dm-tkx-r .dm-m .dm-av{width:20px;height:20px;font-size:9px}
 .dm-tkx-r .dm-w{font-size:11.5px;color:var(--dm-muted)}
-.dm-tkx-d{padding:0 16px 14px 44px;display:flex;flex-direction:column;gap:8px}
+.dm-tkx-d{padding:0 var(--dm-s-4) 14px 44px;display:flex;flex-direction:column;gap:var(--dm-s-2)}
 .dm-tkx-q{font-size:12.5px;line-height:1.5;color:var(--dm-fg2)}
-.dm-tkx-s{padding:10px 12px;border-radius:12px;background:var(--dm-surface);box-shadow:inset 0 0 0 1px var(--dm-line);font-size:12.5px;line-height:1.5;color:var(--dm-fg)}
-.dm-tkx-s .dm-lb{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--dm-accent-fg,var(--dm-accent));font-weight:500;margin-bottom:4px}
-.dm-tkx-s [contenteditable]{outline:0;border-radius:6px}
-.dm-tkx-s [contenteditable]:focus{box-shadow:0 0 0 2px var(--dm-focus);padding:2px 4px;margin:-2px -4px}
+.dm-tkx-s{padding:10px var(--dm-s-3);border-radius:var(--dm-r-in);background:var(--dm-surface);box-shadow:inset 0 0 0 1px var(--dm-line);font-size:12.5px;line-height:1.5;color:var(--dm-fg)}
+.dm-tkx-s .dm-lb{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--dm-accent-fg,var(--dm-accent));font-weight:500;margin-bottom:var(--dm-s-1)}
+/* the reply reads as text you can edit: the text cursor over it, and an accent caret once it has focus */
+.dm-tkx-s [contenteditable]{outline:0;border-radius:6px;cursor:text;caret-color:var(--dm-accent-fg,var(--dm-accent))}
+.dm-tkx-s [contenteditable]:focus{box-shadow:0 0 0 2px var(--dm-focus);padding:2px var(--dm-s-1);margin:-2px -4px}
 .dm-tkx-a{display:flex;gap:6px;justify-content:flex-end}
 .dm-tkx-e{padding:40px 10px;text-align:center;font-size:13px;color:var(--dm-muted)}
 .dm-tkx-t.dm-leave{animation:dm-leave .35s var(--dm-ease) both}
@@ -322,17 +339,18 @@ export function TicketList({ tickets, defaultTickets = [], onTicketsChange, filt
     &lt;/div&gt;
   &lt;/div&gt;
 &lt;/div&gt;
-</code></pre></details><details class="cp-file"><summary>ticket-list.css<span class="l">HTML · 31 lines</span></summary><pre class="cp-pre"><code>/* ---------- Ticket list ---------- */
+</code></pre></details><details class="cp-file"><summary>ticket-list.css<span class="l">HTML · 33 lines</span></summary><pre class="cp-pre"><code>/* ---------- Ticket list ---------- */
 /* rows run edge to edge inside the panel, so there is one surface instead of nested ones */
-.tkx{padding:12px 0 0;display:flex;flex-direction:column;gap:6px;min-height:340px;overflow:hidden}
-.tkx-h{display:flex;align-items:center;justify-content:space-between;padding:0 16px 4px;font-size:14px}
+/* the panel fits the tickets it lists, however few are left */
+.tkx{padding:var(--s-3) 0 0;display:flex;flex-direction:column;gap:6px;overflow:hidden}
+.tkx-h{display:flex;align-items:center;justify-content:space-between;padding:0 var(--s-4) var(--s-1);font-size:14px}
 .tkx-h b{font-weight:500}
 .tkx-sg button{font-size:12px;height:26px;padding:0 9px}
 .tkx-list{display:flex;flex-direction:column}
 .tkx-t{transition:background .2s;box-shadow:inset 0 1px 0 var(--line)}
 @media (hover:hover) and (pointer:fine){.tkx-t:hover{background:var(--row)}}
 .tkx-t.open{background:color-mix(in srgb,var(--wash) 50%,var(--surface))}
-.tkx-r{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:10px;width:100%;padding:10px 16px;text-align:left}
+.tkx-r{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:10px;width:100%;padding:10px var(--s-4);text-align:left}
 /* rows fill the card, whose rounded edge would cut an outside ring: theirs is drawn inside */
 .tkx-r:focus-visible{outline-offset:-2px}
 .tkx-r .pr{display:flex;align-items:center;justify-content:center;width:18px;height:18px}
@@ -343,16 +361,17 @@ export function TicketList({ tickets, defaultTickets = [], onTicketsChange, filt
 .tkx-r .m{display:flex;align-items:center;gap:6px}
 .tkx-r .m .av{width:20px;height:20px;font-size:9px}
 .tkx-r .w{font-size:11.5px;color:var(--muted)}
-.tkx-d{padding:0 16px 14px 44px;display:flex;flex-direction:column;gap:8px}
+.tkx-d{padding:0 var(--s-4) 14px 44px;display:flex;flex-direction:column;gap:var(--s-2)}
 .tkx-q{font-size:12.5px;line-height:1.5;color:var(--fg2)}
-.tkx-s{padding:10px 12px;border-radius:12px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);font-size:12.5px;line-height:1.5;color:var(--fg)}
-.tkx-s .lb{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--accent-fg,var(--accent));font-weight:500;margin-bottom:4px}
-.tkx-s [contenteditable]{outline:0;border-radius:6px}
-.tkx-s [contenteditable]:focus{box-shadow:0 0 0 2px var(--focus);padding:2px 4px;margin:-2px -4px}
+.tkx-s{padding:10px var(--s-3);border-radius:var(--r-in);background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);font-size:12.5px;line-height:1.5;color:var(--fg)}
+.tkx-s .lb{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--accent-fg,var(--accent));font-weight:500;margin-bottom:var(--s-1)}
+/* the reply reads as text you can edit: the text cursor over it, and an accent caret once it has focus */
+.tkx-s [contenteditable]{outline:0;border-radius:6px;cursor:text;caret-color:var(--accent-fg,var(--accent))}
+.tkx-s [contenteditable]:focus{box-shadow:0 0 0 2px var(--focus);padding:2px var(--s-1);margin:-2px -4px}
 .tkx-a{display:flex;gap:6px;justify-content:flex-end}
 .tkx-e{padding:40px 10px;text-align:center;font-size:13px;color:var(--muted)}
 .tkx-t.leave{animation:leave .35s var(--ease) both}
-</code></pre></details><details class="cp-file"><summary>ticket-list.js<span class="l">HTML · 24 lines</span></summary><pre class="cp-pre"><code>DM.def(&#39;ticket-list&#39;, (r, c) =&gt; {
+</code></pre></details><details class="cp-file"><summary>ticket-list.js<span class="l">HTML · 29 lines</span></summary><pre class="cp-pre"><code>DM.def(&#39;ticket-list&#39;, (r, c) =&gt; {
   const T = [
     { p:&#39;var(--bad)&#39;, pn:&#39;Urgent&#39;, t:&#39;Agent stopped mid export&#39;, f:&#39;Northwind&#39;, a:[&#39;MK&#39;,&#39;var(--pl)&#39;], w:&#39;4m&#39;, q:&#39;The token export stopped at 60% and nothing has happened for 20 minutes.&#39;, s:&#39;Sorry about that. The run paused at your $5 spend cap. I have raised it for this run and it finished just now. Your tokens are in the Exports tab.&#39;, st:&#39;open&#39; },
     { p:&#39;var(--warn)&#39;, pn:&#39;High&#39;, t:&#39;Figma frames not syncing&#39;, f:&#39;Lumen Labs&#39;, a:[&#39;JO&#39;,&#39;var(--pm)&#39;], w:&#39;22m&#39;, q:&#39;New frames from this morning are not showing up in DesignMe.&#39;, s:&#39;The Figma token for your workspace expired yesterday. Reconnect it from Settings, then the frames will sync within a minute.&#39;, st:&#39;open&#39; },
@@ -366,12 +385,17 @@ export function TicketList({ tickets, defaultTickets = [], onTicketsChange, filt
     if (anim) stagger($$(&#39;.tkx-t&#39;, list), 40);
     $$(&#39;.tkx-t&#39;, list).forEach((el, i) =&gt; { const t = L[i];
       $(&#39;.tkx-r&#39;, el).onclick = () =&gt; { open = open === t ? null : t; paint(); const d = $(&#39;.tkx-d&#39;, list); if (d) stagger([...d.children], 50); };
-      const sd = $(&#39;.sd&#39;, el); if (sd) sd.onclick = () =&gt; c.run(async () =&gt; { sd.innerHTML = &#39;&lt;span class=&quot;spin&quot;&gt;&lt;/span&gt;&#39;; await c.wait(700); t.s = $(&#39;.tx&#39;, el).textContent; t.st = &#39;done&#39;; open = null; el.classList.add(&#39;leave&#39;); await c.wait(330); paint(); });
+      // a solved ticket fades, then folds its height away, so the tickets under it slide up instead of jumping
+      const sd = $(&#39;.sd&#39;, el); if (sd) sd.onclick = () =&gt; c.run(async () =&gt; { sd.innerHTML = &#39;&lt;span class=&quot;spin&quot;&gt;&lt;/span&gt;&#39;; await c.wait(700); t.s = $(&#39;.tx&#39;, el).textContent; t.st = &#39;done&#39;; open = null; el.classList.add(&#39;leave&#39;); await c.wait(330);
+        if (!REDUCE){ el.style.overflow = &#39;hidden&#39;; await el.animate([{ height:el.offsetHeight + &#39;px&#39; }, { height:&#39;0px&#39; }], { duration:260, easing:&#39;cubic-bezier(.22,1,.36,1)&#39;, fill:&#39;forwards&#39; }).finished.catch(() =&gt; {}); }
+        if (!c.dead) paint(); });
       const ed = $(&#39;.ed&#39;, el); if (ed) ed.onclick = () =&gt; { const tx = $(&#39;.tx&#39;, el); tx.focus({ preventScroll:true }); const s = document.getSelection(); s.selectAllChildren(tx); s.collapseToEnd(); };
     });
   }
   seg($(&#39;.tkx-sg&#39;, r), v =&gt; { f = v; open = null; paint(true); });
   paint(true);
+  // as tickets open, close, leave or change with the filter, the panel stays centred in the room its stage keeps for it
+  const root = $(&#39;.tkx&#39;, r); centre(c, root, () =&gt; root.offsetHeight);
   // the preview opens the first ticket on its own, unless you take over first
   c.auto(1000, () =&gt; { if (!open){ open = T[0]; paint(); stagger([...$(&#39;.tkx-d&#39;, list).children], 50); } });
 });
@@ -712,12 +736,17 @@ const fitHits = window.dmFitHits || (() => {
     if (anim) stagger($$('.tkx-t', list), 40);
     $$('.tkx-t', list).forEach((el, i) => { const t = L[i];
       $('.tkx-r', el).onclick = () => { open = open === t ? null : t; paint(); const d = $('.tkx-d', list); if (d) stagger([...d.children], 50); };
-      const sd = $('.sd', el); if (sd) sd.onclick = () => c.run(async () => { sd.innerHTML = '<span class="spin"></span>'; await c.wait(700); t.s = $('.tx', el).textContent; t.st = 'done'; open = null; el.classList.add('leave'); await c.wait(330); paint(); });
+      // a solved ticket fades, then folds its height away, so the tickets under it slide up instead of jumping
+      const sd = $('.sd', el); if (sd) sd.onclick = () => c.run(async () => { sd.innerHTML = '<span class="spin"></span>'; await c.wait(700); t.s = $('.tx', el).textContent; t.st = 'done'; open = null; el.classList.add('leave'); await c.wait(330);
+        if (!REDUCE){ el.style.overflow = 'hidden'; await el.animate([{ height:el.offsetHeight + 'px' }, { height:'0px' }], { duration:260, easing:'cubic-bezier(.22,1,.36,1)', fill:'forwards' }).finished.catch(() => {}); }
+        if (!c.dead) paint(); });
       const ed = $('.ed', el); if (ed) ed.onclick = () => { const tx = $('.tx', el); tx.focus({ preventScroll:true }); const s = document.getSelection(); s.selectAllChildren(tx); s.collapseToEnd(); };
     });
   }
   seg($('.tkx-sg', r), v => { f = v; open = null; paint(true); });
   paint(true);
+  // as tickets open, close, leave or change with the filter, the panel stays centred in the room its stage keeps for it
+  const root = $('.tkx', r); centre(c, root, () => root.offsetHeight);
   // the preview opens the first ticket on its own, unless you take over first
   c.auto(1000, () => { if (!open){ open = T[0]; paint(); stagger([...$('.tkx-d', list).children], 50); } });
 });

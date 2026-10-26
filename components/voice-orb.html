@@ -47,18 +47,18 @@
 </script><script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareSourceCode","name":"Voice orb","description":"Voice orb is the screen for a hands-free voice chat with the agent. An orb in the middle swells with whoever is talking, in the accent colour while it listens to you and violet while the agent speaks, with what was said written under it word by word. Below sit mute and end, and someone who talks while muted is told so, with a button to unmute.","url":"https://designme.dev/components/voice-orb","image":"https://designme.dev/components/og/voice-orb.jpg","programmingLanguage":["HTML","CSS","JavaScript","TypeScript"],"runtimePlatform":"Web browser","license":"https://opensource.org/licenses/MIT","isAccessibleForFree":true,"keywords":"Voice orb, Conversation, AI agent UI, React component, HTML component","author":{"@type":"Organization","name":"DesignMe","url":"https://designme.agency"},"isPartOf":{"@type":"WebSite","name":"Designme.dev","url":"https://designme.dev/"}}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Library","item":"https://designme.dev/"},{"@type":"ListItem","position":2,"name":"Conversation","item":"https://designme.dev/#s-conversation"},{"@type":"ListItem","position":3,"name":"Voice orb","item":"https://designme.dev/components/voice-orb"}]}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does it use the microphone or play sound?","acceptedAnswer":{"@type":"Answer","text":"No. It draws the state, level and caption you pass. Your code records, transcribes and plays the agent's voice. The demo plays a written script and never asks for the microphone."}},{"@type":"Question","name":"How is it different from Voice capture?","acceptedAnswer":{"@type":"Answer","text":"Voice capture records one message to check and fix before sending. Voice orb is a back-and-forth conversation, with the agent answering out loud."}},{"@type":"Question","name":"How do I drive the orb from real audio?","acceptedAnswer":{"@type":"Answer","text":"Read the loudness from your audio, for example with a Web Audio AnalyserNode, scale it to 0 to 1, and pass it as level on each animation frame."}}]}</script><link rel="stylesheet" href="/components/assets/core.css"><style>/* ---------- Voice orb ---------- */
 /* a hands-free voice chat: an orb that swells with whoever is talking, the accent colour for you and violet for the agent, what
    was said under it, and mute and end below. Talking while muted says so, the way calls do */
-.vor{position:relative;width:100%;max-width:380px;margin:0 auto;padding:16px;display:flex;flex-direction:column;gap:12px;--oc:var(--faint);--oc2:var(--muted)}
+.vor{position:relative;width:100%;max-width:380px;margin:0 auto;padding:var(--s-4);display:flex;flex-direction:column;gap:var(--s-3);--oc:var(--faint);--oc2:var(--muted)}
 /* --oc is whoever is talking, --oc2 the second colour that flows through the orb with it */
 .vor[data-m="listening"]{--oc:var(--accent);--oc2:color-mix(in srgb,var(--pl) 45%,var(--accent))}
 .vor[data-m="speaking"]{--oc:var(--pl);--oc2:color-mix(in srgb,var(--accent) 45%,var(--pl))}
 .vor[data-m="thinking"]{--oc:color-mix(in srgb,var(--accent) 50%,var(--pl));--oc2:var(--accent)}
 .vor[data-m="muted"]{--oc:color-mix(in srgb,var(--muted) 55%,var(--faint));--oc2:var(--faint)}
-.vor-top{display:flex;align-items:center;gap:8px;font-size:13px}
+.vor-top{display:flex;align-items:center;gap:var(--s-2);font-size:13px}
 .vor-dot{width:8px;height:8px;border-radius:50%;background:var(--oc);transition:background .4s}
 .vor[data-m="listening"] .vor-dot,.vor[data-m="speaking"] .vor-dot{animation:vor-pulse 1.4s var(--ease-io) infinite}
 @keyframes vor-pulse{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--oc) 35%,transparent)}50%{box-shadow:0 0 0 5px transparent}}
 .vor-t{margin-left:auto;font-size:12.5px}
-.vor-orb{position:relative;width:112px;height:112px;margin:8px auto;--lv:0}
+.vor-orb{position:relative;width:112px;height:112px;margin:var(--s-2) auto;--lv:0}
 .vor-orb i{position:absolute;inset:0;border-radius:50%}
 /* round in Blueprint too, where every other corner is square: like the turning loaders, its shape is what it says */
 .vor .vor-orb i{border-radius:50%!important}
@@ -83,11 +83,11 @@
 .vor-tx.hint{color:var(--muted);font-size:13px}
 .vor-tx .w{animation:vor-w .45s var(--ease) both}
 @keyframes vor-w{from{opacity:0;filter:blur(3px)}to{opacity:1;filter:none}}
-.vor-mw{display:flex;align-items:center;gap:10px;padding:8px 8px 8px 12px;border-radius:12px;background:var(--warn-bg)}
-.vor-mw p{margin:0;flex:1;display:flex;gap:8px;font-size:13px;line-height:1.45;color:var(--fg)}
+.vor-mw{display:flex;align-items:center;gap:10px;padding:var(--s-2) var(--s-2) var(--s-2) var(--s-3);border-radius:var(--r-in);background:var(--warn-bg)}
+.vor-mw p{margin:0;flex:1;display:flex;gap:var(--s-2);font-size:13px;line-height:1.45;color:var(--fg)}
 .vor-mw p svg{color:var(--warn);flex:none;margin-top:3px}
 .vor-mw .pill,.vor-done .pill{background:var(--surface);color:var(--fg);box-shadow:var(--shadow)}
-.vor-f{display:flex;align-items:center;gap:8px;min-height:32px}
+.vor-f{display:flex;align-items:center;gap:var(--s-2);min-height:32px}
 .vor-f .sp{flex:1}
 .vor:not(.on) .vor-f{justify-content:center}
 .vor:not(.on) .vor-mute,.vor:not(.on) .vor-end,.vor:not(.on) .vor-f .sp,.vor.on .vor-go{display:none}
@@ -98,7 +98,7 @@
 .vor-mute[aria-pressed="true"]::after{transform:rotate(-45deg) scaleY(1)}
 .vor-end{background:var(--bad);color:var(--on-ink)}
 @media (hover:hover) and (pointer:fine){.vor-end:hover{background:color-mix(in srgb,var(--bad) 86%,#000)}}
-.vor-done{display:flex;align-items:center;gap:12px;padding:10px 10px 10px 12px;border-radius:12px;background:var(--chip);font-size:13.5px}
+.vor-done{display:flex;align-items:center;gap:var(--s-3);padding:10px 10px 10px var(--s-3);border-radius:var(--r-in);background:var(--chip);font-size:13.5px}
 .vor-done>svg{color:var(--fg2);flex:none}
 .vor-done .t{flex:1;min-width:0;display:flex;flex-direction:column}
 .vor-done .t span{font-size:13px}
@@ -384,18 +384,18 @@ function orbShader(cv: HTMLCanvasElement) {
 /* ---------- Voice orb ---------- */
 /* a hands-free voice chat: an orb that swells with whoever is talking, the accent colour for you and violet for the agent, what
    was said under it, and mute and end below. Talking while muted says so, the way calls do */
-.dm-vor{position:relative;width:100%;max-width:380px;margin:0 auto;padding:16px;display:flex;flex-direction:column;gap:12px;--dm-oc:var(--dm-faint);--dm-oc2:var(--dm-muted)}
+.dm-vor{position:relative;width:100%;max-width:380px;margin:0 auto;padding:var(--dm-s-4);display:flex;flex-direction:column;gap:var(--dm-s-3);--dm-oc:var(--dm-faint);--dm-oc2:var(--dm-muted)}
 /* --oc is whoever is talking, --oc2 the second colour that flows through the orb with it */
 .dm-vor[data-m=&quot;listening&quot;]{--dm-oc:var(--dm-accent);--dm-oc2:color-mix(in srgb,var(--dm-pl) 45%,var(--dm-accent))}
 .dm-vor[data-m=&quot;speaking&quot;]{--dm-oc:var(--dm-pl);--dm-oc2:color-mix(in srgb,var(--dm-accent) 45%,var(--dm-pl))}
 .dm-vor[data-m=&quot;thinking&quot;]{--dm-oc:color-mix(in srgb,var(--dm-accent) 50%,var(--dm-pl));--dm-oc2:var(--dm-accent)}
 .dm-vor[data-m=&quot;muted&quot;]{--dm-oc:color-mix(in srgb,var(--dm-muted) 55%,var(--dm-faint));--dm-oc2:var(--dm-faint)}
-.dm-vor-top{display:flex;align-items:center;gap:8px;font-size:13px}
+.dm-vor-top{display:flex;align-items:center;gap:var(--dm-s-2);font-size:13px}
 .dm-vor-dot{width:8px;height:8px;border-radius:50%;background:var(--dm-oc);transition:background .4s}
 .dm-vor[data-m=&quot;listening&quot;] .dm-vor-dot,.dm-vor[data-m=&quot;speaking&quot;] .dm-vor-dot{animation:dm-vor-pulse 1.4s var(--dm-ease-io) infinite}
 @keyframes dm-vor-pulse{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--dm-oc) 35%,transparent)}50%{box-shadow:0 0 0 5px transparent}}
 .dm-vor-t{margin-left:auto;font-size:12.5px}
-.dm-vor-orb{position:relative;width:112px;height:112px;margin:8px auto;--dm-lv:0}
+.dm-vor-orb{position:relative;width:112px;height:112px;margin:var(--dm-s-2) auto;--dm-lv:0}
 .dm-vor-orb i{position:absolute;inset:0;border-radius:50%}
 /* round in Blueprint too, where every other corner is square: like the turning loaders, its shape is what it says */
 .dm-vor .dm-vor-orb i{border-radius:50%!important}
@@ -420,11 +420,11 @@ function orbShader(cv: HTMLCanvasElement) {
 .dm-vor-tx.dm-hint{color:var(--dm-muted);font-size:13px}
 .dm-vor-tx .dm-w{animation:dm-vor-w .45s var(--dm-ease) both}
 @keyframes dm-vor-w{from{opacity:0;filter:blur(3px)}to{opacity:1;filter:none}}
-.dm-vor-mw{display:flex;align-items:center;gap:10px;padding:8px 8px 8px 12px;border-radius:12px;background:var(--dm-warn-bg)}
-.dm-vor-mw p{margin:0;flex:1;display:flex;gap:8px;font-size:13px;line-height:1.45;color:var(--dm-fg)}
+.dm-vor-mw{display:flex;align-items:center;gap:10px;padding:var(--dm-s-2) var(--dm-s-2) var(--dm-s-2) var(--dm-s-3);border-radius:var(--dm-r-in);background:var(--dm-warn-bg)}
+.dm-vor-mw p{margin:0;flex:1;display:flex;gap:var(--dm-s-2);font-size:13px;line-height:1.45;color:var(--dm-fg)}
 .dm-vor-mw p svg{color:var(--dm-warn);flex:none;margin-top:3px}
 .dm-vor-mw .dm-pill,.dm-vor-done .dm-pill{background:var(--dm-surface);color:var(--dm-fg);box-shadow:var(--dm-shadow)}
-.dm-vor-f{display:flex;align-items:center;gap:8px;min-height:32px}
+.dm-vor-f{display:flex;align-items:center;gap:var(--dm-s-2);min-height:32px}
 .dm-vor-f .dm-sp{flex:1}
 .dm-vor:not(.dm-on) .dm-vor-f{justify-content:center}
 .dm-vor:not(.dm-on) .dm-vor-mute,.dm-vor:not(.dm-on) .dm-vor-end,.dm-vor:not(.dm-on) .dm-vor-f .dm-sp,.dm-vor.dm-on .dm-vor-go{display:none}
@@ -435,7 +435,7 @@ function orbShader(cv: HTMLCanvasElement) {
 .dm-vor-mute[aria-pressed=&quot;true&quot;]::after{transform:rotate(-45deg) scaleY(1)}
 .dm-vor-end{background:var(--dm-bad);color:var(--dm-on-ink)}
 @media (hover:hover) and (pointer:fine){.dm-vor-end:hover{background:color-mix(in srgb,var(--dm-bad) 86%,#000)}}
-.dm-vor-done{display:flex;align-items:center;gap:12px;padding:10px 10px 10px 12px;border-radius:12px;background:var(--dm-chip);font-size:13.5px}
+.dm-vor-done{display:flex;align-items:center;gap:var(--dm-s-3);padding:10px 10px 10px var(--dm-s-3);border-radius:var(--dm-r-in);background:var(--dm-chip);font-size:13.5px}
 .dm-vor-done&gt;svg{color:var(--dm-fg2);flex:none}
 .dm-vor-done .dm-t{flex:1;min-width:0;display:flex;flex-direction:column}
 .dm-vor-done .dm-t span{font-size:13px}
@@ -458,18 +458,18 @@ function orbShader(cv: HTMLCanvasElement) {
 </code></pre></details><details class="cp-file"><summary>voice-orb.css<span class="l">HTML · 59 lines</span></summary><pre class="cp-pre"><code>/* ---------- Voice orb ---------- */
 /* a hands-free voice chat: an orb that swells with whoever is talking, the accent colour for you and violet for the agent, what
    was said under it, and mute and end below. Talking while muted says so, the way calls do */
-.vor{position:relative;width:100%;max-width:380px;margin:0 auto;padding:16px;display:flex;flex-direction:column;gap:12px;--oc:var(--faint);--oc2:var(--muted)}
+.vor{position:relative;width:100%;max-width:380px;margin:0 auto;padding:var(--s-4);display:flex;flex-direction:column;gap:var(--s-3);--oc:var(--faint);--oc2:var(--muted)}
 /* --oc is whoever is talking, --oc2 the second colour that flows through the orb with it */
 .vor[data-m=&quot;listening&quot;]{--oc:var(--accent);--oc2:color-mix(in srgb,var(--pl) 45%,var(--accent))}
 .vor[data-m=&quot;speaking&quot;]{--oc:var(--pl);--oc2:color-mix(in srgb,var(--accent) 45%,var(--pl))}
 .vor[data-m=&quot;thinking&quot;]{--oc:color-mix(in srgb,var(--accent) 50%,var(--pl));--oc2:var(--accent)}
 .vor[data-m=&quot;muted&quot;]{--oc:color-mix(in srgb,var(--muted) 55%,var(--faint));--oc2:var(--faint)}
-.vor-top{display:flex;align-items:center;gap:8px;font-size:13px}
+.vor-top{display:flex;align-items:center;gap:var(--s-2);font-size:13px}
 .vor-dot{width:8px;height:8px;border-radius:50%;background:var(--oc);transition:background .4s}
 .vor[data-m=&quot;listening&quot;] .vor-dot,.vor[data-m=&quot;speaking&quot;] .vor-dot{animation:vor-pulse 1.4s var(--ease-io) infinite}
 @keyframes vor-pulse{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--oc) 35%,transparent)}50%{box-shadow:0 0 0 5px transparent}}
 .vor-t{margin-left:auto;font-size:12.5px}
-.vor-orb{position:relative;width:112px;height:112px;margin:8px auto;--lv:0}
+.vor-orb{position:relative;width:112px;height:112px;margin:var(--s-2) auto;--lv:0}
 .vor-orb i{position:absolute;inset:0;border-radius:50%}
 /* round in Blueprint too, where every other corner is square: like the turning loaders, its shape is what it says */
 .vor .vor-orb i{border-radius:50%!important}
@@ -494,11 +494,11 @@ function orbShader(cv: HTMLCanvasElement) {
 .vor-tx.hint{color:var(--muted);font-size:13px}
 .vor-tx .w{animation:vor-w .45s var(--ease) both}
 @keyframes vor-w{from{opacity:0;filter:blur(3px)}to{opacity:1;filter:none}}
-.vor-mw{display:flex;align-items:center;gap:10px;padding:8px 8px 8px 12px;border-radius:12px;background:var(--warn-bg)}
-.vor-mw p{margin:0;flex:1;display:flex;gap:8px;font-size:13px;line-height:1.45;color:var(--fg)}
+.vor-mw{display:flex;align-items:center;gap:10px;padding:var(--s-2) var(--s-2) var(--s-2) var(--s-3);border-radius:var(--r-in);background:var(--warn-bg)}
+.vor-mw p{margin:0;flex:1;display:flex;gap:var(--s-2);font-size:13px;line-height:1.45;color:var(--fg)}
 .vor-mw p svg{color:var(--warn);flex:none;margin-top:3px}
 .vor-mw .pill,.vor-done .pill{background:var(--surface);color:var(--fg);box-shadow:var(--shadow)}
-.vor-f{display:flex;align-items:center;gap:8px;min-height:32px}
+.vor-f{display:flex;align-items:center;gap:var(--s-2);min-height:32px}
 .vor-f .sp{flex:1}
 .vor:not(.on) .vor-f{justify-content:center}
 .vor:not(.on) .vor-mute,.vor:not(.on) .vor-end,.vor:not(.on) .vor-f .sp,.vor.on .vor-go{display:none}
@@ -509,7 +509,7 @@ function orbShader(cv: HTMLCanvasElement) {
 .vor-mute[aria-pressed=&quot;true&quot;]::after{transform:rotate(-45deg) scaleY(1)}
 .vor-end{background:var(--bad);color:var(--on-ink)}
 @media (hover:hover) and (pointer:fine){.vor-end:hover{background:color-mix(in srgb,var(--bad) 86%,#000)}}
-.vor-done{display:flex;align-items:center;gap:12px;padding:10px 10px 10px 12px;border-radius:12px;background:var(--chip);font-size:13.5px}
+.vor-done{display:flex;align-items:center;gap:var(--s-3);padding:10px 10px 10px var(--s-3);border-radius:var(--r-in);background:var(--chip);font-size:13.5px}
 .vor-done&gt;svg{color:var(--fg2);flex:none}
 .vor-done .t{flex:1;min-width:0;display:flex;flex-direction:column}
 .vor-done .t span{font-size:13px}

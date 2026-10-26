@@ -45,8 +45,8 @@
   try { var a = localStorage.getItem('dmui-accent'); if (a && a !== 'default') window.dmAccent(a); } catch(e){}
 })();
 </script><script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareSourceCode","name":"Agent run timeline","description":"Agent run timeline draws one agent run as a Gantt chart: every model and tool step is a bar on a shared time axis, so people can see what ran in parallel, what took longest and where a step failed and was retried. While the run is live, a playhead sweeps across and the bars grow up to it.","url":"https://designme.dev/components/agent-run-timeline","image":"https://designme.dev/components/og/agent-run-timeline.jpg","programmingLanguage":["HTML","CSS","JavaScript","TypeScript"],"runtimePlatform":"Web browser","license":"https://opensource.org/licenses/MIT","isAccessibleForFree":true,"keywords":"Agent run timeline, Agent status, AI agent UI, React component, HTML component","author":{"@type":"Organization","name":"DesignMe","url":"https://designme.agency"},"isPartOf":{"@type":"WebSite","name":"Designme.dev","url":"https://designme.dev/"}}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Library","item":"https://designme.dev/"},{"@type":"ListItem","position":2,"name":"Agent status","item":"https://designme.dev/#s-status"},{"@type":"ListItem","position":3,"name":"Agent run timeline","item":"https://designme.dev/components/agent-run-timeline"}]}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I follow a run live?","acceptedAnswer":{"@type":"Answer","text":"Keep the steps you know about in steps and update time with the seconds since the run started, for example on each animation frame. When the run ends, leave time out."}},{"@type":"Question","name":"How do I show a failed step and its retry?","acceptedAnswer":{"@type":"Answer","text":"Mark the failed step with failed: true and an optional note, like \"2 tests failed\", then add the retry as its own step after it. The footer counts the failed steps as retries."}},{"@type":"Question","name":"Can I replay a finished run?","acceptedAnswer":{"@type":"Answer","text":"Yes. Pass the full steps list and move time from 0 to the end of the run. The demo plays it back at 1.6 times real speed."}}]}</script><link rel="stylesheet" href="/components/assets/core.css"><style>/* ---------- Agent run timeline ---------- */
-.art{padding:16px}
-.art-h{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.art{padding:var(--s-4)}
+.art-h{display:flex;align-items:flex-start;justify-content:space-between;gap:var(--s-3)}
 .art-t{font-weight:500}
 .art-s{font-size:12.5px}
 .art-s.sw{display:block}
@@ -57,15 +57,15 @@
 .art-ticks span:first-child{transform:none}
 .art-ticks span:last-child{transform:translateX(-100%)}
 .art-row{display:grid;grid-template-columns:150px 1fr;align-items:center;height:30px}
-.art-lab{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--fg2);white-space:nowrap;overflow:hidden}
+.art-lab{display:flex;align-items:center;gap:var(--s-2);font-size:12.5px;color:var(--fg2);white-space:nowrap;overflow:hidden}
 .art-lab .i{color:var(--muted);flex:none}
 .art-lab .t{overflow:hidden;text-overflow:ellipsis}
 .art-lane{position:relative;height:100%;background:repeating-linear-gradient(90deg,transparent 0 calc(25% - 1px),var(--line) calc(25% - 1px) 25%)}
-.art-bar{position:absolute;top:8px;height:14px;border-radius:4px;background:var(--c);width:0;transition:width .25s linear;cursor:default}
+.art-bar{position:absolute;top:8px;height:14px;border-radius:var(--r-xs);background:var(--c);width:0;transition:width .25s linear;cursor:default}
 .art-bar.fail{background:repeating-linear-gradient(135deg,var(--c5) 0 3px,color-mix(in srgb,var(--c5) 55%,transparent) 3px 6px)}
 @media (hover:hover) and (pointer:fine){.art-bar:hover{filter:brightness(1.08)}}
 .art-head{position:absolute;top:16px;bottom:0;left:150px;width:1.5px;background:var(--fg);opacity:.7;border-radius:1px}
-.art-f{display:flex;gap:16px;margin-top:12px;padding-top:12px;border-top:1px solid var(--line);font-size:12.5px}
+.art-f{display:flex;gap:var(--s-4);margin-top:var(--s-3);padding-top:var(--s-3);border-top:1px solid var(--line);font-size:12.5px}
 .art-f b{color:var(--fg);font-weight:500}
 @media (max-width:600px){.art-axis,.art-row{grid-template-columns:96px 1fr}.art-head{left:96px}}
 </style><style>@media (max-width:640px){.cp-demo .pg-demo{min-height:calc(var(--h-j) + 24px)}}@media (max-width:519px){.cp-demo .pg-demo{min-height:calc(var(--h-k) + 24px)}}@media (max-width:429px){.cp-demo .pg-demo{min-height:calc(var(--h-l) + 24px)}}@media (max-width:389px){.cp-demo .pg-demo{min-height:calc(var(--h-m) + 24px)}}</style><style>@font-face{font-family:Inter;font-style:normal;font-weight:400;font-display:swap;src:url(/fonts/inter-latin-400-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
@@ -305,8 +305,8 @@ export function AgentRunTimeline({ title, steps, time, span, ticks, status, stat
 }
 </code></pre></details><details class="cp-file"><summary>agent-run-timeline.css<span class="l">React · 26 lines</span></summary><pre class="cp-pre"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Agent run timeline ---------- */
-.dm-art{padding:16px}
-.dm-art-h{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.dm-art{padding:var(--dm-s-4)}
+.dm-art-h{display:flex;align-items:flex-start;justify-content:space-between;gap:var(--dm-s-3)}
 .dm-art-t{font-weight:500}
 .dm-art-s{font-size:12.5px}
 .dm-art-s.dm-sw{display:block}
@@ -317,15 +317,15 @@ export function AgentRunTimeline({ title, steps, time, span, ticks, status, stat
 .dm-art-ticks span:first-child{transform:none}
 .dm-art-ticks span:last-child{transform:translateX(-100%)}
 .dm-art-row{display:grid;grid-template-columns:150px 1fr;align-items:center;height:30px}
-.dm-art-lab{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--dm-fg2);white-space:nowrap;overflow:hidden}
+.dm-art-lab{display:flex;align-items:center;gap:var(--dm-s-2);font-size:12.5px;color:var(--dm-fg2);white-space:nowrap;overflow:hidden}
 .dm-art-lab .dm-i{color:var(--dm-muted);flex:none}
 .dm-art-lab .dm-t{overflow:hidden;text-overflow:ellipsis}
 .dm-art-lane{position:relative;height:100%;background:repeating-linear-gradient(90deg,transparent 0 calc(25% - 1px),var(--dm-line) calc(25% - 1px) 25%)}
-.dm-art-bar{position:absolute;top:8px;height:14px;border-radius:4px;background:var(--dm-c);width:0;transition:width .25s linear;cursor:default}
+.dm-art-bar{position:absolute;top:8px;height:14px;border-radius:var(--dm-r-xs);background:var(--dm-c);width:0;transition:width .25s linear;cursor:default}
 .dm-art-bar.dm-fail{background:repeating-linear-gradient(135deg,var(--dm-c5) 0 3px,color-mix(in srgb,var(--dm-c5) 55%,transparent) 3px 6px)}
 @media (hover:hover) and (pointer:fine){.dm-art-bar:hover{filter:brightness(1.08)}}
 .dm-art-head{position:absolute;top:16px;bottom:0;left:150px;width:1.5px;background:var(--dm-fg);opacity:.7;border-radius:1px}
-.dm-art-f{display:flex;gap:16px;margin-top:12px;padding-top:12px;border-top:1px solid var(--dm-line);font-size:12.5px}
+.dm-art-f{display:flex;gap:var(--dm-s-4);margin-top:var(--dm-s-3);padding-top:var(--dm-s-3);border-top:1px solid var(--dm-line);font-size:12.5px}
 .dm-art-f b{color:var(--dm-fg);font-weight:500}
 @media (max-width:600px){.dm-art-axis,.dm-art-row{grid-template-columns:96px 1fr}.dm-art-head{left:96px}}
 </code></pre></details><details class="cp-file"><summary>agent-run-timeline.html<span class="l">HTML · 14 lines</span></summary><pre class="cp-pre"><code>&lt;div class=&quot;card wide bare&quot; data-c=&quot;agent-run-timeline&quot;&gt;
@@ -342,8 +342,8 @@ export function AgentRunTimeline({ title, steps, time, span, ticks, status, stat
   &lt;/div&gt;
 &lt;/div&gt;
 </code></pre></details><details class="cp-file"><summary>agent-run-timeline.css<span class="l">HTML · 25 lines</span></summary><pre class="cp-pre"><code>/* ---------- Agent run timeline ---------- */
-.art{padding:16px}
-.art-h{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.art{padding:var(--s-4)}
+.art-h{display:flex;align-items:flex-start;justify-content:space-between;gap:var(--s-3)}
 .art-t{font-weight:500}
 .art-s{font-size:12.5px}
 .art-s.sw{display:block}
@@ -354,15 +354,15 @@ export function AgentRunTimeline({ title, steps, time, span, ticks, status, stat
 .art-ticks span:first-child{transform:none}
 .art-ticks span:last-child{transform:translateX(-100%)}
 .art-row{display:grid;grid-template-columns:150px 1fr;align-items:center;height:30px}
-.art-lab{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--fg2);white-space:nowrap;overflow:hidden}
+.art-lab{display:flex;align-items:center;gap:var(--s-2);font-size:12.5px;color:var(--fg2);white-space:nowrap;overflow:hidden}
 .art-lab .i{color:var(--muted);flex:none}
 .art-lab .t{overflow:hidden;text-overflow:ellipsis}
 .art-lane{position:relative;height:100%;background:repeating-linear-gradient(90deg,transparent 0 calc(25% - 1px),var(--line) calc(25% - 1px) 25%)}
-.art-bar{position:absolute;top:8px;height:14px;border-radius:4px;background:var(--c);width:0;transition:width .25s linear;cursor:default}
+.art-bar{position:absolute;top:8px;height:14px;border-radius:var(--r-xs);background:var(--c);width:0;transition:width .25s linear;cursor:default}
 .art-bar.fail{background:repeating-linear-gradient(135deg,var(--c5) 0 3px,color-mix(in srgb,var(--c5) 55%,transparent) 3px 6px)}
 @media (hover:hover) and (pointer:fine){.art-bar:hover{filter:brightness(1.08)}}
 .art-head{position:absolute;top:16px;bottom:0;left:150px;width:1.5px;background:var(--fg);opacity:.7;border-radius:1px}
-.art-f{display:flex;gap:16px;margin-top:12px;padding-top:12px;border-top:1px solid var(--line);font-size:12.5px}
+.art-f{display:flex;gap:var(--s-4);margin-top:var(--s-3);padding-top:var(--s-3);border-top:1px solid var(--line);font-size:12.5px}
 .art-f b{color:var(--fg);font-weight:500}
 @media (max-width:600px){.art-axis,.art-row{grid-template-columns:96px 1fr}.art-head{left:96px}}
 </code></pre></details><details class="cp-file"><summary>agent-run-timeline.js<span class="l">HTML · 39 lines</span></summary><pre class="cp-pre"><code>DM.def(&#39;agent-run-timeline&#39;, (r, c) =&gt; {

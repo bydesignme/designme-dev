@@ -202,6 +202,11 @@ export function CommandPalette({ items, query, defaultQuery = '', onQueryChange,
     if (b.offsetTop < l.scrollTop || b.offsetTop + 36 > l.scrollTop + l.clientHeight) l.scrollTo({ top: b.offsetTop - 40, behavior: reduce ? 'auto' : 'smooth' });
   }, [at, v, rows.length, reduce]);
 
+  // while there is more list below, its last row fades out at the edge instead of being cut off by the footer
+  const [more, setMore] = useState(false);
+  const edge = () => { const l = list.current; if (l) setMore(l.scrollTop + l.clientHeight < l.scrollHeight - 2); };
+  useIsoLayoutEffect(edge, [v, rows.length]);
+
   const move = (d: number) => { if (rows.length) setHi({ at: (at + d + rows.length) % rows.length, for: v }); };
   const run = (i: number) => {
     const row = rows[i], b = btns.current[i];
@@ -227,7 +232,7 @@ export function CommandPalette({ items, query, defaultQuery = '', onQueryChange,
           onChange={e => setQ(e.target.value)} onKeyDown={key} />
         <span className="dm-kbd">esc</span>
       </div>
-      <div className="dm-cpl-list" role="listbox" id={`${id}-list`} aria-label="Commands" tabIndex={-1} ref={list}>
+      <div className={cx('dm-cpl-list', more && 'dm-more')} role="listbox" id={`${id}-list`} aria-label="Commands" tabIndex={-1} ref={list} onScroll={edge}>
         {/* a new list starts the highlight afresh, so it jumps into place instead of sliding */}
         <span key={v} className="dm-cpl-hl" style={{ top: top?.for === v ? top.px : undefined }} />
         {rows.map((row, i) => {
@@ -239,7 +244,7 @@ export function CommandPalette({ items, query, defaultQuery = '', onQueryChange,
               <button type="button" ref={el => { btns.current[i] = el; }} className={cx('dm-cpl-i', !row && 'dm-ask', i === at && 'dm-hl')}
                 role="option" id={`${id}-${i}`} tabIndex={-1} aria-selected={i === at} onMouseEnter={() => setHi({ at: i, for: v })} onClick={() => run(i)}>
                 <span className="dm-ic"><Icon name={row ? row.icon : 'up'} size="xs" /></span>
-                <span>{row ? marked(row.label, v) : <>Ask the agent: “{v}”</>}</span>
+                <span className="dm-t">{row ? marked(row.label, v) : <>Ask the agent: “{v}”</>}</span>
                 {row?.keys && <span className="dm-k">{row.keys.map((k, j) => <span key={j} className="dm-kbd">{k}</span>)}</span>}
               </button>
             </Fragment>

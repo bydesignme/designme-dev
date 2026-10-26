@@ -45,21 +45,21 @@
   try { var a = localStorage.getItem('dmui-accent'); if (a && a !== 'default') window.dmAccent(a); } catch(e){}
 })();
 </script><script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareSourceCode","name":"Run queue","description":"Run queue lists the tasks an agent has lined up, each with its own steps, a status and a thin progress bar that fills as steps finish. A count at the top says how many tasks are done, a switch folds the steps away for a compact view, and a failed step can offer a Retry button.","url":"https://designme.dev/components/run-queue","image":"https://designme.dev/components/og/run-queue.jpg","programmingLanguage":["HTML","CSS","JavaScript","TypeScript"],"runtimePlatform":"Web browser","license":"https://opensource.org/licenses/MIT","isAccessibleForFree":true,"keywords":"Run queue, Agent status, AI agent UI, React component, HTML component","author":{"@type":"Organization","name":"DesignMe","url":"https://designme.agency"},"isPartOf":{"@type":"WebSite","name":"Designme.dev","url":"https://designme.dev/"}}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Library","item":"https://designme.dev/"},{"@type":"ListItem","position":2,"name":"Agent status","item":"https://designme.dev/#s-status"},{"@type":"ListItem","position":3,"name":"Run queue","item":"https://designme.dev/components/run-queue"}]}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I let people retry a failed step?","acceptedAnswer":{"@type":"Answer","text":"Pass onRetry. It is called with the task index and the step index, and you rerun the step and set its state back to 'running'. Without onRetry, failed steps show no button."}},{"@type":"Question","name":"Does the task's state follow its steps automatically?","acceptedAnswer":{"@type":"Answer","text":"No. You set each task's state and each step's state yourself. The component only works out the progress bar from the done steps and the \"N of M done\" count from the done tasks."}},{"@type":"Question","name":"Can I start in the compact view?","acceptedAnswer":{"@type":"Answer","text":"Yes. Set defaultDensity=\"compact\", or control density from your own state."}}]}</script><link rel="stylesheet" href="/components/assets/core.css"><style>/* ---------- Run queue ---------- */
-.rq{display:flex;flex-direction:column;gap:12px}
+.rq{display:flex;flex-direction:column;gap:var(--s-3)}
 .rq-top{display:flex;align-items:center;justify-content:space-between;font-size:12.5px}
 .rq-list{padding:6px}
-.rq-g{padding:4px 0;border-radius:12px}
+.rq-g{padding:var(--s-1) 0;border-radius:var(--r-in)}
 .rq-g+.rq-g{border-top:1px solid var(--line);border-radius:0}
-.rq-gh{display:flex;align-items:center;gap:10px;padding:8px 10px;font-weight:500}
+.rq-gh{display:flex;align-items:center;gap:10px;padding:var(--s-2) 10px;font-weight:500}
 .rq-gh .g{width:18px;height:18px;display:grid;place-items:center;flex:none}
 .rq-gh .m{margin-left:auto;font-weight:400;font-size:12.5px;color:var(--muted)}
-.rq-bar{height:2px;margin:-2px 10px 4px 38px;border-radius:2px;background:var(--line);overflow:hidden}
+.rq-bar{height:2px;margin:-2px 10px var(--s-1) 38px;border-radius:2px;background:var(--line);overflow:hidden}
 .rq-bar i{display:block;height:100%;width:0;background:var(--accent-mark,var(--accent));transition:width .8s var(--ease)}
 .rq-sub{display:flex;align-items:center;gap:10px;padding:5px 10px 5px 38px;font-size:13px;color:var(--fg2)}
 .rq-sub .g{width:14px;display:grid;place-items:center;flex:none}
 .rq-sub .m{margin-left:auto;font-size:12px;color:var(--muted)}
 .rq-sub.wait{color:var(--muted)}
-.rq-retry{height:22px;padding:0 9px;border-radius:999px;background:var(--chip);font-size:11.5px;color:var(--fg);transition:background .2s}
+.rq-retry{height:22px;padding:0 9px;border-radius:var(--r-pill);background:var(--chip);font-size:11.5px;color:var(--fg);transition:background .2s}
 .rq-retry.on{background:var(--hover)}
 @media (hover:hover) and (pointer:fine){.rq-retry:hover{background:var(--hover)}}
 </style><style>@media (max-width:640px){.cp-demo .pg-demo{min-height:calc(var(--h-j) + 24px)}}@media (max-width:519px){.cp-demo .pg-demo{min-height:calc(var(--h-k) + 24px)}}@media (max-width:429px){.cp-demo .pg-demo{min-height:calc(var(--h-l) + 24px)}}@media (max-width:389px){.cp-demo .pg-demo{min-height:calc(var(--h-m) + 24px)}}</style><style>@font-face{font-family:Inter;font-style:normal;font-weight:400;font-display:swap;src:url(/fonts/inter-latin-400-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
@@ -238,21 +238,21 @@ export function RunQueue({ groups, density, defaultDensity = &#39;detailed&#39;,
 }
 </code></pre></details><details class="cp-file"><summary>run-queue.css<span class="l">React · 20 lines</span></summary><pre class="cp-pre"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Run queue ---------- */
-.dm-rq{display:flex;flex-direction:column;gap:12px}
+.dm-rq{display:flex;flex-direction:column;gap:var(--dm-s-3)}
 .dm-rq-top{display:flex;align-items:center;justify-content:space-between;font-size:12.5px}
 .dm-rq-list{padding:6px}
-.dm-rq-g{padding:4px 0;border-radius:12px}
+.dm-rq-g{padding:var(--dm-s-1) 0;border-radius:var(--dm-r-in)}
 .dm-rq-g+.dm-rq-g{border-top:1px solid var(--dm-line);border-radius:0}
-.dm-rq-gh{display:flex;align-items:center;gap:10px;padding:8px 10px;font-weight:500}
+.dm-rq-gh{display:flex;align-items:center;gap:10px;padding:var(--dm-s-2) 10px;font-weight:500}
 .dm-rq-gh .dm-g{width:18px;height:18px;display:grid;place-items:center;flex:none}
 .dm-rq-gh .dm-m{margin-left:auto;font-weight:400;font-size:12.5px;color:var(--dm-muted)}
-.dm-rq-bar{height:2px;margin:-2px 10px 4px 38px;border-radius:2px;background:var(--dm-line);overflow:hidden}
+.dm-rq-bar{height:2px;margin:-2px 10px var(--dm-s-1) 38px;border-radius:2px;background:var(--dm-line);overflow:hidden}
 .dm-rq-bar i{display:block;height:100%;width:0;background:var(--dm-accent-mark,var(--dm-accent));transition:width .8s var(--dm-ease)}
 .dm-rq-sub{display:flex;align-items:center;gap:10px;padding:5px 10px 5px 38px;font-size:13px;color:var(--dm-fg2)}
 .dm-rq-sub .dm-g{width:14px;display:grid;place-items:center;flex:none}
 .dm-rq-sub .dm-m{margin-left:auto;font-size:12px;color:var(--dm-muted)}
 .dm-rq-sub.dm-wait{color:var(--dm-muted)}
-.dm-rq-retry{height:22px;padding:0 9px;border-radius:999px;background:var(--dm-chip);font-size:11.5px;color:var(--dm-fg);transition:background .2s}
+.dm-rq-retry{height:22px;padding:0 9px;border-radius:var(--dm-r-pill);background:var(--dm-chip);font-size:11.5px;color:var(--dm-fg);transition:background .2s}
 .dm-rq-retry.dm-on{background:var(--dm-hover)}
 @media (hover:hover) and (pointer:fine){.dm-rq-retry:hover{background:var(--dm-hover)}}
 </code></pre></details><details class="cp-file"><summary>run-queue.html<span class="l">HTML · 9 lines</span></summary><pre class="cp-pre"><code>&lt;div class=&quot;card bare&quot; data-c=&quot;run-queue&quot;&gt;
@@ -264,21 +264,21 @@ export function RunQueue({ groups, density, defaultDensity = &#39;detailed&#39;,
   &lt;/div&gt;
 &lt;/div&gt;
 </code></pre></details><details class="cp-file"><summary>run-queue.css<span class="l">HTML · 19 lines</span></summary><pre class="cp-pre"><code>/* ---------- Run queue ---------- */
-.rq{display:flex;flex-direction:column;gap:12px}
+.rq{display:flex;flex-direction:column;gap:var(--s-3)}
 .rq-top{display:flex;align-items:center;justify-content:space-between;font-size:12.5px}
 .rq-list{padding:6px}
-.rq-g{padding:4px 0;border-radius:12px}
+.rq-g{padding:var(--s-1) 0;border-radius:var(--r-in)}
 .rq-g+.rq-g{border-top:1px solid var(--line);border-radius:0}
-.rq-gh{display:flex;align-items:center;gap:10px;padding:8px 10px;font-weight:500}
+.rq-gh{display:flex;align-items:center;gap:10px;padding:var(--s-2) 10px;font-weight:500}
 .rq-gh .g{width:18px;height:18px;display:grid;place-items:center;flex:none}
 .rq-gh .m{margin-left:auto;font-weight:400;font-size:12.5px;color:var(--muted)}
-.rq-bar{height:2px;margin:-2px 10px 4px 38px;border-radius:2px;background:var(--line);overflow:hidden}
+.rq-bar{height:2px;margin:-2px 10px var(--s-1) 38px;border-radius:2px;background:var(--line);overflow:hidden}
 .rq-bar i{display:block;height:100%;width:0;background:var(--accent-mark,var(--accent));transition:width .8s var(--ease)}
 .rq-sub{display:flex;align-items:center;gap:10px;padding:5px 10px 5px 38px;font-size:13px;color:var(--fg2)}
 .rq-sub .g{width:14px;display:grid;place-items:center;flex:none}
 .rq-sub .m{margin-left:auto;font-size:12px;color:var(--muted)}
 .rq-sub.wait{color:var(--muted)}
-.rq-retry{height:22px;padding:0 9px;border-radius:999px;background:var(--chip);font-size:11.5px;color:var(--fg);transition:background .2s}
+.rq-retry{height:22px;padding:0 9px;border-radius:var(--r-pill);background:var(--chip);font-size:11.5px;color:var(--fg);transition:background .2s}
 .rq-retry.on{background:var(--hover)}
 @media (hover:hover) and (pointer:fine){.rq-retry:hover{background:var(--hover)}}
 </code></pre></details><details class="cp-file"><summary>run-queue.js<span class="l">HTML · 37 lines</span></summary><pre class="cp-pre"><code>DM.def(&#39;run-queue&#39;, (r, c) =&gt; {

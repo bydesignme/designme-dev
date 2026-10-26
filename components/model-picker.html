@@ -47,7 +47,7 @@
 </script><script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareSourceCode","name":"Model picker","description":"Model picker is the control a person uses to choose which model answers in a chat, and how hard it thinks first. Each model shows its speed, quality and cost as five-step meters with the real figures on hover, and the thinking effort sits underneath in a small dropdown. When the picked model can't take the request, the picker says why and offers a way out.","url":"https://designme.dev/components/model-picker","image":"https://designme.dev/components/og/model-picker.jpg","programmingLanguage":["HTML","CSS","JavaScript","TypeScript"],"runtimePlatform":"Web browser","license":"https://opensource.org/licenses/MIT","isAccessibleForFree":true,"keywords":"Model picker, Conversation, AI agent UI, React component, HTML component","author":{"@type":"Organization","name":"DesignMe","url":"https://designme.agency"},"isPartOf":{"@type":"WebSite","name":"Designme.dev","url":"https://designme.dev/"}}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Library","item":"https://designme.dev/"},{"@type":"ListItem","position":2,"name":"Conversation","item":"https://designme.dev/#s-conversation"},{"@type":"ListItem","position":3,"name":"Model picker","item":"https://designme.dev/components/model-picker"}]}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does it check whether a model is available?","acceptedAnswer":{"@type":"Answer","text":"No. It calls onValueChange with the id of any row that is picked, busy or not. Check the model in your own code, set its status to checking and then busy or ready, and pass a suggestion if it can't start."}},{"@type":"Question","name":"Where do the meters come from?","acceptedAnswer":{"@type":"Answer","text":"From you. Give each model speed, quality and cost from 1 to 5, and the figures behind them in the detail props, like \"74 tokens a second\" or \"$0.006 a reply\"."}},{"@type":"Question","name":"Can I use my own effort levels?","acceptedAnswer":{"@type":"Answer","text":"Yes. Pass efforts as a list of { label, detail }. The picked one is effort or defaultEffort, which defaults to the third in the list, or the last if there are fewer."}},{"@type":"Question","name":"Can it start closed?","acceptedAnswer":{"@type":"Answer","text":"Yes. It opens by default; set defaultOpen={false}, or control it with open and onOpenChange."}}]}</script><link rel="stylesheet" href="/components/assets/core.css"><style>/* ---------- Model picker ---------- */
 /* a trigger that names the model and how hard it thinks, over the open list: speed, quality and cost as five-step meters
    with the real numbers on hover, and the thinking effort under them as a small dropdown */
-.mpk{position:relative;display:flex;flex-direction:column;gap:8px;width:100%;max-width:420px;margin:0 auto}
+.mpk{position:relative;display:flex;flex-direction:column;gap:var(--s-2);width:100%;max-width:420px;margin:0 auto}
 .mpk-top{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 2px}
 .mpk-lb{font-size:12.5px}
 .mpk-tr{display:inline-flex;align-items:center;gap:7px;height:32px;padding:0 10px 0 6px;border-radius:var(--r-pill);background:var(--surface);box-shadow:var(--shadow);font-size:13px;font-weight:500;white-space:nowrap;transition:box-shadow .16s}
@@ -60,9 +60,9 @@
 .mpk-mk{width:20px;height:20px;border-radius:6px;display:grid;place-items:center;font-size:11px;font-weight:500;color:var(--mt,var(--on-ink));background:var(--mc,var(--fg2));flex:none;transition:background .32s}
 .mpk-p{padding:6px;display:flex;flex-direction:column}
 .mpk-hd,.mpk-o{display:grid;grid-template-columns:20px minmax(0,1fr) repeat(3,34px);align-items:center;gap:10px}
-.mpk-hd{padding:4px 10px 2px;font-size:11px;color:var(--muted)}
+.mpk-hd{padding:var(--s-1) 10px 2px;font-size:11px;color:var(--muted)}
 .mpk-hd span{text-align:center}
-.mpk-o{width:100%;padding:8px 10px;border-radius:12px;text-align:left;font-size:13px;transition:background .16s}
+.mpk-o{width:100%;padding:var(--s-2) 10px;border-radius:var(--r-in);text-align:left;font-size:13px;transition:background .16s}
 @media (hover:hover) and (pointer:fine){.mpk-o:hover{background:var(--row)}}
 .mpk-o[aria-checked="true"]{background:var(--sel)}
 .mpk-o[aria-checked="true"] .d{color:var(--fg2)}
@@ -80,15 +80,15 @@
 .mpk-m i.on{background:var(--fg2)}
 .mpk-o[aria-checked="true"]:not(.busy) .mpk-m i.on{background:var(--accent-mark,var(--accent))}
 /* the way out when a model can't take the request: wait for it, or a close match that starts now */
-.mpk-sg{margin:4px 4px 2px;padding:10px 12px;border-radius:12px;background:var(--warn-bg);display:flex;flex-direction:column;gap:8px}
+.mpk-sg{margin:var(--s-1) var(--s-1) 2px;padding:10px var(--s-3);border-radius:var(--r-in);background:var(--warn-bg);display:flex;flex-direction:column;gap:var(--s-2)}
 .mpk-sgt{margin:0;font-size:12.5px;line-height:1.45}
 .mpk-sga{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:6px}
-.mpk-th{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px 12px;padding:12px 10px 6px;margin:6px 4px 0;border-top:1px solid var(--line)}
+.mpk-th{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:var(--s-2) var(--s-3);padding:var(--s-3) 10px 6px;margin:6px var(--s-1) 0;border-top:1px solid var(--line)}
 .mpk-thh{display:flex;flex-direction:column;min-width:0;font-size:13px}
 .mpk-thh b{font-weight:500;display:flex;align-items:center;gap:6px}
 .mpk-thh b svg{color:var(--muted)}
 .mpk-thd{font-size:12px}
-.mpk-eb{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 8px 0 10px;border-radius:var(--r-pill);background:var(--chip);font-size:13px;transition:background .16s}
+.mpk-eb{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 var(--s-2) 0 10px;border-radius:var(--r-pill);background:var(--chip);font-size:13px;transition:background .16s}
 .mpk-eb[aria-expanded="true"]{background:var(--hover)}
 @media (hover:hover) and (pointer:fine){.mpk-eb:hover{background:var(--hover)}}
 .mpk-eb>svg{color:var(--muted);transition:transform .32s var(--ease)}
@@ -368,7 +368,7 @@ export function ModelPicker({
 /* ---------- Model picker ---------- */
 /* a trigger that names the model and how hard it thinks, over the open list: speed, quality and cost as five-step meters
    with the real numbers on hover, and the thinking effort under them as a small dropdown */
-.dm-mpk{position:relative;display:flex;flex-direction:column;gap:8px;width:100%;max-width:420px;margin:0 auto}
+.dm-mpk{position:relative;display:flex;flex-direction:column;gap:var(--dm-s-2);width:100%;max-width:420px;margin:0 auto}
 .dm-mpk-top{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 2px}
 .dm-mpk-lb{font-size:12.5px}
 .dm-mpk-tr{display:inline-flex;align-items:center;gap:7px;height:32px;padding:0 10px 0 6px;border-radius:var(--dm-r-pill);background:var(--dm-surface);box-shadow:var(--dm-shadow);font-size:13px;font-weight:500;white-space:nowrap;transition:box-shadow .16s}
@@ -381,9 +381,9 @@ export function ModelPicker({
 .dm-mpk-mk{width:20px;height:20px;border-radius:6px;display:grid;place-items:center;font-size:11px;font-weight:500;color:var(--dm-mt,var(--dm-on-ink));background:var(--dm-mc,var(--dm-fg2));flex:none;transition:background .32s}
 .dm-mpk-p{padding:6px;display:flex;flex-direction:column}
 .dm-mpk-hd,.dm-mpk-o{display:grid;grid-template-columns:20px minmax(0,1fr) repeat(3,34px);align-items:center;gap:10px}
-.dm-mpk-hd{padding:4px 10px 2px;font-size:11px;color:var(--dm-muted)}
+.dm-mpk-hd{padding:var(--dm-s-1) 10px 2px;font-size:11px;color:var(--dm-muted)}
 .dm-mpk-hd span{text-align:center}
-.dm-mpk-o{width:100%;padding:8px 10px;border-radius:12px;text-align:left;font-size:13px;transition:background .16s}
+.dm-mpk-o{width:100%;padding:var(--dm-s-2) 10px;border-radius:var(--dm-r-in);text-align:left;font-size:13px;transition:background .16s}
 @media (hover:hover) and (pointer:fine){.dm-mpk-o:hover{background:var(--dm-row)}}
 .dm-mpk-o[aria-checked=&quot;true&quot;]{background:var(--dm-sel)}
 .dm-mpk-o[aria-checked=&quot;true&quot;] .dm-d{color:var(--dm-fg2)}
@@ -401,15 +401,15 @@ export function ModelPicker({
 .dm-mpk-m i.dm-on{background:var(--dm-fg2)}
 .dm-mpk-o[aria-checked=&quot;true&quot;]:not(.dm-busy) .dm-mpk-m i.dm-on{background:var(--dm-accent-mark,var(--dm-accent))}
 /* the way out when a model can&#39;t take the request: wait for it, or a close match that starts now */
-.dm-mpk-sg{margin:4px 4px 2px;padding:10px 12px;border-radius:12px;background:var(--dm-warn-bg);display:flex;flex-direction:column;gap:8px}
+.dm-mpk-sg{margin:var(--dm-s-1) var(--dm-s-1) 2px;padding:10px var(--dm-s-3);border-radius:var(--dm-r-in);background:var(--dm-warn-bg);display:flex;flex-direction:column;gap:var(--dm-s-2)}
 .dm-mpk-sgt{margin:0;font-size:12.5px;line-height:1.45}
 .dm-mpk-sga{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:6px}
-.dm-mpk-th{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px 12px;padding:12px 10px 6px;margin:6px 4px 0;border-top:1px solid var(--dm-line)}
+.dm-mpk-th{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:var(--dm-s-2) var(--dm-s-3);padding:var(--dm-s-3) 10px 6px;margin:6px var(--dm-s-1) 0;border-top:1px solid var(--dm-line)}
 .dm-mpk-thh{display:flex;flex-direction:column;min-width:0;font-size:13px}
 .dm-mpk-thh b{font-weight:500;display:flex;align-items:center;gap:6px}
 .dm-mpk-thh b svg{color:var(--dm-muted)}
 .dm-mpk-thd{font-size:12px}
-.dm-mpk-eb{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 8px 0 10px;border-radius:var(--dm-r-pill);background:var(--dm-chip);font-size:13px;transition:background .16s}
+.dm-mpk-eb{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 var(--dm-s-2) 0 10px;border-radius:var(--dm-r-pill);background:var(--dm-chip);font-size:13px;transition:background .16s}
 .dm-mpk-eb[aria-expanded=&quot;true&quot;]{background:var(--dm-hover)}
 @media (hover:hover) and (pointer:fine){.dm-mpk-eb:hover{background:var(--dm-hover)}}
 .dm-mpk-eb&gt;svg{color:var(--dm-muted);transition:transform .32s var(--dm-ease)}
@@ -446,7 +446,7 @@ export function ModelPicker({
 </code></pre></details><details class="cp-file"><summary>model-picker.css<span class="l">HTML · 56 lines</span></summary><pre class="cp-pre"><code>/* ---------- Model picker ---------- */
 /* a trigger that names the model and how hard it thinks, over the open list: speed, quality and cost as five-step meters
    with the real numbers on hover, and the thinking effort under them as a small dropdown */
-.mpk{position:relative;display:flex;flex-direction:column;gap:8px;width:100%;max-width:420px;margin:0 auto}
+.mpk{position:relative;display:flex;flex-direction:column;gap:var(--s-2);width:100%;max-width:420px;margin:0 auto}
 .mpk-top{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 2px}
 .mpk-lb{font-size:12.5px}
 .mpk-tr{display:inline-flex;align-items:center;gap:7px;height:32px;padding:0 10px 0 6px;border-radius:var(--r-pill);background:var(--surface);box-shadow:var(--shadow);font-size:13px;font-weight:500;white-space:nowrap;transition:box-shadow .16s}
@@ -459,9 +459,9 @@ export function ModelPicker({
 .mpk-mk{width:20px;height:20px;border-radius:6px;display:grid;place-items:center;font-size:11px;font-weight:500;color:var(--mt,var(--on-ink));background:var(--mc,var(--fg2));flex:none;transition:background .32s}
 .mpk-p{padding:6px;display:flex;flex-direction:column}
 .mpk-hd,.mpk-o{display:grid;grid-template-columns:20px minmax(0,1fr) repeat(3,34px);align-items:center;gap:10px}
-.mpk-hd{padding:4px 10px 2px;font-size:11px;color:var(--muted)}
+.mpk-hd{padding:var(--s-1) 10px 2px;font-size:11px;color:var(--muted)}
 .mpk-hd span{text-align:center}
-.mpk-o{width:100%;padding:8px 10px;border-radius:12px;text-align:left;font-size:13px;transition:background .16s}
+.mpk-o{width:100%;padding:var(--s-2) 10px;border-radius:var(--r-in);text-align:left;font-size:13px;transition:background .16s}
 @media (hover:hover) and (pointer:fine){.mpk-o:hover{background:var(--row)}}
 .mpk-o[aria-checked=&quot;true&quot;]{background:var(--sel)}
 .mpk-o[aria-checked=&quot;true&quot;] .d{color:var(--fg2)}
@@ -479,15 +479,15 @@ export function ModelPicker({
 .mpk-m i.on{background:var(--fg2)}
 .mpk-o[aria-checked=&quot;true&quot;]:not(.busy) .mpk-m i.on{background:var(--accent-mark,var(--accent))}
 /* the way out when a model can&#39;t take the request: wait for it, or a close match that starts now */
-.mpk-sg{margin:4px 4px 2px;padding:10px 12px;border-radius:12px;background:var(--warn-bg);display:flex;flex-direction:column;gap:8px}
+.mpk-sg{margin:var(--s-1) var(--s-1) 2px;padding:10px var(--s-3);border-radius:var(--r-in);background:var(--warn-bg);display:flex;flex-direction:column;gap:var(--s-2)}
 .mpk-sgt{margin:0;font-size:12.5px;line-height:1.45}
 .mpk-sga{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:6px}
-.mpk-th{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px 12px;padding:12px 10px 6px;margin:6px 4px 0;border-top:1px solid var(--line)}
+.mpk-th{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:var(--s-2) var(--s-3);padding:var(--s-3) 10px 6px;margin:6px var(--s-1) 0;border-top:1px solid var(--line)}
 .mpk-thh{display:flex;flex-direction:column;min-width:0;font-size:13px}
 .mpk-thh b{font-weight:500;display:flex;align-items:center;gap:6px}
 .mpk-thh b svg{color:var(--muted)}
 .mpk-thd{font-size:12px}
-.mpk-eb{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 8px 0 10px;border-radius:var(--r-pill);background:var(--chip);font-size:13px;transition:background .16s}
+.mpk-eb{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 var(--s-2) 0 10px;border-radius:var(--r-pill);background:var(--chip);font-size:13px;transition:background .16s}
 .mpk-eb[aria-expanded=&quot;true&quot;]{background:var(--hover)}
 @media (hover:hover) and (pointer:fine){.mpk-eb:hover{background:var(--hover)}}
 .mpk-eb&gt;svg{color:var(--muted);transition:transform .32s var(--ease)}

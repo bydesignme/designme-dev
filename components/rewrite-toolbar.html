@@ -45,8 +45,8 @@
   try { var a = localStorage.getItem('dmui-accent'); if (a && a !== 'default') window.dmAccent(a); } catch(e){}
 })();
 </script><script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareSourceCode","name":"Rewrite toolbar","description":"Rewrite toolbar lets a person click a sentence in a document and get a small toolbar with rewrite options, such as Clearer, Shorter or Friendlier. The agent's new sentence is written in word by word next to the struck-out original, and the person accepts it or puts the old one back.","url":"https://designme.dev/components/rewrite-toolbar","image":"https://designme.dev/components/og/rewrite-toolbar.jpg","programmingLanguage":["HTML","CSS","JavaScript","TypeScript"],"runtimePlatform":"Web browser","license":"https://opensource.org/licenses/MIT","isAccessibleForFree":true,"keywords":"Rewrite toolbar, Review and approve, AI agent UI, React component, HTML component","author":{"@type":"Organization","name":"DesignMe","url":"https://designme.agency"},"isPartOf":{"@type":"WebSite","name":"Designme.dev","url":"https://designme.dev/"}}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Library","item":"https://designme.dev/"},{"@type":"ListItem","position":2,"name":"Review and approve","item":"https://designme.dev/#s-review"},{"@type":"ListItem","position":3,"name":"Rewrite toolbar","item":"https://designme.dev/components/rewrite-toolbar"}]}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I connect it to my model?","acceptedAnswer":{"@type":"Answer","text":"Pass onRewrite(sentence, action, index) and return the new sentence or a promise of it. The component handles the waiting state, the word-by-word reveal and the review step."}},{"@type":"Question","name":"What happens if the rewrite request fails?","acceptedAnswer":{"@type":"Answer","text":"If onRewrite throws or rejects, the sentence stays as it was and the toolbar goes back to offering the rewrite actions."}},{"@type":"Question","name":"Does the ⌘K shortcut work out of the box?","acceptedAnswer":{"@type":"Answer","text":"No. askShortcut is only shown in the wand's tooltip. Bind the key yourself and call the ref's rewrite method or your own onAsk logic."}},{"@type":"Question","name":"Can I click away while the agent is still rewriting?","acceptedAnswer":{"@type":"Answer","text":"A click outside closes the toolbar only when no rewrite is in progress. While a rewrite is waiting, the toolbar stays open until it is accepted or undone."}}]}</script><link rel="stylesheet" href="/components/assets/core.css"><style>/* ---------- Rewrite toolbar ---------- */
-.rwx{padding:14px 16px 16px;position:relative}
-.rwx-h{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500;margin-bottom:10px}
+.rwx{padding:14px var(--s-4) var(--s-4);position:relative}
+.rwx-h{display:flex;align-items:center;gap:var(--s-2);font-size:13px;font-weight:500;margin-bottom:10px}
 .rwx-st{margin-left:auto;font-weight:400;font-size:12px}
 .rwx-doc{font-size:14px;line-height:1.75;color:var(--fg2)}
 .rwx-s{border-radius:5px;cursor:text;transition:background .3s,color .3s;padding:1px 0;box-decoration-break:clone;-webkit-box-decoration-break:clone}
@@ -55,17 +55,19 @@
 .rwx-s.sel del{color:var(--fg2)}
 .rwx-s del{color:var(--muted);text-decoration-color:var(--bad)}
 .rwx-s ins{text-decoration:none;color:var(--fg)}
-.rwx-s ins .w{animation:rww .4s var(--ease) both}
+/* the new sentence takes its full room from the start, so the toolbar can sit clear of it while the words come in */
+.rwx-s ins .w{visibility:hidden}
+.rwx-s ins .w.on{visibility:visible;animation:rww .4s var(--ease) both}
 @keyframes rww{from{opacity:0;filter:blur(3px)}to{opacity:1;filter:none}}
-.rwx-tb{position:absolute;left:0;top:0;display:flex;align-items:center;gap:2px;padding:4px;border-radius:999px;background:var(--ink);color:var(--on-ink);box-shadow:var(--shadow-pop);opacity:0;pointer-events:none;transform:translateY(6px) scale(.96);filter:blur(4px);transition:opacity .3s var(--ease),transform .4s var(--ease),filter .3s;z-index:3;white-space:nowrap}
+.rwx-tb{position:absolute;left:0;top:0;display:flex;align-items:center;gap:2px;padding:var(--s-1);border-radius:var(--r-pill);background:var(--ink);color:var(--on-ink);box-shadow:var(--shadow-pop);opacity:0;pointer-events:none;transform:translateY(6px) scale(.96);filter:blur(4px);transition:opacity .3s var(--ease),transform .4s var(--ease),filter .3s;z-index:3;white-space:nowrap}
 .rwx-tb{--focus:var(--on-ink)}
 .rwx-tb.show{opacity:1;pointer-events:auto;transform:none;filter:none}
-.rwx-b{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 11px;border-radius:999px;font-size:12.5px;color:inherit;opacity:.85;transition:background .2s,opacity .2s}
+.rwx-b{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 11px;border-radius:var(--r-pill);font-size:12.5px;color:inherit;opacity:.85;transition:background .2s,opacity .2s}
 .rwx-b.hl{background:color-mix(in srgb,var(--on-ink) 14%,transparent);opacity:1}
 @media (hover:hover) and (pointer:fine){.rwx-b:hover{background:color-mix(in srgb,var(--on-ink) 14%,transparent);opacity:1}}
 .rwx-b.ic{width:28px;padding:0;justify-content:center}
 .rwx-sep{width:1px;height:16px;background:color-mix(in srgb,var(--on-ink) 25%,transparent);margin:0 2px}
-.rwx-tb.act{padding:4px 4px 4px 12px}
+.rwx-tb.act{padding:var(--s-1) var(--s-1) var(--s-1) var(--s-3)}
 .rwx-tb .lbl{font-size:12.5px;margin-right:6px;display:flex;align-items:center;gap:7px}
 .rwx-tb .pill.sm{height:28px}
 </style><style>@media (max-width:640px){.cp-demo .pg-demo{min-height:calc(var(--h-j) + 24px)}}@media (max-width:519px){.cp-demo .pg-demo{min-height:calc(var(--h-k) + 24px)}}@media (max-width:429px){.cp-demo .pg-demo{min-height:calc(var(--h-l) + 24px)}}@media (max-width:389px){.cp-demo .pg-demo{min-height:calc(var(--h-m) + 24px)}}</style><style>@font-face{font-family:Inter;font-style:normal;font-weight:400;font-display:swap;src:url(/fonts/inter-latin-400-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
@@ -137,7 +139,7 @@ export default function RewriteToolbarDemo() {
     &lt;/div&gt;
   );
 }
-</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything RewriteToolbar takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>title</code><span class="opt">required</span></td><td><code>ReactNode</code></td><td>The document&#39;s name</td></tr><tr><td><code>kind</code></td><td><code>string</code></td><td>The file type tag in front of the name. Defaults to DOC</td></tr><tr><td><code>sentences</code></td><td><code>string[]</code></td><td>The text, one sentence each, so a click picks a sentence</td></tr><tr><td><code>defaultSentences</code></td><td><code>string[]</code></td><td></td></tr><tr><td><code>onSentencesChange</code></td><td><code>(sentences: string[]) =&gt; void</code></td><td>Called with every sentence once a rewrite is accepted</td></tr><tr><td><code>selected</code></td><td><code>number | null</code></td><td>Index of the sentence with the toolbar on it, or null. Leave it out to let clicks pick it</td></tr><tr><td><code>defaultSelected</code></td><td><code>number | null</code></td><td></td></tr><tr><td><code>onSelectedChange</code></td><td><code>(index: number | null) =&gt; void</code></td><td></td></tr><tr><td><code>actions</code></td><td><code>RewriteAction[]</code></td><td>Defaults to Clearer, Shorter and Friendlier</td></tr><tr><td><code>onRewrite</code><span class="opt">required</span></td><td><code>(sentence: string, action: string, index: number) =&gt; Promise&lt;string&gt; | string</code></td><td>Writes the new sentence. While it works the toolbar says Rewriting; the answer is then written in word by word. If it throws, the sentence is left as it was</td></tr><tr><td><code>onAsk</code></td><td><code>(sentence: string, index: number) =&gt; void</code></td><td>The wand at the end of the toolbar. Left out, it rewrites with the first action</td></tr><tr><td><code>askLabel</code></td><td><code>string</code></td><td>The tip on the wand</td></tr><tr><td><code>askShortcut</code></td><td><code>string</code></td><td>The shortcut shown in that tip</td></tr><tr><td><code>ref</code></td><td><code>Ref&lt;RewriteToolbarHandle&gt;</code></td><td></td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>RewriteToolbar.tsx<span class="l">React · 173 lines</span></summary><pre class="cp-pre"><code>&#39;use client&#39;;
+</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything RewriteToolbar takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>title</code><span class="opt">required</span></td><td><code>ReactNode</code></td><td>The document&#39;s name</td></tr><tr><td><code>kind</code></td><td><code>string</code></td><td>The file type tag in front of the name. Defaults to DOC</td></tr><tr><td><code>sentences</code></td><td><code>string[]</code></td><td>The text, one sentence each, so a click picks a sentence</td></tr><tr><td><code>defaultSentences</code></td><td><code>string[]</code></td><td></td></tr><tr><td><code>onSentencesChange</code></td><td><code>(sentences: string[]) =&gt; void</code></td><td>Called with every sentence once a rewrite is accepted</td></tr><tr><td><code>selected</code></td><td><code>number | null</code></td><td>Index of the sentence with the toolbar on it, or null. Leave it out to let clicks pick it</td></tr><tr><td><code>defaultSelected</code></td><td><code>number | null</code></td><td></td></tr><tr><td><code>onSelectedChange</code></td><td><code>(index: number | null) =&gt; void</code></td><td></td></tr><tr><td><code>actions</code></td><td><code>RewriteAction[]</code></td><td>Defaults to Clearer, Shorter and Friendlier</td></tr><tr><td><code>onRewrite</code><span class="opt">required</span></td><td><code>(sentence: string, action: string, index: number) =&gt; Promise&lt;string&gt; | string</code></td><td>Writes the new sentence. While it works the toolbar says Rewriting; the answer is then written in word by word. If it throws, the sentence is left as it was</td></tr><tr><td><code>onAsk</code></td><td><code>(sentence: string, index: number) =&gt; void</code></td><td>The wand at the end of the toolbar. Left out, it rewrites with the first action</td></tr><tr><td><code>askLabel</code></td><td><code>string</code></td><td>The tip on the wand</td></tr><tr><td><code>askShortcut</code></td><td><code>string</code></td><td>The shortcut shown in that tip</td></tr><tr><td><code>ref</code></td><td><code>Ref&lt;RewriteToolbarHandle&gt;</code></td><td></td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>RewriteToolbar.tsx<span class="l">React · 174 lines</span></summary><pre class="cp-pre"><code>&#39;use client&#39;;
 import { useEffect, useImperativeHandle, useRef, useState, type ReactNode, type Ref } from &#39;react&#39;;
 import { cx } from &#39;../lib/cx&#39;;
 import { useControllable, useIsoLayoutEffect, useReducedMotion } from &#39;../lib/hooks&#39;;
@@ -224,7 +226,8 @@ export function RewriteToolbar({
   // a new selection from outside says the same as a click does
   useEffect(() =&gt; { if (sel !== null &amp;&amp; !busy) setStatus(&#39;Pick a rewrite&#39;); }, [sel]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // the toolbar sits above the sentence&#39;s first line, or under its last when above would cover the header
+  // the toolbar sits above the sentence&#39;s first line, or under its last when above would cover the header. The new
+  // sentence takes its full room as soon as it arrives, so the toolbar is placed clear of it before the words come in
   useIsoLayoutEffect(() =&gt; {
     const el = sel === null ? null : spans.current[sel], tb = bar.current, box = root.current;
     if (!el || !tb || !box) return;
@@ -233,7 +236,7 @@ export function RewriteToolbar({
     let top = f.top - br.top - tb.offsetHeight - 8;
     if (top &lt; (head.current ? head.current.getBoundingClientRect().bottom - br.top : 4)) top = rects[rects.length - 1].bottom - br.top + 8;
     setAt({ left, top });
-  }, [sel, view]);
+  }, [sel, view, job?.text]);
 
   // a click anywhere else puts the toolbar away, unless a rewrite is waiting on an answer
   const latest = useRef({ busy, setSel });
@@ -279,7 +282,7 @@ export function RewriteToolbar({
             &lt;span key={i}&gt;
               {i &gt; 0 &amp;&amp; &#39; &#39;}
               &lt;span ref={el =&gt; { spans.current[i] = el; }} className={cx(&#39;dm-rwx-s&#39;, sel === i &amp;&amp; &#39;dm-sel&#39;)} onClick={e =&gt; { e.stopPropagation(); if (!mine) pick(i); }}&gt;
-                {mine ? &lt;&gt;&lt;del&gt;{job.old}&lt;/del&gt; &lt;ins&gt;{job.text &amp;&amp; words(job.text).slice(0, job.shown).map((w, k) =&gt; &lt;span key={k} className=&quot;dm-w&quot;&gt;{w} &lt;/span&gt;)}&lt;/ins&gt;&lt;/&gt; : s}
+                {mine ? &lt;&gt;&lt;del&gt;{job.old}&lt;/del&gt; &lt;ins&gt;{job.text &amp;&amp; words(job.text).map((w, k) =&gt; &lt;span key={k} className={cx(&#39;dm-w&#39;, k &lt; job.shown &amp;&amp; &#39;dm-on&#39;)}&gt;{w} &lt;/span&gt;)}&lt;/ins&gt;&lt;/&gt; : s}
               &lt;/span&gt;
             &lt;/span&gt;
           );
@@ -309,10 +312,10 @@ export function RewriteToolbar({
 }
 
 const words = (s: string) =&gt; s.split(&#39; &#39;);
-</code></pre></details><details class="cp-file"><summary>rewrite-toolbar.css<span class="l">React · 26 lines</span></summary><pre class="cp-pre"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+</code></pre></details><details class="cp-file"><summary>rewrite-toolbar.css<span class="l">React · 28 lines</span></summary><pre class="cp-pre"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Rewrite toolbar ---------- */
-.dm-rwx{padding:14px 16px 16px;position:relative}
-.dm-rwx-h{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500;margin-bottom:10px}
+.dm-rwx{padding:14px var(--dm-s-4) var(--dm-s-4);position:relative}
+.dm-rwx-h{display:flex;align-items:center;gap:var(--dm-s-2);font-size:13px;font-weight:500;margin-bottom:10px}
 .dm-rwx-st{margin-left:auto;font-weight:400;font-size:12px}
 .dm-rwx-doc{font-size:14px;line-height:1.75;color:var(--dm-fg2)}
 .dm-rwx-s{border-radius:5px;cursor:text;transition:background .3s,color .3s;padding:1px 0;box-decoration-break:clone;-webkit-box-decoration-break:clone}
@@ -321,17 +324,19 @@ const words = (s: string) =&gt; s.split(&#39; &#39;);
 .dm-rwx-s.dm-sel del{color:var(--dm-fg2)}
 .dm-rwx-s del{color:var(--dm-muted);text-decoration-color:var(--dm-bad)}
 .dm-rwx-s ins{text-decoration:none;color:var(--dm-fg)}
-.dm-rwx-s ins .dm-w{animation:dm-rww .4s var(--dm-ease) both}
+/* the new sentence takes its full room from the start, so the toolbar can sit clear of it while the words come in */
+.dm-rwx-s ins .dm-w{visibility:hidden}
+.dm-rwx-s ins .dm-w.dm-on{visibility:visible;animation:dm-rww .4s var(--dm-ease) both}
 @keyframes dm-rww{from{opacity:0;filter:blur(3px)}to{opacity:1;filter:none}}
-.dm-rwx-tb{position:absolute;left:0;top:0;display:flex;align-items:center;gap:2px;padding:4px;border-radius:999px;background:var(--dm-ink);color:var(--dm-on-ink);box-shadow:var(--dm-shadow-pop);opacity:0;pointer-events:none;transform:translateY(6px) scale(.96);filter:blur(4px);transition:opacity .3s var(--dm-ease),transform .4s var(--dm-ease),filter .3s;z-index:3;white-space:nowrap}
+.dm-rwx-tb{position:absolute;left:0;top:0;display:flex;align-items:center;gap:2px;padding:var(--dm-s-1);border-radius:var(--dm-r-pill);background:var(--dm-ink);color:var(--dm-on-ink);box-shadow:var(--dm-shadow-pop);opacity:0;pointer-events:none;transform:translateY(6px) scale(.96);filter:blur(4px);transition:opacity .3s var(--dm-ease),transform .4s var(--dm-ease),filter .3s;z-index:3;white-space:nowrap}
 .dm-rwx-tb{--dm-focus:var(--dm-on-ink)}
 .dm-rwx-tb.dm-show{opacity:1;pointer-events:auto;transform:none;filter:none}
-.dm-rwx-b{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 11px;border-radius:999px;font-size:12.5px;color:inherit;opacity:.85;transition:background .2s,opacity .2s}
+.dm-rwx-b{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 11px;border-radius:var(--dm-r-pill);font-size:12.5px;color:inherit;opacity:.85;transition:background .2s,opacity .2s}
 .dm-rwx-b.dm-hl{background:color-mix(in srgb,var(--dm-on-ink) 14%,transparent);opacity:1}
 @media (hover:hover) and (pointer:fine){.dm-rwx-b:hover{background:color-mix(in srgb,var(--dm-on-ink) 14%,transparent);opacity:1}}
 .dm-rwx-b.dm-ic{width:28px;padding:0;justify-content:center}
 .dm-rwx-sep{width:1px;height:16px;background:color-mix(in srgb,var(--dm-on-ink) 25%,transparent);margin:0 2px}
-.dm-rwx-tb.dm-act{padding:4px 4px 4px 12px}
+.dm-rwx-tb.dm-act{padding:var(--dm-s-1) var(--dm-s-1) var(--dm-s-1) var(--dm-s-3)}
 .dm-rwx-tb .dm-lbl{font-size:12.5px;margin-right:6px;display:flex;align-items:center;gap:7px}
 .dm-rwx-tb .dm-pill.dm-sm{height:28px}
 </code></pre></details><details class="cp-file"><summary>rewrite-toolbar.html<span class="l">HTML · 12 lines</span></summary><pre class="cp-pre"><code>&lt;div class=&quot;card&quot; data-c=&quot;rewrite-toolbar&quot;&gt;
@@ -345,9 +350,9 @@ const words = (s: string) =&gt; s.split(&#39; &#39;);
     &lt;/div&gt;
   &lt;/div&gt;
 &lt;/div&gt;
-</code></pre></details><details class="cp-file"><summary>rewrite-toolbar.css<span class="l">HTML · 25 lines</span></summary><pre class="cp-pre"><code>/* ---------- Rewrite toolbar ---------- */
-.rwx{padding:14px 16px 16px;position:relative}
-.rwx-h{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500;margin-bottom:10px}
+</code></pre></details><details class="cp-file"><summary>rewrite-toolbar.css<span class="l">HTML · 27 lines</span></summary><pre class="cp-pre"><code>/* ---------- Rewrite toolbar ---------- */
+.rwx{padding:14px var(--s-4) var(--s-4);position:relative}
+.rwx-h{display:flex;align-items:center;gap:var(--s-2);font-size:13px;font-weight:500;margin-bottom:10px}
 .rwx-st{margin-left:auto;font-weight:400;font-size:12px}
 .rwx-doc{font-size:14px;line-height:1.75;color:var(--fg2)}
 .rwx-s{border-radius:5px;cursor:text;transition:background .3s,color .3s;padding:1px 0;box-decoration-break:clone;-webkit-box-decoration-break:clone}
@@ -356,20 +361,22 @@ const words = (s: string) =&gt; s.split(&#39; &#39;);
 .rwx-s.sel del{color:var(--fg2)}
 .rwx-s del{color:var(--muted);text-decoration-color:var(--bad)}
 .rwx-s ins{text-decoration:none;color:var(--fg)}
-.rwx-s ins .w{animation:rww .4s var(--ease) both}
+/* the new sentence takes its full room from the start, so the toolbar can sit clear of it while the words come in */
+.rwx-s ins .w{visibility:hidden}
+.rwx-s ins .w.on{visibility:visible;animation:rww .4s var(--ease) both}
 @keyframes rww{from{opacity:0;filter:blur(3px)}to{opacity:1;filter:none}}
-.rwx-tb{position:absolute;left:0;top:0;display:flex;align-items:center;gap:2px;padding:4px;border-radius:999px;background:var(--ink);color:var(--on-ink);box-shadow:var(--shadow-pop);opacity:0;pointer-events:none;transform:translateY(6px) scale(.96);filter:blur(4px);transition:opacity .3s var(--ease),transform .4s var(--ease),filter .3s;z-index:3;white-space:nowrap}
+.rwx-tb{position:absolute;left:0;top:0;display:flex;align-items:center;gap:2px;padding:var(--s-1);border-radius:var(--r-pill);background:var(--ink);color:var(--on-ink);box-shadow:var(--shadow-pop);opacity:0;pointer-events:none;transform:translateY(6px) scale(.96);filter:blur(4px);transition:opacity .3s var(--ease),transform .4s var(--ease),filter .3s;z-index:3;white-space:nowrap}
 .rwx-tb{--focus:var(--on-ink)}
 .rwx-tb.show{opacity:1;pointer-events:auto;transform:none;filter:none}
-.rwx-b{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 11px;border-radius:999px;font-size:12.5px;color:inherit;opacity:.85;transition:background .2s,opacity .2s}
+.rwx-b{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 11px;border-radius:var(--r-pill);font-size:12.5px;color:inherit;opacity:.85;transition:background .2s,opacity .2s}
 .rwx-b.hl{background:color-mix(in srgb,var(--on-ink) 14%,transparent);opacity:1}
 @media (hover:hover) and (pointer:fine){.rwx-b:hover{background:color-mix(in srgb,var(--on-ink) 14%,transparent);opacity:1}}
 .rwx-b.ic{width:28px;padding:0;justify-content:center}
 .rwx-sep{width:1px;height:16px;background:color-mix(in srgb,var(--on-ink) 25%,transparent);margin:0 2px}
-.rwx-tb.act{padding:4px 4px 4px 12px}
+.rwx-tb.act{padding:var(--s-1) var(--s-1) var(--s-1) var(--s-3)}
 .rwx-tb .lbl{font-size:12.5px;margin-right:6px;display:flex;align-items:center;gap:7px}
 .rwx-tb .pill.sm{height:28px}
-</code></pre></details><details class="cp-file"><summary>rewrite-toolbar.js<span class="l">HTML · 50 lines</span></summary><pre class="cp-pre"><code>DM.def(&#39;rewrite-toolbar&#39;, (r, c) =&gt; {
+</code></pre></details><details class="cp-file"><summary>rewrite-toolbar.js<span class="l">HTML · 52 lines</span></summary><pre class="cp-pre"><code>DM.def(&#39;rewrite-toolbar&#39;, (r, c) =&gt; {
   r.innerHTML = r.innerHTML.replace(&#39;{spark}&#39;, I(&#39;spark&#39;,&#39;xs&#39;)).replace(&#39;{at}&#39;, I(&#39;wand&#39;,&#39;xs&#39;));
   const S = [
     [&#39;Welcome to DesignMe, a place where you and your team can work together with an agent on all of your design files in one place.&#39;, { clear:&#39;DesignMe is where your team and an agent design together.&#39;, short:&#39;Design with your team and an agent.&#39;, warm:&#39;Welcome in. This is where you, your team and your agent make things together.&#39; }],
@@ -379,6 +386,8 @@ const words = (s: string) =&gt; s.split(&#39; &#39;);
   const doc = $(&#39;.rwx-doc&#39;, r), tb = $(&#39;.rwx-tb&#39;, r), st = $(&#39;.rwx-st&#39;, r), box = $(&#39;.rwx&#39;, r);
   doc.innerHTML = S.map((s, i) =&gt; `&lt;span class=&quot;rwx-s&quot; data-i=&quot;${i}&quot;&gt;${s[0]}&lt;/span&gt;`).join(&#39; &#39;);
   const tbHTML = tb.innerHTML; let sel = null, busy = false;
+  // shorter before a rewrite than during one, it stays centred in the room its stage keeps for it
+  centre(c, box, () =&gt; box.offsetHeight);
   function place(el){
     const br = box.getBoundingClientRect(), rects = el.getClientRects(), f = rects[0];
     const w = tb.offsetWidth; let x = f.left - br.left; x = Math.max(8, Math.min(x, br.width - w - 8));
@@ -400,8 +409,8 @@ const words = (s: string) =&gt; s.split(&#39; &#39;);
     const el = sel, i = +el.dataset.i, old = S[i][0], nw = S[i][1][k]; busy = true;
     tb.classList.add(&#39;act&#39;); tb.innerHTML = `&lt;span class=&quot;lbl&quot;&gt;&lt;span class=&quot;think on&quot;&gt;&lt;i&gt;&lt;/i&gt;&lt;i&gt;&lt;/i&gt;&lt;i&gt;&lt;/i&gt;&lt;i&gt;&lt;/i&gt;&lt;/span&gt;Rewriting&lt;/span&gt;`; place(el);
     c.run(async () =&gt; {
-      el.innerHTML = `&lt;del&gt;${old}&lt;/del&gt; &lt;ins&gt;&lt;/ins&gt;`; const ins = $(&#39;ins&#39;, el); place(el); await c.wait(350);
-      for (const w of nw.split(&#39; &#39;)){ ins.insertAdjacentHTML(&#39;beforeend&#39;, `&lt;span class=&quot;w&quot;&gt;${w} &lt;/span&gt;`); await c.wait(55); }
+      el.innerHTML = `&lt;del&gt;${old}&lt;/del&gt; &lt;ins&gt;${nw.split(&#39; &#39;).map(w =&gt; `&lt;span class=&quot;w&quot;&gt;${w} &lt;/span&gt;`).join(&#39;&#39;)}&lt;/ins&gt;`; place(el); await c.wait(350);
+      for (const w of $$(&#39;ins .w&#39;, el)){ w.classList.add(&#39;on&#39;); await c.wait(55); }
       tb.innerHTML = `&lt;span class=&quot;lbl&quot;&gt;${I(&#39;check&#39;,&#39;xs&#39;)}Rewritten&lt;/span&gt;&lt;button class=&quot;rwx-b rwx-un&quot;&gt;Undo&lt;/button&gt;&lt;button class=&quot;pill accent sm rwx-ok&quot;&gt;Accept&lt;/button&gt;`; place(el);
       // keeping a shorter sentence keeps the doc&#39;s height, with the text centred in it (hold), so the card doesn&#39;t shrink
       $(&#39;.rwx-ok&#39;, tb).onclick = () =&gt; { hold(box); el.textContent = nw; S[i][0] = nw; el.classList.remove(&#39;sel&#39;); hide(); busy = false; swap(st, &#39;Saved&#39;); };
@@ -751,6 +760,8 @@ const fitHits = window.dmFitHits || (() => {
   const doc = $('.rwx-doc', r), tb = $('.rwx-tb', r), st = $('.rwx-st', r), box = $('.rwx', r);
   doc.innerHTML = S.map((s, i) => `<span class="rwx-s" data-i="${i}">${s[0]}</span>`).join(' ');
   const tbHTML = tb.innerHTML; let sel = null, busy = false;
+  // shorter before a rewrite than during one, it stays centred in the room its stage keeps for it
+  centre(c, box, () => box.offsetHeight);
   function place(el){
     const br = box.getBoundingClientRect(), rects = el.getClientRects(), f = rects[0];
     const w = tb.offsetWidth; let x = f.left - br.left; x = Math.max(8, Math.min(x, br.width - w - 8));
@@ -772,8 +783,8 @@ const fitHits = window.dmFitHits || (() => {
     const el = sel, i = +el.dataset.i, old = S[i][0], nw = S[i][1][k]; busy = true;
     tb.classList.add('act'); tb.innerHTML = `<span class="lbl"><span class="think on"><i></i><i></i><i></i><i></i></span>Rewriting</span>`; place(el);
     c.run(async () => {
-      el.innerHTML = `<del>${old}</del> <ins></ins>`; const ins = $('ins', el); place(el); await c.wait(350);
-      for (const w of nw.split(' ')){ ins.insertAdjacentHTML('beforeend', `<span class="w">${w} </span>`); await c.wait(55); }
+      el.innerHTML = `<del>${old}</del> <ins>${nw.split(' ').map(w => `<span class="w">${w} </span>`).join('')}</ins>`; place(el); await c.wait(350);
+      for (const w of $$('ins .w', el)){ w.classList.add('on'); await c.wait(55); }
       tb.innerHTML = `<span class="lbl">${I('check','xs')}Rewritten</span><button class="rwx-b rwx-un">Undo</button><button class="pill accent sm rwx-ok">Accept</button>`; place(el);
       // keeping a shorter sentence keeps the doc's height, with the text centred in it (hold), so the card doesn't shrink
       $('.rwx-ok', tb).onclick = () => { hold(box); el.textContent = nw; S[i][0] = nw; el.classList.remove('sel'); hide(); busy = false; swap(st, 'Saved'); };

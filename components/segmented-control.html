@@ -47,38 +47,42 @@
 </script><script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareSourceCode","name":"Segmented control","description":"Segmented control is a row of two to five choices where exactly one is picked, shown as a raised knob that slides to it. Use it to switch between views of the same thing, like a day, a week and a month, or to set one option from a few. It sits inline next to a title and changes what's below it at once.","url":"https://designme.dev/components/segmented-control","image":"https://designme.dev/components/og/segmented-control.jpg","programmingLanguage":["HTML","CSS","JavaScript","TypeScript"],"runtimePlatform":"Web browser","license":"https://opensource.org/licenses/MIT","isAccessibleForFree":true,"keywords":"Segmented control, Dates, UI component, React component, HTML component","author":{"@type":"Organization","name":"DesignMe","url":"https://designme.agency"},"isPartOf":{"@type":"WebSite","name":"Designme.dev","url":"https://designme.dev/"}}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Library","item":"https://designme.dev/"},{"@type":"ListItem","position":2,"name":"Dates","item":"https://designme.dev/#s-dates"},{"@type":"ListItem","position":3,"name":"Segmented control","item":"https://designme.dev/components/segmented-control"}]}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should it be tabs or a radio group?","acceptedAnswer":{"@type":"Answer","text":"Tabs when it changes what a panel shows, like a calendar view. A radio group when it sets a value that's saved or sent, like a billing period."}},{"@type":"Question","name":"Can an option have an icon?","acceptedAnswer":{"@type":"Answer","text":"Yes. label takes JSX, so put an icon before the text, or only an icon with an aria-label inside it."}},{"@type":"Question","name":"Does the knob slide when the labels change width?","acceptedAnswer":{"@type":"Answer","text":"Yes. It measures the picked option whenever the control resizes, so it follows a translated label or a new font."}},{"@type":"Question","name":"How many options can it take?","acceptedAnswer":{"@type":"Answer","text":"It works best with two to five short ones. Past that, the options get narrow on a phone."}}]}</script><link rel="stylesheet" href="/components/assets/core.css"><style>/* ---------- Segmented control ---------- */
 /* one choice from a few views of the same thing: the picked one sits on a white knob that slides to it. It is a tab
    list, so the arrow keys move along it and the panel under it changes with it */
-.sgc{width:100%;max-width:400px;margin:0 auto;padding:16px;display:flex;flex-direction:column;gap:14px}
-.sgc-h{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.sgc{width:100%;max-width:400px;margin:0 auto;padding:var(--s-4);display:flex;flex-direction:column;gap:14px}
+.sgc-h{display:flex;align-items:center;justify-content:space-between;gap:var(--s-3);flex-wrap:wrap}
 .sgc-ht{display:flex;flex-direction:column;min-width:0}
 .sgc-ht b{font-weight:500;font-size:14px}
 .sgc-bar{display:flex;align-items:center;gap:2px;margin:-4px 0 -6px}
 .sgc-r{flex:1;min-width:0;font-size:13px;color:var(--fg2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .sgc-bar .ib{width:28px;height:28px}
-.sgc-bar .pill{margin-right:4px}
+.sgc-bar .pill{margin-right:var(--s-1)}
 .sgc-seg{position:relative;display:inline-flex;padding:3px;border-radius:var(--r-pill);background:var(--chip);flex:none}
 .sgc-k{position:absolute;top:3px;bottom:3px;left:3px;width:0;border-radius:var(--r-pill);background:var(--surface);box-shadow:var(--shadow);transition:left .42s var(--ease),width .42s var(--ease)}
 .sgc-seg button{position:relative;z-index:1;height:30px;padding:0 14px;border-radius:var(--r-pill);font-size:13px;color:var(--fg2);outline:0;transition:color .2s}
 .sgc-seg button[aria-selected="true"],.sgc-seg button[aria-checked="true"]{color:var(--fg)}
 @media (hover:hover) and (pointer:fine){.sgc-seg button:hover{color:var(--fg)}}
 .sgc-seg button:focus-visible{box-shadow:0 0 0 2px var(--focus)}
-.sgc-p{height:178px;border-radius:12px;outline:0}
+.sgc-p{position:relative;height:178px;border-radius:var(--r-in);outline:0}
 .sgc-p:focus-visible{box-shadow:0 0 0 2px var(--focus)}
-.sgc-in{height:100%;transition:opacity .16s,filter .16s,transform .2s var(--ease)}
-.sgc-in.out{opacity:0;filter:blur(3px);transform:translateY(4px)}
+.sgc-in{height:100%}
+/* a new view crossfades over the one it replaces, so the panel is never empty between them */
+.sgc-in.fresh{animation:sgcin .24s var(--ease) both}
+.sgc-in.gone{position:absolute;inset:0;pointer-events:none;animation:sgcout .24s var(--ease) both}
+@keyframes sgcin{from{opacity:0;transform:translateY(4px)}}
+@keyframes sgcout{to{opacity:0}}
 /* the day: its events in order */
 .sgc-day{display:flex;flex-direction:column;gap:6px}
-.sgc-ev{display:flex;align-items:center;gap:12px;min-height:50px;padding:6px 12px;border-radius:12px;background:var(--row);font-size:13px}
-.sgc-ev i{width:3px;align-self:stretch;margin:4px 0;border-radius:2px;background:var(--c);flex:none}
+.sgc-ev{display:flex;align-items:center;gap:var(--s-3);min-height:50px;padding:6px var(--s-3);border-radius:var(--r-in);background:var(--row);font-size:13px}
+.sgc-ev i{width:3px;align-self:stretch;margin:var(--s-1) 0;border-radius:2px;background:var(--c);flex:none}
 .sgc-ev .t{flex:1;min-width:0;display:flex;flex-direction:column}
 .sgc-ev .t span{font-size:12px;color:var(--muted)}
 .sgc-none{height:100%;display:grid;place-items:center;font-size:13px;color:var(--muted)}
 /* the week: one row a day with its first event, a count of the rest, and today picked out */
 .sgc-wk{display:flex;flex-direction:column;gap:2px}
-.sgc-wr{display:flex;align-items:center;gap:10px;width:100%;height:23px;padding:0 8px;border-radius:8px;font-size:12.5px;text-align:left;transition:background var(--t-fast)}
+.sgc-wr{display:flex;align-items:center;gap:10px;width:100%;height:23px;padding:0 var(--s-2);border-radius:var(--r-sm);font-size:12.5px;text-align:left;transition:background var(--t-fast)}
 @media (hover:hover) and (pointer:fine){.sgc-wr:hover{background:var(--row)}}
 .sgc-wr:focus-visible,.sgc-mo .d:focus-visible{outline:0;box-shadow:0 0 0 2px var(--focus)}
 .sgc-wr .d{width:46px;flex:none;color:var(--muted)}
-.sgc-wr .e{flex:1;min-width:0;display:flex;align-items:center;gap:8px;white-space:nowrap}
+.sgc-wr .e{flex:1;min-width:0;display:flex;align-items:center;gap:var(--s-2);white-space:nowrap}
 .sgc-wr .e i{width:6px;height:6px;border-radius:50%;background:var(--c);flex:none}
 .sgc-wr .e .tm{color:var(--muted);flex:none}
 .sgc-wr .e span:last-child{min-width:0;overflow:hidden;text-overflow:ellipsis}
@@ -88,9 +92,9 @@
 @media (hover:hover) and (pointer:fine){.sgc-wr.now:hover{background:var(--sel)}}
 .sgc-wr.now .d{color:var(--fg);font-weight:500}
 /* the month: a dot on each day with something on */
-.sgc-mo{display:grid;grid-template-columns:repeat(7,1fr);gap:2px 4px;font-size:12px;text-align:center}
+.sgc-mo{display:grid;grid-template-columns:repeat(7,1fr);gap:2px var(--s-1);font-size:12px;text-align:center}
 .sgc-mo .w{font-size:11px;color:var(--muted);padding-bottom:2px}
-.sgc-mo .d{position:relative;height:26px;display:grid;place-items:center;border-radius:8px;color:var(--fg2);transition:background var(--t-fast)}
+.sgc-mo .d{position:relative;height:26px;display:grid;place-items:center;border-radius:var(--r-sm);color:var(--fg2);transition:background var(--t-fast)}
 .sgc-mo.r6 .d{height:22px}
 @media (hover:hover) and (pointer:fine){.sgc-mo .d:hover{background:var(--row)}}
 .sgc-mo .d.on{background:var(--chip);color:var(--fg)}
@@ -133,10 +137,11 @@
     </div>
   </div>
 </div>
-</div></section><div class="cp-bar"><nav aria-label="Sections"><a href="#install">Install</a><a href="#about">About</a><a href="#usage">Usage</a><a href="#props">Props</a><a href="#code">Code</a><a href="#questions">Questions</a><a href="#more">More</a></nav></div><section class="cp-sec" id="install"><div class="pg-sh"><span class="n">01</span><h2>Install</h2><p>Add it to your project with the CLI.</p></div><div class="cp-two"><div class="cp-box"><h3 class="pg-t">HTML, CSS and JavaScript</h3><div class="cp-line"><span class="d">$</span><code><span class="cp-w">npx</span> <span class="cp-w">designme</span> <span class="cp-w">add</span> <span class="cp-w">segmented-control</span></code><button class="cp-copy" type="button" data-copy="npx designme add segmented-control" data-label="Copy">Copy</button></div></div><div class="cp-box"><h3 class="pg-t">React</h3><div class="cp-line"><span class="d">$</span><code><span class="cp-w">npx</span> <span class="cp-w">designme</span> <span class="cp-w">add</span> <span class="cp-w">segmented-control</span> <span class="cp-w">--react</span></code><button class="cp-copy" type="button" data-copy="npx designme add segmented-control --react" data-label="Copy">Copy</button></div></div></div><p class="cp-note">The CLI copies the source into your project, so you own it and can change anything. The HTML version lands in <code>./designme</code> with the shared core and a <code>demo.html</code>. The React version lands in <code>src/components/designme</code> and needs React 19; it works in Next.js, Vite and Astro.</p></section><section class="cp-sec" id="about"><div class="pg-sh"><span class="n">02</span><h2>About</h2><p>What it is for and what it does.</p></div><p class="cp-sum">Segmented control is a row of two to five choices where exactly one is picked, shown as a raised knob that slides to it. Use it to switch between views of the same thing, like a day, a week and a month, or to set one option from a few. It sits inline next to a title and changes what's below it at once.</p><div class="cp-gap"><div class="cp-tl" role="tablist" aria-label="About"><button type="button" role="tab" id="ab-t0" aria-controls="ab-p0" aria-selected="true" tabindex="0">When to use it</button><button type="button" role="tab" id="ab-t1" aria-controls="ab-p1" aria-selected="false" tabindex="-1">What it does</button><button type="button" role="tab" id="ab-t2" aria-controls="ab-p2" aria-selected="false" tabindex="-1">Accessibility</button></div><div class="cp-tp" role="tabpanel" id="ab-p0" aria-labelledby="ab-t0"><ul><li>When people switch between a few views of the same content, like Day, Week and Month.</li><li>When there are two to five short options and all of them should stay visible.</li><li>When the change should happen at once, without a separate Apply.</li><li>Not for more than five options, or long labels: use a select or tabs with an overflow then.</li></ul></div><div class="cp-tp" role="tabpanel" id="ab-p1" aria-labelledby="ab-t1" hidden><ul><li><code>options</code> are the choices, each with a <code>value</code> and a <code>label</code>. The picked one sits on a raised knob that slides and resizes to it.</li><li><code>value</code>, <code>defaultValue</code> and <code>onValueChange</code> hold the pick.</li><li><code>as="tabs"</code> (the default) makes it a tab list for switching a panel; <code>as="radio"</code> makes it a radio group for setting an option.</li><li><code>id</code> ties the tabs to their panel: the panel takes <code>id="&lt;id&gt;-panel"</code> and <code>aria-labelledby="&lt;id&gt;-&lt;value&gt;"</code>.</li><li>The demo switches the pricing launch between a day of events, a week with each day's first event and a count of the rest, and a month with a dot on each busy day. Previous and next step a day, a week or a month at a time, Today comes back to the current date, and a day in the week or the month opens it in the day view. The range above the panel crossfades as it changes.</li></ul></div><div class="cp-tp" role="tabpanel" id="ab-p2" aria-labelledby="ab-t2" hidden><ul><li>As tabs it is a <code>tablist</code> named by <code>label</code>, each option a <code>tab</code> with <code>aria-selected</code> and <code>aria-controls</code>, and the panel a <code>tabpanel</code> labelled by the picked tab.</li><li>As a radio group it is a <code>radiogroup</code> with <code>radio</code> options and <code>aria-checked</code>.</li><li>Only the picked option is in the tab order. ← and → move and pick, wrapping at the ends, and Home and End jump to the first and last.</li><li>The knob is decoration; the picked option's state says the same.</li><li>In the demo, previous and next are named for the view, like Previous week, and each day in the week and the month is a button named with its date and how many events it has.</li></ul></div></div></section><section class="cp-sec" id="usage"><div class="pg-sh"><span class="n">03</span><h2>Usage</h2><p>Import it and drive it from your own state.</p></div><div class="cp-box"><h3 class="pg-t">Import</h3><pre class="cp-pre"><code>import { SegmentedControl } from &#39;@/components/designme/segmented-control/SegmentedControl&#39;;</code></pre></div><div class="cp-box cp-gap"><h3 class="pg-t">Example</h3><p class="pg-d">The demo above as a React component, 124 lines you can copy.</p><pre class="cp-pre"><code>&#39;use client&#39;;
+</div></section><div class="cp-bar"><nav aria-label="Sections"><a href="#install">Install</a><a href="#about">About</a><a href="#usage">Usage</a><a href="#props">Props</a><a href="#code">Code</a><a href="#questions">Questions</a><a href="#more">More</a></nav></div><section class="cp-sec" id="install"><div class="pg-sh"><span class="n">01</span><h2>Install</h2><p>Add it to your project with the CLI.</p></div><div class="cp-two"><div class="cp-box"><h3 class="pg-t">HTML, CSS and JavaScript</h3><div class="cp-line"><span class="d">$</span><code><span class="cp-w">npx</span> <span class="cp-w">designme</span> <span class="cp-w">add</span> <span class="cp-w">segmented-control</span></code><button class="cp-copy" type="button" data-copy="npx designme add segmented-control" data-label="Copy">Copy</button></div></div><div class="cp-box"><h3 class="pg-t">React</h3><div class="cp-line"><span class="d">$</span><code><span class="cp-w">npx</span> <span class="cp-w">designme</span> <span class="cp-w">add</span> <span class="cp-w">segmented-control</span> <span class="cp-w">--react</span></code><button class="cp-copy" type="button" data-copy="npx designme add segmented-control --react" data-label="Copy">Copy</button></div></div></div><p class="cp-note">The CLI copies the source into your project, so you own it and can change anything. The HTML version lands in <code>./designme</code> with the shared core and a <code>demo.html</code>. The React version lands in <code>src/components/designme</code> and needs React 19; it works in Next.js, Vite and Astro.</p></section><section class="cp-sec" id="about"><div class="pg-sh"><span class="n">02</span><h2>About</h2><p>What it is for and what it does.</p></div><p class="cp-sum">Segmented control is a row of two to five choices where exactly one is picked, shown as a raised knob that slides to it. Use it to switch between views of the same thing, like a day, a week and a month, or to set one option from a few. It sits inline next to a title and changes what's below it at once.</p><div class="cp-gap"><div class="cp-tl" role="tablist" aria-label="About"><button type="button" role="tab" id="ab-t0" aria-controls="ab-p0" aria-selected="true" tabindex="0">When to use it</button><button type="button" role="tab" id="ab-t1" aria-controls="ab-p1" aria-selected="false" tabindex="-1">What it does</button><button type="button" role="tab" id="ab-t2" aria-controls="ab-p2" aria-selected="false" tabindex="-1">Accessibility</button></div><div class="cp-tp" role="tabpanel" id="ab-p0" aria-labelledby="ab-t0"><ul><li>When people switch between a few views of the same content, like Day, Week and Month.</li><li>When there are two to five short options and all of them should stay visible.</li><li>When the change should happen at once, without a separate Apply.</li><li>Not for more than five options, or long labels: use a select or tabs with an overflow then.</li></ul></div><div class="cp-tp" role="tabpanel" id="ab-p1" aria-labelledby="ab-t1" hidden><ul><li><code>options</code> are the choices, each with a <code>value</code> and a <code>label</code>. The picked one sits on a raised knob that slides and resizes to it.</li><li><code>value</code>, <code>defaultValue</code> and <code>onValueChange</code> hold the pick.</li><li><code>as="tabs"</code> (the default) makes it a tab list for switching a panel; <code>as="radio"</code> makes it a radio group for setting an option.</li><li><code>id</code> ties the tabs to their panel: the panel takes <code>id="&lt;id&gt;-panel"</code> and <code>aria-labelledby="&lt;id&gt;-&lt;value&gt;"</code>.</li><li>The demo switches the pricing launch between a day of events, a week with each day's first event and a count of the rest, and a month with a dot on each busy day. Previous and next step a day, a week or a month at a time, Today comes back to the current date, and a day in the week or the month opens it in the day view. The range above the panel crossfades as it changes.</li></ul></div><div class="cp-tp" role="tabpanel" id="ab-p2" aria-labelledby="ab-t2" hidden><ul><li>As tabs it is a <code>tablist</code> named by <code>label</code>, each option a <code>tab</code> with <code>aria-selected</code> and <code>aria-controls</code>, and the panel a <code>tabpanel</code> labelled by the picked tab.</li><li>As a radio group it is a <code>radiogroup</code> with <code>radio</code> options and <code>aria-checked</code>.</li><li>Only the picked option is in the tab order. ← and → move and pick, wrapping at the ends, and Home and End jump to the first and last.</li><li>The knob is decoration; the picked option's state says the same.</li><li>In the demo, previous and next are named for the view, like Previous week, and each day in the week and the month is a button named with its date and how many events it has.</li></ul></div></div></section><section class="cp-sec" id="usage"><div class="pg-sh"><span class="n">03</span><h2>Usage</h2><p>Import it and drive it from your own state.</p></div><div class="cp-box"><h3 class="pg-t">Import</h3><pre class="cp-pre"><code>import { SegmentedControl } from &#39;@/components/designme/segmented-control/SegmentedControl&#39;;</code></pre></div><div class="cp-box cp-gap"><h3 class="pg-t">Example</h3><p class="pg-d">The demo above as a React component, 138 lines you can copy.</p><pre class="cp-pre"><code>&#39;use client&#39;;
 // The animated preview from designme.dev, rebuilt from the React component: an example of driving it from your own state.
-import { useRef, useState, type CSSProperties } from &#39;react&#39;;
+import { useEffect, useRef, useState, type CSSProperties } from &#39;react&#39;;
 import { SegmentedControl } from &#39;./SegmentedControl&#39;;
+import { cx } from &#39;../lib/cx&#39;;
 import { Icon } from &#39;../lib/icons&#39;;
 import { Swap } from &#39;../lib/motion&#39;;
 import { useStory } from &#39;../lib/useScript&#39;;
@@ -222,6 +227,15 @@ export default function SegmentedControlDemo() {
   const ref = useRef&lt;HTMLDivElement&gt;(null);
   const [view, setView] = useState&lt;View&gt;(&#39;day&#39;);
   const [date, setDate] = useState(TODAY);
+  // the panel on show, and the one it replaced while that fades out under the new one, so no frame is empty
+  const key = view + iso(date);
+  const [layers, setLayers] = useState([{ key, view, date, gone: false }]);
+  if (layers[layers.length - 1].key !== key) setLayers([...layers.filter(l =&gt; !l.gone).slice(-1).map(l =&gt; ({ ...l, gone: true })), { key, view, date, gone: false }]);
+  useEffect(() =&gt; {
+    if (!layers.some(l =&gt; l.gone)) return;
+    const t = setTimeout(() =&gt; setLayers(ls =&gt; ls.filter(l =&gt; !l.gone)), 260);
+    return () =&gt; clearTimeout(t);
+  }, [layers]);
   // previous and next step by the view&#39;s unit; Today comes back to the 23rd
   const step = (k: number) =&gt; setDate(d =&gt; view === &#39;day&#39; ? at(d, k) : view === &#39;week&#39; ? at(d, 7 * k) : new Date(d.getFullYear(), d.getMonth() + k, 1, 12));
   const open = (d: Date) =&gt; { setDate(d); setView(&#39;day&#39;); };
@@ -250,7 +264,11 @@ export default function SegmentedControlDemo() {
           &lt;button type=&quot;button&quot; className=&quot;dm-ib dm-sgc-nx&quot; aria-label={&#39;Next &#39; + view} onClick={() =&gt; step(1)}&gt;&lt;Icon name=&quot;chev-r&quot; size=&quot;xs&quot; /&gt;&lt;/button&gt;
         &lt;/div&gt;
         &lt;div className=&quot;dm-sgc-p&quot; id=&quot;launch-view-panel&quot; role=&quot;tabpanel&quot; aria-labelledby={`launch-view-${view}`} tabIndex={0}&gt;
-          &lt;div key={view + iso(date)} className=&quot;dm-sgc-in dm-enter&quot;&gt;&lt;Panel view={view} date={date} open={open} /&gt;&lt;/div&gt;
+          {layers.map((l, i) =&gt; (
+            &lt;div key={l.key} className={cx(&#39;dm-sgc-in&#39;, l.gone ? &#39;dm-gone&#39; : i &gt; 0 &amp;&amp; &#39;dm-fresh&#39;)} inert={l.gone} aria-hidden={l.gone || undefined}&gt;
+              &lt;Panel view={l.view} date={l.date} open={open} /&gt;
+            &lt;/div&gt;
+          ))}
         &lt;/div&gt;
       &lt;/div&gt;
     &lt;/div&gt;
@@ -331,42 +349,46 @@ export function SegmentedControl&lt;T extends string = string&gt;({ options, val
     &lt;/div&gt;
   );
 }
-</code></pre></details><details class="cp-file"><summary>segmented-control.css<span class="l">React · 56 lines</span></summary><pre class="cp-pre"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+</code></pre></details><details class="cp-file"><summary>segmented-control.css<span class="l">React · 60 lines</span></summary><pre class="cp-pre"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Segmented control ---------- */
 /* one choice from a few views of the same thing: the picked one sits on a white knob that slides to it. It is a tab
    list, so the arrow keys move along it and the panel under it changes with it */
-.dm-sgc{width:100%;max-width:400px;margin:0 auto;padding:16px;display:flex;flex-direction:column;gap:14px}
-.dm-sgc-h{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.dm-sgc{width:100%;max-width:400px;margin:0 auto;padding:var(--dm-s-4);display:flex;flex-direction:column;gap:14px}
+.dm-sgc-h{display:flex;align-items:center;justify-content:space-between;gap:var(--dm-s-3);flex-wrap:wrap}
 .dm-sgc-ht{display:flex;flex-direction:column;min-width:0}
 .dm-sgc-ht b{font-weight:500;font-size:14px}
 .dm-sgc-bar{display:flex;align-items:center;gap:2px;margin:-4px 0 -6px}
 .dm-sgc-r{flex:1;min-width:0;font-size:13px;color:var(--dm-fg2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dm-sgc-bar .dm-ib{width:28px;height:28px}
-.dm-sgc-bar .dm-pill{margin-right:4px}
+.dm-sgc-bar .dm-pill{margin-right:var(--dm-s-1)}
 .dm-sgc-seg{position:relative;display:inline-flex;padding:3px;border-radius:var(--dm-r-pill);background:var(--dm-chip);flex:none}
 .dm-sgc-k{position:absolute;top:3px;bottom:3px;left:3px;width:0;border-radius:var(--dm-r-pill);background:var(--dm-surface);box-shadow:var(--dm-shadow);transition:left .42s var(--dm-ease),width .42s var(--dm-ease)}
 .dm-sgc-seg button{position:relative;z-index:1;height:30px;padding:0 14px;border-radius:var(--dm-r-pill);font-size:13px;color:var(--dm-fg2);outline:0;transition:color .2s}
 .dm-sgc-seg button[aria-selected=&quot;true&quot;],.dm-sgc-seg button[aria-checked=&quot;true&quot;]{color:var(--dm-fg)}
 @media (hover:hover) and (pointer:fine){.dm-sgc-seg button:hover{color:var(--dm-fg)}}
 .dm-sgc-seg button:focus-visible{box-shadow:0 0 0 2px var(--dm-focus)}
-.dm-sgc-p{height:178px;border-radius:12px;outline:0}
+.dm-sgc-p{position:relative;height:178px;border-radius:var(--dm-r-in);outline:0}
 .dm-sgc-p:focus-visible{box-shadow:0 0 0 2px var(--dm-focus)}
-.dm-sgc-in{height:100%;transition:opacity .16s,filter .16s,transform .2s var(--dm-ease)}
-.dm-sgc-in.dm-out{opacity:0;filter:blur(3px);transform:translateY(4px)}
+.dm-sgc-in{height:100%}
+/* a new view crossfades over the one it replaces, so the panel is never empty between them */
+.dm-sgc-in.dm-fresh{animation:dm-sgcin .24s var(--dm-ease) both}
+.dm-sgc-in.dm-gone{position:absolute;inset:0;pointer-events:none;animation:dm-sgcout .24s var(--dm-ease) both}
+@keyframes dm-sgcin{from{opacity:0;transform:translateY(4px)}}
+@keyframes dm-sgcout{to{opacity:0}}
 /* the day: its events in order */
 .dm-sgc-day{display:flex;flex-direction:column;gap:6px}
-.dm-sgc-ev{display:flex;align-items:center;gap:12px;min-height:50px;padding:6px 12px;border-radius:12px;background:var(--dm-row);font-size:13px}
-.dm-sgc-ev i{width:3px;align-self:stretch;margin:4px 0;border-radius:2px;background:var(--dm-c);flex:none}
+.dm-sgc-ev{display:flex;align-items:center;gap:var(--dm-s-3);min-height:50px;padding:6px var(--dm-s-3);border-radius:var(--dm-r-in);background:var(--dm-row);font-size:13px}
+.dm-sgc-ev i{width:3px;align-self:stretch;margin:var(--dm-s-1) 0;border-radius:2px;background:var(--dm-c);flex:none}
 .dm-sgc-ev .dm-t{flex:1;min-width:0;display:flex;flex-direction:column}
 .dm-sgc-ev .dm-t span{font-size:12px;color:var(--dm-muted)}
 .dm-sgc-none{height:100%;display:grid;place-items:center;font-size:13px;color:var(--dm-muted)}
 /* the week: one row a day with its first event, a count of the rest, and today picked out */
 .dm-sgc-wk{display:flex;flex-direction:column;gap:2px}
-.dm-sgc-wr{display:flex;align-items:center;gap:10px;width:100%;height:23px;padding:0 8px;border-radius:8px;font-size:12.5px;text-align:left;transition:background var(--dm-t-fast)}
+.dm-sgc-wr{display:flex;align-items:center;gap:10px;width:100%;height:23px;padding:0 var(--dm-s-2);border-radius:var(--dm-r-sm);font-size:12.5px;text-align:left;transition:background var(--dm-t-fast)}
 @media (hover:hover) and (pointer:fine){.dm-sgc-wr:hover{background:var(--dm-row)}}
 .dm-sgc-wr:focus-visible,.dm-sgc-mo .dm-d:focus-visible{outline:0;box-shadow:0 0 0 2px var(--dm-focus)}
 .dm-sgc-wr .dm-d{width:46px;flex:none;color:var(--dm-muted)}
-.dm-sgc-wr .dm-e{flex:1;min-width:0;display:flex;align-items:center;gap:8px;white-space:nowrap}
+.dm-sgc-wr .dm-e{flex:1;min-width:0;display:flex;align-items:center;gap:var(--dm-s-2);white-space:nowrap}
 .dm-sgc-wr .dm-e i{width:6px;height:6px;border-radius:50%;background:var(--dm-c);flex:none}
 .dm-sgc-wr .dm-e .dm-tm{color:var(--dm-muted);flex:none}
 .dm-sgc-wr .dm-e span:last-child{min-width:0;overflow:hidden;text-overflow:ellipsis}
@@ -376,9 +398,9 @@ export function SegmentedControl&lt;T extends string = string&gt;({ options, val
 @media (hover:hover) and (pointer:fine){.dm-sgc-wr.dm-now:hover{background:var(--dm-sel)}}
 .dm-sgc-wr.dm-now .dm-d{color:var(--dm-fg);font-weight:500}
 /* the month: a dot on each day with something on */
-.dm-sgc-mo{display:grid;grid-template-columns:repeat(7,1fr);gap:2px 4px;font-size:12px;text-align:center}
+.dm-sgc-mo{display:grid;grid-template-columns:repeat(7,1fr);gap:2px var(--dm-s-1);font-size:12px;text-align:center}
 .dm-sgc-mo .dm-w{font-size:11px;color:var(--dm-muted);padding-bottom:2px}
-.dm-sgc-mo .dm-d{position:relative;height:26px;display:grid;place-items:center;border-radius:8px;color:var(--dm-fg2);transition:background var(--dm-t-fast)}
+.dm-sgc-mo .dm-d{position:relative;height:26px;display:grid;place-items:center;border-radius:var(--dm-r-sm);color:var(--dm-fg2);transition:background var(--dm-t-fast)}
 .dm-sgc-mo.dm-r6 .dm-d{height:22px}
 @media (hover:hover) and (pointer:fine){.dm-sgc-mo .dm-d:hover{background:var(--dm-row)}}
 .dm-sgc-mo .dm-d.dm-on{background:var(--dm-chip);color:var(--dm-fg)}
@@ -396,41 +418,45 @@ export function SegmentedControl&lt;T extends string = string&gt;({ options, val
     &lt;/div&gt;
   &lt;/div&gt;
 &lt;/div&gt;
-</code></pre></details><details class="cp-file"><summary>segmented-control.css<span class="l">HTML · 55 lines</span></summary><pre class="cp-pre"><code>/* ---------- Segmented control ---------- */
+</code></pre></details><details class="cp-file"><summary>segmented-control.css<span class="l">HTML · 59 lines</span></summary><pre class="cp-pre"><code>/* ---------- Segmented control ---------- */
 /* one choice from a few views of the same thing: the picked one sits on a white knob that slides to it. It is a tab
    list, so the arrow keys move along it and the panel under it changes with it */
-.sgc{width:100%;max-width:400px;margin:0 auto;padding:16px;display:flex;flex-direction:column;gap:14px}
-.sgc-h{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.sgc{width:100%;max-width:400px;margin:0 auto;padding:var(--s-4);display:flex;flex-direction:column;gap:14px}
+.sgc-h{display:flex;align-items:center;justify-content:space-between;gap:var(--s-3);flex-wrap:wrap}
 .sgc-ht{display:flex;flex-direction:column;min-width:0}
 .sgc-ht b{font-weight:500;font-size:14px}
 .sgc-bar{display:flex;align-items:center;gap:2px;margin:-4px 0 -6px}
 .sgc-r{flex:1;min-width:0;font-size:13px;color:var(--fg2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .sgc-bar .ib{width:28px;height:28px}
-.sgc-bar .pill{margin-right:4px}
+.sgc-bar .pill{margin-right:var(--s-1)}
 .sgc-seg{position:relative;display:inline-flex;padding:3px;border-radius:var(--r-pill);background:var(--chip);flex:none}
 .sgc-k{position:absolute;top:3px;bottom:3px;left:3px;width:0;border-radius:var(--r-pill);background:var(--surface);box-shadow:var(--shadow);transition:left .42s var(--ease),width .42s var(--ease)}
 .sgc-seg button{position:relative;z-index:1;height:30px;padding:0 14px;border-radius:var(--r-pill);font-size:13px;color:var(--fg2);outline:0;transition:color .2s}
 .sgc-seg button[aria-selected=&quot;true&quot;],.sgc-seg button[aria-checked=&quot;true&quot;]{color:var(--fg)}
 @media (hover:hover) and (pointer:fine){.sgc-seg button:hover{color:var(--fg)}}
 .sgc-seg button:focus-visible{box-shadow:0 0 0 2px var(--focus)}
-.sgc-p{height:178px;border-radius:12px;outline:0}
+.sgc-p{position:relative;height:178px;border-radius:var(--r-in);outline:0}
 .sgc-p:focus-visible{box-shadow:0 0 0 2px var(--focus)}
-.sgc-in{height:100%;transition:opacity .16s,filter .16s,transform .2s var(--ease)}
-.sgc-in.out{opacity:0;filter:blur(3px);transform:translateY(4px)}
+.sgc-in{height:100%}
+/* a new view crossfades over the one it replaces, so the panel is never empty between them */
+.sgc-in.fresh{animation:sgcin .24s var(--ease) both}
+.sgc-in.gone{position:absolute;inset:0;pointer-events:none;animation:sgcout .24s var(--ease) both}
+@keyframes sgcin{from{opacity:0;transform:translateY(4px)}}
+@keyframes sgcout{to{opacity:0}}
 /* the day: its events in order */
 .sgc-day{display:flex;flex-direction:column;gap:6px}
-.sgc-ev{display:flex;align-items:center;gap:12px;min-height:50px;padding:6px 12px;border-radius:12px;background:var(--row);font-size:13px}
-.sgc-ev i{width:3px;align-self:stretch;margin:4px 0;border-radius:2px;background:var(--c);flex:none}
+.sgc-ev{display:flex;align-items:center;gap:var(--s-3);min-height:50px;padding:6px var(--s-3);border-radius:var(--r-in);background:var(--row);font-size:13px}
+.sgc-ev i{width:3px;align-self:stretch;margin:var(--s-1) 0;border-radius:2px;background:var(--c);flex:none}
 .sgc-ev .t{flex:1;min-width:0;display:flex;flex-direction:column}
 .sgc-ev .t span{font-size:12px;color:var(--muted)}
 .sgc-none{height:100%;display:grid;place-items:center;font-size:13px;color:var(--muted)}
 /* the week: one row a day with its first event, a count of the rest, and today picked out */
 .sgc-wk{display:flex;flex-direction:column;gap:2px}
-.sgc-wr{display:flex;align-items:center;gap:10px;width:100%;height:23px;padding:0 8px;border-radius:8px;font-size:12.5px;text-align:left;transition:background var(--t-fast)}
+.sgc-wr{display:flex;align-items:center;gap:10px;width:100%;height:23px;padding:0 var(--s-2);border-radius:var(--r-sm);font-size:12.5px;text-align:left;transition:background var(--t-fast)}
 @media (hover:hover) and (pointer:fine){.sgc-wr:hover{background:var(--row)}}
 .sgc-wr:focus-visible,.sgc-mo .d:focus-visible{outline:0;box-shadow:0 0 0 2px var(--focus)}
 .sgc-wr .d{width:46px;flex:none;color:var(--muted)}
-.sgc-wr .e{flex:1;min-width:0;display:flex;align-items:center;gap:8px;white-space:nowrap}
+.sgc-wr .e{flex:1;min-width:0;display:flex;align-items:center;gap:var(--s-2);white-space:nowrap}
 .sgc-wr .e i{width:6px;height:6px;border-radius:50%;background:var(--c);flex:none}
 .sgc-wr .e .tm{color:var(--muted);flex:none}
 .sgc-wr .e span:last-child{min-width:0;overflow:hidden;text-overflow:ellipsis}
@@ -440,9 +466,9 @@ export function SegmentedControl&lt;T extends string = string&gt;({ options, val
 @media (hover:hover) and (pointer:fine){.sgc-wr.now:hover{background:var(--sel)}}
 .sgc-wr.now .d{color:var(--fg);font-weight:500}
 /* the month: a dot on each day with something on */
-.sgc-mo{display:grid;grid-template-columns:repeat(7,1fr);gap:2px 4px;font-size:12px;text-align:center}
+.sgc-mo{display:grid;grid-template-columns:repeat(7,1fr);gap:2px var(--s-1);font-size:12px;text-align:center}
 .sgc-mo .w{font-size:11px;color:var(--muted);padding-bottom:2px}
-.sgc-mo .d{position:relative;height:26px;display:grid;place-items:center;border-radius:8px;color:var(--fg2);transition:background var(--t-fast)}
+.sgc-mo .d{position:relative;height:26px;display:grid;place-items:center;border-radius:var(--r-sm);color:var(--fg2);transition:background var(--t-fast)}
 .sgc-mo.r6 .d{height:22px}
 @media (hover:hover) and (pointer:fine){.sgc-mo .d:hover{background:var(--row)}}
 .sgc-mo .d.on{background:var(--chip);color:var(--fg)}
@@ -450,9 +476,10 @@ export function SegmentedControl&lt;T extends string = string&gt;({ options, val
 .sgc-mo .d.now{background:var(--ink);color:var(--on-ink)}
 @media (hover:hover) and (pointer:fine){.sgc-mo .d.now:hover{background:var(--ink);color:var(--on-ink)}}
 .sgc-mo .d.now::after{background:var(--on-ink)}
-</code></pre></details><details class="cp-file"><summary>segmented-control.js<span class="l">HTML · 87 lines</span></summary><pre class="cp-pre"><code>DM.def(&#39;segmented-control&#39;, (r, c) =&gt; {
+</code></pre></details><details class="cp-file"><summary>segmented-control.js<span class="l">HTML · 92 lines</span></summary><pre class="cp-pre"><code>DM.def(&#39;segmented-control&#39;, (r, c) =&gt; {
   const uid = Math.random().toString(36).slice(2, 7);
-  const seg = $(&#39;.sgc-seg&#39;, r), knob = $(&#39;.sgc-k&#39;, r), tabs = $$(&#39;[role=&quot;tab&quot;]&#39;, seg), panel = $(&#39;.sgc-p&#39;, r), inner = $(&#39;.sgc-in&#39;, r), range = $(&#39;.sgc-r&#39;, r);
+  const seg = $(&#39;.sgc-seg&#39;, r), knob = $(&#39;.sgc-k&#39;, r), tabs = $$(&#39;[role=&quot;tab&quot;]&#39;, seg), panel = $(&#39;.sgc-p&#39;, r), range = $(&#39;.sgc-r&#39;, r);
+  let inner = $(&#39;.sgc-in&#39;, r);
   tabs.forEach(t =&gt; { t.id = `sgc-${t.dataset.v}-${uid}`; t.setAttribute(&#39;aria-controls&#39;, &#39;sgc-p-&#39; + uid); });
   panel.id = &#39;sgc-p-&#39; + uid;
   // the pricing launch in October 2026, seen as a day, a week or a month. Today is Friday the 23rd
@@ -496,14 +523,18 @@ export function SegmentedControl&lt;T extends string = string&gt;({ options, val
   // the knob slides to the picked tab and takes its width
   const place = () =&gt; { const t = tabs.find(x =&gt; x.getAttribute(&#39;aria-selected&#39;) === &#39;true&#39;); knob.style.left = t.offsetLeft + &#39;px&#39;; knob.style.width = t.offsetWidth + &#39;px&#39;; };
   let cur = &#39;day&#39;, sel = TODAY, n = 0;
-  // shows the view for the picked date: the range eases over and the panel fades through to the new dates
+  // a day in the week or the month opens that day
+  const bind = el =&gt; $$(&#39;[data-d]&#39;, el).forEach(b =&gt; b.onclick = () =&gt; { const [y, m, dd] = b.dataset.d.split(&#39;-&#39;).map(Number); sel = new Date(y, m - 1, dd, 12); pick(tabs[0], false, true); });
+  // shows the view for the picked date: the range eases over and the new dates crossfade over the old ones, which stay
+  // on screen until they have faded, so no frame is empty
   function show(){
-    const id = ++n, v = cur;
+    const v = cur;
     swap(range, V[v][0](sel)); pv.setAttribute(&#39;aria-label&#39;, &#39;Previous &#39; + UNIT[v]); nxB.setAttribute(&#39;aria-label&#39;, &#39;Next &#39; + UNIT[v]);
-    inner.classList.add(&#39;out&#39;);
-    c.later(REDUCE ? 0 : 160, () =&gt; { if (id !== n) return; inner.innerHTML = V[v][1](sel); inner.classList.remove(&#39;out&#39;);
-      // a day in the week or the month opens that day
-      $$(&#39;[data-d]&#39;, inner).forEach(b =&gt; b.onclick = () =&gt; { const [y, m, dd] = b.dataset.d.split(&#39;-&#39;).map(Number); sel = new Date(y, m - 1, dd, 12); pick(tabs[0], false, true); }); });
+    const old = inner; inner = html(`&lt;div class=&quot;sgc-in fresh&quot;&gt;${V[v][1](sel)}&lt;/div&gt;`); bind(inner);
+    $$(&#39;.sgc-in.gone&#39;, panel).forEach(x =&gt; x.remove());
+    old.classList.remove(&#39;fresh&#39;); old.classList.add(&#39;gone&#39;); old.inert = true; old.setAttribute(&#39;aria-hidden&#39;, &#39;true&#39;);
+    panel.appendChild(inner);
+    c.later(REDUCE ? 0 : 260, () =&gt; old.remove());
   }
   function pick(t, focus, force){
     tabs.forEach(x =&gt; { const on = x === t; x.setAttribute(&#39;aria-selected&#39;, on); x.tabIndex = on ? 0 : -1; });
@@ -523,7 +554,7 @@ export function SegmentedControl&lt;T extends string = string&gt;({ options, val
     const go = { ArrowRight:i + 1, ArrowLeft:i - 1, Home:0, End:tabs.length - 1 }[e.key]; if (go === undefined) return;
     e.preventDefault(); pick(tabs[(go + tabs.length) % tabs.length], true);
   };
-  inner.innerHTML = V.day[1](sel); pick(tabs[0]);
+  inner.innerHTML = V.day[1](sel); bind(inner); pick(tabs[0]);
   knob.style.transition = &#39;none&#39;; requestAnimationFrame(() =&gt; { place(); requestAnimationFrame(() =&gt; { knob.style.transition = &#39;&#39;; }); });
   const ro = new ResizeObserver(place); ro.observe(seg); c.offs.push(() =&gt; ro.disconnect());
   // the preview&#39;s story: the week, then Tuesday opened from it, a step on to Wednesday, the month, and back to the week
@@ -861,7 +892,8 @@ const fitHits = window.dmFitHits || (() => {
 })();
 })();</script><script src="/components/assets/core.js"></script><script>DM.def('segmented-control', (r, c) => {
   const uid = Math.random().toString(36).slice(2, 7);
-  const seg = $('.sgc-seg', r), knob = $('.sgc-k', r), tabs = $$('[role="tab"]', seg), panel = $('.sgc-p', r), inner = $('.sgc-in', r), range = $('.sgc-r', r);
+  const seg = $('.sgc-seg', r), knob = $('.sgc-k', r), tabs = $$('[role="tab"]', seg), panel = $('.sgc-p', r), range = $('.sgc-r', r);
+  let inner = $('.sgc-in', r);
   tabs.forEach(t => { t.id = `sgc-${t.dataset.v}-${uid}`; t.setAttribute('aria-controls', 'sgc-p-' + uid); });
   panel.id = 'sgc-p-' + uid;
   // the pricing launch in October 2026, seen as a day, a week or a month. Today is Friday the 23rd
@@ -905,14 +937,18 @@ const fitHits = window.dmFitHits || (() => {
   // the knob slides to the picked tab and takes its width
   const place = () => { const t = tabs.find(x => x.getAttribute('aria-selected') === 'true'); knob.style.left = t.offsetLeft + 'px'; knob.style.width = t.offsetWidth + 'px'; };
   let cur = 'day', sel = TODAY, n = 0;
-  // shows the view for the picked date: the range eases over and the panel fades through to the new dates
+  // a day in the week or the month opens that day
+  const bind = el => $$('[data-d]', el).forEach(b => b.onclick = () => { const [y, m, dd] = b.dataset.d.split('-').map(Number); sel = new Date(y, m - 1, dd, 12); pick(tabs[0], false, true); });
+  // shows the view for the picked date: the range eases over and the new dates crossfade over the old ones, which stay
+  // on screen until they have faded, so no frame is empty
   function show(){
-    const id = ++n, v = cur;
+    const v = cur;
     swap(range, V[v][0](sel)); pv.setAttribute('aria-label', 'Previous ' + UNIT[v]); nxB.setAttribute('aria-label', 'Next ' + UNIT[v]);
-    inner.classList.add('out');
-    c.later(REDUCE ? 0 : 160, () => { if (id !== n) return; inner.innerHTML = V[v][1](sel); inner.classList.remove('out');
-      // a day in the week or the month opens that day
-      $$('[data-d]', inner).forEach(b => b.onclick = () => { const [y, m, dd] = b.dataset.d.split('-').map(Number); sel = new Date(y, m - 1, dd, 12); pick(tabs[0], false, true); }); });
+    const old = inner; inner = html(`<div class="sgc-in fresh">${V[v][1](sel)}</div>`); bind(inner);
+    $$('.sgc-in.gone', panel).forEach(x => x.remove());
+    old.classList.remove('fresh'); old.classList.add('gone'); old.inert = true; old.setAttribute('aria-hidden', 'true');
+    panel.appendChild(inner);
+    c.later(REDUCE ? 0 : 260, () => old.remove());
   }
   function pick(t, focus, force){
     tabs.forEach(x => { const on = x === t; x.setAttribute('aria-selected', on); x.tabIndex = on ? 0 : -1; });
@@ -932,7 +968,7 @@ const fitHits = window.dmFitHits || (() => {
     const go = { ArrowRight:i + 1, ArrowLeft:i - 1, Home:0, End:tabs.length - 1 }[e.key]; if (go === undefined) return;
     e.preventDefault(); pick(tabs[(go + tabs.length) % tabs.length], true);
   };
-  inner.innerHTML = V.day[1](sel); pick(tabs[0]);
+  inner.innerHTML = V.day[1](sel); bind(inner); pick(tabs[0]);
   knob.style.transition = 'none'; requestAnimationFrame(() => { place(); requestAnimationFrame(() => { knob.style.transition = ''; }); });
   const ro = new ResizeObserver(place); ro.observe(seg); c.offs.push(() => ro.disconnect());
   // the preview's story: the week, then Tuesday opened from it, a step on to Wednesday, the month, and back to the week

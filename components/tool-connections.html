@@ -45,13 +45,13 @@
   try { var a = localStorage.getItem('dmui-accent'); if (a && a !== 'default') window.dmAccent(a); } catch(e){}
 })();
 </script><script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareSourceCode","name":"Tools and connections","description":"A list of the tools and services an agent is connected to, each with a three-way permission switch: Off, Ask or Allow. People can test every connection, reconnect one that failed, and connect another tool from a menu. It answers the question \"what can this agent touch, and does it need my OK first?\"","url":"https://designme.dev/components/tool-connections","image":"https://designme.dev/components/og/tool-connections.jpg","programmingLanguage":["HTML","CSS","JavaScript","TypeScript"],"runtimePlatform":"Web browser","license":"https://opensource.org/licenses/MIT","isAccessibleForFree":true,"keywords":"Tools and connections, Workspace, AI agent UI, React component, HTML component","author":{"@type":"Organization","name":"DesignMe","url":"https://designme.agency"},"isPartOf":{"@type":"WebSite","name":"Designme.dev","url":"https://designme.dev/"}}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Library","item":"https://designme.dev/"},{"@type":"ListItem","position":2,"name":"Workspace","item":"https://designme.dev/#s-workspace"},{"@type":"ListItem","position":3,"name":"Tools and connections","item":"https://designme.dev/components/tool-connections"}]}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I show a connection test in progress?","acceptedAnswer":{"@type":"Answer","text":"Handle onTest and update tools: set testing, and each tool's status to 'testing' (a small spinner on its dot), then to 'ok' or 'error'. A note, like \"Token expired. Reconnect to use it\", replaces the detail line while it is set."}},{"@type":"Question","name":"What does Reconnect do?","acceptedAnswer":{"@type":"Answer","text":"It calls onReconnect with the tool's key. Set that tool's status to 'reconnecting' while you refresh the token, then back to 'ok' and the row comes back with its permission switch."}},{"@type":"Question","name":"How do I save permission changes?","acceptedAnswer":{"@type":"Answer","text":"Pass tools and onToolsChange. Every switch change and newly connected tool comes back as the full updated list."}},{"@type":"Question","name":"Can I use a tool that has no logo?","acceptedAnswer":{"@type":"Answer","text":"Yes. Leave out brand and set icon and color; the icon sits on a tile tinted with that colour."}}]}</script><link rel="stylesheet" href="/components/assets/core.css"><style>/* ---------- Tools and connections ---------- */
-.hnx{padding:12px;display:flex;flex-direction:column;gap:6px}
-.hnx-h{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:2px 10px 8px}
+.hnx{padding:var(--s-3);display:flex;flex-direction:column;gap:6px}
+.hnx-h{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:2px 10px var(--s-2)}
 .hnx-h>div{display:flex;flex-direction:column}
 .hnx-h b{font-weight:500;font-size:13.5px}
 .hnx-st{font-size:12px}
 .hnx-list{display:flex;flex-direction:column}
-.hnx-t{display:flex;align-items:center;gap:12px;padding:8px 10px;border-radius:12px;font-size:13px;transition:background .2s}
+.hnx-t{display:flex;align-items:center;gap:var(--s-3);padding:var(--s-2) 10px;border-radius:var(--r-in);font-size:13px;transition:background .2s}
 @media (hover:hover) and (pointer:fine){.hnx-t:hover{background:var(--row)}}
 .hnx-t .ic{width:28px;height:28px;border-radius:9px;display:grid;place-items:center;flex:none;position:relative}
 .hnx-t .ic::after{content:"";position:absolute;right:-2px;bottom:-2px;width:8px;height:8px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 2px var(--surface);transition:background .3s}
@@ -71,7 +71,7 @@
 .hnx-pm button[aria-pressed="true"]{color:var(--fg)}
 .hnx-pm button:focus-visible{outline-offset:-2px}
 .hnx-pm .kn{position:absolute;top:2px;bottom:2px;border-radius:var(--r-pill);background:var(--surface);box-shadow:0 1px 2px rgba(0,0,0,.08);transition:left .4s var(--ease),width .4s var(--ease)}
-.hnx-add{display:flex;align-items:center;gap:8px;height:30px;padding:0 12px 0 10px;font-size:12.5px;color:var(--fg2);border-radius:var(--r-pill);align-self:flex-start;transition:background-color .2s,color .2s}
+.hnx-add{display:flex;align-items:center;gap:var(--s-2);height:30px;padding:0 var(--s-3) 0 10px;font-size:12.5px;color:var(--fg2);border-radius:var(--r-pill);align-self:flex-start;transition:background-color .2s,color .2s}
 @media (hover:hover) and (pointer:fine){.hnx-add:hover{color:var(--fg);background:var(--chip)}}
 .hnx-pop{min-width:220px}
 </style><style>@media (max-width:640px){.cp-demo .pg-demo{min-height:calc(var(--h-j) + 24px)}}@media (max-width:519px){.cp-demo .pg-demo{min-height:calc(var(--h-k) + 24px)}}@media (max-width:429px){.cp-demo .pg-demo{min-height:calc(var(--h-l) + 24px)}}@media (max-width:389px){.cp-demo .pg-demo{min-height:calc(var(--h-m) + 24px)}}</style><style>@font-face{font-family:Inter;font-style:normal;font-weight:400;font-display:swap;src:url(/fonts/inter-latin-400-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
@@ -318,13 +318,13 @@ export function ToolConnections({ tools, defaultTools = [], onToolsChange, avail
 }
 </code></pre></details><details class="cp-file"><summary>tool-connections.css<span class="l">React · 32 lines</span></summary><pre class="cp-pre"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Tools and connections ---------- */
-.dm-hnx{padding:12px;display:flex;flex-direction:column;gap:6px}
-.dm-hnx-h{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:2px 10px 8px}
+.dm-hnx{padding:var(--dm-s-3);display:flex;flex-direction:column;gap:6px}
+.dm-hnx-h{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:2px 10px var(--dm-s-2)}
 .dm-hnx-h&gt;div{display:flex;flex-direction:column}
 .dm-hnx-h b{font-weight:500;font-size:13.5px}
 .dm-hnx-st{font-size:12px}
 .dm-hnx-list{display:flex;flex-direction:column}
-.dm-hnx-t{display:flex;align-items:center;gap:12px;padding:8px 10px;border-radius:12px;font-size:13px;transition:background .2s}
+.dm-hnx-t{display:flex;align-items:center;gap:var(--dm-s-3);padding:var(--dm-s-2) 10px;border-radius:var(--dm-r-in);font-size:13px;transition:background .2s}
 @media (hover:hover) and (pointer:fine){.dm-hnx-t:hover{background:var(--dm-row)}}
 .dm-hnx-t .dm-ic{width:28px;height:28px;border-radius:9px;display:grid;place-items:center;flex:none;position:relative}
 .dm-hnx-t .dm-ic::after{content:&quot;&quot;;position:absolute;right:-2px;bottom:-2px;width:8px;height:8px;border-radius:50%;background:var(--dm-ok);box-shadow:0 0 0 2px var(--dm-surface);transition:background .3s}
@@ -344,7 +344,7 @@ export function ToolConnections({ tools, defaultTools = [], onToolsChange, avail
 .dm-hnx-pm button[aria-pressed=&quot;true&quot;]{color:var(--dm-fg)}
 .dm-hnx-pm button:focus-visible{outline-offset:-2px}
 .dm-hnx-pm .dm-kn{position:absolute;top:2px;bottom:2px;border-radius:var(--dm-r-pill);background:var(--dm-surface);box-shadow:0 1px 2px rgba(0,0,0,.08);transition:left .4s var(--dm-ease),width .4s var(--dm-ease)}
-.dm-hnx-add{display:flex;align-items:center;gap:8px;height:30px;padding:0 12px 0 10px;font-size:12.5px;color:var(--dm-fg2);border-radius:var(--dm-r-pill);align-self:flex-start;transition:background-color .2s,color .2s}
+.dm-hnx-add{display:flex;align-items:center;gap:var(--dm-s-2);height:30px;padding:0 var(--dm-s-3) 0 10px;font-size:12.5px;color:var(--dm-fg2);border-radius:var(--dm-r-pill);align-self:flex-start;transition:background-color .2s,color .2s}
 @media (hover:hover) and (pointer:fine){.dm-hnx-add:hover{color:var(--dm-fg);background:var(--dm-chip)}}
 .dm-hnx-pop{min-width:220px}
 </code></pre></details><details class="cp-file"><summary>tool-connections.html<span class="l">HTML · 11 lines</span></summary><pre class="cp-pre"><code>&lt;div class=&quot;card&quot; data-c=&quot;tool-connections&quot;&gt;
@@ -358,13 +358,13 @@ export function ToolConnections({ tools, defaultTools = [], onToolsChange, avail
   &lt;/div&gt;
 &lt;/div&gt;
 </code></pre></details><details class="cp-file"><summary>tool-connections.css<span class="l">HTML · 31 lines</span></summary><pre class="cp-pre"><code>/* ---------- Tools and connections ---------- */
-.hnx{padding:12px;display:flex;flex-direction:column;gap:6px}
-.hnx-h{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:2px 10px 8px}
+.hnx{padding:var(--s-3);display:flex;flex-direction:column;gap:6px}
+.hnx-h{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:2px 10px var(--s-2)}
 .hnx-h&gt;div{display:flex;flex-direction:column}
 .hnx-h b{font-weight:500;font-size:13.5px}
 .hnx-st{font-size:12px}
 .hnx-list{display:flex;flex-direction:column}
-.hnx-t{display:flex;align-items:center;gap:12px;padding:8px 10px;border-radius:12px;font-size:13px;transition:background .2s}
+.hnx-t{display:flex;align-items:center;gap:var(--s-3);padding:var(--s-2) 10px;border-radius:var(--r-in);font-size:13px;transition:background .2s}
 @media (hover:hover) and (pointer:fine){.hnx-t:hover{background:var(--row)}}
 .hnx-t .ic{width:28px;height:28px;border-radius:9px;display:grid;place-items:center;flex:none;position:relative}
 .hnx-t .ic::after{content:&quot;&quot;;position:absolute;right:-2px;bottom:-2px;width:8px;height:8px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 2px var(--surface);transition:background .3s}
@@ -384,7 +384,7 @@ export function ToolConnections({ tools, defaultTools = [], onToolsChange, avail
 .hnx-pm button[aria-pressed=&quot;true&quot;]{color:var(--fg)}
 .hnx-pm button:focus-visible{outline-offset:-2px}
 .hnx-pm .kn{position:absolute;top:2px;bottom:2px;border-radius:var(--r-pill);background:var(--surface);box-shadow:0 1px 2px rgba(0,0,0,.08);transition:left .4s var(--ease),width .4s var(--ease)}
-.hnx-add{display:flex;align-items:center;gap:8px;height:30px;padding:0 12px 0 10px;font-size:12.5px;color:var(--fg2);border-radius:var(--r-pill);align-self:flex-start;transition:background-color .2s,color .2s}
+.hnx-add{display:flex;align-items:center;gap:var(--s-2);height:30px;padding:0 var(--s-3) 0 10px;font-size:12.5px;color:var(--fg2);border-radius:var(--r-pill);align-self:flex-start;transition:background-color .2s,color .2s}
 @media (hover:hover) and (pointer:fine){.hnx-add:hover{color:var(--fg);background:var(--chip)}}
 .hnx-pop{min-width:220px}
 </code></pre></details><details class="cp-file"><summary>tool-connections.js<span class="l">HTML · 56 lines</span></summary><pre class="cp-pre"><code>DM.def(&#39;tool-connections&#39;, (r, c) =&gt; {

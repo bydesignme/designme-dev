@@ -245,12 +245,25 @@ ${defs}
     $$('.tab', g).forEach(t => { const v = String(!!on && t.dataset.v === on.dataset.v); if (t.getAttribute('aria-selected') !== v){ t.setAttribute('aria-selected', v); moved = true; } });
     if (moved) dispatchEvent(new Event('resize'));
   };
-  const mount = comp => { DM.mount(comp); syncTabs(comp); };
-  const io = new IntersectionObserver(es => es.forEach(en => { if (en.isIntersecting){ io.unobserve(en.target); mount(en.target); } }), { threshold:.2 });
+  const waiting = new Set($$('.comp[data-v2]'));
+  const mount = (comp, now) => { waiting.delete(comp); DM.mount(comp, now); syncTabs(comp); };
+  // a card mounts a quarter of a screen before it scrolls into view, so it has its component by the time it shows
+  const io = new IntersectionObserver(es => es.forEach(en => { if (en.isIntersecting){ io.unobserve(en.target); mount(en.target); } }), { rootMargin:'25% 0px' });
   // a card far from the screen stops drawing: its demo is hidden (the space it takes stays) and its CSS animations pause,
   // so a long visit never piles up a hundred running demos for the browser to paint. They pick up again a screen or so
   // before scrolling back into view. The height measuring script turns this off, since it reads every card at once
   if (!window.DM_NO_IDLE){ const idle = new IntersectionObserver(es => es.forEach(en => en.target.classList.toggle('dm-idle', !en.isIntersecting)), { rootMargin:'1000px 0px' }); $$('.comp[data-v2]').forEach(comp => idle.observe(comp)); }
+  // the observers report a frame late, so a jump or a fling could land on a card that hasn't mounted yet, or is still
+  // hidden, and paint it empty for a frame. As the page scrolls, any card on screen that hasn't mounted mounts at once and
+  // shows without the entrance (which starts from nothing), and after a long jump any hidden card on screen shows again,
+  // both in the same frame
+  let lastY = scrollY;
+  addEventListener('scroll', () => {
+    const near = (r, m) => r.height && r.bottom > -m && r.top < innerHeight + m;
+    for (const comp of waiting) if (near(comp.getBoundingClientRect(), 0)){ io.unobserve(comp); mount(comp, true); }
+    if (Math.abs(scrollY - lastY) > 400) $$('.comp.dm-idle').forEach(comp => { if (near(comp.getBoundingClientRect(), 200)) comp.classList.remove('dm-idle'); });
+    lastY = scrollY;
+  }, { passive:true });
   $$('.comp[data-v2]').forEach(comp => {
     io.observe(comp);
     const g = $('.comp-foot [data-tabs]', comp);
@@ -571,6 +584,30 @@ for (const [a, b] of SITE_PATCHES.patches){
 }
 // each card's title links to the component's own page (a plain click still opens it in place, see make-patches.py)
 site = site.replace(/(<article\b[^>]*\bdata-reg="([\w-]+)"[^>]*>[\s\S]*?<h2 class="comp-title">)([^<]*)<\/h2>/g, (m, head, reg, t) => `${head}<a href="/components/${reg}">${t}</a></h2>`);
+/* ---------- site: the old site stylesheet ships only the rules the page still uses ----------
+   site-css-unused.txt lists the rules of the @layer site stylesheet that nothing on the page uses (see the file's header for
+   how they were found). Each line starts with a hash of the rule as it stands here, with its @media or @supports, so a rule
+   that has changed since the list was made keeps shipping. A comment left heading only removed rules goes with them */
+{
+  const key = n => { const at = []; for (let p = n.parent; p && p.type !== 'root'; p = p.parent) if (p.type === 'atrule') at.unshift(`@${p.name} ${p.params}`);
+    return require('crypto').createHash('sha1').update(at.join('\n') + '\n' + n.toString()).digest('hex').slice(0, 12); };
+  const unused = new Set(fs.readFileSync(path.join(__dirname, 'site-css-unused.txt'), 'utf8').split('\n').filter(l => /^[0-9a-f]{12}\t/.test(l)).map(l => l.slice(0, 12)));
+  const a = site.indexOf('<style>\n@layer site{') + '<style>'.length, b = site.indexOf('</style>', a);
+  if (a < 7) throw new Error('site stylesheet not found');
+  const root = postcss.parse(site.slice(a, b)), gone = new Set(), hit = new Set();
+  root.walk(n => { if (n.type === 'rule' || n.type === 'atrule' && /keyframes$/.test(n.name)){ const k = key(n); if (unused.has(k)){ gone.add(n); hit.add(k); } } });
+  root.walk(n => { if (n.type !== 'comment') return;
+    const next = []; for (let x = n.next(); x && x.type !== 'comment'; x = x.next()) next.push(x);
+    if (next.length && next.every(x => gone.has(x))) gone.add(n); });
+  const before = b - a, rules = [...gone].filter(n => n.type !== 'comment').length;
+  gone.forEach(n => n.remove());
+  // @media and @supports blocks left empty
+  for (let again = true; again;){ again = false; root.walkAtRules(n => { if (n.nodes && !n.nodes.length){ n.remove(); again = true; } }); }
+  const css = root.toString();
+  site = site.slice(0, a) + css + site.slice(b);
+  console.log(`site css: left out ${rules} unused rules, ${before - css.length} bytes; ${css.length} bytes ship`);
+  if (hit.size < unused.size) warn.push(`${unused.size - hit.size} rules in site-css-unused.txt have changed or gone and were not left out`);
+}
 // nothing on the page, in the registry or in core.css keeps a hover style a touch screen could get stuck in
 {
   const left = [...site.matchAll(/<style[^>]*>([\s\S]*?)<\/style>/g)].filter(m => !m[1].includes('${')).flatMap(m => ungated(m[1]))

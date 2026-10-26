@@ -1,7 +1,8 @@
 'use client';
 // The animated preview from designme.dev, rebuilt from the React component: an example of driving it from your own state.
-import { useRef, useState, type CSSProperties } from 'react';
+import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { SegmentedControl } from '../components/segmented-control/SegmentedControl';
+import { cx } from '../lib/cx';
 import { Icon } from '../lib/icons';
 import { Swap } from '../lib/motion';
 import { useStory } from './useScript';
@@ -87,6 +88,15 @@ export default function SegmentedControlDemo() {
   const ref = useRef<HTMLDivElement>(null);
   const [view, setView] = useState<View>('day');
   const [date, setDate] = useState(TODAY);
+  // the panel on show, and the one it replaced while that fades out under the new one, so no frame is empty
+  const key = view + iso(date);
+  const [layers, setLayers] = useState([{ key, view, date, gone: false }]);
+  if (layers[layers.length - 1].key !== key) setLayers([...layers.filter(l => !l.gone).slice(-1).map(l => ({ ...l, gone: true })), { key, view, date, gone: false }]);
+  useEffect(() => {
+    if (!layers.some(l => l.gone)) return;
+    const t = setTimeout(() => setLayers(ls => ls.filter(l => !l.gone)), 260);
+    return () => clearTimeout(t);
+  }, [layers]);
   // previous and next step by the view's unit; Today comes back to the 23rd
   const step = (k: number) => setDate(d => view === 'day' ? at(d, k) : view === 'week' ? at(d, 7 * k) : new Date(d.getFullYear(), d.getMonth() + k, 1, 12));
   const open = (d: Date) => { setDate(d); setView('day'); };
@@ -115,7 +125,11 @@ export default function SegmentedControlDemo() {
           <button type="button" className="dm-ib dm-sgc-nx" aria-label={'Next ' + view} onClick={() => step(1)}><Icon name="chev-r" size="xs" /></button>
         </div>
         <div className="dm-sgc-p" id="launch-view-panel" role="tabpanel" aria-labelledby={`launch-view-${view}`} tabIndex={0}>
-          <div key={view + iso(date)} className="dm-sgc-in dm-enter"><Panel view={view} date={date} open={open} /></div>
+          {layers.map((l, i) => (
+            <div key={l.key} className={cx('dm-sgc-in', l.gone ? 'dm-gone' : i > 0 && 'dm-fresh')} inert={l.gone} aria-hidden={l.gone || undefined}>
+              <Panel view={l.view} date={l.date} open={open} />
+            </div>
+          ))}
         </div>
       </div>
     </div>

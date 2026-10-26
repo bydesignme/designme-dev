@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useRef, useState, type AnimationEvent } from 'react';
 import { cx } from '../../lib/cx';
-import { useControllable } from '../../lib/hooks';
+import { useControllable, useReducedMotion } from '../../lib/hooks';
 import { Icon } from '../../lib/icons';
 import { Avatar, enter, Seg, Spin, Tip } from '../../lib/motion';
 import '../../designme.css';
@@ -62,6 +62,9 @@ const PRIORITY: Record<TicketListPriority, { label: string; color: string }> = {
   low: { label: 'Low', color: 'var(--dm-faint)' }
 };
 
+// how long a solved ticket takes to fade, then to fold its height away
+const FADE = 330, FOLD = 260;
+
 function Ticket({ ticket, index, isOpen, leaving, busy, onToggle, onSend, labels }: {
   ticket: TicketListTicket; index: number; isOpen: boolean; leaving: boolean; busy: boolean;
   onToggle: () => void; onSend: (reply: string) => void; labels: { reply: string; edit: string; send: string };
@@ -69,6 +72,15 @@ function Ticket({ ticket, index, isOpen, leaving, busy, onToggle, onSend, labels
   // rows come in one after another, then drop the entrance so a later fade-out starts on time
   const [entering, setEntering] = useState(true);
   const text = useRef<HTMLDivElement>(null);
+  const row = useRef<HTMLDivElement>(null);
+  const reduce = useReducedMotion();
+  // a solved ticket fades, then folds its height away, so the tickets under it slide up instead of jumping
+  useEffect(() => {
+    const el = row.current; if (!leaving || !el || reduce) return;
+    el.style.overflow = 'hidden';
+    const a = el.animate([{ height: el.offsetHeight + 'px' }, { height: '0px' }], { duration: FOLD, delay: FADE, easing: 'cubic-bezier(.22,1,.36,1)', fill: 'forwards' });
+    return () => a.cancel();
+  }, [leaving, reduce]);
   const p = PRIORITY[ticket.priority ?? 'normal'];
   const edit = () => {
     const el = text.current; if (!el) return;
@@ -76,7 +88,7 @@ function Ticket({ ticket, index, isOpen, leaving, busy, onToggle, onSend, labels
     const sel = document.getSelection(); sel?.selectAllChildren(el); sel?.collapseToEnd();
   };
   return (
-    <div className={cx('dm-tkx-t', isOpen && 'dm-open', entering && 'dm-enter', leaving && 'dm-leave')} style={entering ? enter(index * 40).style : undefined}
+    <div ref={row} className={cx('dm-tkx-t', isOpen && 'dm-open', entering && 'dm-enter', leaving && 'dm-leave')} style={entering ? enter(index * 40).style : undefined}
       onAnimationEnd={(e: AnimationEvent) => { if (e.target === e.currentTarget && entering) setEntering(false); }}>
       <button type="button" className="dm-tkx-r" aria-expanded={isOpen} onClick={leaving ? undefined : onToggle}>
         <Tip label={p.label}><span className="dm-pr"><span className="dm-dot" style={{ color: p.color }} /></span></Tip>
@@ -110,6 +122,7 @@ export function TicketList({ tickets, defaultTickets = [], onTicketsChange, filt
   const [openId, setOpen] = useControllable(open, defaultOpen, onOpenChange);
   const [busy, setBusy] = useState<string | null>(null);
   const [leaving, setLeaving] = useState<string | null>(null);
+  const reduce = useReducedMotion();
   const alive = useRef(true);
   useEffect(() => () => { alive.current = false; }, []);
   // the latest list, for when a send settles after other changes
@@ -121,7 +134,7 @@ export function TicketList({ tickets, defaultTickets = [], onTicketsChange, filt
     try { await onSend?.(t, reply); } catch { if (alive.current) setBusy(null); return; }
     if (!alive.current) return;
     setLeaving(t.id);
-    await new Promise(res => setTimeout(res, 330));
+    await new Promise(res => setTimeout(res, reduce ? 0 : FADE + FOLD));
     if (!alive.current) return;
     setBusy(null); setLeaving(null); setOpen(null);
     setList(latest.current.map(x => x.id === t.id ? { ...x, status: 'done', reply } : x));

@@ -45,23 +45,23 @@
   try { var a = localStorage.getItem('dmui-accent'); if (a && a !== 'default') window.dmAccent(a); } catch(e){}
 })();
 </script><script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareSourceCode","name":"Feedback sheet","description":"Feedback sheet puts thumbs up and thumbs down under an agent's answer. A thumbs down opens a short sheet where the person picks what went wrong from quick reasons, adds a note, and sends it, so the agent can do better next time.","url":"https://designme.dev/components/feedback-sheet","image":"https://designme.dev/components/og/feedback-sheet.jpg","programmingLanguage":["HTML","CSS","JavaScript","TypeScript"],"runtimePlatform":"Web browser","license":"https://opensource.org/licenses/MIT","isAccessibleForFree":true,"keywords":"Feedback sheet, Conversation, AI agent UI, React component, HTML component","author":{"@type":"Organization","name":"DesignMe","url":"https://designme.agency"},"isPartOf":{"@type":"WebSite","name":"Designme.dev","url":"https://designme.dev/"}}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Library","item":"https://designme.dev/"},{"@type":"ListItem","position":2,"name":"Conversation","item":"https://designme.dev/#s-conversation"},{"@type":"ListItem","position":3,"name":"Feedback sheet","item":"https://designme.dev/components/feedback-sheet"}]}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I save the feedback to my backend?","acceptedAnswer":{"@type":"Answer","text":"Pass an async onSubmit. The component shows a spinner while the promise is pending and closes the sheet only when it resolves. If it rejects, the sheet stays open."}},{"@type":"Question","name":"Can I use my own reasons?","acceptedAnswer":{"@type":"Answer","text":"Yes. Pass reasons as a list of strings. Pass an empty list to hide the chips and keep only the comment box."}},{"@type":"Question","name":"Does thumbs up open the sheet too?","acceptedAnswer":{"@type":"Answer","text":"No. Thumbs up closes the sheet if it was open and shows a short thanks. Only thumbs down opens it, unless you control open yourself."}}]}</script><link rel="stylesheet" href="/components/assets/core.css"><style>/* ---------- Feedback sheet ---------- */
-.fbx{display:flex;flex-direction:column;gap:8px}
+.fbx{display:flex;flex-direction:column;gap:var(--s-2)}
 .fbx-bar{display:flex;align-items:center;gap:2px;margin-left:-6px}
 .fbx-bar .ib svg{transition:transform .45s var(--ease)}
 .fbx-bar .ib.on svg{transform:scale(1.12) rotate(-8deg)}
 .fbx-dn.on{background:var(--bad-bg);color:var(--bad)}
 .fbx-st{font-size:12.5px;margin-left:6px}
-.fbx-box>div{margin-inline:-16px;padding-inline:16px}
-.fbx-in{padding:16px;display:flex;flex-direction:column;gap:10px;margin:4px 0 18px}
+.fbx-box>div{margin-inline:-16px;padding-inline:var(--s-4)}
+.fbx-in{padding:var(--s-4);display:flex;flex-direction:column;gap:10px;margin:var(--s-1) 0 18px}
 .fbx-q{font-size:13.5px;font-weight:500}
 .fbx-ch{display:flex;flex-wrap:wrap;gap:6px}
 .fbx-ch .chip.on{background:var(--sel);color:var(--accent-fg,var(--accent));box-shadow:none}
-.fbx-ta{width:100%;resize:none;border:0;outline:0;border-radius:12px;background:var(--chip);box-shadow:inset 0 0 0 1px var(--field-line);padding:9px 12px;font:inherit;font-size:13px;color:var(--fg);transition:box-shadow .3s}
+.fbx-ta{width:100%;resize:none;border:0;outline:0;border-radius:var(--r-in);background:var(--chip);box-shadow:inset 0 0 0 1px var(--field-line);padding:9px var(--s-3);font:inherit;font-size:13px;color:var(--fg);transition:box-shadow .3s}
 .fbx-ta:focus,.fbx-ta.typing{box-shadow:inset 0 0 0 2px var(--focus),0 0 0 2px var(--accent-bg)}
 .fbx-ta::placeholder{color:var(--muted)}
 .fbx-f{display:flex;align-items:center;gap:6px}
 .fbx-n{font-size:12px;flex:1;min-width:0}
-.fbx-thx{display:flex;align-items:center;gap:8px;font-size:13px;padding:10px 12px;border-radius:12px;background:var(--ok-bg);color:var(--ok)}
+.fbx-thx{display:flex;align-items:center;gap:var(--s-2);font-size:13px;padding:10px var(--s-3);border-radius:var(--r-in);background:var(--ok-bg);color:var(--ok)}
 @media (max-width:480px){.fbx-n{display:none}}
 </style><style>@media (max-width:640px){.cp-demo .pg-demo{min-height:calc(var(--h-j) + 24px)}}@media (max-width:519px){.cp-demo .pg-demo{min-height:calc(var(--h-k) + 24px)}}@media (max-width:429px){.cp-demo .pg-demo{min-height:calc(var(--h-l) + 24px)}}@media (max-width:389px){.cp-demo .pg-demo{min-height:calc(var(--h-m) + 24px)}}</style><style>@font-face{font-family:Inter;font-style:normal;font-weight:400;font-display:swap;src:url(/fonts/inter-latin-400-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:Inter;font-style:normal;font-weight:500;font-display:swap;src:url(/fonts/inter-latin-500-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
@@ -272,23 +272,23 @@ export function FeedbackSheet({ children, rating, defaultRating = null, onRating
 }
 </code></pre></details><details class="cp-file"><summary>feedback-sheet.css<span class="l">React · 21 lines</span></summary><pre class="cp-pre"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Feedback sheet ---------- */
-.dm-fbx{display:flex;flex-direction:column;gap:8px}
+.dm-fbx{display:flex;flex-direction:column;gap:var(--dm-s-2)}
 .dm-fbx-bar{display:flex;align-items:center;gap:2px;margin-left:-6px}
 .dm-fbx-bar .dm-ib svg{transition:transform .45s var(--dm-ease)}
 .dm-fbx-bar .dm-ib.dm-on svg{transform:scale(1.12) rotate(-8deg)}
 .dm-fbx-dn.dm-on{background:var(--dm-bad-bg);color:var(--dm-bad)}
 .dm-fbx-st{font-size:12.5px;margin-left:6px}
-.dm-fbx-box&gt;div{margin-inline:-16px;padding-inline:16px}
-.dm-fbx-in{padding:16px;display:flex;flex-direction:column;gap:10px;margin:4px 0 18px}
+.dm-fbx-box&gt;div{margin-inline:-16px;padding-inline:var(--dm-s-4)}
+.dm-fbx-in{padding:var(--dm-s-4);display:flex;flex-direction:column;gap:10px;margin:var(--dm-s-1) 0 18px}
 .dm-fbx-q{font-size:13.5px;font-weight:500}
 .dm-fbx-ch{display:flex;flex-wrap:wrap;gap:6px}
 .dm-fbx-ch .dm-chip.dm-on{background:var(--dm-sel);color:var(--dm-accent-fg,var(--dm-accent));box-shadow:none}
-.dm-fbx-ta{width:100%;resize:none;border:0;outline:0;border-radius:12px;background:var(--dm-chip);box-shadow:inset 0 0 0 1px var(--dm-field-line);padding:9px 12px;font:inherit;font-size:13px;color:var(--dm-fg);transition:box-shadow .3s}
+.dm-fbx-ta{width:100%;resize:none;border:0;outline:0;border-radius:var(--dm-r-in);background:var(--dm-chip);box-shadow:inset 0 0 0 1px var(--dm-field-line);padding:9px var(--dm-s-3);font:inherit;font-size:13px;color:var(--dm-fg);transition:box-shadow .3s}
 .dm-fbx-ta:focus,.dm-fbx-ta.dm-typing{box-shadow:inset 0 0 0 2px var(--dm-focus),0 0 0 2px var(--dm-accent-bg)}
 .dm-fbx-ta::placeholder{color:var(--dm-muted)}
 .dm-fbx-f{display:flex;align-items:center;gap:6px}
 .dm-fbx-n{font-size:12px;flex:1;min-width:0}
-.dm-fbx-thx{display:flex;align-items:center;gap:8px;font-size:13px;padding:10px 12px;border-radius:12px;background:var(--dm-ok-bg);color:var(--dm-ok)}
+.dm-fbx-thx{display:flex;align-items:center;gap:var(--dm-s-2);font-size:13px;padding:10px var(--dm-s-3);border-radius:var(--dm-r-in);background:var(--dm-ok-bg);color:var(--dm-ok)}
 @media (max-width:480px){.dm-fbx-n{display:none}}
 </code></pre></details><details class="cp-file"><summary>feedback-sheet.html<span class="l">HTML · 19 lines</span></summary><pre class="cp-pre"><code>&lt;div class=&quot;card bare&quot; data-c=&quot;feedback-sheet&quot;&gt;
   &lt;div class=&quot;stage-in&quot;&gt;
@@ -309,23 +309,23 @@ export function FeedbackSheet({ children, rating, defaultRating = null, onRating
   &lt;/div&gt;
 &lt;/div&gt;
 </code></pre></details><details class="cp-file"><summary>feedback-sheet.css<span class="l">HTML · 20 lines</span></summary><pre class="cp-pre"><code>/* ---------- Feedback sheet ---------- */
-.fbx{display:flex;flex-direction:column;gap:8px}
+.fbx{display:flex;flex-direction:column;gap:var(--s-2)}
 .fbx-bar{display:flex;align-items:center;gap:2px;margin-left:-6px}
 .fbx-bar .ib svg{transition:transform .45s var(--ease)}
 .fbx-bar .ib.on svg{transform:scale(1.12) rotate(-8deg)}
 .fbx-dn.on{background:var(--bad-bg);color:var(--bad)}
 .fbx-st{font-size:12.5px;margin-left:6px}
-.fbx-box&gt;div{margin-inline:-16px;padding-inline:16px}
-.fbx-in{padding:16px;display:flex;flex-direction:column;gap:10px;margin:4px 0 18px}
+.fbx-box&gt;div{margin-inline:-16px;padding-inline:var(--s-4)}
+.fbx-in{padding:var(--s-4);display:flex;flex-direction:column;gap:10px;margin:var(--s-1) 0 18px}
 .fbx-q{font-size:13.5px;font-weight:500}
 .fbx-ch{display:flex;flex-wrap:wrap;gap:6px}
 .fbx-ch .chip.on{background:var(--sel);color:var(--accent-fg,var(--accent));box-shadow:none}
-.fbx-ta{width:100%;resize:none;border:0;outline:0;border-radius:12px;background:var(--chip);box-shadow:inset 0 0 0 1px var(--field-line);padding:9px 12px;font:inherit;font-size:13px;color:var(--fg);transition:box-shadow .3s}
+.fbx-ta{width:100%;resize:none;border:0;outline:0;border-radius:var(--r-in);background:var(--chip);box-shadow:inset 0 0 0 1px var(--field-line);padding:9px var(--s-3);font:inherit;font-size:13px;color:var(--fg);transition:box-shadow .3s}
 .fbx-ta:focus,.fbx-ta.typing{box-shadow:inset 0 0 0 2px var(--focus),0 0 0 2px var(--accent-bg)}
 .fbx-ta::placeholder{color:var(--muted)}
 .fbx-f{display:flex;align-items:center;gap:6px}
 .fbx-n{font-size:12px;flex:1;min-width:0}
-.fbx-thx{display:flex;align-items:center;gap:8px;font-size:13px;padding:10px 12px;border-radius:12px;background:var(--ok-bg);color:var(--ok)}
+.fbx-thx{display:flex;align-items:center;gap:var(--s-2);font-size:13px;padding:10px var(--s-3);border-radius:var(--r-in);background:var(--ok-bg);color:var(--ok)}
 @media (max-width:480px){.fbx-n{display:none}}
 </code></pre></details><details class="cp-file"><summary>feedback-sheet.js<span class="l">HTML · 31 lines</span></summary><pre class="cp-pre"><code>DM.def(&#39;feedback-sheet&#39;, (r, c) =&gt; {
   r.innerHTML = r.innerHTML.replace(&#39;{up}&#39;, I(&#39;up-thumb&#39;)).replace(&#39;{dn}&#39;, I(&#39;down-thumb&#39;));

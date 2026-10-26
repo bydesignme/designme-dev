@@ -47,7 +47,7 @@
 </script><script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareSourceCode","name":"Filter menu","description":"Filter menu is the filter bar above a list. A Filter button opens a menu in two steps, a field and then its value, and each filter in use shows as a chip that reads like a sentence, \"Status is Open\". A chip's operator flips with a click, its × takes it off, and the count of matches and Clear all sit under the chips.","url":"https://designme.dev/components/filter-menu","image":"https://designme.dev/components/og/filter-menu.jpg","programmingLanguage":["HTML","CSS","JavaScript","TypeScript"],"runtimePlatform":"Web browser","license":"https://opensource.org/licenses/MIT","isAccessibleForFree":true,"keywords":"Filter menu, Collaboration, UI component, React component, HTML component","author":{"@type":"Organization","name":"DesignMe","url":"https://designme.agency"},"isPartOf":{"@type":"WebSite","name":"Designme.dev","url":"https://designme.dev/"}}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Library","item":"https://designme.dev/"},{"@type":"ListItem","position":2,"name":"Collaboration","item":"https://designme.dev/#s-collab"},{"@type":"ListItem","position":3,"name":"Filter menu","item":"https://designme.dev/components/filter-menu"}]}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does it filter my data?","acceptedAnswer":{"@type":"Answer","text":"No. It keeps the filters and calls onFiltersChange. Filter your own data with them, and pass back count, total and the first few results."}},{"@type":"Question","name":"Can a field take several values, like Status is Open or In progress?","acceptedAnswer":{"@type":"Answer","text":"Not as built: each field holds one value, and a new pick replaces it. For several, keep a list of values per field in your own state and show it in the chip's chip text."}},{"@type":"Question","name":"Can I add my own fields?","acceptedAnswer":{"@type":"Answer","text":"Yes. Each field in fields has a key, a label, an optional icon, its two operators, and its options, each with an optional glyph like a dot or an avatar."}}]}</script><link rel="stylesheet" href="/components/assets/core.css"><style>/* ---------- Filter menu ---------- */
 /* a list's filter bar: a Filter button that opens a two-step menu (a field, then its value), the filters as chips, and
    the issues that match under them */
-.flm{width:100%;max-width:440px;margin:0 auto;padding:12px;display:flex;flex-direction:column;gap:8px}
+.flm{width:100%;max-width:440px;margin:0 auto;padding:var(--s-3);display:flex;flex-direction:column;gap:var(--s-2)}
 .flm-bar{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
 .flm-chips{display:contents}
 .flm-tr{padding:0 11px 0 9px}
@@ -71,16 +71,16 @@
 .flm-pop .mi .av{width:20px;height:20px;font-size:9px}
 .flm-pop .mi .dot{width:8px;height:8px;margin:0 3px}
 .flm-bk{color:var(--fg2)}
-.flm-sum{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:36px;margin:2px -12px 0;padding:6px 8px 0 16px;border-top:1px solid var(--line);font-size:13px;color:var(--fg2)}
+.flm-sum{display:flex;align-items:center;justify-content:space-between;gap:var(--s-2);min-height:36px;margin:2px -12px 0;padding:6px var(--s-2) 0 var(--s-4);border-top:1px solid var(--line);font-size:13px;color:var(--fg2)}
 .flm-list{display:flex;flex-direction:column;margin:0 -4px;min-height:164px}
-.flm-r{display:grid;grid-template-columns:auto minmax(0,1fr) auto 44px;align-items:center;gap:10px;padding:8px;border-radius:10px;font-size:13px;transition:background var(--t-fast)}
+.flm-r{display:grid;grid-template-columns:auto minmax(0,1fr) auto 44px;align-items:center;gap:10px;padding:var(--s-2);border-radius:10px;font-size:13px;transition:background var(--t-fast)}
 @media (hover:hover) and (pointer:fine){.flm-r:hover{background:var(--row)}}
 .flm-r .dot{width:8px;height:8px}
 .flm-r .t{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .flm-r .av{width:20px;height:20px;font-size:9px}
 .flm-r .a{font-size:12px;color:var(--muted);text-align:right}
-.flm-more{padding:6px 8px 0;font-size:12.5px;color:var(--muted)}
-.flm-e{padding:28px 8px;text-align:center;font-size:13px;color:var(--muted)}
+.flm-more{padding:6px var(--s-2) 0;font-size:12.5px;color:var(--muted)}
+.flm-e{padding:28px var(--s-2);text-align:center;font-size:13px;color:var(--muted)}
 .flm .dot[data-s="open"]{color:var(--pb)}.flm .dot[data-s="prog"]{color:var(--warn)}.flm .dot[data-s="done"]{color:var(--ok)}
 .flm .av[data-o="MK"]{background:var(--pl)}.flm .av[data-o="LP"]{background:var(--pb)}.flm .av[data-o="AR"]{background:var(--pm)}.flm .av[data-o="SC"]{background:var(--pp)}
 </style><style>@media (max-width:640px){.cp-demo .pg-demo{min-height:calc(var(--h-j) + 24px)}}@media (max-width:519px){.cp-demo .pg-demo{min-height:calc(var(--h-k) + 24px)}}@media (max-width:429px){.cp-demo .pg-demo{min-height:calc(var(--h-l) + 24px)}}@media (max-width:389px){.cp-demo .pg-demo{min-height:calc(var(--h-m) + 24px)}}</style><style>@font-face{font-family:Inter;font-style:normal;font-weight:400;font-display:swap;src:url(/fonts/inter-latin-400-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
@@ -394,7 +394,7 @@ export function FilterMenu({
 /* ---------- Filter menu ---------- */
 /* a list&#39;s filter bar: a Filter button that opens a two-step menu (a field, then its value), the filters as chips, and
    the issues that match under them */
-.dm-flm{width:100%;max-width:440px;margin:0 auto;padding:12px;display:flex;flex-direction:column;gap:8px}
+.dm-flm{width:100%;max-width:440px;margin:0 auto;padding:var(--dm-s-3);display:flex;flex-direction:column;gap:var(--dm-s-2)}
 .dm-flm-bar{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
 .dm-flm-chips{display:contents}
 .dm-flm-tr{padding:0 11px 0 9px}
@@ -418,16 +418,16 @@ export function FilterMenu({
 .dm-flm-pop .dm-mi .dm-av{width:20px;height:20px;font-size:9px}
 .dm-flm-pop .dm-mi .dm-dot{width:8px;height:8px;margin:0 3px}
 .dm-flm-bk{color:var(--dm-fg2)}
-.dm-flm-sum{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:36px;margin:2px -12px 0;padding:6px 8px 0 16px;border-top:1px solid var(--dm-line);font-size:13px;color:var(--dm-fg2)}
+.dm-flm-sum{display:flex;align-items:center;justify-content:space-between;gap:var(--dm-s-2);min-height:36px;margin:2px -12px 0;padding:6px var(--dm-s-2) 0 var(--dm-s-4);border-top:1px solid var(--dm-line);font-size:13px;color:var(--dm-fg2)}
 .dm-flm-list{display:flex;flex-direction:column;margin:0 -4px;min-height:164px}
-.dm-flm-r{display:grid;grid-template-columns:auto minmax(0,1fr) auto 44px;align-items:center;gap:10px;padding:8px;border-radius:10px;font-size:13px;transition:background var(--dm-t-fast)}
+.dm-flm-r{display:grid;grid-template-columns:auto minmax(0,1fr) auto 44px;align-items:center;gap:10px;padding:var(--dm-s-2);border-radius:10px;font-size:13px;transition:background var(--dm-t-fast)}
 @media (hover:hover) and (pointer:fine){.dm-flm-r:hover{background:var(--dm-row)}}
 .dm-flm-r .dm-dot{width:8px;height:8px}
 .dm-flm-r .dm-t{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dm-flm-r .dm-av{width:20px;height:20px;font-size:9px}
 .dm-flm-r .dm-a{font-size:12px;color:var(--dm-muted);text-align:right}
-.dm-flm-more{padding:6px 8px 0;font-size:12.5px;color:var(--dm-muted)}
-.dm-flm-e{padding:28px 8px;text-align:center;font-size:13px;color:var(--dm-muted)}
+.dm-flm-more{padding:6px var(--dm-s-2) 0;font-size:12.5px;color:var(--dm-muted)}
+.dm-flm-e{padding:28px var(--dm-s-2);text-align:center;font-size:13px;color:var(--dm-muted)}
 .dm-flm .dm-dot[data-s=&quot;open&quot;]{color:var(--dm-pb)}.dm-flm .dm-dot[data-s=&quot;prog&quot;]{color:var(--dm-warn)}.dm-flm .dm-dot[data-s=&quot;done&quot;]{color:var(--dm-ok)}
 .dm-flm .dm-av[data-o=&quot;MK&quot;]{background:var(--dm-pl)}.dm-flm .dm-av[data-o=&quot;LP&quot;]{background:var(--dm-pb)}.dm-flm .dm-av[data-o=&quot;AR&quot;]{background:var(--dm-pm)}.dm-flm .dm-av[data-o=&quot;SC&quot;]{background:var(--dm-pp)}
 </code></pre></details><details class="cp-file"><summary>filter-menu.html<span class="l">HTML · 17 lines</span></summary><pre class="cp-pre"><code>&lt;div class=&quot;card&quot; data-c=&quot;filter-menu&quot;&gt;
@@ -449,7 +449,7 @@ export function FilterMenu({
 </code></pre></details><details class="cp-file"><summary>filter-menu.css<span class="l">HTML · 40 lines</span></summary><pre class="cp-pre"><code>/* ---------- Filter menu ---------- */
 /* a list&#39;s filter bar: a Filter button that opens a two-step menu (a field, then its value), the filters as chips, and
    the issues that match under them */
-.flm{width:100%;max-width:440px;margin:0 auto;padding:12px;display:flex;flex-direction:column;gap:8px}
+.flm{width:100%;max-width:440px;margin:0 auto;padding:var(--s-3);display:flex;flex-direction:column;gap:var(--s-2)}
 .flm-bar{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
 .flm-chips{display:contents}
 .flm-tr{padding:0 11px 0 9px}
@@ -473,16 +473,16 @@ export function FilterMenu({
 .flm-pop .mi .av{width:20px;height:20px;font-size:9px}
 .flm-pop .mi .dot{width:8px;height:8px;margin:0 3px}
 .flm-bk{color:var(--fg2)}
-.flm-sum{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:36px;margin:2px -12px 0;padding:6px 8px 0 16px;border-top:1px solid var(--line);font-size:13px;color:var(--fg2)}
+.flm-sum{display:flex;align-items:center;justify-content:space-between;gap:var(--s-2);min-height:36px;margin:2px -12px 0;padding:6px var(--s-2) 0 var(--s-4);border-top:1px solid var(--line);font-size:13px;color:var(--fg2)}
 .flm-list{display:flex;flex-direction:column;margin:0 -4px;min-height:164px}
-.flm-r{display:grid;grid-template-columns:auto minmax(0,1fr) auto 44px;align-items:center;gap:10px;padding:8px;border-radius:10px;font-size:13px;transition:background var(--t-fast)}
+.flm-r{display:grid;grid-template-columns:auto minmax(0,1fr) auto 44px;align-items:center;gap:10px;padding:var(--s-2);border-radius:10px;font-size:13px;transition:background var(--t-fast)}
 @media (hover:hover) and (pointer:fine){.flm-r:hover{background:var(--row)}}
 .flm-r .dot{width:8px;height:8px}
 .flm-r .t{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .flm-r .av{width:20px;height:20px;font-size:9px}
 .flm-r .a{font-size:12px;color:var(--muted);text-align:right}
-.flm-more{padding:6px 8px 0;font-size:12.5px;color:var(--muted)}
-.flm-e{padding:28px 8px;text-align:center;font-size:13px;color:var(--muted)}
+.flm-more{padding:6px var(--s-2) 0;font-size:12.5px;color:var(--muted)}
+.flm-e{padding:28px var(--s-2);text-align:center;font-size:13px;color:var(--muted)}
 .flm .dot[data-s=&quot;open&quot;]{color:var(--pb)}.flm .dot[data-s=&quot;prog&quot;]{color:var(--warn)}.flm .dot[data-s=&quot;done&quot;]{color:var(--ok)}
 .flm .av[data-o=&quot;MK&quot;]{background:var(--pl)}.flm .av[data-o=&quot;LP&quot;]{background:var(--pb)}.flm .av[data-o=&quot;AR&quot;]{background:var(--pm)}.flm .av[data-o=&quot;SC&quot;]{background:var(--pp)}
 </code></pre></details><details class="cp-file"><summary>filter-menu.js<span class="l">HTML · 125 lines</span></summary><pre class="cp-pre"><code>DM.def(&#39;filter-menu&#39;, (r, c) =&gt; {

@@ -74,12 +74,14 @@ const setRef = (ref: Ref<Element> | undefined, node: Element | null) => { if (ty
     `kbd` adds a shortcut after the label, `open` shows it straight away (for feedback like "Copied"),
     and `off` keeps it hidden, for example while the button's own menu is open.
     A single HTML element is used as is, so the tip adds nothing to the layout; anything else gets a display:contents wrapper. */
-export function Tip({ label, kbd, open: forced, off, children }: { label: string; kbd?: string; open?: boolean; off?: boolean; children: ReactNode }) {
+export function Tip({ label, kbd, open: forced, off, side = 'top', children }: { label: string; kbd?: string; open?: boolean; off?: boolean; side?: 'top' | 'bottom'; children: ReactNode }) {
   const [at, setAt] = useState<{ x: number; y: number; r: DOMRect } | null>(null);
   const [show, setShow] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
   const tip = useRef<HTMLDivElement>(null);
   const target = useRef<Element | null>(null);
+  // whether the pointer is on the target: a tip opened from code and then let go stays while the pointer is on it
+  const over = useRef(false);
   const open = (el: Element | null | undefined, now = false) => {
     if (!el) return; clearTimeout(timer.current);
     // moving straight from one tip to the next shows it at once, as on the site
@@ -87,21 +89,23 @@ export function Tip({ label, kbd, open: forced, off, children }: { label: string
   };
   const close = () => { clearTimeout(timer.current); if (tip.current) tipSeen = performance.now(); setShow(false); setAt(null); };
   useEffect(() => () => clearTimeout(timer.current), []);
-  useEffect(() => { if (forced) open(target.current, true); else close(); }, [forced]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { if (forced) open(target.current, true); else if (!over.current) close(); }, [forced]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => { if (off) close(); }, [off]);
   // a new label can change the width, so place it again
   useIsoLayoutEffect(() => { setAt(a => a && { ...a, x: 0, y: 0 }); }, [label, kbd]);
-  // place it above the target, or below when there is no room, then fade it in
+  // place it above the target, or below when there is no room (side="bottom" tries below first, for a target with a
+  // header just above it), then fade it in
   useIsoLayoutEffect(() => {
     const t = tip.current; if (!at || !t || (at.x || at.y)) return;
     const w = t.offsetWidth, h = t.offsetHeight;
     const x = Math.max(8, Math.min(innerWidth - w - 8, at.r.left + at.r.width / 2 - w / 2));
-    const y = at.r.top - h - 8 < 8 ? at.r.bottom + 8 : at.r.top - h - 8;
+    const up = at.r.top - h - 8, down = at.r.bottom + 8;
+    const y = side === 'bottom' ? (down + h > innerHeight - 8 ? up : down) : (up < 8 ? down : up);
     setAt({ ...at, x, y }); requestAnimationFrame(() => setShow(true));
   }, [at]);
 
-  const enterEl = (el: Element | null) => { if (!off) open(el); };
-  const leave = () => { if (!forced) close(); };
+  const enterEl = (el: Element | null) => { over.current = true; if (!off) open(el); };
+  const leave = () => { over.current = false; if (!forced) close(); };
   const focus = (el: Element) => { if (!off && el.matches(':focus-visible')) open(el, true); };
   const portal = at && typeof document !== 'undefined' && createPortal(
     <div ref={tip} className={cx('dm-tip', show && 'dm-show')} role="tooltip" data-dm="" style={{ left: at.x, top: at.y }}>{label}{kbd && <span className="dm-kbd">{kbd}</span>}</div>, document.body);
@@ -135,12 +139,12 @@ export type SourceKind = 'figma' | 'web' | 'ts' | 'tsx' | 'css' | 'csv' | 'pdf';
 export interface Source { label: string; kind?: SourceKind; tip?: string; onClick?: () => void }
 const FT: Partial<Record<SourceKind, string>> = { tsx: 'dm-re', csv: 'dm-csv', pdf: 'dm-pdf' };
 /** A file or link chip, with its type in front */
-export function SourceChip({ source, className, style }: { source: Source; className?: string; style?: CSSProperties }) {
+export function SourceChip({ source, className, style, tipSide }: { source: Source; className?: string; style?: CSSProperties; tipSide?: 'top' | 'bottom' }) {
   const { label, kind, tip, onClick } = source;
   const mark = kind === 'figma' ? <Icon name="figma" size="xs" /> : kind === 'web' ? <Icon name="globe" size="xs" />
     : kind ? <span className={cx('dm-ft', FT[kind])}>{kind.toUpperCase()}</span> : null;
   const chip = <button type="button" className={cx('dm-fchip dm-lnk', className)} style={style} onClick={onClick}>{mark}{label}</button>;
-  return tip ? <Tip label={tip}>{chip}</Tip> : chip;
+  return tip ? <Tip label={tip} side={tipSide}>{chip}</Tip> : chip;
 }
 
 /** Plays the entrance animation, `delay` ms late, the first time it renders */

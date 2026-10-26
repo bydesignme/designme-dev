@@ -73,12 +73,14 @@ export function Tooltip({ groups = DEFAULT_GROUPS, people = [], note, cardDelay 
     }, now ? 0 : cardDelay);
   };
   const close = () => { clearTimeout(timer.current); setShow(false); };
+  // the avatar under the pointer: a card opened from code and then let go stays while the pointer is on its avatar
+  const hovered = useRef<string | null>(null);
   // a card asked for by key opens at once under its avatar, and closes when the key is cleared
   const avatars = useRef(new Map<string, HTMLButtonElement>());
   useEffect(() => {
     if (openCard === undefined) return;
     const person = people.find(x => x.key === openCard), el = person && avatars.current.get(person.key);
-    if (person && el) open(person, el, true); else close();
+    if (person && el) open(person, el, true); else if (!hovered.current) close();
   }, [openCard]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const p = card?.person;
@@ -98,7 +100,7 @@ export function Tooltip({ groups = DEFAULT_GROUPS, people = [], note, cardDelay 
           <span className="dm-ttp-avs">
             {people.map(person => (
               <button key={person.key} ref={el => { if (el) avatars.current.set(person.key, el); else avatars.current.delete(person.key); }} type="button" className="dm-ttp-av" aria-label={person.name}
-                onMouseEnter={e => open(person, e.currentTarget)} onMouseLeave={close}
+                onMouseEnter={e => { hovered.current = person.key; open(person, e.currentTarget); }} onMouseLeave={() => { hovered.current = null; close(); }}
                 onFocus={e => { if (e.currentTarget.matches(':focus-visible')) open(person, e.currentTarget, true); }} onBlur={close}>
                 <Avatar initials={person.initials} color={person.color} />
               </button>

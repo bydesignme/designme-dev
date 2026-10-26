@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { cx } from '../../lib/cx';
 import { useCopied } from '../../lib/hooks';
 import { Icon } from '../../lib/icons';
@@ -78,7 +78,8 @@ function Lines({ lines }: { lines: TerminalLine[] }) {
 
 /** The shell commands an agent runs, as a compact terminal: the working directory and how the run is going in the header,
     each command with its output streaming in under it and an exit code or a check with how long it took, and a summary
-    at the foot once it is over. Long output folds to its last lines. */
+    at the foot once it is over. Long output folds to its last lines. The terminal keeps one height (420px; set `height`
+    on it to change that) and its output scrolls, staying on the newest line unless the reader has scrolled up. */
 export function TerminalStream({ cwd, entries, status, elapsed, summary, tail = 4, onStop, onCopy, labels = {}, className }: TerminalStreamProps) {
   const L = { running: 'Running', passed: 'Passed', failed: 'Failed', stopped: 'Stopped', stop: 'Stop', copy: 'Copy', copied: 'Copied to clipboard',
     more: (n: number) => `Show ${n} more line${n === 1 ? '' : 's'}`, fewer: 'Show fewer lines', edit: 'Edit', ...labels };
@@ -92,6 +93,16 @@ export function TerminalStream({ cwd, entries, status, elapsed, summary, tail = 
   const n = new Set(cmds.map(c => c.command)).size;
   const foot = summary !== undefined ? summary : [`${n} command${n === 1 ? '' : 's'}`, elapsed, state].filter(Boolean).join(' · ');
   const toggle = (i: number) => setOpen(s => { const t = new Set(s); if (t.has(i)) t.delete(i); else t.add(i); return t; });
+  // new output keeps the log on its newest line, unless the reader has scrolled up; then it stays where they are
+  const log = useRef<HTMLDivElement>(null), pinned = useRef(true);
+  useEffect(() => {
+    const el = log.current; if (!el) return;
+    const stick = () => { if (pinned.current) el.scrollTop = el.scrollHeight; };
+    const mo = new MutationObserver(stick); mo.observe(el, { childList: true, subtree: true, characterData: true });
+    const ro = new ResizeObserver(stick); ro.observe(el);
+    stick();
+    return () => { mo.disconnect(); ro.disconnect(); };
+  }, []);
 
   const text = () => entries.flatMap(e => isNote(e) ? ['# ' + e.text]
     : isEdit(e) ? [`# ${L.edit} ${e.file}${e.added !== undefined || e.removed !== undefined ? ` (+${e.added ?? 0} −${e.removed ?? 0})` : ''}`]
@@ -113,7 +124,8 @@ export function TerminalStream({ cwd, entries, status, elapsed, summary, tail = 
           <button type="button" className={cx('dm-ib dm-tmx-cp', copied && 'dm-copied')} aria-label="Copy the output" onClick={copyAll}><Icon name={copied ? 'check' : 'copy'} /></button>
         </Tip>
       </div>
-      <div className="dm-tmx-body" role="log" aria-label="Terminal output">
+      <div ref={log} className="dm-tmx-body" role="log" aria-label="Terminal output" tabIndex={0}
+        onScroll={e => { const el = e.currentTarget; pinned.current = el.scrollTop + el.clientHeight >= el.scrollHeight - 24; }}>
         {entries.map((e, i) => {
           const e0 = enter();
           if (isNote(e)) return <div key={i} className={cx('dm-tmx-note', e0.className)} style={e0.style}><Icon name="spark" size="xs" /><span>{e.text}</span></div>;

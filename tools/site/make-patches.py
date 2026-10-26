@@ -1144,5 +1144,79 @@ patch("""    $('#pv-back').addEventListener('click', () => close());""", """    
         from = null;
       }).observe(pv, { attributes:true, attributeFilter:['class'] }); }""")
 
+# ---------- the sidebar follows the scroll: the card being read is worked out in the frame the page moves, not by an
+# observer that reports a frame late and only when a card crosses a quarter of its height ----------
+patch("""    if ('IntersectionObserver' in window){
+      const vis = new Map();
+      const io = new IntersectionObserver(es => {
+        es.forEach(e => vis.set(e.target.id, e.isIntersecting ? e.intersectionRect.height : 0));
+        let best = null, max = 0; vis.forEach((h, k) => { if (h > max){ max = h; best = k; } });
+        if (best) activate(best);
+      }, { rootMargin: '-30% 0px -45% 0px', threshold: [0, .25, .5, .75, 1] });
+      $$('.comp').forEach(c => io.observe(c));
+    }""", """    {
+      // the card being read is the one across a line 42.5% of the way down the window, or the last one above the line when
+      // it falls between cards; of two cards side by side, the first. Above the first card, the first card. A card keeps the
+      // mark until the next one reaches the line, so it never flickers between two
+      const main = $('main'), cards = $$('.comp').filter(c => links.has(c.id));
+      const spy = () => {
+        const y = innerHeight * .425; let best = null, bestTop = -Infinity, first = null;
+        for (const c of cards){
+          if (!c.getClientRects().length || !main.contains(c)) continue;
+          const t = c.getBoundingClientRect().top; if (!first) first = c;
+          if (t > y) break;
+          if (t > bestTop + 1){ best = c; bestTop = t; }
+        }
+        const on = best || first; if (on) activate(on.id);
+      };
+      addEventListener('scroll', spy, { passive:true }); addEventListener('resize', spy); spy();
+    }""")
+
+# ---------- the sign-up card sits beside what you're reading, never over it: with the sidebar on screen it takes the foot of
+# the sidebar, just above Book a call; without the sidebar it joins the list right under the card you copied from, so
+# nothing above it moves. It waits for the code view and the detail view to close, as both cover the page ----------
+patch("""    const whenClear = fn => { const t = setInterval(() => { if (!document.querySelector('.cdm.open, .cdm.show')){""",
+      """    const whenClear = fn => { const t = setInterval(() => { if (!document.querySelector('.cdm.open, .cdm.show, .dv.open')){""")
+patch("""      card.hidden = false;
+""", """      card.hidden = false; place();
+""")
+patch("""      a.onfinish = () => { card.hidden = true; };""", """      a.onfinish = () => { card.hidden = true; card.classList.remove('nd-inline'); document.body.appendChild(card); };""")
+patch("""    let from = null;
+    $('.nd-x', card).addEventListener('click', () => {""", """    let from = null;
+    const wide = matchMedia('(min-width:961px)');
+    function place(){
+      if (card.hidden) return;
+      const side = $('#side'), foot = $('#side .side-foot');
+      if (wide.matches && side && foot){
+        if (card.parentElement !== document.body) document.body.appendChild(card);
+        card.classList.remove('nd-inline');
+        const s = side.getBoundingClientRect(), hh = $('.top').getBoundingClientRect().bottom;
+        // just above the sidebar's foot, or over it on a window too short to fit both
+        const above = innerHeight - foot.getBoundingClientRect().top + 12;
+        card.style.left = s.left + 'px'; card.style.width = s.width + 'px';
+        card.style.bottom = (innerHeight - above - card.offsetHeight < hh + 12 ? 16 : above) + 'px';
+        return;
+      }
+      card.style.left = card.style.width = card.style.bottom = '';
+      // the card you copied from, or the one the sidebar marks as being read
+      const act = $('.side-a.act'), c = (from && from.closest('main .comp')) || (act && document.getElementById(act.dataset.c));
+      if (c && c.closest('main')){ card.classList.add('nd-inline'); if (c.nextElementSibling !== card) c.after(card); }
+      else { card.classList.remove('nd-inline'); if (card.parentElement !== document.body) document.body.appendChild(card); }
+    }
+    wide.addEventListener('change', place); addEventListener('resize', place);
+    addEventListener('scroll', () => { if (!card.hidden && wide.matches) place(); }, { passive:true });
+    $('.nd-x', card).addEventListener('click', () => {""")
+CSS += """
+/* the sign-up card in the list on smaller screens: a block between two cards, which nothing floats over */
+.nudge.nd-inline{position:relative;left:auto;right:auto;bottom:auto;width:auto;z-index:auto;box-shadow:none}
+/* the sound button in the phone menu is round like the theme switch beside it, as in the header */
+body.ui .m-sheet #sound-btn{place-items:center;width:32px;height:32px;padding:0;border:1px solid var(--sh-line);border-radius:999px;background:transparent;color:var(--sh-dim);font:inherit}
+body.ui .m-sheet #sound-btn .lbl{display:none}
+body.ui .m-sheet #sound-btn[aria-pressed="true"]{color:var(--sh-text)}
+body.ui .m-sheet #sound-btn:hover{color:var(--sh-text);border-color:var(--sh-line-2)}
+/* the page keeps the scrollbar's room while a menu or dialog stops it scrolling, so the header doesn't shift sideways */
+html{scrollbar-gutter:stable}
+"""
+
 json.dump({ 'patches': P, 'css': CSS },open(os.path.join(HERE, 'site-patches.json'), 'w'), indent=1)
 print(len(P), 'patches')

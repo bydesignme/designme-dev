@@ -12,8 +12,8 @@ const PEOPLE: TooltipPerson[] = [
 export default function TooltipDemo() {
   const [tip, setTip] = useState<string | null>();
   const [card, setCard] = useState<string | null>();
-  // once it has appeared it shows what it does: a shortcut tip, then the agent's card. Pointing at it takes over
-  // pointing at it takes over, as does clicking, focusing or typing in it
+  // once it has appeared it shows what it does: a shortcut tip, then the agent's card. Pointing at it takes over, as does
+  // clicking, focusing or typing in it, and puts away what the demo had open unless the pointer is on it
   const touched = useRef(false), ref = useRef<HTMLDivElement>(null), mine = useTakeover(ref, () => setTip(undefined));
   const yours = () => touched.current || mine();
   useScript(async ({ wait }) => {
@@ -23,7 +23,7 @@ export default function TooltipDemo() {
     setCard('da'); await wait(2600); setCard(null);
   });
   return (
-    <div ref={ref} style={{ width: '100%' }} onPointerEnter={() => { touched.current = true; setTip(undefined); }}>
+    <div ref={ref} style={{ width: '100%' }} onPointerEnter={() => { touched.current = true; setTip(undefined); setCard(c => (c ? null : c)); }}>
       <Tooltip people={PEOPLE} openTip={tip} openCard={card} note="Labels wait a moment, then follow you instantly between buttons." />
     </div>
   );

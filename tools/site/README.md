@@ -21,6 +21,10 @@ Hover styles are gated in the build, not by hand: `hover-gate.js` moves every `:
 CSS (and so the registry, `core.css` and the React CSS) and on the site's own, `../pages/astro.config.mjs` runs it on the
 pages' styles, and the builds stop if a `:hover` rule is left outside it. Write hover rules as usual.
 
+The original page's stylesheet (with `make-patches.py`'s CSS, in `@layer site`) ships only the rules the site still uses.
+`site-css-unused.txt` lists the rest, and `build.js` leaves them out of `index.html`. Its header says how the list was
+made. Each line starts with a hash of the rule, so a listed rule that you change ships again. A new rule always ships.
+
 ## Build
 
 From this folder:

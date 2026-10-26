@@ -2,38 +2,42 @@
 /* ---------- Segmented control ---------- */
 /* one choice from a few views of the same thing: the picked one sits on a white knob that slides to it. It is a tab
    list, so the arrow keys move along it and the panel under it changes with it */
-.dm-sgc{width:100%;max-width:400px;margin:0 auto;padding:16px;display:flex;flex-direction:column;gap:14px}
-.dm-sgc-h{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.dm-sgc{width:100%;max-width:400px;margin:0 auto;padding:var(--dm-s-4);display:flex;flex-direction:column;gap:14px}
+.dm-sgc-h{display:flex;align-items:center;justify-content:space-between;gap:var(--dm-s-3);flex-wrap:wrap}
 .dm-sgc-ht{display:flex;flex-direction:column;min-width:0}
 .dm-sgc-ht b{font-weight:500;font-size:14px}
 .dm-sgc-bar{display:flex;align-items:center;gap:2px;margin:-4px 0 -6px}
 .dm-sgc-r{flex:1;min-width:0;font-size:13px;color:var(--dm-fg2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dm-sgc-bar .dm-ib{width:28px;height:28px}
-.dm-sgc-bar .dm-pill{margin-right:4px}
+.dm-sgc-bar .dm-pill{margin-right:var(--dm-s-1)}
 .dm-sgc-seg{position:relative;display:inline-flex;padding:3px;border-radius:var(--dm-r-pill);background:var(--dm-chip);flex:none}
 .dm-sgc-k{position:absolute;top:3px;bottom:3px;left:3px;width:0;border-radius:var(--dm-r-pill);background:var(--dm-surface);box-shadow:var(--dm-shadow);transition:left .42s var(--dm-ease),width .42s var(--dm-ease)}
 .dm-sgc-seg button{position:relative;z-index:1;height:30px;padding:0 14px;border-radius:var(--dm-r-pill);font-size:13px;color:var(--dm-fg2);outline:0;transition:color .2s}
 .dm-sgc-seg button[aria-selected="true"],.dm-sgc-seg button[aria-checked="true"]{color:var(--dm-fg)}
 @media (hover:hover) and (pointer:fine){.dm-sgc-seg button:hover{color:var(--dm-fg)}}
 .dm-sgc-seg button:focus-visible{box-shadow:0 0 0 2px var(--dm-focus)}
-.dm-sgc-p{height:178px;border-radius:12px;outline:0}
+.dm-sgc-p{position:relative;height:178px;border-radius:var(--dm-r-in);outline:0}
 .dm-sgc-p:focus-visible{box-shadow:0 0 0 2px var(--dm-focus)}
-.dm-sgc-in{height:100%;transition:opacity .16s,filter .16s,transform .2s var(--dm-ease)}
-.dm-sgc-in.dm-out{opacity:0;filter:blur(3px);transform:translateY(4px)}
+.dm-sgc-in{height:100%}
+/* a new view crossfades over the one it replaces, so the panel is never empty between them */
+.dm-sgc-in.dm-fresh{animation:dm-sgcin .24s var(--dm-ease) both}
+.dm-sgc-in.dm-gone{position:absolute;inset:0;pointer-events:none;animation:dm-sgcout .24s var(--dm-ease) both}
+@keyframes dm-sgcin{from{opacity:0;transform:translateY(4px)}}
+@keyframes dm-sgcout{to{opacity:0}}
 /* the day: its events in order */
 .dm-sgc-day{display:flex;flex-direction:column;gap:6px}
-.dm-sgc-ev{display:flex;align-items:center;gap:12px;min-height:50px;padding:6px 12px;border-radius:12px;background:var(--dm-row);font-size:13px}
-.dm-sgc-ev i{width:3px;align-self:stretch;margin:4px 0;border-radius:2px;background:var(--dm-c);flex:none}
+.dm-sgc-ev{display:flex;align-items:center;gap:var(--dm-s-3);min-height:50px;padding:6px var(--dm-s-3);border-radius:var(--dm-r-in);background:var(--dm-row);font-size:13px}
+.dm-sgc-ev i{width:3px;align-self:stretch;margin:var(--dm-s-1) 0;border-radius:2px;background:var(--dm-c);flex:none}
 .dm-sgc-ev .dm-t{flex:1;min-width:0;display:flex;flex-direction:column}
 .dm-sgc-ev .dm-t span{font-size:12px;color:var(--dm-muted)}
 .dm-sgc-none{height:100%;display:grid;place-items:center;font-size:13px;color:var(--dm-muted)}
 /* the week: one row a day with its first event, a count of the rest, and today picked out */
 .dm-sgc-wk{display:flex;flex-direction:column;gap:2px}
-.dm-sgc-wr{display:flex;align-items:center;gap:10px;width:100%;height:23px;padding:0 8px;border-radius:8px;font-size:12.5px;text-align:left;transition:background var(--dm-t-fast)}
+.dm-sgc-wr{display:flex;align-items:center;gap:10px;width:100%;height:23px;padding:0 var(--dm-s-2);border-radius:var(--dm-r-sm);font-size:12.5px;text-align:left;transition:background var(--dm-t-fast)}
 @media (hover:hover) and (pointer:fine){.dm-sgc-wr:hover{background:var(--dm-row)}}
 .dm-sgc-wr:focus-visible,.dm-sgc-mo .dm-d:focus-visible{outline:0;box-shadow:0 0 0 2px var(--dm-focus)}
 .dm-sgc-wr .dm-d{width:46px;flex:none;color:var(--dm-muted)}
-.dm-sgc-wr .dm-e{flex:1;min-width:0;display:flex;align-items:center;gap:8px;white-space:nowrap}
+.dm-sgc-wr .dm-e{flex:1;min-width:0;display:flex;align-items:center;gap:var(--dm-s-2);white-space:nowrap}
 .dm-sgc-wr .dm-e i{width:6px;height:6px;border-radius:50%;background:var(--dm-c);flex:none}
 .dm-sgc-wr .dm-e .dm-tm{color:var(--dm-muted);flex:none}
 .dm-sgc-wr .dm-e span:last-child{min-width:0;overflow:hidden;text-overflow:ellipsis}
@@ -43,9 +47,9 @@
 @media (hover:hover) and (pointer:fine){.dm-sgc-wr.dm-now:hover{background:var(--dm-sel)}}
 .dm-sgc-wr.dm-now .dm-d{color:var(--dm-fg);font-weight:500}
 /* the month: a dot on each day with something on */
-.dm-sgc-mo{display:grid;grid-template-columns:repeat(7,1fr);gap:2px 4px;font-size:12px;text-align:center}
+.dm-sgc-mo{display:grid;grid-template-columns:repeat(7,1fr);gap:2px var(--dm-s-1);font-size:12px;text-align:center}
 .dm-sgc-mo .dm-w{font-size:11px;color:var(--dm-muted);padding-bottom:2px}
-.dm-sgc-mo .dm-d{position:relative;height:26px;display:grid;place-items:center;border-radius:8px;color:var(--dm-fg2);transition:background var(--dm-t-fast)}
+.dm-sgc-mo .dm-d{position:relative;height:26px;display:grid;place-items:center;border-radius:var(--dm-r-sm);color:var(--dm-fg2);transition:background var(--dm-t-fast)}
 .dm-sgc-mo.dm-r6 .dm-d{height:22px}
 @media (hover:hover) and (pointer:fine){.dm-sgc-mo .dm-d:hover{background:var(--dm-row)}}
 .dm-sgc-mo .dm-d.dm-on{background:var(--dm-chip);color:var(--dm-fg)}

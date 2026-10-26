@@ -48,8 +48,10 @@
 /* the shell commands the agent runs, as a compact terminal: where it runs and how it is going in the header, then each
    command with its output streaming in under it, and an exit code or a check with how long it took. Output longer than
    five lines folds to its last four. The type and rhythm are Code viewer's: 12px mono on a 1.8 line height */
-.tmx{overflow:hidden;display:flex;flex-direction:column}
-.tmx-h{display:flex;align-items:center;gap:8px;height:44px;padding:0 8px 0 14px;border-bottom:1px solid var(--line)}
+/* a terminal of a set height: the output scrolls under the header and keeps to its newest line, so the card is the same
+   size from the first command to the last */
+.tmx{overflow:hidden;display:flex;flex-direction:column;height:420px}
+.tmx-h{display:flex;align-items:center;gap:var(--s-2);height:44px;padding:0 var(--s-2) 0 14px;border-bottom:1px solid var(--line)}
 .tmx-ic{display:grid;place-items:center;color:var(--fg2);flex:none}
 .tmx-cwd{min-width:0;flex:0 1 auto;font-family:var(--mono);font-size:12px;color:var(--fg2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .tmx-st{display:inline-flex;align-items:center;gap:6px;min-width:0;font-size:12px;color:var(--muted);white-space:nowrap}
@@ -57,9 +59,13 @@
 .tmx-st .spin{width:10px;height:10px}
 .tmx-st.ok .g{color:var(--ok)}
 .tmx-h .sp{flex:1}
-.tmx-body{padding:8px 0;font-family:var(--mono);font-size:12px;line-height:1.8}
-.tmx-blk+.tmx-blk{margin-top:4px}
-.tmx-cmd{display:flex;align-items:center;gap:8px;padding:0 14px}
+.tmx-body{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:var(--s-2) 0;font-family:var(--mono);font-size:12px;line-height:1.8;scrollbar-width:thin;scrollbar-color:var(--rail) transparent}
+.tmx-body::-webkit-scrollbar{width:8px}
+.tmx-body::-webkit-scrollbar-track{background:transparent}
+.tmx-body::-webkit-scrollbar-thumb{background:var(--rail);border:2px solid transparent;background-clip:padding-box;border-radius:var(--r-pill)}
+:root:not([data-style="soft"]) .tmx-body:not(:where([data-style="soft"],[data-style="soft"] *))::-webkit-scrollbar-thumb{border-radius:0}
+.tmx-blk+.tmx-blk{margin-top:var(--s-1)}
+.tmx-cmd{display:flex;align-items:center;gap:var(--s-2);padding:0 14px}
 .tmx-p{width:12px;flex:none;display:grid;place-items:center;color:var(--muted)}
 .tmx-c{flex:1;min-width:0;font-weight:500;color:var(--fg);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .tmx-m{display:inline-flex;align-items:center;gap:6px;font-family:var(--sans);font-size:12px;color:var(--muted);white-space:nowrap;flex:none}
@@ -76,12 +82,12 @@
 .tmx-more[aria-expanded="true"] svg{transform:rotate(180deg)}
 /* folded lines are hidden once they have folded away, so nothing measures the clipped part as if it were drawn */
 .tmx-blk .fold.shut>div{visibility:hidden;transition:visibility 0s var(--t)}
-.tmx-note{margin:4px 14px;padding:8px 10px;border-radius:10px;background:var(--chip);font-family:var(--sans);font-size:12.5px;line-height:1.5;color:var(--fg2);display:flex;gap:8px}
+.tmx-note{margin:var(--s-1) 14px;padding:var(--s-2) 10px;border-radius:10px;background:var(--chip);font-family:var(--sans);font-size:12.5px;line-height:1.5;color:var(--fg2);display:flex;gap:var(--s-2)}
 .tmx-note>svg{color:var(--accent-fg,var(--accent));flex:none;margin-top:3px}
-.tmx-f{display:flex;align-items:center;gap:8px;padding:10px 14px;border-top:1px solid var(--line);font-size:13px}
+.tmx-f{display:flex;align-items:center;gap:var(--s-2);padding:10px 14px;border-top:1px solid var(--line);font-size:13px}
 .tmx-f .g{display:grid;place-items:center;flex:none;color:var(--ok)}
 .tmx-f.stop .g{color:var(--muted)}.tmx-f.bad .g{color:var(--bad)}
-@container (max-width:420px){.tmx-ic{display:none}.tmx-h{padding-left:12px}.tmx-cmd{padding:0 12px}.tmx-o{padding:0 12px}.tmx-more{margin-left:12px}.tmx-note{margin-inline:12px}.tmx-f{padding-inline:12px}}
+@container (max-width:420px){.tmx-ic{display:none}.tmx-h{padding-left:var(--s-3)}.tmx-cmd{padding:0 var(--s-3)}.tmx-o{padding:0 var(--s-3)}.tmx-more{margin-left:var(--s-3)}.tmx-note{margin-inline:var(--s-3)}.tmx-f{padding-inline:var(--s-3)}}
 </style><style>@media (max-width:640px){.cp-demo .pg-demo{min-height:calc(var(--h-j) + 24px)}}@media (max-width:519px){.cp-demo .pg-demo{min-height:calc(var(--h-k) + 24px)}}@media (max-width:429px){.cp-demo .pg-demo{min-height:calc(var(--h-l) + 24px)}}@media (max-width:389px){.cp-demo .pg-demo{min-height:calc(var(--h-m) + 24px)}}</style><style>@font-face{font-family:Inter;font-style:normal;font-weight:400;font-display:swap;src:url(/fonts/inter-latin-400-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:Inter;font-style:normal;font-weight:500;font-display:swap;src:url(/fonts/inter-latin-500-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:Inter;font-style:normal;font-weight:600;font-display:swap;src:url(/fonts/inter-latin-600-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
@@ -107,16 +113,16 @@
 <path d="M149.497 283.784C149.477 284.047 149.474 284.311 149.487 284.575C156.385 340.034 183.548 391.116 225.9 428.196C267.989 465.044 322.188 485.532 378.414 485.855L379.743 485.859C436.453 485.868 491.188 465.353 533.619 428.212C575.912 391.194 603.062 340.216 610.018 284.856L610.018 281.512C610.008 277.337 608.324 273.315 605.303 270.335C602.277 267.351 598.155 265.656 593.837 265.656L165.647 265.656C161.338 265.656 157.226 267.349 154.21 270.331C151.198 273.309 149.524 277.326 149.523 281.491L149.523 283.437L149.497 283.784ZM114.378 247.395C118.396 247.391 122.254 245.919 125.214 243.29C128.063 240.759 129.887 237.33 130.396 233.629L130.396 233.35L130.437 232.917C136.355 171.634 165.162 114.754 211.202 73.3687C257.239 31.9859 317.206 9.06063 379.393 9.04448L379.396 9.04448C441.593 9.04583 501.574 31.964 547.624 73.3482C593.677 114.735 622.491 171.624 628.411 232.917L628.453 233.35L628.453 233.643C628.953 237.344 630.773 240.774 633.621 243.304C636.58 245.932 640.437 247.399 644.452 247.395L725.644 247.395C728.882 247.404 732.089 248.06 735.071 249.329C738.055 250.598 740.753 252.453 743.001 254.787C745.252 257.123 747.005 259.891 748.151 262.924C749.296 265.954 749.81 269.183 749.662 272.418L749.663 272.418C745.484 366.797 704.617 455.919 635.615 521.211C566.616 586.499 474.809 622.924 379.338 622.924C283.872 622.924 192.071 586.496 123.081 521.206C54.0935 455.917 13.2412 366.804 9.07133 272.438L9.07036 272.438L9.07036 272.436C9.07007 272.43 9.06967 272.423 9.06938 272.417L9.07036 272.417C8.92272 269.182 9.43655 265.953 10.5811 262.924C11.7276 259.89 13.481 257.123 15.7315 254.787C17.9805 252.452 20.6797 250.597 23.6622 249.329C26.6443 248.06 29.8504 247.404 33.0889 247.395L114.378 247.395Z" fill="black" stroke="white" stroke-width="18.0901"/>
 </svg></div><span class="gloss"></span></div><p>Built by <span class="u">DesignMe</span>, free to use under the MIT licence.</p></a>
     <p class="side-cta-d">Expert design and dev support for startups and enterprises.</p>
-    <a class="hire-btn" href="https://designme.agency" target="_blank" rel="noopener">Book a call<span class="ms"><svg class="sh" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"/></svg></span></a></div></div></details><nav class="pg-crumbs" aria-label="Breadcrumb"><a href="/">Library</a><span>/</span><a href="/#s-data">Sources and output</a></nav><h1 class="pg-h1" id="content" tabindex="-1">Terminal stream</h1><p class="pg-lead">Shell commands the agent runs, with their output as it streams in. Free and MIT licensed, as HTML or a typed React component, in two styles with light and dark mode.</p><div class="pg-cmd"><span class="d">$</span><span class="c"><span class="cp-w">npx</span> <span class="cp-w">designme</span> <span class="cp-w">add</span> <span class="cp-w">terminal-stream</span></span><button type="button" data-copy="npx designme add terminal-stream" aria-label="Copy install command"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg></button></div><section class="cp-demo" aria-label="Terminal stream demo"><button type="button" class="cp-anim" id="cp-replay"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"></path><path d="M3 3v5h5"></path></svg>Animate</button><div class="pg-demo stage-inner" style="--h-a:700px;--h-j:686px;--h-k:705px;--h-l:705px;--h-m:705px"><div class="card wide" data-c="terminal-stream">
+    <a class="hire-btn" href="https://designme.agency" target="_blank" rel="noopener">Book a call<span class="ms"><svg class="sh" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"/></svg></span></a></div></div></details><nav class="pg-crumbs" aria-label="Breadcrumb"><a href="/">Library</a><span>/</span><a href="/#s-data">Sources and output</a></nav><h1 class="pg-h1" id="content" tabindex="-1">Terminal stream</h1><p class="pg-lead">Shell commands the agent runs, with their output as it streams in. Free and MIT licensed, as HTML or a typed React component, in two styles with light and dark mode.</p><div class="pg-cmd"><span class="d">$</span><span class="c"><span class="cp-w">npx</span> <span class="cp-w">designme</span> <span class="cp-w">add</span> <span class="cp-w">terminal-stream</span></span><button type="button" data-copy="npx designme add terminal-stream" aria-label="Copy install command"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg></button></div><section class="cp-demo" aria-label="Terminal stream demo"><button type="button" class="cp-anim" id="cp-replay"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"></path><path d="M3 3v5h5"></path></svg>Animate</button><div class="pg-demo stage-inner" style="--h-a:532px;--h-j:500px;--h-k:500px;--h-l:500px;--h-m:500px"><div class="card wide" data-c="terminal-stream">
   <div class="stage-in">
     <div class="tmx panel" data-reveal="flat">
       <div class="tmx-h"><span class="tmx-ic"><svg class="i s"><use href="#i-term"/></svg></span><span class="tmx-cwd">~/acme/web</span><span class="tmx-st"><span class="g"><span class="spin"></span></span><span class="tmx-sv num">Starting</span></span><span class="sp"></span><button class="pill ghost sm tmx-stop" aria-label="Stop the running command"><svg class="i xs"><use href="#i-stop"/></svg>Stop</button><button class="ib tmx-cp" aria-label="Copy the output" data-tip="Copy"><svg class="i s"><use href="#i-copy"/></svg></button></div>
-      <div class="tmx-body" role="log" aria-label="Terminal output"></div>
+      <div class="tmx-body" role="log" aria-label="Terminal output" tabindex="0"></div>
       <div class="fold shut tmx-ff"><div><div class="tmx-f"><span class="g"></span><span class="tmx-fs num"></span></div></div></div>
     </div>
   </div>
 </div>
-</div></section><div class="cp-bar"><nav aria-label="Sections"><a href="#install">Install</a><a href="#about">About</a><a href="#usage">Usage</a><a href="#props">Props</a><a href="#code">Code</a><a href="#questions">Questions</a><a href="#more">More</a></nav></div><section class="cp-sec" id="install"><div class="pg-sh"><span class="n">01</span><h2>Install</h2><p>Add it to your project with the CLI.</p></div><div class="cp-two"><div class="cp-box"><h3 class="pg-t">HTML, CSS and JavaScript</h3><div class="cp-line"><span class="d">$</span><code><span class="cp-w">npx</span> <span class="cp-w">designme</span> <span class="cp-w">add</span> <span class="cp-w">terminal-stream</span></code><button class="cp-copy" type="button" data-copy="npx designme add terminal-stream" data-label="Copy">Copy</button></div></div><div class="cp-box"><h3 class="pg-t">React</h3><div class="cp-line"><span class="d">$</span><code><span class="cp-w">npx</span> <span class="cp-w">designme</span> <span class="cp-w">add</span> <span class="cp-w">terminal-stream</span> <span class="cp-w">--react</span></code><button class="cp-copy" type="button" data-copy="npx designme add terminal-stream --react" data-label="Copy">Copy</button></div></div></div><p class="cp-note">The CLI copies the source into your project, so you own it and can change anything. The HTML version lands in <code>./designme</code> with the shared core and a <code>demo.html</code>. The React version lands in <code>src/components/designme</code> and needs React 19; it works in Next.js, Vite and Astro.</p></section><section class="cp-sec" id="about"><div class="pg-sh"><span class="n">02</span><h2>About</h2><p>What it is for and what it does.</p></div><p class="cp-sum">Terminal stream shows the shell commands an agent runs as a compact terminal panel. The header has the working directory and how the run is going, with Stop while it runs and Copy. Each command shows as a <code>$ npm run build</code> line with its output streaming in underneath, and ends with a check or a red exit code, and how long it took. Output longer than five lines folds to its last four behind a "Show 24 more lines" button, and when the run is over a line at the foot sums it up, like "3 commands · 0:18 · passed".</p><div class="cp-gap"><div class="cp-tl" role="tablist" aria-label="About"><button type="button" role="tab" id="ab-t0" aria-controls="ab-p0" aria-selected="true" tabindex="0">When to use it</button><button type="button" role="tab" id="ab-t1" aria-controls="ab-p1" aria-selected="false" tabindex="-1">What it does</button><button type="button" role="tab" id="ab-t2" aria-controls="ab-p2" aria-selected="false" tabindex="-1">Accessibility</button></div><div class="cp-tp" role="tabpanel" id="ab-p0" aria-labelledby="ab-t0"><ul><li>When an agent installs, builds and tests code, and people want to see what it ran and what came back.</li><li>When a command fails and people need the failing lines, the agent's reading of them and the fix in one place.</li><li>When long output like a build log should be there if wanted, without filling the panel.</li><li>When people need a way to stop a run that is going wrong, or to copy the whole run into an issue or a chat.</li></ul></div><div class="cp-tp" role="tabpanel" id="ab-p1" aria-labelledby="ab-t1" hidden><ul><li><code>entries</code> are commands, notes and edits, oldest first. A command has a <code>status</code> of <code>running</code>, <code>ok</code>, <code>failed</code> or <code>stopped</code>, with a spinner, a check, a red "Exit 1" tag (from <code>exitCode</code>) or a Stopped tag, and its <code>duration</code>.</li><li>Output lines can be coloured with a <code>tone</code>: <code>ok</code> green, <code>bad</code> red or <code>muted</code> grey. Lines wrap inside the panel, so a long line never scrolls the page sideways.</li><li>Output longer than <code>tail</code> + 1 lines folds to its last <code>tail</code> lines (4 by default) behind a "Show N more lines" button that opens the rest.</li><li>A note (<code>kind: 'note'</code>) is a line from the agent between commands, and an edit (<code>kind: 'edit'</code>) is a file it changed, with the lines added and removed once it is done.</li><li>The header shows <code>cwd</code> and the run's <code>status</code>, with <code>elapsed</code> beside Running. <code>onStop</code> adds a Stop button while it runs, and Copy copies the whole run as text.</li><li>Once the run is over, <code>summary</code> folds open at the foot. By default it counts each command once, however many times it ran, then gives <code>elapsed</code> and the result.</li></ul></div><div class="cp-tp" role="tabpanel" id="ab-p2" aria-labelledby="ab-t2" hidden><ul><li>The output is a log region labelled "Terminal output", so screen readers can follow it as it arrives.</li><li>"Show N more lines" is a button that says whether the folded lines are open, and the folded lines can't be reached with Tab while they are shut.</li><li>Stop and Copy are labelled buttons, and Copy says "Copied to clipboard" in a tooltip once it has copied.</li></ul></div></div></section><section class="cp-sec" id="usage"><div class="pg-sh"><span class="n">03</span><h2>Usage</h2><p>Import it and drive it from your own state.</p></div><div class="cp-box"><h3 class="pg-t">Import</h3><pre class="cp-pre"><code>import { TerminalStream } from &#39;@/components/designme/terminal-stream/TerminalStream&#39;;</code></pre></div><div class="cp-box cp-gap"><h3 class="pg-t">Example</h3><p class="pg-d">The demo above as a React component, 78 lines you can copy.</p><pre class="cp-pre"><code>&#39;use client&#39;;
+</div></section><div class="cp-bar"><nav aria-label="Sections"><a href="#install">Install</a><a href="#about">About</a><a href="#usage">Usage</a><a href="#props">Props</a><a href="#code">Code</a><a href="#questions">Questions</a><a href="#more">More</a></nav></div><section class="cp-sec" id="install"><div class="pg-sh"><span class="n">01</span><h2>Install</h2><p>Add it to your project with the CLI.</p></div><div class="cp-two"><div class="cp-box"><h3 class="pg-t">HTML, CSS and JavaScript</h3><div class="cp-line"><span class="d">$</span><code><span class="cp-w">npx</span> <span class="cp-w">designme</span> <span class="cp-w">add</span> <span class="cp-w">terminal-stream</span></code><button class="cp-copy" type="button" data-copy="npx designme add terminal-stream" data-label="Copy">Copy</button></div></div><div class="cp-box"><h3 class="pg-t">React</h3><div class="cp-line"><span class="d">$</span><code><span class="cp-w">npx</span> <span class="cp-w">designme</span> <span class="cp-w">add</span> <span class="cp-w">terminal-stream</span> <span class="cp-w">--react</span></code><button class="cp-copy" type="button" data-copy="npx designme add terminal-stream --react" data-label="Copy">Copy</button></div></div></div><p class="cp-note">The CLI copies the source into your project, so you own it and can change anything. The HTML version lands in <code>./designme</code> with the shared core and a <code>demo.html</code>. The React version lands in <code>src/components/designme</code> and needs React 19; it works in Next.js, Vite and Astro.</p></section><section class="cp-sec" id="about"><div class="pg-sh"><span class="n">02</span><h2>About</h2><p>What it is for and what it does.</p></div><p class="cp-sum">Terminal stream shows the shell commands an agent runs as a compact terminal panel. The header has the working directory and how the run is going, with Stop while it runs and Copy. Each command shows as a <code>$ npm run build</code> line with its output streaming in underneath, and ends with a check or a red exit code, and how long it took. Output longer than five lines folds to its last four behind a "Show 24 more lines" button, and when the run is over a line at the foot sums it up, like "3 commands · 0:18 · passed".</p><div class="cp-gap"><div class="cp-tl" role="tablist" aria-label="About"><button type="button" role="tab" id="ab-t0" aria-controls="ab-p0" aria-selected="true" tabindex="0">When to use it</button><button type="button" role="tab" id="ab-t1" aria-controls="ab-p1" aria-selected="false" tabindex="-1">What it does</button><button type="button" role="tab" id="ab-t2" aria-controls="ab-p2" aria-selected="false" tabindex="-1">Accessibility</button></div><div class="cp-tp" role="tabpanel" id="ab-p0" aria-labelledby="ab-t0"><ul><li>When an agent installs, builds and tests code, and people want to see what it ran and what came back.</li><li>When a command fails and people need the failing lines, the agent's reading of them and the fix in one place.</li><li>When long output like a build log should be there if wanted, without filling the panel.</li><li>When people need a way to stop a run that is going wrong, or to copy the whole run into an issue or a chat.</li></ul></div><div class="cp-tp" role="tabpanel" id="ab-p1" aria-labelledby="ab-t1" hidden><ul><li><code>entries</code> are commands, notes and edits, oldest first. A command has a <code>status</code> of <code>running</code>, <code>ok</code>, <code>failed</code> or <code>stopped</code>, with a spinner, a check, a red "Exit 1" tag (from <code>exitCode</code>) or a Stopped tag, and its <code>duration</code>.</li><li>Output lines can be coloured with a <code>tone</code>: <code>ok</code> green, <code>bad</code> red or <code>muted</code> grey. Lines wrap inside the panel, so a long line never scrolls the page sideways.</li><li>Output longer than <code>tail</code> + 1 lines folds to its last <code>tail</code> lines (4 by default) behind a "Show N more lines" button that opens the rest.</li><li>A note (<code>kind: 'note'</code>) is a line from the agent between commands, and an edit (<code>kind: 'edit'</code>) is a file it changed, with the lines added and removed once it is done.</li><li>The header shows <code>cwd</code> and the run's <code>status</code>, with <code>elapsed</code> beside Running. <code>onStop</code> adds a Stop button while it runs, and Copy copies the whole run as text.</li><li>Once the run is over, <code>summary</code> folds open at the foot. By default it counts each command once, however many times it ran, then gives <code>elapsed</code> and the result.</li><li>The terminal keeps one height, 420px, from the first command to the last. Its output scrolls inside it and stays on the newest line, unless someone has scrolled up to read; set <code>height</code> on it through <code>className</code> to change the size.</li></ul></div><div class="cp-tp" role="tabpanel" id="ab-p2" aria-labelledby="ab-t2" hidden><ul><li>The output is a log region labelled "Terminal output", so screen readers can follow it as it arrives. It can be focused with Tab and scrolled with the arrow keys.</li><li>"Show N more lines" is a button that says whether the folded lines are open, and the folded lines can't be reached with Tab while they are shut.</li><li>Stop and Copy are labelled buttons, and Copy says "Copied to clipboard" in a tooltip once it has copied.</li></ul></div></div></section><section class="cp-sec" id="usage"><div class="pg-sh"><span class="n">03</span><h2>Usage</h2><p>Import it and drive it from your own state.</p></div><div class="cp-box"><h3 class="pg-t">Import</h3><pre class="cp-pre"><code>import { TerminalStream } from &#39;@/components/designme/terminal-stream/TerminalStream&#39;;</code></pre></div><div class="cp-box cp-gap"><h3 class="pg-t">Example</h3><p class="pg-d">The demo above as a React component, 78 lines you can copy.</p><pre class="cp-pre"><code>&#39;use client&#39;;
 // The animated preview from designme.dev, rebuilt from the React component: an example of driving it from your own state.
 import { useRef, useState } from &#39;react&#39;;
 import { TerminalStream, type TerminalCommand, type TerminalEdit, type TerminalEntry, type TerminalLine, type TerminalStatus } from &#39;./TerminalStream&#39;;
@@ -193,8 +199,8 @@ export default function TerminalStreamDemo() {
     &lt;/div&gt;
   );
 }
-</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything TerminalStream takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>cwd</code><span class="opt">required</span></td><td><code>string</code></td><td>The working directory, shown in the header, like &quot;~/acme/web&quot;</td></tr><tr><td><code>entries</code><span class="opt">required</span></td><td><code>TerminalEntry[]</code></td><td>Commands, notes and edits, oldest first</td></tr><tr><td><code>status</code></td><td><code>TerminalStatus</code></td><td>The run as a whole. Left out, it is running while any entry runs, then failed if the last command failed, else passed</td></tr><tr><td><code>elapsed</code></td><td><code>string</code></td><td>How long the run has taken, like &quot;0:18&quot;. Shown beside Running in the header and in the summary</td></tr><tr><td><code>summary</code></td><td><code>string | false</code></td><td>The line at the foot once the run is over. Defaults to &quot;3 commands · 0:18 · passed&quot;, counting each command once however many times it ran; false hides it</td></tr><tr><td><code>tail</code></td><td><code>number</code></td><td>How many lines a folded output keeps showing</td></tr><tr><td><code>onStop</code></td><td><code>() =&gt; void</code></td><td>Adds the Stop button while the run is going</td></tr><tr><td><code>onCopy</code></td><td><code>(text: string) =&gt; void</code></td><td>Called with the whole run as text when it is copied</td></tr><tr><td><code>labels</code></td><td><code>{ running?: string; passed?: string; failed?: string; stopped?: string; stop?: string; copy?: string; copied?: string; more?: (n: number) =&gt; string; fewer?: string; edit?: string }</code></td><td></td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>TerminalStream.tsx<span class="l">React · 156 lines</span></summary><pre class="cp-pre"><code>&#39;use client&#39;;
-import { useState } from &#39;react&#39;;
+</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything TerminalStream takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>cwd</code><span class="opt">required</span></td><td><code>string</code></td><td>The working directory, shown in the header, like &quot;~/acme/web&quot;</td></tr><tr><td><code>entries</code><span class="opt">required</span></td><td><code>TerminalEntry[]</code></td><td>Commands, notes and edits, oldest first</td></tr><tr><td><code>status</code></td><td><code>TerminalStatus</code></td><td>The run as a whole. Left out, it is running while any entry runs, then failed if the last command failed, else passed</td></tr><tr><td><code>elapsed</code></td><td><code>string</code></td><td>How long the run has taken, like &quot;0:18&quot;. Shown beside Running in the header and in the summary</td></tr><tr><td><code>summary</code></td><td><code>string | false</code></td><td>The line at the foot once the run is over. Defaults to &quot;3 commands · 0:18 · passed&quot;, counting each command once however many times it ran; false hides it</td></tr><tr><td><code>tail</code></td><td><code>number</code></td><td>How many lines a folded output keeps showing</td></tr><tr><td><code>onStop</code></td><td><code>() =&gt; void</code></td><td>Adds the Stop button while the run is going</td></tr><tr><td><code>onCopy</code></td><td><code>(text: string) =&gt; void</code></td><td>Called with the whole run as text when it is copied</td></tr><tr><td><code>labels</code></td><td><code>{ running?: string; passed?: string; failed?: string; stopped?: string; stop?: string; copy?: string; copied?: string; more?: (n: number) =&gt; string; fewer?: string; edit?: string }</code></td><td></td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>TerminalStream.tsx<span class="l">React · 168 lines</span></summary><pre class="cp-pre"><code>&#39;use client&#39;;
+import { useEffect, useRef, useState } from &#39;react&#39;;
 import { cx } from &#39;../lib/cx&#39;;
 import { useCopied } from &#39;../lib/hooks&#39;;
 import { Icon } from &#39;../lib/icons&#39;;
@@ -273,7 +279,8 @@ function Lines({ lines }: { lines: TerminalLine[] }) {
 
 /** The shell commands an agent runs, as a compact terminal: the working directory and how the run is going in the header,
     each command with its output streaming in under it and an exit code or a check with how long it took, and a summary
-    at the foot once it is over. Long output folds to its last lines. */
+    at the foot once it is over. Long output folds to its last lines. The terminal keeps one height (420px; set `height`
+    on it to change that) and its output scrolls, staying on the newest line unless the reader has scrolled up. */
 export function TerminalStream({ cwd, entries, status, elapsed, summary, tail = 4, onStop, onCopy, labels = {}, className }: TerminalStreamProps) {
   const L = { running: &#39;Running&#39;, passed: &#39;Passed&#39;, failed: &#39;Failed&#39;, stopped: &#39;Stopped&#39;, stop: &#39;Stop&#39;, copy: &#39;Copy&#39;, copied: &#39;Copied to clipboard&#39;,
     more: (n: number) =&gt; `Show ${n} more line${n === 1 ? &#39;&#39; : &#39;s&#39;}`, fewer: &#39;Show fewer lines&#39;, edit: &#39;Edit&#39;, ...labels };
@@ -287,6 +294,16 @@ export function TerminalStream({ cwd, entries, status, elapsed, summary, tail = 
   const n = new Set(cmds.map(c =&gt; c.command)).size;
   const foot = summary !== undefined ? summary : [`${n} command${n === 1 ? &#39;&#39; : &#39;s&#39;}`, elapsed, state].filter(Boolean).join(&#39; · &#39;);
   const toggle = (i: number) =&gt; setOpen(s =&gt; { const t = new Set(s); if (t.has(i)) t.delete(i); else t.add(i); return t; });
+  // new output keeps the log on its newest line, unless the reader has scrolled up; then it stays where they are
+  const log = useRef&lt;HTMLDivElement&gt;(null), pinned = useRef(true);
+  useEffect(() =&gt; {
+    const el = log.current; if (!el) return;
+    const stick = () =&gt; { if (pinned.current) el.scrollTop = el.scrollHeight; };
+    const mo = new MutationObserver(stick); mo.observe(el, { childList: true, subtree: true, characterData: true });
+    const ro = new ResizeObserver(stick); ro.observe(el);
+    stick();
+    return () =&gt; { mo.disconnect(); ro.disconnect(); };
+  }, []);
 
   const text = () =&gt; entries.flatMap(e =&gt; isNote(e) ? [&#39;# &#39; + e.text]
     : isEdit(e) ? [`# ${L.edit} ${e.file}${e.added !== undefined || e.removed !== undefined ? ` (+${e.added ?? 0} −${e.removed ?? 0})` : &#39;&#39;}`]
@@ -308,7 +325,8 @@ export function TerminalStream({ cwd, entries, status, elapsed, summary, tail = 
           &lt;button type=&quot;button&quot; className={cx(&#39;dm-ib dm-tmx-cp&#39;, copied &amp;&amp; &#39;dm-copied&#39;)} aria-label=&quot;Copy the output&quot; onClick={copyAll}&gt;&lt;Icon name={copied ? &#39;check&#39; : &#39;copy&#39;} /&gt;&lt;/button&gt;
         &lt;/Tip&gt;
       &lt;/div&gt;
-      &lt;div className=&quot;dm-tmx-body&quot; role=&quot;log&quot; aria-label=&quot;Terminal output&quot;&gt;
+      &lt;div ref={log} className=&quot;dm-tmx-body&quot; role=&quot;log&quot; aria-label=&quot;Terminal output&quot; tabIndex={0}
+        onScroll={e =&gt; { const el = e.currentTarget; pinned.current = el.scrollTop + el.clientHeight &gt;= el.scrollHeight - 24; }}&gt;
         {entries.map((e, i) =&gt; {
           const e0 = enter();
           if (isNote(e)) return &lt;div key={i} className={cx(&#39;dm-tmx-note&#39;, e0.className)} style={e0.style}&gt;&lt;Icon name=&quot;spark&quot; size=&quot;xs&quot; /&gt;&lt;span&gt;{e.text}&lt;/span&gt;&lt;/div&gt;;
@@ -348,13 +366,15 @@ export function TerminalStream({ cwd, entries, status, elapsed, summary, tail = 
     &lt;/div&gt;
   );
 }
-</code></pre></details><details class="cp-file"><summary>terminal-stream.css<span class="l">React · 40 lines</span></summary><pre class="cp-pre"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+</code></pre></details><details class="cp-file"><summary>terminal-stream.css<span class="l">React · 46 lines</span></summary><pre class="cp-pre"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Terminal stream ---------- */
 /* the shell commands the agent runs, as a compact terminal: where it runs and how it is going in the header, then each
    command with its output streaming in under it, and an exit code or a check with how long it took. Output longer than
    five lines folds to its last four. The type and rhythm are Code viewer&#39;s: 12px mono on a 1.8 line height */
-.dm-tmx{overflow:hidden;display:flex;flex-direction:column}
-.dm-tmx-h{display:flex;align-items:center;gap:8px;height:44px;padding:0 8px 0 14px;border-bottom:1px solid var(--dm-line)}
+/* a terminal of a set height: the output scrolls under the header and keeps to its newest line, so the card is the same
+   size from the first command to the last */
+.dm-tmx{overflow:hidden;display:flex;flex-direction:column;height:420px}
+.dm-tmx-h{display:flex;align-items:center;gap:var(--dm-s-2);height:44px;padding:0 var(--dm-s-2) 0 14px;border-bottom:1px solid var(--dm-line)}
 .dm-tmx-ic{display:grid;place-items:center;color:var(--dm-fg2);flex:none}
 .dm-tmx-cwd{min-width:0;flex:0 1 auto;font-family:var(--dm-mono);font-size:12px;color:var(--dm-fg2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .dm-tmx-st{display:inline-flex;align-items:center;gap:6px;min-width:0;font-size:12px;color:var(--dm-muted);white-space:nowrap}
@@ -362,9 +382,13 @@ export function TerminalStream({ cwd, entries, status, elapsed, summary, tail = 
 .dm-tmx-st .dm-spin{width:10px;height:10px}
 .dm-tmx-st.dm-ok .dm-g{color:var(--dm-ok)}
 .dm-tmx-h .dm-sp{flex:1}
-.dm-tmx-body{padding:8px 0;font-family:var(--dm-mono);font-size:12px;line-height:1.8}
-.dm-tmx-blk+.dm-tmx-blk{margin-top:4px}
-.dm-tmx-cmd{display:flex;align-items:center;gap:8px;padding:0 14px}
+.dm-tmx-body{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:var(--dm-s-2) 0;font-family:var(--dm-mono);font-size:12px;line-height:1.8;scrollbar-width:thin;scrollbar-color:var(--dm-rail) transparent}
+.dm-tmx-body::-webkit-scrollbar{width:8px}
+.dm-tmx-body::-webkit-scrollbar-track{background:transparent}
+.dm-tmx-body::-webkit-scrollbar-thumb{background:var(--dm-rail);border:2px solid transparent;background-clip:padding-box;border-radius:var(--dm-r-pill)}
+:root:not([data-style=&quot;soft&quot;]) .dm-tmx-body:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *))::-webkit-scrollbar-thumb{border-radius:0}
+.dm-tmx-blk+.dm-tmx-blk{margin-top:var(--dm-s-1)}
+.dm-tmx-cmd{display:flex;align-items:center;gap:var(--dm-s-2);padding:0 14px}
 .dm-tmx-p{width:12px;flex:none;display:grid;place-items:center;color:var(--dm-muted)}
 .dm-tmx-c{flex:1;min-width:0;font-weight:500;color:var(--dm-fg);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .dm-tmx-m{display:inline-flex;align-items:center;gap:6px;font-family:var(--dm-sans);font-size:12px;color:var(--dm-muted);white-space:nowrap;flex:none}
@@ -381,27 +405,29 @@ export function TerminalStream({ cwd, entries, status, elapsed, summary, tail = 
 .dm-tmx-more[aria-expanded=&quot;true&quot;] svg{transform:rotate(180deg)}
 /* folded lines are hidden once they have folded away, so nothing measures the clipped part as if it were drawn */
 .dm-tmx-blk .dm-fold.dm-shut&gt;div{visibility:hidden;transition:visibility 0s var(--dm-t)}
-.dm-tmx-note{margin:4px 14px;padding:8px 10px;border-radius:10px;background:var(--dm-chip);font-family:var(--dm-sans);font-size:12.5px;line-height:1.5;color:var(--dm-fg2);display:flex;gap:8px}
+.dm-tmx-note{margin:var(--dm-s-1) 14px;padding:var(--dm-s-2) 10px;border-radius:10px;background:var(--dm-chip);font-family:var(--dm-sans);font-size:12.5px;line-height:1.5;color:var(--dm-fg2);display:flex;gap:var(--dm-s-2)}
 .dm-tmx-note&gt;svg{color:var(--dm-accent-fg,var(--dm-accent));flex:none;margin-top:3px}
-.dm-tmx-f{display:flex;align-items:center;gap:8px;padding:10px 14px;border-top:1px solid var(--dm-line);font-size:13px}
+.dm-tmx-f{display:flex;align-items:center;gap:var(--dm-s-2);padding:10px 14px;border-top:1px solid var(--dm-line);font-size:13px}
 .dm-tmx-f .dm-g{display:grid;place-items:center;flex:none;color:var(--dm-ok)}
 .dm-tmx-f.dm-stop .dm-g{color:var(--dm-muted)}.dm-tmx-f.dm-bad .dm-g{color:var(--dm-bad)}
-@container (max-width:420px){.dm-tmx-ic{display:none}.dm-tmx-h{padding-left:12px}.dm-tmx-cmd{padding:0 12px}.dm-tmx-o{padding:0 12px}.dm-tmx-more{margin-left:12px}.dm-tmx-note{margin-inline:12px}.dm-tmx-f{padding-inline:12px}}
+@container (max-width:420px){.dm-tmx-ic{display:none}.dm-tmx-h{padding-left:var(--dm-s-3)}.dm-tmx-cmd{padding:0 var(--dm-s-3)}.dm-tmx-o{padding:0 var(--dm-s-3)}.dm-tmx-more{margin-left:var(--dm-s-3)}.dm-tmx-note{margin-inline:var(--dm-s-3)}.dm-tmx-f{padding-inline:var(--dm-s-3)}}
 </code></pre></details><details class="cp-file"><summary>terminal-stream.html<span class="l">HTML · 10 lines</span></summary><pre class="cp-pre"><code>&lt;div class=&quot;card wide&quot; data-c=&quot;terminal-stream&quot;&gt;
   &lt;div class=&quot;stage-in&quot;&gt;
     &lt;div class=&quot;tmx panel&quot; data-reveal=&quot;flat&quot;&gt;
       &lt;div class=&quot;tmx-h&quot;&gt;&lt;span class=&quot;tmx-ic&quot;&gt;&lt;svg class=&quot;i s&quot;&gt;&lt;use href=&quot;#i-term&quot;/&gt;&lt;/svg&gt;&lt;/span&gt;&lt;span class=&quot;tmx-cwd&quot;&gt;~/acme/web&lt;/span&gt;&lt;span class=&quot;tmx-st&quot;&gt;&lt;span class=&quot;g&quot;&gt;&lt;span class=&quot;spin&quot;&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;tmx-sv num&quot;&gt;Starting&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;sp&quot;&gt;&lt;/span&gt;&lt;button class=&quot;pill ghost sm tmx-stop&quot; aria-label=&quot;Stop the running command&quot;&gt;&lt;svg class=&quot;i xs&quot;&gt;&lt;use href=&quot;#i-stop&quot;/&gt;&lt;/svg&gt;Stop&lt;/button&gt;&lt;button class=&quot;ib tmx-cp&quot; aria-label=&quot;Copy the output&quot; data-tip=&quot;Copy&quot;&gt;&lt;svg class=&quot;i s&quot;&gt;&lt;use href=&quot;#i-copy&quot;/&gt;&lt;/svg&gt;&lt;/button&gt;&lt;/div&gt;
-      &lt;div class=&quot;tmx-body&quot; role=&quot;log&quot; aria-label=&quot;Terminal output&quot;&gt;&lt;/div&gt;
+      &lt;div class=&quot;tmx-body&quot; role=&quot;log&quot; aria-label=&quot;Terminal output&quot; tabindex=&quot;0&quot;&gt;&lt;/div&gt;
       &lt;div class=&quot;fold shut tmx-ff&quot;&gt;&lt;div&gt;&lt;div class=&quot;tmx-f&quot;&gt;&lt;span class=&quot;g&quot;&gt;&lt;/span&gt;&lt;span class=&quot;tmx-fs num&quot;&gt;&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;
     &lt;/div&gt;
   &lt;/div&gt;
 &lt;/div&gt;
-</code></pre></details><details class="cp-file"><summary>terminal-stream.css<span class="l">HTML · 39 lines</span></summary><pre class="cp-pre"><code>/* ---------- Terminal stream ---------- */
+</code></pre></details><details class="cp-file"><summary>terminal-stream.css<span class="l">HTML · 45 lines</span></summary><pre class="cp-pre"><code>/* ---------- Terminal stream ---------- */
 /* the shell commands the agent runs, as a compact terminal: where it runs and how it is going in the header, then each
    command with its output streaming in under it, and an exit code or a check with how long it took. Output longer than
    five lines folds to its last four. The type and rhythm are Code viewer&#39;s: 12px mono on a 1.8 line height */
-.tmx{overflow:hidden;display:flex;flex-direction:column}
-.tmx-h{display:flex;align-items:center;gap:8px;height:44px;padding:0 8px 0 14px;border-bottom:1px solid var(--line)}
+/* a terminal of a set height: the output scrolls under the header and keeps to its newest line, so the card is the same
+   size from the first command to the last */
+.tmx{overflow:hidden;display:flex;flex-direction:column;height:420px}
+.tmx-h{display:flex;align-items:center;gap:var(--s-2);height:44px;padding:0 var(--s-2) 0 14px;border-bottom:1px solid var(--line)}
 .tmx-ic{display:grid;place-items:center;color:var(--fg2);flex:none}
 .tmx-cwd{min-width:0;flex:0 1 auto;font-family:var(--mono);font-size:12px;color:var(--fg2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .tmx-st{display:inline-flex;align-items:center;gap:6px;min-width:0;font-size:12px;color:var(--muted);white-space:nowrap}
@@ -409,9 +435,13 @@ export function TerminalStream({ cwd, entries, status, elapsed, summary, tail = 
 .tmx-st .spin{width:10px;height:10px}
 .tmx-st.ok .g{color:var(--ok)}
 .tmx-h .sp{flex:1}
-.tmx-body{padding:8px 0;font-family:var(--mono);font-size:12px;line-height:1.8}
-.tmx-blk+.tmx-blk{margin-top:4px}
-.tmx-cmd{display:flex;align-items:center;gap:8px;padding:0 14px}
+.tmx-body{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:var(--s-2) 0;font-family:var(--mono);font-size:12px;line-height:1.8;scrollbar-width:thin;scrollbar-color:var(--rail) transparent}
+.tmx-body::-webkit-scrollbar{width:8px}
+.tmx-body::-webkit-scrollbar-track{background:transparent}
+.tmx-body::-webkit-scrollbar-thumb{background:var(--rail);border:2px solid transparent;background-clip:padding-box;border-radius:var(--r-pill)}
+:root:not([data-style=&quot;soft&quot;]) .tmx-body:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *))::-webkit-scrollbar-thumb{border-radius:0}
+.tmx-blk+.tmx-blk{margin-top:var(--s-1)}
+.tmx-cmd{display:flex;align-items:center;gap:var(--s-2);padding:0 14px}
 .tmx-p{width:12px;flex:none;display:grid;place-items:center;color:var(--muted)}
 .tmx-c{flex:1;min-width:0;font-weight:500;color:var(--fg);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .tmx-m{display:inline-flex;align-items:center;gap:6px;font-family:var(--sans);font-size:12px;color:var(--muted);white-space:nowrap;flex:none}
@@ -428,13 +458,13 @@ export function TerminalStream({ cwd, entries, status, elapsed, summary, tail = 
 .tmx-more[aria-expanded=&quot;true&quot;] svg{transform:rotate(180deg)}
 /* folded lines are hidden once they have folded away, so nothing measures the clipped part as if it were drawn */
 .tmx-blk .fold.shut&gt;div{visibility:hidden;transition:visibility 0s var(--t)}
-.tmx-note{margin:4px 14px;padding:8px 10px;border-radius:10px;background:var(--chip);font-family:var(--sans);font-size:12.5px;line-height:1.5;color:var(--fg2);display:flex;gap:8px}
+.tmx-note{margin:var(--s-1) 14px;padding:var(--s-2) 10px;border-radius:10px;background:var(--chip);font-family:var(--sans);font-size:12.5px;line-height:1.5;color:var(--fg2);display:flex;gap:var(--s-2)}
 .tmx-note&gt;svg{color:var(--accent-fg,var(--accent));flex:none;margin-top:3px}
-.tmx-f{display:flex;align-items:center;gap:8px;padding:10px 14px;border-top:1px solid var(--line);font-size:13px}
+.tmx-f{display:flex;align-items:center;gap:var(--s-2);padding:10px 14px;border-top:1px solid var(--line);font-size:13px}
 .tmx-f .g{display:grid;place-items:center;flex:none;color:var(--ok)}
 .tmx-f.stop .g{color:var(--muted)}.tmx-f.bad .g{color:var(--bad)}
-@container (max-width:420px){.tmx-ic{display:none}.tmx-h{padding-left:12px}.tmx-cmd{padding:0 12px}.tmx-o{padding:0 12px}.tmx-more{margin-left:12px}.tmx-note{margin-inline:12px}.tmx-f{padding-inline:12px}}
-</code></pre></details><details class="cp-file"><summary>terminal-stream.js<span class="l">HTML · 96 lines</span></summary><pre class="cp-pre"><code>DM.def(&#39;terminal-stream&#39;, (r, c) =&gt; {
+@container (max-width:420px){.tmx-ic{display:none}.tmx-h{padding-left:var(--s-3)}.tmx-cmd{padding:0 var(--s-3)}.tmx-o{padding:0 var(--s-3)}.tmx-more{margin-left:var(--s-3)}.tmx-note{margin-inline:var(--s-3)}.tmx-f{padding-inline:var(--s-3)}}
+</code></pre></details><details class="cp-file"><summary>terminal-stream.js<span class="l">HTML · 102 lines</span></summary><pre class="cp-pre"><code>DM.def(&#39;terminal-stream&#39;, (r, c) =&gt; {
   const IC = { term:I(&#39;term&#39;), stop:I(&#39;stop&#39;,&#39;xs&#39;), copy:I(&#39;copy&#39;) };
   r.innerHTML = r.innerHTML.replace(/\{(\w+)\}/g, (m, k) =&gt; IC[k] || m);
   const body = $(&#39;.tmx-body&#39;, r), st = $(&#39;.tmx-st&#39;, r), sv = $(&#39;.tmx-sv&#39;, r), stop = $(&#39;.tmx-stop&#39;, r), cp = $(&#39;.tmx-cp&#39;, r), ff = $(&#39;.tmx-ff&#39;, r), foot = $(&#39;.tmx-f&#39;, r);
@@ -492,6 +522,12 @@ export function TerminalStream({ cwd, entries, status, elapsed, summary, tail = 
     foot.className = &#39;tmx-f&#39; + (how === &#39;stopped&#39; ? &#39; stop&#39; : how === &#39;failed&#39; ? &#39; bad&#39; : &#39;&#39;); $(&#39;.g&#39;, foot).innerHTML = I(how === &#39;passed&#39; ? &#39;ok&#39; : how === &#39;failed&#39; ? &#39;alert&#39; : &#39;stop&#39;);
     ff.classList.remove(&#39;shut&#39;);
   }
+  // new output keeps the log on its newest line, unless the person has scrolled up to read; then it stays where they are
+  let pinned = true;
+  const stick = () =&gt; { if (pinned) body.scrollTop = body.scrollHeight; };
+  c.on(body, &#39;scroll&#39;, () =&gt; { pinned = body.scrollTop + body.clientHeight &gt;= body.scrollHeight - 24; });
+  const mo = new MutationObserver(stick); mo.observe(body, { childList:true, subtree:true }); c.offs.push(() =&gt; mo.disconnect());
+  const ro = new ResizeObserver(stick); ro.observe(body); c.offs.push(() =&gt; ro.disconnect());
   stop.onclick = () =&gt; { halt = true; };
   cp.onclick = () =&gt; copied(cp, log.join(&#39;\n&#39;));
   c.run(async () =&gt; {
@@ -910,6 +946,12 @@ const fitHits = window.dmFitHits || (() => {
     foot.className = 'tmx-f' + (how === 'stopped' ? ' stop' : how === 'failed' ? ' bad' : ''); $('.g', foot).innerHTML = I(how === 'passed' ? 'ok' : how === 'failed' ? 'alert' : 'stop');
     ff.classList.remove('shut');
   }
+  // new output keeps the log on its newest line, unless the person has scrolled up to read; then it stays where they are
+  let pinned = true;
+  const stick = () => { if (pinned) body.scrollTop = body.scrollHeight; };
+  c.on(body, 'scroll', () => { pinned = body.scrollTop + body.clientHeight >= body.scrollHeight - 24; });
+  const mo = new MutationObserver(stick); mo.observe(body, { childList:true, subtree:true }); c.offs.push(() => mo.disconnect());
+  const ro = new ResizeObserver(stick); ro.observe(body); c.offs.push(() => ro.disconnect());
   stop.onclick = () => { halt = true; };
   cp.onclick = () => copied(cp, log.join('\n'));
   c.run(async () => {

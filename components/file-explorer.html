@@ -45,20 +45,20 @@
   try { var a = localStorage.getItem('dmui-accent'); if (a && a !== 'default') window.dmAccent(a); } catch(e){}
 })();
 </script><script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareSourceCode","name":"File explorer","description":"A project file tree that marks every file the agent changed with M, A or D for modified, added and deleted. Folders that hold a changed file get a dot, so people can find the agent's work without opening every folder. A filter box and an \"only changed\" switch narrow the tree down.","url":"https://designme.dev/components/file-explorer","image":"https://designme.dev/components/og/file-explorer.jpg","programmingLanguage":["HTML","CSS","JavaScript","TypeScript"],"runtimePlatform":"Web browser","license":"https://opensource.org/licenses/MIT","isAccessibleForFree":true,"keywords":"File explorer, Workspace, AI agent UI, React component, HTML component","author":{"@type":"Organization","name":"DesignMe","url":"https://designme.agency"},"isPartOf":{"@type":"WebSite","name":"Designme.dev","url":"https://designme.dev/"}}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Library","item":"https://designme.dev/"},{"@type":"ListItem","position":2,"name":"Workspace","item":"https://designme.dev/#s-workspace"},{"@type":"ListItem","position":3,"name":"File explorer","item":"https://designme.dev/components/file-explorer"}]}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I mark files the agent changed?","acceptedAnswer":{"@type":"Answer","text":"Set status on a file node to 'M', 'A' or 'D'. Parent folders work out on their own that they hold a change and show a dot."}},{"@type":"Question","name":"How do I open the tree on a particular file?","acceptedAnswer":{"@type":"Answer","text":"Pass the folder paths in defaultOpen (or open), like ['src', 'src/components'], and the file's path in defaultSelected (or selected)."}},{"@type":"Question","name":"How do I load a file when someone clicks it?","acceptedAnswer":{"@type":"Answer","text":"Use onSelectedChange. It receives the file's path, built from the folder names joined with slashes, like \"src/components/PlanCard.tsx\"."}},{"@type":"Question","name":"Can I change the file icons?","acceptedAnswer":{"@type":"Answer","text":"Yes. Pass fileIcon, a function that takes the file name and returns an icon name."}}]}</script><link rel="stylesheet" href="/components/assets/core.css"><style>/* ---------- File explorer ---------- */
-.fxp{padding:8px;display:flex;flex-direction:column;gap:4px;height:380px}
-.fxp-h{display:flex;gap:4px;align-items:center}
-.fxp-s{flex:1;display:flex;align-items:center;gap:8px;height:32px;padding:0 10px;border-radius:10px;background:var(--chip);box-shadow:inset 0 0 0 1px var(--field-line);color:var(--muted)}
+.fxp{padding:var(--s-2);display:flex;flex-direction:column;gap:var(--s-1);height:380px}
+.fxp-h{display:flex;gap:var(--s-1);align-items:center}
+.fxp-s{flex:1;display:flex;align-items:center;gap:var(--s-2);height:32px;padding:0 10px;border-radius:10px;background:var(--chip);box-shadow:inset 0 0 0 1px var(--field-line);color:var(--muted)}
 .fxp-s input{flex:1;min-width:0;border:0;outline:0;background:transparent;font:inherit;font-size:13px;color:var(--fg)}
 .fxp-s:focus-within{box-shadow:inset 0 0 0 2px var(--focus)}
 .fxp-s input::placeholder{color:var(--muted)}
-.fxp-tree{flex:1;overflow:auto;padding:4px 0 16px;-webkit-mask-image:linear-gradient(180deg,#000 calc(100% - 28px),transparent);mask-image:linear-gradient(180deg,#000 calc(100% - 28px),transparent)}
+.fxp-tree{flex:1;overflow:auto;padding:var(--s-1) 0 var(--s-4);-webkit-mask-image:linear-gradient(180deg,#000 calc(100% - 28px),transparent);mask-image:linear-gradient(180deg,#000 calc(100% - 28px),transparent)}
 /* a thin scrollbar in the style's hairline grey, not the browser's thick one */
 .fxp-tree{scrollbar-width:thin;scrollbar-color:var(--rail) transparent}
 .fxp-tree::-webkit-scrollbar{width:8px;height:8px}
 .fxp-tree::-webkit-scrollbar-track{background:transparent}
 .fxp-tree::-webkit-scrollbar-thumb{background:var(--rail);border:2px solid transparent;background-clip:padding-box;border-radius:var(--r-pill)}
 :root:not([data-style="soft"]) .fxp-tree:not(:where([data-style="soft"],[data-style="soft"] *))::-webkit-scrollbar-thumb{border-radius:0}
-.fxp-n{display:flex;align-items:center;gap:6px;width:100%;height:30px;padding-right:8px;border-radius:8px;font-size:13px;text-align:left;color:var(--fg2);transition:background .15s,color .15s}
+.fxp-n{display:flex;align-items:center;gap:6px;width:100%;height:30px;padding-right:var(--s-2);border-radius:var(--r-sm);font-size:13px;text-align:left;color:var(--fg2);transition:background .15s,color .15s}
 @media (hover:hover) and (pointer:fine){.fxp-n:hover{background:var(--row);color:var(--fg)}}
 /* rows fill the scrolling tree, which would cut an outside ring: theirs is drawn inside */
 .fxp-n:focus-visible{outline-offset:-2px}
@@ -74,7 +74,7 @@
 .fxp-k{display:grid;grid-template-rows:1fr;transition:grid-template-rows .4s var(--ease)}
 .fxp-k.shut{grid-template-rows:0fr}
 .fxp-k>div{overflow:hidden}
-.fxp-f{font-size:12px;padding:4px 8px}
+.fxp-f{font-size:12px;padding:var(--s-1) var(--s-2)}
 </style><style>@media (max-width:640px){.cp-demo .pg-demo{min-height:calc(var(--h-j) + 24px)}}@media (max-width:519px){.cp-demo .pg-demo{min-height:calc(var(--h-k) + 24px)}}@media (max-width:429px){.cp-demo .pg-demo{min-height:calc(var(--h-l) + 24px)}}@media (max-width:389px){.cp-demo .pg-demo{min-height:calc(var(--h-m) + 24px)}}</style><style>@font-face{font-family:Inter;font-style:normal;font-weight:400;font-display:swap;src:url(/fonts/inter-latin-400-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:Inter;font-style:normal;font-weight:500;font-display:swap;src:url(/fonts/inter-latin-500-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:Inter;font-style:normal;font-weight:600;font-display:swap;src:url(/fonts/inter-latin-600-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
@@ -247,20 +247,20 @@ export function FileExplorer({
 }
 </code></pre></details><details class="cp-file"><summary>file-explorer.css<span class="l">React · 33 lines</span></summary><pre class="cp-pre"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- File explorer ---------- */
-.dm-fxp{padding:8px;display:flex;flex-direction:column;gap:4px;height:380px}
-.dm-fxp-h{display:flex;gap:4px;align-items:center}
-.dm-fxp-s{flex:1;display:flex;align-items:center;gap:8px;height:32px;padding:0 10px;border-radius:10px;background:var(--dm-chip);box-shadow:inset 0 0 0 1px var(--dm-field-line);color:var(--dm-muted)}
+.dm-fxp{padding:var(--dm-s-2);display:flex;flex-direction:column;gap:var(--dm-s-1);height:380px}
+.dm-fxp-h{display:flex;gap:var(--dm-s-1);align-items:center}
+.dm-fxp-s{flex:1;display:flex;align-items:center;gap:var(--dm-s-2);height:32px;padding:0 10px;border-radius:10px;background:var(--dm-chip);box-shadow:inset 0 0 0 1px var(--dm-field-line);color:var(--dm-muted)}
 .dm-fxp-s input{flex:1;min-width:0;border:0;outline:0;background:transparent;font:inherit;font-size:13px;color:var(--dm-fg)}
 .dm-fxp-s:focus-within{box-shadow:inset 0 0 0 2px var(--dm-focus)}
 .dm-fxp-s input::placeholder{color:var(--dm-muted)}
-.dm-fxp-tree{flex:1;overflow:auto;padding:4px 0 16px;-webkit-mask-image:linear-gradient(180deg,#000 calc(100% - 28px),transparent);mask-image:linear-gradient(180deg,#000 calc(100% - 28px),transparent)}
+.dm-fxp-tree{flex:1;overflow:auto;padding:var(--dm-s-1) 0 var(--dm-s-4);-webkit-mask-image:linear-gradient(180deg,#000 calc(100% - 28px),transparent);mask-image:linear-gradient(180deg,#000 calc(100% - 28px),transparent)}
 /* a thin scrollbar in the style&#39;s hairline grey, not the browser&#39;s thick one */
 .dm-fxp-tree{scrollbar-width:thin;scrollbar-color:var(--dm-rail) transparent}
 .dm-fxp-tree::-webkit-scrollbar{width:8px;height:8px}
 .dm-fxp-tree::-webkit-scrollbar-track{background:transparent}
 .dm-fxp-tree::-webkit-scrollbar-thumb{background:var(--dm-rail);border:2px solid transparent;background-clip:padding-box;border-radius:var(--dm-r-pill)}
 :root:not([data-style=&quot;soft&quot;]) .dm-fxp-tree:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *))::-webkit-scrollbar-thumb{border-radius:0}
-.dm-fxp-n{display:flex;align-items:center;gap:6px;width:100%;height:30px;padding-right:8px;border-radius:8px;font-size:13px;text-align:left;color:var(--dm-fg2);transition:background .15s,color .15s}
+.dm-fxp-n{display:flex;align-items:center;gap:6px;width:100%;height:30px;padding-right:var(--dm-s-2);border-radius:var(--dm-r-sm);font-size:13px;text-align:left;color:var(--dm-fg2);transition:background .15s,color .15s}
 @media (hover:hover) and (pointer:fine){.dm-fxp-n:hover{background:var(--dm-row);color:var(--dm-fg)}}
 /* rows fill the scrolling tree, which would cut an outside ring: theirs is drawn inside */
 .dm-fxp-n:focus-visible{outline-offset:-2px}
@@ -276,7 +276,7 @@ export function FileExplorer({
 .dm-fxp-k{display:grid;grid-template-rows:1fr;transition:grid-template-rows .4s var(--dm-ease)}
 .dm-fxp-k.dm-shut{grid-template-rows:0fr}
 .dm-fxp-k&gt;div{overflow:hidden}
-.dm-fxp-f{font-size:12px;padding:4px 8px}
+.dm-fxp-f{font-size:12px;padding:var(--dm-s-1) var(--dm-s-2)}
 </code></pre></details><details class="cp-file"><summary>file-explorer.html<span class="l">HTML · 10 lines</span></summary><pre class="cp-pre"><code>&lt;div class=&quot;card&quot; data-c=&quot;file-explorer&quot;&gt;
   &lt;div class=&quot;stage-in&quot;&gt;
     &lt;div class=&quot;fxp panel&quot; data-reveal=&quot;flat&quot;&gt;
@@ -287,20 +287,20 @@ export function FileExplorer({
   &lt;/div&gt;
 &lt;/div&gt;
 </code></pre></details><details class="cp-file"><summary>file-explorer.css<span class="l">HTML · 32 lines</span></summary><pre class="cp-pre"><code>/* ---------- File explorer ---------- */
-.fxp{padding:8px;display:flex;flex-direction:column;gap:4px;height:380px}
-.fxp-h{display:flex;gap:4px;align-items:center}
-.fxp-s{flex:1;display:flex;align-items:center;gap:8px;height:32px;padding:0 10px;border-radius:10px;background:var(--chip);box-shadow:inset 0 0 0 1px var(--field-line);color:var(--muted)}
+.fxp{padding:var(--s-2);display:flex;flex-direction:column;gap:var(--s-1);height:380px}
+.fxp-h{display:flex;gap:var(--s-1);align-items:center}
+.fxp-s{flex:1;display:flex;align-items:center;gap:var(--s-2);height:32px;padding:0 10px;border-radius:10px;background:var(--chip);box-shadow:inset 0 0 0 1px var(--field-line);color:var(--muted)}
 .fxp-s input{flex:1;min-width:0;border:0;outline:0;background:transparent;font:inherit;font-size:13px;color:var(--fg)}
 .fxp-s:focus-within{box-shadow:inset 0 0 0 2px var(--focus)}
 .fxp-s input::placeholder{color:var(--muted)}
-.fxp-tree{flex:1;overflow:auto;padding:4px 0 16px;-webkit-mask-image:linear-gradient(180deg,#000 calc(100% - 28px),transparent);mask-image:linear-gradient(180deg,#000 calc(100% - 28px),transparent)}
+.fxp-tree{flex:1;overflow:auto;padding:var(--s-1) 0 var(--s-4);-webkit-mask-image:linear-gradient(180deg,#000 calc(100% - 28px),transparent);mask-image:linear-gradient(180deg,#000 calc(100% - 28px),transparent)}
 /* a thin scrollbar in the style&#39;s hairline grey, not the browser&#39;s thick one */
 .fxp-tree{scrollbar-width:thin;scrollbar-color:var(--rail) transparent}
 .fxp-tree::-webkit-scrollbar{width:8px;height:8px}
 .fxp-tree::-webkit-scrollbar-track{background:transparent}
 .fxp-tree::-webkit-scrollbar-thumb{background:var(--rail);border:2px solid transparent;background-clip:padding-box;border-radius:var(--r-pill)}
 :root:not([data-style=&quot;soft&quot;]) .fxp-tree:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *))::-webkit-scrollbar-thumb{border-radius:0}
-.fxp-n{display:flex;align-items:center;gap:6px;width:100%;height:30px;padding-right:8px;border-radius:8px;font-size:13px;text-align:left;color:var(--fg2);transition:background .15s,color .15s}
+.fxp-n{display:flex;align-items:center;gap:6px;width:100%;height:30px;padding-right:var(--s-2);border-radius:var(--r-sm);font-size:13px;text-align:left;color:var(--fg2);transition:background .15s,color .15s}
 @media (hover:hover) and (pointer:fine){.fxp-n:hover{background:var(--row);color:var(--fg)}}
 /* rows fill the scrolling tree, which would cut an outside ring: theirs is drawn inside */
 .fxp-n:focus-visible{outline-offset:-2px}
@@ -316,7 +316,7 @@ export function FileExplorer({
 .fxp-k{display:grid;grid-template-rows:1fr;transition:grid-template-rows .4s var(--ease)}
 .fxp-k.shut{grid-template-rows:0fr}
 .fxp-k&gt;div{overflow:hidden}
-.fxp-f{font-size:12px;padding:4px 8px}
+.fxp-f{font-size:12px;padding:var(--s-1) var(--s-2)}
 </code></pre></details><details class="cp-file"><summary>file-explorer.js<span class="l">HTML · 34 lines</span></summary><pre class="cp-pre"><code>DM.def(&#39;file-explorer&#39;, (r, c) =&gt; {
   r.innerHTML = r.innerHTML.replace(&#39;{search}&#39;, I(&#39;search&#39;,&#39;xs&#39;)).replace(&#39;{filter}&#39;, I(&#39;filter&#39;,&#39;xs&#39;));
   const T = { n:&#39;&#39;, k:[

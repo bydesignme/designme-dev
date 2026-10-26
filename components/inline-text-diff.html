@@ -47,8 +47,8 @@
 </script><script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareSourceCode","name":"Inline text diff","description":"Inline text diff shows the agent's edits to a piece of copy where they sit in the text: the old words struck in red, the new ones beside them in green. Clicking an edit opens a small toolbar to accept or reject it, an edit the agent isn't sure of is marked and says why, and the header can accept or reject everything still waiting.","url":"https://designme.dev/components/inline-text-diff","image":"https://designme.dev/components/og/inline-text-diff.jpg","programmingLanguage":["HTML","CSS","JavaScript","TypeScript"],"runtimePlatform":"Web browser","license":"https://opensource.org/licenses/MIT","isAccessibleForFree":true,"keywords":"Inline text diff, Review and approve, AI agent UI, React component, HTML component","author":{"@type":"Organization","name":"DesignMe","url":"https://designme.agency"},"isPartOf":{"@type":"WebSite","name":"Designme.dev","url":"https://designme.dev/"}}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Library","item":"https://designme.dev/"},{"@type":"ListItem","position":2,"name":"Review and approve","item":"https://designme.dev/#s-review"},{"@type":"ListItem","position":3,"name":"Inline text diff","item":"https://designme.dev/components/inline-text-diff"}]}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does it work out the diff between two texts?","acceptedAnswer":{"@type":"Answer","text":"No. You pass the edits as parts, each with the words it replaces and the words it suggests. Your agent decides what changed; the component shows it and records the decisions."}},{"@type":"Question","name":"How is it different from Change review?","acceptedAnswer":{"@type":"Answer","text":"Change review is for code: whole files and hunks, kept or undone. Inline text diff is for prose, where each edit is a few words inside a sentence."}},{"@type":"Question","name":"How do I get the final text?","acceptedAnswer":{"@type":"Answer","text":"Walk parts with the decisions: plain strings as they are, to for an accepted edit and from for a rejected one."}}]}</script><link rel="stylesheet" href="/components/assets/core.css"><style>/* ---------- Inline text diff ---------- */
 /* a piece of copy with the agent's edits marked inline, struck and added; each edit opens a small toolbar to accept or
    reject it, and an edit the agent isn't sure of says why */
-.itd{position:relative;width:100%;max-width:440px;margin:0 auto;padding:16px;display:flex;flex-direction:column;gap:12px}
-.itd-h{display:flex;align-items:center;gap:12px}
+.itd{position:relative;width:100%;max-width:440px;margin:0 auto;padding:var(--s-4);display:flex;flex-direction:column;gap:var(--s-3)}
+.itd-h{display:flex;align-items:center;gap:var(--s-3)}
 .itd-ht{flex:1;min-width:0;display:flex;flex-direction:column}
 .itd-ht b{font-weight:500;font-size:14px}
 .itd-st{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -63,7 +63,7 @@
 .itd-c.unsure ins{color:var(--warn);background:var(--warn-bg)}
 .itd-c.acc del,.itd-c.rej ins{display:none}
 .itd-c.acc ins,.itd-c.rej del{color:inherit;background:none;text-decoration:none;margin:0;padding:0}
-.itd-bar{position:absolute;left:0;top:0;z-index:5;display:flex;flex-direction:column;gap:8px;padding:8px;width:max-content;max-width:260px;border-radius:12px;background:var(--raised);box-shadow:var(--shadow-pop);opacity:0;transform:translateY(-4px);visibility:hidden;pointer-events:none;transition:opacity .16s,transform .32s var(--ease),visibility 0s .32s}
+.itd-bar{position:absolute;left:0;top:0;z-index:5;display:flex;flex-direction:column;gap:var(--s-2);padding:var(--s-2);width:max-content;max-width:260px;border-radius:var(--r-in);background:var(--raised);box-shadow:var(--shadow-pop);opacity:0;transform:translateY(-4px);visibility:hidden;pointer-events:none;transition:opacity .16s,transform .32s var(--ease),visibility 0s .32s}
 .itd-bar.open{opacity:1;transform:none;visibility:visible;pointer-events:auto;transition-delay:0s}
 .itd-why{margin:0;display:flex;gap:6px;font-size:13px;line-height:1.45;color:var(--warn)}
 .itd-why svg{flex:none;margin-top:3px}
@@ -277,8 +277,8 @@ export function InlineTextDiff({ title, parts, decisions, defaultDecisions = {},
 /* ---------- Inline text diff ---------- */
 /* a piece of copy with the agent&#39;s edits marked inline, struck and added; each edit opens a small toolbar to accept or
    reject it, and an edit the agent isn&#39;t sure of says why */
-.dm-itd{position:relative;width:100%;max-width:440px;margin:0 auto;padding:16px;display:flex;flex-direction:column;gap:12px}
-.dm-itd-h{display:flex;align-items:center;gap:12px}
+.dm-itd{position:relative;width:100%;max-width:440px;margin:0 auto;padding:var(--dm-s-4);display:flex;flex-direction:column;gap:var(--dm-s-3)}
+.dm-itd-h{display:flex;align-items:center;gap:var(--dm-s-3)}
 .dm-itd-ht{flex:1;min-width:0;display:flex;flex-direction:column}
 .dm-itd-ht b{font-weight:500;font-size:14px}
 .dm-itd-st{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -293,7 +293,7 @@ export function InlineTextDiff({ title, parts, decisions, defaultDecisions = {},
 .dm-itd-c.dm-unsure ins{color:var(--dm-warn);background:var(--dm-warn-bg)}
 .dm-itd-c.dm-acc del,.dm-itd-c.dm-rej ins{display:none}
 .dm-itd-c.dm-acc ins,.dm-itd-c.dm-rej del{color:inherit;background:none;text-decoration:none;margin:0;padding:0}
-.dm-itd-bar{position:absolute;left:0;top:0;z-index:5;display:flex;flex-direction:column;gap:8px;padding:8px;width:max-content;max-width:260px;border-radius:12px;background:var(--dm-raised);box-shadow:var(--dm-shadow-pop);opacity:0;transform:translateY(-4px);visibility:hidden;pointer-events:none;transition:opacity .16s,transform .32s var(--dm-ease),visibility 0s .32s}
+.dm-itd-bar{position:absolute;left:0;top:0;z-index:5;display:flex;flex-direction:column;gap:var(--dm-s-2);padding:var(--dm-s-2);width:max-content;max-width:260px;border-radius:var(--dm-r-in);background:var(--dm-raised);box-shadow:var(--dm-shadow-pop);opacity:0;transform:translateY(-4px);visibility:hidden;pointer-events:none;transition:opacity .16s,transform .32s var(--dm-ease),visibility 0s .32s}
 .dm-itd-bar.dm-open{opacity:1;transform:none;visibility:visible;pointer-events:auto;transition-delay:0s}
 .dm-itd-why{margin:0;display:flex;gap:6px;font-size:13px;line-height:1.45;color:var(--dm-warn)}
 .dm-itd-why svg{flex:none;margin-top:3px}
@@ -316,8 +316,8 @@ export function InlineTextDiff({ title, parts, decisions, defaultDecisions = {},
 </code></pre></details><details class="cp-file"><summary>inline-text-diff.css<span class="l">HTML · 27 lines</span></summary><pre class="cp-pre"><code>/* ---------- Inline text diff ---------- */
 /* a piece of copy with the agent&#39;s edits marked inline, struck and added; each edit opens a small toolbar to accept or
    reject it, and an edit the agent isn&#39;t sure of says why */
-.itd{position:relative;width:100%;max-width:440px;margin:0 auto;padding:16px;display:flex;flex-direction:column;gap:12px}
-.itd-h{display:flex;align-items:center;gap:12px}
+.itd{position:relative;width:100%;max-width:440px;margin:0 auto;padding:var(--s-4);display:flex;flex-direction:column;gap:var(--s-3)}
+.itd-h{display:flex;align-items:center;gap:var(--s-3)}
 .itd-ht{flex:1;min-width:0;display:flex;flex-direction:column}
 .itd-ht b{font-weight:500;font-size:14px}
 .itd-st{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -332,7 +332,7 @@ export function InlineTextDiff({ title, parts, decisions, defaultDecisions = {},
 .itd-c.unsure ins{color:var(--warn);background:var(--warn-bg)}
 .itd-c.acc del,.itd-c.rej ins{display:none}
 .itd-c.acc ins,.itd-c.rej del{color:inherit;background:none;text-decoration:none;margin:0;padding:0}
-.itd-bar{position:absolute;left:0;top:0;z-index:5;display:flex;flex-direction:column;gap:8px;padding:8px;width:max-content;max-width:260px;border-radius:12px;background:var(--raised);box-shadow:var(--shadow-pop);opacity:0;transform:translateY(-4px);visibility:hidden;pointer-events:none;transition:opacity .16s,transform .32s var(--ease),visibility 0s .32s}
+.itd-bar{position:absolute;left:0;top:0;z-index:5;display:flex;flex-direction:column;gap:var(--s-2);padding:var(--s-2);width:max-content;max-width:260px;border-radius:var(--r-in);background:var(--raised);box-shadow:var(--shadow-pop);opacity:0;transform:translateY(-4px);visibility:hidden;pointer-events:none;transition:opacity .16s,transform .32s var(--ease),visibility 0s .32s}
 .itd-bar.open{opacity:1;transform:none;visibility:visible;pointer-events:auto;transition-delay:0s}
 .itd-why{margin:0;display:flex;gap:6px;font-size:13px;line-height:1.45;color:var(--warn)}
 .itd-why svg{flex:none;margin-top:3px}

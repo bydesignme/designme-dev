@@ -46,7 +46,7 @@
 })();
 </script><script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareSourceCode","name":"Buttons","description":"Buttons is a set of pill and icon buttons that show what an action is doing while it runs. A button can go busy, then confirm it is done, a run button shows its elapsed time and turns into Stop, and a destructive action can require a hold to confirm. This matters in an agent product, where a click often starts work that takes a few seconds.","url":"https://designme.dev/components/buttons","image":"https://designme.dev/components/og/buttons.jpg","programmingLanguage":["HTML","CSS","JavaScript","TypeScript"],"runtimePlatform":"Web browser","license":"https://opensource.org/licenses/MIT","isAccessibleForFree":true,"keywords":"Buttons, Forms and inputs, UI component, React component, HTML component","author":{"@type":"Organization","name":"DesignMe","url":"https://designme.agency"},"isPartOf":{"@type":"WebSite","name":"Designme.dev","url":"https://designme.dev/"}}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Library","item":"https://designme.dev/"},{"@type":"ListItem","position":2,"name":"Forms and inputs","item":"https://designme.dev/#s-forms"},{"@type":"ListItem","position":3,"name":"Buttons","item":"https://designme.dev/components/buttons"}]}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I show a loading state while my request runs?","acceptedAnswer":{"@type":"Answer","text":"Return the promise from onClick. The button shows a spinner and busyLabel until it resolves, then a check and doneLabel. If the promise rejects it goes straight back to its label."}},{"@type":"Question","name":"Can I drive the busy and done states myself instead of with a promise?","acceptedAnswer":{"@type":"Answer","text":"Yes. Pass busy and done directly. While either is true, clicks are ignored."}},{"@type":"Question","name":"How does the run button know how long the agent has been running?","acceptedAnswer":{"@type":"Answer","text":"You pass seconds and it formats them as m:ss. You also set state to idle, running, stopped or complete, and handle onRun and onStop."}},{"@type":"Question","name":"How long does the hold to confirm take?","acceptedAnswer":{"@type":"Answer","text":"1.2 seconds of holding with a pointer, Space or Enter. After it confirms, the done face stays for resetAfter ms, 1800 by default."}}]}</script><link rel="stylesheet" href="/components/assets/core.css"><style>/* ---------- Buttons ---------- */
 .btx{display:flex;flex-direction:column;gap:14px;width:100%}
-.btx-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.btx-row{display:flex;align-items:center;gap:var(--s-2);flex-wrap:wrap}
 .btx-l{width:74px;font-size:12px;flex:none}
 @media (max-width:520px){.btx-l{width:100%}}
 .btx-lg{height:40px;padding:0 18px;font-size:14px}
@@ -599,7 +599,7 @@ export function Buttons({ rows, className }: ButtonsProps) {
 </code></pre></details><details class="cp-file"><summary>buttons.css<span class="l">React · 47 lines</span></summary><pre class="cp-pre"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Buttons ---------- */
 .dm-btx{display:flex;flex-direction:column;gap:14px;width:100%}
-.dm-btx-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.dm-btx-row{display:flex;align-items:center;gap:var(--dm-s-2);flex-wrap:wrap}
 .dm-btx-l{width:74px;font-size:12px;flex:none}
 @media (max-width:520px){.dm-btx-l{width:100%}}
 .dm-btx-lg{height:40px;padding:0 18px;font-size:14px}
@@ -654,7 +654,7 @@ export function Buttons({ rows, className }: ButtonsProps) {
 &lt;/div&gt;
 </code></pre></details><details class="cp-file"><summary>buttons.css<span class="l">HTML · 46 lines</span></summary><pre class="cp-pre"><code>/* ---------- Buttons ---------- */
 .btx{display:flex;flex-direction:column;gap:14px;width:100%}
-.btx-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.btx-row{display:flex;align-items:center;gap:var(--s-2);flex-wrap:wrap}
 .btx-l{width:74px;font-size:12px;flex:none}
 @media (max-width:520px){.btx-l{width:100%}}
 .btx-lg{height:40px;padding:0 18px;font-size:14px}
@@ -742,11 +742,11 @@ export function Buttons({ rows, className }: ButtonsProps) {
   /* More: a menu of actions; the button flashes a check and says what happened */
   const mo = $(&#39;.btx-more&#39;, r), moIc = mo.innerHTML;
   // no tooltip over its own open menu
-  const mob = new MutationObserver(() =&gt; { if (mo.getAttribute(&#39;aria-expanded&#39;) === &#39;true&#39;){ if (tipFor === mo) hideTip(); delete mo.dataset.tip; } else if (!mo.classList.contains(&#39;done&#39;)) mo.dataset.tip = &#39;More&#39;; });
+  const mob = new MutationObserver(() =&gt; { if (mo.getAttribute(&#39;aria-expanded&#39;) === &#39;true&#39;){ if (tipFor === mo) hideTip(true); delete mo.dataset.tip; } else if (!mo.classList.contains(&#39;done&#39;)) mo.dataset.tip = &#39;More&#39;; });
   mob.observe(mo, { attributes:true, attributeFilter:[&#39;aria-expanded&#39;] }); c.offs.push(() =&gt; mob.disconnect());
   $$(&#39;.btx-mp .mi&#39;, r).forEach(b =&gt; b.addEventListener(&#39;click&#39;, () =&gt; {
     clearTimeout(mo._t); c.later(140, () =&gt; { mo.innerHTML = I(&#39;check&#39;,&#39;xs&#39;); mo.classList.add(&#39;done&#39;); mo.dataset.tip = b.dataset.a; showTip(mo);
-      mo._t = setTimeout(() =&gt; { mo.innerHTML = moIc; mo.classList.remove(&#39;done&#39;); mo.dataset.tip = &#39;More&#39;; if (tipFor === mo) hideTip(); }, 1500); });
+      mo._t = setTimeout(() =&gt; { mo.innerHTML = moIc; mo.classList.remove(&#39;done&#39;); mo.dataset.tip = &#39;More&#39;; if (tipFor === mo) hideTip(true); }, 1500); });
   }));
   c.offs.push(() =&gt; clearTimeout(mo._t));
   const cp = $(&#39;.btx-copy&#39;, r);
@@ -1128,11 +1128,11 @@ const fitHits = window.dmFitHits || (() => {
   /* More: a menu of actions; the button flashes a check and says what happened */
   const mo = $('.btx-more', r), moIc = mo.innerHTML;
   // no tooltip over its own open menu
-  const mob = new MutationObserver(() => { if (mo.getAttribute('aria-expanded') === 'true'){ if (tipFor === mo) hideTip(); delete mo.dataset.tip; } else if (!mo.classList.contains('done')) mo.dataset.tip = 'More'; });
+  const mob = new MutationObserver(() => { if (mo.getAttribute('aria-expanded') === 'true'){ if (tipFor === mo) hideTip(true); delete mo.dataset.tip; } else if (!mo.classList.contains('done')) mo.dataset.tip = 'More'; });
   mob.observe(mo, { attributes:true, attributeFilter:['aria-expanded'] }); c.offs.push(() => mob.disconnect());
   $$('.btx-mp .mi', r).forEach(b => b.addEventListener('click', () => {
     clearTimeout(mo._t); c.later(140, () => { mo.innerHTML = I('check','xs'); mo.classList.add('done'); mo.dataset.tip = b.dataset.a; showTip(mo);
-      mo._t = setTimeout(() => { mo.innerHTML = moIc; mo.classList.remove('done'); mo.dataset.tip = 'More'; if (tipFor === mo) hideTip(); }, 1500); });
+      mo._t = setTimeout(() => { mo.innerHTML = moIc; mo.classList.remove('done'); mo.dataset.tip = 'More'; if (tipFor === mo) hideTip(true); }, 1500); });
   }));
   c.offs.push(() => clearTimeout(mo._t));
   const cp = $('.btx-copy', r);

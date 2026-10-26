@@ -46,18 +46,18 @@
 })();
 </script><script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareSourceCode","name":"Reasoning trail","description":"Reasoning trail is a foldable record of how an agent worked through a task: its plan, its notes, the sources it used and the edits it made. It sits in a chat thread under a header that reads \"Reasoning\" with a running clock, then \"Reasoned for Ns\" once the agent is done.","url":"https://designme.dev/components/reasoning-trail","image":"https://designme.dev/components/og/reasoning-trail.jpg","programmingLanguage":["HTML","CSS","JavaScript","TypeScript"],"runtimePlatform":"Web browser","license":"https://opensource.org/licenses/MIT","isAccessibleForFree":true,"keywords":"Reasoning trail, Agent status, AI agent UI, React component, HTML component","author":{"@type":"Organization","name":"DesignMe","url":"https://designme.agency"},"isPartOf":{"@type":"WebSite","name":"Designme.dev","url":"https://designme.dev/"}}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Library","item":"https://designme.dev/"},{"@type":"ListItem","position":2,"name":"Agent status","item":"https://designme.dev/#s-status"},{"@type":"ListItem","position":3,"name":"Reasoning trail","item":"https://designme.dev/components/reasoning-trail"}]}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does the trail come with Plan, Notes, Sources and Edits tabs?","acceptedAnswer":{"@type":"Answer","text":"No. The component shows whichever view you pass in view, and you supply the switcher. The designme.dev demo puts a segmented control under it and keeps the room of the tallest view, so the control stays put as you switch."}},{"@type":"Question","name":"How do I show progress through the plan?","acceptedAnswer":{"@type":"Answer","text":"Pass plan as steps with state set to 'done', 'now' or 'next', and update them from your own state as the agent moves on. Set running to false when it finishes."}},{"@type":"Question","name":"What does an edit look like?","acceptedAnswer":{"@type":"Answer","text":"An edit has a file, an optional detail like \"2 lines\", and removed and added arrays of lines. Removed lines are shown first, then added ones, under the file name."}}]}</script><link rel="stylesheet" href="/components/assets/core.css"><style>/* ---------- Reasoning trail ---------- */
 .rtr{width:100%;padding:6px}
-.rtr-h{display:flex;align-items:center;gap:10px;width:100%;padding:10px 12px;border-radius:12px;font-size:13.5px;transition:background .2s}
+.rtr-h{display:flex;align-items:center;gap:10px;width:100%;padding:10px var(--s-3);border-radius:var(--r-in);font-size:13.5px;transition:background .2s}
 @media (hover:hover) and (pointer:fine){.rtr-h:hover{background:var(--row)}}
 .rtr-mark{color:var(--fg2)}
 .rtr-chev{margin-left:auto;color:var(--muted);transition:transform .4s var(--ease)}
 .rtr-h[aria-expanded="false"] .rtr-chev{transform:rotate(-90deg)}
-.rtr-body{padding:4px 12px 10px}
-.rtr-li{position:relative;display:flex;gap:10px;padding:6px 0 6px 24px;font-size:13.5px;color:var(--fg2)}
+.rtr-body{padding:var(--s-1) var(--s-3) 10px}
+.rtr-li{position:relative;display:flex;gap:10px;padding:6px 0 6px var(--s-6);font-size:13.5px;color:var(--fg2)}
 .rtr-li .g{position:absolute;left:0;top:7px;width:16px;height:16px;display:grid;place-items:center;color:var(--muted)}
 .rtr-li:not(:last-child)::before{content:"";position:absolute;left:7.5px;top:25px;bottom:-6px;width:1px;background:var(--rail)}
 .rtr-li .d{display:block;font-size:12px;color:var(--muted);margin-top:1px}
 .rtr-li.now{color:var(--fg)}
-.rtr-edit{font-family:var(--mono);font-size:12px;border-radius:10px;background:var(--chip);padding:8px 10px;margin:4px 0 8px;line-height:1.65}
+.rtr-edit{font-family:var(--mono);font-size:12px;border-radius:10px;background:var(--chip);padding:var(--s-2) 10px;margin:var(--s-1) 0 var(--s-2);line-height:1.65}
 .rtr-edit .a{color:var(--add)}.rtr-edit .x{color:var(--del);text-decoration:line-through;text-decoration-color:color-mix(in srgb,var(--del) 40%,transparent)}
 .rtr-src{display:flex;flex-wrap:wrap;gap:6px}
 </style><style>@media (max-width:640px){.cp-demo .pg-demo{min-height:calc(var(--h-j) + 24px)}}@media (max-width:519px){.cp-demo .pg-demo{min-height:calc(var(--h-k) + 24px)}}@media (max-width:429px){.cp-demo .pg-demo{min-height:calc(var(--h-l) + 24px)}}@media (max-width:389px){.cp-demo .pg-demo{min-height:calc(var(--h-m) + 24px)}}</style><style>@font-face{font-family:Inter;font-style:normal;font-weight:400;font-display:swap;src:url(/fonts/inter-latin-400-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
@@ -232,7 +232,7 @@ export function ReasoningTrail({ running = false, seconds, title, plan, notes, s
       &lt;/div&gt;));
     if (tab === &#39;notes&#39;) return notes?.map((t, i) =&gt; (
       &lt;div key={&#39;n&#39; + i} className=&quot;dm-rtr-li dm-enter&quot; style={enter(i * 50).style}&gt;&lt;span className=&quot;dm-g&quot;&gt;&lt;Dot color=&quot;var(--dm-faint)&quot; /&gt;&lt;/span&gt;&lt;span&gt;{t}&lt;/span&gt;&lt;/div&gt;));
-    if (tab === &#39;sources&#39;) return &lt;div className=&quot;dm-rtr-src dm-enter&quot;&gt;{sources?.map((s, i) =&gt; &lt;SourceChip key={i} source={s} /&gt;)}&lt;/div&gt;;
+    if (tab === &#39;sources&#39;) return &lt;div className=&quot;dm-rtr-src dm-enter&quot;&gt;{/* the tips open below the chips, clear of the header above */}{sources?.map((s, i) =&gt; &lt;SourceChip key={i} source={s} tipSide=&quot;bottom&quot; /&gt;)}&lt;/div&gt;;
     return edits?.map((e, i) =&gt; (
       &lt;div key={&#39;e&#39; + i} className=&quot;dm-enter&quot; style={enter(i * 50).style}&gt;
         &lt;div className=&quot;dm-rtr-li&quot;&gt;&lt;span className=&quot;dm-g&quot;&gt;&lt;Icon name=&quot;edit&quot; size=&quot;xs&quot; /&gt;&lt;/span&gt;&lt;span&gt;{e.file}{e.detail &amp;&amp; &lt;span className=&quot;dm-d&quot;&gt;{e.detail}&lt;/span&gt;}&lt;/span&gt;&lt;/div&gt;
@@ -258,18 +258,18 @@ export function ReasoningTrail({ running = false, seconds, title, plan, notes, s
 </code></pre></details><details class="cp-file"><summary>reasoning-trail.css<span class="l">React · 18 lines</span></summary><pre class="cp-pre"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Reasoning trail ---------- */
 .dm-rtr{width:100%;padding:6px}
-.dm-rtr-h{display:flex;align-items:center;gap:10px;width:100%;padding:10px 12px;border-radius:12px;font-size:13.5px;transition:background .2s}
+.dm-rtr-h{display:flex;align-items:center;gap:10px;width:100%;padding:10px var(--dm-s-3);border-radius:var(--dm-r-in);font-size:13.5px;transition:background .2s}
 @media (hover:hover) and (pointer:fine){.dm-rtr-h:hover{background:var(--dm-row)}}
 .dm-rtr-mark{color:var(--dm-fg2)}
 .dm-rtr-chev{margin-left:auto;color:var(--dm-muted);transition:transform .4s var(--dm-ease)}
 .dm-rtr-h[aria-expanded=&quot;false&quot;] .dm-rtr-chev{transform:rotate(-90deg)}
-.dm-rtr-body{padding:4px 12px 10px}
-.dm-rtr-li{position:relative;display:flex;gap:10px;padding:6px 0 6px 24px;font-size:13.5px;color:var(--dm-fg2)}
+.dm-rtr-body{padding:var(--dm-s-1) var(--dm-s-3) 10px}
+.dm-rtr-li{position:relative;display:flex;gap:10px;padding:6px 0 6px var(--dm-s-6);font-size:13.5px;color:var(--dm-fg2)}
 .dm-rtr-li .dm-g{position:absolute;left:0;top:7px;width:16px;height:16px;display:grid;place-items:center;color:var(--dm-muted)}
 .dm-rtr-li:not(:last-child)::before{content:&quot;&quot;;position:absolute;left:7.5px;top:25px;bottom:-6px;width:1px;background:var(--dm-rail)}
 .dm-rtr-li .dm-d{display:block;font-size:12px;color:var(--dm-muted);margin-top:1px}
 .dm-rtr-li.dm-now{color:var(--dm-fg)}
-.dm-rtr-edit{font-family:var(--dm-mono);font-size:12px;border-radius:10px;background:var(--dm-chip);padding:8px 10px;margin:4px 0 8px;line-height:1.65}
+.dm-rtr-edit{font-family:var(--dm-mono);font-size:12px;border-radius:10px;background:var(--dm-chip);padding:var(--dm-s-2) 10px;margin:var(--dm-s-1) 0 var(--dm-s-2);line-height:1.65}
 .dm-rtr-edit .dm-a{color:var(--dm-add)}.dm-rtr-edit .dm-x{color:var(--dm-del);text-decoration:line-through;text-decoration-color:color-mix(in srgb,var(--dm-del) 40%,transparent)}
 .dm-rtr-src{display:flex;flex-wrap:wrap;gap:6px}
 </code></pre></details><details class="cp-file"><summary>reasoning-trail.html<span class="l">HTML · 17 lines</span></summary><pre class="cp-pre"><code>&lt;div class=&quot;card bare&quot; data-c=&quot;reasoning-trail&quot;&gt;
@@ -290,18 +290,18 @@ export function ReasoningTrail({ running = false, seconds, title, plan, notes, s
 &lt;/div&gt;
 </code></pre></details><details class="cp-file"><summary>reasoning-trail.css<span class="l">HTML · 17 lines</span></summary><pre class="cp-pre"><code>/* ---------- Reasoning trail ---------- */
 .rtr{width:100%;padding:6px}
-.rtr-h{display:flex;align-items:center;gap:10px;width:100%;padding:10px 12px;border-radius:12px;font-size:13.5px;transition:background .2s}
+.rtr-h{display:flex;align-items:center;gap:10px;width:100%;padding:10px var(--s-3);border-radius:var(--r-in);font-size:13.5px;transition:background .2s}
 @media (hover:hover) and (pointer:fine){.rtr-h:hover{background:var(--row)}}
 .rtr-mark{color:var(--fg2)}
 .rtr-chev{margin-left:auto;color:var(--muted);transition:transform .4s var(--ease)}
 .rtr-h[aria-expanded=&quot;false&quot;] .rtr-chev{transform:rotate(-90deg)}
-.rtr-body{padding:4px 12px 10px}
-.rtr-li{position:relative;display:flex;gap:10px;padding:6px 0 6px 24px;font-size:13.5px;color:var(--fg2)}
+.rtr-body{padding:var(--s-1) var(--s-3) 10px}
+.rtr-li{position:relative;display:flex;gap:10px;padding:6px 0 6px var(--s-6);font-size:13.5px;color:var(--fg2)}
 .rtr-li .g{position:absolute;left:0;top:7px;width:16px;height:16px;display:grid;place-items:center;color:var(--muted)}
 .rtr-li:not(:last-child)::before{content:&quot;&quot;;position:absolute;left:7.5px;top:25px;bottom:-6px;width:1px;background:var(--rail)}
 .rtr-li .d{display:block;font-size:12px;color:var(--muted);margin-top:1px}
 .rtr-li.now{color:var(--fg)}
-.rtr-edit{font-family:var(--mono);font-size:12px;border-radius:10px;background:var(--chip);padding:8px 10px;margin:4px 0 8px;line-height:1.65}
+.rtr-edit{font-family:var(--mono);font-size:12px;border-radius:10px;background:var(--chip);padding:var(--s-2) 10px;margin:var(--s-1) 0 var(--s-2);line-height:1.65}
 .rtr-edit .a{color:var(--add)}.rtr-edit .x{color:var(--del);text-decoration:line-through;text-decoration-color:color-mix(in srgb,var(--del) 40%,transparent)}
 .rtr-src{display:flex;flex-wrap:wrap;gap:6px}
 </code></pre></details><details class="cp-file"><summary>reasoning-trail.js<span class="l">HTML · 50 lines</span></summary><pre class="cp-pre"><code>DM.def(&#39;reasoning-trail&#39;, (r, c) =&gt; {
@@ -311,7 +311,7 @@ export function ReasoningTrail({ running = false, seconds, title, plan, notes, s
   const views = {
     plan: () =&gt; plan.map((p, i) =&gt; `&lt;div class=&quot;rtr-li ${i === planDone &amp;&amp; !finished ? &#39;now&#39; : &#39;&#39;}&quot;&gt;&lt;span class=&quot;g&quot;&gt;${i &lt; planDone ? `&lt;span style=&quot;color:var(--ok)&quot;&gt;${I(&#39;check&#39;,&#39;xs&#39;)}&lt;/span&gt;` : i === planDone &amp;&amp; !finished ? &#39;&lt;span class=&quot;pulse&quot;&gt;&lt;/span&gt;&#39; : &#39;&lt;span class=&quot;dot&quot; style=&quot;color:var(--faint)&quot;&gt;&lt;/span&gt;&#39;}&lt;/span&gt;&lt;span&gt;${p[0]}&lt;span class=&quot;d&quot;&gt;${i &lt; planDone ? p[1] : i === planDone &amp;&amp; !finished ? &#39;Working&#39; : &#39;Next&#39;}&lt;/span&gt;&lt;/span&gt;&lt;/div&gt;`).join(&#39;&#39;),
     notes: () =&gt; [&#39;The hero card uses 20px padding, every other card uses 24px.&#39;,&#39;Mobile frames already follow the grid, desktop drifted.&#39;,&#39;Two buttons use a hard-coded grey instead of a token.&#39;].map(t =&gt; `&lt;div class=&quot;rtr-li&quot;&gt;&lt;span class=&quot;g&quot;&gt;&lt;span class=&quot;dot&quot; style=&quot;color:var(--faint)&quot;&gt;&lt;/span&gt;&lt;/span&gt;&lt;span&gt;${t}&lt;/span&gt;&lt;/div&gt;`).join(&#39;&#39;),
-    sources: () =&gt; `&lt;div class=&quot;rtr-src&quot;&gt;&lt;button class=&quot;fchip lnk&quot; data-tip=&quot;Figma, 4 frames read&quot;&gt;${I(&#39;figma&#39;,&#39;xs&#39;)}Onboarding.fig&lt;/button&gt;&lt;button class=&quot;fchip lnk&quot; data-tip=&quot;src/styles/tokens.ts, 212 lines&quot;&gt;&lt;span class=&quot;ft&quot;&gt;TS&lt;/span&gt;tokens.ts&lt;/button&gt;&lt;button class=&quot;fchip lnk&quot; data-tip=&quot;src/components/Card.tsx, 2 edits&quot;&gt;&lt;span class=&quot;ft re&quot;&gt;TSX&lt;/span&gt;Card.tsx&lt;/button&gt;&lt;button class=&quot;fchip lnk&quot; data-tip=&quot;designme.dev/guide/spacing&quot;&gt;${I(&#39;globe&#39;,&#39;xs&#39;)}Spacing guide&lt;/button&gt;&lt;/div&gt;`,
+    sources: () =&gt; `&lt;div class=&quot;rtr-src&quot;&gt;&lt;button class=&quot;fchip lnk&quot; data-tip-at=&quot;below&quot; data-tip=&quot;Figma, 4 frames read&quot;&gt;${I(&#39;figma&#39;,&#39;xs&#39;)}Onboarding.fig&lt;/button&gt;&lt;button class=&quot;fchip lnk&quot; data-tip-at=&quot;below&quot; data-tip=&quot;src/styles/tokens.ts, 212 lines&quot;&gt;&lt;span class=&quot;ft&quot;&gt;TS&lt;/span&gt;tokens.ts&lt;/button&gt;&lt;button class=&quot;fchip lnk&quot; data-tip-at=&quot;below&quot; data-tip=&quot;src/components/Card.tsx, 2 edits&quot;&gt;&lt;span class=&quot;ft re&quot;&gt;TSX&lt;/span&gt;Card.tsx&lt;/button&gt;&lt;button class=&quot;fchip lnk&quot; data-tip-at=&quot;below&quot; data-tip=&quot;designme.dev/guide/spacing&quot;&gt;${I(&#39;globe&#39;,&#39;xs&#39;)}Spacing guide&lt;/button&gt;&lt;/div&gt;`,
     edits: () =&gt; `&lt;div class=&quot;rtr-li&quot;&gt;&lt;span class=&quot;g&quot;&gt;${I(&#39;edit&#39;,&#39;xs&#39;)}&lt;/span&gt;&lt;span&gt;Card.tsx&lt;span class=&quot;d&quot;&gt;2 lines&lt;/span&gt;&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;rtr-edit&quot;&gt;&lt;div class=&quot;x&quot;&gt;padding: 20px;&lt;/div&gt;&lt;div class=&quot;a&quot;&gt;padding: var(--space-6);&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;rtr-li&quot;&gt;&lt;span class=&quot;g&quot;&gt;${I(&#39;edit&#39;,&#39;xs&#39;)}&lt;/span&gt;&lt;span&gt;Button.tsx&lt;span class=&quot;d&quot;&gt;1 line&lt;/span&gt;&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;rtr-edit&quot;&gt;&lt;div class=&quot;x&quot;&gt;color: #8a8a8a;&lt;/div&gt;&lt;div class=&quot;a&quot;&gt;color: var(--text-dim);&lt;/div&gt;&lt;/div&gt;`
   };
   const paint = anim =&gt; { body.innerHTML = views[tab](); if (anim) stagger(Array.from(body.children), 50); };
@@ -683,7 +683,7 @@ const fitHits = window.dmFitHits || (() => {
   const views = {
     plan: () => plan.map((p, i) => `<div class="rtr-li ${i === planDone && !finished ? 'now' : ''}"><span class="g">${i < planDone ? `<span style="color:var(--ok)">${I('check','xs')}</span>` : i === planDone && !finished ? '<span class="pulse"></span>' : '<span class="dot" style="color:var(--faint)"></span>'}</span><span>${p[0]}<span class="d">${i < planDone ? p[1] : i === planDone && !finished ? 'Working' : 'Next'}</span></span></div>`).join(''),
     notes: () => ['The hero card uses 20px padding, every other card uses 24px.','Mobile frames already follow the grid, desktop drifted.','Two buttons use a hard-coded grey instead of a token.'].map(t => `<div class="rtr-li"><span class="g"><span class="dot" style="color:var(--faint)"></span></span><span>${t}</span></div>`).join(''),
-    sources: () => `<div class="rtr-src"><button class="fchip lnk" data-tip="Figma, 4 frames read">${I('figma','xs')}Onboarding.fig</button><button class="fchip lnk" data-tip="src/styles/tokens.ts, 212 lines"><span class="ft">TS</span>tokens.ts</button><button class="fchip lnk" data-tip="src/components/Card.tsx, 2 edits"><span class="ft re">TSX</span>Card.tsx</button><button class="fchip lnk" data-tip="designme.dev/guide/spacing">${I('globe','xs')}Spacing guide</button></div>`,
+    sources: () => `<div class="rtr-src"><button class="fchip lnk" data-tip-at="below" data-tip="Figma, 4 frames read">${I('figma','xs')}Onboarding.fig</button><button class="fchip lnk" data-tip-at="below" data-tip="src/styles/tokens.ts, 212 lines"><span class="ft">TS</span>tokens.ts</button><button class="fchip lnk" data-tip-at="below" data-tip="src/components/Card.tsx, 2 edits"><span class="ft re">TSX</span>Card.tsx</button><button class="fchip lnk" data-tip-at="below" data-tip="designme.dev/guide/spacing">${I('globe','xs')}Spacing guide</button></div>`,
     edits: () => `<div class="rtr-li"><span class="g">${I('edit','xs')}</span><span>Card.tsx<span class="d">2 lines</span></span></div><div class="rtr-edit"><div class="x">padding: 20px;</div><div class="a">padding: var(--space-6);</div></div><div class="rtr-li"><span class="g">${I('edit','xs')}</span><span>Button.tsx<span class="d">1 line</span></span></div><div class="rtr-edit"><div class="x">color: #8a8a8a;</div><div class="a">color: var(--text-dim);</div></div>`
   };
   const paint = anim => { body.innerHTML = views[tab](); if (anim) stagger(Array.from(body.children), 50); };

@@ -220,7 +220,7 @@ export function ReasoningTrail({ running = false, seconds, title, plan, notes, s
       </div>));
     if (tab === 'notes') return notes?.map((t, i) => (
       <div key={'n' + i} className="dm-rtr-li dm-enter" style={enter(i * 50).style}><span className="dm-g"><Dot color="var(--dm-faint)" /></span><span>{t}</span></div>));
-    if (tab === 'sources') return <div className="dm-rtr-src dm-enter">{sources?.map((s, i) => <SourceChip key={i} source={s} />)}</div>;
+    if (tab === 'sources') return <div className="dm-rtr-src dm-enter">{/* the tips open below the chips, clear of the header above */}{sources?.map((s, i) => <SourceChip key={i} source={s} tipSide="bottom" />)}</div>;
     return edits?.map((e, i) => (
       <div key={'e' + i} className="dm-enter" style={enter(i * 50).style}>
         <div className="dm-rtr-li"><span className="dm-g"><Icon name="edit" size="xs" /></span><span>{e.file}{e.detail && <span className="dm-d">{e.detail}</span>}</span></div>

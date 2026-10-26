@@ -46,22 +46,22 @@
 })();
 </script><script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareSourceCode","name":"Agent settings","description":"A settings panel for how much an agent may do on its own: an autonomy scale, on/off switches, a spend cap per run and free-text instructions. Any change brings up an \"Unsaved changes\" bar with Save and Reset, so people can review before the agent's behaviour changes.","url":"https://designme.dev/components/agent-settings","image":"https://designme.dev/components/og/agent-settings.jpg","programmingLanguage":["HTML","CSS","JavaScript","TypeScript"],"runtimePlatform":"Web browser","license":"https://opensource.org/licenses/MIT","isAccessibleForFree":true,"keywords":"Agent settings, Workspace, AI agent UI, React component, HTML component","author":{"@type":"Organization","name":"DesignMe","url":"https://designme.agency"},"isPartOf":{"@type":"WebSite","name":"Designme.dev","url":"https://designme.dev/"}}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Library","item":"https://designme.dev/"},{"@type":"ListItem","position":2,"name":"Workspace","item":"https://designme.dev/#s-workspace"},{"@type":"ListItem","position":3,"name":"Agent settings","item":"https://designme.dev/components/agent-settings"}]}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What happens if saving fails?","acceptedAnswer":{"@type":"Answer","text":"If the promise returned by onSave rejects, the button goes back to Save and the save bar stays up, because the settings still differ from the last saved ones."}},{"@type":"Question","name":"Can I change the autonomy levels?","acceptedAnswer":{"@type":"Answer","text":"Yes. Pass levels with a label and description for each step. The scale lays out as many steps as you give it, and autonomy in the value is the index of the picked one."}},{"@type":"Question","name":"How do I add my own on/off settings?","acceptedAnswer":{"@type":"Answer","text":"Pass toggles with a key, label and optional detail for each. Their state lives in value.toggles, keyed by key."}},{"@type":"Question","name":"Can the spend cap use other amounts or a currency?","acceptedAnswer":{"@type":"Answer","text":"Yes. caps sets the amounts the minus and plus buttons step through, and formatCap sets how the amount reads. capLabel and capDetail change the text beside it."}}]}</script><link rel="stylesheet" href="/components/assets/core.css"><style>/* ---------- Agent settings ---------- */
 .asx{padding:6px 14px 14px;display:flex;flex-direction:column;position:relative;overflow:hidden}
-.asx-r{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 0;border-bottom:1px solid var(--line)}
+.asx-r{display:flex;align-items:center;justify-content:space-between;gap:var(--s-3);padding:11px 0;border-bottom:1px solid var(--line)}
 .asx-r:nth-last-child(2){border-bottom:0}
 .asx-col{flex-direction:column;align-items:stretch;gap:9px}
 .asx-l{display:flex;flex-direction:column;min-width:0;font-size:13px}
 .asx-l b{font-weight:500}
 .asx-l .muted{font-size:12px}
-.asx-steps{position:relative;display:grid;grid-template-columns:repeat(3,1fr);padding:3px;border-radius:999px;background:var(--chip)}
+.asx-steps{position:relative;display:grid;grid-template-columns:repeat(3,1fr);padding:3px;border-radius:var(--r-pill);background:var(--chip)}
 .asx-steps button{position:relative;z-index:1;height:30px;font-size:12.5px;color:var(--fg2);transition:color .25s}
 .asx-steps button[aria-checked="true"]{color:var(--fg)}
-.asx-knob{position:absolute;top:3px;bottom:3px;width:calc((100% - 6px)/3);border-radius:999px;background:var(--surface);box-shadow:0 1px 2px rgba(0,0,0,.08);transition:left .45s var(--ease)}
+.asx-knob{position:absolute;top:3px;bottom:3px;width:calc((100% - 6px)/3);border-radius:var(--r-pill);background:var(--surface);box-shadow:0 1px 2px rgba(0,0,0,.08);transition:left .45s var(--ease)}
 .asx-cap{display:flex;align-items:center;gap:6px}
 .asx-cap .ib{width:26px;height:26px}
 .asx-v{min-width:38px;text-align:center;font-size:13px}
-.asx-ta{width:100%;resize:none;border:0;outline:0;border-radius:12px;background:var(--chip);box-shadow:inset 0 0 0 1px var(--field-line);padding:9px 12px;font:inherit;font-size:13px;color:var(--fg);transition:box-shadow .3s}
+.asx-ta{width:100%;resize:none;border:0;outline:0;border-radius:var(--r-in);background:var(--chip);box-shadow:inset 0 0 0 1px var(--field-line);padding:9px var(--s-3);font:inherit;font-size:13px;color:var(--fg);transition:box-shadow .3s}
 .asx-ta:focus{box-shadow:inset 0 0 0 2px var(--focus),0 0 0 3px var(--accent-bg)}
-.asx-bar{display:flex;align-items:center;gap:6px;padding:6px 6px 6px 14px;border-radius:999px;background:var(--ink);color:var(--on-ink);font-size:12.5px;margin-top:10px;transform:translateY(30px);opacity:0;filter:blur(4px);pointer-events:none;transition:transform .45s var(--ease),opacity .3s,filter .3s,height .45s var(--ease),margin-bottom .45s var(--ease);height:0;margin-bottom:-10px}
+.asx-bar{display:flex;align-items:center;gap:6px;padding:6px 6px 6px 14px;border-radius:var(--r-pill);background:var(--ink);color:var(--on-ink);font-size:12.5px;margin-top:10px;transform:translateY(30px);opacity:0;filter:blur(4px);pointer-events:none;transition:transform .45s var(--ease),opacity .3s,filter .3s,height .45s var(--ease),margin-bottom .45s var(--ease);height:0;margin-bottom:-10px}
 /* on an ink-filled bar the ring takes the bar's text colour, so it stands out against the fill in every theme */
 .asx-bar{--focus:var(--on-ink)}
 .asx-bar span{flex:1}
@@ -265,22 +265,22 @@ export function AgentSettings({
 </code></pre></details><details class="cp-file"><summary>agent-settings.css<span class="l">React · 25 lines</span></summary><pre class="cp-pre"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Agent settings ---------- */
 .dm-asx{padding:6px 14px 14px;display:flex;flex-direction:column;position:relative;overflow:hidden}
-.dm-asx-r{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 0;border-bottom:1px solid var(--dm-line)}
+.dm-asx-r{display:flex;align-items:center;justify-content:space-between;gap:var(--dm-s-3);padding:11px 0;border-bottom:1px solid var(--dm-line)}
 .dm-asx-r:nth-last-child(2){border-bottom:0}
 .dm-asx-col{flex-direction:column;align-items:stretch;gap:9px}
 .dm-asx-l{display:flex;flex-direction:column;min-width:0;font-size:13px}
 .dm-asx-l b{font-weight:500}
 .dm-asx-l .dm-muted{font-size:12px}
-.dm-asx-steps{position:relative;display:grid;grid-template-columns:repeat(3,1fr);padding:3px;border-radius:999px;background:var(--dm-chip)}
+.dm-asx-steps{position:relative;display:grid;grid-template-columns:repeat(3,1fr);padding:3px;border-radius:var(--dm-r-pill);background:var(--dm-chip)}
 .dm-asx-steps button{position:relative;z-index:1;height:30px;font-size:12.5px;color:var(--dm-fg2);transition:color .25s}
 .dm-asx-steps button[aria-checked=&quot;true&quot;]{color:var(--dm-fg)}
-.dm-asx-knob{position:absolute;top:3px;bottom:3px;width:calc((100% - 6px)/3);border-radius:999px;background:var(--dm-surface);box-shadow:0 1px 2px rgba(0,0,0,.08);transition:left .45s var(--dm-ease)}
+.dm-asx-knob{position:absolute;top:3px;bottom:3px;width:calc((100% - 6px)/3);border-radius:var(--dm-r-pill);background:var(--dm-surface);box-shadow:0 1px 2px rgba(0,0,0,.08);transition:left .45s var(--dm-ease)}
 .dm-asx-cap{display:flex;align-items:center;gap:6px}
 .dm-asx-cap .dm-ib{width:26px;height:26px}
 .dm-asx-v{min-width:38px;text-align:center;font-size:13px}
-.dm-asx-ta{width:100%;resize:none;border:0;outline:0;border-radius:12px;background:var(--dm-chip);box-shadow:inset 0 0 0 1px var(--dm-field-line);padding:9px 12px;font:inherit;font-size:13px;color:var(--dm-fg);transition:box-shadow .3s}
+.dm-asx-ta{width:100%;resize:none;border:0;outline:0;border-radius:var(--dm-r-in);background:var(--dm-chip);box-shadow:inset 0 0 0 1px var(--dm-field-line);padding:9px var(--dm-s-3);font:inherit;font-size:13px;color:var(--dm-fg);transition:box-shadow .3s}
 .dm-asx-ta:focus{box-shadow:inset 0 0 0 2px var(--dm-focus),0 0 0 3px var(--dm-accent-bg)}
-.dm-asx-bar{display:flex;align-items:center;gap:6px;padding:6px 6px 6px 14px;border-radius:999px;background:var(--dm-ink);color:var(--dm-on-ink);font-size:12.5px;margin-top:10px;transform:translateY(30px);opacity:0;filter:blur(4px);pointer-events:none;transition:transform .45s var(--dm-ease),opacity .3s,filter .3s,height .45s var(--dm-ease),margin-bottom .45s var(--dm-ease);height:0;margin-bottom:-10px}
+.dm-asx-bar{display:flex;align-items:center;gap:6px;padding:6px 6px 6px 14px;border-radius:var(--dm-r-pill);background:var(--dm-ink);color:var(--dm-on-ink);font-size:12.5px;margin-top:10px;transform:translateY(30px);opacity:0;filter:blur(4px);pointer-events:none;transition:transform .45s var(--dm-ease),opacity .3s,filter .3s,height .45s var(--dm-ease),margin-bottom .45s var(--dm-ease);height:0;margin-bottom:-10px}
 /* on an ink-filled bar the ring takes the bar&#39;s text colour, so it stands out against the fill in every theme */
 .dm-asx-bar{--dm-focus:var(--dm-on-ink)}
 .dm-asx-bar span{flex:1}
@@ -301,22 +301,22 @@ export function AgentSettings({
 &lt;/div&gt;
 </code></pre></details><details class="cp-file"><summary>agent-settings.css<span class="l">HTML · 24 lines</span></summary><pre class="cp-pre"><code>/* ---------- Agent settings ---------- */
 .asx{padding:6px 14px 14px;display:flex;flex-direction:column;position:relative;overflow:hidden}
-.asx-r{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 0;border-bottom:1px solid var(--line)}
+.asx-r{display:flex;align-items:center;justify-content:space-between;gap:var(--s-3);padding:11px 0;border-bottom:1px solid var(--line)}
 .asx-r:nth-last-child(2){border-bottom:0}
 .asx-col{flex-direction:column;align-items:stretch;gap:9px}
 .asx-l{display:flex;flex-direction:column;min-width:0;font-size:13px}
 .asx-l b{font-weight:500}
 .asx-l .muted{font-size:12px}
-.asx-steps{position:relative;display:grid;grid-template-columns:repeat(3,1fr);padding:3px;border-radius:999px;background:var(--chip)}
+.asx-steps{position:relative;display:grid;grid-template-columns:repeat(3,1fr);padding:3px;border-radius:var(--r-pill);background:var(--chip)}
 .asx-steps button{position:relative;z-index:1;height:30px;font-size:12.5px;color:var(--fg2);transition:color .25s}
 .asx-steps button[aria-checked=&quot;true&quot;]{color:var(--fg)}
-.asx-knob{position:absolute;top:3px;bottom:3px;width:calc((100% - 6px)/3);border-radius:999px;background:var(--surface);box-shadow:0 1px 2px rgba(0,0,0,.08);transition:left .45s var(--ease)}
+.asx-knob{position:absolute;top:3px;bottom:3px;width:calc((100% - 6px)/3);border-radius:var(--r-pill);background:var(--surface);box-shadow:0 1px 2px rgba(0,0,0,.08);transition:left .45s var(--ease)}
 .asx-cap{display:flex;align-items:center;gap:6px}
 .asx-cap .ib{width:26px;height:26px}
 .asx-v{min-width:38px;text-align:center;font-size:13px}
-.asx-ta{width:100%;resize:none;border:0;outline:0;border-radius:12px;background:var(--chip);box-shadow:inset 0 0 0 1px var(--field-line);padding:9px 12px;font:inherit;font-size:13px;color:var(--fg);transition:box-shadow .3s}
+.asx-ta{width:100%;resize:none;border:0;outline:0;border-radius:var(--r-in);background:var(--chip);box-shadow:inset 0 0 0 1px var(--field-line);padding:9px var(--s-3);font:inherit;font-size:13px;color:var(--fg);transition:box-shadow .3s}
 .asx-ta:focus{box-shadow:inset 0 0 0 2px var(--focus),0 0 0 3px var(--accent-bg)}
-.asx-bar{display:flex;align-items:center;gap:6px;padding:6px 6px 6px 14px;border-radius:999px;background:var(--ink);color:var(--on-ink);font-size:12.5px;margin-top:10px;transform:translateY(30px);opacity:0;filter:blur(4px);pointer-events:none;transition:transform .45s var(--ease),opacity .3s,filter .3s,height .45s var(--ease),margin-bottom .45s var(--ease);height:0;margin-bottom:-10px}
+.asx-bar{display:flex;align-items:center;gap:6px;padding:6px 6px 6px 14px;border-radius:var(--r-pill);background:var(--ink);color:var(--on-ink);font-size:12.5px;margin-top:10px;transform:translateY(30px);opacity:0;filter:blur(4px);pointer-events:none;transition:transform .45s var(--ease),opacity .3s,filter .3s,height .45s var(--ease),margin-bottom .45s var(--ease);height:0;margin-bottom:-10px}
 /* on an ink-filled bar the ring takes the bar&#39;s text colour, so it stands out against the fill in every theme */
 .asx-bar{--focus:var(--on-ink)}
 .asx-bar span{flex:1}

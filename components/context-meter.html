@@ -47,24 +47,24 @@
 </script><script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareSourceCode","name":"Context meter","description":"Context meter shows how full an agent's context window is and what fills it. A small pill with a ring and a percentage opens a panel with one bar split by kind (files, tool output, chat, instructions), a legend whose rows list what is in them on hover, and a Compact button that frees room and says how much.","url":"https://designme.dev/components/context-meter","image":"https://designme.dev/components/og/context-meter.jpg","programmingLanguage":["HTML","CSS","JavaScript","TypeScript"],"runtimePlatform":"Web browser","license":"https://opensource.org/licenses/MIT","isAccessibleForFree":true,"keywords":"Context meter, Agent status, AI agent UI, React component, HTML component","author":{"@type":"Organization","name":"DesignMe","url":"https://designme.agency"},"isPartOf":{"@type":"WebSite","name":"Designme.dev","url":"https://designme.dev/"}}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Library","item":"https://designme.dev/"},{"@type":"ListItem","position":2,"name":"Agent status","item":"https://designme.dev/#s-status"},{"@type":"ListItem","position":3,"name":"Context meter","item":"https://designme.dev/components/context-meter"}]}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What should the parts be?","acceptedAnswer":{"@type":"Answer","text":"Whatever your agent can tell apart. Files, tool output, chat and instructions work for most agents. Put the largest items of each into items so people can see what to drop."}},{"@type":"Question","name":"How do I show what a compaction freed?","acceptedAnswer":{"@type":"Answer","text":"Make onCompact return a promise, update parts with the smaller counts when it resolves, set compacted, and pass the difference as message with messageTone: 'ok'. The numbers count down by themselves."}},{"@type":"Question","name":"When does it turn amber?","acceptedAnswer":{"@type":"Answer","text":"When the tokens in parts add up to warnAt of limit or more. warnAt is 0.85 unless you change it."}}]}</script><link rel="stylesheet" href="/components/assets/core.css"><style>/* ---------- Context meter ---------- */
 /* a pill with the ring opens what fills the context: one bar split by kind, a legend whose rows list their items, and Compact */
 /* it never anchors the page's scroll, so the page can't follow it as it changes; on a card it sits in the middle of its room */
-.ctm{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:8px;width:100%;max-width:340px;margin-inline:auto;overflow-anchor:none}
+.ctm{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:var(--s-2);width:100%;max-width:340px;margin-inline:auto;overflow-anchor:none}
 .stage-in:has(>.ctm){overflow-anchor:none}
 .stage-in>.ctm{min-height:inherit}
-.ctm-tg{display:inline-flex;align-items:center;gap:8px;height:32px;padding:0 10px 0 7px;border-radius:var(--r-pill);font-size:13px;color:var(--fg2);background:var(--surface);box-shadow:var(--shadow);transition:box-shadow var(--t-fast)}
+.ctm-tg{display:inline-flex;align-items:center;gap:var(--s-2);height:32px;padding:0 10px 0 7px;border-radius:var(--r-pill);font-size:13px;color:var(--fg2);background:var(--surface);box-shadow:var(--shadow);transition:box-shadow var(--t-fast)}
 @media (hover:hover) and (pointer:fine){.ctm-tg:hover{box-shadow:var(--shadow-pop)}}
 .ctm-tg .ctm-pc{color:var(--fg);font-weight:500}
 .ctm-tg>svg:last-child{color:var(--muted);transition:transform .32s var(--ease)}
 .ctm[data-open="0"] .ctm-tg>svg:last-child{transform:rotate(-90deg)}
 /* the panel keeps its room when shut, so nothing below it moves, and nothing clips its shadow */
-.ctm-pop{width:100%;padding:14px 16px 12px;display:flex;flex-direction:column;gap:12px;transition:opacity .32s var(--ease),transform .42s var(--ease),visibility 0s}
+.ctm-pop{width:100%;padding:14px var(--s-4) var(--s-3);display:flex;flex-direction:column;gap:var(--s-3);transition:opacity .32s var(--ease),transform .42s var(--ease),visibility 0s}
 .ctm[data-open="0"] .ctm-pop{opacity:0;transform:translateY(-6px);visibility:hidden;pointer-events:none;transition:opacity .16s var(--ease),transform .32s var(--ease),visibility 0s .32s}
-.ctm-ph{display:flex;align-items:baseline;justify-content:space-between;gap:12px;font-size:13px;color:var(--muted)}
+.ctm-ph{display:flex;align-items:baseline;justify-content:space-between;gap:var(--s-3);font-size:13px;color:var(--muted)}
 .ctm-ph b{color:var(--fg);font-weight:500}
-.ctm-bar{display:flex;gap:2px;height:8px;border-radius:4px;background:var(--chip);overflow:hidden}
+.ctm-bar{display:flex;gap:2px;height:8px;border-radius:var(--r-xs);background:var(--chip);overflow:hidden}
 .ctm-bar i{height:100%;width:0;flex:none;background:var(--c);transition:width .42s var(--ease),opacity .16s}
 .ctm-bar.hl i:not(.on){opacity:.25}
 .ctm-leg{display:flex;flex-direction:column;margin:0 -6px}
-.ctm-l{display:flex;align-items:center;gap:8px;padding:5px 6px;border-radius:8px;font-size:13px;color:var(--fg2);cursor:default;transition:background var(--t-fast)}
+.ctm-l{display:flex;align-items:center;gap:var(--s-2);padding:5px 6px;border-radius:var(--r-sm);font-size:13px;color:var(--fg2);cursor:default;transition:background var(--t-fast)}
 @media (hover:hover) and (pointer:fine){.ctm-l:hover{background:var(--row)}}
 .ctm-l .sw{width:8px;height:8px;border-radius:2px;flex:none;background:var(--c)}
 .ctm-l .v{margin-left:auto;color:var(--fg)}
@@ -78,7 +78,7 @@
 .ctm-f{display:flex;align-items:center;gap:10px;padding-top:10px;border-top:1px solid var(--line)}
 .ctm-f .ctm-hint{flex:1;min-width:0;font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 /* the ring: inside the meter's pill, and as its own button where Agent harness puts it in the composer */
-.ctm-ft{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--fg2)}
+.ctm-ft{display:flex;align-items:center;gap:var(--s-2);font-size:13px;color:var(--fg2)}
 .ctm-ring{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;flex:none;transition:background var(--t-fast)}
 @media (hover:hover) and (pointer:fine){.ctm-ring:hover{background:var(--chip)}}
 .ctm-tg .ctm-ring{width:20px;height:20px;background:none}
@@ -301,24 +301,24 @@ export function ContextMeter({ parts, limit, warnAt = .85, message, messageTone 
 /* ---------- Context meter ---------- */
 /* a pill with the ring opens what fills the context: one bar split by kind, a legend whose rows list their items, and Compact */
 /* it never anchors the page&#39;s scroll, so the page can&#39;t follow it as it changes; on a card it sits in the middle of its room */
-.dm-ctm{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:8px;width:100%;max-width:340px;margin-inline:auto;overflow-anchor:none}
+.dm-ctm{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:var(--dm-s-2);width:100%;max-width:340px;margin-inline:auto;overflow-anchor:none}
 .dm-stage-in:has(&gt;.dm-ctm){overflow-anchor:none}
 .dm-stage-in&gt;.dm-ctm{min-height:inherit}
-.dm-ctm-tg{display:inline-flex;align-items:center;gap:8px;height:32px;padding:0 10px 0 7px;border-radius:var(--dm-r-pill);font-size:13px;color:var(--dm-fg2);background:var(--dm-surface);box-shadow:var(--dm-shadow);transition:box-shadow var(--dm-t-fast)}
+.dm-ctm-tg{display:inline-flex;align-items:center;gap:var(--dm-s-2);height:32px;padding:0 10px 0 7px;border-radius:var(--dm-r-pill);font-size:13px;color:var(--dm-fg2);background:var(--dm-surface);box-shadow:var(--dm-shadow);transition:box-shadow var(--dm-t-fast)}
 @media (hover:hover) and (pointer:fine){.dm-ctm-tg:hover{box-shadow:var(--dm-shadow-pop)}}
 .dm-ctm-tg .dm-ctm-pc{color:var(--dm-fg);font-weight:500}
 .dm-ctm-tg&gt;svg:last-child{color:var(--dm-muted);transition:transform .32s var(--dm-ease)}
 .dm-ctm[data-open=&quot;0&quot;] .dm-ctm-tg&gt;svg:last-child{transform:rotate(-90deg)}
 /* the panel keeps its room when shut, so nothing below it moves, and nothing clips its shadow */
-.dm-ctm-pop{width:100%;padding:14px 16px 12px;display:flex;flex-direction:column;gap:12px;transition:opacity .32s var(--dm-ease),transform .42s var(--dm-ease),visibility 0s}
+.dm-ctm-pop{width:100%;padding:14px var(--dm-s-4) var(--dm-s-3);display:flex;flex-direction:column;gap:var(--dm-s-3);transition:opacity .32s var(--dm-ease),transform .42s var(--dm-ease),visibility 0s}
 .dm-ctm[data-open=&quot;0&quot;] .dm-ctm-pop{opacity:0;transform:translateY(-6px);visibility:hidden;pointer-events:none;transition:opacity .16s var(--dm-ease),transform .32s var(--dm-ease),visibility 0s .32s}
-.dm-ctm-ph{display:flex;align-items:baseline;justify-content:space-between;gap:12px;font-size:13px;color:var(--dm-muted)}
+.dm-ctm-ph{display:flex;align-items:baseline;justify-content:space-between;gap:var(--dm-s-3);font-size:13px;color:var(--dm-muted)}
 .dm-ctm-ph b{color:var(--dm-fg);font-weight:500}
-.dm-ctm-bar{display:flex;gap:2px;height:8px;border-radius:4px;background:var(--dm-chip);overflow:hidden}
+.dm-ctm-bar{display:flex;gap:2px;height:8px;border-radius:var(--dm-r-xs);background:var(--dm-chip);overflow:hidden}
 .dm-ctm-bar i{height:100%;width:0;flex:none;background:var(--dm-c);transition:width .42s var(--dm-ease),opacity .16s}
 .dm-ctm-bar.dm-hl i:not(.dm-on){opacity:.25}
 .dm-ctm-leg{display:flex;flex-direction:column;margin:0 -6px}
-.dm-ctm-l{display:flex;align-items:center;gap:8px;padding:5px 6px;border-radius:8px;font-size:13px;color:var(--dm-fg2);cursor:default;transition:background var(--dm-t-fast)}
+.dm-ctm-l{display:flex;align-items:center;gap:var(--dm-s-2);padding:5px 6px;border-radius:var(--dm-r-sm);font-size:13px;color:var(--dm-fg2);cursor:default;transition:background var(--dm-t-fast)}
 @media (hover:hover) and (pointer:fine){.dm-ctm-l:hover{background:var(--dm-row)}}
 .dm-ctm-l .dm-sw{width:8px;height:8px;border-radius:2px;flex:none;background:var(--dm-c)}
 .dm-ctm-l .dm-v{margin-left:auto;color:var(--dm-fg)}
@@ -332,7 +332,7 @@ export function ContextMeter({ parts, limit, warnAt = .85, message, messageTone 
 .dm-ctm-f{display:flex;align-items:center;gap:10px;padding-top:10px;border-top:1px solid var(--dm-line)}
 .dm-ctm-f .dm-ctm-hint{flex:1;min-width:0;font-size:13px;color:var(--dm-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 /* the ring: inside the meter&#39;s pill, and as its own button where Agent harness puts it in the composer */
-.dm-ctm-ft{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--dm-fg2)}
+.dm-ctm-ft{display:flex;align-items:center;gap:var(--dm-s-2);font-size:13px;color:var(--dm-fg2)}
 .dm-ctm-ring{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;flex:none;transition:background var(--dm-t-fast)}
 @media (hover:hover) and (pointer:fine){.dm-ctm-ring:hover{background:var(--dm-chip)}}
 .dm-ctm-tg .dm-ctm-ring{width:20px;height:20px;background:none}
@@ -358,24 +358,24 @@ export function ContextMeter({ parts, limit, warnAt = .85, message, messageTone 
 </code></pre></details><details class="cp-file"><summary>context-meter.css<span class="l">HTML · 44 lines</span></summary><pre class="cp-pre"><code>/* ---------- Context meter ---------- */
 /* a pill with the ring opens what fills the context: one bar split by kind, a legend whose rows list their items, and Compact */
 /* it never anchors the page&#39;s scroll, so the page can&#39;t follow it as it changes; on a card it sits in the middle of its room */
-.ctm{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:8px;width:100%;max-width:340px;margin-inline:auto;overflow-anchor:none}
+.ctm{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:var(--s-2);width:100%;max-width:340px;margin-inline:auto;overflow-anchor:none}
 .stage-in:has(&gt;.ctm){overflow-anchor:none}
 .stage-in&gt;.ctm{min-height:inherit}
-.ctm-tg{display:inline-flex;align-items:center;gap:8px;height:32px;padding:0 10px 0 7px;border-radius:var(--r-pill);font-size:13px;color:var(--fg2);background:var(--surface);box-shadow:var(--shadow);transition:box-shadow var(--t-fast)}
+.ctm-tg{display:inline-flex;align-items:center;gap:var(--s-2);height:32px;padding:0 10px 0 7px;border-radius:var(--r-pill);font-size:13px;color:var(--fg2);background:var(--surface);box-shadow:var(--shadow);transition:box-shadow var(--t-fast)}
 @media (hover:hover) and (pointer:fine){.ctm-tg:hover{box-shadow:var(--shadow-pop)}}
 .ctm-tg .ctm-pc{color:var(--fg);font-weight:500}
 .ctm-tg&gt;svg:last-child{color:var(--muted);transition:transform .32s var(--ease)}
 .ctm[data-open=&quot;0&quot;] .ctm-tg&gt;svg:last-child{transform:rotate(-90deg)}
 /* the panel keeps its room when shut, so nothing below it moves, and nothing clips its shadow */
-.ctm-pop{width:100%;padding:14px 16px 12px;display:flex;flex-direction:column;gap:12px;transition:opacity .32s var(--ease),transform .42s var(--ease),visibility 0s}
+.ctm-pop{width:100%;padding:14px var(--s-4) var(--s-3);display:flex;flex-direction:column;gap:var(--s-3);transition:opacity .32s var(--ease),transform .42s var(--ease),visibility 0s}
 .ctm[data-open=&quot;0&quot;] .ctm-pop{opacity:0;transform:translateY(-6px);visibility:hidden;pointer-events:none;transition:opacity .16s var(--ease),transform .32s var(--ease),visibility 0s .32s}
-.ctm-ph{display:flex;align-items:baseline;justify-content:space-between;gap:12px;font-size:13px;color:var(--muted)}
+.ctm-ph{display:flex;align-items:baseline;justify-content:space-between;gap:var(--s-3);font-size:13px;color:var(--muted)}
 .ctm-ph b{color:var(--fg);font-weight:500}
-.ctm-bar{display:flex;gap:2px;height:8px;border-radius:4px;background:var(--chip);overflow:hidden}
+.ctm-bar{display:flex;gap:2px;height:8px;border-radius:var(--r-xs);background:var(--chip);overflow:hidden}
 .ctm-bar i{height:100%;width:0;flex:none;background:var(--c);transition:width .42s var(--ease),opacity .16s}
 .ctm-bar.hl i:not(.on){opacity:.25}
 .ctm-leg{display:flex;flex-direction:column;margin:0 -6px}
-.ctm-l{display:flex;align-items:center;gap:8px;padding:5px 6px;border-radius:8px;font-size:13px;color:var(--fg2);cursor:default;transition:background var(--t-fast)}
+.ctm-l{display:flex;align-items:center;gap:var(--s-2);padding:5px 6px;border-radius:var(--r-sm);font-size:13px;color:var(--fg2);cursor:default;transition:background var(--t-fast)}
 @media (hover:hover) and (pointer:fine){.ctm-l:hover{background:var(--row)}}
 .ctm-l .sw{width:8px;height:8px;border-radius:2px;flex:none;background:var(--c)}
 .ctm-l .v{margin-left:auto;color:var(--fg)}
@@ -389,7 +389,7 @@ export function ContextMeter({ parts, limit, warnAt = .85, message, messageTone 
 .ctm-f{display:flex;align-items:center;gap:10px;padding-top:10px;border-top:1px solid var(--line)}
 .ctm-f .ctm-hint{flex:1;min-width:0;font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 /* the ring: inside the meter&#39;s pill, and as its own button where Agent harness puts it in the composer */
-.ctm-ft{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--fg2)}
+.ctm-ft{display:flex;align-items:center;gap:var(--s-2);font-size:13px;color:var(--fg2)}
 .ctm-ring{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;flex:none;transition:background var(--t-fast)}
 @media (hover:hover) and (pointer:fine){.ctm-ring:hover{background:var(--chip)}}
 .ctm-tg .ctm-ring{width:20px;height:20px;background:none}

@@ -45,7 +45,7 @@
   try { var a = localStorage.getItem('dmui-accent'); if (a && a !== 'default') window.dmAccent(a); } catch(e){}
 })();
 </script><script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareSourceCode","name":"Set limit","description":"Set limit is a budget card for capping what an agent can spend in a month. A bar shows what has been spent so far and where spending is forecast to land, and the person drags a knob or types a figure to set the cap. A line under the bar warns when the forecast will pass the cap, and a switch decides whether runs pause, ask first or keep going at the limit.","url":"https://designme.dev/components/set-limit","image":"https://designme.dev/components/og/set-limit.jpg","programmingLanguage":["HTML","CSS","JavaScript","TypeScript"],"runtimePlatform":"Web browser","license":"https://opensource.org/licenses/MIT","isAccessibleForFree":true,"keywords":"Set limit, Product, UI component, React component, HTML component","author":{"@type":"Organization","name":"DesignMe","url":"https://designme.agency"},"isPartOf":{"@type":"WebSite","name":"Designme.dev","url":"https://designme.dev/"}}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Library","item":"https://designme.dev/"},{"@type":"ListItem","position":2,"name":"Product","item":"https://designme.dev/#s-product"},{"@type":"ListItem","position":3,"name":"Set limit","item":"https://designme.dev/components/set-limit"}]}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does this component stop the agent when the cap is reached?","acceptedAnswer":{"@type":"Answer","text":"No. It shows and sets the cap and the at-the-limit choice. Read them from onValueChange and onModeChange and enforce them where your runs are billed."}},{"@type":"Question","name":"How do I show amounts in another currency?","acceptedAnswer":{"@type":"Answer","text":"Pass format, like n => n + ' €'. The text around the number stays fixed while someone types a new cap."}},{"@type":"Question","name":"Can I write my own warning text?","acceptedAnswer":{"@type":"Answer","text":"Yes. message receives whether the forecast is over, the cap, what is left and the mode, and returns what to show under the bar."}}]}</script><link rel="stylesheet" href="/components/assets/core.css"><style>/* ---------- Set limit ---------- */
-.slx{padding:16px;display:flex;flex-direction:column;gap:14px}
+.slx{padding:var(--s-4);display:flex;flex-direction:column;gap:14px}
 .slx-h{display:flex;align-items:flex-start;justify-content:space-between}
 .slx-h>div{display:flex;flex-direction:column;font-size:14px}
 .slx-h b{font-weight:500}
@@ -61,10 +61,11 @@
 .slx-k{position:absolute;top:50%;width:6px;height:26px;margin:-13px 0 0 -3px;border-radius:var(--r-pill);background:var(--fg);z-index:2;cursor:grab;transition:transform .2s}
 .slx-k.drag{box-shadow:0 0 0 4px var(--accent-bg)}
 @media (hover:hover) and (pointer:fine){.slx-k:hover{box-shadow:0 0 0 4px var(--accent-bg)}}
-.slx-tt{position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);padding:3px 8px;border-radius:var(--r-pill);background:var(--ink);color:var(--on-ink);font-size:11px;white-space:nowrap;opacity:0;transition:opacity .2s;pointer-events:none}
-.slx-k.drag .slx-tt{opacity:1}
+.slx-tt{position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);padding:3px var(--s-2);border-radius:var(--r-pill);background:var(--ink);color:var(--on-ink);font-size:11px;white-space:nowrap;opacity:0;transition:opacity .2s;pointer-events:none}
+/* the amount over the knob shows while it is dragged or hovered, and for a moment after the arrow keys or the field change it */
+.slx-k.drag .slx-tt,.slx-k.say .slx-tt{opacity:1}
 @media (hover:hover) and (pointer:fine){.slx-k:hover .slx-tt{opacity:1}}
-.slx-lg{display:flex;gap:16px;font-size:12px}
+.slx-lg{display:flex;gap:var(--s-4);font-size:12px}
 .slx-lg span{display:flex;align-items:center;gap:6px}
 .slx-lg b{color:var(--fg);font-weight:500}
 .slx-lg i{width:8px;height:8px;border-radius:3px}
@@ -132,7 +133,7 @@ export default function SetLimitDemo() {
   });
   return &lt;div ref={ref} style={{ width: &#39;100%&#39; }}&gt;&lt;SetLimit value={cap} onValueChange={setCap} /&gt;&lt;/div&gt;;
 }
-</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything SetLimit takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>value</code></td><td><code>number</code></td><td>The cap. Leave it out to let the slider set it</td></tr><tr><td><code>defaultValue</code></td><td><code>number</code></td><td></td></tr><tr><td><code>onValueChange</code></td><td><code>(cap: number) =&gt; void</code></td><td></td></tr><tr><td><code>min</code></td><td><code>number</code></td><td>The lowest cap the slider allows</td></tr><tr><td><code>max</code></td><td><code>number</code></td><td>The highest cap the slider allows</td></tr><tr><td><code>step</code></td><td><code>number</code></td><td>How far one arrow key press or slider notch moves the cap</td></tr><tr><td><code>spent</code></td><td><code>number</code></td><td>Spent so far this period, the solid part of the bar</td></tr><tr><td><code>forecast</code></td><td><code>number</code></td><td>Where spending is headed by the end of the period, the striped part of the bar</td></tr><tr><td><code>mode</code></td><td><code>SetLimitMode</code></td><td>What happens at the cap. Leave it out to let the switch set it</td></tr><tr><td><code>defaultMode</code></td><td><code>SetLimitMode</code></td><td></td></tr><tr><td><code>onModeChange</code></td><td><code>(mode: SetLimitMode) =&gt; void</code></td><td></td></tr><tr><td><code>title</code></td><td><code>string</code></td><td></td></tr><tr><td><code>subtitle</code></td><td><code>string</code></td><td>The quiet line under the title, like &quot;Resets Nov 1&quot;</td></tr><tr><td><code>passesOn</code></td><td><code>string</code></td><td>When the forecast passes the cap, like &quot;Oct 27&quot;</td></tr><tr><td><code>format</code></td><td><code>(n: number) =&gt; string</code></td><td>Writes an amount, like &quot;$200&quot;</td></tr><tr><td><code>editable</code></td><td><code>boolean</code></td><td>Lets the person click the big figure and type a cap (the default). Enter or leaving the field keeps it, held to min and max; Escape goes back</td></tr><tr><td><code>message</code></td><td><code>(state: SetLimitMessage) =&gt; ReactNode</code></td><td>Replaces the line under the bar, which by default warns when the forecast passes the cap</td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>SetLimit.tsx<span class="l">React · 145 lines</span></summary><pre class="cp-pre"><code>&#39;use client&#39;;
+</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything SetLimit takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>value</code></td><td><code>number</code></td><td>The cap. Leave it out to let the slider set it</td></tr><tr><td><code>defaultValue</code></td><td><code>number</code></td><td></td></tr><tr><td><code>onValueChange</code></td><td><code>(cap: number) =&gt; void</code></td><td></td></tr><tr><td><code>min</code></td><td><code>number</code></td><td>The lowest cap the slider allows</td></tr><tr><td><code>max</code></td><td><code>number</code></td><td>The highest cap the slider allows</td></tr><tr><td><code>step</code></td><td><code>number</code></td><td>How far one arrow key press or slider notch moves the cap</td></tr><tr><td><code>spent</code></td><td><code>number</code></td><td>Spent so far this period, the solid part of the bar</td></tr><tr><td><code>forecast</code></td><td><code>number</code></td><td>Where spending is headed by the end of the period, the striped part of the bar</td></tr><tr><td><code>mode</code></td><td><code>SetLimitMode</code></td><td>What happens at the cap. Leave it out to let the switch set it</td></tr><tr><td><code>defaultMode</code></td><td><code>SetLimitMode</code></td><td></td></tr><tr><td><code>onModeChange</code></td><td><code>(mode: SetLimitMode) =&gt; void</code></td><td></td></tr><tr><td><code>title</code></td><td><code>string</code></td><td></td></tr><tr><td><code>subtitle</code></td><td><code>string</code></td><td>The quiet line under the title, like &quot;Resets Nov 1&quot;</td></tr><tr><td><code>passesOn</code></td><td><code>string</code></td><td>When the forecast passes the cap, like &quot;Oct 27&quot;</td></tr><tr><td><code>format</code></td><td><code>(n: number) =&gt; string</code></td><td>Writes an amount, like &quot;$200&quot;</td></tr><tr><td><code>editable</code></td><td><code>boolean</code></td><td>Lets the person click the big figure and type a cap (the default). Enter or leaving the field keeps it, held to min and max; Escape goes back</td></tr><tr><td><code>message</code></td><td><code>(state: SetLimitMessage) =&gt; ReactNode</code></td><td>Replaces the line under the bar, which by default warns when the forecast passes the cap</td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>SetLimit.tsx<span class="l">React · 150 lines</span></summary><pre class="cp-pre"><code>&#39;use client&#39;;
 import { useEffect, useRef, useState, type KeyboardEvent, type PointerEvent, type ReactNode } from &#39;react&#39;;
 import { cx } from &#39;../lib/cx&#39;;
 import { useControllable, useTween } from &#39;../lib/hooks&#39;;
@@ -196,6 +197,10 @@ export function SetLimit({ value, defaultValue = 200, onValueChange, min = 50, m
   const [atLimit, setMode] = useControllable(mode, defaultMode, onModeChange);
   const cap = Math.max(min, Math.min(max, capRaw));
   const [drag, setDrag] = useState(false);
+  // a change from the keys or the field shows the amount over the knob for a moment, so it can be followed there too
+  const [say, setSay] = useState(0);
+  useEffect(() =&gt; { if (!say) return; const t = setTimeout(() =&gt; setSay(0), 1200); return () =&gt; clearTimeout(t); }, [say]);
+  const told = () =&gt; setSay(n =&gt; n + 1);
   // the bars fill in a moment after the card appears
   const [ready, setReady] = useState(false);
   useEffect(() =&gt; { const t = setTimeout(() =&gt; setReady(true), 200); return () =&gt; clearTimeout(t); }, []);
@@ -209,7 +214,8 @@ export function SetLimit({ value, defaultValue = 200, onValueChange, min = 50, m
   const clamp = (n: number) =&gt; Math.max(min, Math.min(max, Math.round(n)));
   const commit = () =&gt; {
     if (draft === null) return;
-    setCap(cancel.current || draft === &#39;&#39; ? before.current : clamp(parseInt(draft, 10))); cancel.current = false; setDraft(null);
+    const n = cancel.current || draft === &#39;&#39; ? before.current : clamp(parseInt(draft, 10));
+    setCap(n); if (n !== cap) told(); cancel.current = false; setDraft(null);
   };
   // the symbols around the number in `format`, like the &quot;$&quot; in &quot;$200&quot;, stay put while the number is typed
   const text = format(cap), first = text.search(/\d/), last = text.length - [...text].reverse().join(&#39;&#39;).search(/\d/);
@@ -220,7 +226,7 @@ export function SetLimit({ value, defaultValue = 200, onValueChange, min = 50, m
   const at = (e: PointerEvent) =&gt; { const b = bar.current!.getBoundingClientRect(); setCap(snap(min + (max - min) * Math.max(0, Math.min(1, (e.clientX - b.left) / b.width)))); };
   const key = (e: KeyboardEvent) =&gt; {
     const dir = ({ ArrowRight: 1, ArrowUp: 1, ArrowLeft: -1, ArrowDown: -1 } as Record&lt;string, number&gt;)[e.key]; if (!dir) return;
-    e.preventDefault(); setCap(Math.max(min, Math.min(max, cap + dir * step)));
+    e.preventDefault(); setCap(Math.max(min, Math.min(max, cap + dir * step))); told();
   };
 
   const over = forecast &gt; cap, left = cap - forecast;
@@ -240,11 +246,11 @@ export function SetLimit({ value, defaultValue = 200, onValueChange, min = 50, m
           &lt;label className=&quot;dm-num dm-slx-v&quot; onPointerDown={e =&gt; { if (document.activeElement !== input.current) { e.preventDefault(); input.current?.focus(); } }}&gt;
             {pre}&lt;input ref={input} className=&quot;dm-slx-in&quot; inputMode=&quot;numeric&quot; autoComplete=&quot;off&quot; aria-label={title} value={figure} style={{ width: Math.max(1, figure.length) + &#39;ch&#39; }}
               onFocus={e =&gt; { before.current = cap; setDraft(String(cap)); e.currentTarget.select(); }}
-              onChange={e =&gt; { const v = e.target.value.replace(/\D/g, &#39;&#39;).slice(0, 6); setDraft(v); const n = +v; if (v &amp;&amp; n &gt;= min &amp;&amp; n &lt;= max) setCap(n); }}
+              onChange={e =&gt; { const v = e.target.value.replace(/\D/g, &#39;&#39;).slice(0, 6); setDraft(v); const n = +v; if (v &amp;&amp; n &gt;= min &amp;&amp; n &lt;= max) { setCap(n); told(); } }}
               onKeyDown={e =&gt; {
                 if (e.key === &#39;Enter&#39;) { e.preventDefault(); e.currentTarget.blur(); }
                 else if (e.key === &#39;Escape&#39;) { cancel.current = true; e.currentTarget.blur(); }
-                else if (e.key === &#39;ArrowUp&#39; || e.key === &#39;ArrowDown&#39;) { e.preventDefault(); const n = clamp((parseInt(draft ?? &#39;&#39;, 10) || cap) + (e.key === &#39;ArrowUp&#39; ? step : -step)); setDraft(String(n)); setCap(n); }
+                else if (e.key === &#39;ArrowUp&#39; || e.key === &#39;ArrowDown&#39;) { e.preventDefault(); const n = clamp((parseInt(draft ?? &#39;&#39;, 10) || cap) + (e.key === &#39;ArrowUp&#39; ? step : -step)); setDraft(String(n)); setCap(n); told(); }
               }}
               onBlur={commit} /&gt;{post}
           &lt;/label&gt;
@@ -256,7 +262,7 @@ export function SetLimit({ value, defaultValue = 200, onValueChange, min = 50, m
         onPointerUp={() =&gt; setDrag(false)} onPointerCancel={() =&gt; setDrag(false)}&gt;
         &lt;div className=&quot;dm-slx-used&quot; style={{ width: used + &#39;%&#39; }} /&gt;
         &lt;div className=&quot;dm-slx-fc&quot; style={{ width: fc + &#39;%&#39; }} /&gt;
-        &lt;button type=&quot;button&quot; className={cx(&#39;dm-slx-k&#39;, drag &amp;&amp; &#39;dm-drag&#39;)} role=&quot;slider&quot; aria-label=&quot;Budget cap&quot;
+        &lt;button type=&quot;button&quot; className={cx(&#39;dm-slx-k&#39;, drag &amp;&amp; &#39;dm-drag&#39;, say &gt; 0 &amp;&amp; &#39;dm-say&#39;)} role=&quot;slider&quot; aria-label=&quot;Budget cap&quot;
           aria-valuemin={min} aria-valuemax={max} aria-valuenow={cap} aria-valuetext={format(cap)} style={{ left: pct(shown) + &#39;%&#39; }} onKeyDown={key}&gt;
           &lt;span className=&quot;dm-slx-tt dm-num&quot;&gt;{format(cap)}&lt;/span&gt;
         &lt;/button&gt;
@@ -276,9 +282,9 @@ export function SetLimit({ value, defaultValue = 200, onValueChange, min = 50, m
     &lt;/div&gt;
   );
 }
-</code></pre></details><details class="cp-file"><summary>set-limit.css<span class="l">React · 32 lines</span></summary><pre class="cp-pre"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+</code></pre></details><details class="cp-file"><summary>set-limit.css<span class="l">React · 33 lines</span></summary><pre class="cp-pre"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Set limit ---------- */
-.dm-slx{padding:16px;display:flex;flex-direction:column;gap:14px}
+.dm-slx{padding:var(--dm-s-4);display:flex;flex-direction:column;gap:14px}
 .dm-slx-h{display:flex;align-items:flex-start;justify-content:space-between}
 .dm-slx-h&gt;div{display:flex;flex-direction:column;font-size:14px}
 .dm-slx-h b{font-weight:500}
@@ -294,10 +300,11 @@ export function SetLimit({ value, defaultValue = 200, onValueChange, min = 50, m
 .dm-slx-k{position:absolute;top:50%;width:6px;height:26px;margin:-13px 0 0 -3px;border-radius:var(--dm-r-pill);background:var(--dm-fg);z-index:2;cursor:grab;transition:transform .2s}
 .dm-slx-k.dm-drag{box-shadow:0 0 0 4px var(--dm-accent-bg)}
 @media (hover:hover) and (pointer:fine){.dm-slx-k:hover{box-shadow:0 0 0 4px var(--dm-accent-bg)}}
-.dm-slx-tt{position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);padding:3px 8px;border-radius:var(--dm-r-pill);background:var(--dm-ink);color:var(--dm-on-ink);font-size:11px;white-space:nowrap;opacity:0;transition:opacity .2s;pointer-events:none}
-.dm-slx-k.dm-drag .dm-slx-tt{opacity:1}
+.dm-slx-tt{position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);padding:3px var(--dm-s-2);border-radius:var(--dm-r-pill);background:var(--dm-ink);color:var(--dm-on-ink);font-size:11px;white-space:nowrap;opacity:0;transition:opacity .2s;pointer-events:none}
+/* the amount over the knob shows while it is dragged or hovered, and for a moment after the arrow keys or the field change it */
+.dm-slx-k.dm-drag .dm-slx-tt,.dm-slx-k.dm-say .dm-slx-tt{opacity:1}
 @media (hover:hover) and (pointer:fine){.dm-slx-k:hover .dm-slx-tt{opacity:1}}
-.dm-slx-lg{display:flex;gap:16px;font-size:12px}
+.dm-slx-lg{display:flex;gap:var(--dm-s-4);font-size:12px}
 .dm-slx-lg span{display:flex;align-items:center;gap:6px}
 .dm-slx-lg b{color:var(--dm-fg);font-weight:500}
 .dm-slx-lg i{width:8px;height:8px;border-radius:3px}
@@ -318,8 +325,8 @@ export function SetLimit({ value, defaultValue = 200, onValueChange, min = 50, m
     &lt;/div&gt;
   &lt;/div&gt;
 &lt;/div&gt;
-</code></pre></details><details class="cp-file"><summary>set-limit.css<span class="l">HTML · 31 lines</span></summary><pre class="cp-pre"><code>/* ---------- Set limit ---------- */
-.slx{padding:16px;display:flex;flex-direction:column;gap:14px}
+</code></pre></details><details class="cp-file"><summary>set-limit.css<span class="l">HTML · 32 lines</span></summary><pre class="cp-pre"><code>/* ---------- Set limit ---------- */
+.slx{padding:var(--s-4);display:flex;flex-direction:column;gap:14px}
 .slx-h{display:flex;align-items:flex-start;justify-content:space-between}
 .slx-h&gt;div{display:flex;flex-direction:column;font-size:14px}
 .slx-h b{font-weight:500}
@@ -335,10 +342,11 @@ export function SetLimit({ value, defaultValue = 200, onValueChange, min = 50, m
 .slx-k{position:absolute;top:50%;width:6px;height:26px;margin:-13px 0 0 -3px;border-radius:var(--r-pill);background:var(--fg);z-index:2;cursor:grab;transition:transform .2s}
 .slx-k.drag{box-shadow:0 0 0 4px var(--accent-bg)}
 @media (hover:hover) and (pointer:fine){.slx-k:hover{box-shadow:0 0 0 4px var(--accent-bg)}}
-.slx-tt{position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);padding:3px 8px;border-radius:var(--r-pill);background:var(--ink);color:var(--on-ink);font-size:11px;white-space:nowrap;opacity:0;transition:opacity .2s;pointer-events:none}
-.slx-k.drag .slx-tt{opacity:1}
+.slx-tt{position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);padding:3px var(--s-2);border-radius:var(--r-pill);background:var(--ink);color:var(--on-ink);font-size:11px;white-space:nowrap;opacity:0;transition:opacity .2s;pointer-events:none}
+/* the amount over the knob shows while it is dragged or hovered, and for a moment after the arrow keys or the field change it */
+.slx-k.drag .slx-tt,.slx-k.say .slx-tt{opacity:1}
 @media (hover:hover) and (pointer:fine){.slx-k:hover .slx-tt{opacity:1}}
-.slx-lg{display:flex;gap:16px;font-size:12px}
+.slx-lg{display:flex;gap:var(--s-4);font-size:12px}
 .slx-lg span{display:flex;align-items:center;gap:6px}
 .slx-lg b{color:var(--fg);font-weight:500}
 .slx-lg i{width:8px;height:8px;border-radius:3px}
@@ -348,7 +356,7 @@ export function SetLimit({ value, defaultValue = 200, onValueChange, min = 50, m
 .slx-warn .o{display:flex;align-items:center;gap:7px;color:var(--ok)}
 .slx-opt{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:12.5px}
 .slx-sg button{font-size:12px;height:28px;padding:0 10px}
-</code></pre></details><details class="cp-file"><summary>set-limit.js<span class="l">HTML · 41 lines</span></summary><pre class="cp-pre"><code>DM.def(&#39;set-limit&#39;, (r, c) =&gt; {
+</code></pre></details><details class="cp-file"><summary>set-limit.js<span class="l">HTML · 45 lines</span></summary><pre class="cp-pre"><code>DM.def(&#39;set-limit&#39;, (r, c) =&gt; {
   const bar = $(&#39;.slx-bar&#39;, r), k = $(&#39;.slx-k&#39;, r), tt = $(&#39;.slx-tt&#39;, r), v = $(&#39;.slx-v&#39;, r), used = $(&#39;.slx-used&#39;, r), fc = $(&#39;.slx-fc&#39;, r), warn = $(&#39;.slx-warn&#39;, r);
   const MIN = 50, MAX = 500, SPENT = 128, FC = 184; let cap = 200, mode = &#39;pause&#39;;
   const pct = x =&gt; (x - MIN) / (MAX - MIN) * 100;
@@ -359,7 +367,7 @@ export function SetLimit({ value, defaultValue = 200, onValueChange, min = 50, m
     if (document.activeElement !== vin){ vin.value = cap; fit(); }
     used.style.width = Math.min(100, SPENT / cap * pct(cap)) + &#39;%&#39;; fc.style.width = Math.min(pct(cap), FC / cap * pct(cap)) + &#39;%&#39;;
     const over = FC &gt; cap;
-    const h = over ? `&lt;span class=&quot;w&quot;&gt;${I(&#39;alert&#39;,&#39;xs&#39;)}Forecast passes your cap around Oct 27. Runs will ${mode === &#39;pause&#39; ? &#39;pause&#39; : mode === &#39;ask&#39; ? &#39;wait for you&#39; : &#39;keep going&#39;}.&lt;/span&gt;` : `&lt;span class=&quot;o&quot;&gt;${I(&#39;ok&#39;,&#39;xs&#39;)}On track. About &lt;span class=&quot;slx-left&quot;&gt;$${cap - FC}&lt;/span&gt; left at month end.&lt;/span&gt;`;
+    const h = over ? `&lt;span class=&quot;w&quot;&gt;${I(&#39;alert&#39;,&#39;xs&#39;)}Forecast passes your cap around Oct 27. Runs will ${mode === &#39;pause&#39; ? &#39;pause&#39; : mode === &#39;ask&#39; ? &#39;wait for you&#39; : &#39;keep going&#39;}.&lt;/span&gt;` : `&lt;span class=&quot;o&quot;&gt;${I(&#39;ok&#39;,&#39;xs&#39;)}&lt;span&gt;On track. About &lt;span class=&quot;slx-left&quot;&gt;$${cap - FC}&lt;/span&gt; left at month end.&lt;/span&gt;&lt;/span&gt;`;
     // a new message comes in with the entrance; while it stays the same, only the amount left follows the cap
     if (warn.dataset.h !== String(over) + mode){ warn.dataset.h = String(over) + mode; warn.innerHTML = h; enter(warn.firstChild); }
     else if (!over) $(&#39;.slx-left&#39;, warn).textContent = &#39;$&#39; + (cap - FC);
@@ -367,11 +375,13 @@ export function SetLimit({ value, defaultValue = 200, onValueChange, min = 50, m
   const at = e =&gt; { glide++; const b = bar.getBoundingClientRect(); cap = Math.round((MIN + (MAX - MIN) * Math.max(0, Math.min(1, (e.clientX - b.left) / b.width))) / 10) * 10; upd(); };
   bar.onpointerdown = e =&gt; { bar.setPointerCapture(e.pointerId); k.classList.add(&#39;drag&#39;); at(e); bar.onpointermove = at; };
   bar.onpointerup = bar.onpointercancel = () =&gt; { k.classList.remove(&#39;drag&#39;); bar.onpointermove = null; };
-  k.onkeydown = e =&gt; { if (e.key === &#39;ArrowRight&#39; || e.key === &#39;ArrowUp&#39;){ cap = Math.min(MAX, cap + 10); upd(); e.preventDefault(); } if (e.key === &#39;ArrowLeft&#39; || e.key === &#39;ArrowDown&#39;){ cap = Math.max(MIN, cap - 10); upd(); e.preventDefault(); } };
+  // a change from the keys or the field shows the amount over the knob for a moment, so it can be followed there too
+  let sayT = 0; const say = () =&gt; { k.classList.add(&#39;say&#39;); clearTimeout(sayT); sayT = setTimeout(() =&gt; k.classList.remove(&#39;say&#39;), 1200); };
+  k.onkeydown = e =&gt; { if (e.key === &#39;ArrowRight&#39; || e.key === &#39;ArrowUp&#39;){ cap = Math.min(MAX, cap + 10); upd(); say(); e.preventDefault(); } if (e.key === &#39;ArrowLeft&#39; || e.key === &#39;ArrowDown&#39;){ cap = Math.max(MIN, cap - 10); upd(); say(); e.preventDefault(); } };
   seg($(&#39;.slx-sg&#39;, r), m =&gt; { mode = m; upd(); });
   // typing a budget: the cap glides to it while it&#39;s in range; Enter or leaving the field keeps it (held to the range), Escape goes back
   let glide = 0, before = cap;
-  const goTo = n =&gt; { const id = ++glide, from = cap; tween(from, n, 450, x =&gt; { if (id === glide){ cap = Math.round(x); upd(); } }); };
+  const goTo = n =&gt; { const id = ++glide, from = cap; say(); tween(from, n, 450, x =&gt; { if (id === glide){ cap = Math.round(x); upd(); } }); };
   const commit = () =&gt; { const n = vin.value === &#39;&#39; ? before : Math.max(MIN, Math.min(MAX, parseInt(vin.value, 10))); vin.value = n; fit(); if (n !== cap) goTo(n); };
   // a click selects the whole figure at once, so typing replaces it
   v.addEventListener(&#39;pointerdown&#39;, e =&gt; { if (document.activeElement !== vin){ e.preventDefault(); vin.focus({ preventScroll:true }); } });
@@ -384,6 +394,8 @@ export function SetLimit({ value, defaultValue = 200, onValueChange, min = 50, m
   };
   vin.onblur = commit;
   used.style.width = 0; fc.style.width = 0; k.style.left = pct(cap) + &#39;%&#39;; fit();
+  // the line under the bar takes one line or two, so the panel stays centred in the room its stage keeps for it
+  const root = $(&#39;.slx&#39;, r); centre(c, root, () =&gt; root.offsetHeight);
   c.later(200, () =&gt; upd());
   // the preview lowers the cap once on its own, unless you take over first
   c.auto(1500, () =&gt; tween(200, 170, 900, x =&gt; { if (!c.mine){ cap = Math.round(x / 10) * 10; upd(); } }));
@@ -722,7 +734,7 @@ const fitHits = window.dmFitHits || (() => {
     if (document.activeElement !== vin){ vin.value = cap; fit(); }
     used.style.width = Math.min(100, SPENT / cap * pct(cap)) + '%'; fc.style.width = Math.min(pct(cap), FC / cap * pct(cap)) + '%';
     const over = FC > cap;
-    const h = over ? `<span class="w">${I('alert','xs')}Forecast passes your cap around Oct 27. Runs will ${mode === 'pause' ? 'pause' : mode === 'ask' ? 'wait for you' : 'keep going'}.</span>` : `<span class="o">${I('ok','xs')}On track. About <span class="slx-left">$${cap - FC}</span> left at month end.</span>`;
+    const h = over ? `<span class="w">${I('alert','xs')}Forecast passes your cap around Oct 27. Runs will ${mode === 'pause' ? 'pause' : mode === 'ask' ? 'wait for you' : 'keep going'}.</span>` : `<span class="o">${I('ok','xs')}<span>On track. About <span class="slx-left">$${cap - FC}</span> left at month end.</span></span>`;
     // a new message comes in with the entrance; while it stays the same, only the amount left follows the cap
     if (warn.dataset.h !== String(over) + mode){ warn.dataset.h = String(over) + mode; warn.innerHTML = h; enter(warn.firstChild); }
     else if (!over) $('.slx-left', warn).textContent = '$' + (cap - FC);
@@ -730,11 +742,13 @@ const fitHits = window.dmFitHits || (() => {
   const at = e => { glide++; const b = bar.getBoundingClientRect(); cap = Math.round((MIN + (MAX - MIN) * Math.max(0, Math.min(1, (e.clientX - b.left) / b.width))) / 10) * 10; upd(); };
   bar.onpointerdown = e => { bar.setPointerCapture(e.pointerId); k.classList.add('drag'); at(e); bar.onpointermove = at; };
   bar.onpointerup = bar.onpointercancel = () => { k.classList.remove('drag'); bar.onpointermove = null; };
-  k.onkeydown = e => { if (e.key === 'ArrowRight' || e.key === 'ArrowUp'){ cap = Math.min(MAX, cap + 10); upd(); e.preventDefault(); } if (e.key === 'ArrowLeft' || e.key === 'ArrowDown'){ cap = Math.max(MIN, cap - 10); upd(); e.preventDefault(); } };
+  // a change from the keys or the field shows the amount over the knob for a moment, so it can be followed there too
+  let sayT = 0; const say = () => { k.classList.add('say'); clearTimeout(sayT); sayT = setTimeout(() => k.classList.remove('say'), 1200); };
+  k.onkeydown = e => { if (e.key === 'ArrowRight' || e.key === 'ArrowUp'){ cap = Math.min(MAX, cap + 10); upd(); say(); e.preventDefault(); } if (e.key === 'ArrowLeft' || e.key === 'ArrowDown'){ cap = Math.max(MIN, cap - 10); upd(); say(); e.preventDefault(); } };
   seg($('.slx-sg', r), m => { mode = m; upd(); });
   // typing a budget: the cap glides to it while it's in range; Enter or leaving the field keeps it (held to the range), Escape goes back
   let glide = 0, before = cap;
-  const goTo = n => { const id = ++glide, from = cap; tween(from, n, 450, x => { if (id === glide){ cap = Math.round(x); upd(); } }); };
+  const goTo = n => { const id = ++glide, from = cap; say(); tween(from, n, 450, x => { if (id === glide){ cap = Math.round(x); upd(); } }); };
   const commit = () => { const n = vin.value === '' ? before : Math.max(MIN, Math.min(MAX, parseInt(vin.value, 10))); vin.value = n; fit(); if (n !== cap) goTo(n); };
   // a click selects the whole figure at once, so typing replaces it
   v.addEventListener('pointerdown', e => { if (document.activeElement !== vin){ e.preventDefault(); vin.focus({ preventScroll:true }); } });
@@ -747,6 +761,8 @@ const fitHits = window.dmFitHits || (() => {
   };
   vin.onblur = commit;
   used.style.width = 0; fc.style.width = 0; k.style.left = pct(cap) + '%'; fit();
+  // the line under the bar takes one line or two, so the panel stays centred in the room its stage keeps for it
+  const root = $('.slx', r); centre(c, root, () => root.offsetHeight);
   c.later(200, () => upd());
   // the preview lowers the cap once on its own, unless you take over first
   c.auto(1500, () => tween(200, 170, 900, x => { if (!c.mine){ cap = Math.round(x / 10) * 10; upd(); } }));

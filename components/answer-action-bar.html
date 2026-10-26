@@ -47,16 +47,16 @@
 </script><script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareSourceCode","name":"Answer action bar","description":"Answer action bar is the row of actions under an agent's answer: copy, regenerate with a pager through the versions, thumbs up or down, and read aloud. A thumbs down asks why with a few reasons, a new version highlights what changed, and reading lights each word as it goes.","url":"https://designme.dev/components/answer-action-bar","image":"https://designme.dev/components/og/answer-action-bar.jpg","programmingLanguage":["HTML","CSS","JavaScript","TypeScript"],"runtimePlatform":"Web browser","license":"https://opensource.org/licenses/MIT","isAccessibleForFree":true,"keywords":"Answer action bar, Conversation, AI agent UI, React component, HTML component","author":{"@type":"Organization","name":"DesignMe","url":"https://designme.agency"},"isPartOf":{"@type":"WebSite","name":"Designme.dev","url":"https://designme.dev/"}}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Library","item":"https://designme.dev/"},{"@type":"ListItem","position":2,"name":"Conversation","item":"https://designme.dev/#s-conversation"},{"@type":"ListItem","position":3,"name":"Answer action bar","item":"https://designme.dev/components/answer-action-bar"}]}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does read aloud speak the answer?","acceptedAnswer":{"@type":"Answer","text":"No. It runs a clock that lights each word in turn and shows the progress. Drive reading from your own text to speech, and set secondsPerWord to match its pace."}},{"@type":"Question","name":"How do I show what a new version changed?","acceptedAnswer":{"@type":"Answer","text":"Pass the changed phrase as the version's changed. It must appear in the text exactly as written, and the words it covers are highlighted."}},{"@type":"Question","name":"Where do the ratings go?","acceptedAnswer":{"@type":"Answer","text":"onRate is called with the version's index and 'up', 'down' or null when a thumb is pressed again. Pass rating on each version to control them, or leave it out and the bar keeps one rating per version itself."}},{"@type":"Question","name":"Can I hide regenerate?","acceptedAnswer":{"@type":"Answer","text":"Yes. Leave out onRegenerate and the button isn't shown. The pager still appears whenever there are two or more versions."}}]}</script><link rel="stylesheet" href="/components/assets/core.css"><style>/* ---------- Answer action bar ---------- */
 /* every action on an answer in one raised rail under it: copy, regenerate with its versions, thumbs, and read aloud, which
    widens into a progress bar and a clock and lights each word as it reads it */
-.aab{display:flex;flex-direction:column;gap:12px}
+.aab{display:flex;flex-direction:column;gap:var(--s-3)}
 .aab-t{min-height:78px}
-.aab-t .w{transition:background .16s,color .16s;border-radius:4px}
+.aab-t .w{transition:background .16s,color .16s;border-radius:var(--r-xs)}
 .aab-t .w.in{animation:aabw .42s var(--ease) both}
 @keyframes aabw{from{opacity:0;filter:blur(4px)}to{opacity:1;filter:none}}
 .aab-t.out{animation:aabo .32s var(--ease) both}
 @keyframes aabo{to{opacity:0;filter:blur(4px);transform:translateY(-2px)}}
 .aab-t .nw{background:var(--hl-ok);border-radius:0}
 .aab-t .w.rd{background:var(--accent-bg);color:var(--accent-fg,var(--accent))}
-.aab-row{display:flex;align-items:center;flex-wrap:wrap;gap:8px 12px}
+.aab-row{display:flex;align-items:center;flex-wrap:wrap;gap:var(--s-2) var(--s-3)}
 .aab-bar{display:inline-flex;align-items:center;gap:1px;padding:3px;border-radius:var(--r-pill);background:var(--surface);box-shadow:var(--shadow)}
 .aab-bar .ib{width:28px;height:28px}
 .aab-bar .ib[disabled]{opacity:1;cursor:not-allowed;background:none;color:var(--dis)}
@@ -65,7 +65,7 @@
 .aab-up[aria-pressed="true"]{color:var(--ok);background:var(--ok-bg)}
 .aab-dn[aria-pressed="true"]{color:var(--bad);background:var(--bad-bg)}
 .aab-up[aria-pressed="true"] svg,.aab-dn[aria-pressed="true"] svg{transform:scale(1.1) rotate(-8deg)}
-.aab-sep{width:1px;height:16px;background:var(--line);margin:0 4px}
+.aab-sep{width:1px;height:16px;background:var(--line);margin:0 var(--s-1)}
 /* the version pager only takes room once there is a second version */
 .aab-pg{display:inline-flex;align-items:center;max-width:0;overflow:hidden;opacity:0;transition:max-width .42s var(--ease),opacity .32s}
 .aab-pg.on{max-width:96px;opacity:1}
@@ -79,10 +79,10 @@
 .aab-pr{width:0;height:3px;border-radius:2px;background:color-mix(in srgb,currentColor 22%,transparent);overflow:hidden;margin-left:0;transition:width .42s var(--ease),margin .42s var(--ease)}
 .aab-pr i{display:block;height:100%;width:0;background:currentColor;border-radius:inherit}
 .aab-tm{font-size:11.5px;max-width:0;overflow:hidden;white-space:nowrap;transition:max-width .42s var(--ease),margin .42s var(--ease)}
-.aab-rd.on .aab-pr{width:56px;margin-left:8px}
-.aab-rd.on .aab-tm{max-width:80px;margin-left:8px}
+.aab-rd.on .aab-pr{width:56px;margin-left:var(--s-2)}
+.aab-rd.on .aab-tm{max-width:80px;margin-left:var(--s-2)}
 .aab-meta{font-size:12px}
-.aab-wy{display:flex;flex-direction:column;gap:8px;padding:2px 0 4px}
+.aab-wy{display:flex;flex-direction:column;gap:var(--s-2);padding:2px 0 var(--s-1)}
 .aab-wq{font-size:13px;font-weight:500}
 .aab-ch{display:flex;flex-wrap:wrap;gap:6px}
 .aab-ch .chip.on{background:var(--sel);color:var(--accent-fg,var(--accent));box-shadow:none}
@@ -365,16 +365,16 @@ export function AnswerActionBar({
 /* ---------- Answer action bar ---------- */
 /* every action on an answer in one raised rail under it: copy, regenerate with its versions, thumbs, and read aloud, which
    widens into a progress bar and a clock and lights each word as it reads it */
-.dm-aab{display:flex;flex-direction:column;gap:12px}
+.dm-aab{display:flex;flex-direction:column;gap:var(--dm-s-3)}
 .dm-aab-t{min-height:78px}
-.dm-aab-t .dm-w{transition:background .16s,color .16s;border-radius:4px}
+.dm-aab-t .dm-w{transition:background .16s,color .16s;border-radius:var(--dm-r-xs)}
 .dm-aab-t .dm-w.dm-in{animation:dm-aabw .42s var(--dm-ease) both}
 @keyframes dm-aabw{from{opacity:0;filter:blur(4px)}to{opacity:1;filter:none}}
 .dm-aab-t.dm-out{animation:dm-aabo .32s var(--dm-ease) both}
 @keyframes dm-aabo{to{opacity:0;filter:blur(4px);transform:translateY(-2px)}}
 .dm-aab-t .dm-nw{background:var(--dm-hl-ok);border-radius:0}
 .dm-aab-t .dm-w.dm-rd{background:var(--dm-accent-bg);color:var(--dm-accent-fg,var(--dm-accent))}
-.dm-aab-row{display:flex;align-items:center;flex-wrap:wrap;gap:8px 12px}
+.dm-aab-row{display:flex;align-items:center;flex-wrap:wrap;gap:var(--dm-s-2) var(--dm-s-3)}
 .dm-aab-bar{display:inline-flex;align-items:center;gap:1px;padding:3px;border-radius:var(--dm-r-pill);background:var(--dm-surface);box-shadow:var(--dm-shadow)}
 .dm-aab-bar .dm-ib{width:28px;height:28px}
 .dm-aab-bar .dm-ib[disabled]{opacity:1;cursor:not-allowed;background:none;color:var(--dm-dis)}
@@ -383,7 +383,7 @@ export function AnswerActionBar({
 .dm-aab-up[aria-pressed=&quot;true&quot;]{color:var(--dm-ok);background:var(--dm-ok-bg)}
 .dm-aab-dn[aria-pressed=&quot;true&quot;]{color:var(--dm-bad);background:var(--dm-bad-bg)}
 .dm-aab-up[aria-pressed=&quot;true&quot;] svg,.dm-aab-dn[aria-pressed=&quot;true&quot;] svg{transform:scale(1.1) rotate(-8deg)}
-.dm-aab-sep{width:1px;height:16px;background:var(--dm-line);margin:0 4px}
+.dm-aab-sep{width:1px;height:16px;background:var(--dm-line);margin:0 var(--dm-s-1)}
 /* the version pager only takes room once there is a second version */
 .dm-aab-pg{display:inline-flex;align-items:center;max-width:0;overflow:hidden;opacity:0;transition:max-width .42s var(--dm-ease),opacity .32s}
 .dm-aab-pg.dm-on{max-width:96px;opacity:1}
@@ -397,10 +397,10 @@ export function AnswerActionBar({
 .dm-aab-pr{width:0;height:3px;border-radius:2px;background:color-mix(in srgb,currentColor 22%,transparent);overflow:hidden;margin-left:0;transition:width .42s var(--dm-ease),margin .42s var(--dm-ease)}
 .dm-aab-pr i{display:block;height:100%;width:0;background:currentColor;border-radius:inherit}
 .dm-aab-tm{font-size:11.5px;max-width:0;overflow:hidden;white-space:nowrap;transition:max-width .42s var(--dm-ease),margin .42s var(--dm-ease)}
-.dm-aab-rd.dm-on .dm-aab-pr{width:56px;margin-left:8px}
-.dm-aab-rd.dm-on .dm-aab-tm{max-width:80px;margin-left:8px}
+.dm-aab-rd.dm-on .dm-aab-pr{width:56px;margin-left:var(--dm-s-2)}
+.dm-aab-rd.dm-on .dm-aab-tm{max-width:80px;margin-left:var(--dm-s-2)}
 .dm-aab-meta{font-size:12px}
-.dm-aab-wy{display:flex;flex-direction:column;gap:8px;padding:2px 0 4px}
+.dm-aab-wy{display:flex;flex-direction:column;gap:var(--dm-s-2);padding:2px 0 var(--dm-s-1)}
 .dm-aab-wq{font-size:13px;font-weight:500}
 .dm-aab-ch{display:flex;flex-wrap:wrap;gap:6px}
 .dm-aab-ch .dm-chip.dm-on{background:var(--dm-sel);color:var(--dm-accent-fg,var(--dm-accent));box-shadow:none}
@@ -437,16 +437,16 @@ export function AnswerActionBar({
 </code></pre></details><details class="cp-file"><summary>answer-action-bar.css<span class="l">HTML · 47 lines</span></summary><pre class="cp-pre"><code>/* ---------- Answer action bar ---------- */
 /* every action on an answer in one raised rail under it: copy, regenerate with its versions, thumbs, and read aloud, which
    widens into a progress bar and a clock and lights each word as it reads it */
-.aab{display:flex;flex-direction:column;gap:12px}
+.aab{display:flex;flex-direction:column;gap:var(--s-3)}
 .aab-t{min-height:78px}
-.aab-t .w{transition:background .16s,color .16s;border-radius:4px}
+.aab-t .w{transition:background .16s,color .16s;border-radius:var(--r-xs)}
 .aab-t .w.in{animation:aabw .42s var(--ease) both}
 @keyframes aabw{from{opacity:0;filter:blur(4px)}to{opacity:1;filter:none}}
 .aab-t.out{animation:aabo .32s var(--ease) both}
 @keyframes aabo{to{opacity:0;filter:blur(4px);transform:translateY(-2px)}}
 .aab-t .nw{background:var(--hl-ok);border-radius:0}
 .aab-t .w.rd{background:var(--accent-bg);color:var(--accent-fg,var(--accent))}
-.aab-row{display:flex;align-items:center;flex-wrap:wrap;gap:8px 12px}
+.aab-row{display:flex;align-items:center;flex-wrap:wrap;gap:var(--s-2) var(--s-3)}
 .aab-bar{display:inline-flex;align-items:center;gap:1px;padding:3px;border-radius:var(--r-pill);background:var(--surface);box-shadow:var(--shadow)}
 .aab-bar .ib{width:28px;height:28px}
 .aab-bar .ib[disabled]{opacity:1;cursor:not-allowed;background:none;color:var(--dis)}
@@ -455,7 +455,7 @@ export function AnswerActionBar({
 .aab-up[aria-pressed=&quot;true&quot;]{color:var(--ok);background:var(--ok-bg)}
 .aab-dn[aria-pressed=&quot;true&quot;]{color:var(--bad);background:var(--bad-bg)}
 .aab-up[aria-pressed=&quot;true&quot;] svg,.aab-dn[aria-pressed=&quot;true&quot;] svg{transform:scale(1.1) rotate(-8deg)}
-.aab-sep{width:1px;height:16px;background:var(--line);margin:0 4px}
+.aab-sep{width:1px;height:16px;background:var(--line);margin:0 var(--s-1)}
 /* the version pager only takes room once there is a second version */
 .aab-pg{display:inline-flex;align-items:center;max-width:0;overflow:hidden;opacity:0;transition:max-width .42s var(--ease),opacity .32s}
 .aab-pg.on{max-width:96px;opacity:1}
@@ -469,10 +469,10 @@ export function AnswerActionBar({
 .aab-pr{width:0;height:3px;border-radius:2px;background:color-mix(in srgb,currentColor 22%,transparent);overflow:hidden;margin-left:0;transition:width .42s var(--ease),margin .42s var(--ease)}
 .aab-pr i{display:block;height:100%;width:0;background:currentColor;border-radius:inherit}
 .aab-tm{font-size:11.5px;max-width:0;overflow:hidden;white-space:nowrap;transition:max-width .42s var(--ease),margin .42s var(--ease)}
-.aab-rd.on .aab-pr{width:56px;margin-left:8px}
-.aab-rd.on .aab-tm{max-width:80px;margin-left:8px}
+.aab-rd.on .aab-pr{width:56px;margin-left:var(--s-2)}
+.aab-rd.on .aab-tm{max-width:80px;margin-left:var(--s-2)}
 .aab-meta{font-size:12px}
-.aab-wy{display:flex;flex-direction:column;gap:8px;padding:2px 0 4px}
+.aab-wy{display:flex;flex-direction:column;gap:var(--s-2);padding:2px 0 var(--s-1)}
 .aab-wq{font-size:13px;font-weight:500}
 .aab-ch{display:flex;flex-wrap:wrap;gap:6px}
 .aab-ch .chip.on{background:var(--sel);color:var(--accent-fg,var(--accent));box-shadow:none}

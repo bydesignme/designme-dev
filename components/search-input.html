@@ -47,7 +47,7 @@
 </script><script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareSourceCode","name":"Search input","description":"Search input is a search box that lifts open to show recent searches, matching results, and an answer from the agent above them. Typing @ lists sources such as Figma or Notion, and picking one narrows the search to that source with a removable chip. It lets a person find a file directly or ask a question and get a written answer in the same box.","url":"https://designme.dev/components/search-input","image":"https://designme.dev/components/og/search-input.jpg","programmingLanguage":["HTML","CSS","JavaScript","TypeScript"],"runtimePlatform":"Web browser","license":"https://opensource.org/licenses/MIT","isAccessibleForFree":true,"keywords":"Search input, Forms and inputs, UI component, React component, HTML component","author":{"@type":"Organization","name":"DesignMe","url":"https://designme.agency"},"isPartOf":{"@type":"WebSite","name":"Designme.dev","url":"https://designme.dev/"}}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Library","item":"https://designme.dev/"},{"@type":"ListItem","position":2,"name":"Forms and inputs","item":"https://designme.dev/#s-forms"},{"@type":"ListItem","position":3,"name":"Search input","item":"https://designme.dev/components/search-input"}]}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I stream the agent's answer into the results?","acceptedAnswer":{"@type":"Answer","text":"Pass the text so far as answer and update it as tokens arrive. Each word is its own span, so new words fade in while earlier ones stay put."}},{"@type":"Question","name":"What happens when the person presses Enter without picking a result?","acceptedAnswer":{"@type":"Answer","text":"onSubmit is called with the trimmed search and the current source filter, or null. That is the place to send the question to your agent."}},{"@type":"Question","name":"Can I use my own matching, like fuzzy search?","acceptedAnswer":{"@type":"Answer","text":"Yes. Pass filter(item, search) and return true for the items to keep. The source filter is still applied first."}}]}</script><link rel="stylesheet" href="/components/assets/core.css"><style>/* ---------- Search input ---------- */
 /* the box sits centred in the room its longest list needs, closed or open, and stays centred as the list eases open */
 .six{min-height:320px;display:flex;justify-content:center;align-items:center}
-.six-box{width:100%;max-width:420px;background:var(--surface);border-radius:20px;box-shadow:var(--shadow);transition:box-shadow .35s var(--ease),transform .35s var(--ease)}
+.six-box{width:100%;max-width:420px;background:var(--surface);border-radius:var(--r-lg);box-shadow:var(--shadow);transition:box-shadow .35s var(--ease),transform .35s var(--ease)}
 .six-box.f{box-shadow:var(--shadow-lift);transform:translateY(-1px)}
 /* Blueprint's lifted edge is a light hairline, which reads as a white ring on a dark sheet; the focused field steps up one line instead */
 :root:not([data-style="soft"]) .six-box.f:not(:where([data-style="soft"],[data-style="soft"] *)){box-shadow:0 0 0 1px var(--rail)}
@@ -57,22 +57,22 @@
 :root:not([data-style="soft"]) .six-box:has(.six-in input:focus-visible):not(:where([data-style="soft"],[data-style="soft"] *)){box-shadow:0 0 0 2px var(--focus)}
 .six-in>svg{transition:color .25s}
 .six-box.f .six-in>svg{color:var(--fg)}
-.six-in{display:flex;align-items:center;gap:8px;height:46px;padding:0 10px 0 14px;color:var(--muted)}
+.six-in{display:flex;align-items:center;gap:var(--s-2);height:46px;padding:0 10px 0 14px;color:var(--muted)}
 .six-in input{flex:1;min-width:0;border:0;outline:0;background:transparent;font:inherit;font-size:14px;color:var(--fg)}
 .six-in input::placeholder{color:var(--muted)}
-.six-chips{display:flex;gap:4px}
-.six-ch{display:inline-flex;align-items:center;gap:4px;height:24px;padding:0 4px 0 8px;border-radius:7px;background:var(--accent-bg);color:var(--accent-fg,var(--accent));font-size:12px;font-weight:500;white-space:nowrap}
+.six-chips{display:flex;gap:var(--s-1)}
+.six-ch{display:inline-flex;align-items:center;gap:var(--s-1);height:24px;padding:0 var(--s-1) 0 var(--s-2);border-radius:7px;background:var(--accent-bg);color:var(--accent-fg,var(--accent));font-size:12px;font-weight:500;white-space:nowrap}
 .six-ch button{display:grid;opacity:.6}@media (hover:hover) and (pointer:fine){.six-ch button:hover{opacity:1}}
 .six-x{width:26px;height:26px}
-.six-res{padding:4px 6px 8px;border-top:1px solid var(--line)}
-.six-g{font-size:11.5px;color:var(--muted);padding:8px 8px 4px}
-.six-it{display:flex;align-items:center;gap:10px;width:100%;padding:7px 8px;border-radius:10px;font-size:13px;text-align:left;transition:background .15s}
+.six-res{padding:var(--s-1) 6px var(--s-2);border-top:1px solid var(--line)}
+.six-g{font-size:11.5px;color:var(--muted);padding:var(--s-2) var(--s-2) var(--s-1)}
+.six-it{display:flex;align-items:center;gap:10px;width:100%;padding:7px var(--s-2);border-radius:10px;font-size:13px;text-align:left;transition:background .15s}
 .six-it.hl{background:var(--row)}
 @media (hover:hover) and (pointer:fine){.six-it:hover{background:var(--row)}}
 .six-it .ic{color:var(--muted);display:grid}
 .six-it .d{margin-left:auto;font-size:12px;color:var(--muted)}
 .six-it mark{background:transparent;color:var(--accent-fg,var(--accent));font-weight:500}
-.six-ans{margin:4px 2px 6px;padding:10px 12px;border-radius:12px;background:var(--accent-bg);font-size:12.5px;line-height:1.55;color:var(--fg2);display:flex;gap:8px}
+.six-ans{margin:var(--s-1) 2px 6px;padding:10px var(--s-3);border-radius:var(--r-in);background:var(--accent-bg);font-size:12.5px;line-height:1.55;color:var(--fg2);display:flex;gap:var(--s-2)}
 .six-ans>svg{color:var(--accent-fg,var(--accent));flex:none;margin-top:3px}
 .six-ans .w{animation:sxw .4s var(--ease) both}
 .six-ans .w.done{animation:none}
@@ -352,7 +352,7 @@ export function SearchInput({ items, sources = [], recent = [], value, defaultVa
 /* ---------- Search input ---------- */
 /* the box sits centred in the room its longest list needs, closed or open, and stays centred as the list eases open */
 .dm-six{min-height:320px;display:flex;justify-content:center;align-items:center}
-.dm-six-box{width:100%;max-width:420px;background:var(--dm-surface);border-radius:20px;box-shadow:var(--dm-shadow);transition:box-shadow .35s var(--dm-ease),transform .35s var(--dm-ease)}
+.dm-six-box{width:100%;max-width:420px;background:var(--dm-surface);border-radius:var(--dm-r-lg);box-shadow:var(--dm-shadow);transition:box-shadow .35s var(--dm-ease),transform .35s var(--dm-ease)}
 .dm-six-box.dm-f{box-shadow:var(--dm-shadow-lift);transform:translateY(-1px)}
 /* Blueprint&#39;s lifted edge is a light hairline, which reads as a white ring on a dark sheet; the focused field steps up one line instead */
 :root:not([data-style=&quot;soft&quot;]) .dm-six-box.dm-f:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *)){box-shadow:0 0 0 1px var(--dm-rail)}
@@ -362,22 +362,22 @@ export function SearchInput({ items, sources = [], recent = [], value, defaultVa
 :root:not([data-style=&quot;soft&quot;]) .dm-six-box:has(.dm-six-in input:focus-visible):not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *)){box-shadow:0 0 0 2px var(--dm-focus)}
 .dm-six-in&gt;svg{transition:color .25s}
 .dm-six-box.dm-f .dm-six-in&gt;svg{color:var(--dm-fg)}
-.dm-six-in{display:flex;align-items:center;gap:8px;height:46px;padding:0 10px 0 14px;color:var(--dm-muted)}
+.dm-six-in{display:flex;align-items:center;gap:var(--dm-s-2);height:46px;padding:0 10px 0 14px;color:var(--dm-muted)}
 .dm-six-in input{flex:1;min-width:0;border:0;outline:0;background:transparent;font:inherit;font-size:14px;color:var(--dm-fg)}
 .dm-six-in input::placeholder{color:var(--dm-muted)}
-.dm-six-chips{display:flex;gap:4px}
-.dm-six-ch{display:inline-flex;align-items:center;gap:4px;height:24px;padding:0 4px 0 8px;border-radius:7px;background:var(--dm-accent-bg);color:var(--dm-accent-fg,var(--dm-accent));font-size:12px;font-weight:500;white-space:nowrap}
+.dm-six-chips{display:flex;gap:var(--dm-s-1)}
+.dm-six-ch{display:inline-flex;align-items:center;gap:var(--dm-s-1);height:24px;padding:0 var(--dm-s-1) 0 var(--dm-s-2);border-radius:7px;background:var(--dm-accent-bg);color:var(--dm-accent-fg,var(--dm-accent));font-size:12px;font-weight:500;white-space:nowrap}
 .dm-six-ch button{display:grid;opacity:.6}@media (hover:hover) and (pointer:fine){.dm-six-ch button:hover{opacity:1}}
 .dm-six-x{width:26px;height:26px}
-.dm-six-res{padding:4px 6px 8px;border-top:1px solid var(--dm-line)}
-.dm-six-g{font-size:11.5px;color:var(--dm-muted);padding:8px 8px 4px}
-.dm-six-it{display:flex;align-items:center;gap:10px;width:100%;padding:7px 8px;border-radius:10px;font-size:13px;text-align:left;transition:background .15s}
+.dm-six-res{padding:var(--dm-s-1) 6px var(--dm-s-2);border-top:1px solid var(--dm-line)}
+.dm-six-g{font-size:11.5px;color:var(--dm-muted);padding:var(--dm-s-2) var(--dm-s-2) var(--dm-s-1)}
+.dm-six-it{display:flex;align-items:center;gap:10px;width:100%;padding:7px var(--dm-s-2);border-radius:10px;font-size:13px;text-align:left;transition:background .15s}
 .dm-six-it.dm-hl{background:var(--dm-row)}
 @media (hover:hover) and (pointer:fine){.dm-six-it:hover{background:var(--dm-row)}}
 .dm-six-it .dm-ic{color:var(--dm-muted);display:grid}
 .dm-six-it .dm-d{margin-left:auto;font-size:12px;color:var(--dm-muted)}
 .dm-six-it mark{background:transparent;color:var(--dm-accent-fg,var(--dm-accent));font-weight:500}
-.dm-six-ans{margin:4px 2px 6px;padding:10px 12px;border-radius:12px;background:var(--dm-accent-bg);font-size:12.5px;line-height:1.55;color:var(--dm-fg2);display:flex;gap:8px}
+.dm-six-ans{margin:var(--dm-s-1) 2px 6px;padding:10px var(--dm-s-3);border-radius:var(--dm-r-in);background:var(--dm-accent-bg);font-size:12.5px;line-height:1.55;color:var(--dm-fg2);display:flex;gap:var(--dm-s-2)}
 .dm-six-ans&gt;svg{color:var(--dm-accent-fg,var(--dm-accent));flex:none;margin-top:3px}
 .dm-six-ans .dm-w{animation:dm-sxw .4s var(--dm-ease) both}
 .dm-six-ans .dm-w.dm-done{animation:none}
@@ -395,7 +395,7 @@ export function SearchInput({ items, sources = [], recent = [], value, defaultVa
 </code></pre></details><details class="cp-file"><summary>search-input.css<span class="l">HTML · 34 lines</span></summary><pre class="cp-pre"><code>/* ---------- Search input ---------- */
 /* the box sits centred in the room its longest list needs, closed or open, and stays centred as the list eases open */
 .six{min-height:320px;display:flex;justify-content:center;align-items:center}
-.six-box{width:100%;max-width:420px;background:var(--surface);border-radius:20px;box-shadow:var(--shadow);transition:box-shadow .35s var(--ease),transform .35s var(--ease)}
+.six-box{width:100%;max-width:420px;background:var(--surface);border-radius:var(--r-lg);box-shadow:var(--shadow);transition:box-shadow .35s var(--ease),transform .35s var(--ease)}
 .six-box.f{box-shadow:var(--shadow-lift);transform:translateY(-1px)}
 /* Blueprint&#39;s lifted edge is a light hairline, which reads as a white ring on a dark sheet; the focused field steps up one line instead */
 :root:not([data-style=&quot;soft&quot;]) .six-box.f:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *)){box-shadow:0 0 0 1px var(--rail)}
@@ -405,22 +405,22 @@ export function SearchInput({ items, sources = [], recent = [], value, defaultVa
 :root:not([data-style=&quot;soft&quot;]) .six-box:has(.six-in input:focus-visible):not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *)){box-shadow:0 0 0 2px var(--focus)}
 .six-in&gt;svg{transition:color .25s}
 .six-box.f .six-in&gt;svg{color:var(--fg)}
-.six-in{display:flex;align-items:center;gap:8px;height:46px;padding:0 10px 0 14px;color:var(--muted)}
+.six-in{display:flex;align-items:center;gap:var(--s-2);height:46px;padding:0 10px 0 14px;color:var(--muted)}
 .six-in input{flex:1;min-width:0;border:0;outline:0;background:transparent;font:inherit;font-size:14px;color:var(--fg)}
 .six-in input::placeholder{color:var(--muted)}
-.six-chips{display:flex;gap:4px}
-.six-ch{display:inline-flex;align-items:center;gap:4px;height:24px;padding:0 4px 0 8px;border-radius:7px;background:var(--accent-bg);color:var(--accent-fg,var(--accent));font-size:12px;font-weight:500;white-space:nowrap}
+.six-chips{display:flex;gap:var(--s-1)}
+.six-ch{display:inline-flex;align-items:center;gap:var(--s-1);height:24px;padding:0 var(--s-1) 0 var(--s-2);border-radius:7px;background:var(--accent-bg);color:var(--accent-fg,var(--accent));font-size:12px;font-weight:500;white-space:nowrap}
 .six-ch button{display:grid;opacity:.6}@media (hover:hover) and (pointer:fine){.six-ch button:hover{opacity:1}}
 .six-x{width:26px;height:26px}
-.six-res{padding:4px 6px 8px;border-top:1px solid var(--line)}
-.six-g{font-size:11.5px;color:var(--muted);padding:8px 8px 4px}
-.six-it{display:flex;align-items:center;gap:10px;width:100%;padding:7px 8px;border-radius:10px;font-size:13px;text-align:left;transition:background .15s}
+.six-res{padding:var(--s-1) 6px var(--s-2);border-top:1px solid var(--line)}
+.six-g{font-size:11.5px;color:var(--muted);padding:var(--s-2) var(--s-2) var(--s-1)}
+.six-it{display:flex;align-items:center;gap:10px;width:100%;padding:7px var(--s-2);border-radius:10px;font-size:13px;text-align:left;transition:background .15s}
 .six-it.hl{background:var(--row)}
 @media (hover:hover) and (pointer:fine){.six-it:hover{background:var(--row)}}
 .six-it .ic{color:var(--muted);display:grid}
 .six-it .d{margin-left:auto;font-size:12px;color:var(--muted)}
 .six-it mark{background:transparent;color:var(--accent-fg,var(--accent));font-weight:500}
-.six-ans{margin:4px 2px 6px;padding:10px 12px;border-radius:12px;background:var(--accent-bg);font-size:12.5px;line-height:1.55;color:var(--fg2);display:flex;gap:8px}
+.six-ans{margin:var(--s-1) 2px 6px;padding:10px var(--s-3);border-radius:var(--r-in);background:var(--accent-bg);font-size:12.5px;line-height:1.55;color:var(--fg2);display:flex;gap:var(--s-2)}
 .six-ans&gt;svg{color:var(--accent-fg,var(--accent));flex:none;margin-top:3px}
 .six-ans .w{animation:sxw .4s var(--ease) both}
 .six-ans .w.done{animation:none}

@@ -232,11 +232,12 @@ const DM = {
 
 /* ---------- tooltips: any element with data-tip ---------- */
 const tip = document.createElement('div'); tip.className = 'tip'; tip.setAttribute('role','tooltip');
-let tipT = 0, tipFor = null;
+// tipNext is the trigger whose tip is on its way, so moving across its own icon and padding doesn't start the wait again
+let tipT = 0, tipFor = null, tipNext = null;
 // a trigger whose menu is open shows its menu, not its tip
 const menuOpen = el => el.getAttribute('aria-expanded') === 'true' && (el.hasAttribute('data-pop') || (el.hasAttribute('aria-haspopup') && el.getAttribute('aria-haspopup') !== 'false'));
 // a tip goes when its trigger does: removed, hidden, or its menu opened
-const tipWatch = new MutationObserver(() => { if (tipFor && (!tipFor.isConnected || menuOpen(tipFor) || !tipFor.getClientRects().length)) hideTip(); });
+const tipWatch = new MutationObserver(() => { if (tipFor && (!tipFor.isConnected || menuOpen(tipFor) || !tipFor.getClientRects().length)) hideTip(true); });
 function showTip(el){
   if (!el.isConnected || !el.dataset.tip || menuOpen(el)) return;
   tipFor = el; const k = el.dataset.tipK;
@@ -248,13 +249,22 @@ function showTip(el){
   const st = el.closest('.stage-in'), sb = st && st.parentElement.getBoundingClientRect();
   const lo = sb && sb.width >= w + 16 ? Math.max(8, sb.left + 8) : 8, hi = sb && sb.width >= w + 16 ? Math.min(innerWidth, sb.right) - w - 8 : innerWidth - w - 8;
   let x = r.left + r.width / 2 - w / 2; x = Math.max(lo, Math.min(hi, x));
-  let y = r.top - h - 8; if (y < 8) y = r.bottom + 8;
+  // above the trigger, or below when there is no room; data-tip-at="below" asks for below first, for a trigger that has
+  // a header just above it the tip would cover
+  const below = el.dataset.tipAt === 'below';
+  let y = below ? r.bottom + 8 : r.top - h - 8; if (below ? y + h > innerHeight - 8 : y < 8) y = below ? r.top - h - 8 : r.bottom + 8;
   tip.style.left = x + 'px'; tip.style.top = y + 'px';
 }
 // when the last tip hid, so moving straight on to the next one shows it at once
 let tipHid = -1e9;
-function hideTip(){ clearTimeout(tipT); tipFor = null; tipWatch.disconnect(); if (tip.classList.contains('show')) tipHid = performance.now(); tip.classList.remove('show'); }
-document.addEventListener('pointerover', e => { const el = e.target.closest('[data-tip]'); if (!el || el === tipFor) return; clearTimeout(tipT); tipT = setTimeout(() => showTip(el), tip.classList.contains('show') || performance.now() - tipHid < 120 ? 0 : 380); });
+// a demo playing on its own (a timer, or a click it makes) never takes away the tip, or the tip on its way, of the control
+// the visitor is pointing at, in its own card or another: they would see the label vanish, or never come, under the
+// pointer. Their own clicks and moves, and a trigger that changes its tip (force), still hide it
+function hideTip(force){
+  const on = tipFor || tipNext, ev = window.event;
+  if (!force && on && on.isConnected && on.matches(':hover') && !(ev && ev.isTrusted)) return;
+  clearTimeout(tipT); tipFor = null; tipNext = null; tipWatch.disconnect(); if (tip.classList.contains('show')) tipHid = performance.now(); tip.classList.remove('show'); }
+document.addEventListener('pointerover', e => { const el = e.target.closest('[data-tip]'); if (!el || el === tipFor) return; if (el === tipNext) return; clearTimeout(tipT); tipNext = el; tipT = setTimeout(() => { tipNext = null; showTip(el); }, tip.classList.contains('show') || performance.now() - tipHid < 120 ? 0 : 380); });
 document.addEventListener('pointerout', e => { const el = e.target.closest('[data-tip]'); if (el && !el.contains(e.relatedTarget)) hideTip(); });
 document.addEventListener('focusin', e => { const el = e.target.closest('[data-tip]'); if (el && el.matches(':focus-visible')) showTip(el); });
 document.addEventListener('focusout', hideTip);
@@ -271,7 +281,7 @@ function copied(btn, text, label = 'Copied to clipboard'){
     if (use) use.setAttribute('href', st.href);
     btn.classList.remove('copied');
     if (st.tip === undefined) delete btn.dataset.tip; else btn.dataset.tip = st.tip;
-    if (tipFor === btn) hideTip();
+    if (tipFor === btn) hideTip(true);
   }, 1600);
 }
 

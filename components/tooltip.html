@@ -45,15 +45,15 @@
   try { var a = localStorage.getItem('dmui-accent'); if (a && a !== 'default') window.dmAccent(a); } catch(e){}
 })();
 </script><script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareSourceCode","name":"Tooltip","description":"Tooltip is a toolbar of icon buttons whose labels appear after a short pause and then follow the pointer from button to button without waiting again. Avatars at the end open a larger card about each person, including the agent, with what they are doing right now. It shows a team and its agent working side by side in the same file.","url":"https://designme.dev/components/tooltip","image":"https://designme.dev/components/og/tooltip.jpg","programmingLanguage":["HTML","CSS","JavaScript","TypeScript"],"runtimePlatform":"Web browser","license":"https://opensource.org/licenses/MIT","isAccessibleForFree":true,"keywords":"Tooltip, Forms and inputs, UI component, React component, HTML component","author":{"@type":"Organization","name":"DesignMe","url":"https://designme.agency"},"isPartOf":{"@type":"WebSite","name":"Designme.dev","url":"https://designme.dev/"}}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Library","item":"https://designme.dev/"},{"@type":"ListItem","position":2,"name":"Forms and inputs","item":"https://designme.dev/#s-forms"},{"@type":"ListItem","position":3,"name":"Tooltip","item":"https://designme.dev/components/tooltip"}]}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Can the label read differently from the button's accessible name?","acceptedAnswer":{"@type":"Answer","text":"Yes. label is the name screen readers hear, and tip is the visible tooltip text when you want it to say more, like \"Ask the agent\" for a button named \"Ask agent\"."}},{"@type":"Question","name":"How do I show what the agent is doing in the person card?","acceptedAnswer":{"@type":"Answer","text":"Add the agent to people with a status like \"Auditing contrast, 2 of 6 checks\" and set working: true. The card then shows the thinking dots next to the status."}},{"@type":"Question","name":"How do I open a tip from code, for a walkthrough?","acceptedAnswer":{"@type":"Answer","text":"Set openTip to the tool's key, or openCard to a person's key. Clear it to close, and leave it undefined to let the pointer decide again."}}]}</script><link rel="stylesheet" href="/components/assets/core.css"><style>/* ---------- Tooltip ---------- */
-.ttp{display:flex;flex-direction:column;align-items:center;gap:16px;position:relative;min-height:200px;justify-content:center}
-.ttp-bar{display:flex;align-items:center;gap:2px;padding:5px;border-radius:999px}
-.ttp-sep{width:1px;height:18px;background:var(--line);margin:0 4px}
+.ttp{display:flex;flex-direction:column;align-items:center;gap:var(--s-4);position:relative;min-height:200px;justify-content:center}
+.ttp-bar{display:flex;align-items:center;gap:2px;padding:5px;border-radius:var(--r-pill)}
+.ttp-sep{width:1px;height:18px;background:var(--line);margin:0 var(--s-1)}
 .ttp-avs{display:flex;padding-right:3px}
 .ttp-av{border-radius:50%;margin-left:-4px;transition:transform .3s var(--ease)}
 .ttp-av:first-child{margin-left:0}
 @media (hover:hover) and (pointer:fine){.ttp-av:hover{transform:translateY(-2px)}}
 .ttp-av .av{width:28px;height:28px;font-size:11px;box-shadow:0 0 0 2px var(--surface)}
-.ttp-card{position:absolute;top:0;left:0;width:230px;padding:12px;box-shadow:var(--shadow-pop);opacity:0;transform:translateY(6px) scale(.97);filter:blur(4px);pointer-events:none;transition:opacity .25s var(--ease),transform .35s var(--ease),filter .25s;z-index:5}
+.ttp-card{position:absolute;top:0;left:0;width:230px;padding:var(--s-3);box-shadow:var(--shadow-pop);opacity:0;transform:translateY(6px) scale(.97);filter:blur(4px);pointer-events:none;transition:opacity .25s var(--ease),transform .35s var(--ease),filter .25s;z-index:5}
 .ttp-card.show{opacity:1;transform:none;filter:none}
 .ttp-ch{display:flex;align-items:center;gap:10px}
 .ttp-ch .av{width:34px;height:34px;font-size:12px}
@@ -119,8 +119,8 @@ const PEOPLE: TooltipPerson[] = [
 export default function TooltipDemo() {
   const [tip, setTip] = useState&lt;string | null&gt;();
   const [card, setCard] = useState&lt;string | null&gt;();
-  // once it has appeared it shows what it does: a shortcut tip, then the agent&#39;s card. Pointing at it takes over
-  // pointing at it takes over, as does clicking, focusing or typing in it
+  // once it has appeared it shows what it does: a shortcut tip, then the agent&#39;s card. Pointing at it takes over, as does
+  // clicking, focusing or typing in it, and puts away what the demo had open unless the pointer is on it
   const touched = useRef(false), ref = useRef&lt;HTMLDivElement&gt;(null), mine = useTakeover(ref, () =&gt; setTip(undefined));
   const yours = () =&gt; touched.current || mine();
   useScript(async ({ wait }) =&gt; {
@@ -130,12 +130,12 @@ export default function TooltipDemo() {
     setCard(&#39;da&#39;); await wait(2600); setCard(null);
   });
   return (
-    &lt;div ref={ref} style={{ width: &#39;100%&#39; }} onPointerEnter={() =&gt; { touched.current = true; setTip(undefined); }}&gt;
+    &lt;div ref={ref} style={{ width: &#39;100%&#39; }} onPointerEnter={() =&gt; { touched.current = true; setTip(undefined); setCard(c =&gt; (c ? null : c)); }}&gt;
       &lt;Tooltip people={PEOPLE} openTip={tip} openCard={card} note=&quot;Labels wait a moment, then follow you instantly between buttons.&quot; /&gt;
     &lt;/div&gt;
   );
 }
-</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything Tooltip takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>groups</code></td><td><code>TooltipTool[][]</code></td><td>The toolbar&#39;s buttons, in groups with a line between them</td></tr><tr><td><code>people</code></td><td><code>TooltipPerson[]</code></td><td>Avatars at the end of the toolbar. Hovering one shows a card about the person</td></tr><tr><td><code>note</code></td><td><code>ReactNode</code></td><td>A quiet line under the toolbar</td></tr><tr><td><code>cardDelay</code></td><td><code>number</code></td><td>How long the person card waits before it shows</td></tr><tr><td><code>openTip</code></td><td><code>string | null</code></td><td>Shows this tool&#39;s tip, by key, as if it were hovered. Leave it out to let the pointer decide</td></tr><tr><td><code>openCard</code></td><td><code>string | null</code></td><td>Shows this person&#39;s card, by key, as if they were hovered. Leave it out to let the pointer decide</td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>Tooltip.tsx<span class="l">React · 121 lines</span></summary><pre class="cp-pre"><code>&#39;use client&#39;;
+</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything Tooltip takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>groups</code></td><td><code>TooltipTool[][]</code></td><td>The toolbar&#39;s buttons, in groups with a line between them</td></tr><tr><td><code>people</code></td><td><code>TooltipPerson[]</code></td><td>Avatars at the end of the toolbar. Hovering one shows a card about the person</td></tr><tr><td><code>note</code></td><td><code>ReactNode</code></td><td>A quiet line under the toolbar</td></tr><tr><td><code>cardDelay</code></td><td><code>number</code></td><td>How long the person card waits before it shows</td></tr><tr><td><code>openTip</code></td><td><code>string | null</code></td><td>Shows this tool&#39;s tip, by key, as if it were hovered. Leave it out to let the pointer decide</td></tr><tr><td><code>openCard</code></td><td><code>string | null</code></td><td>Shows this person&#39;s card, by key, as if they were hovered. Leave it out to let the pointer decide</td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>Tooltip.tsx<span class="l">React · 123 lines</span></summary><pre class="cp-pre"><code>&#39;use client&#39;;
 import { useEffect, useRef, useState, type ReactNode } from &#39;react&#39;;
 import { cx } from &#39;../lib/cx&#39;;
 import { Icon, type IconName } from &#39;../lib/icons&#39;;
@@ -210,12 +210,14 @@ export function Tooltip({ groups = DEFAULT_GROUPS, people = [], note, cardDelay 
     }, now ? 0 : cardDelay);
   };
   const close = () =&gt; { clearTimeout(timer.current); setShow(false); };
+  // the avatar under the pointer: a card opened from code and then let go stays while the pointer is on its avatar
+  const hovered = useRef&lt;string | null&gt;(null);
   // a card asked for by key opens at once under its avatar, and closes when the key is cleared
   const avatars = useRef(new Map&lt;string, HTMLButtonElement&gt;());
   useEffect(() =&gt; {
     if (openCard === undefined) return;
     const person = people.find(x =&gt; x.key === openCard), el = person &amp;&amp; avatars.current.get(person.key);
-    if (person &amp;&amp; el) open(person, el, true); else close();
+    if (person &amp;&amp; el) open(person, el, true); else if (!hovered.current) close();
   }, [openCard]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const p = card?.person;
@@ -235,7 +237,7 @@ export function Tooltip({ groups = DEFAULT_GROUPS, people = [], note, cardDelay 
           &lt;span className=&quot;dm-ttp-avs&quot;&gt;
             {people.map(person =&gt; (
               &lt;button key={person.key} ref={el =&gt; { if (el) avatars.current.set(person.key, el); else avatars.current.delete(person.key); }} type=&quot;button&quot; className=&quot;dm-ttp-av&quot; aria-label={person.name}
-                onMouseEnter={e =&gt; open(person, e.currentTarget)} onMouseLeave={close}
+                onMouseEnter={e =&gt; { hovered.current = person.key; open(person, e.currentTarget); }} onMouseLeave={() =&gt; { hovered.current = null; close(); }}
                 onFocus={e =&gt; { if (e.currentTarget.matches(&#39;:focus-visible&#39;)) open(person, e.currentTarget, true); }} onBlur={close}&gt;
                 &lt;Avatar initials={person.initials} color={person.color} /&gt;
               &lt;/button&gt;
@@ -257,15 +259,15 @@ export function Tooltip({ groups = DEFAULT_GROUPS, people = [], note, cardDelay 
 }
 </code></pre></details><details class="cp-file"><summary>tooltip.css<span class="l">React · 21 lines</span></summary><pre class="cp-pre"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Tooltip ---------- */
-.dm-ttp{display:flex;flex-direction:column;align-items:center;gap:16px;position:relative;min-height:200px;justify-content:center}
-.dm-ttp-bar{display:flex;align-items:center;gap:2px;padding:5px;border-radius:999px}
-.dm-ttp-sep{width:1px;height:18px;background:var(--dm-line);margin:0 4px}
+.dm-ttp{display:flex;flex-direction:column;align-items:center;gap:var(--dm-s-4);position:relative;min-height:200px;justify-content:center}
+.dm-ttp-bar{display:flex;align-items:center;gap:2px;padding:5px;border-radius:var(--dm-r-pill)}
+.dm-ttp-sep{width:1px;height:18px;background:var(--dm-line);margin:0 var(--dm-s-1)}
 .dm-ttp-avs{display:flex;padding-right:3px}
 .dm-ttp-av{border-radius:50%;margin-left:-4px;transition:transform .3s var(--dm-ease)}
 .dm-ttp-av:first-child{margin-left:0}
 @media (hover:hover) and (pointer:fine){.dm-ttp-av:hover{transform:translateY(-2px)}}
 .dm-ttp-av .dm-av{width:28px;height:28px;font-size:11px;box-shadow:0 0 0 2px var(--dm-surface)}
-.dm-ttp-card{position:absolute;top:0;left:0;width:230px;padding:12px;box-shadow:var(--dm-shadow-pop);opacity:0;transform:translateY(6px) scale(.97);filter:blur(4px);pointer-events:none;transition:opacity .25s var(--dm-ease),transform .35s var(--dm-ease),filter .25s;z-index:5}
+.dm-ttp-card{position:absolute;top:0;left:0;width:230px;padding:var(--dm-s-3);box-shadow:var(--dm-shadow-pop);opacity:0;transform:translateY(6px) scale(.97);filter:blur(4px);pointer-events:none;transition:opacity .25s var(--dm-ease),transform .35s var(--dm-ease),filter .25s;z-index:5}
 .dm-ttp-card.dm-show{opacity:1;transform:none;filter:none}
 .dm-ttp-ch{display:flex;align-items:center;gap:10px}
 .dm-ttp-ch .dm-av{width:34px;height:34px;font-size:12px}
@@ -293,15 +295,15 @@ export function Tooltip({ groups = DEFAULT_GROUPS, people = [], note, cardDelay 
   &lt;/div&gt;
 &lt;/div&gt;
 </code></pre></details><details class="cp-file"><summary>tooltip.css<span class="l">HTML · 20 lines</span></summary><pre class="cp-pre"><code>/* ---------- Tooltip ---------- */
-.ttp{display:flex;flex-direction:column;align-items:center;gap:16px;position:relative;min-height:200px;justify-content:center}
-.ttp-bar{display:flex;align-items:center;gap:2px;padding:5px;border-radius:999px}
-.ttp-sep{width:1px;height:18px;background:var(--line);margin:0 4px}
+.ttp{display:flex;flex-direction:column;align-items:center;gap:var(--s-4);position:relative;min-height:200px;justify-content:center}
+.ttp-bar{display:flex;align-items:center;gap:2px;padding:5px;border-radius:var(--r-pill)}
+.ttp-sep{width:1px;height:18px;background:var(--line);margin:0 var(--s-1)}
 .ttp-avs{display:flex;padding-right:3px}
 .ttp-av{border-radius:50%;margin-left:-4px;transition:transform .3s var(--ease)}
 .ttp-av:first-child{margin-left:0}
 @media (hover:hover) and (pointer:fine){.ttp-av:hover{transform:translateY(-2px)}}
 .ttp-av .av{width:28px;height:28px;font-size:11px;box-shadow:0 0 0 2px var(--surface)}
-.ttp-card{position:absolute;top:0;left:0;width:230px;padding:12px;box-shadow:var(--shadow-pop);opacity:0;transform:translateY(6px) scale(.97);filter:blur(4px);pointer-events:none;transition:opacity .25s var(--ease),transform .35s var(--ease),filter .25s;z-index:5}
+.ttp-card{position:absolute;top:0;left:0;width:230px;padding:var(--s-3);box-shadow:var(--shadow-pop);opacity:0;transform:translateY(6px) scale(.97);filter:blur(4px);pointer-events:none;transition:opacity .25s var(--ease),transform .35s var(--ease),filter .25s;z-index:5}
 .ttp-card.show{opacity:1;transform:none;filter:none}
 .ttp-ch{display:flex;align-items:center;gap:10px}
 .ttp-ch .av{width:34px;height:34px;font-size:12px}
@@ -311,7 +313,7 @@ export function Tooltip({ groups = DEFAULT_GROUPS, people = [], note, cardDelay 
 .ttp-cs{display:flex;align-items:center;gap:6px;margin-top:10px;font-size:12px;color:var(--fg2)}
 .ttp-cs .dot{color:var(--ok)}
 .ttp-n{font-size:12.5px;text-align:center}
-</code></pre></details><details class="cp-file"><summary>tooltip.js<span class="l">HTML · 22 lines</span></summary><pre class="cp-pre"><code>DM.def(&#39;tooltip&#39;, (r, c) =&gt; {
+</code></pre></details><details class="cp-file"><summary>tooltip.js<span class="l">HTML · 28 lines</span></summary><pre class="cp-pre"><code>DM.def(&#39;tooltip&#39;, (r, c) =&gt; {
   r.innerHTML = r.innerHTML.replace(&#39;{undo}&#39;, I(&#39;undo&#39;)).replace(&#39;{chat}&#39;, I(&#39;edit&#39;)).replace(&#39;{spark}&#39;, I(&#39;spark&#39;)).replace(&#39;{users}&#39;, I(&#39;users&#39;)).replace(&#39;{a1}&#39;, AV(&#39;MK&#39;,&#39;var(--pl)&#39;)).replace(&#39;{a2}&#39;, AV(&#39;DA&#39;,&#39;var(--pb)&#39;));
   const P = [[&#39;MK&#39;,&#39;var(--pl)&#39;,&#39;Maya Kim&#39;,&#39;Design lead&#39;,&#39;Editing Pricing, frame 2&#39;],[&#39;DA&#39;,&#39;var(--pb)&#39;,&#39;Design agent&#39;,&#39;Working for Maya&#39;,&#39;Auditing contrast, 2 of 6 checks&#39;]];
   const card = $(&#39;.ttp-card&#39;, r), ci = $(&#39;.ttp-ci&#39;, r), root = $(&#39;.ttp&#39;, r); let t;
@@ -323,13 +325,19 @@ export function Tooltip({ groups = DEFAULT_GROUPS, people = [], note, cardDelay 
   c.offs.push(() =&gt; clearTimeout(t));
   // once it has entered, it shows what it does: a shortcut tip, then the agent&#39;s card. Pointing at it takes over, as does
   // clicking, focusing or typing in it
-  let touched = false; c.on(root, &#39;pointerenter&#39;, () =&gt; { touched = true; });
+  // what the demo opened goes when the pointer comes in, unless it is on that very control: the visitor&#39;s own hover decides
+  // from then on, so no tip or card is left over from the demo over the one they point at
+  let touched = false, shown = null;
+  c.on(root, &#39;pointerenter&#39;, () =&gt; { touched = true;
+    if (shown === &#39;tip&#39; &amp;&amp; tipFor &amp;&amp; !tipNext &amp;&amp; root.contains(tipFor) &amp;&amp; !tipFor.matches(&#39;:hover&#39;)) hideTip();
+    if (shown === &#39;card&#39; &amp;&amp; !$(&#39;.ttp-av:hover&#39;, r)){ clearTimeout(t); card.classList.remove(&#39;show&#39;); }
+    shown = null; });
   const go = () =&gt; { if (touched || c.mine) throw &#39;stop&#39;; };
   c.run(async () =&gt; {
     await c.wait(1300); go(); if (tipFor) return;
-    const ask = $(&#39;[data-tip-k=&quot;⌘J&quot;]&#39;, r); showTip(ask); await c.wait(1700); go(); if (tipFor === ask) hideTip();
+    const ask = $(&#39;[data-tip-k=&quot;⌘J&quot;]&#39;, r); showTip(ask); shown = &#39;tip&#39;; await c.wait(1700); go(); if (tipFor === ask) hideTip(true); shown = null;
     await c.wait(500); go();
-    const av = $(&#39;.ttp-av[data-card=&quot;1&quot;]&#39;, r); av.onmouseenter(); await c.wait(2600); go(); av.onmouseleave();
+    const av = $(&#39;.ttp-av[data-card=&quot;1&quot;]&#39;, r); av.onmouseenter(); shown = &#39;card&#39;; await c.wait(2600); go(); av.onmouseleave(); shown = null;
   });
 });
 </code></pre></details></div></section><section class="cp-sec" id="questions"><div class="pg-sh"><span class="n">06</span><h2>Questions</h2><p>What people ask about it.</p></div><dl class="cp-qs"><div><dt class="pg-t">Can the label read differently from the button's accessible name?</dt><dd>Yes. <code>label</code> is the name screen readers hear, and <code>tip</code> is the visible tooltip text when you want it to say more, like "Ask the agent" for a button named "Ask agent".</dd></div><div><dt class="pg-t">How do I show what the agent is doing in the person card?</dt><dd>Add the agent to <code>people</code> with a <code>status</code> like "Auditing contrast, 2 of 6 checks" and set <code>working: true</code>. The card then shows the thinking dots next to the status.</dd></div><div><dt class="pg-t">How do I open a tip from code, for a walkthrough?</dt><dd>Set <code>openTip</code> to the tool's key, or <code>openCard</code> to a person's key. Clear it to close, and leave it undefined to let the pointer decide again.</dd></div></dl></section><section class="cp-sec" id="more"><div class="pg-sh"><span class="n">07</span><h2>More in Forms and inputs</h2><p>Buttons, fields, pickers and sign-in flows for any product.</p></div><div class="pg-cards"><div class="pg-card"><a class="pg-t pg-link" href="/components/buttons">Buttons</a><span class="pg-d">Every button style, with loading, success and hold-to-confirm states.</span><span class="pg-thumb" data-reg="buttons" data-h="420" data-wide="1"><img class="lt" src="/components/thumbs/buttons-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/buttons-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></div><div class="pg-card"><a class="pg-t pg-link" href="/components/search-input">Search input</a><span class="pg-d">Search with scoped filters, recent queries and an agent answer.</span><span class="pg-thumb" data-reg="search-input" data-h="432"><img class="lt" src="/components/thumbs/search-input-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/search-input-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></div><div class="pg-card"><a class="pg-t pg-link" href="/components/country-select">Country select</a><span class="pg-d">A searchable select with country codes, currency and keyboard support.</span><span class="pg-thumb" data-reg="country-select" data-h="520"><img class="lt" src="/components/thumbs/country-select-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/country-select-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></div><div class="pg-card"><a class="pg-t pg-link" href="/components/multi-select">Multi-select</a><span class="pg-d">A combobox that filters as you type and keeps your picks as chips.</span><span class="pg-thumb" data-reg="multi-select" data-h="440"><img class="lt" src="/components/thumbs/multi-select-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/multi-select-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></div><div class="pg-card"><a class="pg-t pg-link" href="/components/social-sign-in">Social sign-in</a><span class="pg-d">One-tap providers that remember the last one you used.</span><span class="pg-thumb" data-reg="social-sign-in" data-h="515"><img class="lt" src="/components/thumbs/social-sign-in-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/social-sign-in-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></div><div class="pg-card"><a class="pg-t pg-link" href="/components/sign-in">Sign in</a><span class="pg-d">Email first, then the one-time code from the email, copied or typed in.</span><span class="pg-thumb" data-reg="sign-in" data-h="420"><img class="lt" src="/components/thumbs/sign-in-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/sign-in-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></div><div class="pg-card"><a class="pg-t pg-link" href="/components/otp-field">OTP field</a><span class="pg-d">A one-time code, one box per digit, that fills from a paste.</span><span class="pg-thumb" data-reg="otp-field" data-h="420"><img class="lt" src="/components/thumbs/otp-field-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/otp-field-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></div><div class="pg-card"><a class="pg-t pg-link" href="/components/form">Form</a><span class="pg-d">A project brief with inline checks and an agent that drafts the rest.</span><span class="pg-thumb" data-reg="form" data-h="524"><img class="lt" src="/components/thumbs/form-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/form-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></div></div><a class="cp-all" href="/#s-forms">All 10 in Forms and inputs →</a></section><nav class="dc-pn" aria-label="Previous and next component"><a href="/components/buttons" rel="prev"><span class="pg-d"><svg viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M224,128a8,8,0,0,1-8,8H59.31l58.35,58.34a8,8,0,0,1-11.32,11.32l-72-72a8,8,0,0,1,0-11.32l72-72a8,8,0,0,1,11.32,11.32L59.31,120H216A8,8,0,0,1,224,128Z"/></svg>Previous</span><span class="pg-t">Buttons</span></a><a href="/components/search-input" rel="next" class="n"><span class="pg-d">Next<svg viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"/></svg></span><span class="pg-t">Search input</span></a></nav></div><nav class="dc-toc" aria-label="On this page"><p class="dc-toc-h">On this page</p><div class="dc-toc-ul"><a href="#install">Install</a><a href="#about">About</a><a href="#usage">Usage</a><a href="#props">Props</a><a href="#code">Code</a><a href="#questions">Questions</a><a href="#more">More in Forms and inputs</a><span class="dc-toc-ind" aria-hidden="true"></span></div></nav></div></div><script>
@@ -667,13 +675,19 @@ const fitHits = window.dmFitHits || (() => {
   c.offs.push(() => clearTimeout(t));
   // once it has entered, it shows what it does: a shortcut tip, then the agent's card. Pointing at it takes over, as does
   // clicking, focusing or typing in it
-  let touched = false; c.on(root, 'pointerenter', () => { touched = true; });
+  // what the demo opened goes when the pointer comes in, unless it is on that very control: the visitor's own hover decides
+  // from then on, so no tip or card is left over from the demo over the one they point at
+  let touched = false, shown = null;
+  c.on(root, 'pointerenter', () => { touched = true;
+    if (shown === 'tip' && tipFor && !tipNext && root.contains(tipFor) && !tipFor.matches(':hover')) hideTip();
+    if (shown === 'card' && !$('.ttp-av:hover', r)){ clearTimeout(t); card.classList.remove('show'); }
+    shown = null; });
   const go = () => { if (touched || c.mine) throw 'stop'; };
   c.run(async () => {
     await c.wait(1300); go(); if (tipFor) return;
-    const ask = $('[data-tip-k="⌘J"]', r); showTip(ask); await c.wait(1700); go(); if (tipFor === ask) hideTip();
+    const ask = $('[data-tip-k="⌘J"]', r); showTip(ask); shown = 'tip'; await c.wait(1700); go(); if (tipFor === ask) hideTip(true); shown = null;
     await c.wait(500); go();
-    const av = $('.ttp-av[data-card="1"]', r); av.onmouseenter(); await c.wait(2600); go(); av.onmouseleave();
+    const av = $('.ttp-av[data-card="1"]', r); av.onmouseenter(); shown = 'card'; await c.wait(2600); go(); av.onmouseleave(); shown = null;
   });
 });
 </script><script>

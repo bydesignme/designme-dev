@@ -62,6 +62,10 @@ export function SetLimit({ value, defaultValue = 200, onValueChange, min = 50, m
   const [atLimit, setMode] = useControllable(mode, defaultMode, onModeChange);
   const cap = Math.max(min, Math.min(max, capRaw));
   const [drag, setDrag] = useState(false);
+  // a change from the keys or the field shows the amount over the knob for a moment, so it can be followed there too
+  const [say, setSay] = useState(0);
+  useEffect(() => { if (!say) return; const t = setTimeout(() => setSay(0), 1200); return () => clearTimeout(t); }, [say]);
+  const told = () => setSay(n => n + 1);
   // the bars fill in a moment after the card appears
   const [ready, setReady] = useState(false);
   useEffect(() => { const t = setTimeout(() => setReady(true), 200); return () => clearTimeout(t); }, []);
@@ -75,7 +79,8 @@ export function SetLimit({ value, defaultValue = 200, onValueChange, min = 50, m
   const clamp = (n: number) => Math.max(min, Math.min(max, Math.round(n)));
   const commit = () => {
     if (draft === null) return;
-    setCap(cancel.current || draft === '' ? before.current : clamp(parseInt(draft, 10))); cancel.current = false; setDraft(null);
+    const n = cancel.current || draft === '' ? before.current : clamp(parseInt(draft, 10));
+    setCap(n); if (n !== cap) told(); cancel.current = false; setDraft(null);
   };
   // the symbols around the number in `format`, like the "$" in "$200", stay put while the number is typed
   const text = format(cap), first = text.search(/\d/), last = text.length - [...text].reverse().join('').search(/\d/);
@@ -86,7 +91,7 @@ export function SetLimit({ value, defaultValue = 200, onValueChange, min = 50, m
   const at = (e: PointerEvent) => { const b = bar.current!.getBoundingClientRect(); setCap(snap(min + (max - min) * Math.max(0, Math.min(1, (e.clientX - b.left) / b.width)))); };
   const key = (e: KeyboardEvent) => {
     const dir = ({ ArrowRight: 1, ArrowUp: 1, ArrowLeft: -1, ArrowDown: -1 } as Record<string, number>)[e.key]; if (!dir) return;
-    e.preventDefault(); setCap(Math.max(min, Math.min(max, cap + dir * step)));
+    e.preventDefault(); setCap(Math.max(min, Math.min(max, cap + dir * step))); told();
   };
 
   const over = forecast > cap, left = cap - forecast;
@@ -106,11 +111,11 @@ export function SetLimit({ value, defaultValue = 200, onValueChange, min = 50, m
           <label className="dm-num dm-slx-v" onPointerDown={e => { if (document.activeElement !== input.current) { e.preventDefault(); input.current?.focus(); } }}>
             {pre}<input ref={input} className="dm-slx-in" inputMode="numeric" autoComplete="off" aria-label={title} value={figure} style={{ width: Math.max(1, figure.length) + 'ch' }}
               onFocus={e => { before.current = cap; setDraft(String(cap)); e.currentTarget.select(); }}
-              onChange={e => { const v = e.target.value.replace(/\D/g, '').slice(0, 6); setDraft(v); const n = +v; if (v && n >= min && n <= max) setCap(n); }}
+              onChange={e => { const v = e.target.value.replace(/\D/g, '').slice(0, 6); setDraft(v); const n = +v; if (v && n >= min && n <= max) { setCap(n); told(); } }}
               onKeyDown={e => {
                 if (e.key === 'Enter') { e.preventDefault(); e.currentTarget.blur(); }
                 else if (e.key === 'Escape') { cancel.current = true; e.currentTarget.blur(); }
-                else if (e.key === 'ArrowUp' || e.key === 'ArrowDown') { e.preventDefault(); const n = clamp((parseInt(draft ?? '', 10) || cap) + (e.key === 'ArrowUp' ? step : -step)); setDraft(String(n)); setCap(n); }
+                else if (e.key === 'ArrowUp' || e.key === 'ArrowDown') { e.preventDefault(); const n = clamp((parseInt(draft ?? '', 10) || cap) + (e.key === 'ArrowUp' ? step : -step)); setDraft(String(n)); setCap(n); told(); }
               }}
               onBlur={commit} />{post}
           </label>
@@ -122,7 +127,7 @@ export function SetLimit({ value, defaultValue = 200, onValueChange, min = 50, m
         onPointerUp={() => setDrag(false)} onPointerCancel={() => setDrag(false)}>
         <div className="dm-slx-used" style={{ width: used + '%' }} />
         <div className="dm-slx-fc" style={{ width: fc + '%' }} />
-        <button type="button" className={cx('dm-slx-k', drag && 'dm-drag')} role="slider" aria-label="Budget cap"
+        <button type="button" className={cx('dm-slx-k', drag && 'dm-drag', say > 0 && 'dm-say')} role="slider" aria-label="Budget cap"
           aria-valuemin={min} aria-valuemax={max} aria-valuenow={cap} aria-valuetext={format(cap)} style={{ left: pct(shown) + '%' }} onKeyDown={key}>
           <span className="dm-slx-tt dm-num">{format(cap)}</span>
         </button>

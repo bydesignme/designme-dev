@@ -45,11 +45,11 @@
   try { var a = localStorage.getItem('dmui-accent'); if (a && a !== 'default') window.dmAccent(a); } catch(e){}
 })();
 </script><script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareSourceCode","name":"Form","description":"Form is a short form, set up as a project brief by default, with a Draft with agent button that fills the fields in for the person. Fields the agent filled carry a Drafted mark beside their label until the person edits them, so it is clear what still needs a human read. On submit every field is checked, and a confirmation replaces the form once it goes through.","url":"https://designme.dev/components/form","image":"https://designme.dev/components/og/form.jpg","programmingLanguage":["HTML","CSS","JavaScript","TypeScript"],"runtimePlatform":"Web browser","license":"https://opensource.org/licenses/MIT","isAccessibleForFree":true,"keywords":"Form, Forms and inputs, UI component, React component, HTML component","author":{"@type":"Organization","name":"DesignMe","url":"https://designme.agency"},"isPartOf":{"@type":"WebSite","name":"Designme.dev","url":"https://designme.dev/"}}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Library","item":"https://designme.dev/"},{"@type":"ListItem","position":2,"name":"Forms and inputs","item":"https://designme.dev/#s-forms"},{"@type":"ListItem","position":3,"name":"Form","item":"https://designme.dev/components/form"}]}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How does the agent fill in the fields?","acceptedAnswer":{"@type":"Answer","text":"Control the form with values and onValuesChange, and update the values inside your onDraft promise. Any text field that changes while the draft runs gets the Drafted mark."}},{"@type":"Question","name":"Can I start the agent's draft without a click?","acceptedAnswer":{"@type":"Answer","text":"Yes. Put a ref on the form and call ref.current.draft(). It runs onDraft with the same Drafting and Drafted states as the button."}},{"@type":"Question","name":"How do I validate a field against another field?","acceptedAnswer":{"@type":"Answer","text":"validate receives the field's value and all the form's values. Return a message string to block the submit, or a falsy value to let it pass."}}]}</script><link rel="stylesheet" href="/components/assets/core.css"><style>/* ---------- Form ---------- */
-.fmx{padding:16px;display:flex;flex-direction:column;gap:12px;max-width:380px;margin:0 auto;width:100%}
-.fmx-h{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.fmx{padding:var(--s-4);display:flex;flex-direction:column;gap:var(--s-3);max-width:380px;margin:0 auto;width:100%}
+.fmx-h{display:flex;align-items:center;justify-content:space-between;gap:var(--s-2)}
 .fmx-h b{font-weight:500;font-size:14px}
 .fmx-f{display:flex;flex-direction:column;gap:5px;font-size:12.5px;font-weight:500;position:relative}
-.fmx-f input,.fmx-f textarea{border:0;outline:0;border-radius:11px;background:var(--chip);box-shadow:inset 0 0 0 1px var(--field-line);padding:10px 12px;font:inherit;font-size:13.5px;font-weight:400;color:var(--fg);resize:none;transition:box-shadow .25s,background .25s}
+.fmx-f input,.fmx-f textarea{border:0;outline:0;border-radius:11px;background:var(--chip);box-shadow:inset 0 0 0 1px var(--field-line);padding:10px var(--s-3);font:inherit;font-size:13.5px;font-weight:400;color:var(--fg);resize:none;transition:box-shadow .25s,background .25s}
 .fmx-f input::placeholder,.fmx-f textarea::placeholder{color:var(--muted)}
 .fmx-f input:focus,.fmx-f textarea:focus{background:var(--surface);box-shadow:inset 0 0 0 2px var(--focus),0 0 0 4px var(--accent-bg)}
 .fmx-f.bad input,.fmx-f.bad textarea{box-shadow:inset 0 0 0 1.5px var(--bad)}
@@ -57,16 +57,16 @@
 .fmx-f.bad input:focus,.fmx-f.bad textarea:focus{box-shadow:inset 0 0 0 2px var(--focus),0 0 0 4px var(--accent-bg)}
 .fmx-f .er{font-size:11.5px;color:var(--bad);font-weight:400;animation:enter .35s var(--ease) backwards}
 /* what the agent drafted says so quietly beside its label, until someone edits it */
-.fmx-f>span:first-child{display:flex;align-items:center;gap:8px}
+.fmx-f>span:first-child{display:flex;align-items:center;gap:var(--s-2)}
 .fmx-dr{display:inline-flex;align-items:center;gap:3px;font-style:normal;font-size:11px;font-weight:400;color:var(--muted);opacity:0;transform:translateX(-3px);transition:opacity var(--t) var(--ease),transform var(--t) var(--ease)}
 .fmx-dr .i{color:var(--accent-fg,var(--accent))}
 .fmx-f.ai .fmx-dr{opacity:1;transform:none}
 .fmx-c{position:absolute;right:12px;top:24px;height:40px;display:flex;align-items:center;font-style:normal;font-size:11px;color:var(--muted);font-weight:400;pointer-events:none}
 .fmx-ty{display:flex;gap:6px}
 .fmx-ty .chip.on{background:var(--ink);color:var(--on-ink);box-shadow:none}
-.fmx-ft{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:4px}
+.fmx-ft{display:flex;align-items:center;justify-content:space-between;gap:var(--s-2);margin-top:var(--s-1)}
 .fmx-ms{font-size:12px}
-.fmx-done{display:flex;flex-direction:column;align-items:center;gap:6px;padding:24px 0;text-align:center;font-size:13px}
+.fmx-done{display:flex;flex-direction:column;align-items:center;gap:6px;padding:var(--s-6) 0;text-align:center;font-size:13px}
 .fmx-done>svg{width:28px;height:28px;color:var(--ok)}
 </style><style>@media (max-width:640px){.cp-demo .pg-demo{min-height:calc(var(--h-j) + 24px)}}@media (max-width:519px){.cp-demo .pg-demo{min-height:calc(var(--h-k) + 24px)}}@media (max-width:429px){.cp-demo .pg-demo{min-height:calc(var(--h-l) + 24px)}}@media (max-width:389px){.cp-demo .pg-demo{min-height:calc(var(--h-m) + 24px)}}</style><style>@font-face{font-family:Inter;font-style:normal;font-weight:400;font-display:swap;src:url(/fonts/inter-latin-400-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:Inter;font-style:normal;font-weight:500;font-display:swap;src:url(/fonts/inter-latin-500-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
@@ -324,11 +324,11 @@ export function Form({
 }
 </code></pre></details><details class="cp-file"><summary>form.css<span class="l">React · 26 lines</span></summary><pre class="cp-pre"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Form ---------- */
-.dm-fmx{padding:16px;display:flex;flex-direction:column;gap:12px;max-width:380px;margin:0 auto;width:100%}
-.dm-fmx-h{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.dm-fmx{padding:var(--dm-s-4);display:flex;flex-direction:column;gap:var(--dm-s-3);max-width:380px;margin:0 auto;width:100%}
+.dm-fmx-h{display:flex;align-items:center;justify-content:space-between;gap:var(--dm-s-2)}
 .dm-fmx-h b{font-weight:500;font-size:14px}
 .dm-fmx-f{display:flex;flex-direction:column;gap:5px;font-size:12.5px;font-weight:500;position:relative}
-.dm-fmx-f input,.dm-fmx-f textarea{border:0;outline:0;border-radius:11px;background:var(--dm-chip);box-shadow:inset 0 0 0 1px var(--dm-field-line);padding:10px 12px;font:inherit;font-size:13.5px;font-weight:400;color:var(--dm-fg);resize:none;transition:box-shadow .25s,background .25s}
+.dm-fmx-f input,.dm-fmx-f textarea{border:0;outline:0;border-radius:11px;background:var(--dm-chip);box-shadow:inset 0 0 0 1px var(--dm-field-line);padding:10px var(--dm-s-3);font:inherit;font-size:13.5px;font-weight:400;color:var(--dm-fg);resize:none;transition:box-shadow .25s,background .25s}
 .dm-fmx-f input::placeholder,.dm-fmx-f textarea::placeholder{color:var(--dm-muted)}
 .dm-fmx-f input:focus,.dm-fmx-f textarea:focus{background:var(--dm-surface);box-shadow:inset 0 0 0 2px var(--dm-focus),0 0 0 4px var(--dm-accent-bg)}
 .dm-fmx-f.dm-bad input,.dm-fmx-f.dm-bad textarea{box-shadow:inset 0 0 0 1.5px var(--dm-bad)}
@@ -336,16 +336,16 @@ export function Form({
 .dm-fmx-f.dm-bad input:focus,.dm-fmx-f.dm-bad textarea:focus{box-shadow:inset 0 0 0 2px var(--dm-focus),0 0 0 4px var(--dm-accent-bg)}
 .dm-fmx-f .dm-er{font-size:11.5px;color:var(--dm-bad);font-weight:400;animation:dm-enter .35s var(--dm-ease) backwards}
 /* what the agent drafted says so quietly beside its label, until someone edits it */
-.dm-fmx-f&gt;span:first-child{display:flex;align-items:center;gap:8px}
+.dm-fmx-f&gt;span:first-child{display:flex;align-items:center;gap:var(--dm-s-2)}
 .dm-fmx-dr{display:inline-flex;align-items:center;gap:3px;font-style:normal;font-size:11px;font-weight:400;color:var(--dm-muted);opacity:0;transform:translateX(-3px);transition:opacity var(--dm-t) var(--dm-ease),transform var(--dm-t) var(--dm-ease)}
 .dm-fmx-dr .dm-i{color:var(--dm-accent-fg,var(--dm-accent))}
 .dm-fmx-f.dm-ai .dm-fmx-dr{opacity:1;transform:none}
 .dm-fmx-c{position:absolute;right:12px;top:24px;height:40px;display:flex;align-items:center;font-style:normal;font-size:11px;color:var(--dm-muted);font-weight:400;pointer-events:none}
 .dm-fmx-ty{display:flex;gap:6px}
 .dm-fmx-ty .dm-chip.dm-on{background:var(--dm-ink);color:var(--dm-on-ink);box-shadow:none}
-.dm-fmx-ft{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:4px}
+.dm-fmx-ft{display:flex;align-items:center;justify-content:space-between;gap:var(--dm-s-2);margin-top:var(--dm-s-1)}
 .dm-fmx-ms{font-size:12px}
-.dm-fmx-done{display:flex;flex-direction:column;align-items:center;gap:6px;padding:24px 0;text-align:center;font-size:13px}
+.dm-fmx-done{display:flex;flex-direction:column;align-items:center;gap:6px;padding:var(--dm-s-6) 0;text-align:center;font-size:13px}
 .dm-fmx-done&gt;svg{width:28px;height:28px;color:var(--dm-ok)}
 </code></pre></details><details class="cp-file"><summary>form.html<span class="l">HTML · 13 lines</span></summary><pre class="cp-pre"><code>&lt;div class=&quot;card&quot; data-c=&quot;form&quot;&gt;
   &lt;div class=&quot;stage-in&quot;&gt;
@@ -360,11 +360,11 @@ export function Form({
   &lt;/div&gt;
 &lt;/div&gt;
 </code></pre></details><details class="cp-file"><summary>form.css<span class="l">HTML · 25 lines</span></summary><pre class="cp-pre"><code>/* ---------- Form ---------- */
-.fmx{padding:16px;display:flex;flex-direction:column;gap:12px;max-width:380px;margin:0 auto;width:100%}
-.fmx-h{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.fmx{padding:var(--s-4);display:flex;flex-direction:column;gap:var(--s-3);max-width:380px;margin:0 auto;width:100%}
+.fmx-h{display:flex;align-items:center;justify-content:space-between;gap:var(--s-2)}
 .fmx-h b{font-weight:500;font-size:14px}
 .fmx-f{display:flex;flex-direction:column;gap:5px;font-size:12.5px;font-weight:500;position:relative}
-.fmx-f input,.fmx-f textarea{border:0;outline:0;border-radius:11px;background:var(--chip);box-shadow:inset 0 0 0 1px var(--field-line);padding:10px 12px;font:inherit;font-size:13.5px;font-weight:400;color:var(--fg);resize:none;transition:box-shadow .25s,background .25s}
+.fmx-f input,.fmx-f textarea{border:0;outline:0;border-radius:11px;background:var(--chip);box-shadow:inset 0 0 0 1px var(--field-line);padding:10px var(--s-3);font:inherit;font-size:13.5px;font-weight:400;color:var(--fg);resize:none;transition:box-shadow .25s,background .25s}
 .fmx-f input::placeholder,.fmx-f textarea::placeholder{color:var(--muted)}
 .fmx-f input:focus,.fmx-f textarea:focus{background:var(--surface);box-shadow:inset 0 0 0 2px var(--focus),0 0 0 4px var(--accent-bg)}
 .fmx-f.bad input,.fmx-f.bad textarea{box-shadow:inset 0 0 0 1.5px var(--bad)}
@@ -372,16 +372,16 @@ export function Form({
 .fmx-f.bad input:focus,.fmx-f.bad textarea:focus{box-shadow:inset 0 0 0 2px var(--focus),0 0 0 4px var(--accent-bg)}
 .fmx-f .er{font-size:11.5px;color:var(--bad);font-weight:400;animation:enter .35s var(--ease) backwards}
 /* what the agent drafted says so quietly beside its label, until someone edits it */
-.fmx-f&gt;span:first-child{display:flex;align-items:center;gap:8px}
+.fmx-f&gt;span:first-child{display:flex;align-items:center;gap:var(--s-2)}
 .fmx-dr{display:inline-flex;align-items:center;gap:3px;font-style:normal;font-size:11px;font-weight:400;color:var(--muted);opacity:0;transform:translateX(-3px);transition:opacity var(--t) var(--ease),transform var(--t) var(--ease)}
 .fmx-dr .i{color:var(--accent-fg,var(--accent))}
 .fmx-f.ai .fmx-dr{opacity:1;transform:none}
 .fmx-c{position:absolute;right:12px;top:24px;height:40px;display:flex;align-items:center;font-style:normal;font-size:11px;color:var(--muted);font-weight:400;pointer-events:none}
 .fmx-ty{display:flex;gap:6px}
 .fmx-ty .chip.on{background:var(--ink);color:var(--on-ink);box-shadow:none}
-.fmx-ft{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:4px}
+.fmx-ft{display:flex;align-items:center;justify-content:space-between;gap:var(--s-2);margin-top:var(--s-1)}
 .fmx-ms{font-size:12px}
-.fmx-done{display:flex;flex-direction:column;align-items:center;gap:6px;padding:24px 0;text-align:center;font-size:13px}
+.fmx-done{display:flex;flex-direction:column;align-items:center;gap:6px;padding:var(--s-6) 0;text-align:center;font-size:13px}
 .fmx-done&gt;svg{width:28px;height:28px;color:var(--ok)}
 </code></pre></details><details class="cp-file"><summary>form.js<span class="l">HTML · 30 lines</span></summary><pre class="cp-pre"><code>DM.def(&#39;form&#39;, (r, c) =&gt; {
   r.innerHTML = r.innerHTML.split(&#39;{spark}&#39;).join(I(&#39;spark&#39;,&#39;xs&#39;));
