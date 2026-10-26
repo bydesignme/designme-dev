@@ -103,13 +103,15 @@ export function CountrySelect({ countries = COUNTRIES, value, defaultValue, onVa
     else if (e.key === 'ArrowUp') { move(-1); e.preventDefault(); }
     else if (e.key === 'Enter') { if (shown[at]) choose(shown[at]); e.preventDefault(); }
     else if (e.key === 'Escape') close(true);
+    // Tab moves on from the search box and closes the list
+    else if (e.key === 'Tab') close();
   };
 
   return (
     <div data-dm="" ref={root} className={cx('dm-csx', className)}>
       <label className="dm-csx-l" htmlFor={`${id}-f`}>{label}</label>
       <button ref={field} id={`${id}-f`} type="button" className="dm-csx-f" aria-haspopup="listbox" aria-expanded={isOpen}
-        onClick={() => (isOpen ? close() : openList())} onKeyDown={e => { if ((e.key === 'ArrowDown' || e.key === 'ArrowUp') && !isOpen) { e.preventDefault(); openList(); } }}>
+        onClick={() => (isOpen ? close() : openList())} onKeyDown={e => { if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return; e.preventDefault(); if (isOpen) search.current?.focus({ preventScroll: true }); else openList(); }}>
         {flagOf(chosen)}<Swap className="dm-csx-v">{chosen?.name ?? ''}</Swap><Icon name="chev-d" size="xs" />
       </button>
       <div className={cx('dm-csx-pop', isOpen && 'dm-open')} inert={!isOpen}>

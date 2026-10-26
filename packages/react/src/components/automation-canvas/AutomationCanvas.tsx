@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react';
+import { useEffect, useRef, useState, type KeyboardEvent as ReactKeyboardEvent, type PointerEvent as ReactPointerEvent } from 'react';
 import { cx } from '../../lib/cx';
 import { useControllable, useIsoLayoutEffect, useReducedMotion } from '../../lib/hooks';
 import { Icon, type IconName } from '../../lib/icons';
@@ -93,6 +93,10 @@ export function AutomationCanvas({
   const [moved, setMoved] = useState<{ wide: Record<string, AutomationPoint>; narrow: Record<string, AutomationPoint> }>({ wide: {}, narrow: {} });
   const [drag, setDrag] = useState<string | null>(null);
   const [optsOpen, setOptsOpen] = useState(false);
+  // the keyboard: a step opened with Enter or Space puts the focus in its popover, and Escape or Done gives it back to the
+  // step. The field is a menu button: the arrows open it and move through the choices, Home and End jump, Escape closes it
+  const popEl = useRef<HTMLDivElement>(null), ddEl = useRef<HTMLButtonElement>(null), optsEl = useRef<HTMLDivElement>(null);
+  const keyOpen = useRef(false), inPop = useRef(false), optsFocus = useRef<'first' | 'last' | null>(null);
   // a drop ends in a click; this swallows it so the popover doesn't open
   const dropped = useRef(false);
   const stopDrag = useRef<() => void>(undefined);
@@ -200,6 +204,23 @@ export function AutomationCanvas({
     });
   }, [flowKey, reduce]);
 
+  useIsoLayoutEffect(() => {
+    if (sel) { if (keyOpen.current) { keyOpen.current = false; (ddEl.current ?? popEl.current?.querySelector<HTMLElement>('button'))?.focus({ preventScroll: true }); } return; }
+    if (inPop.current && popFor) { inPop.current = false; els.current[popFor]?.focus({ preventScroll: true }); }
+  }, [sel]); // eslint-disable-line react-hooks/exhaustive-deps
+  const optItems = () => Array.from(optsEl.current?.querySelectorAll<HTMLElement>('.dm-mi') ?? []);
+  useIsoLayoutEffect(() => {
+    if (optsOpen) { const to = optsFocus.current; optsFocus.current = null; if (!to) return; const it = optItems(); (to === 'last' ? it[it.length - 1] : it.find(x => x.getAttribute('aria-checked') === 'true') ?? it[0])?.focus({ preventScroll: true }); return; }
+    if (optsEl.current?.contains(document.activeElement)) ddEl.current?.focus({ preventScroll: true });
+  }, [optsOpen]);
+  const optsKey = (e: ReactKeyboardEvent) => {
+    const it = optItems(), i = it.indexOf(document.activeElement as HTMLElement);
+    const go = ({ ArrowDown: it[(i + 1) % it.length], ArrowUp: it[(i - 1 + it.length) % it.length], Home: it[0], End: it[it.length - 1] } as Record<string, HTMLElement | undefined>)[e.key];
+    if (go) { e.preventDefault(); go.focus({ preventScroll: true }); }
+    else if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); setOptsOpen(false); }
+    else if (e.key === 'Tab') setOptsOpen(false);
+  };
+
   const pop = nodes.find(n => n.id === popFor);
   const pb = pop && boxes[pop.id];
   let px = 0, py = 0;
@@ -230,7 +251,8 @@ export function AutomationCanvas({
                 className={cx('dm-acx-n dm-acx-in', drag === n.id && 'dm-drag', sel === n.id && 'dm-sel', n.state === 'run' && 'dm-run')}
                 style={{ animationDelay: i * 90 + 'ms', left: `calc(${p.x * 100}% - ${width / 2}px)`, top: `calc(${p.y * 100}% - ${h / 2}px)`, width: width === 176 ? undefined : width }}
                 onPointerDown={ev => startDrag(ev, n.id)}
-                onClick={ev => { ev.stopPropagation(); if (dropped.current) { dropped.current = false; return; } setSel(sel === n.id ? null : n.id); }}>
+                onClick={ev => { ev.stopPropagation(); if (dropped.current) { dropped.current = false; return; } keyOpen.current = sel !== n.id && ev.detail === 0; setSel(sel === n.id ? null : n.id); }}
+                onKeyDown={ev => { if (ev.key === 'Escape' && sel === n.id) { ev.preventDefault(); setSel(null); } }}>
                 <span className="dm-ic" style={{ color: n.color, background: `color-mix(in srgb,${n.color} 14%,transparent)` }}><Icon name={n.icon} size="xs" /></span>
                 <span className="dm-t"><b>{n.title}</b><Swap className="dm-d">{valueOf(n)}</Swap></span>
                 {/* the badge pops in once; after that its spinner turns into a check with a short crossfade */}
@@ -245,16 +267,21 @@ export function AutomationCanvas({
             );
           })}
         </div>
-        <div className={cx('dm-pop dm-acx-pop', !!sel && 'dm-open')} role="dialog" aria-label={pop?.title} inert={!sel} style={{ left: px, top: py }} onClick={e => e.stopPropagation()}>
+        <div ref={popEl} className={cx('dm-pop dm-acx-pop', !!sel && 'dm-open')} role="dialog" aria-label={pop?.title} inert={!sel} style={{ left: px, top: py }} onClick={e => e.stopPropagation()}
+          onFocus={() => { inPop.current = true; }} onBlur={e => { if (!popEl.current?.contains(e.relatedTarget as Node)) inPop.current = false; }}
+          onKeyDown={e => { if (e.key === 'Escape' && sel) { e.preventDefault(); setSel(null); } }}>
           {pop && <>
             <h4>{pop.title}</h4>
             {pop.field && (
               <div className="dm-acx-fl">
                 <span>{pop.field.label}</span>
-                <button type="button" className="dm-acx-dd" aria-expanded={optsOpen} onClick={() => setOptsOpen(o => !o)}><Swap>{valueOf(pop)}</Swap><Icon name="chev-d" size="xs" /></button>
-                <div className={cx('dm-acx-opts', optsOpen && 'dm-open')} role="menu">
+                <button type="button" ref={ddEl} className="dm-acx-dd" aria-haspopup="menu" aria-expanded={optsOpen}
+                  onClick={e => { if (!optsOpen && e.detail === 0) optsFocus.current = 'first'; setOptsOpen(o => !o); }}
+                  onKeyDown={e => { if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return; e.preventDefault(); optsFocus.current = e.key === 'ArrowUp' ? 'last' : 'first'; if (optsOpen) { const it = optItems(); (e.key === 'ArrowUp' ? it[it.length - 1] : it[0])?.focus({ preventScroll: true }); optsFocus.current = null; } else setOptsOpen(true); }}>
+                  <Swap>{valueOf(pop)}</Swap><Icon name="chev-d" size="xs" /></button>
+                <div ref={optsEl} className={cx('dm-acx-opts', optsOpen && 'dm-open')} role="menu" aria-label={pop.field.label} onKeyDown={optsKey}>
                   {pop.field.options.map(o => (
-                    <button type="button" key={o} className="dm-mi" role="menuitemradio" aria-checked={o === valueOf(pop)} onClick={() => pick(pop, o)}>
+                    <button type="button" key={o} className="dm-mi" role="menuitemradio" tabIndex={-1} aria-checked={o === valueOf(pop)} onClick={() => pick(pop, o)}>
                       <span>{o}</span><span className="dm-ck"><Icon name="check" size="xs" /></span>
                     </button>
                   ))}

@@ -21,6 +21,9 @@
      (4.5:1 on the surface, and on the chips and tints it sits on) and --accent-mark is lines, rings and chart marks (3:1). A
      light accent like lime keeps its fills and gets a darker mark and ink-coloured text on a light page */
   --accent:#116ff8; --on-accent:#ffffff; --accent-fg:#0f5fd5; --accent-mark:#116ff8; --sel:color-mix(in srgb,var(--accent) 6%,transparent);
+  /* every focus ring: 2px in this colour, as an outline offset 2px, or as a 2px box-shadow ring where an outline would be
+     clipped or the control is a filled field */
+  --focus:var(--accent-mark);
   --ink:#1b1b1b; --on-ink:#ffffff;
   --ok:#137739; --ok-bg:#e8f6ee; --warn:#a94e09; --warn-bg:#fdf3df; --bad:#bf3434; --bad-bg:#fdecec;
   --merge:#7c4cd4; --merge-bg:#f2ecfd; --add:#187633; --del:#c7212c;
@@ -82,7 +85,7 @@
 :where([data-c]) button{background:none;border:0;padding:0;cursor:pointer}
 /* one weight for emphasis: medium, never bold */
 :where([data-c]) b,:where([data-c]) strong{font-weight:500}
-:where([data-c]) :focus-visible{outline:2px solid var(--accent-mark,var(--accent));outline-offset:2px;border-radius:6px}
+:where([data-c]) :focus-visible{outline:2px solid var(--focus);outline-offset:2px;border-radius:6px}
 .stage-in{width:100%;max-width:440px;min-width:0;position:relative;container-type:inline-size}
 .card.wide .stage-in{max-width:720px}
 
@@ -220,7 +223,8 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 /* shadows inside an open fold aren't cut off: the clip leaves room round its edge (a shut fold is invisible anyway) */
 .fold{grid-template-columns:minmax(0,1fr)}
 .fold>*{overflow:clip;overflow-clip-margin:12px;min-width:0}
-.fold.shut{grid-template-rows:0fr;opacity:0}
+/* a shut fold is hidden as well as clear once it has folded, so Tab passes over what is inside it */
+.fold.shut{grid-template-rows:0fr;opacity:0;visibility:hidden;transition:grid-template-rows var(--t) var(--ease),opacity var(--t) var(--ease),visibility 0s var(--t)}
 
 /* ---------- tooltip and popover ---------- */
 .tip{position:fixed;z-index:1000;pointer-events:none;background:var(--ink);color:var(--on-ink);font-size:12px;line-height:1.35;padding:6px 9px;border-radius:8px;max-width:240px;opacity:0;transform:translateY(4px);filter:blur(2px);transition:opacity .18s var(--ease),transform .25s var(--ease),filter .18s}
@@ -231,8 +235,10 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 :root[data-theme="dark"] .tip .kbd{background:rgba(0,0,0,.1)}
 :root[data-theme="dark"] :is(.av,.ssx-ics span){color:#0d0d0d!important}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) :is(.av,.ssx-ics span){color:#0d0d0d!important}}
-.pop{position:absolute;z-index:50;min-width:200px;background:var(--raised);border-radius:14px;box-shadow:var(--shadow-pop);padding:6px;opacity:0;pointer-events:none;transform:translateY(6px) scale(.98);transform-origin:var(--origin,top left);filter:blur(3px);transition:opacity .2s var(--ease),transform .35s var(--ease),filter .2s var(--ease)}
-.pop.open{opacity:1;pointer-events:auto;transform:none;filter:none}
+/* a closed popover is hidden as well as clear, so Tab and screen readers pass over it: it shows at once as it opens, so the
+   focus can go into it, and hides once it has faded out */
+.pop{position:absolute;z-index:50;min-width:200px;background:var(--raised);border-radius:14px;box-shadow:var(--shadow-pop);padding:6px;opacity:0;visibility:hidden;pointer-events:none;transform:translateY(6px) scale(.98);transform-origin:var(--origin,top left);filter:blur(3px);transition:opacity .2s var(--ease),transform .35s var(--ease),filter .2s var(--ease),visibility 0s .2s}
+.pop.open{opacity:1;visibility:visible;pointer-events:auto;transform:none;filter:none;transition-property:opacity,transform,filter}
 .pop .ph{padding:6px 8px 4px;font-size:11.5px;color:var(--muted)}
 .mi{display:flex;align-items:center;gap:10px;width:100%;padding:7px 8px;border-radius:9px;font-size:13px;text-align:left;color:var(--fg);transition:background var(--t-fast)}
 .mi.hl{background:var(--row)}

@@ -39,6 +39,7 @@ Model picker is the control a person uses to choose which model answers in a cha
 - Arrow keys move to the next or previous model and pick it, wrapping at the ends.
 - The trigger has `aria-expanded`. Escape closes the list and moves the focus back to the trigger.
 - The thinking effort is a menu button with `aria-haspopup` and `aria-expanded`; its levels are `menuitemradio` items with `aria-checked`. The suggestion and the confirmation are announced as they change.
+- From the keyboard, Enter, Space or the down arrow opens a menu with the focus on its picked item, or its first (the up arrow, on its last); the arrow keys move through it and wrap, Home and End jump to the ends, Tab closes it and moves on, and closing it gives the focus back to its button.
 
 ## Usage in React
 

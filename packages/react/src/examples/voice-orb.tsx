@@ -2,6 +2,7 @@
 // The animated preview from designme.dev, rebuilt from the React component: an example of driving it from your own state.
 import { useEffect, useRef, useState } from 'react';
 import { VoiceOrb, type VoiceState } from '../components/voice-orb/VoiceOrb';
+import { useReducedMotion } from '../lib/hooks';
 import { useStory, useWait } from './useScript';
 
 /* ---------- Voice orb: start, mute while the agent answers, talk while muted, unmute and go on, then end ---------- */
@@ -23,6 +24,7 @@ export default function VoiceOrbDemo() {
   const [secs, setSecs] = useState(0);
   const [level, setLevel] = useState(0);
   const run = useRef(0), talking = useRef(false), mutedNow = useRef(false), lv = useRef(0);
+  const reduce = useReducedMotion();
   mutedNow.current = muted;
 
   // a made-up level: a voice-like wobble while someone talks, a faint idle while it listens
@@ -32,9 +34,10 @@ export default function VoiceOrbDemo() {
       const to = talking.current ? .5 + .28 * Math.sin(t / 90) * Math.sin(t / 233) + .16 * Math.sin(t / 57) : state === 'listening' && !muted ? .05 + .03 * Math.sin(t / 420) : 0;
       lv.current += (Math.max(0, to) - lv.current) * .18; setLevel(lv.current); raf = requestAnimationFrame(tick);
     };
-    if (!matchMedia('(prefers-reduced-motion: reduce)').matches) raf = requestAnimationFrame(tick);
+    // with reduced motion the level holds still; the setting is followed as it changes
+    if (!reduce) raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [state, muted]);
+  }, [state, muted, reduce]);
   // the clock runs from start to end, whatever happens between
   const live = state !== 'idle' && state !== 'ended';
   useEffect(() => {

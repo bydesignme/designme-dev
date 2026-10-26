@@ -37,6 +37,7 @@ Comments is a thread pinned to one spot in a design, where people reply to each 
 
 - The thread is an `aria-live="polite"` region, so new comments and replies are announced.
 - The reply box is a `combobox` with `aria-expanded` reflecting the mention menu, which is a `listbox` of `option` rows.
+- In the mention menu ↑ and ↓ move the highlight and wrap, which `aria-activedescendant` points to, and Enter picks the highlighted person.
 - Escape dismisses the mention menu until the text changes.
 - Resolve reports its state with `aria-pressed`, and the icon-only Send button has an `aria-label`.
 
@@ -150,7 +151,7 @@ Give the agent's comment `actions`, such as Apply to all and Just this one. In e
 
 ```tsx
 'use client';
-import { useState, type KeyboardEvent, type ReactNode } from 'react';
+import { useId, useState, type KeyboardEvent, type ReactNode } from 'react';
 import { cx } from '../lib/cx';
 import { useControllable } from '../lib/hooks';
 import { Icon } from '../lib/icons';
@@ -259,10 +260,15 @@ export function Comments({ title, pin = 1, comments, people, value, defaultValue
   const matches = typed ? (people ?? []).filter(p => p.handle?.toLowerCase().startsWith(typed[1].toLowerCase())) : [];
   const menuOpen = matches.length > 0 && dismissed !== draft;
   const pick = (p: CommentsPerson) => setDraft(draft.replace(/@\w*$/, '@' + p.handle + ' '));
+  // the highlighted person: the up and down arrows move it and wrap, and it starts on the first whenever the list changes
+  const [hl, setHl] = useState({ at: 0, for: '' });
+  const at = hl.for === draft ? Math.min(hl.at, matches.length - 1) : 0;
+  const id = useId();
 
   const send = () => { const v = draft.trim(); if (!v) return; setDraft(''); onSend?.(v); };
   const key = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') { e.preventDefault(); if (menuOpen) pick(matches[0]); else send(); }
+    if (menuOpen && (e.key === 'ArrowDown' || e.key === 'ArrowUp')) { e.preventDefault(); setHl({ at: (at + (e.key === 'ArrowDown' ? 1 : -1) + matches.length) % matches.length, for: draft }); return; }
+    if (e.key === 'Enter') { e.preventDefault(); if (menuOpen) pick(matches[at]); else send(); }
     if (e.key === 'Escape') setDismissed(draft);
   };
 
@@ -279,13 +285,14 @@ export function Comments({ title, pin = 1, comments, people, value, defaultValue
       <div className="dm-cmx-in">
         <div className="dm-cmx-box">
           <input placeholder={placeholder} aria-label="Reply" spellCheck={false} value={draft} onChange={e => setDraft(e.target.value)} onKeyDown={key}
-            role="combobox" aria-expanded={menuOpen} aria-autocomplete="list" />
+            role="combobox" aria-expanded={menuOpen} aria-autocomplete="list" aria-controls={`${id}-men`} aria-activedescendant={menuOpen ? `${id}-${at}` : undefined} />
           <button type="button" className="dm-cmx-go" aria-label="Send" disabled={!draft.trim()} onClick={send}><Icon name="up" size="xs" /></button>
         </div>
-        <div className={cx('dm-pop dm-cmx-men', menuOpen && 'dm-open')} role="listbox" inert={!menuOpen}>
-          {matches.map(p => (
+        <div className={cx('dm-pop dm-cmx-men', menuOpen && 'dm-open')} role="listbox" id={`${id}-men`} aria-label="Mention" inert={!menuOpen}>
+          {matches.map((p, i) => (
             // mousedown, so the field keeps its focus
-            <button type="button" key={p.handle} className="dm-mi" role="option" aria-selected={false} onMouseDown={e => { e.preventDefault(); pick(p); }}>
+            <button type="button" key={p.handle} id={`${id}-${i}`} tabIndex={-1} className={cx('dm-mi', i === at && 'dm-hl')} role="option" aria-selected={i === at}
+              onMouseEnter={() => setHl({ at: i, for: draft })} onMouseDown={e => { e.preventDefault(); pick(p); }}>
               <span className="dm-av" style={{ background: p.color, width: 20, height: 20, fontSize: 9 }} aria-hidden="true">{p.initials}</span>
               <span>{p.name}<span className="dm-d">@{p.handle}</span></span>
             </button>

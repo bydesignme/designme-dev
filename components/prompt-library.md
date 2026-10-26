@@ -38,6 +38,7 @@ Prompt library keeps a team's saved prompts, each with blanks written like {page
 - Each prompt in the list is a button, and the back button is labelled "All prompts".
 - Text blanks are labelled inputs. An empty one marked by Use prompt sets `aria-invalid` and is described by its error.
 - Dropdown blanks are buttons named by their label and current value. Each choice is a menu item that marks the picked one with `aria-checked`, and Escape closes the menu.
+- From the keyboard, Enter, Space or the down arrow opens a menu with the focus on its picked item, or its first (the up arrow, on its last); the arrow keys move through it and wrap, Home and End jump to the ends, Tab closes it and moves on, and closing it gives the focus back to its button.
 - The filled prompt is an `aria-live="polite"` region, so changes to it are read out.
 
 ## Usage in React

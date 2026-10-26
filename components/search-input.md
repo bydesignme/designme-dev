@@ -37,7 +37,7 @@ Search input is a search box that lifts open to show recent searches, matching r
 
 - The input is a `combobox` with `aria-expanded`, `aria-controls` and `aria-autocomplete="list"`, and the results are a `listbox` of `option` rows.
 - Arrow Up and Arrow Down move the highlight, which is announced through `aria-activedescendant` and `aria-selected`.
-- Enter picks or submits, and Escape closes the list and leaves the box.
+- Enter picks or submits, Escape closes the list and keeps the focus in the box, and a second Escape clears it.
 - The list's height animation is skipped when the user prefers reduced motion.
 
 ## Usage in React
@@ -280,7 +280,8 @@ export function SearchInput({ items, sources = [], recent = [], value, defaultVa
       e.preventDefault(); if (!isOpen) setOpen(true);
       if (rows.length) setHi({ at: cur < 0 ? (e.key === 'ArrowDown' ? 0 : rows.length - 1) : (cur + (e.key === 'ArrowDown' ? 1 : -1) + rows.length) % rows.length, for: paint });
     } else if (e.key === 'Enter') { if (cur >= 0) pick(rows[cur]); else onSubmit?.(v, sc); }
-    else if (e.key === 'Escape') { input.current?.blur(); setOpen(false); }
+    // Escape closes the list and keeps the focus in the box; a second Escape clears it
+    else if (e.key === 'Escape') { e.preventDefault(); if (isOpen) setOpen(false); else if (text || sc) { setText(''); setScope(null); } }
     else if (e.key === 'Backspace' && !text && sc) setScope(null);
   };
   // rows are picked on mousedown, so the cursor stays in the box
@@ -302,7 +303,7 @@ export function SearchInput({ items, sources = [], recent = [], value, defaultVa
             {sc && <span key={sc} className="dm-six-ch dm-enter">{sc}<button type="button" aria-label="Remove filter" onMouseDown={e => { e.preventDefault(); setScope(null); }}><Icon name="x" size="xs" /></button></span>}
           </span>
           <input ref={input} placeholder={placeholder} aria-label="Search" spellCheck={false} value={text} role="combobox" aria-expanded={isOpen}
-            aria-controls={`${id}-list`} aria-autocomplete="list" aria-activedescendant={cur >= 0 ? `${id}-${cur}` : undefined}
+            aria-controls={`${id}-list`} aria-autocomplete="list" aria-activedescendant={isOpen && cur >= 0 ? `${id}-${cur}` : undefined}
             onChange={e => setText(e.target.value)} onFocus={() => setOpen(true)} onBlur={() => setOpen(false)} onKeyDown={key} />
           <span className="dm-kbd" hidden={!!v || !!sc}>{shortcut}</span>
           <button type="button" className="dm-ib dm-six-x" aria-label="Clear" hidden={!v && !sc} onMouseDown={e => { e.preventDefault(); setText(''); setScope(null); }}><Icon name="x" size="xs" /></button>

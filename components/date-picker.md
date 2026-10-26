@@ -36,6 +36,7 @@ A date field that opens a small calendar, with a text box at the top that reads 
 
 - The field button has aria-haspopup="dialog" and aria-expanded, and the calendar is a role="dialog" labelled "Choose a date"; Escape closes it and returns focus to the field.
 - In the day grid, arrow keys move a day or a week, Home and End go to the start and end of the week, and Page Up and Page Down move a month, or a year with Shift.
+- Opened from the keyboard, the calendar takes the focus on the picked day, or today. Only one day is a tab stop: the one the arrows reached, the picked day, today or the 1st.
 - Each day button has its full date as aria-label, aria-pressed on the picked day and aria-current="date" on today.
 - The month name is an aria-live="polite" region, so changing month is announced.
 
@@ -227,17 +228,23 @@ export function DatePicker({
     grid.current?.querySelector<HTMLButtonElement>(`[data-date="${focus}"]`)?.focus();
     setFocus(null);
   }, [focus, viewKey]);
+  // one day takes Tab: the one the arrows last reached, or the picked day, today or the 1st
+  const [cursor, setCursor] = useState<Date | null>(null);
+  const tabDay = [cursor, picked, now].find(d => d && sameMonth(d, view)) ?? startOfMonth(view);
   const keys = (e: KeyboardEvent<HTMLDivElement>) => {
     const at = (e.target as HTMLElement).dataset.date; if (!at) return;
     const next = moveDay(fromIsoDay(at), e.key, weekStartsOn, e.shiftKey); if (!next) return;
     e.preventDefault();
     if (!sameMonth(next, view)) setView(startOfMonth(next));
-    setFocus(isoDay(next));
+    setCursor(next); setFocus(isoDay(next));
   };
+  // opened with Enter or Space, the calendar takes the focus on the picked day, or today
+  const keyOpen = useRef(false);
+  useIsoLayoutEffect(() => { if (menu.open && keyOpen.current) { keyOpen.current = false; setCursor(null); grid.current?.querySelector<HTMLButtonElement>('[tabindex="0"]')?.focus({ preventScroll: true }); } }, [menu.open]);
 
   return (
     <div data-dm="" className={cx('dm-dpk', className)}>
-      <button type="button" className="dm-dpk-f" {...menu.trigger} aria-haspopup="dialog">
+      <button type="button" className="dm-dpk-f" {...menu.trigger} aria-haspopup="dialog" onClick={e => { keyOpen.current = !menu.open && e.detail === 0; menu.trigger.onClick(); }}>
         <Icon name="cal" size="xs" />
         <Swap className={cx('dm-dpk-val', !picked && 'dm-ph')}>{picked ? show(picked) : placeholder}</Swap>
         <Icon name="chev-d" size="xs" />
@@ -259,7 +266,7 @@ export function DatePicker({
             {monthGrid(view, weekStartsOn).map(d => (
               <button type="button" key={isoDay(d)} data-date={isoDay(d)}
                 className={cx('dm-dpk-d', !sameMonth(d, view) && 'dm-o', sameDay(d, now) && 'dm-t', sameDay(d, picked) && 'dm-s')}
-                aria-pressed={sameDay(d, picked)} aria-current={sameDay(d, now) ? 'date' : undefined} aria-label={show(d)}
+                aria-pressed={sameDay(d, picked)} aria-current={sameDay(d, now) ? 'date' : undefined} aria-label={show(d)} tabIndex={sameDay(d, tabDay) ? 0 : -1}
                 onClick={() => pick(d)}>{d.getDate()}</button>
             ))}
           </div>

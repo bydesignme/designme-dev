@@ -22,6 +22,9 @@
      (4.5:1 on the surface, and on the chips and tints it sits on) and --accent-mark is lines, rings and chart marks (3:1). A
      light accent like lime keeps its fills and gets a darker mark and ink-coloured text on a light page */
   --dm-accent:#116ff8; --dm-on-accent:#ffffff; --dm-accent-fg:#0f5fd5; --dm-accent-mark:#116ff8; --dm-sel:color-mix(in srgb,var(--dm-accent) 6%,transparent);
+  /* every focus ring: 2px in this colour, as an outline offset 2px, or as a 2px box-shadow ring where an outline would be
+     clipped or the control is a filled field */
+  --dm-focus:var(--dm-accent-mark);
   --dm-ink:#1b1b1b; --dm-on-ink:#ffffff;
   --dm-ok:#137739; --dm-ok-bg:#e8f6ee; --dm-warn:#a94e09; --dm-warn-bg:#fdf3df; --dm-bad:#bf3434; --dm-bad-bg:#fdecec;
   --dm-merge:#7c4cd4; --dm-merge-bg:#f2ecfd; --dm-add:#187633; --dm-del:#c7212c;
@@ -83,7 +86,7 @@
 :where([data-dm]) button{background:none;border:0;padding:0;cursor:pointer}
 /* one weight for emphasis: medium, never bold */
 :where([data-dm]) b,:where([data-dm]) strong{font-weight:500}
-:where([data-dm]) :focus-visible{outline:2px solid var(--dm-accent-mark,var(--dm-accent));outline-offset:2px;border-radius:6px}/* ---------- icons ---------- */
+:where([data-dm]) :focus-visible{outline:2px solid var(--dm-focus);outline-offset:2px;border-radius:6px}/* ---------- icons ---------- */
 .dm-i{width:16px;height:16px;flex:none;display:inline-block;vertical-align:-3px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
 .dm-i.dm-s{width:14px;height:14px}.dm-i.dm-xs{width:12px;height:12px}.dm-i.dm-l{width:18px;height:18px}
 .dm-brand{width:16px;height:16px;display:block;flex:none}
@@ -211,7 +214,8 @@ code.dm-c{font-family:var(--dm-mono);font-size:12.5px;background:var(--dm-chip);
 /* shadows inside an open fold aren't cut off: the clip leaves room round its edge (a shut fold is invisible anyway) */
 .dm-fold{grid-template-columns:minmax(0,1fr)}
 .dm-fold>*{overflow:clip;overflow-clip-margin:12px;min-width:0}
-.dm-fold.dm-shut{grid-template-rows:0fr;opacity:0}
+/* a shut fold is hidden as well as clear once it has folded, so Tab passes over what is inside it */
+.dm-fold.dm-shut{grid-template-rows:0fr;opacity:0;visibility:hidden;transition:grid-template-rows var(--dm-t) var(--dm-ease),opacity var(--dm-t) var(--dm-ease),visibility 0s var(--dm-t)}
 
 /* ---------- tooltip and popover ---------- */
 .dm-tip{position:fixed;z-index:1000;pointer-events:none;background:var(--dm-ink);color:var(--dm-on-ink);font-size:12px;line-height:1.35;padding:6px 9px;border-radius:8px;max-width:240px;opacity:0;transform:translateY(4px);filter:blur(2px);transition:opacity .18s var(--dm-ease),transform .25s var(--dm-ease),filter .18s}
@@ -222,8 +226,10 @@ code.dm-c{font-family:var(--dm-mono);font-size:12.5px;background:var(--dm-chip);
 :root[data-theme="dark"] .dm-tip .dm-kbd{background:rgba(0,0,0,.1)}
 :root[data-theme="dark"] :is(.dm-av,.dm-ssx-ics span){color:#0d0d0d!important}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) :is(.dm-av,.dm-ssx-ics span){color:#0d0d0d!important}}
-.dm-pop{position:absolute;z-index:50;min-width:200px;background:var(--dm-raised);border-radius:14px;box-shadow:var(--dm-shadow-pop);padding:6px;opacity:0;pointer-events:none;transform:translateY(6px) scale(.98);transform-origin:var(--dm-origin,top left);filter:blur(3px);transition:opacity .2s var(--dm-ease),transform .35s var(--dm-ease),filter .2s var(--dm-ease)}
-.dm-pop.dm-open{opacity:1;pointer-events:auto;transform:none;filter:none}
+/* a closed popover is hidden as well as clear, so Tab and screen readers pass over it: it shows at once as it opens, so the
+   focus can go into it, and hides once it has faded out */
+.dm-pop{position:absolute;z-index:50;min-width:200px;background:var(--dm-raised);border-radius:14px;box-shadow:var(--dm-shadow-pop);padding:6px;opacity:0;visibility:hidden;pointer-events:none;transform:translateY(6px) scale(.98);transform-origin:var(--dm-origin,top left);filter:blur(3px);transition:opacity .2s var(--dm-ease),transform .35s var(--dm-ease),filter .2s var(--dm-ease),visibility 0s .2s}
+.dm-pop.dm-open{opacity:1;visibility:visible;pointer-events:auto;transform:none;filter:none;transition-property:opacity,transform,filter}
 .dm-pop .dm-ph{padding:6px 8px 4px;font-size:11.5px;color:var(--dm-muted)}
 .dm-mi{display:flex;align-items:center;gap:10px;width:100%;padding:7px 8px;border-radius:9px;font-size:13px;text-align:left;color:var(--dm-fg);transition:background var(--dm-t-fast)}
 .dm-mi.dm-hl{background:var(--dm-row)}

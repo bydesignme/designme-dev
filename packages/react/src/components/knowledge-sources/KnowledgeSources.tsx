@@ -150,7 +150,7 @@ export function KnowledgeSources({ sources, onUpload, onAddWebsite, address, def
         {sources.map(s => { const at = first.indexOf(s.key); return <Row key={s.key} s={s} delay={at >= 0 ? at * 50 : 0} onResync={onResync} onRemove={onRemove} onFix={onFix} />; })}
       </div>
       {canAdd && <>
-        <button type="button" className="dm-ksx-add" {...menu.trigger} onClick={() => { if (!menu.open) setView('main'); menu.trigger.onClick(); }}><Icon name="plus" size="xs" />Add source</button>
+        <button type="button" className="dm-ksx-add" {...menu.trigger} onClick={e => { if (!menu.open) setView('main'); menu.trigger.onClick(e); }}><Icon name="plus" size="xs" />Add source</button>
         <div {...menu.pop} style={{ ...menu.pop.style, ...bottom }} className={cx(menu.pop.className, 'dm-ksx-pop')} role="menu" aria-label="Add source">
           {view === 'main' && <>
             {onUpload && <button type="button" className="dm-mi" role="menuitem" onClick={() => { menu.closeSoon(); file.current?.click(); }}><Icon name="upload" size="xs" /><span>Upload files</span></button>}

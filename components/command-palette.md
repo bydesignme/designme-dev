@@ -36,6 +36,7 @@ A search box with a list of commands under it, grouped by heading, where a perso
 ### Accessibility
 
 - The list has role="listbox" and each row has role="option" with aria-selected on the highlighted one.
+- The input is a `combobox` that points at the highlighted row with `aria-activedescendant`, so the focus stays in the box and the rows are not tab stops.
 - Arrow Up and Arrow Down move the highlight and wrap around, and Enter runs the highlighted row.
 - Escape clears the box first, and calls `onClose` only when the box is already empty.
 - The input carries aria-label="Command".
@@ -127,9 +128,9 @@ Yes. Set `autoFocus` and the cursor goes into the box when it appears.
 
 ```tsx
 'use client';
-import { Fragment, useRef, useState, type KeyboardEvent } from 'react';
+import { Fragment, useId, useRef, useState, type KeyboardEvent } from 'react';
 import { cx } from '../lib/cx';
-import { useControllable, useIsoLayoutEffect } from '../lib/hooks';
+import { useControllable, useIsoLayoutEffect, useReducedMotion } from '../lib/hooks';
 import { Icon, type IconName } from '../lib/icons';
 import { Swap } from '../lib/motion';
 import '../designme.css';
@@ -193,12 +194,13 @@ export function CommandPalette({ items, query, defaultQuery = '', onQueryChange,
 
   const list = useRef<HTMLDivElement>(null);
   const btns = useRef<(HTMLButtonElement | null)[]>([]);
+  const id = useId(), reduce = useReducedMotion();
   const [top, setTop] = useState<{ for: string; px: number }>();
   useIsoLayoutEffect(() => {
     const b = btns.current[at], l = list.current; if (!b || !l) return;
     setTop({ for: v, px: b.offsetTop });
-    if (b.offsetTop < l.scrollTop || b.offsetTop + 36 > l.scrollTop + l.clientHeight) l.scrollTo({ top: b.offsetTop - 40, behavior: 'smooth' });
-  }, [at, v, rows.length]);
+    if (b.offsetTop < l.scrollTop || b.offsetTop + 36 > l.scrollTop + l.clientHeight) l.scrollTo({ top: b.offsetTop - 40, behavior: reduce ? 'auto' : 'smooth' });
+  }, [at, v, rows.length, reduce]);
 
   const move = (d: number) => { if (rows.length) setHi({ at: (at + d + rows.length) % rows.length, for: v }); };
   const run = (i: number) => {
@@ -219,11 +221,13 @@ export function CommandPalette({ items, query, defaultQuery = '', onQueryChange,
     <div data-dm="" className={cx('dm-cpl dm-panel', className)}>
       <div className="dm-cpl-in">
         <Icon name="search" />
+        {/* the box keeps the focus and points at the highlighted row, so the rows are not tab stops */}
         <input className="dm-cpl-q" placeholder={placeholder} aria-label="Command" spellCheck={false} autoFocus={autoFocus} value={q}
+          role="combobox" aria-expanded aria-controls={`${id}-list`} aria-autocomplete="list" aria-activedescendant={rows.length ? `${id}-${at}` : undefined}
           onChange={e => setQ(e.target.value)} onKeyDown={key} />
         <span className="dm-kbd">esc</span>
       </div>
-      <div className="dm-cpl-list" role="listbox" ref={list}>
+      <div className="dm-cpl-list" role="listbox" id={`${id}-list`} aria-label="Commands" tabIndex={-1} ref={list}>
         {/* a new list starts the highlight afresh, so it jumps into place instead of sliding */}
         <span key={v} className="dm-cpl-hl" style={{ top: top?.for === v ? top.px : undefined }} />
         {rows.map((row, i) => {
@@ -233,7 +237,7 @@ export function CommandPalette({ items, query, defaultQuery = '', onQueryChange,
             <Fragment key={row ? row.group + row.label : '\u0000ask'}>
               {g}
               <button type="button" ref={el => { btns.current[i] = el; }} className={cx('dm-cpl-i', !row && 'dm-ask', i === at && 'dm-hl')}
-                role="option" aria-selected={i === at} onMouseEnter={() => setHi({ at: i, for: v })} onClick={() => run(i)}>
+                role="option" id={`${id}-${i}`} tabIndex={-1} aria-selected={i === at} onMouseEnter={() => setHi({ at: i, for: v })} onClick={() => run(i)}>
                 <span className="dm-ic"><Icon name={row ? row.icon : 'up'} size="xs" /></span>
                 <span>{row ? marked(row.label, v) : <>Ask the agent: “{v}”</>}</span>
                 {row?.keys && <span className="dm-k">{row.keys.map((k, j) => <span key={j} className="dm-kbd">{k}</span>)}</span>}

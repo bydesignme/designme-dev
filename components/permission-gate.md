@@ -40,6 +40,7 @@ Permission gate is the card an agent shows when it wants to do something it has 
 
 - Each scope is a native checkbox inside its label, so the whole row is clickable and keyboard reachable.
 - How long is a menu button with `aria-haspopup` and `aria-expanded`; its choices are `menuitemradio` items with `aria-checked`.
+- From the keyboard, Enter, Space or the down arrow opens a menu with the focus on its picked item, or its first (the up arrow, on its last); the arrow keys move through it and wrap, Home and End jump to the ends, Tab closes it and moves on, and closing it gives the focus back to its button.
 - The Allow button is a disabled button until at least one scope is ticked.
 
 ## Usage in React

@@ -37,6 +37,7 @@ Composer is the box where a person writes a task for a design or coding agent an
 ### Accessibility
 
 - The menus use `role="menu"`, the Working on and mode menus mark the current pick with `menuitemradio` and `aria-checked`, and each button that opens a menu reports `aria-expanded`.
+- From the keyboard, Enter, Space or the down arrow opens a menu with the focus on its picked item, or its first (the up arrow, on its last); the arrow keys move through it and wrap, Home and End jump to the ends, Tab closes it and moves on, and closing it gives the focus back to its button.
 - Escape or a click outside closes an open menu, and Escape in the text box cancels dictation.
 - Each attachment's remove button is labelled with its name, and a failed attachment's retry button is labelled Try again.
 - The thread area above the box is an `aria-live="polite"` region.
@@ -208,6 +209,7 @@ import { cx } from '../lib/cx';
 import { useControllable, useIsoLayoutEffect, useSeconds } from '../lib/hooks';
 import { Icon, type IconName } from '../lib/icons';
 import { Spin, Swap, Tip } from '../lib/motion';
+import { focusMenu, menuStep } from '../lib/popover';
 import '../designme.css';
 import './composer.css';
 
@@ -318,6 +320,13 @@ export function Composer({
   const triggers = useRef<Partial<Record<PopName, HTMLButtonElement | null>>>({});
   const pops = useRef<Partial<Record<PopName, HTMLDivElement | null>>>({});
   const pick = (fn: () => void) => () => { fn(); setTimeout(() => setPop(null), 120); };
+  // the keyboard: Enter, Space or the down arrow opens a menu on its picked or first item (the up arrow, on its last), the
+  // arrows move and wrap, Home and End jump, and Escape, Tab or a pick closes it with the focus back on its button
+  const focusTo = useRef<'first' | 'last' | null>(null), inside = useRef<PopName | null>(null);
+  useIsoLayoutEffect(() => {
+    if (pop) { const to = focusTo.current, el = pops.current[pop]; focusTo.current = null; if (to && el) focusMenu(el, to); return; }
+    if (inside.current) { const b = triggers.current[inside.current]; inside.current = null; b?.focus({ preventScroll: true }); }
+  }, [pop]);
   useIsoLayoutEffect(() => {
     if (!pop) return;
     const btn = triggers.current[pop], el = pops.current[pop], host = box.current; if (!btn || !el || !host) return;
@@ -330,14 +339,28 @@ export function Composer({
   useEffect(() => {
     if (!pop) return;
     const click = (e: MouseEvent) => { const t = e.target as Node; if (!pops.current[pop]?.contains(t) && !triggers.current[pop]?.contains(t)) setPop(null); };
-    const key = (e: KeyboardEvent) => { if (e.key === 'Escape') setPop(null); };
-    const resize = () => setPop(null);
+    const key = (e: KeyboardEvent) => {
+      const el = pops.current[pop], t = e.target as Node;
+      if (e.key === 'Escape') { if (el?.contains(t)) inside.current = pop; setPop(null); return; }
+      if (e.defaultPrevented || !el || !el.contains(t)) return;
+      if (e.key === 'Tab') { triggers.current[pop]?.focus({ preventScroll: true }); inside.current = null; setPop(null); return; }
+      const to = menuStep(el, e.key); if (to) { e.preventDefault(); to.focus({ preventScroll: true }); }
+    };
+    const track = (e: FocusEvent) => { inside.current = pops.current[pop]?.contains(e.target as Node) ? pop : null; };
+    const resize = (e: UIEvent) => { if (e.isTrusted) setPop(null); };
+    document.addEventListener('focusin', track);
     document.addEventListener('click', click); document.addEventListener('keydown', key); addEventListener('resize', resize);
-    return () => { document.removeEventListener('click', click); document.removeEventListener('keydown', key); removeEventListener('resize', resize); };
+    return () => { document.removeEventListener('click', click); document.removeEventListener('keydown', key); document.removeEventListener('focusin', track); removeEventListener('resize', resize); };
   }, [pop]);
   const trigger = (name: PopName) => ({
     ref: (el: HTMLButtonElement | null) => { triggers.current[name] = el; },
-    'aria-expanded': pop === name, 'aria-haspopup': 'menu' as const, onClick: () => setPop(p => p === name ? null : name)
+    'aria-expanded': pop === name, 'aria-haspopup': 'menu' as const,
+    onClick: (e: { detail: number }) => { if (pop !== name && e.detail === 0) focusTo.current = 'first'; setPop(p => p === name ? null : name); },
+    onKeyDown: (e: { key: string; preventDefault: () => void }) => {
+      if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return;
+      e.preventDefault(); const where = e.key === 'ArrowUp' ? 'last' : 'first', el = pops.current[name];
+      if (pop === name && el) focusMenu(el, where); else { focusTo.current = where; setPop(name); }
+    }
   });
   const popProps = (name: PopName, cls: string) => ({
     ref: (el: HTMLDivElement | null) => { pops.current[name] = el; },

@@ -38,7 +38,7 @@ A settings panel for how much an agent may do on its own: an autonomy scale, on/
 - The autonomy scale is a role="radiogroup" labelled "Autonomy", and each step is role="radio" with aria-checked.
 - Each toggle is role="switch" with aria-checked and its label as aria-label.
 - The cap buttons are labelled "Lower cap" and "Raise cap", and the text box is labelled "Instructions".
-- The save bar is inert and aria-hidden while there is nothing to save.
+- The save bar is inert and aria-hidden while there is nothing to save. If it hides with the focus in it, after Save or Reset, the focus moves to the autonomy scale.
 
 ## Usage in React
 
@@ -119,7 +119,7 @@ Yes. `caps` sets the amounts the minus and plus buttons step through, and `forma
 'use client';
 import { useEffect, useRef, useState } from 'react';
 import { cx } from '../lib/cx';
-import { useControllable } from '../lib/hooks';
+import { useControllable, useIsoLayoutEffect } from '../lib/hooks';
 import { Icon } from '../lib/icons';
 import { Spin, Swap } from '../lib/motion';
 import '../designme.css';
@@ -194,6 +194,9 @@ export function AgentSettings({
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
   useEffect(() => () => clearTimeout(timer.current), []);
   const dirty = !same(v, saved) || phase !== 'idle';
+  // when the bar of unsaved changes hides with the focus in it, the focus goes to the top of the form instead of the page
+  const root = useRef<HTMLDivElement>(null), bar = useRef<HTMLDivElement>(null);
+  useIsoLayoutEffect(() => { if (!dirty && bar.current?.contains(document.activeElement)) root.current?.querySelector<HTMLElement>('[aria-checked="true"], button')?.focus({ preventScroll: true }); }, [dirty]);
 
   const n = levels.length, a = Math.max(0, Math.min(n - 1, v.autonomy));
   const ci = Math.max(0, caps.indexOf(v.cap));
@@ -208,7 +211,7 @@ export function AgentSettings({
   const reset = () => { setV(saved); onReset?.(); };
 
   return (
-    <div data-dm="" className={cx('dm-asx dm-panel', dirty && 'dm-dirty', className)}>
+    <div data-dm="" ref={root} className={cx('dm-asx dm-panel', dirty && 'dm-dirty', className)}>
       <div className="dm-asx-r dm-asx-col">
         <div className="dm-asx-l"><b>Autonomy</b><Swap className="dm-muted dm-asx-ad">{levels[a]?.description ?? ''}</Swap></div>
         <div className="dm-asx-steps" role="radiogroup" aria-label="Autonomy" style={n === 3 ? undefined : { gridTemplateColumns: `repeat(${n},1fr)` }}>
@@ -235,7 +238,7 @@ export function AgentSettings({
         <div className="dm-asx-l"><b>Instructions</b></div>
         <textarea className="dm-asx-ta" rows={2} spellCheck={false} aria-label="Instructions" value={v.instructions} onChange={e => set({ instructions: e.target.value })} />
       </div>
-      <div className="dm-asx-bar" inert={!dirty} aria-hidden={!dirty}>
+      <div ref={bar} className="dm-asx-bar" inert={!dirty} aria-hidden={!dirty}>
         <span>Unsaved changes</span>
         <button type="button" className="dm-pill dm-ghost dm-sm dm-asx-rs" onClick={reset}>Reset</button>
         <button type="button" className="dm-pill dm-accent dm-sm dm-asx-sv" onClick={save}>

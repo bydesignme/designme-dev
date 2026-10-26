@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useRef, useState, type CSSProperties } from 'react';
+import { useEffect, useRef, useState, type CSSProperties, type KeyboardEvent as ReactKeyboardEvent } from 'react';
 import { cx } from '../../lib/cx';
 import { useControllable, useIsoLayoutEffect } from '../../lib/hooks';
 import { Icon } from '../../lib/icons';
@@ -103,6 +103,20 @@ export function VoiceCapture({ words, state, defaultState = 'listening', onState
   // the menu keeps its place and words while it fades out, so only `open` flips when it closes
   const [menu, setMenu] = useState<{ index: number; alts: string[]; style: CSSProperties }>({ index: -1, alts: [], style: {} });
   const [menuOpen, setMenuOpen] = useState(false);
+  // the keyboard: Enter or Space on a word opens its menu with the focus on the first fix; the arrows move through the fixes
+  // and wrap, Home and End jump, and Escape closes the menu back to the word
+  const keyOpen = useRef(false), inMenu = useRef(false);
+  const wordEl = (i: number) => root.current?.querySelector<HTMLElement>(`.dm-low[data-i="${i}"]`);
+  useIsoLayoutEffect(() => {
+    if (menuOpen) { if (keyOpen.current) { keyOpen.current = false; pop.current?.querySelector<HTMLElement>('.dm-mi')?.focus({ preventScroll: true }); } return; }
+    if (inMenu.current) { inMenu.current = false; wordEl(menu.index)?.focus({ preventScroll: true }); }
+  }, [menuOpen]); // eslint-disable-line react-hooks/exhaustive-deps
+  const menuKey = (e: ReactKeyboardEvent) => {
+    const all = Array.from(pop.current?.querySelectorAll<HTMLElement>('.dm-mi') ?? []), i = all.indexOf(document.activeElement as HTMLElement);
+    const go = ({ ArrowDown: all[(i + 1) % all.length], ArrowUp: all[(i - 1 + all.length) % all.length], Home: all[0], End: all[all.length - 1] } as Record<string, HTMLElement | undefined>)[e.key];
+    if (go) { e.preventDefault(); go.focus({ preventScroll: true }); }
+    else if (e.key === 'Tab') { inMenu.current = false; wordEl(menu.index)?.focus({ preventScroll: true }); setMenuOpen(false); }
+  };
   const show = (index: number, el: HTMLElement) => {
     const box = root.current; if (!box) return;
     const hr = box.getBoundingClientRect(), lr = el.getBoundingClientRect();
@@ -141,8 +155,8 @@ export function VoiceCapture({ words, state, defaultState = 'listening', onState
           if (!word.alternatives?.length) return <span key={i} className="dm-w">{word.text} </span>;
           const fixed = fixes[i] !== undefined;
           const low = (
-            <span className={cx('dm-low', fixed && 'dm-fixed')} role="button" tabIndex={0} aria-haspopup="menu"
-              onClick={e => show(i, e.currentTarget)} onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); show(i, e.currentTarget); } }}>
+            <span className={cx('dm-low', fixed && 'dm-fixed')} role="button" tabIndex={0} aria-haspopup="menu" aria-expanded={menuOpen && menu.index === i} data-i={i}
+              onClick={e => show(i, e.currentTarget)} onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); keyOpen.current = true; show(i, e.currentTarget); } }}>
               {fixes[i] ?? word.text}
             </span>
           );
@@ -172,9 +186,10 @@ export function VoiceCapture({ words, state, defaultState = 'listening', onState
           </>
         )}
       </div>
-      <div ref={pop} className={cx('dm-pop dm-vcx-fix', menuOpen && 'dm-open')} role="menu" aria-label="Did you mean" style={menu.style} inert={!menuOpen} aria-hidden={!menuOpen}>
+      <div ref={pop} className={cx('dm-pop dm-vcx-fix', menuOpen && 'dm-open')} role="menu" aria-label="Did you mean" style={menu.style} inert={!menuOpen} aria-hidden={!menuOpen}
+        onKeyDown={menuKey} onFocus={() => { inMenu.current = true; }} onBlur={e => { if (!pop.current?.contains(e.relatedTarget as Node)) inMenu.current = false; }}>
         <div className="dm-ph">Did you mean</div>
-        {menu.alts.map(a => <button type="button" key={a} role="menuitem" className="dm-mi" onClick={() => fix(menu.index, a)}>{a}</button>)}
+        {menu.alts.map(a => <button type="button" key={a} role="menuitem" tabIndex={-1} className="dm-mi" onClick={() => fix(menu.index, a)}>{a}</button>)}
       </div>
     </div>
   );

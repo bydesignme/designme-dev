@@ -51,13 +51,16 @@ export function CitationHoverCard({ text, sources, openLabel = 'Open source', on
   const marks = useRef(new Map<number, HTMLButtonElement>());
   const told = useRef(onOpenChange);
   useEffect(() => { told.current = onOpenChange; });
+  // the citation the card belongs to, whether the card should take the focus once it shows (Enter or Space), and whether a
+  // focus coming back to the citation (from Escape) should leave the card shut
+  const curEl = useRef<HTMLElement | null>(null), focusLink = useRef(false), back = useRef(false);
 
   const show = (i: number, el: HTMLElement) => {
     clearTimeout(hideT.current); if (cur.current === i) return;
     const b = box.current, c = card.current; if (!b || !c) return;
     const br = b.getBoundingClientRect(), cr = el.getBoundingClientRect();
     const x = Math.max(0, Math.min(cr.left - br.left - 24, br.width - c.offsetWidth));
-    cur.current = i; setLast(i); told.current?.(i);
+    cur.current = i; curEl.current = el; setLast(i); told.current?.(i);
     // a new key restarts the entrance, so the card always rises in place instead of sliding across
     setAt(a => ({ i, x, y: cr.bottom - br.top + 8, n: (a?.n ?? 0) + 1 }));
   };
@@ -70,11 +73,16 @@ export function CitationHoverCard({ text, sources, openLabel = 'Open source', on
   useEffect(() => {
     const down = (e: PointerEvent) => { const t = e.target as Element; if (!card.current?.contains(t) && !t.closest?.('.dm-chx-c')) hide(true); };
     const resize = () => hide(true);
-    // Escape puts the card away while the focus or the pointer is on the answer, and leaves the focus where it was
-    const key = (e: KeyboardEvent) => { const b = box.current; if (e.key === 'Escape' && cur.current !== null && b && (b.contains(document.activeElement) || b.matches(':hover'))) { e.preventDefault(); hide(true); } };
+    // Escape puts the card away while the focus or the pointer is on the answer, and leaves the focus where it was, or on
+    // its citation when it was in the card
+    const key = (e: KeyboardEvent) => { const b = box.current; if (e.key === 'Escape' && cur.current !== null && b && (b.contains(document.activeElement) || b.matches(':hover'))) {
+      e.preventDefault(); const to = card.current?.contains(document.activeElement) ? curEl.current : null; hide(true); if (to) { back.current = true; to.focus({ preventScroll: true }); } } };
     document.addEventListener('pointerdown', down); document.addEventListener('keydown', key); addEventListener('resize', resize);
     return () => { document.removeEventListener('pointerdown', down); document.removeEventListener('keydown', key); removeEventListener('resize', resize); clearTimeout(hideT.current); clearTimeout(showT.current); };
   }, []);
+
+  // opened with Enter or Space, the card takes the focus on its link once it shows
+  useEffect(() => { if (focusLink.current && at && at.i >= 0) { focusLink.current = false; card.current?.querySelector<HTMLElement>('a')?.focus({ preventScroll: true }); } }, [at]);
 
   // a card opened or closed from outside
   useEffect(() => {
@@ -90,9 +98,10 @@ export function CitationHoverCard({ text, sources, openLabel = 'Open source', on
       <button type="button" key={key} ref={el => { if (el && !marks.current.has(i)) marks.current.set(i, el); }} className={cx('dm-chx-c', at?.i === i && 'dm-on')} aria-label={`Source ${n}: ${sources[i].title}`}
         onPointerEnter={e => { if (e.pointerType === 'touch') return; const el = e.currentTarget; clearTimeout(showT.current); clearTimeout(hideT.current); showT.current = setTimeout(() => show(i, el), cur.current !== null ? 0 : 90); }}
         onPointerLeave={e => { if (e.pointerType === 'touch') return; clearTimeout(showT.current); hide(); }}
-        onFocus={e => show(i, e.currentTarget)} onBlur={() => hide()}
-        // touch has no hover: a tap shows the card, the next tap anywhere else hides it
-        onClick={e => { if (cur.current !== i) show(i, e.currentTarget); }}>{n}</button>
+        onFocus={e => { if (back.current) { back.current = false; return; } show(i, e.currentTarget); }} onBlur={e => { if (!card.current?.contains(e.relatedTarget as Node)) hide(); }}
+        // touch has no hover: a tap shows the card, the next tap anywhere else hides it. Enter or Space (a click with no
+        // pointer) also puts the focus on the card's link, so the keyboard can reach it
+        onClick={e => { const key = e.detail === 0; if (cur.current !== i) { focusLink.current = key; show(i, e.currentTarget); } else if (key) card.current?.querySelector<HTMLElement>('a')?.focus({ preventScroll: true }); }}>{n}</button>
     );
   };
   const paragraphs = text.split(/\n\s*\n/).map((p, k) => (
@@ -107,7 +116,8 @@ export function CitationHoverCard({ text, sources, openLabel = 'Open source', on
       {paragraphs}
       <div key={at?.n ?? 0} ref={card} className={cx('dm-chx-card dm-panel', open && 'dm-show')} role="dialog" aria-label="Source"
         style={at ? { left: at.x, top: at.y } : undefined}
-        onPointerEnter={() => clearTimeout(hideT.current)} onPointerLeave={e => { if (e.pointerType !== 'touch') hide(); }}>
+        onPointerEnter={() => clearTimeout(hideT.current)} onPointerLeave={e => { if (e.pointerType !== 'touch') hide(); }}
+        onBlur={e => { const t = e.relatedTarget as Node | null; if (cur.current !== null && !card.current?.contains(t) && t !== curEl.current) hide(); }}>
         {s && (
           <div className="dm-chx-in">
             <div className="dm-chx-sh"><span className="dm-fv" style={{ background: s.color }}>{s.mark}</span><span>{s.site}</span></div>

@@ -4,7 +4,21 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react
 /** useLayoutEffect in the browser, useEffect while rendering on the server */
 export const useIsoLayoutEffect = typeof window !== 'undefined' ? useLayoutEffect : useEffect;
 
-/** True when the visitor asked for less motion */
+// turning reduced motion on mid-visit also finishes what a script is animating in the components right now (CSS animations
+// and transitions stop through the CSS, and useReducedMotion() below re-renders what reads it)
+if (typeof window !== 'undefined' && typeof matchMedia === 'function') {
+  const mq = matchMedia('(prefers-reduced-motion: reduce)');
+  mq.addEventListener?.('change', () => {
+    if (!mq.matches || !document.getAnimations) return;
+    for (const a of document.getAnimations()) {
+      const t = (a.effect as KeyframeEffect | null)?.target;
+      if (a instanceof CSSAnimation || a instanceof CSSTransition || !(t instanceof Element) || !t.closest('[data-dm]')) continue;
+      try { a.finish(); } catch { a.cancel(); }
+    }
+  });
+}
+
+/** True when the visitor asked for less motion, following the setting live as it changes */
 export function useReducedMotion() {
   const [reduce, setReduce] = useState(false);
   useEffect(() => {

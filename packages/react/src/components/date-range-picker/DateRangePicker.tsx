@@ -108,12 +108,15 @@ export function DateRangePicker({
     cals.current?.querySelector<HTMLButtonElement>(`[data-date="${focus}"]`)?.focus();
     setFocus(null);
   }, [focus, view]);
+  // one day takes Tab: the one the arrows last reached, or the end, the start, today or the first day on show
+  const [cursor, setCursor] = useState<Date | null>(null);
+  const tabDay = [cursor, end, start, now].find(d => d && visible(d)) ?? startOfMonth(view);
   const keys = (e: KeyboardEvent<HTMLDivElement>) => {
     const at = (e.target as HTMLElement).dataset.date; if (!at) return;
     const next = moveDay(fromIsoDay(at), e.key, weekStartsOn, e.shiftKey); if (!next) return;
     e.preventDefault();
     if (!visible(next)) setView(startOfMonth(dayKey(next) < dayKey(view) ? next : addMonths(next, -1)));
-    setFocus(isoDay(next));
+    setCursor(next); setFocus(isoDay(next));
     if (start && !end) setHover(next);
   };
 
@@ -151,7 +154,7 @@ export function DateRangePicker({
                     <button type="button" key={k} data-date={isoDay(d)} style={stagger?.style}
                       className={cx('dm-drx-d', isA && 'dm-a', isA && reach && kr > k && 'dm-ra', isB && 'dm-b dm-rb', between && (end ? 'dm-in' : 'dm-hv'),
                         !end && hover && start && k === kr && k > ka && 'dm-hv', stagger?.className)}
-                      aria-pressed={isA || isB} aria-label={show(d)}
+                      aria-pressed={isA || isB} aria-label={show(d)} tabIndex={k === dayKey(tabDay) ? 0 : -1}
                       onClick={() => click(d)} onMouseEnter={() => { if (start && !end) setHover(d); }}>{d.getDate()}</button>
                   );
                 })}

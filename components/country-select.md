@@ -38,6 +38,7 @@ Country select is a dropdown for picking a country, with a search box, a flag on
 - The field is a button with `aria-haspopup="listbox"` and `aria-expanded`, tied to a visible `label`.
 - The search box is a `combobox` that points at the highlighted `option` with `aria-activedescendant`; the chosen row has `aria-selected`.
 - Arrow Down or Arrow Up on the field opens the list, the arrows move the highlight, Enter picks and Escape closes and returns focus to the field.
+- Tab out of the search box closes the list.
 - The closed popover is `inert`, so its contents cannot be reached by Tab.
 
 ## Usage in React
@@ -232,13 +233,15 @@ export function CountrySelect({ countries = COUNTRIES, value, defaultValue, onVa
     else if (e.key === 'ArrowUp') { move(-1); e.preventDefault(); }
     else if (e.key === 'Enter') { if (shown[at]) choose(shown[at]); e.preventDefault(); }
     else if (e.key === 'Escape') close(true);
+    // Tab moves on from the search box and closes the list
+    else if (e.key === 'Tab') close();
   };
 
   return (
     <div data-dm="" ref={root} className={cx('dm-csx', className)}>
       <label className="dm-csx-l" htmlFor={`${id}-f`}>{label}</label>
       <button ref={field} id={`${id}-f`} type="button" className="dm-csx-f" aria-haspopup="listbox" aria-expanded={isOpen}
-        onClick={() => (isOpen ? close() : openList())} onKeyDown={e => { if ((e.key === 'ArrowDown' || e.key === 'ArrowUp') && !isOpen) { e.preventDefault(); openList(); } }}>
+        onClick={() => (isOpen ? close() : openList())} onKeyDown={e => { if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return; e.preventDefault(); if (isOpen) search.current?.focus({ preventScroll: true }); else openList(); }}>
         {flagOf(chosen)}<Swap className="dm-csx-v">{chosen?.name ?? ''}</Swap><Icon name="chev-d" size="xs" />
       </button>
       <div className={cx('dm-csx-pop', isOpen && 'dm-open')} inert={!isOpen}>

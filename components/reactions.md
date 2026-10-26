@@ -38,6 +38,7 @@ Reactions puts a row of emoji reactions under a message, set up for an update th
 - Each reaction is a button with `aria-pressed` showing whether you reacted with it.
 - The add button has an `aria-label` and opens a `menu` of `menuitem` emoji, with `aria-expanded` on the trigger.
 - Escape closes the picker and returns focus to the add button.
+- From the keyboard, Enter, Space or the down arrow opens the picker on its first emoji; the arrow keys move through the grid (up and down a row at a time) and wrap, Home and End jump to the ends, and Tab closes it.
 - The tooltips naming who reacted use `role="tooltip"` and also open on keyboard focus.
 
 ## Usage in React

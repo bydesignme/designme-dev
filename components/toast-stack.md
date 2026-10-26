@@ -38,6 +38,7 @@ Toast stack collects the notifications an agent sends while it works and piles t
 - The stack is an `aria-live="polite"` region, so screen readers announce new toasts.
 - Each close button is a real button with `aria-label="Dismiss"` and a Dismiss tooltip.
 - A toast that is sliding away is marked `inert`, so it cannot be focused or clicked during its exit.
+- The stack fans out while the focus is in it, as it does under the pointer. Toasts that can't be seen (behind the front one in the deck, or past the fourth when fanned out) are `inert`, so Tab only reaches toasts on show.
 - Under `prefers-reduced-motion: reduce`, the shared stylesheet cuts animations and transitions to almost nothing.
 
 ## Usage in React
@@ -184,8 +185,9 @@ function place(i: number, fan: boolean, heights: number[]): CSSProperties {
 /** Notifications that stack into a deck and fan out when you hover them. */
 export function ToastStack({ toasts, onDismiss, expanded, max = 6, className }: ToastStackProps) {
   const live = toasts.slice(-max);
-  const [hover, setHover] = useState(false);
-  const fan = expanded ?? hover;
+  // it fans out under the pointer, or while the focus is in it; a toast that can't be seen can't take the focus
+  const [hover, setHover] = useState(false), [focused, setFocused] = useState(false);
+  const fan = expanded ?? (hover || focused);
 
   // heights of the toasts, front first, so the fanned list leaves the right gaps
   const els = useRef(new Map<StackToast['id'], HTMLDivElement>());
@@ -242,7 +244,7 @@ export function ToastStack({ toasts, onDismiss, expanded, max = 6, className }: 
   const card = (t: StackToast, style: CSSProperties, gone = false) => {
     const [fg, bg] = TONE[t.tone ?? 'neutral'];
     return (
-      <div key={t.id} className="dm-tsk-c" style={style} inert={gone} ref={el => { if (gone) return; if (el) els.current.set(t.id, el); else els.current.delete(t.id); }}>
+      <div key={t.id} className="dm-tsk-c" style={style} inert={gone || (fan ? front.indexOf(t) > 3 : front.indexOf(t) > 0)} ref={el => { if (gone) return; if (el) els.current.set(t.id, el); else els.current.delete(t.id); }}>
         <span className="dm-g" style={{ color: `var(${fg})`, background: `var(${bg})` }}><Icon name={t.icon} /></span>
         <div className="dm-tx"><b>{t.title}</b>{t.detail && <span>{t.detail}</span>}</div>
         {t.time && <span className="dm-t">{t.time}</span>}
@@ -254,7 +256,8 @@ export function ToastStack({ toasts, onDismiss, expanded, max = 6, className }: 
   return (
     <div data-dm="" className={cx('dm-tsk-stack', fan && 'dm-fan', className)} aria-live="polite"
       style={fanh !== undefined ? { '--dm-fanh': fanh + 'px' } as CSSProperties : undefined}
-      onPointerEnter={() => setHover(true)} onPointerLeave={() => setHover(false)}>
+      onPointerEnter={() => setHover(true)} onPointerLeave={() => setHover(false)}
+      onFocus={() => setFocused(true)} onBlur={e => { if (!e.currentTarget.contains(e.relatedTarget as Node)) setFocused(false); }}>
       {leaving.slice().sort((a, b) => a.at - b.at).reduce((all, l) => { all.splice(Math.min(l.at, all.length), 0, card(l.toast, l.style, true)); return all; },
         live.map(t => card(t, placed.has(t.id) ? place(front.indexOf(t), fan, hs) : ARRIVING)))}
     </div>

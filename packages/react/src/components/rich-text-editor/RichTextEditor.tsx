@@ -583,7 +583,8 @@ const TOOLS: { f: RichTextFormat | 'a'; label: string; icon: IconName; k: string
   { f: 'code', label: 'Inline code', icon: 'code', k: 'mod E' }, { f: 'a', label: 'Link', icon: 'link', k: 'mod K' },
   { f: 'ul', label: 'Bulleted list', icon: 'list', k: 'mod shift 8' }, { f: 'ol', label: 'Numbered list', icon: 'list-ol', k: 'mod shift 7' }, { f: 'quote', label: 'Quote', icon: 'quote', k: 'mod shift 9' }
 ];
-type Job = { o: Range2; t: Range2; slash: number | null; sel: boolean };
+// btn: opened from its toolbar button with the keyboard, so Escape gives the focus back to the button rather than the text
+type Job = { o: Range2; t: Range2; slash: number | null; sel: boolean; btn?: boolean };
 type Ui = { B: boolean; I: boolean; CODE: boolean; A: boolean; href: string | null; block: string | null; undo: boolean; redo: boolean; words: number; empty: boolean };
 
 /** A minimal editor for a draft an agent helps with: a formatting toolbar, the text, and a quiet foot with the word count and undo.
@@ -601,7 +602,7 @@ export function RichTextEditor({
   const [mac, setMac] = useState(false);
   const [ui, setUi] = useState<Ui>({ B: false, I: false, CODE: false, A: false, href: null, block: 'p', undo: false, redo: false, words: 0, empty: true });
   const [job, setJob] = useState<Job | null>(null);
-  const [lk, setLk] = useState<{ o: Range2 } | null>(null);
+  const [lk, setLk] = useState<{ o: Range2; btn?: boolean } | null>(null);
   const [url, setUrl] = useState(''), [bad, setBad] = useState(false);
   const [bubble, setBubble] = useState(false);
   const [review, setReview] = useState<{ action: string; ready: boolean } | null>(null);
@@ -661,20 +662,21 @@ export function RichTextEditor({
   /* ---- the AI menu ---- */
   const menuItems = () => [...(menuEl.current?.querySelectorAll<HTMLButtonElement>('[role="menuitem"]') || [])].filter(m => m.getAttribute('aria-disabled') !== 'true');
   const focusItem = (m?: HTMLButtonElement) => { if (!m) return; menuItems().forEach(x => { x.tabIndex = x === m ? 0 : -1; }); m.focus({ preventScroll: true }); };
-  const openMenu = (how: 'key' | 'click' | 'slash' | 'script') => {
+  const openMenu = (how: 'key' | 'button' | 'click' | 'slash' | 'script') => {
     const E = eng.current; if (!E || E.reviewing() || !now.current.ai) return;
     closeLink(false); E.flush();
     if (now.current.job) { closeMenu(how !== 'script'); return; }
     const o = E.get(), slash = how === 'slash' ? o.s - 1 : null, sel = o.s !== o.e;
     let t = sel ? o : E.line(o.s); if (slash !== null) t = { s: slash + 1, e: t.e };
-    const j = { o, t, slash, sel };
+    const j = { o, t, slash, sel, btn: how === 'button' };
     now.current.job = j; setJob(j); setBubble(false); pick(sel ? o : null);
     requestAnimationFrame(() => { place(menuEl.current, o); if (how !== 'script') focusItem(menuItems()[0]); });
   };
   const closeMenu = (back: boolean) => {
     const j = now.current.job; if (!j) return;
     now.current.job = null; setJob(null); pick(null);
-    if (back) eng.current?.set(j.o, true);
+    if (back && j.btn) { eng.current?.set(j.o); root.current?.querySelector<HTMLElement>('.dm-rte-ai')?.focus({ preventScroll: true }); }
+    else if (back) eng.current?.set(j.o, true);
   };
   // the text an action is for when it runs without the menu: the selection, or the caret's paragraph
   const here = (E: Engine): Job => { const o = E.get(), sel = o.s !== o.e; return { o, t: sel ? o : E.line(o.s), slash: null, sel }; };
@@ -725,17 +727,18 @@ export function RichTextEditor({
   };
 
   /* ---- the link field ---- */
-  const openLink = (mine: boolean) => {
+  const openLink = (mine: boolean, btn = false) => {
     const E = eng.current; if (!E || E.reviewing()) return;
     closeMenu(false); E.flush();
     const o = E.get(), s = E.state();
-    setLk({ o }); now.current.lk = { o }; setUrl(s.href || ''); setBad(false); setBubble(false); pick(o);
+    setLk({ o, btn }); now.current.lk = { o, btn }; setUrl(s.href || ''); setBad(false); setBubble(false); pick(o);
     requestAnimationFrame(() => { place(lnkEl.current, o); if (mine) urlEl.current?.focus({ preventScroll: true }); });
   };
   const closeLink = (back: boolean) => {
     const j = now.current.lk; if (!j) return;
     now.current.lk = null; setLk(null); pick(null);
-    if (back) eng.current?.set(j.o, true);
+    if (back && j.btn) { eng.current?.set(j.o); tb.current?.querySelector<HTMLElement>('[data-f="a"]')?.focus({ preventScroll: true }); }
+    else if (back) eng.current?.set(j.o, true);
   };
   const toUrl = (v: string) => { v = v.trim(); if (!v) return null; if (/^(https?:\/\/|mailto:)/i.test(v)) return v; if (/^[^\s@/]+@[^\s@]+\.[^\s@]+$/.test(v)) return 'mailto:' + v; if (/^[\w-]+(\.[\w-]+)+(:\d+)?([/?#]\S*)?$/.test(v)) return 'https://' + v; return null; };
   const applyLink = (href: string | null) => {
@@ -817,9 +820,9 @@ export function RichTextEditor({
     const go = ({ ArrowRight: all[(i + 1) % all.length], ArrowLeft: all[(i - 1 + all.length) % all.length], Home: all[0], End: all[all.length - 1] } as Record<string, HTMLButtonElement | undefined>)[e.key];
     if (go) { e.preventDefault(); go.focus(); }
   };
-  const apply = (f: RichTextFormat | 'a', mine: boolean) => {
+  const apply = (f: RichTextFormat | 'a', mine: boolean, key = false) => {
     const E = eng.current; if (!E || E.reviewing()) return;
-    if (f === 'a') { if (now.current.lk) closeLink(true); else openLink(mine); return; }
+    if (f === 'a') { if (now.current.lk) closeLink(true); else openLink(mine, mine && key); return; }
     if (f === 'b' || f === 'i' || f === 'code') E.inline(f.toUpperCase()); else E.block(f);
     if (mine) E.focus();
   };
@@ -845,7 +848,7 @@ export function RichTextEditor({
             <Tip label={t.label} kbd={keysOf(t.k, mac)}>
               <button type="button" className={cx('dm-rte-b', t.f === 'a' && t.on && !busy && 'dm-on')} data-f={t.f} aria-label={t.label} disabled={busy} tabIndex={focusTb === i ? 0 : -1}
                 {...(t.f === 'a' ? { 'aria-haspopup': 'dialog' as const, 'aria-expanded': !!lk } : { 'aria-pressed': !busy && t.on })}
-                onClick={e => apply(t.f, e.isTrusted)}><Icon name={t.icon} size="m" /></button>
+                onClick={e => apply(t.f, e.isTrusted, e.detail === 0)}><Icon name={t.icon} size="m" /></button>
             </Tip>
           </span>
         ))}
@@ -853,7 +856,7 @@ export function RichTextEditor({
         {ai && (
           <Tip label="Edit or write with AI" kbd={keysOf('mod J', mac)} off={!!job}>
             <button type="button" className="dm-rte-ai" aria-label="Ask AI" aria-haspopup="menu" aria-expanded={!!job} disabled={busy} tabIndex={focusTb === TOOLS.length ? 0 : -1}
-              onClick={e => openMenu(e.isTrusted ? (e.detail ? 'click' : 'key') : 'script')}><Icon name="spark" /><span>Ask AI</span></button>
+              onClick={e => openMenu(e.isTrusted ? (e.detail ? 'click' : 'button') : 'script')}><Icon name="spark" /><span>Ask AI</span></button>
           </Tip>
         )}
       </div>

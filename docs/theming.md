@@ -51,6 +51,7 @@ One accent runs through every component. It has a few roles, so a light colour l
 | `--accent-mark` | `--dm-accent-mark` | Lines, borders, focus rings and chart marks, aiming for 3:1 |
 | `--accent-2` | `--dm-accent-2` | An accent fill on hover |
 | `--accent-bg` | `--dm-accent-bg` | A light tint for pressed, selected and hovered items |
+| `--focus` | `--dm-focus` | Focus rings. It is `--accent-mark` unless you set it |
 
 The contrast targets hold on the surface, and on the grey chips and tinted rows the accent sits on.
 

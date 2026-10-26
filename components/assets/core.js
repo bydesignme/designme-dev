@@ -1,7 +1,22 @@
 /* Soft 2 core: mounting, replay, motion helpers, tooltips, popovers */
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
-const REDUCE = matchMedia('(prefers-reduced-motion: reduce)').matches;
+/* reduced motion, read live: REDUCE follows the device's setting as it changes, so turning it on or off mid-visit takes
+   effect at once, without a reload. Turning it on also finishes what a script is animating in the components right now */
+let REDUCE = false;
+{
+  const mq = matchMedia('(prefers-reduced-motion: reduce)');
+  const set = () => {
+    REDUCE = mq.matches; if (!REDUCE || !document.getAnimations) return;
+    for (const a of document.getAnimations()){
+      const t = a.effect && a.effect.target;
+      if (a instanceof CSSAnimation || a instanceof CSSTransition || !t || !t.closest || !t.closest('[data-c],.v2,.stage-in')) continue;
+      try { a.finish(); } catch(e){ a.cancel(); }
+    }
+  };
+  set();
+  if (mq.addEventListener) mq.addEventListener('change', set); else mq.addListener(set);
+}
 const I = (n, c = 's') => `<svg class="i ${c}"><use href="#i-${n}"/></svg>`;
 const AV = (n, bg) => `<span class="av" style="background:${bg}">${n}</span>`;
 /* official brand marks for the services this page names */
@@ -262,7 +277,9 @@ function copied(btn, text, label = 'Copied to clipboard'){
 
 /* ---------- popovers: data-pop="#id" opens the element inside the same component ---------- */
 let openPop = null;
-function closePops(){ if (!openPop) return; const p = openPop.pop; p.classList.remove('open'); openPop.btn.setAttribute('aria-expanded','false'); openPop = null; setTimeout(() => { if (!p.classList.contains('open')){ p.style.left = '0px'; p.style.top = '0px'; } }, 300); }
+// closing hands the focus back to the popover's button when it was inside, so a pick or Tab never drops it on the page; while
+// it fades out it is inert, and after that hidden (CSS)
+function closePops(){ if (!openPop) return; const { pop:p, btn } = openPop, back = p.contains(document.activeElement); p.classList.remove('open'); p.inert = true; btn.setAttribute('aria-expanded','false'); openPop = null; if (back && btn.isConnected) btn.focus({ preventScroll:true }); setTimeout(() => { p.inert = false; if (!p.classList.contains('open')){ p.style.left = '0px'; p.style.top = '0px'; } }, 300); }
 function placePop(btn, pop){
   const host = pop.offsetParent || pop.parentElement; const hr = host.getBoundingClientRect(), br = btn.getBoundingClientRect();
   const up = btn.dataset.popPos === 'up' || (btn.dataset.popPos !== 'down' && br.bottom + pop.offsetHeight + 12 > innerHeight && br.top - pop.offsetHeight > 12);
@@ -277,12 +294,18 @@ document.addEventListener('click', e => {
   const btn = e.target.closest('[data-pop]');
   if (btn){
     const scope = btn.closest('.stage-in') || document; const pop = $(btn.dataset.pop, scope); if (!pop) return;
-    if (openPop && openPop.pop === pop){ closePops(); return; }
-    closePops(); hideTip(); placePop(btn, pop); pop.classList.add('open'); btn.setAttribute('aria-expanded','true'); openPop = { pop, btn };
+    // Enter or Space on the button of a menu the demo has open takes it over, with the focus on its first item; otherwise
+    // the button closes its open popover
+    if (openPop && openPop.pop === pop){ if (e.isTrusted && !e.detail && !openPop.mine && isMenu(pop)){ openPop.mine = true; popFocus(pop, 'first'); return; } closePops(); return; }
+    // a demo in another card never closes a popover the visitor has open
+    if (!e.isTrusted && openPop && openPop.mine && !openPop.pop.closest('.card').contains(btn)) return;
+    closePops(); hideTip(); placePop(btn, pop); pop.inert = false; pop.classList.add('open'); btn.setAttribute('aria-expanded','true'); openPop = { pop, btn, mine:e.isTrusted };
+    // opened with Enter or Space (a real click with no pointer), a menu takes the focus on its picked item, or its first
+    if (e.isTrusted && !e.detail) popFocus(pop, 'first');
     return;
   }
-  /* a demo clicking inside its own card must not close another card's open popover */
-  const near = openPop && (e.isTrusted || openPop.pop.closest('.card').contains(e.target));
+  /* a demo clicking inside its own card must not close another card's open popover, nor one the visitor opened */
+  const near = openPop && (e.isTrusted || (!openPop.mine && openPop.pop.closest('.card').contains(e.target)));
   if (openPop && !openPop.pop.contains(e.target)){ if (near) closePops(); }
   else if (openPop && e.target.closest('[data-close]')) setTimeout(closePops, 120);
 });
@@ -292,9 +315,52 @@ document.addEventListener('keydown', e => {
   if (e.key !== 'Escape' || !openPop) return;
   const { pop, btn } = openPop, back = pop.contains(document.activeElement), card = pop.closest('.card');
   if (e.isTrusted && card && card._c) card._c.mine = true;
+  // one Escape closes one thing: the popover, not also the panel or list it opened from
+  if (back || document.activeElement === btn) e.stopPropagation();
   closePops(); if (back && btn.isConnected) btn.focus({ preventScroll:true });
 }, true);
-addEventListener('resize', () => closePops());
+// a real resize closes the open popover; the page's own resize events (a card's layout settling) leave it open
+addEventListener('resize', e => { if (e.isTrusted) closePops(); });
+/* the keyboard in a popover menu, the WAI-ARIA menu button pattern: Enter, Space or the down arrow on its button opens it with
+   the focus on the picked item or the first (the up arrow, on the last); up and down move through the items and wrap at the
+   ends (left and right too, in a grid like an emoji picker, where up and down move a row); Home and End go to the first and
+   last; Enter or Space picks; Tab closes it and moves on. Escape is above. A popover that is a dialog or a form (a calendar,
+   a new schedule) leaves the focus to its component */
+const isMenu = pop => /^(menu|listbox)$/.test(pop.getAttribute('role') || '');
+const popItems = pop => $$('button,[role^="menuitem"],[role="option"]', pop).filter(el => !el.disabled && el.getAttribute('aria-disabled') !== 'true' && el.getClientRects().length && !el.closest('[hidden]'));
+function popFocus(pop, where){
+  if (!isMenu(pop)) return;
+  const it = popItems(pop), on = it.find(x => x.getAttribute('aria-checked') === 'true' || x.getAttribute('aria-selected') === 'true');
+  const to = where === 'last' ? it[it.length - 1] : on || it[0]; if (to) to.focus({ preventScroll:true });
+}
+function popStep(items, el, key){
+  const n = items.length, i = items.indexOf(el); if (!n) return null;
+  if (key === 'Home') return items[0]; if (key === 'End') return items[n - 1];
+  const top = items[0].getBoundingClientRect().top, cols = items.filter(x => Math.abs(x.getBoundingClientRect().top - top) < 2).length, grid = cols > 1 && cols < n;
+  const d = { ArrowDown:grid ? cols : 1, ArrowUp:grid ? -cols : -1, ArrowRight:grid || cols === n ? 1 : 0, ArrowLeft:grid || cols === n ? -1 : 0 }[key];
+  if (!d) return null;
+  if (i < 0) return d > 0 ? items[0] : items[n - 1];
+  return items[((i + d) % n + n) % n];
+}
+document.addEventListener('keydown', e => {
+  if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey) return;
+  const k = e.key, t = e.target;
+  const btn = t.closest && t.closest('[data-pop]');
+  if (btn && (k === 'ArrowDown' || k === 'ArrowUp')){
+    const pop = $(btn.dataset.pop, btn.closest('.stage-in') || document); if (!pop || !isMenu(pop)) return;
+    e.preventDefault();
+    if (!(openPop && openPop.pop === pop)) btn.click();
+    if (openPop && openPop.pop === pop) openPop.mine = true;
+    popFocus(pop, k === 'ArrowUp' ? 'last' : 'first');
+    return;
+  }
+  if (!openPop || !openPop.pop.contains(t) || !isMenu(openPop.pop)) return;
+  if (k === 'Tab'){ openPop.btn.focus({ preventScroll:true }); closePops(); return; }
+  // a field in a menu (a search, a web address) keeps its own keys
+  if (/^(INPUT|TEXTAREA)$/.test(t.tagName) || t.isContentEditable) return;
+  const to = popStep(popItems(openPop.pop), document.activeElement, k);
+  if (to){ e.preventDefault(); $$('.hl', openPop.pop).forEach(x => x.classList.remove('hl')); to.focus({ preventScroll:true }); }
+});
 
 /* ---------- touch: tap areas that never overlap ----------
    On a touch screen every control has a clear tap area of at least 40px square around it (the @media (pointer:coarse) block

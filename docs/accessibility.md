@@ -32,13 +32,16 @@ Decorative motion, like status glyphs and the wires of a canvas, is `aria-hidden
 | --- | --- | --- |
 | Esc | Closes menus and popovers | [Composer](https://designme.dev/components/composer.md), [Date picker](https://designme.dev/components/date-picker.md) |
 | Esc | Also returns focus to the button or field that opened them | [Buttons](https://designme.dev/components/buttons.md), [Country select](https://designme.dev/components/country-select.md), [Date picker](https://designme.dev/components/date-picker.md) |
-| ↑ ↓ ← → | Move through lists, menus and toolbars | [Command palette](https://designme.dev/components/command-palette.md), [Country select](https://designme.dev/components/country-select.md), [Answer action bar](https://designme.dev/components/answer-action-bar.md) |
+| Enter Space ↓ | Open a menu with the focus on its picked or first item; ↑ opens it on its last | [Buttons](https://designme.dev/components/buttons.md), [Profile menu](https://designme.dev/components/profile-menu.md) |
+| Tab | Closes a menu and moves on | [Buttons](https://designme.dev/components/buttons.md), [Profile menu](https://designme.dev/components/profile-menu.md) |
+| ↑ ↓ ← → | Move through lists, menus and toolbars, wrapping at the ends | [Command palette](https://designme.dev/components/command-palette.md), [Country select](https://designme.dev/components/country-select.md), [Answer action bar](https://designme.dev/components/answer-action-bar.md) |
+| Home End | Go to the first and last item of a menu | [Buttons](https://designme.dev/components/buttons.md), [Profile menu](https://designme.dev/components/profile-menu.md) |
 | ← → ↑ ↓ | In the date pickers, move a day or a week | [Date picker](https://designme.dev/components/date-picker.md), [Date range picker](https://designme.dev/components/date-range-picker.md) |
 | Home End | Go to the start and end of the week | [Date picker](https://designme.dev/components/date-picker.md), [Date range picker](https://designme.dev/components/date-range-picker.md) |
 | Page Up Page Down | Move a month, or a year with Shift | [Date picker](https://designme.dev/components/date-picker.md), [Date range picker](https://designme.dev/components/date-range-picker.md) |
 | 1 … 9 | Pick an option | [Decision prompt](https://designme.dev/components/decision-prompt.md) |
 
-Focus shows as a 2px ring in the accent's mark colour, using `:focus-visible`.
+Focus shows as one 2px ring in `--focus` (`--dm-focus` in React), the accent's mark colour: an outline 2px outside the control, or a 2px ring drawn with `box-shadow` on filled fields and where an outline would be cut off. It uses `:focus-visible`, so a click on a button doesn't show it.
 
 > Most components work fully with a keyboard. A few, like [Kanban board](https://designme.dev/components/kanban-board.md) and [File explorer](https://designme.dev/components/file-explorer.md), are still getting their keyboard support.
 
@@ -52,7 +55,7 @@ The shared CSS cuts every CSS animation and transition inside the components to 
 
 ### In the scripts
 
-The HTML version reads `REDUCE`, which the core sets from the same setting. React components that animate from script use the `useReducedMotion()` hook from `lib/hooks.ts`.
+The HTML version reads `REDUCE`, which the core keeps in step with the same setting as it changes, so turning it on or off takes effect without a reload, and turning it on finishes what a script is animating. React components that animate from script use the `useReducedMotion()` hook from `lib/hooks.ts`, which follows the setting live too.
 
 Count-ups finish at once, rows move without gliding, and the content still changes.
 

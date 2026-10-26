@@ -183,6 +183,16 @@ export function EventCalendar({
 
   const select = (id: string | null) => { if (id !== null) setRuns(n => n + 1); setOpenId(id); };
   const close = () => setOpenId(null);
+  // opened with Enter or Space, the card takes the focus; closed with the focus in it, its event gets it back
+  const keyOpen = useRef(false), inPop = useRef(false), lastOpen = useRef<string | null>(null);
+  useIsoLayoutEffect(() => {
+    if (openId != null) {
+      lastOpen.current = openId;
+      if (keyOpen.current) { keyOpen.current = false; pop.current?.querySelector<HTMLElement>('input,button')?.focus({ preventScroll: true }); }
+      return;
+    }
+    if (inPop.current) { inPop.current = false; const b = lastOpen.current && blocks.current.get(lastOpen.current); if (b && b.isConnected) b.focus({ preventScroll: true }); }
+  }, [openId]);
 
   /* ---------- the details card: beside its event, inside the calendar ---------- */
   const [place, setPlace] = useState<CSSProperties>({});
@@ -311,7 +321,8 @@ export function EventCalendar({
                         <button type="button" ref={el => { if (el) blocks.current.set(e.id, el); else blocks.current.delete(e.id); }}
                           className={cx('dm-ecx-e dm-enter', live && 'dm-drag')}
                           style={{ ...tint(e.tone), top: top(at_), [len < 1 ? 'minHeight' : 'height']: len * PX - 3, transform: live ? `translateX(${live.dx}px)` : undefined, animationDelay: (delays.current!.get(e.id) ?? 0) + 'ms' }}
-                          onPointerDown={p => down(p, e)} onPointerMove={p => move(p, e)} onPointerUp={() => up(e)} onPointerCancel={() => up(e)}>
+                          onPointerDown={p => down(p, e)} onPointerMove={p => move(p, e)} onPointerUp={() => up(e)} onPointerCancel={() => up(e)}
+                          onClick={c => { if (c.detail !== 0) return; keyOpen.current = openId !== e.id; select(openId === e.id ? null : e.id); }}>
                           <b>{named(e)}</b><span>{tm(at_)} – {tm(at_ + len)}</span>
                         </button>
                       </Tip>
@@ -340,7 +351,8 @@ export function EventCalendar({
           <div key={scans} className={cx('dm-ecx-scan', scans > 0 && 'dm-go')} />
         </div>
       </div>
-      <div ref={pop} className={cx('dm-ecx-pop', open && 'dm-open')} role="dialog" aria-label="Event" inert={!open} style={place}>
+      <div ref={pop} className={cx('dm-ecx-pop', open && 'dm-open')} role="dialog" aria-label="Event" inert={!open} style={place}
+        onFocus={() => { inPop.current = true; }} onBlur={f => { if (!pop.current?.contains(f.relatedTarget as Node)) inPop.current = false; }}>
         {card && <Details key={`${card.id}:${runs}`} event={card} onClose={close} onSave={v => save(card, v)} onDiscard={() => remove(card.id)} onPrepNotes={onPrepNotes} onJoin={onJoin} />}
       </div>
     </div>

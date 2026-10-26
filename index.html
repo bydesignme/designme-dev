@@ -6159,6 +6159,9 @@ html:root{scroll-padding-top:0}
   /* the accent has three roles: --accent fills (with --on-accent on top, 4.5:1), --accent-fg is text and icons in the accent
      (4.5:1 on the surface, and on the chips and tints it sits on) and --accent-mark is lines, rings and chart marks (3:1). A
      light accent like lime keeps its fills and gets a darker mark and ink-coloured text on a light page */ --sel:color-mix(in srgb,var(--accent) 6%,transparent);
+  /* every focus ring: 2px in this colour, as an outline offset 2px, or as a 2px box-shadow ring where an outline would be
+     clipped or the control is a filled field */
+  --focus:var(--accent-mark);
   --ink:#1b1b1b; --on-ink:#ffffff;
   --ok:#137739; --ok-bg:#e8f6ee; --warn:#a94e09; --warn-bg:#fdf3df; --bad:#bf3434; --bad-bg:#fdecec;
   --merge:#7c4cd4; --merge-bg:#f2ecfd; --add:#187633; --del:#c7212c;
@@ -6224,7 +6227,7 @@ html:root{scroll-padding-top:0}
 .v2 button{background:none;border:0;padding:0;cursor:pointer}
 /* one weight for emphasis: medium, never bold */
 .v2 b,.v2 strong{font-weight:500}
-.v2 :focus-visible{outline:2px solid var(--accent-mark,var(--accent));outline-offset:2px;border-radius:6px}
+.v2 :focus-visible{outline:2px solid var(--focus);outline-offset:2px;border-radius:6px}
 .v2.stage-in{width:100%;max-width:440px;min-width:0;position:relative;container-type:inline-size}
 .v2.stage-in.wide{max-width:720px}
 
@@ -6362,7 +6365,8 @@ html:root{scroll-padding-top:0}
 /* shadows inside an open fold aren't cut off: the clip leaves room round its edge (a shut fold is invisible anyway) */
 .v2 .fold{grid-template-columns:minmax(0,1fr)}
 .v2 .fold>*{overflow:clip;overflow-clip-margin:12px;min-width:0}
-.v2 .fold.shut{grid-template-rows:0fr;opacity:0}
+/* a shut fold is hidden as well as clear once it has folded, so Tab passes over what is inside it */
+.v2 .fold.shut{grid-template-rows:0fr;opacity:0;visibility:hidden;transition:grid-template-rows var(--t) var(--ease),opacity var(--t) var(--ease),visibility 0s var(--t)}
 
 /* ---------- tooltip and popover ---------- */
 .v2 .tip{position:fixed;z-index:1000;pointer-events:none;background:var(--ink);color:var(--on-ink);font-size:12px;line-height:1.35;padding:6px 9px;border-radius:8px;max-width:240px;opacity:0;transform:translateY(4px);filter:blur(2px);transition:opacity .18s var(--ease),transform .25s var(--ease),filter .18s}
@@ -6373,8 +6377,10 @@ html:root{scroll-padding-top:0}
 :root[data-theme="dark"] .v2 .tip .kbd{background:rgba(0,0,0,.1)}
 :root[data-theme="dark"] .v2 :is(.av,.ssx-ics span){color:#0d0d0d!important}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .v2 :is(.av,.ssx-ics span){color:#0d0d0d!important}}
-.v2 .pop{position:absolute;z-index:50;min-width:200px;background:var(--raised);border-radius:14px;box-shadow:var(--shadow-pop);padding:6px;opacity:0;pointer-events:none;transform:translateY(6px) scale(.98);transform-origin:var(--origin,top left);filter:blur(3px);transition:opacity .2s var(--ease),transform .35s var(--ease),filter .2s var(--ease)}
-.v2 .pop.open{opacity:1;pointer-events:auto;transform:none;filter:none}
+/* a closed popover is hidden as well as clear, so Tab and screen readers pass over it: it shows at once as it opens, so the
+   focus can go into it, and hides once it has faded out */
+.v2 .pop{position:absolute;z-index:50;min-width:200px;background:var(--raised);border-radius:14px;box-shadow:var(--shadow-pop);padding:6px;opacity:0;visibility:hidden;pointer-events:none;transform:translateY(6px) scale(.98);transform-origin:var(--origin,top left);filter:blur(3px);transition:opacity .2s var(--ease),transform .35s var(--ease),filter .2s var(--ease),visibility 0s .2s}
+.v2 .pop.open{opacity:1;visibility:visible;pointer-events:auto;transform:none;filter:none;transition-property:opacity,transform,filter}
 .v2 .pop .ph{padding:6px 8px 4px;font-size:11.5px;color:var(--muted)}
 .v2 .mi{display:flex;align-items:center;gap:10px;width:100%;padding:7px 8px;border-radius:9px;font-size:13px;text-align:left;color:var(--fg);transition:background var(--t-fast)}
 .v2 .mi.hl{background:var(--row)}
@@ -6589,7 +6595,7 @@ html:root{scroll-padding-top:0}
 .v2 .atr-tree{display:flex;flex-direction:column;padding-top:4px;border-top:1px solid var(--line)}
 .v2 .atr-n{display:flex;align-items:center;gap:8px;min-height:44px;padding:5px 10px 5px calc(4px + var(--lv,0) * 20px);border-radius:10px;font-size:13px;outline:0;transition:background .16s}
 @media (hover:hover) and (pointer:fine){.v2 .atr-n:hover{background:var(--row)}}
-.v2 .atr-n:focus-visible{box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--accent-mark,var(--accent)) 45%,transparent)}
+.v2 .atr-n:focus-visible{box-shadow:inset 0 0 0 2px var(--focus)}
 .v2 .atr-tg{width:20px;height:20px;display:grid;place-items:center;flex:none;border-radius:6px;color:var(--muted);transition:background .16s,color .16s}
 @media (hover:hover) and (pointer:fine){.v2 .atr-tg:hover{background:var(--chip);color:var(--fg)}}
 .v2 .atr-tg svg{transition:transform .32s var(--ease)}
@@ -6727,7 +6733,7 @@ html:root{scroll-padding-top:0}
 @media (hover:hover) and (pointer:fine){.v2 .trv-r:hover{background:var(--row)}}
 .v2 .trv-r[aria-expanded="true"]{background:var(--sel)}
 .v2 .trv-r[aria-expanded="true"] .trv-tk{color:var(--fg2)}
-.v2 .trv-r:focus-visible{outline:0;box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--accent-mark,var(--accent)) 45%,transparent)}
+.v2 .trv-r:focus-visible{outline:0;box-shadow:inset 0 0 0 2px var(--focus)}
 .v2 .trv-n{display:flex;align-items:center;gap:6px;min-width:0;padding-left:calc(var(--lv,0) * 12px)}
 .v2 .trv-k{width:18px;height:18px;display:grid;place-items:center;flex:none;border-radius:5px;color:color-mix(in srgb,var(--k) 70%,var(--fg));background:color-mix(in srgb,var(--k) 13%,transparent)}
 .v2 .trv-nm{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -6795,6 +6801,7 @@ html:root{scroll-padding-top:0}
 .v2 .tsk-c .t{font-size:11.5px;color:var(--muted);align-self:flex-start;margin-top:2px}
 .v2 .tsk-c .ib{width:24px;height:24px;opacity:0;transition:opacity .2s}
 @media (hover:hover) and (pointer:fine){.v2 .tsk-c:hover .ib{opacity:1}}
+.v2 .tsk-c .ib:focus-visible{opacity:1}
 /* ---------- Pricing cards ---------- */
 .v2 .pcx{display:flex;flex-direction:column;gap:14px;width:100%}
 .v2 .pcx-top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
@@ -6890,6 +6897,8 @@ html:root{scroll-padding-top:0}
 .v2 .stx-o{padding:12px;border-radius:12px;background:var(--chip);text-align:left;font-size:13px;display:flex;flex-direction:column;gap:4px;transition:background .2s,box-shadow .25s}
 .v2 .stx-o span{font-size:11.5px;color:var(--muted)}
 @media (hover:hover) and (pointer:fine){.v2 .stx-o:hover{background:var(--hover)}}
+/* the options fill the sliding view, which would cut an outside ring: theirs is drawn inside */
+.v2 .stx-o:focus-visible{outline-offset:-2px}
 /* the picked option: a white tile with a ring you can see at a glance, in light and dark */
 .v2 .stx-o.on{background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--fg2),0 1px 2px rgba(0,0,0,.04)}
 @media (hover:hover) and (pointer:fine){.v2 .stx-o.on:hover{background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--fg2),0 1px 2px rgba(0,0,0,.04)}}
@@ -6927,7 +6936,7 @@ html:root{scroll-padding-top:0}
 .v2 .slx-v{display:inline-flex;align-items:baseline;font-size:14px;font-weight:500!important;letter-spacing:-.02em;margin:-3px -7px 0 0;padding:1px 7px;border-radius:9px;cursor:text;transition:background-color .2s var(--ease),box-shadow .2s var(--ease)}
 /* the budget reads as a figure until you click it, then you can type a new one */
 @media (hover:hover) and (pointer:fine){.v2 .slx-v:hover{background:var(--row)}}
-.v2 .slx-v:focus-within{background:var(--row);box-shadow:inset 0 0 0 1px var(--rail)}
+.v2 .slx-v:focus-within{background:var(--row);box-shadow:inset 0 0 0 2px var(--focus)}
 .v2 .slx-in{width:3ch;min-width:1ch;padding:0;margin:0;border:0;background:none;font:inherit;font-variant-numeric:tabular-nums;letter-spacing:inherit;color:inherit;text-align:right;outline:none;caret-color:var(--accent-fg,var(--accent))}
 .v2 .slx-bar{position:relative;height:12px;border-radius:6px;background:var(--chip);margin:18px 0 6px;touch-action:none;cursor:pointer}
 .v2 .slx-used{position:absolute;left:0;top:0;bottom:0;border-radius:6px;background:var(--accent-mark,var(--accent));transition:width .8s var(--ease);z-index:1}
@@ -6951,7 +6960,8 @@ html:root{scroll-padding-top:0}
 /* ---------- Currency converter ---------- */
 .v2 .ccx{padding:16px;display:flex;flex-direction:column;gap:6px;max-width:340px;margin:0 auto;width:100%;position:relative}
 .v2 .ccx-row{display:flex;align-items:center;gap:8px;padding:10px 10px 10px 14px;border-radius:14px;background:var(--chip);transition:box-shadow .25s,background .25s}
-.v2 .ccx-row:focus-within{background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--accent-mark,var(--accent))}
+/* the row rings when its amount field has the focus; its currency button rings on its own */
+.v2 .ccx-row:has(.ccx-a:focus-visible){background:var(--surface);box-shadow:inset 0 0 0 2px var(--focus)}
 .v2 .ccx-in{flex:1;display:flex;flex-direction:column;min-width:0;font-size:11.5px}
 .v2 .ccx-a,.v2 .ccx-b{border:0;outline:0;background:transparent;font:inherit;font-size:14px;font-weight:500;letter-spacing:-.02em;color:var(--fg);padding:0;width:100%;min-width:0}
 .v2 .ccx-cur{display:flex;align-items:center;gap:6px;height:34px;padding:0 10px;border-radius:10px;background:var(--surface);box-shadow:0 1px 2px rgba(0,0,0,.06);font-size:13px;font-weight:500}
@@ -7106,6 +7116,8 @@ html:root{scroll-padding-top:0}
 .v2 .thp-tabs{display:flex;gap:4px;padding:8px 8px 0;border-bottom:1px solid var(--line);position:relative;overflow-x:auto;scrollbar-width:none}
 .v2 .thp-tab{display:flex;align-items:center;gap:7px;white-space:nowrap;flex:none;padding:7px 10px 10px;font-size:13px;color:var(--muted);position:relative;transition:color .25s}
 @media (hover:hover) and (pointer:fine){.v2 .thp-tab:hover{color:var(--fg2)}}
+/* the tabs scroll sideways, which would cut an outside ring: theirs is drawn inside */
+.v2 .thp-tab:focus-visible{outline-offset:-2px}
 .v2 .thp-tab[aria-selected="true"]{color:var(--fg)}
 .v2 .thp-tab .dot{width:6px;height:6px}
 .v2 .thp-ink{position:absolute;bottom:-1px;height:2px;border-radius:2px;background:var(--fg);transition:left .5s var(--ease),width .5s var(--ease)}
@@ -7114,7 +7126,7 @@ html:root{scroll-padding-top:0}
 .v2 .thp-ag{font-size:13.5px;line-height:1.6;color:var(--fg)}
 .v2 .thp-ag .src{display:flex;gap:6px;margin-bottom:6px;flex-wrap:wrap}
 .v2 .thp-in{display:flex;align-items:center;gap:8px;margin:0 10px 10px;padding:4px 4px 4px 14px;border-radius:999px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--field-line);transition:box-shadow .25s}
-.v2 .thp-in:focus-within{box-shadow:inset 0 0 0 1px var(--accent-mark,var(--accent)),0 0 0 4px var(--accent-bg)}
+.v2 .thp-in:has(.thp-field:focus-visible){box-shadow:inset 0 0 0 2px var(--focus),0 0 0 4px var(--accent-bg)}
 .v2 .thp-field{flex:1;min-width:0;border:0;outline:0;background:none;font-size:13.5px;height:30px}
 .v2 .thp-field::placeholder{color:var(--muted)}
 .v2 .thp-send{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:var(--on-accent,#fff);transition:opacity .25s,transform .15s}
@@ -7131,6 +7143,7 @@ html:root{scroll-padding-top:0}
 .v2 .cpx-ag{font-size:14px;color:var(--fg2);display:flex;gap:8px;align-items:center}
 .v2 .cpx-box{position:relative;background:var(--surface);border-radius:20px;box-shadow:var(--shadow);transition:box-shadow .32s}
 .v2 .cpx-box:focus-within{box-shadow:var(--shadow-pop)}
+.v2 .cpx-box:has(.cpx-ta:focus-visible){box-shadow:0 0 0 2px var(--focus),var(--shadow-pop)}
 .v2 .cpx-att{display:flex;gap:6px;flex-wrap:wrap;padding:12px 14px 0}
 .v2 .cpx-att:empty{display:none}
 .v2 .cpx-att .fchip{transition:color .32s,background .32s}
@@ -7179,6 +7192,7 @@ html:root{scroll-padding-top:0}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .v2 .rte{--rte-q:color-mix(in srgb,var(--fg) 74%,var(--surface));--rte-q2:color-mix(in srgb,var(--fg) 80%,var(--surface))}}
 :root[data-theme="dark"] .v2 .rte{--rte-q:color-mix(in srgb,var(--fg) 74%,var(--surface));--rte-q2:color-mix(in srgb,var(--fg) 80%,var(--surface))}
 .v2 .rte:focus-within{box-shadow:var(--shadow-pop)}
+.v2 .rte:has(.rte-body:focus-visible){box-shadow:0 0 0 2px var(--focus),var(--shadow-pop)}
 .v2 .rte-tb{display:flex;align-items:center;gap:2px;min-width:0;padding:7px 8px;box-shadow:inset 0 -1px 0 var(--line)}
 .v2 .rte-b{width:30px;height:30px;flex:none;display:grid;place-items:center;border-radius:8px;color:var(--fg2);transition:background var(--t-fast),color var(--t-fast)}
 @media (hover:hover) and (pointer:fine){.v2 .rte-b:hover{background:var(--row);color:var(--fg)}}
@@ -7242,8 +7256,10 @@ html:root{scroll-padding-top:0}
 .v2 .rte-lnk{display:flex;align-items:center;gap:6px;width:304px;max-width:calc(100% - 12px);min-width:0;padding:6px}
 .v2 .rte-url{flex:1;min-width:0;height:30px;padding:0 10px;border:0;border-radius:8px;outline:0;background:var(--chip);box-shadow:inset 0 0 0 1px var(--field-line);color:var(--fg);font-size:13px}
 .v2 .rte-url::placeholder{color:var(--rte-q)}
-.v2 .rte-url:focus-visible{box-shadow:inset 0 0 0 1px var(--accent-mark)}
+.v2 .rte-url:focus-visible{box-shadow:inset 0 0 0 2px var(--focus)}
 .v2 .rte-url[aria-invalid="true"]{box-shadow:inset 0 0 0 1px var(--bad)}
+/* a field marked wrong still shows the focus ring while it has the focus; the message says what is wrong */
+.v2 .rte-url[aria-invalid="true"]:focus-visible{box-shadow:inset 0 0 0 2px var(--focus)}
 .v2 .rte-lnk .pill{flex:none}
 .v2 .rte-lnk .ib{width:30px;height:30px;flex:none}
 /* the small Ask AI button over a selection, for the mouse; the keyboard has the toolbar's button and its shortcut */
@@ -7356,7 +7372,7 @@ html:root{scroll-padding-top:0}
 .v2 .afx-pt{font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .v2 .afx-pm{font-size:12.5px;color:var(--afx-t2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .v2 .afx-pb{flex:1;min-height:0;overflow:auto;padding:14px 18px 18px;font-size:13.5px;line-height:1.6;outline:none}
-.v2 .afx-pb:focus-visible{box-shadow:inset 0 0 0 2px var(--accent-mark)}
+.v2 .afx-pb:focus-visible{box-shadow:inset 0 0 0 2px var(--focus)}
 .v2 .afx-pb h3{margin:16px 0 4px;font-size:12.5px;font-weight:500;color:var(--afx-t2)}
 .v2 .afx-pb p{margin:0}
 .v2 .afx-pb :is(ul,ol){margin:0;padding-left:18px}
@@ -7517,6 +7533,8 @@ html:root{scroll-padding-top:0}
 @media (hover:hover) and (pointer:fine){.v2 .atx-drop:hover .atx-ants rect{stroke:var(--accent-mark,var(--accent));animation-play-state:paused}}
 .v2 .atx-drop.over{transform:scale(1.015)}
 .v2 .atx-file{position:absolute;inset:0;opacity:0;cursor:pointer}
+/* the file input is clear over the drop zone, so the zone shows its focus */
+.v2 .atx-drop:has(.atx-file:focus-visible){outline:2px solid var(--focus);outline-offset:2px}
 .v2 .atx-ic{width:34px;height:34px;border-radius:11px;background:var(--surface);box-shadow:var(--shadow);display:grid;place-items:center;color:var(--fg2);transition:transform .45s var(--ease),background .35s,color .35s}
 .v2 .atx-drop.over .atx-ic{transform:translateY(-3px);background:var(--surface);color:var(--accent-fg,var(--accent))}
 @media (hover:hover) and (pointer:fine){.v2 .atx-drop:hover .atx-ic{transform:translateY(-3px);background:var(--surface);color:var(--accent-fg,var(--accent))}}
@@ -7559,7 +7577,7 @@ html:root{scroll-padding-top:0}
 .v2 .fbx-ch{display:flex;flex-wrap:wrap;gap:6px}
 .v2 .fbx-ch .chip.on{background:var(--sel);color:var(--accent-fg,var(--accent));box-shadow:none}
 .v2 .fbx-ta{width:100%;resize:none;border:0;outline:0;border-radius:12px;background:var(--chip);box-shadow:inset 0 0 0 1px var(--field-line);padding:9px 12px;font:inherit;font-size:13px;color:var(--fg);transition:box-shadow .3s}
-.v2 .fbx-ta:focus,.v2 .fbx-ta.typing{box-shadow:0 0 0 2px var(--accent-bg),inset 0 0 0 1px var(--accent-mark,var(--accent))}
+.v2 .fbx-ta:focus,.v2 .fbx-ta.typing{box-shadow:inset 0 0 0 2px var(--focus),0 0 0 2px var(--accent-bg)}
 .v2 .fbx-ta::placeholder{color:var(--muted)}
 .v2 .fbx-f{display:flex;align-items:center;gap:6px}
 .v2 .fbx-n{font-size:12px;flex:1;min-width:0}
@@ -7575,7 +7593,7 @@ html:root{scroll-padding-top:0}
 @media (hover:hover) and (pointer:fine){.v2 .mpk-tr:hover{box-shadow:var(--shadow-pop)}}
 .v2 .mpk-tr>svg{color:var(--muted);transition:transform .32s var(--ease)}
 .v2 .mpk-tr[aria-expanded="true"]>svg{transform:rotate(180deg)}
-.v2 .mpk-tr:focus-visible{outline:2px solid color-mix(in srgb,var(--accent-mark,var(--accent)) 45%,transparent);outline-offset:2px}
+.v2 .mpk-tr:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
 .v2 .mpk-ef{font-weight:400;font-size:12.5px}
 /* each model's mark carries the letter colour that reads on it (--mt): on the accent fill that is --on-accent */
 .v2 .mpk-mk{width:20px;height:20px;border-radius:6px;display:grid;place-items:center;font-size:11px;font-weight:500;color:var(--mt,var(--on-ink));background:var(--mc,var(--fg2));flex:none;transition:background .32s}
@@ -7587,7 +7605,7 @@ html:root{scroll-padding-top:0}
 @media (hover:hover) and (pointer:fine){.v2 .mpk-o:hover{background:var(--row)}}
 .v2 .mpk-o[aria-checked="true"]{background:var(--sel)}
 .v2 .mpk-o[aria-checked="true"] .d{color:var(--fg2)}
-.v2 .mpk-o:focus-visible{outline:2px solid color-mix(in srgb,var(--accent-mark,var(--accent)) 45%,transparent);outline-offset:-2px}
+.v2 .mpk-o:focus-visible{outline:2px solid var(--focus);outline-offset:-2px}
 .v2 .mpk-o .t{display:flex;flex-direction:column;min-width:0}
 .v2 .mpk-o .t b{font-weight:500;display:flex;align-items:center;gap:6px}
 .v2 .mpk-o .ck{display:grid;color:var(--accent-fg,var(--accent));opacity:0;transform:scale(.6);transition:opacity .16s,transform .32s var(--ease)}
@@ -7670,7 +7688,7 @@ html:root{scroll-padding-top:0}
 /* the agent asks in the chat: no container; with .panel it becomes a card */
 .v2 .dpx{padding:16px 0;display:flex;flex-direction:column;gap:12px;outline:0;border-radius:var(--r-in)}
 .v2 .dpx.panel{padding:16px;border-radius:var(--r-card)}
-.v2 .dpx:focus-visible{outline:2px solid color-mix(in srgb,var(--accent-mark,var(--accent)) 45%,transparent);outline-offset:6px}
+.v2 .dpx:focus-visible{outline:2px solid var(--focus);outline-offset:6px}
 .v2 .dpx-h{display:flex;align-items:center;justify-content:space-between}
 .v2 .dpx-k{font-size:12px}
 .v2 .dpx-dots{display:flex;gap:4px}
@@ -7733,6 +7751,7 @@ html:root{scroll-padding-top:0}
 .v2 .rwx-s ins .w{animation:v2-rww .4s var(--ease) both}
 @keyframes v2-rww{from{opacity:0;filter:blur(3px)}to{opacity:1;filter:none}}
 .v2 .rwx-tb{position:absolute;left:0;top:0;display:flex;align-items:center;gap:2px;padding:4px;border-radius:999px;background:var(--ink);color:var(--on-ink);box-shadow:var(--shadow-pop);opacity:0;pointer-events:none;transform:translateY(6px) scale(.96);filter:blur(4px);transition:opacity .3s var(--ease),transform .4s var(--ease),filter .3s;z-index:3;white-space:nowrap}
+.v2 .rwx-tb{--focus:var(--on-ink)}
 .v2 .rwx-tb.show{opacity:1;pointer-events:auto;transform:none;filter:none}
 .v2 .rwx-b{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 11px;border-radius:999px;font-size:12.5px;color:inherit;opacity:.85;transition:background .2s,opacity .2s}
 .v2 .rwx-b.hl{background:color-mix(in srgb,var(--on-ink) 14%,transparent);opacity:1}
@@ -7792,7 +7811,7 @@ html:root{scroll-padding-top:0}
 .v2 .pgx-o .bx svg{transform:scale(.4);transition:transform .35s var(--ease)}
 .v2 .pgx-o input:checked+.bx{background:var(--accent);box-shadow:inset 0 0 0 1px var(--accent-mark,var(--accent));color:var(--on-accent,#fff)}
 .v2 .pgx-o input:checked+.bx svg{transform:none}
-.v2 .pgx-o input:focus-visible+.bx{box-shadow:0 0 0 3px var(--accent-bg)}
+.v2 .pgx-o input:focus-visible+.bx{outline:2px solid var(--focus);outline-offset:2px}
 .v2 .pgx-o .t{flex:1;min-width:0}
 .v2 .pgx-o .d{display:block;font-size:12px;color:var(--muted)}
 .v2 .pgx-f{display:flex;align-items:center;gap:6px;padding-top:12px;border-top:1px solid var(--line)}
@@ -7880,7 +7899,8 @@ html:root{scroll-padding-top:0}
 .v2 .hox-mh{display:flex;align-items:center;gap:8px;min-height:28px}
 .v2 .hox-mh .sp{flex:1}
 .v2 .hox-mb{padding:10px 12px;border-radius:12px;background:var(--chip);font-size:13.5px;line-height:1.5;outline:0;transition:box-shadow var(--t-fast),background var(--t-fast)}
-.v2 .hox-mb[contenteditable="true"]{background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--accent-mark,var(--accent)),0 0 0 4px var(--accent-bg)}
+.v2 .hox-mb[contenteditable="true"]{background:var(--surface);box-shadow:inset 0 0 0 1px var(--rail)}
+.v2 .hox-mb[contenteditable="true"]:focus{box-shadow:inset 0 0 0 2px var(--focus),0 0 0 4px var(--accent-bg)}
 /* where it stands, in one row at the foot: neutral while it waits, amber when the person can't take it, green once they have */
 .v2 .hox-st{display:flex;align-items:center;gap:12px;padding:10px 10px 10px 12px;border-radius:12px;background:var(--chip);font-size:13.5px;transition:background .32s}
 .v2 .hox-st.warn{background:var(--warn-bg)}
@@ -7936,7 +7956,7 @@ html:root{scroll-padding-top:0}
 .v2 .plx-tm{margin-left:auto;font-size:12px;color:var(--muted)}
 .v2 .plx-tm:empty{display:none}
 .v2 .plx-s .n .spin{width:10px;height:10px}
-.v2 .plx-s .t:focus,.v2 .plx-s .t.ed{background:var(--surface);box-shadow:0 0 0 1.5px var(--accent-mark,var(--accent))}
+.v2 .plx-s .t:focus,.v2 .plx-s .t.ed{background:var(--surface);box-shadow:0 0 0 2px var(--focus)}
 .v2 .plx-s .ib{width:24px;height:24px;opacity:0;transition:opacity .2s}
 .v2 .plx-s .ib:focus-visible{opacity:1}
 @media (hover:hover) and (pointer:fine){.v2 .plx-s:hover .ib{opacity:1}}
@@ -7980,12 +8000,16 @@ html:root{scroll-padding-top:0}
 .v2 .crx-l:is(.add,.del) .ln{color:var(--fg2)}
 .v2 .crx-l.ctx .c::before{content:"  "}
 .v2 .crx-l .cm{position:absolute;left:4px;top:3px;width:18px;height:18px;border-radius:6px;background:var(--accent);color:var(--on-accent,#fff);display:grid;place-items:center;opacity:0;transform:scale(.7);transition:opacity .2s,transform .25s var(--ease)}
+/* the hunk scrolls sideways and cuts anything outside its last line: the ring is drawn inside, with a gap of the surface
+   between it and the fill */
+.v2 .crx-l .cm:focus-visible{outline-offset:-2px;box-shadow:inset 0 0 0 3.5px var(--surface);opacity:1;transform:none}
 @media (hover:hover) and (pointer:fine){.v2 .crx-l:hover .cm{opacity:1;transform:none}}
 .v2 .crx-hk.kept .crx-l.del{display:none}.v2 .crx-hk.kept .crx-l.add{background:transparent}.v2 .crx-hk.kept .crx-l.add .c::before{content:"  "}
 .v2 .crx-hk.undone .crx-l.add{display:none}.v2 .crx-hk.undone .crx-l.del{background:transparent}.v2 .crx-hk.undone .crx-l.del .c::before{content:"  "}
 .v2 .crx-hk.kept .crx-hh,.v2 .crx-hk.undone .crx-hh{color:var(--muted)}
 .v2 .crx-cmt{font-family:var(--sans);margin:4px 10px 6px 36px;display:flex;gap:6px;align-items:center;padding:6px;border-radius:10px;background:var(--surface);box-shadow:var(--shadow)}
 .v2 .crx-cmt input{flex:1;min-width:0;border:0;outline:0;background:transparent;font:inherit;font-size:12.5px;color:var(--fg);padding:0 6px}
+.v2 .crx-cmt:has(input:focus-visible){box-shadow:0 0 0 2px var(--focus),var(--shadow)}
 .v2 .crx-cmt.sent{background:var(--sel);box-shadow:none;font-size:12.5px;padding:6px 10px}
 /* ---------- Inline text diff ---------- */
 /* a piece of copy with the agent's edits marked inline, struck and added; each edit opens a small toolbar to accept or
@@ -8000,7 +8024,7 @@ html:root{scroll-padding-top:0}
 .v2 .itd-c{padding:2px 1px;border-radius:5px;cursor:pointer;outline:0;transition:background .16s;-webkit-box-decoration-break:clone;box-decoration-break:clone}
 .v2 .itd-c.on{background:var(--row)}
 @media (hover:hover) and (pointer:fine){.v2 .itd-c:hover{background:var(--row)}}
-.v2 .itd-c:focus-visible{box-shadow:0 0 0 2px var(--accent-bg)}
+.v2 .itd-c:focus-visible{box-shadow:0 0 0 2px var(--focus)}
 .v2 .itd-c del{color:var(--del);text-decoration:line-through;text-decoration-thickness:1px;background:color-mix(in srgb,var(--del) 9%,transparent);border-radius:3px;padding:0 2px}
 .v2 .itd-c ins{color:var(--add);text-decoration:none;background:color-mix(in srgb,var(--add) 11%,transparent);border-radius:3px;padding:0 2px;margin-left:3px}
 .v2 .itd-c.unsure ins{color:var(--warn);background:var(--warn-bg)}
@@ -8029,8 +8053,9 @@ html:root{scroll-padding-top:0}
 .v2 .drf-p{display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 10px 0 3px;border-radius:var(--r-pill);background:var(--chip);font-size:13px}
 .v2 .drf-p .av{width:20px;height:20px;font-size:9px}
 .v2 .drf-s{flex:1;min-width:0;height:38px;padding:0;border:0;background:none;outline:0;font:inherit;font-size:13.5px;color:var(--fg)}
+.v2 .drf-r:has(.drf-s:focus-visible){outline:2px solid var(--focus);outline-offset:2px;border-radius:var(--r-sm)}
 .v2 .drf-b{font-size:14px;line-height:1.6;color:var(--fg);outline:0;border-radius:6px}
-.v2 .drf-b:focus-visible{box-shadow:0 0 0 2px var(--accent-bg)}
+.v2 .drf-b:focus-visible{box-shadow:0 0 0 2px var(--focus)}
 .v2 .drf-att{display:flex;flex-wrap:wrap;gap:6px}
 .v2 .drf-att:empty{display:none}
 .v2 .drf-file{display:inline-flex;align-items:center;gap:8px;height:30px;padding:0 10px;border-radius:8px;background:var(--chip);font-size:13px}
@@ -8150,8 +8175,10 @@ html:root{scroll-padding-top:0}
 .v2 .plb-fd.wide{grid-column:1/-1}
 .v2 .plb-in{width:100%;border:0;outline:0;border-radius:11px;background:var(--chip);box-shadow:inset 0 0 0 1px var(--field-line);height:38px;padding:0 12px;font:inherit;font-size:13.5px;font-weight:400;color:var(--fg);transition:box-shadow .25s,background .25s}
 .v2 .plb-in::placeholder{color:var(--muted)}
-.v2 .plb-in:focus,.v2 .plb-in.ed{background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--accent-mark,var(--accent)),0 0 0 4px var(--accent-bg)}
+.v2 .plb-in:focus,.v2 .plb-in.ed{background:var(--surface);box-shadow:inset 0 0 0 2px var(--focus),0 0 0 4px var(--accent-bg)}
 .v2 .plb-fd.bad .plb-in{box-shadow:inset 0 0 0 1.5px var(--bad)}
+/* a field marked wrong still shows the focus ring while it has the focus; the message says what is wrong */
+.v2 .plb-fd.bad .plb-in:focus{box-shadow:inset 0 0 0 2px var(--focus),0 0 0 4px var(--accent-bg)}
 .v2 .plb-er{font-size:12px;color:var(--bad);font-weight:400}
 .v2 .plb-er[hidden]{display:none}
 .v2 .plb-sel{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;height:38px;padding:0 10px 0 12px;border-radius:11px;background:var(--chip);font-size:13.5px;font-weight:400;color:var(--fg);text-align:left;transition:background .2s,box-shadow .2s}
@@ -8208,7 +8235,7 @@ html:root{scroll-padding-top:0}
 .v2 .ste-sum{display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:12px;background:var(--ok-bg);font-size:13px}
 .v2 .ste-sum svg{color:var(--ok);flex:none}
 .v2 .ste-box{display:flex;align-items:center;gap:6px;height:40px;margin:0 4px 4px;padding:0 5px 0 14px;border-radius:999px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--field-line);transition:box-shadow .25s}
-.v2 .ste-box:focus-within,.v2 .ste-box.f{box-shadow:inset 0 0 0 1px var(--accent-mark,var(--accent)),0 0 0 4px var(--accent-bg)}
+.v2 .ste-box:has(input:focus-visible),.v2 .ste-box.f{box-shadow:inset 0 0 0 2px var(--focus),0 0 0 4px var(--accent-bg)}
 .v2 .ste-box input{flex:1;min-width:0;border:0;outline:0;background:transparent;font:inherit;font-size:13px;color:var(--fg)}
 .v2 .ste-box input::placeholder{color:var(--muted)}
 .v2 .ste-go{width:30px;height:30px;border-radius:50%;background:var(--accent);color:var(--on-accent,#fff);display:grid;place-items:center;flex:none;transition:background .2s}
@@ -8321,6 +8348,7 @@ html:root{scroll-padding-top:0}
 @keyframes v2-ssrel{from{transform:scaleX(0)}}
 .v2 .ssx-s .ib{width:24px;height:24px;opacity:0;transition:opacity .2s}
 @media (hover:hover) and (pointer:fine){.v2 .ssx-s:hover .ib{opacity:1}}
+.v2 .ssx-s .ib:focus-visible{opacity:1}
 /* ---------- Metric insight ---------- */
 .v2 .mix{padding:16px;display:flex;flex-direction:column;gap:10px}
 .v2 .mix-h{display:flex;align-items:center;justify-content:space-between;font-size:12.5px}
@@ -8452,6 +8480,8 @@ html:root{scroll-padding-top:0}
 .v2 .cvx-tabs{display:flex;gap:2px;flex:1;min-width:0;overflow-x:auto}
 .v2 .cvx-tab{display:flex;align-items:center;height:28px;padding:0 10px;border-radius:8px;font-size:12px;font-family:var(--mono);color:var(--muted);transition:color .2s,background .2s;white-space:nowrap}
 @media (hover:hover) and (pointer:fine){.v2 .cvx-tab:hover{color:var(--fg)}}
+/* the tabs scroll sideways, which would cut an outside ring: theirs is drawn inside */
+.v2 .cvx-tab:focus-visible{outline-offset:-2px}
 .v2 .cvx-tab.on{background:var(--chip);color:var(--fg)}
 .v2 .cvx-meta{margin-left:auto;padding-right:2px;font-size:12px;color:var(--muted);white-space:nowrap}
 .v2 .cvx-meta b{font-weight:500;color:var(--ok)}
@@ -8459,6 +8489,8 @@ html:root{scroll-padding-top:0}
 .v2 .cvx-code{margin:0;padding:8px 0;font-family:var(--mono);font-size:12px;line-height:1.8}
 .v2 .cvx-l{display:flex;padding-right:14px;cursor:pointer;transition:background .2s}
 @media (hover:hover) and (pointer:fine){.v2 .cvx-l:hover{background:var(--row)}}
+/* a line that takes the focus fills the scrolling code, which would cut an outside ring: its ring is drawn inside */
+.v2 .cvx-l:focus-visible{outline-offset:-2px}
 .v2 .cvx-l.new{background:color-mix(in srgb,var(--ok) 6%,transparent)}
 .v2 .cvx-l.on{background:var(--sel)}
 @media (hover:hover) and (pointer:fine){.v2 .cvx-l.on:hover{background:var(--sel)}}
@@ -8538,8 +8570,9 @@ html:root{scroll-padding-top:0}
 .v2 .chx-c{display:inline-grid;place-items:center;min-width:18px;height:18px;padding:0 5px;margin:0 1px 0 3px;border-radius:6px;background:var(--hover);color:var(--fg2);font-size:11px;font-variant-numeric:tabular-nums;vertical-align:2px;transition:background .2s,color .2s}
 .v2 .chx-c.on{background:var(--accent);color:var(--on-accent,#fff)}
 @media (hover:hover) and (pointer:fine){.v2 .chx-c:hover{background:var(--accent);color:var(--on-accent,#fff)}}
-.v2 .chx-card{position:absolute;left:0;top:0;width:min(290px,calc(100% - 8px));padding:12px;opacity:0;pointer-events:none;z-index:4;box-shadow:var(--shadow-pop);transform-origin:50% 0;transition:opacity .16s ease-out}
-.v2 .chx-card.show{opacity:1;pointer-events:auto;animation:v2-chxin .5s var(--ease) both}
+/* hidden as well as clear when put away, so Tab never lands on its link */
+.v2 .chx-card{position:absolute;left:0;top:0;width:min(290px,calc(100% - 8px));padding:12px;opacity:0;visibility:hidden;pointer-events:none;z-index:4;box-shadow:var(--shadow-pop);transform-origin:50% 0;transition:opacity .16s ease-out,visibility 0s .16s}
+.v2 .chx-card.show{opacity:1;visibility:visible;pointer-events:auto;animation:v2-chxin .5s var(--ease) both;transition-property:opacity}
 @keyframes v2-chxin{from{opacity:0;transform:translateY(10px) scale(.985);filter:blur(3px)}60%{filter:blur(0)}to{opacity:1;transform:none;filter:none}}
 .v2 .chx-sh{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted)}
 .v2 .chx-sh .fv{width:20px;height:20px;border-radius:6px;display:grid;place-items:center;font-size:9px;font-weight:500;color:#fff;flex:none}
@@ -8586,7 +8619,7 @@ html:root{scroll-padding-top:0}
 @media (hover:hover) and (pointer:fine){.v2 .fex-r:hover{background:var(--row)}}
 .v2 .fex-r .k{font-size:12px;color:var(--muted)}
 .v2 .fex-r .v{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;outline:0;border-radius:6px;padding:1px 4px;margin:0 -4px}
-.v2 .fex-r .v[contenteditable="true"]{background:var(--surface);box-shadow:0 0 0 1.5px var(--accent-mark,var(--accent))}
+.v2 .fex-r .v[contenteditable="true"]{background:var(--surface);box-shadow:0 0 0 2px var(--focus)}
 .v2 .fex-cf{display:flex;align-items:center;gap:5px;font-size:11.5px;color:var(--muted)}
 .v2 .fex-cf i{width:22px;height:4px;border-radius:2px;background:var(--line);overflow:hidden;display:block}
 .v2 .fex-cf i b{display:block;height:100%;border-radius:2px;background:var(--ok);transform-origin:left;animation:v2-ssrel .7s var(--ease) both}
@@ -8630,6 +8663,8 @@ html:root{scroll-padding-top:0}
 .v2 .cpl-in{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--line);color:var(--muted)}
 .v2 .cpl-q{flex:1;min-width:0;border:0;outline:0;background:transparent;font:inherit;font-size:14px;color:var(--fg)}
 .v2 .cpl-q::placeholder{color:var(--muted)}
+/* the palette rings while its search box has the focus; a row that takes the focus rings on its own */
+.v2 .cpl:has(.cpl-q:focus-visible){box-shadow:0 0 0 2px var(--focus),var(--shadow-pop)}
 .v2 .cpl-list{padding:6px;height:236px;overflow-y:auto;position:relative}
 .v2 .cpl-g{font-size:11.5px;color:var(--muted);padding:8px 8px 4px}
 .v2 .cpl-i{display:flex;align-items:center;gap:10px;width:100%;height:36px;padding:0 8px;border-radius:10px;font-size:13.5px;text-align:left;color:var(--fg);position:relative;z-index:1}
@@ -8659,8 +8694,10 @@ html:root{scroll-padding-top:0}
 .v2 .asx-cap .ib{width:26px;height:26px}
 .v2 .asx-v{min-width:38px;text-align:center;font-size:13px}
 .v2 .asx-ta{width:100%;resize:none;border:0;outline:0;border-radius:12px;background:var(--chip);box-shadow:inset 0 0 0 1px var(--field-line);padding:9px 12px;font:inherit;font-size:13px;color:var(--fg);transition:box-shadow .3s}
-.v2 .asx-ta:focus{box-shadow:inset 0 0 0 1px var(--accent-mark,var(--accent)),0 0 0 3px var(--accent-bg)}
+.v2 .asx-ta:focus{box-shadow:inset 0 0 0 2px var(--focus),0 0 0 3px var(--accent-bg)}
 .v2 .asx-bar{display:flex;align-items:center;gap:6px;padding:6px 6px 6px 14px;border-radius:999px;background:var(--ink);color:var(--on-ink);font-size:12.5px;margin-top:10px;transform:translateY(30px);opacity:0;filter:blur(4px);pointer-events:none;transition:transform .45s var(--ease),opacity .3s,filter .3s,height .45s var(--ease),margin-bottom .45s var(--ease);height:0;margin-bottom:-10px}
+/* on an ink-filled bar the ring takes the bar's text colour, so it stands out against the fill in every theme */
+.v2 .asx-bar{--focus:var(--on-ink)}
 .v2 .asx-bar span{flex:1}
 .v2 .asx-bar .pill.ghost{color:inherit;opacity:.8}@media (hover:hover) and (pointer:fine){.v2 .asx-bar .pill.ghost:hover{background:color-mix(in srgb,var(--on-ink) 14%,transparent)}}
 .v2 .asx.dirty .asx-bar{transform:none;opacity:1;filter:none;pointer-events:auto;height:40px;margin-bottom:0}
@@ -8669,6 +8706,7 @@ html:root{scroll-padding-top:0}
 .v2 .fxp-h{display:flex;gap:4px;align-items:center}
 .v2 .fxp-s{flex:1;display:flex;align-items:center;gap:8px;height:32px;padding:0 10px;border-radius:10px;background:var(--chip);box-shadow:inset 0 0 0 1px var(--field-line);color:var(--muted)}
 .v2 .fxp-s input{flex:1;min-width:0;border:0;outline:0;background:transparent;font:inherit;font-size:13px;color:var(--fg)}
+.v2 .fxp-s:focus-within{box-shadow:inset 0 0 0 2px var(--focus)}
 .v2 .fxp-s input::placeholder{color:var(--muted)}
 .v2 .fxp-tree{flex:1;overflow:auto;padding:4px 0 16px;-webkit-mask-image:linear-gradient(180deg,#000 calc(100% - 28px),transparent);mask-image:linear-gradient(180deg,#000 calc(100% - 28px),transparent)}
 /* a thin scrollbar in the style's hairline grey, not the browser's thick one */
@@ -8679,6 +8717,8 @@ html:root{scroll-padding-top:0}
 :root:not([data-style="soft"]) .v2 .fxp-tree::-webkit-scrollbar-thumb{border-radius:0}
 .v2 .fxp-n{display:flex;align-items:center;gap:6px;width:100%;height:30px;padding-right:8px;border-radius:8px;font-size:13px;text-align:left;color:var(--fg2);transition:background .15s,color .15s}
 @media (hover:hover) and (pointer:fine){.v2 .fxp-n:hover{background:var(--row);color:var(--fg)}}
+/* rows fill the scrolling tree, which would cut an outside ring: theirs is drawn inside */
+.v2 .fxp-n:focus-visible{outline-offset:-2px}
 .v2 .fxp-n.sel{background:var(--sel);color:var(--fg)}
 .v2 .fxp-n .cv{width:14px;display:grid;place-items:center;color:var(--muted);transition:transform .35s var(--ease)}
 .v2 .fxp-n.open .cv{transform:rotate(90deg)}
@@ -8748,7 +8788,7 @@ html:root{scroll-padding-top:0}
 @media (hover:hover) and (pointer:fine){.v2 .mmx-m:hover{background:var(--row)}}
 .v2 .mmx-m .dot{margin-top:7px}
 .v2 .mmx-m .t{flex:1;min-width:0;outline:0;border-radius:5px;padding:0 3px;margin:0 -3px}
-.v2 .mmx-m .t[contenteditable="true"]{background:var(--surface);box-shadow:0 0 0 1.5px var(--accent-mark,var(--accent))}
+.v2 .mmx-m .t[contenteditable="true"]{background:var(--surface);box-shadow:0 0 0 2px var(--focus)}
 .v2 .mmx-m .src{display:block;font-size:11.5px;color:var(--muted)}
 .v2 .mmx-m .acts{display:flex;opacity:0;transition:opacity .2s}
 .v2 .mmx-m:focus-within .acts{opacity:1}
@@ -8797,7 +8837,7 @@ html:root{scroll-padding-top:0}
 .v2 .mcx-addb .ic{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:var(--soft,var(--chip));box-shadow:var(--soft-ring,none);color:var(--fg)}
 .v2 .mcx-addb .d{font-size:12px;color:var(--muted)}
 .v2 .mcx-in{display:flex;align-items:center;gap:10px;padding:6px 6px 6px 18px;border-radius:999px;background:var(--surface);box-shadow:var(--shadow);transition:box-shadow .25s}
-.v2 .mcx-in:focus-within{box-shadow:var(--shadow),0 0 0 4px var(--accent-bg)}
+.v2 .mcx-in:has(.mcx-q:focus-visible){box-shadow:0 0 0 2px var(--focus),var(--shadow),0 0 0 4px var(--accent-bg)}
 .v2 .mcx-q{flex:1;min-width:0;border:0;outline:0;background:none;font:inherit;font-size:13.5px;color:var(--fg)}
 .v2 .mcx-n{font-size:12px;white-space:nowrap}
 .v2 .mcx-go{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:var(--ink);color:var(--on-ink);flex:none;transition:opacity .2s,transform .15s}
@@ -8870,7 +8910,7 @@ html:root{scroll-padding-top:0}
 .v2 .ksx-mpop .mi[disabled],.v2 .ksx-mpop .mi[disabled] .i{opacity:1;cursor:not-allowed;background:none;color:var(--dis)}
 .v2 .ksx-web{display:flex;flex-direction:column;gap:4px}
 .v2 .ksx-in{display:flex;align-items:center;gap:8px;height:32px;margin:0 2px 2px;padding:0 2px 0 10px;border-radius:10px;background:var(--chip);box-shadow:inset 0 0 0 1px var(--field-line);color:var(--muted);transition:box-shadow .3s}
-.v2 .ksx-in:focus-within{box-shadow:inset 0 0 0 1px var(--accent-mark,var(--accent)),0 0 0 3px var(--accent-bg)}
+.v2 .ksx-in:has(input:focus-visible){box-shadow:inset 0 0 0 2px var(--focus),0 0 0 3px var(--accent-bg)}
 .v2 .ksx-in input{flex:1;min-width:0;height:100%;border:0;outline:0;background:transparent;font:inherit;font-size:13px;color:var(--fg)}
 .v2 .ksx-in input::placeholder{color:var(--muted)}
 .v2 .ksx-in .pill{height:28px}
@@ -8919,7 +8959,7 @@ html:root{scroll-padding-top:0}
 .v2 .shx-f h4{margin:0 0 2px;font-size:13px;font-weight:500}
 .v2 .shx-in{width:100%;height:32px;border:0;outline:0;border-radius:10px;background:var(--chip);box-shadow:inset 0 0 0 1px var(--field-line);padding:0 10px;font:inherit;font-size:13px;color:var(--fg);transition:box-shadow .3s}
 .v2 .shx-in::placeholder{color:var(--muted)}
-.v2 .shx-in:focus{box-shadow:inset 0 0 0 1px var(--accent-mark,var(--accent)),0 0 0 3px var(--accent-bg)}
+.v2 .shx-in:focus{box-shadow:inset 0 0 0 2px var(--focus),0 0 0 3px var(--accent-bg)}
 .v2 .shx-rep{display:flex}
 .v2 .shx-rep button{flex:1 1 auto;padding:0 8px}
 .v2 .shx-days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
@@ -8953,10 +8993,12 @@ html:root{scroll-padding-top:0}
 @media (hover:hover) and (pointer:fine){.v2 .ahx-nav:hover,.v2 .ahx-cv:hover{background:var(--row);color:var(--fg)}}
 .v2 .ahx-cv[aria-current="true"]{background:var(--surface);color:var(--fg);box-shadow:inset 0 0 0 1px var(--rail),0 1px 2px rgba(0,0,0,.04)}
 .v2 .ahx-cv .t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* the chats fill the scrolling list, and a tab clips its own button: their rings are drawn inside */
+.v2 .ahx-cv:focus-visible,.v2 .ahx-tb:focus-visible{outline-offset:-2px}
 .v2 .ahx-lh{display:flex;align-items:center;justify-content:space-between;padding:12px 1px 2px 9px;font-size:11.5px;color:var(--muted)}
 .v2 .ahx-lh .ib{width:24px;height:24px}
 .v2 .ahx-si{display:block;width:100%;height:30px;margin:4px 0 6px;padding:0 10px;border:0;border-radius:9px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--field-line);font-size:12.5px;outline:0;transition:box-shadow var(--t-fast)}
-.v2 .ahx-si:focus{box-shadow:inset 0 0 0 1px var(--rail)}
+.v2 .ahx-si:focus{box-shadow:inset 0 0 0 2px var(--focus)}
 .v2 .ahx-si::placeholder{color:var(--muted)}
 .v2 .ahx-si::-webkit-search-cancel-button{display:none}
 .v2 .ahx-list{flex:1;min-height:0;display:flex;flex-direction:column;gap:2px;overflow-y:auto;scrollbar-width:none}
@@ -9048,8 +9090,9 @@ html:root{scroll-padding-top:0}
 /* while the agent works in the chat on screen, a new message waits */
 .v2 .ahx.busy .cpx-bar .cpx-send{background:var(--rail);color:var(--surface);pointer-events:none}
 /* the panel beside the chat, for an artifact */
-.v2 .ahx-pane{flex:none;width:0;overflow:hidden;background:var(--surface);border-left:1px solid transparent;transition:width var(--t) var(--ease),border-color var(--t) var(--ease)}
-.v2 .ahx.pn .ahx-pane{width:300px;border-left-color:var(--line)}
+/* shut, the panel is hidden as well as narrow, so Tab passes over its buttons */
+.v2 .ahx-pane{flex:none;width:0;overflow:hidden;background:var(--surface);border-left:1px solid transparent;visibility:hidden;transition:width var(--t) var(--ease),border-color var(--t) var(--ease),visibility 0s var(--t)}
+.v2 .ahx.pn .ahx-pane{width:300px;border-left-color:var(--line);visibility:visible;transition-delay:0s}
 .v2 .ahx-pi{width:300px;height:100%;display:flex;flex-direction:column}
 .v2 .ahx-ph{flex:none;display:flex;align-items:center;gap:8px;height:46px;padding:0 8px 0 14px;border-bottom:1px solid var(--line);font-size:13px;font-weight:500}
 .v2 .ahx-ph .t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -9274,6 +9317,7 @@ html:root{scroll-padding-top:0}
 .v2 .atb-h{display:flex;align-items:center;gap:8px;padding:10px;flex-wrap:wrap;border-bottom:1px solid var(--line)}
 .v2 .atb-s{display:flex;align-items:center;gap:8px;height:32px;padding:0 10px;border-radius:10px;background:var(--chip);box-shadow:inset 0 0 0 1px var(--field-line);color:var(--muted);flex:1;min-width:160px}
 .v2 .atb-s input{flex:1;min-width:0;border:0;outline:0;background:transparent;font:inherit;font-size:13px;color:var(--fg)}
+.v2 .atb-s:focus-within{box-shadow:inset 0 0 0 2px var(--focus)}
 .v2 .atb-s input::placeholder{color:var(--muted)}
 .v2 .atb-fl{display:flex;gap:4px;flex-wrap:wrap}
 .v2 .atb-fl .chip.on{background:var(--ink);color:var(--on-ink);box-shadow:none}
@@ -9284,6 +9328,8 @@ html:root{scroll-padding-top:0}
 .v2 .atb td{padding:9px 12px;border-top:1px solid var(--line);white-space:nowrap}
 .v2 .atb tr.row{cursor:pointer;transition:background .2s}
 @media (hover:hover) and (pointer:fine){.v2 .atb tr.row:hover{background:var(--row)}}
+/* a row that takes the focus fills the scrolling table, which would cut an outside ring: its ring is drawn inside */
+.v2 .atb tr.row:focus-visible{outline-offset:-2px}
 .v2 .atb tr.row.open{background:var(--wash)}
 .v2 .atb .nm{display:flex;align-items:center;gap:9px;font-weight:500}
 /* brand tiles sit a shade darker than the brand colour, so their white letter reads at 4.5:1 or more */
@@ -9308,6 +9354,7 @@ html:root{scroll-padding-top:0}
 .v2 .dpk-pop{width:272px;padding:10px;background:var(--surface)}
 .v2 .dpk-nl{width:100%;height:32px;border:0;outline:0;border-radius:9px;background:var(--chip);box-shadow:inset 0 0 0 1px var(--field-line);padding:0 10px;font:inherit;font-size:12.5px;color:var(--fg)}
 .v2 .dpk-nl::placeholder{color:var(--muted)}
+.v2 .dpk-nl:focus-visible{box-shadow:inset 0 0 0 2px var(--focus)}
 .v2 .dpk-qk{display:flex;gap:4px;margin:8px 0}
 .v2 .dpk-mh{display:flex;align-items:center;justify-content:space-between;margin:4px 0}
 .v2 .dpk-mh b{font-weight:500;font-size:13px}
@@ -9321,11 +9368,15 @@ html:root{scroll-padding-top:0}
 @keyframes v2-dpkr{from{opacity:0;transform:translateX(24px);filter:blur(3px)}}
 .v2 .dpk-d{height:32px;border-radius:9px;font-size:12.5px;color:var(--fg);transition:background .2s,color .2s;position:relative}
 @media (hover:hover) and (pointer:fine){.v2 .dpk-d:hover{background:var(--chip)}}
+/* the days fill the month's sliding view, which would cut an outside ring: theirs is drawn inside */
+.v2 .dpk-d:focus-visible{outline-offset:-2px}
 .v2 .dpk-d.o{color:var(--muted)}
 .v2 .dpk-d.t::after{content:"";position:absolute;left:50%;bottom:4px;width:4px;height:4px;margin-left:-2px;border-radius:50%;background:var(--accent-mark,var(--accent))}
 .v2 .dpk-d.s{background:var(--accent);color:var(--on-accent,#fff)}
 .v2 .dpk-d.s::after{background:var(--on-accent,#fff)}
 .v2 .dpk-d.s{animation:v2-dpks .35s var(--ease)}
+/* on the picked day the inside ring would sit on the accent fill: a surface gap inside it keeps it seen */
+.v2 .dpk-d.s:focus-visible{box-shadow:inset 0 0 0 3.5px var(--surface)}
 @keyframes v2-dpks{from{transform:scale(.8)}}
 /* ---------- Segmented control ---------- */
 /* one choice from a few views of the same thing: the picked one sits on a white knob that slides to it. It is a tab
@@ -9343,9 +9394,9 @@ html:root{scroll-padding-top:0}
 .v2 .sgc-seg button{position:relative;z-index:1;height:30px;padding:0 14px;border-radius:var(--r-pill);font-size:13px;color:var(--fg2);outline:0;transition:color .2s}
 .v2 .sgc-seg button[aria-selected="true"],.v2 .sgc-seg button[aria-checked="true"]{color:var(--fg)}
 @media (hover:hover) and (pointer:fine){.v2 .sgc-seg button:hover{color:var(--fg)}}
-.v2 .sgc-seg button:focus-visible{box-shadow:0 0 0 2px var(--accent-mark,var(--accent))}
+.v2 .sgc-seg button:focus-visible{box-shadow:0 0 0 2px var(--focus)}
 .v2 .sgc-p{height:178px;border-radius:12px;outline:0}
-.v2 .sgc-p:focus-visible{box-shadow:0 0 0 2px var(--accent-bg)}
+.v2 .sgc-p:focus-visible{box-shadow:0 0 0 2px var(--focus)}
 .v2 .sgc-in{height:100%;transition:opacity .16s,filter .16s,transform .2s var(--ease)}
 .v2 .sgc-in.out{opacity:0;filter:blur(3px);transform:translateY(4px)}
 /* the day: its events in order */
@@ -9359,7 +9410,7 @@ html:root{scroll-padding-top:0}
 .v2 .sgc-wk{display:flex;flex-direction:column;gap:2px}
 .v2 .sgc-wr{display:flex;align-items:center;gap:10px;width:100%;height:23px;padding:0 8px;border-radius:8px;font-size:12.5px;text-align:left;transition:background var(--t-fast)}
 @media (hover:hover) and (pointer:fine){.v2 .sgc-wr:hover{background:var(--row)}}
-.v2 .sgc-wr:focus-visible,.v2 .sgc-mo .d:focus-visible{outline:0;box-shadow:0 0 0 2px var(--accent-mark,var(--accent))}
+.v2 .sgc-wr:focus-visible,.v2 .sgc-mo .d:focus-visible{outline:0;box-shadow:0 0 0 2px var(--focus)}
 .v2 .sgc-wr .d{width:46px;flex:none;color:var(--muted)}
 .v2 .sgc-wr .e{flex:1;min-width:0;display:flex;align-items:center;gap:8px;white-space:nowrap}
 .v2 .sgc-wr .e i{width:6px;height:6px;border-radius:50%;background:var(--c);flex:none}
@@ -9430,6 +9481,8 @@ html:root{scroll-padding-top:0}
 .v2 .ecx-col{position:relative;height:352px;background-image:linear-gradient(var(--line) 1px,transparent 1px);background-size:100% 44px}
 .v2 .ecx-e{position:absolute;left:3px;right:3px;border-radius:8px;padding:4px 7px;font-size:11.5px;line-height:1.3;text-align:left;overflow:hidden;transition:transform .25s var(--ease),box-shadow .25s}
 @media (hover:hover) and (pointer:fine){.v2 .ecx-e:hover{transform:translateY(-1px);box-shadow:var(--shadow)}}
+/* events sit in the scrolling grid, which would cut an outside ring: theirs is drawn inside */
+.v2 .ecx-e:focus-visible{outline-offset:-2px}
 .v2 .ecx-e{cursor:grab;touch-action:none}
 .v2 .ecx-e.drag{transition:none;z-index:6;box-shadow:var(--shadow-pop);cursor:grabbing}
 .v2 .ecx-col{cursor:copy}
@@ -9437,14 +9490,15 @@ html:root{scroll-padding-top:0}
 .v2 .ecx-now{position:absolute;left:0;right:0;height:2px;margin-top:-1px;background:var(--bad);z-index:3}
 .v2 .ecx-now::before{content:"";position:absolute;left:-4px;top:-3px;width:8px;height:8px;border-radius:50%;background:var(--bad)}
 .v2 .ecx-msg{font-size:12.5px;margin-right:8px}
-.v2 .ecx-pop{position:absolute;z-index:20;width:248px;padding:12px;background:var(--raised);border-radius:14px;box-shadow:var(--shadow-pop);opacity:0;transform:translateY(6px);filter:blur(3px);pointer-events:none;transition:opacity .2s var(--ease),transform .35s var(--ease),filter .2s}
-.v2 .ecx-pop.open{opacity:1;transform:none;filter:none;pointer-events:auto}
+.v2 .ecx-pop{position:absolute;z-index:20;width:248px;padding:12px;background:var(--raised);border-radius:14px;box-shadow:var(--shadow-pop);opacity:0;visibility:hidden;transform:translateY(6px);filter:blur(3px);pointer-events:none;transition:opacity .2s var(--ease),transform .35s var(--ease),filter .2s,visibility 0s .2s}
+.v2 .ecx-pop.open{opacity:1;visibility:visible;transform:none;filter:none;pointer-events:auto;transition-property:opacity,transform,filter}
 .v2 .ecx-ph{display:flex;align-items:center;gap:8px;font-size:13.5px}
 .v2 .ecx-ph>i{width:10px;height:10px;border-radius:3px;flex:none}
 .v2 .ecx-ph b{font-weight:500;flex:1;min-width:0}
 .v2 .ecx-ph .ib{width:24px;height:24px;margin:-4px -4px -4px auto}
 .v2 .ecx-ti{flex:1;min-width:0;border:0;outline:0;background:none;font:inherit;font-weight:500;color:var(--fg)}
 .v2 .ecx-ti::placeholder{color:var(--muted)}
+.v2 .ecx-ti:focus-visible{outline:2px solid var(--focus);outline-offset:2px;border-radius:4px}
 .v2 .ecx-pt{font-size:12.5px;color:var(--fg2);margin:4px 0 0 18px}
 .v2 .ecx-pw{display:flex;align-items:center;margin:10px 0 0 18px}
 .v2 .ecx-pw .av{width:22px;height:22px;font-size:9px;margin-right:-4px;box-shadow:0 0 0 2px var(--raised)}
@@ -9583,6 +9637,10 @@ html:root{scroll-padding-top:0}
 .v2 .six-box.f{box-shadow:var(--shadow-lift);transform:translateY(-1px)}
 /* Blueprint's lifted edge is a light hairline, which reads as a white ring on a dark sheet; the focused field steps up one line instead */
 :root:not([data-style="soft"]) .v2 .six-box.f{box-shadow:0 0 0 1px var(--rail)}
+/* the box rings while its field has the focus, lifted or not */
+.v2 .six-box:has(.six-in input:focus-visible){box-shadow:0 0 0 2px var(--focus),var(--shadow)}
+.v2 .six-box.f:has(.six-in input:focus-visible){box-shadow:0 0 0 2px var(--focus),var(--shadow-lift)}
+:root:not([data-style="soft"]) .v2 .six-box:has(.six-in input:focus-visible){box-shadow:0 0 0 2px var(--focus)}
 .v2 .six-in>svg{transition:color .25s}
 .v2 .six-box.f .six-in>svg{color:var(--fg)}
 .v2 .six-in{display:flex;align-items:center;gap:8px;height:46px;padding:0 10px 0 14px;color:var(--muted)}
@@ -9615,10 +9673,12 @@ html:root{scroll-padding-top:0}
 .v2 .csx-f[aria-expanded="true"]>svg{transform:rotate(180deg)}
 .v2 .csx-fl{display:grid;place-items:center;flex:none}
 .v2 .csx-h{font-size:12px}
-.v2 .csx-pop{position:absolute;top:66px;left:0;right:0;z-index:5;background:var(--raised);border-radius:14px;box-shadow:var(--shadow-pop);padding:6px;opacity:0;transform:translateY(-4px) scale(.98);transform-origin:top;filter:blur(3px);pointer-events:none;transition:opacity .2s,transform .35s var(--ease),filter .2s}
-.v2 .csx-pop.open{opacity:1;transform:none;filter:none;pointer-events:auto}
+/* closed, the list is hidden as well as clear, so Tab passes over its search box and options */
+.v2 .csx-pop{position:absolute;top:66px;left:0;right:0;z-index:5;background:var(--raised);border-radius:14px;box-shadow:var(--shadow-pop);padding:6px;opacity:0;visibility:hidden;transform:translateY(-4px) scale(.98);transform-origin:top;filter:blur(3px);pointer-events:none;transition:opacity .2s,transform .35s var(--ease),filter .2s,visibility 0s .2s}
+.v2 .csx-pop.open{opacity:1;visibility:visible;transform:none;filter:none;pointer-events:auto;transition-property:opacity,transform,filter}
 .v2 .csx-q{width:100%;height:32px;border:0;outline:0;border-radius:9px;background:var(--chip);box-shadow:inset 0 0 0 1px var(--field-line);padding:0 10px;font:inherit;font-size:12.5px;color:var(--fg);margin-bottom:4px}
 .v2 .csx-q::placeholder{color:var(--muted)}
+.v2 .csx-q:focus-visible{box-shadow:inset 0 0 0 2px var(--focus)}
 .v2 .csx-list{max-height:200px;overflow-y:auto;display:flex;flex-direction:column}
 .v2 .csx-o{display:flex;align-items:center;gap:10px;padding:7px 8px;border-radius:9px;font-size:13px;text-align:left;flex:none}
 .v2 .csx-o.hl{background:var(--wash)}
@@ -9635,7 +9695,8 @@ html:root{scroll-padding-top:0}
 .v2 .msc-clr{height:22px;padding:0 6px;margin-right:-6px;border-radius:6px;font-size:12px;color:var(--muted);transition:color .2s,background .2s}
 @media (hover:hover) and (pointer:fine){.v2 .msc-clr:hover{color:var(--fg);background:var(--chip)}}
 .v2 .msc-f{position:relative;display:flex;flex-wrap:wrap;align-items:center;gap:6px;min-height:42px;padding:6px 8px;border-radius:12px;background:var(--surface);box-shadow:var(--shadow);cursor:text;transition:box-shadow .25s}
-.v2 .msc-f:focus-within,.v2 .msc-f.f{box-shadow:0 0 0 1.5px var(--accent-mark,var(--accent)),0 0 0 4px var(--accent-bg)}
+/* the field rings while its search box has the focus; a tag's remove button rings on its own, never inside the field's ring */
+.v2 .msc-f:has(.msc-q:focus-visible),.v2 .msc-f.f{box-shadow:0 0 0 2px var(--focus),0 0 0 4px var(--accent-bg)}
 .v2 .msc-q{flex:1;min-width:80px;height:28px;border:0;outline:0;background:transparent;padding:0 4px;font:inherit;font-size:13px;color:var(--fg)}
 .v2 .msc-q::placeholder{color:var(--muted)}
 .v2 .msc-c{display:inline-flex;align-items:center;gap:2px;height:26px;padding:0 3px 0 10px;border-radius:var(--r-pill);background:var(--chip);font-size:12.5px;white-space:nowrap}
@@ -9646,8 +9707,8 @@ html:root{scroll-padding-top:0}
 /* the key just pressed, while the preview plays */
 .v2 .msc-key{position:absolute;right:8px;top:50%;transform:translateY(-50%);opacity:0;transition:opacity .2s}
 .v2 .msc-key.on{opacity:1}
-.v2 .msc-pop{position:absolute;top:76px;left:0;right:0;z-index:5;padding:6px;border-radius:14px;background:var(--raised);box-shadow:var(--shadow-pop);opacity:0;transform:translateY(-4px) scale(.98);transform-origin:top;filter:blur(3px);pointer-events:none;transition:opacity .2s,transform .35s var(--ease),filter .2s,top var(--t) var(--ease)}
-.v2 .msc-pop.open{opacity:1;transform:none;filter:none;pointer-events:auto}
+.v2 .msc-pop{position:absolute;top:76px;left:0;right:0;z-index:5;padding:6px;border-radius:14px;background:var(--raised);box-shadow:var(--shadow-pop);opacity:0;visibility:hidden;transform:translateY(-4px) scale(.98);transform-origin:top;filter:blur(3px);pointer-events:none;transition:opacity .2s,transform .35s var(--ease),filter .2s,top var(--t) var(--ease),visibility 0s .2s}
+.v2 .msc-pop.open{opacity:1;visibility:visible;transform:none;filter:none;pointer-events:auto;transition-property:opacity,transform,filter,top}
 .v2 .msc-list{max-height:210px;overflow-y:auto;display:flex;flex-direction:column}
 .v2 .msc-o{display:flex;align-items:center;gap:10px;min-height:34px;padding:6px 8px;border-radius:9px;font-size:13px;cursor:pointer;flex:none}
 .v2 .msc-o.hl{background:var(--wash)}
@@ -9692,8 +9753,10 @@ html:root{scroll-padding-top:0}
 .v2 .sgx-f{display:flex;flex-direction:column;gap:5px;font-size:12.5px;font-weight:500}
 .v2 .sgx-f input{height:40px;border:0;outline:0;border-radius:11px;background:var(--chip);box-shadow:inset 0 0 0 1px var(--field-line);padding:0 12px;font:inherit;font-size:13.5px;font-weight:400;color:var(--fg);transition:box-shadow .25s,background .25s}
 .v2 .sgx-f input::placeholder{color:var(--muted)}
-.v2 .sgx-f input:focus{background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--accent-mark,var(--accent)),0 0 0 4px var(--accent-bg)}
+.v2 .sgx-f input:focus{background:var(--surface);box-shadow:inset 0 0 0 2px var(--focus),0 0 0 4px var(--accent-bg)}
 .v2 .sgx-f.bad input{box-shadow:inset 0 0 0 1.5px var(--bad);animation:v2-sgsh .4s}
+/* a field marked wrong still shows the focus ring while it has the focus; the message says what is wrong */
+.v2 .sgx-f.bad input:focus{box-shadow:inset 0 0 0 2px var(--focus),0 0 0 4px var(--accent-bg)}
 @keyframes v2-sgsh{20%,60%{transform:translateX(-4px)}40%,80%{transform:translateX(4px)}}
 .v2 .sgx-err{font-size:12px;color:var(--bad);min-height:16px}
 .v2 .sgx-go{height:40px;width:100%}
@@ -9701,7 +9764,7 @@ html:root{scroll-padding-top:0}
 @media (hover:hover) and (pointer:fine){.v2 .sgx-bk:hover{color:var(--fg)}}
 .v2 .sgx-code{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
 .v2 .sgx-code input{width:100%;height:46px;border:0;outline:0;border-radius:11px;background:var(--chip);box-shadow:inset 0 0 0 1px var(--field-line);text-align:center;font:inherit;font-family:var(--mono);font-size:14px;color:var(--fg);transition:box-shadow .25s,background .25s,transform .3s var(--ease)}
-.v2 .sgx-code input:focus{background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--accent-mark,var(--accent))}
+.v2 .sgx-code input:focus{background:var(--surface);box-shadow:inset 0 0 0 2px var(--focus)}
 .v2 .sgx-code input.f{transform:scale(1.04)}
 /* the email with the code, the way a phone shows it as it arrives */
 .v2 .sgx-nt{display:flex;align-items:center;gap:10px;padding:10px 10px 10px 12px;margin-bottom:10px;border-radius:14px;background:var(--raised);box-shadow:var(--shadow-pop);font-size:12.5px;line-height:1.4}
@@ -9740,11 +9803,13 @@ html:root{scroll-padding-top:0}
 .v2 .otp-in{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;max-width:286px}
 .v2 .otp-in .sep{flex:none;width:8px;height:1.5px;border-radius:1px;background:var(--rail);margin:0 2px}
 .v2 .otp-d{flex:1 1 0;min-width:0;max-width:40px;height:48px;padding:0;border:0;outline:0;border-radius:11px;background:var(--chip);box-shadow:inset 0 0 0 1px var(--field-line);text-align:center;font:inherit;font-family:var(--mono);font-size:14px;font-weight:500;color:var(--fg);caret-color:var(--accent-mark,var(--accent));transition:box-shadow .25s,background .25s,color .25s,transform .25s var(--ease)}
-.v2 .otp-d:focus,.v2 .otp-d.f{background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--accent-mark,var(--accent)),0 0 0 4px var(--accent-bg)}
+.v2 .otp-d:focus,.v2 .otp-d.f{background:var(--surface);box-shadow:inset 0 0 0 2px var(--focus),0 0 0 4px var(--accent-bg)}
 /* (not .pop, which is the shared popover class and would hide the box) */
 .v2 .otp-d.bump{transform:scale(1.06)}
 .v2 .otp-in.vf .otp-d{color:var(--fg2)}
 .v2 .otp-in.bad .otp-d{background:var(--bad-bg);color:var(--bad);box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--bad) 55%,transparent)}
+/* a box marked wrong still shows the focus ring while it has the focus */
+.v2 .otp-in.bad .otp-d:focus{box-shadow:inset 0 0 0 2px var(--focus)}
 .v2 .otp-in.bad{animation:v2-otpsh .42s}
 @keyframes v2-otpsh{20%{transform:translateX(-6px)}40%{transform:translateX(5px)}60%{transform:translateX(-3px)}80%{transform:translateX(2px)}}
 .v2 .otp-in.ok .otp-d{background:var(--ok-bg);color:var(--ok);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--ok) 35%,transparent)}
@@ -9761,8 +9826,10 @@ html:root{scroll-padding-top:0}
 .v2 .fmx-f{display:flex;flex-direction:column;gap:5px;font-size:12.5px;font-weight:500;position:relative}
 .v2 .fmx-f input,.v2 .fmx-f textarea{border:0;outline:0;border-radius:11px;background:var(--chip);box-shadow:inset 0 0 0 1px var(--field-line);padding:10px 12px;font:inherit;font-size:13.5px;font-weight:400;color:var(--fg);resize:none;transition:box-shadow .25s,background .25s}
 .v2 .fmx-f input::placeholder,.v2 .fmx-f textarea::placeholder{color:var(--muted)}
-.v2 .fmx-f input:focus,.v2 .fmx-f textarea:focus{background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--accent-mark,var(--accent)),0 0 0 4px var(--accent-bg)}
+.v2 .fmx-f input:focus,.v2 .fmx-f textarea:focus{background:var(--surface);box-shadow:inset 0 0 0 2px var(--focus),0 0 0 4px var(--accent-bg)}
 .v2 .fmx-f.bad input,.v2 .fmx-f.bad textarea{box-shadow:inset 0 0 0 1.5px var(--bad)}
+/* a field marked wrong still shows the focus ring while it has the focus; the message says what is wrong */
+.v2 .fmx-f.bad input:focus,.v2 .fmx-f.bad textarea:focus{box-shadow:inset 0 0 0 2px var(--focus),0 0 0 4px var(--accent-bg)}
 .v2 .fmx-f .er{font-size:11.5px;color:var(--bad);font-weight:400;animation:v2-enter .35s var(--ease) backwards}
 /* what the agent drafted says so quietly beside its label, until someone edits it */
 .v2 .fmx-f>span:first-child{display:flex;align-items:center;gap:8px}
@@ -9785,8 +9852,10 @@ html:root{scroll-padding-top:0}
 .v2 .pyx-per button{font-size:12px;height:26px;padding:0 9px}
 .v2 .pyx-f{display:flex;flex-direction:column;gap:5px;font-size:12.5px;font-weight:500;min-width:0}
 .v2 .pyx-in{display:flex;align-items:center;height:40px;border-radius:11px;background:var(--chip);box-shadow:inset 0 0 0 1px var(--field-line);padding:0 10px 0 12px;transition:box-shadow .25s,background .25s}
-.v2 .pyx-in:focus-within{background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--accent-mark,var(--accent)),0 0 0 4px var(--accent-bg)}
+.v2 .pyx-in:focus-within{background:var(--surface);box-shadow:inset 0 0 0 2px var(--focus),0 0 0 4px var(--accent-bg)}
 .v2 .pyx-f.bad .pyx-in{box-shadow:inset 0 0 0 1.5px var(--bad)}
+/* a field marked wrong still shows the focus ring while it has the focus; the message says what is wrong */
+.v2 .pyx-f.bad .pyx-in:focus-within{box-shadow:inset 0 0 0 2px var(--focus),0 0 0 4px var(--accent-bg)}
 .v2 .pyx-in input{flex:1;min-width:0;border:0;outline:0;background:transparent;font:inherit;font-family:var(--mono);font-size:13.5px;font-weight:400;color:var(--fg);letter-spacing:.02em}
 .v2 .pyx-in input::placeholder{color:var(--muted)}
 .v2 .pyx-br{font-size:10px;font-weight:500;letter-spacing:.04em;padding:3px 6px;border-radius:5px;opacity:0;transform:scale(.8);transition:opacity .3s,transform .35s var(--ease)}
@@ -9819,7 +9888,7 @@ html:root{scroll-padding-top:0}
 .v2 .cmx-c .act{display:flex;gap:6px;margin-top:6px}
 .v2 .cmx-in{position:relative}
 .v2 .cmx-box{display:flex;align-items:center;gap:6px;height:40px;padding:0 5px 0 14px;border-radius:999px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--field-line);transition:box-shadow .25s}
-.v2 .cmx-box:focus-within{box-shadow:inset 0 0 0 1px var(--accent-mark,var(--accent)),0 0 0 4px var(--accent-bg)}
+.v2 .cmx-box:has(input:focus-visible){box-shadow:inset 0 0 0 2px var(--focus),0 0 0 4px var(--accent-bg)}
 .v2 .cmx-box input{flex:1;min-width:0;border:0;outline:0;background:transparent;font:inherit;font-size:13px;color:var(--fg)}
 .v2 .cmx-box input::placeholder{color:var(--muted)}
 .v2 .cmx-go{width:30px;height:30px;border-radius:50%;background:var(--accent);color:var(--on-accent,#fff);display:grid;place-items:center;transition:opacity .2s,transform .2s}
@@ -9859,7 +9928,7 @@ html:root{scroll-padding-top:0}
 .v2 .ivx-h b{font-weight:500}
 .v2 .ivx-h .muted{font-size:12px}
 .v2 .ivx-f{display:flex;align-items:center;flex-wrap:wrap;gap:5px;min-height:42px;padding:5px 5px 5px 8px;border-radius:12px;background:var(--chip);box-shadow:inset 0 0 0 1px var(--field-line);transition:box-shadow .25s,background .25s}
-.v2 .ivx-f:focus-within{background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--accent-mark,var(--accent)),0 0 0 4px var(--accent-bg)}
+.v2 .ivx-f:has(input:focus-visible){background:var(--surface);box-shadow:inset 0 0 0 2px var(--focus),0 0 0 4px var(--accent-bg)}
 .v2 .ivx-chips{display:contents}
 .v2 .ivx-ch{display:inline-flex;align-items:center;gap:5px;height:26px;padding:0 4px 0 4px;border-radius:8px;background:var(--surface);box-shadow:0 0 0 1px var(--line);font-size:12.5px;animation:v2-popin .4s var(--ease) backwards}
 .v2 .ivx-ch .av{width:18px;height:18px;font-size:8.5px}
@@ -10015,6 +10084,8 @@ html:root{scroll-padding-top:0}
 @media (hover:hover) and (pointer:fine){.v2 .tkx-t:hover{background:var(--row)}}
 .v2 .tkx-t.open{background:color-mix(in srgb,var(--wash) 50%,var(--surface))}
 .v2 .tkx-r{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:10px;width:100%;padding:10px 16px;text-align:left}
+/* rows fill the card, whose rounded edge would cut an outside ring: theirs is drawn inside */
+.v2 .tkx-r:focus-visible{outline-offset:-2px}
 .v2 .tkx-r .pr{display:flex;align-items:center;justify-content:center;width:18px;height:18px}
 .v2 .tkx-r .pr .dot{width:8px;height:8px}
 .v2 .tkx-r .t{display:flex;flex-direction:column;min-width:0;font-size:13px}
@@ -10028,7 +10099,7 @@ html:root{scroll-padding-top:0}
 .v2 .tkx-s{padding:10px 12px;border-radius:12px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);font-size:12.5px;line-height:1.5;color:var(--fg)}
 .v2 .tkx-s .lb{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--accent-fg,var(--accent));font-weight:500;margin-bottom:4px}
 .v2 .tkx-s [contenteditable]{outline:0;border-radius:6px}
-.v2 .tkx-s [contenteditable]:focus{box-shadow:0 0 0 1.5px var(--accent-mark,var(--accent));padding:2px 4px;margin:-2px -4px}
+.v2 .tkx-s [contenteditable]:focus{box-shadow:0 0 0 2px var(--focus);padding:2px 4px;margin:-2px -4px}
 .v2 .tkx-a{display:flex;gap:6px;justify-content:flex-end}
 .v2 .tkx-e{padding:40px 10px;text-align:center;font-size:13px;color:var(--muted)}
 .v2 .tkx-t.leave{animation:v2-leave .35s var(--ease) both}
@@ -10208,6 +10279,9 @@ html:root{scroll-padding-top:0}
 :root[data-style="soft"]{--on-accent:#ffffff;--accent-fg:#0f5fd5;--accent-mark:var(--accent)}
 @media (prefers-color-scheme: dark){:root[data-style="soft"]:not([data-theme="light"]){--accent:#116ff8;--accent-2:#0f5fd5;--accent-hi:#116ff8;--ink:#116ff8;--ink-hover:#0f5fd5;--on-ink:#ffffff;--on-accent:#ffffff;--accent-fg:#9dc4ff;--accent-mark:#3d8bff}}
 :root[data-style="soft"][data-theme="dark"]{--accent:#116ff8;--accent-2:#0f5fd5;--accent-hi:#116ff8;--ink:#116ff8;--ink-hover:#0f5fd5;--on-ink:#ffffff;--on-accent:#ffffff;--accent-fg:#9dc4ff;--accent-mark:#3d8bff}
+/* the site's own focus ring matches the components': 2px in the accent's mark colour (3:1 on the page), whatever width or
+   colour older rules gave it. Only the width and colour are set here, so a control that draws its focus another way keeps it */
+:is(a,button,input,select,textarea,summary,[tabindex]):focus-visible:not(.v2 *,[data-c] *,[data-dm] *){outline-width:2px;outline-color:var(--accent-mark)}
 </style>
 </head>
 <body class="ui">
@@ -14764,7 +14838,22 @@ html:root{scroll-padding-top:0}
 /* Soft 2 core: mounting, replay, motion helpers, tooltips, popovers */
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
-const REDUCE = matchMedia('(prefers-reduced-motion: reduce)').matches;
+/* reduced motion, read live: REDUCE follows the device's setting as it changes, so turning it on or off mid-visit takes
+   effect at once, without a reload. Turning it on also finishes what a script is animating in the components right now */
+let REDUCE = false;
+{
+  const mq = matchMedia('(prefers-reduced-motion: reduce)');
+  const set = () => {
+    REDUCE = mq.matches; if (!REDUCE || !document.getAnimations) return;
+    for (const a of document.getAnimations()){
+      const t = a.effect && a.effect.target;
+      if (a instanceof CSSAnimation || a instanceof CSSTransition || !t || !t.closest || !t.closest('[data-c],.v2,.stage-in')) continue;
+      try { a.finish(); } catch(e){ a.cancel(); }
+    }
+  };
+  set();
+  if (mq.addEventListener) mq.addEventListener('change', set); else mq.addListener(set);
+}
 const I = (n, c = 's') => `<svg class="i ${c}"><use href="#v2i-${n}"/></svg>`;
 const AV = (n, bg) => `<span class="av" style="background:${bg}">${n}</span>`;
 /* official brand marks for the services this page names */
@@ -15025,7 +15114,9 @@ function copied(btn, text, label = 'Copied to clipboard'){
 
 /* ---------- popovers: data-pop="#id" opens the element inside the same component ---------- */
 let openPop = null;
-function closePops(){ if (!openPop) return; const p = openPop.pop; p.classList.remove('open'); openPop.btn.setAttribute('aria-expanded','false'); openPop = null; setTimeout(() => { if (!p.classList.contains('open')){ p.style.left = '0px'; p.style.top = '0px'; } }, 300); }
+// closing hands the focus back to the popover's button when it was inside, so a pick or Tab never drops it on the page; while
+// it fades out it is inert, and after that hidden (CSS)
+function closePops(){ if (!openPop) return; const { pop:p, btn } = openPop, back = p.contains(document.activeElement); p.classList.remove('open'); p.inert = true; btn.setAttribute('aria-expanded','false'); openPop = null; if (back && btn.isConnected) btn.focus({ preventScroll:true }); setTimeout(() => { p.inert = false; if (!p.classList.contains('open')){ p.style.left = '0px'; p.style.top = '0px'; } }, 300); }
 function placePop(btn, pop){
   const host = pop.offsetParent || pop.parentElement; const hr = host.getBoundingClientRect(), br = btn.getBoundingClientRect();
   const up = btn.dataset.popPos === 'up' || (btn.dataset.popPos !== 'down' && br.bottom + pop.offsetHeight + 12 > innerHeight && br.top - pop.offsetHeight > 12);
@@ -15040,12 +15131,18 @@ document.addEventListener('click', e => {
   const btn = e.target.closest('.v2 [data-pop]');
   if (btn){
     const scope = btn.closest('.stage-in') || document; const pop = $(btn.dataset.pop, scope); if (!pop) return;
-    if (openPop && openPop.pop === pop){ closePops(); return; }
-    closePops(); hideTip(); placePop(btn, pop); pop.classList.add('open'); btn.setAttribute('aria-expanded','true'); openPop = { pop, btn };
+    // Enter or Space on the button of a menu the demo has open takes it over, with the focus on its first item; otherwise
+    // the button closes its open popover
+    if (openPop && openPop.pop === pop){ if (e.isTrusted && !e.detail && !openPop.mine && isMenu(pop)){ openPop.mine = true; popFocus(pop, 'first'); return; } closePops(); return; }
+    // a demo in another card never closes a popover the visitor has open
+    if (!e.isTrusted && openPop && openPop.mine && !openPop.pop.closest('.comp').contains(btn)) return;
+    closePops(); hideTip(); placePop(btn, pop); pop.inert = false; pop.classList.add('open'); btn.setAttribute('aria-expanded','true'); openPop = { pop, btn, mine:e.isTrusted };
+    // opened with Enter or Space (a real click with no pointer), a menu takes the focus on its picked item, or its first
+    if (e.isTrusted && !e.detail) popFocus(pop, 'first');
     return;
   }
-  /* a demo clicking inside its own card must not close another card's open popover */
-  const near = openPop && (e.isTrusted || openPop.pop.closest('.comp').contains(e.target));
+  /* a demo clicking inside its own card must not close another card's open popover, nor one the visitor opened */
+  const near = openPop && (e.isTrusted || (!openPop.mine && openPop.pop.closest('.comp').contains(e.target)));
   if (openPop && !openPop.pop.contains(e.target)){ if (near) closePops(); }
   else if (openPop && e.target.closest('[data-close]')) setTimeout(closePops, 120);
 });
@@ -15055,9 +15152,52 @@ document.addEventListener('keydown', e => {
   if (e.key !== 'Escape' || !openPop) return;
   const { pop, btn } = openPop, back = pop.contains(document.activeElement), card = pop.closest('.comp');
   if (e.isTrusted && card && card._c) card._c.mine = true;
+  // one Escape closes one thing: the popover, not also the panel or list it opened from
+  if (back || document.activeElement === btn) e.stopPropagation();
   closePops(); if (back && btn.isConnected) btn.focus({ preventScroll:true });
 }, true);
-addEventListener('resize', () => closePops());
+// a real resize closes the open popover; the page's own resize events (a card's layout settling) leave it open
+addEventListener('resize', e => { if (e.isTrusted) closePops(); });
+/* the keyboard in a popover menu, the WAI-ARIA menu button pattern: Enter, Space or the down arrow on its button opens it with
+   the focus on the picked item or the first (the up arrow, on the last); up and down move through the items and wrap at the
+   ends (left and right too, in a grid like an emoji picker, where up and down move a row); Home and End go to the first and
+   last; Enter or Space picks; Tab closes it and moves on. Escape is above. A popover that is a dialog or a form (a calendar,
+   a new schedule) leaves the focus to its component */
+const isMenu = pop => /^(menu|listbox)$/.test(pop.getAttribute('role') || '');
+const popItems = pop => $$('button,[role^="menuitem"],[role="option"]', pop).filter(el => !el.disabled && el.getAttribute('aria-disabled') !== 'true' && el.getClientRects().length && !el.closest('[hidden]'));
+function popFocus(pop, where){
+  if (!isMenu(pop)) return;
+  const it = popItems(pop), on = it.find(x => x.getAttribute('aria-checked') === 'true' || x.getAttribute('aria-selected') === 'true');
+  const to = where === 'last' ? it[it.length - 1] : on || it[0]; if (to) to.focus({ preventScroll:true });
+}
+function popStep(items, el, key){
+  const n = items.length, i = items.indexOf(el); if (!n) return null;
+  if (key === 'Home') return items[0]; if (key === 'End') return items[n - 1];
+  const top = items[0].getBoundingClientRect().top, cols = items.filter(x => Math.abs(x.getBoundingClientRect().top - top) < 2).length, grid = cols > 1 && cols < n;
+  const d = { ArrowDown:grid ? cols : 1, ArrowUp:grid ? -cols : -1, ArrowRight:grid || cols === n ? 1 : 0, ArrowLeft:grid || cols === n ? -1 : 0 }[key];
+  if (!d) return null;
+  if (i < 0) return d > 0 ? items[0] : items[n - 1];
+  return items[((i + d) % n + n) % n];
+}
+document.addEventListener('keydown', e => {
+  if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey) return;
+  const k = e.key, t = e.target;
+  const btn = t.closest && t.closest('[data-pop]');
+  if (btn && (k === 'ArrowDown' || k === 'ArrowUp')){
+    const pop = $(btn.dataset.pop, btn.closest('.stage-in') || document); if (!pop || !isMenu(pop)) return;
+    e.preventDefault();
+    if (!(openPop && openPop.pop === pop)) btn.click();
+    if (openPop && openPop.pop === pop) openPop.mine = true;
+    popFocus(pop, k === 'ArrowUp' ? 'last' : 'first');
+    return;
+  }
+  if (!openPop || !openPop.pop.contains(t) || !isMenu(openPop.pop)) return;
+  if (k === 'Tab'){ openPop.btn.focus({ preventScroll:true }); closePops(); return; }
+  // a field in a menu (a search, a web address) keeps its own keys
+  if (/^(INPUT|TEXTAREA)$/.test(t.tagName) || t.isContentEditable) return;
+  const to = popStep(popItems(openPop.pop), document.activeElement, k);
+  if (to){ e.preventDefault(); $$('.hl', openPop.pop).forEach(x => x.classList.remove('hl')); to.focus({ preventScroll:true }); }
+});
 
 /* ---------- touch: tap areas that never overlap ----------
    On a touch screen every control has a clear tap area of at least 40px square around it (the @media (pointer:coarse) block
@@ -15834,16 +15974,17 @@ DM.def('toast-stack', (r, c) => {
     ['warn','var(--warn)','var(--warn-bg)','Budget at 80%','1,600 of 2,000 credits'],
     ['spark','var(--pb)','var(--pb-bg)','Draft written','Launch email, 2 subject lines']
   ];
-  let items = [], n = 0, hover = false;
+  // the stack fans out under the pointer, or while the focus is in it; a toast that can't be seen can't take the focus
+  let items = [], n = 0, hover = false, focused = false;
   function layout(){
-    const fan = hover; let y = 0;
+    const fan = hover || focused; let y = 0;
     const hs = items.map(it => it.offsetHeight);
     stack.style.setProperty('--fanh', (hs.slice(-4).reduce((a, b) => a + b + 8, 0) - 8 || 96) + 'px');
     stack.classList.toggle('fan', fan);
     items.slice().reverse().forEach((it, i) => {
       if (fan){ it.style.transform = `translateY(${-y}px)`; it.style.opacity = i > 3 ? 0 : 1; it.style.filter = 'none'; if (i < 3) y += hs[items.length - 1 - i] + 8; }
       else { const k = Math.min(i, 3); it.style.transform = `translateY(${-k * 10}px) scale(${1 - k * .05})`; it.style.opacity = i > 2 ? 0 : 1 - k * .15; it.style.filter = i ? 'blur(.3px)' : 'none'; }
-      it.style.zIndex = 100 - i;
+      it.style.zIndex = 100 - i; it.inert = fan ? i > 3 : i > 0;
     });
   }
   function add(){
@@ -15858,11 +15999,13 @@ DM.def('toast-stack', (r, c) => {
   }
   c.on(stack, 'pointerenter', () => { hover = true; layout(); });
   c.on(stack, 'pointerleave', () => { hover = false; layout(); });
+  c.on(stack, 'focusin', () => { if (!focused){ focused = true; layout(); } });
+  c.on(stack, 'focusout', e => { if (!stack.contains(e.relatedTarget)){ focused = false; layout(); } });
   $('.tsk-add', r).onclick = add;
   c.run(async () => {
     for (let i = 0; i < 3; i++){ await c.wait(i ? 700 : 400); add(); }
     // then a new one now and then, held back while the stack is fanned out under the pointer, until you take over
-    for (;;){ await c.step(3800); if (!hover) add(); }
+    for (;;){ await c.step(3800); if (!hover && !focused) add(); }
   });
 });
 /* ---------- Pricing cards ---------- */
@@ -16860,7 +17003,7 @@ DM.def('rich-text-editor', (r, c) => {
   });
   $$('.rte-b', tb).forEach(b => b.addEventListener('click', e => {
     const f = b.dataset.f; if (E.reviewing()) return;
-    if (f === 'a') return lk ? closeLink(true) : openLink(e.isTrusted);
+    if (f === 'a') return lk ? closeLink(true) : openLink(e.isTrusted, e.isTrusted && !e.detail);
     if (/^(b|i|code)$/.test(f)) E.inline(f.toUpperCase()); else E.block(f);
     if (e.isTrusted) E.focus();
   }));
@@ -16876,7 +17019,8 @@ DM.def('rich-text-editor', (r, c) => {
     const o = E.get(), slash = how === 'slash' ? o.s - 1 : null, sel = o.s !== o.e;
     let t = sel ? o : E.line(o.s); if (slash !== null) t = { s:slash + 1, e:t.e };
     const has = !!E.text(t).trim();
-    job = { o, t, slash, sel };
+    // opened from its button with the keyboard, Escape gives the focus back to the button; opened from the text, to the text
+    job = { o, t, slash, sel, btn:how === 'button' };
     ph.textContent = sel ? 'Edit the selection' : has ? 'Edit this paragraph' : 'Write with AI';
     $$('.mi', menu).forEach(m => { m.setAttribute('aria-disabled', String(m.dataset.a !== 'continue' && !has)); m.tabIndex = -1; m.classList.remove('hl'); });
     ask.classList.remove('show'); pick(sel ? o : null);
@@ -16886,7 +17030,7 @@ DM.def('rich-text-editor', (r, c) => {
   function closeMenu(back){
     if (!job) return; const j = job; job = null;
     menu.classList.remove('open'); menu.inert = true; aiB.setAttribute('aria-expanded', 'false'); pick(null);
-    if (back) E.set(j.o, true);
+    if (back && j.btn){ E.set(j.o); aiB.focus({ preventScroll:true }); } else if (back) E.set(j.o, true);
   }
   menu.inert = true;
   const items = () => $$('.mi', menu).filter(m => m.getAttribute('aria-disabled') !== 'true');
@@ -16901,7 +17045,7 @@ DM.def('rich-text-editor', (r, c) => {
   });
   c.on(menu, 'mousedown', e => e.preventDefault());
   $$('.mi', menu).forEach(m => m.addEventListener('click', e => { if (m.getAttribute('aria-disabled') !== 'true') run(m.dataset.a, e.isTrusted); }));
-  aiB.addEventListener('click', e => openMenu(e.isTrusted ? (e.detail ? 'click' : 'key') : 'story'));
+  aiB.addEventListener('click', e => openMenu(e.isTrusted ? (e.detail ? 'click' : 'button') : 'story'));
   c.on(ask, 'mousedown', e => e.preventDefault());
   ask.addEventListener('click', e => openMenu(e.isTrusted ? 'click' : 'story'));
   c.on(document, 'pointerdown', e => {
@@ -16909,7 +17053,7 @@ DM.def('rich-text-editor', (r, c) => {
     if (lk && !lnk.contains(e.target) && !linkB.contains(e.target)) closeLink(false);
     if (e.isTrusted && !ask.contains(e.target) && !job) ask.classList.remove('show');
   });
-  c.on(window, 'resize', () => { closeMenu(false); closeLink(false); ask.classList.remove('show'); });
+  c.on(window, 'resize', e => { if (!e.isTrusted) return; closeMenu(false); closeLink(false); ask.classList.remove('show'); });
 
   /* ---- a suggestion streams in; Accept (Tab or Enter) keeps it, Discard (Esc) leaves the text as it was ---- */
   function run(a, mine){
@@ -16946,9 +17090,9 @@ DM.def('rich-text-editor', (r, c) => {
   /* ---- the link field ---- */
   lnk.inert = true;
   const toUrl = v => { v = v.trim(); if (!v) return null; if (/^(https?:\/\/|mailto:)/i.test(v)) return v; if (/^[^\s@/]+@[^\s@]+\.[^\s@]+$/.test(v)) return 'mailto:' + v; if (/^[\w-]+(\.[\w-]+)+(:\d+)?([/?#]\S*)?$/.test(v)) return 'https://' + v; return null; };
-  function openLink(mine){
+  function openLink(mine, btn){
     if (E.reviewing()) return; closeMenu(false); E.flush();
-    const o = E.get(), s = E.state(); lk = { o };
+    const o = E.get(), s = E.state(); lk = { o, btn };
     url.value = s.href || ''; url.removeAttribute('aria-invalid'); $('.rte-lrm', lnk).hidden = !s.href;
     ask.classList.remove('show'); pick(o); hideTip();
     place(lnk, o); lnk.classList.add('open'); lnk.inert = false; linkB.setAttribute('aria-expanded', 'true');
@@ -16957,7 +17101,7 @@ DM.def('rich-text-editor', (r, c) => {
   function closeLink(back){
     if (!lk) return; const j = lk; lk = null;
     lnk.classList.remove('open'); lnk.inert = true; linkB.setAttribute('aria-expanded', 'false'); pick(null);
-    if (back) E.set(j.o, true);
+    if (back && j.btn){ E.set(j.o); linkB.focus({ preventScroll:true }); } else if (back) E.set(j.o, true);
   }
   function applyLink(){
     if (!lk) return; const h = toUrl(url.value);
@@ -17022,22 +17166,32 @@ DM.def('voice-capture', (r, c) => {
   const settle = t => { $('.vcx-acts', r).innerHTML = `<span class="muted" style="font-size:12.5px">${t}</span><span class="sp"></span><button class="pill ghost sm vcx-again">${I('refresh','xs')}Record again</button>`; $('.vcx-again', r).onclick = () => DM.mount(r.closest('.comp')); };
   $('.vcx-done', r).onclick = () => { if (!done) finish(); else { swap(st, 'Sent'); settle('Sent to the agent'); } };
   $('.vcx-x', r).onclick = () => { if (!done) hold(box); done = true; tx.innerHTML = ''; pb.remove(); box.classList.add('done'); swap(st, 'Cancelled'); settle('Nothing was sent'); };
-  c.on(tx, 'click', e => {
-    const l = e.target.closest('.low'); if (!l) return;
+  // a word it isn't sure of opens a short menu of fixes: with a click, or with Enter or Space, which puts the focus on the
+  // first fix. The arrows move through them and wrap, Home and End jump, and Escape closes the menu back to the word
+  let fixFor = null;
+  const fixes = () => $$('.mi', pop);
+  const shutFix = () => { const back = pop.contains(document.activeElement) && fixFor; pop.classList.remove('open'); pop.inert = true; if (fixFor) fixFor.setAttribute('aria-expanded', 'false'); fixFor = null; if (back && back.isConnected) back.focus({ preventScroll:true }); };
+  function openFix(l, key){
     const alts = low[l.dataset.i];
-    pop.innerHTML = '<div class="ph">Did you mean</div>' + alts.map(a => `<button class="mi" data-close data-w="${a}">${a}</button>`).join('');
+    pop.innerHTML = '<div class="ph">Did you mean</div>' + alts.map(a => `<button class="mi" role="menuitem" tabindex="-1" data-close data-w="${a}">${a}</button>`).join('');
     hideTip(); const hr = box.getBoundingClientRect(), lr = l.getBoundingClientRect();
-    pop.style.left = (lr.left - hr.left) + 'px'; pop.style.top = (lr.bottom - hr.top + 6) + 'px'; pop.classList.add('open');
-    $$('.mi', pop).forEach(b => b.onclick = ev => { ev.stopPropagation(); l.textContent = b.dataset.w; l.classList.add('fixed'); l.dataset.tip = 'Fixed'; pop.classList.remove('open'); });
-    e.stopPropagation();
-  });
-  c.on(document, 'click', e => { if (!pop.contains(e.target)) pop.classList.remove('open'); });
+    pop.style.left = (lr.left - hr.left) + 'px'; pop.style.top = (lr.bottom - hr.top + 6) + 'px'; pop.inert = false; pop.classList.add('open');
+    if (fixFor && fixFor !== l) fixFor.setAttribute('aria-expanded', 'false'); fixFor = l; l.setAttribute('aria-expanded', 'true');
+    fixes().forEach(b => b.onclick = ev => { ev.stopPropagation(); l.textContent = b.dataset.w; l.classList.add('fixed'); l.dataset.tip = 'Fixed'; shutFix(); });
+    if (key) fixes()[0].focus({ preventScroll:true });
+  }
+  pop.inert = true;
+  c.on(tx, 'click', e => { const l = e.target.closest('.low'); if (!l) return; openFix(l, e.isTrusted && !e.detail); e.stopPropagation(); });
+  c.on(tx, 'keydown', e => { const l = e.target.closest('.low'); if (!l || (e.key !== 'Enter' && e.key !== ' ')) return; e.preventDefault(); openFix(l, true); });
+  c.on(pop, 'keydown', e => { const all = fixes(), i = all.indexOf(document.activeElement), go = { ArrowDown:all[(i + 1) % all.length], ArrowUp:all[(i - 1 + all.length) % all.length], Home:all[0], End:all[all.length - 1] }[e.key];
+    if (go){ e.preventDefault(); go.focus({ preventScroll:true }); } else if (e.key === 'Escape'){ e.preventDefault(); e.stopPropagation(); shutFix(); } else if (e.key === 'Tab'){ const l = fixFor; shutFix(); if (l) l.focus({ preventScroll:true }); } });
+  c.on(document, 'click', e => { if (!pop.contains(e.target) && pop.classList.contains('open')) shutFix(); });
   c.run(async () => {
     await c.wait(700);
     for (let i = 0; i < words.length; i++){
       while (paused){ await c.wait(100); }
       if (done) return;
-      speak = 5; tx.insertAdjacentHTML('beforeend', low[i] ? `<span class="w"><span class="low" data-i="${i}">${words[i]}</span> </span>` : `<span class="w">${words[i]} </span>`);
+      speak = 5; tx.insertAdjacentHTML('beforeend', low[i] ? `<span class="w"><span class="low" data-i="${i}" role="button" tabindex="0" aria-haspopup="menu" aria-expanded="false">${words[i]}</span> </span>` : `<span class="w">${words[i]} </span>`);
       await c.wait(170 + Math.random() * 150);
     }
     await c.wait(900); if (!done) finish();
@@ -17198,17 +17352,18 @@ DM.def('artifact-card', (r, c) => {
       const lo = Math.max(rr.left, wr.left), hi = Math.min(rr.right, wr.right) - mw, x = Math.max(lo, Math.min(br.left - 6, hi));
       menu.style.left = Math.round(x - hr.left) + 'px'; menu.style.top = Math.round(br.bottom + dy - hr.top + 6) + 'px';
     };
-    const show = () => {
+    // the visitor's open puts the focus on the picked version; a demo's open leaves the focus where it is
+    const show = (focus = true) => {
       items().forEach(b => b.setAttribute('aria-checked', String(+b.dataset.i === m.i)));
       open = true; hideTip(); menu.inert = false; o.onOpen && o.onOpen(); place(glide(wrap, btn, menu)); menu.classList.add('open'); btn.setAttribute('aria-expanded', 'true');
-      (items().find(b => b.getAttribute('aria-checked') === 'true') || items()[0]).focus({ preventScroll:true });
+      if (focus) (items().find(b => b.getAttribute('aria-checked') === 'true') || items()[0]).focus({ preventScroll:true });
     };
     const hide = refocus => {
       if (!open) return; open = false; menu.classList.remove('open'); btn.setAttribute('aria-expanded', 'false');
       if (refocus) btn.focus({ preventScroll:true });
       menu.inert = true; glide(wrap, btn, null); o.onClose && o.onClose();
     };
-    k.on(btn, 'click', e => { e.stopPropagation(); open ? hide(false) : show(); });
+    k.on(btn, 'click', e => { e.stopPropagation(); open ? hide(false) : show(e.isTrusted); });
     k.on(btn, 'keydown', e => { if (e.key === 'ArrowDown' || e.key === 'ArrowUp'){ e.preventDefault(); show(); } });
     k.on(menu, 'keydown', e => {
       const it = items(), j = it.indexOf(document.activeElement);
@@ -17219,9 +17374,9 @@ DM.def('artifact-card', (r, c) => {
       else if (e.key === 'Escape'){ e.preventDefault(); e.stopPropagation(); hide(true); }
       else if (e.key === 'Tab'){ hide(false); }
     });
-    k.on(menu, 'click', e => { const b = e.target.closest('.mi'); if (!b) return; m.set(+b.dataset.i); hide(true); });
+    k.on(menu, 'click', e => { const b = e.target.closest('.mi'); if (!b) return; m.set(+b.dataset.i); hide(menu.contains(document.activeElement)); });
     k.on(document, 'pointerdown', e => { if (open && !menu.contains(e.target) && !btn.contains(e.target)) hide(false); });
-    k.on(window, 'resize', () => hide(false));
+    k.on(window, 'resize', e => { if (e.isTrusted) hide(false); });
     return { hide };
   }
   /* the opened file: a view over the stage, or a page that grows out of the preview or sheet it came from. It is a modal
@@ -17639,7 +17794,8 @@ DM.def('feedback-sheet', (r, c) => {
   c.run(async () => {
     await c.step(1500); down(false);
     await c.step(1000); chips[1].click();
-    await c.step(700); ta.classList.add('typing');
+    // the box looks focused while the demo types; taking over puts that look away, so only the real focus rings
+    await c.step(700); ta.classList.add('typing'); c.taken(() => ta.classList.remove('typing'));
     await c.type(ta, 'Keep our 8px spacing scale', { ms:() => 34 + Math.random() * 40, each:ready, keep:true });
     await c.step(650); ta.classList.remove('typing'); go.click();
   });
@@ -17888,11 +18044,13 @@ DM.def('rewrite-toolbar', (r, c) => {
     let y = f.top - br.top - tb.offsetHeight - 8; if (y < $('.rwx-h', r).getBoundingClientRect().bottom - br.top) y = rects[rects.length - 1].bottom - br.top + 8;
     tb.style.left = x + 'px'; tb.style.top = y + 'px';
   }
-  function hide(){ tb.classList.remove('show'); }
+  // hidden, the toolbar takes no focus
+  function hide(){ tb.classList.remove('show'); tb.inert = true; }
+  tb.inert = true;
   function bindTb(){ $$('.rwx-b[data-k]', tb).forEach(b => b.onclick = () => rewrite(b.dataset.k)); const a = $('.rwx-b.ic', tb); if (a) a.onclick = () => rewrite('clear'); }
   function select(el){
     if (busy) return; $$('.rwx-s', doc).forEach(x => x.classList.toggle('sel', x === el)); sel = el;
-    tb.classList.remove('act'); tb.innerHTML = tbHTML; bindTb(); place(el); tb.classList.add('show'); swap(st, 'Pick a rewrite');
+    tb.classList.remove('act'); tb.innerHTML = tbHTML; bindTb(); place(el); tb.inert = false; tb.classList.add('show'); swap(st, 'Pick a rewrite');
   }
   $$('.rwx-s', doc).forEach(el => el.onclick = e => { e.stopPropagation(); if (!el.querySelector('ins')) select(el); });
   c.on(document, 'pointerdown', e => { if (!busy && !r.contains(e.target)) { hide(); $$('.rwx-s', doc).forEach(x => x.classList.remove('sel')); } });
@@ -18204,7 +18362,7 @@ DM.def('plan-review', (r, c) => {
     await s.beat(3);
     const step = $$('.plx-s', list)[2], t = $('.t', step);
     // the step looks focused while the person types, without real focus: a caret would make the page follow it
-    await s.tap(t); t.classList.add('ed'); await s.beat(1);
+    await s.tap(t); t.classList.add('ed'); c.taken(() => t.classList.remove('ed')); await s.beat(1);
     for (const ch of ' each'){ t.textContent = t.textContent.slice(0, -1); await s.beat(.12); }
     for (const ch of ', annual price first'){ t.textContent += ch; await s.beat(.09); }
     await s.beat(1); t.classList.remove('ed'); t.onblur(); await s.beat(2);
@@ -18276,7 +18434,12 @@ DM.def('inline-text-diff', (r, c) => {
   function decide(i, s){ if (!root.classList.contains('held')) hold(root); E[i].s = s; chunks[i].classList.remove('acc', 'rej'); chunks[i].classList.add(s); tally(); }
   // a click anywhere else on the page can close the toolbar between the story's taps, and then there is no edit to decide
   const pick = s => { const i = cur; if (i < 0) return; const back = bar.contains(document.activeElement); close(); decide(i, s); if (back) chunks[i].focus({ preventScroll:true }); };
-  chunks.forEach((el, i) => { el.onclick = () => cur === i ? close() : open(i); el.onkeydown = ev => { if (ev.key === 'Enter' || ev.key === ' '){ ev.preventDefault(); el.click(); } }; });
+  // Enter or Space opens an edit's toolbar with the focus on Accept, as a dialog takes the focus; Escape brings it back
+  chunks.forEach((el, i) => { el.onclick = () => cur === i ? close() : open(i); el.onkeydown = ev => { if (ev.key === 'Enter' || ev.key === ' '){ ev.preventDefault(); el.click(); if (cur === i) $('.itd-acc', r).focus({ preventScroll:true }); } }; });
+  // the left and right arrows move between Accept and Reject
+  c.on(bar, 'keydown', ev => { const bs = $$('button', bar), j = bs.indexOf(document.activeElement), d = { ArrowRight:1, ArrowDown:1, ArrowLeft:-1, ArrowUp:-1 }[ev.key];
+    if (j < 0) return; const to = d ? bs[(j + d + bs.length) % bs.length] : ev.key === 'Home' ? bs[0] : ev.key === 'End' ? bs[bs.length - 1] : null;
+    if (to){ ev.preventDefault(); to.focus({ preventScroll:true }); } });
   $('.itd-acc', r).onclick = () => pick('acc');
   $('.itd-rej', r).onclick = () => pick('rej');
   $('.itd-ok', r).onclick = () => { close(); E.forEach((e, i) => { if (!e.s) decide(i, 'acc'); }); };
@@ -18417,15 +18580,18 @@ DM.def('voice-orb', (r, c) => {
   let seen = true, flow = 0, last = 0;
   if (paint && 'IntersectionObserver' in window){ const io = new IntersectionObserver(e => { seen = e[0].isIntersecting; }); io.observe(orb); c.offs.push(() => io.disconnect()); }
   const draw = t => paint && paint(t, lv, getComputedStyle(dot).backgroundColor, getComputedStyle(pc).backgroundColor);
-  // the orb follows a level: a made-up voice while someone talks, a faint idle while it listens
-  if (!REDUCE) c.loop(t => {
+  // the orb follows a level: a made-up voice while someone talks, a faint idle while it listens. With reduced motion it is
+  // still: one frame, drawn again when the colours change. The setting is read every frame, so it can change mid-visit
+  let still = false;
+  c.loop(t => {
+    if (REDUCE){ if (!still){ still = true; lv = 0; orb.style.setProperty('--lv', '0'); draw(0); } last = 0; return; }
+    still = false;
     const to = talking ? .5 + .28 * Math.sin(t / 90) * Math.sin(t / 233) + .16 * Math.sin(t / 57) : mode === 'listening' && !muted ? .05 + .03 * Math.sin(t / 420) : 0;
     lv += (Math.max(0, to) - lv) * .18; orb.style.setProperty('--lv', lv.toFixed(3));
     flow += Math.min(50, t - (last || t)) * (1 + lv * 2.5); last = t;
     if (seen) draw(flow);
   });
-  // with reduced motion it is still: one frame, drawn again when the colours change
-  else if (paint){ draw(0); new MutationObserver(() => c.later(450, () => draw(0))).observe(root, { attributes:true, attributeFilter:['data-m'] }); }
+  if (paint){ const mo = new MutationObserver(() => c.later(450, () => { if (REDUCE) draw(0); })); mo.observe(root, { attributes:true, attributeFilter:['data-m'] }); c.offs.push(() => mo.disconnect()); }
   c.every(1000, () => { if (mode !== 'idle' && mode !== 'ended'){ secs++; tm.textContent = fmt(secs); } });
   async function say(name, line, ms, id){
     swap(who, name); tx.classList.remove('hint'); tx.innerHTML = ''; talking = true;
@@ -18630,7 +18796,7 @@ DM.def('steering', (r, c) => {
   c.story(async s => {
     await s.beat(2);
     await s.point($('.ste-t span', S[1].el), false); await s.beat(1);
-    await s.tap(inp); box.classList.add('f');
+    await s.tap(inp); box.classList.add('f'); c.taken(() => { if (document.activeElement !== inp) box.classList.remove('f'); });
     // typed a few letters at a time, so a busy page (few, longer timers) types it as fast as a quiet one
     const msg = 'Use our library blue, not violet';
     await s.type(inp, msg.match(/.{1,3}/g), { n:.15, each:ready, keep:true });
@@ -19091,7 +19257,7 @@ DM.def('citation-hover', (r, c) => {
     ['CSV','var(--pm)','Drive','Q3 conversion export.csv','Rows 412 to 480: <mark>trial to paid moves from 18.6% to 26.3%</mark> between Sep 18 and Oct 17.','Your file']
   ];
   const card = $('.chx-card', r), inn = $('.chx-in', r), box = $('.chx', r), cites = $$('.chx-c', r);
-  let cur = null, hideT, showT;
+  let cur = null, hideT, showT, back = false;
   /* the card exists only while a citation (or the card itself) is under the pointer */
   function show(b){
     clearTimeout(hideT); if (cur === b) return;
@@ -19116,15 +19282,18 @@ DM.def('citation-hover', (r, c) => {
   cites.forEach(b => {
     c.on(b, 'pointerenter', e => { if (!hover(e)) return; clearTimeout(showT); clearTimeout(hideT); showT = setTimeout(() => show(b), cur ? 0 : 90); });
     c.on(b, 'pointerleave', e => { if (!hover(e)) return; clearTimeout(showT); hide(); });
-    c.on(b, 'focus', () => show(b)); c.on(b, 'blur', () => hide());
-    c.on(b, 'click', () => { if (cur !== b) show(b); });
+    c.on(b, 'focus', () => { if (back){ back = false; return; } show(b); }); c.on(b, 'blur', e => { if (!card.contains(e.relatedTarget)) hide(); });
+    // Enter or Space opens the card with the focus on its link, so the keyboard can reach it; Escape brings the focus back
+    c.on(b, 'click', e => { if (cur !== b) show(b); if (e.isTrusted && !e.detail){ const a = $('a', card); if (a) a.focus({ preventScroll:true }); } });
   });
   c.on(card, 'pointerenter', () => clearTimeout(hideT));
   c.on(card, 'pointerleave', e => { if (hover(e)) hide(); });
-  /* Escape puts the card away while the focus or the pointer is on the answer, and leaves the focus where it was */
-  c.on(document, 'keydown', e => { if (e.key === 'Escape' && cur && (box.contains(document.activeElement) || box.matches(':hover'))){ e.preventDefault(); hide(true); } });
+  c.on(card, 'focusout', e => { if (cur && !card.contains(e.relatedTarget) && e.relatedTarget !== cur) hide(); });
+  /* Escape puts the card away while the focus or the pointer is on the answer, and leaves the focus where it was, or on its
+     citation when it was in the card */
+  c.on(document, 'keydown', e => { if (e.key === 'Escape' && cur && (box.contains(document.activeElement) || box.matches(':hover'))){ e.preventDefault(); const to = card.contains(document.activeElement) && cur; hide(true); if (to){ back = true; to.focus({ preventScroll:true }); } } });
   c.on(document, 'pointerdown', e => { if (!card.contains(e.target) && !e.target.closest('.chx-c')) hide(true); });
-  c.on(window, 'resize', () => hide(true));
+  c.on(window, 'resize', e => { if (e.isTrusted) hide(true); });
   c.offs.push(() => { clearTimeout(hideT); clearTimeout(showT); });
   // the preview shows one card on its own after the entrance, then puts it away, unless you are already pointing at a citation
   let mine = false; c.on(r, 'pointerover', e => { if (e.isTrusted) mine = true; }, true);
@@ -19184,6 +19353,8 @@ DM.def('command-palette', (r, c) => {
     ['Actions','palette','Switch theme']
   ];
   const q = $('.cpl-q', r), list = $('.cpl-list', r), st = $('.cpl-st', r);
+  list.id = 'cpl-l-' + Math.random().toString(36).slice(2, 7); list.setAttribute('aria-label', 'Commands'); list.tabIndex = -1;
+  q.setAttribute('role', 'combobox'); q.setAttribute('aria-expanded', 'true'); q.setAttribute('aria-controls', list.id); q.setAttribute('aria-autocomplete', 'list');
   let items = [], hi = 0;
   const esc = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   function paint(){
@@ -19193,10 +19364,12 @@ DM.def('command-palette', (r, c) => {
     m.forEach(x => { if (x[0] !== g){ g = x[0]; h += `<div class="cpl-g">${g}</div>`; } const label = v ? x[2].replace(new RegExp(v.split('').map(esc).join('|'), 'gi'), s => `<mark>${s}</mark>`) : x[2];
       h += `<button class="cpl-i" role="option" data-t="${x[2]}">${'<span class="ic">' + I(x[1],'xs') + '</span>'}<span>${label}</span>${x[3] ? `<span class="k">${x[3].map(k => `<span class="kbd">${k}</span>`).join('')}</span>` : ''}</button>`; });
     if (v) h += `<div class="cpl-g">Ask</div><button class="cpl-i ask" data-t="${v.replace(/"/g,'&quot;')}" data-ask="1"><span class="ic">${I('up','xs')}</span><span>Ask the agent: “${v.replace(/</g,'&lt;')}”</span></button>`;
-    list.innerHTML = h; items = $$('.cpl-i', list); hi = 0; move(0);
-    items.forEach((b, i) => { b.onmouseenter = () => move(i - hi); b.onclick = () => run(b); });
+    list.innerHTML = h; items = $$('.cpl-i', list); hi = 0;
+    // the search box keeps the focus and points at the highlighted row (aria-activedescendant), so the rows are not tab stops
+    items.forEach((b, i) => { b.id = list.id + '-' + i; b.tabIndex = -1; b.setAttribute('role', 'option'); b.onmouseenter = () => move(i - hi); b.onclick = () => run(b); });
+    if (!items.length) q.removeAttribute('aria-activedescendant'); move(0);
   }
-  function move(d){ if (!items.length) return; hi = (hi + d + items.length) % items.length; items.forEach((b, i) => b.classList.toggle('hl', i === hi)); const b = items[hi], hl = $('.cpl-hl', list); hl.style.top = b.offsetTop + 'px'; if (b.offsetTop < list.scrollTop || b.offsetTop + 36 > list.scrollTop + list.clientHeight) list.scrollTo({ top:b.offsetTop - 40, behavior:'smooth' }); }
+  function move(d){ if (!items.length) return; hi = (hi + d + items.length) % items.length; items.forEach((b, i) => { b.classList.toggle('hl', i === hi); b.setAttribute('aria-selected', i === hi); }); const b = items[hi], hl = $('.cpl-hl', list); q.setAttribute('aria-activedescendant', b.id); hl.style.top = b.offsetTop + 'px'; if (b.offsetTop < list.scrollTop || b.offsetTop + 36 > list.scrollTop + list.clientHeight) list.scrollTo({ top:b.offsetTop - 40, behavior:REDUCE ? 'auto' : 'smooth' }); }
   function run(b){ swap(st, b.dataset.ask ? 'Sent to the agent' : 'Ran: ' + b.dataset.t); b.animate([{ transform:'scale(1)' },{ transform:'scale(.98)' },{ transform:'scale(1)' }], { duration:260, easing:'ease-out' }); }
   q.oninput = paint;
   q.onkeydown = e => { if (e.key === 'ArrowDown'){ move(1); e.preventDefault(); } else if (e.key === 'ArrowUp'){ move(-1); e.preventDefault(); } else if (e.key === 'Enter' && items[hi]) run(items[hi]); else if (e.key === 'Escape'){ q.value = ''; paint(); } };
@@ -19211,7 +19384,10 @@ DM.def('agent-settings', (r, c) => {
   const AD = ['Asks before every change', 'Asks before edits to shared files', 'Works alone, asks only before publishing'];
   const CAPS = [1, 2, 5, 10, 20, 50];
   let s = { a:1, t:[true,false], cap:2, i:ta.value }, saved = JSON.stringify(s);
-  const dirty = () => root.classList.toggle('dirty', JSON.stringify(s) !== saved);
+  // the bar of unsaved changes is out of reach while it's hidden; when it hides with the focus in it, the focus goes to the
+  // top of the form instead of the page
+  const dirty = () => { const bar = $('.asx-bar', r), was = root.classList.contains('dirty'), on = root.classList.toggle('dirty', JSON.stringify(s) !== saved); bar.inert = !on;
+    if (was && !on && bar.contains(document.activeElement)){ const to = $('[aria-checked="true"]', r) || $('button', r); if (to) to.focus({ preventScroll:true }); } };
   function setA(i, init){ s.a = i; steps.forEach((b, j) => b.setAttribute('aria-checked', j === i)); knob.style.left = `calc(3px + ${i} * (100% - 6px) / 3)`; if (!init) swap(ad, AD[i]); dirty(); }
   steps.forEach((b, i) => b.onclick = () => setA(i));
   tg.forEach((t, i) => t.onclick = () => { s.t[i] = !s.t[i]; t.setAttribute('aria-checked', s.t[i]); dirty(); });
@@ -19294,22 +19470,37 @@ DM.def('automation-canvas', (r, c) => {
       if (svg.classList.contains('intro') && !p.style.getPropertyValue('--l')) p.style.setProperty('--l', Math.ceil(p.getTotalLength())); });
   }
   let selN = null;
-  function config(n){
+  // a step's settings open as a small dialog beside it. Opened with the keyboard, the focus goes into it; Escape or Done
+  // closes it and gives the focus back to the step. Its field is a menu button: the arrows move through the choices and wrap,
+  // Home and End jump, Enter or Space picks, and Escape closes the list back to the field
+  const uid = Math.random().toString(36).slice(2, 7);
+  function config(n, key){
     const b = el(n.id); $$('.acx-n', nodes).forEach(x => x.classList.toggle('sel', x === b)); selN = n;
-    pop.innerHTML = `<h4>${n.t}</h4><div class="acx-fl"><span>${n.f[0]}</span><button class="acx-dd"><span>${n.d}</span>${I('chev-d','xs')}</button><div class="acx-opts">${n.f[1].map(o => `<button class="mi" aria-checked="${o === n.d}"><span>${o}</span><span class="ck">${I('check','xs')}</span></button>`).join('')}</div></div><button class="pill soft sm acx-done">Done</button>`;
+    pop.innerHTML = `<h4 id="acx-h-${n.id}-${uid}">${n.t}</h4><div class="acx-fl"><span id="acx-f-${n.id}-${uid}">${n.f[0]}</span><button class="acx-dd" aria-haspopup="menu" aria-expanded="false" aria-labelledby="acx-f-${n.id}-${uid} acx-v-${n.id}-${uid}"><span id="acx-v-${n.id}-${uid}">${n.d}</span>${I('chev-d','xs')}</button><div class="acx-opts" role="menu" aria-labelledby="acx-f-${n.id}-${uid}">${n.f[1].map(o => `<button class="mi" role="menuitemradio" tabindex="-1" aria-checked="${o === n.d}"><span>${o}</span><span class="ck">${I('check','xs')}</span></button>`).join('')}</div></div><button class="pill soft sm acx-done">Done</button>`;
+    pop.setAttribute('aria-labelledby', `acx-h-${n.id}-${uid}`);
     const W = cv.clientWidth; let x = b.offsetLeft + b.offsetWidth + 10; if (x + 240 > W) x = b.offsetLeft - 250; if (x < 6) x = 6;
     let y = b.offsetTop - 40; y = Math.max(6, Math.min(y, cv.clientHeight - 190));
-    pop.style.left = x + 'px'; pop.style.top = y + 'px'; pop.style.position = 'absolute'; pop.classList.add('open');
-    const dd = $('.acx-dd', pop), ops = $('.acx-opts', pop);
-    dd.onclick = e => { e.stopPropagation(); ops.classList.toggle('open'); };
-    $$('.mi', ops).forEach(m => m.onclick = e => { e.stopPropagation(); n.d = $('span', m).textContent; swap($('.d', b), n.d); swap($('span', dd), n.d); $$('.mi', ops).forEach(x => x.setAttribute('aria-checked', x === m)); ops.classList.remove('open'); if (n.id === 't') swap(st, n.d.replace('Mondays', 'Every Monday,')); });
-    $('.acx-done', pop).onclick = close;
+    pop.style.left = x + 'px'; pop.style.top = y + 'px'; pop.style.position = 'absolute'; pop.classList.add('open'); pop.inert = false;
+    const dd = $('.acx-dd', pop), ops = $('.acx-opts', pop), mis = $$('.mi', ops);
+    const list = (on, focus) => { ops.classList.toggle('open', on); dd.setAttribute('aria-expanded', on);
+      if (on && focus){ const m = focus === 'last' ? mis[mis.length - 1] : mis.find(x => x.getAttribute('aria-checked') === 'true') || mis[0]; m.focus({ preventScroll:true }); }
+      if (!on && ops.contains(document.activeElement)) dd.focus({ preventScroll:true }); };
+    dd.onclick = e => { e.stopPropagation(); list(!ops.classList.contains('open'), e.isTrusted && !e.detail && 'first'); };
+    dd.onkeydown = e => { if (e.key === 'ArrowDown' || e.key === 'ArrowUp'){ e.preventDefault(); list(true, e.key === 'ArrowUp' ? 'last' : 'first'); } };
+    ops.onkeydown = e => { const i = mis.indexOf(document.activeElement), go = { ArrowDown:mis[(i + 1) % mis.length], ArrowUp:mis[(i - 1 + mis.length) % mis.length], Home:mis[0], End:mis[mis.length - 1] }[e.key];
+      if (go){ e.preventDefault(); go.focus({ preventScroll:true }); } else if (e.key === 'Escape'){ e.preventDefault(); e.stopPropagation(); list(false); } else if (e.key === 'Tab') list(false); };
+    mis.forEach(m => m.onclick = e => { e.stopPropagation(); n.d = $('span', m).textContent; swap($('.d', b), n.d); swap($('span', dd), n.d); mis.forEach(x => x.setAttribute('aria-checked', x === m)); list(false); if (n.id === 't') swap(st, n.d.replace('Mondays', 'Every Monday,')); });
+    $('.acx-done', pop).onclick = () => close(true);
+    if (key) dd.focus({ preventScroll:true });
   }
-  function close(){ pop.classList.remove('open'); $$('.acx-n', nodes).forEach(x => x.classList.remove('sel')); selN = null; }
+  function close(back){ const b = selN && el(selN.id), was = pop.contains(document.activeElement); pop.classList.remove('open'); pop.inert = true; $$('.acx-n', nodes).forEach(x => x.classList.remove('sel')); selN = null; if (b && (back || was)) b.focus({ preventScroll:true }); }
+  pop.inert = true;
+  c.on(pop, 'keydown', e => { if (e.key === 'Escape' && selN){ e.preventDefault(); close(true); } });
   let justDragged = false;
   N.forEach(n => {
     const b = el(n.id);
-    b.onclick = e => { e.stopPropagation(); if (justDragged){ justDragged = false; return; } selN === n ? close() : config(n); };
+    b.onclick = e => { e.stopPropagation(); if (justDragged){ justDragged = false; return; } selN === n ? close() : config(n, e.isTrusted && !e.detail); };
+    b.onkeydown = e => { if (e.key === 'Escape' && selN === n){ e.preventDefault(); close(); } };
     b.onpointerdown = e => {
       if (e.button) return; const sx = e.clientX, sy = e.clientY, ox = b.offsetLeft, oy = b.offsetTop; let moved = false;
       const mv = ev => { const dx = ev.clientX - sx, dy = ev.clientY - sy;
@@ -19717,7 +19908,8 @@ DM.def('harness', (r, c) => {
     s.wait = ms => (ms *= s.speed) < 4 ? new Promise((res, rej) => soon(() => s.dead ? rej('stop') : res())) : w(ms);
     s.later = (ms, fn) => (ms *= s.speed) < 4 ? soon(() => { if (!s.dead) fn(); }) : l(ms, fn);
     s.every = (ms, fn) => e(Math.max(16, ms * s.speed), fn);
-    up.offs.push(() => s.stop()); return s; };
+    // a component inside stops its own demo when the visitor takes over the harness
+    up.offs.push(() => s.stop()); if (up.taken) up.taken(() => { s.mine = true; }); return s; };
 
   /* ---- the composer, with the model and the context ring in its bar. It sits in the middle of New chat and at the foot of a chat ---- */
   const cpT = tplOf('composer');
@@ -20183,7 +20375,9 @@ DM.def('harness', (r, c) => {
       + `<svg class="ahx-ch" viewBox="0 0 300 56" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--accent-mark,var(--accent));stop-opacity:.16"/><stop offset="1" style="stop-color:var(--accent-mark,var(--accent));stop-opacity:0"/></linearGradient></defs><path fill="url(#${id})" d="${d} L300 56 L0 56 Z"/><path class="ln" d="${d}"/></svg>`
       + `<div class="ahx-ax"><span>Apr</span><span>May</span><span>Jun</span><span>Jul</span><span>Aug</span><span>Sep</span></div></div>`);
   }
+  let paneFrom = null;
   function openPane(cv, i){
+    if (root.contains(document.activeElement) && !pane.contains(document.activeElement)) paneFrom = document.activeElement;
     paneFor = cv;
     if (!narrow() && !root.classList.contains('ns')){ root.classList.add('ns'); folded = true; }
     const pb = $('.ahx-pb', pane), doc = churnDoc(i);
@@ -20192,7 +20386,9 @@ DM.def('harness', (r, c) => {
     root.classList.add('pn'); pane.removeAttribute('aria-hidden');
     if (!REDUCE) stagger([...pb.children], 70, 140);
   }
-  function shutPane(){ paneFor = null; root.classList.remove('pn'); pane.setAttribute('aria-hidden', 'true'); if (folded){ root.classList.remove('ns'); folded = false; } }
+  // closing it with the focus inside gives the focus back to what opened it, or to the message box
+  function shutPane(){ const back = pane.contains(document.activeElement); paneFor = null; root.classList.remove('pn'); pane.setAttribute('aria-hidden', 'true'); if (folded){ root.classList.remove('ns'); folded = false; }
+    if (back){ const to = paneFrom && paneFrom.isConnected && paneFrom.getClientRects().length ? paneFrom : ta; if (to) to.focus({ preventScroll:true }); } }
   $('.ahx-px', r).onclick = shutPane;
   $('.ahx-pl', r).onclick = e => copied(e.currentTarget, 'https://designme.dev/a/churn-q3');
 
@@ -20410,14 +20606,16 @@ DM.def('date-picker', (r, c) => {
   r.innerHTML = r.innerHTML.replace('{cal}', I('cal','xs')).replace('{chev}', I('chev-d','xs')).replace('{l}', I('chev-l','xs')).replace('{r}', I('chev-r','xs'));
   // today is the real today: the calendar opens on its month and the quick picks and typed dates count from it
   const now = new Date(), TODAY = new Date(now.getFullYear(), now.getMonth(), now.getDate()); let view = new Date(TODAY.getFullYear(), TODAY.getMonth(), 1), sel = null;
-  const g = $('.dpk-g', r), m = $('.dpk-m', r), val = $('.dpk-val', r), f = $('.dpk-f', r);
+  const g = $('.dpk-g', r), m = $('.dpk-m', r), val = $('.dpk-val', r), f = $('.dpk-f', r); let cursor = null;
   val.classList.add('ph');
   const same = (a, b) => a && b && a.toDateString() === b.toDateString();
   const fmt = d => d.toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric', year:'numeric' });
   function paint(dir){
     m.textContent = view.toLocaleDateString('en-US', { month:'long', year:'numeric' });
     const first = new Date(view.getFullYear(), view.getMonth(), 1), start = new Date(first); start.setDate(1 - ((first.getDay() + 6) % 7));
-    let h = ''; for (let i = 0; i < 42; i++){ const d = new Date(start); d.setDate(start.getDate() + i); h += `<button class="dpk-d${d.getMonth() !== view.getMonth() ? ' o' : ''}${same(d, TODAY) ? ' t' : ''}${same(d, sel) ? ' s' : ''}" data-t="${d.getTime()}">${d.getDate()}</button>`; }
+    // one day takes Tab, the one the arrows last reached, or the picked day, today or the 1st; the arrows move from it
+    const inView = d => d && d.getMonth() === view.getMonth() && d.getFullYear() === view.getFullYear(), tab = [cursor, sel, TODAY].find(inView) || first;
+    let h = ''; for (let i = 0; i < 42; i++){ const d = new Date(start); d.setDate(start.getDate() + i); h += `<button class="dpk-d${d.getMonth() !== view.getMonth() ? ' o' : ''}${same(d, TODAY) ? ' t' : ''}${same(d, sel) ? ' s' : ''}" data-t="${d.getTime()}" tabindex="${same(d, tab) ? 0 : -1}" aria-label="${fmt(d)}" aria-pressed="${!!same(d, sel)}"${same(d, TODAY) ? ' aria-current="date"' : ''}>${d.getDate()}</button>`; }
     g.innerHTML = h; if (dir){ g.classList.remove('in-l','in-r'); void g.offsetWidth; g.classList.add(dir < 0 ? 'in-l' : 'in-r'); }
     $$('.dpk-d', g).forEach(b => b.onclick = () => pick(new Date(+b.dataset.t)));
   }
@@ -20433,6 +20631,25 @@ DM.def('date-picker', (r, c) => {
     else if (s === 'tomorrow'){ d = new Date(TODAY); d.setDate(d.getDate() + 1); }
     if (d) pick(d, true); };
   $('.dpk-nl', r).onkeydown = e => { if (e.key === 'Enter' && sel) closePops(); };
+  // the keyboard in the calendar: the arrows move a day or a week, across months too; Home and End go to the start and end
+  // of the week; Page Up and Page Down move a month, or a year with Shift; Enter or Space picks the day
+  const dayBtn = d => $$('.dpk-d', g).find(b => same(new Date(+b.dataset.t), d));
+  function goDay(d){
+    cursor = d;
+    if (d.getMonth() !== view.getMonth() || d.getFullYear() !== view.getFullYear()){ const dir = d > view ? 1 : -1; view = new Date(d.getFullYear(), d.getMonth(), 1); paint(dir); } else paint();
+    const b = dayBtn(d); if (b) b.focus({ preventScroll:true });
+  }
+  c.on(g, 'keydown', e => {
+    const b = e.target.closest('.dpk-d'); if (!b) return;
+    const d = new Date(+b.dataset.t), wd = (d.getDay() + 6) % 7, at = n => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
+    const mon = (y, mo) => new Date(y, mo, Math.min(d.getDate(), new Date(y, mo + 1, 0).getDate()));
+    const n = { ArrowLeft:at(-1), ArrowRight:at(1), ArrowUp:at(-7), ArrowDown:at(7), Home:at(-wd), End:at(6 - wd),
+      PageUp:e.shiftKey ? mon(d.getFullYear() - 1, d.getMonth()) : mon(d.getFullYear(), d.getMonth() - 1),
+      PageDown:e.shiftKey ? mon(d.getFullYear() + 1, d.getMonth()) : mon(d.getFullYear(), d.getMonth() + 1) }[e.key];
+    if (!n) return; e.preventDefault(); goDay(n);
+  });
+  // opened with the keyboard, the calendar takes the focus on the picked day, or today
+  c.on(f, 'click', e => { if (e.isTrusted && !e.detail) requestAnimationFrame(() => { if (f.getAttribute('aria-expanded') !== 'true') return; cursor = null; paint(); const b = $('.dpk-d[tabindex="0"]', g); if (b) b.focus({ preventScroll:true }); }); });
   paint();
   // the preview opens it and types a date on its own; clicking, focusing or typing in it takes over, and what it had typed goes
   c.auto(800, () => { f.click(); c.run(async () => { const i = $('.dpk-nl', r); await c.step(500); await c.type(i, 'next friday', { ms:70, each:() => i.oninput({ target:i }) }); }); });
@@ -20527,7 +20744,7 @@ DM.def('segmented-control', (r, c) => {
 /* ---------- Date range picker ---------- */
 DM.def('date-range-picker', (r, c) => {
   r.innerHTML = r.innerHTML.replace('{right}', I('right','xs'));
-  const TODAY = new Date(2026, 9, 19); let base = new Date(2026, 8, 1), A = null, B = null, hov = null;
+  const TODAY = new Date(2026, 9, 19); let base = new Date(2026, 8, 1), A = null, B = null, hov = null, cursor = null;
   const cals = $$('.drx-cal', r), ok = $('.drx-ok', r);
   const key = d => d.getFullYear() * 1e4 + d.getMonth() * 100 + d.getDate();
   const fmt = d => d ? d.toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' }) : '–';
@@ -20553,6 +20770,9 @@ DM.def('date-range-picker', (r, c) => {
       if (A && end && k > ka && k < ke) cl += B ? ' in' : ' hv';
       if (!B && hov && A && k === ke && k > ka) cl += ' hv';
       if (b.className !== cl) b.className = cl; });
+    // one day takes Tab: the one the arrows last reached, or the end, the start, today or the first day on show
+    const days = $$('.drx-d[data-t]', r), on = [cursor, B, A, TODAY].map(d => d && days.find(b => +b.dataset.k === key(d))).find(Boolean) || days[0];
+    days.forEach(b => { const t = b === on ? '0' : '-1'; if (b.getAttribute('tabindex') !== t) b.setAttribute('tabindex', t); });
     put($('.drx-a', r), fmt(A)); put($('.drx-b', r), fmt(B));
     const ins = $$('.drx-in', r); ins[0].classList.toggle('on', !A); ins[1].classList.toggle('on', !!A && !B);
     const n = A && B ? Math.round((B - A) / 864e5) + 1 : 0;
@@ -20566,6 +20786,22 @@ DM.def('date-range-picker', (r, c) => {
   $('.drx-clr', r).onclick = () => { A = B = hov = null; $$('.drx-p', r).forEach(x => x.classList.remove('on')); deco(); };
   ok.onclick = () => { ok.innerHTML = I('check','xs') + 'Applied'; c.later(1200, () => ok.textContent = 'Apply'); };
   c.on($('.drx-cals', r), 'mouseleave', () => { if (hov){ hov = null; deco(); } });
+  // the keyboard in the calendars: the arrows move a day or a week, Home and End go to the start and end of the week, Page Up
+  // and Page Down move a month, or a year with Shift, and the months on show follow; Enter or Space picks the day. While the
+  // end is open, the range follows the focus as it does the pointer
+  c.on($('.drx-cals', r), 'keydown', e => {
+    const b = e.target.closest('.drx-d[data-t]'); if (!b) return;
+    const d = new Date(+b.dataset.t), wd = (d.getDay() + 6) % 7, at = n => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
+    const mon = (y, mo) => new Date(y, mo, Math.min(d.getDate(), new Date(y, mo + 1, 0).getDate()));
+    const n = { ArrowLeft:at(-1), ArrowRight:at(1), ArrowUp:at(-7), ArrowDown:at(7), Home:at(-wd), End:at(6 - wd),
+      PageUp:e.shiftKey ? mon(d.getFullYear() - 1, d.getMonth()) : mon(d.getFullYear(), d.getMonth() - 1),
+      PageDown:e.shiftKey ? mon(d.getFullYear() + 1, d.getMonth()) : mon(d.getFullYear(), d.getMonth() + 1) }[e.key];
+    if (!n) return; e.preventDefault(); cursor = n;
+    const m0 = new Date(n.getFullYear(), n.getMonth(), 1), last = new Date(base.getFullYear(), base.getMonth() + 1, 1);
+    if (A && !B && n > A) hov = n;
+    if (m0 < base){ base = m0; build(); } else if (m0 > last){ base = new Date(m0.getFullYear(), m0.getMonth() - 1, 1); build(); } else deco();
+    const to = $(`.drx-d[data-k="${key(n)}"]`, r); if (to) to.focus({ preventScroll:true });
+  });
   build();
   c.later(900, () => $('.drx-p[data-p="sp"]', r).click());
 });
@@ -20596,7 +20832,8 @@ DM.def('event-calendar', (r, c) => {
   const WHO = [['MK','var(--pl)'],['JO','var(--pm)'],['DA','var(--pb)'],['AR','var(--pp)']], DAYN = ['Mon','Tue','Wed','Thu','Fri'];
   let openFor = null;
   const say = t => swap(msg, t);
-  const closePop = () => { pop.classList.remove('open'); openFor = null; };
+  // closing gives the focus back to the event when it was in the card
+  const closePop = () => { const back = pop.contains(document.activeElement) && openFor; pop.classList.remove('open'); openFor = null; if (back && back.isConnected) back.focus({ preventScroll:true }); };
   /* the details card opens beside the event and stays inside the calendar */
   function openPop(el){
     const e = el._e; if (openFor === el){ closePop(); return; } openFor = el; const n = 2 + e[3].length % 3, fresh = e[3] === 'New event';
@@ -20615,6 +20852,8 @@ DM.def('event-calendar', (r, c) => {
   /* drag to another time or day, snapping to 15 minutes; a click without moving opens the details */
   const colX = i => col(i).getBoundingClientRect().left;
   function bind(el, e){ el._e = e; el.dataset.tip = e[3] + ', ' + tm(e[1]);
+    // Enter or Space opens its card with the focus in it (a pointer opens it on release, below)
+    el.onclick = k => { if (!k.isTrusted || k.detail) return; openPop(el); if (openFor === el){ const f = $('.ecx-ti', pop) || $('button', pop); if (f) f.focus({ preventScroll:true }); } };
     el.onpointerdown = d => { if (d.button || d.target.closest('.ecx-sg')) return; const sx = d.clientX, sy = d.clientY; let moved = false, nd = e[0], nh = e[1]; el.setPointerCapture(d.pointerId);
       el.onpointermove = m => { const dx = m.clientX - sx, dy = m.clientY - sy; if (!moved && Math.hypot(dx, dy) < 5) return; if (!moved){ moved = true; el.classList.add('drag'); closePop(); hideTip(); }
         nh = Math.max(H0, Math.min(H0 + 8 - e[2], e[1] + Math.round(dy / PX * 4) / 4));
@@ -20770,7 +21009,9 @@ DM.def('search-input', (r, c) => {
   const box = $('.six-box', r), inp = $('.six-in input', r), dd = $('.six-dd', r), res = $('.six-res', r), chips = $('.six-chips', r), xB = $('.six-x', r), k = $('.six-k', r);
   const ITEMS = [['figma','Pricing v4','Figma'],['figma','Pricing mobile','Figma'],['file-text','Pricing research notes','Notion'],['code','PricingCard.tsx','GitHub'],['figma','Checkout flow','Figma'],['file-text','Brand voice guide','Notion'],['code','tokens.css','GitHub']];
   const SC = { figma:'Figma', notion:'Notion', github:'GitHub' };
-  let scope = null, at = null, ans = 0, rows = new Set(), grow = null;
+  let scope = null, at = null, ans = 0, rows = new Set(), grow = null, hi = -1;
+  res.id = 'six-r-' + Math.random().toString(36).slice(2, 7); res.setAttribute('role', 'listbox'); res.setAttribute('aria-label', 'Suggestions');
+  inp.setAttribute('role', 'combobox'); inp.setAttribute('aria-autocomplete', 'list'); inp.setAttribute('aria-expanded', 'false'); inp.setAttribute('aria-controls', res.id);
   // the agent's answer streams in word by word and keeps going while the question is still being typed
   const WS = 'Pricing changed on Sep 18: annual plans first, one CTA per card. Trial to paid is up 8.1 points since.'.split(' ');
   function paint(){
@@ -20786,7 +21027,8 @@ DM.def('search-input', (r, c) => {
       if (v.split(' ').length > 2 || v.endsWith('?')) h += `<div class="six-ans">${I('spark','xs')}<span class="six-at"></span></div>`;
       h += m.length ? '<div class="six-g">' + m.length + (m.length === 1 ? ' result' : ' results') + '</div>' + m.map(i => `<button class="six-it"><span class="ic">${I(i[0],'xs')}</span><span>${hw ? i[1].replace(new RegExp(hw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i'), s => `<mark>${s}</mark>`) : i[1]}</span><span class="d">${i[2]}</span></button>`).join('') : '<div class="six-g">No matches. Press Enter to ask the agent</div>';
     }
-    res.innerHTML = h;
+    res.innerHTML = h; hi = -1; inp.removeAttribute('aria-activedescendant');
+    $$('.six-it', res).forEach((b, j) => { b.id = res.id + '-' + j; b.setAttribute('role', 'option'); b.setAttribute('aria-selected', 'false'); b.tabIndex = -1; });
     // only rows that weren't showing a moment ago enter, so typing doesn't restart the whole list
     const now = $$('.six-it', res), fresh = now.filter(b => !rows.has(b.textContent)); rows = new Set(now.map(b => b.textContent)); stagger(fresh, 25);
     const a = $('.six-at', res);
@@ -20798,15 +21040,24 @@ DM.def('search-input', (r, c) => {
     $$('.six-it[data-q]', res).forEach(b => b.onmousedown = e => { e.preventDefault(); inp.value = b.dataset.q; paint(); });
     $$('.six-it[data-sc]', res).forEach(b => b.onmousedown = e => { e.preventDefault(); scope = b.dataset.sc; inp.value = inp.value.replace(/@\w*$/, ''); chips.innerHTML = `<span class="six-ch">${scope}<button aria-label="Remove filter">${I('x','xs')}</button></span>`; enter(chips.firstChild); $('button', chips).onmousedown = ev => { ev.preventDefault(); scope = null; chips.innerHTML = ''; paint(); }; paint(); });
   }
-  function shut(){ box.classList.remove('f'); dd.classList.add('shut'); }
-  inp.onfocus = () => { box.classList.add('f'); dd.classList.remove('shut'); paint(); };
+  function shut(){ box.classList.remove('f'); dd.classList.add('shut'); inp.setAttribute('aria-expanded', 'false'); }
+  const list = () => { dd.classList.remove('shut'); inp.setAttribute('aria-expanded', 'true'); };
+  inp.onfocus = () => { box.classList.add('f'); list(); paint(); };
   inp.onblur = shut;
-  inp.oninput = paint;
-  inp.onkeydown = e => { if (e.key === 'Backspace' && !inp.value && scope){ scope = null; chips.innerHTML = ''; paint(); } if (e.key === 'Escape') inp.blur(); };
+  inp.oninput = () => { list(); paint(); };
+  // the box is a combobox for the list under it: up and down move through the rows and wrap, Enter picks the highlighted
+  // one, and Escape closes the list, keeping the focus in the box (a second Escape clears it)
+  const light = k => { const all = $$('.six-it', res); if (!all.length) return; hi = (k + all.length) % all.length;
+    all.forEach((b, j) => { b.classList.toggle('hl', j === hi); b.setAttribute('aria-selected', j === hi); }); inp.setAttribute('aria-activedescendant', all[hi].id); all[hi].scrollIntoView({ block:'nearest' }); };
+  inp.onkeydown = e => {
+    if (e.key === 'Backspace' && !inp.value && scope){ scope = null; chips.innerHTML = ''; paint(); }
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp'){ e.preventDefault(); if (dd.classList.contains('shut')){ list(); paint(); } light(hi < 0 ? (e.key === 'ArrowDown' ? 0 : -1) : hi + (e.key === 'ArrowDown' ? 1 : -1)); }
+    if (e.key === 'Enter' && hi >= 0 && !dd.classList.contains('shut')){ const b = $$('.six-it', res)[hi]; if (b && b.onmousedown){ e.preventDefault(); b.onmousedown(e); } }
+    if (e.key === 'Escape'){ e.preventDefault(); if (!dd.classList.contains('shut')){ dd.classList.add('shut'); inp.setAttribute('aria-expanded', 'false'); inp.removeAttribute('aria-activedescendant'); } else if (inp.value || scope){ inp.value = ''; scope = null; chips.innerHTML = ''; paint(); } } };
   xB.onmousedown = e => { e.preventDefault(); inp.value = ''; scope = null; chips.innerHTML = ''; paint(); };
   c.on(document, 'pointerdown', e => { if (!r.contains(e.target) && document.activeElement !== inp) shut(); });
   // the preview types a question on its own; clicking, focusing or typing in it takes over, and what it had typed goes
-  c.auto(900, () => c.run(async () => { box.classList.add('f'); dd.classList.remove('shut'); paint(); await c.step(600); await c.type(inp, 'why did pricing change?', { ms:45, each:paint }); }));
+  c.auto(900, () => c.run(async () => { box.classList.add('f'); c.taken(() => { if (document.activeElement !== inp) shut(); }); dd.classList.remove('shut'); paint(); await c.step(600); await c.type(inp, 'why did pricing change?', { ms:45, each:paint }); }));
 });
 /* ---------- Country select ---------- */
 DM.def('country-select', (r, c) => {
@@ -20826,11 +21077,12 @@ DM.def('country-select', (r, c) => {
   function setSel(co){ sel = co; $('.csx-fl', f).outerHTML = flag(co); put($('.csx-v', f), co[0]); put(h, 'Prices shown in ' + co[4]); }
   function paint(){
     const v = q.value.trim().toLowerCase(); const m = C.filter(co => !v || co[0].toLowerCase().includes(v) || co[1].toLowerCase() === v);
-    list.innerHTML = (v ? '' : '<div class="csx-g">Suggested</div>') + m.map(co => `<button class="csx-o" role="option" aria-selected="${co === sel}" data-c="${co[1]}">${flag(co)}${co[0]}<span class="cd">${co[4]}</span><span class="ck">${I('check','xs')}</span></button>`).join('') || '<div class="csx-g">No country found</div>';
+    list.innerHTML = (v ? '' : '<div class="csx-g">Suggested</div>') + m.map(co => `<button class="csx-o" role="option" id="${list.id}-${co[1]}" tabindex="-1" aria-selected="${co === sel}" data-c="${co[1]}">${flag(co)}${co[0]}<span class="cd">${co[4]}</span><span class="ck">${I('check','xs')}</span></button>`).join('') || '<div class="csx-g">No country found</div>';
     opts = $$('.csx-o', list); hi = Math.max(0, opts.findIndex(o => o.dataset.c === sel[1])); move(0);
     opts.forEach((o, i) => { o.onmouseenter = () => { hi = i; move(0); }; o.onclick = () => { setSel(C.find(x => x[1] === o.dataset.c)); close(); }; });
   }
-  function move(d){ if (!opts.length) return; hi = (hi + d + opts.length) % opts.length; opts.forEach((o, i) => o.classList.toggle('hl', i === hi)); opts[hi].scrollIntoView({ block:'nearest' }); }
+  function move(d){ if (!opts.length){ q.removeAttribute('aria-activedescendant'); return; } hi = (hi + d + opts.length) % opts.length; opts.forEach((o, i) => o.classList.toggle('hl', i === hi)); opts[hi].scrollIntoView({ block:'nearest' }); q.setAttribute('aria-activedescendant', opts[hi].id); }
+  list.id = 'csx-l-' + Math.random().toString(36).slice(2, 7); q.setAttribute('role', 'combobox'); q.setAttribute('aria-autocomplete', 'list'); q.setAttribute('aria-expanded', 'true'); q.setAttribute('aria-controls', list.id);
   // the field sits centred on its own, and glides up once as the list opens; it makes room for the list at its tallest,
   // so it holds still while typing filters the list
   const box = $('.csx', r), full = () => pop.offsetHeight - list.offsetHeight + parseFloat(getComputedStyle(list).maxHeight);
@@ -20840,7 +21092,13 @@ DM.def('country-select', (r, c) => {
   function close(){ pop.classList.remove('open'); f.setAttribute('aria-expanded', 'false'); c.later(REDUCE ? 0 : 180, centred); }
   f.onclick = () => pop.classList.contains('open') ? close() : open();
   q.oninput = paint;
-  q.onkeydown = e => { if (e.key === 'ArrowDown'){ move(1); e.preventDefault(); } else if (e.key === 'ArrowUp'){ move(-1); e.preventDefault(); } else if (e.key === 'Enter'){ e.preventDefault(); if (opts[hi]){ opts[hi].click(); f.focus({ preventScroll:true }); } } else if (e.key === 'Escape') close(); };
+  // in the search box the arrows move through the countries and wrap, Enter picks, and Escape closes the list and gives the
+  // focus back to the field (Home and End stay with the text)
+  q.onkeydown = e => { if (e.key === 'ArrowDown'){ move(1); e.preventDefault(); } else if (e.key === 'ArrowUp'){ move(-1); e.preventDefault(); } else if (e.key === 'Enter'){ e.preventDefault(); if (opts[hi]){ opts[hi].click(); f.focus({ preventScroll:true }); } } else if (e.key === 'Escape'){ e.preventDefault(); close(); f.focus({ preventScroll:true }); } };
+  // Tab out of the list closes it
+  c.on(pop, 'focusout', e => { if (pop.classList.contains('open') && e.relatedTarget && !pop.contains(e.relatedTarget) && e.relatedTarget !== f) close(); });
+  // the field opens the list with the down and up arrows too, or takes the focus into it when it is already open
+  c.on(f, 'keydown', e => { if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return; e.preventDefault(); if (pop.classList.contains('open')) q.focus({ preventScroll:true }); else open(); });
   c.on(document, 'pointerdown', e => { if (!r.contains(e.target)) close(); });
   $('.csx-v', f).textContent = sel[0]; f.insertAdjacentHTML('afterbegin', ''); $('.csx-fl', f).outerHTML = flag(sel);
   // the preview's story: open the list, type "ger", and pick Germany, which closes it on the new country. It stops at the
@@ -20911,7 +21169,7 @@ DM.def('multi-select', (r, c) => {
   // the preview's story: add Pricing, pick Tooltips by mistake and take it off with Backspace, then add Tokens
   c.story(async s => {
     await s.beat(3);
-    await s.tap(f); f.classList.add('f'); open(); s.away(); await s.beat(2);
+    await s.tap(f); f.classList.add('f'); c.taken(() => f.classList.remove('f')); open(); s.away(); await s.beat(2);
     await type(s, 'pri'); await s.beat(1);
     await press(s, 'Enter');
     await type(s, 'to'); await s.beat(1);
@@ -20954,7 +21212,7 @@ DM.def('sign-in', (r, c) => {
     const v = em.value.trim();
     if (!/^\S+@\S+\.\S+$/.test(v)){ const f = em.parentElement; f.classList.remove('bad'); void f.offsetWidth; f.classList.add('bad'); swap(err, v ? 'That email looks incomplete' : 'Enter your email'); return; }
     em.parentElement.classList.remove('bad'); swap(err, ''); go.innerHTML = '<span class="spin"></span>'; await c.wait(800);
-    s1.hidden = true; s2.hidden = false; s2.classList.remove('in'); void s2.offsetWidth; s2.classList.add('in'); $('.sgx-to', r).textContent = v; if (demo !== true) ins[0].focus({ preventScroll:true }); c.later(900, () => ntf.classList.remove('shut'));
+    s1.hidden = true; s2.hidden = false; s2.classList.remove('in'); void s2.offsetWidth; s2.classList.add('in'); $('.sgx-to', r).textContent = v; if (demo !== true && c.mine) ins[0].focus({ preventScroll:true }); c.later(900, () => ntf.classList.remove('shut'));
     let n = 30; const ns = $('.sgx-rs .num', r); const iv = c.every(1000, () => { if (checking || !ns.isConnected) return clearInterval(iv); n--; ns.textContent = n; if (n <= 0){ clearInterval(iv); $('.sgx-rs', r).innerHTML = '<button style="color:var(--accent-fg,var(--accent));font-weight:500">Resend code</button>'; } });
   });
   go.onclick = () => send(); em.onkeydown = e => { if (e.key === 'Enter') send(); };
@@ -20969,9 +21227,9 @@ DM.def('sign-in', (r, c) => {
     const d = html(`<div class="sgx-done"><svg class="sgx-ck" viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="24"/><path d="m16 27 7 7 13-14"/></svg><b>You're in</b><span class="muted">Opening your workspace</span><span class="sgx-bar"><i></i></span></div>`);
     card.appendChild(d); stagger([...d.children].slice(1), 90, 250); }); }
   // a pasted code fills every box from the first; any 6 digits go through in the demo
-  const paste = t => { t = t.replace(/\D/g, '').slice(0, 6); if (!t || checking) return; t.split('').forEach((d, j) => { if (ins[j]){ ins[j].value = d; ins[j].classList.add('f'); const el = ins[j]; c.later(150, () => el.classList.remove('f')); } }); ins[Math.min(5, t.length)].focus({ preventScroll:true }); check(); };
+  const paste = t => { t = t.replace(/\D/g, '').slice(0, 6); if (!t || checking) return; t.split('').forEach((d, j) => { if (ins[j]){ ins[j].value = d; ins[j].classList.add('f'); const el = ins[j]; c.later(150, () => el.classList.remove('f')); } }); if (c.mine) ins[Math.min(5, t.length)].focus({ preventScroll:true }); check(); };
   // Copy puts the code on the clipboard, the way a phone offers it from the email; then it is pasted into the boxes
-  cp.onclick = () => { try { navigator.clipboard.writeText(CODE).catch(() => {}); } catch(e){} swap(cp, 'Copied'); cp.disabled = true; swap($('.sgx-hint', r), 'Paste it into the first box'); const at = ins.find(i => !i.value); if (at) at.focus({ preventScroll:true }); };
+  cp.onclick = () => { try { navigator.clipboard.writeText(CODE).catch(() => {}); } catch(e){} swap(cp, 'Copied'); cp.disabled = true; swap($('.sgx-hint', r), 'Paste it into the first box'); const at = ins.find(i => !i.value); if (at && c.mine) at.focus({ preventScroll:true }); };
   ins.forEach((i, k) => {
     i.oninput = () => { i.value = i.value.replace(/\D/g, '').slice(-1); if (i.value){ i.classList.add('f'); c.later(150, () => i.classList.remove('f')); if (ins[k + 1]) ins[k + 1].focus({ preventScroll:true }); } check(); };
     i.onkeydown = e => { if (e.key === 'Backspace' && !i.value && ins[k - 1]){ ins[k - 1].focus({ preventScroll:true }); ins[k - 1].value = ''; } };
@@ -21041,6 +21299,8 @@ DM.def('otp-field', (r, c) => {
   // the preview's story: paste a code with two digits swapped, see it fail, and type the right one
   c.story(async s => {
     await s.beat(3);
+    // the boxes look focused as the demo types; taking over puts that look away, so only the real focus rings
+    c.taken(() => ins.forEach(x => x.classList.remove('f')));
     await s.tap(ins[0]); ins[0].classList.add('f'); s.away();
     await s.beat(1); ins[0].classList.remove('f'); fill('482175', false);
     await s.until(() => state === 'bad'); await s.beat(4);
@@ -21118,19 +21378,31 @@ DM.def('comments', (r, c) => {
     const act = html(`<div class="act"><button class="pill accent sm">Apply to all</button><button class="pill ghost sm">Just this one</button></div>`); $('.b', el).appendChild(act); enter(act);
     $$('button', act).forEach((b, i) => b.onclick = () => { act.innerHTML = `<span class="cmx-rv">${I('ok','xs')}${i ? 'Applied to frame 2' : 'Applied to 3 frames'}</span>`; enter(act.firstChild); });
   }
-  function send(){ const v = inp.value.trim(); if (!v) return; add('MK', v, 'now'); inp.value = ''; go.disabled = true; men.classList.remove('open'); if (/@agent/i.test(v)) c.run(() => agent(v)); }
+  function send(){ const v = inp.value.trim(); if (!v) return; add('MK', v, 'now'); inp.value = ''; go.disabled = true; shut(); if (/@agent/i.test(v)) c.run(() => agent(v)); }
   const opts = [['DA','agent','Design agent'],['MK','maya','Maya Kim'],['JO','jon','Jon Ortiz']];
+  // the reply box drives the list of people to mention: it is a combobox, and the highlighted row is its active option
+  men.id = 'cmx-m-' + Math.random().toString(36).slice(2, 7); men.setAttribute('aria-label', 'Mention');
+  inp.setAttribute('role', 'combobox'); inp.setAttribute('aria-autocomplete', 'list'); inp.setAttribute('aria-expanded', 'false'); inp.setAttribute('aria-controls', men.id);
+  let hl = 0;
+  const mens = () => $$('.mi', men);
+  const light = k => { const all = mens(); if (!all.length){ inp.removeAttribute('aria-activedescendant'); return; } hl = (k + all.length) % all.length; all.forEach((b, j) => { b.classList.toggle('hl', j === hl); b.setAttribute('aria-selected', j === hl); }); inp.setAttribute('aria-activedescendant', all[hl].id); };
+  const shut = () => { men.classList.remove('open'); inp.setAttribute('aria-expanded', 'false'); inp.removeAttribute('aria-activedescendant'); };
   inp.oninput = () => { go.disabled = !inp.value.trim(); const m = inp.value.match(/@(\w*)$/);
-    if (m){ const list = opts.filter(o => o[1].startsWith(m[1].toLowerCase())); men.innerHTML = list.map(o => `<button class="mi" data-h="${o[1]}">${AV(o[0], P[o[0]][1]).replace('class="av" style="', 'class="av" style="width:20px;height:20px;font-size:9px;')}<span>${o[2]}<span class="d">@${o[1]}</span></span></button>`).join(''); men.classList.toggle('open', list.length > 0);
-      $$('.mi', men).forEach(b => b.onmousedown = e => { e.preventDefault(); inp.value = inp.value.replace(/@\w*$/, '@' + b.dataset.h + ' '); men.classList.remove('open'); go.disabled = false; inp.focus({ preventScroll:true }); }); }
-    else men.classList.remove('open'); };
-  inp.onkeydown = e => { if (e.key === 'Enter'){ const f = $('.mi', men); if (men.classList.contains('open') && f){ f.onmousedown(e); } else send(); } if (e.key === 'Escape') men.classList.remove('open'); };
+    if (m){ const list = opts.filter(o => o[1].startsWith(m[1].toLowerCase())); men.innerHTML = list.map(o => `<button class="mi" role="option" tabindex="-1" id="${men.id}-${o[1]}" data-h="${o[1]}">${AV(o[0], P[o[0]][1]).replace('class="av" style="', 'class="av" style="width:20px;height:20px;font-size:9px;')}<span>${o[2]}<span class="d">@${o[1]}</span></span></button>`).join(''); men.classList.toggle('open', list.length > 0); inp.setAttribute('aria-expanded', list.length > 0); light(0);
+      $$('.mi', men).forEach(b => b.onmousedown = e => { e.preventDefault(); inp.value = inp.value.replace(/@\w*$/, '@' + b.dataset.h + ' '); shut(); go.disabled = false; inp.focus({ preventScroll:true }); }); }
+    else shut(); };
+  // with the mention list open, the up and down arrows move through it and wrap, Enter picks, and Escape closes it
+  inp.onkeydown = e => {
+    const open = men.classList.contains('open') && mens().length;
+    if (open && (e.key === 'ArrowDown' || e.key === 'ArrowUp')){ e.preventDefault(); light(hl + (e.key === 'ArrowDown' ? 1 : -1)); return; }
+    if (e.key === 'Enter'){ const f = mens()[hl]; if (open && f){ f.onmousedown(e); } else send(); }
+    if (e.key === 'Escape') shut(); };
   go.onclick = send;
   const rs = $('.cmx-res', r);
   rs.onclick = () => { const d = root.classList.toggle('done'); rs.innerHTML = d ? I('undo','xs') + 'Reopen' : I('check','xs') + 'Resolve'; $('.cmx-pin', r).style.background = d ? 'var(--ok)' : ''; };
   // the preview asks the agent in the thread on its own; clicking, focusing or typing in it takes over, and what it had
   // typed goes
-  c.auto(1000, () => c.run(async () => { await c.type(inp, '@agent can you keep it outlined but darker?', { ms:28, each:() => inp.oninput(), keep:true }); men.classList.remove('open'); await c.step(300); send(); }));
+  c.auto(1000, () => c.run(async () => { await c.type(inp, '@agent can you keep it outlined but darker?', { ms:28, each:() => inp.oninput(), keep:true }); shut(); await c.step(300); send(); }));
 });
 /* ---------- Notifications ---------- */
 DM.def('notifications', (r, c) => {
@@ -21233,7 +21505,8 @@ DM.def('profile-menu', (r, c) => {
   // the menu opens and closes on its own rather than through the page's shared popover, so a story playing in the card
   // beside it can't close it. Closing it while the focus is inside gives the focus back to the avatar
   const isOpen = () => pop.classList.contains('open');
-  const focusItem = m => { if (!m) return; items().forEach(x => x.tabIndex = x === m ? 0 : -1); m.focus({ preventScroll:true }); };
+  // the focus is the one highlight: a row the demo's pointer left lit goes dark
+  const focusItem = m => { if (!m) return; items().forEach(x => { x.tabIndex = x === m ? 0 : -1; x.classList.remove('hl'); }); m.focus({ preventScroll:true }); };
   function show(on, focus){
     if (on && !isOpen()){ hideTip(); placePop(tr, pop); }
     pop.classList.toggle('open', on); pop.inert = !on; tr.setAttribute('aria-expanded', on);
@@ -21251,7 +21524,7 @@ DM.def('profile-menu', (r, c) => {
   c.on(tr, 'click', e => show(!isOpen(), e.isTrusted && 'first'));
   c.on(tr, 'keydown', e => { if (e.key === 'ArrowDown' || e.key === 'ArrowUp'){ e.preventDefault(); show(true, e.key === 'ArrowUp' ? 'last' : 'first'); } });
   c.on(document, 'pointerdown', e => { if (isOpen() && !pop.contains(e.target) && !tr.contains(e.target)) show(false); });
-  c.on(window, 'resize', () => show(false));
+  c.on(window, 'resize', e => { if (e.isTrusted) show(false); });
   // inside the menu: the arrow keys move and wrap, Home and End jump to the ends, Escape closes it, Tab leaves it
   c.on(pop, 'keydown', e => {
     const all = items(), i = all.indexOf(document.activeElement);
@@ -21366,7 +21639,8 @@ DM.def('filter-menu', (r, c) => {
   // can't close it. Closing it while the focus is inside gives the focus back to the Filter button
   let field = null;
   const items = () => $$('.mi', field ? l2 : l1), isOpen = () => pop.classList.contains('open');
-  const focusItem = m => { if (!m) return; $$('.mi', pop).forEach(x => x.tabIndex = x === m ? 0 : -1); m.focus({ preventScroll:true }); };
+  // the focus is the one highlight: a row the demo's pointer left lit goes dark
+  const focusItem = m => { if (!m) return; $$('.mi', pop).forEach(x => { x.tabIndex = x === m ? 0 : -1; x.classList.remove('hl'); }); m.focus({ preventScroll:true }); };
   function show(on, focus){
     if (on && !isOpen()){ step(null); hideTip(); placePop(tr, pop); }
     pop.classList.toggle('open', on); pop.inert = !on; tr.setAttribute('aria-expanded', on);
@@ -21398,7 +21672,7 @@ DM.def('filter-menu', (r, c) => {
   c.on(tr, 'click', e => show(!isOpen(), e.isTrusted && 'first'));
   c.on(tr, 'keydown', e => { if (e.key === 'ArrowDown' || e.key === 'ArrowUp'){ e.preventDefault(); show(true, e.key === 'ArrowUp' ? 'last' : 'first'); } });
   c.on(document, 'pointerdown', e => { if (isOpen() && !pop.contains(e.target) && !tr.contains(e.target)) show(false); });
-  c.on(window, 'resize', () => show(false));
+  c.on(window, 'resize', e => { if (e.isTrusted) show(false); });
   // inside the menu: the arrow keys move and wrap, Home and End jump to the ends, the right arrow opens a field's values
   // and the left arrow goes back, Escape closes it and Tab leaves it
   c.on(pop, 'keydown', e => {
@@ -21458,7 +21732,7 @@ DM.def('kanban', (r, c) => {
     { id:5, c:'doing', t:'Review annual plan copy', tag:['l','Copy'], who:['JO','var(--pm)'] },
     { id:6, c:'done', t:'One CTA per pricing card', tag:['b','Design'], who:['MK','var(--pl)'] }
   ];
-  // the agent's timer repaints the board, so it waits while a card is dragged or a new title is typed
+  // the agent's timer repaints the board, so it waits while a card is dragged, a new title is typed or a card's menu is open
   const box = $('.kbx', r), wrap = $('.kbx-cols', r); let dragging = false, editing = false;
   wrap.innerHTML = COLS.map(cl => `<div class="kbx-c" data-col="${cl[0]}"><div class="kbx-ch"><b>${cl[1]}</b><span class="n num"></span><button class="ib" aria-label="Add card" data-tip="Add card">${I('plus','xs')}</button></div><div class="kbx-list"></div></div>`).join('');
   /* a narrow board shows one column at a time: tabs with each column's count pick it, + adds a card to it, and a card's
@@ -21502,17 +21776,18 @@ DM.def('kanban', (r, c) => {
     // the menu says where the card is now; picking another column sends it to the end of that one
     $$('.kbx-mv', wrap).forEach(b => b.onclick = () => { moving = K.find(x => x.id === +b.closest('.kbx-k').dataset.id); $$('.mi', menu).forEach(m => m.setAttribute('aria-checked', !!moving && m.dataset.to === moving.c)); });
   }
-  $$('.mi', menu).forEach(m => m.onclick = () => { const k = moving; moving = null; if (!k || !K.includes(k) || k.c === m.dataset.to) return;
-    const el = $(`.kbx-k[data-id="${k.id}"]`, wrap), go = () => { K = K.filter(x => x !== k); k.c = m.dataset.to; if (k.c === 'done') delete k.run; K.push(k); paint(); };
+  // picked with the keyboard, the focus stays on the column's tab once the card has gone to its new column
+  $$('.mi', menu).forEach(m => m.onclick = () => { const k = moving, kb = menu.contains(document.activeElement); moving = null; if (!k || !K.includes(k) || k.c === m.dataset.to) return;
+    const el = $(`.kbx-k[data-id="${k.id}"]`, wrap), go = () => { K = K.filter(x => x !== k); k.c = m.dataset.to; if (k.c === 'done') delete k.run; K.push(k); paint(); const t = kb && $(`[data-v="${cur}"]`, tabs); if (t) t.focus({ preventScroll:true }); };
     if (REDUCE || !el) return go();
     el.animate([{ opacity:1, transform:'none' }, { opacity:0, transform:'translateX(12px)' }], { duration:200, easing:'ease-in', fill:'forwards' }).onfinish = go; });
   const add = col => { const k = { id:Date.now(), c:col, t:'New card', tag:['k','Idea'], who:['MK','var(--pl)'] }; K.push(k); paint(); const el = $(`.kbx-k[data-id="${k.id}"]`, wrap); enter(el); const t = $('.t', el); editing = true; t.contentEditable = 'true'; t.focus({ preventScroll:true }); document.getSelection().selectAllChildren(t); t.onblur = () => { editing = false; t.contentEditable = 'false'; k.t = t.textContent.trim() || 'New card'; }; t.onkeydown = e => { if (e.key === 'Enter'){ e.preventDefault(); t.blur(); } }; };
   $$('.kbx-ch .ib', wrap).forEach(b => b.onclick = () => add(b.closest('.kbx-c').dataset.col));
   $('.kbx-add', r).onclick = () => add(cur);
   paint(); show(cur);
-  c.every(600, () => { if (dragging || editing) return; const k = K.find(x => x.run != null); if (!k) return; k.run = Math.min(1, k.run + .08); const el = $(`.kbx-k[data-id="${k.id}"] .kbx-pr i`, wrap); if (el) el.style.width = k.run * 100 + '%';
+  c.every(600, () => { if (dragging || editing || menu.classList.contains('open')) return; const k = K.find(x => x.run != null); if (!k) return; k.run = Math.min(1, k.run + .08); const el = $(`.kbx-k[data-id="${k.id}"] .kbx-pr i`, wrap); if (el) el.style.width = k.run * 100 + '%';
     if (k.run >= 1){ K = K.filter(x => x !== k); k.c = 'done'; delete k.run; K.push(k); follow('done'); paint(); const n = $(`.kbx-k[data-id="${k.id}"]`, wrap); enter(n);
-      const nx = K.find(x => x.c === 'todo' && x.who[0] === 'DA'); if (nx){ c.later(900, function promote(){ if (dragging || editing){ c.later(300, promote); return; } K = K.filter(x => x !== nx); nx.c = 'doing'; nx.run = 0; K.splice(K.findIndex(x => x.c === 'doing'), 0, nx); paint(); enter($(`.kbx-k[data-id="${nx.id}"]`, wrap)); c.later(700, () => follow('doing')); }); } } });
+      const nx = K.find(x => x.c === 'todo' && x.who[0] === 'DA'); if (nx){ c.later(900, function promote(){ if (dragging || editing || menu.classList.contains('open')){ c.later(300, promote); return; } K = K.filter(x => x !== nx); nx.c = 'doing'; nx.run = 0; K.splice(K.findIndex(x => x.c === 'doing'), 0, nx); paint(); enter($(`.kbx-k[data-id="${nx.id}"]`, wrap)); c.later(700, () => follow('doing')); }); } } });
 });
 
 /* ---------- on designme.dev: each card mounts its component when it scrolls into view ---------- */

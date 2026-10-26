@@ -24,10 +24,12 @@
 @media (hover:hover) and (pointer:fine){.dm-ahx-nav:hover,.dm-ahx-cv:hover{background:var(--dm-row);color:var(--dm-fg)}}
 .dm-ahx-cv[aria-current="true"]{background:var(--dm-surface);color:var(--dm-fg);box-shadow:inset 0 0 0 1px var(--dm-rail),0 1px 2px rgba(0,0,0,.04)}
 .dm-ahx-cv .dm-t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* the chats fill the scrolling list, and a tab clips its own button: their rings are drawn inside */
+.dm-ahx-cv:focus-visible,.dm-ahx-tb:focus-visible{outline-offset:-2px}
 .dm-ahx-lh{display:flex;align-items:center;justify-content:space-between;padding:12px 1px 2px 9px;font-size:11.5px;color:var(--dm-muted)}
 .dm-ahx-lh .dm-ib{width:24px;height:24px}
 .dm-ahx-si{display:block;width:100%;height:30px;margin:4px 0 6px;padding:0 10px;border:0;border-radius:9px;background:var(--dm-surface);box-shadow:inset 0 0 0 1px var(--dm-field-line);font-size:12.5px;outline:0;transition:box-shadow var(--dm-t-fast)}
-.dm-ahx-si:focus{box-shadow:inset 0 0 0 1px var(--dm-rail)}
+.dm-ahx-si:focus{box-shadow:inset 0 0 0 2px var(--dm-focus)}
 .dm-ahx-si::placeholder{color:var(--dm-muted)}
 .dm-ahx-si::-webkit-search-cancel-button{display:none}
 .dm-ahx-list{flex:1;min-height:0;display:flex;flex-direction:column;gap:2px;overflow-y:auto;scrollbar-width:none}
@@ -119,8 +121,9 @@
 /* while the agent works in the chat on screen, a new message waits */
 .dm-ahx.dm-busy .dm-cpx-bar .dm-cpx-send{background:var(--dm-rail);color:var(--dm-surface);pointer-events:none}
 /* the panel beside the chat, for an artifact */
-.dm-ahx-pane{flex:none;width:0;overflow:hidden;background:var(--dm-surface);border-left:1px solid transparent;transition:width var(--dm-t) var(--dm-ease),border-color var(--dm-t) var(--dm-ease)}
-.dm-ahx.dm-pn .dm-ahx-pane{width:300px;border-left-color:var(--dm-line)}
+/* shut, the panel is hidden as well as narrow, so Tab passes over its buttons */
+.dm-ahx-pane{flex:none;width:0;overflow:hidden;background:var(--dm-surface);border-left:1px solid transparent;visibility:hidden;transition:width var(--dm-t) var(--dm-ease),border-color var(--dm-t) var(--dm-ease),visibility 0s var(--dm-t)}
+.dm-ahx.dm-pn .dm-ahx-pane{width:300px;border-left-color:var(--dm-line);visibility:visible;transition-delay:0s}
 .dm-ahx-pi{width:300px;height:100%;display:flex;flex-direction:column}
 .dm-ahx-ph{flex:none;display:flex;align-items:center;gap:8px;height:46px;padding:0 8px 0 14px;border-bottom:1px solid var(--dm-line);font-size:13px;font-weight:500}
 .dm-ahx-ph .dm-t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}

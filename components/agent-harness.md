@@ -37,6 +37,7 @@ A complete agent chat app assembled from the other designme components: chats do
 
 - Open chats are a role="tablist" labelled "Open chats", each tab role="tab" with aria-selected; the chat list and side panel are labelled aside elements.
 - Escape closes the chat drawer on narrow screens, then the side panel through `onPanelClose`; in the chat search box it closes the search.
+- The workspace switcher and the open chats menu work from the keyboard: Enter, Space or the down arrow opens one with the focus on its picked item, the arrow keys move and wrap, Home and End jump, and Escape or Tab closes it and gives the focus back to its button.
 - Chats that are not on screen stay mounted but are aria-hidden and inert, and the status pill is an aria-live="polite" region.
 - Auto-scrolling and the composer's move from New chat to the foot of the chat skip their animation when the user prefers reduced motion.
 

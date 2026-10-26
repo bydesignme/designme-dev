@@ -78,7 +78,7 @@ function Face({ card, children }: { card: KanbanBoardCard; children?: ReactNode 
 function Card({ card, entering: enters, dragging, editing, onDown, onDone, setRef, moveOpen, onMoveMenu }: {
   card: KanbanBoardCard; entering: boolean; dragging: boolean; editing: boolean;
   onDown: (e: ReactPointerEvent<HTMLDivElement>) => void; onDone: (title: string) => void; setRef: (el: HTMLDivElement | null) => void;
-  moveOpen: boolean; onMoveMenu: (button: HTMLButtonElement) => void;
+  moveOpen: boolean; onMoveMenu: (button: HTMLButtonElement, key: boolean) => void;
 }) {
   // a card that arrives after the board appears comes in once, then drops the entrance so a drag can fade it
   const [entering, setEntering] = useState(enters);
@@ -96,7 +96,7 @@ function Card({ card, entering: enters, dragging, editing, onDown, onDone, setRe
         onKeyDown={editing ? e => { if (e.key === 'Enter') { e.preventDefault(); e.currentTarget.blur(); } } : undefined}>{card.title}</span>
       <Face card={card}>
         <Tip label="Move to" off={moveOpen}>
-          <button type="button" className="dm-ib dm-kbx-mv" aria-label="Move card" aria-haspopup="menu" aria-expanded={moveOpen} onClick={e => onMoveMenu(e.currentTarget)}><Icon name="more" size="xs" /></button>
+          <button type="button" className="dm-ib dm-kbx-mv" aria-label="Move card" aria-haspopup="menu" aria-expanded={moveOpen} onClick={e => onMoveMenu(e.currentTarget, e.detail === 0)}><Icon name="more" size="xs" /></button>
         </Tip>
       </Face>
     </div>
@@ -143,11 +143,16 @@ export function KanbanBoard({ columns, cards, defaultCards = [], onCardsChange, 
   }, [shown]);
   const moveMenu = usePopover({ align: 'end' });
   const [moving, setMoving] = useState<string | null>(null);
-  const openMove = (id: string, button: HTMLButtonElement) => {
+  // opened with Enter or Space, the menu takes the focus on the card's column
+  const openMove = (id: string, button: HTMLButtonElement, key = false) => {
     const again = moveMenu.open && moving === id;
-    moveMenu.trigger.ref.current = button; setMoving(id); moveMenu.setOpen(!again);
+    moveMenu.trigger.ref.current = button; setMoving(id);
+    if (again) moveMenu.setOpen(false); else if (key) moveMenu.openFocused(); else moveMenu.setOpen(true);
   };
+  // picked with the keyboard, the focus stays on the column's tab once the card has gone to its new column
+  const board = useRef<HTMLDivElement>(null);
   const moveTo = (to: string) => {
+    if (moveMenu.pop.ref.current?.contains(document.activeElement)) setTimeout(() => { const b = moveMenu.trigger.ref.current; if (!b || !b.isConnected || !b.getClientRects().length) board.current?.querySelector<HTMLElement>('.dm-kbx-tabs [aria-pressed="true"]')?.focus({ preventScroll: true }); }, 200);
     moveMenu.closeSoon();
     const card = latest.current.find(c => c.id === moving); if (!card || card.column === to) return;
     const rest = latest.current.filter(c => c.id !== card.id), index = rest.filter(c => c.column === to).length;
@@ -202,7 +207,7 @@ export function KanbanBoard({ columns, cards, defaultCards = [], onCardsChange, 
 
   const ghost = drag && list.find(c => c.id === drag.id);
   return (
-    <div data-dm="" className={cx('dm-kbx', className)}>
+    <div data-dm="" ref={board} className={cx('dm-kbx', className)}>
       <div ref={bar} className="dm-kbx-bar">
         <Seg className="dm-kbx-tabs" label="Column" value={shown} onChange={setShown}
           options={columns.map(col => { const n = list.filter(c => c.column === col.key).length; return { value: col.key, label: <>{col.short ?? col.title}<span key={n} className="dm-n dm-num dm-enter">{n}</span></> }; })} />
@@ -217,7 +222,7 @@ export function KanbanBoard({ columns, cards, defaultCards = [], onCardsChange, 
           for (const c of here) {
             if (c.id !== drag?.id) { if (spot?.column === col.key && spot.index === n) items.push(hole); n++; }
             items.push(<Card key={c.id} card={c} entering={enters(c)} dragging={c.id === drag?.id} editing={editing === c.id} onDown={down(c)}
-              moveOpen={moveMenu.open && moving === c.id} onMoveMenu={b => openMove(c.id, b)}
+              moveOpen={moveMenu.open && moving === c.id} onMoveMenu={(b, key) => openMove(c.id, b, key)}
               onDone={t => rename(c.id, t)} setRef={el => { if (el) els.current.set(c.id, el); else els.current.delete(c.id); }} />);
           }
           if (spot?.column === col.key && spot.index >= n) items.push(hole);

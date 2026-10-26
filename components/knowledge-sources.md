@@ -39,7 +39,8 @@ A list of what an agent knows: uploaded files, websites it crawls and connected 
 
 - The sources form a list, and each row's menu button is named for its source, like "Actions for Product docs".
 - An indexing source's bar is a progressbar with its count as its value.
-- The menus have role="menu"; their buttons expose aria-expanded and aria-haspopup, and Escape closes a menu; in React, focus goes back to its button.
+- The menus have role="menu"; their buttons expose aria-expanded and aria-haspopup, and Escape closes a menu and gives the focus back to its button.
+- From the keyboard, Enter, Space or the down arrow opens a menu with the focus on its picked item, or its first (the up arrow, on its last); the arrow keys move through it and wrap, Home and End jump to the ends, Tab closes it and moves on, and closing it gives the focus back to its button.
 - The line under the title is announced politely when it changes.
 - With reduced motion, rows appear without their entrance and text changes without the crossfade.
 
@@ -318,7 +319,7 @@ export function KnowledgeSources({ sources, onUpload, onAddWebsite, address, def
         {sources.map(s => { const at = first.indexOf(s.key); return <Row key={s.key} s={s} delay={at >= 0 ? at * 50 : 0} onResync={onResync} onRemove={onRemove} onFix={onFix} />; })}
       </div>
       {canAdd && <>
-        <button type="button" className="dm-ksx-add" {...menu.trigger} onClick={() => { if (!menu.open) setView('main'); menu.trigger.onClick(); }}><Icon name="plus" size="xs" />Add source</button>
+        <button type="button" className="dm-ksx-add" {...menu.trigger} onClick={e => { if (!menu.open) setView('main'); menu.trigger.onClick(e); }}><Icon name="plus" size="xs" />Add source</button>
         <div {...menu.pop} style={{ ...menu.pop.style, ...bottom }} className={cx(menu.pop.className, 'dm-ksx-pop')} role="menu" aria-label="Add source">
           {view === 'main' && <>
             {onUpload && <button type="button" className="dm-mi" role="menuitem" onClick={() => { menu.closeSoon(); file.current?.click(); }}><Icon name="upload" size="xs" /><span>Upload files</span></button>}

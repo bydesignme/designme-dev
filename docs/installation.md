@@ -95,6 +95,7 @@ src/components/designme/
     hooks.ts
     icons.tsx
     motion.tsx
+    popover.tsx
   status-pill/
     StatusPill.tsx
     status-pill.css

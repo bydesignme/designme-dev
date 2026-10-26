@@ -38,6 +38,7 @@ A list of the tools and services an agent is connected to, each with a three-way
 - Each permission switch is a role="group" labelled with the tool name plus "permission", and its buttons use aria-pressed.
 - Each permission option has a tooltip saying what it means, such as "Agent asks first", which also shows on keyboard focus.
 - The "Connect a tool" button exposes aria-expanded and aria-haspopup, and its menu has role="menu"; Escape closes it and returns focus to the button.
+- From the keyboard, Enter, Space or the down arrow opens a menu with the focus on its picked item, or its first (the up arrow, on its last); the arrow keys move through it and wrap, Home and End jump to the ends, Tab closes it and moves on, and closing it gives the focus back to its button.
 
 ## Usage in React
 

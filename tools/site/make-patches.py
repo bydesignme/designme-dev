@@ -783,6 +783,9 @@ patch("""</head>""", """<style id="accent-roles">
 :root[data-style="soft"]{--on-accent:#ffffff;--accent-fg:#0f5fd5;--accent-mark:var(--accent)}
 @media (prefers-color-scheme: dark){:root[data-style="soft"]:not([data-theme="light"]){--accent:#116ff8;--accent-2:#0f5fd5;--accent-hi:#116ff8;--ink:#116ff8;--ink-hover:#0f5fd5;--on-ink:#ffffff;--on-accent:#ffffff;--accent-fg:#9dc4ff;--accent-mark:#3d8bff}}
 :root[data-style="soft"][data-theme="dark"]{--accent:#116ff8;--accent-2:#0f5fd5;--accent-hi:#116ff8;--ink:#116ff8;--ink-hover:#0f5fd5;--on-ink:#ffffff;--on-accent:#ffffff;--accent-fg:#9dc4ff;--accent-mark:#3d8bff}
+/* the site's own focus ring matches the components': 2px in the accent's mark colour (3:1 on the page), whatever width or
+   colour older rules gave it. Only the width and colour are set here, so a control that draws its focus another way keeps it */
+:is(a,button,input,select,textarea,summary,[tabindex]):focus-visible:not(.v2 *,[data-c] *,[data-dm] *){outline-width:2px;outline-color:var(--accent-mark)}
 </style>
 </head>""")
 # a picked colour gets the same treatment: the shades for text and for marks are worked out from it

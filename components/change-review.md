@@ -36,7 +36,7 @@ Change review lays out the edits an agent made as a file list beside a diff, so 
 ### Accessibility
 
 - Files, hunk choices and bulk actions are all real buttons.
-- Each line's comment button has `aria-label="Comment on line"` and a Comment tooltip.
+- Each line's comment button has `aria-label="Comment on line"` and a Comment tooltip, and it shows while it has the keyboard focus, as it does on hover.
 - The comment field is focused when it opens and has an `aria-label`. Enter sends it and Escape closes it.
 
 ## Usage in React

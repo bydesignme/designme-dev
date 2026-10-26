@@ -35,7 +35,7 @@ Inline text diff shows the agent's edits to a piece of copy where they sit in th
 
 ### Accessibility
 
-- Each edit is a button you can reach with Tab and open with Enter or Space. Its label says which edit it is, the words it replaces and the words it suggests, and `aria-expanded` says whether its toolbar is open.
+- Each edit is a button you can reach with Tab and open with Enter or Space, which puts the focus on Accept; ← and → move between Accept and Reject. Its label says which edit it is, the words it replaces and the words it suggests, and `aria-expanded` says whether its toolbar is open.
 - The toolbar is a dialog labelled "Edit". Escape closes it and puts focus back on the edit, and so does deciding from the keyboard.
 - The line under the copy is an `aria-live="polite"` region, so the final result is read out.
 
@@ -182,6 +182,9 @@ export function InlineTextDiff({ title, parts, decisions, defaultDecisions = {},
     const rb = r.getBoundingClientRect(), k = rb.width / r.offsetWidth || 1, rs = el.getClientRects(), cr = rs[rs.length - 1] ?? el.getBoundingClientRect();
     setAt({ left: Math.max(12, Math.min((cr.left - rb.left) / k, r.offsetWidth - b.offsetWidth - 12)), top: (cr.bottom - rb.top) / k + 6 });
   }, [cur]);
+  // Enter or Space opens an edit's toolbar with the focus on Accept, as a dialog takes the focus; Escape brings it back
+  const keyOpen = useRef(false);
+  useLayoutEffect(() => { if (cur && keyOpen.current) { keyOpen.current = false; bar.current?.querySelector<HTMLElement>('.dm-itd-acc')?.focus({ preventScroll: true }); } }, [cur]);
   // a click anywhere else closes it
   useEffect(() => {
     if (!cur) return;
@@ -220,7 +223,7 @@ export function InlineTextDiff({ title, parts, decisions, defaultDecisions = {},
                 className={cx('dm-itd-c', p.note && 'dm-unsure', cur === p.key && 'dm-on', d === 'accepted' && 'dm-acc', d === 'rejected' && 'dm-rej')}
                 role="button" tabIndex={0} aria-haspopup="dialog" aria-expanded={cur === p.key} aria-label={`Edit ${n + 1} of ${edits.length}: ${p.from}, suggested ${p.to}`}
                 onClick={() => setCur(cur === p.key ? null : p.key)}
-                onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setCur(cur === p.key ? null : p.key); } }}>
+                onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); keyOpen.current = cur !== p.key; setCur(cur === p.key ? null : p.key); } }}>
                 <del>{p.from}</del><ins>{p.to}</ins>
               </span>
             );
@@ -229,7 +232,11 @@ export function InlineTextDiff({ title, parts, decisions, defaultDecisions = {},
         <p className="dm-itd-f dm-muted" aria-live="polite">
           {left === 0 && <span className="dm-enter" style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><Icon name="ok" size="xs" /><span>{doneLabel}</span></span>}
         </p>
-        <div ref={bar} className={cx('dm-itd-bar', open && 'dm-open')} role="dialog" aria-label="Edit" inert={!open} style={at}>
+        <div ref={bar} className={cx('dm-itd-bar', open && 'dm-open')} role="dialog" aria-label="Edit" inert={!open} style={at}
+          // the left and right arrows move between Accept and Reject
+          onKeyDown={e => { const bs = Array.from(bar.current?.querySelectorAll<HTMLElement>('button') ?? []), j = bs.indexOf(document.activeElement as HTMLElement); if (j < 0) return;
+            const d = ({ ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 } as Record<string, number>)[e.key], to = d ? bs[(j + d + bs.length) % bs.length] : e.key === 'Home' ? bs[0] : e.key === 'End' ? bs[bs.length - 1] : null;
+            if (to) { e.preventDefault(); to.focus({ preventScroll: true }); } }}>
           {last.current?.note && <p className="dm-itd-why"><Icon name="alert" size="xs" /><span>{last.current.note}</span></p>}
           <div className="dm-itd-bb">
             <button type="button" className="dm-pill dm-primary dm-sm dm-itd-acc" onClick={() => decide('accepted')}><Icon name="check" size="xs" />{L.accept}</button>
