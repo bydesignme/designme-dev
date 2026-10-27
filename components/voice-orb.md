@@ -267,10 +267,12 @@ function OrbLight({ level }: { level: number }) {
     const s = orbShader(cv); if (!s) return;
     setOn(true);
     const dot = box.querySelector('.dm-vor-dot')!, pc = box.querySelector('.dm-vor-pc')!;
-    const draw = (ms: number) => s.paint(ms, lv.current, getComputedStyle(dot).backgroundColor, getComputedStyle(pc).backgroundColor);
+    // the two colours are read a few times a second, not every frame: reading them makes the browser recheck the page's styles
+    let cols: [string, string] | null = null, colsAt = -1e9;
+    const draw = (ms: number) => { const now = performance.now(); if (!cols || now - colsAt > 250) { cols = [getComputedStyle(dot).backgroundColor, getComputedStyle(pc).backgroundColor]; colsAt = now; } s.paint(ms, lv.current, cols[0], cols[1]); };
     let raf = 0, seen = true, flow = 0, last = 0, dead = false;
     const io = new IntersectionObserver(e => { seen = e[0].isIntersecting; }); io.observe(cv);
-    const mo = new MutationObserver(() => setTimeout(() => { if (!dead) draw(flow); }, 450));
+    const mo = new MutationObserver(() => setTimeout(() => { if (!dead) { cols = null; draw(flow); } }, 450));
     if (reduce) { draw(0); mo.observe(box, { attributes: true, attributeFilter: ['data-m'] }); }
     else {
       const tick = (t: number) => { flow += Math.min(50, t - (last || t)) * (1 + lv.current * 2.5); last = t; if (seen) draw(flow); raf = requestAnimationFrame(tick); };

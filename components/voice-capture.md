@@ -202,9 +202,13 @@ export function VoiceCapture({ words, state, defaultState = 'listening', onState
   useEffect(() => { levelRef.current = level; stateRef.current = now; });
   useEffect(() => {
     if (!live) return;
-    let raf = 0, last = 0;
+    // the wave is drawn only while it is on screen
+    let raf = 0, last = 0, seen = true;
+    const io = 'IntersectionObserver' in window && wave.current ? new IntersectionObserver(e => { seen = e[e.length - 1].isIntersecting; }) : null;
+    if (io && wave.current) io.observe(wave.current);
     const draw = (t: number) => {
       raf = requestAnimationFrame(draw);
+      if (!seen) return;
       if (t - last > 50) {
         last = t;
         const l = levelRef.current, v = stateRef.current === 'listening' ? (typeof l === 'function' ? l() : l) : 0;
@@ -227,7 +231,7 @@ export function VoiceCapture({ words, state, defaultState = 'listening', onState
       }
     };
     raf = requestAnimationFrame(draw);
-    return () => cancelAnimationFrame(raf);
+    return () => { cancelAnimationFrame(raf); io?.disconnect(); };
   }, [live]);
 
   // words it was unsure of open a small "Did you mean" menu under themselves

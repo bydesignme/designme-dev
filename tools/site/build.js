@@ -665,7 +665,7 @@ Every class, CSS variable and animation name starts with \`dm-\` in the React ve
   // to the bottom of its sidebar
   const sideFoot = (site.match(/<div class="side-foot">([\s\S]*?)<\/div>\s*<\/aside>/) || [])[1];
   if (!sideFoot || !sideFoot.includes('hire-btn')) throw new Error("the homepage's sidebar has no foot with Book a call");
-  fs.writeFileSync(PAGES_DATA, JSON.stringify({ sets:SETS, logo:site.match(/<a[^>]*class="brand"[\s\S]*?(<svg[\s\S]*?<\/svg>)<\/a>/)[1], icons, sideFoot:sideFoot.trim(), sections:secs.filter(x => x.cards.length).map(x => ({
+  fs.writeFileSync(PAGES_DATA, JSON.stringify({ sets:SETS, logo:site.match(/<a[^>]*class="brand[^"]*"[\s\S]*?(<svg[\s\S]*?<\/svg>)<\/a>/)[1], icons, sideFoot:sideFoot.trim(), sections:secs.filter(x => x.cards.length).map(x => ({
     slug:x.id.replace(/^s-/, ''), ...x,
     cards:x.cards.map(c => ({ reg:c.reg, title:c.t, desc:c.d, ...meta[c.reg] })) })) }, null, 1));
   fs.writeFileSync(path.join(path.dirname(OUT), 'llms.txt'), md);
@@ -679,7 +679,7 @@ Every class, CSS variable and animation name starts with \`dm-\` in the React ve
   const slug = n => n.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
   const list = [...site.matchAll(/<article\b[^>]*\bdata-reg="([\w-]+)"[^>]*>[\s\S]*?class="comp-title">([\s\S]*?)<\/h2>[\s\S]*?class="comp-desc">([\s\S]*?)<\/p>/g)]
     .map(([, reg, t, d]) => ({ r:reg, s:slug(text(t)), t:text(t), d:text(d) }));
-  const logo = site.match(/<a[^>]*class="brand"[\s\S]*?(<svg[\s\S]*?<\/svg>)<\/a>/)[1];
+  const logo = site.match(/<a[^>]*class="brand[^"]*"[\s\S]*?(<svg[\s\S]*?<\/svg>)<\/a>/)[1];
   const fonts = [...site.matchAll(/@font-face\s*\{[^}]*inter-latin(?:-ext)?-(?:400|500|600)-normal[^}]*\}/g)].map(m => m[0]).join('\n');
   const page = `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">

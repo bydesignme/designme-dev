@@ -31,7 +31,8 @@ function ctl(){
   c.wait = ms => new Promise((res, rej) => { c.t.push(setTimeout(() => c.dead ? rej('stop') : res(), REDUCE ? Math.min(ms, 40) : ms)); });
   c.every = (ms, fn) => { const id = setInterval(() => { if (!c.dead) fn(); }, ms); c.iv.push(id); return id; };
   c.later = (ms, fn) => { c.t.push(setTimeout(() => { if (!c.dead) fn(); }, ms)); };
-  c.loop = fn => { const f = t => { if (c.dead) return; if (fn(t) === false) return; c.rafs.push(requestAnimationFrame(f)); }; c.rafs.push(requestAnimationFrame(f)); };
+  // a frame loop does its work only while its component is on screen (c.seen, kept by DM.mount); off screen it just waits
+  c.loop = fn => { const f = t => { if (c.dead) return; if (c.seen !== false && fn(t) === false) return; c.rafs.push(requestAnimationFrame(f)); }; c.rafs.push(requestAnimationFrame(f)); };
   c.on = (el, ev, fn, o) => { el.addEventListener(ev, fn, o); c.offs.push(() => el.removeEventListener(ev, fn, o)); };
   c.stop = () => { c.dead = true; c.t.forEach(clearTimeout); c.iv.forEach(clearInterval); c.rafs.forEach(cancelAnimationFrame); c.offs.forEach(f => f()); };
   c.run = async fn => { try { await fn(); } catch(e) { if (e !== 'stop') console.error(e); } };
@@ -206,6 +207,8 @@ const DM = {
     if (openPop && card.contains(openPop.pop)) closePops();
     st.innerHTML = ''; st.append(tpl.content.cloneNode(true));
     const c = ctl(); card._c = c; c.card = card; c.st = st;
+    // whether the component is on screen or near it, so frame loops and canvases rest while it is far away
+    if ('IntersectionObserver' in window){ const io = new IntersectionObserver(e => { c.seen = e[e.length - 1].isIntersecting; }, { rootMargin:'200px 0px' }); io.observe(st); c.offs.push(() => io.disconnect()); }
     // the visitor's first real click, key, typing or focus in the component stops its demo (c.mine)
     const mine = e => { if (e.isTrusted) c.mine = true; };
     ['pointerdown', 'keydown', 'input', 'click'].forEach(t => c.on(st, t, mine, true));

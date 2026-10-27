@@ -5799,7 +5799,8 @@ function ctl(){
   c.wait = ms => new Promise((res, rej) => { c.t.push(setTimeout(() => c.dead ? rej('stop') : res(), REDUCE ? Math.min(ms, 40) : ms)); });
   c.every = (ms, fn) => { const id = setInterval(() => { if (!c.dead) fn(); }, ms); c.iv.push(id); return id; };
   c.later = (ms, fn) => { c.t.push(setTimeout(() => { if (!c.dead) fn(); }, ms)); };
-  c.loop = fn => { const f = t => { if (c.dead) return; if (fn(t) === false) return; c.rafs.push(requestAnimationFrame(f)); }; c.rafs.push(requestAnimationFrame(f)); };
+  // a frame loop does its work only while its component is on screen (c.seen, kept by DM.mount); off screen it just waits
+  c.loop = fn => { const f = t => { if (c.dead) return; if (c.seen !== false && fn(t) === false) return; c.rafs.push(requestAnimationFrame(f)); }; c.rafs.push(requestAnimationFrame(f)); };
   c.on = (el, ev, fn, o) => { el.addEventListener(ev, fn, o); c.offs.push(() => el.removeEventListener(ev, fn, o)); };
   c.stop = () => { c.dead = true; c.t.forEach(clearTimeout); c.iv.forEach(clearInterval); c.rafs.forEach(cancelAnimationFrame); c.offs.forEach(f => f()); };
   c.run = async fn => { try { await fn(); } catch(e) { if (e !== 'stop') console.error(e); } };
@@ -5974,6 +5975,8 @@ const DM = {
     if (openPop && card.contains(openPop.pop)) closePops();
     st.innerHTML = ''; st.append(tpl.content.cloneNode(true));
     const c = ctl(); card._c = c; c.card = card; c.st = st;
+    // whether the component is on screen or near it, so frame loops and canvases rest while it is far away
+    if ('IntersectionObserver' in window){ const io = new IntersectionObserver(e => { c.seen = e[e.length - 1].isIntersecting; }, { rootMargin:'200px 0px' }); io.observe(st); c.offs.push(() => io.disconnect()); }
     // the visitor's first real click, key, typing or focus in the component stops its demo (c.mine)
     const mine = e => { if (e.isTrusted) c.mine = true; };
     ['pointerdown', 'keydown', 'input', 'click'].forEach(t => c.on(st, t, mine, true));
@@ -9576,7 +9579,9 @@ DM.def('voice-orb', (r, c) => {
   const paint = orbShader($('.vor-gl', orb), c), dot = $('.vor-dot', r), pc = $('.vor-pc', orb);
   let seen = true, flow = 0, last = 0;
   if (paint && 'IntersectionObserver' in window){ const io = new IntersectionObserver(e => { seen = e[0].isIntersecting; }); io.observe(orb); c.offs.push(() => io.disconnect()); }
-  const draw = t => paint && paint(t, lv, getComputedStyle(dot).backgroundColor, getComputedStyle(pc).backgroundColor);
+  // the two colours are read a few times a second, not every frame: reading them makes the browser recheck the page's styles
+  let cols = null, colsAt = -1e9;
+  const draw = t => { if (!paint) return; const now = performance.now(); if (!cols || now - colsAt > 250){ cols = [getComputedStyle(dot).backgroundColor, getComputedStyle(pc).backgroundColor]; colsAt = now; } paint(t, lv, cols[0], cols[1]); };
   // the orb follows a level: a made-up voice while someone talks, a faint idle while it listens. With reduced motion it is
   // still: one frame, drawn again when the colours change. The setting is read every frame, so it can change mid-visit
   let still = false;
@@ -9588,7 +9593,7 @@ DM.def('voice-orb', (r, c) => {
     flow += Math.min(50, t - (last || t)) * (1 + lv * 2.5); last = t;
     if (seen) draw(flow);
   });
-  if (paint){ const mo = new MutationObserver(() => c.later(450, () => { if (REDUCE) draw(0); })); mo.observe(root, { attributes:true, attributeFilter:['data-m'] }); c.offs.push(() => mo.disconnect()); }
+  if (paint){ const mo = new MutationObserver(() => c.later(450, () => { cols = null; if (REDUCE) draw(0); })); mo.observe(root, { attributes:true, attributeFilter:['data-m'] }); c.offs.push(() => mo.disconnect()); }
   c.every(1000, () => { if (mode !== 'idle' && mode !== 'ended'){ secs++; tm.textContent = fmt(secs); } });
   async function say(name, line, ms, id){
     swap(who, name); tx.classList.remove('hint'); tx.innerHTML = ''; talking = true;

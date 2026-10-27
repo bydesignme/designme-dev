@@ -113,6 +113,20 @@ a{color:inherit}
 .pg-top-in{height:100%;max-width:1400px;margin:0 auto;padding:0 32px;display:flex;align-items:center;gap:6px}
 .pg-logo{display:block;color:var(--pg-fg)}
 .pg-logo svg{display:block;height:23px;width:auto}
+/* the logo, option 3: the wordmark's paths as a hairline between its guides, filling in from D to E on hover or keyboard
+   focus; solid on phones and touch screens. The same styles as the homepage (make-patches.py, #logo-o3) */
+.lg svg.L{overflow:visible}
+.lg .L .wm{fill:currentColor}
+.lg .L .wm .ch{fill-opacity:0;stroke:currentColor;stroke-width:1px;vector-effect:non-scaling-stroke;transition:fill-opacity .2s cubic-bezier(.2,.7,.2,1) calc(var(--i) * 45ms),stroke-opacity .2s cubic-bezier(.2,.7,.2,1) calc(var(--i) * 45ms)}
+.lg .L .dev{fill:var(--accent-fg,currentColor)}
+.lg .L .cons{fill:none;stroke:var(--accent-mark,currentColor);transition:opacity .3s cubic-bezier(.2,.7,.2,1)}
+.lg .L .cons path{stroke-width:1px;vector-effect:non-scaling-stroke}
+.lg .L .cons .cl{stroke-opacity:.45}
+.lg:focus-visible .L .wm .ch{fill-opacity:1;stroke-opacity:0}
+.lg:focus-visible .L .cons{opacity:.3}
+@media (hover:hover) and (pointer:fine){.lg:hover .L .wm .ch{fill-opacity:1;stroke-opacity:0}.lg:hover .L .cons{opacity:.3}}
+@media (hover:none),(max-width:640px){.lg .L .wm .ch{fill-opacity:1;stroke:none}.lg .L .cons{opacity:.3}}
+@media (prefers-reduced-motion:reduce){.lg .L .wm .ch{transition-delay:0s}}
 .pg-sp{flex:1}
 .pg-seg{display:inline-flex;padding:2px;border-radius:999px;background:var(--pg-chip)}
 .pg-seg button{height:24px;padding:0 10px;border:0;border-radius:999px;background:none;color:var(--pg-dim);font:500 13px/1 var(--pg-sans);cursor:pointer;transition:color .2s}
@@ -211,7 +225,7 @@ a{color:inherit}
 <a class="pg-skip" href="#content">Skip to content</a>
 <div class="pg-sr" id="pg-live" role="status" aria-live="polite"></div>
 <header class="pg-top"><div class="pg-top-in">
-  <a class="pg-logo" href="/" aria-label="Designme.dev home" set:html={LOGO} />
+  <a class="pg-logo lg o3" href="/" aria-label="Designme.dev home" set:html={LOGO} />
   <span class="pg-sp"></span>
   <a class="pg-gh" href={GITHUB} aria-label="Star designme.dev on GitHub" data-gh-stars><svg viewBox="0 0 24 24" aria-hidden="true" set:html={GH_MARK} /><span class="pg-gh-l">Star on GitHub</span><span class="pg-gh-n" hidden></span></a>
   <div class="pg-seg pg-style" role="radiogroup" aria-label="Style"><button type="button" role="radio" aria-checked="false" data-style-set="bp">Blueprint</button><button type="button" role="radio" aria-checked="false" data-style-set="soft">Soft</button></div>
