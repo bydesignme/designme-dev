@@ -5,7 +5,7 @@ import { AgentLanes, type AgentHandoff, type AgentLane, type LaneTone } from '..
 import type { IconName } from '../lib/icons';
 import { useScript } from './useScript';
 
-/* ---------- Agent lanes: three agents work in turn and hand the work along; Pause all holds them ---------- */
+/* ---------- Agent lanes: three agents work in turn, each step filling as it goes, and hand the work along; Pause all holds them ---------- */
 const PLAN: { key: string; name: string; icon: IconName; tone: LaneTone; wait?: string; acts: string[]; log: string[] }[] = [
   { key: 'researcher', name: 'Researcher', icon: 'search', tone: 'blue', acts: ['Reading competitor sites', 'Comparing 5 pricing pages', 'Writing the brief'], log: ['Read stripe.com/pricing', 'Read linear.app/pricing', 'Noted 3 patterns'] },
   { key: 'designer', name: 'Designer', icon: 'palette', tone: 'purple', wait: 'Waiting for the brief', acts: ['Laying out pricing cards', 'Setting type and spacing', 'Exporting frames'], log: ['Made 3 card variants', 'Applied spacing tokens', 'Exported 4 frames'] },
@@ -32,21 +32,23 @@ export default function AgentLanesDemo() {
     const set = (key: string, patch: Partial<AgentLane> | ((l: AgentLane) => Partial<AgentLane>)) =>
       setLanes(ls => ls.map(l => l.key === key ? { ...l, ...(typeof patch === 'function' ? patch(l) : patch) } : l));
     // work only moves on while the agents are not paused
-    const hold = async (ms: number) => { for (let t = 0; t < ms;) { await wait(100); if (!live.current.paused) t += 100; } };
+    const hold = async (ms: number, each?: (p: number) => void) => { for (let t = 0; t < ms;) { await wait(100); if (!live.current.paused) { t += 100; each?.(t / ms); } } };
     const work = async (p: (typeof PLAN)[number]) => {
       for (let i = 0; i < 3; i++) {
-        set(p.key, { status: 'working', activity: p.acts[i], done: i });
-        await hold(1500);
+        set(p.key, { status: 'working', activity: p.acts[i], done: i, progress: 0 });
+        await hold(1500, f => set(p.key, { progress: f }));
         const time = live.current.secs + 's';
         set(p.key, l => ({ done: i + 1, log: [...(l.log ?? []), { text: p.log[i], time }] }));
       }
       set(p.key, { status: 'done', activity: p.log[2] });
     };
-    const hand = async (from: string, to: string, what: string) => { setHandoff({ from, to, what }); await wait(1700); setHandoff(undefined); await wait(700); };
+    // the line opens, the light runs down to the next badge (about 1.5s), then the line closes
+    const hand = async (from: string, to: string, what: string) => { setHandoff({ from, to, what }); await wait(2750); setHandoff(undefined); await wait(700); };
 
     await wait(600);
     const first = work(PLAN[0]); set('designer', { status: 'waiting' });
     await first; await hand('researcher', 'designer', 'the brief');
+    set('reviewer', { status: 'waiting' });
     await work(PLAN[1]); await hand('designer', 'reviewer', '4 frames');
     await work(PLAN[2]);
     setFinished(true);

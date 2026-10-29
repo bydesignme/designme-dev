@@ -113,7 +113,7 @@ A failed step with retry, skip or hand over to a person.
 
 **AgentLanes** · `agent-lanes/AgentLanes.tsx`  
 Several agents working in parallel, each with its own lane and hand-offs.  
-`lanes: { key, name, icon, tone?, status: 'queued' | 'waiting' | 'working' | 'paused' | 'done', activity, steps?, done?, log?: { text, time? }[] }[]`, `title`, `seconds` (counts by itself when left out), `paused` / `defaultPaused` / `onPausedChange` (adds Pause all and Resume), `handoff: { from, to, what }` (clear it and the banner slides away), `expanded` / `defaultExpanded` / `onExpandedChange`, `bare`.
+`lanes: { key, name, icon, tone?, status: 'queued' | 'waiting' | 'working' | 'paused' | 'done', activity, steps?, done?, progress?, log?: { text, time? }[] }[]` (`tone` colours the lane's badge, track, tag and stretch of relay line; `progress`, 0 to 1, fills the step in hand), `title`, `seconds` (counts by itself when left out), `paused` / `defaultPaused` / `onPausedChange` (adds Pause all and Resume), `handoff: { from, to, what }` (a light runs down the relay line to the next badge and the stretch stays lit; clear it and its line slides away), `expanded` / `defaultExpanded` / `onExpandedChange`, `bare`.
 
 **AgentTree** · `agent-tree/AgentTree.tsx`  
 An orchestrator and its sub-agents as a tree, with cost rolled up per branch.  

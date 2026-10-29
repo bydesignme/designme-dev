@@ -44,32 +44,94 @@
   };
   try { var a = localStorage.getItem('dmui-accent'); if (a && a !== 'default') window.dmAccent(a); } catch(e){}
 })();
-</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareSourceCode","name":"Agent lanes","description":"Agent lanes shows several agents working on one job, each in its own row with a name, what it is doing right now, a step track and a status tag. When one agent passes work to another, a banner like \"Researcher handed the brief to Designer\" slides in above the lane that takes it.","url":"https://designme.dev/components/agent-lanes","image":"https://designme.dev/components/og/agent-lanes.jpg","programmingLanguage":["HTML","CSS","JavaScript","TypeScript"],"runtimePlatform":"Web browser","license":"https://opensource.org/licenses/MIT","isAccessibleForFree":true,"keywords":"Agent lanes, Agent status, AI agent UI, React component, HTML component","author":{"@type":"Organization","name":"DesignMe","url":"https://designme.agency"},"isPartOf":{"@type":"WebSite","name":"Designme.dev","url":"https://designme.dev/"}}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Library","item":"https://designme.dev/"},{"@type":"ListItem","position":2,"name":"Agent status","item":"https://designme.dev/#s-status"},{"@type":"ListItem","position":3,"name":"Agent lanes","item":"https://designme.dev/components/agent-lanes"}]}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does Pause all stop my agents?","acceptedAnswer":{"@type":"Answer","text":"No. It changes how the lanes look and calls onPausedChange. Your code pauses the agents, and the lanes' own status values stay as you set them."}},{"@type":"Question","name":"How do I show one agent handing work to another?","acceptedAnswer":{"@type":"Answer","text":"Set handoff with the from and to lane keys and a short what, like \"the brief\". Clear it after a moment and the banner closes before it goes."}},{"@type":"Question","name":"Can a lane have more than three steps?","acceptedAnswer":{"@type":"Answer","text":"Yes. Set steps on the lane to cut its track into as many parts as you need, and move done forward as each one finishes."}}]}</script><link rel="stylesheet" href="/components/assets/core.css"><style>/* ---------- Agent lanes ---------- */
+</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareSourceCode","name":"Agent lanes","description":"Agent lanes shows several agents working on one job, each in its own row and its own colour, with a name, what it is doing right now, a step track and a status tag. A relay line joins the agents' badges. When one agent passes work to another, a light runs down that line to the next badge, a line like \"Researcher handed the brief to Designer\" opens above the lane that takes it, and the stretch of line it crossed stays lit.","url":"https://designme.dev/components/agent-lanes","image":"https://designme.dev/components/og/agent-lanes.jpg","programmingLanguage":["HTML","CSS","JavaScript","TypeScript"],"runtimePlatform":"Web browser","license":"https://opensource.org/licenses/MIT","isAccessibleForFree":true,"keywords":"Agent lanes, Agent status, AI agent UI, React component, HTML component","author":{"@type":"Organization","name":"DesignMe","url":"https://designme.agency"},"isPartOf":{"@type":"WebSite","name":"Designme.dev","url":"https://designme.dev/"}}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Library","item":"https://designme.dev/"},{"@type":"ListItem","position":2,"name":"Agent status","item":"https://designme.dev/#s-status"},{"@type":"ListItem","position":3,"name":"Agent lanes","item":"https://designme.dev/components/agent-lanes"}]}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does Pause all stop my agents?","acceptedAnswer":{"@type":"Answer","text":"No. It changes how the lanes look and calls onPausedChange. Your code pauses the agents, and the lanes' own status values stay as you set them."}},{"@type":"Question","name":"How do I show one agent handing work to another?","acceptedAnswer":{"@type":"Answer","text":"Set handoff with the from and to lane keys and a short what, like \"the brief\". The light takes about a second and a half to arrive; clear handoff after that and the line closes before it goes."}},{"@type":"Question","name":"Can a lane have more than three steps?","acceptedAnswer":{"@type":"Answer","text":"Yes. Set steps on the lane to cut its track into as many parts as you need, move done forward as each one finishes, and set progress to fill the one in hand."}}]}</script><link rel="stylesheet" href="/components/assets/core.css"><style>/* ---------- Agent lanes ---------- */
+/* each agent has its own hue (--c, with its tint --cb): its badge, its track, its tag and its stretch of the relay line that
+   joins the badges. A hand-off sends a light down that line from one agent to the next, and the stretch it crossed stays lit */
 .aln{padding:var(--s-2)}
+/* on a card the lanes sit centred in the room kept for their tallest moment, and glide as a hand-off line opens and shuts */
+.stage-in:has(>.aln){display:flex;flex-direction:column;justify-content:center}
 .aln-h{display:flex;align-items:center;gap:10px;padding:var(--s-2) 10px 10px}
-.aln-ic{color:var(--fg2);display:grid}
+.aln-ic{color:var(--fg2);display:grid;transition:color .3s}
+.aln.fin .aln-ic{color:var(--ok)}
 .aln-t{font-weight:500}
-.aln-m{font-size:12.5px;margin-right:auto}
-.aln-lane{border-radius:14px;transition:background .25s}
+.aln-m{font-size:12.5px}
+.aln-ct{font-size:12.5px;color:var(--muted);margin-right:auto;white-space:nowrap}
+.aln-ct::before{content:"·";margin-right:6px}
+.aln-rows{position:relative}
+.aln-rows>*{position:relative}
+.aln-lane{border-radius:14px;transition:background .3s}
 @media (hover:hover) and (pointer:fine){.aln-lane:hover{background:var(--row)}}
+/* the lane at work carries a wash of its hue from the left */
+.aln-lane[data-s="working"]{background:linear-gradient(90deg,color-mix(in srgb,var(--c) 8%,transparent),transparent 72%)}
+@media (hover:hover) and (pointer:fine){.aln-lane[data-s="working"]:hover{background:linear-gradient(90deg,color-mix(in srgb,var(--c) 8%,transparent),transparent 72%),var(--row)}}
+/* the relay line runs from badge to badge, through the lanes and the hand-offs between them, and stops short of each badge */
+.aln-rows>*::before{content:"";position:absolute;left:26px;width:2px;top:0;bottom:0;border-radius:1px;background:var(--line);transition:background .5s var(--ease);pointer-events:none}
+.aln-lane::before{top:48px}
+.aln-lane:last-child::before{display:none}
+.aln-lane::after{content:"";position:absolute;left:26px;width:2px;top:0;height:6px;border-radius:1px;background:var(--line);transition:background .5s var(--ease);pointer-events:none}
+.aln-lane:first-child::after{display:none}
+.aln-lane.sent::before{background:linear-gradient(var(--c),color-mix(in srgb,var(--c) 45%,var(--line)))}
+.aln-lane.got::after{background:var(--c)}
+.aln-hf.lit::before{background:linear-gradient(color-mix(in srgb,var(--from) 45%,var(--line)),var(--to))}
 .aln-row{display:grid;grid-template-columns:34px minmax(0,1.2fr) minmax(0,1fr) auto;align-items:center;gap:var(--s-3);width:100%;padding:10px;text-align:left}
-.aln-av{width:34px;height:34px;border-radius:11px;display:grid;place-items:center}
-.aln-n{font-weight:500;font-size:13.5px}
+.aln-av{position:relative;width:34px;height:34px;border-radius:11px;display:grid;place-items:center;color:var(--c);background:var(--cb);transition:color .4s,background .4s}
+.aln-av::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none}
+.aln-lane[data-s="working"] .aln-av{animation:alnbreathe 2.4s var(--ease-io) infinite}
+@keyframes alnbreathe{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--c) 0%,transparent)}50%{box-shadow:0 0 0 4px color-mix(in srgb,var(--c) 18%,transparent)}}
+/* the badge that takes a hand-off rings once as the light reaches it */
+.aln-av.ping::before{animation:alnping .9s var(--ease)}
+@keyframes alnping{from{box-shadow:0 0 0 0 color-mix(in srgb,var(--c) 50%,transparent)}to{box-shadow:0 0 0 12px color-mix(in srgb,var(--c) 0%,transparent)}}
+/* a finished agent's badge fills with its hue */
+.aln-lane[data-s="done"] .aln-av{background:var(--c);color:var(--surface)}
+.aln-who{min-width:0}
+.aln-n{display:block;font-weight:500;font-size:13.5px}
 .aln-a{display:block;font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .aln-a.live{color:var(--fg2)}
+/* the track: one part a step. Finished parts are solid, the one in hand fills as the agent works, with a light running along it */
 .aln-tr{display:flex;gap:3px}
-.aln-tr i{flex:1;height:4px;border-radius:2px;background:var(--line);position:relative;overflow:hidden}
-.aln-tr i::after{content:"";position:absolute;inset:0;border-radius:2px;background:var(--c,var(--accent));transform:scaleX(0);transform-origin:left;transition:transform .9s var(--ease)}
-.aln-tr i.on::after{transform:scaleX(1)}
-.aln-tr i.run::after{transform:scaleX(.5);transition-duration:2s}
+.aln-tr i{flex:1;height:8px;border-radius:4px;background:color-mix(in srgb,var(--c) 13%,var(--line));position:relative;overflow:hidden}
+.aln-tr i::after{content:"";position:absolute;inset:0;border-radius:inherit;background:var(--c);transform:scaleX(var(--p,0));transform-origin:left;transition:transform .25s linear}
+.aln-tr i.on::after{transform:scaleX(1);transition:transform .5s var(--ease)}
+.aln-tr i.run::after{background:linear-gradient(90deg,var(--c) 0 30%,color-mix(in srgb,var(--c) 30%,var(--surface)) 50%,var(--c) 70% 100%) 0 0/250% 100%;animation:alnsheen 1.6s linear infinite}
+/* given no step progress, the part in hand fills part way and keeps its light */
+.aln-tr i.run.ind::after{transform:scaleX(.6);transition:transform 2.4s var(--ease)}
+@keyframes alnsheen{from{background-position:100% 0}to{background-position:-150% 0}}
 .aln-st{min-width:92px;display:flex;justify-content:flex-end}
+.aln-tg{background:var(--cb);color:var(--c)}
+.aln-tg .spin{width:9px;height:9px}
 .aln-det{padding:0 10px 10px 56px;font-size:12.5px;color:var(--fg2)}
-.aln-det div{display:flex;gap:var(--s-2);padding:3px 0}
+.aln-det div{display:flex;align-items:center;gap:var(--s-2);padding:3px 0}
+.aln-det div::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--c);flex:none}
 .aln-det .muted{margin-left:auto}
-/* a hand-off opens a row between the lanes and closes it again, so the lanes glide instead of jumping */
+/* a hand-off opens a line between the lanes, glides the lanes below down and closes again */
 .aln-hf{transition-duration:var(--t-slow)}
-.aln-hand{display:flex;align-items:center;gap:var(--s-2);margin:2px 10px;padding:7px var(--s-3);border-radius:10px;background:color-mix(in srgb,var(--pl-bg) 55%,transparent);color:var(--pl);font-size:12.5px}
-@media (max-width:600px){.aln-row{grid-template-columns:34px minmax(0,1fr) auto}.aln-tr{display:none}}
+.aln-hand{padding:6px 10px 6px 56px;font-size:12.5px;line-height:18px;color:var(--fg2)}
+.aln-hand b{font-weight:500}
+.aln-hand .f{color:var(--from)}.aln-hand .t{color:var(--to)}
+/* the light that carries the work down the line: a bright head with a tail in the sender's hue */
+.aln-pk{position:absolute;left:27px;top:0;width:8px;height:8px;margin:-4px 0 0 -4px;border-radius:50%;background:var(--to);box-shadow:0 0 0 3px color-mix(in srgb,var(--to) 22%,transparent),0 0 12px 2px color-mix(in srgb,var(--to) 45%,transparent);pointer-events:none;z-index:2;opacity:0}
+.aln-pk::before{content:"";position:absolute;left:3px;bottom:4px;width:2px;height:30px;border-radius:1px;background:linear-gradient(transparent,var(--from))}
+@media (max-width:600px){
+  .aln-row{grid-template-columns:34px minmax(0,1fr) auto;row-gap:var(--s-2)}
+  .aln-tr{grid-column:2 / -1;grid-row:2}
+  .aln-lane::before{top:48px}
+  .aln-ct{display:none}
+  .aln-m{margin-right:auto}
+}
+@media (max-width:400px){.aln-ic{display:none}}
+:root:not([data-style="soft"]) .aln-rows>*:not(:where([data-style="soft"],[data-style="soft"] *))::before,:root:not([data-style="soft"]) .aln-lane:not(:where([data-style="soft"],[data-style="soft"] *))::after{width:1px;left:26.5px;background:repeating-linear-gradient(var(--rail) 0 3px,transparent 3px 6px)}
+:root:not([data-style="soft"]) .aln-lane.sent:not(:where([data-style="soft"],[data-style="soft"] *))::before,:root:not([data-style="soft"]) .aln-lane.got:not(:where([data-style="soft"],[data-style="soft"] *))::after{background:var(--c)}
+:root:not([data-style="soft"]) .aln-hf.lit:not(:where([data-style="soft"],[data-style="soft"] *))::before{background:var(--to)}
+:root:not([data-style="soft"]) .aln-av:not(:where([data-style="soft"],[data-style="soft"] *)){box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--c) 35%,transparent)}
+:root:not([data-style="soft"]) .aln-lane[data-s="working"] .aln-av:not(:where([data-style="soft"],[data-style="soft"] *)){animation:alnbp 1.1s steps(1,end) infinite}
+@keyframes alnbp{0%,55%{box-shadow:inset 0 0 0 1px var(--c)}56%,100%{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--c) 35%,transparent)}}
+:root:not([data-style="soft"]) .aln-lane[data-s="working"]:not(:where([data-style="soft"],[data-style="soft"] *)){background:color-mix(in srgb,var(--c) 5%,transparent)}
+:root:not([data-style="soft"]) .aln-tr i:not(:where([data-style="soft"],[data-style="soft"] *)){height:6px}
+:root:not([data-style="soft"]) .aln-tr i.run:not(:where([data-style="soft"],[data-style="soft"] *))::after{background:repeating-linear-gradient(135deg,var(--c) 0 4px,color-mix(in srgb,var(--c) 55%,var(--surface)) 4px 7px);animation:none}
+:root:not([data-style="soft"]) .aln-pk:not(:where([data-style="soft"],[data-style="soft"] *)){box-shadow:none;width:7px;height:7px;margin:-3px 0 0 -3px}
+:root:not([data-style="soft"]) .aln-pk:not(:where([data-style="soft"],[data-style="soft"] *))::before{width:1px}
+:root:not([data-style="soft"]) .aln-av.ping:not(:where([data-style="soft"],[data-style="soft"] *))::before{animation:alnpingbp .6s steps(3,end)}
+@keyframes alnpingbp{from{box-shadow:0 0 0 1px var(--c)}to{box-shadow:0 0 0 7px transparent}}
 </style><style>@media (max-width:640px){.cp-demo .pg-demo{min-height:calc(var(--h-j) + 24px)}}@media (max-width:519px){.cp-demo .pg-demo{min-height:calc(var(--h-k) + 24px)}}@media (max-width:429px){.cp-demo .pg-demo{min-height:calc(var(--h-l) + 24px)}}@media (max-width:389px){.cp-demo .pg-demo{min-height:calc(var(--h-m) + 24px)}}</style><style>@font-face{font-family:Inter;font-style:normal;font-weight:400;font-display:swap;src:url(/fonts/inter-latin-400-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:Inter;font-style:normal;font-weight:500;font-display:swap;src:url(/fonts/inter-latin-500-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:Inter;font-style:normal;font-weight:600;font-display:swap;src:url(/fonts/inter-latin-600-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
@@ -84,22 +146,22 @@
 <path d="M149.497 283.784C149.477 284.047 149.474 284.311 149.487 284.575C156.385 340.034 183.548 391.116 225.9 428.196C267.989 465.044 322.188 485.532 378.414 485.855L379.743 485.859C436.453 485.868 491.188 465.353 533.619 428.212C575.912 391.194 603.062 340.216 610.018 284.856L610.018 281.512C610.008 277.337 608.324 273.315 605.303 270.335C602.277 267.351 598.155 265.656 593.837 265.656L165.647 265.656C161.338 265.656 157.226 267.349 154.21 270.331C151.198 273.309 149.524 277.326 149.523 281.491L149.523 283.437L149.497 283.784ZM114.378 247.395C118.396 247.391 122.254 245.919 125.214 243.29C128.063 240.759 129.887 237.33 130.396 233.629L130.396 233.35L130.437 232.917C136.355 171.634 165.162 114.754 211.202 73.3687C257.239 31.9859 317.206 9.06063 379.393 9.04448L379.396 9.04448C441.593 9.04583 501.574 31.964 547.624 73.3482C593.677 114.735 622.491 171.624 628.411 232.917L628.453 233.35L628.453 233.643C628.953 237.344 630.773 240.774 633.621 243.304C636.58 245.932 640.437 247.399 644.452 247.395L725.644 247.395C728.882 247.404 732.089 248.06 735.071 249.329C738.055 250.598 740.753 252.453 743.001 254.787C745.252 257.123 747.005 259.891 748.151 262.924C749.296 265.954 749.81 269.183 749.662 272.418L749.663 272.418C745.484 366.797 704.617 455.919 635.615 521.211C566.616 586.499 474.809 622.924 379.338 622.924C283.872 622.924 192.071 586.496 123.081 521.206C54.0935 455.917 13.2412 366.804 9.07133 272.438L9.07036 272.438L9.07036 272.436C9.07007 272.43 9.06967 272.423 9.06938 272.417L9.07036 272.417C8.92272 269.182 9.43655 265.953 10.5811 262.924C11.7276 259.89 13.481 257.123 15.7315 254.787C17.9805 252.452 20.6797 250.597 23.6622 249.329C26.6443 248.06 29.8504 247.404 33.0889 247.395L114.378 247.395Z" fill="black" stroke="white" stroke-width="18.0901"/>
 </svg></div><span class="gloss"></span></div><p>Built by <span class="u">DesignMe</span>, free to use under the MIT licence.</p></a>
     <p class="side-cta-d">Expert design and dev support for startups and enterprises.</p>
-    <a class="hire-btn" href="https://designme.agency" target="_blank" rel="noopener">Book a call<span class="ms"><svg class="sh" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"/></svg></span></a></div></div></details><nav class="pg-crumbs" aria-label="Breadcrumb"><a href="/">Library</a><span>/</span><a href="/#s-status">Agent status</a></nav><h1 class="pg-h1" id="content" tabindex="-1">Agent lanes</h1><p class="pg-lead">Several agents working in parallel, each with its own lane and hand-offs. Free and MIT licensed, as HTML or a typed React component, in two styles with light and dark mode.</p><div class="pg-cmd"><span class="d">$</span><span class="c"><span class="cp-w">npx</span> <span class="cp-w">designme</span> <span class="cp-w">add</span> <span class="cp-w">agent-lanes</span></span><button type="button" data-copy="npx designme add agent-lanes" aria-label="Copy install command"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg></button></div><section class="cp-demo" aria-label="Agent lanes demo"><button type="button" class="cp-anim" id="cp-replay"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"></path><path d="M3 3v5h5"></path></svg>Animate</button><div class="pg-demo stage-inner" style="--h-a:420px;--h-j:420px;--h-k:420px;--h-l:420px;--h-m:420px"><div class="card wide bare" data-c="agent-lanes">
+    <a class="hire-btn" href="https://designme.agency" target="_blank" rel="noopener">Book a call<span class="ms"><svg class="sh" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"/></svg></span></a></div></div></details><nav class="pg-crumbs" aria-label="Breadcrumb"><a href="/">Library</a><span>/</span><a href="/#s-status">Agent status</a></nav><h1 class="pg-h1" id="content" tabindex="-1">Agent lanes</h1><p class="pg-lead">Several agents working in parallel, each with its own lane and hand-offs. Free and MIT licensed, as HTML or a typed React component, in two styles with light and dark mode.</p><div class="pg-cmd"><span class="d">$</span><span class="c"><span class="cp-w">npx</span> <span class="cp-w">designme</span> <span class="cp-w">add</span> <span class="cp-w">agent-lanes</span></span><button type="button" data-copy="npx designme add agent-lanes" aria-label="Copy install command"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg></button></div><section class="cp-demo" aria-label="Agent lanes demo"><button type="button" class="cp-anim" id="cp-replay"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"></path><path d="M3 3v5h5"></path></svg>Animate</button><div class="pg-demo stage-inner" style="--h-a:420px;--h-j:420px;--h-k:420px;--h-l:420px;--h-m:429px"><div class="card wide bare" data-c="agent-lanes">
   <div class="stage-in">
     <div class="aln panel">
-      <div class="aln-h"><span class="aln-ic"><svg class="i s"><use href="#i-users"/></svg></span><span class="aln-t">3 agents working</span><span class="aln-m muted num">0:00</span><button class="pill soft sm aln-pause"><svg class="i xs"><use href="#i-pause"/></svg>Pause all</button></div>
+      <div class="aln-h"><span class="aln-ic"><svg class="i s"><use href="#i-users"/></svg></span><span class="aln-t">3 agents working</span><span class="aln-m muted num">0:00</span><span class="aln-ct num">0 of 9 steps</span><button class="pill soft sm aln-pause"><svg class="i xs"><use href="#i-pause"/></svg>Pause all</button></div>
       <div class="aln-rows"></div>
     </div>
   </div>
 </div>
-</div></section><div class="cp-bar"><nav aria-label="Sections"><a href="#install">Install</a><a href="#about">About</a><a href="#usage">Usage</a><a href="#props">Props</a><a href="#code">Code</a><a href="#questions">Questions</a><a href="#more">More</a></nav></div><section class="cp-sec" id="install"><div class="pg-sh"><span class="n">01</span><h2>Install</h2><p>Add it to your project with the CLI.</p></div><div class="cp-two"><div class="cp-box"><h3 class="pg-t">HTML, CSS and JavaScript</h3><div class="cp-line"><span class="d">$</span><code><span class="cp-w">npx</span> <span class="cp-w">designme</span> <span class="cp-w">add</span> <span class="cp-w">agent-lanes</span></code><button class="cp-copy" type="button" data-copy="npx designme add agent-lanes" data-label="Copy">Copy</button></div></div><div class="cp-box"><h3 class="pg-t">React</h3><div class="cp-line"><span class="d">$</span><code><span class="cp-w">npx</span> <span class="cp-w">designme</span> <span class="cp-w">add</span> <span class="cp-w">agent-lanes</span> <span class="cp-w">--react</span></code><button class="cp-copy" type="button" data-copy="npx designme add agent-lanes --react" data-label="Copy">Copy</button></div></div></div><p class="cp-note">The CLI copies the source into your project, so you own it and can change anything. The HTML version lands in <code>./designme</code> with the shared core and a <code>demo.html</code>. The React version lands in <code>src/components/designme</code> and needs React 19; it works in Next.js, Vite and Astro.</p></section><section class="cp-sec" id="about"><div class="pg-sh"><span class="n">02</span><h2>About</h2><p>What it is for and what it does.</p></div><p class="cp-sum">Agent lanes shows several agents working on one job, each in its own row with a name, what it is doing right now, a step track and a status tag. When one agent passes work to another, a banner like "Researcher handed the brief to Designer" slides in above the lane that takes it.</p><div class="cp-gap"><div class="cp-tl" role="tablist" aria-label="About"><button type="button" role="tab" id="ab-t0" aria-controls="ab-p0" aria-selected="true" tabindex="0">When to use it</button><button type="button" role="tab" id="ab-t1" aria-controls="ab-p1" aria-selected="false" tabindex="-1">What it does</button><button type="button" role="tab" id="ab-t2" aria-controls="ab-p2" aria-selected="false" tabindex="-1">Accessibility</button></div><div class="cp-tp" role="tabpanel" id="ab-p0" aria-labelledby="ab-t0"><ul><li>When your product runs several agents with different roles, like a researcher, a designer and a reviewer, on one task.</li><li>When some agents wait on others and people need to see who is blocked and why.</li><li>When people should be able to pause every agent at once and resume them later.</li><li>When each agent's own log should be one click away without crowding the overview.</li></ul></div><div class="cp-tp" role="tabpanel" id="ab-p1" aria-labelledby="ab-t1" hidden><ul><li>Each lane has a <code>status</code>: queued, waiting, working, paused or done. Working shows a spinner, paused holds, and done settles with a check.</li><li>The <code>activity</code> line crossfades when it changes. The track is cut into <code>steps</code> (3 by default), and the step after <code>done</code> fills while the agent works.</li><li>Clicking a lane opens its <code>log</code>, with an optional time for each entry. Open lanes can be controlled with <code>expanded</code> and <code>onExpandedChange</code>.</li><li>Setting <code>handoff</code> to <code>{ from, to, what }</code> slides a banner in above the receiving lane. Set it back to undefined and the banner slides away.</li><li>The header reads "3 agents working", "All agents paused" or "All 3 agents finished" unless you pass <code>title</code>, and shows a m:ss clock that counts while agents work.</li><li><code>onPausedChange</code> adds a Pause all / Resume button that turns working lanes into Paused and stops the clock. It disappears once every lane is done.</li></ul></div><div class="cp-tp" role="tabpanel" id="ab-p2" aria-labelledby="ab-t2" hidden><ul><li>Each lane row is a button with <code>aria-expanded</code> for its log.</li><li>Closed logs and a hand-off banner that is leaving are <code>inert</code> and <code>aria-hidden</code>.</li><li>The working spinner is <code>aria-hidden</code>, and each status is written out as text, like Working, Paused or Done.</li></ul></div></div></section><section class="cp-sec" id="usage"><div class="pg-sh"><span class="n">03</span><h2>Usage</h2><p>Import it and drive it from your own state.</p></div><div class="cp-box"><h3 class="pg-t">Import</h3><pre class="cp-pre"><code>import { AgentLanes } from &#39;@/components/designme/agent-lanes/AgentLanes&#39;;</code></pre></div><div class="cp-box cp-gap"><h3 class="pg-t">Example</h3><p class="pg-d">The demo above as a React component, 61 lines you can copy.</p><pre class="cp-pre"><code>&#39;use client&#39;;
+</div></section><div class="cp-bar"><nav aria-label="Sections"><a href="#install">Install</a><a href="#about">About</a><a href="#usage">Usage</a><a href="#props">Props</a><a href="#code">Code</a><a href="#questions">Questions</a><a href="#more">More</a></nav></div><section class="cp-sec" id="install"><div class="pg-sh"><span class="n">01</span><h2>Install</h2><p>Add it to your project with the CLI.</p></div><div class="cp-two"><div class="cp-box"><h3 class="pg-t">HTML, CSS and JavaScript</h3><div class="cp-line"><span class="d">$</span><code><span class="cp-w">npx</span> <span class="cp-w">designme</span> <span class="cp-w">add</span> <span class="cp-w">agent-lanes</span></code><button class="cp-copy" type="button" data-copy="npx designme add agent-lanes" data-label="Copy">Copy</button></div></div><div class="cp-box"><h3 class="pg-t">React</h3><div class="cp-line"><span class="d">$</span><code><span class="cp-w">npx</span> <span class="cp-w">designme</span> <span class="cp-w">add</span> <span class="cp-w">agent-lanes</span> <span class="cp-w">--react</span></code><button class="cp-copy" type="button" data-copy="npx designme add agent-lanes --react" data-label="Copy">Copy</button></div></div></div><p class="cp-note">The CLI copies the source into your project, so you own it and can change anything. The HTML version lands in <code>./designme</code> with the shared core and a <code>demo.html</code>. The React version lands in <code>src/components/designme</code> and needs React 19; it works in Next.js, Vite and Astro.</p></section><section class="cp-sec" id="about"><div class="pg-sh"><span class="n">02</span><h2>About</h2><p>What it is for and what it does.</p></div><p class="cp-sum">Agent lanes shows several agents working on one job, each in its own row and its own colour, with a name, what it is doing right now, a step track and a status tag. A relay line joins the agents' badges. When one agent passes work to another, a light runs down that line to the next badge, a line like "Researcher handed the brief to Designer" opens above the lane that takes it, and the stretch of line it crossed stays lit.</p><div class="cp-gap"><div class="cp-tl" role="tablist" aria-label="About"><button type="button" role="tab" id="ab-t0" aria-controls="ab-p0" aria-selected="true" tabindex="0">When to use it</button><button type="button" role="tab" id="ab-t1" aria-controls="ab-p1" aria-selected="false" tabindex="-1">What it does</button><button type="button" role="tab" id="ab-t2" aria-controls="ab-p2" aria-selected="false" tabindex="-1">Accessibility</button></div><div class="cp-tp" role="tabpanel" id="ab-p0" aria-labelledby="ab-t0"><ul><li>When your product runs several agents with different roles, like a researcher, a designer and a reviewer, on one task.</li><li>When some agents wait on others and people need to see who is blocked and why.</li><li>When people should be able to pause every agent at once and resume them later.</li><li>When each agent's own log should be one click away without crowding the overview.</li></ul></div><div class="cp-tp" role="tabpanel" id="ab-p1" aria-labelledby="ab-t1" hidden><ul><li>Each lane has a <code>tone</code> (blue, purple, green, orange, red, yellow, pink or teal) that colours its badge, its track, its Working tag and its stretch of the relay line, in light and dark.</li><li>Each lane has a <code>status</code>: queued, waiting, working, paused or done. A working lane breathes a soft ring round its badge, shimmers its activity and carries a wash of its colour; paused holds; done fills the badge with its colour.</li><li>The <code>activity</code> line crossfades when it changes. The track is cut into <code>steps</code> (3 by default). The step after <code>done</code> fills as <code>progress</code> goes from 0 to 1, with a light running along it; without <code>progress</code> it fills part way.</li><li>Setting <code>handoff</code> to <code>{ from, to, what }</code> opens a line above the receiving lane and sends a light down the relay line from the sender's badge to the receiver's, which rings once. Set it back to undefined and the line slides away; the stretch the light crossed stays lit.</li><li>The header reads "3 agents working", "All agents paused" or "All 3 agents finished" unless you pass <code>title</code>, with a m:ss clock that counts while agents work and, wider than a phone, how many steps of all the lanes are done.</li><li>Clicking a lane opens its <code>log</code>, with an optional time for each entry. Open lanes can be controlled with <code>expanded</code> and <code>onExpandedChange</code>.</li><li><code>onPausedChange</code> adds a Pause all / Resume button that turns working lanes into Paused and stops the clock. It disappears once every lane is done.</li></ul></div><div class="cp-tp" role="tabpanel" id="ab-p2" aria-labelledby="ab-t2" hidden><ul><li>Each lane row is a button with <code>aria-expanded</code> for its log.</li><li>Closed logs and a hand-off line that is leaving are <code>inert</code> and <code>aria-hidden</code>.</li><li>The track, the relay line, the light and the working spinner are <code>aria-hidden</code>: each status is written out as text, like Working, Paused or Done, and the header counts the steps.</li><li>With reduced motion the light doesn't run: the stretch of line lights at once, and the breathing and shimmer stop.</li></ul></div></div></section><section class="cp-sec" id="usage"><div class="pg-sh"><span class="n">03</span><h2>Usage</h2><p>Import it and drive it from your own state.</p></div><div class="cp-box"><h3 class="pg-t">Import</h3><pre class="cp-pre"><code>import { AgentLanes } from &#39;@/components/designme/agent-lanes/AgentLanes&#39;;</code></pre></div><div class="cp-box cp-gap"><h3 class="pg-t">Example</h3><p class="pg-d">The demo above as a React component, 63 lines you can copy.</p><pre class="cp-pre"><code>&#39;use client&#39;;
 // The animated preview from designme.dev, rebuilt from the React component: an example of driving it from your own state.
 import { useEffect, useRef, useState } from &#39;react&#39;;
 import { AgentLanes, type AgentHandoff, type AgentLane, type LaneTone } from &#39;./AgentLanes&#39;;
 import type { IconName } from &#39;../lib/icons&#39;;
 import { useScript } from &#39;../lib/useScript&#39;;
 
-/* ---------- Agent lanes: three agents work in turn and hand the work along; Pause all holds them ---------- */
+/* ---------- Agent lanes: three agents work in turn, each step filling as it goes, and hand the work along; Pause all holds them ---------- */
 const PLAN: { key: string; name: string; icon: IconName; tone: LaneTone; wait?: string; acts: string[]; log: string[] }[] = [
   { key: &#39;researcher&#39;, name: &#39;Researcher&#39;, icon: &#39;search&#39;, tone: &#39;blue&#39;, acts: [&#39;Reading competitor sites&#39;, &#39;Comparing 5 pricing pages&#39;, &#39;Writing the brief&#39;], log: [&#39;Read stripe.com/pricing&#39;, &#39;Read linear.app/pricing&#39;, &#39;Noted 3 patterns&#39;] },
   { key: &#39;designer&#39;, name: &#39;Designer&#39;, icon: &#39;palette&#39;, tone: &#39;purple&#39;, wait: &#39;Waiting for the brief&#39;, acts: [&#39;Laying out pricing cards&#39;, &#39;Setting type and spacing&#39;, &#39;Exporting frames&#39;], log: [&#39;Made 3 card variants&#39;, &#39;Applied spacing tokens&#39;, &#39;Exported 4 frames&#39;] },
@@ -126,21 +188,23 @@ export default function AgentLanesDemo() {
     const set = (key: string, patch: Partial&lt;AgentLane&gt; | ((l: AgentLane) =&gt; Partial&lt;AgentLane&gt;)) =&gt;
       setLanes(ls =&gt; ls.map(l =&gt; l.key === key ? { ...l, ...(typeof patch === &#39;function&#39; ? patch(l) : patch) } : l));
     // work only moves on while the agents are not paused
-    const hold = async (ms: number) =&gt; { for (let t = 0; t &lt; ms;) { await wait(100); if (!live.current.paused) t += 100; } };
+    const hold = async (ms: number, each?: (p: number) =&gt; void) =&gt; { for (let t = 0; t &lt; ms;) { await wait(100); if (!live.current.paused) { t += 100; each?.(t / ms); } } };
     const work = async (p: (typeof PLAN)[number]) =&gt; {
       for (let i = 0; i &lt; 3; i++) {
-        set(p.key, { status: &#39;working&#39;, activity: p.acts[i], done: i });
-        await hold(1500);
+        set(p.key, { status: &#39;working&#39;, activity: p.acts[i], done: i, progress: 0 });
+        await hold(1500, f =&gt; set(p.key, { progress: f }));
         const time = live.current.secs + &#39;s&#39;;
         set(p.key, l =&gt; ({ done: i + 1, log: [...(l.log ?? []), { text: p.log[i], time }] }));
       }
       set(p.key, { status: &#39;done&#39;, activity: p.log[2] });
     };
-    const hand = async (from: string, to: string, what: string) =&gt; { setHandoff({ from, to, what }); await wait(1700); setHandoff(undefined); await wait(700); };
+    // the line opens, the light runs down to the next badge (about 1.5s), then the line closes
+    const hand = async (from: string, to: string, what: string) =&gt; { setHandoff({ from, to, what }); await wait(2750); setHandoff(undefined); await wait(700); };
 
     await wait(600);
     const first = work(PLAN[0]); set(&#39;designer&#39;, { status: &#39;waiting&#39; });
     await first; await hand(&#39;researcher&#39;, &#39;designer&#39;, &#39;the brief&#39;);
+    set(&#39;reviewer&#39;, { status: &#39;waiting&#39; });
     await work(PLAN[1]); await hand(&#39;designer&#39;, &#39;reviewer&#39;, &#39;4 frames&#39;);
     await work(PLAN[2]);
     setFinished(true);
@@ -152,10 +216,10 @@ export default function AgentLanesDemo() {
     &lt;/div&gt;
   );
 }
-</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything AgentLanes takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>lanes</code><span class="opt">required</span></td><td><code>AgentLane[]</code></td><td></td></tr><tr><td><code>title</code></td><td><code>string</code></td><td>Header text. Defaults to &quot;3 agents working&quot;, &quot;All agents paused&quot; or &quot;All 3 agents finished&quot;</td></tr><tr><td><code>seconds</code></td><td><code>number</code></td><td>Seconds to show as m:ss. Leave it out to let the header count while agents work</td></tr><tr><td><code>paused</code></td><td><code>boolean</code></td><td>Whether every agent is paused. Working lanes then show Paused and the clock stops</td></tr><tr><td><code>defaultPaused</code></td><td><code>boolean</code></td><td></td></tr><tr><td><code>onPausedChange</code></td><td><code>(paused: boolean) =&gt; void</code></td><td>Adds the Pause all / Resume button, until every lane is done</td></tr><tr><td><code>handoff</code></td><td><code>AgentHandoff</code></td><td>The handoff to show. Set it back to undefined and the banner slides away</td></tr><tr><td><code>expanded</code></td><td><code>string[]</code></td><td>Keys of the lanes that are open. Leave it out to let each row toggle itself</td></tr><tr><td><code>defaultExpanded</code></td><td><code>string[]</code></td><td></td></tr><tr><td><code>onExpandedChange</code></td><td><code>(keys: string[]) =&gt; void</code></td><td></td></tr><tr><td><code>bare</code></td><td><code>boolean</code></td><td>Sits flat in a chat thread (the default, as on designme.dev). Set false to give it a card of its own</td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>AgentLanes.tsx<span class="l">React · 164 lines</span></summary><pre class="cp-pre"><code>&#39;use client&#39;;
-import { Fragment, useEffect, useState, type CSSProperties, type ReactNode } from &#39;react&#39;;
+</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything AgentLanes takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>lanes</code><span class="opt">required</span></td><td><code>AgentLane[]</code></td><td></td></tr><tr><td><code>title</code></td><td><code>string</code></td><td>Header text. Defaults to &quot;3 agents working&quot;, &quot;All agents paused&quot; or &quot;All 3 agents finished&quot;</td></tr><tr><td><code>seconds</code></td><td><code>number</code></td><td>Seconds to show as m:ss. Leave it out to let the header count while agents work</td></tr><tr><td><code>paused</code></td><td><code>boolean</code></td><td>Whether every agent is paused. Working lanes then show Paused and the clock stops</td></tr><tr><td><code>defaultPaused</code></td><td><code>boolean</code></td><td></td></tr><tr><td><code>onPausedChange</code></td><td><code>(paused: boolean) =&gt; void</code></td><td>Adds the Pause all / Resume button, until every lane is done</td></tr><tr><td><code>handoff</code></td><td><code>AgentHandoff</code></td><td>The handoff to show. Set it back to undefined and its line slides away; the stretch of relay line it crossed stays lit</td></tr><tr><td><code>expanded</code></td><td><code>string[]</code></td><td>Keys of the lanes that are open. Leave it out to let each row toggle itself</td></tr><tr><td><code>defaultExpanded</code></td><td><code>string[]</code></td><td></td></tr><tr><td><code>onExpandedChange</code></td><td><code>(keys: string[]) =&gt; void</code></td><td></td></tr><tr><td><code>bare</code></td><td><code>boolean</code></td><td>Sits flat in a chat thread (the default, as on designme.dev). Set false to give it a card of its own</td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>AgentLanes.tsx<span class="l">React · 209 lines</span></summary><pre class="cp-pre"><code>&#39;use client&#39;;
+import { Fragment, useEffect, useRef, useState, type CSSProperties, type ReactNode } from &#39;react&#39;;
 import { cx } from &#39;../lib/cx&#39;;
-import { useControllable, useSeconds } from &#39;../lib/hooks&#39;;
+import { useControllable, useReducedMotion, useSeconds } from &#39;../lib/hooks&#39;;
 import { Icon, type IconName } from &#39;../lib/icons&#39;;
 import { enter, Fold, Swap } from &#39;../lib/motion&#39;;
 import &#39;../designme.css&#39;;
@@ -169,21 +233,23 @@ export interface AgentLane {
   /** Like &quot;Researcher&quot; */
   name: string;
   icon: IconName;
-  /** Colours the badge and the track. Defaults to blue */
+  /** The lane&#39;s hue: its badge, its track, its Working tag and its stretch of the relay line. Defaults to blue */
   tone?: LaneTone;
-  /** working spins and fills the next step, paused holds it, done settles with a check */
+  /** working breathes, shimmers and fills the next step, paused holds it, done fills the badge with its hue */
   status: LaneStatus;
-  /** What the agent is doing now, or what it is waiting for. It crossfades when it changes */
+  /** What the agent is doing now, or what it is waiting for. It crossfades when it changes, and shimmers while the agent works */
   activity: string;
   /** How many steps the track is cut into. Defaults to 3 */
   steps?: number;
   /** How many steps are finished. The next one fills while the agent works */
   done?: number;
+  /** How far the agent is through the step in hand, from 0 to 1. Leave it out and that step fills part way */
+  progress?: number;
   /** What the agent did, shown when the lane is opened. New entries slide in */
   log?: { text: string; time?: string }[];
 }
 
-/** One agent passing work to another, shown as a banner above the lane it goes to */
+/** One agent passing work to another: a light runs down the relay line between their badges, with a line saying what changed hands */
 export interface AgentHandoff {
   /** Key of the lane handing over */
   from: string;
@@ -204,7 +270,7 @@ export interface AgentLanesProps {
   defaultPaused?: boolean;
   /** Adds the Pause all / Resume button, until every lane is done */
   onPausedChange?: (paused: boolean) =&gt; void;
-  /** The handoff to show. Set it back to undefined and the banner slides away */
+  /** The handoff to show. Set it back to undefined and its line slides away; the stretch of relay line it crossed stays lit */
   handoff?: AgentHandoff;
   /** Keys of the lanes that are open. Leave it out to let each row toggle itself */
   expanded?: string[];
@@ -216,6 +282,7 @@ export interface AgentLanesProps {
 }
 
 const TONE: Record&lt;LaneTone, string&gt; = { blue: &#39;pb&#39;, purple: &#39;pl&#39;, green: &#39;pm&#39;, orange: &#39;pp&#39;, red: &#39;pr&#39;, yellow: &#39;py&#39;, pink: &#39;pk&#39;, teal: &#39;pt&#39; };
+const hue = (l?: AgentLane) =&gt; TONE[l?.tone ?? &#39;blue&#39;];
 
 /** How many times `value` has changed since the first render, so a part can play its entrance on a change but not on mount */
 function useChanges&lt;T&gt;(value: T) {
@@ -237,33 +304,44 @@ function usePresence&lt;T&gt;(value: T | undefined, ms = 700) {
   return { shown: value ?? kept, leaving: value === undefined &amp;&amp; kept !== undefined };
 }
 
-/** The hand-off row: it mounts shut and opens on the next frame, so the lanes below glide down, then closes before it goes */
-function Handoff({ leaving, children }: { leaving: boolean; children: ReactNode }) {
+/** The hand-off line: it mounts shut and opens on the next frame, so the lanes below glide down, then closes before it goes */
+function Handoff({ leaving, lit, style, children }: { leaving: boolean; lit: boolean; style: CSSProperties; children: ReactNode }) {
   const [open, setOpen] = useState(false);
   useEffect(() =&gt; { let b = 0; const a = requestAnimationFrame(() =&gt; { b = requestAnimationFrame(() =&gt; setOpen(true)); }); return () =&gt; { cancelAnimationFrame(a); cancelAnimationFrame(b); }; }, []);
   const e = enter(80);
-  return &lt;Fold open={open &amp;&amp; !leaving} className=&quot;dm-aln-hf&quot;&gt;&lt;div className={cx(&#39;dm-aln-hand&#39;, e.className)} style={e.style}&gt;{children}&lt;/div&gt;&lt;/Fold&gt;;
+  return (
+    &lt;div className={cx(&#39;dm-fold dm-aln-hf&#39;, !(open &amp;&amp; !leaving) &amp;&amp; &#39;dm-shut&#39;, lit &amp;&amp; &#39;dm-lit&#39;)} style={style} inert={!(open &amp;&amp; !leaving)} aria-hidden={!(open &amp;&amp; !leaving)}&gt;
+      &lt;div&gt;&lt;div className={cx(&#39;dm-aln-hand&#39;, e.className)} style={e.style}&gt;{children}&lt;/div&gt;&lt;/div&gt;
+    &lt;/div&gt;
+  );
 }
 
 function StatusTag({ status }: { status: LaneStatus }) {
   const moved = useChanges(status) &gt; 0 ? &#39;dm-enter&#39; : undefined;
-  if (status === &#39;working&#39;) return &lt;span key=&quot;working&quot; className={cx(&#39;dm-tag dm-b&#39;, moved)}&gt;&lt;span className=&quot;dm-spin&quot; style={{ width: 9, height: 9 }} aria-hidden=&quot;true&quot; /&gt;Working&lt;/span&gt;;
+  if (status === &#39;working&#39;) return &lt;span key=&quot;working&quot; className={cx(&#39;dm-tag dm-aln-tg&#39;, moved)}&gt;&lt;span className=&quot;dm-spin&quot; aria-hidden=&quot;true&quot; /&gt;Working&lt;/span&gt;;
   if (status === &#39;paused&#39;) return &lt;span key=&quot;paused&quot; className={cx(&#39;dm-tag dm-warn&#39;, moved)}&gt;Paused&lt;/span&gt;;
   if (status === &#39;done&#39;) return &lt;span key=&quot;done&quot; className={cx(&#39;dm-tag dm-ok&#39;, moved)}&gt;&lt;Icon name=&quot;check&quot; size=&quot;xs&quot; /&gt;Done&lt;/span&gt;;
-  return &lt;span key={status} className={cx(&#39;dm-tag&#39;, moved)}&gt;{status === &#39;waiting&#39; ? &#39;Waiting&#39; : &#39;Queued&#39;}&lt;/span&gt;;
+  if (status === &#39;waiting&#39;) return &lt;span key=&quot;waiting&quot; className={cx(&#39;dm-tag&#39;, moved)}&gt;&lt;Icon name=&quot;clock&quot; size=&quot;xs&quot; /&gt;Waiting&lt;/span&gt;;
+  return &lt;span key=&quot;queued&quot; className={cx(&#39;dm-tag&#39;, moved)}&gt;Queued&lt;/span&gt;;
 }
 
-function Lane({ lane, paused, open, onToggle }: { lane: AgentLane; paused: boolean; open: boolean; onToggle: () =&gt; void }) {
+function Lane({ lane, paused, open, sent, got, ping, onToggle }: { lane: AgentLane; paused: boolean; open: boolean; sent: boolean; got: boolean; ping: boolean; onToggle: () =&gt; void }) {
   const status = paused &amp;&amp; lane.status === &#39;working&#39; ? &#39;paused&#39; : lane.status;
-  const tone = TONE[lane.tone ?? &#39;blue&#39;], steps = lane.steps ?? 3, done = lane.done ?? 0;
+  const tone = hue(lane), steps = lane.steps ?? 3, done = lane.done ?? 0;
   const live = status === &#39;working&#39; || status === &#39;paused&#39;;
   return (
-    &lt;div className=&quot;dm-aln-lane&quot;&gt;
+    &lt;div className={cx(&#39;dm-aln-lane&#39;, sent &amp;&amp; &#39;dm-sent&#39;, got &amp;&amp; &#39;dm-got&#39;)} data-s={status} data-lane={lane.key} style={{ &#39;--dm-c&#39;: `var(--dm-${tone})`, &#39;--dm-cb&#39;: `var(--dm-${tone}-bg)` } as CSSProperties}&gt;
       &lt;button type=&quot;button&quot; className=&quot;dm-aln-row&quot; aria-expanded={open} onClick={onToggle}&gt;
-        &lt;span className=&quot;dm-aln-av&quot; style={{ background: `var(--dm-${tone}-bg)`, color: `var(--dm-${tone})` }}&gt;&lt;Icon name={lane.icon} /&gt;&lt;/span&gt;
-        &lt;span&gt;&lt;span className=&quot;dm-aln-n&quot;&gt;{lane.name}&lt;/span&gt;&lt;Swap className={cx(&#39;dm-aln-a&#39;, live &amp;&amp; &#39;dm-live&#39;)}&gt;{lane.activity}&lt;/Swap&gt;&lt;/span&gt;
-        &lt;span className=&quot;dm-aln-tr&quot; style={{ &#39;--dm-c&#39;: `var(--dm-${tone})` } as CSSProperties}&gt;
-          {Array.from({ length: steps }, (_, i) =&gt; &lt;i key={i} className={cx(i &lt; done &amp;&amp; &#39;dm-on&#39;, i === done &amp;&amp; live &amp;&amp; &#39;dm-run&#39;)} /&gt;)}
+        &lt;span className={cx(&#39;dm-aln-av&#39;, ping &amp;&amp; &#39;dm-ping&#39;)}&gt;
+          &lt;Icon name={lane.icon} /&gt;
+        &lt;/span&gt;
+        &lt;span className=&quot;dm-aln-who&quot;&gt;&lt;span className=&quot;dm-aln-n&quot;&gt;{lane.name}&lt;/span&gt;&lt;Swap className={cx(&#39;dm-aln-a&#39;, live &amp;&amp; &#39;dm-live&#39;, status === &#39;working&#39; &amp;&amp; &#39;dm-shim&#39;)}&gt;{lane.activity}&lt;/Swap&gt;&lt;/span&gt;
+        &lt;span className=&quot;dm-aln-tr&quot; aria-hidden=&quot;true&quot;&gt;
+          {Array.from({ length: steps }, (_, i) =&gt; {
+            const run = i === done &amp;&amp; live;
+            return &lt;i key={i} className={cx(i &lt; done &amp;&amp; &#39;dm-on&#39;, run &amp;&amp; &#39;dm-run&#39;, run &amp;&amp; lane.progress === undefined &amp;&amp; &#39;dm-ind&#39;)}
+              style={run &amp;&amp; lane.progress !== undefined ? { &#39;--dm-p&#39;: Math.max(0, Math.min(1, lane.progress)) } as CSSProperties : undefined} /&gt;;
+          })}
         &lt;/span&gt;
         &lt;span className=&quot;dm-aln-st&quot;&gt;&lt;StatusTag status={status} /&gt;&lt;/span&gt;
       &lt;/button&gt;
@@ -278,150 +356,324 @@ function Lane({ lane, paused, open, onToggle }: { lane: AgentLane; paused: boole
 
 const clock = (s: number) =&gt; `${Math.floor(s / 60)}:${String(s % 60).padStart(2, &#39;0&#39;)}`;
 
-/** Several agents working side by side, each in its own lane, handing work to one another. */
+/** Several agents working side by side, each in its own lane and hue, handing work to one another down a relay line. */
 export function AgentLanes({ lanes, title, seconds, paused, defaultPaused = false, onPausedChange, handoff, expanded, defaultExpanded = [], onExpandedChange, bare = true, className }: AgentLanesProps) {
   const [isPaused, setPaused] = useControllable(paused, defaultPaused, onPausedChange);
   const [open, setOpen] = useControllable(expanded, defaultExpanded, onExpandedChange);
   const finished = lanes.length &gt; 0 &amp;&amp; lanes.every(l =&gt; l.status === &#39;done&#39;);
   const counted = useSeconds(seconds === undefined &amp;&amp; !isPaused &amp;&amp; !finished);
   const { shown: hand, leaving } = usePresence(handoff);
+  const reduce = useReducedMotion();
+  const rows = useRef&lt;HTMLDivElement&gt;(null);
+  // the hand-offs whose light has arrived: their stretch of the relay line stays lit
+  const [relayed, setRelayed] = useState&lt;string[]&gt;([]);
+  const [ping, setPing] = useState&lt;string&gt;();
+  const handKey = hand ? `${hand.from}&gt;${hand.to}` : &#39;&#39;;
+  useEffect(() =&gt; {
+    if (!handoff) return;
+    const { from, to } = handoff, key = `${from}&gt;${to}`, box = rows.current;
+    let an: Animation | undefined, pk: HTMLSpanElement | undefined, t2 = 0;
+    const arrive = () =&gt; { pk?.remove(); setRelayed(r =&gt; r.includes(key) ? r : [...r, key]); setPing(to); t2 = window.setTimeout(() =&gt; setPing(p =&gt; p === to ? undefined : p), 950); };
+    // the line opens first, then the light runs from the sender&#39;s badge down to the taker&#39;s
+    const t1 = window.setTimeout(() =&gt; {
+      const a = box?.querySelector(`[data-lane=&quot;${CSS.escape(from)}&quot;] .dm-aln-av`), b = box?.querySelector(`[data-lane=&quot;${CSS.escape(to)}&quot;] .dm-aln-av`);
+      if (!box || !a || !b || reduce) return arrive();
+      const rr = box.getBoundingClientRect(), y0 = a.getBoundingClientRect().bottom - rr.top + 4, y1 = b.getBoundingClientRect().top - rr.top - 4;
+      const f = lanes.find(l =&gt; l.key === from), g = lanes.find(l =&gt; l.key === to);
+      pk = document.createElement(&#39;span&#39;); pk.className = &#39;dm-aln-pk&#39;; pk.setAttribute(&#39;aria-hidden&#39;, &#39;true&#39;);
+      pk.style.setProperty(&#39;--dm-from&#39;, `var(--dm-${hue(f)})`); pk.style.setProperty(&#39;--dm-to&#39;, `var(--dm-${hue(g)})`);
+      box.appendChild(pk);
+      an = pk.animate([{ transform: `translateY(${y0}px)`, opacity: 0 }, { opacity: 1, offset: .12 }, { opacity: 1, offset: .88 }, { transform: `translateY(${y1}px)`, opacity: 0 }], { duration: 950, easing: &#39;cubic-bezier(.65,0,.35,1)&#39; });
+      an.finished.then(arrive, () =&gt; {});
+    }, reduce ? 0 : 500);
+    return () =&gt; { clearTimeout(t1); clearTimeout(t2); an?.cancel(); pk?.remove(); };
+  }, [handoff?.from, handoff?.to]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const nameOf = (key: string) =&gt; lanes.find(l =&gt; l.key === key)?.name ?? key;
+  const toneOf = (key: string) =&gt; hue(lanes.find(l =&gt; l.key === key));
   const head = title ?? (finished ? `All ${lanes.length} agents finished` : isPaused ? &#39;All agents paused&#39; : `${lanes.length} agents working`);
+  const total = lanes.reduce((n, l) =&gt; n + (l.steps ?? 3), 0), stepsDone = lanes.reduce((n, l) =&gt; n + Math.min(l.done ?? 0, l.steps ?? 3), 0);
 
   return (
-    &lt;div data-dm=&quot;&quot; className={cx(&#39;dm-aln&#39;, !bare &amp;&amp; &#39;dm-panel&#39;, className)} style={bare ? { paddingInline: 0 } : undefined}&gt;
+    &lt;div data-dm=&quot;&quot; className={cx(&#39;dm-aln&#39;, !bare &amp;&amp; &#39;dm-panel&#39;, finished &amp;&amp; &#39;dm-fin&#39;, className)} style={bare ? { paddingInline: 0 } : undefined}&gt;
       &lt;div className=&quot;dm-aln-h&quot;&gt;
-        &lt;span className=&quot;dm-aln-ic&quot;&gt;&lt;Icon name=&quot;users&quot; /&gt;&lt;/span&gt;
+        &lt;span className=&quot;dm-aln-ic&quot;&gt;{finished ? &lt;span key=&quot;ok&quot; {...enter()} style={{ display: &#39;grid&#39; }}&gt;&lt;Icon name=&quot;ok&quot; /&gt;&lt;/span&gt; : &lt;Icon name=&quot;users&quot; /&gt;}&lt;/span&gt;
         &lt;Swap className=&quot;dm-aln-t&quot;&gt;{head}&lt;/Swap&gt;
         &lt;span className=&quot;dm-aln-m dm-muted dm-num&quot;&gt;{clock(seconds ?? counted)}&lt;/span&gt;
+        &lt;Swap className=&quot;dm-aln-ct dm-num&quot;&gt;{`${stepsDone} of ${total} steps`}&lt;/Swap&gt;
         {onPausedChange &amp;&amp; !finished &amp;&amp; (
           &lt;button type=&quot;button&quot; className=&quot;dm-pill dm-soft dm-sm&quot; onClick={() =&gt; setPaused(!isPaused)}&gt;
             &lt;Icon name={isPaused ? &#39;play&#39; : &#39;pause&#39;} size=&quot;xs&quot; /&gt;{isPaused ? &#39;Resume&#39; : &#39;Pause all&#39;}
           &lt;/button&gt;
         )}
       &lt;/div&gt;
-      &lt;div&gt;
+      &lt;div className=&quot;dm-aln-rows&quot; ref={rows}&gt;
         {lanes.map(l =&gt; (
           &lt;Fragment key={l.key}&gt;
             {hand?.to === l.key &amp;&amp; (
-              &lt;Handoff key={`${hand.from}&gt;${hand.to}`} leaving={leaving}&gt;
-                &lt;Icon name=&quot;right&quot; size=&quot;xs&quot; /&gt;{nameOf(hand.from)} handed {hand.what} to {nameOf(hand.to)}
+              &lt;Handoff key={handKey} leaving={leaving} lit={relayed.includes(handKey)} style={{ &#39;--dm-from&#39;: `var(--dm-${toneOf(hand.from)})`, &#39;--dm-to&#39;: `var(--dm-${toneOf(hand.to)})` } as CSSProperties}&gt;
+                &lt;b className=&quot;dm-f&quot;&gt;{nameOf(hand.from)}&lt;/b&gt; handed {hand.what} to &lt;b className=&quot;dm-t&quot;&gt;{nameOf(hand.to)}&lt;/b&gt;
               &lt;/Handoff&gt;
             )}
-            &lt;Lane lane={l} paused={isPaused} open={open.includes(l.key)} onToggle={() =&gt; setOpen(open.includes(l.key) ? open.filter(k =&gt; k !== l.key) : [...open, l.key])} /&gt;
+            &lt;Lane lane={l} paused={isPaused} open={open.includes(l.key)} ping={ping === l.key}
+              sent={relayed.some(k =&gt; k.startsWith(l.key + &#39;&gt;&#39;))} got={relayed.some(k =&gt; k.endsWith(&#39;&gt;&#39; + l.key))}
+              onToggle={() =&gt; setOpen(open.includes(l.key) ? open.filter(k =&gt; k !== l.key) : [...open, l.key])} /&gt;
           &lt;/Fragment&gt;
         ))}
       &lt;/div&gt;
     &lt;/div&gt;
   );
 }
-</code></pre></details><details class="cp-file"><summary>agent-lanes.css<span class="l">React · 28 lines</span></summary><pre class="cp-pre"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+</code></pre></details><details class="cp-file"><summary>agent-lanes.css<span class="l">React · 90 lines</span></summary><pre class="cp-pre"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Agent lanes ---------- */
+/* each agent has its own hue (--c, with its tint --cb): its badge, its track, its tag and its stretch of the relay line that
+   joins the badges. A hand-off sends a light down that line from one agent to the next, and the stretch it crossed stays lit */
 .dm-aln{padding:var(--dm-s-2)}
+/* on a card the lanes sit centred in the room kept for their tallest moment, and glide as a hand-off line opens and shuts */
+.dm-stage-in:has(&gt;.dm-aln){display:flex;flex-direction:column;justify-content:center}
 .dm-aln-h{display:flex;align-items:center;gap:10px;padding:var(--dm-s-2) 10px 10px}
-.dm-aln-ic{color:var(--dm-fg2);display:grid}
+.dm-aln-ic{color:var(--dm-fg2);display:grid;transition:color .3s}
+.dm-aln.dm-fin .dm-aln-ic{color:var(--dm-ok)}
 .dm-aln-t{font-weight:500}
-.dm-aln-m{font-size:12.5px;margin-right:auto}
-.dm-aln-lane{border-radius:14px;transition:background .25s}
+.dm-aln-m{font-size:12.5px}
+.dm-aln-ct{font-size:12.5px;color:var(--dm-muted);margin-right:auto;white-space:nowrap}
+.dm-aln-ct::before{content:&quot;·&quot;;margin-right:6px}
+.dm-aln-rows{position:relative}
+.dm-aln-rows&gt;*{position:relative}
+.dm-aln-lane{border-radius:14px;transition:background .3s}
 @media (hover:hover) and (pointer:fine){.dm-aln-lane:hover{background:var(--dm-row)}}
+/* the lane at work carries a wash of its hue from the left */
+.dm-aln-lane[data-s=&quot;working&quot;]{background:linear-gradient(90deg,color-mix(in srgb,var(--dm-c) 8%,transparent),transparent 72%)}
+@media (hover:hover) and (pointer:fine){.dm-aln-lane[data-s=&quot;working&quot;]:hover{background:linear-gradient(90deg,color-mix(in srgb,var(--dm-c) 8%,transparent),transparent 72%),var(--dm-row)}}
+/* the relay line runs from badge to badge, through the lanes and the hand-offs between them, and stops short of each badge */
+.dm-aln-rows&gt;*::before{content:&quot;&quot;;position:absolute;left:26px;width:2px;top:0;bottom:0;border-radius:1px;background:var(--dm-line);transition:background .5s var(--dm-ease);pointer-events:none}
+.dm-aln-lane::before{top:48px}
+.dm-aln-lane:last-child::before{display:none}
+.dm-aln-lane::after{content:&quot;&quot;;position:absolute;left:26px;width:2px;top:0;height:6px;border-radius:1px;background:var(--dm-line);transition:background .5s var(--dm-ease);pointer-events:none}
+.dm-aln-lane:first-child::after{display:none}
+.dm-aln-lane.dm-sent::before{background:linear-gradient(var(--dm-c),color-mix(in srgb,var(--dm-c) 45%,var(--dm-line)))}
+.dm-aln-lane.dm-got::after{background:var(--dm-c)}
+.dm-aln-hf.dm-lit::before{background:linear-gradient(color-mix(in srgb,var(--dm-from) 45%,var(--dm-line)),var(--dm-to))}
 .dm-aln-row{display:grid;grid-template-columns:34px minmax(0,1.2fr) minmax(0,1fr) auto;align-items:center;gap:var(--dm-s-3);width:100%;padding:10px;text-align:left}
-.dm-aln-av{width:34px;height:34px;border-radius:11px;display:grid;place-items:center}
-.dm-aln-n{font-weight:500;font-size:13.5px}
+.dm-aln-av{position:relative;width:34px;height:34px;border-radius:11px;display:grid;place-items:center;color:var(--dm-c);background:var(--dm-cb);transition:color .4s,background .4s}
+.dm-aln-av::before{content:&quot;&quot;;position:absolute;inset:0;border-radius:inherit;pointer-events:none}
+.dm-aln-lane[data-s=&quot;working&quot;] .dm-aln-av{animation:dm-alnbreathe 2.4s var(--dm-ease-io) infinite}
+@keyframes dm-alnbreathe{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--dm-c) 0%,transparent)}50%{box-shadow:0 0 0 4px color-mix(in srgb,var(--dm-c) 18%,transparent)}}
+/* the badge that takes a hand-off rings once as the light reaches it */
+.dm-aln-av.dm-ping::before{animation:dm-alnping .9s var(--dm-ease)}
+@keyframes dm-alnping{from{box-shadow:0 0 0 0 color-mix(in srgb,var(--dm-c) 50%,transparent)}to{box-shadow:0 0 0 12px color-mix(in srgb,var(--dm-c) 0%,transparent)}}
+/* a finished agent&#39;s badge fills with its hue */
+.dm-aln-lane[data-s=&quot;done&quot;] .dm-aln-av{background:var(--dm-c);color:var(--dm-surface)}
+.dm-aln-who{min-width:0}
+.dm-aln-n{display:block;font-weight:500;font-size:13.5px}
 .dm-aln-a{display:block;font-size:12.5px;color:var(--dm-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dm-aln-a.dm-live{color:var(--dm-fg2)}
+/* the track: one part a step. Finished parts are solid, the one in hand fills as the agent works, with a light running along it */
 .dm-aln-tr{display:flex;gap:3px}
-.dm-aln-tr i{flex:1;height:4px;border-radius:2px;background:var(--dm-line);position:relative;overflow:hidden}
-.dm-aln-tr i::after{content:&quot;&quot;;position:absolute;inset:0;border-radius:2px;background:var(--dm-c,var(--dm-accent));transform:scaleX(0);transform-origin:left;transition:transform .9s var(--dm-ease)}
-.dm-aln-tr i.dm-on::after{transform:scaleX(1)}
-.dm-aln-tr i.dm-run::after{transform:scaleX(.5);transition-duration:2s}
+.dm-aln-tr i{flex:1;height:8px;border-radius:4px;background:color-mix(in srgb,var(--dm-c) 13%,var(--dm-line));position:relative;overflow:hidden}
+.dm-aln-tr i::after{content:&quot;&quot;;position:absolute;inset:0;border-radius:inherit;background:var(--dm-c);transform:scaleX(var(--dm-p,0));transform-origin:left;transition:transform .25s linear}
+.dm-aln-tr i.dm-on::after{transform:scaleX(1);transition:transform .5s var(--dm-ease)}
+.dm-aln-tr i.dm-run::after{background:linear-gradient(90deg,var(--dm-c) 0 30%,color-mix(in srgb,var(--dm-c) 30%,var(--dm-surface)) 50%,var(--dm-c) 70% 100%) 0 0/250% 100%;animation:dm-alnsheen 1.6s linear infinite}
+/* given no step progress, the part in hand fills part way and keeps its light */
+.dm-aln-tr i.dm-run.dm-ind::after{transform:scaleX(.6);transition:transform 2.4s var(--dm-ease)}
+@keyframes dm-alnsheen{from{background-position:100% 0}to{background-position:-150% 0}}
 .dm-aln-st{min-width:92px;display:flex;justify-content:flex-end}
+.dm-aln-tg{background:var(--dm-cb);color:var(--dm-c)}
+.dm-aln-tg .dm-spin{width:9px;height:9px}
 .dm-aln-det{padding:0 10px 10px 56px;font-size:12.5px;color:var(--dm-fg2)}
-.dm-aln-det div{display:flex;gap:var(--dm-s-2);padding:3px 0}
+.dm-aln-det div{display:flex;align-items:center;gap:var(--dm-s-2);padding:3px 0}
+.dm-aln-det div::before{content:&quot;&quot;;width:5px;height:5px;border-radius:50%;background:var(--dm-c);flex:none}
 .dm-aln-det .dm-muted{margin-left:auto}
-/* a hand-off opens a row between the lanes and closes it again, so the lanes glide instead of jumping */
+/* a hand-off opens a line between the lanes, glides the lanes below down and closes again */
 .dm-aln-hf{transition-duration:var(--dm-t-slow)}
-.dm-aln-hand{display:flex;align-items:center;gap:var(--dm-s-2);margin:2px 10px;padding:7px var(--dm-s-3);border-radius:10px;background:color-mix(in srgb,var(--dm-pl-bg) 55%,transparent);color:var(--dm-pl);font-size:12.5px}
-@media (max-width:600px){.dm-aln-row{grid-template-columns:34px minmax(0,1fr) auto}.dm-aln-tr{display:none}}
+.dm-aln-hand{padding:6px 10px 6px 56px;font-size:12.5px;line-height:18px;color:var(--dm-fg2)}
+.dm-aln-hand b{font-weight:500}
+.dm-aln-hand .dm-f{color:var(--dm-from)}.dm-aln-hand .dm-t{color:var(--dm-to)}
+/* the light that carries the work down the line: a bright head with a tail in the sender&#39;s hue */
+.dm-aln-pk{position:absolute;left:27px;top:0;width:8px;height:8px;margin:-4px 0 0 -4px;border-radius:50%;background:var(--dm-to);box-shadow:0 0 0 3px color-mix(in srgb,var(--dm-to) 22%,transparent),0 0 12px 2px color-mix(in srgb,var(--dm-to) 45%,transparent);pointer-events:none;z-index:2;opacity:0}
+.dm-aln-pk::before{content:&quot;&quot;;position:absolute;left:3px;bottom:4px;width:2px;height:30px;border-radius:1px;background:linear-gradient(transparent,var(--dm-from))}
+@media (max-width:600px){
+  .dm-aln-row{grid-template-columns:34px minmax(0,1fr) auto;row-gap:var(--dm-s-2)}
+  .dm-aln-tr{grid-column:2 / -1;grid-row:2}
+  .dm-aln-lane::before{top:48px}
+  .dm-aln-ct{display:none}
+  .dm-aln-m{margin-right:auto}
+}
+@media (max-width:400px){.dm-aln-ic{display:none}}
+:root:not([data-style=&quot;soft&quot;]) .dm-aln-rows&gt;*:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *))::before,:root:not([data-style=&quot;soft&quot;]) .dm-aln-lane:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *))::after{width:1px;left:26.5px;background:repeating-linear-gradient(var(--dm-rail) 0 3px,transparent 3px 6px)}
+:root:not([data-style=&quot;soft&quot;]) .dm-aln-lane.dm-sent:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *))::before,:root:not([data-style=&quot;soft&quot;]) .dm-aln-lane.dm-got:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *))::after{background:var(--dm-c)}
+:root:not([data-style=&quot;soft&quot;]) .dm-aln-hf.dm-lit:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *))::before{background:var(--dm-to)}
+:root:not([data-style=&quot;soft&quot;]) .dm-aln-av:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *)){box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-c) 35%,transparent)}
+:root:not([data-style=&quot;soft&quot;]) .dm-aln-lane[data-s=&quot;working&quot;] .dm-aln-av:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *)){animation:dm-alnbp 1.1s steps(1,end) infinite}
+@keyframes dm-alnbp{0%,55%{box-shadow:inset 0 0 0 1px var(--dm-c)}56%,100%{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-c) 35%,transparent)}}
+:root:not([data-style=&quot;soft&quot;]) .dm-aln-lane[data-s=&quot;working&quot;]:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *)){background:color-mix(in srgb,var(--dm-c) 5%,transparent)}
+:root:not([data-style=&quot;soft&quot;]) .dm-aln-tr i:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *)){height:6px}
+:root:not([data-style=&quot;soft&quot;]) .dm-aln-tr i.dm-run:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *))::after{background:repeating-linear-gradient(135deg,var(--dm-c) 0 4px,color-mix(in srgb,var(--dm-c) 55%,var(--dm-surface)) 4px 7px);animation:none}
+:root:not([data-style=&quot;soft&quot;]) .dm-aln-pk:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *)){box-shadow:none;width:7px;height:7px;margin:-3px 0 0 -3px}
+:root:not([data-style=&quot;soft&quot;]) .dm-aln-pk:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *))::before{width:1px}
+:root:not([data-style=&quot;soft&quot;]) .dm-aln-av.dm-ping:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *))::before{animation:dm-alnpingbp .6s steps(3,end)}
+@keyframes dm-alnpingbp{from{box-shadow:0 0 0 1px var(--dm-c)}to{box-shadow:0 0 0 7px transparent}}
 </code></pre></details><details class="cp-file"><summary>agent-lanes.html<span class="l">HTML · 9 lines</span></summary><pre class="cp-pre"><code>&lt;div class=&quot;card wide bare&quot; data-c=&quot;agent-lanes&quot;&gt;
   &lt;div class=&quot;stage-in&quot;&gt;
     &lt;div class=&quot;aln panel&quot;&gt;
-      &lt;div class=&quot;aln-h&quot;&gt;&lt;span class=&quot;aln-ic&quot;&gt;&lt;svg class=&quot;i s&quot;&gt;&lt;use href=&quot;#i-users&quot;/&gt;&lt;/svg&gt;&lt;/span&gt;&lt;span class=&quot;aln-t&quot;&gt;3 agents working&lt;/span&gt;&lt;span class=&quot;aln-m muted num&quot;&gt;0:00&lt;/span&gt;&lt;button class=&quot;pill soft sm aln-pause&quot;&gt;&lt;svg class=&quot;i xs&quot;&gt;&lt;use href=&quot;#i-pause&quot;/&gt;&lt;/svg&gt;Pause all&lt;/button&gt;&lt;/div&gt;
+      &lt;div class=&quot;aln-h&quot;&gt;&lt;span class=&quot;aln-ic&quot;&gt;&lt;svg class=&quot;i s&quot;&gt;&lt;use href=&quot;#i-users&quot;/&gt;&lt;/svg&gt;&lt;/span&gt;&lt;span class=&quot;aln-t&quot;&gt;3 agents working&lt;/span&gt;&lt;span class=&quot;aln-m muted num&quot;&gt;0:00&lt;/span&gt;&lt;span class=&quot;aln-ct num&quot;&gt;0 of 9 steps&lt;/span&gt;&lt;button class=&quot;pill soft sm aln-pause&quot;&gt;&lt;svg class=&quot;i xs&quot;&gt;&lt;use href=&quot;#i-pause&quot;/&gt;&lt;/svg&gt;Pause all&lt;/button&gt;&lt;/div&gt;
       &lt;div class=&quot;aln-rows&quot;&gt;&lt;/div&gt;
     &lt;/div&gt;
   &lt;/div&gt;
 &lt;/div&gt;
-</code></pre></details><details class="cp-file"><summary>agent-lanes.css<span class="l">HTML · 27 lines</span></summary><pre class="cp-pre"><code>/* ---------- Agent lanes ---------- */
+</code></pre></details><details class="cp-file"><summary>agent-lanes.css<span class="l">HTML · 89 lines</span></summary><pre class="cp-pre"><code>/* ---------- Agent lanes ---------- */
+/* each agent has its own hue (--c, with its tint --cb): its badge, its track, its tag and its stretch of the relay line that
+   joins the badges. A hand-off sends a light down that line from one agent to the next, and the stretch it crossed stays lit */
 .aln{padding:var(--s-2)}
+/* on a card the lanes sit centred in the room kept for their tallest moment, and glide as a hand-off line opens and shuts */
+.stage-in:has(&gt;.aln){display:flex;flex-direction:column;justify-content:center}
 .aln-h{display:flex;align-items:center;gap:10px;padding:var(--s-2) 10px 10px}
-.aln-ic{color:var(--fg2);display:grid}
+.aln-ic{color:var(--fg2);display:grid;transition:color .3s}
+.aln.fin .aln-ic{color:var(--ok)}
 .aln-t{font-weight:500}
-.aln-m{font-size:12.5px;margin-right:auto}
-.aln-lane{border-radius:14px;transition:background .25s}
+.aln-m{font-size:12.5px}
+.aln-ct{font-size:12.5px;color:var(--muted);margin-right:auto;white-space:nowrap}
+.aln-ct::before{content:&quot;·&quot;;margin-right:6px}
+.aln-rows{position:relative}
+.aln-rows&gt;*{position:relative}
+.aln-lane{border-radius:14px;transition:background .3s}
 @media (hover:hover) and (pointer:fine){.aln-lane:hover{background:var(--row)}}
+/* the lane at work carries a wash of its hue from the left */
+.aln-lane[data-s=&quot;working&quot;]{background:linear-gradient(90deg,color-mix(in srgb,var(--c) 8%,transparent),transparent 72%)}
+@media (hover:hover) and (pointer:fine){.aln-lane[data-s=&quot;working&quot;]:hover{background:linear-gradient(90deg,color-mix(in srgb,var(--c) 8%,transparent),transparent 72%),var(--row)}}
+/* the relay line runs from badge to badge, through the lanes and the hand-offs between them, and stops short of each badge */
+.aln-rows&gt;*::before{content:&quot;&quot;;position:absolute;left:26px;width:2px;top:0;bottom:0;border-radius:1px;background:var(--line);transition:background .5s var(--ease);pointer-events:none}
+.aln-lane::before{top:48px}
+.aln-lane:last-child::before{display:none}
+.aln-lane::after{content:&quot;&quot;;position:absolute;left:26px;width:2px;top:0;height:6px;border-radius:1px;background:var(--line);transition:background .5s var(--ease);pointer-events:none}
+.aln-lane:first-child::after{display:none}
+.aln-lane.sent::before{background:linear-gradient(var(--c),color-mix(in srgb,var(--c) 45%,var(--line)))}
+.aln-lane.got::after{background:var(--c)}
+.aln-hf.lit::before{background:linear-gradient(color-mix(in srgb,var(--from) 45%,var(--line)),var(--to))}
 .aln-row{display:grid;grid-template-columns:34px minmax(0,1.2fr) minmax(0,1fr) auto;align-items:center;gap:var(--s-3);width:100%;padding:10px;text-align:left}
-.aln-av{width:34px;height:34px;border-radius:11px;display:grid;place-items:center}
-.aln-n{font-weight:500;font-size:13.5px}
+.aln-av{position:relative;width:34px;height:34px;border-radius:11px;display:grid;place-items:center;color:var(--c);background:var(--cb);transition:color .4s,background .4s}
+.aln-av::before{content:&quot;&quot;;position:absolute;inset:0;border-radius:inherit;pointer-events:none}
+.aln-lane[data-s=&quot;working&quot;] .aln-av{animation:alnbreathe 2.4s var(--ease-io) infinite}
+@keyframes alnbreathe{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--c) 0%,transparent)}50%{box-shadow:0 0 0 4px color-mix(in srgb,var(--c) 18%,transparent)}}
+/* the badge that takes a hand-off rings once as the light reaches it */
+.aln-av.ping::before{animation:alnping .9s var(--ease)}
+@keyframes alnping{from{box-shadow:0 0 0 0 color-mix(in srgb,var(--c) 50%,transparent)}to{box-shadow:0 0 0 12px color-mix(in srgb,var(--c) 0%,transparent)}}
+/* a finished agent&#39;s badge fills with its hue */
+.aln-lane[data-s=&quot;done&quot;] .aln-av{background:var(--c);color:var(--surface)}
+.aln-who{min-width:0}
+.aln-n{display:block;font-weight:500;font-size:13.5px}
 .aln-a{display:block;font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .aln-a.live{color:var(--fg2)}
+/* the track: one part a step. Finished parts are solid, the one in hand fills as the agent works, with a light running along it */
 .aln-tr{display:flex;gap:3px}
-.aln-tr i{flex:1;height:4px;border-radius:2px;background:var(--line);position:relative;overflow:hidden}
-.aln-tr i::after{content:&quot;&quot;;position:absolute;inset:0;border-radius:2px;background:var(--c,var(--accent));transform:scaleX(0);transform-origin:left;transition:transform .9s var(--ease)}
-.aln-tr i.on::after{transform:scaleX(1)}
-.aln-tr i.run::after{transform:scaleX(.5);transition-duration:2s}
+.aln-tr i{flex:1;height:8px;border-radius:4px;background:color-mix(in srgb,var(--c) 13%,var(--line));position:relative;overflow:hidden}
+.aln-tr i::after{content:&quot;&quot;;position:absolute;inset:0;border-radius:inherit;background:var(--c);transform:scaleX(var(--p,0));transform-origin:left;transition:transform .25s linear}
+.aln-tr i.on::after{transform:scaleX(1);transition:transform .5s var(--ease)}
+.aln-tr i.run::after{background:linear-gradient(90deg,var(--c) 0 30%,color-mix(in srgb,var(--c) 30%,var(--surface)) 50%,var(--c) 70% 100%) 0 0/250% 100%;animation:alnsheen 1.6s linear infinite}
+/* given no step progress, the part in hand fills part way and keeps its light */
+.aln-tr i.run.ind::after{transform:scaleX(.6);transition:transform 2.4s var(--ease)}
+@keyframes alnsheen{from{background-position:100% 0}to{background-position:-150% 0}}
 .aln-st{min-width:92px;display:flex;justify-content:flex-end}
+.aln-tg{background:var(--cb);color:var(--c)}
+.aln-tg .spin{width:9px;height:9px}
 .aln-det{padding:0 10px 10px 56px;font-size:12.5px;color:var(--fg2)}
-.aln-det div{display:flex;gap:var(--s-2);padding:3px 0}
+.aln-det div{display:flex;align-items:center;gap:var(--s-2);padding:3px 0}
+.aln-det div::before{content:&quot;&quot;;width:5px;height:5px;border-radius:50%;background:var(--c);flex:none}
 .aln-det .muted{margin-left:auto}
-/* a hand-off opens a row between the lanes and closes it again, so the lanes glide instead of jumping */
+/* a hand-off opens a line between the lanes, glides the lanes below down and closes again */
 .aln-hf{transition-duration:var(--t-slow)}
-.aln-hand{display:flex;align-items:center;gap:var(--s-2);margin:2px 10px;padding:7px var(--s-3);border-radius:10px;background:color-mix(in srgb,var(--pl-bg) 55%,transparent);color:var(--pl);font-size:12.5px}
-@media (max-width:600px){.aln-row{grid-template-columns:34px minmax(0,1fr) auto}.aln-tr{display:none}}
-</code></pre></details><details class="cp-file"><summary>agent-lanes.js<span class="l">HTML · 46 lines</span></summary><pre class="cp-pre"><code>DM.def(&#39;agent-lanes&#39;, (r, c) =&gt; {
+.aln-hand{padding:6px 10px 6px 56px;font-size:12.5px;line-height:18px;color:var(--fg2)}
+.aln-hand b{font-weight:500}
+.aln-hand .f{color:var(--from)}.aln-hand .t{color:var(--to)}
+/* the light that carries the work down the line: a bright head with a tail in the sender&#39;s hue */
+.aln-pk{position:absolute;left:27px;top:0;width:8px;height:8px;margin:-4px 0 0 -4px;border-radius:50%;background:var(--to);box-shadow:0 0 0 3px color-mix(in srgb,var(--to) 22%,transparent),0 0 12px 2px color-mix(in srgb,var(--to) 45%,transparent);pointer-events:none;z-index:2;opacity:0}
+.aln-pk::before{content:&quot;&quot;;position:absolute;left:3px;bottom:4px;width:2px;height:30px;border-radius:1px;background:linear-gradient(transparent,var(--from))}
+@media (max-width:600px){
+  .aln-row{grid-template-columns:34px minmax(0,1fr) auto;row-gap:var(--s-2)}
+  .aln-tr{grid-column:2 / -1;grid-row:2}
+  .aln-lane::before{top:48px}
+  .aln-ct{display:none}
+  .aln-m{margin-right:auto}
+}
+@media (max-width:400px){.aln-ic{display:none}}
+:root:not([data-style=&quot;soft&quot;]) .aln-rows&gt;*:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *))::before,:root:not([data-style=&quot;soft&quot;]) .aln-lane:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *))::after{width:1px;left:26.5px;background:repeating-linear-gradient(var(--rail) 0 3px,transparent 3px 6px)}
+:root:not([data-style=&quot;soft&quot;]) .aln-lane.sent:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *))::before,:root:not([data-style=&quot;soft&quot;]) .aln-lane.got:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *))::after{background:var(--c)}
+:root:not([data-style=&quot;soft&quot;]) .aln-hf.lit:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *))::before{background:var(--to)}
+:root:not([data-style=&quot;soft&quot;]) .aln-av:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *)){box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--c) 35%,transparent)}
+:root:not([data-style=&quot;soft&quot;]) .aln-lane[data-s=&quot;working&quot;] .aln-av:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *)){animation:alnbp 1.1s steps(1,end) infinite}
+@keyframes alnbp{0%,55%{box-shadow:inset 0 0 0 1px var(--c)}56%,100%{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--c) 35%,transparent)}}
+:root:not([data-style=&quot;soft&quot;]) .aln-lane[data-s=&quot;working&quot;]:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *)){background:color-mix(in srgb,var(--c) 5%,transparent)}
+:root:not([data-style=&quot;soft&quot;]) .aln-tr i:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *)){height:6px}
+:root:not([data-style=&quot;soft&quot;]) .aln-tr i.run:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *))::after{background:repeating-linear-gradient(135deg,var(--c) 0 4px,color-mix(in srgb,var(--c) 55%,var(--surface)) 4px 7px);animation:none}
+:root:not([data-style=&quot;soft&quot;]) .aln-pk:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *)){box-shadow:none;width:7px;height:7px;margin:-3px 0 0 -3px}
+:root:not([data-style=&quot;soft&quot;]) .aln-pk:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *))::before{width:1px}
+:root:not([data-style=&quot;soft&quot;]) .aln-av.ping:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *))::before{animation:alnpingbp .6s steps(3,end)}
+@keyframes alnpingbp{from{box-shadow:0 0 0 1px var(--c)}to{box-shadow:0 0 0 7px transparent}}
+</code></pre></details><details class="cp-file"><summary>agent-lanes.js<span class="l">HTML · 65 lines</span></summary><pre class="cp-pre"><code>DM.def(&#39;agent-lanes&#39;, (r, c) =&gt; {
   r.innerHTML = r.innerHTML.replace(&#39;{users}&#39;, I(&#39;users&#39;)).replace(&#39;{pause}&#39;, I(&#39;pause&#39;,&#39;xs&#39;));
+  // each agent has a hue of its own (t names the palette slot): its badge, its track, its tag and its stretch of the relay line
   const L = [
-    { n:&#39;Researcher&#39;, ic:&#39;search&#39;, col:&#39;var(--pb)&#39;, bg:&#39;var(--pb-bg)&#39;, acts:[&#39;Reading competitor sites&#39;,&#39;Comparing 5 pricing pages&#39;,&#39;Writing the brief&#39;], log:[&#39;Read stripe.com/pricing&#39;,&#39;Read linear.app/pricing&#39;,&#39;Noted 3 patterns&#39;] },
-    { n:&#39;Designer&#39;, ic:&#39;palette&#39;, col:&#39;var(--pl)&#39;, bg:&#39;var(--pl-bg)&#39;, wait:&#39;Waiting for the brief&#39;, acts:[&#39;Laying out pricing cards&#39;,&#39;Setting type and spacing&#39;,&#39;Exporting frames&#39;], log:[&#39;Made 3 card variants&#39;,&#39;Applied spacing tokens&#39;,&#39;Exported 4 frames&#39;] },
-    { n:&#39;Reviewer&#39;, ic:&#39;eye&#39;, col:&#39;var(--pm)&#39;, bg:&#39;var(--pm-bg)&#39;, wait:&#39;Waiting for the designer&#39;, acts:[&#39;Checking contrast&#39;,&#39;Checking copy&#39;,&#39;Signing off&#39;], log:[&#39;Contrast passes AA&#39;,&#39;Fixed 2 lines of copy&#39;,&#39;Approved&#39;] }
+    { n:&#39;Researcher&#39;, ic:&#39;search&#39;, t:&#39;pb&#39;, acts:[&#39;Reading competitor sites&#39;,&#39;Comparing 5 pricing pages&#39;,&#39;Writing the brief&#39;], log:[&#39;Read stripe.com/pricing&#39;,&#39;Read linear.app/pricing&#39;,&#39;Noted 3 patterns&#39;] },
+    { n:&#39;Designer&#39;, ic:&#39;palette&#39;, t:&#39;pl&#39;, wait:&#39;Waiting for the brief&#39;, acts:[&#39;Laying out pricing cards&#39;,&#39;Setting type and spacing&#39;,&#39;Exporting frames&#39;], log:[&#39;Made 3 card variants&#39;,&#39;Applied spacing tokens&#39;,&#39;Exported 4 frames&#39;] },
+    { n:&#39;Reviewer&#39;, ic:&#39;eye&#39;, t:&#39;pm&#39;, wait:&#39;Waiting for the designer&#39;, acts:[&#39;Checking contrast&#39;,&#39;Checking copy&#39;,&#39;Signing off&#39;], log:[&#39;Contrast passes AA&#39;,&#39;Fixed 2 lines of copy&#39;,&#39;Approved&#39;] }
   ];
-  const rows = $(&#39;.aln-rows&#39;, r);
+  const root = $(&#39;.aln&#39;, r), rows = $(&#39;.aln-rows&#39;, r), ct = $(&#39;.aln-ct&#39;, r), STEPS = L.length * 3;
   L.forEach(l =&gt; {
-    l.el = html(`&lt;div class=&quot;aln-lane&quot;&gt;&lt;button class=&quot;aln-row&quot; aria-expanded=&quot;false&quot;&gt;&lt;span class=&quot;aln-av&quot; style=&quot;background:${l.bg};color:${l.col}&quot;&gt;${I(l.ic)}&lt;/span&gt;&lt;span&gt;&lt;span class=&quot;aln-n&quot;&gt;${l.n}&lt;/span&gt;&lt;span class=&quot;aln-a&quot;&gt;${l.wait || &#39;Queued&#39;}&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;aln-tr&quot; style=&quot;--c:${l.col}&quot;&gt;&lt;i&gt;&lt;/i&gt;&lt;i&gt;&lt;/i&gt;&lt;i&gt;&lt;/i&gt;&lt;/span&gt;&lt;span class=&quot;aln-st&quot;&gt;&lt;span class=&quot;tag&quot;&gt;Queued&lt;/span&gt;&lt;/span&gt;&lt;/button&gt;&lt;div class=&quot;fold shut&quot;&gt;&lt;div&gt;&lt;div class=&quot;aln-det&quot;&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;`);
+    l.el = html(`&lt;div class=&quot;aln-lane&quot; data-s=&quot;queued&quot; style=&quot;--c:var(--${l.t});--cb:var(--${l.t}-bg)&quot;&gt;&lt;button class=&quot;aln-row&quot; aria-expanded=&quot;false&quot;&gt;&lt;span class=&quot;aln-av&quot;&gt;${I(l.ic)}&lt;/span&gt;&lt;span class=&quot;aln-who&quot;&gt;&lt;span class=&quot;aln-n&quot;&gt;${l.n}&lt;/span&gt;&lt;span class=&quot;aln-a&quot;&gt;${l.wait || &#39;Queued&#39;}&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;aln-tr&quot; aria-hidden=&quot;true&quot;&gt;&lt;i&gt;&lt;/i&gt;&lt;i&gt;&lt;/i&gt;&lt;i&gt;&lt;/i&gt;&lt;/span&gt;&lt;span class=&quot;aln-st&quot;&gt;&lt;span class=&quot;tag&quot;&gt;Queued&lt;/span&gt;&lt;/span&gt;&lt;/button&gt;&lt;div class=&quot;fold shut&quot;&gt;&lt;div&gt;&lt;div class=&quot;aln-det&quot;&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;`);
     rows.appendChild(l.el); const b = $(&#39;.aln-row&#39;, l.el), f = $(&#39;.fold&#39;, l.el);
     b.onclick = () =&gt; { const s = f.classList.toggle(&#39;shut&#39;); b.setAttribute(&#39;aria-expanded&#39;, !s); };
   });
-  const st = (l, h) =&gt; { const s = $(&#39;.aln-st&#39;, l.el); s.innerHTML = h; enter(s.firstElementChild); };
-  const act = (l, t, live) =&gt; { const a = $(&#39;.aln-a&#39;, l.el); a.classList.toggle(&#39;live&#39;, !!live); swap(a, t); };
-  let paused = false, secs = 0, finished = false;
+  const TAG = { queued:&#39;&lt;span class=&quot;tag&quot;&gt;Queued&lt;/span&gt;&#39;, waiting:`&lt;span class=&quot;tag&quot;&gt;${I(&#39;clock&#39;,&#39;xs&#39;)}Waiting&lt;/span&gt;`, working:&#39;&lt;span class=&quot;tag aln-tg&quot;&gt;&lt;span class=&quot;spin&quot;&gt;&lt;/span&gt;Working&lt;/span&gt;&#39;, paused:&#39;&lt;span class=&quot;tag warn&quot;&gt;Paused&lt;/span&gt;&#39;, done:`&lt;span class=&quot;tag ok&quot;&gt;${I(&#39;check&#39;,&#39;xs&#39;)}Done&lt;/span&gt;` };
+  const state = (l, s) =&gt; { l.el.dataset.s = s; const t = $(&#39;.aln-st&#39;, l.el); t.innerHTML = TAG[s]; enter(t.firstElementChild); };
+  const act = (l, t, live) =&gt; { const a = $(&#39;.aln-a&#39;, l.el); a.classList.toggle(&#39;live&#39;, !!live); a.classList.toggle(&#39;shim&#39;, !!live); swap(a, t); };
+  let paused = false, secs = 0, finished = false, steps = 0;
+  const count = () =&gt; swap(ct, `${steps} of ${STEPS} steps`);
   const pb = $(&#39;.aln-pause&#39;, r);
-  pb.onclick = () =&gt; { paused = !paused; pb.innerHTML = I(paused ? &#39;play&#39; : &#39;pause&#39;,&#39;xs&#39;) + (paused ? &#39;Resume&#39; : &#39;Pause all&#39;); swap($(&#39;.aln-t&#39;, r), paused ? &#39;All agents paused&#39; : &#39;3 agents working&#39;); L.forEach(l =&gt; { if (l.running) st(l, paused ? &#39;&lt;span class=&quot;tag warn&quot;&gt;Paused&lt;/span&gt;&#39; : &#39;&lt;span class=&quot;tag b&quot;&gt;&lt;span class=&quot;spin&quot; style=&quot;width:9px;height:9px&quot;&gt;&lt;/span&gt;Working&lt;/span&gt;&#39;); }); };
+  pb.onclick = () =&gt; { paused = !paused; pb.innerHTML = I(paused ? &#39;play&#39; : &#39;pause&#39;,&#39;xs&#39;) + (paused ? &#39;Resume&#39; : &#39;Pause all&#39;); swap($(&#39;.aln-t&#39;, r), paused ? &#39;All agents paused&#39; : &#39;3 agents working&#39;);
+    L.forEach(l =&gt; { if (l.running){ state(l, paused ? &#39;paused&#39; : &#39;working&#39;); $(&#39;.aln-a&#39;, l.el).classList.toggle(&#39;shim&#39;, !paused); } }); };
   c.every(1000, () =&gt; { if (!paused &amp;&amp; !finished){ secs++; $(&#39;.aln-m&#39;, r).textContent = Math.floor(secs / 60) + &#39;:&#39; + String(secs % 60).padStart(2, &#39;0&#39;); } });
-  const hold = async ms =&gt; { let t = 0; while (t &lt; ms){ await c.wait(100); if (!paused) t += 100; } };
+  // time only passes for the agents while they aren&#39;t paused; each() hears how far through the wait they are
+  const hold = async (ms, each) =&gt; { let t = 0; while (t &lt; ms){ await c.wait(100); if (!paused){ t += 100; each &amp;&amp; each(t / ms); } } };
   async function work(l){
-    l.running = true; st(l, &#39;&lt;span class=&quot;tag b&quot;&gt;&lt;span class=&quot;spin&quot; style=&quot;width:9px;height:9px&quot;&gt;&lt;/span&gt;Working&lt;/span&gt;&#39;);
+    l.running = true; state(l, &#39;working&#39;);
     const bars = $$(&#39;.aln-tr i&#39;, l.el), det = $(&#39;.aln-det&#39;, l.el);
     for (let i = 0; i &lt; 3; i++){
       bars[i].classList.add(&#39;run&#39;); act(l, l.acts[i], true);
-      await hold(1500);
-      bars[i].classList.remove(&#39;run&#39;); bars[i].classList.add(&#39;on&#39;);
+      await hold(1500, p =&gt; bars[i].style.setProperty(&#39;--p&#39;, p.toFixed(3)));
+      bars[i].classList.replace(&#39;run&#39;, &#39;on&#39;); steps++; count();
       const d = html(`&lt;div&gt;&lt;span&gt;${l.log[i]}&lt;/span&gt;&lt;span class=&quot;muted&quot;&gt;${secs}s&lt;/span&gt;&lt;/div&gt;`); det.appendChild(d); enter(d);
     }
-    l.running = false; act(l, l.log[2]); st(l, `&lt;span class=&quot;tag ok&quot;&gt;${I(&#39;check&#39;,&#39;xs&#39;)}Done&lt;/span&gt;`);
+    l.running = false; act(l, l.log[2]); state(l, &#39;done&#39;);
+  }
+  // a light runs down the relay line from one badge to the next, the badge it reaches rings, and the stretch stays lit
+  function carry(from, to){
+    const rr = rows.getBoundingClientRect(), a = $(&#39;.aln-av&#39;, from.el).getBoundingClientRect(), b = $(&#39;.aln-av&#39;, to.el).getBoundingClientRect();
+    const pk = html(`&lt;span class=&quot;aln-pk&quot; aria-hidden=&quot;true&quot; style=&quot;--from:var(--${from.t});--to:var(--${to.t})&quot;&gt;&lt;/span&gt;`); rows.appendChild(pk);
+    const y0 = a.bottom - rr.top + 4, y1 = b.top - rr.top - 4;
+    const an = REDUCE ? null : pk.animate([{ transform:`translateY(${y0}px)`, opacity:0 }, { opacity:1, offset:.12 }, { opacity:1, offset:.88 }, { transform:`translateY(${y1}px)`, opacity:0 }], { duration:950, easing:&#39;cubic-bezier(.65,0,.35,1)&#39; });
+    c.offs.push(() =&gt; pk.remove());
+    return (an ? an.finished.catch(() =&gt; {}) : Promise.resolve()).then(() =&gt; pk.remove());
   }
   async function handoff(from, to, txt){
-    const h = html(`&lt;div class=&quot;fold shut aln-hf&quot;&gt;&lt;div&gt;&lt;div class=&quot;aln-hand&quot;&gt;${I(&#39;right&#39;,&#39;xs&#39;)}${from.n} handed ${txt} to ${to.n}&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;`);
+    const h = html(`&lt;div class=&quot;fold shut aln-hf&quot; style=&quot;--from:var(--${from.t});--to:var(--${to.t})&quot;&gt;&lt;div&gt;&lt;div class=&quot;aln-hand&quot;&gt;&lt;b class=&quot;f&quot;&gt;${from.n}&lt;/b&gt; handed ${txt} to &lt;b class=&quot;t&quot;&gt;${to.n}&lt;/b&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;`);
     to.el.before(h); void h.offsetWidth; h.classList.remove(&#39;shut&#39;); enter($(&#39;.aln-hand&#39;, h), 80);
-    await c.wait(1700); h.classList.add(&#39;shut&#39;); await c.wait(REDUCE ? 0 : 700); h.remove();
+    await c.wait(REDUCE ? 0 : 500); await carry(from, to);
+    from.el.classList.add(&#39;sent&#39;); h.classList.add(&#39;lit&#39;); to.el.classList.add(&#39;got&#39;);
+    const av = $(&#39;.aln-av&#39;, to.el); av.classList.add(&#39;ping&#39;); c.later(950, () =&gt; av.classList.remove(&#39;ping&#39;));
+    await c.wait(1300); h.classList.add(&#39;shut&#39;); await c.wait(REDUCE ? 0 : 700); h.remove();
   }
   c.run(async () =&gt; {
     await c.wait(600);
-    const r1 = work(L[0]); act(L[1], L[1].wait); st(L[1], &#39;&lt;span class=&quot;tag&quot;&gt;Waiting&lt;/span&gt;&#39;);
+    const r1 = work(L[0]); act(L[1], L[1].wait); state(L[1], &#39;waiting&#39;);
     await r1; await handoff(L[0], L[1], &#39;the brief&#39;);
-    const r2 = work(L[1]); await r2; await handoff(L[1], L[2], &#39;4 frames&#39;);
+    act(L[2], L[2].wait); state(L[2], &#39;waiting&#39;);
+    await work(L[1]); await handoff(L[1], L[2], &#39;4 frames&#39;);
     await work(L[2]);
-    finished = true; swap($(&#39;.aln-t&#39;, r), &#39;All 3 agents finished&#39;); pb.remove();
+    finished = true; root.classList.add(&#39;fin&#39;); $(&#39;.aln-ic&#39;, r).innerHTML = I(&#39;ok&#39;); enter($(&#39;.aln-ic&#39;, r).firstElementChild);
+    swap($(&#39;.aln-t&#39;, r), &#39;All 3 agents finished&#39;); pb.remove();
   });
 });
-</code></pre></details></div></section><section class="cp-sec" id="questions"><div class="pg-sh"><span class="n">06</span><h2>Questions</h2><p>What people ask about it.</p></div><dl class="cp-qs"><div><dt class="pg-t">Does Pause all stop my agents?</dt><dd>No. It changes how the lanes look and calls <code>onPausedChange</code>. Your code pauses the agents, and the lanes' own <code>status</code> values stay as you set them.</dd></div><div><dt class="pg-t">How do I show one agent handing work to another?</dt><dd>Set <code>handoff</code> with the <code>from</code> and <code>to</code> lane keys and a short <code>what</code>, like "the brief". Clear it after a moment and the banner closes before it goes.</dd></div><div><dt class="pg-t">Can a lane have more than three steps?</dt><dd>Yes. Set <code>steps</code> on the lane to cut its track into as many parts as you need, and move <code>done</code> forward as each one finishes.</dd></div></dl></section><section class="cp-sec" id="more"><div class="pg-sh"><span class="n">07</span><h2>More in Agent status</h2><p>Show what the agent is doing, how far along it is, and what it is working with.</p></div><div class="pg-cards"><div class="pg-card"><a class="pg-t pg-link" href="/components/thinking">Thinking</a><span class="pg-d">The live trace, written as the agent works, then folded away.</span><span class="pg-thumb" data-reg="thinking" data-h="420"><img class="lt" src="/components/thumbs/thinking-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/thinking-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></div><div class="pg-card"><a class="pg-t pg-link" href="/components/reasoning-trail">Reasoning trail</a><span class="pg-d">The agent&#39;s plan, notes, sources and edits, after it thinks.</span><span class="pg-thumb" data-reg="reasoning-trail" data-h="440"><img class="lt" src="/components/thumbs/reasoning-trail-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/reasoning-trail-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></div><div class="pg-card"><a class="pg-t pg-link" href="/components/agent-tree">Agent tree</a><span class="pg-d">An orchestrator and its sub-agents, with cost rolled up per branch.</span><span class="pg-thumb" data-reg="agent-tree" data-h="569" data-wide="1"><img class="lt" src="/components/thumbs/agent-tree-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/agent-tree-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></div><div class="pg-card"><a class="pg-t pg-link" href="/components/agent-inbox">Agent inbox</a><span class="pg-d">Every run that needs you, is running or is done, in one list.</span><span class="pg-thumb" data-reg="agent-inbox" data-h="583" data-wide="1"><img class="lt" src="/components/thumbs/agent-inbox-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/agent-inbox-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></div><div class="pg-card"><a class="pg-t pg-link" href="/components/browser-session">Browser session</a><span class="pg-d">The agent browsing for you, step by step, with Pause and Take over.</span><span class="pg-thumb" data-reg="browser-session" data-h="627"><img class="lt" src="/components/thumbs/browser-session-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/browser-session-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></div><div class="pg-card"><a class="pg-t pg-link" href="/components/trace-view">Trace view</a><span class="pg-d">One agent run as a waterfall of spans, with latency and tokens.</span><span class="pg-thumb" data-reg="trace-view" data-h="607"><img class="lt" src="/components/thumbs/trace-view-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/trace-view-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></div><div class="pg-card"><a class="pg-t pg-link" href="/components/run-summary">Run summary</a><span class="pg-d">What the agent did, what changed and what needs you.</span><span class="pg-thumb" data-reg="run-summary" data-h="506"><img class="lt" src="/components/thumbs/run-summary-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/run-summary-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></div><div class="pg-card"><a class="pg-t pg-link" href="/components/action-log">Action log</a><span class="pg-d">Every read, search, edit and command, logged as it runs.</span><span class="pg-thumb" data-reg="action-log" data-h="438"><img class="lt" src="/components/thumbs/action-log-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/action-log-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></div></div><a class="cp-all" href="/#s-status">All 18 in Agent status →</a></section><nav class="dc-pn" aria-label="Previous and next component"><a href="/components/reasoning-trail" rel="prev"><span class="pg-d"><svg viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M224,128a8,8,0,0,1-8,8H59.31l58.35,58.34a8,8,0,0,1-11.32,11.32l-72-72a8,8,0,0,1,0-11.32l72-72a8,8,0,0,1,11.32,11.32L59.31,120H216A8,8,0,0,1,224,128Z"/></svg>Previous</span><span class="pg-t">Reasoning trail</span></a><a href="/components/agent-tree" rel="next" class="n"><span class="pg-d">Next<svg viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"/></svg></span><span class="pg-t">Agent tree</span></a></nav></div><nav class="dc-toc" aria-label="On this page"><p class="dc-toc-h">On this page</p><div class="dc-toc-ul"><a href="#install">Install</a><a href="#about">About</a><a href="#usage">Usage</a><a href="#props">Props</a><a href="#code">Code</a><a href="#questions">Questions</a><a href="#more">More in Agent status</a><span class="dc-toc-ind" aria-hidden="true"></span></div></nav></div></div><script>
+</code></pre></details></div></section><section class="cp-sec" id="questions"><div class="pg-sh"><span class="n">06</span><h2>Questions</h2><p>What people ask about it.</p></div><dl class="cp-qs"><div><dt class="pg-t">Does Pause all stop my agents?</dt><dd>No. It changes how the lanes look and calls <code>onPausedChange</code>. Your code pauses the agents, and the lanes' own <code>status</code> values stay as you set them.</dd></div><div><dt class="pg-t">How do I show one agent handing work to another?</dt><dd>Set <code>handoff</code> with the <code>from</code> and <code>to</code> lane keys and a short <code>what</code>, like "the brief". The light takes about a second and a half to arrive; clear <code>handoff</code> after that and the line closes before it goes.</dd></div><div><dt class="pg-t">Can a lane have more than three steps?</dt><dd>Yes. Set <code>steps</code> on the lane to cut its track into as many parts as you need, move <code>done</code> forward as each one finishes, and set <code>progress</code> to fill the one in hand.</dd></div></dl></section><section class="cp-sec" id="more"><div class="pg-sh"><span class="n">07</span><h2>More in Agent status</h2><p>Show what the agent is doing, how far along it is, and what it is working with.</p></div><div class="pg-cards"><div class="pg-card"><a class="pg-t pg-link" href="/components/thinking">Thinking</a><span class="pg-d">The live trace, written as the agent works, then folded away.</span><span class="pg-thumb" data-reg="thinking" data-h="420"><img class="lt" src="/components/thumbs/thinking-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/thinking-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></div><div class="pg-card"><a class="pg-t pg-link" href="/components/reasoning-trail">Reasoning trail</a><span class="pg-d">The agent&#39;s plan, notes, sources and edits, after it thinks.</span><span class="pg-thumb" data-reg="reasoning-trail" data-h="440"><img class="lt" src="/components/thumbs/reasoning-trail-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/reasoning-trail-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></div><div class="pg-card"><a class="pg-t pg-link" href="/components/agent-tree">Agent tree</a><span class="pg-d">An orchestrator and its sub-agents, with cost rolled up per branch.</span><span class="pg-thumb" data-reg="agent-tree" data-h="569" data-wide="1"><img class="lt" src="/components/thumbs/agent-tree-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/agent-tree-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></div><div class="pg-card"><a class="pg-t pg-link" href="/components/agent-inbox">Agent inbox</a><span class="pg-d">Every run that needs you, is running or is done, in one list.</span><span class="pg-thumb" data-reg="agent-inbox" data-h="583" data-wide="1"><img class="lt" src="/components/thumbs/agent-inbox-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/agent-inbox-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></div><div class="pg-card"><a class="pg-t pg-link" href="/components/browser-session">Browser session</a><span class="pg-d">The agent browsing for you, step by step, with Pause and Take over.</span><span class="pg-thumb" data-reg="browser-session" data-h="627"><img class="lt" src="/components/thumbs/browser-session-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/browser-session-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></div><div class="pg-card"><a class="pg-t pg-link" href="/components/trace-view">Trace view</a><span class="pg-d">One agent run as a waterfall of spans, with latency and tokens.</span><span class="pg-thumb" data-reg="trace-view" data-h="607"><img class="lt" src="/components/thumbs/trace-view-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/trace-view-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></div><div class="pg-card"><a class="pg-t pg-link" href="/components/run-summary">Run summary</a><span class="pg-d">What the agent did, what changed and what needs you.</span><span class="pg-thumb" data-reg="run-summary" data-h="506"><img class="lt" src="/components/thumbs/run-summary-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/run-summary-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></div><div class="pg-card"><a class="pg-t pg-link" href="/components/action-log">Action log</a><span class="pg-d">Every read, search, edit and command, logged as it runs.</span><span class="pg-thumb" data-reg="action-log" data-h="438"><img class="lt" src="/components/thumbs/action-log-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/action-log-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></div></div><a class="cp-all" href="/#s-status">All 18 in Agent status →</a></section><nav class="dc-pn" aria-label="Previous and next component"><a href="/components/reasoning-trail" rel="prev"><span class="pg-d"><svg viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M224,128a8,8,0,0,1-8,8H59.31l58.35,58.34a8,8,0,0,1-11.32,11.32l-72-72a8,8,0,0,1,0-11.32l72-72a8,8,0,0,1,11.32,11.32L59.31,120H216A8,8,0,0,1,224,128Z"/></svg>Previous</span><span class="pg-t">Reasoning trail</span></a><a href="/components/agent-tree" rel="next" class="n"><span class="pg-d">Next<svg viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"/></svg></span><span class="pg-t">Agent tree</span></a></nav></div><nav class="dc-toc" aria-label="On this page"><p class="dc-toc-h">On this page</p><div class="dc-toc-ul"><a href="#install">Install</a><a href="#about">About</a><a href="#usage">Usage</a><a href="#props">Props</a><a href="#code">Code</a><a href="#questions">Questions</a><a href="#more">More in Agent status</a><span class="dc-toc-ind" aria-hidden="true"></span></div></nav></div></div><script>
 // the sidebar, as the homepage's behaves
 (function(){
   var side = document.getElementById('side');
@@ -746,47 +998,66 @@ const fitHits = window.dmFitHits || (() => {
 })();
 })();</script><script src="/components/assets/core.js"></script><script>DM.def('agent-lanes', (r, c) => {
   r.innerHTML = r.innerHTML.replace('{users}', I('users')).replace('{pause}', I('pause','xs'));
+  // each agent has a hue of its own (t names the palette slot): its badge, its track, its tag and its stretch of the relay line
   const L = [
-    { n:'Researcher', ic:'search', col:'var(--pb)', bg:'var(--pb-bg)', acts:['Reading competitor sites','Comparing 5 pricing pages','Writing the brief'], log:['Read stripe.com/pricing','Read linear.app/pricing','Noted 3 patterns'] },
-    { n:'Designer', ic:'palette', col:'var(--pl)', bg:'var(--pl-bg)', wait:'Waiting for the brief', acts:['Laying out pricing cards','Setting type and spacing','Exporting frames'], log:['Made 3 card variants','Applied spacing tokens','Exported 4 frames'] },
-    { n:'Reviewer', ic:'eye', col:'var(--pm)', bg:'var(--pm-bg)', wait:'Waiting for the designer', acts:['Checking contrast','Checking copy','Signing off'], log:['Contrast passes AA','Fixed 2 lines of copy','Approved'] }
+    { n:'Researcher', ic:'search', t:'pb', acts:['Reading competitor sites','Comparing 5 pricing pages','Writing the brief'], log:['Read stripe.com/pricing','Read linear.app/pricing','Noted 3 patterns'] },
+    { n:'Designer', ic:'palette', t:'pl', wait:'Waiting for the brief', acts:['Laying out pricing cards','Setting type and spacing','Exporting frames'], log:['Made 3 card variants','Applied spacing tokens','Exported 4 frames'] },
+    { n:'Reviewer', ic:'eye', t:'pm', wait:'Waiting for the designer', acts:['Checking contrast','Checking copy','Signing off'], log:['Contrast passes AA','Fixed 2 lines of copy','Approved'] }
   ];
-  const rows = $('.aln-rows', r);
+  const root = $('.aln', r), rows = $('.aln-rows', r), ct = $('.aln-ct', r), STEPS = L.length * 3;
   L.forEach(l => {
-    l.el = html(`<div class="aln-lane"><button class="aln-row" aria-expanded="false"><span class="aln-av" style="background:${l.bg};color:${l.col}">${I(l.ic)}</span><span><span class="aln-n">${l.n}</span><span class="aln-a">${l.wait || 'Queued'}</span></span><span class="aln-tr" style="--c:${l.col}"><i></i><i></i><i></i></span><span class="aln-st"><span class="tag">Queued</span></span></button><div class="fold shut"><div><div class="aln-det"></div></div></div></div>`);
+    l.el = html(`<div class="aln-lane" data-s="queued" style="--c:var(--${l.t});--cb:var(--${l.t}-bg)"><button class="aln-row" aria-expanded="false"><span class="aln-av">${I(l.ic)}</span><span class="aln-who"><span class="aln-n">${l.n}</span><span class="aln-a">${l.wait || 'Queued'}</span></span><span class="aln-tr" aria-hidden="true"><i></i><i></i><i></i></span><span class="aln-st"><span class="tag">Queued</span></span></button><div class="fold shut"><div><div class="aln-det"></div></div></div></div>`);
     rows.appendChild(l.el); const b = $('.aln-row', l.el), f = $('.fold', l.el);
     b.onclick = () => { const s = f.classList.toggle('shut'); b.setAttribute('aria-expanded', !s); };
   });
-  const st = (l, h) => { const s = $('.aln-st', l.el); s.innerHTML = h; enter(s.firstElementChild); };
-  const act = (l, t, live) => { const a = $('.aln-a', l.el); a.classList.toggle('live', !!live); swap(a, t); };
-  let paused = false, secs = 0, finished = false;
+  const TAG = { queued:'<span class="tag">Queued</span>', waiting:`<span class="tag">${I('clock','xs')}Waiting</span>`, working:'<span class="tag aln-tg"><span class="spin"></span>Working</span>', paused:'<span class="tag warn">Paused</span>', done:`<span class="tag ok">${I('check','xs')}Done</span>` };
+  const state = (l, s) => { l.el.dataset.s = s; const t = $('.aln-st', l.el); t.innerHTML = TAG[s]; enter(t.firstElementChild); };
+  const act = (l, t, live) => { const a = $('.aln-a', l.el); a.classList.toggle('live', !!live); a.classList.toggle('shim', !!live); swap(a, t); };
+  let paused = false, secs = 0, finished = false, steps = 0;
+  const count = () => swap(ct, `${steps} of ${STEPS} steps`);
   const pb = $('.aln-pause', r);
-  pb.onclick = () => { paused = !paused; pb.innerHTML = I(paused ? 'play' : 'pause','xs') + (paused ? 'Resume' : 'Pause all'); swap($('.aln-t', r), paused ? 'All agents paused' : '3 agents working'); L.forEach(l => { if (l.running) st(l, paused ? '<span class="tag warn">Paused</span>' : '<span class="tag b"><span class="spin" style="width:9px;height:9px"></span>Working</span>'); }); };
+  pb.onclick = () => { paused = !paused; pb.innerHTML = I(paused ? 'play' : 'pause','xs') + (paused ? 'Resume' : 'Pause all'); swap($('.aln-t', r), paused ? 'All agents paused' : '3 agents working');
+    L.forEach(l => { if (l.running){ state(l, paused ? 'paused' : 'working'); $('.aln-a', l.el).classList.toggle('shim', !paused); } }); };
   c.every(1000, () => { if (!paused && !finished){ secs++; $('.aln-m', r).textContent = Math.floor(secs / 60) + ':' + String(secs % 60).padStart(2, '0'); } });
-  const hold = async ms => { let t = 0; while (t < ms){ await c.wait(100); if (!paused) t += 100; } };
+  // time only passes for the agents while they aren't paused; each() hears how far through the wait they are
+  const hold = async (ms, each) => { let t = 0; while (t < ms){ await c.wait(100); if (!paused){ t += 100; each && each(t / ms); } } };
   async function work(l){
-    l.running = true; st(l, '<span class="tag b"><span class="spin" style="width:9px;height:9px"></span>Working</span>');
+    l.running = true; state(l, 'working');
     const bars = $$('.aln-tr i', l.el), det = $('.aln-det', l.el);
     for (let i = 0; i < 3; i++){
       bars[i].classList.add('run'); act(l, l.acts[i], true);
-      await hold(1500);
-      bars[i].classList.remove('run'); bars[i].classList.add('on');
+      await hold(1500, p => bars[i].style.setProperty('--p', p.toFixed(3)));
+      bars[i].classList.replace('run', 'on'); steps++; count();
       const d = html(`<div><span>${l.log[i]}</span><span class="muted">${secs}s</span></div>`); det.appendChild(d); enter(d);
     }
-    l.running = false; act(l, l.log[2]); st(l, `<span class="tag ok">${I('check','xs')}Done</span>`);
+    l.running = false; act(l, l.log[2]); state(l, 'done');
+  }
+  // a light runs down the relay line from one badge to the next, the badge it reaches rings, and the stretch stays lit
+  function carry(from, to){
+    const rr = rows.getBoundingClientRect(), a = $('.aln-av', from.el).getBoundingClientRect(), b = $('.aln-av', to.el).getBoundingClientRect();
+    const pk = html(`<span class="aln-pk" aria-hidden="true" style="--from:var(--${from.t});--to:var(--${to.t})"></span>`); rows.appendChild(pk);
+    const y0 = a.bottom - rr.top + 4, y1 = b.top - rr.top - 4;
+    const an = REDUCE ? null : pk.animate([{ transform:`translateY(${y0}px)`, opacity:0 }, { opacity:1, offset:.12 }, { opacity:1, offset:.88 }, { transform:`translateY(${y1}px)`, opacity:0 }], { duration:950, easing:'cubic-bezier(.65,0,.35,1)' });
+    c.offs.push(() => pk.remove());
+    return (an ? an.finished.catch(() => {}) : Promise.resolve()).then(() => pk.remove());
   }
   async function handoff(from, to, txt){
-    const h = html(`<div class="fold shut aln-hf"><div><div class="aln-hand">${I('right','xs')}${from.n} handed ${txt} to ${to.n}</div></div></div>`);
+    const h = html(`<div class="fold shut aln-hf" style="--from:var(--${from.t});--to:var(--${to.t})"><div><div class="aln-hand"><b class="f">${from.n}</b> handed ${txt} to <b class="t">${to.n}</b></div></div></div>`);
     to.el.before(h); void h.offsetWidth; h.classList.remove('shut'); enter($('.aln-hand', h), 80);
-    await c.wait(1700); h.classList.add('shut'); await c.wait(REDUCE ? 0 : 700); h.remove();
+    await c.wait(REDUCE ? 0 : 500); await carry(from, to);
+    from.el.classList.add('sent'); h.classList.add('lit'); to.el.classList.add('got');
+    const av = $('.aln-av', to.el); av.classList.add('ping'); c.later(950, () => av.classList.remove('ping'));
+    await c.wait(1300); h.classList.add('shut'); await c.wait(REDUCE ? 0 : 700); h.remove();
   }
   c.run(async () => {
     await c.wait(600);
-    const r1 = work(L[0]); act(L[1], L[1].wait); st(L[1], '<span class="tag">Waiting</span>');
+    const r1 = work(L[0]); act(L[1], L[1].wait); state(L[1], 'waiting');
     await r1; await handoff(L[0], L[1], 'the brief');
-    const r2 = work(L[1]); await r2; await handoff(L[1], L[2], '4 frames');
+    act(L[2], L[2].wait); state(L[2], 'waiting');
+    await work(L[1]); await handoff(L[1], L[2], '4 frames');
     await work(L[2]);
-    finished = true; swap($('.aln-t', r), 'All 3 agents finished'); pb.remove();
+    finished = true; root.classList.add('fin'); $('.aln-ic', r).innerHTML = I('ok'); enter($('.aln-ic', r).firstElementChild);
+    swap($('.aln-t', r), 'All 3 agents finished'); pb.remove();
   });
 });
 </script><script>

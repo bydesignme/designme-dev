@@ -1,27 +1,89 @@
 /* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Agent lanes ---------- */
+/* each agent has its own hue (--c, with its tint --cb): its badge, its track, its tag and its stretch of the relay line that
+   joins the badges. A hand-off sends a light down that line from one agent to the next, and the stretch it crossed stays lit */
 .dm-aln{padding:var(--dm-s-2)}
+/* on a card the lanes sit centred in the room kept for their tallest moment, and glide as a hand-off line opens and shuts */
+.dm-stage-in:has(>.dm-aln){display:flex;flex-direction:column;justify-content:center}
 .dm-aln-h{display:flex;align-items:center;gap:10px;padding:var(--dm-s-2) 10px 10px}
-.dm-aln-ic{color:var(--dm-fg2);display:grid}
+.dm-aln-ic{color:var(--dm-fg2);display:grid;transition:color .3s}
+.dm-aln.dm-fin .dm-aln-ic{color:var(--dm-ok)}
 .dm-aln-t{font-weight:500}
-.dm-aln-m{font-size:12.5px;margin-right:auto}
-.dm-aln-lane{border-radius:14px;transition:background .25s}
+.dm-aln-m{font-size:12.5px}
+.dm-aln-ct{font-size:12.5px;color:var(--dm-muted);margin-right:auto;white-space:nowrap}
+.dm-aln-ct::before{content:"·";margin-right:6px}
+.dm-aln-rows{position:relative}
+.dm-aln-rows>*{position:relative}
+.dm-aln-lane{border-radius:14px;transition:background .3s}
 @media (hover:hover) and (pointer:fine){.dm-aln-lane:hover{background:var(--dm-row)}}
+/* the lane at work carries a wash of its hue from the left */
+.dm-aln-lane[data-s="working"]{background:linear-gradient(90deg,color-mix(in srgb,var(--dm-c) 8%,transparent),transparent 72%)}
+@media (hover:hover) and (pointer:fine){.dm-aln-lane[data-s="working"]:hover{background:linear-gradient(90deg,color-mix(in srgb,var(--dm-c) 8%,transparent),transparent 72%),var(--dm-row)}}
+/* the relay line runs from badge to badge, through the lanes and the hand-offs between them, and stops short of each badge */
+.dm-aln-rows>*::before{content:"";position:absolute;left:26px;width:2px;top:0;bottom:0;border-radius:1px;background:var(--dm-line);transition:background .5s var(--dm-ease);pointer-events:none}
+.dm-aln-lane::before{top:48px}
+.dm-aln-lane:last-child::before{display:none}
+.dm-aln-lane::after{content:"";position:absolute;left:26px;width:2px;top:0;height:6px;border-radius:1px;background:var(--dm-line);transition:background .5s var(--dm-ease);pointer-events:none}
+.dm-aln-lane:first-child::after{display:none}
+.dm-aln-lane.dm-sent::before{background:linear-gradient(var(--dm-c),color-mix(in srgb,var(--dm-c) 45%,var(--dm-line)))}
+.dm-aln-lane.dm-got::after{background:var(--dm-c)}
+.dm-aln-hf.dm-lit::before{background:linear-gradient(color-mix(in srgb,var(--dm-from) 45%,var(--dm-line)),var(--dm-to))}
 .dm-aln-row{display:grid;grid-template-columns:34px minmax(0,1.2fr) minmax(0,1fr) auto;align-items:center;gap:var(--dm-s-3);width:100%;padding:10px;text-align:left}
-.dm-aln-av{width:34px;height:34px;border-radius:11px;display:grid;place-items:center}
-.dm-aln-n{font-weight:500;font-size:13.5px}
+.dm-aln-av{position:relative;width:34px;height:34px;border-radius:11px;display:grid;place-items:center;color:var(--dm-c);background:var(--dm-cb);transition:color .4s,background .4s}
+.dm-aln-av::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none}
+.dm-aln-lane[data-s="working"] .dm-aln-av{animation:dm-alnbreathe 2.4s var(--dm-ease-io) infinite}
+@keyframes dm-alnbreathe{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--dm-c) 0%,transparent)}50%{box-shadow:0 0 0 4px color-mix(in srgb,var(--dm-c) 18%,transparent)}}
+/* the badge that takes a hand-off rings once as the light reaches it */
+.dm-aln-av.dm-ping::before{animation:dm-alnping .9s var(--dm-ease)}
+@keyframes dm-alnping{from{box-shadow:0 0 0 0 color-mix(in srgb,var(--dm-c) 50%,transparent)}to{box-shadow:0 0 0 12px color-mix(in srgb,var(--dm-c) 0%,transparent)}}
+/* a finished agent's badge fills with its hue */
+.dm-aln-lane[data-s="done"] .dm-aln-av{background:var(--dm-c);color:var(--dm-surface)}
+.dm-aln-who{min-width:0}
+.dm-aln-n{display:block;font-weight:500;font-size:13.5px}
 .dm-aln-a{display:block;font-size:12.5px;color:var(--dm-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dm-aln-a.dm-live{color:var(--dm-fg2)}
+/* the track: one part a step. Finished parts are solid, the one in hand fills as the agent works, with a light running along it */
 .dm-aln-tr{display:flex;gap:3px}
-.dm-aln-tr i{flex:1;height:4px;border-radius:2px;background:var(--dm-line);position:relative;overflow:hidden}
-.dm-aln-tr i::after{content:"";position:absolute;inset:0;border-radius:2px;background:var(--dm-c,var(--dm-accent));transform:scaleX(0);transform-origin:left;transition:transform .9s var(--dm-ease)}
-.dm-aln-tr i.dm-on::after{transform:scaleX(1)}
-.dm-aln-tr i.dm-run::after{transform:scaleX(.5);transition-duration:2s}
+.dm-aln-tr i{flex:1;height:8px;border-radius:4px;background:color-mix(in srgb,var(--dm-c) 13%,var(--dm-line));position:relative;overflow:hidden}
+.dm-aln-tr i::after{content:"";position:absolute;inset:0;border-radius:inherit;background:var(--dm-c);transform:scaleX(var(--dm-p,0));transform-origin:left;transition:transform .25s linear}
+.dm-aln-tr i.dm-on::after{transform:scaleX(1);transition:transform .5s var(--dm-ease)}
+.dm-aln-tr i.dm-run::after{background:linear-gradient(90deg,var(--dm-c) 0 30%,color-mix(in srgb,var(--dm-c) 30%,var(--dm-surface)) 50%,var(--dm-c) 70% 100%) 0 0/250% 100%;animation:dm-alnsheen 1.6s linear infinite}
+/* given no step progress, the part in hand fills part way and keeps its light */
+.dm-aln-tr i.dm-run.dm-ind::after{transform:scaleX(.6);transition:transform 2.4s var(--dm-ease)}
+@keyframes dm-alnsheen{from{background-position:100% 0}to{background-position:-150% 0}}
 .dm-aln-st{min-width:92px;display:flex;justify-content:flex-end}
+.dm-aln-tg{background:var(--dm-cb);color:var(--dm-c)}
+.dm-aln-tg .dm-spin{width:9px;height:9px}
 .dm-aln-det{padding:0 10px 10px 56px;font-size:12.5px;color:var(--dm-fg2)}
-.dm-aln-det div{display:flex;gap:var(--dm-s-2);padding:3px 0}
+.dm-aln-det div{display:flex;align-items:center;gap:var(--dm-s-2);padding:3px 0}
+.dm-aln-det div::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--dm-c);flex:none}
 .dm-aln-det .dm-muted{margin-left:auto}
-/* a hand-off opens a row between the lanes and closes it again, so the lanes glide instead of jumping */
+/* a hand-off opens a line between the lanes, glides the lanes below down and closes again */
 .dm-aln-hf{transition-duration:var(--dm-t-slow)}
-.dm-aln-hand{display:flex;align-items:center;gap:var(--dm-s-2);margin:2px 10px;padding:7px var(--dm-s-3);border-radius:10px;background:color-mix(in srgb,var(--dm-pl-bg) 55%,transparent);color:var(--dm-pl);font-size:12.5px}
-@media (max-width:600px){.dm-aln-row{grid-template-columns:34px minmax(0,1fr) auto}.dm-aln-tr{display:none}}
+.dm-aln-hand{padding:6px 10px 6px 56px;font-size:12.5px;line-height:18px;color:var(--dm-fg2)}
+.dm-aln-hand b{font-weight:500}
+.dm-aln-hand .dm-f{color:var(--dm-from)}.dm-aln-hand .dm-t{color:var(--dm-to)}
+/* the light that carries the work down the line: a bright head with a tail in the sender's hue */
+.dm-aln-pk{position:absolute;left:27px;top:0;width:8px;height:8px;margin:-4px 0 0 -4px;border-radius:50%;background:var(--dm-to);box-shadow:0 0 0 3px color-mix(in srgb,var(--dm-to) 22%,transparent),0 0 12px 2px color-mix(in srgb,var(--dm-to) 45%,transparent);pointer-events:none;z-index:2;opacity:0}
+.dm-aln-pk::before{content:"";position:absolute;left:3px;bottom:4px;width:2px;height:30px;border-radius:1px;background:linear-gradient(transparent,var(--dm-from))}
+@media (max-width:600px){
+  .dm-aln-row{grid-template-columns:34px minmax(0,1fr) auto;row-gap:var(--dm-s-2)}
+  .dm-aln-tr{grid-column:2 / -1;grid-row:2}
+  .dm-aln-lane::before{top:48px}
+  .dm-aln-ct{display:none}
+  .dm-aln-m{margin-right:auto}
+}
+@media (max-width:400px){.dm-aln-ic{display:none}}
+:root:not([data-style="soft"]) .dm-aln-rows>*:not(:where([data-style="soft"],[data-style="soft"] *))::before,:root:not([data-style="soft"]) .dm-aln-lane:not(:where([data-style="soft"],[data-style="soft"] *))::after{width:1px;left:26.5px;background:repeating-linear-gradient(var(--dm-rail) 0 3px,transparent 3px 6px)}
+:root:not([data-style="soft"]) .dm-aln-lane.dm-sent:not(:where([data-style="soft"],[data-style="soft"] *))::before,:root:not([data-style="soft"]) .dm-aln-lane.dm-got:not(:where([data-style="soft"],[data-style="soft"] *))::after{background:var(--dm-c)}
+:root:not([data-style="soft"]) .dm-aln-hf.dm-lit:not(:where([data-style="soft"],[data-style="soft"] *))::before{background:var(--dm-to)}
+:root:not([data-style="soft"]) .dm-aln-av:not(:where([data-style="soft"],[data-style="soft"] *)){box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-c) 35%,transparent)}
+:root:not([data-style="soft"]) .dm-aln-lane[data-s="working"] .dm-aln-av:not(:where([data-style="soft"],[data-style="soft"] *)){animation:dm-alnbp 1.1s steps(1,end) infinite}
+@keyframes dm-alnbp{0%,55%{box-shadow:inset 0 0 0 1px var(--dm-c)}56%,100%{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-c) 35%,transparent)}}
+:root:not([data-style="soft"]) .dm-aln-lane[data-s="working"]:not(:where([data-style="soft"],[data-style="soft"] *)){background:color-mix(in srgb,var(--dm-c) 5%,transparent)}
+:root:not([data-style="soft"]) .dm-aln-tr i:not(:where([data-style="soft"],[data-style="soft"] *)){height:6px}
+:root:not([data-style="soft"]) .dm-aln-tr i.dm-run:not(:where([data-style="soft"],[data-style="soft"] *))::after{background:repeating-linear-gradient(135deg,var(--dm-c) 0 4px,color-mix(in srgb,var(--dm-c) 55%,var(--dm-surface)) 4px 7px);animation:none}
+:root:not([data-style="soft"]) .dm-aln-pk:not(:where([data-style="soft"],[data-style="soft"] *)){box-shadow:none;width:7px;height:7px;margin:-3px 0 0 -3px}
+:root:not([data-style="soft"]) .dm-aln-pk:not(:where([data-style="soft"],[data-style="soft"] *))::before{width:1px}
+:root:not([data-style="soft"]) .dm-aln-av.dm-ping:not(:where([data-style="soft"],[data-style="soft"] *))::before{animation:dm-alnpingbp .6s steps(3,end)}
+@keyframes dm-alnpingbp{from{box-shadow:0 0 0 1px var(--dm-c)}to{box-shadow:0 0 0 7px transparent}}

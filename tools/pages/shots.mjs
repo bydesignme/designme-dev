@@ -32,6 +32,8 @@ const names = site.sections.flatMap(s => s.cards.map(c => c.reg)).filter(n => !o
 const WAIT = { toast:2600, 'status-pill':3300, 'design-review':9500, 'model-picker':13000, 'answer-action-bar':17000, composer:18000, thinking:11000, 'context-meter':10500, 'inline-text-diff':9500, 'agent-tree':16500, 'agent-inbox':5000, 'voice-orb':8500, 'prompt-library':12000, steering:16800, 'eval-results':7000, 'knowledge-sources':8200, 'scheduled-runs':4000, 'segmented-control':7000, 'otp-field':10800, 'multi-select':5500, 'profile-menu':11500, 'filter-menu':12500, 'browser-session':9500, 'trace-view':11500, 'terminal-stream':20000, 'human-handoff':15500, 'rich-text-editor':16800, 'context-switcher':4600, banner:2600 };
 // Canvas toolbar is taken mid-run, with Stop on the bar and the wires lighting up
 Object.assign(WAIT, { 'canvas-toolbar':12800 });
+// Agent lanes is taken as the light carries the brief down to the Designer
+Object.assign(WAIT, { 'agent-lanes':6800 });
 const OUT = { thumbs:path.join(HERE, 'public/components/thumbs'), og:path.join(HERE, 'public/components/og') };
 Object.values(OUT).forEach(d => fs.mkdirSync(d, { recursive:true }));
 
