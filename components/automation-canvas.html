@@ -44,15 +44,38 @@
   };
   try { var a = localStorage.getItem('dmui-accent'); if (a && a !== 'default') window.dmAccent(a); } catch(e){}
 })();
-</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareSourceCode","name":"Automation canvas","description":"Automation canvas draws an agent automation as cards joined by wires: a trigger, a few agent steps and where the result goes. People can add steps from a small + on the last step, or give the agent a model and tools from the connectors under it, drag the cards, click one to change its setting, and press Test run to watch the run light up each step and wire in turn.","url":"https://designme.dev/components/automation-canvas","image":"https://designme.dev/components/og/automation-canvas.jpg","programmingLanguage":["HTML","CSS","JavaScript","TypeScript"],"runtimePlatform":"Web browser","license":"https://opensource.org/licenses/MIT","isAccessibleForFree":true,"keywords":"Automation canvas, Workspace, AI agent UI, React component, HTML component","author":{"@type":"Organization","name":"DesignMe","url":"https://designme.agency"},"isPartOf":{"@type":"WebSite","name":"Designme.dev","url":"https://designme.dev/"}}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Library","item":"https://designme.dev/"},{"@type":"ListItem","position":2,"name":"Workspace","item":"https://designme.dev/#s-workspace"},{"@type":"ListItem","position":3,"name":"Automation canvas","item":"https://designme.dev/components/automation-canvas"}]}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does Test run execute the automation?","acceptedAnswer":{"@type":"Answer","text":"No. It calls onRun. Your code runs the steps and updates each node's state and the flowing list, which the canvas animates."}},{"@type":"Question","name":"How do I let people add steps?","acceptedAnswer":{"@type":"Answer","text":"Pass a catalog with the step types to offer, and handle onAddNode: add a node with attach: { to: from, via }, without x or y, and an edge from from to it (with via as its third value for a model or a tool). The canvas finds the new step a place."}},{"@type":"Question","name":"How do I lay it out for small screens?","acceptedAnswer":{"@type":"Answer","text":"Give nodes a narrow position. Below 560px the canvas uses those positions, keeps every card inside the canvas, and wires top to bottom. Without them, nodes stack in a column down the middle."}},{"@type":"Question","name":"How do I save where people dragged the cards?","acceptedAnswer":{"@type":"Answer","text":"Handle onNodeMove(id, at, narrow). It reports the card's centre as fractions of the canvas and whether the narrow layout was in use, so you can store each layout separately."}},{"@type":"Question","name":"How do I reset the wires before a new run?","acceptedAnswer":{"@type":"Answer","text":"Clear the flowing array when the run starts. Wires stay lit for as long as they are listed in it."}}]}</script><link rel="stylesheet" href="/components/assets/core.css"><style>/* ---------- Automation canvas ---------- */
+</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareSourceCode","name":"Automation canvas","description":"Automation canvas draws an agent automation as cards joined by wires: a trigger, a few agent steps and where the result goes. People can add steps from a small + on the last step, or give the agent a model and tools from the connectors under it, pan and zoom round the canvas, select and drag the cards, click one to change its setting, and press Test run to watch the run light up each step and wire in turn.","url":"https://designme.dev/components/automation-canvas","image":"https://designme.dev/components/og/automation-canvas.jpg","programmingLanguage":["HTML","CSS","JavaScript","TypeScript"],"runtimePlatform":"Web browser","license":"https://opensource.org/licenses/MIT","isAccessibleForFree":true,"keywords":"Automation canvas, Workspace, AI agent UI, React component, HTML component","author":{"@type":"Organization","name":"DesignMe","url":"https://designme.agency"},"isPartOf":{"@type":"WebSite","name":"Designme.dev","url":"https://designme.dev/"}}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Library","item":"https://designme.dev/"},{"@type":"ListItem","position":2,"name":"Workspace","item":"https://designme.dev/#s-workspace"},{"@type":"ListItem","position":3,"name":"Automation canvas","item":"https://designme.dev/components/automation-canvas"}]}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does Test run execute the automation?","acceptedAnswer":{"@type":"Answer","text":"No. It calls onRun. Your code runs the steps and updates each node's state and the flowing list, which the canvas animates."}},{"@type":"Question","name":"Can people move around a bigger automation?","acceptedAnswer":{"@type":"Answer","text":"Yes. They pan by dragging the empty canvas, and with one finger or by scrolling once they have clicked or tapped into it, zoom with Ctrl or ⌘ and the wheel, a pinch or the corner buttons, and fit brings every step back into view. Hold view with onViewChange to start somewhere else, or to keep the view between visits."}},{"@type":"Question","name":"How do I let people add steps?","acceptedAnswer":{"@type":"Answer","text":"Pass a catalog with the step types to offer, and handle onAddNode: add a node with attach: { to: from, via }, without x or y, and an edge from from to it (with via as its third value for a model or a tool). The canvas finds the new step a place."}},{"@type":"Question","name":"How do I lay it out for small screens?","acceptedAnswer":{"@type":"Answer","text":"Give nodes a narrow position. Below 560px the canvas uses those positions, keeps every card inside the canvas, and wires top to bottom. Without them, nodes stack in a column down the middle."}},{"@type":"Question","name":"How do I save where people dragged the cards?","acceptedAnswer":{"@type":"Answer","text":"Handle onNodeMove(id, at, narrow). It reports the card's centre as fractions of the canvas and whether the narrow layout was in use, so you can store each layout separately."}},{"@type":"Question","name":"How do I reset the wires before a new run?","acceptedAnswer":{"@type":"Answer","text":"Clear the flowing array when the run starts. Wires stay lit for as long as they are listed in it."}}]}</script><link rel="stylesheet" href="/components/assets/core.css"><style>/* ---------- Automation canvas ---------- */
 .acx{display:flex;flex-direction:column;gap:10px;width:100%}
 .acx-top{display:flex;align-items:center;gap:var(--s-2);font-size:13px;flex-wrap:wrap}
 .acx-name{font-weight:500}
 .acx-sp{flex:1}
 .acx-st{font-size:12.5px}
 /* the canvas reads as a workflow editor: a dot every 16px, fading toward the edges so the steps sit in the middle of it */
-.acx-cv{position:relative;height:420px;border-radius:18px;background-color:var(--chip);background-image:radial-gradient(ellipse at center,transparent 55%,var(--chip) 100%),radial-gradient(circle at 8px 8px,color-mix(in srgb,var(--fg) 20%,transparent) 1.1px,transparent 1.6px);background-size:100% 100%,16px 16px;background-position:0 0,center}
-.acx-svg{position:absolute;inset:0;width:100%;height:100%}
+.acx-cv{position:relative;height:420px;border-radius:18px;outline:0;background-color:var(--chip);background-image:radial-gradient(ellipse at center,transparent 55%,var(--chip) 100%),radial-gradient(circle at center,color-mix(in srgb,var(--fg) 20%,transparent) 1.1px,transparent 1.6px);background-size:100% 100%,16px 16px;background-position:0 0,center}
+/* the view: the steps and wires sit on a world that pans and zooms inside the canvas, and the dots move with it. Drag the
+   empty canvas (one finger on a touch screen) or scroll to move around; Ctrl or ⌘ with the wheel, or a pinch, zooms at the
+   pointer. The popover and the picker sit over it, so they may still hang below the canvas */
+.acx-vp{position:absolute;inset:0;overflow:hidden;overflow:clip;border-radius:inherit;cursor:grab;user-select:none;-webkit-user-select:none}
+/* touch is the page's until the canvas is engaged (a tap in it): then one finger pans and two pinch the canvas */
+.acx-cv.engaged :is(.acx-vp,.acx-n){touch-action:none}
+.acx-cv.pan .acx-vp{cursor:grabbing}
+.acx-world{position:absolute;inset:0;transform-origin:0 0}
+.acx-cv.anim{transition:background-position var(--t) var(--ease),background-size var(--t) var(--ease)}
+.acx-cv.anim .acx-world{transition:transform var(--t) var(--ease)}
+/* the canvas shows its focus only to the keyboard, in the quiet grey: a click gives it the focus without a ring */
+.acx-cv:focus-visible:not(.ptr){outline:2px solid var(--field-line);outline-offset:2px}
+/* Shift and a drag on the empty canvas draws a box: every step it touches joins the selection */
+.acx-mq{position:absolute;left:0;top:0;border-radius:var(--r-xs);box-shadow:inset 0 0 0 1px var(--pick-on);background:color-mix(in srgb,var(--fg) 4%,transparent);pointer-events:none}
+/* zoom out, the zoom level (which resets to 100%), zoom in and fit, quiet in the corner */
+.acx-zm{position:absolute;right:var(--s-3);bottom:var(--s-3);z-index:4;display:flex;align-items:center;padding:var(--s-1);border-radius:var(--r-pill);background:var(--surface);box-shadow:var(--shadow)}
+.acx-zb{width:28px;height:28px;flex:none;display:grid;place-items:center;border-radius:var(--r-pill);color:var(--fg2);transition:background var(--t-fast),color var(--t-fast)}
+.acx-zl{min-width:44px;height:28px;padding:0 var(--s-1);flex:none;border-radius:var(--r-pill);font-size:12px;color:var(--fg2);transition:background var(--t-fast),color var(--t-fast)}
+@media (hover:hover) and (pointer:fine){.acx-zb:hover,.acx-zl:hover{background:var(--row);color:var(--fg)}}
+.acx-zb[aria-disabled="true"]{color:var(--dis);background:none;cursor:not-allowed}
+@media (hover:hover) and (pointer:fine){.acx-zb[aria-disabled="true"]:hover{color:var(--dis);background:none;cursor:not-allowed}}
+.acx-zs{width:1px;height:14px;margin:0 var(--s-1);flex:none;background:var(--line)}
+.acx-sr{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.acx-svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
 .acx-svg path{fill:none;stroke:var(--faint);stroke-width:1.5;transition:stroke .6s var(--ease)}
 /* on arrival the wires draw in after the steps have landed */
 .acx-svg.intro path{stroke-dasharray:var(--l);animation:acxdraw .8s var(--ease) .42s backwards}
@@ -70,9 +93,10 @@
 @keyframes acxsv{from{opacity:0;filter:blur(2px)}}
 .acx-n{position:absolute;width:176px;padding:10px var(--s-3);border-radius:14px;background:var(--surface);box-shadow:var(--shadow);display:flex;align-items:center;gap:10px;font-size:12.5px;text-align:left;transition:box-shadow .3s,left .5s var(--ease),top .5s var(--ease)}
 @media (hover:hover) and (pointer:fine){.acx-n:hover{box-shadow:var(--shadow-pop)}}
-.acx-n{cursor:grab;touch-action:none;user-select:none}
+.acx-n{cursor:pointer;user-select:none}
 .acx-n.drag{cursor:grabbing;transition:box-shadow .3s;box-shadow:var(--shadow-pop);z-index:3;transform:scale(1.02)}
-.acx-n.sel{box-shadow:0 0 0 1px var(--rail),var(--shadow-pop)}
+/* a selected step: its white card with a light grey edge */
+.acx-n.sel{box-shadow:0 0 0 1px var(--pick-on),var(--shadow-pop)}
 .acx-n .ic{width:28px;height:28px;border-radius:9px;display:grid;place-items:center;flex:none}
 .acx-n .t{display:flex;flex-direction:column;min-width:0}
 .acx-n .t b{font-weight:500;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -124,6 +148,7 @@
 .acx-pd{margin:0;padding:var(--s-2) var(--s-2) 2px;box-shadow:inset 0 1px 0 var(--line);font-size:12px;line-height:1.4;color:var(--fg2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .acx-live{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 :root:not([data-style="soft"]) :is(.acx-h,.acx-sc):not(:where([data-style="soft"],[data-style="soft"] *)){box-shadow:inset 0 0 0 1px var(--rail)}
+:root:not([data-style="soft"]) .acx-zm:not(:where([data-style="soft"],[data-style="soft"] *)){box-shadow:inset 0 0 0 1px var(--line)}
 @media (hover:hover) and (pointer:fine){:root:not([data-style="soft"]) :is(.acx-h,.acx-sc):is(:hover,[aria-expanded="true"]):not(:where([data-style="soft"],[data-style="soft"] *)){box-shadow:inset 0 0 0 1px var(--field-line)}}
 @media (max-width:720px){.acx-cv{height:580px}}
 </style><style>@media (max-width:640px){.cp-demo .pg-demo{min-height:calc(var(--h-j) + 24px)}}@media (max-width:519px){.cp-demo .pg-demo{min-height:calc(var(--h-k) + 24px)}}@media (max-width:429px){.cp-demo .pg-demo{min-height:calc(var(--h-l) + 24px)}}@media (max-width:389px){.cp-demo .pg-demo{min-height:calc(var(--h-m) + 24px)}}</style><style>@font-face{font-family:Inter;font-style:normal;font-weight:400;font-display:swap;src:url(/fonts/inter-latin-400-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
@@ -144,9 +169,16 @@
   <div class="stage-in">
     <div class="acx" data-reveal="flat">
       <div class="acx-top"><span class="acx-name">Weekly design QA</span><span class="tag ok acx-on">On</span><span class="acx-sp"></span><span class="muted acx-st">Every Monday, 9:00</span><button class="pill primary sm acx-run"><svg class="i xs"><use href="#i-play"/></svg>Test run</button></div>
-      <div class="acx-cv">
-        <svg class="acx-svg" aria-hidden="true"></svg>
-        <div class="acx-nodes"></div>
+      <div class="acx-cv" tabindex="0" role="group" aria-roledescription="canvas" aria-label="Automation canvas">
+        <div class="acx-vp"><div class="acx-world"><svg class="acx-svg" aria-hidden="true"></svg><div class="acx-nodes"></div></div><div class="acx-mq" hidden></div></div>
+        <div class="acx-zm" role="toolbar" aria-label="Zoom">
+          <button class="acx-zb acx-zo" aria-label="Zoom out" data-tip="Zoom out" data-tip-k="−"><svg class="i s"><use href="#i-minus"/></svg></button>
+          <button class="acx-zl num" aria-label="Zoom 100%, reset to 100%" data-tip="Zoom to 100%">100%</button>
+          <button class="acx-zb acx-zi" aria-label="Zoom in" data-tip="Zoom in" data-tip-k="+"><svg class="i s"><use href="#i-plus"/></svg></button>
+          <span class="acx-zs"></span>
+          <button class="acx-zb acx-fit" aria-label="Fit to screen" data-tip="Fit to screen" data-tip-k="0"><svg class="i s"><use href="#i-fit"/></svg></button>
+        </div>
+        <span class="acx-sr">Drag the empty canvas or scroll to move around, and Control or Command with the scroll wheel, or a pinch, to zoom. With the canvas focused the arrow keys move the view, plus and minus zoom, and 0 or 1 fits it. Shift-click a step to add it to the selection, and Escape clears it.</span>
         <div class="pop acx-pop" role="dialog"></div>
         <div class="pop acx-pk" role="dialog" aria-label="Add a step">
           <div class="acx-q"><svg class="i xs"><use href="#i-search"/></svg><input class="acx-qi" type="text" role="combobox" aria-expanded="true" aria-autocomplete="list" placeholder="Search steps" aria-label="Search steps" autocomplete="off" spellcheck="false"></div>
@@ -158,7 +190,7 @@
     </div>
   </div>
 </div>
-</div></section><div class="cp-bar"><nav aria-label="Sections"><a href="#install">Install</a><a href="#about">About</a><a href="#usage">Usage</a><a href="#props">Props</a><a href="#code">Code</a><a href="#questions">Questions</a><a href="#more">More</a></nav></div><section class="cp-sec" id="install"><div class="pg-sh"><span class="n">01</span><h2>Install</h2><p>Add it to your project with the CLI.</p></div><div class="cp-two"><div class="cp-box"><h3 class="pg-t">HTML, CSS and JavaScript</h3><div class="cp-line"><span class="d">$</span><code><span class="cp-w">npx</span> <span class="cp-w">designme</span> <span class="cp-w">add</span> <span class="cp-w">automation-canvas</span></code><button class="cp-copy" type="button" data-copy="npx designme add automation-canvas" data-label="Copy">Copy</button></div></div><div class="cp-box"><h3 class="pg-t">React</h3><div class="cp-line"><span class="d">$</span><code><span class="cp-w">npx</span> <span class="cp-w">designme</span> <span class="cp-w">add</span> <span class="cp-w">automation-canvas</span> <span class="cp-w">--react</span></code><button class="cp-copy" type="button" data-copy="npx designme add automation-canvas --react" data-label="Copy">Copy</button></div></div></div><p class="cp-note">The CLI copies the source into your project, so you own it and can change anything. The HTML version lands in <code>./designme</code> with the shared core and a <code>demo.html</code>. The React version lands in <code>src/components/designme</code> and needs React 19; it works in Next.js, Vite and Astro.</p></section><section class="cp-sec" id="about"><div class="pg-sh"><span class="n">02</span><h2>About</h2><p>What it is for and what it does.</p></div><p class="cp-sum">Automation canvas draws an agent automation as cards joined by wires: a trigger, a few agent steps and where the result goes. People can add steps from a small + on the last step, or give the agent a model and tools from the connectors under it, drag the cards, click one to change its setting, and press Test run to watch the run light up each step and wire in turn.</p><div class="cp-gap"><div class="cp-tl" role="tablist" aria-label="About"><button type="button" role="tab" id="ab-t0" aria-controls="ab-p0" aria-selected="true" tabindex="0">When to use it</button><button type="button" role="tab" id="ab-t1" aria-controls="ab-p1" aria-selected="false" tabindex="-1">What it does</button><button type="button" role="tab" id="ab-t2" aria-controls="ab-p2" aria-selected="false" tabindex="-1">Accessibility</button></div><div class="cp-tp" role="tabpanel" id="ab-p0" aria-labelledby="ab-t0"><ul><li>When people set up recurring agent workflows, like a weekly design check that posts to Slack.</li><li>When a short flow is easier to understand as a picture than as a form.</li><li>When people build the flow themselves, a step at a time, from a short list of step types.</li><li>When each step has one main setting that people should be able to change in place.</li><li>When you want to show a test run moving through the steps before the automation goes live.</li></ul></div><div class="cp-tp" role="tabpanel" id="ab-p1" aria-labelledby="ab-t1" hidden><ul><li>Each node has an icon, a colour, a <code>title</code> and a <code>detail</code> line, placed by <code>x</code> and <code>y</code> as fractions of the canvas. <code>edges</code> wire nodes together by id.</li><li>With <code>catalog</code>, a step whose output leads nowhere yet gets a small + on its right (under it when the canvas stacks, or when there is no room to its right). A node's <code>connectors</code> add labelled + Model and + Tools buttons under it, with dashed stubs.</li><li>A + or a connector opens the step picker beside it: a search over a short list of step types in groups (after a step, the <code>step</code> groups, such as Tools, Logic and Actions; from a connector, its own group). Each type has an icon and a one-line description, shown at the foot of the picker for the type under the pointer or the arrows.</li><li>Picking a type calls <code>onAddNode(type, from, via, group)</code>. Add a node with <code>attach: { to: from, via }</code> and its edge, and the canvas places it next to what it hangs from (to the right, or under it), clear of the other steps, their + buttons and their wires, and keeps that place in each layout. Models and tools are drawn as smaller steps on dashed wires. The wire to a new step draws itself in.</li><li>The + buttons go once the canvas holds <code>maxNodes</code> steps: 9, or 6 when the canvas stacks.</li><li>With <code>balanced</code> on (the default), nodes that share an <code>x</code> form a column and the columns spread evenly across the width.</li><li>Cards can be dragged. Dropping one calls <code>onNodeMove</code> with its new centre. Below 560px wide the nodes stack down the canvas, using each node's <code>narrow</code> position if set; there a step with connectors sends its wire to a step on its left from its left side, so it passes clear of what hangs under it.</li><li>Clicking a node opens a popover with its <code>field</code>, a menu of options. Picking one updates the node's detail and calls <code>onValuesChange</code>.</li><li><code>onRun</code> adds a Test run button. Set each node's <code>state</code> to <code>run</code> or <code>done</code> and add wires to <code>flowing</code> as your run goes, and a soft light passes along each new wire.</li><li>The header shows the automation's <code>name</code>, an optional green <code>tag</code> like "On" and a <code>status</code> line that crossfades.</li></ul></div><div class="cp-tp" role="tabpanel" id="ab-p2" aria-labelledby="ab-t2" hidden><ul><li>Each node is a button with <code>aria-expanded</code> that shows whether its popover is open.</li><li>Each + is a button labelled with the step it adds after, like "Add a step after Post summary", and each connector is labelled like "Add a tool to Agent: audit". Both have <code>aria-haspopup="dialog"</code> and <code>aria-expanded</code>.</li><li>The picker is a dialog labelled the same way. Its search is a <code>combobox</code> that controls a <code>listbox</code> of options in labelled groups, and points at the current option with <code>aria-activedescendant</code>; each option is described by its one-line description.</li><li>Opening the picker puts the focus in its search. The up and down arrows move through the options and wrap, typing filters them, Enter adds the current one and moves the focus to the new step, and Escape closes the picker and gives the focus back to its +.</li><li>An <code>aria-live="polite"</code> region says which step was added and where.</li><li>The popover has <code>role="dialog"</code>, labelled with the node's title, and is <code>inert</code> while closed.</li><li>Enter or Space on a node opens its popover with the focus in it, and Escape or Done closes it and gives the focus back to the node.</li><li>Setting options use <code>role="menuitemradio"</code> with <code>aria-checked</code>, and the dropdown is a menu button with <code>aria-expanded</code>: the arrows open it and move through the options and wrap, Home and End jump, Enter or Space picks, and Escape closes it back to the button.</li><li>The wires are <code>aria-hidden</code>. With reduced motion on, the light along a wire and a new wire's draw are skipped.</li></ul></div></div></section><section class="cp-sec" id="usage"><div class="pg-sh"><span class="n">03</span><h2>Usage</h2><p>Import it and drive it from your own state.</p></div><div class="cp-box"><h3 class="pg-t">Import</h3><pre class="cp-pre"><code>import { AutomationCanvas } from &#39;@/components/designme/automation-canvas/AutomationCanvas&#39;;</code></pre></div><div class="cp-box cp-gap"><h3 class="pg-t">Example</h3><p class="pg-d">The demo above as a React component, 98 lines you can copy.</p><pre class="cp-pre"><code>&#39;use client&#39;;
+</div></section><div class="cp-bar"><nav aria-label="Sections"><a href="#install">Install</a><a href="#about">About</a><a href="#usage">Usage</a><a href="#props">Props</a><a href="#code">Code</a><a href="#questions">Questions</a><a href="#more">More</a></nav></div><section class="cp-sec" id="install"><div class="pg-sh"><span class="n">01</span><h2>Install</h2><p>Add it to your project with the CLI.</p></div><div class="cp-two"><div class="cp-box"><h3 class="pg-t">HTML, CSS and JavaScript</h3><div class="cp-line"><span class="d">$</span><code><span class="cp-w">npx</span> <span class="cp-w">designme</span> <span class="cp-w">add</span> <span class="cp-w">automation-canvas</span></code><button class="cp-copy" type="button" data-copy="npx designme add automation-canvas" data-label="Copy">Copy</button></div></div><div class="cp-box"><h3 class="pg-t">React</h3><div class="cp-line"><span class="d">$</span><code><span class="cp-w">npx</span> <span class="cp-w">designme</span> <span class="cp-w">add</span> <span class="cp-w">automation-canvas</span> <span class="cp-w">--react</span></code><button class="cp-copy" type="button" data-copy="npx designme add automation-canvas --react" data-label="Copy">Copy</button></div></div></div><p class="cp-note">The CLI copies the source into your project, so you own it and can change anything. The HTML version lands in <code>./designme</code> with the shared core and a <code>demo.html</code>. The React version lands in <code>src/components/designme</code> and needs React 19; it works in Next.js, Vite and Astro.</p></section><section class="cp-sec" id="about"><div class="pg-sh"><span class="n">02</span><h2>About</h2><p>What it is for and what it does.</p></div><p class="cp-sum">Automation canvas draws an agent automation as cards joined by wires: a trigger, a few agent steps and where the result goes. People can add steps from a small + on the last step, or give the agent a model and tools from the connectors under it, pan and zoom round the canvas, select and drag the cards, click one to change its setting, and press Test run to watch the run light up each step and wire in turn.</p><div class="cp-gap"><div class="cp-tl" role="tablist" aria-label="About"><button type="button" role="tab" id="ab-t0" aria-controls="ab-p0" aria-selected="true" tabindex="0">When to use it</button><button type="button" role="tab" id="ab-t1" aria-controls="ab-p1" aria-selected="false" tabindex="-1">What it does</button><button type="button" role="tab" id="ab-t2" aria-controls="ab-p2" aria-selected="false" tabindex="-1">Accessibility</button></div><div class="cp-tp" role="tabpanel" id="ab-p0" aria-labelledby="ab-t0"><ul><li>When people set up recurring agent workflows, like a weekly design check that posts to Slack.</li><li>When a short flow is easier to understand as a picture than as a form.</li><li>When people build the flow themselves, a step at a time, from a short list of step types.</li><li>When each step has one main setting that people should be able to change in place.</li><li>When you want to show a test run moving through the steps before the automation goes live.</li></ul></div><div class="cp-tp" role="tabpanel" id="ab-p1" aria-labelledby="ab-t1" hidden><ul><li>Each node has an icon, a colour, a <code>title</code> and a <code>detail</code> line, placed by <code>x</code> and <code>y</code> as fractions of the canvas. <code>edges</code> wire nodes together by id.</li><li>With <code>catalog</code>, a step whose output leads nowhere yet gets a small + on its right (under it when the canvas stacks, or when there is no room to its right). A node's <code>connectors</code> add labelled + Model and + Tools buttons under it, with dashed stubs.</li><li>A + or a connector opens the step picker beside it: a search over a short list of step types in groups (after a step, the <code>step</code> groups, such as Tools, Logic and Actions; from a connector, its own group). Each type has an icon and a one-line description, shown at the foot of the picker for the type under the pointer or the arrows.</li><li>Picking a type calls <code>onAddNode(type, from, via, group)</code>. Add a node with <code>attach: { to: from, via }</code> and its edge, and the canvas places it next to what it hangs from (to the right, or under it), clear of the other steps, their + buttons and their wires, and keeps that place in each layout. Models and tools are drawn as smaller steps on dashed wires. The wire to a new step draws itself in.</li><li>The + buttons go once the canvas holds <code>maxNodes</code> steps: 9, or 6 when the canvas stacks.</li><li>With <code>balanced</code> on (the default), nodes that share an <code>x</code> form a column and the columns spread evenly across the width.</li><li>Cards can be dragged; dragging a selected card moves every selected card. Dropping calls <code>onNodeMove</code> with each moved card's new centre. Below 560px wide the nodes stack down the canvas, using each node's <code>narrow</code> position if set; there a step with connectors sends its wire to a step on its left from its left side, so it passes clear of what hangs under it.</li><li>The canvas pans and zooms. Drag the empty canvas (one finger on a touch screen), scroll, or swipe a trackpad to pan; Ctrl or ⌘ with the wheel, or a pinch, zooms at the pointer, from 50% to 200%. The dots move with the cards, and panning stops before the cards' area leaves the middle of the canvas. The canvas never traps the page: the wheel and touch pan it only once someone has clicked or tapped in the component, or moved the keyboard focus into it. Until then the wheel and a finger scroll the page as usual, and a pinch does what the browser does. Ctrl or ⌘ with the wheel zooms the canvas at any time.</li><li>Small zoom buttons sit in the bottom right corner: zoom out, the zoom level (press it for 100%), zoom in, and fit, which centres every step and its + in view at 100% or less. New steps are placed clear of the buttons where there is room. <code>view</code>, <code>defaultView</code> and <code>onViewChange</code> hold where the canvas looks, as <code>{ panX, panY, zoom }</code>. It starts with the whole canvas at 100%, and goes back to that when the canvas switches between wide and stacked.</li><li>Click a card to select it: its white card gets a light grey edge. Shift and a click adds a card to the selection or takes it out, Shift and a drag on the empty canvas draws a box that selects every card it touches, and a click on the empty canvas or Escape clears the selection. <code>selection</code>, <code>defaultSelection</code> and <code>onSelectionChange</code> hold it, as a list of ids.</li><li>The cursor is an open hand on the empty canvas, a closed hand while it pans, and a pointer on the cards.</li><li>Clicking a node selects it and opens a popover with its <code>field</code>, a menu of options. Picking one updates the node's detail and calls <code>onValuesChange</code>.</li><li><code>onRun</code> adds a Test run button. Set each node's <code>state</code> to <code>run</code> or <code>done</code> and add wires to <code>flowing</code> as your run goes, and a soft light passes along each new wire.</li><li>The header shows the automation's <code>name</code>, an optional green <code>tag</code> like "On" and a <code>status</code> line that crossfades.</li></ul></div><div class="cp-tp" role="tabpanel" id="ab-p2" aria-labelledby="ab-t2" hidden><ul><li>Each node is a button with <code>aria-expanded</code> that shows whether its popover is open.</li><li>Each + is a button labelled with the step it adds after, like "Add a step after Post summary", and each connector is labelled like "Add a tool to Agent: audit". Both have <code>aria-haspopup="dialog"</code> and <code>aria-expanded</code>.</li><li>The picker is a dialog labelled the same way. Its search is a <code>combobox</code> that controls a <code>listbox</code> of options in labelled groups, and points at the current option with <code>aria-activedescendant</code>; each option is described by its one-line description.</li><li>Opening the picker puts the focus in its search. The up and down arrows move through the options and wrap, typing filters them, Enter adds the current one and moves the focus to the new step, and Escape closes the picker and gives the focus back to its +.</li><li>An <code>aria-live="polite"</code> region says which step was added and where.</li><li>The popover has <code>role="dialog"</code>, labelled with the node's title, and is <code>inert</code> while closed.</li><li>Enter or Space on a node opens its popover with the focus in it, and Escape or Done closes it and gives the focus back to the node.</li><li>Setting options use <code>role="menuitemradio"</code> with <code>aria-checked</code>, and the dropdown is a menu button with <code>aria-expanded</code>: the arrows open it and move through the options and wrap, Home and End jump, Enter or Space picks, and Escape closes it back to the button.</li><li>The canvas is a focusable <code>group</code> with <code>aria-roledescription="canvas"</code>, labelled by <code>label</code> ("Automation canvas" by default) and described by a hidden line that lists its controls. While the canvas has the focus, the arrow keys pan it (with Shift, in bigger steps). While the canvas, a card or a zoom button has the focus, plus and minus zoom, 0 or 1 fits, and Escape clears the selection.</li><li>Its focus ring is the quiet grey, shown only from the keyboard: a click gives the canvas the focus without a ring. Tab goes from the canvas through the cards and their + buttons, and a card that takes the focus out of view glides into view.</li><li>The zoom buttons are a <code>toolbar</code> labelled "Zoom". The level reads like "Zoom 125%, reset to 100%", and zoom out and zoom in turn <code>aria-disabled</code> at 50% and 200%.</li><li>The <code>aria-live</code> region also says the zoom level after the buttons and keys, and how many steps are selected after a Shift click, a box or a clear.</li><li>The wires are <code>aria-hidden</code>. With reduced motion on, the light along a wire and a new wire's draw are skipped, and the view jumps to where the buttons and keys send it instead of gliding.</li></ul></div></div></section><section class="cp-sec" id="usage"><div class="pg-sh"><span class="n">03</span><h2>Usage</h2><p>Import it and drive it from your own state.</p></div><div class="cp-box"><h3 class="pg-t">Import</h3><pre class="cp-pre"><code>import { AutomationCanvas } from &#39;@/components/designme/automation-canvas/AutomationCanvas&#39;;</code></pre></div><div class="cp-box cp-gap"><h3 class="pg-t">Example</h3><p class="pg-d">The demo above as a React component, 101 lines you can copy.</p><pre class="cp-pre"><code>&#39;use client&#39;;
 // The animated preview from designme.dev, rebuilt from the React component: an example of driving it from your own state.
 import { useRef, useState } from &#39;react&#39;;
 import { AutomationCanvas, type AutomationCatalog, type AutomationEdge, type AutomationNode, type AutomationStepGroup } from &#39;./AutomationCanvas&#39;;
@@ -233,12 +265,15 @@ export default function AutomationCanvasDemo() {
     } catch (e) { if (e !== &#39;stop&#39;) throw e; }
   };
 
-  // the preview&#39;s story: one test run, then the person adds a step after the last one from its +
+  // the preview&#39;s story: one test run, then the person adds a step after the last one from its +, zooms in a step and fits
+  // the whole automation back in view
   const ref = useRef&lt;HTMLDivElement&gt;(null);
   useStory(ref, async ({ wait: sw, press }) =&gt; {
     await sw(1600); press(&#39;.dm-acx-run&#39;);
     await sw(6200); press(&#39;.dm-acx-h&#39;);
     await sw(1500); press(&#39;.dm-acx-o[data-id=&quot;ticket&quot;]&#39;);
+    await sw(1500); press(&#39;.dm-acx-zi&#39;);
+    await sw(1000); press(&#39;.dm-acx-fit&#39;);
   });
 
   return (
@@ -255,8 +290,8 @@ export default function AutomationCanvasDemo() {
     &lt;/div&gt;
   );
 }
-</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything AutomationCanvas takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>name</code><span class="opt">required</span></td><td><code>string</code></td><td>The automation&#39;s name, like &quot;Weekly design QA&quot;</td></tr><tr><td><code>tag</code></td><td><code>string</code></td><td>The green tag after the name, like &quot;On&quot;. Leave it out to hide it</td></tr><tr><td><code>status</code></td><td><code>string</code></td><td>The quiet line on the right, like &quot;Every Monday, 9:00&quot;. Crossfades when it changes</td></tr><tr><td><code>nodes</code><span class="opt">required</span></td><td><code>AutomationNode[]</code></td><td></td></tr><tr><td><code>edges</code><span class="opt">required</span></td><td><code>AutomationEdge[]</code></td><td></td></tr><tr><td><code>flowing</code></td><td><code>AutomationEdge[]</code></td><td>The wires a run has reached. A soft light passes along each one as it is added, and it stays lit while it is listed; clear the list when a new run starts</td></tr><tr><td><code>balanced</code></td><td><code>boolean</code></td><td>Spread the columns of cards evenly, with the first and last the same distance in from each side, so the wires on the left and right match at any width. Set false to place every card exactly at its x. Defaults to true</td></tr><tr><td><code>selected</code></td><td><code>string | null</code></td><td>The node whose popover is open. Leave it out to let clicks pick it</td></tr><tr><td><code>defaultSelected</code></td><td><code>string | null</code></td><td></td></tr><tr><td><code>onSelectedChange</code></td><td><code>(id: string | null) =&gt; void</code></td><td></td></tr><tr><td><code>values</code></td><td><code>Record&lt;string, string&gt;</code></td><td>Each node&#39;s setting, by id. Leave it out to let the popovers keep them, starting from each node&#39;s detail</td></tr><tr><td><code>defaultValues</code></td><td><code>Record&lt;string, string&gt;</code></td><td></td></tr><tr><td><code>onValuesChange</code></td><td><code>(values: Record&lt;string, string&gt;) =&gt; void</code></td><td></td></tr><tr><td><code>onNodeMove</code></td><td><code>(id: string, at: AutomationPoint, narrow: boolean) =&gt; void</code></td><td>Called when a node is dropped after a drag, with where its centre ended up and whether the canvas was narrow</td></tr><tr><td><code>catalog</code></td><td><code>AutomationCatalog</code></td><td>The step types to add. With it, a step whose output leads nowhere gets a +, and each connector opens the picker too</td></tr><tr><td><code>onAddNode</code></td><td><code>(type: AutomationStepType, from: string, via: AutomationVia, group: AutomationStepGroup) =&gt; void</code></td><td>Called with the type picked and where it hangs from. Add a node with `attach: { to: from, via }` and its edge (`[from, id]`, or `[from, id, via]` for a connector)</td></tr><tr><td><code>maxNodes</code></td><td><code>number</code></td><td>The most steps the canvas takes before the + handles go: 9, or 6 when it stacks</td></tr><tr><td><code>onRun</code></td><td><code>() =&gt; void</code></td><td>Adds the Test run button. The run itself is yours: drive it with each node&#39;s state and `flowing`</td></tr><tr><td><code>runLabel</code></td><td><code>string</code></td><td></td></tr><tr><td><code>doneLabel</code></td><td><code>string</code></td><td>The button that closes a popover</td></tr><tr><td><code>searchLabel</code></td><td><code>string</code></td><td>The picker&#39;s search</td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>AutomationCanvas.tsx<span class="l">React · 585 lines</span></summary><pre class="cp-pre"><code>&#39;use client&#39;;
-import { useEffect, useRef, useState, type KeyboardEvent as ReactKeyboardEvent, type MouseEvent as ReactMouseEvent, type PointerEvent as ReactPointerEvent } from &#39;react&#39;;
+</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything AutomationCanvas takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>name</code><span class="opt">required</span></td><td><code>string</code></td><td>The automation&#39;s name, like &quot;Weekly design QA&quot;</td></tr><tr><td><code>tag</code></td><td><code>string</code></td><td>The green tag after the name, like &quot;On&quot;. Leave it out to hide it</td></tr><tr><td><code>status</code></td><td><code>string</code></td><td>The quiet line on the right, like &quot;Every Monday, 9:00&quot;. Crossfades when it changes</td></tr><tr><td><code>nodes</code><span class="opt">required</span></td><td><code>AutomationNode[]</code></td><td></td></tr><tr><td><code>edges</code><span class="opt">required</span></td><td><code>AutomationEdge[]</code></td><td></td></tr><tr><td><code>flowing</code></td><td><code>AutomationEdge[]</code></td><td>The wires a run has reached. A soft light passes along each one as it is added, and it stays lit while it is listed; clear the list when a new run starts</td></tr><tr><td><code>balanced</code></td><td><code>boolean</code></td><td>Spread the columns of cards evenly, with the first and last the same distance in from each side, so the wires on the left and right match at any width. Set false to place every card exactly at its x. Defaults to true</td></tr><tr><td><code>selected</code></td><td><code>string | null</code></td><td>The node whose popover is open. Leave it out to let clicks pick it</td></tr><tr><td><code>defaultSelected</code></td><td><code>string | null</code></td><td></td></tr><tr><td><code>onSelectedChange</code></td><td><code>(id: string | null) =&gt; void</code></td><td></td></tr><tr><td><code>selection</code></td><td><code>string[]</code></td><td>The selected steps, by id. A click selects one, Shift and a click adds one or takes it out, Shift and a drag on the empty canvas boxes them, and a click on the empty canvas or Escape clears them. Leave it out to let the canvas keep it</td></tr><tr><td><code>defaultSelection</code></td><td><code>string[]</code></td><td></td></tr><tr><td><code>onSelectionChange</code></td><td><code>(ids: string[]) =&gt; void</code></td><td></td></tr><tr><td><code>view</code></td><td><code>AutomationView</code></td><td>Where the canvas looks. Defaults to the whole board at 100%, and goes back to that when the canvas switches between wide and stacked. Leave it out to let a drag on the empty canvas, the wheel, a pinch, the zoom buttons and the keys move it</td></tr><tr><td><code>defaultView</code></td><td><code>AutomationView</code></td><td></td></tr><tr><td><code>onViewChange</code></td><td><code>(view: AutomationView) =&gt; void</code></td><td></td></tr><tr><td><code>label</code></td><td><code>string</code></td><td>The canvas&#39;s accessible name</td></tr><tr><td><code>values</code></td><td><code>Record&lt;string, string&gt;</code></td><td>Each node&#39;s setting, by id. Leave it out to let the popovers keep them, starting from each node&#39;s detail</td></tr><tr><td><code>defaultValues</code></td><td><code>Record&lt;string, string&gt;</code></td><td></td></tr><tr><td><code>onValuesChange</code></td><td><code>(values: Record&lt;string, string&gt;) =&gt; void</code></td><td></td></tr><tr><td><code>onNodeMove</code></td><td><code>(id: string, at: AutomationPoint, narrow: boolean) =&gt; void</code></td><td>Called when a node is dropped after a drag, with where its centre ended up and whether the canvas was narrow</td></tr><tr><td><code>catalog</code></td><td><code>AutomationCatalog</code></td><td>The step types to add. With it, a step whose output leads nowhere gets a +, and each connector opens the picker too</td></tr><tr><td><code>onAddNode</code></td><td><code>(type: AutomationStepType, from: string, via: AutomationVia, group: AutomationStepGroup) =&gt; void</code></td><td>Called with the type picked and where it hangs from. Add a node with `attach: { to: from, via }` and its edge (`[from, id]`, or `[from, id, via]` for a connector)</td></tr><tr><td><code>maxNodes</code></td><td><code>number</code></td><td>The most steps the canvas takes before the + handles go: 9, or 6 when it stacks</td></tr><tr><td><code>onRun</code></td><td><code>() =&gt; void</code></td><td>Adds the Test run button. The run itself is yours: drive it with each node&#39;s state and `flowing`</td></tr><tr><td><code>runLabel</code></td><td><code>string</code></td><td></td></tr><tr><td><code>doneLabel</code></td><td><code>string</code></td><td>The button that closes a popover</td></tr><tr><td><code>searchLabel</code></td><td><code>string</code></td><td>The picker&#39;s search</td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>AutomationCanvas.tsx<span class="l">React · 794 lines</span></summary><pre class="cp-pre"><code>&#39;use client&#39;;
+import { useEffect, useRef, useState, type FocusEvent as ReactFocusEvent, type KeyboardEvent as ReactKeyboardEvent, type MouseEvent as ReactMouseEvent, type PointerEvent as ReactPointerEvent } from &#39;react&#39;;
 import { cx } from &#39;../lib/cx&#39;;
 import { useControllable, useIsoLayoutEffect, useReducedMotion } from &#39;../lib/hooks&#39;;
 import { Icon, type IconName } from &#39;../lib/icons&#39;;
@@ -268,6 +303,15 @@ import &#39;./automation-canvas.css&#39;;
 export interface AutomationPoint {
   x: number;
   y: number;
+}
+
+/** Where the canvas looks: a point at (x, y) on the board, in pixels at 100%, shows at x * zoom + panX, y * zoom + panY.
+ * { panX: 0, panY: 0, zoom: 1 } shows the whole board, as laid out, at 100% */
+export interface AutomationView {
+  panX: number;
+  panY: number;
+  /** 1 is 100%; kept between 0.5 and 2 */
+  zoom: number;
 }
 
 /** Where a new step hangs from: after a step (`out`), or from one of a step&#39;s connectors */
@@ -349,6 +393,18 @@ export interface AutomationCanvasProps {
   selected?: string | null;
   defaultSelected?: string | null;
   onSelectedChange?: (id: string | null) =&gt; void;
+  /** The selected steps, by id. A click selects one, Shift and a click adds one or takes it out, Shift and a drag on the
+   * empty canvas boxes them, and a click on the empty canvas or Escape clears them. Leave it out to let the canvas keep it */
+  selection?: string[];
+  defaultSelection?: string[];
+  onSelectionChange?: (ids: string[]) =&gt; void;
+  /** Where the canvas looks. Defaults to the whole board at 100%, and goes back to that when the canvas switches between
+   * wide and stacked. Leave it out to let a drag on the empty canvas, the wheel, a pinch, the zoom buttons and the keys move it */
+  view?: AutomationView;
+  defaultView?: AutomationView;
+  onViewChange?: (view: AutomationView) =&gt; void;
+  /** The canvas&#39;s accessible name */
+  label?: string;
   /** Each node&#39;s setting, by id. Leave it out to let the popovers keep them, starting from each node&#39;s detail */
   values?: Record&lt;string, string&gt;;
   defaultValues?: Record&lt;string, string&gt;;
@@ -382,6 +438,10 @@ const same = (a: AutomationEdge, b: AutomationEdge) =&gt; a[0] === b[0] &amp;&am
 const ek = (e: AutomationEdge) =&gt; e[0] + &#39;-&#39; + e[1];
 const KIND = { model: &#39;Model&#39;, tools: &#39;Tools&#39; } as const;
 const mk = (l: number, t: number, w: number, h: number): Box =&gt; ({ l, t, w, h, r: l + w, b: t + h });
+// the view: the whole board at 100% to start with, and the zoom levels the buttons and keys step through
+const HOME: AutomationView = { panX: 0, panY: 0, zoom: 1 };
+const ZOOMS = [.5, .67, .75, .9, 1, 1.25, 1.5, 2], ZMIN = ZOOMS[0], ZMAX = ZOOMS[ZOOMS.length - 1];
+const NONE: string[] = [];
 
 // a wire from a step&#39;s output (or a connector&#39;s foot) into the side of the next step that faces it
 function link(a: Anchor, B: Box): Bez {
@@ -427,12 +487,15 @@ function spot(W: number, H: number, w: number, h: number, a: Anchor, hasOut: boo
 }
 
 /** An automation as cards and wires: drag the cards, click one to change its setting, add steps from a + or a connector,
- * and watch a run flow through it. */
+ * pan and zoom round the board, select steps, and watch a run flow through it. */
 export function AutomationCanvas({
   name, tag, status, nodes, edges, flowing = [], selected, defaultSelected = null, onSelectedChange, values, defaultValues, onValuesChange,
+  selection, defaultSelection = NONE, onSelectionChange, view: viewProp, defaultView = HOME, onViewChange, label = &#39;Automation canvas&#39;,
   balanced = true, onNodeMove, catalog, onAddNode, maxNodes, onRun, runLabel = &#39;Test run&#39;, doneLabel = &#39;Done&#39;, searchLabel = &#39;Search steps&#39;, className
 }: AutomationCanvasProps) {
   const [sel, setSel] = useControllable(selected, defaultSelected, onSelectedChange);
+  const [picked, setPicked] = useControllable(selection, defaultSelection, onSelectionChange);
+  const [view, setView] = useControllable(viewProp, defaultView, onViewChange);
   const [vals, setVals] = useControllable(values, defaultValues ?? Object.fromEntries(nodes.map(n =&gt; [n.id, n.detail])), onValuesChange);
   const valueOf = (n: AutomationNode) =&gt; vals[n.id] ?? n.detail;
 
@@ -443,7 +506,7 @@ export function AutomationCanvas({
   // where people dropped the nodes, and where the canvas put the added ones, kept apart for the wide and the narrow layout
   const [moved, setMoved] = useState&lt;{ wide: Record&lt;string, AutomationPoint&gt;; narrow: Record&lt;string, AutomationPoint&gt; }&gt;({ wide: {}, narrow: {} });
   const [auto, setAuto] = useState&lt;{ wide: Record&lt;string, AutomationPoint&gt;; narrow: Record&lt;string, AutomationPoint&gt; }&gt;({ wide: {}, narrow: {} });
-  const [drag, setDrag] = useState&lt;string | null&gt;(null);
+  const [drag, setDrag] = useState&lt;string[] | null&gt;(null);
   const [optsOpen, setOptsOpen] = useState(false);
   // the keyboard: a step opened with Enter or Space puts the focus in its popover, and Escape or Done gives it back to the
   // step. The field is a menu button: the arrows open it and move through the choices, Home and End jump, Escape closes it
@@ -469,6 +532,13 @@ export function AutomationCanvas({
   const width = narrow || (!!size &amp;&amp; size.w &lt; 700) ? 150 : 176;
   const widthOf = (n: AutomationNode) =&gt; n.attach &amp;&amp; n.attach.via !== &#39;out&#39; ? (narrow ? 124 : width === 150 ? 150 : 168) : width;
   const reduce = useReducedMotion();
+  /* the canvas never traps the page: until the person has engaged with it (a click in it, a tap in it, or the keyboard&#39;s
+     focus coming into it) the wheel and touch belong to the page, so it scrolls past as usual. A finger that starts a
+     scroll there is the page&#39;s; one that lifts without scrolling is a tap, which engages it. Once engaged, one finger pans
+     and two pinch, as the mouse does */
+  const engaged = useRef(false), lastKey = useRef(-1e9);
+  const [engagedOn, setEngagedOn] = useState(false);
+  const engageNow = () =&gt; { if (engaged.current) return; engaged.current = true; setEngagedOn(true); };
 
   /* ---------- the step picker ---------- */
   const [pk, setPk] = useState&lt;{ from: string; via: AutomationVia; focus: boolean } | null&gt;(null);
@@ -569,6 +639,47 @@ export function AutomationCanvas({
     const o = outAt(B); return o.d === &#39;r&#39; ? mk(o.x + 10, o.y - 10, 20, 20) : mk(o.x - 10, o.y + 10, 20, 20);
   };
 
+  /* ---------- the view, as in Canvas toolbar: the steps are laid out on a board the size of the canvas, which pans and
+     zooms inside it. The popover and the picker sit over it, placed where their step shows ---------- */
+  const { panX, panY, zoom } = view;
+  const scr = (B: Box): Box =&gt; mk(B.l * zoom + panX, B.t * zoom + panY, B.w * zoom, B.h * zoom);
+  // the latest view, for a wheel or a pinch that comes before the next render
+  const vr = useRef(view); vr.current = view;
+  const [anim, setAnim] = useState(false);
+  // the board never goes more than half the canvas off, so the middle of the canvas always shows some of it
+  const go = (v: AutomationView, glide = true) =&gt; {
+    const z = clamp(v.zoom, ZMIN, ZMAX), r2 = (x: number) =&gt; Math.round(x * 100) / 100;
+    const n = { zoom: z, panX: r2(clamp(v.panX, W / 2 - W * z, W / 2)), panY: r2(clamp(v.panY, H / 2 - H * z, H / 2)) }, o = vr.current;
+    if (!size || (n.zoom === o.zoom &amp;&amp; n.panX === o.panX &amp;&amp; n.panY === o.panY)) return;
+    vr.current = n; setAnim(glide &amp;&amp; !reduce); setView(n);
+    // what the popover and the picker point at has moved
+    if (sel) close.current(); if (pk) setPk(null);
+  };
+  const zoomAt = (nz: number, x: number, y: number, glide = true) =&gt; {
+    const v = vr.current, z = clamp(nz, ZMIN, ZMAX), wx = (x - v.panX) / v.zoom, wy = (y - v.panY) / v.zoom;
+    go({ zoom: z, panX: x - wx * z, panY: y - wy * z }, glide);
+  };
+  const pct = (z: number) =&gt; Math.round(z * 100) + &#39;%&#39;;
+  const zoomBy = (d: number) =&gt; {
+    const nz = (d &gt; 0 ? ZOOMS.find(x =&gt; x &gt; zoom + 1e-3) : [...ZOOMS].reverse().find(x =&gt; x &lt; zoom - 1e-3)) ?? zoom; if (nz === zoom) return;
+    zoomAt(nz, W / 2, H / 2); setLive(&#39;Zoom &#39; + pct(nz));
+  };
+  const zoomReset = () =&gt; { zoomAt(1, W / 2, H / 2); setLive(&#39;Zoom 100%&#39;); };
+  // fit: every step and its + in view, centred, never past 100%
+  const fitNow = () =&gt; {
+    const bs = [...Object.values(boxes), ...knobs.map(knobBox).filter((b): b is Box =&gt; !!b)]; if (!bs.length || !size) return;
+    const P = 24, x0 = Math.min(...bs.map(b =&gt; b.l)), y0 = Math.min(...bs.map(b =&gt; b.t)), x1 = Math.max(...bs.map(b =&gt; b.r)), y1 = Math.max(...bs.map(b =&gt; b.b));
+    const z = clamp(Math.min((W - 2 * P) / (x1 - x0), (H - 2 * P) / (y1 - y0), 1), ZMIN, ZMAX);
+    go({ zoom: z, panX: (W - (x1 - x0) * z) / 2 - x0 * z, panY: (H - (y1 - y0) * z) / 2 - y0 * z }); setLive(&#39;Fit to screen, &#39; + pct(z));
+  };
+  // a canvas that switches between wide and stacked lays its steps out afresh, and the view goes back to the whole board
+  const wasNarrow = useRef(narrow);
+  useEffect(() =&gt; {
+    if (wasNarrow.current === narrow) return; wasNarrow.current = narrow;
+    const v = vr.current; if (v.zoom !== 1 || v.panX || v.panY) { vr.current = HOME; setAnim(false); setView(HOME); }
+  }, [narrow]); // eslint-disable-line react-hooks/exhaustive-deps
+  const zmEl = useRef&lt;HTMLDivElement&gt;(null);
+
   // each added step without a place in this layout gets one, in the order they were added
   useIsoLayoutEffect(() =&gt; {
     if (!size || !Object.keys(heights).length) return;
@@ -579,32 +690,38 @@ export function AutomationCanvas({
     const a = e[2] ? (() =&gt; { const s = subAt(byId(e[0])!, e[2]!)!; return { x: s.l + s.w / 2, y: s.b, d: &#39;d&#39; as const }; })() : outAt(A);
     const others = Object.entries(boxes).filter(([id]) =&gt; id !== n.id).map(([, b]) =&gt; b);
     const kb = knobs.filter(k =&gt; k.key !== e[0] + &#39;:out&#39; &amp;&amp; k.node.id !== n.id).map(knobBox).filter((b): b is Box =&gt; !!b);
+    // clear of the zoom buttons in the corner too, where they sit on the board in the current view
+    const zb = zmEl.current; if (zb) kb.push(mk((zb.offsetLeft - panX) / zoom, (zb.offsetTop - panY) / zoom, zb.offsetWidth / zoom, zb.offsetHeight / zoom));
     const wires = Object.entries(geo).filter(([k]) =&gt; !k.split(&#39;-&#39;).includes(n.id)).map(([, q]) =&gt; q);
     const p = spot(size.w, size.h, w, h, a, !isSub(n), narrow, others, kb, wires);
     setAuto(s =&gt; ({ ...s, [layoutKey]: { ...s[layoutKey], [n.id]: p } }));
   });
 
+  // dragging a selected step moves every selected step; dragging another selects it first
   const startDrag = (e: ReactPointerEvent&lt;HTMLButtonElement&gt;, id: string) =&gt; {
-    if (e.button || !cv.current) return;
-    const b = e.currentTarget, canvas = cv.current, sx = e.clientX, sy = e.clientY, ox = b.offsetLeft, oy = b.offsetTop, pointer = e.pointerId;
-    const layout = layoutKey;
-    let on = false, last: AutomationPoint | null = null;
+    // a finger on a step of a canvas not yet engaged may be scrolling the page: it only taps
+    if (e.button || !cv.current || (e.pointerType === &#39;touch&#39; &amp;&amp; !engaged.current)) return;
+    const b = e.currentTarget, canvas = cv.current, sx = e.clientX, sy = e.clientY, pointer = e.pointerId, z = zoom;
+    const layout = layoutKey, ids = picked.includes(id) ? picked : [id];
+    let on = false, last: Record&lt;string, AutomationPoint&gt; = {}, group: { id: string; ox: number; oy: number; w: number; h: number }[] = [];
     const move = (ev: PointerEvent) =&gt; {
-      const dx = ev.clientX - sx, dy = ev.clientY - sy;
-      if (!on &amp;&amp; Math.hypot(dx, dy) &lt; 4) return;
-      if (!on) { on = true; setDrag(id); close.current(); setPk(null); b.setPointerCapture?.(pointer); }
-      const W2 = canvas.clientWidth, H2 = canvas.clientHeight;
-      const left = clamp(ox + dx, 4, W2 - b.offsetWidth - 4), top = clamp(oy + dy, 4, H2 - b.offsetHeight - 4);
-      const p = { x: (left + b.offsetWidth / 2) / W2, y: (top + b.offsetHeight / 2) / H2 };
-      last = p;
-      setMoved(m =&gt; ({ ...m, [layout]: { ...m[layout], [id]: p } }));
+      const dx = (ev.clientX - sx) / z, dy = (ev.clientY - sy) / z;
+      if (!on &amp;&amp; Math.hypot(ev.clientX - sx, ev.clientY - sy) &lt; 4) return;
+      if (!on) {
+        on = true; if (!picked.includes(id)) setPicked([id]); setDrag(ids); close.current(); setPk(null); b.setPointerCapture?.(pointer);
+        group = ids.flatMap(k =&gt; { const x = els.current[k]; return x ? [{ id: k, ox: x.offsetLeft, oy: x.offsetTop, w: x.offsetWidth, h: x.offsetHeight }] : []; });
+      }
+      const W2 = canvas.clientWidth, H2 = canvas.clientHeight, at: Record&lt;string, AutomationPoint&gt; = {};
+      group.forEach(g =&gt; { const left = clamp(g.ox + dx, 4, W2 - g.w - 4), top = clamp(g.oy + dy, 4, H2 - g.h - 4); at[g.id] = { x: (left + g.w / 2) / W2, y: (top + g.h / 2) / H2 }; });
+      last = at;
+      setMoved(m =&gt; ({ ...m, [layout]: { ...m[layout], ...at } }));
     };
     const up = () =&gt; {
       stopDrag.current?.();
       if (!on) return;
       setDrag(null);
       dropped.current = true; setTimeout(() =&gt; { dropped.current = false; }, 50);
-      if (last) onNodeMove?.(id, last, layout === &#39;narrow&#39;);
+      Object.entries(last).forEach(([k, p]) =&gt; onNodeMove?.(k, p, layout === &#39;narrow&#39;));
     };
     stopDrag.current = () =&gt; { document.removeEventListener(&#39;pointermove&#39;, move); document.removeEventListener(&#39;pointerup&#39;, up); stopDrag.current = undefined; };
     document.addEventListener(&#39;pointermove&#39;, move); document.addEventListener(&#39;pointerup&#39;, up);
@@ -667,8 +784,8 @@ export function AutomationCanvas({
   // the canvas, into the room around the component, when that is what keeps every step clear
   if (pb &amp;&amp; size) {
     const pw = 240, ph = 150, G = 10, M = 6, OVER = 32;
-    const me = pb;
-    const others = Object.entries(boxes).filter(([id]) =&gt; id !== pop.id).map(([, o]) =&gt; o);
+    const me = scr(pb);
+    const others = Object.entries(boxes).filter(([id]) =&gt; id !== pop.id).map(([, o]) =&gt; scr(o));
     const cxm = (me.l + me.r) / 2, cym = (me.t + me.b) / 2;
     const over = (x: number, y: number, o: Box) =&gt; Math.max(0, Math.min(x + pw, o.r) - Math.max(x, o.l)) * Math.max(0, Math.min(y + ph, o.b) - Math.max(y, o.t));
     const ys = [me.t - 40, cym - ph / 2, me.t, me.b - ph, M, H - ph - M, H - ph + OVER], xs = [cxm - pw / 2, me.l, me.r - pw, M, W - pw - M];
@@ -716,15 +833,18 @@ export function AutomationCanvas({
     else if (e.key === &#39;Escape&#39;) { e.preventDefault(); e.stopPropagation(); closePk(true); }
     else if (e.key === &#39;Tab&#39;) closePk(false);
   };
+  // the picker&#39;s size once its list is in, so it is placed by the size it shows (and stays put when the canvas renders again)
+  const [pkSize, setPkSize] = useState({ w: 0, h: 0 });
+  useIsoLayoutEffect(() =&gt; { const el = pkEl.current; if (!pk || !el) return; const w = el.offsetWidth, h = el.offsetHeight; if (w !== pkSize.w || h !== pkSize.h) setPkSize({ w, h }); });
   // beside its + : to its right, under it, or to the side of its step, whichever covers the least of the steps (and none of
   // the one it adds to), nearest the + when spots tie, always inside the canvas
   let kx = 0, ky = 0;
-  const pkKnob = pk &amp;&amp; knobs.find(k =&gt; k.key === pk.from + &#39;:&#39; + pk.via), K = pkKnob &amp;&amp; knobBox(pkKnob), S = pk &amp;&amp; boxes[pk.from];
+  const pkKnob = pk &amp;&amp; knobs.find(k =&gt; k.key === pk.from + &#39;:&#39; + pk.via), K0 = pkKnob &amp;&amp; knobBox(pkKnob), K = K0 &amp;&amp; scr(K0), S = pk &amp;&amp; boxes[pk.from] &amp;&amp; scr(boxes[pk.from]);
   if (pk &amp;&amp; K &amp;&amp; S &amp;&amp; size) {
-    const pw = pkEl.current?.offsetWidth || 248, ph = pkEl.current?.offsetHeight || 250, M = 6, G = 8, OVER = -M;
+    const pw = pkSize.w || pkEl.current?.offsetWidth || 248, ph = pkSize.h || pkEl.current?.offsetHeight || 250, M = 6, G = 8, OVER = -M;
     const kcx = K.l + K.w / 2, kcy = K.t + K.h / 2;
     const over = (x: number, y: number, o: Box) =&gt; Math.max(0, Math.min(x + pw, o.r) - Math.max(x, o.l)) * Math.max(0, Math.min(y + ph, o.b) - Math.max(y, o.t));
-    const others = Object.entries(boxes).filter(([id]) =&gt; id !== pk.from).map(([, b]) =&gt; b);
+    const others = Object.entries(boxes).filter(([id]) =&gt; id !== pk.from).map(([, b]) =&gt; scr(b));
     const ys = [kcy - 40, K.t, K.b - ph, M, H - ph - M, H - ph + OVER], xs = [kcx - pw / 2, K.l, K.r - pw, S.l, S.r - pw, M, W - pw - M];
     const below = Math.max(K.b, pk.via === &#39;out&#39; &amp;&amp; !narrow ? S.b : K.b) + G;
     const spots = [...ys.map(y =&gt; [K.r + G, y]), ...ys.map(y =&gt; [Math.min(K.l, S.l) - pw - G, y]), ...xs.map(x =&gt; [x, below]), ...xs.map(x =&gt; [x, Math.min(K.t, S.t) - ph - G])]
@@ -736,8 +856,110 @@ export function AutomationCanvas({
   const marked = (t: string) =&gt; { const i = q ? t.toLowerCase().indexOf(q) : -1; return i &lt; 0 ? t : &lt;&gt;{t.slice(0, i)}&lt;mark&gt;{t.slice(i, i + q.length)}&lt;/mark&gt;{t.slice(i + q.length)}&lt;/&gt;; };
   const src = pk &amp;&amp; byId(pk.from);
 
+  /* ---------- moving around and selecting: drag the empty canvas (one finger on a touch screen) to pan, Shift and a drag
+     to box-select, scroll or a trackpad to pan, Ctrl or ⌘ with the wheel or a pinch to zoom at the pointer. A click on
+     the empty canvas clears the selection ---------- */
+  const choose = (ids: string[]) =&gt; { if (ids.length !== picked.length || ids.some(x =&gt; !picked.includes(x))) setPicked(ids); };
+  const sayPicked = (n: number) =&gt; setLive(n ? `${n} of ${nodes.length} steps selected` : &#39;Nothing selected&#39;);
+  const gesture = useRef&lt;{ kind: &#39;pan&#39; | &#39;box&#39; | &#39;pinch&#39;; id?: number; p0: number[]; v0: AutomationView; base: string[]; moved: boolean; d0?: number; m0?: number[] } | null&gt;(null);
+  const touches = useRef(new Map&lt;number, number[]&gt;());
+  const [panning, setPanning] = useState(false);
+  const [mq, setMq] = useState&lt;{ x: number; y: number; w: number; h: number } | null&gt;(null);
+  const pt = (e: { clientX: number; clientY: number }) =&gt; { const b = cv.current!.getBoundingClientRect(); return [e.clientX - b.left, e.clientY - b.top]; };
+  const pinch = () =&gt; { const [a, b] = [...touches.current.values()]; return { d: Math.hypot(b[0] - a[0], b[1] - a[1]) || 1, m: [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2] }; };
+  const vpDown = (e: ReactPointerEvent&lt;HTMLDivElement&gt;) =&gt; {
+    if ((e.target as Element).closest(&#39;.dm-acx-n, .dm-acx-h, .dm-acx-sc&#39;) || (e.button !== 0 &amp;&amp; e.button !== 1) || (e.pointerType === &#39;touch&#39; &amp;&amp; !engaged.current)) return;
+    e.preventDefault();
+    // a click on the canvas gives it the focus, so the keys work straight away
+    cv.current?.focus({ preventScroll: true });
+    const p = pt(e), v = vr.current;
+    if (e.pointerType === &#39;touch&#39;) {
+      touches.current.set(e.pointerId, p);
+      if (touches.current.size === 2) { const q = pinch(); gesture.current = { kind: &#39;pinch&#39;, p0: p, v0: v, base: [], moved: true, d0: q.d, m0: q.m }; setPanning(false); }
+      else if (touches.current.size === 1) gesture.current = { kind: &#39;pan&#39;, id: e.pointerId, p0: p, v0: v, base: [], moved: false };
+    } else gesture.current = { kind: e.shiftKey &amp;&amp; e.button === 0 ? &#39;box&#39; : &#39;pan&#39;, id: e.pointerId, p0: p, v0: v, base: picked, moved: false };
+    if (gesture.current?.kind === &#39;pan&#39;) setPanning(true);
+    try { e.currentTarget.setPointerCapture(e.pointerId); } catch { /* the pointer has gone already */ }
+  };
+  const vpMove = (e: ReactPointerEvent&lt;HTMLDivElement&gt;) =&gt; {
+    const d = gesture.current; if (!d) return;
+    const p = pt(e);
+    if (touches.current.has(e.pointerId)) touches.current.set(e.pointerId, p);
+    if (d.kind === &#39;pinch&#39;) {
+      if (touches.current.size &lt; 2) return;
+      const q = pinch(), z = clamp(d.v0.zoom * q.d / d.d0!, ZMIN, ZMAX), wx = (d.m0![0] - d.v0.panX) / d.v0.zoom, wy = (d.m0![1] - d.v0.panY) / d.v0.zoom;
+      go({ zoom: z, panX: q.m[0] - wx * z, panY: q.m[1] - wy * z }, false); return;
+    }
+    if (e.pointerId !== d.id) return;
+    const dx = p[0] - d.p0[0], dy = p[1] - d.p0[1];
+    if (!d.moved &amp;&amp; Math.hypot(dx, dy) &lt; 3) return;
+    d.moved = true;
+    if (d.kind === &#39;pan&#39;) { go({ zoom: d.v0.zoom, panX: d.v0.panX + dx, panY: d.v0.panY + dy }, false); return; }
+    const b = { x: Math.min(p[0], d.p0[0]), y: Math.min(p[1], d.p0[1]), w: Math.abs(dx), h: Math.abs(dy) }; setMq(b);
+    const hit = nodes.filter(n =&gt; { const B = boxes[n.id]; if (!B) return false; const s = scr(B); return s.r &gt; b.x &amp;&amp; s.l &lt; b.x + b.w &amp;&amp; s.b &gt; b.y &amp;&amp; s.t &lt; b.y + b.h; }).map(n =&gt; n.id);
+    choose([...new Set([...d.base, ...hit])]);
+  };
+  const vpUp = (e: ReactPointerEvent&lt;HTMLDivElement&gt;) =&gt; {
+    touches.current.delete(e.pointerId);
+    const d = gesture.current; if (!d) return;
+    // lifting one finger of a pinch carries on as a pan with the other
+    if (d.kind === &#39;pinch&#39;) { const f = [...touches.current.entries()][0]; gesture.current = f ? { kind: &#39;pan&#39;, id: f[0], p0: f[1], v0: vr.current, base: [], moved: true } : null; return; }
+    if (e.pointerId !== d.id) return;
+    gesture.current = null; setPanning(false); setMq(null);
+    if (d.kind === &#39;box&#39;) sayPicked(picked.length);
+    else if (!d.moved &amp;&amp; e.type === &#39;pointerup&#39; &amp;&amp; picked.length) { setPicked([]); sayPicked(0); }
+  };
+  /* the wheel never traps the page: it pans the view only once the person has engaged with the component (a click or a tap
+     in it, or the keyboard&#39;s focus coming into it), and until then the page scrolls past as usual. With Ctrl or ⌘ (a
+     trackpad pinch sends that too) it zooms at the pointer at any time. Over the picker&#39;s list it scrolls the list. It is
+     added by hand so it can stop the page scrolling */
+  useEffect(() =&gt; { const k = (e: KeyboardEvent) =&gt; { if (e.isTrusted) lastKey.current = e.timeStamp; }; document.addEventListener(&#39;keydown&#39;, k, true); return () =&gt; document.removeEventListener(&#39;keydown&#39;, k, true); }, []);
+  const engage = (e: ReactPointerEvent) =&gt; { if (e.nativeEvent.isTrusted &amp;&amp; (e.pointerType !== &#39;touch&#39;) === (e.type === &#39;pointerdown&#39;)) engageNow(); };
+  const engageFocus = (e: ReactFocusEvent) =&gt; { if (e.nativeEvent.isTrusted &amp;&amp; e.nativeEvent.timeStamp - lastKey.current &lt; 100) engageNow(); };
+  const wheel = useRef&lt;(e: WheelEvent) =&gt; void&gt;(() =&gt; {});
+  wheel.current = e =&gt; {
+    const t = e.target as Node;
+    if (pkEl.current?.contains(t) || popEl.current?.contains(t)) return;
+    const zoomer = e.ctrlKey || e.metaKey; if (!zoomer &amp;&amp; !engaged.current) return;
+    e.preventDefault();
+    if (zoomer) { const p = pt(e); zoomAt(vr.current.zoom * Math.exp(-e.deltaY / 300), p[0], p[1], false); return; }
+    const k = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? H : 1, v = vr.current;
+    let dx = e.deltaX * k, dy = e.deltaY * k; if (e.shiftKey &amp;&amp; !dx) { dx = dy; dy = 0; }
+    go({ zoom: v.zoom, panX: v.panX - dx, panY: v.panY - dy }, false);
+  };
+  useEffect(() =&gt; { const el = cv.current; if (!el) return; const f = (e: WheelEvent) =&gt; wheel.current(e); el.addEventListener(&#39;wheel&#39;, f, { passive: false }); return () =&gt; el.removeEventListener(&#39;wheel&#39;, f); }, []);
+  // a pointer hides the canvas&#39;s focus ring until the next key (Ctrl, ⌘, Shift or Alt alone, as with the wheel, leave it hidden)
+  const ptrRef = useRef(false);
+  const [ptr, setPtr] = useState(false);
+  useEffect(() =&gt; { const k = (e: KeyboardEvent) =&gt; { if (!ptrRef.current || /^(Control|Meta|Shift|Alt)$/.test(e.key)) return; ptrRef.current = false; setPtr(false); }; document.addEventListener(&#39;keydown&#39;, k, true); return () =&gt; document.removeEventListener(&#39;keydown&#39;, k, true); }, []);
+  /* the keyboard, while the canvas or a step has the focus: the arrow keys move the view (on the canvas itself), plus and
+     minus zoom, 0 or 1 fits, Escape clears the selection; Tab goes through the steps and their + buttons, and a step that
+     takes the focus off screen glides into view */
+  const keys = (e: ReactKeyboardEvent&lt;HTMLDivElement&gt;) =&gt; {
+    const t = e.target as HTMLElement;
+    if (e.defaultPrevented || e.ctrlKey || e.metaKey || e.altKey || popEl.current?.contains(t) || pkEl.current?.contains(t) || /^(INPUT|TEXTAREA)$/.test(t.tagName)) return;
+    const k = e.key, v = vr.current;
+    if (k === &#39;+&#39; || k === &#39;=&#39;) zoomBy(1);
+    else if (k === &#39;-&#39; || k === &#39;_&#39;) zoomBy(-1);
+    else if (k === &#39;0&#39; || k === &#39;1&#39; || e.code === &#39;Digit0&#39; || e.code === &#39;Digit1&#39;) fitNow();
+    else if (t === cv.current &amp;&amp; /^Arrow/.test(k)) {
+      const d = e.shiftKey ? 120 : 40;
+      go({ zoom: v.zoom, panX: v.panX + (k === &#39;ArrowLeft&#39; ? d : k === &#39;ArrowRight&#39; ? -d : 0), panY: v.panY + (k === &#39;ArrowUp&#39; ? d : k === &#39;ArrowDown&#39; ? -d : 0) });
+    } else if (k === &#39;Escape&#39; &amp;&amp; picked.length) { setPicked([]); sayPicked(0); }
+    else return;
+    e.preventDefault();
+  };
+  const intoView = (e: ReactFocusEvent&lt;HTMLDivElement&gt;) =&gt; {
+    if (ptrRef.current || !size) return;
+    const t = (e.target as HTMLElement).closest&lt;HTMLElement&gt;(&#39;.dm-acx-n, .dm-acx-h, .dm-acx-sc&#39;); if (!t) return;
+    const s = scr(mk(t.offsetLeft, t.offsetTop, t.offsetWidth, t.offsetHeight)), M = 16;
+    const dx = s.l &lt; M ? M - s.l : s.r &gt; W - M ? W - M - s.r : 0, dy = s.t &lt; M ? M - s.t : s.b &gt; H - M ? H - M - s.b : 0;
+    if (dx || dy) go({ zoom, panX: panX + dx, panY: panY + dy });
+  };
+  const lo = zoom &lt;= ZMIN + 1e-3, hi = zoom &gt;= ZMAX - 1e-3;
+
   return (
-    &lt;div data-dm=&quot;&quot; className={cx(&#39;dm-acx&#39;, className)}&gt;
+    &lt;div data-dm=&quot;&quot; className={cx(&#39;dm-acx&#39;, className)} onPointerDownCapture={engage} onPointerUpCapture={engage} onFocusCapture={engageFocus}&gt;
       &lt;div className=&quot;dm-acx-top&quot;&gt;
         &lt;span className=&quot;dm-acx-name&quot;&gt;{name}&lt;/span&gt;
         {tag &amp;&amp; &lt;span className=&quot;dm-tag dm-ok dm-acx-on&quot;&gt;{tag}&lt;/span&gt;}
@@ -745,7 +967,12 @@ export function AutomationCanvas({
         {status !== undefined &amp;&amp; &lt;Swap className=&quot;dm-muted dm-acx-st&quot;&gt;{status}&lt;/Swap&gt;}
         {onRun &amp;&amp; &lt;button type=&quot;button&quot; className=&quot;dm-pill dm-primary dm-sm dm-acx-run&quot; onClick={() =&gt; { setSel(null); setPk(null); onRun(); }}&gt;&lt;Icon name=&quot;play&quot; size=&quot;xs&quot; /&gt;{runLabel}&lt;/button&gt;}
       &lt;/div&gt;
-      &lt;div className=&quot;dm-acx-cv&quot; ref={cv} onClick={() =&gt; { setSel(null); setPk(null); }}&gt;
+      &lt;div className={cx(&#39;dm-acx-cv&#39;, anim &amp;&amp; &#39;dm-anim&#39;, panning &amp;&amp; &#39;dm-pan&#39;, ptr &amp;&amp; &#39;dm-ptr&#39;, engagedOn &amp;&amp; &#39;dm-engaged&#39;)} ref={cv} tabIndex={0} role=&quot;group&quot; aria-roledescription=&quot;canvas&quot; aria-label={label} aria-describedby={`dm-acx-k-${uid}`}
+        style={size ? { backgroundSize: `100% 100%,${16 * zoom}px ${16 * zoom}px`, backgroundPosition: `0 0,${(W - 16) / 2 * zoom + panX}px ${(H - 16) / 2 * zoom + panY}px` } : undefined}
+        onClick={() =&gt; { setSel(null); setPk(null); }} onKeyDown={keys} onPointerDownCapture={() =&gt; { if (!ptrRef.current) { ptrRef.current = true; setPtr(true); } }}&gt;
+        &lt;div className=&quot;dm-acx-vp&quot; onPointerDown={vpDown} onPointerMove={vpMove} onPointerUp={vpUp} onPointerCancel={vpUp}
+          onScroll={e =&gt; { e.currentTarget.scrollLeft = 0; e.currentTarget.scrollTop = 0; }}&gt;
+        &lt;div className=&quot;dm-acx-world&quot; style={{ transform: `translate(${panX}px,${panY}px) scale(${zoom})` }}&gt;
         &lt;svg ref={svg} className={cx(&#39;dm-acx-svg&#39;, intro &amp;&amp; &#39;dm-intro&#39;)} aria-hidden=&quot;true&quot;&gt;
           {size &amp;&amp; edges.map(e =&gt; geo[ek(e)] &amp;&amp; &lt;path key={ek(e)} data-e={ek(e)} className={cx(e[2] &amp;&amp; &#39;dm-sub&#39;, flowing.some(f =&gt; same(f, e)) &amp;&amp; &#39;dm-done&#39;)} d={dOf(geo[ek(e)])} /&gt;)}
           {/* the short stubs from a step to its + and its connectors */}
@@ -753,15 +980,20 @@ export function AutomationCanvas({
             const o = outAt(B), d = k.via === &#39;out&#39; ? (o.d === &#39;d&#39; ? `M${kb.l + 10} ${B.b}V${kb.t}` : `M${B.r} ${kb.t + 10}H${kb.l}`) : `M${kb.l + kb.w / 2} ${B.b}V${kb.t}`;
             return &lt;path key={&#39;s:&#39; + k.key} className=&quot;dm-stub&quot; d={d} /&gt;; })}
         &lt;/svg&gt;
-        &lt;div className={cx(&#39;dm-acx-nodes&#39;, drag &amp;&amp; &#39;dm-drag&#39;)}&gt;
+        &lt;div className={cx(&#39;dm-acx-nodes&#39;, drag &amp;&amp; &#39;dm-drag&#39;)} onFocus={intoView}&gt;
           {nodes.map((n, i) =&gt; {
             const B = boxes[n.id];
             return (
               &lt;button type=&quot;button&quot; key={n.id} ref={el =&gt; { els.current[n.id] = el; }} aria-expanded={sel === n.id}
-                className={cx(&#39;dm-acx-n&#39;, n.attach ? &#39;dm-add&#39; : &#39;dm-acx-in&#39;, isSub(n) &amp;&amp; &#39;dm-sm&#39;, drag === n.id &amp;&amp; &#39;dm-drag&#39;, sel === n.id &amp;&amp; &#39;dm-sel&#39;, n.state === &#39;run&#39; &amp;&amp; &#39;dm-run&#39;)}
+                className={cx(&#39;dm-acx-n&#39;, n.attach ? &#39;dm-add&#39; : &#39;dm-acx-in&#39;, isSub(n) &amp;&amp; &#39;dm-sm&#39;, drag?.includes(n.id) &amp;&amp; &#39;dm-drag&#39;, picked.includes(n.id) &amp;&amp; &#39;dm-sel&#39;, n.state === &#39;run&#39; &amp;&amp; &#39;dm-run&#39;)}
                 style={{ animationDelay: n.attach ? undefined : i * 90 + &#39;ms&#39;, left: B ? B.l : 0, top: B ? B.t : 0, width: widthOf(n) === 176 ? undefined : widthOf(n), visibility: B ? undefined : &#39;hidden&#39; }}
                 onPointerDown={ev =&gt; startDrag(ev, n.id)}
-                onClick={ev =&gt; { ev.stopPropagation(); if (dropped.current) { dropped.current = false; return; } setPk(null); keyOpen.current = sel !== n.id &amp;&amp; ev.detail === 0; setSel(sel === n.id ? null : n.id); }}
+                onClick={ev =&gt; {
+                  ev.stopPropagation(); if (dropped.current) { dropped.current = false; return; } setPk(null);
+                  // Shift and a click adds the step to the selection or takes it out; a plain click selects it and opens its setting
+                  if (ev.shiftKey) { const next = picked.includes(n.id) ? picked.filter(x =&gt; x !== n.id) : [...picked, n.id]; setPicked(next); if (sel) setSel(null); sayPicked(next.length); return; }
+                  choose([n.id]); keyOpen.current = sel !== n.id &amp;&amp; ev.detail === 0; setSel(sel === n.id ? null : n.id);
+                }}
                 onKeyDown={ev =&gt; { if (ev.key === &#39;Escape&#39; &amp;&amp; sel === n.id) { ev.preventDefault(); setSel(null); } }}&gt;
                 &lt;span className=&quot;dm-ic&quot; style={{ color: n.color, background: `color-mix(in srgb,${n.color} 14%,transparent)` }}&gt;&lt;Icon name={n.icon} size=&quot;xs&quot; /&gt;&lt;/span&gt;
                 &lt;span className=&quot;dm-t&quot;&gt;&lt;b&gt;{n.title}&lt;/b&gt;&lt;Swap className=&quot;dm-d&quot;&gt;{valueOf(n)}&lt;/Swap&gt;&lt;/span&gt;
@@ -785,6 +1017,18 @@ export function AutomationCanvas({
               : &lt;button type=&quot;button&quot; key={k.key} ref={el =&gt; { knobEls.current[k.key] = el; }} className=&quot;dm-acx-sc&quot; style={style} aria-haspopup=&quot;dialog&quot; aria-expanded={open} aria-label={`Add ${k.via === &#39;model&#39; ? &#39;a model&#39; : &#39;a tool&#39;} to ${k.node.title}`} onClick={toggle}&gt;&lt;Icon name=&quot;plus&quot; size=&quot;xs&quot; /&gt;&lt;span&gt;{KIND[k.via]}&lt;/span&gt;&lt;/button&gt;;
           })}
         &lt;/div&gt;
+        &lt;/div&gt;
+        {mq &amp;&amp; &lt;div className=&quot;dm-acx-mq&quot; style={{ left: mq.x, top: mq.y, width: mq.w, height: mq.h }} /&gt;}
+        &lt;/div&gt;
+        {/* zoom out, the zoom level (which resets to 100%), zoom in and fit, quiet in the corner */}
+        &lt;div ref={zmEl} className=&quot;dm-acx-zm&quot; role=&quot;toolbar&quot; aria-label=&quot;Zoom&quot;&gt;
+          &lt;Tip label=&quot;Zoom out&quot; kbd=&quot;−&quot;&gt;&lt;button type=&quot;button&quot; className=&quot;dm-acx-zb dm-acx-zo&quot; aria-label=&quot;Zoom out&quot; aria-disabled={lo} onClick={() =&gt; zoomBy(-1)}&gt;&lt;Icon name=&quot;minus&quot; /&gt;&lt;/button&gt;&lt;/Tip&gt;
+          &lt;Tip label=&quot;Zoom to 100%&quot;&gt;&lt;button type=&quot;button&quot; className=&quot;dm-acx-zl dm-num&quot; aria-label={`Zoom ${pct(zoom)}, reset to 100%`} onClick={zoomReset}&gt;{pct(zoom)}&lt;/button&gt;&lt;/Tip&gt;
+          &lt;Tip label=&quot;Zoom in&quot; kbd=&quot;+&quot;&gt;&lt;button type=&quot;button&quot; className=&quot;dm-acx-zb dm-acx-zi&quot; aria-label=&quot;Zoom in&quot; aria-disabled={hi} onClick={() =&gt; zoomBy(1)}&gt;&lt;Icon name=&quot;plus&quot; /&gt;&lt;/button&gt;&lt;/Tip&gt;
+          &lt;span className=&quot;dm-acx-zs&quot; /&gt;
+          &lt;Tip label=&quot;Fit to screen&quot; kbd=&quot;0&quot;&gt;&lt;button type=&quot;button&quot; className=&quot;dm-acx-zb dm-acx-fit&quot; aria-label=&quot;Fit to screen&quot; onClick={fitNow}&gt;&lt;Icon name=&quot;fit&quot; /&gt;&lt;/button&gt;&lt;/Tip&gt;
+        &lt;/div&gt;
+        &lt;span className=&quot;dm-acx-sr&quot; id={`dm-acx-k-${uid}`}&gt;Drag the empty canvas or scroll to move around, and Control or Command with the scroll wheel, or a pinch, to zoom. With the canvas focused the arrow keys move the view, plus and minus zoom, and 0 or 1 fits it. Shift-click a step to add it to the selection, and Escape clears it.&lt;/span&gt;
         &lt;div ref={popEl} className={cx(&#39;dm-pop dm-acx-pop&#39;, !!sel &amp;&amp; &#39;dm-open&#39;)} role=&quot;dialog&quot; aria-label={pop?.title} inert={!sel} style={{ left: px, top: py }} onClick={e =&gt; e.stopPropagation()}
           onFocus={() =&gt; { inPop.current = true; }} onBlur={e =&gt; { if (!popEl.current?.contains(e.relatedTarget as Node)) inPop.current = false; }}
           onKeyDown={e =&gt; { if (e.key === &#39;Escape&#39; &amp;&amp; sel) { e.preventDefault(); setSel(null); } }}&gt;
@@ -839,7 +1083,7 @@ export function AutomationCanvas({
     &lt;/div&gt;
   );
 }
-</code></pre></details><details class="cp-file"><summary>automation-canvas.css<span class="l">React · 84 lines</span></summary><pre class="cp-pre"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+</code></pre></details><details class="cp-file"><summary>automation-canvas.css<span class="l">React · 109 lines</span></summary><pre class="cp-pre"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Automation canvas ---------- */
 .dm-acx{display:flex;flex-direction:column;gap:10px;width:100%}
 .dm-acx-top{display:flex;align-items:center;gap:var(--dm-s-2);font-size:13px;flex-wrap:wrap}
@@ -847,8 +1091,31 @@ export function AutomationCanvas({
 .dm-acx-sp{flex:1}
 .dm-acx-st{font-size:12.5px}
 /* the canvas reads as a workflow editor: a dot every 16px, fading toward the edges so the steps sit in the middle of it */
-.dm-acx-cv{position:relative;height:420px;border-radius:18px;background-color:var(--dm-chip);background-image:radial-gradient(ellipse at center,transparent 55%,var(--dm-chip) 100%),radial-gradient(circle at 8px 8px,color-mix(in srgb,var(--dm-fg) 20%,transparent) 1.1px,transparent 1.6px);background-size:100% 100%,16px 16px;background-position:0 0,center}
-.dm-acx-svg{position:absolute;inset:0;width:100%;height:100%}
+.dm-acx-cv{position:relative;height:420px;border-radius:18px;outline:0;background-color:var(--dm-chip);background-image:radial-gradient(ellipse at center,transparent 55%,var(--dm-chip) 100%),radial-gradient(circle at center,color-mix(in srgb,var(--dm-fg) 20%,transparent) 1.1px,transparent 1.6px);background-size:100% 100%,16px 16px;background-position:0 0,center}
+/* the view: the steps and wires sit on a world that pans and zooms inside the canvas, and the dots move with it. Drag the
+   empty canvas (one finger on a touch screen) or scroll to move around; Ctrl or ⌘ with the wheel, or a pinch, zooms at the
+   pointer. The popover and the picker sit over it, so they may still hang below the canvas */
+.dm-acx-vp{position:absolute;inset:0;overflow:hidden;overflow:clip;border-radius:inherit;cursor:grab;user-select:none;-webkit-user-select:none}
+/* touch is the page&#39;s until the canvas is engaged (a tap in it): then one finger pans and two pinch the canvas */
+.dm-acx-cv.dm-engaged :is(.dm-acx-vp,.dm-acx-n){touch-action:none}
+.dm-acx-cv.dm-pan .dm-acx-vp{cursor:grabbing}
+.dm-acx-world{position:absolute;inset:0;transform-origin:0 0}
+.dm-acx-cv.dm-anim{transition:background-position var(--dm-t) var(--dm-ease),background-size var(--dm-t) var(--dm-ease)}
+.dm-acx-cv.dm-anim .dm-acx-world{transition:transform var(--dm-t) var(--dm-ease)}
+/* the canvas shows its focus only to the keyboard, in the quiet grey: a click gives it the focus without a ring */
+.dm-acx-cv:focus-visible:not(.dm-ptr){outline:2px solid var(--dm-field-line);outline-offset:2px}
+/* Shift and a drag on the empty canvas draws a box: every step it touches joins the selection */
+.dm-acx-mq{position:absolute;left:0;top:0;border-radius:var(--dm-r-xs);box-shadow:inset 0 0 0 1px var(--dm-pick-on);background:color-mix(in srgb,var(--dm-fg) 4%,transparent);pointer-events:none}
+/* zoom out, the zoom level (which resets to 100%), zoom in and fit, quiet in the corner */
+.dm-acx-zm{position:absolute;right:var(--dm-s-3);bottom:var(--dm-s-3);z-index:4;display:flex;align-items:center;padding:var(--dm-s-1);border-radius:var(--dm-r-pill);background:var(--dm-surface);box-shadow:var(--dm-shadow)}
+.dm-acx-zb{width:28px;height:28px;flex:none;display:grid;place-items:center;border-radius:var(--dm-r-pill);color:var(--dm-fg2);transition:background var(--dm-t-fast),color var(--dm-t-fast)}
+.dm-acx-zl{min-width:44px;height:28px;padding:0 var(--dm-s-1);flex:none;border-radius:var(--dm-r-pill);font-size:12px;color:var(--dm-fg2);transition:background var(--dm-t-fast),color var(--dm-t-fast)}
+@media (hover:hover) and (pointer:fine){.dm-acx-zb:hover,.dm-acx-zl:hover{background:var(--dm-row);color:var(--dm-fg)}}
+.dm-acx-zb[aria-disabled=&quot;true&quot;]{color:var(--dm-dis);background:none;cursor:not-allowed}
+@media (hover:hover) and (pointer:fine){.dm-acx-zb[aria-disabled=&quot;true&quot;]:hover{color:var(--dm-dis);background:none;cursor:not-allowed}}
+.dm-acx-zs{width:1px;height:14px;margin:0 var(--dm-s-1);flex:none;background:var(--dm-line)}
+.dm-acx-sr{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.dm-acx-svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
 .dm-acx-svg path{fill:none;stroke:var(--dm-faint);stroke-width:1.5;transition:stroke .6s var(--dm-ease)}
 /* on arrival the wires draw in after the steps have landed */
 .dm-acx-svg.dm-intro path{stroke-dasharray:var(--dm-l);animation:dm-acxdraw .8s var(--dm-ease) .42s backwards}
@@ -866,9 +1133,10 @@ export function AutomationCanvas({
 @keyframes dm-acxsv{from{opacity:0;filter:blur(2px)}}
 .dm-acx-n{position:absolute;width:176px;padding:10px var(--dm-s-3);border-radius:14px;background:var(--dm-surface);box-shadow:var(--dm-shadow);display:flex;align-items:center;gap:10px;font-size:12.5px;text-align:left;transition:box-shadow .3s,left .5s var(--dm-ease),top .5s var(--dm-ease)}
 @media (hover:hover) and (pointer:fine){.dm-acx-n:hover{box-shadow:var(--dm-shadow-pop)}}
-.dm-acx-n{cursor:grab;touch-action:none;user-select:none}
+.dm-acx-n{cursor:pointer;user-select:none}
 .dm-acx-n.dm-drag{cursor:grabbing;transition:box-shadow .3s;box-shadow:var(--dm-shadow-pop);z-index:3;transform:scale(1.02)}
-.dm-acx-n.dm-sel{box-shadow:0 0 0 1px var(--dm-rail),var(--dm-shadow-pop)}
+/* a selected step: its white card with a light grey edge */
+.dm-acx-n.dm-sel{box-shadow:0 0 0 1px var(--dm-pick-on),var(--dm-shadow-pop)}
 .dm-acx-n .dm-ic{width:28px;height:28px;border-radius:9px;display:grid;place-items:center;flex:none}
 .dm-acx-n .dm-t{display:flex;flex-direction:column;min-width:0}
 .dm-acx-n .dm-t b{font-weight:500;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -920,15 +1188,23 @@ export function AutomationCanvas({
 .dm-acx-pd{margin:0;padding:var(--dm-s-2) var(--dm-s-2) 2px;box-shadow:inset 0 1px 0 var(--dm-line);font-size:12px;line-height:1.4;color:var(--dm-fg2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dm-acx-live{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 :root:not([data-style=&quot;soft&quot;]) :is(.dm-acx-h,.dm-acx-sc):not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *)){box-shadow:inset 0 0 0 1px var(--dm-rail)}
+:root:not([data-style=&quot;soft&quot;]) .dm-acx-zm:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *)){box-shadow:inset 0 0 0 1px var(--dm-line)}
 @media (hover:hover) and (pointer:fine){:root:not([data-style=&quot;soft&quot;]) :is(.dm-acx-h,.dm-acx-sc):is(:hover,[aria-expanded=&quot;true&quot;]):not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *)){box-shadow:inset 0 0 0 1px var(--dm-field-line)}}
 @media (max-width:720px){.dm-acx-cv{height:580px}}
-</code></pre></details><details class="cp-file"><summary>automation-canvas.html<span class="l">HTML · 19 lines</span></summary><pre class="cp-pre"><code>&lt;div class=&quot;card wide&quot; data-c=&quot;automation-canvas&quot;&gt;
+</code></pre></details><details class="cp-file"><summary>automation-canvas.html<span class="l">HTML · 26 lines</span></summary><pre class="cp-pre"><code>&lt;div class=&quot;card wide&quot; data-c=&quot;automation-canvas&quot;&gt;
   &lt;div class=&quot;stage-in&quot;&gt;
     &lt;div class=&quot;acx&quot; data-reveal=&quot;flat&quot;&gt;
       &lt;div class=&quot;acx-top&quot;&gt;&lt;span class=&quot;acx-name&quot;&gt;Weekly design QA&lt;/span&gt;&lt;span class=&quot;tag ok acx-on&quot;&gt;On&lt;/span&gt;&lt;span class=&quot;acx-sp&quot;&gt;&lt;/span&gt;&lt;span class=&quot;muted acx-st&quot;&gt;Every Monday, 9:00&lt;/span&gt;&lt;button class=&quot;pill primary sm acx-run&quot;&gt;&lt;svg class=&quot;i xs&quot;&gt;&lt;use href=&quot;#i-play&quot;/&gt;&lt;/svg&gt;Test run&lt;/button&gt;&lt;/div&gt;
-      &lt;div class=&quot;acx-cv&quot;&gt;
-        &lt;svg class=&quot;acx-svg&quot; aria-hidden=&quot;true&quot;&gt;&lt;/svg&gt;
-        &lt;div class=&quot;acx-nodes&quot;&gt;&lt;/div&gt;
+      &lt;div class=&quot;acx-cv&quot; tabindex=&quot;0&quot; role=&quot;group&quot; aria-roledescription=&quot;canvas&quot; aria-label=&quot;Automation canvas&quot;&gt;
+        &lt;div class=&quot;acx-vp&quot;&gt;&lt;div class=&quot;acx-world&quot;&gt;&lt;svg class=&quot;acx-svg&quot; aria-hidden=&quot;true&quot;&gt;&lt;/svg&gt;&lt;div class=&quot;acx-nodes&quot;&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;acx-mq&quot; hidden&gt;&lt;/div&gt;&lt;/div&gt;
+        &lt;div class=&quot;acx-zm&quot; role=&quot;toolbar&quot; aria-label=&quot;Zoom&quot;&gt;
+          &lt;button class=&quot;acx-zb acx-zo&quot; aria-label=&quot;Zoom out&quot; data-tip=&quot;Zoom out&quot; data-tip-k=&quot;−&quot;&gt;&lt;svg class=&quot;i s&quot;&gt;&lt;use href=&quot;#i-minus&quot;/&gt;&lt;/svg&gt;&lt;/button&gt;
+          &lt;button class=&quot;acx-zl num&quot; aria-label=&quot;Zoom 100%, reset to 100%&quot; data-tip=&quot;Zoom to 100%&quot;&gt;100%&lt;/button&gt;
+          &lt;button class=&quot;acx-zb acx-zi&quot; aria-label=&quot;Zoom in&quot; data-tip=&quot;Zoom in&quot; data-tip-k=&quot;+&quot;&gt;&lt;svg class=&quot;i s&quot;&gt;&lt;use href=&quot;#i-plus&quot;/&gt;&lt;/svg&gt;&lt;/button&gt;
+          &lt;span class=&quot;acx-zs&quot;&gt;&lt;/span&gt;
+          &lt;button class=&quot;acx-zb acx-fit&quot; aria-label=&quot;Fit to screen&quot; data-tip=&quot;Fit to screen&quot; data-tip-k=&quot;0&quot;&gt;&lt;svg class=&quot;i s&quot;&gt;&lt;use href=&quot;#i-fit&quot;/&gt;&lt;/svg&gt;&lt;/button&gt;
+        &lt;/div&gt;
+        &lt;span class=&quot;acx-sr&quot;&gt;Drag the empty canvas or scroll to move around, and Control or Command with the scroll wheel, or a pinch, to zoom. With the canvas focused the arrow keys move the view, plus and minus zoom, and 0 or 1 fits it. Shift-click a step to add it to the selection, and Escape clears it.&lt;/span&gt;
         &lt;div class=&quot;pop acx-pop&quot; role=&quot;dialog&quot;&gt;&lt;/div&gt;
         &lt;div class=&quot;pop acx-pk&quot; role=&quot;dialog&quot; aria-label=&quot;Add a step&quot;&gt;
           &lt;div class=&quot;acx-q&quot;&gt;&lt;svg class=&quot;i xs&quot;&gt;&lt;use href=&quot;#i-search&quot;/&gt;&lt;/svg&gt;&lt;input class=&quot;acx-qi&quot; type=&quot;text&quot; role=&quot;combobox&quot; aria-expanded=&quot;true&quot; aria-autocomplete=&quot;list&quot; placeholder=&quot;Search steps&quot; aria-label=&quot;Search steps&quot; autocomplete=&quot;off&quot; spellcheck=&quot;false&quot;&gt;&lt;/div&gt;
@@ -940,15 +1216,38 @@ export function AutomationCanvas({
     &lt;/div&gt;
   &lt;/div&gt;
 &lt;/div&gt;
-</code></pre></details><details class="cp-file"><summary>automation-canvas.css<span class="l">HTML · 83 lines</span></summary><pre class="cp-pre"><code>/* ---------- Automation canvas ---------- */
+</code></pre></details><details class="cp-file"><summary>automation-canvas.css<span class="l">HTML · 108 lines</span></summary><pre class="cp-pre"><code>/* ---------- Automation canvas ---------- */
 .acx{display:flex;flex-direction:column;gap:10px;width:100%}
 .acx-top{display:flex;align-items:center;gap:var(--s-2);font-size:13px;flex-wrap:wrap}
 .acx-name{font-weight:500}
 .acx-sp{flex:1}
 .acx-st{font-size:12.5px}
 /* the canvas reads as a workflow editor: a dot every 16px, fading toward the edges so the steps sit in the middle of it */
-.acx-cv{position:relative;height:420px;border-radius:18px;background-color:var(--chip);background-image:radial-gradient(ellipse at center,transparent 55%,var(--chip) 100%),radial-gradient(circle at 8px 8px,color-mix(in srgb,var(--fg) 20%,transparent) 1.1px,transparent 1.6px);background-size:100% 100%,16px 16px;background-position:0 0,center}
-.acx-svg{position:absolute;inset:0;width:100%;height:100%}
+.acx-cv{position:relative;height:420px;border-radius:18px;outline:0;background-color:var(--chip);background-image:radial-gradient(ellipse at center,transparent 55%,var(--chip) 100%),radial-gradient(circle at center,color-mix(in srgb,var(--fg) 20%,transparent) 1.1px,transparent 1.6px);background-size:100% 100%,16px 16px;background-position:0 0,center}
+/* the view: the steps and wires sit on a world that pans and zooms inside the canvas, and the dots move with it. Drag the
+   empty canvas (one finger on a touch screen) or scroll to move around; Ctrl or ⌘ with the wheel, or a pinch, zooms at the
+   pointer. The popover and the picker sit over it, so they may still hang below the canvas */
+.acx-vp{position:absolute;inset:0;overflow:hidden;overflow:clip;border-radius:inherit;cursor:grab;user-select:none;-webkit-user-select:none}
+/* touch is the page&#39;s until the canvas is engaged (a tap in it): then one finger pans and two pinch the canvas */
+.acx-cv.engaged :is(.acx-vp,.acx-n){touch-action:none}
+.acx-cv.pan .acx-vp{cursor:grabbing}
+.acx-world{position:absolute;inset:0;transform-origin:0 0}
+.acx-cv.anim{transition:background-position var(--t) var(--ease),background-size var(--t) var(--ease)}
+.acx-cv.anim .acx-world{transition:transform var(--t) var(--ease)}
+/* the canvas shows its focus only to the keyboard, in the quiet grey: a click gives it the focus without a ring */
+.acx-cv:focus-visible:not(.ptr){outline:2px solid var(--field-line);outline-offset:2px}
+/* Shift and a drag on the empty canvas draws a box: every step it touches joins the selection */
+.acx-mq{position:absolute;left:0;top:0;border-radius:var(--r-xs);box-shadow:inset 0 0 0 1px var(--pick-on);background:color-mix(in srgb,var(--fg) 4%,transparent);pointer-events:none}
+/* zoom out, the zoom level (which resets to 100%), zoom in and fit, quiet in the corner */
+.acx-zm{position:absolute;right:var(--s-3);bottom:var(--s-3);z-index:4;display:flex;align-items:center;padding:var(--s-1);border-radius:var(--r-pill);background:var(--surface);box-shadow:var(--shadow)}
+.acx-zb{width:28px;height:28px;flex:none;display:grid;place-items:center;border-radius:var(--r-pill);color:var(--fg2);transition:background var(--t-fast),color var(--t-fast)}
+.acx-zl{min-width:44px;height:28px;padding:0 var(--s-1);flex:none;border-radius:var(--r-pill);font-size:12px;color:var(--fg2);transition:background var(--t-fast),color var(--t-fast)}
+@media (hover:hover) and (pointer:fine){.acx-zb:hover,.acx-zl:hover{background:var(--row);color:var(--fg)}}
+.acx-zb[aria-disabled=&quot;true&quot;]{color:var(--dis);background:none;cursor:not-allowed}
+@media (hover:hover) and (pointer:fine){.acx-zb[aria-disabled=&quot;true&quot;]:hover{color:var(--dis);background:none;cursor:not-allowed}}
+.acx-zs{width:1px;height:14px;margin:0 var(--s-1);flex:none;background:var(--line)}
+.acx-sr{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.acx-svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
 .acx-svg path{fill:none;stroke:var(--faint);stroke-width:1.5;transition:stroke .6s var(--ease)}
 /* on arrival the wires draw in after the steps have landed */
 .acx-svg.intro path{stroke-dasharray:var(--l);animation:acxdraw .8s var(--ease) .42s backwards}
@@ -966,9 +1265,10 @@ export function AutomationCanvas({
 @keyframes acxsv{from{opacity:0;filter:blur(2px)}}
 .acx-n{position:absolute;width:176px;padding:10px var(--s-3);border-radius:14px;background:var(--surface);box-shadow:var(--shadow);display:flex;align-items:center;gap:10px;font-size:12.5px;text-align:left;transition:box-shadow .3s,left .5s var(--ease),top .5s var(--ease)}
 @media (hover:hover) and (pointer:fine){.acx-n:hover{box-shadow:var(--shadow-pop)}}
-.acx-n{cursor:grab;touch-action:none;user-select:none}
+.acx-n{cursor:pointer;user-select:none}
 .acx-n.drag{cursor:grabbing;transition:box-shadow .3s;box-shadow:var(--shadow-pop);z-index:3;transform:scale(1.02)}
-.acx-n.sel{box-shadow:0 0 0 1px var(--rail),var(--shadow-pop)}
+/* a selected step: its white card with a light grey edge */
+.acx-n.sel{box-shadow:0 0 0 1px var(--pick-on),var(--shadow-pop)}
 .acx-n .ic{width:28px;height:28px;border-radius:9px;display:grid;place-items:center;flex:none}
 .acx-n .t{display:flex;flex-direction:column;min-width:0}
 .acx-n .t b{font-weight:500;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -1020,10 +1320,11 @@ export function AutomationCanvas({
 .acx-pd{margin:0;padding:var(--s-2) var(--s-2) 2px;box-shadow:inset 0 1px 0 var(--line);font-size:12px;line-height:1.4;color:var(--fg2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .acx-live{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 :root:not([data-style=&quot;soft&quot;]) :is(.acx-h,.acx-sc):not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *)){box-shadow:inset 0 0 0 1px var(--rail)}
+:root:not([data-style=&quot;soft&quot;]) .acx-zm:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *)){box-shadow:inset 0 0 0 1px var(--line)}
 @media (hover:hover) and (pointer:fine){:root:not([data-style=&quot;soft&quot;]) :is(.acx-h,.acx-sc):is(:hover,[aria-expanded=&quot;true&quot;]):not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *)){box-shadow:inset 0 0 0 1px var(--field-line)}}
 @media (max-width:720px){.acx-cv{height:580px}}
-</code></pre></details><details class="cp-file"><summary>automation-canvas.js<span class="l">HTML · 352 lines</span></summary><pre class="cp-pre"><code>DM.def(&#39;automation-canvas&#39;, (r, c) =&gt; {
-  r.innerHTML = r.innerHTML.replace(&#39;{play}&#39;, I(&#39;play&#39;,&#39;xs&#39;)).replace(&#39;{search}&#39;, I(&#39;search&#39;,&#39;xs&#39;));
+</code></pre></details><details class="cp-file"><summary>automation-canvas.js<span class="l">HTML · 503 lines</span></summary><pre class="cp-pre"><code>DM.def(&#39;automation-canvas&#39;, (r, c) =&gt; {
+  r.innerHTML = r.innerHTML.replace(&#39;{play}&#39;, I(&#39;play&#39;,&#39;xs&#39;)).replace(&#39;{search}&#39;, I(&#39;search&#39;,&#39;xs&#39;)).replace(/\{(minus|plus|fit)\}/g, (m, n) =&gt; I(n));
   // sub: the connectors under a step, for the model it thinks with and the tools it may use
   const N = [
     { id:&#39;t&#39;, ic:&#39;clock&#39;, col:&#39;var(--py)&#39;, t:&#39;Schedule&#39;, d:&#39;Mondays 9:00&#39;, y:.4, f:[&#39;When&#39;, [&#39;Mondays 9:00&#39;,&#39;Every weekday&#39;,&#39;On new Figma version&#39;]] },
@@ -1057,6 +1358,7 @@ export function AutomationCanvas({
   const MAX = () =&gt; narrow() ? 6 : 9;
   const cv = $(&#39;.acx-cv&#39;, r), svg = $(&#39;.acx-svg&#39;, r), nodes = $(&#39;.acx-nodes&#39;, r), pop = $(&#39;.acx-pop&#39;, r), st = $(&#39;.acx-st&#39;, r), live = $(&#39;.acx-live&#39;, r);
   const pk = $(&#39;.acx-pk&#39;, r), qi = $(&#39;.acx-qi&#39;, r), ls = $(&#39;.acx-ls&#39;, r), pd = $(&#39;.acx-pd&#39;, r);
+  const vp = $(&#39;.acx-vp&#39;, r), world = $(&#39;.acx-world&#39;, r), mq = $(&#39;.acx-mq&#39;, r), zm = $(&#39;.acx-zm&#39;, r), zl = $(&#39;.acx-zl&#39;, r), zo = $(&#39;.acx-zo&#39;, r), zi = $(&#39;.acx-zi&#39;, r), fitB = $(&#39;.acx-fit&#39;, r), sr = $(&#39;.acx-sr&#39;, r);
   const say = t =&gt; { live.textContent = t; };
   const narrow = () =&gt; cv.clientWidth &lt; 560;
   // wide: the trigger and the last step sit the same distance in from each side and the two middle steps halfway between,
@@ -1071,6 +1373,42 @@ export function AutomationCanvas({
   const el = id =&gt; $(`.acx-n[data-id=&quot;${id}&quot;]`, nodes);
   const byId = id =&gt; N.find(n =&gt; n.id === id);
   const box = b =&gt; ({ l:b.offsetLeft, t:b.offsetTop, r:b.offsetLeft + b.offsetWidth, b:b.offsetTop + b.offsetHeight, w:b.offsetWidth, h:b.offsetHeight });
+
+  /* ---------- the view, as in Canvas toolbar: zoom z and pan (px, py), so a point x on the board shows at x * z + px. The
+     steps are laid out on the board as before (at rest the view shows it whole, at 100%); the popover and the picker are
+     placed where their step shows ---------- */
+  const Z = [.5, .67, .75, .9, 1, 1.25, 1.5, 2], ZMIN = Z[0], ZMAX = Z[Z.length - 1];
+  let z = 1, px = 0, py = 0, lastT = &#39;&#39;;
+  const lim = v =&gt; Math.max(ZMIN, Math.min(ZMAX, v)), pct = () =&gt; Math.round(z * 100) + &#39;%&#39;;
+  const scr = B =&gt; ({ l:B.l * z + px, t:B.t * z + py, r:B.r * z + px, b:B.b * z + py, w:B.w * z, h:B.h * z });
+  function apply(anim){
+    const W = cv.clientWidth, H = cv.clientHeight;
+    // the board never goes more than half the canvas off, so the middle of the canvas always shows some of it
+    px = Math.round(Math.max(W / 2 - W * z, Math.min(W / 2, px)) * 100) / 100; py = Math.round(Math.max(H / 2 - H * z, Math.min(H / 2, py)) * 100) / 100;
+    const t = `translate(${px}px,${py}px) scale(${z})`;
+    if (t !== lastT){
+      // what the popover and the picker point at has moved
+      if (lastT){ close(); closePk(); }
+      lastT = t; cv.classList.toggle(&#39;anim&#39;, !!anim &amp;&amp; !REDUCE); world.style.transform = t;
+    }
+    // the dots move and scale with the board
+    const g = 16 * z; cv.style.backgroundSize = `100% 100%,${g}px ${g}px`; cv.style.backgroundPosition = `0 0,${(W - 16) / 2 * z + px}px ${(H - 16) / 2 * z + py}px`;
+    zl.textContent = pct(); zl.setAttribute(&#39;aria-label&#39;, `Zoom ${pct()}, reset to 100%`);
+    zo.setAttribute(&#39;aria-disabled&#39;, z &lt;= ZMIN + 1e-3); zi.setAttribute(&#39;aria-disabled&#39;, z &gt;= ZMAX - 1e-3);
+  }
+  function zoomAt(nz, x, y, anim){ nz = lim(nz); const wx = (x - px) / z, wy = (y - py) / z; z = nz; px = x - wx * z; py = y - wy * z; apply(anim); }
+  const zstep = d =&gt; { const s2 = d &gt; 0 ? Z.find(x =&gt; x &gt; z + 1e-3) : [...Z].reverse().find(x =&gt; x &lt; z - 1e-3); return s2 === undefined ? z : s2; };
+  function zoomBy(d){ const nz = zstep(d); if (nz === z) return; zoomAt(nz, cv.clientWidth / 2, cv.clientHeight / 2, true); say(&#39;Zoom &#39; + pct()); }
+  function zoomReset(){ zoomAt(1, cv.clientWidth / 2, cv.clientHeight / 2, true); say(&#39;Zoom 100%&#39;); }
+  // fit: every step and its + in view, centred, never past 100%
+  function fit(){
+    const W = cv.clientWidth, H = cv.clientHeight, P = 24, bs = $$(&#39;.acx-n, .acx-h, .acx-sc&#39;, nodes).filter(b =&gt; b.dataset.on !== &#39;0&#39;).map(box);
+    if (!bs.length) return;
+    const x0 = Math.min(...bs.map(b =&gt; b.l)), y0 = Math.min(...bs.map(b =&gt; b.t)), x1 = Math.max(...bs.map(b =&gt; b.r)), y1 = Math.max(...bs.map(b =&gt; b.b));
+    z = lim(Math.min((W - 2 * P) / (x1 - x0), (H - 2 * P) / (y1 - y0), 1));
+    px = (W - (x1 - x0) * z) / 2 - x0 * z; py = (H - (y1 - y0) * z) / 2 - y0 * z;
+    apply(true); say(&#39;Fit to screen, &#39; + pct());
+  }
 
   /* ---------- the + handles and the connectors ---------- */
   // a step&#39;s output is open when no step follows it; models and tools have no output of their own
@@ -1158,7 +1496,9 @@ export function AutomationCanvas({
     const e = E.find(x =&gt; x[1] === n.id), src = e[0], a = e[2] ? anchorOf(e) : outAt(box(el(src)), byId(src));
     const others = N.filter(x =&gt; x !== n &amp;&amp; placed(x)).map(x =&gt; box(el(x.id)));
     const ks = Object.entries(knobs).filter(([k]) =&gt; { const id = k.split(&#39;:&#39;)[0]; return k !== src + &#39;:out&#39; &amp;&amp; id !== n.id &amp;&amp; placed(byId(id)); }).map(([, b]) =&gt; box(b));
-    const obst = [...others, ...ks];
+    // and clear of the zoom control in the corner, where it sits on the board in the current view
+    const Z0 = { l:(zm.offsetLeft - px) / z, t:(zm.offsetTop - py) / z, w:zm.offsetWidth / z, h:zm.offsetHeight / z }; Z0.r = Z0.l + Z0.w; Z0.b = Z0.t + Z0.h;
+    const obst = [...others, ...ks, Z0];
     const samples = Object.entries(geo).filter(([k]) =&gt; !k.split(&#39;&gt;&#39;).includes(n.id)).flatMap(([, q]) =&gt; Array.from({ length:15 }, (_, i) =&gt; bez(q, (i + 1) / 16)));
     const want = a.d === &#39;r&#39; ? [a.x + 56 + w / 2, a.y] : [a.x, a.y + 40 + h / 2];
     const inside = (p, b, m) =&gt; p[0] &gt; b.l - m &amp;&amp; p[0] &lt; b.r + m &amp;&amp; p[1] &gt; b.t - m &amp;&amp; p[1] &lt; b.b + m;
@@ -1198,14 +1538,14 @@ export function AutomationCanvas({
   const uid = Math.random().toString(36).slice(2, 7);
   function config(n, key){
     closePk();
-    const b = el(n.id); $$(&#39;.acx-n&#39;, nodes).forEach(x =&gt; x.classList.toggle(&#39;sel&#39;, x === b)); selN = n;
+    const b = el(n.id); selN = n;
     pop.innerHTML = `&lt;h4 id=&quot;acx-h-${n.id}-${uid}&quot;&gt;${n.t}&lt;/h4&gt;&lt;div class=&quot;acx-fl&quot;&gt;&lt;span id=&quot;acx-f-${n.id}-${uid}&quot;&gt;${n.f[0]}&lt;/span&gt;&lt;button class=&quot;acx-dd&quot; aria-haspopup=&quot;menu&quot; aria-expanded=&quot;false&quot; aria-labelledby=&quot;acx-f-${n.id}-${uid} acx-v-${n.id}-${uid}&quot;&gt;&lt;span id=&quot;acx-v-${n.id}-${uid}&quot;&gt;${n.d}&lt;/span&gt;${I(&#39;chev-d&#39;,&#39;xs&#39;)}&lt;/button&gt;&lt;div class=&quot;acx-opts&quot; role=&quot;menu&quot; aria-labelledby=&quot;acx-f-${n.id}-${uid}&quot;&gt;${n.f[1].map(o =&gt; `&lt;button class=&quot;mi&quot; role=&quot;menuitemradio&quot; tabindex=&quot;-1&quot; aria-checked=&quot;${o === n.d}&quot;&gt;&lt;span&gt;${o}&lt;/span&gt;&lt;span class=&quot;ck&quot;&gt;${I(&#39;check&#39;,&#39;xs&#39;)}&lt;/span&gt;&lt;/button&gt;`).join(&#39;&#39;)}&lt;/div&gt;&lt;/div&gt;&lt;button class=&quot;pill soft sm acx-done&quot;&gt;Done&lt;/button&gt;`;
     pop.setAttribute(&#39;aria-labelledby&#39;, `acx-h-${n.id}-${uid}`);
     // beside the step, or under or over it: whichever spot covers the least of the other steps (and none of this one),
     // nearest the step when spots tie, so the popover never hides the step a run flows on to. It may hang up to 32px below
     // the canvas, into the room around the component, when that is what keeps every step clear
     const W = cv.clientWidth, H = cv.clientHeight, pw = pop.offsetWidth || 240, ph = pop.offsetHeight || 150, G = 10, M = 6, OVER = 32;
-    const me = box(b), others = $$(&#39;.acx-n&#39;, nodes).filter(x =&gt; x !== b).map(box);
+    const me = scr(box(b)), others = $$(&#39;.acx-n&#39;, nodes).filter(x =&gt; x !== b).map(x =&gt; scr(box(x)));
     const cx = (me.l + me.r) / 2, cy = (me.t + me.b) / 2, cl = (v, lo, hi) =&gt; Math.max(lo, Math.min(hi, v));
     const over = (x, y, o) =&gt; Math.max(0, Math.min(x + pw, o.r) - Math.max(x, o.l)) * Math.max(0, Math.min(y + ph, o.b) - Math.max(y, o.t));
     const ys = [me.t - 40, cy - ph / 2, me.t, me.b - ph, M, H - ph - M, H - ph + OVER], xs = [cx - pw / 2, me.l, me.r - pw, M, W - pw - M];
@@ -1228,24 +1568,35 @@ export function AutomationCanvas({
     $(&#39;.acx-done&#39;, pop).onclick = () =&gt; close(true);
     if (key) dd.focus({ preventScroll:true });
   }
-  function close(back){ const b = selN &amp;&amp; el(selN.id), was = pop.contains(document.activeElement); pop.classList.remove(&#39;open&#39;); pop.inert = true; $$(&#39;.acx-n&#39;, nodes).forEach(x =&gt; x.classList.remove(&#39;sel&#39;)); selN = null; if (b &amp;&amp; (back || was)) b.focus({ preventScroll:true }); }
+  function close(back){ const b = selN &amp;&amp; el(selN.id), was = pop.contains(document.activeElement); pop.classList.remove(&#39;open&#39;); pop.inert = true; selN = null; if (b &amp;&amp; (back || was)) b.focus({ preventScroll:true }); }
   pop.inert = true;
   c.on(pop, &#39;keydown&#39;, e =&gt; { if (e.key === &#39;Escape&#39; &amp;&amp; selN){ e.preventDefault(); close(true); } });
+  /* ---------- selection: a click selects a step (and opens its setting), Shift and a click adds it to the selection or takes
+     it out, and a click on the empty canvas or Escape clears it. Dragging a selected step moves every selected step ---------- */
+  let sel = new Set();
+  function select(ids){ sel = new Set(ids); N.forEach(n =&gt; { const b = el(n.id); if (b) b.classList.toggle(&#39;sel&#39;, sel.has(n.id)); }); }
+  const picked = () =&gt; say(sel.size ? `${sel.size} of ${N.length} steps selected` : &#39;Nothing selected&#39;);
   let justDragged = false;
   function bind(n){
     const b = el(n.id);
-    b.onclick = e =&gt; { e.stopPropagation(); if (justDragged){ justDragged = false; return; } selN === n ? close() : config(n, e.isTrusted &amp;&amp; !e.detail); };
+    b.onclick = e =&gt; { e.stopPropagation(); if (justDragged){ justDragged = false; return; }
+      if (e.shiftKey){ const s2 = new Set(sel); s2.has(n.id) ? s2.delete(n.id) : s2.add(n.id); select(s2); close(); closePk(); picked(); return; }
+      select([n.id]); selN === n ? close() : config(n, e.isTrusted &amp;&amp; !e.detail); };
     b.onkeydown = e =&gt; { if (e.key === &#39;Escape&#39; &amp;&amp; selN === n){ e.preventDefault(); close(); } };
     b.onpointerdown = e =&gt; {
-      if (e.button) return; const sx = e.clientX, sy = e.clientY, ox = b.offsetLeft, oy = b.offsetTop; let moved = false;
-      const mv = ev =&gt; { const dx = ev.clientX - sx, dy = ev.clientY - sy;
-        if (!moved &amp;&amp; Math.hypot(dx, dy) &lt; 4) return;
-        if (!moved){ moved = true; b.classList.add(&#39;drag&#39;); nodes.classList.add(&#39;drag&#39;); close(); closePk(); b.setPointerCapture?.(e.pointerId); }
+      // a finger on a step of a canvas not yet engaged may be scrolling the page: it only taps
+      if (e.button || (e.pointerType === &#39;touch&#39; &amp;&amp; !engaged)) return; const sx = e.clientX, sy = e.clientY; let moved = false, group = [];
+      const mv = ev =&gt; { const dx = (ev.clientX - sx) / z, dy = (ev.clientY - sy) / z;
+        if (!moved &amp;&amp; Math.hypot(ev.clientX - sx, ev.clientY - sy) &lt; 4) return;
+        if (!moved){ moved = true; if (!sel.has(n.id)) select([n.id]);
+          group = N.filter(x =&gt; sel.has(x.id) &amp;&amp; el(x.id)).map(x =&gt; { const e2 = el(x.id); return [x, e2, e2.offsetLeft, e2.offsetTop]; });
+          group.forEach(g =&gt; g[1].classList.add(&#39;drag&#39;)); nodes.classList.add(&#39;drag&#39;); close(); closePk(); b.setPointerCapture?.(e.pointerId); }
         const W = cv.clientWidth, H = cv.clientHeight;
-        b.style.left = Math.max(4, Math.min(W - b.offsetWidth - 4, ox + dx)) + &#39;px&#39;; b.style.top = Math.max(4, Math.min(H - b.offsetHeight - 4, oy + dy)) + &#39;px&#39;; wires(); };
+        group.forEach(([, e2, ox, oy]) =&gt; { e2.style.left = Math.max(4, Math.min(W - e2.offsetWidth - 4, ox + dx)) + &#39;px&#39;; e2.style.top = Math.max(4, Math.min(H - e2.offsetHeight - 4, oy + dy)) + &#39;px&#39;; });
+        wires(); };
       const up = () =&gt; { document.removeEventListener(&#39;pointermove&#39;, mv); document.removeEventListener(&#39;pointerup&#39;, up);
-        if (!moved) return; b.classList.remove(&#39;drag&#39;); nodes.classList.remove(&#39;drag&#39;); justDragged = true; setTimeout(() =&gt; justDragged = false, 50);
-        const f = { x:(b.offsetLeft + b.offsetWidth / 2) / cv.clientWidth, y:(b.offsetTop + b.offsetHeight / 2) / cv.clientHeight }; if (narrow()) n.um = f; else n.uw = f; };
+        if (!moved) return; nodes.classList.remove(&#39;drag&#39;); justDragged = true; setTimeout(() =&gt; justDragged = false, 50);
+        group.forEach(([x, e2]) =&gt; { e2.classList.remove(&#39;drag&#39;); const f = { x:(e2.offsetLeft + e2.offsetWidth / 2) / cv.clientWidth, y:(e2.offsetTop + e2.offsetHeight / 2) / cv.clientHeight }; if (narrow()) x.um = f; else x.uw = f; }); };
       document.addEventListener(&#39;pointermove&#39;, mv); document.addEventListener(&#39;pointerup&#39;, up);
       c.offs.push(() =&gt; { document.removeEventListener(&#39;pointermove&#39;, mv); document.removeEventListener(&#39;pointerup&#39;, up); });
     };
@@ -1284,10 +1635,10 @@ export function AutomationCanvas({
     pkFor = b; b.setAttribute(&#39;aria-expanded&#39;, &#39;true&#39;); qi.value = &#39;&#39;; ls.scrollTop = 0; paint();
     const src = byId(b.dataset.for), kind = b.dataset.k;
     pk.setAttribute(&#39;aria-label&#39;, kind === &#39;out&#39; ? `Add a step after ${src.t}` : `Add ${kind === &#39;model&#39; ? &#39;a model&#39; : &#39;a tool&#39;} to ${src.t}`);
-    const W = cv.clientWidth, H = cv.clientHeight, pw = pk.offsetWidth, ph = pk.offsetHeight, K = box(b), S = box(el(src.id)), M = 6, G = 8, OVER = -M;
+    const W = cv.clientWidth, H = cv.clientHeight, pw = pk.offsetWidth, ph = pk.offsetHeight, K = scr(box(b)), S = scr(box(el(src.id))), M = 6, G = 8, OVER = -M;
     const cl = (v, lo, hi) =&gt; Math.max(lo, Math.min(hi, v)), kx = K.l + K.w / 2, ky = K.t + K.h / 2;
     const over = (x, y, o) =&gt; Math.max(0, Math.min(x + pw, o.r) - Math.max(x, o.l)) * Math.max(0, Math.min(y + ph, o.b) - Math.max(y, o.t));
-    const others = N.filter(n =&gt; n !== src &amp;&amp; placed(n)).map(n =&gt; box(el(n.id)));
+    const others = N.filter(n =&gt; n !== src &amp;&amp; placed(n)).map(n =&gt; scr(box(el(n.id))));
     const ys = [ky - 40, K.t, K.b - ph, M, H - ph - M, H - ph + OVER], xs = [kx - pw / 2, K.l, K.r - pw, S.l, S.r - pw, M, W - pw - M];
     const spots = [...ys.map(y =&gt; [K.r + G, y]), ...ys.map(y =&gt; [Math.min(K.l, S.l) - pw - G, y]), ...xs.map(x =&gt; [x, Math.max(K.b, kind === &#39;out&#39; &amp;&amp; !narrow() ? S.b : K.b) + G]), ...xs.map(x =&gt; [x, Math.min(K.t, S.t) - ph - G])]
       .map(([x, y]) =&gt; [cl(x, M, W - pw - M), cl(y, M, H - ph + OVER)]);
@@ -1328,6 +1679,102 @@ export function AutomationCanvas({
     if (focus) nb.focus({ preventScroll:true });
   }
 
+  /* ---------- moving around: drag the empty canvas (one finger on a touch screen) to pan, Shift and a drag to box-select,
+     scroll or a trackpad to pan, Ctrl or ⌘ with the wheel or a pinch to zoom at the pointer; the corner buttons zoom and fit.
+     A click on the empty canvas clears the selection ---------- */
+  sr.id = &#39;acx-k-&#39; + uid; cv.setAttribute(&#39;aria-describedby&#39;, sr.id);
+  zo.onclick = () =&gt; zoomBy(-1); zi.onclick = () =&gt; zoomBy(1); zl.onclick = zoomReset; fitB.onclick = fit;
+  const pt = e =&gt; { const b = cv.getBoundingClientRect(); return [e.clientX - b.left, e.clientY - b.top]; };
+  const touch = new Map(); let drag = null;
+  const pinch = () =&gt; { const [a, b] = [...touch.values()]; return { d:Math.hypot(b[0] - a[0], b[1] - a[1]) || 1, m:[(a[0] + b[0]) / 2, (a[1] + b[1]) / 2] }; };
+  /* the canvas never traps the page: until the person has engaged with the component (a click in it, a tap in it, or the
+     keyboard&#39;s focus coming into it) the wheel and touch belong to the page, so it scrolls past as usual. A finger that
+     starts a scroll there is the page&#39;s; one that lifts without scrolling is a tap, which engages it. Once engaged
+     (.engaged), one finger pans and two pinch, as the mouse does */
+  let engaged = false, lastKey = -1e9;
+  const engage = () =&gt; { if (engaged) return; engaged = true; cv.classList.add(&#39;engaged&#39;); };
+  c.on(document, &#39;keydown&#39;, e =&gt; { if (e.isTrusted) lastKey = e.timeStamp; }, true);
+  c.on(r, &#39;pointerdown&#39;, e =&gt; { if (e.isTrusted &amp;&amp; e.pointerType !== &#39;touch&#39;) engage(); }, true);
+  c.on(r, &#39;pointerup&#39;, e =&gt; { if (e.isTrusted &amp;&amp; e.pointerType === &#39;touch&#39;) engage(); }, true);
+  c.on(r, &#39;focusin&#39;, e =&gt; { if (e.isTrusted &amp;&amp; e.timeStamp - lastKey &lt; 100) engage(); }, true);
+  c.on(vp, &#39;pointerdown&#39;, e =&gt; {
+    if (e.target.closest(&#39;.acx-n, .acx-h, .acx-sc&#39;) || (e.button !== 0 &amp;&amp; e.button !== 1) || (e.pointerType === &#39;touch&#39; &amp;&amp; !engaged)) return;
+    e.preventDefault();
+    // a click on the canvas gives it the focus, so the keys work straight away
+    if (e.isTrusted) cv.focus({ preventScroll:true });
+    const p = pt(e);
+    if (e.pointerType === &#39;touch&#39;){
+      touch.set(e.pointerId, p);
+      if (touch.size === 2){ const q = pinch(); drag = { kind:&#39;pinch&#39;, d0:q.d, m0:q.m, z0:z, px0:px, py0:py, moved:true }; }
+      else if (touch.size === 1) drag = { kind:&#39;pan&#39;, id:e.pointerId, p0:p, px0:px, py0:py, moved:false };
+    } else drag = { kind:e.shiftKey &amp;&amp; e.button === 0 ? &#39;box&#39; : &#39;pan&#39;, id:e.pointerId, p0:p, px0:px, py0:py, base:new Set(sel), moved:false };
+    if (drag &amp;&amp; drag.kind === &#39;pan&#39;) cv.classList.add(&#39;pan&#39;);
+    try { vp.setPointerCapture(e.pointerId); } catch(err){}
+  });
+  c.on(vp, &#39;pointermove&#39;, e =&gt; {
+    if (!drag) return; const p = pt(e);
+    if (touch.has(e.pointerId)) touch.set(e.pointerId, p);
+    if (drag.kind === &#39;pinch&#39;){
+      if (touch.size &lt; 2) return; const q = pinch(), nz = lim(drag.z0 * q.d / drag.d0), wx = (drag.m0[0] - drag.px0) / drag.z0, wy = (drag.m0[1] - drag.py0) / drag.z0;
+      z = nz; px = q.m[0] - wx * z; py = q.m[1] - wy * z; apply(false); return;
+    }
+    if (e.pointerId !== drag.id) return;
+    const dx = p[0] - drag.p0[0], dy = p[1] - drag.p0[1];
+    if (!drag.moved &amp;&amp; Math.hypot(dx, dy) &lt; 3) return; drag.moved = true;
+    if (drag.kind === &#39;pan&#39;){ px = drag.px0 + dx; py = drag.py0 + dy; apply(false); return; }
+    const x = Math.min(p[0], drag.p0[0]), y = Math.min(p[1], drag.p0[1]), w = Math.abs(dx), h = Math.abs(dy);
+    mq.hidden = false; mq.style.cssText = `left:${x}px;top:${y}px;width:${w}px;height:${h}px`;
+    select([...drag.base, ...N.filter(n =&gt; placed(n) &amp;&amp; (s2 =&gt; s2.r &gt; x &amp;&amp; s2.l &lt; x + w &amp;&amp; s2.b &gt; y &amp;&amp; s2.t &lt; y + h)(scr(box(el(n.id))))).map(n =&gt; n.id)]);
+  });
+  const end = e =&gt; {
+    touch.delete(e.pointerId);
+    if (!drag) return;
+    // lifting one finger of a pinch carries on as a pan with the other
+    if (drag.kind === &#39;pinch&#39;){ const [id, p] = [...touch.entries()][0] || []; drag = id === undefined ? null : { kind:&#39;pan&#39;, id, p0:p, px0:px, py0:py, moved:true }; return; }
+    if (e.pointerId !== drag.id) return;
+    const k = drag.kind, m = drag.moved; drag = null; cv.classList.remove(&#39;pan&#39;); mq.hidden = true;
+    if (k === &#39;box&#39;) picked();
+    else if (!m &amp;&amp; e.type === &#39;pointerup&#39; &amp;&amp; sel.size){ select([]); picked(); }
+  };
+  c.on(vp, &#39;pointerup&#39;, end); c.on(vp, &#39;pointercancel&#39;, end);
+  /* the wheel never traps the page: it pans the view only once the person has engaged with the component (see above), and
+     until then the page scrolls past as usual. With Ctrl or ⌘ (a trackpad pinch sends that too) it zooms at the pointer
+     at any time. Over the picker&#39;s list it scrolls the list */
+  c.on(cv, &#39;wheel&#39;, e =&gt; {
+    if (pk.contains(e.target) || pop.contains(e.target)) return;
+    const zoomer = e.ctrlKey || e.metaKey; if (!zoomer &amp;&amp; !engaged) return;
+    e.preventDefault(); if (e.isTrusted) c.mine = true;
+    if (zoomer) return zoomAt(z * Math.exp(-e.deltaY / 300), ...pt(e), false);
+    const k = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? cv.clientHeight : 1;
+    let dx = e.deltaX * k, dy = e.deltaY * k; if (e.shiftKey &amp;&amp; !dx){ dx = dy; dy = 0; }
+    px -= dx; py -= dy; apply(false);
+  }, { passive:false });
+  // a pointer hides the canvas&#39;s focus ring until the next key (Ctrl, ⌘, Shift or Alt alone, as with the wheel, leave it hidden)
+  c.on(cv, &#39;pointerdown&#39;, () =&gt; cv.classList.add(&#39;ptr&#39;), true); c.on(document, &#39;keydown&#39;, e =&gt; { if (!/^(Control|Meta|Shift|Alt)$/.test(e.key)) cv.classList.remove(&#39;ptr&#39;); }, true);
+  /* the keyboard, while the canvas or a step has the focus: the arrow keys move the view (on the canvas itself), plus and
+     minus zoom, 0 or 1 fits, Escape clears the selection; Tab goes through the steps and their + buttons, and a step that
+     takes the focus off screen glides into view */
+  c.on(cv, &#39;keydown&#39;, e =&gt; {
+    if (e.defaultPrevented || e.ctrlKey || e.metaKey || e.altKey || pop.contains(e.target) || pk.contains(e.target) || /^(INPUT|TEXTAREA)$/.test(e.target.tagName)) return;
+    const k = e.key;
+    if (k === &#39;+&#39; || k === &#39;=&#39;) zoomBy(1);
+    else if (k === &#39;-&#39; || k === &#39;_&#39;) zoomBy(-1);
+    else if (k === &#39;0&#39; || k === &#39;1&#39; || e.code === &#39;Digit0&#39; || e.code === &#39;Digit1&#39;) fit();
+    else if (e.target === cv &amp;&amp; /^Arrow/.test(k)){ const d = e.shiftKey ? 120 : 40; px += k === &#39;ArrowLeft&#39; ? d : k === &#39;ArrowRight&#39; ? -d : 0; py += k === &#39;ArrowUp&#39; ? d : k === &#39;ArrowDown&#39; ? -d : 0; apply(true); }
+    else if (k === &#39;Escape&#39; &amp;&amp; sel.size){ select([]); picked(); }
+    else return;
+    e.preventDefault();
+  });
+  c.on(nodes, &#39;focusin&#39;, e =&gt; {
+    if (cv.classList.contains(&#39;ptr&#39;)) return;
+    const t = e.target.closest(&#39;.acx-n, .acx-h, .acx-sc&#39;); if (!t) return;
+    const s2 = scr(box(t)), W = cv.clientWidth, H = cv.clientHeight, M = 16;
+    const dx = s2.l &lt; M ? M - s2.l : s2.r &gt; W - M ? W - M - s2.r : 0, dy = s2.t &lt; M ? M - s2.t : s2.b &gt; H - M ? H - M - s2.b : 0;
+    if (dx || dy){ px += dx; py += dy; apply(true); }
+  });
+  // the board never scrolls inside the canvas: a focus that would scroll it pans the view instead (above)
+  c.on(vp, &#39;scroll&#39;, () =&gt; { vp.scrollLeft = vp.scrollTop = 0; });
+
   // a step&#39;s badge pops in once (CSS), and after that its spinner turns into a check with a short crossfade
   const ease = getComputedStyle(r).getPropertyValue(&#39;--ease&#39;).trim() || &#39;ease&#39;;
   const mark = (id, s) =&gt; { const b = el(id); b.classList.toggle(&#39;run&#39;, s === &#39;run&#39;); const x = $(&#39;.s&#39;, b) || b.appendChild(html(&#39;&lt;span class=&quot;s&quot;&gt;&lt;/span&gt;&#39;));
@@ -1359,9 +1806,12 @@ export function AutomationCanvas({
     } finally { if (id === runId) running = false; }
   });
   svg.classList.add(&#39;intro&#39;); c.later(1300, () =&gt; svg.classList.remove(&#39;intro&#39;));
-  layout(); let lw = 0; const ro = new ResizeObserver(() =&gt; { if (lw &amp;&amp; Math.abs(cv.clientWidth - lw) &gt; 2){ close(); closePk(); } lw = cv.clientWidth; layout(); }); ro.observe(cv); c.offs.push(() =&gt; ro.disconnect());
+  // a canvas that switches between wide and stacked lays its steps out afresh, and the view goes back to showing it whole
+  layout(); apply(false); let lw = 0, ln = narrow();
+  const ro = new ResizeObserver(() =&gt; { if (lw &amp;&amp; Math.abs(cv.clientWidth - lw) &gt; 2){ close(); closePk(); } lw = cv.clientWidth; if (ln !== narrow()){ ln = narrow(); z = 1; px = py = 0; } layout(); apply(false); }); ro.observe(cv); c.offs.push(() =&gt; ro.disconnect());
   $$(&#39;.acx-n, .acx-h, .acx-sc&#39;, nodes).forEach((b, i) =&gt; { b.dataset.seen = 1; b.classList.add(b.matches(&#39;.acx-n&#39;) ? &#39;acx-in&#39; : &#39;in&#39;); b.style.animationDelay = Math.min(i, 4) * 90 + &#39;ms&#39;; });
-  // the preview&#39;s story: one test run, then the person adds a step after the last one from its +
+  // the preview&#39;s story: one test run, then the person adds a step after the last one from its +, zooms in a step and fits
+  // the whole automation back in view
   c.story(async s =&gt; {
     await s.beat(3);
     await s.tap(runB); s.away();
@@ -1370,10 +1820,12 @@ export function AutomationCanvas({
     await s.tap(h); await s.beat(1.5);
     const o = opts.find(x =&gt; x.dataset.t === &#39;Create ticket&#39;); if (!o) return;
     await s.point(o, false); hl(opts.indexOf(o), true); await s.beat(1.5);
-    await s.tap(o); s.away(); await s.beat(4);
+    await s.tap(o); s.away(); await s.beat(3);
+    await s.tap(zi); await s.beat(2);
+    await s.tap(fitB); s.away(); await s.beat(3);
   });
 });
-</code></pre></details></div></section><section class="cp-sec" id="questions"><div class="pg-sh"><span class="n">06</span><h2>Questions</h2><p>What people ask about it.</p></div><dl class="cp-qs"><div><dt class="pg-t">Does Test run execute the automation?</dt><dd>No. It calls <code>onRun</code>. Your code runs the steps and updates each node's <code>state</code> and the <code>flowing</code> list, which the canvas animates.</dd></div><div><dt class="pg-t">How do I let people add steps?</dt><dd>Pass a <code>catalog</code> with the step types to offer, and handle <code>onAddNode</code>: add a node with <code>attach: { to: from, via }</code>, without <code>x</code> or <code>y</code>, and an edge from <code>from</code> to it (with <code>via</code> as its third value for a model or a tool). The canvas finds the new step a place.</dd></div><div><dt class="pg-t">How do I lay it out for small screens?</dt><dd>Give nodes a <code>narrow</code> position. Below 560px the canvas uses those positions, keeps every card inside the canvas, and wires top to bottom. Without them, nodes stack in a column down the middle.</dd></div><div><dt class="pg-t">How do I save where people dragged the cards?</dt><dd>Handle <code>onNodeMove(id, at, narrow)</code>. It reports the card's centre as fractions of the canvas and whether the narrow layout was in use, so you can store each layout separately.</dd></div><div><dt class="pg-t">How do I reset the wires before a new run?</dt><dd>Clear the <code>flowing</code> array when the run starts. Wires stay lit for as long as they are listed in it.</dd></div></dl></section><section class="cp-sec" id="more"><div class="pg-sh"><span class="n">07</span><h2>More in Workspace</h2><p>Navigation, search, settings, models and automations around the agent.</p></div><div class="pg-cards"><div class="pg-card"><a class="pg-t pg-link" href="/components/canvas-toolbar">Canvas toolbar</a><span class="pg-d">A floating toolbar for a workflow canvas: run, pick a tool, comment, fit and zoom.</span><span class="pg-thumb" data-reg="canvas-toolbar" data-h="572" data-wide="1"><img class="lt" src="/components/thumbs/canvas-toolbar-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/canvas-toolbar-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></div><div class="pg-card"><a class="pg-t pg-link" href="/components/command-palette">Command palette</a><span class="pg-d">Jump anywhere or hand a task to the agent from one box.</span><span class="pg-thumb" data-reg="command-palette" data-h="431"><img class="lt" src="/components/thumbs/command-palette-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/command-palette-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></div><div class="pg-card"><a class="pg-t pg-link" href="/components/memory-panel">Memory panel</a><span class="pg-d">What the agent remembers about your team, editable and removable.</span><span class="pg-thumb" data-reg="memory-panel" data-h="605"><img class="lt" src="/components/thumbs/memory-panel-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/memory-panel-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></div><div class="pg-card"><a class="pg-t pg-link" href="/components/model-compare">Model compare</a><span class="pg-d">Run one prompt on three models side by side and keep the best.</span><span class="pg-thumb" data-reg="model-compare" data-h="433" data-wide="1"><img class="lt" src="/components/thumbs/model-compare-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/model-compare-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></div><div class="pg-card"><a class="pg-t pg-link" href="/components/agent-settings">Agent settings</a><span class="pg-d">How much the agent may do alone, with a save bar for changes.</span><span class="pg-thumb" data-reg="agent-settings" data-h="580"><img class="lt" src="/components/thumbs/agent-settings-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/agent-settings-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></div><div class="pg-card"><a class="pg-t pg-link" href="/components/tool-connections">Tools and connections</a><span class="pg-d">The tools the agent can reach, and how much it may do with each.</span><span class="pg-thumb" data-reg="tool-connections" data-h="494"><img class="lt" src="/components/thumbs/tool-connections-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/tool-connections-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></div><div class="pg-card"><a class="pg-t pg-link" href="/components/knowledge-sources">Knowledge sources</a><span class="pg-d">The files, sites and folders the agent knows, and how far each is indexed.</span><span class="pg-thumb" data-reg="knowledge-sources" data-h="477"><img class="lt" src="/components/thumbs/knowledge-sources-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/knowledge-sources-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></div><div class="pg-card"><a class="pg-t pg-link" href="/components/scheduled-runs">Scheduled runs</a><span class="pg-d">Tasks the agent runs on a schedule, with their last result and a switch.</span><span class="pg-thumb" data-reg="scheduled-runs" data-h="477"><img class="lt" src="/components/thumbs/scheduled-runs-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/scheduled-runs-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></div></div><a class="cp-all" href="/#s-workspace">All 11 in Workspace →</a></section><nav class="dc-pn" aria-label="Previous and next component"><a href="/components/task-table" rel="prev"><span class="pg-d"><svg viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M224,128a8,8,0,0,1-8,8H59.31l58.35,58.34a8,8,0,0,1-11.32,11.32l-72-72a8,8,0,0,1,0-11.32l72-72a8,8,0,0,1,11.32,11.32L59.31,120H216A8,8,0,0,1,224,128Z"/></svg>Previous</span><span class="pg-t">Task table</span></a><a href="/components/canvas-toolbar" rel="next" class="n"><span class="pg-d">Next<svg viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"/></svg></span><span class="pg-t">Canvas toolbar</span></a></nav></div><nav class="dc-toc" aria-label="On this page"><p class="dc-toc-h">On this page</p><div class="dc-toc-ul"><a href="#install">Install</a><a href="#about">About</a><a href="#usage">Usage</a><a href="#props">Props</a><a href="#code">Code</a><a href="#questions">Questions</a><a href="#more">More in Workspace</a><span class="dc-toc-ind" aria-hidden="true"></span></div></nav></div></div><script>
+</code></pre></details></div></section><section class="cp-sec" id="questions"><div class="pg-sh"><span class="n">06</span><h2>Questions</h2><p>What people ask about it.</p></div><dl class="cp-qs"><div><dt class="pg-t">Does Test run execute the automation?</dt><dd>No. It calls <code>onRun</code>. Your code runs the steps and updates each node's <code>state</code> and the <code>flowing</code> list, which the canvas animates.</dd></div><div><dt class="pg-t">Can people move around a bigger automation?</dt><dd>Yes. They pan by dragging the empty canvas, and with one finger or by scrolling once they have clicked or tapped into it, zoom with Ctrl or ⌘ and the wheel, a pinch or the corner buttons, and fit brings every step back into view. Hold <code>view</code> with <code>onViewChange</code> to start somewhere else, or to keep the view between visits.</dd></div><div><dt class="pg-t">How do I let people add steps?</dt><dd>Pass a <code>catalog</code> with the step types to offer, and handle <code>onAddNode</code>: add a node with <code>attach: { to: from, via }</code>, without <code>x</code> or <code>y</code>, and an edge from <code>from</code> to it (with <code>via</code> as its third value for a model or a tool). The canvas finds the new step a place.</dd></div><div><dt class="pg-t">How do I lay it out for small screens?</dt><dd>Give nodes a <code>narrow</code> position. Below 560px the canvas uses those positions, keeps every card inside the canvas, and wires top to bottom. Without them, nodes stack in a column down the middle.</dd></div><div><dt class="pg-t">How do I save where people dragged the cards?</dt><dd>Handle <code>onNodeMove(id, at, narrow)</code>. It reports the card's centre as fractions of the canvas and whether the narrow layout was in use, so you can store each layout separately.</dd></div><div><dt class="pg-t">How do I reset the wires before a new run?</dt><dd>Clear the <code>flowing</code> array when the run starts. Wires stay lit for as long as they are listed in it.</dd></div></dl></section><section class="cp-sec" id="more"><div class="pg-sh"><span class="n">07</span><h2>More in Workspace</h2><p>Navigation, search, settings, models and automations around the agent.</p></div><div class="pg-cards"><div class="pg-card"><a class="pg-t pg-link" href="/components/canvas-toolbar">Canvas toolbar</a><span class="pg-d">A floating toolbar for a workflow canvas: run, pick a tool, comment, fit and zoom.</span><span class="pg-thumb" data-reg="canvas-toolbar" data-h="572" data-wide="1"><img class="lt" src="/components/thumbs/canvas-toolbar-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/canvas-toolbar-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></div><div class="pg-card"><a class="pg-t pg-link" href="/components/command-palette">Command palette</a><span class="pg-d">Jump anywhere or hand a task to the agent from one box.</span><span class="pg-thumb" data-reg="command-palette" data-h="431"><img class="lt" src="/components/thumbs/command-palette-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/command-palette-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></div><div class="pg-card"><a class="pg-t pg-link" href="/components/memory-panel">Memory panel</a><span class="pg-d">What the agent remembers about your team, editable and removable.</span><span class="pg-thumb" data-reg="memory-panel" data-h="605"><img class="lt" src="/components/thumbs/memory-panel-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/memory-panel-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></div><div class="pg-card"><a class="pg-t pg-link" href="/components/model-compare">Model compare</a><span class="pg-d">Run one prompt on three models side by side and keep the best.</span><span class="pg-thumb" data-reg="model-compare" data-h="433" data-wide="1"><img class="lt" src="/components/thumbs/model-compare-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/model-compare-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></div><div class="pg-card"><a class="pg-t pg-link" href="/components/agent-settings">Agent settings</a><span class="pg-d">How much the agent may do alone, with a save bar for changes.</span><span class="pg-thumb" data-reg="agent-settings" data-h="580"><img class="lt" src="/components/thumbs/agent-settings-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/agent-settings-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></div><div class="pg-card"><a class="pg-t pg-link" href="/components/tool-connections">Tools and connections</a><span class="pg-d">The tools the agent can reach, and how much it may do with each.</span><span class="pg-thumb" data-reg="tool-connections" data-h="494"><img class="lt" src="/components/thumbs/tool-connections-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/tool-connections-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></div><div class="pg-card"><a class="pg-t pg-link" href="/components/knowledge-sources">Knowledge sources</a><span class="pg-d">The files, sites and folders the agent knows, and how far each is indexed.</span><span class="pg-thumb" data-reg="knowledge-sources" data-h="477"><img class="lt" src="/components/thumbs/knowledge-sources-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/knowledge-sources-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></div><div class="pg-card"><a class="pg-t pg-link" href="/components/scheduled-runs">Scheduled runs</a><span class="pg-d">Tasks the agent runs on a schedule, with their last result and a switch.</span><span class="pg-thumb" data-reg="scheduled-runs" data-h="477"><img class="lt" src="/components/thumbs/scheduled-runs-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/scheduled-runs-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></div></div><a class="cp-all" href="/#s-workspace">All 11 in Workspace →</a></section><nav class="dc-pn" aria-label="Previous and next component"><a href="/components/task-table" rel="prev"><span class="pg-d"><svg viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M224,128a8,8,0,0,1-8,8H59.31l58.35,58.34a8,8,0,0,1-11.32,11.32l-72-72a8,8,0,0,1,0-11.32l72-72a8,8,0,0,1,11.32,11.32L59.31,120H216A8,8,0,0,1,224,128Z"/></svg>Previous</span><span class="pg-t">Task table</span></a><a href="/components/canvas-toolbar" rel="next" class="n"><span class="pg-d">Next<svg viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"/></svg></span><span class="pg-t">Canvas toolbar</span></a></nav></div><nav class="dc-toc" aria-label="On this page"><p class="dc-toc-h">On this page</p><div class="dc-toc-ul"><a href="#install">Install</a><a href="#about">About</a><a href="#usage">Usage</a><a href="#props">Props</a><a href="#code">Code</a><a href="#questions">Questions</a><a href="#more">More in Workspace</a><span class="dc-toc-ind" aria-hidden="true"></span></div></nav></div></div><script>
 // the sidebar, as the homepage's behaves
 (function(){
   var side = document.getElementById('side');
@@ -1697,7 +2149,7 @@ const fitHits = window.dmFitHits || (() => {
   window.dmFitHits = fit; return fit;
 })();
 })();</script><script src="/components/assets/core.js"></script><script>DM.def('automation-canvas', (r, c) => {
-  r.innerHTML = r.innerHTML.replace('{play}', I('play','xs')).replace('{search}', I('search','xs'));
+  r.innerHTML = r.innerHTML.replace('{play}', I('play','xs')).replace('{search}', I('search','xs')).replace(/\{(minus|plus|fit)\}/g, (m, n) => I(n));
   // sub: the connectors under a step, for the model it thinks with and the tools it may use
   const N = [
     { id:'t', ic:'clock', col:'var(--py)', t:'Schedule', d:'Mondays 9:00', y:.4, f:['When', ['Mondays 9:00','Every weekday','On new Figma version']] },
@@ -1731,6 +2183,7 @@ const fitHits = window.dmFitHits || (() => {
   const MAX = () => narrow() ? 6 : 9;
   const cv = $('.acx-cv', r), svg = $('.acx-svg', r), nodes = $('.acx-nodes', r), pop = $('.acx-pop', r), st = $('.acx-st', r), live = $('.acx-live', r);
   const pk = $('.acx-pk', r), qi = $('.acx-qi', r), ls = $('.acx-ls', r), pd = $('.acx-pd', r);
+  const vp = $('.acx-vp', r), world = $('.acx-world', r), mq = $('.acx-mq', r), zm = $('.acx-zm', r), zl = $('.acx-zl', r), zo = $('.acx-zo', r), zi = $('.acx-zi', r), fitB = $('.acx-fit', r), sr = $('.acx-sr', r);
   const say = t => { live.textContent = t; };
   const narrow = () => cv.clientWidth < 560;
   // wide: the trigger and the last step sit the same distance in from each side and the two middle steps halfway between,
@@ -1745,6 +2198,42 @@ const fitHits = window.dmFitHits || (() => {
   const el = id => $(`.acx-n[data-id="${id}"]`, nodes);
   const byId = id => N.find(n => n.id === id);
   const box = b => ({ l:b.offsetLeft, t:b.offsetTop, r:b.offsetLeft + b.offsetWidth, b:b.offsetTop + b.offsetHeight, w:b.offsetWidth, h:b.offsetHeight });
+
+  /* ---------- the view, as in Canvas toolbar: zoom z and pan (px, py), so a point x on the board shows at x * z + px. The
+     steps are laid out on the board as before (at rest the view shows it whole, at 100%); the popover and the picker are
+     placed where their step shows ---------- */
+  const Z = [.5, .67, .75, .9, 1, 1.25, 1.5, 2], ZMIN = Z[0], ZMAX = Z[Z.length - 1];
+  let z = 1, px = 0, py = 0, lastT = '';
+  const lim = v => Math.max(ZMIN, Math.min(ZMAX, v)), pct = () => Math.round(z * 100) + '%';
+  const scr = B => ({ l:B.l * z + px, t:B.t * z + py, r:B.r * z + px, b:B.b * z + py, w:B.w * z, h:B.h * z });
+  function apply(anim){
+    const W = cv.clientWidth, H = cv.clientHeight;
+    // the board never goes more than half the canvas off, so the middle of the canvas always shows some of it
+    px = Math.round(Math.max(W / 2 - W * z, Math.min(W / 2, px)) * 100) / 100; py = Math.round(Math.max(H / 2 - H * z, Math.min(H / 2, py)) * 100) / 100;
+    const t = `translate(${px}px,${py}px) scale(${z})`;
+    if (t !== lastT){
+      // what the popover and the picker point at has moved
+      if (lastT){ close(); closePk(); }
+      lastT = t; cv.classList.toggle('anim', !!anim && !REDUCE); world.style.transform = t;
+    }
+    // the dots move and scale with the board
+    const g = 16 * z; cv.style.backgroundSize = `100% 100%,${g}px ${g}px`; cv.style.backgroundPosition = `0 0,${(W - 16) / 2 * z + px}px ${(H - 16) / 2 * z + py}px`;
+    zl.textContent = pct(); zl.setAttribute('aria-label', `Zoom ${pct()}, reset to 100%`);
+    zo.setAttribute('aria-disabled', z <= ZMIN + 1e-3); zi.setAttribute('aria-disabled', z >= ZMAX - 1e-3);
+  }
+  function zoomAt(nz, x, y, anim){ nz = lim(nz); const wx = (x - px) / z, wy = (y - py) / z; z = nz; px = x - wx * z; py = y - wy * z; apply(anim); }
+  const zstep = d => { const s2 = d > 0 ? Z.find(x => x > z + 1e-3) : [...Z].reverse().find(x => x < z - 1e-3); return s2 === undefined ? z : s2; };
+  function zoomBy(d){ const nz = zstep(d); if (nz === z) return; zoomAt(nz, cv.clientWidth / 2, cv.clientHeight / 2, true); say('Zoom ' + pct()); }
+  function zoomReset(){ zoomAt(1, cv.clientWidth / 2, cv.clientHeight / 2, true); say('Zoom 100%'); }
+  // fit: every step and its + in view, centred, never past 100%
+  function fit(){
+    const W = cv.clientWidth, H = cv.clientHeight, P = 24, bs = $$('.acx-n, .acx-h, .acx-sc', nodes).filter(b => b.dataset.on !== '0').map(box);
+    if (!bs.length) return;
+    const x0 = Math.min(...bs.map(b => b.l)), y0 = Math.min(...bs.map(b => b.t)), x1 = Math.max(...bs.map(b => b.r)), y1 = Math.max(...bs.map(b => b.b));
+    z = lim(Math.min((W - 2 * P) / (x1 - x0), (H - 2 * P) / (y1 - y0), 1));
+    px = (W - (x1 - x0) * z) / 2 - x0 * z; py = (H - (y1 - y0) * z) / 2 - y0 * z;
+    apply(true); say('Fit to screen, ' + pct());
+  }
 
   /* ---------- the + handles and the connectors ---------- */
   // a step's output is open when no step follows it; models and tools have no output of their own
@@ -1832,7 +2321,9 @@ const fitHits = window.dmFitHits || (() => {
     const e = E.find(x => x[1] === n.id), src = e[0], a = e[2] ? anchorOf(e) : outAt(box(el(src)), byId(src));
     const others = N.filter(x => x !== n && placed(x)).map(x => box(el(x.id)));
     const ks = Object.entries(knobs).filter(([k]) => { const id = k.split(':')[0]; return k !== src + ':out' && id !== n.id && placed(byId(id)); }).map(([, b]) => box(b));
-    const obst = [...others, ...ks];
+    // and clear of the zoom control in the corner, where it sits on the board in the current view
+    const Z0 = { l:(zm.offsetLeft - px) / z, t:(zm.offsetTop - py) / z, w:zm.offsetWidth / z, h:zm.offsetHeight / z }; Z0.r = Z0.l + Z0.w; Z0.b = Z0.t + Z0.h;
+    const obst = [...others, ...ks, Z0];
     const samples = Object.entries(geo).filter(([k]) => !k.split('>').includes(n.id)).flatMap(([, q]) => Array.from({ length:15 }, (_, i) => bez(q, (i + 1) / 16)));
     const want = a.d === 'r' ? [a.x + 56 + w / 2, a.y] : [a.x, a.y + 40 + h / 2];
     const inside = (p, b, m) => p[0] > b.l - m && p[0] < b.r + m && p[1] > b.t - m && p[1] < b.b + m;
@@ -1872,14 +2363,14 @@ const fitHits = window.dmFitHits || (() => {
   const uid = Math.random().toString(36).slice(2, 7);
   function config(n, key){
     closePk();
-    const b = el(n.id); $$('.acx-n', nodes).forEach(x => x.classList.toggle('sel', x === b)); selN = n;
+    const b = el(n.id); selN = n;
     pop.innerHTML = `<h4 id="acx-h-${n.id}-${uid}">${n.t}</h4><div class="acx-fl"><span id="acx-f-${n.id}-${uid}">${n.f[0]}</span><button class="acx-dd" aria-haspopup="menu" aria-expanded="false" aria-labelledby="acx-f-${n.id}-${uid} acx-v-${n.id}-${uid}"><span id="acx-v-${n.id}-${uid}">${n.d}</span>${I('chev-d','xs')}</button><div class="acx-opts" role="menu" aria-labelledby="acx-f-${n.id}-${uid}">${n.f[1].map(o => `<button class="mi" role="menuitemradio" tabindex="-1" aria-checked="${o === n.d}"><span>${o}</span><span class="ck">${I('check','xs')}</span></button>`).join('')}</div></div><button class="pill soft sm acx-done">Done</button>`;
     pop.setAttribute('aria-labelledby', `acx-h-${n.id}-${uid}`);
     // beside the step, or under or over it: whichever spot covers the least of the other steps (and none of this one),
     // nearest the step when spots tie, so the popover never hides the step a run flows on to. It may hang up to 32px below
     // the canvas, into the room around the component, when that is what keeps every step clear
     const W = cv.clientWidth, H = cv.clientHeight, pw = pop.offsetWidth || 240, ph = pop.offsetHeight || 150, G = 10, M = 6, OVER = 32;
-    const me = box(b), others = $$('.acx-n', nodes).filter(x => x !== b).map(box);
+    const me = scr(box(b)), others = $$('.acx-n', nodes).filter(x => x !== b).map(x => scr(box(x)));
     const cx = (me.l + me.r) / 2, cy = (me.t + me.b) / 2, cl = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
     const over = (x, y, o) => Math.max(0, Math.min(x + pw, o.r) - Math.max(x, o.l)) * Math.max(0, Math.min(y + ph, o.b) - Math.max(y, o.t));
     const ys = [me.t - 40, cy - ph / 2, me.t, me.b - ph, M, H - ph - M, H - ph + OVER], xs = [cx - pw / 2, me.l, me.r - pw, M, W - pw - M];
@@ -1902,24 +2393,35 @@ const fitHits = window.dmFitHits || (() => {
     $('.acx-done', pop).onclick = () => close(true);
     if (key) dd.focus({ preventScroll:true });
   }
-  function close(back){ const b = selN && el(selN.id), was = pop.contains(document.activeElement); pop.classList.remove('open'); pop.inert = true; $$('.acx-n', nodes).forEach(x => x.classList.remove('sel')); selN = null; if (b && (back || was)) b.focus({ preventScroll:true }); }
+  function close(back){ const b = selN && el(selN.id), was = pop.contains(document.activeElement); pop.classList.remove('open'); pop.inert = true; selN = null; if (b && (back || was)) b.focus({ preventScroll:true }); }
   pop.inert = true;
   c.on(pop, 'keydown', e => { if (e.key === 'Escape' && selN){ e.preventDefault(); close(true); } });
+  /* ---------- selection: a click selects a step (and opens its setting), Shift and a click adds it to the selection or takes
+     it out, and a click on the empty canvas or Escape clears it. Dragging a selected step moves every selected step ---------- */
+  let sel = new Set();
+  function select(ids){ sel = new Set(ids); N.forEach(n => { const b = el(n.id); if (b) b.classList.toggle('sel', sel.has(n.id)); }); }
+  const picked = () => say(sel.size ? `${sel.size} of ${N.length} steps selected` : 'Nothing selected');
   let justDragged = false;
   function bind(n){
     const b = el(n.id);
-    b.onclick = e => { e.stopPropagation(); if (justDragged){ justDragged = false; return; } selN === n ? close() : config(n, e.isTrusted && !e.detail); };
+    b.onclick = e => { e.stopPropagation(); if (justDragged){ justDragged = false; return; }
+      if (e.shiftKey){ const s2 = new Set(sel); s2.has(n.id) ? s2.delete(n.id) : s2.add(n.id); select(s2); close(); closePk(); picked(); return; }
+      select([n.id]); selN === n ? close() : config(n, e.isTrusted && !e.detail); };
     b.onkeydown = e => { if (e.key === 'Escape' && selN === n){ e.preventDefault(); close(); } };
     b.onpointerdown = e => {
-      if (e.button) return; const sx = e.clientX, sy = e.clientY, ox = b.offsetLeft, oy = b.offsetTop; let moved = false;
-      const mv = ev => { const dx = ev.clientX - sx, dy = ev.clientY - sy;
-        if (!moved && Math.hypot(dx, dy) < 4) return;
-        if (!moved){ moved = true; b.classList.add('drag'); nodes.classList.add('drag'); close(); closePk(); b.setPointerCapture?.(e.pointerId); }
+      // a finger on a step of a canvas not yet engaged may be scrolling the page: it only taps
+      if (e.button || (e.pointerType === 'touch' && !engaged)) return; const sx = e.clientX, sy = e.clientY; let moved = false, group = [];
+      const mv = ev => { const dx = (ev.clientX - sx) / z, dy = (ev.clientY - sy) / z;
+        if (!moved && Math.hypot(ev.clientX - sx, ev.clientY - sy) < 4) return;
+        if (!moved){ moved = true; if (!sel.has(n.id)) select([n.id]);
+          group = N.filter(x => sel.has(x.id) && el(x.id)).map(x => { const e2 = el(x.id); return [x, e2, e2.offsetLeft, e2.offsetTop]; });
+          group.forEach(g => g[1].classList.add('drag')); nodes.classList.add('drag'); close(); closePk(); b.setPointerCapture?.(e.pointerId); }
         const W = cv.clientWidth, H = cv.clientHeight;
-        b.style.left = Math.max(4, Math.min(W - b.offsetWidth - 4, ox + dx)) + 'px'; b.style.top = Math.max(4, Math.min(H - b.offsetHeight - 4, oy + dy)) + 'px'; wires(); };
+        group.forEach(([, e2, ox, oy]) => { e2.style.left = Math.max(4, Math.min(W - e2.offsetWidth - 4, ox + dx)) + 'px'; e2.style.top = Math.max(4, Math.min(H - e2.offsetHeight - 4, oy + dy)) + 'px'; });
+        wires(); };
       const up = () => { document.removeEventListener('pointermove', mv); document.removeEventListener('pointerup', up);
-        if (!moved) return; b.classList.remove('drag'); nodes.classList.remove('drag'); justDragged = true; setTimeout(() => justDragged = false, 50);
-        const f = { x:(b.offsetLeft + b.offsetWidth / 2) / cv.clientWidth, y:(b.offsetTop + b.offsetHeight / 2) / cv.clientHeight }; if (narrow()) n.um = f; else n.uw = f; };
+        if (!moved) return; nodes.classList.remove('drag'); justDragged = true; setTimeout(() => justDragged = false, 50);
+        group.forEach(([x, e2]) => { e2.classList.remove('drag'); const f = { x:(e2.offsetLeft + e2.offsetWidth / 2) / cv.clientWidth, y:(e2.offsetTop + e2.offsetHeight / 2) / cv.clientHeight }; if (narrow()) x.um = f; else x.uw = f; }); };
       document.addEventListener('pointermove', mv); document.addEventListener('pointerup', up);
       c.offs.push(() => { document.removeEventListener('pointermove', mv); document.removeEventListener('pointerup', up); });
     };
@@ -1958,10 +2460,10 @@ const fitHits = window.dmFitHits || (() => {
     pkFor = b; b.setAttribute('aria-expanded', 'true'); qi.value = ''; ls.scrollTop = 0; paint();
     const src = byId(b.dataset.for), kind = b.dataset.k;
     pk.setAttribute('aria-label', kind === 'out' ? `Add a step after ${src.t}` : `Add ${kind === 'model' ? 'a model' : 'a tool'} to ${src.t}`);
-    const W = cv.clientWidth, H = cv.clientHeight, pw = pk.offsetWidth, ph = pk.offsetHeight, K = box(b), S = box(el(src.id)), M = 6, G = 8, OVER = -M;
+    const W = cv.clientWidth, H = cv.clientHeight, pw = pk.offsetWidth, ph = pk.offsetHeight, K = scr(box(b)), S = scr(box(el(src.id))), M = 6, G = 8, OVER = -M;
     const cl = (v, lo, hi) => Math.max(lo, Math.min(hi, v)), kx = K.l + K.w / 2, ky = K.t + K.h / 2;
     const over = (x, y, o) => Math.max(0, Math.min(x + pw, o.r) - Math.max(x, o.l)) * Math.max(0, Math.min(y + ph, o.b) - Math.max(y, o.t));
-    const others = N.filter(n => n !== src && placed(n)).map(n => box(el(n.id)));
+    const others = N.filter(n => n !== src && placed(n)).map(n => scr(box(el(n.id))));
     const ys = [ky - 40, K.t, K.b - ph, M, H - ph - M, H - ph + OVER], xs = [kx - pw / 2, K.l, K.r - pw, S.l, S.r - pw, M, W - pw - M];
     const spots = [...ys.map(y => [K.r + G, y]), ...ys.map(y => [Math.min(K.l, S.l) - pw - G, y]), ...xs.map(x => [x, Math.max(K.b, kind === 'out' && !narrow() ? S.b : K.b) + G]), ...xs.map(x => [x, Math.min(K.t, S.t) - ph - G])]
       .map(([x, y]) => [cl(x, M, W - pw - M), cl(y, M, H - ph + OVER)]);
@@ -2002,6 +2504,102 @@ const fitHits = window.dmFitHits || (() => {
     if (focus) nb.focus({ preventScroll:true });
   }
 
+  /* ---------- moving around: drag the empty canvas (one finger on a touch screen) to pan, Shift and a drag to box-select,
+     scroll or a trackpad to pan, Ctrl or ⌘ with the wheel or a pinch to zoom at the pointer; the corner buttons zoom and fit.
+     A click on the empty canvas clears the selection ---------- */
+  sr.id = 'acx-k-' + uid; cv.setAttribute('aria-describedby', sr.id);
+  zo.onclick = () => zoomBy(-1); zi.onclick = () => zoomBy(1); zl.onclick = zoomReset; fitB.onclick = fit;
+  const pt = e => { const b = cv.getBoundingClientRect(); return [e.clientX - b.left, e.clientY - b.top]; };
+  const touch = new Map(); let drag = null;
+  const pinch = () => { const [a, b] = [...touch.values()]; return { d:Math.hypot(b[0] - a[0], b[1] - a[1]) || 1, m:[(a[0] + b[0]) / 2, (a[1] + b[1]) / 2] }; };
+  /* the canvas never traps the page: until the person has engaged with the component (a click in it, a tap in it, or the
+     keyboard's focus coming into it) the wheel and touch belong to the page, so it scrolls past as usual. A finger that
+     starts a scroll there is the page's; one that lifts without scrolling is a tap, which engages it. Once engaged
+     (.engaged), one finger pans and two pinch, as the mouse does */
+  let engaged = false, lastKey = -1e9;
+  const engage = () => { if (engaged) return; engaged = true; cv.classList.add('engaged'); };
+  c.on(document, 'keydown', e => { if (e.isTrusted) lastKey = e.timeStamp; }, true);
+  c.on(r, 'pointerdown', e => { if (e.isTrusted && e.pointerType !== 'touch') engage(); }, true);
+  c.on(r, 'pointerup', e => { if (e.isTrusted && e.pointerType === 'touch') engage(); }, true);
+  c.on(r, 'focusin', e => { if (e.isTrusted && e.timeStamp - lastKey < 100) engage(); }, true);
+  c.on(vp, 'pointerdown', e => {
+    if (e.target.closest('.acx-n, .acx-h, .acx-sc') || (e.button !== 0 && e.button !== 1) || (e.pointerType === 'touch' && !engaged)) return;
+    e.preventDefault();
+    // a click on the canvas gives it the focus, so the keys work straight away
+    if (e.isTrusted) cv.focus({ preventScroll:true });
+    const p = pt(e);
+    if (e.pointerType === 'touch'){
+      touch.set(e.pointerId, p);
+      if (touch.size === 2){ const q = pinch(); drag = { kind:'pinch', d0:q.d, m0:q.m, z0:z, px0:px, py0:py, moved:true }; }
+      else if (touch.size === 1) drag = { kind:'pan', id:e.pointerId, p0:p, px0:px, py0:py, moved:false };
+    } else drag = { kind:e.shiftKey && e.button === 0 ? 'box' : 'pan', id:e.pointerId, p0:p, px0:px, py0:py, base:new Set(sel), moved:false };
+    if (drag && drag.kind === 'pan') cv.classList.add('pan');
+    try { vp.setPointerCapture(e.pointerId); } catch(err){}
+  });
+  c.on(vp, 'pointermove', e => {
+    if (!drag) return; const p = pt(e);
+    if (touch.has(e.pointerId)) touch.set(e.pointerId, p);
+    if (drag.kind === 'pinch'){
+      if (touch.size < 2) return; const q = pinch(), nz = lim(drag.z0 * q.d / drag.d0), wx = (drag.m0[0] - drag.px0) / drag.z0, wy = (drag.m0[1] - drag.py0) / drag.z0;
+      z = nz; px = q.m[0] - wx * z; py = q.m[1] - wy * z; apply(false); return;
+    }
+    if (e.pointerId !== drag.id) return;
+    const dx = p[0] - drag.p0[0], dy = p[1] - drag.p0[1];
+    if (!drag.moved && Math.hypot(dx, dy) < 3) return; drag.moved = true;
+    if (drag.kind === 'pan'){ px = drag.px0 + dx; py = drag.py0 + dy; apply(false); return; }
+    const x = Math.min(p[0], drag.p0[0]), y = Math.min(p[1], drag.p0[1]), w = Math.abs(dx), h = Math.abs(dy);
+    mq.hidden = false; mq.style.cssText = `left:${x}px;top:${y}px;width:${w}px;height:${h}px`;
+    select([...drag.base, ...N.filter(n => placed(n) && (s2 => s2.r > x && s2.l < x + w && s2.b > y && s2.t < y + h)(scr(box(el(n.id))))).map(n => n.id)]);
+  });
+  const end = e => {
+    touch.delete(e.pointerId);
+    if (!drag) return;
+    // lifting one finger of a pinch carries on as a pan with the other
+    if (drag.kind === 'pinch'){ const [id, p] = [...touch.entries()][0] || []; drag = id === undefined ? null : { kind:'pan', id, p0:p, px0:px, py0:py, moved:true }; return; }
+    if (e.pointerId !== drag.id) return;
+    const k = drag.kind, m = drag.moved; drag = null; cv.classList.remove('pan'); mq.hidden = true;
+    if (k === 'box') picked();
+    else if (!m && e.type === 'pointerup' && sel.size){ select([]); picked(); }
+  };
+  c.on(vp, 'pointerup', end); c.on(vp, 'pointercancel', end);
+  /* the wheel never traps the page: it pans the view only once the person has engaged with the component (see above), and
+     until then the page scrolls past as usual. With Ctrl or ⌘ (a trackpad pinch sends that too) it zooms at the pointer
+     at any time. Over the picker's list it scrolls the list */
+  c.on(cv, 'wheel', e => {
+    if (pk.contains(e.target) || pop.contains(e.target)) return;
+    const zoomer = e.ctrlKey || e.metaKey; if (!zoomer && !engaged) return;
+    e.preventDefault(); if (e.isTrusted) c.mine = true;
+    if (zoomer) return zoomAt(z * Math.exp(-e.deltaY / 300), ...pt(e), false);
+    const k = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? cv.clientHeight : 1;
+    let dx = e.deltaX * k, dy = e.deltaY * k; if (e.shiftKey && !dx){ dx = dy; dy = 0; }
+    px -= dx; py -= dy; apply(false);
+  }, { passive:false });
+  // a pointer hides the canvas's focus ring until the next key (Ctrl, ⌘, Shift or Alt alone, as with the wheel, leave it hidden)
+  c.on(cv, 'pointerdown', () => cv.classList.add('ptr'), true); c.on(document, 'keydown', e => { if (!/^(Control|Meta|Shift|Alt)$/.test(e.key)) cv.classList.remove('ptr'); }, true);
+  /* the keyboard, while the canvas or a step has the focus: the arrow keys move the view (on the canvas itself), plus and
+     minus zoom, 0 or 1 fits, Escape clears the selection; Tab goes through the steps and their + buttons, and a step that
+     takes the focus off screen glides into view */
+  c.on(cv, 'keydown', e => {
+    if (e.defaultPrevented || e.ctrlKey || e.metaKey || e.altKey || pop.contains(e.target) || pk.contains(e.target) || /^(INPUT|TEXTAREA)$/.test(e.target.tagName)) return;
+    const k = e.key;
+    if (k === '+' || k === '=') zoomBy(1);
+    else if (k === '-' || k === '_') zoomBy(-1);
+    else if (k === '0' || k === '1' || e.code === 'Digit0' || e.code === 'Digit1') fit();
+    else if (e.target === cv && /^Arrow/.test(k)){ const d = e.shiftKey ? 120 : 40; px += k === 'ArrowLeft' ? d : k === 'ArrowRight' ? -d : 0; py += k === 'ArrowUp' ? d : k === 'ArrowDown' ? -d : 0; apply(true); }
+    else if (k === 'Escape' && sel.size){ select([]); picked(); }
+    else return;
+    e.preventDefault();
+  });
+  c.on(nodes, 'focusin', e => {
+    if (cv.classList.contains('ptr')) return;
+    const t = e.target.closest('.acx-n, .acx-h, .acx-sc'); if (!t) return;
+    const s2 = scr(box(t)), W = cv.clientWidth, H = cv.clientHeight, M = 16;
+    const dx = s2.l < M ? M - s2.l : s2.r > W - M ? W - M - s2.r : 0, dy = s2.t < M ? M - s2.t : s2.b > H - M ? H - M - s2.b : 0;
+    if (dx || dy){ px += dx; py += dy; apply(true); }
+  });
+  // the board never scrolls inside the canvas: a focus that would scroll it pans the view instead (above)
+  c.on(vp, 'scroll', () => { vp.scrollLeft = vp.scrollTop = 0; });
+
   // a step's badge pops in once (CSS), and after that its spinner turns into a check with a short crossfade
   const ease = getComputedStyle(r).getPropertyValue('--ease').trim() || 'ease';
   const mark = (id, s) => { const b = el(id); b.classList.toggle('run', s === 'run'); const x = $('.s', b) || b.appendChild(html('<span class="s"></span>'));
@@ -2033,9 +2631,12 @@ const fitHits = window.dmFitHits || (() => {
     } finally { if (id === runId) running = false; }
   });
   svg.classList.add('intro'); c.later(1300, () => svg.classList.remove('intro'));
-  layout(); let lw = 0; const ro = new ResizeObserver(() => { if (lw && Math.abs(cv.clientWidth - lw) > 2){ close(); closePk(); } lw = cv.clientWidth; layout(); }); ro.observe(cv); c.offs.push(() => ro.disconnect());
+  // a canvas that switches between wide and stacked lays its steps out afresh, and the view goes back to showing it whole
+  layout(); apply(false); let lw = 0, ln = narrow();
+  const ro = new ResizeObserver(() => { if (lw && Math.abs(cv.clientWidth - lw) > 2){ close(); closePk(); } lw = cv.clientWidth; if (ln !== narrow()){ ln = narrow(); z = 1; px = py = 0; } layout(); apply(false); }); ro.observe(cv); c.offs.push(() => ro.disconnect());
   $$('.acx-n, .acx-h, .acx-sc', nodes).forEach((b, i) => { b.dataset.seen = 1; b.classList.add(b.matches('.acx-n') ? 'acx-in' : 'in'); b.style.animationDelay = Math.min(i, 4) * 90 + 'ms'; });
-  // the preview's story: one test run, then the person adds a step after the last one from its +
+  // the preview's story: one test run, then the person adds a step after the last one from its +, zooms in a step and fits
+  // the whole automation back in view
   c.story(async s => {
     await s.beat(3);
     await s.tap(runB); s.away();
@@ -2044,7 +2645,9 @@ const fitHits = window.dmFitHits || (() => {
     await s.tap(h); await s.beat(1.5);
     const o = opts.find(x => x.dataset.t === 'Create ticket'); if (!o) return;
     await s.point(o, false); hl(opts.indexOf(o), true); await s.beat(1.5);
-    await s.tap(o); s.away(); await s.beat(4);
+    await s.tap(o); s.away(); await s.beat(3);
+    await s.tap(zi); await s.beat(2);
+    await s.tap(fitB); s.away(); await s.beat(3);
   });
 });
 </script><script>

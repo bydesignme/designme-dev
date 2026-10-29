@@ -6,8 +6,31 @@
 .dm-acx-sp{flex:1}
 .dm-acx-st{font-size:12.5px}
 /* the canvas reads as a workflow editor: a dot every 16px, fading toward the edges so the steps sit in the middle of it */
-.dm-acx-cv{position:relative;height:420px;border-radius:18px;background-color:var(--dm-chip);background-image:radial-gradient(ellipse at center,transparent 55%,var(--dm-chip) 100%),radial-gradient(circle at 8px 8px,color-mix(in srgb,var(--dm-fg) 20%,transparent) 1.1px,transparent 1.6px);background-size:100% 100%,16px 16px;background-position:0 0,center}
-.dm-acx-svg{position:absolute;inset:0;width:100%;height:100%}
+.dm-acx-cv{position:relative;height:420px;border-radius:18px;outline:0;background-color:var(--dm-chip);background-image:radial-gradient(ellipse at center,transparent 55%,var(--dm-chip) 100%),radial-gradient(circle at center,color-mix(in srgb,var(--dm-fg) 20%,transparent) 1.1px,transparent 1.6px);background-size:100% 100%,16px 16px;background-position:0 0,center}
+/* the view: the steps and wires sit on a world that pans and zooms inside the canvas, and the dots move with it. Drag the
+   empty canvas (one finger on a touch screen) or scroll to move around; Ctrl or ⌘ with the wheel, or a pinch, zooms at the
+   pointer. The popover and the picker sit over it, so they may still hang below the canvas */
+.dm-acx-vp{position:absolute;inset:0;overflow:hidden;overflow:clip;border-radius:inherit;cursor:grab;user-select:none;-webkit-user-select:none}
+/* touch is the page's until the canvas is engaged (a tap in it): then one finger pans and two pinch the canvas */
+.dm-acx-cv.dm-engaged :is(.dm-acx-vp,.dm-acx-n){touch-action:none}
+.dm-acx-cv.dm-pan .dm-acx-vp{cursor:grabbing}
+.dm-acx-world{position:absolute;inset:0;transform-origin:0 0}
+.dm-acx-cv.dm-anim{transition:background-position var(--dm-t) var(--dm-ease),background-size var(--dm-t) var(--dm-ease)}
+.dm-acx-cv.dm-anim .dm-acx-world{transition:transform var(--dm-t) var(--dm-ease)}
+/* the canvas shows its focus only to the keyboard, in the quiet grey: a click gives it the focus without a ring */
+.dm-acx-cv:focus-visible:not(.dm-ptr){outline:2px solid var(--dm-field-line);outline-offset:2px}
+/* Shift and a drag on the empty canvas draws a box: every step it touches joins the selection */
+.dm-acx-mq{position:absolute;left:0;top:0;border-radius:var(--dm-r-xs);box-shadow:inset 0 0 0 1px var(--dm-pick-on);background:color-mix(in srgb,var(--dm-fg) 4%,transparent);pointer-events:none}
+/* zoom out, the zoom level (which resets to 100%), zoom in and fit, quiet in the corner */
+.dm-acx-zm{position:absolute;right:var(--dm-s-3);bottom:var(--dm-s-3);z-index:4;display:flex;align-items:center;padding:var(--dm-s-1);border-radius:var(--dm-r-pill);background:var(--dm-surface);box-shadow:var(--dm-shadow)}
+.dm-acx-zb{width:28px;height:28px;flex:none;display:grid;place-items:center;border-radius:var(--dm-r-pill);color:var(--dm-fg2);transition:background var(--dm-t-fast),color var(--dm-t-fast)}
+.dm-acx-zl{min-width:44px;height:28px;padding:0 var(--dm-s-1);flex:none;border-radius:var(--dm-r-pill);font-size:12px;color:var(--dm-fg2);transition:background var(--dm-t-fast),color var(--dm-t-fast)}
+@media (hover:hover) and (pointer:fine){.dm-acx-zb:hover,.dm-acx-zl:hover{background:var(--dm-row);color:var(--dm-fg)}}
+.dm-acx-zb[aria-disabled="true"]{color:var(--dm-dis);background:none;cursor:not-allowed}
+@media (hover:hover) and (pointer:fine){.dm-acx-zb[aria-disabled="true"]:hover{color:var(--dm-dis);background:none;cursor:not-allowed}}
+.dm-acx-zs{width:1px;height:14px;margin:0 var(--dm-s-1);flex:none;background:var(--dm-line)}
+.dm-acx-sr{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.dm-acx-svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
 .dm-acx-svg path{fill:none;stroke:var(--dm-faint);stroke-width:1.5;transition:stroke .6s var(--dm-ease)}
 /* on arrival the wires draw in after the steps have landed */
 .dm-acx-svg.dm-intro path{stroke-dasharray:var(--dm-l);animation:dm-acxdraw .8s var(--dm-ease) .42s backwards}
@@ -25,9 +48,10 @@
 @keyframes dm-acxsv{from{opacity:0;filter:blur(2px)}}
 .dm-acx-n{position:absolute;width:176px;padding:10px var(--dm-s-3);border-radius:14px;background:var(--dm-surface);box-shadow:var(--dm-shadow);display:flex;align-items:center;gap:10px;font-size:12.5px;text-align:left;transition:box-shadow .3s,left .5s var(--dm-ease),top .5s var(--dm-ease)}
 @media (hover:hover) and (pointer:fine){.dm-acx-n:hover{box-shadow:var(--dm-shadow-pop)}}
-.dm-acx-n{cursor:grab;touch-action:none;user-select:none}
+.dm-acx-n{cursor:pointer;user-select:none}
 .dm-acx-n.dm-drag{cursor:grabbing;transition:box-shadow .3s;box-shadow:var(--dm-shadow-pop);z-index:3;transform:scale(1.02)}
-.dm-acx-n.dm-sel{box-shadow:0 0 0 1px var(--dm-rail),var(--dm-shadow-pop)}
+/* a selected step: its white card with a light grey edge */
+.dm-acx-n.dm-sel{box-shadow:0 0 0 1px var(--dm-pick-on),var(--dm-shadow-pop)}
 .dm-acx-n .dm-ic{width:28px;height:28px;border-radius:9px;display:grid;place-items:center;flex:none}
 .dm-acx-n .dm-t{display:flex;flex-direction:column;min-width:0}
 .dm-acx-n .dm-t b{font-weight:500;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -79,5 +103,6 @@
 .dm-acx-pd{margin:0;padding:var(--dm-s-2) var(--dm-s-2) 2px;box-shadow:inset 0 1px 0 var(--dm-line);font-size:12px;line-height:1.4;color:var(--dm-fg2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dm-acx-live{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 :root:not([data-style="soft"]) :is(.dm-acx-h,.dm-acx-sc):not(:where([data-style="soft"],[data-style="soft"] *)){box-shadow:inset 0 0 0 1px var(--dm-rail)}
+:root:not([data-style="soft"]) .dm-acx-zm:not(:where([data-style="soft"],[data-style="soft"] *)){box-shadow:inset 0 0 0 1px var(--dm-line)}
 @media (hover:hover) and (pointer:fine){:root:not([data-style="soft"]) :is(.dm-acx-h,.dm-acx-sc):is(:hover,[aria-expanded="true"]):not(:where([data-style="soft"],[data-style="soft"] *)){box-shadow:inset 0 0 0 1px var(--dm-field-line)}}
 @media (max-width:720px){.dm-acx-cv{height:580px}}

@@ -1,5 +1,5 @@
 {
-  "summary": "Automation canvas draws an agent automation as cards joined by wires: a trigger, a few agent steps and where the result goes. People can add steps from a small + on the last step, or give the agent a model and tools from the connectors under it, drag the cards, click one to change its setting, and press Test run to watch the run light up each step and wire in turn.",
+  "summary": "Automation canvas draws an agent automation as cards joined by wires: a trigger, a few agent steps and where the result goes. People can add steps from a small + on the last step, or give the agent a model and tools from the connectors under it, pan and zoom round the canvas, select and drag the cards, click one to change its setting, and press Test run to watch the run light up each step and wire in turn.",
   "use": [
     "When people set up recurring agent workflows, like a weekly design check that posts to Slack.",
     "When a short flow is easier to understand as a picture than as a form.",
@@ -14,8 +14,12 @@
     "Picking a type calls `onAddNode(type, from, via, group)`. Add a node with `attach: { to: from, via }` and its edge, and the canvas places it next to what it hangs from (to the right, or under it), clear of the other steps, their + buttons and their wires, and keeps that place in each layout. Models and tools are drawn as smaller steps on dashed wires. The wire to a new step draws itself in.",
     "The + buttons go once the canvas holds `maxNodes` steps: 9, or 6 when the canvas stacks.",
     "With `balanced` on (the default), nodes that share an `x` form a column and the columns spread evenly across the width.",
-    "Cards can be dragged. Dropping one calls `onNodeMove` with its new centre. Below 560px wide the nodes stack down the canvas, using each node's `narrow` position if set; there a step with connectors sends its wire to a step on its left from its left side, so it passes clear of what hangs under it.",
-    "Clicking a node opens a popover with its `field`, a menu of options. Picking one updates the node's detail and calls `onValuesChange`.",
+    "Cards can be dragged; dragging a selected card moves every selected card. Dropping calls `onNodeMove` with each moved card's new centre. Below 560px wide the nodes stack down the canvas, using each node's `narrow` position if set; there a step with connectors sends its wire to a step on its left from its left side, so it passes clear of what hangs under it.",
+    "The canvas pans and zooms. Drag the empty canvas (one finger on a touch screen), scroll, or swipe a trackpad to pan; Ctrl or ⌘ with the wheel, or a pinch, zooms at the pointer, from 50% to 200%. The dots move with the cards, and panning stops before the cards' area leaves the middle of the canvas. The canvas never traps the page: the wheel and touch pan it only once someone has clicked or tapped in the component, or moved the keyboard focus into it. Until then the wheel and a finger scroll the page as usual, and a pinch does what the browser does. Ctrl or ⌘ with the wheel zooms the canvas at any time.",
+    "Small zoom buttons sit in the bottom right corner: zoom out, the zoom level (press it for 100%), zoom in, and fit, which centres every step and its + in view at 100% or less. New steps are placed clear of the buttons where there is room. `view`, `defaultView` and `onViewChange` hold where the canvas looks, as `{ panX, panY, zoom }`. It starts with the whole canvas at 100%, and goes back to that when the canvas switches between wide and stacked.",
+    "Click a card to select it: its white card gets a light grey edge. Shift and a click adds a card to the selection or takes it out, Shift and a drag on the empty canvas draws a box that selects every card it touches, and a click on the empty canvas or Escape clears the selection. `selection`, `defaultSelection` and `onSelectionChange` hold it, as a list of ids.",
+    "The cursor is an open hand on the empty canvas, a closed hand while it pans, and a pointer on the cards.",
+    "Clicking a node selects it and opens a popover with its `field`, a menu of options. Picking one updates the node's detail and calls `onValuesChange`.",
     "`onRun` adds a Test run button. Set each node's `state` to `run` or `done` and add wires to `flowing` as your run goes, and a soft light passes along each new wire.",
     "The header shows the automation's `name`, an optional green `tag` like \"On\" and a `status` line that crossfades."
   ],
@@ -28,12 +32,20 @@
     "The popover has `role=\"dialog\"`, labelled with the node's title, and is `inert` while closed.",
     "Enter or Space on a node opens its popover with the focus in it, and Escape or Done closes it and gives the focus back to the node.",
     "Setting options use `role=\"menuitemradio\"` with `aria-checked`, and the dropdown is a menu button with `aria-expanded`: the arrows open it and move through the options and wrap, Home and End jump, Enter or Space picks, and Escape closes it back to the button.",
-    "The wires are `aria-hidden`. With reduced motion on, the light along a wire and a new wire's draw are skipped."
+    "The canvas is a focusable `group` with `aria-roledescription=\"canvas\"`, labelled by `label` (\"Automation canvas\" by default) and described by a hidden line that lists its controls. While the canvas has the focus, the arrow keys pan it (with Shift, in bigger steps). While the canvas, a card or a zoom button has the focus, plus and minus zoom, 0 or 1 fits, and Escape clears the selection.",
+    "Its focus ring is the quiet grey, shown only from the keyboard: a click gives the canvas the focus without a ring. Tab goes from the canvas through the cards and their + buttons, and a card that takes the focus out of view glides into view.",
+    "The zoom buttons are a `toolbar` labelled \"Zoom\". The level reads like \"Zoom 125%, reset to 100%\", and zoom out and zoom in turn `aria-disabled` at 50% and 200%.",
+    "The `aria-live` region also says the zoom level after the buttons and keys, and how many steps are selected after a Shift click, a box or a clear.",
+    "The wires are `aria-hidden`. With reduced motion on, the light along a wire and a new wire's draw are skipped, and the view jumps to where the buttons and keys send it instead of gliding."
   ],
   "faq": [
     {
       "q": "Does Test run execute the automation?",
       "a": "No. It calls `onRun`. Your code runs the steps and updates each node's `state` and the `flowing` list, which the canvas animates."
+    },
+    {
+      "q": "Can people move around a bigger automation?",
+      "a": "Yes. They pan by dragging the empty canvas, and with one finger or by scrolling once they have clicked or tapped into it, zoom with Ctrl or ⌘ and the wheel, a pinch or the corner buttons, and fit brings every step back into view. Hold `view` with `onViewChange` to start somewhere else, or to keep the view between visits."
     },
     {
       "q": "How do I let people add steps?",

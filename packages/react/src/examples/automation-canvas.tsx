@@ -73,12 +73,15 @@ export default function AutomationCanvasDemo() {
     } catch (e) { if (e !== 'stop') throw e; }
   };
 
-  // the preview's story: one test run, then the person adds a step after the last one from its +
+  // the preview's story: one test run, then the person adds a step after the last one from its +, zooms in a step and fits
+  // the whole automation back in view
   const ref = useRef<HTMLDivElement>(null);
   useStory(ref, async ({ wait: sw, press }) => {
     await sw(1600); press('.dm-acx-run');
     await sw(6200); press('.dm-acx-h');
     await sw(1500); press('.dm-acx-o[data-id="ticket"]');
+    await sw(1500); press('.dm-acx-zi');
+    await sw(1000); press('.dm-acx-fit');
   });
 
   return (

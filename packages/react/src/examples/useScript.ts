@@ -33,14 +33,16 @@ function trackInput() {
   const note = (e: Event) => { if (e.isTrusted) lastInput = e.timeStamp; };
   window.addEventListener('pointerdown', note, true); window.addEventListener('keydown', note, true);
 }
-/** Calls `take` at the visitor's first real click, key, typing or focus inside `el`. Returns a function that stops watching */
+/** Calls `take` at the visitor's first real click, key, typing or focus inside `el`, or a wheel a component there takes for itself. Returns a function that stops watching */
 function watchTakeover(el: HTMLElement, take: () => void) {
   trackInput();
   const mine = (e: Event) => { if (e.isTrusted) take(); };
   const focus = (e: Event) => { if (e.isTrusted && e.timeStamp - lastInput < 100) take(); };
   const types = ['pointerdown', 'keydown', 'input', 'click'];
-  types.forEach(t => el.addEventListener(t, mine, true)); el.addEventListener('focusin', focus, true);
-  return () => { types.forEach(t => el.removeEventListener(t, mine, true)); el.removeEventListener('focusin', focus, true); };
+  // a wheel a component takes for itself (a canvas that pans with it) is the visitor's too; one that scrolls the page is not
+  const wheel = (e: Event) => { if (e.isTrusted && e.defaultPrevented) take(); };
+  types.forEach(t => el.addEventListener(t, mine, true)); el.addEventListener('focusin', focus, true); el.addEventListener('wheel', wheel, { passive: true });
+  return () => { types.forEach(t => el.removeEventListener(t, mine, true)); el.removeEventListener('focusin', focus, true); el.removeEventListener('wheel', wheel); };
 }
 
 /** Whether the visitor has taken over the demo in `ref`, with their first real click, key, typing or focus inside it. A
