@@ -183,7 +183,7 @@ Saved prompts with blanks to fill in before they go to the agent.
 
 **AttachmentTray** · `attachment-tray/AttachmentTray.tsx`  
 Drop files for the agent and watch each one upload.  
-`files: { id, name, size, progress }[]` (at 100 the ring turns into a check), `onFiles(files)` (dropped or picked), `onRemove(id)`, `title`, `action: { label, onClick }`, `accept`, `summary`, `dragging` (shows the drop zone as if a file were over it; the dashed edge stops and turns accent).
+`files: { id, name, size, progress, reading?, detail? }[]` (the ring and a wash in the file type's colour fill as it uploads, and at 100 the ring turns into a check; `reading` shimmers "Reading" while the agent reads it, then `detail` says what it found), `onFiles(files)` (dropped or picked), `onRemove(id)`, `title`, `action: { label, onClick }`, `accept`, `summary`, `dragging` (shows the drop zone as if a file were over it: the dashed edge marches in the accent and rings spread from the badge).
 
 **AnswerActionBar** · `answer-action-bar/AnswerActionBar.tsx`  
 Copy, regenerate, rate and listen to an answer from one row under it.  

@@ -36,6 +36,8 @@ Object.assign(WAIT, { 'canvas-toolbar':12800 });
 Object.assign(WAIT, { 'agent-lanes':6800 });
 // Command palette is taken once it has run the token export, the search still in the box
 Object.assign(WAIT, { 'command-palette':4600 });
+// Attachment tray is taken once the agent has read the three files
+Object.assign(WAIT, { 'attachment-tray':6500 });
 const OUT = { thumbs:path.join(HERE, 'public/components/thumbs'), og:path.join(HERE, 'public/components/og') };
 Object.values(OUT).forEach(d => fs.mkdirSync(d, { recursive:true }));
 

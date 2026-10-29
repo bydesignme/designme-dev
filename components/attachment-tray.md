@@ -15,7 +15,7 @@ The CLI copies the source into your project, so you own it and can change anythi
 
 ## About
 
-Attachment tray is a drop zone plus a list of the files a person is giving the agent. Each file shows a type badge, its name and size, and a progress ring that turns into a check when the upload finishes, with a line underneath saying how many files the agent can read.
+Attachment tray is a drop zone plus a list of the files a person is giving the agent. Each file wears its type's colour: a badge, a progress ring and a wash that fills its row as it uploads. Once it is up the agent reads it, and the file says what the agent found, like "12 pages", with a line underneath saying how many files the agent can read.
 
 ### When to use it
 
@@ -26,17 +26,19 @@ Attachment tray is a drop zone plus a list of the files a person is giving the a
 ### What it does
 
 - Files dropped on the zone or chosen with the file dialog go to `onFiles` as a list of `File` objects. `accept` limits the dialog to certain types.
-- Each file gets a coloured badge from its extension, like PDF, PNG or CSV, and its size in KB or MB.
-- `progress` from 0 to 100 fills a ring, and at 100 the ring becomes a check. Files that arrive together come in one after another.
+- Each file gets a coloured badge from its extension, like PDF, PNG or CSV, and its size in KB or MB. The badge's colour, red for PDF, violet for images and Figma, green for spreadsheets and blue for the rest, also draws its ring and its upload wash.
+- `progress` from 0 to 100 closes the ring, shows the percentage after the size and fills the row from the left. At 100 the wash fades and the ring becomes a check. Files that arrive together come in one after another.
+- Set `reading` once a file is up and the agent is reading it: a spinner takes the ring's place and "Reading" shimmers after the size. Then set `detail` to what the agent found, like "12 pages" or "1,204 rows", and it shows after the size.
 - `onRemove` adds a remove button to each file and is called after the file has animated out.
-- The line under the list counts finished files, like "The agent can read 2 files now", unless you pass your own `summary`.
-- The drop zone's dashed edge marches while a file is dragged over it. `title` changes its heading, `action` adds a link after "or", and `dragging` shows the drag state for a scripted demo.
+- The line under the list counts files that are up and read, like "The agent can read 2 files now", unless you pass your own `summary`.
+- The drop zone takes the accent under the pointer. While a file is dragged over it, its dashed edge marches, its arrow bobs and rings spread from the badge. `title` changes its heading, `action` adds a link after "or", and `dragging` shows the drag state for a scripted demo.
 
 ### Accessibility
 
 - The drop zone wraps a real file input labelled "Choose files", so it also works without dragging.
 - Each upload ring is a `role="progressbar"` with `aria-valuenow` from 0 to 100 and a label naming the file.
 - Remove buttons are labelled with the file name, like "Remove brief.pdf".
+- With reduced motion the edge, the arrow, the rings and the shimmer stay still; the ring and the percentage still show the progress.
 
 ## Usage in React
 
@@ -54,7 +56,7 @@ import { useStory } from '../lib/useScript';
 import { AttachmentTray, type Attachment } from './AttachmentTray';
 
 /* ---------- Attachment tray: dropped or picked files upload one by one; sample files show the flow ---------- */
-const SAMPLES: [string, number][] = [['brief.pdf', 2.4e6], ['Pricing.fig', 8.1e6], ['signups.csv', 3.2e5]];
+const SAMPLES: [string, number, string?][] = [['brief.pdf', 2.4e6, '12 pages'], ['Pricing.fig', 8.1e6, '6 frames'], ['signups.csv', 3.2e5, '1,204 rows']];
 
 export default function AttachmentTrayDemo() {
   const [files, setFiles] = useState<Attachment[]>([]);
@@ -62,16 +64,19 @@ export default function AttachmentTrayDemo() {
   const count = useRef(0);
   count.current = files.length;
   const timers = useRef<ReturnType<typeof setInterval>[]>([]);
-  useEffect(() => () => timers.current.forEach(clearInterval), []);
+  useEffect(() => () => timers.current.forEach(t => { clearInterval(t); clearTimeout(t); }), []);
   // a real app would report upload progress here; the demo fakes it, a little faster or slower each tick
-  const add = (list: [string, number][]) => list.forEach(([name, size]) => {
+  const add = (list: [string, number, string?][]) => list.forEach(([name, size, detail]) => {
     const id = Math.random().toString(36).slice(2);
     setFiles(fs => [...fs, { id, name, size, progress: 0 }]);
     let p = 0;
     const iv = setInterval(() => {
-      p = Math.min(100, p + 4 + Math.random() * 8);
-      setFiles(fs => fs.map(f => f.id === id ? { ...f, progress: p } : f));
-      if (p >= 100) clearInterval(iv);
+      p = Math.min(100, p + 2.5 + Math.random() * 5);
+      setFiles(fs => fs.map(f => f.id === id ? { ...f, progress: p, reading: p >= 100 } : f));
+      if (p < 100) return;
+      clearInterval(iv);
+      // once it is up, the agent reads it and says what it found
+      timers.current.push(setTimeout(() => setFiles(fs => fs.map(f => f.id === id ? { ...f, reading: false, detail } : f)), 900));
     }, 70);
     timers.current.push(iv);
   });
@@ -79,7 +84,7 @@ export default function AttachmentTrayDemo() {
   const ref = useRef<HTMLDivElement>(null);
   useStory(ref, async s => {
     await s.wait(950); if (count.current) return;
-    setDragging(true); s.taken(() => setDragging(false)); await s.wait(500); setDragging(false);
+    setDragging(true); s.taken(() => setDragging(false)); await s.wait(1300); setDragging(false);
     if (!count.current) add(SAMPLES);
   });
   return (
@@ -138,8 +143,12 @@ export interface Attachment {
   name: string;
   /** In bytes */
   size: number;
-  /** 0 to 100. At 100 the ring turns into a check */
+  /** 0 to 100. The ring closes and the row fills with the file type's colour; at 100 the ring turns into a check */
   progress: number;
+  /** After the upload, while the agent reads the file: a spinner, and "Reading" shimmering after the size */
+  reading?: boolean;
+  /** What the agent found once it has read the file, like "12 pages", shown after the size */
+  detail?: string;
 }
 
 export interface AttachmentTrayProps {
@@ -176,16 +185,22 @@ function Item({ file, delay, onRemove }: { file: Attachment; delay: number; onRe
   const [leaving, setLeaving] = useState(false);
   const t = useRef<ReturnType<typeof setTimeout>>(undefined);
   useEffect(() => () => clearTimeout(t.current), []);
-  const [label, fg, bg] = kind(file.name), p = Math.max(0, Math.min(100, file.progress)) / 100;
+  const [label, fg, bg] = kind(file.name), p = Math.max(0, Math.min(100, file.progress)) / 100, up = p >= 1;
+  const meta = !up ? `${bytes(file.size)} · ${Math.round(p * 100)}%` : file.detail && !file.reading ? `${bytes(file.size)} · ${file.detail}` : bytes(file.size);
   return (
-    <div className={cx('dm-atx-it', leaving ? 'dm-leave' : 'dm-enter')} style={leaving ? undefined : { animationDelay: delay + 'ms' }}>
-      <span className="dm-atx-ti" style={{ color: fg, background: bg }}>{label}</span>
-      <span className="dm-atx-n">{file.name}<span>{bytes(file.size)}</span></span>
-      {p >= 1
-        ? <span style={{ color: 'var(--dm-ok)', display: 'grid', placeItems: 'center', width: 22 }}><Icon name="ok" /></span>
+    <div className={cx('dm-atx-it', up && 'dm-up', leaving ? 'dm-leave' : 'dm-enter')}
+      style={{ '--dm-c': fg, '--dm-cb': bg, '--dm-p': `${(p * 100).toFixed(1)}%`, ...(leaving ? {} : { animationDelay: delay + 'ms' }) } as CSSProperties}>
+      <span className="dm-atx-ti">{label}</span>
+      <span className="dm-atx-n"><span className="dm-atx-nm">{file.name}</span>
+        {/* the percentage counts in place; the line crossfades when the file moves on to being read and to what was found */}
+        {!up ? <span className="dm-atx-m dm-num">{meta}</span>
+          : file.reading ? <span className="dm-atx-m"><span className="dm-shim">{bytes(file.size)} · Reading</span></span> : <Swap className="dm-atx-m">{meta}</Swap>}
+      </span>
+      {up
+        ? file.reading ? <span className="dm-atx-rd"><span className="dm-spin" aria-hidden="true" /></span> : <span className="dm-atx-ok"><Icon name="ok" /></span>
         : <svg className="dm-atx-ring" viewBox="0 0 22 22" role="progressbar" aria-label={`Uploading ${file.name}`} aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(p * 100)}>
             <circle cx="11" cy="11" r="8" fill="none" stroke="var(--dm-line)" strokeWidth="2" />
-            <circle cx="11" cy="11" r="8" fill="none" stroke="var(--dm-accent)" strokeWidth="2" strokeLinecap="round" strokeDasharray={RING} transform="rotate(-90 11 11)" style={{ strokeDashoffset: RING * (1 - p) }} />
+            <circle cx="11" cy="11" r="8" fill="none" stroke={fg} strokeWidth="2" strokeLinecap="round" strokeDasharray={RING} transform="rotate(-90 11 11)" style={{ strokeDashoffset: RING * (1 - p) }} />
           </svg>}
       {onRemove && (
         <Tip label="Remove">
@@ -222,7 +237,7 @@ function Ants() {
   );
 }
 
-/** Drop files for the agent and watch each one upload. */
+/** Drop files for the agent and watch each one upload, in its file type's colour, then get read. */
 export function AttachmentTray({ files, onFiles, onRemove, title = 'Drop files here', action, accept, summary, dragging, className }: AttachmentTrayProps) {
   const [over, setOver] = useState(false);
   // files that arrive together come in one after another
@@ -234,7 +249,7 @@ export function AttachmentTray({ files, onFiles, onRemove, title = 'Drop files h
     setSeen({ ids, delay });
   }
   const hold = (e: DragEvent) => { e.preventDefault(); setOver(true); };
-  const read = files.filter(f => f.progress >= 100).length;
+  const read = files.filter(f => f.progress >= 100 && !f.reading).length;
   const line = summary ?? (read ? `The agent can read ${read} ${read > 1 ? 'files' : 'file'} now` : '');
 
   return (

@@ -12,8 +12,12 @@ export interface Attachment {
   name: string;
   /** In bytes */
   size: number;
-  /** 0 to 100. At 100 the ring turns into a check */
+  /** 0 to 100. The ring closes and the row fills with the file type's colour; at 100 the ring turns into a check */
   progress: number;
+  /** After the upload, while the agent reads the file: a spinner, and "Reading" shimmering after the size */
+  reading?: boolean;
+  /** What the agent found once it has read the file, like "12 pages", shown after the size */
+  detail?: string;
 }
 
 export interface AttachmentTrayProps {
@@ -50,16 +54,22 @@ function Item({ file, delay, onRemove }: { file: Attachment; delay: number; onRe
   const [leaving, setLeaving] = useState(false);
   const t = useRef<ReturnType<typeof setTimeout>>(undefined);
   useEffect(() => () => clearTimeout(t.current), []);
-  const [label, fg, bg] = kind(file.name), p = Math.max(0, Math.min(100, file.progress)) / 100;
+  const [label, fg, bg] = kind(file.name), p = Math.max(0, Math.min(100, file.progress)) / 100, up = p >= 1;
+  const meta = !up ? `${bytes(file.size)} · ${Math.round(p * 100)}%` : file.detail && !file.reading ? `${bytes(file.size)} · ${file.detail}` : bytes(file.size);
   return (
-    <div className={cx('dm-atx-it', leaving ? 'dm-leave' : 'dm-enter')} style={leaving ? undefined : { animationDelay: delay + 'ms' }}>
-      <span className="dm-atx-ti" style={{ color: fg, background: bg }}>{label}</span>
-      <span className="dm-atx-n">{file.name}<span>{bytes(file.size)}</span></span>
-      {p >= 1
-        ? <span style={{ color: 'var(--dm-ok)', display: 'grid', placeItems: 'center', width: 22 }}><Icon name="ok" /></span>
+    <div className={cx('dm-atx-it', up && 'dm-up', leaving ? 'dm-leave' : 'dm-enter')}
+      style={{ '--dm-c': fg, '--dm-cb': bg, '--dm-p': `${(p * 100).toFixed(1)}%`, ...(leaving ? {} : { animationDelay: delay + 'ms' }) } as CSSProperties}>
+      <span className="dm-atx-ti">{label}</span>
+      <span className="dm-atx-n"><span className="dm-atx-nm">{file.name}</span>
+        {/* the percentage counts in place; the line crossfades when the file moves on to being read and to what was found */}
+        {!up ? <span className="dm-atx-m dm-num">{meta}</span>
+          : file.reading ? <span className="dm-atx-m"><span className="dm-shim">{bytes(file.size)} · Reading</span></span> : <Swap className="dm-atx-m">{meta}</Swap>}
+      </span>
+      {up
+        ? file.reading ? <span className="dm-atx-rd"><span className="dm-spin" aria-hidden="true" /></span> : <span className="dm-atx-ok"><Icon name="ok" /></span>
         : <svg className="dm-atx-ring" viewBox="0 0 22 22" role="progressbar" aria-label={`Uploading ${file.name}`} aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(p * 100)}>
             <circle cx="11" cy="11" r="8" fill="none" stroke="var(--dm-line)" strokeWidth="2" />
-            <circle cx="11" cy="11" r="8" fill="none" stroke="var(--dm-accent)" strokeWidth="2" strokeLinecap="round" strokeDasharray={RING} transform="rotate(-90 11 11)" style={{ strokeDashoffset: RING * (1 - p) }} />
+            <circle cx="11" cy="11" r="8" fill="none" stroke={fg} strokeWidth="2" strokeLinecap="round" strokeDasharray={RING} transform="rotate(-90 11 11)" style={{ strokeDashoffset: RING * (1 - p) }} />
           </svg>}
       {onRemove && (
         <Tip label="Remove">
@@ -96,7 +106,7 @@ function Ants() {
   );
 }
 
-/** Drop files for the agent and watch each one upload. */
+/** Drop files for the agent and watch each one upload, in its file type's colour, then get read. */
 export function AttachmentTray({ files, onFiles, onRemove, title = 'Drop files here', action, accept, summary, dragging, className }: AttachmentTrayProps) {
   const [over, setOver] = useState(false);
   // files that arrive together come in one after another
@@ -108,7 +118,7 @@ export function AttachmentTray({ files, onFiles, onRemove, title = 'Drop files h
     setSeen({ ids, delay });
   }
   const hold = (e: DragEvent) => { e.preventDefault(); setOver(true); };
-  const read = files.filter(f => f.progress >= 100).length;
+  const read = files.filter(f => f.progress >= 100 && !f.reading).length;
   const line = summary ?? (read ? `The agent can read ${read} ${read > 1 ? 'files' : 'file'} now` : '');
 
   return (

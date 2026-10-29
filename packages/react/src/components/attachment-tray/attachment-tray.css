@@ -1,29 +1,57 @@
 /* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Attachment tray ---------- */
+/* a drop zone, then the files as plain rows. Each file wears its type's hue: its badge, its ring and the wash that fills its
+   row from the left as it uploads. Once it is up the agent reads it (the line shimmers) and says what it found, like 12 pages */
 .dm-atx{display:flex;flex-direction:column;gap:10px}
 .dm-atx-drop{display:flex;flex-direction:column;align-items:center;gap:6px;padding:26px var(--dm-s-4);border-radius:var(--dm-r-card);background:none;cursor:pointer;position:relative;font-size:13.5px;transition:background .35s,box-shadow .35s,transform .45s var(--dm-ease)}
-/* the dashed edge is drawn in SVG so its dashes can march slowly around the corners; they stop and take the accent under the pointer */
+/* the dashed edge is drawn in SVG so its dashes can march around the corners: still at rest, taking the accent under the
+   pointer, and marching while a file is dragged over */
 .dm-atx-ants{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
-.dm-atx-ants rect{fill:none;stroke:var(--dm-faint);stroke-width:1.5;stroke-linecap:round;stroke-dasharray:4.5px var(--dm-ag,6.5px);animation:dm-atxants 1.4s linear infinite;transition:stroke .35s}
+.dm-atx-ants rect{fill:none;stroke:var(--dm-faint);stroke-width:1.5;stroke-linecap:round;stroke-dasharray:4.5px var(--dm-ag,6.5px);transition:stroke .35s}
 @keyframes dm-atxants{to{stroke-dashoffset:calc(var(--dm-ap,11px) * -1)}}
 .dm-atx-drop.dm-over{background:var(--dm-accent-bg)}
 @media (hover:hover) and (pointer:fine){.dm-atx-drop:hover{background:var(--dm-accent-bg)}}
-.dm-atx-drop.dm-over .dm-atx-ants rect{stroke:var(--dm-accent-mark,var(--dm-accent));animation-play-state:paused}
-@media (hover:hover) and (pointer:fine){.dm-atx-drop:hover .dm-atx-ants rect{stroke:var(--dm-accent-mark,var(--dm-accent));animation-play-state:paused}}
+.dm-atx-drop.dm-over .dm-atx-ants rect{stroke:var(--dm-accent-mark,var(--dm-accent))}
+@media (hover:hover) and (pointer:fine){.dm-atx-drop:hover .dm-atx-ants rect{stroke:var(--dm-accent-mark,var(--dm-accent))}}
+.dm-atx-drop.dm-over .dm-atx-ants rect{animation:dm-atxants .9s linear infinite}
 .dm-atx-drop.dm-over{transform:scale(1.015)}
 .dm-atx-file{position:absolute;inset:0;opacity:0;cursor:pointer}
 /* the file input is clear over the drop zone, so the zone shows its focus */
 .dm-atx-drop:has(.dm-atx-file:focus-visible){outline:2px solid var(--dm-focus);outline-offset:2px}
-.dm-atx-ic{width:34px;height:34px;border-radius:11px;background:var(--dm-surface);box-shadow:var(--dm-shadow);display:grid;place-items:center;color:var(--dm-fg2);transition:transform .45s var(--dm-ease),background .35s,color .35s}
+.dm-atx-ic{position:relative;width:34px;height:34px;border-radius:11px;background:var(--dm-surface);box-shadow:var(--dm-shadow);display:grid;place-items:center;color:var(--dm-fg2);transition:transform .45s var(--dm-ease),background .35s,color .35s}
 .dm-atx-drop.dm-over .dm-atx-ic{transform:translateY(-3px);background:var(--dm-surface);color:var(--dm-accent-fg,var(--dm-accent))}
 @media (hover:hover) and (pointer:fine){.dm-atx-drop:hover .dm-atx-ic{transform:translateY(-3px);background:var(--dm-surface);color:var(--dm-accent-fg,var(--dm-accent))}}
+/* while a file is over the zone its arrow bobs, and rings spread from the badge */
+.dm-atx-drop.dm-over .dm-atx-ic .dm-i{animation:dm-atxbob .9s var(--dm-ease-io) infinite}
+@keyframes dm-atxbob{50%{transform:translateY(-2px)}}
+.dm-atx-ic::before,.dm-atx-ic::after{content:"";position:absolute;inset:0;border-radius:inherit;box-shadow:0 0 0 1.5px var(--dm-accent-mark,var(--dm-accent));opacity:0;pointer-events:none}
+.dm-atx-drop.dm-over .dm-atx-ic::before{animation:dm-atxring 1.4s var(--dm-ease) infinite}
+.dm-atx-drop.dm-over .dm-atx-ic::after{animation:dm-atxring 1.4s var(--dm-ease) .7s infinite}
+@keyframes dm-atxring{from{opacity:.5;transform:scale(1)}to{opacity:0;transform:scale(1.9)}}
 .dm-atx-sample{color:var(--dm-accent-fg,var(--dm-accent));font-weight:500;position:relative;z-index:1}
-.dm-atx-list{display:flex;flex-direction:column;gap:6px}
-.dm-atx-it{display:flex;align-items:center;gap:10px;padding:var(--dm-s-2) var(--dm-s-2) var(--dm-s-2) 10px;border-radius:14px;background:var(--dm-surface);box-shadow:var(--dm-shadow)}
-.dm-atx-ti{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;flex:none;font-family:var(--dm-mono);font-size:9.5px;font-weight:500}
+.dm-atx-list{display:flex;flex-direction:column;gap:2px}
+.dm-atx-it{--dm-p:0%;position:relative;display:flex;align-items:center;gap:10px;padding:var(--dm-s-2) 6px var(--dm-s-2) var(--dm-s-2);border-radius:var(--dm-r-in);overflow:hidden;background:linear-gradient(90deg,color-mix(in srgb,var(--dm-c,var(--dm-accent)) 8%,transparent) calc(var(--dm-p) - 24px),color-mix(in srgb,var(--dm-c,var(--dm-accent)) 16%,transparent) calc(var(--dm-p) - 1px),transparent var(--dm-p)) no-repeat}
+/* the wash fades once the file is up */
+.dm-atx-it.dm-up{background-size:0 100%;transition:background-size .6s var(--dm-ease) .2s}
+.dm-atx-ti{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;flex:none;font-size:9.5px;font-weight:500;letter-spacing:.02em;color:var(--dm-c);background:var(--dm-cb)}
 .dm-atx-n{flex:1;min-width:0;font-size:13px}
-.dm-atx-n span{display:block;font-size:12px;color:var(--dm-muted)}
-.dm-atx-ring{width:22px;height:22px}
+.dm-atx-nm{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dm-atx-m{display:block;font-size:12px;color:var(--dm-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dm-atx-m .dm-shim{font-size:inherit}
+/* on the wash, the line steps up a grey so it keeps its contrast */
+.dm-atx-it:not(.dm-up) .dm-atx-m{color:var(--dm-fg2)}
+.dm-atx-ring{width:22px;height:22px;flex:none}
 .dm-atx-ring circle{transition:stroke-dashoffset .3s linear}
-.dm-atx-it .dm-ib{width:26px;height:26px}
+.dm-atx-ok{display:grid;place-items:center;width:22px;flex:none;color:var(--dm-ok)}
+.dm-atx-ok .dm-i{animation:dm-atxpop .45s var(--dm-ease) backwards}
+@keyframes dm-atxpop{0%{transform:scale(.4);opacity:0}60%{transform:scale(1.15);opacity:1}100%{transform:none}}
+.dm-atx-rd{display:grid;place-items:center;width:22px;flex:none;color:var(--dm-c)}
+.dm-atx-rd .dm-spin{width:12px;height:12px}
+.dm-atx-it .dm-ib{width:26px;height:26px;flex:none}
 .dm-atx-sum{font-size:12.5px;text-align:center;min-height:18px}
+:root:not([data-style="soft"]) .dm-atx-it:not(:where([data-style="soft"],[data-style="soft"] *)){background:linear-gradient(var(--dm-c,var(--dm-accent)),var(--dm-c,var(--dm-accent))) 0 100%/var(--dm-p) 2px no-repeat}
+:root:not([data-style="soft"]) .dm-atx-it.dm-up:not(:where([data-style="soft"],[data-style="soft"] *)){background-size:0 2px}
+:root:not([data-style="soft"]) .dm-atx-drop.dm-over .dm-atx-ic:not(:where([data-style="soft"],[data-style="soft"] *))::before{animation:dm-atxringbp 1s steps(4,end) infinite}
+:root:not([data-style="soft"]) .dm-atx-drop.dm-over .dm-atx-ic:not(:where([data-style="soft"],[data-style="soft"] *))::after{animation:none}
+@keyframes dm-atxringbp{from{opacity:.6;transform:scale(1)}to{opacity:0;transform:scale(1.6)}}
+:root:not([data-style="soft"]) .dm-atx-ok .dm-i:not(:where([data-style="soft"],[data-style="soft"] *)){animation:none}

@@ -44,34 +44,62 @@
   };
   try { var a = localStorage.getItem('dmui-accent'); if (a && a !== 'default') window.dmAccent(a); } catch(e){}
 })();
-</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareSourceCode","name":"Attachment tray","description":"Attachment tray is a drop zone plus a list of the files a person is giving the agent. Each file shows a type badge, its name and size, and a progress ring that turns into a check when the upload finishes, with a line underneath saying how many files the agent can read.","url":"https://designme.dev/components/attachment-tray","image":"https://designme.dev/components/og/attachment-tray.jpg","programmingLanguage":["HTML","CSS","JavaScript","TypeScript"],"runtimePlatform":"Web browser","license":"https://opensource.org/licenses/MIT","isAccessibleForFree":true,"keywords":"Attachment tray, Conversation, AI agent UI, React component, HTML component","author":{"@type":"Organization","name":"DesignMe","url":"https://designme.agency"},"isPartOf":{"@type":"WebSite","name":"Designme.dev","url":"https://designme.dev/"}}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Library","item":"https://designme.dev/"},{"@type":"ListItem","position":2,"name":"Conversation","item":"https://designme.dev/#s-conversation"},{"@type":"ListItem","position":3,"name":"Attachment tray","item":"https://designme.dev/components/attachment-tray"}]}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does the tray upload the files for me?","acceptedAnswer":{"@type":"Answer","text":"No. It hands you the files through onFiles. You upload them, add each one to files with an id, name and size, and update its progress as the upload runs."}},{"@type":"Question","name":"How do I restrict which file types people can pick?","acceptedAnswer":{"@type":"Answer","text":"Pass accept, for example \"image/*,.pdf\". It is set on the file input, so it applies to the file dialog. Dropped files are passed on as they are, so check their type in onFiles too."}},{"@type":"Question","name":"Can I change the line under the list?","acceptedAnswer":{"@type":"Answer","text":"Yes. Pass summary and it replaces the default count of files the agent can read."}}]}</script><link rel="stylesheet" href="/components/assets/core.css"><style>/* ---------- Attachment tray ---------- */
+</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareSourceCode","name":"Attachment tray","description":"Attachment tray is a drop zone plus a list of the files a person is giving the agent. Each file wears its type's colour: a badge, a progress ring and a wash that fills its row as it uploads. Once it is up the agent reads it, and the file says what the agent found, like \"12 pages\", with a line underneath saying how many files the agent can read.","url":"https://designme.dev/components/attachment-tray","image":"https://designme.dev/components/og/attachment-tray.jpg","programmingLanguage":["HTML","CSS","JavaScript","TypeScript"],"runtimePlatform":"Web browser","license":"https://opensource.org/licenses/MIT","isAccessibleForFree":true,"keywords":"Attachment tray, Conversation, AI agent UI, React component, HTML component","author":{"@type":"Organization","name":"DesignMe","url":"https://designme.agency"},"isPartOf":{"@type":"WebSite","name":"Designme.dev","url":"https://designme.dev/"}}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Library","item":"https://designme.dev/"},{"@type":"ListItem","position":2,"name":"Conversation","item":"https://designme.dev/#s-conversation"},{"@type":"ListItem","position":3,"name":"Attachment tray","item":"https://designme.dev/components/attachment-tray"}]}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does the tray upload the files for me?","acceptedAnswer":{"@type":"Answer","text":"No. It hands you the files through onFiles. You upload them, add each one to files with an id, name and size, and update its progress as the upload runs."}},{"@type":"Question","name":"How do I restrict which file types people can pick?","acceptedAnswer":{"@type":"Answer","text":"Pass accept, for example \"image/*,.pdf\". It is set on the file input, so it applies to the file dialog. Dropped files are passed on as they are, so check their type in onFiles too."}},{"@type":"Question","name":"Can I change the line under the list?","acceptedAnswer":{"@type":"Answer","text":"Yes. Pass summary and it replaces the default count of files the agent can read."}}]}</script><link rel="stylesheet" href="/components/assets/core.css"><style>/* ---------- Attachment tray ---------- */
+/* a drop zone, then the files as plain rows. Each file wears its type's hue: its badge, its ring and the wash that fills its
+   row from the left as it uploads. Once it is up the agent reads it (the line shimmers) and says what it found, like 12 pages */
 .atx{display:flex;flex-direction:column;gap:10px}
 .atx-drop{display:flex;flex-direction:column;align-items:center;gap:6px;padding:26px var(--s-4);border-radius:var(--r-card);background:none;cursor:pointer;position:relative;font-size:13.5px;transition:background .35s,box-shadow .35s,transform .45s var(--ease)}
-/* the dashed edge is drawn in SVG so its dashes can march slowly around the corners; they stop and take the accent under the pointer */
+/* the dashed edge is drawn in SVG so its dashes can march around the corners: still at rest, taking the accent under the
+   pointer, and marching while a file is dragged over */
 .atx-ants{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
-.atx-ants rect{fill:none;stroke:var(--faint);stroke-width:1.5;stroke-linecap:round;stroke-dasharray:4.5px var(--ag,6.5px);animation:atxants 1.4s linear infinite;transition:stroke .35s}
+.atx-ants rect{fill:none;stroke:var(--faint);stroke-width:1.5;stroke-linecap:round;stroke-dasharray:4.5px var(--ag,6.5px);transition:stroke .35s}
 @keyframes atxants{to{stroke-dashoffset:calc(var(--ap,11px) * -1)}}
 .atx-drop.over{background:var(--accent-bg)}
 @media (hover:hover) and (pointer:fine){.atx-drop:hover{background:var(--accent-bg)}}
-.atx-drop.over .atx-ants rect{stroke:var(--accent-mark,var(--accent));animation-play-state:paused}
-@media (hover:hover) and (pointer:fine){.atx-drop:hover .atx-ants rect{stroke:var(--accent-mark,var(--accent));animation-play-state:paused}}
+.atx-drop.over .atx-ants rect{stroke:var(--accent-mark,var(--accent))}
+@media (hover:hover) and (pointer:fine){.atx-drop:hover .atx-ants rect{stroke:var(--accent-mark,var(--accent))}}
+.atx-drop.over .atx-ants rect{animation:atxants .9s linear infinite}
 .atx-drop.over{transform:scale(1.015)}
 .atx-file{position:absolute;inset:0;opacity:0;cursor:pointer}
 /* the file input is clear over the drop zone, so the zone shows its focus */
 .atx-drop:has(.atx-file:focus-visible){outline:2px solid var(--focus);outline-offset:2px}
-.atx-ic{width:34px;height:34px;border-radius:11px;background:var(--surface);box-shadow:var(--shadow);display:grid;place-items:center;color:var(--fg2);transition:transform .45s var(--ease),background .35s,color .35s}
+.atx-ic{position:relative;width:34px;height:34px;border-radius:11px;background:var(--surface);box-shadow:var(--shadow);display:grid;place-items:center;color:var(--fg2);transition:transform .45s var(--ease),background .35s,color .35s}
 .atx-drop.over .atx-ic{transform:translateY(-3px);background:var(--surface);color:var(--accent-fg,var(--accent))}
 @media (hover:hover) and (pointer:fine){.atx-drop:hover .atx-ic{transform:translateY(-3px);background:var(--surface);color:var(--accent-fg,var(--accent))}}
+/* while a file is over the zone its arrow bobs, and rings spread from the badge */
+.atx-drop.over .atx-ic .i{animation:atxbob .9s var(--ease-io) infinite}
+@keyframes atxbob{50%{transform:translateY(-2px)}}
+.atx-ic::before,.atx-ic::after{content:"";position:absolute;inset:0;border-radius:inherit;box-shadow:0 0 0 1.5px var(--accent-mark,var(--accent));opacity:0;pointer-events:none}
+.atx-drop.over .atx-ic::before{animation:atxring 1.4s var(--ease) infinite}
+.atx-drop.over .atx-ic::after{animation:atxring 1.4s var(--ease) .7s infinite}
+@keyframes atxring{from{opacity:.5;transform:scale(1)}to{opacity:0;transform:scale(1.9)}}
 .atx-sample{color:var(--accent-fg,var(--accent));font-weight:500;position:relative;z-index:1}
-.atx-list{display:flex;flex-direction:column;gap:6px}
-.atx-it{display:flex;align-items:center;gap:10px;padding:var(--s-2) var(--s-2) var(--s-2) 10px;border-radius:14px;background:var(--surface);box-shadow:var(--shadow)}
-.atx-ti{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;flex:none;font-family:var(--mono);font-size:9.5px;font-weight:500}
+.atx-list{display:flex;flex-direction:column;gap:2px}
+.atx-it{--p:0%;position:relative;display:flex;align-items:center;gap:10px;padding:var(--s-2) 6px var(--s-2) var(--s-2);border-radius:var(--r-in);overflow:hidden;background:linear-gradient(90deg,color-mix(in srgb,var(--c,var(--accent)) 8%,transparent) calc(var(--p) - 24px),color-mix(in srgb,var(--c,var(--accent)) 16%,transparent) calc(var(--p) - 1px),transparent var(--p)) no-repeat}
+/* the wash fades once the file is up */
+.atx-it.up{background-size:0 100%;transition:background-size .6s var(--ease) .2s}
+.atx-ti{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;flex:none;font-size:9.5px;font-weight:500;letter-spacing:.02em;color:var(--c);background:var(--cb)}
 .atx-n{flex:1;min-width:0;font-size:13px}
-.atx-n span{display:block;font-size:12px;color:var(--muted)}
-.atx-ring{width:22px;height:22px}
+.atx-nm{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.atx-m{display:block;font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.atx-m .shim{font-size:inherit}
+/* on the wash, the line steps up a grey so it keeps its contrast */
+.atx-it:not(.up) .atx-m{color:var(--fg2)}
+.atx-ring{width:22px;height:22px;flex:none}
 .atx-ring circle{transition:stroke-dashoffset .3s linear}
-.atx-it .ib{width:26px;height:26px}
+.atx-ok{display:grid;place-items:center;width:22px;flex:none;color:var(--ok)}
+.atx-ok .i{animation:atxpop .45s var(--ease) backwards}
+@keyframes atxpop{0%{transform:scale(.4);opacity:0}60%{transform:scale(1.15);opacity:1}100%{transform:none}}
+.atx-rd{display:grid;place-items:center;width:22px;flex:none;color:var(--c)}
+.atx-rd .spin{width:12px;height:12px}
+.atx-it .ib{width:26px;height:26px;flex:none}
 .atx-sum{font-size:12.5px;text-align:center;min-height:18px}
+:root:not([data-style="soft"]) .atx-it:not(:where([data-style="soft"],[data-style="soft"] *)){background:linear-gradient(var(--c,var(--accent)),var(--c,var(--accent))) 0 100%/var(--p) 2px no-repeat}
+:root:not([data-style="soft"]) .atx-it.up:not(:where([data-style="soft"],[data-style="soft"] *)){background-size:0 2px}
+:root:not([data-style="soft"]) .atx-drop.over .atx-ic:not(:where([data-style="soft"],[data-style="soft"] *))::before{animation:atxringbp 1s steps(4,end) infinite}
+:root:not([data-style="soft"]) .atx-drop.over .atx-ic:not(:where([data-style="soft"],[data-style="soft"] *))::after{animation:none}
+@keyframes atxringbp{from{opacity:.6;transform:scale(1)}to{opacity:0;transform:scale(1.6)}}
+:root:not([data-style="soft"]) .atx-ok .i:not(:where([data-style="soft"],[data-style="soft"] *)){animation:none}
 </style><style>@media (max-width:640px){.cp-demo .pg-demo{min-height:calc(var(--h-j) + 24px)}}@media (max-width:519px){.cp-demo .pg-demo{min-height:calc(var(--h-k) + 24px)}}@media (max-width:429px){.cp-demo .pg-demo{min-height:calc(var(--h-l) + 24px)}}@media (max-width:389px){.cp-demo .pg-demo{min-height:calc(var(--h-m) + 24px)}}</style><style>@font-face{font-family:Inter;font-style:normal;font-weight:400;font-display:swap;src:url(/fonts/inter-latin-400-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:Inter;font-style:normal;font-weight:500;font-display:swap;src:url(/fonts/inter-latin-500-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:Inter;font-style:normal;font-weight:600;font-display:swap;src:url(/fonts/inter-latin-600-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
@@ -86,7 +114,7 @@
 <path d="M149.497 283.784C149.477 284.047 149.474 284.311 149.487 284.575C156.385 340.034 183.548 391.116 225.9 428.196C267.989 465.044 322.188 485.532 378.414 485.855L379.743 485.859C436.453 485.868 491.188 465.353 533.619 428.212C575.912 391.194 603.062 340.216 610.018 284.856L610.018 281.512C610.008 277.337 608.324 273.315 605.303 270.335C602.277 267.351 598.155 265.656 593.837 265.656L165.647 265.656C161.338 265.656 157.226 267.349 154.21 270.331C151.198 273.309 149.524 277.326 149.523 281.491L149.523 283.437L149.497 283.784ZM114.378 247.395C118.396 247.391 122.254 245.919 125.214 243.29C128.063 240.759 129.887 237.33 130.396 233.629L130.396 233.35L130.437 232.917C136.355 171.634 165.162 114.754 211.202 73.3687C257.239 31.9859 317.206 9.06063 379.393 9.04448L379.396 9.04448C441.593 9.04583 501.574 31.964 547.624 73.3482C593.677 114.735 622.491 171.624 628.411 232.917L628.453 233.35L628.453 233.643C628.953 237.344 630.773 240.774 633.621 243.304C636.58 245.932 640.437 247.399 644.452 247.395L725.644 247.395C728.882 247.404 732.089 248.06 735.071 249.329C738.055 250.598 740.753 252.453 743.001 254.787C745.252 257.123 747.005 259.891 748.151 262.924C749.296 265.954 749.81 269.183 749.662 272.418L749.663 272.418C745.484 366.797 704.617 455.919 635.615 521.211C566.616 586.499 474.809 622.924 379.338 622.924C283.872 622.924 192.071 586.496 123.081 521.206C54.0935 455.917 13.2412 366.804 9.07133 272.438L9.07036 272.438L9.07036 272.436C9.07007 272.43 9.06967 272.423 9.06938 272.417L9.07036 272.417C8.92272 269.182 9.43655 265.953 10.5811 262.924C11.7276 259.89 13.481 257.123 15.7315 254.787C17.9805 252.452 20.6797 250.597 23.6622 249.329C26.6443 248.06 29.8504 247.404 33.0889 247.395L114.378 247.395Z" fill="black" stroke="white" stroke-width="18.0901"/>
 </svg></div><span class="gloss"></span></div><p>Built by <span class="u">DesignMe</span>, free to use under the MIT licence.</p></a>
     <p class="side-cta-d">Expert design and dev support for startups and enterprises.</p>
-    <a class="hire-btn" href="https://designme.agency" target="_blank" rel="noopener">Book a call<span class="ms"><svg class="sh" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"/></svg></span></a></div></div></details><nav class="pg-crumbs" aria-label="Breadcrumb"><a href="/">Library</a><span>/</span><a href="/#s-conversation">Conversation</a></nav><h1 class="pg-h1" id="content" tabindex="-1">Attachment tray</h1><p class="pg-lead">Drop files for the agent and watch each one upload. Free and MIT licensed, as HTML or a typed React component, in two styles with light and dark mode.</p><div class="pg-cmd"><span class="d">$</span><span class="c"><span class="cp-w">npx</span> <span class="cp-w">designme</span> <span class="cp-w">add</span> <span class="cp-w">attachment-tray</span></span><button type="button" data-copy="npx designme add attachment-tray" aria-label="Copy install command"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg></button></div><section class="cp-demo" aria-label="Attachment tray demo"><button type="button" class="cp-anim" id="cp-replay"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"></path><path d="M3 3v5h5"></path></svg>Animate</button><div class="pg-demo stage-inner" style="--h-a:462px;--h-j:430px;--h-k:430px;--h-l:430px;--h-m:430px"><div class="card" data-c="attachment-tray">
+    <a class="hire-btn" href="https://designme.agency" target="_blank" rel="noopener">Book a call<span class="ms"><svg class="sh" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"/></svg></span></a></div></div></details><nav class="pg-crumbs" aria-label="Breadcrumb"><a href="/">Library</a><span>/</span><a href="/#s-conversation">Conversation</a></nav><h1 class="pg-h1" id="content" tabindex="-1">Attachment tray</h1><p class="pg-lead">Drop files for the agent and watch each one upload. Free and MIT licensed, as HTML or a typed React component, in two styles with light and dark mode.</p><div class="pg-cmd"><span class="d">$</span><span class="c"><span class="cp-w">npx</span> <span class="cp-w">designme</span> <span class="cp-w">add</span> <span class="cp-w">attachment-tray</span></span><button type="button" data-copy="npx designme add attachment-tray" aria-label="Copy install command"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg></button></div><section class="cp-demo" aria-label="Attachment tray demo"><button type="button" class="cp-anim" id="cp-replay"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"></path><path d="M3 3v5h5"></path></svg>Animate</button><div class="pg-demo stage-inner" style="--h-a:454px;--h-j:422px;--h-k:422px;--h-l:422px;--h-m:422px"><div class="card" data-c="attachment-tray">
   <div class="stage-in">
     <div class="atx">
       <label class="atx-drop"><input type="file" multiple class="atx-file" aria-label="Choose files"><svg class="atx-ants" aria-hidden="true"><rect/></svg>
@@ -97,14 +125,14 @@
     </div>
   </div>
 </div>
-</div></section><div class="cp-bar"><nav aria-label="Sections"><a href="#install">Install</a><a href="#about">About</a><a href="#usage">Usage</a><a href="#props">Props</a><a href="#code">Code</a><a href="#questions">Questions</a><a href="#more">More</a></nav></div><section class="cp-sec" id="install"><div class="pg-sh"><span class="n">01</span><h2>Install</h2><p>Add it to your project with the CLI.</p></div><div class="cp-two"><div class="cp-box"><h3 class="pg-t">HTML, CSS and JavaScript</h3><div class="cp-line"><span class="d">$</span><code><span class="cp-w">npx</span> <span class="cp-w">designme</span> <span class="cp-w">add</span> <span class="cp-w">attachment-tray</span></code><button class="cp-copy" type="button" data-copy="npx designme add attachment-tray" data-label="Copy">Copy</button></div></div><div class="cp-box"><h3 class="pg-t">React</h3><div class="cp-line"><span class="d">$</span><code><span class="cp-w">npx</span> <span class="cp-w">designme</span> <span class="cp-w">add</span> <span class="cp-w">attachment-tray</span> <span class="cp-w">--react</span></code><button class="cp-copy" type="button" data-copy="npx designme add attachment-tray --react" data-label="Copy">Copy</button></div></div></div><p class="cp-note">The CLI copies the source into your project, so you own it and can change anything. The HTML version lands in <code>./designme</code> with the shared core and a <code>demo.html</code>. The React version lands in <code>src/components/designme</code> and needs React 19; it works in Next.js, Vite and Astro.</p></section><section class="cp-sec" id="about"><div class="pg-sh"><span class="n">02</span><h2>About</h2><p>What it is for and what it does.</p></div><p class="cp-sum">Attachment tray is a drop zone plus a list of the files a person is giving the agent. Each file shows a type badge, its name and size, and a progress ring that turns into a check when the upload finishes, with a line underneath saying how many files the agent can read.</p><div class="cp-gap"><div class="cp-tl" role="tablist" aria-label="About"><button type="button" role="tab" id="ab-t0" aria-controls="ab-p0" aria-selected="true" tabindex="0">When to use it</button><button type="button" role="tab" id="ab-t1" aria-controls="ab-p1" aria-selected="false" tabindex="-1">What it does</button><button type="button" role="tab" id="ab-t2" aria-controls="ab-p2" aria-selected="false" tabindex="-1">Accessibility</button></div><div class="cp-tp" role="tabpanel" id="ab-p0" aria-labelledby="ab-t0"><ul><li>When people hand your agent documents, images or spreadsheets to work from.</li><li>When uploads take long enough that people should see each file's progress before they ask anything.</li><li>When you want a sample-files link so new users can try the agent without their own files.</li></ul></div><div class="cp-tp" role="tabpanel" id="ab-p1" aria-labelledby="ab-t1" hidden><ul><li>Files dropped on the zone or chosen with the file dialog go to <code>onFiles</code> as a list of <code>File</code> objects. <code>accept</code> limits the dialog to certain types.</li><li>Each file gets a coloured badge from its extension, like PDF, PNG or CSV, and its size in KB or MB.</li><li><code>progress</code> from 0 to 100 fills a ring, and at 100 the ring becomes a check. Files that arrive together come in one after another.</li><li><code>onRemove</code> adds a remove button to each file and is called after the file has animated out.</li><li>The line under the list counts finished files, like "The agent can read 2 files now", unless you pass your own <code>summary</code>.</li><li>The drop zone's dashed edge marches while a file is dragged over it. <code>title</code> changes its heading, <code>action</code> adds a link after "or", and <code>dragging</code> shows the drag state for a scripted demo.</li></ul></div><div class="cp-tp" role="tabpanel" id="ab-p2" aria-labelledby="ab-t2" hidden><ul><li>The drop zone wraps a real file input labelled "Choose files", so it also works without dragging.</li><li>Each upload ring is a <code>role="progressbar"</code> with <code>aria-valuenow</code> from 0 to 100 and a label naming the file.</li><li>Remove buttons are labelled with the file name, like "Remove brief.pdf".</li></ul></div></div></section><section class="cp-sec" id="usage"><div class="pg-sh"><span class="n">03</span><h2>Usage</h2><p>Import it and drive it from your own state.</p></div><div class="cp-box"><h3 class="pg-t">Import</h3><pre class="cp-pre"><code>import { AttachmentTray } from &#39;@/components/designme/attachment-tray/AttachmentTray&#39;;</code></pre></div><div class="cp-box cp-gap"><h3 class="pg-t">Example</h3><p class="pg-d">The demo above as a React component, 43 lines you can copy.</p><pre class="cp-pre"><code>&#39;use client&#39;;
+</div></section><div class="cp-bar"><nav aria-label="Sections"><a href="#install">Install</a><a href="#about">About</a><a href="#usage">Usage</a><a href="#props">Props</a><a href="#code">Code</a><a href="#questions">Questions</a><a href="#more">More</a></nav></div><section class="cp-sec" id="install"><div class="pg-sh"><span class="n">01</span><h2>Install</h2><p>Add it to your project with the CLI.</p></div><div class="cp-two"><div class="cp-box"><h3 class="pg-t">HTML, CSS and JavaScript</h3><div class="cp-line"><span class="d">$</span><code><span class="cp-w">npx</span> <span class="cp-w">designme</span> <span class="cp-w">add</span> <span class="cp-w">attachment-tray</span></code><button class="cp-copy" type="button" data-copy="npx designme add attachment-tray" data-label="Copy">Copy</button></div></div><div class="cp-box"><h3 class="pg-t">React</h3><div class="cp-line"><span class="d">$</span><code><span class="cp-w">npx</span> <span class="cp-w">designme</span> <span class="cp-w">add</span> <span class="cp-w">attachment-tray</span> <span class="cp-w">--react</span></code><button class="cp-copy" type="button" data-copy="npx designme add attachment-tray --react" data-label="Copy">Copy</button></div></div></div><p class="cp-note">The CLI copies the source into your project, so you own it and can change anything. The HTML version lands in <code>./designme</code> with the shared core and a <code>demo.html</code>. The React version lands in <code>src/components/designme</code> and needs React 19; it works in Next.js, Vite and Astro.</p></section><section class="cp-sec" id="about"><div class="pg-sh"><span class="n">02</span><h2>About</h2><p>What it is for and what it does.</p></div><p class="cp-sum">Attachment tray is a drop zone plus a list of the files a person is giving the agent. Each file wears its type's colour: a badge, a progress ring and a wash that fills its row as it uploads. Once it is up the agent reads it, and the file says what the agent found, like "12 pages", with a line underneath saying how many files the agent can read.</p><div class="cp-gap"><div class="cp-tl" role="tablist" aria-label="About"><button type="button" role="tab" id="ab-t0" aria-controls="ab-p0" aria-selected="true" tabindex="0">When to use it</button><button type="button" role="tab" id="ab-t1" aria-controls="ab-p1" aria-selected="false" tabindex="-1">What it does</button><button type="button" role="tab" id="ab-t2" aria-controls="ab-p2" aria-selected="false" tabindex="-1">Accessibility</button></div><div class="cp-tp" role="tabpanel" id="ab-p0" aria-labelledby="ab-t0"><ul><li>When people hand your agent documents, images or spreadsheets to work from.</li><li>When uploads take long enough that people should see each file's progress before they ask anything.</li><li>When you want a sample-files link so new users can try the agent without their own files.</li></ul></div><div class="cp-tp" role="tabpanel" id="ab-p1" aria-labelledby="ab-t1" hidden><ul><li>Files dropped on the zone or chosen with the file dialog go to <code>onFiles</code> as a list of <code>File</code> objects. <code>accept</code> limits the dialog to certain types.</li><li>Each file gets a coloured badge from its extension, like PDF, PNG or CSV, and its size in KB or MB. The badge's colour, red for PDF, violet for images and Figma, green for spreadsheets and blue for the rest, also draws its ring and its upload wash.</li><li><code>progress</code> from 0 to 100 closes the ring, shows the percentage after the size and fills the row from the left. At 100 the wash fades and the ring becomes a check. Files that arrive together come in one after another.</li><li>Set <code>reading</code> once a file is up and the agent is reading it: a spinner takes the ring's place and "Reading" shimmers after the size. Then set <code>detail</code> to what the agent found, like "12 pages" or "1,204 rows", and it shows after the size.</li><li><code>onRemove</code> adds a remove button to each file and is called after the file has animated out.</li><li>The line under the list counts files that are up and read, like "The agent can read 2 files now", unless you pass your own <code>summary</code>.</li><li>The drop zone takes the accent under the pointer. While a file is dragged over it, its dashed edge marches, its arrow bobs and rings spread from the badge. <code>title</code> changes its heading, <code>action</code> adds a link after "or", and <code>dragging</code> shows the drag state for a scripted demo.</li></ul></div><div class="cp-tp" role="tabpanel" id="ab-p2" aria-labelledby="ab-t2" hidden><ul><li>The drop zone wraps a real file input labelled "Choose files", so it also works without dragging.</li><li>Each upload ring is a <code>role="progressbar"</code> with <code>aria-valuenow</code> from 0 to 100 and a label naming the file.</li><li>Remove buttons are labelled with the file name, like "Remove brief.pdf".</li><li>With reduced motion the edge, the arrow, the rings and the shimmer stay still; the ring and the percentage still show the progress.</li></ul></div></div></section><section class="cp-sec" id="usage"><div class="pg-sh"><span class="n">03</span><h2>Usage</h2><p>Import it and drive it from your own state.</p></div><div class="cp-box"><h3 class="pg-t">Import</h3><pre class="cp-pre"><code>import { AttachmentTray } from &#39;@/components/designme/attachment-tray/AttachmentTray&#39;;</code></pre></div><div class="cp-box cp-gap"><h3 class="pg-t">Example</h3><p class="pg-d">The demo above as a React component, 46 lines you can copy.</p><pre class="cp-pre"><code>&#39;use client&#39;;
 // The animated preview from designme.dev, rebuilt from the React component: an example of driving it from your own state.
 import { useEffect, useRef, useState } from &#39;react&#39;;
 import { useStory } from &#39;../lib/useScript&#39;;
 import { AttachmentTray, type Attachment } from &#39;./AttachmentTray&#39;;
 
 /* ---------- Attachment tray: dropped or picked files upload one by one; sample files show the flow ---------- */
-const SAMPLES: [string, number][] = [[&#39;brief.pdf&#39;, 2.4e6], [&#39;Pricing.fig&#39;, 8.1e6], [&#39;signups.csv&#39;, 3.2e5]];
+const SAMPLES: [string, number, string?][] = [[&#39;brief.pdf&#39;, 2.4e6, &#39;12 pages&#39;], [&#39;Pricing.fig&#39;, 8.1e6, &#39;6 frames&#39;], [&#39;signups.csv&#39;, 3.2e5, &#39;1,204 rows&#39;]];
 
 export default function AttachmentTrayDemo() {
   const [files, setFiles] = useState&lt;Attachment[]&gt;([]);
@@ -112,16 +140,19 @@ export default function AttachmentTrayDemo() {
   const count = useRef(0);
   count.current = files.length;
   const timers = useRef&lt;ReturnType&lt;typeof setInterval&gt;[]&gt;([]);
-  useEffect(() =&gt; () =&gt; timers.current.forEach(clearInterval), []);
+  useEffect(() =&gt; () =&gt; timers.current.forEach(t =&gt; { clearInterval(t); clearTimeout(t); }), []);
   // a real app would report upload progress here; the demo fakes it, a little faster or slower each tick
-  const add = (list: [string, number][]) =&gt; list.forEach(([name, size]) =&gt; {
+  const add = (list: [string, number, string?][]) =&gt; list.forEach(([name, size, detail]) =&gt; {
     const id = Math.random().toString(36).slice(2);
     setFiles(fs =&gt; [...fs, { id, name, size, progress: 0 }]);
     let p = 0;
     const iv = setInterval(() =&gt; {
-      p = Math.min(100, p + 4 + Math.random() * 8);
-      setFiles(fs =&gt; fs.map(f =&gt; f.id === id ? { ...f, progress: p } : f));
-      if (p &gt;= 100) clearInterval(iv);
+      p = Math.min(100, p + 2.5 + Math.random() * 5);
+      setFiles(fs =&gt; fs.map(f =&gt; f.id === id ? { ...f, progress: p, reading: p &gt;= 100 } : f));
+      if (p &lt; 100) return;
+      clearInterval(iv);
+      // once it is up, the agent reads it and says what it found
+      timers.current.push(setTimeout(() =&gt; setFiles(fs =&gt; fs.map(f =&gt; f.id === id ? { ...f, reading: false, detail } : f)), 900));
     }, 70);
     timers.current.push(iv);
   });
@@ -129,7 +160,7 @@ export default function AttachmentTrayDemo() {
   const ref = useRef&lt;HTMLDivElement&gt;(null);
   useStory(ref, async s =&gt; {
     await s.wait(950); if (count.current) return;
-    setDragging(true); s.taken(() =&gt; setDragging(false)); await s.wait(500); setDragging(false);
+    setDragging(true); s.taken(() =&gt; setDragging(false)); await s.wait(1300); setDragging(false);
     if (!count.current) add(SAMPLES);
   });
   return (
@@ -139,7 +170,7 @@ export default function AttachmentTrayDemo() {
     &lt;/div&gt;
   );
 }
-</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything AttachmentTray takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>files</code><span class="opt">required</span></td><td><code>Attachment[]</code></td><td></td></tr><tr><td><code>onFiles</code></td><td><code>(files: File[]) =&gt; void</code></td><td>Files the person dropped on the tray or picked with the file dialog</td></tr><tr><td><code>onRemove</code></td><td><code>(id: string) =&gt; void</code></td><td>Adds a remove button to each file. Called once the file has animated out</td></tr><tr><td><code>title</code></td><td><code>ReactNode</code></td><td>The drop zone&#39;s heading</td></tr><tr><td><code>action</code></td><td><code>{ label: string; onClick: () =&gt; void }</code></td><td>A link after &quot;or&quot; in the drop zone, like &quot;add sample files&quot;</td></tr><tr><td><code>accept</code></td><td><code>string</code></td><td>Passed to the file input, like &quot;image/*,.pdf&quot;</td></tr><tr><td><code>summary</code></td><td><code>string</code></td><td>The line under the list. Defaults to how many files the agent can read</td></tr><tr><td><code>dragging</code></td><td><code>boolean</code></td><td>Shows the drop zone as if a file were being dragged over it, for a scripted demo. A real drag shows it by itself</td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>AttachmentTray.tsx<span class="l">React · 130 lines</span></summary><pre class="cp-pre"><code>&#39;use client&#39;;
+</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything AttachmentTray takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>files</code><span class="opt">required</span></td><td><code>Attachment[]</code></td><td></td></tr><tr><td><code>onFiles</code></td><td><code>(files: File[]) =&gt; void</code></td><td>Files the person dropped on the tray or picked with the file dialog</td></tr><tr><td><code>onRemove</code></td><td><code>(id: string) =&gt; void</code></td><td>Adds a remove button to each file. Called once the file has animated out</td></tr><tr><td><code>title</code></td><td><code>ReactNode</code></td><td>The drop zone&#39;s heading</td></tr><tr><td><code>action</code></td><td><code>{ label: string; onClick: () =&gt; void }</code></td><td>A link after &quot;or&quot; in the drop zone, like &quot;add sample files&quot;</td></tr><tr><td><code>accept</code></td><td><code>string</code></td><td>Passed to the file input, like &quot;image/*,.pdf&quot;</td></tr><tr><td><code>summary</code></td><td><code>string</code></td><td>The line under the list. Defaults to how many files the agent can read</td></tr><tr><td><code>dragging</code></td><td><code>boolean</code></td><td>Shows the drop zone as if a file were being dragged over it, for a scripted demo. A real drag shows it by itself</td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>AttachmentTray.tsx<span class="l">React · 140 lines</span></summary><pre class="cp-pre"><code>&#39;use client&#39;;
 import { useEffect, useRef, useState, type CSSProperties, type DragEvent, type ReactNode } from &#39;react&#39;;
 import { cx } from &#39;../lib/cx&#39;;
 import { useIsoLayoutEffect } from &#39;../lib/hooks&#39;;
@@ -153,8 +184,12 @@ export interface Attachment {
   name: string;
   /** In bytes */
   size: number;
-  /** 0 to 100. At 100 the ring turns into a check */
+  /** 0 to 100. The ring closes and the row fills with the file type&#39;s colour; at 100 the ring turns into a check */
   progress: number;
+  /** After the upload, while the agent reads the file: a spinner, and &quot;Reading&quot; shimmering after the size */
+  reading?: boolean;
+  /** What the agent found once it has read the file, like &quot;12 pages&quot;, shown after the size */
+  detail?: string;
 }
 
 export interface AttachmentTrayProps {
@@ -191,16 +226,22 @@ function Item({ file, delay, onRemove }: { file: Attachment; delay: number; onRe
   const [leaving, setLeaving] = useState(false);
   const t = useRef&lt;ReturnType&lt;typeof setTimeout&gt;&gt;(undefined);
   useEffect(() =&gt; () =&gt; clearTimeout(t.current), []);
-  const [label, fg, bg] = kind(file.name), p = Math.max(0, Math.min(100, file.progress)) / 100;
+  const [label, fg, bg] = kind(file.name), p = Math.max(0, Math.min(100, file.progress)) / 100, up = p &gt;= 1;
+  const meta = !up ? `${bytes(file.size)} · ${Math.round(p * 100)}%` : file.detail &amp;&amp; !file.reading ? `${bytes(file.size)} · ${file.detail}` : bytes(file.size);
   return (
-    &lt;div className={cx(&#39;dm-atx-it&#39;, leaving ? &#39;dm-leave&#39; : &#39;dm-enter&#39;)} style={leaving ? undefined : { animationDelay: delay + &#39;ms&#39; }}&gt;
-      &lt;span className=&quot;dm-atx-ti&quot; style={{ color: fg, background: bg }}&gt;{label}&lt;/span&gt;
-      &lt;span className=&quot;dm-atx-n&quot;&gt;{file.name}&lt;span&gt;{bytes(file.size)}&lt;/span&gt;&lt;/span&gt;
-      {p &gt;= 1
-        ? &lt;span style={{ color: &#39;var(--dm-ok)&#39;, display: &#39;grid&#39;, placeItems: &#39;center&#39;, width: 22 }}&gt;&lt;Icon name=&quot;ok&quot; /&gt;&lt;/span&gt;
+    &lt;div className={cx(&#39;dm-atx-it&#39;, up &amp;&amp; &#39;dm-up&#39;, leaving ? &#39;dm-leave&#39; : &#39;dm-enter&#39;)}
+      style={{ &#39;--dm-c&#39;: fg, &#39;--dm-cb&#39;: bg, &#39;--dm-p&#39;: `${(p * 100).toFixed(1)}%`, ...(leaving ? {} : { animationDelay: delay + &#39;ms&#39; }) } as CSSProperties}&gt;
+      &lt;span className=&quot;dm-atx-ti&quot;&gt;{label}&lt;/span&gt;
+      &lt;span className=&quot;dm-atx-n&quot;&gt;&lt;span className=&quot;dm-atx-nm&quot;&gt;{file.name}&lt;/span&gt;
+        {/* the percentage counts in place; the line crossfades when the file moves on to being read and to what was found */}
+        {!up ? &lt;span className=&quot;dm-atx-m dm-num&quot;&gt;{meta}&lt;/span&gt;
+          : file.reading ? &lt;span className=&quot;dm-atx-m&quot;&gt;&lt;span className=&quot;dm-shim&quot;&gt;{bytes(file.size)} · Reading&lt;/span&gt;&lt;/span&gt; : &lt;Swap className=&quot;dm-atx-m&quot;&gt;{meta}&lt;/Swap&gt;}
+      &lt;/span&gt;
+      {up
+        ? file.reading ? &lt;span className=&quot;dm-atx-rd&quot;&gt;&lt;span className=&quot;dm-spin&quot; aria-hidden=&quot;true&quot; /&gt;&lt;/span&gt; : &lt;span className=&quot;dm-atx-ok&quot;&gt;&lt;Icon name=&quot;ok&quot; /&gt;&lt;/span&gt;
         : &lt;svg className=&quot;dm-atx-ring&quot; viewBox=&quot;0 0 22 22&quot; role=&quot;progressbar&quot; aria-label={`Uploading ${file.name}`} aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(p * 100)}&gt;
             &lt;circle cx=&quot;11&quot; cy=&quot;11&quot; r=&quot;8&quot; fill=&quot;none&quot; stroke=&quot;var(--dm-line)&quot; strokeWidth=&quot;2&quot; /&gt;
-            &lt;circle cx=&quot;11&quot; cy=&quot;11&quot; r=&quot;8&quot; fill=&quot;none&quot; stroke=&quot;var(--dm-accent)&quot; strokeWidth=&quot;2&quot; strokeLinecap=&quot;round&quot; strokeDasharray={RING} transform=&quot;rotate(-90 11 11)&quot; style={{ strokeDashoffset: RING * (1 - p) }} /&gt;
+            &lt;circle cx=&quot;11&quot; cy=&quot;11&quot; r=&quot;8&quot; fill=&quot;none&quot; stroke={fg} strokeWidth=&quot;2&quot; strokeLinecap=&quot;round&quot; strokeDasharray={RING} transform=&quot;rotate(-90 11 11)&quot; style={{ strokeDashoffset: RING * (1 - p) }} /&gt;
           &lt;/svg&gt;}
       {onRemove &amp;&amp; (
         &lt;Tip label=&quot;Remove&quot;&gt;
@@ -237,7 +278,7 @@ function Ants() {
   );
 }
 
-/** Drop files for the agent and watch each one upload. */
+/** Drop files for the agent and watch each one upload, in its file type&#39;s colour, then get read. */
 export function AttachmentTray({ files, onFiles, onRemove, title = &#39;Drop files here&#39;, action, accept, summary, dragging, className }: AttachmentTrayProps) {
   const [over, setOver] = useState(false);
   // files that arrive together come in one after another
@@ -249,7 +290,7 @@ export function AttachmentTray({ files, onFiles, onRemove, title = &#39;Drop fil
     setSeen({ ids, delay });
   }
   const hold = (e: DragEvent) =&gt; { e.preventDefault(); setOver(true); };
-  const read = files.filter(f =&gt; f.progress &gt;= 100).length;
+  const read = files.filter(f =&gt; f.progress &gt;= 100 &amp;&amp; !f.reading).length;
   const line = summary ?? (read ? `The agent can read ${read} ${read &gt; 1 ? &#39;files&#39; : &#39;file&#39;} now` : &#39;&#39;);
 
   return (
@@ -268,35 +309,63 @@ export function AttachmentTray({ files, onFiles, onRemove, title = &#39;Drop fil
     &lt;/div&gt;
   );
 }
-</code></pre></details><details class="cp-file"><summary>attachment-tray.css<span class="l">React · 30 lines</span></summary><pre class="cp-pre"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+</code></pre></details><details class="cp-file"><summary>attachment-tray.css<span class="l">React · 58 lines</span></summary><pre class="cp-pre"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Attachment tray ---------- */
+/* a drop zone, then the files as plain rows. Each file wears its type&#39;s hue: its badge, its ring and the wash that fills its
+   row from the left as it uploads. Once it is up the agent reads it (the line shimmers) and says what it found, like 12 pages */
 .dm-atx{display:flex;flex-direction:column;gap:10px}
 .dm-atx-drop{display:flex;flex-direction:column;align-items:center;gap:6px;padding:26px var(--dm-s-4);border-radius:var(--dm-r-card);background:none;cursor:pointer;position:relative;font-size:13.5px;transition:background .35s,box-shadow .35s,transform .45s var(--dm-ease)}
-/* the dashed edge is drawn in SVG so its dashes can march slowly around the corners; they stop and take the accent under the pointer */
+/* the dashed edge is drawn in SVG so its dashes can march around the corners: still at rest, taking the accent under the
+   pointer, and marching while a file is dragged over */
 .dm-atx-ants{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
-.dm-atx-ants rect{fill:none;stroke:var(--dm-faint);stroke-width:1.5;stroke-linecap:round;stroke-dasharray:4.5px var(--dm-ag,6.5px);animation:dm-atxants 1.4s linear infinite;transition:stroke .35s}
+.dm-atx-ants rect{fill:none;stroke:var(--dm-faint);stroke-width:1.5;stroke-linecap:round;stroke-dasharray:4.5px var(--dm-ag,6.5px);transition:stroke .35s}
 @keyframes dm-atxants{to{stroke-dashoffset:calc(var(--dm-ap,11px) * -1)}}
 .dm-atx-drop.dm-over{background:var(--dm-accent-bg)}
 @media (hover:hover) and (pointer:fine){.dm-atx-drop:hover{background:var(--dm-accent-bg)}}
-.dm-atx-drop.dm-over .dm-atx-ants rect{stroke:var(--dm-accent-mark,var(--dm-accent));animation-play-state:paused}
-@media (hover:hover) and (pointer:fine){.dm-atx-drop:hover .dm-atx-ants rect{stroke:var(--dm-accent-mark,var(--dm-accent));animation-play-state:paused}}
+.dm-atx-drop.dm-over .dm-atx-ants rect{stroke:var(--dm-accent-mark,var(--dm-accent))}
+@media (hover:hover) and (pointer:fine){.dm-atx-drop:hover .dm-atx-ants rect{stroke:var(--dm-accent-mark,var(--dm-accent))}}
+.dm-atx-drop.dm-over .dm-atx-ants rect{animation:dm-atxants .9s linear infinite}
 .dm-atx-drop.dm-over{transform:scale(1.015)}
 .dm-atx-file{position:absolute;inset:0;opacity:0;cursor:pointer}
 /* the file input is clear over the drop zone, so the zone shows its focus */
 .dm-atx-drop:has(.dm-atx-file:focus-visible){outline:2px solid var(--dm-focus);outline-offset:2px}
-.dm-atx-ic{width:34px;height:34px;border-radius:11px;background:var(--dm-surface);box-shadow:var(--dm-shadow);display:grid;place-items:center;color:var(--dm-fg2);transition:transform .45s var(--dm-ease),background .35s,color .35s}
+.dm-atx-ic{position:relative;width:34px;height:34px;border-radius:11px;background:var(--dm-surface);box-shadow:var(--dm-shadow);display:grid;place-items:center;color:var(--dm-fg2);transition:transform .45s var(--dm-ease),background .35s,color .35s}
 .dm-atx-drop.dm-over .dm-atx-ic{transform:translateY(-3px);background:var(--dm-surface);color:var(--dm-accent-fg,var(--dm-accent))}
 @media (hover:hover) and (pointer:fine){.dm-atx-drop:hover .dm-atx-ic{transform:translateY(-3px);background:var(--dm-surface);color:var(--dm-accent-fg,var(--dm-accent))}}
+/* while a file is over the zone its arrow bobs, and rings spread from the badge */
+.dm-atx-drop.dm-over .dm-atx-ic .dm-i{animation:dm-atxbob .9s var(--dm-ease-io) infinite}
+@keyframes dm-atxbob{50%{transform:translateY(-2px)}}
+.dm-atx-ic::before,.dm-atx-ic::after{content:&quot;&quot;;position:absolute;inset:0;border-radius:inherit;box-shadow:0 0 0 1.5px var(--dm-accent-mark,var(--dm-accent));opacity:0;pointer-events:none}
+.dm-atx-drop.dm-over .dm-atx-ic::before{animation:dm-atxring 1.4s var(--dm-ease) infinite}
+.dm-atx-drop.dm-over .dm-atx-ic::after{animation:dm-atxring 1.4s var(--dm-ease) .7s infinite}
+@keyframes dm-atxring{from{opacity:.5;transform:scale(1)}to{opacity:0;transform:scale(1.9)}}
 .dm-atx-sample{color:var(--dm-accent-fg,var(--dm-accent));font-weight:500;position:relative;z-index:1}
-.dm-atx-list{display:flex;flex-direction:column;gap:6px}
-.dm-atx-it{display:flex;align-items:center;gap:10px;padding:var(--dm-s-2) var(--dm-s-2) var(--dm-s-2) 10px;border-radius:14px;background:var(--dm-surface);box-shadow:var(--dm-shadow)}
-.dm-atx-ti{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;flex:none;font-family:var(--dm-mono);font-size:9.5px;font-weight:500}
+.dm-atx-list{display:flex;flex-direction:column;gap:2px}
+.dm-atx-it{--dm-p:0%;position:relative;display:flex;align-items:center;gap:10px;padding:var(--dm-s-2) 6px var(--dm-s-2) var(--dm-s-2);border-radius:var(--dm-r-in);overflow:hidden;background:linear-gradient(90deg,color-mix(in srgb,var(--dm-c,var(--dm-accent)) 8%,transparent) calc(var(--dm-p) - 24px),color-mix(in srgb,var(--dm-c,var(--dm-accent)) 16%,transparent) calc(var(--dm-p) - 1px),transparent var(--dm-p)) no-repeat}
+/* the wash fades once the file is up */
+.dm-atx-it.dm-up{background-size:0 100%;transition:background-size .6s var(--dm-ease) .2s}
+.dm-atx-ti{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;flex:none;font-size:9.5px;font-weight:500;letter-spacing:.02em;color:var(--dm-c);background:var(--dm-cb)}
 .dm-atx-n{flex:1;min-width:0;font-size:13px}
-.dm-atx-n span{display:block;font-size:12px;color:var(--dm-muted)}
-.dm-atx-ring{width:22px;height:22px}
+.dm-atx-nm{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dm-atx-m{display:block;font-size:12px;color:var(--dm-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dm-atx-m .dm-shim{font-size:inherit}
+/* on the wash, the line steps up a grey so it keeps its contrast */
+.dm-atx-it:not(.dm-up) .dm-atx-m{color:var(--dm-fg2)}
+.dm-atx-ring{width:22px;height:22px;flex:none}
 .dm-atx-ring circle{transition:stroke-dashoffset .3s linear}
-.dm-atx-it .dm-ib{width:26px;height:26px}
+.dm-atx-ok{display:grid;place-items:center;width:22px;flex:none;color:var(--dm-ok)}
+.dm-atx-ok .dm-i{animation:dm-atxpop .45s var(--dm-ease) backwards}
+@keyframes dm-atxpop{0%{transform:scale(.4);opacity:0}60%{transform:scale(1.15);opacity:1}100%{transform:none}}
+.dm-atx-rd{display:grid;place-items:center;width:22px;flex:none;color:var(--dm-c)}
+.dm-atx-rd .dm-spin{width:12px;height:12px}
+.dm-atx-it .dm-ib{width:26px;height:26px;flex:none}
 .dm-atx-sum{font-size:12.5px;text-align:center;min-height:18px}
+:root:not([data-style=&quot;soft&quot;]) .dm-atx-it:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *)){background:linear-gradient(var(--dm-c,var(--dm-accent)),var(--dm-c,var(--dm-accent))) 0 100%/var(--dm-p) 2px no-repeat}
+:root:not([data-style=&quot;soft&quot;]) .dm-atx-it.dm-up:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *)){background-size:0 2px}
+:root:not([data-style=&quot;soft&quot;]) .dm-atx-drop.dm-over .dm-atx-ic:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *))::before{animation:dm-atxringbp 1s steps(4,end) infinite}
+:root:not([data-style=&quot;soft&quot;]) .dm-atx-drop.dm-over .dm-atx-ic:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *))::after{animation:none}
+@keyframes dm-atxringbp{from{opacity:.6;transform:scale(1)}to{opacity:0;transform:scale(1.6)}}
+:root:not([data-style=&quot;soft&quot;]) .dm-atx-ok .dm-i:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *)){animation:none}
 </code></pre></details><details class="cp-file"><summary>attachment-tray.html<span class="l">HTML · 12 lines</span></summary><pre class="cp-pre"><code>&lt;div class=&quot;card&quot; data-c=&quot;attachment-tray&quot;&gt;
   &lt;div class=&quot;stage-in&quot;&gt;
     &lt;div class=&quot;atx&quot;&gt;
@@ -308,50 +377,90 @@ export function AttachmentTray({ files, onFiles, onRemove, title = &#39;Drop fil
     &lt;/div&gt;
   &lt;/div&gt;
 &lt;/div&gt;
-</code></pre></details><details class="cp-file"><summary>attachment-tray.css<span class="l">HTML · 29 lines</span></summary><pre class="cp-pre"><code>/* ---------- Attachment tray ---------- */
+</code></pre></details><details class="cp-file"><summary>attachment-tray.css<span class="l">HTML · 57 lines</span></summary><pre class="cp-pre"><code>/* ---------- Attachment tray ---------- */
+/* a drop zone, then the files as plain rows. Each file wears its type&#39;s hue: its badge, its ring and the wash that fills its
+   row from the left as it uploads. Once it is up the agent reads it (the line shimmers) and says what it found, like 12 pages */
 .atx{display:flex;flex-direction:column;gap:10px}
 .atx-drop{display:flex;flex-direction:column;align-items:center;gap:6px;padding:26px var(--s-4);border-radius:var(--r-card);background:none;cursor:pointer;position:relative;font-size:13.5px;transition:background .35s,box-shadow .35s,transform .45s var(--ease)}
-/* the dashed edge is drawn in SVG so its dashes can march slowly around the corners; they stop and take the accent under the pointer */
+/* the dashed edge is drawn in SVG so its dashes can march around the corners: still at rest, taking the accent under the
+   pointer, and marching while a file is dragged over */
 .atx-ants{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
-.atx-ants rect{fill:none;stroke:var(--faint);stroke-width:1.5;stroke-linecap:round;stroke-dasharray:4.5px var(--ag,6.5px);animation:atxants 1.4s linear infinite;transition:stroke .35s}
+.atx-ants rect{fill:none;stroke:var(--faint);stroke-width:1.5;stroke-linecap:round;stroke-dasharray:4.5px var(--ag,6.5px);transition:stroke .35s}
 @keyframes atxants{to{stroke-dashoffset:calc(var(--ap,11px) * -1)}}
 .atx-drop.over{background:var(--accent-bg)}
 @media (hover:hover) and (pointer:fine){.atx-drop:hover{background:var(--accent-bg)}}
-.atx-drop.over .atx-ants rect{stroke:var(--accent-mark,var(--accent));animation-play-state:paused}
-@media (hover:hover) and (pointer:fine){.atx-drop:hover .atx-ants rect{stroke:var(--accent-mark,var(--accent));animation-play-state:paused}}
+.atx-drop.over .atx-ants rect{stroke:var(--accent-mark,var(--accent))}
+@media (hover:hover) and (pointer:fine){.atx-drop:hover .atx-ants rect{stroke:var(--accent-mark,var(--accent))}}
+.atx-drop.over .atx-ants rect{animation:atxants .9s linear infinite}
 .atx-drop.over{transform:scale(1.015)}
 .atx-file{position:absolute;inset:0;opacity:0;cursor:pointer}
 /* the file input is clear over the drop zone, so the zone shows its focus */
 .atx-drop:has(.atx-file:focus-visible){outline:2px solid var(--focus);outline-offset:2px}
-.atx-ic{width:34px;height:34px;border-radius:11px;background:var(--surface);box-shadow:var(--shadow);display:grid;place-items:center;color:var(--fg2);transition:transform .45s var(--ease),background .35s,color .35s}
+.atx-ic{position:relative;width:34px;height:34px;border-radius:11px;background:var(--surface);box-shadow:var(--shadow);display:grid;place-items:center;color:var(--fg2);transition:transform .45s var(--ease),background .35s,color .35s}
 .atx-drop.over .atx-ic{transform:translateY(-3px);background:var(--surface);color:var(--accent-fg,var(--accent))}
 @media (hover:hover) and (pointer:fine){.atx-drop:hover .atx-ic{transform:translateY(-3px);background:var(--surface);color:var(--accent-fg,var(--accent))}}
+/* while a file is over the zone its arrow bobs, and rings spread from the badge */
+.atx-drop.over .atx-ic .i{animation:atxbob .9s var(--ease-io) infinite}
+@keyframes atxbob{50%{transform:translateY(-2px)}}
+.atx-ic::before,.atx-ic::after{content:&quot;&quot;;position:absolute;inset:0;border-radius:inherit;box-shadow:0 0 0 1.5px var(--accent-mark,var(--accent));opacity:0;pointer-events:none}
+.atx-drop.over .atx-ic::before{animation:atxring 1.4s var(--ease) infinite}
+.atx-drop.over .atx-ic::after{animation:atxring 1.4s var(--ease) .7s infinite}
+@keyframes atxring{from{opacity:.5;transform:scale(1)}to{opacity:0;transform:scale(1.9)}}
 .atx-sample{color:var(--accent-fg,var(--accent));font-weight:500;position:relative;z-index:1}
-.atx-list{display:flex;flex-direction:column;gap:6px}
-.atx-it{display:flex;align-items:center;gap:10px;padding:var(--s-2) var(--s-2) var(--s-2) 10px;border-radius:14px;background:var(--surface);box-shadow:var(--shadow)}
-.atx-ti{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;flex:none;font-family:var(--mono);font-size:9.5px;font-weight:500}
+.atx-list{display:flex;flex-direction:column;gap:2px}
+.atx-it{--p:0%;position:relative;display:flex;align-items:center;gap:10px;padding:var(--s-2) 6px var(--s-2) var(--s-2);border-radius:var(--r-in);overflow:hidden;background:linear-gradient(90deg,color-mix(in srgb,var(--c,var(--accent)) 8%,transparent) calc(var(--p) - 24px),color-mix(in srgb,var(--c,var(--accent)) 16%,transparent) calc(var(--p) - 1px),transparent var(--p)) no-repeat}
+/* the wash fades once the file is up */
+.atx-it.up{background-size:0 100%;transition:background-size .6s var(--ease) .2s}
+.atx-ti{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;flex:none;font-size:9.5px;font-weight:500;letter-spacing:.02em;color:var(--c);background:var(--cb)}
 .atx-n{flex:1;min-width:0;font-size:13px}
-.atx-n span{display:block;font-size:12px;color:var(--muted)}
-.atx-ring{width:22px;height:22px}
+.atx-nm{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.atx-m{display:block;font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.atx-m .shim{font-size:inherit}
+/* on the wash, the line steps up a grey so it keeps its contrast */
+.atx-it:not(.up) .atx-m{color:var(--fg2)}
+.atx-ring{width:22px;height:22px;flex:none}
 .atx-ring circle{transition:stroke-dashoffset .3s linear}
-.atx-it .ib{width:26px;height:26px}
+.atx-ok{display:grid;place-items:center;width:22px;flex:none;color:var(--ok)}
+.atx-ok .i{animation:atxpop .45s var(--ease) backwards}
+@keyframes atxpop{0%{transform:scale(.4);opacity:0}60%{transform:scale(1.15);opacity:1}100%{transform:none}}
+.atx-rd{display:grid;place-items:center;width:22px;flex:none;color:var(--c)}
+.atx-rd .spin{width:12px;height:12px}
+.atx-it .ib{width:26px;height:26px;flex:none}
 .atx-sum{font-size:12.5px;text-align:center;min-height:18px}
-</code></pre></details><details class="cp-file"><summary>attachment-tray.js<span class="l">HTML · 39 lines</span></summary><pre class="cp-pre"><code>DM.def(&#39;attachment-tray&#39;, (r, c) =&gt; {
+:root:not([data-style=&quot;soft&quot;]) .atx-it:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *)){background:linear-gradient(var(--c,var(--accent)),var(--c,var(--accent))) 0 100%/var(--p) 2px no-repeat}
+:root:not([data-style=&quot;soft&quot;]) .atx-it.up:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *)){background-size:0 2px}
+:root:not([data-style=&quot;soft&quot;]) .atx-drop.over .atx-ic:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *))::before{animation:atxringbp 1s steps(4,end) infinite}
+:root:not([data-style=&quot;soft&quot;]) .atx-drop.over .atx-ic:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *))::after{animation:none}
+@keyframes atxringbp{from{opacity:.6;transform:scale(1)}to{opacity:0;transform:scale(1.6)}}
+:root:not([data-style=&quot;soft&quot;]) .atx-ok .i:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *)){animation:none}
+</code></pre></details><details class="cp-file"><summary>attachment-tray.js<span class="l">HTML · 51 lines</span></summary><pre class="cp-pre"><code>DM.def(&#39;attachment-tray&#39;, (r, c) =&gt; {
   r.innerHTML = r.innerHTML.replace(&#39;{upload}&#39;, I(&#39;upload&#39;));
   const drop = $(&#39;.atx-drop&#39;, r), list = $(&#39;.atx-list&#39;, r), sum = $(&#39;.atx-sum&#39;, r);
   const kind = n =&gt; { const e = (n.split(&#39;.&#39;).pop() || &#39;&#39;).toLowerCase(); return e === &#39;pdf&#39; ? [&#39;PDF&#39;,&#39;var(--pr)&#39;,&#39;var(--pr-bg)&#39;] : /png|jpg|jpeg|gif|webp|fig/.test(e) ? [e.toUpperCase().slice(0,3),&#39;var(--pl)&#39;,&#39;var(--pl-bg)&#39;] : /csv|xlsx/.test(e) ? [&#39;CSV&#39;,&#39;var(--pm)&#39;,&#39;var(--pm-bg)&#39;] : [e.toUpperCase().slice(0,3) || &#39;TXT&#39;,&#39;var(--pb)&#39;,&#39;var(--pb-bg)&#39;]; };
   const size = b =&gt; b &gt; 1e6 ? (b / 1e6).toFixed(1) + &#39; MB&#39; : Math.max(1, Math.round(b / 1e3)) + &#39; KB&#39;;
+  const esc = s =&gt; s.replace(/&amp;/g,&#39;&amp;amp;&#39;).replace(/&lt;/g,&#39;&amp;lt;&#39;);
   let read = 0;
-  function add(name, bytes, i = 0){
-    const k = kind(name);
-    const it = html(`&lt;div class=&quot;atx-it&quot;&gt;&lt;span class=&quot;atx-ti&quot; style=&quot;color:${k[1]};background:${k[2]}&quot;&gt;${k[0]}&lt;/span&gt;&lt;span class=&quot;atx-n&quot;&gt;${name.replace(/&lt;/g,&#39;&amp;lt;&#39;)}&lt;span&gt;${size(bytes)}&lt;/span&gt;&lt;/span&gt;&lt;svg class=&quot;atx-ring&quot; viewBox=&quot;0 0 22 22&quot;&gt;&lt;circle cx=&quot;11&quot; cy=&quot;11&quot; r=&quot;8&quot; fill=&quot;none&quot; stroke=&quot;var(--line)&quot; stroke-width=&quot;2&quot;/&gt;&lt;circle cx=&quot;11&quot; cy=&quot;11&quot; r=&quot;8&quot; fill=&quot;none&quot; stroke=&quot;var(--accent-mark,var(--accent))&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-dasharray=&quot;50.3&quot; stroke-dashoffset=&quot;50.3&quot; transform=&quot;rotate(-90 11 11)&quot;/&gt;&lt;/svg&gt;&lt;button class=&quot;ib&quot; aria-label=&quot;Remove&quot; data-tip=&quot;Remove&quot;&gt;${I(&#39;x&#39;,&#39;xs&#39;)}&lt;/button&gt;&lt;/div&gt;`);
+  // a file uploads (its row fills with its hue and its ring closes), then the agent reads it and says what it found
+  function add(name, bytes, i = 0, found){
+    const k = kind(name), sz = size(bytes);
+    const it = html(`&lt;div class=&quot;atx-it&quot; style=&quot;--c:${k[1]};--cb:${k[2]}&quot;&gt;&lt;span class=&quot;atx-ti&quot;&gt;${k[0]}&lt;/span&gt;&lt;span class=&quot;atx-n&quot;&gt;&lt;span class=&quot;atx-nm&quot;&gt;${esc(name)}&lt;/span&gt;&lt;span class=&quot;atx-m&quot;&gt;&lt;span&gt;${sz} · &lt;span class=&quot;num pc&quot;&gt;0%&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;svg class=&quot;atx-ring&quot; viewBox=&quot;0 0 22 22&quot; role=&quot;progressbar&quot; aria-label=&quot;Uploading ${esc(name).replace(/&quot;/g, &#39;&amp;quot;&#39;)}&quot; aria-valuemin=&quot;0&quot; aria-valuemax=&quot;100&quot; aria-valuenow=&quot;0&quot;&gt;&lt;circle cx=&quot;11&quot; cy=&quot;11&quot; r=&quot;8&quot; fill=&quot;none&quot; stroke=&quot;var(--line)&quot; stroke-width=&quot;2&quot;/&gt;&lt;circle cx=&quot;11&quot; cy=&quot;11&quot; r=&quot;8&quot; fill=&quot;none&quot; stroke=&quot;${k[1]}&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-dasharray=&quot;50.3&quot; stroke-dashoffset=&quot;50.3&quot; transform=&quot;rotate(-90 11 11)&quot;/&gt;&lt;/svg&gt;&lt;button class=&quot;ib&quot; aria-label=&quot;Remove ${esc(name).replace(/&quot;/g, &#39;&amp;quot;&#39;)}&quot; data-tip=&quot;Remove&quot;&gt;${I(&#39;x&#39;,&#39;xs&#39;)}&lt;/button&gt;&lt;/div&gt;`);
     list.appendChild(it); enter(it, i * 80);
     $(&#39;.ib&#39;, it).onclick = () =&gt; { it.classList.add(&#39;leave&#39;); setTimeout(() =&gt; it.remove(), 320); };
-    const ring = $$(&#39;circle&#39;, it)[1]; let p = 0;
-    const iv = c.every(70, () =&gt; { p = Math.min(1, p + .04 + Math.random() * .08); ring.style.strokeDashoffset = 50.3 * (1 - p);
-      if (p &gt;= 1){ clearInterval(iv); const s = $(&#39;.atx-ring&#39;, it); s.outerHTML = `&lt;span style=&quot;color:var(--ok);display:grid;place-items:center;width:22px&quot;&gt;${I(&#39;ok&#39;)}&lt;/span&gt;`; read++; swap(sum, &#39;The agent can read &#39; + read + (read &gt; 1 ? &#39; files&#39; : &#39; file&#39;) + &#39; now&#39;); } });
+    const svg = $(&#39;.atx-ring&#39;, it), ring = $$(&#39;circle&#39;, it)[1], m = $(&#39;.atx-m&#39;, it); let p = 0;
+    const iv = c.every(70, () =&gt; {
+      p = Math.min(1, p + .025 + Math.random() * .05); ring.style.strokeDashoffset = 50.3 * (1 - p);
+      it.style.setProperty(&#39;--p&#39;, (p * 100).toFixed(1) + &#39;%&#39;); svg.setAttribute(&#39;aria-valuenow&#39;, Math.round(p * 100)); const pc = $(&#39;.pc&#39;, m); if (pc) pc.textContent = Math.round(p * 100) + &#39;%&#39;;
+      if (p &lt; 1) return;
+      clearInterval(iv); it.classList.add(&#39;up&#39;);
+      // reading: the ring gives way to a spinner and the line shimmers, then says what the agent found
+      svg.outerHTML = &#39;&lt;span class=&quot;atx-rd&quot;&gt;&lt;span class=&quot;spin&quot;&gt;&lt;/span&gt;&lt;/span&gt;&#39;; swap(m, `&lt;span class=&quot;shim&quot;&gt;${sz} · Reading&lt;/span&gt;`, true);
+      c.later(REDUCE ? 0 : 900, () =&gt; {
+        const rd = $(&#39;.atx-rd&#39;, it); if (rd) rd.outerHTML = `&lt;span class=&quot;atx-ok&quot;&gt;${I(&#39;ok&#39;)}&lt;/span&gt;`;
+        swap(m, found ? `${sz} · ${found}` : sz); read++; swap(sum, &#39;The agent can read &#39; + read + (read &gt; 1 ? &#39; files&#39; : &#39; file&#39;) + &#39; now&#39;);
+      });
+    });
   }
-  const samples = () =&gt; [[&#39;brief.pdf&#39;, 2.4e6],[&#39;Pricing.fig&#39;, 8.1e6],[&#39;signups.csv&#39;, 3.2e5]].forEach((f, i) =&gt; add(f[0], f[1], i));
+  const samples = () =&gt; [[&#39;brief.pdf&#39;, 2.4e6, &#39;12 pages&#39;],[&#39;Pricing.fig&#39;, 8.1e6, &#39;6 frames&#39;],[&#39;signups.csv&#39;, 3.2e5, &#39;1,204 rows&#39;]].forEach((f, i) =&gt; add(f[0], f[1], i, f[2]));
   $(&#39;.atx-sample&#39;, r).onclick = e =&gt; { e.preventDefault(); samples(); };
   $(&#39;.atx-file&#39;, r).onchange = e =&gt; { Array.from(e.target.files).forEach((f, i) =&gt; add(f.name, f.size, i)); e.target.value = &#39;&#39;; };
   [&#39;dragenter&#39;,&#39;dragover&#39;].forEach(ev =&gt; c.on(drop, ev, e =&gt; { e.preventDefault(); drop.classList.add(&#39;over&#39;); }));
@@ -367,10 +476,10 @@ export function AttachmentTray({ files, onFiles, onRemove, title = &#39;Drop fil
     ants.style.setProperty(&#39;--ap&#39;, step + &#39;px&#39;); ants.style.setProperty(&#39;--ag&#39;, (step - 4.5) + &#39;px&#39;);
   };
   fit(); const ro = new ResizeObserver(fit); ro.observe(drop); c.offs.push(() =&gt; ro.disconnect());
-  /* once it has entered, three sample files drop in and upload, so the tray shows what it does */
+  /* once it has entered, three sample files are dragged over, drop in and upload, so the tray shows what it does */
   c.run(async () =&gt; {
     await c.step(950); if (list.children.length) return;
-    drop.classList.add(&#39;over&#39;); c.taken(() =&gt; drop.classList.remove(&#39;over&#39;)); await c.step(500); drop.classList.remove(&#39;over&#39;);
+    drop.classList.add(&#39;over&#39;); c.taken(() =&gt; drop.classList.remove(&#39;over&#39;)); await c.step(1300); drop.classList.remove(&#39;over&#39;);
     if (!list.children.length) samples();
   });
 });
@@ -702,17 +811,29 @@ const fitHits = window.dmFitHits || (() => {
   const drop = $('.atx-drop', r), list = $('.atx-list', r), sum = $('.atx-sum', r);
   const kind = n => { const e = (n.split('.').pop() || '').toLowerCase(); return e === 'pdf' ? ['PDF','var(--pr)','var(--pr-bg)'] : /png|jpg|jpeg|gif|webp|fig/.test(e) ? [e.toUpperCase().slice(0,3),'var(--pl)','var(--pl-bg)'] : /csv|xlsx/.test(e) ? ['CSV','var(--pm)','var(--pm-bg)'] : [e.toUpperCase().slice(0,3) || 'TXT','var(--pb)','var(--pb-bg)']; };
   const size = b => b > 1e6 ? (b / 1e6).toFixed(1) + ' MB' : Math.max(1, Math.round(b / 1e3)) + ' KB';
+  const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;');
   let read = 0;
-  function add(name, bytes, i = 0){
-    const k = kind(name);
-    const it = html(`<div class="atx-it"><span class="atx-ti" style="color:${k[1]};background:${k[2]}">${k[0]}</span><span class="atx-n">${name.replace(/</g,'&lt;')}<span>${size(bytes)}</span></span><svg class="atx-ring" viewBox="0 0 22 22"><circle cx="11" cy="11" r="8" fill="none" stroke="var(--line)" stroke-width="2"/><circle cx="11" cy="11" r="8" fill="none" stroke="var(--accent-mark,var(--accent))" stroke-width="2" stroke-linecap="round" stroke-dasharray="50.3" stroke-dashoffset="50.3" transform="rotate(-90 11 11)"/></svg><button class="ib" aria-label="Remove" data-tip="Remove">${I('x','xs')}</button></div>`);
+  // a file uploads (its row fills with its hue and its ring closes), then the agent reads it and says what it found
+  function add(name, bytes, i = 0, found){
+    const k = kind(name), sz = size(bytes);
+    const it = html(`<div class="atx-it" style="--c:${k[1]};--cb:${k[2]}"><span class="atx-ti">${k[0]}</span><span class="atx-n"><span class="atx-nm">${esc(name)}</span><span class="atx-m"><span>${sz} · <span class="num pc">0%</span></span></span></span><svg class="atx-ring" viewBox="0 0 22 22" role="progressbar" aria-label="Uploading ${esc(name).replace(/"/g, '&quot;')}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><circle cx="11" cy="11" r="8" fill="none" stroke="var(--line)" stroke-width="2"/><circle cx="11" cy="11" r="8" fill="none" stroke="${k[1]}" stroke-width="2" stroke-linecap="round" stroke-dasharray="50.3" stroke-dashoffset="50.3" transform="rotate(-90 11 11)"/></svg><button class="ib" aria-label="Remove ${esc(name).replace(/"/g, '&quot;')}" data-tip="Remove">${I('x','xs')}</button></div>`);
     list.appendChild(it); enter(it, i * 80);
     $('.ib', it).onclick = () => { it.classList.add('leave'); setTimeout(() => it.remove(), 320); };
-    const ring = $$('circle', it)[1]; let p = 0;
-    const iv = c.every(70, () => { p = Math.min(1, p + .04 + Math.random() * .08); ring.style.strokeDashoffset = 50.3 * (1 - p);
-      if (p >= 1){ clearInterval(iv); const s = $('.atx-ring', it); s.outerHTML = `<span style="color:var(--ok);display:grid;place-items:center;width:22px">${I('ok')}</span>`; read++; swap(sum, 'The agent can read ' + read + (read > 1 ? ' files' : ' file') + ' now'); } });
+    const svg = $('.atx-ring', it), ring = $$('circle', it)[1], m = $('.atx-m', it); let p = 0;
+    const iv = c.every(70, () => {
+      p = Math.min(1, p + .025 + Math.random() * .05); ring.style.strokeDashoffset = 50.3 * (1 - p);
+      it.style.setProperty('--p', (p * 100).toFixed(1) + '%'); svg.setAttribute('aria-valuenow', Math.round(p * 100)); const pc = $('.pc', m); if (pc) pc.textContent = Math.round(p * 100) + '%';
+      if (p < 1) return;
+      clearInterval(iv); it.classList.add('up');
+      // reading: the ring gives way to a spinner and the line shimmers, then says what the agent found
+      svg.outerHTML = '<span class="atx-rd"><span class="spin"></span></span>'; swap(m, `<span class="shim">${sz} · Reading</span>`, true);
+      c.later(REDUCE ? 0 : 900, () => {
+        const rd = $('.atx-rd', it); if (rd) rd.outerHTML = `<span class="atx-ok">${I('ok')}</span>`;
+        swap(m, found ? `${sz} · ${found}` : sz); read++; swap(sum, 'The agent can read ' + read + (read > 1 ? ' files' : ' file') + ' now');
+      });
+    });
   }
-  const samples = () => [['brief.pdf', 2.4e6],['Pricing.fig', 8.1e6],['signups.csv', 3.2e5]].forEach((f, i) => add(f[0], f[1], i));
+  const samples = () => [['brief.pdf', 2.4e6, '12 pages'],['Pricing.fig', 8.1e6, '6 frames'],['signups.csv', 3.2e5, '1,204 rows']].forEach((f, i) => add(f[0], f[1], i, f[2]));
   $('.atx-sample', r).onclick = e => { e.preventDefault(); samples(); };
   $('.atx-file', r).onchange = e => { Array.from(e.target.files).forEach((f, i) => add(f.name, f.size, i)); e.target.value = ''; };
   ['dragenter','dragover'].forEach(ev => c.on(drop, ev, e => { e.preventDefault(); drop.classList.add('over'); }));
@@ -728,10 +849,10 @@ const fitHits = window.dmFitHits || (() => {
     ants.style.setProperty('--ap', step + 'px'); ants.style.setProperty('--ag', (step - 4.5) + 'px');
   };
   fit(); const ro = new ResizeObserver(fit); ro.observe(drop); c.offs.push(() => ro.disconnect());
-  /* once it has entered, three sample files drop in and upload, so the tray shows what it does */
+  /* once it has entered, three sample files are dragged over, drop in and upload, so the tray shows what it does */
   c.run(async () => {
     await c.step(950); if (list.children.length) return;
-    drop.classList.add('over'); c.taken(() => drop.classList.remove('over')); await c.step(500); drop.classList.remove('over');
+    drop.classList.add('over'); c.taken(() => drop.classList.remove('over')); await c.step(1300); drop.classList.remove('over');
     if (!list.children.length) samples();
   });
 });
