@@ -26,11 +26,12 @@ Terminal stream shows the shell commands an agent runs as a compact terminal pan
 
 ### What it does
 
-- `entries` are commands, notes and edits, oldest first. A command has a `status` of `running`, `ok`, `failed` or `stopped`, with a spinner, a check, a red "Exit 1" tag (from `exitCode`) or a Stopped tag, and its `duration`.
+- `entries` are commands, notes and edits, oldest first. A command has a `status` of `running`, `ok`, `failed` or `stopped`, with a spinner, a check, a red "Exit 1" tag (from `exitCode`) or a Stopped tag, and its `duration`. A line down its left says the same in colour: the accent, pulsing, while it runs, then green, red or grey.
 - Output lines can be coloured with a `tone`: `ok` green, `bad` red or `muted` grey. Lines wrap inside the panel, so a long line never scrolls the page sideways.
 - Output longer than `tail` + 1 lines folds to its last `tail` lines (4 by default) behind a "Show N more lines" button that opens the rest.
-- A note (`kind: 'note'`) is a line from the agent between commands, and an edit (`kind: 'edit'`) is a file it changed, with the lines added and removed once it is done.
-- The header shows `cwd` and the run's `status`, with `elapsed` beside Running. `onStop` adds a Stop button while it runs, and Copy copies the whole run as text.
+- A note (`kind: 'note'`) is a line from the agent between commands, which shimmers while it is the newest entry of a run still going. An edit (`kind: 'edit'`) is a file it changed, with a violet line, the lines added and removed once it is done, and its `diff` under it: lines starting with "-" on a red tint and "+" on a green one.
+- The header shows `cwd` and the run's `status` as a tag in its colour: the accent while it runs, with `elapsed` beside Running and a light sweeping along the header's edge, then green when passed or red when failed. `onStop` adds a Stop button while it runs, and Copy copies the whole run as text, edits' diffs included.
+- While the run goes on, a block cursor blinks after the newest line, on the output's faint code surface.
 - Once the run is over, `summary` folds open at the foot. By default it counts each command once, however many times it ran, then gives `elapsed` and the result.
 - The terminal keeps one height, 420px, from the first command to the last. Its output scrolls inside it and stays on the newest line, unless someone has scrolled up to read; set `height` on it through `className` to change the size.
 
@@ -39,6 +40,7 @@ Terminal stream shows the shell commands an agent runs as a compact terminal pan
 - The output is a log region labelled "Terminal output", so screen readers can follow it as it arrives. It can be focused with Tab and scrolled with the arrow keys.
 - "Show N more lines" is a button that says whether the folded lines are open, and the folded lines can't be reached with Tab while they are shut.
 - Stop and Copy are labelled buttons, and Copy says "Copied to clipboard" in a tooltip once it has copied.
+- The coloured lines, the sweeping light and the cursor are decoration: each command's state is also written out, and with reduced motion they stop moving.
 
 ## Usage in React
 
@@ -63,14 +65,14 @@ const BUILD: TerminalLine[] = [mu('> acme-web@2.4.0 build'), mu('> vite build'),
     ['assets/Bills-e8f3.js', '5.27'], ['assets/Team-0d6a.js', '4.88'], ['assets/Prefs-9a1b.js', '6.02'], ['assets/Docs-44f0.js', '8.15'], ['assets/Search-b7c2.js', '2.96'], ['assets/Modal-61de.js', '1.84'],
     ['assets/Chart-ef09.js', '21.73'], ['assets/Table-3a7e.js', '11.09'], ['assets/Form-c1d4.js', '4.41'], ['assets/Toast-8e2f.js', '1.12'], ['assets/dates-29bb.js', '18.30'], ['assets/vendor-8c1e.js', '98.12'],
     ['assets/index-4f2a.js', '42.31'], ['assets/index-9b7d.css', '18.92']].map(([n, kb]) => F(n, kb))), ok('✓ built in 6.1s')];
-type Step = { cmd: string; ms: number; out: TerminalLine[]; exit?: number } | { note: string; ms: number } | { edit: string; add: number; del: number; ms: number };
+type Step = { cmd: string; ms: number; out: TerminalLine[]; exit?: number } | { note: string; ms: number } | { edit: string; add: number; del: number; ms: number; diff: string[] };
 const RUN: Step[] = [
   { cmd: 'npm install', ms: 1900, out: ['added 412 packages in 1.9s', 'found 0 vulnerabilities'] },
   { cmd: 'npm run build', ms: 6100, out: BUILD },
   { cmd: 'npm test', ms: 3400, exit: 1, out: [mu('RUN  v3.0.5 ~/acme/web'), ok('✓ src/lib/cart.test.ts (14 tests)'), bad('× src/lib/price.test.ts (1 failed)'), bad('  × formats a yearly price'),
     ok('    Expected: "$240/yr"'), bad('    Received: "$240.00/yr"'), bad('Tests  1 failed | 23 passed (24)')] },
   { note: 'The test expects whole dollars, but formatPrice always adds cents. Dropping them for round amounts.', ms: 1500 },
-  { edit: 'src/lib/price.ts', add: 2, del: 1, ms: 1500 },
+  { edit: 'src/lib/price.ts', add: 2, del: 1, ms: 1500, diff: ['- return `$${n.toFixed(2)}/${per}`', '+ const v = Number.isInteger(n) ? String(n) : n.toFixed(2)', '+ return `$${v}/${per}`'] },
   { cmd: 'npm test', ms: 2900, out: [ok('✓ src/lib/cart.test.ts (14 tests)'), ok('✓ src/lib/price.test.ts (10 tests)'), ok('Tests  24 passed (24)')] }
 ];
 const clock = (ms: number) => { const s = Math.floor(ms / 1000); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; };
@@ -100,7 +102,7 @@ export default function TerminalStreamDemo() {
       if ('edit' in k) {
         add({ kind: 'edit', file: k.edit, status: 'running' });
         if (!(await pass(k.ms))) return stopped();
-        patch(at, e => ({ ...(e as TerminalEdit), status: 'done', added: k.add, removed: k.del })); continue;
+        patch(at, e => ({ ...(e as TerminalEdit), status: 'done', added: k.add, removed: k.del, diff: k.diff })); continue;
       }
       add({ command: k.cmd, status: 'running', output: [], duration: sec(0) });
       const per = k.ms / k.out.length; let t = 0;
@@ -203,6 +205,8 @@ export interface TerminalEdit {
   /** Lines added and removed, shown once it is done */
   added?: number;
   removed?: number;
+  /** The changed lines, each starting with "-" (removed, in red) or "+" (added, in green), shown under it once it is done */
+  diff?: string[];
   status?: 'running' | 'done' | 'stopped';
 }
 
@@ -269,16 +273,16 @@ export function TerminalStream({ cwd, entries, status, elapsed, summary, tail = 
   }, []);
 
   const text = () => entries.flatMap(e => isNote(e) ? ['# ' + e.text]
-    : isEdit(e) ? [`# ${L.edit} ${e.file}${e.added !== undefined || e.removed !== undefined ? ` (+${e.added ?? 0} −${e.removed ?? 0})` : ''}`]
+    : isEdit(e) ? [`# ${L.edit} ${e.file}${e.added !== undefined || e.removed !== undefined ? ` (+${e.added ?? 0} −${e.removed ?? 0})` : ''}`, ...(e.status === 'done' || e.status === undefined ? e.diff ?? [] : [])]
     : ['$ ' + e.command, ...(e.output ?? []).map(l => lineOf(l).text)]).join('\n');
   const copyAll = () => { const t = text(); copy(t); onCopy?.(t); };
 
   return (
-    <div data-dm="" className={cx('dm-tmx dm-panel', className)} style={{ containerType: 'inline-size' }}>
+    <div data-dm="" className={cx('dm-tmx dm-panel', running && 'dm-live', className)} style={{ containerType: 'inline-size' }}>
       <div className="dm-tmx-h">
         <span className="dm-tmx-ic"><Icon name="term" /></span>
         <span className="dm-tmx-cwd">{cwd}</span>
-        <span className={cx('dm-tmx-st', state === 'passed' && 'dm-ok')}>
+        <span className={cx('dm-tmx-st', state === 'passed' && 'dm-ok', state === 'failed' && 'dm-bad')}>
           <span className="dm-g">{running ? <Spin /> : <Icon name={state === 'passed' ? 'check' : 'stop'} size="xs" />}</span>
           <span className="dm-tmx-sv dm-num">{running ? (elapsed ? `${L.running} · ${elapsed}` : L.running) : L[state]}</span>
         </span>
@@ -292,19 +296,23 @@ export function TerminalStream({ cwd, entries, status, elapsed, summary, tail = 
         onScroll={e => { const el = e.currentTarget; pinned.current = el.scrollTop + el.clientHeight >= el.scrollHeight - 24; }}>
         {entries.map((e, i) => {
           const e0 = enter();
-          if (isNote(e)) return <div key={i} className={cx('dm-tmx-note', e0.className)} style={e0.style}><Icon name="spark" size="xs" /><span>{e.text}</span></div>;
+          // the agent's newest note shimmers while the run goes on: it is still working it out
+          if (isNote(e)) return <div key={i} className={cx('dm-tmx-note', e0.className)} style={e0.style}><Icon name="spark" size="xs" /><span className={cx(running && i === entries.length - 1 && 'dm-shim')}>{e.text}</span></div>;
           if (isEdit(e)) return (
-            <div key={i} className={cx('dm-tmx-blk', e0.className)} style={e0.style}>
+            <div key={i} className={cx('dm-tmx-blk', e0.className)} style={e0.style} data-s={e.status === 'stopped' ? 'stop' : 'edit'}>
               <div className="dm-tmx-cmd"><span className="dm-tmx-p"><Icon name="edit" size="xs" /></span><span className="dm-tmx-c">{L.edit} {e.file}</span>
                 <span className="dm-tmx-m">{e.status === 'running' ? <span className="dm-g"><Spin /></span>
                   : e.status === 'stopped' ? <span className="dm-g"><span className="dm-tag">{L.stopped}</span></span>
                   : <>{e.added !== undefined && <span className="dm-add">+{e.added}</span>}{e.removed !== undefined && <span className="dm-del">−{e.removed}</span>}</>}</span>
               </div>
+              {e.status !== 'running' && e.status !== 'stopped' && e.diff && e.diff.length > 0 && (
+                <div className="dm-tmx-df">{e.diff.map((d, j) => { const x = enter(j * 90); return <div key={j} className={cx(d[0] === '+' && 'dm-a', d[0] === '-' && 'dm-d', x.className)} style={x.style}>{d}</div>; })}</div>
+              )}
             </div>
           );
           const out = e.output ?? [], fold = out.length > tail + 1, hidden = fold ? out.slice(0, out.length - tail) : [], shown = fold ? out.slice(out.length - tail) : out, isOpen = open.has(i);
           return (
-            <div key={i} className={cx('dm-tmx-blk', e0.className)} style={e0.style}>
+            <div key={i} className={cx('dm-tmx-blk', e0.className)} style={e0.style} data-s={e.status === 'running' ? 'run' : e.status === 'ok' ? 'ok' : e.status === 'failed' ? 'bad' : 'stop'}>
               <div className="dm-tmx-cmd">
                 <span className="dm-tmx-p">$</span><span className="dm-tmx-c">{e.command}</span>
                 <span className="dm-tmx-m">

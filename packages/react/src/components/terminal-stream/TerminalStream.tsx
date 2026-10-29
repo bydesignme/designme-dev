@@ -39,6 +39,8 @@ export interface TerminalEdit {
   /** Lines added and removed, shown once it is done */
   added?: number;
   removed?: number;
+  /** The changed lines, each starting with "-" (removed, in red) or "+" (added, in green), shown under it once it is done */
+  diff?: string[];
   status?: 'running' | 'done' | 'stopped';
 }
 
@@ -105,16 +107,16 @@ export function TerminalStream({ cwd, entries, status, elapsed, summary, tail = 
   }, []);
 
   const text = () => entries.flatMap(e => isNote(e) ? ['# ' + e.text]
-    : isEdit(e) ? [`# ${L.edit} ${e.file}${e.added !== undefined || e.removed !== undefined ? ` (+${e.added ?? 0} −${e.removed ?? 0})` : ''}`]
+    : isEdit(e) ? [`# ${L.edit} ${e.file}${e.added !== undefined || e.removed !== undefined ? ` (+${e.added ?? 0} −${e.removed ?? 0})` : ''}`, ...(e.status === 'done' || e.status === undefined ? e.diff ?? [] : [])]
     : ['$ ' + e.command, ...(e.output ?? []).map(l => lineOf(l).text)]).join('\n');
   const copyAll = () => { const t = text(); copy(t); onCopy?.(t); };
 
   return (
-    <div data-dm="" className={cx('dm-tmx dm-panel', className)} style={{ containerType: 'inline-size' }}>
+    <div data-dm="" className={cx('dm-tmx dm-panel', running && 'dm-live', className)} style={{ containerType: 'inline-size' }}>
       <div className="dm-tmx-h">
         <span className="dm-tmx-ic"><Icon name="term" /></span>
         <span className="dm-tmx-cwd">{cwd}</span>
-        <span className={cx('dm-tmx-st', state === 'passed' && 'dm-ok')}>
+        <span className={cx('dm-tmx-st', state === 'passed' && 'dm-ok', state === 'failed' && 'dm-bad')}>
           <span className="dm-g">{running ? <Spin /> : <Icon name={state === 'passed' ? 'check' : 'stop'} size="xs" />}</span>
           <span className="dm-tmx-sv dm-num">{running ? (elapsed ? `${L.running} · ${elapsed}` : L.running) : L[state]}</span>
         </span>
@@ -128,19 +130,23 @@ export function TerminalStream({ cwd, entries, status, elapsed, summary, tail = 
         onScroll={e => { const el = e.currentTarget; pinned.current = el.scrollTop + el.clientHeight >= el.scrollHeight - 24; }}>
         {entries.map((e, i) => {
           const e0 = enter();
-          if (isNote(e)) return <div key={i} className={cx('dm-tmx-note', e0.className)} style={e0.style}><Icon name="spark" size="xs" /><span>{e.text}</span></div>;
+          // the agent's newest note shimmers while the run goes on: it is still working it out
+          if (isNote(e)) return <div key={i} className={cx('dm-tmx-note', e0.className)} style={e0.style}><Icon name="spark" size="xs" /><span className={cx(running && i === entries.length - 1 && 'dm-shim')}>{e.text}</span></div>;
           if (isEdit(e)) return (
-            <div key={i} className={cx('dm-tmx-blk', e0.className)} style={e0.style}>
+            <div key={i} className={cx('dm-tmx-blk', e0.className)} style={e0.style} data-s={e.status === 'stopped' ? 'stop' : 'edit'}>
               <div className="dm-tmx-cmd"><span className="dm-tmx-p"><Icon name="edit" size="xs" /></span><span className="dm-tmx-c">{L.edit} {e.file}</span>
                 <span className="dm-tmx-m">{e.status === 'running' ? <span className="dm-g"><Spin /></span>
                   : e.status === 'stopped' ? <span className="dm-g"><span className="dm-tag">{L.stopped}</span></span>
                   : <>{e.added !== undefined && <span className="dm-add">+{e.added}</span>}{e.removed !== undefined && <span className="dm-del">−{e.removed}</span>}</>}</span>
               </div>
+              {e.status !== 'running' && e.status !== 'stopped' && e.diff && e.diff.length > 0 && (
+                <div className="dm-tmx-df">{e.diff.map((d, j) => { const x = enter(j * 90); return <div key={j} className={cx(d[0] === '+' && 'dm-a', d[0] === '-' && 'dm-d', x.className)} style={x.style}>{d}</div>; })}</div>
+              )}
             </div>
           );
           const out = e.output ?? [], fold = out.length > tail + 1, hidden = fold ? out.slice(0, out.length - tail) : [], shown = fold ? out.slice(out.length - tail) : out, isOpen = open.has(i);
           return (
-            <div key={i} className={cx('dm-tmx-blk', e0.className)} style={e0.style}>
+            <div key={i} className={cx('dm-tmx-blk', e0.className)} style={e0.style} data-s={e.status === 'running' ? 'run' : e.status === 'ok' ? 'ok' : e.status === 'failed' ? 'bad' : 'stop'}>
               <div className="dm-tmx-cmd">
                 <span className="dm-tmx-p">$</span><span className="dm-tmx-c">{e.command}</span>
                 <span className="dm-tmx-m">

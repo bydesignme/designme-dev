@@ -82,12 +82,47 @@
 .tmx-more[aria-expanded="true"] svg{transform:rotate(180deg)}
 /* folded lines are hidden once they have folded away, so nothing measures the clipped part as if it were drawn */
 .tmx-blk .fold.shut>div{visibility:hidden;transition:visibility 0s var(--t)}
-.tmx-note{margin:var(--s-1) 14px;padding:var(--s-2) 10px;border-radius:10px;background:var(--chip);font-family:var(--sans);font-size:12.5px;line-height:1.5;color:var(--fg2);display:flex;gap:var(--s-2)}
+/* what the agent says between commands: its spark in the accent and its words, which shimmer while it is still working it out */
+.tmx-note{margin:var(--s-2) 14px;padding-left:20px;font-family:var(--sans);font-size:12.5px;line-height:1.5;color:var(--fg2);display:flex;gap:var(--s-2)}
 .tmx-note>svg{color:var(--accent-fg,var(--accent));flex:none;margin-top:3px}
+.tmx-note .shim{font-size:inherit}
 .tmx-f{display:flex;align-items:center;gap:var(--s-2);padding:10px 14px;border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent);font-size:13px}
 .tmx-f .g{display:grid;place-items:center;flex:none;color:var(--ok)}
 .tmx-f.stop .g{color:var(--muted)}.tmx-f.bad .g{color:var(--bad)}
-@container (max-width:420px){.tmx-ic{display:none}.tmx-h{padding-left:var(--s-3)}.tmx-cmd{padding:0 var(--s-3)}.tmx-o{padding:0 var(--s-3)}.tmx-more{margin-left:var(--s-3)}.tmx-note{margin-inline:var(--s-3)}.tmx-f{padding-inline:var(--s-3)}}
+/* the run's state in the header is a tag in its colour: the accent while it runs, green once it passes, red if it failed */
+.tmx-st{height:22px;padding:0 var(--s-2);border-radius:var(--r-tag);background:var(--chip);color:var(--fg2);transition:background .3s,color .3s}
+.tmx.live .tmx-st{background:var(--accent-bg);color:var(--accent-fg,var(--fg))}
+.tmx-st.ok,.tmx-st.ok .g{background:var(--ok-bg);color:var(--ok)}
+.tmx-st.bad,.tmx-st.bad .g{background:var(--bad-bg);color:var(--bad)}
+/* while it runs, a light sweeps along the header's lower edge */
+.tmx-h{position:relative}
+.tmx-h::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:1px;background:linear-gradient(90deg,transparent,var(--accent-mark,var(--accent)),transparent) 0 0/40% 100% no-repeat;opacity:0;transition:opacity .4s;pointer-events:none}
+.tmx.live .tmx-h::after{opacity:1;animation:tmxsweep 1.8s var(--ease-io) infinite}
+@keyframes tmxsweep{from{background-position:-60% 0}to{background-position:160% 0}}
+/* the output sits on a faint code surface */
+.tmx-body{background:color-mix(in srgb,var(--fg) 2.5%,var(--surface))}
+/* each command and edit has a line down its left in how it went: the accent while it runs, green, red, grey once stopped */
+.tmx-blk{position:relative}
+.tmx-blk::before{content:"";position:absolute;left:6px;top:4px;bottom:4px;width:2px;border-radius:1px;background:var(--rail);transition:background .3s}
+.tmx-blk[data-s="run"]::before{background:var(--accent-mark,var(--accent));animation:tmxpulse 1.4s var(--ease-io) infinite}
+.tmx-blk[data-s="ok"]::before{background:color-mix(in srgb,var(--ok) 70%,transparent)}
+.tmx-blk[data-s="bad"]::before{background:var(--bad)}
+.tmx-blk[data-s="edit"]::before{background:var(--merge)}
+@keyframes tmxpulse{50%{opacity:.35}}
+.tmx-p{color:var(--accent-fg,var(--fg));font-weight:500}
+.tmx-blk[data-s="edit"] .tmx-p{color:var(--merge)}
+/* an edit shows the lines it changed, removed in red and added in green, each on its own tint */
+.tmx-df{margin:2px 14px var(--s-1) 34px;border-radius:var(--r-sm);overflow:hidden}
+.tmx-df div{padding:0 var(--s-2);white-space:pre-wrap;overflow-wrap:anywhere;color:var(--fg2)}
+.tmx-df .a{background:color-mix(in srgb,var(--add) 10%,transparent)}.tmx-df .a::first-letter{color:var(--add)}
+.tmx-df .d{background:color-mix(in srgb,var(--del) 10%,transparent)}.tmx-df .d::first-letter{color:var(--del)}
+/* a block cursor blinks after the newest line while the run goes on */
+.tmx.live .tmx-body::after{content:"";display:block;width:7px;height:14px;margin:var(--s-1) 0 0 34px;background:var(--fg2);animation:bpblink 1.1s steps(1,end) infinite}
+:root:not([data-style="soft"]) .tmx-h:not(:where([data-style="soft"],[data-style="soft"] *))::after{background:repeating-linear-gradient(90deg,var(--accent-mark) 0 6px,transparent 6px 12px);animation:tmxmarch .6s steps(4) infinite}
+@keyframes tmxmarch{to{background-position:12px 0}}
+:root:not([data-style="soft"]) .tmx-blk:not(:where([data-style="soft"],[data-style="soft"] *))::before{width:1px}
+:root:not([data-style="soft"]) .tmx-blk[data-s="run"]:not(:where([data-style="soft"],[data-style="soft"] *))::before{animation:bpblink 1.1s steps(1,end) infinite}
+@container (max-width:420px){.tmx-ic{display:none}.tmx-h{padding-left:var(--s-3)}.tmx-cmd{padding:0 var(--s-3)}.tmx-o{padding:0 var(--s-3)}.tmx-more{margin-left:var(--s-3)}.tmx-note{margin-inline:var(--s-3)}.tmx-f{padding-inline:var(--s-3)}.tmx-df{margin-left:var(--s-3);margin-right:var(--s-3)}.tmx-blk::before{left:3px}.tmx.live .tmx-body::after{margin-left:var(--s-3)}}
 </style><style>@media (max-width:640px){.cp-demo .pg-demo{min-height:calc(var(--h-j) + 24px)}}@media (max-width:519px){.cp-demo .pg-demo{min-height:calc(var(--h-k) + 24px)}}@media (max-width:429px){.cp-demo .pg-demo{min-height:calc(var(--h-l) + 24px)}}@media (max-width:389px){.cp-demo .pg-demo{min-height:calc(var(--h-m) + 24px)}}</style><style>@font-face{font-family:Inter;font-style:normal;font-weight:400;font-display:swap;src:url(/fonts/inter-latin-400-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:Inter;font-style:normal;font-weight:500;font-display:swap;src:url(/fonts/inter-latin-500-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:Inter;font-style:normal;font-weight:600;font-display:swap;src:url(/fonts/inter-latin-600-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
@@ -111,7 +146,7 @@
     </div>
   </div>
 </div>
-</div></section><div class="cp-bar"><nav aria-label="Sections"><a href="#install">Install</a><a href="#about">About</a><a href="#usage">Usage</a><a href="#props">Props</a><a href="#code">Code</a><a href="#questions">Questions</a><a href="#more">More</a></nav></div><section class="cp-sec" id="install"><div class="pg-sh"><span class="n">01</span><h2>Install</h2><p>Add it to your project with the CLI.</p></div><div class="cp-two"><div class="cp-box"><h3 class="pg-t">HTML, CSS and JavaScript</h3><div class="cp-line"><span class="d">$</span><code><span class="cp-w">npx</span> <span class="cp-w">designme</span> <span class="cp-w">add</span> <span class="cp-w">terminal-stream</span></code><button class="cp-copy" type="button" data-copy="npx designme add terminal-stream" data-label="Copy">Copy</button></div></div><div class="cp-box"><h3 class="pg-t">React</h3><div class="cp-line"><span class="d">$</span><code><span class="cp-w">npx</span> <span class="cp-w">designme</span> <span class="cp-w">add</span> <span class="cp-w">terminal-stream</span> <span class="cp-w">--react</span></code><button class="cp-copy" type="button" data-copy="npx designme add terminal-stream --react" data-label="Copy">Copy</button></div></div></div><p class="cp-note">The CLI copies the source into your project, so you own it and can change anything. The HTML version lands in <code>./designme</code> with the shared core and a <code>demo.html</code>. The React version lands in <code>src/components/designme</code> and needs React 19; it works in Next.js, Vite and Astro.</p></section><section class="cp-sec" id="about"><div class="pg-sh"><span class="n">02</span><h2>About</h2><p>What it is for and what it does.</p></div><p class="cp-sum">Terminal stream shows the shell commands an agent runs as a compact terminal panel. The header has the working directory and how the run is going, with Stop while it runs and Copy. Each command shows as a <code>$ npm run build</code> line with its output streaming in underneath, and ends with a check or a red exit code, and how long it took. Output longer than five lines folds to its last four behind a "Show 24 more lines" button, and when the run is over a line at the foot sums it up, like "3 commands · 0:18 · passed".</p><div class="cp-gap"><div class="cp-tl" role="tablist" aria-label="About"><button type="button" role="tab" id="ab-t0" aria-controls="ab-p0" aria-selected="true" tabindex="0">When to use it</button><button type="button" role="tab" id="ab-t1" aria-controls="ab-p1" aria-selected="false" tabindex="-1">What it does</button><button type="button" role="tab" id="ab-t2" aria-controls="ab-p2" aria-selected="false" tabindex="-1">Accessibility</button></div><div class="cp-tp" role="tabpanel" id="ab-p0" aria-labelledby="ab-t0"><ul><li>When an agent installs, builds and tests code, and people want to see what it ran and what came back.</li><li>When a command fails and people need the failing lines, the agent's reading of them and the fix in one place.</li><li>When long output like a build log should be there if wanted, without filling the panel.</li><li>When people need a way to stop a run that is going wrong, or to copy the whole run into an issue or a chat.</li></ul></div><div class="cp-tp" role="tabpanel" id="ab-p1" aria-labelledby="ab-t1" hidden><ul><li><code>entries</code> are commands, notes and edits, oldest first. A command has a <code>status</code> of <code>running</code>, <code>ok</code>, <code>failed</code> or <code>stopped</code>, with a spinner, a check, a red "Exit 1" tag (from <code>exitCode</code>) or a Stopped tag, and its <code>duration</code>.</li><li>Output lines can be coloured with a <code>tone</code>: <code>ok</code> green, <code>bad</code> red or <code>muted</code> grey. Lines wrap inside the panel, so a long line never scrolls the page sideways.</li><li>Output longer than <code>tail</code> + 1 lines folds to its last <code>tail</code> lines (4 by default) behind a "Show N more lines" button that opens the rest.</li><li>A note (<code>kind: 'note'</code>) is a line from the agent between commands, and an edit (<code>kind: 'edit'</code>) is a file it changed, with the lines added and removed once it is done.</li><li>The header shows <code>cwd</code> and the run's <code>status</code>, with <code>elapsed</code> beside Running. <code>onStop</code> adds a Stop button while it runs, and Copy copies the whole run as text.</li><li>Once the run is over, <code>summary</code> folds open at the foot. By default it counts each command once, however many times it ran, then gives <code>elapsed</code> and the result.</li><li>The terminal keeps one height, 420px, from the first command to the last. Its output scrolls inside it and stays on the newest line, unless someone has scrolled up to read; set <code>height</code> on it through <code>className</code> to change the size.</li></ul></div><div class="cp-tp" role="tabpanel" id="ab-p2" aria-labelledby="ab-t2" hidden><ul><li>The output is a log region labelled "Terminal output", so screen readers can follow it as it arrives. It can be focused with Tab and scrolled with the arrow keys.</li><li>"Show N more lines" is a button that says whether the folded lines are open, and the folded lines can't be reached with Tab while they are shut.</li><li>Stop and Copy are labelled buttons, and Copy says "Copied to clipboard" in a tooltip once it has copied.</li></ul></div></div></section><section class="cp-sec" id="usage"><div class="pg-sh"><span class="n">03</span><h2>Usage</h2><p>Import it and drive it from your own state.</p></div><div class="cp-box"><h3 class="pg-t">Import</h3><pre class="cp-pre"><code>import { TerminalStream } from &#39;@/components/designme/terminal-stream/TerminalStream&#39;;</code></pre></div><div class="cp-box cp-gap"><h3 class="pg-t">Example</h3><p class="pg-d">The demo above as a React component, 78 lines you can copy.</p><pre class="cp-pre"><code>&#39;use client&#39;;
+</div></section><div class="cp-bar"><nav aria-label="Sections"><a href="#install">Install</a><a href="#about">About</a><a href="#usage">Usage</a><a href="#props">Props</a><a href="#code">Code</a><a href="#questions">Questions</a><a href="#more">More</a></nav></div><section class="cp-sec" id="install"><div class="pg-sh"><span class="n">01</span><h2>Install</h2><p>Add it to your project with the CLI.</p></div><div class="cp-two"><div class="cp-box"><h3 class="pg-t">HTML, CSS and JavaScript</h3><div class="cp-line"><span class="d">$</span><code><span class="cp-w">npx</span> <span class="cp-w">designme</span> <span class="cp-w">add</span> <span class="cp-w">terminal-stream</span></code><button class="cp-copy" type="button" data-copy="npx designme add terminal-stream" data-label="Copy">Copy</button></div></div><div class="cp-box"><h3 class="pg-t">React</h3><div class="cp-line"><span class="d">$</span><code><span class="cp-w">npx</span> <span class="cp-w">designme</span> <span class="cp-w">add</span> <span class="cp-w">terminal-stream</span> <span class="cp-w">--react</span></code><button class="cp-copy" type="button" data-copy="npx designme add terminal-stream --react" data-label="Copy">Copy</button></div></div></div><p class="cp-note">The CLI copies the source into your project, so you own it and can change anything. The HTML version lands in <code>./designme</code> with the shared core and a <code>demo.html</code>. The React version lands in <code>src/components/designme</code> and needs React 19; it works in Next.js, Vite and Astro.</p></section><section class="cp-sec" id="about"><div class="pg-sh"><span class="n">02</span><h2>About</h2><p>What it is for and what it does.</p></div><p class="cp-sum">Terminal stream shows the shell commands an agent runs as a compact terminal panel. The header has the working directory and how the run is going, with Stop while it runs and Copy. Each command shows as a <code>$ npm run build</code> line with its output streaming in underneath, and ends with a check or a red exit code, and how long it took. Output longer than five lines folds to its last four behind a "Show 24 more lines" button, and when the run is over a line at the foot sums it up, like "3 commands · 0:18 · passed".</p><div class="cp-gap"><div class="cp-tl" role="tablist" aria-label="About"><button type="button" role="tab" id="ab-t0" aria-controls="ab-p0" aria-selected="true" tabindex="0">When to use it</button><button type="button" role="tab" id="ab-t1" aria-controls="ab-p1" aria-selected="false" tabindex="-1">What it does</button><button type="button" role="tab" id="ab-t2" aria-controls="ab-p2" aria-selected="false" tabindex="-1">Accessibility</button></div><div class="cp-tp" role="tabpanel" id="ab-p0" aria-labelledby="ab-t0"><ul><li>When an agent installs, builds and tests code, and people want to see what it ran and what came back.</li><li>When a command fails and people need the failing lines, the agent's reading of them and the fix in one place.</li><li>When long output like a build log should be there if wanted, without filling the panel.</li><li>When people need a way to stop a run that is going wrong, or to copy the whole run into an issue or a chat.</li></ul></div><div class="cp-tp" role="tabpanel" id="ab-p1" aria-labelledby="ab-t1" hidden><ul><li><code>entries</code> are commands, notes and edits, oldest first. A command has a <code>status</code> of <code>running</code>, <code>ok</code>, <code>failed</code> or <code>stopped</code>, with a spinner, a check, a red "Exit 1" tag (from <code>exitCode</code>) or a Stopped tag, and its <code>duration</code>. A line down its left says the same in colour: the accent, pulsing, while it runs, then green, red or grey.</li><li>Output lines can be coloured with a <code>tone</code>: <code>ok</code> green, <code>bad</code> red or <code>muted</code> grey. Lines wrap inside the panel, so a long line never scrolls the page sideways.</li><li>Output longer than <code>tail</code> + 1 lines folds to its last <code>tail</code> lines (4 by default) behind a "Show N more lines" button that opens the rest.</li><li>A note (<code>kind: 'note'</code>) is a line from the agent between commands, which shimmers while it is the newest entry of a run still going. An edit (<code>kind: 'edit'</code>) is a file it changed, with a violet line, the lines added and removed once it is done, and its <code>diff</code> under it: lines starting with "-" on a red tint and "+" on a green one.</li><li>The header shows <code>cwd</code> and the run's <code>status</code> as a tag in its colour: the accent while it runs, with <code>elapsed</code> beside Running and a light sweeping along the header's edge, then green when passed or red when failed. <code>onStop</code> adds a Stop button while it runs, and Copy copies the whole run as text, edits' diffs included.</li><li>While the run goes on, a block cursor blinks after the newest line, on the output's faint code surface.</li><li>Once the run is over, <code>summary</code> folds open at the foot. By default it counts each command once, however many times it ran, then gives <code>elapsed</code> and the result.</li><li>The terminal keeps one height, 420px, from the first command to the last. Its output scrolls inside it and stays on the newest line, unless someone has scrolled up to read; set <code>height</code> on it through <code>className</code> to change the size.</li></ul></div><div class="cp-tp" role="tabpanel" id="ab-p2" aria-labelledby="ab-t2" hidden><ul><li>The output is a log region labelled "Terminal output", so screen readers can follow it as it arrives. It can be focused with Tab and scrolled with the arrow keys.</li><li>"Show N more lines" is a button that says whether the folded lines are open, and the folded lines can't be reached with Tab while they are shut.</li><li>Stop and Copy are labelled buttons, and Copy says "Copied to clipboard" in a tooltip once it has copied.</li><li>The coloured lines, the sweeping light and the cursor are decoration: each command's state is also written out, and with reduced motion they stop moving.</li></ul></div></div></section><section class="cp-sec" id="usage"><div class="pg-sh"><span class="n">03</span><h2>Usage</h2><p>Import it and drive it from your own state.</p></div><div class="cp-box"><h3 class="pg-t">Import</h3><pre class="cp-pre"><code>import { TerminalStream } from &#39;@/components/designme/terminal-stream/TerminalStream&#39;;</code></pre></div><div class="cp-box cp-gap"><h3 class="pg-t">Example</h3><p class="pg-d">The demo above as a React component, 78 lines you can copy.</p><pre class="cp-pre"><code>&#39;use client&#39;;
 // The animated preview from designme.dev, rebuilt from the React component: an example of driving it from your own state.
 import { useRef, useState } from &#39;react&#39;;
 import { TerminalStream, type TerminalCommand, type TerminalEdit, type TerminalEntry, type TerminalLine, type TerminalStatus } from &#39;./TerminalStream&#39;;
@@ -125,14 +160,14 @@ const BUILD: TerminalLine[] = [mu(&#39;&gt; acme-web@2.4.0 build&#39;), mu(&#39;
     [&#39;assets/Bills-e8f3.js&#39;, &#39;5.27&#39;], [&#39;assets/Team-0d6a.js&#39;, &#39;4.88&#39;], [&#39;assets/Prefs-9a1b.js&#39;, &#39;6.02&#39;], [&#39;assets/Docs-44f0.js&#39;, &#39;8.15&#39;], [&#39;assets/Search-b7c2.js&#39;, &#39;2.96&#39;], [&#39;assets/Modal-61de.js&#39;, &#39;1.84&#39;],
     [&#39;assets/Chart-ef09.js&#39;, &#39;21.73&#39;], [&#39;assets/Table-3a7e.js&#39;, &#39;11.09&#39;], [&#39;assets/Form-c1d4.js&#39;, &#39;4.41&#39;], [&#39;assets/Toast-8e2f.js&#39;, &#39;1.12&#39;], [&#39;assets/dates-29bb.js&#39;, &#39;18.30&#39;], [&#39;assets/vendor-8c1e.js&#39;, &#39;98.12&#39;],
     [&#39;assets/index-4f2a.js&#39;, &#39;42.31&#39;], [&#39;assets/index-9b7d.css&#39;, &#39;18.92&#39;]].map(([n, kb]) =&gt; F(n, kb))), ok(&#39;✓ built in 6.1s&#39;)];
-type Step = { cmd: string; ms: number; out: TerminalLine[]; exit?: number } | { note: string; ms: number } | { edit: string; add: number; del: number; ms: number };
+type Step = { cmd: string; ms: number; out: TerminalLine[]; exit?: number } | { note: string; ms: number } | { edit: string; add: number; del: number; ms: number; diff: string[] };
 const RUN: Step[] = [
   { cmd: &#39;npm install&#39;, ms: 1900, out: [&#39;added 412 packages in 1.9s&#39;, &#39;found 0 vulnerabilities&#39;] },
   { cmd: &#39;npm run build&#39;, ms: 6100, out: BUILD },
   { cmd: &#39;npm test&#39;, ms: 3400, exit: 1, out: [mu(&#39;RUN  v3.0.5 ~/acme/web&#39;), ok(&#39;✓ src/lib/cart.test.ts (14 tests)&#39;), bad(&#39;× src/lib/price.test.ts (1 failed)&#39;), bad(&#39;  × formats a yearly price&#39;),
     ok(&#39;    Expected: &quot;$240/yr&quot;&#39;), bad(&#39;    Received: &quot;$240.00/yr&quot;&#39;), bad(&#39;Tests  1 failed | 23 passed (24)&#39;)] },
   { note: &#39;The test expects whole dollars, but formatPrice always adds cents. Dropping them for round amounts.&#39;, ms: 1500 },
-  { edit: &#39;src/lib/price.ts&#39;, add: 2, del: 1, ms: 1500 },
+  { edit: &#39;src/lib/price.ts&#39;, add: 2, del: 1, ms: 1500, diff: [&#39;- return `$${n.toFixed(2)}/${per}`&#39;, &#39;+ const v = Number.isInteger(n) ? String(n) : n.toFixed(2)&#39;, &#39;+ return `$${v}/${per}`&#39;] },
   { cmd: &#39;npm test&#39;, ms: 2900, out: [ok(&#39;✓ src/lib/cart.test.ts (14 tests)&#39;), ok(&#39;✓ src/lib/price.test.ts (10 tests)&#39;), ok(&#39;Tests  24 passed (24)&#39;)] }
 ];
 const clock = (ms: number) =&gt; { const s = Math.floor(ms / 1000); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, &#39;0&#39;)}`; };
@@ -162,7 +197,7 @@ export default function TerminalStreamDemo() {
       if (&#39;edit&#39; in k) {
         add({ kind: &#39;edit&#39;, file: k.edit, status: &#39;running&#39; });
         if (!(await pass(k.ms))) return stopped();
-        patch(at, e =&gt; ({ ...(e as TerminalEdit), status: &#39;done&#39;, added: k.add, removed: k.del })); continue;
+        patch(at, e =&gt; ({ ...(e as TerminalEdit), status: &#39;done&#39;, added: k.add, removed: k.del, diff: k.diff })); continue;
       }
       add({ command: k.cmd, status: &#39;running&#39;, output: [], duration: sec(0) });
       const per = k.ms / k.out.length; let t = 0;
@@ -188,7 +223,7 @@ export default function TerminalStreamDemo() {
     &lt;/div&gt;
   );
 }
-</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything TerminalStream takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>cwd</code><span class="opt">required</span></td><td><code>string</code></td><td>The working directory, shown in the header, like &quot;~/acme/web&quot;</td></tr><tr><td><code>entries</code><span class="opt">required</span></td><td><code>TerminalEntry[]</code></td><td>Commands, notes and edits, oldest first</td></tr><tr><td><code>status</code></td><td><code>TerminalStatus</code></td><td>The run as a whole. Left out, it is running while any entry runs, then failed if the last command failed, else passed</td></tr><tr><td><code>elapsed</code></td><td><code>string</code></td><td>How long the run has taken, like &quot;0:18&quot;. Shown beside Running in the header and in the summary</td></tr><tr><td><code>summary</code></td><td><code>string | false</code></td><td>The line at the foot once the run is over. Defaults to &quot;3 commands · 0:18 · passed&quot;, counting each command once however many times it ran; false hides it</td></tr><tr><td><code>tail</code></td><td><code>number</code></td><td>How many lines a folded output keeps showing</td></tr><tr><td><code>onStop</code></td><td><code>() =&gt; void</code></td><td>Adds the Stop button while the run is going</td></tr><tr><td><code>onCopy</code></td><td><code>(text: string) =&gt; void</code></td><td>Called with the whole run as text when it is copied</td></tr><tr><td><code>labels</code></td><td><code>{ running?: string; passed?: string; failed?: string; stopped?: string; stop?: string; copy?: string; copied?: string; more?: (n: number) =&gt; string; fewer?: string; edit?: string }</code></td><td></td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>TerminalStream.tsx<span class="l">React · 168 lines</span></summary><pre class="cp-pre"><code>&#39;use client&#39;;
+</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything TerminalStream takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>cwd</code><span class="opt">required</span></td><td><code>string</code></td><td>The working directory, shown in the header, like &quot;~/acme/web&quot;</td></tr><tr><td><code>entries</code><span class="opt">required</span></td><td><code>TerminalEntry[]</code></td><td>Commands, notes and edits, oldest first</td></tr><tr><td><code>status</code></td><td><code>TerminalStatus</code></td><td>The run as a whole. Left out, it is running while any entry runs, then failed if the last command failed, else passed</td></tr><tr><td><code>elapsed</code></td><td><code>string</code></td><td>How long the run has taken, like &quot;0:18&quot;. Shown beside Running in the header and in the summary</td></tr><tr><td><code>summary</code></td><td><code>string | false</code></td><td>The line at the foot once the run is over. Defaults to &quot;3 commands · 0:18 · passed&quot;, counting each command once however many times it ran; false hides it</td></tr><tr><td><code>tail</code></td><td><code>number</code></td><td>How many lines a folded output keeps showing</td></tr><tr><td><code>onStop</code></td><td><code>() =&gt; void</code></td><td>Adds the Stop button while the run is going</td></tr><tr><td><code>onCopy</code></td><td><code>(text: string) =&gt; void</code></td><td>Called with the whole run as text when it is copied</td></tr><tr><td><code>labels</code></td><td><code>{ running?: string; passed?: string; failed?: string; stopped?: string; stop?: string; copy?: string; copied?: string; more?: (n: number) =&gt; string; fewer?: string; edit?: string }</code></td><td></td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>TerminalStream.tsx<span class="l">React · 174 lines</span></summary><pre class="cp-pre"><code>&#39;use client&#39;;
 import { useEffect, useRef, useState } from &#39;react&#39;;
 import { cx } from &#39;../lib/cx&#39;;
 import { useCopied } from &#39;../lib/hooks&#39;;
@@ -229,6 +264,8 @@ export interface TerminalEdit {
   /** Lines added and removed, shown once it is done */
   added?: number;
   removed?: number;
+  /** The changed lines, each starting with &quot;-&quot; (removed, in red) or &quot;+&quot; (added, in green), shown under it once it is done */
+  diff?: string[];
   status?: &#39;running&#39; | &#39;done&#39; | &#39;stopped&#39;;
 }
 
@@ -295,16 +332,16 @@ export function TerminalStream({ cwd, entries, status, elapsed, summary, tail = 
   }, []);
 
   const text = () =&gt; entries.flatMap(e =&gt; isNote(e) ? [&#39;# &#39; + e.text]
-    : isEdit(e) ? [`# ${L.edit} ${e.file}${e.added !== undefined || e.removed !== undefined ? ` (+${e.added ?? 0} −${e.removed ?? 0})` : &#39;&#39;}`]
+    : isEdit(e) ? [`# ${L.edit} ${e.file}${e.added !== undefined || e.removed !== undefined ? ` (+${e.added ?? 0} −${e.removed ?? 0})` : &#39;&#39;}`, ...(e.status === &#39;done&#39; || e.status === undefined ? e.diff ?? [] : [])]
     : [&#39;$ &#39; + e.command, ...(e.output ?? []).map(l =&gt; lineOf(l).text)]).join(&#39;\n&#39;);
   const copyAll = () =&gt; { const t = text(); copy(t); onCopy?.(t); };
 
   return (
-    &lt;div data-dm=&quot;&quot; className={cx(&#39;dm-tmx dm-panel&#39;, className)} style={{ containerType: &#39;inline-size&#39; }}&gt;
+    &lt;div data-dm=&quot;&quot; className={cx(&#39;dm-tmx dm-panel&#39;, running &amp;&amp; &#39;dm-live&#39;, className)} style={{ containerType: &#39;inline-size&#39; }}&gt;
       &lt;div className=&quot;dm-tmx-h&quot;&gt;
         &lt;span className=&quot;dm-tmx-ic&quot;&gt;&lt;Icon name=&quot;term&quot; /&gt;&lt;/span&gt;
         &lt;span className=&quot;dm-tmx-cwd&quot;&gt;{cwd}&lt;/span&gt;
-        &lt;span className={cx(&#39;dm-tmx-st&#39;, state === &#39;passed&#39; &amp;&amp; &#39;dm-ok&#39;)}&gt;
+        &lt;span className={cx(&#39;dm-tmx-st&#39;, state === &#39;passed&#39; &amp;&amp; &#39;dm-ok&#39;, state === &#39;failed&#39; &amp;&amp; &#39;dm-bad&#39;)}&gt;
           &lt;span className=&quot;dm-g&quot;&gt;{running ? &lt;Spin /&gt; : &lt;Icon name={state === &#39;passed&#39; ? &#39;check&#39; : &#39;stop&#39;} size=&quot;xs&quot; /&gt;}&lt;/span&gt;
           &lt;span className=&quot;dm-tmx-sv dm-num&quot;&gt;{running ? (elapsed ? `${L.running} · ${elapsed}` : L.running) : L[state]}&lt;/span&gt;
         &lt;/span&gt;
@@ -318,19 +355,23 @@ export function TerminalStream({ cwd, entries, status, elapsed, summary, tail = 
         onScroll={e =&gt; { const el = e.currentTarget; pinned.current = el.scrollTop + el.clientHeight &gt;= el.scrollHeight - 24; }}&gt;
         {entries.map((e, i) =&gt; {
           const e0 = enter();
-          if (isNote(e)) return &lt;div key={i} className={cx(&#39;dm-tmx-note&#39;, e0.className)} style={e0.style}&gt;&lt;Icon name=&quot;spark&quot; size=&quot;xs&quot; /&gt;&lt;span&gt;{e.text}&lt;/span&gt;&lt;/div&gt;;
+          // the agent&#39;s newest note shimmers while the run goes on: it is still working it out
+          if (isNote(e)) return &lt;div key={i} className={cx(&#39;dm-tmx-note&#39;, e0.className)} style={e0.style}&gt;&lt;Icon name=&quot;spark&quot; size=&quot;xs&quot; /&gt;&lt;span className={cx(running &amp;&amp; i === entries.length - 1 &amp;&amp; &#39;dm-shim&#39;)}&gt;{e.text}&lt;/span&gt;&lt;/div&gt;;
           if (isEdit(e)) return (
-            &lt;div key={i} className={cx(&#39;dm-tmx-blk&#39;, e0.className)} style={e0.style}&gt;
+            &lt;div key={i} className={cx(&#39;dm-tmx-blk&#39;, e0.className)} style={e0.style} data-s={e.status === &#39;stopped&#39; ? &#39;stop&#39; : &#39;edit&#39;}&gt;
               &lt;div className=&quot;dm-tmx-cmd&quot;&gt;&lt;span className=&quot;dm-tmx-p&quot;&gt;&lt;Icon name=&quot;edit&quot; size=&quot;xs&quot; /&gt;&lt;/span&gt;&lt;span className=&quot;dm-tmx-c&quot;&gt;{L.edit} {e.file}&lt;/span&gt;
                 &lt;span className=&quot;dm-tmx-m&quot;&gt;{e.status === &#39;running&#39; ? &lt;span className=&quot;dm-g&quot;&gt;&lt;Spin /&gt;&lt;/span&gt;
                   : e.status === &#39;stopped&#39; ? &lt;span className=&quot;dm-g&quot;&gt;&lt;span className=&quot;dm-tag&quot;&gt;{L.stopped}&lt;/span&gt;&lt;/span&gt;
                   : &lt;&gt;{e.added !== undefined &amp;&amp; &lt;span className=&quot;dm-add&quot;&gt;+{e.added}&lt;/span&gt;}{e.removed !== undefined &amp;&amp; &lt;span className=&quot;dm-del&quot;&gt;−{e.removed}&lt;/span&gt;}&lt;/&gt;}&lt;/span&gt;
               &lt;/div&gt;
+              {e.status !== &#39;running&#39; &amp;&amp; e.status !== &#39;stopped&#39; &amp;&amp; e.diff &amp;&amp; e.diff.length &gt; 0 &amp;&amp; (
+                &lt;div className=&quot;dm-tmx-df&quot;&gt;{e.diff.map((d, j) =&gt; { const x = enter(j * 90); return &lt;div key={j} className={cx(d[0] === &#39;+&#39; &amp;&amp; &#39;dm-a&#39;, d[0] === &#39;-&#39; &amp;&amp; &#39;dm-d&#39;, x.className)} style={x.style}&gt;{d}&lt;/div&gt;; })}&lt;/div&gt;
+              )}
             &lt;/div&gt;
           );
           const out = e.output ?? [], fold = out.length &gt; tail + 1, hidden = fold ? out.slice(0, out.length - tail) : [], shown = fold ? out.slice(out.length - tail) : out, isOpen = open.has(i);
           return (
-            &lt;div key={i} className={cx(&#39;dm-tmx-blk&#39;, e0.className)} style={e0.style}&gt;
+            &lt;div key={i} className={cx(&#39;dm-tmx-blk&#39;, e0.className)} style={e0.style} data-s={e.status === &#39;running&#39; ? &#39;run&#39; : e.status === &#39;ok&#39; ? &#39;ok&#39; : e.status === &#39;failed&#39; ? &#39;bad&#39; : &#39;stop&#39;}&gt;
               &lt;div className=&quot;dm-tmx-cmd&quot;&gt;
                 &lt;span className=&quot;dm-tmx-p&quot;&gt;$&lt;/span&gt;&lt;span className=&quot;dm-tmx-c&quot;&gt;{e.command}&lt;/span&gt;
                 &lt;span className=&quot;dm-tmx-m&quot;&gt;
@@ -355,7 +396,7 @@ export function TerminalStream({ cwd, entries, status, elapsed, summary, tail = 
     &lt;/div&gt;
   );
 }
-</code></pre></details><details class="cp-file"><summary>terminal-stream.css<span class="l">React · 46 lines</span></summary><pre class="cp-pre"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+</code></pre></details><details class="cp-file"><summary>terminal-stream.css<span class="l">React · 81 lines</span></summary><pre class="cp-pre"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Terminal stream ---------- */
 /* the shell commands the agent runs, as a compact terminal: where it runs and how it is going in the header, then each
    command with its output streaming in under it, and an exit code or a check with how long it took. Output longer than
@@ -394,12 +435,47 @@ export function TerminalStream({ cwd, entries, status, elapsed, summary, tail = 
 .dm-tmx-more[aria-expanded=&quot;true&quot;] svg{transform:rotate(180deg)}
 /* folded lines are hidden once they have folded away, so nothing measures the clipped part as if it were drawn */
 .dm-tmx-blk .dm-fold.dm-shut&gt;div{visibility:hidden;transition:visibility 0s var(--dm-t)}
-.dm-tmx-note{margin:var(--dm-s-1) 14px;padding:var(--dm-s-2) 10px;border-radius:10px;background:var(--dm-chip);font-family:var(--dm-sans);font-size:12.5px;line-height:1.5;color:var(--dm-fg2);display:flex;gap:var(--dm-s-2)}
+/* what the agent says between commands: its spark in the accent and its words, which shimmer while it is still working it out */
+.dm-tmx-note{margin:var(--dm-s-2) 14px;padding-left:20px;font-family:var(--dm-sans);font-size:12.5px;line-height:1.5;color:var(--dm-fg2);display:flex;gap:var(--dm-s-2)}
 .dm-tmx-note&gt;svg{color:var(--dm-accent-fg,var(--dm-accent));flex:none;margin-top:3px}
+.dm-tmx-note .dm-shim{font-size:inherit}
 .dm-tmx-f{display:flex;align-items:center;gap:var(--dm-s-2);padding:10px 14px;border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);font-size:13px}
 .dm-tmx-f .dm-g{display:grid;place-items:center;flex:none;color:var(--dm-ok)}
 .dm-tmx-f.dm-stop .dm-g{color:var(--dm-muted)}.dm-tmx-f.dm-bad .dm-g{color:var(--dm-bad)}
-@container (max-width:420px){.dm-tmx-ic{display:none}.dm-tmx-h{padding-left:var(--dm-s-3)}.dm-tmx-cmd{padding:0 var(--dm-s-3)}.dm-tmx-o{padding:0 var(--dm-s-3)}.dm-tmx-more{margin-left:var(--dm-s-3)}.dm-tmx-note{margin-inline:var(--dm-s-3)}.dm-tmx-f{padding-inline:var(--dm-s-3)}}
+/* the run&#39;s state in the header is a tag in its colour: the accent while it runs, green once it passes, red if it failed */
+.dm-tmx-st{height:22px;padding:0 var(--dm-s-2);border-radius:var(--dm-r-tag);background:var(--dm-chip);color:var(--dm-fg2);transition:background .3s,color .3s}
+.dm-tmx.dm-live .dm-tmx-st{background:var(--dm-accent-bg);color:var(--dm-accent-fg,var(--dm-fg))}
+.dm-tmx-st.dm-ok,.dm-tmx-st.dm-ok .dm-g{background:var(--dm-ok-bg);color:var(--dm-ok)}
+.dm-tmx-st.dm-bad,.dm-tmx-st.dm-bad .dm-g{background:var(--dm-bad-bg);color:var(--dm-bad)}
+/* while it runs, a light sweeps along the header&#39;s lower edge */
+.dm-tmx-h{position:relative}
+.dm-tmx-h::after{content:&quot;&quot;;position:absolute;left:0;right:0;bottom:-1px;height:1px;background:linear-gradient(90deg,transparent,var(--dm-accent-mark,var(--dm-accent)),transparent) 0 0/40% 100% no-repeat;opacity:0;transition:opacity .4s;pointer-events:none}
+.dm-tmx.dm-live .dm-tmx-h::after{opacity:1;animation:dm-tmxsweep 1.8s var(--dm-ease-io) infinite}
+@keyframes dm-tmxsweep{from{background-position:-60% 0}to{background-position:160% 0}}
+/* the output sits on a faint code surface */
+.dm-tmx-body{background:color-mix(in srgb,var(--dm-fg) 2.5%,var(--dm-surface))}
+/* each command and edit has a line down its left in how it went: the accent while it runs, green, red, grey once stopped */
+.dm-tmx-blk{position:relative}
+.dm-tmx-blk::before{content:&quot;&quot;;position:absolute;left:6px;top:4px;bottom:4px;width:2px;border-radius:1px;background:var(--dm-rail);transition:background .3s}
+.dm-tmx-blk[data-s=&quot;run&quot;]::before{background:var(--dm-accent-mark,var(--dm-accent));animation:dm-tmxpulse 1.4s var(--dm-ease-io) infinite}
+.dm-tmx-blk[data-s=&quot;ok&quot;]::before{background:color-mix(in srgb,var(--dm-ok) 70%,transparent)}
+.dm-tmx-blk[data-s=&quot;bad&quot;]::before{background:var(--dm-bad)}
+.dm-tmx-blk[data-s=&quot;edit&quot;]::before{background:var(--dm-merge)}
+@keyframes dm-tmxpulse{50%{opacity:.35}}
+.dm-tmx-p{color:var(--dm-accent-fg,var(--dm-fg));font-weight:500}
+.dm-tmx-blk[data-s=&quot;edit&quot;] .dm-tmx-p{color:var(--dm-merge)}
+/* an edit shows the lines it changed, removed in red and added in green, each on its own tint */
+.dm-tmx-df{margin:2px 14px var(--dm-s-1) 34px;border-radius:var(--dm-r-sm);overflow:hidden}
+.dm-tmx-df div{padding:0 var(--dm-s-2);white-space:pre-wrap;overflow-wrap:anywhere;color:var(--dm-fg2)}
+.dm-tmx-df .dm-a{background:color-mix(in srgb,var(--dm-add) 10%,transparent)}.dm-tmx-df .dm-a::first-letter{color:var(--dm-add)}
+.dm-tmx-df .dm-d{background:color-mix(in srgb,var(--dm-del) 10%,transparent)}.dm-tmx-df .dm-d::first-letter{color:var(--dm-del)}
+/* a block cursor blinks after the newest line while the run goes on */
+.dm-tmx.dm-live .dm-tmx-body::after{content:&quot;&quot;;display:block;width:7px;height:14px;margin:var(--dm-s-1) 0 0 34px;background:var(--dm-fg2);animation:dm-bpblink 1.1s steps(1,end) infinite}
+:root:not([data-style=&quot;soft&quot;]) .dm-tmx-h:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *))::after{background:repeating-linear-gradient(90deg,var(--dm-accent-mark) 0 6px,transparent 6px 12px);animation:dm-tmxmarch .6s steps(4) infinite}
+@keyframes dm-tmxmarch{to{background-position:12px 0}}
+:root:not([data-style=&quot;soft&quot;]) .dm-tmx-blk:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *))::before{width:1px}
+:root:not([data-style=&quot;soft&quot;]) .dm-tmx-blk[data-s=&quot;run&quot;]:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *))::before{animation:dm-bpblink 1.1s steps(1,end) infinite}
+@container (max-width:420px){.dm-tmx-ic{display:none}.dm-tmx-h{padding-left:var(--dm-s-3)}.dm-tmx-cmd{padding:0 var(--dm-s-3)}.dm-tmx-o{padding:0 var(--dm-s-3)}.dm-tmx-more{margin-left:var(--dm-s-3)}.dm-tmx-note{margin-inline:var(--dm-s-3)}.dm-tmx-f{padding-inline:var(--dm-s-3)}.dm-tmx-df{margin-left:var(--dm-s-3);margin-right:var(--dm-s-3)}.dm-tmx-blk::before{left:3px}.dm-tmx.dm-live .dm-tmx-body::after{margin-left:var(--dm-s-3)}}
 </code></pre></details><details class="cp-file"><summary>terminal-stream.html<span class="l">HTML · 10 lines</span></summary><pre class="cp-pre"><code>&lt;div class=&quot;card wide&quot; data-c=&quot;terminal-stream&quot;&gt;
   &lt;div class=&quot;stage-in&quot;&gt;
     &lt;div class=&quot;tmx panel&quot; data-reveal=&quot;flat&quot;&gt;
@@ -409,7 +485,7 @@ export function TerminalStream({ cwd, entries, status, elapsed, summary, tail = 
     &lt;/div&gt;
   &lt;/div&gt;
 &lt;/div&gt;
-</code></pre></details><details class="cp-file"><summary>terminal-stream.css<span class="l">HTML · 45 lines</span></summary><pre class="cp-pre"><code>/* ---------- Terminal stream ---------- */
+</code></pre></details><details class="cp-file"><summary>terminal-stream.css<span class="l">HTML · 80 lines</span></summary><pre class="cp-pre"><code>/* ---------- Terminal stream ---------- */
 /* the shell commands the agent runs, as a compact terminal: where it runs and how it is going in the header, then each
    command with its output streaming in under it, and an exit code or a check with how long it took. Output longer than
    five lines folds to its last four. The type and rhythm are Code viewer&#39;s: 12px mono on a 1.8 line height */
@@ -447,16 +523,51 @@ export function TerminalStream({ cwd, entries, status, elapsed, summary, tail = 
 .tmx-more[aria-expanded=&quot;true&quot;] svg{transform:rotate(180deg)}
 /* folded lines are hidden once they have folded away, so nothing measures the clipped part as if it were drawn */
 .tmx-blk .fold.shut&gt;div{visibility:hidden;transition:visibility 0s var(--t)}
-.tmx-note{margin:var(--s-1) 14px;padding:var(--s-2) 10px;border-radius:10px;background:var(--chip);font-family:var(--sans);font-size:12.5px;line-height:1.5;color:var(--fg2);display:flex;gap:var(--s-2)}
+/* what the agent says between commands: its spark in the accent and its words, which shimmer while it is still working it out */
+.tmx-note{margin:var(--s-2) 14px;padding-left:20px;font-family:var(--sans);font-size:12.5px;line-height:1.5;color:var(--fg2);display:flex;gap:var(--s-2)}
 .tmx-note&gt;svg{color:var(--accent-fg,var(--accent));flex:none;margin-top:3px}
+.tmx-note .shim{font-size:inherit}
 .tmx-f{display:flex;align-items:center;gap:var(--s-2);padding:10px 14px;border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent);font-size:13px}
 .tmx-f .g{display:grid;place-items:center;flex:none;color:var(--ok)}
 .tmx-f.stop .g{color:var(--muted)}.tmx-f.bad .g{color:var(--bad)}
-@container (max-width:420px){.tmx-ic{display:none}.tmx-h{padding-left:var(--s-3)}.tmx-cmd{padding:0 var(--s-3)}.tmx-o{padding:0 var(--s-3)}.tmx-more{margin-left:var(--s-3)}.tmx-note{margin-inline:var(--s-3)}.tmx-f{padding-inline:var(--s-3)}}
-</code></pre></details><details class="cp-file"><summary>terminal-stream.js<span class="l">HTML · 102 lines</span></summary><pre class="cp-pre"><code>DM.def(&#39;terminal-stream&#39;, (r, c) =&gt; {
+/* the run&#39;s state in the header is a tag in its colour: the accent while it runs, green once it passes, red if it failed */
+.tmx-st{height:22px;padding:0 var(--s-2);border-radius:var(--r-tag);background:var(--chip);color:var(--fg2);transition:background .3s,color .3s}
+.tmx.live .tmx-st{background:var(--accent-bg);color:var(--accent-fg,var(--fg))}
+.tmx-st.ok,.tmx-st.ok .g{background:var(--ok-bg);color:var(--ok)}
+.tmx-st.bad,.tmx-st.bad .g{background:var(--bad-bg);color:var(--bad)}
+/* while it runs, a light sweeps along the header&#39;s lower edge */
+.tmx-h{position:relative}
+.tmx-h::after{content:&quot;&quot;;position:absolute;left:0;right:0;bottom:-1px;height:1px;background:linear-gradient(90deg,transparent,var(--accent-mark,var(--accent)),transparent) 0 0/40% 100% no-repeat;opacity:0;transition:opacity .4s;pointer-events:none}
+.tmx.live .tmx-h::after{opacity:1;animation:tmxsweep 1.8s var(--ease-io) infinite}
+@keyframes tmxsweep{from{background-position:-60% 0}to{background-position:160% 0}}
+/* the output sits on a faint code surface */
+.tmx-body{background:color-mix(in srgb,var(--fg) 2.5%,var(--surface))}
+/* each command and edit has a line down its left in how it went: the accent while it runs, green, red, grey once stopped */
+.tmx-blk{position:relative}
+.tmx-blk::before{content:&quot;&quot;;position:absolute;left:6px;top:4px;bottom:4px;width:2px;border-radius:1px;background:var(--rail);transition:background .3s}
+.tmx-blk[data-s=&quot;run&quot;]::before{background:var(--accent-mark,var(--accent));animation:tmxpulse 1.4s var(--ease-io) infinite}
+.tmx-blk[data-s=&quot;ok&quot;]::before{background:color-mix(in srgb,var(--ok) 70%,transparent)}
+.tmx-blk[data-s=&quot;bad&quot;]::before{background:var(--bad)}
+.tmx-blk[data-s=&quot;edit&quot;]::before{background:var(--merge)}
+@keyframes tmxpulse{50%{opacity:.35}}
+.tmx-p{color:var(--accent-fg,var(--fg));font-weight:500}
+.tmx-blk[data-s=&quot;edit&quot;] .tmx-p{color:var(--merge)}
+/* an edit shows the lines it changed, removed in red and added in green, each on its own tint */
+.tmx-df{margin:2px 14px var(--s-1) 34px;border-radius:var(--r-sm);overflow:hidden}
+.tmx-df div{padding:0 var(--s-2);white-space:pre-wrap;overflow-wrap:anywhere;color:var(--fg2)}
+.tmx-df .a{background:color-mix(in srgb,var(--add) 10%,transparent)}.tmx-df .a::first-letter{color:var(--add)}
+.tmx-df .d{background:color-mix(in srgb,var(--del) 10%,transparent)}.tmx-df .d::first-letter{color:var(--del)}
+/* a block cursor blinks after the newest line while the run goes on */
+.tmx.live .tmx-body::after{content:&quot;&quot;;display:block;width:7px;height:14px;margin:var(--s-1) 0 0 34px;background:var(--fg2);animation:bpblink 1.1s steps(1,end) infinite}
+:root:not([data-style=&quot;soft&quot;]) .tmx-h:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *))::after{background:repeating-linear-gradient(90deg,var(--accent-mark) 0 6px,transparent 6px 12px);animation:tmxmarch .6s steps(4) infinite}
+@keyframes tmxmarch{to{background-position:12px 0}}
+:root:not([data-style=&quot;soft&quot;]) .tmx-blk:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *))::before{width:1px}
+:root:not([data-style=&quot;soft&quot;]) .tmx-blk[data-s=&quot;run&quot;]:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *))::before{animation:bpblink 1.1s steps(1,end) infinite}
+@container (max-width:420px){.tmx-ic{display:none}.tmx-h{padding-left:var(--s-3)}.tmx-cmd{padding:0 var(--s-3)}.tmx-o{padding:0 var(--s-3)}.tmx-more{margin-left:var(--s-3)}.tmx-note{margin-inline:var(--s-3)}.tmx-f{padding-inline:var(--s-3)}.tmx-df{margin-left:var(--s-3);margin-right:var(--s-3)}.tmx-blk::before{left:3px}.tmx.live .tmx-body::after{margin-left:var(--s-3)}}
+</code></pre></details><details class="cp-file"><summary>terminal-stream.js<span class="l">HTML · 107 lines</span></summary><pre class="cp-pre"><code>DM.def(&#39;terminal-stream&#39;, (r, c) =&gt; {
   const IC = { term:I(&#39;term&#39;), stop:I(&#39;stop&#39;,&#39;xs&#39;), copy:I(&#39;copy&#39;) };
   r.innerHTML = r.innerHTML.replace(/\{(\w+)\}/g, (m, k) =&gt; IC[k] || m);
-  const body = $(&#39;.tmx-body&#39;, r), st = $(&#39;.tmx-st&#39;, r), sv = $(&#39;.tmx-sv&#39;, r), stop = $(&#39;.tmx-stop&#39;, r), cp = $(&#39;.tmx-cp&#39;, r), ff = $(&#39;.tmx-ff&#39;, r), foot = $(&#39;.tmx-f&#39;, r);
+  const root = $(&#39;.tmx&#39;, r), body = $(&#39;.tmx-body&#39;, r), st = $(&#39;.tmx-st&#39;, r), sv = $(&#39;.tmx-sv&#39;, r), stop = $(&#39;.tmx-stop&#39;, r), cp = $(&#39;.tmx-cp&#39;, r), ff = $(&#39;.tmx-ff&#39;, r), foot = $(&#39;.tmx-f&#39;, r);
   // what the agent does: each command with the lines it prints and how long it takes, then the one line where it says what
   // went wrong and the edit that fixes it. [text, tone] marks a line ok (green), bad (red) or mu (grey)
   const F = (n, kb) =&gt; &#39;dist/&#39; + n.padEnd(22) + kb.padStart(6) + &#39; kB&#39;;
@@ -471,7 +582,7 @@ export function TerminalStream({ cwd, entries, status, elapsed, summary, tail = 
     { cmd:&#39;npm test&#39;, ms:3400, exit:1, out:[[&#39;RUN  v3.0.5 ~/acme/web&#39;, &#39;mu&#39;], [&#39;✓ src/lib/cart.test.ts (14 tests)&#39;, &#39;ok&#39;], [&#39;× src/lib/price.test.ts (1 failed)&#39;, &#39;bad&#39;], [&#39;  × formats a yearly price&#39;, &#39;bad&#39;],
       [&#39;    Expected: &quot;$240/yr&quot;&#39;, &#39;ok&#39;], [&#39;    Received: &quot;$240.00/yr&quot;&#39;, &#39;bad&#39;], [&#39;Tests  1 failed | 23 passed (24)&#39;, &#39;bad&#39;]] },
     { note:&#39;The test expects whole dollars, but formatPrice always adds cents. Dropping them for round amounts.&#39;, ms:1500 },
-    { edit:&#39;src/lib/price.ts&#39;, add:2, del:1, ms:1500 },
+    { edit:&#39;src/lib/price.ts&#39;, add:2, del:1, ms:1500, diff:[&quot;- return `$${n.toFixed(2)}/${per}`&quot;, &#39;+ const v = Number.isInteger(n) ? String(n) : n.toFixed(2)&#39;, &#39;+ return `$${v}/${per}`&#39;] },
     { cmd:&#39;npm test&#39;, ms:2900, out:[[&#39;✓ src/lib/cart.test.ts (14 tests)&#39;, &#39;ok&#39;], [&#39;✓ src/lib/price.test.ts (10 tests)&#39;, &#39;ok&#39;], [&#39;Tests  24 passed (24)&#39;, &#39;ok&#39;]] }
   ];
   // output longer than five lines folds to its last four, behind a button that says how many are hidden
@@ -487,7 +598,7 @@ export function TerminalStream({ cwd, entries, status, elapsed, summary, tail = 
   };
   // a command or an edit: what it is on the left, a spinner and its time on the right
   function row(mark, text){
-    const el = html(`&lt;div class=&quot;tmx-blk&quot;&gt;&lt;div class=&quot;tmx-cmd&quot;&gt;&lt;span class=&quot;tmx-p&quot;&gt;${mark}&lt;/span&gt;&lt;span class=&quot;tmx-c&quot;&gt;&lt;/span&gt;&lt;span class=&quot;tmx-m&quot;&gt;&lt;span class=&quot;g&quot;&gt;&lt;span class=&quot;spin&quot;&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;t num&quot;&gt;&lt;/span&gt;&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;`);
+    const el = html(`&lt;div class=&quot;tmx-blk&quot; data-s=&quot;run&quot;&gt;&lt;div class=&quot;tmx-cmd&quot;&gt;&lt;span class=&quot;tmx-p&quot;&gt;${mark}&lt;/span&gt;&lt;span class=&quot;tmx-c&quot;&gt;&lt;/span&gt;&lt;span class=&quot;tmx-m&quot;&gt;&lt;span class=&quot;g&quot;&gt;&lt;span class=&quot;spin&quot;&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;t num&quot;&gt;&lt;/span&gt;&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;`);
     $(&#39;.tmx-c&#39;, el).textContent = text; body.appendChild(el); enter(el); return el;
   }
   function lines(el){
@@ -501,10 +612,10 @@ export function TerminalStream({ cwd, entries, status, elapsed, summary, tail = 
       if (inner.children.length){ more.hidden = false; label(); }
     };
   }
-  const halted = el =&gt; { $(&#39;.tmx-m .g&#39;, el).innerHTML = &#39;&lt;span class=&quot;tag&quot;&gt;Stopped&lt;/span&gt;&#39;; };
+  const halted = el =&gt; { $(&#39;.tmx-m .g&#39;, el).innerHTML = &#39;&lt;span class=&quot;tag&quot;&gt;Stopped&lt;/span&gt;&#39;; el.dataset.s = &#39;stop&#39;; };
   function finish(how){
-    over = true; stop.hidden = true;
-    st.classList.toggle(&#39;ok&#39;, how === &#39;passed&#39;); $(&#39;.g&#39;, st).innerHTML = I(how === &#39;passed&#39; ? &#39;check&#39; : &#39;stop&#39;, &#39;xs&#39;); sv.textContent = how === &#39;passed&#39; ? &#39;Passed&#39; : how === &#39;failed&#39; ? &#39;Failed&#39; : &#39;Stopped&#39;;
+    over = true; stop.hidden = true; root.classList.remove(&#39;live&#39;);
+    st.classList.toggle(&#39;ok&#39;, how === &#39;passed&#39;); st.classList.toggle(&#39;bad&#39;, how === &#39;failed&#39;); $(&#39;.g&#39;, st).innerHTML = I(how === &#39;passed&#39; ? &#39;check&#39; : &#39;stop&#39;, &#39;xs&#39;); sv.textContent = how === &#39;passed&#39; ? &#39;Passed&#39; : how === &#39;failed&#39; ? &#39;Failed&#39; : &#39;Stopped&#39;;
     // each command counts once, however many times it ran
     const n = new Set(ran).size;
     $(&#39;.tmx-fs&#39;, foot).textContent = `${n} command${n === 1 ? &#39;&#39; : &#39;s&#39;} · ${clock(vt)} · ${how}`;
@@ -519,19 +630,24 @@ export function TerminalStream({ cwd, entries, status, elapsed, summary, tail = 
   const ro = new ResizeObserver(stick); ro.observe(body); c.offs.push(() =&gt; ro.disconnect());
   stop.onclick = () =&gt; { halt = true; };
   cp.onclick = () =&gt; copied(cp, log.join(&#39;\n&#39;));
+  root.classList.add(&#39;live&#39;);
   c.run(async () =&gt; {
     let last = 0;
     for (const k of S){
       if (!await pass(GAP)) return finish(&#39;stopped&#39;);
       if (k.note){
-        const n = html(`&lt;div class=&quot;tmx-note&quot;&gt;${I(&#39;spark&#39;,&#39;xs&#39;)}&lt;span&gt;&lt;/span&gt;&lt;/div&gt;`); $(&#39;span&#39;, n).textContent = k.note; body.appendChild(n); enter(n); log.push(&#39;# &#39; + k.note);
-        if (!await pass(k.ms)) return finish(&#39;stopped&#39;);
+        const n = html(`&lt;div class=&quot;tmx-note&quot;&gt;${I(&#39;spark&#39;,&#39;xs&#39;)}&lt;span class=&quot;shim&quot;&gt;&lt;/span&gt;&lt;/div&gt;`), w = $(&#39;span&#39;, n); w.textContent = k.note; body.appendChild(n); enter(n); log.push(&#39;# &#39; + k.note);
+        const ok = await pass(k.ms); w.classList.remove(&#39;shim&#39;);
+        if (!ok) return finish(&#39;stopped&#39;);
         continue;
       }
       if (k.edit){
-        const el = row(I(&#39;edit&#39;,&#39;xs&#39;), &#39;Edit &#39; + k.edit);
+        const el = row(I(&#39;edit&#39;,&#39;xs&#39;), &#39;Edit &#39; + k.edit); el.dataset.s = &#39;edit&#39;;
         if (!await pass(k.ms)){ halted(el); return finish(&#39;stopped&#39;); }
         $(&#39;.tmx-m&#39;, el).innerHTML = `&lt;span class=&quot;add&quot;&gt;+${k.add}&lt;/span&gt;&lt;span class=&quot;del&quot;&gt;−${k.del}&lt;/span&gt;`; log.push(`# Edited ${k.edit} (+${k.add} −${k.del})`);
+        const df = document.createElement(&#39;div&#39;); df.className = &#39;tmx-df&#39;;
+        k.diff.forEach((d, i) =&gt; { const l = document.createElement(&#39;div&#39;); l.className = d[0] === &#39;+&#39; ? &#39;a&#39; : d[0] === &#39;-&#39; ? &#39;d&#39; : &#39;&#39;; l.textContent = d; df.appendChild(l); enter(l, i * 90); });
+        el.appendChild(df); log.push(...k.diff);
         continue;
       }
       const el = row(&#39;$&#39;, k.cmd), t = $(&#39;.tmx-m .t&#39;, el), add = lines(el), per = k.ms / k.out.length;
@@ -543,7 +659,7 @@ export function TerminalStream({ cwd, entries, status, elapsed, summary, tail = 
         const pair = Array.isArray(ln) ? ln : [ln, &#39;&#39;]; add(pair); log.push(pair[0]);
       }
       t.textContent = sec(k.ms); last = k.exit || 0;
-      $(&#39;.tmx-m .g&#39;, el).innerHTML = k.exit ? `&lt;span class=&quot;tag bad&quot;&gt;Exit ${k.exit}&lt;/span&gt;` : `&lt;span class=&quot;ok&quot;&gt;${I(&#39;check&#39;,&#39;xs&#39;)}&lt;/span&gt;`;
+      $(&#39;.tmx-m .g&#39;, el).innerHTML = k.exit ? `&lt;span class=&quot;tag bad&quot;&gt;Exit ${k.exit}&lt;/span&gt;` : `&lt;span class=&quot;ok&quot;&gt;${I(&#39;check&#39;,&#39;xs&#39;)}&lt;/span&gt;`; el.dataset.s = k.exit ? &#39;bad&#39; : &#39;ok&#39;;
     }
     finish(last ? &#39;failed&#39; : &#39;passed&#39;);
   });
@@ -880,7 +996,7 @@ const fitHits = window.dmFitHits || (() => {
 })();</script><script src="/components/assets/core.js"></script><script>DM.def('terminal-stream', (r, c) => {
   const IC = { term:I('term'), stop:I('stop','xs'), copy:I('copy') };
   r.innerHTML = r.innerHTML.replace(/\{(\w+)\}/g, (m, k) => IC[k] || m);
-  const body = $('.tmx-body', r), st = $('.tmx-st', r), sv = $('.tmx-sv', r), stop = $('.tmx-stop', r), cp = $('.tmx-cp', r), ff = $('.tmx-ff', r), foot = $('.tmx-f', r);
+  const root = $('.tmx', r), body = $('.tmx-body', r), st = $('.tmx-st', r), sv = $('.tmx-sv', r), stop = $('.tmx-stop', r), cp = $('.tmx-cp', r), ff = $('.tmx-ff', r), foot = $('.tmx-f', r);
   // what the agent does: each command with the lines it prints and how long it takes, then the one line where it says what
   // went wrong and the edit that fixes it. [text, tone] marks a line ok (green), bad (red) or mu (grey)
   const F = (n, kb) => 'dist/' + n.padEnd(22) + kb.padStart(6) + ' kB';
@@ -895,7 +1011,7 @@ const fitHits = window.dmFitHits || (() => {
     { cmd:'npm test', ms:3400, exit:1, out:[['RUN  v3.0.5 ~/acme/web', 'mu'], ['✓ src/lib/cart.test.ts (14 tests)', 'ok'], ['× src/lib/price.test.ts (1 failed)', 'bad'], ['  × formats a yearly price', 'bad'],
       ['    Expected: "$240/yr"', 'ok'], ['    Received: "$240.00/yr"', 'bad'], ['Tests  1 failed | 23 passed (24)', 'bad']] },
     { note:'The test expects whole dollars, but formatPrice always adds cents. Dropping them for round amounts.', ms:1500 },
-    { edit:'src/lib/price.ts', add:2, del:1, ms:1500 },
+    { edit:'src/lib/price.ts', add:2, del:1, ms:1500, diff:["- return `$${n.toFixed(2)}/${per}`", '+ const v = Number.isInteger(n) ? String(n) : n.toFixed(2)', '+ return `$${v}/${per}`'] },
     { cmd:'npm test', ms:2900, out:[['✓ src/lib/cart.test.ts (14 tests)', 'ok'], ['✓ src/lib/price.test.ts (10 tests)', 'ok'], ['Tests  24 passed (24)', 'ok']] }
   ];
   // output longer than five lines folds to its last four, behind a button that says how many are hidden
@@ -911,7 +1027,7 @@ const fitHits = window.dmFitHits || (() => {
   };
   // a command or an edit: what it is on the left, a spinner and its time on the right
   function row(mark, text){
-    const el = html(`<div class="tmx-blk"><div class="tmx-cmd"><span class="tmx-p">${mark}</span><span class="tmx-c"></span><span class="tmx-m"><span class="g"><span class="spin"></span></span><span class="t num"></span></span></div></div>`);
+    const el = html(`<div class="tmx-blk" data-s="run"><div class="tmx-cmd"><span class="tmx-p">${mark}</span><span class="tmx-c"></span><span class="tmx-m"><span class="g"><span class="spin"></span></span><span class="t num"></span></span></div></div>`);
     $('.tmx-c', el).textContent = text; body.appendChild(el); enter(el); return el;
   }
   function lines(el){
@@ -925,10 +1041,10 @@ const fitHits = window.dmFitHits || (() => {
       if (inner.children.length){ more.hidden = false; label(); }
     };
   }
-  const halted = el => { $('.tmx-m .g', el).innerHTML = '<span class="tag">Stopped</span>'; };
+  const halted = el => { $('.tmx-m .g', el).innerHTML = '<span class="tag">Stopped</span>'; el.dataset.s = 'stop'; };
   function finish(how){
-    over = true; stop.hidden = true;
-    st.classList.toggle('ok', how === 'passed'); $('.g', st).innerHTML = I(how === 'passed' ? 'check' : 'stop', 'xs'); sv.textContent = how === 'passed' ? 'Passed' : how === 'failed' ? 'Failed' : 'Stopped';
+    over = true; stop.hidden = true; root.classList.remove('live');
+    st.classList.toggle('ok', how === 'passed'); st.classList.toggle('bad', how === 'failed'); $('.g', st).innerHTML = I(how === 'passed' ? 'check' : 'stop', 'xs'); sv.textContent = how === 'passed' ? 'Passed' : how === 'failed' ? 'Failed' : 'Stopped';
     // each command counts once, however many times it ran
     const n = new Set(ran).size;
     $('.tmx-fs', foot).textContent = `${n} command${n === 1 ? '' : 's'} · ${clock(vt)} · ${how}`;
@@ -943,19 +1059,24 @@ const fitHits = window.dmFitHits || (() => {
   const ro = new ResizeObserver(stick); ro.observe(body); c.offs.push(() => ro.disconnect());
   stop.onclick = () => { halt = true; };
   cp.onclick = () => copied(cp, log.join('\n'));
+  root.classList.add('live');
   c.run(async () => {
     let last = 0;
     for (const k of S){
       if (!await pass(GAP)) return finish('stopped');
       if (k.note){
-        const n = html(`<div class="tmx-note">${I('spark','xs')}<span></span></div>`); $('span', n).textContent = k.note; body.appendChild(n); enter(n); log.push('# ' + k.note);
-        if (!await pass(k.ms)) return finish('stopped');
+        const n = html(`<div class="tmx-note">${I('spark','xs')}<span class="shim"></span></div>`), w = $('span', n); w.textContent = k.note; body.appendChild(n); enter(n); log.push('# ' + k.note);
+        const ok = await pass(k.ms); w.classList.remove('shim');
+        if (!ok) return finish('stopped');
         continue;
       }
       if (k.edit){
-        const el = row(I('edit','xs'), 'Edit ' + k.edit);
+        const el = row(I('edit','xs'), 'Edit ' + k.edit); el.dataset.s = 'edit';
         if (!await pass(k.ms)){ halted(el); return finish('stopped'); }
         $('.tmx-m', el).innerHTML = `<span class="add">+${k.add}</span><span class="del">−${k.del}</span>`; log.push(`# Edited ${k.edit} (+${k.add} −${k.del})`);
+        const df = document.createElement('div'); df.className = 'tmx-df';
+        k.diff.forEach((d, i) => { const l = document.createElement('div'); l.className = d[0] === '+' ? 'a' : d[0] === '-' ? 'd' : ''; l.textContent = d; df.appendChild(l); enter(l, i * 90); });
+        el.appendChild(df); log.push(...k.diff);
         continue;
       }
       const el = row('$', k.cmd), t = $('.tmx-m .t', el), add = lines(el), per = k.ms / k.out.length;
@@ -967,7 +1088,7 @@ const fitHits = window.dmFitHits || (() => {
         const pair = Array.isArray(ln) ? ln : [ln, '']; add(pair); log.push(pair[0]);
       }
       t.textContent = sec(k.ms); last = k.exit || 0;
-      $('.tmx-m .g', el).innerHTML = k.exit ? `<span class="tag bad">Exit ${k.exit}</span>` : `<span class="ok">${I('check','xs')}</span>`;
+      $('.tmx-m .g', el).innerHTML = k.exit ? `<span class="tag bad">Exit ${k.exit}</span>` : `<span class="ok">${I('check','xs')}</span>`; el.dataset.s = k.exit ? 'bad' : 'ok';
     }
     finish(last ? 'failed' : 'passed');
   });
