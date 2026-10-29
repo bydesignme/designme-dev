@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useId, useImperativeHandle, useRef, useState, type KeyboardEvent as ReactKeyboardEvent, type PointerEvent as ReactPointerEvent, type ReactNode, type Ref } from 'react';
+import { useEffect, useId, useImperativeHandle, useRef, useState, type FocusEvent as ReactFocusEvent, type KeyboardEvent as ReactKeyboardEvent, type PointerEvent as ReactPointerEvent, type ReactNode, type Ref } from 'react';
 import { cx } from '../../lib/cx';
 import { useControllable, useIsoLayoutEffect, useReducedMotion } from '../../lib/hooks';
 import { Icon, type IconName } from '../../lib/icons';
@@ -121,9 +121,10 @@ const inside = ([x, y]: number[], poly: number[][]) => {
 };
 const same = (a: CanvasToolbarEdge, b: CanvasToolbarEdge) => a[0] === b[0] && a[1] === b[1];
 
-/** A workflow canvas with a floating toolbar docked at its foot: a handle that moves the toolbar, Run and Stop, the pointer
- * tools as one radio group, Comment, Fit to screen and zoom, each with its shortcut while the canvas has the focus. Below
- * 440px Comment and Fit move into More, and below 360px the zoom buttons follow. */
+/** A workflow canvas with a floating toolbar fixed at the bottom centre: Run and Stop, the pointer tools as one radio group,
+ * Comment, Fit to screen and zoom, each with its shortcut while the canvas has the focus. The canvas fills the height it is
+ * given (560px, or 520px below 440px wide, when nothing gives it one). Below 440px Comment and Fit move into More, and below
+ * 360px the zoom buttons follow. */
 export function CanvasToolbar({
   nodes, edges = [], lit = [], running = false, onRun, onStop, runLabel = 'Run', stopLabel = 'Stop',
   tool: toolProp, defaultTool = 'select', onToolChange, commenting: cmProp, defaultCommenting = false, onCommentingChange, onComment, comments,
@@ -142,7 +143,7 @@ export function CanvasToolbar({
 
   const root = useRef<HTMLDivElement>(null), cv = useRef<HTMLDivElement>(null), bar = useRef<HTMLDivElement>(null);
   const els = useRef<Record<string, HTMLDivElement | null>>({});
-  const [size, setSize] = useState({ w: 0, h: 0, bar: 40, barW: 0 });
+  const [size, setSize] = useState({ w: 0, h: 0, bar: 40 });
   const [dims, setDims] = useState<Record<string, { w: number; h: number }>>({});
   const narrow = size.w > 0 && size.w < NARROW;
   // where people dragged the steps, kept apart for the wide and the narrow layout
@@ -153,8 +154,8 @@ export function CanvasToolbar({
   useIsoLayoutEffect(() => {
     const el = cv.current, b = bar.current; if (!el || !b) return;
     const read = () => setSize(s => {
-      const n = { w: el.clientWidth, h: el.clientHeight, bar: b.offsetHeight, barW: b.offsetWidth };
-      return s.w === n.w && s.h === n.h && s.bar === n.bar && s.barW === n.barW ? s : n;
+      const n = { w: el.clientWidth, h: el.clientHeight, bar: b.offsetHeight };
+      return s.w === n.w && s.h === n.h && s.bar === n.bar ? s : n;
     });
     read();
     const ro = new ResizeObserver(read); ro.observe(el); ro.observe(b);
@@ -222,8 +223,17 @@ export function CanvasToolbar({
   const [lasso, setLasso] = useState<number[][] | null>(null);
   const pt = (e: { clientX: number; clientY: number }) => { const b = cv.current!.getBoundingClientRect(); return [e.clientX - b.left, e.clientY - b.top]; };
   const screen = (n: CanvasToolbarNode) => { const b = boxOf(n); return { l: b.x * zoom + panX, t: b.y * zoom + panY, r: (b.x + b.w) * zoom + panX, b: (b.y + b.h) * zoom + panY }; };
+  /* the canvas never traps the page: until the person has engaged with the component (a click in it, a tap in it, or the
+     keyboard's focus coming into it) a finger on the canvas belongs to the page, so it scrolls past as usual, and one that
+     lifts without scrolling is a tap, which engages it. Once engaged, a finger works the tool as the mouse does */
+  const engaged = useRef(false), lastKey = useRef(-1e9);
+  const [engagedOn, setEngagedOn] = useState(false);
+  const engageNow = () => { if (engaged.current) return; engaged.current = true; setEngagedOn(true); };
+  useEffect(() => { const k = (e: KeyboardEvent) => { if (e.isTrusted) lastKey.current = e.timeStamp; }; document.addEventListener('keydown', k, true); return () => document.removeEventListener('keydown', k, true); }, []);
+  const engage = (e: ReactPointerEvent) => { if (e.nativeEvent.isTrusted && (e.pointerType !== 'touch') === (e.type === 'pointerdown')) engageNow(); };
+  const engageFocus = (e: ReactFocusEvent) => { if (e.nativeEvent.isTrusted && e.nativeEvent.timeStamp - lastKey.current < 100) engageNow(); };
   const down = (e: ReactPointerEvent<HTMLDivElement>) => {
-    if (e.button !== 0 && e.button !== 1) return;
+    if ((e.button !== 0 && e.button !== 1) || (e.pointerType === 'touch' && !engaged.current)) return;
     const p = pt(e), node = (e.target as Element).closest<HTMLElement>('.dm-ctb-n');
     cv.current?.focus({ preventScroll: true }); e.preventDefault();
     if (commenting && e.button === 0) {
@@ -284,28 +294,6 @@ export function CanvasToolbar({
     e.preventDefault();
   };
 
-  /* ---------- the handle moves the toolbar: drag it, or the arrow keys on it; Home or a double click docks it ---------- */
-  const [off, setOff] = useState({ x: 0, y: 0 });
-  const clampOff = (o: { x: number; y: number }) => {
-    const ax = Math.max(0, (size.w - size.barW) / 2 - 8);
-    return { x: Math.max(-ax, Math.min(ax, o.x)), y: Math.max(-Math.max(0, size.h - size.bar - 20), Math.min(0, o.y)) };
-  };
-  const shown = clampOff(off);
-  const [barDrag, setBarDrag] = useState(false);
-  const grab = (e: ReactPointerEvent<HTMLButtonElement>) => {
-    if (e.button) return; e.preventDefault();
-    const sx = e.clientX - shown.x, sy = e.clientY - shown.y, h = e.currentTarget; setBarDrag(true);
-    try { h.setPointerCapture(e.pointerId); } catch { /* the pointer has gone already */ }
-    const mv = (ev: PointerEvent) => setOff(clampOff({ x: ev.clientX - sx, y: ev.clientY - sy }));
-    const end = () => { setBarDrag(false); h.removeEventListener('pointermove', mv); h.removeEventListener('pointerup', end); h.removeEventListener('pointercancel', end); };
-    h.addEventListener('pointermove', mv); h.addEventListener('pointerup', end); h.addEventListener('pointercancel', end);
-  };
-  const dock = () => { setOff({ x: 0, y: 0 }); setSay('Toolbar docked'); };
-  const handleKeys = (e: ReactKeyboardEvent) => {
-    const d = e.shiftKey ? 48 : 16, m = ({ ArrowLeft: [-d, 0], ArrowRight: [d, 0], ArrowUp: [0, -d], ArrowDown: [0, d] } as Record<string, number[]>)[e.key];
-    if (m) { e.preventDefault(); setOff(clampOff({ x: shown.x + m[0], y: shown.y + m[1] })); } else if (e.key === 'Home') { e.preventDefault(); dock(); }
-  };
-
   // Run says so, and a run that ends on its own says it finished
   const wasRunning = useRef(running), stopped = useRef(false);
   useEffect(() => {
@@ -330,8 +318,9 @@ export function CanvasToolbar({
   );
 
   return (
-    <div ref={root} data-dm="" data-tool={tool} className={cx('dm-ctb', commenting && 'dm-cm', className)} onKeyDown={keys}>
-      <div ref={cv} className={cx('dm-ctb-cv', anim && 'dm-anim', panning && 'dm-pan')} tabIndex={0} role="group" aria-roledescription="canvas" aria-label={label} aria-describedby={uid + '-k'}
+    <div ref={root} data-dm="" data-tool={tool} className={cx('dm-ctb', commenting && 'dm-cm', className)} onKeyDown={keys}
+      onPointerDownCapture={engage} onPointerUpCapture={engage} onFocusCapture={engageFocus}>
+      <div ref={cv} className={cx('dm-ctb-cv', anim && 'dm-anim', panning && 'dm-pan', engagedOn && 'dm-engaged')} tabIndex={0} role="group" aria-roledescription="canvas" aria-label={label} aria-describedby={uid + '-k'}
         style={{ backgroundSize: `${g}px ${g}px`, backgroundPosition: `${panX}px ${panY}px` }}
         onPointerDown={down} onPointerMove={move} onPointerUp={up} onPointerCancel={up}>
         <div className="dm-ctb-world" style={{ transform: `translate(${panX}px,${panY}px) scale(${zoom})` }}>
@@ -358,9 +347,7 @@ export function CanvasToolbar({
         {box && <div className="dm-ctb-mq" style={{ left: box.x, top: box.y, width: box.w, height: box.h }} />}
         <span className="dm-ctb-sr" id={uid + '-k'}>V, H and L pick a tool, C adds a comment, Shift 1 fits the workflow to the screen, minus and plus zoom, and the arrow keys move the view.</span>
       </div>
-      <div ref={bar} className={cx('dm-ctb-bar', barDrag && 'dm-drag')} role="toolbar" aria-label="Canvas tools" style={{ ['--dm-dx' as string]: Math.round(shown.x) + 'px', ['--dm-dy' as string]: Math.round(shown.y) + 'px' }}>
-        <Tip label="Drag to move"><button type="button" className="dm-ctb-b dm-ctb-hd" aria-label="Move toolbar" onPointerDown={grab} onDoubleClick={dock} onKeyDown={handleKeys}><Icon name="grip" /></button></Tip>
-        <span className="dm-ctb-sep" />
+      <div ref={bar} className="dm-ctb-bar" role="toolbar" aria-label="Canvas tools">
         <button type="button" className={cx('dm-pill dm-primary dm-ctb-run', running && 'dm-stop')} onClick={() => { if (running) { stopped.current = true; onStop?.(); } else onRun?.(); }}>
           <Icon name={running ? 'stop' : 'play'} size="xs" /><span>{running ? stopLabel : runLabel}</span>
         </button>

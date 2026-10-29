@@ -1,17 +1,23 @@
 /* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Canvas toolbar ---------- */
-/* a workflow canvas with its floating toolbar docked at the bottom centre: a handle to move the toolbar, Run (Stop while a
-   run is going), the pointer tools as one radio group, Comment, Fit and zoom. A narrow canvas moves Comment and Fit, then
-   the zoom buttons, into a More menu, so the toolbar never wraps or runs past the canvas */
-.dm-ctb{position:relative;width:100%;container:ctb/inline-size;
+/* a workflow canvas with its floating toolbar fixed at the bottom centre: Run (Stop while a run is going), the pointer tools
+   as one radio group, Comment, Fit and zoom. A narrow canvas moves Comment and Fit, then the zoom buttons, into a More menu,
+   so the toolbar never wraps or runs past the canvas. The canvas is the whole component, edge to edge, in the stage's
+   colour; it fills the height it is given, and is 560px tall (520px below 440px wide) when nothing gives it one */
+.dm-ctb{position:relative;width:100%;height:100%;container:ctb/inline-size;border-radius:var(--dm-r-in);
   /* Stop's fill: a red that keeps white text at 4.5:1 and APCA Lc 75 in both themes, darker on hover */
   --dm-ctb-stop:#bf3434;--dm-ctb-stop-2:#a52a2a;--dm-ctb-on-stop:#ffffff;
   /* the wires: the field grey, which holds 3:1 against the canvas */
   --dm-ctb-wire:var(--dm-line-strong)}
-.dm-ctb-cv{position:relative;height:460px;border-radius:var(--dm-r-lg);overflow:hidden;outline:0;touch-action:none;user-select:none;-webkit-user-select:none;cursor:default;
-  background-color:var(--dm-chip);background-image:radial-gradient(circle,color-mix(in srgb,var(--dm-fg) 20%,transparent) 1.1px,transparent 1.6px);background-size:16px 16px}
+.dm-ctb-cv{position:relative;height:560px;min-height:100%;border-radius:inherit;overflow:hidden;outline:0;user-select:none;-webkit-user-select:none;cursor:default;
+  background-color:var(--dm-stage);background-image:radial-gradient(circle,color-mix(in srgb,var(--dm-fg) 20%,transparent) 1.1px,transparent 1.6px);background-size:16px 16px}
+@container ctb (max-width:439px){.dm-ctb-cv{height:520px}}
+/* touch is the page's until the canvas is engaged (a tap in it): then a finger works the tool as the mouse does */
+.dm-ctb-cv.dm-engaged{touch-action:none}
+/* in a stage the canvas takes all of it, so the stage's own room goes */
+.dm-card.dm-wide .dm-stage-in:has(>.dm-ctb){max-width:none;align-self:stretch}
 /* the canvas shows its focus only to the keyboard, in the quiet grey: a click gives it the focus without a ring */
-.dm-ctb-cv:focus-visible:not(.dm-ptr){outline:2px solid color-mix(in srgb,var(--dm-field-line) 50%,transparent);outline-offset:2px;border-radius:var(--dm-r-lg)}
+.dm-ctb-cv:focus-visible:not(.dm-ptr){outline:2px solid color-mix(in srgb,var(--dm-field-line) 50%,transparent);outline-offset:-2px;border-radius:inherit}
 .dm-ctb[data-tool="hand"] .dm-ctb-cv{cursor:grab}
 .dm-ctb[data-tool="lasso"] .dm-ctb-cv,.dm-ctb.dm-cm .dm-ctb-cv{cursor:crosshair}
 .dm-ctb .dm-ctb-cv.dm-pan{cursor:grabbing}
@@ -54,7 +60,7 @@
 /* where the demo's pointer rests while it drags the canvas */
 .dm-ctb-aim{position:absolute;width:20px;height:20px;pointer-events:none}
 .dm-ctb-bar{position:absolute;left:50%;bottom:var(--dm-s-3);z-index:6;display:flex;align-items:center;padding:var(--dm-s-1);border-radius:var(--dm-r-pill);background:var(--dm-raised);box-shadow:var(--dm-shadow-pop);white-space:nowrap;
-  transform:translate(calc(-50% + var(--dm-dx,0px)),var(--dm-dy,0px))}
+  transform:translateX(-50%)}
 .dm-ctb-bar :focus-visible{border-radius:var(--dm-r-pill)}
 .dm-ctb-b{width:32px;height:32px;flex:none;display:grid;place-items:center;border-radius:var(--dm-r-pill);color:var(--dm-fg2);transition:background var(--dm-t-fast),color var(--dm-t-fast)}
 @media (hover:hover) and (pointer:fine){.dm-ctb-b:hover{background:var(--dm-row);color:var(--dm-fg)}}
@@ -64,9 +70,6 @@
 /* zoom out at 25%, or in at 400%, has nowhere to go: it greys out but keeps its place and the focus */
 .dm-ctb-b[aria-disabled="true"],.dm-ctb-menu .dm-mi[aria-disabled="true"],.dm-ctb-menu .dm-mi[aria-disabled="true"] :is(.dm-i,.dm-kbd){color:var(--dm-dis);background:none;cursor:not-allowed}
 @media (hover:hover) and (pointer:fine){.dm-ctb-b[aria-disabled="true"]:hover{color:var(--dm-dis);background:none;cursor:not-allowed}}
-.dm-ctb-hd{width:24px;color:var(--dm-muted);cursor:grab;touch-action:none}
-@media (hover:hover) and (pointer:fine){.dm-ctb-hd:hover{background:none}}
-.dm-ctb-bar.dm-drag .dm-ctb-hd{cursor:grabbing}
 .dm-ctb-sep{width:1px;height:16px;margin:0 var(--dm-s-1);flex:none;background:var(--dm-line)}
 .dm-ctb-tools{display:flex}
 .dm-ctb-run{min-width:76px;padding:0 var(--dm-s-4) 0 var(--dm-s-3);transition:opacity var(--dm-t-fast),transform .15s}
@@ -86,6 +89,5 @@
 .dm-ctb-live,.dm-ctb-sr{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .dm-ctb{--dm-ctb-stop:#c43535;--dm-ctb-stop-2:#d34646}}
 :root[data-theme="dark"] .dm-ctb{--dm-ctb-stop:#c43535;--dm-ctb-stop-2:#d34646}
-:root:not([data-style="soft"]) .dm-ctb-cv:not(:where([data-style="soft"],[data-style="soft"] *)){box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 50%,transparent)}
 :root:not([data-style="soft"]) .dm-ctb-n.dm-run:not(:where([data-style="soft"],[data-style="soft"] *)){box-shadow:0 0 0 1px var(--dm-accent-mark),0 0 0 4px color-mix(in srgb,var(--dm-accent-mark,var(--dm-accent)) 22%,transparent)}
 :root:not([data-style="soft"]) .dm-ctb-n.dm-sel:not(:where([data-style="soft"],[data-style="soft"] *)){box-shadow:0 0 0 1px color-mix(in srgb,var(--dm-pick-on) 50%,transparent)}

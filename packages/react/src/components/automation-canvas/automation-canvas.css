@@ -1,15 +1,26 @@
 /* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Automation canvas ---------- */
-.dm-acx{display:flex;flex-direction:column;gap:10px;width:100%}
-.dm-acx-top{display:flex;align-items:center;gap:var(--dm-s-2);font-size:13px;flex-wrap:wrap}
-.dm-acx-name{font-weight:500}
-.dm-acx-sp{flex:1}
-.dm-acx-st{font-size:12.5px}
-/* the canvas reads as a workflow editor: a dot every 16px, fading toward the edges so the steps sit in the middle of it */
-.dm-acx-cv{position:relative;height:420px;border-radius:18px;outline:0;background-color:var(--dm-chip);background-image:radial-gradient(ellipse at center,transparent 55%,var(--dm-chip) 100%),radial-gradient(circle at center,color-mix(in srgb,var(--dm-fg) 20%,transparent) 1.1px,transparent 1.6px);background-size:100% 100%,16px 16px;background-position:0 0,center}
+/* the canvas is the whole component, edge to edge, in the stage's colour: the automation's name sits over its top left,
+   Test run and what the run shows over its bottom left, and the zoom in its bottom right. It fills the height it is given,
+   and is 560px tall (640px below 560px wide, where the steps stack) when nothing gives it one */
+.dm-acx{position:relative;width:100%;height:100%;container:acx/inline-size;border-radius:var(--dm-r-in)}
+.dm-acx-top{position:absolute;left:var(--dm-s-4);top:var(--dm-s-4);z-index:3;display:flex;align-items:center;gap:var(--dm-s-2);max-width:calc(100% - 2 * var(--dm-s-4));font-size:13px;pointer-events:none}
+.dm-acx-name{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dm-acx-on{flex:none}
+/* Test run and the run's status: a quiet group over the bottom left, level with the zoom; the text lets a drag through */
+.dm-acx-bar{position:absolute;left:var(--dm-s-3);bottom:var(--dm-s-3);z-index:4;display:flex;align-items:center;gap:var(--dm-s-3);min-height:36px;pointer-events:none}
+.dm-acx-run{pointer-events:auto}
+.dm-acx-st{font-size:12.5px;white-space:nowrap}
+/* on a narrow canvas the status sits over Test run, so the zoom keeps its room beside them */
+@container acx (max-width:419px){.dm-acx-bar{flex-direction:column-reverse;align-items:flex-start;gap:var(--dm-s-1)}}
+/* the canvas reads as a workflow editor: a dot every 16px, all the way to its edges */
+.dm-acx-cv{position:relative;height:560px;min-height:100%;border-radius:inherit;outline:0;background-color:var(--dm-stage);background-image:radial-gradient(circle at center,color-mix(in srgb,var(--dm-fg) 20%,transparent) 1.1px,transparent 1.6px);background-size:16px 16px;background-position:center}
+@container acx (max-width:559px){.dm-acx-cv{height:640px}}
+/* in a stage the canvas takes all of it, so the stage's own room goes */
+.dm-card.dm-wide .dm-stage-in:has(>.dm-acx){max-width:none;align-self:stretch}
 /* the view: the steps and wires sit on a world that pans and zooms inside the canvas, and the dots move with it. Drag the
    empty canvas (one finger on a touch screen) or scroll to move around; Ctrl or ⌘ with the wheel, or a pinch, zooms at the
-   pointer. The popover and the picker sit over it, so they may still hang below the canvas */
+   pointer. The popover and the picker sit over it, inside the canvas */
 .dm-acx-vp{position:absolute;inset:0;overflow:hidden;overflow:clip;border-radius:inherit;cursor:grab;user-select:none;-webkit-user-select:none}
 /* touch is the page's until the canvas is engaged (a tap in it): then one finger pans and two pinch the canvas */
 .dm-acx-cv.dm-engaged :is(.dm-acx-vp,.dm-acx-n){touch-action:none}
@@ -18,7 +29,7 @@
 .dm-acx-cv.dm-anim{transition:background-position var(--dm-t) var(--dm-ease),background-size var(--dm-t) var(--dm-ease)}
 .dm-acx-cv.dm-anim .dm-acx-world{transition:transform var(--dm-t) var(--dm-ease)}
 /* the canvas shows its focus only to the keyboard, in the quiet grey: a click gives it the focus without a ring */
-.dm-acx-cv:focus-visible:not(.dm-ptr){outline:2px solid color-mix(in srgb,var(--dm-field-line) 50%,transparent);outline-offset:2px}
+.dm-acx-cv:focus-visible:not(.dm-ptr){outline:2px solid color-mix(in srgb,var(--dm-field-line) 50%,transparent);outline-offset:-2px}
 /* Shift and a drag on the empty canvas draws a box: every step it touches joins the selection */
 .dm-acx-mq{position:absolute;left:0;top:0;border-radius:var(--dm-r-xs);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-pick-on) 50%,transparent);background:color-mix(in srgb,var(--dm-fg) 4%,transparent);pointer-events:none}
 /* zoom out, the zoom level (which resets to 100%), zoom in and fit, quiet in the corner */
@@ -105,4 +116,3 @@
 :root:not([data-style="soft"]) :is(.dm-acx-h,.dm-acx-sc):not(:where([data-style="soft"],[data-style="soft"] *)){box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-rail) 50%,transparent)}
 :root:not([data-style="soft"]) .dm-acx-zm:not(:where([data-style="soft"],[data-style="soft"] *)){box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 50%,transparent)}
 @media (hover:hover) and (pointer:fine){:root:not([data-style="soft"]) :is(.dm-acx-h,.dm-acx-sc):is(:hover,[aria-expanded="true"]):not(:where([data-style="soft"],[data-style="soft"] *)){box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line) 50%,transparent)}}
-@media (max-width:720px){.dm-acx-cv{height:580px}}

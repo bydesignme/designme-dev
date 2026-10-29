@@ -759,6 +759,10 @@ body.ui section.faq{display:none}
    they get the same room above and below as every other component */
 body.ui main .comp[data-v2="pricing-cards"] .stage-inner{padding-bottom:40px!important}
 @media (min-width:641px){ body.ui main .comp[data-v2="pricing-cards"] .stage-inner{padding-bottom:56px!important} }
+/* Automation canvas and Canvas toolbar: the canvas is the whole stage, edge to edge and over the strip under it too, so
+   their stage has no room of its own and keeps its rounded corners all round (the clip outranks the unlayered .v2-host) */
+body.ui main .comp:is([data-v2="automation-canvas"],[data-v2="canvas-toolbar"]) .stage-inner{padding:0;border-radius:12px;overflow:clip!important}
+body.ui main .comp:is([data-v2="automation-canvas"],[data-v2="canvas-toolbar"])>.comp-foot{min-height:0;padding:0}
 /* the roadmap: a shipped idea gets a tag like the others */
 .rm-st.shipped{background:rgba(22,163,74,.12);color:#137739}
 /* in light mode the changelog and roadmap tags' text is deep enough to read at 4.5:1 and APCA Lc 60 on its tint */

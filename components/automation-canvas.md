@@ -27,7 +27,7 @@ Automation canvas draws an agent automation as cards joined by wires: a trigger,
 
 ### What it does
 
-- Each node has an icon, a colour, a `title` and a `detail` line, placed by `x` and `y` as fractions of the canvas. `edges` wire nodes together by id.
+- Each node has an icon, a colour, a `title` and a `detail` line, placed by `x` and `y` as fractions of the canvas, with `y` counted between the name over its top and Test run over its foot. `edges` wire nodes together by id.
 - With `catalog`, a step whose output leads nowhere yet gets a small + on its right (under it when the canvas stacks, or when there is no room to its right). A node's `connectors` add labelled + Model and + Tools buttons under it, with dashed stubs.
 - A + or a connector opens the step picker beside it: a search over a short list of step types in groups (after a step, the `step` groups, such as Tools, Logic and Actions; from a connector, its own group). Each type has an icon and a one-line description, shown at the foot of the picker for the type under the pointer or the arrows.
 - Picking a type calls `onAddNode(type, from, via, group)`. Add a node with `attach: { to: from, via }` and its edge, and the canvas places it next to what it hangs from (to the right, or under it), clear of the other steps, their + buttons and their wires, and keeps that place in each layout. Models and tools are drawn as smaller steps on dashed wires. The wire to a new step draws itself in.
@@ -40,7 +40,7 @@ Automation canvas draws an agent automation as cards joined by wires: a trigger,
 - The cursor is an open hand on the empty canvas, a closed hand while it pans, and a pointer on the cards.
 - Clicking a node selects it and opens a popover with its `field`, a menu of options. Picking one updates the node's detail and calls `onValuesChange`.
 - `onRun` adds a Test run button. Set each node's `state` to `run` or `done` and add wires to `flowing` as your run goes, and a soft light passes along each new wire.
-- The header shows the automation's `name`, an optional green `tag` like "On" and a `status` line that crossfades.
+- The canvas is the whole component, edge to edge, with its dots all the way out. The automation's `name` and an optional green `tag` like "On" sit over its top left, and Test run with a `status` line that crossfades over its bottom left. The steps are laid out and fitted in the band between them, so neither covers a step at rest. The canvas fills the height it is given, or is 560px tall (640px when it stacks) when nothing gives it one.
 
 ### Accessibility
 
@@ -175,7 +175,7 @@ export default function AutomationCanvasDemo() {
 | --- | --- | --- |
 | `name` | `string` | The automation's name, like "Weekly design QA" |
 | `tag` (optional) | `string` | The green tag after the name, like "On". Leave it out to hide it |
-| `status` (optional) | `string` | The quiet line on the right, like "Every Monday, 9:00". Crossfades when it changes |
+| `status` (optional) | `string` | The quiet line beside Test run, like "Every Monday, 9:00". Crossfades when it changes |
 | `nodes` | `AutomationNode[]` |  |
 | `edges` | `AutomationEdge[]` |  |
 | `flowing` (optional) | `AutomationEdge[]` | The wires a run has reached. A soft light passes along each one as it is added, and it stays lit while it is listed; clear the list when a new run starts |
@@ -271,12 +271,13 @@ export interface AutomationNode {
   title: string;
   /** The setting shown under the title, like "Pricing, Checkout". The popover changes it */
   detail: string;
-  /** Where the centre of the card sits, as fractions of the canvas width and height. With `balanced` (the default), cards
+  /** Where the centre of the card sits, as fractions of the canvas width and of the height between the name over its top
+   * and Test run over its foot, so neither covers a card. With `balanced` (the default), cards
    * that share an x form a column, and the columns spread evenly from one side to the other. Leave x and y out for a step
    * with `attach`: the canvas finds it a place */
   x?: number;
   y?: number;
-  /** Where it sits when the canvas is narrower than 560px. Defaults to a column down the middle */
+  /** Where it sits when the canvas is narrower than 560px, measured the same way. Defaults to a column down the middle */
   narrow?: AutomationPoint;
   /** What its popover edits: a label and the choices, like { label: 'Frames', options: ['Pricing, Checkout', 'All frames'] } */
   field?: { label: string; options: string[] };
@@ -323,7 +324,7 @@ export interface AutomationCanvasProps {
   name: string;
   /** The green tag after the name, like "On". Leave it out to hide it */
   tag?: string;
-  /** The quiet line on the right, like "Every Monday, 9:00". Crossfades when it changes */
+  /** The quiet line beside Test run, like "Every Monday, 9:00". Crossfades when it changes */
   status?: string;
   nodes: AutomationNode[];
   edges: AutomationEdge[];
@@ -431,7 +432,9 @@ function spot(W: number, H: number, w: number, h: number, a: Anchor, hasOut: boo
 }
 
 /** An automation as cards and wires: drag the cards, click one to change its setting, add steps from a + or a connector,
- * pan and zoom round the board, select steps, and watch a run flow through it. */
+ * pan and zoom round the board, select steps, and watch a run flow through it. The canvas is the whole component: its name
+ * sits over the top left, Test run and the status over the bottom left, and the zoom in the bottom right. It fills the
+ * height it is given (560px, or 640px below 560px wide, when nothing gives it one). */
 export function AutomationCanvas({
   name, tag, status, nodes, edges, flowing = [], selected, defaultSelected = null, onSelectedChange, values, defaultValues, onValuesChange,
   selection, defaultSelection = NONE, onSelectionChange, view: viewProp, defaultView = HOME, onViewChange, label = 'Automation canvas',
@@ -446,6 +449,10 @@ export function AutomationCanvas({
   const cv = useRef<HTMLDivElement>(null);
   const els = useRef<Record<string, HTMLButtonElement | null>>({});
   const [size, setSize] = useState<{ w: number; h: number } | null>(null);
+  // the name over the top of the canvas and Test run over its foot: the steps are laid out, fitted and placed in the band
+  // between them (T from the top, B from the bottom), so neither covers a step at rest
+  const topEl = useRef<HTMLDivElement>(null), barEl = useRef<HTMLDivElement>(null);
+  const [ins, setIns] = useState({ T: 0, B: 0 });
   const [heights, setHeights] = useState<Record<string, number>>({});
   // where people dropped the nodes, and where the canvas put the added ones, kept apart for the wide and the narrow layout
   const [moved, setMoved] = useState<{ wide: Record<string, AutomationPoint>; narrow: Record<string, AutomationPoint> }>({ wide: {}, narrow: {} });
@@ -515,6 +522,8 @@ export function AutomationCanvas({
   useEffect(() => { const t = setTimeout(() => setIntro(false), 1300); return () => clearTimeout(t); }, []);
   useIsoLayoutEffect(() => { if (intro) svg.current?.querySelectorAll('path').forEach(p => p.style.setProperty('--dm-l', String(Math.ceil(p.getTotalLength())))); });
   useIsoLayoutEffect(() => {
+    const c = cv.current, t = topEl.current, b = barEl.current;
+    if (c) { const T = t ? t.offsetTop + t.offsetHeight - c.offsetTop + 8 : 0, B = b ? c.clientHeight - b.offsetTop + 8 : 0; setIns(o => (o.T === T && o.B === B ? o : { T, B })); }
     const next: Record<string, number> = {};
     for (const n of nodes) next[n.id] = els.current[n.id]?.offsetHeight ?? 0;
     setHeights(h => (nodes.every(n => h[n.id] === next[n.id]) ? h : next));
@@ -532,13 +541,15 @@ export function AutomationCanvas({
     return (first + (last - first) * cols.indexOf(x) / (cols.length - 1)) / W;
   };
   const seeds = nodes.filter(n => !n.attach);
+  const W = size?.w ?? 0, H = size?.h ?? 0;
+  // a node's y, as a fraction of the band between the name and Test run, as a fraction of the whole canvas
+  const band = (y: number) => (H ? (ins.T + y * Math.max(0, H - ins.T - ins.B)) / H : y);
   const at = (n: AutomationNode): AutomationPoint | null => {
     const mine = moved[layoutKey][n.id]; if (mine) return mine;
     if (n.attach) return auto[layoutKey][n.id] ?? null;
-    if (narrow) return n.narrow ?? { x: .5, y: (seeds.indexOf(n) + 1) / (seeds.length + 1) };
-    return { x: colX(n.x ?? .5), y: n.y ?? .5 };
+    const p = narrow ? n.narrow ?? { x: .5, y: (seeds.indexOf(n) + 1) / (seeds.length + 1) } : { x: colX(n.x ?? .5), y: n.y ?? .5 };
+    return { x: p.x, y: band(p.y) };
   };
-  const W = size?.w ?? 0, H = size?.h ?? 0;
   const boxes: Record<string, Box> = {};
   nodes.forEach(n => {
     const p = at(n); if (!p) return;
@@ -609,12 +620,12 @@ export function AutomationCanvas({
     zoomAt(nz, W / 2, H / 2); setLive('Zoom ' + pct(nz));
   };
   const zoomReset = () => { zoomAt(1, W / 2, H / 2); setLive('Zoom 100%'); };
-  // fit: every step and its + in view, centred, never past 100%
+  // fit: every step and its + in view, centred in the band between the name and Test run, never past 100%
   const fitNow = () => {
     const bs = [...Object.values(boxes), ...knobs.map(knobBox).filter((b): b is Box => !!b)]; if (!bs.length || !size) return;
-    const P = 24, x0 = Math.min(...bs.map(b => b.l)), y0 = Math.min(...bs.map(b => b.t)), x1 = Math.max(...bs.map(b => b.r)), y1 = Math.max(...bs.map(b => b.b));
-    const z = clamp(Math.min((W - 2 * P) / (x1 - x0), (H - 2 * P) / (y1 - y0), 1), ZMIN, ZMAX);
-    go({ zoom: z, panX: (W - (x1 - x0) * z) / 2 - x0 * z, panY: (H - (y1 - y0) * z) / 2 - y0 * z }); setLive('Fit to screen, ' + pct(z));
+    const P = 24, BH = H - ins.T - ins.B, x0 = Math.min(...bs.map(b => b.l)), y0 = Math.min(...bs.map(b => b.t)), x1 = Math.max(...bs.map(b => b.r)), y1 = Math.max(...bs.map(b => b.b));
+    const z = clamp(Math.min((W - 2 * P) / (x1 - x0), (BH - 2 * P) / (y1 - y0), 1), ZMIN, ZMAX);
+    go({ zoom: z, panX: (W - (x1 - x0) * z) / 2 - x0 * z, panY: ins.T + (BH - (y1 - y0) * z) / 2 - y0 * z }); setLive('Fit to screen, ' + pct(z));
   };
   // a canvas that switches between wide and stacked lays its steps out afresh, and the view goes back to the whole board
   const wasNarrow = useRef(narrow);
@@ -636,6 +647,10 @@ export function AutomationCanvas({
     const kb = knobs.filter(k => k.key !== e[0] + ':out' && k.node.id !== n.id).map(knobBox).filter((b): b is Box => !!b);
     // clear of the zoom buttons in the corner too, where they sit on the board in the current view
     const zb = zmEl.current; if (zb) kb.push(mk((zb.offsetLeft - panX) / zoom, (zb.offsetTop - panY) / zoom, zb.offsetWidth / zoom, zb.offsetHeight / zoom));
+    // and of the name over the top and Test run over the foot
+    const tb = topEl.current, bb = barEl.current;
+    if (tb) kb.push(mk(-panX / zoom, -panY / zoom, (tb.offsetLeft + tb.offsetWidth + 8) / zoom, ins.T / zoom));
+    if (bb) kb.push(mk(-panX / zoom, (size.h - ins.B - panY) / zoom, (bb.offsetLeft + bb.offsetWidth + 8) / zoom, ins.B / zoom));
     const wires = Object.entries(geo).filter(([k]) => !k.split('-').includes(n.id)).map(([, q]) => q);
     const p = spot(size.w, size.h, w, h, a, !isSub(n), narrow, others, kb, wires);
     setAuto(s => ({ ...s, [layoutKey]: { ...s[layoutKey], [n.id]: p } }));
@@ -724,10 +739,10 @@ export function AutomationCanvas({
   const pb = pop && boxes[pop.id];
   let px = 0, py = 0;
   // beside the step, or under or over it: whichever spot covers the least of the other steps (and none of this one),
-  // nearest the step when spots tie, so the popover never hides the step a run flows on to. It may hang up to 32px below
-  // the canvas, into the room around the component, when that is what keeps every step clear
+  // nearest the step when spots tie, so the popover never hides the step a run flows on to. The canvas fills the
+  // component, so it stays inside it
   if (pb && size) {
-    const pw = 240, ph = 150, G = 10, M = 6, OVER = 32;
+    const pw = 240, ph = 150, G = 10, M = 6, OVER = 0;
     const me = scr(pb);
     const others = Object.entries(boxes).filter(([id]) => id !== pop.id).map(([, o]) => scr(o));
     const cxm = (me.l + me.r) / 2, cym = (me.t + me.b) / 2;
@@ -896,23 +911,20 @@ export function AutomationCanvas({
   const intoView = (e: ReactFocusEvent<HTMLDivElement>) => {
     if (ptrRef.current || !size) return;
     const t = (e.target as HTMLElement).closest<HTMLElement>('.dm-acx-n, .dm-acx-h, .dm-acx-sc'); if (!t) return;
-    const s = scr(mk(t.offsetLeft, t.offsetTop, t.offsetWidth, t.offsetHeight)), M = 16;
-    const dx = s.l < M ? M - s.l : s.r > W - M ? W - M - s.r : 0, dy = s.t < M ? M - s.t : s.b > H - M ? H - M - s.b : 0;
+    const s = scr(mk(t.offsetLeft, t.offsetTop, t.offsetWidth, t.offsetHeight)), M = 16, T = Math.max(M, ins.T), B = Math.max(M, ins.B);
+    const dx = s.l < M ? M - s.l : s.r > W - M ? W - M - s.r : 0, dy = s.t < T ? T - s.t : s.b > H - B ? H - B - s.b : 0;
     if (dx || dy) go({ zoom, panX: panX + dx, panY: panY + dy });
   };
   const lo = zoom <= ZMIN + 1e-3, hi = zoom >= ZMAX - 1e-3;
 
   return (
     <div data-dm="" className={cx('dm-acx', className)} onPointerDownCapture={engage} onPointerUpCapture={engage} onFocusCapture={engageFocus}>
-      <div className="dm-acx-top">
+      <div ref={topEl} className="dm-acx-top">
         <span className="dm-acx-name">{name}</span>
         {tag && <span className="dm-tag dm-ok dm-acx-on">{tag}</span>}
-        <span className="dm-acx-sp" />
-        {status !== undefined && <Swap className="dm-muted dm-acx-st">{status}</Swap>}
-        {onRun && <button type="button" className="dm-pill dm-primary dm-sm dm-acx-run" onClick={() => { setSel(null); setPk(null); onRun(); }}><Icon name="play" size="xs" />{runLabel}</button>}
       </div>
       <div className={cx('dm-acx-cv', anim && 'dm-anim', panning && 'dm-pan', ptr && 'dm-ptr', engagedOn && 'dm-engaged')} ref={cv} tabIndex={0} role="group" aria-roledescription="canvas" aria-label={label} aria-describedby={`dm-acx-k-${uid}`}
-        style={size ? { backgroundSize: `100% 100%,${16 * zoom}px ${16 * zoom}px`, backgroundPosition: `0 0,${(W - 16) / 2 * zoom + panX}px ${(H - 16) / 2 * zoom + panY}px` } : undefined}
+        style={size ? { backgroundSize: `${16 * zoom}px ${16 * zoom}px`, backgroundPosition: `${(W - 16) / 2 * zoom + panX}px ${(H - 16) / 2 * zoom + panY}px` } : undefined}
         onClick={() => { setSel(null); setPk(null); }} onKeyDown={keys} onPointerDownCapture={() => { if (!ptrRef.current) { ptrRef.current = true; setPtr(true); } }}>
         <div className="dm-acx-vp" onPointerDown={vpDown} onPointerMove={vpMove} onPointerUp={vpUp} onPointerCancel={vpUp}
           onScroll={e => { e.currentTarget.scrollLeft = 0; e.currentTarget.scrollTop = 0; }}>
@@ -963,6 +975,11 @@ export function AutomationCanvas({
         </div>
         </div>
         {mq && <div className="dm-acx-mq" style={{ left: mq.x, top: mq.y, width: mq.w, height: mq.h }} />}
+        </div>
+        {/* Test run and the run's status, over the bottom left */}
+        <div ref={barEl} className="dm-acx-bar">
+          {onRun && <button type="button" className="dm-pill dm-primary dm-sm dm-acx-run" onClick={() => { setSel(null); setPk(null); onRun(); }}><Icon name="play" size="xs" />{runLabel}</button>}
+          {status !== undefined && <Swap className="dm-muted dm-acx-st">{status}</Swap>}
         </div>
         {/* zoom out, the zoom level (which resets to 100%), zoom in and fit, quiet in the corner */}
         <div ref={zmEl} className="dm-acx-zm" role="toolbar" aria-label="Zoom">
