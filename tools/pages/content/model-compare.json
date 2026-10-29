@@ -1,29 +1,30 @@
 {
-  "summary": "Columns that run one prompt on several models at once, so a person can read the answers side by side and keep the best one. Each column shows its model, the answer as it streams in, the time it took and what it cost. When the answers settle, the fastest time and the lowest cost are highlighted.",
+  "summary": "One prompt run on two or three models, with their answers side by side in columns on one surface. Each column has a light header with the model's mark and name, which is also the menu that swaps the model, and a quiet line under it with the time, tokens and cost once the answer is in. The answers stream in, and Use this answer keeps the best one. Where the component is narrow, the columns stack.",
   "use": [
     "When people choose which model an agent or feature should use.",
     "When you want to compare quality, speed and cost on the same prompt.",
-    "In a prompt playground or evaluation tool where someone picks a winning answer."
+    "In a prompt playground or evaluation tool where someone picks the better answer."
   ],
   "features": [
-    "Up to `max` columns (3 by default), each with a model picker; columns can be removed and new ones added from \"Add a model\".",
-    "One prompt box sends to every column through `onSend`; Send is disabled while a full send is still running.",
-    "Each column follows its answer's `state`: a thinking indicator, then words fading in as `text` grows, then the finished answer.",
-    "Shows `seconds` and `cost` once done, with tokens per second in the time's tooltip, and marks the fastest and cheapest column.",
-    "Changing a column's model, or adding one after a prompt was sent, calls `onRun` for just that column.",
-    "\"Use this\" sets `chosen`; the chosen column is outlined and the others fade."
+    "A prompt field and Run on top send the prompt to every column through `onSend`; Run is disabled while a full run is still answering, or while the field is empty.",
+    "Between `min` (2 by default) and `max` (3 by default) columns: Remove shows while there are more than `min`, and Add model while there are fewer than `max`.",
+    "The model's name in each column's header opens a menu that swaps it; the column keeps its `id`, the pick is cleared, and once a prompt has been sent `onRun` is called for just that column.",
+    "Each column follows its answer's `state`: a thinking mark, then words fading in as `text` grows, then the finished answer.",
+    "The line under the model's name shows its `description` until it writes, then its `tokens` as it writes, then `seconds`, `tokens` and `cost` once done, with `tokensPerSecond` in the time's tooltip. When the answers settle, the fastest time and the lowest cost read a step darker.",
+    "Use this answer shows once a column's answer is done and sets `chosen`; the chosen column takes the accent's tint and its button reads Chosen. Pressing it again lets it go.",
+    "Below 540px wide the columns stack, one under another."
   ],
   "a11y": [
-    "Each model picker is a role=\"menu\" whose items are role=\"menuitemradio\" with aria-checked on the current model.",
-    "The picker buttons expose aria-expanded and aria-haspopup, and Escape closes an open picker and returns focus to its button.",
-    "From the keyboard, Enter, Space or the down arrow opens a menu with the focus on its picked item, or its first (the up arrow, on its last); the arrow keys move through it and wrap, Home and End jump to the ends, Tab closes it and moves on, and closing it gives the focus back to its button.",
-    "The prompt input and the send and remove buttons have aria-labels.",
-    "The prompt is a form, so Enter sends it."
+    "Each column is a `section` named after its model, and the answers sit in plain text, so a screen reader reads them in order.",
+    "Each model menu is a role=\"menu\" whose items are role=\"menuitemradio\" with aria-checked on the current model; its button says the model and that it swaps it, and exposes aria-expanded and aria-haspopup.",
+    "From the keyboard, Enter, Space or the down arrow opens a menu with the focus on its picked item, or its first (the up arrow, on its last); the arrow keys move through it and wrap, Home and End jump to the ends, Tab closes it and moves on, Escape closes it, and closing it gives the focus back to its button.",
+    "Use this answer is a toggle button with aria-pressed. A polite live region says when a run starts, when every answer is in, and whose answer is used.",
+    "The prompt is a form with a labelled field, so Enter runs it. Each Remove button is named after its model; removing a column from the keyboard moves the focus to Add model."
   ],
   "faq": [
-    {"q": "How do I stream each model's answer into its column?", "a": "Handle `onSend`, call your models, and update `answers` keyed by column id. Set `state` to 'thinking', then 'answering' with growing `text`, then 'done' with `seconds`, `cost` and optionally `tokensPerSecond`."},
-    {"q": "What happens when someone swaps the model in one column?", "a": "The column keeps its `id`, the pick is cleared, and `onRun` is called with that column if a prompt has already been sent. Rerun just that column and update its answer."},
-    {"q": "How do I know which answer the person kept?", "a": "Listen to `onChosenChange`. It gets the chosen column's id, or null when they unpick it or send a new prompt."},
-    {"q": "Can I compare more than three models?", "a": "Yes. Set `max` to the number of columns you want; \"Add a model\" shows until that many are open."}
+    {"q": "How do I stream each model's answer into its column?", "a": "Handle `onSend`, call your models, and update `answers` keyed by column id. Set `state` to 'thinking', then 'answering' with growing `text` and `tokens`, then 'done' with `seconds`, `tokens`, `cost` and optionally `tokensPerSecond`."},
+    {"q": "What happens when someone swaps the model in one column?", "a": "The column keeps its `id`, the pick is cleared, and `onRun` is called with that column if a prompt has already been sent (`asked` is set). Run just that column again and update its answer."},
+    {"q": "How do I know which answer the person kept?", "a": "Listen to `onChosenChange`. It gets the chosen column's id, or null when they let it go, swap a model or run a new prompt."},
+    {"q": "Can I compare more than three models?", "a": "Yes. Set `max` to the number of columns you want; Add model shows until that many are open. `min` sets how few there can be."}
   ]
 }

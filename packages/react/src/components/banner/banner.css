@@ -3,12 +3,13 @@
 /* an announcement on a tint of its tone: an eyebrow, a title, a line of text and its actions on the left, and one of four line
    drawings on the right, drawn as a hairline with a few construction lines, the way Blueprint draws everything. Each tone
    names three colours: --bnx-m draws the art (3:1 on the fill), --bnx-c writes the eyebrow (4.5:1) and --bnx-f is what
-   the fill is a tint of. The fill is solid, so the dismiss button and the art's own faces can wear it too */
+   the fill is a tint of. The fill is solid, so the close button and the art's own faces can wear it too. It has no border:
+   the tint is its edge */
 .dm-bnx-slot{width:100%}
 .dm-bnx{position:relative;width:100%;min-height:176px;display:flex;flex-direction:column;justify-content:center;overflow:hidden;border-radius:var(--dm-r-card);container:bnx/inline-size;isolation:isolate;
   --dm-bnx-m:var(--dm-accent-mark);--dm-bnx-c:var(--dm-accent-fg);--dm-bnx-f:var(--dm-accent);--dm-bnx-k:10%;--dm-bnx-ka:var(--dm-bnx-k);
   --dm-bnx-bg:color-mix(in srgb,var(--dm-bnx-f) var(--dm-bnx-ka),var(--dm-surface));
-  background:var(--dm-bnx-bg);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-bnx-m) 14%,transparent);transition:background-color var(--dm-t-slow) var(--dm-ease),box-shadow var(--dm-t-slow) var(--dm-ease)}
+  background:var(--dm-bnx-bg);transition:background-color var(--dm-t-slow) var(--dm-ease)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .dm-bnx{--dm-bnx-k:14%}}
 :root[data-theme="dark"] .dm-bnx{--dm-bnx-k:14%}
 .dm-bnx[data-tone="neutral"]{--dm-bnx-m:var(--dm-muted);--dm-bnx-c:var(--dm-fg2);--dm-bnx-bg:var(--dm-chip)}
@@ -24,6 +25,15 @@
 .dm-bnx-acts{display:flex;flex-wrap:wrap;align-items:center;gap:var(--dm-s-2) var(--dm-s-4);margin-top:var(--dm-s-4)}
 .dm-bnx-lk{display:inline-flex;align-items:center;height:28px;font-size:13px;color:var(--dm-fg);text-decoration:underline;text-decoration-color:color-mix(in srgb,currentColor 35%,transparent);text-underline-offset:3px;transition:text-decoration-color var(--dm-t-fast)}
 @media (hover:hover) and (pointer:fine){.dm-bnx-lk:hover{text-decoration-color:currentColor}}
+/* on a coloured banner the primary button is white in light mode, with the text colour on it, so it stands out from the tint
+   in every tone; in dark mode, where the tint is deep, it stays the accent. A neutral (grey) banner keeps the accent */
+.dm-bnx:not([data-tone="neutral"]) .dm-bnx-go{background:var(--dm-surface);color:var(--dm-fg);box-shadow:var(--dm-shadow)}
+@media (hover:hover) and (pointer:fine){.dm-bnx:not([data-tone="neutral"]) .dm-bnx-go:hover{background:var(--dm-surface);box-shadow:var(--dm-shadow-pop)}}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .dm-bnx .dm-bnx-go{background:var(--dm-accent);color:var(--dm-on-accent);box-shadow:none}
+  @media (hover:hover) and (pointer:fine){:root:not([data-theme="light"]) .dm-bnx .dm-bnx-go:hover{background:var(--dm-accent-2);box-shadow:none}}}
+:root[data-theme="dark"] .dm-bnx .dm-bnx-go{background:var(--dm-accent);color:var(--dm-on-accent);box-shadow:none}
+@media (hover:hover) and (pointer:fine){:root[data-theme="dark"] .dm-bnx .dm-bnx-go:hover{background:var(--dm-accent-2);box-shadow:none}}
+/* an optional close button in the top right corner (the card here leaves it out) */
 .dm-bnx-x{position:absolute;top:var(--dm-s-2);right:var(--dm-s-2);z-index:2;width:28px;height:28px;background:var(--dm-bnx-bg)}
 @media (hover:hover) and (pointer:fine){.dm-bnx-x:hover{background:color-mix(in srgb,var(--dm-fg) 8%,var(--dm-bnx-bg))}}
 /* the art: a 240 by 160 drawing at its own size in the middle of the area on the right, cropped by it and faded in from the
@@ -41,8 +51,9 @@
 /* under the pointer the drawing pulls apart a little: each part moves by its depth (--z), with no blur and nothing that loops */
 .dm-bnx-svg .dm-z{transition:transform var(--dm-t-slow) var(--dm-ease)}
 @media (hover:hover) and (pointer:fine){.dm-bnx:hover .dm-bnx-svg .dm-z{transform:translate(calc(var(--dm-z,0) * 1px),calc(var(--dm-z,0) * -2.5px))}}
-/* dismissed: the banner leaves, and a quiet line with Undo keeps its place (held at its height, so it stays centred) */
-.dm-bnx-gone{display:flex;align-items:center;justify-content:center;gap:var(--dm-s-3);min-height:44px;font-size:13px;color:var(--dm-fg2)}
+/* the card: the banner with a switcher under it that flips through the four styles, the two kept together and centred */
+.dm-dm.dm-bnx-dm{min-height:0;gap:var(--dm-s-5);justify-content:center}
+.dm-dm.dm-bnx-dm>.dm-dm-main{margin-block:0}
 /* a phone, or any narrow column: the art becomes a shorter strip across the top that fades out before the text starts,
    so nothing is drawn behind the words. The drawing is shown at three quarters, with its lines thickened to stay a hairline */
 @container bnx (max-width:479px){
@@ -53,8 +64,7 @@
   .dm-bnx-tx{padding:84px var(--dm-s-5) var(--dm-s-5)}
 }
 @media (prefers-reduced-motion:reduce){.dm-bnx-svg *{animation:none!important}.dm-bnx-svg .dm-z{transform:none!important}}
-/* Blueprint: square, with a hairline edge in its tone, and the eyebrow as a small capital label */
-:root:not([data-style="soft"]) .dm-bnx:not(:where([data-style="soft"],[data-style="soft"] *)){box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-bnx-m) 45%,var(--dm-line))}
+/* Blueprint: square, and the eyebrow as a small capital label */
 :root:not([data-style="soft"]) .dm-bnx:is(:not([data-tone]),[data-tone="accent"]):not(:where([data-style="soft"],[data-style="soft"] *)){--dm-bnx-ka:20%}
 @media (prefers-color-scheme:dark){:root:not([data-style="soft"]):not([data-theme="light"]) .dm-bnx:is(:not([data-tone]),[data-tone="accent"]):not(:where([data-style="soft"],[data-style="soft"] *)){--dm-bnx-ka:9%}}
 :root:not([data-style="soft"])[data-theme="dark"] .dm-bnx:is(:not([data-tone]),[data-tone="accent"]):not(:where([data-style="soft"],[data-style="soft"] *)){--dm-bnx-ka:9%}

@@ -26,7 +26,7 @@ Reactions puts a row of emoji reactions under a message, set up for an update th
 
 ### What it does
 
-- Clicking a reaction toggles yours: it tints, the count rolls up, and it gets a small jump.
+- Clicking a reaction toggles yours: its edge turns a stronger grey and its count takes the accent's text colour, the count rolls up, and it gets a small jump.
 - Removing the last reaction of a kind fades it out and shrinks it before it leaves the row.
 - The add button opens a picker of `emojis`; picking one you already have pulses it instead of counting twice.
 - Each reaction's tooltip names who reacted, like "You, Maya, Jon and 2 more", using `people` and `meLabel`.
@@ -288,7 +288,7 @@ export function Reactions({ author, time, message, icon = 'spark', reactions, de
 
 - [Comments](https://designme.dev/components/comments.md): A design thread where you can @mention the agent and it replies.
 - [Notifications](https://designme.dev/components/notifications.md): An inbox where agent updates and mentions arrive live.
-- [Banner](https://designme.dev/components/banner.md): An announcement on a tint of its tone, with its own line drawing and a dismiss.
+- [Banner](https://designme.dev/components/banner.md): An announcement on a tint of its tone, with its own line drawing.
 - [Invite to collaborate](https://designme.dev/components/invite-to-collaborate.md): Add teammates by email as chips, set their role, send.
 - [Profile menu](https://designme.dev/components/profile-menu.md): The account menu behind an avatar: switch workspace, theme, shortcuts and sign out.
 - [Context switcher](https://designme.dev/components/context-switcher.md): The organisation, project and environment you are in, each part a searchable switcher.

@@ -1,46 +1,54 @@
 /* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Model compare ---------- */
-.dm-mcx{display:flex;flex-direction:column;gap:var(--dm-s-3)}
-.dm-mcx-cols{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
-@media (max-width:720px){.dm-mcx-cols{grid-template-columns:1fr}}
-.dm-mcx-c{display:flex;flex-direction:column;min-height:252px;min-width:0;transition:box-shadow .35s,opacity .4s}
-.dm-mcx-c.dm-win{box-shadow:0 0 0 1.5px var(--dm-accent-mark,var(--dm-accent)),var(--dm-shadow)}
-.dm-mcx-c.dm-lose{opacity:.55}
+/* one prompt on top, then each model's answer in its own column on one white surface, split by hairlines. Colour is only
+   for the models' marks and the answer that was chosen. Where the component is narrow, the columns stack */
+.dm-mcx{display:flex;flex-direction:column;container-type:inline-size}
+/* on a card it keeps the room its answers will take, so it stays centred before they arrive; the columns take the rest */
+.dm-stage-in>.dm-mcx{min-height:inherit}
+.dm-mcx-in{display:flex;align-items:center;gap:var(--dm-s-2);padding:var(--dm-s-3)}
+/* the prompt field: a dimmed edge at rest, one step stronger while it has the focus, and no ring */
+.dm-mcx-fd{flex:1;min-width:0;display:flex;align-items:center;gap:var(--dm-s-2);height:36px;padding:0 var(--dm-s-3);border-radius:var(--dm-r-in);background:var(--dm-surface);box-shadow:inset 0 0 0 1px var(--dm-rail);transition:box-shadow var(--dm-t-fast)}
+@supports (corner-shape:squircle){.dm-mcx-fd{corner-shape:squircle}}
+.dm-mcx-fd:focus-within{box-shadow:inset 0 0 0 1px var(--dm-faint)}
+.dm-mcx-q{flex:1;min-width:0;height:100%;border:0;outline:0;background:none;font:inherit;font-size:13.5px;color:var(--dm-fg)}
+.dm-mcx-q:focus-visible{outline:0}
+.dm-mcx-n{font-size:12px;color:var(--dm-muted);white-space:nowrap}
+.dm-mcx-go{flex:none}
+.dm-mcx-pop{min-width:240px}
+.dm-mcx-cols{flex:1;display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);border-top:1px solid var(--dm-line)}
+.dm-mcx-c{display:flex;flex-direction:column;min-width:0;padding:var(--dm-s-3) var(--dm-s-4) var(--dm-s-4);transition:background var(--dm-t) var(--dm-ease)}
+.dm-mcx-c+.dm-mcx-c{border-left:1px solid var(--dm-line)}
 .dm-mcx-c.dm-enter{animation-duration:.5s}
-.dm-mcx-h{display:flex;align-items:center;gap:6px;height:46px;padding:0 6px;border-bottom:1px solid var(--dm-line)}
-.dm-mcx-sel{display:inline-flex;align-items:center;gap:7px;height:32px;padding:0 var(--dm-s-2) 0 6px;border-radius:9px;font-size:13px;font-weight:500;min-width:0;transition:background .2s}
-.dm-mcx-sel[aria-expanded="true"]{background:var(--dm-chip)}
-@media (hover:hover) and (pointer:fine){.dm-mcx-sel:hover{background:var(--dm-chip)}}
+.dm-mcx-c.dm-win{background:var(--dm-sel)}
+/* the header: the model, which is also the menu that swaps it, and Remove */
+.dm-mcx-h{display:flex;align-items:center;gap:var(--dm-s-1);margin:0 calc(-1 * var(--dm-s-2)) 0 calc(-1 * var(--dm-s-2))}
+.dm-mcx-sel{display:inline-flex;align-items:center;gap:var(--dm-s-2);height:28px;padding:0 var(--dm-s-2);border-radius:var(--dm-r-sm);font-size:13.5px;font-weight:500;color:var(--dm-fg);min-width:0;transition:background var(--dm-t-fast)}
+.dm-mcx-sel[aria-expanded="true"]{background:var(--dm-row)}
+@media (hover:hover) and (pointer:fine){.dm-mcx-sel:hover{background:var(--dm-row)}}
+.dm-mcx-sel .dm-nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .dm-mcx-sel>.dm-i{color:var(--dm-muted)}
-.dm-mcx-mk{width:20px;height:20px;border-radius:6px;display:grid;place-items:center;font-size:10px;font-weight:500;color:var(--dm-on-ink);flex:none}
-.dm-mcx-x{width:26px;height:26px;margin-left:auto;color:var(--dm-muted)}
-.dm-mcx-o{flex:1;display:flex;flex-direction:column;gap:10px;padding:var(--dm-s-3)}
-.dm-mcx-o .dm-bub{font-size:13px;padding:7px 11px;border-radius:14px;max-width:92%}
-.dm-mcx-a{font-size:13.5px;line-height:1.55;color:var(--dm-fg);display:flex;flex-direction:column;gap:6px}
+.dm-mcx-mk{width:18px;height:18px;border-radius:var(--dm-r-xs);display:grid;place-items:center;font-size:10px;font-weight:500;flex:none}
+.dm-mcx-x{width:28px;height:28px;margin-left:auto;color:var(--dm-muted)}
+/* the quiet line under it: what the model is good at until it writes, then its tokens, then time, tokens and cost */
+.dm-mcx-m{min-height:18px;margin-top:var(--dm-s-1);font-size:12px;line-height:18px;color:var(--dm-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dm-mcx-m [data-tip]{cursor:default;transition:color var(--dm-t)}
+.dm-mcx-m .dm-best{color:var(--dm-fg)}
+.dm-mcx-a{flex:1;min-height:112px;margin-top:var(--dm-s-3);font-size:13.5px;line-height:1.55;color:var(--dm-fg)}
 .dm-mcx-a .dm-w{animation:dm-mcw .4s var(--dm-ease) both}
 @keyframes dm-mcw{from{opacity:0;filter:blur(3px)}to{opacity:1;filter:none}}
 .dm-mcx-a .dm-ph{color:var(--dm-muted);font-size:12.5px}
-.dm-mcx-a .dm-wk{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;color:var(--dm-muted)}
+.dm-mcx-a .dm-wk{display:inline-flex;align-items:center;gap:var(--dm-s-2);font-size:12.5px;color:var(--dm-muted)}
 .dm-mcx-a .dm-wk .dm-think{color:var(--dm-accent-fg,var(--dm-accent))}
-.dm-mcx-f{display:flex;align-items:center;gap:var(--dm-s-2);height:44px;padding:0 var(--dm-s-2) 0 var(--dm-s-3);border-top:1px solid var(--dm-line);font-size:12px;color:var(--dm-muted)}
-.dm-mcx-m{display:inline-flex;gap:10px;white-space:nowrap}
-.dm-mcx-m span{cursor:default;display:inline-flex;align-items:center;gap:var(--dm-s-1);transition:color .3s}
-.dm-mcx-m .dm-best{color:var(--dm-ok);font-weight:500}
-.dm-mcx-pick{margin-left:auto}
-.dm-mcx-pop{min-width:250px}
-.dm-mcx-pop .dm-mi[disabled],.dm-mcx-pop .dm-mi[disabled] .dm-i{opacity:1;cursor:not-allowed;background:none;color:var(--dm-dis)}
-.dm-mcx-add{border-radius:var(--dm-r-card);box-shadow:inset 0 0 0 1.5px var(--dm-rail);display:flex;align-items:center;justify-content:center;min-height:252px;position:relative;transition:background .2s,box-shadow .2s}
-@media (hover:hover) and (pointer:fine){.dm-mcx-add:hover{background:var(--dm-surface);box-shadow:inset 0 0 0 1.5px var(--dm-faint)}}
-.dm-mcx-addb{display:flex;flex-direction:column;align-items:center;gap:6px;font-size:13px;color:var(--dm-fg2);padding:14px 18px;border-radius:14px;transition:background .2s,color .2s}
-.dm-mcx-addb[aria-expanded="true"]{color:var(--dm-fg)}
-@media (hover:hover) and (pointer:fine){.dm-mcx-addb:hover{color:var(--dm-fg)}}
-.dm-mcx-addb .dm-ic{margin-bottom:2px}
-.dm-mcx-addb .dm-ic{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:var(--dm-soft,var(--dm-chip));box-shadow:var(--dm-soft-ring,none);color:var(--dm-fg)}
-.dm-mcx-addb .dm-d{font-size:12px;color:var(--dm-muted)}
-.dm-mcx-in{display:flex;align-items:center;gap:10px;padding:6px 6px 6px 18px;border-radius:var(--dm-r-pill);background:var(--dm-surface);box-shadow:var(--dm-shadow);transition:box-shadow .25s}
-.dm-mcx-in:has(.dm-mcx-q:focus-visible){box-shadow:0 0 0 2px var(--dm-focus),var(--dm-shadow),0 0 0 4px var(--dm-accent-bg)}
-.dm-mcx-q{flex:1;min-width:0;border:0;outline:0;background:none;font:inherit;font-size:13.5px;color:var(--dm-fg)}
-.dm-mcx-n{font-size:12px;white-space:nowrap}
-.dm-mcx-go{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:var(--dm-ink);color:var(--dm-on-ink);flex:none;transition:opacity .2s,transform .15s}
-.dm-mcx-go:active{transform:scale(.92)}
-.dm-mcx-go[disabled]{opacity:1;cursor:not-allowed;background:var(--dm-dis-hatch),var(--dm-dis-fill);color:var(--dm-dis);box-shadow:var(--dm-soft-ring)}
+/* Use this answer shows once the answer is in; the chosen one takes the accent's tint */
+.dm-mcx-ft{margin-top:var(--dm-s-3);visibility:hidden;opacity:0;transition:opacity var(--dm-t) var(--dm-ease),visibility 0s var(--dm-t)}
+.dm-mcx-c.dm-done .dm-mcx-ft{visibility:visible;opacity:1;transition:opacity var(--dm-t) var(--dm-ease)}
+.dm-pill.dm-mcx-pick[aria-pressed="true"]{background:var(--dm-accent-bg);color:var(--dm-accent-fg,var(--dm-accent));box-shadow:none}
+@media (hover:hover) and (pointer:fine){.dm-pill.dm-mcx-pick[aria-pressed="true"]:hover{background:var(--dm-accent-bg);color:var(--dm-accent-fg,var(--dm-accent));box-shadow:none}}
+.dm-mcx-live{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+@container (max-width:539px){
+  .dm-mcx-cols{grid-auto-flow:row}
+  .dm-mcx-c+.dm-mcx-c{border-left:0;border-top:1px solid var(--dm-line)}
+  .dm-mcx-a{min-height:42px}
+  .dm-mcx-n{display:none}
+}
+:root:not([data-style="soft"]) .dm-pill.dm-mcx-pick[aria-pressed="true"]:not(:where([data-style="soft"],[data-style="soft"] *)){box-shadow:inset 0 0 0 1px var(--dm-accent-mark)}

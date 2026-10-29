@@ -5,9 +5,9 @@ import { useStory } from './useScript';
 import { PricingCards, type PricingPeriod, type PricingPlan } from '../components/pricing-cards/PricingCards';
 
 const PLANS: PricingPlan[] = [
-  { name: 'Starter', description: 'For trying the agent', price: 0, total: 'Up to 2 editors', features: ['1 project', '50 agent runs a month', 'Figma import'], action: { label: 'Start free', variant: 'soft' } },
-  { name: 'Pro', description: 'For growing design teams', price: 24, popular: true, features: ['Unlimited projects', '1,000 runs per editor', 'Shared tokens and memory', 'Priority models'], action: { label: 'Start free trial', variant: 'accent' } },
-  { name: 'Enterprise', description: 'For design orgs', price: null, unit: 'billed yearly', total: 'Volume pricing from 25 editors', fromSeats: 25, features: ['SSO and audit log', 'Custom spend caps', 'Dedicated support'], action: { label: 'Talk to us', variant: 'primary' } }
+  { name: 'Starter', description: 'For trying the agent', price: 0, total: 'Up to 2 editors', features: ['1 project', '50 agent runs a month', 'Figma import'], action: { label: 'Start free' } },
+  { name: 'Pro', description: 'For growing design teams', price: 24, popular: true, features: ['Unlimited projects', '1,000 runs per editor', 'Shared tokens and memory', 'Priority models'], action: { label: 'Start free trial' } },
+  { name: 'Enterprise', description: 'For design orgs', price: null, unit: 'billed yearly', total: 'Volume pricing from 25 editors', fromSeats: 25, features: ['SSO and audit log', 'Custom spend caps', 'Dedicated support'], action: { label: 'Talk to us' } }
 ];
 
 export default function PricingCardsDemo() {

@@ -2204,6 +2204,9 @@ html{scrollbar-gutter:stable}
 :root[data-theme="dark"] .v2{--accent-2:color-mix(in srgb,var(--accent) 84%,#fff);--accent-bg:color-mix(in srgb,var(--accent) 13%,transparent)}
 @supports (color:rgb(from red r g b)){.v2,:root:not([data-theme="light"]) .v2,:root[data-theme="dark"] .v2{--accent-2:color-mix(in srgb,var(--accent) 86%,rgb(from var(--on-accent,#fff) calc(255 - r) calc(255 - g) calc(255 - b)))}}
 @supports not (color:rgb(from red r g b)){.v2,:root:not([data-theme="light"]) .v2,:root[data-theme="dark"] .v2{--accent-2:color-mix(in srgb,var(--accent) 86%,#000)}:root:not([data-style="soft"]) .v2,:root:not([data-style="soft"]):not([data-theme="light"]) .v2,:root:not([data-style="soft"])[data-theme="dark"] .v2{--accent-2:color-mix(in srgb,var(--accent) 86%,#fff)}}
+/* picked things (chips, options, steps, cards in a picker) are white tiles with a dimmed grey edge, and the picked one's edge
+   is a step stronger, never a black outline or a grey fill. The picked edge holds 3:1 against the tile */
+.v2{--pick-line:var(--rail);--pick-on:var(--field-line)}
 
 /* ---------- page shell ---------- */
 .v2 *{box-sizing:border-box}
@@ -2235,7 +2238,7 @@ html{scrollbar-gutter:stable}
 .v2 .ib.on{background:var(--accent-bg);color:var(--accent-fg,var(--accent))}
 .v2 .chip{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 var(--s-3);border-radius:var(--r-pill);font-size:13px;color:var(--fg2);background:var(--chip);white-space:nowrap;transition:background var(--t-fast),color var(--t-fast),box-shadow var(--t-fast)}
 @media (hover:hover) and (pointer:fine){.v2 .chip:hover{background:var(--hover);color:var(--fg)}}
-.v2 .chip.on{background:var(--surface);color:var(--fg);box-shadow:inset 0 0 0 1px var(--line)}
+.v2 .chip.on{background:var(--surface);color:var(--fg);box-shadow:inset 0 0 0 1px var(--pick-on)}
 .v2 .chip.sm{height:24px;padding:0 9px;font-size:12px}
 .v2 .pill{display:inline-flex;align-items:center;justify-content:center;gap:7px;height:32px;padding:0 14px;border-radius:var(--r-pill);font-size:13px;font-weight:500;white-space:nowrap;transition:background var(--t-fast),color var(--t-fast),opacity var(--t-fast),transform .15s}
 .v2 .pill:active{transform:scale(.97)}
@@ -2288,7 +2291,7 @@ html{scrollbar-gutter:stable}
    The build checks that every selector drawing with a ::before or ::after is in the lists below */
 @media (pointer:coarse){
   .v2 :where(button,a[href],summary,[role="button"],[role="switch"],[role="checkbox"],[role="radio"],[role="tab"],[role="option"],[role="menuitem"],[role="menuitemradio"],[role="menuitemcheckbox"],[role="slider"],label:has(input[type="checkbox"],input[type="radio"])){position:relative;--hit-w:40px;--hit-h:40px}
-  .v2 :where(button,a[href],summary,[role="button"],[role="switch"],[role="checkbox"],[role="radio"],[role="tab"],[role="option"],[role="menuitem"],[role="menuitemradio"],[role="menuitemcheckbox"],[role="slider"],label:has(input[type="checkbox"],input[type="radio"])):not(:where(.radar,.hand,.rtr-li:not(:last-child),.atr-kids,.bws-nav b,.rc-cap,.erx-row:not(:last-child),.rte-body.empty,.rte-hint,.afx-desk,.dtx-sl,.crx-l.add .c,.crx-l.del .c,.crx-l.ctx .c,.crx-hk.kept .crx-l.add .c,.crx-hk.undone .crx-l.del .c,.ahx-bot,.ecx-now,.ssi-or))::before,.v2 :where(button,a[href],summary,[role="button"],[role="switch"],[role="checkbox"],[role="radio"],[role="tab"],[role="option"],[role="menuitem"],[role="menuitemradio"],[role="menuitemcheckbox"],[role="slider"],label:has(input[type="checkbox"],input[type="radio"])):where(.radar,.hand,.rtr-li:not(:last-child),.atr-kids,.bws-nav b,.rc-cap,.erx-row:not(:last-child),.rte-body.empty,.rte-hint,.afx-desk,.dtx-sl,.crx-l.add .c,.crx-l.del .c,.crx-l.ctx .c,.crx-hk.kept .crx-l.add .c,.crx-hk.undone .crx-l.del .c,.ahx-bot,.ecx-now,.ssi-or):not(:where(.toggle,.radar,.pulse,.stl-track i,.stx-ok,.aln-tr i,.afx-card .afx-open,.plx-s.edited .t,.vor-mute,.mix-mk,.hnx-t .ic,.ksx-s .ic,.shx-r .ic,.dpk-d.t,.sgc-mo .d.e,.agx-now,.btx-ask,.btx-live,.ssi-or,.rxx-r))::after{content:"";position:absolute;inset:min(0px,(100% - var(--hit-h)) / 2) min(0px,(100% - var(--hit-w)) / 2);--dm-hit:1}
+  .v2 :where(button,a[href],summary,[role="button"],[role="switch"],[role="checkbox"],[role="radio"],[role="tab"],[role="option"],[role="menuitem"],[role="menuitemradio"],[role="menuitemcheckbox"],[role="slider"],label:has(input[type="checkbox"],input[type="radio"])):not(:where(.radar,.hand,.rtr-li:not(:last-child),.atr-kids,.bws-nav b,.rc-cap,.erx-row:not(:last-child),.rte-body.empty,.rte-hint,.afx-desk,.dtx-sl,.crx-l.add .c,.crx-l.del .c,.crx-l.ctx .c,.crx-hk.kept .crx-l.add .c,.crx-hk.undone .crx-l.del .c,.ahx-bot,.ecx-now,.ssi-or))::before,.v2 :where(button,a[href],summary,[role="button"],[role="switch"],[role="checkbox"],[role="radio"],[role="tab"],[role="option"],[role="menuitem"],[role="menuitemradio"],[role="menuitemcheckbox"],[role="slider"],label:has(input[type="checkbox"],input[type="radio"])):where(.radar,.hand,.rtr-li:not(:last-child),.atr-kids,.bws-nav b,.rc-cap,.erx-row:not(:last-child),.rte-body.empty,.rte-hint,.afx-desk,.dtx-sl,.crx-l.add .c,.crx-l.del .c,.crx-l.ctx .c,.crx-hk.kept .crx-l.add .c,.crx-hk.undone .crx-l.del .c,.ahx-bot,.ecx-now,.ssi-or):not(:where(.toggle,.radar,.pulse,.stl-track i,.stx-ok,.aln-tr i,.afx-card .afx-open,.plx-s.edited .t,.vor-mute,.mix-mk,.hnx-t .ic,.ksx-s .ic,.shx-r .ic,.dpk-d.t,.sgc-mo .d.e,.agx-now,.btx-ask,.btx-live,.ssi-or,.rxx-r,.bdg.live .bdg-dot))::after{content:"";position:absolute;inset:min(0px,(100% - var(--hit-h)) / 2) min(0px,(100% - var(--hit-w)) / 2);--dm-hit:1}
 }
 .v2 .seg2{display:inline-flex;padding:2px;background:var(--chip);border-radius:var(--r-pill);position:relative}
 .v2 .seg2 button{position:relative;z-index:1;height:26px;padding:0 11px;border-radius:var(--r-pill);font-size:12.5px;color:var(--fg2);transition:color var(--t-fast)}
@@ -2763,11 +2766,12 @@ html{scrollbar-gutter:stable}
 /* the toast on its way out and the one coming in share one cell, so each keeps its full width while they cross */
 .v2 .tst-slot{min-height:64px;width:100%;display:grid;justify-items:center;align-items:end}
 .v2 .tst-slot>*{grid-area:1/1}
-.v2 .tst-t{display:flex;align-items:center;gap:var(--s-3);padding:10px 10px 10px 14px;background:var(--surface);border-radius:var(--r-card);box-shadow:var(--shadow-toast);max-width:380px;width:100%;position:relative;overflow:hidden}
+/* the same size as a toast in Toast stack: width, padding, type and icons */
+.v2 .tst-t{display:flex;align-items:center;gap:var(--s-3);padding:var(--s-3);background:var(--surface);border-radius:var(--r-card);box-shadow:var(--shadow-toast);max-width:380px;width:100%;position:relative;overflow:hidden}
 .v2 .tst-t .g{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;flex:none}
-.v2 .tst-t .tx{flex:1;min-width:0;font-size:13.5px}
+.v2 .tst-t .tx{flex:1;min-width:0;font-size:13px;line-height:1.35}
 .v2 .tst-t .tx b{font-weight:500;display:block}
-.v2 .tst-t .tx span{font-size:12.5px;color:var(--muted)}
+.v2 .tst-t .tx span{font-size:12px;color:var(--muted)}
 .v2 .tst-t .acts{display:flex;align-items:center;gap:2px}
 .v2 .tst-t .life{display:none}
 .v2 .tst-in{animation:v2-tstin .6s var(--ease) both}
@@ -2775,11 +2779,12 @@ html{scrollbar-gutter:stable}
 .v2 .tst-out{animation:v2-tstout .35s var(--ease) both}
 @keyframes v2-tstout{to{opacity:0;transform:translateY(8px) scale(.98);filter:blur(4px)}}
 /* ---------- Toast stack ---------- */
-.v2 .tsk-stack{position:relative;width:100%;max-width:360px;height:96px;isolation:isolate}
+/* each toast is the same size as the one in Toast: width, padding, type and icons */
+.v2 .tsk-stack{position:relative;width:100%;max-width:380px;height:96px;isolation:isolate}
 .v2 .tsk-stack.fan{height:var(--fanh,96px)}
 @media (hover:hover) and (pointer:fine){.v2 .tsk-stack:hover{height:var(--fanh,96px)}}
 .v2 .tsk-stack{transition:height .55s var(--ease)}
-.v2 .tsk-c{position:absolute;left:0;right:0;bottom:0;display:flex;align-items:center;gap:11px;padding:11px var(--s-3);background:var(--surface);border-radius:var(--r-card);box-shadow:var(--shadow-toast);transition:transform .55s var(--ease),opacity .45s var(--ease),filter .45s;transform-origin:bottom center}
+.v2 .tsk-c{position:absolute;left:0;right:0;bottom:0;display:flex;align-items:center;gap:var(--s-3);padding:var(--s-3);background:var(--surface);border-radius:var(--r-card);box-shadow:var(--shadow-toast);transition:transform .55s var(--ease),opacity .45s var(--ease),filter .45s;transform-origin:bottom center}
 .v2 .tsk-c .g{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;flex:none}
 .v2 .tsk-c .tx{flex:1;min-width:0;font-size:13px;line-height:1.35}
 .v2 .tsk-c .tx b{font-weight:500;display:block}
@@ -2787,7 +2792,7 @@ html{scrollbar-gutter:stable}
 .v2 .tsk-c .t{font-size:11.5px;color:var(--muted);align-self:flex-start;margin-top:2px}
 /* the time sits at the right edge; the close button takes its place on hover */
 .v2 .tsk-c .t{transition:opacity .2s}
-.v2 .tsk-c .ib{position:absolute;top:50%;right:8px;margin-top:-12px;width:24px;height:24px;opacity:0;transition:opacity .2s}
+.v2 .tsk-c .ib{position:absolute;top:50%;right:var(--s-3);margin-top:-15px;opacity:0;transition:opacity .2s}
 .v2 .tsk-c .ib:focus-visible{opacity:1}
 @media (hover:hover) and (pointer:fine){.v2 .tsk-c:hover .ib{opacity:1}}
 .v2 .tsk-c:has(.ib:focus-visible) .t{opacity:0}
@@ -2818,6 +2823,9 @@ html{scrollbar-gutter:stable}
 .v2 .pcx-li span{display:flex;align-items:center;gap:var(--s-2)}
 .v2 .pcx-li svg{color:var(--accent-fg,var(--accent));flex:none}
 .v2 .pcx-c .pill{width:100%;height:38px;margin-top:auto}
+/* only the recommended plan's button is the accent; the others are white with a grey outline */
+.v2 .pcx-c .pill.line{box-shadow:inset 0 0 0 1px var(--rail)}
+@media (hover:hover) and (pointer:fine){.v2 .pcx-c .pill.line:hover{background:var(--wash);box-shadow:inset 0 0 0 1px var(--faint)}}
 /* ---------- Onboarding checklist ---------- */
 /* posted in the chat: no container of its own; with .panel it becomes a card */
 .v2 .obx{padding:var(--s-3) 0;display:flex;flex-direction:column;gap:6px}
@@ -2844,7 +2852,8 @@ html{scrollbar-gutter:stable}
 .v2 .obx-s{display:flex;align-items:center;gap:21px;padding:var(--s-2) var(--s-2) var(--s-2) 9px;border-radius:10px;font-size:13px;cursor:pointer;transition:background .2s}
 .v2 .obx-s.run{cursor:default}
 @media (hover:hover) and (pointer:fine){.v2 .obx-s:hover{background:var(--row)}}
-.v2 .obx-ck{width:20px;height:20px;border-radius:50%;box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--muted) 80%,var(--surface));display:grid;place-items:center;color:transparent;flex:none;transition:background .3s var(--ease),box-shadow .3s,color .3s}
+/* an open step's box is a dimmed grey ring, never a dark one; it still holds 3:1 */
+.v2 .obx-ck{width:20px;height:20px;border-radius:50%;box-shadow:inset 0 0 0 1px var(--pick-on);display:grid;place-items:center;color:transparent;flex:none;transition:background .3s var(--ease),box-shadow .3s,color .3s}
 .v2 .obx-ck svg{transform:scale(.4);transition:transform .4s var(--ease)}
 .v2 .obx-s.done .obx-ck{background:var(--accent);box-shadow:none;color:var(--on-accent,#fff)}
 .v2 .obx-s.done .obx-ck svg{transform:none}
@@ -2884,14 +2893,14 @@ html{scrollbar-gutter:stable}
 .v2 .stx-body p{margin:0;font-size:12.5px;color:var(--muted)}
 .v2 .stx-opts{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--s-2)}
 @media (max-width:520px){.v2 .stx-opts{grid-template-columns:1fr}}
-.v2 .stx-o{padding:var(--s-3);border-radius:var(--r-in);background:var(--chip);text-align:left;font-size:13px;display:flex;flex-direction:column;gap:var(--s-1);transition:background .2s,box-shadow .25s}
+.v2 .stx-o{padding:var(--s-3);border-radius:var(--r-in);background:var(--surface);box-shadow:inset 0 0 0 1px var(--pick-line);text-align:left;font-size:13px;display:flex;flex-direction:column;gap:var(--s-1);transition:background .2s,box-shadow .25s}
 .v2 .stx-o span{font-size:11.5px;color:var(--muted)}
-@media (hover:hover) and (pointer:fine){.v2 .stx-o:hover{background:var(--hover)}}
+@media (hover:hover) and (pointer:fine){.v2 .stx-o:hover{box-shadow:inset 0 0 0 1px var(--faint)}}
 /* the options fill the sliding view, which would cut an outside ring: theirs is drawn inside */
 .v2 .stx-o:focus-visible{outline-offset:-2px}
-/* the picked option: a white tile with a ring you can see at a glance, in light and dark */
-.v2 .stx-o.on{background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--fg2),0 1px 2px rgba(0,0,0,.04)}
-@media (hover:hover) and (pointer:fine){.v2 .stx-o.on:hover{background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--fg2),0 1px 2px rgba(0,0,0,.04)}}
+/* the picked option: a white tile whose dimmed grey ring is a step stronger than the others', in light and dark */
+.v2 .stx-o.on{box-shadow:inset 0 0 0 1px var(--pick-on),0 1px 2px rgba(0,0,0,.04)}
+@media (hover:hover) and (pointer:fine){.v2 .stx-o.on:hover{box-shadow:inset 0 0 0 1px var(--pick-on),0 1px 2px rgba(0,0,0,.04)}}
 .v2 .stx-f{display:flex;justify-content:space-between}
 /* once it's done there is nothing to go back to: Start over sits alone in the middle */
 .v2 .stx.fin .stx-f{justify-content:center}
@@ -3267,22 +3276,28 @@ html{scrollbar-gutter:stable}
 /* Blueprint's lime tint is faint on white, so the suggestion also gets a hairline of the accent's mark under it */
 :root:not([data-style="soft"]) .v2 .rte-new{background:var(--accent-bg);box-shadow:inset 0 -1px 0 var(--accent-mark)}
 /* ---------- Voice capture ---------- */
-.v2 .vcx{padding:var(--s-4);position:relative}
+/* one column: the status line, the wave, the words and the buttons, a gap apart. Once recording stops the wave stays, still,
+   as the whole recording, so the box keeps its height and every part stays where it was */
+.v2 .vcx{padding:var(--s-4);position:relative;display:flex;flex-direction:column;gap:var(--s-3)}
+/* held (review, sent, cancelled): the parts stay at the top and the buttons at the foot, not centred in the height */
+.v2 .vcx.held{justify-content:flex-start}
+.v2 .vcx.held .vcx-tx{flex:1}
 .v2 .vcx-top{display:flex;align-items:center;gap:var(--s-2);font-size:13px}
 .v2 .vcx-dot{width:8px;height:8px;border-radius:50%;background:var(--bad);animation:v2-vpulse 1.4s var(--ease-io) infinite}
 @keyframes v2-vpulse{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--bad) 35%,transparent)}50%{box-shadow:0 0 0 5px transparent}}
 .v2 .vcx.paused .vcx-dot,.v2 .vcx.done .vcx-dot{animation:none;background:var(--faint)}
 .v2 .vcx-t{margin-left:auto;font-size:12.5px}
-.v2 .vcx-wave{display:block;width:100%;height:56px;margin:var(--s-3) 0 var(--s-2);transition:opacity .4s,height .5s var(--ease)}
-.v2 .vcx.done .vcx-wave{opacity:0;height:0;margin:0 0 var(--s-3)}
-.v2 .vcx-tx{margin:0;min-height:72px;font-size:14px;line-height:1.6;color:var(--fg);transition:min-height .4s var(--ease)}
-.v2 .vcx.done .vcx-tx{min-height:0}
+.v2 .vcx-wave{display:block;width:100%;height:48px}
+/* room for two lines from the start, so the first words don't sit over an empty band and a short request never moves */
+.v2 .vcx-tx{margin:0;min-height:calc(2em * 1.6);font-size:14px;line-height:1.6;color:var(--fg)}
 .v2 .vcx-tx .w{animation:v2-lvw .45s var(--ease) both}
 @keyframes v2-lvw{from{opacity:0;filter:blur(3px)}to{opacity:1;filter:none}}
 .v2 .vcx-tx .low{padding:1px 2px;margin:0 -2px;background:var(--hl);-webkit-box-decoration-break:clone;box-decoration-break:clone;cursor:pointer;transition:background .25s}
 @media (hover:hover) and (pointer:fine){.v2 .vcx-tx .low:hover{background:color-mix(in srgb,var(--hl) 70%,var(--py))}}
 .v2 .vcx-tx .low.fixed{background:var(--hl-ok)}
-.v2 .vcx-acts{display:flex;align-items:center;gap:var(--s-2);margin-top:var(--s-4);min-height:32px}
+/* cancelled: the words stay, greyed, so it is clear what was not sent */
+.v2 .vcx.gone .vcx-tx{color:var(--muted)}
+.v2 .vcx-acts{display:flex;align-items:center;gap:var(--s-2);min-height:32px}
 .v2 .vcx-fix{width:220px}
 /* ---------- Tool call ---------- */
 .v2 .tcx{display:flex;flex-direction:column;gap:var(--s-3)}
@@ -3494,12 +3509,11 @@ html{scrollbar-gutter:stable}
 /* ---------- Prompt starters ---------- */
 .v2 .psx{display:flex;flex-direction:column;gap:10px;align-items:center}
 .v2 .psx-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--s-2);width:100%}
-.v2 .psx-c{display:flex;flex-direction:column;gap:6px;align-items:flex-start;text-align:left;padding:var(--s-3);border-radius:14px;background:var(--chip);transition:background .25s,box-shadow .25s}
-@media (hover:hover) and (pointer:fine){.v2 .psx-c:hover{background:var(--hover)}}
-.v2 .psx-c.on{background:var(--surface);box-shadow:inset 0 0 0 1px var(--rail),0 1px 2px rgba(0,0,0,.04)}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .v2 .psx-c.on{background:var(--hover)}}
-:root[data-theme="dark"] .v2 .psx-c.on{background:var(--hover)}
-.v2 .psx-ic{width:28px;height:28px;border-radius:9px;display:grid;place-items:center;background:var(--surface)!important}
+/* white cards with a dimmed grey edge; the picked one's edge is a step stronger */
+.v2 .psx-c{display:flex;flex-direction:column;gap:6px;align-items:flex-start;text-align:left;padding:var(--s-3);border-radius:14px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--pick-line);transition:background .25s,box-shadow .25s}
+@media (hover:hover) and (pointer:fine){.v2 .psx-c:hover{box-shadow:inset 0 0 0 1px var(--faint)}}
+.v2 .psx-c.on{box-shadow:inset 0 0 0 1px var(--pick-on),0 1px 2px rgba(0,0,0,.04)}
+.v2 .psx-ic{width:28px;height:28px;border-radius:9px;display:grid;place-items:center;background:var(--chip)!important}
 .v2 .psx-c b{font-weight:500;font-size:13.5px}
 .v2 .psx-c span.d{font-size:12px;color:var(--muted);line-height:1.4}
 .v2 .psx-in{display:flex;align-items:center;gap:var(--s-2);width:100%;min-height:46px;padding:6px 6px 6px var(--s-4);border-radius:var(--r-pill);background:var(--surface);box-shadow:var(--shadow);font-size:13.5px;position:relative}
@@ -3614,6 +3628,9 @@ html{scrollbar-gutter:stable}
 .v2 .mpk-sg{margin:var(--s-1) var(--s-1) 2px;padding:10px var(--s-3);border-radius:var(--r-in);background:var(--warn-bg);display:flex;flex-direction:column;gap:var(--s-2)}
 .v2 .mpk-sgt{margin:0;font-size:12.5px;line-height:1.45}
 .v2 .mpk-sga{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:6px}
+/* on the amber notice the secondary button is white, not grey */
+.v2 .mpk-sg .pill.ghost{background:var(--surface);color:var(--fg);box-shadow:var(--shadow)}
+@media (hover:hover) and (pointer:fine){.v2 .mpk-sg .pill.ghost:hover{box-shadow:var(--shadow-pop)}}
 .v2 .mpk-th{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:var(--s-2) var(--s-3);padding:var(--s-3) 10px 6px;margin:6px var(--s-1) 0;border-top:1px solid var(--line)}
 .v2 .mpk-thh{display:flex;flex-direction:column;min-width:0;font-size:13px}
 .v2 .mpk-thh b{font-weight:500;display:flex;align-items:center;gap:6px}
@@ -4087,9 +4104,10 @@ html{scrollbar-gutter:stable}
    was said under it, and mute and end below. Talking while muted says so, the way calls do */
 .v2 .vor{position:relative;width:100%;max-width:380px;margin:0 auto;padding:var(--s-4);display:flex;flex-direction:column;gap:var(--s-3);--oc:var(--faint);--oc2:var(--muted)}
 /* --oc is whoever is talking, --oc2 the second colour that flows through the orb with it */
-.v2 .vor[data-m="listening"]{--oc:var(--accent);--oc2:color-mix(in srgb,var(--pl) 45%,var(--accent))}
-.v2 .vor[data-m="speaking"]{--oc:var(--pl);--oc2:color-mix(in srgb,var(--accent) 45%,var(--pl))}
-.v2 .vor[data-m="thinking"]{--oc:color-mix(in srgb,var(--accent) 50%,var(--pl));--oc2:var(--accent)}
+/* the colours are mixed in oklch, so the step between them stays bright (lime to violet passes through teal, not grey) */
+.v2 .vor[data-m="listening"]{--oc:var(--accent);--oc2:color-mix(in oklch,var(--pl) 45%,var(--accent))}
+.v2 .vor[data-m="speaking"]{--oc:var(--pl);--oc2:color-mix(in oklch,var(--accent) 45%,var(--pl))}
+.v2 .vor[data-m="thinking"]{--oc:color-mix(in oklch,var(--accent) 50%,var(--pl));--oc2:var(--accent)}
 .v2 .vor[data-m="muted"]{--oc:color-mix(in srgb,var(--muted) 55%,var(--faint));--oc2:var(--faint)}
 .v2 .vor-top{display:flex;align-items:center;gap:var(--s-2);font-size:13px}
 .v2 .vor-dot{width:8px;height:8px;border-radius:50%;background:var(--oc);transition:background .4s}
@@ -4100,12 +4118,9 @@ html{scrollbar-gutter:stable}
 .v2 .vor-orb i{position:absolute;inset:0;border-radius:50%}
 /* round in Blueprint too, where every other corner is square: like the turning loaders, its shape is what it says */
 .v2 .vor .vor-orb i{border-radius:50%!important}
-/* the glow: both colours turning slowly behind the orb and fading out from its edge (a mask, not a blur, so Blueprint keeps
-   it too), brighter and wider the louder the voice */
-.v2 .vor .vor-orb .vor-glow{inset:-30px;background:conic-gradient(from 0deg,var(--oc),var(--oc2),var(--oc));-webkit-mask:radial-gradient(closest-side,#000 48%,transparent);mask:radial-gradient(closest-side,#000 48%,transparent);opacity:calc(.3 + var(--lv) * .45);transform:scale(calc(.9 + var(--lv) * .3));animation:v2-vor-spin 9s linear infinite;transition:opacity .4s}
-.v2 .vor[data-m="idle"] .vor-orb .vor-glow,.v2 .vor[data-m="ended"] .vor-orb .vor-glow,.v2 .vor[data-m="muted"] .vor-orb .vor-glow{opacity:.16}
-@keyframes v2-vor-spin{to{rotate:360deg}}
-.v2 .vor-core{overflow:hidden;background-color:color-mix(in srgb,var(--oc) 72%,var(--surface));background-image:radial-gradient(circle at 34% 28%,rgba(255,255,255,.42),rgba(255,255,255,0) 62%);box-shadow:inset 0 -8px 18px color-mix(in srgb,var(--oc) 30%,transparent),0 0 0 1px color-mix(in srgb,var(--oc) 20%,transparent);transform:scale(calc(.9 + var(--lv) * .14));transition:background-color .4s}
+/* the sphere: nothing reaches past its edge, no glow or ring, so it never needs room around it. Without WebGL it is a plain
+   gradient circle, lit from the top left and deeper at the foot */
+.v2 .vor-core{overflow:hidden;background-color:color-mix(in srgb,var(--oc) 80%,var(--surface));background-image:radial-gradient(circle at 34% 28%,rgba(255,255,255,.4),rgba(255,255,255,0) 60%);box-shadow:inset 0 -10px 20px color-mix(in srgb,var(--oc) 55%,#000 10%);transform:scale(calc(.9 + var(--lv) * .14));transition:background-color .4s}
 /* the flowing inside, drawn over the plain gradient once WebGL is there */
 .v2 .vor-gl{position:absolute;inset:0;width:100%;height:100%;border-radius:50%;opacity:0;transition:opacity .4s}
 .v2 .vor-gl.on{opacity:1}
@@ -4114,7 +4129,6 @@ html{scrollbar-gutter:stable}
 .v2 .vor-cap,.v2 .vor-mf,.v2 .vor-f{position:relative}
 .v2 .vor[data-m="thinking"] .vor-core{animation:v2-vor-br 1.6s var(--ease-io) infinite alternate}
 @keyframes v2-vor-br{from{transform:scale(.9)}to{transform:scale(.96)}}
-@media (prefers-reduced-motion:reduce){.v2 .vor-glow{animation:none}}
 .v2 .vor-cap{min-height:88px;display:flex;flex-direction:column;gap:2px;text-align:center}
 .v2 .vor-who{font-size:12px;min-height:18px}
 .v2 .vor-tx{margin:0;font-size:14px;line-height:1.6;color:var(--fg)}
@@ -4330,7 +4344,9 @@ html{scrollbar-gutter:stable}
 .v2 .ssx-box{width:100%}
 .v2 .ssx-in{padding:2px 0 var(--s-1);display:flex;flex-direction:column;gap:var(--s-2)}
 .v2 .ssx-fl{display:flex;gap:var(--s-1);flex-wrap:wrap}
-.v2 .ssx-fl .chip.on{background:var(--ink);color:var(--on-ink);box-shadow:none}
+/* the filters are white chips with a dimmed grey edge; the picked one's edge is a step stronger */
+.v2 .ssx-fl .chip{background:var(--surface);box-shadow:inset 0 0 0 1px var(--pick-line)}
+@media (hover:hover) and (pointer:fine){.v2 .ssx-fl .chip:hover{background:var(--surface);box-shadow:inset 0 0 0 1px var(--faint)}}
 .v2 .ssx-list{display:flex;flex-direction:column;gap:2px;margin-inline:-6px}
 .v2 .ssx-s{display:flex;align-items:center;gap:10px;padding:7px 6px;border-radius:10px;font-size:13px;transition:background .25s}
 @media (hover:hover) and (pointer:fine){.v2 .ssx-s:hover{background:var(--row)}}
@@ -4476,7 +4492,7 @@ html{scrollbar-gutter:stable}
 @media (hover:hover) and (pointer:fine){.v2 .cvx-tab:hover{color:var(--fg)}}
 /* the tabs scroll sideways, which would cut an outside ring: theirs is drawn inside */
 .v2 .cvx-tab:focus-visible{outline-offset:-2px}
-.v2 .cvx-tab.on{background:var(--chip);color:var(--fg)}
+.v2 .cvx-tab.on{background:var(--surface);color:var(--fg);box-shadow:inset 0 0 0 1px var(--pick-on)}
 .v2 .cvx-meta{margin-left:auto;padding-right:2px;font-size:12px;color:var(--muted);white-space:nowrap}
 .v2 .cvx-meta b{font-weight:500;color:var(--ok)}
 .v2 .cvx-body{overflow-x:auto;min-height:232px}
@@ -4968,50 +4984,58 @@ html{scrollbar-gutter:stable}
 .v2 .mmx-gone{display:flex;align-items:center;justify-content:space-between;gap:var(--s-2);padding:6px var(--s-2);border-radius:10px;font-size:12.5px;color:var(--muted);background:var(--chip)}
 .v2 .mmx-gone button{color:var(--accent-fg,var(--accent));font-weight:500;font-size:12.5px}
 /* ---------- Model compare ---------- */
-.v2 .mcx{display:flex;flex-direction:column;gap:var(--s-3)}
-.v2 .mcx-cols{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
-@media (max-width:720px){.v2 .mcx-cols{grid-template-columns:1fr}}
-.v2 .mcx-c{display:flex;flex-direction:column;min-height:252px;min-width:0;transition:box-shadow .35s,opacity .4s}
-.v2 .mcx-c.win{box-shadow:0 0 0 1.5px var(--accent-mark,var(--accent)),var(--shadow)}
-.v2 .mcx-c.lose{opacity:.55}
+/* one prompt on top, then each model's answer in its own column on one white surface, split by hairlines. Colour is only
+   for the models' marks and the answer that was chosen. Where the component is narrow, the columns stack */
+.v2 .mcx{display:flex;flex-direction:column;container-type:inline-size}
+/* on a card it keeps the room its answers will take, so it stays centred before they arrive; the columns take the rest */
+.v2.stage-in>.mcx{min-height:inherit}
+.v2 .mcx-in{display:flex;align-items:center;gap:var(--s-2);padding:var(--s-3)}
+/* the prompt field: a dimmed edge at rest, one step stronger while it has the focus, and no ring */
+.v2 .mcx-fd{flex:1;min-width:0;display:flex;align-items:center;gap:var(--s-2);height:36px;padding:0 var(--s-3);border-radius:var(--r-in);background:var(--surface);box-shadow:inset 0 0 0 1px var(--rail);transition:box-shadow var(--t-fast)}
+@supports (corner-shape:squircle){.v2 .mcx-fd{corner-shape:squircle}}
+.v2 .mcx-fd:focus-within{box-shadow:inset 0 0 0 1px var(--faint)}
+.v2 .mcx-q{flex:1;min-width:0;height:100%;border:0;outline:0;background:none;font:inherit;font-size:13.5px;color:var(--fg)}
+.v2 .mcx-q:focus-visible{outline:0}
+.v2 .mcx-n{font-size:12px;color:var(--muted);white-space:nowrap}
+.v2 .mcx-go{flex:none}
+.v2 .mcx-pop{min-width:240px}
+.v2 .mcx-cols{flex:1;display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);border-top:1px solid var(--line)}
+.v2 .mcx-c{display:flex;flex-direction:column;min-width:0;padding:var(--s-3) var(--s-4) var(--s-4);transition:background var(--t) var(--ease)}
+.v2 .mcx-c+.mcx-c{border-left:1px solid var(--line)}
 .v2 .mcx-c.enter{animation-duration:.5s}
-.v2 .mcx-h{display:flex;align-items:center;gap:6px;height:46px;padding:0 6px;border-bottom:1px solid var(--line)}
-.v2 .mcx-sel{display:inline-flex;align-items:center;gap:7px;height:32px;padding:0 var(--s-2) 0 6px;border-radius:9px;font-size:13px;font-weight:500;min-width:0;transition:background .2s}
-.v2 .mcx-sel[aria-expanded="true"]{background:var(--chip)}
-@media (hover:hover) and (pointer:fine){.v2 .mcx-sel:hover{background:var(--chip)}}
+.v2 .mcx-c.win{background:var(--sel)}
+/* the header: the model, which is also the menu that swaps it, and Remove */
+.v2 .mcx-h{display:flex;align-items:center;gap:var(--s-1);margin:0 calc(-1 * var(--s-2)) 0 calc(-1 * var(--s-2))}
+.v2 .mcx-sel{display:inline-flex;align-items:center;gap:var(--s-2);height:28px;padding:0 var(--s-2);border-radius:var(--r-sm);font-size:13.5px;font-weight:500;color:var(--fg);min-width:0;transition:background var(--t-fast)}
+.v2 .mcx-sel[aria-expanded="true"]{background:var(--row)}
+@media (hover:hover) and (pointer:fine){.v2 .mcx-sel:hover{background:var(--row)}}
+.v2 .mcx-sel .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .v2 .mcx-sel>.i{color:var(--muted)}
-.v2 .mcx-mk{width:20px;height:20px;border-radius:6px;display:grid;place-items:center;font-size:10px;font-weight:500;color:var(--on-ink);flex:none}
-.v2 .mcx-x{width:26px;height:26px;margin-left:auto;color:var(--muted)}
-.v2 .mcx-o{flex:1;display:flex;flex-direction:column;gap:10px;padding:var(--s-3)}
-.v2 .mcx-o .bub{font-size:13px;padding:7px 11px;border-radius:14px;max-width:92%}
-.v2 .mcx-a{font-size:13.5px;line-height:1.55;color:var(--fg);display:flex;flex-direction:column;gap:6px}
+.v2 .mcx-mk{width:18px;height:18px;border-radius:var(--r-xs);display:grid;place-items:center;font-size:10px;font-weight:500;flex:none}
+.v2 .mcx-x{width:28px;height:28px;margin-left:auto;color:var(--muted)}
+/* the quiet line under it: what the model is good at until it writes, then its tokens, then time, tokens and cost */
+.v2 .mcx-m{min-height:18px;margin-top:var(--s-1);font-size:12px;line-height:18px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v2 .mcx-m [data-tip]{cursor:default;transition:color var(--t)}
+.v2 .mcx-m .best{color:var(--fg)}
+.v2 .mcx-a{flex:1;min-height:112px;margin-top:var(--s-3);font-size:13.5px;line-height:1.55;color:var(--fg)}
 .v2 .mcx-a .w{animation:v2-mcw .4s var(--ease) both}
 @keyframes v2-mcw{from{opacity:0;filter:blur(3px)}to{opacity:1;filter:none}}
 .v2 .mcx-a .ph{color:var(--muted);font-size:12.5px}
-.v2 .mcx-a .wk{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;color:var(--muted)}
+.v2 .mcx-a .wk{display:inline-flex;align-items:center;gap:var(--s-2);font-size:12.5px;color:var(--muted)}
 .v2 .mcx-a .wk .think{color:var(--accent-fg,var(--accent))}
-.v2 .mcx-f{display:flex;align-items:center;gap:var(--s-2);height:44px;padding:0 var(--s-2) 0 var(--s-3);border-top:1px solid var(--line);font-size:12px;color:var(--muted)}
-.v2 .mcx-m{display:inline-flex;gap:10px;white-space:nowrap}
-.v2 .mcx-m span{cursor:default;display:inline-flex;align-items:center;gap:var(--s-1);transition:color .3s}
-.v2 .mcx-m .best{color:var(--ok);font-weight:500}
-.v2 .mcx-pick{margin-left:auto}
-.v2 .mcx-pop{min-width:250px}
-.v2 .mcx-pop .mi[disabled],.v2 .mcx-pop .mi[disabled] .i{opacity:1;cursor:not-allowed;background:none;color:var(--dis)}
-.v2 .mcx-add{border-radius:var(--r-card);box-shadow:inset 0 0 0 1.5px var(--rail);display:flex;align-items:center;justify-content:center;min-height:252px;position:relative;transition:background .2s,box-shadow .2s}
-@media (hover:hover) and (pointer:fine){.v2 .mcx-add:hover{background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--faint)}}
-.v2 .mcx-addb{display:flex;flex-direction:column;align-items:center;gap:6px;font-size:13px;color:var(--fg2);padding:14px 18px;border-radius:14px;transition:background .2s,color .2s}
-.v2 .mcx-addb[aria-expanded="true"]{color:var(--fg)}
-@media (hover:hover) and (pointer:fine){.v2 .mcx-addb:hover{color:var(--fg)}}
-.v2 .mcx-addb .ic{margin-bottom:2px}
-.v2 .mcx-addb .ic{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:var(--soft,var(--chip));box-shadow:var(--soft-ring,none);color:var(--fg)}
-.v2 .mcx-addb .d{font-size:12px;color:var(--muted)}
-.v2 .mcx-in{display:flex;align-items:center;gap:10px;padding:6px 6px 6px 18px;border-radius:var(--r-pill);background:var(--surface);box-shadow:var(--shadow);transition:box-shadow .25s}
-.v2 .mcx-in:has(.mcx-q:focus-visible){box-shadow:0 0 0 2px var(--focus),var(--shadow),0 0 0 4px var(--accent-bg)}
-.v2 .mcx-q{flex:1;min-width:0;border:0;outline:0;background:none;font:inherit;font-size:13.5px;color:var(--fg)}
-.v2 .mcx-n{font-size:12px;white-space:nowrap}
-.v2 .mcx-go{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:var(--ink);color:var(--on-ink);flex:none;transition:opacity .2s,transform .15s}
-.v2 .mcx-go:active{transform:scale(.92)}
-.v2 .mcx-go[disabled]{opacity:1;cursor:not-allowed;background:var(--dis-hatch),var(--dis-fill);color:var(--dis);box-shadow:var(--soft-ring)}
+/* Use this answer shows once the answer is in; the chosen one takes the accent's tint */
+.v2 .mcx-ft{margin-top:var(--s-3);visibility:hidden;opacity:0;transition:opacity var(--t) var(--ease),visibility 0s var(--t)}
+.v2 .mcx-c.done .mcx-ft{visibility:visible;opacity:1;transition:opacity var(--t) var(--ease)}
+.v2 .pill.mcx-pick[aria-pressed="true"]{background:var(--accent-bg);color:var(--accent-fg,var(--accent));box-shadow:none}
+@media (hover:hover) and (pointer:fine){.v2 .pill.mcx-pick[aria-pressed="true"]:hover{background:var(--accent-bg);color:var(--accent-fg,var(--accent));box-shadow:none}}
+.v2 .mcx-live{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+@container (max-width:539px){
+  .v2 .mcx-cols{grid-auto-flow:row}
+  .v2 .mcx-c+.mcx-c{border-left:0;border-top:1px solid var(--line)}
+  .v2 .mcx-a{min-height:42px}
+  .v2 .mcx-n{display:none}
+}
+:root:not([data-style="soft"]) .v2 .pill.mcx-pick[aria-pressed="true"]{box-shadow:inset 0 0 0 1px var(--accent-mark)}
 
 /* ---------- Tools and connections ---------- */
 .v2 .hnx{padding:var(--s-3);display:flex;flex-direction:column;gap:6px}
@@ -5489,7 +5513,9 @@ html{scrollbar-gutter:stable}
 .v2 .atb-s:focus-within{box-shadow:inset 0 0 0 2px var(--focus)}
 .v2 .atb-s input::placeholder{color:var(--muted)}
 .v2 .atb-fl{display:flex;gap:var(--s-1);flex-wrap:wrap}
-.v2 .atb-fl .chip.on{background:var(--ink);color:var(--on-ink);box-shadow:none}
+/* the filters are white chips with a dimmed grey edge; the picked one's edge is a step stronger */
+.v2 .atb-fl .chip{background:var(--surface);box-shadow:inset 0 0 0 1px var(--pick-line)}
+@media (hover:hover) and (pointer:fine){.v2 .atb-fl .chip:hover{background:var(--surface);box-shadow:inset 0 0 0 1px var(--faint)}}
 .v2 .atb-sc{overflow-x:auto}
 .v2 .atb table{width:100%;border-collapse:collapse;font-size:13px;min-width:560px}
 .v2 .atb th{text-align:left;font-weight:500;font-size:12px;color:var(--muted);padding:9px var(--s-3);white-space:nowrap}
@@ -5579,15 +5605,14 @@ html{scrollbar-gutter:stable}
 .v2 .sgc-ev .t{flex:1;min-width:0;display:flex;flex-direction:column}
 .v2 .sgc-ev .t span{font-size:12px;color:var(--muted)}
 .v2 .sgc-none{height:100%;display:grid;place-items:center;font-size:13px;color:var(--muted)}
-/* the week: one row a day with its first event, a count of the rest, and today picked out */
-.v2 .sgc-wk{display:flex;flex-direction:column;gap:2px}
-.v2 .sgc-wr{display:flex;align-items:center;gap:10px;width:100%;height:23px;padding:0 var(--s-2);border-radius:var(--r-sm);font-size:12.5px;text-align:left;transition:background var(--t-fast)}
+/* the week: the five working days, one roomy row each with its first event, a count of the rest, and today picked out */
+.v2 .sgc-wk{display:flex;flex-direction:column;gap:var(--s-1)}
+.v2 .sgc-wr{display:flex;align-items:center;gap:var(--s-3);width:100%;height:32px;padding:0 var(--s-3);border-radius:var(--r-sm);font-size:13px;text-align:left;transition:background var(--t-fast)}
 @media (hover:hover) and (pointer:fine){.v2 .sgc-wr:hover{background:var(--row)}}
 .v2 .sgc-wr:focus-visible,.v2 .sgc-mo .d:focus-visible{outline:0;box-shadow:0 0 0 2px var(--focus)}
-.v2 .sgc-wr .d{width:46px;flex:none;color:var(--muted)}
+.v2 .sgc-wr .d{width:52px;flex:none;color:var(--muted)}
 .v2 .sgc-wr .e{flex:1;min-width:0;display:flex;align-items:center;gap:var(--s-2);white-space:nowrap}
 .v2 .sgc-wr .e i{width:6px;height:6px;border-radius:50%;background:var(--c);flex:none}
-.v2 .sgc-wr .e .tm{color:var(--muted);flex:none}
 .v2 .sgc-wr .e span:last-child{min-width:0;overflow:hidden;text-overflow:ellipsis}
 .v2 .sgc-wr .more{flex:none;font-size:12px;color:var(--muted)}
 .v2 .sgc-wr.none .e{color:var(--muted)}
@@ -5600,7 +5625,7 @@ html{scrollbar-gutter:stable}
 .v2 .sgc-mo .d{position:relative;height:26px;display:grid;place-items:center;border-radius:var(--r-sm);color:var(--fg2);transition:background var(--t-fast)}
 .v2 .sgc-mo.r6 .d{height:22px}
 @media (hover:hover) and (pointer:fine){.v2 .sgc-mo .d:hover{background:var(--row)}}
-.v2 .sgc-mo .d.on{background:var(--chip);color:var(--fg)}
+.v2 .sgc-mo .d.on{background:var(--surface);color:var(--fg);box-shadow:inset 0 0 0 1px var(--pick-on)}
 .v2 .sgc-mo .d.e::after{content:"";position:absolute;bottom:2px;left:50%;width:4px;height:4px;margin-left:-2px;border-radius:50%;background:var(--accent-mark,var(--accent))}
 .v2 .sgc-mo .d.now{background:var(--ink);color:var(--on-ink)}
 @media (hover:hover) and (pointer:fine){.v2 .sgc-mo .d.now:hover{background:var(--ink);color:var(--on-ink)}}
@@ -5697,7 +5722,7 @@ html{scrollbar-gutter:stable}
   .v2 .ecx-days{display:flex;gap:var(--s-1);padding:var(--s-2) var(--s-3);border-bottom:1px solid var(--line)}
   .v2 .ecx-days button{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:2px;padding:var(--s-1) 0;border-radius:var(--r-sm);font-size:11.5px;color:var(--fg2);transition:background var(--t-fast),color var(--t-fast)}
   @media (hover:hover) and (pointer:fine){.v2 .ecx-days button:hover{background:var(--row);color:var(--fg)}}
-  .v2 .ecx-days button[aria-pressed="true"]{background:var(--chip);color:var(--fg)}
+  .v2 .ecx-days button[aria-pressed="true"]{background:var(--surface);color:var(--fg);box-shadow:inset 0 0 0 1px var(--pick-on)}
   .v2 .ecx-days b{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;font-size:13px;font-weight:500;color:var(--fg)}
   .v2 .ecx-days .t b{background:var(--accent);color:var(--on-accent,#fff)}
   .v2 .ecx-sc{overflow:visible}
@@ -5793,7 +5818,17 @@ html{scrollbar-gutter:stable}
 .v2 .bdg.sm{height:20px;font-size:11.5px}
 .v2 .bdg>.t{min-width:0;overflow:hidden;text-overflow:ellipsis}
 .v2 .bdg>.i{flex:none}
-.v2 .bdg-dot{width:6px;height:6px;border-radius:50%;background:currentColor;flex:none}
+.v2 .bdg-dot{position:relative;width:6px;height:6px;border-radius:50%;background:currentColor;flex:none}
+/* a live badge (.live: running, streaming, on air) pulses its dot: a soft ring in its own colour grows and fades, on a loop.
+   Only transform and opacity move, so it stays on the compositor; with reduced motion the dot stays still */
+.v2 .bdg.live .bdg-dot::after{content:"";position:absolute;inset:0;border-radius:inherit;background:currentColor;opacity:0;animation:v2-bdgpulse 1.8s cubic-bezier(.22,1,.36,1) infinite}
+@keyframes v2-bdgpulse{0%{opacity:.5;transform:scale(1)}100%{opacity:0;transform:scale(2.8)}}
+@media (prefers-reduced-motion:reduce){.v2 .bdg.live .bdg-dot::after{animation:none}}
+/* a badge you can act on, a removable one or one that is a button or a link, takes a light hover: a little more of its own
+   colour in its tint. Plain labels keep still, so they never look clickable */
+.v2 .bdg:is(:has(>.bdg-x),button,a[href]){transition:background var(--t-fast)}
+.v2 .bdg:is(button,a[href]){cursor:pointer;text-decoration:none}
+@media (hover:hover) and (pointer:fine){.v2 .bdg:is(:has(>.bdg-x),button,a[href]):hover{background:color-mix(in srgb,var(--bdg-fg) 7%,var(--bdg-bg))}}
 .v2 .bdg[data-tone="accent"]{--bdg-bg:var(--accent-bg);--bdg-fg:var(--accent-fg)}
 .v2 .bdg[data-tone="success"]{--bdg-bg:var(--ok-bg);--bdg-fg:var(--ok)}.v2 .bdg[data-tone="warning"]{--bdg-bg:var(--warn-bg);--bdg-fg:var(--warn)}.v2 .bdg[data-tone="danger"]{--bdg-bg:var(--bad-bg);--bdg-fg:var(--bad)}
 .v2 .bdg[data-tone="blue"]{--bdg-bg:var(--pb-bg);--bdg-fg:var(--pb)}.v2 .bdg[data-tone="violet"]{--bdg-bg:var(--pl-bg);--bdg-fg:var(--pl)}.v2 .bdg[data-tone="green"]{--bdg-bg:var(--pm-bg);--bdg-fg:var(--pm)}.v2 .bdg[data-tone="orange"]{--bdg-bg:var(--pp-bg);--bdg-fg:var(--pp)}
@@ -5943,7 +5978,7 @@ html{scrollbar-gutter:stable}
 .v2 .ssi-b .mk .i{width:16px;height:16px}
 .v2 .ssi-b .mk .lt{min-width:18px;height:18px;padding:0 3px;border-radius:5px;background:var(--ink);color:var(--on-ink);display:grid;place-items:center;font-size:10px;font-weight:500}
 .v2 .ssi-b .last{position:absolute;top:-8px;right:22px;font-size:10.5px;font-weight:500;color:var(--fg2);background:var(--surface);box-shadow:inset 0 0 0 1px var(--rail);padding:1px 7px;border-radius:var(--r-pill)}
-.v2 .ssi-b.last-used{box-shadow:inset 0 0 0 1px var(--fg2)}
+.v2 .ssi-b.last-used{box-shadow:inset 0 0 0 1px var(--pick-on)}
 .v2 .ssi-b.busy{pointer-events:none}
 .v2 .ssi-list.wait .ssi-b:not(.busy){opacity:.45}
 .v2 .ssi-or{display:flex;align-items:center;gap:10px;width:100%;font-size:11.5px;color:var(--muted)}
@@ -6047,7 +6082,9 @@ html{scrollbar-gutter:stable}
 .v2 .fmx-f.ai .fmx-dr{opacity:1;transform:none}
 .v2 .fmx-c{position:absolute;right:12px;top:24px;height:40px;display:flex;align-items:center;font-style:normal;font-size:11px;color:var(--muted);font-weight:400;pointer-events:none}
 .v2 .fmx-ty{display:flex;gap:6px}
-.v2 .fmx-ty .chip.on{background:var(--ink);color:var(--on-ink);box-shadow:none}
+/* the types are white chips with a dimmed grey edge; the picked one's edge is a step stronger */
+.v2 .fmx-ty .chip{background:var(--surface);box-shadow:inset 0 0 0 1px var(--pick-line)}
+@media (hover:hover) and (pointer:fine){.v2 .fmx-ty .chip:hover{background:var(--surface);box-shadow:inset 0 0 0 1px var(--faint)}}
 .v2 .fmx-ft{display:flex;align-items:center;justify-content:space-between;gap:var(--s-2);margin-top:var(--s-1)}
 .v2 .fmx-ms{font-size:12px}
 .v2 .fmx-done{display:flex;flex-direction:column;align-items:center;gap:6px;padding:var(--s-6) 0;text-align:center;font-size:13px}
@@ -6080,31 +6117,60 @@ html{scrollbar-gutter:stable}
 .v2 .pyx-go.ok{background:var(--ok)}
 .v2 .pyx-n{font-size:11.5px;text-align:center}
 /* ---------- Comments ---------- */
-.v2 .cmx{padding:var(--s-3);display:flex;flex-direction:column;gap:10px;min-height:340px}
-.v2 .cmx-h{display:flex;align-items:center;gap:var(--s-2);font-size:13.5px;margin:0 -12px;padding:0 var(--s-3) 10px;border-bottom:1px solid var(--line)}
-.v2 .cmx-h b{font-weight:500;flex:1}
-.v2 .cmx-pin{width:22px;height:22px;border-radius:50% 50% 50% var(--r-xs);background:var(--accent);color:var(--on-accent,#fff);display:grid;place-items:center;font-size:11px;font-weight:500}
-.v2 .cmx-th{display:flex;flex-direction:column;gap:var(--s-3);flex:1}
-.v2 .cmx-c{display:flex;gap:9px}
-.v2 .cmx-c .av{width:26px;height:26px;font-size:10px;flex:none}
-.v2 .cmx-c .b{display:flex;flex-direction:column;gap:2px;font-size:13px;line-height:1.5;min-width:0}
-.v2 .cmx-c .n{font-size:12.5px}
-.v2 .cmx-c .n b{font-weight:500}
-.v2 .cmx-c .n span{color:var(--muted);margin-left:6px;font-size:11.5px}
-.v2 .cmx-c .m{color:var(--accent-fg,var(--accent));font-weight:500}
+/* a thread on one spot of a design: the first comment, then its replies indented on a thin line. Each comment is an avatar,
+   a name, a time and the text; its Agree button shows on hover or keyboard focus (always, on a touch screen) */
+.v2 .cmx{padding:var(--s-4);display:flex;flex-direction:column;gap:var(--s-4);min-height:340px}
+/* on a card the thread keeps the room its last reply takes, so it stays centred while replies arrive */
+.v2.stage-in>.cmx{min-height:inherit}
+.v2 .cmx-h{display:flex;align-items:center;gap:var(--s-2);font-size:13.5px;margin:calc(-1 * var(--s-1)) calc(-1 * var(--s-1)) 0 0}
+.v2 .cmx-h b{font-weight:500}
+.v2 .cmx-st{flex:1;font-size:12px;color:var(--muted)}
+.v2 .cmx-pin{width:20px;height:20px;border-radius:50% 50% 50% var(--r-xs);background:var(--accent);color:var(--on-accent,#fff);display:grid;place-items:center;font-size:11px;font-weight:500;flex:none;transition:background var(--t)}
+.v2 .cmx.done .cmx-pin{background:var(--ok);color:var(--surface)}
+.v2 .cmx-res{width:28px;height:28px;color:var(--muted)}
+.v2 .cmx-th{display:flex;flex-direction:column;gap:var(--s-4);flex:1}
+.v2 .cmx-rp{display:flex;flex-direction:column;gap:var(--s-4);margin-left:var(--s-3);padding-left:var(--s-5);border-left:1px solid var(--rail)}
+.v2 .cmx-c{display:flex;gap:var(--s-3);min-width:0}
+.v2 .cmx-c .av{width:24px;height:24px;font-size:10px}
+.v2 .cmx-c .b{flex:1;display:flex;flex-direction:column;min-width:0}
+.v2 .cmx-c .n{display:flex;align-items:center;gap:var(--s-2);height:24px;font-size:13px}
+.v2 .cmx-c .n b{font-weight:500;white-space:nowrap}
+.v2 .cmx-c .n .t{font-size:12px;color:var(--muted)}
+.v2 .cmx-c .tx{font-size:13.5px;line-height:1.5;color:var(--fg);overflow-wrap:anywhere}
+.v2 .cmx-c .m{color:var(--accent-fg,var(--accent));background:var(--sel);border-radius:var(--r-xs);padding:0 2px}
 .v2 .cmx-c.ag .tx .w{animation:v2-cmw .4s var(--ease) both}
-@keyframes v2-cmw{from{opacity:0;filter:blur(3px)}}
-.v2 .cmx-c .act{display:flex;gap:6px;margin-top:6px}
+@keyframes v2-cmw{from{opacity:0;filter:blur(3px)}to{opacity:1;filter:none}}
+.v2 .cmx-c .act{display:flex;flex-wrap:wrap;gap:var(--s-2);margin-top:var(--s-2)}
+/* the quiet Agree button beside the time */
+.v2 .cmx-tools{margin-left:auto;display:flex;gap:var(--s-1);transition:opacity var(--t-fast)}
+.v2 .cmx-tools .ib{width:26px;height:26px;color:var(--muted)}
+.v2 .cmx-tools .ib[aria-pressed="true"]{color:var(--fg)}
+@media (hover:hover) and (pointer:fine){.v2 .cmx-tools{opacity:0}}
+.v2 .cmx-c .n:focus-within .cmx-tools{opacity:1}
+@media (hover:hover) and (pointer:fine){.v2 .cmx-c:hover .cmx-tools{opacity:1}}
+/* how many agreed: a small chip under the text, a step stronger once you have */
+.v2 .cmx-rs{display:flex;margin-top:var(--s-2)}
+.v2 .cmx-rs:has(.cmx-rc[hidden]){display:none}
+.v2 .cmx-rc{display:inline-flex;align-items:center;gap:var(--s-1);height:22px;padding:0 var(--s-2);border-radius:var(--r-pill);font-size:12px;color:var(--fg2);background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);transition:box-shadow var(--t-fast),color var(--t-fast)}
+@media (hover:hover) and (pointer:fine){.v2 .cmx-rc:hover{box-shadow:inset 0 0 0 1px var(--rail)}}
+.v2 .cmx-rc[aria-pressed="true"]{color:var(--fg);box-shadow:inset 0 0 0 1px var(--faint)}
+/* the reply field: a dimmed edge at rest, one step stronger while it has the focus, and no ring */
 .v2 .cmx-in{position:relative}
-.v2 .cmx-box{display:flex;align-items:center;gap:6px;height:40px;padding:0 5px 0 14px;border-radius:var(--r-pill);background:var(--surface);box-shadow:inset 0 0 0 1px var(--field-line);transition:box-shadow .25s}
-.v2 .cmx-box:has(input:focus-visible){box-shadow:inset 0 0 0 2px var(--focus),0 0 0 4px var(--accent-bg)}
-.v2 .cmx-box input{flex:1;min-width:0;border:0;outline:0;background:transparent;font:inherit;font-size:13px;color:var(--fg)}
+.v2 .cmx-box{display:flex;align-items:center;gap:var(--s-2);height:40px;padding:0 var(--s-1) 0 var(--s-3);border-radius:var(--r-in);background:var(--surface);box-shadow:inset 0 0 0 1px var(--rail);transition:box-shadow var(--t-fast)}
+@supports (corner-shape:squircle){.v2 .cmx-box{corner-shape:squircle}}
+.v2 .cmx-box:focus-within{box-shadow:inset 0 0 0 1px var(--faint)}
+.v2 .cmx-box input{flex:1;min-width:0;height:100%;border:0;outline:0;background:transparent;font:inherit;font-size:13.5px;color:var(--fg)}
+.v2 .cmx-box input:focus-visible{outline:0}
 .v2 .cmx-box input::placeholder{color:var(--muted)}
-.v2 .cmx-go{width:30px;height:30px;border-radius:50%;background:var(--accent);color:var(--on-accent,#fff);display:grid;place-items:center;transition:opacity .2s,transform .2s}
-.v2 .cmx-go[disabled]{opacity:1;cursor:not-allowed;background:var(--dis-hatch),var(--dis-fill);color:var(--dis);box-shadow:var(--soft-ring)}
+.v2 .cmx-go{width:30px;height:30px;border-radius:50%;background:var(--accent);color:var(--on-accent,#fff);display:grid;place-items:center;flex:none;transition:background var(--t-fast),transform .15s}
+@media (hover:hover) and (pointer:fine){.v2 .cmx-go:hover{background:var(--accent-2)}}
+.v2 .cmx-go:active{transform:scale(.94)}
+.v2 .cmx-go[disabled]{opacity:1;cursor:not-allowed;background:var(--dis-hatch),var(--dis-fill);color:var(--dis);box-shadow:var(--soft-ring);transform:none}
+@media (hover:hover) and (pointer:fine){.v2 .cmx-go[disabled]:hover{opacity:1;cursor:not-allowed;background:var(--dis-hatch),var(--dis-fill);color:var(--dis);box-shadow:var(--soft-ring);transform:none}}
 .v2 .cmx-men{bottom:46px;left:0;min-width:210px}
 .v2 .cmx.done .cmx-th,.v2 .cmx.done .cmx-in{opacity:.45;pointer-events:none;transition:opacity .4s}
 .v2 .cmx-rv{font-size:12.5px;color:var(--ok);display:flex;align-items:center;gap:6px}
+:root:not([data-style="soft"]) .v2 .cmx-c .m{box-shadow:inset 0 -1px 0 var(--accent-mark)}
 /* ---------- Notifications ---------- */
 .v2 .ntx{padding:var(--s-3);display:flex;flex-direction:column;gap:var(--s-2);min-height:360px}
 /* on a card the inbox keeps the room its fullest list takes, so it stays centred while items arrive, after a filter and after Mark all read */
@@ -6135,12 +6201,13 @@ html{scrollbar-gutter:stable}
 /* an announcement on a tint of its tone: an eyebrow, a title, a line of text and its actions on the left, and one of four line
    drawings on the right, drawn as a hairline with a few construction lines, the way Blueprint draws everything. Each tone
    names three colours: --bnx-m draws the art (3:1 on the fill), --bnx-c writes the eyebrow (4.5:1) and --bnx-f is what
-   the fill is a tint of. The fill is solid, so the dismiss button and the art's own faces can wear it too */
+   the fill is a tint of. The fill is solid, so the close button and the art's own faces can wear it too. It has no border:
+   the tint is its edge */
 .v2 .bnx-slot{width:100%}
 .v2 .bnx{position:relative;width:100%;min-height:176px;display:flex;flex-direction:column;justify-content:center;overflow:hidden;border-radius:var(--r-card);container:bnx/inline-size;isolation:isolate;
   --bnx-m:var(--accent-mark);--bnx-c:var(--accent-fg);--bnx-f:var(--accent);--bnx-k:10%;--bnx-ka:var(--bnx-k);
   --bnx-bg:color-mix(in srgb,var(--bnx-f) var(--bnx-ka),var(--surface));
-  background:var(--bnx-bg);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--bnx-m) 14%,transparent);transition:background-color var(--t-slow) var(--ease),box-shadow var(--t-slow) var(--ease)}
+  background:var(--bnx-bg);transition:background-color var(--t-slow) var(--ease)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .v2 .bnx{--bnx-k:14%}}
 :root[data-theme="dark"] .v2 .bnx{--bnx-k:14%}
 .v2 .bnx[data-tone="neutral"]{--bnx-m:var(--muted);--bnx-c:var(--fg2);--bnx-bg:var(--chip)}
@@ -6156,6 +6223,15 @@ html{scrollbar-gutter:stable}
 .v2 .bnx-acts{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s-2) var(--s-4);margin-top:var(--s-4)}
 .v2 .bnx-lk{display:inline-flex;align-items:center;height:28px;font-size:13px;color:var(--fg);text-decoration:underline;text-decoration-color:color-mix(in srgb,currentColor 35%,transparent);text-underline-offset:3px;transition:text-decoration-color var(--t-fast)}
 @media (hover:hover) and (pointer:fine){.v2 .bnx-lk:hover{text-decoration-color:currentColor}}
+/* on a coloured banner the primary button is white in light mode, with the text colour on it, so it stands out from the tint
+   in every tone; in dark mode, where the tint is deep, it stays the accent. A neutral (grey) banner keeps the accent */
+.v2 .bnx:not([data-tone="neutral"]) .bnx-go{background:var(--surface);color:var(--fg);box-shadow:var(--shadow)}
+@media (hover:hover) and (pointer:fine){.v2 .bnx:not([data-tone="neutral"]) .bnx-go:hover{background:var(--surface);box-shadow:var(--shadow-pop)}}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .v2 .bnx .bnx-go{background:var(--accent);color:var(--on-accent,#fff);box-shadow:none}
+  @media (hover:hover) and (pointer:fine){:root:not([data-theme="light"]) .v2 .bnx .bnx-go:hover{background:var(--accent-2);box-shadow:none}}}
+:root[data-theme="dark"] .v2 .bnx .bnx-go{background:var(--accent);color:var(--on-accent,#fff);box-shadow:none}
+@media (hover:hover) and (pointer:fine){:root[data-theme="dark"] .v2 .bnx .bnx-go:hover{background:var(--accent-2);box-shadow:none}}
+/* an optional close button in the top right corner (the card here leaves it out) */
 .v2 .bnx-x{position:absolute;top:var(--s-2);right:var(--s-2);z-index:2;width:28px;height:28px;background:var(--bnx-bg)}
 @media (hover:hover) and (pointer:fine){.v2 .bnx-x:hover{background:color-mix(in srgb,var(--fg) 8%,var(--bnx-bg))}}
 /* the art: a 240 by 160 drawing at its own size in the middle of the area on the right, cropped by it and faded in from the
@@ -6173,8 +6249,9 @@ html{scrollbar-gutter:stable}
 /* under the pointer the drawing pulls apart a little: each part moves by its depth (--z), with no blur and nothing that loops */
 .v2 .bnx-svg .z{transition:transform var(--t-slow) var(--ease)}
 @media (hover:hover) and (pointer:fine){.v2 .bnx:hover .bnx-svg .z{transform:translate(calc(var(--z,0) * 1px),calc(var(--z,0) * -2.5px))}}
-/* dismissed: the banner leaves, and a quiet line with Undo keeps its place (held at its height, so it stays centred) */
-.v2 .bnx-gone{display:flex;align-items:center;justify-content:center;gap:var(--s-3);min-height:44px;font-size:13px;color:var(--fg2)}
+/* the card: the banner with a switcher under it that flips through the four styles, the two kept together and centred */
+.v2 .dm.bnx-dm{min-height:0;gap:var(--s-5);justify-content:center}
+.v2 .dm.bnx-dm>.dm-main{margin-block:0}
 /* a phone, or any narrow column: the art becomes a shorter strip across the top that fades out before the text starts,
    so nothing is drawn behind the words. The drawing is shown at three quarters, with its lines thickened to stay a hairline */
 @container bnx (max-width:479px){
@@ -6185,8 +6262,7 @@ html{scrollbar-gutter:stable}
   .v2 .bnx-tx{padding:84px var(--s-5) var(--s-5)}
 }
 @media (prefers-reduced-motion:reduce){.v2 .bnx-svg *{animation:none!important}.v2 .bnx-svg .z{transform:none!important}}
-/* Blueprint: square, with a hairline edge in its tone, and the eyebrow as a small capital label */
-:root:not([data-style="soft"]) .v2 .bnx{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--bnx-m) 45%,var(--line))}
+/* Blueprint: square, and the eyebrow as a small capital label */
 :root:not([data-style="soft"]) .v2 .bnx:is(:not([data-tone]),[data-tone="accent"]){--bnx-ka:20%}
 @media (prefers-color-scheme:dark){:root:not([data-style="soft"]):not([data-theme="light"]) .v2 .bnx:is(:not([data-tone]),[data-tone="accent"]){--bnx-ka:9%}}
 :root:not([data-style="soft"])[data-theme="dark"] .v2 .bnx:is(:not([data-tone]),[data-tone="accent"]){--bnx-ka:9%}
@@ -6196,8 +6272,9 @@ html{scrollbar-gutter:stable}
 .v2 .ivx-h{display:flex;flex-direction:column;font-size:14px;margin:0 -14px 2px;padding:0 14px var(--s-3);border-bottom:1px solid var(--line)}
 .v2 .ivx-h b{font-weight:500}
 .v2 .ivx-h .muted{font-size:12px}
-.v2 .ivx-f{display:flex;align-items:center;flex-wrap:wrap;gap:5px;min-height:42px;padding:5px 5px 5px var(--s-2);border-radius:var(--r-in);background:var(--chip);box-shadow:inset 0 0 0 1px var(--field-line);transition:box-shadow .25s,background .25s}
-.v2 .ivx-f:has(input:focus-visible){background:var(--surface);box-shadow:inset 0 0 0 2px var(--focus),0 0 0 4px var(--accent-bg)}
+.v2 .ivx-f{display:flex;align-items:center;flex-wrap:wrap;gap:5px;min-height:42px;padding:5px 5px 5px var(--s-2);border-radius:var(--r-in);background:var(--surface);box-shadow:inset 0 0 0 1px var(--pick-line);transition:box-shadow .25s}
+/* white with a dimmed grey edge, a step stronger while you type in it */
+.v2 .ivx-f:has(input:focus-visible){box-shadow:inset 0 0 0 1px var(--pick-on)}
 .v2 .ivx-chips{display:contents}
 .v2 .ivx-ch{display:inline-flex;align-items:center;gap:5px;height:26px;padding:0 var(--s-1) 0 var(--s-1);border-radius:var(--r-sm);background:var(--surface);box-shadow:0 0 0 1px var(--line);font-size:12.5px;animation:v2-popin .4s var(--ease) backwards}
 .v2 .ivx-ch .av{width:18px;height:18px;font-size:8.5px}
@@ -6232,10 +6309,11 @@ html{scrollbar-gutter:stable}
 .v2 .rxx-b p{margin:2px 0 0;color:var(--fg2)}
 .v2 .rxx-row{display:flex;flex-wrap:wrap;gap:5px;padding-left:40px;align-items:center}
 .v2 .rxx-list{display:contents}
-.v2 .rxx-r{position:relative;display:inline-flex;align-items:center;gap:5px;height:28px;padding:0 9px;border-radius:var(--r-pill);background:var(--chip);font-size:13px;transition:background .2s,box-shadow .2s,transform .15s,opacity .3s}
-@media (hover:hover) and (pointer:fine){.v2 .rxx-r:hover{background:var(--hover)}}
+.v2 .rxx-r{position:relative;display:inline-flex;align-items:center;gap:5px;height:28px;padding:0 9px;border-radius:var(--r-pill);background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);font-size:13px;transition:background .2s,box-shadow .2s,transform .15s,opacity .3s}
+/* white pills with a hairline, so they stand out on a grey page; yours has a stronger grey edge and its count in the accent */
+@media (hover:hover) and (pointer:fine){.v2 .rxx-r:hover{box-shadow:inset 0 0 0 1px var(--rail)}}
 .v2 .rxx-r:active{transform:scale(.94)}
-.v2 .rxx-r.me{background:var(--sel);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--accent-mark,var(--accent)) 40%,transparent)}
+.v2 .rxx-r.me{box-shadow:inset 0 0 0 1px var(--pick-on)}
 .v2 .rxx-r .n{display:inline-grid;overflow:hidden;height:16px;font-size:12px;line-height:16px;color:var(--fg2);min-width:8px}
 .v2 .rxx-r .n i{grid-area:1/1;font-style:normal;text-align:center}
 .v2 .rxx-r.me .n{color:var(--accent-fg,var(--accent));font-weight:500}
@@ -6338,13 +6416,21 @@ html{scrollbar-gutter:stable}
 @media (hover:hover) and (pointer:fine){.v2 .csw-more:hover{background:var(--row)}}
 /* the switcher: under the part it belongs to, never past the bar's ends */
 .v2 .csw-pop{width:288px;max-width:100%}
+/* a switcher or the … menu fades in a beat after the bar starts gliding up to make room for it, so it never shows past the
+   bottom of the space it was given */
+.v2 .glide>.csw-pop.open,.v2 .glide>.csw-mpop.open{transition-delay:.1s}
 .v2 .csw-sf{position:relative;display:flex;align-items:center;margin-bottom:var(--s-1)}
 .v2 .csw-sf>.i{position:absolute;left:10px;color:var(--muted);pointer-events:none}
-.v2 .csw-q{width:100%;height:32px;border:0;outline:0;border-radius:var(--r-sm);background:var(--chip);box-shadow:inset 0 0 0 1px var(--field-line);padding:0 var(--s-2) 0 28px;font:inherit;font-size:13px;color:var(--fg)}
+.v2 .csw-q{width:100%;height:32px;border:0;outline:0;border-radius:var(--r-sm);corner-shape:squircle;background:var(--raised);box-shadow:inset 0 0 0 1px var(--rail);padding:0 var(--s-2) 0 28px;font:inherit;font-size:13px;color:var(--fg);transition:box-shadow var(--t-fast)}
 .v2 .csw-q::placeholder{color:var(--muted)}
-.v2 .csw-q:focus-visible{outline:0;box-shadow:inset 0 0 0 2px var(--focus)}
+/* the search, like every field: a quiet grey edge at rest, one step stronger while you type in it, and no ring */
+.v2 .csw-q:focus,.v2 .csw-q:focus-visible{outline:0;box-shadow:inset 0 0 0 1px var(--faint)}
 .v2 .csw-list{max-height:248px;overflow-y:auto;display:flex;flex-direction:column}
 .v2 .csw-o{flex:none;min-height:34px;cursor:pointer}
+/* the row under the pointer or the arrow keys, and a hovered row in the … menu, is white with a quiet grey edge rather than
+   a grey fill, a step stronger on the current one, which is also ticked */
+@media (hover:hover) and (pointer:fine){.v2 .csw-pop .csw-o:is(:hover,.hl),.v2 .csw-mpop .mi:hover{background:var(--raised);box-shadow:inset 0 0 0 1px var(--rail)}}
+@media (hover:hover) and (pointer:fine){.v2 .csw-pop .csw-o[aria-selected="true"]:is(:hover,.hl){box-shadow:inset 0 0 0 1px var(--faint)}}
 .v2 .csw-o .csw-on{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .v2 .csw-o .csw-lg{width:20px;height:20px;font-size:10.5px}
 .v2 .csw-o .ck{margin-left:0;flex:none}
@@ -6445,6 +6531,14 @@ html{scrollbar-gutter:stable}
 .v2 .kbx{width:100%;overflow-x:auto;position:relative;container:kbx/inline-size}
 .v2 .kbx-cols{display:grid;grid-template-columns:repeat(3,minmax(200px,1fr));gap:var(--s-3);min-width:640px}
 .v2 .kbx-c{display:flex;flex-direction:column;gap:var(--s-2);padding:10px;border-radius:var(--r-card);background:color-mix(in srgb,var(--fg) 5%,transparent);transition:background .25s,box-shadow .25s;min-height:280px}
+/* a column can sit on a light tint of a tag colour: To do yellow, In progress orange, Done green; its cards stay white */
+.v2 .kbx-c.y{background:var(--py-bg)}.v2 .kbx-c.p{background:var(--pp-bg)}.v2 .kbx-c.m{background:var(--pm-bg)}
+/* in dark mode the tag tints are strong for a whole column, so a column takes half of one */
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .v2 .kbx-c:is(.y,.p,.m):not(.over){background:color-mix(in srgb,var(--kbx-t) 50%,transparent)}}
+:root[data-theme="dark"] .v2 .kbx-c:is(.y,.p,.m):not(.over){background:color-mix(in srgb,var(--kbx-t) 50%,transparent)}
+.v2 .kbx-c.y{--kbx-t:var(--py-bg)}.v2 .kbx-c.p{--kbx-t:var(--pp-bg)}.v2 .kbx-c.m{--kbx-t:var(--pm-bg)}
+/* on a tinted column the + button lifts white, not grey */
+@media (hover:hover) and (pointer:fine){.v2 .kbx-c:is(.y,.p,.m) .kbx-ch .ib:hover{background:var(--surface)}}
 .v2 .kbx-c.over{background:var(--sel);box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--accent-mark,var(--accent)) 40%,transparent)}
 .v2 .kbx-ch{display:flex;align-items:center;gap:var(--s-2);padding:2px var(--s-1) var(--s-1);font-size:13px}
 .v2 .kbx-ch b{font-weight:500}
@@ -6555,8 +6649,7 @@ html{scrollbar-gutter:stable}
 :root:not([data-style="soft"]) .v2 .pill.line{box-shadow:inset 0 0 0 1px var(--rail)}
 @media (hover:hover) and (pointer:fine){:root:not([data-style="soft"]) .v2 .pill.line:hover{background:var(--wash);box-shadow:inset 0 0 0 1px var(--faint)}}
 :root:not([data-style="soft"]) .v2 .pill:active,:root:not([data-style="soft"]) .v2 .ib:active{transform:translateY(1px)}
-:root:not([data-style="soft"]) .v2 .chip.on{box-shadow:inset 0 0 0 1px var(--rail)}
-:root:not([data-style="soft"]) .v2 .mcx-add{box-shadow:none;outline:1px dashed var(--rail);outline-offset:-1px}
+:root:not([data-style="soft"]) .v2 .chip.on{box-shadow:inset 0 0 0 1px var(--pick-on)}
 :root:not([data-style="soft"]) .v2 .bub{background:var(--chip);box-shadow:inset 0 0 0 1px var(--line)}
 :root:not([data-style="soft"]) .v2 .tip{box-shadow:none}
 
@@ -6980,7 +7073,7 @@ body.ui .brand.o3::after{content:none}
   <p class="msg tcx-end">Two plans changed. I updated their prices and the yearly saving on the page.</p>
 </div></template>
   </article>
-  <article class="comp" id="c24" data-soft data-v2="voice-capture" data-reg="voice-capture" style="--rh-a:420px;--rc-a:248px;--rcb-a:248px;--rh-b:420px;--rc-b:248px;--rcb-b:248px;--rh-c:420px;--rc-c:248px;--rcb-c:248px;--rh-d:420px;--rc-d:248px;--rcb-d:248px;--rh-e:420px;--rc-e:248px;--rcb-e:248px;--rh-f:420px;--rc-f:248px;--rcb-f:248px;--rh-g:420px;--rc-g:248px;--rcb-g:248px;--rh-h:420px;--rc-h:248px;--rcb-h:248px;--rh-i:420px;--rc-i:248px;--rcb-i:248px;--rh-j:420px;--rc-j:248px;--rcb-j:248px;--rh-k:420px;--rc-k:248px;--rcb-k:248px;--rh-l:420px;--rc-l:248px;--rcb-l:248px;--rh-m:420px;--rc-m:248px;--rcb-m:248px">
+  <article class="comp" id="c24" data-soft data-v2="voice-capture" data-reg="voice-capture" style="--rh-a:420px;--rc-a:213px;--rcb-a:213px;--rh-b:420px;--rc-b:235px;--rcb-b:235px;--rh-c:420px;--rc-c:213px;--rcb-c:213px;--rh-d:420px;--rc-d:213px;--rcb-d:213px;--rh-e:420px;--rc-e:213px;--rcb-e:213px;--rh-f:420px;--rc-f:213px;--rcb-f:213px;--rh-g:420px;--rc-g:213px;--rcb-g:213px;--rh-h:420px;--rc-h:213px;--rcb-h:213px;--rh-i:420px;--rc-i:213px;--rcb-i:213px;--rh-j:420px;--rc-j:214px;--rcb-j:213px;--rh-k:420px;--rc-k:235px;--rcb-k:235px;--rh-l:420px;--rc-l:235px;--rcb-l:235px;--rh-m:420px;--rc-m:235px;--rcb-m:235px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">mic</span></span>
       <div><h2 class="comp-title"><a href="/components/voice-capture">Voice capture</a></h2><p class="comp-desc">Talk to the agent, then fix what it misheard before sending.</p></div>
@@ -7004,7 +7097,7 @@ body.ui .brand.o3::after{content:none}
   <div class="pop vcx-fix" role="menu"></div>
 </div></template>
   </article>
-  <article class="comp" id="c122" data-soft data-v2="voice-orb" data-reg="voice-orb" style="--rh-a:514px;--rc-a:402px;--rcb-a:402px;--rh-b:533px;--rc-b:421px;--rcb-b:421px;--rh-c:514px;--rc-c:402px;--rcb-c:402px;--rh-d:514px;--rc-d:402px;--rcb-d:402px;--rh-e:514px;--rc-e:402px;--rcb-e:402px;--rh-f:514px;--rc-f:402px;--rcb-f:402px;--rh-g:514px;--rc-g:402px;--rcb-g:402px;--rh-h:514px;--rc-h:402px;--rcb-h:402px;--rh-i:514px;--rc-i:402px;--rcb-i:402px;--rh-j:482px;--rc-j:402px;--rcb-j:402px;--rh-k:482px;--rc-k:402px;--rcb-k:402px;--rh-l:482px;--rc-l:402px;--rcb-l:402px;--rh-m:501px;--rc-m:421px;--rcb-m:421px">
+  <article class="comp" id="c122" data-soft data-v2="voice-orb" data-reg="voice-orb" style="--rh-a:514px;--rc-a:402px;--rcb-a:402px;--rh-b:533px;--rc-b:421px;--rcb-b:421px;--rh-c:514px;--rc-c:402px;--rcb-c:402px;--rh-d:514px;--rc-d:402px;--rcb-d:402px;--rh-e:514px;--rc-e:402px;--rcb-e:402px;--rh-f:514px;--rc-f:402px;--rcb-f:402px;--rh-g:514px;--rc-g:402px;--rcb-g:402px;--rh-h:514px;--rc-h:402px;--rcb-h:402px;--rh-i:514px;--rc-i:402px;--rcb-i:402px;--rh-j:482px;--rc-j:402px;--rcb-j:402px;--rh-k:482px;--rc-k:402px;--rcb-k:402px;--rh-l:501px;--rc-l:421px;--rcb-l:421px;--rh-m:519px;--rc-m:439px;--rcb-m:439px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">graphic_eq</span></span>
       <div><h2 class="comp-title"><a href="/components/voice-orb">Voice orb</a></h2><p class="comp-desc">A hands-free voice chat, with an orb that shows who is talking.</p></div>
@@ -7017,7 +7110,7 @@ body.ui .brand.o3::after{content:none}
     </div>
     <template><div class="vor panel" data-m="idle">
   <div class="vor-top"><span class="vor-dot"></span><span class="vor-st">Ready</span><span class="vor-t num muted">0:00</span></div>
-  <div class="vor-orb" aria-hidden="true"><i class="vor-glow"></i><i class="vor-pc"></i><i class="vor-core"><canvas class="vor-gl"></canvas></i></div>
+  <div class="vor-orb" aria-hidden="true"><i class="vor-pc"></i><i class="vor-core"><canvas class="vor-gl"></canvas></i></div>
   <div class="vor-cap" aria-live="polite"><span class="vor-who muted"></span><p class="vor-tx hint">Talk to the agent about Pricing v4</p></div>
   <div class="fold shut vor-mf"><div><div class="vor-mw"><p>{warn}<span>You're muted. Unmute so the agent can hear you.</span></p><button class="pill sm vor-un">Unmute</button></div></div></div>
   <div class="vor-f">
@@ -8231,7 +8324,7 @@ body.ui .brand.o3::after{content:none}
   <div class="mmx-list"></div>
 </div></template>
   </article>
-  <article class="comp wide" data-soft id="c71" data-v2="model-compare" data-reg="model-compare" style="--rh-a:428px;--rc-a:316px;--rcb-a:316px;--rh-b:428px;--rc-b:316px;--rcb-b:316px;--rh-c:489px;--rc-c:377px;--rcb-c:377px;--rh-d:428px;--rc-d:316px;--rcb-d:316px;--rh-e:428px;--rc-e:316px;--rcb-e:316px;--rh-f:428px;--rc-f:316px;--rcb-f:316px;--rh-g:428px;--rc-g:316px;--rcb-g:316px;--rh-h:447px;--rc-h:335px;--rcb-h:335px;--rh-i:944px;--rc-i:832px;--rcb-i:832px;--rh-j:912px;--rc-j:832px;--rcb-j:832px;--rh-k:912px;--rc-k:832px;--rcb-k:832px;--rh-l:912px;--rc-l:832px;--rcb-l:832px;--rh-m:912px;--rc-m:832px;--rcb-m:832px">
+  <article class="comp wide" data-soft id="c71" data-v2="model-compare" data-reg="model-compare" style="--rh-a:420px;--rc-a:303px;--rcb-a:303px;--rh-b:420px;--rc-b:303px;--rcb-b:303px;--rh-c:691px;--rc-c:579px;--rcb-c:579px;--rh-d:420px;--rc-d:303px;--rcb-d:303px;--rh-e:420px;--rc-e:303px;--rcb-e:303px;--rh-f:420px;--rc-f:303px;--rcb-f:303px;--rh-g:420px;--rc-g:303px;--rcb-g:303px;--rh-h:420px;--rc-h:303px;--rcb-h:303px;--rh-i:691px;--rc-i:579px;--rcb-i:579px;--rh-j:659px;--rc-j:579px;--rcb-j:579px;--rh-k:659px;--rc-k:579px;--rcb-k:579px;--rh-l:680px;--rc-l:600px;--rcb-l:600px;--rh-m:701px;--rc-m:621px;--rcb-m:621px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">splitscreen</span></span>
       <div><h2 class="comp-title"><a href="/components/model-compare">Model compare</a></h2><p class="comp-desc">Run one prompt on three models side by side and keep the best.</p></div>
@@ -8239,12 +8332,18 @@ body.ui .brand.o3::after{content:none}
     </div>
     <div class="stage"><div class="stage-inner dots v2-host" data-demo><div class="v2 stage-in wide"></div></div></div>
     <div class="comp-foot">
-      <span class="mono-xs">Run the prompt, pick a winner</span>
+      <span class="mono-xs">Run the prompt, swap a model, use the best answer</span>
       <div class="code-btns"><button class="ghost anim-btn" data-anim><span class="ms sm">stars</span>Animate</button><button class="ghost" data-view aria-expanded="false"><span class="ms sm">code</span><span class="vl">View code</span></button><button class="ghost" data-copy><span class="ms sm">content_copy</span>Copy code</button></div>
     </div>
-    <template><div class="mcx">
+    <template><div class="mcx panel">
+  <form class="mcx-in">
+    <div class="mcx-fd"><input class="mcx-q" value="Write a one line value prop for the Pro plan" aria-label="Prompt for every model" spellcheck="false" autocomplete="off"><span class="mcx-n num">3 models</span></div>
+    <button type="button" class="pill ghost sm mcx-add" data-pop=".mcx-pa" data-pop-align="end" aria-haspopup="menu" aria-expanded="false" hidden>{plus}Add model</button>
+    <button type="submit" class="pill primary sm mcx-go" data-tip="Run on every model" data-tip-k="↵">Run</button>
+  </form>
+  <div class="pop mcx-pop mcx-pa" role="menu" aria-label="Add a model"></div>
   <div class="mcx-cols"></div>
-  <form class="mcx-in"><input class="mcx-q" value="Write a one line value prop for the Pro plan" aria-label="Prompt for every model" spellcheck="false"><span class="mcx-n muted">Sends to 3 models</span><button class="mcx-go" aria-label="Send to every model" data-tip="Send to every model" data-tip-k="↵">{up}</button></form>
+  <p class="mcx-live" aria-live="polite"></p>
 </div></template>
   </article>
   <article class="comp" id="c38" data-soft data-v2="agent-settings" data-reg="agent-settings" style="--rh-a:577px;--rc-a:465px;--rcb-a:465px;--rh-b:595px;--rc-b:483px;--rcb-b:483px;--rh-c:577px;--rc-c:465px;--rcb-c:465px;--rh-d:577px;--rc-d:465px;--rcb-d:465px;--rh-e:577px;--rc-e:465px;--rcb-e:465px;--rh-f:577px;--rc-f:465px;--rcb-f:465px;--rh-g:577px;--rc-g:465px;--rcb-g:465px;--rh-h:577px;--rc-h:465px;--rcb-h:465px;--rh-i:577px;--rc-i:465px;--rcb-i:465px;--rh-j:545px;--rc-j:465px;--rcb-j:465px;--rh-k:545px;--rc-k:465px;--rcb-k:465px;--rh-l:563px;--rc-l:483px;--rcb-l:483px;--rh-m:563px;--rc-m:483px;--rcb-m:483px">
@@ -8706,7 +8805,7 @@ body.ui .brand.o3::after{content:none}
   <div class="btx-row"><span class="btx-l muted">Sizes</span><button class="pill accent sm">Small</button><button class="pill accent">Default</button><button class="pill accent btx-lg">Large</button></div>
 </div></template>
   </article>
-  <article class="comp" data-soft id="c140" data-v2="badge" data-reg="badge" style="--rh-a:420px;--rc-a:216px;--rcb-a:216px;--rh-b:554px;--rc-b:346px;--rcb-b:442px;--rh-c:420px;--rc-c:216px;--rcb-c:216px;--rh-d:420px;--rc-d:216px;--rcb-d:216px;--rh-e:420px;--rc-e:216px;--rcb-e:216px;--rh-f:420px;--rc-f:216px;--rcb-f:216px;--rh-g:420px;--rc-g:216px;--rcb-g:216px;--rh-h:420px;--rc-h:216px;--rcb-h:216px;--rh-i:420px;--rc-i:216px;--rcb-i:216px;--rh-j:420px;--rc-j:216px;--rcb-j:216px;--rh-k:426px;--rc-k:346px;--rcb-k:346px;--rh-l:494px;--rc-l:346px;--rcb-l:414px;--rh-m:554px;--rc-m:442px;--rcb-m:474px">
+  <article class="comp" data-soft id="c140" data-v2="badge" data-reg="badge" style="--rh-a:420px;--rc-a:216px;--rcb-a:217px;--rh-b:554px;--rc-b:346px;--rcb-b:442px;--rh-c:420px;--rc-c:216px;--rcb-c:216px;--rh-d:420px;--rc-d:216px;--rcb-d:216px;--rh-e:420px;--rc-e:216px;--rcb-e:216px;--rh-f:420px;--rc-f:238px;--rcb-f:216px;--rh-g:420px;--rc-g:216px;--rcb-g:216px;--rh-h:420px;--rc-h:216px;--rcb-h:217px;--rh-i:420px;--rc-i:216px;--rcb-i:216px;--rh-j:420px;--rc-j:216px;--rcb-j:216px;--rh-k:426px;--rc-k:346px;--rcb-k:346px;--rh-l:491px;--rc-l:346px;--rcb-l:411px;--rh-m:554px;--rc-m:442px;--rcb-m:474px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">tag</span></span>
       <div><h2 class="comp-title"><a href="/components/badge">Badge</a></h2><p class="comp-desc">Small labels for plans, environments and status, with a dot, an icon or a remove button.</p></div>
@@ -8721,7 +8820,7 @@ body.ui .brand.o3::after{content:none}
   <div class="bdx-row"><span class="bdx-l muted">Tones</span><div class="bdx-set"><span class="bdg">Draft</span><span class="bdg" data-tone="accent">Beta</span><span class="bdg" data-tone="success">Live</span><span class="bdg" data-tone="warning">Degraded</span><span class="bdg" data-tone="danger">Failed</span></div></div>
   <div class="bdx-row"><span class="bdx-l muted">Colours</span><div class="bdx-set"><span class="bdg" data-tone="blue">Search</span><span class="bdg" data-tone="violet">Reasoning</span><span class="bdg" data-tone="green">Data</span><span class="bdg" data-tone="orange">Billing</span><span class="bdg" data-tone="red">Urgent</span><span class="bdg" data-tone="yellow">Review</span><span class="bdg" data-tone="pink">Design</span><span class="bdg" data-tone="teal">Ops</span></div></div>
   <div class="bdx-row"><span class="bdx-l muted">Sizes</span><div class="bdx-set"><span class="bdg sm" data-tone="accent">Pro</span><span class="bdg" data-tone="accent">Pro</span></div></div>
-  <div class="bdx-row"><span class="bdx-l muted">Dot or icon</span><div class="bdx-set"><span class="bdg" data-tone="success"><span class="bdg-dot"></span>Running</span><span class="bdg"><span class="bdg-dot"></span>Idle</span><span class="bdg">{lock}Private</span><span class="bdg" data-tone="accent">{spark}Agent</span></div></div>
+  <div class="bdx-row"><span class="bdx-l muted">Dot or icon</span><div class="bdx-set"><span class="bdg live" data-tone="success"><span class="bdg-dot"></span>Running</span><span class="bdg"><span class="bdg-dot"></span>Idle</span><span class="bdg">{lock}Private</span><span class="bdg" data-tone="accent">{spark}Agent</span></div></div>
   <div class="bdx-row"><span class="bdx-l muted">Removable</span><div class="bdx-set bdx-rm"><span class="bdg" data-tone="warning"><span class="t">Production</span><button class="bdg-x" aria-label="Remove Production">{x}</button></span><span class="bdg" data-tone="blue"><span class="t">Staging</span><button class="bdg-x" aria-label="Remove Staging">{x}</button></span><span class="bdg" data-tone="violet"><span class="t">Preview</span><button class="bdg-x" aria-label="Remove Preview">{x}</button></span><button class="pill ghost sm bdx-undo" hidden>Undo</button></div></div>
   <p class="bdx-live" aria-live="polite"></p>
 </div></template>
@@ -8916,7 +9015,7 @@ body.ui .brand.o3::after{content:none}
 <section class="lib-sec" id="s-collab" data-grp="basics">
   <div class="sec-head"><div><span class="sec-no">04</span><h2>Collaboration</h2><p>Threads, inboxes and boards for teams working alongside an agent.</p></div></div>
   <div class="sec-body" id="s-collab-body"><div class="sec-uf"><div class="grid">
-  <article class="comp" data-soft id="c54" data-v2="comments" data-reg="comments" style="--rh-a:507px;--rc-a:395px;--rcb-a:395px;--rh-b:585px;--rc-b:473px;--rcb-b:473px;--rh-c:488px;--rc-c:376px;--rcb-c:376px;--rh-d:488px;--rc-d:376px;--rcb-d:376px;--rh-e:488px;--rc-e:376px;--rcb-e:376px;--rh-f:488px;--rc-f:376px;--rcb-f:376px;--rh-g:488px;--rc-g:376px;--rcb-g:376px;--rh-h:488px;--rc-h:376px;--rcb-h:376px;--rh-i:488px;--rc-i:376px;--rcb-i:376px;--rh-j:456px;--rc-j:376px;--rcb-j:376px;--rh-k:495px;--rc-k:415px;--rcb-k:415px;--rh-l:534px;--rc-l:454px;--rcb-l:454px;--rh-m:553px;--rc-m:473px;--rcb-m:473px">
+  <article class="comp" data-soft id="c54" data-v2="comments" data-reg="comments" style="--rh-a:572px;--rc-a:460px;--rcb-a:460px;--rh-b:709px;--rc-b:597px;--rcb-b:597px;--rh-c:572px;--rc-c:460px;--rcb-c:460px;--rh-d:572px;--rc-d:460px;--rcb-d:460px;--rh-e:572px;--rc-e:460px;--rcb-e:460px;--rh-f:572px;--rc-f:460px;--rcb-f:460px;--rh-g:572px;--rc-g:460px;--rcb-g:460px;--rh-h:572px;--rc-h:460px;--rcb-h:460px;--rh-i:572px;--rc-i:460px;--rcb-i:460px;--rh-j:540px;--rc-j:460px;--rcb-j:460px;--rh-k:621px;--rc-k:541px;--rcb-k:541px;--rh-l:621px;--rc-l:541px;--rcb-l:541px;--rh-m:677px;--rc-m:597px;--rcb-m:597px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">chat_bubble</span></span>
       <div><h2 class="comp-title"><a href="/components/comments">Comments</a></h2><p class="comp-desc">A design thread where you can @mention the agent and it replies.</p></div>
@@ -8928,9 +9027,9 @@ body.ui .brand.o3::after{content:none}
       <div class="code-btns"><button class="ghost anim-btn" data-anim><span class="ms sm">stars</span>Animate</button><button class="ghost" data-view aria-expanded="false"><span class="ms sm">code</span><span class="vl">View code</span></button><button class="ghost" data-copy><span class="ms sm">content_copy</span>Copy code</button></div>
     </div>
     <template><div class="cmx panel">
-  <div class="cmx-h"><span class="cmx-pin">1</span><b>Pricing, frame 2</b><button class="pill ghost sm cmx-res">{check}Resolve</button></div>
-  <div class="cmx-th"></div>
-  <div class="cmx-in"><div class="cmx-box"><input placeholder="Reply, or @agent to ask" aria-label="Reply" spellcheck="false"><button class="cmx-go" aria-label="Send" disabled>{up}</button></div><div class="pop cmx-men" role="listbox"></div></div>
+  <div class="cmx-h"><span class="cmx-pin" aria-hidden="true">1</span><b>Pricing, frame 2</b><span class="cmx-st num"></span><button class="ib cmx-res" aria-label="Resolve thread" aria-pressed="false" data-tip="Resolve thread">{check}</button></div>
+  <div class="cmx-th" aria-live="polite"></div>
+  <div class="cmx-in"><div class="cmx-box"><input placeholder="Reply, or @agent to ask" aria-label="Reply" spellcheck="false" autocomplete="off"><button class="cmx-go" aria-label="Send" disabled>{up}</button></div><div class="pop cmx-men" role="listbox"></div></div>
 </div></template>
   </article>
   <article class="comp" data-soft id="c56" data-v2="notifications" data-reg="notifications" style="--rh-a:559px;--rc-a:447px;--rcb-a:447px;--rh-b:653px;--rc-b:541px;--rcb-b:541px;--rh-c:559px;--rc-c:447px;--rcb-c:447px;--rh-d:559px;--rc-d:447px;--rcb-d:447px;--rh-e:559px;--rc-e:447px;--rcb-e:447px;--rh-f:559px;--rc-f:447px;--rcb-f:447px;--rh-g:559px;--rc-g:447px;--rcb-g:447px;--rh-h:559px;--rc-h:447px;--rcb-h:447px;--rh-i:559px;--rc-i:447px;--rcb-i:447px;--rh-j:527px;--rc-j:447px;--rcb-j:447px;--rh-k:545px;--rc-k:465px;--rcb-k:465px;--rh-l:602px;--rc-l:522px;--rcb-l:522px;--rh-m:640px;--rc-m:560px;--rcb-m:560px">
@@ -8950,18 +9049,23 @@ body.ui .brand.o3::after{content:none}
   <div class="ntx-list"></div>
 </div></template>
   </article>
-  <article class="comp wide" data-soft id="c144" data-v2="banner" data-reg="banner" style="--rh-a:440px;--rc-a:328px;--rcb-a:328px;--rh-b:440px;--rc-b:328px;--rcb-b:328px;--rh-c:440px;--rc-c:328px;--rcb-c:328px;--rh-d:440px;--rc-d:328px;--rcb-d:328px;--rh-e:440px;--rc-e:328px;--rcb-e:328px;--rh-f:440px;--rc-f:328px;--rcb-f:328px;--rh-g:440px;--rc-g:328px;--rcb-g:328px;--rh-h:440px;--rc-h:328px;--rcb-h:328px;--rh-i:440px;--rc-i:328px;--rcb-i:328px;--rh-j:420px;--rc-j:328px;--rcb-j:328px;--rh-k:420px;--rc-k:328px;--rcb-k:328px;--rh-l:420px;--rc-l:328px;--rcb-l:328px;--rh-m:420px;--rc-m:328px;--rcb-m:328px">
+  <article class="comp wide" data-soft id="c144" data-v2="banner" data-reg="banner" style="--rh-a:420px;--rc-a:176px;--rcb-a:176px;--rh-b:420px;--rc-b:176px;--rcb-b:176px;--rh-c:420px;--rc-c:176px;--rcb-c:176px;--rh-d:420px;--rc-d:176px;--rcb-d:176px;--rh-e:420px;--rc-e:176px;--rcb-e:176px;--rh-f:420px;--rc-f:190px;--rcb-f:176px;--rh-g:420px;--rc-g:176px;--rcb-g:176px;--rh-h:420px;--rc-h:176px;--rcb-h:176px;--rh-i:420px;--rc-i:236px;--rcb-i:236px;--rh-j:420px;--rc-j:236px;--rcb-j:236px;--rh-k:420px;--rc-k:236px;--rcb-k:236px;--rh-l:420px;--rc-l:236px;--rcb-l:236px;--rh-m:420px;--rc-m:276px;--rcb-m:276px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">stars</span></span>
-      <div><h2 class="comp-title"><a href="/components/banner">Banner</a></h2><p class="comp-desc">An announcement on a tint of its tone, with its own line drawing and a dismiss.</p></div>
+      <div><h2 class="comp-title"><a href="/components/banner">Banner</a></h2><p class="comp-desc">An announcement on a tint of its tone, with its own line drawing.</p></div>
       <button class="save-btn" aria-pressed="false" aria-label="Save component"><span class="ms">bookmark</span></button>
     </div>
     <div class="stage"><div class="stage-inner dots v2-host" data-demo><div class="v2 stage-in wide"></div></div></div>
     <div class="comp-foot">
-      <span class="mono-xs">Hover to hold it, dismiss it, then Undo</span>
+      <div class="tabs" role="tablist" aria-label="Banner style" data-tabs="v2-banner">
+        <button class="tab" role="tab" aria-selected="true" data-v="0">Accent</button>
+        <button class="tab" role="tab" aria-selected="false" data-v="1">Violet</button>
+        <button class="tab" role="tab" aria-selected="false" data-v="2">Green</button>
+        <button class="tab" role="tab" aria-selected="false" data-v="3">Amber</button>
+      </div>
       <div class="code-btns"><button class="ghost anim-btn" data-anim><span class="ms sm">stars</span>Animate</button><button class="ghost" data-view aria-expanded="false"><span class="ms sm">code</span><span class="vl">View code</span></button><button class="ghost" data-copy><span class="ms sm">content_copy</span>Copy code</button></div>
     </div>
-    <template><div class="dm"><div class="dm-main bnx-slot">
+    <template><div class="dm bnx-dm"><div class="dm-main bnx-slot">
   <div class="bnx" role="region" data-tone="accent" data-art="layers" aria-label="Announcement">
     <div class="bnx-art" aria-hidden="true"></div>
     <div class="bnx-tx">
@@ -8970,10 +9074,10 @@ body.ui .brand.o3::after{content:none}
       <p class="bnx-d"><span>Agents keep what they learn about your project, so you only explain things once.</span></p>
       <div class="bnx-acts"><button class="pill primary sm bnx-go"><span>Turn on memory</span></button><button class="bnx-lk"><span>What it keeps</span></button></div>
     </div>
-    <button class="ib bnx-x" aria-label="Dismiss" data-tip="Dismiss">{x}</button>
   </div>
-  <div class="bnx-gone" role="status" hidden><span>Banner dismissed</span><button class="pill ghost sm bnx-undo">Undo</button></div>
-</div></div></template>
+</div>
+<div class="demo"><div class="seg2" role="group" aria-label="Banner style"><button aria-pressed="true" data-v="0">Accent</button><button aria-pressed="false" data-v="1">Violet</button><button aria-pressed="false" data-v="2">Green</button><button aria-pressed="false" data-v="3">Amber</button></div></div>
+</div></template>
   </article>
   <article class="comp" data-soft id="c61" data-v2="invite" data-reg="invite-to-collaborate" style="--rh-a:439px;--rc-a:327px;--rcb-a:327px;--rh-b:470px;--rc-b:358px;--rcb-b:358px;--rh-c:437px;--rc-c:325px;--rcb-c:325px;--rh-d:437px;--rc-d:325px;--rcb-d:325px;--rh-e:437px;--rc-e:325px;--rcb-e:325px;--rh-f:437px;--rc-f:325px;--rcb-f:325px;--rh-g:437px;--rc-g:325px;--rcb-g:325px;--rh-h:437px;--rc-h:325px;--rcb-h:325px;--rh-i:437px;--rc-i:325px;--rcb-i:325px;--rh-j:420px;--rc-j:325px;--rcb-j:325px;--rh-k:420px;--rc-k:327px;--rcb-k:327px;--rh-l:420px;--rc-l:325px;--rcb-l:325px;--rh-m:456px;--rc-m:376px;--rcb-m:376px">
     <div class="comp-head">
@@ -9046,7 +9150,7 @@ body.ui .brand.o3::after{content:none}
   <p class="pfm-note muted" aria-live="polite"></p>
 </div></template>
   </article>
-  <article class="comp wide" data-soft id="c143" data-v2="context-switcher" data-reg="context-switcher" style="--rh-a:459px;--rc-a:347px;--rcb-a:347px;--rh-b:459px;--rc-b:347px;--rcb-b:347px;--rh-c:459px;--rc-c:347px;--rcb-c:347px;--rh-d:459px;--rc-d:347px;--rcb-d:347px;--rh-e:459px;--rc-e:347px;--rcb-e:347px;--rh-f:459px;--rc-f:347px;--rcb-f:347px;--rh-g:459px;--rc-g:347px;--rcb-g:347px;--rh-h:459px;--rc-h:347px;--rcb-h:347px;--rh-i:459px;--rc-i:347px;--rcb-i:347px;--rh-j:427px;--rc-j:347px;--rcb-j:347px;--rh-k:427px;--rc-k:347px;--rcb-k:347px;--rh-l:427px;--rc-l:347px;--rcb-l:347px;--rh-m:427px;--rc-m:347px;--rcb-m:347px">
+  <article class="comp wide" data-soft id="c143" data-v2="context-switcher" data-reg="context-switcher" style="--rh-a:459px;--rc-a:347px;--rcb-a:347px;--rh-b:459px;--rc-b:347px;--rcb-b:347px;--rh-c:459px;--rc-c:347px;--rcb-c:347px;--rh-d:459px;--rc-d:347px;--rcb-d:347px;--rh-e:459px;--rc-e:347px;--rcb-e:347px;--rh-f:459px;--rc-f:347px;--rcb-f:347px;--rh-g:459px;--rc-g:347px;--rcb-g:347px;--rh-h:459px;--rc-h:347px;--rcb-h:347px;--rh-i:463px;--rc-i:347px;--rcb-i:351px;--rh-j:427px;--rc-j:347px;--rcb-j:347px;--rh-k:427px;--rc-k:347px;--rcb-k:347px;--rh-l:427px;--rc-l:347px;--rcb-l:347px;--rh-m:427px;--rc-m:347px;--rcb-m:347px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">account_tree</span></span>
       <div><h2 class="comp-title"><a href="/components/context-switcher">Context switcher</a></h2><p class="comp-desc">The organisation, project and environment you are in, each part a searchable switcher.</p></div>
@@ -12543,7 +12647,7 @@ DM.def('toast-stack', (r, c) => {
   }
   function add(){
     const p = pool[n++ % pool.length];
-    const el = html(`<div class="tsk-c"><span class="g" style="color:${p[1]};background:${p[2]}">${I(p[0])}</span><div class="tx"><b>${p[3]}</b><span>${p[4]}</span></div><span class="t">now</span><button class="ib" aria-label="Dismiss" data-tip="Dismiss">${I('x','xs')}</button></div>`);
+    const el = html(`<div class="tsk-c"><span class="g" style="color:${p[1]};background:${p[2]}">${I(p[0])}</span><div class="tx"><b>${p[3]}</b><span>${p[4]}</span></div><span class="t">now</span><button class="ib" aria-label="Dismiss" data-tip="Dismiss">${I('x')}</button></div>`);
     el.style.transform = 'translateY(24px) scale(.96)'; el.style.opacity = 0; el.style.filter = 'blur(6px)';
     stack.appendChild(el); items.push(el);
     $('.ib', el).onclick = () => { items = items.filter(x => x !== el); el.style.opacity = 0; el.style.transform += ' translateX(30px)'; setTimeout(() => el.remove(), 400); layout(); };
@@ -12565,14 +12669,16 @@ DM.def('toast-stack', (r, c) => {
 /* ---------- Pricing cards ---------- */
 DM.def('pricing-cards', (r, c) => {
   const P = [
-    { n:'Starter', d:'For trying the agent', m:0, f:['1 project','50 agent runs a month','Figma import'], cta:['soft','Start free'] },
-    { n:'Pro', d:'For growing design teams', m:24, f:['Unlimited projects','1,000 runs per editor','Shared tokens and memory','Priority models'], cta:['accent','Start free trial'], hot:1 },
-    { n:'Enterprise', d:'For design orgs', m:null, f:['SSO and audit log','Custom spend caps','Dedicated support'], cta:['primary','Talk to us'] }
+    { n:'Starter', d:'For trying the agent', m:0, f:['1 project','50 agent runs a month','Figma import'], cta:'Start free' },
+    { n:'Pro', d:'For growing design teams', m:24, f:['Unlimited projects','1,000 runs per editor','Shared tokens and memory','Priority models'], cta:'Start free trial', hot:1 },
+    { n:'Enterprise', d:'For design orgs', m:null, f:['SSO and audit log','Custom spend caps','Dedicated support'], cta:'Talk to us' }
   ];
   const grid = $('.pcx-grid', r), rng = $('.pcx-seats input', r), sn = $('.pcx-sn', r);
   let per = 'y', seats = 5; const shown = P.map(() => 0);
-  grid.innerHTML = P.map(p => `<div class="pcx-c panel${p.hot ? ' hot' : ''}">${p.hot ? '<span class="tag b bd">Most popular</span>' : ''}<span class="nm">${p.n}</span><span class="ds">${p.d}</span><div class="pcx-pr"><b class="num"></b><s class="num"></s><span></span></div><div class="pcx-tot num"></div><div class="pcx-li">${p.f.map(x => `<span>${I('check','xs')}${x}</span>`).join('')}</div><button class="pill ${p.cta[0]}">${p.cta[1]}</button></div>`).join('');
+  grid.innerHTML = P.map(p => `<div class="pcx-c panel${p.hot ? ' hot' : ''}">${p.hot ? '<span class="tag b bd">Most popular</span>' : ''}<span class="nm">${p.n}</span><span class="ds">${p.d}</span><div class="pcx-pr"><b class="num"></b><s class="num"></s><span></span></div><div class="pcx-tot num"></div><div class="pcx-li">${p.f.map(x => `<span>${I('check','xs')}${x}</span>`).join('')}</div><button class="pill ${p.hot ? 'primary' : 'line'}">${p.cta}</button></div>`).join('');
   const cards = $$('.pcx-c', grid);
+  // the outlined card is the recommended one, and only its button is primary
+  const ctas = () => cards.forEach(el => { const b = $('.pill', el), on = el.classList.contains('hot'); b.classList.toggle('primary', on); b.classList.toggle('line', !on); });
   function upd(){
     P.forEach((p, i) => { const el = cards[i], b = $('.pcx-pr b', el), s = $('.pcx-pr s', el), u = $('.pcx-pr span', el), tt = $('.pcx-tot', el);
       if (p.m === null){ b.textContent = 'Custom'; s.textContent = ''; u.textContent = 'billed yearly'; tt.textContent = 'Volume pricing from 25 editors'; return; }
@@ -12585,7 +12691,7 @@ DM.def('pricing-cards', (r, c) => {
   }
   seg($('.pcx-per', r), v => { per = v; upd(); });
   rng.oninput = () => { seats = +rng.value; sn.textContent = seats; P.forEach((p, i) => { if (!p.m) return; const tt = $('.pcx-tot', cards[i]); const unit = per === 'y' ? p.m * .8 : p.m; tt.textContent = `$${(unit * seats * (per === 'y' ? 12 : 1)).toLocaleString('en-US', { maximumFractionDigits:0 })} ${per === 'y' ? 'billed yearly' : 'a month'} for ${seats} editor${seats > 1 ? 's' : ''}`; });
-    cards[2].classList.toggle('hot', seats >= 25); cards[1].classList.toggle('hot', seats < 25); };
+    cards[2].classList.toggle('hot', seats >= 25); cards[1].classList.toggle('hot', seats < 25); ctas(); };
   let first = true; stagger(cards, 80); upd(); first = false;
   // once in view it shows the switch at work: monthly, then back to yearly. Touching it takes over
   const flip = v => $(`.pcx-per button[data-v="${v}"]`, r).click();
@@ -13703,27 +13809,38 @@ DM.def('voice-capture', (r, c) => {
   const low = { 3:['toggle','toddle','tunnel'], 10:['save','sale','saving'] };
   let samples = [], speak = 0, last = 0, paused = false, secs = 0, done = false;
   c.every(1000, () => { if (!paused && !done){ secs++; $('.vcx-t', r).textContent = Math.floor(secs / 60) + ':' + String(secs % 60).padStart(2, '0'); } });
+  // the wave scrolls while it records. Once recording stops it is the whole recording, still, in quieter bars, drawn again
+  // only when its width or colours change. The colours are read a few times a second, not every frame
+  let cols = null, colsAt = -1e9, drawn = '';
   c.loop(t => {
-    if (done) return false;
-    if (t - last > 50){ last = t; samples.push(!paused && speak > 0 ? .2 + Math.random() * .8 : 0); if (samples.length > 300) samples.shift(); if (speak > 0) speak--; }
+    if (!done && t - last > 50){ last = t; samples.push(!paused && speak > 0 ? .2 + Math.random() * .8 : 0); if (samples.length > 300) samples.shift(); if (speak > 0) speak--; }
     const dpr = devicePixelRatio || 1, w = cv.clientWidth, h = cv.clientHeight; if (!w) return;
+    const now = performance.now(); if (!cols || now - colsAt > 400){ const cs = getComputedStyle(r); cols = ['--fg2', '--faint', '--muted'].map(k => cs.getPropertyValue(k).trim()); colsAt = now; }
+    if (done){ const key = w + cols.join(); if (key === drawn) return; drawn = key; }
     if (cv.width !== w * dpr){ cv.width = w * dpr; cv.height = h * dpr; }
     const x = cv.getContext('2d'); x.setTransform(dpr, 0, 0, dpr, 0, 0); x.clearRect(0, 0, w, h);
-    const cs = getComputedStyle(r); const n = Math.floor(w / 5);
-    for (let i = 0; i < n; i++){ const v = samples[samples.length - n + i] || 0, px = i * 5 + 2; x.globalAlpha = Math.min(1, i / 14, (n - i) / 3 + .2);
-      x.fillStyle = v ? cs.getPropertyValue('--fg2').trim() : cs.getPropertyValue('--faint').trim();
+    const n = Math.floor(w / 5);
+    let vals;
+    if (done){
+      // the recording without the silence either side, fitted to the width: each bar is the loudest moment it covers
+      let a = samples.findIndex(v => v), z = samples.length - 1; while (z > a && !samples[z]) z--;
+      const rec = a < 0 ? [] : samples.slice(Math.max(0, a - 2), z + 3);
+      vals = Array.from({ length:n }, (_, i) => { const from = Math.floor(i * rec.length / n), to = Math.max(from + 1, Math.floor((i + 1) * rec.length / n)); return Math.max(0, ...rec.slice(from, to).map(v => v || 0)); });
+    } else vals = Array.from({ length:n }, (_, i) => samples[samples.length - n + i] || 0);
+    for (let i = 0; i < n; i++){ const v = vals[i], px = i * 5 + 2; x.globalAlpha = done ? (v ? .6 : 1) : Math.min(1, i / 14, (n - i) / 3 + .2);
+      x.fillStyle = v ? cols[done ? 2 : 0] : cols[1];
       const bh = v ? Math.max(4, v * (h - 6)) : 2; x.beginPath(); x.roundRect ? x.roundRect(px, h / 2 - bh / 2, 2.5, bh, 1.2) : x.rect(px, h / 2 - bh / 2, 2.5, bh); x.fill(); }
   });
   const pb = $('.vcx-pause', r);
   pb.onclick = () => { paused = !paused; box.classList.toggle('paused', paused); pb.innerHTML = I(paused ? 'mic' : 'pause'); pb.dataset.tip = paused ? 'Resume' : 'Pause'; swap(st, paused ? 'Paused' : 'Listening'); };
   function finish(){
-    // the wave folds away for the review: the box keeps the height it had while recording, with the words centred in it
+    // the box keeps the height it had while recording: the wave stays, still, and the words stay where they were
     hold(box); done = true; box.classList.add('done'); swap(st, 'Check what I heard'); pb.remove();
     $$('.low', tx).forEach(l => { l.dataset.tip = 'Not sure about this word'; });
   }
   const settle = t => { $('.vcx-acts', r).innerHTML = `<span class="muted" style="font-size:12.5px">${t}</span><span class="sp"></span><button class="pill ghost sm vcx-again">${I('refresh','xs')}Record again</button>`; $('.vcx-again', r).onclick = () => DM.mount(r.closest('.comp')); };
   $('.vcx-done', r).onclick = () => { if (!done) finish(); else { swap(st, 'Sent'); settle('Sent to the agent'); } };
-  $('.vcx-x', r).onclick = () => { if (!done) hold(box); done = true; tx.innerHTML = ''; pb.remove(); box.classList.add('done'); swap(st, 'Cancelled'); settle('Nothing was sent'); };
+  $('.vcx-x', r).onclick = () => { shutFix(); if (!done) hold(box); done = true; $$('.low', tx).forEach(l => l.replaceWith(l.textContent)); pb.remove(); box.classList.add('done', 'gone'); swap(st, 'Cancelled'); settle('Nothing was sent'); };
   // a word it isn't sure of opens a short menu of fixes: with a click, or with Enter or Space, which puts the focus on the
   // first fix. The arrows move through them and wrap, Home and End jump, and Escape closes the menu back to the word
   let fixFor = null;
@@ -15078,30 +15195,49 @@ DM.def('draft-review', (r, c) => {
   });
 });
 /* ---------- Voice orb ---------- */
-// a sphere of slowly flowing light, for Voice orb: domain-warped noise in two colours, a darker rim and a highlight up top.
-// Returns paint(ms, level 0 to 1, colour, second colour), or null where WebGL is not available. The context is let go
-// when the component stops
+// a glossy sphere of slowly flowing light, for Voice orb: soft pools of the two colours drift inside it, bent by a little
+// noise and bunched towards the edge as a lens would; a light glows from deep inside, and it is shaded as a ball lit from the
+// top left, with a deeper edge, a thin inner rim, a soft sheen and a small highlight. Nothing is drawn outside the circle.
+// The louder the level, the more the colours bend and the brighter the inner light. One draw a frame, on a canvas the size
+// of the orb. Returns paint(ms, level 0 to 1, colour, second colour), or null where WebGL is not available. The context is
+// let go when the component stops
 function orbShader(cv, c){
   const gl = cv.getContext('webgl', { premultipliedAlpha:true, antialias:true }); if (!gl) return null;
   const sh = (type, src) => { const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); return s; };
   const pr = gl.createProgram();
   gl.attachShader(pr, sh(gl.VERTEX_SHADER, 'attribute vec2 p;void main(){gl_Position=vec4(p,0.,1.);}'));
-  gl.attachShader(pr, sh(gl.FRAGMENT_SHADER, `precision mediump float;
+  gl.attachShader(pr, sh(gl.FRAGMENT_SHADER, `#ifdef GL_FRAGMENT_PRECISION_HIGH
+precision highp float;
+#else
+precision mediump float;
+#endif
 uniform vec2 R;uniform float T,L;uniform vec3 A,B;
 float h(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
 float n(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(h(i),h(i+vec2(1,0)),f.x),mix(h(i+vec2(0,1)),h(i+1.),f.x),f.y);}
 float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<4;i++){v+=a*n(p);p=p*2.03+vec2(1.7,9.2);a*=.5;}return v;}
 void main(){
-  vec2 u=(gl_FragCoord.xy*2.-R)/R.y;float r=length(u),t=T*.00018;
-  vec2 q=vec2(fbm(u*1.4+vec2(0.,t)),fbm(u*1.4+vec2(5.2,-t*.8)));
-  vec2 w=vec2(fbm(u*1.7+q*2.4+vec2(1.7-t*.7,9.2)),fbm(u*1.7+q*2.4+vec2(8.3,2.8+t*.6)));
-  float f=fbm(u*1.3+w*2.2);
-  vec3 c=mix(A*.62,A,smoothstep(.25,.7,f));
-  c=mix(c,B,smoothstep(.4,.85,w.x)*.75);
-  c=mix(c,mix(A,vec3(1.),.6),smoothstep(.6,1.05,f+w.y*.35)*(.45+L*.4));
-  c*=1.-smoothstep(.5,1.,r)*.3;
-  c+=pow(max(0.,1.-length(u-vec2(-.34,.42))/.75),2.)*.3;
-  float a=1.-smoothstep(.97,1.,r);gl_FragColor=vec4(c*a,a);
+  vec2 u=(gl_FragCoord.xy*2.-R)/R.y;float r=length(u),e=3./R.y;
+  float a=1.-smoothstep(1.-e,1.,r);
+  if(a<=0.){gl_FragColor=vec4(0.);return;}
+  float z=sqrt(max(0.,1.-r*r)),t=T*.00016;vec3 N=vec3(u,z);
+  vec2 p=u*(.85+.3*(1.-z));
+  p+=(vec2(fbm(p*.9+vec2(0.,t)),fbm(p*.9+vec2(5.2,-t*.8)))-.5)*(1.+L);
+  vec2 d1=p-vec2(.5*sin(t*1.3),.45*cos(t*1.1)),d2=p-vec2(.55*cos(t*.9+2.),.5*sin(t*1.2+1.)),d3=p-vec2(.35*sin(t*1.7+4.),-.3+.25*cos(t*1.4));
+  vec3 c=mix(A,B,.35)*.8;
+  c=mix(c,B,exp(-dot(d2,d2)*2.2)*.95);
+  c=mix(c,A,exp(-dot(d1,d1)*2.4)*.9);
+  c=mix(c,mix(A,vec3(1.),.5),exp(-dot(d3,d3)*3.)*(.4+L*.35));
+  float rb=p.y+.28*sin(p.x*2.3+t*2.);
+  c=mix(c,mix(B,vec3(1.),.45),exp(-rb*rb*14.)*(.2+L*.25));
+  vec3 lt=normalize(vec3(-.4,.55,.75));
+  c*=.84+.16*max(dot(N,lt),0.);
+  c=mix(c,c*.62,pow(1.-z,2.)*.55);
+  c=mix(c,mix(c,vec3(1.),.55),smoothstep(.9,.995,r)*.32);
+  float e2=length((u-vec2(-.1,.52))/vec2(.6,.34));
+  c=mix(c,vec3(1.),(1.-smoothstep(.5,1.,e2))*.16);
+  float s=max(dot(N,normalize(lt+vec3(0.,0.,1.))),0.);
+  c+=pow(s,70.)*.3;
+  gl_FragColor=vec4(min(c,1.)*a,a);
 }`));
   gl.linkProgram(pr); if (!gl.getProgramParameter(pr, gl.LINK_STATUS)) return null;
   gl.useProgram(pr);
@@ -15134,6 +15270,8 @@ DM.def('voice-orb', (r, c) => {
   const set = m => { mode = m; show(); };
   const notice = on => { mf.classList.toggle('shut', !on); mf.inert = !on; };
   notice(false);
+  // centred in its stage at every moment: it glides up as the muted notice or the ended row opens, so it never sits high
+  centre(c, root, () => root.offsetHeight);
   // inside the orb, light flows in the two colours of whoever is talking, faster and brighter as they get louder: a small
   // WebGL shader of warped noise, shaded as a sphere. Without WebGL the core keeps its plain gradient
   const paint = orbShader($('.vor-gl', orb), c), dot = $('.vor-dot', r), pc = $('.vor-pc', orb);
@@ -16567,68 +16705,112 @@ DM.def('memory-panel', (r, c) => {
 });
 /* ---------- Model compare ---------- */
 DM.def('model-compare', (r, c) => {
-  r.innerHTML = r.innerHTML.replace('{up}', I('up'));
+  r.innerHTML = r.innerHTML.replace('{plus}', I('plus','xs'));
+  // the models on offer: the letter and colour of each one's mark (with the text colour on it), what it is good at, and how
+  // it behaves in the preview: time to finish, tokens a second, cost, and its answer to the first prompt
   const MOD = {
     Opus:{ k:'O', c:'var(--pl)', t:'var(--on-ink)', d:'Most capable, slower', ms:2400, tps:38, cost:.021, o:'Pro gives every designer an agent that knows your tokens, so reviews take minutes, not days.' },
     Sonnet:{ k:'S', c:'var(--accent)', t:'var(--on-accent)', d:'Balanced speed and quality', ms:1300, tps:74, cost:.006, o:'Ship polished pages faster with an agent that checks every frame for you.' },
     Haiku:{ k:'H', c:'var(--pm)', t:'var(--on-ink)', d:'Fastest, lowest cost', ms:600, tps:142, cost:.001, o:'Your design QA, on autopilot.' }
   };
-  const generic = { Opus:'Here is a considered take, with the trade-offs spelled out and one clear recommendation at the end.', Sonnet:'Here is a clear, direct answer with the two points that matter most.', Haiku:'Short answer: yes, and here is the one line why.' };
-  const cols = $('.mcx-cols', r), q = $('.mcx-q', r), go = $('.mcx-go', r), cnt = $('.mcx-n', r), DEF = q.value, MAX = 3;
-  const C = []; let uid = 0, asked = '', busy = 0;
-  const menu = (id, cur) => `<div class="pop mcx-pop ${id}" role="menu">${Object.keys(MOD).map(n => `<button class="mi" role="menuitemradio" data-close data-m="${n}" aria-checked="${n === cur}"><span class="mcx-mk" style="background:${MOD[n].c};color:${MOD[n].t}">${MOD[n].k}</span><span>${n}<span class="d">${MOD[n].d}</span></span><span class="ck">${I('check','xs')}</span></button>`).join('')}</div>`;
-  /* the empty slot: add a model back, up to three side by side */
-  const slot = html(`<div class="mcx-add"><button class="mcx-addb" data-pop=".mcx-pa" data-pop-pos="down" data-pop-align="end" aria-haspopup="menu"><span class="ic">${I('plus','s')}</span>Add a model<span class="d">Compare up to 3</span></button><div class="pop mcx-pop mcx-pa" role="menu"></div></div>`);
+  const generic = { Opus:'A considered take: the trade-offs first, then one clear recommendation you can act on.', Sonnet:'A clear, direct answer with the two points that matter most.', Haiku:'Short answer: yes, and the one line why.' };
+  const form = $('.mcx-in', r), cols = $('.mcx-cols', r), q = $('.mcx-q', r), go = $('.mcx-go', r), cnt = $('.mcx-n', r), add = $('.mcx-add', r), pa = $('.mcx-pa', r), live = $('.mcx-live', r);
+  const DEF = q.value, MIN = 2, MAX = 3, C = [];
+  let uid = 0, asked = '', sending = false, busy = 0;
+  const mark = n => `<span class="mcx-mk" style="background:${MOD[n].c};color:${MOD[n].t}" aria-hidden="true">${MOD[n].k}</span>`;
+  const item = n => `${mark(n)}<span>${n}<span class="d">${MOD[n].d}</span></span>`;
+  // a rough count of the tokens in some words, for the live count and the totals
+  const tok = words => Math.round(words * 1.35);
+  const tokens = n => n + (n === 1 ? ' token' : ' tokens');
   function sync(){
-    cnt.textContent = 'Sends to ' + C.length + (C.length > 1 ? ' models' : ' model');
-    C.forEach(col => { const x = $('.mcx-x', col.el); x.hidden = C.length < 2; });
-    if (C.length < MAX){ cols.appendChild(slot); $('.mcx-pa', slot).innerHTML = Object.keys(MOD).map(n => `<button class="mi" role="menuitem" data-close data-m="${n}"><span class="mcx-mk" style="background:${MOD[n].c};color:${MOD[n].t}">${MOD[n].k}</span><span>${n}<span class="d">${MOD[n].d}</span></span></button>`).join(''); $$('.mcx-pa .mi', slot).forEach(b => b.onclick = () => addCol(b.dataset.m, true)); }
-    else slot.remove();
+    cnt.textContent = C.length + (C.length > 1 ? ' models' : ' model');
+    C.forEach(col => { $('.mcx-x', col.el).hidden = C.length <= MIN; });
+    add.hidden = C.length >= MAX;
+    pa.innerHTML = Object.keys(MOD).map(n => `<button class="mi" role="menuitem" data-close data-m="${n}">${item(n)}</button>`).join('');
+    $$('.mi', pa).forEach(b => b.onclick = () => addCol(b.dataset.m, true));
+    go.disabled = sending || !q.value.trim();
   }
-  function head(col){ const m = MOD[col.m]; $('.mcx-sel', col.el).innerHTML = `<span class="mcx-mk" style="background:${m.c};color:${m.t}">${m.k}</span>${col.m}${I('chev-d','xs')}`; $$('.mi', col.el).forEach(x => x.setAttribute('aria-checked', x.dataset.m === col.m)); }
+  function head(col){
+    const el = col.el;
+    $('.mcx-sel', el).innerHTML = `${mark(col.m)}<span class="nm">${col.m}</span>${I('chev-d','xs')}`;
+    $('.mcx-sel', el).setAttribute('aria-label', col.m + ', swap model');
+    $('.mcx-x', el).setAttribute('aria-label', 'Remove ' + col.m);
+    el.setAttribute('aria-label', col.m);
+    $$('.pop .mi', el).forEach(x => x.setAttribute('aria-checked', x.dataset.m === col.m));
+  }
+  // a column before its first answer: what the model is good at, and a quiet line where the answer will go
+  function idle(col){ col.res = null; col.el.classList.remove('done'); $('.mcx-m', col.el).textContent = MOD[col.m].d; $('.mcx-a', col.el).innerHTML = '<span class="ph">Waiting for a prompt</span>'; }
   function addCol(m, fresh){
-    const id = 'mcx-p' + (uid++), el = html(`<div class="mcx-c panel"><div class="mcx-h"><button class="mcx-sel" data-pop=".${id}" aria-haspopup="menu"></button><button class="ib mcx-x" aria-label="Remove model" data-tip="Remove">${I('x','xs')}</button></div>${menu(id, m)}<div class="mcx-o"><div class="mcx-a"><span class="ph">Waiting for a prompt</span></div></div><div class="mcx-f"><span class="mcx-m num">No run yet</span><button class="pill soft sm mcx-pick" disabled>Use this</button></div></div>`);
-    const col = { m, el, run:0 }; C.push(col); cols.insertBefore(el, slot.parentNode === cols ? slot : null); head(col);
-    $$('.mi', el).forEach(x => x.addEventListener('click', () => { if (col.m === x.dataset.m) return; col.m = x.dataset.m; head(col); if (asked) c.run(() => one(col)); }));
-    $('.mcx-x', el).onclick = () => { hideTip(); C.splice(C.indexOf(col), 1); col.run++; el.classList.add('leave'); setTimeout(() => { el.remove(); sync(); }, 260); };
-    $('.mcx-pick', el).onclick = () => choose(col);
+    const id = 'mcx-p' + (uid++);
+    const el = html(`<section class="mcx-c"><div class="mcx-h"><button class="mcx-sel" data-pop=".${id}" aria-haspopup="menu" aria-expanded="false"></button><button class="ib mcx-x" data-tip="Remove">${I('x','xs')}</button></div><div class="pop mcx-pop ${id}" role="menu" aria-label="Swap model">${Object.keys(MOD).map(n => `<button class="mi" role="menuitemradio" data-close data-m="${n}">${item(n)}<span class="ck">${I('check','xs')}</span></button>`).join('')}</div><div class="mcx-m num"></div><div class="mcx-a"></div><div class="mcx-ft"><button class="pill line sm mcx-pick" aria-pressed="false">Use this answer</button></div></section>`);
+    const col = { m, el, run:0, res:null };
+    C.push(col); cols.appendChild(el); head(col); idle(col);
+    // swapping the model clears the pick and, once a prompt has been sent, runs it on the new model in this column
+    $$('.pop .mi', el).forEach(x => x.addEventListener('click', () => { if (col.m === x.dataset.m) return; col.m = x.dataset.m; col.run++; head(col); pick(null); if (asked) c.run(() => one(col)); else idle(col); }));
+    $('.mcx-x', el).onclick = () => {
+      hideTip(); const had = el.contains(document.activeElement);
+      C.splice(C.indexOf(col), 1); col.run++; if (el.classList.contains('win')) pick(null);
+      sync(); el.classList.add('leave');
+      setTimeout(() => { el.remove(); if (had) (add.hidden ? q : add).focus({ preventScroll:true }); }, 260);
+    };
+    $('.mcx-pick', el).onclick = () => pick(el.classList.contains('win') ? null : col);
     if (fresh){ enter(el); sync(); if (asked) c.run(() => one(col)); }
     return col;
   }
-  function choose(col){
-    const on = !col.el.classList.contains('win');
-    C.forEach(x => { x.el.classList.toggle('win', on && x === col); x.el.classList.toggle('lose', on && x !== col); $('.mcx-pick', x.el).innerHTML = on && x === col ? I('check','xs') + 'Chosen' : 'Use this'; });
+  // the answer that was kept: its column takes the accent's tint, and pressing it again lets it go
+  function pick(col){
+    C.forEach(x => { const on = x === col, b = $('.mcx-pick', x.el); x.el.classList.toggle('win', on); b.setAttribute('aria-pressed', on); b.innerHTML = on ? I('check','xs') + 'Chosen' : 'Use this answer'; });
+    if (col) live.textContent = 'Using the answer from ' + col.m;
   }
   async function one(col){
-    const id = ++col.run, el = col.el, m = MOD[col.m], o = $('.mcx-o', el), f = $('.mcx-m', el), pk = $('.mcx-pick', el);
-    C.forEach(x => x.el.classList.remove('win','lose')); C.forEach(x => { const b = $('.mcx-pick', x.el); if (b.textContent === 'Chosen') b.textContent = 'Use this'; });
-    pk.disabled = true; f.textContent = 'Running'; busy++;
-    o.innerHTML = `<div class="bub">${asked.replace(/</g,'&lt;')}</div><div class="mcx-a"><span class="wk"><span class="think on"><i></i><i></i><i></i><i></i></span><span class="shim">Thinking</span></span></div>`;
-    const a = $('.mcx-a', o);
+    const id = ++col.run, el = col.el, m = MOD[col.m], a = $('.mcx-a', el), meta = $('.mcx-m', el);
+    el.classList.remove('done'); col.res = null; meta.textContent = m.d; busy++;
+    a.innerHTML = '<span class="wk"><span class="think on"><i></i><i></i><i></i><i></i></span><span class="shim">Thinking</span></span>';
     try {
       await c.wait(m.ms * .35); if (id !== col.run) return;
-      const ws = (asked === DEF ? m.o : generic[col.m]).split(' '); a.innerHTML = '<span></span>'; const p = a.firstChild;
-      for (const w of ws){ p.insertAdjacentHTML('beforeend', `<span class="w">${w} </span>`); await c.wait(m.ms * .65 / ws.length); if (id !== col.run) return; }
-      f.innerHTML = `<span class="tm" data-tip="Time to finish, ${m.tps} tokens a second">${(m.ms / 1000).toFixed(1)}s</span><span class="co" data-tip="Cost of this reply">$${m.cost.toFixed(3)}</span>`; pk.disabled = false;
-    } finally { busy--; if (!busy) badges(); }
+      const text = asked === DEF ? m.o : generic[col.m], ws = text.split(' ');
+      a.innerHTML = '<span></span>'; const p = a.firstChild;
+      for (let i = 0; i < ws.length; i++){
+        p.insertAdjacentHTML('beforeend', `<span class="w">${ws[i]} </span>`); meta.textContent = tokens(tok(i + 1));
+        await c.wait(m.ms * .65 / ws.length); if (id !== col.run) return;
+      }
+      col.res = { s:m.ms / 1000, n:tok(ws.length), cost:m.cost };
+      meta.innerHTML = `<span class="mcx-tm"></span> · <span class="mcx-tk"></span> · <span class="mcx-co"></span>`;
+      $('.mcx-tm', meta).textContent = col.res.s.toFixed(1) + 's'; $('.mcx-tk', meta).textContent = tokens(col.res.n); $('.mcx-co', meta).textContent = '$' + m.cost.toFixed(3);
+      $('.mcx-tk', meta).dataset.tip = 'Tokens in the answer';
+      el.classList.add('done'); tips(col, false, false);
+    } finally { busy--; if (!busy) best(); }
   }
-  /* once every column has answered, the fastest time and the lowest cost turn green */
-  function badges(){
-    go.disabled = sending || !q.value.trim();
-    const done = C.filter(x => !$('.mcx-pick', x.el).disabled); if (done.length < 2) return;
-    const fast = done.reduce((a, b) => MOD[b.m].ms < MOD[a.m].ms ? b : a), cheap = done.reduce((a, b) => MOD[b.m].cost < MOD[a.m].cost ? b : a);
-    done.forEach(x => { const tm = $('.tm', x.el), co = $('.co', x.el);
-      tm.classList.toggle('best', x === fast); tm.dataset.tip = (x === fast ? 'Fastest. ' : '') + 'Time to finish, ' + MOD[x.m].tps + ' tokens a second';
-      co.classList.toggle('best', x === cheap); co.dataset.tip = x === cheap ? 'Cheapest reply' : 'Cost of this reply'; });
+  function tips(col, fast, cheap){
+    const meta = $('.mcx-m', col.el), tm = $('.mcx-tm', meta), co = $('.mcx-co', meta); if (!tm) return;
+    tm.classList.toggle('best', fast); tm.dataset.tip = (fast ? 'Fastest. ' : '') + 'Time to finish, ' + MOD[col.m].tps + ' tokens a second';
+    co.classList.toggle('best', cheap); co.dataset.tip = cheap ? 'Cheapest answer' : 'Cost of this answer';
+  }
+  // once every column has answered, the fastest time and the lowest cost read a step darker
+  function best(){
+    const done = C.filter(x => x.res); if (done.length < 2) return;
+    const fast = done.reduce((a, b) => b.res.s < a.res.s ? b : a), cheap = done.reduce((a, b) => b.res.cost < a.res.cost ? b : a);
+    done.forEach(x => tips(x, x === fast, x === cheap));
   }
   ['Opus','Sonnet','Haiku'].forEach(m => addCol(m)); sync();
-  // Send stays off while a send is answering, even if the prompt changes
-  let sending = false;
-  const run = () => c.run(async () => { if (!q.value.trim()) return; asked = q.value.trim(); go.disabled = true; sending = true; try { await Promise.all(C.map(one)); } finally { sending = false; } go.disabled = !q.value.trim(); });
-  $('.mcx-in', r).onsubmit = e => { e.preventDefault(); if (!sending) run(); };
+  // Run stays off while a run is answering, even if the prompt changes
+  const run = () => c.run(async () => {
+    const v = q.value.trim(); if (!v || sending) return;
+    asked = v; sending = true; pick(null); go.disabled = true; live.textContent = 'Running on ' + C.length + ' models';
+    try { await Promise.all(C.map(one)); } finally { sending = false; go.disabled = !q.value.trim(); }
+    live.textContent = 'All ' + C.length + ' answers are in';
+  });
+  form.onsubmit = e => { e.preventDefault(); run(); };
   q.oninput = () => { go.disabled = sending || !q.value.trim(); };
-  // the preview sends its question once on its own, unless you take over first
-  c.auto(1200, run);
+  // the preview's story: run the prompt on all three, read the answers, then keep Sonnet's
+  c.story(async s => {
+    await s.beat(2);
+    await s.tap(go); s.away();
+    await s.until(() => !sending && C.every(x => x.res)); await s.beat(3);
+    const son = C.find(x => x.m === 'Sonnet');
+    if (son){ await s.tap($('.mcx-pick', son.el)); s.away(); }
+    await s.beat(4);
+  });
 });
 /* ---------- Tools and connections ---------- */
 DM.def('tool-connections', (r, c) => {
@@ -17675,9 +17857,9 @@ DM.def('segmented-control', (r, c) => {
   const UNIT = { day:'day', week:'week', month:'month' };
   const V = {
     day:[d => mo(d, { weekday:'long', month:'short', day:'numeric' }), d => { const e = evs(d); return e.length ? `<div class="sgc-day">${e.map(([t, n, x, col]) => `<div class="sgc-ev" style="--c:${col}"><span class="num muted">${t}</span><i></i><span class="t">${n}<span>${x}</span></span></div>`).join('')}</div>` : '<div class="sgc-none">Nothing planned</div>'; }],
-    week:[d => { const a = mon(d), b = at(a, 6); return mo(a, { month:'short', day:'numeric' }) + ' – ' + (a.getMonth() === b.getMonth() ? b.getDate() : mo(b, { month:'short', day:'numeric' })); },
-      d => `<div class="sgc-wk">${Array.from({ length:7 }, (_, i) => at(mon(d), i)).map(x => { const ev = evs(x);
-        return `<button class="sgc-wr${same(x, TODAY) ? ' now' : ''}${ev.length ? '' : ' none'}" data-d="${iso(x)}" aria-label="${mo(x, { weekday:'long', month:'long', day:'numeric' })}, ${ev.length ? ev.length + (ev.length === 1 ? ' event' : ' events') : 'nothing planned'}"><span class="d">${mo(x, { weekday:'short' })} ${x.getDate()}</span>${ev.length ? `<span class="e" style="--c:${ev[0][3]}"><i></i><span class="tm num">${ev[0][0]}</span><span>${ev[0][1]}</span></span>${ev.length > 1 ? `<span class="more">+${ev.length - 1} more</span>` : ''}` : '<span class="e">Nothing planned</span>'}</button>`; }).join('')}</div>`],
+    week:[d => { const a = mon(d), b = at(a, 4); return mo(a, { month:'short', day:'numeric' }) + ' – ' + (a.getMonth() === b.getMonth() ? b.getDate() : mo(b, { month:'short', day:'numeric' })); },
+      d => `<div class="sgc-wk">${Array.from({ length:5 }, (_, i) => at(mon(d), i)).map(x => { const ev = evs(x);
+        return `<button class="sgc-wr${same(x, TODAY) ? ' now' : ''}${ev.length ? '' : ' none'}" data-d="${iso(x)}" aria-label="${mo(x, { weekday:'long', month:'long', day:'numeric' })}, ${ev.length ? ev.length + (ev.length === 1 ? ' event' : ' events') : 'nothing planned'}"><span class="d">${mo(x, { weekday:'short' })} ${x.getDate()}</span>${ev.length ? `<span class="e" style="--c:${ev[0][3]}"><i></i><span>${ev[0][1]}</span></span>${ev.length > 1 ? `<span class="more">+${ev.length - 1} more</span>` : ''}` : '<span class="e">Nothing planned</span>'}</button>`; }).join('')}</div>`],
     month:[d => mo(d, { month:'long', year:'numeric' }), d => { const a = new Date(d.getFullYear(), d.getMonth(), 1, 12), lead = (a.getDay() + 6) % 7, len = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
       return `<div class="sgc-mo${lead + len > 35 ? ' r6' : ''}">${['M','T','W','T','F','S','S'].map(w => `<span class="w" aria-hidden="true">${w}</span>`).join('')}${'<span></span>'.repeat(lead)}${Array.from({ length:len }, (_, i) => { const x = at(a, i), n = evs(x).length;
         return `<button class="d num${n ? ' e' : ''}${same(x, TODAY) ? ' now' : ''}${same(x, sel) && !same(x, TODAY) ? ' on' : ''}" data-d="${iso(x)}" aria-label="${mo(x, { weekday:'long', month:'long', day:'numeric' })}, ${n ? n + (n === 1 ? ' event' : ' events') : 'nothing planned'}">${i + 1}</button>`; }).join('')}</div>`; }]
@@ -17974,6 +18156,9 @@ DM.def('buttons', (r, c) => {
 DM.def('badge', (r, c) => {
   r.innerHTML = r.innerHTML.replace('{lock}', I('lock','xs')).replace('{spark}', I('spark','xs')).replace(/\{x\}/g, I('x','xs'));
   const set = $('.bdx-rm', r), undo = $('.bdx-undo', r), live = $('.bdx-live', r);
+  // the rows sit centred in their stage whatever the badges wrap to, and glide back to the middle as a remove or Undo
+  // changes a row's height
+  const box = $('.bdx', r); centre(c, box, () => box.offsetHeight);
   const label = b => $('.t', b).textContent;
   // each removable badge keeps its place in the row, so Undo puts it back where it was
   $$('.bdg', set).forEach((b, i) => { b.dataset.i = i; });
@@ -18397,17 +18582,37 @@ DM.def('payment-form', (r, c) => {
 /* ---------- Comments ---------- */
 DM.def('comments', (r, c) => {
   r.innerHTML = r.innerHTML.replace('{check}', I('check','xs')).replace('{up}', I('up','xs'));
-  const th = $('.cmx-th', r), inp = $('.cmx-box input', r), go = $('.cmx-go', r), men = $('.cmx-men', r), root = $('.cmx', r);
+  const root = $('.cmx', r), th = $('.cmx-th', r), inp = $('.cmx-box input', r), go = $('.cmx-go', r), men = $('.cmx-men', r), st = $('.cmx-st', r), rs = $('.cmx-res', r);
   const P = { MK:['Maya Kim','var(--pl)'], JO:['Jon Ortiz','var(--pm)'], DA:['Design agent','var(--pb)'] };
-  const fmt = t => t.replace(/@(agent|maya|jon)/gi, m => `<span class="m">${m}</span>`);
-  function add(who, t, when, ag){ const el = html(`<div class="cmx-c${ag ? ' ag' : ''}">${AV(who, P[who][1])}<div class="b"><span class="n"><b>${P[who][0]}</b><span>${when}</span></span><span class="tx">${ag ? '' : fmt(t)}</span></div></div>`); th.appendChild(el); enter(el); return el; }
-  add('MK', 'The secondary button feels too faint next to the CTA.', '2h');
+  const esc = t => t.replace(/[&<>"]/g, ch => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' })[ch]);
+  const fmt = t => esc(t).replace(/@(agent|maya|jon)\b/gi, m => `<span class="m">${m}</span>`);
+  // the first comment starts the thread; every later one is a reply, indented on a thin line under it
+  let rp = null;
+  const count = () => { const n = rp ? rp.children.length : 0; st.textContent = root.classList.contains('done') ? 'Resolved' : n ? n + (n === 1 ? ' reply' : ' replies') : ''; };
+  function add(who, t, when, ag, agreed = 0){
+    const el = html(`<div class="cmx-c${ag ? ' ag' : ''}">${AV(who, P[who][1])}<div class="b"><div class="n"><b>${P[who][0]}</b><span class="t">${when}</span><div class="cmx-tools"><button class="ib cmx-rx" aria-label="Agree" aria-pressed="false" data-tip="Agree">${I('up-thumb','xs')}</button></div></div><div class="tx">${ag ? '' : fmt(t)}</div><div class="cmx-rs"><button class="cmx-rc" aria-pressed="false" hidden>${I('up-thumb','xs')}<span class="num"></span></button></div></div></div>`);
+    el._agree = { n:agreed, mine:false }; agree(el);
+    $('.cmx-rx', el).onclick = () => agree(el, true); $('.cmx-rc', el).onclick = () => agree(el, true);
+    if (!th.firstElementChild) th.appendChild(el);
+    else { if (!rp){ rp = html('<div class="cmx-rp" role="group" aria-label="Replies"></div>'); th.appendChild(rp); } rp.appendChild(el); }
+    enter(el); count(); return el;
+  }
+  // Agree: the button by the time and the chip under the text both toggle yours, and the chip counts everyone's
+  function agree(el, flip){
+    const a = el._agree; if (flip) a.mine = !a.mine;
+    const n = a.n + (a.mine ? 1 : 0), b = $('.cmx-rx', el), chip = $('.cmx-rc', el), had = document.activeElement === chip;
+    b.setAttribute('aria-pressed', a.mine); chip.setAttribute('aria-pressed', a.mine);
+    chip.setAttribute('aria-label', 'Agree, ' + n + (n === 1 ? ' person' : ' people') + (a.mine ? ', including you' : ''));
+    $('.num', chip).textContent = n; chip.hidden = !n;
+    if (had && !n) b.focus({ preventScroll:true });
+  }
+  add('MK', 'The secondary button feels too faint next to the CTA.', '2h', false, 1);
   add('JO', 'Agree. Can we keep it outlined though?', '1h');
   async function agent(q){
     const el = add('DA', '', 'now', true), tx = $('.tx', el); tx.innerHTML = '<span class="think on" style="color:var(--accent-mark,var(--accent))"><i></i><i></i><i></i><i></i></span>'; await c.wait(900); tx.innerHTML = '';
     const a = /outline|border/i.test(q + ' outlined') ? 'Kept it outlined and raised the text to #5B6472, which passes AA at 5.9 : 1. Want me to apply it to the other 2 frames?' : 'On it. I will post the change here when it is ready.';
     for (const w of a.split(' ')){ tx.insertAdjacentHTML('beforeend', `<span class="w">${w} </span>`); await c.wait(40); }
-    const act = html(`<div class="act"><button class="pill accent sm">Apply to all</button><button class="pill ghost sm">Just this one</button></div>`); $('.b', el).appendChild(act); enter(act);
+    const act = html(`<div class="act"><button class="pill primary sm">Apply to all</button><button class="pill line sm">Just this one</button></div>`); $('.b', el).appendChild(act); enter(act);
     $$('button', act).forEach((b, i) => b.onclick = () => { act.innerHTML = `<span class="cmx-rv">${I('ok','xs')}${i ? 'Applied to frame 2' : 'Applied to 3 frames'}</span>`; enter(act.firstChild); });
   }
   function send(){ const v = inp.value.trim(); if (!v) return; add('MK', v, 'now'); inp.value = ''; go.disabled = true; shut(); if (/@agent/i.test(v)) c.run(() => agent(v)); }
@@ -18430,8 +18635,8 @@ DM.def('comments', (r, c) => {
     if (e.key === 'Enter'){ const f = mens()[hl]; if (open && f){ f.onmousedown(e); } else send(); }
     if (e.key === 'Escape') shut(); };
   go.onclick = send;
-  const rs = $('.cmx-res', r);
-  rs.onclick = () => { const d = root.classList.toggle('done'); rs.innerHTML = d ? I('undo','xs') + 'Reopen' : I('check','xs') + 'Resolve'; $('.cmx-pin', r).style.background = d ? 'var(--ok)' : ''; };
+  // Resolve fades the thread back and turns the pin green; pressed again it reopens
+  rs.onclick = () => { const d = root.classList.toggle('done'); hideTip(); rs.innerHTML = I(d ? 'undo' : 'check', 'xs'); rs.setAttribute('aria-pressed', d); rs.dataset.tip = d ? 'Reopen thread' : 'Resolve thread'; count(); };
   // the preview asks the agent in the thread on its own; clicking, focusing or typing in it takes over, and what it had
   // typed goes
   c.auto(1000, () => c.run(async () => { await c.type(inp, '@agent can you keep it outlined but darker?', { ms:28, each:() => inp.oninput(), keep:true }); shut(); await c.step(300); send(); }));
@@ -18472,49 +18677,53 @@ const BNX_ART = {
 };
 DM.def('banner', (r, c) => {
   r.innerHTML = r.innerHTML.replace('{x}', I('x'));
-  const slot = $('.bnx-slot', r) || r, root = $('.bnx', r), art = $('.bnx-art', root), gone = $('.bnx-gone', r);
-  const xB = $('.bnx-x', root), undoB = gone && $('.bnx-undo', gone);
+  const root = $('.bnx', r), art = $('.bnx-art', root), xB = $('.bnx-x', root);
   const T = { eb:$('.bnx-eb>span', root), t:$('.bnx-t>span', root), d:$('.bnx-d>span', root), a:$('.bnx-go>span', root), s:$('.bnx-lk>span', root) };
   // the drawing named by data-art; drawing it again plays its entrance again
   const draw = () => { const k = root.dataset.art; art.innerHTML = BNX_ART[k] ? `<svg class="bnx-svg" viewBox="0 0 240 160" width="240" height="160" focusable="false">${BNX_ART[k]}</svg>` : ''; };
   draw();
-  // Dismiss: the banner leaves and the line with Undo takes its place, in the height the banner had, so it stays where it was.
-  // The focus follows to Undo, and back to Dismiss after Undo, so a keyboard never loses its place
-  const dismiss = () => {
+  // an optional close button (.bnx-x inside the banner; the card here leaves it out): it first sends a cancelable
+  // banner-dismiss event from the banner, so your code can keep it, or remember it was closed, then the banner plays out
+  // and is hidden. Where the focus goes next is up to your page
+  if (xB) xB.onclick = () => {
     if (root.hidden || root.classList.contains('leave')) return;
-    const back = root.contains(document.activeElement);
-    hold(slot); root.classList.add('leave');
-    c.later(REDUCE ? 0 : 320, () => { root.classList.remove('leave'); root.hidden = true; if (!gone) return; gone.hidden = false; enter(gone); if (back) undoB.focus({ preventScroll:true }); });
+    if (!root.dispatchEvent(new CustomEvent('banner-dismiss', { bubbles:true, cancelable:true }))) return;
+    root.classList.add('leave'); c.later(REDUCE ? 0 : 320, () => { root.classList.remove('leave'); root.hidden = true; });
   };
-  const undo = () => {
-    const back = gone.contains(document.activeElement);
-    gone.hidden = true; root.hidden = false; release(slot); enter(root); draw();
-    if (back) xB.focus({ preventScroll:true });
-  };
-  xB.onclick = dismiss;
-  if (undoB) undoB.onclick = undo;
 
-  // the preview's banners, one after another: the tone, the drawing and the words change in place
+  // the preview's four styles, one per tone and drawing: the tone, the drawing and the words change in place
   const P = [
     { tone:'accent', art:'layers', eb:'New', t:'Memory that carries across threads', d:'Agents keep what they learn about your project, so you only explain things once.', a:'Turn on memory', s:'What it keeps' },
     { tone:'violet', art:'nodes', eb:'Beta', t:'Connect your tools in one place', d:'Linear, GitHub and Slack in one list, with access you can scope for each agent.', a:'Connect a tool', s:'Read the docs' },
     { tone:'green', art:'steps', eb:'Guide', t:'Set up your first automation', d:'Five short steps, about ten minutes. The agent can do most of them for you.', a:'Start the guide', s:'Maybe later' },
     { tone:'amber', art:'grid', eb:'Heads-up', t:'Maintenance on Sunday, 02:00 UTC', d:'Agents pause for about an hour, and queued runs pick up where they left off.', a:'Add to calendar', s:'Status page' }
   ];
-  const show = (p, now) => { root.dataset.tone = p.tone; root.dataset.art = p.art; for (const k in T) if (T[k]) now ? T[k].textContent = p[k] : swap(T[k], p[k]); draw(); };
-  // three banners, then the last one is dismissed. A story that plays to the end leaves the next run one banner further on,
-  // so every drawing comes round. A click, a key or the focus of yours stops it where it is, and a mouse resting on it holds it
-  if (r === c.st && c.card){
-    const n = c.card._bnx || 0;
-    if (n) show(P[n], true);
-    c.story(async s => {
-      await s.beat(8);
-      show(P[(n + 1) % P.length]); await s.beat(8);
-      show(P[(n + 2) % P.length]); await s.beat(8);
-      await s.tap(xB); s.away(); await s.beat(5);
-      c.card._bnx = (n + 1) % P.length;
-    });
-  }
+  const show = p => { root.dataset.tone = p.tone; root.dataset.art = p.art; for (const k in T) if (T[k]) swap(T[k], p[k]); draw(); };
+  const sg = $('.demo .seg2', r);
+  if (!sg) return;
+  // the banner keeps one height, the tallest of the four at this width, so flipping styles never moves the switcher under it
+  // or the banner's edges. It is measured again when the width changes
+  const fit = () => {
+    if (!root.isConnected || !root.offsetWidth) return;
+    const was = {}; for (const k in T) if (T[k]) was[k] = T[k].textContent;
+    root.style.minHeight = ''; let h = 0;
+    P.forEach(p => { for (const k in T) if (T[k]) T[k].textContent = p[k]; h = Math.max(h, root.offsetHeight); });
+    for (const k in T) if (T[k]) T[k].textContent = was[k];
+    root.style.minHeight = Math.ceil(h) + 'px';
+  };
+  let wide = 0;
+  const ro = new ResizeObserver(() => { const w = root.offsetWidth; if (w !== wide){ wide = w; fit(); } }); ro.observe(root); c.offs.push(() => ro.disconnect());
+  if (document.fonts) document.fonts.ready.then(() => { if (!c.dead) fit(); });
+  // the switcher under it (the card's tabs on designme.dev's homepage): picking a style is the person taking over, so the
+  // demo stops there
+  let at = 0;
+  const knob = seg(sg, v => { c.mine = true; if (+v !== at){ at = +v; show(P[at]); } });
+  const pick = i => { at = i; $$('button', sg).forEach((b, j) => b.setAttribute('aria-pressed', j === i)); knob.place(); show(P[i]); };
+  // the demo flips through the four styles twice, a few seconds each, and rests on the first. A mouse resting on it holds
+  // it where it is; a click, a key or the focus of yours stops it for good. With reduced motion it doesn't play
+  if (r === c.st && c.card && !REDUCE) c.run(async () => {
+    for (let k = 1; k <= P.length * 2; k++){ await c.step(4000); pick(k % P.length); }
+  });
 });
 /* ---------- Invite ---------- */
 DM.def('invite', (r, c) => {
@@ -19034,7 +19243,7 @@ DM.def('ticket-list', (r, c) => {
 /* ---------- Kanban ---------- */
 DM.def('kanban', (r, c) => {
   // each column has a short name for the tabs a narrow board shows
-  const COLS = [['todo','To do','To do'],['doing','In progress','Doing'],['done','Done','Done']];
+  const COLS = [['todo','To do','To do','y'],['doing','In progress','Doing','p'],['done','Done','Done','m']];
   let K = [
     { id:1, c:'todo', t:'Audit checkout for contrast', tag:['b','Design'], who:['DA','var(--pb)'] },
     { id:2, c:'todo', t:'Write release notes for pricing', tag:['l','Copy'], who:['MK','var(--pl)'] },
@@ -19045,7 +19254,7 @@ DM.def('kanban', (r, c) => {
   ];
   // the agent's timer repaints the board, so it waits while a card is dragged, a new title is typed or a card's menu is open
   const box = $('.kbx', r), wrap = $('.kbx-cols', r); let dragging = false, editing = false;
-  wrap.innerHTML = COLS.map(cl => `<div class="kbx-c" data-col="${cl[0]}"><div class="kbx-ch"><b>${cl[1]}</b><span class="n num"></span><button class="ib" aria-label="Add card" data-tip="Add card">${I('plus','xs')}</button></div><div class="kbx-list"></div></div>`).join('');
+  wrap.innerHTML = COLS.map(cl => `<div class="kbx-c ${cl[3]}" data-col="${cl[0]}"><div class="kbx-ch"><b>${cl[1]}</b><span class="n num"></span><button class="ib" aria-label="Add card" data-tip="Add card">${I('plus','xs')}</button></div><div class="kbx-list"></div></div>`).join('');
   /* a narrow board shows one column at a time: tabs with each column's count pick it, + adds a card to it, and a card's
      menu moves it to another column, since there is no other column on screen to drag it to */
   wrap.insertAdjacentHTML('beforebegin', `<div class="kbx-bar"><div class="seg2 kbx-tabs" role="group" aria-label="Column">${COLS.map(cl => `<button aria-pressed="false" data-v="${cl[0]}">${cl[2]}<span class="n num"></span></button>`).join('')}</div><button class="ib kbx-add" aria-label="Add card" data-tip="Add card">${I('plus','xs')}</button></div>`);
@@ -19113,7 +19322,10 @@ DM.def('kanban', (r, c) => {
     if (moved) dispatchEvent(new Event('resize'));
   };
   const waiting = new Set($$('.comp[data-v2]'));
-  const mount = (comp, now) => { waiting.delete(comp); DM.mount(comp, now); syncTabs(comp); };
+  // and keep following it when the component flips it itself, as Banner's demo does
+  const mount = (comp, now) => { waiting.delete(comp); DM.mount(comp, now); syncTabs(comp);
+    if (comp._tabsMo) comp._tabsMo.disconnect(); const sg = demoSeg(comp);
+    if (sg){ comp._tabsMo = new MutationObserver(() => syncTabs(comp)); comp._tabsMo.observe(sg, { subtree:true, attributes:true, attributeFilter:['aria-pressed'] }); } };
   // a card mounts a quarter of a screen before it scrolls into view, so it has its component by the time it shows
   const io = new IntersectionObserver(es => es.forEach(en => { if (en.isIntersecting){ io.unobserve(en.target); mount(en.target); } }), { rootMargin:'25% 0px' });
   // a card far from the screen stops drawing: its demo is hidden (the space it takes stays) and its CSS animations pause,

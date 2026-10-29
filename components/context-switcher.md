@@ -28,6 +28,7 @@ Context switcher is the breadcrumb at the top of a developer dashboard that says
 
 - Each part is a button with the item's name, its badge and ⇅. The organisation also has a tile with its initial. When a pick changes a part, its name and badge crossfade.
 - A part's switcher opens under it: a search, a line saying what the list holds ("Projects in Fernhill Labs"), the items with their badges and the current one ticked, and Create new… at the bottom, which reads Create “…” once something is typed. Typing filters the list; with nothing left, it says so.
+- The search looks like every field: a quiet grey edge at rest that turns a step stronger while you type in it, on the list's own surface (white in light mode), with no focus ring. The row under the pointer or the arrow keys keeps that surface with a grey edge rather than taking a grey fill, a step stronger on the current one.
 - Picking an organisation brings its projects and picking a project brings its environments. In the HTML version each level remembers what was last picked in it; in React, the parts after a pick keep their item if their new list has it, and otherwise take the item marked `isDefault`, or the first.
 - As the bar runs short, each part takes an even share of it and never more than it needs, so the names shorten alike with an ellipsis, and a name cut short shows in full in a tooltip. When the component is 560px wide or less the organisation's tile goes, and at 440px or less, phone width, only the last part shows, and a … button opens a menu with the others, each opening its own switcher.
 - In HTML, each change goes out as a `context-change` event with the whole path, and Create new first sends a cancelable `context-create` event with the part and what was typed: left alone, it adds one by that name (an organisation with a first project) and picks it. In React, `onChange` gets the path and the item, and `onCreate` adds the Create new row.
@@ -503,7 +504,7 @@ export function ContextSwitcher({ segments, value, defaultValue, onChange, onCre
 
 - [Comments](https://designme.dev/components/comments.md): A design thread where you can @mention the agent and it replies.
 - [Notifications](https://designme.dev/components/notifications.md): An inbox where agent updates and mentions arrive live.
-- [Banner](https://designme.dev/components/banner.md): An announcement on a tint of its tone, with its own line drawing and a dismiss.
+- [Banner](https://designme.dev/components/banner.md): An announcement on a tint of its tone, with its own line drawing.
 - [Invite to collaborate](https://designme.dev/components/invite-to-collaborate.md): Add teammates by email as chips, set their role, send.
 - [Reactions](https://designme.dev/components/reactions.md): Quick reactions on an agent update, with counts that pop.
 - [Profile menu](https://designme.dev/components/profile-menu.md): The account menu behind an avatar: switch workspace, theme, shortcuts and sign out.

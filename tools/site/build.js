@@ -256,7 +256,10 @@ ${defs}
     if (moved) dispatchEvent(new Event('resize'));
   };
   const waiting = new Set($$('.comp[data-v2]'));
-  const mount = (comp, now) => { waiting.delete(comp); DM.mount(comp, now); syncTabs(comp); };
+  // and keep following it when the component flips it itself, as Banner's demo does
+  const mount = (comp, now) => { waiting.delete(comp); DM.mount(comp, now); syncTabs(comp);
+    if (comp._tabsMo) comp._tabsMo.disconnect(); const sg = demoSeg(comp);
+    if (sg){ comp._tabsMo = new MutationObserver(() => syncTabs(comp)); comp._tabsMo.observe(sg, { subtree:true, attributes:true, attributeFilter:['aria-pressed'] }); } };
   // a card mounts a quarter of a screen before it scrolls into view, so it has its component by the time it shows
   const io = new IntersectionObserver(es => es.forEach(en => { if (en.isIntersecting){ io.unobserve(en.target); mount(en.target); } }), { rootMargin:'25% 0px' });
   // a card far from the screen stops drawing: its demo is hidden (the space it takes stays) and its CSS animations pause,

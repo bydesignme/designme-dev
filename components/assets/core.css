@@ -80,6 +80,9 @@
 :root[data-theme="dark"],:root[data-theme="dark"] [data-style="soft"]{--accent-2:color-mix(in srgb,var(--accent) 84%,#fff);--accent-bg:color-mix(in srgb,var(--accent) 13%,transparent)}
 @supports (color:rgb(from red r g b)){:root,[data-style="soft"],:root:not([data-theme="light"]),:root:not([data-theme="light"]) [data-style="soft"],:root[data-theme="dark"],:root[data-theme="dark"] [data-style="soft"]{--accent-2:color-mix(in srgb,var(--accent) 86%,rgb(from var(--on-accent) calc(255 - r) calc(255 - g) calc(255 - b)))}}
 @supports not (color:rgb(from red r g b)){:root,[data-style="soft"],:root:not([data-theme="light"]),:root:not([data-theme="light"]) [data-style="soft"],:root[data-theme="dark"],:root[data-theme="dark"] [data-style="soft"]{--accent-2:color-mix(in srgb,var(--accent) 86%,#000)}:root:not([data-style="soft"]),:root:not([data-style="soft"]):not([data-theme="light"]),:root:not([data-style="soft"])[data-theme="dark"]{--accent-2:color-mix(in srgb,var(--accent) 86%,#fff)}}
+/* picked things (chips, options, steps, cards in a picker) are white tiles with a dimmed grey edge, and the picked one's edge
+   is a step stronger, never a black outline or a grey fill. The picked edge holds 3:1 against the tile */
+:root,[data-style="soft"]{--pick-line:var(--rail);--pick-on:var(--field-line)}
 
 /* ---------- page shell ---------- */
 :where([data-c]) *{box-sizing:border-box}
@@ -111,7 +114,7 @@
 .ib.on{background:var(--accent-bg);color:var(--accent-fg,var(--accent))}
 .chip{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 var(--s-3);border-radius:var(--r-pill);font-size:13px;color:var(--fg2);background:var(--chip);white-space:nowrap;transition:background var(--t-fast),color var(--t-fast),box-shadow var(--t-fast)}
 @media (hover:hover) and (pointer:fine){.chip:hover{background:var(--hover);color:var(--fg)}}
-.chip.on{background:var(--surface);color:var(--fg);box-shadow:inset 0 0 0 1px var(--line)}
+.chip.on{background:var(--surface);color:var(--fg);box-shadow:inset 0 0 0 1px var(--pick-on)}
 .chip.sm{height:24px;padding:0 9px;font-size:12px}
 .pill{display:inline-flex;align-items:center;justify-content:center;gap:7px;height:32px;padding:0 14px;border-radius:var(--r-pill);font-size:13px;font-weight:500;white-space:nowrap;transition:background var(--t-fast),color var(--t-fast),opacity var(--t-fast),transform .15s}
 .pill:active{transform:scale(.97)}
@@ -164,7 +167,7 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
    The build checks that every selector drawing with a ::before or ::after is in the lists below */
 @media (pointer:coarse){
   :where([data-c]) :where(button,a[href],summary,[role="button"],[role="switch"],[role="checkbox"],[role="radio"],[role="tab"],[role="option"],[role="menuitem"],[role="menuitemradio"],[role="menuitemcheckbox"],[role="slider"],label:has(input[type="checkbox"],input[type="radio"])){position:relative;--hit-w:40px;--hit-h:40px}
-  :where([data-c]) :where(button,a[href],summary,[role="button"],[role="switch"],[role="checkbox"],[role="radio"],[role="tab"],[role="option"],[role="menuitem"],[role="menuitemradio"],[role="menuitemcheckbox"],[role="slider"],label:has(input[type="checkbox"],input[type="radio"])):not(:where(.radar,.hand,.rtr-li:not(:last-child),.atr-kids,.bws-nav b,.rc-cap,.erx-row:not(:last-child),.rte-body.empty,.rte-hint,.afx-desk,.dtx-sl,.crx-l.add .c,.crx-l.del .c,.crx-l.ctx .c,.crx-hk.kept .crx-l.add .c,.crx-hk.undone .crx-l.del .c,.ahx-bot,.ecx-now,.ssi-or))::before,:where([data-c]) :where(button,a[href],summary,[role="button"],[role="switch"],[role="checkbox"],[role="radio"],[role="tab"],[role="option"],[role="menuitem"],[role="menuitemradio"],[role="menuitemcheckbox"],[role="slider"],label:has(input[type="checkbox"],input[type="radio"])):where(.radar,.hand,.rtr-li:not(:last-child),.atr-kids,.bws-nav b,.rc-cap,.erx-row:not(:last-child),.rte-body.empty,.rte-hint,.afx-desk,.dtx-sl,.crx-l.add .c,.crx-l.del .c,.crx-l.ctx .c,.crx-hk.kept .crx-l.add .c,.crx-hk.undone .crx-l.del .c,.ahx-bot,.ecx-now,.ssi-or):not(:where(.toggle,.radar,.pulse,.stl-track i,.stx-ok,.aln-tr i,.afx-card .afx-open,.plx-s.edited .t,.vor-mute,.mix-mk,.hnx-t .ic,.ksx-s .ic,.shx-r .ic,.dpk-d.t,.sgc-mo .d.e,.agx-now,.btx-ask,.btx-live,.ssi-or,.rxx-r))::after{content:"";position:absolute;inset:min(0px,(100% - var(--hit-h)) / 2) min(0px,(100% - var(--hit-w)) / 2);--dm-hit:1}
+  :where([data-c]) :where(button,a[href],summary,[role="button"],[role="switch"],[role="checkbox"],[role="radio"],[role="tab"],[role="option"],[role="menuitem"],[role="menuitemradio"],[role="menuitemcheckbox"],[role="slider"],label:has(input[type="checkbox"],input[type="radio"])):not(:where(.radar,.hand,.rtr-li:not(:last-child),.atr-kids,.bws-nav b,.rc-cap,.erx-row:not(:last-child),.rte-body.empty,.rte-hint,.afx-desk,.dtx-sl,.crx-l.add .c,.crx-l.del .c,.crx-l.ctx .c,.crx-hk.kept .crx-l.add .c,.crx-hk.undone .crx-l.del .c,.ahx-bot,.ecx-now,.ssi-or))::before,:where([data-c]) :where(button,a[href],summary,[role="button"],[role="switch"],[role="checkbox"],[role="radio"],[role="tab"],[role="option"],[role="menuitem"],[role="menuitemradio"],[role="menuitemcheckbox"],[role="slider"],label:has(input[type="checkbox"],input[type="radio"])):where(.radar,.hand,.rtr-li:not(:last-child),.atr-kids,.bws-nav b,.rc-cap,.erx-row:not(:last-child),.rte-body.empty,.rte-hint,.afx-desk,.dtx-sl,.crx-l.add .c,.crx-l.del .c,.crx-l.ctx .c,.crx-hk.kept .crx-l.add .c,.crx-hk.undone .crx-l.del .c,.ahx-bot,.ecx-now,.ssi-or):not(:where(.toggle,.radar,.pulse,.stl-track i,.stx-ok,.aln-tr i,.afx-card .afx-open,.plx-s.edited .t,.vor-mute,.mix-mk,.hnx-t .ic,.ksx-s .ic,.shx-r .ic,.dpk-d.t,.sgc-mo .d.e,.agx-now,.btx-ask,.btx-live,.ssi-or,.rxx-r,.bdg.live .bdg-dot))::after{content:"";position:absolute;inset:min(0px,(100% - var(--hit-h)) / 2) min(0px,(100% - var(--hit-w)) / 2);--dm-hit:1}
 }
 .seg2{display:inline-flex;padding:2px;background:var(--chip);border-radius:var(--r-pill);position:relative}
 .seg2 button{position:relative;z-index:1;height:26px;padding:0 11px;border-radius:var(--r-pill);font-size:12.5px;color:var(--fg2);transition:color var(--t-fast)}
@@ -337,8 +340,7 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 :root:not([data-style="soft"]) .pill.line:not(:where([data-style="soft"],[data-style="soft"] *)){box-shadow:inset 0 0 0 1px var(--rail)}
 @media (hover:hover) and (pointer:fine){:root:not([data-style="soft"]) .pill.line:hover:not(:where([data-style="soft"],[data-style="soft"] *)){background:var(--wash);box-shadow:inset 0 0 0 1px var(--faint)}}
 :root:not([data-style="soft"]) .pill:active:not(:where([data-style="soft"],[data-style="soft"] *)),:root:not([data-style="soft"]) .ib:active:not(:where([data-style="soft"],[data-style="soft"] *)){transform:translateY(1px)}
-:root:not([data-style="soft"]) .chip.on:not(:where([data-style="soft"],[data-style="soft"] *)){box-shadow:inset 0 0 0 1px var(--rail)}
-:root:not([data-style="soft"]) .mcx-add:not(:where([data-style="soft"],[data-style="soft"] *)){box-shadow:none;outline:1px dashed var(--rail);outline-offset:-1px}
+:root:not([data-style="soft"]) .chip.on:not(:where([data-style="soft"],[data-style="soft"] *)){box-shadow:inset 0 0 0 1px var(--pick-on)}
 :root:not([data-style="soft"]) .bub:not(:where([data-style="soft"],[data-style="soft"] *)){background:var(--chip);box-shadow:inset 0 0 0 1px var(--line)}
 :root:not([data-style="soft"]) .tip:not(:where([data-style="soft"],[data-style="soft"] *)){box-shadow:none}
 

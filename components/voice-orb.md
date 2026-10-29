@@ -27,8 +27,8 @@ Voice orb is the screen for a hands-free voice chat with the agent. An orb in th
 ### What it does
 
 - `state` moves through `idle`, `listening`, `thinking`, `speaking` and `ended`. The status line, its dot and the orb's colour follow it.
-- `level` from 0 to 1 sets how far the orb swells, how fast the light inside it flows and how bright its glow is. Feed it from your audio, or from a made-up curve as the demo does.
-- Inside the orb, light flows in two colours of whoever is talking, drawn by a small WebGL shader, and a soft glow turns behind it. Without WebGL the orb keeps a plain gradient, and with reduced motion it holds still.
+- `level` from 0 to 1 sets how far the orb swells, how fast the light inside it flows and how bright the light deep inside it glows. Feed it from your audio, or from a made-up curve as the demo does.
+- The orb is a glossy sphere with light flowing inside it in two colours of whoever is talking, drawn by a small WebGL shader in one draw a frame. Nothing reaches past its edge, so it needs no room around it. Without WebGL it is a plain gradient circle, with reduced motion it holds still, and off screen it stops drawing.
 - `caption` shows what was said last and who said it, each new word fading in.
 - `muted` / `onMutedChange` drive the mute button. While muted, listening shows as Muted and a slash crosses the microphone.
 - `mutedNotice` folds open "You're muted" with an Unmute button, for when your code hears someone talking while muted.
@@ -227,7 +227,7 @@ export function VoiceOrb({
     <div data-dm="" className={className} style={{ width: '100%' }}>
       <div className={cx('dm-vor dm-panel', on && 'dm-on')} data-m={m}>
         <div className="dm-vor-top"><span className="dm-vor-dot" /><Swap className="dm-vor-st">{status}</Swap><span className="dm-vor-t dm-num dm-muted">{fmt(elapsed)}</span></div>
-        <div className="dm-vor-orb" aria-hidden="true" style={{ '--dm-lv': Math.max(0, Math.min(1, level)).toFixed(3) } as CSSProperties}><i className="dm-vor-glow" /><i className="dm-vor-pc" /><i className="dm-vor-core"><OrbLight level={level} /></i></div>
+        <div className="dm-vor-orb" aria-hidden="true" style={{ '--dm-lv': Math.max(0, Math.min(1, level)).toFixed(3) } as CSSProperties}><i className="dm-vor-pc" /><i className="dm-vor-core"><OrbLight level={level} /></i></div>
         <div className="dm-vor-cap" aria-live="polite">
           <Swap className="dm-vor-who dm-muted">{caption?.speaker ?? ''}</Swap>
           {caption
@@ -284,24 +284,43 @@ function OrbLight({ level }: { level: number }) {
   return <canvas ref={ref} className={cx('dm-vor-gl', on && 'dm-on')} />;
 }
 
-// a sphere of slowly flowing light, for Voice orb: domain-warped noise in two colours, a darker rim and a highlight up top.
-// Returns paint(ms, level 0 to 1, colour, second colour) and lose(), or null where WebGL is not available
-const FRAG = `precision mediump float;
+// a glossy sphere of slowly flowing light, for Voice orb: soft pools of the two colours drift inside it, bent by a little
+// noise and bunched towards the edge as a lens would; a light glows from deep inside, and it is shaded as a ball lit from the
+// top left, with a deeper edge, a thin inner rim, a soft sheen and a small highlight. Nothing is drawn outside the circle.
+// The louder the level, the more the colours bend and the brighter the inner light. One draw a frame, on a canvas the size
+// of the orb. Returns paint(ms, level 0 to 1, colour, second colour) and lose(), or null where WebGL is not available
+const FRAG = `#ifdef GL_FRAGMENT_PRECISION_HIGH
+precision highp float;
+#else
+precision mediump float;
+#endif
 uniform vec2 R;uniform float T,L;uniform vec3 A,B;
 float h(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
 float n(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(h(i),h(i+vec2(1,0)),f.x),mix(h(i+vec2(0,1)),h(i+1.),f.x),f.y);}
 float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<4;i++){v+=a*n(p);p=p*2.03+vec2(1.7,9.2);a*=.5;}return v;}
 void main(){
-  vec2 u=(gl_FragCoord.xy*2.-R)/R.y;float r=length(u),t=T*.00018;
-  vec2 q=vec2(fbm(u*1.4+vec2(0.,t)),fbm(u*1.4+vec2(5.2,-t*.8)));
-  vec2 w=vec2(fbm(u*1.7+q*2.4+vec2(1.7-t*.7,9.2)),fbm(u*1.7+q*2.4+vec2(8.3,2.8+t*.6)));
-  float f=fbm(u*1.3+w*2.2);
-  vec3 c=mix(A*.62,A,smoothstep(.25,.7,f));
-  c=mix(c,B,smoothstep(.4,.85,w.x)*.75);
-  c=mix(c,mix(A,vec3(1.),.6),smoothstep(.6,1.05,f+w.y*.35)*(.45+L*.4));
-  c*=1.-smoothstep(.5,1.,r)*.3;
-  c+=pow(max(0.,1.-length(u-vec2(-.34,.42))/.75),2.)*.3;
-  float a=1.-smoothstep(.97,1.,r);gl_FragColor=vec4(c*a,a);
+  vec2 u=(gl_FragCoord.xy*2.-R)/R.y;float r=length(u),e=3./R.y;
+  float a=1.-smoothstep(1.-e,1.,r);
+  if(a<=0.){gl_FragColor=vec4(0.);return;}
+  float z=sqrt(max(0.,1.-r*r)),t=T*.00016;vec3 N=vec3(u,z);
+  vec2 p=u*(.85+.3*(1.-z));
+  p+=(vec2(fbm(p*.9+vec2(0.,t)),fbm(p*.9+vec2(5.2,-t*.8)))-.5)*(1.+L);
+  vec2 d1=p-vec2(.5*sin(t*1.3),.45*cos(t*1.1)),d2=p-vec2(.55*cos(t*.9+2.),.5*sin(t*1.2+1.)),d3=p-vec2(.35*sin(t*1.7+4.),-.3+.25*cos(t*1.4));
+  vec3 c=mix(A,B,.35)*.8;
+  c=mix(c,B,exp(-dot(d2,d2)*2.2)*.95);
+  c=mix(c,A,exp(-dot(d1,d1)*2.4)*.9);
+  c=mix(c,mix(A,vec3(1.),.5),exp(-dot(d3,d3)*3.)*(.4+L*.35));
+  float rb=p.y+.28*sin(p.x*2.3+t*2.);
+  c=mix(c,mix(B,vec3(1.),.45),exp(-rb*rb*14.)*(.2+L*.25));
+  vec3 lt=normalize(vec3(-.4,.55,.75));
+  c*=.84+.16*max(dot(N,lt),0.);
+  c=mix(c,c*.62,pow(1.-z,2.)*.55);
+  c=mix(c,mix(c,vec3(1.),.55),smoothstep(.9,.995,r)*.32);
+  float e2=length((u-vec2(-.1,.52))/vec2(.6,.34));
+  c=mix(c,vec3(1.),(1.-smoothstep(.5,1.,e2))*.16);
+  float s=max(dot(N,normalize(lt+vec3(0.,0.,1.))),0.);
+  c+=pow(s,70.)*.3;
+  gl_FragColor=vec4(min(c,1.)*a,a);
 }`;
 
 function orbShader(cv: HTMLCanvasElement) {

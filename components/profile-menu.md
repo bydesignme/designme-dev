@@ -330,7 +330,7 @@ export function ProfileMenu({
 
 - [Comments](https://designme.dev/components/comments.md): A design thread where you can @mention the agent and it replies.
 - [Notifications](https://designme.dev/components/notifications.md): An inbox where agent updates and mentions arrive live.
-- [Banner](https://designme.dev/components/banner.md): An announcement on a tint of its tone, with its own line drawing and a dismiss.
+- [Banner](https://designme.dev/components/banner.md): An announcement on a tint of its tone, with its own line drawing.
 - [Invite to collaborate](https://designme.dev/components/invite-to-collaborate.md): Add teammates by email as chips, set their role, send.
 - [Reactions](https://designme.dev/components/reactions.md): Quick reactions on an agent update, with counts that pop.
 - [Context switcher](https://designme.dev/components/context-switcher.md): The organisation, project and environment you are in, each part a searchable switcher.

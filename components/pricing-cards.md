@@ -31,6 +31,7 @@ Pricing cards shows your plans side by side, with a Monthly and Yearly switch an
 - The editors slider, 1 to 50 by default, updates totals like "$1,152 billed yearly for 5 editors".
 - A `price` of 0 reads as free ("forever"), and null shows `priceLabel`, "Custom" by default.
 - `popular` adds a Most popular badge and outline; a plan with `fromSeats` takes the outline once the slider reaches that number.
+- Only the outlined plan's button is primary, on the accent; the others are white with a grey outline, and the primary button moves with the outline. Set an action's `variant` to fix a button's look.
 - Each plan's button calls `onChoose` with the plan, the period and the number of editors.
 
 ### Accessibility
@@ -54,9 +55,9 @@ import { useStory } from '../lib/useScript';
 import { PricingCards, type PricingPeriod, type PricingPlan } from './PricingCards';
 
 const PLANS: PricingPlan[] = [
-  { name: 'Starter', description: 'For trying the agent', price: 0, total: 'Up to 2 editors', features: ['1 project', '50 agent runs a month', 'Figma import'], action: { label: 'Start free', variant: 'soft' } },
-  { name: 'Pro', description: 'For growing design teams', price: 24, popular: true, features: ['Unlimited projects', '1,000 runs per editor', 'Shared tokens and memory', 'Priority models'], action: { label: 'Start free trial', variant: 'accent' } },
-  { name: 'Enterprise', description: 'For design orgs', price: null, unit: 'billed yearly', total: 'Volume pricing from 25 editors', fromSeats: 25, features: ['SSO and audit log', 'Custom spend caps', 'Dedicated support'], action: { label: 'Talk to us', variant: 'primary' } }
+  { name: 'Starter', description: 'For trying the agent', price: 0, total: 'Up to 2 editors', features: ['1 project', '50 agent runs a month', 'Figma import'], action: { label: 'Start free' } },
+  { name: 'Pro', description: 'For growing design teams', price: 24, popular: true, features: ['Unlimited projects', '1,000 runs per editor', 'Shared tokens and memory', 'Priority models'], action: { label: 'Start free trial' } },
+  { name: 'Enterprise', description: 'For design orgs', price: null, unit: 'billed yearly', total: 'Volume pricing from 25 editors', fromSeats: 25, features: ['SSO and audit log', 'Custom spend caps', 'Dedicated support'], action: { label: 'Talk to us' } }
 ];
 
 export default function PricingCardsDemo() {
@@ -134,8 +135,10 @@ export interface PricingPlan {
   /** The line above the features. Paid plans work it out from the editors and the billing period; set it for free or custom plans */
   total?: string;
   features: ReactNode[];
-  /** The button at the foot of the card. soft is quiet, accent is the one to pick, primary is for talking to sales. ink is the old name for primary */
-  action: { label: string; variant?: 'soft' | 'accent' | 'primary' | 'ink' };
+  /** The button at the foot of the card. Leave `variant` out and only the outlined plan's button is primary (on the accent),
+      with white buttons with a grey outline (`line`) on the others, so the primary one moves with the outline. Set it to fix
+      the look: line, soft (grey), accent or primary. ink is the old name for primary */
+  action: { label: string; variant?: 'line' | 'soft' | 'accent' | 'primary' | 'ink' };
   /** Adds the "Most popular" badge and outlines the card */
   popular?: boolean;
   /** Once the editors reach this many, this card takes the outline from the popular one, like Enterprise from 25 editors */
@@ -232,7 +235,7 @@ export function PricingCards({ plans, period, defaultPeriod = 'yearly', onPeriod
               </div>
               <Total text={total} period={per} />
               <div className="dm-pcx-li">{p.features.map((f, k) => <span key={k}><Icon name="check" size="xs" />{f}</span>)}</div>
-              <button type="button" className={cx('dm-pill', 'dm-' + ((p.action.variant === 'ink' ? 'primary' : p.action.variant) ?? 'soft'))} onClick={() => onChoose?.(p, { period: per, seats: n })}>{p.action.label}</button>
+              <button type="button" className={cx('dm-pill', 'dm-' + ((p.action.variant === 'ink' ? 'primary' : p.action.variant) ?? (i === hot ? 'primary' : 'line')))} onClick={() => onChoose?.(p, { period: per, seats: n })}>{p.action.label}</button>
             </div>
           );
         })}

@@ -119,7 +119,7 @@ export function ToastStack({ toasts, onDismiss, expanded, max = 6, className }: 
         <span className="dm-g" style={{ color: `var(${fg})`, background: `var(${bg})` }}><Icon name={t.icon} /></span>
         <div className="dm-tx"><b>{t.title}</b>{t.detail && <span>{t.detail}</span>}</div>
         {t.time && <span className="dm-t">{t.time}</span>}
-        <Tip label="Dismiss"><button type="button" className="dm-ib" aria-label="Dismiss" onClick={() => onDismiss?.(t.id)}><Icon name="x" size="xs" /></button></Tip>
+        <Tip label="Dismiss"><button type="button" className="dm-ib" aria-label="Dismiss" onClick={() => onDismiss?.(t.id)}><Icon name="x" /></button></Tip>
       </div>
     );
   };

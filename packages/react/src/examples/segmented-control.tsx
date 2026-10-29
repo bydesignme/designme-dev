@@ -40,7 +40,7 @@ function events(d: Date): Ev[] {
 const label = (d: Date, n: number) => `${fmt(d, { weekday: 'long', month: 'long', day: 'numeric' })}, ${n ? n + (n === 1 ? ' event' : ' events') : 'nothing planned'}`;
 const RANGE: Record<View, (d: Date) => string> = {
   day: d => fmt(d, { weekday: 'long', month: 'short', day: 'numeric' }),
-  week: d => { const a = mon(d), b = at(a, 6); return fmt(a, { month: 'short', day: 'numeric' }) + ' – ' + (a.getMonth() === b.getMonth() ? b.getDate() : fmt(b, { month: 'short', day: 'numeric' })); },
+  week: d => { const a = mon(d), b = at(a, 4); return fmt(a, { month: 'short', day: 'numeric' }) + ' – ' + (a.getMonth() === b.getMonth() ? b.getDate() : fmt(b, { month: 'short', day: 'numeric' })); },
   month: d => fmt(d, { month: 'long', year: 'numeric' })
 };
 
@@ -56,14 +56,14 @@ function Panel({ view, date, open }: { view: View; date: Date; open: (d: Date) =
   }
   if (view === 'week') return (
     <div className="dm-sgc-wk">
-      {Array.from({ length: 7 }, (_, i) => at(mon(date), i)).map(d => {
+      {Array.from({ length: 5 }, (_, i) => at(mon(date), i)).map(d => {
         const ev = events(d);
         return (
           <button key={iso(d)} type="button" aria-label={label(d, ev.length)} onClick={() => open(d)}
             className={['dm-sgc-wr', same(d, TODAY) && 'dm-now', !ev.length && 'dm-none'].filter(Boolean).join(' ')}>
             <span className="dm-d">{fmt(d, { weekday: 'short' })} {d.getDate()}</span>
             {ev.length
-              ? <><span className="dm-e" style={{ '--dm-c': ev[0][3] } as CSSProperties}><i /><span className="dm-tm dm-num">{ev[0][0]}</span><span>{ev[0][1]}</span></span>{ev.length > 1 && <span className="dm-more">+{ev.length - 1} more</span>}</>
+              ? <><span className="dm-e" style={{ '--dm-c': ev[0][3] } as CSSProperties}><i /><span>{ev[0][1]}</span></span>{ev.length > 1 && <span className="dm-more">+{ev.length - 1} more</span>}</>
               : <span className="dm-e">Nothing planned</span>}
           </button>
         );

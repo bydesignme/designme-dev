@@ -1,6 +1,6 @@
 # Banner
 
-> An announcement on a tint of its tone, with its own line drawing and a dismiss.
+> An announcement on a tint of its tone, with its own line drawing.
 
 App basics / Collaboration. Free and MIT licensed, as plain HTML, CSS and JavaScript or as a typed React component, in two styles (Soft and Blueprint) with light and dark mode. Live demo: https://designme.dev/components/banner
 
@@ -15,33 +15,32 @@ The CLI copies the source into your project, so you own it and can change anythi
 
 ## About
 
-Banner puts one announcement in front of people: an eyebrow, a title, a line of text, a primary action and a quieter link, on a tint of its tone, with a line drawing on the right. It comes with four drawings of its own, and a dismiss that leaves an Undo in its place.
+Banner puts one announcement in front of people: an eyebrow, a title, a line of text, a primary action and a quieter link, on a tint of its tone, with a line drawing on the right. It comes with four drawings of its own.
 
 ### When to use it
 
 - When a new feature or a beta is worth a moment of attention, like "Memory that carries across threads" with Turn on memory.
 - When a guide or a setup flow should be one click away, without a modal in the way.
-- When people need a heads-up, such as planned maintenance, that they can read and put away.
-- When a page has room for one message above its content, and it should be easy to dismiss.
+- When people need a heads-up, such as planned maintenance, while it still applies.
+- When a page has room for one message above its content.
 
 ### What it does
 
-- Six tones: `accent` (the default, the accent's own tint), `neutral`, and tints of the tag colours `blue`, `violet`, `green` and `amber`. Each sets the fill, the eyebrow's colour and the drawing's colour.
+- Six tones: `accent` (the default, the accent's own tint), `neutral`, and tints of the tag colours `blue`, `violet`, `green` and `amber`. Each sets the fill, the eyebrow's colour and the drawing's colour. The tint is the banner's edge: it has no border.
 - Four drawings, drawn as hairlines with a few dashed construction lines: `layers` (a stack of plates pulled apart), `steps` (a staircase up to a flag), `nodes` (a small graph over a floor grid) and `grid` (a floor that bends up towards its vanishing point). Pass your own SVG element to `art` instead, or `null` for none.
 - Each drawing draws itself in, line by line, when it appears. Under the pointer its parts pull apart a little by their depth. Nothing loops, and there are no blur filters.
 - On a wide banner the drawing sits on the right, shown at its own size and cropped by its area, so a narrower banner shows less of it rather than a smaller one.
 - In a column narrower than 480px the drawing becomes a strip across the top that fades out before the text starts, so nothing is drawn behind the words.
-- `action` is the primary button on the accent and `secondary` a quieter underlined link. Each takes an `onClick`, or an `href` to make it a link.
-- Dismiss plays the banner out, calls `onDismiss` and sets `open` to false. A line saying "Banner dismissed" with Undo then keeps the banner's height, so nothing below it moves. Set `undo` to a string to change the words, or to `false` to leave nothing.
-- Text passed as a string crossfades when it changes, so one banner can turn into the next in place.
+- `action` is the primary button and `secondary` a quieter underlined link. Each takes an `onClick`, or an `href` to make it a link. On a coloured banner the primary button is white in light mode, with the text colour on it, and the accent in dark mode; on a `neutral` banner it is the accent in both.
+- In HTML, a close button is optional: put `<button class="ib bnx-x" aria-label="Dismiss">` inside the banner and it sits in the top right corner. It first sends a cancelable `banner-dismiss` event from the banner, then the banner plays out and is hidden. The demo here has none.
+- Text passed as a string crossfades when it changes, so one banner can turn into the next in place. On designme.dev a switcher under the banner flips through four of its styles; the demo goes through them twice and stops.
 
 ### Accessibility
 
 - The banner is a region named by `label` (Announcement by default), and the drawing is hidden from screen readers with `aria-hidden`.
-- The dismiss button is a real button with `aria-label="Dismiss"`. After a dismiss the focus moves to Undo, and after Undo back to Dismiss, so a keyboard never loses its place.
-- The line that replaces a dismissed banner has `role="status"`, so the change is announced.
-- Every text colour is checked on every tone, in Soft and Blueprint, light and dark: 4.5:1 and APCA Lc 60 or more. The drawing's lines are 3:1 on the fill.
-- With reduced motion the drawing shows complete at once and its parts don't move under the pointer.
+- Every text colour is checked on every tone, in Soft and Blueprint, light and dark: 4.5:1 and APCA Lc 60 or more. That includes the primary button, white with the text colour in light mode and the accent in dark mode. The drawing's lines are 3:1 on the fill.
+- The optional close button is a real button named "Dismiss". Once the banner is hidden, move the focus somewhere useful in your `banner-dismiss` handler, such as the content the banner sat above.
+- With reduced motion the drawing shows complete at once, its parts don't move under the pointer, and the demo on designme.dev doesn't play.
 
 ## Usage in React
 
@@ -116,13 +115,13 @@ export default function BannerDemo() {
 
 Yes. Pass an SVG element to `art`. It is shown at 240 by 160 in the same area and cropped the same way. Give its lines `className="dm-ln"` and `pathLength={1}` and they draw themselves in like the built-in ones.
 
-**How do I keep a banner dismissed across visits?**
+**How do I keep a banner closed across visits?**
 
-Store it yourself. `onDismiss` tells you when it happens, so save that, and the next time leave the banner out, or render it with `open={false}` and `undo={false}`.
+Store it yourself. In HTML, listen for `banner-dismiss` and save that it was closed; the next time, leave the banner out of the page.
 
-**Why is the primary button the accent colour on every tone?**
+**Why is the primary button white on a coloured banner?**
 
-Primary actions always sit on the accent, so they look the same everywhere in your product. The tone only changes the tint, the eyebrow and the drawing.
+In light mode an accent button on a tinted banner blends into the tint, and on the accent's own tint it nearly disappears. A white button with the text colour on it stands out on every tone and keeps the label at full contrast. In dark mode the tint is deep enough for the accent to stand out, so it stays the accent.
 
 **What happens on a phone?**
 

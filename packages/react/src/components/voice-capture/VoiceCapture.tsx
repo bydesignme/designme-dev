@@ -50,7 +50,7 @@ export function VoiceCapture({ words, state, defaultState = 'listening', onState
   const root = useRef<HTMLDivElement>(null);
   const wave = useRef<HTMLCanvasElement>(null);
   const pop = useRef<HTMLDivElement>(null);
-  // once recording stops the wave folds away: the box keeps the height it had while recording and centres the words in it
+  // once recording stops the box keeps the height it had while recording: the wave stays, still, and the words stay put
   const liveHeight = useRef<number | undefined>(undefined);
   const [held, setHeld] = useState<number>();
   useIsoLayoutEffect(() => { if (live && root.current) liveHeight.current = root.current.offsetHeight; });
@@ -64,16 +64,51 @@ export function VoiceCapture({ words, state, defaultState = 'listening', onState
     return () => clearInterval(id);
   }, [seconds, now]);
 
-  // the wave: one sample every 50ms, drawn as bars that scroll left, until the capture is done
+  // the wave: one sample every 50ms, drawn as bars that scroll left while it records. Once recording stops it shows the
+  // whole recording, still, in quieter bars, so the box keeps its height and every part stays where it was
   const samples = useRef<number[]>([]);
   const levelRef = useRef(level), stateRef = useRef(now);
   useEffect(() => { levelRef.current = level; stateRef.current = now; });
   useEffect(() => {
-    if (!live) return;
+    const cv = wave.current, el = root.current; if (!cv || !el) return;
+    // the colours are read a few times a second, not every frame: reading them makes the browser recheck the page's styles
+    let cols: string[] | null = null, colsAt = -1e9;
+    const colours = () => { const t = performance.now(); if (!cols || t - colsAt > 400) { const cs = getComputedStyle(el); cols = ['--dm-fg2', '--dm-faint', '--dm-muted'].map(k => cs.getPropertyValue(k).trim()); colsAt = t; } return cols; };
+    const paint = (vals: number[], still: boolean) => {
+      const dpr = devicePixelRatio || 1, w = cv.clientWidth, h = cv.clientHeight; if (!w) return;
+      if (cv.width !== w * dpr) { cv.width = w * dpr; cv.height = h * dpr; }
+      const x = cv.getContext('2d'); if (!x) return;
+      x.setTransform(dpr, 0, 0, dpr, 0, 0); x.clearRect(0, 0, w, h);
+      const [on, off, rec] = colours(), n = vals.length;
+      for (let i = 0; i < n; i++) {
+        const v = vals[i], px = i * 5 + 2, bh = v ? Math.max(4, v * (h - 6)) : 2;
+        x.globalAlpha = still ? (v ? .6 : 1) : Math.min(1, i / 14, (n - i) / 3 + .2);
+        x.fillStyle = v ? (still ? rec : on) : off;
+        x.beginPath();
+        if (x.roundRect) x.roundRect(px, h / 2 - bh / 2, 2.5, bh, 1.2); else x.rect(px, h / 2 - bh / 2, 2.5, bh);
+        x.fill();
+      }
+    };
+    const bars = () => Math.floor(cv.clientWidth / 5);
+    if (!live) {
+      // the recording without the silence either side, fitted to the width: each bar is the loudest moment it covers
+      const still = () => {
+        const s = samples.current, n = bars(); const a = s.findIndex(v => v); let z = s.length - 1; while (z > a && !s[z]) z--;
+        const rec = a < 0 ? [] : s.slice(Math.max(0, a - 2), z + 3);
+        paint(Array.from({ length: n }, (_, i) => { const from = Math.floor(i * rec.length / n), to = Math.max(from + 1, Math.floor((i + 1) * rec.length / n)); return Math.max(0, ...rec.slice(from, to).map(v => v || 0)); }), true);
+      };
+      // drawn again only when its width or the theme changes
+      const again = () => { cols = null; still(); };
+      still();
+      const ro = new ResizeObserver(again); ro.observe(cv);
+      const mo = new MutationObserver(again); mo.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme', 'data-style', 'class'] });
+      const mq = matchMedia('(prefers-color-scheme: dark)'); mq.addEventListener('change', again);
+      return () => { ro.disconnect(); mo.disconnect(); mq.removeEventListener('change', again); };
+    }
     // the wave is drawn only while it is on screen
     let raf = 0, last = 0, seen = true;
-    const io = 'IntersectionObserver' in window && wave.current ? new IntersectionObserver(e => { seen = e[e.length - 1].isIntersecting; }) : null;
-    if (io && wave.current) io.observe(wave.current);
+    const io = 'IntersectionObserver' in window ? new IntersectionObserver(e => { seen = e[e.length - 1].isIntersecting; }) : null;
+    io?.observe(cv);
     const draw = (t: number) => {
       raf = requestAnimationFrame(draw);
       if (!seen) return;
@@ -82,21 +117,8 @@ export function VoiceCapture({ words, state, defaultState = 'listening', onState
         const l = levelRef.current, v = stateRef.current === 'listening' ? (typeof l === 'function' ? l() : l) : 0;
         samples.current.push(Math.max(0, Math.min(1, v))); if (samples.current.length > 300) samples.current.shift();
       }
-      const cv = wave.current, el = root.current; if (!cv || !el) return;
-      const dpr = devicePixelRatio || 1, w = cv.clientWidth, h = cv.clientHeight; if (!w) return;
-      if (cv.width !== w * dpr) { cv.width = w * dpr; cv.height = h * dpr; }
-      const x = cv.getContext('2d'); if (!x) return;
-      x.setTransform(dpr, 0, 0, dpr, 0, 0); x.clearRect(0, 0, w, h);
-      const cs = getComputedStyle(el), on = cs.getPropertyValue('--dm-fg2').trim(), off = cs.getPropertyValue('--dm-faint').trim();
-      const s = samples.current, n = Math.floor(w / 5);
-      for (let i = 0; i < n; i++) {
-        const v = s[s.length - n + i] || 0, px = i * 5 + 2, bh = v ? Math.max(4, v * (h - 6)) : 2;
-        x.globalAlpha = Math.min(1, i / 14, (n - i) / 3 + .2);
-        x.fillStyle = v ? on : off;
-        x.beginPath();
-        if (x.roundRect) x.roundRect(px, h / 2 - bh / 2, 2.5, bh, 1.2); else x.rect(px, h / 2 - bh / 2, 2.5, bh);
-        x.fill();
-      }
+      const s = samples.current, n = bars();
+      paint(Array.from({ length: n }, (_, i) => s[s.length - n + i] || 0), false);
     };
     raf = requestAnimationFrame(draw);
     return () => { cancelAnimationFrame(raf); io?.disconnect(); };
@@ -146,7 +168,7 @@ export function VoiceCapture({ words, state, defaultState = 'listening', onState
   const again = () => { setCount(0); setFixes({}); setMenuOpen(false); samples.current = []; onRecordAgain?.(); setState('listening'); };
 
   return (
-    <div data-dm="" ref={root} className={cx('dm-vcx dm-panel', now === 'paused' && 'dm-paused', !live && 'dm-done', held && 'dm-held', className)} style={held ? { minHeight: held } : undefined}>
+    <div data-dm="" ref={root} className={cx('dm-vcx dm-panel', now === 'paused' && 'dm-paused', !live && 'dm-done', now === 'cancelled' && 'dm-gone', held && 'dm-held', className)} style={held ? { minHeight: held } : undefined}>
       <div className="dm-vcx-top">
         <span className="dm-vcx-dot" />
         <Swap className="dm-vcx-st">{status ?? STATUS[now]}</Swap>
@@ -154,9 +176,10 @@ export function VoiceCapture({ words, state, defaultState = 'listening', onState
       </div>
       <canvas ref={wave} className="dm-vcx-wave" aria-hidden="true" />
       <p className="dm-vcx-tx" aria-live="polite">
-        {now !== 'cancelled' && words.map((w, i) => {
+        {words.map((w, i) => {
           const word = typeof w === 'string' ? { text: w } : w;
-          if (!word.alternatives?.length) return <span key={i} className="dm-w">{word.text} </span>;
+          // cancelled: the words stay, greyed and plain, so it is clear what was not sent
+          if (!word.alternatives?.length || now === 'cancelled') return <span key={i} className="dm-w">{fixes[i] ?? word.text} </span>;
           const fixed = fixes[i] !== undefined;
           const low = (
             <span className={cx('dm-low', fixed && 'dm-fixed')} role="button" tabIndex={0} aria-haspopup="menu" aria-expanded={menuOpen && menu.index === i} data-i={i}

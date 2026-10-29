@@ -325,7 +325,7 @@ What the agent remembers about your team, editable and removable.
 
 **ModelCompare** · `model-compare/ModelCompare.tsx`  
 Run one prompt on three models side by side and keep the best.  
-`models: { name, mark, color, description? }[]`, `columns` / `defaultColumns` / `onColumnsChange` (`{ id, model }[]`), `max`, `prompt` / `defaultPrompt` / `onPromptChange`, `asked`, `answers` (per column: `{ state: 'thinking' | 'answering' | 'done', text?, seconds?, tokensPerSecond?, cost? }`), `onSend(prompt, columns)`, `onRun(column)`, `chosen` / `defaultChosen` / `onChosenChange`, `placeholder`. Fastest and cheapest turn green once the answers settle.
+`models: { name, mark, color, markText?, description? }[]`, `columns` / `defaultColumns` / `onColumnsChange` (`{ id, model }[]`), `min` (2), `max` (3), `prompt` / `defaultPrompt` / `onPromptChange`, `asked`, `answers` (per column: `{ state: 'thinking' | 'answering' | 'done', text?, tokens?, seconds?, tokensPerSecond?, cost? }`), `onSend(prompt, columns)`, `onRun(column)`, `chosen` / `defaultChosen` / `onChosenChange`, `placeholder`. The prompt field and Run sit on top and the answers in columns on one surface, stacking below 540px wide; each column's header swaps its model and shows time, tokens and cost once done, the fastest and cheapest a step darker. Use this answer gives the chosen column the accent's tint.
 
 **ToolConnections** · `tool-connections/ToolConnections.tsx`  
 The tools the agent can reach, and how much it may do with each.  
@@ -455,7 +455,7 @@ Card details with live formatting, brand detection and a clear total.
 
 **Comments** · `comments/Comments.tsx`  
 A design thread where you can @mention the agent and it replies.  
-`title`, `pin`, `comments: { id, author: { name, initials, color, handle? }, text, time, agent?, thinking?, actions?: { label, primary?, onClick }[], resolution? }[]`, `people` (handles for the @ menu), `value` / `defaultValue` / `onValueChange` (the reply), `onSend(text)`, `placeholder`, `resolved` / `defaultResolved` / `onResolvedChange`. An agent reply's words fade in as `text` grows.
+`title`, `pin`, `comments: { id, author: { name, initials, color, handle? }, text, time, agent?, thinking?, actions?: { label, primary?, onClick }[], resolution?, agrees? }[]` (the first starts the thread, the rest are replies indented under it), `people` (handles for the @ menu), `value` / `defaultValue` / `onValueChange` (the reply), `onSend(text)`, `placeholder`, `resolved` / `defaultResolved` / `onResolvedChange`, `agreed` / `defaultAgreed` / `onAgreedChange` (ids of the comments you agreed with). Each comment's Agree button shows on hover or keyboard focus. An agent reply's words fade in as `text` grows.
 
 **Notifications** · `notifications/Notifications.tsx`  
 An inbox where agent updates and mentions arrive live.  

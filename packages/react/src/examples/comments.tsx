@@ -9,7 +9,7 @@ const AGENT: CommentsPerson = { name: 'Design agent', initials: 'DA', color: 'va
 const MAYA: CommentsPerson = { name: 'Maya Kim', initials: 'MK', color: 'var(--dm-pl)', handle: 'maya' };
 const JON: CommentsPerson = { name: 'Jon Ortiz', initials: 'JO', color: 'var(--dm-pm)', handle: 'jon' };
 const START: CommentsEntry[] = [
-  { id: 'c1', author: MAYA, text: 'The secondary button feels too faint next to the CTA.', time: '2h' },
+  { id: 'c1', author: MAYA, text: 'The secondary button feels too faint next to the CTA.', time: '2h', agrees: 1 },
   { id: 'c2', author: JON, text: 'Agree. Can we keep it outlined though?', time: '1h' }
 ];
 const ASK = '@agent can you keep it outlined but darker?';

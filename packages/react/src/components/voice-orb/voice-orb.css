@@ -4,9 +4,10 @@
    was said under it, and mute and end below. Talking while muted says so, the way calls do */
 .dm-vor{position:relative;width:100%;max-width:380px;margin:0 auto;padding:var(--dm-s-4);display:flex;flex-direction:column;gap:var(--dm-s-3);--dm-oc:var(--dm-faint);--dm-oc2:var(--dm-muted)}
 /* --oc is whoever is talking, --oc2 the second colour that flows through the orb with it */
-.dm-vor[data-m="listening"]{--dm-oc:var(--dm-accent);--dm-oc2:color-mix(in srgb,var(--dm-pl) 45%,var(--dm-accent))}
-.dm-vor[data-m="speaking"]{--dm-oc:var(--dm-pl);--dm-oc2:color-mix(in srgb,var(--dm-accent) 45%,var(--dm-pl))}
-.dm-vor[data-m="thinking"]{--dm-oc:color-mix(in srgb,var(--dm-accent) 50%,var(--dm-pl));--dm-oc2:var(--dm-accent)}
+/* the colours are mixed in oklch, so the step between them stays bright (lime to violet passes through teal, not grey) */
+.dm-vor[data-m="listening"]{--dm-oc:var(--dm-accent);--dm-oc2:color-mix(in oklch,var(--dm-pl) 45%,var(--dm-accent))}
+.dm-vor[data-m="speaking"]{--dm-oc:var(--dm-pl);--dm-oc2:color-mix(in oklch,var(--dm-accent) 45%,var(--dm-pl))}
+.dm-vor[data-m="thinking"]{--dm-oc:color-mix(in oklch,var(--dm-accent) 50%,var(--dm-pl));--dm-oc2:var(--dm-accent)}
 .dm-vor[data-m="muted"]{--dm-oc:color-mix(in srgb,var(--dm-muted) 55%,var(--dm-faint));--dm-oc2:var(--dm-faint)}
 .dm-vor-top{display:flex;align-items:center;gap:var(--dm-s-2);font-size:13px}
 .dm-vor-dot{width:8px;height:8px;border-radius:50%;background:var(--dm-oc);transition:background .4s}
@@ -17,12 +18,9 @@
 .dm-vor-orb i{position:absolute;inset:0;border-radius:50%}
 /* round in Blueprint too, where every other corner is square: like the turning loaders, its shape is what it says */
 .dm-vor .dm-vor-orb i{border-radius:50%!important}
-/* the glow: both colours turning slowly behind the orb and fading out from its edge (a mask, not a blur, so Blueprint keeps
-   it too), brighter and wider the louder the voice */
-.dm-vor .dm-vor-orb .dm-vor-glow{inset:-30px;background:conic-gradient(from 0deg,var(--dm-oc),var(--dm-oc2),var(--dm-oc));-webkit-mask:radial-gradient(closest-side,#000 48%,transparent);mask:radial-gradient(closest-side,#000 48%,transparent);opacity:calc(.3 + var(--dm-lv) * .45);transform:scale(calc(.9 + var(--dm-lv) * .3));animation:dm-vor-spin 9s linear infinite;transition:opacity .4s}
-.dm-vor[data-m="idle"] .dm-vor-orb .dm-vor-glow,.dm-vor[data-m="ended"] .dm-vor-orb .dm-vor-glow,.dm-vor[data-m="muted"] .dm-vor-orb .dm-vor-glow{opacity:.16}
-@keyframes dm-vor-spin{to{rotate:360deg}}
-.dm-vor-core{overflow:hidden;background-color:color-mix(in srgb,var(--dm-oc) 72%,var(--dm-surface));background-image:radial-gradient(circle at 34% 28%,rgba(255,255,255,.42),rgba(255,255,255,0) 62%);box-shadow:inset 0 -8px 18px color-mix(in srgb,var(--dm-oc) 30%,transparent),0 0 0 1px color-mix(in srgb,var(--dm-oc) 20%,transparent);transform:scale(calc(.9 + var(--dm-lv) * .14));transition:background-color .4s}
+/* the sphere: nothing reaches past its edge, no glow or ring, so it never needs room around it. Without WebGL it is a plain
+   gradient circle, lit from the top left and deeper at the foot */
+.dm-vor-core{overflow:hidden;background-color:color-mix(in srgb,var(--dm-oc) 80%,var(--dm-surface));background-image:radial-gradient(circle at 34% 28%,rgba(255,255,255,.4),rgba(255,255,255,0) 60%);box-shadow:inset 0 -10px 20px color-mix(in srgb,var(--dm-oc) 55%,#000 10%);transform:scale(calc(.9 + var(--dm-lv) * .14));transition:background-color .4s}
 /* the flowing inside, drawn over the plain gradient once WebGL is there */
 .dm-vor-gl{position:absolute;inset:0;width:100%;height:100%;border-radius:50%;opacity:0;transition:opacity .4s}
 .dm-vor-gl.dm-on{opacity:1}
@@ -31,7 +29,6 @@
 .dm-vor-cap,.dm-vor-mf,.dm-vor-f{position:relative}
 .dm-vor[data-m="thinking"] .dm-vor-core{animation:dm-vor-br 1.6s var(--dm-ease-io) infinite alternate}
 @keyframes dm-vor-br{from{transform:scale(.9)}to{transform:scale(.96)}}
-@media (prefers-reduced-motion:reduce){.dm-vor-glow{animation:none}}
 .dm-vor-cap{min-height:88px;display:flex;flex-direction:column;gap:2px;text-align:center}
 .dm-vor-who{font-size:12px;min-height:18px}
 .dm-vor-tx{margin:0;font-size:14px;line-height:1.6;color:var(--dm-fg)}

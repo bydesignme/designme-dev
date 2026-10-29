@@ -8,7 +8,17 @@
 .dm-bdg.dm-sm{height:20px;font-size:11.5px}
 .dm-bdg>.dm-t{min-width:0;overflow:hidden;text-overflow:ellipsis}
 .dm-bdg>.dm-i{flex:none}
-.dm-bdg-dot{width:6px;height:6px;border-radius:50%;background:currentColor;flex:none}
+.dm-bdg-dot{position:relative;width:6px;height:6px;border-radius:50%;background:currentColor;flex:none}
+/* a live badge (.live: running, streaming, on air) pulses its dot: a soft ring in its own colour grows and fades, on a loop.
+   Only transform and opacity move, so it stays on the compositor; with reduced motion the dot stays still */
+.dm-bdg.dm-live .dm-bdg-dot::after{content:"";position:absolute;inset:0;border-radius:inherit;background:currentColor;opacity:0;animation:dm-bdgpulse 1.8s cubic-bezier(.22,1,.36,1) infinite}
+@keyframes dm-bdgpulse{0%{opacity:.5;transform:scale(1)}100%{opacity:0;transform:scale(2.8)}}
+@media (prefers-reduced-motion:reduce){.dm-bdg.dm-live .dm-bdg-dot::after{animation:none}}
+/* a badge you can act on, a removable one or one that is a button or a link, takes a light hover: a little more of its own
+   colour in its tint. Plain labels keep still, so they never look clickable */
+.dm-bdg:is(:has(>.dm-bdg-x),button,a[href]){transition:background var(--dm-t-fast)}
+.dm-bdg:is(button,a[href]){cursor:pointer;text-decoration:none}
+@media (hover:hover) and (pointer:fine){.dm-bdg:is(:has(>.dm-bdg-x),button,a[href]):hover{background:color-mix(in srgb,var(--dm-bdg-fg) 7%,var(--dm-bdg-bg))}}
 .dm-bdg[data-tone="accent"]{--dm-bdg-bg:var(--dm-accent-bg);--dm-bdg-fg:var(--dm-accent-fg)}
 .dm-bdg[data-tone="success"]{--dm-bdg-bg:var(--dm-ok-bg);--dm-bdg-fg:var(--dm-ok)}.dm-bdg[data-tone="warning"]{--dm-bdg-bg:var(--dm-warn-bg);--dm-bdg-fg:var(--dm-warn)}.dm-bdg[data-tone="danger"]{--dm-bdg-bg:var(--dm-bad-bg);--dm-bdg-fg:var(--dm-bad)}
 .dm-bdg[data-tone="blue"]{--dm-bdg-bg:var(--dm-pb-bg);--dm-bdg-fg:var(--dm-pb)}.dm-bdg[data-tone="violet"]{--dm-bdg-bg:var(--dm-pl-bg);--dm-bdg-fg:var(--dm-pl)}.dm-bdg[data-tone="green"]{--dm-bdg-bg:var(--dm-pm-bg);--dm-bdg-fg:var(--dm-pm)}.dm-bdg[data-tone="orange"]{--dm-bdg-bg:var(--dm-pp-bg);--dm-bdg-fg:var(--dm-pp)}

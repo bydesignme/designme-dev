@@ -32,6 +32,7 @@ Kanban board is a task board with columns such as To do, In progress and Done, w
 - Cards that arrive later, or are moved by someone else, come in with an entrance animation.
 - Each column's + button adds a card at the end with its title selected for typing; Enter saves and `onRename` reports it.
 - Cards can carry a coloured `tag` in one of eight tones and an `assignee` avatar, and each column header shows its count.
+- A column's `tone` puts it on a light tint of a tag colour while its cards stay white; the example has To do in yellow, In progress in orange and Done in green.
 - Under 640px wide, on a phone or in a narrow card, the board shows one column at a time, picked with tabs that count each column's cards (a column's `short` name labels its tab). The + beside the tabs adds to that column, and each card's menu moves it to another column. Control the column with `column` and `onColumnChange`.
 
 ### Accessibility
@@ -53,11 +54,11 @@ import { KanbanBoard } from '@/components/designme/kanban-board/KanbanBoard';
 'use client';
 // The animated preview from designme.dev, rebuilt from the React component: an example of driving it from your own state.
 import { useEffect, useRef, useState } from 'react';
-import { KanbanBoard, type KanbanBoardCard } from './KanbanBoard';
+import { KanbanBoard, type KanbanBoardCard, type KanbanBoardColumn } from './KanbanBoard';
 import { useScript, useTakeover } from '../lib/useScript';
 
 /* ---------- Kanban board: the design agent works through its cards while you drag the rest around ---------- */
-const COLUMNS = [{ key: 'todo', title: 'To do' }, { key: 'doing', title: 'In progress', short: 'Doing' }, { key: 'done', title: 'Done' }];
+const COLUMNS: KanbanBoardColumn[] = [{ key: 'todo', title: 'To do', tone: 'yellow' }, { key: 'doing', title: 'In progress', short: 'Doing', tone: 'orange' }, { key: 'done', title: 'Done', tone: 'green' }];
 const AGENT = { initials: 'DA', color: 'var(--dm-pb)' }, MAYA = { initials: 'MK', color: 'var(--dm-pl)' };
 const DESIGN = { label: 'Design', tone: 'blue' as const }, COPY = { label: 'Copy', tone: 'purple' as const };
 const CARDS: KanbanBoardCard[] = [
@@ -174,6 +175,8 @@ export interface KanbanBoardColumn {
   title: string;
   /** A shorter name for the tabs of a narrow board, like "Doing". Defaults to the title */
   short?: string;
+  /** Puts the column on a light tint of a tag colour, like yellow for To do; its cards stay white. No tint by default */
+  tone?: KanbanBoardTone;
 }
 
 export interface KanbanBoardCard {
@@ -384,7 +387,7 @@ export function KanbanBoard({ columns, cards, defaultCards = [], onCardsChange, 
           }
           if (spot?.column === col.key && spot.index >= n) items.push(hole);
           return (
-            <div key={col.key} className={cx('dm-kbx-c', over === col.key && 'dm-over', shown === col.key && 'dm-on')} ref={el => { if (el) cols.current.set(col.key, el); else cols.current.delete(col.key); }}>
+            <div key={col.key} className={cx('dm-kbx-c', col.tone && TONE[col.tone], over === col.key && 'dm-over', shown === col.key && 'dm-on')} ref={el => { if (el) cols.current.set(col.key, el); else cols.current.delete(col.key); }}>
               <div className="dm-kbx-ch">
                 <b>{col.title}</b>
                 <span className="dm-n dm-num">{here.length}</span>
@@ -420,7 +423,7 @@ export function KanbanBoard({ columns, cards, defaultCards = [], onCardsChange, 
 
 - [Comments](https://designme.dev/components/comments.md): A design thread where you can @mention the agent and it replies.
 - [Notifications](https://designme.dev/components/notifications.md): An inbox where agent updates and mentions arrive live.
-- [Banner](https://designme.dev/components/banner.md): An announcement on a tint of its tone, with its own line drawing and a dismiss.
+- [Banner](https://designme.dev/components/banner.md): An announcement on a tint of its tone, with its own line drawing.
 - [Invite to collaborate](https://designme.dev/components/invite-to-collaborate.md): Add teammates by email as chips, set their role, send.
 - [Reactions](https://designme.dev/components/reactions.md): Quick reactions on an agent update, with counts that pop.
 - [Profile menu](https://designme.dev/components/profile-menu.md): The account menu behind an avatar: switch workspace, theme, shortcuts and sign out.

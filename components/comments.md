@@ -15,31 +15,35 @@ The CLI copies the source into your project, so you own it and can change anythi
 
 ## About
 
-Comments is a thread pinned to one spot in a design, where people reply to each other and can bring the agent in by typing @agent. The agent's reply shows a thinking mark first, then its words fade in, and it can end with buttons such as Apply to all that turn into a short note once used. The whole thread can be resolved, which fades it back.
+Comments is a thread pinned to one spot in a design, where people reply to each other and can bring the agent in by typing @agent. Each comment is an avatar, a name, a time and the text; the first one starts the thread and the replies sit indented under it on a thin line. A quiet Agree button shows beside the time on hover or keyboard focus. The agent's reply shows a thinking mark first, then its words fade in, and it can end with buttons such as Apply to all that turn into a short note once used. The whole thread can be resolved, which fades it back.
 
 ### When to use it
 
 - When feedback lives on a design or document and the agent should act on it from the thread
-- When people need to @mention teammates and the agent from the same reply box
+- When people need to @mention teammates and the agent from the same reply field
 - When an agent's suggestion needs a yes or a choice before it changes anything
 - When resolved threads should stay visible but step back
 
 ### What it does
 
+- The first of `comments` starts the thread, and every later one is a reply, indented under it on a thin line. The header counts the replies.
 - Typing @ and the start of a handle opens a menu of matching `people`, and Enter or a click inserts the handle.
-- @mentions in plain text comments are highlighted, limited to known handles when `people` is given.
+- @mentions in plain text comments are highlighted in the accent's tint, limited to known handles when `people` is given.
+- Each comment's Agree button shows on hover or keyboard focus, and always on a touch screen. It toggles yours in `agreed`, and a chip under the text counts everyone who agreed (`agrees` on the comment, plus you); the chip toggles yours too.
 - A comment with `thinking` shows the thinking dots; an `agent` comment's words fade in as its `text` grows.
 - `actions` add buttons under a comment, and setting `resolution` replaces them with a confirmation line like "Applied to 3 frames".
-- Enter or the Send button calls `onSend` with the trimmed reply and clears the box; Send is disabled while the box is empty.
-- The Resolve button toggles `resolved`, fades the thread and turns the pin green.
+- Enter or the Send button calls `onSend` with the trimmed reply and clears the field; Send is disabled while the field is empty.
+- The reply field has a dimmed edge at rest and a step stronger one while it has the focus, with no ring.
+- The Resolve button in the header toggles `resolved`, fades the thread, turns the pin green and marks the thread Resolved.
 
 ### Accessibility
 
-- The thread is an `aria-live="polite"` region, so new comments and replies are announced.
-- The reply box is a `combobox` with `aria-expanded` reflecting the mention menu, which is a `listbox` of `option` rows.
+- The thread is an `aria-live="polite"` region, so new comments and replies are announced, and the replies are a group labelled Replies.
+- The reply field is a `combobox` with `aria-expanded` reflecting the mention menu, which is a `listbox` of `option` rows.
 - In the mention menu ↑ and ↓ move the highlight and wrap, which `aria-activedescendant` points to, and Enter picks the highlighted person.
 - Escape dismisses the mention menu until the text changes.
-- Resolve reports its state with `aria-pressed`, and the icon-only Send button has an `aria-label`.
+- Agree and its chip are toggle buttons with `aria-pressed`; the chip's label says how many agreed. The Agree button stays in the tab order and shows as soon as it has the focus.
+- Resolve thread reports its state with `aria-pressed`, and the icon-only Send button has an `aria-label`.
 
 ## Usage in React
 
@@ -61,7 +65,7 @@ const AGENT: CommentsPerson = { name: 'Design agent', initials: 'DA', color: 'va
 const MAYA: CommentsPerson = { name: 'Maya Kim', initials: 'MK', color: 'var(--dm-pl)', handle: 'maya' };
 const JON: CommentsPerson = { name: 'Jon Ortiz', initials: 'JO', color: 'var(--dm-pm)', handle: 'jon' };
 const START: CommentsEntry[] = [
-  { id: 'c1', author: MAYA, text: 'The secondary button feels too faint next to the CTA.', time: '2h' },
+  { id: 'c1', author: MAYA, text: 'The secondary button feels too faint next to the CTA.', time: '2h', agrees: 1 },
   { id: 'c2', author: JON, text: 'Agree. Can we keep it outlined though?', time: '1h' }
 ];
 const ASK = '@agent can you keep it outlined but darker?';
@@ -119,7 +123,7 @@ export default function CommentsDemo() {
 | --- | --- | --- |
 | `title` | `string` | What the thread is about, like "Pricing, frame 2" |
 | `pin` (optional) | `ReactNode` | The number on the pin, like 1 |
-| `comments` | `CommentsEntry[]` |  |
+| `comments` | `CommentsEntry[]` | The thread: the first comment starts it, and every later one is a reply, indented under it |
 | `people` (optional) | `CommentsPerson[]` | Who can be @mentioned. Typing @ and the start of a handle opens a menu of them |
 | `value` (optional) | `string` | The reply being written. Leave it out to let the field keep it |
 | `defaultValue` (optional) | `string` |  |
@@ -129,6 +133,9 @@ export default function CommentsDemo() {
 | `resolved` (optional) | `boolean` | Whether the thread is resolved, which fades it. Leave it out to let the Resolve button toggle it |
 | `defaultResolved` (optional) | `boolean` |  |
 | `onResolvedChange` (optional) | `(resolved: boolean) => void` |  |
+| `agreed` (optional) | `string[]` | The ids of the comments you agreed with. Leave it out to let the Agree buttons keep it |
+| `defaultAgreed` (optional) | `string[]` |  |
+| `onAgreedChange` (optional) | `(ids: string[]) => void` |  |
 | `className` (optional) | `string` |  |
 
 ## Questions
@@ -145,6 +152,10 @@ No. `onSend` gives you the reply text, and you decide what happens. The example 
 
 Give the agent's comment `actions`, such as Apply to all and Just this one. In each `onClick`, apply the change and set `resolution` to a short line that replaces the buttons.
 
+**How do I save who agreed with a comment?**
+
+Pass `agreed` with the ids of the comments the current person agreed with, and update it in `onAgreedChange`. Put everyone else's count in each comment's `agrees`.
+
 ## Source
 
 `Comments.tsx`, as `npx designme add comments --react` installs it:
@@ -155,7 +166,7 @@ import { useId, useState, type KeyboardEvent, type ReactNode } from 'react';
 import { cx } from '../lib/cx';
 import { useControllable } from '../lib/hooks';
 import { Icon } from '../lib/icons';
-import { Avatar, enter, Think } from '../lib/motion';
+import { Avatar, enter, Think, Tip } from '../lib/motion';
 import '../designme.css';
 import './comments.css';
 
@@ -171,7 +182,7 @@ export interface CommentsPerson {
 
 export interface CommentsAction {
   label: string;
-  /** Draws it as the accent button. The others are quiet */
+  /** Draws it as the accent button. The others are white with an outline */
   primary?: boolean;
   onClick: () => void;
 }
@@ -192,6 +203,8 @@ export interface CommentsEntry {
   actions?: CommentsAction[];
   /** Replaces the buttons once one is used, like "Applied to 3 frames" */
   resolution?: string;
+  /** How many other people agreed with it. Yours is added on top when you agree */
+  agrees?: number;
 }
 
 export interface CommentsProps {
@@ -199,6 +212,7 @@ export interface CommentsProps {
   title: string;
   /** The number on the pin, like 1 */
   pin?: ReactNode;
+  /** The thread: the first comment starts it, and every later one is a reply, indented under it */
   comments: CommentsEntry[];
   /** Who can be @mentioned. Typing @ and the start of a handle opens a menu of them */
   people?: CommentsPerson[];
@@ -213,6 +227,10 @@ export interface CommentsProps {
   resolved?: boolean;
   defaultResolved?: boolean;
   onResolvedChange?: (resolved: boolean) => void;
+  /** The ids of the comments you agreed with. Leave it out to let the Agree buttons keep it */
+  agreed?: string[];
+  defaultAgreed?: string[];
+  onAgreedChange?: (ids: string[]) => void;
   className?: string;
 }
 
@@ -224,23 +242,37 @@ function mentions(text: string, handles: string[] | null) {
   });
 }
 
-function Comment({ c, handles }: { c: CommentsEntry; handles: string[] | null }) {
+function Comment({ c, handles, mine, onAgree }: { c: CommentsEntry; handles: string[] | null; mine: boolean; onAgree: () => void }) {
   const e = enter();
   let body: ReactNode = c.text;
   if (c.thinking) body = <Think />;
   else if (c.agent && typeof c.text === 'string') body = c.text.split(' ').map((w, i) => <span key={i} className="dm-w">{w} </span>);
   else if (typeof c.text === 'string') body = mentions(c.text, handles);
+  const n = (c.agrees ?? 0) + (mine ? 1 : 0);
   return (
     <div className={cx('dm-cmx-c', c.agent && 'dm-ag', e.className)} style={e.style}>
       <Avatar initials={c.author.initials} color={c.author.color} />
       <div className="dm-b">
-        <span className="dm-n"><b>{c.author.name}</b><span>{c.time}</span></span>
-        <span className="dm-tx" style={c.thinking ? { color: 'var(--dm-accent)' } : undefined}>{body}</span>
+        <div className="dm-n">
+          <b>{c.author.name}</b><span className="dm-t">{c.time}</span>
+          {/* the quiet Agree button shows on hover or keyboard focus, and always on a touch screen */}
+          <div className="dm-cmx-tools">
+            <Tip label="Agree"><button type="button" className="dm-ib dm-cmx-rx" aria-label="Agree" aria-pressed={mine} onClick={onAgree}><Icon name="up-thumb" size="xs" /></button></Tip>
+          </div>
+        </div>
+        <div className="dm-tx" style={c.thinking ? { color: 'var(--dm-accent-mark, var(--dm-accent))' } : undefined}>{body}</div>
+        {n > 0 && (
+          <div className="dm-cmx-rs">
+            <button type="button" className="dm-cmx-rc" aria-pressed={mine} aria-label={'Agree, ' + n + (n === 1 ? ' person' : ' people') + (mine ? ', including you' : '')} onClick={onAgree}>
+              <Icon name="up-thumb" size="xs" /><span className="dm-num">{n}</span>
+            </button>
+          </div>
+        )}
         {(c.resolution || !!c.actions?.length) && (
           <div className={cx('dm-act', e.className)}>
             {c.resolution
               ? <span className="dm-cmx-rv dm-enter"><Icon name="ok" size="xs" />{c.resolution}</span>
-              : c.actions!.map((a, i) => <button type="button" key={i} className={cx('dm-pill dm-sm', a.primary ? 'dm-accent' : 'dm-ghost')} onClick={a.onClick}>{a.label}</button>)}
+              : c.actions!.map((a, i) => <button type="button" key={i} className={cx('dm-pill dm-sm', a.primary ? 'dm-primary' : 'dm-line')} onClick={a.onClick}>{a.label}</button>)}
           </div>
         )}
       </div>
@@ -249,10 +281,12 @@ function Comment({ c, handles }: { c: CommentsEntry; handles: string[] | null })
 }
 
 /** A comment thread on a design, where you can @mention the agent and it replies. */
-export function Comments({ title, pin = 1, comments, people, value, defaultValue = '', onValueChange, onSend, placeholder = 'Reply, or @agent to ask', resolved, defaultResolved = false, onResolvedChange, className }: CommentsProps) {
+export function Comments({ title, pin = 1, comments, people, value, defaultValue = '', onValueChange, onSend, placeholder = 'Reply, or @agent to ask', resolved, defaultResolved = false, onResolvedChange, agreed, defaultAgreed = [], onAgreedChange, className }: CommentsProps) {
   const [draft, setDraft] = useControllable(value, defaultValue, onValueChange);
   const [done, setDone] = useControllable(resolved, defaultResolved, onResolvedChange);
+  const [yes, setYes] = useControllable(agreed, defaultAgreed, onAgreedChange);
   const handles = people ? people.flatMap(p => (p.handle ? [p.handle.toLowerCase()] : [])) : null;
+  const agree = (id: string) => setYes(yes.includes(id) ? yes.filter(x => x !== id) : [...yes, id]);
 
   // typing @ and the start of a handle offers the people it could be; Escape puts the menu away until the text changes
   const [dismissed, setDismissed] = useState<string | null>(null);
@@ -272,19 +306,29 @@ export function Comments({ title, pin = 1, comments, people, value, defaultValue
     if (e.key === 'Escape') setDismissed(draft);
   };
 
+  const [head, ...replies] = comments;
+  const one = (c: CommentsEntry) => <Comment key={c.id} c={c} handles={handles} mine={yes.includes(c.id)} onAgree={() => agree(c.id)} />;
+  const status = done ? 'Resolved' : replies.length ? replies.length + (replies.length === 1 ? ' reply' : ' replies') : '';
+
   return (
     <div data-dm="" className={cx('dm-cmx dm-panel', done && 'dm-done', className)}>
       <div className="dm-cmx-h">
-        <span className="dm-cmx-pin" style={done ? { background: 'var(--dm-ok)' } : undefined}>{pin}</span>
+        <span className="dm-cmx-pin" aria-hidden="true">{pin}</span>
         <b>{title}</b>
-        <button type="button" className="dm-pill dm-ghost dm-sm dm-cmx-res" aria-pressed={done} onClick={() => setDone(!done)}>
-          <Icon name={done ? 'undo' : 'check'} size="xs" />{done ? 'Reopen' : 'Resolve'}
-        </button>
+        <span className="dm-cmx-st dm-num">{status}</span>
+        <Tip label={done ? 'Reopen thread' : 'Resolve thread'}>
+          <button type="button" className="dm-ib dm-cmx-res" aria-label="Resolve thread" aria-pressed={done} onClick={() => setDone(!done)}>
+            <Icon name={done ? 'undo' : 'check'} size="xs" />
+          </button>
+        </Tip>
       </div>
-      <div className="dm-cmx-th" aria-live="polite">{comments.map(c => <Comment key={c.id} c={c} handles={handles} />)}</div>
+      <div className="dm-cmx-th" aria-live="polite">
+        {head && one(head)}
+        {replies.length > 0 && <div className="dm-cmx-rp" role="group" aria-label="Replies">{replies.map(one)}</div>}
+      </div>
       <div className="dm-cmx-in">
         <div className="dm-cmx-box">
-          <input placeholder={placeholder} aria-label="Reply" spellCheck={false} value={draft} onChange={e => setDraft(e.target.value)} onKeyDown={key}
+          <input placeholder={placeholder} aria-label="Reply" spellCheck={false} autoComplete="off" value={draft} onChange={e => setDraft(e.target.value)} onKeyDown={key}
             role="combobox" aria-expanded={menuOpen} aria-autocomplete="list" aria-controls={`${id}-men`} aria-activedescendant={menuOpen ? `${id}-${at}` : undefined} />
           <button type="button" className="dm-cmx-go" aria-label="Send" disabled={!draft.trim()} onClick={send}><Icon name="up" size="xs" /></button>
         </div>
@@ -307,7 +351,7 @@ export function Comments({ title, pin = 1, comments, people, value, defaultValue
 ## More in Collaboration
 
 - [Notifications](https://designme.dev/components/notifications.md): An inbox where agent updates and mentions arrive live.
-- [Banner](https://designme.dev/components/banner.md): An announcement on a tint of its tone, with its own line drawing and a dismiss.
+- [Banner](https://designme.dev/components/banner.md): An announcement on a tint of its tone, with its own line drawing.
 - [Invite to collaborate](https://designme.dev/components/invite-to-collaborate.md): Add teammates by email as chips, set their role, send.
 - [Reactions](https://designme.dev/components/reactions.md): Quick reactions on an agent update, with counts that pop.
 - [Profile menu](https://designme.dev/components/profile-menu.md): The account menu behind an avatar: switch workspace, theme, shortcuts and sign out.
