@@ -1,0 +1,374 @@
+/* ---------- Thread panel ---------- */
+.thp{display:flex;flex-direction:column;height:360px;overflow:hidden}
+.thp-tabs{display:flex;gap:var(--s-1);padding:var(--s-2) var(--s-2) 0;border-bottom:1px solid color-mix(in srgb,var(--line) 50%,transparent);position:relative;overflow-x:auto;scrollbar-width:none}
+.thp-tab{display:flex;align-items:center;gap:7px;white-space:nowrap;flex:none;padding:7px 10px 10px;font-size:13px;color:var(--muted);position:relative;transition:color .25s}
+@media (hover:hover) and (pointer:fine){.thp-tab:hover{color:var(--fg2)}}
+/* the tabs scroll sideways, which would cut an outside ring: theirs is drawn inside */
+.thp-tab:focus-visible{outline-offset:-2px}
+.thp-tab[aria-selected="true"]{color:var(--fg)}
+.thp-tab .dot{width:6px;height:6px}
+.thp-ink{position:absolute;bottom:-1px;height:2px;border-radius:2px;background:var(--fg);transition:left .5s var(--ease),width .5s var(--ease)}
+.thp-body{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:var(--s-3);scrollbar-width:thin}
+.thp-body .bub{font-size:13.5px}
+.thp-ag{font-size:13.5px;line-height:1.6;color:var(--fg)}
+.thp-ag .src{display:flex;gap:6px;margin-bottom:6px;flex-wrap:wrap}
+.thp-in{display:flex;align-items:center;gap:var(--s-2);margin:0 10px 10px;padding:var(--s-1) var(--s-1) var(--s-1) var(--s-3);border-radius:var(--r-field);background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--field-line) 50%,transparent);transition:box-shadow var(--t-fast)}
+@supports (corner-shape:squircle){.thp-in{corner-shape:squircle;border-radius:var(--r-field-sq)}}
+.thp-in:has(.thp-field:focus){box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--field-line-strong) 50%,transparent)}
+.thp-field{flex:1;min-width:0;border:0;outline:0;background:none;font-size:13.5px;height:32px}
+.thp-field::placeholder{color:var(--muted)}
+.thp-send{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:var(--on-accent);transition:opacity .25s,transform .15s}
+.thp-send[disabled]{opacity:1;cursor:not-allowed;background:var(--dis-hatch),var(--dis-fill);color:var(--dis);box-shadow:var(--soft-ring)}
+.thp-send:active{transform:scale(.92)}
+
+/* ---------- Tool call ---------- */
+.tcx{display:flex;flex-direction:column;gap:var(--s-3)}
+.tcx-calls{display:flex;flex-direction:column;gap:var(--s-2)}
+.tcx-end{opacity:0;transition:opacity .6s var(--ease),filter .6s,transform .6s var(--ease);filter:blur(3px);transform:translateY(4px)}
+.tcx-end.in{opacity:1;filter:none;transform:none}
+.tcx-calls{margin-inline:-8px}
+.tcx-h{display:flex;align-items:center;gap:10px;width:100%;padding:6px var(--s-2);border-radius:10px;text-align:left;font-size:13px;transition:background .2s}
+@media (hover:hover) and (pointer:fine){.tcx-h:hover{background:var(--row)}}
+.tcx-ic{width:24px;height:24px;border-radius:var(--r-sm);background:var(--chip);display:grid;place-items:center;color:var(--fg2);flex:none}
+.tcx-n{flex:1;min-width:0;font-family:var(--mono);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tcx-n b{font-weight:500;color:var(--fg)}
+.tcx-n span{color:var(--muted)}
+.tcx-ms{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px}
+.tcx-chev{color:var(--muted);transition:transform .45s var(--ease)}
+.tcx-c.open .tcx-chev{transform:rotate(180deg)}
+.tcx-io{padding:2px var(--s-2) var(--s-2) 42px;display:grid;gap:var(--s-2)}
+.tcx-l{font-size:11.5px;color:var(--muted);margin-bottom:var(--s-1)}
+.tcx-io pre{margin:0;padding:9px 11px;border-radius:10px;background:var(--chip);font-family:var(--mono);font-size:11.5px;line-height:1.65;white-space:pre-wrap;word-break:break-word}
+.tcx-io .k{color:var(--pb)}.tcx-io .s{color:var(--pm)}.tcx-io .n{color:var(--pp)}
+
+/* ---------- Attachment tray ---------- */
+/* a drop zone, then the files as plain rows. Each file wears its type's hue: its badge, its ring and the wash that fills its
+   row from the left as it uploads. Once it is up the agent reads it (the line shimmers) and says what it found, like 12 pages */
+.atx{display:flex;flex-direction:column;gap:10px}
+.atx-drop{display:flex;flex-direction:column;align-items:center;gap:6px;padding:26px var(--s-4);border-radius:var(--r-card);background:none;cursor:pointer;position:relative;font-size:13.5px;transition:background .35s,box-shadow .35s,transform .45s var(--ease)}
+/* the dashed edge is drawn in SVG so its dashes can march around the corners: still at rest, taking the accent under the
+   pointer, and marching while a file is dragged over */
+.atx-ants{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
+.atx-ants rect{fill:none;stroke:var(--faint);stroke-width:1.5;stroke-linecap:round;stroke-dasharray:4.5px var(--ag,6.5px);transition:stroke .35s}
+@keyframes atxants{to{stroke-dashoffset:calc(var(--ap,11px) * -1)}}
+.atx-drop.over{background:var(--accent-bg)}
+@media (hover:hover) and (pointer:fine){.atx-drop:hover{background:var(--accent-bg)}}
+.atx-drop.over .atx-ants rect{stroke:var(--accent-mark,var(--accent))}
+@media (hover:hover) and (pointer:fine){.atx-drop:hover .atx-ants rect{stroke:var(--accent-mark,var(--accent))}}
+.atx-drop.over .atx-ants rect{animation:atxants .9s linear infinite}
+.atx-drop.over{transform:scale(1.015)}
+.atx-file{position:absolute;inset:0;opacity:0;cursor:pointer}
+/* the file input is clear over the drop zone, so the zone shows its focus */
+.atx-drop:has(.atx-file:focus-visible){outline:2px solid var(--focus);outline-offset:2px}
+.atx-ic{position:relative;width:34px;height:34px;border-radius:11px;background:var(--surface);box-shadow:var(--shadow);display:grid;place-items:center;color:var(--fg2);transition:transform .45s var(--ease),background .35s,color .35s}
+.atx-drop.over .atx-ic{transform:translateY(-3px);background:var(--surface);color:var(--accent-fg,var(--accent))}
+@media (hover:hover) and (pointer:fine){.atx-drop:hover .atx-ic{transform:translateY(-3px);background:var(--surface);color:var(--accent-fg,var(--accent))}}
+/* while a file is over the zone its arrow bobs, and rings spread from the badge */
+.atx-drop.over .atx-ic .i{animation:atxbob .9s var(--ease-io) infinite}
+@keyframes atxbob{50%{transform:translateY(-2px)}}
+.atx-ic::before,.atx-ic::after{content:"";position:absolute;inset:0;border-radius:inherit;box-shadow:0 0 0 1.5px var(--accent-mark,var(--accent));opacity:0;pointer-events:none}
+.atx-drop.over .atx-ic::before{animation:atxring 1.4s var(--ease) infinite}
+.atx-drop.over .atx-ic::after{animation:atxring 1.4s var(--ease) .7s infinite}
+@keyframes atxring{from{opacity:.5;transform:scale(1)}to{opacity:0;transform:scale(1.9)}}
+.atx-sample{color:var(--accent-fg,var(--accent));font-weight:500;position:relative;z-index:1}
+.atx-list{display:flex;flex-direction:column;gap:2px}
+.atx-it{--p:0%;position:relative;display:flex;align-items:center;gap:10px;padding:var(--s-2) 6px var(--s-2) var(--s-2);border-radius:var(--r-in);overflow:hidden;background:linear-gradient(90deg,color-mix(in srgb,var(--c,var(--accent)) 8%,transparent) calc(var(--p) - 24px),color-mix(in srgb,var(--c,var(--accent)) 16%,transparent) calc(var(--p) - 1px),transparent var(--p)) no-repeat}
+/* the wash fades once the file is up */
+.atx-it.up{background-size:0 100%;transition:background-size .6s var(--ease) .2s}
+.atx-ti{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;flex:none;font-size:9.5px;font-weight:500;letter-spacing:.02em;color:var(--c);background:var(--cb)}
+.atx-n{flex:1;min-width:0;font-size:13px}
+.atx-nm{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.atx-m{display:block;font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.atx-m .shim{font-size:inherit}
+/* on the wash, the line steps up a grey so it keeps its contrast */
+.atx-it:not(.up) .atx-m{color:var(--fg2)}
+.atx-ring{width:22px;height:22px;flex:none}
+.atx-ring circle{transition:stroke-dashoffset .3s linear}
+.atx-ok{display:grid;place-items:center;width:22px;flex:none;color:var(--ok)}
+.atx-ok .i{animation:atxpop .45s var(--ease) backwards}
+@keyframes atxpop{0%{transform:scale(.4);opacity:0}60%{transform:scale(1.15);opacity:1}100%{transform:none}}
+.atx-rd{display:grid;place-items:center;width:22px;flex:none;color:var(--c)}
+.atx-rd .spin{width:12px;height:12px}
+.atx-it .ib{width:26px;height:26px;flex:none}
+.atx-sum{font-size:12.5px;text-align:center;min-height:18px}
+:root:not([data-style="soft"]) .atx-it:not(:where([data-style="soft"],[data-style="soft"] *)){background:linear-gradient(var(--c,var(--accent)),var(--c,var(--accent))) 0 100%/var(--p) 2px no-repeat}
+:root:not([data-style="soft"]) .atx-it.up:not(:where([data-style="soft"],[data-style="soft"] *)){background-size:0 2px}
+:root:not([data-style="soft"]) .atx-drop.over .atx-ic:not(:where([data-style="soft"],[data-style="soft"] *))::before{animation:atxringbp 1s steps(4,end) infinite}
+:root:not([data-style="soft"]) .atx-drop.over .atx-ic:not(:where([data-style="soft"],[data-style="soft"] *))::after{animation:none}
+@keyframes atxringbp{from{opacity:.6;transform:scale(1)}to{opacity:0;transform:scale(1.6)}}
+:root:not([data-style="soft"]) .atx-ok .i:not(:where([data-style="soft"],[data-style="soft"] *)){animation:none}
+
+/* ---------- Agent lanes ---------- */
+/* each agent has its own hue (--c, with its tint --cb): its badge, its track, its tag and its stretch of the relay line that
+   joins the badges. A hand-off sends a light down that line from one agent to the next, and the stretch it crossed stays lit */
+.aln{padding:var(--s-2)}
+/* the lanes' marks (tracks, lines, a finished badge) in livelier versions of the agents' hues, each 3:1 on the surface; their
+   text keeps the agent's text colour. Dark mode's agent colours are light already, so they are used as they are */
+.aln{--aln-pb:#2a7bff;--aln-pm:#1fa66a;--aln-pl:#7a5af5}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .aln{--aln-pb:var(--pb);--aln-pm:var(--pm);--aln-pl:var(--pl)}}
+:root[data-theme="dark"] .aln{--aln-pb:var(--pb);--aln-pm:var(--pm);--aln-pl:var(--pl)}
+/* on a card the lanes sit centred in the room kept for their tallest moment, and glide as a hand-off line opens and shuts */
+.stage-in:has(>.aln){display:flex;flex-direction:column;justify-content:center}
+.aln-h{display:flex;align-items:center;gap:10px;padding:var(--s-2) 10px 10px}
+.aln-ic{color:var(--fg2);display:grid;transition:color .3s}
+.aln.fin .aln-ic{color:var(--ok)}
+.aln-t{font-weight:500}
+.aln-m{font-size:12.5px}
+.aln-ct{font-size:12.5px;color:var(--muted);margin-right:auto;white-space:nowrap}
+.aln-ct::before{content:"·";margin-right:6px}
+.aln-rows{position:relative}
+.aln-rows>*{position:relative}
+.aln-lane{border-radius:14px;transition:background .3s}
+@media (hover:hover) and (pointer:fine){.aln-lane:hover{background:var(--row)}}
+/* the lane at work carries a wash of its hue from the left */
+.aln-lane[data-s="working"]{background:linear-gradient(90deg,color-mix(in srgb,var(--c) 8%,transparent),transparent 72%)}
+@media (hover:hover) and (pointer:fine){.aln-lane[data-s="working"]:hover{background:linear-gradient(90deg,color-mix(in srgb,var(--c) 8%,transparent),transparent 72%),var(--row)}}
+/* the relay line runs from badge to badge, through the lanes and the hand-offs between them, and stops short of each badge */
+.aln-rows>*::before{content:"";position:absolute;left:26px;width:2px;top:0;bottom:0;border-radius:1px;background:var(--line);transition:background .5s var(--ease);pointer-events:none}
+.aln-lane::before{top:48px}
+.aln-lane:last-child::before{display:none}
+.aln-lane::after{content:"";position:absolute;left:26px;width:2px;top:0;height:6px;border-radius:1px;background:var(--line);transition:background .5s var(--ease);pointer-events:none}
+.aln-lane:first-child::after{display:none}
+.aln-lane.sent::before{background:linear-gradient(var(--cm),color-mix(in srgb,var(--cm) 45%,var(--line)))}
+.aln-lane.got::after{background:var(--cm)}
+.aln-hf.lit::before{background:linear-gradient(color-mix(in srgb,var(--from) 45%,var(--line)),var(--to))}
+.aln-row{display:grid;grid-template-columns:34px minmax(0,1.2fr) minmax(0,1fr) auto;align-items:center;gap:var(--s-3);width:100%;padding:10px;text-align:left}
+.aln-av{position:relative;width:34px;height:34px;border-radius:11px;display:grid;place-items:center;color:var(--c);background:var(--cb);transition:color .4s,background .4s}
+.aln-av::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none}
+.aln-lane[data-s="working"] .aln-av{animation:alnbreathe 2.4s var(--ease-io) infinite}
+@keyframes alnbreathe{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--c) 0%,transparent)}50%{box-shadow:0 0 0 4px color-mix(in srgb,var(--c) 18%,transparent)}}
+/* the badge that takes a hand-off rings once as the light reaches it */
+.aln-av.ping::before{animation:alnping .9s var(--ease)}
+@keyframes alnping{from{box-shadow:0 0 0 0 color-mix(in srgb,var(--c) 50%,transparent)}to{box-shadow:0 0 0 12px color-mix(in srgb,var(--c) 0%,transparent)}}
+/* a finished agent's badge fills with its hue */
+.aln-lane[data-s="done"] .aln-av{background:var(--cm);color:var(--surface)}
+.aln-who{min-width:0}
+.aln-n{display:block;font-weight:500;font-size:13.5px}
+.aln-a{display:block;font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.aln-a.live{color:var(--fg2)}
+/* the track: one part a step. Finished parts are solid, the one in hand fills as the agent works, with a light running along it */
+.aln-tr{display:flex;gap:3px}
+.aln-tr i{flex:1;height:10px;border-radius:5px;background:color-mix(in srgb,var(--cm) 13%,var(--line));position:relative;overflow:hidden}
+.aln-tr i::after{content:"";position:absolute;inset:0;border-radius:inherit;background:var(--cm);transform:scaleX(var(--p,0));transform-origin:left;transition:transform .25s linear}
+.aln-tr i.on::after{transform:scaleX(1);transition:transform .5s var(--ease)}
+.aln-tr i.run::after{background:linear-gradient(90deg,var(--cm) 0 30%,color-mix(in srgb,var(--cm) 30%,var(--surface)) 50%,var(--cm) 70% 100%) 0 0/250% 100%;animation:alnsheen 1.6s linear infinite}
+/* given no step progress, the part in hand fills part way and keeps its light */
+.aln-tr i.run.ind::after{transform:scaleX(.6);transition:transform 2.4s var(--ease)}
+@keyframes alnsheen{from{background-position:100% 0}to{background-position:-150% 0}}
+.aln-st{min-width:92px;display:flex;justify-content:flex-end}
+.aln-tg{background:var(--cb);color:var(--c)}
+.aln-tg .spin{width:9px;height:9px}
+.aln-det{padding:0 10px 10px 56px;font-size:12.5px;color:var(--fg2)}
+.aln-det div{display:flex;align-items:center;gap:var(--s-2);padding:3px 0}
+.aln-det div::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--c);flex:none}
+.aln-det .muted{margin-left:auto}
+/* a hand-off opens a line between the lanes, glides the lanes below down and closes again */
+.aln-hf{transition-duration:var(--t-slow)}
+.aln-hand{padding:6px 10px 6px 56px;font-size:12.5px;line-height:18px;color:var(--fg2)}
+.aln-hand b{font-weight:500}
+.aln-hand .f{color:var(--from)}.aln-hand .t{color:var(--to)}
+/* the light that carries the work down the line: a bright head with a tail in the sender's hue */
+.aln-pk{position:absolute;left:27px;top:0;width:8px;height:8px;margin:-4px 0 0 -4px;border-radius:50%;background:var(--to);box-shadow:0 0 0 3px color-mix(in srgb,var(--to) 22%,transparent),0 0 12px 2px color-mix(in srgb,var(--to) 45%,transparent);pointer-events:none;z-index:2;opacity:0}
+.aln-pk::before{content:"";position:absolute;left:3px;bottom:4px;width:2px;height:30px;border-radius:1px;background:linear-gradient(transparent,var(--from))}
+@media (max-width:600px){
+  .aln-row{grid-template-columns:34px minmax(0,1fr) auto;row-gap:var(--s-2)}
+  .aln-tr{grid-column:2 / -1;grid-row:2}
+  .aln-lane::before{top:48px}
+  .aln-ct{display:none}
+  .aln-m{margin-right:auto}
+}
+@media (max-width:400px){.aln-ic{display:none}}
+:root:not([data-style="soft"]) .aln-rows>*:not(:where([data-style="soft"],[data-style="soft"] *))::before,:root:not([data-style="soft"]) .aln-lane:not(:where([data-style="soft"],[data-style="soft"] *))::after{width:1px;left:26.5px;background:repeating-linear-gradient(var(--rail) 0 3px,transparent 3px 6px)}
+:root:not([data-style="soft"]) .aln-lane.sent:not(:where([data-style="soft"],[data-style="soft"] *))::before,:root:not([data-style="soft"]) .aln-lane.got:not(:where([data-style="soft"],[data-style="soft"] *))::after{background:var(--c)}
+:root:not([data-style="soft"]) .aln-hf.lit:not(:where([data-style="soft"],[data-style="soft"] *))::before{background:var(--to)}
+:root:not([data-style="soft"]) .aln-av:not(:where([data-style="soft"],[data-style="soft"] *)){box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--c) 35%,transparent)}
+:root:not([data-style="soft"]) .aln-lane[data-s="working"] .aln-av:not(:where([data-style="soft"],[data-style="soft"] *)){animation:alnbp 1.1s steps(1,end) infinite}
+@keyframes alnbp{0%,55%{box-shadow:inset 0 0 0 1px var(--c)}56%,100%{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--c) 35%,transparent)}}
+:root:not([data-style="soft"]) .aln-lane[data-s="working"]:not(:where([data-style="soft"],[data-style="soft"] *)){background:color-mix(in srgb,var(--c) 5%,transparent)}
+:root:not([data-style="soft"]) .aln-tr i:not(:where([data-style="soft"],[data-style="soft"] *)){height:8px}
+:root:not([data-style="soft"]) .aln-tr i.run:not(:where([data-style="soft"],[data-style="soft"] *))::after{background:repeating-linear-gradient(135deg,var(--cm) 0 4px,color-mix(in srgb,var(--cm) 55%,var(--surface)) 4px 7px);animation:none}
+:root:not([data-style="soft"]) .aln-pk:not(:where([data-style="soft"],[data-style="soft"] *)){box-shadow:none;width:7px;height:7px;margin:-3px 0 0 -3px}
+:root:not([data-style="soft"]) .aln-pk:not(:where([data-style="soft"],[data-style="soft"] *))::before{width:1px}
+:root:not([data-style="soft"]) .aln-av.ping:not(:where([data-style="soft"],[data-style="soft"] *))::before{animation:alnpingbp .6s steps(3,end)}
+@keyframes alnpingbp{from{box-shadow:0 0 0 1px var(--c)}to{box-shadow:0 0 0 7px transparent}}
+
+/* ---------- Agent tree ---------- */
+/* an orchestrator and its sub-agents as a tree: a chevron folds a branch, each row shows its task, status and cost, and a
+   branch's cost is its own plus everything under it */
+.atr{width:100%;max-width:440px;margin:0 auto;padding:6px}
+.atr-h{display:flex;align-items:center;justify-content:space-between;gap:var(--s-3);padding:var(--s-2) 10px 10px}
+.atr-ht{display:flex;flex-direction:column;min-width:0}
+.atr-ht b{font-weight:500;font-size:14px}
+.atr-st{font-size:12.5px}
+.atr-tot{font-size:14px;font-weight:500}
+.atr-tree{display:flex;flex-direction:column;padding-top:var(--s-1);border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
+.atr-n{display:flex;align-items:center;gap:var(--s-2);min-height:44px;padding:5px 10px 5px calc(4px + var(--lv,0) * 20px);border-radius:10px;font-size:13px;outline:0;transition:background .16s}
+@media (hover:hover) and (pointer:fine){.atr-n:hover{background:var(--row)}}
+.atr-n:focus-visible{box-shadow:inset 0 0 0 2px var(--focus)}
+.atr-tg{width:20px;height:20px;display:grid;place-items:center;flex:none;border-radius:6px;color:var(--muted);transition:background .16s,color .16s}
+@media (hover:hover) and (pointer:fine){.atr-tg:hover{background:var(--row);color:var(--fg)}}
+.atr-tg svg{transition:transform .32s var(--ease)}
+.atr-n[aria-expanded="false"] .atr-tg svg{transform:rotate(-90deg)}
+.atr-sp{width:20px;flex:none}
+.atr-g{width:16px;height:16px;display:grid;place-items:center;flex:none;color:var(--faint)}
+.atr-g .spin{width:11px;height:11px;color:var(--accent-fg,var(--accent))}
+.atr-n.done .atr-g{color:var(--ok)}
+.atr-n.fail .atr-g{color:var(--bad)}
+.atr-t{flex:1;min-width:0;display:flex;flex-direction:column}
+.atr-t b{font-weight:500}
+.atr-t span{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.atr-n.fail .atr-t span{color:var(--bad)}
+.atr-n.queued .atr-t b{color:var(--fg2)}
+.atr-c{font-size:12.5px;color:var(--fg2);min-width:44px;text-align:right}
+.atr-n.queued .atr-c{color:var(--muted)}
+/* the way out of a failed step: a white button on its red-tinted row */
+.atr-n.fail{background:var(--bad-bg)}
+.atr-fix{flex:none;align-self:flex-start;margin-top:var(--s-1);background:var(--surface);color:var(--fg);box-shadow:var(--shadow)}
+@media (hover:hover) and (pointer:fine){.atr-fix:hover{background:var(--surface);box-shadow:var(--shadow-pop)}}
+/* a folded branch keeps its children's space shut; the guide line marks the level */
+.atr-kids{position:relative}
+.atr-kids::before{content:"";position:absolute;top:2px;bottom:6px;left:calc(14px + var(--lv,0) * 20px);width:1px;background:var(--line)}
+.atr-sum{display:flex;align-items:center;gap:var(--s-2);margin:var(--s-2) var(--s-1) 2px;padding:10px var(--s-3);border-radius:var(--r-in);background:var(--ok-bg);font-size:13px}
+.atr-sum svg{color:var(--ok);flex:none}
+
+/* ---------- Run summary ---------- */
+.rsu{padding:var(--s-4)}
+.rsu-h{display:flex;align-items:center;gap:var(--s-3)}
+.rsu-g{width:34px;height:34px;border-radius:50%;background:var(--ok-bg);color:var(--ok);display:grid;place-items:center;transition:background .4s,color .4s}
+.rsu-t{font-weight:500}
+.rsu-s{font-size:12.5px}
+.rsu-more{margin-left:auto}
+.rsu-title{margin:14px 0 0;font-size:14px;font-weight:500;line-height:1.45}
+.rsu-stats{display:flex;flex-wrap:wrap;gap:var(--s-1) var(--s-4);margin-top:6px;font-size:12.5px;color:var(--muted)}
+.rsu-stats b{font-weight:500;color:var(--fg2)}
+.rsu-sec{padding-top:var(--s-3);margin-top:14px;border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
+.rsu-l{font-size:12px;color:var(--muted);margin-bottom:6px}
+.rsu-it{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:var(--s-1) 0;font-size:13px;transition:opacity .4s,filter .4s}
+.rsu-it .mono{font-size:12.5px}
+.rsu-need{justify-content:flex-start}
+.rsu-need .rsu-nt{flex:1;min-width:0}
+.rsu-it i{font-style:normal}.rsu-it .a{color:var(--add)}.rsu-it .x{color:var(--del)}.rsu-it .z{color:var(--muted)}
+.rsu.undone .rsu-it:not(.rsu-need){opacity:.45;filter:grayscale(1)}
+.rsu.undone .rsu-it .mono{text-decoration:line-through}
+.rsu-acts{display:flex;gap:6px;margin-top:14px}
+@media (max-width:420px){.rsu-stats{grid-template-columns:repeat(2,1fr)}}
+
+/* ---------- Action log ---------- */
+.alg{padding:var(--s-2)}
+.alg-h{display:flex;align-items:center;justify-content:space-between;padding:var(--s-2) 10px 6px}
+.alg-t{font-weight:500}
+.alg-st{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;color:var(--fg2)}
+.alg-st .spin{width:10px;height:10px}
+.alg-list{list-style:none;margin:0;padding:0}
+/* on a card the log keeps the room its five steps fill, so the header doesn't climb as each one lands */
+.stage-in>.alg{min-height:326px}
+.alg-it{border-radius:var(--r-in);transition:background .25s}
+@media (hover:hover) and (pointer:fine){.alg-it:hover{background:var(--row)}}
+.alg-row{display:flex;align-items:center;gap:10px;width:100%;padding:var(--s-2) 10px;text-align:left}
+.alg-ic{width:26px;height:26px;border-radius:var(--r-sm);background:var(--chip);display:grid;place-items:center;color:var(--fg2);flex:none;transition:background .25s}
+@media (hover:hover) and (pointer:fine){.alg-it:hover .alg-ic{background:var(--surface)}}
+.alg-tx{flex:1;min-width:0}
+.alg-tx b{font-weight:500}
+.alg-tx code{font-family:var(--mono);font-size:12px}
+.alg-tx .d{display:block;font-size:12px;color:var(--muted)}
+.alg-r{display:flex;align-items:center;gap:var(--s-2);color:var(--muted);font-size:12px}
+.alg-r .g{width:14px;display:grid;place-items:center}
+.alg-det{margin:0 10px 0 46px}
+.alg-det pre{margin:0 0 10px;font-family:var(--mono);font-size:11.5px;line-height:1.6;background:var(--surface);border-radius:10px;padding:var(--s-2) 10px;white-space:pre-wrap;color:var(--fg2);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--line) 50%,transparent)}
+.alg-det .a{color:var(--add)}.alg-det .x{color:var(--del)}
+
+/* ---------- Run queue ---------- */
+.rq{display:flex;flex-direction:column;gap:var(--s-3)}
+.rq-top{display:flex;align-items:center;justify-content:space-between;font-size:12.5px}
+.rq-list{padding:6px}
+.rq-g{padding:var(--s-1) 0;border-radius:var(--r-in)}
+.rq-g+.rq-g{border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent);border-radius:0}
+.rq-gh{display:flex;align-items:center;gap:10px;padding:var(--s-2) 10px;font-weight:500}
+.rq-gh .g{width:18px;height:18px;display:grid;place-items:center;flex:none}
+.rq-gh .m{margin-left:auto;font-weight:400;font-size:12.5px;color:var(--muted)}
+.rq-bar{height:2px;margin:-2px 10px var(--s-1) 38px;border-radius:2px;background:var(--line);overflow:hidden}
+.rq-bar i{display:block;height:100%;width:0;background:var(--accent-mark,var(--accent));transition:width .8s var(--ease)}
+.rq-sub{display:flex;align-items:center;gap:10px;padding:5px 10px 5px 38px;font-size:13px;color:var(--fg2)}
+.rq-sub .g{width:14px;display:grid;place-items:center;flex:none}
+.rq-sub .m{margin-left:auto;font-size:12px;color:var(--muted)}
+.rq-sub.wait{color:var(--muted)}
+.rq-retry{height:22px;padding:0 9px;border-radius:var(--r-pill);background:var(--chip);font-size:11.5px;color:var(--fg);transition:background .2s}
+.rq-retry.on{background:var(--hover)}
+@media (hover:hover) and (pointer:fine){.rq-retry:hover{background:var(--hover)}}
+
+/* ---------- Eval results ---------- */
+/* an eval suite's latest run: one bar segment per case, the pass count against the run before, and the cases, all or
+   just the failed ones. A failed case opens to show what was expected and what came back, with a fix that reruns it */
+.evr{width:100%;max-width:440px;margin:0 auto;padding:6px;display:flex;flex-direction:column}
+.evr-h{display:flex;align-items:center;justify-content:space-between;gap:var(--s-3);padding:var(--s-2) 10px 10px}
+.evr-ht{display:flex;flex-direction:column;min-width:0}
+.evr-ht b{font-weight:500;font-size:14px}
+.evr-st{font-size:12.5px}
+.evr-run{flex:none}
+.evr-run .spin{width:10px;height:10px}
+.evr-sum{display:flex;flex-direction:column;gap:var(--s-2);padding:var(--s-3) 10px;border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent);border-bottom:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
+.evr-segs{display:flex;gap:3px}
+.evr-segs i{flex:1;height:6px;border-radius:3px;background:var(--rail);transition:background .3s}
+.evr-segs i.pass{background:var(--ok)}
+.evr-segs i.fail{background:var(--bad)}
+.evr-segs i.run{background:var(--accent-mark,var(--accent));animation:evrrun 1s ease-in-out infinite}
+@keyframes evrrun{50%{opacity:.4}}
+.evr-nums{display:flex;align-items:center;justify-content:space-between;gap:var(--s-2);min-height:20px;font-size:13px}
+.evr-dl:empty{display:none}
+.evr-tabs{padding:10px var(--s-1) var(--s-1)}
+.evr-tabs .n{color:var(--muted);margin-left:2px}
+.evr-tabs .n:empty{display:none}
+.evr-list{display:flex;flex-direction:column}
+/* a case folds away when the filter hides it, and stays hidden once shut so nothing measures it */
+.evr-w.shut>div{visibility:hidden;transition:visibility 0s var(--t)}
+.evr-i{display:flex;flex-direction:column;border-radius:10px;transition:background .2s}
+.evr-r{display:flex;align-items:center;gap:10px;width:100%;min-height:38px;padding:6px 10px;border-radius:10px;font-size:13px;text-align:left;color:var(--fg)}
+.evr-g{width:16px;height:16px;display:grid;place-items:center;flex:none;color:var(--faint)}
+.evr-g .spin{width:11px;height:11px;color:var(--accent-fg,var(--accent))}
+.evr-i.pass .evr-g{color:var(--ok)}
+.evr-i.fail .evr-g{color:var(--bad)}
+.evr-n{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.evr-i.queued .evr-n{color:var(--fg2)}
+.evr-tm{font-size:12px;color:var(--muted)}
+.evr-ch{display:grid;color:var(--muted)}
+.evr-ch svg{transition:transform .32s var(--ease)}
+.evr-r[aria-expanded="false"] .evr-ch svg{transform:rotate(-90deg)}
+.evr-i.fail{background:var(--bad-bg)}.evr-i.fail :is(.evr-tm,.evr-kv .k){color:var(--fg2)}
+.evr-d.shut>div{visibility:hidden;transition:visibility 0s var(--t)}
+.evr-dd{display:flex;flex-direction:column;gap:var(--s-1);padding:0 10px 10px 36px;font-size:12.5px}
+.evr-kv{display:flex;gap:var(--s-2)}
+.evr-kv .k{width:58px;flex:none;color:var(--muted)}
+.evr-kv .bad{color:var(--bad)}
+.evr-fix{align-self:flex-start;margin-top:6px;background:var(--surface);color:var(--fg);box-shadow:var(--shadow)}
+@media (hover:hover) and (pointer:fine){.evr-fix:hover{background:var(--surface);box-shadow:var(--shadow-pop)}}
+.evr-none{margin:0;padding:10px;font-size:12.5px;color:var(--muted)}
+
+/* ---------- Agent settings ---------- */
+.asx{padding:6px 14px 14px;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.asx-r{display:flex;align-items:center;justify-content:space-between;gap:var(--s-3);padding:11px 0;border-bottom:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
+.asx-r:nth-last-child(2){border-bottom:0}
+.asx-col{flex-direction:column;align-items:stretch;gap:9px}
+.asx-l{display:flex;flex-direction:column;min-width:0;font-size:13px}
+.asx-l b{font-weight:500}
+.asx-l .muted{font-size:12px}
+.asx-steps{position:relative;display:grid;grid-template-columns:repeat(3,1fr);padding:3px;border-radius:var(--r-pill);background:var(--chip)}
+.asx-steps button{position:relative;z-index:1;height:30px;font-size:12.5px;color:var(--fg2);transition:color .25s}
+.asx-steps button[aria-checked="true"]{color:var(--fg)}
+.asx-knob{position:absolute;top:3px;bottom:3px;width:calc((100% - 6px)/3);border-radius:var(--r-pill);background:var(--surface);box-shadow:0 1px 2px rgba(0,0,0,.08);transition:left .45s var(--ease)}
+.asx-cap{display:flex;align-items:center;gap:6px}
+.asx-cap .ib{width:26px;height:26px}
+.asx-v{min-width:38px;text-align:center;font-size:13px}
+.asx-ta{display:block;width:100%;resize:none;border:0;outline:0;border-radius:var(--r-field);background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--field-line) 50%,transparent);padding:10px var(--s-3);font:inherit;font-size:13.5px;line-height:1.5;color:var(--fg);transition:box-shadow var(--t-fast)}
+@supports (corner-shape:squircle){.asx-ta{corner-shape:squircle;border-radius:var(--r-field-sq)}}
+.asx-ta:focus{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--field-line-strong) 50%,transparent)}
+.asx-bar{display:flex;align-items:center;gap:6px;padding:6px 6px 6px 14px;border-radius:var(--r-pill);background:var(--ink);color:var(--on-ink);font-size:12.5px;margin-top:10px;transform:translateY(30px);opacity:0;filter:blur(4px);pointer-events:none;transition:transform .45s var(--ease),opacity .3s,filter .3s,height .45s var(--ease),margin-bottom .45s var(--ease);height:0;margin-bottom:-10px}
+/* on an ink-filled bar the ring takes the bar's text colour, so it stands out against the fill in every theme */
+.asx-bar span{flex:1}
+.asx-bar .pill.ghost{color:inherit;opacity:.8}@media (hover:hover) and (pointer:fine){.asx-bar .pill.ghost:hover{background:color-mix(in srgb,var(--on-ink) 14%,transparent)}}
+.asx.dirty .asx-bar{transform:none;opacity:1;filter:none;pointer-events:auto;height:40px;margin-bottom:0}
+
+/* theme lives on the specimen, not the page root */
+.frame[data-theme="dark"] .aln{--aln-pb:var(--pb);--aln-pm:var(--pm);--aln-pl:var(--pl)}
+.stage-in{width:min(100%,460px)}
+.stage.wide .stage-in{width:min(100%,640px)}
+.stage-in>.thp,.stage-in>.tcx,.stage-in>.atx,.stage-in>.aln,.stage-in>.rsu,.stage-in>.alg,.stage-in>.rq,.stage-in>.asx{width:100%}
