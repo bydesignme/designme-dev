@@ -34,6 +34,8 @@ const WAIT = { toast:2600, 'status-pill':3300, 'design-review':9500, 'model-pick
 Object.assign(WAIT, { 'canvas-toolbar':12800 });
 // Agent lanes is taken as the light carries the brief down to the Designer
 Object.assign(WAIT, { 'agent-lanes':6800 });
+// Command palette is taken once it has run the token export, the search still in the box
+Object.assign(WAIT, { 'command-palette':4600 });
 const OUT = { thumbs:path.join(HERE, 'public/components/thumbs'), og:path.join(HERE, 'public/components/og') };
 Object.values(OUT).forEach(d => fs.mkdirSync(d, { recursive:true }));
 

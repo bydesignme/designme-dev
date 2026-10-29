@@ -297,7 +297,7 @@ A slim app rail that opens into a labelled sidebar.
 
 **CommandPalette** · `command-palette/CommandPalette.tsx`  
 Jump anywhere or hand a task to the agent from one box.  
-`items: { group, icon, label, keys? }[]`, `query` / `defaultQuery` / `onQueryChange`, `onRun(item)`, `onAsk(query)` (the "Ask the agent" row shows whenever something is typed), `onClose` (Escape on an empty box; otherwise Escape clears it), `placeholder`, `status`, `autoFocus`. Typing filters and marks the matched letters; ↑ and ↓ move, Enter runs.
+`items: { group, icon, label, keys?, hint?, tone? }[]` (`tone` colours the icon tile, `hint` is a quiet word after the label), `query` / `defaultQuery` / `onQueryChange`, `onRun(item)`, `onAsk(query)` (the "Ask the agent" row shows whenever something is typed), `onClose` (Escape on an empty box; otherwise Escape clears it), `placeholder`, `status`, `autoFocus`. Typing filters and marks the matched letters; ↑ and ↓ move, Enter runs, and the command's tile spins for a beat.
 
 **AgentSettings** · `agent-settings/AgentSettings.tsx`  
 How much the agent may do alone, with a save bar for changes.  

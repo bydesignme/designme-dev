@@ -4829,9 +4829,11 @@ html{scrollbar-gutter:stable}
 .v2 .wrx-sk i{display:block;height:9px;border-radius:5px;background:var(--chip)}
 .v2 .wrx-sk i.b{height:120px;width:100%;border-radius:14px;margin-top:6px}
 /* ---------- Command palette ---------- */
+/* one quiet box: each command has a tile in its group's hue and a muted hint after its name; a grey highlight glides to the
+   row the arrows are on, and a command that runs turns its tile into a spinner for a beat */
 .v2 .cpl{overflow:hidden;display:flex;flex-direction:column;box-shadow:var(--shadow-pop)}
 .v2 .cpl-in{display:flex;align-items:center;gap:10px;padding:var(--s-3) 14px;border-bottom:1px solid color-mix(in srgb,var(--line) 50%,transparent);color:var(--muted)}
-.v2 .cpl-q{flex:1;min-width:0;border:0;outline:0;background:transparent;font:inherit;font-size:14px;color:var(--fg)}
+.v2 .cpl-q{flex:1;min-width:0;border:0;outline:0;background:transparent;font:inherit;font-size:14px;color:var(--fg);caret-color:var(--accent-fg,var(--fg))}
 .v2 .cpl-q::placeholder{color:var(--muted)}
 /* the line under the search box steps up while it has the focus; a row that takes the focus rings on its own */
 .v2 .cpl-list{padding:6px;height:236px;overflow-y:auto;position:relative}
@@ -4839,19 +4841,33 @@ html{scrollbar-gutter:stable}
 .v2 .cpl-list.more{-webkit-mask-image:linear-gradient(to bottom,#000 calc(100% - 32px),transparent);mask-image:linear-gradient(to bottom,#000 calc(100% - 32px),transparent)}
 .v2 .cpl-g{font-size:11.5px;color:var(--muted);padding:var(--s-2) var(--s-2) var(--s-1)}
 .v2 .cpl-i{display:flex;align-items:center;gap:10px;width:100%;height:36px;padding:0 var(--s-2);border-radius:10px;font-size:13.5px;text-align:left;color:var(--fg);position:relative;z-index:1}
-.v2 .cpl-i .ic{width:24px;height:24px;border-radius:7px;display:grid;place-items:center;background:var(--chip);color:var(--fg2);flex:none;transition:background .2s,color .2s}
-.v2 .cpl-i.hl .ic{background:var(--surface);color:var(--accent-fg,var(--accent))}
-/* a label too long for a narrow palette ends in an ellipsis on its one line, so it never spills out of its row */
-.v2 .cpl-i .t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* rows arrive in a short cascade when the list narrows */
+.v2 .cpl-i.in{animation:v2-cplin .32s var(--ease) backwards}
+@keyframes v2-cplin{from{opacity:0;transform:translateY(4px)}}
+.v2 .cpl-i .ic{width:24px;height:24px;border-radius:7px;display:grid;place-items:center;flex:none;color:var(--tc,var(--fg2));background:var(--tb,var(--chip));transition:background .2s,color .2s,transform .2s var(--ease)}
+.v2 .cpl-i.hl .ic{transform:scale(1.06)}
+.v2 .cpl-i .ic .spin{width:11px;height:11px}
+/* a label too long for a narrow palette ends in an ellipsis on its one line, so it never spills out of its row; the hint
+   gives way first */
+.v2 .cpl-i .t{flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.v2 .cpl-i .h{flex:1 1 0;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12.5px;color:var(--muted)}
+.v2 .cpl-i.hl .h{color:var(--fg2)}
 .v2 .cpl-i .k{margin-left:auto;display:flex;gap:3px;flex:none}
 .v2 .cpl-i mark{background:transparent;color:var(--accent-fg,var(--accent));font-weight:500}
+/* the row that hands the text to the agent: an accent tile, the words in quotes, and Enter shown while it is highlighted */
 .v2 .cpl-i.ask .ic{background:var(--accent);color:var(--on-accent,#fff)}
+.v2 .cpl-i.ask .q{color:var(--fg2)}
+.v2 .cpl-i .ent{margin-left:auto;opacity:0;transition:opacity .2s}
+.v2 .cpl-i.hl .ent{opacity:1}
 .v2 .cpl-hl{position:absolute;left:6px;right:6px;height:36px;border-radius:10px;background:var(--row);transition:top .25s var(--ease);z-index:0}
 .v2 .cpl-f{display:flex;gap:14px;align-items:center;padding:var(--s-2) 14px;border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent);font-size:11.5px}
 .v2 .cpl-f>span{flex:none;white-space:nowrap}
 .v2 .cpl-f .kbd{margin-right:3px}
 .v2 .cpl-f>.cpl-st{flex:0 1 auto;min-width:0;margin-left:auto;color:var(--fg2);overflow:hidden;text-overflow:ellipsis}
+.v2 .cpl-st .dot{color:var(--ok);margin-right:6px;vertical-align:1px}
 .v2 .cpl-empty{padding:30px 10px;text-align:center;font-size:13px;color:var(--muted)}
+:root:not([data-style="soft"]) .v2 .cpl-i.hl .ic{transform:none}
+:root:not([data-style="soft"]) .v2 .cpl-i.in{animation:v2-bpin .3s var(--ease) backwards}
 /* ---------- Agent settings ---------- */
 .v2 .asx{padding:6px 14px 14px;display:flex;flex-direction:column;position:relative;overflow:hidden}
 .v2 .asx-r{display:flex;align-items:center;justify-content:space-between;gap:var(--s-3);padding:11px 0;border-bottom:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
@@ -16343,29 +16359,34 @@ DM.def('workspace-rail', (r, c) => {
 /* ---------- Command palette ---------- */
 DM.def('command-palette', (r, c) => {
   r.innerHTML = r.innerHTML.replace('{search}', I('search'));
+  // [group, icon, label, keys, hint]; each group's tiles take its hue
   const C = [
-    ['Agent','spark','Audit this page for contrast',['⌘','J']],
-    ['Agent','wand','Tidy layer names in the selection'],
-    ['Agent','code','Export tokens as CSS variables'],
-    ['Go to','layers','Pricing v4',['G','P']],
-    ['Go to','figma','Checkout flow'],
-    ['Go to','book','Memory'],
-    ['Actions','users','Invite a teammate'],
+    ['Agent','spark','Audit this page for contrast',['⌘','J'],'WCAG AA'],
+    ['Agent','wand','Tidy layer names in the selection',null,'12 layers'],
+    ['Agent','code','Export tokens as CSS variables',null,'tokens.css'],
+    ['Go to','layers','Pricing v4',['G','P'],'Page'],
+    ['Go to','figma','Checkout flow',null,'Figma file'],
+    ['Go to','book','Memory',null,'Team notes'],
+    ['Actions','users','Invite a teammate',null,'Acme Labs'],
     ['Actions','gear','Agent settings',['⌘',',']],
-    ['Actions','palette','Switch theme']
+    ['Actions','palette','Switch theme',null,'Light']
   ];
+  const TONE = { Agent:'pl', 'Go to':'pb', Actions:'pt' };
   const q = $('.cpl-q', r), list = $('.cpl-list', r), st = $('.cpl-st', r);
   list.id = 'cpl-l-' + Math.random().toString(36).slice(2, 7); list.setAttribute('aria-label', 'Commands'); list.tabIndex = -1;
   q.setAttribute('role', 'combobox'); q.setAttribute('aria-expanded', 'true'); q.setAttribute('aria-controls', list.id); q.setAttribute('aria-autocomplete', 'list');
-  let items = [], hi = 0;
+  let items = [], hi = 0, last = C.map(x => x[2]).join('|');
   const esc = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   function paint(){
     const v = q.value.trim(), re = v ? new RegExp('(' + v.split('').map(esc).join(').*?(') + ')', 'i') : null;
     const m = C.filter(x => !re || re.test(x[2]));
-    let h = '<span class="cpl-hl"></span>', g = '';
-    m.forEach(x => { if (x[0] !== g){ g = x[0]; h += `<div class="cpl-g">${g}</div>`; } const label = v ? x[2].replace(new RegExp(v.split('').map(esc).join('|'), 'gi'), s => `<mark>${s}</mark>`) : x[2];
-      h += `<button class="cpl-i" role="option" data-t="${x[2]}">${'<span class="ic">' + I(x[1],'xs') + '</span>'}<span class="t">${label}</span>${x[3] ? `<span class="k">${x[3].map(k => `<span class="kbd">${k}</span>`).join('')}</span>` : ''}</button>`; });
-    if (v) h += `<div class="cpl-g">Ask</div><button class="cpl-i ask" data-t="${v.replace(/"/g,'&quot;')}" data-ask="1"><span class="ic">${I('up','xs')}</span><span class="t">Ask the agent: “${v.replace(/</g,'&lt;')}”</span></button>`;
+    // the rows play a short cascade only when the list changes, not on every letter that keeps it as it is
+    const key = m.map(x => x[2]).join('|') + (v ? '|ask' : ''), fresh = key !== last; last = key;
+    let h = '<span class="cpl-hl"></span>', g = '', n = 0;
+    const cls = () => fresh ? ` in" style="animation-delay:${Math.min(n++, 6) * 28}ms` : '';
+    m.forEach(x => { if (x[0] !== g){ g = x[0]; h += `<div class="cpl-g">${g}</div>`; } const label = v ? x[2].replace(new RegExp(v.split('').map(esc).join('|'), 'gi'), s => `<mark>${s}</mark>`) : x[2], t = TONE[x[0]];
+      h += `<button class="cpl-i${cls()}" role="option" data-t="${x[2]}"><span class="ic" style="--tc:var(--${t});--tb:var(--${t}-bg)">${I(x[1],'xs')}</span><span class="t">${label}</span>${x[4] ? `<span class="h">${x[4]}</span>` : ''}${x[3] ? `<span class="k">${x[3].map(k => `<span class="kbd">${k}</span>`).join('')}</span>` : ''}</button>`; });
+    if (v) h += `<div class="cpl-g">Ask</div><button class="cpl-i ask${cls()}" data-t="${v.replace(/"/g,'&quot;')}" data-ask="1"><span class="ic">${I('spark','xs')}</span><span class="t">Ask the agent <span class="q">“${v.replace(/</g,'&lt;')}”</span></span><span class="kbd ent">↵</span></button>`;
     list.innerHTML = h; items = $$('.cpl-i', list); hi = 0;
     // the search box keeps the focus and points at the highlighted row (aria-activedescendant), so the rows are not tab stops
     items.forEach((b, i) => { b.id = list.id + '-' + i; b.tabIndex = -1; b.setAttribute('role', 'option'); b.onmouseenter = () => move(i - hi); b.onclick = () => run(b); });
@@ -16374,12 +16395,25 @@ DM.def('command-palette', (r, c) => {
   function move(d){ if (!items.length) return; hi = (hi + d + items.length) % items.length; items.forEach((b, i) => { b.classList.toggle('hl', i === hi); b.setAttribute('aria-selected', i === hi); }); const b = items[hi], hl = $('.cpl-hl', list); q.setAttribute('aria-activedescendant', b.id); hl.style.top = b.offsetTop + 'px'; if (b.offsetTop < list.scrollTop || b.offsetTop + 36 > list.scrollTop + list.clientHeight) list.scrollTo({ top:b.offsetTop - 40, behavior:REDUCE ? 'auto' : 'smooth' }); }
   const edge = () => list.classList.toggle('more', list.scrollTop + list.clientHeight < list.scrollHeight - 2);
   c.on(list, 'scroll', edge, { passive:true });
-  function run(b){ swap(st, b.dataset.ask ? 'Sent to the agent' : 'Ran: ' + b.dataset.t); b.animate([{ transform:'scale(1)' },{ transform:'scale(.98)' },{ transform:'scale(1)' }], { duration:260, easing:'ease-out' }); }
+  // a command that runs turns its tile into a spinner for a beat, then the footer says what ran
+  function run(b){
+    b.animate([{ transform:'scale(1)' },{ transform:'scale(.98)' },{ transform:'scale(1)' }], { duration:260, easing:'ease-out' });
+    const ic = $('.ic', b), was = ic.innerHTML; ic.innerHTML = '<span class="spin"></span>';
+    setTimeout(() => { if (ic.isConnected){ ic.innerHTML = was; enter(ic.firstElementChild); } swap(st, `<span class="dot"></span>${b.dataset.ask ? 'Sent to the agent' : 'Ran: ' + b.dataset.t}`, true); }, REDUCE ? 0 : 650);
+  }
   q.oninput = paint;
   q.onkeydown = e => { if (e.key === 'ArrowDown'){ move(1); e.preventDefault(); } else if (e.key === 'ArrowUp'){ move(-1); e.preventDefault(); } else if (e.key === 'Enter' && items[hi]) run(items[hi]); else if (e.key === 'Escape'){ q.value = ''; paint(); } };
   paint();
-  // the preview types a search on its own; clicking, focusing or typing in it takes over, and what it had typed goes
-  c.run(async () => { await c.step(1500); await c.type(q, 'tok', { ms:180, each:paint }); });
+  // the preview's story: someone types "tok" and runs the token export, then looks for "invi" and runs the invite; clicking,
+  // focusing or typing in it takes over, and what it had typed goes
+  c.story(async s => {
+    await s.beat(3);
+    await s.type(q, 'tok', { n:.36, each:paint });
+    await s.beat(2); run(items[hi]); await s.beat(4);
+    await s.type(q, '', { n:.36, each:paint, clear:true }); await s.beat(1);
+    await s.type(q, 'invi', { n:.36, each:paint });
+    await s.beat(2); run(items[hi]); await s.beat(4);
+  });
 });
 /* ---------- Agent settings ---------- */
 DM.def('agent-settings', (r, c) => {
