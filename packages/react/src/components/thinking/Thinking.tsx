@@ -16,6 +16,8 @@ export interface ThinkingStep {
   result?: string;
   /** More detail shown when you hover the result, like the measured values */
   resultTip?: string;
+  /** How long the step took, like "1.3s", shown at its right once it is done */
+  time?: string;
 }
 
 export interface ThinkingProps {
@@ -55,13 +57,20 @@ function Settle({ children, shimmer, className }: { children: string; shimmer: b
   return <span ref={ref} className={cx(shimmer && 'dm-shim', className)}>{children}</span>;
 }
 
+/** What a finished step found, written in a word at a time */
+function Words({ text }: { text: string }) {
+  const w = text.split(' ');
+  return <>{w.map((x, i) => <span key={i} className="dm-w" style={{ animationDelay: `${i * 45}ms` }}>{x}{i < w.length - 1 ? ' ' : ''}</span>)}</>;
+}
+
 function Mark({ state }: { state: ThinkingStep['state'] }) {
   if (state === 'running') return <Spin />;
   // keyed so each new mark plays its entrance once
   return <span key={state} className="dm-enter" style={{ display: 'grid' }}><Icon name={state === 'retry' ? 'clock' : 'check'} size="xs" /></span>;
 }
 
-/** The live trace: each step the agent takes and what it found, then a header that says what the work came to, folded away. */
+/** The live trace: each step the agent takes on a line that turns green as they finish, and what each found, then a header
+    that says what the work came to, folded away. */
 export function Thinking({ steps, running, seconds, title = 'Working on it', summary, collapseWhenDone = true, open, defaultOpen = true, onOpenChange, className }: ThinkingProps) {
   const counted = useSeconds(running && seconds === undefined);
   const secs = seconds ?? counted;
@@ -88,9 +97,14 @@ export function Thinking({ steps, running, seconds, title = 'Working on it', sum
             <li key={i} className={cx('dm-tk-st dm-enter', s.state === 'running' ? 'dm-run' : 'dm-' + s.state)}>
               <span className="dm-mk"><Mark state={s.state} /></span>
               <div className="dm-tx">
-                <Settle className="dm-lab" shimmer={s.state === 'running'}>{s.label}</Settle>
+                <span className="dm-tk-ln">
+                  <Settle className="dm-lab" shimmer={s.state === 'running'}>{s.label}</Settle>
+                  {s.state === 'done' && s.time && <span key="t" className="dm-tk-dur dm-num dm-enter">{s.time}</span>}
+                </span>
                 <span className={cx('dm-res', s.result && 'dm-on')}>
-                  {s.result && s.resultTip ? <Tip label={s.resultTip}><span tabIndex={0} data-tip="">{s.result}</span></Tip> : <Swap>{s.result ?? ''}</Swap>}
+                  {s.state === 'done' && s.result
+                    ? <span key={'w' + s.result}>{s.resultTip ? <Tip label={s.resultTip}><span tabIndex={0} data-tip=""><Words text={s.result} /></span></Tip> : <Words text={s.result} />}</span>
+                    : <Swap>{s.result ?? ''}</Swap>}
                 </span>
               </div>
             </li>

@@ -346,7 +346,8 @@
 .tcx-io pre{margin:0;padding:9px 11px;border-radius:10px;background:var(--chip);font-family:var(--mono);font-size:11.5px;line-height:1.65;white-space:pre-wrap;word-break:break-word}
 .tcx-io .k{color:var(--pb)}.tcx-io .s{color:var(--pm)}.tcx-io .n{color:var(--pp)}
 </style><style>/* ---------- Thinking ---------- */
-/* a plain list of what the agent does, each step with what it found; the header ends as a summary of the work */
+/* the steps the agent takes, on a line that turns green as each one finishes; the step in hand turns in the accent with a
+   soft halo, and what each step found writes itself in under it. The header ends as a summary of the work */
 /* neither the trace nor the box it sits in anchors the page's scroll: a centred demo that grows would otherwise pull
    the page along with it */
 .stage-in:has(>.tk){overflow-anchor:none}
@@ -355,27 +356,48 @@
 .stage-in>.tk{min-height:inherit}
 .tk-h{display:flex;align-items:center;gap:10px;width:calc(100% + 16px);margin:0 -8px;padding:6px var(--s-2);border-radius:10px;text-align:left;transition:background var(--t-fast)}
 @media (hover:hover) and (pointer:fine){.tk-h:hover{background:var(--row)}}
-.tk-mark{width:16px;height:16px;flex:none;display:grid;place-items:center;color:var(--fg2)}
+.tk-mark{width:18px;height:18px;flex:none;display:grid;place-items:center;color:var(--accent-mark,var(--accent));transition:color .3s}
 .tk-h.tk-fin .tk-mark{color:var(--ok)}
+.tk-h.tk-fin .tk-mark .i{animation:tkpop .5s var(--ease) backwards}
 .tk-title{flex:1;min-width:0;color:var(--fg)}
 .tk-time{color:var(--muted);font-size:13px}
 .tk-chev{color:var(--muted);transition:transform .32s var(--ease)}
 .tk[data-open="0"] .tk-chev{transform:rotate(-90deg)}
 .tk-list{list-style:none;margin:0;padding:6px 0 0;display:flex;flex-direction:column}
-.tk-st{display:flex;gap:10px;padding:6px 0}
-.tk-st .mk{width:18px;height:18px;flex:none;margin-top:1px;display:grid;place-items:center;border-radius:50%;color:var(--muted);transition:background .32s,color .32s}
+.tk-st{position:relative;display:flex;gap:10px;padding:6px 0}
+/* the line from each step down to the next: grey, and green once the step above it is done */
+.tk-st:not(:last-child)::before,.tk-st.done:not(:last-child)::after{content:"";position:absolute;left:8.25px;top:29px;bottom:-5px;width:1.5px;border-radius:1px;background:var(--line)}
+.tk-st.done:not(:last-child)::after{background:color-mix(in srgb,var(--ok) 55%,var(--line));transform-origin:top;animation:tkgrow .6s var(--ease) backwards}
+@keyframes tkgrow{from{transform:scaleY(0)}}
+.tk-st .mk{position:relative;width:18px;height:18px;flex:none;margin-top:1px;display:grid;place-items:center;border-radius:50%;color:var(--muted);transition:background .32s,color .32s}
 .tk-st .mk .spin{width:10px;height:10px}
+.tk-st.run .mk{color:var(--accent-mark,var(--accent));background:var(--accent-bg);animation:tkhalo 1.8s var(--ease-io) infinite}
 .tk-st.done .mk{background:var(--ok-bg);color:var(--ok)}
-.tk-st.retry .mk{background:var(--warn-bg);color:var(--warn)}
+.tk-st.done .mk .i{animation:tkpop .45s var(--ease) backwards}
+.tk-st.retry .mk{background:var(--warn-bg);color:var(--warn);animation:tkhalow 1.8s var(--ease-io) infinite}
+@keyframes tkhalo{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--accent-mark,var(--accent)) 0%,transparent)}50%{box-shadow:0 0 0 4px color-mix(in srgb,var(--accent-mark,var(--accent)) 14%,transparent)}}
+@keyframes tkhalow{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--warn) 0%,transparent)}50%{box-shadow:0 0 0 4px color-mix(in srgb,var(--warn) 16%,transparent)}}
+@keyframes tkpop{0%{transform:scale(.4);opacity:0}60%{transform:scale(1.15);opacity:1}100%{transform:none}}
 .tk-st .tx{flex:1;min-width:0;display:flex;flex-direction:column}
-.tk-st .lab{color:var(--fg);transition:color .32s}
+.tk-st .tk-ln{display:flex;align-items:baseline;gap:var(--s-2)}
+.tk-st .lab{flex:1;min-width:0;color:var(--fg);transition:color .32s}
 .tk-st.done .lab{color:var(--fg2)}
-/* what a step found opens under it */
+/* how long the step took, once it is done */
+.tk-st .tk-dur{flex:none;font-size:12px;color:var(--muted)}
+/* what a step found opens under it, a word at a time */
 .tk-st .res{display:grid;grid-template-rows:0fr;font-size:13px;color:var(--muted);transition:grid-template-rows .32s var(--ease),color .32s}
 .tk-st .res.on{grid-template-rows:1fr}
 .tk-st .res>span{overflow:hidden;min-height:0}
+.tk-st .res .w{display:inline-block;white-space:pre;animation:tkword .42s var(--ease) backwards}
+@keyframes tkword{from{opacity:0;transform:translateY(3px);filter:blur(2px)}}
 .tk-st.retry .res{color:var(--warn)}
 .tk-st .res [data-tip]{text-decoration:underline dotted var(--faint);text-underline-offset:3px;cursor:default}
+:root:not([data-style="soft"]) .tk-st.run .mk:not(:where([data-style="soft"],[data-style="soft"] *)),:root:not([data-style="soft"]) .tk-st.retry .mk:not(:where([data-style="soft"],[data-style="soft"] *)){animation:none}
+:root:not([data-style="soft"]) .tk-st.run .mk:not(:where([data-style="soft"],[data-style="soft"] *)){box-shadow:inset 0 0 0 1px var(--accent-mark)}
+:root:not([data-style="soft"]) .tk-st.done:not(:last-child):not(:where([data-style="soft"],[data-style="soft"] *))::after{background:var(--ok);width:1px;left:8.5px}
+:root:not([data-style="soft"]) .tk-st:not(:last-child):not(:where([data-style="soft"],[data-style="soft"] *))::before{width:1px;left:8.5px;background:repeating-linear-gradient(var(--rail) 0 3px,transparent 3px 6px)}
+:root:not([data-style="soft"]) .tk-st.done .mk .i:not(:where([data-style="soft"],[data-style="soft"] *)),:root:not([data-style="soft"]) .tk-h.tk-fin .tk-mark .i:not(:where([data-style="soft"],[data-style="soft"] *)){animation:none}
+:root:not([data-style="soft"]) .tk-st .res .w:not(:where([data-style="soft"],[data-style="soft"] *)){animation:bpin .3s var(--ease) backwards}
 </style><style>/* ---------- Agent lanes ---------- */
 /* each agent has its own hue (--c, with its tint --cb): its badge, its track, its tag and its stretch of the relay line that
    joins the badges. A hand-off sends a light down that line from one agent to the next, and the stretch it crossed stays lit */
@@ -4193,23 +4215,28 @@ const fitHits = window.dmFitHits || (() => {
   ];
   const setOpen = o => { tk.dataset.open = o ? '1' : '0'; fold.classList.toggle('shut', !o); head.setAttribute('aria-expanded', o); };
   head.onclick = () => setOpen(tk.dataset.open !== '1');
-  // the line under a step opens and then crossfades; a tip on it holds the detail
-  const note = (li, text, tip) => { const res = $('.res', li), sp = res.firstElementChild; res.classList.add('on'); if (tip) swap(sp, `<span data-tip="${tip}">${text}</span>`, true); else swap(sp, text); };
+  // the line under a step opens and then crossfades; what the step found writes itself in a word at a time, and a tip on it
+  // holds the detail
+  const words = t => t.split(' ').map((w, i, a) => `<span class="w" style="animation-delay:${i * 45}ms">${w}${i < a.length - 1 ? ' ' : ''}</span>`).join('');
+  const note = (li, text, tip, found) => { const res = $('.res', li), sp = res.firstElementChild; res.classList.add('on');
+    if (found){ sp._sw = null; sp.classList.remove('out'); sp.innerHTML = tip ? `<span data-tip="${tip}">${words(text)}</span>` : words(text); }
+    else swap(sp, text); };
   const glyph = (li, g) => { const mk = $('.mk', li); mk.innerHTML = g; enter(mk.firstElementChild); };
   let secs = 0, live = true; c.every(1000, () => { if (live){ secs++; time.textContent = secs + 's'; } });
   c.run(async () => {
     await c.wait(600);
     for (const [lab, res, ms, x] of S){
-      const li = html(`<li class="tk-st run"><span class="mk"><span class="spin"></span></span><div class="tx"><span class="lab shim">${lab}</span><span class="res"><span></span></span></div></li>`);
+      const li = html(`<li class="tk-st run"><span class="mk"><span class="spin"></span></span><div class="tx"><span class="tk-ln"><span class="lab shim">${lab}</span><span class="tk-dur num"></span></span><span class="res"><span></span></span></div></li>`);
       list.appendChild(li); enter(li);
-      const l = $('.lab', li);
+      const l = $('.lab', li); let took = ms;
       await c.wait(ms);
       if (x && x.retry){
         li.classList.replace('run', 'retry'); l.classList.remove('shim'); glyph(li, I('clock','xs'));
         for (let k = 2; k > 0; k--){ note(li, `${x.retry}. Trying again in ${k}s`); await c.wait(1000); }
-        li.classList.replace('retry', 'run'); l.classList.add('shim'); glyph(li, '<span class="spin"></span>'); note(li, 'Trying again'); await c.wait(900);
+        li.classList.replace('retry', 'run'); l.classList.add('shim'); glyph(li, '<span class="spin"></span>'); note(li, 'Trying again'); await c.wait(900); took += 2900;
       }
-      li.classList.replace('run', 'done'); l.classList.remove('shim'); glyph(li, I('check','xs')); note(li, res, x && x.tip);
+      li.classList.replace('run', 'done'); l.classList.remove('shim'); glyph(li, I('check','xs')); note(li, res, x && x.tip, true);
+      const t = $('.tk-dur', li); t.textContent = (took / 1000).toFixed(1) + 's'; enter(t);
     }
     // the header becomes what the work came to, and folds the trace away
     await c.wait(500); live = false;

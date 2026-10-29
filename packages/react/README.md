@@ -77,7 +77,7 @@ The agent's plan, notes, sources and edits, after it thinks.
 
 **Thinking** · `thinking/Thinking.tsx`  
 The live trace, written as the agent works, then folded away.  
-`steps: { label, state: 'running' | 'retry' | 'done', result?, resultTip? }[]` (`result` is what the step found, or what it waits on while it retries; it opens under the step and crossfades), `running`, `seconds` (counts by itself when left out), `title` (the header while it runs), `summary` (the header once done: what the work came to), `collapseWhenDone`, `open` / `defaultOpen` / `onOpenChange`.
+`steps: { label, state: 'running' | 'retry' | 'done', result?, resultTip?, time? }[]` (`result` is what the step found, or what it waits on while it retries; it opens under the step and crossfades, and writes itself in a word at a time once the step is done; `time` shows at the right of a done step, and the line to the next step turns green), `running`, `seconds` (counts by itself when left out), `title` (the header while it runs), `summary` (the header once done: what the work came to), `collapseWhenDone`, `open` / `defaultOpen` / `onOpenChange`.
 
 **ContextMeter** · `context-meter/ContextMeter.tsx`  
 How full the context is and what fills it, with Compact to free room.  

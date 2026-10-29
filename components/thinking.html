@@ -44,8 +44,9 @@
   };
   try { var a = localStorage.getItem('dmui-accent'); if (a && a !== 'default') window.dmAccent(a); } catch(e){}
 })();
-</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareSourceCode","name":"Thinking","description":"Thinking is the live trace an agent writes while it works: a plain list of the steps it takes, each with what it found. A step that runs into a problem shows it in amber while it waits and tries again. When the work is done, the header says what it came to and the trace folds away, one click from opening again.","url":"https://designme.dev/components/thinking","image":"https://designme.dev/components/og/thinking.jpg","programmingLanguage":["HTML","CSS","JavaScript","TypeScript"],"runtimePlatform":"Web browser","license":"https://opensource.org/licenses/MIT","isAccessibleForFree":true,"keywords":"Thinking, Agent status, AI agent UI, React component, HTML component","author":{"@type":"Organization","name":"DesignMe","url":"https://designme.agency"},"isPartOf":{"@type":"WebSite","name":"Designme.dev","url":"https://designme.dev/"}}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Library","item":"https://designme.dev/"},{"@type":"ListItem","position":2,"name":"Agent status","item":"https://designme.dev/#s-status"},{"@type":"ListItem","position":3,"name":"Thinking","item":"https://designme.dev/components/thinking"}]}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I show a step that is waiting out a problem?","acceptedAnswer":{"@type":"Answer","text":"Set its state to 'retry' and put what it waits on in result, like \"Figma didn't answer. Trying again in 2s\". Update the result each second for a countdown, then set the state back to 'running' and finally 'done' with what it found."}},{"@type":"Question","name":"What does the header say when the work is done?","acceptedAnswer":{"@type":"Answer","text":"Whatever you pass as summary, which should say what the work came to. Without it, the header says how many steps there were."}},{"@type":"Question","name":"Can I keep the trace open after it finishes?","acceptedAnswer":{"@type":"Answer","text":"Yes. Set collapseWhenDone to false, or control it with open and onOpenChange."}}]}</script><link rel="stylesheet" href="/components/assets/core.css"><style>/* ---------- Thinking ---------- */
-/* a plain list of what the agent does, each step with what it found; the header ends as a summary of the work */
+</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareSourceCode","name":"Thinking","description":"Thinking is the live trace an agent writes while it works: the steps it takes, one under another on a line that turns green as each finishes, each with what it found. A step that runs into a problem shows it in amber while it waits and tries again. When the work is done, the header says what it came to and the trace folds away, one click from opening again.","url":"https://designme.dev/components/thinking","image":"https://designme.dev/components/og/thinking.jpg","programmingLanguage":["HTML","CSS","JavaScript","TypeScript"],"runtimePlatform":"Web browser","license":"https://opensource.org/licenses/MIT","isAccessibleForFree":true,"keywords":"Thinking, Agent status, AI agent UI, React component, HTML component","author":{"@type":"Organization","name":"DesignMe","url":"https://designme.agency"},"isPartOf":{"@type":"WebSite","name":"Designme.dev","url":"https://designme.dev/"}}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Library","item":"https://designme.dev/"},{"@type":"ListItem","position":2,"name":"Agent status","item":"https://designme.dev/#s-status"},{"@type":"ListItem","position":3,"name":"Thinking","item":"https://designme.dev/components/thinking"}]}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I show a step that is waiting out a problem?","acceptedAnswer":{"@type":"Answer","text":"Set its state to 'retry' and put what it waits on in result, like \"Figma didn't answer. Trying again in 2s\". Update the result each second for a countdown, then set the state back to 'running' and finally 'done' with what it found."}},{"@type":"Question","name":"What does the header say when the work is done?","acceptedAnswer":{"@type":"Answer","text":"Whatever you pass as summary, which should say what the work came to. Without it, the header says how many steps there were."}},{"@type":"Question","name":"Can I keep the trace open after it finishes?","acceptedAnswer":{"@type":"Answer","text":"Yes. Set collapseWhenDone to false, or control it with open and onOpenChange."}}]}</script><link rel="stylesheet" href="/components/assets/core.css"><style>/* ---------- Thinking ---------- */
+/* the steps the agent takes, on a line that turns green as each one finishes; the step in hand turns in the accent with a
+   soft halo, and what each step found writes itself in under it. The header ends as a summary of the work */
 /* neither the trace nor the box it sits in anchors the page's scroll: a centred demo that grows would otherwise pull
    the page along with it */
 .stage-in:has(>.tk){overflow-anchor:none}
@@ -54,27 +55,48 @@
 .stage-in>.tk{min-height:inherit}
 .tk-h{display:flex;align-items:center;gap:10px;width:calc(100% + 16px);margin:0 -8px;padding:6px var(--s-2);border-radius:10px;text-align:left;transition:background var(--t-fast)}
 @media (hover:hover) and (pointer:fine){.tk-h:hover{background:var(--row)}}
-.tk-mark{width:16px;height:16px;flex:none;display:grid;place-items:center;color:var(--fg2)}
+.tk-mark{width:18px;height:18px;flex:none;display:grid;place-items:center;color:var(--accent-mark,var(--accent));transition:color .3s}
 .tk-h.tk-fin .tk-mark{color:var(--ok)}
+.tk-h.tk-fin .tk-mark .i{animation:tkpop .5s var(--ease) backwards}
 .tk-title{flex:1;min-width:0;color:var(--fg)}
 .tk-time{color:var(--muted);font-size:13px}
 .tk-chev{color:var(--muted);transition:transform .32s var(--ease)}
 .tk[data-open="0"] .tk-chev{transform:rotate(-90deg)}
 .tk-list{list-style:none;margin:0;padding:6px 0 0;display:flex;flex-direction:column}
-.tk-st{display:flex;gap:10px;padding:6px 0}
-.tk-st .mk{width:18px;height:18px;flex:none;margin-top:1px;display:grid;place-items:center;border-radius:50%;color:var(--muted);transition:background .32s,color .32s}
+.tk-st{position:relative;display:flex;gap:10px;padding:6px 0}
+/* the line from each step down to the next: grey, and green once the step above it is done */
+.tk-st:not(:last-child)::before,.tk-st.done:not(:last-child)::after{content:"";position:absolute;left:8.25px;top:29px;bottom:-5px;width:1.5px;border-radius:1px;background:var(--line)}
+.tk-st.done:not(:last-child)::after{background:color-mix(in srgb,var(--ok) 55%,var(--line));transform-origin:top;animation:tkgrow .6s var(--ease) backwards}
+@keyframes tkgrow{from{transform:scaleY(0)}}
+.tk-st .mk{position:relative;width:18px;height:18px;flex:none;margin-top:1px;display:grid;place-items:center;border-radius:50%;color:var(--muted);transition:background .32s,color .32s}
 .tk-st .mk .spin{width:10px;height:10px}
+.tk-st.run .mk{color:var(--accent-mark,var(--accent));background:var(--accent-bg);animation:tkhalo 1.8s var(--ease-io) infinite}
 .tk-st.done .mk{background:var(--ok-bg);color:var(--ok)}
-.tk-st.retry .mk{background:var(--warn-bg);color:var(--warn)}
+.tk-st.done .mk .i{animation:tkpop .45s var(--ease) backwards}
+.tk-st.retry .mk{background:var(--warn-bg);color:var(--warn);animation:tkhalow 1.8s var(--ease-io) infinite}
+@keyframes tkhalo{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--accent-mark,var(--accent)) 0%,transparent)}50%{box-shadow:0 0 0 4px color-mix(in srgb,var(--accent-mark,var(--accent)) 14%,transparent)}}
+@keyframes tkhalow{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--warn) 0%,transparent)}50%{box-shadow:0 0 0 4px color-mix(in srgb,var(--warn) 16%,transparent)}}
+@keyframes tkpop{0%{transform:scale(.4);opacity:0}60%{transform:scale(1.15);opacity:1}100%{transform:none}}
 .tk-st .tx{flex:1;min-width:0;display:flex;flex-direction:column}
-.tk-st .lab{color:var(--fg);transition:color .32s}
+.tk-st .tk-ln{display:flex;align-items:baseline;gap:var(--s-2)}
+.tk-st .lab{flex:1;min-width:0;color:var(--fg);transition:color .32s}
 .tk-st.done .lab{color:var(--fg2)}
-/* what a step found opens under it */
+/* how long the step took, once it is done */
+.tk-st .tk-dur{flex:none;font-size:12px;color:var(--muted)}
+/* what a step found opens under it, a word at a time */
 .tk-st .res{display:grid;grid-template-rows:0fr;font-size:13px;color:var(--muted);transition:grid-template-rows .32s var(--ease),color .32s}
 .tk-st .res.on{grid-template-rows:1fr}
 .tk-st .res>span{overflow:hidden;min-height:0}
+.tk-st .res .w{display:inline-block;white-space:pre;animation:tkword .42s var(--ease) backwards}
+@keyframes tkword{from{opacity:0;transform:translateY(3px);filter:blur(2px)}}
 .tk-st.retry .res{color:var(--warn)}
 .tk-st .res [data-tip]{text-decoration:underline dotted var(--faint);text-underline-offset:3px;cursor:default}
+:root:not([data-style="soft"]) .tk-st.run .mk:not(:where([data-style="soft"],[data-style="soft"] *)),:root:not([data-style="soft"]) .tk-st.retry .mk:not(:where([data-style="soft"],[data-style="soft"] *)){animation:none}
+:root:not([data-style="soft"]) .tk-st.run .mk:not(:where([data-style="soft"],[data-style="soft"] *)){box-shadow:inset 0 0 0 1px var(--accent-mark)}
+:root:not([data-style="soft"]) .tk-st.done:not(:last-child):not(:where([data-style="soft"],[data-style="soft"] *))::after{background:var(--ok);width:1px;left:8.5px}
+:root:not([data-style="soft"]) .tk-st:not(:last-child):not(:where([data-style="soft"],[data-style="soft"] *))::before{width:1px;left:8.5px;background:repeating-linear-gradient(var(--rail) 0 3px,transparent 3px 6px)}
+:root:not([data-style="soft"]) .tk-st.done .mk .i:not(:where([data-style="soft"],[data-style="soft"] *)),:root:not([data-style="soft"]) .tk-h.tk-fin .tk-mark .i:not(:where([data-style="soft"],[data-style="soft"] *)){animation:none}
+:root:not([data-style="soft"]) .tk-st .res .w:not(:where([data-style="soft"],[data-style="soft"] *)){animation:bpin .3s var(--ease) backwards}
 </style><style>@media (max-width:640px){.cp-demo .pg-demo{min-height:calc(var(--h-j) + 24px)}}@media (max-width:519px){.cp-demo .pg-demo{min-height:calc(var(--h-k) + 24px)}}@media (max-width:429px){.cp-demo .pg-demo{min-height:calc(var(--h-l) + 24px)}}@media (max-width:389px){.cp-demo .pg-demo{min-height:calc(var(--h-m) + 24px)}}</style><style>@font-face{font-family:Inter;font-style:normal;font-weight:400;font-display:swap;src:url(/fonts/inter-latin-400-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:Inter;font-style:normal;font-weight:500;font-display:swap;src:url(/fonts/inter-latin-500-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:Inter;font-style:normal;font-weight:600;font-display:swap;src:url(/fonts/inter-latin-600-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
@@ -101,7 +123,7 @@
     </div>
   </div>
 </div>
-</div></section><div class="cp-bar"><nav aria-label="Sections"><a href="#install">Install</a><a href="#about">About</a><a href="#usage">Usage</a><a href="#props">Props</a><a href="#code">Code</a><a href="#questions">Questions</a><a href="#more">More</a></nav></div><section class="cp-sec" id="install"><div class="pg-sh"><span class="n">01</span><h2>Install</h2><p>Add it to your project with the CLI.</p></div><div class="cp-two"><div class="cp-box"><h3 class="pg-t">HTML, CSS and JavaScript</h3><div class="cp-line"><span class="d">$</span><code><span class="cp-w">npx</span> <span class="cp-w">designme</span> <span class="cp-w">add</span> <span class="cp-w">thinking</span></code><button class="cp-copy" type="button" data-copy="npx designme add thinking" data-label="Copy">Copy</button></div></div><div class="cp-box"><h3 class="pg-t">React</h3><div class="cp-line"><span class="d">$</span><code><span class="cp-w">npx</span> <span class="cp-w">designme</span> <span class="cp-w">add</span> <span class="cp-w">thinking</span> <span class="cp-w">--react</span></code><button class="cp-copy" type="button" data-copy="npx designme add thinking --react" data-label="Copy">Copy</button></div></div></div><p class="cp-note">The CLI copies the source into your project, so you own it and can change anything. The HTML version lands in <code>./designme</code> with the shared core and a <code>demo.html</code>. The React version lands in <code>src/components/designme</code> and needs React 19; it works in Next.js, Vite and Astro.</p></section><section class="cp-sec" id="about"><div class="pg-sh"><span class="n">02</span><h2>About</h2><p>What it is for and what it does.</p></div><p class="cp-sum">Thinking is the live trace an agent writes while it works: a plain list of the steps it takes, each with what it found. A step that runs into a problem shows it in amber while it waits and tries again. When the work is done, the header says what it came to and the trace folds away, one click from opening again.</p><div class="cp-gap"><div class="cp-tl" role="tablist" aria-label="About"><button type="button" role="tab" id="ab-t0" aria-controls="ab-p0" aria-selected="true" tabindex="0">When to use it</button><button type="button" role="tab" id="ab-t1" aria-controls="ab-p1" aria-selected="false" tabindex="-1">What it does</button><button type="button" role="tab" id="ab-t2" aria-controls="ab-p2" aria-selected="false" tabindex="-1">Accessibility</button></div><div class="cp-tp" role="tabpanel" id="ab-p0" aria-labelledby="ab-t0"><ul><li>When an agent works for more than a few seconds and people want to see what it is doing rather than a spinner.</li><li>When each step has a result worth reading, like how many frames it opened or which cards failed a check.</li><li>When a step can hit a timeout or a rate limit and the agent waits it out instead of failing.</li><li>When the trace should step aside once the answer is ready but stay one click away.</li></ul></div><div class="cp-tp" role="tabpanel" id="ab-p1" aria-labelledby="ab-t1" hidden><ul><li>Each step has a <code>label</code>, a <code>state</code> and an optional <code>result</code>. Running steps spin and shimmer, <code>retry</code> shows a clock in amber while the step waits on a problem, and <code>done</code> turns into a check.</li><li>A step's <code>result</code> opens under it and crossfades when it changes, so a countdown like "Trying again in 2s" updates in place. <code>resultTip</code> adds more detail on hover.</li><li>The header shows <code>title</code> while it runs, like "Checking the pricing page", and a clock that counts by itself unless you pass <code>seconds</code>.</li><li>When <code>running</code> turns false, the header becomes <code>summary</code>, like "3 cards to fix, 2 changes planned", with a check. With <code>collapseWhenDone</code> on, the default, the trace folds away a moment later.</li><li>The header toggles the trace open and shut, and <code>open</code>, <code>defaultOpen</code> and <code>onOpenChange</code> let you control it.</li></ul></div><div class="cp-tp" role="tabpanel" id="ab-p2" aria-labelledby="ab-t2" hidden><ul><li>The header is a button with <code>aria-expanded</code>, so screen readers hear whether the trace is open.</li><li>The list of steps is an <code>aria-live="polite"</code> region, so new steps and their results are announced as they arrive.</li><li>With <code>prefers-reduced-motion: reduce</code>, the spinner, shimmer and crossfades stop and changes appear at once.</li></ul></div></div></section><section class="cp-sec" id="usage"><div class="pg-sh"><span class="n">03</span><h2>Usage</h2><p>Import it and drive it from your own state.</p></div><div class="cp-box"><h3 class="pg-t">Import</h3><pre class="cp-pre"><code>import { Thinking } from &#39;@/components/designme/thinking/Thinking&#39;;</code></pre></div><div class="cp-box cp-gap"><h3 class="pg-t">Example</h3><p class="pg-d">The demo above as a React component, 43 lines you can copy.</p><pre class="cp-pre"><code>&#39;use client&#39;;
+</div></section><div class="cp-bar"><nav aria-label="Sections"><a href="#install">Install</a><a href="#about">About</a><a href="#usage">Usage</a><a href="#props">Props</a><a href="#code">Code</a><a href="#questions">Questions</a><a href="#more">More</a></nav></div><section class="cp-sec" id="install"><div class="pg-sh"><span class="n">01</span><h2>Install</h2><p>Add it to your project with the CLI.</p></div><div class="cp-two"><div class="cp-box"><h3 class="pg-t">HTML, CSS and JavaScript</h3><div class="cp-line"><span class="d">$</span><code><span class="cp-w">npx</span> <span class="cp-w">designme</span> <span class="cp-w">add</span> <span class="cp-w">thinking</span></code><button class="cp-copy" type="button" data-copy="npx designme add thinking" data-label="Copy">Copy</button></div></div><div class="cp-box"><h3 class="pg-t">React</h3><div class="cp-line"><span class="d">$</span><code><span class="cp-w">npx</span> <span class="cp-w">designme</span> <span class="cp-w">add</span> <span class="cp-w">thinking</span> <span class="cp-w">--react</span></code><button class="cp-copy" type="button" data-copy="npx designme add thinking --react" data-label="Copy">Copy</button></div></div></div><p class="cp-note">The CLI copies the source into your project, so you own it and can change anything. The HTML version lands in <code>./designme</code> with the shared core and a <code>demo.html</code>. The React version lands in <code>src/components/designme</code> and needs React 19; it works in Next.js, Vite and Astro.</p></section><section class="cp-sec" id="about"><div class="pg-sh"><span class="n">02</span><h2>About</h2><p>What it is for and what it does.</p></div><p class="cp-sum">Thinking is the live trace an agent writes while it works: the steps it takes, one under another on a line that turns green as each finishes, each with what it found. A step that runs into a problem shows it in amber while it waits and tries again. When the work is done, the header says what it came to and the trace folds away, one click from opening again.</p><div class="cp-gap"><div class="cp-tl" role="tablist" aria-label="About"><button type="button" role="tab" id="ab-t0" aria-controls="ab-p0" aria-selected="true" tabindex="0">When to use it</button><button type="button" role="tab" id="ab-t1" aria-controls="ab-p1" aria-selected="false" tabindex="-1">What it does</button><button type="button" role="tab" id="ab-t2" aria-controls="ab-p2" aria-selected="false" tabindex="-1">Accessibility</button></div><div class="cp-tp" role="tabpanel" id="ab-p0" aria-labelledby="ab-t0"><ul><li>When an agent works for more than a few seconds and people want to see what it is doing rather than a spinner.</li><li>When each step has a result worth reading, like how many frames it opened or which cards failed a check.</li><li>When a step can hit a timeout or a rate limit and the agent waits it out instead of failing.</li><li>When the trace should step aside once the answer is ready but stay one click away.</li></ul></div><div class="cp-tp" role="tabpanel" id="ab-p1" aria-labelledby="ab-t1" hidden><ul><li>Each step has a <code>label</code>, a <code>state</code>, an optional <code>result</code> and an optional <code>time</code>. A running step turns in the accent with a soft halo and its label shimmers, <code>retry</code> shows a clock in amber while the step waits on a problem, and <code>done</code> turns into a check.</li><li>The line from each step down to the next turns green, top to bottom, once the step above it is done, so the trace fills in as the work gets through it.</li><li>While a step waits or retries its <code>result</code> crossfades in place, so a countdown like "Trying again in 2s" updates where it is. Once the step is done, what it found writes itself in a word at a time, and its <code>time</code>, like "1.3s", shows at its right. <code>resultTip</code> adds more detail on hover.</li><li>The header shows <code>title</code> while it runs, like "Checking the pricing page", beside four dots turning in the accent, and a clock that counts by itself unless you pass <code>seconds</code>.</li><li>When <code>running</code> turns false, the header becomes <code>summary</code>, like "3 cards to fix, 2 changes planned", with a check. With <code>collapseWhenDone</code> on, the default, the trace folds away a moment later.</li><li>The header toggles the trace open and shut, and <code>open</code>, <code>defaultOpen</code> and <code>onOpenChange</code> let you control it.</li></ul></div><div class="cp-tp" role="tabpanel" id="ab-p2" aria-labelledby="ab-t2" hidden><ul><li>The header is a button with <code>aria-expanded</code>, so screen readers hear whether the trace is open.</li><li>The list of steps is an <code>aria-live="polite"</code> region, so new steps and their results are announced as they arrive.</li><li>The line between the steps is decoration: each step's state is in its mark and its words.</li><li>With <code>prefers-reduced-motion: reduce</code>, the spinner, halo, shimmer, the line's growth and the words' entrance stop and changes appear at once.</li></ul></div></div></section><section class="cp-sec" id="usage"><div class="pg-sh"><span class="n">03</span><h2>Usage</h2><p>Import it and drive it from your own state.</p></div><div class="cp-box"><h3 class="pg-t">Import</h3><pre class="cp-pre"><code>import { Thinking } from &#39;@/components/designme/thinking/Thinking&#39;;</code></pre></div><div class="cp-box cp-gap"><h3 class="pg-t">Example</h3><p class="pg-d">The demo above as a React component, 45 lines you can copy.</p><pre class="cp-pre"><code>&#39;use client&#39;;
 // The animated preview from designme.dev, rebuilt from the React component: an example of driving it from your own state.
 import { useRef, useState } from &#39;react&#39;;
 import { Thinking, type ThinkingStep } from &#39;./Thinking&#39;;
@@ -128,12 +150,14 @@ export default function ThinkingDemo() {
     for (const s of PRICING_STEPS) {
       out.push({ label: s.label, state: &#39;running&#39; }); show();
       const at = out.length - 1;
+      let took = s.ms;
       await wait(s.ms);
       if (s.retry) {
+        took += 2900;
         for (let k = 2; k &gt; 0; k--) { out[at] = { ...out[at], state: &#39;retry&#39;, result: `${s.retry}. Trying again in ${k}s` }; show(); await wait(1000); }
         out[at] = { ...out[at], state: &#39;running&#39;, result: &#39;Trying again&#39; }; show(); await wait(900);
       }
-      out[at] = { ...out[at], state: &#39;done&#39;, result: s.result, resultTip: s.tip }; show();
+      out[at] = { ...out[at], state: &#39;done&#39;, result: s.result, resultTip: s.tip, time: (took / 1000).toFixed(1) + &#39;s&#39; }; show();
     }
     await wait(500); setRunning(false);
   });
@@ -143,7 +167,7 @@ export default function ThinkingDemo() {
   });
   return &lt;div ref={ref} style={{ width: &#39;100%&#39; }}&gt;&lt;Thinking steps={steps} running={running} title=&quot;Checking the pricing page&quot; summary=&quot;3 cards to fix, 2 changes planned&quot; open={open} onOpenChange={setOpen} /&gt;&lt;/div&gt;;
 }
-</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything Thinking takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>steps</code><span class="opt">required</span></td><td><code>ThinkingStep[]</code></td><td></td></tr><tr><td><code>running</code><span class="opt">required</span></td><td><code>boolean</code></td><td>Spins, counts seconds and keeps the trace open while true</td></tr><tr><td><code>seconds</code></td><td><code>number</code></td><td>Seconds to show. Leave it out to let it count while running</td></tr><tr><td><code>title</code></td><td><code>string</code></td><td>The header while it runs, like &quot;Checking the pricing page&quot;</td></tr><tr><td><code>summary</code></td><td><code>string</code></td><td>The header once it is done: what the work came to, like &quot;3 cards to fix, 2 changes planned&quot;. Defaults to the number of steps</td></tr><tr><td><code>collapseWhenDone</code></td><td><code>boolean</code></td><td>Folds the trace away a moment after it finishes</td></tr><tr><td><code>open</code></td><td><code>boolean</code></td><td>Whether the trace is open. Leave it out to let the header toggle it</td></tr><tr><td><code>defaultOpen</code></td><td><code>boolean</code></td><td></td></tr><tr><td><code>onOpenChange</code></td><td><code>(open: boolean) =&gt; void</code></td><td></td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>Thinking.tsx<span class="l">React · 103 lines</span></summary><pre class="cp-pre"><code>&#39;use client&#39;;
+</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything Thinking takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>steps</code><span class="opt">required</span></td><td><code>ThinkingStep[]</code></td><td></td></tr><tr><td><code>running</code><span class="opt">required</span></td><td><code>boolean</code></td><td>Spins, counts seconds and keeps the trace open while true</td></tr><tr><td><code>seconds</code></td><td><code>number</code></td><td>Seconds to show. Leave it out to let it count while running</td></tr><tr><td><code>title</code></td><td><code>string</code></td><td>The header while it runs, like &quot;Checking the pricing page&quot;</td></tr><tr><td><code>summary</code></td><td><code>string</code></td><td>The header once it is done: what the work came to, like &quot;3 cards to fix, 2 changes planned&quot;. Defaults to the number of steps</td></tr><tr><td><code>collapseWhenDone</code></td><td><code>boolean</code></td><td>Folds the trace away a moment after it finishes</td></tr><tr><td><code>open</code></td><td><code>boolean</code></td><td>Whether the trace is open. Leave it out to let the header toggle it</td></tr><tr><td><code>defaultOpen</code></td><td><code>boolean</code></td><td></td></tr><tr><td><code>onOpenChange</code></td><td><code>(open: boolean) =&gt; void</code></td><td></td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>Thinking.tsx<span class="l">React · 117 lines</span></summary><pre class="cp-pre"><code>&#39;use client&#39;;
 import { useEffect, useRef } from &#39;react&#39;;
 import { cx } from &#39;../lib/cx&#39;;
 import { useControllable, useIsoLayoutEffect, useReducedMotion, useSeconds } from &#39;../lib/hooks&#39;;
@@ -161,6 +185,8 @@ export interface ThinkingStep {
   result?: string;
   /** More detail shown when you hover the result, like the measured values */
   resultTip?: string;
+  /** How long the step took, like &quot;1.3s&quot;, shown at its right once it is done */
+  time?: string;
 }
 
 export interface ThinkingProps {
@@ -200,13 +226,20 @@ function Settle({ children, shimmer, className }: { children: string; shimmer: b
   return &lt;span ref={ref} className={cx(shimmer &amp;&amp; &#39;dm-shim&#39;, className)}&gt;{children}&lt;/span&gt;;
 }
 
+/** What a finished step found, written in a word at a time */
+function Words({ text }: { text: string }) {
+  const w = text.split(&#39; &#39;);
+  return &lt;&gt;{w.map((x, i) =&gt; &lt;span key={i} className=&quot;dm-w&quot; style={{ animationDelay: `${i * 45}ms` }}&gt;{x}{i &lt; w.length - 1 ? &#39; &#39; : &#39;&#39;}&lt;/span&gt;)}&lt;/&gt;;
+}
+
 function Mark({ state }: { state: ThinkingStep[&#39;state&#39;] }) {
   if (state === &#39;running&#39;) return &lt;Spin /&gt;;
   // keyed so each new mark plays its entrance once
   return &lt;span key={state} className=&quot;dm-enter&quot; style={{ display: &#39;grid&#39; }}&gt;&lt;Icon name={state === &#39;retry&#39; ? &#39;clock&#39; : &#39;check&#39;} size=&quot;xs&quot; /&gt;&lt;/span&gt;;
 }
 
-/** The live trace: each step the agent takes and what it found, then a header that says what the work came to, folded away. */
+/** The live trace: each step the agent takes on a line that turns green as they finish, and what each found, then a header
+    that says what the work came to, folded away. */
 export function Thinking({ steps, running, seconds, title = &#39;Working on it&#39;, summary, collapseWhenDone = true, open, defaultOpen = true, onOpenChange, className }: ThinkingProps) {
   const counted = useSeconds(running &amp;&amp; seconds === undefined);
   const secs = seconds ?? counted;
@@ -233,9 +266,14 @@ export function Thinking({ steps, running, seconds, title = &#39;Working on it&#
             &lt;li key={i} className={cx(&#39;dm-tk-st dm-enter&#39;, s.state === &#39;running&#39; ? &#39;dm-run&#39; : &#39;dm-&#39; + s.state)}&gt;
               &lt;span className=&quot;dm-mk&quot;&gt;&lt;Mark state={s.state} /&gt;&lt;/span&gt;
               &lt;div className=&quot;dm-tx&quot;&gt;
-                &lt;Settle className=&quot;dm-lab&quot; shimmer={s.state === &#39;running&#39;}&gt;{s.label}&lt;/Settle&gt;
+                &lt;span className=&quot;dm-tk-ln&quot;&gt;
+                  &lt;Settle className=&quot;dm-lab&quot; shimmer={s.state === &#39;running&#39;}&gt;{s.label}&lt;/Settle&gt;
+                  {s.state === &#39;done&#39; &amp;&amp; s.time &amp;&amp; &lt;span key=&quot;t&quot; className=&quot;dm-tk-dur dm-num dm-enter&quot;&gt;{s.time}&lt;/span&gt;}
+                &lt;/span&gt;
                 &lt;span className={cx(&#39;dm-res&#39;, s.result &amp;&amp; &#39;dm-on&#39;)}&gt;
-                  {s.result &amp;&amp; s.resultTip ? &lt;Tip label={s.resultTip}&gt;&lt;span tabIndex={0} data-tip=&quot;&quot;&gt;{s.result}&lt;/span&gt;&lt;/Tip&gt; : &lt;Swap&gt;{s.result ?? &#39;&#39;}&lt;/Swap&gt;}
+                  {s.state === &#39;done&#39; &amp;&amp; s.result
+                    ? &lt;span key={&#39;w&#39; + s.result}&gt;{s.resultTip ? &lt;Tip label={s.resultTip}&gt;&lt;span tabIndex={0} data-tip=&quot;&quot;&gt;&lt;Words text={s.result} /&gt;&lt;/span&gt;&lt;/Tip&gt; : &lt;Words text={s.result} /&gt;}&lt;/span&gt;
+                    : &lt;Swap&gt;{s.result ?? &#39;&#39;}&lt;/Swap&gt;}
                 &lt;/span&gt;
               &lt;/div&gt;
             &lt;/li&gt;
@@ -245,9 +283,10 @@ export function Thinking({ steps, running, seconds, title = &#39;Working on it&#
     &lt;/div&gt;
   );
 }
-</code></pre></details><details class="cp-file"><summary>thinking.css<span class="l">React · 33 lines</span></summary><pre class="cp-pre"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+</code></pre></details><details class="cp-file"><summary>thinking.css<span class="l">React · 55 lines</span></summary><pre class="cp-pre"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Thinking ---------- */
-/* a plain list of what the agent does, each step with what it found; the header ends as a summary of the work */
+/* the steps the agent takes, on a line that turns green as each one finishes; the step in hand turns in the accent with a
+   soft halo, and what each step found writes itself in under it. The header ends as a summary of the work */
 /* neither the trace nor the box it sits in anchors the page&#39;s scroll: a centred demo that grows would otherwise pull
    the page along with it */
 .dm-stage-in:has(&gt;.dm-tk){overflow-anchor:none}
@@ -256,27 +295,48 @@ export function Thinking({ steps, running, seconds, title = &#39;Working on it&#
 .dm-stage-in&gt;.dm-tk{min-height:inherit}
 .dm-tk-h{display:flex;align-items:center;gap:10px;width:calc(100% + 16px);margin:0 -8px;padding:6px var(--dm-s-2);border-radius:10px;text-align:left;transition:background var(--dm-t-fast)}
 @media (hover:hover) and (pointer:fine){.dm-tk-h:hover{background:var(--dm-row)}}
-.dm-tk-mark{width:16px;height:16px;flex:none;display:grid;place-items:center;color:var(--dm-fg2)}
+.dm-tk-mark{width:18px;height:18px;flex:none;display:grid;place-items:center;color:var(--dm-accent-mark,var(--dm-accent));transition:color .3s}
 .dm-tk-h.dm-tk-fin .dm-tk-mark{color:var(--dm-ok)}
+.dm-tk-h.dm-tk-fin .dm-tk-mark .dm-i{animation:dm-tkpop .5s var(--dm-ease) backwards}
 .dm-tk-title{flex:1;min-width:0;color:var(--dm-fg)}
 .dm-tk-time{color:var(--dm-muted);font-size:13px}
 .dm-tk-chev{color:var(--dm-muted);transition:transform .32s var(--dm-ease)}
 .dm-tk[data-open=&quot;0&quot;] .dm-tk-chev{transform:rotate(-90deg)}
 .dm-tk-list{list-style:none;margin:0;padding:6px 0 0;display:flex;flex-direction:column}
-.dm-tk-st{display:flex;gap:10px;padding:6px 0}
-.dm-tk-st .dm-mk{width:18px;height:18px;flex:none;margin-top:1px;display:grid;place-items:center;border-radius:50%;color:var(--dm-muted);transition:background .32s,color .32s}
+.dm-tk-st{position:relative;display:flex;gap:10px;padding:6px 0}
+/* the line from each step down to the next: grey, and green once the step above it is done */
+.dm-tk-st:not(:last-child)::before,.dm-tk-st.dm-done:not(:last-child)::after{content:&quot;&quot;;position:absolute;left:8.25px;top:29px;bottom:-5px;width:1.5px;border-radius:1px;background:var(--dm-line)}
+.dm-tk-st.dm-done:not(:last-child)::after{background:color-mix(in srgb,var(--dm-ok) 55%,var(--dm-line));transform-origin:top;animation:dm-tkgrow .6s var(--dm-ease) backwards}
+@keyframes dm-tkgrow{from{transform:scaleY(0)}}
+.dm-tk-st .dm-mk{position:relative;width:18px;height:18px;flex:none;margin-top:1px;display:grid;place-items:center;border-radius:50%;color:var(--dm-muted);transition:background .32s,color .32s}
 .dm-tk-st .dm-mk .dm-spin{width:10px;height:10px}
+.dm-tk-st.dm-run .dm-mk{color:var(--dm-accent-mark,var(--dm-accent));background:var(--dm-accent-bg);animation:dm-tkhalo 1.8s var(--dm-ease-io) infinite}
 .dm-tk-st.dm-done .dm-mk{background:var(--dm-ok-bg);color:var(--dm-ok)}
-.dm-tk-st.dm-retry .dm-mk{background:var(--dm-warn-bg);color:var(--dm-warn)}
+.dm-tk-st.dm-done .dm-mk .dm-i{animation:dm-tkpop .45s var(--dm-ease) backwards}
+.dm-tk-st.dm-retry .dm-mk{background:var(--dm-warn-bg);color:var(--dm-warn);animation:dm-tkhalow 1.8s var(--dm-ease-io) infinite}
+@keyframes dm-tkhalo{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--dm-accent-mark,var(--dm-accent)) 0%,transparent)}50%{box-shadow:0 0 0 4px color-mix(in srgb,var(--dm-accent-mark,var(--dm-accent)) 14%,transparent)}}
+@keyframes dm-tkhalow{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--dm-warn) 0%,transparent)}50%{box-shadow:0 0 0 4px color-mix(in srgb,var(--dm-warn) 16%,transparent)}}
+@keyframes dm-tkpop{0%{transform:scale(.4);opacity:0}60%{transform:scale(1.15);opacity:1}100%{transform:none}}
 .dm-tk-st .dm-tx{flex:1;min-width:0;display:flex;flex-direction:column}
-.dm-tk-st .dm-lab{color:var(--dm-fg);transition:color .32s}
+.dm-tk-st .dm-tk-ln{display:flex;align-items:baseline;gap:var(--dm-s-2)}
+.dm-tk-st .dm-lab{flex:1;min-width:0;color:var(--dm-fg);transition:color .32s}
 .dm-tk-st.dm-done .dm-lab{color:var(--dm-fg2)}
-/* what a step found opens under it */
+/* how long the step took, once it is done */
+.dm-tk-st .dm-tk-dur{flex:none;font-size:12px;color:var(--dm-muted)}
+/* what a step found opens under it, a word at a time */
 .dm-tk-st .dm-res{display:grid;grid-template-rows:0fr;font-size:13px;color:var(--dm-muted);transition:grid-template-rows .32s var(--dm-ease),color .32s}
 .dm-tk-st .dm-res.dm-on{grid-template-rows:1fr}
 .dm-tk-st .dm-res&gt;span{overflow:hidden;min-height:0}
+.dm-tk-st .dm-res .dm-w{display:inline-block;white-space:pre;animation:dm-tkword .42s var(--dm-ease) backwards}
+@keyframes dm-tkword{from{opacity:0;transform:translateY(3px);filter:blur(2px)}}
 .dm-tk-st.dm-retry .dm-res{color:var(--dm-warn)}
 .dm-tk-st .dm-res [data-tip]{text-decoration:underline dotted var(--dm-faint);text-underline-offset:3px;cursor:default}
+:root:not([data-style=&quot;soft&quot;]) .dm-tk-st.dm-run .dm-mk:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *)),:root:not([data-style=&quot;soft&quot;]) .dm-tk-st.dm-retry .dm-mk:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *)){animation:none}
+:root:not([data-style=&quot;soft&quot;]) .dm-tk-st.dm-run .dm-mk:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *)){box-shadow:inset 0 0 0 1px var(--dm-accent-mark)}
+:root:not([data-style=&quot;soft&quot;]) .dm-tk-st.dm-done:not(:last-child):not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *))::after{background:var(--dm-ok);width:1px;left:8.5px}
+:root:not([data-style=&quot;soft&quot;]) .dm-tk-st:not(:last-child):not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *))::before{width:1px;left:8.5px;background:repeating-linear-gradient(var(--dm-rail) 0 3px,transparent 3px 6px)}
+:root:not([data-style=&quot;soft&quot;]) .dm-tk-st.dm-done .dm-mk .dm-i:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *)),:root:not([data-style=&quot;soft&quot;]) .dm-tk-h.dm-tk-fin .dm-tk-mark .dm-i:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *)){animation:none}
+:root:not([data-style=&quot;soft&quot;]) .dm-tk-st .dm-res .dm-w:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *)){animation:dm-bpin .3s var(--dm-ease) backwards}
 </code></pre></details><details class="cp-file"><summary>thinking.html<span class="l">HTML · 13 lines</span></summary><pre class="cp-pre"><code>&lt;div class=&quot;card bare&quot; data-c=&quot;thinking&quot;&gt;
   &lt;div class=&quot;stage-in&quot;&gt;
     &lt;div class=&quot;tk&quot; data-open=&quot;1&quot;&gt;
@@ -289,8 +349,9 @@ export function Thinking({ steps, running, seconds, title = &#39;Working on it&#
     &lt;/div&gt;
   &lt;/div&gt;
 &lt;/div&gt;
-</code></pre></details><details class="cp-file"><summary>thinking.css<span class="l">HTML · 32 lines</span></summary><pre class="cp-pre"><code>/* ---------- Thinking ---------- */
-/* a plain list of what the agent does, each step with what it found; the header ends as a summary of the work */
+</code></pre></details><details class="cp-file"><summary>thinking.css<span class="l">HTML · 54 lines</span></summary><pre class="cp-pre"><code>/* ---------- Thinking ---------- */
+/* the steps the agent takes, on a line that turns green as each one finishes; the step in hand turns in the accent with a
+   soft halo, and what each step found writes itself in under it. The header ends as a summary of the work */
 /* neither the trace nor the box it sits in anchors the page&#39;s scroll: a centred demo that grows would otherwise pull
    the page along with it */
 .stage-in:has(&gt;.tk){overflow-anchor:none}
@@ -299,28 +360,49 @@ export function Thinking({ steps, running, seconds, title = &#39;Working on it&#
 .stage-in&gt;.tk{min-height:inherit}
 .tk-h{display:flex;align-items:center;gap:10px;width:calc(100% + 16px);margin:0 -8px;padding:6px var(--s-2);border-radius:10px;text-align:left;transition:background var(--t-fast)}
 @media (hover:hover) and (pointer:fine){.tk-h:hover{background:var(--row)}}
-.tk-mark{width:16px;height:16px;flex:none;display:grid;place-items:center;color:var(--fg2)}
+.tk-mark{width:18px;height:18px;flex:none;display:grid;place-items:center;color:var(--accent-mark,var(--accent));transition:color .3s}
 .tk-h.tk-fin .tk-mark{color:var(--ok)}
+.tk-h.tk-fin .tk-mark .i{animation:tkpop .5s var(--ease) backwards}
 .tk-title{flex:1;min-width:0;color:var(--fg)}
 .tk-time{color:var(--muted);font-size:13px}
 .tk-chev{color:var(--muted);transition:transform .32s var(--ease)}
 .tk[data-open=&quot;0&quot;] .tk-chev{transform:rotate(-90deg)}
 .tk-list{list-style:none;margin:0;padding:6px 0 0;display:flex;flex-direction:column}
-.tk-st{display:flex;gap:10px;padding:6px 0}
-.tk-st .mk{width:18px;height:18px;flex:none;margin-top:1px;display:grid;place-items:center;border-radius:50%;color:var(--muted);transition:background .32s,color .32s}
+.tk-st{position:relative;display:flex;gap:10px;padding:6px 0}
+/* the line from each step down to the next: grey, and green once the step above it is done */
+.tk-st:not(:last-child)::before,.tk-st.done:not(:last-child)::after{content:&quot;&quot;;position:absolute;left:8.25px;top:29px;bottom:-5px;width:1.5px;border-radius:1px;background:var(--line)}
+.tk-st.done:not(:last-child)::after{background:color-mix(in srgb,var(--ok) 55%,var(--line));transform-origin:top;animation:tkgrow .6s var(--ease) backwards}
+@keyframes tkgrow{from{transform:scaleY(0)}}
+.tk-st .mk{position:relative;width:18px;height:18px;flex:none;margin-top:1px;display:grid;place-items:center;border-radius:50%;color:var(--muted);transition:background .32s,color .32s}
 .tk-st .mk .spin{width:10px;height:10px}
+.tk-st.run .mk{color:var(--accent-mark,var(--accent));background:var(--accent-bg);animation:tkhalo 1.8s var(--ease-io) infinite}
 .tk-st.done .mk{background:var(--ok-bg);color:var(--ok)}
-.tk-st.retry .mk{background:var(--warn-bg);color:var(--warn)}
+.tk-st.done .mk .i{animation:tkpop .45s var(--ease) backwards}
+.tk-st.retry .mk{background:var(--warn-bg);color:var(--warn);animation:tkhalow 1.8s var(--ease-io) infinite}
+@keyframes tkhalo{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--accent-mark,var(--accent)) 0%,transparent)}50%{box-shadow:0 0 0 4px color-mix(in srgb,var(--accent-mark,var(--accent)) 14%,transparent)}}
+@keyframes tkhalow{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--warn) 0%,transparent)}50%{box-shadow:0 0 0 4px color-mix(in srgb,var(--warn) 16%,transparent)}}
+@keyframes tkpop{0%{transform:scale(.4);opacity:0}60%{transform:scale(1.15);opacity:1}100%{transform:none}}
 .tk-st .tx{flex:1;min-width:0;display:flex;flex-direction:column}
-.tk-st .lab{color:var(--fg);transition:color .32s}
+.tk-st .tk-ln{display:flex;align-items:baseline;gap:var(--s-2)}
+.tk-st .lab{flex:1;min-width:0;color:var(--fg);transition:color .32s}
 .tk-st.done .lab{color:var(--fg2)}
-/* what a step found opens under it */
+/* how long the step took, once it is done */
+.tk-st .tk-dur{flex:none;font-size:12px;color:var(--muted)}
+/* what a step found opens under it, a word at a time */
 .tk-st .res{display:grid;grid-template-rows:0fr;font-size:13px;color:var(--muted);transition:grid-template-rows .32s var(--ease),color .32s}
 .tk-st .res.on{grid-template-rows:1fr}
 .tk-st .res&gt;span{overflow:hidden;min-height:0}
+.tk-st .res .w{display:inline-block;white-space:pre;animation:tkword .42s var(--ease) backwards}
+@keyframes tkword{from{opacity:0;transform:translateY(3px);filter:blur(2px)}}
 .tk-st.retry .res{color:var(--warn)}
 .tk-st .res [data-tip]{text-decoration:underline dotted var(--faint);text-underline-offset:3px;cursor:default}
-</code></pre></details><details class="cp-file"><summary>thinking.js<span class="l">HTML · 44 lines</span></summary><pre class="cp-pre"><code>DM.def(&#39;thinking&#39;, (r, c) =&gt; {
+:root:not([data-style=&quot;soft&quot;]) .tk-st.run .mk:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *)),:root:not([data-style=&quot;soft&quot;]) .tk-st.retry .mk:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *)){animation:none}
+:root:not([data-style=&quot;soft&quot;]) .tk-st.run .mk:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *)){box-shadow:inset 0 0 0 1px var(--accent-mark)}
+:root:not([data-style=&quot;soft&quot;]) .tk-st.done:not(:last-child):not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *))::after{background:var(--ok);width:1px;left:8.5px}
+:root:not([data-style=&quot;soft&quot;]) .tk-st:not(:last-child):not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *))::before{width:1px;left:8.5px;background:repeating-linear-gradient(var(--rail) 0 3px,transparent 3px 6px)}
+:root:not([data-style=&quot;soft&quot;]) .tk-st.done .mk .i:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *)),:root:not([data-style=&quot;soft&quot;]) .tk-h.tk-fin .tk-mark .i:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *)){animation:none}
+:root:not([data-style=&quot;soft&quot;]) .tk-st .res .w:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *)){animation:bpin .3s var(--ease) backwards}
+</code></pre></details><details class="cp-file"><summary>thinking.js<span class="l">HTML · 49 lines</span></summary><pre class="cp-pre"><code>DM.def(&#39;thinking&#39;, (r, c) =&gt; {
   const tk = $(&#39;.tk&#39;, r), list = $(&#39;.tk-list&#39;, r), title = $(&#39;.tk-title&#39;, r), time = $(&#39;.tk-time&#39;, r), head = $(&#39;.tk-h&#39;, r), fold = $(&#39;.tk-fold&#39;, r), mark = $(&#39;.tk-mark&#39;, r);
   // each step: what the agent does and what it found. Measuring the cards times out once, counts down and tries again
   const S = [
@@ -332,23 +414,28 @@ export function Thinking({ steps, running, seconds, title = &#39;Working on it&#
   ];
   const setOpen = o =&gt; { tk.dataset.open = o ? &#39;1&#39; : &#39;0&#39;; fold.classList.toggle(&#39;shut&#39;, !o); head.setAttribute(&#39;aria-expanded&#39;, o); };
   head.onclick = () =&gt; setOpen(tk.dataset.open !== &#39;1&#39;);
-  // the line under a step opens and then crossfades; a tip on it holds the detail
-  const note = (li, text, tip) =&gt; { const res = $(&#39;.res&#39;, li), sp = res.firstElementChild; res.classList.add(&#39;on&#39;); if (tip) swap(sp, `&lt;span data-tip=&quot;${tip}&quot;&gt;${text}&lt;/span&gt;`, true); else swap(sp, text); };
+  // the line under a step opens and then crossfades; what the step found writes itself in a word at a time, and a tip on it
+  // holds the detail
+  const words = t =&gt; t.split(&#39; &#39;).map((w, i, a) =&gt; `&lt;span class=&quot;w&quot; style=&quot;animation-delay:${i * 45}ms&quot;&gt;${w}${i &lt; a.length - 1 ? &#39; &#39; : &#39;&#39;}&lt;/span&gt;`).join(&#39;&#39;);
+  const note = (li, text, tip, found) =&gt; { const res = $(&#39;.res&#39;, li), sp = res.firstElementChild; res.classList.add(&#39;on&#39;);
+    if (found){ sp._sw = null; sp.classList.remove(&#39;out&#39;); sp.innerHTML = tip ? `&lt;span data-tip=&quot;${tip}&quot;&gt;${words(text)}&lt;/span&gt;` : words(text); }
+    else swap(sp, text); };
   const glyph = (li, g) =&gt; { const mk = $(&#39;.mk&#39;, li); mk.innerHTML = g; enter(mk.firstElementChild); };
   let secs = 0, live = true; c.every(1000, () =&gt; { if (live){ secs++; time.textContent = secs + &#39;s&#39;; } });
   c.run(async () =&gt; {
     await c.wait(600);
     for (const [lab, res, ms, x] of S){
-      const li = html(`&lt;li class=&quot;tk-st run&quot;&gt;&lt;span class=&quot;mk&quot;&gt;&lt;span class=&quot;spin&quot;&gt;&lt;/span&gt;&lt;/span&gt;&lt;div class=&quot;tx&quot;&gt;&lt;span class=&quot;lab shim&quot;&gt;${lab}&lt;/span&gt;&lt;span class=&quot;res&quot;&gt;&lt;span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/div&gt;&lt;/li&gt;`);
+      const li = html(`&lt;li class=&quot;tk-st run&quot;&gt;&lt;span class=&quot;mk&quot;&gt;&lt;span class=&quot;spin&quot;&gt;&lt;/span&gt;&lt;/span&gt;&lt;div class=&quot;tx&quot;&gt;&lt;span class=&quot;tk-ln&quot;&gt;&lt;span class=&quot;lab shim&quot;&gt;${lab}&lt;/span&gt;&lt;span class=&quot;tk-dur num&quot;&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;res&quot;&gt;&lt;span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/div&gt;&lt;/li&gt;`);
       list.appendChild(li); enter(li);
-      const l = $(&#39;.lab&#39;, li);
+      const l = $(&#39;.lab&#39;, li); let took = ms;
       await c.wait(ms);
       if (x &amp;&amp; x.retry){
         li.classList.replace(&#39;run&#39;, &#39;retry&#39;); l.classList.remove(&#39;shim&#39;); glyph(li, I(&#39;clock&#39;,&#39;xs&#39;));
         for (let k = 2; k &gt; 0; k--){ note(li, `${x.retry}. Trying again in ${k}s`); await c.wait(1000); }
-        li.classList.replace(&#39;retry&#39;, &#39;run&#39;); l.classList.add(&#39;shim&#39;); glyph(li, &#39;&lt;span class=&quot;spin&quot;&gt;&lt;/span&gt;&#39;); note(li, &#39;Trying again&#39;); await c.wait(900);
+        li.classList.replace(&#39;retry&#39;, &#39;run&#39;); l.classList.add(&#39;shim&#39;); glyph(li, &#39;&lt;span class=&quot;spin&quot;&gt;&lt;/span&gt;&#39;); note(li, &#39;Trying again&#39;); await c.wait(900); took += 2900;
       }
-      li.classList.replace(&#39;run&#39;, &#39;done&#39;); l.classList.remove(&#39;shim&#39;); glyph(li, I(&#39;check&#39;,&#39;xs&#39;)); note(li, res, x &amp;&amp; x.tip);
+      li.classList.replace(&#39;run&#39;, &#39;done&#39;); l.classList.remove(&#39;shim&#39;); glyph(li, I(&#39;check&#39;,&#39;xs&#39;)); note(li, res, x &amp;&amp; x.tip, true);
+      const t = $(&#39;.tk-dur&#39;, li); t.textContent = (took / 1000).toFixed(1) + &#39;s&#39;; enter(t);
     }
     // the header becomes what the work came to, and folds the trace away
     await c.wait(500); live = false;
@@ -698,23 +785,28 @@ const fitHits = window.dmFitHits || (() => {
   ];
   const setOpen = o => { tk.dataset.open = o ? '1' : '0'; fold.classList.toggle('shut', !o); head.setAttribute('aria-expanded', o); };
   head.onclick = () => setOpen(tk.dataset.open !== '1');
-  // the line under a step opens and then crossfades; a tip on it holds the detail
-  const note = (li, text, tip) => { const res = $('.res', li), sp = res.firstElementChild; res.classList.add('on'); if (tip) swap(sp, `<span data-tip="${tip}">${text}</span>`, true); else swap(sp, text); };
+  // the line under a step opens and then crossfades; what the step found writes itself in a word at a time, and a tip on it
+  // holds the detail
+  const words = t => t.split(' ').map((w, i, a) => `<span class="w" style="animation-delay:${i * 45}ms">${w}${i < a.length - 1 ? ' ' : ''}</span>`).join('');
+  const note = (li, text, tip, found) => { const res = $('.res', li), sp = res.firstElementChild; res.classList.add('on');
+    if (found){ sp._sw = null; sp.classList.remove('out'); sp.innerHTML = tip ? `<span data-tip="${tip}">${words(text)}</span>` : words(text); }
+    else swap(sp, text); };
   const glyph = (li, g) => { const mk = $('.mk', li); mk.innerHTML = g; enter(mk.firstElementChild); };
   let secs = 0, live = true; c.every(1000, () => { if (live){ secs++; time.textContent = secs + 's'; } });
   c.run(async () => {
     await c.wait(600);
     for (const [lab, res, ms, x] of S){
-      const li = html(`<li class="tk-st run"><span class="mk"><span class="spin"></span></span><div class="tx"><span class="lab shim">${lab}</span><span class="res"><span></span></span></div></li>`);
+      const li = html(`<li class="tk-st run"><span class="mk"><span class="spin"></span></span><div class="tx"><span class="tk-ln"><span class="lab shim">${lab}</span><span class="tk-dur num"></span></span><span class="res"><span></span></span></div></li>`);
       list.appendChild(li); enter(li);
-      const l = $('.lab', li);
+      const l = $('.lab', li); let took = ms;
       await c.wait(ms);
       if (x && x.retry){
         li.classList.replace('run', 'retry'); l.classList.remove('shim'); glyph(li, I('clock','xs'));
         for (let k = 2; k > 0; k--){ note(li, `${x.retry}. Trying again in ${k}s`); await c.wait(1000); }
-        li.classList.replace('retry', 'run'); l.classList.add('shim'); glyph(li, '<span class="spin"></span>'); note(li, 'Trying again'); await c.wait(900);
+        li.classList.replace('retry', 'run'); l.classList.add('shim'); glyph(li, '<span class="spin"></span>'); note(li, 'Trying again'); await c.wait(900); took += 2900;
       }
-      li.classList.replace('run', 'done'); l.classList.remove('shim'); glyph(li, I('check','xs')); note(li, res, x && x.tip);
+      li.classList.replace('run', 'done'); l.classList.remove('shim'); glyph(li, I('check','xs')); note(li, res, x && x.tip, true);
+      const t = $('.tk-dur', li); t.textContent = (took / 1000).toFixed(1) + 's'; enter(t);
     }
     // the header becomes what the work came to, and folds the trace away
     await c.wait(500); live = false;

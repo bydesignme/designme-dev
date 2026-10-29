@@ -15,7 +15,7 @@ The CLI copies the source into your project, so you own it and can change anythi
 
 ## About
 
-Thinking is the live trace an agent writes while it works: a plain list of the steps it takes, each with what it found. A step that runs into a problem shows it in amber while it waits and tries again. When the work is done, the header says what it came to and the trace folds away, one click from opening again.
+Thinking is the live trace an agent writes while it works: the steps it takes, one under another on a line that turns green as each finishes, each with what it found. A step that runs into a problem shows it in amber while it waits and tries again. When the work is done, the header says what it came to and the trace folds away, one click from opening again.
 
 ### When to use it
 
@@ -26,9 +26,10 @@ Thinking is the live trace an agent writes while it works: a plain list of the s
 
 ### What it does
 
-- Each step has a `label`, a `state` and an optional `result`. Running steps spin and shimmer, `retry` shows a clock in amber while the step waits on a problem, and `done` turns into a check.
-- A step's `result` opens under it and crossfades when it changes, so a countdown like "Trying again in 2s" updates in place. `resultTip` adds more detail on hover.
-- The header shows `title` while it runs, like "Checking the pricing page", and a clock that counts by itself unless you pass `seconds`.
+- Each step has a `label`, a `state`, an optional `result` and an optional `time`. A running step turns in the accent with a soft halo and its label shimmers, `retry` shows a clock in amber while the step waits on a problem, and `done` turns into a check.
+- The line from each step down to the next turns green, top to bottom, once the step above it is done, so the trace fills in as the work gets through it.
+- While a step waits or retries its `result` crossfades in place, so a countdown like "Trying again in 2s" updates where it is. Once the step is done, what it found writes itself in a word at a time, and its `time`, like "1.3s", shows at its right. `resultTip` adds more detail on hover.
+- The header shows `title` while it runs, like "Checking the pricing page", beside four dots turning in the accent, and a clock that counts by itself unless you pass `seconds`.
 - When `running` turns false, the header becomes `summary`, like "3 cards to fix, 2 changes planned", with a check. With `collapseWhenDone` on, the default, the trace folds away a moment later.
 - The header toggles the trace open and shut, and `open`, `defaultOpen` and `onOpenChange` let you control it.
 
@@ -36,7 +37,8 @@ Thinking is the live trace an agent writes while it works: a plain list of the s
 
 - The header is a button with `aria-expanded`, so screen readers hear whether the trace is open.
 - The list of steps is an `aria-live="polite"` region, so new steps and their results are announced as they arrive.
-- With `prefers-reduced-motion: reduce`, the spinner, shimmer and crossfades stop and changes appear at once.
+- The line between the steps is decoration: each step's state is in its mark and its words.
+- With `prefers-reduced-motion: reduce`, the spinner, halo, shimmer, the line's growth and the words' entrance stop and changes appear at once.
 
 ## Usage in React
 
@@ -74,12 +76,14 @@ export default function ThinkingDemo() {
     for (const s of PRICING_STEPS) {
       out.push({ label: s.label, state: 'running' }); show();
       const at = out.length - 1;
+      let took = s.ms;
       await wait(s.ms);
       if (s.retry) {
+        took += 2900;
         for (let k = 2; k > 0; k--) { out[at] = { ...out[at], state: 'retry', result: `${s.retry}. Trying again in ${k}s` }; show(); await wait(1000); }
         out[at] = { ...out[at], state: 'running', result: 'Trying again' }; show(); await wait(900);
       }
-      out[at] = { ...out[at], state: 'done', result: s.result, resultTip: s.tip }; show();
+      out[at] = { ...out[at], state: 'done', result: s.result, resultTip: s.tip, time: (took / 1000).toFixed(1) + 's' }; show();
     }
     await wait(500); setRunning(false);
   });
@@ -143,6 +147,8 @@ export interface ThinkingStep {
   result?: string;
   /** More detail shown when you hover the result, like the measured values */
   resultTip?: string;
+  /** How long the step took, like "1.3s", shown at its right once it is done */
+  time?: string;
 }
 
 export interface ThinkingProps {
@@ -182,13 +188,20 @@ function Settle({ children, shimmer, className }: { children: string; shimmer: b
   return <span ref={ref} className={cx(shimmer && 'dm-shim', className)}>{children}</span>;
 }
 
+/** What a finished step found, written in a word at a time */
+function Words({ text }: { text: string }) {
+  const w = text.split(' ');
+  return <>{w.map((x, i) => <span key={i} className="dm-w" style={{ animationDelay: `${i * 45}ms` }}>{x}{i < w.length - 1 ? ' ' : ''}</span>)}</>;
+}
+
 function Mark({ state }: { state: ThinkingStep['state'] }) {
   if (state === 'running') return <Spin />;
   // keyed so each new mark plays its entrance once
   return <span key={state} className="dm-enter" style={{ display: 'grid' }}><Icon name={state === 'retry' ? 'clock' : 'check'} size="xs" /></span>;
 }
 
-/** The live trace: each step the agent takes and what it found, then a header that says what the work came to, folded away. */
+/** The live trace: each step the agent takes on a line that turns green as they finish, and what each found, then a header
+    that says what the work came to, folded away. */
 export function Thinking({ steps, running, seconds, title = 'Working on it', summary, collapseWhenDone = true, open, defaultOpen = true, onOpenChange, className }: ThinkingProps) {
   const counted = useSeconds(running && seconds === undefined);
   const secs = seconds ?? counted;
@@ -215,9 +228,14 @@ export function Thinking({ steps, running, seconds, title = 'Working on it', sum
             <li key={i} className={cx('dm-tk-st dm-enter', s.state === 'running' ? 'dm-run' : 'dm-' + s.state)}>
               <span className="dm-mk"><Mark state={s.state} /></span>
               <div className="dm-tx">
-                <Settle className="dm-lab" shimmer={s.state === 'running'}>{s.label}</Settle>
+                <span className="dm-tk-ln">
+                  <Settle className="dm-lab" shimmer={s.state === 'running'}>{s.label}</Settle>
+                  {s.state === 'done' && s.time && <span key="t" className="dm-tk-dur dm-num dm-enter">{s.time}</span>}
+                </span>
                 <span className={cx('dm-res', s.result && 'dm-on')}>
-                  {s.result && s.resultTip ? <Tip label={s.resultTip}><span tabIndex={0} data-tip="">{s.result}</span></Tip> : <Swap>{s.result ?? ''}</Swap>}
+                  {s.state === 'done' && s.result
+                    ? <span key={'w' + s.result}>{s.resultTip ? <Tip label={s.resultTip}><span tabIndex={0} data-tip=""><Words text={s.result} /></span></Tip> : <Words text={s.result} />}</span>
+                    : <Swap>{s.result ?? ''}</Swap>}
                 </span>
               </div>
             </li>

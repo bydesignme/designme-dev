@@ -25,12 +25,14 @@ export default function ThinkingDemo() {
     for (const s of PRICING_STEPS) {
       out.push({ label: s.label, state: 'running' }); show();
       const at = out.length - 1;
+      let took = s.ms;
       await wait(s.ms);
       if (s.retry) {
+        took += 2900;
         for (let k = 2; k > 0; k--) { out[at] = { ...out[at], state: 'retry', result: `${s.retry}. Trying again in ${k}s` }; show(); await wait(1000); }
         out[at] = { ...out[at], state: 'running', result: 'Trying again' }; show(); await wait(900);
       }
-      out[at] = { ...out[at], state: 'done', result: s.result, resultTip: s.tip }; show();
+      out[at] = { ...out[at], state: 'done', result: s.result, resultTip: s.tip, time: (took / 1000).toFixed(1) + 's' }; show();
     }
     await wait(500); setRunning(false);
   });
