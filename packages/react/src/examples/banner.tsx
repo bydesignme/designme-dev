@@ -8,9 +8,9 @@ import { useStory } from './useScript';
    dismissed and brought back with Undo ---------- */
 const BANNERS: { tone: BannerTone; art: BannerArtName; eyebrow: string; title: string; description: string; action: string; secondary: string }[] = [
   { tone: 'accent', art: 'layers', eyebrow: 'New', title: 'Memory that carries across threads', description: 'Agents keep what they learn about your project, so you only explain things once.', action: 'Turn on memory', secondary: 'What it keeps' },
-  { tone: 'violet', art: 'nodes', eyebrow: 'Beta', title: 'Connect your tools in one place', description: 'Linear, GitHub and Slack in one list, with access you can scope for each agent.', action: 'Connect a tool', secondary: 'Read the docs' },
+  { tone: 'violet', art: 'tools', eyebrow: 'Beta', title: 'Connect your tools in one place', description: 'Linear, GitHub and Slack in one list, with access you can scope for each agent.', action: 'Connect a tool', secondary: 'Read the docs' },
   { tone: 'green', art: 'steps', eyebrow: 'Guide', title: 'Set up your first automation', description: 'Five short steps, about ten minutes. The agent can do most of them for you.', action: 'Start the guide', secondary: 'Maybe later' },
-  { tone: 'amber', art: 'grid', eyebrow: 'Heads-up', title: 'Maintenance on Sunday, 02:00 UTC', description: 'Agents pause for about an hour, and queued runs pick up where they left off.', action: 'Add to calendar', secondary: 'Status page' }
+  { tone: 'amber', art: 'path', eyebrow: 'Heads-up', title: 'Maintenance on Sunday, 02:00 UTC', description: 'Agents pause for about an hour, and queued runs pick up where they left off.', action: 'Add to calendar', secondary: 'Status page' }
 ];
 
 export default function BannerDemo() {
