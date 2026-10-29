@@ -47,6 +47,24 @@ every session and every agent.
   which is hard to read.
 - Highlights like "Everyone is free" use the accent tint (`--sel` with the accent as text), not a solid accent fill.
 
+## Fields, focus and selection (owner's decisions, 29 Oct)
+- No accent-coloured or black focus rings, outlines or glows anywhere. Mouse and touch never show a focus ring.
+- Text fields, textareas, search fields and dropdown triggers: a quiet, dimmed grey border at rest, no black outline and
+  no heavy grey fill (white, or the surface). On focus the border turns one step stronger grey, same width; nothing else
+  changes. Once a field is filled and left, it goes back to the rest look (no lingering highlight).
+- Keyboard focus on buttons, links and other controls (`:focus-visible` from the keyboard only) is a quiet grey ring
+  (2px, the stronger grey), never the accent and never black. This is the only focus ring, kept so keyboard users can
+  see where they are.
+- Selected states (chips, options, steps, cards in a picker): white fill with a dimmed grey border, slightly stronger when
+  selected. Not a black outline, not a grey fill.
+- Fields and tags use slightly rounded corners (`--r-in` / `--r-sm`) with corner smoothing where the browser supports it
+  (`corner-shape: squircle`), never full pills. Buttons stay pills.
+- Single-field components (Date picker, Search input, Country select, Multi-select and the like) share one field width
+  in their stage, and go full width on phones.
+- On a tinted or coloured surface (banners, notices), secondary buttons are white in light mode, not grey. On coloured
+  banners the primary button is white in light mode and the accent in dark mode.
+- Pricing: only the recommended plan's button is primary (accent); the others are white with a grey outline.
+
 ## Spacing and radius
 - Use the spacing tokens (4px scale) and radius tokens for new and changed CSS. Existing off-scale values are snapped
   later in a separate pass, one category at a time, with before/after screenshots for the owner to review.
