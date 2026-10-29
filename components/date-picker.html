@@ -47,19 +47,19 @@
 </script><script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareSourceCode","name":"Date picker","description":"A date field that opens a small calendar, with a text box at the top that reads plain English like \"next friday\" or \"in 2 weeks\". Quick picks such as Today and Tomorrow sit under the box, and the month grid below works with mouse or keyboard. It suits agent products where people set a due date or launch date the way they would say it.","url":"https://designme.dev/components/date-picker","image":"https://designme.dev/components/og/date-picker.jpg","programmingLanguage":["HTML","CSS","JavaScript","TypeScript"],"runtimePlatform":"Web browser","license":"https://opensource.org/licenses/MIT","isAccessibleForFree":true,"keywords":"Date picker, Dates, UI component, React component, HTML component","author":{"@type":"Organization","name":"DesignMe","url":"https://designme.agency"},"isPartOf":{"@type":"WebSite","name":"Designme.dev","url":"https://designme.dev/"}}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Library","item":"https://designme.dev/"},{"@type":"ListItem","position":2,"name":"Dates","item":"https://designme.dev/#s-dates"},{"@type":"ListItem","position":3,"name":"Date picker","item":"https://designme.dev/components/date-picker"}]}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does \"friday\" pick if today is Friday?","acceptedAnswer":{"@type":"Answer","text":"The default parser always picks the next one, so it returns the Friday a week later, never today. \"next friday\" works the same way."}},{"@type":"Question","name":"Can I use my own natural language parser?","acceptedAnswer":{"@type":"Answer","text":"Yes. Pass parse, a function that takes the typed text and today's date and returns a Date or null. You could call your agent or a library like chrono from there, as long as it returns synchronously."}},{"@type":"Question","name":"Why should I pass today when rendering on the server?","acceptedAnswer":{"@type":"Answer","text":"The today dot and the presets are based on the current date. Passing today keeps server and client output the same and makes demos and tests repeatable."}},{"@type":"Question","name":"Can I change the quick picks?","acceptedAnswer":{"@type":"Answer","text":"Yes. Pass presets as a list of a label and a number of days after today, like { label: 'Next sprint', days: 14 }."}}]}</script><link rel="stylesheet" href="/components/assets/core.css"><style>/* ---------- Date picker ---------- */
 /* one field, as wide as the other single fields; its script keeps it centred in its stage and glides it up as the calendar opens */
 .dpk{position:relative;width:100%;max-width:var(--field-w);margin:0 auto}
-.dpk-f{display:flex;align-items:center;gap:10px;width:100%;height:var(--field-h);padding:0 var(--s-3);border-radius:var(--r-field);background:var(--surface);box-shadow:inset 0 0 0 1px var(--field-line);font-size:13.5px;transition:box-shadow var(--t-fast)}
+.dpk-f{display:flex;align-items:center;gap:10px;width:100%;height:var(--field-h);padding:0 var(--s-3);border-radius:var(--r-field);background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--field-line) 50%,transparent);font-size:13.5px;transition:box-shadow var(--t-fast)}
 @supports (corner-shape:squircle){.dpk-f{corner-shape:squircle;border-radius:var(--r-field-sq)}}
 /* a dropdown's field steps up its edge while it has the focus or its calendar is open; it takes no ring */
-.dpk-f:focus-visible{outline:0;box-shadow:inset 0 0 0 1px var(--field-line-strong)}
+.dpk-f:focus-visible{outline:0;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--field-line-strong) 50%,transparent)}
 .dpk-f>svg:first-child{color:var(--muted)}
 .dpk-val{flex:1;text-align:left;color:var(--fg)}
 .dpk-val.ph{color:var(--muted)}
 .dpk-f>svg:last-child{color:var(--muted)}
 .dpk-pop{width:100%;padding:10px;background:var(--surface)}
-.dpk-nl{width:100%;height:32px;border:0;outline:0;border-radius:var(--r-field);background:var(--surface);box-shadow:inset 0 0 0 1px var(--field-line);padding:0 10px;font:inherit;font-size:13px;color:var(--fg);transition:box-shadow var(--t-fast)}
+.dpk-nl{width:100%;height:32px;border:0;outline:0;border-radius:var(--r-field);background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--field-line) 50%,transparent);padding:0 10px;font:inherit;font-size:13px;color:var(--fg);transition:box-shadow var(--t-fast)}
 @supports (corner-shape:squircle){.dpk-nl{corner-shape:squircle;border-radius:var(--r-field-sq)}}
 .dpk-nl::placeholder{color:var(--muted)}
-.dpk-nl:focus{box-shadow:inset 0 0 0 1px var(--field-line-strong)}
+.dpk-nl:focus{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--field-line-strong) 50%,transparent)}
 .dpk-qk{display:flex;gap:var(--s-1);margin:var(--s-2) 0}
 .dpk-mh{display:flex;align-items:center;justify-content:space-between;margin:var(--s-1) 0}
 .dpk-mh b{font-weight:500;font-size:13px}
@@ -72,7 +72,7 @@
 @keyframes dpkl{from{opacity:0;transform:translateX(-24px);filter:blur(3px)}}
 @keyframes dpkr{from{opacity:0;transform:translateX(24px);filter:blur(3px)}}
 .dpk-d{height:32px;border-radius:9px;font-size:12.5px;color:var(--fg);transition:background .2s,color .2s;position:relative}
-@media (hover:hover) and (pointer:fine){.dpk-d:hover{background:var(--chip)}}
+@media (hover:hover) and (pointer:fine){.dpk-d:hover{background:var(--row)}}
 /* the days fill the month's sliding view, which would cut an outside ring: theirs is drawn inside */
 .dpk-d:focus-visible{outline-offset:-2px}
 .dpk-d.o{color:var(--muted)}
@@ -290,19 +290,19 @@ export function DatePicker({
 /* ---------- Date picker ---------- */
 /* one field, as wide as the other single fields; its script keeps it centred in its stage and glides it up as the calendar opens */
 .dm-dpk{position:relative;width:100%;max-width:var(--dm-field-w);margin:0 auto}
-.dm-dpk-f{display:flex;align-items:center;gap:10px;width:100%;height:var(--dm-field-h);padding:0 var(--dm-s-3);border-radius:var(--dm-r-field);background:var(--dm-surface);box-shadow:inset 0 0 0 1px var(--dm-field-line);font-size:13.5px;transition:box-shadow var(--dm-t-fast)}
+.dm-dpk-f{display:flex;align-items:center;gap:10px;width:100%;height:var(--dm-field-h);padding:0 var(--dm-s-3);border-radius:var(--dm-r-field);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line) 50%,transparent);font-size:13.5px;transition:box-shadow var(--dm-t-fast)}
 @supports (corner-shape:squircle){.dm-dpk-f{corner-shape:squircle;border-radius:var(--dm-r-field-sq)}}
 /* a dropdown&#39;s field steps up its edge while it has the focus or its calendar is open; it takes no ring */
-.dm-dpk-f:focus-visible{outline:0;box-shadow:inset 0 0 0 1px var(--dm-field-line-strong)}
+.dm-dpk-f:focus-visible{outline:0;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line-strong) 50%,transparent)}
 .dm-dpk-f&gt;svg:first-child{color:var(--dm-muted)}
 .dm-dpk-val{flex:1;text-align:left;color:var(--dm-fg)}
 .dm-dpk-val.dm-ph{color:var(--dm-muted)}
 .dm-dpk-f&gt;svg:last-child{color:var(--dm-muted)}
 .dm-dpk-pop{width:100%;padding:10px;background:var(--dm-surface)}
-.dm-dpk-nl{width:100%;height:32px;border:0;outline:0;border-radius:var(--dm-r-field);background:var(--dm-surface);box-shadow:inset 0 0 0 1px var(--dm-field-line);padding:0 10px;font:inherit;font-size:13px;color:var(--dm-fg);transition:box-shadow var(--dm-t-fast)}
+.dm-dpk-nl{width:100%;height:32px;border:0;outline:0;border-radius:var(--dm-r-field);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line) 50%,transparent);padding:0 10px;font:inherit;font-size:13px;color:var(--dm-fg);transition:box-shadow var(--dm-t-fast)}
 @supports (corner-shape:squircle){.dm-dpk-nl{corner-shape:squircle;border-radius:var(--dm-r-field-sq)}}
 .dm-dpk-nl::placeholder{color:var(--dm-muted)}
-.dm-dpk-nl:focus{box-shadow:inset 0 0 0 1px var(--dm-field-line-strong)}
+.dm-dpk-nl:focus{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line-strong) 50%,transparent)}
 .dm-dpk-qk{display:flex;gap:var(--dm-s-1);margin:var(--dm-s-2) 0}
 .dm-dpk-mh{display:flex;align-items:center;justify-content:space-between;margin:var(--dm-s-1) 0}
 .dm-dpk-mh b{font-weight:500;font-size:13px}
@@ -315,7 +315,7 @@ export function DatePicker({
 @keyframes dm-dpkl{from{opacity:0;transform:translateX(-24px);filter:blur(3px)}}
 @keyframes dm-dpkr{from{opacity:0;transform:translateX(24px);filter:blur(3px)}}
 .dm-dpk-d{height:32px;border-radius:9px;font-size:12.5px;color:var(--dm-fg);transition:background .2s,color .2s;position:relative}
-@media (hover:hover) and (pointer:fine){.dm-dpk-d:hover{background:var(--dm-chip)}}
+@media (hover:hover) and (pointer:fine){.dm-dpk-d:hover{background:var(--dm-row)}}
 /* the days fill the month&#39;s sliding view, which would cut an outside ring: theirs is drawn inside */
 .dm-dpk-d:focus-visible{outline-offset:-2px}
 .dm-dpk-d.dm-o{color:var(--dm-muted)}
@@ -343,19 +343,19 @@ export function DatePicker({
 </code></pre></details><details class="cp-file"><summary>date-picker.css<span class="l">HTML · 40 lines</span></summary><pre class="cp-pre"><code>/* ---------- Date picker ---------- */
 /* one field, as wide as the other single fields; its script keeps it centred in its stage and glides it up as the calendar opens */
 .dpk{position:relative;width:100%;max-width:var(--field-w);margin:0 auto}
-.dpk-f{display:flex;align-items:center;gap:10px;width:100%;height:var(--field-h);padding:0 var(--s-3);border-radius:var(--r-field);background:var(--surface);box-shadow:inset 0 0 0 1px var(--field-line);font-size:13.5px;transition:box-shadow var(--t-fast)}
+.dpk-f{display:flex;align-items:center;gap:10px;width:100%;height:var(--field-h);padding:0 var(--s-3);border-radius:var(--r-field);background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--field-line) 50%,transparent);font-size:13.5px;transition:box-shadow var(--t-fast)}
 @supports (corner-shape:squircle){.dpk-f{corner-shape:squircle;border-radius:var(--r-field-sq)}}
 /* a dropdown&#39;s field steps up its edge while it has the focus or its calendar is open; it takes no ring */
-.dpk-f:focus-visible{outline:0;box-shadow:inset 0 0 0 1px var(--field-line-strong)}
+.dpk-f:focus-visible{outline:0;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--field-line-strong) 50%,transparent)}
 .dpk-f&gt;svg:first-child{color:var(--muted)}
 .dpk-val{flex:1;text-align:left;color:var(--fg)}
 .dpk-val.ph{color:var(--muted)}
 .dpk-f&gt;svg:last-child{color:var(--muted)}
 .dpk-pop{width:100%;padding:10px;background:var(--surface)}
-.dpk-nl{width:100%;height:32px;border:0;outline:0;border-radius:var(--r-field);background:var(--surface);box-shadow:inset 0 0 0 1px var(--field-line);padding:0 10px;font:inherit;font-size:13px;color:var(--fg);transition:box-shadow var(--t-fast)}
+.dpk-nl{width:100%;height:32px;border:0;outline:0;border-radius:var(--r-field);background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--field-line) 50%,transparent);padding:0 10px;font:inherit;font-size:13px;color:var(--fg);transition:box-shadow var(--t-fast)}
 @supports (corner-shape:squircle){.dpk-nl{corner-shape:squircle;border-radius:var(--r-field-sq)}}
 .dpk-nl::placeholder{color:var(--muted)}
-.dpk-nl:focus{box-shadow:inset 0 0 0 1px var(--field-line-strong)}
+.dpk-nl:focus{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--field-line-strong) 50%,transparent)}
 .dpk-qk{display:flex;gap:var(--s-1);margin:var(--s-2) 0}
 .dpk-mh{display:flex;align-items:center;justify-content:space-between;margin:var(--s-1) 0}
 .dpk-mh b{font-weight:500;font-size:13px}
@@ -368,7 +368,7 @@ export function DatePicker({
 @keyframes dpkl{from{opacity:0;transform:translateX(-24px);filter:blur(3px)}}
 @keyframes dpkr{from{opacity:0;transform:translateX(24px);filter:blur(3px)}}
 .dpk-d{height:32px;border-radius:9px;font-size:12.5px;color:var(--fg);transition:background .2s,color .2s;position:relative}
-@media (hover:hover) and (pointer:fine){.dpk-d:hover{background:var(--chip)}}
+@media (hover:hover) and (pointer:fine){.dpk-d:hover{background:var(--row)}}
 /* the days fill the month&#39;s sliding view, which would cut an outside ring: theirs is drawn inside */
 .dpk-d:focus-visible{outline-offset:-2px}
 .dpk-d.o{color:var(--muted)}

@@ -47,10 +47,10 @@
 </script><script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareSourceCode","name":"Country select","description":"Country select is a dropdown for picking a country, with a search box, a flag on each row and the country's currency at the end. Once a country is picked, the line under the field changes to say which currency prices will be shown in. It fits billing and account setup, where the country decides tax and currency.","url":"https://designme.dev/components/country-select","image":"https://designme.dev/components/og/country-select.jpg","programmingLanguage":["HTML","CSS","JavaScript","TypeScript"],"runtimePlatform":"Web browser","license":"https://opensource.org/licenses/MIT","isAccessibleForFree":true,"keywords":"Country select, Forms and inputs, UI component, React component, HTML component","author":{"@type":"Organization","name":"DesignMe","url":"https://designme.agency"},"isPartOf":{"@type":"WebSite","name":"Designme.dev","url":"https://designme.dev/"}}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Library","item":"https://designme.dev/"},{"@type":"ListItem","position":2,"name":"Forms and inputs","item":"https://designme.dev/#s-forms"},{"@type":"ListItem","position":3,"name":"Country select","item":"https://designme.dev/components/country-select"}]}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Can I use my own country list?","acceptedAnswer":{"@type":"Answer","text":"Yes. Pass countries with code, name and currency for each one. Countries outside the twelve built-in ones show a blank flag unless you give them a flag node."}},{"@type":"Question","name":"How do I change the text under the field after a pick?","acceptedAnswer":{"@type":"Answer","text":"Pass pickedHint, a function that receives the chosen country and returns a string. Before anything is picked, hint is shown instead."}},{"@type":"Question","name":"What is selected before the person picks anything?","acceptedAnswer":{"@type":"Answer","text":"The first country in the list, unless you set defaultValue or control it with value."}}]}</script><link rel="stylesheet" href="/components/assets/core.css"><style>/* ---------- Country select ---------- */
 .csx{width:100%;max-width:var(--field-w);margin:0 auto;display:flex;flex-direction:column;gap:6px;position:relative}
 .csx-l{font-size:12.5px;font-weight:500}
-.csx-f{display:flex;align-items:center;gap:10px;height:var(--field-h);padding:0 var(--s-3);border-radius:var(--r-field);background:var(--surface);box-shadow:inset 0 0 0 1px var(--field-line);font-size:13.5px;text-align:left;transition:box-shadow var(--t-fast)}
+.csx-f{display:flex;align-items:center;gap:10px;height:var(--field-h);padding:0 var(--s-3);border-radius:var(--r-field);background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--field-line) 50%,transparent);font-size:13.5px;text-align:left;transition:box-shadow var(--t-fast)}
 @supports (corner-shape:squircle){.csx-f{corner-shape:squircle;border-radius:var(--r-field-sq)}}
 /* a dropdown's field steps up its edge while it has the focus or its list is open; it takes no ring */
-.csx-f:focus-visible{outline:0;box-shadow:inset 0 0 0 1px var(--field-line-strong)}
+.csx-f:focus-visible{outline:0;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--field-line-strong) 50%,transparent)}
 .csx-v{flex:1}
 .csx-f>svg{color:var(--muted);transition:transform .35s var(--ease)}
 .csx-f[aria-expanded="true"]>svg{transform:rotate(180deg)}
@@ -59,13 +59,13 @@
 /* closed, the list is hidden as well as clear, so Tab passes over its search box and options */
 .csx-pop{position:absolute;top:calc(var(--field-h) + 35px);left:0;right:0;z-index:5;background:var(--raised);border-radius:14px;box-shadow:var(--shadow-pop);padding:6px;opacity:0;visibility:hidden;transform:translateY(-4px) scale(.98);transform-origin:top;filter:blur(3px);pointer-events:none;transition:opacity .2s,transform .35s var(--ease),filter .2s,visibility 0s .2s}
 .csx-pop.open{opacity:1;visibility:visible;transform:none;filter:none;pointer-events:auto;transition-property:opacity,transform,filter}
-.csx-q{width:100%;height:32px;border:0;outline:0;border-radius:var(--r-field);background:var(--surface);box-shadow:inset 0 0 0 1px var(--field-line);padding:0 10px;font:inherit;font-size:13px;color:var(--fg);margin-bottom:var(--s-1);transition:box-shadow var(--t-fast)}
+.csx-q{width:100%;height:32px;border:0;outline:0;border-radius:var(--r-field);background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--field-line) 50%,transparent);padding:0 10px;font:inherit;font-size:13px;color:var(--fg);margin-bottom:var(--s-1);transition:box-shadow var(--t-fast)}
 @supports (corner-shape:squircle){.csx-q{corner-shape:squircle;border-radius:var(--r-field-sq)}}
 .csx-q::placeholder{color:var(--muted)}
-.csx-q:focus{box-shadow:inset 0 0 0 1px var(--field-line-strong)}
-.csx-list{max-height:200px;overflow-y:auto;display:flex;flex-direction:column}
+.csx-q:focus{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--field-line-strong) 50%,transparent)}
+.csx-list{max-height:200px;overflow-y:auto;display:flex;flex-direction:column;gap:2px}
 .csx-o{display:flex;align-items:center;gap:10px;padding:7px var(--s-2);border-radius:9px;font-size:13px;text-align:left;flex:none}
-.csx-o.hl{background:var(--wash)}
+.csx-o.hl{background:var(--row)}
 .csx-o .cd{margin-left:auto;font-size:11.5px;color:var(--muted)}
 .csx-o[aria-selected="true"] .ck{color:var(--accent-fg,var(--accent));display:grid}
 .csx-o .ck{display:none}
@@ -269,10 +269,10 @@ export function CountrySelect({ countries = COUNTRIES, value, defaultValue, onVa
 /* ---------- Country select ---------- */
 .dm-csx{width:100%;max-width:var(--dm-field-w);margin:0 auto;display:flex;flex-direction:column;gap:6px;position:relative}
 .dm-csx-l{font-size:12.5px;font-weight:500}
-.dm-csx-f{display:flex;align-items:center;gap:10px;height:var(--dm-field-h);padding:0 var(--dm-s-3);border-radius:var(--dm-r-field);background:var(--dm-surface);box-shadow:inset 0 0 0 1px var(--dm-field-line);font-size:13.5px;text-align:left;transition:box-shadow var(--dm-t-fast)}
+.dm-csx-f{display:flex;align-items:center;gap:10px;height:var(--dm-field-h);padding:0 var(--dm-s-3);border-radius:var(--dm-r-field);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line) 50%,transparent);font-size:13.5px;text-align:left;transition:box-shadow var(--dm-t-fast)}
 @supports (corner-shape:squircle){.dm-csx-f{corner-shape:squircle;border-radius:var(--dm-r-field-sq)}}
 /* a dropdown&#39;s field steps up its edge while it has the focus or its list is open; it takes no ring */
-.dm-csx-f:focus-visible{outline:0;box-shadow:inset 0 0 0 1px var(--dm-field-line-strong)}
+.dm-csx-f:focus-visible{outline:0;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line-strong) 50%,transparent)}
 .dm-csx-v{flex:1}
 .dm-csx-f&gt;svg{color:var(--dm-muted);transition:transform .35s var(--dm-ease)}
 .dm-csx-f[aria-expanded=&quot;true&quot;]&gt;svg{transform:rotate(180deg)}
@@ -281,13 +281,13 @@ export function CountrySelect({ countries = COUNTRIES, value, defaultValue, onVa
 /* closed, the list is hidden as well as clear, so Tab passes over its search box and options */
 .dm-csx-pop{position:absolute;top:calc(var(--dm-field-h) + 35px);left:0;right:0;z-index:5;background:var(--dm-raised);border-radius:14px;box-shadow:var(--dm-shadow-pop);padding:6px;opacity:0;visibility:hidden;transform:translateY(-4px) scale(.98);transform-origin:top;filter:blur(3px);pointer-events:none;transition:opacity .2s,transform .35s var(--dm-ease),filter .2s,visibility 0s .2s}
 .dm-csx-pop.dm-open{opacity:1;visibility:visible;transform:none;filter:none;pointer-events:auto;transition-property:opacity,transform,filter}
-.dm-csx-q{width:100%;height:32px;border:0;outline:0;border-radius:var(--dm-r-field);background:var(--dm-surface);box-shadow:inset 0 0 0 1px var(--dm-field-line);padding:0 10px;font:inherit;font-size:13px;color:var(--dm-fg);margin-bottom:var(--dm-s-1);transition:box-shadow var(--dm-t-fast)}
+.dm-csx-q{width:100%;height:32px;border:0;outline:0;border-radius:var(--dm-r-field);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line) 50%,transparent);padding:0 10px;font:inherit;font-size:13px;color:var(--dm-fg);margin-bottom:var(--dm-s-1);transition:box-shadow var(--dm-t-fast)}
 @supports (corner-shape:squircle){.dm-csx-q{corner-shape:squircle;border-radius:var(--dm-r-field-sq)}}
 .dm-csx-q::placeholder{color:var(--dm-muted)}
-.dm-csx-q:focus{box-shadow:inset 0 0 0 1px var(--dm-field-line-strong)}
-.dm-csx-list{max-height:200px;overflow-y:auto;display:flex;flex-direction:column}
+.dm-csx-q:focus{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line-strong) 50%,transparent)}
+.dm-csx-list{max-height:200px;overflow-y:auto;display:flex;flex-direction:column;gap:2px}
 .dm-csx-o{display:flex;align-items:center;gap:10px;padding:7px var(--dm-s-2);border-radius:9px;font-size:13px;text-align:left;flex:none}
-.dm-csx-o.dm-hl{background:var(--dm-wash)}
+.dm-csx-o.dm-hl{background:var(--dm-row)}
 .dm-csx-o .dm-cd{margin-left:auto;font-size:11.5px;color:var(--dm-muted)}
 .dm-csx-o[aria-selected=&quot;true&quot;] .dm-ck{color:var(--dm-accent-fg,var(--dm-accent));display:grid}
 .dm-csx-o .dm-ck{display:none}
@@ -305,10 +305,10 @@ export function CountrySelect({ countries = COUNTRIES, value, defaultValue, onVa
 </code></pre></details><details class="cp-file"><summary>country-select.css<span class="l">HTML · 27 lines</span></summary><pre class="cp-pre"><code>/* ---------- Country select ---------- */
 .csx{width:100%;max-width:var(--field-w);margin:0 auto;display:flex;flex-direction:column;gap:6px;position:relative}
 .csx-l{font-size:12.5px;font-weight:500}
-.csx-f{display:flex;align-items:center;gap:10px;height:var(--field-h);padding:0 var(--s-3);border-radius:var(--r-field);background:var(--surface);box-shadow:inset 0 0 0 1px var(--field-line);font-size:13.5px;text-align:left;transition:box-shadow var(--t-fast)}
+.csx-f{display:flex;align-items:center;gap:10px;height:var(--field-h);padding:0 var(--s-3);border-radius:var(--r-field);background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--field-line) 50%,transparent);font-size:13.5px;text-align:left;transition:box-shadow var(--t-fast)}
 @supports (corner-shape:squircle){.csx-f{corner-shape:squircle;border-radius:var(--r-field-sq)}}
 /* a dropdown&#39;s field steps up its edge while it has the focus or its list is open; it takes no ring */
-.csx-f:focus-visible{outline:0;box-shadow:inset 0 0 0 1px var(--field-line-strong)}
+.csx-f:focus-visible{outline:0;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--field-line-strong) 50%,transparent)}
 .csx-v{flex:1}
 .csx-f&gt;svg{color:var(--muted);transition:transform .35s var(--ease)}
 .csx-f[aria-expanded=&quot;true&quot;]&gt;svg{transform:rotate(180deg)}
@@ -317,13 +317,13 @@ export function CountrySelect({ countries = COUNTRIES, value, defaultValue, onVa
 /* closed, the list is hidden as well as clear, so Tab passes over its search box and options */
 .csx-pop{position:absolute;top:calc(var(--field-h) + 35px);left:0;right:0;z-index:5;background:var(--raised);border-radius:14px;box-shadow:var(--shadow-pop);padding:6px;opacity:0;visibility:hidden;transform:translateY(-4px) scale(.98);transform-origin:top;filter:blur(3px);pointer-events:none;transition:opacity .2s,transform .35s var(--ease),filter .2s,visibility 0s .2s}
 .csx-pop.open{opacity:1;visibility:visible;transform:none;filter:none;pointer-events:auto;transition-property:opacity,transform,filter}
-.csx-q{width:100%;height:32px;border:0;outline:0;border-radius:var(--r-field);background:var(--surface);box-shadow:inset 0 0 0 1px var(--field-line);padding:0 10px;font:inherit;font-size:13px;color:var(--fg);margin-bottom:var(--s-1);transition:box-shadow var(--t-fast)}
+.csx-q{width:100%;height:32px;border:0;outline:0;border-radius:var(--r-field);background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--field-line) 50%,transparent);padding:0 10px;font:inherit;font-size:13px;color:var(--fg);margin-bottom:var(--s-1);transition:box-shadow var(--t-fast)}
 @supports (corner-shape:squircle){.csx-q{corner-shape:squircle;border-radius:var(--r-field-sq)}}
 .csx-q::placeholder{color:var(--muted)}
-.csx-q:focus{box-shadow:inset 0 0 0 1px var(--field-line-strong)}
-.csx-list{max-height:200px;overflow-y:auto;display:flex;flex-direction:column}
+.csx-q:focus{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--field-line-strong) 50%,transparent)}
+.csx-list{max-height:200px;overflow-y:auto;display:flex;flex-direction:column;gap:2px}
 .csx-o{display:flex;align-items:center;gap:10px;padding:7px var(--s-2);border-radius:9px;font-size:13px;text-align:left;flex:none}
-.csx-o.hl{background:var(--wash)}
+.csx-o.hl{background:var(--row)}
 .csx-o .cd{margin-left:auto;font-size:11.5px;color:var(--muted)}
 .csx-o[aria-selected=&quot;true&quot;] .ck{color:var(--accent-fg,var(--accent));display:grid}
 .csx-o .ck{display:none}

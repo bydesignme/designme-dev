@@ -46,21 +46,21 @@
 })();
 </script><script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareSourceCode","name":"Account table","description":"A table of customer accounts with plan, seats, a health bar and monthly revenue, which people can search and filter by plan. Clicking a row opens a note on what the agent noticed about that account, with an optional button for the next step, such as drafting an email. It suits a customer success or sales view where an agent watches accounts for risk.","url":"https://designme.dev/components/account-table","image":"https://designme.dev/components/og/account-table.jpg","programmingLanguage":["HTML","CSS","JavaScript","TypeScript"],"runtimePlatform":"Web browser","license":"https://opensource.org/licenses/MIT","isAccessibleForFree":true,"keywords":"Account table, Charts and tables, UI component, React component, HTML component","author":{"@type":"Organization","name":"DesignMe","url":"https://designme.agency"},"isPartOf":{"@type":"WebSite","name":"Designme.dev","url":"https://designme.dev/"}}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Library","item":"https://designme.dev/"},{"@type":"ListItem","position":2,"name":"Charts and tables","item":"https://designme.dev/#s-charts"},{"@type":"ListItem","position":3,"name":"Account table","item":"https://designme.dev/components/account-table"}]}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I add a \"Draft email\" button to the agent's note?","acceptedAnswer":{"@type":"Answer","text":"Pass action with a label, an optional doneLabel and an onClick that receives the account. Return a promise and the button spins until it resolves, then shows the done label. If it rejects, the button goes back to its label."}},{"@type":"Question","name":"Can the agent open a row by itself?","acceptedAnswer":{"@type":"Answer","text":"Yes. Control open with the account's name and update it from your own state, for example when the agent flags an account. Set it to null to close all rows."}},{"@type":"Question","name":"Does the table sort or format MRR for me?","acceptedAnswer":{"@type":"Answer","text":"No. Rows appear in the order of accounts, and mrr is shown as the string you pass, so format it first, like \"$14,400\"."}},{"@type":"Question","name":"Can I put links or formatting in the note?","acceptedAnswer":{"@type":"Answer","text":"Yes. note takes any React node, so it can hold links, bold text or other elements."}}]}</script><link rel="stylesheet" href="/components/assets/core.css"><style>/* ---------- Account table ---------- */
 .atb{overflow:hidden}
-.atb-h{display:flex;align-items:center;gap:var(--s-2);padding:10px;flex-wrap:wrap;border-bottom:1px solid var(--line)}
-.atb-s{display:flex;align-items:center;gap:var(--s-2);height:32px;padding:0 10px;border-radius:var(--r-field);background:var(--surface);box-shadow:inset 0 0 0 1px var(--field-line);color:var(--muted);flex:1;min-width:160px;transition:box-shadow var(--t-fast)}
+.atb-h{display:flex;align-items:center;gap:var(--s-2);padding:10px;flex-wrap:wrap;border-bottom:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
+.atb-s{display:flex;align-items:center;gap:var(--s-2);height:32px;padding:0 10px;border-radius:var(--r-field);background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--field-line) 50%,transparent);color:var(--muted);flex:1;min-width:160px;transition:box-shadow var(--t-fast)}
 @supports (corner-shape:squircle){.atb-s{corner-shape:squircle;border-radius:var(--r-field-sq)}}
 .atb-s input{flex:1;min-width:0;border:0;outline:0;background:transparent;font:inherit;font-size:13px;color:var(--fg)}
-.atb-s:has(input:focus){box-shadow:inset 0 0 0 1px var(--field-line-strong)}
+.atb-s:has(input:focus){box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--field-line-strong) 50%,transparent)}
 .atb-s input::placeholder{color:var(--muted)}
 .atb-fl{display:flex;gap:var(--s-1);flex-wrap:wrap}
 /* the filters are white chips with a dimmed grey edge; the picked one's edge is a step stronger */
-.atb-fl .chip{background:var(--surface);box-shadow:inset 0 0 0 1px var(--pick-line)}
-@media (hover:hover) and (pointer:fine){.atb-fl .chip:hover{background:var(--surface);box-shadow:inset 0 0 0 1px var(--faint)}}
+.atb-fl .chip{background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--pick-line) 50%,transparent)}
+@media (hover:hover) and (pointer:fine){.atb-fl .chip:hover{background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--faint) 50%,transparent)}}
 .atb-sc{overflow-x:auto}
 .atb table{width:100%;border-collapse:collapse;font-size:13px;min-width:560px}
 .atb th{text-align:left;font-weight:500;font-size:12px;color:var(--muted);padding:9px var(--s-3);white-space:nowrap}
 .atb th.r,.atb td.r{text-align:right}
-.atb td{padding:9px var(--s-3);border-top:1px solid var(--line);white-space:nowrap}
+.atb td{padding:9px var(--s-3);border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent);white-space:nowrap}
 .atb tr.row{cursor:pointer;transition:background .2s}
 @media (hover:hover) and (pointer:fine){.atb tr.row:hover{background:var(--row)}}
 /* a row that takes the focus fills the scrolling table, which would cut an outside ring: its ring is drawn inside */
@@ -275,21 +275,21 @@ export function AccountTable({
 </code></pre></details><details class="cp-file"><summary>account-table.css<span class="l">React · 36 lines</span></summary><pre class="cp-pre"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Account table ---------- */
 .dm-atb{overflow:hidden}
-.dm-atb-h{display:flex;align-items:center;gap:var(--dm-s-2);padding:10px;flex-wrap:wrap;border-bottom:1px solid var(--dm-line)}
-.dm-atb-s{display:flex;align-items:center;gap:var(--dm-s-2);height:32px;padding:0 10px;border-radius:var(--dm-r-field);background:var(--dm-surface);box-shadow:inset 0 0 0 1px var(--dm-field-line);color:var(--dm-muted);flex:1;min-width:160px;transition:box-shadow var(--dm-t-fast)}
+.dm-atb-h{display:flex;align-items:center;gap:var(--dm-s-2);padding:10px;flex-wrap:wrap;border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
+.dm-atb-s{display:flex;align-items:center;gap:var(--dm-s-2);height:32px;padding:0 10px;border-radius:var(--dm-r-field);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line) 50%,transparent);color:var(--dm-muted);flex:1;min-width:160px;transition:box-shadow var(--dm-t-fast)}
 @supports (corner-shape:squircle){.dm-atb-s{corner-shape:squircle;border-radius:var(--dm-r-field-sq)}}
 .dm-atb-s input{flex:1;min-width:0;border:0;outline:0;background:transparent;font:inherit;font-size:13px;color:var(--dm-fg)}
-.dm-atb-s:has(input:focus){box-shadow:inset 0 0 0 1px var(--dm-field-line-strong)}
+.dm-atb-s:has(input:focus){box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line-strong) 50%,transparent)}
 .dm-atb-s input::placeholder{color:var(--dm-muted)}
 .dm-atb-fl{display:flex;gap:var(--dm-s-1);flex-wrap:wrap}
 /* the filters are white chips with a dimmed grey edge; the picked one&#39;s edge is a step stronger */
-.dm-atb-fl .dm-chip{background:var(--dm-surface);box-shadow:inset 0 0 0 1px var(--dm-pick-line)}
-@media (hover:hover) and (pointer:fine){.dm-atb-fl .dm-chip:hover{background:var(--dm-surface);box-shadow:inset 0 0 0 1px var(--dm-faint)}}
+.dm-atb-fl .dm-chip{background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-pick-line) 50%,transparent)}
+@media (hover:hover) and (pointer:fine){.dm-atb-fl .dm-chip:hover{background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-faint) 50%,transparent)}}
 .dm-atb-sc{overflow-x:auto}
 .dm-atb table{width:100%;border-collapse:collapse;font-size:13px;min-width:560px}
 .dm-atb th{text-align:left;font-weight:500;font-size:12px;color:var(--dm-muted);padding:9px var(--dm-s-3);white-space:nowrap}
 .dm-atb th.dm-r,.dm-atb td.dm-r{text-align:right}
-.dm-atb td{padding:9px var(--dm-s-3);border-top:1px solid var(--dm-line);white-space:nowrap}
+.dm-atb td{padding:9px var(--dm-s-3);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);white-space:nowrap}
 .dm-atb tr.dm-row{cursor:pointer;transition:background .2s}
 @media (hover:hover) and (pointer:fine){.dm-atb tr.dm-row:hover{background:var(--dm-row)}}
 /* a row that takes the focus fills the scrolling table, which would cut an outside ring: its ring is drawn inside */
@@ -317,21 +317,21 @@ export function AccountTable({
 &lt;/div&gt;
 </code></pre></details><details class="cp-file"><summary>account-table.css<span class="l">HTML · 35 lines</span></summary><pre class="cp-pre"><code>/* ---------- Account table ---------- */
 .atb{overflow:hidden}
-.atb-h{display:flex;align-items:center;gap:var(--s-2);padding:10px;flex-wrap:wrap;border-bottom:1px solid var(--line)}
-.atb-s{display:flex;align-items:center;gap:var(--s-2);height:32px;padding:0 10px;border-radius:var(--r-field);background:var(--surface);box-shadow:inset 0 0 0 1px var(--field-line);color:var(--muted);flex:1;min-width:160px;transition:box-shadow var(--t-fast)}
+.atb-h{display:flex;align-items:center;gap:var(--s-2);padding:10px;flex-wrap:wrap;border-bottom:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
+.atb-s{display:flex;align-items:center;gap:var(--s-2);height:32px;padding:0 10px;border-radius:var(--r-field);background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--field-line) 50%,transparent);color:var(--muted);flex:1;min-width:160px;transition:box-shadow var(--t-fast)}
 @supports (corner-shape:squircle){.atb-s{corner-shape:squircle;border-radius:var(--r-field-sq)}}
 .atb-s input{flex:1;min-width:0;border:0;outline:0;background:transparent;font:inherit;font-size:13px;color:var(--fg)}
-.atb-s:has(input:focus){box-shadow:inset 0 0 0 1px var(--field-line-strong)}
+.atb-s:has(input:focus){box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--field-line-strong) 50%,transparent)}
 .atb-s input::placeholder{color:var(--muted)}
 .atb-fl{display:flex;gap:var(--s-1);flex-wrap:wrap}
 /* the filters are white chips with a dimmed grey edge; the picked one&#39;s edge is a step stronger */
-.atb-fl .chip{background:var(--surface);box-shadow:inset 0 0 0 1px var(--pick-line)}
-@media (hover:hover) and (pointer:fine){.atb-fl .chip:hover{background:var(--surface);box-shadow:inset 0 0 0 1px var(--faint)}}
+.atb-fl .chip{background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--pick-line) 50%,transparent)}
+@media (hover:hover) and (pointer:fine){.atb-fl .chip:hover{background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--faint) 50%,transparent)}}
 .atb-sc{overflow-x:auto}
 .atb table{width:100%;border-collapse:collapse;font-size:13px;min-width:560px}
 .atb th{text-align:left;font-weight:500;font-size:12px;color:var(--muted);padding:9px var(--s-3);white-space:nowrap}
 .atb th.r,.atb td.r{text-align:right}
-.atb td{padding:9px var(--s-3);border-top:1px solid var(--line);white-space:nowrap}
+.atb td{padding:9px var(--s-3);border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent);white-space:nowrap}
 .atb tr.row{cursor:pointer;transition:background .2s}
 @media (hover:hover) and (pointer:fine){.atb tr.row:hover{background:var(--row)}}
 /* a row that takes the focus fills the scrolling table, which would cut an outside ring: its ring is drawn inside */
