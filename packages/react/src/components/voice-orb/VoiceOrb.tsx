@@ -81,8 +81,9 @@ export function VoiceOrb({
   );
 }
 
-/** Light flowing inside the orb in the colours of whoever is talking, faster and brighter as they get louder. Without WebGL the
-    core keeps its plain gradient; with reduced motion it is one still frame, drawn again when the speaker changes */
+/** The lit glass sphere, with light flowing inside it in the colours of whoever is talking, faster and brighter as they get
+    louder. Where no canvas can draw the core keeps its plain gradient; with reduced motion it is one still frame, drawn again
+    when the speaker changes */
 function OrbLight({ level }: { level: number }) {
   const ref = useRef<HTMLCanvasElement>(null), lv = useRef(level), reduce = useReducedMotion();
   const [on, setOn] = useState(false);
@@ -101,7 +102,7 @@ function OrbLight({ level }: { level: number }) {
     if (reduce) { draw(0); mo.observe(box, { attributes: true, attributeFilter: ['data-m'] }); }
     else {
       const tick = (t: number) => { flow += Math.min(50, t - (last || t)) * (1 + lv.current * 2.5); last = t; if (seen) draw(flow); raf = requestAnimationFrame(tick); };
-      raf = requestAnimationFrame(tick);
+      draw(0); raf = requestAnimationFrame(tick);
     }
     // the context is let go once the canvas has left the page, not when an effect merely runs again on the same canvas
     return () => { dead = true; cancelAnimationFrame(raf); io.disconnect(); mo.disconnect(); setTimeout(() => { if (!cv.isConnected) s.lose(); }); };
@@ -109,66 +110,137 @@ function OrbLight({ level }: { level: number }) {
   return <canvas ref={ref} className={cx('dm-vor-gl', on && 'dm-on')} />;
 }
 
-// a glossy sphere of slowly flowing light, for Voice orb: soft pools of the two colours drift inside it, bent by a little
-// noise and bunched towards the edge as a lens would; a light glows from deep inside, and it is shaded as a ball lit from the
-// top left, with a deeper edge, a thin inner rim, a soft sheen and a small highlight. Nothing is drawn outside the circle.
-// The louder the level, the more the colours bend and the brighter the inner light. One draw a frame, on a canvas the size
-// of the orb. Returns paint(ms, level 0 to 1, colour, second colour) and lose(), or null where WebGL is not available
+// the glass sphere, as a fragment shader: the site's own source, copied in by scripts/sync.mjs (edit soft-2/index.html, then
+// sync). It is lit as a ball: normals from the sphere, a soft key light from the top left with a deeper, shifted hue past the
+// terminator toward the bottom right, light gathered through the glass on the far side, a fresnel edge, a broad sheen and a
+// small sharp highlight. Inside, the view bends as it enters the glass and the light is read at three depths along it: deep
+// pools of the two colours and a third hue swirl slowly, liquid light flows through the middle and two thin ribbons turn the
+// other way near the surface. The level speeds the flow, brightens the heart, makes the rim wobble a little and the highlight
+// shimmer. At its widest the sphere still sits inside the canvas, and nothing is drawn outside it
+// <orb-frag>
 const FRAG = `#ifdef GL_FRAGMENT_PRECISION_HIGH
 precision highp float;
 #else
 precision mediump float;
 #endif
-uniform vec2 R;uniform float T,L;uniform vec3 A,B;
+uniform vec2 R;uniform float T,L;uniform vec3 A0,B0;
 float h(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
 float n(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(h(i),h(i+vec2(1,0)),f.x),mix(h(i+vec2(0,1)),h(i+1.),f.x),f.y);}
-float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<4;i++){v+=a*n(p);p=p*2.03+vec2(1.7,9.2);a*=.5;}return v;}
+float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<4;i++){v+=a*n(p);p=mat2(1.6,1.2,-1.2,1.6)*p+vec2(1.7,9.2);a*=.5;}return v;}
+mat2 rot(float a){float c=cos(a),s=sin(a);return mat2(c,s,-s,c);}
+vec3 tn(vec3 c){float mx=max(c.r,max(c.g,c.b)),d=mx-min(c.r,min(c.g,c.b));c*=max(1.,.5/max(mx,.01));mx=max(mx,.5);d=mx-min(c.r,min(c.g,c.b));return max(mx-(mx-c)*mix(1.,clamp(.55*mx/max(d,.001),1.,3.),smoothstep(.03,.12,d)),0.);}
+vec3 hue(vec3 c,float a){vec3 k=vec3(.57735);float co=cos(a);return c*co+cross(k,c)*sin(a)+k*dot(k,c)*(1.-co);}
 void main(){
-  vec2 u=(gl_FragCoord.xy*2.-R)/R.y;float r=length(u),e=3./R.y;
+  vec3 A=tn(A0),B=tn(B0),C=hue(A,mix(-.9,1.4,smoothstep(-.1,.1,A.b-A.g)));
+  vec2 u=(gl_FragCoord.xy*2.-R)/R.y;
+  float t=T*.001,an=atan(u.y,u.x);
+  float w=(.002+.008*L)*(sin(3.*an+t*1.9)+.6*sin(5.*an-t*2.7)+.4*sin(2.*an-t*1.1));
+  float rad=.955*(1.+.008*sin(t*.9)+w);
+  vec2 q=u/rad;float r=length(q),e=3./(R.y*rad);
   float a=1.-smoothstep(1.-e,1.,r);
   if(a<=0.){gl_FragColor=vec4(0.);return;}
-  float z=sqrt(max(0.,1.-r*r)),t=T*.00016;vec3 N=vec3(u,z);
-  vec2 p=u*(.85+.3*(1.-z));
-  p+=(vec2(fbm(p*.9+vec2(0.,t)),fbm(p*.9+vec2(5.2,-t*.8)))-.5)*(1.+L);
-  vec2 d1=p-vec2(.5*sin(t*1.3),.45*cos(t*1.1)),d2=p-vec2(.55*cos(t*.9+2.),.5*sin(t*1.2+1.)),d3=p-vec2(.35*sin(t*1.7+4.),-.3+.25*cos(t*1.4));
-  vec3 c=mix(A,B,.35)*.8;
-  c=mix(c,B,exp(-dot(d2,d2)*2.2)*.95);
-  c=mix(c,A,exp(-dot(d1,d1)*2.4)*.9);
-  c=mix(c,mix(A,vec3(1.),.5),exp(-dot(d3,d3)*3.)*(.4+L*.35));
-  float rb=p.y+.28*sin(p.x*2.3+t*2.);
-  c=mix(c,mix(B,vec3(1.),.45),exp(-rb*rb*14.)*(.2+L*.25));
-  vec3 lt=normalize(vec3(-.4,.55,.75));
-  c*=.84+.16*max(dot(N,lt),0.);
-  c=mix(c,c*.62,pow(1.-z,2.)*.55);
-  c=mix(c,mix(c,vec3(1.),.55),smoothstep(.9,.995,r)*.32);
-  float e2=length((u-vec2(-.1,.52))/vec2(.6,.34));
-  c=mix(c,vec3(1.),(1.-smoothstep(.5,1.,e2))*.16);
-  float s=max(dot(N,normalize(lt+vec3(0.,0.,1.))),0.);
-  c+=pow(s,70.)*.3;
-  gl_FragColor=vec4(min(c,1.)*a,a);
+  float z=sqrt(max(1.-r*r,0.));
+  vec3 N=vec3(q,z);
+  N.xy+=(vec2(n(q*5.+t*1.6),n(q*5.-t*1.3+7.))-.5)*(.03+.12*L);N=normalize(N);
+  vec3 S=vec3(q,z),D=refract(vec3(0,0,-1),N,.72),P1=S+D*z*.35,P2=S+D*z*.9,P3=S+D*z*1.5;
+  float s=t*.22;
+  vec3 d1=P3-vec3(.55*sin(s*1.3),.5*cos(s*1.1),.3*sin(s*.7)),d2=P3-vec3(.55*cos(s*.9+2.),.5*sin(s*1.2+1.),.3*cos(s*.8+3.)),d3=P3-vec3(.5*sin(s*1.6+4.),.5*cos(s*1.4+5.),.3*sin(s+1.));
+  float g1=exp(-dot(d1,d1)*2.6),g2=exp(-dot(d2,d2)*2.6),g3=exp(-dot(d3,d3)*3.2);
+  vec3 col=mix(mix(mix(mix(A,B,.4)*.55,B,g2*.8),C,g3*.7),A,g1*.95);
+  vec2 m=rot(t*.09)*P2.xy*1.5,o=vec2(fbm(m+vec2(0.,t*.3)),fbm(m+vec2(5.2,1.3)-t*.25));
+  float f=fbm(m+(o-.5)*(2.5+2.*L)+vec2(t*.12,-t*.08));
+  col=mix(col,mix(mix(A,B,.5),vec3(1.),.15),smoothstep(.45,.8,f)*.5)*(.8+.35*smoothstep(.2,.6,f));
+  vec2 k=rot(-t*.33)*P1.xy;
+  float b1=k.y+.32*sin(k.x*2.4+t*1.4)+.12*sin(k.x*5.3-t*2.2)+(o.x-.5)*.5,b2=k.x-.3*sin(k.y*2.1-t*1.1)+.4;
+  col+=mix(mix(A,C,.35),vec3(1.),.35)*(exp(-b1*b1*40.)+.6*exp(-b2*b2*55.))*(.25+.35*L)*z;
+  col+=mix(A,vec3(1.),.4)*exp(-dot(P2.xy,P2.xy)*3.)*(.08+.3*L);
+  vec3 lk=normalize(vec3(-.5,.62,.6)),dk=hue(col,.35);
+  col=mix(dk*dk*.6,col*1.06,smoothstep(-.55,.75,dot(N,lk)));
+  col+=mix(B,vec3(1.),.5)*pow(1.-z,1.6)*smoothstep(.1,.95,dot(q/max(r,1e-3),-normalize(lk.xy)))*.55;
+  col=mix(col,mix(vec3(.06),vec3(1.),smoothstep(-.3,.9,N.y*.7-N.x*.4)),pow(1.-N.z,3.)*.5);
+  float nh=max(dot(N,normalize(lk+vec3(0,0,1))),0.);
+  col+=pow(nh,700.)*(1.2+.8*L*sin(t*9.+q.x*8.))+pow(nh,60.)*.25+pow(nh,8.)*.1;
+  gl_FragColor=vec4(clamp(col,0.,1.)*a,a);
 }`;
+// </orb-frag>
 
+/** Draws the sphere on the orb's canvas: one draw a frame, at most 2 device pixels a CSS pixel, and nothing made anew each
+    frame. Where WebGL is missing it is drawn in a few gradients on a 2D canvas instead. Returns paint(ms of flow, level 0 to 1,
+    colour, second colour) and lose(), or null when neither canvas can draw */
 function orbShader(cv: HTMLCanvasElement) {
-  const gl = cv.getContext('webgl', { premultipliedAlpha: true, antialias: true }); if (!gl) return null;
-  const sh = (type: number, src: string) => { const s = gl.createShader(type)!; gl.shaderSource(s, src); gl.compileShader(s); return s; };
-  const pr = gl.createProgram()!;
-  gl.attachShader(pr, sh(gl.VERTEX_SHADER, 'attribute vec2 p;void main(){gl_Position=vec4(p,0.,1.);}'));
-  gl.attachShader(pr, sh(gl.FRAGMENT_SHADER, FRAG));
-  gl.linkProgram(pr); if (!gl.getProgramParameter(pr, gl.LINK_STATUS)) return null;
-  gl.useProgram(pr);
-  gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer()); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
-  const at = gl.getAttribLocation(pr, 'p'); gl.enableVertexAttribArray(at); gl.vertexAttribPointer(at, 2, gl.FLOAT, false, 0, 0);
-  const U = (k: string) => gl.getUniformLocation(pr, k), uR = U('R'), uT = U('T'), uL = U('L'), uA = U('A'), uB = U('B');
-  // a computed colour to 0 to 1 channels. Mid-transition it can come as oklab() or color(), so a 1px canvas reads it
+  // a computed colour to 0 to 1 channels. Mid-transition it can come as oklab() or color(), so a 1px canvas reads it. Only a
+  // colour that changed is read, a few times a second at most
   const px = document.createElement('canvas').getContext('2d', { willReadFrequently: true })!; px.canvas.width = px.canvas.height = 1;
-  const rgb = (s: string) => { px.clearRect(0, 0, 1, 1); px.fillStyle = '#000'; px.fillStyle = s; px.fillRect(0, 0, 1, 1); const d = px.getImageData(0, 0, 1, 1).data; return [d[0] / 255, d[1] / 255, d[2] / 255]; };
+  const rgb = (s: string, o: Float32Array) => { px.clearRect(0, 0, 1, 1); px.fillStyle = '#000'; px.fillStyle = s; px.fillRect(0, 0, 1, 1); const d = px.getImageData(0, 0, 1, 1).data; o[0] = d[0] / 255; o[1] = d[1] / 255; o[2] = d[2] / 255; };
+  const ta = new Float32Array(3), tb = new Float32Array(3), ca = new Float32Array(3), cb = new Float32Array(3);
+  let sa = '', sb = '', w = 0, at = -1e9, prev = -1e9;
+  // the canvas's size in device pixels, checked a few times a second
+  const fit = (now: number) => { if (w && now - at < 300) return false; at = now; const n = Math.round(cv.clientWidth * Math.min(2, devicePixelRatio || 1)) || 1; if (n === w) return false; w = cv.width = cv.height = n; return true; };
+  // a new colour is glided to over a few frames; after a pause (a still frame, or back on screen) it is taken at once
+  const tint = (a: string, b: string, now: number, snap: boolean) => {
+    if (a !== sa) { sa = a; rgb(a, ta); } if (b !== sb) { sb = b; rgb(b, tb); }
+    const k = snap || now - prev > 200 ? 1 : Math.min(1, (now - prev) / 110); prev = now;
+    for (let i = 0; i < 3; i++) { ca[i] += (ta[i] - ca[i]) * k; cb[i] += (tb[i] - cb[i]) * k; }
+  };
+  const gl = cv.getContext('webgl', { premultipliedAlpha: true, antialias: false, powerPreference: 'low-power' });
+  if (gl) {
+    const sh = (type: number, src: string) => { const s = gl.createShader(type)!; gl.shaderSource(s, src); gl.compileShader(s); return s; };
+    const pr = gl.createProgram()!;
+    gl.attachShader(pr, sh(gl.VERTEX_SHADER, 'attribute vec2 p;void main(){gl_Position=vec4(p,0.,1.);}'));
+    gl.attachShader(pr, sh(gl.FRAGMENT_SHADER, FRAG));
+    gl.linkProgram(pr);
+    const lose = () => { gl.getExtension('WEBGL_lose_context')?.loseContext(); };
+    if (!gl.getProgramParameter(pr, gl.LINK_STATUS)) { lose(); return null; }
+    gl.useProgram(pr);
+    gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer()); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
+    const p = gl.getAttribLocation(pr, 'p'); gl.enableVertexAttribArray(p); gl.vertexAttribPointer(p, 2, gl.FLOAT, false, 0, 0);
+    const U = (k: string) => gl.getUniformLocation(pr, k), uR = U('R'), uT = U('T'), uL = U('L'), uA = U('A0'), uB = U('B0');
+    return {
+      paint(ms: number, lv: number, a: string, b: string) {
+        const now = performance.now(); if (fit(now)) gl.viewport(0, 0, w, w);
+        tint(a, b, now, false);
+        gl.uniform2f(uR, w, w); gl.uniform1f(uT, ms); gl.uniform1f(uL, lv); gl.uniform3fv(uA, ca); gl.uniform3fv(uB, cb);
+        gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+      },
+      lose
+    };
+  }
+  const x = cv.getContext('2d'); if (!x) return null;
+  // the shader's colours: dark ones lifted, pale ones given more chroma, and a third hue turned round the grey axis toward
+  // the warm side (blue and violet toward magenta, lime toward amber)
+  const tn = (o: Float32Array, d: Float32Array) => { const lift = Math.max(1, .5 / Math.max(.01, o[0], o[1], o[2])), mx = Math.max(o[0], o[1], o[2]) * lift, dd = mx - Math.min(o[0], o[1], o[2]) * lift, s = Math.min(1, Math.max(0, (dd - .03) / .09)), k = 1 + (Math.min(3, Math.max(1, .55 * mx / Math.max(dd, .001))) - 1) * s * s * (3 - 2 * s); for (let i = 0; i < 3; i++) d[i] = Math.max(0, mx - (mx - o[i] * lift) * k); };
+  const hue = (o: Float32Array, d: Float32Array, ang: number) => { const co = Math.cos(ang), si = Math.sin(ang) * .57735, m = (o[0] + o[1] + o[2]) / 3 * (1 - co); d[0] = o[0] * co + (o[2] - o[1]) * si + m; d[1] = o[1] * co + (o[0] - o[2]) * si + m; d[2] = o[2] * co + (o[1] - o[0]) * si + m; };
+  const A = new Float32Array(3), B = new Float32Array(3), C = new Float32Array(3), M = new Float32Array(3);
+  const css = (o: Float32Array, al: number, f = 1) => `rgba(${[0, 1, 2].map(i => Math.round(Math.min(1, Math.max(0, o[i] * f)) * 255)).join(',')},${al})`;
+  // every gradient is made for a sphere of radius 1 at the origin, and placed by the transform as it is drawn
+  const grad = (cx: number, cy: number, r: number, stops: (number | string)[]) => { const g = x.createRadialGradient(cx, cy, 0, cx, cy, r); for (let i = 0; i < stops.length; i += 2) g.addColorStop(stops[i] as number, stops[i + 1] as string); return g; };
+  const shade = grad(-.35, -.4, 1.6, [0, 'rgba(255,255,255,.16)', .45, 'rgba(0,0,0,0)', 1, 'rgba(0,0,0,.5)']),
+    rim = grad(0, 0, 1, [.78, 'rgba(255,255,255,0)', 1, 'rgba(255,255,255,.28)']),
+    sheen = grad(-.32, -.38, .6, [0, 'rgba(255,255,255,.22)', 1, 'rgba(255,255,255,0)']),
+    spec = grad(-.4, -.46, .14, [0, 'rgba(255,255,255,.95)', 1, 'rgba(255,255,255,0)']);
+  let g: { base: string; a: CanvasGradient; b: CanvasGradient; c: CanvasGradient; core: CanvasGradient } | null = null, mid = 0, rad = 0;
+  const put = (fill: string | CanvasGradient, dx: number, dy: number, sz: number) => { x.setTransform(rad * sz, 0, 0, rad * sz, mid + rad * dx, mid + rad * dy); x.fillStyle = fill; x.fillRect(-1, -1, 2, 2); };
   return {
     paint(ms: number, lv: number, a: string, b: string) {
-      const d = Math.min(2, devicePixelRatio || 1), w = Math.round(cv.clientWidth * d) || 1;
-      if (cv.width !== w) { cv.width = cv.height = w; gl.viewport(0, 0, w, w); }
-      gl.uniform2f(uR, w, w); gl.uniform1f(uT, ms); gl.uniform1f(uL, lv); gl.uniform3fv(uA, rgb(a)); gl.uniform3fv(uB, rgb(b));
-      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+      const now = performance.now(); fit(now);
+      // the colour gradients are made again only when a colour changes
+      if (!g || a !== sa || b !== sb) {
+        tint(a, b, now, true); tn(ca, A); tn(cb, B); hue(A, C, A[2] > A[1] ? 1.4 : -.9);
+        for (let i = 0; i < 3; i++) M[i] = (A[i] + B[i]) / 2;
+        g = { base: css(M, 1, .7), a: grad(0, 0, 1, [0, css(A, .95), 1, css(A, 0)]), b: grad(0, 0, 1, [0, css(B, .95), 1, css(B, 0)]), c: grad(0, 0, 1, [0, css(C, .55), 1, css(C, 0)]), core: grad(0, 0, 1, [0, css(A, 1, 1.4), 1, css(A, 0)]) };
+      }
+      const t = ms * .001, s = t * .22; mid = w / 2; rad = mid * .955 * (1 + .008 * Math.sin(t * .9));
+      x.setTransform(1, 0, 0, 1, 0, 0); x.clearRect(0, 0, w, w);
+      x.save(); x.beginPath(); x.arc(mid, mid, rad, 0, Math.PI * 2); x.clip();
+      x.fillStyle = g.base; x.fillRect(0, 0, w, w);
+      put(g.a, .55 * Math.sin(s * 1.3), -.5 * Math.cos(s * 1.1), 1.1);
+      put(g.b, .55 * Math.cos(s * .9 + 2), -.5 * Math.sin(s * 1.2 + 1), 1.1);
+      put(g.c, .5 * Math.sin(s * 1.6 + 4), -.5 * Math.cos(s * 1.4 + 5), .9);
+      x.globalAlpha = .15 + .45 * lv; put(g.core, 0, 0, .7);
+      x.globalAlpha = 1; put(shade, 0, 0, 1); put(rim, 0, 0, 1); put(sheen, 0, 0, 1);
+      x.globalAlpha = .85 + .15 * lv * Math.sin(t * 9); put(spec, 0, 0, 1);
+      x.restore();
     },
-    lose() { gl.getExtension('WEBGL_lose_context')?.loseContext(); }
+    lose() {}
   };
 }

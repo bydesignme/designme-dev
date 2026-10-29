@@ -4,6 +4,7 @@
 //   src/components/<name>/<name>.css       each component's own styles
 //   src/lib/icons.tsx                      the icon set as React elements
 //   src/lib/brands.tsx, src/lib/flags.tsx  the service logos and country flags some components show
+//   the <orb-frag> part of src/components/voice-orb/VoiceOrb.tsx   Voice orb's shader, the site's own source
 // Every class, custom property and keyframe name gets a dm- prefix on the way, so the components
 // can sit beside any other CSS (Tailwind, shadcn/ui, a site's own .panel or --accent) without either side leaking into the other.
 // usage: node scripts/sync.mjs   (from packages/react)
@@ -94,6 +95,16 @@ for (const [name, text] of [['core', core], ...COMPONENTS.map(n => [n, scope(own
   for (const [name, text] of [['core', core], ...COMPONENTS.map(n => [n, scope(own[n], frames)])]) {
     const left = ungated(text); if (left.length) throw new Error(`${name}: hover styles outside (hover:hover) and (pointer:fine): ${left.slice(0, 3).join(' | ')}`);
   }
+}
+
+/* ---------- Voice orb's shader: the site's own source, so both draw the same sphere ---------- */
+{
+  const src = file(read('voice-orb'), 'js').match(/const ORB_FRAG = `([^`]*)`;/);
+  if (!src) throw new Error("voice-orb.js: the orb's shader (ORB_FRAG) is gone");
+  const at = path.join(pkg, 'src/components/voice-orb/VoiceOrb.tsx'), tsx = fs.readFileSync(at, 'utf8');
+  const re = /(\/\/ <orb-frag>\n)[\s\S]*?(\n\/\/ <\/orb-frag>)/;
+  if (!re.test(tsx)) throw new Error('VoiceOrb.tsx: the <orb-frag> markers are gone');
+  fs.writeFileSync(at, tsx.replace(re, (m, a, b) => `${a}const FRAG = \`${src[1]}\`;${b}`));
 }
 
 /* ---------- icons: the sprite in core.js becomes JSX ---------- */
