@@ -56,6 +56,9 @@ every session and every agent.
   `data-style="soft"`. Nothing may depend on a page's demo stage.
 - Demos (scripted autoplay) stop for good the moment a person clicks, focuses or types inside the component, and stay
   stopped until Animate/replay is pressed.
+- While a mouse rests on a component, its demo holds where it is (so it never moves what the person is about to click) and
+  carries on when the pointer leaves. Demo timing goes through the controller's waits (`c.wait`, `c.later`, `c.every`,
+  `c.loop`, story beats; `useStory` in React), so the hold reaches it.
 - Every component sits centred in its stage at every moment: its tallest state, its end state, and closed dropdowns.
   End states that are shorter keep their height with `hold()` / `release()`. Dropdowns use `centre()`: the closed field
   sits centred and glides up as its list opens.

@@ -65,18 +65,22 @@ export interface Story extends Script {
 }
 
 /** A preview's story, or any demo that acts as the person in it: runs like useScript, once, but stops for good at the
-    visitor's first click, key, typing or focus inside `ref`, so they take over from wherever it got to */
+    visitor's first click, key, typing or focus inside `ref`, so they take over from wherever it got to. While a mouse rests
+    on `ref` the story holds where it is, so it never moves what the visitor is about to click, and carries on once it leaves */
 export function useStory(ref: RefObject<HTMLElement | null>, run: (s: Story) => Promise<void>) {
   useEffect(() => {
-    let alive = true, mine = false;
-    const timers: ReturnType<typeof setTimeout>[] = [], undo: (() => void)[] = [];
+    let alive = true, mine = false, held = false;
+    const timers: ReturnType<typeof setTimeout>[] = [], undo: (() => void)[] = [], due: (() => void)[] = [];
     const el = ref.current;
     const stop = () => { alive = false; timers.forEach(clearTimeout); };
     const off = el ? watchTakeover(el, () => { if (mine) return; mine = true; stop(); undo.splice(0).forEach(f => f()); }) : () => {};
-    const wait = (ms: number) => new Promise<void>(res => { timers.push(setTimeout(() => { if (alive) res(); }, ms)); });
+    const enter = (e: PointerEvent) => { if (e.pointerType === 'mouse') held = true; };
+    const leave = () => { if (!held) return; held = false; due.splice(0).forEach(f => f()); };
+    el?.addEventListener('pointerenter', enter); el?.addEventListener('pointerleave', leave);
+    const wait = (ms: number) => new Promise<void>(res => { timers.push(setTimeout(() => { const go = () => { if (alive) res(); }; if (held && !mine) due.push(go); else go(); }, ms)); });
     const press = (selector: string) => { if (alive) el?.querySelector<HTMLElement>(selector)?.click(); };
     const taken = (fn: () => void) => { if (mine) fn(); else undo.push(fn); };
     run({ wait, press, taken }).catch(e => console.error(e));
-    return () => { stop(); off(); };
+    return () => { stop(); off(); el?.removeEventListener('pointerenter', enter); el?.removeEventListener('pointerleave', leave); };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 }

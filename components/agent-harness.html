@@ -2684,9 +2684,9 @@ DM.def(&#39;harness&#39;, (r, c) =&gt; {
   mc.port1.onmessage = () =&gt; { const f = q.shift(); if (f) f(); };
   const soon = fn =&gt; { q.push(fn); mc.port2.postMessage(0); };
   c.offs.push(() =&gt; { q.length = 0; mc.port1.close(); });
-  const paced = (up, f) =&gt; { const s = ctl(), w = s.wait, l = s.later, e = s.every; s.speed = (up.speed || 1) * f; s.ff = up.ff; s.raw = w;
-    s.wait = ms =&gt; (ms *= s.speed) &lt; 4 ? new Promise((res, rej) =&gt; soon(() =&gt; s.dead ? rej(&#39;stop&#39;) : res())) : w(ms);
-    s.later = (ms, fn) =&gt; (ms *= s.speed) &lt; 4 ? soon(() =&gt; { if (!s.dead) fn(); }) : l(ms, fn);
+  const paced = (up, f) =&gt; { const s = ctl(up), w = s.wait, l = s.later, e = s.every; s.speed = (up.speed || 1) * f; s.ff = up.ff; s.raw = w;
+    s.wait = ms =&gt; (ms *= s.speed) &lt; 4 ? new Promise((res, rej) =&gt; soon(() =&gt; s.gate(() =&gt; s.dead ? rej(&#39;stop&#39;) : res()))) : w(ms);
+    s.later = (ms, fn) =&gt; (ms *= s.speed) &lt; 4 ? soon(() =&gt; s.gate(() =&gt; { if (!s.dead) fn(); })) : l(ms, fn);
     s.every = (ms, fn) =&gt; e(Math.max(16, ms * s.speed), fn);
     // a component inside stops its own demo when the visitor takes over the harness
     up.offs.push(() =&gt; s.stop()); if (up.taken) up.taken(() =&gt; { s.mine = true; }); return s; };
@@ -3598,7 +3598,7 @@ const fitHits = window.dmFitHits || (() => {
   const said = 'Tighten the spacing on the plan cards and keep the buttons the same height';
   let before = '', vc = null;
   async function dictate(){
-    if (vc) vc.stop(); vc = ctl(); const k = vc; c.offs.push(() => k.stop());
+    if (vc) vc.stop(); vc = ctl(c); const k = vc; c.offs.push(() => k.stop());
     before = ta.value; box.dataset.mode = 'voice'; ta.value = ''; ta.placeholder = 'Listening…'; grow();
     const t0 = performance.now(), tm = $('.cpx-tm', r); tm.textContent = '0:00';
     k.every(250, () => { const s = Math.floor((performance.now() - t0) / 1000); tm.textContent = Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); });
@@ -4580,9 +4580,9 @@ DM.def('harness', (r, c) => {
   mc.port1.onmessage = () => { const f = q.shift(); if (f) f(); };
   const soon = fn => { q.push(fn); mc.port2.postMessage(0); };
   c.offs.push(() => { q.length = 0; mc.port1.close(); });
-  const paced = (up, f) => { const s = ctl(), w = s.wait, l = s.later, e = s.every; s.speed = (up.speed || 1) * f; s.ff = up.ff; s.raw = w;
-    s.wait = ms => (ms *= s.speed) < 4 ? new Promise((res, rej) => soon(() => s.dead ? rej('stop') : res())) : w(ms);
-    s.later = (ms, fn) => (ms *= s.speed) < 4 ? soon(() => { if (!s.dead) fn(); }) : l(ms, fn);
+  const paced = (up, f) => { const s = ctl(up), w = s.wait, l = s.later, e = s.every; s.speed = (up.speed || 1) * f; s.ff = up.ff; s.raw = w;
+    s.wait = ms => (ms *= s.speed) < 4 ? new Promise((res, rej) => soon(() => s.gate(() => s.dead ? rej('stop') : res()))) : w(ms);
+    s.later = (ms, fn) => (ms *= s.speed) < 4 ? soon(() => s.gate(() => { if (!s.dead) fn(); })) : l(ms, fn);
     s.every = (ms, fn) => e(Math.max(16, ms * s.speed), fn);
     // a component inside stops its own demo when the visitor takes over the harness
     up.offs.push(() => s.stop()); if (up.taken) up.taken(() => { s.mine = true; }); return s; };
