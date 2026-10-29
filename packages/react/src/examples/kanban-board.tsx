@@ -1,11 +1,11 @@
 'use client';
 // The animated preview from designme.dev, rebuilt from the React component: an example of driving it from your own state.
 import { useEffect, useRef, useState } from 'react';
-import { KanbanBoard, type KanbanBoardCard, type KanbanBoardColumn } from '../components/kanban-board/KanbanBoard';
+import { KanbanBoard, type KanbanBoardCard } from '../components/kanban-board/KanbanBoard';
 import { useScript, useTakeover } from './useScript';
 
 /* ---------- Kanban board: the design agent works through its cards while you drag the rest around ---------- */
-const COLUMNS: KanbanBoardColumn[] = [{ key: 'todo', title: 'To do', tone: 'yellow' }, { key: 'doing', title: 'In progress', short: 'Doing', tone: 'orange' }, { key: 'done', title: 'Done', tone: 'green' }];
+const COLUMNS = [{ key: 'todo', title: 'To do' }, { key: 'doing', title: 'In progress', short: 'Doing' }, { key: 'done', title: 'Done' }];
 const AGENT = { initials: 'DA', color: 'var(--dm-pb)' }, MAYA = { initials: 'MK', color: 'var(--dm-pl)' };
 const DESIGN = { label: 'Design', tone: 'blue' as const }, COPY = { label: 'Copy', tone: 'purple' as const };
 const CARDS: KanbanBoardCard[] = [

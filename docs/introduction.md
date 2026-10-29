@@ -28,8 +28,8 @@ Each style has a light and a dark theme. Switch them in the header of any page h
 
 - [Live answer](https://designme.dev/components/live-answer.md)
 - [Composer](https://designme.dev/components/composer.md)
-- [Thread panel](https://designme.dev/components/thread-panel.md)
 - [Artifact card](https://designme.dev/components/artifact-card.md)
+- [Thread panel](https://designme.dev/components/thread-panel.md)
 - [Rich text editor](https://designme.dev/components/rich-text-editor.md)
 - [Tool call](https://designme.dev/components/tool-call.md)
 - [Voice capture](https://designme.dev/components/voice-capture.md)

@@ -907,6 +907,16 @@ CSS += """
 :root[data-theme="dark"]:not([data-style="soft"]){--bp-grid:rgba(255,255,255,.014)}
 :root:not([data-style="soft"]) body.ui .lib-sec .stage-inner{background-image:linear-gradient(var(--bp-grid) 1px,transparent 1px),linear-gradient(90deg,var(--bp-grid) 1px,transparent 1px);background-size:24px 24px;background-position:-1px -1px}
 """
+# a component with no panel of its own (build.js marks its card data-stage="plain") sits on a plain stage, the card's own
+# colour, as it would on a page; Blueprint's grid stays on it, only the fill under it changes
+CSS += """
+body.ui .comp[data-stage="plain"]>.stage>.stage-inner,body.ui .comp[data-stage="plain"]>.comp-foot{background-color:var(--sh-bg)}
+/* the footer switch's selected tab is white in light mode, so on a plain stage it takes the switch's light grey instead;
+   in dark mode it keeps its own lighter grey */
+body.ui .comp[data-stage="plain"]>.comp-foot .tabs .ind{background:var(--sh-sw)}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) body.ui .comp[data-stage="plain"]>.comp-foot .tabs .ind{background:var(--sh-sw-on)} }
+:root[data-theme="dark"] body.ui .comp[data-stage="plain"]>.comp-foot .tabs .ind{background:var(--sh-sw-on)}
+"""
 # the rich text editor shipped, so the roadmap's own list (used when the live one can't load) says so
 patch("""['editor','Rich text editor','A minimal editor with an inline AI menu.','planned','Conversation'],""", """['editor','Rich text editor','A minimal editor with an inline AI menu.','shipped','Conversation'],""")
 # grey text in dark mode reaches APCA Lc 60 or more: secondary text about Lc 70, quieter text about Lc 60

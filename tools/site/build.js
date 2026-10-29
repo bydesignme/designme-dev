@@ -368,6 +368,15 @@ const done = [];
 const REG_ITEMS = REGDIR ? JSON.parse(fs.readFileSync(path.join(REGDIR, 'index.json'), 'utf8')).items : [];
 const STRETCH = ['code-viewer'];
 const NARROW = ['plan-review', 'form'];
+// stages: a component that draws no panel of its own (it lives in a chat stream, or is a bar, a row of buttons or a list on
+// the page) sits on a plain stage, the card's own colour, as it would on a page; one with its own panel keeps the grey stage
+// so its panel stands out. The card says which with data-stage="plain", and the component pages read it from site.json
+const PLAIN = ['live-answer', 'thread-panel', 'tool-call', 'answer-action-bar', 'response-versions', 'prompt-starters', 'feedback-sheet',
+  'thinking', 'reasoning-trail', 'agent-lanes', 'run-summary', 'action-log', 'agent-run-timeline', 'error-recovery', 'run-queue', 'run-cost', 'step-loader',
+  'plan-review', 'permission-gate', 'decision-prompt', 'proposal-card', 'launch-checklist',
+  'citation-hover', 'source-stack', 'memory-panel',
+  'buttons', 'badge', 'banner', 'reactions', 'onboarding-checklist', 'stepper'];
+for (const id of PLAIN) if (!CARDS[id]) throw new Error('PLAIN lists ' + id + ', which is not a card');
 main = main.replace(/<article([^>]*\bid="(c\d+)"[^>]*)>([\s\S]*?)<\/article>/g, (all, attrs, cid, body) => {
   const id = MAP[cid]; if (!id) return all;
   const C = CARDS[id]; if (!C){ warn.push('no card for ' + id); return all; }
@@ -395,13 +404,13 @@ main = main.replace(/<article([^>]*\bid="(c\d+)"[^>]*)>([\s\S]*?)<\/article>/g, 
   const extra = EXTRA.find(x => x.cid === cid);
   const title = (body.match(/class="comp-title">([^<]*)</) || [])[1] || '', reg = (extra && extra.reg) || (REG_ITEMS.find(x => x.title === title) || {}).name || title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
   if (HEIGHTS && !HEIGHTS.heights[id]) warn.push('no measured height for ' + id + ': run measure-heights.js');
-  return `<article${attrs} data-v2="${id}" data-reg="${reg}"${heightsOf(id)}>${body}</article>`;
+  return `<article${attrs} data-v2="${id}" data-reg="${reg}"${PLAIN.includes(id) ? ' data-stage="plain"' : ''}${heightsOf(id)}>${body}</article>`;
 });
 /* ---------- the agent components open with their strongest cards: Conversation comes first, and every section leads
    with what shows off an agent best. A wide card goes after an even number of half-width ones, so rows stay full ---------- */
 const SECTIONS_FIRST = ['s-conversation', 's-status'], GRP = {};
 const ORDER = {
-  's-conversation': ['live-answer', 'composer', 'thread-panel', 'artifact-card', 'rich-text-editor', 'tool-call', 'voice-capture', 'voice-orb', 'answer-action-bar', 'response-versions', 'model-picker', 'prompt-starters', 'prompt-library', 'attachment-tray', 'feedback-sheet'],
+  's-conversation': ['live-answer', 'composer', 'artifact-card', 'thread-panel', 'rich-text-editor', 'tool-call', 'voice-capture', 'voice-orb', 'answer-action-bar', 'response-versions', 'model-picker', 'prompt-starters', 'prompt-library', 'attachment-tray', 'feedback-sheet'],
   's-status': ['thinking', 'reasoning-trail', 'agent-lanes', 'agent-tree', 'agent-inbox', 'browser-session', 'trace-view', 'run-summary', 'action-log', 'agent-run-timeline', 'context-meter', 'error-recovery', 'run-queue', 'run-cost', 'toast-stack', 'toast', 'status-pill', 'step-loader'],
   's-review': ['change-review', 'plan-review', 'permission-gate', 'human-handoff', 'decision-prompt', 'proposal-card', 'design-tuner', 'rewrite-toolbar', 'launch-checklist', 'inline-text-diff', 'draft-review', 'steering', 'eval-results', 'design-review'],
   's-data': ['code-viewer', 'terminal-stream', 'citation-hover', 'source-stack', 'field-extraction', 'metric-insight', 'details-panel', 'task-table'],
@@ -668,7 +677,7 @@ Every class, CSS variable and animation name starts with \`dm-\` in the React ve
   const PAGES_DATA = path.resolve(__dirname, '../pages/data/site.json');
   fs.mkdirSync(path.dirname(PAGES_DATA), { recursive:true });
   const cardsAll = [...site.matchAll(/<article\b([^>]*)>[\s\S]*?class="comp-title">([\s\S]*?)<\/h2>[\s\S]*?class="comp-desc">([\s\S]*?)<\/p>/g)];
-  const meta = {}; for (const [, attrs] of cardsAll){ const reg = (attrs.match(/data-reg="([\w-]+)"/) || [])[1]; if (reg) meta[reg] = { v2:(attrs.match(/data-v2="([\w-]+)"/) || [])[1], wide:/class="comp wide/.test(attrs) }; }
+  const meta = {}; for (const [, attrs] of cardsAll){ const reg = (attrs.match(/data-reg="([\w-]+)"/) || [])[1]; if (reg) meta[reg] = { v2:(attrs.match(/data-v2="([\w-]+)"/) || [])[1], wide:/class="comp wide/.test(attrs), plain:/data-stage="plain"/.test(attrs) }; }
   // the sidebar's icons (the site's own Phosphor set, which the homepage draws in its sidebar in both styles), so the docs and
   // component pages draw the same Library, Docs, Changelog, Roadmap and FAQ rows
   const shell = JSON.parse(site.match(/const PH_SHELL = (\{.*?\});\n/)[1]), icons = {};

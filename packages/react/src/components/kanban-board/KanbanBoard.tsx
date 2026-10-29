@@ -17,8 +17,6 @@ export interface KanbanBoardColumn {
   title: string;
   /** A shorter name for the tabs of a narrow board, like "Doing". Defaults to the title */
   short?: string;
-  /** Puts the column on a light tint of a tag colour, like yellow for To do; its cards stay white. No tint by default */
-  tone?: KanbanBoardTone;
 }
 
 export interface KanbanBoardCard {
@@ -229,7 +227,7 @@ export function KanbanBoard({ columns, cards, defaultCards = [], onCardsChange, 
           }
           if (spot?.column === col.key && spot.index >= n) items.push(hole);
           return (
-            <div key={col.key} className={cx('dm-kbx-c', col.tone && TONE[col.tone], over === col.key && 'dm-over', shown === col.key && 'dm-on')} ref={el => { if (el) cols.current.set(col.key, el); else cols.current.delete(col.key); }}>
+            <div key={col.key} className={cx('dm-kbx-c', over === col.key && 'dm-over', shown === col.key && 'dm-on')} ref={el => { if (el) cols.current.set(col.key, el); else cols.current.delete(col.key); }}>
               <div className="dm-kbx-ch">
                 <b>{col.title}</b>
                 <span className="dm-n dm-num">{here.length}</span>
