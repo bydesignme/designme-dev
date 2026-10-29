@@ -134,7 +134,7 @@ patch("""  $$('[data-copy]').forEach(btn => btn.addEventListener('click', async 
 # ---------- the intro: one short line, the React install command, then a switch between the two sets ----------
 RX_CMD = 'npx designme add live-answer --react'
 patch("""<p>46 components for showing an agent's work, from status and conversation to review, sources and workspace, plus 32 app basics for the dashboard around it, designed and built by the <a href="https://designme.agency" target="_blank" rel="noopener">DesignMe</a> team.</p>""",
-      """<p>108 free components in HTML or React, designed and built by <a href="https://designme.agency" target="_blank" rel="noopener">DesignMe</a>.</p>
+      """<p>107 free components in HTML or React, designed and built by <a href="https://designme.agency" target="_blank" rel="noopener">DesignMe</a>.</p>
   <div class="intro-get"><button class="cdm-cmd intro-cmd" data-cmd=\"""" + RX_CMD + """\" title="Copy install command"><span class="d">$</span><span class="c">""" + RX_CMD + """</span><span class="ms sm">content_copy</span></button></div>""")
 # the two group introductions become one switch: Agent components or App basics
 patch("""<div class="grp-intro"><span class="k">46 components</span><h2>Agent components</h2><p>Everything for showing an agent's work, from the first plan to the final summary.</p></div>""",
@@ -693,7 +693,7 @@ body.ui section.faq{display:none}
 /* the roadmap's suggestion box: a field like the sidebar's search, and a button like the site's other buttons */
 .rm-add{gap:8px;padding:0;border:0;border-radius:0;background:none}
 .rm-add input{height:36px;padding:0 14px;border:1px solid var(--sh-line);border-radius:999px;background:var(--sh-card);transition:border-color .2s,box-shadow .2s}
-.rm-add input:focus{border-color:var(--sh-blue);box-shadow:0 0 0 3px rgba(17,111,248,.12)}
+.rm-add input:focus{border-color:var(--sh-focus)}
 .rm-add .su-btn,.su-btn{width:auto;height:36px;padding:0 16px;border-radius:999px;background:var(--sh-chip);border:1px solid var(--sh-line);color:var(--sh-text);font-size:14px;font-weight:500}
 .su-btn:hover{opacity:1;border-color:var(--sh-line-2)}
 /* the FAQ page: the list, then two ways to ask for more */
@@ -783,9 +783,19 @@ patch("""</head>""", """<style id="accent-roles">
 :root[data-style="soft"]{--on-accent:#ffffff;--accent-fg:#0f5fd5;--accent-mark:var(--accent)}
 @media (prefers-color-scheme: dark){:root[data-style="soft"]:not([data-theme="light"]){--accent:#116ff8;--accent-2:#0f5fd5;--accent-hi:#116ff8;--ink:#116ff8;--ink-hover:#0f5fd5;--on-ink:#ffffff;--on-accent:#ffffff;--accent-fg:#9dc4ff;--accent-mark:#3d8bff}}
 :root[data-style="soft"][data-theme="dark"]{--accent:#116ff8;--accent-2:#0f5fd5;--accent-hi:#116ff8;--ink:#116ff8;--ink-hover:#0f5fd5;--on-ink:#ffffff;--on-accent:#ffffff;--accent-fg:#9dc4ff;--accent-mark:#3d8bff}
-/* the site's own focus ring matches the components': 2px in the accent's mark colour (3:1 on the page), whatever width or
-   colour older rules gave it. Only the width and colour are set here, so a control that draws its focus another way keeps it */
-:is(a,button,input,select,textarea,summary,[tabindex]):focus-visible:not(.v2 *,[data-c] *,[data-dm] *){outline-width:2px;outline-color:var(--accent-mark)}
+/* the site's own fields and focus ring match the components': a field has a dimmed grey edge (--sh-field) that steps up to
+   the stronger grey (--sh-focus, 3:1 on the page) while it has the focus, with no ring and no glow; every other control
+   shows a 2px ring in that grey from the keyboard only, never the accent, whatever width or colour older rules gave it. Only
+   the ring's width and colour are set, so a control that draws its focus another way keeps it */
+:root{--sh-field:#d4d4d4;--sh-focus:#858585}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--sh-field:#424242;--sh-focus:#808080}}
+:root[data-theme="dark"]{--sh-field:#424242;--sh-focus:#808080}
+:is(a,button,input,select,textarea,summary,[tabindex]):focus-visible:not(.v2 *,[data-c] *,[data-dm] *){outline-width:2px;outline-color:var(--sh-focus)}
+:is(input:not([type="checkbox"],[type="radio"],[type="range"],[type="color"],[type="file"]),textarea):focus-visible:not(.v2 *,[data-c] *,[data-dm] *){outline:0}
+.side-search,.su-row input,.rm-add input,.nd-f input{border-color:var(--sh-field);border-radius:8px}
+@supports (corner-shape:squircle){.side-search,.su-row input,.rm-add input,.nd-f input{corner-shape:squircle;border-radius:14px}}
+.side-search:focus-within,.su-row input:focus,.rm-add input:focus,.nd-f input:focus{border-color:var(--sh-focus);box-shadow:none}
+.su-row.bad input,.nd-f.bad input{border-color:#e5484d}
 </style>
 </head>""")
 # a picked colour gets the same treatment: the shades for text and for marks are worked out from it
@@ -1036,7 +1046,7 @@ patch("""  /* ---------- mobile menu ---------- */""", """  /* ---------- skip t
 CSS += """
 /* Skip to content: out of sight until Tab reaches it, then a small pill top left, over the header */
 .skip{position:fixed;top:8px;left:16px;z-index:200;display:inline-flex;align-items:center;height:32px;padding:0 12px;border-radius:999px;background:var(--sh-card);color:var(--sh-text);box-shadow:inset 0 0 0 1px var(--sh-line-2);font:500 13px/1 var(--sans);letter-spacing:0;text-decoration:none;white-space:nowrap;opacity:0;transform:translateY(-48px);pointer-events:none}
-.skip:focus{opacity:1;transform:none;pointer-events:auto;outline:2px solid var(--focus,var(--accent-mark));outline-offset:2px}
+.skip:focus{opacity:1;transform:none;pointer-events:auto;outline:2px solid var(--sh-focus);outline-offset:2px}
 @media (prefers-reduced-motion:no-preference){ .skip{transition:opacity .2s ease,transform .2s cubic-bezier(.16,1,.3,1)} }
 /* where it sends the focus is the page itself, so it takes no ring */
 #components:focus,#pv-in:focus{outline:none}

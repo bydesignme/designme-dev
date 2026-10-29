@@ -15,7 +15,7 @@ The CLI copies the source into your project, so you own it and can change anythi
 
 ## About
 
-Search input is a search box that lifts open to show recent searches, matching results, and an answer from the agent above them. Typing @ lists sources such as Figma or Notion, and picking one narrows the search to that source with a removable chip. It lets a person find a file directly or ask a question and get a written answer in the same box.
+Search input is a search box that opens to show recent searches, matching results, and an answer from the agent above them. Typing @ lists sources such as Figma or Notion, and picking one narrows the search to that source with a removable chip. It lets a person find a file directly or ask a question and get a written answer in the same box.
 
 ### When to use it
 

@@ -63,7 +63,6 @@ export default function FeedbackSheetDemo() {
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState<string[]>([]);
   const [comment, setComment] = useState('');
-  const [typing, setTyping] = useState(false);
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState<Feedback | null>(null);
   const ref = useRef<HTMLDivElement>(null), later = useWait();
@@ -71,12 +70,12 @@ export default function FeedbackSheetDemo() {
   useStory(ref, async ({ wait, taken }) => {
     // taking over while it types takes its note back
     let writing = false;
-    taken(() => { setTyping(false); if (writing) setComment(''); });
+    taken(() => { if (writing) setComment(''); });
     await wait(1500); setRating('down'); setOpen(true);
     await wait(1000); setSelected(['Ignored my tokens']);
-    await wait(700); setTyping(true); writing = true;
+    await wait(700); writing = true;
     for (let i = 1; i <= NOTE.length; i++) { setComment(NOTE.slice(0, i)); await wait(34 + Math.random() * 40); }
-    await wait(650); writing = false; setTyping(false); setSending(true);
+    await wait(650); writing = false; setSending(true);
     // once sent, it goes through whatever happens next
     await later(800); setSending(false); setOpen(false);
     await later(300); setSent({ reasons: ['Ignored my tokens'], comment: NOTE });
@@ -85,7 +84,7 @@ export default function FeedbackSheetDemo() {
   return (
     <div ref={ref} style={{ width: '100%' }}>
       <FeedbackSheet rating={rating} onRatingChange={setRating} open={open} onOpenChange={setOpen} selected={selected} onSelectedChange={setSelected}
-        comment={comment} onCommentChange={setComment} typing={typing} sending={sending || undefined} sent={sent} onSentChange={setSent}
+        comment={comment} onCommentChange={setComment} sending={sending || undefined} sent={sent} onSentChange={setSent}
         onSubmit={() => new Promise(res => setTimeout(res, 800))}>
         I tightened the hero spacing to 24px and swapped the CTA to the accent blue. The card grid now wraps at 720px.
       </FeedbackSheet>
@@ -111,7 +110,6 @@ export default function FeedbackSheetDemo() {
 | `comment` (optional) | `string` | What is written in the box. Leave it out to let the box keep it |
 | `defaultComment` (optional) | `string` |  |
 | `onCommentChange` (optional) | `(comment: string) => void` |  |
-| `typing` (optional) | `boolean` | Shows the box as if someone were typing in it, for a scripted demo |
 | `sending` (optional) | `boolean` | Shows the spinner on Send, for a scripted demo. A promise from onSubmit shows it by itself |
 | `sent` (optional) | `Feedback \| null` | What was sent, which shows the thank-you line. Leave it out and Send sets it |
 | `onSentChange` (optional) | `(sent: Feedback \| null) => void` |  |
@@ -174,8 +172,6 @@ export interface FeedbackSheetProps {
   comment?: string;
   defaultComment?: string;
   onCommentChange?: (comment: string) => void;
-  /** Shows the box as if someone were typing in it, for a scripted demo */
-  typing?: boolean;
   /** Shows the spinner on Send, for a scripted demo. A promise from onSubmit shows it by itself */
   sending?: boolean;
   /** What was sent, which shows the thank-you line. Leave it out and Send sets it */
@@ -202,7 +198,7 @@ const THANKS = (f: Feedback) => `Thanks. The agent will ${f.reasons.length ? 'av
 
 /** Rate an answer, and say what missed when it was wrong. */
 export function FeedbackSheet({ children, rating, defaultRating = null, onRatingChange, open: openProp, defaultOpen = false, onOpenChange,
-  selected, defaultSelected = [], onSelectedChange, comment: commentProp, defaultComment = '', onCommentChange, typing, sending: sendingProp, sent: sentProp, onSentChange, question = 'What went wrong?', reasons = REASONS, placeholder = 'Anything else the agent should know', note = 'Shared with the agent for this project', onSubmit, thanks = THANKS, bare = true, className }: FeedbackSheetProps) {
+  selected, defaultSelected = [], onSelectedChange, comment: commentProp, defaultComment = '', onCommentChange, sending: sendingProp, sent: sentProp, onSentChange, question = 'What went wrong?', reasons = REASONS, placeholder = 'Anything else the agent should know', note = 'Shared with the agent for this project', onSubmit, thanks = THANKS, bare = true, className }: FeedbackSheetProps) {
   const [rate, setRate] = useControllable<FeedbackRating>(rating, defaultRating, onRatingChange);
   const [open, setOpen] = useControllable(openProp, defaultOpen, onOpenChange);
   const [picked, setPicked] = useControllable(selected, defaultSelected, onSelectedChange);
@@ -251,7 +247,7 @@ export function FeedbackSheet({ children, rating, defaultRating = null, onRating
               })}
             </div>
           )}
-          <textarea ref={box} className={cx('dm-fbx-ta', typing && 'dm-typing')} rows={2} placeholder={placeholder} value={comment} onChange={e => setComment(e.target.value)} />
+          <textarea ref={box} className="dm-fbx-ta" rows={2} placeholder={placeholder} value={comment} onChange={e => setComment(e.target.value)} />
           <div className="dm-fbx-f">
             <span className="dm-muted dm-fbx-n">{note}</span>
             <button type="button" className="dm-pill dm-ghost dm-sm dm-fbx-x" onClick={() => { setOpen(false); setRate(null); }}>Cancel</button>

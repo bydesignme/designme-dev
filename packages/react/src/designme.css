@@ -12,7 +12,7 @@
 :root,[data-style="soft"]{
   --dm-motion:soft;
   --dm-page:#f7f7f7; --dm-stage:#f9f9f9; --dm-surface:#ffffff; --dm-raised:#ffffff;
-  --dm-fg:#171717; --dm-fg2:#525252; --dm-muted:#6a6a6a; --dm-faint:#c4c4c4; --dm-rail:#d4d4d4; --dm-line:#e8e8e8; --dm-field-line:#8c8c8c;
+  --dm-fg:#171717; --dm-fg2:#525252; --dm-muted:#6a6a6a; --dm-faint:#c4c4c4; --dm-rail:#d4d4d4; --dm-line:#e8e8e8; --dm-field-line:#d4d4d4; --dm-field-line-strong:#858585;
   --dm-chip:#f3f3f3; --dm-hover:#ebebeb; --dm-press:#e3e3e3; --dm-wash:#f9f9f9; --dm-row:color-mix(in srgb,var(--dm-fg) 4%,transparent);
   --dm-soft:#ececec; --dm-soft-h:#e3e3e3; --dm-soft-ring:inset 0 0 0 1px rgba(0,0,0,.06); --dm-dis:#a6a6a6;
   /* disabled: text and icons take --dis; a control with a fill swaps it for --dis-fill (Blueprint hatches it) */
@@ -22,9 +22,11 @@
      (4.5:1 on the surface, and on the chips and tints it sits on) and --accent-mark is lines, rings and chart marks (3:1). A
      light accent like lime keeps its fills and gets a darker mark and ink-coloured text on a light page */
   --dm-accent:#116ff8; --dm-on-accent:#ffffff; --dm-accent-fg:#0f5fd5; --dm-accent-mark:#116ff8; --dm-sel:color-mix(in srgb,var(--dm-accent) 6%,transparent);
-  /* every focus ring: 2px in this colour, as an outline offset 2px, or as a 2px box-shadow ring where an outline would be
-     clipped or the control is a filled field */
-  --dm-focus:var(--dm-accent-mark);
+  /* fields (text fields, textareas, search fields, dropdown triggers) have a dimmed grey edge, --field-line, that steps up
+     to --field-line-strong while they have the focus. The keyboard's focus ring on every other control is 2px of that
+     stronger grey (--focus), as an outline offset 2px, or as a 2px box-shadow ring where an outline would be clipped. Never
+     the accent and never black, and only from the keyboard (:focus-visible), so a click or a tap never shows one */
+  --dm-focus:var(--dm-field-line-strong);
   --dm-ink:#1b1b1b; --dm-on-ink:#ffffff;
   --dm-ok:#137739; --dm-ok-bg:#e8f6ee; --dm-warn:#a94e09; --dm-warn-bg:#fdf3df; --dm-bad:#bf3434; --dm-bad-bg:#fdecec;
   --dm-merge:#7c4cd4; --dm-merge-bg:#f2ecfd; --dm-add:#187633; --dm-del:#c7212c;
@@ -39,6 +41,12 @@
   --dm-r-card:16px;
   /* spacing runs on a 4px scale, and corners on a small set of radii; values off the scale are still written out */
   --dm-s-1:4px; --dm-s-2:8px; --dm-s-3:12px; --dm-s-4:16px; --dm-s-5:20px; --dm-s-6:24px; --dm-s-8:32px; --dm-r-xs:4px; --dm-r-lg:20px; --dm-r-in:12px; --dm-r-sm:8px; --dm-r-pill:999px;
+  /* fields and tags have slightly rounded corners, never pills: --r-field for one-line fields and dropdown triggers, --r-box
+     for boxes you write several lines in, --r-tag for tags. Where the browser smooths corners (corner-shape: squircle) a
+     corner looks smaller, so each takes the larger -sq radius there to look the same size. Fields share one height and,
+     where a component is a single field, one width */
+  --dm-r-field:var(--dm-r-sm); --dm-r-field-sq:14px; --dm-r-box:var(--dm-r-in); --dm-r-box-sq:20px; --dm-r-tag:6px; --dm-r-tag-sq:10px;
+  --dm-field-h:40px; --dm-field-w:320px;
   --dm-sans:"Inter",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
   --dm-mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
   --dm-ease:cubic-bezier(.22,1,.36,1); --dm-ease-io:cubic-bezier(.65,0,.35,1);
@@ -46,7 +54,7 @@
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]),:root:not([data-theme="light"]) [data-style="soft"]{
   --dm-page:#111111; --dm-stage:#1c1c1c; --dm-surface:#262626; --dm-raised:#2c2c2c;
-  --dm-fg:#f2f2f2; --dm-fg2:#c9c9c9; --dm-muted:#c0c0c0; --dm-faint:#555555; --dm-rail:#414141; --dm-line:#333333; --dm-field-line:#7a7a7a;
+  --dm-fg:#f2f2f2; --dm-fg2:#c9c9c9; --dm-muted:#c0c0c0; --dm-faint:#555555; --dm-rail:#414141; --dm-line:#333333; --dm-field-line:#424242; --dm-field-line-strong:#808080;
   --dm-chip:#303030; --dm-hover:#373737; --dm-press:#3f3f3f; --dm-wash:#2c2c2c; --dm-row:color-mix(in srgb,var(--dm-fg) 5.5%,transparent);
   --dm-soft:#323232; --dm-soft-h:#3a3a3a; --dm-soft-ring:inset 0 0 0 1px rgba(255,255,255,.07); --dm-dis:#737373;
   --dm-shadow-lift:0 0 0 1px rgba(255,255,255,.16),0 2px 4px rgba(0,0,0,.3),0 16px 32px -10px rgba(0,0,0,.6);
@@ -60,7 +68,7 @@
   --dm-shadow:0 0 0 1px rgba(255,255,255,.08),0 1px 2px rgba(0,0,0,.3),0 8px 16px -8px rgba(0,0,0,.4); --dm-shadow-pop:0 0 0 1px rgba(255,255,255,.1),0 4px 8px -4px rgba(0,0,0,.4),0 16px 32px -8px rgba(0,0,0,.5); --dm-shadow-toast:0 0 0 1px rgba(255,255,255,.1),0 4px 12px rgba(0,0,0,.4); --dm-hl:rgba(240,200,60,.3); --dm-hl-ok:rgba(60,207,126,.24); color-scheme:dark}}
 :root[data-theme="dark"],:root[data-theme="dark"] [data-style="soft"]{
   --dm-page:#111111; --dm-stage:#1c1c1c; --dm-surface:#262626; --dm-raised:#2c2c2c;
-  --dm-fg:#f2f2f2; --dm-fg2:#c9c9c9; --dm-muted:#c0c0c0; --dm-faint:#555555; --dm-rail:#414141; --dm-line:#333333; --dm-field-line:#7a7a7a;
+  --dm-fg:#f2f2f2; --dm-fg2:#c9c9c9; --dm-muted:#c0c0c0; --dm-faint:#555555; --dm-rail:#414141; --dm-line:#333333; --dm-field-line:#424242; --dm-field-line-strong:#808080;
   --dm-chip:#303030; --dm-hover:#373737; --dm-press:#3f3f3f; --dm-wash:#2c2c2c; --dm-row:color-mix(in srgb,var(--dm-fg) 5.5%,transparent);
   --dm-soft:#323232; --dm-soft-h:#3a3a3a; --dm-soft-ring:inset 0 0 0 1px rgba(255,255,255,.07); --dm-dis:#737373;
   --dm-shadow-lift:0 0 0 1px rgba(255,255,255,.16),0 2px 4px rgba(0,0,0,.3),0 16px 32px -10px rgba(0,0,0,.6);
@@ -81,9 +89,9 @@
 :root[data-theme="dark"],:root[data-theme="dark"] [data-style="soft"]{--dm-accent-2:color-mix(in srgb,var(--dm-accent) 84%,#fff);--dm-accent-bg:color-mix(in srgb,var(--dm-accent) 13%,transparent)}
 @supports (color:rgb(from red r g b)){:root,[data-style="soft"],:root:not([data-theme="light"]),:root:not([data-theme="light"]) [data-style="soft"],:root[data-theme="dark"],:root[data-theme="dark"] [data-style="soft"]{--dm-accent-2:color-mix(in srgb,var(--dm-accent) 86%,rgb(from var(--dm-on-accent) calc(255 - r) calc(255 - g) calc(255 - b)))}}
 @supports not (color:rgb(from red r g b)){:root,[data-style="soft"],:root:not([data-theme="light"]),:root:not([data-theme="light"]) [data-style="soft"],:root[data-theme="dark"],:root[data-theme="dark"] [data-style="soft"]{--dm-accent-2:color-mix(in srgb,var(--dm-accent) 86%,#000)}:root:not([data-style="soft"]),:root:not([data-style="soft"]):not([data-theme="light"]),:root:not([data-style="soft"])[data-theme="dark"]{--dm-accent-2:color-mix(in srgb,var(--dm-accent) 86%,#fff)}}
-/* picked things (chips, options, steps, cards in a picker) are white tiles with a dimmed grey edge, and the picked one's edge
-   is a step stronger, never a black outline or a grey fill. The picked edge holds 3:1 against the tile */
-:root,[data-style="soft"]{--dm-pick-line:var(--dm-rail);--dm-pick-on:var(--dm-field-line)}
+/* picked things (chips, options, cards in a picker) are white tiles with a dimmed grey edge, and the picked one's edge
+   is a light step stronger, never a dark or black outline */
+:root,[data-style="soft"]{--dm-pick-line:var(--dm-rail);--dm-pick-on:var(--dm-faint)}
 
 /* ---------- page shell ---------- */
 :where([data-dm]) *{box-sizing:border-box}
@@ -91,7 +99,9 @@
 :where([data-dm]) button{background:none;border:0;padding:0;cursor:pointer}
 /* one weight for emphasis: medium, never bold */
 :where([data-dm]) b,:where([data-dm]) strong{font-weight:500}
-:where([data-dm]) :focus-visible{outline:2px solid var(--dm-focus);outline-offset:2px;border-radius:6px}/* ---------- icons ---------- */
+:where([data-dm]) :focus-visible{outline:2px solid var(--dm-focus);outline-offset:2px;border-radius:6px}
+/* a field shows the focus with its own edge, which steps up to --field-line-strong, so it never takes the ring as well */
+:where([data-dm]) :focus-visible:is(input:not([type="checkbox"],[type="radio"],[type="range"],[type="file"],[type="button"],[type="submit"],[type="reset"]),textarea,select,[contenteditable]:not([contenteditable="false"])){outline:0}/* ---------- icons ---------- */
 .dm-i{width:16px;height:16px;flex:none;display:inline-block;vertical-align:-3px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
 .dm-i.dm-s{width:14px;height:14px}.dm-i.dm-xs{width:12px;height:12px}.dm-i.dm-l{width:18px;height:18px}
 .dm-brand{width:16px;height:16px;display:block;flex:none}
@@ -134,10 +144,11 @@
 @media (hover:hover) and (pointer:fine){.dm-pill:is(.dm-accent,.dm-primary,.dm-soft,.dm-line)[disabled]:hover{background:var(--dm-dis-hatch),var(--dm-dis-fill);color:var(--dm-dis);box-shadow:var(--dm-soft-ring)}}
 .dm-pill[disabled] .dm-kbd{background:var(--dm-chip);color:inherit}
 .dm-pill.dm-sm{height:28px;padding:0 11px;font-size:12.5px}
-.dm-tag{display:inline-flex;align-items:center;gap:5px;height:20px;padding:0 7px;border-radius:6px;font-size:11.5px;font-weight:500;white-space:nowrap;background:var(--dm-chip);color:var(--dm-fg2)}
+.dm-tag{display:inline-flex;align-items:center;gap:5px;height:20px;padding:0 7px;border-radius:var(--dm-r-tag);font-size:11.5px;font-weight:500;white-space:nowrap;background:var(--dm-chip);color:var(--dm-fg2)}
 .dm-tag.dm-b{background:var(--dm-pb-bg);color:var(--dm-pb)}.dm-tag.dm-l{background:var(--dm-pl-bg);color:var(--dm-pl)}.dm-tag.dm-m{background:var(--dm-pm-bg);color:var(--dm-pm)}.dm-tag.dm-p{background:var(--dm-pp-bg);color:var(--dm-pp)}
 .dm-tag.dm-r{background:var(--dm-pr-bg);color:var(--dm-pr)}.dm-tag.dm-y{background:var(--dm-py-bg);color:var(--dm-py)}.dm-tag.dm-k{background:var(--dm-pk-bg);color:var(--dm-pk)}.dm-tag.dm-t{background:var(--dm-pt-bg);color:var(--dm-pt)}
 .dm-tag.dm-ok{background:var(--dm-ok-bg);color:var(--dm-ok)}.dm-tag.dm-warn{background:var(--dm-warn-bg);color:var(--dm-warn)}.dm-tag.dm-bad{background:var(--dm-bad-bg);color:var(--dm-bad)}
+@supports (corner-shape:squircle){.dm-tag{corner-shape:squircle;border-radius:var(--dm-r-tag-sq)}}
 .dm-dot{width:6px;height:6px;border-radius:50%;background:currentColor;flex:none;display:inline-block}
 .dm-fchip{display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 10px 0 var(--dm-s-2);border-radius:var(--dm-r-pill);background:var(--dm-surface);box-shadow:inset 0 0 0 1px var(--dm-line);font-size:12.5px;color:var(--dm-fg);white-space:nowrap}
 .dm-fchip.dm-lnk{cursor:pointer;transition:background var(--dm-t-fast),box-shadow var(--dm-t-fast)}
@@ -267,7 +278,7 @@ code.dm-c{font-family:var(--dm-mono);font-size:12.5px;background:var(--dm-chip);
 :root:not([data-style="soft"]){
   --dm-motion:bp;
   --dm-page:#f3f3f0; --dm-stage:#fafaf8; --dm-surface:#ffffff; --dm-raised:#ffffff;
-  --dm-fg:#121212; --dm-fg2:#4a4a46; --dm-muted:#666660; --dm-faint:#bdbdb6; --dm-rail:#d2d2cb; --dm-line:#e3e3dd; --dm-field-line:#8a8a84;
+  --dm-fg:#121212; --dm-fg2:#4a4a46; --dm-muted:#666660; --dm-faint:#bdbdb6; --dm-rail:#d2d2cb; --dm-line:#e3e3dd; --dm-field-line:#d2d2cb; --dm-field-line-strong:#858580;
   --dm-chip:#f1f1ed; --dm-hover:#e8e8e3; --dm-press:#dededa; --dm-wash:#f6f6f3; --dm-row:color-mix(in srgb,var(--dm-fg) 4%,transparent);
   --dm-soft:#ebebe6; --dm-soft-h:#e1e1db; --dm-soft-ring:inset 0 0 0 1px rgba(20,20,12,.09); --dm-dis:#a3a39c;
   --dm-accent:#d4f84a; --dm-on-accent:#121212; --dm-accent-fg:var(--dm-fg); --dm-accent-mark:#7a8e2b; --dm-sel:color-mix(in srgb,var(--dm-accent) 7%,transparent);
@@ -283,7 +294,7 @@ code.dm-c{font-family:var(--dm-mono);font-size:12.5px;background:var(--dm-chip);
 }
 @media (prefers-color-scheme:dark){:root:not([data-style="soft"]):not([data-theme="light"]){
   --dm-page:#111111; --dm-stage:#1c1c1c; --dm-surface:#262626; --dm-raised:#2c2c2c;
-  --dm-fg:#f2f2f2; --dm-fg2:#c9c9c9; --dm-muted:#c0c0c0; --dm-faint:#555555; --dm-rail:#414141; --dm-line:#333333; --dm-field-line:#7a7a7a;
+  --dm-fg:#f2f2f2; --dm-fg2:#c9c9c9; --dm-muted:#c0c0c0; --dm-faint:#555555; --dm-rail:#414141; --dm-line:#333333; --dm-field-line:#424242; --dm-field-line-strong:#808080;
   --dm-chip:#303030; --dm-hover:#373737; --dm-press:#3f3f3f; --dm-wash:#2c2c2c; --dm-row:color-mix(in srgb,var(--dm-fg) 5.5%,transparent);
   --dm-soft:#323232; --dm-soft-h:#3a3a3a; --dm-soft-ring:inset 0 0 0 1px rgba(255,255,255,.08); --dm-dis:#737373;
   --dm-accent:#d4f84a; --dm-on-accent:#121212; --dm-accent-fg:#d4f84a; --dm-accent-mark:#d4f84a; --dm-sel:color-mix(in srgb,var(--dm-accent) 10%,transparent);
@@ -298,7 +309,7 @@ code.dm-c{font-family:var(--dm-mono);font-size:12.5px;background:var(--dm-chip);
   --dm-t-fast:.14s; --dm-t:.3s; --dm-t-slow:.44s}}
 :root:not([data-style="soft"])[data-theme="dark"]{
   --dm-page:#111111; --dm-stage:#1c1c1c; --dm-surface:#262626; --dm-raised:#2c2c2c;
-  --dm-fg:#f2f2f2; --dm-fg2:#c9c9c9; --dm-muted:#c0c0c0; --dm-faint:#555555; --dm-rail:#414141; --dm-line:#333333; --dm-field-line:#7a7a7a;
+  --dm-fg:#f2f2f2; --dm-fg2:#c9c9c9; --dm-muted:#c0c0c0; --dm-faint:#555555; --dm-rail:#414141; --dm-line:#333333; --dm-field-line:#424242; --dm-field-line-strong:#808080;
   --dm-chip:#303030; --dm-hover:#373737; --dm-press:#3f3f3f; --dm-wash:#2c2c2c; --dm-row:color-mix(in srgb,var(--dm-fg) 5.5%,transparent);
   --dm-soft:#323232; --dm-soft-h:#3a3a3a; --dm-soft-ring:inset 0 0 0 1px rgba(255,255,255,.08); --dm-dis:#737373;
   --dm-accent:#d4f84a; --dm-on-accent:#121212; --dm-accent-fg:#d4f84a; --dm-accent-mark:#d4f84a; --dm-sel:color-mix(in srgb,var(--dm-accent) 10%,transparent);

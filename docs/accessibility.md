@@ -41,7 +41,7 @@ Decorative motion, like status glyphs and the wires of a canvas, is `aria-hidden
 | Page Up Page Down | Move a month, or a year with Shift | [Date picker](https://designme.dev/components/date-picker.md), [Date range picker](https://designme.dev/components/date-range-picker.md) |
 | 1 … 9 | Pick an option | [Decision prompt](https://designme.dev/components/decision-prompt.md) |
 
-Focus shows as one 2px ring in `--focus` (`--dm-focus` in React), the accent's mark colour: an outline 2px outside the control, or a 2px ring drawn with `box-shadow` on filled fields and where an outline would be cut off. It uses `:focus-visible`, so a click on a button doesn't show it.
+Focus from the keyboard shows as one 2px ring in `--focus` (`--dm-focus` in React), a grey that reaches 3:1 on the page: an outline 2px outside the control, or a 2px ring drawn with `box-shadow` where an outline would be cut off. It uses `:focus-visible`, so a click or a tap on a button doesn't show it. Fields take no ring: their dimmed grey edge steps up to that same grey while they have the focus, and goes back once you leave them.
 
 > Most components work fully with a keyboard. A few, like [Kanban board](https://designme.dev/components/kanban-board.md) and [File explorer](https://designme.dev/components/file-explorer.md), are still getting their keyboard support.
 

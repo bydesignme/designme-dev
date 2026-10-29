@@ -48,10 +48,12 @@ One accent runs through every component. It has a few roles, so a light colour l
 | `--accent` | `--dm-accent` | Fills: buttons, switches and selected states |
 | `--on-accent` | `--dm-on-accent` | Text and icons on an accent fill |
 | `--accent-fg` | `--dm-accent-fg` | The accent as text and icons, aiming for 4.5:1 |
-| `--accent-mark` | `--dm-accent-mark` | Lines, borders, focus rings and chart marks, aiming for 3:1 |
+| `--accent-mark` | `--dm-accent-mark` | Lines, borders and chart marks, aiming for 3:1 |
 | `--accent-2` | `--dm-accent-2` | An accent fill on hover |
 | `--accent-bg` | `--dm-accent-bg` | A light tint for pressed, selected and hovered items |
-| `--focus` | `--dm-focus` | Focus rings. It is `--accent-mark` unless you set it |
+| `--focus` | `--dm-focus` | The keyboard focus ring. It is `--field-line-strong`, a grey, unless you set it |
+
+Fields and focus rings are grey, never the accent. A field (a text field, a search box, a dropdown) has a dimmed grey edge, `--field-line` (`--dm-field-line`), that steps up to `--field-line-strong` (`--dm-field-line-strong`) while it has the focus.
 
 The contrast targets hold on the surface, and on the grey chips and tinted rows the accent sits on.
 

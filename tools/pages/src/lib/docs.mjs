@@ -184,11 +184,12 @@ const BODY = {
           ['`--accent`', '`--dm-accent`', 'Fills: buttons, switches and selected states'],
           ['`--on-accent`', '`--dm-on-accent`', 'Text and icons on an accent fill'],
           ['`--accent-fg`', '`--dm-accent-fg`', 'The accent as text and icons, aiming for 4.5:1'],
-          ['`--accent-mark`', '`--dm-accent-mark`', 'Lines, borders, focus rings and chart marks, aiming for 3:1'],
+          ['`--accent-mark`', '`--dm-accent-mark`', 'Lines, borders and chart marks, aiming for 3:1'],
           ['`--accent-2`', '`--dm-accent-2`', 'An accent fill on hover'],
           ['`--accent-bg`', '`--dm-accent-bg`', 'A light tint for pressed, selected and hovered items'],
-          ['`--focus`', '`--dm-focus`', 'Focus rings. It is `--accent-mark` unless you set it'],
+          ['`--focus`', '`--dm-focus`', 'The keyboard focus ring. It is `--field-line-strong`, a grey, unless you set it'],
         ]],
+        ['p', 'Fields and focus rings are grey, never the accent. A field (a text field, a search box, a dropdown) has a dimmed grey edge, `--field-line` (`--dm-field-line`), that steps up to `--field-line-strong` (`--dm-field-line-strong`) while it has the focus.'],
         ['p', 'The contrast targets hold on the surface, and on the grey chips and tinted rows the accent sits on.'],
       ]],
       ['The defaults', [
@@ -254,7 +255,7 @@ const BODY = {
           [['Page Up', 'Page Down'], 'Move a month, or a year with Shift', ['date-picker', 'date-range-picker']],
           [['1', '…', '9'], 'Pick an option', ['decision-prompt']],
         ]],
-        ['p', 'Focus shows as one 2px ring in `--focus` (`--dm-focus` in React), the accent\'s mark colour: an outline 2px outside the control, or a 2px ring drawn with `box-shadow` on filled fields and where an outline would be cut off. It uses `:focus-visible`, so a click on a button doesn\'t show it.'],
+        ['p', 'Focus from the keyboard shows as one 2px ring in `--focus` (`--dm-focus` in React), a grey that reaches 3:1 on the page: an outline 2px outside the control, or a 2px ring drawn with `box-shadow` where an outline would be cut off. It uses `:focus-visible`, so a click or a tap on a button doesn\'t show it. Fields take no ring: their dimmed grey edge steps up to that same grey while they have the focus, and goes back once you leave them.'],
         ['note', `Most components work fully with a keyboard. A few, like ${C('kanban-board')} and ${C('file-explorer')}, are still getting their keyboard support.`],
       ]],
       ['Reduced motion', [

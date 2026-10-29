@@ -29,8 +29,6 @@ export interface FeedbackSheetProps {
   comment?: string;
   defaultComment?: string;
   onCommentChange?: (comment: string) => void;
-  /** Shows the box as if someone were typing in it, for a scripted demo */
-  typing?: boolean;
   /** Shows the spinner on Send, for a scripted demo. A promise from onSubmit shows it by itself */
   sending?: boolean;
   /** What was sent, which shows the thank-you line. Leave it out and Send sets it */
@@ -57,7 +55,7 @@ const THANKS = (f: Feedback) => `Thanks. The agent will ${f.reasons.length ? 'av
 
 /** Rate an answer, and say what missed when it was wrong. */
 export function FeedbackSheet({ children, rating, defaultRating = null, onRatingChange, open: openProp, defaultOpen = false, onOpenChange,
-  selected, defaultSelected = [], onSelectedChange, comment: commentProp, defaultComment = '', onCommentChange, typing, sending: sendingProp, sent: sentProp, onSentChange, question = 'What went wrong?', reasons = REASONS, placeholder = 'Anything else the agent should know', note = 'Shared with the agent for this project', onSubmit, thanks = THANKS, bare = true, className }: FeedbackSheetProps) {
+  selected, defaultSelected = [], onSelectedChange, comment: commentProp, defaultComment = '', onCommentChange, sending: sendingProp, sent: sentProp, onSentChange, question = 'What went wrong?', reasons = REASONS, placeholder = 'Anything else the agent should know', note = 'Shared with the agent for this project', onSubmit, thanks = THANKS, bare = true, className }: FeedbackSheetProps) {
   const [rate, setRate] = useControllable<FeedbackRating>(rating, defaultRating, onRatingChange);
   const [open, setOpen] = useControllable(openProp, defaultOpen, onOpenChange);
   const [picked, setPicked] = useControllable(selected, defaultSelected, onSelectedChange);
@@ -106,7 +104,7 @@ export function FeedbackSheet({ children, rating, defaultRating = null, onRating
               })}
             </div>
           )}
-          <textarea ref={box} className={cx('dm-fbx-ta', typing && 'dm-typing')} rows={2} placeholder={placeholder} value={comment} onChange={e => setComment(e.target.value)} />
+          <textarea ref={box} className="dm-fbx-ta" rows={2} placeholder={placeholder} value={comment} onChange={e => setComment(e.target.value)} />
           <div className="dm-fbx-f">
             <span className="dm-muted dm-fbx-n">{note}</span>
             <button type="button" className="dm-pill dm-ghost dm-sm dm-fbx-x" onClick={() => { setOpen(false); setRate(null); }}>Cancel</button>

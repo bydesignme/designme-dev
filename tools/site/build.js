@@ -27,7 +27,7 @@ const MAP = {
   c110:'tool-connections', c111:'design-review', c112:'model-picker', c113:'answer-action-bar', c120:'inline-text-diff', c121:'draft-review', c114:'agent-tree', c115:'agent-inbox', c122:'voice-orb', c123:'prompt-library', c116:'steering', c117:'eval-results', c131:'knowledge-sources', c132:'scheduled-runs', c124:'segmented-control', c125:'otp-field', c126:'multi-select', c127:'profile-menu', c128:'filter-menu', c129:'browser-session', c130:'trace-view', c133:'terminal-stream', c134:'human-handoff', c135:'rich-text-editor',
   c140:'badge', c143:'context-switcher', c144:'banner'
 };
-Object.assign(MAP, { c141:'canvas-toolbar', c142:'step-library' });
+Object.assign(MAP, { c141:'canvas-toolbar' });
 // cards the original page never had: each is cut from a sibling card's markup, renamed, and placed after it
 const EXTRA = [
   { cid:'c110', id:'tool-connections', reg:'tool-connections', title:'Tools and connections', section:'Workspace', after:'c38', icon:'link' },
@@ -58,10 +58,9 @@ const EXTRA = [
   { cid:'c143', id:'context-switcher', reg:'context-switcher', title:'Context switcher', section:'Collaboration', after:'c127', icon:'account_tree' },
   { cid:'c144', id:'banner', reg:'banner', title:'Banner', section:'Collaboration', after:'c56', icon:'stars' }
 ];
-// a workflow canvas's toolbar and the library of steps beside it, after Automation canvas
+// a workflow canvas's toolbar, after Automation canvas
 EXTRA.push(
-  { cid:'c141', id:'canvas-toolbar', reg:'canvas-toolbar', title:'Canvas toolbar', section:'Workspace', after:'c16', icon:'tune' },
-  { cid:'c142', id:'step-library', reg:'step-library', title:'Step library', section:'Workspace', after:'c141', icon:'checklist' }
+  { cid:'c141', id:'canvas-toolbar', reg:'canvas-toolbar', title:'Canvas toolbar', section:'Workspace', after:'c16', icon:'tune' }
 );
 
 /* ---------- read the Soft 2 page ---------- */
@@ -70,7 +69,7 @@ const cssA = soft.indexOf('<style>\n[hidden]') + '<style>'.length;
 // tint and sit one step lighter than the stage, the same grey the site's panels used before
 const NEUTRAL_DARK = { '--page':'#111111', '--stage':'#1c1c1c', '--surface':'#262626', '--raised':'#2c2c2c', '--fg':'#f2f2f2', '--fg2':'#c9c9c9',
   '--muted':'#c0c0c0', '--faint':'#555555', '--rail':'#414141', '--line':'#333333', '--chip':'#303030', '--hover':'#373737', '--press':'#3f3f3f',
-  '--wash':'#2c2c2c', '--soft':'#323232', '--soft-h':'#3a3a3a', '--dis':'#737373', '--ink':'#f2f2f2', '--on-ink':'#161616', '--field-line':'#7a7a7a' };
+  '--wash':'#2c2c2c', '--soft':'#323232', '--soft-h':'#3a3a3a', '--dis':'#737373', '--ink':'#f2f2f2', '--on-ink':'#161616', '--field-line':'#424242', '--field-line-strong':'#808080' };
 function neutralDark(text){
   const root = postcss.parse(text);
   root.walkRules(rule => {
@@ -408,8 +407,8 @@ const ORDER = {
   's-data': ['code-viewer', 'terminal-stream', 'citation-hover', 'source-stack', 'field-extraction', 'metric-insight', 'details-panel', 'task-table'],
   's-workspace': ['automation-canvas', 'command-palette', 'memory-panel', 'model-compare', 'agent-settings', 'tool-connections', 'knowledge-sources', 'scheduled-runs', 'file-explorer', 'workspace-rail'],
 };
-// Canvas toolbar and Step library follow Automation canvas
-ORDER['s-workspace'].splice(ORDER['s-workspace'].indexOf('automation-canvas') + 1, 0, 'canvas-toolbar', 'step-library');
+// Canvas toolbar follows Automation canvas
+ORDER['s-workspace'].splice(ORDER['s-workspace'].indexOf('automation-canvas') + 1, 0, 'canvas-toolbar');
 {
   const secRe = id => new RegExp(`<section class="lib-sec" id="${id}">[\\s\\S]*?</section>`);
   for (const [sid, ids] of Object.entries(ORDER)){

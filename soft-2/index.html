@@ -26,7 +26,7 @@
 :root{
   --motion:soft;
   --page:#f7f7f7; --stage:#f9f9f9; --surface:#ffffff; --raised:#ffffff;
-  --fg:#171717; --fg2:#525252; --muted:#6a6a6a; --faint:#c4c4c4; --rail:#d4d4d4; --line:#e8e8e8; --field-line:#8c8c8c;
+  --fg:#171717; --fg2:#525252; --muted:#6a6a6a; --faint:#c4c4c4; --rail:#d4d4d4; --line:#e8e8e8; --field-line:#d4d4d4; --field-line-strong:#858585;
   --chip:#f3f3f3; --hover:#ebebeb; --press:#e3e3e3; --wash:#f9f9f9; --row:color-mix(in srgb,var(--fg) 4%,transparent);
   --soft:#ececec; --soft-h:#e3e3e3; --soft-ring:inset 0 0 0 1px rgba(0,0,0,.06); --dis:#a6a6a6;
   /* disabled: text and icons take --dis; a control with a fill swaps it for --dis-fill (Blueprint hatches it) */
@@ -36,9 +36,11 @@
      (4.5:1 on the surface, and on the chips and tints it sits on) and --accent-mark is lines, rings and chart marks (3:1). A
      light accent like lime keeps its fills and gets a darker mark and ink-coloured text on a light page */
   --accent:#116ff8; --on-accent:#ffffff; --accent-fg:#0f5fd5; --accent-mark:#116ff8; --sel:color-mix(in srgb,var(--accent) 6%,transparent);
-  /* every focus ring: 2px in this colour, as an outline offset 2px, or as a 2px box-shadow ring where an outline would be
-     clipped or the control is a filled field */
-  --focus:var(--accent-mark);
+  /* fields (text fields, textareas, search fields, dropdown triggers) have a dimmed grey edge, --field-line, that steps up
+     to --field-line-strong while they have the focus. The keyboard's focus ring on every other control is 2px of that
+     stronger grey (--focus), as an outline offset 2px, or as a 2px box-shadow ring where an outline would be clipped. Never
+     the accent and never black, and only from the keyboard (:focus-visible), so a click or a tap never shows one */
+  --focus:var(--field-line-strong);
   --ink:#1b1b1b; --on-ink:#ffffff;
   --ok:#137739; --ok-bg:#e8f6ee; --warn:#a94e09; --warn-bg:#fdf3df; --bad:#bf3434; --bad-bg:#fdecec;
   --merge:#7c4cd4; --merge-bg:#f2ecfd; --add:#187633; --del:#c7212c;
@@ -53,6 +55,12 @@
   --r-card:16px;
   /* spacing runs on a 4px scale, and corners on a small set of radii; values off the scale are still written out */
   --s-1:4px; --s-2:8px; --s-3:12px; --s-4:16px; --s-5:20px; --s-6:24px; --s-8:32px; --r-xs:4px; --r-lg:20px; --r-in:12px; --r-sm:8px; --r-pill:999px;
+  /* fields and tags have slightly rounded corners, never pills: --r-field for one-line fields and dropdown triggers, --r-box
+     for boxes you write several lines in, --r-tag for tags. Where the browser smooths corners (corner-shape: squircle) a
+     corner looks smaller, so each takes the larger -sq radius there to look the same size. Fields share one height and,
+     where a component is a single field, one width */
+  --r-field:var(--r-sm); --r-field-sq:14px; --r-box:var(--r-in); --r-box-sq:20px; --r-tag:6px; --r-tag-sq:10px;
+  --field-h:40px; --field-w:320px;
   --sans:"Inter",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
   --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
   --ease:cubic-bezier(.22,1,.36,1); --ease-io:cubic-bezier(.65,0,.35,1);
@@ -60,7 +68,7 @@
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
   --page:#111111; --stage:#1c1c1c; --surface:#262626; --raised:#2c2c2c;
-  --fg:#f2f2f2; --fg2:#c9c9c9; --muted:#c0c0c0; --faint:#555555; --rail:#414141; --line:#333333; --field-line:#7a7a7a;
+  --fg:#f2f2f2; --fg2:#c9c9c9; --muted:#c0c0c0; --faint:#555555; --rail:#414141; --line:#333333; --field-line:#424242; --field-line-strong:#808080;
   --chip:#303030; --hover:#373737; --press:#3f3f3f; --wash:#2c2c2c; --row:color-mix(in srgb,var(--fg) 5.5%,transparent);
   --soft:#323232; --soft-h:#3a3a3a; --soft-ring:inset 0 0 0 1px rgba(255,255,255,.07); --dis:#737373;
   --shadow-lift:0 0 0 1px rgba(255,255,255,.16),0 2px 4px rgba(0,0,0,.3),0 16px 32px -10px rgba(0,0,0,.6);
@@ -74,7 +82,7 @@
   --shadow:0 0 0 1px rgba(255,255,255,.08),0 1px 2px rgba(0,0,0,.3),0 8px 16px -8px rgba(0,0,0,.4); --shadow-pop:0 0 0 1px rgba(255,255,255,.1),0 4px 8px -4px rgba(0,0,0,.4),0 16px 32px -8px rgba(0,0,0,.5); --shadow-toast:0 0 0 1px rgba(255,255,255,.1),0 4px 12px rgba(0,0,0,.4); --hl:rgba(240,200,60,.3); --hl-ok:rgba(60,207,126,.24); color-scheme:dark}}
 :root[data-theme="dark"]{
   --page:#111111; --stage:#1c1c1c; --surface:#262626; --raised:#2c2c2c;
-  --fg:#f2f2f2; --fg2:#c9c9c9; --muted:#c0c0c0; --faint:#555555; --rail:#414141; --line:#333333; --field-line:#7a7a7a;
+  --fg:#f2f2f2; --fg2:#c9c9c9; --muted:#c0c0c0; --faint:#555555; --rail:#414141; --line:#333333; --field-line:#424242; --field-line-strong:#808080;
   --chip:#303030; --hover:#373737; --press:#3f3f3f; --wash:#2c2c2c; --row:color-mix(in srgb,var(--fg) 5.5%,transparent);
   --soft:#323232; --soft-h:#3a3a3a; --soft-ring:inset 0 0 0 1px rgba(255,255,255,.07); --dis:#737373;
   --shadow-lift:0 0 0 1px rgba(255,255,255,.16),0 2px 4px rgba(0,0,0,.3),0 16px 32px -10px rgba(0,0,0,.6);
@@ -95,9 +103,9 @@
 :root[data-theme="dark"]{--accent-2:color-mix(in srgb,var(--accent) 84%,#fff);--accent-bg:color-mix(in srgb,var(--accent) 13%,transparent)}
 @supports (color:rgb(from red r g b)){:root,:root:not([data-theme="light"]),:root[data-theme="dark"]{--accent-2:color-mix(in srgb,var(--accent) 86%,rgb(from var(--on-accent) calc(255 - r) calc(255 - g) calc(255 - b)))}}
 @supports not (color:rgb(from red r g b)){:root,:root:not([data-theme="light"]),:root[data-theme="dark"]{--accent-2:color-mix(in srgb,var(--accent) 86%,#000)}:root[data-style="bp"],:root[data-style="bp"]:not([data-theme="light"]),:root[data-style="bp"][data-theme="dark"]{--accent-2:color-mix(in srgb,var(--accent) 86%,#fff)}}
-/* picked things (chips, options, steps, cards in a picker) are white tiles with a dimmed grey edge, and the picked one's edge
-   is a step stronger, never a black outline or a grey fill. The picked edge holds 3:1 against the tile */
-:root{--pick-line:var(--rail);--pick-on:var(--field-line)}
+/* picked things (chips, options, cards in a picker) are white tiles with a dimmed grey edge, and the picked one's edge
+   is a light step stronger, never a dark or black outline */
+:root{--pick-line:var(--rail);--pick-on:var(--faint)}
 
 /* ---------- page shell ---------- */
 *{box-sizing:border-box}
@@ -108,6 +116,8 @@ button{background:none;border:0;padding:0;cursor:pointer}
 /* one weight for emphasis: medium, never bold */
 b,strong{font-weight:500}
 :focus-visible{outline:2px solid var(--focus);outline-offset:2px;border-radius:6px}
+/* a field shows the focus with its own edge, which steps up to --field-line-strong, so it never takes the ring as well */
+:focus-visible:is(input:not([type="checkbox"],[type="radio"],[type="range"],[type="file"],[type="button"],[type="submit"],[type="reset"]),textarea,select,[contenteditable]:not([contenteditable="false"])){outline:0}
 .wrap{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:var(--s-5)}
 .top{display:flex;flex-wrap:wrap;gap:var(--s-4) var(--s-6);align-items:flex-end;justify-content:space-between;padding-bottom:var(--s-2)}
 .top h1{margin:0;font-size:28px;font-weight:600;letter-spacing:-.5px;text-wrap:balance}
@@ -191,10 +201,11 @@ button:disabled{cursor:not-allowed}
 .pill:is(.accent,.primary,.soft,.line)[disabled],.pill:is(.accent,.primary,.soft,.line)[disabled]:hover{background:var(--dis-hatch),var(--dis-fill);color:var(--dis);box-shadow:var(--soft-ring)}
 .pill[disabled] .kbd{background:var(--chip);color:inherit}
 .pill.sm{height:28px;padding:0 11px;font-size:12.5px}
-.tag{display:inline-flex;align-items:center;gap:5px;height:20px;padding:0 7px;border-radius:6px;font-size:11.5px;font-weight:500;white-space:nowrap;background:var(--chip);color:var(--fg2)}
+.tag{display:inline-flex;align-items:center;gap:5px;height:20px;padding:0 7px;border-radius:var(--r-tag);font-size:11.5px;font-weight:500;white-space:nowrap;background:var(--chip);color:var(--fg2)}
 .tag.b{background:var(--pb-bg);color:var(--pb)}.tag.l{background:var(--pl-bg);color:var(--pl)}.tag.m{background:var(--pm-bg);color:var(--pm)}.tag.p{background:var(--pp-bg);color:var(--pp)}
 .tag.r{background:var(--pr-bg);color:var(--pr)}.tag.y{background:var(--py-bg);color:var(--py)}.tag.k{background:var(--pk-bg);color:var(--pk)}.tag.t{background:var(--pt-bg);color:var(--pt)}
 .tag.ok{background:var(--ok-bg);color:var(--ok)}.tag.warn{background:var(--warn-bg);color:var(--warn)}.tag.bad{background:var(--bad-bg);color:var(--bad)}
+@supports (corner-shape:squircle){.tag{corner-shape:squircle;border-radius:var(--r-tag-sq)}}
 .dot{width:6px;height:6px;border-radius:50%;background:currentColor;flex:none;display:inline-block}
 .fchip{display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 10px 0 var(--s-2);border-radius:var(--r-pill);background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);font-size:12.5px;color:var(--fg);white-space:nowrap}
 .fchip.lnk{cursor:pointer;transition:background var(--t-fast),box-shadow var(--t-fast)}
@@ -817,13 +828,13 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .stx-body p{margin:0;font-size:12.5px;color:var(--muted)}
 .stx-opts{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--s-2)}
 @media (max-width:520px){.stx-opts{grid-template-columns:1fr}}
-.stx-o{padding:var(--s-3);border-radius:var(--r-in);background:var(--surface);box-shadow:inset 0 0 0 1px var(--pick-line);text-align:left;font-size:13px;display:flex;flex-direction:column;gap:var(--s-1);transition:background .2s,box-shadow .25s}
+.stx-o{padding:var(--s-3);border-radius:var(--r-in);background:var(--chip);text-align:left;font-size:13px;display:flex;flex-direction:column;gap:var(--s-1);transition:background .2s,box-shadow .25s}
 .stx-o span{font-size:11.5px;color:var(--muted)}
-.stx-o:hover{box-shadow:inset 0 0 0 1px var(--faint)}
+.stx-o:hover{background:var(--hover)}
 /* the options fill the sliding view, which would cut an outside ring: theirs is drawn inside */
 .stx-o:focus-visible{outline-offset:-2px}
-/* the picked option: a white tile whose dimmed grey ring is a step stronger than the others', in light and dark */
-.stx-o.on,.stx-o.on:hover{box-shadow:inset 0 0 0 1px var(--pick-on),0 1px 2px rgba(0,0,0,.04)}
+/* the options are grey tiles with no edge; the picked one turns white with a dimmed grey edge */
+.stx-o.on,.stx-o.on:hover{background:var(--surface);box-shadow:inset 0 0 0 1px var(--pick-line),0 1px 2px rgba(0,0,0,.04)}
 .stx-f{display:flex;justify-content:space-between}
 /* once it's done there is nothing to go back to: Start over sits alone in the middle */
 .stx.fin .stx-f{justify-content:center}
@@ -855,10 +866,11 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .slx-h>div{display:flex;flex-direction:column;font-size:14px}
 .slx-h b{font-weight:500}
 .slx-h .muted{font-size:12px}
-.slx-v{display:inline-flex;align-items:baseline;font-size:14px;font-weight:500!important;letter-spacing:-.02em;margin:-3px -7px 0 0;padding:1px 7px;border-radius:9px;cursor:text;transition:background-color .2s var(--ease),box-shadow .2s var(--ease)}
+.slx-v{display:inline-flex;align-items:baseline;font-size:14px;font-weight:500!important;letter-spacing:-.02em;margin:-3px -7px 0 0;padding:1px 7px;border-radius:var(--r-field);cursor:text;transition:background-color .2s var(--ease),box-shadow .2s var(--ease)}
 /* the budget reads as a figure until you click it, then you can type a new one */
 .slx-v:hover{background:var(--row)}
-.slx-v:focus-within{background:var(--row);box-shadow:inset 0 0 0 2px var(--focus)}
+.slx-v:focus-within{background:var(--surface);box-shadow:inset 0 0 0 1px var(--field-line-strong)}
+@supports (corner-shape:squircle){.slx-v{corner-shape:squircle;border-radius:var(--r-field-sq)}}
 .slx-in{width:3ch;min-width:1ch;padding:0;margin:0;border:0;background:none;font:inherit;font-variant-numeric:tabular-nums;letter-spacing:inherit;color:inherit;text-align:right;outline:none;caret-color:var(--accent)}
 .slx-bar{position:relative;height:12px;border-radius:6px;background:var(--chip);margin:18px 0 6px;touch-action:none;cursor:pointer}
 .slx-used{position:absolute;left:0;top:0;bottom:0;border-radius:6px;background:var(--accent-mark,var(--accent));transition:width .8s var(--ease);z-index:1}
@@ -880,14 +892,15 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .slx-sg button{font-size:12px;height:28px;padding:0 10px}
 /* ---------- Currency converter ---------- */
 .ccx{padding:var(--s-4);display:flex;flex-direction:column;gap:6px;max-width:340px;margin:0 auto;width:100%;position:relative}
-.ccx-row{display:flex;align-items:center;gap:var(--s-2);padding:10px 10px 10px 14px;border-radius:14px;background:var(--chip);transition:box-shadow .25s,background .25s}
-/* the row rings when its amount field has the focus; its currency button rings on its own */
-.ccx-row:has(.ccx-a:focus-visible){background:var(--surface);box-shadow:inset 0 0 0 2px var(--focus)}
-/* room between the label and the amount, so a focus ring round the field clears the label */
+.ccx-row{display:flex;align-items:center;gap:var(--s-2);padding:10px 10px 10px 14px;border-radius:var(--r-box);background:var(--surface);box-shadow:inset 0 0 0 1px var(--field-line);transition:box-shadow var(--t-fast)}
+@supports (corner-shape:squircle){.ccx-row{corner-shape:squircle;border-radius:var(--r-box-sq)}}
+/* the row's edge steps up while its amount field has the focus; its currency button rings on its own */
+.ccx-row:has(.ccx-a:focus){box-shadow:inset 0 0 0 1px var(--field-line-strong)}
+/* room between the label and the amount */
 .ccx-in{flex:1;display:flex;flex-direction:column;gap:var(--s-2);min-width:0;font-size:11.5px}
 .ccx-a,.ccx-b{border:0;outline:0;background:transparent;font:inherit;font-size:14px;font-weight:500;letter-spacing:-.02em;color:var(--fg);padding:0;width:100%;min-width:0}
-.ccx-cur{display:flex;align-items:center;gap:6px;height:34px;padding:0 10px;border-radius:10px;background:var(--surface);box-shadow:0 1px 2px rgba(0,0,0,.06);font-size:13px;font-weight:500}
-.ccx-cur .cd{font-family:var(--mono);font-size:12px}
+.ccx-cur{display:flex;align-items:center;gap:6px;height:34px;padding:0 10px;border-radius:10px;background:var(--chip);font-size:13px;font-weight:500}
+.ccx-cur .cd{font-size:12px}
 .ccx-sw{align-self:center;width:32px;height:32px;margin:-16px 0;z-index:1;border-radius:50%;background:var(--surface);box-shadow:var(--shadow),0 0 0 4px var(--surface);display:grid;place-items:center;color:var(--fg2);transition:transform .5s var(--ease),color .2s}
 .ccx-sw:hover{color:var(--fg)}
 .ccx-sw.go{transform:rotate(180deg)}
@@ -895,7 +908,7 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .ccx-rate .dot{color:var(--ok);animation:ccpulse 2s ease-in-out infinite}
 @keyframes ccpulse{50%{opacity:.4}}
 .ccx .pop{min-width:180px}
-.ccx .mi .cd{font-family:var(--mono);font-size:11.5px;color:var(--muted);width:32px}
+.ccx .mi .cd{font-size:11.5px;color:var(--muted);width:32px}
 /* ---------- Run summary ---------- */
 .rsu{padding:var(--s-4)}
 .rsu-h{display:flex;align-items:center;gap:var(--s-3)}
@@ -1043,9 +1056,10 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .thp-body .bub{font-size:13.5px}
 .thp-ag{font-size:13.5px;line-height:1.6;color:var(--fg)}
 .thp-ag .src{display:flex;gap:6px;margin-bottom:6px;flex-wrap:wrap}
-.thp-in{display:flex;align-items:center;gap:var(--s-2);margin:0 10px 10px;padding:var(--s-1) var(--s-1) var(--s-1) 14px;border-radius:var(--r-pill);background:var(--surface);box-shadow:inset 0 0 0 1px var(--field-line);transition:box-shadow .25s}
-.thp-in:has(.thp-field:focus-visible){box-shadow:inset 0 0 0 2px var(--focus),0 0 0 4px var(--accent-bg)}
-.thp-field{flex:1;min-width:0;border:0;outline:0;background:none;font-size:13.5px;height:30px}
+.thp-in{display:flex;align-items:center;gap:var(--s-2);margin:0 10px 10px;padding:var(--s-1) var(--s-1) var(--s-1) var(--s-3);border-radius:var(--r-field);background:var(--surface);box-shadow:inset 0 0 0 1px var(--field-line);transition:box-shadow var(--t-fast)}
+@supports (corner-shape:squircle){.thp-in{corner-shape:squircle;border-radius:var(--r-field-sq)}}
+.thp-in:has(.thp-field:focus){box-shadow:inset 0 0 0 1px var(--field-line-strong)}
+.thp-field{flex:1;min-width:0;border:0;outline:0;background:none;font-size:13.5px;height:32px}
 .thp-field::placeholder{color:var(--muted)}
 .thp-send{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:var(--on-accent);transition:opacity .25s,transform .15s}
 .thp-send[disabled]{opacity:1;cursor:not-allowed;background:var(--dis-hatch),var(--dis-fill);color:var(--dis);box-shadow:var(--soft-ring)}
@@ -1059,9 +1073,9 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .cpx-thread{display:flex;flex-direction:column;gap:var(--s-3)}
 .cpx-thread:empty{display:none}
 .cpx-ag{font-size:14px;color:var(--fg2);display:flex;gap:var(--s-2);align-items:center}
-.cpx-box{position:relative;background:var(--surface);border-radius:var(--r-lg);box-shadow:var(--shadow);transition:box-shadow .32s}
-.cpx-box:focus-within{box-shadow:var(--shadow-pop)}
-.cpx-box:has(.cpx-ta:focus-visible){box-shadow:0 0 0 2px var(--focus),var(--shadow-pop)}
+.cpx-box{position:relative;background:var(--surface);border-radius:var(--r-box);box-shadow:inset 0 0 0 1px var(--field-line);transition:box-shadow var(--t-fast)}
+@supports (corner-shape:squircle){.cpx-box{corner-shape:squircle;border-radius:var(--r-box-sq)}}
+.cpx-box:has(.cpx-ta:focus){box-shadow:inset 0 0 0 1px var(--field-line-strong)}
 .cpx-att{display:flex;gap:6px;flex-wrap:wrap;padding:var(--s-3) 14px 0}
 .cpx-att:empty{display:none}
 .cpx-att .fchip{transition:color .32s,background .32s}
@@ -1108,8 +1122,7 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
   --rte-q:var(--muted);--rte-q2:var(--fg2)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .rte{--rte-q:color-mix(in srgb,var(--fg) 74%,var(--surface));--rte-q2:color-mix(in srgb,var(--fg) 80%,var(--surface))}}
 :root[data-theme="dark"] .rte{--rte-q:color-mix(in srgb,var(--fg) 74%,var(--surface));--rte-q2:color-mix(in srgb,var(--fg) 80%,var(--surface))}
-.rte:focus-within{box-shadow:var(--shadow-pop)}
-.rte:has(.rte-body:focus-visible){box-shadow:0 0 0 2px var(--focus),var(--shadow-pop)}
+.rte:has(.rte-body:focus){box-shadow:inset 0 0 0 1px var(--field-line-strong)}
 .rte-tb{display:flex;align-items:center;gap:2px;min-width:0;padding:7px var(--s-2);box-shadow:inset 0 -1px 0 var(--line)}
 .rte-b{width:30px;height:30px;flex:none;display:grid;place-items:center;border-radius:var(--r-sm);color:var(--fg2);transition:background var(--t-fast),color var(--t-fast)}
 .rte-b:hover{background:var(--row);color:var(--fg)}
@@ -1170,12 +1183,11 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .rte-menu .mi[aria-disabled="true"],.rte-menu .mi[aria-disabled="true"] .i{opacity:1;cursor:not-allowed;background:none;color:var(--dis)}
 .rte-menu .mi:focus-visible{outline-offset:-2px;background:var(--row)}
 .rte-lnk{display:flex;align-items:center;gap:6px;width:304px;max-width:calc(100% - 12px);min-width:0;padding:6px}
-.rte-url{flex:1;min-width:0;height:30px;padding:0 10px;border:0;border-radius:var(--r-sm);outline:0;background:var(--chip);box-shadow:inset 0 0 0 1px var(--field-line);color:var(--fg);font-size:13px}
+.rte-url{flex:1;min-width:0;height:32px;padding:0 10px;border:0;border-radius:var(--r-field);outline:0;background:var(--surface);box-shadow:inset 0 0 0 1px var(--field-line);color:var(--fg);font-size:13px}
+@supports (corner-shape:squircle){.rte-url{corner-shape:squircle;border-radius:var(--r-field-sq)}}
 .rte-url::placeholder{color:var(--rte-q)}
-.rte-url:focus-visible{box-shadow:inset 0 0 0 2px var(--focus)}
+.rte-url:focus{box-shadow:inset 0 0 0 1px var(--field-line-strong)}
 .rte-url[aria-invalid="true"]{box-shadow:inset 0 0 0 1px var(--bad)}
-/* a field marked wrong still shows the focus ring while it has the focus; the message says what is wrong */
-.rte-url[aria-invalid="true"]:focus-visible{box-shadow:inset 0 0 0 2px var(--focus)}
 .rte-lnk .pill{flex:none}
 .rte-lnk .ib{width:30px;height:30px;flex:none}
 /* the small Ask AI button over a selection, for the mouse; the keyboard has the toolbar's button and its shortcut */
@@ -1422,10 +1434,12 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .psx{display:flex;flex-direction:column;gap:10px;align-items:center}
 .psx-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--s-2);width:100%}
 /* white cards with a dimmed grey edge; the picked one's edge is a step stronger */
-.psx-c{display:flex;flex-direction:column;gap:6px;align-items:flex-start;text-align:left;padding:var(--s-3);border-radius:14px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--pick-line);transition:background .25s,box-shadow .25s}
-.psx-c:hover{box-shadow:inset 0 0 0 1px var(--faint)}
-.psx-c.on{box-shadow:inset 0 0 0 1px var(--pick-on),0 1px 2px rgba(0,0,0,.04)}
-.psx-ic{width:28px;height:28px;border-radius:9px;display:grid;place-items:center;background:var(--chip)!important}
+.psx-c{display:flex;flex-direction:column;gap:6px;align-items:flex-start;text-align:left;padding:var(--s-3);border-radius:14px;background:var(--chip);transition:background .25s,box-shadow .25s}
+.psx-c:hover{background:var(--hover)}
+.psx-c.on{background:var(--surface);box-shadow:inset 0 0 0 1px var(--rail),0 1px 2px rgba(0,0,0,.04)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .psx-c.on{background:var(--hover)}}
+:root[data-theme="dark"] .psx-c.on{background:var(--hover)}
+.psx-ic{width:28px;height:28px;border-radius:9px;display:grid;place-items:center;background:var(--surface)!important}
 .psx-c b{font-weight:500;font-size:13.5px}
 .psx-c span.d{font-size:12px;color:var(--muted);line-height:1.4}
 .psx-in{display:flex;align-items:center;gap:var(--s-2);width:100%;min-height:46px;padding:6px 6px 6px var(--s-4);border-radius:var(--r-pill);background:var(--surface);box-shadow:var(--shadow);font-size:13.5px;position:relative}
@@ -1491,8 +1505,9 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .fbx-q{font-size:13.5px;font-weight:500}
 .fbx-ch{display:flex;flex-wrap:wrap;gap:6px}
 .fbx-ch .chip.on{background:var(--sel);color:var(--accent);box-shadow:none}
-.fbx-ta{width:100%;resize:none;border:0;outline:0;border-radius:var(--r-in);background:var(--chip);box-shadow:inset 0 0 0 1px var(--field-line);padding:9px var(--s-3);font:inherit;font-size:13px;color:var(--fg);transition:box-shadow .3s}
-.fbx-ta:focus,.fbx-ta.typing{box-shadow:inset 0 0 0 2px var(--focus),0 0 0 2px var(--accent-bg)}
+.fbx-ta{display:block;width:100%;resize:none;border:0;outline:0;border-radius:var(--r-field);background:var(--surface);box-shadow:inset 0 0 0 1px var(--field-line);padding:10px var(--s-3);font:inherit;font-size:13.5px;line-height:1.5;color:var(--fg);transition:box-shadow var(--t-fast)}
+@supports (corner-shape:squircle){.fbx-ta{corner-shape:squircle;border-radius:var(--r-field-sq)}}
+.fbx-ta:focus{box-shadow:inset 0 0 0 1px var(--field-line-strong)}
 .fbx-ta::placeholder{color:var(--muted)}
 .fbx-f{display:flex;align-items:center;gap:6px}
 .fbx-n{font-size:12px;flex:1;min-width:0}
@@ -1670,7 +1685,6 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .rwx-s ins .w.on{visibility:visible;animation:rww .4s var(--ease) both}
 @keyframes rww{from{opacity:0;filter:blur(3px)}to{opacity:1;filter:none}}
 .rwx-tb{position:absolute;left:0;top:0;display:flex;align-items:center;gap:2px;padding:var(--s-1);border-radius:var(--r-pill);background:var(--ink);color:var(--on-ink);box-shadow:var(--shadow-pop);opacity:0;pointer-events:none;transform:translateY(6px) scale(.96);filter:blur(4px);transition:opacity .3s var(--ease),transform .4s var(--ease),filter .3s;z-index:3;white-space:nowrap}
-.rwx-tb{--focus:var(--on-ink)}
 .rwx-tb.show{opacity:1;pointer-events:auto;transform:none;filter:none}
 .rwx-b{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 11px;border-radius:var(--r-pill);font-size:12.5px;color:inherit;opacity:.85;transition:background .2s,opacity .2s}
 .rwx-b:hover,.rwx-b.hl{background:color-mix(in srgb,var(--on-ink) 14%,transparent);opacity:1}
@@ -1814,8 +1828,9 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .hox-mh{display:flex;align-items:center;gap:var(--s-2);min-height:28px}
 .hox-mh .sp{flex:1}
 .hox-mb{padding:10px var(--s-3);border-radius:var(--r-in);background:var(--chip);font-size:13.5px;line-height:1.5;outline:0;transition:box-shadow var(--t-fast),background var(--t-fast)}
-.hox-mb[contenteditable="true"]{background:var(--surface);box-shadow:inset 0 0 0 1px var(--rail)}
-.hox-mb[contenteditable="true"]:focus{box-shadow:inset 0 0 0 2px var(--focus),0 0 0 4px var(--accent-bg)}
+.hox-mb[contenteditable="true"]{background:var(--surface);box-shadow:inset 0 0 0 1px var(--field-line)}
+@supports (corner-shape:squircle){.hox-mb[contenteditable="true"]{corner-shape:squircle;border-radius:var(--r-box-sq)}}
+.hox-mb[contenteditable="true"]:focus{box-shadow:inset 0 0 0 1px var(--field-line-strong)}
 /* where it stands, in one row at the foot: neutral while it waits, amber when the person can't take it, green once they have */
 .hox-st{display:flex;align-items:center;gap:var(--s-3);padding:10px 10px 10px var(--s-3);border-radius:var(--r-in);background:var(--chip);font-size:13.5px;transition:background .32s}
 .hox-st.warn{background:var(--warn-bg)}
@@ -1871,7 +1886,7 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .plx-tm{margin-left:auto;font-size:12px;color:var(--muted)}
 .plx-tm:empty{display:none}
 .plx-s .n .spin{width:10px;height:10px}
-.plx-s .t:focus,.plx-s .t.ed{background:var(--surface);box-shadow:0 0 0 2px var(--focus)}
+.plx-s .t:focus{background:var(--surface);box-shadow:0 0 0 1px var(--field-line-strong)}
 .plx-s .ib{width:24px;height:24px;opacity:0;transition:opacity .2s}
 .plx-s:hover .ib,.plx-s .ib:focus-visible{opacity:1}
 .plx-s.off{opacity:.45}
@@ -1921,9 +1936,10 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .crx-hk.kept .crx-l.del{display:none}.crx-hk.kept .crx-l.add{background:transparent}.crx-hk.kept .crx-l.add .c::before{content:"  "}
 .crx-hk.undone .crx-l.add{display:none}.crx-hk.undone .crx-l.del{background:transparent}.crx-hk.undone .crx-l.del .c::before{content:"  "}
 .crx-hk.kept .crx-hh,.crx-hk.undone .crx-hh{color:var(--muted)}
-.crx-cmt{font-family:var(--sans);margin:var(--s-1) 10px 6px 36px;display:flex;gap:6px;align-items:center;padding:6px;border-radius:10px;background:var(--surface);box-shadow:var(--shadow)}
+.crx-cmt{font-family:var(--sans);margin:var(--s-1) 10px 6px 36px;display:flex;gap:6px;align-items:center;padding:6px;border-radius:var(--r-field);background:var(--surface);box-shadow:inset 0 0 0 1px var(--field-line)}
+@supports (corner-shape:squircle){.crx-cmt:not(.sent){corner-shape:squircle;border-radius:var(--r-field-sq)}}
 .crx-cmt input{flex:1;min-width:0;border:0;outline:0;background:transparent;font:inherit;font-size:12.5px;color:var(--fg);padding:0 6px}
-.crx-cmt:has(input:focus-visible){box-shadow:0 0 0 2px var(--focus),var(--shadow)}
+.crx-cmt:has(input:focus){box-shadow:inset 0 0 0 1px var(--field-line-strong)}
 .crx-cmt.sent{background:var(--sel);box-shadow:none;font-size:12.5px;padding:6px 10px}
 /* ---------- Inline text diff ---------- */
 /* a piece of copy with the agent's edits marked inline, struck and added; each edit opens a small toolbar to accept or
@@ -1966,9 +1982,9 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .drf-p{display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 10px 0 3px;border-radius:var(--r-pill);background:var(--chip);font-size:13px}
 .drf-p .av{width:20px;height:20px;font-size:9px}
 .drf-s{flex:1;min-width:0;height:38px;padding:0;border:0;background:none;outline:0;font:inherit;font-size:13.5px;color:var(--fg)}
-.drf-r:has(.drf-s:focus-visible){outline:2px solid var(--focus);outline-offset:2px;border-radius:var(--r-sm)}
+.drf-r:has(.drf-s:focus){border-bottom-color:var(--field-line-strong)}
 .drf-b{font-size:14px;line-height:1.6;color:var(--fg);outline:0;border-radius:6px}
-.drf-b:focus-visible{box-shadow:0 0 0 2px var(--focus)}
+.drf-b:focus{box-shadow:0 0 0 6px var(--surface),0 0 0 7px var(--field-line-strong)}
 .drf-att{display:flex;flex-wrap:wrap;gap:6px}
 .drf-att:empty{display:none}
 .drf-file{display:inline-flex;align-items:center;gap:var(--s-2);height:30px;padding:0 10px;border-radius:var(--r-sm);background:var(--chip);font-size:13px}
@@ -2083,12 +2099,11 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .plb-vars{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:var(--s-3)}
 .plb-fd{display:flex;flex-direction:column;gap:5px;font-size:12.5px;font-weight:500;min-width:0}
 .plb-fd.wide{grid-column:1/-1}
-.plb-in{width:100%;border:0;outline:0;border-radius:11px;background:var(--chip);box-shadow:inset 0 0 0 1px var(--field-line);height:38px;padding:0 var(--s-3);font:inherit;font-size:13.5px;font-weight:400;color:var(--fg);transition:box-shadow .25s,background .25s}
+.plb-in{width:100%;border:0;outline:0;border-radius:var(--r-field);background:var(--surface);box-shadow:inset 0 0 0 1px var(--field-line);height:var(--field-h);padding:0 var(--s-3);font:inherit;font-size:13.5px;font-weight:400;color:var(--fg);transition:box-shadow var(--t-fast)}
+@supports (corner-shape:squircle){.plb-in{corner-shape:squircle;border-radius:var(--r-field-sq)}}
 .plb-in::placeholder{color:var(--muted)}
-.plb-in:focus,.plb-in.ed{background:var(--surface);box-shadow:inset 0 0 0 2px var(--focus),0 0 0 4px var(--accent-bg)}
-.plb-fd.bad .plb-in{box-shadow:inset 0 0 0 1.5px var(--bad)}
-/* a field marked wrong still shows the focus ring while it has the focus; the message says what is wrong */
-.plb-fd.bad .plb-in:focus{box-shadow:inset 0 0 0 2px var(--focus),0 0 0 4px var(--accent-bg)}
+.plb-in:focus{box-shadow:inset 0 0 0 1px var(--field-line-strong)}
+.plb-fd.bad .plb-in{box-shadow:inset 0 0 0 1px var(--bad)}
 .plb-er{font-size:12px;color:var(--bad);font-weight:400}
 .plb-er[hidden]{display:none}
 .plb-sel{display:flex;align-items:center;justify-content:space-between;gap:var(--s-2);width:100%;height:38px;padding:0 10px 0 var(--s-3);border-radius:11px;background:var(--chip);font-size:13.5px;font-weight:400;color:var(--fg);text-align:left;transition:background .2s,box-shadow .2s}
@@ -2144,8 +2159,9 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .ste-ag .muted{font-size:12px}
 .ste-sum{display:flex;align-items:center;gap:var(--s-2);padding:10px var(--s-3);border-radius:var(--r-in);background:var(--ok-bg);font-size:13px}
 .ste-sum svg{color:var(--ok);flex:none}
-.ste-box{display:flex;align-items:center;gap:6px;height:40px;margin:0 var(--s-1) var(--s-1);padding:0 5px 0 14px;border-radius:var(--r-pill);background:var(--surface);box-shadow:inset 0 0 0 1px var(--field-line);transition:box-shadow .25s}
-.ste-box:has(input:focus-visible),.ste-box.f{box-shadow:inset 0 0 0 2px var(--focus),0 0 0 4px var(--accent-bg)}
+.ste-box{display:flex;align-items:center;gap:6px;height:var(--field-h);margin:0 var(--s-1) var(--s-1);padding:0 5px 0 var(--s-3);border-radius:var(--r-field);background:var(--surface);box-shadow:inset 0 0 0 1px var(--field-line);transition:box-shadow var(--t-fast)}
+@supports (corner-shape:squircle){.ste-box{corner-shape:squircle;border-radius:var(--r-field-sq)}}
+.ste-box:has(input:focus){box-shadow:inset 0 0 0 1px var(--field-line-strong)}
 .ste-box input{flex:1;min-width:0;border:0;outline:0;background:transparent;font:inherit;font-size:13px;color:var(--fg)}
 .ste-box input::placeholder{color:var(--muted)}
 .ste-go{width:30px;height:30px;border-radius:50%;background:var(--accent);color:var(--on-accent);display:grid;place-items:center;flex:none;transition:background .2s}
@@ -2533,7 +2549,8 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .fex-r:hover{background:var(--row)}
 .fex-r .k{font-size:12px;color:var(--muted)}
 .fex-r .v{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;outline:0;border-radius:6px;padding:1px var(--s-1);margin:0 -4px}
-.fex-r .v[contenteditable="true"]{background:var(--surface);box-shadow:0 0 0 2px var(--focus)}
+.fex-r .v[contenteditable="true"]{background:var(--surface);box-shadow:0 0 0 1px var(--field-line)}
+.fex-r .v[contenteditable="true"]:focus{box-shadow:0 0 0 1px var(--field-line-strong)}
 .fex-cf{display:flex;align-items:center;gap:5px;font-size:11.5px;color:var(--muted)}
 .fex-cf i{width:22px;height:4px;border-radius:2px;background:var(--line);overflow:hidden;display:block}
 .fex-cf i b{display:block;height:100%;border-radius:2px;background:var(--ok);transform-origin:left;animation:ssrel .7s var(--ease) both}
@@ -2577,8 +2594,8 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .cpl-in{display:flex;align-items:center;gap:10px;padding:var(--s-3) 14px;border-bottom:1px solid var(--line);color:var(--muted)}
 .cpl-q{flex:1;min-width:0;border:0;outline:0;background:transparent;font:inherit;font-size:14px;color:var(--fg)}
 .cpl-q::placeholder{color:var(--muted)}
-/* the palette rings while its search box has the focus; a row that takes the focus rings on its own */
-.cpl:has(.cpl-q:focus-visible){box-shadow:0 0 0 2px var(--focus),var(--shadow-pop)}
+/* the line under the search box steps up while it has the focus; a row that takes the focus rings on its own */
+.cpl-in:has(.cpl-q:focus){border-bottom-color:var(--field-line-strong)}
 .cpl-list{padding:6px;height:236px;overflow-y:auto;position:relative}
 /* while there is more list below, its last row fades out at the edge instead of being cut off by the footer */
 .cpl-list.more{-webkit-mask-image:linear-gradient(to bottom,#000 calc(100% - 32px),transparent);mask-image:linear-gradient(to bottom,#000 calc(100% - 32px),transparent)}
@@ -2612,20 +2629,21 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .asx-cap{display:flex;align-items:center;gap:6px}
 .asx-cap .ib{width:26px;height:26px}
 .asx-v{min-width:38px;text-align:center;font-size:13px}
-.asx-ta{width:100%;resize:none;border:0;outline:0;border-radius:var(--r-in);background:var(--chip);box-shadow:inset 0 0 0 1px var(--field-line);padding:9px var(--s-3);font:inherit;font-size:13px;color:var(--fg);transition:box-shadow .3s}
-.asx-ta:focus{box-shadow:inset 0 0 0 2px var(--focus),0 0 0 3px var(--accent-bg)}
+.asx-ta{display:block;width:100%;resize:none;border:0;outline:0;border-radius:var(--r-field);background:var(--surface);box-shadow:inset 0 0 0 1px var(--field-line);padding:10px var(--s-3);font:inherit;font-size:13.5px;line-height:1.5;color:var(--fg);transition:box-shadow var(--t-fast)}
+@supports (corner-shape:squircle){.asx-ta{corner-shape:squircle;border-radius:var(--r-field-sq)}}
+.asx-ta:focus{box-shadow:inset 0 0 0 1px var(--field-line-strong)}
 .asx-bar{display:flex;align-items:center;gap:6px;padding:6px 6px 6px 14px;border-radius:var(--r-pill);background:var(--ink);color:var(--on-ink);font-size:12.5px;margin-top:10px;transform:translateY(30px);opacity:0;filter:blur(4px);pointer-events:none;transition:transform .45s var(--ease),opacity .3s,filter .3s,height .45s var(--ease),margin-bottom .45s var(--ease);height:0;margin-bottom:-10px}
 /* on an ink-filled bar the ring takes the bar's text colour, so it stands out against the fill in every theme */
-.asx-bar{--focus:var(--on-ink)}
 .asx-bar span{flex:1}
 .asx-bar .pill.ghost{color:inherit;opacity:.8}.asx-bar .pill.ghost:hover{background:color-mix(in srgb,var(--on-ink) 14%,transparent)}
 .asx.dirty .asx-bar{transform:none;opacity:1;filter:none;pointer-events:auto;height:40px;margin-bottom:0}
 /* ---------- File explorer ---------- */
 .fxp{padding:var(--s-2);display:flex;flex-direction:column;gap:var(--s-1);height:380px}
 .fxp-h{display:flex;gap:var(--s-1);align-items:center}
-.fxp-s{flex:1;display:flex;align-items:center;gap:var(--s-2);height:32px;padding:0 10px;border-radius:10px;background:var(--chip);box-shadow:inset 0 0 0 1px var(--field-line);color:var(--muted)}
+.fxp-s{flex:1;display:flex;align-items:center;gap:var(--s-2);height:32px;padding:0 10px;border-radius:var(--r-field);background:var(--surface);box-shadow:inset 0 0 0 1px var(--field-line);color:var(--muted);transition:box-shadow var(--t-fast)}
+@supports (corner-shape:squircle){.fxp-s{corner-shape:squircle;border-radius:var(--r-field-sq)}}
 .fxp-s input{flex:1;min-width:0;border:0;outline:0;background:transparent;font:inherit;font-size:13px;color:var(--fg)}
-.fxp-s:focus-within{box-shadow:inset 0 0 0 2px var(--focus)}
+.fxp-s:has(input:focus){box-shadow:inset 0 0 0 1px var(--field-line-strong)}
 .fxp-s input::placeholder{color:var(--muted)}
 .fxp-tree{flex:1;overflow:auto;padding:var(--s-1) 0 var(--s-4);-webkit-mask-image:linear-gradient(180deg,#000 calc(100% - 28px),transparent);mask-image:linear-gradient(180deg,#000 calc(100% - 28px),transparent)}
 /* a thin scrollbar in the style's hairline grey, not the browser's thick one */
@@ -2658,7 +2676,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .acx-sp{flex:1}
 .acx-st{font-size:12.5px}
 /* the canvas reads as a workflow editor: a dot every 16px, fading toward the edges so the steps sit in the middle of it */
-.acx-cv{position:relative;height:300px;border-radius:18px;background-color:var(--chip);background-image:radial-gradient(ellipse at center,transparent 55%,var(--chip) 100%),radial-gradient(circle at 8px 8px,color-mix(in srgb,var(--fg) 20%,transparent) 1.1px,transparent 1.6px);background-size:100% 100%,16px 16px;background-position:0 0,center}
+.acx-cv{position:relative;height:420px;border-radius:18px;background-color:var(--chip);background-image:radial-gradient(ellipse at center,transparent 55%,var(--chip) 100%),radial-gradient(circle at 8px 8px,color-mix(in srgb,var(--fg) 20%,transparent) 1.1px,transparent 1.6px);background-size:100% 100%,16px 16px;background-position:0 0,center}
 .acx-svg{position:absolute;inset:0;width:100%;height:100%}
 .acx-svg path{fill:none;stroke:var(--faint);stroke-width:1.5;transition:stroke .6s var(--ease)}
 /* on arrival the wires draw in after the steps have landed */
@@ -2689,11 +2707,49 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .acx-pop{width:240px;padding:var(--s-3)}
 .acx-pop h4{margin:0 0 10px;font-size:13px;font-weight:500}
 .acx-fl{display:flex;flex-direction:column;gap:var(--s-1);margin-bottom:10px;font-size:12px;color:var(--muted)}
-.acx-dd{display:flex;align-items:center;justify-content:space-between;height:32px;padding:0 10px;border-radius:9px;background:var(--accent-bg);color:var(--accent);font-size:13px;font-weight:500}
+.acx-dd{display:flex;align-items:center;justify-content:space-between;height:32px;padding:0 10px;border-radius:var(--r-sm);background:var(--surface);box-shadow:inset 0 0 0 1px var(--rail);color:var(--fg);font-size:13px;transition:box-shadow var(--t-fast)}
+/* a field: a quiet grey border, one step stronger while it has the focus or its list is open */
+.acx-dd:is(:focus,[aria-expanded="true"]){outline:0;box-shadow:inset 0 0 0 1px var(--field-line)}
+.acx-dd .i{color:var(--muted)}
 .acx-opts{display:none;flex-direction:column;padding:var(--s-1);border-radius:10px;background:var(--surface);box-shadow:var(--shadow-pop);margin-top:var(--s-1)}
 .acx-opts.open{display:flex}
 .acx-opts .mi{font-size:12.5px;padding:6px var(--s-2)}
-@media (max-width:720px){.acx-cv{height:420px}}
+/* adding steps: a step whose output leads nowhere yet has a small + on it (on its right, or under it when the canvas stacks),
+   and the agent step has labelled connectors under it for a model and its tools. Each opens the step picker beside it */
+.acx-h,.acx-sc{position:absolute;left:0;top:0;z-index:2;display:grid;place-items:center;background:var(--surface);color:var(--fg2);box-shadow:inset 0 0 0 1px var(--rail),var(--shadow);transition:color var(--t-fast),box-shadow var(--t-fast),left .5s var(--ease),top .5s var(--ease),opacity var(--t-fast)}
+.acx-h{width:20px;height:20px;border-radius:var(--r-pill)}
+.acx-sc{height:24px;grid-auto-flow:column;gap:var(--s-1);padding:0 var(--s-2) 0 6px;border-radius:var(--r-sm);font-size:11.5px;white-space:nowrap}
+.acx-h:hover,.acx-sc:hover,.acx-h[aria-expanded="true"],.acx-sc[aria-expanded="true"]{color:var(--fg);box-shadow:inset 0 0 0 1px var(--field-line),var(--shadow)}
+.acx-nodes.drag :is(.acx-h,.acx-sc){transition:none}
+.acx-h.in,.acx-sc.in{animation:acxin .56s var(--ease) backwards}
+.acx-svg path.stub{stroke-dasharray:3 3}
+.acx-svg path.sub{stroke-dasharray:4 4}
+.acx-svg path.new{stroke-dasharray:var(--l);animation:acxdraw .5s var(--ease) backwards}
+.acx-svg path.sub.new{animation:acxsub .5s var(--ease) backwards}
+@keyframes acxsub{from{opacity:0}}
+.acx-n.sm{width:168px;padding:var(--s-2) 10px;gap:var(--s-2)}
+.acx-n.sm .ic{width:24px;height:24px;border-radius:var(--r-sm)}
+.acx-n.add{animation:acxadd .42s var(--ease) backwards}
+@keyframes acxadd{from{opacity:0;transform:scale(.92);filter:blur(3px)}}
+/* the step picker: a search over a short list of step types in groups. The arrows move through it (the search keeps the
+   focus), Enter adds the step, Escape closes it; the line at its foot says what the step under the pointer or the arrows does */
+.acx-pk{width:248px;padding:var(--s-2);display:flex;flex-direction:column;gap:var(--s-1)}
+.acx-q{display:flex;align-items:center;gap:var(--s-2);height:32px;flex:none;padding:0 var(--s-2);border-radius:var(--r-sm);background:var(--surface);box-shadow:inset 0 0 0 1px var(--rail);color:var(--muted);transition:box-shadow var(--t-fast)}
+.acx-q:focus-within{box-shadow:inset 0 0 0 1px var(--field-line)}
+.acx-q input{flex:1;min-width:0;height:100%;padding:0;border:0;outline:0;background:transparent;font:inherit;font-size:13px;color:var(--fg)}
+.acx-q input::placeholder{color:var(--muted)}
+.acx-ls{max-height:148px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--rail) transparent}
+.acx-gh{padding:var(--s-2) var(--s-2) var(--s-1);font-size:11.5px;color:var(--muted)}
+.acx-o{display:flex;align-items:center;gap:var(--s-2);height:32px;padding:0 var(--s-2);border-radius:var(--r-sm);font-size:13px;color:var(--fg);cursor:pointer;user-select:none}
+.acx-o .ic{width:22px;height:22px;border-radius:var(--r-xs);display:grid;place-items:center;flex:none}
+.acx-o.on{background:var(--surface);box-shadow:inset 0 0 0 1px var(--rail)}
+.acx-o mark{background:none;color:inherit;font-weight:500}
+.acx-pe{padding:var(--s-3) var(--s-2);font-size:12.5px;color:var(--muted);overflow-wrap:anywhere}
+.acx-pd{margin:0;padding:var(--s-2) var(--s-2) 2px;box-shadow:inset 0 1px 0 var(--line);font-size:12px;line-height:1.4;color:var(--fg2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.acx-live{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+:root[data-style="bp"] :is(.acx-h,.acx-sc){box-shadow:inset 0 0 0 1px var(--rail)}
+:root[data-style="bp"] :is(.acx-h,.acx-sc):is(:hover,[aria-expanded="true"]){box-shadow:inset 0 0 0 1px var(--field-line)}
+@media (max-width:720px){.acx-cv{height:580px}}
 /* ---------- Canvas toolbar ---------- */
 /* a workflow canvas with its floating toolbar docked at the bottom centre: a handle to move the toolbar, Run (Stop while a
    run is going), the pointer tools as one radio group, Comment, Fit and zoom. A narrow canvas moves Comment and Fit, then
@@ -2702,10 +2758,11 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
   /* Stop's fill: a red that keeps white text at 4.5:1 and APCA Lc 75 in both themes, darker on hover */
   --ctb-stop:#bf3434;--ctb-stop-2:#a52a2a;--ctb-on-stop:#ffffff;
   /* the wires: the field grey, which holds 3:1 against the canvas */
-  --ctb-wire:var(--field-line)}
-.ctb-cv{position:relative;height:340px;border-radius:var(--r-lg);overflow:hidden;outline:0;touch-action:none;user-select:none;-webkit-user-select:none;cursor:default;
+  --ctb-wire:var(--field-line-strong)}
+.ctb-cv{position:relative;height:460px;border-radius:var(--r-lg);overflow:hidden;outline:0;touch-action:none;user-select:none;-webkit-user-select:none;cursor:default;
   background-color:var(--chip);background-image:radial-gradient(circle,color-mix(in srgb,var(--fg) 20%,transparent) 1.1px,transparent 1.6px);background-size:16px 16px}
-.ctb-cv:focus-visible{outline:2px solid var(--focus);outline-offset:2px;border-radius:var(--r-lg)}
+/* the canvas shows its focus only to the keyboard, in the quiet grey: a click gives it the focus without a ring */
+.ctb-cv:focus-visible:not(.ptr){outline:2px solid var(--field-line);outline-offset:2px;border-radius:var(--r-lg)}
 .ctb[data-tool="hand"] .ctb-cv{cursor:grab}
 .ctb[data-tool="lasso"] .ctb-cv,.ctb.cm .ctb-cv{cursor:crosshair}
 .ctb .ctb-cv.pan{cursor:grabbing}
@@ -2723,7 +2780,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .ctb-n .t{display:flex;flex-direction:column;min-width:0}
 .ctb-n .t b{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ctb-n .t span{font-size:11.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.ctb-n.sel{box-shadow:0 0 0 1.5px var(--accent-mark),var(--shadow)}
+.ctb-n.sel{box-shadow:0 0 0 1px var(--field-line),var(--shadow)}
 .ctb-n.run{box-shadow:0 0 0 1.5px var(--accent-mark),0 0 0 6px color-mix(in srgb,var(--accent) 12%,transparent),var(--shadow)}
 .ctb-n .s{position:absolute;right:-6px;top:-6px;width:18px;height:18px;border-radius:50%;display:grid;place-items:center;background:var(--surface);box-shadow:0 0 0 1px var(--line);animation:ctbs .3s var(--ease)}
 .ctb-n .s .spin{width:10px;height:10px;color:var(--accent-mark)}
@@ -2732,6 +2789,15 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 /* a comment dropped on the canvas: a numbered pin in the accent, its point on the spot that was clicked */
 .ctb-pin{position:absolute;width:24px;height:24px;transform:translateY(-100%);display:grid;place-items:center;border-radius:var(--r-pill) var(--r-pill) var(--r-pill) var(--r-xs);background:var(--accent);color:var(--on-accent);box-shadow:0 0 0 2px var(--surface),var(--shadow);font-size:11.5px;font-weight:500;animation:ctbpin .3s var(--ease)}
 @keyframes ctbpin{from{opacity:0;transform:translateY(-100%) scale(.6)}}
+.ctb-pin{transform-origin:0 100%;transition:opacity .16s var(--ease),scale .16s var(--ease)}
+.ctb-pin[aria-expanded="true"]{box-shadow:0 0 0 2px var(--surface),0 0 0 3px var(--field-line),var(--shadow)}
+.ctb-pin.gone{opacity:0;scale:.6;pointer-events:none}
+/* a comment opened from its pin: its number, where it is, and Delete */
+.ctb-cp{width:216px;min-width:0;padding:var(--s-3)}
+.ctb-cp b{display:block;font-size:13px;font-weight:500}
+.ctb-cp p{margin:2px 0 var(--s-3);font-size:12.5px;color:var(--fg2)}
+.pill.ctb-del,.pill.ctb-del .i{color:var(--bad)}
+.pill.ctb-del:hover{background:var(--bad-bg)}
 /* what a drag selects: a box for Select, a free shape for Lasso */
 .ctb-mq{position:absolute;left:0;top:0;box-shadow:inset 0 0 0 1px var(--accent-mark);background:color-mix(in srgb,var(--accent) 8%,transparent);pointer-events:none}
 .ctb-lz{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
@@ -2743,7 +2809,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .ctb-bar :focus-visible{border-radius:var(--r-pill)}
 .ctb-b{width:32px;height:32px;flex:none;display:grid;place-items:center;border-radius:var(--r-pill);color:var(--fg2);transition:background var(--t-fast),color var(--t-fast)}
 .ctb-b:hover{background:var(--row);color:var(--fg)}
-.ctb-b:is([aria-checked="true"],[aria-pressed="true"]){background:var(--accent-bg);color:var(--accent-fg)}
+.ctb-b:is([aria-checked="true"],[aria-pressed="true"]){background:var(--surface);color:var(--fg);box-shadow:inset 0 0 0 1px var(--field-line)}
 /* zoom out at 25%, or in at 400%, has nowhere to go: it greys out but keeps its place and the focus */
 .ctb-b[aria-disabled="true"],.ctb-b[aria-disabled="true"]:hover,.ctb-menu .mi[aria-disabled="true"],.ctb-menu .mi[aria-disabled="true"] :is(.i,.kbd){color:var(--dis);background:none;cursor:not-allowed}
 .ctb-hd{width:24px;color:var(--muted);cursor:grab;touch-action:none}
@@ -2760,7 +2826,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .ctb-menu{width:216px}
 .ctb-menu .mi .kbd,.ctb-menu .mi .r{margin-left:auto}
 .ctb-menu .mi[aria-checked="true"]{font-weight:400}
-.ctb-menu .mi[aria-checked="true"] .i{color:var(--accent-fg)}
+.ctb-menu .mi[aria-checked="true"] .i{color:var(--fg)}
 .ctb-menu [data-ovf]{display:none}
 /* the toolbar keeps to one row: below 440px Comment and Fit go into More, below 360px the zoom buttons follow */
 @container ctb (max-width:439px){.ctb-bar [data-ovf="1"]{display:none}.ctb-more{display:grid}.ctb-menu [data-ovf="1"]{display:flex}}
@@ -2769,93 +2835,8 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .ctb{--ctb-stop:#c43535;--ctb-stop-2:#d34646}}
 :root[data-theme="dark"] .ctb{--ctb-stop:#c43535;--ctb-stop-2:#d34646}
 :root[data-style="bp"] .ctb-cv{box-shadow:inset 0 0 0 1px var(--line)}
-:root[data-style="bp"] .ctb-b:is([aria-checked="true"],[aria-pressed="true"]){box-shadow:inset 0 0 0 1px var(--accent-mark)}
 :root[data-style="bp"] .ctb-n.run{box-shadow:0 0 0 1px var(--accent-mark),0 0 0 4px color-mix(in srgb,var(--accent) 22%,transparent)}
-:root[data-style="bp"] .ctb-n.sel{box-shadow:0 0 0 1px var(--accent-mark)}
-/* ---------- Step library ---------- */
-/* the steps a workflow can be built from, in a side panel beside the workflow: a search, groups that fold, and a row per
-   step. Hovering or focusing a step shows what it does in a card beside the panel, never over the list; Enter, a click or
-   a drag into the workflow adds it. On a narrow screen the workflow steps aside and the description shows at the foot of
-   the panel instead */
-.slb{position:relative;width:100%;height:400px;display:flex;gap:var(--s-4);container:slb/inline-size;--slb-wire:var(--field-line)}
-.slb-p{position:relative;z-index:1;width:256px;flex:none;display:flex;flex-direction:column;min-height:0;border-radius:var(--r-card);background:var(--surface);box-shadow:var(--shadow)}
-.slb-h{display:flex;align-items:baseline;justify-content:space-between;gap:var(--s-2);padding:var(--s-3) var(--s-4) 0;font-size:13px}
-.slb-h b{font-weight:500}
-.slb-h .num{font-size:12px;color:var(--muted)}
-.slb-q{display:flex;align-items:center;gap:var(--s-2);height:32px;margin:var(--s-2) var(--s-3) var(--s-1);padding:0 var(--s-1) 0 var(--s-3);border-radius:var(--r-sm);background:var(--chip);box-shadow:inset 0 0 0 1px var(--field-line);color:var(--muted)}
-.slb-q:focus-within{box-shadow:inset 0 0 0 2px var(--focus)}
-.slb-q input{flex:1;min-width:0;height:100%;border:0;outline:0;background:transparent;font:inherit;font-size:13px;color:var(--fg)}
-.slb-q input::placeholder{color:var(--muted)}
-.slb-x{width:24px;height:24px}
-.slb-list{flex:1;min-height:0;overflow-y:auto;padding:var(--s-1) var(--s-2) var(--s-2);scrollbar-width:thin;scrollbar-color:var(--rail) transparent}
-.slb-g+.slb-g{margin-top:var(--s-1)}
-.slb-g[hidden]{display:none}
-.slb-gb{display:flex;align-items:center;gap:var(--s-2);width:100%;height:28px;padding:0 var(--s-2);border-radius:var(--r-sm);font-size:12px;color:var(--fg2);text-align:left;transition:background var(--t-fast),color var(--t-fast)}
-.slb-gb:hover{background:var(--row);color:var(--fg)}
-.slb-gb:focus-visible,.slb-s:focus-visible{outline-offset:-2px}
-.slb-gb .i{color:var(--muted);transition:transform var(--t) var(--ease)}
-.slb-gb[aria-expanded="false"] .i{transform:rotate(-90deg)}
-.slb-gb .n{margin-left:auto;color:var(--muted)}
-.slb-ul{list-style:none;margin:0;padding:0}
-.slb-s{display:flex;align-items:center;gap:var(--s-2);width:100%;height:36px;padding:0 var(--s-2);border-radius:var(--r-sm);font-size:13px;text-align:left;color:var(--fg);transition:background var(--t-fast)}
-.slb-s:hover,.slb-s.on{background:var(--row)}
-.slb-s .ic{width:24px;height:24px;border-radius:var(--r-sm);display:grid;place-items:center;flex:none}
-.slb-s .t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.slb-s mark{background:none;color:var(--accent-fg);font-weight:500}
-.slb-s .ad{display:grid;color:var(--muted);opacity:0;transition:opacity var(--t-fast),color var(--t-fast)}
-.slb-s:is(:hover,:focus-visible,.on) .ad{opacity:1}
-.slb-s.added .ad{opacity:1;color:var(--ok)}
-.slb-e{display:flex;flex-direction:column;align-items:center;gap:var(--s-1);padding:var(--s-8) var(--s-4) 0;text-align:center;font-size:13px;color:var(--muted)}
-.slb-e b{font-weight:500;color:var(--fg);overflow-wrap:anywhere}
-.slb-e .pill{margin-top:var(--s-2)}
-.slb-dock{display:none}
-.slb-d{display:none}
-/* the workflow the steps go into: a quiet canvas with its steps one under another, and a place to drop a new one */
-.slb-flow{position:relative;flex:1;min-width:0;display:flex;flex-direction:column;padding:var(--s-4) var(--s-5);border-radius:var(--r-lg);
-  background-color:var(--chip);background-image:radial-gradient(circle at 8px 8px,color-mix(in srgb,var(--fg) 16%,transparent) 1.1px,transparent 1.6px);background-size:16px 16px;transition:box-shadow var(--t-fast)}
-.slb-fh{display:flex;align-items:baseline;gap:var(--s-2);font-size:13px}
-.slb-fh b{font-weight:500}
-.slb-fh .num{font-size:12px;color:var(--fg2)}
-.slb-fl{list-style:none;flex:1;min-height:0;margin:0;padding:var(--s-4) 0 var(--s-1);display:flex;flex-direction:column;gap:var(--s-4);overflow-y:auto;scrollbar-width:none}
-.slb-fs{position:relative;display:flex;align-items:center;gap:var(--s-3);font-size:13px}
-.slb-fs.in{animation:slbin .5s var(--ease) backwards}
-@keyframes slbin{from{opacity:0;transform:translateY(6px);filter:blur(3px)}}
-.slb-fs .ic{width:32px;height:32px;border-radius:var(--r-sm);display:grid;place-items:center;flex:none;background:var(--surface);box-shadow:var(--shadow)}
-.slb-fs .t{display:flex;flex-direction:column;min-width:0;line-height:1.3}
-.slb-fs .t b{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.slb-fs .t span{font-size:12px;color:var(--fg2)}
-/* the line from one step down to the next, under its icon */
-.slb-cn{position:absolute;left:15.5px;top:32px;bottom:calc(var(--s-4) * -1);width:1px;background:var(--slb-wire)}
-.slb-fs:last-child .slb-cn{display:none}
-.slb-drop{flex:none;display:flex;align-items:center;gap:var(--s-2);height:40px;padding:0 var(--s-3);border-radius:var(--r-sm);box-shadow:inset 0 0 0 1px var(--field-line);font-size:12.5px;color:var(--fg2);transition:background var(--t-fast),color var(--t-fast),box-shadow var(--t-fast)}
-.slb-flow.over .slb-drop{background:var(--accent-bg);color:var(--accent-fg);box-shadow:inset 0 0 0 2px var(--accent-mark)}
-/* the preview: beside the panel, level with the step it describes, over the workflow and never over the list */
-.slb-pv{position:absolute;left:0;top:0;z-index:5;width:232px;padding:var(--s-3);border-radius:var(--r-in);background:var(--raised);box-shadow:var(--shadow-pop);pointer-events:none;
-  opacity:0;visibility:hidden;transform:translateX(-4px);transition:opacity .18s var(--ease),transform .3s var(--ease),top .25s var(--ease),visibility 0s .3s}
-.slb-pv.show{opacity:1;visibility:visible;transform:none;transition-delay:0s}
-.slb-pv.jump{transition:opacity .18s var(--ease),transform .3s var(--ease),visibility 0s .3s}
-.slb-ph{display:flex;align-items:center;gap:var(--s-2)}
-.slb-ph .ic{width:28px;height:28px;border-radius:var(--r-sm);display:grid;place-items:center;flex:none}
-.slb-ph div{display:flex;flex-direction:column;min-width:0}
-.slb-ph b{font-weight:500;font-size:13px}
-.slb-ph span{font-size:12px;color:var(--fg2)}
-.slb-pd{margin:var(--s-2) 0 0;font-size:12.5px;line-height:1.5;color:var(--fg)}
-.slb-io{margin:var(--s-2) 0 0;display:grid;grid-template-columns:auto minmax(0,1fr);gap:0 var(--s-2);font-size:12px;line-height:1.45}
-.slb-io dt{color:var(--fg2)}
-.slb-io dd{margin:0;color:var(--fg)}
-.slb-pf{margin:var(--s-2) 0 0;font-size:12px;color:var(--fg2)}
-.slb-live{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
-/* narrow: the panel takes the width, and what the focused or hovered step does shows at its foot */
-@container slb (max-width:559px){
-  .slb-flow,.slb-pv{display:none}
-  .slb-p{width:100%}
-  .slb-dock{display:block;flex:none;height:92px;padding:var(--s-3) var(--s-4);box-shadow:inset 0 1px 0 var(--line);overflow:hidden}
-  .slb-dock .slb-pd{margin-top:var(--s-1);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-  .slb-dock .hint{font-size:12.5px;color:var(--fg2)}
-}
-:root[data-style="bp"] .slb-q{background:var(--surface)}
-:root[data-style="bp"] .slb-flow{box-shadow:inset 0 0 0 1px var(--line)}
-:root[data-style="bp"] .slb-fs .ic{box-shadow:0 0 0 1px var(--rail)}
+:root[data-style="bp"] .ctb-n.sel{box-shadow:0 0 0 1px var(--pick-on)}
 /* ---------- Memory panel ---------- */
 .mmx{padding:var(--s-3);display:flex;flex-direction:column;gap:var(--s-2);min-height:330px}
 .mmx-h{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
@@ -2869,7 +2850,8 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .mmx-m:hover{background:var(--row)}
 .mmx-m .dot{margin-top:7px}
 .mmx-m .t{flex:1;min-width:0;outline:0;border-radius:5px;padding:0 3px;margin:0 -3px}
-.mmx-m .t[contenteditable="true"]{background:var(--surface);box-shadow:0 0 0 2px var(--focus)}
+.mmx-m .t[contenteditable="true"]{background:var(--surface);box-shadow:0 0 0 1px var(--field-line)}
+.mmx-m .t[contenteditable="true"]:focus{box-shadow:0 0 0 1px var(--field-line-strong)}
 .mmx-m .src{display:block;font-size:11.5px;color:var(--muted)}
 .mmx-m .acts{display:flex;opacity:0;transition:opacity .2s}
 .mmx-m:hover .acts,.mmx-m:focus-within .acts{opacity:1}
@@ -2886,9 +2868,9 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .stage-in>.mcx{min-height:inherit}
 .mcx-in{display:flex;align-items:center;gap:var(--s-2);padding:var(--s-3)}
 /* the prompt field: a dimmed edge at rest, one step stronger while it has the focus, and no ring */
-.mcx-fd{flex:1;min-width:0;display:flex;align-items:center;gap:var(--s-2);height:36px;padding:0 var(--s-3);border-radius:var(--r-in);background:var(--surface);box-shadow:inset 0 0 0 1px var(--rail);transition:box-shadow var(--t-fast)}
-@supports (corner-shape:squircle){.mcx-fd{corner-shape:squircle}}
-.mcx-fd:focus-within{box-shadow:inset 0 0 0 1px var(--faint)}
+.mcx-fd{flex:1;min-width:0;display:flex;align-items:center;gap:var(--s-2);height:var(--field-h);padding:0 var(--s-3);border-radius:var(--r-field);background:var(--surface);box-shadow:inset 0 0 0 1px var(--field-line);transition:box-shadow var(--t-fast)}
+@supports (corner-shape:squircle){.mcx-fd{corner-shape:squircle;border-radius:var(--r-field-sq)}}
+.mcx-fd:has(.mcx-q:focus){box-shadow:inset 0 0 0 1px var(--field-line-strong)}
 .mcx-q{flex:1;min-width:0;height:100%;border:0;outline:0;background:none;font:inherit;font-size:13.5px;color:var(--fg)}
 .mcx-q:focus-visible{outline:0}
 .mcx-n{font-size:12px;color:var(--muted);white-space:nowrap}
@@ -2995,8 +2977,9 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .ksx-mpop .mi.del:hover{background:var(--bad-bg)}
 .ksx-mpop .mi[disabled],.ksx-mpop .mi[disabled] .i{opacity:1;cursor:not-allowed;background:none;color:var(--dis)}
 .ksx-web{display:flex;flex-direction:column;gap:var(--s-1)}
-.ksx-in{display:flex;align-items:center;gap:var(--s-2);height:32px;margin:0 2px 2px;padding:0 2px 0 10px;border-radius:10px;background:var(--chip);box-shadow:inset 0 0 0 1px var(--field-line);color:var(--muted);transition:box-shadow .3s}
-.ksx-in:has(input:focus-visible){box-shadow:inset 0 0 0 2px var(--focus),0 0 0 3px var(--accent-bg)}
+.ksx-in{display:flex;align-items:center;gap:var(--s-2);height:32px;margin:0 2px 2px;padding:0 2px 0 10px;border-radius:var(--r-field);background:var(--surface);box-shadow:inset 0 0 0 1px var(--field-line);color:var(--muted);transition:box-shadow var(--t-fast)}
+@supports (corner-shape:squircle){.ksx-in{corner-shape:squircle;border-radius:var(--r-field-sq)}}
+.ksx-in:has(input:focus){box-shadow:inset 0 0 0 1px var(--field-line-strong)}
 .ksx-in input{flex:1;min-width:0;height:100%;border:0;outline:0;background:transparent;font:inherit;font-size:13px;color:var(--fg)}
 .ksx-in input::placeholder{color:var(--muted)}
 .ksx-in .pill{height:28px}
@@ -3043,9 +3026,10 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .shx-pop{width:272px;padding:var(--s-3)}
 .shx-f{display:flex;flex-direction:column;gap:var(--s-2)}
 .shx-f h4{margin:0 0 2px;font-size:13px;font-weight:500}
-.shx-in{width:100%;height:32px;border:0;outline:0;border-radius:10px;background:var(--chip);box-shadow:inset 0 0 0 1px var(--field-line);padding:0 10px;font:inherit;font-size:13px;color:var(--fg);transition:box-shadow .3s}
+.shx-in{width:100%;height:32px;border:0;outline:0;border-radius:var(--r-field);background:var(--surface);box-shadow:inset 0 0 0 1px var(--field-line);padding:0 10px;font:inherit;font-size:13px;color:var(--fg);transition:box-shadow var(--t-fast)}
+@supports (corner-shape:squircle){.shx-in{corner-shape:squircle;border-radius:var(--r-field-sq)}}
 .shx-in::placeholder{color:var(--muted)}
-.shx-in:focus{box-shadow:inset 0 0 0 2px var(--focus),0 0 0 3px var(--accent-bg)}
+.shx-in:focus{box-shadow:inset 0 0 0 1px var(--field-line-strong)}
 .shx-rep{display:flex}
 .shx-rep button{flex:1 1 auto;padding:0 var(--s-2)}
 .shx-days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:var(--s-1)}
@@ -3082,8 +3066,9 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .ahx-cv:focus-visible,.ahx-tb:focus-visible{outline-offset:-2px}
 .ahx-lh{display:flex;align-items:center;justify-content:space-between;padding:var(--s-3) 1px 2px 9px;font-size:11.5px;color:var(--muted)}
 .ahx-lh .ib{width:24px;height:24px}
-.ahx-si{display:block;width:100%;height:30px;margin:var(--s-1) 0 6px;padding:0 10px;border:0;border-radius:9px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--field-line);font-size:12.5px;outline:0;transition:box-shadow var(--t-fast)}
-.ahx-si:focus{box-shadow:inset 0 0 0 2px var(--focus)}
+.ahx-si{display:block;width:100%;height:32px;margin:var(--s-1) 0 6px;padding:0 10px;border:0;border-radius:var(--r-field);background:var(--surface);box-shadow:inset 0 0 0 1px var(--field-line);font-size:13px;outline:0;transition:box-shadow var(--t-fast)}
+@supports (corner-shape:squircle){.ahx-si{corner-shape:squircle;border-radius:var(--r-field-sq)}}
+.ahx-si:focus{box-shadow:inset 0 0 0 1px var(--field-line-strong)}
 .ahx-si::placeholder{color:var(--muted)}
 .ahx-si::-webkit-search-cancel-button{display:none}
 .ahx-list{flex:1;min-height:0;display:flex;flex-direction:column;gap:2px;overflow-y:auto;scrollbar-width:none}
@@ -3396,9 +3381,10 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 /* ---------- Account table ---------- */
 .atb{overflow:hidden}
 .atb-h{display:flex;align-items:center;gap:var(--s-2);padding:10px;flex-wrap:wrap;border-bottom:1px solid var(--line)}
-.atb-s{display:flex;align-items:center;gap:var(--s-2);height:32px;padding:0 10px;border-radius:10px;background:var(--chip);box-shadow:inset 0 0 0 1px var(--field-line);color:var(--muted);flex:1;min-width:160px}
+.atb-s{display:flex;align-items:center;gap:var(--s-2);height:32px;padding:0 10px;border-radius:var(--r-field);background:var(--surface);box-shadow:inset 0 0 0 1px var(--field-line);color:var(--muted);flex:1;min-width:160px;transition:box-shadow var(--t-fast)}
+@supports (corner-shape:squircle){.atb-s{corner-shape:squircle;border-radius:var(--r-field-sq)}}
 .atb-s input{flex:1;min-width:0;border:0;outline:0;background:transparent;font:inherit;font-size:13px;color:var(--fg)}
-.atb-s:focus-within{box-shadow:inset 0 0 0 2px var(--focus)}
+.atb-s:has(input:focus){box-shadow:inset 0 0 0 1px var(--field-line-strong)}
 .atb-s input::placeholder{color:var(--muted)}
 .atb-fl{display:flex;gap:var(--s-1);flex-wrap:wrap}
 /* the filters are white chips with a dimmed grey edge; the picked one's edge is a step stronger */
@@ -3427,17 +3413,21 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .atb-note span{flex:1}
 .atb-empty td{text-align:center;color:var(--muted);padding:var(--s-6)}
 /* ---------- Date picker ---------- */
-.dpk{position:relative;display:flex;justify-content:center;min-height:400px;align-items:flex-start;padding-top:6px}
-.dpk-f{display:flex;align-items:center;gap:10px;height:40px;padding:0 var(--s-3);border-radius:var(--r-in);background:var(--surface);box-shadow:var(--shadow);font-size:13.5px;min-width:250px;transition:box-shadow .25s}
-.dpk-f[aria-expanded="true"]{box-shadow:0 0 0 1.5px var(--accent),0 0 0 4px var(--accent-bg)}
+/* one field, as wide as the other single fields; its script keeps it centred in its stage and glides it up as the calendar opens */
+.dpk{position:relative;width:100%;max-width:var(--field-w);margin:0 auto}
+.dpk-f{display:flex;align-items:center;gap:10px;width:100%;height:var(--field-h);padding:0 var(--s-3);border-radius:var(--r-field);background:var(--surface);box-shadow:inset 0 0 0 1px var(--field-line);font-size:13.5px;transition:box-shadow var(--t-fast)}
+@supports (corner-shape:squircle){.dpk-f{corner-shape:squircle;border-radius:var(--r-field-sq)}}
+/* a dropdown's field steps up its edge while it has the focus or its calendar is open; it takes no ring */
+.dpk-f[aria-expanded="true"],.dpk-f:focus-visible{outline:0;box-shadow:inset 0 0 0 1px var(--field-line-strong)}
 .dpk-f>svg:first-child{color:var(--muted)}
 .dpk-val{flex:1;text-align:left;color:var(--fg)}
 .dpk-val.ph{color:var(--muted)}
 .dpk-f>svg:last-child{color:var(--muted)}
-.dpk-pop{width:272px;padding:10px;background:var(--surface)}
-.dpk-nl{width:100%;height:32px;border:0;outline:0;border-radius:9px;background:var(--chip);box-shadow:inset 0 0 0 1px var(--field-line);padding:0 10px;font:inherit;font-size:12.5px;color:var(--fg)}
+.dpk-pop{width:100%;padding:10px;background:var(--surface)}
+.dpk-nl{width:100%;height:32px;border:0;outline:0;border-radius:var(--r-field);background:var(--surface);box-shadow:inset 0 0 0 1px var(--field-line);padding:0 10px;font:inherit;font-size:13px;color:var(--fg);transition:box-shadow var(--t-fast)}
+@supports (corner-shape:squircle){.dpk-nl{corner-shape:squircle;border-radius:var(--r-field-sq)}}
 .dpk-nl::placeholder{color:var(--muted)}
-.dpk-nl:focus-visible{box-shadow:inset 0 0 0 2px var(--focus)}
+.dpk-nl:focus{box-shadow:inset 0 0 0 1px var(--field-line-strong)}
 .dpk-qk{display:flex;gap:var(--s-1);margin:var(--s-2) 0}
 .dpk-mh{display:flex;align-items:center;justify-content:space-between;margin:var(--s-1) 0}
 .dpk-mh b{font-weight:500;font-size:13px}
@@ -3524,10 +3514,11 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .drx-p.on{background:var(--sel);color:var(--accent);font-weight:500}
 .drx-main{padding:var(--s-3) 14px;display:flex;flex-direction:column;gap:10px;min-width:0}
 .drx-top{display:flex;align-items:center;gap:var(--s-2);flex-wrap:wrap;color:var(--muted)}
-.drx-in{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 11px;border-radius:9px;background:var(--chip);font-size:12px;white-space:nowrap;transition:background-color var(--t) var(--ease),box-shadow var(--t) var(--ease)}
+.drx-in{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 var(--s-3);border-radius:var(--r-field);background:var(--surface);box-shadow:inset 0 0 0 1px var(--field-line);font-size:12px;white-space:nowrap;transition:background-color var(--t) var(--ease),box-shadow var(--t) var(--ease)}
 .drx-in b{font-weight:500;font-size:12.5px;color:var(--fg)}
 /* the end that the next click sets */
-.drx-in.on{background:var(--surface);box-shadow:inset 0 0 0 1px var(--rail)}
+.drx-in.on{box-shadow:inset 0 0 0 1px var(--field-line-strong)}
+@supports (corner-shape:squircle){.drx-in{corner-shape:squircle;border-radius:var(--r-field-sq)}}
 .drx-n{margin-left:auto;font-size:12px}
 .drx-cals{display:grid;grid-template-columns:1fr 1fr;gap:18px}
 @media (max-width:560px){.drx-cals{grid-template-columns:1fr}.drx-cal[data-o="1"]{display:none}}
@@ -3581,7 +3572,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .ecx-ph .ib{width:24px;height:24px;margin:-4px -4px -4px auto}
 .ecx-ti{flex:1;min-width:0;border:0;outline:0;background:none;font:inherit;font-weight:500;color:var(--fg)}
 .ecx-ti::placeholder{color:var(--muted)}
-.ecx-ti:focus-visible{outline:2px solid var(--focus);outline-offset:2px;border-radius:var(--r-xs)}
+.ecx-ti:focus{box-shadow:0 1px 0 var(--field-line-strong)}
 .ecx-pt{font-size:12.5px;color:var(--fg2);margin:var(--s-1) 0 0 18px}
 .ecx-pw{display:flex;align-items:center;margin:10px 0 0 18px}
 .ecx-pw .av{width:22px;height:22px;font-size:9px;margin-right:-4px;box-shadow:0 0 0 2px var(--raised)}
@@ -3709,6 +3700,9 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .bdg:is(:has(>.bdg-x),button,a[href]){transition:background var(--t-fast)}
 .bdg:is(button,a[href]){cursor:pointer;text-decoration:none}
 .bdg:is(:has(>.bdg-x),button,a[href]):hover{background:color-mix(in srgb,var(--bdg-fg) 7%,var(--bdg-bg))}
+/* on the Badge card every badge answers the pointer: a hand, a light hover, and no text selection */
+.bdx .bdg{cursor:pointer;user-select:none;-webkit-user-select:none;transition:background var(--t-fast)}
+.bdx .bdg:hover{background:color-mix(in srgb,var(--bdg-fg) 7%,var(--bdg-bg))}
 .bdg[data-tone="accent"]{--bdg-bg:var(--accent-bg);--bdg-fg:var(--accent-fg)}
 .bdg[data-tone="success"]{--bdg-bg:var(--ok-bg);--bdg-fg:var(--ok)}.bdg[data-tone="warning"]{--bdg-bg:var(--warn-bg);--bdg-fg:var(--warn)}.bdg[data-tone="danger"]{--bdg-bg:var(--bad-bg);--bdg-fg:var(--bad)}
 .bdg[data-tone="blue"]{--bdg-bg:var(--pb-bg);--bdg-fg:var(--pb)}.bdg[data-tone="violet"]{--bdg-bg:var(--pl-bg);--bdg-fg:var(--pl)}.bdg[data-tone="green"]{--bdg-bg:var(--pm-bg);--bdg-fg:var(--pm)}.bdg[data-tone="orange"]{--bdg-bg:var(--pp-bg);--bdg-fg:var(--pp)}
@@ -3757,23 +3751,18 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 /* ---------- Search input ---------- */
 /* the box sits centred in the room its longest list needs, closed or open, and stays centred as the list eases open */
 .six{min-height:320px;display:flex;justify-content:center;align-items:center}
-.six-box{width:100%;max-width:420px;background:var(--surface);border-radius:var(--r-lg);box-shadow:var(--shadow);transition:box-shadow .35s var(--ease),transform .35s var(--ease)}
-.six-box.f{box-shadow:var(--shadow-lift);transform:translateY(-1px)}
-/* Blueprint's lifted edge is a light hairline, which reads as a white ring on a dark sheet; the focused field steps up one line instead */
-:root[data-style="bp"] .six-box.f{box-shadow:0 0 0 1px var(--rail)}
-/* the box rings while its field has the focus, lifted or not */
-.six-box:has(.six-in input:focus-visible){box-shadow:0 0 0 2px var(--focus),var(--shadow)}
-.six-box.f:has(.six-in input:focus-visible){box-shadow:0 0 0 2px var(--focus),var(--shadow-lift)}
-:root[data-style="bp"] .six-box:has(.six-in input:focus-visible){box-shadow:0 0 0 2px var(--focus)}
-.six-in>svg{transition:color .25s}
-.six-box.f .six-in>svg{color:var(--fg)}
-.six-in{display:flex;align-items:center;gap:var(--s-2);height:46px;padding:0 10px 0 14px;color:var(--muted)}
-.six-in input{flex:1;min-width:0;border:0;outline:0;background:transparent;font:inherit;font-size:14px;color:var(--fg)}
+.six-box{width:100%;max-width:var(--field-w);background:var(--surface);border-radius:var(--r-field);box-shadow:inset 0 0 0 1px var(--field-line);transition:box-shadow var(--t-fast)}
+@supports (corner-shape:squircle){.six-box{corner-shape:squircle;border-radius:var(--r-field-sq)}}
+/* the edge steps up while the field has the focus; nothing else changes */
+.six-box:has(.six-in input:focus){box-shadow:inset 0 0 0 1px var(--field-line-strong)}
+.six-in{display:flex;align-items:center;gap:var(--s-2);height:var(--field-h);padding:0 var(--s-2) 0 var(--s-3);color:var(--muted)}
+.six-in input{flex:1;min-width:0;height:100%;border:0;outline:0;background:transparent;font:inherit;font-size:13.5px;color:var(--fg)}
 .six-in input::placeholder{color:var(--muted)}
 .six-chips{display:flex;gap:var(--s-1)}
-.six-ch{display:inline-flex;align-items:center;gap:var(--s-1);height:24px;padding:0 var(--s-1) 0 var(--s-2);border-radius:7px;background:var(--accent-bg);color:var(--accent);font-size:12px;font-weight:500;white-space:nowrap}
+.six-ch{display:inline-flex;align-items:center;gap:var(--s-1);height:24px;padding:0 var(--s-1) 0 var(--s-2);border-radius:var(--r-tag);background:var(--accent-bg);color:var(--accent);font-size:12px;font-weight:500;white-space:nowrap}
 .six-ch button{display:grid;opacity:.6}.six-ch button:hover{opacity:1}
-.six-x{width:26px;height:26px}
+.six-x{width:24px;height:24px}
+@supports (corner-shape:squircle){.six-ch{corner-shape:squircle;border-radius:var(--r-tag-sq)}}
 .six-res{padding:var(--s-1) 6px var(--s-2);border-top:1px solid var(--line)}
 .six-g{font-size:11.5px;color:var(--muted);padding:var(--s-2) var(--s-2) var(--s-1)}
 .six-it{display:flex;align-items:center;gap:10px;width:100%;padding:7px var(--s-2);border-radius:10px;font-size:13px;text-align:left;transition:background .15s}
@@ -3787,10 +3776,12 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .six-ans .w.done{animation:none}
 @keyframes sxw{from{opacity:0;filter:blur(3px)}}
 /* ---------- Country select ---------- */
-.csx{width:100%;max-width:300px;margin:0 auto;display:flex;flex-direction:column;gap:6px;position:relative}
+.csx{width:100%;max-width:var(--field-w);margin:0 auto;display:flex;flex-direction:column;gap:6px;position:relative}
 .csx-l{font-size:12.5px;font-weight:500}
-.csx-f{display:flex;align-items:center;gap:10px;height:40px;padding:0 var(--s-3);border-radius:var(--r-in);background:var(--surface);box-shadow:var(--shadow);font-size:13.5px;text-align:left;transition:box-shadow .25s}
-.csx-f[aria-expanded="true"]{box-shadow:0 0 0 1.5px var(--accent),0 0 0 4px var(--accent-bg)}
+.csx-f{display:flex;align-items:center;gap:10px;height:var(--field-h);padding:0 var(--s-3);border-radius:var(--r-field);background:var(--surface);box-shadow:inset 0 0 0 1px var(--field-line);font-size:13.5px;text-align:left;transition:box-shadow var(--t-fast)}
+@supports (corner-shape:squircle){.csx-f{corner-shape:squircle;border-radius:var(--r-field-sq)}}
+/* a dropdown's field steps up its edge while it has the focus or its list is open; it takes no ring */
+.csx-f[aria-expanded="true"],.csx-f:focus-visible{outline:0;box-shadow:inset 0 0 0 1px var(--field-line-strong)}
 .csx-v{flex:1}
 .csx-f>svg{color:var(--muted);transition:transform .35s var(--ease)}
 .csx-f[aria-expanded="true"]>svg{transform:rotate(180deg)}
@@ -3799,9 +3790,10 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 /* closed, the list is hidden as well as clear, so Tab passes over its search box and options */
 .csx-pop{position:absolute;top:66px;left:0;right:0;z-index:5;background:var(--raised);border-radius:14px;box-shadow:var(--shadow-pop);padding:6px;opacity:0;visibility:hidden;transform:translateY(-4px) scale(.98);transform-origin:top;filter:blur(3px);pointer-events:none;transition:opacity .2s,transform .35s var(--ease),filter .2s,visibility 0s .2s}
 .csx-pop.open{opacity:1;visibility:visible;transform:none;filter:none;pointer-events:auto;transition-property:opacity,transform,filter}
-.csx-q{width:100%;height:32px;border:0;outline:0;border-radius:9px;background:var(--chip);box-shadow:inset 0 0 0 1px var(--field-line);padding:0 10px;font:inherit;font-size:12.5px;color:var(--fg);margin-bottom:var(--s-1)}
+.csx-q{width:100%;height:32px;border:0;outline:0;border-radius:var(--r-field);background:var(--surface);box-shadow:inset 0 0 0 1px var(--field-line);padding:0 10px;font:inherit;font-size:13px;color:var(--fg);margin-bottom:var(--s-1);transition:box-shadow var(--t-fast)}
+@supports (corner-shape:squircle){.csx-q{corner-shape:squircle;border-radius:var(--r-field-sq)}}
 .csx-q::placeholder{color:var(--muted)}
-.csx-q:focus-visible{box-shadow:inset 0 0 0 2px var(--focus)}
+.csx-q:focus{box-shadow:inset 0 0 0 1px var(--field-line-strong)}
 .csx-list{max-height:200px;overflow-y:auto;display:flex;flex-direction:column}
 .csx-o{display:flex;align-items:center;gap:10px;padding:7px var(--s-2);border-radius:9px;font-size:13px;text-align:left;flex:none}
 .csx-o.hl{background:var(--wash)}
@@ -3817,12 +3809,14 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .msc-l{font-size:12.5px;font-weight:500}
 .msc-clr{height:22px;padding:0 6px;margin-right:-6px;border-radius:6px;font-size:12px;color:var(--muted);transition:color .2s,background .2s}
 .msc-clr:hover{color:var(--fg);background:var(--chip)}
-.msc-f{position:relative;display:flex;flex-wrap:wrap;align-items:center;gap:6px;min-height:42px;padding:6px var(--s-2);border-radius:var(--r-in);background:var(--surface);box-shadow:var(--shadow);cursor:text;transition:box-shadow .25s}
-/* the field rings while its search box has the focus; a tag's remove button rings on its own, never inside the field's ring */
-.msc-f:has(.msc-q:focus-visible),.msc-f.f{box-shadow:0 0 0 2px var(--focus),0 0 0 4px var(--accent-bg)}
-.msc-q{flex:1;min-width:80px;height:28px;border:0;outline:0;background:transparent;padding:0 var(--s-1);font:inherit;font-size:13px;color:var(--fg)}
+.msc-f{position:relative;display:flex;flex-wrap:wrap;align-items:center;gap:6px;min-height:var(--field-h);padding:6px;border-radius:var(--r-field);background:var(--surface);box-shadow:inset 0 0 0 1px var(--field-line);cursor:text;transition:box-shadow var(--t-fast)}
+@supports (corner-shape:squircle){.msc-f{corner-shape:squircle;border-radius:var(--r-field-sq)}}
+/* the edge steps up while its search box has the focus; a tag's remove button rings on its own, never inside the field */
+.msc-f:has(.msc-q:focus){box-shadow:inset 0 0 0 1px var(--field-line-strong)}
+.msc-q{flex:1;min-width:80px;height:26px;border:0;outline:0;background:transparent;padding:0 6px;font:inherit;font-size:13.5px;color:var(--fg)}
 .msc-q::placeholder{color:var(--muted)}
-.msc-c{display:inline-flex;align-items:center;gap:2px;height:26px;padding:0 3px 0 10px;border-radius:var(--r-pill);background:var(--chip);font-size:12.5px;white-space:nowrap}
+.msc-c{display:inline-flex;align-items:center;gap:2px;height:26px;padding:0 3px 0 var(--s-2);border-radius:var(--r-tag);background:var(--chip);font-size:12.5px;white-space:nowrap}
+@supports (corner-shape:squircle){.msc-c{corner-shape:squircle;border-radius:var(--r-tag-sq)}}
 .msc-c button{width:20px;height:20px;border-radius:50%;display:grid;place-items:center;color:var(--muted);transition:background .2s,color .2s}
 .msc-c button:hover{background:var(--wash);color:var(--fg)}
 .msc-c.go{animation:mscout .22s var(--ease) forwards}
@@ -3874,20 +3868,21 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .sgx-st.in{animation:sgin .5s var(--ease) both}
 @keyframes sgin{from{opacity:0;transform:translateX(20px);filter:blur(4px)}}
 .sgx-f{display:flex;flex-direction:column;gap:5px;font-size:12.5px;font-weight:500}
-.sgx-f input{height:40px;border:0;outline:0;border-radius:11px;background:var(--chip);box-shadow:inset 0 0 0 1px var(--field-line);padding:0 var(--s-3);font:inherit;font-size:13.5px;font-weight:400;color:var(--fg);transition:box-shadow .25s,background .25s}
+.sgx-f input{height:var(--field-h);border:0;outline:0;border-radius:var(--r-field);background:var(--surface);box-shadow:inset 0 0 0 1px var(--field-line);padding:0 var(--s-3);font:inherit;font-size:13.5px;font-weight:400;color:var(--fg);transition:box-shadow var(--t-fast)}
+@supports (corner-shape:squircle){.sgx-f input{corner-shape:squircle;border-radius:var(--r-field-sq)}}
 .sgx-f input::placeholder{color:var(--muted)}
-.sgx-f input:focus{background:var(--surface);box-shadow:inset 0 0 0 2px var(--focus),0 0 0 4px var(--accent-bg)}
-.sgx-f.bad input{box-shadow:inset 0 0 0 1.5px var(--bad);animation:sgsh .4s}
-/* a field marked wrong still shows the focus ring while it has the focus; the message says what is wrong */
-.sgx-f.bad input:focus{box-shadow:inset 0 0 0 2px var(--focus),0 0 0 4px var(--accent-bg)}
+.sgx-f input:focus{box-shadow:inset 0 0 0 1px var(--field-line-strong)}
+/* a field marked wrong keeps its red edge, focused or not, until it is fixed; the message says what is wrong */
+.sgx-f.bad input{box-shadow:inset 0 0 0 1px var(--bad);animation:sgsh .4s}
 @keyframes sgsh{20%,60%{transform:translateX(-4px)}40%,80%{transform:translateX(4px)}}
 .sgx-err{font-size:12px;color:var(--bad);min-height:16px}
 .sgx-go{height:40px;width:100%}
 .sgx-bk{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--muted);align-self:flex-start;margin-bottom:6px}
 .sgx-bk:hover{color:var(--fg)}
 .sgx-code{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
-.sgx-code input{width:100%;height:46px;border:0;outline:0;border-radius:11px;background:var(--chip);box-shadow:inset 0 0 0 1px var(--field-line);text-align:center;font:inherit;font-family:var(--mono);font-size:14px;color:var(--fg);transition:box-shadow .25s,background .25s,transform .3s var(--ease)}
-.sgx-code input:focus{background:var(--surface);box-shadow:inset 0 0 0 2px var(--focus)}
+.sgx-code input{width:100%;height:var(--field-h);border:0;outline:0;border-radius:var(--r-field);background:var(--surface);box-shadow:inset 0 0 0 1px var(--field-line);text-align:center;font:inherit;font-size:14px;font-variant-numeric:tabular-nums;color:var(--fg);transition:box-shadow var(--t-fast),background .25s,transform .3s var(--ease)}
+@supports (corner-shape:squircle){.sgx-code input{corner-shape:squircle;border-radius:var(--r-field-sq)}}
+.sgx-code input:focus{box-shadow:inset 0 0 0 1px var(--field-line-strong)}
 .sgx-code input.f{transform:scale(1.04)}
 /* the email with the code, the way a phone shows it as it arrives */
 .sgx-nt{display:flex;align-items:center;gap:10px;padding:10px 10px 10px var(--s-3);margin-bottom:10px;border-radius:14px;background:var(--raised);box-shadow:var(--shadow-pop);font-size:12.5px;line-height:1.4}
@@ -3901,7 +3896,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .sgx-code.vf input{animation:sgvf 1s var(--ease-io) infinite;animation-delay:calc(var(--i) * 90ms)}
 @keyframes sgvf{50%{background:var(--hover);transform:translateY(-2px)}}
 .sgx-code.ok input{background:var(--ok-bg);color:var(--ok);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--ok) 30%,transparent);animation:sgok .5s var(--ease) both;animation-delay:calc(var(--i) * 70ms)}
-@keyframes sgok{0%{background:var(--chip);color:var(--fg)}45%{transform:scale(1.1)}100%{transform:none}}
+@keyframes sgok{0%{background:var(--surface);color:var(--fg)}45%{transform:scale(1.1)}100%{transform:none}}
 .sgx-v{display:inline-flex;align-items:center;gap:7px;color:var(--fg2)}
 .sgx-v .spin{width:11px;height:11px}
 .sgx-v.ok{color:var(--ok)}
@@ -3925,14 +3920,14 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .otp-s{margin:0 0 10px;font-size:13px;line-height:1.45;max-width:260px}
 .otp-in{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;max-width:286px}
 .otp-in .sep{flex:none;width:8px;height:1.5px;border-radius:1px;background:var(--rail);margin:0 2px}
-.otp-d{flex:1 1 0;min-width:0;max-width:40px;height:48px;padding:0;border:0;outline:0;border-radius:11px;background:var(--chip);box-shadow:inset 0 0 0 1px var(--field-line);text-align:center;font:inherit;font-family:var(--mono);font-size:14px;font-weight:500;color:var(--fg);caret-color:var(--accent-mark,var(--accent));transition:box-shadow .25s,background .25s,color .25s,transform .25s var(--ease)}
-.otp-d:focus,.otp-d.f{background:var(--surface);box-shadow:inset 0 0 0 2px var(--focus),0 0 0 4px var(--accent-bg)}
+.otp-d{flex:1 1 0;min-width:0;max-width:40px;height:var(--field-h);padding:0;border:0;outline:0;border-radius:var(--r-field);background:var(--surface);box-shadow:inset 0 0 0 1px var(--field-line);text-align:center;font:inherit;font-size:14px;font-weight:500;font-variant-numeric:tabular-nums;color:var(--fg);caret-color:var(--accent-mark,var(--accent));transition:box-shadow .25s,background .25s,color .25s,transform .25s var(--ease)}
+@supports (corner-shape:squircle){.otp-d{corner-shape:squircle;border-radius:var(--r-field-sq)}}
+.otp-d:focus{box-shadow:inset 0 0 0 1px var(--field-line-strong)}
 /* (not .pop, which is the shared popover class and would hide the box) */
 .otp-d.bump{transform:scale(1.06)}
 .otp-in.vf .otp-d{color:var(--fg2)}
-.otp-in.bad .otp-d{background:var(--bad-bg);color:var(--bad);box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--bad) 55%,transparent)}
-/* a box marked wrong still shows the focus ring while it has the focus */
-.otp-in.bad .otp-d:focus{box-shadow:inset 0 0 0 2px var(--focus)}
+/* a wrong code keeps its red edge, focused or not, until typing starts it over */
+.otp-in.bad .otp-d{background:var(--bad-bg);color:var(--bad);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--bad) 55%,transparent)}
 .otp-in.bad{animation:otpsh .42s}
 @keyframes otpsh{20%{transform:translateX(-6px)}40%{transform:translateX(5px)}60%{transform:translateX(-3px)}80%{transform:translateX(2px)}}
 .otp-in.ok .otp-d{background:var(--ok-bg);color:var(--ok);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--ok) 35%,transparent)}
@@ -3947,12 +3942,12 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .fmx-h{display:flex;align-items:center;justify-content:space-between;gap:var(--s-2)}
 .fmx-h b{font-weight:500;font-size:14px}
 .fmx-f{display:flex;flex-direction:column;gap:5px;font-size:12.5px;font-weight:500;position:relative}
-.fmx-f input,.fmx-f textarea{border:0;outline:0;border-radius:11px;background:var(--chip);box-shadow:inset 0 0 0 1px var(--field-line);padding:10px var(--s-3);font:inherit;font-size:13.5px;font-weight:400;color:var(--fg);resize:none;transition:box-shadow .25s,background .25s}
+.fmx-f input,.fmx-f textarea{border:0;outline:0;border-radius:var(--r-field);background:var(--surface);box-shadow:inset 0 0 0 1px var(--field-line);padding:10px var(--s-3);font:inherit;font-size:13.5px;line-height:20px;font-weight:400;color:var(--fg);resize:none;transition:box-shadow var(--t-fast)}
+@supports (corner-shape:squircle){.fmx-f :is(input,textarea){corner-shape:squircle;border-radius:var(--r-field-sq)}}
 .fmx-f input::placeholder,.fmx-f textarea::placeholder{color:var(--muted)}
-.fmx-f input:focus,.fmx-f textarea:focus{background:var(--surface);box-shadow:inset 0 0 0 2px var(--focus),0 0 0 4px var(--accent-bg)}
-.fmx-f.bad input,.fmx-f.bad textarea{box-shadow:inset 0 0 0 1.5px var(--bad)}
-/* a field marked wrong still shows the focus ring while it has the focus; the message says what is wrong */
-.fmx-f.bad input:focus,.fmx-f.bad textarea:focus{box-shadow:inset 0 0 0 2px var(--focus),0 0 0 4px var(--accent-bg)}
+.fmx-f input:focus,.fmx-f textarea:focus{box-shadow:inset 0 0 0 1px var(--field-line-strong)}
+/* a field marked wrong keeps its red edge, focused or not, until it is fixed; the message says what is wrong */
+.fmx-f.bad input,.fmx-f.bad textarea{box-shadow:inset 0 0 0 1px var(--bad)}
 .fmx-f .er{font-size:11.5px;color:var(--bad);font-weight:400;animation:enter .35s var(--ease) backwards}
 /* what the agent drafted says so quietly beside its label, until someone edits it */
 .fmx-f>span:first-child{display:flex;align-items:center;gap:var(--s-2)}
@@ -3975,24 +3970,26 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .pyx-h b{font-weight:500}
 .pyx-h .muted{font-size:12px}
 .pyx-per button{font-size:12px;height:26px;padding:0 9px}
-.pyx-f{display:flex;flex-direction:column;gap:5px;font-size:12.5px;font-weight:500;min-width:0}
-.pyx-in{display:flex;align-items:center;height:40px;border-radius:11px;background:var(--chip);box-shadow:inset 0 0 0 1px var(--field-line);padding:0 10px 0 var(--s-3);transition:box-shadow .25s,background .25s}
-.pyx-in:focus-within{background:var(--surface);box-shadow:inset 0 0 0 2px var(--focus),0 0 0 4px var(--accent-bg)}
-.pyx-f.bad .pyx-in{box-shadow:inset 0 0 0 1.5px var(--bad)}
-/* a field marked wrong still shows the focus ring while it has the focus; the message says what is wrong */
-.pyx-f.bad .pyx-in:focus-within{box-shadow:inset 0 0 0 2px var(--focus),0 0 0 4px var(--accent-bg)}
-.pyx-in input{flex:1;min-width:0;border:0;outline:0;background:transparent;font:inherit;font-family:var(--mono);font-size:13.5px;font-weight:400;color:var(--fg);letter-spacing:.02em}
+/* the card's fields have no box: the text lines up with its label, with room above and below it, over a dimmed line that
+   steps up while the field has the focus. Left, a filled field looks like an empty one */
+.pyx-f{display:flex;flex-direction:column;gap:2px;font-size:12.5px;font-weight:500;min-width:0}
+.pyx-in{display:flex;align-items:center;gap:var(--s-2);height:var(--field-h);padding:var(--s-2) 0;box-shadow:inset 0 -1px 0 var(--field-line);transition:box-shadow var(--t-fast)}
+.pyx-in:focus-within{box-shadow:inset 0 -1px 0 var(--field-line-strong)}
+/* a field marked wrong keeps its red line, focused or not, until it is fixed */
+.pyx-f.bad .pyx-in{box-shadow:inset 0 -1px 0 var(--bad)}
+.pyx-in input{flex:1;min-width:0;height:100%;padding:0;border:0;outline:0;background:transparent;font:inherit;font-size:13.5px;font-weight:400;font-variant-numeric:tabular-nums;color:var(--fg)}
 .pyx-in input::placeholder{color:var(--muted)}
-.pyx-br{font-size:10px;font-weight:500;letter-spacing:.04em;padding:3px 6px;border-radius:5px;opacity:0;transform:scale(.8);transition:opacity .3s,transform .35s var(--ease)}
+.pyx-br{font-size:10px;font-weight:500;letter-spacing:.04em;padding:3px 6px;border-radius:var(--r-xs);opacity:0;transform:scale(.8);transition:opacity .3s,transform .35s var(--ease)}
 .pyx-br.on{opacity:1;transform:none}
-.pyx-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.pyx-sum{display:flex;flex-direction:column;gap:6px;padding:var(--s-3);border-radius:var(--r-in);background:var(--chip);font-size:12.5px;color:var(--fg2)}
+.pyx-2{display:grid;grid-template-columns:1fr 1fr;gap:var(--s-4)}
+/* the details: plain rows after a line, no panel */
+.pyx-sum{display:flex;flex-direction:column;gap:6px;margin-top:var(--s-1);padding-top:var(--s-3);border-top:1px solid var(--line);font-size:12.5px;color:var(--fg2)}
 .pyx-sum>div{display:flex;justify-content:space-between}
 .pyx-dc{color:var(--ok);transition:opacity .3s}
 .pyx-dc.off{opacity:.3;text-decoration:line-through}
 .pyx-t{padding-top:6px;border-top:1px solid var(--line);color:var(--fg);font-size:13.5px}
 .pyx-t b{font-weight:500}
-.pyx-go{height:42px;width:100%}
+.pyx-go{height:var(--field-h);width:100%}
 .pyx-go.ok{background:var(--ok)}
 .pyx-n{font-size:11.5px;text-align:center}
 /* ---------- Comments ---------- */
@@ -4034,11 +4031,10 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .cmx-rc[aria-pressed="true"]{color:var(--fg);box-shadow:inset 0 0 0 1px var(--faint)}
 /* the reply field: a dimmed edge at rest, one step stronger while it has the focus, and no ring */
 .cmx-in{position:relative}
-.cmx-box{display:flex;align-items:center;gap:var(--s-2);height:40px;padding:0 var(--s-1) 0 var(--s-3);border-radius:var(--r-in);background:var(--surface);box-shadow:inset 0 0 0 1px var(--rail);transition:box-shadow var(--t-fast)}
-@supports (corner-shape:squircle){.cmx-box{corner-shape:squircle}}
-.cmx-box:focus-within{box-shadow:inset 0 0 0 1px var(--faint)}
-.cmx-box input{flex:1;min-width:0;height:100%;border:0;outline:0;background:transparent;font:inherit;font-size:13.5px;color:var(--fg)}
-.cmx-box input:focus-visible{outline:0}
+.cmx-box{display:flex;align-items:center;gap:6px;height:var(--field-h);padding:0 5px 0 var(--s-3);border-radius:var(--r-field);background:var(--surface);box-shadow:inset 0 0 0 1px var(--field-line);transition:box-shadow var(--t-fast)}
+@supports (corner-shape:squircle){.cmx-box{corner-shape:squircle;border-radius:var(--r-field-sq)}}
+.cmx-box:has(input:focus){box-shadow:inset 0 0 0 1px var(--field-line-strong)}
+.cmx-box input{flex:1;min-width:0;border:0;outline:0;background:transparent;font:inherit;font-size:13.5px;color:var(--fg)}
 .cmx-box input::placeholder{color:var(--muted)}
 .cmx-go{width:30px;height:30px;border-radius:50%;background:var(--accent);color:var(--on-accent);display:grid;place-items:center;flex:none;transition:background var(--t-fast),transform .15s}
 .cmx-go:hover{background:var(--accent-2)}
@@ -4149,17 +4145,18 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .ivx-h{display:flex;flex-direction:column;font-size:14px;margin:0 -14px 2px;padding:0 14px var(--s-3);border-bottom:1px solid var(--line)}
 .ivx-h b{font-weight:500}
 .ivx-h .muted{font-size:12px}
-.ivx-f{display:flex;align-items:center;flex-wrap:wrap;gap:5px;min-height:42px;padding:5px 5px 5px var(--s-2);border-radius:var(--r-in);background:var(--surface);box-shadow:inset 0 0 0 1px var(--pick-line);transition:box-shadow .25s}
-/* white with a dimmed grey edge, a step stronger while you type in it */
-.ivx-f:has(input:focus-visible){box-shadow:inset 0 0 0 1px var(--pick-on)}
+.ivx-f{display:flex;align-items:center;flex-wrap:wrap;gap:5px;min-height:var(--field-h);padding:5px 5px 5px 6px;border-radius:var(--r-field);background:var(--surface);box-shadow:inset 0 0 0 1px var(--field-line);transition:box-shadow var(--t-fast)}
+@supports (corner-shape:squircle){.ivx-f{corner-shape:squircle;border-radius:var(--r-field-sq)}}
+.ivx-f:has(input:focus){box-shadow:inset 0 0 0 1px var(--field-line-strong)}
 .ivx-chips{display:contents}
-.ivx-ch{display:inline-flex;align-items:center;gap:5px;height:26px;padding:0 var(--s-1) 0 var(--s-1);border-radius:var(--r-sm);background:var(--surface);box-shadow:0 0 0 1px var(--line);font-size:12.5px;animation:popin .4s var(--ease) backwards}
+.ivx-ch{display:inline-flex;align-items:center;gap:5px;height:26px;padding:0 var(--s-1) 0 var(--s-1);border-radius:var(--r-tag);background:var(--surface);box-shadow:0 0 0 1px var(--line);font-size:12.5px;animation:popin .4s var(--ease) backwards}
 .ivx-ch .av{width:18px;height:18px;font-size:8.5px}
 .ivx-ch.bad{background:var(--bad-bg);color:var(--bad);box-shadow:none}
 /* chips already on screen keep still when the row is redrawn; only a new one pops in */
 .ivx-chips .ivx-ch.seen{animation:none}
 .ivx-ch button{display:grid;color:var(--muted)}.ivx-ch button:hover{color:var(--fg)}
-.ivx-f input{flex:1;min-width:120px;border:0;outline:0;background:transparent;font:inherit;font-size:13px;color:var(--fg);height:28px}
+.ivx-f input{flex:1;min-width:120px;border:0;outline:0;background:transparent;font:inherit;font-size:13.5px;color:var(--fg);height:28px;padding:0 6px}
+@supports (corner-shape:squircle){.ivx-ch{corner-shape:squircle;border-radius:var(--r-tag-sq)}}
 .ivx-f input::placeholder{color:var(--muted)}
 .ivx-role{display:flex;align-items:center;gap:var(--s-1);height:30px;padding:0 var(--s-2);border-radius:9px;font-size:12.5px;color:var(--fg2);margin-left:auto}
 .ivx-role:hover{background:var(--hover)}
@@ -4293,10 +4290,10 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .glide>.csw-pop.open,.glide>.csw-mpop.open{transition-delay:.1s}
 .csw-sf{position:relative;display:flex;align-items:center;margin-bottom:var(--s-1)}
 .csw-sf>.i{position:absolute;left:10px;color:var(--muted);pointer-events:none}
-.csw-q{width:100%;height:32px;border:0;outline:0;border-radius:var(--r-sm);corner-shape:squircle;background:var(--raised);box-shadow:inset 0 0 0 1px var(--rail);padding:0 var(--s-2) 0 28px;font:inherit;font-size:13px;color:var(--fg);transition:box-shadow var(--t-fast)}
+.csw-q{width:100%;height:32px;border:0;outline:0;border-radius:var(--r-field);background:var(--surface);box-shadow:inset 0 0 0 1px var(--field-line);transition:box-shadow var(--t-fast);padding:0 var(--s-2) 0 28px;font:inherit;font-size:13px;color:var(--fg)}
 .csw-q::placeholder{color:var(--muted)}
-/* the search, like every field: a quiet grey edge at rest, one step stronger while you type in it, and no ring */
-.csw-q:focus,.csw-q:focus-visible{outline:0;box-shadow:inset 0 0 0 1px var(--faint)}
+.csw-q:focus{box-shadow:inset 0 0 0 1px var(--field-line-strong)}
+@supports (corner-shape:squircle){.csw-q{corner-shape:squircle;border-radius:var(--r-field-sq)}}
 .csw-list{max-height:248px;overflow-y:auto;display:flex;flex-direction:column}
 .csw-o{flex:none;min-height:34px;cursor:pointer}
 /* the row under the pointer or the arrow keys, and a hovered row in the … menu, is white with a quiet grey edge rather than
@@ -4395,7 +4392,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .tkx-s .lb{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--accent);font-weight:500;margin-bottom:var(--s-1)}
 /* the reply reads as text you can edit: the text cursor over it, and an accent caret once it has focus */
 .tkx-s [contenteditable]{outline:0;border-radius:6px;cursor:text;caret-color:var(--accent-fg,var(--accent))}
-.tkx-s [contenteditable]:focus{box-shadow:0 0 0 2px var(--focus);padding:2px var(--s-1);margin:-2px -4px}
+.tkx-s [contenteditable]:focus{box-shadow:inset 0 0 0 1px var(--field-line-strong);padding:2px var(--s-1);margin:-2px -4px}
 .tkx-a{display:flex;gap:6px;justify-content:flex-end}
 .tkx-e{padding:40px 10px;text-align:center;font-size:13px;color:var(--muted)}
 .tkx-t.leave{animation:leave .35s var(--ease) both}
@@ -4455,7 +4452,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 :root[data-style="bp"]{
   --motion:bp;
   --page:#f3f3f0; --stage:#fafaf8; --surface:#ffffff; --raised:#ffffff;
-  --fg:#121212; --fg2:#4a4a46; --muted:#666660; --faint:#bdbdb6; --rail:#d2d2cb; --line:#e3e3dd; --field-line:#8a8a84;
+  --fg:#121212; --fg2:#4a4a46; --muted:#666660; --faint:#bdbdb6; --rail:#d2d2cb; --line:#e3e3dd; --field-line:#d2d2cb; --field-line-strong:#858580;
   --chip:#f1f1ed; --hover:#e8e8e3; --press:#dededa; --wash:#f6f6f3; --row:color-mix(in srgb,var(--fg) 4%,transparent);
   --soft:#ebebe6; --soft-h:#e1e1db; --soft-ring:inset 0 0 0 1px rgba(20,20,12,.09); --dis:#a3a39c;
   --accent:#d4f84a; --on-accent:#121212; --accent-fg:var(--fg); --accent-mark:#7a8e2b; --sel:color-mix(in srgb,var(--accent) 7%,transparent);
@@ -4471,7 +4468,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 }
 @media (prefers-color-scheme:dark){:root[data-style="bp"]:not([data-theme="light"]){
   --page:#0e0e0d; --stage:#131312; --surface:#191918; --raised:#20201f;
-  --fg:#f1f1ee; --fg2:#cacac4; --muted:#bebeb8; --faint:#4c4c48; --rail:#3b3b38; --line:#2a2a28; --field-line:#7b7b76;
+  --fg:#f1f1ee; --fg2:#cacac4; --muted:#bebeb8; --faint:#4c4c48; --rail:#3b3b38; --line:#2a2a28; --field-line:#3b3b38; --field-line-strong:#80807a;
   --chip:#242422; --hover:#2c2c2a; --press:#353532; --wash:#1f1f1d; --row:color-mix(in srgb,var(--fg) 5.5%,transparent);
   --soft:#272725; --soft-h:#31312e; --soft-ring:inset 0 0 0 1px rgba(255,255,255,.08); --dis:#73736d;
   --accent:#d4f84a; --on-accent:#121212; --accent-fg:#d4f84a; --accent-mark:#d4f84a; --sel:color-mix(in srgb,var(--accent) 10%,transparent);
@@ -4486,7 +4483,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
   --t-fast:.14s; --t:.3s; --t-slow:.44s}}
 :root[data-style="bp"][data-theme="dark"]{
   --page:#0e0e0d; --stage:#131312; --surface:#191918; --raised:#20201f;
-  --fg:#f1f1ee; --fg2:#cacac4; --muted:#bebeb8; --faint:#4c4c48; --rail:#3b3b38; --line:#2a2a28; --field-line:#7b7b76;
+  --fg:#f1f1ee; --fg2:#cacac4; --muted:#bebeb8; --faint:#4c4c48; --rail:#3b3b38; --line:#2a2a28; --field-line:#3b3b38; --field-line-strong:#80807a;
   --chip:#242422; --hover:#2c2c2a; --press:#353532; --wash:#1f1f1d; --row:color-mix(in srgb,var(--fg) 5.5%,transparent);
   --soft:#272725; --soft-h:#31312e; --soft-ring:inset 0 0 0 1px rgba(255,255,255,.08); --dis:#73736d;
   --accent:#d4f84a; --on-accent:#121212; --accent-fg:#d4f84a; --accent-mark:#d4f84a; --sel:color-mix(in srgb,var(--accent) 10%,transparent);
@@ -5618,12 +5615,18 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
   <template><div class="acx" data-reveal="flat">
   <div class="acx-top"><span class="acx-name">Weekly design QA</span><span class="tag ok acx-on">On</span><span class="acx-sp"></span><span class="muted acx-st">Every Monday, 9:00</span><button class="pill primary sm acx-run">{play}Test run</button></div>
   <div class="acx-cv">
-    <svg class="acx-svg"></svg>
+    <svg class="acx-svg" aria-hidden="true"></svg>
     <div class="acx-nodes"></div>
     <div class="pop acx-pop" role="dialog"></div>
+    <div class="pop acx-pk" role="dialog" aria-label="Add a step">
+      <div class="acx-q">{search}<input class="acx-qi" type="text" role="combobox" aria-expanded="true" aria-autocomplete="list" placeholder="Search steps" aria-label="Search steps" autocomplete="off" spellcheck="false"></div>
+      <div class="acx-ls" role="listbox" aria-label="Steps"></div>
+      <p class="acx-pd" aria-hidden="true"></p>
+    </div>
   </div>
+  <p class="acx-live" aria-live="polite"></p>
 </div></template>
-  <div class="card-f"><span>Drag nodes around, click one to configure, then run</span><span class="sp"></span><button class="replay" aria-label="Replay Automation canvas"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
+  <div class="card-f"><span>Click + to add a step, drag them around, then run</span><span class="sp"></span><button class="replay" aria-label="Replay Automation canvas"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
 </article>
 <article class="card wide" data-c="canvas-toolbar" id="c-canvas-toolbar">
   <div class="card-h"><div><h3>Canvas toolbar</h3><p>A floating toolbar for a workflow canvas: run, pick a tool, comment, fit and zoom.</p></div></div>
@@ -5661,30 +5664,10 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
     <button class="mi" role="menuitem" tabindex="-1" data-a="in" data-ovf="2">{plus}<span>Zoom in</span><span class="kbd">+</span></button>
     <button class="mi" role="menuitem" tabindex="-1" data-a="reset" data-ovf="2" data-close>{zoom}<span>Zoom to 100%</span><span class="r num ctb-zl">100%</span></button>
   </div>
+  <div class="pop ctb-cp" role="dialog" aria-label="Comment"><b class="ctb-ct"></b><p class="ctb-cw"></p><button class="pill line sm ctb-del">{trash}Delete</button></div>
   <p class="ctb-live" aria-live="polite"></p>
 </div></template>
   <div class="card-f"><span>Pan with the hand, zoom in, fit, then run</span><span class="sp"></span><button class="replay" aria-label="Replay Canvas toolbar"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
-</article>
-<article class="card wide" data-c="step-library" id="c-step-library">
-  <div class="card-h"><div><h3>Step library</h3><p>Search the steps a workflow can use, preview what each does, and add one.</p></div></div>
-  <div class="stage"><div class="stage-in"></div></div>
-  <template><div class="slb" data-reveal="flat">
-  <div class="slb-p">
-    <div class="slb-h"><b>Add a step</b><span class="num slb-ct"></span></div>
-    <div class="slb-q">{search}<input class="slb-in" type="text" placeholder="Search steps" aria-label="Search steps" autocomplete="off" spellcheck="false"><button class="ib slb-x" aria-label="Clear search" data-tip="Clear search" data-tip-k="Esc" hidden>{x}</button></div>
-    <div class="slb-list" role="group" aria-label="Steps"></div>
-    <div class="slb-dock" aria-hidden="true"></div>
-  </div>
-  <div class="slb-flow" role="region" aria-label="Workflow">
-    <div class="slb-fh"><b>Support triage</b><span class="num slb-fn"></span></div>
-    <ol class="slb-fl"></ol>
-    <div class="slb-drop">{plus}<span>Drop a step here</span></div>
-  </div>
-  <div class="slb-pv" aria-hidden="true"></div>
-  <div class="slb-d" hidden></div>
-  <p class="slb-live" aria-live="polite"></p>
-</div></template>
-  <div class="card-f"><span>Search, preview a step, press Enter to add it</span><span class="sp"></span><button class="replay" aria-label="Replay Step library"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
 </article>
 <article class="card bare" data-c="memory-panel" id="c-memory-panel">
   <div class="card-h"><div><h3>Memory panel</h3><p>What the agent remembers about your team, editable and removable.</p></div></div>
@@ -6764,7 +6747,7 @@ document.addEventListener('DOMContentLoaded', () => {
   /* style: Soft 2 or Blueprint 2, from ?style= or what this browser last picked; each style keeps its own accent */
   const STY = {
     soft2:{ h:'Soft 2', p:$('#style-p') ? $('#style-p').textContent : '', acc:'#116ff8', key:'soft2-accent', title:'Designme Soft 2' },
-    bp2:{ h:'Blueprint 2', p:"The same 108 components drawn as a technical sheet: square corners, hairline edges instead of shadows, a lime accent, and motion that wipes and ticks into place in short, hard beats.", acc:'#d4f84a', key:'bp2-accent', title:'Designme Blueprint 2' }
+    bp2:{ h:'Blueprint 2', p:"The same 107 components drawn as a technical sheet: square corners, hairline edges instead of shadows, a lime accent, and motion that wipes and ticks into place in short, hard beats.", acc:'#d4f84a', key:'bp2-accent', title:'Designme Blueprint 2' }
   };
   let style = 'soft2';
   try { const q = new URLSearchParams(location.search).get('style'); const ls = localStorage.getItem('designme2-style');
@@ -9354,14 +9337,12 @@ DM.def('feedback-sheet', (r, c) => {
   });
   /* once it has entered, it rates the answer down and fills in the sheet by itself. Clicking, focusing or typing in it
      takes over, and what it had typed goes */
-  c.taken(() => ta.classList.remove('typing'));
   c.run(async () => {
     await c.step(1500); down(false);
     await c.step(1000); chips[1].click();
-    // the box looks focused while the demo types; taking over puts that look away, so only the real focus rings
-    await c.step(700); ta.classList.add('typing'); c.taken(() => ta.classList.remove('typing'));
+    await c.step(700);
     await c.type(ta, 'Keep our 8px spacing scale', { ms:() => 34 + Math.random() * 40, each:ready, keep:true });
-    await c.step(650); ta.classList.remove('typing'); go.click();
+    await c.step(650); go.click();
   });
 });
 /* ---------- Model picker ---------- */
@@ -9927,11 +9908,11 @@ DM.def('plan-review', (r, c) => {
   c.story(async s => {
     await s.beat(3);
     const step = $$('.plx-s', list)[2], t = $('.t', step);
-    // the step looks focused while the person types, without real focus: a caret would make the page follow it
-    await s.tap(t); t.classList.add('ed'); c.taken(() => t.classList.remove('ed')); await s.beat(1);
+    // the demo types into the step without taking the focus: a caret would make the page follow it
+    await s.tap(t); await s.beat(1);
     for (const ch of ' each'){ t.textContent = t.textContent.slice(0, -1); await s.beat(.12); }
     for (const ch of ', annual price first'){ t.textContent += ch; await s.beat(.09); }
-    await s.beat(1); t.classList.remove('ed'); t.onblur(); await s.beat(2);
+    await s.beat(1); t.onblur(); await s.beat(2);
     await s.tap(go); s.away();
     await s.until(() => $('.plx-f .pill.soft', r));
   });
@@ -10280,9 +10261,9 @@ DM.def('prompt-library', (r, c) => {
     await s.beat(3); await s.tap($('.plb-row', rows)); s.away();
     await s.beat(3); await s.tap($('.plb-use', r)); s.away();
     await s.beat(4);
-    const inp = $('.plb-in', vars); await s.point(inp, false); inp.classList.add('ed'); c.taken(() => inp.classList.remove('ed'));
+    const inp = $('.plb-in', vars); await s.point(inp, false);
     await s.type(inp, 'the plan cards', { n:.14, each:() => inp.dispatchEvent(new Event('input')) });
-    await s.beat(1); inp.classList.remove('ed'); s.away(); await s.beat(1);
+    await s.beat(1); s.away(); await s.beat(1);
     await s.tap($('.plb-sel', $('.plb-fd[data-k="tone"]', vars))); await s.beat(2);
     await s.tap($('.plb-pop-tone .mi[data-o="friendlier"]', r)); s.away(); await s.beat(3);
     await s.tap($('.plb-use', r)); s.away(); await s.beat(3);
@@ -10320,7 +10301,7 @@ DM.def('steering', (r, c) => {
   inp.oninput = ready;
   c.on(box, 'submit', e => {
     e.preventDefault(); const text = inp.value.trim(); if (!text || ended) return;
-    inp.value = ''; box.classList.remove('f'); ready();
+    inp.value = ''; ready();
     const m = html(`<div class="ste-me"><p></p><span class="ste-q"><span class="spin"></span>Applies after this step</span></div>`);
     $('p', m).textContent = text; log.appendChild(m); enter(m);
     queue.push({ text, el:m });
@@ -10385,7 +10366,7 @@ DM.def('steering', (r, c) => {
   c.story(async s => {
     await s.beat(2);
     await s.point($('.ste-t span', S[1].el), false); await s.beat(1);
-    await s.tap(inp); box.classList.add('f'); c.taken(() => { if (document.activeElement !== inp) box.classList.remove('f'); });
+    await s.tap(inp);
     // typed a few letters at a time, so a busy page (few, longer timers) types it as fast as a quiet one
     const msg = 'Use our library blue, not violet';
     await s.type(inp, msg.match(/.{1,3}/g), { n:.15, each:ready, keep:true });
@@ -11034,37 +11015,173 @@ DM.def('file-explorer', (r, c) => {
 });
 /* ---------- Automation canvas ---------- */
 DM.def('automation-canvas', (r, c) => {
-  r.innerHTML = r.innerHTML.replace('{play}', I('play','xs'));
+  r.innerHTML = r.innerHTML.replace('{play}', I('play','xs')).replace('{search}', I('search','xs'));
+  // sub: the connectors under a step, for the model it thinks with and the tools it may use
   const N = [
-    { id:'t', ic:'clock', col:'var(--py)', t:'Schedule', d:'Mondays 9:00', y:.5, f:['When', ['Mondays 9:00','Every weekday','On new Figma version']] },
-    { id:'a', ic:'figma', col:'var(--pl)', t:'Read frames', d:'Pricing, Checkout', y:.28, f:['Frames', ['Pricing, Checkout','All frames','Changed this week']] },
-    { id:'b', ic:'spark', col:'var(--accent-mark,var(--accent))', fg:'var(--accent-fg,var(--accent))', t:'Agent: audit', d:'Contrast, tokens', y:.72, f:['Checks', ['Contrast, tokens','Everything','Accessibility only']] },
-    { id:'c', ic:'send', col:'var(--pm)', t:'Post summary', d:'#design in Slack', y:.5, f:['Channel', ['#design in Slack','Email the team','Linear ticket']] }
+    { id:'t', ic:'clock', col:'var(--py)', t:'Schedule', d:'Mondays 9:00', y:.4, f:['When', ['Mondays 9:00','Every weekday','On new Figma version']] },
+    { id:'a', ic:'figma', col:'var(--pl)', t:'Read frames', d:'Pricing, Checkout', y:.22, f:['Frames', ['Pricing, Checkout','All frames','Changed this week']] },
+    { id:'b', ic:'spark', col:'var(--accent-mark,var(--accent))', fg:'var(--accent-fg,var(--accent))', t:'Agent: audit', d:'Contrast, tokens', y:.58, f:['Checks', ['Contrast, tokens','Everything','Accessibility only']], sub:['model', 'tools'] },
+    { id:'c', ic:'send', col:'var(--pm)', t:'Post summary', d:'#design in Slack', y:.4, f:['Channel', ['#design in Slack','Email the team','Linear ticket']] }
   ];
+  // a wire: from, to, and for a model or a tool, which connector it hangs from
   const E = [['t','a'],['t','b'],['a','c'],['b','c']];
-  const cv = $('.acx-cv', r), svg = $('.acx-svg', r), nodes = $('.acx-nodes', r), pop = $('.acx-pop', r), st = $('.acx-st', r);
+  // the steps the picker offers: a + after a step offers tools, logic and actions; a connector offers its own group
+  const CAT = [
+    { id:'tools', label:'Tools', col:'var(--pt)', items:[
+      { ic:'globe', t:'Search the web', desc:'Looks things up and keeps the top results', f:['Sources', ['Top results','News only','Our docs site']] },
+      { ic:'file-text', t:'Read a doc', desc:'Pulls the text out of a doc or a PDF', f:['Doc', ['Brand guidelines','Release notes','Any shared doc']] },
+      { ic:'eye', t:'Check contrast', desc:'Measures each text colour against its fill', f:['Level', ['WCAG AA','WCAG AAA','APCA']] } ] },
+    { id:'logic', label:'Logic', col:'var(--py)', items:[
+      { ic:'branch', t:'If / else', desc:'Sends the run one way or the other', f:['When', ['Any check fails','Over 5 issues','Always']] },
+      { ic:'clock', t:'Wait', desc:'Pauses the run for a while', f:['For', ['1 hour','Until 9:00','1 day']] },
+      { ic:'user', t:'Ask a person', desc:'Holds the run until someone approves', f:['Who', ['Design lead','Anyone on #design','The run owner']] } ] },
+    { id:'actions', label:'Actions', col:'var(--pm)', items:[
+      { ic:'flag', t:'Create ticket', desc:'Files an issue with what the agent found', f:['Tracker', ['Design QA board','Linear, Web team','GitHub issues']] },
+      { ic:'mail', t:'Send email', desc:'Emails a short summary to a list', f:['To', ['Design team','Product leads','Just me']] },
+      { ic:'edit', t:'Update doc', desc:'Writes the results into a shared doc', f:['Doc', ['QA log','Weekly notes','Release checklist']] } ] },
+    { id:'models', label:'Models', col:'var(--pl)', items:[
+      { ic:'bolt', t:'Fast model', desc:'Quick and cheap, for simple checks', f:['Model', ['Fast','Fast, low cost']] },
+      { ic:'brain', t:'Reasoning model', desc:'Slower, thinks harder audits through', f:['Model', ['Reasoning','Reasoning, long context']] },
+      { ic:'image', t:'Vision model', desc:'Reads screenshots and frames', f:['Model', ['Vision','Vision, high detail']] } ] }
+  ];
+  const OFFER = { out:['tools', 'logic', 'actions'], model:['models'], tools:['tools'] }, KIND = { model:'Model', tools:'Tools' };
+  // the canvas holds this many steps (fewer when it stacks on a phone); after that the + handles go
+  const MAX = () => narrow() ? 6 : 9;
+  const cv = $('.acx-cv', r), svg = $('.acx-svg', r), nodes = $('.acx-nodes', r), pop = $('.acx-pop', r), st = $('.acx-st', r), live = $('.acx-live', r);
+  const pk = $('.acx-pk', r), qi = $('.acx-qi', r), ls = $('.acx-ls', r), pd = $('.acx-pd', r);
+  const say = t => { live.textContent = t; };
   const narrow = () => cv.clientWidth < 560;
   // wide: the trigger and the last step sit the same distance in from each side and the two middle steps halfway between,
   // so the wires on the left and right are the same length at any width. A step you dragged keeps where you put it
   const wide = (n, W, w) => { const pad = Math.max(20, W * .06); return { x:{ t:pad + w / 2, a:W / 2, b:W / 2, c:W - pad - w / 2 }[n.id] / W, y:n.y }; };
-  const pos = (n, W, w) => (narrow() ? n.um : n.uw) || (narrow() ? { x:{ t:.5, a:.28, b:.72, c:.5 }[n.id], y:{ t:.13, a:.42, b:.62, c:.88 }[n.id] } : wide(n, W, w));
-  nodes.innerHTML = N.map(n => `<button class="acx-n" data-id="${n.id}"><span class="ic" style="color:${n.fg || n.col};background:color-mix(in srgb,${n.col} 14%,transparent)">${I(n.ic,'xs')}</span><span class="t"><b>${n.t}</b><span class="d">${n.d}</span></span></button>`).join('');
+  // narrow: the steps go down the left of the canvas, with the agent on its own on the right, so its model and tools have
+  // room under it
+  const NARROWAT = { t:['l', .07], a:['l', .2], b:['r', .33], c:['l', .64] };
+  const pos = (n, W, w) => (narrow() ? n.um : n.uw) || (n.add ? null : narrow() ? { x:(NARROWAT[n.id][0] === 'l' ? 6 + w / 2 : W - 6 - w / 2) / W, y:NARROWAT[n.id][1] } : wide(n, W, w));
+  const nodeHTML = n => `<button class="acx-n${n.kind ? ' sm' : ''}" data-id="${n.id}"><span class="ic" style="color:${n.fg || n.col};background:color-mix(in srgb,${n.col} 14%,transparent)">${I(n.ic,'xs')}</span><span class="t"><b>${n.t}</b><span class="d">${n.d}</span></span></button>`;
+  nodes.innerHTML = N.map(nodeHTML).join('');
   const el = id => $(`.acx-n[data-id="${id}"]`, nodes);
+  const byId = id => N.find(n => n.id === id);
+  const box = b => ({ l:b.offsetLeft, t:b.offsetTop, r:b.offsetLeft + b.offsetWidth, b:b.offsetTop + b.offsetHeight, w:b.offsetWidth, h:b.offsetHeight });
+
+  /* ---------- the + handles and the connectors ---------- */
+  // a step's output is open when no step follows it; models and tools have no output of their own
+  const open = n => !n.kind && !E.some(e => e[0] === n.id && !e[2]);
+  const knobs = {};
+  function syncKnobs(){
+    const full = N.length >= MAX();
+    N.forEach(n => {
+      const want = [...(open(n) && !full ? ['out'] : []), ...(full ? [] : n.sub || [])];
+      Object.keys(knobs).filter(k => k.startsWith(n.id + ':') && !want.includes(k.split(':')[1])).forEach(k => { knobs[k].remove(); delete knobs[k]; });
+      want.forEach(kind => {
+        const k = n.id + ':' + kind; if (knobs[k]) return;
+        const b = kind === 'out'
+          ? html(`<button class="acx-h" aria-haspopup="dialog" aria-expanded="false" aria-label="Add a step after ${n.t}" data-tip="Add a step">${I('plus','xs')}</button>`)
+          : html(`<button class="acx-sc" aria-haspopup="dialog" aria-expanded="false" aria-label="Add ${kind === 'model' ? 'a model' : 'a tool'} to ${n.t}">${I('plus','xs')}<span>${KIND[kind]}</span></button>`);
+        b.dataset.for = n.id; b.dataset.k = kind; nodes.appendChild(b); knobs[k] = b;
+        b.onclick = e => { e.stopPropagation(); pk.classList.contains('open') && pkFor === b ? closePk(true) : openPk(b, e.isTrusted); };
+      });
+    });
+  }
+  // where a step's output leaves it: its right side, or its foot when the canvas stacks. There the agent's wire to a step
+  // on its left leaves from its left side, so it keeps clear of the model and tools under it
+  // On a wide canvas a step with no room for another to its right (the last one, near the edge) takes its + under it, and
+  // the steps added there stack downwards
+  const roomR = B => B.r + 56 + (cv.clientWidth < 700 ? 150 : 176) + 40 <= cv.clientWidth;
+  const outAt = (B, n, T) => !narrow() ? ((T ? T.l >= B.r + 8 : roomR(B)) ? { x:B.r, y:B.t + B.h / 2, d:'r' } : { x:B.l + B.w / 2, y:B.b, d:'d' })
+    : n && n.sub && T && T.l + T.w / 2 < B.l ? { x:B.l, y:B.t + B.h / 2, d:'l' } : { x:B.l + B.w / 2, y:B.b, d:'d' };
+  // the connectors sit under the step, either side of the middle so a wire leaving its foot passes between them
+  function subAt(n, kind){
+    const B = box(el(n.id)), cx = B.l + B.w / 2, g = narrow() ? 24 : 8, kinds = n.sub || [];
+    const wOf = k => (knobs[n.id + ':' + k] || {}).offsetWidth || 64;
+    const one = kinds.length < 2, l = one ? cx - wOf(kind) / 2 : kind === kinds[0] ? cx - g / 2 - wOf(kind) : cx + g / 2;
+    return { l, t:B.b + 10, w:wOf(kind), h:24 };
+  }
+  function placeKnobs(){
+    Object.entries(knobs).forEach(([k, b]) => {
+      const [id, kind] = k.split(':'), n = byId(id), B = box(el(id));
+      if (kind === 'out'){ const o = outAt(B); b.style.left = (o.d === 'r' ? o.x + 10 : o.x - 10) + 'px'; b.style.top = (o.d === 'r' ? o.y - 10 : o.y + 10) + 'px'; }
+      else { const s = subAt(n, kind); b.style.left = s.l + 'px'; b.style.top = s.t + 'px'; }
+    });
+  }
+
+  /* ---------- wires: from a step's output, or a connector's foot, into the side of the next step that faces it ---------- */
+  function link(a, B){
+    let p, e;
+    if (a.d === 'l'){ if (B.t >= a.y + 8){ p = [B.l + B.w / 2, B.t]; e = 't'; } else if (B.r <= a.x - 8){ p = [B.r, B.t + B.h / 2]; e = 'r'; } else { p = [B.l + B.w / 2, B.b]; e = 'b'; } }
+    else if (a.d === 'r'){ if (B.l >= a.x + 8){ p = [B.l, B.t + B.h / 2]; e = 'l'; } else if (B.t >= a.y){ p = [B.l + B.w / 2, B.t]; e = 't'; } else { p = [B.l + B.w / 2, B.b]; e = 'b'; } }
+    else { if (B.t >= a.y + 8){ p = [B.l + B.w / 2, B.t]; e = 't'; } else if (B.l >= a.x){ p = [B.l, B.t + B.h / 2]; e = 'l'; } else { p = [B.r, B.t + B.h / 2]; e = 'r'; } }
+    const dx = p[0] - a.x, dy = p[1] - a.y, k0 = Math.max(24, Math.abs(a.d === 'd' ? dy : dx) / 2), k1 = Math.max(24, Math.abs('lr'.includes(e) ? dx : dy) / 2);
+    const c1 = a.d === 'r' ? [a.x + k0, a.y] : a.d === 'l' ? [a.x - k0, a.y] : [a.x, a.y + k0], c2 = { l:[p[0] - k1, p[1]], r:[p[0] + k1, p[1]], t:[p[0], p[1] - k1], b:[p[0], p[1] + k1] }[e];
+    return [[a.x, a.y], c1, c2, p];
+  }
+  const bez = (q, t) => { const u = 1 - t; return [0, 1].map(i => u * u * u * q[0][i] + 3 * u * u * t * q[1][i] + 3 * u * t * t * q[2][i] + t * t * t * q[3][i]); };
+  const dOf = q => `M${q[0].join(' ')} C${q[1].join(' ')} ${q[2].join(' ')} ${q[3].join(' ')}`;
+  const anchorOf = ([a, b, kind]) => { if (kind){ const s = subAt(byId(a), kind); return { x:s.l + s.w / 2, y:s.t + s.h, d:'d' }; } return outAt(box(el(a)), byId(a), box(el(b))); };
+  const placed = n => !!el(n.id) && el(n.id).dataset.on !== '0';
+  // the wires are made once and only reshaped after that, so a resize or a drag never restarts their draw or their light
+  const wireEl = {}, key = (a, b) => a + '>' + b, geo = {};
+  function wires(){
+    E.forEach(e => {
+      const [a, b, kind] = e; if (!placed(byId(a)) || !placed(byId(b))) return;
+      const q = geo[key(a, b)] = link(anchorOf(e), box(el(b)));
+      let p = wireEl[key(a, b)]; if (!p){ p = document.createElementNS('http://www.w3.org/2000/svg', 'path'); p.dataset.e = key(a, b); if (kind) p.classList.add('sub'); svg.appendChild(p); wireEl[key(a, b)] = p; }
+      p.setAttribute('d', dOf(q));
+      if (svg.classList.contains('intro') && !p.style.getPropertyValue('--l')) p.style.setProperty('--l', Math.ceil(p.getTotalLength()));
+    });
+    // the short stubs from a step to its + and its connectors
+    const want = new Set();
+    Object.entries(knobs).forEach(([k, b]) => {
+      const [id, kind] = k.split(':'), B = box(el(id)); let d;
+      if (kind === 'out'){ const o = outAt(B); d = o.d === 'r' ? `M${o.x} ${o.y}H${o.x + 10}` : `M${o.x} ${o.y}V${o.y + 10}`; }
+      else { const s = subAt(byId(id), kind), x = s.l + s.w / 2; d = `M${x} ${B.b}V${s.t}`; }
+      want.add(k); let p = wireEl['s:' + k]; if (!p){ p = document.createElementNS('http://www.w3.org/2000/svg', 'path'); p.setAttribute('class', 'stub'); svg.appendChild(p); wireEl['s:' + k] = p; }
+      p.setAttribute('d', d);
+    });
+    Object.keys(wireEl).filter(k => k.startsWith('s:') && !want.has(k.slice(2))).forEach(k => { wireEl[k].remove(); delete wireEl[k]; });
+    placeKnobs();
+  }
+
+  /* ---------- where a new step goes: as near as it can to just after what it hangs from (to the right of a step, under a
+     connector, or under a step when the canvas stacks), clear of every step, + and connector with room to spare, keeping off
+     the wires already drawn, with its own wire crossing no step, and with room for its own + inside the canvas ---------- */
+  function spot(n){
+    const W = cv.clientWidth, H = cv.clientHeight, me = el(n.id), w = me.offsetWidth, h = me.offsetHeight, M = 8;
+    const e = E.find(x => x[1] === n.id), src = e[0], a = e[2] ? anchorOf(e) : outAt(box(el(src)), byId(src));
+    const others = N.filter(x => x !== n && placed(x)).map(x => box(el(x.id)));
+    const ks = Object.entries(knobs).filter(([k]) => { const id = k.split(':')[0]; return k !== src + ':out' && id !== n.id && placed(byId(id)); }).map(([, b]) => box(b));
+    const obst = [...others, ...ks];
+    const samples = Object.entries(geo).filter(([k]) => !k.split('>').includes(n.id)).flatMap(([, q]) => Array.from({ length:15 }, (_, i) => bez(q, (i + 1) / 16)));
+    const want = a.d === 'r' ? [a.x + 56 + w / 2, a.y] : [a.x, a.y + 40 + h / 2];
+    const inside = (p, b, m) => p[0] > b.l - m && p[0] < b.r + m && p[1] > b.t - m && p[1] < b.b + m;
+    const ov = (A, B, m) => Math.max(0, Math.min(A.r, B.r + m) - Math.max(A.l, B.l - m)) * Math.max(0, Math.min(A.b, B.b + m) - Math.max(A.t, B.t - m));
+    let best = null, bs = Infinity, soft = null, ss = Infinity;
+    // room to spare first; on a crowded canvas, just clear of the rest
+    for (const G of [14, 4]){ if (best) break;
+    for (let y = M; y + h <= H - M; y += 8) for (let x = M; x + w <= W - M; x += 8){
+      const B = { l:x, t:y, r:x + w, b:y + h, w, h };
+      if (!n.kind && (narrow() ? B.b + 34 > H - 4 : B.r + 34 > W - 4)) continue;
+      let sc = Math.hypot(x + w / 2 - want[0], y + h / 2 - want[1]);
+      if (a.d === 'r' ? B.l < a.x + 24 : B.t < a.y + 24) sc += 250;
+      sc += samples.filter(p => inside(p, B, 6)).length * 60;
+      const q = link(a, B); for (let i = 1; i < 12; i++){ const p = bez(q, i / 12); if (others.some(o => inside(p, o, 4))) sc += 30; }
+      const hit = obst.reduce((s2, o) => s2 + ov(B, o, G), 0);
+      if (!hit){ if (sc < bs){ bs = sc; best = B; } }
+      else if (hit * 10 + sc < ss){ ss = hit * 10 + sc; soft = B; }
+    } }
+    const B = best || soft || { l:M, t:M, w, h };
+    return { x:(B.l + w / 2) / W, y:(B.t + h / 2) / H };
+  }
   function layout(){
     const W = cv.clientWidth, H = cv.clientHeight, small = narrow() || W < 700;
-    $$('.acx-n', nodes).forEach(b => b.style.width = small ? '150px' : '');
-    N.forEach(n => { const b = el(n.id), p = pos(n, W, b.offsetWidth); b.style.left = (p.x * W - b.offsetWidth / 2) + 'px'; b.style.top = (p.y * H - b.offsetHeight / 2) + 'px'; });
+    // a model or a tool is a smaller step, so on a stacked canvas it fits beside the steps in the left-hand column
+    $$('.acx-n', nodes).forEach(b => b.style.width = b.classList.contains('sm') ? (narrow() ? '124px' : small ? '150px' : '') : small ? '150px' : '');
+    syncKnobs(); Object.keys(geo).forEach(k => delete geo[k]);
+    const put = (n, p) => { const b = el(n.id); b.style.left = (p.x * W - b.offsetWidth / 2) + 'px'; b.style.top = (p.y * H - b.offsetHeight / 2) + 'px'; b.dataset.on = '1'; };
+    // the steps with a place first, then each added one that has none in this layout yet, in the order they were added
+    N.forEach(n => { const p = pos(n, W, el(n.id).offsetWidth); if (p) put(n, p); else el(n.id).dataset.on = '0'; });
+    N.filter(n => el(n.id).dataset.on === '0').forEach(n => { wires(); const p = spot(n); if (narrow()) n.um = p; else n.uw = p; put(n, p); });
     wires();
-  }
-  // the wires are made once and only reshaped after that, so a resize or a drag never restarts their draw or their light
-  const wireEl = {};
-  function wires(){
-    E.forEach(([a, b]) => { const A = el(a), B = el(b); const ax = A.offsetLeft + A.offsetWidth / 2, ay = A.offsetTop + A.offsetHeight / 2, bx = B.offsetLeft + B.offsetWidth / 2, by = B.offsetTop + B.offsetHeight / 2;
-      let d; if (narrow()){ const y1 = ay + A.offsetHeight / 2, y2 = by - B.offsetHeight / 2; d = `M${ax} ${y1} C${ax} ${(y1 + y2) / 2} ${bx} ${(y1 + y2) / 2} ${bx} ${y2}`; }
-      else { const x1 = ax + A.offsetWidth / 2, x2 = bx - B.offsetWidth / 2; d = `M${x1} ${ay} C${(x1 + x2) / 2} ${ay} ${(x1 + x2) / 2} ${by} ${x2} ${by}`; }
-      let p = wireEl[a + b]; if (!p){ p = document.createElementNS('http://www.w3.org/2000/svg', 'path'); p.dataset.e = a + b; svg.appendChild(p); wireEl[a + b] = p; }
-      p.setAttribute('d', d);
-      if (svg.classList.contains('intro') && !p.style.getPropertyValue('--l')) p.style.setProperty('--l', Math.ceil(p.getTotalLength())); });
   }
   let selN = null;
   // a step's settings open as a small dialog beside it. Opened with the keyboard, the focus goes into it; Escape or Done
@@ -11072,6 +11189,7 @@ DM.def('automation-canvas', (r, c) => {
   // Home and End jump, Enter or Space picks, and Escape closes the list back to the field
   const uid = Math.random().toString(36).slice(2, 7);
   function config(n, key){
+    closePk();
     const b = el(n.id); $$('.acx-n', nodes).forEach(x => x.classList.toggle('sel', x === b)); selN = n;
     pop.innerHTML = `<h4 id="acx-h-${n.id}-${uid}">${n.t}</h4><div class="acx-fl"><span id="acx-f-${n.id}-${uid}">${n.f[0]}</span><button class="acx-dd" aria-haspopup="menu" aria-expanded="false" aria-labelledby="acx-f-${n.id}-${uid} acx-v-${n.id}-${uid}"><span id="acx-v-${n.id}-${uid}">${n.d}</span>${I('chev-d','xs')}</button><div class="acx-opts" role="menu" aria-labelledby="acx-f-${n.id}-${uid}">${n.f[1].map(o => `<button class="mi" role="menuitemradio" tabindex="-1" aria-checked="${o === n.d}"><span>${o}</span><span class="ck">${I('check','xs')}</span></button>`).join('')}</div></div><button class="pill soft sm acx-done">Done</button>`;
     pop.setAttribute('aria-labelledby', `acx-h-${n.id}-${uid}`);
@@ -11079,7 +11197,6 @@ DM.def('automation-canvas', (r, c) => {
     // nearest the step when spots tie, so the popover never hides the step a run flows on to. It may hang up to 32px below
     // the canvas, into the room around the component, when that is what keeps every step clear
     const W = cv.clientWidth, H = cv.clientHeight, pw = pop.offsetWidth || 240, ph = pop.offsetHeight || 150, G = 10, M = 6, OVER = 32;
-    const box = n => ({ l:n.offsetLeft, t:n.offsetTop, r:n.offsetLeft + n.offsetWidth, b:n.offsetTop + n.offsetHeight });
     const me = box(b), others = $$('.acx-n', nodes).filter(x => x !== b).map(box);
     const cx = (me.l + me.r) / 2, cy = (me.t + me.b) / 2, cl = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
     const over = (x, y, o) => Math.max(0, Math.min(x + pw, o.r) - Math.max(x, o.l)) * Math.max(0, Math.min(y + ph, o.b) - Math.max(y, o.t));
@@ -11107,7 +11224,7 @@ DM.def('automation-canvas', (r, c) => {
   pop.inert = true;
   c.on(pop, 'keydown', e => { if (e.key === 'Escape' && selN){ e.preventDefault(); close(true); } });
   let justDragged = false;
-  N.forEach(n => {
+  function bind(n){
     const b = el(n.id);
     b.onclick = e => { e.stopPropagation(); if (justDragged){ justDragged = false; return; } selN === n ? close() : config(n, e.isTrusted && !e.detail); };
     b.onkeydown = e => { if (e.key === 'Escape' && selN === n){ e.preventDefault(); close(); } };
@@ -11115,48 +11232,142 @@ DM.def('automation-canvas', (r, c) => {
       if (e.button) return; const sx = e.clientX, sy = e.clientY, ox = b.offsetLeft, oy = b.offsetTop; let moved = false;
       const mv = ev => { const dx = ev.clientX - sx, dy = ev.clientY - sy;
         if (!moved && Math.hypot(dx, dy) < 4) return;
-        if (!moved){ moved = true; b.classList.add('drag'); close(); b.setPointerCapture?.(e.pointerId); }
+        if (!moved){ moved = true; b.classList.add('drag'); nodes.classList.add('drag'); close(); closePk(); b.setPointerCapture?.(e.pointerId); }
         const W = cv.clientWidth, H = cv.clientHeight;
         b.style.left = Math.max(4, Math.min(W - b.offsetWidth - 4, ox + dx)) + 'px'; b.style.top = Math.max(4, Math.min(H - b.offsetHeight - 4, oy + dy)) + 'px'; wires(); };
       const up = () => { document.removeEventListener('pointermove', mv); document.removeEventListener('pointerup', up);
-        if (!moved) return; b.classList.remove('drag'); justDragged = true; setTimeout(() => justDragged = false, 50);
+        if (!moved) return; b.classList.remove('drag'); nodes.classList.remove('drag'); justDragged = true; setTimeout(() => justDragged = false, 50);
         const f = { x:(b.offsetLeft + b.offsetWidth / 2) / cv.clientWidth, y:(b.offsetTop + b.offsetHeight / 2) / cv.clientHeight }; if (narrow()) n.um = f; else n.uw = f; };
       document.addEventListener('pointermove', mv); document.addEventListener('pointerup', up);
       c.offs.push(() => { document.removeEventListener('pointermove', mv); document.removeEventListener('pointerup', up); });
     };
-  });
-  c.on(cv, 'click', e => { if (!pop.contains(e.target)) close(); });
+  }
+  N.forEach(bind);
+  c.on(cv, 'click', e => { if (!pop.contains(e.target) && !pk.contains(e.target)){ close(); closePk(); } });
   pop.onclick = e => e.stopPropagation();
+
+  /* ---------- the step picker: a search (a combobox) over a listbox of step types in groups. The arrows move through it and
+     wrap while the focus stays in the search, Enter adds the step, Escape closes it and gives the focus back to the + ---------- */
+  let pkFor = null, act = -1, opts = [];
+  ls.id = 'acx-ls-' + uid; qi.setAttribute('aria-controls', ls.id); pk.inert = true;
+  const esc = t => t.replace(/[&<>"]/g, ch => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' })[ch]);
+  function paint(){
+    const q = qi.value.trim().toLowerCase(), kind = pkFor.dataset.k;
+    const groups = CAT.filter(g => OFFER[kind].includes(g.id)).map(g => ({ g, items:g.items.filter(it => !q || it.t.toLowerCase().includes(q) || it.desc.toLowerCase().includes(q)) })).filter(x => x.items.length);
+    const mark = t => { const i = q ? t.toLowerCase().indexOf(q) : -1; return i < 0 ? esc(t) : esc(t.slice(0, i)) + '<mark>' + esc(t.slice(i, i + q.length)) + '</mark>' + esc(t.slice(i + q.length)); };
+    let k = 0;
+    ls.innerHTML = groups.length ? groups.map(({ g, items }) => `<div role="group" aria-labelledby="acx-g-${g.id}-${uid}"><div class="acx-gh" id="acx-g-${g.id}-${uid}">${g.label}</div>${items.map(it => { const i = k++; return `<div class="acx-o" role="option" aria-selected="false" id="acx-o-${uid}-${i}" aria-describedby="acx-od-${uid}-${i}" data-g="${g.id}" data-t="${esc(it.t)}"><span class="ic" style="color:${g.col};background:color-mix(in srgb,${g.col} 14%,transparent)">${I(it.ic,'xs')}</span><span>${mark(it.t)}</span><span id="acx-od-${uid}-${i}" hidden>${esc(it.desc)}</span></div>`; }).join('')}</div>`).join('')
+      : `<p class="acx-pe">No steps match “${esc(qi.value.trim())}”</p>`;
+    opts = $$('.acx-o', ls);
+    opts.forEach((o, i) => { o.onpointermove = () => { if (act !== i) hl(i, false); }; o.onclick = e => { e.stopPropagation(); add(o, e.isTrusted); }; });
+    hl(opts.length ? 0 : -1, true);
+  }
+  const itemOf = o => CAT.find(g => g.id === o.dataset.g).items.find(it => it.t === o.dataset.t);
+  function hl(i, scroll){
+    act = i; opts.forEach((o, j) => { o.classList.toggle('on', j === i); o.setAttribute('aria-selected', j === i); });
+    const o = opts[i]; qi.setAttribute('aria-activedescendant', o ? o.id : '');
+    pd.textContent = o ? itemOf(o).desc : 'Try another word';
+    if (o && scroll){ const t = o.offsetTop - ls.offsetTop, b2 = t + o.offsetHeight; if (t < ls.scrollTop) ls.scrollTop = t - 24; else if (b2 > ls.scrollTop + ls.clientHeight) ls.scrollTop = b2 - ls.clientHeight; }
+  }
+  // beside the + : to its right, under it, or to the side of its step, whichever covers the least of the steps (and none
+  // of the one it adds to), nearest the + when spots tie, always inside the canvas
+  function openPk(b, focus){
+    close(); if (pkFor && pkFor !== b) pkFor.setAttribute('aria-expanded', 'false');
+    pkFor = b; b.setAttribute('aria-expanded', 'true'); qi.value = ''; ls.scrollTop = 0; paint();
+    const src = byId(b.dataset.for), kind = b.dataset.k;
+    pk.setAttribute('aria-label', kind === 'out' ? `Add a step after ${src.t}` : `Add ${kind === 'model' ? 'a model' : 'a tool'} to ${src.t}`);
+    const W = cv.clientWidth, H = cv.clientHeight, pw = pk.offsetWidth, ph = pk.offsetHeight, K = box(b), S = box(el(src.id)), M = 6, G = 8, OVER = -M;
+    const cl = (v, lo, hi) => Math.max(lo, Math.min(hi, v)), kx = K.l + K.w / 2, ky = K.t + K.h / 2;
+    const over = (x, y, o) => Math.max(0, Math.min(x + pw, o.r) - Math.max(x, o.l)) * Math.max(0, Math.min(y + ph, o.b) - Math.max(y, o.t));
+    const others = N.filter(n => n !== src && placed(n)).map(n => box(el(n.id)));
+    const ys = [ky - 40, K.t, K.b - ph, M, H - ph - M, H - ph + OVER], xs = [kx - pw / 2, K.l, K.r - pw, S.l, S.r - pw, M, W - pw - M];
+    const spots = [...ys.map(y => [K.r + G, y]), ...ys.map(y => [Math.min(K.l, S.l) - pw - G, y]), ...xs.map(x => [x, Math.max(K.b, kind === 'out' && !narrow() ? S.b : K.b) + G]), ...xs.map(x => [x, Math.min(K.t, S.t) - ph - G])]
+      .map(([x, y]) => [cl(x, M, W - pw - M), cl(y, M, H - ph + OVER)]);
+    let best = spots[0], bs = Infinity;
+    for (const [x, y] of spots){ const sc = others.reduce((a, o) => a + over(x, y, o), 0) + (over(x, y, S) + over(x, y, K)) * 8 + Math.max(0, y + ph - (H - M)) * 20 + Math.hypot(x + pw / 2 - kx, y + ph / 2 - ky) / 100; if (sc < bs){ bs = sc; best = [x, y]; } }
+    pk.style.left = best[0] + 'px'; pk.style.top = best[1] + 'px';
+    pk.classList.add('open'); pk.inert = false;
+    if (focus) qi.focus({ preventScroll:true });
+  }
+  function closePk(back){
+    if (!pkFor) return; const b = pkFor, was = pk.contains(document.activeElement);
+    pk.classList.remove('open'); pk.inert = true; b.setAttribute('aria-expanded', 'false'); pkFor = null;
+    if (b.isConnected && (back || was)) b.focus({ preventScroll:true });
+  }
+  c.on(qi, 'input', paint);
+  c.on(pk, 'keydown', e => {
+    const k = e.key;
+    if (k === 'ArrowDown' || k === 'ArrowUp'){ e.preventDefault(); if (opts.length) hl((act + (k === 'ArrowDown' ? 1 : -1) + opts.length) % opts.length, true); }
+    else if (k === 'Enter'){ e.preventDefault(); if (opts[act]) add(opts[act], true); }
+    else if (k === 'Escape'){ e.preventDefault(); e.stopPropagation(); closePk(true); }
+    else if (k === 'Tab') closePk();
+  });
+  pk.onclick = e => e.stopPropagation();
+  c.on(document, 'pointerdown', e => { if (pkFor && !pk.contains(e.target) && e.target !== pkFor && !pkFor.contains(e.target)) closePk(); });
+  // picking one adds the step, wired from the + or connector it was opened from, and the focus moves on to it
+  let seq = 0;
+  function add(o, focus){
+    const b = pkFor; if (!b) return;
+    const it = itemOf(o), g = CAT.find(x => x.id === o.dataset.g), src = byId(b.dataset.for), kind = b.dataset.k === 'out' ? null : b.dataset.k;
+    const n = { id:'n' + ++seq, ic:it.ic, col:g.col, t:it.t, d:it.f[1][0], f:it.f, add:true, kind };
+    closePk(); N.push(n); E.push(kind ? [src.id, n.id, kind] : [src.id, n.id]);
+    const nb = html(nodeHTML(n)); nb.classList.add('add'); nodes.insertBefore(nb, $('.acx-h, .acx-sc', nodes)); bind(n);
+    layout();
+    const p = wireEl[key(src.id, n.id)];
+    if (p && !REDUCE){ p.style.setProperty('--l', Math.ceil(p.getTotalLength())); p.classList.add('new'); c.later(600, () => p.classList.remove('new')); }
+    $$('.acx-h, .acx-sc', nodes).forEach(x => { if (!x.dataset.seen){ x.dataset.seen = 1; if (!x.isSameNode(b)) x.classList.add('in'); } });
+    say(kind ? `${it.t} added to ${src.t}` : `${it.t} added after ${src.t}`);
+    if (focus) nb.focus({ preventScroll:true });
+  }
+
   // a step's badge pops in once (CSS), and after that its spinner turns into a check with a short crossfade
   const ease = getComputedStyle(r).getPropertyValue('--ease').trim() || 'ease';
   const mark = (id, s) => { const b = el(id); b.classList.toggle('run', s === 'run'); const x = $('.s', b) || b.appendChild(html('<span class="s"></span>'));
     x.innerHTML = `<span class="acx-sv">${s === 'run' ? '<span class="spin" style="width:10px;height:10px"></span>' : `<span style="color:var(--ok);display:grid">${I('check','xs')}</span>`}</span>`; };
   // a run passes along a wire as one soft light, then leaves the wire lit
-  const flow = (a, b) => { const p = wireEl[a + b]; if (!p) return; p.classList.add('done'); if (REDUCE) return;
+  const flow = (a, b) => { const p = wireEl[key(a, b)]; if (!p) return; p.classList.add('done'); if (REDUCE) return;
     const L = p.getTotalLength(), len = Math.min(64, L * .4), q = p.cloneNode(); q.removeAttribute('data-e'); q.setAttribute('class', 'pulse'); q.style.cssText = `stroke-dasharray:${len} ${L + len}`; svg.appendChild(q);
     q.animate([{ strokeDashoffset:len, opacity:0 }, { opacity:1, offset:.18 }, { opacity:1, offset:.78 }, { strokeDashoffset:-L, opacity:0 }], { duration:720, easing:'cubic-bezier(.45,0,.25,1)' }).onfinish = () => q.remove(); };
-  // a new test run cancels one still in progress and starts over, rather than running alongside it
-  let runId = 0;
-  $('.acx-run', r).onclick = () => c.run(async () => {
+  // a new test run cancels one still in progress and starts over, rather than running alongside it. The agent's model and
+  // tools light up while it runs, and the steps added after the last one run in turn
+  let runId = 0, running = false;
+  const runB = $('.acx-run', r);
+  runB.onclick = () => c.run(async () => {
     const id = ++runId, wait = async ms => { await c.wait(ms); if (id !== runId) throw 'stop'; };
-    // the last run's badges and lit wires fade back before the new run starts
-    close(); $$('.acx-n .s', nodes).forEach(x => { if (REDUCE) return x.remove(); x.animate([{ opacity:1 }, { opacity:0, transform:'scale(.7)' }], { duration:200, easing:ease }).onfinish = () => x.remove(); });
-    $$('.acx-n.run', nodes).forEach(x => x.classList.remove('run')); $$('path.done', svg).forEach(x => x.classList.remove('done')); swap(st, 'Running test');
-    await wait(220); mark('t', 'run'); await wait(600); mark('t', 'ok');
-    flow('t','a'); flow('t','b'); await wait(620);
-    mark('a', 'run'); mark('b', 'run'); await wait(1100); mark('a', 'ok'); await wait(400); mark('b', 'ok');
-    flow('a','c'); flow('b','c'); await wait(620);
-    mark('c', 'run'); await wait(700); mark('c', 'ok'); swap(st, 'Test passed in 3.4s');
+    running = true;
+    try {
+      // the last run's badges and lit wires fade back before the new run starts
+      close(); closePk(); $$('.acx-n .s', nodes).forEach(x => { if (REDUCE) return x.remove(); x.animate([{ opacity:1 }, { opacity:0, transform:'scale(.7)' }], { duration:200, easing:ease }).onfinish = () => x.remove(); });
+      $$('.acx-n.run', nodes).forEach(x => x.classList.remove('run')); $$('path.done', svg).forEach(x => x.classList.remove('done')); swap(st, 'Running test');
+      const subs = E.filter(e => e[0] === 'b' && e[2]).map(e => e[1]);
+      await wait(220); mark('t', 'run'); await wait(600); mark('t', 'ok');
+      flow('t','a'); flow('t','b'); await wait(620);
+      mark('a', 'run'); mark('b', 'run'); subs.forEach(x => { flow('b', x); mark(x, 'run'); }); await wait(1100); mark('a', 'ok'); subs.forEach(x => mark(x, 'ok')); await wait(400); mark('b', 'ok');
+      flow('a','c'); flow('b','c'); await wait(620);
+      mark('c', 'run'); await wait(700); mark('c', 'ok');
+      let at = 'c', s = 3.4, nx;
+      while ((nx = E.find(e => e[0] === at && !e[2]))){ flow(at, nx[1]); await wait(620); mark(nx[1], 'run'); await wait(700); mark(nx[1], 'ok'); at = nx[1]; s += 1.3; }
+      swap(st, `Test passed in ${s.toFixed(1)}s`);
+    } finally { if (id === runId) running = false; }
   });
   svg.classList.add('intro'); c.later(1300, () => svg.classList.remove('intro'));
-  layout(); let lw = 0; const ro = new ResizeObserver(() => { if (lw && Math.abs(cv.clientWidth - lw) > 2) close(); lw = cv.clientWidth; layout(); }); ro.observe(cv); c.offs.push(() => ro.disconnect());
-  $$('.acx-n', nodes).forEach((b, i) => { b.classList.add('acx-in'); b.style.animationDelay = i * 90 + 'ms'; });
-  // the preview runs one test on its own, unless you start moving steps around first
-  c.auto(1600, () => $('.acx-run', r).click());
+  layout(); let lw = 0; const ro = new ResizeObserver(() => { if (lw && Math.abs(cv.clientWidth - lw) > 2){ close(); closePk(); } lw = cv.clientWidth; layout(); }); ro.observe(cv); c.offs.push(() => ro.disconnect());
+  $$('.acx-n, .acx-h, .acx-sc', nodes).forEach((b, i) => { b.dataset.seen = 1; b.classList.add(b.matches('.acx-n') ? 'acx-in' : 'in'); b.style.animationDelay = Math.min(i, 4) * 90 + 'ms'; });
+  // the preview's story: one test run, then the person adds a step after the last one from its +
+  c.story(async s => {
+    await s.beat(3);
+    await s.tap(runB); s.away();
+    await s.until(() => !running); await s.beat(2);
+    const h = knobs['c:out']; if (!h) return;
+    await s.tap(h); await s.beat(1.5);
+    const o = opts.find(x => x.dataset.t === 'Create ticket'); if (!o) return;
+    await s.point(o, false); hl(opts.indexOf(o), true); await s.beat(1.5);
+    await s.tap(o); s.away(); await s.beat(4);
+  });
 });
 /* ---------- Canvas toolbar ---------- */
 DM.def('canvas-toolbar', (r, c) => {
-  r.innerHTML = r.innerHTML.replace(/\{(grip|play|cursor|hand|lasso|comment|fit|minus|plus|more|zoom)\}/g, (m, n) => I(n === 'zoom' ? 'search' : n, n === 'play' ? 'xs' : 's'));
+  r.innerHTML = r.innerHTML.replace(/\{(grip|play|cursor|hand|lasso|comment|fit|minus|plus|more|zoom|trash)\}/g, (m, n) => I(n === 'zoom' ? 'search' : n, n === 'play' || n === 'trash' ? 'xs' : 's'));
   const root = $('.ctb', r), cv = $('.ctb-cv', r), world = $('.ctb-world', r), wires = $('.ctb-w', r), nodes = $('.ctb-nodes', r), bar = $('.ctb-bar', r), live = $('.ctb-live', r);
   const runB = $('.ctb-run', r), hd = $('.ctb-hd', r), radios = $$('.ctb-tools [role="radio"]', r), cmB = $('.ctb-cm', r), fitB = $('.ctb-fit', r), zoB = $('.ctb-zo', r), ziB = $('.ctb-zi', r), zl = $('.ctb-z', r);
   const menu = $('.ctb-menu', r), more = $('.ctb-more', r), mq = $('.ctb-mq', r), lz = $('.ctb-lz path', r), sr = $('.ctb-sr', r);
@@ -11164,19 +11375,20 @@ DM.def('canvas-toolbar', (r, c) => {
   const say = t => { live.textContent = t; };
   // every change a person makes is also an event on the component, for your code to follow
   const emit = (type, detail) => root.dispatchEvent(new CustomEvent(type, { bubbles:true, detail }));
-  // the workflow on the canvas, in pixels at 100%: a row on a wide canvas, two by two on a narrow one
+  // the workflow on the canvas, in pixels at 100%: a row on a wide canvas, a column on a narrow one, so a phone shows it
+  // whole at a size that reads
   const N = [
     { id:'a', ic:'bolt', col:'var(--py)', t:'New ticket', d:'Trigger · inbox', w:[0, 48], n:[0, 0] },
-    { id:'b', ic:'spark', col:'var(--accent-mark,var(--accent))', fg:'var(--accent-fg,var(--accent))', t:'Classify', d:'Agent · intent', w:[208, 0], n:[184, 0] },
-    { id:'c', ic:'search', col:'var(--pb)', t:'Search docs', d:'Tool · help center', w:[416, 96], n:[184, 104] },
-    { id:'d', ic:'edit', col:'var(--pm)', t:'Draft reply', d:'Agent · for review', w:[624, 48], n:[0, 104] }
+    { id:'b', ic:'spark', col:'var(--accent-mark,var(--accent))', fg:'var(--accent-fg,var(--accent))', t:'Classify', d:'Agent · intent', w:[208, 0], n:[0, 80] },
+    { id:'c', ic:'search', col:'var(--pb)', t:'Search docs', d:'Tool · help center', w:[416, 96], n:[0, 160] },
+    { id:'d', ic:'edit', col:'var(--pm)', t:'Draft reply', d:'Agent · for review', w:[624, 48], n:[0, 240] }
   ];
   const E = [['a', 'b'], ['b', 'c'], ['c', 'd']], ORDER = N.map(n => n.id);
   nodes.innerHTML = N.map(n => `<div class="ctb-n in" data-id="${n.id}"><span class="ic" style="color:${n.fg || n.col};background:color-mix(in srgb,${n.col} 14%,transparent)">${I(n.ic, 'xs')}</span><span class="t"><b>${n.t}</b><span>${n.d}</span></span></div>`).join('');
   $$('.ctb-n', nodes).forEach((x, i) => { x.style.animationDelay = i * 90 + 'ms'; });
   const el = id => $(`.ctb-n[data-id="${id}"]`, nodes);
   const box = n => { const e = el(n.id); return { x:n.x, y:n.y, w:e.offsetWidth, h:e.offsetHeight }; };
-  // below 440px the steps sit two by two; a step someone dragged keeps where they put it, in each layout
+  // below 440px the steps sit in a column; a step someone dragged keeps where they put it, in each layout
   const NARROW = 440;
   let small = false;
   function layout(){
@@ -11200,6 +11412,7 @@ DM.def('canvas-toolbar', (r, c) => {
   let z = 1, px = 0, py = 0, moved = false;
   const lim = v => Math.max(MIN, Math.min(MAX, v)), pct = () => Math.round(z * 100) + '%';
   function apply(anim){
+    if (cpFor) closeCp();
     cv.classList.toggle('anim', !!anim && !REDUCE);
     world.style.transform = `translate(${px}px,${py}px) scale(${z})`;
     // the dots move and scale with the view, and spread out again when it is zoomed far out
@@ -11258,12 +11471,55 @@ DM.def('canvas-toolbar', (r, c) => {
   const screen = n => { const b = box(n); return { l:b.x * z + px, t:b.y * z + py, r:(b.x + b.w) * z + px, b:(b.y + b.h) * z + py }; };
   const inside = ([x, y], poly) => { let k = false; for (let i = 0, j = poly.length - 1; i < poly.length; j = i++){ const [xi, yi] = poly[i], [xj, yj] = poly[j]; if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) k = !k; } return k; };
   function pin([x, y]){
-    const n = ++pins, p = html(`<span class="ctb-pin" aria-hidden="true">${n}</span>`);
-    p.style.left = x + 'px'; p.style.top = y + 'px'; world.appendChild(p);
+    const n = ++pins, p = html(`<button class="ctb-pin" aria-label="Comment ${n}" aria-haspopup="dialog" aria-expanded="false">${n}</button>`);
+    p.style.left = x + 'px'; p.style.top = y + 'px'; p.dataset.n = n; p.dataset.x = x; p.dataset.y = y; world.appendChild(p);
+    p.onclick = e => { e.stopPropagation(); cpFor === p ? closeCp(true) : openCp(p, e.isTrusted); };
+    // Delete or Backspace on a pin deletes it straight away
+    p.onkeydown = e => { if (e.key === 'Delete' || e.key === 'Backspace'){ e.preventDefault(); e.stopPropagation(); unpin(p); } else if (e.key === 'Escape' && cpFor === p){ e.preventDefault(); e.stopPropagation(); closeCp(true); } };
     setComment(false, true); say(`Comment ${n} placed`); emit('canvas-comment', { x:Math.round(x), y:Math.round(y) });
+    return p;
   }
+  /* ---------- a pin opens its comment, with Delete: the pin fades out and the focus goes back to the canvas ---------- */
+  const cp = $('.ctb-cp', r), cpDel = $('.ctb-del', r); let cpFor = null; cp.inert = true;
+  // which step a pin sits on or nearest to, so the comment says where it is
+  const near = p => { const x = +p.dataset.x, y = +p.dataset.y; let best = null, bd = Infinity;
+    N.forEach(n => { const b = box(n), dx = Math.max(b.x - x, 0, x - b.x - b.w), dy = Math.max(b.y - y, 0, y - b.y - b.h), d = Math.hypot(dx, dy); if (d < bd){ bd = d; best = n; } });
+    return bd === 0 ? 'On ' + best.t : bd < 80 ? 'Near ' + best.t : 'On the canvas'; };
+  function openCp(p, focus){
+    if (cpFor) cpFor.setAttribute('aria-expanded', 'false');
+    cpFor = p; p.setAttribute('aria-expanded', 'true');
+    const n = p.dataset.n; $('.ctb-ct', cp).textContent = 'Comment ' + n; $('.ctb-cw', cp).textContent = near(p);
+    cp.setAttribute('aria-label', 'Comment ' + n); cpDel.setAttribute('aria-label', 'Delete comment ' + n);
+    // beside the pin, kept inside the room above the toolbar
+    const W = cv.clientWidth, H = cv.clientHeight - bar.offsetHeight - 20, pb = p.getBoundingClientRect(), cb = cv.getBoundingClientRect(), pw = cp.offsetWidth, ph = cp.offsetHeight, G = 8, M = 8;
+    let x = pb.right - cb.left + G, y = pb.top - cb.top;
+    if (x + pw > W - M) x = pb.left - cb.left - G - pw;
+    cp.style.left = Math.max(M, Math.min(W - pw - M, x)) + 'px'; cp.style.top = Math.max(M, Math.min(H - ph, y)) + 'px';
+    cp.classList.add('open'); cp.inert = false;
+    if (focus) cpDel.focus({ preventScroll:true });
+  }
+  function closeCp(back){
+    if (!cpFor) return; const p = cpFor, was = cp.contains(document.activeElement);
+    cp.classList.remove('open'); cp.inert = true; p.setAttribute('aria-expanded', 'false'); cpFor = null;
+    if (p.isConnected && (back || was)) p.focus({ preventScroll:true });
+  }
+  function unpin(p){
+    const n = p.dataset.n, was = cp.contains(document.activeElement) || document.activeElement === p;
+    if (cpFor === p){ cp.classList.remove('open'); cp.inert = true; cpFor = null; }
+    p.classList.add('gone'); setTimeout(() => p.remove(), REDUCE ? 0 : 180);
+    if (was) cv.focus({ preventScroll:true });
+    say(`Comment ${n} deleted`); emit('canvas-comment-delete', { n:+n });
+  }
+  cpDel.onclick = e => { e.stopPropagation(); if (cpFor) unpin(cpFor); };
+  c.on(cp, 'keydown', e => { if (e.key === 'Escape'){ e.preventDefault(); e.stopPropagation(); closeCp(true); } });
+  c.on(cp, 'pointerdown', e => e.stopPropagation());
+  c.on(document, 'pointerdown', e => { if (cpFor && !cp.contains(e.target) && e.target !== cpFor) closeCp(); });
+  // a pointer in the component hides the canvas's focus ring until the next key
+  c.on(root, 'pointerdown', () => cv.classList.add('ptr'), true); c.on(root, 'keydown', () => cv.classList.remove('ptr'), true);
   c.on(cv, 'pointerdown', e => {
     if (e.button !== 0 && e.button !== 1) return;
+    // a pin is a button: pressing it opens its comment, whatever the tool
+    if (e.button === 0 && e.target.closest('.ctb-pin')) return;
     const p = pt(e), node = e.target.closest('.ctb-n');
     // a click on the canvas gives it the focus, so the shortcuts work straight away
     if (e.isTrusted) cv.focus({ preventScroll:true });
@@ -11302,7 +11558,7 @@ DM.def('canvas-toolbar', (r, c) => {
   /* ---------- the keyboard: V, H and L pick a tool, C comments, Shift+1 fits, Shift+0 is 100%, minus and plus zoom, the
      arrow keys pan while the canvas has the focus, and Escape leaves Comment or clears the selection ---------- */
   c.on(root, 'keydown', e => {
-    if (e.defaultPrevented || e.ctrlKey || e.metaKey || e.altKey || menu.contains(e.target) || /^(INPUT|TEXTAREA)$/.test(e.target.tagName)) return;
+    if (e.defaultPrevented || e.ctrlKey || e.metaKey || e.altKey || menu.contains(e.target) || cp.contains(e.target) || /^(INPUT|TEXTAREA)$/.test(e.target.tagName)) return;
     const k = e.key, low = k.length === 1 ? k.toLowerCase() : '';
     if (e.shiftKey && e.code === 'Digit1') fitNow();
     else if (e.shiftKey && e.code === 'Digit0') zoomReset();
@@ -11378,181 +11634,19 @@ DM.def('canvas-toolbar', (r, c) => {
     await s.tap(radios[1]); await s.beat(1);
     const aim = html('<i class="ctb-aim" aria-hidden="true"></i>'); cv.appendChild(aim);
     const at = (x, y) => { aim.style.left = Math.round(x) + 'px'; aim.style.top = Math.round(y) + 'px'; };
-    const W = cv.clientWidth, H = cv.clientHeight, D = Math.min(140, W * .22);
+    // on a narrow canvas the column moves a little down and zooms out instead, so no step ever leaves the canvas
+    const W = cv.clientWidth, H = cv.clientHeight, D = small ? 0 : Math.min(140, W * .22), V = small ? 32 : 24;
     at(W * .6, H * .3); await s.point(aim, false);
     const hand = $('.hand', r); if (hand) hand.classList.add('down'); await s.beat(.5);
-    at(W * .6 - D, H * .3 + 24); px -= D; py += 24; moved = true; apply(true);
+    at(W * .6 - D, H * .3 + V); px -= D; py += V; moved = true; apply(true);
     await s.point(aim, false); if (hand) hand.classList.remove('down'); await s.beat(2);
-    await press(ziB, 'in'); await s.beat(1.5);
-    await press(ziB, 'in'); await s.beat(2);
+    const zb = small ? zoB : ziB, za = small ? 'out' : 'in';
+    await press(zb, za); await s.beat(1.5);
+    await press(zb, za); await s.beat(2);
     await press(fitB, 'fit'); await s.beat(2);
     await s.tap(radios[0]); await s.beat(1);
     await s.tap(runB); s.away();
     await s.until(() => !running); await s.beat(3);
-  });
-});
-/* ---------- Step library ---------- */
-DM.def('step-library', (r, c) => {
-  r.innerHTML = r.innerHTML.replace(/\{(search|x|plus)\}/g, (m, n) => I(n));
-  // the steps, by group: an id, an icon, the name, what it does, what it takes and what it gives
-  const G = [
-    { id:'ai', l:'AI', col:'var(--accent-mark,var(--accent))', fg:'var(--accent-fg,var(--accent))', s:[
-      ['summarize', 'spark', 'Summarize text', 'Turns long text into a short summary or a few bullet points, at the length you set.', 'Any text, like a thread or a transcript', 'A summary'],
-      ['classify', 'hash', 'Classify', 'Sorts what comes in into one of the labels you list, with how sure it is.', 'Text and your labels', 'A label and a score'],
-      ['extract', 'table', 'Extract fields', 'Pulls named fields, like a date or an order number, out of free text.', 'Text and the fields to find', 'A record with those fields'],
-      ['draft', 'edit', 'Write a draft', 'Writes a first draft from your instructions and what the earlier steps found.', 'Instructions and context', 'Draft text to review'] ] },
-    { id:'tools', l:'Tools', col:'var(--pb)', s:[
-      ['web', 'globe', 'Search the web', 'Runs a web search and passes on the top results with their links.', 'A query', 'Results with titles and links'],
-      ['file', 'file-text', 'Read a file', 'Opens a document from the workspace and passes on its text.', 'A file', 'The text of the file'],
-      ['db', 'db', 'Query a database', 'Runs a read-only query and returns the rows that match.', 'A query', 'Rows as a table'],
-      ['api', 'link', 'Call an API', 'Sends an HTTP request and hands the response to the next step.', 'A URL, a method and a body', 'The response'] ] },
-    { id:'logic', l:'Logic', col:'var(--pl)', s:[
-      ['if', 'branch', 'If / else', 'Sends the run down one of two paths, depending on a condition.', 'A condition', 'One of two paths'],
-      ['loop', 'refresh', 'Loop over items', 'Runs the steps inside it once for each item in a list.', 'A list', 'One result per item'],
-      ['wait', 'clock', 'Wait', 'Pauses the run for a set time, or until a date and time.', 'A duration or a date', 'The run, later'],
-      ['approve', 'shield', 'Ask for approval', 'Holds the run until a person approves or rejects what happens next.', 'Who to ask, and what', 'Approved or rejected'] ] },
-    { id:'actions', l:'Actions', col:'var(--pm)', s:[
-      ['email', 'mail', 'Send an email', 'Sends an email from your workspace to one or more people.', 'To, subject and body', 'The sent email'],
-      ['post', 'send', 'Post a message', 'Posts a message in a team chat channel.', 'A channel and the message', 'The posted message'],
-      ['ticket', 'flag', 'Create a ticket', 'Opens a ticket in your tracker with a title, details and an owner.', 'Title, details and owner', 'The new ticket'],
-      ['record', 'sliders', 'Update a record', 'Changes fields on a record in your CRM or database.', 'The record and its new values', 'The updated record'] ] }
-  ];
-  G.forEach(g => { g.s = g.s.map(([id, ic, n, d, i, o]) => ({ id, ic, n, d, i, o, g })); });
-  const ALL = G.flatMap(g => g.s), byId = id => ALL.find(x => x.id === id);
-  // the workflow it adds to: a trigger and two steps to start with
-  const START = [{ ic:'bolt', n:'When a ticket arrives', l:'Trigger', col:'var(--py)' }, byId('classify'), byId('db')];
-  const root = $('.slb', r), P = $('.slb-p', r), q = $('.slb-in', r), xB = $('.slb-x', r), list = $('.slb-list', r), ct = $('.slb-ct', r), dock = $('.slb-dock', r);
-  const pv = $('.slb-pv', r), descs = $('.slb-d', r), live = $('.slb-live', r), flow = $('.slb-flow', r), fl = $('.slb-fl', r), fn = $('.slb-fn', r);
-  const uid = Math.random().toString(36).slice(2, 7);
-  const say = t => { live.textContent = t; };
-  const esc = s => s.replace(/[&<>"]/g, ch => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' })[ch]);
-  const tile = (ic, col, fg) => `<span class="ic" style="color:${fg || col};background:color-mix(in srgb,${col} 14%,transparent)">${I(ic, 'xs')}</span>`;
-  // each step's description, for its row's aria-describedby
-  descs.innerHTML = ALL.map(st => `<span id="slb-d-${st.id}-${uid}">${st.d}</span>`).join('');
-  /* ---------- the list: a group per kind of step, each folding on its own; the search narrows the names (or a whole group
-     by its name) and opens any folded group it finds something in ---------- */
-  const shut = new Set();
-  const markName = (n, v) => { const i = v ? n.toLowerCase().indexOf(v) : -1; return i < 0 ? esc(n) : esc(n.slice(0, i)) + '<mark>' + esc(n.slice(i, i + v.length)) + '</mark>' + esc(n.slice(i + v.length)); };
-  function paint(){
-    const v = q.value.trim().toLowerCase(); xB.hidden = !q.value; let n = 0;
-    list.innerHTML = G.map(g => {
-      const hs = g.s.filter(st => !v || st.n.toLowerCase().includes(v) || g.l.toLowerCase().startsWith(v)); if (!hs.length) return '';
-      if (v) shut.delete(g.id);
-      n += hs.length; const open = !shut.has(g.id), fid = `slb-g-${g.id}-${uid}`;
-      return `<div class="slb-g" data-g="${g.id}"><button class="slb-gb" tabindex="-1" aria-expanded="${open}" aria-controls="${fid}">${I('chev-d', 'xs')}<span>${g.l}</span><span class="n num">${hs.length}</span></button>`
-        + `<div class="fold${open ? '' : ' shut'}" id="${fid}"><div><ul class="slb-ul">${hs.map(st => `<li><button class="slb-s" tabindex="-1" data-id="${st.id}" draggable="true" aria-describedby="slb-d-${st.id}-${uid}">${tile(st.ic, g.col, g.fg)}<span class="t">${markName(st.n, v)}</span><span class="ad" aria-hidden="true">${I('plus', 'xs')}</span></button></li>`).join('')}</ul></div></div></div>`;
-    }).join('') || `<div class="slb-e"><b>No steps match “${esc(q.value.trim())}”</b><span>Try another word, or clear the search.</span><button class="pill ghost sm slb-ec">Clear search</button></div>`;
-    ct.textContent = v ? `${n} of ${ALL.length}` : `${ALL.length} steps`;
-    if (v) say(n ? `${n} ${n === 1 ? 'step' : 'steps'} found` : 'No steps found');
-    const it = items(); rove(it.find(b => b.matches('.slb-s')) || it[0], false);
-    hov = null; sync();
-  }
-  // the list is one tab stop: the up and down arrows move through the group headers and steps that show
-  const items = () => $$('.slb-gb,.slb-s,.slb-ec', list).filter(b => !b.closest('.fold.shut'));
-  function rove(to){ items().forEach(b => { b.tabIndex = b === to ? 0 : -1; }); }
-  const keep = b => { const lr = list.getBoundingClientRect(), br = b.getBoundingClientRect(); if (br.top < lr.top + 4) list.scrollTop -= lr.top + 4 - br.top; else if (br.bottom > lr.bottom - 4) list.scrollTop += br.bottom - lr.bottom + 4; };
-  const go = b => { rove(b); b.focus({ preventScroll:true }); keep(b); };
-  function toggle(gb){
-    const g = gb.closest('.slb-g'), open = gb.getAttribute('aria-expanded') !== 'true';
-    gb.setAttribute('aria-expanded', open); $('.fold', g).classList.toggle('shut', !open); open ? shut.delete(g.dataset.g) : shut.add(g.dataset.g);
-    rove(gb);
-  }
-  // only the person's own Clear brings the focus back to the field; the demo's leaves it where it is
-  function clear(){ const back = root.contains(document.activeElement); q.value = ''; paint(); if (back) q.focus({ preventScroll:true }); say('Search cleared'); }
-  xB.onclick = clear;
-  c.on(q, 'input', paint);
-  c.on(q, 'keydown', e => {
-    const first = () => items().find(b => b.matches('.slb-s')) || items()[0];
-    if (e.key === 'ArrowDown'){ const f = first(); if (f){ e.preventDefault(); go(f); } }
-    else if (e.key === 'Enter' && q.value.trim()){ const f = $('.slb-s', list); if (f){ e.preventDefault(); add(f.dataset.id, 'keyboard', f); } }
-    else if (e.key === 'Escape' && q.value){ e.preventDefault(); e.stopPropagation(); clear(); }
-  });
-  c.on(list, 'click', e => {
-    const b = e.target.closest('button'); if (!b) return;
-    if (b.matches('.slb-gb')) toggle(b); else if (b.matches('.slb-s')) add(b.dataset.id, e.detail ? 'click' : 'keyboard', b); else if (b.matches('.slb-ec')) clear();
-  });
-  c.on(list, 'keydown', e => {
-    const all = items(), i = all.indexOf(document.activeElement); if (i < 0) return;
-    const k = e.key, b = all[i];
-    if (k === 'ArrowDown' || k === 'ArrowUp'){ e.preventDefault(); const j = i + (k === 'ArrowDown' ? 1 : -1); if (j < 0) q.focus({ preventScroll:true }); else if (j < all.length) go(all[j]); }
-    else if (k === 'Home' || k === 'End'){ e.preventDefault(); go(all[k === 'Home' ? 0 : all.length - 1]); }
-    else if (b.matches('.slb-gb') && (k === 'ArrowLeft' || k === 'ArrowRight')){ e.preventDefault(); if ((k === 'ArrowRight') !== (b.getAttribute('aria-expanded') === 'true')) toggle(b); }
-    else if (b.matches('.slb-s') && k === 'ArrowLeft'){ e.preventDefault(); go($('.slb-gb', b.closest('.slb-g'))); }
-    else if (k === 'Escape' && q.value){ e.preventDefault(); clear(); }
-    // typing anywhere in the list goes on into the search
-    else if (k === 'Backspace' && q.value){ e.preventDefault(); q.value = q.value.slice(0, -1); q.focus({ preventScroll:true }); paint(); }
-    else if (k.length === 1 && k !== ' ' && !e.ctrlKey && !e.metaKey && !e.altKey){ e.preventDefault(); q.value += k; q.focus({ preventScroll:true }); paint(); }
-  });
-  /* ---------- the preview: what the hovered step does, or the focused one's, beside the panel level with its row. It waits a
-     moment for the first, then follows straight away from row to row ---------- */
-  let hov = null, pvFor = null, tT = 0; c.offs.push(() => clearTimeout(tT));
-  const narrow = () => root.clientWidth < 560;
-  const rest = () => { dock.innerHTML = `<span class="hint">${matchMedia('(hover:hover)').matches ? 'Hover or focus a step to see what it does' : 'Tap a step to add it to the workflow'}</span>`; };
-  function show(b){
-    const st = byId(b.dataset.id); if (!st) return;
-    $$('.slb-s.on', list).forEach(x => x !== b && x.classList.remove('on')); b.classList.add('on'); pvFor = b;
-    if (narrow()){ dock.innerHTML = `<div class="slb-ph">${tile(st.ic, st.g.col, st.g.fg)}<div><b>${st.n}</b><span>${st.g.l}</span></div></div><p class="slb-pd">${st.d}</p>`; return; }
-    const was = pv.classList.contains('show');
-    pv.classList.toggle('jump', !was);
-    pv.innerHTML = `<div class="slb-ph">${tile(st.ic, st.g.col, st.g.fg)}<div><b>${st.n}</b><span>${st.g.l}</span></div></div><p class="slb-pd">${st.d}</p><dl class="slb-io"><dt>Takes</dt><dd>${st.i}</dd><dt>Gives</dt><dd>${st.o}</dd></dl><p class="slb-pf">Press Enter or click to add it, or drag it into the workflow</p>`;
-    const rr = root.getBoundingClientRect(), br = b.getBoundingClientRect(), pr = P.getBoundingClientRect();
-    pv.style.left = Math.round(pr.right - rr.left + 8) + 'px';
-    pv.style.top = Math.round(Math.max(0, Math.min(root.clientHeight - pv.offsetHeight, br.top - rr.top - 8))) + 'px';
-    pv.classList.add('show');
-  }
-  function hide(){ pv.classList.remove('show'); $$('.slb-s.on', list).forEach(x => x.classList.remove('on')); pvFor = null; rest(); }
-  const target = () => hov && hov.isConnected ? hov : (list.contains(document.activeElement) && document.activeElement.matches('.slb-s') ? document.activeElement : null);
-  const sync = () => { const t = target(); t ? show(t) : hide(); };
-  c.on(list, 'pointerover', e => {
-    if (e.pointerType !== 'mouse') return; const b = e.target.closest('.slb-s');
-    if (b === hov) return; hov = b; clearTimeout(tT); tT = setTimeout(sync, b ? (pvFor ? 0 : 280) : 120);
-  });
-  c.on(list, 'pointerleave', () => { hov = null; clearTimeout(tT); tT = setTimeout(sync, 120); });
-  c.on(list, 'focusin', () => { clearTimeout(tT); sync(); });
-  c.on(list, 'focusout', e => { if (!list.contains(e.relatedTarget)){ clearTimeout(tT); tT = setTimeout(sync, 0); } });
-  c.on(list, 'scroll', () => { if (pvFor && !narrow()) show(pvFor); }, { passive:true });
-  /* ---------- adding: Enter, a click, or a drop on the workflow. The workflow shows the new step, the row ticks, and the
-     component fires step-add with the step's id, name, group and how it was added ---------- */
-  const flowItem = x => `<li class="slb-fs"><span class="slb-cn" aria-hidden="true"></span><span class="ic" style="color:${x.g ? x.g.fg || x.g.col : x.col}">${I(x.ic, 'xs')}</span><span class="t"><b>${x.n}</b><span>${x.g ? x.g.l : x.l}</span></span></li>`;
-  fl.innerHTML = START.map(flowItem).join('');
-  const count = () => { const n = fl.children.length; fn.textContent = `${n} steps`; return n; };
-  count();
-  function add(id, via, b){
-    const st = byId(id); if (!st) return;
-    const li = html(flowItem(st)); li.classList.add('in'); fl.appendChild(li);
-    fl.scrollTo({ top:fl.scrollHeight, behavior:REDUCE ? 'auto' : 'smooth' });
-    const n = count();
-    if (b && b.isConnected){ b.classList.add('added'); $('.ad', b).innerHTML = I('check', 'xs');
-      c.later(1400, () => { if (b.isConnected){ b.classList.remove('added'); $('.ad', b).innerHTML = I('plus', 'xs'); } }); }
-    say(`Added ${st.n}. ${n} steps in Support triage`);
-    // a hovered step's preview goes once it is in (a focused one's stays); on a narrow screen the panel's foot says it
-    // was added, for a moment
-    hov = null; sync();
-    if (narrow()){ dock.innerHTML = `<div class="slb-ph slb-ok">${tile('check', 'var(--ok)')}<div><b>Added ${st.n}</b><span>${n} steps in Support triage</span></div></div>`;
-      c.later(2400, () => { if ($('.slb-ok', dock)) sync(); }); }
-    root.dispatchEvent(new CustomEvent('step-add', { bubbles:true, detail:{ id:st.id, name:st.n, group:st.g.id, via } }));
-  }
-  // a step dragged out of the list drops into the workflow
-  const MIME = 'application/x-designme-step';
-  c.on(list, 'dragstart', e => {
-    const b = e.target.closest && e.target.closest('.slb-s'); if (!b){ e.preventDefault(); return; }
-    e.dataTransfer.setData(MIME, b.dataset.id); e.dataTransfer.setData('text/plain', byId(b.dataset.id).n); e.dataTransfer.effectAllowed = 'copy';
-    hov = null; hide();
-  });
-  c.on(flow, 'dragover', e => { if (!e.dataTransfer || !e.dataTransfer.types.includes(MIME)) return; e.preventDefault(); e.dataTransfer.dropEffect = 'copy'; flow.classList.add('over'); });
-  c.on(flow, 'dragleave', e => { if (!flow.contains(e.relatedTarget)) flow.classList.remove('over'); });
-  c.on(flow, 'drop', e => { flow.classList.remove('over'); const id = e.dataTransfer && e.dataTransfer.getData(MIME); if (!id) return; e.preventDefault(); add(id, 'drop', $(`.slb-s[data-id="${id}"]`, list)); });
-  c.on(list, 'dragend', () => flow.classList.remove('over'));
-  paint();
-  // the preview's story: search for "sum", rest on Summarize text to read what it does, add it, clear the search, and fold
-  // the Tools group
-  c.story(async s => {
-    await s.beat(3);
-    await s.tap(q); await s.type(q, 'sum', { n:.22, each:paint }); await s.beat(2);
-    const b = $('.slb-s', list); await s.point(b, false); show(b); await s.beat(4);
-    await s.tap(b); s.away(); await s.beat(3);
-    await s.tap(xB); s.away(); await s.beat(2);
-    await s.tap($('.slb-g[data-g="tools"] .slb-gb', list)); s.away(); await s.beat(4);
   });
 });
 /* ---------- Memory panel ---------- */
@@ -12706,6 +12800,12 @@ DM.def('date-picker', (r, c) => {
   // opened with the keyboard, the calendar takes the focus on the picked day, or today
   c.on(f, 'click', e => { if (e.isTrusted && !e.detail) requestAnimationFrame(() => { if (f.getAttribute('aria-expanded') !== 'true') return; cursor = null; paint(); const b = $('.dpk-d[tabindex="0"]', g); if (b) b.focus({ preventScroll:true }); }); });
   paint();
+  // the field sits centred on its own, and glides up as the calendar opens under it, so the two sit centred together; on
+  // closing, it waits for the calendar to fade before it glides back to the middle
+  const box = $('.dpk', r), pop = $('.dpk-pop', r), isOpen = () => f.getAttribute('aria-expanded') === 'true';
+  const centred = centre(c, box, () => isOpen() ? Math.max(box.offsetHeight, pop.offsetTop + pop.offsetHeight) : box.offsetHeight);
+  const mo = new MutationObserver(() => isOpen() ? centred() : c.later(REDUCE ? 0 : 180, centred));
+  mo.observe(f, { attributes:true, attributeFilter:['aria-expanded'] }); c.offs.push(() => mo.disconnect());
   // the preview opens it and types a date on its own; clicking, focusing or typing in it takes over, and what it had typed goes
   c.auto(800, () => { f.click(); c.run(async () => { const i = $('.dpk-nl', r); await c.step(500); await c.type(i, 'next friday', { ms:70, each:() => i.oninput({ target:i }) }); }); });
 });
@@ -13275,7 +13375,7 @@ DM.def('multi-select', (r, c) => {
   // the preview's story: add Pricing, pick Tooltips by mistake and take it off with Backspace, then add Tokens
   c.story(async s => {
     await s.beat(3);
-    await s.tap(f); f.classList.add('f'); c.taken(() => f.classList.remove('f')); open(); s.away(); await s.beat(2);
+    await s.tap(f); open(); s.away(); await s.beat(2);
     await type(s, 'pri'); await s.beat(1);
     await press(s, 'Enter');
     await type(s, 'to'); await s.beat(1);
@@ -13284,7 +13384,7 @@ DM.def('multi-select', (r, c) => {
     await press(s, 'Backspace');
     await type(s, 'tok'); await s.beat(1);
     await press(s, 'Enter');
-    await press(s, 'Escape', 'Esc'); f.classList.remove('f'); await s.beat(2);
+    await press(s, 'Escape', 'Esc'); await s.beat(2);
   });
 });
 /* ---------- Social sign-in ---------- */
@@ -13333,11 +13433,11 @@ DM.def('sign-in', (r, c) => {
     const d = html(`<div class="sgx-done"><svg class="sgx-ck" viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="24"/><path d="m16 27 7 7 13-14"/></svg><b>You're in</b><span class="muted">Opening your workspace</span><span class="sgx-bar"><i></i></span></div>`);
     card.appendChild(d); stagger([...d.children].slice(1), 90, 250); }); }
   // a pasted code fills every box from the first; any 6 digits go through in the demo
-  const paste = t => { t = t.replace(/\D/g, '').slice(0, 6); if (!t || checking) return; t.split('').forEach((d, j) => { if (ins[j]){ ins[j].value = d; ins[j].classList.add('f'); const el = ins[j]; c.later(150, () => el.classList.remove('f')); } }); if (c.mine) ins[Math.min(5, t.length)].focus({ preventScroll:true }); check(); };
+  const paste = t => { t = t.replace(/\D/g, '').slice(0, 6); if (!t || checking) return; t.split('').forEach((d, j) => { if (ins[j]) ins[j].value = d; }); if (c.mine) ins[Math.min(5, t.length)].focus({ preventScroll:true }); check(); };
   // Copy puts the code on the clipboard, the way a phone offers it from the email; then it is pasted into the boxes
   cp.onclick = () => { try { navigator.clipboard.writeText(CODE).catch(() => {}); } catch(e){} swap(cp, 'Copied'); cp.disabled = true; swap($('.sgx-hint', r), 'Paste it into the first box'); const at = ins.find(i => !i.value); if (at && c.mine) at.focus({ preventScroll:true }); };
   ins.forEach((i, k) => {
-    i.oninput = () => { i.value = i.value.replace(/\D/g, '').slice(-1); if (i.value){ i.classList.add('f'); c.later(150, () => i.classList.remove('f')); if (ins[k + 1]) ins[k + 1].focus({ preventScroll:true }); } check(); };
+    i.oninput = () => { i.value = i.value.replace(/\D/g, '').slice(-1); if (i.value && ins[k + 1]) ins[k + 1].focus({ preventScroll:true }); check(); };
     i.onkeydown = e => { if (e.key === 'Backspace' && !i.value && ins[k - 1]){ ins[k - 1].focus({ preventScroll:true }); ins[k - 1].value = ''; } };
     i.onpaste = e => { const t = (e.clipboardData.getData('text') || '').replace(/\D/g, ''); if (!t) return; e.preventDefault(); paste(t); };
   });
@@ -13405,13 +13505,10 @@ DM.def('otp-field', (r, c) => {
   // the preview's story: paste a code with two digits swapped, see it fail, and type the right one
   c.story(async s => {
     await s.beat(3);
-    // the boxes look focused as the demo types; taking over puts that look away, so only the real focus rings
-    c.taken(() => ins.forEach(x => x.classList.remove('f')));
-    await s.tap(ins[0]); ins[0].classList.add('f'); s.away();
-    await s.beat(1); ins[0].classList.remove('f'); fill('482175', false);
+    await s.tap(ins[0]); s.away();
+    await s.beat(1); fill('482175', false);
     await s.until(() => state === 'bad'); await s.beat(4);
-    for (let i = 0; i < 6; i++){ ins.forEach((x, k) => x.classList.toggle('f', k === i)); put(i, CODE[i]); await s.beat(1); }
-    ins.forEach(x => x.classList.remove('f'));
+    for (let i = 0; i < 6; i++){ put(i, CODE[i]); await s.beat(1); }
     await s.until(() => state === 'ok'); await s.beat(2);
   });
 });

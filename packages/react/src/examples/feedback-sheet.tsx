@@ -13,7 +13,6 @@ export default function FeedbackSheetDemo() {
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState<string[]>([]);
   const [comment, setComment] = useState('');
-  const [typing, setTyping] = useState(false);
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState<Feedback | null>(null);
   const ref = useRef<HTMLDivElement>(null), later = useWait();
@@ -21,12 +20,12 @@ export default function FeedbackSheetDemo() {
   useStory(ref, async ({ wait, taken }) => {
     // taking over while it types takes its note back
     let writing = false;
-    taken(() => { setTyping(false); if (writing) setComment(''); });
+    taken(() => { if (writing) setComment(''); });
     await wait(1500); setRating('down'); setOpen(true);
     await wait(1000); setSelected(['Ignored my tokens']);
-    await wait(700); setTyping(true); writing = true;
+    await wait(700); writing = true;
     for (let i = 1; i <= NOTE.length; i++) { setComment(NOTE.slice(0, i)); await wait(34 + Math.random() * 40); }
-    await wait(650); writing = false; setTyping(false); setSending(true);
+    await wait(650); writing = false; setSending(true);
     // once sent, it goes through whatever happens next
     await later(800); setSending(false); setOpen(false);
     await later(300); setSent({ reasons: ['Ignored my tokens'], comment: NOTE });
@@ -35,7 +34,7 @@ export default function FeedbackSheetDemo() {
   return (
     <div ref={ref} style={{ width: '100%' }}>
       <FeedbackSheet rating={rating} onRatingChange={setRating} open={open} onOpenChange={setOpen} selected={selected} onSelectedChange={setSelected}
-        comment={comment} onCommentChange={setComment} typing={typing} sending={sending || undefined} sent={sent} onSentChange={setSent}
+        comment={comment} onCommentChange={setComment} sending={sending || undefined} sent={sent} onSentChange={setSent}
         onSubmit={() => new Promise(res => setTimeout(res, 800))}>
         I tightened the hero spacing to 24px and swapped the CTA to the accent blue. The card grid now wraps at 720px.
       </FeedbackSheet>

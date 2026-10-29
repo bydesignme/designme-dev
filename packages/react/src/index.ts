@@ -64,7 +64,6 @@ export * from './components/scheduled-runs/ScheduledRuns';
 export * from './components/file-explorer/FileExplorer';
 export * from './components/automation-canvas/AutomationCanvas';
 export * from './components/canvas-toolbar/CanvasToolbar';
-export * from './components/step-library/StepLibrary';
 export * from './components/memory-panel/MemoryPanel';
 export * from './components/model-compare/ModelCompare';
 export * from './components/agent-harness/AgentHarness';
