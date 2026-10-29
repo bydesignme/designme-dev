@@ -8,9 +8,9 @@ import { useStory, useTakeover, useWait } from './useScript';
 // someone free takes the conversation in a few seconds, someone in a call takes longer, and someone who is out never does
 type Member = HandoffPerson & { wait?: number };
 const TEAM: Member[] = [
-  { name: 'Alex Rivera', initials: 'AR', color: 'var(--dm-pm)', team: 'Billing', presence: 'Available', tone: 'ok', wait: 2500 },
-  { name: 'Sam Ortiz', initials: 'SO', color: 'var(--dm-pp)', team: 'Billing', presence: 'In a call', wait: 6000 },
-  { name: 'Maya Chen', initials: 'MC', color: 'var(--dm-pl)', team: 'Billing', presence: 'Out until 2pm', tone: 'warn' }
+  { name: 'Alex Rivera', initials: 'AR', color: 'var(--dm-av-m)', team: 'Billing', presence: 'Available', tone: 'ok', wait: 2500 },
+  { name: 'Sam Ortiz', initials: 'SO', color: 'var(--dm-av-p)', team: 'Billing', presence: 'In a call', wait: 6000 },
+  { name: 'Maya Chen', initials: 'MC', color: 'var(--dm-av-l)', team: 'Billing', presence: 'Out until 2pm', tone: 'warn' }
 ];
 const first = (p: HandoffPerson) => p.name.split(' ')[0];
 const MESSAGE = "Thanks, Dana. A refund this size needs someone on our billing team, so I've passed your conversation to them. They'll reply here within 15 minutes.";

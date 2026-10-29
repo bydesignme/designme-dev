@@ -3,7 +3,7 @@ import { useEffect, useRef, useState, type KeyboardEvent, type MouseEvent, type 
 import { cx } from '../../lib/cx';
 import { useControllable } from '../../lib/hooks';
 import { Icon, type IconName } from '../../lib/icons';
-import { Swap, Tip } from '../../lib/motion';
+import { avatarInk, Swap, Tip } from '../../lib/motion';
 import { usePopover } from '../../lib/popover';
 import '../../designme.css';
 import './filter-menu.css';
@@ -40,8 +40,9 @@ export interface FilterMenuFilter {
 export interface FilterMenuResult {
   id: string;
   title: string;
-  /** The colour of the dot before it, like 'var(--dm-pb)', and what it means, like "Open" */
+  /** The colour of the dot before it, like 'var(--dm-flm-open)', and what it means, like "Open" */
   dot?: { color: string; label: string };
+  /** An avatar colour, like 'var(--dm-av-l)', brings its own ink for the initials */
   avatar?: { initials: string; color: string; label: string };
   /** The quiet text at the end, like "Today" or "3d" */
   meta?: string;
@@ -197,7 +198,7 @@ export function FilterMenu({
             <div key={t.id} className="dm-flm-r dm-enter" style={{ animationDelay: i * 50 + 'ms' }}>
               {t.dot ? <span className="dm-dot" style={{ color: t.dot.color }} role="img" aria-label={t.dot.label} /> : <span />}
               <span className="dm-t">{t.title}</span>
-              {t.avatar ? <span className="dm-av" style={{ background: t.avatar.color }} role="img" aria-label={t.avatar.label}>{t.avatar.initials}</span> : <span />}
+              {t.avatar ? <span className="dm-av" style={{ background: t.avatar.color, color: avatarInk(t.avatar.color) }} role="img" aria-label={t.avatar.label}>{t.avatar.initials}</span> : <span />}
               <span className="dm-a">{t.meta}</span>
             </div>
           ))}

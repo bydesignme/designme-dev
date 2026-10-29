@@ -60,9 +60,9 @@ import { useStory, useTakeover, useWait } from '../lib/useScript';
 // someone free takes the conversation in a few seconds, someone in a call takes longer, and someone who is out never does
 type Member = HandoffPerson & { wait?: number };
 const TEAM: Member[] = [
-  { name: 'Alex Rivera', initials: 'AR', color: 'var(--dm-pm)', team: 'Billing', presence: 'Available', tone: 'ok', wait: 2500 },
-  { name: 'Sam Ortiz', initials: 'SO', color: 'var(--dm-pp)', team: 'Billing', presence: 'In a call', wait: 6000 },
-  { name: 'Maya Chen', initials: 'MC', color: 'var(--dm-pl)', team: 'Billing', presence: 'Out until 2pm', tone: 'warn' }
+  { name: 'Alex Rivera', initials: 'AR', color: 'var(--dm-av-m)', team: 'Billing', presence: 'Available', tone: 'ok', wait: 2500 },
+  { name: 'Sam Ortiz', initials: 'SO', color: 'var(--dm-av-p)', team: 'Billing', presence: 'In a call', wait: 6000 },
+  { name: 'Maya Chen', initials: 'MC', color: 'var(--dm-av-l)', team: 'Billing', presence: 'Out until 2pm', tone: 'warn' }
 ];
 const first = (p: HandoffPerson) => p.name.split(' ')[0];
 const MESSAGE = "Thanks, Dana. A refund this size needs someone on our billing team, so I've passed your conversation to them. They'll reply here within 15 minutes.";
@@ -171,7 +171,7 @@ export interface HandoffPerson {
   /** Used as the key, so keep it unique */
   name: string;
   initials?: string;
-  /** The avatar's colour, like 'var(--dm-pm)' */
+  /** The avatar's colour, like 'var(--dm-av-m)' */
   color?: string;
   /** Like "Billing" */
   team?: string;
@@ -271,7 +271,7 @@ export function HumanHandoff({
           <div className="dm-hox-col">
             <span className="dm-hox-lb">{L.assignedTo}</span>
             <div className="dm-hox-who">
-              <span className="dm-hox-av">{assignee ? <Avatar key={assignee.name} className="dm-enter" initials={initialsOf(assignee)} color={assignee.color ?? 'var(--dm-pl)'} /> : <Spin />}</span>
+              <span className="dm-hox-av">{assignee ? <Avatar key={assignee.name} className="dm-enter" initials={initialsOf(assignee)} color={assignee.color ?? 'var(--dm-av-l)'} /> : <Spin />}</span>
               <span className="dm-hox-wt">
                 <b><Swap>{assignee ? assignee.name : finding.title}</Swap></b>
                 {assignee ? (
@@ -314,7 +314,7 @@ export function HumanHandoff({
           </div>
         </div>
         <div className={cx('dm-hox-st', st !== 'wait' && 'dm-' + st)} aria-live="polite">
-          <span className="dm-g">{status.person ? <Avatar initials={initialsOf(status.person)} color={status.person.color ?? 'var(--dm-pl)'} /> : st === 'wait' ? <Spin /> : <Icon name={st === 'warn' ? 'alert' : 'ok'} />}</span>
+          <span className="dm-g">{status.person ? <Avatar initials={initialsOf(status.person)} color={status.person.color ?? 'var(--dm-av-l)'} /> : st === 'wait' ? <Spin /> : <Icon name={st === 'warn' ? 'alert' : 'ok'} />}</span>
           <span className="dm-t"><b><Swap>{status.title}</Swap></b>{status.detail && <span><Swap>{status.detail}</Swap></span>}</span>
         </div>
         {people && (
@@ -323,7 +323,7 @@ export function HumanHandoff({
             {people.map(p => (
               <button type="button" key={p.name} className="dm-mi" role="menuitemradio" aria-checked={p.name === assignee?.name}
                 onClick={() => { if (p.name !== assignee?.name) onReassign?.(p); menu.closeSoon(); }}>
-                <Avatar initials={initialsOf(p)} color={p.color ?? 'var(--dm-pl)'} />
+                <Avatar initials={initialsOf(p)} color={p.color ?? 'var(--dm-av-l)'} />
                 <span>{p.name}<span className="dm-d">{[p.team, p.presence].filter(Boolean).join(' · ')}</span></span>
                 <span className="dm-ck"><Icon name="check" size="xs" /></span>
               </button>

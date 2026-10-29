@@ -56,8 +56,8 @@ import { useScript, useTakeover } from '../lib/useScript';
 import { Tooltip, type TooltipPerson } from './Tooltip';
 
 const PEOPLE: TooltipPerson[] = [
-  { key: 'mk', initials: 'MK', color: 'var(--dm-pl)', name: 'Maya Kim', role: 'Design lead', status: 'Editing Pricing, frame 2' },
-  { key: 'da', initials: 'DA', color: 'var(--dm-pb)', name: 'Design agent', role: 'Working for Maya', status: 'Auditing contrast, 2 of 6 checks', working: true }
+  { key: 'mk', initials: 'MK', color: 'var(--dm-av-l)', name: 'Maya Kim', role: 'Design lead', status: 'Editing Pricing, frame 2' },
+  { key: 'da', initials: 'DA', color: 'var(--dm-av-b)', name: 'Design agent', role: 'Working for Maya', status: 'Auditing contrast, 2 of 6 checks', working: true }
 ];
 
 export default function TooltipDemo() {
@@ -135,7 +135,7 @@ export interface TooltipTool {
 export interface TooltipPerson {
   key: string;
   initials: string;
-  /** The avatar's colour, like 'var(--dm-pl)' */
+  /** The avatar's colour, like 'var(--dm-av-l)' */
   color: string;
   name: string;
   /** The quiet line under the name, like "Design lead" */

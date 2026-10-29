@@ -117,7 +117,7 @@ export function DesignReview({
                 <div key={i} className="dm-drv-m dm-enter">
                   {m.author.agent
                     ? <span className="dm-drv-ag"><Icon name="spark" size="xs" /></span>
-                    : <Avatar initials={m.author.initials ?? m.author.name.split(' ').map(w => w[0]).join('').slice(0, 2)} color={m.author.color ?? 'var(--dm-pl)'} />}
+                    : <Avatar initials={m.author.initials ?? m.author.name.split(' ').map(w => w[0]).join('').slice(0, 2)} color={m.author.color ?? 'var(--dm-av-l)'} />}
                   <div className="dm-drv-mb">
                     <span className="dm-drv-mn">
                       <b>{m.author.name}</b>

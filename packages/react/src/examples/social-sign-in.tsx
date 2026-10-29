@@ -11,7 +11,7 @@ const PROVIDERS: SocialSignInProvider[] = [
 export default function SocialSignInDemo() {
   return (
     <div style={{ width: '100%' }}>
-      <SocialSignIn providers={PROVIDERS} defaultLastUsed="figma" user={{ name: 'Maya', initials: 'MK', color: 'var(--dm-pl)' }}
+      <SocialSignIn providers={PROVIDERS} defaultLastUsed="figma" user={{ name: 'Maya', initials: 'MK', color: 'var(--dm-av-l)' }}
         onSignIn={() => new Promise(res => setTimeout(res, 1100))} />
     </div>
   );

@@ -118,14 +118,14 @@ import { useScript, useTakeover } from &#39;../lib/useScript&#39;;
 
 /* ---------- Kanban board: the design agent works through its cards while you drag the rest around ---------- */
 const COLUMNS = [{ key: &#39;todo&#39;, title: &#39;To do&#39; }, { key: &#39;doing&#39;, title: &#39;In progress&#39;, short: &#39;Doing&#39; }, { key: &#39;done&#39;, title: &#39;Done&#39; }];
-const AGENT = { initials: &#39;DA&#39;, color: &#39;var(--dm-pb)&#39; }, MAYA = { initials: &#39;MK&#39;, color: &#39;var(--dm-pl)&#39; };
+const AGENT = { initials: &#39;DA&#39;, color: &#39;var(--dm-av-b)&#39; }, MAYA = { initials: &#39;MK&#39;, color: &#39;var(--dm-av-l)&#39; };
 const DESIGN = { label: &#39;Design&#39;, tone: &#39;blue&#39; as const }, COPY = { label: &#39;Copy&#39;, tone: &#39;purple&#39; as const };
 const CARDS: KanbanBoardCard[] = [
   { id: &#39;1&#39;, column: &#39;todo&#39;, title: &#39;Audit checkout for contrast&#39;, tag: DESIGN, assignee: AGENT },
   { id: &#39;2&#39;, column: &#39;todo&#39;, title: &#39;Write release notes for pricing&#39;, tag: COPY, assignee: MAYA },
   { id: &#39;3&#39;, column: &#39;todo&#39;, title: &#39;Rename layers in Hero&#39;, tag: DESIGN, assignee: AGENT },
   { id: &#39;4&#39;, column: &#39;doing&#39;, title: &#39;Export tokens to CSS&#39;, tag: { label: &#39;Code&#39;, tone: &#39;green&#39; }, assignee: AGENT, progress: .4 },
-  { id: &#39;5&#39;, column: &#39;doing&#39;, title: &#39;Review annual plan copy&#39;, tag: COPY, assignee: { initials: &#39;JO&#39;, color: &#39;var(--dm-pm)&#39; } },
+  { id: &#39;5&#39;, column: &#39;doing&#39;, title: &#39;Review annual plan copy&#39;, tag: COPY, assignee: { initials: &#39;JO&#39;, color: &#39;var(--dm-av-m)&#39; } },
   { id: &#39;6&#39;, column: &#39;done&#39;, title: &#39;One CTA per pricing card&#39;, tag: DESIGN, assignee: MAYA }
 ];
 
@@ -533,12 +533,12 @@ export function KanbanBoard({ columns, cards, defaultCards = [], onCardsChange, 
   // each column has a short name for the tabs a narrow board shows
   const COLS = [[&#39;todo&#39;,&#39;To do&#39;,&#39;To do&#39;],[&#39;doing&#39;,&#39;In progress&#39;,&#39;Doing&#39;],[&#39;done&#39;,&#39;Done&#39;,&#39;Done&#39;]];
   let K = [
-    { id:1, c:&#39;todo&#39;, t:&#39;Audit checkout for contrast&#39;, tag:[&#39;b&#39;,&#39;Design&#39;], who:[&#39;DA&#39;,&#39;var(--pb)&#39;] },
-    { id:2, c:&#39;todo&#39;, t:&#39;Write release notes for pricing&#39;, tag:[&#39;l&#39;,&#39;Copy&#39;], who:[&#39;MK&#39;,&#39;var(--pl)&#39;] },
-    { id:3, c:&#39;todo&#39;, t:&#39;Rename layers in Hero&#39;, tag:[&#39;b&#39;,&#39;Design&#39;], who:[&#39;DA&#39;,&#39;var(--pb)&#39;] },
-    { id:4, c:&#39;doing&#39;, t:&#39;Export tokens to CSS&#39;, tag:[&#39;m&#39;,&#39;Code&#39;], who:[&#39;DA&#39;,&#39;var(--pb)&#39;], run:.4 },
-    { id:5, c:&#39;doing&#39;, t:&#39;Review annual plan copy&#39;, tag:[&#39;l&#39;,&#39;Copy&#39;], who:[&#39;JO&#39;,&#39;var(--pm)&#39;] },
-    { id:6, c:&#39;done&#39;, t:&#39;One CTA per pricing card&#39;, tag:[&#39;b&#39;,&#39;Design&#39;], who:[&#39;MK&#39;,&#39;var(--pl)&#39;] }
+    { id:1, c:&#39;todo&#39;, t:&#39;Audit checkout for contrast&#39;, tag:[&#39;b&#39;,&#39;Design&#39;], who:[&#39;DA&#39;,&#39;var(--av-b)&#39;] },
+    { id:2, c:&#39;todo&#39;, t:&#39;Write release notes for pricing&#39;, tag:[&#39;l&#39;,&#39;Copy&#39;], who:[&#39;MK&#39;,&#39;var(--av-l)&#39;] },
+    { id:3, c:&#39;todo&#39;, t:&#39;Rename layers in Hero&#39;, tag:[&#39;b&#39;,&#39;Design&#39;], who:[&#39;DA&#39;,&#39;var(--av-b)&#39;] },
+    { id:4, c:&#39;doing&#39;, t:&#39;Export tokens to CSS&#39;, tag:[&#39;m&#39;,&#39;Code&#39;], who:[&#39;DA&#39;,&#39;var(--av-b)&#39;], run:.4 },
+    { id:5, c:&#39;doing&#39;, t:&#39;Review annual plan copy&#39;, tag:[&#39;l&#39;,&#39;Copy&#39;], who:[&#39;JO&#39;,&#39;var(--av-m)&#39;] },
+    { id:6, c:&#39;done&#39;, t:&#39;One CTA per pricing card&#39;, tag:[&#39;b&#39;,&#39;Design&#39;], who:[&#39;MK&#39;,&#39;var(--av-l)&#39;] }
   ];
   // the agent&#39;s timer repaints the board, so it waits while a card is dragged, a new title is typed or a card&#39;s menu is open
   const box = $(&#39;.kbx&#39;, r), wrap = $(&#39;.kbx-cols&#39;, r); let dragging = false, editing = false;
@@ -589,7 +589,7 @@ export function KanbanBoard({ columns, cards, defaultCards = [], onCardsChange, 
     const el = $(`.kbx-k[data-id=&quot;${k.id}&quot;]`, wrap), go = () =&gt; { K = K.filter(x =&gt; x !== k); k.c = m.dataset.to; if (k.c === &#39;done&#39;) delete k.run; K.push(k); paint(); const t = kb &amp;&amp; $(`[data-v=&quot;${cur}&quot;]`, tabs); if (t) t.focus({ preventScroll:true }); };
     if (REDUCE || !el) return go();
     el.animate([{ opacity:1, transform:&#39;none&#39; }, { opacity:0, transform:&#39;translateX(12px)&#39; }], { duration:200, easing:&#39;ease-in&#39;, fill:&#39;forwards&#39; }).onfinish = go; });
-  const add = col =&gt; { const k = { id:Date.now(), c:col, t:&#39;New card&#39;, tag:[&#39;k&#39;,&#39;Idea&#39;], who:[&#39;MK&#39;,&#39;var(--pl)&#39;] }; K.push(k); paint(); const el = $(`.kbx-k[data-id=&quot;${k.id}&quot;]`, wrap); enter(el); const t = $(&#39;.t&#39;, el); editing = true; t.contentEditable = &#39;true&#39;; t.focus({ preventScroll:true }); document.getSelection().selectAllChildren(t); t.onblur = () =&gt; { editing = false; t.contentEditable = &#39;false&#39;; k.t = t.textContent.trim() || &#39;New card&#39;; }; t.onkeydown = e =&gt; { if (e.key === &#39;Enter&#39;){ e.preventDefault(); t.blur(); } }; };
+  const add = col =&gt; { const k = { id:Date.now(), c:col, t:&#39;New card&#39;, tag:[&#39;k&#39;,&#39;Idea&#39;], who:[&#39;MK&#39;,&#39;var(--av-l)&#39;] }; K.push(k); paint(); const el = $(`.kbx-k[data-id=&quot;${k.id}&quot;]`, wrap); enter(el); const t = $(&#39;.t&#39;, el); editing = true; t.contentEditable = &#39;true&#39;; t.focus({ preventScroll:true }); document.getSelection().selectAllChildren(t); t.onblur = () =&gt; { editing = false; t.contentEditable = &#39;false&#39;; k.t = t.textContent.trim() || &#39;New card&#39;; }; t.onkeydown = e =&gt; { if (e.key === &#39;Enter&#39;){ e.preventDefault(); t.blur(); } }; };
   $$(&#39;.kbx-ch .ib&#39;, wrap).forEach(b =&gt; b.onclick = () =&gt; add(b.closest(&#39;.kbx-c&#39;).dataset.col));
   $(&#39;.kbx-add&#39;, r).onclick = () =&gt; add(cur);
   paint(); show(cur);
@@ -924,12 +924,12 @@ const fitHits = window.dmFitHits || (() => {
   // each column has a short name for the tabs a narrow board shows
   const COLS = [['todo','To do','To do'],['doing','In progress','Doing'],['done','Done','Done']];
   let K = [
-    { id:1, c:'todo', t:'Audit checkout for contrast', tag:['b','Design'], who:['DA','var(--pb)'] },
-    { id:2, c:'todo', t:'Write release notes for pricing', tag:['l','Copy'], who:['MK','var(--pl)'] },
-    { id:3, c:'todo', t:'Rename layers in Hero', tag:['b','Design'], who:['DA','var(--pb)'] },
-    { id:4, c:'doing', t:'Export tokens to CSS', tag:['m','Code'], who:['DA','var(--pb)'], run:.4 },
-    { id:5, c:'doing', t:'Review annual plan copy', tag:['l','Copy'], who:['JO','var(--pm)'] },
-    { id:6, c:'done', t:'One CTA per pricing card', tag:['b','Design'], who:['MK','var(--pl)'] }
+    { id:1, c:'todo', t:'Audit checkout for contrast', tag:['b','Design'], who:['DA','var(--av-b)'] },
+    { id:2, c:'todo', t:'Write release notes for pricing', tag:['l','Copy'], who:['MK','var(--av-l)'] },
+    { id:3, c:'todo', t:'Rename layers in Hero', tag:['b','Design'], who:['DA','var(--av-b)'] },
+    { id:4, c:'doing', t:'Export tokens to CSS', tag:['m','Code'], who:['DA','var(--av-b)'], run:.4 },
+    { id:5, c:'doing', t:'Review annual plan copy', tag:['l','Copy'], who:['JO','var(--av-m)'] },
+    { id:6, c:'done', t:'One CTA per pricing card', tag:['b','Design'], who:['MK','var(--av-l)'] }
   ];
   // the agent's timer repaints the board, so it waits while a card is dragged, a new title is typed or a card's menu is open
   const box = $('.kbx', r), wrap = $('.kbx-cols', r); let dragging = false, editing = false;
@@ -980,7 +980,7 @@ const fitHits = window.dmFitHits || (() => {
     const el = $(`.kbx-k[data-id="${k.id}"]`, wrap), go = () => { K = K.filter(x => x !== k); k.c = m.dataset.to; if (k.c === 'done') delete k.run; K.push(k); paint(); const t = kb && $(`[data-v="${cur}"]`, tabs); if (t) t.focus({ preventScroll:true }); };
     if (REDUCE || !el) return go();
     el.animate([{ opacity:1, transform:'none' }, { opacity:0, transform:'translateX(12px)' }], { duration:200, easing:'ease-in', fill:'forwards' }).onfinish = go; });
-  const add = col => { const k = { id:Date.now(), c:col, t:'New card', tag:['k','Idea'], who:['MK','var(--pl)'] }; K.push(k); paint(); const el = $(`.kbx-k[data-id="${k.id}"]`, wrap); enter(el); const t = $('.t', el); editing = true; t.contentEditable = 'true'; t.focus({ preventScroll:true }); document.getSelection().selectAllChildren(t); t.onblur = () => { editing = false; t.contentEditable = 'false'; k.t = t.textContent.trim() || 'New card'; }; t.onkeydown = e => { if (e.key === 'Enter'){ e.preventDefault(); t.blur(); } }; };
+  const add = col => { const k = { id:Date.now(), c:col, t:'New card', tag:['k','Idea'], who:['MK','var(--av-l)'] }; K.push(k); paint(); const el = $(`.kbx-k[data-id="${k.id}"]`, wrap); enter(el); const t = $('.t', el); editing = true; t.contentEditable = 'true'; t.focus({ preventScroll:true }); document.getSelection().selectAllChildren(t); t.onblur = () => { editing = false; t.contentEditable = 'false'; k.t = t.textContent.trim() || 'New card'; }; t.onkeydown = e => { if (e.key === 'Enter'){ e.preventDefault(); t.blur(); } }; };
   $$('.kbx-ch .ib', wrap).forEach(b => b.onclick = () => add(b.closest('.kbx-c').dataset.col));
   $('.kbx-add', r).onclick = () => add(cur);
   paint(); show(cur);

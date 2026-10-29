@@ -58,14 +58,14 @@ import { useScript, useTakeover } from '../lib/useScript';
 
 /* ---------- Kanban board: the design agent works through its cards while you drag the rest around ---------- */
 const COLUMNS = [{ key: 'todo', title: 'To do' }, { key: 'doing', title: 'In progress', short: 'Doing' }, { key: 'done', title: 'Done' }];
-const AGENT = { initials: 'DA', color: 'var(--dm-pb)' }, MAYA = { initials: 'MK', color: 'var(--dm-pl)' };
+const AGENT = { initials: 'DA', color: 'var(--dm-av-b)' }, MAYA = { initials: 'MK', color: 'var(--dm-av-l)' };
 const DESIGN = { label: 'Design', tone: 'blue' as const }, COPY = { label: 'Copy', tone: 'purple' as const };
 const CARDS: KanbanBoardCard[] = [
   { id: '1', column: 'todo', title: 'Audit checkout for contrast', tag: DESIGN, assignee: AGENT },
   { id: '2', column: 'todo', title: 'Write release notes for pricing', tag: COPY, assignee: MAYA },
   { id: '3', column: 'todo', title: 'Rename layers in Hero', tag: DESIGN, assignee: AGENT },
   { id: '4', column: 'doing', title: 'Export tokens to CSS', tag: { label: 'Code', tone: 'green' }, assignee: AGENT, progress: .4 },
-  { id: '5', column: 'doing', title: 'Review annual plan copy', tag: COPY, assignee: { initials: 'JO', color: 'var(--dm-pm)' } },
+  { id: '5', column: 'doing', title: 'Review annual plan copy', tag: COPY, assignee: { initials: 'JO', color: 'var(--dm-av-m)' } },
   { id: '6', column: 'done', title: 'One CTA per pricing card', tag: DESIGN, assignee: MAYA }
 ];
 

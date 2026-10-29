@@ -3,7 +3,7 @@ import { Fragment, useEffect, useRef, useState, type ReactNode } from 'react';
 import { cx } from '../../lib/cx';
 import { useControllable } from '../../lib/hooks';
 import { Icon } from '../../lib/icons';
-import { enter, Spin } from '../../lib/motion';
+import { avatarInk, enter, Spin } from '../../lib/motion';
 import '../../designme.css';
 import './account-table.css';
 
@@ -13,7 +13,7 @@ export type AccountTableTone = 'blue' | 'purple' | 'green' | 'orange' | 'red' | 
 export interface AccountTableAccount {
   /** Also the account's key, and its first letter makes the logo */
   name: string;
-  /** The logo's colour, like '#2f6fde' */
+  /** The logo's colour, like 'var(--dm-av-b)'. An avatar colour brings its own ink for the letter, any other colour takes white */
   color: string;
   plan: string;
   seats: number;
@@ -29,7 +29,7 @@ export interface AccountTableProps {
   accounts: AccountTableAccount[];
   /** The plan filters after All. Defaults to the plans in `accounts`, in the order they first appear */
   plans?: string[];
-  /** The tag colour for each plan. Defaults to Enterprise orange, Pro blue, Team teal */
+  /** The tag colour for each plan. Defaults to Enterprise purple, Pro blue, Team teal */
   planTones?: Record<string, AccountTableTone>;
   /** The plan filter, or '' for All */
   plan?: string;
@@ -52,8 +52,8 @@ export interface AccountTableProps {
 }
 
 const TONE: Record<AccountTableTone, string> = { blue: 'dm-b', purple: 'dm-l', green: 'dm-m', orange: 'dm-p', red: 'dm-r', yellow: 'dm-y', pink: 'dm-k', teal: 'dm-t' };
-const TONES: Record<string, AccountTableTone> = { Enterprise: 'orange', Pro: 'blue', Team: 'teal' };
-const healthColor = (h: number) => h >= 80 ? 'var(--dm-ok)' : h >= 60 ? 'var(--dm-warn)' : 'var(--dm-bad)';
+const TONES: Record<string, AccountTableTone> = { Enterprise: 'purple', Pro: 'blue', Team: 'teal' };
+const healthColor = (h: number) => h >= 80 ? 'var(--dm-atb-ok)' : h >= 60 ? 'var(--dm-atb-warn)' : 'var(--dm-atb-bad)';
 
 /** Accounts you can search and filter by plan; a row opens to show what the agent noticed. */
 export function AccountTable({
@@ -110,7 +110,7 @@ export function AccountTable({
                 <Fragment key={a.name}>
                   <tr className={cx('dm-row', isOpen && 'dm-open', enter(i * 35).className)} style={enter(i * 35).style} tabIndex={0} aria-expanded={isOpen}
                     onClick={() => toggle(a.name)} onKeyDown={e => { if ((e.key === 'Enter' || e.key === ' ') && e.target === e.currentTarget) { e.preventDefault(); toggle(a.name); } }}>
-                    <td><span className="dm-nm"><span className="dm-lg" style={{ backgroundColor: a.color }}>{a.name[0]}</span>{a.name}</span></td>
+                    <td><span className="dm-nm"><span className="dm-lg" style={{ background: a.color, color: avatarInk(a.color) }}>{a.name[0]}</span>{a.name}</span></td>
                     <td><span className={cx('dm-tag', tone && TONE[tone])}>{a.plan}</span></td>
                     <td className="dm-num">{a.seats}</td>
                     <td><span className="dm-hb"><i><b style={{ width: a.health + '%', background: healthColor(a.health) }} /></i><span className="dm-num">{a.health}</span></span></td>

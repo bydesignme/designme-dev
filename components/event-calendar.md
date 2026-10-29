@@ -58,7 +58,7 @@ import { useStory, useWait } from '../lib/useScript';
 
 const WEEK = new Date(2026, 9, 19);
 const at = (day: number, hour: number) => new Date(2026, 9, 19 + day, Math.floor(hour), Math.round((hour % 1) * 60));
-const WHO: EventCalendarPerson[] = [{ initials: 'MK', color: 'var(--dm-pl)' }, { initials: 'JO', color: 'var(--dm-pm)' }, { initials: 'DA', color: 'var(--dm-pb)' }, { initials: 'AR', color: 'var(--dm-pp)' }];
+const WHO: EventCalendarPerson[] = [{ initials: 'MK', color: 'var(--dm-av-l)' }, { initials: 'JO', color: 'var(--dm-av-m)' }, { initials: 'DA', color: 'var(--dm-av-b)' }, { initials: 'AR', color: 'var(--dm-av-p)' }];
 // two to four people, the way the site picks them
 const people = (title: string) => WHO.slice(0, 2 + title.length % 3);
 const EVENTS: [number, number, number, string, EventCalendarTone][] = [
@@ -179,7 +179,7 @@ export type EventCalendarTone = 'blue' | 'purple' | 'green' | 'orange' | 'red' |
 export interface EventCalendarPerson {
   /** Like "MK" */
   initials: string;
-  /** The avatar's colour, like 'var(--dm-pl)' */
+  /** The avatar's colour, like 'var(--dm-av-l)' */
   color: string;
 }
 

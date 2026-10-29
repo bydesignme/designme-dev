@@ -102,13 +102,13 @@ import { useStory } from &#39;../lib/useScript&#39;;
 /* ---------- Notifications: an inbox where two new items arrive while you watch ---------- */
 const START: NotificationsItem[] = [
   { id: &#39;audit&#39;, kind: &#39;agent&#39;, icon: &#39;ok&#39;, color: &#39;var(--dm-ok)&#39;, text: &lt;&gt;&lt;b&gt;Pricing audit&lt;/b&gt; finished. 2 fixes ready to review&lt;/&gt;, time: &#39;4 min ago&#39; },
-  { id: &#39;maya&#39;, kind: &#39;mention&#39;, avatar: { initials: &#39;MK&#39;, color: &#39;var(--dm-pl)&#39; }, text: &lt;&gt;&lt;b&gt;Maya&lt;/b&gt; mentioned you in Checkout flow&lt;/&gt;, time: &#39;20 min ago&#39; },
+  { id: &#39;maya&#39;, kind: &#39;mention&#39;, avatar: { initials: &#39;MK&#39;, color: &#39;var(--dm-av-l)&#39; }, text: &lt;&gt;&lt;b&gt;Maya&lt;/b&gt; mentioned you in Checkout flow&lt;/&gt;, time: &#39;20 min ago&#39; },
   { id: &#39;export&#39;, kind: &#39;agent&#39;, icon: &#39;alert&#39;, color: &#39;var(--dm-warn)&#39;, text: &lt;&gt;&lt;b&gt;Token export&lt;/b&gt; paused at the $5 cap&lt;/&gt;, time: &#39;1 hour ago&#39; },
-  { id: &#39;jon&#39;, kind: &#39;mention&#39;, avatar: { initials: &#39;JO&#39;, color: &#39;var(--dm-pm)&#39; }, text: &lt;&gt;&lt;b&gt;Jon&lt;/b&gt; asked for your review on PR #284&lt;/&gt;, time: &#39;2 hours ago&#39;, read: true }
+  { id: &#39;jon&#39;, kind: &#39;mention&#39;, avatar: { initials: &#39;JO&#39;, color: &#39;var(--dm-av-m)&#39; }, text: &lt;&gt;&lt;b&gt;Jon&lt;/b&gt; asked for your review on PR #284&lt;/&gt;, time: &#39;2 hours ago&#39;, read: true }
 ];
 const INCOMING: NotificationsItem[] = [
   { id: &#39;qa&#39;, kind: &#39;agent&#39;, icon: &#39;spark&#39;, color: &#39;var(--dm-accent)&#39;, text: &lt;&gt;&lt;b&gt;Weekly design QA&lt;/b&gt; started on 12 frames&lt;/&gt;, time: &#39;Just now&#39; },
-  { id: &#39;ari&#39;, kind: &#39;mention&#39;, avatar: { initials: &#39;AR&#39;, color: &#39;var(--dm-pp)&#39; }, text: &lt;&gt;&lt;b&gt;Ari&lt;/b&gt; replied: “Looks great, ship it”&lt;/&gt;, time: &#39;Just now&#39; }
+  { id: &#39;ari&#39;, kind: &#39;mention&#39;, avatar: { initials: &#39;AR&#39;, color: &#39;var(--dm-av-p)&#39; }, text: &lt;&gt;&lt;b&gt;Ari&lt;/b&gt; replied: “Looks great, ship it”&lt;/&gt;, time: &#39;Just now&#39; }
 ];
 
 export default function NotificationsDemo() {
@@ -297,9 +297,9 @@ export function Notifications({ items, defaultItems = [], onItemsChange, filters
 </code></pre></details><details class="cp-file"><summary>notifications.js<span class="l">HTML · 22 lines</span></summary><pre class="cp-pre"><code>DM.def(&#39;notifications&#39;, (r, c) =&gt; {
   let N = [
     { k:&#39;agent&#39;, ic:&#39;ok&#39;, col:&#39;var(--ok)&#39;, t:&#39;&lt;b&gt;Pricing audit&lt;/b&gt; finished. 2 fixes ready to review&#39;, w:&#39;4 min ago&#39; },
-    { k:&#39;men&#39;, av:[&#39;MK&#39;,&#39;var(--pl)&#39;], t:&#39;&lt;b&gt;Maya&lt;/b&gt; mentioned you in Checkout flow&#39;, w:&#39;20 min ago&#39; },
+    { k:&#39;men&#39;, av:[&#39;MK&#39;,&#39;var(--av-l)&#39;], t:&#39;&lt;b&gt;Maya&lt;/b&gt; mentioned you in Checkout flow&#39;, w:&#39;20 min ago&#39; },
     { k:&#39;agent&#39;, ic:&#39;alert&#39;, col:&#39;var(--warn)&#39;, t:&#39;&lt;b&gt;Token export&lt;/b&gt; paused at the $5 cap&#39;, w:&#39;1 hour ago&#39; },
-    { k:&#39;men&#39;, av:[&#39;JO&#39;,&#39;var(--pm)&#39;], t:&#39;&lt;b&gt;Jon&lt;/b&gt; asked for your review on PR #284&#39;, w:&#39;2 hours ago&#39;, read:true }
+    { k:&#39;men&#39;, av:[&#39;JO&#39;,&#39;var(--av-m)&#39;], t:&#39;&lt;b&gt;Jon&lt;/b&gt; asked for your review on PR #284&#39;, w:&#39;2 hours ago&#39;, read:true }
   ];
   const list = $(&#39;.ntx-list&#39;, r), ct = $(&#39;.ntx-ct&#39;, r); let f = &#39;all&#39;;
   const count = (bump) =&gt; { const n = N.filter(x =&gt; !x.read).length; ct.textContent = n; ct.classList.toggle(&#39;z&#39;, !n); if (bump){ ct.classList.remove(&#39;bump&#39;); void ct.offsetWidth; ct.classList.add(&#39;bump&#39;); } };
@@ -310,7 +310,7 @@ export function Notifications({ items, defaultItems = [], onItemsChange, filters
   seg($(&#39;.ntx-tabs .seg2&#39;, r), v =&gt; { f = v; paint(true); });
   $(&#39;.ntx-all&#39;, r).onclick = () =&gt; { N.forEach(x =&gt; x.read = true); $$(&#39;.ntx-n&#39;, list).forEach((b, i) =&gt; c.later(i * 50, () =&gt; b.classList.add(&#39;read&#39;))); count(); };
   paint(true);
-  const incoming = [{ k:&#39;agent&#39;, ic:&#39;spark&#39;, col:&#39;var(--accent-mark,var(--accent))&#39;, fg:&#39;var(--accent-fg,var(--accent))&#39;, t:&#39;&lt;b&gt;Weekly design QA&lt;/b&gt; started on 12 frames&#39;, w:&#39;Just now&#39; }, { k:&#39;men&#39;, av:[&#39;AR&#39;,&#39;var(--pp)&#39;], t:&#39;&lt;b&gt;Ari&lt;/b&gt; replied: “Looks great, ship it”&#39;, w:&#39;Just now&#39; }];
+  const incoming = [{ k:&#39;agent&#39;, ic:&#39;spark&#39;, col:&#39;var(--accent-mark,var(--accent))&#39;, fg:&#39;var(--accent-fg,var(--accent))&#39;, t:&#39;&lt;b&gt;Weekly design QA&lt;/b&gt; started on 12 frames&#39;, w:&#39;Just now&#39; }, { k:&#39;men&#39;, av:[&#39;AR&#39;,&#39;var(--av-p)&#39;], t:&#39;&lt;b&gt;Ari&lt;/b&gt; replied: “Looks great, ship it”&#39;, w:&#39;Just now&#39; }];
   // two items arrive while you watch; once you click or type in the inbox the preview leaves it to you, so a tab you
   // picked or a Mark all read stays as you left it
   incoming.forEach((x, i) =&gt; c.later(2200 + i * 2600, () =&gt; { if (c.mine) return; N.unshift(x); if (f === &#39;all&#39; || f === x.k){ const el = html(row(x)); el.classList.add(&#39;new&#39;); list.prepend(el); $(&#39;.ntx-e&#39;, list)?.remove(); el.onclick = () =&gt; { x.read = !x.read; el.classList.toggle(&#39;read&#39;, x.read); count(); }; } count(true); }));
@@ -641,9 +641,9 @@ const fitHits = window.dmFitHits || (() => {
 })();</script><script src="/components/assets/core.js"></script><script>DM.def('notifications', (r, c) => {
   let N = [
     { k:'agent', ic:'ok', col:'var(--ok)', t:'<b>Pricing audit</b> finished. 2 fixes ready to review', w:'4 min ago' },
-    { k:'men', av:['MK','var(--pl)'], t:'<b>Maya</b> mentioned you in Checkout flow', w:'20 min ago' },
+    { k:'men', av:['MK','var(--av-l)'], t:'<b>Maya</b> mentioned you in Checkout flow', w:'20 min ago' },
     { k:'agent', ic:'alert', col:'var(--warn)', t:'<b>Token export</b> paused at the $5 cap', w:'1 hour ago' },
-    { k:'men', av:['JO','var(--pm)'], t:'<b>Jon</b> asked for your review on PR #284', w:'2 hours ago', read:true }
+    { k:'men', av:['JO','var(--av-m)'], t:'<b>Jon</b> asked for your review on PR #284', w:'2 hours ago', read:true }
   ];
   const list = $('.ntx-list', r), ct = $('.ntx-ct', r); let f = 'all';
   const count = (bump) => { const n = N.filter(x => !x.read).length; ct.textContent = n; ct.classList.toggle('z', !n); if (bump){ ct.classList.remove('bump'); void ct.offsetWidth; ct.classList.add('bump'); } };
@@ -654,7 +654,7 @@ const fitHits = window.dmFitHits || (() => {
   seg($('.ntx-tabs .seg2', r), v => { f = v; paint(true); });
   $('.ntx-all', r).onclick = () => { N.forEach(x => x.read = true); $$('.ntx-n', list).forEach((b, i) => c.later(i * 50, () => b.classList.add('read'))); count(); };
   paint(true);
-  const incoming = [{ k:'agent', ic:'spark', col:'var(--accent-mark,var(--accent))', fg:'var(--accent-fg,var(--accent))', t:'<b>Weekly design QA</b> started on 12 frames', w:'Just now' }, { k:'men', av:['AR','var(--pp)'], t:'<b>Ari</b> replied: “Looks great, ship it”', w:'Just now' }];
+  const incoming = [{ k:'agent', ic:'spark', col:'var(--accent-mark,var(--accent))', fg:'var(--accent-fg,var(--accent))', t:'<b>Weekly design QA</b> started on 12 frames', w:'Just now' }, { k:'men', av:['AR','var(--av-p)'], t:'<b>Ari</b> replied: “Looks great, ship it”', w:'Just now' }];
   // two items arrive while you watch; once you click or type in the inbox the preview leaves it to you, so a tab you
   // picked or a Mark all read stays as you left it
   incoming.forEach((x, i) => c.later(2200 + i * 2600, () => { if (c.mine) return; N.unshift(x); if (f === 'all' || f === x.k){ const el = html(row(x)); el.classList.add('new'); list.prepend(el); $('.ntx-e', list)?.remove(); el.onclick = () => { x.read = !x.read; el.classList.toggle('read', x.read); count(); }; } count(true); }));

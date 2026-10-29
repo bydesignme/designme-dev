@@ -60,7 +60,7 @@ const PROVIDERS: SocialSignInProvider[] = [
 export default function SocialSignInDemo() {
   return (
     <div style={{ width: '100%' }}>
-      <SocialSignIn providers={PROVIDERS} defaultLastUsed="figma" user={{ name: 'Maya', initials: 'MK', color: 'var(--dm-pl)' }}
+      <SocialSignIn providers={PROVIDERS} defaultLastUsed="figma" user={{ name: 'Maya', initials: 'MK', color: 'var(--dm-av-l)' }}
         onSignIn={() => new Promise(res => setTimeout(res, 1100))} />
     </div>
   );
@@ -134,7 +134,7 @@ export interface SocialSignInUser {
   /** Shown as "Welcome back, Maya" */
   name: string;
   initials: string;
-  /** The avatar colour, like 'var(--dm-pl)' */
+  /** The avatar colour, like 'var(--dm-av-l)' */
   color?: string;
 }
 
@@ -204,7 +204,7 @@ export function SocialSignIn({ providers = PROVIDERS, lastUsed, defaultLastUsed 
       {session ? (
         <div className="dm-ssi-ok">
           {/* the welcome comes in a line at a time */}
-          {user && <Avatar initials={user.initials} color={user.color ?? 'var(--dm-pl)'} className="dm-enter" />}
+          {user && <Avatar initials={user.initials} color={user.color ?? 'var(--dm-av-l)'} className="dm-enter" />}
           <b {...enter(step(1))}>{user ? `Welcome back, ${user.name}` : 'You are signed in'}</b>
           <span className="dm-muted dm-enter" style={enter(step(2)).style}>Signed in with {who?.label ?? session}</span>
           <button type="button" className="dm-pill dm-ghost dm-sm dm-enter" style={enter(step(3)).style} onClick={signOut}>Sign out</button>

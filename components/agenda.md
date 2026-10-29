@@ -55,8 +55,8 @@ import { Agenda, type AgendaItem } from './Agenda';
 import { useStory } from '../lib/useScript';
 
 const P = {
-  MK: { initials: 'MK', color: 'var(--dm-pl)' }, JO: { initials: 'JO', color: 'var(--dm-pm)' }, AR: { initials: 'AR', color: 'var(--dm-pp)' },
-  SL: { initials: 'SL', color: 'var(--dm-pt)' }, DK: { initials: 'DK', color: 'var(--dm-pb)' }
+  MK: { initials: 'MK', color: 'var(--dm-av-l)' }, JO: { initials: 'JO', color: 'var(--dm-av-m)' }, AR: { initials: 'AR', color: 'var(--dm-av-p)' },
+  SL: { initials: 'SL', color: 'var(--dm-av-t)' }, DK: { initials: 'DK', color: 'var(--dm-av-b)' }
 };
 const ITEMS: AgendaItem[] = [
   { key: 'standup', time: '9:00', title: 'Standup', detail: '15 min, Design team', people: [P.MK, P.JO, P.AR], past: true },
@@ -123,7 +123,7 @@ import './agenda.css';
 export interface AgendaPerson {
   /** Like "MK" */
   initials: string;
-  /** The avatar's colour, like 'var(--dm-pl)' */
+  /** The avatar's colour, like 'var(--dm-av-l)' */
   color: string;
 }
 

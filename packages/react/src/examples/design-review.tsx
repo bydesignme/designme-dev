@@ -6,7 +6,7 @@ import { useScript, useWait } from './useScript';
 
 /* ---------- Design review: three checks pass, Maya asks for one change, the agent makes it, she approves, you ship ---------- */
 const CHECKS: [label: string, result: string][] = [['Visual diff', '2 of 6 screens changed'], ['Library tokens', 'All from the library'], ['Contrast', 'AA on every screen']];
-const MAYA = { name: 'Maya Kim', initials: 'MK', color: 'var(--dm-pl)' };
+const MAYA = { name: 'Maya Kim', initials: 'MK', color: 'var(--dm-av-l)' };
 const AGENT = { name: 'Design agent', agent: true };
 const DONE: Record<string, string> = { all: 'Live for every visitor', some: 'Live for 10% of visitors. Everyone tomorrow', later: 'Ships on Monday at 09:00' };
 

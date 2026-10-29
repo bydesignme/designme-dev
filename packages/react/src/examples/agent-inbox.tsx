@@ -5,7 +5,7 @@ import { AgentInbox, type InboxRun } from '../components/agent-inbox/AgentInbox'
 import { useScript, useStory, useWait } from './useScript';
 
 /* ---------- Agent inbox: approve the publish, retry the failed export, and watch both land in Done ---------- */
-const COLOR: Record<string, string> = { 'Design agent': 'var(--dm-pl)', 'Build agent': 'var(--dm-pm)', 'Research agent': 'var(--dm-pt)', 'Copy agent': 'var(--dm-pp)', 'QA agent': 'var(--dm-pb)' };
+const COLOR: Record<string, string> = { 'Design agent': 'var(--dm-av-l)', 'Build agent': 'var(--dm-av-m)', 'Research agent': 'var(--dm-av-t)', 'Copy agent': 'var(--dm-av-p)', 'QA agent': 'var(--dm-av-b)' };
 const START: InboxRun[] = [
   { id: 'pub', title: 'Publish the pricing page', agent: 'Design agent', group: 'needs', detail: 'Waiting for your approval' },
   { id: 'tok', title: 'Export tokens to CSS', agent: 'Build agent', group: 'needs', failed: true, detail: 'Failed: rate limited by Figma', why: 'Figma answered 429 at 10:42. Safe to retry' },

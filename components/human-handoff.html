@@ -171,9 +171,9 @@ import { useStory, useTakeover, useWait } from &#39;../lib/useScript&#39;;
 // someone free takes the conversation in a few seconds, someone in a call takes longer, and someone who is out never does
 type Member = HandoffPerson &amp; { wait?: number };
 const TEAM: Member[] = [
-  { name: &#39;Alex Rivera&#39;, initials: &#39;AR&#39;, color: &#39;var(--dm-pm)&#39;, team: &#39;Billing&#39;, presence: &#39;Available&#39;, tone: &#39;ok&#39;, wait: 2500 },
-  { name: &#39;Sam Ortiz&#39;, initials: &#39;SO&#39;, color: &#39;var(--dm-pp)&#39;, team: &#39;Billing&#39;, presence: &#39;In a call&#39;, wait: 6000 },
-  { name: &#39;Maya Chen&#39;, initials: &#39;MC&#39;, color: &#39;var(--dm-pl)&#39;, team: &#39;Billing&#39;, presence: &#39;Out until 2pm&#39;, tone: &#39;warn&#39; }
+  { name: &#39;Alex Rivera&#39;, initials: &#39;AR&#39;, color: &#39;var(--dm-av-m)&#39;, team: &#39;Billing&#39;, presence: &#39;Available&#39;, tone: &#39;ok&#39;, wait: 2500 },
+  { name: &#39;Sam Ortiz&#39;, initials: &#39;SO&#39;, color: &#39;var(--dm-av-p)&#39;, team: &#39;Billing&#39;, presence: &#39;In a call&#39;, wait: 6000 },
+  { name: &#39;Maya Chen&#39;, initials: &#39;MC&#39;, color: &#39;var(--dm-av-l)&#39;, team: &#39;Billing&#39;, presence: &#39;Out until 2pm&#39;, tone: &#39;warn&#39; }
 ];
 const first = (p: HandoffPerson) =&gt; p.name.split(&#39; &#39;)[0];
 const MESSAGE = &quot;Thanks, Dana. A refund this size needs someone on our billing team, so I&#39;ve passed your conversation to them. They&#39;ll reply here within 15 minutes.&quot;;
@@ -238,7 +238,7 @@ export interface HandoffPerson {
   /** Used as the key, so keep it unique */
   name: string;
   initials?: string;
-  /** The avatar&#39;s colour, like &#39;var(--dm-pm)&#39; */
+  /** The avatar&#39;s colour, like &#39;var(--dm-av-m)&#39; */
   color?: string;
   /** Like &quot;Billing&quot; */
   team?: string;
@@ -338,7 +338,7 @@ export function HumanHandoff({
           &lt;div className=&quot;dm-hox-col&quot;&gt;
             &lt;span className=&quot;dm-hox-lb&quot;&gt;{L.assignedTo}&lt;/span&gt;
             &lt;div className=&quot;dm-hox-who&quot;&gt;
-              &lt;span className=&quot;dm-hox-av&quot;&gt;{assignee ? &lt;Avatar key={assignee.name} className=&quot;dm-enter&quot; initials={initialsOf(assignee)} color={assignee.color ?? &#39;var(--dm-pl)&#39;} /&gt; : &lt;Spin /&gt;}&lt;/span&gt;
+              &lt;span className=&quot;dm-hox-av&quot;&gt;{assignee ? &lt;Avatar key={assignee.name} className=&quot;dm-enter&quot; initials={initialsOf(assignee)} color={assignee.color ?? &#39;var(--dm-av-l)&#39;} /&gt; : &lt;Spin /&gt;}&lt;/span&gt;
               &lt;span className=&quot;dm-hox-wt&quot;&gt;
                 &lt;b&gt;&lt;Swap&gt;{assignee ? assignee.name : finding.title}&lt;/Swap&gt;&lt;/b&gt;
                 {assignee ? (
@@ -381,7 +381,7 @@ export function HumanHandoff({
           &lt;/div&gt;
         &lt;/div&gt;
         &lt;div className={cx(&#39;dm-hox-st&#39;, st !== &#39;wait&#39; &amp;&amp; &#39;dm-&#39; + st)} aria-live=&quot;polite&quot;&gt;
-          &lt;span className=&quot;dm-g&quot;&gt;{status.person ? &lt;Avatar initials={initialsOf(status.person)} color={status.person.color ?? &#39;var(--dm-pl)&#39;} /&gt; : st === &#39;wait&#39; ? &lt;Spin /&gt; : &lt;Icon name={st === &#39;warn&#39; ? &#39;alert&#39; : &#39;ok&#39;} /&gt;}&lt;/span&gt;
+          &lt;span className=&quot;dm-g&quot;&gt;{status.person ? &lt;Avatar initials={initialsOf(status.person)} color={status.person.color ?? &#39;var(--dm-av-l)&#39;} /&gt; : st === &#39;wait&#39; ? &lt;Spin /&gt; : &lt;Icon name={st === &#39;warn&#39; ? &#39;alert&#39; : &#39;ok&#39;} /&gt;}&lt;/span&gt;
           &lt;span className=&quot;dm-t&quot;&gt;&lt;b&gt;&lt;Swap&gt;{status.title}&lt;/Swap&gt;&lt;/b&gt;{status.detail &amp;&amp; &lt;span&gt;&lt;Swap&gt;{status.detail}&lt;/Swap&gt;&lt;/span&gt;}&lt;/span&gt;
         &lt;/div&gt;
         {people &amp;&amp; (
@@ -390,7 +390,7 @@ export function HumanHandoff({
             {people.map(p =&gt; (
               &lt;button type=&quot;button&quot; key={p.name} className=&quot;dm-mi&quot; role=&quot;menuitemradio&quot; aria-checked={p.name === assignee?.name}
                 onClick={() =&gt; { if (p.name !== assignee?.name) onReassign?.(p); menu.closeSoon(); }}&gt;
-                &lt;Avatar initials={initialsOf(p)} color={p.color ?? &#39;var(--dm-pl)&#39;} /&gt;
+                &lt;Avatar initials={initialsOf(p)} color={p.color ?? &#39;var(--dm-av-l)&#39;} /&gt;
                 &lt;span&gt;{p.name}&lt;span className=&quot;dm-d&quot;&gt;{[p.team, p.presence].filter(Boolean).join(&#39; · &#39;)}&lt;/span&gt;&lt;/span&gt;
                 &lt;span className=&quot;dm-ck&quot;&gt;&lt;Icon name=&quot;check&quot; size=&quot;xs&quot; /&gt;&lt;/span&gt;
               &lt;/button&gt;
@@ -585,9 +585,9 @@ export function HumanHandoff({
   // the billing team: someone free takes the conversation in a few seconds, someone in a call takes longer, and someone
   // who is out never does
   const P = [
-    { k:&#39;alex&#39;, n:&#39;Alex Rivera&#39;, i:&#39;AR&#39;, bg:&#39;var(--pm)&#39;, on:&#39;Available&#39;, tone:&#39;ok&#39;, wait:2500 },
-    { k:&#39;sam&#39;, n:&#39;Sam Ortiz&#39;, i:&#39;SO&#39;, bg:&#39;var(--pp)&#39;, on:&#39;In a call&#39;, tone:&#39;&#39;, wait:6000 },
-    { k:&#39;maya&#39;, n:&#39;Maya Chen&#39;, i:&#39;MC&#39;, bg:&#39;var(--pl)&#39;, on:&#39;Out until 2pm&#39;, tone:&#39;warn&#39; }
+    { k:&#39;alex&#39;, n:&#39;Alex Rivera&#39;, i:&#39;AR&#39;, bg:&#39;var(--av-m)&#39;, on:&#39;Available&#39;, tone:&#39;ok&#39;, wait:2500 },
+    { k:&#39;sam&#39;, n:&#39;Sam Ortiz&#39;, i:&#39;SO&#39;, bg:&#39;var(--av-p)&#39;, on:&#39;In a call&#39;, tone:&#39;&#39;, wait:6000 },
+    { k:&#39;maya&#39;, n:&#39;Maya Chen&#39;, i:&#39;MC&#39;, bg:&#39;var(--av-l)&#39;, on:&#39;Out until 2pm&#39;, tone:&#39;warn&#39; }
   ];
   const first = p =&gt; p.n.split(&#39; &#39;)[0];
   pop.insertAdjacentHTML(&#39;beforeend&#39;, P.map(p =&gt; `&lt;button class=&quot;mi&quot; role=&quot;menuitemradio&quot; aria-checked=&quot;false&quot; data-close data-k=&quot;${p.k}&quot;&gt;${AV(p.i, p.bg)}&lt;span&gt;${p.n}&lt;span class=&quot;d&quot;&gt;Billing · ${p.on}&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;ck&quot;&gt;${I(&#39;check&#39;,&#39;xs&#39;)}&lt;/span&gt;&lt;/button&gt;`).join(&#39;&#39;));
@@ -980,9 +980,9 @@ const fitHits = window.dmFitHits || (() => {
   // the billing team: someone free takes the conversation in a few seconds, someone in a call takes longer, and someone
   // who is out never does
   const P = [
-    { k:'alex', n:'Alex Rivera', i:'AR', bg:'var(--pm)', on:'Available', tone:'ok', wait:2500 },
-    { k:'sam', n:'Sam Ortiz', i:'SO', bg:'var(--pp)', on:'In a call', tone:'', wait:6000 },
-    { k:'maya', n:'Maya Chen', i:'MC', bg:'var(--pl)', on:'Out until 2pm', tone:'warn' }
+    { k:'alex', n:'Alex Rivera', i:'AR', bg:'var(--av-m)', on:'Available', tone:'ok', wait:2500 },
+    { k:'sam', n:'Sam Ortiz', i:'SO', bg:'var(--av-p)', on:'In a call', tone:'', wait:6000 },
+    { k:'maya', n:'Maya Chen', i:'MC', bg:'var(--av-l)', on:'Out until 2pm', tone:'warn' }
   ];
   const first = p => p.n.split(' ')[0];
   pop.insertAdjacentHTML('beforeend', P.map(p => `<button class="mi" role="menuitemradio" aria-checked="false" data-close data-k="${p.k}">${AV(p.i, p.bg)}<span>${p.n}<span class="d">Billing · ${p.on}</span></span><span class="ck">${I('check','xs')}</span></button>`).join(''));

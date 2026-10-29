@@ -21,7 +21,7 @@ export interface TooltipTool {
 export interface TooltipPerson {
   key: string;
   initials: string;
-  /** The avatar's colour, like 'var(--dm-pl)' */
+  /** The avatar's colour, like 'var(--dm-av-l)' */
   color: string;
   name: string;
   /** The quiet line under the name, like "Design lead" */

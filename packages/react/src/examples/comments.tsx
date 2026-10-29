@@ -5,9 +5,9 @@ import { Comments, type CommentsEntry, type CommentsPerson } from '../components
 import { useStory, useWait } from './useScript';
 
 /* ---------- Comments: Maya asks the agent in the thread; it thinks, writes its answer, then offers to apply it ---------- */
-const AGENT: CommentsPerson = { name: 'Design agent', initials: 'DA', color: 'var(--dm-pb)', handle: 'agent' };
-const MAYA: CommentsPerson = { name: 'Maya Kim', initials: 'MK', color: 'var(--dm-pl)', handle: 'maya' };
-const JON: CommentsPerson = { name: 'Jon Ortiz', initials: 'JO', color: 'var(--dm-pm)', handle: 'jon' };
+const AGENT: CommentsPerson = { name: 'Design agent', initials: 'DA', color: 'var(--dm-av-b)', handle: 'agent' };
+const MAYA: CommentsPerson = { name: 'Maya Kim', initials: 'MK', color: 'var(--dm-av-l)', handle: 'maya' };
+const JON: CommentsPerson = { name: 'Jon Ortiz', initials: 'JO', color: 'var(--dm-av-m)', handle: 'jon' };
 const START: CommentsEntry[] = [
   { id: 'c1', author: MAYA, text: 'The secondary button feels too faint next to the CTA.', time: '2h', agrees: 1 },
   { id: 'c2', author: JON, text: 'Agree. Can we keep it outlined though?', time: '1h' }

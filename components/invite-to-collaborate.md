@@ -58,10 +58,10 @@ import { useStory } from '../lib/useScript';
 
 /* ---------- Invite to collaborate: two addresses are typed in, one of them not quite right ---------- */
 const TEAM: InviteToCollaborateMember[] = [
-  { name: 'Maya Kim', initials: 'MK', color: 'var(--dm-pl)', role: 'Owner' },
-  { name: 'Jon Ortiz', initials: 'JO', color: 'var(--dm-pm)', role: 'Can edit' }
+  { name: 'Maya Kim', initials: 'MK', color: 'var(--dm-av-l)', role: 'Owner' },
+  { name: 'Jon Ortiz', initials: 'JO', color: 'var(--dm-av-m)', role: 'Can edit' }
 ];
-const COLORS = ['var(--dm-pl)', 'var(--dm-pm)', 'var(--dm-pt)', 'var(--dm-pp)', 'var(--dm-pk)'];
+const COLORS = ['var(--dm-av-l)', 'var(--dm-av-m)', 'var(--dm-av-t)', 'var(--dm-av-p)', 'var(--dm-av-k)'];
 const TYPED = 'dana@studio.com, lee@studio';
 const wait = (ms: number) => new Promise(res => setTimeout(res, ms));
 
@@ -97,7 +97,7 @@ export default function InviteToCollaborateDemo() {
   return (
     <div ref={ref} style={{ width: '100%' }}>
       <InviteToCollaborate emails={emails} onEmailsChange={setEmails} draft={draft} onDraftChange={setDraft} members={members} onSend={send}
-        suggestions={[{ email: 'ari@studio.com', initials: 'AR', color: 'var(--dm-pp)' }, { email: 'sam@studio.com', initials: 'SL', color: 'var(--dm-pt)' }]}
+        suggestions={[{ email: 'ari@studio.com', initials: 'AR', color: 'var(--dm-av-p)' }, { email: 'sam@studio.com', initials: 'SL', color: 'var(--dm-av-t)' }]}
         link="https://designme.dev/join/pricing-refresh" />
     </div>
   );
@@ -174,7 +174,7 @@ export interface InviteToCollaborateMember {
   /** A quiet line under the name, like the email of someone just invited */
   detail?: string;
   initials: string;
-  /** The avatar colour, like 'var(--dm-pl)' */
+  /** The avatar colour, like 'var(--dm-av-l)' */
   color: string;
   /** Like "Owner" or "Invited, can edit" */
   role: string;
@@ -225,7 +225,7 @@ export interface InviteToCollaborateProps {
 const ROLES: InviteToCollaborateRole[] = [
   { label: 'Can edit', detail: 'Change frames, run the agent' }, { label: 'Can comment', detail: 'Leave notes, no edits' }, { label: 'Can view', detail: 'Read only' }
 ];
-const COLORS = ['var(--dm-pl)', 'var(--dm-pm)', 'var(--dm-pt)', 'var(--dm-pp)', 'var(--dm-pk)'];
+const COLORS = ['var(--dm-av-l)', 'var(--dm-av-m)', 'var(--dm-av-t)', 'var(--dm-av-p)', 'var(--dm-av-k)'];
 const isEmail = (e: string) => /^\S+@\S+\.\S+$/.test(e);
 const initialsOf = (e: string) => e.split('@')[0].slice(0, 2).toUpperCase();
 

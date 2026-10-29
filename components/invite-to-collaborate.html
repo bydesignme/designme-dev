@@ -111,10 +111,10 @@ import { useStory } from &#39;../lib/useScript&#39;;
 
 /* ---------- Invite to collaborate: two addresses are typed in, one of them not quite right ---------- */
 const TEAM: InviteToCollaborateMember[] = [
-  { name: &#39;Maya Kim&#39;, initials: &#39;MK&#39;, color: &#39;var(--dm-pl)&#39;, role: &#39;Owner&#39; },
-  { name: &#39;Jon Ortiz&#39;, initials: &#39;JO&#39;, color: &#39;var(--dm-pm)&#39;, role: &#39;Can edit&#39; }
+  { name: &#39;Maya Kim&#39;, initials: &#39;MK&#39;, color: &#39;var(--dm-av-l)&#39;, role: &#39;Owner&#39; },
+  { name: &#39;Jon Ortiz&#39;, initials: &#39;JO&#39;, color: &#39;var(--dm-av-m)&#39;, role: &#39;Can edit&#39; }
 ];
-const COLORS = [&#39;var(--dm-pl)&#39;, &#39;var(--dm-pm)&#39;, &#39;var(--dm-pt)&#39;, &#39;var(--dm-pp)&#39;, &#39;var(--dm-pk)&#39;];
+const COLORS = [&#39;var(--dm-av-l)&#39;, &#39;var(--dm-av-m)&#39;, &#39;var(--dm-av-t)&#39;, &#39;var(--dm-av-p)&#39;, &#39;var(--dm-av-k)&#39;];
 const TYPED = &#39;dana@studio.com, lee@studio&#39;;
 const wait = (ms: number) =&gt; new Promise(res =&gt; setTimeout(res, ms));
 
@@ -150,7 +150,7 @@ export default function InviteToCollaborateDemo() {
   return (
     &lt;div ref={ref} style={{ width: &#39;100%&#39; }}&gt;
       &lt;InviteToCollaborate emails={emails} onEmailsChange={setEmails} draft={draft} onDraftChange={setDraft} members={members} onSend={send}
-        suggestions={[{ email: &#39;ari@studio.com&#39;, initials: &#39;AR&#39;, color: &#39;var(--dm-pp)&#39; }, { email: &#39;sam@studio.com&#39;, initials: &#39;SL&#39;, color: &#39;var(--dm-pt)&#39; }]}
+        suggestions={[{ email: &#39;ari@studio.com&#39;, initials: &#39;AR&#39;, color: &#39;var(--dm-av-p)&#39; }, { email: &#39;sam@studio.com&#39;, initials: &#39;SL&#39;, color: &#39;var(--dm-av-t)&#39; }]}
         link=&quot;https://designme.dev/join/pricing-refresh&quot; /&gt;
     &lt;/div&gt;
   );
@@ -179,7 +179,7 @@ export interface InviteToCollaborateMember {
   /** A quiet line under the name, like the email of someone just invited */
   detail?: string;
   initials: string;
-  /** The avatar colour, like &#39;var(--dm-pl)&#39; */
+  /** The avatar colour, like &#39;var(--dm-av-l)&#39; */
   color: string;
   /** Like &quot;Owner&quot; or &quot;Invited, can edit&quot; */
   role: string;
@@ -230,7 +230,7 @@ export interface InviteToCollaborateProps {
 const ROLES: InviteToCollaborateRole[] = [
   { label: &#39;Can edit&#39;, detail: &#39;Change frames, run the agent&#39; }, { label: &#39;Can comment&#39;, detail: &#39;Leave notes, no edits&#39; }, { label: &#39;Can view&#39;, detail: &#39;Read only&#39; }
 ];
-const COLORS = [&#39;var(--dm-pl)&#39;, &#39;var(--dm-pm)&#39;, &#39;var(--dm-pt)&#39;, &#39;var(--dm-pp)&#39;, &#39;var(--dm-pk)&#39;];
+const COLORS = [&#39;var(--dm-av-l)&#39;, &#39;var(--dm-av-m)&#39;, &#39;var(--dm-av-t)&#39;, &#39;var(--dm-av-p)&#39;, &#39;var(--dm-av-k)&#39;];
 const isEmail = (e: string) =&gt; /^\S+@\S+\.\S+$/.test(e);
 const initialsOf = (e: string) =&gt; e.split(&#39;@&#39;)[0].slice(0, 2).toUpperCase();
 
@@ -418,7 +418,7 @@ export function InviteToCollaborate({ title = &#39;Invite to Pricing refresh&#39
   r.innerHTML = r.innerHTML.replace(&#39;{chev}&#39;, I(&#39;chev-d&#39;,&#39;xs&#39;)).replace(/\{chk\}/g, I(&#39;check&#39;,&#39;xs&#39;)).replace(&#39;{link}&#39;, I(&#39;link&#39;,&#39;xs&#39;));
   const chips = $(&#39;.ivx-chips&#39;, r), inp = $(&#39;.ivx-f input&#39;, r), go = $(&#39;.ivx-go&#39;, r), mem = $(&#39;.ivx-mem&#39;, r), sg = $(&#39;.ivx-sg&#39;, r);
   let E = [], role = &#39;Can edit&#39;, shown = new Set();
-  const COL = [&#39;var(--pl)&#39;,&#39;var(--pm)&#39;,&#39;var(--pt)&#39;,&#39;var(--pp)&#39;,&#39;var(--pk)&#39;];
+  const COL = [&#39;var(--av-l)&#39;,&#39;var(--av-m)&#39;,&#39;var(--av-t)&#39;,&#39;var(--av-p)&#39;,&#39;var(--av-k)&#39;];
   const ok = e =&gt; /^\S+@\S+\.\S+$/.test(e);
   const ini = e =&gt; e.split(&#39;@&#39;)[0].slice(0, 2).toUpperCase();
   function paint(){ const seen = shown; shown = new Set(E); chips.innerHTML = E.map((e, i) =&gt; `&lt;span class=&quot;ivx-ch${ok(e) ? &#39;&#39; : &#39; bad&#39;}${seen.has(e) ? &#39; seen&#39; : &#39;&#39;}&quot; ${ok(e) ? &#39;&#39; : &#39;data-tip=&quot;Not a valid email&quot;&#39;}&gt;${ok(e) ? AV(ini(e), COL[i % 5]) : I(&#39;alert&#39;,&#39;xs&#39;)}${e}&lt;button aria-label=&quot;Remove ${e}&quot;&gt;${I(&#39;x&#39;,&#39;xs&#39;)}&lt;/button&gt;&lt;/span&gt;`).join(&#39;&#39;);
@@ -427,9 +427,9 @@ export function InviteToCollaborate({ title = &#39;Invite to Pricing refresh&#39
   function commit(){ const parts = inp.value.split(/[,\s]+/).map(s =&gt; s.trim()).filter(Boolean); if (!parts.length) return; parts.forEach(p =&gt; { if (!E.includes(p)) E.push(p); }); inp.value = &#39;&#39;; paint(); }
   inp.onkeydown = e =&gt; { if (e.key === &#39;Enter&#39; || e.key === &#39;,&#39; || e.key === &#39;Tab&#39;){ if (inp.value.trim()){ e.preventDefault(); commit(); } } else if (e.key === &#39;Backspace&#39; &amp;&amp; !inp.value &amp;&amp; E.length){ E.pop(); paint(); } };
   inp.onpaste = () =&gt; setTimeout(commit, 0); inp.onblur = commit;
-  [[&#39;ari@studio.com&#39;,&#39;AR&#39;,&#39;var(--pp)&#39;],[&#39;sam@studio.com&#39;,&#39;SL&#39;,&#39;var(--pt)&#39;]].forEach(s =&gt; { const b = html(`&lt;button class=&quot;chip sm&quot;&gt;${AV(s[1], s[2])}${s[0].split(&#39;@&#39;)[0]}&lt;/button&gt;`); sg.appendChild(b); b.onclick = () =&gt; { if (!E.includes(s[0])){ E.push(s[0]); paint(); } b.remove(); }; });
+  [[&#39;ari@studio.com&#39;,&#39;AR&#39;,&#39;var(--av-p)&#39;],[&#39;sam@studio.com&#39;,&#39;SL&#39;,&#39;var(--av-t)&#39;]].forEach(s =&gt; { const b = html(`&lt;button class=&quot;chip sm&quot;&gt;${AV(s[1], s[2])}${s[0].split(&#39;@&#39;)[0]}&lt;/button&gt;`); sg.appendChild(b); b.onclick = () =&gt; { if (!E.includes(s[0])){ E.push(s[0]); paint(); } b.remove(); }; });
   $$(&#39;.ivx-rp .mi&#39;, r).forEach(m =&gt; m.addEventListener(&#39;click&#39;, () =&gt; { role = m.dataset.r; $$(&#39;.ivx-rp .mi&#39;, r).forEach(x =&gt; x.setAttribute(&#39;aria-checked&#39;, x === m)); swap($(&#39;.ivx-role span&#39;, r), role); }));
-  const M = [[&#39;MK&#39;,&#39;var(--pl)&#39;,&#39;Maya Kim&#39;,&#39;Owner&#39;],[&#39;JO&#39;,&#39;var(--pm)&#39;,&#39;Jon Ortiz&#39;,&#39;Can edit&#39;]];
+  const M = [[&#39;MK&#39;,&#39;var(--av-l)&#39;,&#39;Maya Kim&#39;,&#39;Owner&#39;],[&#39;JO&#39;,&#39;var(--av-m)&#39;,&#39;Jon Ortiz&#39;,&#39;Can edit&#39;]];
   mem.innerHTML = M.map(m =&gt; `&lt;div class=&quot;ivx-m&quot;&gt;${AV(m[0], m[1])}&lt;span class=&quot;t&quot;&gt;${m[2]}&lt;/span&gt;&lt;span class=&quot;r&quot;&gt;${m[3]}&lt;/span&gt;&lt;/div&gt;`).join(&#39;&#39;);
   go.onclick = () =&gt; c.run(async () =&gt; { go.innerHTML = &#39;&lt;span class=&quot;spin&quot;&gt;&lt;/span&gt;&#39;; await c.wait(800); E.filter(ok).forEach((e, i) =&gt; { const el = html(`&lt;div class=&quot;ivx-m&quot;&gt;${AV(ini(e), COL[i % 5])}&lt;span class=&quot;t&quot;&gt;${e.split(&#39;@&#39;)[0]}&lt;span&gt;${e}&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;r pend&quot;&gt;Invited, ${role.toLowerCase()}&lt;/span&gt;&lt;/div&gt;`); mem.appendChild(el); enter(el, i * 70); }); E = []; paint(); });
   const lk = $(&#39;.ivx-link&#39;, r); lk.onclick = () =&gt; { copied(lk, &#39;https://designme.dev/join/pricing-refresh&#39;); const t = lk.lastChild; t.textContent = &#39;Link copied&#39;; clearTimeout(lk._lt); lk._lt = setTimeout(() =&gt; { t.textContent = &#39;Copy link&#39;; }, 1600); };
@@ -764,7 +764,7 @@ const fitHits = window.dmFitHits || (() => {
   r.innerHTML = r.innerHTML.replace('{chev}', I('chev-d','xs')).replace(/\{chk\}/g, I('check','xs')).replace('{link}', I('link','xs'));
   const chips = $('.ivx-chips', r), inp = $('.ivx-f input', r), go = $('.ivx-go', r), mem = $('.ivx-mem', r), sg = $('.ivx-sg', r);
   let E = [], role = 'Can edit', shown = new Set();
-  const COL = ['var(--pl)','var(--pm)','var(--pt)','var(--pp)','var(--pk)'];
+  const COL = ['var(--av-l)','var(--av-m)','var(--av-t)','var(--av-p)','var(--av-k)'];
   const ok = e => /^\S+@\S+\.\S+$/.test(e);
   const ini = e => e.split('@')[0].slice(0, 2).toUpperCase();
   function paint(){ const seen = shown; shown = new Set(E); chips.innerHTML = E.map((e, i) => `<span class="ivx-ch${ok(e) ? '' : ' bad'}${seen.has(e) ? ' seen' : ''}" ${ok(e) ? '' : 'data-tip="Not a valid email"'}>${ok(e) ? AV(ini(e), COL[i % 5]) : I('alert','xs')}${e}<button aria-label="Remove ${e}">${I('x','xs')}</button></span>`).join('');
@@ -773,9 +773,9 @@ const fitHits = window.dmFitHits || (() => {
   function commit(){ const parts = inp.value.split(/[,\s]+/).map(s => s.trim()).filter(Boolean); if (!parts.length) return; parts.forEach(p => { if (!E.includes(p)) E.push(p); }); inp.value = ''; paint(); }
   inp.onkeydown = e => { if (e.key === 'Enter' || e.key === ',' || e.key === 'Tab'){ if (inp.value.trim()){ e.preventDefault(); commit(); } } else if (e.key === 'Backspace' && !inp.value && E.length){ E.pop(); paint(); } };
   inp.onpaste = () => setTimeout(commit, 0); inp.onblur = commit;
-  [['ari@studio.com','AR','var(--pp)'],['sam@studio.com','SL','var(--pt)']].forEach(s => { const b = html(`<button class="chip sm">${AV(s[1], s[2])}${s[0].split('@')[0]}</button>`); sg.appendChild(b); b.onclick = () => { if (!E.includes(s[0])){ E.push(s[0]); paint(); } b.remove(); }; });
+  [['ari@studio.com','AR','var(--av-p)'],['sam@studio.com','SL','var(--av-t)']].forEach(s => { const b = html(`<button class="chip sm">${AV(s[1], s[2])}${s[0].split('@')[0]}</button>`); sg.appendChild(b); b.onclick = () => { if (!E.includes(s[0])){ E.push(s[0]); paint(); } b.remove(); }; });
   $$('.ivx-rp .mi', r).forEach(m => m.addEventListener('click', () => { role = m.dataset.r; $$('.ivx-rp .mi', r).forEach(x => x.setAttribute('aria-checked', x === m)); swap($('.ivx-role span', r), role); }));
-  const M = [['MK','var(--pl)','Maya Kim','Owner'],['JO','var(--pm)','Jon Ortiz','Can edit']];
+  const M = [['MK','var(--av-l)','Maya Kim','Owner'],['JO','var(--av-m)','Jon Ortiz','Can edit']];
   mem.innerHTML = M.map(m => `<div class="ivx-m">${AV(m[0], m[1])}<span class="t">${m[2]}</span><span class="r">${m[3]}</span></div>`).join('');
   go.onclick = () => c.run(async () => { go.innerHTML = '<span class="spin"></span>'; await c.wait(800); E.filter(ok).forEach((e, i) => { const el = html(`<div class="ivx-m">${AV(ini(e), COL[i % 5])}<span class="t">${e.split('@')[0]}<span>${e}</span></span><span class="r pend">Invited, ${role.toLowerCase()}</span></div>`); mem.appendChild(el); enter(el, i * 70); }); E = []; paint(); });
   const lk = $('.ivx-link', r); lk.onclick = () => { copied(lk, 'https://designme.dev/join/pricing-refresh'); const t = lk.lastChild; t.textContent = 'Link copied'; clearTimeout(lk._lt); lk._lt = setTimeout(() => { t.textContent = 'Copy link'; }, 1600); };

@@ -12,7 +12,7 @@ export type EventCalendarTone = 'blue' | 'purple' | 'green' | 'orange' | 'red' |
 export interface EventCalendarPerson {
   /** Like "MK" */
   initials: string;
-  /** The avatar's colour, like 'var(--dm-pl)' */
+  /** The avatar's colour, like 'var(--dm-av-l)' */
   color: string;
 }
 

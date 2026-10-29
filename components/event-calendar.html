@@ -152,7 +152,7 @@ import { useStory, useWait } from &#39;../lib/useScript&#39;;
 
 const WEEK = new Date(2026, 9, 19);
 const at = (day: number, hour: number) =&gt; new Date(2026, 9, 19 + day, Math.floor(hour), Math.round((hour % 1) * 60));
-const WHO: EventCalendarPerson[] = [{ initials: &#39;MK&#39;, color: &#39;var(--dm-pl)&#39; }, { initials: &#39;JO&#39;, color: &#39;var(--dm-pm)&#39; }, { initials: &#39;DA&#39;, color: &#39;var(--dm-pb)&#39; }, { initials: &#39;AR&#39;, color: &#39;var(--dm-pp)&#39; }];
+const WHO: EventCalendarPerson[] = [{ initials: &#39;MK&#39;, color: &#39;var(--dm-av-l)&#39; }, { initials: &#39;JO&#39;, color: &#39;var(--dm-av-m)&#39; }, { initials: &#39;DA&#39;, color: &#39;var(--dm-av-b)&#39; }, { initials: &#39;AR&#39;, color: &#39;var(--dm-av-p)&#39; }];
 // two to four people, the way the site picks them
 const people = (title: string) =&gt; WHO.slice(0, 2 + title.length % 3);
 const EVENTS: [number, number, number, string, EventCalendarTone][] = [
@@ -213,7 +213,7 @@ export type EventCalendarTone = &#39;blue&#39; | &#39;purple&#39; | &#39;green&#
 export interface EventCalendarPerson {
   /** Like &quot;MK&quot; */
   initials: string;
-  /** The avatar&#39;s colour, like &#39;var(--dm-pl)&#39; */
+  /** The avatar&#39;s colour, like &#39;var(--dm-av-l)&#39; */
   color: string;
 }
 
@@ -746,7 +746,7 @@ export function EventCalendar({
   const tm = h =&gt; { const hh = Math.floor(h), mm = Math.round((h - hh) * 60); return `${hh &gt; 12 ? hh - 12 : hh}:${String(mm).padStart(2, &#39;0&#39;)}`; };
   const ev = (e, cls = &#39;&#39;) =&gt; html(`&lt;button class=&quot;ecx-e ${cls}&quot; style=&quot;top:${(e[1] - H0) * PX + 1}px;height:${e[2] * PX - 3}px;background:var(--p${e[4]}-bg);color:var(--p${e[4]})&quot;&gt;&lt;b&gt;${e[3]}&lt;/b&gt;&lt;span&gt;${tm(e[1])} – ${tm(e[1] + e[2])}&lt;/span&gt;&lt;/button&gt;`);
   const panel = $(&#39;.ecx&#39;, r), msg = $(&#39;.ecx-msg&#39;, r), pop = html(&#39;&lt;div class=&quot;ecx-pop&quot; role=&quot;dialog&quot; aria-label=&quot;Event&quot;&gt;&lt;/div&gt;&#39;); panel.appendChild(pop);
-  const WHO = [[&#39;MK&#39;,&#39;var(--pl)&#39;],[&#39;JO&#39;,&#39;var(--pm)&#39;],[&#39;DA&#39;,&#39;var(--pb)&#39;],[&#39;AR&#39;,&#39;var(--pp)&#39;]], DAYN = [&#39;Mon&#39;,&#39;Tue&#39;,&#39;Wed&#39;,&#39;Thu&#39;,&#39;Fri&#39;];
+  const WHO = [[&#39;MK&#39;,&#39;var(--av-l)&#39;],[&#39;JO&#39;,&#39;var(--av-m)&#39;],[&#39;DA&#39;,&#39;var(--av-b)&#39;],[&#39;AR&#39;,&#39;var(--av-p)&#39;]], DAYN = [&#39;Mon&#39;,&#39;Tue&#39;,&#39;Wed&#39;,&#39;Thu&#39;,&#39;Fri&#39;];
   let openFor = null;
   const say = t =&gt; swap(msg, t);
   // closing gives the focus back to the event when it was in the card
@@ -1157,7 +1157,7 @@ const fitHits = window.dmFitHits || (() => {
   const tm = h => { const hh = Math.floor(h), mm = Math.round((h - hh) * 60); return `${hh > 12 ? hh - 12 : hh}:${String(mm).padStart(2, '0')}`; };
   const ev = (e, cls = '') => html(`<button class="ecx-e ${cls}" style="top:${(e[1] - H0) * PX + 1}px;height:${e[2] * PX - 3}px;background:var(--p${e[4]}-bg);color:var(--p${e[4]})"><b>${e[3]}</b><span>${tm(e[1])} – ${tm(e[1] + e[2])}</span></button>`);
   const panel = $('.ecx', r), msg = $('.ecx-msg', r), pop = html('<div class="ecx-pop" role="dialog" aria-label="Event"></div>'); panel.appendChild(pop);
-  const WHO = [['MK','var(--pl)'],['JO','var(--pm)'],['DA','var(--pb)'],['AR','var(--pp)']], DAYN = ['Mon','Tue','Wed','Thu','Fri'];
+  const WHO = [['MK','var(--av-l)'],['JO','var(--av-m)'],['DA','var(--av-b)'],['AR','var(--av-p)']], DAYN = ['Mon','Tue','Wed','Thu','Fri'];
   let openFor = null;
   const say = t => swap(msg, t);
   // closing gives the focus back to the event when it was in the card

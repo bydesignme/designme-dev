@@ -3,7 +3,7 @@ import { useId, useState, type KeyboardEvent, type ReactNode } from 'react';
 import { cx } from '../../lib/cx';
 import { useControllable } from '../../lib/hooks';
 import { Icon } from '../../lib/icons';
-import { Avatar, enter, Think, Tip } from '../../lib/motion';
+import { Avatar, avatarInk, enter, Think, Tip } from '../../lib/motion';
 import '../../designme.css';
 import './comments.css';
 
@@ -11,7 +11,7 @@ export interface CommentsPerson {
   name: string;
   /** Two letters for the avatar, like "MK" */
   initials: string;
-  /** The avatar colour, like 'var(--dm-pl)' */
+  /** The avatar colour, like 'var(--dm-av-l)' */
   color: string;
   /** What follows the @ to mention them, like "maya". People with a handle show up in the mention menu */
   handle?: string;
@@ -174,7 +174,7 @@ export function Comments({ title, pin = 1, comments, people, value, defaultValue
             // mousedown, so the field keeps its focus
             <button type="button" key={p.handle} id={`${id}-${i}`} tabIndex={-1} className={cx('dm-mi', i === at && 'dm-hl')} role="option" aria-selected={i === at}
               onMouseEnter={() => setHl({ at: i, for: draft })} onMouseDown={e => { e.preventDefault(); pick(p); }}>
-              <span className="dm-av" style={{ background: p.color, width: 20, height: 20, fontSize: 9 }} aria-hidden="true">{p.initials}</span>
+              <span className="dm-av" style={{ background: p.color, color: avatarInk(p.color), width: 20, height: 20, fontSize: 9 }} aria-hidden="true">{p.initials}</span>
               <span>{p.name}<span className="dm-d">@{p.handle}</span></span>
             </button>
           ))}

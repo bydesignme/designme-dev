@@ -22,7 +22,7 @@ export interface InviteToCollaborateMember {
   /** A quiet line under the name, like the email of someone just invited */
   detail?: string;
   initials: string;
-  /** The avatar colour, like 'var(--dm-pl)' */
+  /** The avatar colour, like 'var(--dm-av-l)' */
   color: string;
   /** Like "Owner" or "Invited, can edit" */
   role: string;
@@ -73,7 +73,7 @@ export interface InviteToCollaborateProps {
 const ROLES: InviteToCollaborateRole[] = [
   { label: 'Can edit', detail: 'Change frames, run the agent' }, { label: 'Can comment', detail: 'Leave notes, no edits' }, { label: 'Can view', detail: 'Read only' }
 ];
-const COLORS = ['var(--dm-pl)', 'var(--dm-pm)', 'var(--dm-pt)', 'var(--dm-pp)', 'var(--dm-pk)'];
+const COLORS = ['var(--dm-av-l)', 'var(--dm-av-m)', 'var(--dm-av-t)', 'var(--dm-av-p)', 'var(--dm-av-k)'];
 const isEmail = (e: string) => /^\S+@\S+\.\S+$/.test(e);
 const initialsOf = (e: string) => e.split('@')[0].slice(0, 2).toUpperCase();
 

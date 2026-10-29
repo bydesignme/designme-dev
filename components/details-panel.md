@@ -79,9 +79,9 @@ export default function DetailsPanelDemo() {
               { value: 'In review', label: 'In review', color: 'var(--dm-accent)' },
               { value: 'Shipped', label: 'Shipped', color: 'var(--dm-ok)' }] },
             { key: 'owner', label: 'Owner', type: 'select', defaultValue: 'Maya Kim', options: [
-              { value: 'Maya Kim', label: 'Maya Kim', avatar: { initials: 'MK', color: 'var(--dm-pl)' } },
-              { value: 'Jon Ortiz', label: 'Jon Ortiz', avatar: { initials: 'JO', color: 'var(--dm-pm)' } },
-              { value: 'Design agent', label: 'Design agent', avatar: { initials: 'DA', color: 'var(--dm-pb)' } }] },
+              { value: 'Maya Kim', label: 'Maya Kim', avatar: { initials: 'MK', color: 'var(--dm-av-l)' } },
+              { value: 'Jon Ortiz', label: 'Jon Ortiz', avatar: { initials: 'JO', color: 'var(--dm-av-m)' } },
+              { value: 'Design agent', label: 'Design agent', avatar: { initials: 'DA', color: 'var(--dm-av-b)' } }] },
             { key: 'model', label: 'Model', type: 'select', value: model, onValueChange: pickModel, options: [
               { value: 'Opus', label: 'Opus', detail: 'Best for design' },
               { value: 'Sonnet', label: 'Sonnet', detail: 'Faster, cheaper' },

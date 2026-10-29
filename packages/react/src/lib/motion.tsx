@@ -129,9 +129,14 @@ export function Tip({ label, kbd, open: forced, off, side = 'top', children }: {
   );
 }
 
-/** A round avatar with initials, on a colour like 'var(--dm-pl)' */
+/** The ink for initials on an avatar colour: each of the eight avatar colours, 'var(--dm-av-b)' to 'var(--dm-av-t)', has its
+    own (white, or a dark ink of its hue where white would fail contrast). Any other colour returns undefined, and the
+    initials stay white */
+export const avatarInk = (color: string) => /^var\(--dm-av-[a-z]\)$/.test(color) ? color.replace(')', '-ink)') : undefined;
+
+/** A round avatar with initials, on a colour like 'var(--dm-av-l)' */
 export const Avatar = ({ initials, color, size, className }: { initials: string; color: string; size?: number; className?: string }) => (
-  <span className={cx('dm-av', className)} style={{ background: color, ...(size && { width: size, height: size }) }} aria-hidden="true">{initials}</span>
+  <span className={cx('dm-av', className)} style={{ background: color, color: avatarInk(color), ...(size && { width: size, height: size }) }} aria-hidden="true">{initials}</span>
 );
 
 /* ---------- sources ---------- */

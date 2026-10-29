@@ -52,11 +52,12 @@ import { FilterMenu } from '@/components/designme/filter-menu/FilterMenu';
 // The animated preview from designme.dev, rebuilt from the React component: an example of driving it from your own state.
 import { useRef, useState } from 'react';
 import { FilterMenu, type FilterMenuField, type FilterMenuFilter } from './FilterMenu';
+import { avatarInk } from '../lib/motion';
 import { useStory } from '../lib/useScript';
 
 /* ---------- Filter menu: filter to open issues, then to Maya's, then take the status filter off ---------- */
-const OWNERS: Record<string, [string, string]> = { MK: ['Maya Kim', 'var(--dm-pl)'], LP: ['Leo Park', 'var(--dm-pb)'], AR: ['Ana Ruiz', 'var(--dm-pm)'], SC: ['Sam Cole', 'var(--dm-pp)'] };
-const STATUS: Record<string, [string, string]> = { open: ['Open', 'var(--dm-pb)'], prog: ['In progress', 'var(--dm-warn)'], done: ['Done', 'var(--dm-ok)'] };
+const OWNERS: Record<string, [string, string]> = { MK: ['Maya Kim', 'var(--dm-av-l)'], LP: ['Leo Park', 'var(--dm-av-b)'], AR: ['Ana Ruiz', 'var(--dm-av-m)'], SC: ['Sam Cole', 'var(--dm-av-p)'] };
+const STATUS: Record<string, [string, string]> = { open: ['Open', 'var(--dm-flm-open)'], prog: ['In progress', 'var(--dm-flm-prog)'], done: ['Done', 'var(--dm-flm-done)'] };
 // title, status, owner and days since the last update, most recent first
 const ISSUES = ([
   ['Pricing toggle hides the yearly saving', 'open', 'MK', 0], ['Plan cards wrap at 768px', 'open', 'MK', 1], ['Checkout button loses its focus ring', 'open', 'MK', 3],
@@ -72,7 +73,7 @@ type Issue = (typeof ISSUES)[number];
 
 const FIELDS: FilterMenuField[] = [
   { key: 'status', label: 'Status', icon: 'target', options: Object.entries(STATUS).map(([value, [label, color]]) => ({ value, label, glyph: <span className="dm-dot" style={{ color }} /> })) },
-  { key: 'owner', label: 'Owner', icon: 'user', options: Object.entries(OWNERS).map(([value, [label, color]]) => ({ value, label, glyph: <span className="dm-av" style={{ background: color }}>{value}</span> })) },
+  { key: 'owner', label: 'Owner', icon: 'user', options: Object.entries(OWNERS).map(([value, [label, color]]) => ({ value, label, glyph: <span className="dm-av" style={{ background: color, color: avatarInk(color) }}>{value}</span> })) },
   { key: 'date', label: 'Updated', icon: 'cal', operators: ['within', 'older than'], options: [{ value: '1', label: 'Past day', chip: '1 day' }, { value: '7', label: 'Past 7 days', chip: '7 days' }, { value: '30', label: 'Past 30 days', chip: '30 days' }] }
 ];
 const test = (t: Issue, f: FilterMenuFilter) => (f.field === 'status' ? t.status === f.value : f.field === 'owner' ? t.owner === f.value : t.age < +f.value) !== !!f.negate;
@@ -152,7 +153,7 @@ import { useEffect, useRef, useState, type KeyboardEvent, type MouseEvent, type 
 import { cx } from '../lib/cx';
 import { useControllable } from '../lib/hooks';
 import { Icon, type IconName } from '../lib/icons';
-import { Swap, Tip } from '../lib/motion';
+import { avatarInk, Swap, Tip } from '../lib/motion';
 import { usePopover } from '../lib/popover';
 import '../designme.css';
 import './filter-menu.css';
@@ -189,8 +190,9 @@ export interface FilterMenuFilter {
 export interface FilterMenuResult {
   id: string;
   title: string;
-  /** The colour of the dot before it, like 'var(--dm-pb)', and what it means, like "Open" */
+  /** The colour of the dot before it, like 'var(--dm-flm-open)', and what it means, like "Open" */
   dot?: { color: string; label: string };
+  /** An avatar colour, like 'var(--dm-av-l)', brings its own ink for the initials */
   avatar?: { initials: string; color: string; label: string };
   /** The quiet text at the end, like "Today" or "3d" */
   meta?: string;
@@ -346,7 +348,7 @@ export function FilterMenu({
             <div key={t.id} className="dm-flm-r dm-enter" style={{ animationDelay: i * 50 + 'ms' }}>
               {t.dot ? <span className="dm-dot" style={{ color: t.dot.color }} role="img" aria-label={t.dot.label} /> : <span />}
               <span className="dm-t">{t.title}</span>
-              {t.avatar ? <span className="dm-av" style={{ background: t.avatar.color }} role="img" aria-label={t.avatar.label}>{t.avatar.initials}</span> : <span />}
+              {t.avatar ? <span className="dm-av" style={{ background: t.avatar.color, color: avatarInk(t.avatar.color) }} role="img" aria-label={t.avatar.label}>{t.avatar.initials}</span> : <span />}
               <span className="dm-a">{t.meta}</span>
             </div>
           ))}

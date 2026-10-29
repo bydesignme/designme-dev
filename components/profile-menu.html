@@ -59,7 +59,7 @@
 .pfm-tr{display:flex;align-items:center;gap:var(--s-1);height:36px;padding:0 7px 0 var(--s-1);border-radius:var(--r-pill);color:var(--muted);flex:none;transition:background var(--t-fast)}
 .pfm-tr[aria-expanded="true"]{background:var(--row)}
 @media (hover:hover) and (pointer:fine){.pfm-tr:hover{background:var(--row)}}
-.pfm-tr .av,.pfm-me .av{background:var(--pl)}
+.pfm-tr .av,.pfm-me .av{background:var(--av-l);color:var(--av-l-ink)}
 .pfm-tr .av{width:28px;height:28px;font-size:11px}
 .pfm-tr>.i{transition:transform var(--t) var(--ease)}
 .pfm-tr[aria-expanded="true"]>.i{transform:rotate(180deg)}
@@ -161,7 +161,7 @@ export default function ProfileMenuDemo() {
 
   return (
     &lt;div ref={ref} style={{ width: &#39;100%&#39; }}&gt;
-      &lt;ProfileMenu user={{ name: &#39;Maya Kim&#39;, email: &#39;maya@northwind.studio&#39;, color: &#39;var(--dm-pl)&#39; }} workspaces={WORKSPACES} context=&quot;Pricing refresh&quot;
+      &lt;ProfileMenu user={{ name: &#39;Maya Kim&#39;, email: &#39;maya@northwind.studio&#39;, color: &#39;var(--dm-av-l)&#39; }} workspaces={WORKSPACES} context=&quot;Pricing refresh&quot;
         workspace={workspace} onWorkspaceChange={id =&gt; { if (id !== workspace) setNote(`Switched to ${WORKSPACES.find(w =&gt; w.id === id)!.name}`); setWorkspace(id); }}
         dark={dark} onDarkChange={d =&gt; { setDark(d); setNote(`Theme set to ${d ? &#39;dark&#39; : &#39;light&#39;}`); }}
         signedIn={signedIn} onSignedInChange={s =&gt; { setSignedIn(s); setNote(s ? &#39;Signed in as Maya Kim&#39; : `Signed out of ${WORKSPACES.find(w =&gt; w.id === workspace)!.name}`); }}
@@ -169,12 +169,12 @@ export default function ProfileMenuDemo() {
     &lt;/div&gt;
   );
 }
-</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything ProfileMenu takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>user</code><span class="opt">required</span></td><td><code>{ name: string; email: string; initials?: string; color?: string }</code></td><td>The person signed in. `color` is the avatar&#39;s colour, like &#39;var(--dm-pl)&#39;</td></tr><tr><td><code>workspaces</code><span class="opt">required</span></td><td><code>ProfileMenuWorkspace[]</code></td><td></td></tr><tr><td><code>workspace</code></td><td><code>string</code></td><td>The current workspace&#39;s id. Leave it out to let the menu switch it</td></tr><tr><td><code>defaultWorkspace</code></td><td><code>string</code></td><td></td></tr><tr><td><code>onWorkspaceChange</code></td><td><code>(id: string) =&gt; void</code></td><td></td></tr><tr><td><code>context</code></td><td><code>ReactNode</code></td><td>The quiet line under the workspace name in the bar, like the page you&#39;re on</td></tr><tr><td><code>dark</code></td><td><code>boolean</code></td><td>The theme switch. It only reports the change: apply the theme in `onDarkChange`</td></tr><tr><td><code>defaultDark</code></td><td><code>boolean</code></td><td></td></tr><tr><td><code>onDarkChange</code></td><td><code>(dark: boolean) =&gt; void</code></td><td></td></tr><tr><td><code>themeLabel</code></td><td><code>string</code></td><td>Defaults to &quot;Dark theme&quot;</td></tr><tr><td><code>shortcuts</code></td><td><code>ProfileMenuShortcut[]</code></td><td>The list Keyboard shortcuts opens. Defaults to the keys this menu answers to</td></tr><tr><td><code>shortcutsOpen</code></td><td><code>boolean</code></td><td>Whether that list is open. Keyboard shortcuts, or ? anywhere in the component, opens it</td></tr><tr><td><code>defaultShortcutsOpen</code></td><td><code>boolean</code></td><td></td></tr><tr><td><code>onShortcutsOpenChange</code></td><td><code>(open: boolean) =&gt; void</code></td><td></td></tr><tr><td><code>signedIn</code></td><td><code>boolean</code></td><td>Sign out swaps the avatar for a Sign in button, which swaps it back</td></tr><tr><td><code>defaultSignedIn</code></td><td><code>boolean</code></td><td></td></tr><tr><td><code>onSignedInChange</code></td><td><code>(signedIn: boolean) =&gt; void</code></td><td></td></tr><tr><td><code>note</code></td><td><code>string</code></td><td>A confirmation under the bar, like &quot;Switched to Acme Labs&quot;. Shown with a green check</td></tr><tr><td><code>open</code></td><td><code>boolean</code></td><td>Whether the menu is open. Leave it out to let the avatar, Escape and a click outside open and close it</td></tr><tr><td><code>defaultOpen</code></td><td><code>boolean</code></td><td></td></tr><tr><td><code>onOpenChange</code></td><td><code>(open: boolean) =&gt; void</code></td><td></td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>ProfileMenu.tsx<span class="l">React · 185 lines</span></summary><pre class="cp-pre"><code>&#39;use client&#39;;
+</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything ProfileMenu takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>user</code><span class="opt">required</span></td><td><code>{ name: string; email: string; initials?: string; color?: string }</code></td><td>The person signed in. `color` is the avatar&#39;s colour, like &#39;var(--dm-av-l)&#39;</td></tr><tr><td><code>workspaces</code><span class="opt">required</span></td><td><code>ProfileMenuWorkspace[]</code></td><td></td></tr><tr><td><code>workspace</code></td><td><code>string</code></td><td>The current workspace&#39;s id. Leave it out to let the menu switch it</td></tr><tr><td><code>defaultWorkspace</code></td><td><code>string</code></td><td></td></tr><tr><td><code>onWorkspaceChange</code></td><td><code>(id: string) =&gt; void</code></td><td></td></tr><tr><td><code>context</code></td><td><code>ReactNode</code></td><td>The quiet line under the workspace name in the bar, like the page you&#39;re on</td></tr><tr><td><code>dark</code></td><td><code>boolean</code></td><td>The theme switch. It only reports the change: apply the theme in `onDarkChange`</td></tr><tr><td><code>defaultDark</code></td><td><code>boolean</code></td><td></td></tr><tr><td><code>onDarkChange</code></td><td><code>(dark: boolean) =&gt; void</code></td><td></td></tr><tr><td><code>themeLabel</code></td><td><code>string</code></td><td>Defaults to &quot;Dark theme&quot;</td></tr><tr><td><code>shortcuts</code></td><td><code>ProfileMenuShortcut[]</code></td><td>The list Keyboard shortcuts opens. Defaults to the keys this menu answers to</td></tr><tr><td><code>shortcutsOpen</code></td><td><code>boolean</code></td><td>Whether that list is open. Keyboard shortcuts, or ? anywhere in the component, opens it</td></tr><tr><td><code>defaultShortcutsOpen</code></td><td><code>boolean</code></td><td></td></tr><tr><td><code>onShortcutsOpenChange</code></td><td><code>(open: boolean) =&gt; void</code></td><td></td></tr><tr><td><code>signedIn</code></td><td><code>boolean</code></td><td>Sign out swaps the avatar for a Sign in button, which swaps it back</td></tr><tr><td><code>defaultSignedIn</code></td><td><code>boolean</code></td><td></td></tr><tr><td><code>onSignedInChange</code></td><td><code>(signedIn: boolean) =&gt; void</code></td><td></td></tr><tr><td><code>note</code></td><td><code>string</code></td><td>A confirmation under the bar, like &quot;Switched to Acme Labs&quot;. Shown with a green check</td></tr><tr><td><code>open</code></td><td><code>boolean</code></td><td>Whether the menu is open. Leave it out to let the avatar, Escape and a click outside open and close it</td></tr><tr><td><code>defaultOpen</code></td><td><code>boolean</code></td><td></td></tr><tr><td><code>onOpenChange</code></td><td><code>(open: boolean) =&gt; void</code></td><td></td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>ProfileMenu.tsx<span class="l">React · 185 lines</span></summary><pre class="cp-pre"><code>&#39;use client&#39;;
 import { useEffect, useId, useRef, useState, type KeyboardEvent, type MouseEvent, type ReactNode } from &#39;react&#39;;
 import { cx } from &#39;../lib/cx&#39;;
 import { useControllable } from &#39;../lib/hooks&#39;;
 import { Icon } from &#39;../lib/icons&#39;;
-import { enter, Fold, Swap, Tip } from &#39;../lib/motion&#39;;
+import { avatarInk, enter, Fold, Swap, Tip } from &#39;../lib/motion&#39;;
 import { usePopover } from &#39;../lib/popover&#39;;
 import &#39;../designme.css&#39;;
 import &#39;./profile-menu.css&#39;;
@@ -202,7 +202,7 @@ export interface ProfileMenuShortcut {
 }
 
 export interface ProfileMenuProps {
-  /** The person signed in. `color` is the avatar&#39;s colour, like &#39;var(--dm-pl)&#39; */
+  /** The person signed in. `color` is the avatar&#39;s colour, like &#39;var(--dm-av-l)&#39; */
   user: { name: string; email: string; initials?: string; color?: string };
   workspaces: ProfileMenuWorkspace[];
   /** The current workspace&#39;s id. Leave it out to let the menu switch it */
@@ -303,7 +303,7 @@ export function ProfileMenu({
         &lt;span className=&quot;dm-pfm-ws&quot;&gt;&lt;Swap className=&quot;dm-pfm-wn&quot;&gt;{cur?.name ?? &#39;&#39;}&lt;/Swap&gt;{context &amp;&amp; &lt;span className=&quot;dm-muted&quot;&gt;{context}&lt;/span&gt;}&lt;/span&gt;
         {isIn ? (
           &lt;button {...menu.trigger} onClick={onTrigger} onKeyDown={onTriggerKey} type=&quot;button&quot; className=&quot;dm-pfm-tr&quot; aria-label={`Account menu, ${user.name}`}&gt;
-            &lt;span className=&quot;dm-av&quot; style={user.color ? { background: user.color } : undefined}&gt;{initials}&lt;/span&gt;&lt;Icon name=&quot;chev-d&quot; size=&quot;xs&quot; /&gt;
+            &lt;span className=&quot;dm-av&quot; style={user.color ? { background: user.color, color: avatarInk(user.color) } : undefined}&gt;{initials}&lt;/span&gt;&lt;Icon name=&quot;chev-d&quot; size=&quot;xs&quot; /&gt;
           &lt;/button&gt;
         ) : (
           &lt;button ref={signIn} type=&quot;button&quot; className=&quot;dm-pill dm-line dm-sm dm-pfm-in&quot; onClick={() =&gt; { setIn(true); setTimeout(() =&gt; trigger.current?.focus()); }}&gt;Sign in&lt;/button&gt;
@@ -311,7 +311,7 @@ export function ProfileMenu({
       &lt;/div&gt;
       &lt;div {...menu.pop} className={cx(menu.pop.className, &#39;dm-pfm-pop&#39;)} role=&quot;menu&quot; aria-labelledby={`${id}-n ${id}-e`} onKeyDown={onMenuKey}&gt;
         &lt;div className=&quot;dm-pfm-me&quot; role=&quot;none&quot;&gt;
-          &lt;span className=&quot;dm-av&quot; style={user.color ? { background: user.color } : undefined}&gt;{initials}&lt;/span&gt;
+          &lt;span className=&quot;dm-av&quot; style={user.color ? { background: user.color, color: avatarInk(user.color) } : undefined}&gt;{initials}&lt;/span&gt;
           &lt;span className=&quot;dm-t&quot;&gt;&lt;b id={`${id}-n`}&gt;{user.name}&lt;/b&gt;&lt;span className=&quot;dm-muted&quot; id={`${id}-e`}&gt;{user.email}&lt;/span&gt;&lt;/span&gt;
         &lt;/div&gt;
         &lt;div className=&quot;dm-sep&quot; role=&quot;separator&quot; /&gt;
@@ -369,7 +369,7 @@ export function ProfileMenu({
 .dm-pfm-tr{display:flex;align-items:center;gap:var(--dm-s-1);height:36px;padding:0 7px 0 var(--dm-s-1);border-radius:var(--dm-r-pill);color:var(--dm-muted);flex:none;transition:background var(--dm-t-fast)}
 .dm-pfm-tr[aria-expanded=&quot;true&quot;]{background:var(--dm-row)}
 @media (hover:hover) and (pointer:fine){.dm-pfm-tr:hover{background:var(--dm-row)}}
-.dm-pfm-tr .dm-av,.dm-pfm-me .dm-av{background:var(--dm-pl)}
+.dm-pfm-tr .dm-av,.dm-pfm-me .dm-av{background:var(--dm-av-l);color:var(--dm-av-l-ink)}
 .dm-pfm-tr .dm-av{width:28px;height:28px;font-size:11px}
 .dm-pfm-tr&gt;.dm-i{transition:transform var(--dm-t) var(--dm-ease)}
 .dm-pfm-tr[aria-expanded=&quot;true&quot;]&gt;.dm-i{transform:rotate(180deg)}
@@ -440,7 +440,7 @@ export function ProfileMenu({
 .pfm-tr{display:flex;align-items:center;gap:var(--s-1);height:36px;padding:0 7px 0 var(--s-1);border-radius:var(--r-pill);color:var(--muted);flex:none;transition:background var(--t-fast)}
 .pfm-tr[aria-expanded=&quot;true&quot;]{background:var(--row)}
 @media (hover:hover) and (pointer:fine){.pfm-tr:hover{background:var(--row)}}
-.pfm-tr .av,.pfm-me .av{background:var(--pl)}
+.pfm-tr .av,.pfm-me .av{background:var(--av-l);color:var(--av-l-ink)}
 .pfm-tr .av{width:28px;height:28px;font-size:11px}
 .pfm-tr&gt;.i{transition:transform var(--t) var(--ease)}
 .pfm-tr[aria-expanded=&quot;true&quot;]&gt;.i{transform:rotate(180deg)}

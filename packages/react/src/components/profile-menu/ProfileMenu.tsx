@@ -3,7 +3,7 @@ import { useEffect, useId, useRef, useState, type KeyboardEvent, type MouseEvent
 import { cx } from '../../lib/cx';
 import { useControllable } from '../../lib/hooks';
 import { Icon } from '../../lib/icons';
-import { enter, Fold, Swap, Tip } from '../../lib/motion';
+import { avatarInk, enter, Fold, Swap, Tip } from '../../lib/motion';
 import { usePopover } from '../../lib/popover';
 import '../../designme.css';
 import './profile-menu.css';
@@ -31,7 +31,7 @@ export interface ProfileMenuShortcut {
 }
 
 export interface ProfileMenuProps {
-  /** The person signed in. `color` is the avatar's colour, like 'var(--dm-pl)' */
+  /** The person signed in. `color` is the avatar's colour, like 'var(--dm-av-l)' */
   user: { name: string; email: string; initials?: string; color?: string };
   workspaces: ProfileMenuWorkspace[];
   /** The current workspace's id. Leave it out to let the menu switch it */
@@ -132,7 +132,7 @@ export function ProfileMenu({
         <span className="dm-pfm-ws"><Swap className="dm-pfm-wn">{cur?.name ?? ''}</Swap>{context && <span className="dm-muted">{context}</span>}</span>
         {isIn ? (
           <button {...menu.trigger} onClick={onTrigger} onKeyDown={onTriggerKey} type="button" className="dm-pfm-tr" aria-label={`Account menu, ${user.name}`}>
-            <span className="dm-av" style={user.color ? { background: user.color } : undefined}>{initials}</span><Icon name="chev-d" size="xs" />
+            <span className="dm-av" style={user.color ? { background: user.color, color: avatarInk(user.color) } : undefined}>{initials}</span><Icon name="chev-d" size="xs" />
           </button>
         ) : (
           <button ref={signIn} type="button" className="dm-pill dm-line dm-sm dm-pfm-in" onClick={() => { setIn(true); setTimeout(() => trigger.current?.focus()); }}>Sign in</button>
@@ -140,7 +140,7 @@ export function ProfileMenu({
       </div>
       <div {...menu.pop} className={cx(menu.pop.className, 'dm-pfm-pop')} role="menu" aria-labelledby={`${id}-n ${id}-e`} onKeyDown={onMenuKey}>
         <div className="dm-pfm-me" role="none">
-          <span className="dm-av" style={user.color ? { background: user.color } : undefined}>{initials}</span>
+          <span className="dm-av" style={user.color ? { background: user.color, color: avatarInk(user.color) } : undefined}>{initials}</span>
           <span className="dm-t"><b id={`${id}-n`}>{user.name}</b><span className="dm-muted" id={`${id}-e`}>{user.email}</span></span>
         </div>
         <div className="dm-sep" role="separator" />

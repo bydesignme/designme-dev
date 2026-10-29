@@ -102,8 +102,8 @@ import { Agenda, type AgendaItem } from &#39;./Agenda&#39;;
 import { useStory } from &#39;../lib/useScript&#39;;
 
 const P = {
-  MK: { initials: &#39;MK&#39;, color: &#39;var(--dm-pl)&#39; }, JO: { initials: &#39;JO&#39;, color: &#39;var(--dm-pm)&#39; }, AR: { initials: &#39;AR&#39;, color: &#39;var(--dm-pp)&#39; },
-  SL: { initials: &#39;SL&#39;, color: &#39;var(--dm-pt)&#39; }, DK: { initials: &#39;DK&#39;, color: &#39;var(--dm-pb)&#39; }
+  MK: { initials: &#39;MK&#39;, color: &#39;var(--dm-av-l)&#39; }, JO: { initials: &#39;JO&#39;, color: &#39;var(--dm-av-m)&#39; }, AR: { initials: &#39;AR&#39;, color: &#39;var(--dm-av-p)&#39; },
+  SL: { initials: &#39;SL&#39;, color: &#39;var(--dm-av-t)&#39; }, DK: { initials: &#39;DK&#39;, color: &#39;var(--dm-av-b)&#39; }
 };
 const ITEMS: AgendaItem[] = [
   { key: &#39;standup&#39;, time: &#39;9:00&#39;, title: &#39;Standup&#39;, detail: &#39;15 min, Design team&#39;, people: [P.MK, P.JO, P.AR], past: true },
@@ -135,7 +135,7 @@ import &#39;./agenda.css&#39;;
 export interface AgendaPerson {
   /** Like &quot;MK&quot; */
   initials: string;
-  /** The avatar&#39;s colour, like &#39;var(--dm-pl)&#39; */
+  /** The avatar&#39;s colour, like &#39;var(--dm-av-l)&#39; */
   color: string;
 }
 
@@ -292,10 +292,10 @@ export function Agenda({ items, title = &#39;Today&#39;, subtitle, count, now, o
 .agx-join{margin-top:var(--s-2);align-self:flex-start}
 </code></pre></details><details class="cp-file"><summary>agenda.js<span class="l">HTML · 23 lines</span></summary><pre class="cp-pre"><code>DM.def(&#39;agenda&#39;, (r, c) =&gt; {
   const E = [
-    [&#39;9:00&#39;,&#39;Standup&#39;,&#39;15 min, Design team&#39;,&#39;b&#39;,[[&#39;MK&#39;,&#39;var(--pl)&#39;],[&#39;JO&#39;,&#39;var(--pm)&#39;],[&#39;AR&#39;,&#39;var(--pp)&#39;]],null,1],
-    [&#39;11:30&#39;,&#39;Agent demo&#39;,&#39;30 min, Zoom&#39;,&#39;y&#39;,[[&#39;SL&#39;,&#39;var(--pt)&#39;],[&#39;MK&#39;,&#39;var(--pl)&#39;]],[&#39;Demo flow: pricing audit, then the token export&#39;,&#39;Sam asked about cost limits last time, the cap is now $5&#39;],0],
-    [&#39;1:00&#39;,&#39;Pricing workshop&#39;,&#39;90 min, Room 4&#39;,&#39;p&#39;,[[&#39;JO&#39;,&#39;var(--pm)&#39;],[&#39;AR&#39;,&#39;var(--pp)&#39;],[&#39;DK&#39;,&#39;var(--pb)&#39;],[&#39;MK&#39;,&#39;var(--pl)&#39;]],[&#39;Trial to paid is up 8.1 pts since Sep 18&#39;,&#39;Open question: show monthly price crossed out on mobile too?&#39;,&#39;3 frames ready to review in Figma&#39;],0],
-    [&#39;4:00&#39;,&#39;1:1 with Maya&#39;,&#39;30 min&#39;,&#39;l&#39;,[[&#39;MK&#39;,&#39;var(--pl)&#39;]],[&#39;She wanted feedback on the checkout copy&#39;,&#39;Library publish is waiting on her approval&#39;],0]
+    [&#39;9:00&#39;,&#39;Standup&#39;,&#39;15 min, Design team&#39;,&#39;b&#39;,[[&#39;MK&#39;,&#39;var(--av-l)&#39;],[&#39;JO&#39;,&#39;var(--av-m)&#39;],[&#39;AR&#39;,&#39;var(--av-p)&#39;]],null,1],
+    [&#39;11:30&#39;,&#39;Agent demo&#39;,&#39;30 min, Zoom&#39;,&#39;y&#39;,[[&#39;SL&#39;,&#39;var(--av-t)&#39;],[&#39;MK&#39;,&#39;var(--av-l)&#39;]],[&#39;Demo flow: pricing audit, then the token export&#39;,&#39;Sam asked about cost limits last time, the cap is now $5&#39;],0],
+    [&#39;1:00&#39;,&#39;Pricing workshop&#39;,&#39;90 min, Room 4&#39;,&#39;p&#39;,[[&#39;JO&#39;,&#39;var(--av-m)&#39;],[&#39;AR&#39;,&#39;var(--av-p)&#39;],[&#39;DK&#39;,&#39;var(--av-b)&#39;],[&#39;MK&#39;,&#39;var(--av-l)&#39;]],[&#39;Trial to paid is up 8.1 pts since Sep 18&#39;,&#39;Open question: show monthly price crossed out on mobile too?&#39;,&#39;3 frames ready to review in Figma&#39;],0],
+    [&#39;4:00&#39;,&#39;1:1 with Maya&#39;,&#39;30 min&#39;,&#39;l&#39;,[[&#39;MK&#39;,&#39;var(--av-l)&#39;]],[&#39;She wanted feedback on the checkout copy&#39;,&#39;Library publish is waiting on her approval&#39;],0]
   ];
   const list = $(&#39;.agx-list&#39;, r);
   list.innerHTML = E.map((e, i) =&gt; `&lt;button class=&quot;agx-e${e[6] ? &#39; past&#39; : &#39;&#39;}&quot; data-i=&quot;${i}&quot;&gt;&lt;span class=&quot;tm num&quot;&gt;${e[0]}&lt;/span&gt;&lt;span class=&quot;bar&quot;&gt;&lt;/span&gt;&lt;span class=&quot;t&quot;&gt;&lt;b&gt;${e[1]}&lt;/b&gt;&lt;span&gt;${e[2]}&lt;/span&gt;&lt;span class=&quot;who&quot;&gt;${e[4].map(a =&gt; AV(a[0], a[1])).join(&#39;&#39;)}&lt;/span&gt;&lt;/span&gt;&lt;/button&gt;`).join(&#39;&#39;);
@@ -637,10 +637,10 @@ const fitHits = window.dmFitHits || (() => {
 })();
 })();</script><script src="/components/assets/core.js"></script><script>DM.def('agenda', (r, c) => {
   const E = [
-    ['9:00','Standup','15 min, Design team','b',[['MK','var(--pl)'],['JO','var(--pm)'],['AR','var(--pp)']],null,1],
-    ['11:30','Agent demo','30 min, Zoom','y',[['SL','var(--pt)'],['MK','var(--pl)']],['Demo flow: pricing audit, then the token export','Sam asked about cost limits last time, the cap is now $5'],0],
-    ['1:00','Pricing workshop','90 min, Room 4','p',[['JO','var(--pm)'],['AR','var(--pp)'],['DK','var(--pb)'],['MK','var(--pl)']],['Trial to paid is up 8.1 pts since Sep 18','Open question: show monthly price crossed out on mobile too?','3 frames ready to review in Figma'],0],
-    ['4:00','1:1 with Maya','30 min','l',[['MK','var(--pl)']],['She wanted feedback on the checkout copy','Library publish is waiting on her approval'],0]
+    ['9:00','Standup','15 min, Design team','b',[['MK','var(--av-l)'],['JO','var(--av-m)'],['AR','var(--av-p)']],null,1],
+    ['11:30','Agent demo','30 min, Zoom','y',[['SL','var(--av-t)'],['MK','var(--av-l)']],['Demo flow: pricing audit, then the token export','Sam asked about cost limits last time, the cap is now $5'],0],
+    ['1:00','Pricing workshop','90 min, Room 4','p',[['JO','var(--av-m)'],['AR','var(--av-p)'],['DK','var(--av-b)'],['MK','var(--av-l)']],['Trial to paid is up 8.1 pts since Sep 18','Open question: show monthly price crossed out on mobile too?','3 frames ready to review in Figma'],0],
+    ['4:00','1:1 with Maya','30 min','l',[['MK','var(--av-l)']],['She wanted feedback on the checkout copy','Library publish is waiting on her approval'],0]
   ];
   const list = $('.agx-list', r);
   list.innerHTML = E.map((e, i) => `<button class="agx-e${e[6] ? ' past' : ''}" data-i="${i}"><span class="tm num">${e[0]}</span><span class="bar"></span><span class="t"><b>${e[1]}</b><span>${e[2]}</span><span class="who">${e[4].map(a => AV(a[0], a[1])).join('')}</span></span></button>`).join('');

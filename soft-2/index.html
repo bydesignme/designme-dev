@@ -46,6 +46,11 @@
   --merge:#7c4cd4; --merge-bg:#f2ecfd; --add:#187633; --del:#c7212c;
   --pb:#1460d0; --pb-bg:#eaf2ff; --pl:#6b47d6; --pl-bg:#f2edff; --pm:#10754a; --pm-bg:#e7f8f0; --pp:#994c0b; --pp-bg:#fff2e6;
   --pr:#bf314d; --pr-bg:#ffeef1; --py:#856404; --py-bg:#fffae3; --pk:#b92e75; --pk-bg:#fff0f7; --pt:#0e747d; --pt-bg:#e6f9fa;
+  /* avatars have colours of their own, the same in every style and theme: a bright fill and the initials' ink on it (4.5:1,
+     APCA Lc 60). Blue, violet, red and pink are deep enough for white; green, teal, yellow and orange are too light for white
+     and take a dark ink of their own hue. An avatar given one of these, var(--av-l), takes its ink, var(--av-l-ink), on its own */
+  --av-b:#126fe6; --av-b-ink:#ffffff; --av-l:#834ff5; --av-l-ink:#ffffff; --av-r:#d73341; --av-r-ink:#ffffff; --av-k:#cf3288; --av-k-ink:#ffffff;
+  --av-m:#27cf86; --av-m-ink:#052616; --av-t:#28c9d8; --av-t-ink:#042428; --av-y:#e9ac1a; --av-y-ink:#2a1d03; --av-p:#fda154; --av-p-ink:#301804;
   --ts:#2c6cb2; --react:#0a738b;
   /* every raised surface carries its own hairline edge, so nothing needs a separate ring */
   --shadow:0 0 0 1px rgba(0,0,0,.035),0 1px 2px rgba(0,0,0,.04),0 8px 16px -8px rgba(0,0,0,.08);
@@ -306,8 +311,8 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .copied,.copied:hover{color:var(--ok)!important}
 .tip .kbd{background:rgba(255,255,255,.14);color:inherit;margin-left:6px}
 :root[data-theme="dark"] .tip .kbd{background:rgba(0,0,0,.1)}
-:root[data-theme="dark"] :is(.av,.ssx-ics span){color:#0d0d0d!important}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) :is(.av,.ssx-ics span){color:#0d0d0d!important}}
+:root[data-theme="dark"] .ssx-ics span{color:#0d0d0d!important}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .ssx-ics span{color:#0d0d0d!important}}
 /* a closed popover is hidden as well as clear, so Tab and screen readers pass over it: it shows at once as it opens, so the
    focus can go into it, and hides once it has faded out */
 .pop{position:absolute;z-index:50;min-width:200px;background:var(--raised);border-radius:14px;box-shadow:var(--shadow-pop);padding:6px;opacity:0;visibility:hidden;pointer-events:none;transform:translateY(6px) scale(.98);transform-origin:var(--origin,top left);filter:blur(3px);transition:opacity .2s var(--ease),transform .35s var(--ease),filter .2s var(--ease),visibility 0s .2s}
@@ -3637,6 +3642,17 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--row)}
 .scx-sp path{fill:none;stroke-width:1.75;vector-effect:non-scaling-stroke;stroke-linejoin:round;transition:d .8s var(--ease)}
 /* ---------- Account table ---------- */
 .atb{overflow:hidden}
+/* the account table's colours run brighter than the shared tones: its plan tags take a stronger tint with saturated text
+   (4.5:1 and APCA Lc 60 on the tint, in every style and theme) and the health bars vivid marks (3:1) */
+.atb{--atb-ok:#00a44b;--atb-warn:#cd7a00;--atb-bad:#f03e48;
+  --pb:#0663d2;--pb-bg:color-mix(in srgb,#4890fa 15%,transparent);--pl:#7d2dfc;--pl-bg:color-mix(in srgb,#9776fa 15%,transparent);--pm:#087744;--pm-bg:color-mix(in srgb,#1fad66 15%,transparent);--pp:#a34f06;--pp-bg:color-mix(in srgb,#dc7019 15%,transparent);
+  --pr:#c50b2d;--pr-bg:color-mix(in srgb,#fb4652 15%,transparent);--py:#886006;--py-bg:color-mix(in srgb,#bb881a 15%,transparent);--pk:#b80a75;--pk-bg:color-mix(in srgb,#fb27a2 15%,transparent);--pt:#08727c;--pt-bg:color-mix(in srgb,#1fa5b1 15%,transparent)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .atb{--atb-ok:#22c55e;--atb-warn:#f59e0b;--atb-bad:#fb4849;
+  --pb:#a4c9fe;--pb-bg:color-mix(in srgb,#4890fa 22%,transparent);--pl:#c9befe;--pl-bg:color-mix(in srgb,#9776fa 22%,transparent);--pm:#19e285;--pm-bg:color-mix(in srgb,#1fad66 22%,transparent);--pp:#feb68b;--pp-bg:color-mix(in srgb,#dc7019 22%,transparent);
+  --pr:#feb1ad;--pr-bg:color-mix(in srgb,#fb4652 22%,transparent);--py:#feba28;--py-bg:color-mix(in srgb,#bb881a 22%,transparent);--pk:#feabcf;--pk-bg:color-mix(in srgb,#fb27a2 22%,transparent);--pt:#19daeb;--pt-bg:color-mix(in srgb,#1fa5b1 22%,transparent)}}
+:root[data-theme="dark"] .atb{--atb-ok:#22c55e;--atb-warn:#f59e0b;--atb-bad:#fb4849;
+  --pb:#a4c9fe;--pb-bg:color-mix(in srgb,#4890fa 22%,transparent);--pl:#c9befe;--pl-bg:color-mix(in srgb,#9776fa 22%,transparent);--pm:#19e285;--pm-bg:color-mix(in srgb,#1fad66 22%,transparent);--pp:#feb68b;--pp-bg:color-mix(in srgb,#dc7019 22%,transparent);
+  --pr:#feb1ad;--pr-bg:color-mix(in srgb,#fb4652 22%,transparent);--py:#feba28;--py-bg:color-mix(in srgb,#bb881a 22%,transparent);--pk:#feabcf;--pk-bg:color-mix(in srgb,#fb27a2 22%,transparent);--pt:#19daeb;--pt-bg:color-mix(in srgb,#1fa5b1 22%,transparent)}
 .atb-h{display:flex;align-items:center;gap:var(--s-2);padding:10px;flex-wrap:wrap;border-bottom:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
 .atb-s{display:flex;align-items:center;gap:var(--s-2);height:32px;padding:0 10px;border-radius:var(--r-field);background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--field-line) 50%,transparent);color:var(--muted);flex:1;min-width:160px;transition:box-shadow var(--t-fast)}
 @supports (corner-shape:squircle){.atb-s{corner-shape:squircle;border-radius:var(--r-field-sq)}}
@@ -3659,7 +3675,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--row)}
 .atb tr.row.open{background:var(--wash)}
 .atb .nm{display:flex;align-items:center;gap:9px;font-weight:500}
 /* brand tiles sit a shade darker than the brand colour, so their white letter reads at 4.5:1 or more */
-.atb .lg{width:24px;height:24px;border-radius:7px;display:grid;place-items:center;font-size:10px;font-weight:500;color:#fff;background-image:linear-gradient(rgba(0,0,0,.3),rgba(0,0,0,.3))}
+.atb .lg{width:24px;height:24px;border-radius:7px;display:grid;place-items:center;font-size:10px;font-weight:500;color:#fff}
 .atb .hb{display:flex;align-items:center;gap:var(--s-2)}
 .atb .hb i{width:54px;height:5px;border-radius:3px;background:var(--line);overflow:hidden;display:block}
 .atb .hb i b{display:block;height:100%;border-radius:3px}
@@ -4497,7 +4513,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--row)}
 .pfm-ws .muted{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pfm-tr{display:flex;align-items:center;gap:var(--s-1);height:36px;padding:0 7px 0 var(--s-1);border-radius:var(--r-pill);color:var(--muted);flex:none;transition:background var(--t-fast)}
 .pfm-tr:hover,.pfm-tr[aria-expanded="true"]{background:var(--row)}
-.pfm-tr .av,.pfm-me .av{background:var(--pl)}
+.pfm-tr .av,.pfm-me .av{background:var(--av-l);color:var(--av-l-ink)}
 .pfm-tr .av{width:28px;height:28px;font-size:11px}
 .pfm-tr>.i{transition:transform var(--t) var(--ease)}
 .pfm-tr[aria-expanded="true"]>.i{transform:rotate(180deg)}
@@ -4638,8 +4654,12 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--row)}
 .flm-r .a{font-size:12px;color:var(--muted);text-align:right}
 .flm-more{padding:6px var(--s-2) 0;font-size:12.5px;color:var(--muted)}
 .flm-e{padding:28px var(--s-2);text-align:center;font-size:13px;color:var(--muted)}
-.flm .dot[data-s="open"]{color:var(--pb)}.flm .dot[data-s="prog"]{color:var(--warn)}.flm .dot[data-s="done"]{color:var(--ok)}
-.flm .av[data-o="MK"]{background:var(--pl)}.flm .av[data-o="LP"]{background:var(--pb)}.flm .av[data-o="AR"]{background:var(--pm)}.flm .av[data-o="SC"]{background:var(--pp)}
+.flm .dot[data-s="open"]{color:var(--flm-open)}.flm .dot[data-s="prog"]{color:var(--flm-prog)}.flm .dot[data-s="done"]{color:var(--flm-done)}
+/* the status dots are vivid marks, 3:1 on the surface in every style and theme */
+.flm{--flm-open:#2f8cff;--flm-prog:#cd7a00;--flm-done:#00a44b}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .flm{--flm-open:#5b9dff;--flm-prog:#f59e0b;--flm-done:#22c55e}}
+:root[data-theme="dark"] .flm{--flm-open:#5b9dff;--flm-prog:#f59e0b;--flm-done:#22c55e}
+.flm .av[data-o="MK"]{background:var(--av-l);color:var(--av-l-ink)}.flm .av[data-o="LP"]{background:var(--av-b);color:var(--av-b-ink)}.flm .av[data-o="AR"]{background:var(--av-m);color:var(--av-m-ink)}.flm .av[data-o="SC"]{background:var(--av-p);color:var(--av-p-ink)}
 /* ---------- Ticket list ---------- */
 /* rows run edge to edge inside the panel, so there is one surface instead of nested ones */
 /* the panel fits the tickets it lists, however few are left */
@@ -5780,7 +5800,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--row)}
       <div class="dtp-r"><span class="k">Status</span><button class="dtp-v dtp-stat" data-pop=".dtp-pst"><span class="dot" style="color:var(--accent-mark,var(--accent))"></span><span>In review</span></button>
         <div class="pop dtp-pst" role="menu"><button class="mi" data-close data-s="In progress" data-col="var(--py)"><span class="dot" style="color:var(--py)"></span><span>In progress</span></button><button class="mi" data-close data-s="In review" data-col="var(--accent-mark,var(--accent))"><span class="dot" style="color:var(--accent-mark,var(--accent))"></span><span>In review</span></button><button class="mi" data-close data-s="Shipped" data-col="var(--ok)"><span class="dot" style="color:var(--ok)"></span><span>Shipped</span></button></div></div>
       <div class="dtp-r"><span class="k">Owner</span><button class="dtp-v dtp-own" data-pop=".dtp-pow">{avm}<span>Maya Kim</span></button>
-        <div class="pop dtp-pow" role="menu"><button class="mi" data-close data-o="Maya Kim" data-i="MK" data-col="var(--pl)">{avm}<span>Maya Kim</span></button><button class="mi" data-close data-o="Jon Ortiz" data-i="JO" data-col="var(--pm)">{avj}<span>Jon Ortiz</span></button><button class="mi" data-close data-o="Design agent" data-i="DA" data-col="var(--pb)">{ava}<span>Design agent</span></button></div></div>
+        <div class="pop dtp-pow" role="menu"><button class="mi" data-close data-o="Maya Kim" data-i="MK" data-col="var(--av-l)">{avm}<span>Maya Kim</span></button><button class="mi" data-close data-o="Jon Ortiz" data-i="JO" data-col="var(--av-m)">{avj}<span>Jon Ortiz</span></button><button class="mi" data-close data-o="Design agent" data-i="DA" data-col="var(--av-b)">{ava}<span>Design agent</span></button></div></div>
       <div class="dtp-r"><span class="k">Model</span><button class="dtp-v" data-pop=".dtp-pmo"><span class="dtp-mo">Opus</span>{chevd}</button>
         <div class="pop dtp-pmo" role="menu"><button class="mi" data-close data-m="Opus"><span>Opus<span class="d">Best for design</span></span></button><button class="mi" data-close data-m="Sonnet"><span>Sonnet<span class="d">Faster, cheaper</span></span></button><button class="mi" data-close data-m="Haiku"><span>Haiku<span class="d">Quick edits</span></span></button></div></div>
       <div class="dtp-r"><span class="k">Due</span><span class="dtp-v num">Oct 24</span></div>
@@ -6594,7 +6614,7 @@ let REDUCE = false;
   if (mq.addEventListener) mq.addEventListener('change', set); else mq.addListener(set);
 }
 const I = (n, c = 's') => `<svg class="i ${c}"><use href="#i-${n}"/></svg>`;
-const AV = (n, bg) => `<span class="av" style="background:${bg}">${n}</span>`;
+const AV = (n, bg) => `<span class="av" style="background:${bg}${/^var\(--av-[a-z]\)$/.test(bg) ? ';color:' + bg.replace(')', '-ink)') : ''}">${n}</span>`;
 /* official brand marks for the services this page names */
 const BRAND = {"google": "<svg class=\"brand\" aria-hidden=\"true\" viewBox=\"0 0 128 128\"><path fill=\"#e33629\" d=\"M44.59 4.21a64 64 0 0142.61.37 61.22 61.22 0 0120.35 12.62c-2 2.14-4.11 4.14-6.15 6.22Q95.58 29.23 89.77 35a34.28 34.28 0 00-13.64-8 37.17 37.17 0 00-37.46 9.74 39.25 39.25 0 00-9.18 14.91L8.76 35.6A63.53 63.53 0 0144.59 4.21z\"/><path fill=\"#f8bd00\" d=\"M3.26 51.5a62.93 62.93 0 015.5-15.9l20.73 16.09a38.31 38.31 0 000 24.63q-10.36 8-20.73 16.08a63.33 63.33 0 01-5.5-40.9z\"/><path fill=\"#587dbd\" d=\"M65.27 52.15h59.52a74.33 74.33 0 01-1.61 33.58 57.44 57.44 0 01-16 26.26c-6.69-5.22-13.41-10.4-20.1-15.62a29.72 29.72 0 0012.66-19.54H65.27c-.01-8.22 0-16.45 0-24.68z\"/><path fill=\"#319f43\" d=\"M8.75 92.4q10.37-8 20.73-16.08A39.3 39.3 0 0044 95.74a37.16 37.16 0 0014.08 6.08 41.29 41.29 0 0015.1 0 36.16 36.16 0 0013.93-5.5c6.69 5.22 13.41 10.4 20.1 15.62a57.13 57.13 0 01-25.9 13.47 67.6 67.6 0 01-32.36-.35 63 63 0 01-23-11.59A63.73 63.73 0 018.75 92.4z\"/></svg>", "github": "<svg class=\"brand\" aria-hidden=\"true\" viewBox=\"0 0 24 24\"><path fill=\"currentColor\" d=\"M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12\"/></svg>", "figma": "<svg class=\"brand\" aria-hidden=\"true\" viewBox=\"0 0 128 128\"><path fill=\"#0acf83\" d=\"M45.5 129c11.9 0 21.5-9.6 21.5-21.5V86H45.5C33.6 86 24 95.6 24 107.5S33.6 129 45.5 129zm0 0\"/><path fill=\"#a259ff\" d=\"M24 64.5C24 52.6 33.6 43 45.5 43H67v43H45.5C33.6 86 24 76.4 24 64.5zm0 0\"/><path fill=\"#f24e1e\" d=\"M24 21.5C24 9.6 33.6 0 45.5 0H67v43H45.5C33.6 43 24 33.4 24 21.5zm0 0\"/><path fill=\"#ff7262\" d=\"M67 0h21.5C100.4 0 110 9.6 110 21.5S100.4 43 88.5 43H67zm0 0\"/><path fill=\"#1abcfe\" d=\"M110 64.5c0 11.9-9.6 21.5-21.5 21.5S67 76.4 67 64.5 76.6 43 88.5 43 110 52.6 110 64.5zm0 0\"/></svg>", "slack": "<svg class=\"brand\" aria-hidden=\"true\" viewBox=\"0 0 128 128\"><path d=\"M27.255 80.719c0 7.33-5.978 13.317-13.309 13.317C6.616 94.036.63 88.049.63 80.719s5.987-13.317 13.317-13.317h13.309zm6.709 0c0-7.33 5.987-13.317 13.317-13.317s13.317 5.986 13.317 13.317v33.335c0 7.33-5.986 13.317-13.317 13.317-7.33 0-13.317-5.987-13.317-13.317zm0 0\" fill=\"#de1c59\"/><path d=\"M47.281 27.255c-7.33 0-13.317-5.978-13.317-13.309C33.964 6.616 39.951.63 47.281.63s13.317 5.987 13.317 13.317v13.309zm0 6.709c7.33 0 13.317 5.987 13.317 13.317s-5.986 13.317-13.317 13.317H13.946C6.616 60.598.63 54.612.63 47.281c0-7.33 5.987-13.317 13.317-13.317zm0 0\" fill=\"#35c5f0\"/><path d=\"M100.745 47.281c0-7.33 5.978-13.317 13.309-13.317 7.33 0 13.317 5.987 13.317 13.317s-5.987 13.317-13.317 13.317h-13.309zm-6.709 0c0 7.33-5.987 13.317-13.317 13.317s-13.317-5.986-13.317-13.317V13.946C67.402 6.616 73.388.63 80.719.63c7.33 0 13.317 5.987 13.317 13.317zm0 0\" fill=\"#2eb57d\"/><path d=\"M80.719 100.745c7.33 0 13.317 5.978 13.317 13.309 0 7.33-5.987 13.317-13.317 13.317s-13.317-5.987-13.317-13.317v-13.309zm0-6.709c-7.33 0-13.317-5.987-13.317-13.317s5.986-13.317 13.317-13.317h33.335c7.33 0 13.317 5.986 13.317 13.317 0 7.33-5.987 13.317-13.317 13.317zm0 0\" fill=\"#ebb02e\"/></svg>"};
 /* country flags, drawn as images so each one keeps its own ids */
@@ -7449,7 +7469,7 @@ DM.def('agent-tree', (r, c) => {
 DM.def('agent-inbox', (r, c) => {
   // the runs, grouped by what they need: one waits for approval, one failed and can be retried, two are running with their
   // clocks, two are done
-  const A = { 'Design agent':['D','var(--pl)'], 'Build agent':['B','var(--pm)'], 'Research agent':['R','var(--pt)'], 'Copy agent':['C','var(--pp)'], 'QA agent':['Q','var(--pb)'] };
+  const A = { 'Design agent':['D','var(--av-l)'], 'Build agent':['B','var(--av-m)'], 'Research agent':['R','var(--av-t)'], 'Copy agent':['C','var(--av-p)'], 'QA agent':['Q','var(--av-b)'] };
   const R = [
     { id:'pub', t:'Publish the pricing page', a:'Design agent', g:'needs', why:'Waiting for your approval' },
     { id:'tok', t:'Export tokens to CSS', a:'Build agent', g:'needs', fail:true, why:'Failed: rate limited by Figma', tip:'Figma answered 429 at 10:42. Safe to retry' },
@@ -7467,7 +7487,7 @@ DM.def('agent-inbox', (r, c) => {
     : x.g === 'run' ? `<span class="spin"></span><span class="num aib-ck">${clock(x.sec)}</span>` : `<span class="ok">${I('ok','xs')}</span><span>${x.ago}</span>`;
   function row(x){
     const [m, col] = A[x.a];
-    x.el = html(`<div class="aib-i" role="listitem"><span class="aib-av" style="color:${col};background:color-mix(in srgb,${col} 13%,transparent)" aria-hidden="true">${m}</span><span class="aib-t"><b>${x.t}</b><span></span></span><span class="aib-r"></span></div>`);
+    x.el = html(`<div class="aib-i" role="listitem"><span class="aib-av" style="background:${col};color:${col.replace(')', '-ink)')}" aria-hidden="true">${m}</span><span class="aib-t"><b>${x.t}</b><span></span></span><span class="aib-r"></span></div>`);
     update(x, true); return x.el;
   }
   function update(x, now){
@@ -10110,9 +10130,9 @@ DM.def('human-handoff', (r, c) => {
   // the billing team: someone free takes the conversation in a few seconds, someone in a call takes longer, and someone
   // who is out never does
   const P = [
-    { k:'alex', n:'Alex Rivera', i:'AR', bg:'var(--pm)', on:'Available', tone:'ok', wait:2500 },
-    { k:'sam', n:'Sam Ortiz', i:'SO', bg:'var(--pp)', on:'In a call', tone:'', wait:6000 },
-    { k:'maya', n:'Maya Chen', i:'MC', bg:'var(--pl)', on:'Out until 2pm', tone:'warn' }
+    { k:'alex', n:'Alex Rivera', i:'AR', bg:'var(--av-m)', on:'Available', tone:'ok', wait:2500 },
+    { k:'sam', n:'Sam Ortiz', i:'SO', bg:'var(--av-p)', on:'In a call', tone:'', wait:6000 },
+    { k:'maya', n:'Maya Chen', i:'MC', bg:'var(--av-l)', on:'Out until 2pm', tone:'warn' }
   ];
   const first = p => p.n.split(' ')[0];
   pop.insertAdjacentHTML('beforeend', P.map(p => `<button class="mi" role="menuitemradio" aria-checked="false" data-close data-k="${p.k}">${AV(p.i, p.bg)}<span>${p.n}<span class="d">Billing · ${p.on}</span></span><span class="ck">${I('check','xs')}</span></button>`).join(''));
@@ -10361,7 +10381,7 @@ DM.def('inline-text-diff', (r, c) => {
 });
 /* ---------- Draft review ---------- */
 DM.def('draft-review', (r, c) => {
-  const IC = { spark:I('spark'), warn:I('alert','xs'), clip:I('clip','xs'), send:I('send','xs'), chev:I('chev-d','xs'), chk:I('check','xs'), trash:I('trash','xs'), av:AV('MK','var(--pl)') };
+  const IC = { spark:I('spark'), warn:I('alert','xs'), clip:I('clip','xs'), send:I('send','xs'), chev:I('chev-d','xs'), chk:I('check','xs'), trash:I('trash','xs'), av:AV('MK','var(--av-l)') };
   r.innerHTML = r.innerHTML.replace(/\{(\w+)\}/g, (m, k) => IC[k] || m);
   const root = $('.drf', r), go = $('.drf-go', r), dd = $('.drf-dd', r), att = $('.drf-att', r), wf = $('.drf-wf', r), when = $('.drf-when', r), f = $('.drf-f', r), tag = $('.drf-tag', r), body = $('.drf-b', r), fields = [$('.drf-fs', r), body, att];
   const items = $$('.drf-pop .mi', r);
@@ -10895,7 +10915,7 @@ DM.def('design-review', (r, c) => {
   const rows = $$('.drv-c', box);
   const DONE = { 'Ship to everyone':'Live for every visitor', 'Ship to 10% first':'Live for 10% of visitors. Everyone tomorrow', 'Ship on Monday':'Ships on Monday at 09:00' };
   // one message in the review: who, a tag, and what they said
-  const msg = (who, tg, text) => { const m = html(`<div class="drv-m">${who === 'agent' ? `<span class="drv-ag">${I('spark','xs')}</span>` : AV('MK','var(--pl)')}<div class="drv-mb"><span class="drv-mn"><b>${who === 'agent' ? 'Design agent' : 'Maya Kim'}</b>${tg}</span>${text ? `<p>${text}</p>` : ''}</div></div>`); $('.drv-wt', rv)?.remove(); rv.appendChild(m); enter(m); return m; };
+  const msg = (who, tg, text) => { const m = html(`<div class="drv-m">${who === 'agent' ? `<span class="drv-ag">${I('spark','xs')}</span>` : AV('MK','var(--av-l)')}<div class="drv-mb"><span class="drv-mn"><b>${who === 'agent' ? 'Design agent' : 'Maya Kim'}</b>${tg}</span>${text ? `<p>${text}</p>` : ''}</div></div>`); $('.drv-wt', rv)?.remove(); rv.appendChild(m); enter(m); return m; };
   $$('.drv-pop .mi', r).forEach(m => m.addEventListener('click', () => { $$('.drv-pop .mi', r).forEach(x => x.setAttribute('aria-checked', x === m)); swap(go, m.dataset.m); }));
   go.onclick = () => c.run(async () => {
     const how = go.textContent; go.disabled = dd.disabled = true; swap(go, 'Shipping'); swap(st, 'Publishing 6 screens'); await c.wait(1000);
@@ -10994,12 +11014,12 @@ DM.def('task-table', (r, c) => {
   r.innerHTML = r.innerHTML.replace('{pause}', I('pause','xs')).replace('{refresh}', I('refresh','xs')).replace('{x}', I('x','xs'));
   const ST = { run:['Running','<span class="spin"></span>'], done:['Done', I('ok','xs')], fail:['Failed', I('alert','xs')], wait:['Queued','<span class="dot"></span>'], pause:['Paused', I('pause','xs')] };
   const SEED = [
-    ['Audit pricing contrast','run','Design','DS','var(--pb)',0.42,2],
-    ['Export tokens to CSS','done','Code','CO','var(--pm)',0.18,14],
-    ['Sync Figma frames','fail','Design','DS','var(--pb)',0.07,26],
-    ['Draft launch email','wait','Writer','WR','var(--pl)',0,31],
-    ['Compare checkout flows','done','Research','RE','var(--pt)',0.66,48],
-    ['Rename layers in Hero','run','Design','DS','var(--pb)',0.11,5]
+    ['Audit pricing contrast','run','Design','DS','var(--av-b)',0.42,2],
+    ['Export tokens to CSS','done','Code','CO','var(--av-m)',0.18,14],
+    ['Sync Figma frames','fail','Design','DS','var(--av-b)',0.07,26],
+    ['Draft launch email','wait','Writer','WR','var(--av-l)',0,31],
+    ['Compare checkout flows','done','Research','RE','var(--av-t)',0.66,48],
+    ['Rename layers in Hero','run','Design','DS','var(--av-b)',0.11,5]
   ];
   const seed = () => SEED.map((x, i) => ({ id:i, n:x[0], s:x[1], a:x[2], ai:x[3], ac:x[4], cost:x[5], up:x[6], sel:false }));
   let T = seed();
@@ -11240,12 +11260,12 @@ DM.def('terminal-stream', (r, c) => {
 /* ---------- Details panel ---------- */
 DM.def('details-panel', (r, c) => {
   r.innerHTML = r.innerHTML.replace('{link}', I('link','xs')).replace(/\{chev\}/g, I('chev-r','xs')).replace('{chevd}', I('chev-d','xs')).replace('{plus}', I('plus','xs'))
-    .replace(/\{avm\}/g, AV('MK','var(--pl)')).replace('{avj}', AV('JO','var(--pm)')).replace('{ava}', AV('DA','var(--pb)'));
+    .replace(/\{avm\}/g, AV('MK','var(--av-l)')).replace('{avj}', AV('JO','var(--av-m)')).replace('{ava}', AV('DA','var(--av-b)'));
   const flash = el => { el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash'); };
   $$('.pop', r).forEach(pp => $('.dtp', r).appendChild(pp));
   $$('.dtp-sh', r).forEach(b => b.onclick = () => { const f = b.nextElementSibling, open = f.classList.toggle('shut') === false; b.setAttribute('aria-expanded', open); });
   $$('.dtp-pst .mi', r).forEach(m => m.addEventListener('click', () => { const v = $('.dtp-stat', r); $('.dot', v).style.color = m.dataset.col; swap($('span:last-child', v), m.dataset.s); flash(v); }));
-  $$('.dtp-pow .mi', r).forEach(m => m.addEventListener('click', () => { const v = $('.dtp-own', r); const av = $('.av', v); av.textContent = m.dataset.i; av.style.background = m.dataset.col; enter(av); swap($('span:last-child', v), m.dataset.o); flash(v); }));
+  $$('.dtp-pow .mi', r).forEach(m => m.addEventListener('click', () => { const v = $('.dtp-own', r); const av = $('.av', v); av.textContent = m.dataset.i; av.style.background = m.dataset.col; av.style.color = m.dataset.col.replace(')', '-ink)'); enter(av); swap($('span:last-child', v), m.dataset.o); flash(v); }));
   const cost = { Opus:[184200, 2.76], Sonnet:[184200, .55], Haiku:[184200, .15] }; let cc = 0, ct = 0;
   const setM = m => { tween(ct, cost[m][0], 800, v => { ct = v; $('.dtp-tok', r).textContent = Math.round(v).toLocaleString('en-US'); }); tween(cc, cost[m][1], 800, v => { cc = v; $('.dtp-cost', r).textContent = '$' + v.toFixed(2); }); };
   $$('.dtp-pmo .mi', r).forEach(m => m.addEventListener('click', () => { const v = $('.dtp-mo', r); swap(v, m.dataset.m); flash(v.parentElement); setM(m.dataset.m); }));
@@ -13321,18 +13341,18 @@ DM.def('stat-cards', (r, c) => {
 DM.def('account-table', (r, c) => {
   r.innerHTML = r.innerHTML.replace('{search}', I('search','xs'));
   const A = [
-    ['Northwind','#2f6fde','Enterprise',120,92,'$14,400','Expanding. Design team added 18 seats this month.'],
-    ['Lumen Labs','#7a4ce0','Pro',14,48,'$672','Usage fell 40% after their lead designer left. Worth a check in.'],
-    ['Fable & Co','#0f9a6e','Team',32,81,'$1,920','Steady. Asked about the Figma sync twice.'],
-    ['Orbit','#e2681c','Pro',8,67,'$384','Trial of the agent ends Friday. 3 runs so far.'],
-    ['Kite Health','#d03a5f','Enterprise',64,88,'$7,680','Renewal in 6 weeks, champion is happy.'],
-    ['Paper Plane','#3c8d9e','Team',21,34,'$1,260','Two failed payments. Billing contact bounced.']
+    ['Northwind','b','Enterprise',120,92,'$14,400','Expanding. Design team added 18 seats this month.'],
+    ['Lumen Labs','l','Pro',14,48,'$672','Usage fell 40% after their lead designer left. Worth a check in.'],
+    ['Fable & Co','m','Team',32,81,'$1,920','Steady. Asked about the Figma sync twice.'],
+    ['Orbit','p','Pro',8,67,'$384','Trial of the agent ends Friday. 3 runs so far.'],
+    ['Kite Health','r','Enterprise',64,88,'$7,680','Renewal in 6 weeks, champion is happy.'],
+    ['Paper Plane','t','Team',21,34,'$1,260','Two failed payments. Billing contact bounced.']
   ];
   const tb = $('tbody', r), q = $('.atb-s input', r); let plan = '', open = null;
-  const hc = h => h >= 80 ? 'var(--ok)' : h >= 60 ? 'var(--warn)' : 'var(--bad)';
+  const hc = h => h >= 80 ? 'var(--atb-ok)' : h >= 60 ? 'var(--atb-warn)' : 'var(--atb-bad)';
   function paint(anim){
     const s = q.value.trim().toLowerCase(), rows = A.filter(a => (!plan || a[2] === plan) && (!s || a[0].toLowerCase().includes(s)));
-    tb.innerHTML = rows.length ? rows.map(a => `<tr class="row${open === a[0] ? ' open' : ''}" data-n="${a[0]}"><td><span class="nm"><span class="lg" style="background-color:${a[1]}">${a[0][0]}</span>${a[0]}</span></td><td><span class="tag ${a[2] === 'Enterprise' ? 'p' : a[2] === 'Pro' ? 'b' : 't'}">${a[2]}</span></td><td class="num">${a[3]}</td><td><span class="hb"><i><b style="width:${a[4]}%;background:${hc(a[4])}"></b></i><span class="num">${a[4]}</span></span></td><td class="r num">${a[5]}</td></tr>` + (open === a[0] ? `<tr class="det"><td colspan="5"><div class="fold"><div><div class="atb-note">${I('spark','xs')}<span>${a[6]}</span><button class="pill soft sm">Draft email</button></div></div></div></td></tr>` : '')).join('') : '<tr class="atb-empty"><td colspan="5">No accounts match</td></tr>';
+    tb.innerHTML = rows.length ? rows.map(a => `<tr class="row${open === a[0] ? ' open' : ''}" data-n="${a[0]}"><td><span class="nm"><span class="lg" style="background:var(--av-${a[1]});color:var(--av-${a[1]}-ink)">${a[0][0]}</span>${a[0]}</span></td><td><span class="tag ${a[2] === 'Enterprise' ? 'l' : a[2] === 'Pro' ? 'b' : 't'}">${a[2]}</span></td><td class="num">${a[3]}</td><td><span class="hb"><i><b style="width:${a[4]}%;background:${hc(a[4])}"></b></i><span class="num">${a[4]}</span></span></td><td class="r num">${a[5]}</td></tr>` + (open === a[0] ? `<tr class="det"><td colspan="5"><div class="fold"><div><div class="atb-note">${I('spark','xs')}<span>${a[6]}</span><button class="pill soft sm">Draft email</button></div></div></div></td></tr>` : '')).join('') : '<tr class="atb-empty"><td colspan="5">No accounts match</td></tr>';
     if (anim) stagger($$('tr.row', tb), 35);
     $$('tr.row', tb).forEach(tr => tr.onclick = () => { open = open === tr.dataset.n ? null : tr.dataset.n; paint(); const d = $('.atb-note', tb); if (d) enter(d); });
     const dr = $('.atb-note .pill', tb); if (dr) dr.onclick = e => { e.stopPropagation(); dr.innerHTML = '<span class="spin"></span>'; c.later(800, () => { dr.innerHTML = I('check','xs') + 'Draft ready'; }); };
@@ -13582,7 +13602,7 @@ DM.def('event-calendar', (r, c) => {
   const tm = h => { const hh = Math.floor(h), mm = Math.round((h - hh) * 60); return `${hh > 12 ? hh - 12 : hh}:${String(mm).padStart(2, '0')}`; };
   const ev = (e, cls = '') => html(`<button class="ecx-e ${cls}" style="top:${(e[1] - H0) * PX + 1}px;height:${e[2] * PX - 3}px;background:var(--p${e[4]}-bg);color:var(--p${e[4]})"><b>${e[3]}</b><span>${tm(e[1])} – ${tm(e[1] + e[2])}</span></button>`);
   const panel = $('.ecx', r), msg = $('.ecx-msg', r), pop = html('<div class="ecx-pop" role="dialog" aria-label="Event"></div>'); panel.appendChild(pop);
-  const WHO = [['MK','var(--pl)'],['JO','var(--pm)'],['DA','var(--pb)'],['AR','var(--pp)']], DAYN = ['Mon','Tue','Wed','Thu','Fri'];
+  const WHO = [['MK','var(--av-l)'],['JO','var(--av-m)'],['DA','var(--av-b)'],['AR','var(--av-p)']], DAYN = ['Mon','Tue','Wed','Thu','Fri'];
   let openFor = null;
   const say = t => swap(msg, t);
   // closing gives the focus back to the event when it was in the card
@@ -13650,10 +13670,10 @@ DM.def('event-calendar', (r, c) => {
 /* ---------- Agenda ---------- */
 DM.def('agenda', (r, c) => {
   const E = [
-    ['9:00','Standup','15 min, Design team','b',[['MK','var(--pl)'],['JO','var(--pm)'],['AR','var(--pp)']],null,1],
-    ['11:30','Agent demo','30 min, Zoom','y',[['SL','var(--pt)'],['MK','var(--pl)']],['Demo flow: pricing audit, then the token export','Sam asked about cost limits last time, the cap is now $5'],0],
-    ['1:00','Pricing workshop','90 min, Room 4','p',[['JO','var(--pm)'],['AR','var(--pp)'],['DK','var(--pb)'],['MK','var(--pl)']],['Trial to paid is up 8.1 pts since Sep 18','Open question: show monthly price crossed out on mobile too?','3 frames ready to review in Figma'],0],
-    ['4:00','1:1 with Maya','30 min','l',[['MK','var(--pl)']],['She wanted feedback on the checkout copy','Library publish is waiting on her approval'],0]
+    ['9:00','Standup','15 min, Design team','b',[['MK','var(--av-l)'],['JO','var(--av-m)'],['AR','var(--av-p)']],null,1],
+    ['11:30','Agent demo','30 min, Zoom','y',[['SL','var(--av-t)'],['MK','var(--av-l)']],['Demo flow: pricing audit, then the token export','Sam asked about cost limits last time, the cap is now $5'],0],
+    ['1:00','Pricing workshop','90 min, Room 4','p',[['JO','var(--av-m)'],['AR','var(--av-p)'],['DK','var(--av-b)'],['MK','var(--av-l)']],['Trial to paid is up 8.1 pts since Sep 18','Open question: show monthly price crossed out on mobile too?','3 frames ready to review in Figma'],0],
+    ['4:00','1:1 with Maya','30 min','l',[['MK','var(--av-l)']],['She wanted feedback on the checkout copy','Library publish is waiting on her approval'],0]
   ];
   const list = $('.agx-list', r);
   list.innerHTML = E.map((e, i) => `<button class="agx-e${e[6] ? ' past' : ''}" data-i="${i}"><span class="tm num">${e[0]}</span><span class="bar"></span><span class="t"><b>${e[1]}</b><span>${e[2]}</span><span class="who">${e[4].map(a => AV(a[0], a[1])).join('')}</span></span></button>`).join('');
@@ -13776,8 +13796,8 @@ DM.def('badge', (r, c) => {
 });
 /* ---------- Tooltip ---------- */
 DM.def('tooltip', (r, c) => {
-  r.innerHTML = r.innerHTML.replace('{undo}', I('undo')).replace('{chat}', I('edit')).replace('{spark}', I('spark')).replace('{users}', I('users')).replace('{a1}', AV('MK','var(--pl)')).replace('{a2}', AV('DA','var(--pb)'));
-  const P = [['MK','var(--pl)','Maya Kim','Design lead','Editing Pricing, frame 2'],['DA','var(--pb)','Design agent','Working for Maya','Auditing contrast, 2 of 6 checks']];
+  r.innerHTML = r.innerHTML.replace('{undo}', I('undo')).replace('{chat}', I('edit')).replace('{spark}', I('spark')).replace('{users}', I('users')).replace('{a1}', AV('MK','var(--av-l)')).replace('{a2}', AV('DA','var(--av-b)'));
+  const P = [['MK','var(--av-l)','Maya Kim','Design lead','Editing Pricing, frame 2'],['DA','var(--av-b)','Design agent','Working for Maya','Auditing contrast, 2 of 6 checks']];
   const card = $('.ttp-card', r), ci = $('.ttp-ci', r), root = $('.ttp', r); let t;
   $$('.ttp-av', r).forEach(b => { b.onmouseenter = () => { clearTimeout(t); t = setTimeout(() => { const p = P[+b.dataset.card];
       ci.innerHTML = `<div class="ttp-ch">${AV(p[0], p[1])}<div><b>${p[2]}</b><span>${p[3]}</span></div></div><div class="ttp-cs">${p[0] === 'DA' ? '<span class="think on" style="color:var(--accent-mark,var(--accent))"><i></i><i></i><i></i><i></i></span>' : '<span class="dot"></span>'}${p[4]}</div>`;
@@ -13993,7 +14013,7 @@ DM.def('social-signin', (r, c) => {
       b.classList.add('busy'); list.classList.add('wait'); $('.mk', b).innerHTML = '<span class="spin"></span>';
       await c.wait(1100); last = b.dataset.p;
       hold(root); const kids = [...root.children]; kids.forEach(k => k.hidden = true);
-      const ok = html(`<div class="ssi-ok">${AV('MK','var(--pl)')}<b>Welcome back, Maya</b><span class="muted">Signed in with ${last}</span><button class="pill ghost sm">Sign out</button></div>`);
+      const ok = html(`<div class="ssi-ok">${AV('MK','var(--av-l)')}<b>Welcome back, Maya</b><span class="muted">Signed in with ${last}</span><button class="pill ghost sm">Sign out</button></div>`);
       root.appendChild(ok); stagger([...ok.children], 60);
       $('button', ok).onclick = () => { ok.remove(); release(root); kids.forEach(k => k.hidden = false); list.classList.remove('wait'); paint(); };
     }));
@@ -14162,7 +14182,7 @@ DM.def('payment-form', (r, c) => {
 DM.def('comments', (r, c) => {
   r.innerHTML = r.innerHTML.replace('{check}', I('check','xs')).replace('{up}', I('up','xs'));
   const root = $('.cmx', r), th = $('.cmx-th', r), inp = $('.cmx-box input', r), go = $('.cmx-go', r), men = $('.cmx-men', r), st = $('.cmx-st', r), rs = $('.cmx-res', r);
-  const P = { MK:['Maya Kim','var(--pl)'], JO:['Jon Ortiz','var(--pm)'], DA:['Design agent','var(--pb)'] };
+  const P = { MK:['Maya Kim','var(--av-l)'], JO:['Jon Ortiz','var(--av-m)'], DA:['Design agent','var(--av-b)'] };
   const esc = t => t.replace(/[&<>"]/g, ch => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' })[ch]);
   const fmt = t => esc(t).replace(/@(agent|maya|jon)\b/gi, m => `<span class="m">${m}</span>`);
   // the first comment starts the thread; every later one is a reply, indented on a thin line under it
@@ -14224,9 +14244,9 @@ DM.def('comments', (r, c) => {
 DM.def('notifications', (r, c) => {
   let N = [
     { k:'agent', ic:'ok', col:'var(--ok)', t:'<b>Pricing audit</b> finished. 2 fixes ready to review', w:'4 min ago' },
-    { k:'men', av:['MK','var(--pl)'], t:'<b>Maya</b> mentioned you in Checkout flow', w:'20 min ago' },
+    { k:'men', av:['MK','var(--av-l)'], t:'<b>Maya</b> mentioned you in Checkout flow', w:'20 min ago' },
     { k:'agent', ic:'alert', col:'var(--warn)', t:'<b>Token export</b> paused at the $5 cap', w:'1 hour ago' },
-    { k:'men', av:['JO','var(--pm)'], t:'<b>Jon</b> asked for your review on PR #284', w:'2 hours ago', read:true }
+    { k:'men', av:['JO','var(--av-m)'], t:'<b>Jon</b> asked for your review on PR #284', w:'2 hours ago', read:true }
   ];
   const list = $('.ntx-list', r), ct = $('.ntx-ct', r); let f = 'all';
   const count = (bump) => { const n = N.filter(x => !x.read).length; ct.textContent = n; ct.classList.toggle('z', !n); if (bump){ ct.classList.remove('bump'); void ct.offsetWidth; ct.classList.add('bump'); } };
@@ -14237,7 +14257,7 @@ DM.def('notifications', (r, c) => {
   seg($('.ntx-tabs .seg2', r), v => { f = v; paint(true); });
   $('.ntx-all', r).onclick = () => { N.forEach(x => x.read = true); $$('.ntx-n', list).forEach((b, i) => c.later(i * 50, () => b.classList.add('read'))); count(); };
   paint(true);
-  const incoming = [{ k:'agent', ic:'spark', col:'var(--accent-mark,var(--accent))', fg:'var(--accent-fg,var(--accent))', t:'<b>Weekly design QA</b> started on 12 frames', w:'Just now' }, { k:'men', av:['AR','var(--pp)'], t:'<b>Ari</b> replied: “Looks great, ship it”', w:'Just now' }];
+  const incoming = [{ k:'agent', ic:'spark', col:'var(--accent-mark,var(--accent))', fg:'var(--accent-fg,var(--accent))', t:'<b>Weekly design QA</b> started on 12 frames', w:'Just now' }, { k:'men', av:['AR','var(--av-p)'], t:'<b>Ari</b> replied: “Looks great, ship it”', w:'Just now' }];
   // two items arrive while you watch; once you click or type in the inbox the preview leaves it to you, so a tab you
   // picked or a Mark all read stays as you left it
   incoming.forEach((x, i) => c.later(2200 + i * 2600, () => { if (c.mine) return; N.unshift(x); if (f === 'all' || f === x.k){ const el = html(row(x)); el.classList.add('new'); list.prepend(el); $('.ntx-e', list)?.remove(); el.onclick = () => { x.read = !x.read; el.classList.toggle('read', x.read); count(); }; } count(true); }));
@@ -14310,7 +14330,7 @@ DM.def('invite', (r, c) => {
   r.innerHTML = r.innerHTML.replace('{chev}', I('chev-d','xs')).replace(/\{chk\}/g, I('check','xs')).replace('{link}', I('link','xs'));
   const chips = $('.ivx-chips', r), inp = $('.ivx-f input', r), go = $('.ivx-go', r), mem = $('.ivx-mem', r), sg = $('.ivx-sg', r);
   let E = [], role = 'Can edit', shown = new Set();
-  const COL = ['var(--pl)','var(--pm)','var(--pt)','var(--pp)','var(--pk)'];
+  const COL = ['var(--av-l)','var(--av-m)','var(--av-t)','var(--av-p)','var(--av-k)'];
   const ok = e => /^\S+@\S+\.\S+$/.test(e);
   const ini = e => e.split('@')[0].slice(0, 2).toUpperCase();
   function paint(){ const seen = shown; shown = new Set(E); chips.innerHTML = E.map((e, i) => `<span class="ivx-ch${ok(e) ? '' : ' bad'}${seen.has(e) ? ' seen' : ''}" ${ok(e) ? '' : 'data-tip="Not a valid email"'}>${ok(e) ? AV(ini(e), COL[i % 5]) : I('alert','xs')}${e}<button aria-label="Remove ${e}">${I('x','xs')}</button></span>`).join('');
@@ -14319,9 +14339,9 @@ DM.def('invite', (r, c) => {
   function commit(){ const parts = inp.value.split(/[,\s]+/).map(s => s.trim()).filter(Boolean); if (!parts.length) return; parts.forEach(p => { if (!E.includes(p)) E.push(p); }); inp.value = ''; paint(); }
   inp.onkeydown = e => { if (e.key === 'Enter' || e.key === ',' || e.key === 'Tab'){ if (inp.value.trim()){ e.preventDefault(); commit(); } } else if (e.key === 'Backspace' && !inp.value && E.length){ E.pop(); paint(); } };
   inp.onpaste = () => setTimeout(commit, 0); inp.onblur = commit;
-  [['ari@studio.com','AR','var(--pp)'],['sam@studio.com','SL','var(--pt)']].forEach(s => { const b = html(`<button class="chip sm">${AV(s[1], s[2])}${s[0].split('@')[0]}</button>`); sg.appendChild(b); b.onclick = () => { if (!E.includes(s[0])){ E.push(s[0]); paint(); } b.remove(); }; });
+  [['ari@studio.com','AR','var(--av-p)'],['sam@studio.com','SL','var(--av-t)']].forEach(s => { const b = html(`<button class="chip sm">${AV(s[1], s[2])}${s[0].split('@')[0]}</button>`); sg.appendChild(b); b.onclick = () => { if (!E.includes(s[0])){ E.push(s[0]); paint(); } b.remove(); }; });
   $$('.ivx-rp .mi', r).forEach(m => m.addEventListener('click', () => { role = m.dataset.r; $$('.ivx-rp .mi', r).forEach(x => x.setAttribute('aria-checked', x === m)); swap($('.ivx-role span', r), role); }));
-  const M = [['MK','var(--pl)','Maya Kim','Owner'],['JO','var(--pm)','Jon Ortiz','Can edit']];
+  const M = [['MK','var(--av-l)','Maya Kim','Owner'],['JO','var(--av-m)','Jon Ortiz','Can edit']];
   mem.innerHTML = M.map(m => `<div class="ivx-m">${AV(m[0], m[1])}<span class="t">${m[2]}</span><span class="r">${m[3]}</span></div>`).join('');
   go.onclick = () => c.run(async () => { go.innerHTML = '<span class="spin"></span>'; await c.wait(800); E.filter(ok).forEach((e, i) => { const el = html(`<div class="ivx-m">${AV(ini(e), COL[i % 5])}<span class="t">${e.split('@')[0]}<span>${e}</span></span><span class="r pend">Invited, ${role.toLowerCase()}</span></div>`); mem.appendChild(el); enter(el, i * 70); }); E = []; paint(); });
   const lk = $('.ivx-link', r); lk.onclick = () => { copied(lk, 'https://designme.dev/join/pricing-refresh'); const t = lk.lastChild; t.textContent = 'Link copied'; clearTimeout(lk._lt); lk._lt = setTimeout(() => { t.textContent = 'Copy link'; }, 1600); };
@@ -14794,10 +14814,10 @@ DM.def('filter-menu', (r, c) => {
 /* ---------- Ticket list ---------- */
 DM.def('ticket-list', (r, c) => {
   const T = [
-    { p:'var(--bad)', pn:'Urgent', t:'Agent stopped mid export', f:'Northwind', a:['MK','var(--pl)'], w:'4m', q:'The token export stopped at 60% and nothing has happened for 20 minutes.', s:'Sorry about that. The run paused at your $5 spend cap. I have raised it for this run and it finished just now. Your tokens are in the Exports tab.', st:'open' },
-    { p:'var(--warn)', pn:'High', t:'Figma frames not syncing', f:'Lumen Labs', a:['JO','var(--pm)'], w:'22m', q:'New frames from this morning are not showing up in DesignMe.', s:'The Figma token for your workspace expired yesterday. Reconnect it from Settings, then the frames will sync within a minute.', st:'open' },
-    { p:'var(--accent-mark,var(--accent))', pn:'Normal', t:'How do I share a run?', f:'Orbit', a:['DA','var(--pb)'], w:'1h', q:'Can I send an agent run to someone outside my team?', s:'Yes. Open the run, click Share, and turn on "Anyone with the link". They can view it without an account.', st:'open' },
-    { p:'var(--faint)', pn:'Low', t:'Invoice address change', f:'Kite Health', a:['MK','var(--pl)'], w:'2d', q:'', s:'', st:'done' }
+    { p:'var(--bad)', pn:'Urgent', t:'Agent stopped mid export', f:'Northwind', a:['MK','var(--av-l)'], w:'4m', q:'The token export stopped at 60% and nothing has happened for 20 minutes.', s:'Sorry about that. The run paused at your $5 spend cap. I have raised it for this run and it finished just now. Your tokens are in the Exports tab.', st:'open' },
+    { p:'var(--warn)', pn:'High', t:'Figma frames not syncing', f:'Lumen Labs', a:['JO','var(--av-m)'], w:'22m', q:'New frames from this morning are not showing up in DesignMe.', s:'The Figma token for your workspace expired yesterday. Reconnect it from Settings, then the frames will sync within a minute.', st:'open' },
+    { p:'var(--accent-mark,var(--accent))', pn:'Normal', t:'How do I share a run?', f:'Orbit', a:['DA','var(--av-b)'], w:'1h', q:'Can I send an agent run to someone outside my team?', s:'Yes. Open the run, click Share, and turn on "Anyone with the link". They can view it without an account.', st:'open' },
+    { p:'var(--faint)', pn:'Low', t:'Invoice address change', f:'Kite Health', a:['MK','var(--av-l)'], w:'2d', q:'', s:'', st:'done' }
   ];
   const list = $('.tkx-list', r); let f = 'open', open = null;
   function paint(anim){
@@ -14825,12 +14845,12 @@ DM.def('kanban', (r, c) => {
   // each column has a short name for the tabs a narrow board shows
   const COLS = [['todo','To do','To do'],['doing','In progress','Doing'],['done','Done','Done']];
   let K = [
-    { id:1, c:'todo', t:'Audit checkout for contrast', tag:['b','Design'], who:['DA','var(--pb)'] },
-    { id:2, c:'todo', t:'Write release notes for pricing', tag:['l','Copy'], who:['MK','var(--pl)'] },
-    { id:3, c:'todo', t:'Rename layers in Hero', tag:['b','Design'], who:['DA','var(--pb)'] },
-    { id:4, c:'doing', t:'Export tokens to CSS', tag:['m','Code'], who:['DA','var(--pb)'], run:.4 },
-    { id:5, c:'doing', t:'Review annual plan copy', tag:['l','Copy'], who:['JO','var(--pm)'] },
-    { id:6, c:'done', t:'One CTA per pricing card', tag:['b','Design'], who:['MK','var(--pl)'] }
+    { id:1, c:'todo', t:'Audit checkout for contrast', tag:['b','Design'], who:['DA','var(--av-b)'] },
+    { id:2, c:'todo', t:'Write release notes for pricing', tag:['l','Copy'], who:['MK','var(--av-l)'] },
+    { id:3, c:'todo', t:'Rename layers in Hero', tag:['b','Design'], who:['DA','var(--av-b)'] },
+    { id:4, c:'doing', t:'Export tokens to CSS', tag:['m','Code'], who:['DA','var(--av-b)'], run:.4 },
+    { id:5, c:'doing', t:'Review annual plan copy', tag:['l','Copy'], who:['JO','var(--av-m)'] },
+    { id:6, c:'done', t:'One CTA per pricing card', tag:['b','Design'], who:['MK','var(--av-l)'] }
   ];
   // the agent's timer repaints the board, so it waits while a card is dragged, a new title is typed or a card's menu is open
   const box = $('.kbx', r), wrap = $('.kbx-cols', r); let dragging = false, editing = false;
@@ -14881,7 +14901,7 @@ DM.def('kanban', (r, c) => {
     const el = $(`.kbx-k[data-id="${k.id}"]`, wrap), go = () => { K = K.filter(x => x !== k); k.c = m.dataset.to; if (k.c === 'done') delete k.run; K.push(k); paint(); const t = kb && $(`[data-v="${cur}"]`, tabs); if (t) t.focus({ preventScroll:true }); };
     if (REDUCE || !el) return go();
     el.animate([{ opacity:1, transform:'none' }, { opacity:0, transform:'translateX(12px)' }], { duration:200, easing:'ease-in', fill:'forwards' }).onfinish = go; });
-  const add = col => { const k = { id:Date.now(), c:col, t:'New card', tag:['k','Idea'], who:['MK','var(--pl)'] }; K.push(k); paint(); const el = $(`.kbx-k[data-id="${k.id}"]`, wrap); enter(el); const t = $('.t', el); editing = true; t.contentEditable = 'true'; t.focus({ preventScroll:true }); document.getSelection().selectAllChildren(t); t.onblur = () => { editing = false; t.contentEditable = 'false'; k.t = t.textContent.trim() || 'New card'; }; t.onkeydown = e => { if (e.key === 'Enter'){ e.preventDefault(); t.blur(); } }; };
+  const add = col => { const k = { id:Date.now(), c:col, t:'New card', tag:['k','Idea'], who:['MK','var(--av-l)'] }; K.push(k); paint(); const el = $(`.kbx-k[data-id="${k.id}"]`, wrap); enter(el); const t = $('.t', el); editing = true; t.contentEditable = 'true'; t.focus({ preventScroll:true }); document.getSelection().selectAllChildren(t); t.onblur = () => { editing = false; t.contentEditable = 'false'; k.t = t.textContent.trim() || 'New card'; }; t.onkeydown = e => { if (e.key === 'Enter'){ e.preventDefault(); t.blur(); } }; };
   $$('.kbx-ch .ib', wrap).forEach(b => b.onclick = () => add(b.closest('.kbx-c').dataset.col));
   $('.kbx-add', r).onclick = () => add(cur);
   paint(); show(cur);

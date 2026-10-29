@@ -97,7 +97,7 @@ import { AgentInbox, type InboxRun } from &#39;./AgentInbox&#39;;
 import { useScript, useStory, useWait } from &#39;../lib/useScript&#39;;
 
 /* ---------- Agent inbox: approve the publish, retry the failed export, and watch both land in Done ---------- */
-const COLOR: Record&lt;string, string&gt; = { &#39;Design agent&#39;: &#39;var(--dm-pl)&#39;, &#39;Build agent&#39;: &#39;var(--dm-pm)&#39;, &#39;Research agent&#39;: &#39;var(--dm-pt)&#39;, &#39;Copy agent&#39;: &#39;var(--dm-pp)&#39;, &#39;QA agent&#39;: &#39;var(--dm-pb)&#39; };
+const COLOR: Record&lt;string, string&gt; = { &#39;Design agent&#39;: &#39;var(--dm-av-l)&#39;, &#39;Build agent&#39;: &#39;var(--dm-av-m)&#39;, &#39;Research agent&#39;: &#39;var(--dm-av-t)&#39;, &#39;Copy agent&#39;: &#39;var(--dm-av-p)&#39;, &#39;QA agent&#39;: &#39;var(--dm-av-b)&#39; };
 const START: InboxRun[] = [
   { id: &#39;pub&#39;, title: &#39;Publish the pricing page&#39;, agent: &#39;Design agent&#39;, group: &#39;needs&#39;, detail: &#39;Waiting for your approval&#39; },
   { id: &#39;tok&#39;, title: &#39;Export tokens to CSS&#39;, agent: &#39;Build agent&#39;, group: &#39;needs&#39;, failed: true, detail: &#39;Failed: rate limited by Figma&#39;, why: &#39;Figma answered 429 at 10:42. Safe to retry&#39; },
@@ -141,7 +141,7 @@ import { useEffect, useRef, useState } from &#39;react&#39;;
 import { cx } from &#39;../lib/cx&#39;;
 import { useIsoLayoutEffect, useReducedMotion, useSeconds } from &#39;../lib/hooks&#39;;
 import { Icon } from &#39;../lib/icons&#39;;
-import { enter, Spin, Swap, Tip } from &#39;../lib/motion&#39;;
+import { avatarInk, enter, Spin, Swap, Tip } from &#39;../lib/motion&#39;;
 import &#39;../designme.css&#39;;
 import &#39;./agent-inbox.css&#39;;
 
@@ -153,7 +153,7 @@ export interface InboxRun {
   title: string;
   /** Which agent runs it. Its first letter marks the row, and a finished run shows it under the title */
   agent: string;
-  /** The mark&#39;s colour, like &#39;var(--dm-pl)&#39;. Defaults to the accent */
+  /** The mark&#39;s fill, like &#39;var(--dm-av-l)&#39;. An avatar colour brings its own ink, any other colour takes white initials. Defaults to the accent */
   color?: string;
   group: InboxGroup;
   /** The line under the title: why it needs you, or what it is doing now. A finished run shows its agent instead */
@@ -243,7 +243,7 @@ export function AgentInbox({ runs, onApprove, onRetry, title = &#39;Inbox&#39;, 
                   const detail = g === &#39;done&#39; ? r.agent : r.detail ?? &#39;&#39;;
                   return (
                     &lt;div key={r.id} data-k={r.id} className={cx(&#39;dm-aib-i&#39;, fail &amp;&amp; &#39;dm-fail&#39;)} role=&quot;listitem&quot;&gt;
-                      &lt;span className=&quot;dm-aib-av&quot; style={{ color: col, background: `color-mix(in srgb,${col} 13%,transparent)` }} aria-hidden=&quot;true&quot;&gt;{r.agent.charAt(0)}&lt;/span&gt;
+                      &lt;span className=&quot;dm-aib-av&quot; style={{ background: col, color: avatarInk(col) ?? (r.color ? &#39;#fff&#39; : &#39;var(--dm-on-accent)&#39;) }} aria-hidden=&quot;true&quot;&gt;{r.agent.charAt(0)}&lt;/span&gt;
                       &lt;span className=&quot;dm-aib-t&quot;&gt;
                         &lt;b&gt;{r.title}&lt;/b&gt;
                         {fail &amp;&amp; r.why ? &lt;Tip label={r.why}&gt;&lt;span&gt;&lt;Swap&gt;{detail}&lt;/Swap&gt;&lt;/span&gt;&lt;/Tip&gt; : &lt;Swap&gt;{detail}&lt;/Swap&gt;}
@@ -332,7 +332,7 @@ function Right({ run, group, fail, secs, fresh, onApprove, onRetry }: { run: Inb
 </code></pre></details><details class="cp-file"><summary>agent-inbox.js<span class="l">HTML · 73 lines</span></summary><pre class="cp-pre"><code>DM.def(&#39;agent-inbox&#39;, (r, c) =&gt; {
   // the runs, grouped by what they need: one waits for approval, one failed and can be retried, two are running with their
   // clocks, two are done
-  const A = { &#39;Design agent&#39;:[&#39;D&#39;,&#39;var(--pl)&#39;], &#39;Build agent&#39;:[&#39;B&#39;,&#39;var(--pm)&#39;], &#39;Research agent&#39;:[&#39;R&#39;,&#39;var(--pt)&#39;], &#39;Copy agent&#39;:[&#39;C&#39;,&#39;var(--pp)&#39;], &#39;QA agent&#39;:[&#39;Q&#39;,&#39;var(--pb)&#39;] };
+  const A = { &#39;Design agent&#39;:[&#39;D&#39;,&#39;var(--av-l)&#39;], &#39;Build agent&#39;:[&#39;B&#39;,&#39;var(--av-m)&#39;], &#39;Research agent&#39;:[&#39;R&#39;,&#39;var(--av-t)&#39;], &#39;Copy agent&#39;:[&#39;C&#39;,&#39;var(--av-p)&#39;], &#39;QA agent&#39;:[&#39;Q&#39;,&#39;var(--av-b)&#39;] };
   const R = [
     { id:&#39;pub&#39;, t:&#39;Publish the pricing page&#39;, a:&#39;Design agent&#39;, g:&#39;needs&#39;, why:&#39;Waiting for your approval&#39; },
     { id:&#39;tok&#39;, t:&#39;Export tokens to CSS&#39;, a:&#39;Build agent&#39;, g:&#39;needs&#39;, fail:true, why:&#39;Failed: rate limited by Figma&#39;, tip:&#39;Figma answered 429 at 10:42. Safe to retry&#39; },
@@ -350,7 +350,7 @@ function Right({ run, group, fail, secs, fresh, onApprove, onRetry }: { run: Inb
     : x.g === &#39;run&#39; ? `&lt;span class=&quot;spin&quot;&gt;&lt;/span&gt;&lt;span class=&quot;num aib-ck&quot;&gt;${clock(x.sec)}&lt;/span&gt;` : `&lt;span class=&quot;ok&quot;&gt;${I(&#39;ok&#39;,&#39;xs&#39;)}&lt;/span&gt;&lt;span&gt;${x.ago}&lt;/span&gt;`;
   function row(x){
     const [m, col] = A[x.a];
-    x.el = html(`&lt;div class=&quot;aib-i&quot; role=&quot;listitem&quot;&gt;&lt;span class=&quot;aib-av&quot; style=&quot;color:${col};background:color-mix(in srgb,${col} 13%,transparent)&quot; aria-hidden=&quot;true&quot;&gt;${m}&lt;/span&gt;&lt;span class=&quot;aib-t&quot;&gt;&lt;b&gt;${x.t}&lt;/b&gt;&lt;span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;aib-r&quot;&gt;&lt;/span&gt;&lt;/div&gt;`);
+    x.el = html(`&lt;div class=&quot;aib-i&quot; role=&quot;listitem&quot;&gt;&lt;span class=&quot;aib-av&quot; style=&quot;background:${col};color:${col.replace(&#39;)&#39;, &#39;-ink)&#39;)}&quot; aria-hidden=&quot;true&quot;&gt;${m}&lt;/span&gt;&lt;span class=&quot;aib-t&quot;&gt;&lt;b&gt;${x.t}&lt;/b&gt;&lt;span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;aib-r&quot;&gt;&lt;/span&gt;&lt;/div&gt;`);
     update(x, true); return x.el;
   }
   function update(x, now){
@@ -727,7 +727,7 @@ const fitHits = window.dmFitHits || (() => {
 })();</script><script src="/components/assets/core.js"></script><script>DM.def('agent-inbox', (r, c) => {
   // the runs, grouped by what they need: one waits for approval, one failed and can be retried, two are running with their
   // clocks, two are done
-  const A = { 'Design agent':['D','var(--pl)'], 'Build agent':['B','var(--pm)'], 'Research agent':['R','var(--pt)'], 'Copy agent':['C','var(--pp)'], 'QA agent':['Q','var(--pb)'] };
+  const A = { 'Design agent':['D','var(--av-l)'], 'Build agent':['B','var(--av-m)'], 'Research agent':['R','var(--av-t)'], 'Copy agent':['C','var(--av-p)'], 'QA agent':['Q','var(--av-b)'] };
   const R = [
     { id:'pub', t:'Publish the pricing page', a:'Design agent', g:'needs', why:'Waiting for your approval' },
     { id:'tok', t:'Export tokens to CSS', a:'Build agent', g:'needs', fail:true, why:'Failed: rate limited by Figma', tip:'Figma answered 429 at 10:42. Safe to retry' },
@@ -745,7 +745,7 @@ const fitHits = window.dmFitHits || (() => {
     : x.g === 'run' ? `<span class="spin"></span><span class="num aib-ck">${clock(x.sec)}</span>` : `<span class="ok">${I('ok','xs')}</span><span>${x.ago}</span>`;
   function row(x){
     const [m, col] = A[x.a];
-    x.el = html(`<div class="aib-i" role="listitem"><span class="aib-av" style="color:${col};background:color-mix(in srgb,${col} 13%,transparent)" aria-hidden="true">${m}</span><span class="aib-t"><b>${x.t}</b><span></span></span><span class="aib-r"></span></div>`);
+    x.el = html(`<div class="aib-i" role="listitem"><span class="aib-av" style="background:${col};color:${col.replace(')', '-ink)')}" aria-hidden="true">${m}</span><span class="aib-t"><b>${x.t}</b><span></span></span><span class="aib-r"></span></div>`);
     update(x, true); return x.el;
   }
   function update(x, now){

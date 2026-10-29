@@ -133,9 +133,9 @@ import { Comments, type CommentsEntry, type CommentsPerson } from &#39;./Comment
 import { useStory, useWait } from &#39;../lib/useScript&#39;;
 
 /* ---------- Comments: Maya asks the agent in the thread; it thinks, writes its answer, then offers to apply it ---------- */
-const AGENT: CommentsPerson = { name: &#39;Design agent&#39;, initials: &#39;DA&#39;, color: &#39;var(--dm-pb)&#39;, handle: &#39;agent&#39; };
-const MAYA: CommentsPerson = { name: &#39;Maya Kim&#39;, initials: &#39;MK&#39;, color: &#39;var(--dm-pl)&#39;, handle: &#39;maya&#39; };
-const JON: CommentsPerson = { name: &#39;Jon Ortiz&#39;, initials: &#39;JO&#39;, color: &#39;var(--dm-pm)&#39;, handle: &#39;jon&#39; };
+const AGENT: CommentsPerson = { name: &#39;Design agent&#39;, initials: &#39;DA&#39;, color: &#39;var(--dm-av-b)&#39;, handle: &#39;agent&#39; };
+const MAYA: CommentsPerson = { name: &#39;Maya Kim&#39;, initials: &#39;MK&#39;, color: &#39;var(--dm-av-l)&#39;, handle: &#39;maya&#39; };
+const JON: CommentsPerson = { name: &#39;Jon Ortiz&#39;, initials: &#39;JO&#39;, color: &#39;var(--dm-av-m)&#39;, handle: &#39;jon&#39; };
 const START: CommentsEntry[] = [
   { id: &#39;c1&#39;, author: MAYA, text: &#39;The secondary button feels too faint next to the CTA.&#39;, time: &#39;2h&#39;, agrees: 1 },
   { id: &#39;c2&#39;, author: JON, text: &#39;Agree. Can we keep it outlined though?&#39;, time: &#39;1h&#39; }
@@ -192,7 +192,7 @@ import { useId, useState, type KeyboardEvent, type ReactNode } from &#39;react&#
 import { cx } from &#39;../lib/cx&#39;;
 import { useControllable } from &#39;../lib/hooks&#39;;
 import { Icon } from &#39;../lib/icons&#39;;
-import { Avatar, enter, Think, Tip } from &#39;../lib/motion&#39;;
+import { Avatar, avatarInk, enter, Think, Tip } from &#39;../lib/motion&#39;;
 import &#39;../designme.css&#39;;
 import &#39;./comments.css&#39;;
 
@@ -200,7 +200,7 @@ export interface CommentsPerson {
   name: string;
   /** Two letters for the avatar, like &quot;MK&quot; */
   initials: string;
-  /** The avatar colour, like &#39;var(--dm-pl)&#39; */
+  /** The avatar colour, like &#39;var(--dm-av-l)&#39; */
   color: string;
   /** What follows the @ to mention them, like &quot;maya&quot;. People with a handle show up in the mention menu */
   handle?: string;
@@ -363,7 +363,7 @@ export function Comments({ title, pin = 1, comments, people, value, defaultValue
             // mousedown, so the field keeps its focus
             &lt;button type=&quot;button&quot; key={p.handle} id={`${id}-${i}`} tabIndex={-1} className={cx(&#39;dm-mi&#39;, i === at &amp;&amp; &#39;dm-hl&#39;)} role=&quot;option&quot; aria-selected={i === at}
               onMouseEnter={() =&gt; setHl({ at: i, for: draft })} onMouseDown={e =&gt; { e.preventDefault(); pick(p); }}&gt;
-              &lt;span className=&quot;dm-av&quot; style={{ background: p.color, width: 20, height: 20, fontSize: 9 }} aria-hidden=&quot;true&quot;&gt;{p.initials}&lt;/span&gt;
+              &lt;span className=&quot;dm-av&quot; style={{ background: p.color, color: avatarInk(p.color), width: 20, height: 20, fontSize: 9 }} aria-hidden=&quot;true&quot;&gt;{p.initials}&lt;/span&gt;
               &lt;span&gt;{p.name}&lt;span className=&quot;dm-d&quot;&gt;@{p.handle}&lt;/span&gt;&lt;/span&gt;
             &lt;/button&gt;
           ))}
@@ -503,7 +503,7 @@ export function Comments({ title, pin = 1, comments, people, value, defaultValue
 </code></pre></details><details class="cp-file"><summary>comments.js<span class="l">HTML · 62 lines</span></summary><pre class="cp-pre"><code>DM.def(&#39;comments&#39;, (r, c) =&gt; {
   r.innerHTML = r.innerHTML.replace(&#39;{check}&#39;, I(&#39;check&#39;,&#39;xs&#39;)).replace(&#39;{up}&#39;, I(&#39;up&#39;,&#39;xs&#39;));
   const root = $(&#39;.cmx&#39;, r), th = $(&#39;.cmx-th&#39;, r), inp = $(&#39;.cmx-box input&#39;, r), go = $(&#39;.cmx-go&#39;, r), men = $(&#39;.cmx-men&#39;, r), st = $(&#39;.cmx-st&#39;, r), rs = $(&#39;.cmx-res&#39;, r);
-  const P = { MK:[&#39;Maya Kim&#39;,&#39;var(--pl)&#39;], JO:[&#39;Jon Ortiz&#39;,&#39;var(--pm)&#39;], DA:[&#39;Design agent&#39;,&#39;var(--pb)&#39;] };
+  const P = { MK:[&#39;Maya Kim&#39;,&#39;var(--av-l)&#39;], JO:[&#39;Jon Ortiz&#39;,&#39;var(--av-m)&#39;], DA:[&#39;Design agent&#39;,&#39;var(--av-b)&#39;] };
   const esc = t =&gt; t.replace(/[&amp;&lt;&gt;&quot;]/g, ch =&gt; ({ &#39;&amp;&#39;:&#39;&amp;amp;&#39;, &#39;&lt;&#39;:&#39;&amp;lt;&#39;, &#39;&gt;&#39;:&#39;&amp;gt;&#39;, &#39;&quot;&#39;:&#39;&amp;quot;&#39; })[ch]);
   const fmt = t =&gt; esc(t).replace(/@(agent|maya|jon)\b/gi, m =&gt; `&lt;span class=&quot;m&quot;&gt;${m}&lt;/span&gt;`);
   // the first comment starts the thread; every later one is a reply, indented on a thin line under it
@@ -887,7 +887,7 @@ const fitHits = window.dmFitHits || (() => {
 })();</script><script src="/components/assets/core.js"></script><script>DM.def('comments', (r, c) => {
   r.innerHTML = r.innerHTML.replace('{check}', I('check','xs')).replace('{up}', I('up','xs'));
   const root = $('.cmx', r), th = $('.cmx-th', r), inp = $('.cmx-box input', r), go = $('.cmx-go', r), men = $('.cmx-men', r), st = $('.cmx-st', r), rs = $('.cmx-res', r);
-  const P = { MK:['Maya Kim','var(--pl)'], JO:['Jon Ortiz','var(--pm)'], DA:['Design agent','var(--pb)'] };
+  const P = { MK:['Maya Kim','var(--av-l)'], JO:['Jon Ortiz','var(--av-m)'], DA:['Design agent','var(--av-b)'] };
   const esc = t => t.replace(/[&<>"]/g, ch => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' })[ch]);
   const fmt = t => esc(t).replace(/@(agent|maya|jon)\b/gi, m => `<span class="m">${m}</span>`);
   // the first comment starts the thread; every later one is a reply, indented on a thin line under it

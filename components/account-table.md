@@ -27,6 +27,7 @@ A table of customer accounts with plan, seats, a health bar and monthly revenue,
 
 - Columns for account (with a coloured letter logo), plan tag, seats, health and MRR.
 - Health is a bar coloured green from 80, amber from 60 and red below.
+- Give a logo one of the avatar colours, like `var(--dm-av-b)`, and its letter takes that colour's own ink, white or dark, so it keeps its contrast.
 - A search box matches account names, and plan chips filter by plan; the chips default to the plans found in `accounts`.
 - Clicking a row opens or closes the agent's `note` under it; one row is open at a time.
 - An optional `action` button in the open note; if its `onClick` returns a promise the button spins, then shows `doneLabel`.
@@ -54,12 +55,12 @@ import { AccountTable, type AccountTableAccount } from './AccountTable';
 import { useStory } from '../lib/useScript';
 
 const ACCOUNTS: AccountTableAccount[] = [
-  { name: 'Northwind', color: '#2f6fde', plan: 'Enterprise', seats: 120, health: 92, mrr: '$14,400', note: 'Expanding. Design team added 18 seats this month.' },
-  { name: 'Lumen Labs', color: '#7a4ce0', plan: 'Pro', seats: 14, health: 48, mrr: '$672', note: 'Usage fell 40% after their lead designer left. Worth a check in.' },
-  { name: 'Fable & Co', color: '#0f9a6e', plan: 'Team', seats: 32, health: 81, mrr: '$1,920', note: 'Steady. Asked about the Figma sync twice.' },
-  { name: 'Orbit', color: '#e2681c', plan: 'Pro', seats: 8, health: 67, mrr: '$384', note: 'Trial of the agent ends Friday. 3 runs so far.' },
-  { name: 'Kite Health', color: '#d03a5f', plan: 'Enterprise', seats: 64, health: 88, mrr: '$7,680', note: 'Renewal in 6 weeks, champion is happy.' },
-  { name: 'Paper Plane', color: '#3c8d9e', plan: 'Team', seats: 21, health: 34, mrr: '$1,260', note: 'Two failed payments. Billing contact bounced.' }
+  { name: 'Northwind', color: 'var(--dm-av-b)', plan: 'Enterprise', seats: 120, health: 92, mrr: '$14,400', note: 'Expanding. Design team added 18 seats this month.' },
+  { name: 'Lumen Labs', color: 'var(--dm-av-l)', plan: 'Pro', seats: 14, health: 48, mrr: '$672', note: 'Usage fell 40% after their lead designer left. Worth a check in.' },
+  { name: 'Fable & Co', color: 'var(--dm-av-m)', plan: 'Team', seats: 32, health: 81, mrr: '$1,920', note: 'Steady. Asked about the Figma sync twice.' },
+  { name: 'Orbit', color: 'var(--dm-av-p)', plan: 'Pro', seats: 8, health: 67, mrr: '$384', note: 'Trial of the agent ends Friday. 3 runs so far.' },
+  { name: 'Kite Health', color: 'var(--dm-av-r)', plan: 'Enterprise', seats: 64, health: 88, mrr: '$7,680', note: 'Renewal in 6 weeks, champion is happy.' },
+  { name: 'Paper Plane', color: 'var(--dm-av-t)', plan: 'Team', seats: 21, health: 34, mrr: '$1,260', note: 'Two failed payments. Billing contact bounced.' }
 ];
 
 /* ---------- Account table: search, plan filters, and a row that opens on what the agent noticed ---------- */
@@ -83,7 +84,7 @@ export default function AccountTableDemo() {
 | --- | --- | --- |
 | `accounts` | `AccountTableAccount[]` |  |
 | `plans` (optional) | `string[]` | The plan filters after All. Defaults to the plans in `accounts`, in the order they first appear |
-| `planTones` (optional) | `Record<string, AccountTableTone>` | The tag colour for each plan. Defaults to Enterprise orange, Pro blue, Team teal |
+| `planTones` (optional) | `Record<string, AccountTableTone>` | The tag colour for each plan. Defaults to Enterprise purple, Pro blue, Team teal |
 | `plan` (optional) | `string` | The plan filter, or '' for All |
 | `defaultPlan` (optional) | `string` |  |
 | `onPlanChange` (optional) | `(plan: string) => void` |  |
@@ -126,7 +127,7 @@ import { Fragment, useEffect, useRef, useState, type ReactNode } from 'react';
 import { cx } from '../lib/cx';
 import { useControllable } from '../lib/hooks';
 import { Icon } from '../lib/icons';
-import { enter, Spin } from '../lib/motion';
+import { avatarInk, enter, Spin } from '../lib/motion';
 import '../designme.css';
 import './account-table.css';
 
@@ -136,7 +137,7 @@ export type AccountTableTone = 'blue' | 'purple' | 'green' | 'orange' | 'red' | 
 export interface AccountTableAccount {
   /** Also the account's key, and its first letter makes the logo */
   name: string;
-  /** The logo's colour, like '#2f6fde' */
+  /** The logo's colour, like 'var(--dm-av-b)'. An avatar colour brings its own ink for the letter, any other colour takes white */
   color: string;
   plan: string;
   seats: number;
@@ -152,7 +153,7 @@ export interface AccountTableProps {
   accounts: AccountTableAccount[];
   /** The plan filters after All. Defaults to the plans in `accounts`, in the order they first appear */
   plans?: string[];
-  /** The tag colour for each plan. Defaults to Enterprise orange, Pro blue, Team teal */
+  /** The tag colour for each plan. Defaults to Enterprise purple, Pro blue, Team teal */
   planTones?: Record<string, AccountTableTone>;
   /** The plan filter, or '' for All */
   plan?: string;
@@ -175,8 +176,8 @@ export interface AccountTableProps {
 }
 
 const TONE: Record<AccountTableTone, string> = { blue: 'dm-b', purple: 'dm-l', green: 'dm-m', orange: 'dm-p', red: 'dm-r', yellow: 'dm-y', pink: 'dm-k', teal: 'dm-t' };
-const TONES: Record<string, AccountTableTone> = { Enterprise: 'orange', Pro: 'blue', Team: 'teal' };
-const healthColor = (h: number) => h >= 80 ? 'var(--dm-ok)' : h >= 60 ? 'var(--dm-warn)' : 'var(--dm-bad)';
+const TONES: Record<string, AccountTableTone> = { Enterprise: 'purple', Pro: 'blue', Team: 'teal' };
+const healthColor = (h: number) => h >= 80 ? 'var(--dm-atb-ok)' : h >= 60 ? 'var(--dm-atb-warn)' : 'var(--dm-atb-bad)';
 
 /** Accounts you can search and filter by plan; a row opens to show what the agent noticed. */
 export function AccountTable({
@@ -233,7 +234,7 @@ export function AccountTable({
                 <Fragment key={a.name}>
                   <tr className={cx('dm-row', isOpen && 'dm-open', enter(i * 35).className)} style={enter(i * 35).style} tabIndex={0} aria-expanded={isOpen}
                     onClick={() => toggle(a.name)} onKeyDown={e => { if ((e.key === 'Enter' || e.key === ' ') && e.target === e.currentTarget) { e.preventDefault(); toggle(a.name); } }}>
-                    <td><span className="dm-nm"><span className="dm-lg" style={{ backgroundColor: a.color }}>{a.name[0]}</span>{a.name}</span></td>
+                    <td><span className="dm-nm"><span className="dm-lg" style={{ background: a.color, color: avatarInk(a.color) }}>{a.name[0]}</span>{a.name}</span></td>
                     <td><span className={cx('dm-tag', tone && TONE[tone])}>{a.plan}</span></td>
                     <td className="dm-num">{a.seats}</td>
                     <td><span className="dm-hb"><i><b style={{ width: a.health + '%', background: healthColor(a.health) }} /></i><span className="dm-num">{a.health}</span></span></td>

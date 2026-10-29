@@ -30,7 +30,7 @@ export default function ProfileMenuDemo() {
 
   return (
     <div ref={ref} style={{ width: '100%' }}>
-      <ProfileMenu user={{ name: 'Maya Kim', email: 'maya@northwind.studio', color: 'var(--dm-pl)' }} workspaces={WORKSPACES} context="Pricing refresh"
+      <ProfileMenu user={{ name: 'Maya Kim', email: 'maya@northwind.studio', color: 'var(--dm-av-l)' }} workspaces={WORKSPACES} context="Pricing refresh"
         workspace={workspace} onWorkspaceChange={id => { if (id !== workspace) setNote(`Switched to ${WORKSPACES.find(w => w.id === id)!.name}`); setWorkspace(id); }}
         dark={dark} onDarkChange={d => { setDark(d); setNote(`Theme set to ${d ? 'dark' : 'light'}`); }}
         signedIn={signedIn} onSignedInChange={s => { setSignedIn(s); setNote(s ? 'Signed in as Maya Kim' : `Signed out of ${WORKSPACES.find(w => w.id === workspace)!.name}`); }}

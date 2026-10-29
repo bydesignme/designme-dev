@@ -105,7 +105,7 @@ const PROVIDERS: SocialSignInProvider[] = [
 export default function SocialSignInDemo() {
   return (
     &lt;div style={{ width: &#39;100%&#39; }}&gt;
-      &lt;SocialSignIn providers={PROVIDERS} defaultLastUsed=&quot;figma&quot; user={{ name: &#39;Maya&#39;, initials: &#39;MK&#39;, color: &#39;var(--dm-pl)&#39; }}
+      &lt;SocialSignIn providers={PROVIDERS} defaultLastUsed=&quot;figma&quot; user={{ name: &#39;Maya&#39;, initials: &#39;MK&#39;, color: &#39;var(--dm-av-l)&#39; }}
         onSignIn={() =&gt; new Promise(res =&gt; setTimeout(res, 1100))} /&gt;
     &lt;/div&gt;
   );
@@ -138,7 +138,7 @@ export interface SocialSignInUser {
   /** Shown as &quot;Welcome back, Maya&quot; */
   name: string;
   initials: string;
-  /** The avatar colour, like &#39;var(--dm-pl)&#39; */
+  /** The avatar colour, like &#39;var(--dm-av-l)&#39; */
   color?: string;
 }
 
@@ -208,7 +208,7 @@ export function SocialSignIn({ providers = PROVIDERS, lastUsed, defaultLastUsed 
       {session ? (
         &lt;div className=&quot;dm-ssi-ok&quot;&gt;
           {/* the welcome comes in a line at a time */}
-          {user &amp;&amp; &lt;Avatar initials={user.initials} color={user.color ?? &#39;var(--dm-pl)&#39;} className=&quot;dm-enter&quot; /&gt;}
+          {user &amp;&amp; &lt;Avatar initials={user.initials} color={user.color ?? &#39;var(--dm-av-l)&#39;} className=&quot;dm-enter&quot; /&gt;}
           &lt;b {...enter(step(1))}&gt;{user ? `Welcome back, ${user.name}` : &#39;You are signed in&#39;}&lt;/b&gt;
           &lt;span className=&quot;dm-muted dm-enter&quot; style={enter(step(2)).style}&gt;Signed in with {who?.label ?? session}&lt;/span&gt;
           &lt;button type=&quot;button&quot; className=&quot;dm-pill dm-ghost dm-sm dm-enter&quot; style={enter(step(3)).style} onClick={signOut}&gt;Sign out&lt;/button&gt;
@@ -305,7 +305,7 @@ export function SocialSignIn({ providers = PROVIDERS, lastUsed, defaultLastUsed 
       b.classList.add(&#39;busy&#39;); list.classList.add(&#39;wait&#39;); $(&#39;.mk&#39;, b).innerHTML = &#39;&lt;span class=&quot;spin&quot;&gt;&lt;/span&gt;&#39;;
       await c.wait(1100); last = b.dataset.p;
       hold(root); const kids = [...root.children]; kids.forEach(k =&gt; k.hidden = true);
-      const ok = html(`&lt;div class=&quot;ssi-ok&quot;&gt;${AV(&#39;MK&#39;,&#39;var(--pl)&#39;)}&lt;b&gt;Welcome back, Maya&lt;/b&gt;&lt;span class=&quot;muted&quot;&gt;Signed in with ${last}&lt;/span&gt;&lt;button class=&quot;pill ghost sm&quot;&gt;Sign out&lt;/button&gt;&lt;/div&gt;`);
+      const ok = html(`&lt;div class=&quot;ssi-ok&quot;&gt;${AV(&#39;MK&#39;,&#39;var(--av-l)&#39;)}&lt;b&gt;Welcome back, Maya&lt;/b&gt;&lt;span class=&quot;muted&quot;&gt;Signed in with ${last}&lt;/span&gt;&lt;button class=&quot;pill ghost sm&quot;&gt;Sign out&lt;/button&gt;&lt;/div&gt;`);
       root.appendChild(ok); stagger([...ok.children], 60);
       $(&#39;button&#39;, ok).onclick = () =&gt; { ok.remove(); release(root); kids.forEach(k =&gt; k.hidden = false); list.classList.remove(&#39;wait&#39;); paint(); };
     }));
@@ -647,7 +647,7 @@ const fitHits = window.dmFitHits || (() => {
       b.classList.add('busy'); list.classList.add('wait'); $('.mk', b).innerHTML = '<span class="spin"></span>';
       await c.wait(1100); last = b.dataset.p;
       hold(root); const kids = [...root.children]; kids.forEach(k => k.hidden = true);
-      const ok = html(`<div class="ssi-ok">${AV('MK','var(--pl)')}<b>Welcome back, Maya</b><span class="muted">Signed in with ${last}</span><button class="pill ghost sm">Sign out</button></div>`);
+      const ok = html(`<div class="ssi-ok">${AV('MK','var(--av-l)')}<b>Welcome back, Maya</b><span class="muted">Signed in with ${last}</span><button class="pill ghost sm">Sign out</button></div>`);
       root.appendChild(ok); stagger([...ok.children], 60);
       $('button', ok).onclick = () => { ok.remove(); release(root); kids.forEach(k => k.hidden = false); list.classList.remove('wait'); paint(); };
     }));

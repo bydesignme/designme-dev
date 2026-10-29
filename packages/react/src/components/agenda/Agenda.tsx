@@ -10,7 +10,7 @@ import './agenda.css';
 export interface AgendaPerson {
   /** Like "MK" */
   initials: string;
-  /** The avatar's colour, like 'var(--dm-pl)' */
+  /** The avatar's colour, like 'var(--dm-av-l)' */
   color: string;
 }
 

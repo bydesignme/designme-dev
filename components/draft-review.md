@@ -171,7 +171,7 @@ import './draft-review.css';
 export interface DraftRecipient {
   name: string;
   initials?: string;
-  /** The avatar's colour, like 'var(--dm-pl)' */
+  /** The avatar's colour, like 'var(--dm-av-l)' */
   color?: string;
 }
 
@@ -261,7 +261,7 @@ export function DraftReview({
         </div>
         <div className="dm-drf-fs" inert={done}>
           <div className="dm-drf-r"><span className="dm-drf-l">To</span>
-            {to.map(p => <span key={p.name} className="dm-drf-p"><Avatar initials={p.initials ?? p.name.split(' ').map(w => w[0]).join('').slice(0, 2)} color={p.color ?? 'var(--dm-pl)'} />{p.name}</span>)}
+            {to.map(p => <span key={p.name} className="dm-drf-p"><Avatar initials={p.initials ?? p.name.split(' ').map(w => w[0]).join('').slice(0, 2)} color={p.color ?? 'var(--dm-av-l)'} />{p.name}</span>)}
           </div>
           <label className="dm-drf-r"><span className="dm-drf-l">Subject</span><input className="dm-drf-s" value={subject} onChange={e => onSubjectChange?.(e.target.value)} readOnly={!onSubjectChange} aria-label="Subject" /></label>
         </div>

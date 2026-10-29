@@ -126,7 +126,7 @@ import { useScript, useWait } from &#39;../lib/useScript&#39;;
 
 /* ---------- Design review: three checks pass, Maya asks for one change, the agent makes it, she approves, you ship ---------- */
 const CHECKS: [label: string, result: string][] = [[&#39;Visual diff&#39;, &#39;2 of 6 screens changed&#39;], [&#39;Library tokens&#39;, &#39;All from the library&#39;], [&#39;Contrast&#39;, &#39;AA on every screen&#39;]];
-const MAYA = { name: &#39;Maya Kim&#39;, initials: &#39;MK&#39;, color: &#39;var(--dm-pl)&#39; };
+const MAYA = { name: &#39;Maya Kim&#39;, initials: &#39;MK&#39;, color: &#39;var(--dm-av-l)&#39; };
 const AGENT = { name: &#39;Design agent&#39;, agent: true };
 const DONE: Record&lt;string, string&gt; = { all: &#39;Live for every visitor&#39;, some: &#39;Live for 10% of visitors. Everyone tomorrow&#39;, later: &#39;Ships on Monday at 09:00&#39; };
 
@@ -286,7 +286,7 @@ export function DesignReview({
                 &lt;div key={i} className=&quot;dm-drv-m dm-enter&quot;&gt;
                   {m.author.agent
                     ? &lt;span className=&quot;dm-drv-ag&quot;&gt;&lt;Icon name=&quot;spark&quot; size=&quot;xs&quot; /&gt;&lt;/span&gt;
-                    : &lt;Avatar initials={m.author.initials ?? m.author.name.split(&#39; &#39;).map(w =&gt; w[0]).join(&#39;&#39;).slice(0, 2)} color={m.author.color ?? &#39;var(--dm-pl)&#39;} /&gt;}
+                    : &lt;Avatar initials={m.author.initials ?? m.author.name.split(&#39; &#39;).map(w =&gt; w[0]).join(&#39;&#39;).slice(0, 2)} color={m.author.color ?? &#39;var(--dm-av-l)&#39;} /&gt;}
                   &lt;div className=&quot;dm-drv-mb&quot;&gt;
                     &lt;span className=&quot;dm-drv-mn&quot;&gt;
                       &lt;b&gt;{m.author.name}&lt;/b&gt;
@@ -436,7 +436,7 @@ export function DesignReview({
   const rows = $$(&#39;.drv-c&#39;, box);
   const DONE = { &#39;Ship to everyone&#39;:&#39;Live for every visitor&#39;, &#39;Ship to 10% first&#39;:&#39;Live for 10% of visitors. Everyone tomorrow&#39;, &#39;Ship on Monday&#39;:&#39;Ships on Monday at 09:00&#39; };
   // one message in the review: who, a tag, and what they said
-  const msg = (who, tg, text) =&gt; { const m = html(`&lt;div class=&quot;drv-m&quot;&gt;${who === &#39;agent&#39; ? `&lt;span class=&quot;drv-ag&quot;&gt;${I(&#39;spark&#39;,&#39;xs&#39;)}&lt;/span&gt;` : AV(&#39;MK&#39;,&#39;var(--pl)&#39;)}&lt;div class=&quot;drv-mb&quot;&gt;&lt;span class=&quot;drv-mn&quot;&gt;&lt;b&gt;${who === &#39;agent&#39; ? &#39;Design agent&#39; : &#39;Maya Kim&#39;}&lt;/b&gt;${tg}&lt;/span&gt;${text ? `&lt;p&gt;${text}&lt;/p&gt;` : &#39;&#39;}&lt;/div&gt;&lt;/div&gt;`); $(&#39;.drv-wt&#39;, rv)?.remove(); rv.appendChild(m); enter(m); return m; };
+  const msg = (who, tg, text) =&gt; { const m = html(`&lt;div class=&quot;drv-m&quot;&gt;${who === &#39;agent&#39; ? `&lt;span class=&quot;drv-ag&quot;&gt;${I(&#39;spark&#39;,&#39;xs&#39;)}&lt;/span&gt;` : AV(&#39;MK&#39;,&#39;var(--av-l)&#39;)}&lt;div class=&quot;drv-mb&quot;&gt;&lt;span class=&quot;drv-mn&quot;&gt;&lt;b&gt;${who === &#39;agent&#39; ? &#39;Design agent&#39; : &#39;Maya Kim&#39;}&lt;/b&gt;${tg}&lt;/span&gt;${text ? `&lt;p&gt;${text}&lt;/p&gt;` : &#39;&#39;}&lt;/div&gt;&lt;/div&gt;`); $(&#39;.drv-wt&#39;, rv)?.remove(); rv.appendChild(m); enter(m); return m; };
   $$(&#39;.drv-pop .mi&#39;, r).forEach(m =&gt; m.addEventListener(&#39;click&#39;, () =&gt; { $$(&#39;.drv-pop .mi&#39;, r).forEach(x =&gt; x.setAttribute(&#39;aria-checked&#39;, x === m)); swap(go, m.dataset.m); }));
   go.onclick = () =&gt; c.run(async () =&gt; {
     const how = go.textContent; go.disabled = dd.disabled = true; swap(go, &#39;Shipping&#39;); swap(st, &#39;Publishing 6 screens&#39;); await c.wait(1000);
@@ -794,7 +794,7 @@ const fitHits = window.dmFitHits || (() => {
   const rows = $$('.drv-c', box);
   const DONE = { 'Ship to everyone':'Live for every visitor', 'Ship to 10% first':'Live for 10% of visitors. Everyone tomorrow', 'Ship on Monday':'Ships on Monday at 09:00' };
   // one message in the review: who, a tag, and what they said
-  const msg = (who, tg, text) => { const m = html(`<div class="drv-m">${who === 'agent' ? `<span class="drv-ag">${I('spark','xs')}</span>` : AV('MK','var(--pl)')}<div class="drv-mb"><span class="drv-mn"><b>${who === 'agent' ? 'Design agent' : 'Maya Kim'}</b>${tg}</span>${text ? `<p>${text}</p>` : ''}</div></div>`); $('.drv-wt', rv)?.remove(); rv.appendChild(m); enter(m); return m; };
+  const msg = (who, tg, text) => { const m = html(`<div class="drv-m">${who === 'agent' ? `<span class="drv-ag">${I('spark','xs')}</span>` : AV('MK','var(--av-l)')}<div class="drv-mb"><span class="drv-mn"><b>${who === 'agent' ? 'Design agent' : 'Maya Kim'}</b>${tg}</span>${text ? `<p>${text}</p>` : ''}</div></div>`); $('.drv-wt', rv)?.remove(); rv.appendChild(m); enter(m); return m; };
   $$('.drv-pop .mi', r).forEach(m => m.addEventListener('click', () => { $$('.drv-pop .mi', r).forEach(x => x.setAttribute('aria-checked', x === m)); swap(go, m.dataset.m); }));
   go.onclick = () => c.run(async () => {
     const how = go.textContent; go.disabled = dd.disabled = true; swap(go, 'Shipping'); swap(st, 'Publishing 6 screens'); await c.wait(1000);

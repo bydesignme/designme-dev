@@ -11,7 +11,7 @@ export interface HandoffPerson {
   /** Used as the key, so keep it unique */
   name: string;
   initials?: string;
-  /** The avatar's colour, like 'var(--dm-pm)' */
+  /** The avatar's colour, like 'var(--dm-av-m)' */
   color?: string;
   /** Like "Billing" */
   team?: string;
@@ -111,7 +111,7 @@ export function HumanHandoff({
           <div className="dm-hox-col">
             <span className="dm-hox-lb">{L.assignedTo}</span>
             <div className="dm-hox-who">
-              <span className="dm-hox-av">{assignee ? <Avatar key={assignee.name} className="dm-enter" initials={initialsOf(assignee)} color={assignee.color ?? 'var(--dm-pl)'} /> : <Spin />}</span>
+              <span className="dm-hox-av">{assignee ? <Avatar key={assignee.name} className="dm-enter" initials={initialsOf(assignee)} color={assignee.color ?? 'var(--dm-av-l)'} /> : <Spin />}</span>
               <span className="dm-hox-wt">
                 <b><Swap>{assignee ? assignee.name : finding.title}</Swap></b>
                 {assignee ? (
@@ -154,7 +154,7 @@ export function HumanHandoff({
           </div>
         </div>
         <div className={cx('dm-hox-st', st !== 'wait' && 'dm-' + st)} aria-live="polite">
-          <span className="dm-g">{status.person ? <Avatar initials={initialsOf(status.person)} color={status.person.color ?? 'var(--dm-pl)'} /> : st === 'wait' ? <Spin /> : <Icon name={st === 'warn' ? 'alert' : 'ok'} />}</span>
+          <span className="dm-g">{status.person ? <Avatar initials={initialsOf(status.person)} color={status.person.color ?? 'var(--dm-av-l)'} /> : st === 'wait' ? <Spin /> : <Icon name={st === 'warn' ? 'alert' : 'ok'} />}</span>
           <span className="dm-t"><b><Swap>{status.title}</Swap></b>{status.detail && <span><Swap>{status.detail}</Swap></span>}</span>
         </div>
         {people && (
@@ -163,7 +163,7 @@ export function HumanHandoff({
             {people.map(p => (
               <button type="button" key={p.name} className="dm-mi" role="menuitemradio" aria-checked={p.name === assignee?.name}
                 onClick={() => { if (p.name !== assignee?.name) onReassign?.(p); menu.closeSoon(); }}>
-                <Avatar initials={initialsOf(p)} color={p.color ?? 'var(--dm-pl)'} />
+                <Avatar initials={initialsOf(p)} color={p.color ?? 'var(--dm-av-l)'} />
                 <span>{p.name}<span className="dm-d">{[p.team, p.presence].filter(Boolean).join(' · ')}</span></span>
                 <span className="dm-ck"><Icon name="check" size="xs" /></span>
               </button>

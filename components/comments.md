@@ -61,9 +61,9 @@ import { Comments, type CommentsEntry, type CommentsPerson } from './Comments';
 import { useStory, useWait } from '../lib/useScript';
 
 /* ---------- Comments: Maya asks the agent in the thread; it thinks, writes its answer, then offers to apply it ---------- */
-const AGENT: CommentsPerson = { name: 'Design agent', initials: 'DA', color: 'var(--dm-pb)', handle: 'agent' };
-const MAYA: CommentsPerson = { name: 'Maya Kim', initials: 'MK', color: 'var(--dm-pl)', handle: 'maya' };
-const JON: CommentsPerson = { name: 'Jon Ortiz', initials: 'JO', color: 'var(--dm-pm)', handle: 'jon' };
+const AGENT: CommentsPerson = { name: 'Design agent', initials: 'DA', color: 'var(--dm-av-b)', handle: 'agent' };
+const MAYA: CommentsPerson = { name: 'Maya Kim', initials: 'MK', color: 'var(--dm-av-l)', handle: 'maya' };
+const JON: CommentsPerson = { name: 'Jon Ortiz', initials: 'JO', color: 'var(--dm-av-m)', handle: 'jon' };
 const START: CommentsEntry[] = [
   { id: 'c1', author: MAYA, text: 'The secondary button feels too faint next to the CTA.', time: '2h', agrees: 1 },
   { id: 'c2', author: JON, text: 'Agree. Can we keep it outlined though?', time: '1h' }
@@ -166,7 +166,7 @@ import { useId, useState, type KeyboardEvent, type ReactNode } from 'react';
 import { cx } from '../lib/cx';
 import { useControllable } from '../lib/hooks';
 import { Icon } from '../lib/icons';
-import { Avatar, enter, Think, Tip } from '../lib/motion';
+import { Avatar, avatarInk, enter, Think, Tip } from '../lib/motion';
 import '../designme.css';
 import './comments.css';
 
@@ -174,7 +174,7 @@ export interface CommentsPerson {
   name: string;
   /** Two letters for the avatar, like "MK" */
   initials: string;
-  /** The avatar colour, like 'var(--dm-pl)' */
+  /** The avatar colour, like 'var(--dm-av-l)' */
   color: string;
   /** What follows the @ to mention them, like "maya". People with a handle show up in the mention menu */
   handle?: string;
@@ -337,7 +337,7 @@ export function Comments({ title, pin = 1, comments, people, value, defaultValue
             // mousedown, so the field keeps its focus
             <button type="button" key={p.handle} id={`${id}-${i}`} tabIndex={-1} className={cx('dm-mi', i === at && 'dm-hl')} role="option" aria-selected={i === at}
               onMouseEnter={() => setHl({ at: i, for: draft })} onMouseDown={e => { e.preventDefault(); pick(p); }}>
-              <span className="dm-av" style={{ background: p.color, width: 20, height: 20, fontSize: 9 }} aria-hidden="true">{p.initials}</span>
+              <span className="dm-av" style={{ background: p.color, color: avatarInk(p.color), width: 20, height: 20, fontSize: 9 }} aria-hidden="true">{p.initials}</span>
               <span>{p.name}<span className="dm-d">@{p.handle}</span></span>
             </button>
           ))}

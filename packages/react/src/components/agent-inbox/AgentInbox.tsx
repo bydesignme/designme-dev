@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { cx } from '../../lib/cx';
 import { useIsoLayoutEffect, useReducedMotion, useSeconds } from '../../lib/hooks';
 import { Icon } from '../../lib/icons';
-import { enter, Spin, Swap, Tip } from '../../lib/motion';
+import { avatarInk, enter, Spin, Swap, Tip } from '../../lib/motion';
 import '../../designme.css';
 import './agent-inbox.css';
 
@@ -15,7 +15,7 @@ export interface InboxRun {
   title: string;
   /** Which agent runs it. Its first letter marks the row, and a finished run shows it under the title */
   agent: string;
-  /** The mark's colour, like 'var(--dm-pl)'. Defaults to the accent */
+  /** The mark's fill, like 'var(--dm-av-l)'. An avatar colour brings its own ink, any other colour takes white initials. Defaults to the accent */
   color?: string;
   group: InboxGroup;
   /** The line under the title: why it needs you, or what it is doing now. A finished run shows its agent instead */
@@ -105,7 +105,7 @@ export function AgentInbox({ runs, onApprove, onRetry, title = 'Inbox', status, 
                   const detail = g === 'done' ? r.agent : r.detail ?? '';
                   return (
                     <div key={r.id} data-k={r.id} className={cx('dm-aib-i', fail && 'dm-fail')} role="listitem">
-                      <span className="dm-aib-av" style={{ color: col, background: `color-mix(in srgb,${col} 13%,transparent)` }} aria-hidden="true">{r.agent.charAt(0)}</span>
+                      <span className="dm-aib-av" style={{ background: col, color: avatarInk(col) ?? (r.color ? '#fff' : 'var(--dm-on-accent)') }} aria-hidden="true">{r.agent.charAt(0)}</span>
                       <span className="dm-aib-t">
                         <b>{r.title}</b>
                         {fail && r.why ? <Tip label={r.why}><span><Swap>{detail}</Swap></span></Tip> : <Swap>{detail}</Swap>}
