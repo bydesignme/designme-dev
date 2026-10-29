@@ -509,7 +509,7 @@ A monthly agent budget with a draggable cap and a forecast.
 
 **CurrencyConverter** · `currency-converter/CurrencyConverter.tsx`  
 Show plan prices in local currency, with a swap and live rate.  
-`currencies: { code, name, symbol?, rate, decimals? }[]` (rates against one base, defaulting to `CurrencyConverterCurrencies`; it never fetches anything), `amount` / `defaultAmount` / `onAmountChange`, `from` / `defaultFrom` / `onFromChange`, `to` / `defaultTo` / `onToChange`, `payLabel`, `seeLabel`, `updated`, `locale`. Swap carries the converted amount over.
+`currencies: { code, name, symbol?, rate, decimals?, flag? }[]` (rates against one base, defaulting to `CurrencyConverterCurrencies`; it never fetches anything), `amount` / `defaultAmount` / `onAmountChange`, `from` / `defaultFrom` / `onFromChange`, `to` / `defaultTo` / `onToChange`, `payLabel`, `seeLabel`, `updated`, `locale`. Swap carries the converted amount over.
 
 ## Examples
 
