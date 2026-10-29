@@ -7813,15 +7813,16 @@ DM.def('trace-view', (r, c) => {
       if (x.el.hidden){ x.el.hidden = false; enter(x.el); }
       const w = took(x), run = T < x.s + x.d, kind = K[x.k][0];
       x.el.classList.toggle('run', run);
-      const f = x.d ? w / x.d : 1; if (f !== x.f){ x.f = f; $('.trv-b i', x.el).style.setProperty('--f', f.toFixed(4)); }
-      const say = txt || (!run && !x.fin); if (!run) x.fin = true;
-      if (say){ const ms = sec(w), tk = tks(used(x)); if (x.ms !== ms){ x.ms = ms; $('.trv-ms', x.el).textContent = ms; } if (x.tk !== tk){ x.tk = tk; $('.trv-tk', x.el).textContent = tk; } }
+      const f = x.d ? w / x.d : 1; if (f !== x._f){ x._f = f; $('.trv-b i', x.el).style.setProperty('--f', f.toFixed(4)); }
+      // (what's on screen is kept under _names, apart from the span's own data)
+      const say = txt || (!run && !x._fin); if (!run) x._fin = true;
+      if (say){ const ms = sec(w), tk = tks(used(x)); if (x._ms !== ms){ x._ms = ms; $('.trv-ms', x.el).textContent = ms; } if (x._tk !== tk){ x._tk = tk; $('.trv-tk', x.el).textContent = tk; } }
       if (x.k === 'tool' && w > SLOW && !x.slow){
         x.slow = true; x.el.classList.add('slow');
         const why = `Over the ${SLOW}s budget for a tool call`, tg = html(`<span class="tag warn" data-tip="${why}">slow</span>`); $('.trv-n', x.el).appendChild(tg); enter(tg);
         $('.trv-ms', x.el).dataset.tip = why;
       }
-      if (say){ const al = `${x.n}, ${kind}, ${run ? 'running, ' : ''}${sec(w)}, ${Math.round(used(x)).toLocaleString('en-US')} tokens${x.slow ? ', slow' : ''}`; if (x.al !== al){ x.al = al; x.el.setAttribute('aria-label', al); } }
+      if (say){ const al = `${x.n}, ${kind}, ${run ? 'running, ' : ''}${sec(w)}, ${Math.round(used(x)).toLocaleString('en-US')} tokens${x.slow ? ', slow' : ''}`; if (x._al !== al){ x._al = al; x.el.setAttribute('aria-label', al); } }
     });
     if (shown !== had){ had = shown; tree();
       KEYS.forEach(k => { const n = S.filter(x => x.k === k && vis(x)).length, el = $(`[data-k="${k}"]`, lg), b = $('b', el); el.classList.toggle('z', !n); if (b.textContent !== String(n)){ b.textContent = n; if (n) enter(b); } }); }

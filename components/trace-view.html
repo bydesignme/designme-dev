@@ -569,7 +569,7 @@ export function TraceView({ title, spans, time, axis, slowAfter = 2, status, sel
 /* narrow: the names keep their room. Tokens move into each span&#39;s details, the slow tag leaves the amber bar and time to
    say it (the time keeps its tooltip), the tree draws closer, and the details give the start its own line */
 @container (max-width:330px){.trv-ax,.trv-r{grid-template-columns:minmax(0,1fr) 72px 44px}.trv-tk,.trv-n .tag{display:none}.trv-n{padding-left:calc(var(--lv,0) * 10px)}.trv-g{display:none}.trv-kv{grid-template-columns:repeat(2,minmax(0,1fr))}}
-</code></pre></details><details class="cp-file"><summary>trace-view.js<span class="l">HTML · 122 lines</span></summary><pre class="cp-pre"><code>DM.def(&#39;trace-view&#39;, (r, c) =&gt; {
+</code></pre></details><details class="cp-file"><summary>trace-view.js<span class="l">HTML · 123 lines</span></summary><pre class="cp-pre"><code>DM.def(&#39;trace-view&#39;, (r, c) =&gt; {
   // the kinds of span, each with its mark and colour: the identity slots of the chart palette, and grey for the agents
   // that hold the other spans. The name is always on the mark, in a tooltip, and in the span&#39;s label
   const K = { agent:[&#39;Agent&#39;,&#39;cpu&#39;,&#39;var(--muted)&#39;], llm:[&#39;LLM call&#39;,&#39;spark&#39;,&#39;var(--c2)&#39;], tool:[&#39;Tool call&#39;,&#39;term&#39;,&#39;var(--c6)&#39;], ret:[&#39;Retrieval&#39;,&#39;search&#39;,&#39;var(--c3)&#39;] };
@@ -628,15 +628,16 @@ export function TraceView({ title, spans, time, axis, slowAfter = 2, status, sel
       if (x.el.hidden){ x.el.hidden = false; enter(x.el); }
       const w = took(x), run = T &lt; x.s + x.d, kind = K[x.k][0];
       x.el.classList.toggle(&#39;run&#39;, run);
-      const f = x.d ? w / x.d : 1; if (f !== x.f){ x.f = f; $(&#39;.trv-b i&#39;, x.el).style.setProperty(&#39;--f&#39;, f.toFixed(4)); }
-      const say = txt || (!run &amp;&amp; !x.fin); if (!run) x.fin = true;
-      if (say){ const ms = sec(w), tk = tks(used(x)); if (x.ms !== ms){ x.ms = ms; $(&#39;.trv-ms&#39;, x.el).textContent = ms; } if (x.tk !== tk){ x.tk = tk; $(&#39;.trv-tk&#39;, x.el).textContent = tk; } }
+      const f = x.d ? w / x.d : 1; if (f !== x._f){ x._f = f; $(&#39;.trv-b i&#39;, x.el).style.setProperty(&#39;--f&#39;, f.toFixed(4)); }
+      // (what&#39;s on screen is kept under _names, apart from the span&#39;s own data)
+      const say = txt || (!run &amp;&amp; !x._fin); if (!run) x._fin = true;
+      if (say){ const ms = sec(w), tk = tks(used(x)); if (x._ms !== ms){ x._ms = ms; $(&#39;.trv-ms&#39;, x.el).textContent = ms; } if (x._tk !== tk){ x._tk = tk; $(&#39;.trv-tk&#39;, x.el).textContent = tk; } }
       if (x.k === &#39;tool&#39; &amp;&amp; w &gt; SLOW &amp;&amp; !x.slow){
         x.slow = true; x.el.classList.add(&#39;slow&#39;);
         const why = `Over the ${SLOW}s budget for a tool call`, tg = html(`&lt;span class=&quot;tag warn&quot; data-tip=&quot;${why}&quot;&gt;slow&lt;/span&gt;`); $(&#39;.trv-n&#39;, x.el).appendChild(tg); enter(tg);
         $(&#39;.trv-ms&#39;, x.el).dataset.tip = why;
       }
-      if (say){ const al = `${x.n}, ${kind}, ${run ? &#39;running, &#39; : &#39;&#39;}${sec(w)}, ${Math.round(used(x)).toLocaleString(&#39;en-US&#39;)} tokens${x.slow ? &#39;, slow&#39; : &#39;&#39;}`; if (x.al !== al){ x.al = al; x.el.setAttribute(&#39;aria-label&#39;, al); } }
+      if (say){ const al = `${x.n}, ${kind}, ${run ? &#39;running, &#39; : &#39;&#39;}${sec(w)}, ${Math.round(used(x)).toLocaleString(&#39;en-US&#39;)} tokens${x.slow ? &#39;, slow&#39; : &#39;&#39;}`; if (x._al !== al){ x._al = al; x.el.setAttribute(&#39;aria-label&#39;, al); } }
     });
     if (shown !== had){ had = shown; tree();
       KEYS.forEach(k =&gt; { const n = S.filter(x =&gt; x.k === k &amp;&amp; vis(x)).length, el = $(`[data-k=&quot;${k}&quot;]`, lg), b = $(&#39;b&#39;, el); el.classList.toggle(&#39;z&#39;, !n); if (b.textContent !== String(n)){ b.textContent = n; if (n) enter(b); } }); }
@@ -1072,15 +1073,16 @@ const fitHits = window.dmFitHits || (() => {
       if (x.el.hidden){ x.el.hidden = false; enter(x.el); }
       const w = took(x), run = T < x.s + x.d, kind = K[x.k][0];
       x.el.classList.toggle('run', run);
-      const f = x.d ? w / x.d : 1; if (f !== x.f){ x.f = f; $('.trv-b i', x.el).style.setProperty('--f', f.toFixed(4)); }
-      const say = txt || (!run && !x.fin); if (!run) x.fin = true;
-      if (say){ const ms = sec(w), tk = tks(used(x)); if (x.ms !== ms){ x.ms = ms; $('.trv-ms', x.el).textContent = ms; } if (x.tk !== tk){ x.tk = tk; $('.trv-tk', x.el).textContent = tk; } }
+      const f = x.d ? w / x.d : 1; if (f !== x._f){ x._f = f; $('.trv-b i', x.el).style.setProperty('--f', f.toFixed(4)); }
+      // (what's on screen is kept under _names, apart from the span's own data)
+      const say = txt || (!run && !x._fin); if (!run) x._fin = true;
+      if (say){ const ms = sec(w), tk = tks(used(x)); if (x._ms !== ms){ x._ms = ms; $('.trv-ms', x.el).textContent = ms; } if (x._tk !== tk){ x._tk = tk; $('.trv-tk', x.el).textContent = tk; } }
       if (x.k === 'tool' && w > SLOW && !x.slow){
         x.slow = true; x.el.classList.add('slow');
         const why = `Over the ${SLOW}s budget for a tool call`, tg = html(`<span class="tag warn" data-tip="${why}">slow</span>`); $('.trv-n', x.el).appendChild(tg); enter(tg);
         $('.trv-ms', x.el).dataset.tip = why;
       }
-      if (say){ const al = `${x.n}, ${kind}, ${run ? 'running, ' : ''}${sec(w)}, ${Math.round(used(x)).toLocaleString('en-US')} tokens${x.slow ? ', slow' : ''}`; if (x.al !== al){ x.al = al; x.el.setAttribute('aria-label', al); } }
+      if (say){ const al = `${x.n}, ${kind}, ${run ? 'running, ' : ''}${sec(w)}, ${Math.round(used(x)).toLocaleString('en-US')} tokens${x.slow ? ', slow' : ''}`; if (x._al !== al){ x._al = al; x.el.setAttribute('aria-label', al); } }
     });
     if (shown !== had){ had = shown; tree();
       KEYS.forEach(k => { const n = S.filter(x => x.k === k && vis(x)).length, el = $(`[data-k="${k}"]`, lg), b = $('b', el); el.classList.toggle('z', !n); if (b.textContent !== String(n)){ b.textContent = n; if (n) enter(b); } }); }
