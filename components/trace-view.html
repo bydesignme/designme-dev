@@ -87,10 +87,12 @@
 .trv-g i.dn{top:50%}
 /* a bar per span on the shared axis: faint lines mark the ticks */
 .trv-b{position:relative;height:20px;background:linear-gradient(to right,var(--line) 1px,transparent 1px) 0 0/20% 100%}
-.trv-b i{position:absolute;top:5px;height:10px;min-width:3px;border-radius:3px;background:linear-gradient(90deg,color-mix(in srgb,var(--k) 70%,var(--surface)),var(--k));transition:background .3s,opacity .3s}
+/* a bar is laid out once at its full length; while it runs, --f (0 to 1) reveals it with a clip and moves its bright edge with a
+   transform, so a streaming run repaints without laying the page out again */
+.trv-b i{position:absolute;top:5px;height:10px;min-width:3px;border-radius:3px;clip-path:inset(-6px calc((1 - var(--f,1)) * 100% - 2px) -6px -6px);background:linear-gradient(90deg,color-mix(in srgb,var(--k) 70%,var(--surface)),var(--k));transition:background .3s,opacity .3s}
 /* a running bar has a light passing along it and a bright leading edge */
 .trv-r.run .trv-b i{background:linear-gradient(90deg,color-mix(in srgb,var(--k) 55%,var(--surface)) 0 30%,color-mix(in srgb,var(--k) 25%,var(--surface)) 45%,var(--k) 60% 100%) 0 0/250% 100%;animation:trvsheen 1.4s linear infinite}
-.trv-r.run:not([data-k="agent"]) .trv-b i::after{content:"";position:absolute;right:-1px;top:-2px;bottom:-2px;width:2px;border-radius:1px;background:var(--k);box-shadow:0 0 6px 1px color-mix(in srgb,var(--k) 55%,transparent)}
+.trv-r.run:not([data-k="agent"]) .trv-b i::after{content:"";position:absolute;left:0;right:0;top:-2px;bottom:-2px;--e:var(--k);background:linear-gradient(to left,var(--e) 0 2px,transparent 2px);filter:drop-shadow(0 0 3px color-mix(in srgb,var(--e) 70%,transparent));transform:translateX(calc(var(--f,1) * 100% - 100% + 1px))}
 @keyframes trvsheen{from{background-position:100% 0}to{background-position:-150% 0}}
 /* an agent span holds the others, so it is drawn as a bracket over the time they take */
 .trv-r[data-k="agent"] .trv-b i,.trv-r.run[data-k="agent"] .trv-b i{top:9px;height:2px;border-radius:1px;background:var(--faint);animation:none}
@@ -99,14 +101,14 @@
 .trv-r.run[data-k="agent"] .trv-b i::after{background:var(--muted)}
 /* over budget: amber, hatched */
 .trv-r.slow .trv-b i,.trv-r.run.slow .trv-b i{background:repeating-linear-gradient(135deg,var(--warn) 0 3px,color-mix(in srgb,var(--warn) 55%,var(--surface)) 3px 6px)}
-.trv-r.run.slow .trv-b i::after{background:var(--warn);box-shadow:0 0 6px 1px color-mix(in srgb,var(--warn) 55%,transparent)}
+.trv-r.run.slow .trv-b i::after{--e:var(--warn)}
 .trv-r .trv-tk{font-size:12px;color:var(--muted)}
 .trv-r .trv-ms{font-size:12.5px;color:var(--fg2)}
 .trv-r.slow .trv-ms{color:var(--warn)}
 /* with a span open, the other bars step back */
 .trv-rows.sel .trv-r:not([aria-expanded="true"]) .trv-b i{opacity:.35}
 /* the playhead: where the run is now, one line down every bar's track while it streams */
-.trv-b::after,.trv-sc::after{content:"";position:absolute;left:calc(var(--now,0) * 100%);top:-6px;bottom:-6px;width:1px;margin-left:-.5px;background:var(--accent-mark,var(--accent));opacity:0;transition:opacity .4s;pointer-events:none}
+.trv-b::after,.trv-sc::after{content:"";position:absolute;left:0;right:0;top:-6px;bottom:-6px;background:linear-gradient(90deg,var(--accent-mark,var(--accent)) 0 1px,transparent 1px);transform:translateX(calc(var(--now,0) * 100% - .5px));opacity:0;transition:opacity .4s;pointer-events:none}
 .trv-sc::after{top:12px;bottom:-6px}
 .trv.live .trv-b::after,.trv.live .trv-sc::after{opacity:.75}
 .trv-dc{display:flex;flex-direction:column;gap:10px;margin-top:2px;padding:6px 10px var(--s-2);border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
@@ -124,7 +126,7 @@
 .trv-io code{font-family:var(--mono);font-size:12px;color:var(--fg2);background:var(--chip);padding:5px var(--s-2);border-radius:var(--r-sm);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 :root:not([data-style="soft"]) .trv-r:not(.slow) .trv-b i:not(:where([data-style="soft"],[data-style="soft"] *)){background:var(--k)}
 :root:not([data-style="soft"]) .trv-r.run:not(.slow):not([data-k="agent"]) .trv-b i:not(:where([data-style="soft"],[data-style="soft"] *)){background:repeating-linear-gradient(90deg,var(--k) 0 4px,color-mix(in srgb,var(--k) 55%,var(--surface)) 4px 6px);animation:none}
-:root:not([data-style="soft"]) .trv-r.run:not([data-k="agent"]) .trv-b i:not(:where([data-style="soft"],[data-style="soft"] *))::after{box-shadow:none;width:1px;right:0}
+:root:not([data-style="soft"]) .trv-r.run:not([data-k="agent"]) .trv-b i:not(:where([data-style="soft"],[data-style="soft"] *))::after{filter:none;background:linear-gradient(to left,var(--e) 0 1px,transparent 1px);transform:translateX(calc(var(--f,1) * 100% - 100%))}
 :root:not([data-style="soft"]) .trv-g i:not(:where([data-style="soft"],[data-style="soft"] *)),:root:not([data-style="soft"]) .trv-g i.el:not(:where([data-style="soft"],[data-style="soft"] *))::after{background:var(--faint)}
 /* narrow: the names keep their room. Tokens move into each span's details, the slow tag leaves the amber bar and time to
    say it (the time keeps its tooltip), the tree draws closer, and the details give the start its own line */
@@ -381,7 +383,7 @@ export function TraceView({ title, spans, time, axis, slowAfter = 2, status, sel
     &lt;/div&gt;
   );
 }
-</code></pre></details><details class="cp-file"><summary>trace-view.css<span class="l">React · 87 lines</span></summary><pre class="cp-pre"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+</code></pre></details><details class="cp-file"><summary>trace-view.css<span class="l">React · 89 lines</span></summary><pre class="cp-pre"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Trace view ---------- */
 /* one agent run as a waterfall: every span on a shared time axis, nested under the span that started it, with its tokens
    and latency. Each kind has its colour (the chart palette&#39;s identity slots): its mark, its bar and its count in the key.
@@ -425,10 +427,12 @@ export function TraceView({ title, spans, time, axis, slowAfter = 2, status, sel
 .dm-trv-g i.dm-dn{top:50%}
 /* a bar per span on the shared axis: faint lines mark the ticks */
 .dm-trv-b{position:relative;height:20px;background:linear-gradient(to right,var(--dm-line) 1px,transparent 1px) 0 0/20% 100%}
-.dm-trv-b i{position:absolute;top:5px;height:10px;min-width:3px;border-radius:3px;background:linear-gradient(90deg,color-mix(in srgb,var(--dm-k) 70%,var(--dm-surface)),var(--dm-k));transition:background .3s,opacity .3s}
+/* a bar is laid out once at its full length; while it runs, --f (0 to 1) reveals it with a clip and moves its bright edge with a
+   transform, so a streaming run repaints without laying the page out again */
+.dm-trv-b i{position:absolute;top:5px;height:10px;min-width:3px;border-radius:3px;clip-path:inset(-6px calc((1 - var(--dm-f,1)) * 100% - 2px) -6px -6px);background:linear-gradient(90deg,color-mix(in srgb,var(--dm-k) 70%,var(--dm-surface)),var(--dm-k));transition:background .3s,opacity .3s}
 /* a running bar has a light passing along it and a bright leading edge */
 .dm-trv-r.dm-run .dm-trv-b i{background:linear-gradient(90deg,color-mix(in srgb,var(--dm-k) 55%,var(--dm-surface)) 0 30%,color-mix(in srgb,var(--dm-k) 25%,var(--dm-surface)) 45%,var(--dm-k) 60% 100%) 0 0/250% 100%;animation:dm-trvsheen 1.4s linear infinite}
-.dm-trv-r.dm-run:not([data-k=&quot;agent&quot;]) .dm-trv-b i::after{content:&quot;&quot;;position:absolute;right:-1px;top:-2px;bottom:-2px;width:2px;border-radius:1px;background:var(--dm-k);box-shadow:0 0 6px 1px color-mix(in srgb,var(--dm-k) 55%,transparent)}
+.dm-trv-r.dm-run:not([data-k=&quot;agent&quot;]) .dm-trv-b i::after{content:&quot;&quot;;position:absolute;left:0;right:0;top:-2px;bottom:-2px;--dm-e:var(--dm-k);background:linear-gradient(to left,var(--dm-e) 0 2px,transparent 2px);filter:drop-shadow(0 0 3px color-mix(in srgb,var(--dm-e) 70%,transparent));transform:translateX(calc(var(--dm-f,1) * 100% - 100% + 1px))}
 @keyframes dm-trvsheen{from{background-position:100% 0}to{background-position:-150% 0}}
 /* an agent span holds the others, so it is drawn as a bracket over the time they take */
 .dm-trv-r[data-k=&quot;agent&quot;] .dm-trv-b i,.dm-trv-r.dm-run[data-k=&quot;agent&quot;] .dm-trv-b i{top:9px;height:2px;border-radius:1px;background:var(--dm-faint);animation:none}
@@ -437,14 +441,14 @@ export function TraceView({ title, spans, time, axis, slowAfter = 2, status, sel
 .dm-trv-r.dm-run[data-k=&quot;agent&quot;] .dm-trv-b i::after{background:var(--dm-muted)}
 /* over budget: amber, hatched */
 .dm-trv-r.dm-slow .dm-trv-b i,.dm-trv-r.dm-run.dm-slow .dm-trv-b i{background:repeating-linear-gradient(135deg,var(--dm-warn) 0 3px,color-mix(in srgb,var(--dm-warn) 55%,var(--dm-surface)) 3px 6px)}
-.dm-trv-r.dm-run.dm-slow .dm-trv-b i::after{background:var(--dm-warn);box-shadow:0 0 6px 1px color-mix(in srgb,var(--dm-warn) 55%,transparent)}
+.dm-trv-r.dm-run.dm-slow .dm-trv-b i::after{--dm-e:var(--dm-warn)}
 .dm-trv-r .dm-trv-tk{font-size:12px;color:var(--dm-muted)}
 .dm-trv-r .dm-trv-ms{font-size:12.5px;color:var(--dm-fg2)}
 .dm-trv-r.dm-slow .dm-trv-ms{color:var(--dm-warn)}
 /* with a span open, the other bars step back */
 .dm-trv-rows.dm-sel .dm-trv-r:not([aria-expanded=&quot;true&quot;]) .dm-trv-b i{opacity:.35}
 /* the playhead: where the run is now, one line down every bar&#39;s track while it streams */
-.dm-trv-b::after,.dm-trv-sc::after{content:&quot;&quot;;position:absolute;left:calc(var(--dm-now,0) * 100%);top:-6px;bottom:-6px;width:1px;margin-left:-.5px;background:var(--dm-accent-mark,var(--dm-accent));opacity:0;transition:opacity .4s;pointer-events:none}
+.dm-trv-b::after,.dm-trv-sc::after{content:&quot;&quot;;position:absolute;left:0;right:0;top:-6px;bottom:-6px;background:linear-gradient(90deg,var(--dm-accent-mark,var(--dm-accent)) 0 1px,transparent 1px);transform:translateX(calc(var(--dm-now,0) * 100% - .5px));opacity:0;transition:opacity .4s;pointer-events:none}
 .dm-trv-sc::after{top:12px;bottom:-6px}
 .dm-trv.dm-live .dm-trv-b::after,.dm-trv.dm-live .dm-trv-sc::after{opacity:.75}
 .dm-trv-dc{display:flex;flex-direction:column;gap:10px;margin-top:2px;padding:6px 10px var(--dm-s-2);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
@@ -462,7 +466,7 @@ export function TraceView({ title, spans, time, axis, slowAfter = 2, status, sel
 .dm-trv-io code{font-family:var(--dm-mono);font-size:12px;color:var(--dm-fg2);background:var(--dm-chip);padding:5px var(--dm-s-2);border-radius:var(--dm-r-sm);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 :root:not([data-style=&quot;soft&quot;]) .dm-trv-r:not(.dm-slow) .dm-trv-b i:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *)){background:var(--dm-k)}
 :root:not([data-style=&quot;soft&quot;]) .dm-trv-r.dm-run:not(.dm-slow):not([data-k=&quot;agent&quot;]) .dm-trv-b i:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *)){background:repeating-linear-gradient(90deg,var(--dm-k) 0 4px,color-mix(in srgb,var(--dm-k) 55%,var(--dm-surface)) 4px 6px);animation:none}
-:root:not([data-style=&quot;soft&quot;]) .dm-trv-r.dm-run:not([data-k=&quot;agent&quot;]) .dm-trv-b i:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *))::after{box-shadow:none;width:1px;right:0}
+:root:not([data-style=&quot;soft&quot;]) .dm-trv-r.dm-run:not([data-k=&quot;agent&quot;]) .dm-trv-b i:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *))::after{filter:none;background:linear-gradient(to left,var(--dm-e) 0 1px,transparent 1px);transform:translateX(calc(var(--dm-f,1) * 100% - 100%))}
 :root:not([data-style=&quot;soft&quot;]) .dm-trv-g i:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *)),:root:not([data-style=&quot;soft&quot;]) .dm-trv-g i.dm-el:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *))::after{background:var(--dm-faint)}
 /* narrow: the names keep their room. Tokens move into each span&#39;s details, the slow tag leaves the amber bar and time to
    say it (the time keeps its tooltip), the tree draws closer, and the details give the start its own line */
@@ -478,7 +482,7 @@ export function TraceView({ title, spans, time, axis, slowAfter = 2, status, sel
     &lt;/div&gt;
   &lt;/div&gt;
 &lt;/div&gt;
-</code></pre></details><details class="cp-file"><summary>trace-view.css<span class="l">HTML · 86 lines</span></summary><pre class="cp-pre"><code>/* ---------- Trace view ---------- */
+</code></pre></details><details class="cp-file"><summary>trace-view.css<span class="l">HTML · 88 lines</span></summary><pre class="cp-pre"><code>/* ---------- Trace view ---------- */
 /* one agent run as a waterfall: every span on a shared time axis, nested under the span that started it, with its tokens
    and latency. Each kind has its colour (the chart palette&#39;s identity slots): its mark, its bar and its count in the key.
    While the run streams, a playhead marks now and the running bars glow at their leading edge. A span over its time budget
@@ -521,10 +525,12 @@ export function TraceView({ title, spans, time, axis, slowAfter = 2, status, sel
 .trv-g i.dn{top:50%}
 /* a bar per span on the shared axis: faint lines mark the ticks */
 .trv-b{position:relative;height:20px;background:linear-gradient(to right,var(--line) 1px,transparent 1px) 0 0/20% 100%}
-.trv-b i{position:absolute;top:5px;height:10px;min-width:3px;border-radius:3px;background:linear-gradient(90deg,color-mix(in srgb,var(--k) 70%,var(--surface)),var(--k));transition:background .3s,opacity .3s}
+/* a bar is laid out once at its full length; while it runs, --f (0 to 1) reveals it with a clip and moves its bright edge with a
+   transform, so a streaming run repaints without laying the page out again */
+.trv-b i{position:absolute;top:5px;height:10px;min-width:3px;border-radius:3px;clip-path:inset(-6px calc((1 - var(--f,1)) * 100% - 2px) -6px -6px);background:linear-gradient(90deg,color-mix(in srgb,var(--k) 70%,var(--surface)),var(--k));transition:background .3s,opacity .3s}
 /* a running bar has a light passing along it and a bright leading edge */
 .trv-r.run .trv-b i{background:linear-gradient(90deg,color-mix(in srgb,var(--k) 55%,var(--surface)) 0 30%,color-mix(in srgb,var(--k) 25%,var(--surface)) 45%,var(--k) 60% 100%) 0 0/250% 100%;animation:trvsheen 1.4s linear infinite}
-.trv-r.run:not([data-k=&quot;agent&quot;]) .trv-b i::after{content:&quot;&quot;;position:absolute;right:-1px;top:-2px;bottom:-2px;width:2px;border-radius:1px;background:var(--k);box-shadow:0 0 6px 1px color-mix(in srgb,var(--k) 55%,transparent)}
+.trv-r.run:not([data-k=&quot;agent&quot;]) .trv-b i::after{content:&quot;&quot;;position:absolute;left:0;right:0;top:-2px;bottom:-2px;--e:var(--k);background:linear-gradient(to left,var(--e) 0 2px,transparent 2px);filter:drop-shadow(0 0 3px color-mix(in srgb,var(--e) 70%,transparent));transform:translateX(calc(var(--f,1) * 100% - 100% + 1px))}
 @keyframes trvsheen{from{background-position:100% 0}to{background-position:-150% 0}}
 /* an agent span holds the others, so it is drawn as a bracket over the time they take */
 .trv-r[data-k=&quot;agent&quot;] .trv-b i,.trv-r.run[data-k=&quot;agent&quot;] .trv-b i{top:9px;height:2px;border-radius:1px;background:var(--faint);animation:none}
@@ -533,14 +539,14 @@ export function TraceView({ title, spans, time, axis, slowAfter = 2, status, sel
 .trv-r.run[data-k=&quot;agent&quot;] .trv-b i::after{background:var(--muted)}
 /* over budget: amber, hatched */
 .trv-r.slow .trv-b i,.trv-r.run.slow .trv-b i{background:repeating-linear-gradient(135deg,var(--warn) 0 3px,color-mix(in srgb,var(--warn) 55%,var(--surface)) 3px 6px)}
-.trv-r.run.slow .trv-b i::after{background:var(--warn);box-shadow:0 0 6px 1px color-mix(in srgb,var(--warn) 55%,transparent)}
+.trv-r.run.slow .trv-b i::after{--e:var(--warn)}
 .trv-r .trv-tk{font-size:12px;color:var(--muted)}
 .trv-r .trv-ms{font-size:12.5px;color:var(--fg2)}
 .trv-r.slow .trv-ms{color:var(--warn)}
 /* with a span open, the other bars step back */
 .trv-rows.sel .trv-r:not([aria-expanded=&quot;true&quot;]) .trv-b i{opacity:.35}
 /* the playhead: where the run is now, one line down every bar&#39;s track while it streams */
-.trv-b::after,.trv-sc::after{content:&quot;&quot;;position:absolute;left:calc(var(--now,0) * 100%);top:-6px;bottom:-6px;width:1px;margin-left:-.5px;background:var(--accent-mark,var(--accent));opacity:0;transition:opacity .4s;pointer-events:none}
+.trv-b::after,.trv-sc::after{content:&quot;&quot;;position:absolute;left:0;right:0;top:-6px;bottom:-6px;background:linear-gradient(90deg,var(--accent-mark,var(--accent)) 0 1px,transparent 1px);transform:translateX(calc(var(--now,0) * 100% - .5px));opacity:0;transition:opacity .4s;pointer-events:none}
 .trv-sc::after{top:12px;bottom:-6px}
 .trv.live .trv-b::after,.trv.live .trv-sc::after{opacity:.75}
 .trv-dc{display:flex;flex-direction:column;gap:10px;margin-top:2px;padding:6px 10px var(--s-2);border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
@@ -558,12 +564,12 @@ export function TraceView({ title, spans, time, axis, slowAfter = 2, status, sel
 .trv-io code{font-family:var(--mono);font-size:12px;color:var(--fg2);background:var(--chip);padding:5px var(--s-2);border-radius:var(--r-sm);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 :root:not([data-style=&quot;soft&quot;]) .trv-r:not(.slow) .trv-b i:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *)){background:var(--k)}
 :root:not([data-style=&quot;soft&quot;]) .trv-r.run:not(.slow):not([data-k=&quot;agent&quot;]) .trv-b i:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *)){background:repeating-linear-gradient(90deg,var(--k) 0 4px,color-mix(in srgb,var(--k) 55%,var(--surface)) 4px 6px);animation:none}
-:root:not([data-style=&quot;soft&quot;]) .trv-r.run:not([data-k=&quot;agent&quot;]) .trv-b i:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *))::after{box-shadow:none;width:1px;right:0}
+:root:not([data-style=&quot;soft&quot;]) .trv-r.run:not([data-k=&quot;agent&quot;]) .trv-b i:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *))::after{filter:none;background:linear-gradient(to left,var(--e) 0 1px,transparent 1px);transform:translateX(calc(var(--f,1) * 100% - 100%))}
 :root:not([data-style=&quot;soft&quot;]) .trv-g i:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *)),:root:not([data-style=&quot;soft&quot;]) .trv-g i.el:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *))::after{background:var(--faint)}
 /* narrow: the names keep their room. Tokens move into each span&#39;s details, the slow tag leaves the amber bar and time to
    say it (the time keeps its tooltip), the tree draws closer, and the details give the start its own line */
 @container (max-width:330px){.trv-ax,.trv-r{grid-template-columns:minmax(0,1fr) 72px 44px}.trv-tk,.trv-n .tag{display:none}.trv-n{padding-left:calc(var(--lv,0) * 10px)}.trv-g{display:none}.trv-kv{grid-template-columns:repeat(2,minmax(0,1fr))}}
-</code></pre></details><details class="cp-file"><summary>trace-view.js<span class="l">HTML · 119 lines</span></summary><pre class="cp-pre"><code>DM.def(&#39;trace-view&#39;, (r, c) =&gt; {
+</code></pre></details><details class="cp-file"><summary>trace-view.js<span class="l">HTML · 122 lines</span></summary><pre class="cp-pre"><code>DM.def(&#39;trace-view&#39;, (r, c) =&gt; {
   // the kinds of span, each with its mark and colour: the identity slots of the chart palette, and grey for the agents
   // that hold the other spans. The name is always on the mark, in a tooltip, and in the span&#39;s label
   const K = { agent:[&#39;Agent&#39;,&#39;cpu&#39;,&#39;var(--muted)&#39;], llm:[&#39;LLM call&#39;,&#39;spark&#39;,&#39;var(--c2)&#39;], tool:[&#39;Tool call&#39;,&#39;term&#39;,&#39;var(--c6)&#39;], ret:[&#39;Retrieval&#39;,&#39;search&#39;,&#39;var(--c3)&#39;] };
@@ -592,7 +598,7 @@ export function TraceView({ title, spans, time, axis, slowAfter = 2, status, sel
   let T = 0, sel = null, said = &#39;&#39;;
   S.forEach(x =&gt; {
     const [kind, icon, col] = K[x.k];
-    x.el = html(`&lt;button type=&quot;button&quot; class=&quot;trv-r${x.lv ? &#39;&#39; : &#39; root&#39;}&quot; data-k=&quot;${x.k}&quot; aria-expanded=&quot;false&quot; style=&quot;--k:${col};--lv:${x.lv}&quot; hidden&gt;&lt;span class=&quot;trv-n&quot;&gt;&lt;span class=&quot;trv-g&quot; aria-hidden=&quot;true&quot;&gt;&lt;/span&gt;&lt;span class=&quot;trv-k&quot; data-tip=&quot;${kind}&quot;&gt;${I(icon,&#39;xs&#39;)}&lt;/span&gt;&lt;span class=&quot;trv-nm&quot;&gt;${x.n}&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;trv-b&quot;&gt;&lt;i style=&quot;left:${x.s / SPAN * 100}%&quot;&gt;&lt;/i&gt;&lt;/span&gt;&lt;span class=&quot;trv-tk num&quot;&gt;&lt;/span&gt;&lt;span class=&quot;trv-ms num&quot;&gt;&lt;/span&gt;&lt;/button&gt;`);
+    x.el = html(`&lt;button type=&quot;button&quot; class=&quot;trv-r${x.lv ? &#39;&#39; : &#39; root&#39;}&quot; data-k=&quot;${x.k}&quot; aria-expanded=&quot;false&quot; style=&quot;--k:${col};--lv:${x.lv}&quot; hidden&gt;&lt;span class=&quot;trv-n&quot;&gt;&lt;span class=&quot;trv-g&quot; aria-hidden=&quot;true&quot;&gt;&lt;/span&gt;&lt;span class=&quot;trv-k&quot; data-tip=&quot;${kind}&quot;&gt;${I(icon,&#39;xs&#39;)}&lt;/span&gt;&lt;span class=&quot;trv-nm&quot;&gt;${x.n}&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;trv-b&quot;&gt;&lt;i style=&quot;left:${x.s / SPAN * 100}%;width:${x.d / SPAN * 100}%&quot;&gt;&lt;/i&gt;&lt;/span&gt;&lt;span class=&quot;trv-tk num&quot;&gt;&lt;/span&gt;&lt;span class=&quot;trv-ms num&quot;&gt;&lt;/span&gt;&lt;/button&gt;`);
     x.el.onclick = () =&gt; open(x === sel ? null : x);
     rows.appendChild(x.el);
   });
@@ -612,28 +618,31 @@ export function TraceView({ title, spans, time, axis, slowAfter = 2, status, sel
       $(&#39;.trv-g&#39;, x.el).innerHTML = h;
     });
   }
-  let had = 0;
+  let had = 0, txtAt = -1e9;
   function paint(){
     let shown = 0;
+    // the times and token counts change ten times a second, not every frame: each change of text lays the page out
+    const now = performance.now(), txt = T &gt;= END || now - txtAt &gt;= 100; if (txt) txtAt = now;
     S.forEach(x =&gt; {
       if (T &lt; x.s) return; shown++;
       if (x.el.hidden){ x.el.hidden = false; enter(x.el); }
       const w = took(x), run = T &lt; x.s + x.d, kind = K[x.k][0];
       x.el.classList.toggle(&#39;run&#39;, run);
-      $(&#39;.trv-b i&#39;, x.el).style.width = (w / SPAN * 100) + &#39;%&#39;;
-      $(&#39;.trv-ms&#39;, x.el).textContent = sec(w); $(&#39;.trv-tk&#39;, x.el).textContent = tks(used(x));
+      const f = x.d ? w / x.d : 1; if (f !== x.f){ x.f = f; $(&#39;.trv-b i&#39;, x.el).style.setProperty(&#39;--f&#39;, f.toFixed(4)); }
+      const say = txt || (!run &amp;&amp; !x.fin); if (!run) x.fin = true;
+      if (say){ const ms = sec(w), tk = tks(used(x)); if (x.ms !== ms){ x.ms = ms; $(&#39;.trv-ms&#39;, x.el).textContent = ms; } if (x.tk !== tk){ x.tk = tk; $(&#39;.trv-tk&#39;, x.el).textContent = tk; } }
       if (x.k === &#39;tool&#39; &amp;&amp; w &gt; SLOW &amp;&amp; !x.slow){
         x.slow = true; x.el.classList.add(&#39;slow&#39;);
         const why = `Over the ${SLOW}s budget for a tool call`, tg = html(`&lt;span class=&quot;tag warn&quot; data-tip=&quot;${why}&quot;&gt;slow&lt;/span&gt;`); $(&#39;.trv-n&#39;, x.el).appendChild(tg); enter(tg);
         $(&#39;.trv-ms&#39;, x.el).dataset.tip = why;
       }
-      x.el.setAttribute(&#39;aria-label&#39;, `${x.n}, ${kind}, ${run ? &#39;running, &#39; : &#39;&#39;}${sec(w)}, ${Math.round(used(x)).toLocaleString(&#39;en-US&#39;)} tokens${x.slow ? &#39;, slow&#39; : &#39;&#39;}`);
+      if (say){ const al = `${x.n}, ${kind}, ${run ? &#39;running, &#39; : &#39;&#39;}${sec(w)}, ${Math.round(used(x)).toLocaleString(&#39;en-US&#39;)} tokens${x.slow ? &#39;, slow&#39; : &#39;&#39;}`; if (x.al !== al){ x.al = al; x.el.setAttribute(&#39;aria-label&#39;, al); } }
     });
     if (shown !== had){ had = shown; tree();
       KEYS.forEach(k =&gt; { const n = S.filter(x =&gt; x.k === k &amp;&amp; vis(x)).length, el = $(`[data-k=&quot;${k}&quot;]`, lg), b = $(&#39;b&#39;, el); el.classList.toggle(&#39;z&#39;, !n); if (b.textContent !== String(n)){ b.textContent = n; if (n) enter(b); } }); }
     // the playhead runs down every track while the run streams, and fades once it is done
     root.style.setProperty(&#39;--now&#39;, Math.min(T, END) / SPAN); root.classList.toggle(&#39;live&#39;, T &gt; 0 &amp;&amp; T &lt; END);
-    tot.textContent = sec(Math.min(T, END));
+    if (txt) tot.textContent = sec(Math.min(T, END));
     const slow = S.filter(x =&gt; x.slow).length;
     const line = T &gt;= END ? `Done · ${S.length} spans${slow ? `, ${slow} slow` : &#39;&#39;}` : `Running · ${shown} span${shown &gt; 1 ? &#39;s&#39; : &#39;&#39;}`;
     if (line !== said){ said = line; swap($(&#39;.m&#39;, stEl), line); }
@@ -1033,7 +1042,7 @@ const fitHits = window.dmFitHits || (() => {
   let T = 0, sel = null, said = '';
   S.forEach(x => {
     const [kind, icon, col] = K[x.k];
-    x.el = html(`<button type="button" class="trv-r${x.lv ? '' : ' root'}" data-k="${x.k}" aria-expanded="false" style="--k:${col};--lv:${x.lv}" hidden><span class="trv-n"><span class="trv-g" aria-hidden="true"></span><span class="trv-k" data-tip="${kind}">${I(icon,'xs')}</span><span class="trv-nm">${x.n}</span></span><span class="trv-b"><i style="left:${x.s / SPAN * 100}%"></i></span><span class="trv-tk num"></span><span class="trv-ms num"></span></button>`);
+    x.el = html(`<button type="button" class="trv-r${x.lv ? '' : ' root'}" data-k="${x.k}" aria-expanded="false" style="--k:${col};--lv:${x.lv}" hidden><span class="trv-n"><span class="trv-g" aria-hidden="true"></span><span class="trv-k" data-tip="${kind}">${I(icon,'xs')}</span><span class="trv-nm">${x.n}</span></span><span class="trv-b"><i style="left:${x.s / SPAN * 100}%;width:${x.d / SPAN * 100}%"></i></span><span class="trv-tk num"></span><span class="trv-ms num"></span></button>`);
     x.el.onclick = () => open(x === sel ? null : x);
     rows.appendChild(x.el);
   });
@@ -1053,28 +1062,31 @@ const fitHits = window.dmFitHits || (() => {
       $('.trv-g', x.el).innerHTML = h;
     });
   }
-  let had = 0;
+  let had = 0, txtAt = -1e9;
   function paint(){
     let shown = 0;
+    // the times and token counts change ten times a second, not every frame: each change of text lays the page out
+    const now = performance.now(), txt = T >= END || now - txtAt >= 100; if (txt) txtAt = now;
     S.forEach(x => {
       if (T < x.s) return; shown++;
       if (x.el.hidden){ x.el.hidden = false; enter(x.el); }
       const w = took(x), run = T < x.s + x.d, kind = K[x.k][0];
       x.el.classList.toggle('run', run);
-      $('.trv-b i', x.el).style.width = (w / SPAN * 100) + '%';
-      $('.trv-ms', x.el).textContent = sec(w); $('.trv-tk', x.el).textContent = tks(used(x));
+      const f = x.d ? w / x.d : 1; if (f !== x.f){ x.f = f; $('.trv-b i', x.el).style.setProperty('--f', f.toFixed(4)); }
+      const say = txt || (!run && !x.fin); if (!run) x.fin = true;
+      if (say){ const ms = sec(w), tk = tks(used(x)); if (x.ms !== ms){ x.ms = ms; $('.trv-ms', x.el).textContent = ms; } if (x.tk !== tk){ x.tk = tk; $('.trv-tk', x.el).textContent = tk; } }
       if (x.k === 'tool' && w > SLOW && !x.slow){
         x.slow = true; x.el.classList.add('slow');
         const why = `Over the ${SLOW}s budget for a tool call`, tg = html(`<span class="tag warn" data-tip="${why}">slow</span>`); $('.trv-n', x.el).appendChild(tg); enter(tg);
         $('.trv-ms', x.el).dataset.tip = why;
       }
-      x.el.setAttribute('aria-label', `${x.n}, ${kind}, ${run ? 'running, ' : ''}${sec(w)}, ${Math.round(used(x)).toLocaleString('en-US')} tokens${x.slow ? ', slow' : ''}`);
+      if (say){ const al = `${x.n}, ${kind}, ${run ? 'running, ' : ''}${sec(w)}, ${Math.round(used(x)).toLocaleString('en-US')} tokens${x.slow ? ', slow' : ''}`; if (x.al !== al){ x.al = al; x.el.setAttribute('aria-label', al); } }
     });
     if (shown !== had){ had = shown; tree();
       KEYS.forEach(k => { const n = S.filter(x => x.k === k && vis(x)).length, el = $(`[data-k="${k}"]`, lg), b = $('b', el); el.classList.toggle('z', !n); if (b.textContent !== String(n)){ b.textContent = n; if (n) enter(b); } }); }
     // the playhead runs down every track while the run streams, and fades once it is done
     root.style.setProperty('--now', Math.min(T, END) / SPAN); root.classList.toggle('live', T > 0 && T < END);
-    tot.textContent = sec(Math.min(T, END));
+    if (txt) tot.textContent = sec(Math.min(T, END));
     const slow = S.filter(x => x.slow).length;
     const line = T >= END ? `Done · ${S.length} spans${slow ? `, ${slow} slow` : ''}` : `Running · ${shown} span${shown > 1 ? 's' : ''}`;
     if (line !== said){ said = line; swap($('.m', stEl), line); }

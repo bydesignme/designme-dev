@@ -714,10 +714,12 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .trv-g i.dn{top:50%}
 /* a bar per span on the shared axis: faint lines mark the ticks */
 .trv-b{position:relative;height:20px;background:linear-gradient(to right,var(--line) 1px,transparent 1px) 0 0/20% 100%}
-.trv-b i{position:absolute;top:5px;height:10px;min-width:3px;border-radius:3px;background:linear-gradient(90deg,color-mix(in srgb,var(--k) 70%,var(--surface)),var(--k));transition:background .3s,opacity .3s}
+/* a bar is laid out once at its full length; while it runs, --f (0 to 1) reveals it with a clip and moves its bright edge with a
+   transform, so a streaming run repaints without laying the page out again */
+.trv-b i{position:absolute;top:5px;height:10px;min-width:3px;border-radius:3px;clip-path:inset(-6px calc((1 - var(--f,1)) * 100% - 2px) -6px -6px);background:linear-gradient(90deg,color-mix(in srgb,var(--k) 70%,var(--surface)),var(--k));transition:background .3s,opacity .3s}
 /* a running bar has a light passing along it and a bright leading edge */
 .trv-r.run .trv-b i{background:linear-gradient(90deg,color-mix(in srgb,var(--k) 55%,var(--surface)) 0 30%,color-mix(in srgb,var(--k) 25%,var(--surface)) 45%,var(--k) 60% 100%) 0 0/250% 100%;animation:trvsheen 1.4s linear infinite}
-.trv-r.run:not([data-k="agent"]) .trv-b i::after{content:"";position:absolute;right:-1px;top:-2px;bottom:-2px;width:2px;border-radius:1px;background:var(--k);box-shadow:0 0 6px 1px color-mix(in srgb,var(--k) 55%,transparent)}
+.trv-r.run:not([data-k="agent"]) .trv-b i::after{content:"";position:absolute;left:0;right:0;top:-2px;bottom:-2px;--e:var(--k);background:linear-gradient(to left,var(--e) 0 2px,transparent 2px);filter:drop-shadow(0 0 3px color-mix(in srgb,var(--e) 70%,transparent));transform:translateX(calc(var(--f,1) * 100% - 100% + 1px))}
 @keyframes trvsheen{from{background-position:100% 0}to{background-position:-150% 0}}
 /* an agent span holds the others, so it is drawn as a bracket over the time they take */
 .trv-r[data-k="agent"] .trv-b i,.trv-r.run[data-k="agent"] .trv-b i{top:9px;height:2px;border-radius:1px;background:var(--faint);animation:none}
@@ -726,14 +728,14 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .trv-r.run[data-k="agent"] .trv-b i::after{background:var(--muted)}
 /* over budget: amber, hatched */
 .trv-r.slow .trv-b i,.trv-r.run.slow .trv-b i{background:repeating-linear-gradient(135deg,var(--warn) 0 3px,color-mix(in srgb,var(--warn) 55%,var(--surface)) 3px 6px)}
-.trv-r.run.slow .trv-b i::after{background:var(--warn);box-shadow:0 0 6px 1px color-mix(in srgb,var(--warn) 55%,transparent)}
+.trv-r.run.slow .trv-b i::after{--e:var(--warn)}
 .trv-r .trv-tk{font-size:12px;color:var(--muted)}
 .trv-r .trv-ms{font-size:12.5px;color:var(--fg2)}
 .trv-r.slow .trv-ms{color:var(--warn)}
 /* with a span open, the other bars step back */
 .trv-rows.sel .trv-r:not([aria-expanded="true"]) .trv-b i{opacity:.35}
 /* the playhead: where the run is now, one line down every bar's track while it streams */
-.trv-b::after,.trv-sc::after{content:"";position:absolute;left:calc(var(--now,0) * 100%);top:-6px;bottom:-6px;width:1px;margin-left:-.5px;background:var(--accent-mark,var(--accent));opacity:0;transition:opacity .4s;pointer-events:none}
+.trv-b::after,.trv-sc::after{content:"";position:absolute;left:0;right:0;top:-6px;bottom:-6px;background:linear-gradient(90deg,var(--accent-mark,var(--accent)) 0 1px,transparent 1px);transform:translateX(calc(var(--now,0) * 100% - .5px));opacity:0;transition:opacity .4s;pointer-events:none}
 .trv-sc::after{top:12px;bottom:-6px}
 .trv.live .trv-b::after,.trv.live .trv-sc::after{opacity:.75}
 .trv-dc{display:flex;flex-direction:column;gap:10px;margin-top:2px;padding:6px 10px var(--s-2);border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
@@ -751,7 +753,7 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .trv-io code{font-family:var(--mono);font-size:12px;color:var(--fg2);background:var(--chip);padding:5px var(--s-2);border-radius:var(--r-sm);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 :root[data-style="bp"] .trv-r:not(.slow) .trv-b i{background:var(--k)}
 :root[data-style="bp"] .trv-r.run:not(.slow):not([data-k="agent"]) .trv-b i{background:repeating-linear-gradient(90deg,var(--k) 0 4px,color-mix(in srgb,var(--k) 55%,var(--surface)) 4px 6px);animation:none}
-:root[data-style="bp"] .trv-r.run:not([data-k="agent"]) .trv-b i::after{box-shadow:none;width:1px;right:0}
+:root[data-style="bp"] .trv-r.run:not([data-k="agent"]) .trv-b i::after{filter:none;background:linear-gradient(to left,var(--e) 0 1px,transparent 1px);transform:translateX(calc(var(--f,1) * 100% - 100%))}
 :root[data-style="bp"] .trv-g i,:root[data-style="bp"] .trv-g i.el::after{background:var(--faint)}
 /* narrow: the names keep their room. Tokens move into each span's details, the slow tag leaves the amber bar and time to
    say it (the time keeps its tooltip), the tree draws closer, and the details give the start its own line */
@@ -6952,7 +6954,11 @@ let tipT = 0, tipFor = null, tipNext = null;
 // a trigger whose menu is open shows its menu, not its tip
 const menuOpen = el => el.getAttribute('aria-expanded') === 'true' && (el.hasAttribute('data-pop') || (el.hasAttribute('aria-haspopup') && el.getAttribute('aria-haspopup') !== 'false'));
 // a tip goes when its trigger does: removed, hidden, or its menu opened
-const tipWatch = new MutationObserver(() => { if (tipFor && (!tipFor.isConnected || menuOpen(tipFor) || !tipFor.getClientRects().length)) hideTip(true); });
+// only a change that could touch the trigger is checked (an attribute on it or around it, or a removal that takes it), so a
+// demo rewriting its text many times a second elsewhere never forces the page to lay itself out again
+const tipWatch = new MutationObserver(ms => { if (!tipFor) return;
+  const near = ms.some(m => m.type === 'attributes' ? m.target.contains(tipFor) : [...m.removedNodes].some(n => n === tipFor || (n.contains && n.contains(tipFor))));
+  if (near && (!tipFor.isConnected || menuOpen(tipFor) || !tipFor.getClientRects().length)) hideTip(true); });
 function showTip(el){
   if (!el.isConnected || !el.dataset.tip || menuOpen(el)) return;
   tipFor = el; const k = el.dataset.tipK;
@@ -7777,7 +7783,7 @@ DM.def('trace-view', (r, c) => {
   let T = 0, sel = null, said = '';
   S.forEach(x => {
     const [kind, icon, col] = K[x.k];
-    x.el = html(`<button type="button" class="trv-r${x.lv ? '' : ' root'}" data-k="${x.k}" aria-expanded="false" style="--k:${col};--lv:${x.lv}" hidden><span class="trv-n"><span class="trv-g" aria-hidden="true"></span><span class="trv-k" data-tip="${kind}">${I(icon,'xs')}</span><span class="trv-nm">${x.n}</span></span><span class="trv-b"><i style="left:${x.s / SPAN * 100}%"></i></span><span class="trv-tk num"></span><span class="trv-ms num"></span></button>`);
+    x.el = html(`<button type="button" class="trv-r${x.lv ? '' : ' root'}" data-k="${x.k}" aria-expanded="false" style="--k:${col};--lv:${x.lv}" hidden><span class="trv-n"><span class="trv-g" aria-hidden="true"></span><span class="trv-k" data-tip="${kind}">${I(icon,'xs')}</span><span class="trv-nm">${x.n}</span></span><span class="trv-b"><i style="left:${x.s / SPAN * 100}%;width:${x.d / SPAN * 100}%"></i></span><span class="trv-tk num"></span><span class="trv-ms num"></span></button>`);
     x.el.onclick = () => open(x === sel ? null : x);
     rows.appendChild(x.el);
   });
@@ -7797,28 +7803,31 @@ DM.def('trace-view', (r, c) => {
       $('.trv-g', x.el).innerHTML = h;
     });
   }
-  let had = 0;
+  let had = 0, txtAt = -1e9;
   function paint(){
     let shown = 0;
+    // the times and token counts change ten times a second, not every frame: each change of text lays the page out
+    const now = performance.now(), txt = T >= END || now - txtAt >= 100; if (txt) txtAt = now;
     S.forEach(x => {
       if (T < x.s) return; shown++;
       if (x.el.hidden){ x.el.hidden = false; enter(x.el); }
       const w = took(x), run = T < x.s + x.d, kind = K[x.k][0];
       x.el.classList.toggle('run', run);
-      $('.trv-b i', x.el).style.width = (w / SPAN * 100) + '%';
-      $('.trv-ms', x.el).textContent = sec(w); $('.trv-tk', x.el).textContent = tks(used(x));
+      const f = x.d ? w / x.d : 1; if (f !== x.f){ x.f = f; $('.trv-b i', x.el).style.setProperty('--f', f.toFixed(4)); }
+      const say = txt || (!run && !x.fin); if (!run) x.fin = true;
+      if (say){ const ms = sec(w), tk = tks(used(x)); if (x.ms !== ms){ x.ms = ms; $('.trv-ms', x.el).textContent = ms; } if (x.tk !== tk){ x.tk = tk; $('.trv-tk', x.el).textContent = tk; } }
       if (x.k === 'tool' && w > SLOW && !x.slow){
         x.slow = true; x.el.classList.add('slow');
         const why = `Over the ${SLOW}s budget for a tool call`, tg = html(`<span class="tag warn" data-tip="${why}">slow</span>`); $('.trv-n', x.el).appendChild(tg); enter(tg);
         $('.trv-ms', x.el).dataset.tip = why;
       }
-      x.el.setAttribute('aria-label', `${x.n}, ${kind}, ${run ? 'running, ' : ''}${sec(w)}, ${Math.round(used(x)).toLocaleString('en-US')} tokens${x.slow ? ', slow' : ''}`);
+      if (say){ const al = `${x.n}, ${kind}, ${run ? 'running, ' : ''}${sec(w)}, ${Math.round(used(x)).toLocaleString('en-US')} tokens${x.slow ? ', slow' : ''}`; if (x.al !== al){ x.al = al; x.el.setAttribute('aria-label', al); } }
     });
     if (shown !== had){ had = shown; tree();
       KEYS.forEach(k => { const n = S.filter(x => x.k === k && vis(x)).length, el = $(`[data-k="${k}"]`, lg), b = $('b', el); el.classList.toggle('z', !n); if (b.textContent !== String(n)){ b.textContent = n; if (n) enter(b); } }); }
     // the playhead runs down every track while the run streams, and fades once it is done
     root.style.setProperty('--now', Math.min(T, END) / SPAN); root.classList.toggle('live', T > 0 && T < END);
-    tot.textContent = sec(Math.min(T, END));
+    if (txt) tot.textContent = sec(Math.min(T, END));
     const slow = S.filter(x => x.slow).length;
     const line = T >= END ? `Done · ${S.length} spans${slow ? `, ${slow} slow` : ''}` : `Running · ${shown} span${shown > 1 ? 's' : ''}`;
     if (line !== said){ said = line; swap($('.m', stEl), line); }
@@ -10124,8 +10133,8 @@ DM.def('rewrite-toolbar', (r, c) => {
       el.innerHTML = `<del>${old}</del> <ins>${nw.split(' ').map(w => `<span class="w">${w} </span>`).join('')}</ins>`; place(el); await c.wait(350);
       for (const w of $$('ins .w', el)){ w.classList.add('on'); await c.wait(55); }
       tb.innerHTML = `<span class="lbl">${I('check','xs')}Rewritten</span><button class="rwx-b rwx-un">Undo</button><button class="pill accent sm rwx-ok">Accept</button>`; place(el);
-      // keeping a shorter sentence keeps the doc's height, with the text centred in it (hold), so the card doesn't shrink
-      $('.rwx-ok', tb).onclick = () => { hold(box); el.textContent = nw; S[i][0] = nw; el.classList.remove('sel'); hide(); busy = false; swap(st, 'Saved'); };
+      // keeping a shorter sentence lets the doc fit its text, with no empty room above or below it
+      $('.rwx-ok', tb).onclick = () => { el.textContent = nw; S[i][0] = nw; el.classList.remove('sel'); hide(); busy = false; swap(st, 'Saved'); };
       $('.rwx-un', tb).onclick = () => { el.textContent = old; el.classList.remove('sel'); hide(); busy = false; swap(st, 'Click a sentence'); };
     });
   }

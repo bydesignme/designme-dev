@@ -201,7 +201,6 @@ export function RewriteToolbar({
   const spans = useRef<(HTMLSpanElement | null)[]>([]);
   const [at, setAt] = useState<{ left: number; top: number }>({ left: 0, top: 0 });
   // keeping a shorter sentence keeps the doc's height, with the text centred in it, so it doesn't shrink under the reader
-  const [held, setHeld] = useState<number>();
   const busy = job !== null;
   // the toolbar turns to Rewritten one beat after the last word, as the site does
   const phase = !busy ? 'menu' : job.text !== undefined && job.shown > words(job.text).length ? 'review' : 'working';
@@ -253,14 +252,14 @@ export function RewriteToolbar({
   };
   const finish = (keep: boolean) => {
     if (!job?.text) return;
-    if (keep) { const h = root.current?.offsetHeight; setHeld(was => Math.max(was ?? 0, h ?? 0) || undefined); setText(text.map((s, i) => i === job.index ? job.text! : s)); }
+    if (keep) setText(text.map((s, i) => i === job.index ? job.text! : s));
     setJob(null); setSel(null); setStatus(keep ? 'Saved' : 'Click a sentence');
   };
 
   useImperativeHandle(ref, () => ({ rewrite, accept: () => finish(true), undo: () => finish(false) }));
 
   return (
-    <div data-dm="" ref={root} className={cx('dm-rwx dm-panel', held && 'dm-held', className)} style={held ? { minHeight: held } : undefined}>
+    <div data-dm="" ref={root} className={cx('dm-rwx dm-panel', className)}>
       <div ref={head} className="dm-rwx-h"><span className="dm-ft">{kind}</span><span>{title}</span><Swap className="dm-muted dm-rwx-st">{status}</Swap></div>
       <div className="dm-rwx-doc">
         {text.map((s, i) => {

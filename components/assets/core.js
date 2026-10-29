@@ -250,7 +250,11 @@ let tipT = 0, tipFor = null, tipNext = null;
 // a trigger whose menu is open shows its menu, not its tip
 const menuOpen = el => el.getAttribute('aria-expanded') === 'true' && (el.hasAttribute('data-pop') || (el.hasAttribute('aria-haspopup') && el.getAttribute('aria-haspopup') !== 'false'));
 // a tip goes when its trigger does: removed, hidden, or its menu opened
-const tipWatch = new MutationObserver(() => { if (tipFor && (!tipFor.isConnected || menuOpen(tipFor) || !tipFor.getClientRects().length)) hideTip(true); });
+// only a change that could touch the trigger is checked (an attribute on it or around it, or a removal that takes it), so a
+// demo rewriting its text many times a second elsewhere never forces the page to lay itself out again
+const tipWatch = new MutationObserver(ms => { if (!tipFor) return;
+  const near = ms.some(m => m.type === 'attributes' ? m.target.contains(tipFor) : [...m.removedNodes].some(n => n === tipFor || (n.contains && n.contains(tipFor))));
+  if (near && (!tipFor.isConnected || menuOpen(tipFor) || !tipFor.getClientRects().length)) hideTip(true); });
 function showTip(el){
   if (!el.isConnected || !el.dataset.tip || menuOpen(el)) return;
   tipFor = el; const k = el.dataset.tipK;

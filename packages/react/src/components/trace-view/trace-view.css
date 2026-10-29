@@ -42,10 +42,12 @@
 .dm-trv-g i.dm-dn{top:50%}
 /* a bar per span on the shared axis: faint lines mark the ticks */
 .dm-trv-b{position:relative;height:20px;background:linear-gradient(to right,var(--dm-line) 1px,transparent 1px) 0 0/20% 100%}
-.dm-trv-b i{position:absolute;top:5px;height:10px;min-width:3px;border-radius:3px;background:linear-gradient(90deg,color-mix(in srgb,var(--dm-k) 70%,var(--dm-surface)),var(--dm-k));transition:background .3s,opacity .3s}
+/* a bar is laid out once at its full length; while it runs, --f (0 to 1) reveals it with a clip and moves its bright edge with a
+   transform, so a streaming run repaints without laying the page out again */
+.dm-trv-b i{position:absolute;top:5px;height:10px;min-width:3px;border-radius:3px;clip-path:inset(-6px calc((1 - var(--dm-f,1)) * 100% - 2px) -6px -6px);background:linear-gradient(90deg,color-mix(in srgb,var(--dm-k) 70%,var(--dm-surface)),var(--dm-k));transition:background .3s,opacity .3s}
 /* a running bar has a light passing along it and a bright leading edge */
 .dm-trv-r.dm-run .dm-trv-b i{background:linear-gradient(90deg,color-mix(in srgb,var(--dm-k) 55%,var(--dm-surface)) 0 30%,color-mix(in srgb,var(--dm-k) 25%,var(--dm-surface)) 45%,var(--dm-k) 60% 100%) 0 0/250% 100%;animation:dm-trvsheen 1.4s linear infinite}
-.dm-trv-r.dm-run:not([data-k="agent"]) .dm-trv-b i::after{content:"";position:absolute;right:-1px;top:-2px;bottom:-2px;width:2px;border-radius:1px;background:var(--dm-k);box-shadow:0 0 6px 1px color-mix(in srgb,var(--dm-k) 55%,transparent)}
+.dm-trv-r.dm-run:not([data-k="agent"]) .dm-trv-b i::after{content:"";position:absolute;left:0;right:0;top:-2px;bottom:-2px;--dm-e:var(--dm-k);background:linear-gradient(to left,var(--dm-e) 0 2px,transparent 2px);filter:drop-shadow(0 0 3px color-mix(in srgb,var(--dm-e) 70%,transparent));transform:translateX(calc(var(--dm-f,1) * 100% - 100% + 1px))}
 @keyframes dm-trvsheen{from{background-position:100% 0}to{background-position:-150% 0}}
 /* an agent span holds the others, so it is drawn as a bracket over the time they take */
 .dm-trv-r[data-k="agent"] .dm-trv-b i,.dm-trv-r.dm-run[data-k="agent"] .dm-trv-b i{top:9px;height:2px;border-radius:1px;background:var(--dm-faint);animation:none}
@@ -54,14 +56,14 @@
 .dm-trv-r.dm-run[data-k="agent"] .dm-trv-b i::after{background:var(--dm-muted)}
 /* over budget: amber, hatched */
 .dm-trv-r.dm-slow .dm-trv-b i,.dm-trv-r.dm-run.dm-slow .dm-trv-b i{background:repeating-linear-gradient(135deg,var(--dm-warn) 0 3px,color-mix(in srgb,var(--dm-warn) 55%,var(--dm-surface)) 3px 6px)}
-.dm-trv-r.dm-run.dm-slow .dm-trv-b i::after{background:var(--dm-warn);box-shadow:0 0 6px 1px color-mix(in srgb,var(--dm-warn) 55%,transparent)}
+.dm-trv-r.dm-run.dm-slow .dm-trv-b i::after{--dm-e:var(--dm-warn)}
 .dm-trv-r .dm-trv-tk{font-size:12px;color:var(--dm-muted)}
 .dm-trv-r .dm-trv-ms{font-size:12.5px;color:var(--dm-fg2)}
 .dm-trv-r.dm-slow .dm-trv-ms{color:var(--dm-warn)}
 /* with a span open, the other bars step back */
 .dm-trv-rows.dm-sel .dm-trv-r:not([aria-expanded="true"]) .dm-trv-b i{opacity:.35}
 /* the playhead: where the run is now, one line down every bar's track while it streams */
-.dm-trv-b::after,.dm-trv-sc::after{content:"";position:absolute;left:calc(var(--dm-now,0) * 100%);top:-6px;bottom:-6px;width:1px;margin-left:-.5px;background:var(--dm-accent-mark,var(--dm-accent));opacity:0;transition:opacity .4s;pointer-events:none}
+.dm-trv-b::after,.dm-trv-sc::after{content:"";position:absolute;left:0;right:0;top:-6px;bottom:-6px;background:linear-gradient(90deg,var(--dm-accent-mark,var(--dm-accent)) 0 1px,transparent 1px);transform:translateX(calc(var(--dm-now,0) * 100% - .5px));opacity:0;transition:opacity .4s;pointer-events:none}
 .dm-trv-sc::after{top:12px;bottom:-6px}
 .dm-trv.dm-live .dm-trv-b::after,.dm-trv.dm-live .dm-trv-sc::after{opacity:.75}
 .dm-trv-dc{display:flex;flex-direction:column;gap:10px;margin-top:2px;padding:6px 10px var(--dm-s-2);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
@@ -79,7 +81,7 @@
 .dm-trv-io code{font-family:var(--dm-mono);font-size:12px;color:var(--dm-fg2);background:var(--dm-chip);padding:5px var(--dm-s-2);border-radius:var(--dm-r-sm);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 :root:not([data-style="soft"]) .dm-trv-r:not(.dm-slow) .dm-trv-b i:not(:where([data-style="soft"],[data-style="soft"] *)){background:var(--dm-k)}
 :root:not([data-style="soft"]) .dm-trv-r.dm-run:not(.dm-slow):not([data-k="agent"]) .dm-trv-b i:not(:where([data-style="soft"],[data-style="soft"] *)){background:repeating-linear-gradient(90deg,var(--dm-k) 0 4px,color-mix(in srgb,var(--dm-k) 55%,var(--dm-surface)) 4px 6px);animation:none}
-:root:not([data-style="soft"]) .dm-trv-r.dm-run:not([data-k="agent"]) .dm-trv-b i:not(:where([data-style="soft"],[data-style="soft"] *))::after{box-shadow:none;width:1px;right:0}
+:root:not([data-style="soft"]) .dm-trv-r.dm-run:not([data-k="agent"]) .dm-trv-b i:not(:where([data-style="soft"],[data-style="soft"] *))::after{filter:none;background:linear-gradient(to left,var(--dm-e) 0 1px,transparent 1px);transform:translateX(calc(var(--dm-f,1) * 100% - 100%))}
 :root:not([data-style="soft"]) .dm-trv-g i:not(:where([data-style="soft"],[data-style="soft"] *)),:root:not([data-style="soft"]) .dm-trv-g i.dm-el:not(:where([data-style="soft"],[data-style="soft"] *))::after{background:var(--dm-faint)}
 /* narrow: the names keep their room. Tokens move into each span's details, the slow tag leaves the amber bar and time to
    say it (the time keeps its tooltip), the tree draws closer, and the details give the start its own line */
