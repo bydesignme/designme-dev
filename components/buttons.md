@@ -645,6 +645,7 @@ export function Buttons({ rows, className }: ButtonsProps) {
 
 ## More in Forms and inputs
 
+- [Badge](https://designme.dev/components/badge.md): Small labels for plans, environments and status, with a dot, an icon or a remove button.
 - [Tooltip](https://designme.dev/components/tooltip.md): Quiet labels on hover, with shortcuts and a richer preview card.
 - [Search input](https://designme.dev/components/search-input.md): Search with scoped filters, recent queries and an agent answer.
 - [Country select](https://designme.dev/components/country-select.md): A searchable select with country codes, currency and keyboard support.

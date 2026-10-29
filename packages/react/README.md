@@ -4,7 +4,7 @@ React versions of the [designme.dev](https://designme.dev) components, for Next.
 
 They use the same markup and the same CSS as the site, so they look and move exactly like the previews on designme.dev, in both styles (Blueprint and Soft) and in light and dark. The difference is that each one takes props, so you drive it from your own state instead of a scripted demo.
 
-All 103 components are here, from Status pill to Currency converter, each with an example that replays its demo from the site.
+All 108 components are here, from Status pill to Currency converter, each with an example that replays its demo from the site.
 
 Each one has a page on designme.dev with its demo, its React usage, its props and its code, at `https://designme.dev/components/<name>`. To see them all running locally, run `npm run dev` here.
 
@@ -311,6 +311,14 @@ Project files, with the ones the agent touched marked.
 A trigger, a few agent steps, and a run you can watch flow through.  
 `name`, `tag`, `status`, `nodes: { id, icon, color, title, detail, x, y, narrow?, field?: { label, options }, state?: 'run' | 'done' }[]` (positions are fractions of the canvas), `edges: [from, to][]`, `flowing: [from, to][]` (the wires a run has reached: a soft light passes along each as it is added, and it stays lit), `balanced` (on by default: columns spread evenly so the wires match on both sides), `selected` / `defaultSelected` / `onSelectedChange`, `values` / `defaultValues` / `onValuesChange`, `onNodeMove(id, at, narrow)`, `onRun` (adds Test run), `runLabel`, `doneLabel`. Under 560px wide it stacks.
 
+**CanvasToolbar** · `canvas-toolbar/CanvasToolbar.tsx`  
+A floating toolbar for a workflow canvas: run, pick a tool, comment, fit and zoom.  
+`nodes: { id, icon, color, iconColor?, title, detail?, x, y, narrow?, state?: 'run' | 'done' }[]` (positions in canvas pixels at 100%; `narrow` is used below 440px), `edges: [from, to][]`, `lit` (the wires a run has reached), `running`, `onRun`, `onStop`, `runLabel`, `stopLabel`, `tool: 'select' | 'hand' | 'lasso'` / `defaultTool` / `onToolChange`, `commenting` / `defaultCommenting` / `onCommentingChange`, `onComment({ x, y })` and `comments` (the pins), `view: { panX, panY, zoom } | null` / `defaultView` / `onViewChange` (null fits the steps), `selected` / `defaultSelected` / `onSelectedChange`, `onNodesMove(moves, narrow)`, `zoomSteps`, `label`, `children` (drawn on the canvas under the steps). A ref can `panBy`, `zoomIn`, `zoomOut`, `zoomTo` and `fit`. Shortcuts while the canvas or toolbar has the focus: V, H and L for the tools, C to comment, ⇧1 to fit, ⇧0 for 100%, − and + to zoom, the arrow keys to pan, Escape to leave Comment or clear the selection. Below 440px Comment and Fit move into More, below 360px the zoom buttons too.
+
+**StepLibrary** · `step-library/StepLibrary.tsx`  
+Search the steps a workflow can use, preview what each does, and add one.  
+`groups: { id, label, color, iconColor?, steps: { id, icon, name, description, takes?, gives? }[] }[]`, `onAdd(step, group, via: 'click' | 'keyboard' | 'drop')`, `workflow: { title, steps: { key, icon, color, name, detail? }[] }` (shown beside the panel, and where rows can be dropped), `query` / `defaultQuery` / `onQueryChange`, `collapsed` / `defaultCollapsed` / `onCollapsedChange` (folded group ids), `draggable`, `title`, `placeholder`, `previewHint`, `dropLabel`. Hovering or focusing a step shows its preview beside the panel, or at the panel's foot below 560px. ↑ and ↓ move through the rows, typing searches, Enter adds, Escape clears the search.
+
 **MemoryPanel** · `memory-panel/MemoryPanel.tsx`  
 What the agent remembers about your team, editable and removable.  
 `title`, `icon`, `kinds: { value, label, color }[]`, `memories` / `defaultMemories` / `onMemoriesChange` (`{ id, kind, text, source?, isNew? }[]`), `filter` / `defaultFilter` / `onFilterChange`, `allLabel`, `countLabel(n)`, `editedSource`, `onEdit`, `onForget`, `onRestore`, `undoFor`, `bare`. Edit in place; Forget leaves an Undo row for a few seconds.
@@ -403,6 +411,10 @@ Today's schedule with a live now line and agent prep notes.
 Every button style, with loading, success and hold-to-confirm states.  
 `Buttons({ rows: { label, children }[] })` is the labelled sheet; the file also exports the buttons themselves. `Button`: `variant: 'primary' | 'accent' | 'soft' | 'line' | 'ghost'` (`'ink'`, the old name for `'primary'`, still works), `size: 'sm' | 'md' | 'lg'`, `icon`, `busy` / `busyLabel` / `busyGlyph`, `done` / `doneLabel` / `doneIcon`, `success`, `pressed`, `tip`, `kbd`, `disabled`; an `onClick` that returns a promise runs the button by itself (busy, then done for `doneFor`, then back). `ButtonIcon`: `icon`, `label`, `kbd`, `fill`. `ButtonCopy`: `text`, `label`, `copiedLabel`, `tip`, `onCopy`. `ButtonMenu`: `label`, `items: { key, label, icon? or brand?, detail?, danger?, divider? }[]`, `onSelect(key)`, `status`, `align`, `open` / `defaultOpen` / `onOpenChange`. `ButtonIconMenu`: the same menu from an icon button: `icon`, `label`, `items`, `onSelect(key)`, `status`, `align`, `open` / `defaultOpen` / `onOpenChange`. `ButtonRun`: `state: 'idle' | 'running' | 'stopped' | 'complete'`, `seconds`, `onRun`, `onStop`. `ButtonHold`: `label`, `holdingLabel`, `doneLabel`, `onConfirm` (after holding 1.2s with a pointer, Space or Enter).
 
+**Badge** · `badge/Badge.tsx`  
+Small labels for plans, environments and status, with a dot, an icon or a remove button.  
+`children` (the label), `tone: 'neutral' | 'accent' | 'success' | 'warning' | 'danger' | 'blue' | 'violet' | 'green' | 'orange' | 'red' | 'yellow' | 'pink' | 'teal'` (text on its own tint; neutral by default), `size: 'sm' | 'md'` (20px or 24px tall), `dot`, `icon` (an icon name or your own element), `onRemove` (adds a remove button named "Remove" and the label), `removeLabel`. Soft draws it as a pill; Blueprint squares it, sets it in capitals and gives it a hairline in its own colour.
+
 **Tooltip** · `tooltip/Tooltip.tsx`  
 Quiet labels on hover, with shortcuts and a richer preview card.  
 `groups: { key, icon, label, tip?, kbd?, onClick? }[][]` (toolbar buttons, a line between groups), `people: { key, initials, color, name, role, status, working? }[]` (hovering or focusing an avatar shows its card after `cardDelay`), `note`, `openTip` (a button key whose tip shows) and `openCard` (a person key whose card shows).
@@ -449,6 +461,10 @@ A design thread where you can @mention the agent and it replies.
 An inbox where agent updates and mentions arrive live.  
 `items` / `defaultItems` / `onItemsChange` (`{ id, kind, text, time, icon? and color?, or avatar?, read? }[]`, newest first), `filters`, `filter` / `defaultFilter` / `onFilterChange`, `title`, `markAllLabel`, `emptyLabel`. A new item drops in at the top and bumps the count.
 
+**Banner** · `banner/Banner.tsx`  
+An announcement on a tint of its tone, with its own line drawing and a dismiss.  
+`tone: 'accent' | 'neutral' | 'blue' | 'violet' | 'green' | 'amber'` (the tint, and the colour of the eyebrow and the drawing), `art: 'layers' | 'steps' | 'nodes' | 'grid'` or your own SVG element (shown at 240 by 160 and cropped by its area; give its lines `className="dm-ln"` and `pathLength={1}` to draw them in), or `null` for none, `eyebrow`, `title`, `description`, `action: { label, onClick?, href? }` (the primary button, on the accent), `secondary` (the same, as a quieter link), `onDismiss`, `dismissible`, `open` / `defaultOpen` / `onOpenChange`, `undo` (after a dismiss a line with Undo keeps its place; a string changes its words, `false` leaves nothing), `label`. The drawing draws itself in, and shows at once with reduced motion; in a column narrower than 480px it becomes a strip across the top.
+
 **InviteToCollaborate** · `invite-to-collaborate/InviteToCollaborate.tsx`  
 Add teammates by email as chips, set their role, send.  
 `emails` / `defaultEmails` / `onEmailsChange`, `draft` / `defaultDraft` / `onDraftChange`, `validate`, `colors`, `roles: { label, detail? }[]`, `role` / `defaultRole` / `onRoleChange`, `suggestions: { email, initials, color }[]`, `members: { key?, name, detail?, initials, color, role, pending? }[]`, `onSend(emails, role)` (return a promise to spin until it settles), `link`, `copyLabel`, `copiedLabel`, `title`, `subtitle`, `placeholder`. Enter, a comma, Tab or a paste makes chips.
@@ -460,6 +476,10 @@ Quick reactions on an agent update, with counts that pop.
 **ProfileMenu** · `profile-menu/ProfileMenu.tsx`  
 The account menu behind an avatar: switch workspace, theme, shortcuts and sign out.  
 `user: { name, email, initials?, color? }`, `workspaces: { id, name, detail?, initial?, tint? }[]`, `workspace` / `defaultWorkspace` / `onWorkspaceChange`, `context` (the line under the workspace name), `dark` / `defaultDark` / `onDarkChange` (the theme switch only reports; apply the theme yourself), `themeLabel`, `shortcuts: { keys, label }[]` (defaults to the menu's own keys), `shortcutsOpen` / `defaultShortcutsOpen` / `onShortcutsOpenChange`, `signedIn` / `defaultSignedIn` / `onSignedInChange`, `note`, `open` / `defaultOpen` / `onOpenChange`. A `role="menu"` with `menuitemradio` workspaces and a `menuitemcheckbox` theme switch; the arrow keys, Home and End move through it, Escape closes it and gives the focus back to the avatar, and ? opens the shortcuts.
+
+**ContextSwitcher** · `context-switcher/ContextSwitcher.tsx`  
+The organisation, project and environment you are in, each part a searchable switcher.  
+`segments: { key, label, items, heading?, placeholder?, noun?, plural? }[]` (outermost first; `items` is `{ id, name, badge?: string | { label, tone? }, tile?, isDefault? }[]`, or a function of the parts before it, so picking an organisation brings its projects), `value` / `defaultValue` / `onChange(value, { key, item })` (the id picked in each part, by key; the parts after a pick keep their item if their new list has it, and take its `isDefault` or first item otherwise), `onCreate(key, query)` (adds Create new… at the bottom of each list), `open` / `defaultOpen` / `onOpenChange` (the key of the open part, or null), `query` / `defaultQuery` / `onQueryChange`, `label`. Enter, Space or the down arrow opens a part with the focus in its search; the arrows, Home and End move through the list, typing filters it, Escape gives the focus back, and the left and right arrows move between parts. Narrow, the names shorten with an ellipsis (shown in full in a tooltip); phone narrow, only the last part shows and a … menu holds the others.
 
 **FilterMenu** · `filter-menu/FilterMenu.tsx`  
 Add filters from a menu, see them as chips, and watch the count change.  

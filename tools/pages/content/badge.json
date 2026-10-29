@@ -1,0 +1,40 @@
+{
+  "summary": "Badge is a small label for a plan, an environment or a status: \"Pro\", \"Production\", \"Failed\". It comes in thirteen tones, neutral, the accent, success, warning and danger, plus eight tag colours, each drawn as text on a tint of its own colour. It has two sizes, an optional dot or icon in front of the label, and an optional remove button after it.",
+  "use": [
+    "When a name needs a short qualifier beside it, like a plan next to an organisation or an environment next to a project.",
+    "When a list mixes states that people scan for, like Live, Degraded and Failed runs.",
+    "When labels can be taken off one at a time, like the environments a view is filtered to.",
+    "Not for actions: a badge isn't clickable. Use a button, or a chip in Multi-select or Filter menu, for something people press."
+  ],
+  "features": [
+    "`tone` picks the colour. The accent tone is the accent's tint with the accent as text (`--accent-bg` and `--accent-fg`), so it follows an accent you set. Success, warning and danger use the state colours, and blue, violet, green, orange, red, yellow, pink and teal the tag palette, each with its own `-bg` tint.",
+    "Two sizes: `sm` is 20px tall with 11.5px text, `md` 24px with 12.5px; Blueprint's capitals are a touch smaller, 10.5px and 11px. The label stays on one line; inside a `.t` span (the React version always puts it there) a long one shortens with an ellipsis.",
+    "`dot` puts a small dot in the badge's colour before the label, for a status; `icon` puts an icon there instead.",
+    "`onRemove` adds a × button. In the HTML version it first sends a cancelable `badge-remove` event from the badge, then the badge shrinks away and the focus moves on to the next badge's remove button, or to Undo once none is left. On designme.dev, Undo puts the last one back where it was.",
+    "Soft draws the badge as a pill. Blueprint squares it off, sets the label in capitals with a little letter spacing, and edges it with a hairline in its own colour; the accent badge's hairline is the accent's mark, since Blueprint's lime tint is faint on white."
+  ],
+  "a11y": [
+    "Every tone's text measures at least 4.5:1 (WCAG 2) and APCA Lc 60 on the surface and on raised panels, in Soft and Blueprint, light and dark. On a hovered or highlighted menu row the label leans 15% toward the text colour, so it keeps Lc 60 on that tint too.",
+    "The label is plain text, so it is read as written; Blueprint's capitals are only CSS. The colour is never the only signal, since the label says what the tone means.",
+    "The remove button is a real button named \"Remove\" and the label, like \"Remove Staging\", with the shared focus ring. On a touch screen it gets a 40px tap area without changing how it looks.",
+    "On designme.dev a polite live region says what happened, \"Removed Staging\" or \"Staging is back\"."
+  ],
+  "faq": [
+    {
+      "q": "How do I keep a badge when someone presses its ×?",
+      "a": "In HTML, listen for `badge-remove` and call `preventDefault()`; the badge stays. In React, `onRemove` is yours: take the badge out of your list there, or don't."
+    },
+    {
+      "q": "Can I use my own colours?",
+      "a": "Each tone sets two variables on the badge, `--bdg-bg` and `--bdg-fg` (`--dm-bdg-bg` and `--dm-bdg-fg` in React). Set them in your own class for a new colour, and check the text against its tint."
+    },
+    {
+      "q": "Why is the accent badge a tint and not a solid fill?",
+      "a": "So it reads as a highlight, not a button. A solid accent fill is kept for the primary action."
+    },
+    {
+      "q": "Does the Context switcher use it?",
+      "a": "It draws the same small badge, in the same tones, with its own copy of the styles, so each component installs on its own."
+    }
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "summary": "Step library is the side panel people build a workflow from. It lists the steps an agent workflow can use, in groups like AI, Tools, Logic and Actions with a count on each, under a search field. Hovering or focusing a step shows what it does, what it takes and what it gives in a card beside the panel, and Enter, a click or a drag into the workflow adds it.",
+  "use": [
+    "Beside a workflow canvas or a list of steps, so people can find the next step without leaving it.",
+    "When there are more steps than fit on screen and people need to search them by name.",
+    "When a step's name alone doesn't say enough, and people should read what it does before they add it.",
+    "Not for choosing one value from a short list: use a select or Multi-select then."
+  ],
+  "features": [
+    "The search narrows the steps by name as you type, and the start of a group's name finds the whole group. Matching letters are marked, the header shows how many steps match out of all of them, and a search that finds nothing says so, with Clear search.",
+    "Each group folds under its header, which shows its count. A search opens any folded group it finds something in.",
+    "Hovering a step shows its preview after a short pause, then follows straight away from row to row; focusing a step with the keyboard shows it at once. The preview sits beside the panel, level with the row, over the workflow and never over the list. Below 560px wide the workflow steps aside and the description shows at the foot of the panel instead.",
+    "A click or Enter adds the step; so does Enter in the search, for the first match. The row's plus turns into a tick for a moment, and the step joins the workflow at the end.",
+    "Rows can be dragged into the workflow, which shows where to drop them. In React this is on when there is a `workflow`, and `draggable` turns it off or on.",
+    "In HTML the panel fires a `step-add` event with the step's `id`, `name`, `group` and `via` (click, keyboard or drop). In React, `onAdd(step, group, via)` does the same, `workflow` holds the steps beside the panel, and `query` and `collapsed` are each controlled or left to the component.",
+    "The steps are your own: in HTML they are the list at the top of the script, and in React the `groups` prop, each with its icon, name, description and optional `takes` and `gives`."
+  ],
+  "a11y": [
+    "The search field is labelled. ↓ in it moves to the first step, Enter adds the first match, and Escape clears it while the focus stays in it.",
+    "The list is one tab stop. ↑ and ↓ move through the group headers and the steps that show, Home and End jump to the ends, and ↑ from the first goes back to the search. Typing a letter in the list goes on into the search, and Backspace takes one off.",
+    "Group headers are buttons with `aria-expanded` and `aria-controls`; Enter or Space folds them, ← folds and → opens one, and ← on a step goes to its group's header. A folded group is hidden from Tab and screen readers.",
+    "Each step is a button described by its description, so a screen reader reads what it does without the preview, which is `aria-hidden`.",
+    "An `aria-live=\"polite\"` region says how many steps a search found, that the search was cleared, and which step was added and how many steps the workflow now has.",
+    "With reduced motion on, nothing fades or slides in, and the workflow jumps to its newest step instead of scrolling."
+  ],
+  "faq": [
+    {
+      "q": "Does it build the workflow for me?",
+      "a": "No. It tells you which step was added and how. Add the step to your own workflow in `onAdd` (or on `step-add` in HTML) and pass the new list back as `workflow`."
+    },
+    {
+      "q": "Can I use it without the workflow beside it?",
+      "a": "Yes. Leave `workflow` out and the panel stands on its own; the preview still opens to its right, and dragging is off unless you turn it on with `draggable`."
+    },
+    {
+      "q": "Does dragging work on phones?",
+      "a": "Dragging uses the browser's own drag and drop, which most phones don't offer for buttons. A tap adds the step there instead."
+    },
+    {
+      "q": "What does the search match?",
+      "a": "Any part of a step's name, and the start of a group's name. It ignores case."
+    }
+  ]
+}

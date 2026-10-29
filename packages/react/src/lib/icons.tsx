@@ -2,7 +2,7 @@
 import type { ReactElement } from 'react';
 import { cx } from './cx';
 
-export type IconName = 'minus' | 'plus' | 'x' | 'check' | 'chev-r' | 'chev-l' | 'chev-d' | 'chev-u' | 'up' | 'right' | 'search' | 'folder' | 'laptop' | 'cloud' | 'mic' | 'file' | 'file-text' | 'image' | 'clip' | 'at' | 'slash' | 'spark' | 'bolt' | 'pr' | 'merge' | 'branch' | 'warn' | 'info' | 'alert' | 'ok' | 'clock' | 'play' | 'pause' | 'stop' | 'refresh' | 'copy' | 'ext' | 'link' | 'eye' | 'lock' | 'shield' | 'user' | 'users' | 'bell' | 'cal' | 'gear' | 'sliders' | 'trash' | 'edit' | 'more' | 'up-thumb' | 'down-thumb' | 'term' | 'code' | 'globe' | 'db' | 'table' | 'chart' | 'bars' | 'layers' | 'grid' | 'list' | 'filter' | 'sort' | 'pin' | 'star' | 'bookmark' | 'send' | 'mail' | 'home' | 'cmd' | 'cpu' | 'coins' | 'gauge' | 'flag' | 'wand' | 'book' | 'down' | 'upload' | 'monitor' | 'grip' | 'figma' | 'react' | 'undo' | 'redo' | 'bold' | 'italic' | 'heading' | 'list-ol' | 'quote' | 'history' | 'brain' | 'dollar' | 'heart' | 'smile' | 'hash' | 'panel' | 'max' | 'wave' | 'vol' | 'target' | 'rocket' | 'palette' | 'moon' | 'keyboard' | 'logout';
+export type IconName = 'minus' | 'plus' | 'x' | 'check' | 'chev-r' | 'chev-l' | 'chev-d' | 'chev-u' | 'unfold' | 'crumb' | 'up' | 'right' | 'search' | 'folder' | 'laptop' | 'cloud' | 'mic' | 'file' | 'file-text' | 'image' | 'clip' | 'at' | 'slash' | 'spark' | 'bolt' | 'pr' | 'merge' | 'branch' | 'warn' | 'info' | 'alert' | 'ok' | 'clock' | 'play' | 'pause' | 'stop' | 'refresh' | 'copy' | 'ext' | 'link' | 'eye' | 'lock' | 'shield' | 'user' | 'users' | 'bell' | 'cal' | 'gear' | 'sliders' | 'trash' | 'edit' | 'more' | 'up-thumb' | 'down-thumb' | 'term' | 'code' | 'globe' | 'db' | 'table' | 'chart' | 'bars' | 'layers' | 'grid' | 'list' | 'filter' | 'sort' | 'pin' | 'star' | 'bookmark' | 'send' | 'mail' | 'home' | 'cmd' | 'cpu' | 'coins' | 'gauge' | 'flag' | 'wand' | 'book' | 'down' | 'upload' | 'monitor' | 'grip' | 'figma' | 'react' | 'undo' | 'redo' | 'bold' | 'italic' | 'heading' | 'list-ol' | 'quote' | 'cursor' | 'hand' | 'lasso' | 'comment' | 'fit' | 'history' | 'brain' | 'dollar' | 'heart' | 'smile' | 'hash' | 'panel' | 'max' | 'wave' | 'vol' | 'target' | 'rocket' | 'palette' | 'moon' | 'keyboard' | 'logout';
 
 const SHAPES: Record<IconName, ReactElement> = {
   'minus': <><path d="M5 12h14"/></>,
@@ -13,6 +13,8 @@ const SHAPES: Record<IconName, ReactElement> = {
   'chev-l': <><path d="m15 6-6 6 6 6"/></>,
   'chev-d': <><path d="m6 9 6 6 6-6"/></>,
   'chev-u': <><path d="m6 15 6-6 6 6"/></>,
+  'unfold': <><path d="m8 9.5 4-4 4 4M8 14.5l4 4 4-4"/></>,
+  'crumb': <><path d="M14.5 5 9.5 19"/></>,
   'up': <><path d="M12 19V5M6 11l6-6 6 6"/></>,
   'right': <><path d="M5 12h14M13 6l6 6-6 6"/></>,
   'search': <><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4-4"/></>,
@@ -95,6 +97,11 @@ const SHAPES: Record<IconName, ReactElement> = {
   'heading': <><path d="M6 5v14M17 5v14M6 12h11"/></>,
   'list-ol': <><path d="M10.5 6.5H20M10.5 12H20M10.5 17.5H20M4.5 5l1.5-1v5M4 14.2c.3-.7.9-1 1.5-1 .8 0 1.5.5 1.5 1.3 0 1.2-3 2.1-3 3.5h3"/></>,
   'quote': <><path d="M10 6.5c-2.9.9-4.5 3.2-4.5 6.5v4h4v-4H6M18.5 6.5c-2.9.9-4.5 3.2-4.5 6.5v4h4v-4h-3.5"/></>,
+  'cursor': <><path d="M6.5 4v13.6l3.7-3.5 2.4 5.5 2.3-1-2.4-5.4h5.3z"/></>,
+  'hand': <><path d="M8.2 13V7.6a1.25 1.25 0 0 1 2.5 0v4.2M10.7 11.6V5.6a1.25 1.25 0 0 1 2.5 0v6M13.2 11.6V6.6a1.25 1.25 0 0 1 2.5 0v5.2M15.7 12V9a1.25 1.25 0 0 1 2.5 0v5c0 3.6-2.5 6-5.8 6-2.2 0-3.7-.9-5-2.7l-2.3-3.3a1.3 1.3 0 0 1 2.1-1.6l1 1.3"/></>,
+  'lasso': <><path d="M12 4.5c4.4 0 8 2.5 8 5.5s-3.6 5.5-8 5.5-8-2.5-8-5.5 3.6-5.5 8-5.5z"/><path d="M7.6 14.6c-1 1.2-.7 2.9.8 3.3 1.3.3 1.6 1.5.6 2.6"/></>,
+  'comment': <><path d="M5.5 5h13A1.5 1.5 0 0 1 20 6.5v8a1.5 1.5 0 0 1-1.5 1.5H11l-4.2 3.3V16H5.5A1.5 1.5 0 0 1 4 14.5v-8A1.5 1.5 0 0 1 5.5 5z"/></>,
+  'fit': <><path d="M4 8.5v-3A1.5 1.5 0 0 1 5.5 4h3M15.5 4h3A1.5 1.5 0 0 1 20 5.5v3M20 15.5v3a1.5 1.5 0 0 1-1.5 1.5h-3M8.5 20h-3A1.5 1.5 0 0 1 4 18.5v-3"/><rect x="8.5" y="9" width="7" height="6" rx="1"/></>,
   'history': <><path d="M3.5 12a8.5 8.5 0 1 0 2.5-6M3.5 4v4h4M12 7.5V12l3 2"/></>,
   'brain': <><path d="M9.5 4.5a2.5 2.5 0 0 0-2.5 2.5 3 3 0 0 0-2.2 5 3 3 0 0 0 1.7 5A3 3 0 0 0 12 18V6.5a2 2 0 0 0-2.5-2zM14.5 4.5A2.5 2.5 0 0 1 17 7a3 3 0 0 1 2.2 5 3 3 0 0 1-1.7 5A3 3 0 0 1 12 18"/></>,
   'dollar': <><path d="M12 3v18M16.5 7.5c-.6-1.6-2.3-2.5-4.5-2.5-2.5 0-4.3 1.2-4.3 3.2 0 4.6 9 2.4 9 7.2 0 2-1.9 3.4-4.7 3.4-2.4 0-4.2-1-4.8-2.8"/></>,

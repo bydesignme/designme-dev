@@ -229,9 +229,11 @@ export function Notifications({ items, defaultItems = [], onItemsChange, filters
 ## More in Collaboration
 
 - [Comments](https://designme.dev/components/comments.md): A design thread where you can @mention the agent and it replies.
+- [Banner](https://designme.dev/components/banner.md): An announcement on a tint of its tone, with its own line drawing and a dismiss.
 - [Invite to collaborate](https://designme.dev/components/invite-to-collaborate.md): Add teammates by email as chips, set their role, send.
 - [Reactions](https://designme.dev/components/reactions.md): Quick reactions on an agent update, with counts that pop.
 - [Profile menu](https://designme.dev/components/profile-menu.md): The account menu behind an avatar: switch workspace, theme, shortcuts and sign out.
+- [Context switcher](https://designme.dev/components/context-switcher.md): The organisation, project and environment you are in, each part a searchable switcher.
 - [Filter menu](https://designme.dev/components/filter-menu.md): Add filters from a menu, see them as chips, and watch the count change.
 - [Ticket list](https://designme.dev/components/ticket-list.md): Support tickets the agent has triaged, with suggested replies.
 - [Kanban board](https://designme.dev/components/kanban-board.md): A board where you and the agent move cards, with drag and drop.

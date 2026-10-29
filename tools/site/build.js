@@ -24,8 +24,10 @@ const MAP = {
   c62:'event-calendar', c63:'agenda', c49:'buttons', c52:'tooltip', c53:'search-input', c57:'country-select', c51:'social-signin',
   c55:'sign-in', c50:'form', c64:'payment-form', c54:'comments', c56:'notifications', c61:'invite', c59:'reactions', c104:'ticket-list',
   c101:'kanban', c70:'pricing-cards', c72:'onboarding-checklist', c73:'stepper', c74:'set-limit', c75:'currency-converter',
-  c110:'tool-connections', c111:'design-review', c112:'model-picker', c113:'answer-action-bar', c120:'inline-text-diff', c121:'draft-review', c114:'agent-tree', c115:'agent-inbox', c122:'voice-orb', c123:'prompt-library', c116:'steering', c117:'eval-results', c131:'knowledge-sources', c132:'scheduled-runs', c124:'segmented-control', c125:'otp-field', c126:'multi-select', c127:'profile-menu', c128:'filter-menu', c129:'browser-session', c130:'trace-view', c133:'terminal-stream', c134:'human-handoff', c135:'rich-text-editor'
+  c110:'tool-connections', c111:'design-review', c112:'model-picker', c113:'answer-action-bar', c120:'inline-text-diff', c121:'draft-review', c114:'agent-tree', c115:'agent-inbox', c122:'voice-orb', c123:'prompt-library', c116:'steering', c117:'eval-results', c131:'knowledge-sources', c132:'scheduled-runs', c124:'segmented-control', c125:'otp-field', c126:'multi-select', c127:'profile-menu', c128:'filter-menu', c129:'browser-session', c130:'trace-view', c133:'terminal-stream', c134:'human-handoff', c135:'rich-text-editor',
+  c140:'badge', c143:'context-switcher', c144:'banner'
 };
+Object.assign(MAP, { c141:'canvas-toolbar', c142:'step-library' });
 // cards the original page never had: each is cut from a sibling card's markup, renamed, and placed after it
 const EXTRA = [
   { cid:'c110', id:'tool-connections', reg:'tool-connections', title:'Tools and connections', section:'Workspace', after:'c38', icon:'link' },
@@ -51,8 +53,16 @@ const EXTRA = [
   { cid:'c130', id:'trace-view', reg:'trace-view', title:'Trace view', section:'Agent status', after:'c129', icon:'filter_list' },
   { cid:'c133', id:'terminal-stream', reg:'terminal-stream', title:'Terminal stream', section:'Sources and output', after:'c18', icon:'terminal' },
   { cid:'c134', id:'human-handoff', reg:'human-handoff', title:'Hand-off to a person', section:'Review and approve', after:'c33', icon:'person' },
-  { cid:'c135', id:'rich-text-editor', reg:'rich-text-editor', title:'Rich text editor', section:'Conversation', after:'c108', icon:'edit_note' }
+  { cid:'c135', id:'rich-text-editor', reg:'rich-text-editor', title:'Rich text editor', section:'Conversation', after:'c108', icon:'edit_note' },
+  { cid:'c140', id:'badge', reg:'badge', title:'Badge', section:'Forms and inputs', after:'c49', icon:'tag' },
+  { cid:'c143', id:'context-switcher', reg:'context-switcher', title:'Context switcher', section:'Collaboration', after:'c127', icon:'account_tree' },
+  { cid:'c144', id:'banner', reg:'banner', title:'Banner', section:'Collaboration', after:'c56', icon:'stars' }
 ];
+// a workflow canvas's toolbar and the library of steps beside it, after Automation canvas
+EXTRA.push(
+  { cid:'c141', id:'canvas-toolbar', reg:'canvas-toolbar', title:'Canvas toolbar', section:'Workspace', after:'c16', icon:'tune' },
+  { cid:'c142', id:'step-library', reg:'step-library', title:'Step library', section:'Workspace', after:'c141', icon:'checklist' }
+);
 
 /* ---------- read the Soft 2 page ---------- */
 const cssA = soft.indexOf('<style>\n[hidden]') + '<style>'.length;
@@ -395,6 +405,8 @@ const ORDER = {
   's-data': ['code-viewer', 'terminal-stream', 'citation-hover', 'source-stack', 'field-extraction', 'metric-insight', 'details-panel', 'task-table'],
   's-workspace': ['automation-canvas', 'command-palette', 'memory-panel', 'model-compare', 'agent-settings', 'tool-connections', 'knowledge-sources', 'scheduled-runs', 'file-explorer', 'workspace-rail'],
 };
+// Canvas toolbar and Step library follow Automation canvas
+ORDER['s-workspace'].splice(ORDER['s-workspace'].indexOf('automation-canvas') + 1, 0, 'canvas-toolbar', 'step-library');
 {
   const secRe = id => new RegExp(`<section class="lib-sec" id="${id}">[\\s\\S]*?</section>`);
   for (const [sid, ids] of Object.entries(ORDER)){

@@ -1,0 +1,47 @@
+{
+  "summary": "Canvas toolbar is the floating toolbar of a workflow canvas, docked at the bottom centre. It has a handle to move it, Run (which turns into a red Stop while a run is going), the pointer tools Select, Hand and Lasso, Comment, Fit to screen, and zoom out and in with the zoom level between them. Every icon button shows its shortcut in its tooltip, and the shortcuts work while the canvas has the focus.",
+  "use": [
+    "When people build or edit an agent workflow on a canvas and need to move around it, pick steps and run it.",
+    "When a run should be started and stopped from the same place people navigate the canvas from.",
+    "When the canvas needs the usual canvas shortcuts, so people who know other editors can work without the mouse.",
+    "Not for a short flow that fits on screen and never needs panning or zooming: Automation canvas is enough then."
+  ],
+  "features": [
+    "Run starts a run and turns into Stop, on a red fill, until the run ends. In the demo the steps light up one after another along their wires and the run stops by itself; in React, `onRun` and `onStop` call you, and you set `running`, each node's `state` and the `lit` wires as your run goes.",
+    "Select, Hand and Lasso are one radio group. Select picks a step with a click (Shift adds to the pick), moves the picked steps by dragging, and draws a box round steps on empty canvas; Hand pans; Lasso picks the steps inside the shape you draw. The middle mouse button pans with any tool.",
+    "Comment is a toggle: the next click on the canvas drops a numbered pin there and turns it off. The HTML fires `canvas-comment` with the spot; in React `onComment` gets it, and `comments` holds the pins.",
+    "Fit to screen fits every step in the room above the toolbar, at most 150%. On arrival, and when the canvas switches between wide and narrow, the view fits the steps at no more than 100%.",
+    "Zoom out and Zoom in step through 25%, 33%, 50%, 67%, 75%, 90%, 100%, 125%, 150%, 200%, 300% and 400% round the middle of the view (`zoomSteps` changes them). The level between them resets to 100%. Ctrl or ⌘ with the scroll wheel, or a trackpad pinch, zooms at the pointer.",
+    "Shortcuts: V Select, H Hand, L Lasso, C Comment, Shift+1 fit, Shift+0 100%, minus and plus zoom, the arrow keys pan the canvas (Shift for bigger steps), and Escape leaves Comment or clears the selection. They work while the focus is on the canvas or on the toolbar.",
+    "The handle moves the toolbar anywhere on the canvas, by dragging or with the arrow keys while it has the focus; Home or a double click docks it again.",
+    "The toolbar stays on one line. Below 440px wide, Comment and Fit to screen move into a More menu; below 360px, the zoom buttons and the level move there too.",
+    "In HTML the component fires `canvas-run`, `canvas-stop` (with `finished`), `canvas-tool`, `canvas-zoom` and `canvas-comment` events. In React, `tool`, `commenting`, `view`, `selected` and the comments are each controlled or left to the component, and a ref can `panBy`, `zoomIn`, `zoomOut`, `zoomTo` and `fit`."
+  ],
+  "a11y": [
+    "The canvas is a focusable group with the role description \"canvas\" and a label, described by a line that lists its shortcuts. A click on it gives it the focus.",
+    "The toolbar has `role=\"toolbar\"` and the label Canvas tools. Each icon button is labelled and shows its name and shortcut in a tooltip on hover and on keyboard focus.",
+    "Select, Hand and Lasso are a `radiogroup` of `radio` buttons with `aria-checked`, and a single tab stop: the arrow keys move through them and pick each one, wrapping at the ends, and Home and End jump to the ends.",
+    "Comment reports `aria-pressed`. Zoom out and Zoom in are `aria-disabled` at the ends of the range, so they keep their place and the focus. The level's name says the current zoom and that it resets to 100%.",
+    "More is a menu button: Enter, Space or the down arrow open it on its first item, the arrows move and wrap, Escape closes it and gives the focus back. Comment is a `menuitemcheckbox` there.",
+    "An `aria-live=\"polite\"` region says the tool picked, the zoom level, how many steps are selected, where a comment went, and when a run starts, finishes or stops.",
+    "With reduced motion on, the view moves at once instead of gliding."
+  ],
+  "faq": [
+    {
+      "q": "Does Run execute the workflow?",
+      "a": "No. In React it calls `onRun`; your code runs the steps, sets `running` and each node's `state`, and adds the wires it has reached to `lit`. The HTML demo plays a pretend run and fires `canvas-run` and `canvas-stop` for you to hook into."
+    },
+    {
+      "q": "Can I draw my own canvas content?",
+      "a": "Yes. `nodes` and `edges` draw the step cards and their wires, and `children` is drawn on the canvas under them, in canvas pixels at 100%, so it pans and zooms with them."
+    },
+    {
+      "q": "How do I keep the view between visits?",
+      "a": "Control `view` and save what `onViewChange` gives you: the zoom and the pan. Pass null to go back to fitting the steps."
+    },
+    {
+      "q": "Why do some buttons move into More?",
+      "a": "So the toolbar never wraps or runs past a narrow canvas. Run and the three pointer tools always stay on the bar; Comment and Fit go first, then the zoom buttons."
+    }
+  ]
+}

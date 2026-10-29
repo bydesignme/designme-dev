@@ -22,12 +22,16 @@ const names = site.sections.flatMap(s => s.cards.map(c => c.reg)).filter(n => !o
 // Voice orb is taken while the agent answers, Prompt library once every blank is filled in, Steering once the run is done with
 // your change in it, and Eval results with the run in and the price check failing. Knowledge sources is taken with the scanned PDF
 // failed and offering OCR while the new website indexes, and Scheduled runs with the design QA running beside the failed token sync.
+// Banner is taken once its first drawing has drawn itself in, before the next banner takes its place.
 // Segmented control shows the month, OTP field the verified code, and Multi-select its list open with two tags picked.
 // Profile menu is taken open on Acme Labs with the theme switched, and Filter menu with both filters on and 4 of 24 issues left
 // your change in it, and Eval results with the run in and the price check failing. Terminal stream is taken once the run has
 // passed and summed itself up, and Hand-off to a person once Alex has it and the agent is paused. Rich text editor is taken with the
-// shorter sentence streamed in beside the struck one, ready to accept
-const WAIT = { toast:2600, 'status-pill':3300, 'design-review':9500, 'model-picker':13000, 'answer-action-bar':17000, composer:18000, thinking:11000, 'context-meter':10500, 'inline-text-diff':9500, 'agent-tree':16500, 'agent-inbox':5000, 'voice-orb':8500, 'prompt-library':12000, steering:16800, 'eval-results':7000, 'knowledge-sources':8200, 'scheduled-runs':4000, 'segmented-control':7000, 'otp-field':10800, 'multi-select':5500, 'profile-menu':11500, 'filter-menu':12500, 'browser-session':9500, 'trace-view':11500, 'terminal-stream':20000, 'human-handoff':15500, 'rich-text-editor':16800 };
+// shorter sentence streamed in beside the struck one, ready to accept. Context switcher is taken with the project's switcher open on
+// the search for "inv"
+const WAIT = { toast:2600, 'status-pill':3300, 'design-review':9500, 'model-picker':13000, 'answer-action-bar':17000, composer:18000, thinking:11000, 'context-meter':10500, 'inline-text-diff':9500, 'agent-tree':16500, 'agent-inbox':5000, 'voice-orb':8500, 'prompt-library':12000, steering:16800, 'eval-results':7000, 'knowledge-sources':8200, 'scheduled-runs':4000, 'segmented-control':7000, 'otp-field':10800, 'multi-select':5500, 'profile-menu':11500, 'filter-menu':12500, 'browser-session':9500, 'trace-view':11500, 'terminal-stream':20000, 'human-handoff':15500, 'rich-text-editor':16800, 'context-switcher':4600, banner:2600 };
+// Canvas toolbar is taken mid-run, with Stop on the bar and the wires lighting up, and Step library with Summarize text's preview open
+Object.assign(WAIT, { 'canvas-toolbar':12800, 'step-library':6200 });
 const OUT = { thumbs:path.join(HERE, 'public/components/thumbs'), og:path.join(HERE, 'public/components/og') };
 Object.values(OUT).forEach(d => fs.mkdirSync(d, { recursive:true }));
 

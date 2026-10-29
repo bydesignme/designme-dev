@@ -2678,6 +2678,168 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .acx-opts.open{display:flex}
 .acx-opts .mi{font-size:12.5px;padding:6px var(--s-2)}
 @media (max-width:720px){.acx-cv{height:420px}}
+/* ---------- Canvas toolbar ---------- */
+/* a workflow canvas with its floating toolbar docked at the bottom centre: a handle to move the toolbar, Run (Stop while a
+   run is going), the pointer tools as one radio group, Comment, Fit and zoom. A narrow canvas moves Comment and Fit, then
+   the zoom buttons, into a More menu, so the toolbar never wraps or runs past the canvas */
+.ctb{position:relative;width:100%;container:ctb/inline-size;
+  /* Stop's fill: a red that keeps white text at 4.5:1 and APCA Lc 75 in both themes, darker on hover */
+  --ctb-stop:#bf3434;--ctb-stop-2:#a52a2a;--ctb-on-stop:#ffffff;
+  /* the wires: the field grey, which holds 3:1 against the canvas */
+  --ctb-wire:var(--field-line)}
+.ctb-cv{position:relative;height:340px;border-radius:var(--r-lg);overflow:hidden;outline:0;touch-action:none;user-select:none;-webkit-user-select:none;cursor:default;
+  background-color:var(--chip);background-image:radial-gradient(circle,color-mix(in srgb,var(--fg) 20%,transparent) 1.1px,transparent 1.6px);background-size:16px 16px}
+.ctb-cv:focus-visible{outline:2px solid var(--focus);outline-offset:2px;border-radius:var(--r-lg)}
+.ctb[data-tool="hand"] .ctb-cv{cursor:grab}
+.ctb[data-tool="lasso"] .ctb-cv,.ctb.cm .ctb-cv{cursor:crosshair}
+.ctb .ctb-cv.pan{cursor:grabbing}
+/* the buttons and the arrow keys glide the view; a drag or a pinch moves it as the pointer does */
+.ctb-cv.anim{transition:background-position var(--t) var(--ease),background-size var(--t) var(--ease)}
+.ctb-cv.anim .ctb-world{transition:transform var(--t) var(--ease)}
+.ctb-world{position:absolute;left:0;top:0;transform-origin:0 0}
+.ctb-w{position:absolute;left:0;top:0;width:1px;height:1px;overflow:visible;pointer-events:none}
+.ctb-w path{fill:none;stroke:var(--ctb-wire);stroke-width:1.5;transition:stroke .5s var(--ease)}
+.ctb-w path.lit{stroke:var(--accent-mark)}
+.ctb-n{position:absolute;width:160px;display:flex;align-items:center;gap:var(--s-2);padding:var(--s-2) var(--s-3);border-radius:var(--r-in);background:var(--surface);box-shadow:var(--shadow);font-size:12.5px;line-height:1.35;transition:box-shadow .3s var(--ease)}
+.ctb-n.in{animation:ctbin .56s var(--ease) backwards}
+@keyframes ctbin{from{opacity:0;filter:blur(4px)}}
+.ctb-n .ic{width:28px;height:28px;border-radius:var(--r-sm);display:grid;place-items:center;flex:none}
+.ctb-n .t{display:flex;flex-direction:column;min-width:0}
+.ctb-n .t b{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ctb-n .t span{font-size:11.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ctb-n.sel{box-shadow:0 0 0 1.5px var(--accent-mark),var(--shadow)}
+.ctb-n.run{box-shadow:0 0 0 1.5px var(--accent-mark),0 0 0 6px color-mix(in srgb,var(--accent) 12%,transparent),var(--shadow)}
+.ctb-n .s{position:absolute;right:-6px;top:-6px;width:18px;height:18px;border-radius:50%;display:grid;place-items:center;background:var(--surface);box-shadow:0 0 0 1px var(--line);animation:ctbs .3s var(--ease)}
+.ctb-n .s .spin{width:10px;height:10px;color:var(--accent-mark)}
+.ctb-n .s .i{color:var(--ok)}
+@keyframes ctbs{from{opacity:0;transform:scale(.6)}}
+/* a comment dropped on the canvas: a numbered pin in the accent, its point on the spot that was clicked */
+.ctb-pin{position:absolute;width:24px;height:24px;transform:translateY(-100%);display:grid;place-items:center;border-radius:var(--r-pill) var(--r-pill) var(--r-pill) var(--r-xs);background:var(--accent);color:var(--on-accent);box-shadow:0 0 0 2px var(--surface),var(--shadow);font-size:11.5px;font-weight:500;animation:ctbpin .3s var(--ease)}
+@keyframes ctbpin{from{opacity:0;transform:translateY(-100%) scale(.6)}}
+/* what a drag selects: a box for Select, a free shape for Lasso */
+.ctb-mq{position:absolute;left:0;top:0;box-shadow:inset 0 0 0 1px var(--accent-mark);background:color-mix(in srgb,var(--accent) 8%,transparent);pointer-events:none}
+.ctb-lz{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+.ctb-lz path{fill:color-mix(in srgb,var(--accent) 8%,transparent);stroke:var(--accent-mark);stroke-width:1.5;stroke-dasharray:4 3;stroke-linejoin:round}
+/* where the demo's pointer rests while it drags the canvas */
+.ctb-aim{position:absolute;width:20px;height:20px;pointer-events:none}
+.ctb-bar{position:absolute;left:50%;bottom:var(--s-3);z-index:6;display:flex;align-items:center;padding:var(--s-1);border-radius:var(--r-pill);background:var(--raised);box-shadow:var(--shadow-pop);white-space:nowrap;
+  transform:translate(calc(-50% + var(--dx,0px)),var(--dy,0px))}
+.ctb-bar :focus-visible{border-radius:var(--r-pill)}
+.ctb-b{width:32px;height:32px;flex:none;display:grid;place-items:center;border-radius:var(--r-pill);color:var(--fg2);transition:background var(--t-fast),color var(--t-fast)}
+.ctb-b:hover{background:var(--row);color:var(--fg)}
+.ctb-b:is([aria-checked="true"],[aria-pressed="true"]){background:var(--accent-bg);color:var(--accent-fg)}
+/* zoom out at 25%, or in at 400%, has nowhere to go: it greys out but keeps its place and the focus */
+.ctb-b[aria-disabled="true"],.ctb-b[aria-disabled="true"]:hover,.ctb-menu .mi[aria-disabled="true"],.ctb-menu .mi[aria-disabled="true"] :is(.i,.kbd){color:var(--dis);background:none;cursor:not-allowed}
+.ctb-hd{width:24px;color:var(--muted);cursor:grab;touch-action:none}
+.ctb-hd:hover{background:none}
+.ctb-bar.drag .ctb-hd{cursor:grabbing}
+.ctb-sep{width:1px;height:16px;margin:0 var(--s-1);flex:none;background:var(--line)}
+.ctb-tools{display:flex}
+.ctb-run{min-width:76px;padding:0 var(--s-4) 0 var(--s-3);transition:opacity var(--t-fast),transform .15s}
+.ctb-run.stop{background:var(--ctb-stop);color:var(--ctb-on-stop)}
+.ctb-run.stop:hover{background:var(--ctb-stop-2)}
+.ctb-z{min-width:48px;height:32px;padding:0 var(--s-1);flex:none;border-radius:var(--r-pill);font-size:12.5px;color:var(--fg2);transition:background var(--t-fast),color var(--t-fast)}
+.ctb-z:hover{background:var(--row);color:var(--fg)}
+.ctb-more{display:none}
+.ctb-menu{width:216px}
+.ctb-menu .mi .kbd,.ctb-menu .mi .r{margin-left:auto}
+.ctb-menu .mi[aria-checked="true"]{font-weight:400}
+.ctb-menu .mi[aria-checked="true"] .i{color:var(--accent-fg)}
+.ctb-menu [data-ovf]{display:none}
+/* the toolbar keeps to one row: below 440px Comment and Fit go into More, below 360px the zoom buttons follow */
+@container ctb (max-width:439px){.ctb-bar [data-ovf="1"]{display:none}.ctb-more{display:grid}.ctb-menu [data-ovf="1"]{display:flex}}
+@container ctb (max-width:359px){.ctb-bar [data-ovf="2"]{display:none}.ctb-menu [data-ovf="2"]{display:flex}}
+.ctb-live,.ctb-sr{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .ctb{--ctb-stop:#c43535;--ctb-stop-2:#d34646}}
+:root[data-theme="dark"] .ctb{--ctb-stop:#c43535;--ctb-stop-2:#d34646}
+:root[data-style="bp"] .ctb-cv{box-shadow:inset 0 0 0 1px var(--line)}
+:root[data-style="bp"] .ctb-b:is([aria-checked="true"],[aria-pressed="true"]){box-shadow:inset 0 0 0 1px var(--accent-mark)}
+:root[data-style="bp"] .ctb-n.run{box-shadow:0 0 0 1px var(--accent-mark),0 0 0 4px color-mix(in srgb,var(--accent) 22%,transparent)}
+:root[data-style="bp"] .ctb-n.sel{box-shadow:0 0 0 1px var(--accent-mark)}
+/* ---------- Step library ---------- */
+/* the steps a workflow can be built from, in a side panel beside the workflow: a search, groups that fold, and a row per
+   step. Hovering or focusing a step shows what it does in a card beside the panel, never over the list; Enter, a click or
+   a drag into the workflow adds it. On a narrow screen the workflow steps aside and the description shows at the foot of
+   the panel instead */
+.slb{position:relative;width:100%;height:400px;display:flex;gap:var(--s-4);container:slb/inline-size;--slb-wire:var(--field-line)}
+.slb-p{position:relative;z-index:1;width:256px;flex:none;display:flex;flex-direction:column;min-height:0;border-radius:var(--r-card);background:var(--surface);box-shadow:var(--shadow)}
+.slb-h{display:flex;align-items:baseline;justify-content:space-between;gap:var(--s-2);padding:var(--s-3) var(--s-4) 0;font-size:13px}
+.slb-h b{font-weight:500}
+.slb-h .num{font-size:12px;color:var(--muted)}
+.slb-q{display:flex;align-items:center;gap:var(--s-2);height:32px;margin:var(--s-2) var(--s-3) var(--s-1);padding:0 var(--s-1) 0 var(--s-3);border-radius:var(--r-sm);background:var(--chip);box-shadow:inset 0 0 0 1px var(--field-line);color:var(--muted)}
+.slb-q:focus-within{box-shadow:inset 0 0 0 2px var(--focus)}
+.slb-q input{flex:1;min-width:0;height:100%;border:0;outline:0;background:transparent;font:inherit;font-size:13px;color:var(--fg)}
+.slb-q input::placeholder{color:var(--muted)}
+.slb-x{width:24px;height:24px}
+.slb-list{flex:1;min-height:0;overflow-y:auto;padding:var(--s-1) var(--s-2) var(--s-2);scrollbar-width:thin;scrollbar-color:var(--rail) transparent}
+.slb-g+.slb-g{margin-top:var(--s-1)}
+.slb-g[hidden]{display:none}
+.slb-gb{display:flex;align-items:center;gap:var(--s-2);width:100%;height:28px;padding:0 var(--s-2);border-radius:var(--r-sm);font-size:12px;color:var(--fg2);text-align:left;transition:background var(--t-fast),color var(--t-fast)}
+.slb-gb:hover{background:var(--row);color:var(--fg)}
+.slb-gb:focus-visible,.slb-s:focus-visible{outline-offset:-2px}
+.slb-gb .i{color:var(--muted);transition:transform var(--t) var(--ease)}
+.slb-gb[aria-expanded="false"] .i{transform:rotate(-90deg)}
+.slb-gb .n{margin-left:auto;color:var(--muted)}
+.slb-ul{list-style:none;margin:0;padding:0}
+.slb-s{display:flex;align-items:center;gap:var(--s-2);width:100%;height:36px;padding:0 var(--s-2);border-radius:var(--r-sm);font-size:13px;text-align:left;color:var(--fg);transition:background var(--t-fast)}
+.slb-s:hover,.slb-s.on{background:var(--row)}
+.slb-s .ic{width:24px;height:24px;border-radius:var(--r-sm);display:grid;place-items:center;flex:none}
+.slb-s .t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.slb-s mark{background:none;color:var(--accent-fg);font-weight:500}
+.slb-s .ad{display:grid;color:var(--muted);opacity:0;transition:opacity var(--t-fast),color var(--t-fast)}
+.slb-s:is(:hover,:focus-visible,.on) .ad{opacity:1}
+.slb-s.added .ad{opacity:1;color:var(--ok)}
+.slb-e{display:flex;flex-direction:column;align-items:center;gap:var(--s-1);padding:var(--s-8) var(--s-4) 0;text-align:center;font-size:13px;color:var(--muted)}
+.slb-e b{font-weight:500;color:var(--fg);overflow-wrap:anywhere}
+.slb-e .pill{margin-top:var(--s-2)}
+.slb-dock{display:none}
+.slb-d{display:none}
+/* the workflow the steps go into: a quiet canvas with its steps one under another, and a place to drop a new one */
+.slb-flow{position:relative;flex:1;min-width:0;display:flex;flex-direction:column;padding:var(--s-4) var(--s-5);border-radius:var(--r-lg);
+  background-color:var(--chip);background-image:radial-gradient(circle at 8px 8px,color-mix(in srgb,var(--fg) 16%,transparent) 1.1px,transparent 1.6px);background-size:16px 16px;transition:box-shadow var(--t-fast)}
+.slb-fh{display:flex;align-items:baseline;gap:var(--s-2);font-size:13px}
+.slb-fh b{font-weight:500}
+.slb-fh .num{font-size:12px;color:var(--fg2)}
+.slb-fl{list-style:none;flex:1;min-height:0;margin:0;padding:var(--s-4) 0 var(--s-1);display:flex;flex-direction:column;gap:var(--s-4);overflow-y:auto;scrollbar-width:none}
+.slb-fs{position:relative;display:flex;align-items:center;gap:var(--s-3);font-size:13px}
+.slb-fs.in{animation:slbin .5s var(--ease) backwards}
+@keyframes slbin{from{opacity:0;transform:translateY(6px);filter:blur(3px)}}
+.slb-fs .ic{width:32px;height:32px;border-radius:var(--r-sm);display:grid;place-items:center;flex:none;background:var(--surface);box-shadow:var(--shadow)}
+.slb-fs .t{display:flex;flex-direction:column;min-width:0;line-height:1.3}
+.slb-fs .t b{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.slb-fs .t span{font-size:12px;color:var(--fg2)}
+/* the line from one step down to the next, under its icon */
+.slb-cn{position:absolute;left:15.5px;top:32px;bottom:calc(var(--s-4) * -1);width:1px;background:var(--slb-wire)}
+.slb-fs:last-child .slb-cn{display:none}
+.slb-drop{flex:none;display:flex;align-items:center;gap:var(--s-2);height:40px;padding:0 var(--s-3);border-radius:var(--r-sm);box-shadow:inset 0 0 0 1px var(--field-line);font-size:12.5px;color:var(--fg2);transition:background var(--t-fast),color var(--t-fast),box-shadow var(--t-fast)}
+.slb-flow.over .slb-drop{background:var(--accent-bg);color:var(--accent-fg);box-shadow:inset 0 0 0 2px var(--accent-mark)}
+/* the preview: beside the panel, level with the step it describes, over the workflow and never over the list */
+.slb-pv{position:absolute;left:0;top:0;z-index:5;width:232px;padding:var(--s-3);border-radius:var(--r-in);background:var(--raised);box-shadow:var(--shadow-pop);pointer-events:none;
+  opacity:0;visibility:hidden;transform:translateX(-4px);transition:opacity .18s var(--ease),transform .3s var(--ease),top .25s var(--ease),visibility 0s .3s}
+.slb-pv.show{opacity:1;visibility:visible;transform:none;transition-delay:0s}
+.slb-pv.jump{transition:opacity .18s var(--ease),transform .3s var(--ease),visibility 0s .3s}
+.slb-ph{display:flex;align-items:center;gap:var(--s-2)}
+.slb-ph .ic{width:28px;height:28px;border-radius:var(--r-sm);display:grid;place-items:center;flex:none}
+.slb-ph div{display:flex;flex-direction:column;min-width:0}
+.slb-ph b{font-weight:500;font-size:13px}
+.slb-ph span{font-size:12px;color:var(--fg2)}
+.slb-pd{margin:var(--s-2) 0 0;font-size:12.5px;line-height:1.5;color:var(--fg)}
+.slb-io{margin:var(--s-2) 0 0;display:grid;grid-template-columns:auto minmax(0,1fr);gap:0 var(--s-2);font-size:12px;line-height:1.45}
+.slb-io dt{color:var(--fg2)}
+.slb-io dd{margin:0;color:var(--fg)}
+.slb-pf{margin:var(--s-2) 0 0;font-size:12px;color:var(--fg2)}
+.slb-live{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+/* narrow: the panel takes the width, and what the focused or hovered step does shows at its foot */
+@container slb (max-width:559px){
+  .slb-flow,.slb-pv{display:none}
+  .slb-p{width:100%}
+  .slb-dock{display:block;flex:none;height:92px;padding:var(--s-3) var(--s-4);box-shadow:inset 0 1px 0 var(--line);overflow:hidden}
+  .slb-dock .slb-pd{margin-top:var(--s-1);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .slb-dock .hint{font-size:12.5px;color:var(--fg2)}
+}
+:root[data-style="bp"] .slb-q{background:var(--surface)}
+:root[data-style="bp"] .slb-flow{box-shadow:inset 0 0 0 1px var(--line)}
+:root[data-style="bp"] .slb-fs .ic{box-shadow:0 0 0 1px var(--rail)}
 /* ---------- Memory panel ---------- */
 .mmx{padding:var(--s-3);display:flex;flex-direction:column;gap:var(--s-2);min-height:330px}
 .mmx-h{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
@@ -3502,6 +3664,42 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .btx-hold .lb{position:relative;display:inline-flex;align-items:center;gap:7px;transition:color .3s}
 .btx-hold.h .lb,.btx-hold.done .lb{color:#fff}
 .btx-hold.done .fill{transform:scaleX(1)}
+/* ---------- Badge ---------- */
+/* a small label for a plan, an environment or a status. data-tone picks its colour (none is neutral): the accent's tint,
+   success, warning and danger, or one of the eight tag colours, each as text on its own tint. Two sizes (.sm), an optional
+   dot or icon in front, and an optional remove button after the label. Soft draws it as a pill; Blueprint squares it off,
+   sets it in capitals and gives it a hairline in its own colour */
+.bdg{--bdg-bg:var(--chip);--bdg-fg:var(--fg2);display:inline-flex;align-items:center;gap:var(--s-1);max-width:100%;height:24px;padding:0 var(--s-2);border-radius:var(--r-pill);background:var(--bdg-bg);color:var(--bdg-fg);font-size:12.5px;font-weight:500;line-height:1;white-space:nowrap;vertical-align:middle}
+.bdg.sm{height:20px;font-size:11.5px}
+.bdg>.t{min-width:0;overflow:hidden;text-overflow:ellipsis}
+.bdg>.i{flex:none}
+.bdg-dot{width:6px;height:6px;border-radius:50%;background:currentColor;flex:none}
+.bdg[data-tone="accent"]{--bdg-bg:var(--accent-bg);--bdg-fg:var(--accent-fg)}
+.bdg[data-tone="success"]{--bdg-bg:var(--ok-bg);--bdg-fg:var(--ok)}.bdg[data-tone="warning"]{--bdg-bg:var(--warn-bg);--bdg-fg:var(--warn)}.bdg[data-tone="danger"]{--bdg-bg:var(--bad-bg);--bdg-fg:var(--bad)}
+.bdg[data-tone="blue"]{--bdg-bg:var(--pb-bg);--bdg-fg:var(--pb)}.bdg[data-tone="violet"]{--bdg-bg:var(--pl-bg);--bdg-fg:var(--pl)}.bdg[data-tone="green"]{--bdg-bg:var(--pm-bg);--bdg-fg:var(--pm)}.bdg[data-tone="orange"]{--bdg-bg:var(--pp-bg);--bdg-fg:var(--pp)}
+.bdg[data-tone="red"]{--bdg-bg:var(--pr-bg);--bdg-fg:var(--pr)}.bdg[data-tone="yellow"]{--bdg-bg:var(--py-bg);--bdg-fg:var(--py)}.bdg[data-tone="pink"]{--bdg-bg:var(--pk-bg);--bdg-fg:var(--pk)}.bdg[data-tone="teal"]{--bdg-bg:var(--pt-bg);--bdg-fg:var(--pt)}
+/* the remove button sits inside the badge's end; its hover is a little more of the badge's own colour */
+.bdg-x{display:grid;place-items:center;width:16px;height:16px;margin-right:calc(var(--s-1) * -1);border-radius:50%;color:inherit;flex:none;transition:background var(--t-fast)}
+.bdg-x:hover{background:color-mix(in srgb,currentColor 16%,transparent)}
+.bdg-x:focus-visible{outline-offset:1px;border-radius:50%}
+.bdg.sm .bdg-x{width:14px;height:14px}
+/* on a hovered menu row's tint (a step lighter in dark mode) the label leans a little toward the text colour, so it keeps APCA 60 */
+.mi.hl .bdg{color:color-mix(in srgb,var(--bdg-fg) 85%,var(--fg))}
+.mi:hover .bdg{color:color-mix(in srgb,var(--bdg-fg) 85%,var(--fg))}
+.bdg.go{animation:bdgout .22s var(--ease) forwards}
+@keyframes bdgout{to{opacity:0;transform:scale(.85)}}
+:root[data-style="bp"] .bdg{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--bdg-fg) 28%,transparent);font-size:11px;letter-spacing:.03em;text-transform:uppercase}
+:root[data-style="bp"] .bdg.sm{font-size:10.5px}
+/* Blueprint's lime tint is faint on white, so an accent badge's edge is the accent's mark */
+:root[data-style="bp"] .bdg[data-tone="accent"]{box-shadow:inset 0 0 0 1px var(--accent-mark)}
+/* the card: each kind of badge in a row, named on the left */
+.bdx{width:100%;display:flex;flex-direction:column;gap:var(--s-4);container:bdx/inline-size}
+.bdx-row{display:flex;align-items:center;gap:var(--s-2)}
+.bdx-l{width:76px;flex:none;font-size:12px}
+.bdx-set{flex:1;min-width:0;display:flex;flex-wrap:wrap;align-items:center;gap:var(--s-2)}
+.pill.bdx-undo{height:24px}
+.bdx-live{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+@container bdx (max-width:360px){.bdx-row{flex-direction:column;align-items:flex-start;gap:var(--s-2)}.bdx-l{width:auto}.bdx-set{width:100%}}
 /* ---------- Tooltip ---------- */
 .ttp{display:flex;flex-direction:column;align-items:center;gap:var(--s-4);position:relative;min-height:200px;justify-content:center}
 .ttp-bar{display:flex;align-items:center;gap:2px;padding:5px;border-radius:var(--r-pill)}
@@ -3812,6 +4010,66 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .ntx-n.new{animation:ntn .6s var(--ease) both}
 @keyframes ntn{from{opacity:0;transform:translateY(-10px);filter:blur(4px)}}
 .ntx-e{padding:40px 10px;text-align:center;font-size:13px;color:var(--muted)}
+/* ---------- Banner ---------- */
+/* an announcement on a tint of its tone: an eyebrow, a title, a line of text and its actions on the left, and one of four line
+   drawings on the right, drawn as a hairline with a few construction lines, the way Blueprint draws everything. Each tone
+   names three colours: --bnx-m draws the art (3:1 on the fill), --bnx-c writes the eyebrow (4.5:1) and --bnx-f is what
+   the fill is a tint of. The fill is solid, so the dismiss button and the art's own faces can wear it too */
+.bnx-slot{width:100%}
+.bnx{position:relative;width:100%;min-height:176px;display:flex;flex-direction:column;justify-content:center;overflow:hidden;border-radius:var(--r-card);container:bnx/inline-size;isolation:isolate;
+  --bnx-m:var(--accent-mark);--bnx-c:var(--accent-fg);--bnx-f:var(--accent);--bnx-k:10%;--bnx-ka:var(--bnx-k);
+  --bnx-bg:color-mix(in srgb,var(--bnx-f) var(--bnx-ka),var(--surface));
+  background:var(--bnx-bg);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--bnx-m) 14%,transparent);transition:background-color var(--t-slow) var(--ease),box-shadow var(--t-slow) var(--ease)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .bnx{--bnx-k:14%}}
+:root[data-theme="dark"] .bnx{--bnx-k:14%}
+.bnx[data-tone="neutral"]{--bnx-m:var(--muted);--bnx-c:var(--fg2);--bnx-bg:var(--chip)}
+.bnx[data-tone="blue"]{--bnx-m:var(--pb);--bnx-c:var(--pb);--bnx-f:var(--pb);--bnx-ka:var(--bnx-k)}
+.bnx[data-tone="violet"]{--bnx-m:var(--pl);--bnx-c:var(--pl);--bnx-f:var(--pl);--bnx-ka:var(--bnx-k)}
+.bnx[data-tone="green"]{--bnx-m:var(--pm);--bnx-c:var(--pm);--bnx-f:var(--pm);--bnx-ka:var(--bnx-k)}
+.bnx[data-tone="amber"]{--bnx-m:var(--py);--bnx-c:var(--py);--bnx-f:var(--py);--bnx-ka:var(--bnx-k)}
+/* the text keeps clear of the art: its right padding is the art's width */
+.bnx-tx{position:relative;z-index:1;display:flex;flex-direction:column;align-items:flex-start;padding:var(--s-5) calc(min(42%,300px) + var(--s-2)) var(--s-5) var(--s-6)}
+.bnx-eb{font-size:12px;font-weight:500;line-height:16px;color:var(--bnx-c);transition:color var(--t-slow) var(--ease)}
+.bnx-t{margin:var(--s-2) 0 0;font-size:14px;font-weight:500;line-height:20px;color:var(--fg);text-wrap:balance}
+.bnx-d{margin:var(--s-1) 0 0;font-size:13px;line-height:20px;color:var(--fg2);text-wrap:pretty}
+.bnx-acts{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s-2) var(--s-4);margin-top:var(--s-4)}
+.bnx-lk{display:inline-flex;align-items:center;height:28px;font-size:13px;color:var(--fg);text-decoration:underline;text-decoration-color:color-mix(in srgb,currentColor 35%,transparent);text-underline-offset:3px;transition:text-decoration-color var(--t-fast)}
+.bnx-lk:hover{text-decoration-color:currentColor}
+.bnx-x{position:absolute;top:var(--s-2);right:var(--s-2);z-index:2;width:28px;height:28px;background:var(--bnx-bg)}
+.bnx-x:hover{background:color-mix(in srgb,var(--fg) 8%,var(--bnx-bg))}
+/* the art: a 240 by 160 drawing at its own size in the middle of the area on the right, cropped by it and faded in from the
+   text's side, so a narrower banner shows less of it rather than a smaller one */
+.bnx-art{position:absolute;top:0;right:0;bottom:0;width:min(42%,300px);overflow:hidden;pointer-events:none;-webkit-mask-image:linear-gradient(90deg,transparent,#000 var(--s-8));mask-image:linear-gradient(90deg,transparent,#000 var(--s-8))}
+.bnx-svg{position:absolute;left:50%;top:50%;width:240px;height:160px;margin:-80px 0 0 -120px;overflow:visible;display:block}
+.bnx-svg .ln{fill:none;stroke:var(--bnx-m);stroke-width:1;stroke-linejoin:round;stroke-dasharray:1 1;stroke-dashoffset:0;animation:bnxdraw 1.1s var(--ease) calc(160ms + var(--d,0) * 60ms) backwards}
+.bnx-svg .ac{stroke-width:1.5}
+.bnx-svg .gd{fill:none;stroke:var(--bnx-m);stroke-width:1;stroke-dasharray:2 3;opacity:.45;animation:bnxfade .9s var(--ease) 60ms backwards}
+/* the faces under the lines wear the fill, so what is in front hides what is behind once it is drawn */
+.bnx-svg .pl{fill:var(--bnx-bg);stroke:none;animation:bnxfade .6s var(--ease) .5s backwards}
+.bnx-svg .hub{fill:var(--bnx-m);animation:bnxfade .4s var(--ease) 1s backwards}
+@keyframes bnxdraw{from{stroke-dashoffset:1}}
+@keyframes bnxfade{from{opacity:0}}
+/* under the pointer the drawing pulls apart a little: each part moves by its depth (--z), with no blur and nothing that loops */
+.bnx-svg .z{transition:transform var(--t-slow) var(--ease)}
+.bnx:hover .bnx-svg .z{transform:translate(calc(var(--z,0) * 1px),calc(var(--z,0) * -2.5px))}
+/* dismissed: the banner leaves, and a quiet line with Undo keeps its place (held at its height, so it stays centred) */
+.bnx-gone{display:flex;align-items:center;justify-content:center;gap:var(--s-3);min-height:44px;font-size:13px;color:var(--fg2)}
+/* a phone, or any narrow column: the art becomes a shorter strip across the top that fades out before the text starts,
+   so nothing is drawn behind the words. The drawing is shown at three quarters, with its lines thickened to stay a hairline */
+@container bnx (max-width:479px){
+  .bnx-art{left:0;bottom:auto;width:auto;height:88px;-webkit-mask-image:linear-gradient(#000 36px,transparent 84px);mask-image:linear-gradient(#000 36px,transparent 84px)}
+  .bnx-svg{top:54px;transform:scale(.72)}
+  .bnx-svg :is(.ln,.gd){stroke-width:1.4}
+  .bnx-svg .ac{stroke-width:2}
+  .bnx-tx{padding:84px var(--s-5) var(--s-5)}
+}
+@media (prefers-reduced-motion:reduce){.bnx-svg *{animation:none!important}.bnx-svg .z{transform:none!important}}
+/* Blueprint: square, with a hairline edge in its tone, and the eyebrow as a small capital label */
+:root[data-style="bp"] .bnx{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--bnx-m) 45%,var(--line))}
+:root[data-style="bp"] .bnx:is(:not([data-tone]),[data-tone="accent"]){--bnx-ka:20%}
+@media (prefers-color-scheme:dark){:root[data-style="bp"]:not([data-theme="light"]) .bnx:is(:not([data-tone]),[data-tone="accent"]){--bnx-ka:9%}}
+:root[data-style="bp"][data-theme="dark"] .bnx:is(:not([data-tone]),[data-tone="accent"]){--bnx-ka:9%}
+:root[data-style="bp"] .bnx-eb{font-size:11px;letter-spacing:.06em;text-transform:uppercase}
 /* ---------- Invite ---------- */
 .ivx{padding:var(--s-4);display:flex;flex-direction:column;gap:10px;max-width:420px;margin:0 auto;width:100%}
 .ivx-h{display:flex;flex-direction:column;font-size:14px;margin:0 -14px 2px;padding:0 14px var(--s-3);border-bottom:1px solid var(--line)}
@@ -3921,6 +4179,71 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .pfm-kl dd{margin:0;color:var(--fg2);min-width:0}
 .pfm-note{margin:0;min-height:20px;display:flex;align-items:center;justify-content:center;gap:6px;font-size:12.5px;text-align:center}
 .pfm-note .i{color:var(--ok)}
+/* ---------- Context switcher ---------- */
+/* where you are in an app, as a breadcrumb: organisation, project and environment. Each part opens its own switcher, with a
+   search, the list (the current one ticked, each with its badge) and Create new at the bottom. When the bar runs short the
+   names shorten with an ellipsis; when it is phone narrow only the last part shows, and a … menu holds the others */
+.csw{position:relative;width:100%;max-width:640px;margin:0 auto;container:csw/inline-size}
+.csw-bar{display:flex;align-items:center;min-height:52px;padding:var(--s-2);border-radius:var(--r-card)}
+.csw-path{flex:1;min-width:0;display:flex;align-items:center;gap:var(--s-1);margin:0;padding:0;list-style:none}
+.csw-path>li{display:flex;align-items:center;min-width:0}
+/* short of room, each part takes an even share of the bar and never more than it needs, so a short name keeps its length
+   and the long ones shorten alike; the last part, where you are now, gets a larger share */
+.csw-seg{flex:1 1 0;max-width:max-content}.csw-seg:last-child{flex-grow:1.5}
+.csw-sep{flex:none;color:var(--muted)}
+.csw-path>.csw-mi,.csw-path>.csw-sep.m{display:none}
+.csw-tr{display:flex;align-items:center;gap:var(--s-2);min-width:0;max-width:100%;height:36px;padding:0 var(--s-2);border-radius:var(--r-sm);font-size:13.5px;font-weight:500;color:var(--fg);white-space:nowrap;transition:background var(--t-fast)}
+.csw-tr:hover,.csw-tr[aria-expanded="true"]{background:var(--row)}
+.csw-tr>.i{color:var(--muted);flex:none}
+.csw-nm{min-width:0;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.csw-bh{display:flex;flex:none}
+.csw-bh:empty{display:none}
+/* an organisation's tile: its initial on its tint, the letter leaning toward the text colour so it reads in dark mode too */
+.csw-lg{--tb:var(--chip);--tc:var(--fg2);width:22px;height:22px;border-radius:var(--r-xs);display:grid;place-items:center;flex:none;background:var(--tb);color:color-mix(in srgb,var(--tc) 80%,var(--fg));font-size:11px;font-weight:500}
+.csw-lg[data-t="pb"]{--tb:var(--pb-bg);--tc:var(--pb)}.csw-lg[data-t="pl"]{--tb:var(--pl-bg);--tc:var(--pl)}.csw-lg[data-t="pm"]{--tb:var(--pm-bg);--tc:var(--pm)}.csw-lg[data-t="pp"]{--tb:var(--pp-bg);--tc:var(--pp)}
+.csw-lg[data-t="pr"]{--tb:var(--pr-bg);--tc:var(--pr)}.csw-lg[data-t="py"]{--tb:var(--py-bg);--tc:var(--py)}.csw-lg[data-t="pk"]{--tb:var(--pk-bg);--tc:var(--pk)}.csw-lg[data-t="pt"]{--tb:var(--pt-bg);--tc:var(--pt)}
+/* the badges are Badge's small size, in the same tones */
+.csw-bd{--cb-bg:var(--chip);--cb-fg:var(--fg2);display:inline-flex;align-items:center;height:20px;padding:0 var(--s-2);border-radius:var(--r-pill);background:var(--cb-bg);color:var(--cb-fg);font-size:11.5px;font-weight:500;line-height:1;white-space:nowrap}
+.csw-bd[data-tone="accent"]{--cb-bg:var(--accent-bg);--cb-fg:var(--accent-fg)}
+.csw-bd[data-tone="success"]{--cb-bg:var(--ok-bg);--cb-fg:var(--ok)}.csw-bd[data-tone="warning"]{--cb-bg:var(--warn-bg);--cb-fg:var(--warn)}.csw-bd[data-tone="danger"]{--cb-bg:var(--bad-bg);--cb-fg:var(--bad)}
+.csw-bd[data-tone="blue"]{--cb-bg:var(--pb-bg);--cb-fg:var(--pb)}.csw-bd[data-tone="violet"]{--cb-bg:var(--pl-bg);--cb-fg:var(--pl)}.csw-bd[data-tone="green"]{--cb-bg:var(--pm-bg);--cb-fg:var(--pm)}.csw-bd[data-tone="orange"]{--cb-bg:var(--pp-bg);--cb-fg:var(--pp)}
+.csw-bd[data-tone="red"]{--cb-bg:var(--pr-bg);--cb-fg:var(--pr)}.csw-bd[data-tone="yellow"]{--cb-bg:var(--py-bg);--cb-fg:var(--py)}.csw-bd[data-tone="pink"]{--cb-bg:var(--pk-bg);--cb-fg:var(--pk)}.csw-bd[data-tone="teal"]{--cb-bg:var(--pt-bg);--cb-fg:var(--pt)}
+.csw-more{display:grid;place-items:center;width:32px;height:32px;border-radius:var(--r-sm);color:var(--fg2);flex:none;transition:background var(--t-fast)}
+.csw-more:hover,.csw-more[aria-expanded="true"]{background:var(--row)}
+/* the switcher: under the part it belongs to, never past the bar's ends */
+.csw-pop{width:288px;max-width:100%}
+.csw-sf{position:relative;display:flex;align-items:center;margin-bottom:var(--s-1)}
+.csw-sf>.i{position:absolute;left:10px;color:var(--muted);pointer-events:none}
+.csw-q{width:100%;height:32px;border:0;outline:0;border-radius:var(--r-sm);background:var(--chip);box-shadow:inset 0 0 0 1px var(--field-line);padding:0 var(--s-2) 0 28px;font:inherit;font-size:13px;color:var(--fg)}
+.csw-q::placeholder{color:var(--muted)}
+.csw-q:focus-visible{outline:0;box-shadow:inset 0 0 0 2px var(--focus)}
+.csw-list{max-height:248px;overflow-y:auto;display:flex;flex-direction:column}
+.csw-o{flex:none;min-height:34px;cursor:pointer}
+.csw-o .csw-on{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.csw-o .csw-lg{width:20px;height:20px;font-size:10.5px}
+.csw-o .ck{margin-left:0;flex:none}
+.csw-o[aria-selected="true"] .ck{opacity:1}
+.csw-o[aria-selected="true"] .csw-on{font-weight:500}
+/* a hovered row's tint lifts the dark list a step, so a badge on it leans a little toward the text colour and keeps APCA 60 */
+.csw-o.hl .csw-bd,.csw-tr[aria-expanded="true"] .csw-bd{color:color-mix(in srgb,var(--cb-fg) 85%,var(--fg))}
+.csw-o:hover .csw-bd,.csw-tr:hover .csw-bd{color:color-mix(in srgb,var(--cb-fg) 85%,var(--fg))}
+.csw-new,.csw-new>.i{color:var(--fg2)}
+.csw-none{padding:var(--s-2);font-size:12.5px;color:var(--muted)}
+.csw-mpop{width:248px}
+.csw-mpop .mi>.t{flex:1;min-width:0}
+.csw-mpop .mi>.t>b{display:block;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.csw-live{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+/* short of room, the organisation's tile goes first, so its name keeps more of its length */
+@container csw (max-width:560px){.csw-tr>.csw-lg{display:none}}
+/* phone narrow: the last part, and a … menu for the parts before it */
+@container csw (max-width:440px){
+  .csw-path>.csw-seg:not(:last-child),.csw-path>.csw-sep:not(.m){display:none}
+  .csw-path>.csw-mi,.csw-path>.csw-sep.m{display:flex}
+  .csw-nm{max-width:none}
+}
+:root[data-style="bp"] .csw-tr[aria-expanded="true"],:root[data-style="bp"] .csw-more[aria-expanded="true"]{box-shadow:inset 0 0 0 1px var(--rail)}
+:root[data-style="bp"] .csw-bd{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--cb-fg) 28%,transparent);font-size:10.5px;letter-spacing:.03em;text-transform:uppercase}
+:root[data-style="bp"] .csw-bd[data-tone="accent"]{box-shadow:inset 0 0 0 1px var(--accent-mark)}
 /* ---------- Filter menu ---------- */
 /* a list's filter bar: a Filter button that opens a two-step menu (a field, then its value), the filters as chips, and
    the issues that match under them */
@@ -4154,6 +4477,8 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 <symbol id="i-chev-l" viewBox="0 0 24 24"><path d="m15 6-6 6 6 6"/></symbol>
 <symbol id="i-chev-d" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
 <symbol id="i-chev-u" viewBox="0 0 24 24"><path d="m6 15 6-6 6 6"/></symbol>
+<symbol id="i-unfold" viewBox="0 0 24 24"><path d="m8 9.5 4-4 4 4M8 14.5l4 4 4-4"/></symbol>
+<symbol id="i-crumb" viewBox="0 0 24 24"><path d="M14.5 5 9.5 19"/></symbol>
 <symbol id="i-up" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></symbol>
 <symbol id="i-right" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
 <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4-4"/></symbol>
@@ -4236,6 +4561,11 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 <symbol id="i-heading" viewBox="0 0 24 24"><path d="M6 5v14M17 5v14M6 12h11"/></symbol>
 <symbol id="i-list-ol" viewBox="0 0 24 24"><path d="M10.5 6.5H20M10.5 12H20M10.5 17.5H20M4.5 5l1.5-1v5M4 14.2c.3-.7.9-1 1.5-1 .8 0 1.5.5 1.5 1.3 0 1.2-3 2.1-3 3.5h3"/></symbol>
 <symbol id="i-quote" viewBox="0 0 24 24"><path d="M10 6.5c-2.9.9-4.5 3.2-4.5 6.5v4h4v-4H6M18.5 6.5c-2.9.9-4.5 3.2-4.5 6.5v4h4v-4h-3.5"/></symbol>
+<symbol id="i-cursor" viewBox="0 0 24 24"><path d="M6.5 4v13.6l3.7-3.5 2.4 5.5 2.3-1-2.4-5.4h5.3z"/></symbol>
+<symbol id="i-hand" viewBox="0 0 24 24"><path d="M8.2 13V7.6a1.25 1.25 0 0 1 2.5 0v4.2M10.7 11.6V5.6a1.25 1.25 0 0 1 2.5 0v6M13.2 11.6V6.6a1.25 1.25 0 0 1 2.5 0v5.2M15.7 12V9a1.25 1.25 0 0 1 2.5 0v5c0 3.6-2.5 6-5.8 6-2.2 0-3.7-.9-5-2.7l-2.3-3.3a1.3 1.3 0 0 1 2.1-1.6l1 1.3"/></symbol>
+<symbol id="i-lasso" viewBox="0 0 24 24"><path d="M12 4.5c4.4 0 8 2.5 8 5.5s-3.6 5.5-8 5.5-8-2.5-8-5.5 3.6-5.5 8-5.5z"/><path d="M7.6 14.6c-1 1.2-.7 2.9.8 3.3 1.3.3 1.6 1.5.6 2.6"/></symbol>
+<symbol id="i-comment" viewBox="0 0 24 24"><path d="M5.5 5h13A1.5 1.5 0 0 1 20 6.5v8a1.5 1.5 0 0 1-1.5 1.5H11l-4.2 3.3V16H5.5A1.5 1.5 0 0 1 4 14.5v-8A1.5 1.5 0 0 1 5.5 5z"/></symbol>
+<symbol id="i-fit" viewBox="0 0 24 24"><path d="M4 8.5v-3A1.5 1.5 0 0 1 5.5 4h3M15.5 4h3A1.5 1.5 0 0 1 20 5.5v3M20 15.5v3a1.5 1.5 0 0 1-1.5 1.5h-3M8.5 20h-3A1.5 1.5 0 0 1 4 18.5v-3"/><rect x="8.5" y="9" width="7" height="6" rx="1"/></symbol>
 <symbol id="i-history" viewBox="0 0 24 24"><path d="M3.5 12a8.5 8.5 0 1 0 2.5-6M3.5 4v4h4M12 7.5V12l3 2"/></symbol>
 <symbol id="i-brain" viewBox="0 0 24 24"><path d="M9.5 4.5a2.5 2.5 0 0 0-2.5 2.5 3 3 0 0 0-2.2 5 3 3 0 0 0 1.7 5A3 3 0 0 0 12 18V6.5a2 2 0 0 0-2.5-2zM14.5 4.5A2.5 2.5 0 0 1 17 7a3 3 0 0 1 2.2 5 3 3 0 0 1-1.7 5A3 3 0 0 1 12 18"/></symbol>
 <symbol id="i-dollar" viewBox="0 0 24 24"><path d="M12 3v18M16.5 7.5c-.6-1.6-2.3-2.5-4.5-2.5-2.5 0-4.3 1.2-4.3 3.2 0 4.6 9 2.4 9 7.2 0 2-1.9 3.4-4.7 3.4-2.4 0-4.2-1-4.8-2.8"/></symbol>
@@ -5204,6 +5534,67 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 </div></template>
   <div class="card-f"><span>Drag nodes around, click one to configure, then run</span><span class="sp"></span><button class="replay" aria-label="Replay Automation canvas"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
 </article>
+<article class="card wide" data-c="canvas-toolbar" id="c-canvas-toolbar">
+  <div class="card-h"><div><h3>Canvas toolbar</h3><p>A floating toolbar for a workflow canvas: run, pick a tool, comment, fit and zoom.</p></div></div>
+  <div class="stage"><div class="stage-in"></div></div>
+  <template><div class="ctb" data-tool="select" data-reveal="flat">
+  <div class="ctb-cv" tabindex="0" role="group" aria-roledescription="canvas" aria-label="Workflow canvas" aria-describedby="">
+    <div class="ctb-world"><svg class="ctb-w" aria-hidden="true"></svg><div class="ctb-nodes"></div></div>
+    <svg class="ctb-lz" aria-hidden="true"><path d=""/></svg>
+    <div class="ctb-mq" hidden></div>
+    <span class="ctb-sr">V, H and L pick a tool, C adds a comment, Shift 1 fits the workflow to the screen, minus and plus zoom, and the arrow keys move the view.</span>
+  </div>
+  <div class="ctb-bar" role="toolbar" aria-label="Canvas tools">
+    <button class="ctb-b ctb-hd" aria-label="Move toolbar" data-tip="Drag to move">{grip}</button>
+    <span class="ctb-sep"></span>
+    <button class="pill primary ctb-run">{play}<span>Run</span></button>
+    <span class="ctb-sep"></span>
+    <div class="ctb-tools" role="radiogroup" aria-label="Tool">
+      <button class="ctb-b" role="radio" aria-checked="true" data-t="select" aria-label="Select" data-tip="Select" data-tip-k="V">{cursor}</button>
+      <button class="ctb-b" role="radio" aria-checked="false" tabindex="-1" data-t="hand" aria-label="Hand" data-tip="Pan" data-tip-k="H">{hand}</button>
+      <button class="ctb-b" role="radio" aria-checked="false" tabindex="-1" data-t="lasso" aria-label="Lasso" data-tip="Lasso select" data-tip-k="L">{lasso}</button>
+    </div>
+    <span class="ctb-sep" data-ovf="1"></span>
+    <button class="ctb-b ctb-cm" data-ovf="1" aria-pressed="false" aria-label="Comment" data-tip="Comment" data-tip-k="C">{comment}</button>
+    <button class="ctb-b ctb-fit" data-ovf="1" aria-label="Fit to screen" data-tip="Fit to screen" data-tip-k="⇧1">{fit}</button>
+    <span class="ctb-sep" data-ovf="2"></span>
+    <button class="ctb-b ctb-zo" data-ovf="2" aria-label="Zoom out" data-tip="Zoom out" data-tip-k="−">{minus}</button>
+    <button class="ctb-z num" data-ovf="2" aria-label="Zoom 100%, reset to 100%" data-tip="Zoom to 100%" data-tip-k="⇧0">100%</button>
+    <button class="ctb-b ctb-zi" data-ovf="2" aria-label="Zoom in" data-tip="Zoom in" data-tip-k="+">{plus}</button>
+    <button class="ctb-b ctb-more" aria-label="More tools" aria-haspopup="menu" aria-expanded="false" data-pop=".ctb-menu" data-pop-pos="up" data-pop-align="end" data-tip="More">{more}</button>
+  </div>
+  <div class="pop ctb-menu" role="menu" aria-label="More tools">
+    <button class="mi" role="menuitemcheckbox" aria-checked="false" tabindex="-1" data-a="comment" data-ovf="1" data-close>{comment}<span>Comment</span><span class="kbd">C</span></button>
+    <button class="mi" role="menuitem" tabindex="-1" data-a="fit" data-ovf="1" data-close>{fit}<span>Fit to screen</span><span class="kbd">⇧1</span></button>
+    <button class="mi" role="menuitem" tabindex="-1" data-a="out" data-ovf="2">{minus}<span>Zoom out</span><span class="kbd">−</span></button>
+    <button class="mi" role="menuitem" tabindex="-1" data-a="in" data-ovf="2">{plus}<span>Zoom in</span><span class="kbd">+</span></button>
+    <button class="mi" role="menuitem" tabindex="-1" data-a="reset" data-ovf="2" data-close>{zoom}<span>Zoom to 100%</span><span class="r num ctb-zl">100%</span></button>
+  </div>
+  <p class="ctb-live" aria-live="polite"></p>
+</div></template>
+  <div class="card-f"><span>Pan with the hand, zoom in, fit, then run</span><span class="sp"></span><button class="replay" aria-label="Replay Canvas toolbar"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
+</article>
+<article class="card wide" data-c="step-library" id="c-step-library">
+  <div class="card-h"><div><h3>Step library</h3><p>Search the steps a workflow can use, preview what each does, and add one.</p></div></div>
+  <div class="stage"><div class="stage-in"></div></div>
+  <template><div class="slb" data-reveal="flat">
+  <div class="slb-p">
+    <div class="slb-h"><b>Add a step</b><span class="num slb-ct"></span></div>
+    <div class="slb-q">{search}<input class="slb-in" type="text" placeholder="Search steps" aria-label="Search steps" autocomplete="off" spellcheck="false"><button class="ib slb-x" aria-label="Clear search" data-tip="Clear search" data-tip-k="Esc" hidden>{x}</button></div>
+    <div class="slb-list" role="group" aria-label="Steps"></div>
+    <div class="slb-dock" aria-hidden="true"></div>
+  </div>
+  <div class="slb-flow" role="region" aria-label="Workflow">
+    <div class="slb-fh"><b>Support triage</b><span class="num slb-fn"></span></div>
+    <ol class="slb-fl"></ol>
+    <div class="slb-drop">{plus}<span>Drop a step here</span></div>
+  </div>
+  <div class="slb-pv" aria-hidden="true"></div>
+  <div class="slb-d" hidden></div>
+  <p class="slb-live" aria-live="polite"></p>
+</div></template>
+  <div class="card-f"><span>Search, preview a step, press Enter to add it</span><span class="sp"></span><button class="replay" aria-label="Replay Step library"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
+</article>
 <article class="card bare" data-c="memory-panel" id="c-memory-panel">
   <div class="card-h"><div><h3>Memory panel</h3><p>What the agent remembers about your team, editable and removable.</p></div></div>
   <div class="stage"><div class="stage-in"></div></div>
@@ -5479,6 +5870,19 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 </div></template>
   <div class="card-f"><span>Click them all, hold the delete button</span><span class="sp"></span><button class="replay" aria-label="Replay Buttons"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
 </article>
+<article class="card" data-c="badge" id="c-badge">
+  <div class="card-h"><div><h3>Badge</h3><p>Small labels for plans, environments and status, with a dot, an icon or a remove button.</p></div></div>
+  <div class="stage"><div class="stage-in"></div></div>
+  <template><div class="bdx">
+  <div class="bdx-row"><span class="bdx-l muted">Tones</span><div class="bdx-set"><span class="bdg">Draft</span><span class="bdg" data-tone="accent">Beta</span><span class="bdg" data-tone="success">Live</span><span class="bdg" data-tone="warning">Degraded</span><span class="bdg" data-tone="danger">Failed</span></div></div>
+  <div class="bdx-row"><span class="bdx-l muted">Colours</span><div class="bdx-set"><span class="bdg" data-tone="blue">Search</span><span class="bdg" data-tone="violet">Reasoning</span><span class="bdg" data-tone="green">Data</span><span class="bdg" data-tone="orange">Billing</span><span class="bdg" data-tone="red">Urgent</span><span class="bdg" data-tone="yellow">Review</span><span class="bdg" data-tone="pink">Design</span><span class="bdg" data-tone="teal">Ops</span></div></div>
+  <div class="bdx-row"><span class="bdx-l muted">Sizes</span><div class="bdx-set"><span class="bdg sm" data-tone="accent">Pro</span><span class="bdg" data-tone="accent">Pro</span></div></div>
+  <div class="bdx-row"><span class="bdx-l muted">Dot or icon</span><div class="bdx-set"><span class="bdg" data-tone="success"><span class="bdg-dot"></span>Running</span><span class="bdg"><span class="bdg-dot"></span>Idle</span><span class="bdg">{lock}Private</span><span class="bdg" data-tone="accent">{spark}Agent</span></div></div>
+  <div class="bdx-row"><span class="bdx-l muted">Removable</span><div class="bdx-set bdx-rm"><span class="bdg" data-tone="warning"><span class="t">Production</span><button class="bdg-x" aria-label="Remove Production">{x}</button></span><span class="bdg" data-tone="blue"><span class="t">Staging</span><button class="bdg-x" aria-label="Remove Staging">{x}</button></span><span class="bdg" data-tone="violet"><span class="t">Preview</span><button class="bdg-x" aria-label="Remove Preview">{x}</button></span><button class="pill ghost sm bdx-undo" hidden>Undo</button></div></div>
+  <p class="bdx-live" aria-live="polite"></p>
+</div></template>
+  <div class="card-f"><span>Remove a badge, then undo it</span><span class="sp"></span><button class="replay" aria-label="Replay Badge"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
+</article>
 <article class="card" data-c="tooltip" id="c-tooltip">
   <div class="card-h"><div><h3>Tooltip</h3><p>Quiet labels on hover, with shortcuts and a richer preview card.</p></div></div>
   <div class="stage"><div class="stage-in"></div></div>
@@ -5623,6 +6027,24 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 </div></template>
   <div class="card-f"><span>Mark read, switch tabs, watch new ones arrive</span><span class="sp"></span><button class="replay" aria-label="Replay Notifications"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
 </article>
+<article class="card wide" data-c="banner" id="c-banner">
+  <div class="card-h"><div><h3>Banner</h3><p>An announcement on a tint of its tone, with its own line drawing and a dismiss.</p></div></div>
+  <div class="stage"><div class="stage-in"></div></div>
+  <template><div class="dm"><div class="dm-main bnx-slot">
+  <div class="bnx" role="region" data-tone="accent" data-art="layers" aria-label="Announcement">
+    <div class="bnx-art" aria-hidden="true"></div>
+    <div class="bnx-tx">
+      <span class="bnx-eb"><span>New</span></span>
+      <p class="bnx-t"><span>Memory that carries across threads</span></p>
+      <p class="bnx-d"><span>Agents keep what they learn about your project, so you only explain things once.</span></p>
+      <div class="bnx-acts"><button class="pill primary sm bnx-go"><span>Turn on memory</span></button><button class="bnx-lk"><span>What it keeps</span></button></div>
+    </div>
+    <button class="ib bnx-x" aria-label="Dismiss" data-tip="Dismiss">{x}</button>
+  </div>
+  <div class="bnx-gone" role="status" hidden><span>Banner dismissed</span><button class="pill ghost sm bnx-undo">Undo</button></div>
+</div></div></template>
+  <div class="card-f"><span>Hover to hold it, dismiss it, then Undo</span><span class="sp"></span><button class="replay" aria-label="Replay Banner"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
+</article>
 <article class="card" data-c="invite" id="c-invite">
   <div class="card-h"><div><h3>Invite</h3><p>Add teammates by email as chips, set their role, send.</p></div></div>
   <div class="stage"><div class="stage-in"></div></div>
@@ -5672,6 +6094,30 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
   <p class="pfm-note muted" aria-live="polite"></p>
 </div></template>
   <div class="card-f"><span>Open the menu, switch workspace, flip the theme</span><span class="sp"></span><button class="replay" aria-label="Replay Profile menu"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
+</article>
+<article class="card wide" data-c="context-switcher" id="c-context-switcher">
+  <div class="card-h"><div><h3>Context switcher</h3><p>The organisation, project and environment you are in, each part a searchable switcher.</p></div></div>
+  <div class="stage"><div class="stage-in"></div></div>
+  <template><div class="csw">
+  <nav class="csw-bar panel" aria-label="Context">
+    <ol class="csw-path">
+      <li class="csw-mi"><button class="csw-more" aria-haspopup="menu" aria-expanded="false" aria-label="Organisation and project" data-tip="Organisation and project">{more}</button></li>
+      <li class="csw-sep m" aria-hidden="true">{crumb}</li>
+      <li class="csw-seg" data-k="org"><button class="csw-tr" aria-haspopup="listbox" aria-expanded="false"><span class="csw-lg"></span><span class="csw-nm"></span><span class="csw-bh"></span>{unfold}</button></li>
+      <li class="csw-sep" aria-hidden="true">{crumb}</li>
+      <li class="csw-seg" data-k="project"><button class="csw-tr" aria-haspopup="listbox" aria-expanded="false"><span class="csw-nm"></span><span class="csw-bh"></span>{unfold}</button></li>
+      <li class="csw-sep" aria-hidden="true">{crumb}</li>
+      <li class="csw-seg" data-k="env"><button class="csw-tr" aria-haspopup="listbox" aria-expanded="false"><span class="csw-nm"></span><span class="csw-bh"></span>{unfold}</button></li>
+    </ol>
+  </nav>
+  <div class="pop csw-pop">
+    <div class="csw-sf">{search}<input class="csw-q" role="combobox" aria-autocomplete="list" aria-expanded="false" spellcheck="false" autocomplete="off"></div>
+    <div class="csw-list" role="listbox"></div>
+  </div>
+  <div class="pop csw-mpop" role="menu" aria-label="Organisation and project"></div>
+  <p class="csw-live" aria-live="polite"></p>
+</div></template>
+  <div class="card-f"><span>Open a part, type to filter, pick one</span><span class="sp"></span><button class="replay" aria-label="Replay Context switcher"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
 </article>
 <article class="card" data-c="filter-menu" id="c-filter-menu">
   <div class="card-h"><div><h3>Filter menu</h3><p>Add filters from a menu, see them as chips, and watch the count change.</p></div></div>
@@ -6221,7 +6667,7 @@ document.addEventListener('DOMContentLoaded', () => {
   /* style: Soft 2 or Blueprint 2, from ?style= or what this browser last picked; each style keeps its own accent */
   const STY = {
     soft2:{ h:'Soft 2', p:$('#style-p') ? $('#style-p').textContent : '', acc:'#116ff8', key:'soft2-accent', title:'Designme Soft 2' },
-    bp2:{ h:'Blueprint 2', p:"The same 103 components drawn as a technical sheet: square corners, hairline edges instead of shadows, a lime accent, and motion that wipes and ticks into place in short, hard beats.", acc:'#d4f84a', key:'bp2-accent', title:'Designme Blueprint 2' }
+    bp2:{ h:'Blueprint 2', p:"The same 108 components drawn as a technical sheet: square corners, hairline edges instead of shadows, a lime accent, and motion that wipes and ticks into place in short, hard beats.", acc:'#d4f84a', key:'bp2-accent', title:'Designme Blueprint 2' }
   };
   let style = 'soft2';
   try { const q = new URLSearchParams(location.search).get('style'); const ls = localStorage.getItem('designme2-style');
@@ -10577,6 +11023,407 @@ DM.def('automation-canvas', (r, c) => {
   // the preview runs one test on its own, unless you start moving steps around first
   c.auto(1600, () => $('.acx-run', r).click());
 });
+/* ---------- Canvas toolbar ---------- */
+DM.def('canvas-toolbar', (r, c) => {
+  r.innerHTML = r.innerHTML.replace(/\{(grip|play|cursor|hand|lasso|comment|fit|minus|plus|more|zoom)\}/g, (m, n) => I(n === 'zoom' ? 'search' : n, n === 'play' ? 'xs' : 's'));
+  const root = $('.ctb', r), cv = $('.ctb-cv', r), world = $('.ctb-world', r), wires = $('.ctb-w', r), nodes = $('.ctb-nodes', r), bar = $('.ctb-bar', r), live = $('.ctb-live', r);
+  const runB = $('.ctb-run', r), hd = $('.ctb-hd', r), radios = $$('.ctb-tools [role="radio"]', r), cmB = $('.ctb-cm', r), fitB = $('.ctb-fit', r), zoB = $('.ctb-zo', r), ziB = $('.ctb-zi', r), zl = $('.ctb-z', r);
+  const menu = $('.ctb-menu', r), more = $('.ctb-more', r), mq = $('.ctb-mq', r), lz = $('.ctb-lz path', r), sr = $('.ctb-sr', r);
+  sr.id = 'ctb-k-' + Math.random().toString(36).slice(2, 7); cv.setAttribute('aria-describedby', sr.id);
+  const say = t => { live.textContent = t; };
+  // every change a person makes is also an event on the component, for your code to follow
+  const emit = (type, detail) => root.dispatchEvent(new CustomEvent(type, { bubbles:true, detail }));
+  // the workflow on the canvas, in pixels at 100%: a row on a wide canvas, two by two on a narrow one
+  const N = [
+    { id:'a', ic:'bolt', col:'var(--py)', t:'New ticket', d:'Trigger · inbox', w:[0, 48], n:[0, 0] },
+    { id:'b', ic:'spark', col:'var(--accent-mark,var(--accent))', fg:'var(--accent-fg,var(--accent))', t:'Classify', d:'Agent · intent', w:[208, 0], n:[184, 0] },
+    { id:'c', ic:'search', col:'var(--pb)', t:'Search docs', d:'Tool · help center', w:[416, 96], n:[184, 104] },
+    { id:'d', ic:'edit', col:'var(--pm)', t:'Draft reply', d:'Agent · for review', w:[624, 48], n:[0, 104] }
+  ];
+  const E = [['a', 'b'], ['b', 'c'], ['c', 'd']], ORDER = N.map(n => n.id);
+  nodes.innerHTML = N.map(n => `<div class="ctb-n in" data-id="${n.id}"><span class="ic" style="color:${n.fg || n.col};background:color-mix(in srgb,${n.col} 14%,transparent)">${I(n.ic, 'xs')}</span><span class="t"><b>${n.t}</b><span>${n.d}</span></span></div>`).join('');
+  $$('.ctb-n', nodes).forEach((x, i) => { x.style.animationDelay = i * 90 + 'ms'; });
+  const el = id => $(`.ctb-n[data-id="${id}"]`, nodes);
+  const box = n => { const e = el(n.id); return { x:n.x, y:n.y, w:e.offsetWidth, h:e.offsetHeight }; };
+  // below 440px the steps sit two by two; a step someone dragged keeps where they put it, in each layout
+  const NARROW = 440;
+  let small = false;
+  function layout(){
+    small = cv.clientWidth < NARROW;
+    N.forEach(n => { const p = (small ? n.um : n.uw) || (small ? n.n : n.w); n.x = p[0]; n.y = p[1]; const e = el(n.id); e.style.left = n.x + 'px'; e.style.top = n.y + 'px'; });
+    drawWires();
+  }
+  const wireEl = {};
+  function drawWires(){
+    E.forEach(([a, b]) => {
+      const A = box(N.find(n => n.id === a)), B = box(N.find(n => n.id === b)); let d;
+      // side to side when the next step is beside this one, top to bottom when it is under it
+      if (Math.abs(B.x - A.x) >= Math.abs(B.y - A.y)){ const ltr = B.x > A.x, x1 = ltr ? A.x + A.w : A.x, x2 = ltr ? B.x : B.x + B.w, y1 = A.y + A.h / 2, y2 = B.y + B.h / 2, m = (x1 + x2) / 2; d = `M${x1} ${y1}C${m} ${y1} ${m} ${y2} ${x2} ${y2}`; }
+      else { const dn = B.y > A.y, y1 = dn ? A.y + A.h : A.y, y2 = dn ? B.y : B.y + B.h, x1 = A.x + A.w / 2, x2 = B.x + B.w / 2, m = (y1 + y2) / 2; d = `M${x1} ${y1}C${x1} ${m} ${x2} ${m} ${x2} ${y2}`; }
+      let p = wireEl[a + b]; if (!p){ p = document.createElementNS('http://www.w3.org/2000/svg', 'path'); wires.appendChild(p); wireEl[a + b] = p; }
+      p.setAttribute('d', d);
+    });
+  }
+  /* ---------- the view: zoom z and pan (px, py), so a point x on the canvas shows at x * z + px ---------- */
+  const Z = [.25, .33, .5, .67, .75, .9, 1, 1.25, 1.5, 2, 3, 4], MIN = Z[0], MAX = Z[Z.length - 1];
+  let z = 1, px = 0, py = 0, moved = false;
+  const lim = v => Math.max(MIN, Math.min(MAX, v)), pct = () => Math.round(z * 100) + '%';
+  function apply(anim){
+    cv.classList.toggle('anim', !!anim && !REDUCE);
+    world.style.transform = `translate(${px}px,${py}px) scale(${z})`;
+    // the dots move and scale with the view, and spread out again when it is zoomed far out
+    const g = 16 * z * (z < .5 ? 2 : 1); cv.style.backgroundSize = `${g}px ${g}px`; cv.style.backgroundPosition = `${px}px ${py}px`;
+    zl.textContent = pct(); zl.setAttribute('aria-label', `Zoom ${pct()}, reset to 100%`); $('.ctb-zl', menu).textContent = pct();
+    const lo = z <= MIN + 1e-3, hi = z >= MAX - 1e-3;
+    [zoB, $('[data-a="out"]', menu)].forEach(b => b.setAttribute('aria-disabled', lo));
+    [ziB, $('[data-a="in"]', menu)].forEach(b => b.setAttribute('aria-disabled', hi));
+  }
+  function zoomAt(nz, cx, cy, anim){ nz = lim(nz); const wx = (cx - px) / z, wy = (cy - py) / z; z = nz; px = cx - wx * z; py = cy - wy * z; moved = true; apply(anim); }
+  // the room the workflow has: the canvas above the toolbar
+  const room = () => ({ W:cv.clientWidth, H:cv.clientHeight - bar.offsetHeight - 20 });
+  const mid = () => { const { W, H } = room(); return [W / 2, H / 2]; };
+  const next = d => { const s = d > 0 ? Z.find(x => x > z + 1e-3) : [...Z].reverse().find(x => x < z - 1e-3); return s === undefined ? z : s; };
+  function zoomBy(d){ const nz = next(d); if (nz === z) return; zoomAt(nz, ...mid(), true); say('Zoom ' + pct()); emit('canvas-zoom', { zoom:z }); }
+  function zoomReset(){ zoomAt(1, ...mid(), true); say('Zoom 100%'); emit('canvas-zoom', { zoom:z }); }
+  // fit: the whole workflow in the room above the toolbar, centred, never more than 150% (on mount, never past 100%)
+  function fit(anim, cap = 1.5){
+    const { W, H } = room(), P = 24, bs = N.map(box);
+    const x0 = Math.min(...bs.map(b => b.x)), y0 = Math.min(...bs.map(b => b.y)), x1 = Math.max(...bs.map(b => b.x + b.w)), y1 = Math.max(...bs.map(b => b.y + b.h));
+    z = lim(Math.min((W - 2 * P) / (x1 - x0), (H - 2 * P) / (y1 - y0), cap));
+    px = (W - (x1 - x0) * z) / 2 - x0 * z; py = (H - (y1 - y0) * z) / 2 - y0 * z;
+    apply(anim);
+  }
+  function fitNow(){ fit(true); moved = true; say('Fit to screen, ' + pct()); emit('canvas-zoom', { zoom:z }); }
+  /* ---------- tools: Select, Hand and Lasso are one radio group; Comment is a toggle beside them ---------- */
+  const NAMES = { select:'Select', hand:'Hand', lasso:'Lasso' };
+  let tool = 'select', commenting = false;
+  function setTool(t, focus){
+    tool = t; root.dataset.tool = t;
+    radios.forEach(b => { const on = b.dataset.t === t; b.setAttribute('aria-checked', on); b.tabIndex = on ? 0 : -1; });
+    if (focus) $(`[data-t="${t}"]`, bar).focus({ preventScroll:true });
+    setComment(false, true); say(NAMES[t] + ' tool'); emit('canvas-tool', { tool:t });
+  }
+  function setComment(on, quiet){
+    if (commenting === on) return; commenting = on; root.classList.toggle('cm', on);
+    cmB.setAttribute('aria-pressed', on); $('[data-a="comment"]', menu).setAttribute('aria-checked', on);
+    if (!quiet) say(on ? 'Comment: click the canvas to place it' : 'Comment off');
+  }
+  radios.forEach(b => b.onclick = () => setTool(b.dataset.t));
+  // the arrow keys move through the tools and pick each one (focus follows the pick); Home and End jump to the ends
+  c.on($('.ctb-tools', r), 'keydown', e => {
+    const i = radios.indexOf(document.activeElement); if (i < 0) return;
+    const d = { ArrowRight:1, ArrowDown:1, ArrowLeft:-1, ArrowUp:-1 }[e.key], j = d ? (i + d + radios.length) % radios.length : e.key === 'Home' ? 0 : e.key === 'End' ? radios.length - 1 : -1;
+    if (j < 0) return; e.preventDefault(); e.stopPropagation(); setTool(radios[j].dataset.t, true);
+  });
+  cmB.onclick = () => setComment(!commenting);
+  fitB.onclick = fitNow;
+  zoB.onclick = () => zoomBy(-1); ziB.onclick = () => zoomBy(1); zl.onclick = zoomReset;
+  $$('.mi', menu).forEach(m => m.onclick = () => ({ comment:() => setComment(!commenting), fit:fitNow, out:() => zoomBy(-1), in:() => zoomBy(1), reset:zoomReset })[m.dataset.a]());
+  /* ---------- the canvas: Hand (or the middle button) pans, Select picks and moves steps or draws a box, Lasso draws a
+     shape round what it picks, and Comment drops a pin. Ctrl or ⌘ with the wheel, or a pinch, zooms at the pointer ---------- */
+  let sel = new Set(), drag = null, pins = 0;
+  function select(ids){ sel = new Set(ids); N.forEach(n => el(n.id).classList.toggle('sel', sel.has(n.id))); }
+  const pt = e => { const b = cv.getBoundingClientRect(); return [e.clientX - b.left, e.clientY - b.top]; };
+  const screen = n => { const b = box(n); return { l:b.x * z + px, t:b.y * z + py, r:(b.x + b.w) * z + px, b:(b.y + b.h) * z + py }; };
+  const inside = ([x, y], poly) => { let k = false; for (let i = 0, j = poly.length - 1; i < poly.length; j = i++){ const [xi, yi] = poly[i], [xj, yj] = poly[j]; if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) k = !k; } return k; };
+  function pin([x, y]){
+    const n = ++pins, p = html(`<span class="ctb-pin" aria-hidden="true">${n}</span>`);
+    p.style.left = x + 'px'; p.style.top = y + 'px'; world.appendChild(p);
+    setComment(false, true); say(`Comment ${n} placed`); emit('canvas-comment', { x:Math.round(x), y:Math.round(y) });
+  }
+  c.on(cv, 'pointerdown', e => {
+    if (e.button !== 0 && e.button !== 1) return;
+    const p = pt(e), node = e.target.closest('.ctb-n');
+    // a click on the canvas gives it the focus, so the shortcuts work straight away
+    if (e.isTrusted) cv.focus({ preventScroll:true });
+    e.preventDefault();
+    if (commenting && e.button === 0) return pin([(p[0] - px) / z, (p[1] - py) / z]);
+    const kind = e.button === 1 || tool === 'hand' ? 'pan' : tool === 'select' ? (node ? 'move' : 'box') : 'lasso';
+    if (kind === 'move'){ const id = node.dataset.id; if (e.shiftKey){ const s = new Set(sel); s.has(id) ? s.delete(id) : s.add(id); select(s); } else if (!sel.has(id)) select([id]); }
+    else if (kind !== 'pan' && !e.shiftKey) select([]);
+    drag = { kind, p0:p, px, py, pts:[p], from:N.map(n => [n.x, n.y]), base:new Set(sel) };
+    if (kind === 'pan') cv.classList.add('pan');
+    try { cv.setPointerCapture(e.pointerId); } catch(err){}
+  });
+  c.on(cv, 'pointermove', e => {
+    if (!drag) return;
+    const p = pt(e), dx = p[0] - drag.p0[0], dy = p[1] - drag.p0[1];
+    if (drag.kind === 'pan'){ px = drag.px + dx; py = drag.py + dy; moved = true; apply(false); }
+    else if (drag.kind === 'move'){
+      N.forEach((n, i) => { if (!sel.has(n.id)) return; n.x = drag.from[i][0] + dx / z; n.y = drag.from[i][1] + dy / z; const e2 = el(n.id); e2.style.left = n.x + 'px'; e2.style.top = n.y + 'px'; if (small) n.um = [n.x, n.y]; else n.uw = [n.x, n.y]; });
+      drawWires();
+    } else if (drag.kind === 'box'){
+      const x = Math.min(p[0], drag.p0[0]), y = Math.min(p[1], drag.p0[1]), w = Math.abs(dx), h = Math.abs(dy);
+      mq.hidden = false; mq.style.cssText = `left:${x}px;top:${y}px;width:${w}px;height:${h}px`;
+      select([...drag.base, ...N.filter(n => { const s = screen(n); return s.r > x && s.l < x + w && s.b > y && s.t < y + h; }).map(n => n.id)]);
+    } else {
+      drag.pts.push(p); lz.setAttribute('d', 'M' + drag.pts.map(q => q.map(Math.round).join(' ')).join('L') + 'Z');
+      select([...drag.base, ...N.filter(n => { const s = screen(n); return inside([(s.l + s.r) / 2, (s.t + s.b) / 2], drag.pts); }).map(n => n.id)]);
+    }
+  });
+  const end = () => {
+    if (!drag) return; const k = drag.kind; drag = null;
+    cv.classList.remove('pan'); mq.hidden = true; lz.setAttribute('d', '');
+    if (k === 'box' || k === 'lasso' || k === 'move') say(sel.size ? `${sel.size} of ${N.length} steps selected` : 'Nothing selected');
+  };
+  c.on(cv, 'pointerup', end); c.on(cv, 'pointercancel', end);
+  c.on(cv, 'wheel', e => { if (!e.ctrlKey && !e.metaKey) return; e.preventDefault(); zoomAt(z * Math.exp(-e.deltaY / 300), ...pt(e), false); }, { passive:false });
+  /* ---------- the keyboard: V, H and L pick a tool, C comments, Shift+1 fits, Shift+0 is 100%, minus and plus zoom, the
+     arrow keys pan while the canvas has the focus, and Escape leaves Comment or clears the selection ---------- */
+  c.on(root, 'keydown', e => {
+    if (e.defaultPrevented || e.ctrlKey || e.metaKey || e.altKey || menu.contains(e.target) || /^(INPUT|TEXTAREA)$/.test(e.target.tagName)) return;
+    const k = e.key, low = k.length === 1 ? k.toLowerCase() : '';
+    if (e.shiftKey && e.code === 'Digit1') fitNow();
+    else if (e.shiftKey && e.code === 'Digit0') zoomReset();
+    else if (k === '+' || k === '=') zoomBy(1);
+    else if (k === '-' || k === '_') zoomBy(-1);
+    else if (!e.shiftKey && 'vhl'.includes(low) && low) setTool({ v:'select', h:'hand', l:'lasso' }[low], radios.includes(e.target));
+    else if (!e.shiftKey && low === 'c') setComment(!commenting);
+    else if (e.target === cv && /^Arrow/.test(k)){ const d = e.shiftKey ? 120 : 40; px += k === 'ArrowLeft' ? d : k === 'ArrowRight' ? -d : 0; py += k === 'ArrowUp' ? d : k === 'ArrowDown' ? -d : 0; moved = true; apply(true); }
+    else if (k === 'Escape' && (commenting || sel.size)){ if (commenting) setComment(false); else { select([]); say('Nothing selected'); } }
+    else return;
+    e.preventDefault();
+  });
+  /* ---------- Run: the steps light up one after another along their wires, then it stops by itself; Stop ends it early ---------- */
+  let runId = 0, running = false;
+  function setRun(on){ running = on; runB.classList.toggle('stop', on); runB.innerHTML = I(on ? 'stop' : 'play', 'xs') + `<span>${on ? 'Stop' : 'Run'}</span>`; }
+  const mark = (id, s) => {
+    const e = el(id); e.classList.toggle('run', s === 'run'); let b = $('.s', e);
+    if (!s){ if (b) b.remove(); return; }
+    if (!b) b = e.appendChild(html('<span class="s" aria-hidden="true"></span>'));
+    b.innerHTML = s === 'run' ? '<span class="spin"></span>' : I('check', 'xs');
+  };
+  function run(){
+    const id = ++runId; setRun(true); ORDER.forEach(x => mark(x, null)); Object.values(wireEl).forEach(p => p.classList.remove('lit'));
+    say('Running the workflow'); emit('canvas-run', {});
+    c.run(async () => {
+      const w = async ms => { await c.wait(ms); if (id !== runId) throw 'stop'; };
+      for (let i = 0; i < ORDER.length; i++){
+        mark(ORDER[i], 'run'); await w(i ? 700 : 450); mark(ORDER[i], 'ok');
+        if (i < ORDER.length - 1){ wireEl[ORDER[i] + ORDER[i + 1]].classList.add('lit'); await w(250); }
+      }
+      await w(500); setRun(false); say(`Run finished: ${ORDER.length} of ${ORDER.length} steps passed`); emit('canvas-stop', { finished:true });
+    });
+  }
+  function stop(){ runId++; setRun(false); ORDER.forEach(x => { if (el(x).classList.contains('run')) mark(x, null); }); say('Run stopped'); emit('canvas-stop', { finished:false }); }
+  runB.onclick = () => running ? stop() : run();
+  /* ---------- the handle moves the toolbar anywhere on the canvas: drag it, or use the arrow keys on it (Shift for bigger
+     steps); Home or a double click docks it back at the bottom centre ---------- */
+  let dx = 0, dy = 0;
+  function placeBar(){
+    const W = cv.clientWidth, H = cv.clientHeight, bw = bar.offsetWidth, bh = bar.offsetHeight, ax = Math.max(0, (W - bw) / 2 - 8);
+    dx = Math.max(-ax, Math.min(ax, dx)); dy = Math.max(-Math.max(0, H - bh - 20), Math.min(0, dy));
+    bar.style.setProperty('--dx', Math.round(dx) + 'px'); bar.style.setProperty('--dy', Math.round(dy) + 'px');
+  }
+  const dock = () => { dx = dy = 0; placeBar(); say('Toolbar docked'); };
+  c.on(hd, 'pointerdown', e => {
+    if (e.button) return; e.preventDefault();
+    const sx = e.clientX - dx, sy = e.clientY - dy; bar.classList.add('drag');
+    try { hd.setPointerCapture(e.pointerId); } catch(err){}
+    const mv = ev => { dx = ev.clientX - sx; dy = ev.clientY - sy; placeBar(); };
+    const up = () => { bar.classList.remove('drag'); hd.removeEventListener('pointermove', mv); hd.removeEventListener('pointerup', up); hd.removeEventListener('pointercancel', up); };
+    hd.addEventListener('pointermove', mv); hd.addEventListener('pointerup', up); hd.addEventListener('pointercancel', up);
+  });
+  c.on(hd, 'dblclick', dock);
+  c.on(hd, 'keydown', e => {
+    const d = e.shiftKey ? 48 : 16, m = { ArrowLeft:[-d, 0], ArrowRight:[d, 0], ArrowUp:[0, -d], ArrowDown:[0, d] }[e.key];
+    if (m){ e.preventDefault(); dx += m[0]; dy += m[1]; placeBar(); } else if (e.key === 'Home'){ e.preventDefault(); dock(); }
+  });
+  // the view fits the workflow until someone moves it; a canvas that changes between wide and narrow fits it again
+  layout(); fit(false, 1); placeBar();
+  let lw = cv.clientWidth;
+  const ro = new ResizeObserver(() => { const W = cv.clientWidth; if (W && W !== lw){ const was = small; lw = W; layout(); if (!moved || was !== small) fit(false, 1); } placeBar(); });
+  ro.observe(cv); ro.observe(bar); c.offs.push(() => ro.disconnect());
+  // the preview's story: take the hand and drag the workflow aside, zoom in twice, fit it back to the screen, then run it
+  c.story(async s => {
+    const shown = b => b.getClientRects().length > 0;
+    // a button a narrow toolbar keeps in More is pressed from there
+    const press = async (b, a) => {
+      if (shown(b)) return s.tap(b);
+      if (!menu.classList.contains('open')){ await s.tap(more); await s.beat(1); }
+      await s.tap($(`.mi[data-a="${a}"]`, menu));
+    };
+    await s.beat(3);
+    await s.tap(radios[1]); await s.beat(1);
+    const aim = html('<i class="ctb-aim" aria-hidden="true"></i>'); cv.appendChild(aim);
+    const at = (x, y) => { aim.style.left = Math.round(x) + 'px'; aim.style.top = Math.round(y) + 'px'; };
+    const W = cv.clientWidth, H = cv.clientHeight, D = Math.min(140, W * .22);
+    at(W * .6, H * .3); await s.point(aim, false);
+    const hand = $('.hand', r); if (hand) hand.classList.add('down'); await s.beat(.5);
+    at(W * .6 - D, H * .3 + 24); px -= D; py += 24; moved = true; apply(true);
+    await s.point(aim, false); if (hand) hand.classList.remove('down'); await s.beat(2);
+    await press(ziB, 'in'); await s.beat(1.5);
+    await press(ziB, 'in'); await s.beat(2);
+    await press(fitB, 'fit'); await s.beat(2);
+    await s.tap(radios[0]); await s.beat(1);
+    await s.tap(runB); s.away();
+    await s.until(() => !running); await s.beat(3);
+  });
+});
+/* ---------- Step library ---------- */
+DM.def('step-library', (r, c) => {
+  r.innerHTML = r.innerHTML.replace(/\{(search|x|plus)\}/g, (m, n) => I(n));
+  // the steps, by group: an id, an icon, the name, what it does, what it takes and what it gives
+  const G = [
+    { id:'ai', l:'AI', col:'var(--accent-mark,var(--accent))', fg:'var(--accent-fg,var(--accent))', s:[
+      ['summarize', 'spark', 'Summarize text', 'Turns long text into a short summary or a few bullet points, at the length you set.', 'Any text, like a thread or a transcript', 'A summary'],
+      ['classify', 'hash', 'Classify', 'Sorts what comes in into one of the labels you list, with how sure it is.', 'Text and your labels', 'A label and a score'],
+      ['extract', 'table', 'Extract fields', 'Pulls named fields, like a date or an order number, out of free text.', 'Text and the fields to find', 'A record with those fields'],
+      ['draft', 'edit', 'Write a draft', 'Writes a first draft from your instructions and what the earlier steps found.', 'Instructions and context', 'Draft text to review'] ] },
+    { id:'tools', l:'Tools', col:'var(--pb)', s:[
+      ['web', 'globe', 'Search the web', 'Runs a web search and passes on the top results with their links.', 'A query', 'Results with titles and links'],
+      ['file', 'file-text', 'Read a file', 'Opens a document from the workspace and passes on its text.', 'A file', 'The text of the file'],
+      ['db', 'db', 'Query a database', 'Runs a read-only query and returns the rows that match.', 'A query', 'Rows as a table'],
+      ['api', 'link', 'Call an API', 'Sends an HTTP request and hands the response to the next step.', 'A URL, a method and a body', 'The response'] ] },
+    { id:'logic', l:'Logic', col:'var(--pl)', s:[
+      ['if', 'branch', 'If / else', 'Sends the run down one of two paths, depending on a condition.', 'A condition', 'One of two paths'],
+      ['loop', 'refresh', 'Loop over items', 'Runs the steps inside it once for each item in a list.', 'A list', 'One result per item'],
+      ['wait', 'clock', 'Wait', 'Pauses the run for a set time, or until a date and time.', 'A duration or a date', 'The run, later'],
+      ['approve', 'shield', 'Ask for approval', 'Holds the run until a person approves or rejects what happens next.', 'Who to ask, and what', 'Approved or rejected'] ] },
+    { id:'actions', l:'Actions', col:'var(--pm)', s:[
+      ['email', 'mail', 'Send an email', 'Sends an email from your workspace to one or more people.', 'To, subject and body', 'The sent email'],
+      ['post', 'send', 'Post a message', 'Posts a message in a team chat channel.', 'A channel and the message', 'The posted message'],
+      ['ticket', 'flag', 'Create a ticket', 'Opens a ticket in your tracker with a title, details and an owner.', 'Title, details and owner', 'The new ticket'],
+      ['record', 'sliders', 'Update a record', 'Changes fields on a record in your CRM or database.', 'The record and its new values', 'The updated record'] ] }
+  ];
+  G.forEach(g => { g.s = g.s.map(([id, ic, n, d, i, o]) => ({ id, ic, n, d, i, o, g })); });
+  const ALL = G.flatMap(g => g.s), byId = id => ALL.find(x => x.id === id);
+  // the workflow it adds to: a trigger and two steps to start with
+  const START = [{ ic:'bolt', n:'When a ticket arrives', l:'Trigger', col:'var(--py)' }, byId('classify'), byId('db')];
+  const root = $('.slb', r), P = $('.slb-p', r), q = $('.slb-in', r), xB = $('.slb-x', r), list = $('.slb-list', r), ct = $('.slb-ct', r), dock = $('.slb-dock', r);
+  const pv = $('.slb-pv', r), descs = $('.slb-d', r), live = $('.slb-live', r), flow = $('.slb-flow', r), fl = $('.slb-fl', r), fn = $('.slb-fn', r);
+  const uid = Math.random().toString(36).slice(2, 7);
+  const say = t => { live.textContent = t; };
+  const esc = s => s.replace(/[&<>"]/g, ch => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' })[ch]);
+  const tile = (ic, col, fg) => `<span class="ic" style="color:${fg || col};background:color-mix(in srgb,${col} 14%,transparent)">${I(ic, 'xs')}</span>`;
+  // each step's description, for its row's aria-describedby
+  descs.innerHTML = ALL.map(st => `<span id="slb-d-${st.id}-${uid}">${st.d}</span>`).join('');
+  /* ---------- the list: a group per kind of step, each folding on its own; the search narrows the names (or a whole group
+     by its name) and opens any folded group it finds something in ---------- */
+  const shut = new Set();
+  const markName = (n, v) => { const i = v ? n.toLowerCase().indexOf(v) : -1; return i < 0 ? esc(n) : esc(n.slice(0, i)) + '<mark>' + esc(n.slice(i, i + v.length)) + '</mark>' + esc(n.slice(i + v.length)); };
+  function paint(){
+    const v = q.value.trim().toLowerCase(); xB.hidden = !q.value; let n = 0;
+    list.innerHTML = G.map(g => {
+      const hs = g.s.filter(st => !v || st.n.toLowerCase().includes(v) || g.l.toLowerCase().startsWith(v)); if (!hs.length) return '';
+      if (v) shut.delete(g.id);
+      n += hs.length; const open = !shut.has(g.id), fid = `slb-g-${g.id}-${uid}`;
+      return `<div class="slb-g" data-g="${g.id}"><button class="slb-gb" tabindex="-1" aria-expanded="${open}" aria-controls="${fid}">${I('chev-d', 'xs')}<span>${g.l}</span><span class="n num">${hs.length}</span></button>`
+        + `<div class="fold${open ? '' : ' shut'}" id="${fid}"><div><ul class="slb-ul">${hs.map(st => `<li><button class="slb-s" tabindex="-1" data-id="${st.id}" draggable="true" aria-describedby="slb-d-${st.id}-${uid}">${tile(st.ic, g.col, g.fg)}<span class="t">${markName(st.n, v)}</span><span class="ad" aria-hidden="true">${I('plus', 'xs')}</span></button></li>`).join('')}</ul></div></div></div>`;
+    }).join('') || `<div class="slb-e"><b>No steps match “${esc(q.value.trim())}”</b><span>Try another word, or clear the search.</span><button class="pill ghost sm slb-ec">Clear search</button></div>`;
+    ct.textContent = v ? `${n} of ${ALL.length}` : `${ALL.length} steps`;
+    if (v) say(n ? `${n} ${n === 1 ? 'step' : 'steps'} found` : 'No steps found');
+    const it = items(); rove(it.find(b => b.matches('.slb-s')) || it[0], false);
+    hov = null; sync();
+  }
+  // the list is one tab stop: the up and down arrows move through the group headers and steps that show
+  const items = () => $$('.slb-gb,.slb-s,.slb-ec', list).filter(b => !b.closest('.fold.shut'));
+  function rove(to){ items().forEach(b => { b.tabIndex = b === to ? 0 : -1; }); }
+  const keep = b => { const lr = list.getBoundingClientRect(), br = b.getBoundingClientRect(); if (br.top < lr.top + 4) list.scrollTop -= lr.top + 4 - br.top; else if (br.bottom > lr.bottom - 4) list.scrollTop += br.bottom - lr.bottom + 4; };
+  const go = b => { rove(b); b.focus({ preventScroll:true }); keep(b); };
+  function toggle(gb){
+    const g = gb.closest('.slb-g'), open = gb.getAttribute('aria-expanded') !== 'true';
+    gb.setAttribute('aria-expanded', open); $('.fold', g).classList.toggle('shut', !open); open ? shut.delete(g.dataset.g) : shut.add(g.dataset.g);
+    rove(gb);
+  }
+  // only the person's own Clear brings the focus back to the field; the demo's leaves it where it is
+  function clear(){ const back = root.contains(document.activeElement); q.value = ''; paint(); if (back) q.focus({ preventScroll:true }); say('Search cleared'); }
+  xB.onclick = clear;
+  c.on(q, 'input', paint);
+  c.on(q, 'keydown', e => {
+    const first = () => items().find(b => b.matches('.slb-s')) || items()[0];
+    if (e.key === 'ArrowDown'){ const f = first(); if (f){ e.preventDefault(); go(f); } }
+    else if (e.key === 'Enter' && q.value.trim()){ const f = $('.slb-s', list); if (f){ e.preventDefault(); add(f.dataset.id, 'keyboard', f); } }
+    else if (e.key === 'Escape' && q.value){ e.preventDefault(); e.stopPropagation(); clear(); }
+  });
+  c.on(list, 'click', e => {
+    const b = e.target.closest('button'); if (!b) return;
+    if (b.matches('.slb-gb')) toggle(b); else if (b.matches('.slb-s')) add(b.dataset.id, e.detail ? 'click' : 'keyboard', b); else if (b.matches('.slb-ec')) clear();
+  });
+  c.on(list, 'keydown', e => {
+    const all = items(), i = all.indexOf(document.activeElement); if (i < 0) return;
+    const k = e.key, b = all[i];
+    if (k === 'ArrowDown' || k === 'ArrowUp'){ e.preventDefault(); const j = i + (k === 'ArrowDown' ? 1 : -1); if (j < 0) q.focus({ preventScroll:true }); else if (j < all.length) go(all[j]); }
+    else if (k === 'Home' || k === 'End'){ e.preventDefault(); go(all[k === 'Home' ? 0 : all.length - 1]); }
+    else if (b.matches('.slb-gb') && (k === 'ArrowLeft' || k === 'ArrowRight')){ e.preventDefault(); if ((k === 'ArrowRight') !== (b.getAttribute('aria-expanded') === 'true')) toggle(b); }
+    else if (b.matches('.slb-s') && k === 'ArrowLeft'){ e.preventDefault(); go($('.slb-gb', b.closest('.slb-g'))); }
+    else if (k === 'Escape' && q.value){ e.preventDefault(); clear(); }
+    // typing anywhere in the list goes on into the search
+    else if (k === 'Backspace' && q.value){ e.preventDefault(); q.value = q.value.slice(0, -1); q.focus({ preventScroll:true }); paint(); }
+    else if (k.length === 1 && k !== ' ' && !e.ctrlKey && !e.metaKey && !e.altKey){ e.preventDefault(); q.value += k; q.focus({ preventScroll:true }); paint(); }
+  });
+  /* ---------- the preview: what the hovered step does, or the focused one's, beside the panel level with its row. It waits a
+     moment for the first, then follows straight away from row to row ---------- */
+  let hov = null, pvFor = null, tT = 0; c.offs.push(() => clearTimeout(tT));
+  const narrow = () => root.clientWidth < 560;
+  const rest = () => { dock.innerHTML = `<span class="hint">${matchMedia('(hover:hover)').matches ? 'Hover or focus a step to see what it does' : 'Tap a step to add it to the workflow'}</span>`; };
+  function show(b){
+    const st = byId(b.dataset.id); if (!st) return;
+    $$('.slb-s.on', list).forEach(x => x !== b && x.classList.remove('on')); b.classList.add('on'); pvFor = b;
+    if (narrow()){ dock.innerHTML = `<div class="slb-ph">${tile(st.ic, st.g.col, st.g.fg)}<div><b>${st.n}</b><span>${st.g.l}</span></div></div><p class="slb-pd">${st.d}</p>`; return; }
+    const was = pv.classList.contains('show');
+    pv.classList.toggle('jump', !was);
+    pv.innerHTML = `<div class="slb-ph">${tile(st.ic, st.g.col, st.g.fg)}<div><b>${st.n}</b><span>${st.g.l}</span></div></div><p class="slb-pd">${st.d}</p><dl class="slb-io"><dt>Takes</dt><dd>${st.i}</dd><dt>Gives</dt><dd>${st.o}</dd></dl><p class="slb-pf">Press Enter or click to add it, or drag it into the workflow</p>`;
+    const rr = root.getBoundingClientRect(), br = b.getBoundingClientRect(), pr = P.getBoundingClientRect();
+    pv.style.left = Math.round(pr.right - rr.left + 8) + 'px';
+    pv.style.top = Math.round(Math.max(0, Math.min(root.clientHeight - pv.offsetHeight, br.top - rr.top - 8))) + 'px';
+    pv.classList.add('show');
+  }
+  function hide(){ pv.classList.remove('show'); $$('.slb-s.on', list).forEach(x => x.classList.remove('on')); pvFor = null; rest(); }
+  const target = () => hov && hov.isConnected ? hov : (list.contains(document.activeElement) && document.activeElement.matches('.slb-s') ? document.activeElement : null);
+  const sync = () => { const t = target(); t ? show(t) : hide(); };
+  c.on(list, 'pointerover', e => {
+    if (e.pointerType !== 'mouse') return; const b = e.target.closest('.slb-s');
+    if (b === hov) return; hov = b; clearTimeout(tT); tT = setTimeout(sync, b ? (pvFor ? 0 : 280) : 120);
+  });
+  c.on(list, 'pointerleave', () => { hov = null; clearTimeout(tT); tT = setTimeout(sync, 120); });
+  c.on(list, 'focusin', () => { clearTimeout(tT); sync(); });
+  c.on(list, 'focusout', e => { if (!list.contains(e.relatedTarget)){ clearTimeout(tT); tT = setTimeout(sync, 0); } });
+  c.on(list, 'scroll', () => { if (pvFor && !narrow()) show(pvFor); }, { passive:true });
+  /* ---------- adding: Enter, a click, or a drop on the workflow. The workflow shows the new step, the row ticks, and the
+     component fires step-add with the step's id, name, group and how it was added ---------- */
+  const flowItem = x => `<li class="slb-fs"><span class="slb-cn" aria-hidden="true"></span><span class="ic" style="color:${x.g ? x.g.fg || x.g.col : x.col}">${I(x.ic, 'xs')}</span><span class="t"><b>${x.n}</b><span>${x.g ? x.g.l : x.l}</span></span></li>`;
+  fl.innerHTML = START.map(flowItem).join('');
+  const count = () => { const n = fl.children.length; fn.textContent = `${n} steps`; return n; };
+  count();
+  function add(id, via, b){
+    const st = byId(id); if (!st) return;
+    const li = html(flowItem(st)); li.classList.add('in'); fl.appendChild(li);
+    fl.scrollTo({ top:fl.scrollHeight, behavior:REDUCE ? 'auto' : 'smooth' });
+    const n = count();
+    if (b && b.isConnected){ b.classList.add('added'); $('.ad', b).innerHTML = I('check', 'xs');
+      c.later(1400, () => { if (b.isConnected){ b.classList.remove('added'); $('.ad', b).innerHTML = I('plus', 'xs'); } }); }
+    say(`Added ${st.n}. ${n} steps in Support triage`);
+    // a hovered step's preview goes once it is in (a focused one's stays); on a narrow screen the panel's foot says it
+    // was added, for a moment
+    hov = null; sync();
+    if (narrow()){ dock.innerHTML = `<div class="slb-ph slb-ok">${tile('check', 'var(--ok)')}<div><b>Added ${st.n}</b><span>${n} steps in Support triage</span></div></div>`;
+      c.later(2400, () => { if ($('.slb-ok', dock)) sync(); }); }
+    root.dispatchEvent(new CustomEvent('step-add', { bubbles:true, detail:{ id:st.id, name:st.n, group:st.g.id, via } }));
+  }
+  // a step dragged out of the list drops into the workflow
+  const MIME = 'application/x-designme-step';
+  c.on(list, 'dragstart', e => {
+    const b = e.target.closest && e.target.closest('.slb-s'); if (!b){ e.preventDefault(); return; }
+    e.dataTransfer.setData(MIME, b.dataset.id); e.dataTransfer.setData('text/plain', byId(b.dataset.id).n); e.dataTransfer.effectAllowed = 'copy';
+    hov = null; hide();
+  });
+  c.on(flow, 'dragover', e => { if (!e.dataTransfer || !e.dataTransfer.types.includes(MIME)) return; e.preventDefault(); e.dataTransfer.dropEffect = 'copy'; flow.classList.add('over'); });
+  c.on(flow, 'dragleave', e => { if (!flow.contains(e.relatedTarget)) flow.classList.remove('over'); });
+  c.on(flow, 'drop', e => { flow.classList.remove('over'); const id = e.dataTransfer && e.dataTransfer.getData(MIME); if (!id) return; e.preventDefault(); add(id, 'drop', $(`.slb-s[data-id="${id}"]`, list)); });
+  c.on(list, 'dragend', () => flow.classList.remove('over'));
+  paint();
+  // the preview's story: search for "sum", rest on Summarize text to read what it does, add it, clear the search, and fold
+  // the Tools group
+  c.story(async s => {
+    await s.beat(3);
+    await s.tap(q); await s.type(q, 'sum', { n:.22, each:paint }); await s.beat(2);
+    const b = $('.slb-s', list); await s.point(b, false); show(b); await s.beat(4);
+    await s.tap(b); s.away(); await s.beat(3);
+    await s.tap(xB); s.away(); await s.beat(2);
+    await s.tap($('.slb-g[data-g="tools"] .slb-gb', list)); s.away(); await s.beat(4);
+  });
+});
 /* ---------- Memory panel ---------- */
 DM.def('memory-panel', (r, c) => {
   r.innerHTML = r.innerHTML.replace('{book}', I('book'));
@@ -12019,6 +12866,43 @@ DM.def('buttons', (r, c) => {
   h.onkeyup = e => { if (e.key === ' ' || e.key === 'Enter') end(); }; h.onblur = end;
   c.offs.push(() => { clearTimeout(t); clearTimeout(h._sw); });
 });
+/* ---------- Badge ---------- */
+DM.def('badge', (r, c) => {
+  r.innerHTML = r.innerHTML.replace('{lock}', I('lock','xs')).replace('{spark}', I('spark','xs')).replace(/\{x\}/g, I('x','xs'));
+  const set = $('.bdx-rm', r), undo = $('.bdx-undo', r), live = $('.bdx-live', r);
+  const label = b => $('.t', b).textContent;
+  // each removable badge keeps its place in the row, so Undo puts it back where it was
+  $$('.bdg', set).forEach((b, i) => { b.dataset.i = i; });
+  // the badges taken off, the latest last
+  const gone = [];
+  // a remove button first sends a cancelable badge-remove event from its badge, so your code can keep it or act on it
+  function remove(b){
+    if (b.classList.contains('go')) return;
+    if (!b.dispatchEvent(new CustomEvent('badge-remove', { bubbles:true, cancelable:true, detail:{ label:label(b) } }))) return;
+    const had = b.contains(document.activeElement), all = $$('.bdg:not(.go)', set), i = all.indexOf(b), next = all[i + 1] || all[i - 1];
+    gone.push(b); live.textContent = `Removed ${label(b)}`;
+    // the focus goes on to the next badge's remove button, or to Undo once none is left
+    const done = () => { b.remove(); b.classList.remove('go'); undo.hidden = false; if (had) ((next && next.isConnected && $('.bdg-x', next)) || undo).focus({ preventScroll:true }); };
+    if (REDUCE) done(); else { b.classList.add('go'); c.later(220, done); }
+  }
+  function restore(){
+    const b = gone.pop(); if (!b) return;
+    const had = undo === document.activeElement, after = $$('.bdg', set).find(x => +x.dataset.i > +b.dataset.i);
+    set.insertBefore(b, after || undo);
+    b.classList.remove('pop-in'); void b.offsetWidth; b.classList.add('pop-in');
+    undo.hidden = !gone.length; live.textContent = `${label(b)} is back`;
+    if (had && undo.hidden) $('.bdg-x', b).focus({ preventScroll:true });
+  }
+  set.addEventListener('click', e => { const x = e.target.closest('.bdg-x'); if (x) remove(x.closest('.bdg')); });
+  undo.onclick = restore;
+  // the preview's story: take Staging off, then put it back with Undo
+  c.story(async s => {
+    await s.beat(4);
+    const b = $$('.bdg', set).find(x => label(x) === 'Staging'); if (!b) return;
+    await s.tap($('.bdg-x', b)); s.away(); await s.beat(4);
+    await s.tap(undo); s.away(); await s.beat(4);
+  });
+});
 /* ---------- Tooltip ---------- */
 DM.def('tooltip', (r, c) => {
   r.innerHTML = r.innerHTML.replace('{undo}', I('undo')).replace('{chat}', I('edit')).replace('{spark}', I('spark')).replace('{users}', I('users')).replace('{a1}', AV('MK','var(--pl)')).replace('{a2}', AV('DA','var(--pb)'));
@@ -12470,6 +13354,64 @@ DM.def('notifications', (r, c) => {
   // picked or a Mark all read stays as you left it
   incoming.forEach((x, i) => c.later(2200 + i * 2600, () => { if (c.mine) return; N.unshift(x); if (f === 'all' || f === x.k){ const el = html(row(x)); el.classList.add('new'); list.prepend(el); $('.ntx-e', list)?.remove(); el.onclick = () => { x.read = !x.read; el.classList.toggle('read', x.read); count(); }; } count(true); }));
 });
+/* ---------- Banner ---------- */
+/* the four drawings, each 240 by 160 and written as plain paths: layers (three plates of a stack, pulled apart), steps (a
+   staircase climbing to a flag), nodes (a small graph standing on a floor grid) and grid (a floor that bends up towards its
+   vanishing point, with one tile raised). .ln lines draw themselves in, in the order --d gives; .gd are the construction
+   lines, dashed, which fade in; .pl are faces in the banner's fill that hide what is behind them; each .z group moves by
+   its depth --z under the pointer */
+const BNX_ART = {
+  layers:"<g class=\"gds\"><path class=\"gd\" d=\"M92 34V124M208 34V124M150 87.5V159.5\"/><path class=\"gd\" d=\"M222 48V104M218 48h8M218 104h8\"/></g><g class=\"z\" style=\"--z:0\"><path class=\"pl\" d=\"M150 70.5L208 104L208 110L150 143.5L92 110L92 104Z\"/><path class=\"ln\" style=\"--d:0\" pathLength=\"1\" d=\"M150 70.5L208 104L150 137.5L92 104Z\"/><path class=\"ln\" style=\"--d:1\" pathLength=\"1\" d=\"M92 104L92 110L150 143.5L208 110L208 104\"/><path class=\"ln\" style=\"--d:2\" pathLength=\"1\" d=\"M150 137.5L150 143.5\"/></g><g class=\"z\" style=\"--z:1\"><path class=\"pl\" d=\"M150 42.5L208 76L208 82L150 115.5L92 82L92 76Z\"/><path class=\"ln\" style=\"--d:3\" pathLength=\"1\" d=\"M150 42.5L208 76L150 109.5L92 76Z\"/><path class=\"ln\" style=\"--d:4\" pathLength=\"1\" d=\"M92 76L92 82L150 115.5L208 82L208 76\"/><path class=\"ln\" style=\"--d:5\" pathLength=\"1\" d=\"M150 109.5L150 115.5\"/></g><g class=\"z\" style=\"--z:2\"><path class=\"pl\" d=\"M150 14.5L208 48L208 54L150 87.5L92 54L92 48Z\"/><path class=\"ln\" style=\"--d:6\" pathLength=\"1\" d=\"M150 14.5L208 48L150 81.5L92 48Z\"/><path class=\"ln\" style=\"--d:7\" pathLength=\"1\" d=\"M92 48L92 54L150 87.5L208 54L208 48\"/><path class=\"ln\" style=\"--d:8\" pathLength=\"1\" d=\"M150 81.5L150 87.5\"/><path class=\"ln ac\" style=\"--d:9\" pathLength=\"1\" d=\"M150 28.5L184 48L150 67.5L116 48Z\"/></g>",
+  steps:"<g class=\"gds\"><path class=\"gd\" d=\"M100 157L179.7 111M77.5 146L167.6 26.8\"/></g><g class=\"z\" style=\"--z:0\"><path class=\"pl\" d=\"M126 28L155.4 45L138.1 55L108.7 38Z\"/><path class=\"ln\" style=\"--d:0\" pathLength=\"1\" d=\"M126 28L155.4 45L138.1 55L108.7 38Z\"/><path class=\"pl\" d=\"M108.7 102L138.1 119L138.1 55L108.7 38Z\"/><path class=\"ln\" style=\"--d:1\" pathLength=\"1\" d=\"M108.7 102L138.1 119L138.1 55L108.7 38Z\"/><path class=\"pl\" d=\"M155.4 109L138.1 119L138.1 55L155.4 45Z\"/><path class=\"ln\" style=\"--d:2\" pathLength=\"1\" d=\"M155.4 109L138.1 119L138.1 55L155.4 45Z\"/><path class=\"pl\" d=\"M108.7 54L138.1 71L120.8 81L91.4 64Z\"/><path class=\"ln\" style=\"--d:3\" pathLength=\"1\" d=\"M108.7 54L138.1 71L120.8 81L91.4 64Z\"/><path class=\"pl\" d=\"M91.4 112L120.8 129L120.8 81L91.4 64Z\"/><path class=\"ln\" style=\"--d:4\" pathLength=\"1\" d=\"M91.4 112L120.8 129L120.8 81L91.4 64Z\"/><path class=\"pl\" d=\"M138.1 119L120.8 129L120.8 81L138.1 71Z\"/><path class=\"ln\" style=\"--d:5\" pathLength=\"1\" d=\"M138.1 119L120.8 129L120.8 81L138.1 71Z\"/><path class=\"pl\" d=\"M91.4 80L120.8 97L103.5 107L74 90Z\"/><path class=\"ln\" style=\"--d:6\" pathLength=\"1\" d=\"M91.4 80L120.8 97L103.5 107L74 90Z\"/><path class=\"pl\" d=\"M74 122L103.5 139L103.5 107L74 90Z\"/><path class=\"ln\" style=\"--d:7\" pathLength=\"1\" d=\"M74 122L103.5 139L103.5 107L74 90Z\"/><path class=\"pl\" d=\"M120.8 129L103.5 139L103.5 107L120.8 97Z\"/><path class=\"ln\" style=\"--d:8\" pathLength=\"1\" d=\"M120.8 129L103.5 139L103.5 107L120.8 97Z\"/><path class=\"pl\" d=\"M74 106L103.5 123L86.2 133L56.7 116Z\"/><path class=\"ln\" style=\"--d:9\" pathLength=\"1\" d=\"M74 106L103.5 123L86.2 133L56.7 116Z\"/><path class=\"pl\" d=\"M56.7 132L86.2 149L86.2 133L56.7 116Z\"/><path class=\"ln\" style=\"--d:10\" pathLength=\"1\" d=\"M56.7 132L86.2 149L86.2 133L56.7 116Z\"/><path class=\"pl\" d=\"M103.5 139L86.2 149L86.2 133L103.5 123Z\"/><path class=\"ln\" style=\"--d:11\" pathLength=\"1\" d=\"M103.5 139L86.2 149L86.2 133L103.5 123Z\"/></g><g class=\"z\" style=\"--z:2\"><path class=\"ln ac\" style=\"--d:12\" pathLength=\"1\" d=\"M132.1 41.5V17.5h14l-4 5 4 5h-14\"/></g>",
+  nodes:"<g class=\"gds\"><path class=\"gd\" d=\"M150 46L66.9 94M150 46L233.1 94M170.8 58L87.6 106M129.2 58L212.4 106M191.6 70L108.4 118M108.4 70L191.6 118M212.4 82L129.2 130M87.6 82L170.8 130M233.1 94L150 142M66.9 94L150 142\"/></g><g class=\"z\" style=\"--z:0\"><path class=\"gd\" d=\"M170.8 58V40\"/><path class=\"gd\" d=\"M166.8 55.7L174.8 60.3M174.8 55.7L166.8 60.3\"/><path class=\"gd\" d=\"M212.4 106V92\"/><path class=\"gd\" d=\"M208.4 103.7L216.4 108.3M216.4 103.7L208.4 108.3\"/><path class=\"gd\" d=\"M87.6 82V68\"/><path class=\"gd\" d=\"M83.6 79.7L91.6 84.3M91.6 79.7L83.6 84.3\"/><path class=\"gd\" d=\"M129.2 130V110\"/><path class=\"gd\" d=\"M125.2 127.7L133.2 132.3M133.2 127.7L125.2 132.3\"/><path class=\"gd\" d=\"M150 94V60\"/><path class=\"gd\" d=\"M146 91.7L154 96.3M154 91.7L146 96.3\"/></g><g class=\"z\" style=\"--z:1\"><path class=\"ln\" style=\"--d:0\" pathLength=\"1\" d=\"M170.8 40L150 60\"/><path class=\"ln\" style=\"--d:1\" pathLength=\"1\" d=\"M212.4 92L150 60\"/><path class=\"ln\" style=\"--d:2\" pathLength=\"1\" d=\"M87.6 68L150 60\"/><path class=\"ln\" style=\"--d:3\" pathLength=\"1\" d=\"M150 60L129.2 110\"/><path class=\"ln\" style=\"--d:4\" pathLength=\"1\" d=\"M170.8 40L212.4 92\"/><path class=\"ln\" style=\"--d:5\" pathLength=\"1\" d=\"M87.6 68L129.2 110\"/></g><g class=\"z\" style=\"--z:2\"><circle class=\"pl\" cx=\"170.8\" cy=\"40\" r=\"6\"/><circle class=\"ln\" style=\"--d:6\" pathLength=\"1\" cx=\"170.8\" cy=\"40\" r=\"6\"/><circle class=\"pl\" cx=\"212.4\" cy=\"92\" r=\"7\"/><circle class=\"ln\" style=\"--d:7\" pathLength=\"1\" cx=\"212.4\" cy=\"92\" r=\"7\"/><circle class=\"pl\" cx=\"87.6\" cy=\"68\" r=\"6\"/><circle class=\"ln\" style=\"--d:8\" pathLength=\"1\" cx=\"87.6\" cy=\"68\" r=\"6\"/><circle class=\"pl\" cx=\"129.2\" cy=\"110\" r=\"6\"/><circle class=\"ln\" style=\"--d:9\" pathLength=\"1\" cx=\"129.2\" cy=\"110\" r=\"6\"/><circle class=\"pl\" cx=\"150\" cy=\"60\" r=\"8\"/><circle class=\"ln ac\" style=\"--d:10\" pathLength=\"1\" cx=\"150\" cy=\"60\" r=\"8\"/><circle class=\"gd\" cx=\"150\" cy=\"60\" r=\"14\"/><circle class=\"hub\" cx=\"150\" cy=\"60\" r=\"2\"/></g>",
+  grid:"<g class=\"gds\"><path class=\"gd\" d=\"M40 18H240M227 13l10 10m0 -10l-10 10\"/></g><g class=\"z\" style=\"--z:0\"><path class=\"ln\" style=\"--d:0\" pathLength=\"1\" d=\"M78 150L96.5 133.2L119.6 109.3L147.3 76.4L173.5 41.3\"/><path class=\"ln\" style=\"--d:1\" pathLength=\"1\" d=\"M115.6 150L129.6 133.3L147 109.8L168 77.8L187.8 43.9\"/><path class=\"ln\" style=\"--d:2\" pathLength=\"1\" d=\"M153.2 150L162.7 133.4L174.5 110.3L188.7 79.3L202.1 46.6\"/><path class=\"ln\" style=\"--d:3\" pathLength=\"1\" d=\"M190.8 150L195.7 133.5L201.9 110.8L209.3 80.7L216.3 49.3\"/><path class=\"ln\" style=\"--d:4\" pathLength=\"1\" d=\"M228.4 150L228.8 133.6L229.4 111.3L230 82.1L230.6 52\"/><path class=\"ln\" style=\"--d:5\" pathLength=\"1\" d=\"M266 150L261.9 133.7L256.8 111.8L250.7 83.5L244.9 54.7\"/><path class=\"ln\" style=\"--d:6\" pathLength=\"1\" d=\"M78 150L115.6 150L153.2 150L190.8 150L228.4 150L266 150\"/><path class=\"ln\" style=\"--d:7\" pathLength=\"1\" d=\"M96.5 133.2L129.6 133.3L162.7 133.4L195.7 133.5L228.8 133.6L261.9 133.7\"/><path class=\"ln\" style=\"--d:8\" pathLength=\"1\" d=\"M119.6 109.3L147 109.8L174.5 110.3L201.9 110.8L229.4 111.3L256.8 111.8\"/><path class=\"ln\" style=\"--d:9\" pathLength=\"1\" d=\"M147.3 76.4L168 77.8L188.7 79.3L209.3 80.7L230 82.1L250.7 83.5\"/></g><g class=\"z\" style=\"--z:2\"><path class=\"pl\" d=\"M162.7 115.4L195.7 115.5L201.9 92.8L174.5 92.3Z\"/><path class=\"ln ac\" style=\"--d:10\" pathLength=\"1\" d=\"M162.7 115.4L195.7 115.5L201.9 92.8L174.5 92.3Z\"/><path class=\"ln ac\" style=\"--d:11\" pathLength=\"1\" d=\"M162.7 133.4L162.7 115.4M195.7 133.5L195.7 115.5M201.9 110.8L201.9 92.8M174.5 110.3L174.5 92.3\"/></g>"
+};
+DM.def('banner', (r, c) => {
+  r.innerHTML = r.innerHTML.replace('{x}', I('x'));
+  const slot = $('.bnx-slot', r) || r, root = $('.bnx', r), art = $('.bnx-art', root), gone = $('.bnx-gone', r);
+  const xB = $('.bnx-x', root), undoB = gone && $('.bnx-undo', gone);
+  const T = { eb:$('.bnx-eb>span', root), t:$('.bnx-t>span', root), d:$('.bnx-d>span', root), a:$('.bnx-go>span', root), s:$('.bnx-lk>span', root) };
+  // the drawing named by data-art; drawing it again plays its entrance again
+  const draw = () => { const k = root.dataset.art; art.innerHTML = BNX_ART[k] ? `<svg class="bnx-svg" viewBox="0 0 240 160" width="240" height="160" focusable="false">${BNX_ART[k]}</svg>` : ''; };
+  draw();
+  // Dismiss: the banner leaves and the line with Undo takes its place, in the height the banner had, so it stays where it was.
+  // The focus follows to Undo, and back to Dismiss after Undo, so a keyboard never loses its place
+  const dismiss = () => {
+    if (root.hidden || root.classList.contains('leave')) return;
+    const back = root.contains(document.activeElement);
+    hold(slot); root.classList.add('leave');
+    c.later(REDUCE ? 0 : 320, () => { root.classList.remove('leave'); root.hidden = true; if (!gone) return; gone.hidden = false; enter(gone); if (back) undoB.focus({ preventScroll:true }); });
+  };
+  const undo = () => {
+    const back = gone.contains(document.activeElement);
+    gone.hidden = true; root.hidden = false; release(slot); enter(root); draw();
+    if (back) xB.focus({ preventScroll:true });
+  };
+  xB.onclick = dismiss;
+  if (undoB) undoB.onclick = undo;
+
+  // the preview's banners, one after another: the tone, the drawing and the words change in place
+  const P = [
+    { tone:'accent', art:'layers', eb:'New', t:'Memory that carries across threads', d:'Agents keep what they learn about your project, so you only explain things once.', a:'Turn on memory', s:'What it keeps' },
+    { tone:'violet', art:'nodes', eb:'Beta', t:'Connect your tools in one place', d:'Linear, GitHub and Slack in one list, with access you can scope for each agent.', a:'Connect a tool', s:'Read the docs' },
+    { tone:'green', art:'steps', eb:'Guide', t:'Set up your first automation', d:'Five short steps, about ten minutes. The agent can do most of them for you.', a:'Start the guide', s:'Maybe later' },
+    { tone:'amber', art:'grid', eb:'Heads-up', t:'Maintenance on Sunday, 02:00 UTC', d:'Agents pause for about an hour, and queued runs pick up where they left off.', a:'Add to calendar', s:'Status page' }
+  ];
+  const show = (p, now) => { root.dataset.tone = p.tone; root.dataset.art = p.art; for (const k in T) if (T[k]) now ? T[k].textContent = p[k] : swap(T[k], p[k]); draw(); };
+  // three banners, then the last one is dismissed. A story that plays to the end leaves the next run one banner further on,
+  // so every drawing comes round. A click, a key or the focus of yours stops it where it is, and a mouse resting on it holds it
+  if (r === c.st && c.card){
+    const n = c.card._bnx || 0;
+    if (n) show(P[n], true);
+    c.story(async s => {
+      await s.beat(8);
+      show(P[(n + 1) % P.length]); await s.beat(8);
+      show(P[(n + 2) % P.length]); await s.beat(8);
+      await s.tap(xB); s.away(); await s.beat(5);
+      c.card._bnx = (n + 1) % P.length;
+    });
+  }
+});
 /* ---------- Invite ---------- */
 DM.def('invite', (r, c) => {
   r.innerHTML = r.innerHTML.replace('{chev}', I('chev-d','xs')).replace(/\{chk\}/g, I('check','xs')).replace('{link}', I('link','xs'));
@@ -12613,6 +13555,222 @@ DM.def('profile-menu', (r, c) => {
     await s.tap(tr); await s.beat(2);
     hl(th); await s.tap(th); await s.beat(3);
     await s.tap(tr); s.away(); await s.beat(3);
+  });
+});
+/* ---------- Context switcher ---------- */
+DM.def('context-switcher', (r, c) => {
+  r.innerHTML = r.innerHTML.replace(/\{unfold\}/g, I('unfold','xs')).replace(/\{crumb\}/g, I('crumb')).replace('{more}', I('more')).replace('{search}', I('search','xs'));
+  // the organisations this account is in, with their plans; each one's projects, and each project's environments. Each level
+  // remembers what was picked in it (on), so an organisation brings back the project you were last in, and a project its
+  // environment
+  const KIND = { Production:'warning', Staging:'blue', Development:'neutral' };
+  const envs = (...e) => e.map(([id, k]) => ({ id, name:id, b:[k, KIND[k]] }));
+  const STD = () => envs(['live', 'Production'], ['staging', 'Staging'], ['sandbox', 'Development']);
+  const ROOT = { on:'fernhill', items:[
+    { id:'fernhill', name:'Fernhill Labs', t:'pb', b:['Pro', 'accent'], on:'triage', items:[
+      { id:'triage', name:'Support triage agent', on:'eu-live', items:envs(['eu-live', 'Production'], ['us-live', 'Production'], ['staging', 'Staging'], ['sandbox', 'Development']) },
+      { id:'invoice', name:'Invoice reader', b:['Beta', 'teal'], on:'staging', items:STD() },
+      { id:'research', name:'Sales research agent', on:'live', items:STD() },
+      { id:'onboard', name:'Onboarding copilot', b:['Paused', 'neutral'], on:'sandbox', items:STD() },
+      { id:'notes', name:'Release notes writer', on:'live', items:STD() }
+    ] },
+    { id:'quillwork', name:'Quillwork', t:'pp', b:['Free', 'neutral'], on:'coach', items:[
+      { id:'coach', name:'Essay coach', on:'live', items:STD() },
+      { id:'cite', name:'Citation checker', b:['Beta', 'teal'], on:'staging', items:STD() }
+    ] },
+    { id:'otterline', name:'Otterline Health', t:'pm', b:['Enterprise', 'violet'], on:'intake', items:[
+      { id:'intake', name:'Intake assistant', on:'live', items:STD() },
+      { id:'claims', name:'Claims summariser', on:'live', items:STD() },
+      { id:'handover', name:'Shift handover notes', b:['Beta', 'teal'], on:'sandbox', items:STD() }
+    ] }
+  ] };
+  // the parts of the path, outermost first
+  const KEYS = ['org', 'project', 'env'];
+  const SEG = {
+    org:{ label:'Organisation', noun:'organisation', many:'organisations', find:'Find an organisation', head:() => 'Your organisations' },
+    project:{ label:'Project', noun:'project', many:'projects', find:'Find a project', head:() => `Projects in ${node(0).name}` },
+    env:{ label:'Environment', noun:'environment', many:'environments', find:'Find an environment', head:() => `Environments of ${node(1).name}` }
+  };
+  // the level a part picks from, and what is picked there
+  const parent = d => { let n = ROOT; for (let i = 0; i < d; i++) n = n.items.find(x => x.id === n.on); return n; };
+  const node = d => { const p = parent(d); return p.items.find(x => x.id === p.on); };
+  const box = $('.csw', r), bar = $('.csw-bar', r), pop = $('.csw-pop', r), q = $('.csw-q', r), list = $('.csw-list', r), mpop = $('.csw-mpop', r), more = $('.csw-more', r), live = $('.csw-live', r);
+  const uid = Math.random().toString(36).slice(2, 7);
+  list.id = 'csw-l-' + uid; q.setAttribute('aria-controls', list.id);
+  const trig = k => $(`.csw-seg[data-k="${k}"] .csw-tr`, r);
+  KEYS.forEach(k => trig(k).setAttribute('aria-controls', list.id));
+  const esc = t => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+  const badge = x => x.b ? `<span class="csw-bd"${x.b[1] && x.b[1] !== 'neutral' ? ` data-tone="${x.b[1]}"` : ''}>${esc(x.b[0])}</span>` : '';
+  const tile = x => `<span class="csw-lg" data-t="${x.t}" aria-hidden="true">${esc(x.name[0])}</span>`;
+  const named = (x, d) => `${SEG[KEYS[d]].label}: ${x.name}${x.b ? ', ' + x.b[0] : ''}`;
+
+  /* ---- the bar: each part's name and badge, crossfading when they change ---- */
+  function paint(first){
+    KEYS.forEach((k, d) => {
+      const x = node(d), tr = trig(k), nm = $('.csw-nm', tr), bh = $('.csw-bh', tr), lg = $('.csw-lg', tr);
+      if (first){ nm.textContent = x.name; bh.innerHTML = badge(x); } else { swap(nm, x.name); swap(bh, badge(x), true); }
+      if (lg){ lg.textContent = x.name[0]; lg.dataset.t = x.t; lg.setAttribute('aria-hidden', 'true'); }
+      tr.setAttribute('aria-label', named(x, d));
+    });
+    c.later(REDUCE ? 0 : 220, tips);
+  }
+  // a name the ellipsis cuts short shows in full in a tooltip
+  function tips(){ KEYS.forEach((k, d) => { const tr = trig(k), nm = $('.csw-nm', tr); if (nm.scrollWidth > nm.clientWidth + 1) tr.dataset.tip = node(d).name; else delete tr.dataset.tip; }); }
+  // phone narrow (the CSS decides), only the last part shows and the … button stands in for the others
+  const narrow = () => getComputedStyle($('.csw-mi', r)).display !== 'none';
+  const anchor = k => !narrow() || k === KEYS[KEYS.length - 1] ? trig(k) : more;
+  // under what opened it, inside the component's ends
+  function place(el, at){
+    const b = box.getBoundingClientRect(), a = at.getBoundingClientRect(), br = bar.getBoundingClientRect();
+    el.style.left = Math.max(0, Math.min(a.left - b.left, b.width - el.offsetWidth)) + 'px';
+    el.style.top = Math.round(br.bottom - b.top + 6) + 'px';
+  }
+
+  /* ---- a part's switcher: the search, the list, and Create new at the bottom ---- */
+  let open = null, full = 0, hi = 0, opts = [], mopen = false, made = 0;
+  function fill(reset){
+    const S = SEG[open], d = KEYS.indexOf(open), p = parent(d), v = q.value.trim(), lv = v.toLowerCase();
+    const m = p.items.filter(x => !lv || x.name.toLowerCase().includes(lv));
+    list.innerHTML = `<div class="ph" role="presentation">${esc(S.head())}</div>`
+      + (m.length ? m.map(x => `<div class="mi csw-o" role="option" id="${list.id}-${esc(x.id)}" aria-selected="${x.id === p.on}" data-id="${esc(x.id)}">${d === 0 ? tile(x) : ''}<span class="csw-on">${esc(x.name)}</span>${badge(x)}<span class="ck">${I('check','xs')}</span></div>`).join('')
+        : `<div class="csw-none" role="presentation">No ${S.many} match “${esc(v)}”</div>`)
+      + `<div class="sep" role="presentation"></div><div class="mi csw-o csw-new" role="option" id="${list.id}-new" aria-selected="false" data-new="1"${v ? '' : ` aria-label="Create new ${S.noun}"`}>${I('plus','xs')}<span class="csw-on">${v ? `Create “${esc(v)}”` : 'Create new…'}</span></div>`;
+    opts = $$('.csw-o', list);
+    // the highlight starts on the current one; once you type, on the first match
+    hi = reset ? Math.max(0, opts.findIndex(o => o.getAttribute('aria-selected') === 'true')) : 0;
+    opts.forEach((o, i) => { o.onmousemove = () => { if (hi !== i){ hi = i; move(0); } }; o.onmousedown = e => e.preventDefault(); o.onclick = () => pick(o); });
+    move(0);
+  }
+  function move(by){
+    if (!opts.length) return;
+    hi = (hi + by + opts.length) % opts.length;
+    opts.forEach((o, i) => o.classList.toggle('hl', i === hi));
+    q.setAttribute('aria-activedescendant', opts[hi].id);
+    // the list scrolls to keep it in view, never the page
+    if (!hi){ list.scrollTop = 0; return; }
+    const lr = list.getBoundingClientRect(), or = opts[hi].getBoundingClientRect();
+    if (or.top < lr.top) list.scrollTop -= lr.top - or.top; else if (or.bottom > lr.bottom) list.scrollTop += or.bottom - lr.bottom;
+  }
+  function show(k, { focus = false } = {}){
+    if (mopen) menu(false);
+    if (open === k){ if (focus) q.focus({ preventScroll:true }); return; }
+    if (open) hide(false, true);
+    open = k; const S = SEG[k];
+    q.value = ''; q.placeholder = S.find; q.setAttribute('aria-label', S.find); list.setAttribute('aria-label', S.many[0].toUpperCase() + S.many.slice(1));
+    trig(k).setAttribute('aria-expanded', 'true'); q.setAttribute('aria-expanded', 'true');
+    fill(true); hideTip(); place(pop, anchor(k)); pop.inert = false; pop.classList.add('open');
+    // the bar makes room for the switcher at its fullest, before any filter, so it holds still while typing filters the list
+    full = pop.offsetHeight; centred();
+    if (focus) q.focus({ preventScroll:true });
+  }
+  // closing gives the focus back to the part's button (or the … button, on a phone) when it was in the switcher
+  function hide(back, next){
+    if (!open) return; const k = open; open = null;
+    pop.classList.remove('open'); pop.inert = true; trig(k).setAttribute('aria-expanded', 'false'); q.setAttribute('aria-expanded', 'false'); q.removeAttribute('aria-activedescendant');
+    if (back) anchor(k).focus({ preventScroll:true });
+    // the bar waits for the list to fade before it glides back to the middle
+    if (!next) c.later(REDUCE ? 0 : 180, centred);
+    // once it has faded it goes back to the component's corner, so a narrower screen later never scrolls sideways to it
+    c.later(320, () => { if (!open){ pop.style.left = '0px'; pop.style.top = '0px'; } });
+  }
+  // what changed, said once for screen readers: the part picked and the parts that came with it
+  const say = d => { live.textContent = 'Switched to ' + KEYS.slice(d).map((k, i) => { const x = node(d + i); return `${i ? SEG[k].noun + ' ' : ''}${x.name}${x.b ? ` (${x.b[0]})` : ''}`; }).join(', '); };
+  // every change also goes out as a context-change event from the component, with the part changed and the whole path
+  const tell = k => box.dispatchEvent(new CustomEvent('context-change', { bubbles:true, detail:{ segment:k, path:Object.fromEntries(KEYS.map((kk, d) => [kk, node(d).id])) } }));
+  function pick(o){
+    if (!o || !open) return;
+    const k = open, d = KEYS.indexOf(k), p = parent(d), back = pop.contains(document.activeElement);
+    if (o.dataset.new) return create(k, q.value.trim(), back);
+    const was = p.on; p.on = o.dataset.id; hide(back);
+    if (p.on !== was){ paint(); say(d); tell(k); }
+  }
+  // Create new first sends a cancelable context-create event from the component, with the part and what was typed, so your
+  // code can open its own form; left alone, it adds one by that name (an organisation with a first project) and picks it
+  function create(k, name, back){
+    const S = SEG[k], d = KEYS.indexOf(k), p = parent(d);
+    const go = box.dispatchEvent(new CustomEvent('context-create', { bubbles:true, cancelable:true, detail:{ segment:k, name } }));
+    hide(back); if (!go) return;
+    const id = 'new-' + (++made), x = { id, name:name || `New ${S.noun}` };
+    if (k === 'org') Object.assign(x, { t:'pl', b:['Free', 'neutral'], on:id + '-p', items:[{ id:id + '-p', name:'First project', on:'sandbox', items:STD() }] });
+    else if (k === 'project') Object.assign(x, { on:'sandbox', items:STD() });
+    else x.b = ['Development', KIND.Development];
+    p.items.push(x); p.on = id; paint(); tell(k);
+    live.textContent = `Created ${S.noun} ${x.name}`;
+  }
+
+  /* ---- the … menu, on a phone: the parts before the last, each opening its own switcher ---- */
+  function menu(on, focus){
+    if (on === mopen) return; mopen = on;
+    if (on){
+      if (open) hide(false, true);
+      mpop.innerHTML = KEYS.slice(0, -1).map((k, d) => { const x = node(d); return `<button class="mi" role="menuitem" tabindex="-1" data-k="${k}">${d ? I('layers') : tile(x)}<span class="t"><b>${esc(x.name)}</b><span class="d">${SEG[k].label}</span></span>${badge(x)}</button>`; }).join('');
+      $$('.mi', mpop).forEach(m => m.onclick = e => { menu(false); show(m.dataset.k, { focus:e.isTrusted }); });
+      hideTip(); place(mpop, more); mpop.inert = false; mpop.classList.add('open'); more.setAttribute('aria-expanded', 'true'); centred();
+      if (focus){ const it = $$('.mi', mpop); (focus === 'last' ? it[it.length - 1] : it[0]).focus({ preventScroll:true }); }
+    } else {
+      const back = mpop.contains(document.activeElement);
+      mpop.classList.remove('open'); mpop.inert = true; more.setAttribute('aria-expanded', 'false');
+      if (back) more.focus({ preventScroll:true });
+      c.later(REDUCE ? 0 : 180, centred);
+      c.later(320, () => { if (!mopen){ mpop.style.left = '0px'; mpop.style.top = '0px'; } });
+    }
+  }
+
+  /* ---- the keyboard ---- */
+  // on the bar, the left and right arrows move between the parts you can see
+  const parts = () => [more, ...KEYS.map(trig)].filter(b => b.getClientRects().length);
+  const sideways = e => { if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return false; const all = parts(), to = all[all.indexOf(e.currentTarget) + (e.key === 'ArrowLeft' ? -1 : 1)]; if (to){ e.preventDefault(); to.focus({ preventScroll:true }); } return true; };
+  // a click, Enter or Space opens a part's switcher with the focus in its search; so do the down arrow (on the current one)
+  // and the up arrow (on the last row). A story's tap opens it without moving the focus
+  KEYS.forEach(k => {
+    const tr = trig(k);
+    tr.onclick = e => { if (open === k) hide(pop.contains(document.activeElement)); else show(k, { focus:e.isTrusted }); };
+    tr.onkeydown = e => {
+      if (sideways(e)) return;
+      if (e.key === 'ArrowDown' || e.key === 'ArrowUp'){ e.preventDefault(); show(k, { focus:true }); if (e.key === 'ArrowUp'){ hi = opts.length - 1; move(0); } }
+    };
+  });
+  more.onclick = e => menu(!mopen, e.isTrusted && 'first');
+  more.onkeydown = e => { if (sideways(e)) return; if (e.key === 'ArrowDown' || e.key === 'ArrowUp'){ e.preventDefault(); menu(true, e.key === 'ArrowUp' ? 'last' : 'first'); } };
+  // in the search: the arrows move through the list and wrap, Home and End go to its ends, typing filters it, Enter picks,
+  // Escape closes it and gives the focus back to the part. With nothing typed, the left and right arrows move to the part
+  // before or after and open its switcher
+  q.oninput = () => fill(false);
+  q.onkeydown = e => {
+    const k = e.key;
+    if (k === 'ArrowDown' || k === 'ArrowUp'){ e.preventDefault(); move(k === 'ArrowDown' ? 1 : -1); }
+    else if (k === 'Home' || k === 'End'){ e.preventDefault(); hi = k === 'Home' ? 0 : opts.length - 1; move(0); }
+    else if (k === 'Enter'){ e.preventDefault(); pick(opts[hi]); }
+    else if (k === 'Escape'){ e.preventDefault(); e.stopPropagation(); hide(true); }
+    else if ((k === 'ArrowLeft' || k === 'ArrowRight') && !q.value){ const n = KEYS[KEYS.indexOf(open) + (k === 'ArrowLeft' ? -1 : 1)]; if (n){ e.preventDefault(); show(n, { focus:true }); } }
+  };
+  // in the … menu: the arrows move and wrap, Home and End jump to the ends, Escape closes it and Tab leaves it
+  c.on(mpop, 'keydown', e => {
+    const all = $$('.mi', mpop), i = all.indexOf(document.activeElement);
+    const go = { ArrowDown:all[(i + 1) % all.length], ArrowUp:all[(i - 1 + all.length) % all.length], Home:all[0], End:all[all.length - 1] }[e.key];
+    if (go){ e.preventDefault(); go.focus({ preventScroll:true }); }
+    else if (e.key === 'Escape'){ e.preventDefault(); e.stopPropagation(); menu(false); }
+    else if (e.key === 'Tab') setTimeout(() => menu(false));
+  });
+  // Tab out of the switcher closes it; so does a press anywhere else, or a real resize
+  c.on(pop, 'focusout', e => { if (open && e.relatedTarget && !pop.contains(e.relatedTarget) && e.relatedTarget !== trig(open)) hide(false); });
+  c.on(document, 'pointerdown', e => { const t = e.target; if (pop.contains(t) || mpop.contains(t) || (box.contains(t) && t.closest('.csw-tr,.csw-more'))) return; hide(false); menu(false); });
+  c.on(window, 'resize', e => { if (e.isTrusted){ hide(false); menu(false); } });
+  const ro = new ResizeObserver(tips); ro.observe(bar); c.offs.push(() => ro.disconnect());
+
+  // the bar sits centred on its own, and glides up as a switcher opens under it, so the two sit centred together
+  const centred = centre(c, box, () => open ? Math.max(box.offsetHeight, pop.offsetTop + full) : mopen ? Math.max(box.offsetHeight, mpop.offsetTop + mpop.offsetHeight) : box.offsetHeight);
+  pop.inert = true; mpop.inert = true; paint(true);
+  if (document.fonts) document.fonts.ready.then(() => { if (!c.dead) tips(); });
+  // the preview's story: open the project's switcher (through the … menu on a phone), search for "inv" and pick Invoice
+  // reader; the environment follows it, from eu-live in Production to staging
+  c.story(async s => {
+    await s.beat(3);
+    if (narrow()){ await s.tap(more); await s.beat(2); await s.tap($('.mi[data-k="project"]', mpop)); }
+    else await s.tap(trig('project'));
+    s.away(); await s.beat(2);
+    await s.type(q, 'inv', { n:.4, each:() => fill(false) }); await s.beat(2);
+    await s.tap(opts[hi]); s.away(); await s.beat(5);
   });
 });
 /* ---------- Filter menu ---------- */

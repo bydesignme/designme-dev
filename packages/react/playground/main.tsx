@@ -9,7 +9,8 @@ import { Seg } from '../src/lib/motion';
 const examples = import.meta.glob<{ default: ComponentType }>('../src/examples/*.tsx', { eager: true });
 // the cards that span the full width on designme.dev
 const WIDE = new Set(['agent-lanes', 'agent-run-timeline', 'design-tuner', 'change-review', 'task-table', 'field-extraction', 'automation-canvas',
-  'model-compare', 'stat-cards', 'account-table', 'date-range-picker', 'event-calendar', 'buttons', 'kanban-board', 'pricing-cards', 'agent-harness', 'design-review', 'terminal-stream', 'human-handoff', 'rich-text-editor']);
+  'model-compare', 'stat-cards', 'account-table', 'date-range-picker', 'event-calendar', 'buttons', 'kanban-board', 'pricing-cards', 'agent-harness', 'design-review', 'terminal-stream', 'human-handoff', 'rich-text-editor', 'context-switcher', 'banner']);
+['canvas-toolbar', 'step-library'].forEach(n => WIDE.add(n));
 const only = new URLSearchParams(location.search).get('only')?.split(',');
 const CARDS = registry.items.flatMap(item => {
   const mod = examples[`../src/examples/${item.name}.tsx`];

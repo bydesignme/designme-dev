@@ -239,6 +239,7 @@ export function Tooltip({ groups = DEFAULT_GROUPS, people = [], note, cardDelay 
 ## More in Forms and inputs
 
 - [Buttons](https://designme.dev/components/buttons.md): Every button style, with loading, success and hold-to-confirm states.
+- [Badge](https://designme.dev/components/badge.md): Small labels for plans, environments and status, with a dot, an icon or a remove button.
 - [Search input](https://designme.dev/components/search-input.md): Search with scoped filters, recent queries and an agent answer.
 - [Country select](https://designme.dev/components/country-select.md): A searchable select with country codes, currency and keyboard support.
 - [Multi-select](https://designme.dev/components/multi-select.md): A combobox that filters as you type and keeps your picks as chips.

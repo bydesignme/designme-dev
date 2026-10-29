@@ -1,0 +1,40 @@
+{
+  "summary": "Context switcher is the breadcrumb at the top of a developer dashboard that says where you are: an organisation, a project and an environment. Each part shows its name, an optional badge like a plan (\"Pro\") or an environment (\"Production\"), and a ⇅ mark, and opens its own switcher with a search, the list with the current one ticked, and Create new at the bottom. Picking an organisation brings its projects, and picking a project brings the environment it was on.",
+  "use": [
+    "When people work across several organisations, projects or environments and need to see, on every page, which one they are in.",
+    "When switching between them should take a couple of keys, without leaving the page.",
+    "When the environment matters, like Production next to Staging, and a badge should make that hard to miss.",
+    "When there are too many items for tabs, so a search in each list helps."
+  ],
+  "features": [
+    "Each part is a button with the item's name, its badge and ⇅. The organisation also has a tile with its initial. When a pick changes a part, its name and badge crossfade.",
+    "A part's switcher opens under it: a search, a line saying what the list holds (\"Projects in Fernhill Labs\"), the items with their badges and the current one ticked, and Create new… at the bottom, which reads Create “…” once something is typed. Typing filters the list; with nothing left, it says so.",
+    "Picking an organisation brings its projects and picking a project brings its environments. In the HTML version each level remembers what was last picked in it; in React, the parts after a pick keep their item if their new list has it, and otherwise take the item marked `isDefault`, or the first.",
+    "As the bar runs short, each part takes an even share of it and never more than it needs, so the names shorten alike with an ellipsis, and a name cut short shows in full in a tooltip. When the component is 560px wide or less the organisation's tile goes, and at 440px or less, phone width, only the last part shows, and a … button opens a menu with the others, each opening its own switcher.",
+    "In HTML, each change goes out as a `context-change` event with the whole path, and Create new first sends a cancelable `context-create` event with the part and what was typed: left alone, it adds one by that name (an organisation with a first project) and picks it. In React, `onChange` gets the path and the item, and `onCreate` adds the Create new row."
+  ],
+  "a11y": [
+    "The bar is a `nav` named \"Context\" holding an ordered list; the slashes between the parts are hidden from screen readers. Each part's button has `aria-haspopup=\"listbox\"`, `aria-expanded` and a name with its badge, like \"Environment: eu-live, Production\".",
+    "The search is a combobox with `aria-autocomplete=\"list\"` that keeps the focus while `aria-activedescendant` follows the highlight through the listbox. Rows are options with `aria-selected`; Create new is named \"Create new project\" until something is typed.",
+    "Enter, Space or the down arrow on a part opens its switcher with the focus in the search and the current item highlighted; the up arrow opens it on the last row. The arrows move and wrap, Home and End go to the ends, typing filters, Enter picks, Escape closes it and gives the focus back to the part (or to … on a phone), and Tab closes it and moves on. On the bar, the left and right arrows move between the parts; in the search, with nothing typed, they open the part before or after.",
+    "A polite live region says what changed, like \"Switched to Invoice reader (Beta), environment staging (Staging)\". Every badge's text is at least 4.5:1 and APCA Lc 60 on the bar and in the list, hovered rows included, in both styles and themes."
+  ],
+  "faq": [
+    {
+      "q": "Does it load projects or switch my app?",
+      "a": "No. It keeps the path and tells you when it changes. Load the new project's data in `onChange` (React) or on `context-change` (HTML)."
+    },
+    {
+      "q": "Can I have two parts, or four?",
+      "a": "In React, `segments` takes any number of parts, outermost first, each with its own list, heading and noun. The HTML version is written for the three shown."
+    },
+    {
+      "q": "How does the project list follow the organisation?",
+      "a": "In React, a segment's `items` can be a function of the parts before it, like `v => projectsOf(v.org)`. In HTML, each organisation holds its own projects."
+    },
+    {
+      "q": "What does Create new do?",
+      "a": "In React it calls `onCreate(key, query)`, and the row only shows when you pass it: add the item to your data and pick it in `value`. In HTML, cancel the `context-create` event to open your own form instead of adding it on the spot."
+    }
+  ]
+}
