@@ -275,11 +275,11 @@ function Right({ run, group, fail, secs, fresh, onApprove, onRetry }: { run: Inb
 - [Reasoning trail](https://designme.dev/components/reasoning-trail.md): The agent's plan, notes, sources and edits, after it thinks.
 - [Agent lanes](https://designme.dev/components/agent-lanes.md): Several agents working in parallel, each with its own lane and hand-offs.
 - [Agent tree](https://designme.dev/components/agent-tree.md): An orchestrator and its sub-agents, with cost rolled up per branch.
-- [Browser session](https://designme.dev/components/browser-session.md): The agent browsing for you, step by step, with Pause and Take over.
 - [Trace view](https://designme.dev/components/trace-view.md): One agent run as a waterfall of spans, with latency and tokens.
+- [Browser session](https://designme.dev/components/browser-session.md): The agent browsing for you, step by step, with Pause and Take over.
 - [Run summary](https://designme.dev/components/run-summary.md): What the agent did, what changed and what needs you.
-- [Action log](https://designme.dev/components/action-log.md): Every read, search, edit and command, logged as it runs.
 - [Agent run timeline](https://designme.dev/components/agent-run-timeline.md): Every model and tool step of a run on one time axis.
+- [Action log](https://designme.dev/components/action-log.md): Every read, search, edit and command, logged as it runs.
 - [Context meter](https://designme.dev/components/context-meter.md): How full the context is and what fills it, with Compact to free room.
 - [Error and recovery](https://designme.dev/components/error-recovery.md): A failed step with retry, skip or hand over to a person.
 - [Run queue](https://designme.dev/components/run-queue.md): Grouped tasks with live progress, retries and a compact view.

@@ -402,7 +402,7 @@ main = main.replace(/<article([^>]*\bid="(c\d+)"[^>]*)>([\s\S]*?)<\/article>/g, 
 const SECTIONS_FIRST = ['s-conversation', 's-status'], GRP = {};
 const ORDER = {
   's-conversation': ['live-answer', 'composer', 'thread-panel', 'artifact-card', 'rich-text-editor', 'tool-call', 'voice-capture', 'voice-orb', 'answer-action-bar', 'response-versions', 'model-picker', 'prompt-starters', 'prompt-library', 'attachment-tray', 'feedback-sheet'],
-  's-status': ['thinking', 'reasoning-trail', 'agent-lanes', 'agent-tree', 'agent-inbox', 'browser-session', 'trace-view', 'run-summary', 'action-log', 'agent-run-timeline', 'context-meter', 'error-recovery', 'run-queue', 'run-cost', 'toast-stack', 'toast', 'status-pill', 'step-loader'],
+  's-status': ['thinking', 'reasoning-trail', 'agent-lanes', 'agent-tree', 'agent-inbox', 'trace-view', 'browser-session', 'run-summary', 'agent-run-timeline', 'action-log', 'context-meter', 'error-recovery', 'run-queue', 'run-cost', 'toast-stack', 'toast', 'status-pill', 'step-loader'],
   's-review': ['change-review', 'plan-review', 'permission-gate', 'human-handoff', 'decision-prompt', 'proposal-card', 'design-tuner', 'rewrite-toolbar', 'launch-checklist', 'inline-text-diff', 'draft-review', 'steering', 'eval-results', 'design-review'],
   's-data': ['code-viewer', 'terminal-stream', 'citation-hover', 'source-stack', 'field-extraction', 'metric-insight', 'details-panel', 'task-table'],
   's-workspace': ['automation-canvas', 'command-palette', 'memory-panel', 'model-compare', 'agent-settings', 'tool-connections', 'knowledge-sources', 'scheduled-runs', 'file-explorer', 'workspace-rail'],

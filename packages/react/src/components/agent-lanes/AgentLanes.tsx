@@ -112,7 +112,7 @@ function Lane({ lane, paused, open, sent, got, ping, onToggle }: { lane: AgentLa
   const tone = hue(lane), steps = lane.steps ?? 3, done = lane.done ?? 0;
   const live = status === 'working' || status === 'paused';
   return (
-    <div className={cx('dm-aln-lane', sent && 'dm-sent', got && 'dm-got')} data-s={status} data-lane={lane.key} style={{ '--dm-c': `var(--dm-${tone})`, '--dm-cb': `var(--dm-${tone}-bg)` } as CSSProperties}>
+    <div className={cx('dm-aln-lane', sent && 'dm-sent', got && 'dm-got')} data-s={status} data-lane={lane.key} style={{ '--dm-c': `var(--dm-${tone})`, '--dm-cb': `var(--dm-${tone}-bg)`, '--dm-cm': `var(--dm-aln-${tone},var(--dm-${tone}))` } as CSSProperties}>
       <button type="button" className="dm-aln-row" aria-expanded={open} onClick={onToggle}>
         <span className={cx('dm-aln-av', ping && 'dm-ping')}>
           <Icon name={lane.icon} />

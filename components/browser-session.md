@@ -368,8 +368,8 @@ export function BrowserSession({ title, url, search, children, cursor, steps, as
 - [Agent inbox](https://designme.dev/components/agent-inbox.md): Every run that needs you, is running or is done, in one list.
 - [Trace view](https://designme.dev/components/trace-view.md): One agent run as a waterfall of spans, with latency and tokens.
 - [Run summary](https://designme.dev/components/run-summary.md): What the agent did, what changed and what needs you.
-- [Action log](https://designme.dev/components/action-log.md): Every read, search, edit and command, logged as it runs.
 - [Agent run timeline](https://designme.dev/components/agent-run-timeline.md): Every model and tool step of a run on one time axis.
+- [Action log](https://designme.dev/components/action-log.md): Every read, search, edit and command, logged as it runs.
 - [Context meter](https://designme.dev/components/context-meter.md): How full the context is and what fills it, with Compact to free room.
 - [Error and recovery](https://designme.dev/components/error-recovery.md): A failed step with retry, skip or hand over to a person.
 - [Run queue](https://designme.dev/components/run-queue.md): Grouped tasks with live progress, retries and a compact view.

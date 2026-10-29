@@ -69,9 +69,10 @@ export default function PaymentFormDemo() {
     typing = false;
   });
   return (
-    <div ref={ref} style={{ width: '100%' }}>
-      <PaymentForm card={card} onCardChange={setCard} note="Demo only. Nothing is charged."
+    <div ref={ref} className="dm-pyx-wrap">
+      <PaymentForm card={card} onCardChange={setCard}
         onPay={() => new Promise<void>(res => setTimeout(res, 1200))} />
+      <span className="dm-muted dm-pyx-n">Demo only. Nothing is charged.</span>
     </div>
   );
 }

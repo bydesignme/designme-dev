@@ -51,6 +51,9 @@ const server = http.createServer((req, res) => {
     if (ONLY && !ONLY.includes(band)) continue;
     const page = await browser.newPage({ viewport: { width, height: 900 } });
     await page.addInitScript(() => { window.DM_NO_IDLE = true; });
+    // every card counts as on screen while it's measured, so demos that rest off screen (c.seen, through an
+    // IntersectionObserver) still play to their tallest moment
+    await page.addInitScript(() => { window.IntersectionObserver = class { constructor(cb){ this.cb = cb; } observe(el){ setTimeout(() => this.cb([{ target:el, isIntersecting:true, intersectionRatio:1 }], this), 0); } unobserve(){} disconnect(){} takeRecords(){ return []; } }; });
     await page.addInitScript(s => { try { localStorage.setItem('dmui-style', s === 'soft' ? 'soft' : 'blueprint'); localStorage.setItem('dmui-theme', 'light'); } catch(e){} }, style);
     await page.goto(url, { waitUntil: 'load' });
     await page.evaluate(() => document.fonts.ready);
