@@ -38,6 +38,10 @@ Object.assign(WAIT, { 'agent-lanes':6800 });
 Object.assign(WAIT, { 'command-palette':4600 });
 // Attachment tray is taken once the agent has read the three files
 Object.assign(WAIT, { 'attachment-tray':6500 });
+// Agent run timeline is taken once the run is done, the retry joined to the failed tests and the playhead green at the finish
+Object.assign(WAIT, { 'agent-run-timeline':9000 });
+// Memory panel is taken once the launch email has used three memories, each with its Used tag
+Object.assign(WAIT, { 'memory-panel':12500 });
 const OUT = { thumbs:path.join(HERE, 'public/components/thumbs'), og:path.join(HERE, 'public/components/og') };
 Object.values(OUT).forEach(d => fs.mkdirSync(d, { recursive:true }));
 
@@ -53,11 +57,13 @@ await new Promise(r => server.listen(0, '127.0.0.1', r));
 const base = `http://127.0.0.1:${server.address().port}`;
 
 // a box of the given shape around the component, inside the demo, in page pixels
-const boxAround = (comp, demo, ratio, pad) => {
+// a component too tall for the shared picture's shape is pictured from its top (its title), not cut through the middle
+const TOP = new Set(['agent-run-timeline', 'memory-panel']);
+const boxAround = (comp, demo, ratio, pad, top = false) => {
   let w = comp.width + pad * 2, h = comp.height + pad * 2;
   if (w / h < ratio) w = h * ratio; else h = w / ratio;
   w = Math.min(w, demo.width); h = Math.min(h, demo.height, w / ratio); w = h * ratio;
-  let x = comp.x + comp.width / 2 - w / 2, y = comp.y + comp.height / 2 - h / 2;
+  let x = comp.x + comp.width / 2 - w / 2, y = top && h < comp.height + pad * 2 ? comp.y - pad / 2 : comp.y + comp.height / 2 - h / 2;
   x = Math.max(demo.x, Math.min(x, demo.x + demo.width - w)); y = Math.max(demo.y, Math.min(y, demo.y + demo.height - h));
   return { x, y, width:w, height:h };
 };
@@ -82,10 +88,10 @@ for (const theme of ['light', 'dark']){
       const box = b => ({ x:b.x + scrollX, y:b.y + scrollY, width:b.width, height:b.height });
       return { demo:box(d), comp:box({ x, y, width:X - x, height:Y - y }) };
     });
-    const thumb = await page.screenshot({ clip:boxAround(r.comp, r.demo, 16 / 10, 40), type:'png' });
+    const thumb = await page.screenshot({ clip:boxAround(r.comp, r.demo, 16 / 10, 40, TOP.has(name)), type:'png' });
     encode(thumb, path.join(OUT.thumbs, `${name}-${theme}.webp`), 640, 400, ['-c:v', 'libwebp', '-quality', '82']);
     if (theme === 'light'){
-      const og = await page.screenshot({ clip:boxAround(r.comp, r.demo, 1200 / 630, 56), type:'png' });
+      const og = await page.screenshot({ clip:boxAround(r.comp, r.demo, 1200 / 630, 56, TOP.has(name)), type:'png' });
       encode(og, path.join(OUT.og, `${name}.jpg`), 1200, 630, ['-q:v', '3']);
     }
     await page.close();

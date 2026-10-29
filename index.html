@@ -3203,29 +3203,96 @@ html{scrollbar-gutter:stable}
 :root:not([data-style="soft"]) .v2 .aln-av.ping::before{animation:v2-alnpingbp .6s steps(3,end)}
 @keyframes v2-alnpingbp{from{box-shadow:0 0 0 1px var(--c)}to{box-shadow:0 0 0 7px transparent}}
 /* ---------- Agent run timeline ---------- */
-.v2 .art{padding:var(--s-4)}
+/* each kind of step has a hue: --k paints its bar, --kt its text and icon, --kb the icon's tint. The model is purple, tools
+   are teal and apps orange, each app with its own mark. The playhead runs in the accent with the time on it, and the lanes it
+   has passed take a faint wash; once the run is done it stops at the finish and turns green */
+.v2 .art{padding:var(--s-4);--lab:176px;--dur:44px}
 .v2 .art-h{display:flex;align-items:flex-start;justify-content:space-between;gap:var(--s-3)}
+.v2 .art-hd{min-width:0}
 .v2 .art-t{font-weight:500}
-.v2 .art-s{font-size:12.5px}
+.v2 .art-s{font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .v2 .art-s.sw{display:block}
-.v2 .art-grid{position:relative;margin-top:14px;overflow:hidden}
-.v2 .art-axis{display:grid;grid-template-columns:150px 1fr;font-size:11px;color:var(--muted)}
+.v2 .art-tag{flex:none;transition:background .3s,color .3s}
+.v2 .art-tag .spin{width:9px;height:9px}
+.v2 .art.live .art-tag{background:var(--accent-bg);color:var(--accent-fg,var(--fg))}
+/* the key: how long each kind has run so far */
+.v2 .art-key{display:flex;flex-wrap:wrap;gap:2px var(--s-4);margin-top:10px;font-size:12px;color:var(--muted)}
+.v2 .art-key span{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.v2 .art-key i{width:8px;height:8px;border-radius:2px;background:var(--k);flex:none}
+.v2 .art-key b{font-weight:500;color:var(--fg2)}
+.v2 .art-grid{position:relative;margin-top:var(--s-3)}
+.v2 .art-axis,.v2 .art-row{display:grid;grid-template-columns:var(--lab) minmax(0,1fr) var(--dur);align-items:center}
+.v2 .art-axis{height:20px;font-size:11px;color:var(--muted)}
 .v2 .art-ticks{position:relative;height:16px}
-.v2 .art-ticks span{position:absolute;transform:translateX(-50%)}
+.v2 .art-ticks span{position:absolute;top:0;transform:translateX(-50%);transition:opacity .2s}
 .v2 .art-ticks span:first-child{transform:none}
 .v2 .art-ticks span:last-child{transform:translateX(-100%)}
-.v2 .art-row{display:grid;grid-template-columns:150px 1fr;align-items:center;height:30px}
-.v2 .art-lab{display:flex;align-items:center;gap:var(--s-2);font-size:12.5px;color:var(--fg2);white-space:nowrap;overflow:hidden}
-.v2 .art-lab .i{color:var(--muted);flex:none}
-.v2 .art-lab .t{overflow:hidden;text-overflow:ellipsis}
-.v2 .art-lane{position:relative;height:100%;background:repeating-linear-gradient(90deg,transparent 0 calc(25% - 1px),var(--line) calc(25% - 1px) 25%)}
-.v2 .art-bar{position:absolute;top:8px;height:14px;border-radius:var(--r-xs);background:var(--c);width:0;transition:width .25s linear;cursor:default}
-.v2 .art-bar.fail{background:repeating-linear-gradient(135deg,var(--c5) 0 3px,color-mix(in srgb,var(--c5) 55%,transparent) 3px 6px)}
-@media (hover:hover) and (pointer:fine){.v2 .art-bar:hover{filter:brightness(1.08)}}
-.v2 .art-head{position:absolute;top:16px;bottom:0;left:150px;width:1.5px;background:var(--fg);opacity:.7;border-radius:1px}
-.v2 .art-f{display:flex;gap:var(--s-4);margin-top:var(--s-3);padding-top:var(--s-3);border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent);font-size:12.5px}
+.v2 .art-ticks span.hid{opacity:0}
+.v2 .art-rows{position:relative}
+.v2 .art-row{height:32px}
+.v2 .art-lab{display:flex;align-items:center;gap:var(--s-2);min-width:0;padding-right:var(--s-3);font-size:12.5px;color:var(--fg2);white-space:nowrap;transition:color .3s}
+.v2 .art-lab .t{min-width:0;overflow:hidden;text-overflow:ellipsis}
+.v2 .art-lab .tag{flex:none}
+.v2 .art-ic{--ring:0 0 0 0 transparent;width:22px;height:22px;border-radius:7px;display:grid;place-items:center;flex:none;background:var(--kb);color:var(--kt);box-shadow:var(--ring);transition:opacity .3s}
+.v2 .art-ic .brand{width:13px;height:13px}
+/* an app's own mark sits on a plain tile */
+.v2 .art-row[data-k="app"] .art-ic{--ring:inset 0 0 0 1px color-mix(in srgb,var(--rail) 50%,transparent);background:var(--surface);color:var(--fg)}
+/* a step that hasn't started waits quietly; the one at work breathes a ring of its hue round its icon */
+.v2 .art-row[data-s="wait"] .art-lab{color:var(--muted)}
+.v2 .art-row[data-s="wait"] .art-ic{opacity:.45}
+.v2 .art-row[data-s="run"] .art-lab{color:var(--fg)}
+.v2 .art-row[data-s="run"] .art-ic{animation:v2-artbreathe 1.8s var(--ease-io) infinite}
+@keyframes v2-artbreathe{0%,100%{box-shadow:var(--ring),0 0 0 0 color-mix(in srgb,var(--k) 0%,transparent)}50%{box-shadow:var(--ring),0 0 0 3px color-mix(in srgb,var(--k) 24%,transparent)}}
+.v2 .art-row.bump .art-ic{animation:v2-artpop .45s var(--ease)}
+@keyframes v2-artpop{40%{transform:scale(1.14)}}
+/* the lanes: quarter lines at half strength, a bar for each step */
+.v2 .art-lane{position:relative;height:100%;background:linear-gradient(90deg,color-mix(in srgb,var(--line) 50%,transparent) 1px,transparent 1px) 0 0/25% 100%;box-shadow:inset -1px 0 color-mix(in srgb,var(--line) 50%,transparent)}
+.v2 .art-bar{position:absolute;top:9px;height:14px;width:0;border-radius:5px;background:linear-gradient(90deg,var(--k),color-mix(in oklab,var(--k) 82%,#fff));cursor:default;transition:filter .2s}
+@media (hover:hover) and (pointer:fine){.v2 .art-bar:hover{filter:brightness(1.08) saturate(1.1)}}
+/* the bar at work carries a passing light and a bright leading edge */
+.v2 .art-row[data-s="run"] .art-bar{background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.42) 46%,transparent 62%) 0 0/250% 100% no-repeat,var(--k);animation:v2-artsheen 1.3s linear infinite}
+.v2 .art-bar i{display:none;position:absolute;right:-1px;top:-3px;bottom:-3px;width:2px;border-radius:1px;background:var(--k);box-shadow:0 0 8px 1px color-mix(in srgb,var(--k) 60%,transparent)}
+.v2 .art-row[data-s="run"] .art-bar i{display:block}
+@keyframes v2-artsheen{from{background-position:120% 0,0 0}to{background-position:-120% 0,0 0}}
+.v2 .art-row[data-s="fail"] .art-bar{background:repeating-linear-gradient(135deg,var(--c5) 0 3px,color-mix(in srgb,var(--c5) 45%,var(--surface)) 3px 6px)}
+/* a retry hangs off the end of the step that failed */
+.v2 .art-link{position:absolute;top:-9px;height:25px;min-width:6px;border-left:1px dashed var(--warn);border-bottom:1px dashed var(--warn);pointer-events:none;display:none}
+.v2 .art-row:not([data-s="wait"]) .art-link{display:block;animation:v2-artdraw .5s var(--ease) backwards}
+@keyframes v2-artdraw{from{clip-path:inset(0 100% 100% 0)}to{clip-path:inset(0)}}
+/* how long each step took, counting while it runs */
+.v2 .art-d{font-size:12px;color:var(--muted);text-align:right;white-space:nowrap}
+.v2 .art-row[data-s="run"] .art-d{color:var(--kt)}
+.v2 .art-row[data-s="done"] .art-d{color:var(--fg2)}
+.v2 .art-row[data-s="fail"] .art-d{color:var(--bad)}
+/* the playhead, with the time on the axis, and the wash over what it has passed */
+.v2 .art-past{position:absolute;top:20px;bottom:0;left:var(--lab);width:calc((100% - var(--lab) - var(--dur)) * var(--p,0));background:linear-gradient(90deg,transparent,var(--sel));pointer-events:none;opacity:0;transition:opacity .5s}
+.v2 .art.live .art-past{opacity:1}
+.v2 .art-head{position:absolute;top:2px;bottom:0;left:calc(var(--lab) + (100% - var(--lab) - var(--dur)) * var(--p,0));width:0;pointer-events:none;opacity:0;transition:opacity .4s}
+.v2 .art.live .art-head,.v2 .art.fin .art-head{opacity:1}
+.v2 .art-head i{position:absolute;top:16px;bottom:0;left:-.75px;width:1.5px;border-radius:1px;background:var(--accent-mark,var(--accent));transition:background .4s}
+.v2 .art-now{position:absolute;top:0;left:0;transform:translateX(-50%);display:inline-flex;align-items:center;gap:3px;height:16px;padding:0 5px;border-radius:5px;background:var(--accent);color:var(--on-accent,#fff);font-size:11px;font-weight:500;line-height:1;white-space:nowrap;transition:background .4s,color .4s}
+.v2 .art-now .i{width:10px;height:10px}
+.v2 .art.fin .art-head i{background:var(--ok)}
+.v2 .art.fin .art-now{background:var(--ok-bg);color:var(--ok)}
+.v2 .art-f{display:flex;flex-wrap:wrap;gap:var(--s-2) var(--s-5);margin-top:var(--s-3);padding-top:var(--s-3);border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent);font-size:12.5px}
+.v2 .art-f>span{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
 .v2 .art-f b{color:var(--fg);font-weight:500}
-@media (max-width:600px){.v2 .art-axis,.v2 .art-row{grid-template-columns:96px 1fr}.v2 .art-head{left:96px}}
+@media (max-width:600px){.v2 .art{--lab:112px;--dur:38px}.v2 .art-lab{gap:6px;padding-right:var(--s-2)}.v2 .art-lab .tag{display:none}.v2 .art-f{gap:var(--s-2) var(--s-4)}}
+:root:not([data-style="soft"]) .v2 .art-ic{--ring:inset 0 0 0 1px color-mix(in srgb,var(--k) 35%,transparent)}
+:root:not([data-style="soft"]) .v2 .art-row[data-k="app"] .art-ic{--ring:inset 0 0 0 1px color-mix(in srgb,var(--rail) 50%,transparent)}
+:root:not([data-style="soft"]) .v2 .art-row[data-s="run"] .art-ic{animation:v2-artbp 1s steps(1,end) infinite}
+@keyframes v2-artbp{0%,55%{box-shadow:inset 0 0 0 1px var(--k)}56%,100%{box-shadow:var(--ring)}}
+:root:not([data-style="soft"]) .v2 .art-row.bump .art-ic{animation:none}
+:root:not([data-style="soft"]) .v2 .art-row[data-s="fail"] .art-bar{background:repeating-linear-gradient(135deg,var(--c5) 0 3px,color-mix(in srgb,var(--c5) 45%,var(--surface)) 3px 6px)}
+:root:not([data-style="soft"]) .v2 .art-bar{background:var(--k)}
+:root:not([data-style="soft"]) .v2 .art-row[data-s="run"] .art-bar{background:linear-gradient(135deg,var(--k) 25%,color-mix(in srgb,var(--k) 50%,var(--surface)) 25% 50%,var(--k) 50% 75%,color-mix(in srgb,var(--k) 50%,var(--surface)) 75%) 0 0/8px 8px;animation:v2-artmarch .6s steps(4) infinite}
+@keyframes v2-artmarch{to{background-position:8px 0}}
+:root:not([data-style="soft"]) .v2 .art-bar i{width:1px;right:0;box-shadow:none}
+:root:not([data-style="soft"]) .v2 .art-link{border-left-style:solid;border-bottom-style:solid}
+:root:not([data-style="soft"]) .v2 .art-row:not([data-s="wait"]) .art-link{animation:v2-artdrawbp .3s steps(3,end) backwards}
+@keyframes v2-artdrawbp{from{clip-path:inset(0 100% 100% 0)}to{clip-path:inset(0)}}
+:root:not([data-style="soft"]) .v2 .art-past{background:repeating-linear-gradient(135deg,transparent 0 5px,var(--grid) 5px 6px)}
+:root:not([data-style="soft"]) .v2 .art-head i{width:1px;left:-.5px}
 /* ---------- Live answer ---------- */
 .v2 .lva{display:flex;flex-direction:column;gap:14px}
 .v2 .lva-q{display:flex;justify-content:flex-end}
@@ -5210,29 +5277,65 @@ html{scrollbar-gutter:stable}
 :root:not([data-style="soft"]) .v2 .ctb-n.run{box-shadow:0 0 0 1px var(--accent-mark),0 0 0 4px color-mix(in srgb,var(--accent-mark,var(--accent)) 22%,transparent)}
 :root:not([data-style="soft"]) .v2 .ctb-n.sel{box-shadow:0 0 0 1px color-mix(in srgb,var(--pick-on) 50%,transparent)}
 /* ---------- Memory panel ---------- */
+/* each memory shows where it came from, as that source's own mark (Slack, Figma, GitHub, Notion, Linear, Drive) or an icon
+   (something said in chat, an edit), and its kind in the kind's colour (--k). A memory the agent learns arrives shimmering
+   while it works the rule out, then sits on the accent's tint with a New tag; the memories an answer uses pulse once and say so */
 .v2 .mmx{padding:var(--s-3);display:flex;flex-direction:column;gap:var(--s-2);min-height:330px}
+/* on a card the panel sits centred in the room kept for its tallest moment, and glides up as a new memory opens its row */
+.v2.stage-in:has(>.mmx){display:flex;flex-direction:column;justify-content:center}
 .v2 .mmx-h{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .v2 .mmx-ic{width:32px;height:32px;border-radius:10px;background:var(--pp-bg);color:var(--pp);display:grid;place-items:center;flex:none}
 .v2 .mmx-ht{display:flex;flex-direction:column;flex:1;min-width:0;font-size:13.5px}
 .v2 .mmx-ht b{font-weight:500}
-.v2 .mmx-st{font-size:12px}
+.v2 .mmx-sub{display:flex;align-items:center;gap:var(--s-2);min-width:0}
+.v2 .mmx-st{font-size:12px;white-space:nowrap}
+/* the apps it has learned from, as a row of their marks */
+.v2 .mmx-srcs{display:inline-flex;align-items:center;gap:3px}
+.v2 .mmx-srcs span{width:18px;height:18px;border-radius:5px;display:grid;place-items:center;flex:none;background:var(--surface);color:var(--fg);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--rail) 50%,transparent)}
+.v2 .mmx-srcs .brand{width:11px;height:11px}
+@media (max-width:600px){.v2 .mmx-srcs{display:none}}
 .v2 .mmx-tab button{font-size:12px;height:26px;padding:0 9px}
 .v2 .mmx-list{display:flex;flex-direction:column}
-.v2 .mmx-m{display:flex;align-items:flex-start;gap:10px;padding:var(--s-2) 6px;border-radius:10px;font-size:13px;line-height:1.5;transition:background .2s}
+.v2 .mmx-m{display:flex;align-items:flex-start;gap:10px;padding:var(--s-2) 6px;border-radius:10px;font-size:13px;line-height:1.5;transition:background .3s}
 @media (hover:hover) and (pointer:fine){.v2 .mmx-m:hover{background:var(--row)}}
-.v2 .mmx-m .dot{margin-top:7px}
-.v2 .mmx-m .t{flex:1;min-width:0;outline:0;border-radius:5px;padding:0 3px;margin:0 -3px}
+.v2 .mmx-src{width:28px;height:28px;margin-top:1px;border-radius:8px;display:grid;place-items:center;flex:none;background:var(--surface);color:var(--fg2);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--rail) 50%,transparent)}
+.v2 .mmx-src .brand{width:15px;height:15px;color:var(--fg)}
+.v2 .mmx-src .spin{width:12px;height:12px}
+.v2 .mmx-b{flex:1;min-width:0;display:flex;flex-direction:column}
+.v2 .mmx-m .t{outline:0;border-radius:5px;padding:0 3px;margin:0 -3px}
 .v2 .mmx-m .t[contenteditable="true"]{background:var(--surface);box-shadow:0 0 0 1px color-mix(in srgb,var(--field-line) 50%,transparent)}
 .v2 .mmx-m .t[contenteditable="true"]:focus{box-shadow:0 0 0 1px color-mix(in srgb,var(--field-line-strong) 50%,transparent)}
-.v2 .mmx-m .src{display:block;font-size:11.5px;color:var(--muted)}
+/* under it: its kind in the kind's colour, then where it came from */
+.v2 .mmx-meta{display:flex;align-items:center;gap:6px;min-width:0;font-size:11.5px;color:var(--muted);white-space:nowrap}
+.v2 .mmx-meta>*{flex:none}
+.v2 .mmx-meta .k{color:var(--k);font-weight:500}
+.v2 .mmx-meta .s{flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.v2 .mmx-meta .tag{height:17px;padding:0 5px;font-size:11px}
+.v2 .mmx-meta .tag.nw{background:var(--accent-bg);color:var(--accent-fg,var(--fg))}
 .v2 .mmx-m .acts{display:flex;opacity:0;transition:opacity .2s}
 .v2 .mmx-m:focus-within .acts{opacity:1}
 @media (hover:hover) and (pointer:fine){.v2 .mmx-m:hover .acts{opacity:1}}
 .v2 .mmx-m .ib{width:24px;height:24px}
+.v2 .mmx-m.learn .acts{visibility:hidden}
 .v2 .mmx-m.new{background:var(--sel)}
-.v2 .mmx-m.new .src{color:var(--accent-fg,var(--accent))}
+/* a memory an answer uses pulses once with the accent's tint, and its source lifts */
+.v2 .mmx-m.use{animation:v2-mmxuse 1.4s var(--ease)}
+.v2 .mmx-m.use .mmx-src{animation:v2-mmxlift .6s var(--ease)}
+@keyframes v2-mmxuse{0%{background:color-mix(in srgb,var(--accent) 16%,transparent)}100%{background:transparent}}
+@keyframes v2-mmxlift{40%{transform:translateY(-2px) scale(1.08)}}
 .v2 .mmx-gone{display:flex;align-items:center;justify-content:space-between;gap:var(--s-2);padding:6px var(--s-2);border-radius:10px;font-size:12.5px;color:var(--muted);background:var(--chip)}
 .v2 .mmx-gone button{color:var(--accent-fg,var(--accent));font-weight:500;font-size:12.5px}
+/* the line at the foot: how often the memory is used, or the answer it is helping with now */
+.v2 .mmx-f{display:flex;align-items:center;gap:var(--s-2);margin-top:auto;padding:10px 6px 2px;border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent);font-size:12px;color:var(--muted)}
+.v2 .mmx-fi{display:grid;place-items:center;flex:none;color:var(--fg2)}
+.v2 .mmx-fi .brand{width:14px;height:14px}
+.v2 .mmx-ft{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v2 .mmx-ft.sw{display:block}
+:root:not([data-style="soft"]) .v2 .mmx-m.new{background:repeating-linear-gradient(135deg,transparent 0 5px,color-mix(in srgb,var(--accent-mark) 14%,transparent) 5px 6px),var(--sel)}
+:root:not([data-style="soft"]) .v2 .mmx-m.use{animation:v2-mmxusebp .9s steps(3,end)}
+@keyframes v2-mmxusebp{0%{background:color-mix(in srgb,var(--accent) 18%,transparent)}100%{background:transparent}}
+:root:not([data-style="soft"]) .v2 .mmx-m.use .mmx-src{animation:v2-mmxbp .9s steps(1,end)}
+@keyframes v2-mmxbp{0%,50%{box-shadow:inset 0 0 0 1px var(--k)}51%,100%{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--rail) 50%,transparent)}}
 /* ---------- Model compare ---------- */
 /* one prompt on top, then each model's answer in its own column on one white surface, split by hairlines. Colour is only
    for the models' marks and the answer that was chosen. Where the component is narrow, the columns stack */
@@ -7769,7 +7872,7 @@ body.ui .brand.o3::after{content:none}
   <div class="rsu-acts"><button class="pill primary sm">Open changes</button><button class="pill ghost sm rsu-undo">Undo all</button></div>
 </div></template>
   </article>
-  <article class="comp wide" data-soft id="c67" data-v2="agent-run-timeline" data-reg="agent-run-timeline" style="--rh-a:468px;--rc-a:356px;--rcb-a:356px;--rh-b:468px;--rc-b:356px;--rcb-b:356px;--rh-c:468px;--rc-c:356px;--rcb-c:356px;--rh-d:468px;--rc-d:356px;--rcb-d:356px;--rh-e:468px;--rc-e:356px;--rcb-e:356px;--rh-f:468px;--rc-f:356px;--rcb-f:356px;--rh-g:468px;--rc-g:356px;--rcb-g:356px;--rh-h:468px;--rc-h:356px;--rcb-h:356px;--rh-i:468px;--rc-i:356px;--rcb-i:356px;--rh-j:436px;--rc-j:356px;--rcb-j:356px;--rh-k:436px;--rc-k:356px;--rcb-k:356px;--rh-l:457px;--rc-l:377px;--rcb-l:356px;--rh-m:457px;--rc-m:377px;--rcb-m:377px">
+  <article class="comp wide" data-soft id="c67" data-v2="agent-run-timeline" data-reg="agent-run-timeline" style="--rh-a:544px;--rc-a:432px;--rcb-a:432px;--rh-b:544px;--rc-b:432px;--rcb-b:432px;--rh-c:544px;--rc-c:432px;--rcb-c:432px;--rh-d:544px;--rc-d:432px;--rcb-d:432px;--rh-e:544px;--rc-e:432px;--rcb-e:432px;--rh-f:544px;--rc-f:432px;--rcb-f:432px;--rh-g:544px;--rc-g:432px;--rcb-g:432px;--rh-h:544px;--rc-h:432px;--rcb-h:432px;--rh-i:544px;--rc-i:432px;--rcb-i:432px;--rh-j:512px;--rc-j:432px;--rcb-j:432px;--rh-k:512px;--rc-k:432px;--rcb-k:432px;--rh-l:560px;--rc-l:480px;--rcb-l:480px;--rh-m:560px;--rc-m:480px;--rcb-m:480px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">graphic_eq</span></span>
       <div><h2 class="comp-title"><a href="/components/agent-run-timeline">Agent run timeline</a></h2><p class="comp-desc">Every model and tool step of a run on one time axis.</p></div>
@@ -7777,15 +7880,17 @@ body.ui .brand.o3::after{content:none}
     </div>
     <div class="stage"><div class="stage-inner dots v2-host" data-demo><div class="v2 stage-in wide bare"></div></div></div>
     <div class="comp-foot">
-      <span class="mono-xs">Hover a bar for its cost</span>
+      <span class="mono-xs">Hover a bar for its time and cost</span>
       <div class="code-btns"><button class="ghost anim-btn" data-anim><span class="ms sm">stars</span>Animate</button><button class="ghost" data-view aria-expanded="false"><span class="ms sm">code</span><span class="vl">View code</span></button><button class="ghost" data-copy><span class="ms sm">content_copy</span>Copy code</button></div>
     </div>
     <template><div class="art panel">
-  <div class="art-h"><div><div class="art-t">Run 4821, update the pricing page</div><div class="art-s muted num">Starting</div></div><span class="art-tag tag b"><span class="spin" style="width:9px;height:9px"></span>Running</span></div>
+  <div class="art-h"><div class="art-hd"><div class="art-t">Run 4821, update the pricing page</div><div class="art-s muted num">Starting</div></div><span class="art-tag tag"><span class="spin" aria-hidden="true"></span>Running</span></div>
+  <div class="art-key num" role="list" aria-label="Time by kind of step"></div>
   <div class="art-grid">
-    <div class="art-axis"><span></span><div class="art-ticks"></div></div>
+    <div class="art-axis" aria-hidden="true"><span></span><div class="art-ticks"></div><span></span></div>
+    <div class="art-past" aria-hidden="true"></div>
     <div class="art-rows"></div>
-    <div class="art-head"></div>
+    <div class="art-head" aria-hidden="true"><i></i><span class="art-now num">0.0s</span></div>
   </div>
   <div class="art-f muted num"></div>
 </div></template>
@@ -8597,7 +8702,7 @@ body.ui .brand.o3::after{content:none}
   <div class="cpl-f muted"><span><span class="kbd">↑</span><span class="kbd">↓</span> move</span><span><span class="kbd">↵</span> run</span><span class="cpl-st"></span></div>
 </div></template>
   </article>
-  <article class="comp" data-soft id="c69" data-v2="memory-panel" data-reg="memory-panel" style="--rh-a:605px;--rc-a:493px;--rcb-a:493px;--rh-b:722px;--rc-b:610px;--rcb-b:610px;--rh-c:605px;--rc-c:493px;--rcb-c:493px;--rh-d:605px;--rc-d:493px;--rcb-d:493px;--rh-e:605px;--rc-e:493px;--rcb-e:493px;--rh-f:605px;--rc-f:493px;--rcb-f:493px;--rh-g:605px;--rc-g:493px;--rcb-g:493px;--rh-h:605px;--rc-h:493px;--rcb-h:493px;--rh-i:605px;--rc-i:493px;--rcb-i:493px;--rh-j:573px;--rc-j:493px;--rcb-j:493px;--rh-k:651px;--rc-k:571px;--rcb-k:571px;--rh-l:690px;--rc-l:610px;--rcb-l:610px;--rh-m:729px;--rc-m:649px;--rcb-m:649px">
+  <article class="comp" data-soft id="c69" data-v2="memory-panel" data-reg="memory-panel" style="--rh-a:668px;--rc-a:551px;--rcb-a:556px;--rh-b:825px;--rc-b:708px;--rcb-b:713px;--rh-c:649px;--rc-c:532px;--rcb-c:537px;--rh-d:649px;--rc-d:532px;--rcb-d:537px;--rh-e:649px;--rc-e:532px;--rcb-e:537px;--rh-f:649px;--rc-f:532px;--rcb-f:537px;--rh-g:649px;--rc-g:532px;--rcb-g:537px;--rh-h:649px;--rc-h:532px;--rcb-h:537px;--rh-i:649px;--rc-i:532px;--rcb-i:537px;--rh-j:617px;--rc-j:532px;--rcb-j:537px;--rh-k:734px;--rc-k:649px;--rcb-k:654px;--rh-l:753px;--rc-l:668px;--rcb-l:673px;--rh-m:813px;--rc-m:727px;--rcb-m:733px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">history</span></span>
       <div><h2 class="comp-title"><a href="/components/memory-panel">Memory panel</a></h2><p class="comp-desc">What the agent remembers about your team, editable and removable.</p></div>
@@ -8605,12 +8710,13 @@ body.ui .brand.o3::after{content:none}
     </div>
     <div class="stage"><div class="stage-inner dots v2-host" data-demo><div class="v2 stage-in bare"></div></div></div>
     <div class="comp-foot">
-      <span class="mono-xs">Edit or forget a memory, watch it learn</span>
+      <span class="mono-xs">Edit or forget a memory, watch it learn and get used</span>
       <div class="code-btns"><button class="ghost anim-btn" data-anim><span class="ms sm">stars</span>Animate</button><button class="ghost" data-view aria-expanded="false"><span class="ms sm">code</span><span class="vl">View code</span></button><button class="ghost" data-copy><span class="ms sm">content_copy</span>Copy code</button></div>
     </div>
     <template><div class="mmx panel" data-reveal="flat">
-  <div class="mmx-h"><span class="mmx-ic">{book}</span><div class="mmx-ht"><b>Team memory</b><span class="muted mmx-st">7 memories</span></div><div class="seg2 mmx-tab" role="group" aria-label="Filter"><button aria-pressed="true" data-v="all">All</button><button aria-pressed="false" data-v="brand">Brand</button><button aria-pressed="false" data-v="process">Process</button></div></div>
+  <div class="mmx-h"><span class="mmx-ic">{book}</span><div class="mmx-ht"><b>Team memory</b><span class="mmx-sub"><span class="muted mmx-st">7 memories</span><span class="mmx-srcs" aria-hidden="true"></span></span></div><div class="seg2 mmx-tab" role="group" aria-label="Filter"><button aria-pressed="true" data-v="all">All</button><button aria-pressed="false" data-v="brand">Brand</button><button aria-pressed="false" data-v="process">Process</button></div></div>
   <div class="mmx-list"></div>
+  <div class="mmx-f" aria-live="polite"><span class="mmx-fi" aria-hidden="true">{spark}</span><span class="mmx-ft">Used in 14 answers this week</span></div>
 </div></template>
   </article>
   <article class="comp wide" data-soft id="c71" data-v2="model-compare" data-reg="model-compare" style="--rh-a:433px;--rc-a:321px;--rcb-a:307px;--rh-b:420px;--rc-b:307px;--rcb-b:307px;--rh-c:695px;--rc-c:583px;--rcb-c:583px;--rh-d:420px;--rc-d:307px;--rcb-d:307px;--rh-e:420px;--rc-e:307px;--rcb-e:307px;--rh-f:420px;--rc-f:307px;--rcb-f:307px;--rh-g:420px;--rc-g:307px;--rcb-g:307px;--rh-h:420px;--rc-h:307px;--rcb-h:307px;--rh-i:695px;--rc-i:583px;--rcb-i:583px;--rh-j:663px;--rc-j:583px;--rcb-j:583px;--rh-k:663px;--rc-k:583px;--rcb-k:583px;--rh-l:684px;--rc-l:604px;--rcb-l:604px;--rh-m:705px;--rc-m:625px;--rcb-m:625px">
@@ -11780,7 +11886,7 @@ let REDUCE = false;
 const I = (n, c = 's') => `<svg class="i ${c}"><use href="#v2i-${n}"/></svg>`;
 const AV = (n, bg) => `<span class="av" style="background:${bg}${/^var\(--av-[a-z]\)$/.test(bg) ? ';color:' + bg.replace(')', '-ink)') : ''}">${n}</span>`;
 /* official brand marks for the services this page names */
-const BRAND = {"google": "<svg class=\"brand\" aria-hidden=\"true\" viewBox=\"0 0 128 128\"><path fill=\"#e33629\" d=\"M44.59 4.21a64 64 0 0142.61.37 61.22 61.22 0 0120.35 12.62c-2 2.14-4.11 4.14-6.15 6.22Q95.58 29.23 89.77 35a34.28 34.28 0 00-13.64-8 37.17 37.17 0 00-37.46 9.74 39.25 39.25 0 00-9.18 14.91L8.76 35.6A63.53 63.53 0 0144.59 4.21z\"/><path fill=\"#f8bd00\" d=\"M3.26 51.5a62.93 62.93 0 015.5-15.9l20.73 16.09a38.31 38.31 0 000 24.63q-10.36 8-20.73 16.08a63.33 63.33 0 01-5.5-40.9z\"/><path fill=\"#587dbd\" d=\"M65.27 52.15h59.52a74.33 74.33 0 01-1.61 33.58 57.44 57.44 0 01-16 26.26c-6.69-5.22-13.41-10.4-20.1-15.62a29.72 29.72 0 0012.66-19.54H65.27c-.01-8.22 0-16.45 0-24.68z\"/><path fill=\"#319f43\" d=\"M8.75 92.4q10.37-8 20.73-16.08A39.3 39.3 0 0044 95.74a37.16 37.16 0 0014.08 6.08 41.29 41.29 0 0015.1 0 36.16 36.16 0 0013.93-5.5c6.69 5.22 13.41 10.4 20.1 15.62a57.13 57.13 0 01-25.9 13.47 67.6 67.6 0 01-32.36-.35 63 63 0 01-23-11.59A63.73 63.73 0 018.75 92.4z\"/></svg>", "github": "<svg class=\"brand\" aria-hidden=\"true\" viewBox=\"0 0 24 24\"><path fill=\"currentColor\" d=\"M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12\"/></svg>", "figma": "<svg class=\"brand\" aria-hidden=\"true\" viewBox=\"0 0 128 128\"><path fill=\"#0acf83\" d=\"M45.5 129c11.9 0 21.5-9.6 21.5-21.5V86H45.5C33.6 86 24 95.6 24 107.5S33.6 129 45.5 129zm0 0\"/><path fill=\"#a259ff\" d=\"M24 64.5C24 52.6 33.6 43 45.5 43H67v43H45.5C33.6 86 24 76.4 24 64.5zm0 0\"/><path fill=\"#f24e1e\" d=\"M24 21.5C24 9.6 33.6 0 45.5 0H67v43H45.5C33.6 43 24 33.4 24 21.5zm0 0\"/><path fill=\"#ff7262\" d=\"M67 0h21.5C100.4 0 110 9.6 110 21.5S100.4 43 88.5 43H67zm0 0\"/><path fill=\"#1abcfe\" d=\"M110 64.5c0 11.9-9.6 21.5-21.5 21.5S67 76.4 67 64.5 76.6 43 88.5 43 110 52.6 110 64.5zm0 0\"/></svg>", "slack": "<svg class=\"brand\" aria-hidden=\"true\" viewBox=\"0 0 128 128\"><path d=\"M27.255 80.719c0 7.33-5.978 13.317-13.309 13.317C6.616 94.036.63 88.049.63 80.719s5.987-13.317 13.317-13.317h13.309zm6.709 0c0-7.33 5.987-13.317 13.317-13.317s13.317 5.986 13.317 13.317v33.335c0 7.33-5.986 13.317-13.317 13.317-7.33 0-13.317-5.987-13.317-13.317zm0 0\" fill=\"#de1c59\"/><path d=\"M47.281 27.255c-7.33 0-13.317-5.978-13.317-13.309C33.964 6.616 39.951.63 47.281.63s13.317 5.987 13.317 13.317v13.309zm0 6.709c7.33 0 13.317 5.987 13.317 13.317s-5.986 13.317-13.317 13.317H13.946C6.616 60.598.63 54.612.63 47.281c0-7.33 5.987-13.317 13.317-13.317zm0 0\" fill=\"#35c5f0\"/><path d=\"M100.745 47.281c0-7.33 5.978-13.317 13.309-13.317 7.33 0 13.317 5.987 13.317 13.317s-5.987 13.317-13.317 13.317h-13.309zm-6.709 0c0 7.33-5.987 13.317-13.317 13.317s-13.317-5.986-13.317-13.317V13.946C67.402 6.616 73.388.63 80.719.63c7.33 0 13.317 5.987 13.317 13.317zm0 0\" fill=\"#2eb57d\"/><path d=\"M80.719 100.745c7.33 0 13.317 5.978 13.317 13.309 0 7.33-5.987 13.317-13.317 13.317s-13.317-5.987-13.317-13.317v-13.309zm0-6.709c-7.33 0-13.317-5.987-13.317-13.317s5.986-13.317 13.317-13.317h33.335c7.33 0 13.317 5.986 13.317 13.317 0 7.33-5.987 13.317-13.317 13.317zm0 0\" fill=\"#ebb02e\"/></svg>"};
+const BRAND = {"google": "<svg class=\"brand\" aria-hidden=\"true\" viewBox=\"0 0 128 128\"><path fill=\"#e33629\" d=\"M44.59 4.21a64 64 0 0142.61.37 61.22 61.22 0 0120.35 12.62c-2 2.14-4.11 4.14-6.15 6.22Q95.58 29.23 89.77 35a34.28 34.28 0 00-13.64-8 37.17 37.17 0 00-37.46 9.74 39.25 39.25 0 00-9.18 14.91L8.76 35.6A63.53 63.53 0 0144.59 4.21z\"/><path fill=\"#f8bd00\" d=\"M3.26 51.5a62.93 62.93 0 015.5-15.9l20.73 16.09a38.31 38.31 0 000 24.63q-10.36 8-20.73 16.08a63.33 63.33 0 01-5.5-40.9z\"/><path fill=\"#587dbd\" d=\"M65.27 52.15h59.52a74.33 74.33 0 01-1.61 33.58 57.44 57.44 0 01-16 26.26c-6.69-5.22-13.41-10.4-20.1-15.62a29.72 29.72 0 0012.66-19.54H65.27c-.01-8.22 0-16.45 0-24.68z\"/><path fill=\"#319f43\" d=\"M8.75 92.4q10.37-8 20.73-16.08A39.3 39.3 0 0044 95.74a37.16 37.16 0 0014.08 6.08 41.29 41.29 0 0015.1 0 36.16 36.16 0 0013.93-5.5c6.69 5.22 13.41 10.4 20.1 15.62a57.13 57.13 0 01-25.9 13.47 67.6 67.6 0 01-32.36-.35 63 63 0 01-23-11.59A63.73 63.73 0 018.75 92.4z\"/></svg>", "github": "<svg class=\"brand\" aria-hidden=\"true\" viewBox=\"0 0 24 24\"><path fill=\"currentColor\" d=\"M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12\"/></svg>", "figma": "<svg class=\"brand\" aria-hidden=\"true\" viewBox=\"0 0 128 128\"><path fill=\"#0acf83\" d=\"M45.5 129c11.9 0 21.5-9.6 21.5-21.5V86H45.5C33.6 86 24 95.6 24 107.5S33.6 129 45.5 129zm0 0\"/><path fill=\"#a259ff\" d=\"M24 64.5C24 52.6 33.6 43 45.5 43H67v43H45.5C33.6 86 24 76.4 24 64.5zm0 0\"/><path fill=\"#f24e1e\" d=\"M24 21.5C24 9.6 33.6 0 45.5 0H67v43H45.5C33.6 43 24 33.4 24 21.5zm0 0\"/><path fill=\"#ff7262\" d=\"M67 0h21.5C100.4 0 110 9.6 110 21.5S100.4 43 88.5 43H67zm0 0\"/><path fill=\"#1abcfe\" d=\"M110 64.5c0 11.9-9.6 21.5-21.5 21.5S67 76.4 67 64.5 76.6 43 88.5 43 110 52.6 110 64.5zm0 0\"/></svg>", "slack": "<svg class=\"brand\" aria-hidden=\"true\" viewBox=\"0 0 128 128\"><path d=\"M27.255 80.719c0 7.33-5.978 13.317-13.309 13.317C6.616 94.036.63 88.049.63 80.719s5.987-13.317 13.317-13.317h13.309zm6.709 0c0-7.33 5.987-13.317 13.317-13.317s13.317 5.986 13.317 13.317v33.335c0 7.33-5.986 13.317-13.317 13.317-7.33 0-13.317-5.987-13.317-13.317zm0 0\" fill=\"#de1c59\"/><path d=\"M47.281 27.255c-7.33 0-13.317-5.978-13.317-13.309C33.964 6.616 39.951.63 47.281.63s13.317 5.987 13.317 13.317v13.309zm0 6.709c7.33 0 13.317 5.987 13.317 13.317s-5.986 13.317-13.317 13.317H13.946C6.616 60.598.63 54.612.63 47.281c0-7.33 5.987-13.317 13.317-13.317zm0 0\" fill=\"#35c5f0\"/><path d=\"M100.745 47.281c0-7.33 5.978-13.317 13.309-13.317 7.33 0 13.317 5.987 13.317 13.317s-5.987 13.317-13.317 13.317h-13.309zm-6.709 0c0 7.33-5.987 13.317-13.317 13.317s-13.317-5.986-13.317-13.317V13.946C67.402 6.616 73.388.63 80.719.63c7.33 0 13.317 5.987 13.317 13.317zm0 0\" fill=\"#2eb57d\"/><path d=\"M80.719 100.745c7.33 0 13.317 5.978 13.317 13.309 0 7.33-5.987 13.317-13.317 13.317s-13.317-5.987-13.317-13.317v-13.309zm0-6.709c-7.33 0-13.317-5.987-13.317-13.317s5.986-13.317 13.317-13.317h33.335c7.33 0 13.317 5.986 13.317 13.317 0 7.33-5.987 13.317-13.317 13.317zm0 0\" fill=\"#ebb02e\"/></svg>", "notion": "<svg class=\"brand\" aria-hidden=\"true\" viewBox=\"0 0 24 24\"><path fill=\"currentColor\" d=\"M4.459 4.208c.746.606 1.026.56 2.428.466l13.215-.793c.28 0 .047-.28-.046-.326L17.86 1.968c-.42-.326-.981-.7-2.055-.607L3.01 2.295c-.466.046-.56.28-.374.466zm.793 3.08v13.904c0 .747.373 1.027 1.214.98l14.523-.84c.841-.046.935-.56.935-1.167V6.354c0-.606-.233-.933-.748-.887l-15.177.887c-.56.047-.747.327-.747.933zm14.337.745c.093.42 0 .84-.42.888l-.7.14v10.264c-.608.327-1.168.514-1.635.514-.748 0-.935-.234-1.495-.933l-4.577-7.186v6.952L12.21 19s0 .84-1.168.84l-3.222.186c-.093-.186 0-.653.327-.746l.84-.233V9.854L7.822 9.76c-.094-.42.14-1.026.793-1.073l3.456-.233 4.764 7.279v-6.44l-1.215-.139c-.093-.514.28-.887.747-.933zM1.936 1.035l13.31-.98c1.634-.14 2.055-.047 3.082.7l4.249 2.986c.7.513.934.653.934 1.213v16.378c0 1.026-.373 1.634-1.68 1.726l-15.458.934c-.98.047-1.448-.093-1.962-.747l-3.129-4.06c-.56-.747-.793-1.306-.793-1.96V2.667c0-.839.374-1.54 1.447-1.632z\"/></svg>", "linear": "<svg class=\"brand\" aria-hidden=\"true\" viewBox=\"0 0 24 24\"><path fill=\"#5e6ad2\" d=\"M2.886 4.18A11.982 11.982 0 0 1 11.99 0C18.624 0 24 5.376 24 12.009c0 3.64-1.62 6.903-4.18 9.105L2.887 4.18ZM1.817 5.626l16.556 16.556c-.524.33-1.075.62-1.65.866L.951 7.277c.247-.575.537-1.126.866-1.65ZM.322 9.163l14.515 14.515c-.71.172-1.443.282-2.195.322L0 11.358a12 12 0 0 1 .322-2.195Zm-.17 4.862 9.823 9.824a12.02 12.02 0 0 1-9.824-9.824Z\"/></svg>", "gmail": "<svg class=\"brand\" aria-hidden=\"true\" viewBox=\"52 42 88 66\"><path fill=\"#4285f4\" d=\"M58 108h14V74L52 59v43c0 3.32 2.69 6 6 6\"/><path fill=\"#34a853\" d=\"M120 108h14c3.32 0 6-2.69 6-6V59l-20 15\"/><path fill=\"#fbbc04\" d=\"M120 48v26l20-15v-8c0-7.42-8.47-11.65-14.4-7.2\"/><path fill=\"#ea4335\" d=\"M72 74V48l24 18 24-18v26L96 92\"/><path fill=\"#c5221f\" d=\"M52 51v8l20 15V48l-5.6-4.2c-5.94-4.45-14.4-.22-14.4 7.2\"/></svg>", "drive": "<svg class=\"brand\" aria-hidden=\"true\" viewBox=\"0 0 87.3 78\"><path fill=\"#0066da\" d=\"m6.6 66.85 3.85 6.65c.8 1.4 1.95 2.5 3.3 3.3l13.75-23.8h-27.5c0 1.55.4 3.1 1.2 4.5z\"/><path fill=\"#00ac47\" d=\"m43.65 25-13.75-23.8c-1.35.8-2.5 1.9-3.3 3.3l-25.4 44a9.06 9.06 0 0 0-1.2 4.5h27.5z\"/><path fill=\"#ea4335\" d=\"m73.55 76.8c1.35-.8 2.5-1.9 3.3-3.3l1.6-2.75 7.65-13.25c.8-1.4 1.2-2.95 1.2-4.5h-27.502l5.852 11.5z\"/><path fill=\"#00832d\" d=\"m43.65 25 13.75-23.8c-1.35-.8-2.9-1.2-4.5-1.2h-18.5c-1.6 0-3.15.45-4.5 1.2z\"/><path fill=\"#2684fc\" d=\"m59.8 53h-32.3l-13.75 23.8c1.35.8 2.9 1.2 4.5 1.2h50.8c1.6 0 3.15-.45 4.5-1.2z\"/><path fill=\"#ffba00\" d=\"m73.4 26.5-12.7-22c-.8-1.4-1.95-2.5-3.3-3.3l-13.75 23.8 16.15 28h27.45c0-1.55-.4-3.1-1.2-4.5z\"/></svg>"};
 /* country flags, drawn as images so each one keeps its own ids */
 const FLAG = cc => `<img class="flag" alt="" src="data:image/svg+xml,${encodeURIComponent(FLAGS[cc].replace('<svg ', '<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" '))}">`;
 const FLAGS = {"US": "<svg viewBox=\"0 0 640 480\"> <path fill=\"#bd3d44\" d=\"M0 0h640v480H0\"/> <path stroke=\"#fff\" stroke-width=\"37\" d=\"M0 55.3h640M0 129h640M0 203h640M0 277h640M0 351h640M0 425h640\"/> <path fill=\"#192f5d\" d=\"M0 0h364.8v258.5H0\"/> <marker markerHeight=\"30\" markerWidth=\"30\"> <path fill=\"#fff\" d=\"m14 0 9 27L0 10h28L5 27z\"/> </marker> <path fill=\"none\" marker-mid=\"url(#us-a)\" d=\"m0 0 16 11h61 61 61 61 60L47 37h61 61 60 61L16 63h61 61 61 61 60L47 89h61 61 60 61L16 115h61 61 61 61 60L47 141h61 61 60 61L16 166h61 61 61 61 60L47 192h61 61 60 61L16 218h61 61 61 61 60z\"/> </svg>", "GB": "<svg viewBox=\"0 0 640 480\"> <path fill=\"#012169\" d=\"M0 0h640v480H0z\"/> <path fill=\"#FFF\" d=\"m75 0 244 181L562 0h78v62L400 241l240 178v61h-80L320 301 81 480H0v-60l239-178L0 64V0z\"/> <path fill=\"#C8102E\" d=\"m424 281 216 159v40L369 281zm-184 20 6 35L54 480H0zM640 0v3L391 191l2-44L590 0zM0 0l239 176h-60L0 42z\"/> <path fill=\"#FFF\" d=\"M241 0v480h160V0zM0 160v160h640V160z\"/> <path fill=\"#C8102E\" d=\"M0 193v96h640v-96zM273 0v480h96V0z\"/> </svg>", "DE": "<svg viewBox=\"0 0 640 480\"> <path fill=\"#fc0\" d=\"M0 320h640v160H0z\"/> <path fill=\"#000001\" d=\"M0 0h640v160H0z\"/> <path fill=\"red\" d=\"M0 160h640v160H0z\"/> </svg>", "FR": "<svg viewBox=\"0 0 640 480\"> <path fill=\"#fff\" d=\"M0 0h640v480H0z\"/> <path fill=\"#000091\" d=\"M0 0h213.3v480H0z\"/> <path fill=\"#e1000f\" d=\"M426.7 0H640v480H426.7z\"/> </svg>", "NL": "<svg viewBox=\"0 0 640 480\"> <path fill=\"#ae1c28\" d=\"M0 0h640v160H0z\"/> <path fill=\"#fff\" d=\"M0 160h640v160H0z\"/> <path fill=\"#21468b\" d=\"M0 320h640v160H0z\"/> </svg>", "IE": "<svg viewBox=\"0 0 640 480\"> <g fill-rule=\"evenodd\" stroke-width=\"1pt\"> <path fill=\"#fff\" d=\"M0 0h640v480H0z\"/> <path fill=\"#009A49\" d=\"M0 0h213.3v480H0z\"/> <path fill=\"#FF7900\" d=\"M426.7 0H640v480H426.7z\"/> </g> </svg>", "IT": "<svg viewBox=\"0 0 640 480\"> <g fill-rule=\"evenodd\" stroke-width=\"1pt\"> <path fill=\"#fff\" d=\"M0 0h640v480H0z\"/> <path fill=\"#009246\" d=\"M0 0h213.3v480H0z\"/> <path fill=\"#ce2b37\" d=\"M426.7 0H640v480H426.7z\"/> </g> </svg>", "JP": "<svg viewBox=\"0 0 640 480\"> <defs> <clipPath> <path fill-opacity=\".7\" d=\"M-88 32h640v480H-88z\"/> </clipPath> </defs> <g fill-rule=\"evenodd\" stroke-width=\"1pt\" clip-path=\"url(#jp-a)\" transform=\"translate(88 -32)\"> <path fill=\"#fff\" d=\"M-128 32h720v480h-720z\"/> <circle cx=\"523.1\" cy=\"344.1\" r=\"194.9\" fill=\"#bc002d\" transform=\"translate(-168.4 8.6)scale(.76554)\"/> </g> </svg>", "CA": "<svg viewBox=\"0 0 640 480\"> <path fill=\"#fff\" d=\"M150.1 0h339.7v480H150z\"/> <path fill=\"#d52b1e\" d=\"M-19.7 0h169.8v480H-19.7zm509.5 0h169.8v480H489.9zM201 232l-13.3 4.4 61.4 54c4.7 13.7-1.6 17.8-5.6 25l66.6-8.4-1.6 67 13.9-.3-3.1-66.6 66.7 8c-4.1-8.7-7.8-13.3-4-27.2l61.3-51-10.7-4c-8.8-6.8 3.8-32.6 5.6-48.9 0 0-35.7 12.3-38 5.8l-9.2-17.5-32.6 35.8c-3.5.9-5-.5-5.9-3.5l15-74.8-23.8 13.4c-2 .9-4 .1-5.2-2.2l-23-46-23.6 47.8c-1.8 1.7-3.6 1.9-5 .7L264 130.8l13.7 74.1c-1.1 3-3.7 3.8-6.7 2.2l-31.2-35.3c-4 6.5-6.8 17.1-12.2 19.5-5.4 2.3-23.5-4.5-35.6-7 4.2 14.8 17 39.6 9 47.7\"/> </svg>", "SE": "<svg viewBox=\"0 0 640 480\"> <path fill=\"#005293\" d=\"M0 0h640v480H0z\"/> <path fill=\"#fecb00\" d=\"M176 0v192H0v96h176v192h96V288h368v-96H272V0z\"/> </svg>", "AU": "<svg viewBox=\"0 0 640 480\"> <path fill=\"#00008B\" d=\"M0 0h640v480H0z\"/> <path fill=\"#fff\" d=\"m37.5 0 122 90.5L281 0h39v31l-120 89.5 120 89V240h-40l-120-89.5L40.5 240H0v-30l119.5-89L0 32V0z\"/> <path fill=\"red\" d=\"M212 140.5 320 220v20l-135.5-99.5zm-92 10 3 17.5-96 72H0zM320 0v1.5l-124.5 94 1-22L295 0zM0 0l119.5 88h-30L0 21z\"/> <path fill=\"#fff\" d=\"M120.5 0v240h80V0zM0 80v80h320V80z\"/> <path fill=\"red\" d=\"M0 96.5v48h320v-48zM136.5 0v240h48V0z\"/> <path fill=\"#fff\" d=\"m527 396.7-20.5 2.6 2.2 20.5-14.8-14.4-14.7 14.5 2-20.5-20.5-2.4 17.3-11.2-10.9-17.5 19.6 6.5 6.9-19.5 7.1 19.4 19.5-6.7-10.7 17.6zm-3.7-117.2 2.7-13-9.8-9 13.2-1.5 5.5-12.1 5.5 12.1 13.2 1.5-9.8 9 2.7 13-11.6-6.6zm-104.1-60-20.3 2.2 1.8 20.3-14.4-14.5-14.8 14.1 2.4-20.3-20.2-2.7 17.3-10.8-10.5-17.5 19.3 6.8L387 178l6.7 19.3 19.4-6.3-10.9 17.3 17.1 11.2ZM623 186.7l-20.9 2.7 2.3 20.9-15.1-14.7-15 14.8 2.1-21-20.9-2.4 17.7-11.5-11.1-17.9 20 6.7 7-19.8 7.2 19.8 19.9-6.9-11 18zm-96.1-83.5-20.7 2.3 1.9 20.8-14.7-14.8-15.1 14.4 2.4-20.7-20.7-2.8 17.7-11L467 73.5l19.7 6.9 7.3-19.5 6.8 19.7 19.8-6.5-11.1 17.6zM234 385.7l-45.8 5.4 4.6 45.9-32.8-32.4-33 32.2 4.9-45.9-45.8-5.8 38.9-24.8-24-39.4 43.6 15 15.8-43.4 15.5 43.5 43.7-14.7-24.3 39.2 38.8 25.1Z\"/> </svg>", "ES": "<svg viewBox=\"0 0 640 480\"><path fill=\"#AA151B\" d=\"M0 0h640v480H0z\"/><path fill=\"#F1BF00\" d=\"M0 120h640v240H0z\"/></svg>"};
@@ -13280,41 +13386,77 @@ DM.def('agent-lanes', (r, c) => {
 });
 /* ---------- Agent run timeline ---------- */
 DM.def('agent-run-timeline', (r, c) => {
-  const T = 12;
+  // each kind of step has a hue (a chart colour for its bar, the palette slot for its text and icon tint) and a name in the key.
+  // Teal and orange take a little of their text slot, so the bars keep 3:1 on a light stage
+  const K = { model:['Model', 'var(--c2)', 'pl'], tool:['Tools', 'color-mix(in srgb,var(--c6) 70%,var(--pt))', 'pt'], app:['Apps', 'color-mix(in srgb,var(--c4) 75%,var(--pp))', 'pp'] };
+  // an icon starting with @ is an app's own mark
   const S = [
-    { l:'Plan the change', ic:'brain', s:0, d:1.6, c:'var(--c2)', cost:.03 },
-    { l:'Read 6 files', ic:'file-text', s:1.6, d:2.2, c:'var(--c1)', cost:.02 },
-    { l:'Search Figma', ic:'figma', s:1.9, d:1.4, c:'var(--c6)', cost:.01 },
-    { l:'Edit PricingCard', ic:'edit', s:4, d:2.4, c:'var(--c2)', cost:.06 },
-    { l:'Run tests', ic:'term', s:6.5, d:1.5, c:'var(--c3)', cost:.01, fail:true },
-    { l:'Run tests, retry', ic:'refresh', s:8.1, d:1.9, c:'var(--c3)', cost:.01 },
-    { l:'Open PR', ic:'pr', s:10.1, d:1.3, c:'var(--c4)', cost:.02 }
+    { l:'Plan the change', ic:'brain', k:'model', s:0, d:1.6, cost:.03 },
+    { l:'Read 6 files', ic:'file-text', k:'tool', s:1.6, d:2.2, cost:.02 },
+    { l:'Search Figma', ic:'@figma', k:'app', s:1.9, d:1.4, cost:.01 },
+    { l:'Edit PricingCard', ic:'edit', k:'model', s:4, d:2.4, cost:.06 },
+    { l:'Run tests', ic:'term', k:'tool', s:6.5, d:1.5, cost:.01, fail:'2 failed' },
+    { l:'Run tests again', ic:'refresh', k:'tool', s:8.1, d:1.9, cost:.01, retry:true },
+    { l:'Open a PR on GitHub', ic:'@github', k:'app', s:10.1, d:1, cost:.02 },
+    { l:'Post to Slack', ic:'@slack', k:'app', s:11.1, d:.6, cost:.01 }
   ];
-  $('.art-ticks', r).innerHTML = [0,3,6,9,12].map(t => `<span style="left:${t / T * 100}%">${t}s</span>`).join('');
-  const rows = $('.art-rows', r), head = $('.art-head', r);
-  S.forEach(s => { s.el = html(`<div class="art-row"><span class="art-lab">${I(s.ic,'xs')}<span class="t">${s.l}</span></span><span class="art-lane"><span class="art-bar${s.fail ? ' fail' : ''}" style="--c:${s.c};left:${s.s / T * 100}%" data-tip="${s.l}: ${s.d.toFixed(1)}s, $${s.cost.toFixed(2)}${s.fail ? ', 2 tests failed' : ''}"></span></span></div>`); rows.appendChild(s.el); });
-  stagger($$('.art-row', r), 50);
-  $('.art-f', r).innerHTML = '<span><b>0.0s</b> total</span><span><b>$0.00</b> cost</span><span><b>0</b> steps</span><span><b>0</b> retries</span>';
-  const lanes = () => $('.art-lane', r).getBoundingClientRect();
+  const T = 12, END = Math.max(...S.map(s => s.s + s.d)), PACE = 1.6, TK = [0, 3, 6, 9, 12];
+  const art = $('.art', r), grid = $('.art-grid', r), rows = $('.art-rows', r), now = $('.art-now', r), st = $('.art-s', r), foot = $('.art-f', r);
+  $('.art-ticks', r).innerHTML = TK.map(t => `<span style="left:${t / T * 100}%">${t}s</span>`).join('');
+  const ticks = $$('.art-ticks span', r);
+  $('.art-key', r).innerHTML = Object.entries(K).map(([id, k]) => `<span role="listitem" style="--k:${k[1]}"><i></i>${k[0]}<b data-k="${id}">0.0s</b></span>`).join('');
+  const kb = Object.fromEntries($$('.art-key b', r).map(b => [b.dataset.k, b]));
+  const pct = v => v / T * 100 + '%';
+  S.forEach((s, i) => {
+    const k = K[s.k], prev = S[i - 1];
+    const link = s.retry && prev ? `<span class="art-link" aria-hidden="true" style="left:${pct(prev.s + prev.d)};width:${pct(s.s - prev.s - prev.d)}"></span>` : '';
+    s.el = html(`<div class="art-row" data-k="${s.k}" data-s="wait" style="--k:${k[1]};--kt:var(--${k[2]});--kb:var(--${k[2]}-bg)"><span class="art-lab"><span class="art-ic" aria-hidden="true">${s.ic[0] === '@' ? BRAND[s.ic.slice(1)] : I(s.ic, 'xs')}</span><span class="t">${s.l}</span></span><span class="art-lane">${link}<span class="art-bar" style="left:${pct(s.s)}" data-tip="${s.l}: ${s.d.toFixed(1)}s, $${s.cost.toFixed(2)}${s.fail ? ', 2 tests failed' : ''}"><i></i></span></span><span class="art-d num"></span></div>`);
+    s.bar = $('.art-bar', s.el); s.dur = $('.art-d', s.el); s.st = 'wait';
+    rows.appendChild(s.el);
+  });
+  stagger($$('.art-row', r), 40);
+  const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
+  let line = '', ft = '';
+  // the run as it stands t seconds in: bars, states, times, the key, the footer and the line under the title
+  function draw(t){
+    grid.style.setProperty('--p', (t / T).toFixed(4));
+    let cost = 0, n = 0, re = 0; const per = { model:0, tool:0, app:0 }, live = [];
+    S.forEach(s => {
+      const w = Math.max(0, Math.min(s.d, t - s.s)), was = s.st;
+      s.st = t < s.s ? 'wait' : t < s.s + s.d ? 'run' : s.fail ? 'fail' : 'done';
+      s.bar.style.width = pct(w);
+      s.dur.textContent = t >= s.s ? w.toFixed(1) + 's' : '';
+      if (s.st !== was){
+        s.el.dataset.s = s.st;
+        if (s.st === 'fail'){ const tg = html(`<span class="tag bad">${s.fail}</span>`); $('.art-lab', s.el).appendChild(tg); enter(tg); }
+        if (s.st === 'done'){ s.el.classList.remove('bump'); void s.el.offsetWidth; s.el.classList.add('bump'); }
+      }
+      if (t >= s.s){ n++; cost += s.cost * w / s.d; per[s.k] += w; }
+      if (s.st === 'fail') re++;
+      if (s.st === 'run') live.push(s.l);
+    });
+    for (const k in per) kb[k].textContent = per[k].toFixed(1) + 's';
+    const f = `<span>${I('clock','xs')}<span><b>${Math.min(t, END).toFixed(1)}s</b> total</span></span><span>${I('dollar','xs')}<span><b>$${cost.toFixed(2)}</b> cost</span></span><span>${I('layers','xs')}<span><b>${n}</b> ${n === 1 ? 'step' : 'steps'}</span></span><span>${I('refresh','xs')}<span><b>${re}</b> ${re === 1 ? 'retry' : 'retries'}</span></span>`;
+    if (f !== ft){ foot.innerHTML = f; ft = f; }
+    // between two steps the line keeps the last one's name, so it never flickers
+    if (live.length && live.join(', ') !== line){ line = live.join(', '); st.textContent = line; }
+    now.textContent = t.toFixed(1) + 's';
+    // the time on the playhead covers the axis labels it passes
+    const b = now.getBoundingClientRect();
+    ticks.forEach(el => { const x = el.getBoundingClientRect(); el.classList.toggle('hid', x.right > b.left - 4 && x.left < b.right + 4); });
+  }
+  draw(0);
   c.run(async () => {
     await c.wait(500);
-    const t0 = performance.now();
-    const f = $('.art-f', r);
-    const foot = (secs, cost, n, re) => { f.innerHTML = `<span><b>${secs.toFixed(1)}s</b> total</span><span><b>$${cost.toFixed(2)}</b> cost</span><span><b>${n}</b> step${n === 1 ? '' : 's'}</span><span><b>${re}</b> retr${re === 1 ? 'y' : 'ies'}</span>`; };
-    await new Promise(res => c.loop(() => {
-      const t = Math.min(T, (performance.now() - t0) / 1000 * 1.6);
-      const L = lanes(), gx = $('.art-grid', r).getBoundingClientRect();
-      const on = S.filter(s => t >= s.s); foot(Math.min(t, 11.4), on.reduce((a, s) => a + s.cost * Math.min(1, (t - s.s) / s.d), 0), on.length, on.filter(s => s.ic === 'refresh').length);
-      head.style.left = (L.left - gx.left + t / T * L.width) + 'px';
-      S.forEach(s => { const w = Math.max(0, Math.min(s.d, t - s.s)); $('.art-bar', s.el).style.width = (w / T * 100) + '%'; });
-      const now = S.filter(s => t >= s.s && t < s.s + s.d).map(s => s.l);
-      $('.art-s', r).textContent = now.length ? now.join(', ') : 'Wrapping up';
-      if (t >= T){ res(); return false; }
-    }));
-    head.style.opacity = 0;
+    art.classList.add('live'); st.classList.remove('muted'); st.classList.add('shim');
+    // time moves on only while the demo isn't held, so a mouse resting on it stops the playhead where it is: a long gap
+    // between two frames is a hold (or the card being away) ending, and counts as one frame
+    await new Promise(res => { let t = 0, last = 0; c.loop(ts => { const dt = last && ts - last < 250 ? ts - last : 16; last = ts; t = Math.min(END, t + dt / 1000 * PACE); draw(t); if (t >= END){ res(); return false; } }); });
+    art.classList.remove('live'); art.classList.add('fin');
+    st.classList.remove('shim'); st.classList.add('muted');
+    now.innerHTML = I('check','xs') + END.toFixed(1) + 's';
     const tag = $('.art-tag', r); tag.className = 'art-tag tag ok'; tag.innerHTML = I('check','xs') + 'Done'; enter(tag);
-    swap($('.art-s', r), 'Finished in 11.4s');
-    foot(11.4, .16, 7, 1);
+    swap(st, `Finished in ${END.toFixed(1)}s, ${plural(S.filter(s => s.fail).length, 'retry', 'retries')}`);
   });
 });
 /* ---------- Live answer ---------- */
@@ -17379,24 +17521,31 @@ DM.def('canvas-toolbar', (r, c) => {
 });
 /* ---------- Memory panel ---------- */
 DM.def('memory-panel', (r, c) => {
-  r.innerHTML = r.innerHTML.replace('{book}', I('book'));
+  r.innerHTML = r.innerHTML.replace('{book}', I('book')).replace('{spark}', I('spark','xs'));
+  // where a memory came from: an app's own mark, or an icon for something said in chat or an edit
+  const ICON = { chat:'comment', edit:'edit' };
+  const mark = s => BRAND[s] || I(ICON[s] || s, 'xs');
+  const KIND = { brand:['Brand', 'var(--pl)'], process:['Process', 'var(--pt)'] };
   let M = [
-    ['brand','Primary buttons use the accent blue, never black','From the Pricing review, Sep 12'],
-    ['brand','Headlines stay under eight words','You told the agent, Aug 30'],
-    ['process','Ask Maya before publishing to the shared library','From a Slack thread, Sep 4'],
-    ['brand','Card radius is 16px on web, 12px in the app','From tokens.css'],
-    ['process','Run the launch checklist before every PR','You told the agent, Sep 20'],
-    ['process','Weekly QA posts go to #design, not #general','From settings'],
-    ['brand','No em dashes in product copy','You told the agent, Oct 2']
-  ].map((m, i) => ({ id:i, k:m[0], t:m[1], s:m[2] }));
-  const list = $('.mmx-list', r), st = $('.mmx-st', r); let f = 'all', nid = 100;
-  const col = k => k === 'brand' ? 'var(--pb)' : 'var(--pt)';
-  const count = () => swap(st, M.length + (M.length === 1 ? ' memory' : ' memories'));
+    ['brand','Primary buttons use the accent blue, never black','figma','Pricing review in Figma, Sep 12'],
+    ['brand','Headlines stay under eight words','chat','You told the agent, Aug 30'],
+    ['process','Ask Maya before publishing to the shared library','slack','A thread in #design-system, Sep 4'],
+    ['brand','Card radius is 16px on web, 12px in the app','github','tokens.css on GitHub, Sep 18'],
+    ['process','Run the launch checklist before every PR','notion','Launch checklist in Notion, Sep 20'],
+    ['process','File design bugs in the Design QA project','linear','DES-214 in Linear, Sep 26'],
+    ['brand','No em dashes in product copy','drive','Voice and tone guide in Drive, Oct 2']
+  ].map((m, i) => ({ id:i, k:m[0], t:m[1], from:m[2], s:m[3] }));
+  const list = $('.mmx-list', r), st = $('.mmx-st', r), srcs = $('.mmx-srcs', r), fi = $('.mmx-fi', r), ft = $('.mmx-ft', r);
+  let f = 'all', nid = 100;
+  // the count, and the apps the memories came from
+  const count = () => { swap(st, M.length + (M.length === 1 ? ' memory' : ' memories')); srcs.innerHTML = [...new Set(M.map(m => m.from).filter(s => BRAND[s]))].map(s => `<span>${BRAND[s]}</span>`).join(''); };
+  const meta = m => `<span class="k">${KIND[m.k][0]}</span><span aria-hidden="true">·</span><span class="s">${m.s}</span>${m.isNew ? '<span class="tag nw">New</span>' : ''}${m.used ? '<span class="tag nw">Used</span>' : ''}`;
+  const rowOf = m => $(`.mmx-m[data-id="${m.id}"]`, list);
   function item(m){
-    const el = html(`<div class="mmx-m" data-id="${m.id}"><span class="dot" style="color:${col(m.k)}"></span><span class="t" spellcheck="false">${m.t}<span class="src" contenteditable="false">${m.s}</span></span><span class="acts"><button class="ib ed" aria-label="Edit" data-tip="Edit">${I('edit','xs')}</button><button class="ib rm" aria-label="Forget" data-tip="Forget">${I('trash','xs')}</button></span></div>`);
-    const t = $('.t', el); if (m.isNew) el.classList.add('new');
-    $('.ed', el).onclick = () => { const src = $('.src', t); src.remove(); t.contentEditable = 'true'; t.focus({ preventScroll:true }); const s = document.getSelection(); s.selectAllChildren(t); s.collapseToEnd();
-      const done = () => { t.contentEditable = 'false'; m.t = t.textContent.trim() || m.t; m.s = 'Edited by you, just now'; t.textContent = m.t; t.appendChild(src); src.textContent = m.s; };
+    const el = html(`<div class="mmx-m${m.isNew ? ' new' : ''}${m.learn ? ' learn' : ''}" data-id="${m.id}" style="--k:${KIND[m.k][1]}"><span class="mmx-src" aria-hidden="true">${m.learn ? '<span class="spin"></span>' : mark(m.from)}</span><span class="mmx-b"><span class="t${m.learn ? ' shim' : ''}" spellcheck="false">${m.t}</span><span class="mmx-meta">${meta(m)}</span></span><span class="acts"><button class="ib ed" aria-label="Edit" data-tip="Edit">${I('edit','xs')}</button><button class="ib rm" aria-label="Forget" data-tip="Forget">${I('trash','xs')}</button></span></div>`);
+    const t = $('.t', el);
+    $('.ed', el).onclick = () => { t.contentEditable = 'true'; t.focus({ preventScroll:true }); const s = document.getSelection(); s.selectAllChildren(t); s.collapseToEnd();
+      const done = () => { t.contentEditable = 'false'; m.t = t.textContent.trim() || m.t; m.s = 'Edited by you, just now'; m.from = 'edit'; t.textContent = m.t; update(m); count(); };
       t.onkeydown = e => { if (e.key === 'Enter'){ e.preventDefault(); t.blur(); } }; t.onblur = done; };
     $('.rm', el).onclick = () => { const i = M.indexOf(m); M.splice(i, 1); count();
       const g = html(`<div class="mmx-gone"><span>Forgot “${m.t.slice(0, 32)}${m.t.length > 32 ? '…' : ''}”</span><button>Undo</button></div>`); el.replaceWith(g); enter(g);
@@ -17404,15 +17553,42 @@ DM.def('memory-panel', (r, c) => {
       $('button', g).onclick = () => { clearTimeout(tm); M.splice(i, 0, m); count(); const n = item(m); g.replaceWith(n); enter(n); }; };
     return el;
   }
+  // a memory's row catches up with its data: its source, its text once it has been learned, its tags and its highlight
+  function update(m, pulse){
+    const el = rowOf(m); if (!el) return;
+    const src = $('.mmx-src', el), t = $('.t', el);
+    if (!m.learn && el.classList.contains('learn')){ el.classList.remove('learn'); t.classList.remove('shim'); swap(t, m.t); src.innerHTML = mark(m.from); enter(src.firstElementChild); }
+    else if (t.contentEditable !== 'true') src.innerHTML = mark(m.from);
+    el.classList.toggle('new', !!m.isNew);
+    $('.mmx-meta', el).innerHTML = meta(m);
+    if (pulse){ el.classList.remove('use'); void el.offsetWidth; el.classList.add('use'); }
+  }
   function paint(){ list.innerHTML = ''; M.filter(m => f === 'all' || m.k === f).forEach(m => list.appendChild(item(m))); stagger([...list.children], 40); }
   // a row that arrives opens its own height, so the panel grows smoothly instead of jumping
   const grow = el => { if (REDUCE) return; const cs = getComputedStyle(el), gap = parseFloat(getComputedStyle(list).rowGap) || 0, ease = getComputedStyle(r).getPropertyValue('--ease').trim() || 'ease';
     el.animate([{ height:'0px', paddingTop:'0px', paddingBottom:'0px', marginBottom:-gap + 'px', opacity:0, filter:'blur(4px)', overflow:'hidden' }, { height:cs.height, paddingTop:cs.paddingTop, paddingBottom:cs.paddingBottom, marginBottom:'0px', opacity:1, filter:'blur(0px)', overflow:'hidden' }], { duration:560, easing:ease }); };
   seg($('.mmx-tab', r), v => { f = v; paint(); });
-  paint();
-  // the new memory's highlight and fresh source live in its data, so switching tabs while it is new keeps them
-  c.later(2200, () => { const m = { id:nid++, k:'brand', t:'Use “Start free” instead of “Sign up” on CTAs', s:'Learned just now from your edit', isNew:true }; M.unshift(m); count(); if (f === 'brand' || f === 'all'){ const el = item(m); list.prepend(el); grow(el); }
-    c.later(2600, () => { m.isNew = false; if (m.s === 'Learned just now from your edit') m.s = 'Learned from your edit, today'; const el = $(`.mmx-m[data-id="${m.id}"]`, list); if (el){ el.classList.remove('new'); const src = $('.src', el); if (src) src.textContent = m.s; } }); });
+  count(); paint();
+  // the preview: the agent learns a rule from your edit in Figma, then drafts an email in Gmail with three memories, which
+  // pulse as it reads them. Every state lives in the memories' data, so switching tabs keeps it; taking over settles it
+  c.run(async () => {
+    await c.step(2200);
+    const m = { id:nid++, k:'brand', t:'Learning from your edit in Pricing v4', from:'figma', s:'Just now', learn:true };
+    const learnt = () => Object.assign(m, { learn:false, t:'Use “Start free” instead of “Sign up” on CTAs', s:'Your edit in Pricing v4, just now' });
+    c.taken(() => { if (m.learn){ learnt(); update(m); } if (ft.classList.contains('shim')){ ft.classList.remove('shim'); fi.innerHTML = I('spark','xs'); swap(ft, 'Used in 14 answers this week'); } });
+    M.unshift(m); count(); if (f === 'brand' || f === 'all'){ const el = item(m); list.prepend(el); grow(el); }
+    await c.step(1500);
+    learnt(); m.isNew = true; update(m);
+    await c.step(2600);
+    m.isNew = false; m.s = 'Your edit in Figma, today'; update(m);
+    await c.step(1000);
+    fi.innerHTML = BRAND.gmail; enter(fi.firstElementChild);
+    ft.classList.add('shim'); swap(ft, 'Drafting the launch email in Gmail');
+    await c.step(1100);
+    let n = 0;
+    for (const id of [m.id, 1, 6]){ const x = M.find(y => y.id === id); if (!x) continue; x.used = true; n++; update(x, true); await c.step(700); }
+    ft.classList.remove('shim'); swap(ft, `Used ${n} ${n === 1 ? 'memory' : 'memories'} in the launch email draft`);
+  });
 });
 /* ---------- Model compare ---------- */
 DM.def('model-compare', (r, c) => {

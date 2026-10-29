@@ -1,5 +1,5 @@
 {
-  "summary": "Agent run timeline draws one agent run as a Gantt chart: every model and tool step is a bar on a shared time axis, so people can see what ran in parallel, what took longest and where a step failed and was retried. While the run is live, a playhead sweeps across and the bars grow up to it.",
+  "summary": "Agent run timeline draws one agent run as a Gantt chart: every model, tool and app step is a bar on a shared time axis, in its kind's colour and with its own icon or app mark, so people can see what ran in parallel, what took longest and where a step failed and was retried. While the run is live, a playhead with the time on it sweeps across, the bars grow up to it and the step at work carries a passing light.",
   "use": [
     "When you need to see why an agent run was slow and which steps overlapped.",
     "When a step failed and was retried, and people should see where in the run that happened.",
@@ -7,16 +7,21 @@
     "In a run history or debugging view, to replay a finished run or follow one live."
   ],
   "features": [
-    "Each step is a bar placed by its `start` and `duration` in seconds, with an optional `icon`, `color` and `cost`.",
-    "Pass `time` while the run is live. Bars grow up to it, a playhead sits on it, and the status line names the steps running at that moment.",
-    "Leave `time` out once the run is over. The tag turns from Running to Done and the status line reads \"Finished in Ns\" unless you set `status`.",
-    "`failed` hatches a bar red, and `note` is added to its tooltip, which also lists the step's duration and cost.",
-    "The footer counts up total time, cost, steps and retries as the playhead moves. Pass `stats` to show your own figures once the run is done.",
-    "The axis covers `span` seconds, defaulting to the end of the last step rounded up to a multiple of 4, with labels at quarters unless you pass `ticks`."
+    "Each step is a bar placed by its `start` and `duration` in seconds, with an optional `icon` (or `brand`, an app's own mark like Figma, GitHub or Slack) and `cost`.",
+    "A step's `kind` colours it: `model` in purple, `tool` in teal and `app` in orange, in light and dark. Its bar, its icon's tint and its live time take the colour, and a key under the title adds up how long each kind has run. `color` overrides the bar's colour.",
+    "Pass `time` while the run is live. Bars grow up to it, a playhead in the accent carries the time on the axis, the lanes it has passed take a faint wash, and the line under the title names the steps at work, shimmering. The step at work has a passing light along its bar, a bright leading edge and a soft ring that breathes round its icon. Steps that haven't started yet are dimmed.",
+    "The column at the right shows how long each step took, counting up in the step's colour while it runs.",
+    "Leave `time` out once the run is over. The tag turns from Running to Done, the playhead stops at the end of the last step and turns green with a check, and the status line reads \"Finished in Ns\" (with the number of retries when a step failed) unless you set `status`.",
+    "`failed` hatches a bar red and puts a red tag after the label, reading `tag` or \"Failed\". `retry` on the next step draws a dashed amber line from the end of the failed step to it once it starts. `note` is added to the bar's tooltip, which also lists the step's duration and cost.",
+    "The footer counts up total time, cost, steps and retries as the playhead moves, each with an icon. Pass `stats` to show your own figures once the run is done.",
+    "The axis covers `span` seconds, defaulting to the end of the last step rounded up to a multiple of 4, with labels at quarters unless you pass `ticks`. An axis label hides while the playhead's time covers it.",
+    "In Blueprint the bars are flat, the running bar is hatched and steps along, its icon's ring blinks in steps, the lanes behind the playhead are hatched and the lines are hairlines, with no glow."
   ],
   "a11y": [
     "The run's state is written as text, Running or Done, and the spinner beside it is `aria-hidden`.",
-    "With `prefers-reduced-motion: reduce`, the bars follow the playhead without easing and the status text changes without a crossfade."
+    "The key is a list labelled \"Time by kind of step\", so the colours are never the only way to tell the kinds apart. Icons, app marks, the axis, the playhead and the retry line are `aria-hidden`; each step's label and time are text.",
+    "A failed step says so in its tag, not only with its hatching and colour.",
+    "With `prefers-reduced-motion: reduce`, the passing light, the shimmer and the breathing ring stop, and the status text changes without a crossfade."
   ],
   "faq": [
     {
@@ -25,11 +30,15 @@
     },
     {
       "q": "How do I show a failed step and its retry?",
-      "a": "Mark the failed step with `failed: true` and an optional `note`, like \"2 tests failed\", then add the retry as its own step after it. The footer counts the failed steps as retries."
+      "a": "Mark the failed step with `failed: true`, a short `tag` like \"2 failed\" and an optional `note` for its tooltip, then add the retry as its own step after it with `retry: true`. The footer counts the failed steps as retries."
+    },
+    {
+      "q": "Which app marks can a step show?",
+      "a": "Set `brand` to one of the marks the components share: google, github, figma, slack, notion, linear, gmail or drive. For anything else, use `icon`."
     },
     {
       "q": "Can I replay a finished run?",
-      "a": "Yes. Pass the full `steps` list and move `time` from 0 to the end of the run. The demo plays it back at 1.6 times real speed."
+      "a": "Yes. Pass the full `steps` list and move `time` from 0 to the end of the run. The demo plays it back at 1.6 times real speed, and holds while a mouse rests on it."
     }
   ]
 }
