@@ -129,7 +129,7 @@ The agent browsing for you, step by step, with Pause and Take over.
 
 **TraceView** · `trace-view/TraceView.tsx`  
 One agent run as a waterfall of spans, with latency and tokens.  
-`title`, `spans: { id, name, kind: 'agent' | 'llm' | 'tool' | 'retrieval', start, duration?, tokens?, input?, output?, children? }[]` (an agent span without `tokens` adds up the spans under it), `time` (seconds into the run while it streams; leave out `duration` on a span still running), `axis` (seconds the axis covers), `slowAfter` (a tool call over it turns amber and is tagged slow; 2 by default), `status`, `selected` / `defaultSelected` / `onSelectedChange` (the span whose input, output, latency and tokens show under the waterfall). The arrow keys move between spans and Escape closes the details.
+`title`, `spans: { id, name, kind: 'agent' | 'llm' | 'tool' | 'retrieval', start, duration?, tokens?, input?, output?, children? }[]` (an agent span without `tokens` adds up the spans under it; guides join each span to its parent, and a key counts the spans of each kind), `time` (seconds into the run while it streams, marked by a playhead; leave out `duration` on a span still running and its bar glows as it grows), `axis` (seconds the axis covers), `slowAfter` (a tool call over it turns amber and is tagged slow; 2 by default), `status`, `selected` / `defaultSelected` / `onSelectedChange` (the span whose input, output, latency and tokens show under the waterfall). The arrow keys move between spans and Escape closes the details.
 
 **AgentRunTimeline** · `agent-run-timeline/AgentRunTimeline.tsx`  
 Every model and tool step of a run on one time axis.  

@@ -235,8 +235,8 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
    The build checks that every selector drawing with a ::before or ::after is in the lists below */
 @media (pointer:coarse){
   :where(.stage-in) :where(button,a[href],summary,[role="button"],[role="switch"],[role="checkbox"],[role="radio"],[role="tab"],[role="option"],[role="menuitem"],[role="menuitemradio"],[role="menuitemcheckbox"],[role="slider"],label:has(input[type="checkbox"],input[type="radio"])){position:relative;--hit-w:40px;--hit-h:40px}
-  :where(.stage-in) :where(button,a[href],summary,[role="button"],[role="switch"],[role="checkbox"],[role="radio"],[role="tab"],[role="option"],[role="menuitem"],[role="menuitemradio"],[role="menuitemcheckbox"],[role="slider"],label:has(input[type="checkbox"],input[type="radio"])):not(:where(.radar,.hand,.rtr-li:not(:last-child),.atr-kids,.bws-nav b,.rc-cap,.erx-row:not(:last-child),.rte-body.empty,.rte-hint,.afx-desk,.dtx-sl,.crx-l.add .c,.crx-l.del .c,.crx-l.ctx .c,.crx-hk.kept .crx-l.add .c,.crx-hk.undone .crx-l.del .c,.ahx-bot,.ecx-now,.ssi-or,.cmx-th>.cmx-c:first-child:has(+ .cmx-rp),.cmx-rp,.aln-ct,.aln-rows>*,.aln-av,.aln-det div,.aln-pk))::before,
-  :where(.stage-in) :where(button,a[href],summary,[role="button"],[role="switch"],[role="checkbox"],[role="radio"],[role="tab"],[role="option"],[role="menuitem"],[role="menuitemradio"],[role="menuitemcheckbox"],[role="slider"],label:has(input[type="checkbox"],input[type="radio"])):where(.radar,.hand,.rtr-li:not(:last-child),.atr-kids,.bws-nav b,.rc-cap,.erx-row:not(:last-child),.rte-body.empty,.rte-hint,.afx-desk,.dtx-sl,.crx-l.add .c,.crx-l.del .c,.crx-l.ctx .c,.crx-hk.kept .crx-l.add .c,.crx-hk.undone .crx-l.del .c,.ahx-bot,.ecx-now,.ssi-or,.cmx-th>.cmx-c:first-child:has(+ .cmx-rp),.cmx-rp):not(:where(.aln-lane,.toggle,.radar,.pulse,.stl-track i,.stx-ok,.aln-tr i,.afx-card .afx-open,.plx-s.edited .t,.vor-mute,.mix-mk,.hnx-t .ic,.ksx-s .ic,.shx-r .ic,.dpk-d.t,.sgc-mo .d.e,.agx-now,.btx-ask,.btx-live,.ssi-or,.rxx-r,.bdg.live .bdg-dot))::after{content:"";position:absolute;inset:min(0px,(100% - var(--hit-h)) / 2) min(0px,(100% - var(--hit-w)) / 2);--dm-hit:1}
+  :where(.stage-in) :where(button,a[href],summary,[role="button"],[role="switch"],[role="checkbox"],[role="radio"],[role="tab"],[role="option"],[role="menuitem"],[role="menuitemradio"],[role="menuitemcheckbox"],[role="slider"],label:has(input[type="checkbox"],input[type="radio"])):not(:where(.radar,.hand,.rtr-li:not(:last-child),.atr-kids,.bws-nav b,.rc-cap,.erx-row:not(:last-child),.rte-body.empty,.rte-hint,.afx-desk,.dtx-sl,.crx-l.add .c,.crx-l.del .c,.crx-l.ctx .c,.crx-hk.kept .crx-l.add .c,.crx-hk.undone .crx-l.del .c,.ahx-bot,.ecx-now,.ssi-or,.cmx-th>.cmx-c:first-child:has(+ .cmx-rp),.cmx-rp,.aln-ct,.aln-rows>*,.aln-av,.aln-det div,.aln-pk,.trv-r[data-k="agent"] .trv-b i))::before,
+  :where(.stage-in) :where(button,a[href],summary,[role="button"],[role="switch"],[role="checkbox"],[role="radio"],[role="tab"],[role="option"],[role="menuitem"],[role="menuitemradio"],[role="menuitemcheckbox"],[role="slider"],label:has(input[type="checkbox"],input[type="radio"])):where(.radar,.hand,.rtr-li:not(:last-child),.atr-kids,.bws-nav b,.rc-cap,.erx-row:not(:last-child),.rte-body.empty,.rte-hint,.afx-desk,.dtx-sl,.crx-l.add .c,.crx-l.del .c,.crx-l.ctx .c,.crx-hk.kept .crx-l.add .c,.crx-hk.undone .crx-l.del .c,.ahx-bot,.ecx-now,.ssi-or,.cmx-th>.cmx-c:first-child:has(+ .cmx-rp),.cmx-rp):not(:where(.aln-lane,.trv-g i.el,.trv-r.run:not([data-k="agent"]) .trv-b i,.trv-r[data-k="agent"] .trv-b i,.trv-b,.trv-sc,.toggle,.radar,.pulse,.stl-track i,.stx-ok,.aln-tr i,.afx-card .afx-open,.plx-s.edited .t,.vor-mute,.mix-mk,.hnx-t .ic,.ksx-s .ic,.shx-r .ic,.dpk-d.t,.sgc-mo .d.e,.agx-now,.btx-ask,.btx-live,.ssi-or,.rxx-r,.bdg.live .bdg-dot))::after{content:"";position:absolute;inset:min(0px,(100% - var(--hit-h)) / 2) min(0px,(100% - var(--hit-w)) / 2);--dm-hit:1}
 }
 .seg2{display:inline-flex;padding:2px;background:var(--chip);border-radius:var(--r-pill);position:relative}
 .seg2 button{position:relative;z-index:1;height:26px;padding:0 11px;border-radius:var(--r-pill);font-size:12.5px;color:var(--fg2);transition:color var(--t-fast)}
@@ -646,13 +646,21 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .bws-sum span{min-width:0}
 /* ---------- Trace view ---------- */
 /* one agent run as a waterfall: every span on a shared time axis, nested under the span that started it, with its tokens
-   and latency. A span over its time budget turns amber, and any span opens to show its input and output */
+   and latency. Each kind has its colour (the chart palette's identity slots): its mark, its bar and its count in the key.
+   While the run streams, a playhead marks now and the running bars glow at their leading edge. A span over its time budget
+   turns amber and hatched, and any span opens to show where it sat in the run, its input and its output */
 .trv{width:100%;max-width:440px;margin:0 auto;padding:6px;container-type:inline-size;--cols:minmax(0,11fr) minmax(0,8fr) 40px 44px}
-.trv-h{display:flex;align-items:center;justify-content:space-between;gap:var(--s-3);padding:var(--s-2) 10px 10px}
+.trv-h{display:flex;align-items:center;justify-content:space-between;gap:var(--s-3);padding:var(--s-2) 10px 6px}
 .trv-ht{display:flex;flex-direction:column;min-width:0}
 .trv-ht b{font-weight:500;font-size:14px}
 .trv-st{font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .trv-tot{font-size:14px;font-weight:500;flex:none}
+/* the key: each kind with its colour and how many of its spans have started */
+.trv-lg{display:flex;flex-wrap:wrap;gap:2px var(--s-3);padding:0 10px var(--s-2);font-size:12px;color:var(--muted)}
+.trv-lg span{display:inline-flex;align-items:center;gap:5px;white-space:nowrap;transition:color .3s}
+.trv-lg i{width:8px;height:8px;border-radius:2px;background:var(--k);flex:none}
+.trv-lg b{font-weight:500;color:var(--fg2)}
+.trv-lg span.z{color:var(--dis)}.trv-lg span.z b{color:inherit}.trv-lg span.z i{opacity:.45}
 .trv-ax,.trv-r{display:grid;grid-template-columns:var(--cols);align-items:center;gap:var(--s-2);padding:0 10px}
 .trv-ax{height:30px;border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent);font-size:12px;color:var(--muted)}
 .trv-tk,.trv-ms{text-align:right;white-space:nowrap}
@@ -665,32 +673,62 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .trv-r[aria-expanded="true"]{background:var(--sel)}
 .trv-r[aria-expanded="true"] .trv-tk{color:var(--fg2)}
 .trv-r:focus-visible{outline:0;box-shadow:inset 0 0 0 2px var(--focus)}
-.trv-n{display:flex;align-items:center;gap:6px;min-width:0;padding-left:calc(var(--lv,0) * 12px)}
-.trv-k{width:18px;height:18px;display:grid;place-items:center;flex:none;border-radius:5px;color:color-mix(in srgb,var(--k) 70%,var(--fg));background:color-mix(in srgb,var(--k) 13%,transparent)}
+.trv-n{position:relative;display:flex;align-items:center;gap:6px;min-width:0;align-self:stretch;padding-left:calc(var(--lv,0) * 16px)}
+.trv-k{position:relative;z-index:1;width:18px;height:18px;display:grid;place-items:center;flex:none;border-radius:5px;color:color-mix(in srgb,var(--k) 70%,var(--fg));background:color-mix(in srgb,var(--k) 13%,var(--surface))}
 .trv-nm{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .trv-r.root .trv-nm{font-weight:500}
 .trv-n .tag{flex:none}
-/* the bar sits on the run's time axis; faint lines mark each second */
+/* the tree: a guide from each parent's mark down past its children, with an elbow into each child */
+.trv-g{position:absolute;top:0;bottom:0;left:0;pointer-events:none}
+.trv-g i{position:absolute;top:0;bottom:0;left:calc(var(--x) * 16px + 8.5px);width:1px;background:color-mix(in srgb,var(--rail) 60%,transparent)}
+.trv-g i.end{bottom:50%}
+.trv-g i.el::after{content:"";position:absolute;left:0;top:calc(50% - 1px);width:7px;height:1px;background:inherit}
+.trv-g i.end.el::after{top:auto;bottom:-1px}
+.trv-g i.dn{top:50%}
+/* a bar per span on the shared axis: faint lines mark the ticks */
 .trv-b{position:relative;height:20px;background:linear-gradient(to right,var(--line) 1px,transparent 1px) 0 0/20% 100%}
-.trv-b i{position:absolute;top:6px;height:8px;min-width:2px;border-radius:3px;background:var(--k);transition:background .3s}
-.trv-r.run .trv-b i{opacity:.6}
-.trv-r.slow .trv-b i{background:var(--warn)}
+.trv-b i{position:absolute;top:5px;height:10px;min-width:3px;border-radius:3px;background:linear-gradient(90deg,color-mix(in srgb,var(--k) 70%,var(--surface)),var(--k));transition:background .3s,opacity .3s}
+/* a running bar has a light passing along it and a bright leading edge */
+.trv-r.run .trv-b i{background:linear-gradient(90deg,color-mix(in srgb,var(--k) 55%,var(--surface)) 0 30%,color-mix(in srgb,var(--k) 25%,var(--surface)) 45%,var(--k) 60% 100%) 0 0/250% 100%;animation:trvsheen 1.4s linear infinite}
+.trv-r.run:not([data-k="agent"]) .trv-b i::after{content:"";position:absolute;right:-1px;top:-2px;bottom:-2px;width:2px;border-radius:1px;background:var(--k);box-shadow:0 0 6px 1px color-mix(in srgb,var(--k) 55%,transparent)}
+@keyframes trvsheen{from{background-position:100% 0}to{background-position:-150% 0}}
+/* an agent span holds the others, so it is drawn as a bracket over the time they take */
+.trv-r[data-k="agent"] .trv-b i,.trv-r.run[data-k="agent"] .trv-b i{top:9px;height:2px;border-radius:1px;background:var(--faint);animation:none}
+.trv-r[data-k="agent"] .trv-b i::before,.trv-r[data-k="agent"] .trv-b i::after{content:"";position:absolute;top:-3px;width:2px;height:8px;border-radius:1px;background:var(--faint)}
+.trv-r[data-k="agent"] .trv-b i::before{left:0}.trv-r[data-k="agent"] .trv-b i::after{right:0}
+.trv-r.run[data-k="agent"] .trv-b i::after{background:var(--muted)}
+/* over budget: amber, hatched */
+.trv-r.slow .trv-b i,.trv-r.run.slow .trv-b i{background:repeating-linear-gradient(135deg,var(--warn) 0 3px,color-mix(in srgb,var(--warn) 55%,var(--surface)) 3px 6px)}
+.trv-r.run.slow .trv-b i::after{background:var(--warn);box-shadow:0 0 6px 1px color-mix(in srgb,var(--warn) 55%,transparent)}
 .trv-r .trv-tk{font-size:12px;color:var(--muted)}
 .trv-r .trv-ms{font-size:12.5px;color:var(--fg2)}
 .trv-r.slow .trv-ms{color:var(--warn)}
+/* with a span open, the other bars step back */
+.trv-rows.sel .trv-r:not([aria-expanded="true"]) .trv-b i{opacity:.35}
+/* the playhead: where the run is now, one line down every bar's track while it streams */
+.trv-b::after,.trv-sc::after{content:"";position:absolute;left:calc(var(--now,0) * 100%);top:-6px;bottom:-6px;width:1px;margin-left:-.5px;background:var(--accent-mark,var(--accent));opacity:0;transition:opacity .4s;pointer-events:none}
+.trv-sc::after{top:12px;bottom:-6px}
+.trv.live .trv-b::after,.trv.live .trv-sc::after{opacity:.75}
 .trv-dc{display:flex;flex-direction:column;gap:10px;margin-top:2px;padding:6px 10px var(--s-2);border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
 .trv-dh{display:flex;align-items:center;gap:var(--s-2);min-width:0;font-size:13px}
 .trv-dh b{min-width:0;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .trv-dh .ib{margin:0 -6px 0 auto}
-.trv-kv{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--s-2)}
+/* where the open span sat in the run */
+.trv-pos{position:relative;height:6px;border-radius:3px;background:var(--line)}
+.trv-pos i{position:absolute;top:0;bottom:0;min-width:3px;border-radius:3px;background:var(--k);transition:width .25s linear}
+.trv-kv{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--s-2)}
 .trv-kv div{display:flex;flex-direction:column;min-width:0}
 .trv-kv span{font-size:12px;color:var(--muted)}
 .trv-kv b{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .trv-io{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:6px 10px;font-size:12px;color:var(--muted)}
 .trv-io code{font-family:var(--mono);font-size:12px;color:var(--fg2);background:var(--chip);padding:5px var(--s-2);border-radius:var(--r-sm);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-/* narrow: the names keep their room. Tokens move into each span's details, and the slow tag leaves the amber bar and
-   time to say it (the time keeps its tooltip) */
-@container (max-width:330px){.trv-ax,.trv-r{grid-template-columns:minmax(0,1fr) 72px 44px}.trv-tk,.trv-n .tag{display:none}.trv-n{padding-left:calc(var(--lv,0) * 8px)}}
+:root[data-style="bp"] .trv-r:not(.slow) .trv-b i{background:var(--k)}
+:root[data-style="bp"] .trv-r.run:not(.slow):not([data-k="agent"]) .trv-b i{background:repeating-linear-gradient(90deg,var(--k) 0 4px,color-mix(in srgb,var(--k) 55%,var(--surface)) 4px 6px);animation:none}
+:root[data-style="bp"] .trv-r.run:not([data-k="agent"]) .trv-b i::after{box-shadow:none;width:1px;right:0}
+:root[data-style="bp"] .trv-g i,:root[data-style="bp"] .trv-g i.el::after{background:var(--faint)}
+/* narrow: the names keep their room. Tokens move into each span's details, the slow tag leaves the amber bar and time to
+   say it (the time keeps its tooltip), the tree draws closer, and the details give the start its own line */
+@container (max-width:330px){.trv-ax,.trv-r{grid-template-columns:minmax(0,1fr) 72px 44px}.trv-tk,.trv-n .tag{display:none}.trv-n{padding-left:calc(var(--lv,0) * 10px)}.trv-g{display:none}.trv-kv{grid-template-columns:repeat(2,minmax(0,1fr))}}
 /* ---------- Run cost ---------- */
 .rc{padding:18px}
 .rc-h{display:flex;align-items:center;justify-content:space-between;font-size:12.5px}
@@ -4936,6 +4974,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--row)}
   <div class="stage"><div class="stage-in"></div></div>
   <template><div class="trv panel">
   <div class="trv-h"><div class="trv-ht"><b>Pricing research</b><span class="muted trv-st" aria-live="polite"></span></div><span class="trv-tot num">0.00s</span></div>
+  <div class="trv-lg" role="list" aria-label="Spans by kind"></div>
   <div class="trv-ax" aria-hidden="true"><span>Span</span><span class="trv-sc"></span><span class="trv-tk">Tokens</span><span class="trv-ms">Time</span></div>
   <div class="trv-rows" role="group" aria-label="Spans"></div>
   <div class="fold shut trv-dt" inert><div><div class="trv-dc" role="region" aria-label="Span details"></div></div></div>
@@ -7484,19 +7523,38 @@ DM.def('trace-view', (r, c) => {
   const END = Math.max(...S.map(x => x.s + x.d));
   // an agent span counts the tokens of every span under it
   S.forEach((x, i) => { x.kids = []; for (let j = i + 1; j < S.length && S[j].lv > x.lv; j++) x.kids.push(S[j]); });
-  const rows = $('.trv-rows', r), stEl = $('.trv-st', r), tot = $('.trv-tot', r), dt = $('.trv-dt', r), dc = $('.trv-dc', r);
+  const root = $('.trv', r), rows = $('.trv-rows', r), stEl = $('.trv-st', r), tot = $('.trv-tot', r), dt = $('.trv-dt', r), dc = $('.trv-dc', r), lg = $('.trv-lg', r);
+  // the key: every kind but the agents, with its colour and how many of its spans have started
+  const KEYS = ['llm', 'tool', 'ret'];
+  lg.innerHTML = KEYS.map(k => `<span role="listitem" class="z" data-k="${k}" style="--k:${K[k][2]}"><i></i>${K[k][0]} <b class="num">0</b></span>`).join('');
+  // each span's parent, for the tree's guides
+  S.forEach((x, i) => { for (let j = i - 1; j >= 0; j--) if (S[j].lv === x.lv - 1){ x.up = S[j]; break; } });
   $('.trv-sc', r).innerHTML = Array.from({ length:Math.ceil(SPAN / 2) }, (_, i) => `<span style="left:${i * 2 / SPAN * 100}%">${i * 2}s</span>`).join('');
   const sec = v => v.toFixed(2) + 's', tks = v => v >= 1000 ? (v / 1000).toFixed(1) + 'k' : String(Math.round(v));
   let T = 0, sel = null, said = '';
   S.forEach(x => {
     const [kind, icon, col] = K[x.k];
-    x.el = html(`<button type="button" class="trv-r${x.lv ? '' : ' root'}" aria-expanded="false" style="--k:${col};--lv:${x.lv}" hidden><span class="trv-n"><span class="trv-k" data-tip="${kind}">${I(icon,'xs')}</span><span class="trv-nm">${x.n}</span></span><span class="trv-b"><i style="left:${x.s / SPAN * 100}%"></i></span><span class="trv-tk num"></span><span class="trv-ms num"></span></button>`);
+    x.el = html(`<button type="button" class="trv-r${x.lv ? '' : ' root'}" data-k="${x.k}" aria-expanded="false" style="--k:${col};--lv:${x.lv}" hidden><span class="trv-n"><span class="trv-g" aria-hidden="true"></span><span class="trv-k" data-tip="${kind}">${I(icon,'xs')}</span><span class="trv-nm">${x.n}</span></span><span class="trv-b"><i style="left:${x.s / SPAN * 100}%"></i></span><span class="trv-tk num"></span><span class="trv-ms num"></span></button>`);
     x.el.onclick = () => open(x === sel ? null : x);
     rows.appendChild(x.el);
   });
   // where the run is: each span shows once it starts, its bar and its numbers grow while it runs
   const took = x => Math.max(0, Math.min(T, x.s + x.d) - x.s);
   const used = x => x.k === 'agent' ? x.kids.reduce((a, k) => a + (k.k === 'agent' ? 0 : used(k)), 0) : x.tk * Math.min(1, took(x) / x.d);
+  // the tree's guides for the spans on show: a line on down past a parent's mark, an elbow into each child, and the lines of
+  // ancestors whose own siblings are still to come
+  const vis = x => !x.el.hidden, later = x => S.some(y => y !== x && y.up === x.up && S.indexOf(y) > S.indexOf(x) && vis(y));
+  function tree(){
+    S.forEach(x => {
+      if (!vis(x)) return;
+      let h = '';
+      for (let a = x.up; a && a.up; a = a.up) if (later(a)) h += `<i style="--x:${a.lv - 1}"></i>`;
+      if (x.up) h += `<i class="el${later(x) ? '' : ' end'}" style="--x:${x.lv - 1}"></i>`;
+      if (S.some(y => y.up === x && vis(y))) h += `<i class="dn" style="--x:${x.lv}"></i>`;
+      $('.trv-g', x.el).innerHTML = h;
+    });
+  }
+  let had = 0;
   function paint(){
     let shown = 0;
     S.forEach(x => {
@@ -7513,6 +7571,10 @@ DM.def('trace-view', (r, c) => {
       }
       x.el.setAttribute('aria-label', `${x.n}, ${kind}, ${run ? 'running, ' : ''}${sec(w)}, ${Math.round(used(x)).toLocaleString('en-US')} tokens${x.slow ? ', slow' : ''}`);
     });
+    if (shown !== had){ had = shown; tree();
+      KEYS.forEach(k => { const n = S.filter(x => x.k === k && vis(x)).length, el = $(`[data-k="${k}"]`, lg), b = $('b', el); el.classList.toggle('z', !n); if (b.textContent !== String(n)){ b.textContent = n; if (n) enter(b); } }); }
+    // the playhead runs down every track while the run streams, and fades once it is done
+    root.style.setProperty('--now', Math.min(T, END) / SPAN); root.classList.toggle('live', T > 0 && T < END);
     tot.textContent = sec(Math.min(T, END));
     const slow = S.filter(x => x.slow).length;
     const line = T >= END ? `Done · ${S.length} spans${slow ? `, ${slow} slow` : ''}` : `Running · ${shown} span${shown > 1 ? 's' : ''}`;
@@ -7522,12 +7584,13 @@ DM.def('trace-view', (r, c) => {
   // a span's details: what went in, what came out, how long it took and what it used
   function open(x){
     if (sel) sel.el.setAttribute('aria-expanded', 'false');
-    sel = x; dt.classList.toggle('shut', !x); dt.inert = !x;
+    sel = x; dt.classList.toggle('shut', !x); dt.inert = !x; rows.classList.toggle('sel', !!x);
     if (!x) return;
     x.el.setAttribute('aria-expanded', 'true');
     const [kind, icon, col] = K[x.k];
     dc.innerHTML = `<div class="trv-dh"><span class="trv-k" style="--k:${col}">${I(icon,'xs')}</span><b>${x.n}</b>${x.slow ? '<span class="tag warn">slow</span>' : ''}<button class="ib trv-x" aria-label="Close details" data-tip="Close">${I('x')}</button></div>
-      <div class="trv-kv"><div><span>Kind</span><b>${kind}</b></div><div><span>Latency</span><b class="num lt"></b></div><div><span>Tokens</span><b class="num tk"></b></div></div>
+      <div class="trv-pos" aria-hidden="true" style="--k:${col}"><i style="left:${x.s / SPAN * 100}%"></i></div>
+      <div class="trv-kv"><div><span>Kind</span><b>${kind}</b></div><div><span>Starts at</span><b class="num">${sec(x.s)}</b></div><div><span>Latency</span><b class="num lt"></b></div><div><span>Tokens</span><b class="num tk"></b></div></div>
       <div class="trv-io"><span>Input</span><code>${x.in}</code><span>Output</span><code class="out"></code></div>`;
     // closing hands focus back to the span, if it was inside the details
     $('.trv-x', dc).onclick = () => { const el = sel.el, back = dc.contains(document.activeElement); open(null); if (back) el.focus({ preventScroll:true }); };
@@ -7535,7 +7598,7 @@ DM.def('trace-view', (r, c) => {
   }
   function fill(){
     const x = sel, done = T >= x.s + x.d;
-    $('.lt', dc).textContent = sec(took(x)); $('.tk', dc).textContent = Math.round(used(x)).toLocaleString('en-US');
+    $('.lt', dc).textContent = sec(took(x)); $('.tk', dc).textContent = Math.round(used(x)).toLocaleString('en-US'); $('.trv-pos i', dc).style.width = (took(x) / SPAN * 100) + '%';
     const o = $('.out', dc), t = done ? x.out : 'Running…'; if (o.textContent !== t) o.textContent = t;
   }
   // the arrow keys move between spans, and Escape shuts the details

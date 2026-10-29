@@ -44,15 +44,23 @@
   };
   try { var a = localStorage.getItem('dmui-accent'); if (a && a !== 'default') window.dmAccent(a); } catch(e){}
 })();
-</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareSourceCode","name":"Trace view","description":"Trace view lays one agent run out as an observability waterfall: every span, whether an LLM call, a tool call, a retrieval or a sub-agent, sits on a shared time axis, nested under the span that started it, with its tokens and latency. A tool call that runs over its time budget turns amber and is tagged slow, and any span opens to show its input, output, latency and tokens.","url":"https://designme.dev/components/trace-view","image":"https://designme.dev/components/og/trace-view.jpg","programmingLanguage":["HTML","CSS","JavaScript","TypeScript"],"runtimePlatform":"Web browser","license":"https://opensource.org/licenses/MIT","isAccessibleForFree":true,"keywords":"Trace view, Agent status, AI agent UI, React component, HTML component","author":{"@type":"Organization","name":"DesignMe","url":"https://designme.agency"},"isPartOf":{"@type":"WebSite","name":"Designme.dev","url":"https://designme.dev/"}}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Library","item":"https://designme.dev/"},{"@type":"ListItem","position":2,"name":"Agent status","item":"https://designme.dev/#s-status"},{"@type":"ListItem","position":3,"name":"Trace view","item":"https://designme.dev/components/trace-view"}]}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Where do the spans come from?","acceptedAnswer":{"@type":"Answer","text":"From your own tracing: OpenTelemetry, your model provider's logs or your agent framework's events. Map each to a name, kind, start, duration and tokens, nest them under their parent, and pass them in."}},{"@type":"Question","name":"Why are only tool calls flagged slow?","acceptedAnswer":{"@type":"Answer","text":"In the demo a tool call that waits on another service is the usual culprit. slowAfter sets the budget in seconds; flagging other kinds would take a change to the component."}},{"@type":"Question","name":"What scale does the time axis use?","acceptedAnswer":{"@type":"Answer","text":"It covers the run's length, rounded up to a whole second, unless you set axis. A faint line marks each tick and every other tick is labelled."}},{"@type":"Question","name":"Can the details open on the side instead of below?","acceptedAnswer":{"@type":"Answer","text":"Not as it is. They open under the waterfall, so the card stays narrow enough to sit beside a chat."}}]}</script><link rel="stylesheet" href="/components/assets/core.css"><style>/* ---------- Trace view ---------- */
+</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareSourceCode","name":"Trace view","description":"Trace view lays one agent run out as an observability waterfall: every span, whether an LLM call, a tool call, a retrieval or a sub-agent, sits on a shared time axis, nested under the span that started it with a tree's guides, with its tokens and latency. Each kind has its own colour and a count in the key, and while the run streams a playhead marks where it is. A tool call that runs over its time budget turns amber and is tagged slow, and any span opens to show where it sat in the run, its input, output, latency and tokens.","url":"https://designme.dev/components/trace-view","image":"https://designme.dev/components/og/trace-view.jpg","programmingLanguage":["HTML","CSS","JavaScript","TypeScript"],"runtimePlatform":"Web browser","license":"https://opensource.org/licenses/MIT","isAccessibleForFree":true,"keywords":"Trace view, Agent status, AI agent UI, React component, HTML component","author":{"@type":"Organization","name":"DesignMe","url":"https://designme.agency"},"isPartOf":{"@type":"WebSite","name":"Designme.dev","url":"https://designme.dev/"}}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Library","item":"https://designme.dev/"},{"@type":"ListItem","position":2,"name":"Agent status","item":"https://designme.dev/#s-status"},{"@type":"ListItem","position":3,"name":"Trace view","item":"https://designme.dev/components/trace-view"}]}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Where do the spans come from?","acceptedAnswer":{"@type":"Answer","text":"From your own tracing: OpenTelemetry, your model provider's logs or your agent framework's events. Map each to a name, kind, start, duration and tokens, nest them under their parent, and pass them in."}},{"@type":"Question","name":"Why are only tool calls flagged slow?","acceptedAnswer":{"@type":"Answer","text":"In the demo a tool call that waits on another service is the usual culprit. slowAfter sets the budget in seconds; flagging other kinds would take a change to the component."}},{"@type":"Question","name":"What scale does the time axis use?","acceptedAnswer":{"@type":"Answer","text":"It covers the run's length, rounded up to a whole second, unless you set axis. A faint line marks each tick and every other tick is labelled."}},{"@type":"Question","name":"Can the details open on the side instead of below?","acceptedAnswer":{"@type":"Answer","text":"Not as it is. They open under the waterfall, so the card stays narrow enough to sit beside a chat."}}]}</script><link rel="stylesheet" href="/components/assets/core.css"><style>/* ---------- Trace view ---------- */
 /* one agent run as a waterfall: every span on a shared time axis, nested under the span that started it, with its tokens
-   and latency. A span over its time budget turns amber, and any span opens to show its input and output */
+   and latency. Each kind has its colour (the chart palette's identity slots): its mark, its bar and its count in the key.
+   While the run streams, a playhead marks now and the running bars glow at their leading edge. A span over its time budget
+   turns amber and hatched, and any span opens to show where it sat in the run, its input and its output */
 .trv{width:100%;max-width:440px;margin:0 auto;padding:6px;container-type:inline-size;--cols:minmax(0,11fr) minmax(0,8fr) 40px 44px}
-.trv-h{display:flex;align-items:center;justify-content:space-between;gap:var(--s-3);padding:var(--s-2) 10px 10px}
+.trv-h{display:flex;align-items:center;justify-content:space-between;gap:var(--s-3);padding:var(--s-2) 10px 6px}
 .trv-ht{display:flex;flex-direction:column;min-width:0}
 .trv-ht b{font-weight:500;font-size:14px}
 .trv-st{font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .trv-tot{font-size:14px;font-weight:500;flex:none}
+/* the key: each kind with its colour and how many of its spans have started */
+.trv-lg{display:flex;flex-wrap:wrap;gap:2px var(--s-3);padding:0 10px var(--s-2);font-size:12px;color:var(--muted)}
+.trv-lg span{display:inline-flex;align-items:center;gap:5px;white-space:nowrap;transition:color .3s}
+.trv-lg i{width:8px;height:8px;border-radius:2px;background:var(--k);flex:none}
+.trv-lg b{font-weight:500;color:var(--fg2)}
+.trv-lg span.z{color:var(--dis)}.trv-lg span.z b{color:inherit}.trv-lg span.z i{opacity:.45}
 .trv-ax,.trv-r{display:grid;grid-template-columns:var(--cols);align-items:center;gap:var(--s-2);padding:0 10px}
 .trv-ax{height:30px;border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent);font-size:12px;color:var(--muted)}
 .trv-tk,.trv-ms{text-align:right;white-space:nowrap}
@@ -65,32 +73,62 @@
 .trv-r[aria-expanded="true"]{background:var(--sel)}
 .trv-r[aria-expanded="true"] .trv-tk{color:var(--fg2)}
 .trv-r:focus-visible{outline:0;box-shadow:inset 0 0 0 2px var(--focus)}
-.trv-n{display:flex;align-items:center;gap:6px;min-width:0;padding-left:calc(var(--lv,0) * 12px)}
-.trv-k{width:18px;height:18px;display:grid;place-items:center;flex:none;border-radius:5px;color:color-mix(in srgb,var(--k) 70%,var(--fg));background:color-mix(in srgb,var(--k) 13%,transparent)}
+.trv-n{position:relative;display:flex;align-items:center;gap:6px;min-width:0;align-self:stretch;padding-left:calc(var(--lv,0) * 16px)}
+.trv-k{position:relative;z-index:1;width:18px;height:18px;display:grid;place-items:center;flex:none;border-radius:5px;color:color-mix(in srgb,var(--k) 70%,var(--fg));background:color-mix(in srgb,var(--k) 13%,var(--surface))}
 .trv-nm{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .trv-r.root .trv-nm{font-weight:500}
 .trv-n .tag{flex:none}
-/* the bar sits on the run's time axis; faint lines mark each second */
+/* the tree: a guide from each parent's mark down past its children, with an elbow into each child */
+.trv-g{position:absolute;top:0;bottom:0;left:0;pointer-events:none}
+.trv-g i{position:absolute;top:0;bottom:0;left:calc(var(--x) * 16px + 8.5px);width:1px;background:color-mix(in srgb,var(--rail) 60%,transparent)}
+.trv-g i.end{bottom:50%}
+.trv-g i.el::after{content:"";position:absolute;left:0;top:calc(50% - 1px);width:7px;height:1px;background:inherit}
+.trv-g i.end.el::after{top:auto;bottom:-1px}
+.trv-g i.dn{top:50%}
+/* a bar per span on the shared axis: faint lines mark the ticks */
 .trv-b{position:relative;height:20px;background:linear-gradient(to right,var(--line) 1px,transparent 1px) 0 0/20% 100%}
-.trv-b i{position:absolute;top:6px;height:8px;min-width:2px;border-radius:3px;background:var(--k);transition:background .3s}
-.trv-r.run .trv-b i{opacity:.6}
-.trv-r.slow .trv-b i{background:var(--warn)}
+.trv-b i{position:absolute;top:5px;height:10px;min-width:3px;border-radius:3px;background:linear-gradient(90deg,color-mix(in srgb,var(--k) 70%,var(--surface)),var(--k));transition:background .3s,opacity .3s}
+/* a running bar has a light passing along it and a bright leading edge */
+.trv-r.run .trv-b i{background:linear-gradient(90deg,color-mix(in srgb,var(--k) 55%,var(--surface)) 0 30%,color-mix(in srgb,var(--k) 25%,var(--surface)) 45%,var(--k) 60% 100%) 0 0/250% 100%;animation:trvsheen 1.4s linear infinite}
+.trv-r.run:not([data-k="agent"]) .trv-b i::after{content:"";position:absolute;right:-1px;top:-2px;bottom:-2px;width:2px;border-radius:1px;background:var(--k);box-shadow:0 0 6px 1px color-mix(in srgb,var(--k) 55%,transparent)}
+@keyframes trvsheen{from{background-position:100% 0}to{background-position:-150% 0}}
+/* an agent span holds the others, so it is drawn as a bracket over the time they take */
+.trv-r[data-k="agent"] .trv-b i,.trv-r.run[data-k="agent"] .trv-b i{top:9px;height:2px;border-radius:1px;background:var(--faint);animation:none}
+.trv-r[data-k="agent"] .trv-b i::before,.trv-r[data-k="agent"] .trv-b i::after{content:"";position:absolute;top:-3px;width:2px;height:8px;border-radius:1px;background:var(--faint)}
+.trv-r[data-k="agent"] .trv-b i::before{left:0}.trv-r[data-k="agent"] .trv-b i::after{right:0}
+.trv-r.run[data-k="agent"] .trv-b i::after{background:var(--muted)}
+/* over budget: amber, hatched */
+.trv-r.slow .trv-b i,.trv-r.run.slow .trv-b i{background:repeating-linear-gradient(135deg,var(--warn) 0 3px,color-mix(in srgb,var(--warn) 55%,var(--surface)) 3px 6px)}
+.trv-r.run.slow .trv-b i::after{background:var(--warn);box-shadow:0 0 6px 1px color-mix(in srgb,var(--warn) 55%,transparent)}
 .trv-r .trv-tk{font-size:12px;color:var(--muted)}
 .trv-r .trv-ms{font-size:12.5px;color:var(--fg2)}
 .trv-r.slow .trv-ms{color:var(--warn)}
+/* with a span open, the other bars step back */
+.trv-rows.sel .trv-r:not([aria-expanded="true"]) .trv-b i{opacity:.35}
+/* the playhead: where the run is now, one line down every bar's track while it streams */
+.trv-b::after,.trv-sc::after{content:"";position:absolute;left:calc(var(--now,0) * 100%);top:-6px;bottom:-6px;width:1px;margin-left:-.5px;background:var(--accent-mark,var(--accent));opacity:0;transition:opacity .4s;pointer-events:none}
+.trv-sc::after{top:12px;bottom:-6px}
+.trv.live .trv-b::after,.trv.live .trv-sc::after{opacity:.75}
 .trv-dc{display:flex;flex-direction:column;gap:10px;margin-top:2px;padding:6px 10px var(--s-2);border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
 .trv-dh{display:flex;align-items:center;gap:var(--s-2);min-width:0;font-size:13px}
 .trv-dh b{min-width:0;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .trv-dh .ib{margin:0 -6px 0 auto}
-.trv-kv{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--s-2)}
+/* where the open span sat in the run */
+.trv-pos{position:relative;height:6px;border-radius:3px;background:var(--line)}
+.trv-pos i{position:absolute;top:0;bottom:0;min-width:3px;border-radius:3px;background:var(--k);transition:width .25s linear}
+.trv-kv{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--s-2)}
 .trv-kv div{display:flex;flex-direction:column;min-width:0}
 .trv-kv span{font-size:12px;color:var(--muted)}
 .trv-kv b{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .trv-io{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:6px 10px;font-size:12px;color:var(--muted)}
 .trv-io code{font-family:var(--mono);font-size:12px;color:var(--fg2);background:var(--chip);padding:5px var(--s-2);border-radius:var(--r-sm);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-/* narrow: the names keep their room. Tokens move into each span's details, and the slow tag leaves the amber bar and
-   time to say it (the time keeps its tooltip) */
-@container (max-width:330px){.trv-ax,.trv-r{grid-template-columns:minmax(0,1fr) 72px 44px}.trv-tk,.trv-n .tag{display:none}.trv-n{padding-left:calc(var(--lv,0) * 8px)}}
+:root:not([data-style="soft"]) .trv-r:not(.slow) .trv-b i:not(:where([data-style="soft"],[data-style="soft"] *)){background:var(--k)}
+:root:not([data-style="soft"]) .trv-r.run:not(.slow):not([data-k="agent"]) .trv-b i:not(:where([data-style="soft"],[data-style="soft"] *)){background:repeating-linear-gradient(90deg,var(--k) 0 4px,color-mix(in srgb,var(--k) 55%,var(--surface)) 4px 6px);animation:none}
+:root:not([data-style="soft"]) .trv-r.run:not([data-k="agent"]) .trv-b i:not(:where([data-style="soft"],[data-style="soft"] *))::after{box-shadow:none;width:1px;right:0}
+:root:not([data-style="soft"]) .trv-g i:not(:where([data-style="soft"],[data-style="soft"] *)),:root:not([data-style="soft"]) .trv-g i.el:not(:where([data-style="soft"],[data-style="soft"] *))::after{background:var(--faint)}
+/* narrow: the names keep their room. Tokens move into each span's details, the slow tag leaves the amber bar and time to
+   say it (the time keeps its tooltip), the tree draws closer, and the details give the start its own line */
+@container (max-width:330px){.trv-ax,.trv-r{grid-template-columns:minmax(0,1fr) 72px 44px}.trv-tk,.trv-n .tag{display:none}.trv-n{padding-left:calc(var(--lv,0) * 10px)}.trv-g{display:none}.trv-kv{grid-template-columns:repeat(2,minmax(0,1fr))}}
 </style><style>@media (max-width:640px){.cp-demo .pg-demo{min-height:calc(var(--h-j) + 24px)}}@media (max-width:519px){.cp-demo .pg-demo{min-height:calc(var(--h-k) + 24px)}}@media (max-width:429px){.cp-demo .pg-demo{min-height:calc(var(--h-l) + 24px)}}@media (max-width:389px){.cp-demo .pg-demo{min-height:calc(var(--h-m) + 24px)}}</style><style>@font-face{font-family:Inter;font-style:normal;font-weight:400;font-display:swap;src:url(/fonts/inter-latin-400-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:Inter;font-style:normal;font-weight:500;font-display:swap;src:url(/fonts/inter-latin-500-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:Inter;font-style:normal;font-weight:600;font-display:swap;src:url(/fonts/inter-latin-600-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
@@ -105,17 +143,18 @@
 <path d="M149.497 283.784C149.477 284.047 149.474 284.311 149.487 284.575C156.385 340.034 183.548 391.116 225.9 428.196C267.989 465.044 322.188 485.532 378.414 485.855L379.743 485.859C436.453 485.868 491.188 465.353 533.619 428.212C575.912 391.194 603.062 340.216 610.018 284.856L610.018 281.512C610.008 277.337 608.324 273.315 605.303 270.335C602.277 267.351 598.155 265.656 593.837 265.656L165.647 265.656C161.338 265.656 157.226 267.349 154.21 270.331C151.198 273.309 149.524 277.326 149.523 281.491L149.523 283.437L149.497 283.784ZM114.378 247.395C118.396 247.391 122.254 245.919 125.214 243.29C128.063 240.759 129.887 237.33 130.396 233.629L130.396 233.35L130.437 232.917C136.355 171.634 165.162 114.754 211.202 73.3687C257.239 31.9859 317.206 9.06063 379.393 9.04448L379.396 9.04448C441.593 9.04583 501.574 31.964 547.624 73.3482C593.677 114.735 622.491 171.624 628.411 232.917L628.453 233.35L628.453 233.643C628.953 237.344 630.773 240.774 633.621 243.304C636.58 245.932 640.437 247.399 644.452 247.395L725.644 247.395C728.882 247.404 732.089 248.06 735.071 249.329C738.055 250.598 740.753 252.453 743.001 254.787C745.252 257.123 747.005 259.891 748.151 262.924C749.296 265.954 749.81 269.183 749.662 272.418L749.663 272.418C745.484 366.797 704.617 455.919 635.615 521.211C566.616 586.499 474.809 622.924 379.338 622.924C283.872 622.924 192.071 586.496 123.081 521.206C54.0935 455.917 13.2412 366.804 9.07133 272.438L9.07036 272.438L9.07036 272.436C9.07007 272.43 9.06967 272.423 9.06938 272.417L9.07036 272.417C8.92272 269.182 9.43655 265.953 10.5811 262.924C11.7276 259.89 13.481 257.123 15.7315 254.787C17.9805 252.452 20.6797 250.597 23.6622 249.329C26.6443 248.06 29.8504 247.404 33.0889 247.395L114.378 247.395Z" fill="black" stroke="white" stroke-width="18.0901"/>
 </svg></div><span class="gloss"></span></div><p>Built by <span class="u">DesignMe</span>, free to use under the MIT licence.</p></a>
     <p class="side-cta-d">Expert design and dev support for startups and enterprises.</p>
-    <a class="hire-btn" href="https://designme.agency" target="_blank" rel="noopener">Book a call<span class="ms"><svg class="sh" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"/></svg></span></a></div></div></details><nav class="pg-crumbs" aria-label="Breadcrumb"><a href="/">Library</a><span>/</span><a href="/#s-status">Agent status</a></nav><h1 class="pg-h1" id="content" tabindex="-1">Trace view</h1><p class="pg-lead">One agent run as a waterfall of spans, with latency and tokens. Free and MIT licensed, as HTML or a typed React component, in two styles with light and dark mode.</p><div class="pg-cmd"><span class="d">$</span><span class="c"><span class="cp-w">npx</span> <span class="cp-w">designme</span> <span class="cp-w">add</span> <span class="cp-w">trace-view</span></span><button type="button" data-copy="npx designme add trace-view" aria-label="Copy install command"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg></button></div><section class="cp-demo" aria-label="Trace view demo"><button type="button" class="cp-anim" id="cp-replay"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"></path><path d="M3 3v5h5"></path></svg>Animate</button><div class="pg-demo stage-inner" style="--h-a:607px;--h-j:575px;--h-k:575px;--h-l:575px;--h-m:575px"><div class="card" data-c="trace-view">
+    <a class="hire-btn" href="https://designme.agency" target="_blank" rel="noopener">Book a call<span class="ms"><svg class="sh" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"/></svg></span></a></div></div></details><nav class="pg-crumbs" aria-label="Breadcrumb"><a href="/">Library</a><span>/</span><a href="/#s-status">Agent status</a></nav><h1 class="pg-h1" id="content" tabindex="-1">Trace view</h1><p class="pg-lead">One agent run as a waterfall of spans, with latency and tokens. Free and MIT licensed, as HTML or a typed React component, in two styles with light and dark mode.</p><div class="pg-cmd"><span class="d">$</span><span class="c"><span class="cp-w">npx</span> <span class="cp-w">designme</span> <span class="cp-w">add</span> <span class="cp-w">trace-view</span></span><button type="button" data-copy="npx designme add trace-view" aria-label="Copy install command"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg></button></div><section class="cp-demo" aria-label="Trace view demo"><button type="button" class="cp-anim" id="cp-replay"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"></path><path d="M3 3v5h5"></path></svg>Animate</button><div class="pg-demo stage-inner" style="--h-a:645px;--h-j:613px;--h-k:658px;--h-l:658px;--h-m:678px"><div class="card" data-c="trace-view">
   <div class="stage-in">
     <div class="trv panel">
       <div class="trv-h"><div class="trv-ht"><b>Pricing research</b><span class="muted trv-st" aria-live="polite"></span></div><span class="trv-tot num">0.00s</span></div>
+      <div class="trv-lg" role="list" aria-label="Spans by kind"></div>
       <div class="trv-ax" aria-hidden="true"><span>Span</span><span class="trv-sc"></span><span class="trv-tk">Tokens</span><span class="trv-ms">Time</span></div>
       <div class="trv-rows" role="group" aria-label="Spans"></div>
       <div class="fold shut trv-dt" inert><div><div class="trv-dc" role="region" aria-label="Span details"></div></div></div>
     </div>
   </div>
 </div>
-</div></section><div class="cp-bar"><nav aria-label="Sections"><a href="#install">Install</a><a href="#about">About</a><a href="#usage">Usage</a><a href="#props">Props</a><a href="#code">Code</a><a href="#questions">Questions</a><a href="#more">More</a></nav></div><section class="cp-sec" id="install"><div class="pg-sh"><span class="n">01</span><h2>Install</h2><p>Add it to your project with the CLI.</p></div><div class="cp-two"><div class="cp-box"><h3 class="pg-t">HTML, CSS and JavaScript</h3><div class="cp-line"><span class="d">$</span><code><span class="cp-w">npx</span> <span class="cp-w">designme</span> <span class="cp-w">add</span> <span class="cp-w">trace-view</span></code><button class="cp-copy" type="button" data-copy="npx designme add trace-view" data-label="Copy">Copy</button></div></div><div class="cp-box"><h3 class="pg-t">React</h3><div class="cp-line"><span class="d">$</span><code><span class="cp-w">npx</span> <span class="cp-w">designme</span> <span class="cp-w">add</span> <span class="cp-w">trace-view</span> <span class="cp-w">--react</span></code><button class="cp-copy" type="button" data-copy="npx designme add trace-view --react" data-label="Copy">Copy</button></div></div></div><p class="cp-note">The CLI copies the source into your project, so you own it and can change anything. The HTML version lands in <code>./designme</code> with the shared core and a <code>demo.html</code>. The React version lands in <code>src/components/designme</code> and needs React 19; it works in Next.js, Vite and Astro.</p></section><section class="cp-sec" id="about"><div class="pg-sh"><span class="n">02</span><h2>About</h2><p>What it is for and what it does.</p></div><p class="cp-sum">Trace view lays one agent run out as an observability waterfall: every span, whether an LLM call, a tool call, a retrieval or a sub-agent, sits on a shared time axis, nested under the span that started it, with its tokens and latency. A tool call that runs over its time budget turns amber and is tagged slow, and any span opens to show its input, output, latency and tokens.</p><div class="cp-gap"><div class="cp-tl" role="tablist" aria-label="About"><button type="button" role="tab" id="ab-t0" aria-controls="ab-p0" aria-selected="true" tabindex="0">When to use it</button><button type="button" role="tab" id="ab-t1" aria-controls="ab-p1" aria-selected="false" tabindex="-1">What it does</button><button type="button" role="tab" id="ab-t2" aria-controls="ab-p2" aria-selected="false" tabindex="-1">Accessibility</button></div><div class="cp-tp" role="tabpanel" id="ab-p0" aria-labelledby="ab-t0"><ul><li>When people debug or review what an agent did in one run, and where the time and tokens went.</li><li>When a run streams in live and people want to watch each step start and finish.</li><li>When a slow or costly step should stand out without reading every number.</li><li>When people need the exact input and output of one step, like the request a tool made and what came back.</li></ul></div><div class="cp-tp" role="tabpanel" id="ab-p1" aria-labelledby="ab-t1" hidden><ul><li><code>spans</code> is the run as a tree: each span has a <code>name</code>, a <code>kind</code> of <code>agent</code>, <code>llm</code>, <code>tool</code> or <code>retrieval</code>, a <code>start</code> and a <code>duration</code> in seconds, its <code>tokens</code>, and <code>children</code>. An agent span without its own <code>tokens</code> adds up every span under it.</li><li>Each kind has its own mark and colour, and its name in a tooltip on the mark. Each row shows its bar on the time axis, its tokens and its latency; the header shows the run's total time.</li><li><code>time</code> streams a run in: spans that start later stay hidden, and a span without a <code>duration</code> grows up to it. Leave it out once the run is over.</li><li>A tool call that takes longer than <code>slowAfter</code> seconds (2 by default) turns amber and gets a slow tag, with the budget in its tooltip.</li><li>Pressing a span opens its details under the waterfall: its kind, latency, tokens, input and output. Pressing it again, the close button or Escape shuts them.</li><li>On a narrow card the names keep their room: the tokens column and the slow tag give way, the amber bar and time still mark a slow span, and every span's tokens stay in its details.</li></ul></div><div class="cp-tp" role="tabpanel" id="ab-p2" aria-labelledby="ab-t2" hidden><ul><li>Each span is a button in a labelled group, named with its name, kind, latency and tokens, and whether it is still running or slow.</li><li>Each span says whether its details are open, and the details are a labelled region.</li><li>The arrow keys, Home and End move between spans, and Escape closes the details and puts focus back on the span.</li><li>The line under the title is announced politely when it changes.</li><li>With reduced motion nothing slides or fades; the bars and numbers still update.</li></ul></div></div></section><section class="cp-sec" id="usage"><div class="pg-sh"><span class="n">03</span><h2>Usage</h2><p>Import it and drive it from your own state.</p></div><div class="cp-box"><h3 class="pg-t">Import</h3><pre class="cp-pre"><code>import { TraceView } from &#39;@/components/designme/trace-view/TraceView&#39;;</code></pre></div><div class="cp-box cp-gap"><h3 class="pg-t">Example</h3><p class="pg-d">The demo above as a React component, 52 lines you can copy.</p><pre class="cp-pre"><code>&#39;use client&#39;;
+</div></section><div class="cp-bar"><nav aria-label="Sections"><a href="#install">Install</a><a href="#about">About</a><a href="#usage">Usage</a><a href="#props">Props</a><a href="#code">Code</a><a href="#questions">Questions</a><a href="#more">More</a></nav></div><section class="cp-sec" id="install"><div class="pg-sh"><span class="n">01</span><h2>Install</h2><p>Add it to your project with the CLI.</p></div><div class="cp-two"><div class="cp-box"><h3 class="pg-t">HTML, CSS and JavaScript</h3><div class="cp-line"><span class="d">$</span><code><span class="cp-w">npx</span> <span class="cp-w">designme</span> <span class="cp-w">add</span> <span class="cp-w">trace-view</span></code><button class="cp-copy" type="button" data-copy="npx designme add trace-view" data-label="Copy">Copy</button></div></div><div class="cp-box"><h3 class="pg-t">React</h3><div class="cp-line"><span class="d">$</span><code><span class="cp-w">npx</span> <span class="cp-w">designme</span> <span class="cp-w">add</span> <span class="cp-w">trace-view</span> <span class="cp-w">--react</span></code><button class="cp-copy" type="button" data-copy="npx designme add trace-view --react" data-label="Copy">Copy</button></div></div></div><p class="cp-note">The CLI copies the source into your project, so you own it and can change anything. The HTML version lands in <code>./designme</code> with the shared core and a <code>demo.html</code>. The React version lands in <code>src/components/designme</code> and needs React 19; it works in Next.js, Vite and Astro.</p></section><section class="cp-sec" id="about"><div class="pg-sh"><span class="n">02</span><h2>About</h2><p>What it is for and what it does.</p></div><p class="cp-sum">Trace view lays one agent run out as an observability waterfall: every span, whether an LLM call, a tool call, a retrieval or a sub-agent, sits on a shared time axis, nested under the span that started it with a tree's guides, with its tokens and latency. Each kind has its own colour and a count in the key, and while the run streams a playhead marks where it is. A tool call that runs over its time budget turns amber and is tagged slow, and any span opens to show where it sat in the run, its input, output, latency and tokens.</p><div class="cp-gap"><div class="cp-tl" role="tablist" aria-label="About"><button type="button" role="tab" id="ab-t0" aria-controls="ab-p0" aria-selected="true" tabindex="0">When to use it</button><button type="button" role="tab" id="ab-t1" aria-controls="ab-p1" aria-selected="false" tabindex="-1">What it does</button><button type="button" role="tab" id="ab-t2" aria-controls="ab-p2" aria-selected="false" tabindex="-1">Accessibility</button></div><div class="cp-tp" role="tabpanel" id="ab-p0" aria-labelledby="ab-t0"><ul><li>When people debug or review what an agent did in one run, and where the time and tokens went.</li><li>When a run streams in live and people want to watch each step start and finish.</li><li>When a slow or costly step should stand out without reading every number.</li><li>When people need the exact input and output of one step, like the request a tool made and what came back.</li></ul></div><div class="cp-tp" role="tabpanel" id="ab-p1" aria-labelledby="ab-t1" hidden><ul><li><code>spans</code> is the run as a tree: each span has a <code>name</code>, a <code>kind</code> of <code>agent</code>, <code>llm</code>, <code>tool</code> or <code>retrieval</code>, a <code>start</code> and a <code>duration</code> in seconds, its <code>tokens</code>, and <code>children</code>. An agent span without its own <code>tokens</code> adds up every span under it.</li><li>Each kind has its own mark and colour, and its name in a tooltip on the mark. A key under the title counts the LLM calls, tool calls and retrievals that have started. Guides join each span to the one that started it.</li><li>Each row shows its bar on the time axis, its tokens and its latency; the header shows the run's total time. An agent span is drawn as a bracket over the time its spans take.</li><li><code>time</code> streams a run in: spans that start later stay hidden, a span without a <code>duration</code> grows up to it with a light passing along its bar and a bright leading edge, and a playhead marks <code>time</code> down every track. Leave it out once the run is over and the playhead fades.</li><li>A tool call that takes longer than <code>slowAfter</code> seconds (2 by default) turns amber and hatched and gets a slow tag, with the budget in its tooltip.</li><li>Pressing a span opens its details under the waterfall: a bar showing where it sat in the run, its kind, start, latency, tokens, input and output, while the other bars step back. Pressing it again, the close button or Escape shuts them.</li><li>On a narrow card the names keep their room: the tokens column, the slow tag and the guides give way, the amber bar and time still mark a slow span, and every span's tokens stay in its details.</li></ul></div><div class="cp-tp" role="tabpanel" id="ab-p2" aria-labelledby="ab-t2" hidden><ul><li>Each span is a button in a labelled group, named with its name, kind, latency and tokens, and whether it is still running or slow.</li><li>Each span says whether its details are open, and the details are a labelled region.</li><li>The key is a labelled list, so the counts by kind are read out too. The guides, the playhead and the bar in the details are decoration and hidden from screen readers.</li><li>The arrow keys, Home and End move between spans, and Escape closes the details and puts focus back on the span.</li><li>The line under the title is announced politely when it changes.</li><li>With reduced motion nothing slides, fades or shimmers; the bars, the playhead and the numbers still update.</li></ul></div></div></section><section class="cp-sec" id="usage"><div class="pg-sh"><span class="n">03</span><h2>Usage</h2><p>Import it and drive it from your own state.</p></div><div class="cp-box"><h3 class="pg-t">Import</h3><pre class="cp-pre"><code>import { TraceView } from &#39;@/components/designme/trace-view/TraceView&#39;;</code></pre></div><div class="cp-box cp-gap"><h3 class="pg-t">Example</h3><p class="pg-d">The demo above as a React component, 52 lines you can copy.</p><pre class="cp-pre"><code>&#39;use client&#39;;
 // The animated preview from designme.dev, rebuilt from the React component: an example of driving it from your own state.
 import { useEffect, useRef, useState } from &#39;react&#39;;
 import { TraceView, type TraceSpan } from &#39;./TraceView&#39;;
@@ -166,7 +205,7 @@ export default function TraceViewDemo() {
     &lt;/div&gt;
   );
 }
-</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything TraceView takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>title</code><span class="opt">required</span></td><td><code>string</code></td><td>The run&#39;s name, like &quot;Pricing research&quot;</td></tr><tr><td><code>spans</code><span class="opt">required</span></td><td><code>TraceSpan[]</code></td><td>The run&#39;s top spans, usually one root with everything nested under it</td></tr><tr><td><code>time</code></td><td><code>number</code></td><td>Seconds into the run while it streams in: spans that start later stay hidden, and running ones reach this far. Leave it out once the run is over</td></tr><tr><td><code>axis</code></td><td><code>number</code></td><td>Seconds the time axis covers. Defaults to the run&#39;s length, rounded up to a whole second</td></tr><tr><td><code>slowAfter</code></td><td><code>number</code></td><td>A tool call that takes longer than this many seconds turns amber and is tagged slow. Defaults to 2</td></tr><tr><td><code>status</code></td><td><code>string</code></td><td>The line under the title. Defaults to &quot;Running · 4 spans&quot;, then &quot;Done · 7 spans, 1 slow&quot;</td></tr><tr><td><code>selected</code></td><td><code>string | null</code></td><td>The id of the open span, whose details show under the waterfall. null closes them</td></tr><tr><td><code>defaultSelected</code></td><td><code>string | null</code></td><td></td></tr><tr><td><code>onSelectedChange</code></td><td><code>(id: string | null) =&gt; void</code></td><td></td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>TraceView.tsx<span class="l">React · 152 lines</span></summary><pre class="cp-pre"><code>&#39;use client&#39;;
+</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything TraceView takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>title</code><span class="opt">required</span></td><td><code>string</code></td><td>The run&#39;s name, like &quot;Pricing research&quot;</td></tr><tr><td><code>spans</code><span class="opt">required</span></td><td><code>TraceSpan[]</code></td><td>The run&#39;s top spans, usually one root with everything nested under it</td></tr><tr><td><code>time</code></td><td><code>number</code></td><td>Seconds into the run while it streams in: spans that start later stay hidden, and running ones reach this far. Leave it out once the run is over</td></tr><tr><td><code>axis</code></td><td><code>number</code></td><td>Seconds the time axis covers. Defaults to the run&#39;s length, rounded up to a whole second</td></tr><tr><td><code>slowAfter</code></td><td><code>number</code></td><td>A tool call that takes longer than this many seconds turns amber and is tagged slow. Defaults to 2</td></tr><tr><td><code>status</code></td><td><code>string</code></td><td>The line under the title. Defaults to &quot;Running · 4 spans&quot;, then &quot;Done · 7 spans, 1 slow&quot;</td></tr><tr><td><code>selected</code></td><td><code>string | null</code></td><td>The id of the open span, whose details show under the waterfall. null closes them</td></tr><tr><td><code>defaultSelected</code></td><td><code>string | null</code></td><td></td></tr><tr><td><code>onSelectedChange</code></td><td><code>(id: string | null) =&gt; void</code></td><td></td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>TraceView.tsx<span class="l">React · 177 lines</span></summary><pre class="cp-pre"><code>&#39;use client&#39;;
 import { useRef, type CSSProperties, type KeyboardEvent } from &#39;react&#39;;
 import { cx } from &#39;../lib/cx&#39;;
 import { useControllable } from &#39;../lib/hooks&#39;;
@@ -222,18 +261,32 @@ const sec = (v: number) =&gt; v.toFixed(2) + &#39;s&#39;;
 const short = (v: number) =&gt; v &gt;= 1000 ? (v / 1000).toFixed(1) + &#39;k&#39; : String(Math.round(v));
 const tokensOf = (s: TraceSpan): number =&gt; s.tokens ?? (s.children ?? []).reduce((a, k) =&gt; a + tokensOf(k), 0);
 
+type Row = { s: TraceSpan; lv: number; up?: Row };
+
 /** One agent run as an observability waterfall: every span (LLM call, tool call, retrieval, sub-agent) on a shared time
-    axis, nested under the span that started it, with its tokens and latency. A slow tool call turns amber, and any span
-    opens to show its input, output, latency and tokens. */
+    axis, nested under the span that started it with a tree&#39;s guides, with its tokens and latency. Each kind has its colour
+    and a count in the key; while the run streams a playhead marks now and running bars glow at their leading edge. A slow
+    tool call turns amber and hatched, and any span opens to show where it sat in the run, its input, output, latency and tokens. */
 export function TraceView({ title, spans, time, axis, slowAfter = 2, status, selected, defaultSelected = null, onSelectedChange, className }: TraceViewProps) {
   const [open, setOpen] = useControllable(selected, defaultSelected, onSelectedChange);
   const rows = useRef&lt;HTMLDivElement&gt;(null);
-  const all: { s: TraceSpan; lv: number }[] = [];
-  (function walk(list: TraceSpan[], lv: number) { list.forEach(s =&gt; { all.push({ s, lv }); if (s.children) walk(s.children, lv + 1); }); })(spans, 0);
+  const all: Row[] = [];
+  (function walk(list: TraceSpan[], lv: number, up?: Row) { list.forEach(s =&gt; { const row = { s, lv, up }; all.push(row); if (s.children) walk(s.children, lv + 1, row); }); })(spans, 0);
   const end = Math.max(0, ...all.map(({ s }) =&gt; s.start + (s.duration ?? Math.max(0, (time ?? s.start) - s.start))));
   const span = axis ?? Math.max(1, Math.ceil(end));
   const now = time ?? Infinity;
   const shown = all.filter(({ s }) =&gt; s.start &lt;= now);
+  // the tree&#39;s guides: a line on down past a parent&#39;s mark, an elbow into each child, and the lines of ancestors whose own
+  // siblings are still to come
+  const later = (x: Row) =&gt; shown.some(y =&gt; y !== x &amp;&amp; y.up === x.up &amp;&amp; all.indexOf(y) &gt; all.indexOf(x));
+  const guides = (x: Row) =&gt; {
+    const g: { x: number; cls?: string }[] = [];
+    for (let a = x.up; a &amp;&amp; a.up; a = a.up) if (later(a)) g.push({ x: a.lv - 1 });
+    if (x.up) g.push({ x: x.lv - 1, cls: cx(&#39;dm-el&#39;, !later(x) &amp;&amp; &#39;dm-end&#39;) });
+    if (shown.some(y =&gt; y.up === x)) g.push({ x: x.lv, cls: &#39;dm-dn&#39; });
+    return g;
+  };
+  const KEYS: SpanKind[] = [&#39;llm&#39;, &#39;tool&#39;, &#39;retrieval&#39;];
   const took = (s: TraceSpan) =&gt; s.duration !== undefined ? Math.min(s.duration, now - s.start) : Math.max(0, (time ?? s.start) - s.start);
   const running = (s: TraceSpan) =&gt; s.duration === undefined || now &lt; s.start + s.duration;
   const slow = (s: TraceSpan) =&gt; s.kind === &#39;tool&#39; &amp;&amp; took(s) &gt; slowAfter;
@@ -263,26 +316,33 @@ export function TraceView({ title, spans, time, axis, slowAfter = 2, status, sel
   };
 
   return (
-    &lt;div data-dm=&quot;&quot; className={cx(&#39;dm-trv dm-panel&#39;, className)} onKeyDown={e =&gt; { if (e.key === &#39;Escape&#39; &amp;&amp; open) close(true); }}&gt;
+    &lt;div data-dm=&quot;&quot; className={cx(&#39;dm-trv dm-panel&#39;, live &amp;&amp; time !== undefined &amp;&amp; time &gt; 0 &amp;&amp; &#39;dm-live&#39;, className)} style={{ &#39;--dm-now&#39;: Math.min(end, now) / span } as CSSProperties}
+      onKeyDown={e =&gt; { if (e.key === &#39;Escape&#39; &amp;&amp; open) close(true); }}&gt;
       &lt;div className=&quot;dm-trv-h&quot;&gt;
         &lt;div className=&quot;dm-trv-ht&quot;&gt;&lt;b&gt;{title}&lt;/b&gt;&lt;span className=&quot;dm-muted dm-trv-st&quot; aria-live=&quot;polite&quot;&gt;&lt;Swap&gt;{line}&lt;/Swap&gt;&lt;/span&gt;&lt;/div&gt;
         &lt;span className=&quot;dm-trv-tot dm-num&quot;&gt;{sec(Math.min(end, now))}&lt;/span&gt;
+      &lt;/div&gt;
+      &lt;div className=&quot;dm-trv-lg&quot; role=&quot;list&quot; aria-label=&quot;Spans by kind&quot;&gt;
+        {KEYS.map(k =&gt; { const n = shown.filter(({ s }) =&gt; s.kind === k).length;
+          return &lt;span key={k} role=&quot;listitem&quot; className={cx(!n &amp;&amp; &#39;dm-z&#39;)} style={{ &#39;--dm-k&#39;: KIND[k][2] } as CSSProperties}&gt;&lt;i /&gt;{KIND[k][0]} &lt;b key={n} className={cx(&#39;dm-num&#39;, n &gt; 0 &amp;&amp; &#39;dm-enter&#39;)}&gt;{n}&lt;/b&gt;&lt;/span&gt;; })}
       &lt;/div&gt;
       &lt;div className=&quot;dm-trv-ax&quot; aria-hidden=&quot;true&quot;&gt;
         &lt;span&gt;Span&lt;/span&gt;
         &lt;span className=&quot;dm-trv-sc&quot;&gt;{labels.map(v =&gt; &lt;span key={v} style={{ left: `${(v / span) * 100}%` }}&gt;{v}s&lt;/span&gt;)}&lt;/span&gt;
         &lt;span className=&quot;dm-trv-tk&quot;&gt;Tokens&lt;/span&gt;&lt;span className=&quot;dm-trv-ms&quot;&gt;Time&lt;/span&gt;
       &lt;/div&gt;
-      &lt;div ref={rows} className=&quot;dm-trv-rows&quot; role=&quot;group&quot; aria-label=&quot;Spans&quot; onKeyDown={onKey}&gt;
-        {shown.map(({ s, lv }) =&gt; {
+      &lt;div ref={rows} className={cx(&#39;dm-trv-rows&#39;, sel &amp;&amp; &#39;dm-sel&#39;)} role=&quot;group&quot; aria-label=&quot;Spans&quot; onKeyDown={onKey}&gt;
+        {shown.map(row =&gt; {
+          const { s, lv } = row;
           const [kind, icon, col] = KIND[s.kind], w = took(s), tk = tokensOf(s), run = running(s), sl = slow(s);
           const why = `Over the ${slowAfter}s budget for a tool call`;
           return (
-            &lt;button key={s.id} type=&quot;button&quot; data-id={s.id} className={cx(&#39;dm-trv-r dm-enter&#39;, !lv &amp;&amp; &#39;dm-root&#39;, run &amp;&amp; &#39;dm-run&#39;, sl &amp;&amp; &#39;dm-slow&#39;)}
+            &lt;button key={s.id} type=&quot;button&quot; data-id={s.id} data-k={s.kind} className={cx(&#39;dm-trv-r dm-enter&#39;, !lv &amp;&amp; &#39;dm-root&#39;, run &amp;&amp; &#39;dm-run&#39;, sl &amp;&amp; &#39;dm-slow&#39;)}
               style={{ &#39;--dm-k&#39;: col, &#39;--dm-lv&#39;: lv } as CSSProperties} aria-expanded={open === s.id}
               aria-label={`${s.name}, ${kind}, ${run ? &#39;running, &#39; : &#39;&#39;}${sec(w)}, ${Math.round(tk).toLocaleString(&#39;en-US&#39;)} tokens${sl ? &#39;, slow&#39; : &#39;&#39;}`}
               onClick={() =&gt; setOpen(open === s.id ? null : s.id)}&gt;
               &lt;span className=&quot;dm-trv-n&quot;&gt;
+                &lt;span className=&quot;dm-trv-g&quot; aria-hidden=&quot;true&quot;&gt;{guides(row).map((g, i) =&gt; &lt;i key={i} className={g.cls} style={{ &#39;--dm-x&#39;: g.x } as CSSProperties} /&gt;)}&lt;/span&gt;
                 &lt;Tip label={kind}&gt;&lt;span className=&quot;dm-trv-k&quot;&gt;&lt;Icon name={icon} size=&quot;xs&quot; /&gt;&lt;/span&gt;&lt;/Tip&gt;
                 &lt;span className=&quot;dm-trv-nm&quot;&gt;{s.name}&lt;/span&gt;
                 {sl &amp;&amp; &lt;Tip label={why}&gt;&lt;span className={cx(&#39;dm-tag dm-warn&#39;, enter().className)}&gt;slow&lt;/span&gt;&lt;/Tip&gt;}
@@ -302,8 +362,12 @@ export function TraceView({ title, spans, time, axis, slowAfter = 2, status, sel
               &lt;b&gt;{cur.name}&lt;/b&gt;{slow(cur) &amp;&amp; &lt;span className=&quot;dm-tag dm-warn&quot;&gt;slow&lt;/span&gt;}
               &lt;Tip label=&quot;Close&quot;&gt;&lt;button type=&quot;button&quot; className=&quot;dm-ib dm-trv-x&quot; aria-label=&quot;Close details&quot; onClick={e =&gt; close(e.currentTarget.contains(document.activeElement))}&gt;&lt;Icon name=&quot;x&quot; /&gt;&lt;/button&gt;&lt;/Tip&gt;
             &lt;/div&gt;
+            &lt;div className=&quot;dm-trv-pos&quot; aria-hidden=&quot;true&quot; style={{ &#39;--dm-k&#39;: KIND[cur.kind][2] } as CSSProperties}&gt;
+              &lt;i style={{ left: `${(cur.start / span) * 100}%`, width: `${(took(cur) / span) * 100}%` }} /&gt;
+            &lt;/div&gt;
             &lt;div className=&quot;dm-trv-kv&quot;&gt;
               &lt;div&gt;&lt;span&gt;Kind&lt;/span&gt;&lt;b&gt;{KIND[cur.kind][0]}&lt;/b&gt;&lt;/div&gt;
+              &lt;div&gt;&lt;span&gt;Starts at&lt;/span&gt;&lt;b className=&quot;dm-num&quot;&gt;{sec(cur.start)}&lt;/b&gt;&lt;/div&gt;
               &lt;div&gt;&lt;span&gt;Latency&lt;/span&gt;&lt;b className=&quot;dm-num&quot;&gt;{sec(took(cur))}&lt;/b&gt;&lt;/div&gt;
               &lt;div&gt;&lt;span&gt;Tokens&lt;/span&gt;&lt;b className=&quot;dm-num&quot;&gt;{Math.round(tokensOf(cur)).toLocaleString(&#39;en-US&#39;)}&lt;/b&gt;&lt;/div&gt;
             &lt;/div&gt;
@@ -317,16 +381,24 @@ export function TraceView({ title, spans, time, axis, slowAfter = 2, status, sel
     &lt;/div&gt;
   );
 }
-</code></pre></details><details class="cp-file"><summary>trace-view.css<span class="l">React · 49 lines</span></summary><pre class="cp-pre"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+</code></pre></details><details class="cp-file"><summary>trace-view.css<span class="l">React · 87 lines</span></summary><pre class="cp-pre"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Trace view ---------- */
 /* one agent run as a waterfall: every span on a shared time axis, nested under the span that started it, with its tokens
-   and latency. A span over its time budget turns amber, and any span opens to show its input and output */
+   and latency. Each kind has its colour (the chart palette&#39;s identity slots): its mark, its bar and its count in the key.
+   While the run streams, a playhead marks now and the running bars glow at their leading edge. A span over its time budget
+   turns amber and hatched, and any span opens to show where it sat in the run, its input and its output */
 .dm-trv{width:100%;max-width:440px;margin:0 auto;padding:6px;container-type:inline-size;--dm-cols:minmax(0,11fr) minmax(0,8fr) 40px 44px}
-.dm-trv-h{display:flex;align-items:center;justify-content:space-between;gap:var(--dm-s-3);padding:var(--dm-s-2) 10px 10px}
+.dm-trv-h{display:flex;align-items:center;justify-content:space-between;gap:var(--dm-s-3);padding:var(--dm-s-2) 10px 6px}
 .dm-trv-ht{display:flex;flex-direction:column;min-width:0}
 .dm-trv-ht b{font-weight:500;font-size:14px}
 .dm-trv-st{font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dm-trv-tot{font-size:14px;font-weight:500;flex:none}
+/* the key: each kind with its colour and how many of its spans have started */
+.dm-trv-lg{display:flex;flex-wrap:wrap;gap:2px var(--dm-s-3);padding:0 10px var(--dm-s-2);font-size:12px;color:var(--dm-muted)}
+.dm-trv-lg span{display:inline-flex;align-items:center;gap:5px;white-space:nowrap;transition:color .3s}
+.dm-trv-lg i{width:8px;height:8px;border-radius:2px;background:var(--dm-k);flex:none}
+.dm-trv-lg b{font-weight:500;color:var(--dm-fg2)}
+.dm-trv-lg span.dm-z{color:var(--dm-dis)}.dm-trv-lg span.dm-z b{color:inherit}.dm-trv-lg span.dm-z i{opacity:.45}
 .dm-trv-ax,.dm-trv-r{display:grid;grid-template-columns:var(--dm-cols);align-items:center;gap:var(--dm-s-2);padding:0 10px}
 .dm-trv-ax{height:30px;border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);font-size:12px;color:var(--dm-muted)}
 .dm-trv-tk,.dm-trv-ms{text-align:right;white-space:nowrap}
@@ -339,51 +411,90 @@ export function TraceView({ title, spans, time, axis, slowAfter = 2, status, sel
 .dm-trv-r[aria-expanded=&quot;true&quot;]{background:var(--dm-sel)}
 .dm-trv-r[aria-expanded=&quot;true&quot;] .dm-trv-tk{color:var(--dm-fg2)}
 .dm-trv-r:focus-visible{outline:0;box-shadow:inset 0 0 0 2px var(--dm-focus)}
-.dm-trv-n{display:flex;align-items:center;gap:6px;min-width:0;padding-left:calc(var(--dm-lv,0) * 12px)}
-.dm-trv-k{width:18px;height:18px;display:grid;place-items:center;flex:none;border-radius:5px;color:color-mix(in srgb,var(--dm-k) 70%,var(--dm-fg));background:color-mix(in srgb,var(--dm-k) 13%,transparent)}
+.dm-trv-n{position:relative;display:flex;align-items:center;gap:6px;min-width:0;align-self:stretch;padding-left:calc(var(--dm-lv,0) * 16px)}
+.dm-trv-k{position:relative;z-index:1;width:18px;height:18px;display:grid;place-items:center;flex:none;border-radius:5px;color:color-mix(in srgb,var(--dm-k) 70%,var(--dm-fg));background:color-mix(in srgb,var(--dm-k) 13%,var(--dm-surface))}
 .dm-trv-nm{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dm-trv-r.dm-root .dm-trv-nm{font-weight:500}
 .dm-trv-n .dm-tag{flex:none}
-/* the bar sits on the run&#39;s time axis; faint lines mark each second */
+/* the tree: a guide from each parent&#39;s mark down past its children, with an elbow into each child */
+.dm-trv-g{position:absolute;top:0;bottom:0;left:0;pointer-events:none}
+.dm-trv-g i{position:absolute;top:0;bottom:0;left:calc(var(--dm-x) * 16px + 8.5px);width:1px;background:color-mix(in srgb,var(--dm-rail) 60%,transparent)}
+.dm-trv-g i.dm-end{bottom:50%}
+.dm-trv-g i.dm-el::after{content:&quot;&quot;;position:absolute;left:0;top:calc(50% - 1px);width:7px;height:1px;background:inherit}
+.dm-trv-g i.dm-end.dm-el::after{top:auto;bottom:-1px}
+.dm-trv-g i.dm-dn{top:50%}
+/* a bar per span on the shared axis: faint lines mark the ticks */
 .dm-trv-b{position:relative;height:20px;background:linear-gradient(to right,var(--dm-line) 1px,transparent 1px) 0 0/20% 100%}
-.dm-trv-b i{position:absolute;top:6px;height:8px;min-width:2px;border-radius:3px;background:var(--dm-k);transition:background .3s}
-.dm-trv-r.dm-run .dm-trv-b i{opacity:.6}
-.dm-trv-r.dm-slow .dm-trv-b i{background:var(--dm-warn)}
+.dm-trv-b i{position:absolute;top:5px;height:10px;min-width:3px;border-radius:3px;background:linear-gradient(90deg,color-mix(in srgb,var(--dm-k) 70%,var(--dm-surface)),var(--dm-k));transition:background .3s,opacity .3s}
+/* a running bar has a light passing along it and a bright leading edge */
+.dm-trv-r.dm-run .dm-trv-b i{background:linear-gradient(90deg,color-mix(in srgb,var(--dm-k) 55%,var(--dm-surface)) 0 30%,color-mix(in srgb,var(--dm-k) 25%,var(--dm-surface)) 45%,var(--dm-k) 60% 100%) 0 0/250% 100%;animation:dm-trvsheen 1.4s linear infinite}
+.dm-trv-r.dm-run:not([data-k=&quot;agent&quot;]) .dm-trv-b i::after{content:&quot;&quot;;position:absolute;right:-1px;top:-2px;bottom:-2px;width:2px;border-radius:1px;background:var(--dm-k);box-shadow:0 0 6px 1px color-mix(in srgb,var(--dm-k) 55%,transparent)}
+@keyframes dm-trvsheen{from{background-position:100% 0}to{background-position:-150% 0}}
+/* an agent span holds the others, so it is drawn as a bracket over the time they take */
+.dm-trv-r[data-k=&quot;agent&quot;] .dm-trv-b i,.dm-trv-r.dm-run[data-k=&quot;agent&quot;] .dm-trv-b i{top:9px;height:2px;border-radius:1px;background:var(--dm-faint);animation:none}
+.dm-trv-r[data-k=&quot;agent&quot;] .dm-trv-b i::before,.dm-trv-r[data-k=&quot;agent&quot;] .dm-trv-b i::after{content:&quot;&quot;;position:absolute;top:-3px;width:2px;height:8px;border-radius:1px;background:var(--dm-faint)}
+.dm-trv-r[data-k=&quot;agent&quot;] .dm-trv-b i::before{left:0}.dm-trv-r[data-k=&quot;agent&quot;] .dm-trv-b i::after{right:0}
+.dm-trv-r.dm-run[data-k=&quot;agent&quot;] .dm-trv-b i::after{background:var(--dm-muted)}
+/* over budget: amber, hatched */
+.dm-trv-r.dm-slow .dm-trv-b i,.dm-trv-r.dm-run.dm-slow .dm-trv-b i{background:repeating-linear-gradient(135deg,var(--dm-warn) 0 3px,color-mix(in srgb,var(--dm-warn) 55%,var(--dm-surface)) 3px 6px)}
+.dm-trv-r.dm-run.dm-slow .dm-trv-b i::after{background:var(--dm-warn);box-shadow:0 0 6px 1px color-mix(in srgb,var(--dm-warn) 55%,transparent)}
 .dm-trv-r .dm-trv-tk{font-size:12px;color:var(--dm-muted)}
 .dm-trv-r .dm-trv-ms{font-size:12.5px;color:var(--dm-fg2)}
 .dm-trv-r.dm-slow .dm-trv-ms{color:var(--dm-warn)}
+/* with a span open, the other bars step back */
+.dm-trv-rows.dm-sel .dm-trv-r:not([aria-expanded=&quot;true&quot;]) .dm-trv-b i{opacity:.35}
+/* the playhead: where the run is now, one line down every bar&#39;s track while it streams */
+.dm-trv-b::after,.dm-trv-sc::after{content:&quot;&quot;;position:absolute;left:calc(var(--dm-now,0) * 100%);top:-6px;bottom:-6px;width:1px;margin-left:-.5px;background:var(--dm-accent-mark,var(--dm-accent));opacity:0;transition:opacity .4s;pointer-events:none}
+.dm-trv-sc::after{top:12px;bottom:-6px}
+.dm-trv.dm-live .dm-trv-b::after,.dm-trv.dm-live .dm-trv-sc::after{opacity:.75}
 .dm-trv-dc{display:flex;flex-direction:column;gap:10px;margin-top:2px;padding:6px 10px var(--dm-s-2);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
 .dm-trv-dh{display:flex;align-items:center;gap:var(--dm-s-2);min-width:0;font-size:13px}
 .dm-trv-dh b{min-width:0;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dm-trv-dh .dm-ib{margin:0 -6px 0 auto}
-.dm-trv-kv{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--dm-s-2)}
+/* where the open span sat in the run */
+.dm-trv-pos{position:relative;height:6px;border-radius:3px;background:var(--dm-line)}
+.dm-trv-pos i{position:absolute;top:0;bottom:0;min-width:3px;border-radius:3px;background:var(--dm-k);transition:width .25s linear}
+.dm-trv-kv{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--dm-s-2)}
 .dm-trv-kv div{display:flex;flex-direction:column;min-width:0}
 .dm-trv-kv span{font-size:12px;color:var(--dm-muted)}
 .dm-trv-kv b{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dm-trv-io{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:6px 10px;font-size:12px;color:var(--dm-muted)}
 .dm-trv-io code{font-family:var(--dm-mono);font-size:12px;color:var(--dm-fg2);background:var(--dm-chip);padding:5px var(--dm-s-2);border-radius:var(--dm-r-sm);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-/* narrow: the names keep their room. Tokens move into each span&#39;s details, and the slow tag leaves the amber bar and
-   time to say it (the time keeps its tooltip) */
-@container (max-width:330px){.dm-trv-ax,.dm-trv-r{grid-template-columns:minmax(0,1fr) 72px 44px}.dm-trv-tk,.dm-trv-n .dm-tag{display:none}.dm-trv-n{padding-left:calc(var(--dm-lv,0) * 8px)}}
-</code></pre></details><details class="cp-file"><summary>trace-view.html<span class="l">HTML · 11 lines</span></summary><pre class="cp-pre"><code>&lt;div class=&quot;card&quot; data-c=&quot;trace-view&quot;&gt;
+:root:not([data-style=&quot;soft&quot;]) .dm-trv-r:not(.dm-slow) .dm-trv-b i:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *)){background:var(--dm-k)}
+:root:not([data-style=&quot;soft&quot;]) .dm-trv-r.dm-run:not(.dm-slow):not([data-k=&quot;agent&quot;]) .dm-trv-b i:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *)){background:repeating-linear-gradient(90deg,var(--dm-k) 0 4px,color-mix(in srgb,var(--dm-k) 55%,var(--dm-surface)) 4px 6px);animation:none}
+:root:not([data-style=&quot;soft&quot;]) .dm-trv-r.dm-run:not([data-k=&quot;agent&quot;]) .dm-trv-b i:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *))::after{box-shadow:none;width:1px;right:0}
+:root:not([data-style=&quot;soft&quot;]) .dm-trv-g i:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *)),:root:not([data-style=&quot;soft&quot;]) .dm-trv-g i.dm-el:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *))::after{background:var(--dm-faint)}
+/* narrow: the names keep their room. Tokens move into each span&#39;s details, the slow tag leaves the amber bar and time to
+   say it (the time keeps its tooltip), the tree draws closer, and the details give the start its own line */
+@container (max-width:330px){.dm-trv-ax,.dm-trv-r{grid-template-columns:minmax(0,1fr) 72px 44px}.dm-trv-tk,.dm-trv-n .dm-tag{display:none}.dm-trv-n{padding-left:calc(var(--dm-lv,0) * 10px)}.dm-trv-g{display:none}.dm-trv-kv{grid-template-columns:repeat(2,minmax(0,1fr))}}
+</code></pre></details><details class="cp-file"><summary>trace-view.html<span class="l">HTML · 12 lines</span></summary><pre class="cp-pre"><code>&lt;div class=&quot;card&quot; data-c=&quot;trace-view&quot;&gt;
   &lt;div class=&quot;stage-in&quot;&gt;
     &lt;div class=&quot;trv panel&quot;&gt;
       &lt;div class=&quot;trv-h&quot;&gt;&lt;div class=&quot;trv-ht&quot;&gt;&lt;b&gt;Pricing research&lt;/b&gt;&lt;span class=&quot;muted trv-st&quot; aria-live=&quot;polite&quot;&gt;&lt;/span&gt;&lt;/div&gt;&lt;span class=&quot;trv-tot num&quot;&gt;0.00s&lt;/span&gt;&lt;/div&gt;
+      &lt;div class=&quot;trv-lg&quot; role=&quot;list&quot; aria-label=&quot;Spans by kind&quot;&gt;&lt;/div&gt;
       &lt;div class=&quot;trv-ax&quot; aria-hidden=&quot;true&quot;&gt;&lt;span&gt;Span&lt;/span&gt;&lt;span class=&quot;trv-sc&quot;&gt;&lt;/span&gt;&lt;span class=&quot;trv-tk&quot;&gt;Tokens&lt;/span&gt;&lt;span class=&quot;trv-ms&quot;&gt;Time&lt;/span&gt;&lt;/div&gt;
       &lt;div class=&quot;trv-rows&quot; role=&quot;group&quot; aria-label=&quot;Spans&quot;&gt;&lt;/div&gt;
       &lt;div class=&quot;fold shut trv-dt&quot; inert&gt;&lt;div&gt;&lt;div class=&quot;trv-dc&quot; role=&quot;region&quot; aria-label=&quot;Span details&quot;&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;
     &lt;/div&gt;
   &lt;/div&gt;
 &lt;/div&gt;
-</code></pre></details><details class="cp-file"><summary>trace-view.css<span class="l">HTML · 48 lines</span></summary><pre class="cp-pre"><code>/* ---------- Trace view ---------- */
+</code></pre></details><details class="cp-file"><summary>trace-view.css<span class="l">HTML · 86 lines</span></summary><pre class="cp-pre"><code>/* ---------- Trace view ---------- */
 /* one agent run as a waterfall: every span on a shared time axis, nested under the span that started it, with its tokens
-   and latency. A span over its time budget turns amber, and any span opens to show its input and output */
+   and latency. Each kind has its colour (the chart palette&#39;s identity slots): its mark, its bar and its count in the key.
+   While the run streams, a playhead marks now and the running bars glow at their leading edge. A span over its time budget
+   turns amber and hatched, and any span opens to show where it sat in the run, its input and its output */
 .trv{width:100%;max-width:440px;margin:0 auto;padding:6px;container-type:inline-size;--cols:minmax(0,11fr) minmax(0,8fr) 40px 44px}
-.trv-h{display:flex;align-items:center;justify-content:space-between;gap:var(--s-3);padding:var(--s-2) 10px 10px}
+.trv-h{display:flex;align-items:center;justify-content:space-between;gap:var(--s-3);padding:var(--s-2) 10px 6px}
 .trv-ht{display:flex;flex-direction:column;min-width:0}
 .trv-ht b{font-weight:500;font-size:14px}
 .trv-st{font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .trv-tot{font-size:14px;font-weight:500;flex:none}
+/* the key: each kind with its colour and how many of its spans have started */
+.trv-lg{display:flex;flex-wrap:wrap;gap:2px var(--s-3);padding:0 10px var(--s-2);font-size:12px;color:var(--muted)}
+.trv-lg span{display:inline-flex;align-items:center;gap:5px;white-space:nowrap;transition:color .3s}
+.trv-lg i{width:8px;height:8px;border-radius:2px;background:var(--k);flex:none}
+.trv-lg b{font-weight:500;color:var(--fg2)}
+.trv-lg span.z{color:var(--dis)}.trv-lg span.z b{color:inherit}.trv-lg span.z i{opacity:.45}
 .trv-ax,.trv-r{display:grid;grid-template-columns:var(--cols);align-items:center;gap:var(--s-2);padding:0 10px}
 .trv-ax{height:30px;border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent);font-size:12px;color:var(--muted)}
 .trv-tk,.trv-ms{text-align:right;white-space:nowrap}
@@ -396,33 +507,63 @@ export function TraceView({ title, spans, time, axis, slowAfter = 2, status, sel
 .trv-r[aria-expanded=&quot;true&quot;]{background:var(--sel)}
 .trv-r[aria-expanded=&quot;true&quot;] .trv-tk{color:var(--fg2)}
 .trv-r:focus-visible{outline:0;box-shadow:inset 0 0 0 2px var(--focus)}
-.trv-n{display:flex;align-items:center;gap:6px;min-width:0;padding-left:calc(var(--lv,0) * 12px)}
-.trv-k{width:18px;height:18px;display:grid;place-items:center;flex:none;border-radius:5px;color:color-mix(in srgb,var(--k) 70%,var(--fg));background:color-mix(in srgb,var(--k) 13%,transparent)}
+.trv-n{position:relative;display:flex;align-items:center;gap:6px;min-width:0;align-self:stretch;padding-left:calc(var(--lv,0) * 16px)}
+.trv-k{position:relative;z-index:1;width:18px;height:18px;display:grid;place-items:center;flex:none;border-radius:5px;color:color-mix(in srgb,var(--k) 70%,var(--fg));background:color-mix(in srgb,var(--k) 13%,var(--surface))}
 .trv-nm{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .trv-r.root .trv-nm{font-weight:500}
 .trv-n .tag{flex:none}
-/* the bar sits on the run&#39;s time axis; faint lines mark each second */
+/* the tree: a guide from each parent&#39;s mark down past its children, with an elbow into each child */
+.trv-g{position:absolute;top:0;bottom:0;left:0;pointer-events:none}
+.trv-g i{position:absolute;top:0;bottom:0;left:calc(var(--x) * 16px + 8.5px);width:1px;background:color-mix(in srgb,var(--rail) 60%,transparent)}
+.trv-g i.end{bottom:50%}
+.trv-g i.el::after{content:&quot;&quot;;position:absolute;left:0;top:calc(50% - 1px);width:7px;height:1px;background:inherit}
+.trv-g i.end.el::after{top:auto;bottom:-1px}
+.trv-g i.dn{top:50%}
+/* a bar per span on the shared axis: faint lines mark the ticks */
 .trv-b{position:relative;height:20px;background:linear-gradient(to right,var(--line) 1px,transparent 1px) 0 0/20% 100%}
-.trv-b i{position:absolute;top:6px;height:8px;min-width:2px;border-radius:3px;background:var(--k);transition:background .3s}
-.trv-r.run .trv-b i{opacity:.6}
-.trv-r.slow .trv-b i{background:var(--warn)}
+.trv-b i{position:absolute;top:5px;height:10px;min-width:3px;border-radius:3px;background:linear-gradient(90deg,color-mix(in srgb,var(--k) 70%,var(--surface)),var(--k));transition:background .3s,opacity .3s}
+/* a running bar has a light passing along it and a bright leading edge */
+.trv-r.run .trv-b i{background:linear-gradient(90deg,color-mix(in srgb,var(--k) 55%,var(--surface)) 0 30%,color-mix(in srgb,var(--k) 25%,var(--surface)) 45%,var(--k) 60% 100%) 0 0/250% 100%;animation:trvsheen 1.4s linear infinite}
+.trv-r.run:not([data-k=&quot;agent&quot;]) .trv-b i::after{content:&quot;&quot;;position:absolute;right:-1px;top:-2px;bottom:-2px;width:2px;border-radius:1px;background:var(--k);box-shadow:0 0 6px 1px color-mix(in srgb,var(--k) 55%,transparent)}
+@keyframes trvsheen{from{background-position:100% 0}to{background-position:-150% 0}}
+/* an agent span holds the others, so it is drawn as a bracket over the time they take */
+.trv-r[data-k=&quot;agent&quot;] .trv-b i,.trv-r.run[data-k=&quot;agent&quot;] .trv-b i{top:9px;height:2px;border-radius:1px;background:var(--faint);animation:none}
+.trv-r[data-k=&quot;agent&quot;] .trv-b i::before,.trv-r[data-k=&quot;agent&quot;] .trv-b i::after{content:&quot;&quot;;position:absolute;top:-3px;width:2px;height:8px;border-radius:1px;background:var(--faint)}
+.trv-r[data-k=&quot;agent&quot;] .trv-b i::before{left:0}.trv-r[data-k=&quot;agent&quot;] .trv-b i::after{right:0}
+.trv-r.run[data-k=&quot;agent&quot;] .trv-b i::after{background:var(--muted)}
+/* over budget: amber, hatched */
+.trv-r.slow .trv-b i,.trv-r.run.slow .trv-b i{background:repeating-linear-gradient(135deg,var(--warn) 0 3px,color-mix(in srgb,var(--warn) 55%,var(--surface)) 3px 6px)}
+.trv-r.run.slow .trv-b i::after{background:var(--warn);box-shadow:0 0 6px 1px color-mix(in srgb,var(--warn) 55%,transparent)}
 .trv-r .trv-tk{font-size:12px;color:var(--muted)}
 .trv-r .trv-ms{font-size:12.5px;color:var(--fg2)}
 .trv-r.slow .trv-ms{color:var(--warn)}
+/* with a span open, the other bars step back */
+.trv-rows.sel .trv-r:not([aria-expanded=&quot;true&quot;]) .trv-b i{opacity:.35}
+/* the playhead: where the run is now, one line down every bar&#39;s track while it streams */
+.trv-b::after,.trv-sc::after{content:&quot;&quot;;position:absolute;left:calc(var(--now,0) * 100%);top:-6px;bottom:-6px;width:1px;margin-left:-.5px;background:var(--accent-mark,var(--accent));opacity:0;transition:opacity .4s;pointer-events:none}
+.trv-sc::after{top:12px;bottom:-6px}
+.trv.live .trv-b::after,.trv.live .trv-sc::after{opacity:.75}
 .trv-dc{display:flex;flex-direction:column;gap:10px;margin-top:2px;padding:6px 10px var(--s-2);border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
 .trv-dh{display:flex;align-items:center;gap:var(--s-2);min-width:0;font-size:13px}
 .trv-dh b{min-width:0;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .trv-dh .ib{margin:0 -6px 0 auto}
-.trv-kv{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--s-2)}
+/* where the open span sat in the run */
+.trv-pos{position:relative;height:6px;border-radius:3px;background:var(--line)}
+.trv-pos i{position:absolute;top:0;bottom:0;min-width:3px;border-radius:3px;background:var(--k);transition:width .25s linear}
+.trv-kv{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--s-2)}
 .trv-kv div{display:flex;flex-direction:column;min-width:0}
 .trv-kv span{font-size:12px;color:var(--muted)}
 .trv-kv b{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .trv-io{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:6px 10px;font-size:12px;color:var(--muted)}
 .trv-io code{font-family:var(--mono);font-size:12px;color:var(--fg2);background:var(--chip);padding:5px var(--s-2);border-radius:var(--r-sm);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-/* narrow: the names keep their room. Tokens move into each span&#39;s details, and the slow tag leaves the amber bar and
-   time to say it (the time keeps its tooltip) */
-@container (max-width:330px){.trv-ax,.trv-r{grid-template-columns:minmax(0,1fr) 72px 44px}.trv-tk,.trv-n .tag{display:none}.trv-n{padding-left:calc(var(--lv,0) * 8px)}}
-</code></pre></details><details class="cp-file"><summary>trace-view.js<span class="l">HTML · 95 lines</span></summary><pre class="cp-pre"><code>DM.def(&#39;trace-view&#39;, (r, c) =&gt; {
+:root:not([data-style=&quot;soft&quot;]) .trv-r:not(.slow) .trv-b i:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *)){background:var(--k)}
+:root:not([data-style=&quot;soft&quot;]) .trv-r.run:not(.slow):not([data-k=&quot;agent&quot;]) .trv-b i:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *)){background:repeating-linear-gradient(90deg,var(--k) 0 4px,color-mix(in srgb,var(--k) 55%,var(--surface)) 4px 6px);animation:none}
+:root:not([data-style=&quot;soft&quot;]) .trv-r.run:not([data-k=&quot;agent&quot;]) .trv-b i:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *))::after{box-shadow:none;width:1px;right:0}
+:root:not([data-style=&quot;soft&quot;]) .trv-g i:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *)),:root:not([data-style=&quot;soft&quot;]) .trv-g i.el:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *))::after{background:var(--faint)}
+/* narrow: the names keep their room. Tokens move into each span&#39;s details, the slow tag leaves the amber bar and time to
+   say it (the time keeps its tooltip), the tree draws closer, and the details give the start its own line */
+@container (max-width:330px){.trv-ax,.trv-r{grid-template-columns:minmax(0,1fr) 72px 44px}.trv-tk,.trv-n .tag{display:none}.trv-n{padding-left:calc(var(--lv,0) * 10px)}.trv-g{display:none}.trv-kv{grid-template-columns:repeat(2,minmax(0,1fr))}}
+</code></pre></details><details class="cp-file"><summary>trace-view.js<span class="l">HTML · 119 lines</span></summary><pre class="cp-pre"><code>DM.def(&#39;trace-view&#39;, (r, c) =&gt; {
   // the kinds of span, each with its mark and colour: the identity slots of the chart palette, and grey for the agents
   // that hold the other spans. The name is always on the mark, in a tooltip, and in the span&#39;s label
   const K = { agent:[&#39;Agent&#39;,&#39;cpu&#39;,&#39;var(--muted)&#39;], llm:[&#39;LLM call&#39;,&#39;spark&#39;,&#39;var(--c2)&#39;], tool:[&#39;Tool call&#39;,&#39;term&#39;,&#39;var(--c6)&#39;], ret:[&#39;Retrieval&#39;,&#39;search&#39;,&#39;var(--c3)&#39;] };
@@ -440,19 +581,38 @@ export function TraceView({ title, spans, time, axis, slowAfter = 2, status, sel
   const END = Math.max(...S.map(x =&gt; x.s + x.d));
   // an agent span counts the tokens of every span under it
   S.forEach((x, i) =&gt; { x.kids = []; for (let j = i + 1; j &lt; S.length &amp;&amp; S[j].lv &gt; x.lv; j++) x.kids.push(S[j]); });
-  const rows = $(&#39;.trv-rows&#39;, r), stEl = $(&#39;.trv-st&#39;, r), tot = $(&#39;.trv-tot&#39;, r), dt = $(&#39;.trv-dt&#39;, r), dc = $(&#39;.trv-dc&#39;, r);
+  const root = $(&#39;.trv&#39;, r), rows = $(&#39;.trv-rows&#39;, r), stEl = $(&#39;.trv-st&#39;, r), tot = $(&#39;.trv-tot&#39;, r), dt = $(&#39;.trv-dt&#39;, r), dc = $(&#39;.trv-dc&#39;, r), lg = $(&#39;.trv-lg&#39;, r);
+  // the key: every kind but the agents, with its colour and how many of its spans have started
+  const KEYS = [&#39;llm&#39;, &#39;tool&#39;, &#39;ret&#39;];
+  lg.innerHTML = KEYS.map(k =&gt; `&lt;span role=&quot;listitem&quot; class=&quot;z&quot; data-k=&quot;${k}&quot; style=&quot;--k:${K[k][2]}&quot;&gt;&lt;i&gt;&lt;/i&gt;${K[k][0]} &lt;b class=&quot;num&quot;&gt;0&lt;/b&gt;&lt;/span&gt;`).join(&#39;&#39;);
+  // each span&#39;s parent, for the tree&#39;s guides
+  S.forEach((x, i) =&gt; { for (let j = i - 1; j &gt;= 0; j--) if (S[j].lv === x.lv - 1){ x.up = S[j]; break; } });
   $(&#39;.trv-sc&#39;, r).innerHTML = Array.from({ length:Math.ceil(SPAN / 2) }, (_, i) =&gt; `&lt;span style=&quot;left:${i * 2 / SPAN * 100}%&quot;&gt;${i * 2}s&lt;/span&gt;`).join(&#39;&#39;);
   const sec = v =&gt; v.toFixed(2) + &#39;s&#39;, tks = v =&gt; v &gt;= 1000 ? (v / 1000).toFixed(1) + &#39;k&#39; : String(Math.round(v));
   let T = 0, sel = null, said = &#39;&#39;;
   S.forEach(x =&gt; {
     const [kind, icon, col] = K[x.k];
-    x.el = html(`&lt;button type=&quot;button&quot; class=&quot;trv-r${x.lv ? &#39;&#39; : &#39; root&#39;}&quot; aria-expanded=&quot;false&quot; style=&quot;--k:${col};--lv:${x.lv}&quot; hidden&gt;&lt;span class=&quot;trv-n&quot;&gt;&lt;span class=&quot;trv-k&quot; data-tip=&quot;${kind}&quot;&gt;${I(icon,&#39;xs&#39;)}&lt;/span&gt;&lt;span class=&quot;trv-nm&quot;&gt;${x.n}&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;trv-b&quot;&gt;&lt;i style=&quot;left:${x.s / SPAN * 100}%&quot;&gt;&lt;/i&gt;&lt;/span&gt;&lt;span class=&quot;trv-tk num&quot;&gt;&lt;/span&gt;&lt;span class=&quot;trv-ms num&quot;&gt;&lt;/span&gt;&lt;/button&gt;`);
+    x.el = html(`&lt;button type=&quot;button&quot; class=&quot;trv-r${x.lv ? &#39;&#39; : &#39; root&#39;}&quot; data-k=&quot;${x.k}&quot; aria-expanded=&quot;false&quot; style=&quot;--k:${col};--lv:${x.lv}&quot; hidden&gt;&lt;span class=&quot;trv-n&quot;&gt;&lt;span class=&quot;trv-g&quot; aria-hidden=&quot;true&quot;&gt;&lt;/span&gt;&lt;span class=&quot;trv-k&quot; data-tip=&quot;${kind}&quot;&gt;${I(icon,&#39;xs&#39;)}&lt;/span&gt;&lt;span class=&quot;trv-nm&quot;&gt;${x.n}&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;trv-b&quot;&gt;&lt;i style=&quot;left:${x.s / SPAN * 100}%&quot;&gt;&lt;/i&gt;&lt;/span&gt;&lt;span class=&quot;trv-tk num&quot;&gt;&lt;/span&gt;&lt;span class=&quot;trv-ms num&quot;&gt;&lt;/span&gt;&lt;/button&gt;`);
     x.el.onclick = () =&gt; open(x === sel ? null : x);
     rows.appendChild(x.el);
   });
   // where the run is: each span shows once it starts, its bar and its numbers grow while it runs
   const took = x =&gt; Math.max(0, Math.min(T, x.s + x.d) - x.s);
   const used = x =&gt; x.k === &#39;agent&#39; ? x.kids.reduce((a, k) =&gt; a + (k.k === &#39;agent&#39; ? 0 : used(k)), 0) : x.tk * Math.min(1, took(x) / x.d);
+  // the tree&#39;s guides for the spans on show: a line on down past a parent&#39;s mark, an elbow into each child, and the lines of
+  // ancestors whose own siblings are still to come
+  const vis = x =&gt; !x.el.hidden, later = x =&gt; S.some(y =&gt; y !== x &amp;&amp; y.up === x.up &amp;&amp; S.indexOf(y) &gt; S.indexOf(x) &amp;&amp; vis(y));
+  function tree(){
+    S.forEach(x =&gt; {
+      if (!vis(x)) return;
+      let h = &#39;&#39;;
+      for (let a = x.up; a &amp;&amp; a.up; a = a.up) if (later(a)) h += `&lt;i style=&quot;--x:${a.lv - 1}&quot;&gt;&lt;/i&gt;`;
+      if (x.up) h += `&lt;i class=&quot;el${later(x) ? &#39;&#39; : &#39; end&#39;}&quot; style=&quot;--x:${x.lv - 1}&quot;&gt;&lt;/i&gt;`;
+      if (S.some(y =&gt; y.up === x &amp;&amp; vis(y))) h += `&lt;i class=&quot;dn&quot; style=&quot;--x:${x.lv}&quot;&gt;&lt;/i&gt;`;
+      $(&#39;.trv-g&#39;, x.el).innerHTML = h;
+    });
+  }
+  let had = 0;
   function paint(){
     let shown = 0;
     S.forEach(x =&gt; {
@@ -469,6 +629,10 @@ export function TraceView({ title, spans, time, axis, slowAfter = 2, status, sel
       }
       x.el.setAttribute(&#39;aria-label&#39;, `${x.n}, ${kind}, ${run ? &#39;running, &#39; : &#39;&#39;}${sec(w)}, ${Math.round(used(x)).toLocaleString(&#39;en-US&#39;)} tokens${x.slow ? &#39;, slow&#39; : &#39;&#39;}`);
     });
+    if (shown !== had){ had = shown; tree();
+      KEYS.forEach(k =&gt; { const n = S.filter(x =&gt; x.k === k &amp;&amp; vis(x)).length, el = $(`[data-k=&quot;${k}&quot;]`, lg), b = $(&#39;b&#39;, el); el.classList.toggle(&#39;z&#39;, !n); if (b.textContent !== String(n)){ b.textContent = n; if (n) enter(b); } }); }
+    // the playhead runs down every track while the run streams, and fades once it is done
+    root.style.setProperty(&#39;--now&#39;, Math.min(T, END) / SPAN); root.classList.toggle(&#39;live&#39;, T &gt; 0 &amp;&amp; T &lt; END);
     tot.textContent = sec(Math.min(T, END));
     const slow = S.filter(x =&gt; x.slow).length;
     const line = T &gt;= END ? `Done · ${S.length} spans${slow ? `, ${slow} slow` : &#39;&#39;}` : `Running · ${shown} span${shown &gt; 1 ? &#39;s&#39; : &#39;&#39;}`;
@@ -478,12 +642,13 @@ export function TraceView({ title, spans, time, axis, slowAfter = 2, status, sel
   // a span&#39;s details: what went in, what came out, how long it took and what it used
   function open(x){
     if (sel) sel.el.setAttribute(&#39;aria-expanded&#39;, &#39;false&#39;);
-    sel = x; dt.classList.toggle(&#39;shut&#39;, !x); dt.inert = !x;
+    sel = x; dt.classList.toggle(&#39;shut&#39;, !x); dt.inert = !x; rows.classList.toggle(&#39;sel&#39;, !!x);
     if (!x) return;
     x.el.setAttribute(&#39;aria-expanded&#39;, &#39;true&#39;);
     const [kind, icon, col] = K[x.k];
     dc.innerHTML = `&lt;div class=&quot;trv-dh&quot;&gt;&lt;span class=&quot;trv-k&quot; style=&quot;--k:${col}&quot;&gt;${I(icon,&#39;xs&#39;)}&lt;/span&gt;&lt;b&gt;${x.n}&lt;/b&gt;${x.slow ? &#39;&lt;span class=&quot;tag warn&quot;&gt;slow&lt;/span&gt;&#39; : &#39;&#39;}&lt;button class=&quot;ib trv-x&quot; aria-label=&quot;Close details&quot; data-tip=&quot;Close&quot;&gt;${I(&#39;x&#39;)}&lt;/button&gt;&lt;/div&gt;
-      &lt;div class=&quot;trv-kv&quot;&gt;&lt;div&gt;&lt;span&gt;Kind&lt;/span&gt;&lt;b&gt;${kind}&lt;/b&gt;&lt;/div&gt;&lt;div&gt;&lt;span&gt;Latency&lt;/span&gt;&lt;b class=&quot;num lt&quot;&gt;&lt;/b&gt;&lt;/div&gt;&lt;div&gt;&lt;span&gt;Tokens&lt;/span&gt;&lt;b class=&quot;num tk&quot;&gt;&lt;/b&gt;&lt;/div&gt;&lt;/div&gt;
+      &lt;div class=&quot;trv-pos&quot; aria-hidden=&quot;true&quot; style=&quot;--k:${col}&quot;&gt;&lt;i style=&quot;left:${x.s / SPAN * 100}%&quot;&gt;&lt;/i&gt;&lt;/div&gt;
+      &lt;div class=&quot;trv-kv&quot;&gt;&lt;div&gt;&lt;span&gt;Kind&lt;/span&gt;&lt;b&gt;${kind}&lt;/b&gt;&lt;/div&gt;&lt;div&gt;&lt;span&gt;Starts at&lt;/span&gt;&lt;b class=&quot;num&quot;&gt;${sec(x.s)}&lt;/b&gt;&lt;/div&gt;&lt;div&gt;&lt;span&gt;Latency&lt;/span&gt;&lt;b class=&quot;num lt&quot;&gt;&lt;/b&gt;&lt;/div&gt;&lt;div&gt;&lt;span&gt;Tokens&lt;/span&gt;&lt;b class=&quot;num tk&quot;&gt;&lt;/b&gt;&lt;/div&gt;&lt;/div&gt;
       &lt;div class=&quot;trv-io&quot;&gt;&lt;span&gt;Input&lt;/span&gt;&lt;code&gt;${x.in}&lt;/code&gt;&lt;span&gt;Output&lt;/span&gt;&lt;code class=&quot;out&quot;&gt;&lt;/code&gt;&lt;/div&gt;`;
     // closing hands focus back to the span, if it was inside the details
     $(&#39;.trv-x&#39;, dc).onclick = () =&gt; { const el = sel.el, back = dc.contains(document.activeElement); open(null); if (back) el.focus({ preventScroll:true }); };
@@ -491,7 +656,7 @@ export function TraceView({ title, spans, time, axis, slowAfter = 2, status, sel
   }
   function fill(){
     const x = sel, done = T &gt;= x.s + x.d;
-    $(&#39;.lt&#39;, dc).textContent = sec(took(x)); $(&#39;.tk&#39;, dc).textContent = Math.round(used(x)).toLocaleString(&#39;en-US&#39;);
+    $(&#39;.lt&#39;, dc).textContent = sec(took(x)); $(&#39;.tk&#39;, dc).textContent = Math.round(used(x)).toLocaleString(&#39;en-US&#39;); $(&#39;.trv-pos i&#39;, dc).style.width = (took(x) / SPAN * 100) + &#39;%&#39;;
     const o = $(&#39;.out&#39;, dc), t = done ? x.out : &#39;Running…&#39;; if (o.textContent !== t) o.textContent = t;
   }
   // the arrow keys move between spans, and Escape shuts the details
@@ -857,19 +1022,38 @@ const fitHits = window.dmFitHits || (() => {
   const END = Math.max(...S.map(x => x.s + x.d));
   // an agent span counts the tokens of every span under it
   S.forEach((x, i) => { x.kids = []; for (let j = i + 1; j < S.length && S[j].lv > x.lv; j++) x.kids.push(S[j]); });
-  const rows = $('.trv-rows', r), stEl = $('.trv-st', r), tot = $('.trv-tot', r), dt = $('.trv-dt', r), dc = $('.trv-dc', r);
+  const root = $('.trv', r), rows = $('.trv-rows', r), stEl = $('.trv-st', r), tot = $('.trv-tot', r), dt = $('.trv-dt', r), dc = $('.trv-dc', r), lg = $('.trv-lg', r);
+  // the key: every kind but the agents, with its colour and how many of its spans have started
+  const KEYS = ['llm', 'tool', 'ret'];
+  lg.innerHTML = KEYS.map(k => `<span role="listitem" class="z" data-k="${k}" style="--k:${K[k][2]}"><i></i>${K[k][0]} <b class="num">0</b></span>`).join('');
+  // each span's parent, for the tree's guides
+  S.forEach((x, i) => { for (let j = i - 1; j >= 0; j--) if (S[j].lv === x.lv - 1){ x.up = S[j]; break; } });
   $('.trv-sc', r).innerHTML = Array.from({ length:Math.ceil(SPAN / 2) }, (_, i) => `<span style="left:${i * 2 / SPAN * 100}%">${i * 2}s</span>`).join('');
   const sec = v => v.toFixed(2) + 's', tks = v => v >= 1000 ? (v / 1000).toFixed(1) + 'k' : String(Math.round(v));
   let T = 0, sel = null, said = '';
   S.forEach(x => {
     const [kind, icon, col] = K[x.k];
-    x.el = html(`<button type="button" class="trv-r${x.lv ? '' : ' root'}" aria-expanded="false" style="--k:${col};--lv:${x.lv}" hidden><span class="trv-n"><span class="trv-k" data-tip="${kind}">${I(icon,'xs')}</span><span class="trv-nm">${x.n}</span></span><span class="trv-b"><i style="left:${x.s / SPAN * 100}%"></i></span><span class="trv-tk num"></span><span class="trv-ms num"></span></button>`);
+    x.el = html(`<button type="button" class="trv-r${x.lv ? '' : ' root'}" data-k="${x.k}" aria-expanded="false" style="--k:${col};--lv:${x.lv}" hidden><span class="trv-n"><span class="trv-g" aria-hidden="true"></span><span class="trv-k" data-tip="${kind}">${I(icon,'xs')}</span><span class="trv-nm">${x.n}</span></span><span class="trv-b"><i style="left:${x.s / SPAN * 100}%"></i></span><span class="trv-tk num"></span><span class="trv-ms num"></span></button>`);
     x.el.onclick = () => open(x === sel ? null : x);
     rows.appendChild(x.el);
   });
   // where the run is: each span shows once it starts, its bar and its numbers grow while it runs
   const took = x => Math.max(0, Math.min(T, x.s + x.d) - x.s);
   const used = x => x.k === 'agent' ? x.kids.reduce((a, k) => a + (k.k === 'agent' ? 0 : used(k)), 0) : x.tk * Math.min(1, took(x) / x.d);
+  // the tree's guides for the spans on show: a line on down past a parent's mark, an elbow into each child, and the lines of
+  // ancestors whose own siblings are still to come
+  const vis = x => !x.el.hidden, later = x => S.some(y => y !== x && y.up === x.up && S.indexOf(y) > S.indexOf(x) && vis(y));
+  function tree(){
+    S.forEach(x => {
+      if (!vis(x)) return;
+      let h = '';
+      for (let a = x.up; a && a.up; a = a.up) if (later(a)) h += `<i style="--x:${a.lv - 1}"></i>`;
+      if (x.up) h += `<i class="el${later(x) ? '' : ' end'}" style="--x:${x.lv - 1}"></i>`;
+      if (S.some(y => y.up === x && vis(y))) h += `<i class="dn" style="--x:${x.lv}"></i>`;
+      $('.trv-g', x.el).innerHTML = h;
+    });
+  }
+  let had = 0;
   function paint(){
     let shown = 0;
     S.forEach(x => {
@@ -886,6 +1070,10 @@ const fitHits = window.dmFitHits || (() => {
       }
       x.el.setAttribute('aria-label', `${x.n}, ${kind}, ${run ? 'running, ' : ''}${sec(w)}, ${Math.round(used(x)).toLocaleString('en-US')} tokens${x.slow ? ', slow' : ''}`);
     });
+    if (shown !== had){ had = shown; tree();
+      KEYS.forEach(k => { const n = S.filter(x => x.k === k && vis(x)).length, el = $(`[data-k="${k}"]`, lg), b = $('b', el); el.classList.toggle('z', !n); if (b.textContent !== String(n)){ b.textContent = n; if (n) enter(b); } }); }
+    // the playhead runs down every track while the run streams, and fades once it is done
+    root.style.setProperty('--now', Math.min(T, END) / SPAN); root.classList.toggle('live', T > 0 && T < END);
     tot.textContent = sec(Math.min(T, END));
     const slow = S.filter(x => x.slow).length;
     const line = T >= END ? `Done · ${S.length} spans${slow ? `, ${slow} slow` : ''}` : `Running · ${shown} span${shown > 1 ? 's' : ''}`;
@@ -895,12 +1083,13 @@ const fitHits = window.dmFitHits || (() => {
   // a span's details: what went in, what came out, how long it took and what it used
   function open(x){
     if (sel) sel.el.setAttribute('aria-expanded', 'false');
-    sel = x; dt.classList.toggle('shut', !x); dt.inert = !x;
+    sel = x; dt.classList.toggle('shut', !x); dt.inert = !x; rows.classList.toggle('sel', !!x);
     if (!x) return;
     x.el.setAttribute('aria-expanded', 'true');
     const [kind, icon, col] = K[x.k];
     dc.innerHTML = `<div class="trv-dh"><span class="trv-k" style="--k:${col}">${I(icon,'xs')}</span><b>${x.n}</b>${x.slow ? '<span class="tag warn">slow</span>' : ''}<button class="ib trv-x" aria-label="Close details" data-tip="Close">${I('x')}</button></div>
-      <div class="trv-kv"><div><span>Kind</span><b>${kind}</b></div><div><span>Latency</span><b class="num lt"></b></div><div><span>Tokens</span><b class="num tk"></b></div></div>
+      <div class="trv-pos" aria-hidden="true" style="--k:${col}"><i style="left:${x.s / SPAN * 100}%"></i></div>
+      <div class="trv-kv"><div><span>Kind</span><b>${kind}</b></div><div><span>Starts at</span><b class="num">${sec(x.s)}</b></div><div><span>Latency</span><b class="num lt"></b></div><div><span>Tokens</span><b class="num tk"></b></div></div>
       <div class="trv-io"><span>Input</span><code>${x.in}</code><span>Output</span><code class="out"></code></div>`;
     // closing hands focus back to the span, if it was inside the details
     $('.trv-x', dc).onclick = () => { const el = sel.el, back = dc.contains(document.activeElement); open(null); if (back) el.focus({ preventScroll:true }); };
@@ -908,7 +1097,7 @@ const fitHits = window.dmFitHits || (() => {
   }
   function fill(){
     const x = sel, done = T >= x.s + x.d;
-    $('.lt', dc).textContent = sec(took(x)); $('.tk', dc).textContent = Math.round(used(x)).toLocaleString('en-US');
+    $('.lt', dc).textContent = sec(took(x)); $('.tk', dc).textContent = Math.round(used(x)).toLocaleString('en-US'); $('.trv-pos i', dc).style.width = (took(x) / SPAN * 100) + '%';
     const o = $('.out', dc), t = done ? x.out : 'Running…'; if (o.textContent !== t) o.textContent = t;
   }
   // the arrow keys move between spans, and Escape shuts the details

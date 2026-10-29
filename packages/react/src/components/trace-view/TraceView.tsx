@@ -54,18 +54,32 @@ const sec = (v: number) => v.toFixed(2) + 's';
 const short = (v: number) => v >= 1000 ? (v / 1000).toFixed(1) + 'k' : String(Math.round(v));
 const tokensOf = (s: TraceSpan): number => s.tokens ?? (s.children ?? []).reduce((a, k) => a + tokensOf(k), 0);
 
+type Row = { s: TraceSpan; lv: number; up?: Row };
+
 /** One agent run as an observability waterfall: every span (LLM call, tool call, retrieval, sub-agent) on a shared time
-    axis, nested under the span that started it, with its tokens and latency. A slow tool call turns amber, and any span
-    opens to show its input, output, latency and tokens. */
+    axis, nested under the span that started it with a tree's guides, with its tokens and latency. Each kind has its colour
+    and a count in the key; while the run streams a playhead marks now and running bars glow at their leading edge. A slow
+    tool call turns amber and hatched, and any span opens to show where it sat in the run, its input, output, latency and tokens. */
 export function TraceView({ title, spans, time, axis, slowAfter = 2, status, selected, defaultSelected = null, onSelectedChange, className }: TraceViewProps) {
   const [open, setOpen] = useControllable(selected, defaultSelected, onSelectedChange);
   const rows = useRef<HTMLDivElement>(null);
-  const all: { s: TraceSpan; lv: number }[] = [];
-  (function walk(list: TraceSpan[], lv: number) { list.forEach(s => { all.push({ s, lv }); if (s.children) walk(s.children, lv + 1); }); })(spans, 0);
+  const all: Row[] = [];
+  (function walk(list: TraceSpan[], lv: number, up?: Row) { list.forEach(s => { const row = { s, lv, up }; all.push(row); if (s.children) walk(s.children, lv + 1, row); }); })(spans, 0);
   const end = Math.max(0, ...all.map(({ s }) => s.start + (s.duration ?? Math.max(0, (time ?? s.start) - s.start))));
   const span = axis ?? Math.max(1, Math.ceil(end));
   const now = time ?? Infinity;
   const shown = all.filter(({ s }) => s.start <= now);
+  // the tree's guides: a line on down past a parent's mark, an elbow into each child, and the lines of ancestors whose own
+  // siblings are still to come
+  const later = (x: Row) => shown.some(y => y !== x && y.up === x.up && all.indexOf(y) > all.indexOf(x));
+  const guides = (x: Row) => {
+    const g: { x: number; cls?: string }[] = [];
+    for (let a = x.up; a && a.up; a = a.up) if (later(a)) g.push({ x: a.lv - 1 });
+    if (x.up) g.push({ x: x.lv - 1, cls: cx('dm-el', !later(x) && 'dm-end') });
+    if (shown.some(y => y.up === x)) g.push({ x: x.lv, cls: 'dm-dn' });
+    return g;
+  };
+  const KEYS: SpanKind[] = ['llm', 'tool', 'retrieval'];
   const took = (s: TraceSpan) => s.duration !== undefined ? Math.min(s.duration, now - s.start) : Math.max(0, (time ?? s.start) - s.start);
   const running = (s: TraceSpan) => s.duration === undefined || now < s.start + s.duration;
   const slow = (s: TraceSpan) => s.kind === 'tool' && took(s) > slowAfter;
@@ -95,26 +109,33 @@ export function TraceView({ title, spans, time, axis, slowAfter = 2, status, sel
   };
 
   return (
-    <div data-dm="" className={cx('dm-trv dm-panel', className)} onKeyDown={e => { if (e.key === 'Escape' && open) close(true); }}>
+    <div data-dm="" className={cx('dm-trv dm-panel', live && time !== undefined && time > 0 && 'dm-live', className)} style={{ '--dm-now': Math.min(end, now) / span } as CSSProperties}
+      onKeyDown={e => { if (e.key === 'Escape' && open) close(true); }}>
       <div className="dm-trv-h">
         <div className="dm-trv-ht"><b>{title}</b><span className="dm-muted dm-trv-st" aria-live="polite"><Swap>{line}</Swap></span></div>
         <span className="dm-trv-tot dm-num">{sec(Math.min(end, now))}</span>
+      </div>
+      <div className="dm-trv-lg" role="list" aria-label="Spans by kind">
+        {KEYS.map(k => { const n = shown.filter(({ s }) => s.kind === k).length;
+          return <span key={k} role="listitem" className={cx(!n && 'dm-z')} style={{ '--dm-k': KIND[k][2] } as CSSProperties}><i />{KIND[k][0]} <b key={n} className={cx('dm-num', n > 0 && 'dm-enter')}>{n}</b></span>; })}
       </div>
       <div className="dm-trv-ax" aria-hidden="true">
         <span>Span</span>
         <span className="dm-trv-sc">{labels.map(v => <span key={v} style={{ left: `${(v / span) * 100}%` }}>{v}s</span>)}</span>
         <span className="dm-trv-tk">Tokens</span><span className="dm-trv-ms">Time</span>
       </div>
-      <div ref={rows} className="dm-trv-rows" role="group" aria-label="Spans" onKeyDown={onKey}>
-        {shown.map(({ s, lv }) => {
+      <div ref={rows} className={cx('dm-trv-rows', sel && 'dm-sel')} role="group" aria-label="Spans" onKeyDown={onKey}>
+        {shown.map(row => {
+          const { s, lv } = row;
           const [kind, icon, col] = KIND[s.kind], w = took(s), tk = tokensOf(s), run = running(s), sl = slow(s);
           const why = `Over the ${slowAfter}s budget for a tool call`;
           return (
-            <button key={s.id} type="button" data-id={s.id} className={cx('dm-trv-r dm-enter', !lv && 'dm-root', run && 'dm-run', sl && 'dm-slow')}
+            <button key={s.id} type="button" data-id={s.id} data-k={s.kind} className={cx('dm-trv-r dm-enter', !lv && 'dm-root', run && 'dm-run', sl && 'dm-slow')}
               style={{ '--dm-k': col, '--dm-lv': lv } as CSSProperties} aria-expanded={open === s.id}
               aria-label={`${s.name}, ${kind}, ${run ? 'running, ' : ''}${sec(w)}, ${Math.round(tk).toLocaleString('en-US')} tokens${sl ? ', slow' : ''}`}
               onClick={() => setOpen(open === s.id ? null : s.id)}>
               <span className="dm-trv-n">
+                <span className="dm-trv-g" aria-hidden="true">{guides(row).map((g, i) => <i key={i} className={g.cls} style={{ '--dm-x': g.x } as CSSProperties} />)}</span>
                 <Tip label={kind}><span className="dm-trv-k"><Icon name={icon} size="xs" /></span></Tip>
                 <span className="dm-trv-nm">{s.name}</span>
                 {sl && <Tip label={why}><span className={cx('dm-tag dm-warn', enter().className)}>slow</span></Tip>}
@@ -134,8 +155,12 @@ export function TraceView({ title, spans, time, axis, slowAfter = 2, status, sel
               <b>{cur.name}</b>{slow(cur) && <span className="dm-tag dm-warn">slow</span>}
               <Tip label="Close"><button type="button" className="dm-ib dm-trv-x" aria-label="Close details" onClick={e => close(e.currentTarget.contains(document.activeElement))}><Icon name="x" /></button></Tip>
             </div>
+            <div className="dm-trv-pos" aria-hidden="true" style={{ '--dm-k': KIND[cur.kind][2] } as CSSProperties}>
+              <i style={{ left: `${(cur.start / span) * 100}%`, width: `${(took(cur) / span) * 100}%` }} />
+            </div>
             <div className="dm-trv-kv">
               <div><span>Kind</span><b>{KIND[cur.kind][0]}</b></div>
+              <div><span>Starts at</span><b className="dm-num">{sec(cur.start)}</b></div>
               <div><span>Latency</span><b className="dm-num">{sec(took(cur))}</b></div>
               <div><span>Tokens</span><b className="dm-num">{Math.round(tokensOf(cur)).toLocaleString('en-US')}</b></div>
             </div>
