@@ -26,7 +26,7 @@
 :root{
   --motion:soft;
   --page:#f7f7f7; --stage:#f9f9f9; --surface:#ffffff; --raised:#ffffff;
-  --fg:#171717; --fg2:#525252; --muted:#6a6a6a; --faint:#c4c4c4; --rail:#d4d4d4; --line:#e8e8e8; --field-line:#d4d4d4; --field-line-strong:#858585;
+  --fg:#171717; --fg2:#525252; --muted:#6a6a6a; --faint:#c4c4c4; --rail:#d4d4d4; --line:#e8e8e8; --field-line:#d4d4d4; --line-strong:#858585; --field-line-strong:#b3b3b3;
   --chip:#f3f3f3; --hover:#ebebeb; --press:#e3e3e3; --wash:#f9f9f9; --row:color-mix(in srgb,var(--fg) 4%,transparent);
   --soft:#ececec; --soft-h:#e3e3e3; --soft-ring:inset 0 0 0 1px rgba(0,0,0,.06); --dis:#a6a6a6;
   /* disabled: text and icons take --dis; a control with a fill swaps it for --dis-fill (Blueprint hatches it) */
@@ -37,10 +37,10 @@
      light accent like lime keeps its fills and gets a darker mark and ink-coloured text on a light page */
   --accent:#116ff8; --on-accent:#ffffff; --accent-fg:#0f5fd5; --accent-mark:#116ff8; --sel:color-mix(in srgb,var(--accent) 6%,transparent);
   /* fields (text fields, textareas, search fields, dropdown triggers) have a dimmed grey edge, --field-line, that steps up
-     to --field-line-strong while they have the focus. The keyboard's focus ring on every other control is 2px of that
-     stronger grey (--focus), as an outline offset 2px, or as a 2px box-shadow ring where an outline would be clipped. Never
+     a little, to --field-line-strong, while they have the focus. The keyboard's focus ring on every other control is 2px of
+     a stronger grey (--line-strong, as --focus), as an outline offset 2px, or as a 2px box-shadow ring where an outline would be clipped. Never
      the accent and never black, and only from the keyboard (:focus-visible), so a click or a tap never shows one */
-  --focus:var(--field-line-strong);
+  --focus:var(--line-strong);
   --ink:#1b1b1b; --on-ink:#ffffff;
   --ok:#137739; --ok-bg:#e8f6ee; --warn:#a94e09; --warn-bg:#fdf3df; --bad:#bf3434; --bad-bg:#fdecec;
   --merge:#7c4cd4; --merge-bg:#f2ecfd; --add:#187633; --del:#c7212c;
@@ -68,7 +68,7 @@
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
   --page:#111111; --stage:#1c1c1c; --surface:#262626; --raised:#2c2c2c;
-  --fg:#f2f2f2; --fg2:#c9c9c9; --muted:#c0c0c0; --faint:#555555; --rail:#414141; --line:#333333; --field-line:#424242; --field-line-strong:#808080;
+  --fg:#f2f2f2; --fg2:#c9c9c9; --muted:#c0c0c0; --faint:#555555; --rail:#414141; --line:#333333; --field-line:#424242; --line-strong:#808080; --field-line-strong:#5c5c5c;
   --chip:#303030; --hover:#373737; --press:#3f3f3f; --wash:#2c2c2c; --row:color-mix(in srgb,var(--fg) 5.5%,transparent);
   --soft:#323232; --soft-h:#3a3a3a; --soft-ring:inset 0 0 0 1px rgba(255,255,255,.07); --dis:#737373;
   --shadow-lift:0 0 0 1px rgba(255,255,255,.16),0 2px 4px rgba(0,0,0,.3),0 16px 32px -10px rgba(0,0,0,.6);
@@ -82,7 +82,7 @@
   --shadow:0 0 0 1px rgba(255,255,255,.08),0 1px 2px rgba(0,0,0,.3),0 8px 16px -8px rgba(0,0,0,.4); --shadow-pop:0 0 0 1px rgba(255,255,255,.1),0 4px 8px -4px rgba(0,0,0,.4),0 16px 32px -8px rgba(0,0,0,.5); --shadow-toast:0 0 0 1px rgba(255,255,255,.1),0 4px 12px rgba(0,0,0,.4); --hl:rgba(240,200,60,.3); --hl-ok:rgba(60,207,126,.24); color-scheme:dark}}
 :root[data-theme="dark"]{
   --page:#111111; --stage:#1c1c1c; --surface:#262626; --raised:#2c2c2c;
-  --fg:#f2f2f2; --fg2:#c9c9c9; --muted:#c0c0c0; --faint:#555555; --rail:#414141; --line:#333333; --field-line:#424242; --field-line-strong:#808080;
+  --fg:#f2f2f2; --fg2:#c9c9c9; --muted:#c0c0c0; --faint:#555555; --rail:#414141; --line:#333333; --field-line:#424242; --line-strong:#808080; --field-line-strong:#5c5c5c;
   --chip:#303030; --hover:#373737; --press:#3f3f3f; --wash:#2c2c2c; --row:color-mix(in srgb,var(--fg) 5.5%,transparent);
   --soft:#323232; --soft-h:#3a3a3a; --soft-ring:inset 0 0 0 1px rgba(255,255,255,.07); --dis:#737373;
   --shadow-lift:0 0 0 1px rgba(255,255,255,.16),0 2px 4px rgba(0,0,0,.3),0 16px 32px -10px rgba(0,0,0,.6);
@@ -2226,7 +2226,7 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .drv-ht{display:flex;flex-direction:column;min-width:0;flex:1}
 .drv-ht b{font-weight:500;font-size:13.5px}
 .drv-ht span{font-size:11.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.drv-b{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:14px 18px;align-items:start}
+.drv-b{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px 18px;align-items:start}
 @container (max-width:600px){.drv-b{grid-template-columns:minmax(0,1fr)}}
 .drv-col{display:flex;flex-direction:column;gap:var(--s-2);min-width:0}
 .drv-lb{font-size:11.5px;color:var(--muted);font-weight:500}
@@ -2766,7 +2766,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
   /* Stop's fill: a red that keeps white text at 4.5:1 and APCA Lc 75 in both themes, darker on hover */
   --ctb-stop:#bf3434;--ctb-stop-2:#a52a2a;--ctb-on-stop:#ffffff;
   /* the wires: the field grey, which holds 3:1 against the canvas */
-  --ctb-wire:var(--field-line-strong)}
+  --ctb-wire:var(--line-strong)}
 .ctb-cv{position:relative;height:460px;border-radius:var(--r-lg);overflow:hidden;outline:0;touch-action:none;user-select:none;-webkit-user-select:none;cursor:default;
   background-color:var(--chip);background-image:radial-gradient(circle,color-mix(in srgb,var(--fg) 20%,transparent) 1.1px,transparent 1.6px);background-size:16px 16px}
 /* the canvas shows its focus only to the keyboard, in the quiet grey: a click gives it the focus without a ring */
@@ -2817,7 +2817,8 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .ctb-bar :focus-visible{border-radius:var(--r-pill)}
 .ctb-b{width:32px;height:32px;flex:none;display:grid;place-items:center;border-radius:var(--r-pill);color:var(--fg2);transition:background var(--t-fast),color var(--t-fast)}
 .ctb-b:hover{background:var(--row);color:var(--fg)}
-.ctb-b:is([aria-checked="true"],[aria-pressed="true"]){background:var(--surface);color:var(--fg);box-shadow:inset 0 0 0 1px var(--field-line)}
+/* the tool in use sits on a soft accent tint, with no edge */
+.ctb-b:is([aria-checked="true"],[aria-pressed="true"]),.ctb-b:is([aria-checked="true"],[aria-pressed="true"]):hover{background:color-mix(in srgb,var(--accent) 12%,transparent);color:var(--accent-fg);box-shadow:none}
 /* zoom out at 25%, or in at 400%, has nowhere to go: it greys out but keeps its place and the focus */
 .ctb-b[aria-disabled="true"],.ctb-b[aria-disabled="true"]:hover,.ctb-menu .mi[aria-disabled="true"],.ctb-menu .mi[aria-disabled="true"] :is(.i,.kbd){color:var(--dis);background:none;cursor:not-allowed}
 .ctb-hd{width:24px;color:var(--muted);cursor:grab;touch-action:none}
@@ -3426,7 +3427,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .dpk-f{display:flex;align-items:center;gap:10px;width:100%;height:var(--field-h);padding:0 var(--s-3);border-radius:var(--r-field);background:var(--surface);box-shadow:inset 0 0 0 1px var(--field-line);font-size:13.5px;transition:box-shadow var(--t-fast)}
 @supports (corner-shape:squircle){.dpk-f{corner-shape:squircle;border-radius:var(--r-field-sq)}}
 /* a dropdown's field steps up its edge while it has the focus or its calendar is open; it takes no ring */
-.dpk-f[aria-expanded="true"],.dpk-f:focus-visible{outline:0;box-shadow:inset 0 0 0 1px var(--field-line-strong)}
+.dpk-f:focus-visible{outline:0;box-shadow:inset 0 0 0 1px var(--field-line-strong)}
 .dpk-f>svg:first-child{color:var(--muted)}
 .dpk-val{flex:1;text-align:left;color:var(--fg)}
 .dpk-val.ph{color:var(--muted)}
@@ -3762,7 +3763,6 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .six-box{width:100%;max-width:var(--field-w);background:var(--surface);border-radius:var(--r-field);box-shadow:inset 0 0 0 1px var(--field-line);transition:box-shadow var(--t-fast)}
 @supports (corner-shape:squircle){.six-box{corner-shape:squircle;border-radius:var(--r-field-sq)}}
 /* the edge steps up while the field has the focus; nothing else changes */
-.six-box:has(.six-in input:focus){box-shadow:inset 0 0 0 1px var(--field-line-strong)}
 .six-in{display:flex;align-items:center;gap:var(--s-2);height:var(--field-h);padding:0 var(--s-2) 0 var(--s-3);color:var(--muted)}
 .six-in input{flex:1;min-width:0;height:100%;border:0;outline:0;background:transparent;font:inherit;font-size:13.5px;color:var(--fg)}
 .six-in input::placeholder{color:var(--muted)}
@@ -3789,14 +3789,14 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .csx-f{display:flex;align-items:center;gap:10px;height:var(--field-h);padding:0 var(--s-3);border-radius:var(--r-field);background:var(--surface);box-shadow:inset 0 0 0 1px var(--field-line);font-size:13.5px;text-align:left;transition:box-shadow var(--t-fast)}
 @supports (corner-shape:squircle){.csx-f{corner-shape:squircle;border-radius:var(--r-field-sq)}}
 /* a dropdown's field steps up its edge while it has the focus or its list is open; it takes no ring */
-.csx-f[aria-expanded="true"],.csx-f:focus-visible{outline:0;box-shadow:inset 0 0 0 1px var(--field-line-strong)}
+.csx-f:focus-visible{outline:0;box-shadow:inset 0 0 0 1px var(--field-line-strong)}
 .csx-v{flex:1}
 .csx-f>svg{color:var(--muted);transition:transform .35s var(--ease)}
 .csx-f[aria-expanded="true"]>svg{transform:rotate(180deg)}
 .csx-fl{display:grid;place-items:center;flex:none}
 .csx-h{font-size:12px}
 /* closed, the list is hidden as well as clear, so Tab passes over its search box and options */
-.csx-pop{position:absolute;top:66px;left:0;right:0;z-index:5;background:var(--raised);border-radius:14px;box-shadow:var(--shadow-pop);padding:6px;opacity:0;visibility:hidden;transform:translateY(-4px) scale(.98);transform-origin:top;filter:blur(3px);pointer-events:none;transition:opacity .2s,transform .35s var(--ease),filter .2s,visibility 0s .2s}
+.csx-pop{position:absolute;top:calc(var(--field-h) + 35px);left:0;right:0;z-index:5;background:var(--raised);border-radius:14px;box-shadow:var(--shadow-pop);padding:6px;opacity:0;visibility:hidden;transform:translateY(-4px) scale(.98);transform-origin:top;filter:blur(3px);pointer-events:none;transition:opacity .2s,transform .35s var(--ease),filter .2s,visibility 0s .2s}
 .csx-pop.open{opacity:1;visibility:visible;transform:none;filter:none;pointer-events:auto;transition-property:opacity,transform,filter}
 .csx-q{width:100%;height:32px;border:0;outline:0;border-radius:var(--r-field);background:var(--surface);box-shadow:inset 0 0 0 1px var(--field-line);padding:0 10px;font:inherit;font-size:13px;color:var(--fg);margin-bottom:var(--s-1);transition:box-shadow var(--t-fast)}
 @supports (corner-shape:squircle){.csx-q{corner-shape:squircle;border-radius:var(--r-field-sq)}}
@@ -4191,7 +4191,9 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .ivx-m .t span{font-size:11.5px;color:var(--muted)}
 .ivx-m .r{font-size:12px;color:var(--muted)}
 .ivx-m .r.pend{color:var(--warn)}
-.ivx-ft{display:flex;justify-content:space-between;gap:6px}
+/* the buttons sit under a hairline, with the same room above and below it */
+.ivx-ft{display:flex;justify-content:space-between;gap:6px;margin:0 -14px;padding:10px 14px 0;border-top:1px solid var(--line)}
+.ivx-go[disabled],.ivx-go[disabled]:hover{box-shadow:none}
 /* ---------- Reactions ---------- */
 /* an agent message in the feed: no container; with .panel it becomes a card */
 .rxx{padding:14px 0;display:flex;flex-direction:column;gap:10px}
@@ -4279,7 +4281,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
    search, the list (the current one ticked, each with its badge) and Create new at the bottom. When the bar runs short the
    names shorten with an ellipsis; when it is phone narrow only the last part shows, and a … menu holds the others */
 .csw{position:relative;width:100%;max-width:640px;margin:0 auto;container:csw/inline-size}
-.csw-bar{display:flex;align-items:center;min-height:52px;padding:var(--s-2);border-radius:var(--r-card)}
+.csw-bar{display:flex;align-items:center;width:fit-content;max-width:100%;margin:0 auto;min-height:52px;padding:var(--s-2);border-radius:var(--r-card)}
 .csw-path{flex:1;min-width:0;display:flex;align-items:center;gap:var(--s-1);margin:0;padding:0;list-style:none}
 .csw-path>li{display:flex;align-items:center;min-width:0}
 /* short of room, each part takes an even share of the bar and never more than it needs, so a short name keeps its length
@@ -4288,7 +4290,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .csw-sep{flex:none;color:var(--muted)}
 .csw-path>.csw-mi,.csw-path>.csw-sep.m{display:none}
 .csw-tr{display:flex;align-items:center;gap:var(--s-2);min-width:0;max-width:100%;height:36px;padding:0 var(--s-2);border-radius:var(--r-sm);font-size:13.5px;font-weight:500;color:var(--fg);white-space:nowrap;transition:background var(--t-fast)}
-.csw-tr:hover,.csw-tr[aria-expanded="true"]{background:var(--row)}
+.csw-tr:hover{background:var(--row)}
 .csw-tr>.i{color:var(--muted);flex:none}
 .csw-nm{min-width:0;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .csw-bh{display:flex;flex:none}
@@ -4298,13 +4300,13 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 .csw-lg[data-t="pb"]{--tb:var(--pb-bg);--tc:var(--pb)}.csw-lg[data-t="pl"]{--tb:var(--pl-bg);--tc:var(--pl)}.csw-lg[data-t="pm"]{--tb:var(--pm-bg);--tc:var(--pm)}.csw-lg[data-t="pp"]{--tb:var(--pp-bg);--tc:var(--pp)}
 .csw-lg[data-t="pr"]{--tb:var(--pr-bg);--tc:var(--pr)}.csw-lg[data-t="py"]{--tb:var(--py-bg);--tc:var(--py)}.csw-lg[data-t="pk"]{--tb:var(--pk-bg);--tc:var(--pk)}.csw-lg[data-t="pt"]{--tb:var(--pt-bg);--tc:var(--pt)}
 /* the badges are Badge's small size, in the same tones */
-.csw-bd{--cb-bg:var(--chip);--cb-fg:var(--fg2);display:inline-flex;align-items:center;height:20px;padding:0 var(--s-2);border-radius:var(--r-pill);background:var(--cb-bg);color:var(--cb-fg);font-size:11.5px;font-weight:500;line-height:1;white-space:nowrap}
+.csw-bd{--cb-bg:var(--chip);--cb-fg:var(--fg2);flex:none;display:inline-flex;align-items:center;height:20px;padding:0 var(--s-2);border-radius:var(--r-pill);background:var(--cb-bg);color:var(--cb-fg);font-size:11.5px;font-weight:500;line-height:1;white-space:nowrap}
 .csw-bd[data-tone="accent"]{--cb-bg:var(--accent-bg);--cb-fg:var(--accent-fg)}
 .csw-bd[data-tone="success"]{--cb-bg:var(--ok-bg);--cb-fg:var(--ok)}.csw-bd[data-tone="warning"]{--cb-bg:var(--warn-bg);--cb-fg:var(--warn)}.csw-bd[data-tone="danger"]{--cb-bg:var(--bad-bg);--cb-fg:var(--bad)}
 .csw-bd[data-tone="blue"]{--cb-bg:var(--pb-bg);--cb-fg:var(--pb)}.csw-bd[data-tone="violet"]{--cb-bg:var(--pl-bg);--cb-fg:var(--pl)}.csw-bd[data-tone="green"]{--cb-bg:var(--pm-bg);--cb-fg:var(--pm)}.csw-bd[data-tone="orange"]{--cb-bg:var(--pp-bg);--cb-fg:var(--pp)}
 .csw-bd[data-tone="red"]{--cb-bg:var(--pr-bg);--cb-fg:var(--pr)}.csw-bd[data-tone="yellow"]{--cb-bg:var(--py-bg);--cb-fg:var(--py)}.csw-bd[data-tone="pink"]{--cb-bg:var(--pk-bg);--cb-fg:var(--pk)}.csw-bd[data-tone="teal"]{--cb-bg:var(--pt-bg);--cb-fg:var(--pt)}
 .csw-more{display:grid;place-items:center;width:32px;height:32px;border-radius:var(--r-sm);color:var(--fg2);flex:none;transition:background var(--t-fast)}
-.csw-more:hover,.csw-more[aria-expanded="true"]{background:var(--row)}
+.csw-more:hover{background:var(--row)}
 /* the switcher: under the part it belongs to, never past the bar's ends */
 .csw-pop{width:288px;max-width:100%}
 /* a switcher or the … menu fades in a beat after the bar starts gliding up to make room for it, so it never shows past the
@@ -4318,17 +4320,16 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 @supports (corner-shape:squircle){.csw-q{corner-shape:squircle;border-radius:var(--r-field-sq)}}
 .csw-list{max-height:248px;overflow-y:auto;display:flex;flex-direction:column}
 .csw-o{flex:none;min-height:34px;cursor:pointer}
-/* the row under the pointer or the arrow keys, and a hovered row in the … menu, is white with a quiet grey edge rather than
-   a grey fill, a step stronger on the current one, which is also ticked */
-.csw-pop .csw-o:is(:hover,.hl),.csw-mpop .mi:hover{background:var(--raised);box-shadow:inset 0 0 0 1px var(--rail)}
-.csw-pop .csw-o[aria-selected="true"]:is(:hover,.hl){box-shadow:inset 0 0 0 1px var(--faint)}
+/* the row under the pointer or the arrow keys, the current one, and a hovered row in the … menu get a soft grey fill behind
+   them, with no edge and no tick */
+.csw-pop .csw-o:is(:hover,.hl,[aria-selected="true"]),.csw-mpop .mi:hover{background:var(--row);box-shadow:none}
 .csw-o .csw-on{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .csw-o .csw-lg{width:20px;height:20px;font-size:10.5px}
 .csw-o .ck{margin-left:0;flex:none}
-.csw-o[aria-selected="true"] .ck{opacity:1}
+.csw-o .ck{display:none}
 .csw-o[aria-selected="true"] .csw-on{font-weight:500}
 /* a hovered row's tint lifts the dark list a step, so a badge on it leans a little toward the text colour and keeps APCA 60 */
-.csw-o.hl .csw-bd,.csw-tr[aria-expanded="true"] .csw-bd{color:color-mix(in srgb,var(--cb-fg) 85%,var(--fg))}
+.csw-o:is(.hl,[aria-selected="true"]) .csw-bd{color:color-mix(in srgb,var(--cb-fg) 85%,var(--fg))}
 .csw-o:hover .csw-bd,.csw-tr:hover .csw-bd{color:color-mix(in srgb,var(--cb-fg) 85%,var(--fg))}
 .csw-new,.csw-new>.i{color:var(--fg2)}
 .csw-none{padding:var(--s-2);font-size:12.5px;color:var(--muted)}
@@ -4344,7 +4345,6 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
   .csw-path>.csw-mi,.csw-path>.csw-sep.m{display:flex}
   .csw-nm{max-width:none}
 }
-:root[data-style="bp"] .csw-tr[aria-expanded="true"],:root[data-style="bp"] .csw-more[aria-expanded="true"]{box-shadow:inset 0 0 0 1px var(--rail)}
 :root[data-style="bp"] .csw-bd{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--cb-fg) 28%,transparent);font-size:10.5px;letter-spacing:.03em;text-transform:uppercase}
 :root[data-style="bp"] .csw-bd[data-tone="accent"]{box-shadow:inset 0 0 0 1px var(--accent-mark)}
 /* ---------- Filter menu ---------- */
@@ -4469,7 +4469,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 :root[data-style="bp"]{
   --motion:bp;
   --page:#f3f3f0; --stage:#fafaf8; --surface:#ffffff; --raised:#ffffff;
-  --fg:#121212; --fg2:#4a4a46; --muted:#666660; --faint:#bdbdb6; --rail:#d2d2cb; --line:#e3e3dd; --field-line:#d2d2cb; --field-line-strong:#858580;
+  --fg:#121212; --fg2:#4a4a46; --muted:#666660; --faint:#bdbdb6; --rail:#d2d2cb; --line:#e3e3dd; --field-line:#d2d2cb; --line-strong:#858580; --field-line-strong:#b0b0a9;
   --chip:#f1f1ed; --hover:#e8e8e3; --press:#dededa; --wash:#f6f6f3; --row:color-mix(in srgb,var(--fg) 4%,transparent);
   --soft:#ebebe6; --soft-h:#e1e1db; --soft-ring:inset 0 0 0 1px rgba(20,20,12,.09); --dis:#a3a39c;
   --accent:#d4f84a; --on-accent:#121212; --accent-fg:var(--fg); --accent-mark:#7a8e2b; --sel:color-mix(in srgb,var(--accent) 7%,transparent);
@@ -4485,7 +4485,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 }
 @media (prefers-color-scheme:dark){:root[data-style="bp"]:not([data-theme="light"]){
   --page:#0e0e0d; --stage:#131312; --surface:#191918; --raised:#20201f;
-  --fg:#f1f1ee; --fg2:#cacac4; --muted:#bebeb8; --faint:#4c4c48; --rail:#3b3b38; --line:#2a2a28; --field-line:#3b3b38; --field-line-strong:#80807a;
+  --fg:#f1f1ee; --fg2:#cacac4; --muted:#bebeb8; --faint:#4c4c48; --rail:#3b3b38; --line:#2a2a28; --field-line:#3b3b38; --line-strong:#80807a; --field-line-strong:#56564f;
   --chip:#242422; --hover:#2c2c2a; --press:#353532; --wash:#1f1f1d; --row:color-mix(in srgb,var(--fg) 5.5%,transparent);
   --soft:#272725; --soft-h:#31312e; --soft-ring:inset 0 0 0 1px rgba(255,255,255,.08); --dis:#73736d;
   --accent:#d4f84a; --on-accent:#121212; --accent-fg:#d4f84a; --accent-mark:#d4f84a; --sel:color-mix(in srgb,var(--accent) 10%,transparent);
@@ -4500,7 +4500,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
   --t-fast:.14s; --t:.3s; --t-slow:.44s}}
 :root[data-style="bp"][data-theme="dark"]{
   --page:#0e0e0d; --stage:#131312; --surface:#191918; --raised:#20201f;
-  --fg:#f1f1ee; --fg2:#cacac4; --muted:#bebeb8; --faint:#4c4c48; --rail:#3b3b38; --line:#2a2a28; --field-line:#3b3b38; --field-line-strong:#80807a;
+  --fg:#f1f1ee; --fg2:#cacac4; --muted:#bebeb8; --faint:#4c4c48; --rail:#3b3b38; --line:#2a2a28; --field-line:#3b3b38; --line-strong:#80807a; --field-line-strong:#56564f;
   --chip:#242422; --hover:#2c2c2a; --press:#353532; --wash:#1f1f1d; --row:color-mix(in srgb,var(--fg) 5.5%,transparent);
   --soft:#272725; --soft-h:#31312e; --soft-ring:inset 0 0 0 1px rgba(255,255,255,.08); --dis:#73736d;
   --accent:#d4f84a; --on-accent:#121212; --accent-fg:#d4f84a; --accent-mark:#d4f84a; --sel:color-mix(in srgb,var(--accent) 10%,transparent);
@@ -4732,7 +4732,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 </div></template>
   <div class="card-f"><span>Click the row to see every step</span><span class="sp"></span><button class="replay" aria-label="Replay Step loader"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
 </article>
-<article class="card wide bare" data-c="reasoning-trail" id="c-reasoning-trail">
+<article class="card bare" data-c="reasoning-trail" id="c-reasoning-trail">
   <div class="card-h"><div><h3>Reasoning trail</h3><p>The agent's plan, notes, sources and edits, after it thinks.</p></div></div>
   <div class="stage"><div class="stage-in"></div></div>
   <template><div class="rtr-dm dm"><div class="dm-main"><div class="rtr panel">
@@ -4749,7 +4749,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 </div></template>
   <div class="card-f"><span>Switch tabs, open the header</span><span class="sp"></span><button class="replay" aria-label="Replay Reasoning trail"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
 </article>
-<article class="card wide bare" data-c="thinking" id="c-thinking">
+<article class="card bare" data-c="thinking" id="c-thinking">
   <div class="card-h"><div><h3>Thinking</h3><p>The live trace, written as the agent works, then folded away.</p></div></div>
   <div class="stage"><div class="stage-in"></div></div>
   <template><div class="tk" data-open="1">
@@ -4939,7 +4939,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 </div>
 <div class="sec-h" id="s-conversation"><h2>Conversation</h2><p>Asking, answering and replying, by text or by voice.</p></div>
 <div class="grid">
-<article class="card wide bare" data-c="live-answer" id="c-live-answer">
+<article class="card bare" data-c="live-answer" id="c-live-answer">
   <div class="card-h"><div><h3>Live answer</h3><p>Answers that stream in with numbered sources and next steps.</p></div></div>
   <div class="stage"><div class="stage-in"></div></div>
   <template><div class="lva">
@@ -4948,7 +4948,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 </div></template>
   <div class="card-f"><span>Hover a source number, pick a follow-up</span><span class="sp"></span><button class="replay" aria-label="Replay Live answer"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
 </article>
-<article class="card wide bare" data-c="thread-panel" id="c-thread-panel">
+<article class="card bare" data-c="thread-panel" id="c-thread-panel">
   <div class="card-h"><div><h3>Thread panel</h3><p>Switch between agent threads and reply in place.</p></div></div>
   <div class="stage"><div class="stage-in"></div></div>
   <template><div class="thp panel">
@@ -5076,7 +5076,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 </div></template>
   <div class="card-f"><span>Start, mute and end. It never uses your microphone</span><span class="sp"></span><button class="replay" aria-label="Replay Voice orb"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
 </article>
-<article class="card wide bare" data-c="tool-call" id="c-tool-call">
+<article class="card bare" data-c="tool-call" id="c-tool-call">
   <div class="card-h"><div><h3>Tool call</h3><p>Each tool the agent calls, with its input and output.</p></div></div>
   <div class="stage"><div class="stage-in"></div></div>
   <template><div class="tcx">
@@ -5134,7 +5134,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 </div></template>
   <div class="card-f"><span>Drop real files, or add samples</span><span class="sp"></span><button class="replay" aria-label="Replay Attachment tray"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
 </article>
-<article class="card wide bare" data-c="response-versions" id="c-response-versions">
+<article class="card bare" data-c="response-versions" id="c-response-versions">
   <div class="card-h"><div><h3>Response versions</h3><p>Regenerate an answer and flip between versions.</p></div></div>
   <div class="stage"><div class="stage-in"></div></div>
   <template><div class="rvx">
@@ -5151,7 +5151,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 </div></template>
   <div class="card-f"><span>Regenerate, then page through versions</span><span class="sp"></span><button class="replay" aria-label="Replay Response versions"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
 </article>
-<article class="card wide bare" data-c="feedback-sheet" id="c-feedback-sheet">
+<article class="card bare" data-c="feedback-sheet" id="c-feedback-sheet">
   <div class="card-h"><div><h3>Feedback sheet</h3><p>Rate an answer and tell the agent what missed.</p></div></div>
   <div class="stage"><div class="stage-in"></div></div>
   <template><div class="fbx">
@@ -5194,7 +5194,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--chip)}
 </div></template>
   <div class="card-f"><span>Hover a meter, pick a model, set the thinking</span><span class="sp"></span><button class="replay" aria-label="Replay Model picker"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
 </article>
-<article class="card wide bare" data-c="answer-action-bar" id="c-answer-action-bar">
+<article class="card bare" data-c="answer-action-bar" id="c-answer-action-bar">
   <div class="card-h"><div><h3>Answer action bar</h3><p>Copy, regenerate, rate and listen to an answer from one row under it.</p></div></div>
   <div class="stage"><div class="stage-in"></div></div>
   <template><div class="aab">
@@ -13739,13 +13739,13 @@ DM.def('notifications', (r, c) => {
 });
 /* ---------- Banner ---------- */
 /* the four drawings, each 240 by 160 and written as plain paths, all in one isometric view on a floor grid, with their
-   drawn box centred in it: layers (three plates of a stack, pulled apart), steps (a staircase climbing to a flag, on a floor
+   drawn box centred in it: layers (three plates of a stack, pulled apart, the bottom one standing on the floor), steps (a staircase climbing to a flag, on a floor
    that follows its footprint), tools (five tool tiles, Slack, GitHub, Linear, Gmail and Apollo, each with its mark on top)
    and path (a dotted route across the floor to a raised tile). .ln lines draw themselves in, in the order --d gives; .gd
    are the construction lines and the floor, dashed, which fade in; .pl are faces in the banner's fill that hide what is
    behind them; .lg are the tools' marks and .dt the dotted route; each .z group moves by its depth --z under the pointer. */
 const BNX_ART = {
-  layers:"<g class=\"gds\"><path class=\"gd\" d=\"M120 53L36.9 101M140.8 65L57.6 113M161.6 77L78.4 125M182.4 89L99.2 137M203.1 101L120 149M120 53L203.1 101M99.2 65L182.4 113M78.4 77L161.6 125M57.6 89L140.8 137M36.9 101L120 149\"/></g><g class=\"gds\"><path class=\"gd\" d=\"M71.5 39L71.5 101M168.5 39L168.5 101M120 73L120 129\"/></g><g class=\"z\" style=\"--z:0\"><path class=\"pl\" d=\"M120 55L168.5 83L168.5 89L120 117L71.5 89L71.5 83Z\"/><path class=\"ln\" style=\"--d:0\" pathLength=\"1\" d=\"M120 55L168.5 83L120 111L71.5 83Z\"/><path class=\"ln\" style=\"--d:1\" pathLength=\"1\" d=\"M168.5 83L168.5 89L120 117L71.5 89L71.5 83\"/><path class=\"ln\" style=\"--d:2\" pathLength=\"1\" d=\"M120 111L120 117\"/></g><g class=\"z\" style=\"--z:1\"><path class=\"pl\" d=\"M120 33L168.5 61L168.5 67L120 95L71.5 67L71.5 61Z\"/><path class=\"ln\" style=\"--d:3\" pathLength=\"1\" d=\"M120 33L168.5 61L120 89L71.5 61Z\"/><path class=\"ln\" style=\"--d:4\" pathLength=\"1\" d=\"M168.5 61L168.5 67L120 95L71.5 67L71.5 61\"/><path class=\"ln\" style=\"--d:5\" pathLength=\"1\" d=\"M120 89L120 95\"/></g><g class=\"z\" style=\"--z:2\"><path class=\"pl\" d=\"M120 11L168.5 39L168.5 45L120 73L71.5 45L71.5 39Z\"/><path class=\"ln\" style=\"--d:6\" pathLength=\"1\" d=\"M120 11L168.5 39L120 67L71.5 39Z\"/><path class=\"ln\" style=\"--d:7\" pathLength=\"1\" d=\"M168.5 39L168.5 45L120 73L71.5 45L71.5 39\"/><path class=\"ln\" style=\"--d:8\" pathLength=\"1\" d=\"M120 67L120 73\"/><path class=\"ln ac\" style=\"--d:9\" pathLength=\"1\" d=\"M120 23.6L146.7 39L120 54.4L93.3 39Z\"/></g>",
+  layers:"<g class=\"gds\"><path class=\"gd\" d=\"M120 51L36.9 99M140.8 63L57.6 111M161.6 75L78.4 123M182.4 87L99.2 135M203.1 99L120 147M120 51L203.1 99M99.2 63L182.4 111M78.4 75L161.6 123M57.6 87L140.8 135M36.9 99L120 147\"/></g><g class=\"gds\"><path class=\"gd\" d=\"M78.4 43L78.4 93M161.6 43L161.6 93M120 67L120 117\"/></g><g class=\"z\" style=\"--z:0\"><path class=\"pl\" d=\"M120 69L161.6 93L161.6 99L120 123L78.4 99L78.4 93Z\"/><path class=\"ln\" style=\"--d:0\" pathLength=\"1\" d=\"M120 69L161.6 93L120 117L78.4 93Z\"/><path class=\"ln\" style=\"--d:1\" pathLength=\"1\" d=\"M161.6 93L161.6 99L120 123L78.4 99L78.4 93\"/><path class=\"ln\" style=\"--d:2\" pathLength=\"1\" d=\"M120 117L120 123\"/></g><g class=\"z\" style=\"--z:1\"><path class=\"pl\" d=\"M120 41L161.6 65L161.6 71L120 95L78.4 71L78.4 65Z\"/><path class=\"ln\" style=\"--d:3\" pathLength=\"1\" d=\"M120 41L161.6 65L120 89L78.4 65Z\"/><path class=\"ln\" style=\"--d:4\" pathLength=\"1\" d=\"M161.6 65L161.6 71L120 95L78.4 71L78.4 65\"/><path class=\"ln\" style=\"--d:5\" pathLength=\"1\" d=\"M120 89L120 95\"/></g><g class=\"z\" style=\"--z:2\"><path class=\"pl\" d=\"M120 13L161.6 37L161.6 43L120 67L78.4 43L78.4 37Z\"/><path class=\"ln\" style=\"--d:6\" pathLength=\"1\" d=\"M120 13L161.6 37L120 61L78.4 37Z\"/><path class=\"ln\" style=\"--d:7\" pathLength=\"1\" d=\"M161.6 37L161.6 43L120 67L78.4 43L78.4 37\"/><path class=\"ln\" style=\"--d:8\" pathLength=\"1\" d=\"M120 61L120 67\"/><path class=\"ln ac\" style=\"--d:9\" pathLength=\"1\" d=\"M120 23.8L142.9 37L120 50.2L97.1 37Z\"/></g>",
   steps:"<g class=\"gds\"><path class=\"gd\" d=\"M135.6 59L42.1 113M151.2 68L57.6 122M166.8 77L73.2 131M182.4 86L88.8 140M197.9 95L104.4 149M135.6 59L197.9 95M120 68L182.4 104M104.4 77L166.8 113M88.8 86L151.2 122M73.2 95L135.6 131M57.6 104L120 140M42.1 113L104.4 149\"/></g><g class=\"z\" style=\"--z:0\"><path class=\"pl\" d=\"M135.6 21L166.8 39L166.8 95L151.2 104L120 86L120 30Z\"/><path class=\"ln\" style=\"--d:0\" pathLength=\"1\" d=\"M135.6 21L166.8 39L151.2 48L120 30Z\"/><path class=\"ln\" style=\"--d:1\" pathLength=\"1\" d=\"M166.8 39L166.8 95L151.2 104L120 86L120 30\"/><path class=\"ln\" style=\"--d:2\" pathLength=\"1\" d=\"M151.2 48L151.2 104\"/><path class=\"pl\" d=\"M120 44L151.2 62L151.2 104L135.6 113L104.4 95L104.4 53Z\"/><path class=\"ln\" style=\"--d:3\" pathLength=\"1\" d=\"M120 44L151.2 62L135.6 71L104.4 53Z\"/><path class=\"ln\" style=\"--d:4\" pathLength=\"1\" d=\"M151.2 62L151.2 104L135.6 113L104.4 95L104.4 53\"/><path class=\"ln\" style=\"--d:5\" pathLength=\"1\" d=\"M135.6 71L135.6 113\"/><path class=\"pl\" d=\"M104.4 67L135.6 85L135.6 113L120 122L88.8 104L88.8 76Z\"/><path class=\"ln\" style=\"--d:6\" pathLength=\"1\" d=\"M104.4 67L135.6 85L120 94L88.8 76Z\"/><path class=\"ln\" style=\"--d:7\" pathLength=\"1\" d=\"M135.6 85L135.6 113L120 122L88.8 104L88.8 76\"/><path class=\"ln\" style=\"--d:8\" pathLength=\"1\" d=\"M120 94L120 122\"/><path class=\"pl\" d=\"M88.8 90L120 108L120 122L104.4 131L73.2 113L73.2 99Z\"/><path class=\"ln\" style=\"--d:9\" pathLength=\"1\" d=\"M88.8 90L120 108L104.4 117L73.2 99Z\"/><path class=\"ln\" style=\"--d:10\" pathLength=\"1\" d=\"M120 108L120 122L104.4 131L73.2 113L73.2 99\"/><path class=\"ln\" style=\"--d:11\" pathLength=\"1\" d=\"M104.4 117L104.4 131\"/></g><g class=\"z\" style=\"--z:2\"><path class=\"ln ac\" style=\"--d:12\" pathLength=\"1\" d=\"M137.1 30.9V8.9h14l-4 5 4 5h-14\"/></g>",
   tools:"<g class=\"gds\"><path class=\"gd\" d=\"M120 30.5L26.5 84.5M151.2 48.5L57.6 102.5M182.4 66.5L88.8 120.5M213.5 84.5L120 138.5M120 30.5L213.5 84.5M88.8 48.5L182.4 102.5M57.6 66.5L151.2 120.5M26.5 84.5L120 138.5\"/></g><g class=\"z\" style=\"--z:1\"><path class=\"pl\" d=\"M120 21.5L142.5 34.5L142.5 48.5L120 61.5L97.5 48.5L97.5 34.5Z\"/><path class=\"ln\" style=\"--d:0\" pathLength=\"1\" d=\"M120 21.5L142.5 34.5L120 47.5L97.5 34.5Z\"/><path class=\"ln\" style=\"--d:1\" pathLength=\"1\" d=\"M142.5 34.5L142.5 48.5L120 61.5L97.5 48.5L97.5 34.5\"/><path class=\"ln\" style=\"--d:2\" pathLength=\"1\" d=\"M120 47.5L120 61.5\"/><g class=\"lg\" transform=\"matrix(0.613 -0.354 0.613 0.354 105.278 34.5)\"><path d=\"M5.042 15.165a2.528 2.528 0 0 1-2.52 2.523A2.528 2.528 0 0 1 0 15.165a2.527 2.527 0 0 1 2.522-2.52h2.52v2.52zM6.313 15.165a2.527 2.527 0 0 1 2.521-2.52 2.527 2.527 0 0 1 2.521 2.52v6.313A2.528 2.528 0 0 1 8.834 24a2.528 2.528 0 0 1-2.521-2.522v-6.313zM8.834 5.042a2.528 2.528 0 0 1-2.521-2.52A2.528 2.528 0 0 1 8.834 0a2.528 2.528 0 0 1 2.521 2.522v2.52H8.834zM8.834 6.313a2.528 2.528 0 0 1 2.521 2.521 2.528 2.528 0 0 1-2.521 2.521H2.522A2.528 2.528 0 0 1 0 8.834a2.528 2.528 0 0 1 2.522-2.521h6.312zM18.956 8.834a2.528 2.528 0 0 1 2.522-2.521A2.528 2.528 0 0 1 24 8.834a2.528 2.528 0 0 1-2.522 2.521h-2.522V8.834zM17.688 8.834a2.528 2.528 0 0 1-2.523 2.521 2.527 2.527 0 0 1-2.52-2.521V2.522A2.527 2.527 0 0 1 15.165 0a2.528 2.528 0 0 1 2.523 2.522v6.312zM15.165 18.956a2.528 2.528 0 0 1 2.523 2.522A2.528 2.528 0 0 1 15.165 24a2.527 2.527 0 0 1-2.52-2.522v-2.522h2.52zM15.165 17.688a2.527 2.527 0 0 1-2.52-2.523 2.526 2.526 0 0 1 2.52-2.52h6.313A2.527 2.527 0 0 1 24 15.165a2.528 2.528 0 0 1-2.522 2.523h-6.313z\"/></g><path class=\"pl\" d=\"M57.6 57.5L80.2 70.5L80.2 84.5L57.6 97.5L35.1 84.5L35.1 70.5Z\"/><path class=\"ln\" style=\"--d:3\" pathLength=\"1\" d=\"M57.6 57.5L80.2 70.5L57.6 83.5L35.1 70.5Z\"/><path class=\"ln\" style=\"--d:4\" pathLength=\"1\" d=\"M80.2 70.5L80.2 84.5L57.6 97.5L35.1 84.5L35.1 70.5\"/><path class=\"ln\" style=\"--d:5\" pathLength=\"1\" d=\"M57.6 83.5L57.6 97.5\"/><g class=\"lg\" transform=\"matrix(0.613 -0.354 0.613 0.354 42.924 70.5)\"><path d=\"M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-2.023 2.309-3.178 3.927-1.964L5.455 4.64 12 9.548l6.545-4.91 1.528-1.145C21.69 2.28 24 3.434 24 5.457z\"/></g><path class=\"pl\" d=\"M120 57.5L142.5 70.5L142.5 84.5L120 97.5L97.5 84.5L97.5 70.5Z\"/><path class=\"ln\" style=\"--d:6\" pathLength=\"1\" d=\"M120 57.5L142.5 70.5L120 83.5L97.5 70.5Z\"/><path class=\"ln\" style=\"--d:7\" pathLength=\"1\" d=\"M142.5 70.5L142.5 84.5L120 97.5L97.5 84.5L97.5 70.5\"/><path class=\"ln\" style=\"--d:8\" pathLength=\"1\" d=\"M120 83.5L120 97.5\"/><g class=\"lg\" transform=\"matrix(0.613 -0.354 0.613 0.354 105.278 70.5)\"><path d=\"M2.886 4.18A11.982 11.982 0 0 1 11.99 0C18.624 0 24 5.376 24 12.009c0 3.64-1.62 6.903-4.18 9.105L2.887 4.18ZM1.817 5.626l16.556 16.556c-.524.33-1.075.62-1.65.866L.951 7.277c.247-.575.537-1.126.866-1.65ZM.322 9.163l14.515 14.515c-.71.172-1.443.282-2.195.322L0 11.358a12 12 0 0 1 .322-2.195Zm-.17 4.862 9.823 9.824a12.02 12.02 0 0 1-9.824-9.824Z\"/></g><path class=\"pl\" d=\"M182.4 57.5L204.9 70.5L204.9 84.5L182.4 97.5L159.8 84.5L159.8 70.5Z\"/><path class=\"ln\" style=\"--d:9\" pathLength=\"1\" d=\"M182.4 57.5L204.9 70.5L182.4 83.5L159.8 70.5Z\"/><path class=\"ln\" style=\"--d:10\" pathLength=\"1\" d=\"M204.9 70.5L204.9 84.5L182.4 97.5L159.8 84.5L159.8 70.5\"/><path class=\"ln\" style=\"--d:11\" pathLength=\"1\" d=\"M182.4 83.5L182.4 97.5\"/><g class=\"lg\" transform=\"matrix(0.613 -0.354 0.613 0.354 167.631 70.5)\"><path d=\"M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12\"/></g><path class=\"pl\" d=\"M120 93.5L142.5 106.5L142.5 120.5L120 133.5L97.5 120.5L97.5 106.5Z\"/><path class=\"ln\" style=\"--d:12\" pathLength=\"1\" d=\"M120 93.5L142.5 106.5L120 119.5L97.5 106.5Z\"/><path class=\"ln\" style=\"--d:13\" pathLength=\"1\" d=\"M142.5 106.5L142.5 120.5L120 133.5L97.5 120.5L97.5 106.5\"/><path class=\"ln\" style=\"--d:14\" pathLength=\"1\" d=\"M120 119.5L120 133.5\"/><g class=\"lg\" transform=\"matrix(0.613 -0.354 0.613 0.354 105.278 106.5)\"><g transform=\"scale(.663)\"><path d=\"M19.5993 0.0862365L19.605 13.2568C19.6058 15.3375 17.4222 16.6715 15.6079 15.6986L2.58376 8.7153C3.57706 7.05795 4.82616 5.57609 6.27427 4.32386L16.489 13.8945C17.0303 14.4015 17.8835 13.8518 17.6605 13.1398L13.6992 0.493553C15.0326 0.17147 16.4233 0 17.8536 0C18.4428 0 19.0248 0.0296814 19.5993 0.0862365Z\"/><path d=\"M16.0635 36.1087L16.0578 23.0046C16.057 20.9239 18.2407 19.5898 20.0549 20.5627L33.0838 27.5486C32.0838 29.2016 30.8289 30.6786 29.3751 31.925L19.1738 22.3668C18.6326 21.8598 17.7793 22.4095 18.0023 23.1215L21.9486 35.72C20.6338 36.0329 19.263 36.1989 17.8539 36.1989C17.2497 36.1989 16.6523 36.1683 16.0635 36.1087Z\"/><path d=\"M22.0105 16.77L31.4705 6.39392C30.2362 4.92008 28.7742 3.6486 27.1384 2.63702L20.2306 15.8767C19.2709 17.716 20.5871 19.9298 22.6396 19.9288L35.6183 19.923C35.6775 19.3234 35.7082 18.7151 35.7082 18.0996C35.7082 16.6683 35.5436 15.2761 35.2338 13.9406L22.7549 17.9576C22.0526 18.1837 21.5103 17.3187 22.0105 16.77Z\"/><path d=\"M0.0842758 16.3383L13.0237 16.3325C15.0764 16.3317 16.3923 18.5454 15.4327 20.3846L8.56047 33.5561C6.93095 32.547 5.47394 31.2801 4.24344 29.8121L13.653 19.4914C14.1531 18.9427 13.6107 18.0777 12.9084 18.3037L0.485078 22.3029C0.168551 20.954 0 19.5467 0 18.0994C0 17.5051 0.0290814 16.9177 0.0842758 16.3383Z\"/></g></g></g>",
   path:"<g class=\"gds\"><path class=\"gd\" d=\"M120 26L26.5 80M143.4 39.5L49.9 93.5M166.8 53L73.2 107M190.1 66.5L96.6 120.5M213.5 80L120 134M120 26L213.5 80M96.6 39.5L190.1 93.5M73.2 53L166.8 107M49.9 66.5L143.4 120.5M26.5 80L120 134\"/></g><g class=\"z\" style=\"--z:0\"><path class=\"dt\" d=\"M49.9 80L73.2 93.5L120 66.5L166.8 93.5L190.1 80\"/><path class=\"ln\" style=\"--d:0\" pathLength=\"1\" d=\"M49.9 74L60.2 80L49.9 86L39.5 80Z\"/></g><g class=\"z\" style=\"--z:2\"><path class=\"pl\" d=\"M190.1 51L205.7 60L205.7 80L190.1 89L174.6 80L174.6 60Z\"/><path class=\"ln ac\" style=\"--d:1\" pathLength=\"1\" d=\"M190.1 51L205.7 60L190.1 69L174.6 60Z\"/><path class=\"ln\" style=\"--d:2\" pathLength=\"1\" d=\"M205.7 60L205.7 80L190.1 89L174.6 80L174.6 60\"/><path class=\"ln\" style=\"--d:3\" pathLength=\"1\" d=\"M190.1 69L190.1 89\"/></g>"
