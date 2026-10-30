@@ -76,10 +76,17 @@ const server = http.createServer((req, res) => {
       // the stage's height, and the component's own: the component keeps its tallest size inside the stage, so it grows
       // downwards instead of creeping up as it plays
       const max = new Map(), hmax = new Map(), out = new Map();
+      // a component with a switch (its .demo row, which the site shows as the card footer's tabs, like Banner's styles or a
+      // component's designs) is played once per option, and the stage keeps room for the tallest of them
+      const designs = c => [...c.querySelectorAll('.v2.stage-in .dm>.demo .seg2 button[data-v]')];
+      const passes = Math.max(1, ...comps.map(c => designs(c).length));
+      for (let v = 0; v < passes; v++){
+      const now = v ? comps.filter(c => designs(c)[v]) : comps;
+      if (v) now.forEach(c => designs(c)[v].click());
       for (let t = 0; t <= PLAY; t += EVERY){
         // the first look is a moment after the start, once the first frame has played
         await new Promise(r => setTimeout(r, EVERY));
-        comps.forEach(c => { const h = c.querySelector(':scope>.stage').getBoundingClientRect().height; if (h > (max.get(c) || 0)) max.set(c, h);
+        now.forEach(c => { const h = c.querySelector(':scope>.stage').getBoundingClientRect().height; if (h > (max.get(c) || 0)) max.set(c, h);
           // the component's height is everything it draws below its top, open lists and popovers included, so its tallest
           // moment fits the stage and sits centred in it
           const sin = c.querySelector('.v2.stage-in'), top = sin.getBoundingClientRect().top; let bot = sin.getBoundingClientRect().bottom;
@@ -100,6 +107,7 @@ const server = http.createServer((req, res) => {
           // and the stage around it keeps its padding above and below
           const inner = c.querySelector('.stage-inner'), ics = getComputedStyle(inner), need = hh + parseFloat(ics.paddingTop) + parseFloat(ics.paddingBottom);
           if (need > (max.get(c) || 0)) max.set(c, need); });
+      }
       }
       return Object.fromEntries(comps.map(c => [c.dataset.v2, [Math.ceil(Math.max(max.get(c), base.get(c))), Math.ceil(hmax.get(c)), Math.round(out.get(c).up), Math.round(out.get(c).side)]]));
     }, { PLAY, EVERY, COMPS });
