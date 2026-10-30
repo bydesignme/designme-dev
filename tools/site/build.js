@@ -535,8 +535,12 @@ const markupOf = id => {
   if (/\{(?:[a-z][\w-]*)\}/.test(r.innerHTML.replace(/\$\{[^}]*\}/g, ''))) warn.push('placeholder left in ' + id + ': ' + r.innerHTML.match(/\{[a-z][\w-]*\}/)[0]);
   return r.innerHTML;
 };
+/* a design switch that is the homepage card's alone (<div class="dm …" data-designs="card">, its first design Classic, the
+   component as it ships): the card shows the designs under review as its footer tabs, and the registry, the code view and
+   the component page install Classic on its own, as it was */
+const shipped = tpl => { const m = tpl.match(/^\s*<div class="dm [\w-]+" data-designs="card"><div class="dm-main">([\s\S]*?)<\/div>\s*<div class="demo">[\s\S]*<\/div>\s*$/); return m ? m[1] : tpl; };
 const regHtml = id => { const C = CARDS[id], cls = ['card', ...C.cls.filter(c => c === 'wide' || c === 'bare')].join(' ');
-  const inner = markupOf(id).trim().split('\n').map(l => l.trim() ? '    ' + l : '').join('\n');
+  const inner = shipped(markupOf(id)).trim().split('\n').map(l => l.trim() ? '    ' + l : '').join('\n');
   return `<div class="${cls}" data-c="${id}">\n  <div class="stage-in">\n${inner}\n  </div>\n</div>\n`; };
 const regOne = id => { const C = CARDS[id], sec = SECTIONS[C.title] || ''; if (!sec) warn.push('no CSS section for ' + C.title);
   return { html:regHtml(id), css:`/* ---------- ${C.title} ---------- */\n` + regCss(sec), js:defOf(id) + '\n' }; };

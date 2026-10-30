@@ -3363,6 +3363,172 @@ html{scrollbar-gutter:stable}
 .v2 .thp-send{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:var(--on-accent,#fff);transition:opacity .25s,transform .15s}
 .v2 .thp-send[disabled]{opacity:1;cursor:not-allowed;background:var(--dis-hatch),var(--dis-fill);color:var(--dis);box-shadow:var(--soft-ring)}
 .v2 .thp-send:active{transform:scale(.92)}
+/* ---------- Thread panel designs ---------- */
+/* the homepage card's design switch: Classic is the component above, and Deck and Focus are two directions under review,
+   each under .thp[data-d]. A thread belongs to an agent, shown by its avatar in the avatar colours (--a, its ink --ai), and
+   the rest is grey. What an agent is doing shows as a dot on its avatar: green and blinking while it works, amber while it
+   waits for you */
+.v2 .dm.thp-dm>.dm-main{align-items:stretch}
+.v2 .thp[data-d]{height:auto;overflow:visible}
+.v2 .thp[data-d] .tpx-av{position:relative;width:28px;height:28px;border-radius:9px;display:grid;place-items:center;flex:none;background:var(--a);color:var(--ai)}
+.v2 .thp[data-d] .tpx-av .i{width:14px;height:14px;stroke-width:1.9;color:inherit}
+.v2 .thp[data-d] .tpx-st{position:absolute;right:-3px;bottom:-3px;width:10px;height:10px;border-radius:50%;box-shadow:0 0 0 2px var(--surface);opacity:0;transform:scale(.4);transition:opacity .3s,transform .4s var(--ease)}
+.v2 .thp[data-d] .tpx-av[data-s="ask"] .tpx-st{opacity:1;transform:none;background:var(--warn)}
+.v2 .thp[data-d] .tpx-av[data-s="work"] .tpx-st{opacity:1;transform:none;background:var(--ok);animation:v2-tpxblink 1.4s var(--ease-io) infinite}
+@keyframes v2-tpxblink{50%{opacity:.35}}
+/* the conversation */
+.v2 .thp[data-d] .tpx-scroll{overflow-y:auto;overscroll-behavior:contain;scrollbar-width:none;-webkit-mask-image:linear-gradient(transparent,#000 16px,#000 calc(100% - 8px),transparent);mask-image:linear-gradient(transparent,#000 16px,#000 calc(100% - 8px),transparent)}
+.v2 .thp[data-d] .tpx-scroll::-webkit-scrollbar{display:none}
+.v2 .thp[data-d] .tpx-a{display:flex;flex-direction:column;gap:6px;max-width:100%;font-size:13.5px;line-height:1.6;color:var(--fg)}
+.v2 .thp[data-d] .tpx-src{display:flex;flex-wrap:wrap;gap:5px}
+.v2 .thp[data-d] .tpx-src .fchip .brand{width:12px;height:12px}
+.v2 .thp[data-d] .tpx-who{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)}
+.v2 .thp[data-d] .tpx-who .tpx-av{width:18px;height:18px;border-radius:6px}
+.v2 .thp[data-d] .tpx-who .tpx-av .i{width:10px;height:10px}
+/* an answer the agent is still writing: three dots, then the words as they come */
+.v2 .thp[data-d] .tpx-dots{display:inline-flex;gap:4px;align-items:center;height:18px}
+.v2 .thp[data-d] .tpx-dots i{width:6px;height:6px;border-radius:50%;background:var(--muted);animation:v2-tpxdot 1.1s var(--ease-io) infinite}
+.v2 .thp[data-d] .tpx-dots i:nth-child(2){animation-delay:.15s}.v2 .thp[data-d] .tpx-dots i:nth-child(3){animation-delay:.3s}
+@keyframes v2-tpxdot{0%,60%,100%{transform:none;opacity:.45}30%{transform:translateY(-4px);opacity:1}}
+.v2 .thp[data-d] .tpx-caret{display:inline-block;width:2px;height:13px;margin-left:2px;vertical-align:-2px;border-radius:1px;background:var(--fg2);animation:v2-bpblink 1s steps(1,end) infinite}
+/* the choices an agent offers: white rows with the field's dimmed edge, the picked one a step stronger */
+.v2 .thp[data-d] .tpx-opts{display:flex;flex-direction:column;gap:6px;margin-top:2px}
+.v2 .thp[data-d] .tpx-opt{display:flex;align-items:center;gap:8px;width:100%;padding:8px 10px;border-radius:var(--r-in);background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--rail) 50%,transparent);font-size:13px;text-align:left;transition:background .2s,box-shadow .2s,transform .15s}
+@media (hover:hover) and (pointer:fine){.v2 .thp[data-d] .tpx-opt:hover{background:var(--row)}}
+.v2 .thp[data-d] .tpx-opt:active{transform:scale(.99)}
+.v2 .thp[data-d] .tpx-opt .k{width:20px;height:20px;border-radius:6px;display:grid;place-items:center;flex:none;background:var(--chip);font-size:11px;font-weight:500;color:var(--fg2)}
+@media (hover:hover) and (pointer:fine){.v2 .thp[data-d] .tpx-opt:hover .k{background:var(--surface)}}
+.v2 .thp[data-d] .tpx-opt[aria-pressed="true"]{background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--pick-on) 50%,transparent)}
+.v2 .thp[data-d] .tpx-opt[aria-pressed="true"] .k{background:var(--hover);color:var(--fg)}
+/* once one is picked, the others are out of play */
+.v2 .thp[data-d] .tpx-opts.done .tpx-opt:not([aria-pressed="true"]){opacity:.5;cursor:default;background:var(--surface)}
+/* the reply field: a quiet edge that steps up a grey with the focus */
+.v2 .thp[data-d] .tpx-in{display:flex;align-items:center;gap:var(--s-2);padding:4px 4px 4px 12px;border-radius:var(--r-field);background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--field-line) 50%,transparent);transition:box-shadow var(--t-fast)}
+@supports (corner-shape:squircle){.v2 .thp[data-d] .tpx-in{corner-shape:squircle;border-radius:var(--r-field-sq)}}
+.v2 .thp[data-d] .tpx-in:has(.tpx-field:focus){box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--field-line-strong) 50%,transparent)}
+.v2 .thp[data-d] .tpx-field{flex:1;min-width:0;height:30px;border:0;outline:0;background:none;font-size:13px}
+.v2 .thp[data-d] .tpx-field::placeholder{color:var(--muted)}
+.v2 .thp[data-d] .tpx-send{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;flex:none;background:var(--accent);color:var(--on-accent,#fff);transition:transform .15s,background .2s}
+@media (hover:hover) and (pointer:fine){.v2 .thp[data-d] .tpx-send:hover{background:var(--accent-2)}}
+.v2 .thp[data-d] .tpx-send:active{transform:scale(.9)}
+.v2 .thp[data-d] .tpx-send[disabled]{cursor:not-allowed;background:var(--dis-hatch),var(--dis-fill);color:var(--dis);box-shadow:var(--soft-ring)}
+.v2 .thp[data-d] .tpx-send .i{width:14px;height:14px}
+.v2 .thp[data-d] .tpx-new{animation:v2-tpxin .5s var(--ease) backwards}
+@keyframes v2-tpxin{from{opacity:0;transform:translateY(8px)}}
+:root:not([data-style="soft"]) .v2 .thp[data-d] .tpx-av{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--fg) 12%,transparent)}
+:root:not([data-style="soft"]) .v2 .thp[data-d] .tpx-av[data-s="work"] .tpx-st{animation:v2-bpblink 1.1s steps(1,end) infinite}
+:root:not([data-style="soft"]) .v2 .thp[data-d] .tpx-dots i{animation:v2-tpxdotbp 1.2s steps(1,end) infinite}
+@keyframes v2-tpxdotbp{0%,33%{opacity:1}34%,100%{opacity:.25}}
+:root:not([data-style="soft"]) .v2 .thp[data-d] .tpx-dots i:nth-child(2){animation-delay:.4s}:root:not([data-style="soft"]) .v2 .thp[data-d] .tpx-dots i:nth-child(3){animation-delay:.8s}
+:root:not([data-style="soft"]) .v2 .thp[data-d] .tpx-new{animation:v2-bpin .3s var(--ease) backwards}
+
+/* Deck: the threads as a stack of cards. A card behind shows its strip; the front one is the conversation */
+.v2 .thp[data-d="deck"]{display:flex;flex-direction:column;gap:var(--s-3);--peek:32px}
+.v2 .thp[data-d="deck"] .tpb-deck{position:relative;height:calc(344px + var(--peek) * 2);touch-action:pan-y}
+.v2 .thp[data-d="deck"] .tpb-card{position:absolute;left:0;right:0;bottom:0;height:344px;display:flex;flex-direction:column;border-radius:var(--r-card);background:var(--surface);box-shadow:var(--shadow);transform-origin:50% 0;transform:translateY(calc(var(--z) * var(--peek) * -1)) scale(calc(1 - var(--z) * .05));z-index:calc(10 - var(--z));transition:transform .55s var(--ease);overflow:hidden}
+.v2 .thp[data-d="deck"] .tpb-card[data-z="0"]{box-shadow:var(--shadow-pop)}
+.v2 .thp[data-d="deck"] .tpb-card:not([data-z="0"]){cursor:pointer}
+.v2 .thp[data-d="deck"] .tpb-card:not([data-z="0"]) :is(.tpb-body,.tpx-in){visibility:hidden}
+@media (hover:hover) and (pointer:fine){.v2 .thp[data-d="deck"] .tpb-card:not([data-z="0"]):hover{transform:translateY(calc(var(--z) * var(--peek) * -1 - 4px)) scale(calc(1 - var(--z) * .05))}}
+.v2 .thp[data-d="deck"] .tpb-card.lift{transition:transform .22s var(--ease-io)}
+.v2 .thp[data-d="deck"] .tpb-card.drag{transition:none;cursor:grabbing}
+.v2 .thp[data-d="deck"] .tpb-card.nudge{animation:v2-tpbnudge .7s var(--ease)}
+@keyframes v2-tpbnudge{30%{translate:0 -7px}60%{translate:0 1px}}
+.v2 .thp[data-d="deck"] .tpb-ch{position:relative;display:flex;align-items:center;gap:10px;height:48px;padding:0 14px;flex:none}
+.v2 .thp[data-d="deck"] .tpb-ch .tpx-av{width:26px;height:26px;border-radius:8px}
+.v2 .thp[data-d="deck"] .tpb-card:not([data-z="0"]) .tpb-ch{align-items:flex-start;padding-top:6px}
+.v2 .thp[data-d="deck"] .tpb-card:not([data-z="0"]) .tpb-ct span{display:none}
+.v2 .thp[data-d="deck"] .tpb-ct{flex:1;min-width:0;display:flex;flex-direction:column}
+.v2 .thp[data-d="deck"] .tpb-ct b{font-weight:500;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v2 .thp[data-d="deck"] .tpb-ct span{font-size:12px;color:var(--fg2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v2 .thp[data-d="deck"] .tpb-tag{flex:none}
+.v2 .thp[data-d="deck"] .tpb-tag .spin{width:9px;height:9px}
+.v2 .thp[data-d="deck"] .tpb-body{flex:1;min-height:0;display:flex;flex-direction:column;gap:var(--s-3);padding:4px 14px 12px}
+.v2 .thp[data-d="deck"] .tpb-card .tpx-in{margin:0 10px 10px}
+/* under the deck, the way through it: previous, a grey dot for each thread (the one in front stretches to a darker pill,
+   drawn with a clip so nothing is laid out again) and next */
+.v2 .thp[data-d="deck"] .tpb-nav{display:flex;align-items:center;justify-content:center;gap:var(--s-2)}
+.v2 .thp[data-d="deck"] .tpb-dots{display:flex;gap:0;align-items:center}
+.v2 .thp[data-d="deck"] .tpb-dot{display:grid;place-items:center;width:22px;height:16px;border-radius:8px}
+.v2 .thp[data-d="deck"] .tpb-dot i{display:block;width:22px;height:8px;border-radius:4px;background:var(--rail);clip-path:inset(0 7px round 4px);transition:clip-path .45s var(--ease),background .3s}
+.v2 .thp[data-d="deck"] .tpb-dot[aria-selected="true"] i{clip-path:inset(0 0 round 4px);background:var(--muted)}
+.v2 .thp[data-d="deck"] .tpb-dot:focus-visible{outline-offset:3px}
+:root:not([data-style="soft"]) .v2 .thp[data-d="deck"] .tpb-card{transform:translate(calc(var(--z) * 8px),calc(var(--z) * var(--peek) * -1));transition:transform .36s steps(4,end)}
+@media (hover:hover) and (pointer:fine){:root:not([data-style="soft"]) .v2 .thp[data-d="deck"] .tpb-card:not([data-z="0"]):hover{transform:translate(calc(var(--z) * 8px),calc(var(--z) * var(--peek) * -1 - 3px))}}
+:root:not([data-style="soft"]) .v2 .thp[data-d="deck"] .tpb-card:not([data-z="0"]){box-shadow:0 0 0 1px color-mix(in srgb,var(--rail) 60%,transparent)}
+:root:not([data-style="soft"]) .v2 .thp[data-d="deck"] .tpb-card.nudge{animation:v2-tpbnudgebp .6s steps(2,end)}
+@keyframes v2-tpbnudgebp{50%{translate:0 -5px}}
+:root:not([data-style="soft"]) .v2 .thp[data-d="deck"] .tpb-dot i{transition:clip-path .25s steps(3,end),background .2s}
+
+/* Focus: one thread at a time, with the agent's work live in it, one-tap replies and a switcher that flags waiting threads */
+.v2 .thp[data-d="focus"]{display:flex;flex-direction:column;height:420px;padding:0}
+.v2 .thp[data-d="focus"] .tpc-h{display:flex;align-items:center;justify-content:space-between;gap:var(--s-2);padding:10px 12px 10px 8px;border-bottom:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
+.v2 .thp[data-d="focus"] .tpc-sw{display:flex;align-items:center;gap:10px;min-width:0;padding:5px 8px 5px 5px;border-radius:var(--r-in);text-align:left;transition:background .2s}
+.v2 .thp[data-d="focus"] .tpc-sw[aria-expanded="true"]{background:var(--row)}
+@media (hover:hover) and (pointer:fine){.v2 .thp[data-d="focus"] .tpc-sw:hover{background:var(--row)}}
+.v2 .thp[data-d="focus"] .tpc-sw:focus-visible{outline-offset:-2px;border-radius:var(--r-in)}
+.v2 .thp[data-d="focus"] .tpc-sw>.i{color:var(--muted);flex:none}
+.v2 .thp[data-d="focus"] .tpc-swt{display:flex;flex-direction:column;min-width:0}
+.v2 .thp[data-d="focus"] .tpc-swt b{font-weight:500;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v2 .thp[data-d="focus"] .tpc-swt span{font-size:12px;color:var(--muted);white-space:nowrap}
+.v2 .thp[data-d="focus"] .tpc-sw.in .tpc-swt,.v2 .thp[data-d="focus"] .tpc-sw.in .tpc-av{animation:v2-tpxin .45s var(--ease)}
+/* how many of the other threads wait for you, on the switcher: the site's warn tag */
+.v2 .thp[data-d="focus"] .tpc-nd{flex:none;min-width:20px;justify-content:center;animation:v2-tpxin .45s var(--ease)}
+.v2 .thp[data-d="focus"] .tpc-nd[hidden]{display:none}
+/* what the agent is doing: the site's grey tag, with a status dot */
+.v2 .thp[data-d="focus"] .tpc-pill{flex:none}
+.v2 .thp[data-d="focus"] .tpc-pd{color:var(--ok)}
+.v2 .thp[data-d="focus"][data-s="work"] .tpc-pd{animation:v2-tpxblink 1.4s var(--ease-io) infinite}
+.v2 .thp[data-d="focus"][data-s="done"] .tpc-pd{color:var(--muted)}
+.v2 .thp[data-d="focus"][data-s="ask"] .tpc-pd{color:var(--warn)}
+/* narrow: the status keeps its dot and says the rest to a screen reader, so the thread's name has the room */
+@container (max-width:380px){.v2 .thp[data-d="focus"] .tpc-pill{padding:0;width:20px;justify-content:center}.v2 .thp[data-d="focus"] .tpc-pt{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}.v2 .thp[data-d="focus"] .tpc-h{padding-right:8px}}
+.v2 .thp[data-d="focus"] .tpc-menu{width:272px;max-width:calc(100% - 16px)}
+.v2 .thp[data-d="focus"] .tpc-menu .mi{gap:10px}
+.v2 .thp[data-d="focus"] .tpc-menu .mi .tpx-av{width:26px;height:26px;border-radius:8px}
+.v2 .thp[data-d="focus"] .tpc-menu .mi-t{flex:1;min-width:0;display:flex;flex-direction:column}
+.v2 .thp[data-d="focus"] .tpc-menu .mi-t b{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v2 .thp[data-d="focus"] .tpc-menu .mi-t span{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media (hover:hover) and (pointer:fine){.v2 .thp[data-d="focus"] .tpc-menu .mi:is(:hover,.hl,[aria-checked="true"]) .mi-t span{color:var(--fg2)}}
+.v2 .thp[data-d="focus"] .tpc-menu .mi[aria-checked="true"]{font-weight:400}
+.v2 .thp[data-d="focus"] .tpc-menu .tg{flex:none}
+.v2 .thp[data-d="focus"] .tpc-body{flex:1;min-height:0;display:flex;flex-direction:column;gap:var(--s-3);padding:14px 14px 10px}
+.v2 .thp[data-d="focus"] .tpc-body.in{animation:v2-tpcswap .5s var(--ease)}
+@keyframes v2-tpcswap{from{opacity:0;transform:translateX(10px)}}
+/* the agent's work, live in the thread: what it is doing, a bar that fills, and each part as it lands */
+.v2 .thp[data-d="focus"] .tpc-work{display:flex;flex-direction:column;gap:8px;padding:10px 12px;border-radius:var(--r-in);background:var(--surface);box-shadow:var(--shadow)}
+.v2 .thp[data-d="focus"] .tpc-wh{display:flex;align-items:center;gap:var(--s-2);font-size:12.5px}
+.v2 .thp[data-d="focus"] .tpc-wh .brand{width:14px;height:14px}
+.v2 .thp[data-d="focus"] .tpc-wh b{flex:1;min-width:0;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v2 .thp[data-d="focus"] .tpc-wh .num{color:var(--muted);font-size:12px}
+.v2 .thp[data-d="focus"] .tpc-bar{height:4px;border-radius:2px;background:var(--line);overflow:hidden}
+.v2 .thp[data-d="focus"] .tpc-bar i{display:block;height:100%;border-radius:inherit;background:var(--accent-mark);transform-origin:left;transform:scaleX(var(--p,0));transition:transform .6s var(--ease)}
+.v2 .thp[data-d="focus"] .tpc-steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:3px;font-size:12px;color:var(--muted)}
+.v2 .thp[data-d="focus"] .tpc-steps li{display:flex;align-items:center;gap:7px}
+.v2 .thp[data-d="focus"] .tpc-steps .g{width:12px;height:12px;display:grid;place-items:center;flex:none}
+.v2 .thp[data-d="focus"] .tpc-steps .g .dot{width:5px;height:5px;color:var(--faint)}
+.v2 .thp[data-d="focus"] .tpc-steps .g .spin{width:10px;height:10px;color:var(--fg2)}
+.v2 .thp[data-d="focus"] .tpc-steps li.run{color:var(--fg)}
+.v2 .thp[data-d="focus"] .tpc-steps li.done{color:var(--fg2)}
+.v2 .thp[data-d="focus"] .tpc-steps li.done .g{color:var(--ok)}
+.v2 .thp[data-d="focus"] .tpc-work[data-s="done"] .tpc-wh b{color:var(--fg)}
+.v2 .thp[data-d="focus"] .tpc-work[data-s="done"] .tpc-bar i{background:var(--ok)}
+.v2 .thp[data-d="focus"] .tpc-qr{display:flex;gap:6px;padding:0 12px 8px;overflow-x:auto;scrollbar-width:none;min-height:38px;-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 28px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 28px),transparent)}
+.v2 .thp[data-d="focus"] .tpc-qr::-webkit-scrollbar{display:none}
+.v2 .thp[data-d="focus"] .tpc-q{flex:none;animation:v2-tpxin .45s var(--ease) backwards}
+.v2 .thp[data-d="focus"] .tpx-in{margin:0 10px 10px}
+/* the pull request the agent opened: a link to it */
+.v2 .thp[data-d="focus"] .tpc-pr{display:flex;align-items:center;gap:10px;width:100%;padding:10px 12px;border-radius:var(--r-in);background:var(--surface);box-shadow:var(--shadow);font-size:12.5px;text-align:left;transition:background .2s}
+@media (hover:hover) and (pointer:fine){.v2 .thp[data-d="focus"] .tpc-pr:hover{background:var(--row)}}
+.v2 .thp[data-d="focus"] .tpc-pr .brand{width:18px;height:18px}
+.v2 .thp[data-d="focus"] .tpc-prt{display:flex;flex-direction:column;min-width:0}
+.v2 .thp[data-d="focus"] .tpc-prt b{font-weight:500;font-size:13px}
+.v2 .thp[data-d="focus"] .tpc-prt span{color:var(--muted)}
+.v2 .thp[data-d="focus"] .tpc-pr .tag{margin-left:auto}
+:root:not([data-style="soft"]) .v2 .thp[data-d="focus"] .tpc-bar i{transition:transform .4s steps(5,end)}
+:root:not([data-style="soft"]) .v2 .thp[data-d="focus"][data-s="work"] .tpc-pd{animation:v2-bpblink 1.1s steps(1,end) infinite}
+:root:not([data-style="soft"]) .v2 .thp[data-d="focus"] .tpc-q{animation:v2-bpin .3s var(--ease) backwards}
+:root:not([data-style="soft"]) .v2 .thp[data-d="focus"] .tpc-body.in{animation:v2-bpin .3s var(--ease)}
 /* ---------- Composer ---------- */
 .v2 .cpx{display:flex;flex-direction:column;justify-content:flex-end;gap:14px;overflow-anchor:none}
 /* neither the composer nor the box it sits in anchors the page's scroll, so the page stays put as the thread grows and clears */
@@ -3545,6 +3711,192 @@ html{scrollbar-gutter:stable}
 .v2 .tcx-l{font-size:11.5px;color:var(--muted);margin-bottom:var(--s-1)}
 .v2 .tcx-io pre{margin:0;padding:9px 11px;border-radius:10px;background:var(--chip);font-family:var(--mono);font-size:11.5px;line-height:1.65;white-space:pre-wrap;word-break:break-word}
 .v2 .tcx-io .k{color:var(--pb)}.v2 .tcx-io .s{color:var(--pm)}.v2 .tcx-io .n{color:var(--pp)}
+/* ---------- Tool call designs ---------- */
+/* the homepage card's design switch: Classic is the component above, and Call stack, Inline and Inspector are the directions
+   under review, each under .tcx[data-d]. A tool shows as its icon, an app as its own mark. Colour is kept for meaning: the
+   green tick of a call that returned, the accent on the one that is running, and amber for the edit that waits for you */
+.v2 .dm.tcx-dm>.dm-main{align-items:stretch}
+.v2 .tcx[data-d] code{font-family:var(--mono);font-size:12px;font-weight:500;letter-spacing:-.01em}
+.v2 .tcx[data-d] .tcx-tile{position:relative;width:26px;height:26px;border-radius:var(--r-sm);display:grid;place-items:center;flex:none;background:var(--chip);color:var(--fg2);transition:background .25s}
+.v2 .tcx[data-d] .tcx-tile.app{background:var(--surface);color:var(--fg);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--rail) 50%,transparent)}
+.v2 .tcx[data-d] .tcx-tile .brand{width:14px;height:14px}
+.v2 .tcx[data-d] .tcx-json{margin:0;padding:9px 11px;border-radius:10px;background:var(--chip);font-family:var(--mono);font-size:11.5px;font-weight:500;line-height:1.7;white-space:pre-wrap;word-break:break-word;color:var(--fg2)}
+.v2 .tcx[data-d] .tcx-json .k{color:var(--muted)}.v2 .tcx[data-d] .tcx-json :is(.s,.n,.b){color:var(--fg)}
+.v2 .tcx[data-d] .tcx-json .cur{display:inline-block;width:6px;height:12px;vertical-align:-2px;background:var(--fg2);animation:v2-bpblink 1s steps(1,end) infinite}
+:root:not([data-style="soft"]) .v2 .tcx[data-d] .tcx-tile{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--line) 50%,transparent)}
+:root:not([data-style="soft"]) .v2 .tcx[data-d] .tcx-tile.app{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--rail) 60%,transparent)}
+
+/* Call stack: the calls on a rail that fills as each returns; open one to stream its output, copy it or run it again */
+.v2 .tcx[data-d="stack"] .tca-end{opacity:0;transform:translateY(4px);transition:opacity .6s var(--ease),transform .6s var(--ease)}
+.v2 .tcx[data-d="stack"] .tca-end.in{opacity:1;transform:none}
+.v2 .tcx[data-d="stack"] .tca-list{list-style:none;margin:0 -8px;padding:0;display:flex;flex-direction:column;gap:2px}
+.v2 .tcx[data-d="stack"] .tca-c{position:relative;border-radius:var(--r-in);transition:background .25s}
+.v2 .tcx[data-d="stack"] .tca-c.open{background:var(--row)}
+@media (hover:hover) and (pointer:fine){.v2 .tcx[data-d="stack"] .tca-c:hover{background:var(--row)}}
+/* on the grey of a row you point at or open, its tile turns white */
+@media (hover:hover) and (pointer:fine){.v2 .tcx[data-d="stack"] .tca-c:is(:hover,.open) .tcx-tile:not(.app){background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--line) 60%,transparent)}}
+/* the rail: each call joins the next with a light grey line, and its stretch turns a step darker once it has returned */
+.v2 .tcx[data-d="stack"] .tca-rl{position:absolute;left:20px;top:38px;bottom:-8px;width:2px;border-radius:1px;background:color-mix(in srgb,var(--line) 85%,transparent);pointer-events:none}
+.v2 .tcx[data-d="stack"] .tca-rl i{position:absolute;inset:0;border-radius:inherit;background:var(--rail);transform-origin:top;transform:scaleY(0);transition:transform .6s var(--ease)}
+.v2 .tcx[data-d="stack"] .tca-c[data-s="done"] .tca-rl i{transform:none}
+.v2 .tcx[data-d="stack"] .tca-c:last-child .tca-rl{display:none}
+.v2 .tcx[data-d="stack"] .tca-h{display:flex;align-items:center;gap:10px;width:100%;min-height:44px;padding:8px;border-radius:var(--r-in);text-align:left}
+.v2 .tcx[data-d="stack"] .tca-h:focus-visible{outline-offset:-2px;border-radius:var(--r-in)}
+.v2 .tcx[data-d="stack"] .tca-c .tcx-tile{z-index:1}
+/* a call still queued is quieter: its tool's icon in the muted grey, which keeps 3:1 on its tile */
+.v2 .tcx[data-d="stack"] .tca-c[data-s="wait"] .tcx-tile{color:var(--muted)}
+.v2 .tcx[data-d="stack"] .tca-c[data-s="run"] .tcx-tile{animation:v2-tcabreathe 1.5s var(--ease-io) infinite}
+@keyframes v2-tcabreathe{50%{opacity:.5}}
+.v2 .tcx[data-d="stack"] .tca-n{flex:1;min-width:0;display:flex;flex-direction:column;font-size:13px}
+.v2 .tcx[data-d="stack"] .tca-n code{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--fg)}
+.v2 .tcx[data-d="stack"] .tca-n code span{color:var(--muted)}
+.v2 .tcx[data-d="stack"] .tca-n .a{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v2 .tcx[data-d="stack"] .tca-c[data-s="wait"] .tca-n code{color:var(--fg2)}
+.v2 .tcx[data-d="stack"] .tca-r{display:flex;align-items:center;gap:6px;flex:none;font-size:12px;color:var(--muted)}
+.v2 .tcx[data-d="stack"] .tca-r .g{width:14px;height:14px;display:grid;place-items:center}
+.v2 .tcx[data-d="stack"] .tca-r .g .spin{width:11px;height:11px;color:var(--accent-mark)}
+.v2 .tcx[data-d="stack"] .tca-r .ok{color:var(--ok);display:grid}
+.v2 .tcx[data-d="stack"] .tca-r .ok svg{animation:v2-tcapop .4s var(--ease)}
+@keyframes v2-tcapop{from{transform:scale(.3);opacity:0}60%{transform:scale(1.2)}}
+.v2 .tcx[data-d="stack"] .tca-cv{color:var(--muted);display:grid;transition:transform .4s var(--ease)}
+.v2 .tcx[data-d="stack"] .tca-h[aria-expanded="true"] .tca-cv{transform:rotate(180deg)}
+.v2 .tcx[data-d="stack"] .tca-io{display:flex;flex-direction:column;gap:var(--s-2);padding:0 10px 10px 44px}
+.v2 .tcx[data-d="stack"] .tca-bar{display:flex;align-items:center;gap:4px}
+.v2 .tcx[data-d="stack"] .tca-bar .seg2 button{height:24px;font-size:12px;padding:0 10px}
+.v2 .tcx[data-d="stack"] .tca-bar .ib{width:26px;height:26px}
+.v2 .tcx[data-d="stack"] .tca-bar .sp{flex:1}
+.v2 .tcx[data-d="stack"] .tca-c.open .tca-bar .seg2{background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--line) 60%,transparent)}
+.v2 .tcx[data-d="stack"] .tca-c.open .tca-bar .seg2 .knob{background:var(--chip);box-shadow:none}
+.v2 .tcx[data-d="stack"] .tca-c.open .tcx-json{background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--line) 60%,transparent)}
+.v2 .tcx[data-d="stack"] .tca-note{font-size:11.5px;color:var(--muted)}
+.v2 .tcx[data-d="stack"] .tca-c.again .tca-r .num{animation:v2-tcaagain .6s var(--ease)}
+@keyframes v2-tcaagain{40%{transform:translateY(-2px)}}
+:root:not([data-style="soft"]) .v2 .tcx[data-d="stack"] .tca-rl{width:1px;left:20.5px;background:repeating-linear-gradient(var(--rail) 0 3px,transparent 3px 6px)}
+:root:not([data-style="soft"]) .v2 .tcx[data-d="stack"] .tca-rl i{background:var(--faint);transition:transform .35s steps(4,end)}
+:root:not([data-style="soft"]) .v2 .tcx[data-d="stack"] .tca-c[data-s="run"] .tcx-tile{animation:v2-bpblink 1.1s steps(1,end) infinite}
+:root:not([data-style="soft"]) .v2 .tcx[data-d="stack"] .tca-c.open{background:repeating-linear-gradient(135deg,transparent 0 6px,var(--grid) 6px 7px),var(--row)}
+:root:not([data-style="soft"]) .v2 .tcx[data-d="stack"] .tca-r .ok svg{animation:none}
+
+/* Inline: the calls as chips inside the agent's sentence. Pointing at one previews it, pressing it opens the call under
+   the sentence */
+.v2 .tcx[data-d="inline"]{position:relative}
+.v2 .tcx[data-d="inline"] .tcb-who{display:flex;align-items:center;gap:var(--s-2);font-size:12.5px;color:var(--muted)}
+.v2 .tcx[data-d="inline"] .tcb-av{width:22px;height:22px;border-radius:7px;display:grid;place-items:center;background:var(--accent-bg);color:var(--accent-fg,var(--accent))}
+.v2 .tcx[data-d="inline"] .tcb-av .i{width:12px;height:12px}
+.v2 .tcx[data-d="inline"] .tcb-ws{display:inline-flex;align-items:center;gap:5px}
+.v2 .tcx[data-d="inline"] .tcb-ws .shim{font-size:inherit}
+.v2 .tcx[data-d="inline"] .tcb-p{margin:0;min-height:120px;font-size:14px;line-height:2;color:var(--fg);text-wrap:pretty}
+.v2 .tcx[data-d="inline"] .tcb-p .w{animation:v2-tcbw .4s var(--ease) backwards}
+@keyframes v2-tcbw{from{opacity:0}}
+/* a call inside the sentence: the site's file chip with its tool's icon and name, a spinner while it runs, then how long
+   it took. The open one keeps the chip's hover look */
+.v2 .tcx[data-d="inline"] .tcb-k{margin:0 1px;line-height:1;vertical-align:1px;gap:5px;animation:v2-tcbk .45s var(--ease) backwards}
+@keyframes v2-tcbk{from{opacity:0;transform:scale(.85)}}
+.v2 .tcx[data-d="inline"] .tcb-k[aria-expanded="true"]{background:var(--row);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--rail) 50%,transparent)}
+.v2 .tcx[data-d="inline"] .tcb-k .t{width:16px;height:16px;border-radius:4px;display:grid;place-items:center;flex:none;color:var(--fg2)}
+.v2 .tcx[data-d="inline"] .tcb-k .t .i{width:11px;height:11px}
+.v2 .tcx[data-d="inline"] .tcb-k .t .brand{width:12px;height:12px}
+.v2 .tcx[data-d="inline"] .tcb-k .t .spin{width:10px;height:10px}
+.v2 .tcx[data-d="inline"] .tcb-k .m{color:var(--muted);font-variant-numeric:tabular-nums}
+.v2 .tcx[data-d="inline"] .tcb-k .m:empty{display:none}
+.v2 .tcx[data-d="inline"] .tcb-k[data-s="run"] .t .spin{color:var(--accent-mark)}
+.v2 .tcx[data-d="inline"] .tcb-k:focus-visible{outline-offset:1px;border-radius:var(--r-pill)}
+/* the open call: what went in, the tool, what came back */
+.v2 .tcx[data-d="inline"] .tcb-dr{display:flex;flex-direction:column;gap:10px;padding:12px;border-radius:var(--r-card);background:var(--surface);box-shadow:var(--shadow)}
+.v2 .tcx[data-d="inline"] .tcb-dh{display:flex;align-items:center;gap:var(--s-2);min-width:0}
+.v2 .tcx[data-d="inline"] .tcb-dh code{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v2 .tcx[data-d="inline"] .tcb-dh code span{color:var(--muted)}
+.v2 .tcx[data-d="inline"] .tcb-dh .num{font-size:12px;color:var(--muted)}
+.v2 .tcx[data-d="inline"] .tcb-dh .ib{width:26px;height:26px}
+.v2 .tcx[data-d="inline"] .tcb-flow{display:grid;grid-template-columns:minmax(0,1fr) 30px minmax(0,1fr);align-items:stretch;gap:6px}
+.v2 .tcx[data-d="inline"] .tcb-flow .tcx-json{min-height:64px;font-size:11px}
+.v2 .tcx[data-d="inline"] .tcb-flow .l{display:block;margin-bottom:4px;font-size:11.5px;color:var(--muted)}
+.v2 .tcx[data-d="inline"] .tcb-wire{position:relative;align-self:center;height:2px;margin-top:18px;border-radius:1px;background:var(--line)}
+.v2 .tcx[data-d="inline"] .tcb-wire b{position:absolute;right:-1px;top:-3px;border:4px solid transparent;border-left:5px solid var(--rail);border-right:0}
+.v2 .tcx[data-d="inline"] .tcb-wire i{position:absolute;left:0;top:-3px;width:8px;height:8px;border-radius:50%;background:var(--muted);opacity:0}
+.v2 .tcx[data-d="inline"] .tcb-dw.go .tcb-wire i{animation:v2-tcbpk 1.1s var(--ease-io) .2s}
+@keyframes v2-tcbpk{0%{opacity:0;transform:translateX(-4px)}15%{opacity:1}85%{opacity:1}100%{opacity:0;transform:translateX(26px)}}
+.v2 .tcx[data-d="inline"] .tcb-sum{display:flex;align-items:center;gap:var(--s-2);font-size:12.5px;color:var(--muted);min-height:20px}
+.v2 .tcx[data-d="inline"] .tcb-hc{position:absolute;z-index:20;width:236px;max-width:calc(100% - 8px);padding:10px;border-radius:var(--r-in);background:var(--raised);box-shadow:var(--shadow-pop);font-size:12px;pointer-events:none;animation:v2-popin .3s var(--ease)}
+.v2 .tcx[data-d="inline"] .tcb-hc[hidden]{display:none}
+.v2 .tcx[data-d="inline"] .tcb-hc code{display:block;margin-bottom:6px;font-size:11.5px}
+.v2 .tcx[data-d="inline"] .tcb-hc code span{color:var(--muted)}
+.v2 .tcx[data-d="inline"] .tcb-hc .row{display:grid;grid-template-columns:30px minmax(0,1fr);gap:4px 8px;line-height:1.5}
+.v2 .tcx[data-d="inline"] .tcb-hc .row span:nth-child(odd){color:var(--muted)}
+.v2 .tcx[data-d="inline"] .tcb-hc .row span:nth-child(even){color:var(--fg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v2 .tcx[data-d="inline"] .tcb-hc .f{margin-top:6px;color:var(--muted)}
+:root:not([data-style="soft"]) .v2 .tcx[data-d="inline"] .tcb-k{animation:none}
+:root:not([data-style="soft"]) .v2 .tcx[data-d="inline"] .tcb-p .w{animation:none}
+:root:not([data-style="soft"]) .v2 .tcx[data-d="inline"] .tcb-wire{height:1px;background:repeating-linear-gradient(90deg,var(--faint) 0 3px,transparent 3px 5px)}
+:root:not([data-style="soft"]) .v2 .tcx[data-d="inline"] .tcb-dw.go .tcb-wire i{animation:v2-tcbpkbp .8s steps(4,end) .2s;width:6px;height:6px;top:-2.5px}
+@keyframes v2-tcbpkbp{0%{opacity:1;transform:none}99%{opacity:1;transform:translateX(26px)}100%{opacity:0}}
+:root:not([data-style="soft"]) .v2 .tcx[data-d="inline"] .tcb-hc{animation:v2-bpin .2s var(--ease)}
+
+/* Inspector: a strip of calls, each as wide as it took, over the call you pick, read as tables or JSON. The strip's parts
+   are white like the site's file chips, with the tool's own icon; the one running fills a line in the accent, and the edit
+   that waits for you carries an amber dot and the site's amber tag, on white, never a tinted fill */
+.v2 .tcx[data-d="inspector"]{padding:var(--s-3)}
+.v2 .tcx[data-d="inspector"] .tcc-h{display:flex;align-items:center;justify-content:space-between;gap:var(--s-3);padding:2px 2px 0}
+.v2 .tcx[data-d="inspector"] .tcc-ht{display:flex;flex-direction:column;min-width:0}
+.v2 .tcx[data-d="inspector"] .tcc-ht b{font-weight:500}
+.v2 .tcx[data-d="inspector"] .tcc-st{font-size:12.5px;color:var(--muted);white-space:nowrap}
+.v2 .tcx[data-d="inspector"] .tcc-mode button{height:24px;font-size:12px;padding:0 10px}
+.v2 .tcx[data-d="inspector"] .tcc-strip{display:flex;gap:var(--s-1)}
+.v2 .tcx[data-d="inspector"] .tcc-s{position:relative;flex:var(--w,1) 1 0;min-width:max-content;display:flex;align-items:center;gap:6px;height:36px;padding:0 10px;border-radius:var(--r-sm);background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--line) 50%,transparent);text-align:left;font-size:12.5px;color:var(--fg);overflow:hidden;transition:background .25s,box-shadow .25s,color .25s}
+@supports (corner-shape:squircle){.v2 .tcx[data-d="inspector"] .tcc-s{corner-shape:squircle;border-radius:var(--r-field-sq)}}
+@media (hover:hover) and (pointer:fine){.v2 .tcx[data-d="inspector"] .tcc-s:hover{background:var(--row);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--rail) 50%,transparent)}}
+.v2 .tcx[data-d="inspector"] .tcc-s[aria-selected="true"]{background:var(--row);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--pick-on) 50%,transparent)}
+.v2 .tcx[data-d="inspector"] .tcc-s:focus-visible{outline-offset:-2px}
+.v2 .tcx[data-d="inspector"] .tcc-ic{display:grid;place-items:center;width:14px;height:14px;flex:none;color:var(--fg2)}
+.v2 .tcx[data-d="inspector"] .tcc-ic .brand{width:13px;height:13px}
+.v2 .tcx[data-d="inspector"] .tcc-s .n{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v2 .tcx[data-d="inspector"] .tcc-s[data-s="wait"],.v2 .tcx[data-d="inspector"] .tcc-s[data-s="skip"]{color:var(--muted)}
+.v2 .tcx[data-d="inspector"] .tcc-s:is([data-s="wait"],[data-s="skip"]) .tcc-ic{color:var(--muted)}
+/* what a part is doing: a dot after its name while it waits for you (amber) or after you said no (red), and a line along
+   its foot that fills in the accent while it runs */
+.v2 .tcx[data-d="inspector"] .tcc-dt{display:none;margin-left:auto}
+.v2 .tcx[data-d="inspector"] .tcc-s[data-s="ask"] .tcc-dt{display:inline-block;color:var(--warn);animation:v2-tcabreathe 1.5s var(--ease-io) infinite}
+.v2 .tcx[data-d="inspector"] .tcc-s[data-s="deny"] .tcc-dt{display:inline-block;color:var(--bad)}
+.v2 .tcx[data-d="inspector"] .tcc-pr{position:absolute;left:0;right:0;bottom:0;height:2px;background:var(--accent-mark);transform-origin:left;transform:scaleX(var(--p,0));opacity:0;transition:transform .2s linear,opacity .3s}
+.v2 .tcx[data-d="inspector"] .tcc-s[data-s="run"] .tcc-pr{opacity:1}
+@container (max-width:340px){.v2 .tcx[data-d="inspector"] .tcc-s .n{display:none}.v2 .tcx[data-d="inspector"] .tcc-s{justify-content:center;min-width:40px}.v2 .tcx[data-d="inspector"] .tcc-dt{position:absolute;top:6px;right:6px}}
+/* the call you picked, under a hairline: its name and state, then what went in and what came back as plain lists */
+.v2 .tcx[data-d="inspector"] .tcc-view{position:relative;height:262px;overflow:hidden;border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
+.v2 .tcx[data-d="inspector"] .tcc-in{position:absolute;inset:0;display:flex;flex-direction:column;gap:var(--s-3);padding:var(--s-3) 2px 2px;overflow-y:auto;scrollbar-width:none}
+.v2 .tcx[data-d="inspector"] .tcc-in::-webkit-scrollbar{display:none}
+.v2 .tcx[data-d="inspector"] .tcc-in.go{animation:v2-tccin .4s var(--ease)}
+@keyframes v2-tccin{from{opacity:0;transform:translateY(6px)}}
+.v2 .tcx[data-d="inspector"] .tcc-dh{display:flex;align-items:center;gap:var(--s-2);min-width:0}
+.v2 .tcx[data-d="inspector"] .tcc-dh .tcx-tile{width:24px;height:24px;background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--line) 60%,transparent)}
+.v2 .tcx[data-d="inspector"] .tcc-dh .tcx-tile .brand{width:13px;height:13px}
+.v2 .tcx[data-d="inspector"] .tcc-dh code{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v2 .tcx[data-d="inspector"] .tcc-dh code span{color:var(--muted)}
+.v2 .tcx[data-d="inspector"] .tcc-dh .tag .spin{width:9px;height:9px}
+.v2 .tcx[data-d="inspector"] .tcc-dh .num{font-size:12px;color:var(--muted)}
+.v2 .tcx[data-d="inspector"] .tcc-sec{display:flex;flex-direction:column;gap:6px}
+.v2 .tcx[data-d="inspector"] .tcc-sec .l{display:flex;align-items:center;gap:6px;min-height:22px;font-size:11.5px;color:var(--muted)}
+.v2 .tcx[data-d="inspector"] .tcc-sec .l .ib{width:22px;height:22px;margin-left:auto}
+.v2 .tcx[data-d="inspector"] .tcc-kv{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 16px;font-size:12.5px;line-height:1.5}
+.v2 .tcx[data-d="inspector"] .tcc-kv>span:nth-child(odd){color:var(--muted)}
+.v2 .tcx[data-d="inspector"] .tcc-kv>span:nth-child(even){color:var(--fg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-variant-numeric:tabular-nums}
+.v2 .tcx[data-d="inspector"] .tcc-tb{width:100%;border-collapse:collapse;font-size:12.5px;font-variant-numeric:tabular-nums}
+.v2 .tcx[data-d="inspector"] .tcc-tb th{text-align:left;font-weight:400;color:var(--muted);font-size:11.5px;padding:0 12px 4px 0}
+.v2 .tcx[data-d="inspector"] .tcc-tb td{padding:5px 12px 5px 0;color:var(--fg);border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
+.v2 .tcx[data-d="inspector"] .tcc-wait{display:flex;flex-direction:column;gap:8px;padding:4px 0}
+.v2 .tcx[data-d="inspector"] .tcc-wait i{display:block;height:8px;border-radius:4px;background:var(--chip);animation:v2-tccpulse 1.4s var(--ease-io) infinite}
+.v2 .tcx[data-d="inspector"] .tcc-wait i+i{animation-delay:.2s}
+@keyframes v2-tccpulse{50%{opacity:.45}}
+/* the call that would change your files: what it would do, the change itself, and the choice, all on white */
+.v2 .tcx[data-d="inspector"] .tcc-ask{display:flex;flex-direction:column;gap:var(--s-2)}
+.v2 .tcx[data-d="inspector"] .tcc-ask p{margin:0;display:flex;flex-wrap:wrap;align-items:center;gap:6px;font-size:13px;color:var(--fg)}
+.v2 .tcx[data-d="inspector"] .tcc-ask .fchip{height:24px;padding:0 9px 0 7px;font-size:12px}
+.v2 .tcx[data-d="inspector"] .tcc-ask .tcx-json{padding:6px 10px;font-size:11px}
+.v2 .tcx[data-d="inspector"] .tcc-ask .tcx-json .a{color:var(--add)}.v2 .tcx[data-d="inspector"] .tcc-ask .tcx-json .x{color:var(--del)}
+.v2 .tcx[data-d="inspector"] .tcc-acts{display:flex;flex-wrap:wrap;gap:6px}
+:root:not([data-style="soft"]) .v2 .tcx[data-d="inspector"] .tcc-pr{transition:transform .2s steps(3,end),opacity .2s}
+:root:not([data-style="soft"]) .v2 .tcx[data-d="inspector"] .tcc-s[data-s="ask"] .tcc-dt{animation:v2-bpblink 1.1s steps(1,end) infinite}
+:root:not([data-style="soft"]) .v2 .tcx[data-d="inspector"] .tcc-in.go{animation:v2-bpin .3s var(--ease)}
+:root:not([data-style="soft"]) .v2 .tcx[data-d="inspector"] .tcc-wait i{animation:none;background:repeating-linear-gradient(90deg,var(--chip) 0 4px,transparent 4px 6px)}
 /* ---------- Artifact card ---------- */
 /* a file the agent made, shown four ways: a compact row, a card with its first page, a chip inside the message, and a stack
    of its versions. Each plays its writing state, then opens, copies, downloads and switches versions the same way */
@@ -7392,7 +7744,7 @@ body.ui .brand.o3::after{content:none}
   </div>
 </div></template>
   </article>
-  <article class="comp" id="c8" data-soft data-v2="thread-panel" data-reg="thread-panel" style="--rh-a:480px;--rc-a:368px;--rcb-a:360px;--rh-b:472px;--rc-b:360px;--rcb-b:360px;--rh-c:472px;--rc-c:360px;--rcb-c:360px;--rh-d:472px;--rc-d:360px;--rcb-d:360px;--rh-e:472px;--rc-e:360px;--rcb-e:360px;--rh-f:472px;--rc-f:360px;--rcb-f:360px;--rh-g:472px;--rc-g:360px;--rcb-g:360px;--rh-h:472px;--rc-h:360px;--rcb-h:360px;--rh-i:472px;--rc-i:360px;--rcb-i:360px;--rh-j:440px;--rc-j:360px;--rcb-j:360px;--rh-k:440px;--rc-k:360px;--rcb-k:360px;--rh-l:440px;--rc-l:360px;--rcb-l:360px;--rh-m:440px;--rc-m:360px;--rcb-m:360px">
+  <article class="comp" id="c8" data-soft data-v2="thread-panel" data-reg="thread-panel" style="--rh-a:566px;--rc-a:450px;--rcb-a:454px;--rh-b:562px;--rc-b:450px;--rcb-b:450px;--rh-c:562px;--rc-c:450px;--rcb-c:450px;--rh-d:562px;--rc-d:450px;--rcb-d:450px;--rh-e:562px;--rc-e:450px;--rcb-e:450px;--rh-f:562px;--rc-f:450px;--rcb-f:450px;--rh-g:566px;--rc-g:450px;--rcb-g:454px;--rh-h:562px;--rc-h:450px;--rcb-h:450px;--rh-i:562px;--rc-i:450px;--rcb-i:450px;--rh-j:530px;--rc-j:450px;--rcb-j:450px;--rh-k:530px;--rc-k:450px;--rcb-k:450px;--rh-l:530px;--rc-l:450px;--rcb-l:450px;--rh-m:530px;--rc-m:450px;--rcb-m:450px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">chat_bubble</span></span>
       <div><h2 class="comp-title"><a href="/components/thread-panel">Thread panel</a></h2><p class="comp-desc">Switch between agent threads and reply in place.</p></div>
@@ -7400,13 +7752,21 @@ body.ui .brand.o3::after{content:none}
     </div>
     <div class="stage"><div class="stage-inner dots v2-host" data-demo><div class="v2 stage-in bare"></div></div></div>
     <div class="comp-foot">
-      <span class="mono-xs">Switch threads, send a reply</span>
+      <div class="tabs" role="tablist" aria-label="Thread panel design" data-tabs="v2-thread-panel">
+        <button class="tab" role="tab" aria-selected="true" data-v="classic">Classic</button>
+        <button class="tab" role="tab" aria-selected="false" data-v="deck">Deck</button>
+        <button class="tab" role="tab" aria-selected="false" data-v="focus">Focus</button>
+      </div>
       <div class="code-btns"><button class="ghost anim-btn" data-anim><span class="ms sm">stars</span>Animate</button><button class="ghost" data-view aria-expanded="false"><span class="ms sm">code</span><span class="vl">View code</span></button><button class="ghost" data-copy><span class="ms sm">content_copy</span>Copy code</button></div>
     </div>
-    <template><div class="thp panel">
+    <template><div class="dm thp-dm" data-designs="card"><div class="dm-main">
+<div class="thp panel">
   <div class="thp-tabs" role="tablist"></div>
   <div class="thp-body" aria-live="polite"></div>
   <form class="thp-in"><input class="thp-field" aria-label="Reply" placeholder="Reply to the agent"><button class="thp-send" aria-label="Send" data-tip="Send" data-tip-k="↵" disabled>{up}</button></form>
+</div>
+</div>
+<div class="demo"><div class="seg2" role="group" aria-label="Thread panel design"><button aria-pressed="true" data-v="classic">Classic</button><button aria-pressed="false" data-v="deck">Deck</button><button aria-pressed="false" data-v="focus">Focus</button></div></div>
 </div></template>
   </article>
   <article class="comp" id="c108" data-soft data-v2="artifact-card" data-reg="artifact-card" style="--rh-a:564px;--rc-a:452px;--rcb-a:452px;--rh-b:586px;--rc-b:474px;--rcb-b:474px;--rh-c:564px;--rc-c:452px;--rcb-c:452px;--rh-d:564px;--rc-d:452px;--rcb-d:452px;--rh-e:564px;--rc-e:452px;--rcb-e:452px;--rh-f:564px;--rc-f:452px;--rcb-f:452px;--rh-g:564px;--rc-g:452px;--rcb-g:452px;--rh-h:564px;--rc-h:452px;--rcb-h:452px;--rh-i:564px;--rc-i:452px;--rcb-i:452px;--rh-j:532px;--rc-j:452px;--rcb-j:452px;--rh-k:554px;--rc-k:474px;--rcb-k:474px;--rh-l:554px;--rc-l:474px;--rcb-l:474px;--rh-m:554px;--rc-m:474px;--rcb-m:474px">
@@ -7476,7 +7836,7 @@ body.ui .brand.o3::after{content:none}
   <p class="rte-live" aria-live="polite"></p>
 </div></template>
   </article>
-  <article class="comp" id="c107" data-soft data-v2="tool-call" data-reg="tool-call" style="--rh-a:463px;--rc-a:350px;--rcb-a:351px;--rh-b:462px;--rc-b:350px;--rcb-b:350px;--rh-c:462px;--rc-c:350px;--rcb-c:350px;--rh-d:462px;--rc-d:350px;--rcb-d:350px;--rh-e:462px;--rc-e:350px;--rcb-e:350px;--rh-f:463px;--rc-f:350px;--rcb-f:351px;--rh-g:462px;--rc-g:350px;--rcb-g:350px;--rh-h:462px;--rc-h:350px;--rcb-h:350px;--rh-i:463px;--rc-i:350px;--rcb-i:351px;--rh-j:430px;--rc-j:350px;--rcb-j:350px;--rh-k:430px;--rc-k:350px;--rcb-k:350px;--rh-l:431px;--rc-l:350px;--rcb-l:351px;--rh-m:449px;--rc-m:369px;--rcb-m:369px">
+  <article class="comp" id="c107" data-soft data-v2="tool-call" data-reg="tool-call" style="--rh-a:601px;--rc-a:489px;--rcb-a:489px;--rh-b:663px;--rc-b:551px;--rcb-b:551px;--rh-c:601px;--rc-c:489px;--rcb-c:489px;--rh-d:601px;--rc-d:489px;--rcb-d:489px;--rh-e:601px;--rc-e:489px;--rcb-e:489px;--rh-f:601px;--rc-f:489px;--rcb-f:489px;--rh-g:601px;--rc-g:489px;--rcb-g:489px;--rh-h:601px;--rc-h:489px;--rcb-h:489px;--rh-i:601px;--rc-i:489px;--rcb-i:489px;--rh-j:569px;--rc-j:489px;--rcb-j:489px;--rh-k:631px;--rc-k:551px;--rcb-k:551px;--rh-l:631px;--rc-l:551px;--rcb-l:551px;--rh-m:631px;--rc-m:551px;--rcb-m:551px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">terminal</span></span>
       <div><h2 class="comp-title"><a href="/components/tool-call">Tool call</a></h2><p class="comp-desc">Each tool the agent calls, with its input and output.</p></div>
@@ -7484,13 +7844,22 @@ body.ui .brand.o3::after{content:none}
     </div>
     <div class="stage"><div class="stage-inner dots v2-host" data-demo><div class="v2 stage-in bare"></div></div></div>
     <div class="comp-foot">
-      <span class="mono-xs">Open a call to see what went in and out</span>
+      <div class="tabs" role="tablist" aria-label="Tool call design" data-tabs="v2-tool-call">
+        <button class="tab" role="tab" aria-selected="true" data-v="classic">Classic</button>
+        <button class="tab" role="tab" aria-selected="false" data-v="stack">Call&nbsp;stack</button>
+        <button class="tab" role="tab" aria-selected="false" data-v="inline">Inline</button>
+        <button class="tab" role="tab" aria-selected="false" data-v="inspector">Inspector</button>
+      </div>
       <div class="code-btns"><button class="ghost anim-btn" data-anim><span class="ms sm">stars</span>Animate</button><button class="ghost" data-view aria-expanded="false"><span class="ms sm">code</span><span class="vl">View code</span></button><button class="ghost" data-copy><span class="ms sm">content_copy</span>Copy code</button></div>
     </div>
-    <template><div class="tcx">
+    <template><div class="dm tcx-dm" data-designs="card"><div class="dm-main">
+<div class="tcx">
   <p class="msg tcx-m1">Checking which plans changed this month before I update the pricing page.</p>
   <div class="tcx-calls"></div>
   <p class="msg tcx-end">Two plans changed. I updated their prices and the yearly saving on the page.</p>
+</div>
+</div>
+<div class="demo"><div class="seg2" role="group" aria-label="Tool call design"><button aria-pressed="true" data-v="classic">Classic</button><button aria-pressed="false" data-v="stack">Call&nbsp;stack</button><button aria-pressed="false" data-v="inline">Inline</button><button aria-pressed="false" data-v="inspector">Inspector</button></div></div>
 </div></template>
   </article>
   <article class="comp" id="c24" data-soft data-v2="voice-capture" data-reg="voice-capture" style="--rh-a:420px;--rc-a:213px;--rcb-a:213px;--rh-b:420px;--rc-b:235px;--rcb-b:235px;--rh-c:420px;--rc-c:213px;--rcb-c:213px;--rh-d:420px;--rc-d:213px;--rcb-d:213px;--rh-e:420px;--rc-e:213px;--rcb-e:213px;--rh-f:420px;--rc-f:213px;--rcb-f:213px;--rh-g:420px;--rc-g:213px;--rcb-g:213px;--rh-h:420px;--rc-h:213px;--rcb-h:213px;--rh-i:420px;--rc-i:213px;--rcb-i:213px;--rh-j:420px;--rc-j:214px;--rcb-j:213px;--rh-k:420px;--rc-k:235px;--rcb-k:235px;--rh-l:420px;--rc-l:235px;--rcb-l:235px;--rh-m:420px;--rc-m:235px;--rcb-m:235px">
@@ -13571,6 +13940,238 @@ DM.def('thread-panel', (r, c) => {
     await c.step(380); $('.thp-in', r).requestSubmit();
   });
 });
+/* ---------- Thread panel designs ---------- */
+/* the homepage card's design switch, shown as its footer tabs: Classic is the component above, and Deck and Focus are two
+   directions under review. Picking one draws it where the component sits and plays its demo from the start, as Animate does.
+   The switch is the card's alone: inside another component the thread panel is Classic, and the registry, the code view and
+   the component page install Classic (build.js leaves the switch out of them) */
+{
+  const classic = DM.defs['thread-panel'];
+  // the threads both directions show: each agent has an avatar colour (av), an icon, and a state: working, waiting for you
+  // (ask) or done
+  const THP = () => [
+    { t:'Onboarding', ag:'Research agent', ic:'search', av:'b', s:'done', pv:'Moving the team step should help',
+      msgs:[['u', 'Why are people leaving at the workspace step?'], ['a', 'It asks for a team name before anyone has made anything. Moving it after the first project, with the name taken from the email domain, should help.', [['chart', 'Funnel, 30 days'], ['@notion', 'Interview notes']]]] },
+    { t:'Colour tokens', ag:'Design agent', ic:'palette', av:'l', s:'work', pv:'Swapping greys for tokens',
+      msgs:[['u', 'Which colours are still hard-coded?'], ['a', 'Eleven, mostly greys in Button and Card. I am swapping them for tokens now.', [['@figma', 'Components'], ['code', 'tokens.css']]]],
+      done:'All eleven use tokens now, and the Card border matches the library.', src:[['@github', 'PR #418']] },
+    { t:'Launch email', ag:'Copy agent', ic:'mail', av:'p', s:'ask', pv:'Which subject line?',
+      msgs:[['u', 'Draft the launch email for Friday.'], ['a', 'Two subject lines are ready. Which one should go to the team as a test?', [], ['Ship faster with tokens', 'Your design system, now in code']]] }
+  ];
+  const vars = t => `--a:var(--av-${t.av});--ai:var(--av-${t.av}-ink)`;
+  // an agent's avatar; given a state, it carries the dot that shows it
+  const av = (t, s) => `<span class="tpx-av"${s ? ` data-s="${s}"` : ''} aria-hidden="true">${I(t.ic)}${s ? '<i class="tpx-st"></i>' : ''}</span>`;
+  const chip = ([ic, n]) => `<button class="fchip lnk" type="button" data-tip="${n}">${ic[0] === '@' ? BRAND[ic.slice(1)] : I(ic, 'xs')}${n}</button>`;
+  // one message: yours as a bubble, the agent's as text with its sources, and the choices it offers
+  function msg(t, m){
+    if (m[0] === 'u') return html(`<div class="bub">${m[1]}</div>`);
+    const opts = m[3] ? `<div class="tpx-opts">${m[3].map((o, i) => `<button class="tpx-opt" type="button" aria-pressed="false" data-o="${i}"><span class="k">${'AB'[i]}</span>${o}</button>`).join('')}</div>` : '';
+    return html(`<div class="tpx-a"><span class="tpx-who">${av(t)}${t.ag}</span><div>${m[1]}</div>${m[2] && m[2].length ? `<div class="tpx-src">${m[2].map(chip).join('')}</div>` : ''}${opts}</div>`);
+  }
+  // the agent answers: three dots, then its words as they come, two at a time
+  async function stream(c, t, body, text, src, scroll){
+    const el = html(`<div class="tpx-a tpx-new"><span class="tpx-who">${av(t)}${t.ag}</span><div><span class="tpx-dots" aria-label="Writing"><i></i><i></i><i></i></span></div></div>`);
+    body.appendChild(el); scroll();
+    await c.wait(1100);
+    const out = $('div', el), w = text.split(' '); let n = 0;
+    out.innerHTML = '<span class="tx"></span><span class="tpx-caret"></span>';
+    const tx = $('.tx', out);
+    while (n < w.length){ n = Math.min(w.length, n + 2); tx.textContent = w.slice(0, n).join(' '); await c.wait(110); }
+    $('.tpx-caret', out).remove();
+    if (src && src.length){ const s = html(`<div class="tpx-src">${src.map(chip).join('')}</div>`); el.appendChild(s); enter(s); }
+    scroll();
+    return el;
+  }
+  // a reply field: Send wakes with text in it, and Enter sends
+  function field(r, onSend){
+    const form = $('.tpx-in', r), f = $('.tpx-field', form), b = $('.tpx-send', form);
+    f.oninput = () => { b.disabled = !f.value.trim(); };
+    form.onsubmit = e => { e.preventDefault(); const v = f.value.trim(); if (!v) return; f.value = ''; b.disabled = true; onSend(v); };
+  }
+  const replyField = label => `<form class="tpx-in"><input class="tpx-field" aria-label="${label}" placeholder="Reply to the agent" autocomplete="off"><button class="tpx-send" type="submit" aria-label="Send" data-tip="Send" data-tip-k="↵" disabled>${I('up')}</button></form>`;
+
+  /* Deck: the threads as a stack of cards. Tap one behind to bring it to the front, or swipe the front one away */
+  const DECK = () => `<div class="thp tpb" data-d="deck">
+  <div class="tpb-deck"></div>
+  <div class="tpb-nav">
+    <button class="ib tpb-prev" type="button" aria-label="Previous thread" data-tip="Previous" data-tip-k="←">${I('chev-l')}</button>
+    <div class="tpb-dots" role="tablist" aria-label="Threads"></div>
+    <button class="ib tpb-next" type="button" aria-label="Next thread" data-tip="Next" data-tip-k="→">${I('chev-r')}</button>
+  </div>
+</div>`;
+  function deck(r, c){
+    const T = THP(), deck = $('.tpb-deck', r), dots = $('.tpb-dots', r);
+    // the order of the cards, front first: the design agent's thread is on top
+    let order = [1, 2, 0];
+    const tagOf = t => t.s === 'work' ? '<span class="tag tpb-tag"><span class="spin"></span>Working</span>' : t.s === 'ask' ? '<span class="tag warn tpb-tag">Needs you</span>' : `<span class="tag tpb-tag">${I('check','xs')}Done</span>`;
+    T.forEach((t, i) => {
+      t.el = html(`<article class="tpb-card" style="${vars(t)}" aria-label="${t.t}"><div class="tpb-ch">${av(t, t.s)}<div class="tpb-ct"><b>${t.t}</b><span>${t.ag}</span></div><span class="tg">${tagOf(t)}</span></div><div class="tpb-body tpx-scroll" aria-live="polite"></div>${replyField('Reply to ' + t.ag)}</article>`);
+      t.body = $('.tpb-body', t.el); t.msgs.forEach(m => t.body.appendChild(msg(t, m))); deck.appendChild(t.el);
+      t.dot = html(`<button class="tpb-dot" type="button" role="tab" aria-label="${t.t}"><i></i></button>`); dots.appendChild(t.dot);
+      t.dot.onclick = () => front(i);
+      // a card behind comes forward when you press its strip
+      t.el.addEventListener('click', e => { if (order[0] !== i){ e.preventDefault(); front(i); } }, true);
+      field(t.el, v => answer(t, v, 'On it. I will post here when it is done.'));
+      wire(t);
+    });
+    // a card behind keeps its strip for the pointer to press; what is under the strip, and its reply field, wait until it is
+    // in front
+    const lay = () => {
+      order.forEach((i, z) => { const el = T[i].el, back = z > 0; el.style.setProperty('--z', z); el.dataset.z = z; [$('.tpb-body', el), $('.tpx-in', el)].forEach(x => { x.inert = back; x.setAttribute('aria-hidden', String(back)); }); });
+      T.forEach((t, i) => { t.dot.setAttribute('aria-selected', String(order[0] === i)); t.dot.tabIndex = order[0] === i ? 0 : -1; });
+    };
+    // the card you pick lifts out of the deck and settles in front; the rest move back a place, in their order
+    function front(i){
+      if (order[0] === i) return;
+      const el = T[i].el; el.classList.add('lift'); el.style.transform = 'translateY(calc(var(--z) * var(--peek) * -1 - 34px)) scale(calc(1 - var(--z) * .05))';
+      c.later(REDUCE ? 0 : 200, () => { el.classList.remove('lift'); el.style.transform = ''; order = [i, ...order.filter(x => x !== i)]; lay(); });
+    }
+    const ring = [1, 2, 0], step = d => { const n = T.length, k = ring.indexOf(order[0]); front(ring[(k + d + n) % n]); };
+    $('.tpb-prev', r).onclick = () => step(-1); $('.tpb-next', r).onclick = () => step(1);
+    c.on(dots, 'keydown', e => { if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return; e.preventDefault(); step(e.key === 'ArrowRight' ? 1 : -1); requestAnimationFrame(() => T[order[0]].dot.focus()); });
+    c.on(deck, 'keydown', e => { if (e.target.closest('.tpx-in')) return; if (e.key === 'ArrowLeft' || e.key === 'ArrowRight'){ e.preventDefault(); step(e.key === 'ArrowRight' ? 1 : -1); } });
+    // swipe the front card sideways to send it to the back
+    let drag = null;
+    c.on(deck, 'pointerdown', e => { const el = T[order[0]].el; if (!el.contains(e.target) || e.target.closest('button,input,a')) return; drag = { x:e.clientX, el, dx:0, id:e.pointerId }; });
+    c.on(deck, 'pointermove', e => { if (!drag) return; drag.dx = e.clientX - drag.x; if (Math.abs(drag.dx) > 4 && !drag.on){ drag.on = true; drag.el.classList.add('drag'); drag.el.setPointerCapture(drag.id); } if (drag.on) drag.el.style.transform = `translateX(${drag.dx}px) rotate(${drag.dx * .03}deg)`; });
+    const up = () => { if (!drag) return; const { el, dx, on } = drag; drag = null; if (!on) return; el.classList.remove('drag'); el.style.transform = '';
+      if (Math.abs(dx) > 70){ order = [...order.slice(1), order[0]]; lay(); } };
+    c.on(deck, 'pointerup', up); c.on(deck, 'pointercancel', up);
+    function retag(t){ $('.tpb-ch .tpx-av', t.el).dataset.s = t.s; const g = $('.tg', t.el); g.innerHTML = tagOf(t); enter(g.firstElementChild); }
+    const scrollOf = t => () => t.body.scrollTo({ top:t.body.scrollHeight, behavior:REDUCE ? 'auto' : 'smooth' });
+    async function answer(t, text, ans, src){
+      const u = msg(t, ['u', text]); u.classList.add('tpx-new'); t.body.appendChild(u); scrollOf(t)();
+      t.s = 'work'; retag(t);
+      await stream(c, t, t.body, ans, src, scrollOf(t));
+      t.s = 'done'; retag(t);
+    }
+    // a question with choices: picking one answers it
+    function wire(t){
+      $$('.tpx-opt', t.body).forEach(b => b.onclick = () => {
+        const g = $('.tpx-opts', t.body); if (g.classList.contains('done')) return;
+        $$('.tpx-opt', t.body).forEach(x => { x.setAttribute('aria-pressed', String(x === b)); if (x !== b) x.setAttribute('aria-disabled', 'true'); }); g.classList.add('done');
+        answer(t, `Send “${b.textContent.slice(1)}”`, 'Sent to the team as a test. I will tell you how it does by Thursday.');
+      });
+    }
+    lay(); T.forEach(t => { t.body.scrollTop = t.body.scrollHeight; });
+    // the design agent finishes on the front card; the copy agent's card behind nudges, since it needs you
+    c.run(async () => {
+      await c.wait(1800);
+      const t = T[1]; await stream(c, t, t.body, t.done, t.src, scrollOf(t)); t.s = 'done'; retag(t);
+      await c.wait(900); const e = T[2]; if (order[0] !== 2){ e.el.classList.remove('nudge'); void e.el.offsetWidth; e.el.classList.add('nudge'); }
+    });
+    // the person in the demo: brings the copy agent's card forward, answers its question, then moves on to the next thread
+    c.story(async s => {
+      await s.until(() => T[1].s === 'done'); await s.beat(3);
+      await s.tap($('.tpb-ch', T[2].el)); s.away(); await s.beat(3);
+      await s.tap($('.tpx-opt', T[2].body)); s.away();
+      await s.until(() => T[2].s === 'done'); await s.beat(3);
+      await s.tap($('.tpb-next', r)); s.away(); await s.beat(3);
+    });
+  }
+
+  /* Focus: one thread at a time, with the agent's work live in it, one-tap replies, and a switcher that flags the threads
+     waiting for you */
+  const FOCUS = () => `<div class="thp tpc panel keep" data-d="focus">
+  <div class="tpc-h">
+    <button class="tpc-sw" type="button" data-pop=".tpc-menu" aria-haspopup="menu" aria-expanded="false"><span class="tpx-av tpc-av" aria-hidden="true"></span><span class="tpc-swt"><b></b><span></span></span><span class="tag warn tpc-nd" hidden></span>${I('unfold','xs')}</button>
+    <span class="tag tpc-pill"><span class="dot tpc-pd"></span><span class="tpc-pt num">Working</span></span>
+  </div>
+  <div class="pop tpc-menu" role="menu" aria-label="Threads"></div>
+  <div class="tpc-body tpx-scroll" aria-live="polite"></div>
+  <div class="tpc-qr" role="group" aria-label="Quick replies"></div>
+  ${replyField('Reply')}
+</div>`;
+  function focus(r, c){
+    const T = THP(), root = $('.tpc', r), sw = $('.tpc-sw', r), menu = $('.tpc-menu', r), body = $('.tpc-body', r), qr = $('.tpc-qr', r), pt = $('.tpc-pt', r), nd = $('.tpc-nd', r), hav = $('.tpc-av', sw);
+    let cur = 1, T0 = 0, ticking = true;
+    const Q = { 1:['Do the borders too', 'Open a pull request', 'Show me the diff'], 2:['Use the first one', 'Make both shorter'], 0:['Write it up for the team', 'What else drops off?'] };
+    const A = { 'Do the borders too':'Borders are next: four of them, all in Card and Input.', 'Open a pull request':'Opened it on GitHub, with the eleven swaps and a before and after.', 'Show me the diff':'Eleven lines changed, each a grey swapped for its token.', 'Use the first one':'Sent “Ship faster with tokens” to the team as a test.', 'Make both shorter':'Done: “Ship faster” and “Tokens, now in code”.', 'Write it up for the team':'Drafted in Notion, with the funnel and three quotes.', 'What else drops off?':'The invite step loses 9%. People skip it, then never come back to it.' };
+    function menuPaint(){
+      menu.innerHTML = '<div class="ph">Threads</div>' + T.map((t, i) => `<button class="mi" type="button" role="menuitemradio" aria-checked="${i === cur}" data-i="${i}" style="${vars(t)}">${av(t, t.s)}<span class="mi-t"><b>${t.t}</b><span>${t.s === 'work' ? 'Working' : t.s === 'ask' ? 'Waiting for you' : t.pv}</span></span>${t.s === 'ask' ? '<span class="tag warn tg">Needs you</span>' : ''}</button>`).join('');
+      $$('.mi', menu).forEach(b => b.onclick = () => { show(+b.dataset.i); closePops(); });
+      const n = T.filter((t, i) => i !== cur && t.s === 'ask').length; nd.hidden = !n; nd.textContent = n; sw.setAttribute('aria-label', `${T[cur].t}, switch thread${n ? `, ${n} waiting for you` : ''}`);
+    }
+    const clock = () => `Working · 0:${String(Math.floor(T0)).padStart(2, '0')}`;
+    function head(){
+      const t = T[cur]; root.style.cssText = vars(t); root.dataset.s = t.s;
+      hav.innerHTML = I(t.ic) + '<i class="tpx-st"></i>'; hav.dataset.s = t.s; $('.tpc-swt b', sw).textContent = t.t; $('.tpc-swt span', sw).textContent = t.ag;
+      pt.textContent = t.s === 'work' ? clock() : t.s === 'ask' ? 'Needs you' : 'Done';
+      menuPaint();
+    }
+    const scroll = () => body.scrollTo({ top:body.scrollHeight, behavior:REDUCE ? 'auto' : 'smooth' });
+    function quick(){
+      qr.innerHTML = (Q[cur] || []).map(q => `<button class="chip tpc-q" type="button">${I('send','xs')}${q}</button>`).join('');
+      $$('.tpc-q', qr).forEach((b, i) => { b.style.animationDelay = i * 60 + 'ms'; b.onclick = () => send(b.textContent); });
+    }
+    function show(i){
+      const was = cur; cur = i; const t = T[i];
+      head(); body.innerHTML = '';
+      t.msgs.forEach(m => body.appendChild(m[0] === 'n' ? m[1] : msg(t, m)));
+      $$('.tpx-opt', body).forEach(b => b.onclick = () => send(b.textContent.slice(1)));
+      quick();
+      if (was !== i){ body.classList.remove('in'); void body.offsetWidth; body.classList.add('in'); sw.classList.remove('in'); void sw.offsetWidth; sw.classList.add('in'); }
+      body.scrollTop = body.scrollHeight;
+    }
+    async function send(text){
+      const k = cur, t = T[k]; t.msgs.push(['u', text]);
+      const u = msg(t, ['u', text]); u.classList.add('tpx-new'); body.appendChild(u); scroll();
+      qr.innerHTML = ''; t.s = 'work'; head();
+      const host = document.createElement('div'); host.style.display = 'contents'; if (cur === k) body.appendChild(host);
+      const el = await stream(c, t, host, A[text] || 'On it. I will post here when it is done.', null, () => { if (cur === k) scroll(); });
+      host.replaceWith(el); t.msgs.push(['n', el]);
+      if (text === 'Open a pull request'){ const pr = html(`<button class="tpc-pr tpx-new" type="button" data-tip="Open on GitHub">${BRAND.github}<span class="tpc-prt"><b>#418 Use colour tokens</b><span>design/tokens into main</span></span><span class="tag ok">Ready</span></button>`); if (cur === k){ body.appendChild(pr); scroll(); } t.msgs.push(['n', pr]); }
+      t.s = 'done'; Q[k] = (Q[k] || []).filter(q => q !== text).slice(0, 2); if (cur === k){ head(); quick(); }
+    }
+    field(r, v => send(v));
+    // the design agent's task, live in its thread
+    const parts = [['Button', 4], ['Card', 3], ['Input', 4]];
+    const work = html(`<div class="tpc-work tpx-new" data-s="run"><div class="tpc-wh">${BRAND.figma}<b>Swapping greys for tokens</b><span class="num">0 of 11</span></div><div class="tpc-bar"><i></i></div><ul class="tpc-steps">${parts.map(p => `<li><span class="g"><span class="dot"></span></span>${p[0]}, ${p[1]} greys</li>`).join('')}</ul></div>`);
+    T[1].msgs.push(['n', work]);
+    show(1);
+    // the working time ticks on the status tag, once a second
+    c.every(100, () => { if (T[1].s === 'work' && ticking){ T0 += .1; if (cur === 1 && Math.round(T0 * 10) % 10 === 0) pt.textContent = clock(); } });
+    c.run(async () => {
+      await c.wait(900);
+      const lis = $$('li', work), n = $('.num', work), bar = $('.tpc-bar i', work); let k = 0;
+      for (let i = 0; i < parts.length; i++){
+        lis[i].className = 'run'; $('.g', lis[i]).innerHTML = '<span class="spin"></span>';
+        for (let j = 0; j < parts[i][1]; j++){ await c.wait(320); k++; n.textContent = `${k} of 11`; bar.style.setProperty('--p', (k / 11).toFixed(3)); }
+        lis[i].className = 'done'; $('.g', lis[i]).innerHTML = I('check','xs');
+      }
+      work.dataset.s = 'done'; $('b', work).textContent = 'Swapped 11 greys for tokens'; ticking = false;
+      const t = T[1], el = await stream(c, t, cur === 1 ? body : document.createElement('div'), t.done, [['@figma', 'Components'], ['code', 'tokens.css']], () => { if (cur === 1) scroll(); });
+      t.msgs.push(['n', el]); t.s = 'done'; if (cur === 1) head();
+    });
+    // the person in the demo: asks for a pull request with one tap, then switches to the thread that needs them
+    c.story(async s => {
+      await s.until(() => T[1].s === 'done'); await s.beat(2);
+      const b = $$('.tpc-q', qr).find(x => x.textContent === 'Open a pull request'); if (b){ await s.tap(b); s.away(); }
+      await s.until(() => T[1].s === 'done' && !$('.tpx-caret', body)); await s.beat(3);
+      await s.tap(sw); await s.beat(2);
+      const it = $('.mi[data-i="2"]', menu); if (it){ await s.tap(it); } s.away(); await s.beat(3);
+      const o = $('.tpx-opt', body); if (o){ await s.tap(o); s.away(); }
+      await s.until(() => T[2].s === 'done'); await s.beat(3);
+    });
+  }
+
+  /* the switch: the design the card last showed (Classic to begin with) is drawn, and picking another starts the card again
+     with it, as Animate does. A key that picked it leaves the focus on the switch */
+  const D = { deck:[DECK, deck], focus:[FOCUS, focus] };
+  const again = card => window.V2 && card.dataset.v2 ? window.V2.replay(card) : DM.mount(card);
+  DM.def('thread-panel', (r, c, card) => {
+    const dm = $(':scope>.thp-dm', r);
+    if (!dm) return classic(r, c, card);
+    if (r !== c.st || !card){ dm.replaceWith(...$(':scope>.dm-main', dm).childNodes); return classic(r, c, card); }
+    const v = D[card._design] ? card._design : 'classic';
+    if (v === 'classic') classic(r, c, card);
+    else { const main = $(':scope>.dm-main', dm); main.innerHTML = D[v][0](); D[v][1](main, c); }
+    const sg = $(':scope>.thp-dm>.demo .seg2', r);
+    $$('button', sg).forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === v)));
+    seg(sg, d => { if (d === v) return; card._design = d; card._designKey = sg.contains(document.activeElement) && document.activeElement.matches(':focus-visible'); again(card); });
+    if (card._designKey){ card._designKey = false; setTimeout(() => { const b = !c.dead && $('[aria-pressed="true"]', sg); if (b) b.focus({ preventScroll:true }); }, 120); }
+  });
+}
 /* ---------- Composer ---------- */
 DM.def('composer', (r, c) => {
   const icons = { clip:'clip', figma:'figma', eye:'eye', edit:'edit', list:'list', code:'code', mic:'mic', up:'up', check:'check', file:'file-text', image:'image' };
@@ -14413,6 +15014,258 @@ DM.def('tool-call', (r, c) => {
     if (!c.mine) $('.tcx-h', calls[0].el).click();
   });
 });
+/* ---------- Tool call designs ---------- */
+/* the homepage card's design switch, shown as its footer tabs: Classic is the component above, and Call stack, Inline and
+   Inspector are three directions under review. Picking one draws it where the component sits and plays its demo from the
+   start, as Animate does. The switch is the card's alone: inside another component (Agent harness's chat) the tool call is
+   Classic, and the registry, the code view and the component page install Classic (build.js leaves the switch out of them) */
+{
+  const classic = DM.defs['tool-call'];
+  // one task, four calls: a data tool, Figma, a file edit and GitHub. ms is how long each takes to come back
+  const TCC = () => [
+    { ns:'billing', fn:'list_plan_changes', ic:'db', lab:'billing', arg:'since 2026-10-01', ms:412,
+      in:{ since:'2026-10-01' }, out:{ changed:[{ plan:'Pro', was:19, now:24 }, { plan:'Team', was:44, now:48 }] }, sum:'2 plans changed' },
+    { ns:'figma', fn:'get_frame', app:'figma', lab:'Pricing v4', arg:'Pricing v4, Plan cards', ms:860,
+      in:{ file:'Pricing v4', frame:'Plan cards' }, out:{ frames:3, updated:'Oct 28' }, sum:'3 frames' },
+    { ns:'files', fn:'edit', ic:'edit', lab:'Pricing.tsx', arg:'src/Pricing.tsx, 6 lines', ms:1200, ask:true,
+      in:{ path:'src/Pricing.tsx', lines:6 }, out:{ changed:6, saved:true }, sum:'6 lines changed' },
+    { ns:'github', fn:'create_pull_request', app:'github', lab:'#412', arg:'Update plan prices', ms:640,
+      in:{ title:'Update plan prices', base:'main' }, out:{ number:412, state:'open' }, sum:'#412 opened' }
+  ];
+  const mark = k => k.app ? BRAND[k.app] : I(k.ic, 'xs');
+  const tile = k => `<span class="tcx-tile${k.app ? ' app' : ''}" aria-hidden="true">${mark(k)}</span>`;
+  const name = k => `<code><span>${k.ns}.</span>${k.fn}</code>`;
+  const took = ms => ms >= 1000 ? (ms / 1000).toFixed(1) + ' s' : Math.round(ms) + ' ms';
+  // JSON with its keys, strings, numbers and booleans marked, as lines
+  function json(v){
+    const e = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
+    const val = x => typeof x === 'string' ? `<span class="s">"${e(x)}"</span>` : typeof x === 'number' ? `<span class="n">${x}</span>` : typeof x === 'boolean' ? `<span class="b">${x}</span>` : '';
+    const obj = o => '{ ' + Object.entries(o).map(([k, x]) => `<span class="k">"${k}"</span>: ${val(x)}`).join(', ') + ' }';
+    const lines = ['{'];
+    Object.entries(v).forEach(([k, x], i, a) => {
+      const end = i < a.length - 1 ? ',' : '';
+      if (Array.isArray(x)){ lines.push(`  <span class="k">"${k}"</span>: [`); x.forEach((y, j) => lines.push(`    ${obj(y)}${j < x.length - 1 ? ',' : ''}`)); lines.push(`  ]${end}`); }
+      else lines.push(`  <span class="k">"${k}"</span>: ${val(x)}${end}`);
+    });
+    lines.push('}');
+    return lines;
+  }
+
+  /* Call stack: the calls on a rail that fills as each returns. Open one to read its input and output, copy it or run it
+     again */
+  const STACK = () => `<div class="tcx tca" data-d="stack">
+  <p class="msg">Updating the pricing page with this month's plan changes.</p>
+  <ol class="tca-list" aria-label="Tool calls"></ol>
+  <p class="msg tca-end">Two plans changed. The page has the new prices, and the pull request is open.</p>
+</div>`;
+  function stack(r, c){
+    const K = TCC(), list = $('.tca-list', r);
+    K.forEach(k => {
+      k.el = html(`<li class="tca-c" data-s="wait"><i class="tca-rl" aria-hidden="true"><i></i></i><button class="tca-h" type="button" aria-expanded="false">${tile(k)}<span class="tca-n">${name(k)}<span class="a">${k.arg}</span></span><span class="tca-r"><span class="num ms">Queued</span><span class="g"></span></span><span class="tca-cv">${I('chev-d','xs')}</span></button><div class="fold shut"><div><div class="tca-io"><div class="tca-bar"><div class="seg2" role="group" aria-label="Show"><button type="button" aria-pressed="false" data-v="in">Input</button><button type="button" aria-pressed="true" data-v="out">Output</button></div><span class="sp"></span><span class="tca-note"></span><button class="ib tca-cp" type="button" aria-label="Copy" data-tip="Copy">${I('copy','xs')}</button><button class="ib tca-re" type="button" aria-label="Run again" data-tip="Run again" disabled>${I('refresh','xs')}</button></div><pre class="tcx-json"></pre></div></div></div></li>`);
+      list.appendChild(k.el);
+      const b = $('.tca-h', k.el), f = $('.fold', k.el), pre = $('pre', k.el);
+      f.inert = true; k.view = 'out'; k.lines = null;
+      k.toggle = on => { on = on ?? b.getAttribute('aria-expanded') !== 'true'; f.classList.toggle('shut', !on); f.inert = !on; b.setAttribute('aria-expanded', String(on)); k.el.classList.toggle('open', on); };
+      b.onclick = () => k.toggle();
+      k.paint = () => { pre.innerHTML = k.view === 'in' ? json(k.in).join('\n') : k.lines ? k.lines.join('\n') : k.el.dataset.s === 'run' ? '<span class="cur"></span>' : '<span class="k">Waiting to run</span>'; };
+      seg($('.seg2', k.el), v => { k.view = v; k.paint(); });
+      $('.tca-cp', k.el).onclick = e => copied(e.currentTarget, JSON.stringify(k.view === 'in' ? k.in : k.out, null, 2));
+      $('.tca-re', k.el).onclick = () => { if (k.el.dataset.s === 'done') c.run(() => call(k, true)); };
+      k.paint();
+    });
+    stagger($$('.tca-c', r), 70, 160);
+    // up and down move between the calls, Escape folds the open one
+    c.on(list, 'keydown', e => { const bs = $$('.tca-h', list), i = bs.indexOf(document.activeElement); if (i < 0) return;
+      if (e.key === 'Escape' && bs[i].getAttribute('aria-expanded') === 'true'){ K[i].toggle(false); return; }
+      const j = e.key === 'ArrowDown' ? i + 1 : e.key === 'ArrowUp' ? i - 1 : null; if (j === null || !bs[j]) return; e.preventDefault(); bs[j].focus(); });
+    // a call runs: its tile breathes, its time counts up, then what came back streams in a line at a time
+    async function call(k, again){
+      const el = k.el, ms = $('.ms', el), g = $('.g', el), re = $('.tca-re', el); re.disabled = true;
+      el.dataset.s = 'run'; k.lines = null; g.innerHTML = '<span class="spin"></span>'; k.paint();
+      let t = 0; const iv = c.every(100, () => { t += 100 * (k.ms / 1300); ms.textContent = took(Math.min(t, k.ms)); });
+      await c.wait(1300); clearInterval(iv);
+      const ln = json(k.out); k.lines = [];
+      el.dataset.s = 'done'; ms.textContent = took(again ? k.ms * (.8 + Math.random() * .3) : k.ms); g.innerHTML = `<span class="ok">${I('check','xs')}</span>`;
+      if (again){ el.classList.remove('again'); void el.offsetWidth; el.classList.add('again'); k.runs = (k.runs || 1) + 1; $('.tca-note', el).textContent = `Ran ${k.runs} times`; }
+      for (const l of ln){ k.lines.push(l); if (k.view === 'out') k.paint(); await c.wait(100); }
+      re.disabled = false;
+    }
+    c.run(async () => {
+      await c.wait(700);
+      for (const k of K) await call(k);
+      $('.tca-end', r).classList.add('in');
+    });
+    // the person in the demo opens the first call once it is back, reads its input and folds it, then runs the last again
+    c.story(async s => {
+      await s.until(() => K[0].el.dataset.s === 'done'); await s.beat(1);
+      await s.tap($('.tca-h', K[0].el)); s.away(); await s.beat(4);
+      await s.tap($('[data-v="in"]', K[0].el)); s.away(); await s.beat(3);
+      await s.tap($('.tca-h', K[0].el)); s.away();
+      await s.until(() => $('.tca-end', r).classList.contains('in')); await s.beat(2);
+      await s.tap($('.tca-h', K[3].el)); s.away(); await s.beat(3);
+      await s.tap($('.tca-re', K[3].el)); s.away();
+      await s.beat(5);
+    });
+  }
+
+  /* Inline: the calls as chips inside the agent's sentence. Pointing at one previews it; pressing it opens the call under
+     the sentence */
+  const INLINE = () => `<div class="tcx tcb" data-d="inline">
+  <div class="tcb-who"><span class="tcb-av">${I('spark')}</span>Pricing agent<span class="tcb-ws"></span></div>
+  <p class="tcb-p" aria-live="polite"></p>
+  <div class="fold shut tcb-dw"><div><div class="tcb-dr"></div></div></div>
+  <div class="tcb-sum"><span class="tcb-sn num"></span></div>
+  <div class="tcb-hc" role="tooltip" hidden></div>
+</div>`;
+  function inline(r, c){
+    const K = TCC(), root = $('.tcb', r), p = $('.tcb-p', r), dw = $('.tcb-dw', r), dr = $('.tcb-dr', r), sn = $('.tcb-sn', r), hc = $('.tcb-hc', r), ws = $('.tcb-ws', r);
+    // the sentence the agent writes, with a call where each chip goes
+    const S = ['Checking', 0, 'for this month\'s plan changes, then the plan cards in', 1, '. I changed', 2, 'with the new prices and opened', 3, 'for review.'];
+    dw.inert = true; let open = null, done = 0, total = 0;
+    function chip(k){
+      k.el = html(`<button class="fchip lnk tcb-k" type="button" data-s="run" aria-expanded="false" aria-label="${k.ns}.${k.fn}"><span class="t"><span class="spin"></span></span>${k.lab}<span class="m"></span></button>`);
+      k.el.onclick = () => show(open === k ? null : k);
+      // pointing at a call, or reaching it with the keyboard, previews it
+      k.el.addEventListener('pointerenter', e => { if (e.pointerType === 'mouse') peek(k); });
+      k.el.addEventListener('pointerleave', () => peek(null));
+      k.el.addEventListener('focus', () => { if (k.el.matches(':focus-visible')) peek(k); });
+      k.el.addEventListener('blur', () => peek(null));
+      return k.el;
+    }
+    let peekT = 0;
+    function peek(k){
+      clearTimeout(peekT); if (!k || open === k){ hc.hidden = true; return; }
+      peekT = setTimeout(() => {
+        if (!k.el.isConnected) return;
+        hc.innerHTML = `${name(k)}<div class="row"><span>In</span><span>${Object.values(k.in).join(', ')}</span>${k.res ? `<span>Out</span><span>${k.sum}</span>` : '<span>Out</span><span>Running…</span>'}</div><div class="f">${k.res ? took(k.ms) + ' · press to open' : 'Still running'}</div>`;
+        const rb = root.getBoundingClientRect(), b = k.el.getBoundingClientRect();
+        hc.hidden = false; const w = hc.offsetWidth;
+        hc.style.left = Math.max(0, Math.min(rb.width - w, b.left - rb.left + b.width / 2 - w / 2)) + 'px';
+        hc.style.top = (b.bottom - rb.top + 6) + 'px';
+      }, 200);
+    }
+    const flat = o => json(o).slice(1, -1).map(l => l.trim()).join('\n');
+    function show(k){
+      peek(null);
+      if (open) open.el.setAttribute('aria-expanded', 'false');
+      open = k; dw.classList.toggle('shut', !k); dw.inert = !k;
+      if (!k) return;
+      k.el.setAttribute('aria-expanded', 'true');
+      dr.innerHTML = `<div class="tcb-dh">${tile(k)}${name(k)}<span class="num">${k.res ? took(k.ms) : 'Running'}</span><button class="ib tcb-cp" type="button" aria-label="Copy the call" data-tip="Copy">${I('copy','xs')}</button><button class="ib tcb-x" type="button" aria-label="Close" data-tip="Close">${I('x','xs')}</button></div><div class="tcb-flow"><div><span class="l">Input</span><pre class="tcx-json">${flat(k.in)}</pre></div><span class="tcb-wire" aria-hidden="true"><i></i><b></b></span><div><span class="l">Output</span><pre class="tcx-json">${k.res ? flat(k.out) : '<span class="cur"></span>'}</pre></div></div>`;
+      $('.tcb-x', dr).onclick = () => { const el = k.el; show(null); el.focus({ preventScroll:true }); };
+      $('.tcb-cp', dr).onclick = e => copied(e.currentTarget, JSON.stringify({ tool:`${k.ns}.${k.fn}`, input:k.in, output:k.out }, null, 2));
+      dw.classList.remove('go'); void dw.offsetWidth; dw.classList.add('go');
+    }
+    c.on(r, 'keydown', e => { if (e.key === 'Escape' && open){ const el = open.el; show(null); el.focus({ preventScroll:true }); } });
+    // the words come in two at a time
+    const words = async t => { const w = t.split(' ').filter(Boolean); for (let i = 0; i < w.length; i += 2){ p.appendChild(html(`<span class="w">${(i ? ' ' : '') + w.slice(i, i + 2).join(' ')}</span>`)); await c.wait(140); } };
+    ws.innerHTML = '· <span class="shim">Working</span>';
+    c.run(async () => {
+      await c.wait(600);
+      for (const part of S){
+        if (typeof part === 'string'){ if (p.lastChild && p.lastChild.nodeType === 1 && p.lastChild.matches('.tcb-k') && !/^[.,]/.test(part)) p.appendChild(document.createTextNode(' ')); await words(part); continue; }
+        const k = K[part]; p.appendChild(document.createTextNode(' ')); p.appendChild(chip(k));
+        await c.wait(1100 + k.ms * .4);
+        k.res = true; k.el.dataset.s = 'done'; $('.t', k.el).innerHTML = mark(k); $('.m', k.el).textContent = took(k.ms);
+        done++; total += k.ms; sn.textContent = `${done} ${done === 1 ? 'tool call' : 'tool calls'} · ${took(total)}`;
+        if (open === k) show(k);
+      }
+      swap(ws, '· Done', false);
+    });
+    // the person in the demo points at the first call, then opens the edit once every call is back, and closes it
+    c.story(async s => {
+      await s.until(() => K[0].res); await s.beat(1);
+      await s.point(K[0].el); peek(K[0]); await s.beat(4); peek(null);
+      await s.until(() => K[3].res); await s.beat(2);
+      await s.tap(K[2].el); s.away(); await s.beat(6);
+      await s.tap($('.tcb-x', dr)); s.away(); await s.beat(2);
+    });
+  }
+
+  /* Inspector: a strip of calls, each as wide as it took, over the call you pick, read as tables or as JSON. The edit waits
+     for your OK */
+  const INSPECTOR = () => `<div class="tcx tcc panel keep" data-d="inspector">
+  <div class="tcc-h"><div class="tcc-ht"><b>Tool calls</b><span class="tcc-st num">Starting</span></div><div class="seg2 tcc-mode" role="group" aria-label="Show as"><button type="button" aria-pressed="true" data-v="table">Table</button><button type="button" aria-pressed="false" data-v="json">JSON</button></div></div>
+  <div class="tcc-strip" role="tablist" aria-label="Calls"></div>
+  <div class="tcc-view" role="tabpanel"></div>
+</div>`;
+  function inspector(r, c){
+    const K = TCC(), strip = $('.tcc-strip', r), view = $('.tcc-view', r), st = $('.tcc-st', r);
+    let sel = 0, mode = 'table', spent = 0, stopped = false, follow = true;
+    K.forEach((k, i) => {
+      k.s = 'wait';
+      k.el = html(`<button class="tcc-s" type="button" role="tab" aria-selected="${i === 0}" tabindex="${i === 0 ? 0 : -1}" data-s="wait" style="--w:${Math.max(.6, k.ms / 600).toFixed(2)}" aria-label="${k.ns}.${k.fn}"><span class="tcc-ic" aria-hidden="true">${mark(k)}</span><span class="n">${k.ns}</span><span class="dot tcc-dt" aria-hidden="true"></span><i class="tcc-pr" aria-hidden="true"></i></button>`);
+      // the inspector follows the call at work until you pick one yourself
+      strip.appendChild(k.el); k.el.onclick = () => { if (c.mine) follow = false; pick(i, true); };
+    });
+    seg($('.tcc-mode', r), v => { mode = v; paint(); });
+    c.on(strip, 'keydown', e => { const to = e.key === 'ArrowRight' ? sel + 1 : e.key === 'ArrowLeft' ? sel - 1 : e.key === 'Home' ? 0 : e.key === 'End' ? K.length - 1 : null; if (to === null) return; e.preventDefault(); const j = (to + K.length) % K.length; pick(j, true); K[j].el.focus(); });
+    // a value as a table: each key beside its value, and a list of plans as rows
+    function table(o){
+      const arr = Object.values(o).find(Array.isArray);
+      if (arr) return `<table class="tcc-tb"><thead><tr><th scope="col">Plan</th><th scope="col">Was</th><th scope="col">Now</th></tr></thead><tbody>${arr.map(x => `<tr><td>${x.plan}</td><td>$${x.was}</td><td>$${x.now}</td></tr>`).join('')}</tbody></table>`;
+      return `<div class="tcc-kv">${Object.entries(o).map(([k, v]) => `<span>${k}</span><span>${v}</span>`).join('')}</div>`;
+    }
+    const as = o => mode === 'json' ? `<pre class="tcx-json">${json(o).join('\n')}</pre>` : table(o);
+    const TAG = { wait:'<span class="tag">Queued</span>', run:'<span class="tag"><span class="spin"></span>Running</span>', ask:'<span class="tag warn">Needs you</span>', done:`<span class="tag ok">${I('check','xs')}Done</span>`, deny:'<span class="tag bad">Denied</span>', skip:'<span class="tag">Skipped</span>' };
+    function paint(fresh){
+      const k = K[sel], wait = '<div class="tcc-wait" aria-label="Waiting for the result"><i style="width:68%"></i><i style="width:46%"></i></div>';
+      const out = k.s === 'done' ? as(k.out) : k.s === 'deny' ? '<div class="tcc-kv"><span>result</span><span>Not run, you said no</span></div>' : k.s === 'skip' ? '<div class="tcc-kv"><span>result</span><span>Not run</span></div>' : wait;
+      const ask = k.s === 'ask' ? `<div class="tcc-ask" role="group" aria-label="Approve the edit"><p>Wants to change 6 lines in <span class="fchip"><span class="ft re">TSX</span>Pricing.tsx</span></p><pre class="tcx-json"><span class="x">− price: 19,</span>\n<span class="a">+ price: 24,</span></pre><div class="tcc-acts"><button class="pill primary sm tcc-ok" type="button">Allow once</button><button class="pill line sm tcc-al" type="button">Always allow</button><button class="pill ghost sm tcc-no" type="button">Deny</button></div></div>` : '';
+      view.innerHTML = `<div class="tcc-in${fresh ? ' go' : ''}"><div class="tcc-dh">${tile(k)}${name(k)}<span class="num">${k.s === 'done' ? took(k.ms) : ''}</span>${TAG[k.s]}</div>${ask}<div class="tcc-sec"><span class="l">Input<button class="ib tcc-cp" type="button" aria-label="Copy the input" data-tip="Copy">${I('copy','xs')}</button></span>${as(k.in)}</div>${ask ? '' : `<div class="tcc-sec"><span class="l">Output</span>${out}</div>`}</div>`;
+      $('.tcc-cp', view).onclick = e => copied(e.currentTarget, JSON.stringify(k.in, null, 2));
+      if (ask){ $('.tcc-ok', view).onclick = () => decide('ok'); $('.tcc-al', view).onclick = () => decide('ok'); $('.tcc-no', view).onclick = () => decide('no'); }
+    }
+    let decide = () => {};
+    function pick(i, user){ const ch = i !== sel; sel = i; K.forEach((k, j) => { k.el.setAttribute('aria-selected', String(j === i)); k.el.tabIndex = j === i ? 0 : -1; }); paint(ch || !user); }
+    const set = (k, s) => { k.s = s; k.el.dataset.s = s; if (K[sel] === k) paint(); };
+    const line = () => { const n = K.filter(k => k.s === 'done').length; st.textContent = `${n} of ${K.length} done · ${took(spent)}`; };
+    pick(0);
+    c.run(async () => {
+      await c.wait(700);
+      for (const k of K){
+        if (stopped){ set(k, 'skip'); continue; }
+        if (follow && sel !== K.indexOf(k)) pick(K.indexOf(k));
+        if (k.ask){
+          set(k, 'ask'); st.textContent = 'Waiting for you';
+          const ok = await new Promise(res => { decide = v => { decide = () => {}; res(v === 'ok'); }; c.auto(5200, () => decide('ok')); });
+          if (!ok){ set(k, 'deny'); stopped = true; line(); continue; }
+        }
+        set(k, 'run'); let t = 0;
+        const iv = c.every(50, () => { t = Math.min(1, t + 50 / 1300); k.el.style.setProperty('--p', t.toFixed(3)); });
+        await c.wait(1300); clearInterval(iv); k.el.style.setProperty('--p', 1);
+        spent += k.ms; set(k, 'done'); line();
+      }
+      st.textContent = stopped ? 'Stopped before the edit' : `All ${K.length} done · ${took(spent)}`;
+    });
+    // the person in the demo allows the edit, then reads the first call back, as JSON and as a table
+    c.story(async s => {
+      await s.until(() => K[2].s === 'ask'); await s.beat(3);
+      await s.tap($('.tcc-ok', view)); s.away();
+      await s.until(() => K[3].s === 'done'); await s.beat(2);
+      await s.tap(K[0].el); s.away(); await s.beat(3);
+      await s.tap($('[data-v="json"]', r)); s.away(); await s.beat(4);
+      await s.tap($('[data-v="table"]', r)); s.away(); await s.beat(2);
+    });
+  }
+
+  /* the switch: the design the card last showed (Classic to begin with) is drawn, and picking another starts the card again
+     with it, as Animate does. A key that picked it leaves the focus on the switch */
+  const D = { stack:[STACK, stack], inline:[INLINE, inline], inspector:[INSPECTOR, inspector] };
+  const again = card => window.V2 && card.dataset.v2 ? window.V2.replay(card) : DM.mount(card);
+  DM.def('tool-call', (r, c, card) => {
+    const dm = $(':scope>.tcx-dm', r);
+    if (!dm) return classic(r, c, card);
+    if (r !== c.st || !card){ dm.replaceWith(...$(':scope>.dm-main', dm).childNodes); return classic(r, c, card); }
+    const v = D[card._design] ? card._design : 'classic';
+    if (v === 'classic') classic(r, c, card);
+    else { const main = $(':scope>.dm-main', dm); main.innerHTML = D[v][0](); D[v][1](main, c); }
+    const sg = $(':scope>.tcx-dm>.demo .seg2', r);
+    $$('button', sg).forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === v)));
+    seg(sg, d => { if (d === v) return; card._design = d; card._designKey = sg.contains(document.activeElement) && document.activeElement.matches(':focus-visible'); again(card); });
+    if (card._designKey){ card._designKey = false; setTimeout(() => { const b = !c.dead && $('[aria-pressed="true"]', sg); if (b) b.focus({ preventScroll:true }); }, 120); }
+  });
+}
 /* ---------- Artifact card ---------- */
 DM.def('artifact-card', (r, c) => {
   /* the file: one report in three versions, and the table it cites. A component that shows the card in its own chat can
