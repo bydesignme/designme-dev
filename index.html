@@ -2859,6 +2859,212 @@ html{scrollbar-gutter:stable}
 .v2 .rq-retry{height:22px;padding:0 9px;border-radius:var(--r-pill);background:var(--chip);font-size:11.5px;color:var(--fg);transition:background .2s}
 .v2 .rq-retry.on{background:var(--hover)}
 @media (hover:hover) and (pointer:fine){.v2 .rq-retry:hover{background:var(--hover)}}
+/* ---------- Run queue designs ---------- */
+/* the design switch under it (the card's tabs on designme.dev): Classic, the queue above, then Reorder, Segments and Workers,
+   each drawn in the same slot at the full width */
+.v2 .dm.rq-dm>.dm-main{align-items:stretch}
+/* what sits on a tint: on a grey highlight a tile lifts to white (one step lighter in dark mode), and on a failed task's red
+   everything is white or the red's own ink, never grey (in dark mode a Retry is the red's tint with white words) */
+.v2 .rq-dm{--rq-lift:var(--surface);--rq-on-bad:var(--surface);--rq-on-bad-fg:var(--fg)}
+:root[data-theme="dark"] .v2 .rq-dm{--rq-lift:var(--hover);--rq-on-bad:color-mix(in srgb,var(--bad) 16%,transparent);--rq-on-bad-fg:var(--fg)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .v2 .rq-dm{--rq-lift:var(--hover);--rq-on-bad:color-mix(in srgb,var(--bad) 16%,transparent);--rq-on-bad-fg:var(--fg)}}
+/* a task's icon on a grey tile, an app's own mark on a white one */
+.v2 .rq-ic{width:28px;height:28px;border-radius:9px;display:grid;place-items:center;flex:none;background:var(--chip);color:var(--fg2);transition:background var(--t-fast),box-shadow var(--t-fast)}
+.v2 .rq-ic .i{width:13px;height:13px;stroke-width:1.9}
+.v2 .rq-ic .brand{width:14px;height:14px}
+.v2 .rq-ic.app{background:var(--surface);color:var(--fg);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--rail) 50%,transparent)}
+.v2 .rq-sr{position:absolute;width:1px;height:1px;margin:-1px;padding:0;border:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+/* Reorder: two tasks run at a time and the rest wait in order. Drag a waiting task by its handle, or move it with Alt and
+   the arrow keys */
+.v2 .rq-ro{padding:var(--s-3);display:flex;flex-direction:column;gap:10px}
+.v2 .rq-ro-h{display:flex;align-items:center;justify-content:space-between;gap:var(--s-3);padding:2px 2px 0}
+.v2 .rq-ro-ht{display:flex;flex-direction:column;min-width:0}
+.v2 .rq-ro-ht b{font-weight:500}
+.v2 .rq-ro-st{font-size:12.5px;color:var(--muted)}
+.v2 .rq-ro-sec{display:flex;flex-direction:column;gap:var(--s-1)}
+.v2 .rq-ro-l{display:flex;align-items:baseline;gap:6px;padding:0 var(--s-1);font-size:12px;color:var(--muted)}
+.v2 .rq-ro-run{display:flex;flex-direction:column;gap:6px;min-height:124px}
+/* a running task: its tile, a bar that fills in the accent, and the time left */
+.v2 .rq-ro-r{display:flex;flex-direction:column;gap:7px;padding:10px;border-radius:var(--r-in);background:var(--surface);box-shadow:var(--shadow);animation:v2-rqroin .5s var(--ease) backwards}
+@keyframes v2-rqroin{from{opacity:0;transform:translateY(10px) scale(.98)}}
+.v2 .rq-ro-rt{display:flex;align-items:center;gap:10px;font-size:13px}
+.v2 .rq-ro-rt b{flex:1;min-width:0;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v2 .rq-ro-rt .num{font-size:12px;color:var(--muted);white-space:nowrap}
+.v2 .rq-ro-bar{height:4px;border-radius:2px;background:var(--line);overflow:hidden}
+.v2 .rq-ro-bar i{display:block;height:100%;border-radius:inherit;background:var(--accent-mark);transform-origin:left;transform:scaleX(var(--p,0));transition:transform .2s linear}
+.v2 .rq-ro-r.paused .rq-ro-bar i{opacity:.5}
+/* a failed task is red through: its tile and its Retry white, its words and its track the red's ink */
+.v2 .rq-ro-r.fail{background:var(--bad-bg)}
+.v2 .rq-ro-r.fail .rq-ic{background:var(--rq-on-bad);color:var(--bad);box-shadow:none}
+.v2 .rq-ro-r.fail .rq-ro-rt b,.v2 .rq-ro-r.fail .rq-ro-rt .num{color:var(--bad)}
+.v2 .rq-ro-r.fail .rq-ro-bar{background:color-mix(in srgb,var(--bad) 18%,transparent)}
+.v2 .rq-ro-r.fail .rq-ro-bar i{background:repeating-linear-gradient(135deg,var(--bad) 0 3px,color-mix(in srgb,var(--bad) 45%,var(--rq-on-bad)) 3px 6px)}
+.v2 .rq-ro-r .pill{background:var(--rq-on-bad);color:var(--rq-on-bad-fg);box-shadow:var(--shadow)}
+@media (hover:hover) and (pointer:fine){.v2 .rq-ro-r .pill:hover{box-shadow:var(--shadow-pop)}}
+/* the tasks waiting, in the order they will run */
+.v2 .rq-ro-next{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px;min-height:176px}
+.v2 .rq-ro-q{position:relative;isolation:isolate;display:flex;align-items:center;gap:10px;min-height:42px;padding:6px 6px 6px 4px;border-radius:10px;font-size:13px;background:var(--surface)}
+/* the grey highlight under a row you point at, reach with the keyboard or drag, and the flash of one that has just moved: a
+   layer under the row that fades in, while the row's tile and handle turn white on it */
+.v2 .rq-ro-fl{position:absolute;inset:0;z-index:-1;border-radius:inherit;background:var(--row);opacity:0;transition:opacity .2s;pointer-events:none}
+.v2 .rq-ro-q.drag .rq-ro-fl,.v2 .rq-ro-q:has(.rq-ro-hd:focus-visible) .rq-ro-fl{opacity:1}
+@media (hover:hover) and (pointer:fine){.v2 .rq-ro-q:hover .rq-ro-fl{opacity:1}}
+.v2 .rq-ro-q.moved .rq-ro-fl{animation:v2-rqromoved .9s var(--ease)}
+@keyframes v2-rqromoved{0%,35%{opacity:1}}
+.v2 .rq-ro-q.drag .rq-ic,.v2 .rq-ro-q.moved .rq-ic,.v2 .rq-ro-q:has(.rq-ro-hd:focus-visible) .rq-ic{background:var(--rq-lift);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--rail) 50%,transparent)}
+@media (hover:hover) and (pointer:fine){.v2 .rq-ro-q:hover .rq-ic{background:var(--rq-lift);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--rail) 50%,transparent)}}
+.v2 .rq-ro-q.drag{z-index:5;box-shadow:var(--shadow-pop);cursor:grabbing}
+.v2 .rq-ro-hd{width:24px;height:28px;display:grid;place-items:center;flex:none;border-radius:6px;color:var(--muted);cursor:grab;touch-action:none;transition:color .2s,background .2s}
+.v2 .rq-ro-q.drag .rq-ro-hd{color:var(--fg);background:var(--rq-lift)}
+@media (hover:hover) and (pointer:fine){.v2 .rq-ro-hd:hover{color:var(--fg);background:var(--rq-lift)}}
+.v2 .rq-ro-hd:focus-visible{outline-offset:0;color:var(--fg)}
+.v2 .rq-ro-pos{width:18px;flex:none;font-size:11.5px;color:var(--muted);text-align:center;font-variant-numeric:tabular-nums}
+.v2 .rq-ro-q .rq-ic{width:24px;height:24px;border-radius:7px}
+.v2 .rq-ro-q .rq-ic .i{width:12px;height:12px}
+.v2 .rq-ro-q b{flex:1;min-width:0;font-weight:400;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v2 .rq-ro-q .eta{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+/* what is done, folded away under a count */
+.v2 .rq-ro-done{display:flex;flex-direction:column}
+.v2 .rq-ro-db{align-self:flex-start}
+.v2 .rq-ro-db .i{color:var(--fg2);transition:transform .35s var(--ease)}
+.v2 .rq-ro-db[aria-expanded="true"] .i{transform:rotate(180deg)}
+.v2 .rq-ro-dc{font-weight:500;color:var(--fg)}
+.v2 .rq-ro-dl{list-style:none;margin:6px 0 0;padding:0;display:flex;flex-direction:column;gap:2px}
+.v2 .rq-ro-dl li{display:flex;align-items:center;gap:var(--s-2);padding:4px 6px;font-size:12.5px;color:var(--fg2)}
+.v2 .rq-ro-dl li .i{color:var(--ok)}
+.v2 .rq-ro-dl li span:last-child{margin-left:auto;color:var(--muted);font-size:12px}
+:root:not([data-style="soft"]) .v2 .rq-ro-r{animation:v2-bpin .3s var(--ease) backwards}
+:root:not([data-style="soft"]) .v2 .rq-ro-bar i{background:repeating-linear-gradient(90deg,var(--accent-mark) 0 6px,color-mix(in srgb,var(--accent-mark) 60%,var(--surface)) 6px 7px);transition:transform .2s steps(2,end)}
+:root:not([data-style="soft"]) .v2 .rq-ro-r.fail{background:repeating-linear-gradient(135deg,transparent 0 5px,color-mix(in srgb,var(--bad) 10%,transparent) 5px 6px),var(--bad-bg)}
+:root:not([data-style="soft"]) .v2 .rq-ro-r.fail .rq-ro-bar i{background:repeating-linear-gradient(135deg,var(--bad) 0 3px,color-mix(in srgb,var(--bad) 45%,var(--rq-on-bad)) 3px 6px)}
+:root:not([data-style="soft"]) .v2 .rq-ro-q.moved .rq-ro-fl{animation:v2-rqromovedbp .6s steps(3,end)}
+@keyframes v2-rqromovedbp{0%{opacity:1}}
+/* Segments: each group's steps as segments of a bar, and the whole queue in one bar above. A step waiting is a pale accent
+   segment, the one running fills in the accent, one that is done keeps a lighter accent, and a failed one is hatched in red
+   until Retry. Grey is left for the gaps between them */
+.v2 .rq-sg{--rq-q:color-mix(in srgb,var(--accent-mark) 16%,var(--surface));--rq-run:var(--accent-mark);--rq-done:color-mix(in srgb,var(--accent-mark) 78%,var(--surface));display:flex;flex-direction:column;gap:10px}
+/* Blueprint's light accent is a lime fill with an olive mark: waiting steps take a lime tint, done ones the olive, the one
+   running a deeper olive */
+:root:not([data-style="soft"]) .v2 .rq-sg{--rq-q:color-mix(in srgb,var(--accent) 45%,var(--surface));--rq-run:color-mix(in srgb,var(--accent-mark) 72%,#000);--rq-done:var(--accent-mark)}
+:root:not([data-style="soft"])[data-theme="dark"] .v2 .rq-sg{--rq-q:color-mix(in srgb,var(--accent-mark) 16%,var(--surface));--rq-run:var(--accent-mark);--rq-done:color-mix(in srgb,var(--accent-mark) 60%,var(--surface))}
+@media (prefers-color-scheme:dark){:root:not([data-style="soft"]):not([data-theme="light"]) .v2 .rq-sg{--rq-q:color-mix(in srgb,var(--accent-mark) 16%,var(--surface));--rq-run:var(--accent-mark);--rq-done:color-mix(in srgb,var(--accent-mark) 60%,var(--surface))}}
+.v2 .rq-sg-top{display:flex;align-items:center;justify-content:space-between;font-size:12.5px}
+.v2 .rq-sg-all{color:var(--muted)}
+.v2 .rq-sg-tot{display:flex;gap:2px;height:6px}
+.v2 .rq-sg-tot i,.v2 .rq-sg-segs i{position:relative;flex:1;border-radius:3px;background:var(--rq-q);overflow:hidden}
+.v2 .rq-sg-tot b,.v2 .rq-sg-segs b{position:absolute;inset:0;border-radius:inherit;background:var(--rq-done);transform-origin:left;transform:scaleX(var(--p,0));transition:transform .25s linear}
+.v2 .rq-sg-tot i.run b,.v2 .rq-sg-segs i.run b{background:var(--rq-run)}
+.v2 .rq-sg-tot i.fail,.v2 .rq-sg-segs i.fail{background:repeating-linear-gradient(135deg,var(--bad) 0 3px,color-mix(in srgb,var(--bad) 35%,var(--surface)) 3px 6px)}
+.v2 .rq-sg-tot i.fail b,.v2 .rq-sg-segs i.fail b{opacity:0}
+.v2 .rq-sg-list{padding:6px;display:flex;flex-direction:column}
+.v2 .rq-sg-g{position:relative;border-radius:var(--r-in);transition:background .25s}
+.v2 .rq-sg-g+.rq-sg-g{margin-top:2px}
+@media (hover:hover) and (pointer:fine){.v2 .rq-sg-g:hover{background:var(--row)}}
+@media (hover:hover) and (pointer:fine){.v2 .rq-sg-g:hover .rq-ic:not(.app){background:var(--rq-lift);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--rail) 50%,transparent)}}
+.v2 .rq-sg-gh{display:flex;align-items:center;gap:10px;width:100%;min-height:46px;padding:var(--s-2) 10px;border-radius:var(--r-in);text-align:left;font-size:13px}
+.v2 .rq-sg-gh:focus-visible{outline-offset:-2px;border-radius:var(--r-in)}
+.v2 .rq-sg-gh b{flex:1;min-width:0;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v2 .rq-sg-gh .m{font-size:12px;color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums}
+.v2 .rq-sg-gh .cv{display:grid;color:var(--muted);transition:transform .35s var(--ease)}
+.v2 .rq-sg-g.closed .rq-sg-gh .cv{transform:rotate(-90deg)}
+.v2 .rq-sg-g[data-s="fail"] .rq-sg-gh .m{color:var(--bad)}
+.v2 .rq-sg-g[data-s="done"] .rq-ic{animation:v2-rqsgdone .6s var(--ease)}
+@keyframes v2-rqsgdone{40%{transform:scale(1.12)}}
+.v2 .rq-sg-segs{display:flex;gap:3px;margin:-2px 10px var(--s-2) 48px}
+.v2 .rq-sg-segs i{height:6px}
+.v2 .rq-sg-segs i.flash{animation:v2-rqsgflash .8s var(--ease)}
+@keyframes v2-rqsgflash{40%{transform:scaleY(1.8)}}
+.v2 .rq-sg-subs{padding:0 10px var(--s-2) 48px;display:flex;flex-direction:column}
+.v2 .rq-sg-s{display:flex;align-items:center;gap:var(--s-2);min-height:28px;font-size:12.5px;color:var(--fg2)}
+.v2 .rq-sg-s .g{width:14px;height:14px;display:grid;place-items:center;flex:none;color:var(--rq-done)}
+.v2 .rq-sg-s .g .dot{width:5px;height:5px}
+.v2 .rq-sg-s .g .spin{width:10px;height:10px;color:var(--rq-run)}
+.v2 .rq-sg-s.wait{color:var(--muted)}
+.v2 .rq-sg-s .m{margin-left:auto;font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+/* the step that failed sits on the red, with its Retry white */
+.v2 .rq-sg-s.fail{margin:0 -6px;padding:0 4px 0 6px;border-radius:var(--r-sm);background:var(--bad-bg);color:var(--bad)}
+.v2 .rq-sg-s.fail .g{color:var(--bad)}
+.v2 .rq-sg-retry{height:24px;padding:0 10px;border-radius:var(--r-pill);background:var(--rq-on-bad);box-shadow:var(--shadow);font-size:12px;font-weight:500;color:var(--rq-on-bad-fg);transition:box-shadow .2s}
+.v2 .rq-sg-retry.on{box-shadow:var(--shadow-pop)}
+@media (hover:hover) and (pointer:fine){.v2 .rq-sg-retry:hover{box-shadow:var(--shadow-pop)}}
+:root:not([data-style="soft"]) .v2 .rq-sg-tot{gap:1px}
+:root:not([data-style="soft"]) .v2 .rq-sg-segs b,:root:not([data-style="soft"]) .v2 .rq-sg-tot b{transition:transform .25s steps(3,end)}
+:root:not([data-style="soft"]) .v2 .rq-sg-s.fail{background:repeating-linear-gradient(135deg,transparent 0 5px,color-mix(in srgb,var(--bad) 10%,transparent) 5px 6px),var(--bad-bg)}
+:root:not([data-style="soft"]) .v2 .rq-sg-g[data-s="done"] .rq-ic{animation:none}
+/* Workers: the queue as workers that each run one task, with a ring that fills as it runs. Add a worker, pick what runs
+   next, or cancel a task */
+.v2 .rq-wk{padding:var(--s-3);display:flex;flex-direction:column;gap:var(--s-3)}
+.v2 .rq-wk-h{display:flex;align-items:center;justify-content:space-between;gap:var(--s-3);padding:2px 2px 0}
+.v2 .rq-wk-ht{display:flex;flex-direction:column;min-width:0}
+.v2 .rq-wk-ht b{font-weight:500}
+.v2 .rq-wk-st{font-size:12.5px;color:var(--muted)}
+.v2 .rq-wk-n{display:flex;align-items:center;gap:var(--s-1)}
+.v2 .rq-wk-n .ib{width:26px;height:26px}
+.v2 .rq-wk-v{min-width:20px;text-align:center;font-size:13px;font-weight:500}
+.v2 .rq-wk-l{font-size:12px;color:var(--muted)}
+.v2 .rq-wk-slots{display:grid;grid-template-columns:repeat(var(--n,2),minmax(0,1fr));gap:var(--s-2);min-height:150px}
+/* a free worker is an outline; a busy one is raised */
+.v2 .rq-wk-w{--rq-ring:var(--accent-mark);position:relative;display:flex;flex-direction:column;align-items:center;gap:6px;padding:var(--s-3) var(--s-2) 10px;border-radius:var(--r-card);background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--rail) 50%,transparent);text-align:center;min-width:0;transition:background .3s,box-shadow .3s}
+.v2 .rq-wk-w.busy{box-shadow:var(--shadow)}
+.v2 .rq-wk-w.new{animation:v2-rqroin .5s var(--ease)}
+.v2 .rq-wk-w.out{animation:v2-rqwkout .45s var(--ease) forwards}
+@keyframes v2-rqwkout{to{transform:translateY(12px) scale(.9);opacity:0}}
+/* the ring: a grey track, and two halves of the accent that turn into view as the task runs, so it fills with transforms */
+.v2 .rq-wk-ring{position:relative;width:58px;height:58px;display:grid;place-items:center}
+.v2 .rq-wk-ring .tr{position:absolute;inset:0;border-radius:50%;box-shadow:inset 0 0 0 3px var(--line)}
+.v2 .rq-wk-ring .h{position:absolute;top:0;width:50%;height:100%;overflow:hidden}
+.v2 .rq-wk-ring .h.r{right:0}
+.v2 .rq-wk-ring .h.l{left:0}
+.v2 .rq-wk-ring .h i{position:absolute;top:0;width:200%;height:100%;box-sizing:border-box;border:3px solid transparent;border-radius:50%;transition:transform .2s linear}
+.v2 .rq-wk-ring .h.r i{right:0;border-left-color:var(--rq-ring);border-bottom-color:var(--rq-ring);transform:rotate(calc(45deg + var(--a1,0deg)))}
+.v2 .rq-wk-ring .h.l i{left:0;border-right-color:var(--rq-ring);border-top-color:var(--rq-ring);transform:rotate(calc(45deg + var(--a2,0deg)))}
+.v2 .rq-wk-w:not(.busy) .rq-wk-ring .h{opacity:0}
+.v2 .rq-wk-ring .rq-ic{position:relative;width:36px;height:36px;border-radius:12px}
+.v2 .rq-wk-ring .rq-ic .i{width:16px;height:16px}
+.v2 .rq-wk-ring .rq-ic .brand{width:17px;height:17px}
+.v2 .rq-wk-idle{position:relative;width:36px;height:36px;border-radius:12px;display:grid;place-items:center;color:var(--muted);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--rail) 50%,transparent)}
+.v2 .rq-wk-wn{max-width:100%;font-size:12.5px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v2 .rq-wk-ws{font-size:11.5px;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+.v2 .rq-wk-w:not(.busy) .rq-wk-wn{color:var(--muted);font-weight:400}
+.v2 .rq-wk-x{position:absolute;top:6px;right:6px;width:24px;height:24px;opacity:0;transition:opacity .2s,background var(--t-fast),color var(--t-fast)}
+.v2 .rq-wk-w.busy:focus-within .rq-wk-x{opacity:1}
+@media (hover:hover) and (pointer:fine){.v2 .rq-wk-w.busy:hover .rq-wk-x{opacity:1}}
+@media (hover:none){.v2 .rq-wk-w.busy .rq-wk-x{opacity:1}}
+/* a worker whose task failed is red through: a red ring on a red track, its tile and its Retry white, its words red */
+.v2 .rq-wk-w.fail{--rq-ring:var(--bad);background:var(--bad-bg);box-shadow:none}
+.v2 .rq-wk-w.fail .rq-wk-ring .tr{box-shadow:inset 0 0 0 3px color-mix(in srgb,var(--bad) 22%,transparent)}
+.v2 .rq-wk-w.fail .rq-ic{background:var(--rq-on-bad);color:var(--bad);box-shadow:none}
+.v2 .rq-wk-w.fail .rq-wk-wn,.v2 .rq-wk-w.fail .rq-wk-x{color:var(--bad)}
+@media (hover:hover) and (pointer:fine){.v2 .rq-wk-w.fail .rq-wk-x:hover{background:var(--rq-on-bad);color:var(--bad)}}
+.v2 .rq-wk-re{height:24px;padding:0 10px;border-radius:var(--r-pill);background:var(--rq-on-bad);box-shadow:var(--shadow);font-size:12px;font-weight:500;color:var(--rq-on-bad-fg);transition:box-shadow .2s}
+@media (hover:hover) and (pointer:fine){.v2 .rq-wk-re:hover{box-shadow:var(--shadow-pop)}}
+/* the tasks waiting, as the site's chips; the one that runs next is picked out like a chosen chip */
+.v2 .rq-wk-wl{display:flex;flex-direction:column;gap:6px}
+.v2 .rq-wk-wait{display:flex;flex-wrap:wrap;align-content:flex-start;gap:6px;min-height:66px}
+.v2 .rq-wk-c{padding-left:var(--s-1)}
+.v2 .rq-wk-c .rq-ic{width:22px;height:22px;border-radius:50%}
+.v2 .rq-wk-c .rq-ic:not(.app){background:var(--rq-lift)}
+.v2 .rq-wk-c .rq-ic .i{width:11px;height:11px}
+.v2 .rq-wk-c .rq-ic .brand{width:12px;height:12px}
+.v2 .rq-wk-c .k{font-size:11px;color:var(--muted)}
+@media (hover:hover) and (pointer:fine){.v2 .rq-wk-c:hover .k{color:var(--fg2)}}
+.v2 .rq-wk-c:first-child{background:var(--surface);color:var(--fg);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--pick-on) 50%,transparent)}
+.v2 .rq-wk-c:first-child .rq-ic:not(.app){background:var(--chip)}
+.v2 .rq-wk-c:first-child .k{color:var(--fg2)}
+.v2 .rq-wk-empty{display:inline-flex;align-items:center;height:30px;font-size:12.5px;color:var(--muted)}
+/* and what is done, stacked */
+.v2 .rq-wk-fin{display:flex;align-items:center;gap:10px;padding-top:10px;border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
+.v2 .rq-wk-stack{position:relative;flex:1;height:26px}
+.v2 .rq-wk-stack i{position:absolute;top:2px;left:calc(var(--k) * 16px);width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:var(--chip);color:var(--fg2);box-shadow:0 0 0 2px var(--surface);animation:v2-rqwkland .5s var(--ease) backwards}
+.v2 .rq-wk-stack i.app{background:var(--surface);color:var(--fg);box-shadow:0 0 0 2px var(--surface),inset 0 0 0 1px color-mix(in srgb,var(--rail) 60%,transparent)}
+.v2 .rq-wk-stack i .i{width:11px;height:11px}
+.v2 .rq-wk-stack i .brand{width:12px;height:12px}
+@keyframes v2-rqwkland{from{transform:translateY(-14px) scale(.6);opacity:0}}
+.v2 .rq-wk-fc{font-size:13px;font-weight:500;color:var(--ok)}
+:root:not([data-style="soft"]) .v2 .rq-wk-ring .h i{transition:transform .2s steps(2,end)}
+:root:not([data-style="soft"]) .v2 .rq-wk-ring .tr,:root:not([data-style="soft"]) .v2 .rq-wk-ring .h i{border-radius:50%!important}
+:root:not([data-style="soft"]) .v2 .rq-wk-w.fail{background:repeating-linear-gradient(135deg,transparent 0 5px,color-mix(in srgb,var(--bad) 10%,transparent) 5px 6px),var(--bad-bg)}
+:root:not([data-style="soft"]) .v2 .rq-wk-stack i{animation:v2-bpin .3s var(--ease) backwards}
 /* ---------- Agent tree ---------- */
 /* an orchestrator and its sub-agents as a tree: a chevron folds a branch, each row shows its task, status and cost, and a
    branch's cost is its own plus everything under it */
@@ -5490,6 +5696,129 @@ html{scrollbar-gutter:stable}
 .v2 .evr-fix{align-self:flex-start;margin-top:6px;background:var(--surface);color:var(--fg);box-shadow:var(--shadow)}
 @media (hover:hover) and (pointer:fine){.v2 .evr-fix:hover{background:var(--surface);box-shadow:var(--shadow-pop)}}
 .v2 .evr-none{margin:0;padding:10px;font-size:12.5px;color:var(--muted)}
+/* ---------- Eval results designs ---------- */
+/* the design switch under it (the card's tabs on designme.dev): Classic, the run above, then Run vs run and Score & judge */
+.v2 .dm.evr-dm>.dm-main{align-items:stretch}
+/* what sits on a regressed case's amber is white in light mode and the amber's own tint in dark, never grey; in dark mode
+   its tag is an amber edge on the row's tint, so its words keep 4.5:1 and APCA Lc 60 */
+.v2 .evr-dm{--evr-on-warn:var(--surface);--evr-tag-bg:var(--surface);--evr-tag-edge:0 0 0 0 transparent}
+:root[data-theme="dark"] .v2 .evr-dm{--evr-on-warn:color-mix(in srgb,var(--warn) 16%,transparent);--evr-tag-bg:transparent;--evr-tag-edge:inset 0 0 0 1px color-mix(in srgb,var(--warn) 45%,transparent)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .v2 .evr-dm{--evr-on-warn:color-mix(in srgb,var(--warn) 16%,transparent);--evr-tag-bg:transparent;--evr-tag-edge:inset 0 0 0 1px color-mix(in srgb,var(--warn) 45%,transparent)}}
+/* a case's mark: green with a tick when it passed, red with a cross when it failed, the accent spinning while it runs */
+.v2 .evr-dot{width:16px;height:16px;border-radius:50%;display:grid;place-items:center;flex:none;background:color-mix(in srgb,var(--fg) 8%,transparent);color:var(--muted)}
+.v2 .evr-dot .i{width:10px;height:10px;stroke-width:2.4}
+.v2 .evr-dot.pass{background:var(--ok-bg);color:var(--ok)}
+.v2 .evr-dot.fail{background:var(--bad-bg);color:var(--bad)}
+.v2 .evr-dot.run{background:none;color:var(--accent-mark)}
+.v2 .evr-dot .spin{width:11px;height:11px}
+.v2 .evr-dot.bump{animation:v2-evrpop .4s var(--ease)}
+@keyframes v2-evrpop{from{transform:scale(.3)}60%{transform:scale(1.2)}}
+.v2 .evr-was{color:var(--bad);text-decoration:line-through;text-decoration-thickness:1.5px}
+.v2 .evr-is{color:var(--ok);font-weight:500}
+.v2 .evr-mk{padding:0 2px;border-radius:3px;background:var(--bad-bg);color:var(--bad)}
+.v2 .evr-gd{padding:0 2px;border-radius:3px;background:var(--ok-bg);color:var(--ok)}
+:root:not([data-style="soft"]) .v2 .evr-dot.bump{animation:none}
+/* Run vs run: each case's result last run and this run side by side, so a regression or a fix stands out. Regressed is
+   amber, Fixed green and Failing red, in the site's tag tones, from the filters to the rows */
+.v2 .evr-vs{padding:6px;display:flex;flex-direction:column}
+.v2 .evr-vs-h{display:flex;align-items:center;justify-content:space-between;gap:var(--s-3);padding:var(--s-2) 10px 6px}
+.v2 .evr-vs-ht{display:flex;flex-direction:column;min-width:0}
+.v2 .evr-vs-ht b{font-weight:500}
+.v2 .evr-vs-st{font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v2 .evr-vs-run{flex:none}
+.v2 .evr-vs-run .spin{width:10px;height:10px}
+.v2 .evr-vs-score{display:flex;align-items:center;gap:var(--s-2);padding:var(--s-1) 10px 10px}
+.v2 .evr-vs-big{font-size:14px;font-weight:500}
+.v2 .evr-vs-mv{font-size:12px;color:var(--muted)}
+.v2 .evr-vs-f{display:flex;gap:var(--s-1);padding:0 6px var(--s-2);overflow-x:auto;scrollbar-width:none}
+.v2 .evr-vs-f::-webkit-scrollbar{display:none}
+.v2 .evr-vs-chip{flex:none}
+.v2 .evr-vs-chip .n{color:var(--muted);font-variant-numeric:tabular-nums}
+.v2 .evr-vs-chip.on .n{color:var(--fg2)}
+.v2 .evr-vs-chip:focus-visible{outline-offset:-2px;border-radius:var(--r-pill)}
+/* a toned filter is its tint with its ink, the count too; pointing at it draws its edge in its tone, and the one picked is
+   white with the dimmed edge, keeping its ink */
+.v2 .evr-vs-chip[data-f="reg"]{--evr-t:var(--warn);--evr-tb:var(--warn-bg)}
+.v2 .evr-vs-chip[data-f="fix"]{--evr-t:var(--ok);--evr-tb:var(--ok-bg)}
+.v2 .evr-vs-chip[data-f="fail"]{--evr-t:var(--bad);--evr-tb:var(--bad-bg)}
+.v2 .evr-vs-chip:not([data-f="all"]){background:var(--evr-tb);color:var(--evr-t)}
+.v2 .evr-vs-chip:not([data-f="all"]) .n{color:inherit}
+@media (hover:hover) and (pointer:fine){.v2 .evr-vs-chip:not([data-f="all"]):hover{background:var(--evr-tb);color:var(--evr-t);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--evr-t) 35%,transparent)}}
+.v2 .evr-vs-chip.on:not([data-f="all"]){background:var(--surface);color:var(--evr-t);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--pick-on) 50%,transparent)}
+.v2 .evr-vs-th,.v2 .evr-vs-r{display:grid;grid-template-columns:minmax(0,1fr) 30px 16px 30px 40px;align-items:center;column-gap:var(--s-1)}
+.v2 .evr-vs-th{padding:var(--s-1) 10px;font-size:11.5px;color:var(--muted);border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
+.v2 .evr-vs-th span:nth-child(2),.v2 .evr-vs-th span:nth-child(4){text-align:center}
+.v2 .evr-vs-list{display:flex;flex-direction:column;min-height:332px}
+.v2 .evr-vs-w.shut>div{visibility:hidden;transition:visibility 0s var(--t)}
+.v2 .evr-vs-i{border-radius:10px;transition:background .25s}
+.v2 .evr-vs-r{width:100%;min-height:38px;padding:5px 10px;border-radius:10px;font-size:13px;text-align:left}
+.v2 .evr-vs-r .n{min-width:0;display:flex;align-items:center;gap:6px}
+.v2 .evr-vs-r .n>span:first-child{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v2 .evr-vs-r .evr-dot{justify-self:center}
+.v2 .evr-vs-r .ar{display:grid;place-items:center;color:var(--muted)}
+.v2 .evr-vs-r .ar .i{width:11px;height:11px}
+.v2 .evr-vs-r .tm{font-size:12px;color:var(--muted);text-align:right;font-variant-numeric:tabular-nums}
+.v2 button.evr-vs-r:focus-visible{outline-offset:-2px;border-radius:10px}
+@media (hover:hover) and (pointer:fine){.v2 .evr-vs-i:hover{background:var(--row)}}
+.v2 .evr-vs-i .tg{flex:none}
+.v2 .evr-vs-i.fix .ar{color:var(--ok)}
+/* a regression sits on the amber: its tag, its marks and its Rerun white, its words in the amber's ink */
+.v2 .evr-vs-i.reg{background:var(--warn-bg)}
+.v2 .evr-vs-i.reg :is(.ar,.tm,.evr-vs-kv .k){color:var(--warn)}
+.v2 .evr-vs-i.reg .tag{background:var(--evr-tag-bg);box-shadow:var(--evr-tag-edge);color:var(--warn)}
+.v2 .evr-vs-i.reg .evr-dot{background:var(--evr-on-warn)}
+.v2 .evr-vs-d{display:flex;flex-direction:column;gap:6px;padding:0 10px 10px 22px;font-size:12.5px}
+.v2 .evr-vs-kv{display:flex;gap:var(--s-2)}
+.v2 .evr-vs-kv .k{width:62px;flex:none}
+.v2 .evr-vs-d .pill{align-self:flex-start;margin-top:var(--s-1);background:var(--evr-on-warn);color:var(--fg);box-shadow:var(--shadow)}
+@media (hover:hover) and (pointer:fine){.v2 .evr-vs-d .pill:hover{box-shadow:var(--shadow-pop)}}
+.v2 .evr-vs-none{margin:0;padding:var(--s-3) 10px;font-size:12.5px;color:var(--muted)}
+/* narrow: a row's tint says regressed or fixed, so its name keeps the room; the count of each stays in the filters */
+@container (max-width:380px){.v2 .evr-vs-r .tg{display:none}.v2 .evr-vs-mv{display:none}.v2 .evr-vs-th,.v2 .evr-vs-r{grid-template-columns:minmax(0,1fr) 24px 12px 24px 34px}}
+:root:not([data-style="soft"]) .v2 .evr-vs-i.reg{background:repeating-linear-gradient(135deg,transparent 0 5px,color-mix(in srgb,var(--warn) 10%,transparent) 5px 6px),var(--warn-bg)}
+/* Score & judge: a gauge for the score and a bar for each kind of check, then the judge's reasoning on the case that
+   failed, with the wrong words marked. Everything sits on white, the judge's part inside a dimmed outline */
+.v2 .evr-jg{padding:var(--s-3);display:flex;flex-direction:column;gap:var(--s-3)}
+.v2 .evr-jg-h{display:flex;align-items:center;justify-content:space-between;gap:var(--s-3);padding:2px 2px 0}
+.v2 .evr-jg-ht{display:flex;flex-direction:column;min-width:0}
+.v2 .evr-jg-ht b{font-weight:500}
+.v2 .evr-jg-st{font-size:12.5px;color:var(--muted)}
+.v2 .evr-jg-run.spinning .i{animation:v2-rot .8s linear infinite}
+.v2 .evr-jg-top{display:grid;grid-template-columns:132px minmax(0,1fr);align-items:center;gap:14px}
+/* the gauge: a grey half ring, and the score's arc turning into it, so it fills with a transform */
+.v2 .evr-jg-g{position:relative;display:flex;flex-direction:column;align-items:center}
+.v2 .evr-jg-arc{position:relative;width:132px;height:66px;overflow:hidden}
+.v2 .evr-jg-arc .tr,.v2 .evr-jg-arc i{position:absolute;left:0;top:0;width:132px;height:132px;box-sizing:border-box;border-radius:50%}
+.v2 .evr-jg-arc .tr{border:10px solid color-mix(in srgb,var(--line) 85%,transparent)}
+.v2 .evr-jg-arc i{border:10px solid transparent;border-bottom-color:var(--gc,var(--ok));border-left-color:var(--gc,var(--ok));transform:rotate(calc(-45deg + var(--p,0) * 180deg));transition:transform 1.2s var(--ease),border-color .4s}
+.v2 .evr-jg-gv{position:absolute;top:38px;font-size:14px;font-weight:500}
+.v2 .evr-jg-gl{margin-top:6px;font-size:11.5px;color:var(--muted)}
+.v2 .evr-jg-cats{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:var(--s-2)}
+.v2 .evr-jg-cats li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:3px var(--s-2);font-size:12.5px}
+.v2 .evr-jg-cats .s{font-size:12px;color:var(--fg2);font-variant-numeric:tabular-nums}
+.v2 .evr-jg-cats .s .d{margin-left:var(--s-1);color:var(--bad)}
+.v2 .evr-jg-cats .s .d.up{color:var(--ok)}
+.v2 .evr-jg-cats .b{grid-column:1/-1;height:5px;border-radius:3px;background:var(--line);overflow:hidden}
+.v2 .evr-jg-cats .b i{display:block;height:100%;border-radius:inherit;background:var(--accent-mark);transform-origin:left;transform:scaleX(var(--p,0));transition:transform 1s var(--ease)}
+.v2 .evr-jg-j{display:flex;flex-direction:column;gap:var(--s-2);min-height:208px;padding:var(--s-3);border-radius:var(--r-card);background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--rail) 50%,transparent);font-size:12.5px}
+.v2 .evr-jg-j.go{animation:v2-evrjgin .45s var(--ease)}
+@keyframes v2-evrjgin{from{opacity:0;transform:translateY(8px)}}
+.v2 .evr-jg-jh{display:flex;align-items:center;gap:var(--s-2);font-size:13px}
+.v2 .evr-jg-jh b{flex:1;min-width:0;font-weight:500}
+.v2 .evr-jg-jq{margin:0;padding:var(--s-2) 10px;border-radius:10px;background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--rail) 50%,transparent);line-height:1.6;color:var(--fg)}
+.v2 .evr-jg-jr{margin:0;color:var(--fg2);line-height:1.55}
+.v2 .evr-jg-jr .who{display:inline-flex;align-items:center;gap:var(--s-1);color:var(--muted);margin-right:var(--s-1)}
+.v2 .evr-jg-ja{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:auto}
+.v2 .evr-jg-ja .sp{flex:1}
+.v2 .evr-jg-ja .ib[aria-pressed="true"]{background:var(--accent-bg);color:var(--accent-fg)}
+.v2 .evr-jg-ja .lbl{font-size:12px;color:var(--muted)}
+.v2 .evr-jg-ok{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;flex:1;text-align:center;color:var(--fg2)}
+.v2 .evr-jg-ok>.i{width:22px;height:22px;color:var(--ok)}
+.v2 .evr-jg-ok b{font-weight:500;color:var(--fg)}
+:root:not([data-style="soft"]) .v2 .evr-jg-arc .tr,:root:not([data-style="soft"]) .v2 .evr-jg-arc i{border-radius:50%!important}
+:root:not([data-style="soft"]) .v2 .evr-jg-arc i{transition:transform .8s steps(8,end),border-color .3s}
+:root:not([data-style="soft"]) .v2 .evr-jg-cats .b i{transition:transform .6s steps(6,end)}
+:root:not([data-style="soft"]) .v2 .evr-jg-j.go{animation:v2-bpin .3s var(--ease)}
 /* ---------- Design review ---------- */
 .v2 .drv{padding:var(--s-4);display:flex;flex-direction:column;gap:var(--s-3)}
 .v2 .drv-h{display:flex;align-items:center;gap:10px}
@@ -5971,6 +6300,180 @@ html{scrollbar-gutter:stable}
 .v2 .asx-bar span{flex:1}
 .v2 .asx-bar .pill.ghost{color:inherit;opacity:.8}@media (hover:hover) and (pointer:fine){.v2 .asx-bar .pill.ghost:hover{background:color-mix(in srgb,var(--on-ink) 14%,transparent)}}
 .v2 .asx.dirty .asx-bar{transform:none;opacity:1;filter:none;pointer-events:auto;height:40px;margin-bottom:0}
+/* ---------- Agent settings designs ---------- */
+/* the design switch under it (the card's tabs on designme.dev): Classic, the settings above, then Live preview, Tabs and
+   Presets, each drawn in the same slot at the full width */
+.v2 .dm.asx-dm>.dm-main{align-items:stretch}
+/* what the agent may do, in the site's tag tones: allow green, ask amber, block grey. On a grey highlight a grey tile or cell
+   lifts to white (one step lighter in dark mode) */
+.v2 .asx-dm{--asx-al:var(--ok);--asx-al-bg:var(--ok-bg);--asx-as:var(--warn);--asx-as-bg:var(--warn-bg);--asx-bl:var(--fg2);--asx-bl-bg:var(--chip);--asx-lift:var(--surface)}
+:root[data-theme="dark"] .v2 .asx-dm{--asx-lift:var(--hover)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .v2 .asx-dm{--asx-lift:var(--hover)}}
+/* a tool's own mark on a white tile */
+.v2 .asx-app{width:26px;height:26px;border-radius:8px;display:grid;place-items:center;flex:none;background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--rail) 50%,transparent);color:var(--fg)}
+.v2 .asx-app .brand{width:14px;height:14px}
+.v2 .asx-app .i{width:13px;height:13px;color:var(--fg2)}
+/* Live preview: one autonomy slider, and under it what the agent would do alone or ask about on a real run, on white */
+.v2 .asx-lp{position:relative;padding:var(--s-4) var(--s-4) 64px;display:flex;flex-direction:column;gap:14px;overflow:hidden}
+.v2 .asx-lp-sec{display:flex;flex-direction:column;gap:var(--s-2)}
+.v2 .asx-lp-l{display:flex;align-items:baseline;justify-content:space-between;font-size:13px}
+.v2 .asx-lp-l b{font-weight:500}
+.v2 .asx-lp-lv,.v2 .asx-lp-cv{font-size:12.5px;color:var(--fg2)}
+/* the slider: three stops, a fill to the stop you are on, a thumb that glides and snaps */
+.v2 .asx-lp-sl{position:relative;height:28px;margin:0 10px;cursor:pointer;touch-action:none;outline:0}
+.v2 .asx-lp-tr{position:absolute;left:0;right:0;top:12px;height:4px;border-radius:2px;background:var(--line)}
+.v2 .asx-lp-fill{position:absolute;left:0;top:0;bottom:0;width:100%;border-radius:inherit;background:var(--accent-mark);transform-origin:left;transform:scaleX(var(--v,.5));transition:transform .45s var(--ease)}
+.v2 .asx-lp-stop{position:absolute;top:-3px;left:calc(var(--x) * 100%);width:10px;height:10px;margin-left:-5px;border-radius:50%;background:var(--surface);box-shadow:inset 0 0 0 2px var(--rail)}
+.v2 .asx-lp-th{position:absolute;top:2px;left:0;width:24px;height:24px;margin-left:-12px;border-radius:50%;display:grid;place-items:center;background:var(--surface);box-shadow:var(--shadow-pop);transform:translateX(var(--tx,0px));transition:transform .45s var(--ease),box-shadow .2s}
+.v2 .asx-lp-th i{width:8px;height:8px;border-radius:50%;background:var(--accent-mark)}
+.v2 .asx-lp-sl.drag .asx-lp-th{transition:box-shadow .2s}
+.v2 .asx-lp-sl.drag .asx-lp-fill{transition:none}
+.v2 .asx-lp-sl:focus-visible .asx-lp-th{box-shadow:var(--shadow-pop),0 0 0 2px var(--surface),0 0 0 4px var(--focus)}
+.v2 .asx-lp-ticks{display:flex;justify-content:space-between;margin:-4px 0 0}
+.v2 .asx-lp-ticks button{padding:2px var(--s-1);border-radius:6px;font-size:12px;color:var(--muted);transition:color .2s}
+.v2 .asx-lp-ticks button.on{color:var(--fg)}
+@media (hover:hover) and (pointer:fine){.v2 .asx-lp-ticks button:hover{color:var(--fg)}}
+/* the run, on white inside a dimmed outline: each action's verdict is the site's tag, green when it acts alone, amber when
+   it asks and grey when it may not */
+.v2 .asx-lp-pv{display:flex;flex-direction:column;gap:6px;padding:10px var(--s-3);border-radius:var(--r-in);background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--rail) 50%,transparent)}
+.v2 .asx-lp-pl{font-size:12px;color:var(--muted)}
+.v2 .asx-lp-pl b{font-weight:500;color:var(--fg2)}
+.v2 .asx-lp-acts{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px}
+.v2 .asx-lp-a{display:flex;align-items:center;gap:10px;min-height:32px;font-size:12.5px}
+.v2 .asx-lp-a .t{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v2 .asx-lp-a .asx-app{width:24px;height:24px;border-radius:7px}
+/* the cap's slider, drawn to match: a track that fills to the cap and a round thumb (square in Blueprint) */
+.v2 .asx-lp-rg{-webkit-appearance:none;appearance:none;width:100%;height:22px;margin:0;background:none;cursor:pointer;border-radius:6px}
+.v2 .asx-lp-rg::-webkit-slider-runnable-track{height:4px;border-radius:2px;background:linear-gradient(var(--accent-mark),var(--accent-mark)) 0 0/var(--f,50%) 100% no-repeat,var(--line)}
+.v2 .asx-lp-rg::-moz-range-track{height:4px;border-radius:2px;background:linear-gradient(var(--accent-mark),var(--accent-mark)) 0 0/var(--f,50%) 100% no-repeat,var(--line)}
+.v2 .asx-lp-rg::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;margin-top:-7px;border:0;border-radius:50%;background:var(--surface);box-shadow:var(--shadow-pop),inset 0 0 0 5px var(--accent-mark);transition:transform .2s var(--ease)}
+.v2 .asx-lp-rg::-moz-range-thumb{width:18px;height:18px;border:0;border-radius:50%;background:var(--surface);box-shadow:var(--shadow-pop),inset 0 0 0 5px var(--accent-mark)}
+.v2 .asx-lp-rg:active::-webkit-slider-thumb{transform:scale(1.12)}
+.v2 .asx-lp-est{font-size:12px;color:var(--muted)}
+.v2 .asx-lp-bar{position:absolute;left:var(--s-3);right:var(--s-3);bottom:var(--s-3);display:flex;align-items:center;gap:6px;padding:6px 6px 6px 14px;border-radius:var(--r-pill);background:var(--surface);box-shadow:var(--shadow-pop);font-size:12.5px;transform:translateY(64px);opacity:0;transition:transform .5s var(--ease),opacity .3s}
+.v2 .asx-lp-bar span{flex:1;min-width:0}
+.v2 .asx-lp.dirty .asx-lp-bar{transform:none;opacity:1}
+:root:not([data-style="soft"]) .v2 .asx-lp-fill,:root:not([data-style="soft"]) .v2 .asx-lp-th{transition:transform .3s steps(3,end)}
+:root:not([data-style="soft"]) .v2 .asx-lp-th i{width:10px;height:10px}
+:root:not([data-style="soft"]) .v2 .asx-lp-bar{transition:transform .3s steps(3,end),opacity .2s}
+:root:not([data-style="soft"]) .v2 .asx-lp-rg::-webkit-slider-runnable-track{border-radius:0}
+:root:not([data-style="soft"]) .v2 .asx-lp-rg::-moz-range-track{border-radius:0}
+:root:not([data-style="soft"]) .v2 .asx-lp-rg::-webkit-slider-thumb{border-radius:0;box-shadow:0 0 0 1px color-mix(in srgb,var(--rail) 60%,transparent),inset 0 0 0 5px var(--accent-mark)}
+:root:not([data-style="soft"]) .v2 .asx-lp-rg::-moz-range-thumb{border-radius:0;box-shadow:0 0 0 1px color-mix(in srgb,var(--rail) 60%,transparent),inset 0 0 0 5px var(--accent-mark)}
+/* Tabs: the settings in three tabs. A setting you change gets an accent dot, and so does its tab; the save bar under them
+   lists every change with its own undo, and saves them all (Save, or ⌘S / Ctrl+S) */
+.v2 .asx-tb{padding:6px;display:flex;flex-direction:column}
+.v2 .asx-tb-tabs{position:relative;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));margin:var(--s-1) var(--s-1) 6px;padding:3px;border-radius:var(--r-pill);background:var(--chip)}
+.v2 .asx-tb-kn{position:absolute;top:3px;bottom:3px;left:3px;width:calc((100% - 6px) / 3);border-radius:var(--r-pill);background:var(--surface);box-shadow:var(--shadow);transform:translateX(calc(var(--i,0) * 100%));transition:transform var(--t) var(--ease)}
+.v2 .asx-tb-t{position:relative;z-index:1;display:flex;align-items:center;justify-content:center;height:30px;border-radius:var(--r-pill);font-size:13px;color:var(--fg2);transition:color var(--t-fast)}
+.v2 .asx-tb-t[aria-selected="true"]{color:var(--fg)}
+@media (hover:hover) and (pointer:fine){.v2 .asx-tb-t:hover{color:var(--fg)}}
+.v2 .asx-tb-t:focus-visible{outline-offset:-2px;border-radius:var(--r-pill)}
+.v2 .asx-tb-t>span{position:relative}
+.v2 .asx-tb-t .asx-tb-dot{position:absolute;left:100%;top:50%;margin:-3px 0 0 6px}
+/* a change not yet saved: an accent dot that grows in by its setting and its tab, and goes once it is saved or undone */
+.v2 .asx-tb-dot{display:inline-block;width:6px;height:6px;border-radius:50%;flex:none;background:var(--accent-mark);transform:scale(0);transition:transform .3s var(--ease)}
+.v2 .asx-tb-dot.on{transform:none}
+.v2 .asx-tb-pane{display:flex;flex-direction:column;min-height:228px;padding:0 10px}
+.v2 .asx-tb-pane.go{animation:v2-asxtbin .35s var(--ease)}
+@keyframes v2-asxtbin{from{opacity:0;transform:translateX(var(--from,8px))}}
+.v2 .asx-tb-r{display:flex;align-items:center;justify-content:space-between;gap:var(--s-3);min-height:57px;padding:var(--s-2) 0;border-bottom:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
+.v2 .asx-tb-r:last-child{border-bottom:0}
+.v2 .asx-tb-r.col{flex-direction:column;align-items:stretch;gap:var(--s-2)}
+.v2 .asx-tb-lb{display:flex;align-items:center;gap:10px;min-width:0}
+.v2 .asx-tb-lt{display:flex;flex-direction:column;min-width:0;font-size:13px}
+.v2 .asx-tb-lt b{display:flex;align-items:center;gap:6px;font-weight:500}
+.v2 .asx-tb-lt .d{font-size:12px;color:var(--muted)}
+/* its fields are the site's: white, the dimmed field edge, a step stronger with the focus (a dropdown, only the keyboard's) */
+.v2 .asx-tb-dd,.v2 .asx-tb-num,.v2 .asx-tb-ta{background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--field-line) 50%,transparent);color:var(--fg);transition:box-shadow var(--t-fast)}
+.v2 .asx-tb-dd{display:flex;align-items:center;justify-content:space-between;gap:var(--s-2);flex:none;width:148px;height:var(--field-h);padding:0 10px 0 var(--s-3);border-radius:var(--r-field);font-size:13px;text-align:left}
+.v2 .asx-tb-dd>svg{flex:none;color:var(--muted);transition:transform .32s var(--ease)}
+.v2 .asx-tb-dd[aria-expanded="true"]>svg{transform:rotate(180deg)}
+.v2 .asx-tb-dd:focus-visible{outline:0;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--field-line-strong) 50%,transparent)}
+.v2 .asx-tb-num{display:flex;align-items:center;gap:2px;flex:none;width:96px;height:var(--field-h);padding:0 var(--s-3);border-radius:var(--r-field);font-size:13px;cursor:text}
+.v2 .asx-tb-num span{color:var(--muted)}
+.v2 .asx-tb-num input{flex:1;width:100%;min-width:0;padding:0;border:0;outline:0;background:none;font:inherit;color:inherit;font-variant-numeric:tabular-nums}
+.v2 .asx-tb-num:focus-within{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--field-line-strong) 50%,transparent)}
+.v2 .asx-tb-ta{display:block;width:100%;resize:none;border:0;outline:0;border-radius:var(--r-box);padding:9px var(--s-3);font:inherit;font-size:13px;line-height:1.5}
+.v2 .asx-tb-ta:focus{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--field-line-strong) 50%,transparent)}
+@supports (corner-shape:squircle){.v2 .asx-tb-dd,.v2 .asx-tb-num{corner-shape:squircle;border-radius:var(--r-field-sq)}.v2 .asx-tb-ta{corner-shape:squircle;border-radius:var(--r-box-sq)}}
+.v2 .asx-tb .pop{min-width:224px}
+/* the save bar: quiet until something changes, then the list of changes over it, each with its undo */
+.v2 .asx-tb-ft{margin:var(--s-1) var(--s-1) 0;border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
+.v2 .asx-tb-cl{list-style:none;margin:0;padding:6px 0 0;display:flex;flex-direction:column;gap:2px;max-height:110px;overflow-y:auto;scrollbar-width:thin}
+.v2 .asx-tb-c{display:flex;align-items:center;gap:var(--s-2);min-height:32px;padding:0 2px 0 6px;border-radius:var(--r-sm);font-size:12.5px;animation:v2-asxtbc .35s var(--ease) backwards}
+@keyframes v2-asxtbc{from{opacity:0;transform:translateY(4px)}}
+@media (hover:hover) and (pointer:fine){.v2 .asx-tb-c:hover{background:var(--row)}}
+.v2 .asx-tb-c .n{flex:none;font-weight:500}
+.v2 .asx-tb-c .v{flex:1;min-width:0;display:flex;align-items:center;gap:var(--s-1);color:var(--muted);white-space:nowrap}
+.v2 .asx-tb-c .v span{min-width:0;overflow:hidden;text-overflow:ellipsis}
+.v2 .asx-tb-c .v span:last-child{color:var(--fg2)}
+.v2 .asx-tb-c .v .i{flex:none}
+.v2 .asx-tb-c .ib{flex:none;width:26px;height:26px}
+@media (hover:hover) and (pointer:fine){.v2 .asx-tb-c .ib:hover{background:var(--asx-lift)}}
+.v2 .asx-tb-bar{display:flex;align-items:center;gap:6px;min-height:44px;padding:6px 2px 2px 6px}
+.v2 .asx-tb-st{flex:1;min-width:0;display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--muted)}
+.v2 .asx-tb.dirty .asx-tb-st{color:var(--fg)}
+.v2 .asx-tb-st .i{color:var(--ok)}
+/* with nothing to save, Save's shortcut goes quiet with it */
+.v2 .asx-tb-sv[disabled] .kbd{background:none;color:inherit}
+/* on a phone the shortcut has no keyboard to go with, so Save drops its hint and the bar keeps to one line */
+@container (max-width:400px){.v2 .asx-tb-sv .kbd{display:none}}
+:root:not([data-style="soft"]) .v2 .asx-tb-tabs{background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--line) 50%,transparent)}
+:root:not([data-style="soft"]) .v2 .asx-tb-kn{background:var(--chip);box-shadow:0 0 0 1px color-mix(in srgb,var(--rail) 50%,transparent);transition:transform .3s steps(3,end)}
+:root:not([data-style="soft"]) .v2 .asx-tb-pane.go,:root:not([data-style="soft"]) .v2 .asx-tb-c{animation:v2-bpin .3s var(--ease) backwards}
+/* Presets: Careful, Balanced and Bold, each with its colour on its tile (teal, the accent and violet, so the grid's green and
+   amber keep meaning allow and ask) and a meter in the accent, then a grid of allow, ask and block for each tool */
+.v2 .asx-ps{padding:var(--s-3);display:flex;flex-direction:column;gap:var(--s-3)}
+.v2 .asx-ps-pre{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.v2 .asx-ps-p{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:6px;padding:10px;border-radius:var(--r-in);background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--pick-line) 50%,transparent);text-align:left;transition:background .25s,box-shadow .25s,transform .2s var(--ease)}
+@media (hover:hover) and (pointer:fine){.v2 .asx-ps-p:hover{background:var(--row)}}
+.v2 .asx-ps-p:active{transform:scale(.98)}
+.v2 .asx-ps-p[aria-checked="true"]{background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--pick-on) 50%,transparent)}
+.v2 .asx-ps-p:focus-visible{outline-offset:2px;border-radius:var(--r-in)}
+.v2 .asx-ps-p[data-p="care"]{--asx-pc:var(--pt);--asx-pc-bg:var(--pt-bg)}
+.v2 .asx-ps-p[data-p="bal"]{--asx-pc:var(--accent-fg);--asx-pc-bg:var(--accent-bg)}
+.v2 .asx-ps-p[data-p="bold"]{--asx-pc:var(--pl);--asx-pc-bg:var(--pl-bg)}
+.v2 .asx-ps-pi{width:28px;height:28px;border-radius:9px;display:grid;place-items:center;background:var(--asx-pc-bg);color:var(--asx-pc)}
+.v2 .asx-ps-pi .i{width:14px;height:14px}
+.v2 .asx-ps-p b{font-size:13px;font-weight:500}
+.v2 .asx-ps-p .d{font-size:11.5px;line-height:1.35;color:var(--muted)}
+.v2 .asx-ps-p[aria-checked="true"] .d{color:var(--fg2)}
+@media (hover:hover) and (pointer:fine){.v2 .asx-ps-p:hover .d{color:var(--fg2)}}
+/* how far the preset trusts the agent, as a short meter */
+.v2 .asx-ps-m{display:flex;gap:2px;margin-top:auto}
+.v2 .asx-ps-m i{width:10px;height:4px;border-radius:2px;background:var(--line)}
+.v2 .asx-ps-m i.on{background:var(--accent-mark)}
+.v2 .asx-ps-mx{display:flex;flex-direction:column;gap:var(--s-1)}
+.v2 .asx-ps-mh,.v2 .asx-ps-row{display:grid;grid-template-columns:minmax(0,1fr) repeat(3,64px);align-items:center;gap:var(--s-1)}
+.v2 .asx-ps-mh{padding:0 var(--s-1);font-size:11.5px;color:var(--muted)}
+.v2 .asx-ps-mh span{text-align:center}
+.v2 .asx-ps-mh span:first-child{text-align:left}
+.v2 .asx-ps-grid{display:flex;flex-direction:column;gap:2px}
+.v2 .asx-ps-row{min-height:40px;padding:3px var(--s-1);border-radius:10px;transition:background .2s}
+@media (hover:hover) and (pointer:fine){.v2 .asx-ps-row:hover{background:var(--row)}}
+.v2 .asx-ps-tl{display:flex;align-items:center;gap:var(--s-2);min-width:0;font-size:12.5px}
+.v2 .asx-ps-tl span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* a cell: press it to move it on, allow then ask then block */
+.v2 .asx-ps-c{justify-self:center;display:inline-flex;align-items:center;justify-content:center;gap:var(--s-1);width:58px;height:28px;border-radius:var(--r-tag);font-size:11.5px;font-weight:500;background:var(--asx-bl-bg);color:var(--asx-bl);transition:background .25s,color .25s,transform .2s var(--ease)}
+.v2 .asx-ps-c .i{width:11px;height:11px}
+.v2 .asx-ps-c.al{background:var(--asx-al-bg);color:var(--asx-al)}
+.v2 .asx-ps-c.as{background:var(--asx-as-bg);color:var(--asx-as)}
+.v2 .asx-ps-c:active{transform:scale(.94)}
+.v2 .asx-ps-c:focus-visible{outline-offset:1px;border-radius:var(--r-tag)}
+@media (hover:hover) and (pointer:fine){.v2 .asx-ps-row:hover .asx-ps-c.bl{background:var(--asx-lift)}}
+@supports (corner-shape:squircle){.v2 .asx-ps-c{corner-shape:squircle;border-radius:var(--r-tag-sq)}}
+.v2 .asx-ps-key{display:flex;gap:var(--s-3);justify-content:flex-end;padding:2px var(--s-1) 0;font-size:11.5px;color:var(--muted)}
+.v2 .asx-ps-key span{display:inline-flex;align-items:center;gap:5px}
+.v2 .asx-ps-key i{width:8px;height:8px;border-radius:2px}
+.v2 .asx-ps-key .al i{background:var(--asx-al)}
+.v2 .asx-ps-key .as i{background:var(--asx-as)}
+.v2 .asx-ps-key .bl i{background:var(--muted)}
+.v2 .asx-ps-bar{display:flex;align-items:center;gap:6px;padding:6px 6px 6px var(--s-3);border-radius:var(--r-pill);background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--rail) 50%,transparent);font-size:12.5px;color:var(--fg2);transition:box-shadow .3s}
+.v2 .asx-ps-bt{flex:1;min-width:0;display:flex;align-items:center;gap:6px}
+.v2 .asx-ps-bt .i{color:var(--ok)}
+.v2 .asx-ps.dirty .asx-ps-bar{box-shadow:var(--shadow-pop);color:var(--fg)}
+@container (max-width:360px){.v2 .asx-ps-mh,.v2 .asx-ps-row{grid-template-columns:minmax(0,1fr) repeat(3,48px)}.v2 .asx-ps-c{width:44px}.v2 .asx-ps-c .lb{display:none}.v2 .asx-ps-pre{grid-template-columns:minmax(0,1fr)}.v2 .asx-ps-p{flex-direction:row;align-items:center}.v2 .asx-ps-p .d{display:none}.v2 .asx-ps-m{margin:0 0 0 auto}}
 /* ---------- File explorer ---------- */
 .v2 .fxp{padding:var(--s-2);display:flex;flex-direction:column;gap:var(--s-1);height:380px}
 .v2 .fxp-h{display:flex;gap:var(--s-1);align-items:center}
@@ -8946,7 +9449,7 @@ body.ui .brand.o3::after{content:none}
   </div></div></div>
 </div></template>
   </article>
-  <article class="comp" id="c5" data-soft data-v2="run-queue" data-reg="run-queue" style="--rh-a:524px;--rc-a:412px;--rcb-a:412px;--rh-b:524px;--rc-b:412px;--rcb-b:412px;--rh-c:524px;--rc-c:412px;--rcb-c:412px;--rh-d:524px;--rc-d:412px;--rcb-d:412px;--rh-e:524px;--rc-e:412px;--rcb-e:412px;--rh-f:524px;--rc-f:412px;--rcb-f:412px;--rh-g:524px;--rc-g:412px;--rcb-g:412px;--rh-h:524px;--rc-h:412px;--rcb-h:412px;--rh-i:524px;--rc-i:412px;--rcb-i:412px;--rh-j:492px;--rc-j:412px;--rcb-j:412px;--rh-k:492px;--rc-k:412px;--rcb-k:412px;--rh-l:492px;--rc-l:412px;--rcb-l:412px;--rh-m:511px;--rc-m:431px;--rcb-m:431px">
+  <article class="comp" id="c5" data-soft data-v2="run-queue" data-reg="run-queue" style="--rh-a:578px;--rc-a:466px;--rcb-a:466px;--rh-b:588px;--rc-b:476px;--rcb-b:476px;--rh-c:578px;--rc-c:466px;--rcb-c:466px;--rh-d:578px;--rc-d:466px;--rcb-d:466px;--rh-e:578px;--rc-e:466px;--rcb-e:466px;--rh-f:578px;--rc-f:466px;--rcb-f:466px;--rh-g:578px;--rc-g:466px;--rcb-g:466px;--rh-h:578px;--rc-h:466px;--rcb-h:466px;--rh-i:578px;--rc-i:466px;--rcb-i:466px;--rh-j:546px;--rc-j:466px;--rcb-j:466px;--rh-k:546px;--rc-k:466px;--rcb-k:466px;--rh-l:546px;--rc-l:466px;--rcb-l:466px;--rh-m:594px;--rc-m:514px;--rcb-m:514px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">readiness_score</span></span>
       <div><h2 class="comp-title"><a href="/components/run-queue">Run queue</a></h2><p class="comp-desc">Grouped tasks with live progress, retries and a compact view.</p></div>
@@ -8954,12 +9457,21 @@ body.ui .brand.o3::after{content:none}
     </div>
     <div class="stage"><div class="stage-inner dots v2-host" data-demo><div class="v2 stage-in bare"></div></div></div>
     <div class="comp-foot">
-      <span class="mono-xs">Retry the failed step, try Compact</span>
+      <div class="tabs" role="tablist" aria-label="Run queue design" data-tabs="v2-run-queue">
+        <button class="tab" role="tab" aria-selected="true" data-v="classic">Classic</button>
+        <button class="tab" role="tab" aria-selected="false" data-v="reorder">Reorder</button>
+        <button class="tab" role="tab" aria-selected="false" data-v="segments">Segments</button>
+        <button class="tab" role="tab" aria-selected="false" data-v="workers">Workers</button>
+      </div>
       <div class="code-btns"><button class="ghost anim-btn" data-anim><span class="ms sm">stars</span>Animate</button><button class="ghost" data-view aria-expanded="false"><span class="ms sm">code</span><span class="vl">View code</span></button><button class="ghost" data-copy><span class="ms sm">content_copy</span>Copy code</button></div>
     </div>
-    <template><div class="rq">
+    <template><div class="dm rq-dm" data-designs="card"><div class="dm-main">
+<div class="rq">
   <div class="rq-top"><div class="seg2" role="group" aria-label="Density"><button aria-pressed="true" data-v="full">Detailed</button><button aria-pressed="false" data-v="compact">Compact</button></div><span class="rq-all muted num">0 of 3 done</span></div>
   <div class="rq-list panel"></div>
+</div>
+</div>
+<div class="demo"><div class="seg2" role="group" aria-label="Run queue design"><button aria-pressed="true" data-v="classic">Classic</button><button aria-pressed="false" data-v="reorder">Reorder</button><button aria-pressed="false" data-v="segments">Segments</button><button aria-pressed="false" data-v="workers">Workers</button></div></div>
 </div></template>
   </article>
   <article class="comp" id="c27" data-soft data-v2="run-cost" data-reg="run-cost" style="--rh-a:420px;--rc-a:265px;--rcb-a:264px;--rh-b:420px;--rc-b:265px;--rcb-b:264px;--rh-c:420px;--rc-c:265px;--rcb-c:264px;--rh-d:420px;--rc-d:265px;--rcb-d:264px;--rh-e:420px;--rc-e:265px;--rcb-e:264px;--rh-f:420px;--rc-f:265px;--rcb-f:264px;--rh-g:420px;--rc-g:265px;--rcb-g:264px;--rh-h:420px;--rc-h:265px;--rcb-h:264px;--rh-i:420px;--rc-i:265px;--rcb-i:264px;--rh-j:420px;--rc-j:265px;--rcb-j:264px;--rh-k:420px;--rc-k:265px;--rcb-k:264px;--rh-l:420px;--rc-l:265px;--rcb-l:264px;--rh-m:420px;--rc-m:265px;--rcb-m:264px">
@@ -9356,7 +9868,7 @@ body.ui .brand.o3::after{content:none}
   <form class="ste-box"><input placeholder="Steer the agent while it works" aria-label="Message the agent" spellcheck="false" autocomplete="off"><button class="ste-go" aria-label="Send" disabled>{up}</button></form>
 </div></template>
   </article>
-  <article class="comp" id="c117" data-soft data-v2="eval-results" data-reg="eval-results" style="--rh-a:590px;--rc-a:478px;--rcb-a:478px;--rh-b:628px;--rc-b:497px;--rcb-b:516px;--rh-c:590px;--rc-c:478px;--rcb-c:478px;--rh-d:590px;--rc-d:478px;--rcb-d:478px;--rh-e:590px;--rc-e:478px;--rcb-e:478px;--rh-f:590px;--rc-f:478px;--rcb-f:478px;--rh-g:590px;--rc-g:478px;--rcb-g:478px;--rh-h:590px;--rc-h:478px;--rcb-h:478px;--rh-i:590px;--rc-i:478px;--rcb-i:478px;--rh-j:558px;--rc-j:478px;--rcb-j:478px;--rh-k:558px;--rc-k:478px;--rcb-k:478px;--rh-l:577px;--rc-l:497px;--rcb-l:497px;--rh-m:596px;--rc-m:497px;--rcb-m:516px">
+  <article class="comp" id="c117" data-soft data-v2="eval-results" data-reg="eval-results" style="--rh-a:603px;--rc-a:491px;--rcb-a:491px;--rh-b:628px;--rc-b:497px;--rcb-b:516px;--rh-c:603px;--rc-c:491px;--rcb-c:491px;--rh-d:603px;--rc-d:491px;--rcb-d:491px;--rh-e:603px;--rc-e:491px;--rcb-e:491px;--rh-f:603px;--rc-f:491px;--rcb-f:491px;--rh-g:603px;--rc-g:491px;--rcb-g:491px;--rh-h:603px;--rc-h:491px;--rcb-h:491px;--rh-i:603px;--rc-i:491px;--rcb-i:491px;--rh-j:571px;--rc-j:491px;--rcb-j:491px;--rh-k:577px;--rc-k:497px;--rcb-k:497px;--rh-l:596px;--rc-l:497px;--rcb-l:516px;--rh-m:596px;--rc-m:516px;--rcb-m:516px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">readiness_score</span></span>
       <div><h2 class="comp-title"><a href="/components/eval-results">Eval results</a></h2><p class="comp-desc">An eval run case by case, against the run before.</p></div>
@@ -9364,15 +9876,23 @@ body.ui .brand.o3::after{content:none}
     </div>
     <div class="stage"><div class="stage-inner dots v2-host" data-demo><div class="v2 stage-in"></div></div></div>
     <div class="comp-foot">
-      <span class="mono-xs">Run the evals, open a failed case</span>
+      <div class="tabs" role="tablist" aria-label="Eval results design" data-tabs="v2-eval-results">
+        <button class="tab" role="tab" aria-selected="true" data-v="classic">Classic</button>
+        <button class="tab" role="tab" aria-selected="false" data-v="runs">Run vs run</button>
+        <button class="tab" role="tab" aria-selected="false" data-v="judge">Score &amp; judge</button>
+      </div>
       <div class="code-btns"><button class="ghost anim-btn" data-anim><span class="ms sm">stars</span>Animate</button><button class="ghost" data-view aria-expanded="false"><span class="ms sm">code</span><span class="vl">View code</span></button><button class="ghost" data-copy><span class="ms sm">content_copy</span>Copy code</button></div>
     </div>
-    <template><div class="evr panel">
+    <template><div class="dm evr-dm" data-designs="card"><div class="dm-main">
+<div class="evr panel">
   <div class="evr-h"><div class="evr-ht"><b>Pricing copy evals</b><span class="muted evr-st">Copy agent · 8 cases · run 2h ago</span></div><button class="pill primary sm evr-run">{play}Run evals</button></div>
   <div class="evr-sum"><div class="evr-segs" aria-hidden="true"></div><div class="evr-nums"><span class="evr-pass num" aria-live="polite"></span><span class="tag evr-dl"></span></div></div>
   <div class="evr-tabs"><div class="seg2" role="group" aria-label="Show"><button aria-pressed="true" data-v="all">All <span class="n num"></span></button><button aria-pressed="false" data-v="fail">Failed <span class="n num"></span></button></div></div>
   <div class="evr-list" role="list" aria-label="Cases"></div>
   <p class="evr-none" hidden>No failed cases</p>
+</div>
+</div>
+<div class="demo"><div class="seg2" role="group" aria-label="Eval results design"><button aria-pressed="true" data-v="classic">Classic</button><button aria-pressed="false" data-v="runs">Run vs run</button><button aria-pressed="false" data-v="judge">Score &amp; judge</button></div></div>
 </div></template>
   </article>
   <article class="comp wide" id="c111" data-soft data-v2="design-review" data-reg="design-review" style="--rh-a:426px;--rc-a:314px;--rcb-a:314px;--rh-b:426px;--rc-b:314px;--rcb-b:314px;--rh-c:551px;--rc-c:439px;--rcb-c:439px;--rh-d:426px;--rc-d:314px;--rcb-d:314px;--rh-e:426px;--rc-e:314px;--rcb-e:314px;--rh-f:426px;--rc-f:314px;--rcb-f:314px;--rh-g:551px;--rc-g:439px;--rcb-g:439px;--rh-h:551px;--rc-h:439px;--rcb-h:439px;--rh-i:551px;--rc-i:439px;--rcb-i:439px;--rh-j:519px;--rc-j:439px;--rcb-j:439px;--rh-k:537px;--rc-k:457px;--rcb-k:457px;--rh-l:565px;--rc-l:485px;--rcb-l:485px;--rh-m:565px;--rc-m:485px;--rcb-m:485px">
@@ -9729,7 +10249,7 @@ body.ui .brand.o3::after{content:none}
   <p class="mcx-live" aria-live="polite"></p>
 </div></template>
   </article>
-  <article class="comp" id="c38" data-soft data-v2="agent-settings" data-reg="agent-settings" style="--rh-a:580px;--rc-a:468px;--rcb-a:468px;--rh-b:598px;--rc-b:486px;--rcb-b:486px;--rh-c:580px;--rc-c:468px;--rcb-c:468px;--rh-d:580px;--rc-d:468px;--rcb-d:468px;--rh-e:580px;--rc-e:468px;--rcb-e:468px;--rh-f:580px;--rc-f:468px;--rcb-f:468px;--rh-g:580px;--rc-g:468px;--rcb-g:468px;--rh-h:580px;--rc-h:468px;--rcb-h:468px;--rh-i:580px;--rc-i:468px;--rcb-i:468px;--rh-j:548px;--rc-j:468px;--rcb-j:468px;--rh-k:548px;--rc-k:468px;--rcb-k:468px;--rh-l:566px;--rc-l:486px;--rcb-l:486px;--rh-m:566px;--rc-m:486px;--rcb-m:486px">
+  <article class="comp" id="c38" data-soft data-v2="agent-settings" data-reg="agent-settings" style="--rh-a:624px;--rc-a:512px;--rcb-a:512px;--rh-b:642px;--rc-b:530px;--rcb-b:530px;--rh-c:624px;--rc-c:512px;--rcb-c:512px;--rh-d:624px;--rc-d:512px;--rcb-d:512px;--rh-e:624px;--rc-e:512px;--rcb-e:512px;--rh-f:624px;--rc-f:512px;--rcb-f:512px;--rh-g:624px;--rc-g:512px;--rcb-g:512px;--rh-h:624px;--rc-h:512px;--rcb-h:512px;--rh-i:624px;--rc-i:512px;--rcb-i:512px;--rh-j:592px;--rc-j:512px;--rcb-j:512px;--rh-k:592px;--rc-k:512px;--rcb-k:512px;--rh-l:610px;--rc-l:530px;--rcb-l:530px;--rh-m:610px;--rc-m:530px;--rcb-m:530px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">settings</span></span>
       <div><h2 class="comp-title"><a href="/components/agent-settings">Agent settings</a></h2><p class="comp-desc">How much the agent may do alone, with a save bar for changes.</p></div>
@@ -9737,10 +10257,16 @@ body.ui .brand.o3::after{content:none}
     </div>
     <div class="stage"><div class="stage-inner dots v2-host" data-demo><div class="v2 stage-in"></div></div></div>
     <div class="comp-foot">
-      <span class="mono-xs">Change anything to see the save bar</span>
+      <div class="tabs" role="tablist" aria-label="Agent settings design" data-tabs="v2-agent-settings">
+        <button class="tab" role="tab" aria-selected="true" data-v="classic">Classic</button>
+        <button class="tab" role="tab" aria-selected="false" data-v="preview">Live preview</button>
+        <button class="tab" role="tab" aria-selected="false" data-v="tabs">Tabs</button>
+        <button class="tab" role="tab" aria-selected="false" data-v="presets">Presets</button>
+      </div>
       <div class="code-btns"><button class="ghost anim-btn" data-anim><span class="ms sm">stars</span>Animate</button><button class="ghost" data-view aria-expanded="false"><span class="ms sm">code</span><span class="vl">View code</span></button><button class="ghost" data-copy><span class="ms sm">content_copy</span>Copy code</button></div>
     </div>
-    <template><div class="asx panel">
+    <template><div class="dm asx-dm" data-designs="card"><div class="dm-main">
+<div class="asx panel">
   <div class="asx-r asx-col"><div class="asx-l"><b>Autonomy</b><span class="muted asx-ad">Asks before edits to shared files</span></div>
     <div class="asx-steps" role="radiogroup" aria-label="Autonomy"><span class="asx-knob"></span><button role="radio" data-v="0">Ask</button><button role="radio" data-v="1" aria-checked="true">Balanced</button><button role="radio" data-v="2">Autopilot</button></div></div>
   <div class="asx-r"><div class="asx-l"><b>Use team memory</b><span class="muted">Brand rules and past decisions</span></div><button class="toggle" role="switch" aria-checked="true" aria-label="Use team memory"></button></div>
@@ -9748,6 +10274,9 @@ body.ui .brand.o3::after{content:none}
   <div class="asx-r"><div class="asx-l"><b>Spend cap per run</b><span class="muted">Pauses and asks when reached</span></div><div class="asx-cap"><button class="ib fill asx-m" aria-label="Lower cap">{minus}</button><span class="num asx-v">$5</span><button class="ib fill asx-p" aria-label="Raise cap">{plus}</button></div></div>
   <div class="asx-r asx-col"><div class="asx-l"><b>Instructions</b></div><textarea class="asx-ta" rows="2" spellcheck="false">Use our tokens only. Keep copy short and friendly.</textarea></div>
   <div class="asx-bar"><span>Unsaved changes</span><button class="pill ghost sm asx-rs">Reset</button><button class="pill accent sm asx-sv">Save</button></div>
+</div>
+</div>
+<div class="demo"><div class="seg2" role="group" aria-label="Agent settings design"><button aria-pressed="true" data-v="classic">Classic</button><button aria-pressed="false" data-v="preview">Live preview</button><button aria-pressed="false" data-v="tabs">Tabs</button><button aria-pressed="false" data-v="presets">Presets</button></div></div>
 </div></template>
   </article>
   <article class="comp" id="c110" data-soft data-v2="tool-connections" data-reg="tool-connections" style="--rh-a:494px;--rc-a:382px;--rcb-a:382px;--rh-b:494px;--rc-b:382px;--rcb-b:382px;--rh-c:494px;--rc-c:382px;--rcb-c:382px;--rh-d:494px;--rc-d:382px;--rcb-d:382px;--rh-e:494px;--rc-e:382px;--rcb-e:382px;--rh-f:494px;--rc-f:382px;--rcb-f:382px;--rh-g:494px;--rc-g:382px;--rcb-g:382px;--rh-h:494px;--rc-h:382px;--rcb-h:382px;--rh-i:494px;--rc-i:382px;--rcb-i:382px;--rh-j:462px;--rc-j:382px;--rcb-j:382px;--rh-k:462px;--rc-k:382px;--rcb-k:382px;--rh-l:462px;--rc-l:382px;--rcb-l:382px;--rh-m:502px;--rc-m:422px;--rcb-m:422px">
@@ -13914,6 +14443,306 @@ DM.def('run-queue', (r, c) => {
   }
   c.run(async () => { await c.wait(600); for (const g of G) await runGroup(g); });
 });
+/* ---------- Run queue designs ---------- */
+/* the homepage card's design switch, shown as its footer tabs: Classic is the component above, and the others are the
+   directions under review. The switch is the card's alone: the registry, the code view and the component page install
+   Classic on its own (build.js leaves a data-designs="card" switch out of them) */
+{
+  const classic = DM.defs['run-queue'];
+  // the tasks Reorder, Segments and Workers run: each one's name and short name, its icon or app, how long it takes in the
+  // demo's seconds, and its steps. The launch email's test send fails once
+  const RQ_T = () => [
+    { t:'Research three competitors', sh:'Competitors', ic:'search', d:4.2, subs:[['Read their pricing pages', '3 of 3'], ['Compared plans and limits', '5 gaps']] },
+    { t:'Draft the launch email', sh:'Launch email', ic:'mail', d:4.8, fail:2, subs:[['Pulled the new features', '6 items'], ['Wrote two subject lines', '2 drafts'], ['Sent a test to the team', 'Sent']] },
+    { t:'Update the help centre', sh:'Help centre', ic:'book', d:3.6, subs:[['Billing questions', '4 articles'], ['Inviting your team', '2 articles']] },
+    { t:'Refresh pricing screenshots', sh:'Screenshots', app:'figma', d:3.2, subs:[['Captured 6 screens', '6'], ['Uploaded to Drive', 'Done']] },
+    { t:'Sync roadmap to Linear', sh:'Roadmap', app:'linear', d:2.6, subs:[['Matched 12 issues', '12']] },
+    { t:'Post the changelog', sh:'Changelog', app:'slack', d:2.2, subs:[['Posted in #releases', 'Posted']] }
+  ];
+  const rqIc = (t, s = 's') => `<span class="rq-ic${t.app ? ' app' : ''}" aria-hidden="true">${t.app ? BRAND[t.app] : I(t.ic, s)}</span>`;
+  const rqLeft = s => s > 0 ? `${Math.ceil(s)}s left` : 'Finishing';
+  // text that changes ten times a second is written only when it reads differently
+  const rqText = (el, t) => { if (el.textContent !== t) el.textContent = t; };
+  // a list in a new order: each item glides from where it was to where it is now
+  function rqFlip(items, change){
+    const was = new Map(items().map(el => { const b = el.getBoundingClientRect(); return [el, [b.left, b.top]]; }));
+    change();
+    if (REDUCE) return;
+    items().forEach(el => { const a = was.get(el); if (!a) return; const b = el.getBoundingClientRect(), dx = a[0] - b.left, dy = a[1] - b.top; if (Math.abs(dx) + Math.abs(dy) < 1) return; el.animate([{ transform:`translate(${dx}px,${dy}px)` }, { transform:'none' }], { duration:400, easing:'cubic-bezier(.22,1,.36,1)' }); });
+  }
+  // puts a list's items in the order given, moving only those out of place, and keeps the focus where it was
+  function rqOrder(box, sel, els){
+    const f = document.activeElement;
+    els.forEach((el, i) => { const at = $$(sel, box)[i]; if (at !== el) box.insertBefore(el, at || null); });
+    if (f && f !== document.activeElement && f.isConnected && box.contains(f)) f.focus({ preventScroll:true });
+  }
+  const RQ_HTML = {
+    reorder:`<div class="rq-ro panel keep">
+    <div class="rq-ro-h"><div class="rq-ro-ht"><b>Queue</b><span class="rq-ro-st num">Starting</span></div><button class="pill soft sm rq-ro-pause" type="button">${I('pause','xs')}Pause</button></div>
+    <div class="rq-ro-sec"><span class="rq-ro-l">Running</span><div class="rq-ro-run"></div></div>
+    <div class="rq-ro-sec"><span class="rq-ro-l">Up next, drag to reorder</span><ol class="rq-ro-next" aria-label="Up next"></ol></div>
+    <div class="rq-ro-done"><button class="chip sm rq-ro-db" type="button" aria-expanded="false"><span class="rq-ro-dc num">0</span><span>done</span>${I('chev-d','xs')}</button><div class="fold shut"><div><ul class="rq-ro-dl" aria-label="Done"></ul></div></div></div>
+    <p class="rq-sr rq-ro-say" aria-live="polite"></p>
+  </div>`,
+    segments:`<div class="rq-sg">
+    <div class="rq-sg-top"><div class="seg2" role="group" aria-label="Density"><button type="button" aria-pressed="true" data-v="full">Detailed</button><button type="button" aria-pressed="false" data-v="compact">Compact</button></div><span class="rq-sg-all num">0 of 7 done</span></div>
+    <div class="rq-sg-tot" aria-hidden="true"></div>
+    <div class="rq-sg-list panel keep"></div>
+  </div>`,
+    workers:`<div class="rq-wk panel keep">
+    <div class="rq-wk-h"><div class="rq-wk-ht"><b>Workers</b><span class="rq-wk-st num">0 of 6 done</span></div><div class="rq-wk-n" role="group" aria-label="Workers"><button class="ib fill rq-wk-m" type="button" aria-label="One worker fewer" data-tip="Fewer">${I('minus','xs')}</button><span class="num rq-wk-v" aria-live="polite">2</span><button class="ib fill rq-wk-p" type="button" aria-label="One worker more" data-tip="More">${I('plus','xs')}</button></div></div>
+    <div class="rq-wk-slots"></div>
+    <div class="rq-wk-wl"><span class="rq-wk-l">Waiting, press one to run it next</span><div class="rq-wk-wait" role="list" aria-label="Waiting"></div></div>
+    <div class="rq-wk-fin"><span class="rq-wk-l">Done</span><div class="rq-wk-stack" aria-hidden="true"></div><span class="rq-wk-fc num">0</span></div>
+  </div>`
+  };
+  // Reorder: two tasks run at a time and the rest wait in order. The order is yours: drag a waiting task by its handle, or
+  // press Alt with the up or down arrow on it. Pause holds the running ones, and what is done folds away under a count
+  function rqReorder(r, c){
+    const T = RQ_T(), runEl = $('.rq-ro-run', r), next = $('.rq-ro-next', r), st = $('.rq-ro-st', r), say = $('.rq-ro-say', r), pb = $('.rq-ro-pause', r), dl = $('.rq-ro-dl', r), dc = $('.rq-ro-dc', r), db = $('.rq-ro-db', r), fold = $('.rq-ro-done .fold', r);
+    const SLOTS = 2; let wait = T.slice(), running = [], done = 0, paused = false, dragging = false;
+    fold.inert = true;
+    db.onclick = () => { const on = db.getAttribute('aria-expanded') !== 'true'; db.setAttribute('aria-expanded', String(on)); fold.classList.toggle('shut', !on); fold.inert = !on; };
+    const line = () => rqText(st, paused ? 'Paused' : !running.length && !wait.length ? `All ${T.length} done` : `${running.length} running · ${wait.length} waiting · ${done} done`);
+    pb.onclick = () => { paused = !paused; pb.innerHTML = I(paused ? 'play' : 'pause', 'xs') + (paused ? 'Resume' : 'Pause'); running.forEach(t => t.el.classList.toggle('paused', paused)); line(); };
+    // a row that has just moved flashes the grey highlight once
+    const flash = t => { t.q.classList.remove('moved'); void t.q.offsetWidth; t.q.classList.add('moved'); };
+    function paintNext(){
+      wait.forEach((t, i) => {
+        if (!t.q){
+          t.q = html(`<li class="rq-ro-q"><span class="rq-ro-fl" aria-hidden="true"></span><button class="rq-ro-hd" type="button" data-tip="Drag, or Alt and the arrows">${I('grip','xs')}</button><span class="rq-ro-pos" aria-hidden="true"></span>${rqIc(t)}<b>${t.t}</b><span class="eta">~${Math.round(t.d)}s</span></li>`);
+          t.q.addEventListener('animationend', e => { if (e.target.classList.contains('rq-ro-fl')) t.q.classList.remove('moved'); });
+          wire(t);
+        }
+        rqText($('.rq-ro-pos', t.q), String(i + 1));
+        $('.rq-ro-hd', t.q).setAttribute('aria-label', `${t.t}, position ${i + 1} of ${wait.length}. Alt with up or down moves it`);
+      });
+      rqOrder(next, '.rq-ro-q', wait.map(t => t.q));
+    }
+    const items = () => wait.map(t => t.q);
+    function move(t, to){
+      const i = wait.indexOf(t); to = Math.max(0, Math.min(wait.length - 1, to)); if (to === i) return;
+      rqFlip(items, () => { wait.splice(i, 1); wait.splice(to, 0, t); paintNext(); });
+      flash(t); say.textContent = `${t.t} moved to position ${to + 1} of ${wait.length}`;
+    }
+    function wire(t){
+      const hd = $('.rq-ro-hd', t.q);
+      hd.addEventListener('keydown', e => { if (!e.altKey || (e.key !== 'ArrowUp' && e.key !== 'ArrowDown')) return; e.preventDefault(); move(t, wait.indexOf(t) + (e.key === 'ArrowUp' ? -1 : 1)); hd.focus({ preventScroll:true }); });
+      // drag by the handle: the row follows the pointer, and the rows it passes step out of its way
+      let drag = null;
+      hd.addEventListener('pointerdown', e => { if (e.button || !wait.includes(t)) return; e.preventDefault(); hd.setPointerCapture(e.pointerId); dragging = true; drag = { y:e.clientY, i:wait.indexOf(t), h:t.q.offsetHeight + 2, n:wait.length }; t.q.classList.add('drag'); });
+      hd.addEventListener('pointermove', e => {
+        if (!drag) return; const dy = e.clientY - drag.y; t.q.style.transform = `translateY(${dy}px)`;
+        const to = Math.max(0, Math.min(drag.n - 1, drag.i + Math.round(dy / drag.h))); if (to === drag.to) return; drag.to = to;
+        wait.forEach((x, k) => { if (x === t) return; const s = k > drag.i && k <= to ? -drag.h : k < drag.i && k >= to ? drag.h : 0; x.q.style.transition = 'transform .25s var(--ease)'; x.q.style.transform = s ? `translateY(${s}px)` : ''; });
+      });
+      // the row lands where it was dropped, and everything glides from where it was drawn
+      const end = () => {
+        if (!drag) return; const d = drag; drag = null; dragging = false; t.q.classList.remove('drag');
+        const moved = d.to !== undefined && d.to !== d.i;
+        rqFlip(items, () => { wait.forEach(x => { x.q.style.transition = 'none'; x.q.style.transform = ''; }); if (moved){ wait.splice(d.i, 1); wait.splice(d.to, 0, t); paintNext(); } });
+        requestAnimationFrame(() => wait.forEach(x => { if (x.q) x.q.style.transition = ''; }));
+        if (moved){ flash(t); say.textContent = `${t.t} moved to position ${d.to + 1} of ${wait.length}`; }
+        pull();
+      };
+      hd.addEventListener('pointerup', end); hd.addEventListener('pointercancel', end);
+    }
+    // a free slot takes the first task waiting (once a row you are dragging has landed)
+    function pull(){
+      while (!dragging && running.length < SLOTS && wait.length){
+        const t = wait.shift(); if (t.q){ t.q.remove(); t.q = null; }
+        running.push(t); paintNext(); c.run(() => go(t));
+      }
+      line();
+    }
+    async function go(t){
+      t.el = html(`<div class="rq-ro-r${paused ? ' paused' : ''}"><div class="rq-ro-rt">${rqIc(t)}<b>${t.t}</b><span class="num">${rqLeft(t.d)}</span></div><div class="rq-ro-bar"><i></i></div></div>`);
+      runEl.appendChild(t.el);
+      const num = $('.num', t.el); let p = 0;
+      const tick = () => { p = Math.min(1, p + .1 / t.d); t.el.style.setProperty('--p', p.toFixed(3)); rqText(num, rqLeft(t.d * (1 - p))); };
+      await new Promise(res => {
+        const iv = c.every(100, () => {
+          if (paused) return; tick();
+          // the test send fails once, part way: the task turns red and waits for Retry, which presses itself after a moment
+          // until you take over
+          if (t.fail !== undefined && !t.failed && p >= .62){
+            clearInterval(iv); t.failed = true; t.el.classList.add('fail'); rqText(num, 'Test send failed');
+            const b = html('<button class="pill sm" type="button">Retry</button>'); $('.rq-ro-rt', t.el).appendChild(b); enter(b);
+            const again = () => { if (!b.isConnected) return; b.remove(); t.el.classList.remove('fail'); p = .45; tick(); const iv2 = c.every(100, () => { if (paused) return; tick(); if (p >= 1){ clearInterval(iv2); res(); } }); };
+            b.onclick = again; c.auto(3200, again);
+          } else if (p >= 1){ clearInterval(iv); res(); }
+        });
+      });
+      t.el.classList.add('leave'); await c.wait(REDUCE ? 0 : 320); t.el.remove();
+      running = running.filter(x => x !== t); done++; dc.textContent = done;
+      dl.appendChild(html(`<li>${I('check','xs')}<span>${t.t}</span><span>${t.d.toFixed(1)}s</span></li>`));
+      pull();
+      if (!running.length && !wait.length) pb.hidden = true;
+    }
+    paintNext(); pull();
+    c.story(async s => {
+      await s.beat(4);
+      const last = wait[wait.length - 1]; if (last){ await s.point($('.rq-ro-hd', last.q)); await s.beat(1); move(last, 0); s.away(); }
+      await s.beat(4);
+      await s.until(() => $('.rq-ro-r.fail .pill', r)); await s.beat(2); const re = $('.rq-ro-r.fail .pill', r); if (re) await s.tap(re); s.away();
+      await s.until(() => !running.length && !wait.length); await s.beat(2);
+      await s.point(db); await s.beat(3); s.away(); await s.beat(2);
+    });
+  }
+  // Segments: the first three tasks as groups, each step a segment of the group's bar and of the whole queue's bar above.
+  // A group folds to its bar, and Compact folds them all
+  function rqSegments(r, c){
+    const G = RQ_T().slice(0, 3), list = $('.rq-sg-list', r), all = $('.rq-sg-all', r), tot = $('.rq-sg-tot', r);
+    const N = G.reduce((a, g) => a + g.subs.length, 0); let compact = false, doneN = 0;
+    all.textContent = `0 of ${N} done`;
+    tot.innerHTML = G.flatMap(g => g.subs.map(() => '<i><b></b></i>')).join('');
+    const totI = $$('i', tot);
+    let k0 = 0;
+    G.forEach(g => {
+      g.k0 = k0; k0 += g.subs.length;
+      g.el = html(`<div class="rq-sg-g" data-s="wait"><button class="rq-sg-gh" type="button" aria-expanded="true">${rqIc(g)}<b>${g.t}</b><span class="m">Queued</span><span class="cv">${I('chev-d','xs')}</span></button><div class="rq-sg-segs" aria-hidden="true">${g.subs.map(() => '<i><b></b></i>').join('')}</div><div class="fold"><div><div class="rq-sg-subs">${g.subs.map(s => `<div class="rq-sg-s wait"><span class="g"><span class="dot"></span></span><span>${s[0]}</span><span class="m"></span></div>`).join('')}</div></div></div></div>`);
+      list.appendChild(g.el);
+      const b = $('.rq-sg-gh', g.el), f = $('.fold', g.el);
+      g.open = on => { b.setAttribute('aria-expanded', String(on)); f.classList.toggle('shut', !on); f.inert = !on; g.el.classList.toggle('closed', !on); };
+      b.onclick = () => g.open(b.getAttribute('aria-expanded') !== 'true');
+    });
+    seg($('.rq-sg-top .seg2', r), v => { compact = v === 'compact'; G.forEach(g => g.open(!compact)); });
+    const setM = (g, m) => swap($('.rq-sg-gh .m', g.el), m);
+    async function runGroup(g){
+      g.el.dataset.s = 'run'; setM(g, 'Running');
+      const segs = $$('.rq-sg-segs i', g.el), subs = $$('.rq-sg-s', g.el), per = g.d / g.subs.length;
+      for (let i = 0; i < subs.length; i++){
+        const s = subs[i], bars = [segs[i], totI[g.k0 + i]];
+        s.className = 'rq-sg-s'; $('.g', s).innerHTML = '<span class="spin"></span>'; bars.forEach(x => x.classList.add('run'));
+        let p = 0; const failAt = g.fail === i && !g.retried ? .6 : 2;
+        await new Promise(res => { const iv = c.every(100, () => { p = Math.min(1, p + .1 / per); bars.forEach(x => x.style.setProperty('--p', p.toFixed(3))); if (p >= failAt || p >= 1){ clearInterval(iv); res(); } }); });
+        if (p < 1){
+          // the step fails: its segment is hatched in red and it waits for Retry, which presses itself after a moment until
+          // you take over
+          bars.forEach(x => { x.classList.remove('run'); x.classList.add('fail'); }); s.className = 'rq-sg-s fail'; $('.g', s).innerHTML = I('x','xs'); g.el.dataset.s = 'fail'; setM(g, '1 failed');
+          $('.m', s).innerHTML = '<button class="rq-sg-retry" type="button">Retry</button>'; if (compact) g.open(true);
+          await new Promise(res => { const b = $('.rq-sg-retry', s); b.onclick = res; c.auto(3000, () => { if (b.isConnected){ b.classList.add('on'); c.auto(240, res); } }); });
+          g.retried = true; bars.forEach(x => { x.classList.remove('fail'); x.style.setProperty('--p', 0); }); s.className = 'rq-sg-s'; $('.m', s).textContent = ''; g.el.dataset.s = 'run'; setM(g, 'Retrying'); i--; continue;
+        }
+        bars.forEach(x => x.classList.remove('run')); segs[i].classList.remove('flash'); void segs[i].offsetWidth; segs[i].classList.add('flash');
+        s.className = 'rq-sg-s done'; $('.g', s).innerHTML = I('check','xs'); swap($('.m', s), g.subs[i][1]); doneN++; rqText(all, `${doneN} of ${N} done`);
+      }
+      g.el.dataset.s = 'done'; setM(g, `Done · ${g.d.toFixed(1)}s`);
+    }
+    c.run(async () => { await c.wait(600); for (const g of G) await runGroup(g); swap(all, `All ${N} done`); });
+    c.story(async s => {
+      await s.until(() => G[1].el.dataset.s === 'done'); await s.beat(2);
+      await s.tap($('.rq-sg-top [data-v="compact"]', r)); s.away(); await s.beat(5);
+      await s.tap($('.rq-sg-top [data-v="full"]', r)); s.away();
+      await s.until(() => G[2].el.dataset.s === 'done'); await s.beat(4);
+    });
+  }
+  // Workers: each worker runs one task, with a ring that fills as it goes. Add or take away a worker (one taken away finishes
+  // its task first), press a waiting task to run it next, or cancel a running one
+  function rqWorkers(r, c){
+    const T = RQ_T(), slots = $('.rq-wk-slots', r), waitEl = $('.rq-wk-wait', r), stack = $('.rq-wk-stack', r), fc = $('.rq-wk-fc', r), st = $('.rq-wk-st', r), nv = $('.rq-wk-v', r), mB = $('.rq-wk-m', r), pB = $('.rq-wk-p', r);
+    let n = 2, wait = T.slice(), W = [], done = 0;
+    // the ring's two halves turn with the task: the right one for the first half, the left one after
+    const ring = (el, p) => { el.style.setProperty('--a1', (Math.min(p, .5) * 360).toFixed(1) + 'deg'); el.style.setProperty('--a2', (Math.max(0, p - .5) * 360).toFixed(1) + 'deg'); };
+    const idle = () => `<span class="rq-wk-idle" aria-hidden="true">${I('clock','xs')}</span>`;
+    // a chip that is new rises in; the others glide to their new places
+    const rise = el => { if (!REDUCE && el.animate) el.animate([{ opacity:0, transform:'translateY(10px) scale(.98)' }, { opacity:1, transform:'none' }], { duration:400, easing:'cubic-bezier(.22,1,.36,1)' }); };
+    function paintWait(){
+      const empty = $('.rq-wk-empty', waitEl); if (!wait.length && !empty) waitEl.appendChild(html('<span class="rq-wk-empty">Nothing waiting</span>')); if (wait.length && empty) empty.remove();
+      const fresh = [];
+      wait.forEach((t, i) => {
+        if (!t.c){ t.c = html(`<button class="chip rq-wk-c" type="button" role="listitem" data-tip="Run next">${rqIc(t)}<span>${t.sh}</span><span class="k num"></span></button>`); t.c.onclick = () => { const k = wait.indexOf(t); if (k > 0){ wait.splice(k, 1); wait.unshift(t); paintWait(); } }; fresh.push(t.c); }
+        rqText($('.k', t.c), i === 0 ? 'next' : `~${Math.round(t.d)}s`); t.c.setAttribute('aria-label', `${t.t}, ${i === 0 ? 'runs next' : 'position ' + (i + 1) + ', press to run it next'}`);
+      });
+      rqFlip(() => $$('.rq-wk-c', waitEl).filter(el => !fresh.includes(el)), () => rqOrder(waitEl, '.rq-wk-c', wait.map(t => t.c)));
+      fresh.forEach(rise);
+    }
+    function worker(){ const w = { el:html(`<div class="rq-wk-w new"><span class="rq-wk-ring"><span class="tr"></span><span class="h r"><i></i></span><span class="h l"><i></i></span>${idle()}</span><span class="rq-wk-wn">Free</span><span class="rq-wk-ws">Waiting for a task</span></div>`), t:null }; slots.appendChild(w.el); W.push(w); return w; }
+    const out = w => { w.el.classList.add('out'); c.later(450, () => w.el.remove()); };
+    function setN(k){
+      k = Math.max(1, Math.min(3, k)); if (k === n && W.length === n) return; n = k; nv.textContent = n; slots.style.setProperty('--n', n);
+      while (W.length < n) worker();
+      // a worker you take away finishes its task first
+      W.forEach((w, i) => { w.retire = i >= n; if (w.retire && !w.t) out(w); });
+      W = W.filter(w => !(w.retire && !w.t));
+      mB.disabled = n <= 1; pB.disabled = n >= 3;
+      feed();
+    }
+    mB.onclick = () => setN(n - 1); pB.onclick = () => setN(n + 1);
+    const line = () => rqText(st, `${done} of ${T.length} done · ${W.filter(w => w.t).length} running`);
+    function feed(){ W.forEach(w => { if (!w.t && !w.retire && wait.length){ const t = wait.shift(); if (t.c){ t.c.remove(); t.c = null; } run(w, t); } }); paintWait(); line(); }
+    function run(w, t){
+      w.t = t; const el = w.el; el.className = 'rq-wk-w busy'; ring(el, 0);
+      $('.rq-wk-ring', el).lastElementChild.outerHTML = rqIc(t);
+      $('.rq-wk-wn', el).textContent = t.t; const ws = $('.rq-wk-ws', el); ws.textContent = rqLeft(t.d);
+      const x = html(`<button class="ib rq-wk-x" type="button" aria-label="Cancel ${t.t}" data-tip="Cancel">${I('x','xs')}</button>`); el.appendChild(x);
+      let p = 0, stop = false;
+      const finish = ok => {
+        clearInterval(iv); x.remove(); w.t = null;
+        // a task cancelled while it waits for Retry takes its Retry with it
+        const re = $('.rq-wk-re', el); if (re) re.replaceWith(ws);
+        if (ok){ done++; fc.textContent = done; stack.appendChild(html(`<i class="${t.app ? 'app' : ''}" style="--k:${Math.min(done - 1, 9)}">${t.app ? BRAND[t.app] : I(t.ic, 'xs')}</i>`)); }
+        el.className = 'rq-wk-w'; ring(el, 0); $('.rq-wk-ring', el).lastElementChild.outerHTML = idle(); $('.rq-wk-wn', el).textContent = 'Free'; ws.textContent = wait.length ? 'Taking the next task' : 'Nothing waiting';
+        if (w.retire){ out(w); W = W.filter(z => z !== w); }
+        c.later(REDUCE ? 0 : 450, feed); line();
+      };
+      x.onclick = () => { stop = true; finish(false); };
+      const iv = c.every(100, () => {
+        if (stop) return; p = Math.min(1, p + .1 / t.d); ring(el, p); rqText(ws, rqLeft(t.d * (1 - p)));
+        // the test send fails once: the worker turns red and waits for Retry, which presses itself after a moment until you
+        // take over
+        if (t.fail !== undefined && !t.failed && p >= .55){
+          t.failed = true; stop = true; el.classList.add('fail');
+          const b = html('<button class="rq-wk-re" type="button">Retry</button>'); ws.replaceWith(b); enter(b);
+          const again = () => { if (!b.isConnected) return; b.replaceWith(ws); el.classList.remove('fail'); p = .4; ring(el, p); stop = false; }; b.onclick = again; c.auto(4500, again);
+        }
+        if (p >= 1) finish(true);
+      });
+    }
+    for (let i = 0; i < n; i++) worker();
+    feed();
+    c.story(async s => {
+      await s.beat(5);
+      await s.tap(pB); s.away(); await s.beat(3);
+      const last = wait[wait.length - 1]; if (last && last.c){ await s.tap(last.c); s.away(); }
+      await s.until(() => $('.rq-wk-re', r)); await s.beat(2); const re = $('.rq-wk-re', r); if (re) await s.tap(re); s.away();
+      await s.until(() => done === T.length); await s.beat(4);
+    });
+  }
+  // the switch under the queue (on designme.dev, the card's tabs) picks the design. A pick draws it in place and plays its
+  // demo from the start, on a controller of its own inside the card's: a mouse on the component holds it, a click, a key or
+  // the focus inside the design stops it for good, and the card keeps the pick when it plays again or is replayed
+  function rqDesigns(r, c, D){
+    const main = $('.dm-main', r), sg = $('.demo .seg2', r), card = c.card || r;
+    let k = null, at = D[card._rqDesign] ? card._rqDesign : 'classic';
+    const show = (v, fresh) => {
+      if (k){ k.stop(); const i = c.kids.indexOf(k); if (i >= 0) c.kids.splice(i, 1); }
+      const kk = k = ctl(c); kk.card = c.card; kk.st = c.st;
+      Object.defineProperty(kk, 'held', { get:() => c.held });
+      Object.defineProperty(kk, 'seen', { get:() => c.seen });
+      const mine = e => { if (e.isTrusted) kk.mine = true; };
+      ['pointerdown', 'keydown', 'input', 'click'].forEach(t => kk.on(main, t, mine, true));
+      kk.on(main, 'focusin', e => { if (e.isTrusted && e.timeStamp - lastInput < 100) kk.mine = true; }, true);
+      if (openPop && main.contains(openPop.pop)) closePops();
+      // the pointer of the story that was playing goes with it
+      hideTip(); $$(':scope>.hand', c.st).forEach(h => h.remove());
+      main.innerHTML = D[v][0];
+      try { D[v][1](main, kk); } catch(e){ console.error(e); }
+      if (fresh) reveal(main);
+    };
+    c.offs.push(() => { if (k) k.stop(); });
+    $$('button', sg).forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === at)));
+    seg(sg, v => { if (v === at || !D[v]) return; at = card._rqDesign = v; show(v, true); });
+    show(at, false);
+  }
+  DM.def('run-queue', (r, c, card) => {
+    // installed on its own (no switch), or inside another component, it is Classic
+    const dm = $(':scope>.rq-dm', r);
+    if (!dm) return classic(r, c, card);
+    if (r !== c.st || !card){ dm.replaceWith(...$(':scope>.dm-main', dm).childNodes); return classic(r, c, card); }
+    rqDesigns(r, c, { classic:[$(':scope>.dm-main', dm).innerHTML, classic], reorder:[RQ_HTML.reorder, rqReorder], segments:[RQ_HTML.segments, rqSegments], workers:[RQ_HTML.workers, rqWorkers] });
+  });
+}
 /* ---------- Agent tree ---------- */
 DM.def('agent-tree', (r, c) => {
   // the run: an orchestrator, its three agents and their steps. cost is what each spends on its own, in dollars; a branch
@@ -18388,6 +19217,184 @@ DM.def('eval-results', (r, c) => {
     await s.tap($('[data-v="all"]', sg)); s.away(); await s.beat(2);
   });
 });
+/* ---------- Eval results designs ---------- */
+/* the homepage card's design switch, shown as its footer tabs: Classic is the component above, and the others are the
+   directions under review. The switch is the card's alone: the registry, the code view and the component page install
+   Classic on its own (build.js leaves a data-designs="card" switch out of them) */
+{
+  const classic = DM.defs['eval-results'];
+  // the suite Run vs run and Score & judge run: eight checks on the pricing page's copy, each with its kind and its result
+  // last time. The price check regresses after the copy agent's last edit; the yearly discount check, failing last time,
+  // now passes
+  const EVR_K = () => [
+    { n:'Names the Pro seat limit', k:'acc', tm:.6, last:'pass' },
+    { n:'Prices match the billing table', k:'acc', tm:.9, last:'pass', bad:true },
+    { n:'Mentions the yearly discount', k:'acc', tm:.5, last:'fail' },
+    { n:'Makes no “unlimited” claims', k:'tone', tm:.4, last:'pass' },
+    { n:'Team plan lists SSO', k:'acc', tm:.5, last:'pass' },
+    { n:'Reads at grade 8 or below', k:'tone', tm:.7, last:'pass' },
+    { n:'One call to action per plan', k:'fmt', tm:.5, last:'pass' },
+    { n:'Free plan says no card is needed', k:'fmt', tm:.6, last:'pass' }
+  ].map(x => ({ ...x, s:'idle' }));
+  const EVR_KIND = { acc:'Accuracy', tone:'Tone', fmt:'Format' };
+  const evrDot = s => `<span class="evr-dot ${s}">${s === 'pass' ? I('check','xs') : s === 'fail' ? I('x','xs') : s === 'run' ? '<span class="spin"></span>' : ''}</span>`;
+  const EVR_EXP = '$24 a seat, billed yearly';
+  // a run checks the cases one after another; the price check fails until its copy is fixed
+  async function evrRun(c, K, each, gap = 380){ for (const k of K){ k.s = 'run'; each(k); await c.wait(gap); k.s = k.bad ? 'fail' : 'pass'; each(k, true); } }
+  async function evrFix(c, k, each){ k.bad = false; k.s = 'run'; each(k); await c.wait(900); k.s = 'pass'; each(k, true); }
+  const EVR_HTML = {
+    runs:`<div class="evr-vs panel">
+    <div class="evr-vs-h"><div class="evr-vs-ht"><b>Pricing copy evals</b><span class="evr-vs-st">Copy agent · 8 cases · last run 2h ago</span></div><button class="pill primary sm evr-vs-run" type="button">${I('play','xs')}Run evals</button></div>
+    <div class="evr-vs-score"><span class="evr-vs-big num">7/8</span><span class="evr-vs-dl tag">Same as last run</span><span class="evr-vs-mv"></span></div>
+    <div class="evr-vs-f" role="toolbar" aria-label="Show"></div>
+    <div class="evr-vs-th" aria-hidden="true"><span>Case</span><span>Last</span><span></span><span>Now</span></div>
+    <div class="evr-vs-list" role="list" aria-label="Cases"></div>
+  </div>`,
+    judge:`<div class="evr-jg panel">
+    <div class="evr-jg-h"><div class="evr-jg-ht"><b>Pricing copy evals</b><span class="evr-jg-st">Judged by the review model · 8 cases</span></div><button class="ib evr-jg-run" type="button" aria-label="Run evals" data-tip="Run again">${I('refresh')}</button></div>
+    <div class="evr-jg-top">
+      <div class="evr-jg-g"><span class="evr-jg-arc" aria-hidden="true"><span class="tr"></span><i></i></span><span class="evr-jg-gv num">0%</span><span class="evr-jg-gl">7 of 8 passed</span></div>
+      <ul class="evr-jg-cats" aria-label="By kind of check"></ul>
+    </div>
+    <div class="evr-jg-j" aria-live="polite"></div>
+  </div>`
+  };
+  // Run vs run: each case's result last run and this run side by side. A filter shows only the regressions, the fixes or
+  // the cases failing now, and a regression opens to what was expected and what came back
+  function evrRuns(r, c){
+    const K = EVR_K(), list = $('.evr-vs-list', r), bar = $('.evr-vs-f', r), run = $('.evr-vs-run', r), big = $('.evr-vs-big', r), dl = $('.evr-vs-dl', r), mv = $('.evr-vs-mv', r), st = $('.evr-vs-st', r);
+    // before the first run, "now" is the last run's result
+    K.forEach(k => { k.s = k.last; });
+    let filter = 'all', busy = false;
+    const ch = k => k.s === 'run' || k.s === 'idle' ? '' : k.last === 'pass' && k.s === 'fail' ? 'reg' : k.last === 'fail' && k.s === 'pass' ? 'fix' : '';
+    const F = [['all', 'All'], ['reg', 'Regressed'], ['fix', 'Fixed'], ['fail', 'Failing']];
+    bar.innerHTML = F.map(([v, n], i) => `<button class="chip sm evr-vs-chip${i === 0 ? ' on' : ''}" type="button" data-f="${v}" aria-pressed="${i === 0}">${n}<span class="n num">0</span></button>`).join('');
+    const chips = $$('.evr-vs-chip', bar);
+    chips.forEach(b => b.onclick = () => { filter = b.dataset.f; chips.forEach(x => { x.setAttribute('aria-pressed', String(x === b)); x.classList.toggle('on', x === b); }); show(); });
+    c.on(bar, 'keydown', e => { const i = chips.indexOf(document.activeElement); if (i < 0) return; const j = e.key === 'ArrowRight' ? i + 1 : e.key === 'ArrowLeft' ? i - 1 : null; if (j === null) return; e.preventDefault(); chips[(j + chips.length) % chips.length].focus(); });
+    K.forEach(k => { k.w = html('<div class="fold evr-vs-w"><div><div class="evr-vs-i" role="listitem"></div></div></div>'); k.el = $('.evr-vs-i', k.w); list.appendChild(k.w); });
+    const none = html('<p class="evr-vs-none" hidden>Nothing here this run</p>'); list.appendChild(none);
+    function paint(k, fresh){
+      const d = ch(k), open = d === 'reg' && k.open;
+      k.el.className = 'evr-vs-i' + (d ? ' ' + d : '');
+      const row = `<span class="n"><span>${k.n}</span>${d === 'reg' ? '<span class="tag tg">Regressed</span>' : d === 'fix' ? '<span class="tag ok tg">Fixed</span>' : ''}</span>${evrDot(k.last)}<span class="ar">${I('right','xs')}</span>${evrDot(k.s)}<span class="tm num">${k.s === 'pass' || k.s === 'fail' ? k.tm.toFixed(1) + 's' : ''}</span>`;
+      k.el.innerHTML = d === 'reg' ? `<button class="evr-vs-r" type="button" aria-expanded="${!!open}">${row}</button><div class="fold${open ? '' : ' shut'}"><div><div class="evr-vs-d"><span class="evr-vs-kv"><span class="k">Expected</span><span class="evr-is">${EVR_EXP}</span></span><span class="evr-vs-kv"><span class="k">Got</span><span><span class="evr-was">$29</span> a seat, billed yearly</span></span><span class="evr-vs-kv"><span class="k">Source</span><span>Billing table, Pro row</span></span><button class="pill sm" type="button">Use $24 and rerun</button></div></div></div>` : `<div class="evr-vs-r">${row}</div>`;
+      if (d === 'reg'){
+        const f = $('.fold', k.el), b = $('.evr-vs-r', k.el); f.inert = !open;
+        b.onclick = () => { k.open = !k.open; b.setAttribute('aria-expanded', String(k.open)); f.classList.toggle('shut', !k.open); f.inert = !k.open; };
+        $('.pill', k.el).onclick = () => { if (busy) return; k.open = false; c.run(() => evrFix(c, k, paint).then(counts)); };
+      }
+      if (fresh){ const dots = $$('.evr-dot', k.el); if (dots[1]) dots[1].classList.add('bump'); }
+    }
+    function counts(){
+      const n = { all:K.length, reg:K.filter(k => ch(k) === 'reg').length, fix:K.filter(k => ch(k) === 'fix').length, fail:K.filter(k => k.s === 'fail').length };
+      chips.forEach(b => { $('.n', b).textContent = n[b.dataset.f]; });
+      const p = K.filter(k => k.s === 'pass').length, lp = K.filter(k => k.last === 'pass').length, fin = k => k.s === 'pass' || k.s === 'fail', doneAll = K.every(fin);
+      big.textContent = `${doneAll ? p : K.filter(fin).length}/8`;
+      const d = !doneAll ? 'Running' : p > lp ? `+${p - lp} on the last run` : p < lp ? `${p - lp} on the last run` : 'Same score as last run';
+      if (dl.textContent !== d){ dl.textContent = d; dl.className = 'evr-vs-dl tag' + (!doneAll ? '' : p > lp ? ' ok' : p < lp ? ' bad' : ''); }
+      mv.textContent = doneAll && (n.reg || n.fix) ? `${n.reg} regressed, ${n.fix} fixed` : '';
+      show();
+    }
+    function show(){ K.forEach(k => { const d = ch(k), on = filter === 'all' || (filter === 'fail' ? k.s === 'fail' : d === filter); k.w.classList.toggle('shut', !on); k.w.inert = !on; }); none.hidden = K.some(k => !k.w.classList.contains('shut')); }
+    K.forEach(k => paint(k)); counts();
+    run.onclick = () => c.run(async () => {
+      if (busy) return; busy = true; run.disabled = true; run.innerHTML = '<span class="spin"></span>Running';
+      K.forEach(k => { k.s = 'idle'; k.open = false; paint(k); }); counts();
+      await evrRun(c, K, (k, f) => { paint(k, f); counts(); });
+      busy = false; run.disabled = false; run.innerHTML = I('play','xs') + 'Run again'; swap(st, 'Copy agent · 8 cases · run just now');
+    });
+    c.story(async s => {
+      await s.beat(3); await s.tap(run); s.away();
+      await s.until(() => !busy && K.every(k => k.s === 'pass' || k.s === 'fail')); await s.beat(2);
+      await s.tap(chips[1]); s.away(); await s.beat(2);
+      await s.tap($('.evr-vs-i.reg .evr-vs-r', r)); s.away(); await s.beat(4);
+      await s.tap($('.evr-vs-i.reg .pill', r)); s.away();
+      await s.until(() => K.every(k => k.s === 'pass')); await s.beat(2);
+      await s.tap(chips[0]); s.away(); await s.beat(3);
+    });
+  }
+  // Score & judge: a gauge for the score and a bar for each kind of check, then the judge's reasoning on the case that
+  // failed, with the wrong words marked, a thumb for whether it was a fair call, and the fix
+  function evrJudge(r, c){
+    const K = EVR_K(), g = $('.evr-jg-g', r), gv = $('.evr-jg-gv', r), gl = $('.evr-jg-gl', r), cats = $('.evr-jg-cats', r), j = $('.evr-jg-j', r), run = $('.evr-jg-run', r);
+    // last run's score by kind, so each bar says how it moved
+    const LAST = { acc:3, tone:2, fmt:2 };
+    cats.innerHTML = Object.entries(EVR_KIND).map(([k, n]) => `<li data-k="${k}"><span class="t">${n}</span><span class="s num"></span><span class="b"><i></i></span></li>`).join('');
+    let shown = 0, busy = false, tw = 0;
+    function score(){
+      const fin = k => k.s === 'pass' || k.s === 'fail', done = K.filter(fin), p = K.filter(k => k.s === 'pass').length;
+      const f = done.length ? p / K.length : 0;
+      g.style.setProperty('--p', f.toFixed(3)); g.style.setProperty('--gc', f === 1 ? 'var(--ok)' : f >= .8 ? 'var(--accent-mark)' : 'var(--warn)');
+      gl.textContent = done.length < K.length ? `${done.length} of 8 checked` : `${p} of 8 passed`;
+      // the score counts to its value as the arc fills, its text changing at most ten times a second
+      const to = Math.round(f * 100), me = ++tw; let at = -1e9;
+      tween(shown, to, REDUCE ? 1 : 900, (v, q) => { if (me !== tw || c.dead) return; const now = performance.now(); if (q < 1 && now - at < 100) return; at = now; gv.textContent = Math.round(v) + '%'; }); shown = to;
+      Object.keys(EVR_KIND).forEach(k => {
+        const li = $(`[data-k="${k}"]`, cats), all = K.filter(x => x.k === k), pp = all.filter(x => x.s === 'pass').length, d = pp - LAST[k], end = done.length === K.length;
+        $('.s', li).innerHTML = `${pp}/${all.length}${end && d ? `<span class="d${d > 0 ? ' up' : ''}">${d > 0 ? '+' : ''}${d}</span>` : ''}`; $('.b i', li).style.setProperty('--p', (pp / all.length).toFixed(3));
+      });
+    }
+    const again = () => { j.classList.remove('go'); void j.offsetWidth; j.classList.add('go'); };
+    // the judge's part for the failed case: what the copy said, why it is wrong, and your call
+    function judge(){
+      const k = K.find(x => x.s === 'fail');
+      if (!k){ j.innerHTML = K.every(x => x.s === 'pass') ? `<div class="evr-jg-ok">${I('ok')}<b>All 8 pass</b><span>The judge found nothing to fix in this run</span></div>` : '<div class="evr-jg-ok"><span class="spin"></span><span>The judge is reading the copy</span></div>'; return; }
+      j.innerHTML = `<div class="evr-jg-jh">${evrDot('fail')}<b>${k.n}</b><span class="tag warn">Regressed</span></div><p class="evr-jg-jq">Pro is <span class="evr-mk">$29 a seat</span>, billed yearly, with SSO and audit logs.</p><p class="evr-jg-jr"><span class="who">${I('spark','xs')}Judge</span>The billing table has Pro at <span class="evr-gd">$24 a seat</span> when billed yearly. The copy agent's last edit used the monthly price.</p><div class="evr-jg-ja"><span class="lbl">Fair call?</span><button class="ib evr-jg-y" type="button" aria-pressed="false" aria-label="Agree with the judge" data-tip="Agree">${I('up-thumb','xs')}</button><button class="ib evr-jg-n" type="button" aria-pressed="false" aria-label="Disagree with the judge" data-tip="Disagree">${I('down-thumb','xs')}</button><span class="sp"></span><button class="pill primary sm evr-jg-fix" type="button">Use $24 and rerun</button></div>`;
+      const y = $('.evr-jg-y', j), n = $('.evr-jg-n', j); [y, n].forEach(b => b.onclick = () => { const on = b.getAttribute('aria-pressed') !== 'true'; [y, n].forEach(x => x.setAttribute('aria-pressed', String(x === b && on))); });
+      $('.evr-jg-fix', j).onclick = () => { if (busy) return; busy = true; c.run(async () => { await evrFix(c, k, () => score()); busy = false; judge(); again(); }); };
+      again();
+    }
+    async function go(){
+      if (busy) return; busy = true; run.classList.add('spinning'); run.disabled = true;
+      K.forEach(k => { k.s = 'idle'; k.bad = k.n.startsWith('Prices'); }); score(); judge();
+      await evrRun(c, K, () => score(), 300);
+      busy = false; run.classList.remove('spinning'); run.disabled = false; judge();
+    }
+    run.onclick = () => c.run(go);
+    score(); judge();
+    c.run(async () => { await c.wait(700); await go(); });
+    c.story(async s => {
+      await s.until(() => !busy && $('.evr-jg-fix', j)); await s.beat(4);
+      await s.tap($('.evr-jg-y', j)); s.away(); await s.beat(2);
+      await s.tap($('.evr-jg-fix', j)); s.away();
+      await s.until(() => K.every(k => k.s === 'pass')); await s.beat(5);
+    });
+  }
+  // the switch under the run (on designme.dev, the card's tabs) picks the design. A pick draws it in place and plays its demo
+  // from the start, on a controller of its own inside the card's: a mouse on the component holds it, a click, a key or the
+  // focus inside the design stops it for good, and the card keeps the pick when it plays again or is replayed
+  function evrDesigns(r, c, D){
+    const main = $('.dm-main', r), sg = $('.demo .seg2', r), card = c.card || r;
+    let k = null, at = D[card._evrDesign] ? card._evrDesign : 'classic';
+    const show = (v, fresh) => {
+      if (k){ k.stop(); const i = c.kids.indexOf(k); if (i >= 0) c.kids.splice(i, 1); }
+      const kk = k = ctl(c); kk.card = c.card; kk.st = c.st;
+      Object.defineProperty(kk, 'held', { get:() => c.held });
+      Object.defineProperty(kk, 'seen', { get:() => c.seen });
+      const mine = e => { if (e.isTrusted) kk.mine = true; };
+      ['pointerdown', 'keydown', 'input', 'click'].forEach(t => kk.on(main, t, mine, true));
+      kk.on(main, 'focusin', e => { if (e.isTrusted && e.timeStamp - lastInput < 100) kk.mine = true; }, true);
+      if (openPop && main.contains(openPop.pop)) closePops();
+      // the pointer of the story that was playing goes with it
+      hideTip(); $$(':scope>.hand', c.st).forEach(h => h.remove());
+      main.innerHTML = D[v][0];
+      try { D[v][1](main, kk); } catch(e){ console.error(e); }
+      if (fresh) reveal(main);
+    };
+    c.offs.push(() => { if (k) k.stop(); });
+    $$('button', sg).forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === at)));
+    seg(sg, v => { if (v === at || !D[v]) return; at = card._evrDesign = v; show(v, true); });
+    show(at, false);
+  }
+  DM.def('eval-results', (r, c, card) => {
+    // installed on its own (no switch), or inside another component, it is Classic
+    const dm = $(':scope>.evr-dm', r);
+    if (!dm) return classic(r, c, card);
+    if (r !== c.st || !card){ dm.replaceWith(...$(':scope>.dm-main', dm).childNodes); return classic(r, c, card); }
+    evrDesigns(r, c, { classic:[$(':scope>.dm-main', dm).innerHTML, classic], runs:[EVR_HTML.runs, evrRuns], judge:[EVR_HTML.judge, evrJudge] });
+  });
+}
 /* ---------- Design review ---------- */
 DM.def('design-review', (r, c) => {
   r.innerHTML = r.innerHTML.replace('{palette}', I('palette')).replace('{chev}', I('chev-d','xs')).replace(/\{chk\}/g, I('check','xs'));
@@ -18929,6 +19936,321 @@ DM.def('agent-settings', (r, c) => {
   // the preview flips one switch on its own, unless you take over first
   c.auto(1400, () => tg[1].click());
 });
+/* ---------- Agent settings designs ---------- */
+/* the homepage card's design switch, shown as its footer tabs: Classic is the component above, and the others are the
+   directions under review. The switch is the card's alone: the registry, the code view and the component page install
+   Classic on its own (build.js leaves a data-designs="card" switch out of them) */
+{
+  const classic = DM.defs['agent-settings'];
+  // the tools Live preview, Tabs and Presets name, each with its mark, and the autonomy levels
+  const ASX_TOOLS = [['files', 'Files in the repo', null, 'file-text'], ['github', 'GitHub', 'github'], ['figma', 'Figma', 'figma'], ['slack', 'Slack', 'slack'], ['linear', 'Linear', 'linear']];
+  const asxApp = ([id, n, b, ic]) => `<span class="asx-app" aria-hidden="true">${b ? BRAND[b] : I(ic, 'xs')}</span>`;
+  const ASX_CAPS = [1, 2, 3, 5, 10, 20, 50];
+  const ASX_LV = ['Ask', 'Balanced', 'Autopilot'];
+  const ASX_HTML = {
+    preview:`<div class="asx-lp panel">
+    <div class="asx-lp-sec">
+      <div class="asx-lp-l"><b>Autonomy</b><span class="asx-lp-lv">Balanced</span></div>
+      <div class="asx-lp-sl" role="slider" tabindex="0" aria-label="Autonomy" aria-valuemin="0" aria-valuemax="2" aria-valuenow="1" aria-valuetext="Balanced">
+        <div class="asx-lp-tr"><i class="asx-lp-fill"></i><span class="asx-lp-stop" style="--x:0"></span><span class="asx-lp-stop" style="--x:.5"></span><span class="asx-lp-stop" style="--x:1"></span></div>
+        <span class="asx-lp-th" aria-hidden="true"><i></i></span>
+      </div>
+      <div class="asx-lp-ticks"><button type="button" tabindex="-1" data-v="0">Ask</button><button type="button" tabindex="-1" data-v="1">Balanced</button><button type="button" tabindex="-1" data-v="2">Autopilot</button></div>
+    </div>
+    <div class="asx-lp-pv"><span class="asx-lp-pl">On a run like <b>Update the pricing page</b>, it would</span><ul class="asx-lp-acts" aria-label="What it would do"></ul></div>
+    <div class="asx-lp-sec">
+      <div class="asx-lp-l"><b>Spend cap per run</b><span class="asx-lp-cv num">$5</span></div>
+      <input type="range" class="asx-lp-rg" min="0" max="6" step="1" value="3" aria-label="Spend cap per run" aria-valuetext="$5">
+      <span class="asx-lp-est num">About 40 runs a month on your plan</span>
+    </div>
+    <div class="asx-lp-bar" inert><span class="asx-lp-bt">Unsaved changes</span><button class="pill ghost sm asx-lp-rs" type="button">Reset</button><button class="pill primary sm asx-lp-sv" type="button">Save</button></div>
+  </div>`,
+    tabs:`<div class="asx-tb panel">
+    <div class="asx-tb-tabs" role="tablist" aria-label="Settings"><span class="asx-tb-kn" aria-hidden="true"></span></div>
+    <div class="asx-tb-pane" role="tabpanel"></div>
+    <div class="asx-tb-ft">
+      <div class="fold shut asx-tb-cf"><div><ul class="asx-tb-cl" aria-label="Unsaved changes"></ul></div></div>
+      <div class="asx-tb-bar"><span class="asx-tb-st" aria-live="polite">No unsaved changes</span><button class="pill ghost sm asx-tb-rs" type="button" disabled>Discard</button><button class="pill primary sm asx-tb-sv" type="button" disabled>Save<span class="kbd">⌘S</span></button></div>
+    </div>
+    <div class="asx-tb-pops"></div>
+  </div>`,
+    presets:`<div class="asx-ps panel">
+    <div class="asx-ps-pre" role="radiogroup" aria-label="Preset"></div>
+    <div class="asx-ps-mx">
+      <div class="asx-ps-mh" aria-hidden="true"><span></span><span>Read</span><span>Change</span><span>Publish</span></div>
+      <div class="asx-ps-grid" role="grid" aria-label="What the agent may do in each tool"></div>
+      <div class="asx-ps-key" aria-hidden="true"><span class="al"><i></i>Allow</span><span class="as"><i></i>Ask first</span><span class="bl"><i></i>Block</span></div>
+    </div>
+    <div class="asx-ps-bar"><span class="asx-ps-bt">Balanced preset</span><button class="pill ghost sm asx-ps-rs" type="button" disabled>Reset</button><button class="pill primary sm asx-ps-sv" type="button" disabled>Save</button></div>
+  </div>`
+  };
+  // Live preview: one autonomy slider, with what the agent would do alone or ask about on a real run, and a spend cap. A bar
+  // with Reset and Save rises once something has changed
+  function asxPreview(r, c){
+    const root = $('.asx-lp', r), sl = $('.asx-lp-sl', r), th = $('.asx-lp-th', r), fill = $('.asx-lp-fill', r), lv = $('.asx-lp-lv', r), acts = $('.asx-lp-acts', r), rg = $('.asx-lp-rg', r), cv = $('.asx-lp-cv', r), est = $('.asx-lp-est', r), bar = $('.asx-lp-bar', r), ticks = $$('.asx-lp-ticks button', r);
+    // what the agent does on the run at each level: does it (al), asks first (as) or leaves it (bl)
+    const A = [
+      { t:'Read the pricing files', ap:ASX_TOOLS[0], v:['al', 'al', 'al'] },
+      { t:'Edit shared components', ap:ASX_TOOLS[0], v:['as', 'as', 'al'] },
+      { t:'Update the plan cards in Figma', ap:ASX_TOOLS[2], v:['as', 'al', 'al'] },
+      { t:'Open a pull request', ap:ASX_TOOLS[1], v:['as', 'al', 'al'] },
+      { t:'Post the summary in #design', ap:ASX_TOOLS[3], v:['bl', 'as', 'al'] },
+      { t:'Merge to main', ap:ASX_TOOLS[1], v:['bl', 'as', 'as'] }
+    ];
+    const P = { al:[I('check','xs'), 'Does it'], as:[I('hand','xs'), 'Asks first'], bl:[I('slash','xs'), 'Leaves it'] };
+    acts.innerHTML = A.map(a => `<li class="asx-lp-a">${asxApp(a.ap)}<span class="t">${a.t}</span><span class="tag asx-lp-pill"></span></li>`).join('');
+    const pills = $$('.asx-lp-pill', acts);
+    let lev = 1, cap = 3, saved = { lev:1, cap:3 }, W = 0;
+    const ro = new ResizeObserver(() => { W = sl.clientWidth; th.style.setProperty('--tx', (lev / 2 * W).toFixed(1) + 'px'); }); ro.observe(sl); c.offs.push(() => ro.disconnect());
+    // a verdict that changes flips in, one after another: a dip in Soft, a cut in Blueprint
+    const flipIn = (el, d, bp) => { if (REDUCE || !el.animate) return; el.animate(bp ? [{ opacity:0 }, { opacity:1 }] : [{ transform:'none' }, { transform:'translateY(-4px) scale(.94)', opacity:.4, offset:.4 }, { transform:'none' }], { duration:bp ? 300 : 450, delay:d, easing:bp ? 'steps(2,end)' : 'cubic-bezier(.22,1,.36,1)', fill:'backwards' }); };
+    function paint(flip){
+      const bp = flip && getComputedStyle(root).getPropertyValue('--motion').trim() === 'bp';
+      th.style.setProperty('--tx', (lev / 2 * W).toFixed(1) + 'px'); fill.style.setProperty('--v', lev / 2);
+      sl.setAttribute('aria-valuenow', lev); sl.setAttribute('aria-valuetext', ASX_LV[lev]); swap(lv, ASX_LV[lev]);
+      ticks.forEach((b, i) => b.classList.toggle('on', i === lev));
+      A.forEach((a, i) => { const k = a.v[lev], p = pills[i]; if (p.dataset.k === k) return; p.dataset.k = k; p.className = 'tag asx-lp-pill' + (k === 'al' ? ' ok' : k === 'as' ? ' warn' : ''); p.innerHTML = P[k][0] + P[k][1]; if (flip) flipIn(p, i * 45, bp); });
+      cv.textContent = '$' + ASX_CAPS[cap]; rg.value = cap; rg.setAttribute('aria-valuetext', '$' + ASX_CAPS[cap]); rg.style.setProperty('--f', (cap / 6 * 100).toFixed(1) + '%');
+      est.textContent = `About ${Math.max(1, Math.round(200 / ASX_CAPS[cap]))} runs a month on your plan`;
+      const n = (lev !== saved.lev) + (cap !== saved.cap), on = n > 0;
+      // the bar is out of reach while it is hidden; when it hides with the focus in it, the focus goes back to the slider
+      const was = root.classList.contains('dirty'); root.classList.toggle('dirty', on); bar.inert = !on;
+      if (was && !on && bar.contains(document.activeElement)) sl.focus({ preventScroll:true });
+      $('.asx-lp-bt', r).textContent = n === 1 ? '1 unsaved change' : `${n} unsaved changes`;
+    }
+    const set = (v, flip = true) => { v = Math.max(0, Math.min(2, v)); if (v === lev) return; lev = v; paint(flip); };
+    // the slider: drag the thumb, press a stop's name, or use the arrow keys
+    let drag = false, left = 0;
+    const at = x => Math.round(Math.max(0, Math.min(1, (x - left) / W)) * 2);
+    c.on(sl, 'pointerdown', e => { drag = true; left = sl.getBoundingClientRect().left; sl.classList.add('drag'); sl.setPointerCapture(e.pointerId); set(at(e.clientX)); });
+    c.on(sl, 'pointermove', e => { if (!drag) return; th.style.setProperty('--tx', Math.max(0, Math.min(W, e.clientX - left)).toFixed(1) + 'px'); fill.style.setProperty('--v', Math.max(0, Math.min(1, (e.clientX - left) / W)).toFixed(3)); set(at(e.clientX)); });
+    const up = () => { if (!drag) return; drag = false; sl.classList.remove('drag'); paint(false); };
+    c.on(sl, 'pointerup', up); c.on(sl, 'pointercancel', up);
+    c.on(sl, 'keydown', e => { const d = { ArrowRight:1, ArrowUp:1, ArrowLeft:-1, ArrowDown:-1 }[e.key]; if (d){ e.preventDefault(); set(lev + d); } else if (e.key === 'Home'){ e.preventDefault(); set(0); } else if (e.key === 'End'){ e.preventDefault(); set(2); } });
+    ticks.forEach(b => b.onclick = () => set(+b.dataset.v));
+    rg.oninput = () => { cap = +rg.value; paint(false); };
+    $('.asx-lp-rs', r).onclick = () => { lev = saved.lev; cap = saved.cap; paint(true); };
+    $('.asx-lp-sv', r).onclick = () => c.run(async () => { const b = $('.asx-lp-sv', r); b.innerHTML = '<span class="spin"></span>'; await c.wait(600); saved = { lev, cap }; b.innerHTML = I('check','xs') + 'Saved'; await c.wait(800); paint(false); b.textContent = 'Save'; });
+    paint(false);
+    c.story(async s => {
+      await s.beat(3);
+      await s.tap(ticks[2]); s.away(); await s.beat(4);
+      await s.tap(ticks[0]); s.away(); await s.beat(4);
+      await s.tap(ticks[1]); s.away(); await s.beat(2);
+      await s.point(rg, false); cap = 4; paint(false); await s.beat(2); s.away();
+      await s.tap($('.asx-lp-sv', r)); s.away(); await s.beat(4);
+    });
+  }
+  // Tabs: the settings in three tabs, General, Tools and Limits, in the site's fields and switches. A change gets an accent
+  // dot by its setting and by its tab, and the save bar lists every change, oldest first, each with its own undo. Save, or
+  // ⌘S (Ctrl+S) with the focus inside, saves them all; Discard puts them all back
+  function asxTabs(r, c){
+    const root = $('.asx-tb', r), tabs = $('.asx-tb-tabs', r), pane = $('.asx-tb-pane', r), pops = $('.asx-tb-pops', r), cf = $('.asx-tb-cf', r), cl = $('.asx-tb-cl', r), stEl = $('.asx-tb-st', r), sv = $('.asx-tb-sv', r), rs = $('.asx-tb-rs', r);
+    const uid = Math.random().toString(36).slice(2, 7), KB = /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent) ? '⌘S' : 'Ctrl S';
+    const saveHtml = () => `Save<span class="kbd">${KB}</span>`; sv.innerHTML = saveHtml();
+    const AUTO = [['Ask first', 'Asks before every change'], ['Balanced', 'Asks before edits to shared files'], ['Autopilot', 'Works alone, asks only to publish']];
+    const TIME = ['10 minutes', '30 minutes', '2 hours'];
+    const onOff = v => v ? 'On' : 'Off';
+    // every setting: its tab, its name in the list of changes, its value and how that reads
+    const F = {
+      auto:{ tab:0, n:'Autonomy', v:1, show:v => AUTO[v][0] },
+      mem:{ tab:0, n:'Team memory', v:true, show:onOff },
+      ins:{ tab:0, n:'Instructions', v:'Use our tokens only. Keep copy short and friendly.', show:v => v.length > 20 ? v.slice(0, 20).trim() + '…' : v || 'None' },
+      github:{ tab:1, n:'GitHub', v:true, show:onOff }, figma:{ tab:1, n:'Figma', v:true, show:onOff }, slack:{ tab:1, n:'Slack', v:false, show:onOff }, linear:{ tab:1, n:'Linear', v:false, show:onOff },
+      cap:{ tab:2, n:'Spend cap', v:'5', show:v => v ? '$' + v : 'None' }, time:{ tab:2, n:'Time limit', v:1, show:v => TIME[v] }, ping:{ tab:2, n:'Notify me', v:true, show:onOff }
+    };
+    const saved = Object.fromEntries(Object.entries(F).map(([k, f]) => [k, f.v]));
+    const T = ['General', 'Tools', 'Limits'];
+    tabs.insertAdjacentHTML('beforeend', T.map((t, i) => `<button class="asx-tb-t" type="button" role="tab" id="asx-tb-${uid}-${i}" aria-controls="asx-tp-${uid}" aria-selected="${!i}" tabindex="${i ? -1 : 0}"><span>${t}<i class="asx-tb-dot"></i></span></button>`).join(''));
+    pane.id = 'asx-tp-' + uid; pane.setAttribute('aria-labelledby', `asx-tb-${uid}-0`);
+    const tb = $$('.asx-tb-t', tabs);
+    let cur = 0, order = [], saving = false, done = false;
+    const changed = () => order.filter(k => F[k].v !== saved[k]);
+    // the changes keep the order they were made in; one put back goes from the list
+    const set = (k, v) => { F[k].v = v; done = false; if (v !== saved[k]){ if (!order.includes(k)) order.push(k); } else order = order.filter(x => x !== k); bar(); };
+    // the list of changes keeps its rows: a new change slides in at the end, and one undone leaves
+    const rows = new Map(), txt = (el, t) => { if (el.textContent !== t) el.textContent = t; };
+    function bar(){
+      const ch = changed(), n = ch.length;
+      root.classList.toggle('dirty', n > 0); sv.disabled = !n; rs.disabled = !n;
+      const st = n ? `${n} unsaved change${n > 1 ? 's' : ''}` : done ? 'All changes saved' : 'No unsaved changes';
+      if (stEl.textContent !== st) stEl.innerHTML = (!n && done ? I('check','xs') : '') + `<span>${st}</span>`;
+      tb.forEach((b, i) => { const k = ch.filter(x => F[x].tab === i).length; $('.asx-tb-dot', b).classList.toggle('on', k > 0); b.setAttribute('aria-label', `${T[i]}${k ? `, ${k} unsaved change${k > 1 ? 's' : ''}` : ''}`); });
+      $$('.asx-tb-r', pane).forEach(row => { const f = $('[data-f]', row), d = $('.asx-tb-dot', row); if (f && d) d.classList.toggle('on', ch.includes(f.dataset.f)); });
+      for (const [k, li] of rows) if (!ch.includes(k)){ li.remove(); rows.delete(k); }
+      ch.forEach(k => {
+        let li = rows.get(k);
+        if (!li){
+          li = html(`<li class="asx-tb-c" data-k="${k}"><span class="n">${F[k].n}</span><span class="v"><span></span>${I('right','xs')}<span></span></span><button class="ib" type="button" aria-label="Undo the change to ${F[k].n}" data-tip="Undo">${I('undo','xs')}</button></li>`);
+          $('.ib', li).onclick = () => undo(k); rows.set(k, li); cl.appendChild(li); cl.scrollTop = cl.scrollHeight;
+        }
+        const v = $$('.v>span', li); txt(v[0], F[k].show(saved[k])); txt(v[1], F[k].show(F[k].v));
+      });
+      cf.classList.toggle('shut', !n); cf.inert = !n;
+    }
+    // undoing one: the setting goes back, and the focus moves to the next change in the list, or the tab when none is left
+    function undo(k){
+      const li = rows.get(k), had = li && li.contains(document.activeElement), sib = li && (li.nextElementSibling || li.previousElementSibling);
+      F[k].v = saved[k]; order = order.filter(x => x !== k); if (F[k].tab === cur) draw(false); bar();
+      if (had){ const to = sib && sib.isConnected ? $('.ib', sib) : tb[cur]; to.focus({ preventScroll:true }); }
+    }
+    const lt = (label, sub) => `<span class="asx-tb-lt"><b>${label}<i class="asx-tb-dot"></i></b>${sub ? `<span class="d">${sub}</span>` : ''}</span>`;
+    const sw = k => `<button class="toggle" type="button" role="switch" data-f="${k}" aria-checked="${F[k].v}" aria-label="${F[k].n}"></button>`;
+    const dd = (k, opts, label) => `<button class="asx-tb-dd" type="button" data-f="${k}" data-pop=".asx-tb-m-${k}" data-pop-align="end" data-pop-pos="down" aria-haspopup="menu" aria-expanded="false" aria-label="${label}: ${opts[F[k].v][0]}"><span>${opts[F[k].v][0]}</span>${I('chev-d','xs')}</button>`;
+    const menu = (k, opts, label) => `<div class="pop asx-tb-m-${k}" role="menu" aria-label="${label}">${opts.map((o, i) => `<button class="mi" type="button" role="menuitemradio" data-close data-v="${i}" aria-checked="${F[k].v === i}" tabindex="-1"><span>${o[0]}${o[1] ? `<span class="d">${o[1]}</span>` : ''}</span></button>`).join('')}</div>`;
+    const TOOLS = [['github', 'Open pull requests'], ['figma', 'Edit the files it is given'], ['slack', 'Post a summary in #design'], ['linear', 'Create and update issues']];
+    function draw(anim, from){
+      const esc = t => t.replace(/&/g, '&amp;').replace(/</g, '&lt;');
+      pane.innerHTML = cur === 0
+        ? `<div class="asx-tb-r">${lt('Autonomy', AUTO[F.auto.v][1])}${dd('auto', AUTO, 'Autonomy')}</div><div class="asx-tb-r">${lt('Use team memory', 'Brand rules and past decisions')}${sw('mem')}</div><div class="asx-tb-r col">${lt('Instructions')}<textarea class="asx-tb-ta" rows="2" data-f="ins" spellcheck="false" aria-label="Instructions">${esc(F.ins.v)}</textarea></div>`
+        : cur === 1 ? TOOLS.map(([k, d]) => `<div class="asx-tb-r"><span class="asx-tb-lb">${asxApp(ASX_TOOLS.find(t => t[0] === k))}${lt(F[k].n, d)}</span>${sw(k)}</div>`).join('')
+        : `<div class="asx-tb-r">${lt('Spend cap per run', 'Pauses and asks when reached')}<label class="asx-tb-num"><span>$</span><input data-f="cap" inputmode="numeric" maxlength="4" autocomplete="off" spellcheck="false" aria-label="Spend cap per run, in dollars" value="${F.cap.v}"></label></div><div class="asx-tb-r">${lt('Time limit', 'Stops the run and keeps its work')}${dd('time', TIME.map(t => [t]), 'Time limit')}</div><div class="asx-tb-r">${lt('Notify me', 'A Slack message when it needs a decision')}${sw('ping')}</div>`;
+      pops.innerHTML = cur === 0 ? menu('auto', AUTO, 'Autonomy') : cur === 2 ? menu('time', TIME.map(t => [t]), 'Time limit') : '';
+      if (anim){ pane.style.setProperty('--from', (from || 8) + 'px'); pane.classList.remove('go'); void pane.offsetWidth; pane.classList.add('go'); }
+      $$('.toggle', pane).forEach(t => t.onclick = () => { const k = t.dataset.f; set(k, !F[k].v); t.setAttribute('aria-checked', String(F[k].v)); });
+      $$('.asx-tb-dd', pane).forEach(b => { const k = b.dataset.f, opts = k === 'auto' ? AUTO : TIME.map(t => [t]);
+        $$('.mi', pops).forEach(m => { if (!m.closest(`.asx-tb-m-${k}`)) return; m.addEventListener('click', () => {
+          set(k, +m.dataset.v); $$(`.asx-tb-m-${k} .mi`, pops).forEach(x => x.setAttribute('aria-checked', String(x === m)));
+          swap($('span', b), opts[F[k].v][0]); b.setAttribute('aria-label', `${k === 'auto' ? 'Autonomy' : 'Time limit'}: ${opts[F[k].v][0]}`);
+          if (k === 'auto') swap($('.asx-tb-lt .d', b.closest('.asx-tb-r')), AUTO[F.auto.v][1]);
+        }); }); });
+      const ta = $('.asx-tb-ta', pane); if (ta) ta.oninput = () => set('ins', ta.value);
+      const cap = $('[data-f="cap"]', pane); if (cap) cap.oninput = () => capIn(cap);
+      bar();
+    }
+    // the cap takes whole dollars
+    const capIn = el => { const d = el.value.replace(/\D/g, '').replace(/^0+(?=\d)/, ''); if (el.value !== d) el.value = d; set('cap', d); };
+    function go(i, focus){
+      if (i !== cur){
+        const d = i > cur ? 12 : -12; cur = i;
+        tb.forEach((b, k) => { b.setAttribute('aria-selected', String(k === i)); b.tabIndex = k === i ? 0 : -1; });
+        tabs.style.setProperty('--i', i); pane.setAttribute('aria-labelledby', tb[i].id);
+        if (openPop && r.contains(openPop.pop)) closePops();
+        draw(true, d);
+      }
+      if (focus) tb[i].focus({ preventScroll:true });
+    }
+    tb.forEach((b, i) => b.onclick = () => go(i));
+    // the tabs' keys: left and right move between them, Home and End go to the first and last
+    c.on(tabs, 'keydown', e => { const n = T.length, d = { ArrowRight:1, ArrowLeft:-1 }[e.key]; const to = d ? (cur + d + n) % n : e.key === 'Home' ? 0 : e.key === 'End' ? n - 1 : -1; if (to < 0) return; e.preventDefault(); go(to, true); });
+    function save(){
+      if (saving || !changed().length) return; saving = true;
+      if (openPop && r.contains(openPop.pop)) closePops();
+      c.run(async () => {
+        sv.innerHTML = '<span class="spin"></span>';
+        await c.wait(600);
+        Object.keys(F).forEach(k => saved[k] = F[k].v); order = []; done = true; saving = false;
+        sv.innerHTML = saveHtml(); bar();
+        if (cf.contains(document.activeElement) || sv === document.activeElement) tb[cur].focus({ preventScroll:true });
+      });
+    }
+    sv.onclick = save;
+    rs.onclick = () => { Object.keys(F).forEach(k => F[k].v = saved[k]); order = []; draw(false); tb[cur].focus({ preventScroll:true }); };
+    // ⌘S or Ctrl+S saves while the focus is in the settings
+    c.on(r, 'keydown', e => { if ((e.metaKey || e.ctrlKey) && !e.altKey && e.key.toLowerCase() === 's'){ e.preventDefault(); save(); } });
+    draw(false);
+    c.story(async s => {
+      await s.beat(3);
+      await s.tap($('[data-f="auto"]', pane)); await s.beat(2);
+      await s.tap($('.asx-tb-m-auto [data-v="2"]', pops)); s.away(); await s.beat(3);
+      await s.tap(tb[1]); s.away(); await s.beat(2);
+      await s.tap($('[data-f="slack"]', pane)); s.away(); await s.beat(2);
+      await s.tap(tb[2]); s.away(); await s.beat(2);
+      const cap = $('[data-f="cap"]', pane); await s.point(cap, false); await s.type(cap, '10', { clear:true, n:.3, each:() => capIn(cap) }); s.away(); await s.beat(4);
+      const u = $('.asx-tb-c[data-k="auto"] .ib', cl); if (u){ await s.tap(u); s.away(); } await s.beat(3);
+      await s.tap(sv); s.away(); await s.beat(5);
+    });
+  }
+  // Presets: Careful, Balanced and Bold, then a grid of allow, ask and block for each tool to fine-tune. A preset you pick
+  // fills the grid; a cell you press moves on, allow then ask then block
+  function asxPresets(r, c){
+    const root = $('.asx-ps', r), pre = $('.asx-ps-pre', r), grid = $('.asx-ps-grid', r), bt = $('.asx-ps-bt', r), sv = $('.asx-ps-sv', r), rs = $('.asx-ps-rs', r);
+    const COLS = ['Read', 'Change', 'Publish'], ORDER = ['al', 'as', 'bl'], NAME = { al:'Allow', as:'Ask', bl:'Block' }, ICON = { al:'check', as:'hand', bl:'slash' };
+    // each preset: what it lets the agent do in each tool, read, change and publish, and how far it trusts the agent
+    const PRE = [
+      { id:'care', n:'Careful', d:'Asks before it changes anything', ic:'shield', m:1, g:{ files:'al as bl', github:'al as bl', figma:'al as bl', slack:'al bl bl', linear:'al as bl' } },
+      { id:'bal', n:'Balanced', d:'Changes alone, asks to publish', ic:'gauge', m:2, g:{ files:'al al as', github:'al al as', figma:'al al as', slack:'al as as', linear:'al al as' } },
+      { id:'bold', n:'Bold', d:'Works alone, asks only to merge', ic:'rocket', m:3, g:{ files:'al al al', github:'al al as', figma:'al al al', slack:'al al al', linear:'al al al' } }
+    ];
+    pre.innerHTML = PRE.map((p, i) => `<button class="asx-ps-p" type="button" role="radio" data-p="${p.id}" aria-checked="${p.id === 'bal'}" tabindex="${p.id === 'bal' ? 0 : -1}"><span class="asx-ps-pi">${I(p.ic)}</span><b>${p.n}</b><span class="d">${p.d}</span><span class="asx-ps-m" aria-hidden="true">${[1, 2, 3].map(x => `<i class="${x <= p.m ? 'on' : ''}"></i>`).join('')}</span></button>`).join('');
+    const cards = $$('.asx-ps-p', pre);
+    let saved = null, busy = false;
+    grid.innerHTML = ASX_TOOLS.map(t => `<div class="asx-ps-row" role="row"><span class="asx-ps-tl" role="rowheader">${asxApp(t)}<span>${t[1]}</span></span>${COLS.map((col, j) => `<button class="asx-ps-c" type="button" role="gridcell" data-t="${t[0]}" data-j="${j}" tabindex="-1"></button>`).join('')}</div>`).join('');
+    const cells = $$('.asx-ps-c', grid); cells[0].tabIndex = 0;
+    // a cell that changes pops in: a little spring in Soft, a cut in Blueprint
+    const popIn = (el, d, bp) => { if (REDUCE || !el.animate) return; el.animate(bp ? [{ opacity:0 }, { opacity:1 }] : [{ transform:'scale(.8)', opacity:.3 }, { transform:'scale(1.06)', offset:.6 }, { transform:'none', opacity:1 }], { duration:bp ? 300 : 400, delay:d, easing:bp ? 'steps(2,end)' : 'cubic-bezier(.22,1,.36,1)', fill:'backwards' }); };
+    let bpM = false;
+    function cell(b, v, flip, d = 0){
+      if (b.dataset.v === v) return; b.dataset.v = v; b.className = 'asx-ps-c ' + v; b.innerHTML = `${I(ICON[v],'xs')}<span class="lb">${NAME[v]}</span>`;
+      const t = ASX_TOOLS.find(x => x[0] === b.dataset.t)[1]; b.setAttribute('aria-label', `${t}, ${COLS[b.dataset.j].toLowerCase()}: ${NAME[v]}. Press to change`);
+      if (flip) popIn(b, d, bpM);
+    }
+    const snap = () => JSON.stringify(cells.map(b => b.dataset.v));
+    function state(){
+      const s = snap(), dirty = saved !== null && s !== saved;
+      const match = PRE.findIndex(p => JSON.stringify(ASX_TOOLS.flatMap(t => p.g[t[0]].split(' '))) === s);
+      cards.forEach((b, i) => { b.setAttribute('aria-checked', String(i === match)); b.tabIndex = i === (match < 0 ? 1 : match) ? 0 : -1; });
+      if (!busy) bt.textContent = match >= 0 ? `${PRE[match].n} preset${dirty ? ', not saved' : ''}` : `Your own settings${dirty ? ', not saved' : ''}`;
+      root.classList.toggle('dirty', dirty); sv.disabled = !dirty; rs.disabled = !dirty;
+    }
+    const motion = () => { bpM = getComputedStyle(root).getPropertyValue('--motion').trim() === 'bp'; };
+    function apply(i, flip){ motion(); const p = PRE[i]; ASX_TOOLS.forEach((t, ti) => p.g[t[0]].split(' ').forEach((v, j) => cell(cells[ti * 3 + j], v, flip, (ti * 3 + j) * 22))); state(); }
+    cards.forEach((b, i) => b.onclick = () => apply(i, true));
+    c.on(pre, 'keydown', e => { const d = e.key === 'ArrowRight' || e.key === 'ArrowDown' ? 1 : e.key === 'ArrowLeft' || e.key === 'ArrowUp' ? -1 : 0; if (!d) return; e.preventDefault(); const i = Math.max(0, cards.indexOf(document.activeElement)); const j = (i + d + 3) % 3; apply(j, true); cards[j].focus(); });
+    // a cell moves on when pressed; the arrow keys move round the grid
+    cells.forEach(b => b.onclick = () => { motion(); cell(b, ORDER[(ORDER.indexOf(b.dataset.v) + 1) % 3], true); state(); });
+    c.on(grid, 'keydown', e => { const i = cells.indexOf(document.activeElement); if (i < 0) return; const d = { ArrowRight:1, ArrowLeft:-1, ArrowDown:3, ArrowUp:-3 }[e.key]; if (!d) return; e.preventDefault(); const j = i + d; if (!cells[j]) return; cells.forEach(x => x.tabIndex = -1); cells[j].tabIndex = 0; cells[j].focus(); });
+    // saving: a spinner, then Saved with a green tick in the bar for a moment
+    sv.onclick = () => c.run(async () => {
+      if (busy) return; busy = true; sv.innerHTML = '<span class="spin"></span>'; await c.wait(600);
+      saved = snap(); sv.textContent = 'Save'; bt.innerHTML = `${I('check','xs')}<span>Saved</span>`; state();
+      await c.wait(1200); busy = false; state();
+    });
+    rs.onclick = () => { motion(); const v = JSON.parse(saved); cells.forEach((b, i) => cell(b, v[i], true, i * 15)); state(); };
+    apply(1, false); saved = snap(); state();
+    c.story(async s => {
+      await s.beat(3);
+      await s.tap(cards[0]); s.away(); await s.beat(4);
+      await s.tap(cards[2]); s.away(); await s.beat(4);
+      await s.tap(cells[11]); s.away(); await s.beat(2);
+      await s.tap(cells[11]); s.away(); await s.beat(3);
+      await s.tap(sv); s.away(); await s.beat(4);
+    });
+  }
+  // the switch under the settings (on designme.dev, the card's tabs) picks the design. A pick draws it in place and plays its
+  // demo from the start, on a controller of its own inside the card's: a mouse on the component holds it, a click, a key or
+  // the focus inside the design stops it for good, and the card keeps the pick when it plays again or is replayed
+  function asxDesigns(r, c, D){
+    const main = $('.dm-main', r), sg = $('.demo .seg2', r), card = c.card || r;
+    let k = null, at = D[card._asxDesign] ? card._asxDesign : 'classic';
+    const show = (v, fresh) => {
+      if (k){ k.stop(); const i = c.kids.indexOf(k); if (i >= 0) c.kids.splice(i, 1); }
+      const kk = k = ctl(c); kk.card = c.card; kk.st = c.st;
+      Object.defineProperty(kk, 'held', { get:() => c.held });
+      Object.defineProperty(kk, 'seen', { get:() => c.seen });
+      const mine = e => { if (e.isTrusted) kk.mine = true; };
+      ['pointerdown', 'keydown', 'input', 'click'].forEach(t => kk.on(main, t, mine, true));
+      kk.on(main, 'focusin', e => { if (e.isTrusted && e.timeStamp - lastInput < 100) kk.mine = true; }, true);
+      if (openPop && main.contains(openPop.pop)) closePops();
+      // the pointer of the story that was playing goes with it
+      hideTip(); $$(':scope>.hand', c.st).forEach(h => h.remove());
+      main.innerHTML = D[v][0];
+      try { D[v][1](main, kk); } catch(e){ console.error(e); }
+      if (fresh) reveal(main);
+    };
+    c.offs.push(() => { if (k) k.stop(); });
+    $$('button', sg).forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === at)));
+    seg(sg, v => { if (v === at || !D[v]) return; at = card._asxDesign = v; show(v, true); });
+    show(at, false);
+  }
+  DM.def('agent-settings', (r, c, card) => {
+    // installed on its own (no switch), or inside another component, it is Classic
+    const dm = $(':scope>.asx-dm', r);
+    if (!dm) return classic(r, c, card);
+    if (r !== c.st || !card){ dm.replaceWith(...$(':scope>.dm-main', dm).childNodes); return classic(r, c, card); }
+    asxDesigns(r, c, { classic:[$(':scope>.dm-main', dm).innerHTML, classic], preview:[ASX_HTML.preview, asxPreview], tabs:[ASX_HTML.tabs, asxTabs], presets:[ASX_HTML.presets, asxPresets] });
+  });
+}
 /* ---------- File explorer ---------- */
 DM.def('file-explorer', (r, c) => {
   r.innerHTML = r.innerHTML.replace('{search}', I('search','xs')).replace('{filter}', I('filter','xs'));
