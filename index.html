@@ -2599,6 +2599,248 @@ html{scrollbar-gutter:stable}
 .v2 .alg-det{margin:0 10px 0 46px}
 .v2 .alg-det pre{margin:0 0 10px;font-family:var(--mono);font-size:11.5px;line-height:1.6;background:var(--surface);border-radius:10px;padding:var(--s-2) 10px;white-space:pre-wrap;color:var(--fg2);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--line) 50%,transparent)}
 .v2 .alg-det .a{color:var(--add)}.v2 .alg-det .x{color:var(--del)}
+/* ---------- Action log designs ---------- */
+/* the card's design switch: Classic, Feed, Phases and Scrubber, with the switch under the log (on designme.dev it is
+   the card's footer tabs). Each design sits centred in the room the card keeps for the tallest of them (--dmy, set by the switch) */
+.v2 .dm.alg-dm{min-height:0;gap:var(--s-5);padding-top:var(--dmy,0px)}
+.v2 .alg-dm>.dm-main>*{width:100%}
+.v2 .alg-dm>.dm-main>.alg{min-height:326px}
+.v2.stage-in:has(>.alg-dm){align-self:auto;display:block}
+/* the three new designs: every kind of step has its icon on a grey tile (the apps their own marks on a white one); lines
+   are grey and the steps' marks a mid grey (--alg-x-mark, 3:1 on the surface). Colour is kept for meaning: the accent on
+   the step at work and on where the run has got to, green for what passed, red for what failed and for lines out, green
+   for lines in */
+.v2 :is(.alg-lf,.alg-ph,.alg-sc){--alg-x-mark:color-mix(in srgb,var(--muted) 80%,var(--surface))}
+.v2 :is(.alg-lf,.alg-ph,.alg-sc) code{font-family:var(--mono);font-size:12px;font-weight:500;letter-spacing:-.01em}
+/* the detail a step opens to: code, a diff, a command's output, search results, a pull request or a message */
+.v2 .alg-x-det{display:flex;flex-direction:column;gap:var(--s-2);font-size:12.5px}
+.v2 .alg-x-dh{display:flex;align-items:center;gap:var(--s-2);min-width:0;color:var(--muted);font-size:12px}
+.v2 .alg-x-dh .p{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v2 .alg-x-dh .ib{width:24px;height:24px;margin:-4px -4px -4px auto}
+.v2 .alg-x-pre{margin:0;padding:var(--s-2) 10px;border-radius:10px;background:var(--chip);font-family:var(--mono);font-size:11.5px;line-height:1.7;font-weight:500;white-space:pre-wrap;word-break:break-word;color:var(--fg2)}
+.v2 .alg-x-pre .a{display:block;margin:0 -10px;padding:0 10px;background:color-mix(in srgb,var(--add) 7%,transparent);color:var(--add)}
+.v2 .alg-x-pre .x{display:block;margin:0 -10px;padding:0 10px;background:color-mix(in srgb,var(--del) 6%,transparent);color:var(--del)}
+.v2 .alg-x-pre .ok{color:var(--ok)}.v2 .alg-x-pre .bad{color:var(--bad)}.v2 .alg-x-pre .dim{color:var(--muted)}
+/* a command's output, on a terminal's dark ground in every theme */
+.v2 .alg-x-pre.term{background:#171717;color:#e6e6e6}
+.v2 .alg-x-pre.term .ok{color:#6fdca5}.v2 .alg-x-pre.term .bad{color:#ffa3a3}.v2 .alg-x-pre.term .dim{color:#b8b8b8}
+.v2 .alg-x-hits{display:flex;flex-wrap:wrap;gap:6px}
+.v2 .alg-x-hit i{width:14px;height:10px;border-radius:2px;background:var(--chip);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--rail) 60%,transparent)}
+.v2 .alg-x-card{display:flex;align-items:flex-start;gap:10px;padding:10px;border-radius:12px;background:var(--surface);box-shadow:var(--shadow)}
+.v2 .alg-x-card .brand{width:18px;height:18px;margin-top:1px}
+.v2 .alg-x-card b{display:block;font-weight:500;font-size:13px}
+.v2 .alg-x-card span{display:block;color:var(--muted);font-size:12px}
+.v2 .alg-x-card .tag{display:inline-flex;margin-top:6px}
+.v2 .alg-x-wait{display:flex;flex-direction:column;gap:8px;padding:10px;border-radius:10px;background:var(--chip)}
+.v2 .alg-x-wait i{display:block;height:8px;border-radius:4px;background:linear-gradient(90deg,color-mix(in srgb,var(--fg) 8%,transparent) 0 35%,color-mix(in srgb,var(--fg) 16%,transparent) 50%,color-mix(in srgb,var(--fg) 8%,transparent) 65%) 0 0/250% 100%;animation:v2-shim 1.6s linear infinite}
+:root:not([data-style="soft"]) .v2 .alg-x-wait i{background:repeating-linear-gradient(90deg,color-mix(in srgb,var(--fg) 14%,transparent) 0 4px,transparent 4px 6px);animation:none}
+/* Feed: a live feed that follows new steps, with a filter for each kind that counts its steps, and a pill to jump back down */
+.v2 .alg-lf{padding:var(--s-2);display:flex;flex-direction:column}
+.v2 .alg-lf-h{display:flex;align-items:center;justify-content:space-between;gap:var(--s-3);padding:6px 10px 10px}
+.v2 .alg-lf-ht{display:flex;flex-direction:column;min-width:0}
+.v2 .alg-lf-ht b{font-weight:500}
+.v2 .alg-lf-st{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--fg2);white-space:nowrap}
+.v2 .alg-lf-gl{width:12px;height:12px;display:grid;place-items:center;flex:none;color:var(--ok)}
+.v2 .alg-lf-gl .dot{color:var(--accent-mark);animation:v2-algblink 1.4s var(--ease-io) infinite}
+@keyframes v2-algblink{50%{opacity:.3}}
+.v2 .alg-lf-tm{font-size:13px;color:var(--fg2)}
+/* the filters are the site's small chips: All, then each kind with how many of its steps have landed */
+.v2 .alg-lf-f{display:flex;gap:2px;padding:0 6px var(--s-2);overflow-x:auto;scrollbar-width:none;margin-bottom:2px}
+.v2 .alg-lf-f::-webkit-scrollbar{display:none}
+.v2 .alg-lf-chip{flex:none}
+.v2 .alg-lf-chip .n{color:var(--muted);font-variant-numeric:tabular-nums;display:inline-block}
+.v2 .alg-lf-chip .n.bump{animation:v2-algbump .45s var(--ease)}
+@keyframes v2-algbump{40%{transform:translateY(-2px) scale(1.18)}}
+.v2 .alg-lf-chip.on .n{color:var(--fg2)}
+.v2 .alg-lf-chip:focus-visible{outline-offset:-2px;border-radius:var(--r-pill)}
+/* the feed keeps its height: new steps land at the foot and it follows them, unless you have scrolled back to read */
+.v2 .alg-lf-vw{position:relative}
+.v2 .alg-lf-vp{height:316px;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:none;outline:0;-webkit-mask-image:linear-gradient(transparent,#000 10px,#000 calc(100% - 14px),transparent);mask-image:linear-gradient(transparent,#000 10px,#000 calc(100% - 14px),transparent)}
+.v2 .alg-lf-vp::-webkit-scrollbar{display:none}
+.v2 .alg-lf-list{list-style:none;margin:0;padding:4px 0 12px;display:flex;flex-direction:column}
+.v2 .alg-lf-w.shut{visibility:hidden}
+.v2 .alg-lf-it{border-radius:var(--r-in);transition:background .25s}
+@media (hover:hover) and (pointer:fine){.v2 .alg-lf-it:hover{background:var(--row)}}
+.v2 .alg-lf-row{display:flex;align-items:center;gap:10px;width:100%;padding:7px 10px;border-radius:var(--r-in);text-align:left;position:relative}
+.v2 .alg-lf-row:focus-visible{outline-offset:-2px;border-radius:var(--r-in)}
+.v2 .alg-lf-ic{position:relative;width:28px;height:28px;border-radius:var(--r-sm);display:grid;place-items:center;flex:none;background:var(--chip);color:var(--fg2);transition:background .3s}
+.v2 .alg-lf-ic .brand{width:15px;height:15px}
+.v2 .alg-lf-it[data-k="app"] .alg-lf-ic{background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--rail) 50%,transparent);color:var(--fg)}
+/* on a grey row a step's grey tile turns white */
+@media (hover:hover) and (pointer:fine){.v2 .alg-lf-it:hover .alg-lf-ic{background:var(--surface)}}
+.v2 .alg-lf-tx{flex:1;min-width:0;display:flex;flex-direction:column;font-size:13px}
+.v2 .alg-lf-tx .t{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v2 .alg-lf-tx .d{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v2 .alg-lf-tx .d .a{color:var(--add)}.v2 .alg-lf-tx .d .x{color:var(--del)}
+.v2 .alg-lf-r{display:flex;align-items:center;gap:var(--s-2);flex:none;font-size:12px;color:var(--muted)}
+.v2 .alg-lf-r .g{width:14px;height:14px;display:grid;place-items:center}
+.v2 .alg-lf-r .g .spin{width:11px;height:11px;color:var(--accent-mark)}
+.v2 .alg-lf-r .ok{color:var(--ok)}.v2 .alg-lf-r .bad{color:var(--bad)}
+.v2 .alg-lf-r .g svg{animation:v2-algpop .4s var(--ease)}
+@keyframes v2-algpop{from{transform:scale(.3);opacity:0}60%{transform:scale(1.2)}}
+/* the step at work: its tile breathes and a grey light runs under it */
+.v2 .alg-lf-it.run .alg-lf-ic{animation:v2-algbreathe 1.6s var(--ease-io) infinite}
+@keyframes v2-algbreathe{50%{opacity:.55}}
+.v2 .alg-lf-run{display:none;position:absolute;left:48px;right:10px;bottom:2px;height:2px;border-radius:1px;overflow:hidden;pointer-events:none}
+.v2 .alg-lf-it.run .alg-lf-run{display:block}
+.v2 .alg-lf-run i{position:absolute;top:0;bottom:0;left:0;width:40%;background:linear-gradient(90deg,transparent,var(--faint),transparent);opacity:.7;transform:translateX(-100%);animation:v2-algrun 1.3s linear infinite}
+@keyframes v2-algrun{to{transform:translateX(250%)}}
+/* a failed step is red, and nothing on its row is grey */
+.v2 .alg-lf-it.fail{background:var(--bad-bg)}
+.v2 .alg-lf-it.fail .alg-lf-tx .d{color:var(--bad)}
+.v2 .alg-lf-it.fail .alg-lf-r{color:var(--fg)}
+.v2 .alg-lf-it.fail .alg-lf-ic{background:var(--surface)}
+.v2 .alg-lf-det{padding:0 10px 10px 48px}
+/* the pill that brings you back to the newest steps */
+.v2 .alg-lf-new{position:absolute;left:50%;bottom:10px;z-index:2;display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 12px 0 10px;border-radius:var(--r-pill);background:var(--raised);color:var(--fg);font-size:12.5px;box-shadow:var(--shadow-pop);transform:translateX(-50%);animation:v2-algup .4s var(--ease)}
+.v2 .alg-lf-new[hidden]{display:none}
+@media (hover:hover) and (pointer:fine){.v2 .alg-lf-new:hover{background:var(--row)}}
+.v2 .alg-lf-new .i{width:12px;height:12px;color:var(--accent-fg,var(--fg))}
+@keyframes v2-algup{from{opacity:0;transform:translate(-50%,8px)}}
+:root:not([data-style="soft"]) .v2 .alg-lf-it.run .alg-lf-ic{animation:v2-bpblink 1.1s steps(1,end) infinite}
+:root:not([data-style="soft"]) .v2 .alg-lf-ic{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--line) 50%,transparent)}
+:root:not([data-style="soft"]) .v2 .alg-lf-run{height:1px}
+:root:not([data-style="soft"]) .v2 .alg-lf-run i{width:100%;background:repeating-linear-gradient(90deg,var(--faint) 0 4px,transparent 4px 7px);opacity:1;transform:none;animation:v2-algmarch .5s steps(3) infinite}
+@keyframes v2-algmarch{to{transform:translateX(7px)}}
+:root:not([data-style="soft"]) .v2 .alg-lf-it.fail{background:repeating-linear-gradient(135deg,transparent 0 5px,color-mix(in srgb,var(--bad) 10%,transparent) 5px 6px),var(--bad-bg)}
+:root:not([data-style="soft"]) .v2 :is(.alg-lf-r .g svg,.alg-lf-chip .n.bump){animation:none}
+:root:not([data-style="soft"]) .v2 .alg-lf-new{animation:v2-bpin .3s var(--ease)}
+/* Phases: denser, the steps grouped into explore, change, verify and ship, each folding when done, with a minimap on the
+   right in the accent: its track a tint of it, a tick for every step (red if it failed) and a line where the run is now */
+/* it keeps the room it needs with the last phase open and another opened from the minimap, so it never grows as it plays */
+.v2 .alg-ph{padding:var(--s-3) var(--s-3) var(--s-2);display:flex;flex-direction:column;gap:var(--s-2);min-height:384px}
+.v2 .alg-ph-h{display:flex;align-items:center;gap:10px;padding:2px 2px 6px}
+.v2 .alg-ph-hi{width:32px;height:32px;border-radius:10px;display:grid;place-items:center;flex:none;background:var(--accent-bg);color:var(--accent-fg,var(--accent));transition:background .3s,color .3s}
+.v2 .alg-ph.fin .alg-ph-hi{background:var(--ok-bg);color:var(--ok)}
+.v2 .alg-ph-ht{flex:1;min-width:0;display:flex;flex-direction:column}
+.v2 .alg-ph-ht b{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v2 .alg-ph-st{font-size:12.5px;color:var(--muted);white-space:nowrap}
+.v2 .alg-ph-sm{color:var(--fg2)}
+.v2 .alg-ph-ring{position:relative;width:34px;height:34px;flex:none;display:grid;place-items:center;font-size:11.5px;font-weight:500}
+.v2 .alg-ph-ring svg{position:absolute;inset:0;width:34px;height:34px;transform:rotate(-90deg)}
+.v2 .alg-ph-ring circle{fill:none;stroke:color-mix(in srgb,var(--line) 70%,transparent);stroke-width:3}
+.v2 .alg-ph-ring circle.v{stroke:var(--accent-mark,var(--accent));stroke-linecap:round;stroke-dasharray:69.12;stroke-dashoffset:69.12;transition:stroke-dashoffset .6s var(--ease),stroke .4s}
+.v2 .alg-ph.fin .alg-ph-ring circle.v{stroke:var(--ok)}
+.v2 .alg-ph-body{display:grid;grid-template-columns:minmax(0,1fr) 10px;gap:var(--s-2);flex:1}
+.v2 .alg-ph-phs{position:relative;display:flex;flex-direction:column;align-self:start}
+/* the phases hang off one grey rail: each joins the next, and its stretch turns a step darker once it is done */
+.v2 .alg-ph-p{position:relative}
+.v2 .alg-ph-rl{position:absolute;left:19px;top:34px;bottom:-6px;width:2px;border-radius:1px;background:color-mix(in srgb,var(--line) 80%,transparent);pointer-events:none}
+.v2 .alg-ph-rl i{position:absolute;inset:0;border-radius:inherit;background:var(--faint);transform-origin:top;transform:scaleY(0);transition:transform .7s var(--ease)}
+.v2 .alg-ph-p[data-s="done"] .alg-ph-rl i{transform:none}
+.v2 .alg-ph-phh{display:flex;align-items:center;gap:10px;width:100%;min-height:40px;padding:6px 8px;border-radius:10px;text-align:left;font-size:13px;transition:background .2s}
+@media (hover:hover) and (pointer:fine){.v2 .alg-ph-phh:hover{background:var(--row)}}
+.v2 .alg-ph-phh:focus-visible{outline-offset:-2px;border-radius:10px}
+.v2 .alg-ph-pg{position:relative;z-index:1;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;flex:none;background:var(--surface);box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--rail) 80%,transparent);font-size:11.5px;font-weight:500;color:var(--muted);transition:background .3s,color .3s,box-shadow .3s}
+.v2 .alg-ph-pg .radar{width:12px;height:12px}
+.v2 .alg-ph-p[data-s="run"] .alg-ph-pg{background:var(--accent-bg);box-shadow:none;color:var(--accent-fg,var(--fg))}
+.v2 .alg-ph-p[data-s="done"] .alg-ph-pg{background:var(--ok-bg);box-shadow:none;color:var(--ok)}
+.v2 .alg-ph-pn{font-weight:500}
+.v2 .alg-ph-p[data-s="next"] .alg-ph-pn{color:var(--fg2)}
+.v2 .alg-ph-pm{flex:1;min-width:0;font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* a phase folded to one line still shows what it did, as a bar of its steps in the accent, each as long as it took */
+.v2 .alg-ph-mix{display:flex;gap:2px;width:44px;height:5px;flex:none;opacity:0;transition:opacity .3s}
+.v2 .alg-ph-mix i{height:100%;border-radius:2px;background:var(--accent-mark,var(--accent))}
+.v2 .alg-ph-p[data-s="done"] .alg-ph-phh[aria-expanded="false"] .alg-ph-mix{opacity:1}
+.v2 .alg-ph-cv{color:var(--muted);display:grid;transition:transform .35s var(--ease)}
+.v2 .alg-ph-phh[aria-expanded="false"] .alg-ph-cv{transform:rotate(-90deg)}
+.v2 .alg-ph-acts{list-style:none;margin:0;padding:0 0 4px 34px;display:flex;flex-direction:column}
+.v2 .alg-ph-a{display:flex;align-items:center;gap:var(--s-2);min-height:28px;padding:3px 8px;border-radius:8px;font-size:12.5px;color:var(--fg2);transition:background .3s}
+.v2 .alg-ph-a .k{width:18px;height:18px;display:grid;place-items:center;flex:none;border-radius:5px;background:var(--chip);color:var(--fg2);transition:background .3s}
+.v2 .alg-ph-a .k .brand{width:12px;height:12px}
+.v2 .alg-ph-a[data-k="app"] .k{background:var(--surface);color:var(--fg);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--rail) 50%,transparent)}
+.v2 .alg-ph-a .t{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v2 .alg-ph-a .t b{font-weight:500;color:var(--fg)}
+.v2 .alg-ph-a .w{font-size:11.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.v2 .alg-ph-a.run .t{color:var(--fg)}
+.v2 .alg-ph-a.fail .t,.v2 .alg-ph-a.fail .w{color:var(--bad)}
+/* a step the minimap points to flashes grey, and its tile turns white while it does */
+.v2 .alg-ph-a.flash{animation:v2-algflash 1.2s var(--ease)}
+.v2 .alg-ph-a.flash .k{background:var(--surface)}
+@keyframes v2-algflash{0%,30%{background:var(--hover)}100%{background:transparent}}
+.v2 .alg-ph-map{position:relative;border-radius:5px;background:var(--accent-bg);margin:6px 0}
+.v2 .alg-ph-tk{position:absolute;left:1px;right:1px;height:4px;margin-top:-2px;border-radius:2px;background:var(--accent-mark,var(--accent));cursor:pointer;animation:v2-algtk .4s var(--ease) backwards}
+.v2 .alg-ph-tk.fail{background:var(--bad)}
+@keyframes v2-algtk{from{transform:scaleX(0)}}
+.v2 .alg-ph-now{position:absolute;left:-3px;right:-3px;top:0;height:2px;border-radius:1px;background:var(--accent-mark,var(--accent));transform:translateY(calc(var(--now,0) * var(--mh,300px)))}
+.v2 .alg-ph.fin .alg-ph-now{opacity:0;transition:opacity .4s}
+:root:not([data-style="soft"]) .v2 .alg-ph-rl{width:1px;left:19.5px;background:repeating-linear-gradient(var(--rail) 0 3px,transparent 3px 6px)}
+:root:not([data-style="soft"]) .v2 .alg-ph-rl i{transition:transform .4s steps(4,end)}
+:root:not([data-style="soft"]) .v2 .alg-ph-pg{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--rail) 80%,transparent)}
+:root:not([data-style="soft"]) .v2 .alg-ph-p[data-s="run"] .alg-ph-pg{box-shadow:none;background:var(--accent);color:var(--on-accent,#fff)}
+:root:not([data-style="soft"]) .v2 .alg-ph-p[data-s="done"] .alg-ph-pg{box-shadow:none}
+:root:not([data-style="soft"]) .v2 .alg-ph-map{background:repeating-linear-gradient(0deg,transparent 0 5px,var(--grid) 5px 6px),var(--accent-bg);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--accent-mark) 40%,transparent)}
+:root:not([data-style="soft"]) .v2 .alg-ph-tk{animation:none;height:3px}
+:root:not([data-style="soft"]) .v2 .alg-ph-a.flash{animation:v2-algflashbp .9s steps(3,end)}
+@keyframes v2-algflashbp{0%{background:var(--hover)}100%{background:transparent}}
+:root:not([data-style="soft"]) .v2 .alg-ph-ring circle.v{stroke-linecap:butt;transition:stroke-dashoffset .4s steps(5,end)}
+:root:not([data-style="soft"]) .v2 .alg-ph-a .k{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--line) 50%,transparent)}
+/* Scrubber: a replay, every step a stop on one track; drag, step or use the arrows, and Live jumps back. The track's
+   progress and the knob are the accent, and Live is a chip in the accent's tint */
+.v2 .alg-sc{padding:var(--s-3);display:flex;flex-direction:column;gap:var(--s-3)}
+.v2 .alg-sc-h{display:flex;align-items:center;justify-content:space-between;gap:var(--s-3);padding:2px 2px 0}
+.v2 .alg-sc-ht{display:flex;flex-direction:column;min-width:0}
+.v2 .alg-sc-ht b{font-weight:500}
+.v2 .alg-sc-st{font-size:12.5px;color:var(--muted);white-space:nowrap}
+.v2 .alg-sc-live{gap:7px;padding:0 11px 0 10px}
+.v2 .alg-sc-ld{width:7px;height:7px;border-radius:50%;background:var(--muted);flex:none}
+/* live: the chip takes the accent's tint and its dot blinks; once the run is done it is green and still */
+.v2 .alg-sc-live[aria-pressed="true"]{background:var(--accent-bg);color:var(--accent-fg,var(--fg))}
+@media (hover:hover) and (pointer:fine){.v2 .alg-sc-live[aria-pressed="true"]:hover{background:color-mix(in srgb,var(--accent) 16%,transparent);color:var(--accent-fg,var(--fg))}}
+.v2 .alg-sc-live[aria-pressed="true"] .alg-sc-ld{background:var(--accent-mark,var(--accent));animation:v2-algblink 1.4s var(--ease-io) infinite}
+.v2 .alg-sc.fin .alg-sc-live[aria-pressed="true"]{background:var(--ok-bg);color:var(--ok)}
+.v2 .alg-sc.fin .alg-sc-live[aria-pressed="true"] .alg-sc-ld{background:var(--ok);animation:none}
+/* the track: a stop for every step at the moment it started, a line the accent fills as the run goes, and a knob on the
+   step on show */
+.v2 .alg-sc-tr{position:relative;height:38px;margin:0 10px;cursor:pointer;touch-action:none;outline:0;border-radius:8px}
+.v2 .alg-sc-tr:focus-visible{box-shadow:0 0 0 2px var(--focus)}
+.v2 .alg-sc-ln{position:absolute;left:0;right:0;top:18px;height:3px;border-radius:2px;background:color-mix(in srgb,var(--line) 85%,transparent);overflow:hidden}
+.v2 .alg-sc-fill{position:absolute;inset:0;border-radius:inherit;background:var(--accent-mark,var(--accent));transform-origin:left;transform:scaleX(0);transition:transform .12s linear}
+.v2 .alg-sc-n{position:absolute;top:19.5px;left:var(--x);width:13px;height:13px;margin:-6.5px 0 0 -6.5px;border-radius:50%;background:var(--surface);box-shadow:inset 0 0 0 2px var(--accent-mark,var(--accent));animation:v2-algn .45s var(--ease) backwards;pointer-events:none;transition:transform .25s var(--ease)}
+.v2 .alg-sc-n.app{background:var(--accent-mark,var(--accent))}
+.v2 .alg-sc-n.fail{box-shadow:inset 0 0 0 2px var(--bad);background:color-mix(in srgb,var(--bad) 18%,var(--surface))}
+.v2 .alg-sc-n.on{transform:scale(1.25)}
+@keyframes v2-algn{from{transform:scale(0)}60%{transform:scale(1.3)}}
+.v2 .alg-sc-knob{position:absolute;left:0;top:19.5px;width:25px;height:25px;margin:-12.5px 0 0 -12.5px;border-radius:50%;box-shadow:0 0 0 2px var(--accent-mark,var(--accent));transform:translateX(var(--kx,0px));transition:transform .45s var(--ease),opacity .3s;pointer-events:none;opacity:0}
+.v2 .alg-sc.has .alg-sc-knob{opacity:1}
+.v2 .alg-sc-tr.drag .alg-sc-knob{transition:transform .12s linear}
+.v2 .alg-sc-ax{display:flex;justify-content:space-between;margin:-8px 10px 0;font-size:11.5px;color:var(--muted)}
+/* the step on show: what it was and what it did, sliding in from the side it came from */
+.v2 .alg-sc-view{position:relative;height:214px;overflow:hidden;border-radius:14px;background:var(--wash);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--line) 50%,transparent)}
+.v2 .alg-sc-card{position:absolute;inset:0;padding:var(--s-3);display:flex;flex-direction:column;gap:10px}
+.v2 .alg-sc-card.in-r{animation:v2-algcinr .45s var(--ease)}
+.v2 .alg-sc-card.in-l{animation:v2-algcinl .45s var(--ease)}
+.v2 .alg-sc-card.out-r{animation:v2-algcoutr .35s var(--ease) forwards}
+.v2 .alg-sc-card.out-l{animation:v2-algcoutl .35s var(--ease) forwards}
+@keyframes v2-algcinr{from{opacity:0;transform:translateX(28px);filter:blur(4px)}}
+@keyframes v2-algcinl{from{opacity:0;transform:translateX(-28px);filter:blur(4px)}}
+@keyframes v2-algcoutr{to{opacity:0;transform:translateX(-28px);filter:blur(4px)}}
+@keyframes v2-algcoutl{to{opacity:0;transform:translateX(28px);filter:blur(4px)}}
+.v2 .alg-sc-ch{display:flex;align-items:center;gap:10px;min-width:0}
+.v2 .alg-sc-ic{width:32px;height:32px;border-radius:10px;display:grid;place-items:center;flex:none;background:var(--surface);color:var(--fg2);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--rail) 50%,transparent)}
+.v2 .alg-sc-ic .brand{width:17px;height:17px}
+.v2 .alg-sc-cx{flex:1;min-width:0;display:flex;flex-direction:column;font-size:13px}
+.v2 .alg-sc-cx .t{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500}
+.v2 .alg-sc-cx .d{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v2 .alg-sc-cx .d .a{color:var(--add)}.v2 .alg-sc-cx .d .x{color:var(--del)}
+.v2 .alg-sc-card.fail .alg-sc-cx .d{color:var(--bad)}
+.v2 .alg-sc-cm{display:flex;align-items:center;gap:6px;flex:none;font-size:12px;color:var(--muted)}
+.v2 .alg-sc-cm .ok{color:var(--ok)}.v2 .alg-sc-cm .bad{color:var(--bad)}
+.v2 .alg-sc-cm .spin{width:11px;height:11px;color:var(--accent-mark)}
+/* in the grey view, the detail's grey blocks turn white */
+.v2 .alg-sc-view :is(.alg-x-pre:not(.term),.alg-x-wait){background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--line) 50%,transparent)}
+.v2 .alg-sc-empty{margin:auto;display:flex;flex-direction:column;align-items:center;gap:var(--s-2);color:var(--muted);font-size:12.5px}
+.v2 .alg-sc-f{display:flex;align-items:center;gap:2px;margin:-4px -2px -2px}
+:root:not([data-style="soft"]) .v2 .alg-sc-ln{height:1px;top:19px;background:repeating-linear-gradient(90deg,var(--rail) 0 3px,transparent 3px 6px)}
+:root:not([data-style="soft"]) .v2 .alg-sc-n{animation:none;box-shadow:inset 0 0 0 1.5px var(--accent-mark,var(--accent))}
+:root:not([data-style="soft"]) .v2 .alg-sc-n.fail{box-shadow:inset 0 0 0 1.5px var(--bad)}
+:root:not([data-style="soft"]) .v2 .alg-sc-knob{box-shadow:0 0 0 1.5px var(--accent-mark,var(--accent));background:color-mix(in srgb,var(--accent) 30%,transparent);transition:transform .3s steps(4,end),opacity .2s}
+:root:not([data-style="soft"]) .v2 .alg-sc-view{background:repeating-linear-gradient(135deg,transparent 0 6px,var(--grid) 6px 7px),var(--wash)}
+:root:not([data-style="soft"]) .v2 :is(.alg-sc-card.in-r,.alg-sc-card.in-l){animation:v2-bpin .3s var(--ease)}
+:root:not([data-style="soft"]) .v2 :is(.alg-sc-card.out-r,.alg-sc-card.out-l){animation:v2-bpout .2s var(--ease) forwards}
+:root:not([data-style="soft"]) .v2 .alg-sc-live[aria-pressed="true"] .alg-sc-ld{animation:v2-bpblink 1.1s steps(1,end) infinite}
+:root:not([data-style="soft"]) .v2 .alg-sc.fin .alg-sc-live[aria-pressed="true"] .alg-sc-ld{animation:none}
+:root:not([data-style="soft"]) .v2 .alg-sc-ic{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--line) 50%,transparent)}
 /* ---------- Run queue ---------- */
 .v2 .rq{display:flex;flex-direction:column;gap:var(--s-3)}
 .v2 .rq-top{display:flex;align-items:center;justify-content:space-between;font-size:12.5px}
@@ -2655,6 +2897,145 @@ html{scrollbar-gutter:stable}
 .v2 .atr-kids::before{content:"";position:absolute;top:2px;bottom:6px;left:calc(14px + var(--lv,0) * 20px);width:1px;background:var(--line)}
 .v2 .atr-sum{display:flex;align-items:center;gap:var(--s-2);margin:var(--s-2) var(--s-1) 2px;padding:10px var(--s-3);border-radius:var(--r-in);background:var(--ok-bg);font-size:13px}
 .v2 .atr-sum svg{color:var(--ok);flex:none}
+/* ---------- Agent tree designs ---------- */
+/* the card's design switch: Classic, Cost tree and Cost map, with the switch under the tree (on designme.dev it is the
+   card's footer tabs). Each design sits centred in the room the card keeps for the tallest of them (--dmy, set by the switch) */
+.v2 .dm.atr-dm{min-height:0;gap:var(--s-5);padding-top:var(--dmy,0px)}
+.v2 .atr-dm>.dm-main>*{width:100%}
+.v2.stage-in:has(>.atr-dm){align-self:auto;display:block}
+/* the two new designs: each agent has its avatar in the avatar colours (--a, its ink --ai), the orchestrator's is ink.
+   Green is done, red needs a fix, and the accent marks what is running */
+.v2 .atr-x-av{position:relative;width:24px;height:24px;border-radius:var(--r-sm);display:grid;place-items:center;flex:none;background:var(--a);color:var(--ai)}
+.v2 .atr-x-av .i{width:12px;height:12px;stroke-width:1.9}
+.v2 .atr-x-g{width:16px;height:16px;display:grid;place-items:center;flex:none;color:var(--faint)}
+.v2 .atr-x-g .spin{width:11px;height:11px;color:var(--accent-mark)}
+.v2 [data-s="done"]>.atr-x-g{color:var(--ok)}
+.v2 [data-s="fail"]>.atr-x-g{color:var(--bad)}
+.v2 .atr-x-fix{flex:none;background:var(--surface);color:var(--fg);box-shadow:var(--shadow)}
+@media (hover:hover) and (pointer:fine){.v2 .atr-x-fix:hover{background:var(--surface);box-shadow:var(--shadow-pop)}}
+/* Cost tree: the tree, with each branch's share of the whole run as a bar. Cost is the accent: each agent takes a step of
+   it (--k1 to --k3, each 3:1 or more on the surface), in the bar of the whole run and in its rows, so a row's bar and its
+   part of the run match. Lighter steps would drop under 3:1, so the steps run from the accent towards the text colour, and
+   in Blueprint's dark theme, where the lime is already light, towards the surface */
+.v2 .atr-ct{--k1:var(--accent-mark,var(--accent));--k2:color-mix(in oklab,var(--accent-mark,var(--accent)) 78%,var(--fg));--k3:color-mix(in oklab,var(--accent-mark,var(--accent)) 56%,var(--fg));width:100%;padding:6px;display:flex;flex-direction:column}
+:root:not([data-style="soft"])[data-theme="dark"] .v2 .atr-ct{--k2:color-mix(in oklab,var(--accent-mark,var(--accent)) 72%,var(--surface));--k3:color-mix(in oklab,var(--accent-mark,var(--accent)) 50%,var(--surface))}
+@media (prefers-color-scheme:dark){:root:not([data-style="soft"]):not([data-theme="light"]) .v2 .atr-ct{--k2:color-mix(in oklab,var(--accent-mark,var(--accent)) 72%,var(--surface));--k3:color-mix(in oklab,var(--accent-mark,var(--accent)) 50%,var(--surface))}}
+.v2 .atr-ct-h{display:flex;align-items:center;justify-content:space-between;gap:var(--s-3);padding:var(--s-2) 10px 8px}
+.v2 .atr-ct-ht{display:flex;flex-direction:column;min-width:0}
+.v2 .atr-ct-ht b{font-weight:500}
+.v2 .atr-ct-st{font-size:12.5px;color:var(--muted)}
+.v2 .atr-ct-tot{font-size:14px;font-weight:500}
+/* the whole run's cost, one bar: each agent's part in its step of the accent, clipped to its stretch (--x0 to --x1, in
+   percent) so it grows without a layout; what is left at the end is the orchestrator's own */
+.v2 .atr-ct-mix{position:relative;height:6px;margin:0 10px 10px;border-radius:3px;overflow:hidden;background:color-mix(in srgb,var(--line) 50%,transparent)}
+.v2 .atr-ct-mix i{position:absolute;inset:0;background:var(--k);clip-path:inset(0 calc(100% - var(--x1,0) * 1% + 1px) 0 calc(var(--x0,0) * 1% + 1px) round 3px);transition:clip-path .8s var(--ease)}
+.v2 .atr-ct-tree{display:flex;flex-direction:column;padding-top:4px;border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
+.v2 .atr-ct-n{position:relative;display:flex;align-items:center;gap:var(--s-2);min-height:44px;padding:5px 10px 5px calc(6px + var(--lv,0) * 22px);border-radius:10px;font-size:13px;outline:0;transition:background .16s}
+@media (hover:hover) and (pointer:fine){.v2 .atr-ct-n:hover{background:var(--row)}}
+.v2 .atr-ct-n:focus-visible{box-shadow:inset 0 0 0 2px var(--focus)}
+.v2 .atr-ct-tg{width:18px;height:18px;display:grid;place-items:center;flex:none;border-radius:6px;color:var(--muted)}
+.v2 .atr-ct-tg svg{transition:transform .32s var(--ease)}
+.v2 .atr-ct-n[aria-expanded="false"] .atr-ct-tg svg{transform:rotate(-90deg)}
+.v2 .atr-ct-sp{width:18px;flex:none}
+.v2 .atr-ct-t{flex:1;min-width:0;display:flex;flex-direction:column}
+.v2 .atr-ct-t b{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v2 .atr-ct-t span{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v2 .atr-ct-n[data-s="queued"] .atr-ct-t b{color:var(--fg2)}
+/* each row's cost, and its branch's share of the whole as a bar in its agent's step of the accent */
+.v2 .atr-ct-c{display:flex;flex-direction:column;align-items:flex-end;gap:4px;min-width:62px}
+.v2 .atr-ct-c b{font-size:12.5px;font-weight:400;color:var(--fg2)}
+.v2 .atr-ct-c i{display:block;width:56px;height:3px;border-radius:2px;background:color-mix(in srgb,var(--line) 50%,transparent);overflow:hidden;transition:background .16s}
+.v2 .atr-ct-c i span{display:block;height:100%;border-radius:inherit;background:var(--k,var(--k1));transform-origin:left;transform:scaleX(var(--sh,0));transition:transform .5s var(--ease)}
+.v2 .atr-ct-n[data-s="queued"] .atr-ct-c b{color:var(--muted)}
+/* on a grey row the bar's track turns white, and on a red one nothing on it is grey */
+@media (hover:hover) and (pointer:fine){.v2 .atr-ct-n:hover .atr-ct-c i{background:var(--surface)}}
+.v2 .atr-ct-n[data-s="fail"]{background:var(--bad-bg)}
+.v2 .atr-ct-n[data-s="fail"] :is(.atr-ct-t b,.atr-ct-c b,.atr-ct-tg){color:var(--fg)}
+.v2 .atr-ct-n[data-s="fail"] .atr-ct-t span{color:var(--bad)}
+.v2 .atr-ct-n[data-s="fail"] .atr-ct-c i{background:var(--surface)}
+/* the guides: a light grey line down each branch; hovering or focusing a row darkens the path above it a step */
+.v2 .atr-ct-kids{position:relative}
+.v2 .atr-ct-gd{position:absolute;top:0;bottom:8px;left:calc(15px + var(--lv,0) * 22px);width:1.5px;border-radius:1px;background:color-mix(in srgb,var(--line) 90%,transparent);transform-origin:top;transition:background .25s,transform .45s var(--ease);pointer-events:none}
+.v2 .atr-ct-kids.shut>.atr-ct-gd{transform:scaleY(0)}
+.v2 .atr-ct-kids.path>.atr-ct-gd{background:var(--faint)}
+.v2 .atr-ct-n.path .atr-ct-tg{color:var(--fg)}
+.v2 .atr-ct-n .atr-x-fix{margin-top:4px;align-self:flex-start}
+.v2 .atr-ct-sum{display:flex;align-items:center;gap:var(--s-2);margin:var(--s-2) 4px 2px;padding:10px var(--s-3);border-radius:var(--r-in);background:var(--ok-bg);font-size:13px;animation:v2-popin .5s var(--ease)}
+.v2 .atr-ct-sum svg{color:var(--ok);flex:none}
+/* on a phone the tree steps in less and its bars are shorter, so the names keep their room */
+@container (max-width:360px){
+  .v2 .atr-ct-n{padding-left:calc(4px + var(--lv,0) * 16px)}
+  .v2 .atr-ct-gd{left:calc(13px + var(--lv,0) * 16px)}
+  .v2 .atr-ct-c{min-width:46px}
+  .v2 .atr-ct-c i{width:40px}
+}
+:root:not([data-style="soft"]) .v2 .atr-ct-mix i{transition:clip-path .4s steps(4,end)}
+:root:not([data-style="soft"]) .v2 .atr-ct-gd{width:1px;background:repeating-linear-gradient(var(--rail) 0 3px,transparent 3px 6px);transition:transform .3s steps(3,end)}
+:root:not([data-style="soft"]) .v2 .atr-ct-kids.path>.atr-ct-gd{background:var(--faint)}
+:root:not([data-style="soft"]) .v2 .atr-ct-c i span{transition:transform .3s steps(3,end)}
+:root:not([data-style="soft"]) .v2 .atr-ct-n[data-s="fail"]{background:repeating-linear-gradient(135deg,transparent 0 5px,color-mix(in srgb,var(--bad) 10%,transparent) 5px 6px),var(--bad-bg)}
+:root:not([data-style="soft"]) .v2 .atr-ct-sum{animation:v2-bpin .3s var(--ease)}
+/* Cost map: every agent and step as a block as wide as its cost, one row for each level. A block's place and width are set
+   with a transform and a clip, so as costs grow and as you zoom, the blocks slide and stretch without a layout. Its colour
+   says how it is doing, as the key under the map says: green is done, amber is running, red failed, and a grey hatch is
+   queued. Each block has a tint of its colour with a line of the colour itself along its top (3:1 or more), and its words
+   in the text colour, so nothing grey sits on a tint. An agent's own work, outside its steps, is a lighter grey hatch */
+.v2 .atr-cm{width:100%;padding:var(--s-3);display:flex;flex-direction:column;gap:10px}
+.v2 .atr-cm-h{display:flex;align-items:center;justify-content:space-between;gap:var(--s-3);padding:2px 2px 0}
+.v2 .atr-cm-ht{display:flex;flex-direction:column;min-width:0}
+.v2 .atr-cm-crumb{display:flex;align-items:center;gap:4px;font-size:13.5px;min-width:0}
+.v2 .atr-cm-crumb button{border-radius:6px;padding:2px 4px;margin:-2px -4px;color:var(--fg2);transition:background .2s,color .2s}
+@media (hover:hover) and (pointer:fine){.v2 .atr-cm-crumb button:hover{background:var(--row);color:var(--fg)}}
+.v2 .atr-cm-crumb b{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v2 .atr-cm-crumb .i{color:var(--faint)}
+.v2 .atr-cm-st{font-size:12.5px;color:var(--muted)}
+.v2 .atr-cm-tot{font-size:14px;font-weight:500}
+.v2 .atr-cm-map{position:relative;height:calc(3 * 52px + 2 * 4px);overflow:hidden;border-radius:12px}
+.v2 .atr-cm-b{--st:transparent;position:absolute;left:0;top:calc(var(--lv) * 56px);width:100%;height:52px;transform:translateX(var(--x,0px));transition:transform .7s var(--ease),clip-path .7s var(--ease),opacity .4s;text-align:left;outline:0;clip-path:inset(0 calc(100% - var(--w,0px)) 0 0 round 10px)}
+.v2 .atr-cm-b .bg{position:absolute;inset:0;overflow:hidden;background-color:var(--chip);transition:background-color .3s}
+.v2 .atr-cm-b .k{position:absolute;left:0;right:0;top:0;height:3px;background:var(--st);transition:background .3s}
+.v2 .atr-cm-b:not(.lv0,.own)[data-s="done"]{--st:var(--ok)}
+.v2 .atr-cm-b:not(.lv0,.own)[data-s="done"] .bg{background-color:var(--ok-bg)}
+.v2 .atr-cm-b:not(.lv0,.own)[data-s="run"]{--st:var(--warn)}
+.v2 .atr-cm-b:not(.lv0,.own)[data-s="run"] .bg{background-color:var(--warn-bg)}
+.v2 .atr-cm-b:not(.lv0,.own)[data-s="fail"]{--st:var(--bad)}
+.v2 .atr-cm-b:not(.lv0,.own)[data-s="fail"] .bg{background-color:var(--bad-bg)}
+.v2 .atr-cm-b:not(.lv0,.own)[data-s="queued"] .bg{background-image:repeating-linear-gradient(135deg,transparent 0 4px,color-mix(in srgb,var(--fg) 8%,transparent) 4px 5px);background-color:var(--surface)}
+.v2 .atr-cm-b.own .bg{background-image:repeating-linear-gradient(135deg,transparent 0 4px,color-mix(in srgb,var(--fg) 7%,transparent) 4px 5px);background-color:var(--row)}
+/* a block at work carries a passing light, moved with a transform */
+.v2 .atr-cm-b .sh{display:none;position:absolute;top:0;bottom:0;left:0;width:var(--w,0px);background:linear-gradient(100deg,transparent 35%,color-mix(in srgb,var(--fg) 6%,transparent) 50%,transparent 65%);transform:translateX(-100%);animation:v2-atrsheen 1.8s linear infinite}
+.v2 .atr-cm-b:not(.lv0)[data-s="run"] .sh{display:block}
+@keyframes v2-atrsheen{to{transform:translateX(100%)}}
+/* under the pointer a block takes a neutral step darker, keeping its colour */
+.v2 .atr-cm-b:not(.lv0,.own):focus-visible .bg{background-image:linear-gradient(color-mix(in srgb,var(--fg) 5%,transparent),color-mix(in srgb,var(--fg) 5%,transparent))}
+@media (hover:hover) and (pointer:fine){.v2 .atr-cm-b:not(.lv0,.own):hover .bg{background-image:linear-gradient(color-mix(in srgb,var(--fg) 5%,transparent),color-mix(in srgb,var(--fg) 5%,transparent))}}
+.v2 .atr-cm-b:focus-visible .atr-cm-l b{text-decoration:underline;text-decoration-color:var(--focus);text-underline-offset:3px;text-decoration-thickness:2px}
+.v2 .atr-cm-l{position:absolute;left:10px;top:9px;right:8px;display:flex;flex-direction:column;font-size:12.5px;line-height:1.35;white-space:nowrap;pointer-events:none;color:var(--fg)}
+.v2 .atr-cm-l b{font-weight:500}
+.v2 .atr-cm-l span{font-size:11.5px;font-variant-numeric:tabular-nums}
+.v2 .atr-cm-b.gone{opacity:0;pointer-events:none}
+/* the key to the colours, under the map */
+.v2 .atr-cm-lg{list-style:none;margin:-2px 0 0;padding:0 2px;display:flex;flex-wrap:wrap;gap:2px 14px;font-size:12px;color:var(--muted)}
+.v2 .atr-cm-lg li{display:inline-flex;align-items:center;gap:6px}
+.v2 .atr-cm-lg i{width:10px;height:10px;border-radius:3px;background:var(--st);flex:none}
+.v2 .atr-cm-lg [data-s="done"]{--st:var(--ok)}.v2 .atr-cm-lg [data-s="run"]{--st:var(--warn)}.v2 .atr-cm-lg [data-s="fail"]{--st:var(--bad)}
+.v2 .atr-cm-lg [data-s="queued"] i{background:repeating-linear-gradient(135deg,transparent 0 2px,color-mix(in srgb,var(--fg) 55%,transparent) 2px 3px),var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--fg) 55%,transparent)}
+.v2 .atr-cm-say{min-height:20px;font-size:12.5px;color:var(--fg2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v2 .atr-cm-say b{font-weight:500;color:var(--fg)}
+.v2 .atr-cm-key{list-style:none;margin:0;padding:6px 0 0;display:flex;flex-direction:column;gap:2px;border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
+.v2 .atr-cm-key li{display:flex;align-items:center;gap:var(--s-2);min-height:32px;padding:0 4px;font-size:12.5px}
+.v2 .atr-cm-key .t{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v2 .atr-cm-key .p{width:38px;text-align:right;color:var(--muted);font-variant-numeric:tabular-nums}
+.v2 .atr-cm-key .c{width:44px;text-align:right;color:var(--fg2);font-variant-numeric:tabular-nums}
+.v2 .atr-cm-key .tag .spin{width:9px;height:9px}
+.v2 .atr-cm-key .atr-x-fix{margin-left:4px}
+/* on a phone the key leaves out each agent's share, which its blocks already show, so the names keep their room */
+@container (max-width:360px){.v2 .atr-cm-key .p{display:none}}
+:root:not([data-style="soft"]) .v2 .atr-cm-b{clip-path:inset(0 calc(100% - var(--w,0px) + 2px) 0 0);transition-duration:.45s;transition-timing-function:steps(5,end)}
+:root:not([data-style="soft"]) .v2 .atr-cm-b:not(.lv0,.own)[data-s="run"] .bg{background-image:repeating-linear-gradient(135deg,transparent 0 4px,color-mix(in srgb,var(--warn) 16%,transparent) 4px 5px)}
+:root:not([data-style="soft"]) .v2 .atr-cm-b:not(.lv0,.own)[data-s="fail"] .bg{background-image:repeating-linear-gradient(135deg,transparent 0 4px,color-mix(in srgb,var(--bad) 16%,transparent) 4px 5px)}
+:root:not([data-style="soft"]) .v2 .atr-cm-b .sh{display:none}
+:root:not([data-style="soft"]) .v2 .atr-cm-lg i{border-radius:0}
 /* ---------- Agent inbox ---------- */
 /* every run in one list, grouped by what it needs: Needs you, Running, Done. A run glides to its new group when it moves */
 .v2 .aib{width:100%;max-width:440px;margin:0 auto;padding:6px}
@@ -3091,6 +3472,204 @@ html{scrollbar-gutter:stable}
 .v2 .rsu.undone .rsu-it .mono{text-decoration:line-through}
 .v2 .rsu-acts{display:flex;gap:6px;margin-top:14px}
 @media (max-width:420px){.v2 .rsu-stats{grid-template-columns:repeat(2,1fr)}}
+/* ---------- Run summary designs ---------- */
+/* the card's design switch: Classic, Receipt, Recap and Bento, with the switch under the summary (on designme.dev it is
+   the card's footer tabs). Each design sits centred in the room the card keeps for the tallest of them (--dmy, set by the switch) */
+.v2 .dm.rsu-dm{min-height:0;gap:var(--s-5);padding-top:var(--dmy,0px)}
+.v2 .rsu-dm>.dm-main>*{width:100%}
+.v2.stage-in:has(>.rsu-dm){align-self:auto;display:block}
+/* the run's parts (time by phase, cost by kind) are shares of one whole, so they take the accent's steps, the accent first.
+   Each step is 3:1 or more on the surface, so they run from the accent towards the text colour (in Blueprint's dark theme,
+   where the lime is already light, towards the surface). Lines and tiles are grey; green is done, amber needs you, and
+   green and red count the lines in and out */
+.v2 :is(.rsu-rc,.rsu-rp,.rsu-bn){--ph-e:var(--accent-mark,var(--accent));--ph-c:color-mix(in oklab,var(--accent-mark,var(--accent)) 80%,var(--fg));--ph-v:color-mix(in oklab,var(--accent-mark,var(--accent)) 62%,var(--fg));--ph-s:color-mix(in oklab,var(--accent-mark,var(--accent)) 44%,var(--fg))}
+:root:not([data-style="soft"])[data-theme="dark"] .v2 :is(.rsu-rc,.rsu-rp,.rsu-bn){--ph-c:color-mix(in oklab,var(--accent-mark,var(--accent)) 80%,var(--surface));--ph-v:color-mix(in oklab,var(--accent-mark,var(--accent)) 62%,var(--surface));--ph-s:color-mix(in oklab,var(--accent-mark,var(--accent)) 46%,var(--surface))}
+@media (prefers-color-scheme:dark){:root:not([data-style="soft"]):not([data-theme="light"]) .v2 :is(.rsu-rc,.rsu-rp,.rsu-bn){--ph-c:color-mix(in oklab,var(--accent-mark,var(--accent)) 80%,var(--surface));--ph-v:color-mix(in oklab,var(--accent-mark,var(--accent)) 62%,var(--surface));--ph-s:color-mix(in oklab,var(--accent-mark,var(--accent)) 46%,var(--surface))}}
+.v2 :is(.rsu-rc,.rsu-rp,.rsu-bn) code{font-family:var(--mono);font-size:12px;font-weight:500}
+/* Receipt: a check that draws itself, time by phase, a row of blocks for each changed file and a hold to undo */
+.v2 .rsu-rc{padding:var(--s-4);display:flex;flex-direction:column;gap:12px}
+.v2 .rsu-rc-h{display:flex;align-items:center;gap:var(--s-3)}
+/* the check draws its ring, then its stroke, and a few green sparks fly out once */
+.v2 .rsu-rc-ok{position:relative;width:38px;height:38px;flex:none;border-radius:50%;background:var(--ok-bg)}
+.v2 .rsu-rc-ok svg{position:absolute;inset:0;width:38px;height:38px;transform:rotate(-90deg)}
+.v2 .rsu-rc-ok .rg{fill:none;stroke:var(--ok);stroke-width:2;stroke-dasharray:107;stroke-dashoffset:107;animation:v2-rsudraw .7s var(--ease) .2s forwards}
+.v2 .rsu-rc-ok .ck{fill:none;stroke:var(--ok);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:24;stroke-dashoffset:24;transform:rotate(90deg);transform-origin:20px 20px;animation:v2-rsudraw .45s var(--ease) .75s forwards}
+@keyframes v2-rsudraw{to{stroke-dashoffset:0}}
+.v2 .rsu-rc-ok i{position:absolute;left:50%;top:50%;width:4px;height:4px;margin:-2px;border-radius:50%;background:var(--ok);opacity:0;animation:v2-rsuspark .7s var(--ease) 1s}
+.v2 .rsu-rc-ok i:nth-of-type(1){--d:translate(-26px,-6px)}.v2 .rsu-rc-ok i:nth-of-type(2){--d:translate(-14px,-24px)}.v2 .rsu-rc-ok i:nth-of-type(3){--d:translate(12px,-25px)}
+.v2 .rsu-rc-ok i:nth-of-type(4){--d:translate(26px,-4px)}.v2 .rsu-rc-ok i:nth-of-type(5){--d:translate(18px,20px)}.v2 .rsu-rc-ok i:nth-of-type(6){--d:translate(-20px,18px)}
+@keyframes v2-rsuspark{0%{opacity:1;transform:none}100%{opacity:0;transform:var(--d) scale(.4)}}
+.v2 .rsu-rc.undone .rsu-rc-ok{background:var(--chip)}
+.v2 .rsu-rc.undone .rsu-rc-ok :is(.rg,.ck){stroke:var(--muted)}
+.v2 .rsu-rc-ht{flex:1;min-width:0;display:flex;flex-direction:column}
+.v2 .rsu-rc-t{font-weight:500}
+.v2 .rsu-rc-s{font-size:12.5px;color:var(--muted)}
+.v2 .rsu-rc-title{margin:2px 0 0;font-size:14px;font-weight:500;line-height:1.45}
+.v2 .rsu-rc-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.v2 .rsu-rc-st{display:flex;flex-direction:column;gap:1px;padding:8px 10px;border-radius:var(--r-in);background:var(--wash);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--line) 50%,transparent)}
+.v2 .rsu-rc-st b{font-size:14px;font-weight:500;font-variant-numeric:tabular-nums}
+.v2 .rsu-rc-st span{font-size:11.5px;color:var(--muted)}
+/* time by phase, one bar in the accent's steps, with its key */
+.v2 .rsu-rc-pb{display:flex;gap:2px;height:8px;border-radius:4px;overflow:hidden}
+.v2 .rsu-rc-pb i{height:100%;flex:0 0 auto;width:calc(var(--w) * 1%);background:var(--k);transform-origin:left;transform:scaleX(0);animation:v2-rsugrow .7s var(--ease) forwards;cursor:default}
+@keyframes v2-rsugrow{to{transform:none}}
+.v2 .rsu-rc-pk{display:flex;flex-wrap:wrap;gap:2px 12px;margin-top:6px;font-size:11.5px;color:var(--muted)}
+.v2 .rsu-rc-pk span{display:inline-flex;align-items:center;gap:5px}
+.v2 .rsu-rc-pk i{width:7px;height:7px;border-radius:2px;background:var(--k)}
+.v2 .rsu-rc-pk b{font-weight:500;color:var(--fg2)}
+/* the receipt's tear line */
+.v2 .rsu-rc-cut{position:relative;height:1px;margin:2px 0;background:repeating-linear-gradient(90deg,color-mix(in srgb,var(--rail) 70%,transparent) 0 6px,transparent 6px 11px)}
+.v2 .rsu-rc-sec{display:flex;flex-direction:column;gap:4px}
+.v2 .rsu-rc-l{font-size:12px;color:var(--muted)}
+.v2 .rsu-rc-f{display:flex;align-items:center;gap:10px;min-height:28px;font-size:13px;transition:opacity .4s,filter .4s}
+.v2 .rsu-rc-f code{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v2 .rsu-rc-f .n{font-size:12px;font-variant-numeric:tabular-nums;min-width:58px;text-align:right}
+.v2 .rsu-rc-f .n .a{color:var(--add)}.v2 .rsu-rc-f .n .x{color:var(--del)}
+/* each file's change as five blocks, green for lines in, red for lines out */
+.v2 .rsu-rc-ds{display:flex;gap:2px}
+.v2 .rsu-rc-ds i{width:8px;height:8px;border-radius:2px;background:color-mix(in srgb,var(--fg) 12%,transparent);transform:scale(.4);opacity:0;animation:v2-rsuds .4s var(--ease) forwards}
+.v2 .rsu-rc-ds i.a{background:var(--add)}.v2 .rsu-rc-ds i.x{background:var(--del)}
+@keyframes v2-rsuds{to{transform:none;opacity:1}}
+.v2 .rsu-rc.undone .rsu-rc-f{opacity:.45;filter:grayscale(1)}
+.v2 .rsu-rc.undone .rsu-rc-f code{text-decoration:line-through}
+.v2 .rsu-rc-nr{display:flex;align-items:center;gap:10px;font-size:13px;min-height:32px}
+.v2 .rsu-rc-nd{width:8px;height:8px;border-radius:50%;background:var(--warn);flex:none}
+.v2 .rsu-rc-nr.ok .rsu-rc-nd{background:var(--ok)}
+.v2 .rsu-rc-nt{flex:1;min-width:0}
+/* the fix keeps one width as it works, so the words beside it never wrap again */
+.v2 .rsu-rc-fix{min-width:80px}
+.v2 .rsu-rc-acts{display:flex;gap:6px;margin-top:2px}
+/* Undo all: press and hold; the fill runs across while you hold, and letting go early stops it */
+.v2 .rsu-rc-undo{position:relative;overflow:hidden;isolation:isolate}
+.v2 .rsu-rc-hf{position:absolute;inset:0;z-index:-1;background:color-mix(in srgb,var(--bad) 14%,transparent);transform-origin:left;transform:scaleX(0)}
+.v2 .rsu-rc-undo.hold .rsu-rc-hf{transform:scaleX(1);transition:transform 1s linear}
+.v2 .rsu-rc-undo.hold{color:var(--bad)}
+.v2 .rsu-rc-undo .lb{position:relative}
+:root:not([data-style="soft"]) .v2 .rsu-rc-ok .rg{animation:v2-rsudraw .4s steps(5,end) .2s forwards}
+:root:not([data-style="soft"]) .v2 .rsu-rc-ok .ck{animation:v2-rsudraw .3s steps(3,end) .6s forwards;stroke-linecap:square}
+:root:not([data-style="soft"]) .v2 .rsu-rc-ok i{display:none}
+:root:not([data-style="soft"]) .v2 .rsu-rc-st{background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--line) 80%,transparent)}
+:root:not([data-style="soft"]) .v2 .rsu-rc-pb{gap:1px}
+:root:not([data-style="soft"]) .v2 .rsu-rc-pb i{animation:v2-rsugrow .4s steps(4,end) forwards}
+:root:not([data-style="soft"]) .v2 .rsu-rc-cut{background:repeating-linear-gradient(90deg,var(--rail) 0 3px,transparent 3px 6px)}
+:root:not([data-style="soft"]) .v2 .rsu-rc-ds i{animation:v2-rsuds .2s steps(2,end) forwards}
+:root:not([data-style="soft"]) .v2 .rsu-rc-hf{background:repeating-linear-gradient(135deg,transparent 0 4px,color-mix(in srgb,var(--bad) 30%,transparent) 4px 5px)}
+:root:not([data-style="soft"]) .v2 .rsu-rc-undo.hold .rsu-rc-hf{transition:transform 1s steps(10,end)}
+/* Recap: the run told back as a timeline of the moments that mattered; hover one and the files it touched light up */
+.v2 .rsu-rp{display:flex;flex-direction:column;gap:12px}
+.v2 .rsu-rp-h{display:flex;align-items:center;gap:var(--s-3)}
+.v2 .rsu-rp-ok{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;flex:none;background:var(--ok-bg);color:var(--ok);animation:v2-rsupop .6s var(--ease) .1s backwards}
+@keyframes v2-rsupop{from{transform:scale(.4);opacity:0}60%{transform:scale(1.1)}}
+.v2 .rsu-rp-ht{display:flex;flex-direction:column;min-width:0}
+.v2 .rsu-rp-ht b{font-weight:500}
+.v2 .rsu-rp-ht span{font-size:12.5px;color:var(--muted)}
+.v2 .rsu-rp-files{display:flex;flex-wrap:wrap;gap:6px}
+/* the files are the site's file chips; the ones a moment touched take the site's highlight, the accent's tint */
+.v2 .rsu-rp-fc{transition:background .25s,color .25s,transform .25s var(--ease)}
+.v2 .rsu-rp-fc code{font-size:11.5px}
+.v2 .rsu-rp-fc .n{font-size:11.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.v2 .rsu-rp-fc.lit{background:var(--sel);color:var(--accent-fg,var(--fg));transform:translateY(-2px)}
+.v2 .rsu-rp-tw{position:relative;margin:0 -6px}
+.v2 .rsu-rp-tl{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+/* the grey line down the timeline draws itself as the moments arrive */
+.v2 .rsu-rp-rail{position:absolute;left:19px;top:16px;bottom:16px;width:2px;border-radius:1px;background:var(--rail);transform-origin:top;transform:scaleY(var(--p,0));transition:transform .5s var(--ease);pointer-events:none}
+.v2 .rsu-rp-m{position:relative;display:flex;align-items:center;gap:10px;min-height:38px;padding:4px 6px;border-radius:10px;font-size:13px;opacity:0;transform:translateY(6px);transition:opacity .4s,transform .45s var(--ease),background .2s}
+.v2 .rsu-rp-m.in{opacity:1;transform:none}
+/* the recap sits on the page, not on a panel, so a moment's highlight is a light step of the text colour over whatever is
+   behind it, and every tile is white with a dimmed edge, so nothing grey sits on grey */
+.v2 .rsu-rp-m.on{background:color-mix(in srgb,var(--fg) 4%,transparent)}
+@media (hover:hover) and (pointer:fine){.v2 .rsu-rp-m:hover{background:color-mix(in srgb,var(--fg) 4%,transparent)}}
+.v2 .rsu-rp-m:focus-visible{background:color-mix(in srgb,var(--fg) 4%,transparent);outline:0;box-shadow:inset 0 0 0 2px var(--focus)}
+.v2 .rsu-rp-mi{position:relative;z-index:1;width:28px;height:28px;border-radius:9px;display:grid;place-items:center;flex:none;background:var(--surface);color:var(--fg2);box-shadow:0 0 0 3px var(--surface),inset 0 0 0 1px color-mix(in srgb,var(--rail) 50%,transparent)}
+.v2 .rsu-rp-mi.app{color:var(--fg)}
+.v2 .rsu-rp-mi .brand{width:14px;height:14px}
+.v2 .rsu-rp-mi .i{width:13px;height:13px}
+.v2 .rsu-rp-m.bad .rsu-rp-mi{background:var(--bad-bg);color:var(--bad);box-shadow:0 0 0 3px var(--surface)}
+.v2 .rsu-rp-mt{flex:1;min-width:0;display:flex;flex-direction:column}
+.v2 .rsu-rp-mt b{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v2 .rsu-rp-mt span{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v2 .rsu-rp-m.bad .rsu-rp-mt span{color:var(--bad)}
+.v2 .rsu-rp-mw{font-size:11.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.v2 .rsu-rp-end{display:flex;flex-direction:column;gap:8px;opacity:0;transform:translateY(8px);transition:opacity .5s,transform .5s var(--ease)}
+.v2 .rsu-rp-end.in{opacity:1;transform:none}
+.v2 .rsu-rp-pr{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--r-in);background:var(--surface);box-shadow:var(--shadow)}
+.v2 .rsu-rp-pr .brand{width:18px;height:18px}
+.v2 .rsu-rp-prt{flex:1;min-width:0;display:flex;flex-direction:column;font-size:12.5px}
+.v2 .rsu-rp-prt b{font-weight:500;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v2 .rsu-rp-prt span{color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v2 .rsu-rp-need{display:flex;align-items:center;gap:10px;padding:8px 8px 8px 12px;border-radius:var(--r-in);background:var(--warn-bg);font-size:13px}
+.v2 .rsu-rp-ni{display:grid;color:var(--warn)}
+.v2 .rsu-rp-nt{flex:1;min-width:0}
+.v2 .rsu-rp-need .pill{background:var(--surface);color:var(--fg);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--rail) 50%,transparent)}
+@media (hover:hover) and (pointer:fine){.v2 .rsu-rp-need .pill:hover{background:var(--surface);box-shadow:inset 0 0 0 1px var(--rail)}}
+.v2 .rsu-rp-need.ok{background:var(--ok-bg)}
+.v2 .rsu-rp-need.ok .rsu-rp-ni{color:var(--ok)}
+:root:not([data-style="soft"]) .v2 .rsu-rp-rail{width:1px;left:19.5px;transition:transform .3s steps(4,end)}
+:root:not([data-style="soft"]) .v2 .rsu-rp-m{transition:opacity .2s steps(2,end),transform .2s steps(2,end),background .2s}
+:root:not([data-style="soft"]) .v2 .rsu-rp-mi{box-shadow:0 0 0 3px var(--surface),inset 0 0 0 1px color-mix(in srgb,var(--line) 50%,transparent)}
+:root:not([data-style="soft"]) .v2 .rsu-rp-m.bad .rsu-rp-mi{box-shadow:0 0 0 3px var(--surface)}
+:root:not([data-style="soft"]) .v2 .rsu-rp-fc.lit{transform:none}
+:root:not([data-style="soft"]) .v2 .rsu-rp-ok{animation:none}
+/* Bento: the run as tiles: what it did, its cost, its tests, its files and what needs you, with copy and a rating */
+.v2 .rsu-bn{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.v2 .rsu-bn-t{display:flex;flex-direction:column;gap:6px;min-width:0;padding:12px;border-radius:var(--r-card);background:var(--surface);box-shadow:var(--shadow);animation:v2-rsuin .6s var(--ease) backwards}
+.v2 .rsu-bn-t:nth-child(2){animation-delay:.08s}.v2 .rsu-bn-t:nth-child(3){animation-delay:.16s}.v2 .rsu-bn-t:nth-child(4){animation-delay:.24s}.v2 .rsu-bn-t:nth-child(5){animation-delay:.32s}.v2 .rsu-bn-t:nth-child(6){animation-delay:.4s}
+@keyframes v2-rsuin{from{opacity:0;transform:translateY(10px) scale(.97);filter:blur(4px)}}
+.v2 .rsu-bn-l{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--muted)}
+.v2 .rsu-bn-l .i{width:12px;height:12px}
+.v2 .rsu-bn-out{grid-column:1/-1;flex-direction:row;align-items:center;gap:var(--s-3);overflow:hidden;position:relative}
+.v2 .rsu-bn-burst{position:relative;width:44px;height:44px;flex:none;animation:v2-rsuthumb .45s var(--ease) 1.1s}
+.v2 .rsu-bn-burst svg{width:44px;height:44px;transform:rotate(-90deg)}
+.v2 .rsu-bn-burst .rg{fill:var(--surface);stroke:var(--ok);stroke-width:2.5;stroke-dasharray:126;stroke-dashoffset:126;animation:v2-rsudraw .8s var(--ease) .3s forwards}
+.v2 .rsu-bn-burst .ck{fill:none;stroke:var(--ok);stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:28;stroke-dashoffset:28;transform:rotate(90deg);transform-origin:24px 24px;animation:v2-rsudraw .45s var(--ease) .9s forwards}
+.v2 .rsu-bn-ot{display:flex;flex-direction:column;min-width:0}
+.v2 .rsu-bn-ot b{font-weight:500;line-height:1.4}
+.v2 .rsu-bn-ot span{font-size:12.5px;color:var(--fg2)}
+.v2 .rsu-bn-donut{display:flex;align-items:center;gap:10px}
+.v2 .rsu-bn-donut svg{width:52px;height:52px;flex:none;transform:rotate(-90deg)}
+.v2 .rsu-bn-donut circle{fill:none;stroke-width:8}
+.v2 .rsu-bn-donut circle.s{stroke-dashoffset:var(--o);stroke-dasharray:0 200;transition:stroke-dasharray .9s var(--ease)}
+.v2 .rsu-bn-donut b{font-size:14px;font-weight:500}
+.v2 .rsu-bn-ck{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px;font-size:11.5px;color:var(--muted)}
+.v2 .rsu-bn-ck li{display:flex;align-items:center;gap:6px}
+.v2 .rsu-bn-ck i{width:7px;height:7px;border-radius:2px;background:var(--k)}
+.v2 .rsu-bn-ck b{margin-left:auto;font-weight:500;color:var(--fg2);font-variant-numeric:tabular-nums}
+.v2 .rsu-bn-tr{position:relative;width:64px;height:64px;display:grid;place-items:center;align-self:center}
+.v2 .rsu-bn-tr svg{position:absolute;inset:0;width:64px;height:64px;transform:rotate(-90deg)}
+.v2 .rsu-bn-tr circle{fill:none;stroke-width:6}
+.v2 .rsu-bn-tr .bg{stroke:var(--line)}
+.v2 .rsu-bn-tr .v{stroke:var(--ok);stroke-linecap:round;stroke-dasharray:163.4;stroke-dashoffset:calc(163.4 * (1 - var(--p,0)));transition:stroke-dashoffset 1.1s var(--ease)}
+.v2 .rsu-bn-tr .fx{stroke:var(--warn);stroke-linecap:round;stroke-dasharray:12.6 163.4;stroke-dashoffset:-150;opacity:0;transition:opacity .5s 1s}
+.v2 .rsu-bn.in .rsu-bn-tr .fx{opacity:.9}
+.v2 .rsu-bn-tr b{font-size:14px;font-weight:500}
+.v2 .rsu-bn-sub{font-size:11.5px;color:var(--muted);text-align:center}
+.v2 .rsu-bn-fl{display:flex;flex-direction:column;gap:5px}
+.v2 .rsu-bn-fr{display:flex;align-items:center;gap:6px;font-size:11.5px;min-width:0}
+.v2 .rsu-bn-fr code{flex:1;min-width:0;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v2 .rsu-bn-fr .bar{display:flex;width:44px;height:6px;border-radius:3px;overflow:hidden;flex:none;background:color-mix(in srgb,var(--fg) 8%,transparent)}
+.v2 .rsu-bn-fr .bar i{height:100%;transform-origin:left;transform:scaleX(0);transition:transform .8s var(--ease)}
+.v2 .rsu-bn.in .rsu-bn-fr .bar i{transform:none}
+.v2 .rsu-bn-fr .bar .a{background:var(--add)}.v2 .rsu-bn-fr .bar .x{background:var(--del)}
+.v2 .rsu-bn-need{background:var(--warn-bg)}
+.v2 .rsu-bn-need .rsu-bn-l{color:var(--warn)}
+.v2 .rsu-bn-need p{margin:0;font-size:12.5px;line-height:1.45;color:var(--fg)}
+.v2 .rsu-bn-need .pill{align-self:flex-start;margin-top:auto;background:var(--surface);color:var(--fg);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--rail) 50%,transparent)}
+@media (hover:hover) and (pointer:fine){.v2 .rsu-bn-need .pill:hover{background:var(--surface);box-shadow:inset 0 0 0 1px var(--rail)}}
+.v2 .rsu-bn-need.ok{background:var(--ok-bg)}
+.v2 .rsu-bn-need.ok .rsu-bn-l{color:var(--ok)}
+.v2 .rsu-bn-act{grid-column:1/-1;flex-direction:row;align-items:center;justify-content:space-between;padding:8px 8px 8px 10px}
+.v2 .rsu-bn-rate{display:flex;align-items:center;gap:2px;font-size:12px;color:var(--muted)}
+.v2 .rsu-bn-rate>span{margin-right:6px}
+.v2 .rsu-bn-rate .ib[aria-pressed="true"]{background:var(--accent-bg);color:var(--accent-fg,var(--accent))}
+.v2 .rsu-bn-rate .ib.bump .i{animation:v2-rsuthumb .45s var(--ease)}
+@keyframes v2-rsuthumb{40%{transform:scale(1.3) rotate(-8deg)}}
+:root:not([data-style="soft"]) .v2 .rsu-bn{gap:0;box-shadow:0 0 0 1px color-mix(in srgb,var(--line) 70%,transparent)}
+:root:not([data-style="soft"]) .v2 .rsu-bn-t{box-shadow:0 0 0 .5px color-mix(in srgb,var(--rail) 70%,transparent);animation:v2-bpin .35s var(--ease) backwards}
+:root:not([data-style="soft"]) .v2 .rsu-bn-burst .rg{animation:v2-rsudraw .4s steps(5,end) .2s forwards}
+:root:not([data-style="soft"]) .v2 .rsu-bn-burst .ck{animation:v2-rsudraw .3s steps(3,end) .6s forwards;stroke-linecap:square}
+:root:not([data-style="soft"]) .v2 .rsu-bn-burst{animation:none}
+:root:not([data-style="soft"]) .v2 .rsu-bn-tr :is(.v,.fx){stroke-linecap:butt}
+:root:not([data-style="soft"]) .v2 .rsu-bn-tr .v{transition:stroke-dashoffset .6s steps(6,end)}
 /* ---------- Error and recovery ---------- */
 .v2 .erx{padding:var(--s-2)}
 .v2 .erx-h{display:flex;align-items:center;justify-content:space-between;gap:var(--s-3);padding:var(--s-2) 10px 6px}
@@ -8156,7 +8735,7 @@ body.ui .brand.o3::after{content:none}
   <div class="aln-rows"></div>
 </div></template>
   </article>
-  <article class="comp wide" id="c114" data-soft data-v2="agent-tree" data-reg="agent-tree" style="--rh-a:569px;--rc-a:457px;--rcb-a:457px;--rh-b:569px;--rc-b:457px;--rcb-b:457px;--rh-c:569px;--rc-c:457px;--rcb-c:457px;--rh-d:569px;--rc-d:457px;--rcb-d:457px;--rh-e:569px;--rc-e:457px;--rcb-e:457px;--rh-f:569px;--rc-f:457px;--rcb-f:457px;--rh-g:569px;--rc-g:457px;--rcb-g:457px;--rh-h:569px;--rc-h:457px;--rcb-h:457px;--rh-i:569px;--rc-i:457px;--rcb-i:457px;--rh-j:537px;--rc-j:457px;--rcb-j:457px;--rh-k:537px;--rc-k:457px;--rcb-k:457px;--rh-l:537px;--rc-l:457px;--rcb-l:457px;--rh-m:596px;--rc-m:516px;--rcb-m:516px">
+  <article class="comp wide" id="c114" data-soft data-v2="agent-tree" data-reg="agent-tree" style="--rh-a:613px;--rc-a:501px;--rcb-a:501px;--rh-b:613px;--rc-b:501px;--rcb-b:501px;--rh-c:613px;--rc-c:501px;--rcb-c:501px;--rh-d:613px;--rc-d:501px;--rcb-d:501px;--rh-e:613px;--rc-e:501px;--rcb-e:501px;--rh-f:613px;--rc-f:501px;--rcb-f:501px;--rh-g:613px;--rc-g:501px;--rcb-g:501px;--rh-h:613px;--rc-h:501px;--rcb-h:501px;--rh-i:613px;--rc-i:501px;--rcb-i:501px;--rh-j:581px;--rc-j:501px;--rcb-j:501px;--rh-k:581px;--rc-k:501px;--rcb-k:501px;--rh-l:581px;--rc-l:501px;--rcb-l:501px;--rh-m:596px;--rc-m:516px;--rcb-m:516px">
     <div class="comp-head">
       <span class="ibox accent"><span class="ms">group</span></span>
       <div><h2 class="comp-title"><a href="/components/agent-tree">Agent tree</a></h2><p class="comp-desc">An orchestrator and its sub-agents, with cost rolled up per branch.</p></div>
@@ -8164,12 +8743,20 @@ body.ui .brand.o3::after{content:none}
     </div>
     <div class="stage"><div class="stage-inner dots v2-host" data-demo><div class="v2 stage-in"></div></div></div>
     <div class="comp-foot">
-      <span class="mono-xs">Fold a branch, hover a cost</span>
+      <div class="tabs" role="tablist" aria-label="Agent tree design" data-tabs="v2-agent-tree">
+        <button class="tab" role="tab" aria-selected="true" data-v="classic">Classic</button>
+        <button class="tab" role="tab" aria-selected="false" data-v="cost">Cost tree</button>
+        <button class="tab" role="tab" aria-selected="false" data-v="map">Cost map</button>
+      </div>
       <div class="code-btns"><button class="ghost anim-btn" data-anim><span class="ms sm">stars</span>Animate</button><button class="ghost" data-view aria-expanded="false"><span class="ms sm">code</span><span class="vl">View code</span></button><button class="ghost" data-copy><span class="ms sm">content_copy</span>Copy code</button></div>
     </div>
-    <template><div class="atr panel">
+    <template><div class="dm atr-dm" data-designs="card"><div class="dm-main">
+<div class="atr panel">
   <div class="atr-h"><div class="atr-ht"><b>Redesign the pricing page</b><span class="muted atr-st">3 agents working</span></div><span class="atr-tot num">$0.00</span></div>
   <div class="atr-tree" role="tree" aria-label="Agents"></div>
+</div>
+</div>
+<div class="demo"><div class="seg2" role="group" aria-label="Agent tree design"><button aria-pressed="true" data-v="classic">Classic</button><button aria-pressed="false" data-v="cost">Cost tree</button><button aria-pressed="false" data-v="map">Cost map</button></div></div>
 </div></template>
   </article>
   <article class="comp wide" id="c115" data-soft data-v2="agent-inbox" data-reg="agent-inbox" style="--rh-a:583px;--rc-a:471px;--rcb-a:471px;--rh-b:583px;--rc-b:471px;--rcb-b:471px;--rh-c:583px;--rc-c:471px;--rcb-c:471px;--rh-d:583px;--rc-d:471px;--rcb-d:471px;--rh-e:583px;--rc-e:471px;--rcb-e:471px;--rh-f:583px;--rc-f:471px;--rcb-f:471px;--rh-g:583px;--rc-g:471px;--rcb-g:471px;--rh-h:583px;--rc-h:471px;--rcb-h:471px;--rh-i:583px;--rc-i:471px;--rcb-i:471px;--rh-j:551px;--rc-j:471px;--rcb-j:471px;--rh-k:551px;--rc-k:471px;--rcb-k:471px;--rh-l:551px;--rc-l:471px;--rcb-l:471px;--rh-m:551px;--rc-m:471px;--rcb-m:471px">
@@ -8224,7 +8811,7 @@ body.ui .brand.o3::after{content:none}
   <ol class="bws-steps" aria-label="Steps"></ol>
 </div></template>
   </article>
-  <article class="comp" id="c106" data-soft data-v2="run-summary" data-reg="run-summary" style="--rh-a:506px;--rc-a:394px;--rcb-a:394px;--rh-b:517px;--rc-b:405px;--rcb-b:405px;--rh-c:506px;--rc-c:394px;--rcb-c:394px;--rh-d:506px;--rc-d:394px;--rcb-d:394px;--rh-e:506px;--rc-e:394px;--rcb-e:394px;--rh-f:506px;--rc-f:394px;--rcb-f:394px;--rh-g:506px;--rc-g:394px;--rcb-g:394px;--rh-h:506px;--rc-h:394px;--rcb-h:394px;--rh-i:506px;--rc-i:394px;--rcb-i:394px;--rh-j:474px;--rc-j:394px;--rcb-j:394px;--rh-k:485px;--rc-k:405px;--rcb-k:405px;--rh-l:485px;--rc-l:405px;--rcb-l:405px;--rh-m:485px;--rc-m:405px;--rcb-m:405px">
+  <article class="comp" id="c106" data-soft data-v2="run-summary" data-reg="run-summary" style="--rh-a:648px;--rc-a:536px;--rcb-a:536px;--rh-b:701px;--rc-b:589px;--rcb-b:589px;--rh-c:637px;--rc-c:525px;--rcb-c:525px;--rh-d:637px;--rc-d:525px;--rcb-d:525px;--rh-e:637px;--rc-e:525px;--rcb-e:525px;--rh-f:637px;--rc-f:525px;--rcb-f:525px;--rh-g:637px;--rc-g:525px;--rcb-g:525px;--rh-h:637px;--rc-h:525px;--rcb-h:525px;--rh-i:637px;--rc-i:525px;--rcb-i:525px;--rh-j:605px;--rc-j:525px;--rcb-j:525px;--rh-k:616px;--rc-k:536px;--rcb-k:536px;--rh-l:669px;--rc-l:589px;--rcb-l:589px;--rh-m:689px;--rc-m:609px;--rcb-m:609px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">check_circle</span></span>
       <div><h2 class="comp-title"><a href="/components/run-summary">Run summary</a></h2><p class="comp-desc">What the agent did, what changed and what needs you.</p></div>
@@ -8232,10 +8819,16 @@ body.ui .brand.o3::after{content:none}
     </div>
     <div class="stage"><div class="stage-inner dots v2-host" data-demo><div class="v2 stage-in bare"></div></div></div>
     <div class="comp-foot">
-      <span class="mono-xs">Review the open item, try Undo all</span>
+      <div class="tabs" role="tablist" aria-label="Run summary design" data-tabs="v2-run-summary">
+        <button class="tab" role="tab" aria-selected="true" data-v="classic">Classic</button>
+        <button class="tab" role="tab" aria-selected="false" data-v="receipt">Receipt</button>
+        <button class="tab" role="tab" aria-selected="false" data-v="recap">Recap</button>
+        <button class="tab" role="tab" aria-selected="false" data-v="bento">Bento</button>
+      </div>
       <div class="code-btns"><button class="ghost anim-btn" data-anim><span class="ms sm">stars</span>Animate</button><button class="ghost" data-view aria-expanded="false"><span class="ms sm">code</span><span class="vl">View code</span></button><button class="ghost" data-copy><span class="ms sm">content_copy</span>Copy code</button></div>
     </div>
-    <template><div class="rsu panel">
+    <template><div class="dm rsu-dm" data-designs="card"><div class="dm-main">
+<div class="rsu panel">
   <div class="rsu-h"><span class="rsu-g">{ok}</span><div><div class="rsu-t">Run complete</div><div class="rsu-s muted">Finished in 12m 40s</div></div><button class="ib rsu-more" aria-label="More" data-tip="Run details">{more}</button></div>
   <p class="rsu-title">Pricing cards now use spacing tokens</p>
   <div class="rsu-stats">
@@ -8253,6 +8846,9 @@ body.ui .brand.o3::after{content:none}
     <div class="rsu-it rsu-need"><span class="dot" style="color:var(--warn)"></span><span class="rsu-nt">The yearly badge overlaps the price on mobile</span><button class="pill soft sm rsu-fix">Review</button></div>
   </div>
   <div class="rsu-acts"><button class="pill primary sm">Open changes</button><button class="pill ghost sm rsu-undo">Undo all</button></div>
+</div>
+</div>
+<div class="demo"><div class="seg2" role="group" aria-label="Run summary design"><button aria-pressed="true" data-v="classic">Classic</button><button aria-pressed="false" data-v="receipt">Receipt</button><button aria-pressed="false" data-v="recap">Recap</button><button aria-pressed="false" data-v="bento">Bento</button></div></div>
 </div></template>
   </article>
   <article class="comp wide" data-soft id="c67" data-v2="agent-run-timeline" data-reg="agent-run-timeline" style="--rh-a:544px;--rc-a:432px;--rcb-a:432px;--rh-b:544px;--rc-b:432px;--rcb-b:432px;--rh-c:544px;--rc-c:432px;--rcb-c:432px;--rh-d:544px;--rc-d:432px;--rcb-d:432px;--rh-e:544px;--rc-e:432px;--rcb-e:432px;--rh-f:544px;--rc-f:432px;--rcb-f:432px;--rh-g:544px;--rc-g:432px;--rcb-g:432px;--rh-h:544px;--rc-h:432px;--rcb-h:432px;--rh-i:544px;--rc-i:432px;--rcb-i:432px;--rh-j:512px;--rc-j:432px;--rcb-j:432px;--rh-k:512px;--rc-k:432px;--rcb-k:432px;--rh-l:560px;--rc-l:480px;--rcb-l:480px;--rh-m:560px;--rc-m:480px;--rcb-m:480px">
@@ -8278,7 +8874,7 @@ body.ui .brand.o3::after{content:none}
   <div class="art-f muted num"></div>
 </div></template>
   </article>
-  <article class="comp" id="c7" data-soft data-v2="action-log" data-reg="action-log" style="--rh-a:438px;--rc-a:326px;--rcb-a:326px;--rh-b:456px;--rc-b:344px;--rcb-b:344px;--rh-c:438px;--rc-c:326px;--rcb-c:326px;--rh-d:438px;--rc-d:326px;--rcb-d:326px;--rh-e:438px;--rc-e:326px;--rcb-e:326px;--rh-f:438px;--rc-f:326px;--rcb-f:326px;--rh-g:438px;--rc-g:326px;--rcb-g:326px;--rh-h:438px;--rc-h:326px;--rcb-h:326px;--rh-i:438px;--rc-i:326px;--rcb-i:326px;--rh-j:420px;--rc-j:326px;--rcb-j:326px;--rh-k:420px;--rc-k:326px;--rcb-k:326px;--rh-l:420px;--rc-l:326px;--rcb-l:326px;--rh-m:445px;--rc-m:365px;--rcb-m:365px">
+  <article class="comp" id="c7" data-soft data-v2="action-log" data-reg="action-log" style="--rh-a:534px;--rc-a:422px;--rcb-a:422px;--rh-b:534px;--rc-b:422px;--rcb-b:422px;--rh-c:534px;--rc-c:422px;--rcb-c:422px;--rh-d:534px;--rc-d:422px;--rcb-d:422px;--rh-e:534px;--rc-e:422px;--rcb-e:422px;--rh-f:534px;--rc-f:422px;--rcb-f:422px;--rh-g:534px;--rc-g:422px;--rcb-g:422px;--rh-h:534px;--rc-h:422px;--rcb-h:422px;--rh-i:534px;--rc-i:422px;--rcb-i:422px;--rh-j:502px;--rc-j:422px;--rcb-j:422px;--rh-k:502px;--rc-k:422px;--rcb-k:422px;--rh-l:502px;--rc-l:422px;--rcb-l:422px;--rh-m:502px;--rc-m:422px;--rcb-m:422px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">bolt</span></span>
       <div><h2 class="comp-title"><a href="/components/action-log">Action log</a></h2><p class="comp-desc">Every read, search, edit and command, logged as it runs.</p></div>
@@ -8286,12 +8882,21 @@ body.ui .brand.o3::after{content:none}
     </div>
     <div class="stage"><div class="stage-inner dots v2-host" data-demo><div class="v2 stage-in bare"></div></div></div>
     <div class="comp-foot">
-      <span class="mono-xs">Click any step for the detail</span>
+      <div class="tabs" role="tablist" aria-label="Action log design" data-tabs="v2-action-log">
+        <button class="tab" role="tab" aria-selected="true" data-v="classic">Classic</button>
+        <button class="tab" role="tab" aria-selected="false" data-v="feed">Feed</button>
+        <button class="tab" role="tab" aria-selected="false" data-v="phases">Phases</button>
+        <button class="tab" role="tab" aria-selected="false" data-v="scrub">Scrubber</button>
+      </div>
       <div class="code-btns"><button class="ghost anim-btn" data-anim><span class="ms sm">stars</span>Animate</button><button class="ghost" data-view aria-expanded="false"><span class="ms sm">code</span><span class="vl">View code</span></button><button class="ghost" data-copy><span class="ms sm">content_copy</span>Copy code</button></div>
     </div>
-    <template><div class="alg panel">
+    <template><div class="dm alg-dm" data-designs="card"><div class="dm-main">
+<div class="alg panel">
   <div class="alg-h"><span class="alg-t">Agent activity</span><span class="alg-st"><span class="spin"></span><span class="alg-sum">Running</span></span></div>
   <ol class="alg-list"></ol>
+</div>
+</div>
+<div class="demo"><div class="seg2" role="group" aria-label="Action log design"><button aria-pressed="true" data-v="classic">Classic</button><button aria-pressed="false" data-v="feed">Feed</button><button aria-pressed="false" data-v="phases">Phases</button><button aria-pressed="false" data-v="scrub">Scrubber</button></div></div>
 </div></template>
   </article>
   <article class="comp" id="c23" data-soft data-v2="context-meter" data-reg="context-meter" style="--rh-a:429px;--rc-a:317px;--rcb-a:317px;--rh-b:447px;--rc-b:335px;--rcb-b:335px;--rh-c:429px;--rc-c:317px;--rcb-c:317px;--rh-d:429px;--rc-d:317px;--rcb-d:317px;--rh-e:429px;--rc-e:317px;--rcb-e:317px;--rh-f:429px;--rc-f:317px;--rcb-f:317px;--rh-g:429px;--rc-g:317px;--rcb-g:317px;--rh-h:429px;--rc-h:317px;--rcb-h:317px;--rh-i:429px;--rc-i:317px;--rcb-i:317px;--rh-j:420px;--rc-j:317px;--rcb-j:317px;--rh-k:420px;--rc-k:317px;--rcb-k:317px;--rh-l:420px;--rc-l:317px;--rcb-l:317px;--rh-m:420px;--rc-m:335px;--rcb-m:335px">
@@ -12950,6 +13555,328 @@ DM.def('action-log', (r, c) => {
     st.innerHTML = `<span class="dot" style="color:var(--ok)"></span><span>5 steps, ${total.toFixed(1)}s</span>`; enter(st);
   });
 });
+/* ---------- Action log designs ---------- */
+/* the homepage card's design switch, shown as its footer tabs: Classic is the component above, and the others are the
+   directions the owner chose. The switch is the card's alone: the registry, the code view and the component page install
+   Classic, as it was (build.js leaves a data-designs="card" switch out of them) */
+{
+  const classic = DM.defs['action-log'];
+  // the card has four designs, picked with the switch under the log (on designme.dev, the card's footer tabs): Classic, the
+  // log as it has always been; Feed, a live feed that follows new steps with a filter for each kind; Phases, the steps
+  // grouped into phases with a minimap; and Scrubber, a replay with a stop on one track for every step. The three new ones
+  // play one run: what each step did, how long it took (ms, of the run's 13 seconds) and what it shows when opened
+  const ALG_K = { read:['Reads','file-text'], edit:['Edits','edit'], run:['Commands','term'], app:['Apps'] };
+  const ALG_RUN = [
+    { k:'read', ph:0, t:'Read <code>Pricing.tsx</code>', d:'src/pages, 212 lines', ms:.4, cp:'src/pages/Pricing.tsx', det:['code', 'export function Pricing() {\n  return &lt;Grid cols={3} gap={20}&gt;\n    {plans.map(p =&gt; &lt;PricingCard {...p} /&gt;)}'] },
+    { k:'app', app:'figma', ph:0, t:'Searched Figma for <b>Button</b>', d:'6 matches in Components', ms:1.1, cp:'Button', det:['hits', ['Button / Primary', 'Button / Secondary', 'Button / Ghost', 'Button / Icon']] },
+    { k:'read', ph:0, t:'Read <code>tokens.css</code>', d:'48 tokens, 9 for spacing', ms:.3, cp:'src/styles/tokens.css', det:['code', '--space-4: 16px;\n--space-5: 20px;\n--space-7: 28px;'] },
+    { k:'edit', ph:1, t:'Edited <code>PricingCard.tsx</code>', d:'<span class="a">+18</span> <span class="x">−7</span> lines', ms:2.3, cp:'src/components/PricingCard.tsx', det:['diff', [['x', 'gap: 20px;'], ['a', 'gap: var(--space-5);'], ['x', 'padding: 28px;'], ['a', 'padding: var(--space-7);']]] },
+    { k:'edit', ph:1, t:'Edited <code>Pricing.module.css</code>', d:'<span class="a">+4</span> <span class="x">−2</span> lines', ms:1, cp:'src/pages/Pricing.module.css', det:['diff', [['x', 'margin-top: 12px;'], ['a', 'margin-top: var(--space-3);']]] },
+    { k:'run', ph:2, t:'Ran <code>npm test</code>', d:'2 of 24 tests failed', ms:3.2, fail:true, cp:'npm test', det:['term', '<span class="dim">$ npm test</span>\n<span class="bad">✕</span> PricingCard keeps 3 columns\n<span class="bad">✕</span> yearly badge fits on a phone\n<span class="bad">22 passed, 2 failed</span>'] },
+    { k:'edit', ph:2, t:'Fixed the badge in <code>PricingCard.tsx</code>', d:'<span class="a">+3</span> <span class="x">−1</span> lines', ms:.8, cp:'src/components/PricingCard.tsx', det:['diff', [['x', 'white-space: nowrap;'], ['a', 'flex-wrap: wrap;'], ['a', 'gap: var(--space-2);']]] },
+    { k:'run', ph:2, t:'Ran <code>npm test</code> again', d:'24 tests passed', ms:2.9, cp:'npm test', det:['term', '<span class="dim">$ npm test</span>\n<span class="ok">✓</span> PricingCard keeps 3 columns\n<span class="ok">✓</span> yearly badge fits on a phone\n<span class="ok">24 passed</span>'] },
+    { k:'app', app:'github', ph:3, t:'Opened pull request <b>#412</b>', d:'Use shared spacing tokens', ms:.6, cp:'https://github.com/acme/web/pull/412', det:['card', 'github', 'Use shared spacing tokens', 'feat/pricing-spacing into main, 3 commits', '<span class="tag ok">Checks passed</span>'] },
+    { k:'app', app:'slack', ph:3, t:'Posted in <b>#design</b>', d:'Summary and 2 screenshots', ms:.4, cp:'#design', det:['card', 'slack', '#design', 'Pricing cards now use the spacing tokens. PR #412 is ready for review.', ''] }
+  ];
+  const ALG_PH = ['Explore', 'Change', 'Verify', 'Ship'];
+  const ALG_ALL = ALG_RUN.reduce((a, s) => a + s.ms, 0);
+  ALG_RUN.reduce((t, s) => (s.at = t, t + s.ms), 0);
+  // the pace: a second of the run takes ALG_PACE seconds to play
+  const ALG_PACE = .9;
+  const algIcon = (s, cls = 's') => s.k === 'app' ? BRAND[s.app] : I(ALG_K[s.k][1], cls);
+  const algPlain = s => s.t.replace(/<[^>]+>/g, '');
+  // what a step opens to; while it runs, its result is still on its way
+  function algDetail(s, copy = true, running = false){
+    const [type, a, b, x, y] = s.det, head = `<div class="alg-x-dh"><span class="p">${s.cp}</span>${copy ? `<button class="ib alg-x-cp" type="button" aria-label="Copy ${s.cp.replace(/"/g, '&quot;')}" data-tip="Copy">${I('copy','xs')}</button>` : ''}</div>`;
+    if (running) return `<div class="alg-x-det">${head}<div class="alg-x-wait"><i style="width:72%"></i><i style="width:54%"></i><i style="width:63%"></i></div></div>`;
+    if (type === 'code') return `<div class="alg-x-det">${head}<pre class="alg-x-pre">${a}</pre></div>`;
+    if (type === 'term') return `<div class="alg-x-det">${head}<pre class="alg-x-pre term">${a}</pre></div>`;
+    if (type === 'diff') return `<div class="alg-x-det">${head}<pre class="alg-x-pre">${a.map(([k, l]) => `<span class="${k}">${k === 'a' ? '+' : '−'} ${l}</span>`).join('')}</pre></div>`;
+    if (type === 'hits') return `<div class="alg-x-det">${head}<div class="alg-x-hits">${a.map(h => `<span class="fchip alg-x-hit"><i></i>${h}</span>`).join('')}</div></div>`;
+    return `<div class="alg-x-det">${head}<div class="alg-x-card">${BRAND[a]}<div><b>${b}</b><span>${x}</span>${y}</div></div></div>`;
+  }
+  // the copy button in any opened step
+  const algCopy = (root, c) => c.on(root, 'click', e => { const b = e.target.closest('.alg-x-cp'); if (!b) return; e.stopPropagation(); copied(b, b.getAttribute('aria-label').replace(/^Copy /, '')); });
+
+  // Feed: a live feed that follows new steps, with a filter for each kind that counts its steps, and a pill to jump back down
+  const ALG_FEED = `<div class="alg-lf panel keep">
+    <div class="alg-lf-h">
+      <div class="alg-lf-ht"><b>Agent activity</b><span class="alg-lf-st"><span class="alg-lf-gl"><span class="dot"></span></span><span class="alg-lf-sm">Starting</span></span></div>
+      <span class="alg-lf-tm num" aria-label="Time so far">0.0s</span>
+    </div>
+    <div class="alg-lf-f" role="toolbar" aria-label="Show"></div>
+    <div class="alg-lf-vw">
+      <div class="alg-lf-vp" tabindex="-1"><ol class="alg-lf-list" aria-live="polite" aria-label="Steps"></ol></div>
+      <button class="alg-lf-new" type="button" hidden>${I('down','xs')}<span>New steps</span></button>
+    </div>
+  </div>`;
+  function algFeed(r, c){
+    // its own copy of the run, which it marks up as it plays
+    const RUN = ALG_RUN.map(x => ({ ...x }));
+    const root = $('.alg-lf', r), list = $('.alg-lf-list', r), vp = $('.alg-lf-vp', r), pill = $('.alg-lf-new', r), sm = $('.alg-lf-sm', r), tm = $('.alg-lf-tm', r), bar = $('.alg-lf-f', r), gl = $('.alg-lf-gl', r);
+    const F = [['all', 'All'], ...Object.entries(ALG_K).map(([k, v]) => [k, v[0]])];
+    bar.innerHTML = F.map(([k, n], i) => `<button class="chip sm alg-lf-chip${i === 0 ? ' on' : ''}" type="button" data-f="${k}" aria-pressed="${i === 0}">${n}<span class="n">0</span></button>`).join('');
+    const chips = $$('.alg-lf-chip', bar), count = { all:0, read:0, edit:0, run:0, app:0 };
+    let filter = 'all', follow = true, auto = 0, fresh = 0;
+    const show = () => { $$('.alg-lf-w', list).forEach(w => { const on = filter === 'all' || w.dataset.k === filter; w.classList.toggle('shut', !on); w.inert = !on; }); };
+    chips.forEach(b => b.onclick = () => { filter = b.dataset.f; chips.forEach(x => { x.setAttribute('aria-pressed', String(x === b)); x.classList.toggle('on', x === b); }); show(); });
+    // left and right move along the filters, as in any toolbar
+    c.on(bar, 'keydown', e => { const i = chips.indexOf(document.activeElement); if (i < 0) return; const j = e.key === 'ArrowRight' ? i + 1 : e.key === 'ArrowLeft' ? i - 1 : e.key === 'Home' ? 0 : e.key === 'End' ? chips.length - 1 : null; if (j === null) return; e.preventDefault(); chips[(j + chips.length) % chips.length].focus(); });
+    // the feed follows the newest step; scrolled back, it waits, and a pill says how many have landed since
+    const toEnd = smooth => { auto = performance.now(); vp.scrollTo({ top:vp.scrollHeight, behavior:smooth && !REDUCE ? 'smooth' : 'auto' }); };
+    c.on(vp, 'scroll', () => { const end = vp.scrollHeight - vp.scrollTop - vp.clientHeight < 24; if (performance.now() - auto < 700 && !end) return; follow = end; if (end){ fresh = 0; pill.hidden = true; } });
+    pill.onclick = () => { follow = true; fresh = 0; pill.hidden = true; toEnd(true); };
+    // up and down move between steps, and Escape folds the open one
+    c.on(list, 'keydown', e => {
+      const rows = $$('.alg-lf-w:not(.shut) .alg-lf-row', list), i = rows.indexOf(document.activeElement);
+      if (e.key === 'Escape' && i >= 0 && rows[i].getAttribute('aria-expanded') === 'true'){ rows[i].click(); return; }
+      const j = e.key === 'ArrowDown' ? i + 1 : e.key === 'ArrowUp' ? i - 1 : null; if (i < 0 || j === null || !rows[j]) return; e.preventDefault(); rows[j].focus();
+    });
+    algCopy(r, c);
+    const open = (s, on) => { const b = $('.alg-lf-row', s.el), f = $('.fold', s.el); f.classList.toggle('shut', !on); f.inert = !on; b.setAttribute('aria-expanded', String(on)); };
+    function add(s, i){
+      const w = html(`<li class="alg-lf-w fold" data-k="${s.k}"><div><div class="alg-lf-it run" data-k="${s.k}"><button class="alg-lf-row" type="button" aria-expanded="false"><span class="alg-lf-ic">${algIcon(s)}</span><span class="alg-lf-tx"><span class="t">${s.t}</span><span class="d">${s.d}</span></span><span class="alg-lf-r"><span class="num ms">0.0s</span><span class="g"><span class="spin"></span></span></span><span class="alg-lf-run" aria-hidden="true"><i></i></span></button><div class="fold shut"><div><div class="alg-lf-det">${algDetail(s)}</div></div></div></div></div></li>`);
+      s.el = $('.alg-lf-it', w); list.appendChild(w); enter(s.el);
+      $('.fold', s.el).inert = true;
+      $('.alg-lf-row', s.el).onclick = () => open(s, $('.alg-lf-row', s.el).getAttribute('aria-expanded') !== 'true');
+      if (filter !== 'all' && filter !== s.k){ w.classList.add('shut'); w.inert = true; }
+      count.all++; count[s.k]++;
+      chips.forEach(b => { const n = $('.n', b), v = String(count[b.dataset.f]); if (n.textContent !== v){ n.textContent = v; n.classList.remove('bump'); void n.offsetWidth; n.classList.add('bump'); } });
+      if (follow) toEnd(i > 0); else { fresh++; $('span', pill).textContent = fresh === 1 ? '1 new step' : fresh + ' new steps'; pill.hidden = false; }
+      swap(sm, `Step ${i + 1} of ${RUN.length}`);
+    }
+    function land(s){
+      const el = s.el; el.classList.remove('run'); if (s.fail) el.classList.add('fail');
+      $('.ms', el).textContent = s.ms.toFixed(1) + 's';
+      $('.g', el).innerHTML = s.fail ? `<span class="bad">${I('alert','xs')}</span>` : `<span class="ok">${I('check','xs')}</span>`;
+    }
+    // the clock under the title, ten times a second while the demo plays
+    let T = 0, live = null, done = false;
+    c.every(100, () => { if (done) return; T += .1 / ALG_PACE; tm.textContent = Math.min(T, ALG_ALL).toFixed(1) + 's'; if (live){ const v = Math.min(live.ms, T - live.at); $('.ms', live.el).textContent = Math.max(0, v).toFixed(1) + 's'; } });
+    c.run(async () => {
+      await c.wait(700);
+      for (let i = 0; i < RUN.length; i++){
+        const s = RUN[i]; T = s.at; live = s; add(s, i);
+        await c.wait(Math.max(650, s.ms * 1000 * ALG_PACE));
+        land(s); live = null;
+        if (s.fail) await c.wait(500);
+      }
+      done = true; root.classList.add('fin'); tm.textContent = ALG_ALL.toFixed(1) + 's';
+      gl.innerHTML = I('ok','xs'); enter(gl.firstElementChild);
+      swap(sm, `Done · ${RUN.length} steps, 1 retry`);
+    });
+    // the person in the demo: opens the failed test, reads it, folds it, then filters to the edits and back
+    c.story(async s => {
+      const fail = RUN.find(x => x.fail);
+      await s.until(() => fail.el && fail.el.isConnected && fail.el.classList.contains('fail')); await s.beat(1);
+      await s.tap($('.alg-lf-row', fail.el)); s.away();
+      await s.beat(5); await s.tap($('.alg-lf-row', fail.el)); s.away();
+      await s.until(() => done); await s.beat(2);
+      await s.tap(chips[2]); s.away(); await s.beat(4);
+      await s.tap(chips[0]); s.away(); await s.beat(3);
+    });
+  }
+
+  // Phases: the steps grouped into explore, change, verify and ship, each folding when done, with a minimap of the run
+  const ALG_PHASES = `<div class="alg-ph panel keep">
+    <div class="alg-ph-h">
+      <span class="alg-ph-hi">${I('bolt')}</span>
+      <div class="alg-ph-ht"><b>Use spacing tokens on Pricing</b><span class="alg-ph-st"><span class="alg-ph-sm">Starting</span> · <span class="num alg-ph-ck">0:00</span></span></div>
+      <span class="alg-ph-ring" role="img" aria-label="0 of 10 steps"><svg viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="11"/><circle class="v" cx="14" cy="14" r="11"/></svg><span class="num">0</span></span>
+    </div>
+    <div class="alg-ph-body">
+      <div class="alg-ph-phs"></div>
+      <div class="alg-ph-map" aria-hidden="true"><i class="alg-ph-now"></i></div>
+    </div>
+  </div>`;
+  function algPhases(r, c){
+    // its own copy of the run, which it marks up as it plays
+    const RUN = ALG_RUN.map(x => ({ ...x }));
+    const root = $('.alg-ph', r), phs = $('.alg-ph-phs', r), map = $('.alg-ph-map', r), sm = $('.alg-ph-sm', r), ck = $('.alg-ph-ck', r), ring = $('.alg-ph-ring', r), now = $('.alg-ph-now', r), hi = $('.alg-ph-hi', r);
+    const P = ALG_PH.map((n, i) => ({ n, i, steps:RUN.filter(s => s.ph === i) }));
+    P.forEach(p => {
+      p.el = html(`<section class="alg-ph-p" data-s="next">${p.i < P.length - 1 ? '<i class="alg-ph-rl" aria-hidden="true"><i></i></i>' : ''}<button class="alg-ph-phh" type="button" aria-expanded="false"><span class="alg-ph-pg">${p.i + 1}</span><span class="alg-ph-pn">${p.n}</span><span class="alg-ph-pm">${p.steps.length} steps</span><span class="alg-ph-mix" aria-hidden="true">${p.steps.map(s => `<i style="flex:${s.ms}"></i>`).join('')}</span><span class="alg-ph-cv">${I('chev-d','xs')}</span></button><div class="fold shut"><div><ol class="alg-ph-acts"></ol></div></div></section>`);
+      p.b = $('.alg-ph-phh', p.el); p.f = $('.fold', p.el); p.f.inert = true; phs.appendChild(p.el);
+      p.b.onclick = () => fold(p, p.b.getAttribute('aria-expanded') !== 'true');
+    });
+    function fold(p, on){ p.b.setAttribute('aria-expanded', String(on)); p.f.classList.toggle('shut', !on); p.f.inert = !on; }
+    // the minimap knows how tall it is from its own size, so the line moves with a transform
+    const ro = new ResizeObserver(() => map.style.setProperty('--mh', map.clientHeight + 'px')); ro.observe(map); c.offs.push(() => ro.disconnect());
+    const plural = (n, a, b) => n + ' ' + (n === 1 ? a : b);
+    let T = 0, done = false, n = 0;
+    c.every(100, () => { if (done) return; T += .1 / ALG_PACE; const t = Math.min(T, ALG_ALL); ck.textContent = '0:' + String(Math.floor(t)).padStart(2, '0'); now.style.setProperty('--now', (t / ALG_ALL).toFixed(4)); });
+    function setPh(p, s){
+      p.el.dataset.s = s; const g = $('.alg-ph-pg', p.el);
+      g.innerHTML = s === 'run' ? '<span class="radar"></span>' : s === 'done' ? I('check','xs') : String(p.i + 1); enter(g.firstElementChild || g);
+    }
+    function tick(s){
+      const t = html(`<button class="alg-ph-tk${s.fail ? ' fail' : ''}" type="button" tabindex="-1" style="top:${(s.at / ALG_ALL * 100).toFixed(2)}%" data-tip="${algPlain(s)}"></button>`);
+      t.onclick = () => { const p = P[s.ph]; fold(p, true); s.row.classList.remove('flash'); void s.row.offsetWidth; s.row.classList.add('flash'); };
+      map.appendChild(t);
+    }
+    c.run(async () => {
+      await c.wait(700);
+      for (const p of P){
+        setPh(p, 'run'); fold(p, true); swap(sm, ['Exploring', 'Changing', 'Verifying', 'Shipping'][p.i]);
+        const ol = $('.alg-ph-acts', p.el);
+        for (const s of p.steps){
+          T = s.at;
+          s.row = html(`<li class="alg-ph-a run" data-k="${s.k}"><span class="k">${algIcon(s, 'xs')}</span><span class="t">${s.t}</span><span class="w">+${s.at.toFixed(1)}s</span></li>`);
+          ol.appendChild(s.row); enter(s.row); tick(s);
+          $('.alg-ph-pm', p.el).textContent = plural(ol.children.length, 'step', 'steps') + ' so far';
+          await c.wait(Math.max(650, s.ms * 1000 * ALG_PACE));
+          s.row.classList.remove('run'); if (s.fail) s.row.classList.add('fail');
+          n++; $('.num', ring).textContent = n; ring.setAttribute('aria-label', `${n} of ${RUN.length} steps`); $('circle.v', ring).style.strokeDashoffset = (69.12 * (1 - n / RUN.length)).toFixed(2);
+        }
+        const took = p.steps.reduce((a, s) => a + s.ms, 0), fails = p.steps.filter(s => s.fail).length;
+        $('.alg-ph-pm', p.el).textContent = `${plural(p.steps.length, 'step', 'steps')} · ${took.toFixed(1)}s${fails ? ' · 1 retry' : ''}`;
+        setPh(p, 'done');
+        // a finished phase folds to one line as the next opens, unless it is the last
+        if (p.i < P.length - 1){ await c.wait(350); fold(p, false); }
+      }
+      done = true; root.classList.add('fin'); ck.textContent = '0:' + String(Math.round(ALG_ALL)).padStart(2, '0');
+      hi.innerHTML = I('ok'); enter(hi.firstElementChild);
+      swap(sm, 'Done');
+    });
+    // the person in the demo: opens the finished Verify phase from the minimap's red tick, then folds it again
+    c.story(async s => {
+      await s.until(() => done); await s.beat(2);
+      const t = $('.alg-ph-tk.fail', map); if (t){ await s.point(t); await s.beat(2); await s.tap(t); s.away(); await s.beat(4); }
+      await s.tap(P[2].b); s.away(); await s.beat(3);
+    });
+  }
+
+  // Scrubber: a replay, every step a stop on one track; drag, step or use the arrows, and Live jumps back
+  const ALG_SCRUB = `<div class="alg-sc panel keep">
+    <div class="alg-sc-h">
+      <div class="alg-sc-ht"><b>Agent activity</b><span class="alg-sc-st num">Step 0 of 10</span></div>
+      <button class="chip sm alg-sc-live" type="button" aria-pressed="true"><span class="alg-sc-ld"></span><span class="alg-sc-lt">Live</span></button>
+    </div>
+    <div class="alg-sc-tr" role="slider" tabindex="0" aria-label="Step" aria-valuemin="1" aria-valuemax="10" aria-valuenow="1" aria-valuetext="Waiting for the first step">
+      <div class="alg-sc-ln"><i class="alg-sc-fill"></i></div>
+      <div class="alg-sc-ns"></div>
+      <span class="alg-sc-knob" aria-hidden="true"></span>
+    </div>
+    <div class="alg-sc-ax num" aria-hidden="true"><span>0s</span><span>Run, 13s</span></div>
+    <div class="alg-sc-view" aria-live="polite"><div class="alg-sc-card"></div></div>
+    <div class="alg-sc-f">
+      <button class="ib alg-sc-prev" type="button" aria-label="Previous step" data-tip="Previous" data-tip-k="←">${I('chev-l')}</button>
+      <button class="ib alg-sc-next" type="button" aria-label="Next step" data-tip="Next" data-tip-k="→">${I('chev-r')}</button>
+    </div>
+  </div>`;
+  function algScrub(r, c){
+    // its own copy of the run, which it marks up as it plays
+    const RUN = ALG_RUN.map(x => ({ ...x }));
+    const root = $('.alg-sc', r), tr = $('.alg-sc-tr', r), ns = $('.alg-sc-ns', r), fill = $('.alg-sc-fill', r), view = $('.alg-sc-view', r), st = $('.alg-sc-st', r), liveB = $('.alg-sc-live', r), lt = $('.alg-sc-lt', r);
+    let sel = -1, live = true, landed = 0, done = false, T = 0, runAt = -1;
+    const x = s => (s.at / ALG_ALL * 100).toFixed(2) + '%';
+    // the knob sits on the step on show; its place is worked out from the track's width, measured when that changes
+    let W = 0; const ro = new ResizeObserver(() => { W = tr.clientWidth; place(); }); ro.observe(tr); c.offs.push(() => ro.disconnect());
+    const place = () => { if (sel >= 0) tr.style.setProperty('--kx', (RUN[sel].at / ALG_ALL * W).toFixed(1) + 'px'); };
+    function card(i, dir){
+      const s = RUN[i], ok = i < landed, run = i === runAt;
+      const g = run ? '<span class="spin"></span>' : s.fail ? `<span class="bad">${I('alert','xs')}</span>` : `<span class="ok">${I('check','xs')}</span>`;
+      const el = html(`<div class="alg-sc-card${s.fail && ok ? ' fail' : ''}"><div class="alg-sc-ch"><span class="alg-sc-ic">${algIcon(s, '')}</span><span class="alg-sc-cx"><span class="t">${s.t}</span><span class="d">${s.d}</span></span><span class="alg-sc-cm num">${ok ? s.ms.toFixed(1) + 's' : 'Running'}${g}</span></div>${algDetail(s, true, run)}</div>`);
+      const old = $('.alg-sc-card', view);
+      if (old && dir){ old.classList.add(dir > 0 ? 'out-r' : 'out-l'); setTimeout(() => old.remove(), REDUCE ? 0 : 340); } else if (old) old.remove();
+      view.appendChild(el); if (dir) el.classList.add(dir > 0 ? 'in-r' : 'in-l');
+    }
+    function pick(i, how){
+      i = Math.max(0, Math.min(landed - (runAt >= 0 ? 0 : 1), i)); if (i < 0) return;
+      const dir = sel < 0 ? 0 : Math.sign(i - sel) || 0;
+      $$('.alg-sc-n', ns).forEach((n, k) => n.classList.toggle('on', k === i));
+      if (i !== sel || how === 'land'){ sel = i; place(); card(i, how === 'land' && dir === 0 ? 0 : dir); }
+      root.classList.add('has');
+      const s = RUN[i]; tr.setAttribute('aria-valuenow', i + 1); tr.setAttribute('aria-valuetext', `Step ${i + 1}, ${algPlain(s)}`);
+      st.textContent = `Step ${i + 1} of ${RUN.length}`;
+    }
+    function setLive(on){ live = on; liveB.setAttribute('aria-pressed', String(on)); lt.textContent = on ? (done ? 'Done' : 'Live') : (done ? 'Last step' : 'Back to live'); if (on) pick(runAt >= 0 ? runAt : landed - 1, 'live'); }
+    liveB.onclick = () => setLive(true);
+    const userPick = i => { setLive(false); pick(i); if (sel === (runAt >= 0 ? runAt : landed - 1)) setLive(true); };
+    $('.alg-sc-prev', r).onclick = () => userPick(sel - 1);
+    $('.alg-sc-next', r).onclick = () => userPick(sel + 1);
+    c.on(tr, 'keydown', e => {
+      const k = e.key, to = k === 'ArrowRight' || k === 'ArrowUp' ? sel + 1 : k === 'ArrowLeft' || k === 'ArrowDown' ? sel - 1 : k === 'Home' ? 0 : k === 'End' ? RUN.length : k === 'PageUp' ? sel + 3 : k === 'PageDown' ? sel - 3 : null;
+      if (to === null) return; e.preventDefault(); userPick(to);
+    });
+    // drag along the track: the knob follows the pointer to the nearest step that has happened
+    const nearest = px => { let best = 0, d = 1e9; const lim = runAt >= 0 ? runAt : landed - 1; for (let i = 0; i <= lim; i++){ const dd = Math.abs(RUN[i].at / ALG_ALL * W - px); if (dd < d){ d = dd; best = i; } } return best; };
+    let drag = false, left = 0;
+    c.on(tr, 'pointerdown', e => { if (landed < 1 && runAt < 0) return; drag = true; left = tr.getBoundingClientRect().left; tr.classList.add('drag'); tr.setPointerCapture(e.pointerId); userPick(nearest(e.clientX - left)); });
+    c.on(tr, 'pointermove', e => { if (drag) userPick(nearest(e.clientX - left)); });
+    const end = () => { drag = false; tr.classList.remove('drag'); };
+    c.on(tr, 'pointerup', end); c.on(tr, 'pointercancel', end);
+    algCopy(r, c);
+    view.innerHTML = '<div class="alg-sc-card"><div class="alg-sc-empty"><span class="spin"></span>Waiting for the first step</div></div>';
+    // the track fills ten times a second as the run goes
+    c.every(100, () => { if (done) return; T += .1 / ALG_PACE; fill.style.transform = `scaleX(${Math.min(1, T / ALG_ALL).toFixed(4)})`; });
+    c.run(async () => {
+      await c.wait(700);
+      for (let i = 0; i < RUN.length; i++){
+        const s = RUN[i]; T = s.at; runAt = i;
+        const n = html(`<span class="alg-sc-n${s.k === 'app' ? ' app' : ''}" style="--x:${x(s)}"></span>`); ns.appendChild(n);
+        if (live) pick(i, 'live');
+        await c.wait(Math.max(650, s.ms * 1000 * ALG_PACE));
+        landed = i + 1; runAt = -1; if (s.fail) n.classList.add('fail');
+        if (live || sel === i) pick(i, 'land');
+      }
+      done = true; root.classList.add('fin'); fill.style.transform = 'scaleX(1)'; setLive(live);
+    });
+    // the person in the demo: goes back to the failed test, steps forward to the fix, then returns to live
+    c.story(async s => {
+      await s.until(() => landed >= 8); await s.beat(1);
+      await s.tap($$('.alg-sc-n', ns)[5]); userPick(5); s.away(); await s.beat(4);
+      await s.tap($('.alg-sc-next', r)); s.away(); await s.beat(3);
+      await s.tap(liveB); s.away();
+      await s.until(() => done); await s.beat(4);
+    });
+  }
+
+  // the switch: the design the card last showed (Classic to begin with) is drawn, and picking another mounts the card again
+  // with it, so it plays from the start, entrance and demo; a key that picked it keeps the focus on the switch. Inside another
+  // component (as in Agent harness), and in the registry, the code view and the component page (build.js leaves a
+  // data-designs="card" switch out of them), it is the classic log on its own
+  const ALG_DS = { feed:[ALG_FEED, algFeed], phases:[ALG_PHASES, algPhases], scrub:[ALG_SCRUB, algScrub] };
+  DM.def('action-log', (r, c, card) => {
+    let dm = $(':scope>.alg-dm', r);
+    if (!dm) return classic(r, c, card);
+    if (!c.card || r !== c.st){ dm.replaceWith(...$(':scope>.dm-main', dm).childNodes); return classic(r, c, card); }
+    const v = ALG_DS[card._dv] ? card._dv : 'classic';
+    if (v === 'classic') classic(r, c, card);
+    // (the classic component may have drawn its icons into the stage again, so the switch is found afresh)
+    dm = $(':scope>.alg-dm', r);
+    const main = $(':scope>.dm-main', dm), sg = $(':scope>.demo .seg2', dm);
+    let tall = null, h = 0, wide = -1;
+    // the card keeps the room the tallest design needs; this one sits with its own tallest moment in the middle of it, and
+    // grows downwards from there. Its height is taken once at each width, so what it does never moves its top
+    const fit = () => { const H = parseFloat(getComputedStyle(r).minHeight) || 0, w = r.clientWidth; if (w !== wide){ wide = w; h = tall ? tall() : main.offsetHeight; } dm.style.setProperty('--dmy', Math.max(0, Math.floor((H - h) / 2)) + 'px'); };
+    if (v !== 'classic'){ main.innerHTML = ALG_DS[v][0]; const t = ALG_DS[v][1](main, c); tall = typeof t === 'function' ? t : null; }
+    // the classic log is tallest once all five steps have landed (on a phone they wrap past the room it keeps for them): a
+    // hidden copy of it plays its run at once, on a clock of its own that never waits, and is measured, then taken away
+    else {
+      const p = $('.alg', main) && $('.alg', main).cloneNode(true);
+      // (the copy starts with its list empty, as the template drew it)
+      let ph = 0;
+      tall = () => Math.max(ph, main.offsetHeight);
+      if (p){
+        $('.alg-list', p).innerHTML = '';
+        const host = document.createElement('div'); host.setAttribute('aria-hidden', 'true'); host.style.cssText = 'position:absolute;left:0;right:0;top:0;visibility:hidden;pointer-events:none';
+        host.appendChild(p); main.appendChild(host);
+        let run = null; classic(host, { run:fn => { run = fn(); }, wait:() => Promise.resolve() });
+        Promise.resolve(run).then(() => { ph = p.offsetHeight; host.remove(); if (!c.dead){ wide = -1; fit(); } });
+      }
+    }
+    $$('button', sg).forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === v)));
+    seg(sg, k => {
+      if (k === v) return;
+      const kb = sg.contains(document.activeElement);
+      card._dv = k; DM.mount(card);
+      // it comes back once the new design has started, so it isn't taken for the visitor taking over the new demo
+      if (kb) setTimeout(() => { const b = $(`.alg-dm>.demo button[data-v="${k}"]`, card); if (b && (!document.activeElement || document.activeElement === document.body)) b.focus({ preventScroll:true }); }, 120);
+    });
+    const ro = new ResizeObserver(fit); ro.observe(r); c.offs.push(() => ro.disconnect());
+  });
+}
 /* ---------- Run queue ---------- */
 DM.def('run-queue', (r, c) => {
   const G = [
@@ -13073,6 +14000,248 @@ DM.def('agent-tree', (r, c) => {
     await s.tap(by('des').el); s.away(); await s.beat(1);
   });
 });
+/* ---------- Agent tree designs ---------- */
+/* the homepage card's design switch, shown as its footer tabs: Classic is the component above, and the others are the
+   directions the owner chose. The switch is the card's alone: the registry, the code view and the component page install
+   Classic, as it was (build.js leaves a data-designs="card" switch out of them) */
+{
+  const classic = DM.defs['agent-tree'];
+  // the card has three designs, picked with the switch under the tree (on designme.dev, the card's footer tabs): Classic, the
+  // tree as it has always been; Cost tree, the tree with each branch's share of the cost as a bar in the accent; and Cost
+  // map, every agent and step as a block as wide as its cost, coloured by how it is doing. The two new ones play this run:
+  // an orchestrator and three agents, each with its steps. cost is what each spends itself, in dollars, and it grows while it
+  // runs; a branch's cost is its own and everything under it
+  const ATR_RUN = () => ({ id:'root', n:'Orchestrator', t:'Plans the work and hands it out', ic:'cpu', ag:'o', cost:.04, s:'run', kids:[
+    { id:'res', n:'Research agent', t:'Compare 3 competitor pricing pages', ic:'search', ag:'b', cost:.02, s:'done', kids:[
+      { id:'res1', n:'Read 3 pricing pages', t:'9.4k words', cost:.06, s:'done' },
+      { id:'res2', n:'Summarise their plans', t:'Notes in Pricing v4', cost:.04, s:'done' } ] },
+    { id:'des', n:'Design agent', t:'Rework the plan cards in Figma', ic:'palette', ag:'l', cost:.02, s:'run', kids:[
+      { id:'des1', n:'Update the Pro card', t:'Pricing v4, frame 2', cost:.05, s:'run' },
+      { id:'des2', n:'Update the Team card', t:'Pricing v4, frame 3', cost:0, s:'queued' },
+      { id:'des3', n:'Apply library tokens', t:'Colour and spacing', cost:0, s:'queued' } ] },
+    { id:'cop', n:'Copy agent', t:'Rewrite the plan descriptions', ic:'edit', ag:'p', cost:0, s:'queued', kids:[
+      { id:'cop1', n:'Rewrite 3 descriptions', t:'Under 20 words each', cost:0, s:'queued' } ] } ] });
+  // the run, the same in both: the design agent works through its cards, one step fails on a token the library doesn't have
+  // and waits for its fix, then the copy agent writes. on(event, node) tells the design what changed
+  function atrModel(c, on){
+    const T = ATR_RUN(), all = [];
+    (function walk(n, lv, p){ n.lv = lv; n.parent = p; all.push(n); (n.kids || []).forEach(k => walk(k, lv + 1, n)); })(T, 0, null);
+    all.forEach(n => { if (!n.ag) n.ag = n.parent.ag; });
+    // each agent's step of the accent, for its bars (the orchestrator's is the first)
+    T.kids.forEach((k, i) => { k.k = i + 1; }); all.forEach(n => { if (!n.k) n.k = n.lv > 1 ? n.parent.k : 1; });
+    const by = id => all.find(n => n.id === id), sum = n => n.cost + (n.kids || []).reduce((a, k) => a + sum(k), 0);
+    const m = { T, all, by, sum, t0:0, ended:0, fix:null };
+    const set = (n, s, t) => { n.s = s; if (t !== undefined) n.t = t; on('state', n); };
+    // whatever is running spends as it goes, ten times a second, and the clock counts
+    c.every(100, () => { if (m.ended) return; m.t0 += .1; all.forEach(n => { if (n.s === 'run') n.cost += n.lv ? .0016 : .0005; }); on('tick'); });
+    c.run(async () => {
+      await c.wait(1800); set(by('des1'), 'done'); set(by('des2'), 'run');
+      await c.wait(2200); set(by('des2'), 'done'); set(by('des3'), 'run');
+      await c.wait(1800); const tk = by('des3'); set(tk, 'fail', 'color.accent.600 is not in the library'); set(by('des'), 'fail');
+      // the fix waits for you; the person in the demo takes it after a while, unless you have taken over
+      await new Promise(res => { m.fix = () => { m.fix = null; res(); }; on('ask', tk); c.auto(6500, () => m.fix && m.fix()); });
+      set(tk, 'run', 'Using color.accent.500'); set(by('des'), 'run');
+      await c.wait(1600); set(tk, 'done', 'Colour and spacing, from the library'); set(by('des'), 'done'); set(by('cop'), 'run'); set(by('cop1'), 'run');
+      await c.wait(2600); set(by('cop1'), 'done'); set(by('cop'), 'done'); set(T, 'done'); m.ended = m.t0; on('end');
+    });
+    return m;
+  }
+  const atrVars = n => n.ag === 'o' ? '--a:var(--ink);--ai:var(--on-ink)' : `--a:var(--av-${n.ag});--ai:var(--av-${n.ag}-ink)`;
+  const atrMoney = v => '$' + v.toFixed(2);
+  const atrClock = s => Math.floor(s / 60) + ':' + String(Math.floor(s % 60)).padStart(2, '0');
+  const atrGlyph = s => s === 'run' ? '<span class="spin"></span>' : s === 'done' ? I('ok','xs') : s === 'fail' ? I('alert','xs') : '<span class="dot" style="width:5px;height:5px"></span>';
+
+  // Cost tree: the tree with each branch's share of the whole run as a bar, and the run's cost by agent as one bar on top.
+  // Hover or focus a row and the path above it darkens
+  const ATR_COST = `<div class="atr-ct panel">
+    <div class="atr-ct-h"><div class="atr-ct-ht"><b>Redesign the pricing page</b><span class="atr-ct-st"><span class="m">Running</span> · <span class="num ck">0:00</span></span></div><span class="atr-ct-tot num">$0.00</span></div>
+    <div class="atr-ct-mix" aria-hidden="true"></div>
+    <div class="atr-ct-tree" role="tree" aria-label="Agents"></div>
+  </div>`;
+  function atrCost(r, c){
+    const tree = $('.atr-ct-tree', r), tot = $('.atr-ct-tot', r), mix = $('.atr-ct-mix', r), ck = $('.ck', r), mEl = $('.atr-ct-st .m', r), root = $('.atr-ct', r);
+    let M;
+    const kids = n => !!(n.kids && n.kids.length);
+    function build(n){
+      const row = html(`<div class="atr-ct-n" role="treeitem" aria-level="${n.lv + 1}"${kids(n) ? ' aria-expanded="true"' : ''} tabindex="-1" data-s="${n.s}" style="--lv:${n.lv};--k:var(--k${n.k});${atrVars(n)}">${kids(n) ? `<span class="atr-ct-tg" aria-hidden="true">${I('chev-d','xs')}</span>` : '<span class="atr-ct-sp"></span>'}${n.lv === 1 ? `<span class="atr-x-av" aria-hidden="true">${I(n.ic)}</span>` : `<span class="atr-x-g">${atrGlyph(n.s)}</span>`}<span class="atr-ct-t"><b>${n.n}</b><span>${n.t}</span></span><span class="atr-ct-c"><b class="num">–</b><i aria-hidden="true"><span></span></i></span></div>`);
+      n.el = row; const out = [row];
+      if (kids(n)){ const f = html(`<div class="fold atr-ct-kids" role="group" style="--lv:${n.lv}"><i class="atr-ct-gd" aria-hidden="true"></i><div></div></div>`); n.kids.forEach(k => build(k).forEach(e => f.lastElementChild.appendChild(e))); n.fold = f; out.push(f); }
+      return out;
+    }
+    function toggle(n, open){ if (!kids(n)) return; const o = open ?? n.el.getAttribute('aria-expanded') !== 'true'; n.el.setAttribute('aria-expanded', String(o)); n.fold.classList.toggle('shut', !o); n.fold.inert = !o; }
+    function paint(){
+      const total = M.sum(M.T);
+      M.all.forEach(n => { const v = kids(n) ? M.sum(n) : n.cost, b = $('.atr-ct-c b', n.el), t = n.s === 'queued' && !v ? '–' : atrMoney(v); if (b.textContent !== t) b.textContent = t;
+        $('.atr-ct-c i', n.el).style.setProperty('--sh', total ? (v / total).toFixed(3) : 0);
+        if (kids(n)) $('.atr-ct-c', n.el).dataset.tip = `Its own ${atrMoney(n.cost)}, the rest ${atrMoney(M.sum(n) - n.cost)}`; });
+      tot.textContent = atrMoney(total);
+      let at = 0; M.T.kids.forEach((k, i) => { const w = total ? M.sum(k) / total * 100 : 0; mix.children[i].style.setProperty('--x0', at.toFixed(2)); mix.children[i].style.setProperty('--x1', (at + w).toFixed(2)); at += w; });
+      ck.textContent = atrClock(M.ended || M.t0);
+    }
+    M = atrModel(c, (ev, n) => {
+      if (ev === 'state'){ n.el.dataset.s = n.s; const g = $('.atr-x-g', n.el); if (g){ g.innerHTML = atrGlyph(n.s); enter(g); } swap($('.atr-ct-t span', n.el), n.t); const f = $('.atr-x-fix', n.el); if (f && n.s !== 'fail') f.remove(); if (n.id === 'des') swap(mEl, n.s === 'fail' ? '1 step failed' : 'Running'); }
+      if (ev === 'ask'){ const fix = html('<button class="pill sm atr-x-fix" type="button">Use color.accent.500</button>'); $('.atr-ct-t', n.el).appendChild(fix); enter(fix); fix.onclick = e => { e.stopPropagation(); M.fix && M.fix(); }; }
+      // done: the finished design branch folds and the research opens, then the summary comes in under the tree, so the
+      // tree never grows past the height it ran at
+      if (ev === 'end'){ swap(mEl, 'Done'); toggle(M.by('des'), false); toggle(M.by('res'), true);
+        c.later(REDUCE ? 0 : 500, () => { const sm = html(`<div class="atr-ct-sum">${I('ok','xs')}<span>Done in ${atrClock(M.ended)} · 3 agents · ${atrMoney(M.sum(M.T))}</span></div>`); root.appendChild(sm); }); }
+      paint();
+    });
+    mix.innerHTML = M.T.kids.map(k => `<i style="--k:var(--k${k.k})"></i>`).join('');
+    build(M.T).forEach(e => tree.appendChild(e)); M.T.el.tabIndex = 0;
+    toggle(M.by('res'), false); paint();
+    // hovering or focusing a row lights its path: every guide above it and the rows it hangs from
+    const light = n => { $$('.path', tree).forEach(x => x.classList.remove('path')); for (let p = n && n.parent; p; p = p.parent){ p.fold.classList.add('path'); p.el.classList.add('path'); } };
+    c.on(tree, 'pointerover', e => { const row = e.target.closest('.atr-ct-n'); light(row ? M.all.find(x => x.el === row) : null); });
+    c.on(tree, 'pointerleave', () => light(null));
+    c.on(tree, 'focusin', e => { const row = e.target.closest('.atr-ct-n'); light(row ? M.all.find(x => x.el === row) : null); });
+    c.on(tree, 'click', e => { const row = e.target.closest('.atr-ct-n'); if (!row || e.target.closest('.atr-x-fix')) return; const n = M.all.find(x => x.el === row); M.all.forEach(x => x.el.tabIndex = x === n ? 0 : -1); toggle(n); });
+    // the arrow keys move through the tree as in any tree view
+    const visible = () => M.all.filter(n => { for (let p = n.parent; p; p = p.parent) if (p.el.getAttribute('aria-expanded') === 'false') return false; return true; });
+    c.on(tree, 'keydown', e => {
+      const v = visible(), i = v.findIndex(n => n.el === document.activeElement); if (i < 0) return;
+      const n = v[i], open = n.el.getAttribute('aria-expanded') === 'true'; let go = null;
+      if (e.key === 'ArrowDown') go = v[i + 1]; else if (e.key === 'ArrowUp') go = v[i - 1];
+      else if (e.key === 'ArrowRight'){ if (kids(n) && !open) toggle(n, true); else if (kids(n)) go = n.kids[0]; }
+      else if (e.key === 'ArrowLeft'){ if (kids(n) && open) toggle(n, false); else go = n.parent; }
+      else if (e.key === 'Enter' || e.key === ' '){ const f = $('.atr-x-fix', n.el); if (f) f.click(); else toggle(n); }
+      else if (e.key === 'Home') go = v[0]; else if (e.key === 'End') go = v[v.length - 1];
+      else return;
+      e.preventDefault(); if (go){ M.all.forEach(x => x.el.tabIndex = -1); go.el.tabIndex = 0; go.el.focus({ preventScroll:true }); }
+    });
+    // the person in the demo: reads the design branch's cost and the path above a step, then takes the fix
+    c.story(async s => {
+      await s.beat(3); await s.point($('.atr-ct-c', M.by('des').el)); light(M.by('des1')); await s.beat(4); light(null); s.away();
+      await s.until(() => $('.atr-x-fix', r)); await s.beat(3);
+      await s.tap($('.atr-x-fix', r)); s.away();
+      await s.until(() => M.ended); await s.beat(5);
+    });
+    // it ends as tall as it starts (the fix, while it waits under the failed step, adds a line below), so the height it
+    // mounts with is the one that sits centred
+  }
+
+  // Cost map: every agent and step as a block as wide as its cost, growing live, in the colour of how it is doing; press a
+  // block to zoom into it
+  const ATR_MAP = `<div class="atr-cm panel">
+    <div class="atr-cm-h"><div class="atr-cm-ht"><nav class="atr-cm-crumb" aria-label="Where you are"></nav><span class="atr-cm-st num">Running · 0:00</span></div><span class="atr-cm-tot num">$0.00</span></div>
+    <div class="atr-cm-map" role="group" aria-label="Cost by agent and step"></div>
+    <ul class="atr-cm-lg" aria-label="What the colours mean"><li data-s="done"><i></i>Done</li><li data-s="run"><i></i>Running</li><li data-s="fail"><i></i>Failed</li><li data-s="queued"><i></i>Queued</li></ul>
+    <div class="atr-cm-say" aria-live="polite"></div>
+    <ul class="atr-cm-key" aria-label="Agents"></ul>
+  </div>`;
+  function atrMap(r, c){
+    const map = $('.atr-cm-map', r), crumb = $('.atr-cm-crumb', r), st = $('.atr-cm-st', r), tot = $('.atr-cm-tot', r), say = $('.atr-cm-say', r), key = $('.atr-cm-key', r);
+    let M, top, W = 0, shown = '';
+    // each block's place and width, as shares of the branch on show; blocks outside it fade. The branch fills the first row,
+    // its children the second and theirs the third, and each branch's own work (what it spends besides its children) closes
+    // its row, hatched, so every row adds up
+    function lay(){
+      const base = top, total = Math.max(1e-6, M.sum(base)), gap = 4, pos = new Map(), own = new Map();
+      pos.set(base, { x:0, w:1, lv:0 });
+      let x = 0; (base.kids || []).forEach(k => { const w = M.sum(k) / total; pos.set(k, { x, w, lv:1 }); let y = x; (k.kids || []).forEach(g => { const gw = M.sum(k) ? g.cost / M.sum(k) * w : 0; pos.set(g, { x:y, w:gw, lv:2 }); y += gw; }); if (k.kids) own.set(k, { x:y, w:M.sum(k) ? k.cost / M.sum(k) * w : 0, lv:2 }); x += w; });
+      own.set(base, { x, w:base.cost / total, lv:1 });
+      M.all.forEach(n => { if (!n.ob) return; const p = own.get(n); if (!p || p.w * W < 3){ n.ob.classList.add('gone'); return; } n.ob.classList.remove('gone'); n.ob.style.setProperty('--lv', p.lv); n.ob.style.setProperty('--x', (p.x * W).toFixed(1) + 'px'); n.ob.style.setProperty('--w', Math.max(0, p.w * W - gap).toFixed(1) + 'px'); n.ob.dataset.tip = `${n.lv ? n.n : 'The orchestrator'}'s own work, ${atrMoney(n.cost)}`; });
+      M.all.forEach(n => {
+        const p = pos.get(n), el = n.b; if (!el) return;
+        if (!p){ el.classList.add('gone'); el.tabIndex = -1; return; }
+        el.classList.remove('gone'); el.tabIndex = 0;
+        const px = p.x * W, pw = Math.max(0, p.w * W - (p.lv ? gap : 0));
+        el.style.setProperty('--lv', p.lv); el.style.setProperty('--x', px.toFixed(1) + 'px'); el.style.setProperty('--w', pw.toFixed(1) + 'px');
+        // a block too narrow for its words keeps only its colour, and says them in its tooltip
+        $('.atr-cm-l', el).style.opacity = pw > 64 ? 1 : 0;
+      });
+    }
+    const ro = new ResizeObserver(() => { W = map.clientWidth; lay(); }); ro.observe(map); c.offs.push(() => ro.disconnect());
+    function crumbs(){
+      const path = []; for (let p = top; p; p = p.parent) path.unshift(p);
+      crumb.innerHTML = path.map((p, i) => i === path.length - 1 ? `<b>${p.lv ? p.n : 'Pricing page'}</b>` : `<button type="button" data-id="${p.id}">${p.lv ? p.n : 'Pricing page'}</button>${I('chev-r','xs')}`).join('');
+      $$('button', crumb).forEach(b => b.onclick = () => go(M.by(b.dataset.id)));
+    }
+    function go(n){ if (!n || !n.kids) return; top = n; crumbs(); lay(); const f = n.b; if (f && document.activeElement && map.contains(document.activeElement)) f.focus({ preventScroll:true }); }
+    const word = { done:' · done', run:' · running', fail:' · failed', queued:' · queued' };
+    function tell(n){ if (!n){ say.innerHTML = shown; return; } const v = M.sum(n), share = v / Math.max(1e-6, M.sum(M.T)) * 100; say.innerHTML = `<b>${n.n}</b> · ${atrMoney(v)}, ${share.toFixed(0)}% of the run${n.kids ? ` · its own ${atrMoney(n.cost)}` : ''}${n.lv ? word[n.s] : ''}`; }
+    function blocks(){
+      M.all.forEach(n => {
+        n.b = html(`<button class="atr-cm-b${n.lv === 0 ? ' lv0' : ''}" type="button" data-s="${n.s}" aria-label="${n.n}"><span class="bg"><span class="sh"></span></span><i class="k" aria-hidden="true"></i><span class="atr-cm-l"><b>${n.lv === 0 ? 'Whole run' : n.n.replace(' agent', '')}</b><span class="v">–</span></span></button>`);
+        n.b.dataset.tip = n.n;
+        map.appendChild(n.b);
+        if (n.kids){ n.ob = html('<span class="atr-cm-b own" aria-hidden="true"><span class="bg"></span></span>'); map.appendChild(n.ob); }
+        n.b.onclick = () => { if (n === top && n.parent) go(n.parent); else if (n.kids && n !== top) go(n); else tell(n); };
+        ['pointerenter', 'focus'].forEach(ev => n.b.addEventListener(ev, () => tell(n)));
+        ['pointerleave', 'blur'].forEach(ev => n.b.addEventListener(ev, () => tell(null)));
+      });
+    }
+    c.on(map, 'keydown', e => { if (e.key === 'Escape' && top.parent){ e.preventDefault(); go(top.parent); } });
+    function legend(){
+      key.innerHTML = M.T.kids.map(k => `<li style="${atrVars(k)}" data-s="${k.s}"><span class="atr-x-av" aria-hidden="true">${I(k.ic)}</span><span class="t">${k.n}</span><span class="tg"></span><span class="p num"></span><span class="c num"></span></li>`).join('');
+      M.T.kids.forEach((k, i) => { k.li = key.children[i]; });
+    }
+    // each agent's state, as a tag in the colour its blocks have
+    const TG = { run:'<span class="tag warn"><span class="spin"></span>Running</span>', done:`<span class="tag ok">${I('check','xs')}Done</span>`, fail:'<span class="tag bad">Failed</span>', queued:'<span class="tag">Queued</span>' };
+    let k10 = 0;
+    function paint(full){
+      const total = M.sum(M.T);
+      tot.textContent = atrMoney(total);
+      M.all.forEach(n => { const v = $('.v', n.b); const t = n.s === 'queued' && !M.sum(n) ? 'Queued' : atrMoney(M.sum(n)); if (v.textContent !== t) v.textContent = t; });
+      M.T.kids.forEach(k => { const p = Math.round(M.sum(k) / total * 100) + '%', cc = atrMoney(M.sum(k)); if ($('.p', k.li).textContent !== p) $('.p', k.li).textContent = p; if ($('.c', k.li).textContent !== cc) $('.c', k.li).textContent = cc; });
+      // the blocks are laid out again twice a second, and glide to their new widths
+      if (full || ++k10 % 5 === 0) lay();
+      st.textContent = (M.ended ? 'Done in ' : 'Running · ') + atrClock(M.ended || M.t0);
+    }
+    M = atrModel(c, (ev, n) => {
+      if (ev === 'state'){ n.b.dataset.s = n.s; if (n.lv === 1){ n.li.dataset.s = n.s; $('.tg', n.li).innerHTML = TG[n.s]; } }
+      if (ev === 'ask'){ const li = n.parent.li, b = html('<button class="pill sm atr-x-fix" type="button">Fix</button>'); b.dataset.tip = 'Use color.accent.500'; $('.tg', li).after(b); b.onclick = () => { b.remove(); M.fix && M.fix(); }; shown = '<b>Apply library tokens</b> failed: color.accent.600 is not in the library'; tell(null); }
+      if (ev === 'state' && n.id === 'des3' && n.s === 'run'){ const b = $('.atr-x-fix', key); if (b) b.remove(); shown = ''; tell(null); }
+      if (ev === 'end'){ shown = `Done: ${atrMoney(M.sum(M.T))} across 3 agents, most of it on design`; tell(null); }
+      paint(ev !== 'tick');
+    });
+    top = M.T; blocks(); legend(); M.T.kids.forEach(k => { $('.tg', k.li).innerHTML = TG[k.s]; }); crumbs(); paint(true);
+    // the person in the demo: reads the design agent's block, takes the fix, zooms into the design agent and back out
+    c.story(async s => {
+      await s.beat(4); await s.point(M.by('des').b); tell(M.by('des')); await s.beat(3); s.away(); tell(null);
+      await s.until(() => $('.atr-x-fix', key)); await s.beat(3);
+      await s.tap($('.atr-x-fix', key)); s.away(); await s.beat(2);
+      await s.tap(M.by('des').b); s.away(); await s.beat(4);
+      await s.tap($('button', crumb)); s.away();
+      await s.until(() => M.ended); await s.beat(4);
+    });
+  }
+
+  // the switch: the design the card last showed (Classic to begin with) is drawn, and picking another mounts the card again
+  // with it, so it plays from the start, entrance and demo; a key that picked it keeps the focus on the switch. Inside another
+  // component (as in Agent harness), and in the registry, the code view and the component page (build.js leaves a
+  // data-designs="card" switch out of them), it is the classic tree on its own
+  const ATR_DS = { cost:[ATR_COST, atrCost], map:[ATR_MAP, atrMap] };
+  DM.def('agent-tree', (r, c, card) => {
+    let dm = $(':scope>.atr-dm', r);
+    if (!dm) return classic(r, c, card);
+    if (!c.card || r !== c.st){ dm.replaceWith(...$(':scope>.dm-main', dm).childNodes); return classic(r, c, card); }
+    const v = ATR_DS[card._dv] ? card._dv : 'classic';
+    if (v === 'classic') classic(r, c, card);
+    // (the classic component may have drawn its icons into the stage again, so the switch is found afresh)
+    dm = $(':scope>.atr-dm', r);
+    const main = $(':scope>.dm-main', dm), sg = $(':scope>.demo .seg2', dm);
+    let tall = null, h = 0, wide = -1;
+    // the card keeps the room the tallest design needs; this one sits with its own tallest moment in the middle of it, and
+    // grows downwards from there. Its height is taken once at each width, so what it does never moves its top
+    const fit = () => { const H = parseFloat(getComputedStyle(r).minHeight) || 0, w = r.clientWidth; if (w !== wide){ wide = w; h = tall ? tall() : main.offsetHeight; } dm.style.setProperty('--dmy', Math.max(0, Math.floor((H - h) / 2)) + 'px'); };
+    if (v !== 'classic'){ main.innerHTML = ATR_DS[v][0]; const t = ATR_DS[v][1](main, c); tall = typeof t === 'function' ? t : null; }
+    // the classic tree is tallest with its summary under it, at the end of the run: a hidden copy of it with the summary in
+    // is measured, then taken away
+    else tall = () => { const a = $('.atr', main); if (!a) return main.offsetHeight;
+      const p = a.cloneNode(true); if (!$('.atr-sum', p)) p.appendChild(html(`<div class="atr-sum">${I('ok','xs')}<span>Done in 0:00 · 3 agents · $0.00</span></div>`));
+      p.style.cssText = 'position:absolute;left:0;right:0;top:0;visibility:hidden'; p.setAttribute('aria-hidden', 'true'); main.appendChild(p); const x = p.offsetHeight; p.remove(); return x; };
+    $$('button', sg).forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === v)));
+    seg(sg, k => {
+      if (k === v) return;
+      const kb = sg.contains(document.activeElement);
+      card._dv = k; DM.mount(card);
+      // it comes back once the new design has started, so it isn't taken for the visitor taking over the new demo
+      if (kb) setTimeout(() => { const b = $(`.atr-dm>.demo button[data-v="${k}"]`, card); if (b && (!document.activeElement || document.activeElement === document.body)) b.focus({ preventScroll:true }); }, 120);
+    });
+    const ro = new ResizeObserver(fit); ro.observe(r); c.offs.push(() => ro.disconnect());
+  });
+}
 /* ---------- Agent inbox ---------- */
 DM.def('agent-inbox', (r, c) => {
   // the runs, grouped by what they need: one waits for approval, one failed and can be retried, two are running with their
@@ -13684,6 +14853,187 @@ DM.def('run-summary', (r, c) => {
   };
   fix.onclick = () => { fix.innerHTML = '<span class="spin"></span>'; c.later(1000, () => { fix.remove(); swap($('.rsu-nt', r), 'Badge moved above the price, nothing left to review'); }); };
 });
+/* ---------- Run summary designs ---------- */
+/* the homepage card's design switch, shown as its footer tabs: Classic is the component above, and the others are the
+   directions the owner chose. The switch is the card's alone: the registry, the code view and the component page install
+   Classic, as it was (build.js leaves a data-designs="card" switch out of them) */
+{
+  const classic = DM.defs['run-summary'];
+  // the card has four designs, picked with the switch under the summary (on designme.dev, the card's footer tabs): Classic,
+  // the summary as it has always been; Receipt, a receipt of the run with time by phase and a hold to undo; Recap, the run
+  // told back as a timeline; and Bento, the run as tiles. The three new ones sum up the same run
+  const RSU_FILES = [['PricingCard.tsx', 24, 18], ['tokens.css', 9, 2], ['Pricing.test.tsx', 31, 0]];
+  const RSU_PH = [['Explore', 2.3, 'e'], ['Change', 5.6, 'c'], ['Verify', 3.4, 'v'], ['Ship', 1.4, 's']];
+  const RSU_TEXT = 'Pricing cards now use spacing tokens\nDone in 12m 40s: 6 files, 14 steps, 182k tokens, $0.84\nPricingCard.tsx +24 −18, tokens.css +9 −2, Pricing.test.tsx +31\nPR #412 is open. Needs you: the yearly badge overlaps the price on a phone';
+  // a file's change as five blocks, in proportion to lines in and out
+  const rsuBlocks = (a, x) => { const t = a + x, n = Math.min(5, Math.max(1, Math.round(t / 8))), ga = t ? Math.round(a / t * n) : 0; return Array.from({ length:5 }, (_, i) => i < ga ? 'a' : i < n ? 'x' : ''); };
+  // a number counting up to its value, a little after it appears: its text changes ten times a second, and lands on the value
+  const rsuCount = (c, el, to, fmt, delay) => c.later(delay, () => { let at = -1e9; tween(0, to, REDUCE ? 1 : 1100, (v, p) => { const now = performance.now(); if (p < 1 && now - at < 100) return; at = now; el.textContent = fmt(v); }); });
+
+  // Receipt: a check that draws itself, time by phase, a row of blocks for each changed file, and Undo all, pressed and held
+  const RSU_RECEIPT = `<div class="rsu-rc panel keep">
+    <div class="rsu-rc-h">
+      <span class="rsu-rc-ok" aria-hidden="true"><svg viewBox="0 0 40 40"><circle class="rg" cx="20" cy="20" r="17"/><path class="ck" d="m13 20.5 4.6 4.6L27.5 15"/></svg><i></i><i></i><i></i><i></i><i></i><i></i></span>
+      <div class="rsu-rc-ht"><b class="rsu-rc-t">Run complete</b><span class="rsu-rc-s">Finished in 12m 40s</span></div>
+      <button class="ib rsu-rc-cp" type="button" aria-label="Copy the summary" data-tip="Copy summary">${I('copy')}</button>
+    </div>
+    <p class="rsu-rc-title">Pricing cards now use spacing tokens</p>
+    <div class="rsu-rc-stats"></div>
+    <div class="rsu-rc-phase"><div class="rsu-rc-pb" role="img" aria-label="Time by phase"></div><div class="rsu-rc-pk"></div></div>
+    <div class="rsu-rc-cut" aria-hidden="true"></div>
+    <div class="rsu-rc-sec"><span class="rsu-rc-l">What changed</span><div class="rsu-rc-files"></div></div>
+    <div class="rsu-rc-sec"><span class="rsu-rc-l">Needs you</span><div class="rsu-rc-nr"><span class="rsu-rc-nd"></span><span class="rsu-rc-nt">The yearly badge overlaps the price on a phone</span><button class="pill line sm rsu-rc-fix" type="button">Fix it</button></div></div>
+    <div class="rsu-rc-acts"><button class="pill primary sm" type="button">${I('ext','xs')}Open changes</button><button class="pill ghost sm rsu-rc-undo" type="button"><span class="rsu-rc-hf" aria-hidden="true"></span><span class="lb">Hold to undo all</span></button></div>
+  </div>`;
+  function rsuReceipt(r, c){
+    const root = $('.rsu-rc', r), stats = $('.rsu-rc-stats', r), pb = $('.rsu-rc-pb', r), pk = $('.rsu-rc-pk', r), files = $('.rsu-rc-files', r), undo = $('.rsu-rc-undo', r), lb = $('.lb', undo), fix = $('.rsu-rc-fix', r);
+    const S = [['files', 6, v => Math.round(v)], ['steps', 14, v => Math.round(v)], ['tokens', 182, v => Math.round(v) + 'k'], ['cost', .84, v => '$' + v.toFixed(2)]];
+    stats.innerHTML = S.map(s => `<span class="rsu-rc-st"><b class="num">0</b><span>${s[0]}</span></span>`).join('');
+    $$('.rsu-rc-st b', r).forEach((b, i) => rsuCount(c, b, S[i][1], S[i][2], 300 + i * 90));
+    const sum = RSU_PH.reduce((a, p) => a + p[1], 0);
+    pb.innerHTML = RSU_PH.map(([n, m, k], i) => `<i style="--w:${(m / sum * 100).toFixed(2)};--k:var(--ph-${k});animation-delay:${400 + i * 120}ms" data-tip="${n}, ${m.toFixed(1)} minutes"></i>`).join('');
+    pk.innerHTML = RSU_PH.map(([n, m, k]) => `<span style="--k:var(--ph-${k})"><i></i>${n} <b>${m.toFixed(1)}m</b></span>`).join('');
+    files.innerHTML = RSU_FILES.map(([f, a, x], i) => `<div class="rsu-rc-f"><code>${f}</code><span class="rsu-rc-ds" aria-hidden="true">${rsuBlocks(a, x).map((k, j) => `<i class="${k}" style="animation-delay:${600 + i * 120 + j * 40}ms"></i>`).join('')}</span><span class="n"><span class="a">+${a}</span> <span class="${x ? 'x' : ''}">−${x}</span></span></div>`).join('');
+    stagger($$('.rsu-rc-f,.rsu-rc-nr,.rsu-rc-acts', r), 70, 500);
+    $('.rsu-rc-cp', r).onclick = e => copied(e.currentTarget, RSU_TEXT, 'Summary copied');
+    // the row keeps its height when its button goes, so the receipt never shrinks under the pointer
+    fix.onclick = () => { const nr = $('.rsu-rc-nr', r); nr.style.minHeight = nr.offsetHeight + 'px'; fix.disabled = true; fix.innerHTML = '<span class="spin"></span>Fixing'; c.later(1300, () => { fix.remove(); nr.classList.add('ok'); swap($('.rsu-rc-nt', r), 'Badge moved above the price'); }); };
+    // Undo all is pressed and held for a second; let go early and nothing happens. Once undone, a press redoes
+    let t = 0, undone = false;
+    const done = () => { undo.classList.remove('hold'); undone = !undone; root.classList.toggle('undone', undone); swap(lb, undone ? 'Redo' : 'Hold to undo all'); swap($('.rsu-rc-t', r), undone ? 'Changes undone' : 'Run complete'); swap($('.rsu-rc-s', r), undone ? '3 files restored' : 'Finished in 12m 40s'); };
+    const start = () => { if (undone){ done(); return; } clearTimeout(t); undo.classList.add('hold'); swap(lb, 'Keep holding'); t = setTimeout(done, REDUCE ? 400 : 1000); };
+    const stop = () => { if (!undo.classList.contains('hold')) return; clearTimeout(t); undo.classList.remove('hold'); swap(lb, 'Hold to undo all'); };
+    c.on(undo, 'pointerdown', e => { if (e.button === 0) start(); });
+    ['pointerup', 'pointerleave', 'pointercancel'].forEach(ev => c.on(undo, ev, stop));
+    c.on(undo, 'keydown', e => { if ((e.key === ' ' || e.key === 'Enter') && !e.repeat){ e.preventDefault(); start(); } });
+    c.on(undo, 'keyup', e => { if (e.key === ' ' || e.key === 'Enter') stop(); });
+    c.offs.push(() => clearTimeout(t));
+    undo.setAttribute('aria-label', 'Undo all, press and hold');
+    // the person in the demo: reads the change phase, takes the fix, holds Undo all, then redoes
+    c.story(async s => {
+      await s.beat(5);
+      await s.point($('.rsu-rc-pb i:nth-child(2)', r)); await s.beat(3); s.away();
+      await s.tap(fix); s.away(); await s.beat(4);
+      await s.point(undo, false); start(); await s.beat(3); s.away(); await s.beat(4);
+      await s.tap(undo); s.away(); await s.beat(3);
+    });
+  }
+
+  // Recap: the run told back as a timeline of the moments that mattered; hover one and the files it touched light up
+  const RSU_RECAP = `<div class="rsu-rp">
+    <div class="rsu-rp-h"><span class="rsu-rp-ok">${I('check')}</span><div class="rsu-rp-ht"><b>Pricing cards now use spacing tokens</b><span>Done in 12m 40s · $0.84</span></div></div>
+    <div class="rsu-rp-files" aria-label="Files changed"></div>
+    <div class="rsu-rp-tw"><i class="rsu-rp-rail" aria-hidden="true"></i><ol class="rsu-rp-tl" aria-label="What happened"></ol></div>
+    <div class="rsu-rp-end">
+      <div class="rsu-rp-pr">${BRAND.github}<div class="rsu-rp-prt"><b>#412 Use shared spacing tokens</b><span>feat/pricing-spacing into main</span></div><span class="tag ok">${I('check','xs')}Checks passed</span></div>
+      <div class="rsu-rp-need"><span class="rsu-rp-ni">${I('warn','xs')}</span><span class="rsu-rp-nt">The yearly badge overlaps the price on a phone</span><button class="pill sm rsu-rp-fix" type="button">Review</button></div>
+    </div>
+  </div>`;
+  function rsuRecap(r, c){
+    const files = $('.rsu-rp-files', r), tl = $('.rsu-rp-tl', r), rail = $('.rsu-rp-rail', r), end = $('.rsu-rp-end', r), fix = $('.rsu-rp-fix', r);
+    files.innerHTML = RSU_FILES.map(([f, a, x]) => `<span class="fchip rsu-rp-fc" data-f="${f}"><code>${f}</code><span class="n">+${a} −${x}</span></span>`).join('');
+    // the moments that mattered, each with what it touched
+    const M = [
+      { app:'figma', t:'Read the plan cards in Figma', d:'Pricing v4, 3 frames', w:'0:40', f:[] },
+      { ic:'file-text', t:'Found 9 spacing tokens', d:'tokens.css', w:'1:55', f:['tokens.css'] },
+      { ic:'edit', t:'Swapped 14 values for tokens', d:'2 files, +33 −20', w:'5:10', f:['PricingCard.tsx', 'tokens.css'] },
+      { ic:'term', t:'Tests failed, then passed', d:'2 failures fixed, 24 of 24', w:'9:30', f:['Pricing.test.tsx', 'PricingCard.tsx'], bad:true },
+      { app:'github', t:'Opened pull request #412', d:'3 commits into main', w:'11:50', f:['PricingCard.tsx', 'tokens.css', 'Pricing.test.tsx'] },
+      { app:'slack', t:'Posted in #design', d:'With before and after shots', w:'12:40', f:[] }
+    ];
+    tl.innerHTML = M.map(m => `<li class="rsu-rp-m${m.bad ? ' bad' : ''}" tabindex="0"><span class="rsu-rp-mi${m.app ? ' app' : ''}">${m.app ? BRAND[m.app] : I(m.bad ? 'refresh' : m.ic, 'xs')}</span><span class="rsu-rp-mt"><b>${m.t}</b><span>${m.d}</span></span><span class="rsu-rp-mw">${m.w}</span></li>`).join('');
+    const rows = $$('.rsu-rp-m', tl);
+    // a moment lights the files it touched
+    const light = i => { $$('.rsu-rp-fc', files).forEach(fc => fc.classList.toggle('lit', i >= 0 && M[i].f.includes(fc.dataset.f))); rows.forEach((x, j) => x.classList.toggle('on', j === i)); };
+    rows.forEach((x, i) => { ['pointerenter', 'focus'].forEach(ev => c.on(x, ev, () => light(i))); ['pointerleave', 'blur'].forEach(ev => c.on(x, ev, () => light(-1))); });
+    c.on(tl, 'keydown', e => { const i = rows.indexOf(document.activeElement); if (i < 0) return; const j = e.key === 'ArrowDown' ? i + 1 : e.key === 'ArrowUp' ? i - 1 : null; if (j === null || !rows[j]) return; e.preventDefault(); rows[j].focus(); });
+    // the note keeps its height when its button goes and its words get shorter, so the recap never shrinks under the pointer
+    fix.onclick = () => { const nd = $('.rsu-rp-need', r); nd.style.minHeight = nd.offsetHeight + 'px'; fix.disabled = true; fix.innerHTML = '<span class="spin"></span>'; c.later(1200, () => { fix.remove(); nd.classList.add('ok'); $('.rsu-rp-ni', r).innerHTML = I('check','xs'); swap($('.rsu-rp-nt', r), 'Badge moved above the price'); }); };
+    // the recap plays back once, a moment at a time, then the outcome
+    c.run(async () => {
+      await c.wait(400);
+      for (let i = 0; i < rows.length; i++){ rows[i].classList.add('in'); rail.style.setProperty('--p', ((i + .5) / rows.length).toFixed(3)); light(i); await c.wait(420); }
+      light(-1); rail.style.setProperty('--p', 1); end.classList.add('in');
+    });
+    // the person in the demo: hovers two moments to see what they touched, then reviews what needs them
+    c.story(async s => {
+      await s.until(() => end.classList.contains('in')); await s.beat(2);
+      await s.point(rows[2], false); light(2); await s.beat(3);
+      await s.point(rows[3], false); light(3); await s.beat(3); light(-1);
+      await s.tap(fix); s.away(); await s.beat(5);
+    });
+  }
+
+  // Bento: the run as tiles: what it did, its cost, its tests, its files and what needs you, with copy and a thumbs rating
+  const RSU_BENTO = `<div class="rsu-bn">
+    <div class="rsu-bn-t rsu-bn-out"><span class="rsu-bn-burst" aria-hidden="true"><svg viewBox="0 0 48 48"><circle class="rg" cx="24" cy="24" r="20"/><path class="ck" d="m15.5 24.5 5.5 5.5 11.5-12"/></svg></span><div class="rsu-bn-ot"><b>Pricing cards now use spacing tokens</b><span>Done in 12m 40s · 14 steps</span></div></div>
+    <div class="rsu-bn-t rsu-bn-cost"><span class="rsu-bn-l">Cost</span><div class="rsu-bn-donut"><svg viewBox="0 0 64 64" aria-hidden="true"></svg><b class="num">$0.00</b></div><ul class="rsu-bn-ck"></ul></div>
+    <div class="rsu-bn-t rsu-bn-tests"><span class="rsu-bn-l">Tests</span><div class="rsu-bn-tr"><svg viewBox="0 0 64 64" aria-hidden="true"><circle class="bg" cx="32" cy="32" r="26"/><circle class="v" cx="32" cy="32" r="26"/><circle class="fx" cx="32" cy="32" r="26"/></svg><b class="num">0</b></div><span class="rsu-bn-sub">24 passed, 2 fixed on the way</span></div>
+    <div class="rsu-bn-t rsu-bn-files"><span class="rsu-bn-l">Files <span class="num">3</span></span><div class="rsu-bn-fl"></div></div>
+    <div class="rsu-bn-t rsu-bn-need"><span class="rsu-bn-l">${I('warn','xs')}Needs you</span><p>The yearly badge overlaps the price on a phone</p><button class="pill sm rsu-bn-fix" type="button">Review</button></div>
+    <div class="rsu-bn-t rsu-bn-act"><button class="pill line sm rsu-bn-cp" type="button">${I('copy','xs')}Copy summary</button><div class="rsu-bn-rate" role="group" aria-label="Rate this run"><span>Rate this run</span><button class="ib rsu-bn-up" type="button" aria-pressed="false" aria-label="Good run" data-tip="Good run">${I('up-thumb')}</button><button class="ib rsu-bn-down" type="button" aria-pressed="false" aria-label="Bad run" data-tip="Bad run">${I('down-thumb')}</button></div></div>
+  </div>`;
+  function rsuBento(r, c){
+    const root = $('.rsu-bn', r), dn = $('.rsu-bn-donut svg', r), ck = $('.rsu-bn-ck', r), fl = $('.rsu-bn-fl', r), fix = $('.rsu-bn-fix', r), tr = $('.rsu-bn-tr', r);
+    // the cost by kind as a ring, each part drawn out in turn
+    const C = [['Model', .58, 'c'], ['Tools', .17, 'v'], ['Apps', .09, 's']], tot = C.reduce((a, x) => a + x[1], 0), L = 2 * Math.PI * 24;
+    let off = 0;
+    dn.innerHTML = '<circle cx="32" cy="32" r="24" style="stroke:color-mix(in srgb,var(--line) 70%,transparent)"/>' + C.map(([n, v, k]) => { const len = v / tot * L - 2, s = `<circle class="s" cx="32" cy="32" r="24" style="stroke:var(--ph-${k});--o:${(-off).toFixed(2)};--len:${len.toFixed(2)}"/>`; off += v / tot * L; return s; }).join('');
+    ck.innerHTML = C.map(([n, v, k]) => `<li style="--k:var(--ph-${k})"><i></i>${n}<b>$${v.toFixed(2)}</b></li>`).join('');
+    fl.innerHTML = RSU_FILES.map(([f, a, x]) => `<div class="rsu-bn-fr"><code>${f}</code><span class="bar" aria-hidden="true"><i class="a" style="width:${a / 55 * 100}%"></i><i class="x" style="width:${x / 55 * 100}%"></i></span></div>`).join('');
+    c.later(400, () => { root.classList.add('in'); $$('circle.s', dn).forEach((s, i) => c.later(i * 200, () => { s.style.strokeDasharray = `${s.style.getPropertyValue('--len')} ${L}`; })); tr.style.setProperty('--p', 1); });
+    rsuCount(c, $('.rsu-bn-donut b', r), .84, v => '$' + v.toFixed(2), 500);
+    rsuCount(c, $('.rsu-bn-tr b', r), 24, v => Math.round(v) + '/24', 500);
+    $('.rsu-bn-cp', r).onclick = e => copied(e.currentTarget, RSU_TEXT, 'Summary copied');
+    // the tile keeps its height when its button goes, so the tiles never shrink under the pointer
+    fix.onclick = () => { const t = $('.rsu-bn-need', r); t.style.minHeight = t.offsetHeight + 'px'; fix.disabled = true; fix.innerHTML = '<span class="spin"></span>'; c.later(1200, () => { fix.remove(); t.classList.add('ok'); $('.rsu-bn-l', t).innerHTML = I('check','xs') + 'All clear'; swap($('p', t), 'Badge moved above the price on a phone'); }); };
+    // a thumb is a choice: picking one lifts it, picking it again takes it back
+    const up = $('.rsu-bn-up', r), down = $('.rsu-bn-down', r);
+    [up, down].forEach(b => b.onclick = () => { const on = b.getAttribute('aria-pressed') !== 'true'; [up, down].forEach(x => x.setAttribute('aria-pressed', String(x === b && on))); b.classList.remove('bump'); void b.offsetWidth; if (on) b.classList.add('bump'); });
+    // the person in the demo: reviews what needs them, rates the run and copies the summary
+    c.story(async s => {
+      await s.beat(6);
+      await s.tap(fix); s.away(); await s.beat(4);
+      await s.tap(up); s.away(); await s.beat(2);
+      await s.tap($('.rsu-bn-cp', r)); s.away(); await s.beat(4);
+    });
+  }
+
+  // the switch: the design the card last showed (Classic to begin with) is drawn, and picking another mounts the card again
+  // with it, so it plays from the start, entrance and demo; a key that picked it keeps the focus on the switch. Inside another
+  // component (as in Agent harness), and in the registry, the code view and the component page (build.js leaves a
+  // data-designs="card" switch out of them), it is the classic summary on its own
+  const RSU_DS = { receipt:[RSU_RECEIPT, rsuReceipt], recap:[RSU_RECAP, rsuRecap], bento:[RSU_BENTO, rsuBento] };
+  DM.def('run-summary', (r, c, card) => {
+    let dm = $(':scope>.rsu-dm', r);
+    if (!dm) return classic(r, c, card);
+    if (!c.card || r !== c.st){ dm.replaceWith(...$(':scope>.dm-main', dm).childNodes); return classic(r, c, card); }
+    const v = RSU_DS[card._dv] ? card._dv : 'classic';
+    if (v === 'classic') classic(r, c, card);
+    // (the classic component may have drawn its icons into the stage again, so the switch is found afresh)
+    dm = $(':scope>.rsu-dm', r);
+    const main = $(':scope>.dm-main', dm), sg = $(':scope>.demo .seg2', dm);
+    let tall = null, h = 0, wide = -1;
+    // the card keeps the room the tallest design needs; this one sits with its own tallest moment in the middle of it, and
+    // grows downwards from there. Its height is taken once at each width, so what it does never moves its top
+    const fit = () => { const H = parseFloat(getComputedStyle(r).minHeight) || 0, w = r.clientWidth; if (w !== wide){ wide = w; h = tall ? tall() : main.offsetHeight; } dm.style.setProperty('--dmy', Math.max(0, Math.floor((H - h) / 2)) + 'px'); };
+    if (v !== 'classic'){ main.innerHTML = RSU_DS[v][0]; const t = RSU_DS[v][1](main, c); tall = typeof t === 'function' ? t : null; }
+    // the classic summary is tallest once its numbers have counted up (on a phone they wrap onto a second line): a hidden
+    // copy of it with them in is measured, then taken away
+    else tall = () => { const a = $('.rsu', main); if (!a) return main.offsetHeight;
+      const p = a.cloneNode(true); $$('.rsu-stats b[data-n]', p).forEach(b => { const n = b.dataset.n; b.textContent = (b.dataset.p || '') + (n.includes('.') ? (+n).toFixed(2) : n) + (b.dataset.u || ''); });
+      p.style.cssText = 'position:absolute;left:0;right:0;top:0;visibility:hidden'; p.setAttribute('aria-hidden', 'true'); main.appendChild(p); const x = p.offsetHeight; p.remove(); return x; };
+    $$('button', sg).forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === v)));
+    seg(sg, k => {
+      if (k === v) return;
+      const kb = sg.contains(document.activeElement);
+      card._dv = k; DM.mount(card);
+      // it comes back once the new design has started, so it isn't taken for the visitor taking over the new demo
+      if (kb) setTimeout(() => { const b = $(`.rsu-dm>.demo button[data-v="${k}"]`, card); if (b && (!document.activeElement || document.activeElement === document.body)) b.focus({ preventScroll:true }); }, 120);
+    });
+    const ro = new ResizeObserver(fit); ro.observe(r); c.offs.push(() => ro.disconnect());
+  });
+}
 /* ---------- Error and recovery ---------- */
 DM.def('error-recovery', (r, c) => {
   const list = $('.erx-list', r), box = $('.erx-box', r), go = $('.erx-go', r), sum = $('.erx-s', r), opts = $$('.erx-o', r);
