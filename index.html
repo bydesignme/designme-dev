@@ -3020,9 +3020,10 @@ html{scrollbar-gutter:stable}
 .v2 .slx-h b{font-weight:500}
 .v2 .slx-h .muted{font-size:12px}
 .v2 .slx-v{display:inline-flex;align-items:baseline;font-size:14px;font-weight:500!important;letter-spacing:-.02em;margin:-3px -7px 0 0;padding:1px 7px;border-radius:var(--r-field);cursor:text;transition:background-color .2s var(--ease),box-shadow .2s var(--ease)}
-/* the budget reads as a figure until you click it, then you can type a new one */
-@media (hover:hover) and (pointer:fine){.v2 .slx-v:hover{background:var(--row)}}
-.v2 .slx-v:focus-within{background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--field-line-strong) 50%,transparent)}
+/* the budget reads as a figure until you point at it or click it: then it is a field, white with the dimmed field edge,
+   which steps up while you type a new one. A budget you can't change has no hover */
+@media (hover:hover) and (pointer:fine){.v2 .slx-v:has(input):hover{background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--field-line) 50%,transparent)}}
+.v2 .slx-v:has(input):focus-within{background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--field-line-strong) 50%,transparent)}
 @supports (corner-shape:squircle){.v2 .slx-v{corner-shape:squircle;border-radius:var(--r-field-sq)}}
 .v2 .slx-in{width:3ch;min-width:1ch;padding:0;margin:0;border:0;background:none;font:inherit;font-variant-numeric:tabular-nums;letter-spacing:inherit;color:inherit;text-align:right;outline:none;caret-color:var(--accent-fg,var(--accent))}
 .v2 .slx-bar{position:relative;height:12px;border-radius:6px;background:var(--chip);margin:18px 0 6px;touch-action:none;cursor:pointer}
@@ -4450,9 +4451,11 @@ html{scrollbar-gutter:stable}
 .v2 .plb-fd.bad .plb-in{box-shadow:inset 0 0 0 1px var(--bad)}
 .v2 .plb-er{font-size:12px;color:var(--bad);font-weight:400}
 .v2 .plb-er[hidden]{display:none}
-.v2 .plb-sel{display:flex;align-items:center;justify-content:space-between;gap:var(--s-2);width:100%;height:38px;padding:0 10px 0 var(--s-3);border-radius:11px;background:var(--chip);font-size:13.5px;font-weight:400;color:var(--fg);text-align:left;transition:background .2s,box-shadow .2s}
-@media (hover:hover) and (pointer:fine){.v2 .plb-sel:hover{background:var(--row)}}
-.v2 .plb-sel[aria-expanded="true"]{background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--accent-mark,var(--accent)),0 0 0 4px var(--accent-bg)}
+.v2 .plb-sel{display:flex;align-items:center;justify-content:space-between;gap:var(--s-2);width:100%;height:var(--field-h);padding:0 var(--s-3);border-radius:var(--r-field);background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--field-line) 50%,transparent);font-size:13.5px;font-weight:400;color:var(--fg);text-align:left;transition:box-shadow var(--t-fast)}
+@supports (corner-shape:squircle){.v2 .plb-sel{corner-shape:squircle;border-radius:var(--r-field-sq)}}
+/* a dropdown is a field like the text field beside it: its edge steps up while it has the keyboard's focus, and opening
+   its list changes nothing; it takes no ring */
+.v2 .plb-sel:focus-visible{outline:0;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--field-line-strong) 50%,transparent)}
 .v2 .plb-sel>svg{color:var(--muted);flex:none;transition:transform .32s var(--ease)}
 .v2 .plb-sel[aria-expanded="true"]>svg{transform:rotate(180deg)}
 .v2 .plb-pop{min-width:180px}
@@ -5143,9 +5146,10 @@ html{scrollbar-gutter:stable}
 .v2 .acx-pop{width:240px;padding:var(--s-3)}
 .v2 .acx-pop h4{margin:0 0 10px;font-size:13px;font-weight:500}
 .v2 .acx-fl{display:flex;flex-direction:column;gap:var(--s-1);margin-bottom:10px;font-size:12px;color:var(--muted)}
-.v2 .acx-dd{display:flex;align-items:center;justify-content:space-between;height:32px;padding:0 10px;border-radius:var(--r-sm);background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--rail) 50%,transparent);color:var(--fg);font-size:13px;transition:box-shadow var(--t-fast)}
-/* a field: a quiet grey border, one step stronger while it has the focus or its list is open */
-.v2 .acx-dd:is(:focus,[aria-expanded="true"]){outline:0;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--field-line) 50%,transparent)}
+.v2 .acx-dd{display:flex;align-items:center;justify-content:space-between;height:32px;padding:0 10px;border-radius:var(--r-field);background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--field-line) 50%,transparent);color:var(--fg);font-size:13px;transition:box-shadow var(--t-fast)}
+@supports (corner-shape:squircle){.v2 .acx-dd{corner-shape:squircle;border-radius:var(--r-field-sq)}}
+/* a field: a quiet grey edge, one step stronger while it has the keyboard's focus; opening its list changes nothing */
+.v2 .acx-dd:focus-visible{outline:0;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--field-line-strong) 50%,transparent)}
 .v2 .acx-dd .i{color:var(--muted)}
 .v2 .acx-opts{display:none;flex-direction:column;padding:var(--s-1);border-radius:10px;background:var(--surface);box-shadow:var(--shadow-pop);margin-top:var(--s-1)}
 .v2 .acx-opts.open{display:flex}
@@ -5171,8 +5175,9 @@ html{scrollbar-gutter:stable}
 /* the step picker: a search over a short list of step types in groups. The arrows move through it (the search keeps the
    focus), Enter adds the step, Escape closes it; the line at its foot says what the step under the pointer or the arrows does */
 .v2 .acx-pk{width:248px;padding:var(--s-2);display:flex;flex-direction:column;gap:var(--s-1)}
-.v2 .acx-q{display:flex;align-items:center;gap:var(--s-2);height:32px;flex:none;padding:0 var(--s-2);border-radius:var(--r-sm);background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--rail) 50%,transparent);color:var(--muted);transition:box-shadow var(--t-fast)}
-.v2 .acx-q:focus-within{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--field-line) 50%,transparent)}
+.v2 .acx-q{display:flex;align-items:center;gap:var(--s-2);height:32px;flex:none;padding:0 var(--s-2);border-radius:var(--r-field);background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--field-line) 50%,transparent);color:var(--muted);transition:box-shadow var(--t-fast)}
+@supports (corner-shape:squircle){.v2 .acx-q{corner-shape:squircle;border-radius:var(--r-field-sq)}}
+.v2 .acx-q:focus-within{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--field-line-strong) 50%,transparent)}
 .v2 .acx-q input{flex:1;min-width:0;height:100%;padding:0;border:0;outline:0;background:transparent;font:inherit;font-size:13px;color:var(--fg)}
 .v2 .acx-q input::placeholder{color:var(--muted)}
 .v2 .acx-ls{max-height:148px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--rail) transparent}
@@ -6070,9 +6075,11 @@ html{scrollbar-gutter:stable}
 .v2 .ecx-ph>i{width:10px;height:10px;border-radius:3px;flex:none}
 .v2 .ecx-ph b{font-weight:500;flex:1;min-width:0}
 .v2 .ecx-ph .ib{width:24px;height:24px;margin:-4px -4px -4px auto}
-.v2 .ecx-ti{flex:1;min-width:0;border:0;outline:0;background:none;font:inherit;font-weight:500;color:var(--fg)}
+/* a new event's title is a field like any other: white, the dimmed field edge, one step stronger while you type */
+.v2 .ecx-ti{flex:1;min-width:0;height:32px;padding:0 var(--s-3);border:0;outline:0;border-radius:var(--r-field);background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--field-line) 50%,transparent);font:inherit;font-weight:500;color:var(--fg);transition:box-shadow var(--t-fast)}
+@supports (corner-shape:squircle){.v2 .ecx-ti{corner-shape:squircle;border-radius:var(--r-field-sq)}}
 .v2 .ecx-ti::placeholder{color:var(--muted)}
-.v2 .ecx-ti:focus{box-shadow:0 1px 0 color-mix(in srgb,var(--field-line-strong) 50%,transparent)}
+.v2 .ecx-ti:focus{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--field-line-strong) 50%,transparent)}
 .v2 .ecx-pt{font-size:12.5px;color:var(--fg2);margin:var(--s-1) 0 0 18px}
 .v2 .ecx-pw{display:flex;align-items:center;margin:10px 0 0 18px}
 .v2 .ecx-pw .av{width:22px;height:22px;font-size:9px;margin-right:-4px;box-shadow:0 0 0 2px var(--raised)}
@@ -6949,6 +6956,10 @@ html{scrollbar-gutter:stable}
 .v2 .kbx-k.drag{opacity:.35}
 .v2 .kbx-k.ghost{position:fixed;z-index:100;pointer-events:none;transform:rotate(2.5deg) scale(1.03);box-shadow:var(--shadow-pop);cursor:grabbing}
 .v2 .kbx-k .t{font-size:13px;line-height:1.4}
+/* a new card's title is written in place: while you write it, it is a field, white with the dimmed field edge, one step
+   stronger while it has the focus, drawn outside the words so they keep their place (as Memory panel's edit does) */
+.v2 .kbx-k .t[contenteditable="true"]{outline:0;border-radius:var(--r-xs);padding:0 var(--s-1);margin:0 calc(-1 * var(--s-1));background:var(--surface);box-shadow:0 0 0 1px color-mix(in srgb,var(--field-line) 50%,transparent)}
+.v2 .kbx-k .t[contenteditable="true"]:focus{box-shadow:0 0 0 1px color-mix(in srgb,var(--field-line-strong) 50%,transparent)}
 .v2 .kbx-k .f{display:flex;align-items:center;gap:6px}
 .v2 .kbx-k .f .av{width:20px;height:20px;font-size:9px;margin-left:auto}
 .v2 .kbx-k .f .think{color:var(--accent-fg,var(--accent))}
@@ -7636,7 +7647,7 @@ body.ui .brand.o3::after{content:none}
   <button class="pill ghost sm psx-sh">{shuffle}Shuffle</button>
 </div></template>
   </article>
-  <article class="comp" id="c123" data-soft data-v2="prompt-library" data-reg="prompt-library" style="--rh-a:489px;--rc-a:377px;--rcb-a:377px;--rh-b:528px;--rc-b:416px;--rcb-b:416px;--rh-c:489px;--rc-c:377px;--rcb-c:377px;--rh-d:489px;--rc-d:377px;--rcb-d:377px;--rh-e:489px;--rc-e:377px;--rcb-e:377px;--rh-f:489px;--rc-f:377px;--rcb-f:377px;--rh-g:489px;--rc-g:377px;--rcb-g:377px;--rh-h:489px;--rc-h:377px;--rcb-h:377px;--rh-i:489px;--rc-i:377px;--rcb-i:377px;--rh-j:457px;--rc-j:377px;--rcb-j:377px;--rh-k:457px;--rc-k:377px;--rcb-k:377px;--rh-l:476px;--rc-l:396px;--rcb-l:396px;--rh-m:522px;--rc-m:442px;--rcb-m:442px">
+  <article class="comp" id="c123" data-soft data-v2="prompt-library" data-reg="prompt-library" style="--rh-a:491px;--rc-a:379px;--rcb-a:379px;--rh-b:530px;--rc-b:418px;--rcb-b:418px;--rh-c:491px;--rc-c:379px;--rcb-c:379px;--rh-d:491px;--rc-d:379px;--rcb-d:379px;--rh-e:491px;--rc-e:379px;--rcb-e:379px;--rh-f:491px;--rc-f:379px;--rcb-f:379px;--rh-g:491px;--rc-g:379px;--rcb-g:379px;--rh-h:491px;--rc-h:379px;--rcb-h:379px;--rh-i:491px;--rc-i:379px;--rcb-i:379px;--rh-j:459px;--rc-j:379px;--rcb-j:379px;--rh-k:459px;--rc-k:379px;--rcb-k:379px;--rh-l:478px;--rc-l:398px;--rcb-l:398px;--rh-m:524px;--rc-m:444px;--rcb-m:444px">
     <div class="comp-head">
       <span class="ibox"><span class="ms">edit_note</span></span>
       <div><h2 class="comp-title"><a href="/components/prompt-library">Prompt library</a></h2><p class="comp-desc">Saved prompts with blanks to fill in before they go to the agent.</p></div>

@@ -939,9 +939,10 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .slx-h b{font-weight:500}
 .slx-h .muted{font-size:12px}
 .slx-v{display:inline-flex;align-items:baseline;font-size:14px;font-weight:500!important;letter-spacing:-.02em;margin:-3px -7px 0 0;padding:1px 7px;border-radius:var(--r-field);cursor:text;transition:background-color .2s var(--ease),box-shadow .2s var(--ease)}
-/* the budget reads as a figure until you click it, then you can type a new one */
-.slx-v:hover{background:var(--row)}
-.slx-v:focus-within{background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--field-line-strong) 50%,transparent)}
+/* the budget reads as a figure until you point at it or click it: then it is a field, white with the dimmed field edge,
+   which steps up while you type a new one. A budget you can't change has no hover */
+.slx-v:has(input):hover{background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--field-line) 50%,transparent)}
+.slx-v:has(input):focus-within{background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--field-line-strong) 50%,transparent)}
 @supports (corner-shape:squircle){.slx-v{corner-shape:squircle;border-radius:var(--r-field-sq)}}
 .slx-in{width:3ch;min-width:1ch;padding:0;margin:0;border:0;background:none;font:inherit;font-variant-numeric:tabular-nums;letter-spacing:inherit;color:inherit;text-align:right;outline:none;caret-color:var(--accent)}
 .slx-bar{position:relative;height:12px;border-radius:6px;background:var(--chip);margin:18px 0 6px;touch-action:none;cursor:pointer}
@@ -2348,9 +2349,11 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 .plb-fd.bad .plb-in{box-shadow:inset 0 0 0 1px var(--bad)}
 .plb-er{font-size:12px;color:var(--bad);font-weight:400}
 .plb-er[hidden]{display:none}
-.plb-sel{display:flex;align-items:center;justify-content:space-between;gap:var(--s-2);width:100%;height:38px;padding:0 10px 0 var(--s-3);border-radius:11px;background:var(--chip);font-size:13.5px;font-weight:400;color:var(--fg);text-align:left;transition:background .2s,box-shadow .2s}
-.plb-sel:hover{background:var(--row)}
-.plb-sel[aria-expanded="true"]{background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--accent),0 0 0 4px var(--accent-bg)}
+.plb-sel{display:flex;align-items:center;justify-content:space-between;gap:var(--s-2);width:100%;height:var(--field-h);padding:0 var(--s-3);border-radius:var(--r-field);background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--field-line) 50%,transparent);font-size:13.5px;font-weight:400;color:var(--fg);text-align:left;transition:box-shadow var(--t-fast)}
+@supports (corner-shape:squircle){.plb-sel{corner-shape:squircle;border-radius:var(--r-field-sq)}}
+/* a dropdown is a field like the text field beside it: its edge steps up while it has the keyboard's focus, and opening
+   its list changes nothing; it takes no ring */
+.plb-sel:focus-visible{outline:0;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--field-line-strong) 50%,transparent)}
 .plb-sel>svg{color:var(--muted);flex:none;transition:transform .32s var(--ease)}
 .plb-sel[aria-expanded="true"]>svg{transform:rotate(180deg)}
 .plb-pop{min-width:180px}
@@ -3036,9 +3039,10 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--row)}
 .acx-pop{width:240px;padding:var(--s-3)}
 .acx-pop h4{margin:0 0 10px;font-size:13px;font-weight:500}
 .acx-fl{display:flex;flex-direction:column;gap:var(--s-1);margin-bottom:10px;font-size:12px;color:var(--muted)}
-.acx-dd{display:flex;align-items:center;justify-content:space-between;height:32px;padding:0 10px;border-radius:var(--r-sm);background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--rail) 50%,transparent);color:var(--fg);font-size:13px;transition:box-shadow var(--t-fast)}
-/* a field: a quiet grey border, one step stronger while it has the focus or its list is open */
-.acx-dd:is(:focus,[aria-expanded="true"]){outline:0;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--field-line) 50%,transparent)}
+.acx-dd{display:flex;align-items:center;justify-content:space-between;height:32px;padding:0 10px;border-radius:var(--r-field);background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--field-line) 50%,transparent);color:var(--fg);font-size:13px;transition:box-shadow var(--t-fast)}
+@supports (corner-shape:squircle){.acx-dd{corner-shape:squircle;border-radius:var(--r-field-sq)}}
+/* a field: a quiet grey edge, one step stronger while it has the keyboard's focus; opening its list changes nothing */
+.acx-dd:focus-visible{outline:0;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--field-line-strong) 50%,transparent)}
 .acx-dd .i{color:var(--muted)}
 .acx-opts{display:none;flex-direction:column;padding:var(--s-1);border-radius:10px;background:var(--surface);box-shadow:var(--shadow-pop);margin-top:var(--s-1)}
 .acx-opts.open{display:flex}
@@ -3063,8 +3067,9 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--row)}
 /* the step picker: a search over a short list of step types in groups. The arrows move through it (the search keeps the
    focus), Enter adds the step, Escape closes it; the line at its foot says what the step under the pointer or the arrows does */
 .acx-pk{width:248px;padding:var(--s-2);display:flex;flex-direction:column;gap:var(--s-1)}
-.acx-q{display:flex;align-items:center;gap:var(--s-2);height:32px;flex:none;padding:0 var(--s-2);border-radius:var(--r-sm);background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--rail) 50%,transparent);color:var(--muted);transition:box-shadow var(--t-fast)}
-.acx-q:focus-within{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--field-line) 50%,transparent)}
+.acx-q{display:flex;align-items:center;gap:var(--s-2);height:32px;flex:none;padding:0 var(--s-2);border-radius:var(--r-field);background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--field-line) 50%,transparent);color:var(--muted);transition:box-shadow var(--t-fast)}
+@supports (corner-shape:squircle){.acx-q{corner-shape:squircle;border-radius:var(--r-field-sq)}}
+.acx-q:focus-within{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--field-line-strong) 50%,transparent)}
 .acx-q input{flex:1;min-width:0;height:100%;padding:0;border:0;outline:0;background:transparent;font:inherit;font-size:13px;color:var(--fg)}
 .acx-q input::placeholder{color:var(--muted)}
 .acx-ls{max-height:148px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--rail) transparent}
@@ -3949,9 +3954,11 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--row)}
 .ecx-ph>i{width:10px;height:10px;border-radius:3px;flex:none}
 .ecx-ph b{font-weight:500;flex:1;min-width:0}
 .ecx-ph .ib{width:24px;height:24px;margin:-4px -4px -4px auto}
-.ecx-ti{flex:1;min-width:0;border:0;outline:0;background:none;font:inherit;font-weight:500;color:var(--fg)}
+/* a new event's title is a field like any other: white, the dimmed field edge, one step stronger while you type */
+.ecx-ti{flex:1;min-width:0;height:32px;padding:0 var(--s-3);border:0;outline:0;border-radius:var(--r-field);background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--field-line) 50%,transparent);font:inherit;font-weight:500;color:var(--fg);transition:box-shadow var(--t-fast)}
+@supports (corner-shape:squircle){.ecx-ti{corner-shape:squircle;border-radius:var(--r-field-sq)}}
 .ecx-ti::placeholder{color:var(--muted)}
-.ecx-ti:focus{box-shadow:0 1px 0 color-mix(in srgb,var(--field-line-strong) 50%,transparent)}
+.ecx-ti:focus{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--field-line-strong) 50%,transparent)}
 .ecx-pt{font-size:12.5px;color:var(--fg2);margin:var(--s-1) 0 0 18px}
 .ecx-pw{display:flex;align-items:center;margin:10px 0 0 18px}
 .ecx-pw .av{width:22px;height:22px;font-size:9px;margin-right:-4px;box-shadow:0 0 0 2px var(--raised)}
@@ -4816,6 +4823,10 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--row)}
 .kbx-k.drag{opacity:.35}
 .kbx-k.ghost{position:fixed;z-index:100;pointer-events:none;transform:rotate(2.5deg) scale(1.03);box-shadow:var(--shadow-pop);cursor:grabbing}
 .kbx-k .t{font-size:13px;line-height:1.4}
+/* a new card's title is written in place: while you write it, it is a field, white with the dimmed field edge, one step
+   stronger while it has the focus, drawn outside the words so they keep their place (as Memory panel's edit does) */
+.kbx-k .t[contenteditable="true"]{outline:0;border-radius:var(--r-xs);padding:0 var(--s-1);margin:0 calc(-1 * var(--s-1));background:var(--surface);box-shadow:0 0 0 1px color-mix(in srgb,var(--field-line) 50%,transparent)}
+.kbx-k .t[contenteditable="true"]:focus{box-shadow:0 0 0 1px color-mix(in srgb,var(--field-line-strong) 50%,transparent)}
 .kbx-k .f{display:flex;align-items:center;gap:6px}
 .kbx-k .f .av{width:20px;height:20px;font-size:9px;margin-left:auto}
 .kbx-k .f .think{color:var(--accent)}
