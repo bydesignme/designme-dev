@@ -46,6 +46,14 @@ every session and every agent.
   small text, marks 3:1. Choose text on a fill with APCA; WCAG 2 alone picks black on saturated mid-tones like violet,
   which is hard to read.
 - Highlights like "Everyone is free" use the accent tint (`--sel` with the accent as text), not a solid accent fill.
+- No coloured shadows, glows or gradient shadows (owner, 30 Oct). Shadows are only the neutral `--shadow` /
+  `--shadow-pop`; a pulse or highlight uses opacity, scale or a neutral fill, never a hue.
+- Colour is used sparingly and for meaning: lines, rails, tracks and connectors are neutral grey by default, and a
+  component carries one or two hues at most (a status, the item that is running, pass/fail). No per-item rainbow lines.
+- Use the existing chip, tag and text styles as they are; don't invent new ones. Non-interactive metadata ("12 pages",
+  "3 frames", counts, sizes, durations) is a plain grey chip or muted text, never coloured.
+- Grey borders are at half strength (`color-mix(in srgb,var(--line) 50%,transparent)` and the like), and the hover or
+  highlight grey behind a row or ghost control is `--row` (`#fafafa` in Soft light).
 
 ## Fields, focus and selection (owner's decisions, 29 Oct)
 - No accent-coloured or black focus rings, outlines or glows anywhere. Mouse and touch never show a focus ring.
