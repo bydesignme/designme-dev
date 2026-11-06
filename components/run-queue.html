@@ -177,7 +177,6 @@
 .rq-tot i.fail b{background:var(--dm-bad)}
 /* the end of the queue keeps the room it had and centres what is left in it */
 .rq-b{flex:1;display:flex;flex-direction:column}
-.rq.fin .rq-b{justify-content:center}
 .rq-sec{display:flex;flex-direction:column;gap:6px;padding-top:var(--dm-s-3)}
 .rq-l{display:flex;align-items:baseline;gap:6px;font-size:12px;color:var(--dm-muted)}
 .rq-l .num{color:var(--dm-fg2)}
@@ -758,7 +757,7 @@ export function RunQueue({ jobs, title = &#39;Run queue&#39;, status, summary, d
     &lt;/div&gt;
   );
 }
-</code></pre></details><details class="cp-file"><summary>run-queue.css<span class="l">React · 78 lines</span></summary><pre class="cp-pre" data-name="run-queue.css"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+</code></pre></details><details class="cp-file"><summary>run-queue.css<span class="l">React · 77 lines</span></summary><pre class="cp-pre" data-name="run-queue.css"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Run queue ---------- */
 /* a queue of agent jobs in three parts, on one left edge: the job running, raised, with its agent, its steps, a progress
    bar and the time left; the jobs up next, each with its agent and when it should start; and the jobs done, each with how
@@ -776,7 +775,6 @@ export function RunQueue({ jobs, title = &#39;Run queue&#39;, status, summary, d
 .dm-rq-tot i.dm-fail b{background:var(--dm-bad)}
 /* the end of the queue keeps the room it had and centres what is left in it */
 .dm-rq-b{flex:1;display:flex;flex-direction:column}
-.dm-rq.dm-fin .dm-rq-b{justify-content:center}
 .dm-rq-sec{display:flex;flex-direction:column;gap:6px;padding-top:var(--dm-s-3)}
 .dm-rq-l{display:flex;align-items:baseline;gap:6px;font-size:12px;color:var(--dm-muted)}
 .dm-rq-l .dm-num{color:var(--dm-fg2)}
@@ -883,7 +881,7 @@ const { class: className, ...rest } = Astro.props;
     &lt;/div&gt;
   &lt;/div&gt;
 &lt;/div&gt;
-</code></pre></details><details class="cp-file"><summary>run-queue.css<span class="l">HTML · 77 lines</span></summary><pre class="cp-pre" data-name="run-queue.css"><code>/* ---------- Run queue ---------- */
+</code></pre></details><details class="cp-file"><summary>run-queue.css<span class="l">HTML · 76 lines</span></summary><pre class="cp-pre" data-name="run-queue.css"><code>/* ---------- Run queue ---------- */
 /* a queue of agent jobs in three parts, on one left edge: the job running, raised, with its agent, its steps, a progress
    bar and the time left; the jobs up next, each with its agent and when it should start; and the jobs done, each with how
    long it took and a green tick. A job glides from one part to the next as it moves, a part with nothing in it folds away,
@@ -900,7 +898,6 @@ const { class: className, ...rest } = Astro.props;
 .rq-tot i.fail b{background:var(--dm-bad)}
 /* the end of the queue keeps the room it had and centres what is left in it */
 .rq-b{flex:1;display:flex;flex-direction:column}
-.rq.fin .rq-b{justify-content:center}
 .rq-sec{display:flex;flex-direction:column;gap:6px;padding-top:var(--dm-s-3)}
 .rq-l{display:flex;align-items:baseline;gap:6px;font-size:12px;color:var(--dm-muted)}
 .rq-l .num{color:var(--dm-fg2)}
@@ -959,7 +956,7 @@ const { class: className, ...rest } = Astro.props;
 :root:not([data-style=&quot;soft&quot;]) .rq-j[data-s=&quot;fail&quot;]:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *)){background:repeating-linear-gradient(135deg,transparent 0 5px,color-mix(in srgb,var(--dm-bad) 10%,transparent) 5px 6px),var(--dm-bad-bg);box-shadow:none}
 :root:not([data-style=&quot;soft&quot;]) .rq-bar i:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *)),:root:not([data-style=&quot;soft&quot;]) .rq-tot b:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *)){transition:transform .2s steps(2,end)}
 :root:not([data-style=&quot;soft&quot;]) .rq-retry:not(:where([data-style=&quot;soft&quot;],[data-style=&quot;soft&quot;] *)){box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 70%,transparent)}
-</code></pre></details><details class="cp-file"><summary>run-queue.js<span class="l">HTML · 91 lines</span></summary><pre class="cp-pre" data-name="run-queue.js"><code>DM.def(&#39;run-queue&#39;, (r, c) =&gt; {
+</code></pre></details><details class="cp-file"><summary>run-queue.js<span class="l">HTML · 94 lines</span></summary><pre class="cp-pre" data-name="run-queue.js"><code>DM.def(&#39;run-queue&#39;, (r, c) =&gt; {
   // the jobs, run one at a time: what each is, the agent on it and its icon, and its steps with what each came to. The launch
   // email&#39;s test send fails once and waits for Retry
   const J = [
@@ -1041,12 +1038,15 @@ const { class: className, ...rest } = Astro.props;
   c.run(async () =&gt; {
     await c.wait(700);
     for (const j of J) await go(j);
-    // the end: a summary takes the running job&#39;s place, the empty parts fold away, and what is left sits centred in the
-    // room the queue kept
+    // the end: a summary takes the running job&#39;s place and the empty parts fold away; once they have, the queue lets go of
+    // the room it kept and eases down to fit what is left, so no gap opens under the bars (owner, 5 Nov)
     await c.wait(REDUCE ? 0 : 560); keep();
     text($(&#39;.rq-ft&#39;, r), `All ${J.length} jobs done`); $(&#39;.rq-fs&#39;, r).textContent = `${total.toFixed(1)}s in all · ${retries ? retries + (retries &gt; 1 ? &#39; retries&#39; : &#39; retry&#39;) : &#39;no retries&#39;}`;
     root.classList.add(&#39;fin&#39;); fold($(&#39;.rq-ff&#39;, r), true); fold($(&#39;.rq-rf&#39;, r), false); fold($(&#39;.rq-nf&#39;, r), false);
     times(); say.textContent = `All ${J.length} jobs done`;
+    await c.wait(REDUCE ? 0 : 520);
+    const from = root.getBoundingClientRect().height; root.style.minHeight = &#39;&#39;; const to = root.getBoundingClientRect().height;
+    if (!REDUCE &amp;&amp; from - to &gt; 1) root.animate([{ height:from + &#39;px&#39; }, { height:to + &#39;px&#39; }], { duration:480, easing:&#39;cubic-bezier(.22,1,.36,1)&#39; });
   });
 });
 </code></pre></details></div></section><section class="cp-sec" id="questions"><div class="pg-sh"><span class="n">06</span><h2>Questions</h2><p>What people ask about it.</p></div><dl class="cp-qs"><div><dt class="pg-t">How do I let people retry a failed step?</dt><dd>Pass <code>onRetry</code>. It is called with the job index and the step index, and you rerun the step and set its <code>state</code> back to 'running'. Without <code>onRetry</code>, failed steps show no button.</dd></div><div><dt class="pg-t">Does a job's state follow its steps automatically?</dt><dd>No. You set each job's <code>state</code> and each step's <code>state</code> yourself. The component only works out the progress bar from the done steps when <code>progress</code> is left out, and the counts from the job states.</dd></div><div><dt class="pg-t">Can I start in the compact view?</dt><dd>Yes. Set <code>defaultDensity="compact"</code>, or control <code>density</code> from your own state.</dd></div></dl></section><section class="cp-sec" id="more"><div class="pg-sh"><span class="n">07</span><h2>More in Agent status</h2><p>Show what the agent is doing, how far along it is, and what it is working with.</p></div><div class="pg-cards"><div class="pg-card"><a class="pg-t pg-link" href="/components/thinking">Thinking</a><span class="pg-d">The live trace, written as the agent works, then folded away.</span><span class="pg-thumb" data-reg="thinking" data-h="420"><img class="lt" src="/components/thumbs/thinking-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/thinking-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></div><div class="pg-card"><a class="pg-t pg-link" href="/components/reasoning-trail">Reasoning trail</a><span class="pg-d">The agent&#39;s plan, notes, sources and edits, after it thinks.</span><span class="pg-thumb" data-reg="reasoning-trail" data-h="440"><img class="lt" src="/components/thumbs/reasoning-trail-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/reasoning-trail-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></div><div class="pg-card"><a class="pg-t pg-link" href="/components/agent-lanes">Agent lanes</a><span class="pg-d">Several agents working in parallel, each with its own lane and hand-offs.</span><span class="pg-thumb" data-reg="agent-lanes" data-h="532" data-wide="1"><img class="lt" src="/components/thumbs/agent-lanes-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/agent-lanes-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></div><div class="pg-card"><a class="pg-t pg-link" href="/components/agent-tree">Agent tree</a><span class="pg-d">An orchestrator and its sub-agents, with cost rolled up per branch.</span><span class="pg-thumb" data-reg="agent-tree" data-h="613" data-wide="1"><img class="lt" src="/components/thumbs/agent-tree-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/agent-tree-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></div><div class="pg-card"><a class="pg-t pg-link" href="/components/agent-inbox">Agent inbox</a><span class="pg-d">Every run that needs you, is running or is done, in one list.</span><span class="pg-thumb" data-reg="agent-inbox" data-h="583" data-wide="1"><img class="lt" src="/components/thumbs/agent-inbox-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/agent-inbox-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></div><div class="pg-card"><a class="pg-t pg-link" href="/components/trace-view">Trace view</a><span class="pg-d">One agent run as a waterfall of spans, with latency and tokens.</span><span class="pg-thumb" data-reg="trace-view" data-h="645" data-wide="1"><img class="lt" src="/components/thumbs/trace-view-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/trace-view-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></div><div class="pg-card"><a class="pg-t pg-link" href="/components/browser-session">Browser session</a><span class="pg-d">The agent browsing for you, step by step, with Pause and Take over.</span><span class="pg-thumb" data-reg="browser-session" data-h="627"><img class="lt" src="/components/thumbs/browser-session-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/browser-session-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></div><div class="pg-card"><a class="pg-t pg-link" href="/components/web-search">Web search</a><span class="pg-d">The agent&#39;s searches as a trail: what it asked, what came back, what it read or skipped, and the answer with its sources.</span><span class="pg-thumb" data-reg="web-search" data-h="567"><img class="lt" src="/components/thumbs/web-search-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/web-search-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></div></div><a class="cp-all" href="/#s-status">All 21 in Agent status →</a></section><nav class="dc-pn" aria-label="Previous and next component"><a href="/components/error-recovery" rel="prev"><span class="pg-d"><svg viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M224,128a8,8,0,0,1-8,8H59.31l58.35,58.34a8,8,0,0,1-11.32,11.32l-72-72a8,8,0,0,1,0-11.32l72-72a8,8,0,0,1,11.32,11.32L59.31,120H216A8,8,0,0,1,224,128Z"/></svg>Previous</span><span class="pg-t">Error and recovery</span></a><a href="/components/run-cost" rel="next" class="n"><span class="pg-d">Next<svg viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"/></svg></span><span class="pg-t">Run cost</span></a></nav></div></div></div><script>
@@ -1448,12 +1448,15 @@ const fitHits = window.dmFitHits || (() => {
   c.run(async () => {
     await c.wait(700);
     for (const j of J) await go(j);
-    // the end: a summary takes the running job's place, the empty parts fold away, and what is left sits centred in the
-    // room the queue kept
+    // the end: a summary takes the running job's place and the empty parts fold away; once they have, the queue lets go of
+    // the room it kept and eases down to fit what is left, so no gap opens under the bars (owner, 5 Nov)
     await c.wait(REDUCE ? 0 : 560); keep();
     text($('.rq-ft', r), `All ${J.length} jobs done`); $('.rq-fs', r).textContent = `${total.toFixed(1)}s in all · ${retries ? retries + (retries > 1 ? ' retries' : ' retry') : 'no retries'}`;
     root.classList.add('fin'); fold($('.rq-ff', r), true); fold($('.rq-rf', r), false); fold($('.rq-nf', r), false);
     times(); say.textContent = `All ${J.length} jobs done`;
+    await c.wait(REDUCE ? 0 : 520);
+    const from = root.getBoundingClientRect().height; root.style.minHeight = ''; const to = root.getBoundingClientRect().height;
+    if (!REDUCE && from - to > 1) root.animate([{ height:from + 'px' }, { height:to + 'px' }], { duration:480, easing:'cubic-bezier(.22,1,.36,1)' });
   });
 });
 </script><script>/* ---------- Run queue designs ---------- */

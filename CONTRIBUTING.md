@@ -106,6 +106,13 @@ Every claim in docs or copy has to be true of the code.
    dark.
 4. Run the whole build, measure its card height, and check it as above.
 
+## Releases
+
+The CLI (`packages/designme`) is published to npm by GitHub Actions (`.github/workflows/publish.yml`) when a GitHub
+release is published. npm trusts that workflow (trusted publishing), so there is no npm token in the repository. Bump
+`version` in `packages/designme/package.json`, then publish a release whose tag is that version with a `v` in front
+(`v1.0.0` for 1.0.0); the workflow stops if they don't match.
+
 ## Licence
 
 By contributing, you agree that your work is released under the repository's [MIT licence](LICENSE).

@@ -5,7 +5,7 @@ DM.def('thinking-states', (r, c) => {
   const box = $('.ths', r), mk = $('.ths-mk', r), tx = $('.ths-tx', r), car = $('.ths-car', r), time = $('.ths-t', r), sr = $('.ths-sr', r);
   // Orbit, Morph, Scan and Stream as a grid of dots, each at its own density: which part each dot plays, and when
   const grid = k => {
-    const n = { orbit:5, scan:6, morph:7, stream:6 }[k], rows = k === 'stream' ? 3 : n, at = (x, y) => y * n + x;
+    const n = { orbit:5, scan:6, morph:7, stream:4 }[k], rows = k === 'stream' ? 3 : n, at = (x, y) => y * n + x;
     const cls = Array(n * rows).fill(''), dly = Array(n * rows).fill(null), pose = new Set();
     const run = (order, dur) => order.forEach((c, i) => { dly[c] = ((i / order.length) - 1) * dur; });
     if (k === 'orbit'){

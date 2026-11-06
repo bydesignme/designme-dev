@@ -25,9 +25,9 @@ export interface ThinkingStatesProps {
 
 type GridKind = 'orbit' | 'morph' | 'scan' | 'stream';
 /* Orbit, Morph, Scan and Stream are drawn on a grid of dots, each at its own density (Orbit 5 by 5, Scan 6 by 6, Morph 7 by 7,
-   Stream 6 by 3): which part each dot plays, and its place in the run as an animation delay */
+   Stream 4 by 3, the size of Matrix): which part each dot plays, and its place in the run as an animation delay */
 const grid = (k: GridKind) => {
-  const n = { orbit: 5, scan: 6, morph: 7, stream: 6 }[k], rows = k === 'stream' ? 3 : n, at = (x: number, y: number) => y * n + x;
+  const n = { orbit: 5, scan: 6, morph: 7, stream: 4 }[k], rows = k === 'stream' ? 3 : n, at = (x: number, y: number) => y * n + x;
   const cls: string[] = Array(n * rows).fill(''), dly: (number | null)[] = Array(n * rows).fill(null), pose = new Set<number>();
   const run = (order: number[], dur: number) => order.forEach((c, i) => { dly[c] = (i / order.length - 1) * dur; });
   if (k === 'orbit') {

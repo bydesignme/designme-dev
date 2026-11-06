@@ -82,11 +82,14 @@ DM.def('run-queue', (r, c) => {
   c.run(async () => {
     await c.wait(700);
     for (const j of J) await go(j);
-    // the end: a summary takes the running job's place, the empty parts fold away, and what is left sits centred in the
-    // room the queue kept
+    // the end: a summary takes the running job's place and the empty parts fold away; once they have, the queue lets go of
+    // the room it kept and eases down to fit what is left, so no gap opens under the bars (owner, 5 Nov)
     await c.wait(REDUCE ? 0 : 560); keep();
     text($('.rq-ft', r), `All ${J.length} jobs done`); $('.rq-fs', r).textContent = `${total.toFixed(1)}s in all · ${retries ? retries + (retries > 1 ? ' retries' : ' retry') : 'no retries'}`;
     root.classList.add('fin'); fold($('.rq-ff', r), true); fold($('.rq-rf', r), false); fold($('.rq-nf', r), false);
     times(); say.textContent = `All ${J.length} jobs done`;
+    await c.wait(REDUCE ? 0 : 520);
+    const from = root.getBoundingClientRect().height; root.style.minHeight = ''; const to = root.getBoundingClientRect().height;
+    if (!REDUCE && from - to > 1) root.animate([{ height:from + 'px' }, { height:to + 'px' }], { duration:480, easing:'cubic-bezier(.22,1,.36,1)' });
   });
 });

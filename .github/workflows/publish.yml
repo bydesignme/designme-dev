@@ -1,0 +1,35 @@
+# Publishes the designme CLI (packages/designme) to npm when a GitHub release is published.
+# npm trusts this workflow (trusted publishing, OIDC), so there is no npm token in the repository: on npmjs.com the
+# package's settings name bydesignme/designme-dev and this file, publish.yml, as its trusted publisher.
+# The release tag must match the package's version: tag v1.0.0 publishes version 1.0.0.
+name: Publish to npm
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages/designme
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+      # trusted publishing needs npm 11.5.1 or later
+      - run: npm install -g npm@latest
+      - name: Check the tag matches the package version
+        if: github.event_name == 'release'
+        run: |
+          v=$(node -p "require('./package.json').version")
+          if [ "v$v" != "${GITHUB_REF_NAME}" ]; then echo "Tag ${GITHUB_REF_NAME} does not match package version $v"; exit 1; fi
+      - run: npm publish --access public

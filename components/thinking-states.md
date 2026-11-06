@@ -34,7 +34,7 @@ Thinking states is a set of six indicators for the moment an agent is thinking, 
 
 ### What it does
 
-- `variant` picks the indicator. Five of them are grids of dots, each at its own density: `orbit` (5 by 5, a light running round the edge with a fading tail and a dot breathing in the middle, the line shimmering), `morph` (7 by 7, the dots drawing a rectangle, then a circle, then a triangle), `scan` (6 by 6, a column of light sweeping three lines of text in dots), `stream` (three full lines of six dots that light up one by one, line by line, then fade out together, the line typed out behind a caret), `matrix` (a four by four grid of dots, each lighting up on its own beat) or `stack` (pages shuffling to the front).
+- `variant` picks the indicator. Five of them are grids of dots, each at its own density: `orbit` (5 by 5, a light running round the edge with a fading tail and a dot breathing in the middle, the line shimmering), `morph` (7 by 7, the dots drawing a rectangle, then a circle, then a triangle), `scan` (6 by 6, a column of light sweeping three lines of text in dots), `stream` (three lines of four dots, the same size as Matrix, that light up one by one, line by line, then fade out together, the line typed out behind a caret), `matrix` (a four by four grid of dots, each lighting up on its own beat) or `stack` (pages shuffling to the front).
 - Pass `steps`, a list of status lines. Leave `current` out and they take turns every `interval` milliseconds (2600 by default), or set `current` to show the step your agent reports.
 - A new line crossfades in, except in Stream, where it types out a letter at a time.
 - `seconds` shows the time so far at the end of the line. Left out, it counts by itself; `false` hides it.
@@ -152,9 +152,9 @@ export interface ThinkingStatesProps {
 
 type GridKind = 'orbit' | 'morph' | 'scan' | 'stream';
 /* Orbit, Morph, Scan and Stream are drawn on a grid of dots, each at its own density (Orbit 5 by 5, Scan 6 by 6, Morph 7 by 7,
-   Stream 6 by 3): which part each dot plays, and its place in the run as an animation delay */
+   Stream 4 by 3, the size of Matrix): which part each dot plays, and its place in the run as an animation delay */
 const grid = (k: GridKind) => {
-  const n = { orbit: 5, scan: 6, morph: 7, stream: 6 }[k], rows = k === 'stream' ? 3 : n, at = (x: number, y: number) => y * n + x;
+  const n = { orbit: 5, scan: 6, morph: 7, stream: 4 }[k], rows = k === 'stream' ? 3 : n, at = (x: number, y: number) => y * n + x;
   const cls: string[] = Array(n * rows).fill(''), dly: (number | null)[] = Array(n * rows).fill(null), pose = new Set<number>();
   const run = (order: number[], dur: number) => order.forEach((c, i) => { dly[c] = (i / order.length - 1) * dur; });
   if (k === 'orbit') {
