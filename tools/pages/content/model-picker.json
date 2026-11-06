@@ -1,0 +1,42 @@
+{
+  "summary": "Model picker is the control a person uses to choose which model answers in a chat, and how hard it thinks first. Each model shows its speed, quality and cost as five-step meters with the real figures on hover, and the thinking effort sits underneath in a small dropdown. When the picked model can't take the request, the picker says why and offers a way out.",
+  "use": [
+    "When people choose between models that trade speed, quality and cost, and should see those trade-offs before they pick.",
+    "When a model can think before it answers and people should set how much, with a note of what each level may spend.",
+    "When a model can be at capacity or unavailable, and you want to offer a wait or a close match instead of an error.",
+    "When the choice applies to one chat and people need a quiet confirmation of what is set."
+  ],
+  "features": [
+    "Each model row has a coloured tile, a name, a one-line `note`, and three five-step meters for `speed`, `quality` and `cost`. `speedDetail`, `qualityDetail` and `costDetail` show on hover, like \"74 tokens a second\".",
+    "The picked row is tinted and checked, and its meters turn the accent colour. The trigger above the list shows the picked model and effort, and both crossfade when they change.",
+    "A model's `status` can be `checking`, which spins beside its name, or `busy`, which turns its tile and line amber. `statusText` replaces the note, like \"At capacity, about 20s wait\".",
+    "`suggestion` opens a short message under the list with its buttons, the last one filled, like Wait for Opus and Use Sonnet on high. It opens and closes by its height.",
+    "The thinking effort is a small dropdown under the list. `efforts` defaults to Off, Low, Medium and High, each with a line shown in the menu and under \"Thinking\", like \"Up to 8k thinking tokens\".",
+    "`note` adds a confirmation with a green check under the picker. The trigger opens and closes the list."
+  ],
+  "a11y": [
+    "The models form a radio group labelled \"Model\". Each row is a button with `role=\"radio\"` and `aria-checked`, and only the picked one is in the tab order.",
+    "Arrow keys move to the next or previous model and pick it, wrapping at the ends.",
+    "The trigger has `aria-expanded`. Escape closes the list and moves the focus back to the trigger.",
+    "The thinking effort is a menu button with `aria-haspopup` and `aria-expanded`; its levels are `menuitemradio` items with `aria-checked`. The suggestion and the confirmation are announced as they change.",
+    "From the keyboard, Enter, Space or the down arrow opens a menu with the focus on its picked item, or its first (the up arrow, on its last); the arrow keys move through it and wrap, Home and End jump to the ends, Tab closes it and moves on, and closing it gives the focus back to its button."
+  ],
+  "faq": [
+    {
+      "q": "Does it check whether a model is available?",
+      "a": "No. It calls `onValueChange` with the id of any row that is picked, busy or not. Check the model in your own code, set its `status` to `checking` and then `busy` or `ready`, and pass a `suggestion` if it can't start."
+    },
+    {
+      "q": "Where do the meters come from?",
+      "a": "From you. Give each model `speed`, `quality` and `cost` from 1 to 5, and the figures behind them in the detail props, like \"74 tokens a second\" or \"$0.006 a reply\"."
+    },
+    {
+      "q": "Can I use my own effort levels?",
+      "a": "Yes. Pass `efforts` as a list of `{ label, detail }`. The picked one is `effort` or `defaultEffort`, which defaults to the third in the list, or the last if there are fewer."
+    },
+    {
+      "q": "Can it start closed?",
+      "a": "Yes. It opens by default; set `defaultOpen={false}`, or control it with `open` and `onOpenChange`."
+    }
+  ]
+}

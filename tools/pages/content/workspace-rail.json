@@ -1,0 +1,29 @@
+{
+  "summary": "The main navigation for an agent app: a narrow column of icons that can be pinned open into a sidebar with labels. A marker slides to the open item, icons can carry a count, and agent runs in progress are listed near the bottom so people can see what is still working. The page for the open item sits beside it.",
+  "use": [
+    "As the left-hand navigation of an agent app or workspace.",
+    "When screen space matters and the sidebar should fold down to icons.",
+    "When people should see which agent runs are still going from anywhere in the app.",
+    "When an item needs an unread or pending count on its icon."
+  ],
+  "features": [
+    "A workspace name, detail and logo at the top, set through `workspace`.",
+    "One icon button per entry in `items`; clicking one sets `value`, slides the marker to it and calls `onValueChange`.",
+    "A `badge` count on an icon, which plays an exit animation when you clear it.",
+    "A Running section listing `runs`, each with a thinking indicator and an optional `onClick`.",
+    "A pin button that toggles `expanded` to show or hide the labels; while folded, each icon shows its label as a tooltip.",
+    "Shows your own `children` beside the rail, or the open item's name over placeholder lines."
+  ],
+  "a11y": [
+    "The rail is a nav element labelled \"Workspace\".",
+    "Each item has its label as aria-label, and the open item has aria-current=\"page\".",
+    "The pin button is labelled \"Pin sidebar\" and exposes aria-expanded.",
+    "Tooltips also open on keyboard focus."
+  ],
+  "faq": [
+    {"q": "Does the rail bind the Cmd B shortcut for me?", "a": "No. `shortcut` is only the text shown in the pin button's tooltip. Listen for the key yourself and set `expanded` through your own state."},
+    {"q": "How do I clear a badge when someone opens that item?", "a": "Handle `onValueChange`, and in the same update set that item's `badge` to 0 or leave it out. The badge plays its exit before it goes."},
+    {"q": "How do I show agent runs that are in progress?", "a": "Pass `runs` with a `key` and `label` for each, plus an `onClick` if a run should open something. The section hides when the list is empty."},
+    {"q": "Can I put my own page next to the rail?", "a": "Yes. Pass it as `children`. Without children the rail shows the open item's label over placeholder lines, which is useful for prototypes."}
+  ]
+}

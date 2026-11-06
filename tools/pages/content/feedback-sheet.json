@@ -1,0 +1,36 @@
+{
+  "summary": "Feedback sheet puts thumbs up and thumbs down under an agent's answer. A thumbs down opens a short sheet where the person picks what went wrong from quick reasons, adds a note, and sends it, so the agent can do better next time.",
+  "use": [
+    "When you want ratings on agent answers and the reasons behind the bad ones.",
+    "When feedback should be stored per project, like a memory of what the agent should avoid.",
+    "When a rating should cost one click and the longer form should only appear when something went wrong."
+  ],
+  "features": [
+    "Thumbs up marks the answer as good and shows \"Thanks, noted\". Thumbs down opens the sheet and moves the cursor to the comment box once it has opened.",
+    "The sheet shows a `question` heading, toggleable `reasons` chips, a comment box and a `note` about who sees the feedback.",
+    "Send stays disabled until a reason is picked or something is written. `onSubmit` receives `{ reasons, comment }`, and if it returns a promise the button shows a spinner until it settles.",
+    "If `onSubmit` throws, the sheet stays open so the person can try again. On success it closes and a thank-you line appears, which you can change with `thanks`.",
+    "Cancel closes the sheet and clears the rating.",
+    "Rating, open state, picked reasons, comment and sent state can each be controlled or left to the component. `bare={false}` gives it a card of its own."
+  ],
+  "a11y": [
+    "The thumbs are labelled \"Good answer\" and \"Bad answer\" and use `aria-pressed`.",
+    "Each reason chip is a toggle button with `aria-pressed`.",
+    "The Send button sets `aria-busy` while sending, and the thank-you line is a `role=\"status\"` region.",
+    "While closed, the sheet is `inert` and `aria-hidden`."
+  ],
+  "faq": [
+    {
+      "q": "How do I save the feedback to my backend?",
+      "a": "Pass an async `onSubmit`. The component shows a spinner while the promise is pending and closes the sheet only when it resolves. If it rejects, the sheet stays open."
+    },
+    {
+      "q": "Can I use my own reasons?",
+      "a": "Yes. Pass `reasons` as a list of strings. Pass an empty list to hide the chips and keep only the comment box."
+    },
+    {
+      "q": "Does thumbs up open the sheet too?",
+      "a": "No. Thumbs up closes the sheet if it was open and shows a short thanks. Only thumbs down opens it, unless you control `open` yourself."
+    }
+  ]
+}

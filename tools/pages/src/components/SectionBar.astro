@@ -1,0 +1,80 @@
+---
+// The page's sections as a row of links that sticks under the header, in the page's own column (owner, 5 Nov: the page is as
+// wide as the homepage's, so On this page no longer takes a column of its own). The section you're reading is marked as you
+// scroll, a link glides to its section (and jumps with reduced motion), and the row scrolls sideways when it doesn't fit,
+// bringing the marked link into view. Component pages put it under the demo, docs pages under the lead.
+//   items   [{ id, label }], the sections in order
+const { items = [] } = Astro.props;
+---
+<style is:global>
+  /* the row's height (46px and its line), which a section you jump to clears as well as the header (Page.astro, --pg-bar) */
+  :root:has(.dc-bar){--pg-bar:47px}
+  .dc-bar{position:sticky;top:var(--pg-head);z-index:40;margin-top:40px;background:var(--pg-top);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-bottom:1px solid var(--pg-line)}
+  .dc-bar nav{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none}
+  .dc-bar nav::-webkit-scrollbar{display:none}
+  /* when the links don't all fit, the edge they run past fades out, so the row reads as one to scroll */
+  .dc-bar[data-more="r"] nav{-webkit-mask-image:linear-gradient(to right,#000 calc(100% - 40px),transparent);mask-image:linear-gradient(to right,#000 calc(100% - 40px),transparent)}
+  .dc-bar[data-more="l"] nav{-webkit-mask-image:linear-gradient(to left,#000 calc(100% - 40px),transparent);mask-image:linear-gradient(to left,#000 calc(100% - 40px),transparent)}
+  .dc-bar[data-more="lr"] nav{-webkit-mask-image:linear-gradient(to right,transparent,#000 40px,#000 calc(100% - 40px),transparent);mask-image:linear-gradient(to right,transparent,#000 40px,#000 calc(100% - 40px),transparent)}
+  .dc-bar a{position:relative;flex:none;display:inline-flex;align-items:center;height:46px;padding:0 10px;font-size:14px;font-weight:400;color:var(--pg-dim);text-decoration:none;transition:color .2s}
+  .dc-bar a:first-child{margin-left:-10px}
+  .dc-bar a:hover,.dc-bar a.on{color:var(--pg-fg)}
+  .dc-bar a::after{content:"";position:absolute;left:10px;right:10px;bottom:0;height:2px;border-radius:2px;background:var(--pg-fg);transform:scaleX(0);transition:transform .3s cubic-bezier(.16,1,.3,1)}
+  .dc-bar a.on::after{transform:scaleX(1)}
+  /* the keyboard ring sits inside the row, which clips what is outside it */
+  .dc-bar a:focus-visible{outline-offset:-2px;border-radius:6px}
+  @media (prefers-reduced-motion:reduce){.dc-bar a::after{transition:none}}
+  /* on a tablet and a phone the row runs to the window's edges */
+  @media (max-width:960px){.dc-bar{margin-left:-24px;margin-right:-24px;padding:0 24px}}
+  @media (max-width:640px){
+    .dc-bar{margin-top:32px}
+    /* the links run to the window's edges, so the last one is cut by the edge and reads as more to scroll to */
+    .dc-bar{margin-left:-16px;margin-right:-16px;padding:0}
+    .dc-bar nav{padding:0 6px;scroll-padding:0 16px}
+    .dc-bar a:first-child{margin-left:0}
+  }
+</style>
+<script is:inline>
+// (the script comes before the row, so the row's next sibling is the page's first section, which CSS reaches with +; it runs
+// once the page has been read.)
+// the section you're reading is the last one whose top has passed a line 120px under the header and the row, or the last
+// section once the page can't scroll further; its link is marked (aria-current). A section you jump to, from its link or the
+// address, stays marked while the page glides there, and afterwards while it is still in the top half of the window, even if
+// it is too short to reach that line
+(function run(){
+  if (document.readyState === 'loading'){ document.addEventListener('DOMContentLoaded', run); return; }
+  var bar = document.querySelector('.dc-bar'); if (!bar) return;
+  var nav = bar.querySelector('nav'), links = [].slice.call(nav.querySelectorAll('a'));
+  var secs = links.map(function(a){ return document.getElementById(decodeURIComponent(a.hash.slice(1))); });
+  var reduce = matchMedia('(prefers-reduced-motion: reduce)');
+  var cur = -2, pin = -1, gliding = 0;
+  var mark = function(){
+    var cs = getComputedStyle(document.documentElement);
+    var y = (parseFloat(cs.getPropertyValue('--pg-head')) || 53) + (parseFloat(cs.getPropertyValue('--pg-bar')) || 0) + 120, on = -1;
+    secs.forEach(function(s, i){ if (s && s.getBoundingClientRect().top <= y) on = i; });
+    if (on > -1 && innerHeight + scrollY >= document.documentElement.scrollHeight - 4) on = secs.length - 1;
+    if (pin > -1){
+      if (gliding && Date.now() - gliding < 1500) on = pin;
+      else { gliding = 0; var t = secs[pin] ? secs[pin].getBoundingClientRect().top : -1e9; if (t >= -8 && t <= innerHeight / 2) on = pin; else pin = -1; }
+    }
+    if (on === cur) return; cur = on;
+    links.forEach(function(a, i){ a.classList.toggle('on', i === on); if (i === on) a.setAttribute('aria-current', 'location'); else a.removeAttribute('aria-current'); });
+    // the marked link comes into view when the row is scrolled sideways
+    var a = links[on]; if (!a) return;
+    if (a.offsetLeft < nav.scrollLeft || a.offsetLeft + a.offsetWidth > nav.scrollLeft + nav.clientWidth) nav.scrollTo({ left:a.offsetLeft - 16, behavior:reduce.matches ? 'auto' : 'smooth' });
+  };
+  var jump = function(hash){ var i = links.findIndex(function(a){ return a.hash === hash; }); if (i > -1){ pin = i; cur = -2; gliding = Date.now(); } };
+  links.forEach(function(a){ a.addEventListener('click', function(){ jump(a.hash); setTimeout(mark, 50); }); });
+  // which edges the links run past (data-more: l, r or lr), for the fades
+  var edges = function(){ var l = nav.scrollLeft > 1, r = nav.scrollLeft + nav.clientWidth < nav.scrollWidth - 1; if (l || r) bar.dataset.more = (l ? 'l' : '') + (r ? 'r' : ''); else delete bar.dataset.more; };
+  nav.addEventListener('scroll', edges, { passive:true }); addEventListener('resize', edges); edges();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(edges);
+  addEventListener('hashchange', function(){ jump(location.hash); mark(); });
+  addEventListener('scrollend', function(){ if (gliding){ gliding = 0; mark(); } });
+  jump(location.hash);
+  addEventListener('scroll', mark, { passive:true });
+  addEventListener('resize', function(){ cur = -2; mark(); });
+  mark();
+})();
+</script>
+{items.length > 1 && <div class="dc-bar"><nav aria-label="On this page">{items.map(t => <a href={`#${t.id}`}>{t.label}</a>)}</nav></div>}

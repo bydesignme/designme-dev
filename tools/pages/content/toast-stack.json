@@ -1,0 +1,42 @@
+{
+  "summary": "Toast stack collects the notifications an agent sends while it works and piles them into a small deck, newest in front. Hover the deck and it fans out into a list so a person can read each one and close the ones they are done with.",
+  "use": [
+    "When an agent finishes several things in a row, like tests passing, a PR opening and frames syncing.",
+    "When notifications should stay on screen until someone reads them, without covering the page.",
+    "When you want a quiet corner of the app that shows the last few events at a glance.",
+    "When each event needs its own icon colour so people can tell good news from warnings."
+  ],
+  "features": [
+    "Pass `toasts` oldest first. The last item sits at the front and older ones step back, shrink and fade.",
+    "Hovering the stack fans it into a list that grows to fit the four front toasts. Set `expanded` to fan it yourself.",
+    "Each toast has an icon badge, a bold `title`, an optional `detail` line and an optional `time` like \"now\" or \"2m\".",
+    "`tone` colours the badge, with status tones (ok, warn, bad, merge) and colour names like blue, purple and teal.",
+    "The close button calls `onDismiss` with the toast id. Remove it from `toasts` and it slides off to the right as it fades.",
+    "`max` caps how many toasts stay mounted (6 by default). Older ones drop off the back, and new ones rise in from below."
+  ],
+  "a11y": [
+    "The stack is an `aria-live=\"polite\"` region, so screen readers announce new toasts.",
+    "Each close button is a real button with `aria-label=\"Dismiss\"` and a Dismiss tooltip.",
+    "A toast that is sliding away is marked `inert`, so it cannot be focused or clicked during its exit.",
+    "The stack fans out while the focus is in it, as it does under the pointer. Toasts that can't be seen (behind the front one in the deck, or past the fourth when fanned out) are `inert`, so Tab only reaches toasts on show.",
+    "Under `prefers-reduced-motion: reduce`, the shared stylesheet cuts animations and transitions to almost nothing."
+  ],
+  "faq": [
+    {
+      "q": "How do I add a new notification?",
+      "a": "Append an object with a unique `id`, an `icon` and a `title` to the end of your `toasts` array. It rises in from below and becomes the front card."
+    },
+    {
+      "q": "Does the stack remove a toast when I press its close button?",
+      "a": "No. The button only calls `onDismiss(id)`. Filter that toast out of `toasts` in your state and the component animates it away."
+    },
+    {
+      "q": "Can I keep the stack fanned out all the time?",
+      "a": "Yes. Pass `expanded={true}` to keep it open, or `expanded={false}` to keep it stacked. Leave it out and it fans while the pointer is over it."
+    },
+    {
+      "q": "What happens when more toasts arrive than fit?",
+      "a": "Only the newest `max` toasts stay mounted, six by default. In the stacked view only the front three are visible, and the fanned list shows the front four."
+    }
+  ]
+}

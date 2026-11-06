@@ -1,0 +1,303 @@
+---
+// The frame of a docs page and a component page, laid out like the homepage: the homepage's own sidebar on the left (search,
+// the site's pages, the component groups and Book a call) and the page beside it, in the library's own column, as wide as the
+// homepage's (owner, 5 Nov). The page's sections are a row of links that sticks under the header (SectionBar). Below 960px the
+// sidebar gives way to a menu above the page, as on the homepage, with the same search, pages and Book a call.
+//   doc   the docs page this is (its slug), or
+//   reg   the component this is
+//   where and title   the menu's label on smaller screens: "Docs / Theming", "Conversation / Composer"
+import SideNav from './SideNav.astro';
+import { icon } from '../lib/data.mjs';
+const { doc = null, reg = null, where, title } = Astro.props;
+const chev = icon('expand_more');
+// the menu's settings, the same as the homepage's: the accent swatches in the homepage picker's order (Default is the style's
+// own accent, lime in Blueprint and blue in Soft, and its twin is left out), and the sound switch's two icons
+const ACCENT_SW = [['default', 'Default'], ['#d4f84a', 'Lime'], ['#116ff8', 'Blue'], ['#7c5cff', 'Violet'], ['#e8366f', 'Rose'], ['#12a150', 'Green'], ['#0ea5a4', 'Teal'], ['#ff850d', 'Orange']];
+const SOUND_IC = '<svg class="on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9.5h3l4.5-4v13L7 14.5H4z"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/></svg><svg class="off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9.5h3l4.5-4v13L7 14.5H4z"/><path d="M16 9.5l5 5M21 9.5l-5 5"/></svg>';
+---
+<style is:global>
+  /* the sidebar and the page side by side, in the header's 1400px row (inside its side padding): the sidebar is 256px, as on
+     the homepage, and the page starts 48px after it and runs to the row's end, the homepage's .layout and .content exactly */
+  .dc{display:grid;grid-template-columns:256px minmax(0,1fr);max-width:1464px;margin:0 auto;padding:0 32px}
+  .pg-main:has(.dc){padding:0}
+
+  /* ---- the homepage's sidebar ----
+     The same markup and class names as the homepage's (tools/site: site-main.html and make-patches.py), with the sizes and
+     colours it ends up with there, so the two match pixel for pixel and only the active state moves between pages. Its
+     colours are the homepage's --sh- tokens, which differ a little from this page's own in dark mode. Hover and the row
+     you're on share the homepage's light fill (--sh-act); the page you're on (Library or Docs) takes the chip grey */
+  :root{--sh-side:#ffffff;--sh-bg:#ffffff;--sh-card:#ffffff;--sh-line:rgba(18,18,18,.08);--sh-line-2:rgba(18,18,18,.14);--sh-chip:#f1f1f1;--sh-act:#fafafa;--sh-text:#121212;--sh-dim:#525252;--sh-muted:#6a6a6a;--sh-blue:#116ff8;--sh-mark:#7a8e2b;--sh-ease:cubic-bezier(.22,1,.36,1)}
+  :root[data-style="soft"]{--sh-mark:#116ff8}
+  @media (prefers-color-scheme:dark){
+    :root:not([data-theme="light"]){--sh-side:#111111;--sh-bg:#111111;--sh-card:#181818;--sh-line:rgba(255,255,255,.09);--sh-line-2:rgba(255,255,255,.16);--sh-chip:rgba(255,255,255,.07);--sh-act:#1d1d1d;--sh-text:#f2f2f2;--sh-dim:#c9c9c9;--sh-muted:#c0c0c0;--sh-mark:#d4f84a}
+    :root[data-style="soft"]:not([data-theme="light"]){--sh-mark:#3d8bff}
+  }
+  :root[data-theme="dark"]{--sh-side:#111111;--sh-bg:#111111;--sh-card:#181818;--sh-line:rgba(255,255,255,.09);--sh-line-2:rgba(255,255,255,.16);--sh-chip:rgba(255,255,255,.07);--sh-act:#1d1d1d;--sh-text:#f2f2f2;--sh-dim:#c9c9c9;--sh-muted:#c0c0c0;--sh-mark:#d4f84a}
+  :root[data-style="soft"][data-theme="dark"]{--sh-mark:#3d8bff}
+  /* it stays put under the header, the groups scroll inside it, and the DesignMe credit and Book a call are pinned to its
+     bottom. Its background and the line on its right reach the window's left edge, as on the homepage */
+  .side{position:sticky;top:var(--pg-head);align-self:start;height:calc(100vh - var(--pg-head));display:flex;flex-direction:column;min-width:0;padding:28px 20px 22px 0;isolation:isolate;font:400 16px/1.5 var(--pg-sans);letter-spacing:-.006em;color:var(--sh-text)}
+  .side::before{content:"";position:absolute;top:0;bottom:0;right:0;left:-100vw;z-index:-1;background:var(--sh-side);border-right:1px solid var(--sh-line)}
+  :is(.side,.dc-mnav-in) button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+  :is(.side,.dc-mnav-in) .ms{display:inline-flex;align-items:center;justify-content:center;flex:none;width:1em;height:1em;font-size:20px;line-height:1;overflow:hidden;user-select:none}
+  :is(.side,.dc-mnav-in) .ms svg{display:block;width:1em;height:1em;fill:currentColor}
+  /* the search field */
+  /* a field like the components': slightly rounded, a dimmed grey edge that steps up to the stronger grey while it has the
+     focus, and no ring or glow (the homepage's is make-patches.py, #accent-roles) */
+  .side-search{display:flex;align-items:center;gap:8px;height:36px;margin:0 0 18px;padding:0 6px 0 12px;background:var(--sh-card);border:1px solid var(--pg-field);border-radius:8px;transition:border-color .2s}
+  @supports (corner-shape:squircle){.side-search{corner-shape:squircle;border-radius:14px}}
+  .side-search:focus-within{border-color:var(--pg-focus)}
+  .side-search .ms{color:var(--sh-muted);font-size:15px}
+  .side-search input{flex:1;min-width:0;margin:0;padding:1px 2px;background:transparent;border:0;border-radius:0;outline:0;font:inherit;font-size:14px;letter-spacing:normal;color:var(--sh-text)}
+  .side-search input::placeholder{color:var(--sh-muted);opacity:1}
+  .side-search .kbd{display:inline-flex;align-items:center;padding:1px 7px;border:1px solid var(--sh-line);border-radius:6px;background:var(--sh-bg);font:500 11.5px/1.5 var(--pg-sans);color:var(--sh-muted)}
+  html:root .side-search .kbd{box-shadow:none}
+  :root[data-style="soft"] .side-search .kbd{border-color:transparent;letter-spacing:normal}
+  /* the "/" that focuses the search sits in a key cap (owner, 4 Nov), the same on the homepage */
+  html:root .side-search .kbd{display:inline-grid;place-items:center;min-width:22px;height:22px;padding:0 6px;border:0;border-radius:6px;background:var(--sh-chip);box-shadow:inset 0 0 0 1px var(--sh-line);font:500 12px/1 var(--pg-sans);color:var(--sh-dim)}
+  @supports (corner-shape:squircle){html:root .side-search .kbd{corner-shape:squircle;border-radius:9px}}
+  /* the site's pages */
+  .side-pages{display:flex;flex-direction:column;gap:1px;margin:0 0 20px}
+  .side-p{display:flex;align-items:center;gap:10px;height:32px;padding:0 10px;border-radius:8px;font-size:14px;color:var(--sh-dim);text-decoration:none;transition:background-color .16s ease,color .16s ease}
+  .side-p:hover{background:var(--sh-act);color:var(--sh-text)}
+  .side-p.act{background:var(--sh-chip);color:var(--sh-text);font-weight:500}
+  .side-p .ms{display:inline-grid;place-items:center;width:16px;height:16px;font-size:16px;color:var(--sh-muted)}
+  .side-p.act .ms{color:var(--sh-text)}
+  /* the icons move on hover, as on the homepage: the grid turns, the page lifts, the clock winds back, the arrow climbs, the
+     question mark tilts */
+  .side-p .ms svg{transition:transform .42s cubic-bezier(.34,1.56,.64,1)}
+  .side-p[data-p="dashboard"]:hover .ms svg{transform:rotate(90deg)}
+  .side-p[data-p="description"]:hover .ms svg{transform:translateY(-2px)}
+  .side-p[data-p="history"]:hover .ms svg{transform:rotate(-50deg)}
+  .side-p[data-p="trending_up"]:hover .ms svg{transform:translate(2px,-2px)}
+  .side-p[data-p="help"]:hover .ms svg{animation:side-tilt .6s cubic-bezier(.36,0,.2,1)}
+  @keyframes side-tilt{30%{transform:rotate(-16deg)}65%{transform:rotate(10deg)}100%{transform:none}}
+  /* the component groups: a chevron, the name and a count, and the list folding under it on a thin rail */
+  .side-nav{flex:1;min-height:0;display:flex;flex-direction:column;overflow-y:auto;padding-right:2px;scrollbar-width:thin;scrollbar-color:var(--sh-line) transparent;overscroll-behavior:contain}
+  .side-grp{margin-bottom:4px}
+  :is(.side,.dc-mnav-in) .side-h{display:flex;align-items:center;justify-content:space-between;gap:6px;width:100%;margin:0 0 2px;padding:7px 6px 7px 4px;font:500 14px/1.5 var(--pg-sans);letter-spacing:normal;color:var(--sh-text);text-align:left;transition:color .2s}
+  .side-h .chev{display:grid;place-items:center;width:18px;height:18px;font-size:14px;color:var(--sh-muted);transition:transform .35s var(--sh-ease)}
+  .side-grp.closed .side-h .chev{transform:rotate(-90deg)}
+  .side-h .nm{flex:1}
+  .side-n{display:inline-grid;place-items:center;min-width:24px;height:22px;padding:0 6px;border:1px solid var(--sh-line);border-radius:7px;corner-shape:squircle;background:var(--sh-bg);font-size:11.5px;font-weight:500;color:var(--sh-dim)}
+  @supports (corner-shape:squircle){.side-n{border-radius:11px}}
+  .side-list{display:grid;grid-template-rows:1fr;transition:grid-template-rows .4s var(--sh-ease),opacity .3s ease}
+  .side-list>.side-ul{min-height:0;overflow:hidden}
+  .side-grp.closed .side-list{grid-template-rows:0fr;opacity:0}
+  .side-ul{margin:0 0 6px 13px;padding-left:11px;background:linear-gradient(var(--sh-line-2),var(--sh-line-2)) 0 0/1px 100% no-repeat}
+  /* a row: the one you're on gets the same light fill as a hover, and a short bright segment on the rail, level with it */
+  .side-a{position:relative;display:block;padding:5px 10px;border-radius:8px;font-size:14px;color:var(--sh-dim);text-decoration:none;transition:color .2s ease,background-color .2s ease}
+  .side-a:hover{color:var(--sh-text);background:var(--sh-act)}
+  .side-a.act{color:var(--sh-text);background:var(--sh-act)}
+  .side-ul .side-a.act::before{content:"";position:absolute;left:-11px;top:7px;bottom:7px;width:2px;border-radius:2px;background:var(--sh-mark)}
+  .side-a.hide{display:none}
+  /* Docs opens into its pages, on a rail under its icon */
+  .side-docs{margin:2px 0 6px 17px}
+  /* one set of groups at a time, as on the homepage; a search looks across both, with their names over them */
+  .side-lbl{display:none;padding:14px 4px 6px;font-size:11px;font-weight:500;letter-spacing:.04em;text-transform:uppercase;color:var(--sh-muted)}
+  .side-nav>.side-lbl:first-child{padding-top:6px}
+  .side-nav[data-set="agent"] [data-grp="basics"],.side-nav[data-set="basics"] [data-grp="agent"]{display:none}
+  .side-nav[data-set="all"] .side-lbl{display:block}
+  .side-empty{display:none;order:2;padding:8px 6px}
+  .side-empty.show{display:flex}
+  .side-empty p{margin:0;font-size:13px;line-height:1.5;color:var(--sh-dim)}
+  /* the foot: the DesignMe sticker and credit, and Book a call */
+  .side-foot{margin-top:10px;padding:16px 10px 0;border-top:1px solid var(--sh-line)}
+  .credit{display:block;color:inherit;text-decoration:none}
+  .credit p{margin:0;font-size:12.5px;line-height:1.5;color:var(--sh-muted)}
+  .credit .u{color:var(--sh-text);border-bottom:1px solid var(--sh-line-2);transition:border-color .2s}
+  .credit:hover .u{border-color:var(--sh-text)}
+  .sticker{position:relative;width:37px;margin:2px 0 12px 3px;transform:rotate(-8deg);filter:drop-shadow(0 3px 4px rgba(18,18,18,.18)) drop-shadow(0 .5px .5px rgba(18,18,18,.15));transition:transform .4s cubic-bezier(.34,1.56,.64,1);cursor:default}
+  .sticker:hover,.credit:hover .sticker{transform:rotate(2deg) scale(1.1)}
+  .sticker .die{filter:drop-shadow(1.2px 0 0 #fff) drop-shadow(-1.2px 0 0 #fff) drop-shadow(0 1.2px 0 #fff) drop-shadow(0 -1.2px 0 #fff)}
+  .sticker svg{display:block;width:100%;height:auto}
+  .sticker svg path{fill:#111111}
+  .sticker .gloss{position:absolute;inset:0;pointer-events:none;-webkit-mask:var(--sticker-mask) center/contain no-repeat;mask:var(--sticker-mask) center/contain no-repeat;background:linear-gradient(115deg,transparent 38%,rgba(255,255,255,.85) 50%,transparent 62%);background-size:260% 100%;background-position:160% 0;animation:sticker-gloss 5s ease-in-out 1.6s infinite}
+  @keyframes sticker-gloss{0%{background-position:160% 0}22%{background-position:-60% 0}100%{background-position:-60% 0}}
+  @media (prefers-color-scheme:dark){
+    :root:not([data-theme="light"]) .sticker svg path{fill:#ffffff}
+    :root:not([data-theme="light"]) .sticker .die{filter:drop-shadow(1.2px 0 0 #111) drop-shadow(-1.2px 0 0 #111) drop-shadow(0 1.2px 0 #111) drop-shadow(0 -1.2px 0 #111)}
+    :root:not([data-theme="light"]) .sticker .gloss{background-image:linear-gradient(115deg,transparent 38%,rgba(17,17,17,.35) 50%,transparent 62%)}
+  }
+  :root[data-theme="dark"] .sticker svg path{fill:#ffffff}
+  :root[data-theme="dark"] .sticker .die{filter:drop-shadow(1.2px 0 0 #111) drop-shadow(-1.2px 0 0 #111) drop-shadow(0 1.2px 0 #111) drop-shadow(0 -1.2px 0 #111)}
+  :root[data-theme="dark"] .sticker .gloss{background-image:linear-gradient(115deg,transparent 38%,rgba(17,17,17,.35) 50%,transparent 62%)}
+  .side-cta-d{margin:14px 0 0;font-size:12.5px;line-height:1.5;color:var(--sh-dim)}
+  /* Book a call: the blue fill grows from where the pointer comes in */
+  .hire-btn{position:relative;display:inline-flex;align-items:center;gap:8px;height:32px;margin-top:10px;padding:0 12px 0 14px;border:1px solid var(--sh-line);border-radius:8px;background:var(--sh-chip);color:var(--sh-text);font-size:13px;font-weight:500;line-height:1.5;text-decoration:none;overflow:hidden;isolation:isolate;transition:background-color .25s ease,border-color .25s ease,color .25s ease}
+  /* Book a call: a rectangle with the fields' squircle corners, not a pill (owner, 4 Nov) */
+  @supports (corner-shape:squircle){.hire-btn{corner-shape:squircle;border-radius:14px}}
+  .hire-btn .ms{font-size:14px;transition:transform .35s cubic-bezier(.34,1.56,.64,1)}
+  .hire-btn::before{content:"";position:absolute;left:var(--x,50%);top:var(--y,50%);z-index:-1;width:260px;height:260px;margin:-130px 0 0 -130px;border-radius:50%;background:var(--sh-blue);opacity:.9;transform:scale(0);transition:transform .6s cubic-bezier(.22,1,.36,1),opacity .3s ease}
+  .hire-btn::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:0;background:linear-gradient(115deg,transparent 35%,rgba(255,255,255,.55) 50%,transparent 65%);background-size:260% 100%;background-position:160% 0}
+  .hire-btn:hover{color:#fff;border-color:var(--sh-blue)}
+  .hire-btn:hover::before{transform:scale(1);opacity:1}
+  .hire-btn:hover::after{animation:hire-gloss 1s ease .38s 1 both}
+  .hire-btn:hover .ms{transform:translateX(3px)}
+  @keyframes hire-gloss{0%{opacity:1;background-position:160% 0}100%{opacity:1;background-position:-60% 0}}
+  @media (prefers-reduced-motion:reduce){
+    .side-p .ms svg{transition:none;animation:none!important;transform:none!important}
+    .sticker .gloss{animation:none;display:none}
+    .side-h .chev,.side-list,.hire-btn::before,.hire-btn .ms{transition:none}
+    .hire-btn:hover::after{animation:none}
+  }
+
+  /* the page: the whole column. Demos, code, tables and install rows use all of it; running text keeps a readable measure
+     (72ch, set where it's styled) */
+  .dc-main{min-width:0;padding:40px 0 96px 48px}
+  .dc-body{min-width:0}
+
+  /* previous and next: two cards at the end of the page, links both */
+  .dc-pn{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:64px}
+  .dc-pn a{display:flex;flex-direction:column;gap:2px;padding:14px 16px;border-radius:12px;box-shadow:inset 0 0 0 1px var(--pg-line);text-decoration:none;transition:box-shadow .16s ease,background-color .16s ease}
+  .dc-pn a:hover{box-shadow:inset 0 0 0 1px var(--pg-line2);background:var(--pg-soft)}
+  .dc-pn .n{grid-column:2;align-items:flex-end;text-align:right}
+  .dc-pn .pg-d{display:inline-flex;align-items:center;gap:6px;font-size:13px}
+  .dc-pn .pg-d svg{width:14px;height:14px}
+
+  /* the menu for screens without the sidebar: the same search, pages, component's group and Book a call */
+  .dc-mnav{display:none;margin:0 0 24px;border-radius:12px;box-shadow:inset 0 0 0 1px var(--pg-line2)}
+  .dc-mnav>summary{display:flex;align-items:center;gap:8px;min-height:44px;padding:0 14px;cursor:pointer;list-style:none;font-size:14px;color:var(--pg-dim)}
+  .dc-mnav>summary::-webkit-details-marker{display:none}
+  .dc-mnav>summary b{font-weight:500;color:var(--pg-fg)}
+  .dc-chev{display:grid;place-items:center;width:18px;height:18px;flex:none;margin-left:auto;color:var(--pg-muted);transition:transform .3s cubic-bezier(.16,1,.3,1)}
+  .dc-chev svg{width:14px;height:14px}
+  .dc-mnav[open]>summary .dc-chev{transform:rotate(180deg)}
+  .dc-mnav-in{padding:12px 8px 14px;border-top:1px solid var(--pg-line);font:400 16px/1.5 var(--pg-sans);letter-spacing:-.006em;color:var(--sh-text)}
+  .dc-mnav-in .side-search{margin:0 0 12px}
+  .dc-mnav-in .side-search .kbd{display:none}
+  /* in the menu, the groups stay folded away apart from the component's own, until you search */
+  .dc-mnav-in .side-nav{overflow:visible;padding:0}
+  .dc-mnav-in .side-nav:not([data-set="all"]) .side-grp:not(.cur){display:none}
+  .dc-mnav-in .side-pages{margin-bottom:12px}
+  .dc-mnav-in .side-foot{margin-top:8px;padding:14px 10px 0}
+  @media (prefers-reduced-motion:reduce){.dc-chev{transition:none!important;animation:none!important}}
+  /* the menu's settings, as in the homepage's menu: Blueprint or Soft, the accent and sound, each a row with its name on the
+     left. The theme stays in the header */
+  .dc-set{margin:4px 0 0;border-top:1px solid var(--sh-line)}
+  .dc-set-r{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 12px;min-height:48px;padding:8px 4px;border-bottom:1px solid var(--sh-line)}
+  /* the header's style switch, at the size it has there (the menu's own reset takes a button's padding away) */
+  .dc-set .pg-seg button{height:24px;padding:0 10px;border-radius:999px;color:var(--pg-dim);font:500 13px/1 var(--pg-sans)}
+  .dc-set .pg-seg button[aria-checked="true"]{background:var(--pg-bg);color:var(--pg-fg)}
+  .dc-set-l{flex:none;font-size:14px;color:var(--sh-dim)}
+  /* on a narrow phone the swatches go under their name */
+  .dc-acc{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px;margin-left:auto}
+  .dc-set .dc-sw{position:relative;flex:none;width:26px;height:26px;padding:0;border:0;border-radius:50%;background:var(--sw,#d4f84a);cursor:pointer}
+  .dc-set .dc-sw[data-acc="default"]{--sw:#d4f84a}
+  :root[data-style="soft"] .dc-set .dc-sw[data-acc="default"]{--sw:#116ff8}
+  :root:not([data-style="soft"]) .dc-set .dc-sw[data-acc="#d4f84a"],:root[data-style="soft"] .dc-set .dc-sw[data-acc="#116ff8"]{display:none}
+  /* the picked swatch has a ring in the text colour, which holds 3:1 on the menu whatever the colour inside it */
+  .dc-set .dc-sw[aria-checked="true"],.dc-set .dc-sw.any.on{box-shadow:0 0 0 2px var(--pg-bg),0 0 0 4px var(--sh-text)}
+  .dc-set .dc-sw.any{background:conic-gradient(#ff4d4d,#ffb84d,#f4e04d,#4dd47a,#4dc3ff,#7a6bff,#ff4dd8,#ff4d4d)}
+  .dc-set .dc-sw.any.on{background:var(--sw)}
+  .dc-set .dc-sw.any input{position:absolute;inset:0;width:100%;height:100%;margin:0;padding:0;border:0;opacity:0;cursor:pointer}
+  .dc-set .dc-sw:focus-visible,.dc-set .dc-sw.any:has(input:focus-visible){outline:2px solid var(--pg-focus);outline-offset:4px}
+  .dc-set .dc-snd{display:grid;place-items:center;width:32px;height:32px;border-radius:999px;box-shadow:inset 0 0 0 1px var(--sh-line-2);color:var(--sh-dim)}
+  .dc-set .dc-snd[aria-pressed="true"]{color:var(--sh-text)}
+  .dc-set .dc-snd svg{width:16px;height:16px}
+  .dc-set .dc-snd .on,.dc-set .dc-snd[aria-pressed="true"] .off{display:none}
+  .dc-set .dc-snd[aria-pressed="true"] .on{display:block}
+  @media (max-width:960px){
+    .dc{display:block;padding:0 24px}
+    .side{display:none}
+    .dc-main{padding:28px 0 72px}
+    .dc-mnav{display:block}
+    /* the menu already says where you are */
+    .dc-body>.pg-crumbs{display:none}
+    .dc-body>.pg-h1{margin-top:0}
+  }
+  @media (max-width:640px){
+    .dc{padding:0 16px}
+    .dc-main{padding:24px 0 64px}
+    .dc-pn{grid-template-columns:minmax(0,1fr);gap:12px;margin-top:48px}
+    .dc-pn .n{grid-column:1}
+  }
+</style>
+<div class="dc">
+  <aside class="side" id="side" aria-label="Site and components"><SideNav doc={doc} reg={reg} /></aside>
+  <div class="dc-main">
+    <div class="dc-body">
+      <details class="dc-mnav"><summary>{where}<span aria-hidden="true">/</span><b>{title}</b><span class="dc-chev" set:html={chev} /></summary>
+        <div class="dc-mnav-in"><SideNav doc={doc} reg={reg} mode="menu">
+          <div class="dc-set">
+            <div class="dc-set-r"><span class="dc-set-l" id="dc-style-l">Style</span><div class="pg-seg" role="radiogroup" aria-labelledby="dc-style-l"><button type="button" role="radio" aria-checked="false" data-style-set="bp">Blueprint</button><button type="button" role="radio" aria-checked="false" data-style-set="soft">Soft</button><button type="button" role="radio" aria-checked="false" aria-haspopup="dialog" data-style-set="mine">Your theme</button></div></div>
+            <div class="dc-set-r"><span class="dc-set-l" id="dc-acc-l">Accent</span><div class="dc-acc" role="radiogroup" aria-labelledby="dc-acc-l">
+              {ACCENT_SW.map(([v, n]) => <button type="button" class="dc-sw" role="radio" aria-checked="false" data-acc={v} aria-label={n} title={n} style={v === 'default' ? undefined : `--sw:${v}`}></button>)}
+              <label class="dc-sw any" title="Pick any colour"><input type="color" value="#ff850d" aria-label="Pick any colour"></label>
+            </div></div>
+            <div class="dc-set-r"><span class="dc-set-l">Sound</span><button type="button" class="dc-snd" aria-pressed="false" aria-label="Turn sounds on" set:html={SOUND_IC} /></div>
+          </div>
+        </SideNav></div>
+      </details>
+      <slot />
+    </div>
+  </div>
+</div>
+<script is:inline>
+// the sidebar, as the homepage's behaves
+(function(){
+  var side = document.getElementById('side');
+  // the groups' list scrolls so the component you're on is in view, a third of the way down, when it would be out of sight
+  var nav = side && side.querySelector('.side-nav'), cur = nav && nav.querySelector('.side-a.act');
+  if (cur){ var r = cur.getBoundingClientRect(), b = nav.getBoundingClientRect(); if (r.bottom > b.bottom - 8 || r.top < b.top) nav.scrollTop += r.top - b.top - b.height / 3; }
+  // a group folds and opens on its name
+  [].slice.call(document.querySelectorAll('.side-grp > .side-h')).forEach(function(h){
+    h.addEventListener('click', function(){ var g = h.parentNode, open = g.classList.toggle('closed') === false; h.setAttribute('aria-expanded', String(open)); });
+  });
+  // search: typing filters the components in the sidebar the way it does on the homepage (by name, description or group), and
+  // Enter opens the library filtered by the same words. Esc clears it, and / jumps to it from anywhere on the page
+  [].slice.call(document.querySelectorAll('.side-search input')).forEach(function(inp){
+    var list = inp.closest('.side,.dc-mnav-in').querySelector('.side-nav'), base = list.dataset.set, empty = list.querySelector('.side-empty');
+    var apply = function(){
+      var q = inp.value.trim().toLowerCase(), shown = 0;
+      list.dataset.set = q ? 'all' : base;
+      [].slice.call(list.querySelectorAll('.side-grp')).forEach(function(g){
+        var sec = (g.dataset.s || '').toLowerCase(), n = 0;
+        [].slice.call(g.querySelectorAll('.side-a')).forEach(function(a){
+          var ok = !q || a.textContent.toLowerCase().indexOf(q) > -1 || (a.dataset.d || '').toLowerCase().indexOf(q) > -1 || sec.indexOf(q) > -1;
+          a.classList.toggle('hide', !ok); if (ok) n++;
+        });
+        g.style.display = n ? '' : 'none';
+        if (q && n){ g.classList.remove('closed'); g.querySelector('.side-h').setAttribute('aria-expanded', 'true'); }
+        shown += n;
+      });
+      [].slice.call(list.querySelectorAll('.side-lbl')).forEach(function(l){ l.style.display = q && !list.querySelector('.side-grp[data-grp="' + l.dataset.grp + '"]:not([style*="none"])') ? 'none' : ''; });
+      empty.classList.toggle('show', !!q && !shown);
+    };
+    inp.addEventListener('input', apply);
+    // in the menu, Esc in an empty field goes on to shut the menu; with words in it, it clears them first
+    var inMenu = !!inp.closest('.dc-mnav');
+    inp.addEventListener('keydown', function(e){
+      if (e.key === 'Escape'){ if (inMenu && !inp.value) return; e.stopPropagation(); inp.value = ''; apply(); if (!inMenu) inp.blur(); }
+      else if (e.key === 'Enter' && inp.value.trim()){ e.preventDefault(); location.href = '/?q=' + encodeURIComponent(inp.value.trim()); }
+      else if (e.key === 'ArrowDown' && inp.value.trim()){ var r = found(); if (r.length){ e.preventDefault(); r[0].focus(); } }
+    });
+    // while there is a search, Down moves from the field to the components it found, Up and Down, Home and End move through
+    // them, Enter opens one, and Up from the first or Esc goes back to the field
+    var found = function(){ return [].slice.call(list.querySelectorAll('.side-a')).filter(function(a){ return !a.classList.contains('hide') && a.getClientRects().length; }); };
+    list.addEventListener('keydown', function(e){
+      if (!inp.value.trim()) return;
+      var r = found(), i = r.indexOf(document.activeElement); if (i < 0) return;
+      if (e.key === 'Escape'){ e.preventDefault(); e.stopPropagation(); inp.focus(); return; }
+      var k = e.key === 'ArrowDown' ? Math.min(i + 1, r.length - 1) : e.key === 'ArrowUp' ? i - 1 : e.key === 'Home' ? 0 : e.key === 'End' ? r.length - 1 : null;
+      if (k === null) return; e.preventDefault();
+      if (k < 0) inp.focus(); else r[k].focus();
+    });
+  });
+  // the menu above the page on smaller screens: Esc shuts it and gives the focus back to its toggle
+  [].slice.call(document.querySelectorAll('.dc-mnav')).forEach(function(d){
+    var sum = d.querySelector('summary');
+    d.addEventListener('keydown', function(e){ if (e.key !== 'Escape' || !d.open) return; e.preventDefault(); d.open = false; sum.focus(); });
+  });
+  document.addEventListener('keydown', function(e){
+    if (e.key !== '/' || e.metaKey || e.ctrlKey || e.altKey || e.target.closest('input,textarea,select,[contenteditable="true"]')) return;
+    var i = document.getElementById('side-q'); if (!i || !i.offsetParent) return;
+    e.preventDefault(); i.focus();
+  });
+  // Book a call: its fill grows from where the pointer comes in, and shrinks back to where it leaves
+  [].slice.call(document.querySelectorAll('.hire-btn')).forEach(function(hb){
+    var at = function(e){ var r = hb.getBoundingClientRect(); hb.style.setProperty('--x', (e.clientX - r.left) + 'px'); hb.style.setProperty('--y', (e.clientY - r.top) + 'px'); };
+    hb.addEventListener('pointerenter', at); hb.addEventListener('pointerleave', at);
+  });
+})();
+</script>

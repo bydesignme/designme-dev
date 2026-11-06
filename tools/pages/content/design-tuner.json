@@ -1,0 +1,36 @@
+{
+  "summary": "Design tuner puts a live preview next to a few sliders, such as radius, padding, spacing and shadow, so a person can tweak a component by hand. A button hands the same sliders to the agent, which can move them while people watch and then explain what it changed.",
+  "use": [
+    "When people and the agent should share control over a component's look.",
+    "When you want the agent's styling choices to be visible as slider moves, not hidden in code.",
+    "When designers want to fine-tune spacing or radius after the agent has made a first pass.",
+    "When you need a short note from the agent about why it picked the new values."
+  ],
+  "features": [
+    "Each entry in `params` becomes a slider with a label, a range, a unit like px, and optional `decimals` for fine values.",
+    "Every value is set on the preview as a CSS variable named `--dm-<key>`, so your styles can read it.",
+    "`preview` lets you render your own component. It receives the values and a style object with those variables. Without it, a sample pricing card is shown.",
+    "`active` highlights the slider the agent is moving, and `status` shows a short line like \"Agent is tuning\".",
+    "The tune button calls `onTune`. While `tuning` is true it shows a thinking animation and ignores clicks.",
+    "`note` shows the agent's explanation above the button, and `actionLabel` lets you change it to something like \"Tune again\"."
+  ],
+  "a11y": [
+    "Each slider has `role=\"slider\"`, is focusable, and sets `aria-label`, `aria-valuemin`, `aria-valuemax`, `aria-valuenow` and `aria-valuetext`.",
+    "Arrow keys move a slider by one step, or by the smallest decimal when `decimals` is set.",
+    "The tune button sets `aria-busy` while the agent is tuning."
+  ],
+  "faq": [
+    {
+      "q": "How do I let the agent move the sliders?",
+      "a": "Control `values` and update them from your agent as it works. Set `tuning` and `active` while it runs so people can see which slider it is on."
+    },
+    {
+      "q": "How do I tune my own component instead of the sample card?",
+      "a": "Pass `preview`, a function that gets the values and a style object. Spread the style onto your element and read the `--dm-<key>` variables in its CSS."
+    },
+    {
+      "q": "Can a slider hold decimal values?",
+      "a": "Yes. Set `decimals` on the param, for example 2 for a shadow strength. The value is shown and set with that many decimals instead of being rounded."
+    }
+  ]
+}

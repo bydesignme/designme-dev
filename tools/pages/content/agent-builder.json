@@ -1,0 +1,45 @@
+{
+  "summary": "A builder for a new agent that starts from one sentence. Type what the agent should do and press Draft: the agent fills in every section in turn (its name and purpose, its avatar's colour and shape, its instructions, the model and effort, what it may do in each tool, what it knows, and what starts it) and marks each one Drafted until someone changes it. The avatar is Dotto, a dot-matrix face on a dark screen in a bezel of the agent's colour, and it shows wherever the agent does. Beside the form, a test chat sends it a sample and shows what it would do. A bar at the foot saves it and publishes it, and it goes Live.",
+  "use": [
+    "To set up an agent without filling in a long form from scratch.",
+    "When each tool needs its own permission: read only, ask first, or act on its own.",
+    "When people should try the agent on a sample before it goes live."
+  ],
+  "features": [
+    "A one-line description and Draft; once drafted the button says Draft again and steps back to an outline.",
+    "While drafting, the section in hand shimmers and the ones after it wait, faded.",
+    "A Drafted tag in the accent's tint on every section the agent filled, until that section is changed.",
+    "Identity: the avatar, a colour picker (the accent, blue, violet, orange and green; a colour the accent already is shows once) and a shape picker (squircle or circle), then a name and a purpose. The avatar starts in the accent, as a squircle. Instructions, Model and effort, Tools with Read, Ask or Act each, Knowledge as tags, and Trigger (Chat, Schedule or Event, with a line saying when) follow.",
+    "The avatar also sits beside the test chat's title, on each of the agent's replies and beside Live once it is published, and a new colour or shape reaches all of them at once. While the agent reads the test sample it thinks (its eyes move cell by cell over a loading row); otherwise it idles, blinking a row of dots.",
+    "A name is required: without one the field is marked, a line says so, and Save and Publish are disabled.",
+    "A save bar with the state in words (Not saved, Drafted not saved, Unsaved changes, Saved, Live with the avatar), Test, Save and Publish, the one primary button. On a phone the state takes its own line over the buttons.",
+    "The test chat shows the sample, the agent reading it, then its tags and reply.",
+    "Two panes side by side on a wide card; on a narrow one the test chat goes under the form."
+  ],
+  "a11y": [
+    "Every field has a label; the description field's label is a real label element.",
+    "The name field has aria-invalid and aria-describedby pointing at the line that says what is missing.",
+    "Effort, each tool's permission and the trigger are segmented switches: groups of buttons with aria-pressed and a label naming the tool.",
+    "The colour and shape pickers are radio groups with a label each: the arrow keys move and pick, Home and End go to the first and last, and only the picked option is in the tab order. Every option is named (Accent, Violet, Squircle, Circle) and has a tooltip.",
+    "The avatar beside the name is an image labelled with its colour and shape; the other avatars are decorative, next to the agent's name or Live. With reduced motion it holds still, in a pose that still shows idle or thinking.",
+    "The test chat is a polite live region, so the agent's reply is read out."
+  ],
+  "faq": [
+    {
+      "q": "Does it draft the fields itself?",
+      "a": "No. `onDraft` is yours: ask your model for the fields, then set `drafting` to the section in hand and update `value` and `drafted` as each one arrives."
+    },
+    {
+      "q": "How do I know which section someone changed?",
+      "a": "`onChange` gets the new value and the section it came from (`id`, `ins`, `model`, `tools`, `know` or `trig`), so you can drop that section from `drafted`."
+    },
+    {
+      "q": "What do Read, Ask and Act mean?",
+      "a": "They are the permission the agent has in that tool: Read only looks, Ask asks a person before changing anything, and Act may change things on its own. The component shows the choice; enforcing it is up to your agent."
+    },
+    {
+      "q": "Can I use the avatar on its own?",
+      "a": "In React, yes: `AgentMascot` comes from the same file as `AgentBuilder`, with `color` (any CSS colour, the accent if left out), `shape` (`squircle` or `circle`), `state` (`idle` or `thinking`), `size` in px and an optional `label`. In `AgentDraft`, `color` names one of the builder's `colors` and `shape` may be left out for the style's own. In the HTML and Astro versions the builder's script draws it."
+    }
+  ]
+}

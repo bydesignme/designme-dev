@@ -1,0 +1,54 @@
+{
+  "summary": "Kanban board is a sprint board with columns such as To do, In progress and Done, where people and an agent move cards. Each card shows its key, priority, title, labels, due date, subtasks, comments, files and people, and the card an agent is working on says what it is doing as its bar fills. A header filters the board by person, label, priority or a search, switches between the board and a list, and each card opens a details sheet with a checklist you can tick.",
+  "use": [
+    "When an agent picks up tasks from a shared backlog and the team should watch it progress",
+    "When people and the agent work from one board and either can move a card",
+    "When a team needs a dense board: priorities, due dates, subtasks and owners at a glance",
+    "When work in progress should stay under a limit, with a warning once a column holds too much",
+    "When a board has to work from the keyboard as well as with drag and drop"
+  ],
+  "features": [
+    "Each card shows its key (like DES-142), a priority mark (three bars, or a red mark for Urgent), its people as initials avatars, the title, grey labels, the due date (\"Today\", \"Tomorrow\" or a date, in the bad text colour once it is past), subtasks done with a thin bar that turns green when they all are, and comment and file counts. Hover the marks and counts for what they mean.",
+    "A card with `progress` is the agent's: it gets an accent edge, the thinking dots, what it is doing now (`activity`, or its first open subtask) with a percentage, and a bar that fills.",
+    "Drag a card to another column or to a new place in its own column: a floating copy follows the pointer, a placeholder shows where it will land and the column under it highlights. `onMove` reports the card, its column and its place there.",
+    "Click a card to open its details sheet over the right of the board: status, priority and people (each opens its menu), the due date, labels, the agent's progress, a checklist you can tick (it updates the card), and its comments and files. Arrow keys move the sheet from card to card.",
+    "Click a card's priority mark or its avatars to change them in a menu, or its dots to move it to another column. Each change calls `onChange` with the card.",
+    "Shift-click, Cmd-click or Ctrl-click cards to pick several (Shift-click picks a range within a column); a bar over the foot of the board moves them all to a column at once, and Escape or its × clears the pick.",
+    "Filter chips for assignee, label and priority each open a menu of values with how many cards have each; pick several. The facepile in the header filters by person too, and a search matches titles and keys. Column counts read \"2 of 4\" while filtering, and when nothing matches the board says so with a Clear filters button.",
+    "A column with a `limit` shows how full it is (\"2/3\"), and a warning chip once it holds more. Each column header can fold the column to a narrow strip (press it to open it again), add a card, and open a menu to select all, sort by priority or due date, or fold it.",
+    "The view switch shows the same cards as a list, grouped by column, one row each; the list keeps the board's height. Cards still drag, open and pick in the list.",
+    "The + buttons add a card at the end of a column with its title ready to type, and a double-click on any title (or F2) renames it; Enter saves, Escape cancels, and `onRename` reports it.",
+    "Under 640px wide, on a phone or in a narrow card, the header stacks, the board shows one column at a time picked with tabs that count each column's cards, and the details sheet covers the board.",
+    "Filters, view, folded columns, picked cards, the open card and the narrow board's column can each be controlled (`filters`, `view`, `collapsed`, `selected`, `open`, `column`) or left to the board."
+  ],
+  "a11y": [
+    "Cards are list items with a label that reads their key, title, priority, people, due date, whether the agent is on it and whether they are picked. One card at a time is in the Tab order.",
+    "From the keyboard, the arrow keys move between cards (up and down in a column, left and right across columns), Home and End go to a column's ends, Enter opens the details sheet, Space or x picks a card, Shift with an arrow picks as it moves, m opens Move to, p the priority, a the people, F2 renames, and Escape closes the sheet or clears the pick.",
+    "Menus are `menu`s with `menuitemradio` (Move to, priority) or `menuitemcheckbox` (people, filters) items; they open on their checked item, the arrows move through them and wrap, and picking from the keyboard puts the focus back on the card or the sheet's field.",
+    "The facepile is a group of toggle buttons with `aria-pressed`, the view switch and the narrow board's tabs are groups with `aria-pressed` on the one shown, and the checklist items are `checkbox`es.",
+    "The details sheet is a labelled `dialog`; opened with Enter it takes the focus on its close button, and Escape returns it to the card.",
+    "Moves, picks, filters and folds are announced in a polite live region, as is a column going over its limit. The floating copy shown while dragging is `aria-hidden`."
+  ],
+  "faq": [
+    {
+      "q": "How do I show the agent working through its cards?",
+      "a": "Control the board with `cards`, mark the agent with `agent: true` in `members`, and raise its card's `progress` toward 1 as it works, with `activity` saying what it is doing (or tick its `subtasks` and the first open one is shown). When it finishes, move the card to your done column and clear `progress`, as the example does."
+    },
+    {
+      "q": "How do I stop the agent from moving cards while someone is dragging?",
+      "a": "Use `onDraggingChange`. It is called with true when a card starts moving with the pointer and false when it lands, so you can pause your updates in between."
+    },
+    {
+      "q": "Can cards be moved without dragging?",
+      "a": "Yes. Each card's dots open a Move to menu (m from the keyboard), the details sheet's Status opens the same menu, and picked cards move together from the bar at the foot of the board. Every move calls `onMove`."
+    },
+    {
+      "q": "How do due dates and the WIP limit work?",
+      "a": "Give a card `due` as 'YYYY-MM-DD'; it reads as overdue once it is before `today` (the visitor's today by default), except in a column marked `done`. Give a column a `limit` and its header shows how full it is, with a warning chip once it is over."
+    },
+    {
+      "q": "What does a new card look like?",
+      "a": "By default it is titled \"New card\" with no priority. Pass `newCard(column)` to return your own card, such as one with your key and already assigned to the current user."
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+/* ---------- Multi-select ---------- */
+/* a combobox that keeps what you pick as chips: typing filters the list, the arrows move through it, Enter picks or
+   unpicks, Escape closes it, and Backspace in an empty box takes the last chip off */
+.msc{position:relative;width:100%;max-width:320px;margin:0 auto;display:flex;flex-direction:column;gap:6px}
+.msc-top{display:flex;align-items:center;justify-content:space-between;gap:var(--dm-s-2);min-height:22px}
+.msc-l{font-size:12.5px;font-weight:500}
+.msc-clr{height:22px;padding:0 6px;margin-right:-6px;border-radius:calc(6px * var(--dm-rk));font-size:12px;color:var(--dm-muted);transition:color .2s,background .2s}
+@media (hover:hover) and (pointer:fine){.msc-clr:hover{color:var(--dm-fg);background:var(--dm-row)}}
+.msc-f{position:relative;display:flex;flex-wrap:wrap;align-items:center;gap:6px;min-height:var(--dm-field-h);padding:6px;border-radius:var(--dm-r-field);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line) 50%,transparent);cursor:text;transition:box-shadow var(--dm-t-fast)}
+@supports (corner-shape:squircle){.msc-f{corner-shape:squircle;border-radius:var(--dm-r-field-sq)}}
+/* the edge steps up while its search box has the focus; a tag's remove button rings on its own, never inside the field */
+.msc-f:has(.msc-q:focus){box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line-strong) 50%,transparent)}
+.msc-q{flex:1;min-width:80px;height:26px;border:0;outline:0;background:transparent;padding:0 6px;font:inherit;font-size:13.5px;color:var(--dm-fg)}
+.msc-q::placeholder{color:var(--dm-muted)}
+.msc-c{display:inline-flex;align-items:center;gap:2px;height:26px;padding:0 3px 0 var(--dm-s-2);border-radius:var(--dm-r-tag);background:var(--dm-chip);font-size:12.5px;white-space:nowrap}
+@supports (corner-shape:squircle){.msc-c{corner-shape:squircle;border-radius:var(--dm-r-tag-sq)}}
+.msc-c button{width:20px;height:20px;border-radius:50%;display:grid;place-items:center;color:var(--dm-muted);transition:background .2s,color .2s}
+@media (hover:hover) and (pointer:fine){.msc-c button:hover{background:var(--dm-wash);color:var(--dm-fg)}}
+.msc-c.go{animation:mscout .22s var(--dm-ease) forwards}
+@keyframes mscout{to{opacity:0;transform:scale(.85)}}
+/* the key just pressed, while the preview plays */
+.msc-key{position:absolute;right:8px;top:50%;transform:translateY(-50%);opacity:0;transition:opacity .2s}
+.msc-key.on{opacity:1}
+.msc-pop{position:absolute;top:76px;left:0;right:0;z-index:5;padding:6px;border-radius:calc(14px * var(--dm-rk));background:var(--dm-raised);box-shadow:var(--dm-shadow-pop);opacity:0;visibility:hidden;transform:translateY(-4px) scale(.98);transform-origin:top;filter:blur(3px);pointer-events:none;transition:opacity .2s,transform .35s var(--dm-ease),filter .2s,top var(--dm-t) var(--dm-ease),visibility 0s .2s}
+.msc-pop.open{opacity:1;visibility:visible;transform:none;filter:none;pointer-events:auto;transition-property:opacity,transform,filter,top}
+.msc-list{max-height:210px;overflow-y:auto;display:flex;flex-direction:column;gap:2px}
+.msc-o{display:flex;align-items:center;gap:10px;min-height:34px;padding:6px var(--dm-s-2);border-radius:calc(9px * var(--dm-rk));font-size:13px;cursor:pointer;flex:none}
+.msc-o.hl{background:var(--dm-row)}
+.msc-o .bx{width:16px;height:16px;border-radius:5px;box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--dm-muted) 80%,var(--dm-surface));display:grid;place-items:center;color:transparent;flex:none;transition:background .2s,box-shadow .2s,color .2s}
+.msc-o[aria-selected="true"] .bx{background:var(--dm-accent);box-shadow:inset 0 0 0 1px var(--dm-accent-mark,var(--dm-accent));color:var(--dm-on-accent)}
+.msc-o .n{margin-left:auto;font-size:12px;color:var(--dm-muted)}
+.msc-none{padding:var(--dm-s-2);font-size:12.5px;color:var(--dm-muted)}
+.msc-h{font-size:12px}
+/* the open list covers the hint under the box, so the hint steps aside instead of peeking out above the list */
+.msc:has(.msc-pop.open) .msc-h{visibility:hidden}

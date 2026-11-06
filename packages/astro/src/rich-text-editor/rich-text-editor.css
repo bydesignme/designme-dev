@@ -1,0 +1,91 @@
+/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+/* ---------- Rich text editor ---------- */
+/* a minimal editor for a draft an agent helps with: a formatting toolbar, the text, and a quiet foot with the word count and
+   undo. Select text and press Ask AI (or the shortcut, or type / on a new line), and the suggestion streams in beside the
+   text, the old words struck through, to accept with Tab or discard with Esc. The editor keeps one height, so it sits still */
+.rte{position:relative;width:100%;display:flex;flex-direction:column;background:var(--dm-surface);border-radius:var(--dm-r-card);box-shadow:var(--dm-shadow);transition:box-shadow .32s;container:rte/inline-size;
+  /* its quiet text (--dm-rte-q: the word count, the placeholder, struck words) and secondary text (--dm-rte-q2: the status, Discard,
+     quotes). In dark mode the shared greys reach 4.5:1 but not APCA Lc 60 at these sizes, so they come up toward the text colour */
+  --dm-rte-q:var(--dm-muted);--dm-rte-q2:var(--dm-fg2)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .rte{--dm-rte-q:color-mix(in srgb,var(--dm-fg) 74%,var(--dm-surface));--dm-rte-q2:color-mix(in srgb,var(--dm-fg) 80%,var(--dm-surface))}}
+:root[data-theme="dark"] .rte{--dm-rte-q:color-mix(in srgb,var(--dm-fg) 74%,var(--dm-surface));--dm-rte-q2:color-mix(in srgb,var(--dm-fg) 80%,var(--dm-surface))}
+.rte-tb{display:flex;align-items:center;gap:2px;min-width:0;padding:7px var(--dm-s-2);box-shadow:inset 0 -1px 0 color-mix(in srgb,var(--dm-line) 50%,transparent)}
+.rte-b{width:30px;height:30px;flex:none;display:grid;place-items:center;border-radius:var(--dm-r-sm);color:var(--dm-fg2);transition:background var(--dm-t-fast),color var(--dm-t-fast)}
+@media (hover:hover) and (pointer:fine){.rte-b:hover{background:var(--dm-row);color:var(--dm-fg)}}
+/* a format the selection has: the accent's tint, with the icon in the accent's text colour */
+.rte-b:is([aria-pressed="true"],.on){background:var(--dm-accent-bg);color:var(--dm-accent-fg)}
+.rte-b:disabled,.rte-ai:disabled{opacity:1;cursor:not-allowed;background:none;color:var(--dm-dis)}
+.rte-sep{width:1px;height:16px;margin:0 5px;flex:none;background:var(--dm-line)}
+.rte-ai{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 11px 0 9px;flex:none;border-radius:var(--dm-r-pill);font-size:13px;color:var(--dm-fg);transition:background var(--dm-t-fast),color var(--dm-t-fast)}
+.rte-ai .i{color:var(--dm-accent-fg)}
+.rte-ai[aria-expanded="true"]{background:var(--dm-row)}
+@media (hover:hover) and (pointer:fine){.rte-ai:hover{background:var(--dm-row)}}
+.rte-ai:disabled .i{color:inherit}
+/* the text: one quiet size, a heading set apart by weight and room rather than size, and nothing heavier than medium */
+.rte-body{position:relative;height:256px;overflow-y:auto;padding:var(--dm-s-4) 18px;outline:0;font-size:14px;line-height:1.65;color:var(--dm-fg);white-space:pre-wrap;overflow-wrap:break-word;caret-color:var(--dm-accent-fg);cursor:text}
+.rte-body>*{margin:0;padding:0}
+.rte-body>*+*{margin-top:6px}
+.rte-body>*+h2{margin-top:14px}
+.rte-body h2{font-size:14px;font-weight:500;line-height:1.5;color:var(--dm-fg)}
+.rte-body :is(b,strong){font-weight:500}
+.rte-body i{font-style:italic}
+.rte-body a{color:var(--dm-accent-fg);text-decoration:underline;text-decoration-color:var(--dm-accent-mark);text-underline-offset:2px;cursor:text}
+.rte-body code{font-family:var(--dm-mono);font-size:12.5px;padding:1px var(--dm-s-1);border-radius:5px;background:var(--dm-chip);color:var(--dm-fg)}
+.rte-body :is(ul,ol){padding-left:22px}
+.rte-body ul{list-style:disc}
+.rte-body ol{list-style:decimal}
+.rte-body li{padding-left:2px}
+.rte-body li+li{margin-top:2px}
+.rte-body li::marker{color:var(--dm-rte-q2)}
+.rte-body blockquote{padding-left:14px;box-shadow:inset 2px 0 0 var(--dm-rte-q);color:var(--dm-rte-q2)}
+/* quote lines one after another read as one quote */
+.rte-body blockquote+blockquote{margin-top:0;padding-top:6px}
+.rte-body.empty::before{content:attr(data-placeholder);position:absolute;left:18px;right:18px;top:16px;color:var(--dm-rte-q);pointer-events:none}
+/* the suggestion: the words it replaces struck through, the new ones in the accent's tint as they arrive */
+.rte-old{color:var(--dm-rte-q);text-decoration:line-through;text-decoration-color:var(--dm-rte-q)}
+.rte-new{color:var(--dm-accent-fg);background:var(--dm-sel);border-radius:3px}
+.rte-old+.rte-new{margin-left:.3em}
+.rte-new .w{animation:rtew .4s var(--dm-ease) both}
+@keyframes rtew{from{opacity:0;filter:blur(3px)}to{opacity:1;filter:none}}
+/* the text a menu or the link field is for stays marked while the focus is in them */
+::highlight(rte-pick){background-color:color-mix(in srgb,var(--dm-accent-mark) 24%,transparent)}
+.rte-ft{display:grid;align-items:center;min-height:46px;padding:6px var(--dm-s-2) 6px 18px;box-shadow:inset 0 1px 0 color-mix(in srgb,var(--dm-line) 50%,transparent)}
+.rte-idle,.rte-rev{grid-area:1/1;display:flex;align-items:center;gap:var(--dm-s-2);min-width:0;transition:opacity .25s var(--dm-ease),transform .35s var(--dm-ease),visibility 0s}
+.rte-rev,.rte[data-st="review"] .rte-idle{opacity:0;visibility:hidden;pointer-events:none;transition:opacity .25s var(--dm-ease),transform .35s var(--dm-ease),visibility 0s .35s}
+.rte-rev{transform:translateY(4px)}
+.rte[data-st="review"] .rte-idle{transform:translateY(-4px)}
+.rte[data-st="review"] .rte-rev{opacity:1;visibility:visible;pointer-events:auto;transform:none;transition-delay:0s}
+.rte-wc,.rte-hint{font-size:12px;color:var(--dm-rte-q);white-space:nowrap}
+.rte-hint{min-width:0;overflow:hidden;text-overflow:ellipsis}
+.rte-hint::before{content:"·";margin-right:var(--dm-s-2)}
+.rte-idle .ib{width:28px;height:28px;flex:none}
+.rte-idle .ib:disabled{opacity:1;cursor:not-allowed;background:none;color:var(--dm-dis)}
+.rte-st{display:flex;align-items:center;gap:7px;flex:0 1 auto;min-width:0;font-size:13px;color:var(--dm-rte-q2);white-space:nowrap}
+.rte-st>span:last-child{min-width:0;overflow:hidden;text-overflow:ellipsis}
+.rte-st .i{color:var(--dm-accent-fg)}
+.rte-rev .pill{flex:none}
+.rte-rev .pill.ghost,.rte-rev .kbd,.rte-menu .ph{color:var(--dm-rte-q2)}
+@media (hover:hover) and (pointer:fine){.rte-rev .pill.ghost:hover{color:var(--dm-fg)}}
+.rte-menu{width:228px}
+.rte-menu .mi[aria-disabled="true"],.rte-menu .mi[aria-disabled="true"] .i{opacity:1;cursor:not-allowed;background:none;color:var(--dm-dis)}
+.rte-menu .mi:focus-visible{outline-offset:-2px;background:var(--dm-row)}
+.rte-lnk{display:flex;align-items:center;gap:6px;width:304px;max-width:calc(100% - 12px);min-width:0;padding:6px}
+.rte-url{flex:1;min-width:0;height:32px;padding:0 10px;border:0;border-radius:var(--dm-r-field);outline:0;background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line) 50%,transparent);color:var(--dm-fg);font-size:13px}
+@supports (corner-shape:squircle){.rte-url{corner-shape:squircle;border-radius:var(--dm-r-field-sq)}}
+.rte-url::placeholder{color:var(--dm-rte-q)}
+.rte-url:focus{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line-strong) 50%,transparent)}
+.rte-url[aria-invalid="true"]{box-shadow:inset 0 0 0 1px var(--dm-bad)}
+.rte-lnk .pill{flex:none}
+.rte-lnk .ib{width:30px;height:30px;flex:none}
+/* the small Ask AI button over a selection, for the mouse; the keyboard has the toolbar's button and its shortcut */
+.rte-ask{position:absolute;left:0;top:0;z-index:6;display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 11px 0 9px;border-radius:var(--dm-r-pill);background:var(--dm-raised);box-shadow:var(--dm-shadow-pop);font-size:12.5px;color:var(--dm-fg);white-space:nowrap;opacity:0;visibility:hidden;transform:translateY(4px);transition:opacity .18s var(--dm-ease),transform .3s var(--dm-ease),visibility 0s .3s}
+.rte-ask .i{color:var(--dm-accent-fg)}
+@media (hover:hover) and (pointer:fine){.rte-ask:hover{background:color-mix(in srgb,var(--dm-fg) 4%,var(--dm-raised))}}
+.rte-ask.show{opacity:1;visibility:visible;transform:none;transition-delay:0s}
+.rte-live{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+@container rte (max-width:520px){.rte-hint{display:none}}
+@container rte (max-width:400px){.rte-ai{width:30px;padding:0;justify-content:center}.rte-ai span{display:none}.rte-sep{margin:0 2px}.rte-body{padding:14px}.rte-body.empty::before{left:14px;right:14px;top:14px}.rte-ft{padding-left:14px}.rte-rev .kbd{display:none}}
+@container rte (max-width:330px){.rte-tb{gap:0;padding:7px var(--dm-s-1)}.rte-b{width:28px}}
+:root:not([data-style="soft"]) .rte-b:is([aria-pressed="true"],.on):not(:where([data-style="soft"],[data-style="soft"] *)){box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-accent-mark) 50%,transparent)}
+/* Blueprint's lime tint is faint on white, so the suggestion also gets a hairline of the accent's mark under it */
+:root:not([data-style="soft"]) .rte-new:not(:where([data-style="soft"],[data-style="soft"] *)){background:var(--dm-accent-bg);box-shadow:inset 0 -1px 0 var(--dm-accent-mark)}

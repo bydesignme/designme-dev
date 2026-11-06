@@ -1,0 +1,37 @@
+{
+  "summary": "Thinking is the live trace an agent writes while it works: the steps it takes, one under another on a line that turns green as each finishes, each with what it found. A step that runs into a problem shows it in amber while it waits and tries again. When the work is done, the header says what it came to and the trace folds away, one click from opening again.",
+  "use": [
+    "When an agent works for more than a few seconds and people want to see what it is doing rather than a spinner.",
+    "When each step has a result worth reading, like how many frames it opened or which cards failed a check.",
+    "When a step can hit a timeout or a rate limit and the agent waits it out instead of failing.",
+    "When the trace should step aside once the answer is ready but stay one click away."
+  ],
+  "features": [
+    "Each step has a `label`, a `state`, an optional `result` and an optional `time`. A running step turns in the accent with a soft halo and its label shimmers, `retry` shows a clock in amber while the step waits on a problem, and `done` turns into a check.",
+    "The line from each step down to the next turns green, top to bottom, once the step above it is done, so the trace fills in as the work gets through it.",
+    "While a step waits or retries its `result` crossfades in place, so a countdown like \"Trying again in 2s\" updates where it is. Once the step is done, what it found writes itself in a word at a time, and its `time`, like \"1.3s\", shows at its right. `resultTip` adds more detail on hover.",
+    "The header shows `title` while it runs, like \"Checking the pricing page\", beside four dots turning in the accent, and a clock that counts by itself unless you pass `seconds`.",
+    "When `running` turns false, the header becomes `summary`, like \"3 cards to fix, 2 changes planned\", with a check. With `collapseWhenDone` on, the default, the trace folds away a moment later.",
+    "The header toggles the trace open and shut, and `open`, `defaultOpen` and `onOpenChange` let you control it."
+  ],
+  "a11y": [
+    "The header is a button with `aria-expanded`, so screen readers hear whether the trace is open.",
+    "The list of steps is an `aria-live=\"polite\"` region, so new steps and their results are announced as they arrive.",
+    "The line between the steps is decoration: each step's state is in its mark and its words.",
+    "With `prefers-reduced-motion: reduce`, the spinner, halo, shimmer, the line's growth and the words' entrance stop and changes appear at once."
+  ],
+  "faq": [
+    {
+      "q": "How do I show a step that is waiting out a problem?",
+      "a": "Set its `state` to `'retry'` and put what it waits on in `result`, like \"Figma didn't answer. Trying again in 2s\". Update the result each second for a countdown, then set the state back to `'running'` and finally `'done'` with what it found."
+    },
+    {
+      "q": "What does the header say when the work is done?",
+      "a": "Whatever you pass as `summary`, which should say what the work came to. Without it, the header says how many steps there were."
+    },
+    {
+      "q": "Can I keep the trace open after it finishes?",
+      "a": "Yes. Set `collapseWhenDone` to false, or control it with `open` and `onOpenChange`."
+    }
+  ]
+}

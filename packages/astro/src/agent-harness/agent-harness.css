@@ -1,0 +1,175 @@
+/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+/* ---------- Agent harness ---------- */
+/* a whole agent app in one card: chats down the side, tabs across the top, a New chat home with suggestions, and the
+   conversations themselves, told with the components above */
+.card.wide .stage-in:has(>.ahx){max-width:960px}
+.ahx{display:flex;height:620px;overflow:hidden;container:ahx/inline-size;text-align:left;position:relative}
+.ahx-side{flex:none;width:236px;display:flex;flex-direction:column;gap:2px;padding:10px;background:color-mix(in srgb,var(--dm-surface) 50%,var(--dm-page));border-right:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);transition:margin-left var(--dm-t) var(--dm-ease),transform var(--dm-t) var(--dm-ease),box-shadow var(--dm-t) var(--dm-ease)}
+.ahx.ns .ahx-side{margin-left:-236px}
+.ahx-ws{display:flex;align-items:center;gap:2px;margin-bottom:6px}
+.ahx-wsb{flex:1;min-width:0;display:flex;align-items:center;gap:9px;height:34px;padding:0 var(--dm-s-2) 0 7px;border-radius:calc(10px * var(--dm-rk));font-size:13.5px;font-weight:500;color:var(--dm-fg);transition:background var(--dm-t-fast)}
+.ahx-wsb[aria-expanded="true"]{background:var(--dm-row)}
+@media (hover:hover) and (pointer:fine){.ahx-wsb:hover{background:var(--dm-row)}}
+.ahx-wsb .t{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ahx-wsb>.i{color:var(--dm-muted);transition:transform var(--dm-t) var(--dm-ease)}
+.ahx-wsb[aria-expanded="true"]>.i{transform:rotate(180deg)}
+.ahx-lg{width:20px;height:20px;border-radius:calc(6px * var(--dm-rk));display:grid;place-items:center;flex:none;background:var(--dm-ink);color:var(--dm-on-ink);font-size:11px;font-weight:500;transition:background var(--dm-t) var(--dm-ease)}
+.ahx-ws .ib,.ahx-top>.ib,.ahx-lh .ib{width:28px;height:28px;color:var(--dm-muted)}
+@media (hover:hover) and (pointer:fine){.ahx-ws .ib:hover,.ahx-top>.ib:hover,.ahx-lh .ib:hover{color:var(--dm-fg)}}
+.ahx-wsp{width:212px}
+.ahx-wsp .ahx-lg{width:18px;height:18px;font-size:10px}
+.ahx-nav,.ahx-cv{display:flex;align-items:center;gap:9px;width:100%;min-height:32px;padding:0 9px;border-radius:calc(9px * var(--dm-rk));font-size:13px;text-align:left;color:var(--dm-fg2);transition:background var(--dm-t-fast),box-shadow var(--dm-t-fast),color var(--dm-t-fast)}
+.ahx-nav{color:var(--dm-fg);font-weight:500}
+.ahx-nav .i{color:var(--dm-fg2)}
+@media (hover:hover) and (pointer:fine){.ahx-nav:hover,.ahx-cv:hover{background:var(--dm-row);color:var(--dm-fg)}}
+.ahx-cv[aria-current="true"]{background:var(--dm-surface);color:var(--dm-fg);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-rail) 50%,transparent),0 1px 2px rgba(0,0,0,.04)}
+.ahx-cv .t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* the chats fill the scrolling list, and a tab clips its own button: their rings are drawn inside */
+.ahx-cv:focus-visible,.ahx-tb:focus-visible{outline-offset:-2px}
+.ahx-lh{display:flex;align-items:center;justify-content:space-between;padding:var(--dm-s-3) 1px 2px 9px;font-size:11.5px;color:var(--dm-muted)}
+.ahx-lh .ib{width:24px;height:24px}
+.ahx-si{display:block;width:100%;height:32px;margin:var(--dm-s-1) 0 6px;padding:0 10px;border:0;border-radius:var(--dm-r-field);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line) 50%,transparent);font-size:13px;outline:0;transition:box-shadow var(--dm-t-fast)}
+@supports (corner-shape:squircle){.ahx-si{corner-shape:squircle;border-radius:var(--dm-r-field-sq)}}
+.ahx-si:focus{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line-strong) 50%,transparent)}
+.ahx-si::placeholder{color:var(--dm-muted)}
+.ahx-si::-webkit-search-cancel-button{display:none}
+.ahx-list{flex:1;min-height:0;display:flex;flex-direction:column;gap:2px;overflow-y:auto;scrollbar-width:none}
+.ahx-none{margin:0;padding:6px 9px;font-size:12.5px;color:var(--dm-muted)}
+.ahx-mk{display:grid;place-items:center;width:10px;flex:none}
+.ahx-mk:empty{display:none}
+.ahx-mk .spin{width:10px;height:10px;color:var(--dm-muted)}
+.ahx-main{flex:1;min-width:0;display:flex;flex-direction:column;position:relative;container:ahm/inline-size}
+/* the tabs: a chat opens or comes to the front, × closes it, + opens New chat */
+.ahx-top{flex:none;display:flex;align-items:center;gap:var(--dm-s-1);height:46px;padding:0 10px 0 var(--dm-s-2);border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
+.ahx-menu{display:none}
+.ahx.ns .ahx-menu{display:inline-grid}
+.ahx-tabs{position:relative;display:flex;align-items:center;gap:2px;min-width:0;padding:2px;overflow-x:auto;scrollbar-width:none}
+.ahx-tabs::-webkit-scrollbar{display:none}
+.ahx-tab{flex:0 1 164px;min-width:108px;display:flex;align-items:center;height:30px;border-radius:calc(9px * var(--dm-rk));overflow:hidden;color:var(--dm-fg2);transition:background var(--dm-t-fast),box-shadow var(--dm-t-fast),color var(--dm-t-fast)}
+@media (hover:hover) and (pointer:fine){.ahx-tab:hover{background:var(--dm-row);color:var(--dm-fg)}}
+.ahx-tab.on{background:var(--dm-surface);color:var(--dm-fg);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-rail) 50%,transparent),0 1px 2px rgba(0,0,0,.04)}
+.ahx-tb{flex:1;min-width:0;display:flex;align-items:center;gap:7px;height:100%;padding:0 2px 0 10px;font-size:12.5px;text-align:left}
+.ahx-tb .t{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ahx-tx{width:20px;height:20px;margin-right:5px;border-radius:calc(6px * var(--dm-rk));display:grid;place-items:center;flex:none;color:var(--dm-muted);opacity:0;transition:opacity var(--dm-t-fast),background var(--dm-t-fast),color var(--dm-t-fast)}
+.ahx-tx .i{width:12px;height:12px}
+.ahx-tab.on .ahx-tx,.ahx-tx:focus-visible{opacity:1}
+@media (hover:hover) and (pointer:fine){.ahx-tab:hover .ahx-tx{opacity:1}}
+@media (hover:hover) and (pointer:fine){.ahx-tx:hover{background:var(--dm-row);color:var(--dm-fg)}}
+.ahx-plus{flex:none}
+.ahx-tn{display:none;place-items:center;flex:none;width:28px;height:28px;border-radius:var(--dm-r-sm);color:var(--dm-fg2);transition:background var(--dm-t-fast),color var(--dm-t-fast)}
+.ahx-tn[aria-expanded="true"]{background:var(--dm-row);color:var(--dm-fg)}
+@media (hover:hover) and (pointer:fine){.ahx-tn:hover{background:var(--dm-row);color:var(--dm-fg)}}
+.ahx-tn .num{display:grid;place-items:center;min-width:18px;height:18px;padding:0 var(--dm-s-1);border-radius:5px;box-shadow:inset 0 0 0 1.5px currentColor;font-size:11px;font-weight:500;line-height:1}
+.ahx-tp{width:232px}
+.ahx-tp .mi .t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ahx-tp .mi .ahx-mk:empty{display:grid}
+.ahx-spl{flex:none;margin-left:auto;transition:opacity var(--dm-t) var(--dm-ease)}
+.ahx-main.home .ahx-spl{opacity:0;pointer-events:none}
+.ahx-spl .spl-pill{height:30px;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 50%,transparent)}
+.ahx-spl .spl-in{gap:7px;padding:0 var(--dm-s-1) 0 11px;font-size:12.5px}
+.ahx-spl .spl-in .g{width:14px}
+.ahx-spl .spl-in .pill{height:22px;padding:0 9px;margin-left:1px;font-size:12px}
+/* New chat, as a chat app opens one: the composer waits at the foot, where a chat's composer sits, and the mark and the
+   greeting sit centred in the room above it. The chat on screen and New chat share that room, so the composer never moves */
+.ahx-body{flex:1;min-height:0;display:grid;grid-template-rows:minmax(0,1fr) auto;grid-template-columns:minmax(0,1fr);position:relative}
+.ahx-feed{grid-area:1/1}
+.ahx-bot{grid-area:2/1}
+.ahx-home{grid-area:1/1;min-height:0;display:flex;flex-direction:column;justify-content:center;padding:var(--dm-s-5) 28px var(--dm-s-2)}
+.ahx-main:not(.home) .ahx-home{display:none}
+.ahx-main.home .ahx-feed,.ahx-main.home .ahx-bot::before{visibility:hidden}
+.ahx-hw{width:100%;max-width:600px;margin:0 auto;display:flex;flex-direction:column;align-items:center}
+.ahx-hi{display:flex;flex-direction:column;align-items:center;text-align:center;padding:0 var(--dm-s-1);font-size:14px;font-weight:500;letter-spacing:-.4px;line-height:1.3}
+.ahx-hi span{color:var(--dm-muted)}
+.ahx-hi h4{margin:0;font:inherit;color:var(--dm-fg)}
+/* the product's mark over the greeting (the DesignMe smiley in the demo; swap in your own) */
+.ahx-brand{display:block;flex:none;width:30px;height:25px;margin-bottom:10px;color:var(--dm-fg)}
+.ahx-brand>svg{display:block;width:100%;height:100%}
+/* a chat scrolls inside the card; each one keeps its own column, only the one on screen takes up room */
+.ahx-feed{flex:1;min-height:0;display:flex;flex-direction:column;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:var(--dm-line) transparent}
+.ahx-cols{flex:1 0 auto;display:grid}
+.ahx-col{grid-area:1/1;min-width:0;width:100%;max-width:688px;margin:0 auto;display:flex;flex-direction:column;gap:var(--dm-s-5);padding:var(--dm-s-6) 28px 30px;transition:opacity var(--dm-t) var(--dm-ease)}
+.ahx-col.off{visibility:hidden;height:0;padding-block:0;overflow:hidden}
+.ahx-col.ff{opacity:0}
+.ahx-say .w{animation:lvw .5s var(--dm-ease) both}
+.ahx-fs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px}
+.ahx-fs:last-child{margin-bottom:0}
+.ahx-msg{min-width:0}
+/* a component in the chat lines up with the messages on the left, instead of centring itself as it does on its own */
+.ahx-col .ahx-msg>*{margin-left:0;margin-right:auto}
+/* chat components sit on the chat itself, the way a bare card shows them; an artifact and a diff keep their card */
+.ahx-msg:not(.box)>.panel:not(.keep){background:none;box-shadow:none;padding-left:0;padding-right:0;border-radius:0}
+/* in the chat a finished question set closes up behind its answers */
+.ahx-msg .dpx-body{min-height:0}
+.ahx-msg .dpx-f.leave{display:none}
+/* the agent's work, gathered under one line that folds away when it is done */
+.ahx-wk{display:flex;flex-direction:column;align-items:flex-start}
+.ahx-wh{display:inline-flex;align-items:center;gap:var(--dm-s-2);height:28px;padding:0 9px 0 7px;margin-left:-7px;border-radius:var(--dm-r-pill);font-size:13.5px;color:var(--dm-fg2);transition:background var(--dm-t-fast),color var(--dm-t-fast)}
+@media (hover:hover) and (pointer:fine){.ahx-wh:hover{background:var(--dm-row);color:var(--dm-fg)}}
+.ahx-wh .g{display:grid;place-items:center;width:14px;color:var(--dm-muted)}
+.ahx-wh .m{color:var(--dm-muted);font-size:12.5px}
+.ahx-wh>.i{color:var(--dm-muted);transition:transform var(--dm-t) var(--dm-ease)}
+.ahx-wh[aria-expanded="true"]>.i{transform:rotate(180deg)}
+.ahx-wb{align-self:stretch}
+.ahx-wl{display:flex;flex-direction:column;gap:var(--dm-s-4);margin:var(--dm-s-2) 0 2px 6px;padding-left:18px;border-left:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
+.ahx-bot{flex:none;position:relative;padding:0 var(--dm-s-6) 18px}
+.ahx-bot::before{content:"";position:absolute;left:0;right:10px;bottom:100%;height:28px;background:linear-gradient(transparent,var(--dm-surface));pointer-events:none}
+.ahx-bot .cpx{max-width:632px;margin:0 auto}
+.ahx .cpx-thread{display:none}
+.ahx .ctm-ft{gap:2px;margin-right:1px;font-size:12.5px}
+.ahx .ctm-ft>span{color:var(--dm-muted);margin-right:2px}
+/* while the agent works in the chat on screen, a new message waits */
+.ahx.busy .cpx-bar .cpx-send{background:var(--dm-rail);color:var(--dm-surface);pointer-events:none}
+/* the panel beside the chat, for an artifact */
+/* shut, the panel is hidden as well as narrow, so Tab passes over its buttons */
+.ahx-pane{flex:none;width:0;overflow:hidden;background:var(--dm-surface);border-left:1px solid transparent;visibility:hidden;transition:width var(--dm-t) var(--dm-ease),border-color var(--dm-t) var(--dm-ease),visibility 0s var(--dm-t)}
+.ahx.pn .ahx-pane{width:300px;border-left-color:color-mix(in srgb,var(--dm-line) 50%,transparent);visibility:visible;transition-delay:0s}
+.ahx-pi{width:300px;height:100%;display:flex;flex-direction:column}
+.ahx-ph{flex:none;display:flex;align-items:center;gap:var(--dm-s-2);height:46px;padding:0 var(--dm-s-2) 0 14px;border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);font-size:13px;font-weight:500}
+.ahx-ph .t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ahx-ph>.i{color:var(--dm-pb)}
+.ahx-ph .ib{width:28px;height:28px;color:var(--dm-muted)}
+@media (hover:hover) and (pointer:fine){.ahx-ph .ib:hover{color:var(--dm-fg)}}
+.ahx-pb{flex:1;min-height:0;overflow-y:auto;padding:var(--dm-s-4);display:flex;flex-direction:column;gap:var(--dm-s-4);scrollbar-width:thin;scrollbar-color:var(--dm-line) transparent}
+.ahx-pn{display:flex;flex-direction:column;gap:var(--dm-s-1);font-size:13px;line-height:1.55;color:var(--dm-fg2)}
+.ahx-pn b{font-weight:500;color:var(--dm-fg)}
+.ahx-pn p{margin:0 0 10px}
+/* the report opened in the panel: drawn flat, with the chart it describes */
+.ahx-doc{padding:var(--dm-s-4) var(--dm-s-4) var(--dm-s-3)}
+.ahx-dh{font-weight:500;font-size:14px}
+.ahx-dp{margin-top:var(--dm-s-1);font-size:12.5px;line-height:1.5;color:var(--dm-fg2);min-height:38px;text-wrap:pretty}
+.ahx-kp{display:flex;align-items:baseline;gap:var(--dm-s-2);margin-top:10px}
+.ahx-kp b{font-size:14px;font-weight:500;letter-spacing:-.02em}
+.ahx-dd{font-size:12px;color:var(--dm-ok)}
+.ahx-ch{display:block;width:100%;height:56px;margin-top:var(--dm-s-2);overflow:visible}
+.ahx-ch .ln{fill:none;stroke:var(--dm-accent-mark,var(--dm-accent));stroke-width:2;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
+.ahx-ax{display:flex;justify-content:space-between;margin-top:6px;font-size:10.5px;color:var(--dm-muted)}
+.ahx-scrim{display:none}
+/* a narrow chat, beside the panel or on a phone: the composer keeps only what it needs */
+@container ahm (max-width:560px){
+  .ahx .ctm-ft>span,.ahx .cpx-bar .cpx-ctx,.ahx-spl .spl-in .m{display:none}
+}
+/* phone: the chats slide in from the side, the tabs fold into one, the panel covers the chat */
+@container ahx (max-width:620px){
+  .ahx .ahx-side,.ahx.ns .ahx-side{position:absolute;z-index:6;left:0;top:0;bottom:0;width:244px;margin-left:0;background:var(--dm-surface);transform:translateX(-101%)}
+  .ahx.dr .ahx-side{transform:none;box-shadow:var(--dm-shadow-pop)}
+  .ahx-scrim{display:block;position:absolute;inset:0;z-index:5;background:rgba(0,0,0,.2);opacity:0;pointer-events:none;transition:opacity var(--dm-t) var(--dm-ease)}
+  .ahx.dr .ahx-scrim{opacity:1;pointer-events:auto}
+  .ahx .ahx-menu{display:inline-grid}
+  .ahx-top{padding:0 6px}
+  .ahx-spl{display:none}
+  /* the tabs fold into one: the chat on screen fills the row, and a count of the open chats lists them all */
+  .ahx-tabs{flex:1}
+  .ahx-tab:not(.on){display:none}
+  .ahx-tab.on{flex:1 1 auto;min-width:0}
+  .ahx-tn:not([hidden]){display:grid}
+  .ahx-side{visibility:hidden;transition:transform var(--dm-t) var(--dm-ease),box-shadow var(--dm-t) var(--dm-ease),visibility 0s var(--dm-t)}
+  .ahx.dr .ahx-side{visibility:visible;transition-delay:0s}
+  .ahx-pane{visibility:hidden;transition:width var(--dm-t) var(--dm-ease),visibility 0s var(--dm-t)}
+  .ahx.pn .ahx-pane{visibility:visible;transition-delay:0s}
+  .ahx-home{padding:var(--dm-s-4) 10px var(--dm-s-2)}
+  .ahx-col{padding:18px var(--dm-s-4) var(--dm-s-6)}
+  .ahx-bot{padding:0 10px 10px}
+  .ahx-pane{position:absolute;z-index:4;top:0;right:0;bottom:0;border-left:0}
+  .ahx.pn .ahx-pane{width:100%}
+  .ahx-pi{width:100%}
+}

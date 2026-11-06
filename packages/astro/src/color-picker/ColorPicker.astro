@@ -1,0 +1,37 @@
+---
+// Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
+// Colour picker: Pick a colour by eye or by hex, check its contrast, and let the agent fix it or make a scale from it.
+// The markup, CSS and script are designme.dev's own, run by the shared core in ../core, which mounts the component when it scrolls
+// into view and plays its demo. To show your own data, change color-picker.js. The markup is kept exactly as it is (is:raw).
+import type { HTMLAttributes } from 'astro/types';
+import '../core/designme.css';
+import './color-picker.css';
+
+export interface Props extends HTMLAttributes<'div'> {
+  /** "soft" draws it in the Soft style. Leave it out for Blueprint, or for the style set on <html> (data-style="soft") */
+  'data-style'?: 'soft';
+}
+const { class: className, ...rest } = Astro.props;
+---
+<div class:list={['card', className]} data-c="color-picker" {...rest}>
+  <div class="stage-in"><Fragment is:raw>
+<div class="cpk panel">
+  <div class="cpk-sv"><span class="cpk-k" role="slider" tabindex="0" aria-label="Saturation and brightness" aria-valuemin="0" aria-valuemax="100"></span></div>
+  <div class="cpk-rail cpk-hue"><span class="cpk-k" role="slider" tabindex="0" aria-label="Hue" aria-valuemin="0" aria-valuemax="359"></span></div>
+  <div class="cpk-rail cpk-al"><i></i><span class="cpk-k" role="slider" tabindex="0" aria-label="Opacity" aria-valuemin="0" aria-valuemax="100"></span></div>
+  <div class="cpk-row">
+    <span class="cpk-pv" aria-hidden="true"><i></i></span>
+    <label class="cpk-hx"><span class="muted">#</span><input class="num" spellcheck="false" autocomplete="off" maxlength="7" aria-label="Hex colour"></label>
+    <span class="cpk-a num muted"></span>
+  </div>
+  <div class="cpk-sw" role="group" aria-label="Swatches"></div>
+  <div class="cpk-cr" aria-live="polite"><div class="cpk-ln" data-on="#ffffff"><span class="cpk-aa">Aa</span><span class="t">White text</span><span class="num r"></span><span class="tag"></span></div><div class="cpk-ln" data-on="ink"><span class="cpk-aa">Aa</span><span class="t">Ink text</span><span class="num r"></span><span class="tag"></span></div></div>
+  <div class="cpk-act"><button class="pill sm cpk-fix"><svg class="i xs"><use href="#i-wand"/></svg>Suggest an accessible shade</button><button class="pill ghost sm cpk-mk"><svg class="i xs"><use href="#i-layers"/></svg>Make a scale</button></div>
+  <div class="cpk-sc" role="group" aria-label="Scale"></div>
+  <p class="cpk-sr" aria-live="polite"></p>
+</div>
+  </Fragment></div>
+</div>
+<script>
+  import './color-picker.js';
+</script>

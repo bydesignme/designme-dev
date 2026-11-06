@@ -1,0 +1,41 @@
+{
+  "summary": "Eval results shows an eval suite's latest run case by case. A bar with one segment per case fills as the cases run, the pass count is compared with the run before, and a filter narrows the list to the failed cases. A failed case opens to show what was expected, what came back and where the answer comes from, with a fix that runs it again.",
+  "use": [
+    "When an agent's output is checked by a set of evals and people need to see which ones failed, not just a score.",
+    "When a change to a prompt, a model or the agent's work should be compared with the run before, to catch a regression.",
+    "When a failure needs its evidence, expected against what came back, to be fixed.",
+    "When the suite is long and people only want the failures."
+  ],
+  "features": [
+    "`cases` is the suite. Each case has a `name`, a `status` of `queued`, `running`, `pass` or `fail`, and a `time` shown once it has a result.",
+    "The bar has one segment per case: grey while queued, pulsing while running, green for a pass and red for a fail.",
+    "The count reads \"Running 3 of 8\" while `running`, then \"7 of 8 passed\". With `previousPassed`, a tag compares the settled run with the one before, like \"1 fewer than the last run\", or reads All passing.",
+    "`onRun` adds a filled run button, labelled by `runLabel`; it spins while `running`.",
+    "All and Failed switch the list, with the count on each; the cases that don't match fold away. With no failures, Failed says \"No failed cases\".",
+    "A failed case is red-tinted and opens to show `expected`, `got` in red and `source`, with an optional white `fix` button, like Use $24 and rerun."
+  ],
+  "a11y": [
+    "The cases form a list labelled \"Cases\". A failed case is a button with `aria-expanded`, and its details fold away inert when it's shut.",
+    "All and Failed are a labelled group of toggle buttons with `aria-pressed`.",
+    "The pass count is announced politely as it changes.",
+    "The bar is decoration; the count says the same in words."
+  ],
+  "faq": [
+    {
+      "q": "Does it run the evals?",
+      "a": "No. `onRun` tells you to start. Set each case's `status` as your eval runner reports it, and `running` for the whole run."
+    },
+    {
+      "q": "What does the fix button do?",
+      "a": "Whatever you pass as its `onClick`. In the demo it changes the copy to the billing table's price and runs that one case again."
+    },
+    {
+      "q": "Can it show scores instead of pass and fail?",
+      "a": "Not yet. Each case passes or fails; put a score in its `name` or `time` if you need one there."
+    },
+    {
+      "q": "How does it compare with the last run?",
+      "a": "By the number that passed. Pass `previousPassed` from your last run, and the tag appears once every case has a result."
+    }
+  ]
+}

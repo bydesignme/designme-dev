@@ -1,0 +1,36 @@
+---
+// Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
+// Run cost: Live credit and token spend, with a cap that pauses the run.
+// The markup, CSS and script are designme.dev's own, run by the shared core in ../core, which mounts the component when it scrolls
+// into view and plays its demo. To show your own data, change run-cost.js. The markup is kept exactly as it is (is:raw).
+import type { HTMLAttributes } from 'astro/types';
+import '../core/designme.css';
+import './run-cost.css';
+
+export interface Props extends HTMLAttributes<'div'> {
+  /** "soft" draws it in the Soft style. Leave it out for Blueprint, or for the style set on <html> (data-style="soft") */
+  'data-style'?: 'soft';
+}
+const { class: className, ...rest } = Astro.props;
+---
+<div class:list={['card', 'bare', className]} data-c="run-cost" {...rest}>
+  <div class="stage-in"><Fragment is:raw>
+<div class="rc panel">
+  <div class="rc-h"><span class="muted">Credits used</span><span class="rc-st tag"><span class="dot"></span><span class="rc-stt">Idle</span></span></div>
+  <div class="rc-big"><span class="rc-n num">0</span><span class="muted"> / 2,000</span></div>
+  <div class="rc-track"><div class="rc-fill"></div><div class="rc-cap" data-tip="The agent pauses here"></div></div>
+  <div class="rc-rows">
+    <div><span>Input tokens</span><span class="num rc-in">0</span></div>
+    <div><span>Output tokens</span><span class="num rc-out">0</span></div>
+    <div><span>Tool calls</span><span class="num rc-tools">0</span></div>
+  </div>
+  <div class="rc-f">
+    <label class="rc-cap-t"><button class="toggle" role="switch" aria-checked="true" aria-label="Pause at 90 percent"></button><span>Pause at 90%</span></label>
+    <button class="pill primary sm rc-go">Start run</button>
+  </div>
+</div>
+  </Fragment></div>
+</div>
+<script>
+  import './run-cost.js';
+</script>

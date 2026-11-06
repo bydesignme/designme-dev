@@ -1,0 +1,29 @@
+{
+  "summary": "A date field that opens a small calendar, with a text box at the top that reads plain English like \"next friday\" or \"in 2 weeks\". Quick picks such as Today and Tomorrow sit under the box, and the month grid below works with mouse or keyboard. It suits agent products where people set a due date or launch date the way they would say it.",
+  "use": [
+    "When people pick one date, such as a deadline, launch or reminder.",
+    "When typing \"tomorrow\" or \"in 3 days\" is quicker than clicking through months.",
+    "When the same few dates come up often and deserve one-click quick picks."
+  ],
+  "features": [
+    "The field shows the picked day, like \"Fri, Oct 23, 2026\", or `placeholder` before a day is picked; `format` changes how it reads.",
+    "Typed text is passed to `parse` and picks the day as soon as it reads as a date, while the calendar stays open; Enter then closes it.",
+    "The default parser understands \"today\", \"tomorrow\", weekday names and \"in N days\", \"in N weeks\" or \"in N months\".",
+    "Quick picks from `presets` (Today, Tomorrow and In a week by default) pick a day a set number of days after today.",
+    "Previous and next month buttons slide the grid in from the side it comes from, and clicking a day picks it and closes the calendar.",
+    "`locale` sets the month and weekday names, `weekStartsOn` starts weeks on Monday or Sunday, and `today` sets the day marked with a dot."
+  ],
+  "a11y": [
+    "The field button has aria-haspopup=\"dialog\" and aria-expanded, and the calendar is a role=\"dialog\" labelled \"Choose a date\"; Escape closes it and returns focus to the field.",
+    "In the day grid, arrow keys move a day or a week, Home and End go to the start and end of the week, and Page Up and Page Down move a month, or a year with Shift.",
+    "Opened from the keyboard, the calendar takes the focus on the picked day, or today. Only one day is a tab stop: the one the arrows reached, the picked day, today or the 1st.",
+    "Each day button has its full date as aria-label, aria-pressed on the picked day and aria-current=\"date\" on today.",
+    "The month name is an aria-live=\"polite\" region, so changing month is announced."
+  ],
+  "faq": [
+    {"q": "What does \"friday\" pick if today is Friday?", "a": "The default parser always picks the next one, so it returns the Friday a week later, never today. \"next friday\" works the same way."},
+    {"q": "Can I use my own natural language parser?", "a": "Yes. Pass `parse`, a function that takes the typed text and today's date and returns a Date or null. You could call your agent or a library like chrono from there, as long as it returns synchronously."},
+    {"q": "Why should I pass `today` when rendering on the server?", "a": "The today dot and the presets are based on the current date. Passing `today` keeps server and client output the same and makes demos and tests repeatable."},
+    {"q": "Can I change the quick picks?", "a": "Yes. Pass `presets` as a list of a `label` and a number of `days` after today, like { label: 'Next sprint', days: 14 }."}
+  ]
+}

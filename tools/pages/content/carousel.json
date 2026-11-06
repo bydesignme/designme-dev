@@ -1,0 +1,50 @@
+{
+  "summary": "One carousel with two types, picked with the switch under it. Variants are the pictures an agent made from one brief, in a panel with a title, to browse and keep one. Images is a gallery of pictures with their captions. Both run on the same native scroll-snap track: each slide is a framed picture with its caption, the next one peeking in, with Previous and Next disabled at the ends and a row of dots under the track, the current one drawn longer. A picture sliding into view comes into focus: it is soft and faded while it is mostly out of view and sharpens as it arrives. Blueprint never blurs, so there a veil wipes off it from the left. It doesn't play on its own.",
+  "use": [
+    "Variants: when the agent makes several versions of the same picture (a cover image, an illustration, a product shot) and a person picks one, as they arrive one by one, each able to fail on its own.",
+    "Images: for a set of pictures people look at one by one, like generated images, product shots, a moodboard or screenshots of a design, each with a caption.",
+    "Where a row of pictures should take one line of the page and let people swipe through the rest."
+  ],
+  "features": [
+    "`type=\"variants\"` or `type=\"images\"`; the rest of the props are shared, apart from each type's own.",
+    "The track scrolls natively: a swipe, a trackpad, Shift and the mouse wheel all move it, and it snaps to each slide. A mouse can also drag it like a finger, and the click a drag ends with is ignored.",
+    "Slides that can't reach the start of the track (narrow ones near the end) share one resting place, so there is a dot for each place the track can rest and no arrow press or dot ever goes nowhere.",
+    "Slide widths: `slideWidth` (\"80%\" for images and \"84%\" for variants let the next one peek in, \"100%\" shows one at a time, a number is pixels), and each image's `width` overrides it, so slides can mix sizes; `height` gives every picture one height. `align=\"center\"` rests each slide in the middle of the track, `gap` sets the space between slides, and `arrows={false}` and `dots={false}` leave a bare swipeable track.",
+    "Variants have four states: queued (an empty frame with an image mark and a Queued tag), generating (the frame builds up out of pixels in the picture's colours: a sparse grid of cells twinkles in, a few in the accent, then the picture arrives as coarse blocks that refine in four steps, from 6×4 to 48×32, each settling in its own order, with a Making tag and a readout of how far along it is), ready (the picture comes into focus over the last of the pixels, with what sets it apart and how long it took) and failed (the pixels glitch, lose their colour and fall apart into the reason and a Retry button, with `onRetry`).",
+    "The pixels take their colours from the picture's `src` when the page can read it (same origin, or served with CORS) and otherwise from its `placeholder` gradient, so a picture without a `src` still builds up in its own colours. Soft rounds the cells and Blueprint keeps them square on a hairline grid. Pass a variant's `progress` (0 to 1) if the model reports it; without it the pixels pace themselves over about three seconds, then shimmer until the variant is ready. The canvas only draws while it is on screen and the tab is open.",
+    "Keeping a variant fills its button, steps its frame's edge up and dims the others; pressing it again lets it go. The line under the title follows the work: \"Making 4 variants, 1 ready\", then \"3 ready, 1 failed\", then \"Keeping Variant C\".",
+    "Each picture takes `src`, `alt` and a `placeholder`, a CSS background like a gradient of its colours, drawn under it while it loads or in place of it. A variant's `content` shows anything else instead.",
+    "The first slide in view is controlled with `index` and `onIndexChange`, which fires once the track settles, and the kept variant with `kept` and `onKeptChange`.",
+    "With reduced motion the track jumps instead of gliding, nothing blurs in, and a generating variant is a still mosaic of the picture's colours until it lands."
+  ],
+  "a11y": [
+    "Each type is a region with aria-roledescription=\"carousel\" and a label (the title for variants, \"Gallery\" by default for images); each slide is a group with aria-roledescription=\"slide\" and its place, like \"3 of 6\", and holds the picture as an image with its `alt`.",
+    "The track can take the focus: Left and Right move it one place, Home and End go to the ends, and for variants Enter keeps the one in view.",
+    "The arrows are buttons named after what they move to (\"Previous picture\", \"Next variant\"); each dot is a button named after its slide (\"Show Fresh snow\", \"Go to Variant C\") with aria-current on the current one. Keep has aria-pressed.",
+    "The pixel canvas is hidden from screen readers: the Making tag and the live region (\"Variant A ready\", \"Variant D failed\") carry what happens.",
+    "A polite live region says which slide is first in view once the track settles, and for variants when one arrives or fails and which one is kept.",
+    "The keyboard focus ring is the quiet grey ring; a mouse or touch never shows one."
+  ],
+  "faq": [
+    {
+      "q": "Where do the pictures in the demo come from?",
+      "a": "They are photos from Pexels, free to use under the Pexels License (art/README.md in the repository links each one). They are not part of what you install: installed components draw each picture as a gradient of its colours, and on designme.dev the photos are laid over those gradients. Pass your own `src` for real pictures."
+    },
+    {
+      "q": "Does it play on its own?",
+      "a": "No. Pictures are something to look at and compare, so it only moves when someone moves it."
+    },
+    {
+      "q": "How do I show one picture at a time?",
+      "a": "Set `slideWidth=\"100%\"`. In the HTML version, set `--dm-w:100%` on the carousel (`.crs-c`)."
+    },
+    {
+      "q": "How do I retry a failed variant?",
+      "a": "Pass `onRetry`. It gets the variant's key; set that variant's `status` back to \"generating\" and then to \"ready\" or \"failed\"."
+    },
+    {
+      "q": "Where did Variant carousel and Image carousel go?",
+      "a": "They are this component now: Variants is the old Variant carousel and Images the old Image carousel, on the same track. Their old pages lead here."
+    }
+  ]
+}

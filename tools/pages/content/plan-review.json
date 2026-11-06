@@ -1,0 +1,41 @@
+{
+  "summary": "Plan review shows the plan an agent proposes before it starts work, as a numbered list a person can change. They can rewrite a step, skip one, add their own, and then approve so the agent runs through the steps in the same view.",
+  "use": [
+    "When a task is large enough that people should agree on the steps before the agent touches anything.",
+    "When a person wants to drop a step or rewrite it in their own words without starting over.",
+    "When you want the approved plan to double as a progress list while the agent runs.",
+    "When the person needs a Stop button once the agent is under way."
+  ],
+  "features": [
+    "Three phases: `review` lets people edit steps, `running` shows progress and a Stop button, and `done` shows See changes.",
+    "In review, clicking a step makes its text editable. Enter saves it, and the step is marked as edited only if the words really changed.",
+    "Each step has a skip button. Skipped steps stay in the list, struck through, and lose their number until they are included again.",
+    "Add a step appends a new row and puts the cursor in it with the text selected.",
+    "Steps can show `state: 'run'` while the agent works on them, with a spinner and a shimmer on the text, `'retry'` in amber while it waits out a problem like a rate limit, and a check once `done`.",
+    "Each step can report a `detail` line under it, like \"6 frames and 42 tokens read\". It opens under the step and crossfades when it changes.",
+    "The status line defaults to how many steps are left in and about how many minutes they take. `status` and `note` replace the defaults. `meta` adds quiet text at the end of the header, like an elapsed time."
+  ],
+  "a11y": [
+    "In review, each step's text has `role=\"textbox\"` and an `aria-label` like \"Step 2\".",
+    "The skip button's `aria-label` switches between \"Skip step\" and \"Include step\".",
+    "Pressing Enter in a step ends the edit instead of adding a new line."
+  ],
+  "faq": [
+    {
+      "q": "How do I start the agent once the plan is approved?",
+      "a": "Handle `onApprove`, set `phase` to `running`, and mark steps with `state: 'run'` and `'done'` as your agent works. Set `phase` to `done` at the end."
+    },
+    {
+      "q": "How do I get the edited plan back?",
+      "a": "Pass `steps` and `onStepsChange` to control the list. Each step comes back with its new `text`, plus `edited` and `skipped` flags you can send to the agent."
+    },
+    {
+      "q": "Can I stop the agent halfway?",
+      "a": "In the `running` phase the footer shows a Stop button that calls `onStop`. Stopping the agent and updating the phase is up to your code."
+    },
+    {
+      "q": "Can it sit on its own instead of inside a chat?",
+      "a": "Yes. It is flat by default to sit in a chat thread. Set `bare={false}` to give it its own card."
+    }
+  ]
+}

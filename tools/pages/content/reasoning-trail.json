@@ -1,0 +1,36 @@
+{
+  "summary": "Reasoning trail is a foldable record of how an agent worked through a task: its plan, its notes, the sources it used and the edits it made. It sits in a chat thread under a header that reads \"Reasoning\" with a running clock, then \"Reasoned for Ns\" once the agent is done.",
+  "use": [
+    "When people want to check how the agent reached its answer before they trust it.",
+    "When the agent follows a plan and you want each step to show as done, in progress or next.",
+    "When the agent changed files and people should see the removed and added lines in place.",
+    "When the reasoning should stay out of the way until someone opens it."
+  ],
+  "features": [
+    "It shows one of four views, picked with `view`: plan, notes, sources or edits. A view with nothing in it falls back to the first one that has content.",
+    "Plan steps are done (a check and their `detail`), now (a pulse and \"Working\") or next (a grey dot and \"Next\").",
+    "Notes are plain lines, sources are file and link chips with tooltips, and edits list each file with its removed and added lines.",
+    "While `running` is true, the header shimmers and counts seconds, unless you pass `seconds`. `title` replaces the default header text.",
+    "Clicking the header, or pressing Enter or Space on it, folds the trail open or shut, controlled with `open` and `onOpenChange` or left to the component. Switching views grows or shrinks the open trail to its new height and plays the entrance again.",
+    "It sits flat in a chat thread by default, and `bare={false}` gives it a card of its own."
+  ],
+  "a11y": [
+    "The header is a button with `aria-expanded`, which follows every click, Enter and Space.",
+    "When folded, the body is `inert` and `aria-hidden`, so its chips leave the tab order.",
+    "The thinking glyph and status dots are decorative and hidden from screen readers."
+  ],
+  "faq": [
+    {
+      "q": "Does the trail come with Plan, Notes, Sources and Edits tabs?",
+      "a": "No. The component shows whichever view you pass in `view`, and you supply the switcher. The designme.dev demo puts a segmented control under it and keeps the room of the tallest view, so the control stays put as you switch."
+    },
+    {
+      "q": "How do I show progress through the plan?",
+      "a": "Pass `plan` as steps with `state` set to 'done', 'now' or 'next', and update them from your own state as the agent moves on. Set `running` to false when it finishes."
+    },
+    {
+      "q": "What does an edit look like?",
+      "a": "An edit has a `file`, an optional `detail` like \"2 lines\", and `removed` and `added` arrays of lines. Removed lines are shown first, then added ones, under the file name."
+    }
+  ]
+}

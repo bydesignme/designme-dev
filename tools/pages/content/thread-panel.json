@@ -1,0 +1,36 @@
+{
+  "summary": "Thread panel keeps several conversations with an agent in one place, one tab per thread, with a reply field under the open thread. People switch between threads with the tabs and answer the agent without leaving the panel.",
+  "use": [
+    "When one person runs several tasks with the same agent and needs to jump between them.",
+    "When a side panel next to the main work should hold the agent conversations.",
+    "When each thread has a status you want to show at a glance, like done, waiting or idle.",
+    "When agent replies should show the files or pages they drew on."
+  ],
+  "features": [
+    "Each thread gets a tab with a coloured dot set by `color` (a mark colour like `var(--dm-ok-mark)`), and an underline in the accent slides to the open tab.",
+    "The open thread can be controlled with `value` and `onValueChange`, or left to the tabs with `defaultValue`.",
+    "The reply field submits on Enter and calls `onSend` with the text and the open thread's id. The Send button stays disabled while the field is empty.",
+    "A message with `thinking` shows a shimmering \"Thinking\" line while the agent works, and agent messages can carry `sources` as chips with tooltips.",
+    "Switching threads staggers the messages in, and a new message scrolls smoothly into view.",
+    "The draft can be controlled with `draft` and `onDraftChange`, and `bare={false}` gives the panel its own card."
+  ],
+  "a11y": [
+    "The tabs use `role=\"tablist\"` and `role=\"tab\"` with `aria-selected` on the open thread.",
+    "The message area is an `aria-live=\"polite\"` region, so new replies are announced.",
+    "The reply field is labelled \"Reply\" and the icon button is labelled \"Send\"."
+  ],
+  "faq": [
+    {
+      "q": "Does sending a reply add it to the thread automatically?",
+      "a": "No. `onSend` gives you the text and the thread id, and you add the message to that thread's `messages` to show it. The field clears itself after sending."
+    },
+    {
+      "q": "How do I show that the agent is working on a reply?",
+      "a": "Add an agent message with `thinking: true`. It shows a shimmering \"Thinking\", or its `text` if you give one, until you replace it with the real reply."
+    },
+    {
+      "q": "Can I open a specific thread from outside the panel?",
+      "a": "Yes. Pass the thread's id as `value` and update it from your own state. Use `onValueChange` to hear when someone clicks a tab."
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "summary": "Thinking states is a set of six indicators for the moment an agent is thinking, to pick from: Orbit, Morph, Scan, Stream, Matrix and Stack. Each pairs a small animated mark on a tile with one status line, like \"Reading 3 files\", that steps through what the agent is doing, and a quiet count of the seconds so far.",
+  "use": [
+    "While an agent works out an answer and there is nothing to show yet, in a chat thread or beside a panel.",
+    "When you want one line that says what the agent is doing now, not a full trace of every step.",
+    "When your product needs a thinking indicator of its own: pick the mark that suits it, from calm (Morph) to busy (Matrix).",
+    "When the answer will be text, use Scan or Stream, whose lines of dots and typed line hint at what is coming."
+  ],
+  "features": [
+    "`variant` picks the indicator. Five of them are grids of dots, each at its own density: `orbit` (5 by 5, a light running round the edge with a fading tail and a dot breathing in the middle, the line shimmering), `morph` (7 by 7, the dots drawing a rectangle, then a circle, then a triangle), `scan` (6 by 6, a column of light sweeping three lines of text in dots), `stream` (three full lines of six dots that light up one by one, line by line, then fade out together, the line typed out behind a caret), `matrix` (a four by four grid of dots, each lighting up on its own beat) or `stack` (pages shuffling to the front).",
+    "Pass `steps`, a list of status lines. Leave `current` out and they take turns every `interval` milliseconds (2600 by default), or set `current` to show the step your agent reports.",
+    "A new line crossfades in, except in Stream, where it types out a letter at a time.",
+    "`seconds` shows the time so far at the end of the line. Left out, it counts by itself; `false` hides it.",
+    "Marks use the accent and everything else stays grey. In Soft the tile and marks are squircles; in Blueprint the tile is square with a hairline edge, marks tick in steps, Stream's caret is a block.",
+    "On designme.dev the switch under the demo picks the variant, and the HTML install ships both the switch and every variant."
+  ],
+  "a11y": [
+    "The status line is read from a polite live region (`role=\"status\"`), so a screen reader hears each new step once, never each frame or each typed letter.",
+    "The marks, the visible line and the seconds are hidden from screen readers, so nothing is read twice.",
+    "With reduced motion turned on, every mark holds still in a pose that still reads (Matrix shows a lit pattern, Stack its three pages), the caret stays lit, the sweep goes and the line changes without typing or fading."
+  ],
+  "faq": [
+    {
+      "q": "How do I show the step my agent is on?",
+      "a": "Pass your steps and set `current` to the index of the step the agent reports. Without `current`, the lines take turns by themselves every `interval` milliseconds."
+    },
+    {
+      "q": "Which variant should I use?",
+      "a": "Orbit and Morph are calm and work anywhere. Scan and Stream suit answers that will be text. Matrix reads as busy computing, and Stack as reading files or sources."
+    },
+    {
+      "q": "Can I hide the timer?",
+      "a": "Yes. Pass `seconds={false}`. Pass a number to show your own time instead of the count the component keeps."
+    }
+  ]
+}

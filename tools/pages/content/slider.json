@@ -1,0 +1,40 @@
+{
+  "summary": "Sliders for the settings an agent takes: a single slider with named stops (a Creativity slider from Precise to Creative, with a sample sentence that rewrites itself in the chosen tone), a stepped slider with a tick and a number at each step, and a range with two knobs that never cross. A value the agent recommends sits on the track as a mark you can press, and a knob dropped near it snaps to it.",
+  "use": [
+    "For a setting with a few named levels that people understand better as words, like tone or effort.",
+    "For a whole number that moves in fixed steps, like tool calls or retries per run.",
+    "For a budget or a window with a lower and an upper bound.",
+    "When the agent can suggest a good value and you want people to see it without being forced to take it."
+  ],
+  "features": [
+    "Drag a knob, or press anywhere on the track: the nearest knob comes to the pointer and follows it.",
+    "The value shows over the knob while you drag it, hover it or move it with the keys, and in the header beside the label.",
+    "`names` splits the range into named parts (Precise, Focused, Balanced, Playful, Creative); the nearest name shows beside the value.",
+    "`stops` adds buttons under the track that glide the knob to a value; `ticks` adds a tick and a number at each step, each one a button.",
+    "`recommended` draws the agent's mark over the track and a notch in it. Pressing the mark glides the knob there, and a knob dragged within 5% of it snaps to it.",
+    "`description` is a line under the slider that crossfades when it changes, like a sample sentence in the chosen tone.",
+    "`RangeSlider` keeps its two knobs at least one step apart, so they can't cross; pressing the track moves the nearer knob.",
+    "`SliderGroup` is the panel they sit in on designme.dev, with a hairline between sliders."
+  ],
+  "a11y": [
+    "Each knob has role=\"slider\" with aria-valuemin, aria-valuemax and aria-valuenow, and an aria-valuetext with the unit and the name, like \"0.40, Balanced, recommended\" or \"At most $0.35\".",
+    "On a range, each knob's limits stop at the other knob, so a screen reader announces the real range.",
+    "The arrow keys move one step, Shift with an arrow or Page Up and Page Down move ten (or `bigStep`), and Home and End go to the ends.",
+    "Stops, ticks and the recommended mark are buttons, so they can be reached with Tab and pressed with Enter or Space; the mark has a label and a tooltip on hover and keyboard focus.",
+    "The keyboard focus ring is the quiet grey ring; a mouse or touch never shows one."
+  ],
+  "faq": [
+    {
+      "q": "How do I show the named stops without fixing the slider to them?",
+      "a": "Use `names` for the words and `step` for how finely it moves. The knob can sit anywhere; the name shown is the nearest one."
+    },
+    {
+      "q": "Can I turn off the snapping to the recommended value?",
+      "a": "Snapping only happens when `recommended` is set. Leave it out and the knob moves freely by `step`."
+    },
+    {
+      "q": "How do I format money or units?",
+      "a": "Pass `format`, for example `v => '$' + v.toFixed(2)`. It is used over the knob, in the header and in the spoken value."
+    }
+  ]
+}

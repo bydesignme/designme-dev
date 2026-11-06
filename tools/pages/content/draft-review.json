@@ -1,0 +1,37 @@
+{
+  "summary": "Draft review lays out an email the agent wrote the way the email will go: who it is to, the subject, the message and what is attached. People can edit it, then send it now, schedule it from a dropdown beside Send, or discard it. A warning can stop it before it goes, like a message that mentions an attachment when nothing is attached, and after sending there is a short window to undo.",
+  "use": [
+    "When the agent writes on someone's behalf and nothing should leave without them seeing it.",
+    "When people want to change a word or two before it goes, not write it again.",
+    "When some messages are better sent later, like at the start of the reader's day.",
+    "When a check can catch a mistake before sending, and a sent message can still be taken back for a few seconds."
+  ],
+  "features": [
+    "`to` shows each recipient as a chip with an avatar. `subject` sits in a plain input, and `body` stays editable; read edits from `onBodyChange`.",
+    "`attachments` show as file chips, with a spinner in place of the size while one is `loading`.",
+    "`warning` folds open above the buttons with its own actions, like Send anyway and Attach the summary.",
+    "The dropdown beside Send picks when it goes. `sendOptions` replace the defaults (now, tomorrow at 09:00, Monday at 09:00), and any pick but `now` turns the button into Schedule.",
+    "`phase` moves from `draft` to `sending`, then `undo`, `sent`, `scheduled` or `discarded`. The tag in the header follows it, and the fields dim while it is out of your hands.",
+    "In the `undo` phase a green row counts down `undoLeft` with an Undo button. A scheduled message can be cancelled and a discarded draft brought back, all through `onUndo`."
+  ],
+  "a11y": [
+    "The subject is a labelled input and the message is a multi-line textbox labelled \"Message\".",
+    "The dropdown button is labelled \"When to send\" and says whether its menu is open. Each time is a menu item that marks the picked one with `aria-checked`, and Escape closes the menu.",
+    "From the keyboard, Enter, Space or the down arrow opens a menu with the focus on its picked item, or its first (the up arrow, on its last); the arrow keys move through it and wrap, Home and End jump to the ends, Tab closes it and moves on, and closing it gives the focus back to its button.",
+    "Once it is sent, scheduled or discarded, the fields are inert, so they can't be edited or reached with Tab until it is undone."
+  ],
+  "faq": [
+    {
+      "q": "Does it send the email?",
+      "a": "No. It calls `onSend` with the picked option and shows the `phase` you pass. Your code sends or schedules the message, runs the undo window and moves the phase along."
+    },
+    {
+      "q": "Does it check for missing attachments by itself?",
+      "a": "No. The preview checks whether the message mentions an attachment when nothing is attached, and passes a `warning`. Pass your own warning for any check you run before sending."
+    },
+    {
+      "q": "Can I use it for messages that aren't email?",
+      "a": "Yes. Change the `title` and `labels`, and pass the recipients and send options you need. With no `attachments` and no `warning`, neither shows."
+    }
+  ]
+}

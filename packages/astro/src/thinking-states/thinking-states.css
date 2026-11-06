@@ -1,0 +1,97 @@
+/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+/* ---------- Thinking states ---------- */
+/* six ways to show that the agent is thinking, to pick from: each is a small mark on a tile beside one status line that
+   steps through what the agent is doing, and a screen reader hears each step once (the polite status), never each frame.
+   Orbit, Morph, Scan and Stream are dot grids like Matrix, each at its own density (owner, 5 Nov). Orbit: a light round the edge,
+   the line shimmering. Morph: a rectangle, a circle, a triangle. Scan: a column sweeping lines of dots. Stream: three lines of dots
+   filling one by one, then fading, the line typed out behind a caret. Matrix: a grid
+   of dots lighting up at random. Stack: pages shuffling to the front. Marks are the accent and everything else is grey;
+   with reduced motion every mark holds still in a legible pose and only the line changes */
+.ths{width:100%;max-width:264px;margin-inline:auto;min-height:84px;display:flex;flex-direction:column;justify-content:center;gap:var(--dm-s-3);position:relative}
+.ths-row{display:flex;align-items:center;gap:10px;min-width:0}
+.ths-mk{position:relative;width:28px;height:28px;flex:none;display:grid;place-items:center;border-radius:calc(9px * var(--dm-rk));background:var(--dm-chip);color:var(--dm-accent-mark,var(--dm-accent))}
+.ths-l{flex:0 1 auto;min-width:0;font-size:14px;line-height:20px;color:var(--dm-fg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ths-car{display:inline-block;width:2px;height:15px;margin-left:2px;vertical-align:-3px;border-radius:1px;background:var(--dm-accent-mark,var(--dm-accent));animation:thsblink 1s steps(1,end) infinite}
+@keyframes thsblink{50%{opacity:0}}
+.ths-t{flex:none;font-size:13px;color:var(--dm-muted)}
+.ths-sr{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+/* Orbit, Morph, Scan and Stream are drawn on a grid of dots like Matrix, each at its own density (owner, 5 Nov):
+   Orbit 5 by 5, Scan 6 by 6, Morph 7 by 7 and Stream 6 by 3. The grid (.ths-dg) is written by thsGrid(); each dot's part
+   in the pattern is a class, and its place in the run an inline animation-delay */
+.ths-dg{display:grid;grid-template-columns:repeat(var(--dm-n),var(--dm-ds));gap:var(--dm-dg);--dm-ds:2px;--dm-dg:1px}
+.ths-dg i{display:block;width:var(--dm-ds);height:var(--dm-ds);border-radius:50%;background:currentColor;opacity:.14}
+/* Orbit: a light runs round the ring with a fading tail, the dot in the middle breathing */
+.ths-dg[data-k="orbit"]{--dm-n:5;--dm-ds:3px;--dm-dg:1px}
+.ths-dg .r{animation:thsor 1.6s linear infinite}
+.ths-dg .c{opacity:.85;animation:thscore 1.6s var(--dm-ease-io) infinite}
+@keyframes thsor{0%{opacity:1}30%{opacity:.45}60%,100%{opacity:.14}}
+@keyframes thscore{50%{transform:scale(.7)}}
+/* Scan: three lines of text in dots, a column of light sweeping across them */
+.ths-dg[data-k="scan"]{--dm-n:6;--dm-ds:2px;--dm-dg:1px}
+.ths-dg .l{animation:thsscl 1.6s linear infinite}
+.ths-dg .b{opacity:.06;animation:thsscb 1.6s linear infinite}
+@keyframes thsscl{0%{opacity:1}35%,100%{opacity:.3}}
+@keyframes thsscb{0%{opacity:.38}25%,100%{opacity:.06}}
+/* Morph: the dots draw a rectangle, then a circle, then a triangle, and back; between shapes every dot flickers like
+   Matrix's, each a little out of step (its own small delay), before it settles into the next shape (owner, 5 Nov) */
+.ths-dg[data-k="morph"]{--dm-n:7;--dm-ds:2px;--dm-dg:1px}
+.ths-dg[data-k="morph"] i{animation-duration:3.2s;animation-timing-function:var(--dm-ease-io);animation-iteration-count:infinite}
+.ths-dg .m0{animation-name:thsm0}.ths-dg .m1{animation-name:thsm1}.ths-dg .m2{animation-name:thsm2}.ths-dg .m3{animation-name:thsm3}.ths-dg .m4{animation-name:thsm4}.ths-dg .m5{animation-name:thsm5}.ths-dg .m6{animation-name:thsm6}.ths-dg .m7{animation-name:thsm7}
+@keyframes thsm0{0%{opacity:.12}20%{opacity:.12}22.6%{opacity:.5}25.2%{opacity:.12}27.8%{opacity:.4}30.4%{opacity:.12}33%{opacity:.12}53%{opacity:.12}55.6%{opacity:.5}58.2%{opacity:.12}60.8%{opacity:.4}63.4%{opacity:.12}66%{opacity:.12}86%{opacity:.12}88.8%{opacity:.5}91.6%{opacity:.12}94.4%{opacity:.4}97.2%{opacity:.12}100%{opacity:.12}}
+@keyframes thsm1{0%{opacity:1}20%{opacity:1}22.6%{opacity:.85}25.2%{opacity:.2}27.8%{opacity:.95}30.4%{opacity:.3}33%{opacity:.12}53%{opacity:.12}55.6%{opacity:.5}58.2%{opacity:.12}60.8%{opacity:.4}63.4%{opacity:.12}66%{opacity:.12}86%{opacity:.12}88.8%{opacity:.85}91.6%{opacity:.2}94.4%{opacity:.95}97.2%{opacity:.3}100%{opacity:1}}
+@keyframes thsm2{0%{opacity:.12}20%{opacity:.12}22.6%{opacity:.85}25.2%{opacity:.2}27.8%{opacity:.95}30.4%{opacity:.3}33%{opacity:1}53%{opacity:1}55.6%{opacity:.85}58.2%{opacity:.2}60.8%{opacity:.95}63.4%{opacity:.3}66%{opacity:.12}86%{opacity:.12}88.8%{opacity:.5}91.6%{opacity:.12}94.4%{opacity:.4}97.2%{opacity:.12}100%{opacity:.12}}
+@keyframes thsm3{0%{opacity:1}20%{opacity:1}22.6%{opacity:.85}25.2%{opacity:.2}27.8%{opacity:.95}30.4%{opacity:.3}33%{opacity:1}53%{opacity:1}55.6%{opacity:.85}58.2%{opacity:.2}60.8%{opacity:.95}63.4%{opacity:.3}66%{opacity:.12}86%{opacity:.12}88.8%{opacity:.85}91.6%{opacity:.2}94.4%{opacity:.95}97.2%{opacity:.3}100%{opacity:1}}
+@keyframes thsm4{0%{opacity:.12}20%{opacity:.12}22.6%{opacity:.5}25.2%{opacity:.12}27.8%{opacity:.4}30.4%{opacity:.12}33%{opacity:.12}53%{opacity:.12}55.6%{opacity:.85}58.2%{opacity:.2}60.8%{opacity:.95}63.4%{opacity:.3}66%{opacity:1}86%{opacity:1}88.8%{opacity:.85}91.6%{opacity:.2}94.4%{opacity:.95}97.2%{opacity:.3}100%{opacity:.12}}
+@keyframes thsm5{0%{opacity:1}20%{opacity:1}22.6%{opacity:.85}25.2%{opacity:.2}27.8%{opacity:.95}30.4%{opacity:.3}33%{opacity:.12}53%{opacity:.12}55.6%{opacity:.85}58.2%{opacity:.2}60.8%{opacity:.95}63.4%{opacity:.3}66%{opacity:1}86%{opacity:1}88.8%{opacity:.85}91.6%{opacity:.2}94.4%{opacity:.95}97.2%{opacity:.3}100%{opacity:1}}
+@keyframes thsm6{0%{opacity:.12}20%{opacity:.12}22.6%{opacity:.85}25.2%{opacity:.2}27.8%{opacity:.95}30.4%{opacity:.3}33%{opacity:1}53%{opacity:1}55.6%{opacity:.85}58.2%{opacity:.2}60.8%{opacity:.95}63.4%{opacity:.3}66%{opacity:1}86%{opacity:1}88.8%{opacity:.85}91.6%{opacity:.2}94.4%{opacity:.95}97.2%{opacity:.3}100%{opacity:.12}}
+@keyframes thsm7{0%{opacity:1}20%{opacity:1}22.6%{opacity:.85}25.2%{opacity:.2}27.8%{opacity:.95}30.4%{opacity:.3}33%{opacity:1}53%{opacity:1}55.6%{opacity:.85}58.2%{opacity:.2}60.8%{opacity:.95}63.4%{opacity:.3}66%{opacity:1}86%{opacity:1}88.8%{opacity:.85}91.6%{opacity:.2}94.4%{opacity:.95}97.2%{opacity:.3}100%{opacity:1}}
+/* Stream: three full lines of dots fill the tile evenly (owner, 5 Nov); they light up one by one, line by line, hold, then
+   all fade out together. Each dot's moment is its own keyframe (thss0 to thss17, in reading order) */
+.ths-dg[data-k="stream"]{--dm-n:6;--dm-ds:3px;--dm-dg:1px;row-gap:6px}
+.ths-dg[data-k="stream"] i{animation-duration:2.4s;animation-timing-function:linear;animation-iteration-count:infinite}
+.ths-dg .s0{animation-name:thss0}.ths-dg .s1{animation-name:thss1}.ths-dg .s2{animation-name:thss2}.ths-dg .s3{animation-name:thss3}.ths-dg .s4{animation-name:thss4}.ths-dg .s5{animation-name:thss5}.ths-dg .s6{animation-name:thss6}.ths-dg .s7{animation-name:thss7}.ths-dg .s8{animation-name:thss8}.ths-dg .s9{animation-name:thss9}.ths-dg .s10{animation-name:thss10}.ths-dg .s11{animation-name:thss11}.ths-dg .s12{animation-name:thss12}.ths-dg .s13{animation-name:thss13}.ths-dg .s14{animation-name:thss14}.ths-dg .s15{animation-name:thss15}.ths-dg .s16{animation-name:thss16}.ths-dg .s17{animation-name:thss17}
+@keyframes thss0{0%,4.0%{opacity:.14}6.6%,82%{opacity:1}94%,100%{opacity:.14}}
+@keyframes thss1{0%,7.7%{opacity:.14}10.3%,82%{opacity:1}94%,100%{opacity:.14}}
+@keyframes thss2{0%,11.3%{opacity:.14}13.9%,82%{opacity:1}94%,100%{opacity:.14}}
+@keyframes thss3{0%,15.0%{opacity:.14}17.6%,82%{opacity:1}94%,100%{opacity:.14}}
+@keyframes thss4{0%,18.7%{opacity:.14}21.3%,82%{opacity:1}94%,100%{opacity:.14}}
+@keyframes thss5{0%,22.3%{opacity:.14}24.9%,82%{opacity:1}94%,100%{opacity:.14}}
+@keyframes thss6{0%,26.0%{opacity:.14}28.6%,82%{opacity:1}94%,100%{opacity:.14}}
+@keyframes thss7{0%,29.7%{opacity:.14}32.3%,82%{opacity:1}94%,100%{opacity:.14}}
+@keyframes thss8{0%,33.3%{opacity:.14}35.9%,82%{opacity:1}94%,100%{opacity:.14}}
+@keyframes thss9{0%,37.0%{opacity:.14}39.6%,82%{opacity:1}94%,100%{opacity:.14}}
+@keyframes thss10{0%,40.7%{opacity:.14}43.3%,82%{opacity:1}94%,100%{opacity:.14}}
+@keyframes thss11{0%,44.3%{opacity:.14}46.9%,82%{opacity:1}94%,100%{opacity:.14}}
+@keyframes thss12{0%,48.0%{opacity:.14}50.6%,82%{opacity:1}94%,100%{opacity:.14}}
+@keyframes thss13{0%,51.7%{opacity:.14}54.3%,82%{opacity:1}94%,100%{opacity:.14}}
+@keyframes thss14{0%,55.3%{opacity:.14}57.9%,82%{opacity:1}94%,100%{opacity:.14}}
+@keyframes thss15{0%,59.0%{opacity:.14}61.6%,82%{opacity:1}94%,100%{opacity:.14}}
+@keyframes thss16{0%,62.7%{opacity:.14}65.3%,82%{opacity:1}94%,100%{opacity:.14}}
+@keyframes thss17{0%,66.3%{opacity:.14}68.9%,82%{opacity:1}94%,100%{opacity:.14}}
+/* Matrix: each dot keeps its own beat, so the grid twinkles instead of sweeping */
+.ths-mtx{display:grid;grid-template-columns:repeat(4,3px);gap:2px}
+.ths-mtx i{display:block;width:3px;height:3px;border-radius:50%;background:currentColor;opacity:.2;animation:thstw 2s var(--dm-ease-io) infinite}
+.ths-mtx i:nth-child(3n){animation-duration:2.6s}.ths-mtx i:nth-child(3n+1){animation-duration:1.7s}
+.ths-mtx i:nth-child(1){animation-delay:-.1s}.ths-mtx i:nth-child(2){animation-delay:-.9s}.ths-mtx i:nth-child(3){animation-delay:-1.9s}.ths-mtx i:nth-child(4){animation-delay:-.4s}
+.ths-mtx i:nth-child(5){animation-delay:-1.2s}.ths-mtx i:nth-child(6){animation-delay:-.2s}.ths-mtx i:nth-child(7){animation-delay:-1.6s}.ths-mtx i:nth-child(8){animation-delay:-.7s}
+.ths-mtx i:nth-child(9){animation-delay:-.5s}.ths-mtx i:nth-child(10){animation-delay:-1.4s}.ths-mtx i:nth-child(11){animation-delay:-.05s}.ths-mtx i:nth-child(12){animation-delay:-1s}
+.ths-mtx i:nth-child(13){animation-delay:-2.1s}.ths-mtx i:nth-child(14){animation-delay:-.8s}.ths-mtx i:nth-child(15){animation-delay:-1.3s}.ths-mtx i:nth-child(16){animation-delay:-.3s}
+@keyframes thstw{0%,100%{opacity:.2}45%,60%{opacity:1}}
+/* Stack: three pages; the front one leaves and the others move up, each a third of the loop behind the next */
+.ths-stk{position:relative;width:20px;height:20px}
+.ths-stk i{position:absolute;left:3px;top:3px;width:11px;height:13px;border-radius:calc(2.5px * var(--dm-rk));background:var(--dm-surface);box-shadow:inset 0 0 0 1.25px currentColor;color:color-mix(in srgb,var(--dm-fg) 34%,transparent);animation:thsstk 2.4s var(--dm-ease-io) infinite}
+.ths-stk i:nth-child(1){translate:6px -3px;opacity:.6;z-index:1}
+.ths-stk i:nth-child(2){translate:3px 0;opacity:.85;z-index:2;animation-delay:-.8s}
+.ths-stk i:nth-child(3){translate:0 3px;z-index:3;color:var(--dm-accent-mark,var(--dm-accent));animation-delay:-1.6s}
+@keyframes thsstk{0%{translate:6px -3px;opacity:.6;z-index:1;color:color-mix(in srgb,var(--dm-fg) 34%,transparent)}25%{translate:3px 0;opacity:.85;z-index:2;color:color-mix(in srgb,var(--dm-fg) 34%,transparent)}50%,66%{translate:0 3px;opacity:1;z-index:3;color:var(--dm-accent-mark,var(--dm-accent))}80%{translate:-5px 6px;opacity:0;z-index:3;color:var(--dm-accent-mark,var(--dm-accent))}81%{translate:6px -3px;opacity:0;z-index:1;color:color-mix(in srgb,var(--dm-fg) 34%,transparent)}100%{translate:6px -3px;opacity:.6;z-index:1;color:color-mix(in srgb,var(--dm-fg) 34%,transparent)}}
+/* six choices fit under the demo on a phone */
+@container (max-width:380px){.ths-dm>.demo .seg2 button{padding:0 7px;font-size:12px}}
+/* reduced motion: every mark holds a pose that still reads (the orbit's light and tail, a circle, a lit column, the first
+   words, a lit diamond, a stack), the caret stays lit and the sweep goes */
+@media (prefers-reduced-motion:reduce){.ths-mk *,.ths-car{animation:none!important}.ths-dg .p{opacity:1}.ths-mtx i:is(:nth-child(2),:nth-child(5),:nth-child(7),:nth-child(10),:nth-child(12),:nth-child(15)){opacity:1}}
+/* Blueprint: a square tile with a hairline, square dots, marks that tick in steps and a block caret */
+:root:not([data-style="soft"]) .ths-mk:not(:where([data-style="soft"],[data-style="soft"] *)){background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-rail) 50%,transparent)}
+:root:not([data-style="soft"]) .ths-dg i:not(:where([data-style="soft"],[data-style="soft"] *)){border-radius:0}
+:root:not([data-style="soft"]) .ths-car:not(:where([data-style="soft"],[data-style="soft"] *)){width:7px;vertical-align:-3px}
+:root:not([data-style="soft"]) .ths-mtx i:not(:where([data-style="soft"],[data-style="soft"] *)){animation-timing-function:steps(1,end)}
+:root:not([data-style="soft"]) .ths-stk i:not(:where([data-style="soft"],[data-style="soft"] *)){animation-timing-function:steps(3)}

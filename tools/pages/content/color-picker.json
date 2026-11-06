@@ -1,0 +1,37 @@
+{
+  "summary": "A colour picker with its accessibility check built in. Pick by eye in a saturation and brightness field with hue and opacity rails, type a hex, or press a swatch. Under it, the colour's contrast with white and with ink text shows as a ratio and as Pass or Fail. Two agent actions finish the job: Suggest an accessible shade glides to the nearest darker shade where white text passes, and Make a scale fills a 50 to 900 ramp from the colour.",
+  "use": [
+    "For brand or accent colours in a design tool or a theme editor, where the colour will carry text.",
+    "When people pick colours by eye and need to know at once whether text on them will be readable.",
+    "To turn one picked colour into a scale for a design system."
+  ],
+  "features": [
+    "A saturation and brightness field, a hue rail and an optional opacity rail, each with a knob that shows the colour under it.",
+    "A hex field that takes three or six digits, with or without #; Enter keeps a valid colour, a wrong one is marked in red, and Escape puts back the one before.",
+    "Swatches that glide the picker to their colour; the one matching the colour is marked.",
+    "Contrast with white and with ink text (`ink`, #111111 by default) as a WCAG 2 ratio and a Pass or Fail tag at 4.5:1.",
+    "Suggest an accessible shade, the primary button (on the accent, so it follows yours), keeps the hue and saturation and darkens the colour to the nearest shade where white text passes; once white text passes the button says so and is disabled.",
+    "Make a scale fills ten steps from 50 to 900 one after another; the picked colour takes the step nearest its lightness, and each step shows its hex on hover and focus. `onScale` receives the steps."
+  ],
+  "a11y": [
+    "The field and both rails are sliders (role=\"slider\") with values in words: \"Saturation 62%, brightness 62%\", \"172 degrees\", \"100% opaque\".",
+    "On the field, Left and Right change saturation and Up and Down brightness; on the rails the arrows move one step. Shift moves ten, Home and End go to the ends.",
+    "The hex field has a label and aria-invalid when what was typed isn't a colour.",
+    "Pass and Fail are words, not only colours; the contrast lines are a polite live region.",
+    "A visually hidden live region says what the agent did, like \"Moved to #1D6FD6, white text passes\"."
+  ],
+  "faq": [
+    {
+      "q": "Which contrast rule does it check?",
+      "a": "WCAG 2's ratio, with 4.5:1 for body text. For large text 3:1 is enough, so a Fail here can still be fine for a big heading."
+    },
+    {
+      "q": "Does Suggest an accessible shade call a model?",
+      "a": "No. It works it out in the browser: it keeps the hue and saturation and lowers the brightness step by step until white text passes."
+    },
+    {
+      "q": "How do I hide the opacity rail?",
+      "a": "Leave out both `alpha` and `onAlphaChange`."
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "summary": "Prompt starters shows a grid of suggested tasks as cards, each with an icon, a short title and a one-line description. Picking a card writes its full prompt into the field below, word by word, and the Send button passes that prompt to your agent.",
+  "use": [
+    "On an empty chat or a new workspace, when people don't know what to ask the agent first.",
+    "When you want to show what the agent is good at with real, ready-to-send tasks.",
+    "When you have more suggestions than fit on screen and want a Shuffle button to swap in another set."
+  ],
+  "features": [
+    "Starters are laid out two to a row and stagger in. Each one has an `icon`, an optional `tone` that colours the icon, a `title`, a `description` and the `prompt` it writes.",
+    "Picking a card highlights it and types its prompt into the field at a word every 40 milliseconds.",
+    "The picked starter is tracked by its title and can be controlled with `value` and `onValueChange`. Setting `value` from outside fills the field the same way a click does.",
+    "Send is enabled once a starter is picked. It calls `onSend` with the prompt and then shows `sentLabel`, which defaults to \"Sent to the agent\".",
+    "`onShuffle` adds a Shuffle button. Pass a new `starters` set when it is called, and the cards stagger in again while the field clears."
+  ],
+  "a11y": [
+    "Each starter card is a button with `aria-pressed` set on the picked one.",
+    "The Send icon button is labelled \"Send\" and stays disabled until a starter is picked.",
+    "With `prefers-reduced-motion: reduce`, the prompt appears at once instead of word by word."
+  ],
+  "faq": [
+    {
+      "q": "Can people edit the prompt before sending it?",
+      "a": "Not inside this component. Its field displays the picked prompt and is not a text input. To let people edit, look up the starter from the title `onValueChange` gives you and put its prompt into your own composer."
+    },
+    {
+      "q": "How do I offer a different set of suggestions?",
+      "a": "Pass `onShuffle` and change `starters` when it is called. A new set clears the field and the picked starter, then the cards come in again."
+    },
+    {
+      "q": "Can I pick a starter for the person, for example on first load?",
+      "a": "Yes. Set `value` to the starter's title from your own state and its prompt is typed into the field as if it had been clicked."
+    }
+  ]
+}

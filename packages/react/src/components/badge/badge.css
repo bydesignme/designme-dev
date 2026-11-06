@@ -1,0 +1,50 @@
+/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+/* ---------- Badge ---------- */
+/* a small label for a plan, an environment or a status. data-tone picks its colour (none is neutral): the accent's tint,
+   success, warning and danger, or one of the eight tag colours, each as text on its own tint. Two sizes (.sm), an optional
+   dot or icon in front, and an optional remove button after the label. Soft draws it as a pill; Blueprint squares it off,
+   sets it in capitals and gives it a hairline in its own colour */
+.dm-bdg{--dm-bdg-bg:var(--dm-chip);--dm-bdg-fg:var(--dm-fg2);display:inline-flex;align-items:center;gap:var(--dm-s-1);max-width:100%;height:24px;padding:0 var(--dm-s-2);border-radius:var(--dm-r-pill);background:var(--dm-bdg-bg);color:var(--dm-bdg-fg);font-size:12.5px;font-weight:500;line-height:1;white-space:nowrap;vertical-align:middle}
+.dm-bdg.dm-sm{height:20px;font-size:11.5px}
+.dm-bdg>.dm-t{min-width:0;overflow:hidden;text-overflow:ellipsis}
+.dm-bdg>.dm-i{flex:none}
+.dm-bdg-dot{position:relative;width:6px;height:6px;border-radius:50%;background:currentColor;flex:none}
+/* a live badge (.live: running, streaming, on air) pulses its dot: a soft ring in its own colour grows and fades, on a loop.
+   Only transform and opacity move, so it stays on the compositor; with reduced motion the dot stays still */
+.dm-bdg.dm-live .dm-bdg-dot::after{content:"";position:absolute;inset:0;border-radius:inherit;background:currentColor;opacity:0;animation:dm-bdgpulse 1.8s cubic-bezier(.22,1,.36,1) infinite}
+@keyframes dm-bdgpulse{0%{opacity:.5;transform:scale(1)}100%{opacity:0;transform:scale(2.8)}}
+@media (prefers-reduced-motion:reduce){.dm-bdg.dm-live .dm-bdg-dot::after{animation:none}}
+/* a badge you can act on, a removable one or one that is a button or a link, takes a light hover: a little more of its own
+   colour in its tint. Plain labels keep still, so they never look clickable */
+.dm-bdg:is(:has(>.dm-bdg-x),button,a[href]){transition:background var(--dm-t-fast)}
+.dm-bdg:is(button,a[href]){cursor:pointer;text-decoration:none}
+@media (hover:hover) and (pointer:fine){.dm-bdg:is(:has(>.dm-bdg-x),button,a[href]):hover{background:color-mix(in srgb,var(--dm-bdg-fg) 7%,var(--dm-bdg-bg))}}
+/* on the Badge card every badge answers the pointer: a hand, a light hover, and no text selection */
+.dm-bdx .dm-bdg{cursor:pointer;user-select:none;-webkit-user-select:none;transition:background var(--dm-t-fast)}
+@media (hover:hover) and (pointer:fine){.dm-bdx .dm-bdg:hover{background:color-mix(in srgb,var(--dm-bdg-fg) 7%,var(--dm-bdg-bg))}}
+.dm-bdg[data-tone="accent"]{--dm-bdg-bg:var(--dm-accent-bg);--dm-bdg-fg:var(--dm-accent-fg)}
+.dm-bdg[data-tone="success"]{--dm-bdg-bg:var(--dm-ok-bg);--dm-bdg-fg:var(--dm-ok)}.dm-bdg[data-tone="warning"]{--dm-bdg-bg:var(--dm-warn-bg);--dm-bdg-fg:var(--dm-warn)}.dm-bdg[data-tone="danger"]{--dm-bdg-bg:var(--dm-bad-bg);--dm-bdg-fg:var(--dm-bad)}
+.dm-bdg[data-tone="blue"]{--dm-bdg-bg:var(--dm-pb-bg);--dm-bdg-fg:var(--dm-pb)}.dm-bdg[data-tone="violet"]{--dm-bdg-bg:var(--dm-pl-bg);--dm-bdg-fg:var(--dm-pl)}.dm-bdg[data-tone="green"]{--dm-bdg-bg:var(--dm-pm-bg);--dm-bdg-fg:var(--dm-pm)}.dm-bdg[data-tone="orange"]{--dm-bdg-bg:var(--dm-pp-bg);--dm-bdg-fg:var(--dm-pp)}
+.dm-bdg[data-tone="red"]{--dm-bdg-bg:var(--dm-pr-bg);--dm-bdg-fg:var(--dm-pr)}.dm-bdg[data-tone="yellow"]{--dm-bdg-bg:var(--dm-py-bg);--dm-bdg-fg:var(--dm-py)}.dm-bdg[data-tone="pink"]{--dm-bdg-bg:var(--dm-pk-bg);--dm-bdg-fg:var(--dm-pk)}.dm-bdg[data-tone="teal"]{--dm-bdg-bg:var(--dm-pt-bg);--dm-bdg-fg:var(--dm-pt)}
+/* the remove button sits inside the badge's end; its hover is a little more of the badge's own colour */
+.dm-bdg-x{display:grid;place-items:center;width:16px;height:16px;margin-right:calc(var(--dm-s-1) * -1);border-radius:50%;color:inherit;flex:none;transition:background var(--dm-t-fast)}
+@media (hover:hover) and (pointer:fine){.dm-bdg-x:hover{background:color-mix(in srgb,currentColor 16%,transparent)}}
+.dm-bdg-x:focus-visible{outline-offset:1px;border-radius:50%}
+.dm-bdg.dm-sm .dm-bdg-x{width:14px;height:14px}
+/* on a hovered menu row's tint (a step lighter in dark mode) the label leans a little toward the text colour, so it keeps APCA 60 */
+.dm-mi.dm-hl .dm-bdg{color:color-mix(in srgb,var(--dm-bdg-fg) 85%,var(--dm-fg))}
+@media (hover:hover) and (pointer:fine){.dm-mi:hover .dm-bdg{color:color-mix(in srgb,var(--dm-bdg-fg) 85%,var(--dm-fg))}}
+.dm-bdg.dm-go{animation:dm-bdgout .22s var(--dm-ease) forwards}
+@keyframes dm-bdgout{to{opacity:0;transform:scale(.85)}}
+:root:not([data-style="soft"]) .dm-bdg:not(:where([data-style="soft"],[data-style="soft"] *)){box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-bdg-fg) 14%,transparent);font-size:11px;letter-spacing:.03em;text-transform:uppercase}
+:root:not([data-style="soft"]) .dm-bdg.dm-sm:not(:where([data-style="soft"],[data-style="soft"] *)){font-size:10.5px}
+/* Blueprint's lime tint is faint on white, so an accent badge's edge is the accent's mark */
+:root:not([data-style="soft"]) .dm-bdg[data-tone="accent"]:not(:where([data-style="soft"],[data-style="soft"] *)){box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-accent-mark) 50%,transparent)}
+/* the card: each kind of badge in a row, named on the left */
+.dm-bdx{width:100%;display:flex;flex-direction:column;gap:var(--dm-s-4);container:bdx/inline-size}
+.dm-bdx-row{display:flex;align-items:center;gap:var(--dm-s-2)}
+.dm-bdx-l{width:76px;flex:none;font-size:12px}
+.dm-bdx-set{flex:1;min-width:0;display:flex;flex-wrap:wrap;align-items:center;gap:var(--dm-s-2)}
+.dm-pill.dm-bdx-undo{height:24px}
+.dm-bdx-live{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+@container bdx (max-width:360px){.dm-bdx-row{flex-direction:column;align-items:flex-start;gap:var(--dm-s-2)}.dm-bdx-l{width:auto}.dm-bdx-set{width:100%}}

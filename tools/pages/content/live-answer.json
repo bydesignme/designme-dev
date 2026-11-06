@@ -1,0 +1,41 @@
+{
+  "summary": "Live answer shows a question and the agent's reply as it streams in word by word, with numbered citations that point to a source list. Each turn moves through waiting, thinking, answering and done, and once it is done the person can copy, rate, retry or pick a follow-up question that adds a new turn below.",
+  "use": [
+    "When your agent answers questions from data, documents or the web and people need to check where each claim came from.",
+    "When answers arrive token by token and you want the text to build up in place instead of appearing all at once.",
+    "When you want to show that the agent thought first, with a short list of what it did, without cluttering the answer.",
+    "When a conversation should continue through suggested follow-up questions."
+  ],
+  "features": [
+    "Each turn has a `state`: waiting shows nothing, thinking shows a Thinking line, answering streams `text`, and done adds sources and actions.",
+    "Write [1] after a word in `text` to cite source 1. A half-typed citation like \"[2\" is held back until it is complete, and a blank line starts a new paragraph.",
+    "Hovering a citation or a source highlights the pair, and a click pins it and opens the source list until the next click.",
+    "A toggle like \"3 steps · 2s\" lists the agent's `thoughts`. Leave out `thoughtFor` and it counts the seconds while the turn is thinking.",
+    "Copy, Good answer and Bad answer buttons sit under every finished answer, and `onRetry` adds a Try again button. Copying strips the citation numbers before calling `onCopy`.",
+    "`followUps` appear under the last answer once it is done, and `onFollowUp` receives the chosen question so you can add the next turn."
+  ],
+  "a11y": [
+    "The steps toggle and the sources button report their open state with `aria-expanded`.",
+    "The Good answer and Bad answer buttons use `aria-pressed`, and every icon-only button has an `aria-label`.",
+    "Collapsed thought and source lists are marked `inert` and `aria-hidden`, so they drop out of the tab order.",
+    "Under `prefers-reduced-motion: reduce`, the word fade-ins and other animations are cut to near zero."
+  ],
+  "faq": [
+    {
+      "q": "How do I stream the answer in?",
+      "a": "Set the turn's `state` to 'answering' and keep updating its `text` as tokens arrive. Each new word fades in, and when the stream ends you set `state` to 'done' and pass `sources`."
+    },
+    {
+      "q": "How do citations link to sources?",
+      "a": "Put [n] right after a word in `text`, and give a source in `sources` the same `n`. Its tooltip shows the source's `tip`, or its title and detail when `tip` is left out."
+    },
+    {
+      "q": "What happens to ratings and pinned sources when the person clicks Try again?",
+      "a": "When a turn goes from done back to answering, it starts afresh with closed lists, no pinned source and no rating. Your `onRetry` handler decides how to regenerate the text."
+    },
+    {
+      "q": "Can I show the question bubble somewhere else, like in my own chat?",
+      "a": "Yes. Leave out `question` on a turn and no bubble is drawn for it, so only the answer appears."
+    }
+  ]
+}

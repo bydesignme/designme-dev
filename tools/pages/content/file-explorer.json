@@ -1,0 +1,28 @@
+{
+  "summary": "A project file tree that marks every file the agent changed with M, A or D for modified, added and deleted. Folders that hold a changed file get a dot, so people can find the agent's work without opening every folder. A filter box and an \"only changed\" switch narrow the tree down.",
+  "use": [
+    "When a coding or design agent edits files and people need to see which ones.",
+    "Beside a diff or code viewer, to pick the file to review.",
+    "When a project is large and people want to see only what the agent touched."
+  ],
+  "features": [
+    "Renders `tree` as nested folders and files; a node with `children` is a folder that opens and closes on click.",
+    "Badges each file by its `status` ('M', 'A' or 'D') and puts a dot on folders with a changed file inside.",
+    "The filter box keeps names that contain the typed text, along with the folders that lead to them, and opens those folders.",
+    "The \"Only changed\" button hides every file the agent did not change, and the footer then reads how many files changed, worded by `summary`.",
+    "Clicking a file selects it, shows its path in the footer and calls `onSelectedChange`.",
+    "Picks a file icon from the extension, or from your own `fileIcon` function.",
+    "The tree scrolls inside the panel with a thin scrollbar in the style's line grey, square in Blueprint."
+  ],
+  "a11y": [
+    "The list has role=\"tree\" and each row has role=\"treeitem\", with aria-expanded on folders and aria-selected on files.",
+    "Each folder's children sit in a role=\"group\", which is inert while the folder is closed.",
+    "The filter input is labelled \"Filter files\", and the \"Only changed\" button uses aria-pressed."
+  ],
+  "faq": [
+    {"q": "How do I mark files the agent changed?", "a": "Set `status` on a file node to 'M', 'A' or 'D'. Parent folders work out on their own that they hold a change and show a dot."},
+    {"q": "How do I open the tree on a particular file?", "a": "Pass the folder paths in `defaultOpen` (or `open`), like ['src', 'src/components'], and the file's path in `defaultSelected` (or `selected`)."},
+    {"q": "How do I load a file when someone clicks it?", "a": "Use `onSelectedChange`. It receives the file's path, built from the folder names joined with slashes, like \"src/components/PlanCard.tsx\"."},
+    {"q": "Can I change the file icons?", "a": "Yes. Pass `fileIcon`, a function that takes the file name and returns an icon name."}
+  ]
+}

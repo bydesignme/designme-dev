@@ -1,0 +1,30 @@
+{
+  "summary": "A complete agent chat app assembled from the other designme components: chats down the side, open chats as tabs, a New chat screen with your mark and a greeting over the composer, and a panel that opens beside the chat. Each chat is a list of blocks you drive from your own state, such as the person's message, the agent's words, a folded group of its work, or a component like a tool call or a permission gate. Use it as the starting point for a whole agent screen.",
+  "use": [
+    "When you are building an agent chat app and want the full layout wired up from the start.",
+    "When the agent's replies mix text with plans, tool calls, approvals, diffs and artifacts.",
+    "When people work on several chats at once and need tabs, unread marks and a running state per chat.",
+    "As a reference for how the individual components fit together in one product."
+  ],
+  "features": [
+    "Each conversation's `blocks` can be 'user', 'say', 'working', 'group', 'node', or one of thirteen components such as 'tool-call', 'permission-gate', 'plan-review' and 'change-review', each taking that component's own props.",
+    "A 'group' block stays open while its state is 'running' and folds into its label a moment after it is 'done', unless the person opened it.",
+    "Tabs for open chats, with + for New chat and × to close; each tab keeps its own draft in the composer.",
+    "New chat opens as a chat app does: the Composer waits at the foot, where it stays once the chat starts, and your `logo`, a greeting and the `heading` sit centred in the room above it.",
+    "`onSend` gets the message, the chat id (null from New chat) and the tab; return a new chat id from New chat and the tab becomes that chat. Nothing is sent while the chat on screen is running.",
+    "A status pill beside the tabs, a context ring in the composer, a workspace switcher, chat search, `followUps` under the last block and a side `panel` with copy link and close."
+  ],
+  "a11y": [
+    "Open chats are a group labelled \"Open chats\": each tab is a button, the chat on screen has aria-current, and each tab's close button is its own button beside it; the chat list and side panel are labelled aside elements.",
+    "Escape closes the chat drawer on narrow screens, then the side panel through `onPanelClose`; in the chat search box it closes the search.",
+    "The workspace switcher and the open chats menu work from the keyboard: Enter, Space or the down arrow opens one with the focus on its picked item, the arrow keys move and wrap, Home and End jump, and Escape or Tab closes it and gives the focus back to its button.",
+    "Chats that are not on screen stay mounted but are aria-hidden and inert, and the status pill is an aria-live=\"polite\" region.",
+    "Auto-scrolling and the composer's move from New chat to the foot of the chat skip their animation when the user prefers reduced motion."
+  ],
+  "faq": [
+    {"q": "How do I stream the agent's reply into a chat?", "a": "Add a block with `kind: 'say'` and keep updating its `text` with the words so far; each new word fades in. The chat follows new content until the person scrolls up, and their own next message brings it back to the bottom."},
+    {"q": "How do I show the agent's work without flooding the chat?", "a": "Wrap tool calls and other steps in a block with `kind: 'group'`, a `label` and `state: 'running'`. When you set `state` to 'done' (and optionally `seconds`), it folds into one line the person can open again."},
+    {"q": "Can the agent wait for approval before it continues?", "a": "Yes. Add a 'permission-gate' or 'plan-review' block with that component's props, set the conversation's `state` to 'waiting', and give `status` a `review` key so the status pill shows a Review button that scrolls to it. Continue from the component's own callbacks."},
+    {"q": "Does it work on a phone?", "a": "Yes. At 620px wide or less, the chat list slides in as a drawer over the chat, and the tabs fold into the chat on screen, with a count beside it that lists every open chat so you can switch between them."}
+  ]
+}

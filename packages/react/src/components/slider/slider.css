@@ -1,0 +1,50 @@
+/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+/* ---------- Slider ---------- */
+/* three sliders on one grey track style: a knob you drag or move with the keys, the value over it while it moves, and the
+   part of the track it covers in the accent */
+.dm-sdx{padding:var(--dm-s-4);display:flex;flex-direction:column;gap:var(--dm-s-4)}
+.dm-sdx-b{display:flex;flex-direction:column;gap:var(--dm-s-1)}
+.dm-sdx-b+.dm-sdx-b{padding-top:var(--dm-s-4);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
+.dm-sdx-h{display:flex;align-items:baseline;justify-content:space-between;gap:var(--dm-s-2);font-size:13px}
+.dm-sdx-v{color:var(--dm-fg2);font-size:12.5px}
+.dm-sdx-tr{position:relative;height:32px;touch-action:none;cursor:pointer;margin:0 10px}
+.dm-sdx-rail{position:absolute;left:-10px;right:-10px;top:50%;height:6px;margin-top:-3px;border-radius:calc(3px * var(--dm-rk));background:var(--dm-chip);overflow:hidden}
+.dm-sdx-fill{position:absolute;top:0;bottom:0;left:0;width:0;background:var(--dm-accent-mark,var(--dm-accent))}
+/* the knob: a white squircle you drag (owner, 5 Nov), white in dark mode too, on a hairline and a soft shadow; square in Blueprint.
+   It is playful in the hand (owner, 5 Nov): grabbed, it springs up and lifts; dragged, it leans into the way it moves and
+   rights itself when you stop; let go, it bounces back down; and it gives a little hop when it snaps to the agent's mark.
+   The body (.sdx-kb) moves, so the value above it stays upright. A press never shows the focus ring (.ptr); keys do */
+.dm-sdx-k{position:absolute;top:50%;left:0;width:20px;height:20px;margin:-10px 0 0 -10px;border-radius:calc(6px * var(--dm-rk));cursor:grab;z-index:2}
+.dm-sdx-kb{position:absolute;inset:0;border-radius:calc(6px * var(--dm-rk));corner-shape:squircle;background:#fff;box-shadow:0 0 0 1px color-mix(in srgb,var(--dm-line) 70%,transparent),0 1px 2px rgba(0,0,0,.12),0 2px 6px rgba(0,0,0,.08);transform:rotate(var(--dm-tilt,0deg)) scale(var(--dm-ks,1));transition:transform .5s cubic-bezier(.34,1.56,.64,1),box-shadow .25s var(--dm-ease)}
+.dm-sdx-tr.dm-drag .dm-sdx-k.dm-on .dm-sdx-kb{--dm-ks:1.2;box-shadow:0 0 0 1px color-mix(in srgb,var(--dm-line) 70%,transparent),0 4px 8px rgba(0,0,0,.12),0 10px 22px rgba(0,0,0,.14);transition:transform .22s cubic-bezier(.34,1.56,.64,1),box-shadow .2s var(--dm-ease)}
+.dm-sdx-k.dm-ptr:focus-visible{outline:none}
+:root:not([data-style="soft"]) .dm-sdx-k:not(:where([data-style="soft"],[data-style="soft"] *)),:root:not([data-style="soft"]) .dm-sdx-kb:not(:where([data-style="soft"],[data-style="soft"] *)){border-radius:0}
+:root:not([data-style="soft"]) .dm-sdx-kb:not(:where([data-style="soft"],[data-style="soft"] *)){box-shadow:0 0 0 1px color-mix(in srgb,var(--dm-rail) 70%,transparent)}
+:root:not([data-style="soft"]) .dm-sdx-tr.dm-drag .dm-sdx-k.dm-on .dm-sdx-kb:not(:where([data-style="soft"],[data-style="soft"] *)){box-shadow:0 0 0 1px color-mix(in srgb,var(--dm-rail) 70%,transparent),0 6px 14px rgba(0,0,0,.18)}
+@media (prefers-reduced-motion:reduce){.dm-sdx-kb{transition:none;transform:none!important}}
+.dm-sdx-k:focus-visible{outline-offset:3px}
+.dm-sdx-tr.dm-glide .dm-sdx-k{transition:left .45s cubic-bezier(.34,1.3,.64,1)}
+.dm-sdx-tr.dm-glide .dm-sdx-fill{transition:left .45s var(--dm-ease),width .45s var(--dm-ease)}
+.dm-sdx-tr.dm-drag .dm-sdx-k.dm-on{cursor:grabbing}
+.dm-sdx-tt{position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%) translateY(4px) scale(.7);transform-origin:50% 100%;padding:3px var(--dm-s-2);border-radius:var(--dm-r-pill);background:var(--dm-ink);color:var(--dm-on-ink);font-size:11px;white-space:nowrap;opacity:0;transition:opacity .15s,transform .35s cubic-bezier(.34,1.56,.64,1);pointer-events:none}
+.dm-sdx-k.dm-on.dm-say .dm-sdx-tt,.dm-sdx-tr.dm-drag .dm-sdx-k.dm-on .dm-sdx-tt{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}
+@media (hover:hover) and (pointer:fine){.dm-sdx-k:hover .dm-sdx-tt{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}}
+.dm-sdx-tr.dm-drag .dm-sdx-k.dm-on .dm-sdx-tt{transform:translateX(-50%) translateY(-4px) scale(1)}
+/* the value the agent recommends: a mark over the track that you can press, and a notch in it; a knob dropped near it snaps to it */
+.dm-sdx-rec{position:absolute;top:-9px;width:20px;height:20px;margin-left:-10px;display:grid;place-items:center;border-radius:calc(6px * var(--dm-rk));color:var(--dm-accent-fg,var(--dm-accent));z-index:1;transition:background var(--dm-t-fast)}
+@media (hover:hover) and (pointer:fine){.dm-sdx-rec:hover{background:var(--dm-accent-bg)}}
+.dm-sdx-rec .dm-i{width:12px;height:12px}
+.dm-sdx-tr[data-s="cr"] .dm-sdx-rail{box-shadow:none}
+.dm-sdx-notch{position:absolute;top:0;bottom:0;width:2px;margin-left:-1px;background:var(--dm-surface)}
+.dm-sdx-stops{display:flex;justify-content:space-between;margin:0 -6px}
+.dm-sdx-stops button{height:24px;padding:0 6px;border-radius:calc(6px * var(--dm-rk));font-size:12px;color:var(--dm-muted);transition:background var(--dm-t-fast),color var(--dm-t-fast)}
+@media (hover:hover) and (pointer:fine){.dm-sdx-stops button:hover{background:var(--dm-row);color:var(--dm-fg)}}
+.dm-sdx-stops button[aria-pressed="true"]{color:var(--dm-fg)}
+.dm-sdx-sm{margin:var(--dm-s-1) 0 0;min-height:calc(2 * 1.5em);font-size:13px;line-height:1.5;color:var(--dm-fg2)}
+.dm-sdx-ticks{position:relative;height:28px;margin:-6px 10px 0}
+.dm-sdx-ticks button{position:absolute;top:0;display:flex;flex-direction:column;align-items:center;gap:3px;width:32px;margin-left:-16px;padding-top:2px;font-size:11.5px;color:var(--dm-muted);border-radius:calc(6px * var(--dm-rk));transition:color var(--dm-t-fast)}
+.dm-sdx-ticks button i{width:1px;height:5px;background:var(--dm-faint)}
+.dm-sdx-ticks button[aria-pressed="true"]{color:var(--dm-fg)}
+@media (hover:hover) and (pointer:fine){.dm-sdx-ticks button:hover{color:var(--dm-fg)}}
+.dm-sdx-ticks button[aria-pressed="true"] i{background:var(--dm-fg2)}
+.dm-sdx-ends{display:flex;justify-content:space-between;font-size:11.5px;margin-top:-2px}

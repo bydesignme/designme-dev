@@ -1,0 +1,88 @@
+/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+/* ---------- Trace view ---------- */
+/* one agent run as a waterfall: every span on a shared time axis, nested under the span that started it, with its tokens
+   and latency. Each kind has its colour (the chart palette's identity slots): its mark, its bar and its count in the key.
+   While the run streams, a playhead marks now and the running bars glow at their leading edge. A span over its time budget
+   turns amber and hatched, and any span opens to show where it sat in the run, its input and its output */
+.trv{width:100%;max-width:720px;margin:0 auto;padding:6px;container-type:inline-size;--dm-cols:minmax(0,11fr) minmax(0,8fr) 40px 44px}
+.trv-h{display:flex;align-items:center;justify-content:space-between;gap:var(--dm-s-3);padding:var(--dm-s-2) 10px 6px}
+.trv-ht{display:flex;flex-direction:column;min-width:0}
+.trv-ht b{font-weight:500;font-size:14px}
+.trv-st{font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.trv-tot{font-size:14px;font-weight:500;flex:none}
+/* the key: each kind with its colour and how many of its spans have started */
+.trv-lg{display:flex;flex-wrap:wrap;gap:2px var(--dm-s-3);padding:0 10px var(--dm-s-2);font-size:12px;color:var(--dm-muted)}
+.trv-lg span{display:inline-flex;align-items:center;gap:5px;white-space:nowrap;transition:color .3s}
+.trv-lg i{width:8px;height:8px;border-radius:2px;background:var(--dm-k);flex:none}
+.trv-lg b{font-weight:500;color:var(--dm-fg2)}
+.trv-lg span.z{color:var(--dm-dis)}.trv-lg span.z b{color:inherit}.trv-lg span.z i{opacity:.45}
+.trv-ax,.trv-r{display:grid;grid-template-columns:var(--dm-cols);align-items:center;gap:var(--dm-s-2);padding:0 10px}
+.trv-ax{height:30px;border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);font-size:12px;color:var(--dm-muted)}
+.trv-tk,.trv-ms{text-align:right;white-space:nowrap}
+.trv-sc{position:relative;height:18px}
+.trv-sc span{position:absolute;top:0;transform:translateX(-50%);font-size:12px}
+.trv-sc span:first-child{transform:none}
+.trv-rows{display:flex;flex-direction:column;padding-bottom:var(--dm-s-1)}
+.trv-r{width:100%;min-height:32px;border-radius:calc(10px * var(--dm-rk));font-size:13px;text-align:left;transition:background .16s}
+@media (hover:hover) and (pointer:fine){.trv-r:hover{background:var(--dm-row)}}
+.trv-r[aria-expanded="true"]{background:var(--dm-sel)}
+.trv-r[aria-expanded="true"] .trv-tk{color:var(--dm-fg2)}
+.trv-r:focus-visible{outline:0;box-shadow:inset 0 0 0 2px var(--dm-focus)}
+.trv-n{position:relative;display:flex;align-items:center;gap:6px;min-width:0;align-self:stretch;padding-left:calc(var(--dm-lv,0) * 16px)}
+.trv-k{position:relative;z-index:1;width:18px;height:18px;display:grid;place-items:center;flex:none;border-radius:5px;color:color-mix(in srgb,var(--dm-k) 70%,var(--dm-fg));background:color-mix(in srgb,var(--dm-k) 13%,var(--dm-surface))}
+.trv-nm{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.trv-r.root .trv-nm{font-weight:500}
+.trv-n .tag{flex:none}
+/* the tree: a guide from each parent's mark down past its children, with an elbow into each child */
+.trv-g{position:absolute;top:0;bottom:0;left:0;pointer-events:none}
+.trv-g i{position:absolute;top:0;bottom:0;left:calc(var(--dm-x) * 16px + 8.5px);width:1px;background:color-mix(in srgb,var(--dm-rail) 60%,transparent)}
+.trv-g i.end{bottom:50%}
+.trv-g i.el::after{content:"";position:absolute;left:0;top:calc(50% - 1px);width:7px;height:1px;background:inherit}
+.trv-g i.end.el::after{top:auto;bottom:-1px}
+.trv-g i.dn{top:50%}
+/* a bar per span on the shared axis: faint lines mark the ticks */
+.trv-b{position:relative;height:20px;background:linear-gradient(to right,var(--dm-line) 1px,transparent 1px) 0 0/20% 100%}
+/* a bar is laid out once at its full length; while it runs, --dm-f (0 to 1) reveals it with a clip and moves its bright edge with a
+   transform, so a streaming run repaints without laying the page out again */
+.trv-b i{position:absolute;top:5px;height:10px;min-width:3px;border-radius:3px;clip-path:inset(-6px calc((1 - var(--dm-f,1)) * 100% - 2px) -6px -6px);background:linear-gradient(90deg,color-mix(in srgb,var(--dm-k) 70%,var(--dm-surface)),var(--dm-k));transition:background .3s,opacity .3s}
+/* a running bar has a light passing along it and a bright leading edge */
+.trv-r.run .trv-b i{background:linear-gradient(90deg,color-mix(in srgb,var(--dm-k) 55%,var(--dm-surface)) 0 30%,color-mix(in srgb,var(--dm-k) 25%,var(--dm-surface)) 45%,var(--dm-k) 60% 100%) 0 0/250% 100%;animation:trvsheen 1.4s linear infinite}
+.trv-r.run:not([data-k="agent"]) .trv-b i::after{content:"";position:absolute;left:0;right:0;top:-2px;bottom:-2px;--dm-e:var(--dm-k);background:linear-gradient(to left,var(--dm-e) 0 2px,transparent 2px);transform:translateX(calc(var(--dm-f,1) * 100% - 100% + 1px))}
+@keyframes trvsheen{from{background-position:100% 0}to{background-position:-150% 0}}
+/* an agent span holds the others, so it is drawn as a bracket over the time they take */
+.trv-r[data-k="agent"] .trv-b i,.trv-r.run[data-k="agent"] .trv-b i{top:9px;height:2px;border-radius:1px;background:var(--dm-faint);animation:none}
+.trv-r[data-k="agent"] .trv-b i::before,.trv-r[data-k="agent"] .trv-b i::after{content:"";position:absolute;top:-3px;width:2px;height:8px;border-radius:1px;background:var(--dm-faint)}
+.trv-r[data-k="agent"] .trv-b i::before{left:0}.trv-r[data-k="agent"] .trv-b i::after{right:0}
+.trv-r.run[data-k="agent"] .trv-b i::after{background:var(--dm-muted)}
+/* over budget: amber, hatched */
+.trv-r.slow .trv-b i,.trv-r.run.slow .trv-b i{background:repeating-linear-gradient(135deg,var(--dm-warn-mark) 0 3px,color-mix(in srgb,var(--dm-warn-mark) 55%,var(--dm-surface)) 3px 6px)}
+.trv-r.run.slow .trv-b i::after{--dm-e:var(--dm-warn-mark)}
+.trv-r .trv-tk{font-size:12px;color:var(--dm-muted)}
+.trv-r .trv-ms{font-size:12.5px;color:var(--dm-fg2)}
+.trv-r.slow .trv-ms{color:var(--dm-warn)}
+/* with a span open, the other bars step back */
+.trv-rows.sel .trv-r:not([aria-expanded="true"]) .trv-b i{opacity:.35}
+/* the playhead: where the run is now, one line down every bar's track while it streams */
+.trv-b::after,.trv-sc::after{content:"";position:absolute;left:0;right:0;top:-6px;bottom:-6px;background:linear-gradient(90deg,var(--dm-accent-mark,var(--dm-accent)) 0 1px,transparent 1px);transform:translateX(calc(var(--dm-now,0) * 100% - .5px));opacity:0;transition:opacity .4s;pointer-events:none}
+.trv-sc::after{top:12px;bottom:-6px}
+.trv.live .trv-b::after,.trv.live .trv-sc::after{opacity:.75}
+.trv-dc{display:flex;flex-direction:column;gap:10px;margin-top:2px;padding:6px 10px var(--dm-s-2);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
+.trv-dh{display:flex;align-items:center;gap:var(--dm-s-2);min-width:0;font-size:13px}
+.trv-dh b{min-width:0;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.trv-dh .ib{margin:0 -6px 0 auto}
+/* where the open span sat in the run */
+.trv-pos{position:relative;height:6px;border-radius:3px;background:var(--dm-line)}
+.trv-pos i{position:absolute;top:0;bottom:0;min-width:3px;border-radius:3px;background:var(--dm-k);transition:width .25s linear}
+.trv-kv{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--dm-s-2)}
+.trv-kv div{display:flex;flex-direction:column;min-width:0}
+.trv-kv span{font-size:12px;color:var(--dm-muted)}
+.trv-kv b{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.trv-io{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:6px 10px;font-size:12px;color:var(--dm-muted)}
+.trv-io code{font-family:var(--dm-mono);font-size:12px;color:var(--dm-fg2);background:var(--dm-chip);padding:5px var(--dm-s-2);border-radius:var(--dm-r-sm);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+:root:not([data-style="soft"]) .trv-r:not(.slow) .trv-b i:not(:where([data-style="soft"],[data-style="soft"] *)){background:var(--dm-k)}
+:root:not([data-style="soft"]) .trv-r.run:not(.slow):not([data-k="agent"]) .trv-b i:not(:where([data-style="soft"],[data-style="soft"] *)){background:repeating-linear-gradient(90deg,var(--dm-k) 0 4px,color-mix(in srgb,var(--dm-k) 55%,var(--dm-surface)) 4px 6px);animation:none}
+:root:not([data-style="soft"]) .trv-r.run:not([data-k="agent"]) .trv-b i:not(:where([data-style="soft"],[data-style="soft"] *))::after{filter:none;background:linear-gradient(to left,var(--dm-e) 0 1px,transparent 1px);transform:translateX(calc(var(--dm-f,1) * 100% - 100%))}
+:root:not([data-style="soft"]) .trv-g i:not(:where([data-style="soft"],[data-style="soft"] *)),:root:not([data-style="soft"]) .trv-g i.el:not(:where([data-style="soft"],[data-style="soft"] *))::after{background:var(--dm-faint)}
+/* narrow: the names keep their room. Tokens move into each span's details, the slow tag leaves the amber bar and time to
+   say it (the time keeps its tooltip), the tree draws closer, and the details give the start its own line */
+@container (max-width:330px){.trv-ax,.trv-r{grid-template-columns:minmax(0,1fr) 72px 44px}.trv-tk,.trv-n .tag{display:none}.trv-n{padding-left:calc(var(--dm-lv,0) * 10px)}.trv-g{display:none}.trv-kv{grid-template-columns:repeat(2,minmax(0,1fr))}}

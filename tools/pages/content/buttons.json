@@ -1,0 +1,42 @@
+{
+  "summary": "Buttons is a set of pill and icon buttons that show what an action is doing while it runs. A button can go busy, then confirm it is done, a run button shows its elapsed time and turns into Stop, and a destructive action can require a hold to confirm. This matters in an agent product, where a click often starts work that takes a few seconds.",
+  "use": [
+    "When a click starts agent work and the person should see it is in progress and then finished",
+    "When a run needs a single control that starts it, shows how long it has gone and stops it",
+    "When a destructive action should take a deliberate hold instead of a single click",
+    "When a Share or More button should open a menu and then say what happened"
+  ],
+  "features": [
+    "`Button` comes in five variants (primary, accent, soft, line, ghost) and three sizes, with `busy`, `done` and `pressed` states and labels for each.",
+    "If `onClick` returns a promise, the button goes busy until it settles, then shows the done face for `doneFor` ms before returning to its label.",
+    "`busyGlyph=\"think\"` swaps the spinner for the agent's four turning dots with a shimmering label.",
+    "`ButtonRun` shows Running with an m:ss timer, reads Stop on hover, and shows Stopped or Run complete when it ends.",
+    "`ButtonHold` fills up while held and calls `onConfirm` after 1.2 seconds; letting go early cancels it.",
+    "`ButtonCopy`, `ButtonMenu` and `ButtonIconMenu` copy text or pick from a menu, then flash a check and a short status."
+  ],
+  "a11y": [
+    "Busy buttons set `aria-busy`, and toggles report their state with `aria-pressed`.",
+    "Icon-only buttons take a required `label` that becomes their `aria-label` and tooltip.",
+    "Menus use `role=\"menu\"` and `role=\"menuitem\"`, the trigger reports `aria-expanded`, and Escape closes the menu and returns focus to the button.",
+    "From the keyboard, Enter, Space or the down arrow opens a menu with the focus on its picked item, or its first (the up arrow, on its last); the arrow keys move through it and wrap, Home and End jump to the ends, Tab closes it and moves on, and closing it gives the focus back to its button.",
+    "The hold button works from the keyboard: holding Space or Enter confirms, and releasing either key early cancels."
+  ],
+  "faq": [
+    {
+      "q": "How do I show a loading state while my request runs?",
+      "a": "Return the promise from `onClick`. The button shows a spinner and `busyLabel` until it resolves, then a check and `doneLabel`. If the promise rejects it goes straight back to its label."
+    },
+    {
+      "q": "Can I drive the busy and done states myself instead of with a promise?",
+      "a": "Yes. Pass `busy` and `done` directly. While either is true, clicks are ignored."
+    },
+    {
+      "q": "How does the run button know how long the agent has been running?",
+      "a": "You pass `seconds` and it formats them as m:ss. You also set `state` to idle, running, stopped or complete, and handle `onRun` and `onStop`."
+    },
+    {
+      "q": "How long does the hold to confirm take?",
+      "a": "1.2 seconds of holding with a pointer, Space or Enter. After it confirms, the done face stays for `resetAfter` ms, 1800 by default."
+    }
+  ]
+}

@@ -1,0 +1,58 @@
+/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+/* ---------- Attachment tray ---------- */
+/* a drop zone, then the files as plain rows. Each file wears its type's hue: its badge, its ring and the wash that fills its
+   row from the left as it uploads. Once it is up the agent reads it (the line shimmers) and says what it found, like 12 pages */
+.atx{display:flex;flex-direction:column;gap:10px}
+.atx-drop{display:flex;flex-direction:column;align-items:center;gap:6px;padding:26px var(--dm-s-4);border-radius:var(--dm-r-card);background:none;cursor:pointer;position:relative;font-size:13.5px;transition:background .35s,box-shadow .35s,transform .45s var(--dm-ease)}
+/* the dashed edge is drawn in SVG so its dashes can march around the corners: drifting slowly at rest, taking the accent
+   under the pointer, and marching faster while a file is dragged over */
+.atx-ants{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
+.atx-ants rect{fill:none;stroke:var(--dm-faint);stroke-width:1.5;stroke-linecap:round;stroke-dasharray:4.5px var(--dm-ag,6.5px);transition:stroke .35s}
+@keyframes atxants{to{stroke-dashoffset:calc(var(--dm-ap,11px) * -1)}}
+.atx-drop.over{background:var(--dm-accent-bg)}
+@media (hover:hover) and (pointer:fine){.atx-drop:hover{background:var(--dm-accent-bg)}}
+.atx-drop.over .atx-ants rect{stroke:var(--dm-accent-mark,var(--dm-accent))}
+@media (hover:hover) and (pointer:fine){.atx-drop:hover .atx-ants rect{stroke:var(--dm-accent-mark,var(--dm-accent))}}
+.atx-ants rect{animation:atxants 2.6s linear infinite}
+.atx-drop.over .atx-ants rect{animation-duration:.9s}
+.atx-drop.over{transform:scale(1.015)}
+.atx-file{position:absolute;inset:0;opacity:0;cursor:pointer}
+/* the file input is clear over the drop zone, so the zone shows its focus */
+.atx-drop:has(.atx-file:focus-visible){outline:2px solid var(--dm-focus);outline-offset:2px}
+.atx-ic{position:relative;width:34px;height:34px;border-radius:calc(11px * var(--dm-rk));background:var(--dm-surface);box-shadow:var(--dm-shadow);display:grid;place-items:center;color:var(--dm-fg2);transition:transform .45s var(--dm-ease),background .35s,color .35s}
+.atx-drop.over .atx-ic{transform:translateY(-3px);background:var(--dm-surface);color:var(--dm-accent-fg,var(--dm-accent))}
+@media (hover:hover) and (pointer:fine){.atx-drop:hover .atx-ic{transform:translateY(-3px);background:var(--dm-surface);color:var(--dm-accent-fg,var(--dm-accent))}}
+/* while a file is over the zone its arrow bobs, and rings spread from the badge */
+.atx-drop.over .atx-ic .i{animation:atxbob .9s var(--dm-ease-io) infinite}
+@keyframes atxbob{50%{transform:translateY(-2px)}}
+.atx-ic::before,.atx-ic::after{content:"";position:absolute;inset:0;border-radius:inherit;box-shadow:0 0 0 1.5px var(--dm-accent-mark,var(--dm-accent));opacity:0;pointer-events:none}
+.atx-drop.over .atx-ic::before{animation:atxring 1.4s var(--dm-ease) infinite}
+.atx-drop.over .atx-ic::after{animation:atxring 1.4s var(--dm-ease) .7s infinite}
+@keyframes atxring{from{opacity:.5;transform:scale(1)}to{opacity:0;transform:scale(1.9)}}
+.atx-sample{color:var(--dm-accent-fg,var(--dm-accent));font-weight:500;position:relative;z-index:1}
+.atx-list{display:flex;flex-direction:column;gap:2px}
+.atx-it{--dm-p:0%;position:relative;display:flex;align-items:center;gap:10px;padding:var(--dm-s-2) 6px var(--dm-s-2) var(--dm-s-2);border-radius:var(--dm-r-in);overflow:hidden;background:linear-gradient(90deg,color-mix(in srgb,var(--dm-c,var(--dm-accent)) 8%,transparent) calc(var(--dm-p) - 24px),color-mix(in srgb,var(--dm-c,var(--dm-accent)) 16%,transparent) calc(var(--dm-p) - 1px),transparent var(--dm-p)) no-repeat}
+/* the wash fades once the file is up */
+.atx-it.up{background-size:0 100%;transition:background-size .6s var(--dm-ease) .2s}
+.atx-ti{width:30px;height:30px;border-radius:calc(9px * var(--dm-rk));display:grid;place-items:center;flex:none;font-size:9.5px;font-weight:500;letter-spacing:.02em;color:var(--dm-c);background:var(--dm-cb)}
+.atx-n{flex:1;min-width:0;font-size:13px}
+.atx-nm{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.atx-m{display:block;font-size:12px;color:var(--dm-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.atx-m .shim{font-size:inherit}
+/* on the wash, the line steps up a grey so it keeps its contrast */
+.atx-it:not(.up) .atx-m{color:var(--dm-fg2)}
+.atx-ring{width:22px;height:22px;flex:none}
+.atx-ring circle{transition:stroke-dashoffset .3s linear}
+.atx-ok{display:grid;place-items:center;width:22px;flex:none;color:var(--dm-ok)}
+.atx-ok .i{animation:atxpop .45s var(--dm-ease) backwards}
+@keyframes atxpop{0%{transform:scale(.4);opacity:0}60%{transform:scale(1.15);opacity:1}100%{transform:none}}
+.atx-rd{display:grid;place-items:center;width:22px;flex:none;color:var(--dm-c)}
+.atx-rd .spin{width:12px;height:12px}
+.atx-it .ib{width:26px;height:26px;flex:none}
+.atx-sum{font-size:12.5px;text-align:center;min-height:18px}
+:root:not([data-style="soft"]) .atx-it:not(:where([data-style="soft"],[data-style="soft"] *)){background:linear-gradient(var(--dm-c,var(--dm-accent)),var(--dm-c,var(--dm-accent))) 0 100%/var(--dm-p) 2px no-repeat}
+:root:not([data-style="soft"]) .atx-it.up:not(:where([data-style="soft"],[data-style="soft"] *)){background-size:0 2px}
+:root:not([data-style="soft"]) .atx-drop.over .atx-ic:not(:where([data-style="soft"],[data-style="soft"] *))::before{animation:atxringbp 1s steps(4,end) infinite}
+:root:not([data-style="soft"]) .atx-drop.over .atx-ic:not(:where([data-style="soft"],[data-style="soft"] *))::after{animation:none}
+@keyframes atxringbp{from{opacity:.6;transform:scale(1)}to{opacity:0;transform:scale(1.6)}}
+:root:not([data-style="soft"]) .atx-ok .i:not(:where([data-style="soft"],[data-style="soft"] *)){animation:none}

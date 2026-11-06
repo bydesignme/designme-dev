@@ -1,0 +1,81 @@
+/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+/* ---------- Carousel ---------- */
+/* one carousel, two types, picked with the switch under it (owner, 4 Nov). Both run on the same native scroll-snap track: a
+   swipe, a trackpad, a mouse drag, the arrows, the dots and the keys all move it, and each slide is a framed picture with
+   its caption, the next one peeking in. A picture coming into view comes into focus (Soft: out of a blur; Blueprint never
+   blurs, so there a veil wipes off it).
+   - Variants: the drafts an agent made from one brief, in a panel with its title. Each fills in as it arrives, can fail
+     with Retry, and can be kept: Keep turns from an outline to a fill, its frame's edge steps up and the others step back.
+   - Images: a gallery of pictures, bare, with Previous and Next above the track.
+   --dm-w is a slide's width (80% for images, 84% for variants; 100% shows one at a time, a fixed width mixes sizes), --dm-gap the
+   space between slides, --dm-h one height for every picture, and data-align="center" on .crs-c snaps slides to the middle */
+.dm-crs-c{width:100%;min-width:0;display:flex;flex-direction:column;gap:var(--dm-s-3)}
+.dm-crs-c[hidden]{display:none}
+.dm-crs-c.dm-panel{padding:var(--dm-s-4) 0;--dm-w:84%;--dm-gap:var(--dm-s-3)}
+.dm-crs-h{display:flex;align-items:center;justify-content:flex-end;gap:var(--dm-s-2)}
+.dm-crs-c.dm-panel>.dm-crs-h,.dm-crs-c.dm-panel>.dm-crs-dots{padding:0 var(--dm-s-4)}
+.dm-crs-t{flex:1;min-width:0;display:flex;flex-direction:column;font-size:13.5px;line-height:1.4}
+.dm-crs-t b{font-weight:500}
+.dm-crs-sub{font-size:12px}
+.dm-crs-nav{width:32px;padding:0}
+@media (hover:hover) and (pointer:fine){.dm-crs-nav:not(:disabled):hover{background:var(--dm-row)}}
+.dm-crs-tr{position:relative;display:flex;gap:var(--dm-gap,var(--dm-s-4));overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x mandatory;scrollbar-width:none;border-radius:calc(14px * var(--dm-rk))}
+.dm-crs-tr::-webkit-scrollbar{display:none}
+.dm-crs-c.dm-panel>.dm-crs-tr{padding:0 var(--dm-s-4);scroll-padding-inline:var(--dm-s-4);border-radius:0}
+.dm-crs-c.dm-panel>.dm-crs-tr:focus-visible{outline-offset:-2px;border-radius:var(--dm-r-in)}
+.dm-crs-tr.dm-drag{scroll-snap-type:none;cursor:grabbing;user-select:none;-webkit-user-select:none}
+.dm-crs-s{flex:0 0 var(--dm-w,80%);min-width:0;display:flex;scroll-snap-align:start;transition:opacity .35s var(--dm-ease)}
+.dm-crs-c[data-align="center"] .dm-crs-s{scroll-snap-align:center}
+.dm-crs-fig{flex:1;min-width:0;margin:0;display:flex;flex-direction:column;background:var(--dm-surface);border:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);border-radius:calc(14px * var(--dm-rk));overflow:hidden;transition:border-color var(--dm-t-fast)}
+.dm-crs-c.dm-panel .dm-crs-fig{border-radius:var(--dm-r-in)}
+/* the picture (or, for a draft, its frame): out of view it is soft and faded, clipped to its frame so the blur never spills
+   onto the caption; in view it comes into focus */
+.dm-crs-pic,.dm-crs-pv{position:relative;aspect-ratio:var(--dm-ar,3/2);height:var(--dm-h,auto);background-color:var(--dm-row);clip-path:inset(0);transition:filter .7s var(--dm-ease),opacity .7s var(--dm-ease)}
+.dm-crs-pic{background-image:var(--dm-art);background-size:cover;background-position:center}
+.dm-crs-s:not(.dm-in) :is(.dm-crs-pic,.dm-crs-pv){filter:blur(10px);opacity:.6}
+/* Blueprint's veil, the surface over a picture that is out of view, wipes off from the left as the picture comes in */
+.dm-crs-pic::after,.dm-crs-pv::after{content:"";position:absolute;inset:0;z-index:1;background:var(--dm-surface);opacity:0;clip-path:inset(0 0 0 100%);pointer-events:none}
+:root:not([data-style="soft"]) .dm-crs-s:not(.dm-in) :is(.dm-crs-pic,.dm-crs-pv):not(:where([data-style="soft"],[data-style="soft"] *)){opacity:1}
+:root:not([data-style="soft"]) :is(.dm-crs-pic,.dm-crs-pv):not(:where([data-style="soft"],[data-style="soft"] *))::after{opacity:.6;transition:clip-path var(--dm-t-slow) var(--dm-ease)}
+:root:not([data-style="soft"]) .dm-crs-s:not(.dm-in) :is(.dm-crs-pic,.dm-crs-pv):not(:where([data-style="soft"],[data-style="soft"] *))::after{clip-path:inset(0)}
+/* the caption: the title over a quieter line, as a draft's label sits over its meta, so every slide keeps one height */
+.dm-crs-cap{display:flex;flex-direction:column;padding:10px var(--dm-s-3);font-size:13px;line-height:1.35}
+.dm-crs-cap b{font-weight:500;color:var(--dm-fg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dm-crs-cap .dm-muted{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* a draft is a 3:2 frame that holds its picture once it arrives (owner, 4 Nov). Until then it is a grey frame with an image
+   mark; while the agent makes it, it builds up out of pixels on a canvas (crsPixels, with the script), and the picture comes
+   into focus over the last of them as it lands. The picture waits in the frame from the start, unseen (.pre), so its colours
+   are there to build from */
+.dm-crs-pv{padding:var(--dm-s-4);display:flex;flex-direction:column;justify-content:center;gap:6px;overflow:hidden}
+.dm-crs-pv>.dm-ph{align-self:center;width:24px;height:24px;color:var(--dm-faint)}
+.dm-crs-pv.dm-gen>.dm-ph{animation:dm-crsph .5s var(--dm-ease) forwards}
+@keyframes dm-crsph{to{opacity:0;transform:scale(.8)}}
+.dm-crs-px{position:absolute;inset:0;width:100%;height:100%;display:block;pointer-events:none}
+.dm-crs-img{position:absolute;inset:0;background-image:var(--dm-art);background-size:cover;background-position:center;animation:dm-crsin .9s var(--dm-ease) both}
+.dm-crs-img.dm-pre{animation:none;opacity:0}
+/* the picture comes into focus as it arrives; Blueprint never blurs, so there it wipes in from the left */
+@keyframes dm-crsin{from{opacity:0;filter:blur(16px);transform:scale(1.06)}to{opacity:1;filter:none;transform:none}}
+:root:not([data-style="soft"]) .dm-crs-img:not(:where([data-style="soft"],[data-style="soft"] *)){animation-name:dm-crswipe;animation-duration:var(--dm-t-slow)}
+@keyframes dm-crswipe{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0)}}
+.dm-crs-pv.dm-fail{align-items:center;text-align:center;gap:var(--dm-s-1)}
+.dm-crs-pv.dm-fail>.dm-i{color:var(--dm-bad)}
+.dm-crs-pv.dm-fail b{font-size:13px;font-weight:500;color:var(--dm-fg)}
+.dm-crs-pv.dm-fail .dm-muted{font-size:12px}
+.dm-crs-pv.dm-fail .dm-pill{margin-top:6px}
+.dm-crs-pv.dm-fail>*{animation:dm-crsup .4s var(--dm-ease) both}
+@keyframes dm-crsup{from{opacity:0;transform:translateY(4px)}}
+.dm-crs-f{display:flex;align-items:center;gap:var(--dm-s-2);min-height:28px;padding:10px var(--dm-s-3)}
+.dm-crs-f>div{flex:1;min-width:0;display:flex;flex-direction:column;font-size:13px;line-height:1.35}
+.dm-crs-f b{font-weight:500}
+.dm-crs-f .dm-muted{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-variant-numeric:tabular-nums}
+.dm-crs-f .dm-tag .dm-spin{width:9px;height:9px}
+.dm-crs-keep[aria-pressed="true"]{background:var(--dm-accent);color:var(--dm-on-accent);box-shadow:none}
+.dm-crs-c.dm-kept .dm-crs-s:not(.dm-kept){opacity:.45}
+.dm-crs-s.dm-kept .dm-crs-fig{border-color:color-mix(in srgb,var(--dm-pick-on) 70%,transparent)}
+.dm-crs-dots{display:flex;justify-content:center;gap:6px}
+.dm-crs-dots[hidden]{display:none}
+.dm-crs-dots button{width:6px;height:6px;border-radius:var(--dm-r-pill);background:var(--dm-rail);transition:width var(--dm-t) var(--dm-ease),background var(--dm-t-fast)}
+@media (hover:hover) and (pointer:fine){.dm-crs-dots button:hover{background:var(--dm-faint)}}
+.dm-crs-dots button[aria-current="true"]{width:16px;background:var(--dm-fg2)}
+.dm-crs-sr{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+@media (prefers-reduced-motion:reduce){:is(.dm-crs-pic,.dm-crs-pv),:is(.dm-crs-pic,.dm-crs-pv)::after,:root:not([data-style="soft"]) :is(.dm-crs-pic,.dm-crs-pv):not(:where([data-style="soft"],[data-style="soft"] *))::after{transition:none}}

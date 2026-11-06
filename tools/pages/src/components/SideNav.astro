@@ -1,0 +1,49 @@
+---
+// The homepage's sidebar, the same on every page: the search field, Library, Docs, Changelog, Roadmap and FAQ with the
+// homepage's icons, the component groups (each folds on its name, with its count), and the DesignMe credit with Book a call
+// pinned to the bottom. It uses the homepage's own markup and class names, and SiteShell gives them the homepage's sizes and
+// colours, so moving between pages only moves the active state:
+//   - on a docs page, Docs is the page you're on, and it opens into its pages with the one you're reading marked
+//   - on a component page, Library is the page you're on, and the component is marked in its group
+// As on the homepage, the groups of one set show at a time (Agent components, or App basics when the component is one of
+// those), and a search looks across both. `mode` is "side" for the sidebar, or "menu" for the menu that replaces it on
+// smaller screens, which has the search, the pages, the current component's group (every group while you search), the settings
+// it is given (its slot: SiteShell puts the style, accent and sound there) and Book a call
+import { SECTIONS, SETS, SIDE_FOOT, icon } from '../lib/data.mjs';
+import { DOCS } from '../lib/docs.mjs';
+const { doc = null, reg = null, mode = 'side' } = Astro.props;
+const curSec = reg ? SECTIONS.find(s => s.cards.some(c => c.reg === reg)) : null;
+const set = curSec ? curSec.grp : 'agent';
+const pages = [
+  { href:'/', label:'Library', ic:'dashboard', on:!doc },
+  { href:'/docs/introduction', label:'Docs', ic:'description', on:!!doc },
+  { href:'/#/changelog', label:'Changelog', ic:'history' },
+  { href:'/#/roadmap', label:'Roadmap', ic:'trending_up' },
+  { href:'/#/faq', label:'FAQ', ic:'help' },
+];
+const ms = (name, cls = 'ms') => `<span class="${cls}">${icon(name, 'sh')}</span>`;
+const sets = Object.keys(SETS).map(g => ({ g, name:SETS[g], secs:SECTIONS.filter(s => s.grp === g) })).filter(s => s.secs.length);
+// the homepage's foot, with its arrow drawn as the same icon
+let foot = SIDE_FOOT.replace('<span class="ms">arrow_forward</span>', ms('arrow_forward'));
+if (mode !== 'side') foot = foot.replace(' id="hire-btn"', '');
+const qid = mode === 'side' ? 'side-q' : 'menu-q';
+---
+<label class="side-search"><Fragment set:html={ms('search')} /><input id={qid} placeholder="Search components" autocomplete="off" enterkeyhint="search" aria-label="Search components" /><span class="kbd" aria-hidden="true">/</span></label>
+<nav class="side-pages" aria-label="Site">
+  {pages.map(p => <>
+    <a class:list={['side-p', { act:p.on }]} href={p.href} data-p={p.ic} aria-current={p.on ? 'page' : undefined}><Fragment set:html={ms(p.ic)} />{p.label}</a>
+    {p.ic === 'description' && doc && <div class="side-ul side-docs">{DOCS.map(x => <a class:list={['side-a', { act:x.slug === doc }]} href={x.url} aria-current={x.slug === doc ? 'page' : undefined}>{x.title}</a>)}</div>}
+  </>)}
+</nav>
+<nav class="side-nav" aria-label="Components" data-set={set}>
+  {sets.map(s => <>
+    <div class="side-lbl" data-grp={s.g}>{s.name}</div>
+    {s.secs.map(sec => <div class:list={["side-grp", { cur:sec === curSec }]} data-grp={s.g} data-s={sec.title}>
+      <button type="button" class="side-h" aria-expanded="true"><Fragment set:html={ms('expand_more', 'ms chev')} /><span class="nm">{sec.title}</span><span class="side-n">{sec.cards.length}</span></button>
+      <div class="side-list"><div class="side-ul">{sec.cards.map(c => <a class:list={['side-a', { act:c.reg === reg }]} href={`/components/${c.reg}`} data-d={c.desc} aria-current={c.reg === reg ? 'page' : undefined}>{c.title}</a>)}</div></div>
+    </div>)}
+  </>)}
+  <div class="side-empty"><p>No components match your search.</p></div>
+</nav>
+{mode !== 'side' && <slot />}
+<div class="side-foot" set:html={foot} />

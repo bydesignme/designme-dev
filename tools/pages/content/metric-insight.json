@@ -1,0 +1,37 @@
+{
+  "summary": "Metric insight shows one number, such as a conversion rate, with its trend line, its change over the chosen range and a one-line note from the agent on what happened. A \"Why did it move?\" button opens a breakdown of the drivers behind the change.",
+  "use": [
+    "When a dashboard should explain a number as well as show it.",
+    "When the agent has found a likely cause, like a release, and you want it marked on the chart.",
+    "When people switch between 7, 30 and 90 day views and expect the story to change with the range.",
+    "When the agent needs a moment to work out the drivers after someone asks."
+  ],
+  "features": [
+    "Each entry in `ranges` has its own `points`, `value`, `change` and `insight`, and a switch picks between them.",
+    "The large number and the change tag roll to their new values. The tag turns red when the change is negative.",
+    "Hovering the chart shows a guide line and a dot on the nearest point, and the large number shows that point's value.",
+    "A range can carry a `marker`, such as a release, placed across the chart with its label in a tooltip.",
+    "With `drivers`, a button opens a list of what moved the number, each with a coloured bar and its share in percent.",
+    "Set `explaining` while you fetch the drivers. The button says \"Looking into it\" and the breakdown stays shut. `format` and `formatChange` control how numbers read."
+  ],
+  "a11y": [
+    "The range switch is a group labelled \"Range\" whose buttons use `aria-pressed`.",
+    "The breakdown button has `aria-expanded`, and the closed breakdown is `inert` and `aria-hidden`.",
+    "The chart SVG is `aria-hidden`, so the number, change and insight text carry the meaning.",
+    "With reduced motion turned on, the number and change jump straight to their values."
+  ],
+  "faq": [
+    {
+      "q": "Can I show something other than a percentage?",
+      "a": "Yes. Pass `format` for the large number and hovered points, and `formatChange` for the tag. The defaults are one decimal with a % and a change like \"+8.1 pts\"."
+    },
+    {
+      "q": "How do I fetch the drivers only when someone asks?",
+      "a": "Control `open` and handle `onOpenChange`. When it asks to open, set `explaining` to true, load the drivers, then set `explaining` to false and `open` to true. The demo does this."
+    },
+    {
+      "q": "How do I mark a release on the chart?",
+      "a": "Add `marker: { at, label }` to a range. `at` is a position from 0 to 1 across the chart, and `label` shows when the marker is hovered."
+    }
+  ]
+}

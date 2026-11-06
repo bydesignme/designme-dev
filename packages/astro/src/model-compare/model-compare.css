@@ -1,0 +1,54 @@
+/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+/* ---------- Model compare ---------- */
+/* one prompt on top, then each model's answer in its own column on one white surface, split by hairlines. Colour is only
+   for the models' marks and the answer that was chosen. Where the component is narrow, the columns stack */
+.mcx{display:flex;flex-direction:column;container-type:inline-size}
+/* on a card it keeps the room its answers will take, so it stays centred before they arrive; the columns take the rest */
+.stage-in>.mcx{min-height:inherit}
+.mcx-in{display:flex;align-items:center;gap:var(--dm-s-2);padding:var(--dm-s-3)}
+/* the prompt field: a dimmed edge at rest, one step stronger while it has the focus, and no ring */
+.mcx-fd{flex:1;min-width:0;display:flex;align-items:center;gap:var(--dm-s-2);height:var(--dm-field-h);padding:0 var(--dm-s-3);border-radius:var(--dm-r-field);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line) 50%,transparent);transition:box-shadow var(--dm-t-fast)}
+@supports (corner-shape:squircle){.mcx-fd{corner-shape:squircle;border-radius:var(--dm-r-field-sq)}}
+.mcx-fd:has(.mcx-q:focus){box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line-strong) 50%,transparent)}
+.mcx-q{flex:1;min-width:0;height:100%;border:0;outline:0;background:none;font:inherit;font-size:13.5px;color:var(--dm-fg)}
+.mcx-q:focus-visible{outline:0}
+.mcx-n{font-size:12px;color:var(--dm-muted);white-space:nowrap}
+.mcx-go{flex:none}
+.mcx-pop{min-width:240px}
+.mcx-cols{flex:1;display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
+.mcx-c{display:flex;flex-direction:column;min-width:0;padding:var(--dm-s-3) var(--dm-s-4) var(--dm-s-4);transition:background var(--dm-t) var(--dm-ease)}
+.mcx-c+.mcx-c{border-left:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
+.mcx-c.enter{animation-duration:.5s}
+.mcx-c.win{background:var(--dm-sel)}
+/* the header: the model, which is also the menu that swaps it, and Remove */
+.mcx-h{display:flex;align-items:center;gap:var(--dm-s-1);margin:0 calc(-1 * var(--dm-s-2)) 0 calc(-1 * var(--dm-s-2))}
+.mcx-sel{display:inline-flex;align-items:center;gap:var(--dm-s-2);height:28px;padding:0 var(--dm-s-2);border-radius:var(--dm-r-sm);font-size:13.5px;font-weight:500;color:var(--dm-fg);min-width:0;transition:background var(--dm-t-fast)}
+.mcx-sel[aria-expanded="true"]{background:var(--dm-row)}
+@media (hover:hover) and (pointer:fine){.mcx-sel:hover{background:var(--dm-row)}}
+.mcx-sel .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mcx-sel>.i{color:var(--dm-muted)}
+.mcx-mk{width:18px;height:18px;border-radius:var(--dm-r-xs);display:grid;place-items:center;font-size:10px;font-weight:500;flex:none}
+.mcx-x{width:28px;height:28px;margin-left:auto;color:var(--dm-muted)}
+/* the quiet line under it: what the model is good at until it writes, then its tokens, then time, tokens and cost */
+.mcx-m{min-height:18px;margin-top:var(--dm-s-1);font-size:12px;line-height:18px;color:var(--dm-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mcx-m [data-tip]{cursor:default;transition:color var(--dm-t)}
+.mcx-m .best{color:var(--dm-fg)}
+.mcx-a{flex:1;min-height:112px;margin-top:var(--dm-s-3);font-size:13.5px;line-height:1.55;color:var(--dm-fg)}
+.mcx-a .w{animation:mcw .4s var(--dm-ease) both}
+@keyframes mcw{from{opacity:0;filter:blur(3px)}to{opacity:1;filter:none}}
+.mcx-a .ph{color:var(--dm-muted);font-size:12.5px}
+.mcx-a .wk{display:inline-flex;align-items:center;gap:var(--dm-s-2);font-size:12.5px;color:var(--dm-muted)}
+.mcx-a .wk .think{color:var(--dm-accent-fg,var(--dm-accent))}
+/* Use this answer shows once the answer is in; the chosen one takes the accent's tint */
+.mcx-ft{margin-top:var(--dm-s-3);visibility:hidden;opacity:0;transition:opacity var(--dm-t) var(--dm-ease),visibility 0s var(--dm-t)}
+.mcx-c.done .mcx-ft{visibility:visible;opacity:1;transition:opacity var(--dm-t) var(--dm-ease)}
+.pill.mcx-pick[aria-pressed="true"]{background:var(--dm-accent-bg);color:var(--dm-accent-fg,var(--dm-accent));box-shadow:none}
+@media (hover:hover) and (pointer:fine){.pill.mcx-pick[aria-pressed="true"]:hover{background:var(--dm-accent-bg);color:var(--dm-accent-fg,var(--dm-accent));box-shadow:none}}
+.mcx-live{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+@container (max-width:539px){
+  .mcx-cols{grid-auto-flow:row}
+  .mcx-c+.mcx-c{border-left:0;border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
+  .mcx-a{min-height:42px}
+  .mcx-n{display:none}
+}
+:root:not([data-style="soft"]) .pill.mcx-pick[aria-pressed="true"]:not(:where([data-style="soft"],[data-style="soft"] *)){box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-accent-mark) 50%,transparent)}

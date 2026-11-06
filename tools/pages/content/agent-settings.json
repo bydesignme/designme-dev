@@ -1,0 +1,29 @@
+{
+  "summary": "A settings panel for how much an agent may do on its own: an autonomy scale, on/off switches, a spend cap per run and free-text instructions. Any change brings up an \"Unsaved changes\" bar with Save and Reset, so people can review before the agent's behaviour changes.",
+  "use": [
+    "When people need to decide whether the agent asks first or works alone.",
+    "When you want to cap what one agent run may spend.",
+    "When standing instructions for the agent should live next to its other settings.",
+    "When several settings changes should be reviewed and saved together."
+  ],
+  "features": [
+    "An autonomy scale built from `levels` (Ask, Balanced and Autopilot by default), with the picked level's description shown under the heading.",
+    "One switch per entry in `toggles`, each with a label and an optional detail line.",
+    "A spend cap stepped up and down through the amounts in `caps`, shown with `formatCap`.",
+    "An instructions text box that is part of the same value.",
+    "A save bar that appears whenever the value differs from the last saved one. Save calls `onSave`, and if it returns a promise the button spins until it settles; Reset goes back to the last saved settings and calls `onReset`.",
+    "Works controlled through `value` and `onValueChange`, or holds its own state with `defaultValue`."
+  ],
+  "a11y": [
+    "The autonomy scale is a role=\"radiogroup\" labelled \"Autonomy\", and each step is role=\"radio\" with aria-checked.",
+    "Each toggle is role=\"switch\" with aria-checked and its label as aria-label.",
+    "The cap buttons are labelled \"Lower cap\" and \"Raise cap\", and the text box is labelled \"Instructions\".",
+    "The save bar is inert and aria-hidden while there is nothing to save. If it hides with the focus in it, after Save or Reset, the focus moves to the autonomy scale."
+  ],
+  "faq": [
+    {"q": "What happens if saving fails?", "a": "If the promise returned by `onSave` rejects, the button goes back to Save and the save bar stays up, because the settings still differ from the last saved ones."},
+    {"q": "Can I change the autonomy levels?", "a": "Yes. Pass `levels` with a label and description for each step. The scale lays out as many steps as you give it, and `autonomy` in the value is the index of the picked one."},
+    {"q": "How do I add my own on/off settings?", "a": "Pass `toggles` with a `key`, `label` and optional `detail` for each. Their state lives in `value.toggles`, keyed by `key`."},
+    {"q": "Can the spend cap use other amounts or a currency?", "a": "Yes. `caps` sets the amounts the minus and plus buttons step through, and `formatCap` sets how the amount reads. `capLabel` and `capDetail` change the text beside it."}
+  ]
+}

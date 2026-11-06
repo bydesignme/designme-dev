@@ -1,0 +1,50 @@
+{
+  "summary": "Rich text editor is a small editor for drafts an agent helps write. It has a compact toolbar for a heading, bold, italic, inline code, links, lists and quotes, a quiet word count, and undo and redo. Select some text and ask the AI to improve it, shorten it or fix its grammar, or to continue writing, and the suggestion streams in beside your text, with the old words struck through, for you to accept or discard.",
+  "use": [
+    "When people write something an agent can improve, like an announcement, a reply or a brief, and should stay in charge of every change.",
+    "When the agent's suggestion should be read in place, next to the words it replaces, before anything is kept.",
+    "When a few formats are enough and a full document editor would be too much.",
+    "Not for long documents with tables, images or comments: use a full document editor then."
+  ],
+  "features": [
+    "The toolbar formats the selection, or the lines it touches: Heading, Bold, Italic, Inline code, Link, Bulleted list, Numbered list and Quote. A button shows as pressed when the selection has that format. Pressing a format the selection already has takes it off; Link opens a field for the address, with Remove link when there is one.",
+    "Shortcuts, with Ctrl in place of ⌘ on Windows and Linux: ⌘B bold, ⌘I italic, ⌘E inline code, ⌘K link, ⌘⌥1 heading, ⌘⌥0 plain text, ⌘⇧8 bullets, ⌘⇧7 numbers, ⌘⇧9 quote, ⌘J the AI menu, ⌘Z undo, and ⇧⌘Z or Ctrl+Y redo. With nothing selected, bold, italic and code apply to what you type next, and the line formats to the caret's line.",
+    "Enter starts a new line: a list or a quote carries on, and a heading is followed by plain text. Enter on an empty list item leaves the list, and Backspace at the start of a heading, list item or quote line turns it into plain text before joining it to the line above.",
+    "Paste keeps paragraphs, one heading level, lists, quotes, bold, italic, inline code and links to http, https or mailto addresses, and drops everything else, including scripts, images and styles. Bold and italic set with styles, as Google Docs does, are kept. Without HTML, each line of plain text becomes a paragraph, and a drop goes in as plain text.",
+    "Undo and redo step through the editor's own history: typing becomes one step when it pauses, and each format, paste and accepted suggestion is a step of its own.",
+    "The AI menu opens from Ask AI in the toolbar, ⌘J, the small Ask AI button over a selection, or / typed at the start of a line. Improve writing, Make shorter and Fix grammar act on the selection, or on the paragraph the caret is in; Continue writing writes on after it. `aiActions` changes the menu, and an action with `kind: 'add'` writes on instead of replacing.",
+    "`ai` writes the suggestion: return a string, a promise of one, or an async iterable of chunks to stream it in as your model answers. It gets the action, the text, the text before and after it, the whole document and an abort signal. By default a demo streams canned text, and `ai={false}` hides the AI.",
+    "While a suggestion is on screen the text can't be edited. Accept, Tab or Enter keeps it once it has finished, as plain text; Discard, Escape or ⌘Z leaves the text as it was. `onSuggestion` reports which.",
+    "`value`, `defaultValue` and `onValueChange` hold the text as HTML in those few tags. The editor keeps one height and scrolls inside, so it doesn't move the page as you write. A ref can type, select, format, run an AI action, accept and discard, which is how the preview's story drives it."
+  ],
+  "a11y": [
+    "The text has `role=\"textbox\"` with `aria-multiline`, a label from `label` (Draft by default) and `aria-placeholder`.",
+    "The toolbar has `role=\"toolbar\"` and the label Formatting. It is one tab stop: ← and → move along it, and Home and End jump to its ends. Each format button is labelled, reports `aria-pressed`, and shows its shortcut in its tooltip.",
+    "The AI menu follows the menu pattern: `role=\"menu\"` labelled by its heading, `menuitem` rows, ↑ and ↓ that wrap, Home and End, a letter to jump to an item, and Escape or Tab to go back to the text with the selection as it was, or to Ask AI when the menu was opened from it with the keyboard. Ask AI reports `aria-expanded`, and items that can't run on an empty line are `aria-disabled`.",
+    "The link field is a labelled dialog: Enter applies the address, Escape goes back to the text (or to the Link button, when the field was opened from it with the keyboard), and an address it can't read is marked `aria-invalid`.",
+    "An `aria-live=\"polite\"` region says when a suggestion is being written, reads it out with how to accept or discard it, and says when it was accepted or discarded.",
+    "Tab only accepts while a suggestion is waiting; otherwise it moves the focus out of the text as usual. With reduced motion turned on, words don't fade in, and the demo's suggestion appears all at once."
+  ],
+  "faq": [
+    {
+      "q": "How do I connect it to my model?",
+      "a": "Pass `ai`, a function that gets `{ action, text, before, after, document, signal }`. Return an async iterable of text chunks to stream the answer, or a string or a promise of one, which is written in a word at a time. Stop your request when `signal` aborts, which happens when the person discards the suggestion."
+    },
+    {
+      "q": "What does the default AI do?",
+      "a": "It is a demo, so the preview works on its own: canned rewrites for the preview's draft about a pricing launch, and for anything else simple rules that drop filler words and fix common typos. Pass your own `ai` in a product."
+    },
+    {
+      "q": "What format is the value in?",
+      "a": "HTML with `p`, `h2`, `ul`, `ol`, `li` and `blockquote` for lines, and `b`, `i`, `code` and `a href` inside them. Anything else you pass in is cleaned out the same way a paste is."
+    },
+    {
+      "q": "Is pasted HTML safe?",
+      "a": "The editor reads it with a parser that runs nothing, and rebuilds it from the few tags it keeps, without attributes other than a link's address. Links to anything but http, https and mailto lose their address and stay as text."
+    },
+    {
+      "q": "Can people keep typing while a suggestion streams in?",
+      "a": "No. The text is held still until the suggestion is accepted or discarded, so the words it replaces can't change under it. Escape discards it straight away, even while it is still being written."
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "summary": "A list of the tools and services an agent is connected to, each with a three-way permission switch: Off, Ask or Allow. People can test every connection, reconnect one that failed, and connect another tool from a menu. It answers the question \"what can this agent touch, and does it need my OK first?\"",
+  "use": [
+    "When your agent calls outside tools such as Figma, GitHub or Slack and people should control each one.",
+    "When some tools should need approval while others run freely.",
+    "When connections can expire and people need a way to spot and fix them.",
+    "In an agent's settings or onboarding, where new tools get connected."
+  ],
+  "features": [
+    "Each row shows a service logo (`brand`) or an icon on a tinted tile, a name and a detail line.",
+    "An Off, Ask or Allow switch per tool, defaulting to Ask; a tool set to Off is dimmed and not counted as connected.",
+    "\"Connect a tool\" opens a menu of `available` tools not yet in the list; a picked tool joins with \"Just connected\" and Ask, and `onConnect` is called.",
+    "Passing `onTest` adds a Test all button, and `testing` shows a spinner on it while a test runs. You report each tool's progress through its `status`: 'testing' puts a small spinner on its status dot, without changing its line.",
+    "A tool with `status: 'error'` shows a Reconnect button that calls `onReconnect`, with a spinner while `status` is 'reconnecting'.",
+    "The line under the title counts connected tools, or shows your own `status` text."
+  ],
+  "a11y": [
+    "Each permission switch is a role=\"group\" labelled with the tool name plus \"permission\", and its buttons use aria-pressed.",
+    "Each permission option has a tooltip saying what it means, such as \"Agent asks first\", which also shows on keyboard focus.",
+    "The \"Connect a tool\" button exposes aria-expanded and aria-haspopup, and its menu has role=\"menu\"; Escape closes it and returns focus to the button.",
+    "From the keyboard, Enter, Space or the down arrow opens a menu with the focus on its picked item, or its first (the up arrow, on its last); the arrow keys move through it and wrap, Home and End jump to the ends, Tab closes it and moves on, and closing it gives the focus back to its button."
+  ],
+  "faq": [
+    {"q": "How do I show a connection test in progress?", "a": "Handle `onTest` and update `tools`: set `testing`, and each tool's `status` to 'testing' (a small spinner on its dot), then to 'ok' or 'error'. A `note`, like \"Token expired. Reconnect to use it\", replaces the detail line while it is set."},
+    {"q": "What does Reconnect do?", "a": "It calls `onReconnect` with the tool's key. Set that tool's `status` to 'reconnecting' while you refresh the token, then back to 'ok' and the row comes back with its permission switch."},
+    {"q": "How do I save permission changes?", "a": "Pass `tools` and `onToolsChange`. Every switch change and newly connected tool comes back as the full updated list."},
+    {"q": "Can I use a tool that has no logo?", "a": "Yes. Leave out `brand` and set `icon` and `color`; the icon sits on a tile tinted with that colour."}
+  ]
+}

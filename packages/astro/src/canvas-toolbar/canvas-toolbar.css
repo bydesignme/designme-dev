@@ -1,0 +1,93 @@
+/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+/* ---------- Canvas toolbar ---------- */
+/* a workflow canvas with its floating toolbar fixed at the bottom centre: Run (Stop while a run is going), the pointer tools
+   as one radio group, Comment, Fit and zoom. A narrow canvas moves Comment and Fit, then the zoom buttons, into a More menu,
+   so the toolbar never wraps or runs past the canvas. The canvas is the whole component, edge to edge, in the stage's
+   colour; it fills the height it is given, and is 560px tall (520px below 440px wide) when nothing gives it one */
+.ctb{position:relative;width:100%;height:100%;container:ctb/inline-size;border-radius:var(--dm-r-in);
+  /* Stop's fill: a red that keeps white text at 4.5:1 and APCA Lc 75 in both themes, darker on hover */
+  --dm-ctb-stop:#bf3434;--dm-ctb-stop-2:#a52a2a;--dm-ctb-on-stop:#ffffff;
+  /* the wires: the field grey, which holds 3:1 against the canvas */
+  --dm-ctb-wire:var(--dm-line-strong)}
+.ctb-cv{position:relative;height:560px;min-height:100%;border-radius:inherit;overflow:hidden;outline:0;user-select:none;-webkit-user-select:none;cursor:default;
+  background-color:var(--dm-stage);background-image:radial-gradient(circle,color-mix(in srgb,var(--dm-fg) 14%,transparent) 1.1px,transparent 1.6px);background-size:16px 16px}
+@container ctb (max-width:439px){.ctb-cv{height:520px}}
+/* touch is the page's until the canvas is engaged (a tap in it): then a finger works the tool as the mouse does */
+.ctb-cv.engaged{touch-action:none}
+/* in a stage the canvas takes all of it, so the stage's own room goes */
+.card.wide .stage-in:has(>.ctb){max-width:none;align-self:stretch}
+/* the canvas shows its focus only to the keyboard, in the quiet grey: a click gives it the focus without a ring */
+.ctb-cv:focus-visible:not(.ptr){outline:2px solid color-mix(in srgb,var(--dm-field-line) 50%,transparent);outline-offset:-2px;border-radius:inherit}
+.ctb[data-tool="hand"] .ctb-cv{cursor:grab}
+.ctb[data-tool="lasso"] .ctb-cv,.ctb.cm .ctb-cv{cursor:crosshair}
+.ctb .ctb-cv.pan{cursor:grabbing}
+/* the buttons and the arrow keys glide the view; a drag or a pinch moves it as the pointer does */
+.ctb-cv.anim{transition:background-position var(--dm-t) var(--dm-ease),background-size var(--dm-t) var(--dm-ease)}
+.ctb-cv.anim .ctb-world{transition:transform var(--dm-t) var(--dm-ease)}
+.ctb-world{position:absolute;left:0;top:0;transform-origin:0 0}
+.ctb-w{position:absolute;left:0;top:0;width:1px;height:1px;overflow:visible;pointer-events:none}
+.ctb-w path{fill:none;stroke:var(--dm-ctb-wire);stroke-width:1.5;transition:stroke .5s var(--dm-ease)}
+.ctb-w path.lit{stroke:var(--dm-accent-mark)}
+.ctb-n{position:absolute;width:160px;display:flex;align-items:center;gap:var(--dm-s-2);padding:var(--dm-s-2) var(--dm-s-3);border-radius:var(--dm-r-in);background:var(--dm-surface);box-shadow:var(--dm-shadow);font-size:12.5px;line-height:1.35;transition:box-shadow .3s var(--dm-ease)}
+.ctb-n.in{animation:ctbin .56s var(--dm-ease) backwards}
+@keyframes ctbin{from{opacity:0;filter:blur(4px)}}
+.ctb-n .ic{width:28px;height:28px;border-radius:var(--dm-r-sm);display:grid;place-items:center;flex:none}
+.ctb-n .t{display:flex;flex-direction:column;min-width:0}
+.ctb-n .t b{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ctb-n .t span{font-size:11.5px;color:var(--dm-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ctb-n.sel{box-shadow:0 0 0 1px color-mix(in srgb,var(--dm-field-line) 50%,transparent),var(--dm-shadow)}
+.ctb-n.run{box-shadow:0 0 0 1.5px var(--dm-accent-mark),var(--dm-shadow)}
+.ctb-n .s{position:absolute;right:-6px;top:-6px;width:18px;height:18px;border-radius:50%;display:grid;place-items:center;background:var(--dm-surface);box-shadow:0 0 0 1px color-mix(in srgb,var(--dm-line) 50%,transparent);animation:ctbs .3s var(--dm-ease)}
+.ctb-n .s .spin{width:10px;height:10px;color:var(--dm-accent-mark)}
+.ctb-n .s .i{color:var(--dm-ok)}
+@keyframes ctbs{from{opacity:0;transform:scale(.6)}}
+/* a comment dropped on the canvas: a numbered pin in the accent, its point on the spot that was clicked */
+.ctb-pin{position:absolute;width:24px;height:24px;transform:translateY(-100%);display:grid;place-items:center;border-radius:var(--dm-r-pill) var(--dm-r-pill) var(--dm-r-pill) var(--dm-r-xs);background:var(--dm-accent);color:var(--dm-on-accent);box-shadow:0 0 0 2px var(--dm-surface),var(--dm-shadow);font-size:11.5px;font-weight:500;animation:ctbpin .3s var(--dm-ease)}
+@keyframes ctbpin{from{opacity:0;transform:translateY(-100%) scale(.6)}}
+.ctb-pin{transform-origin:0 100%;transition:opacity .16s var(--dm-ease),scale .16s var(--dm-ease)}
+.ctb-pin[aria-expanded="true"]{box-shadow:0 0 0 2px var(--dm-surface),0 0 0 3px color-mix(in srgb,var(--dm-field-line) 50%,transparent),var(--dm-shadow)}
+.ctb-pin.gone{opacity:0;scale:.6;pointer-events:none}
+/* a comment opened from its pin: its number, where it is, and Delete */
+.ctb-cp{width:216px;min-width:0;padding:var(--dm-s-3)}
+.ctb-cp b{display:block;font-size:13px;font-weight:500}
+.ctb-cp p{margin:2px 0 var(--dm-s-3);font-size:12.5px;color:var(--dm-fg2)}
+.pill.ctb-del,.pill.ctb-del .i{color:var(--dm-bad)}
+@media (hover:hover) and (pointer:fine){.pill.ctb-del:hover{background:var(--dm-bad-bg)}}
+/* what a drag selects: a box for Select, a free shape for Lasso */
+.ctb-mq{position:absolute;left:0;top:0;box-shadow:inset 0 0 0 1px var(--dm-accent-mark);background:color-mix(in srgb,var(--dm-accent) 8%,transparent);pointer-events:none}
+.ctb-lz{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+.ctb-lz path{fill:color-mix(in srgb,var(--dm-accent-mark,var(--dm-accent)) 8%,transparent);stroke:var(--dm-accent-mark);stroke-width:1.5;stroke-dasharray:4 3;stroke-linejoin:round}
+/* where the demo's pointer rests while it drags the canvas */
+.ctb-aim{position:absolute;width:20px;height:20px;pointer-events:none}
+.ctb-bar{position:absolute;left:50%;bottom:var(--dm-s-3);z-index:6;display:flex;align-items:center;padding:var(--dm-s-1);border-radius:var(--dm-r-pill);background:var(--dm-raised);box-shadow:var(--dm-shadow-pop);white-space:nowrap;
+  transform:translateX(-50%)}
+.ctb-bar :focus-visible{border-radius:var(--dm-r-pill)}
+.ctb-b{width:32px;height:32px;flex:none;display:grid;place-items:center;border-radius:var(--dm-r-pill);color:var(--dm-fg2);transition:background var(--dm-t-fast),color var(--dm-t-fast)}
+@media (hover:hover) and (pointer:fine){.ctb-b:hover{background:var(--dm-row);color:var(--dm-fg)}}
+/* the tool in use sits on a soft accent tint, with no edge */
+.ctb-b:is([aria-checked="true"],[aria-pressed="true"]){background:color-mix(in srgb,var(--dm-accent) 12%,transparent);color:var(--dm-accent-fg);box-shadow:none}
+@media (hover:hover) and (pointer:fine){.ctb-b:is([aria-checked="true"],[aria-pressed="true"]):hover{background:color-mix(in srgb,var(--dm-accent) 12%,transparent);color:var(--dm-accent-fg);box-shadow:none}}
+/* zoom out at 25%, or in at 400%, has nowhere to go: it greys out but keeps its place and the focus */
+.ctb-b[aria-disabled="true"],.ctb-menu .mi[aria-disabled="true"],.ctb-menu .mi[aria-disabled="true"] :is(.i,.kbd){color:var(--dm-dis);background:none;cursor:not-allowed}
+@media (hover:hover) and (pointer:fine){.ctb-b[aria-disabled="true"]:hover{color:var(--dm-dis);background:none;cursor:not-allowed}}
+.ctb-sep{width:1px;height:16px;margin:0 var(--dm-s-1);flex:none;background:var(--dm-line)}
+.ctb-tools{display:flex}
+.ctb-run{min-width:76px;padding:0 var(--dm-s-4) 0 var(--dm-s-3);transition:opacity var(--dm-t-fast),transform .15s}
+.ctb-run.stop{background:var(--dm-ctb-stop);color:var(--dm-ctb-on-stop)}
+@media (hover:hover) and (pointer:fine){.ctb-run.stop:hover{background:var(--dm-ctb-stop-2)}}
+.ctb-z{min-width:48px;height:32px;padding:0 var(--dm-s-1);flex:none;border-radius:var(--dm-r-pill);font-size:12.5px;color:var(--dm-fg2);transition:background var(--dm-t-fast),color var(--dm-t-fast)}
+@media (hover:hover) and (pointer:fine){.ctb-z:hover{background:var(--dm-row);color:var(--dm-fg)}}
+.ctb-more{display:none}
+.ctb-menu{width:216px}
+.ctb-menu .mi .kbd,.ctb-menu .mi .r{margin-left:auto}
+.ctb-menu .mi[aria-checked="true"]{font-weight:400}
+.ctb-menu .mi[aria-checked="true"] .i{color:var(--dm-fg)}
+.ctb-menu [data-ovf]{display:none}
+/* the toolbar keeps to one row: below 440px Comment and Fit go into More, below 360px the zoom buttons follow */
+@container ctb (max-width:439px){.ctb-bar [data-ovf="1"]{display:none}.ctb-more{display:grid}.ctb-menu [data-ovf="1"]{display:flex}}
+@container ctb (max-width:359px){.ctb-bar [data-ovf="2"]{display:none}.ctb-menu [data-ovf="2"]{display:flex}}
+.ctb-live,.ctb-sr{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .ctb{--dm-ctb-stop:#c43535;--dm-ctb-stop-2:#d34646}}
+:root[data-theme="dark"] .ctb{--dm-ctb-stop:#c43535;--dm-ctb-stop-2:#d34646}
+:root:not([data-style="soft"]) .ctb-n.run:not(:where([data-style="soft"],[data-style="soft"] *)){box-shadow:0 0 0 1px var(--dm-accent-mark),0 0 0 4px color-mix(in srgb,var(--dm-accent-mark,var(--dm-accent)) 22%,transparent)}
+:root:not([data-style="soft"]) .ctb-n.sel:not(:where([data-style="soft"],[data-style="soft"] *)){box-shadow:0 0 0 1px color-mix(in srgb,var(--dm-pick-on) 50%,transparent)}

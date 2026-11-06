@@ -1,0 +1,37 @@
+{
+  "summary": "Onboarding checklist lists a new user's first steps with a progress ring that fills as they are ticked off. Steps the agent can handle carry a Do it for me button, and while the agent works the step shows a spinner and \"The agent is on it\". When every step is done, the ring shows a green check and a closing note appears.",
+  "use": [
+    "When new users need a few setup steps, such as connecting a tool or inviting a teammate",
+    "When the agent can complete some setup steps on the person's behalf",
+    "When onboarding sits in a chat thread or a sidebar and should fold away",
+    "When you want progress to be visible at a glance"
+  ],
+  "features": [
+    "The ring fills to the share of steps done, and the status line reads \"2 of 5 done\" until everything is done.",
+    "Clicking a step's checkbox or anywhere on its row ticks it, and clicking again unticks it.",
+    "Steps marked `automatic` show Do it for me on hover or focus; it calls `onDoIt`, and a returned promise shows the step running until it settles and then ticks it.",
+    "Keys in `running` show a step as in progress even when the agent started it on its own.",
+    "The chevron folds the list away, and `open` can be controlled.",
+    "`bare` (the default) sits flat in a chat thread; set it to false to give it its own card."
+  ],
+  "a11y": [
+    "The ring is an SVG with `role=\"progressbar\"` and `aria-valuenow`, `aria-valuemin` and `aria-valuemax` set to the step counts.",
+    "Each step's checkbox is a button with `role=\"checkbox\"`, `aria-checked` and the step title as its label.",
+    "The fold button has `aria-expanded`, and the folded list is `inert` and `aria-hidden`.",
+    "Do it for me buttons become visible on keyboard focus as well as on hover."
+  ],
+  "faq": [
+    {
+      "q": "How do I let the agent complete a step?",
+      "a": "Mark the step `automatic` and handle `onDoIt`. Return a promise: the step shows \"The agent is on it\" until it resolves, then ticks itself off. If it rejects, the step goes back to waiting."
+    },
+    {
+      "q": "Can the agent start a step without the person pressing anything?",
+      "a": "Yes. Put the step's key in `running` while the agent works, then add the key to `done`. The example does this for Connect Figma."
+    },
+    {
+      "q": "How do I keep progress between sessions?",
+      "a": "Control it with `done` and `onDoneChange`, which gives you the list of ticked step keys to save and pass back next time."
+    }
+  ]
+}

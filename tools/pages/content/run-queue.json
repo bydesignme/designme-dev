@@ -1,0 +1,36 @@
+{
+  "summary": "Run queue shows the jobs an agent has lined up in three parts: the job running, raised on its own card with its agent, its steps, a progress bar and the time left; the jobs up next, each with its agent and when it should start; and the jobs done, each with how long it took and a green tick. A strip across the top shows the whole queue at a glance, and a failed step offers a Retry button.",
+  "use": [
+    "When your agent works through several jobs in a row and people want to see what is running, what comes next and what is done.",
+    "When a step can fail and people should be able to retry just that step.",
+    "When people want to know how long the queue still has to go."
+  ],
+  "features": [
+    "Each job in `jobs` has a `title`, an `agent` and an `icon` for its badge, a `state` (queued, running, failed or done) and its `steps`. Running and failed jobs sit under Running, queued ones under Up next and finished ones under Done, in the order of `jobs`.",
+    "A job glides from one part to the next when its `state` changes, and the jobs it passes glide with it.",
+    "The running job shows its agent and the step it is on, a progress bar from `progress` (or the share of its steps that are done) and its steps with what each came to (`meta`). `time` is the words at the end of the row: when a waiting job starts, what is left of a running one, or how long a done one took.",
+    "A failed step turns its job red and, with `onRetry`, shows a Retry button that calls it with the job and step indexes.",
+    "An empty part says so (\"Nothing waiting\", \"Nothing done yet\"). Once every job is done, Running and Up next fold away and \"All 4 jobs done\" takes their place, with `summary` under it.",
+    "A Detailed / Compact switch shows or folds away the running job's steps. Control it with `density` and `onDensityChange`.",
+    "The status line defaults to \"1 of 4 done\", and `status` replaces it. The queue sits on its card by default, and `bare` lays it flat in a chat."
+  ],
+  "a11y": [
+    "Running, Up next and Done are labelled lists, so screen readers announce each part and how many jobs it holds.",
+    "The density switch is a `role=\"group\"` labelled \"Density\", and the current option has `aria-pressed=\"true\"`.",
+    "Folded steps and folded parts are `inert` and `aria-hidden`, so their Retry buttons leave the tab order."
+  ],
+  "faq": [
+    {
+      "q": "How do I let people retry a failed step?",
+      "a": "Pass `onRetry`. It is called with the job index and the step index, and you rerun the step and set its `state` back to 'running'. Without `onRetry`, failed steps show no button."
+    },
+    {
+      "q": "Does a job's state follow its steps automatically?",
+      "a": "No. You set each job's `state` and each step's `state` yourself. The component only works out the progress bar from the done steps when `progress` is left out, and the counts from the job states."
+    },
+    {
+      "q": "Can I start in the compact view?",
+      "a": "Yes. Set `defaultDensity=\"compact\"`, or control `density` from your own state."
+    }
+  ]
+}

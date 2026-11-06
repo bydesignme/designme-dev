@@ -1,0 +1,37 @@
+{
+  "summary": "Attachment tray is a drop zone plus a list of the files a person is giving the agent. Each file wears its type's colour: a badge, a progress ring and a wash that fills its row as it uploads. Once it is up the agent reads it, and the file says what the agent found, like \"12 pages\", with a line underneath saying how many files the agent can read.",
+  "use": [
+    "When people hand your agent documents, images or spreadsheets to work from.",
+    "When uploads take long enough that people should see each file's progress before they ask anything.",
+    "When you want a sample-files link so new users can try the agent without their own files."
+  ],
+  "features": [
+    "Files dropped on the zone or chosen with the file dialog go to `onFiles` as a list of `File` objects. `accept` limits the dialog to certain types.",
+    "Each file gets a coloured badge from its extension, like PDF, PNG or CSV, and its size in KB or MB. The badge's colour, red for PDF, violet for images and Figma, green for spreadsheets and blue for the rest, also draws its ring and its upload wash.",
+    "`progress` from 0 to 100 closes the ring, shows the percentage after the size and fills the row from the left. At 100 the wash fades and the ring becomes a check. Files that arrive together come in one after another.",
+    "Set `reading` once a file is up and the agent is reading it: a spinner takes the ring's place and \"Reading\" shimmers after the size. Then set `detail` to what the agent found, like \"12 pages\" or \"1,204 rows\", and it shows after the size.",
+    "`onRemove` adds a remove button to each file and is called after the file has animated out.",
+    "The line under the list counts files that are up and read, like \"The agent can read 2 files now\", unless you pass your own `summary`.",
+    "The drop zone takes the accent under the pointer. While a file is dragged over it, its dashed edge marches, its arrow bobs and rings spread from the badge. `title` changes its heading, `action` adds a link after \"or\", and `dragging` shows the drag state for a scripted demo."
+  ],
+  "a11y": [
+    "The drop zone wraps a real file input labelled \"Choose files\", so it also works without dragging.",
+    "Each upload ring is a `role=\"progressbar\"` with `aria-valuenow` from 0 to 100 and a label naming the file.",
+    "Remove buttons are labelled with the file name, like \"Remove brief.pdf\".",
+    "With reduced motion the edge, the arrow, the rings and the shimmer stay still; the ring and the percentage still show the progress."
+  ],
+  "faq": [
+    {
+      "q": "Does the tray upload the files for me?",
+      "a": "No. It hands you the files through `onFiles`. You upload them, add each one to `files` with an `id`, `name` and `size`, and update its `progress` as the upload runs."
+    },
+    {
+      "q": "How do I restrict which file types people can pick?",
+      "a": "Pass `accept`, for example \"image/*,.pdf\". It is set on the file input, so it applies to the file dialog. Dropped files are passed on as they are, so check their type in `onFiles` too."
+    },
+    {
+      "q": "Can I change the line under the list?",
+      "a": "Yes. Pass `summary` and it replaces the default count of files the agent can read."
+    }
+  ]
+}

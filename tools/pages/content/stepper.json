@@ -1,0 +1,37 @@
+{
+  "summary": "Stepper walks a person through a short setup one question at a time, with a track of numbered steps that fills in as they go. Each step offers a few choices, such as how much freedom the agent should have, or your own fields. Finishing shows a confirmation that sums up the picks, with a short burst of confetti.",
+  "use": [
+    "When setting up an agent needs a few decisions, like how it works and what it connects to",
+    "When each question is simple enough to answer with one of a few options",
+    "When people should be able to jump back to an earlier step to change an answer",
+    "When a step needs a server check before the person can move on"
+  ],
+  "features": [
+    "Each step shows a title, an optional description and either `options` to pick from or your own `content`.",
+    "Continue slides the next step in from the right, and Back slides the previous one in from the left.",
+    "Completed steps on the track show a check and can be clicked to go back to them.",
+    "`onNext` runs before moving on; returning false, or a promise of false, keeps the person on the step, and Continue is disabled while it is pending.",
+    "Finish calls `onFinish` with the picks, and the done screen lists the chosen options unless you set `doneDetail`. The track is hidden there, and the screen keeps the height the steps had, with the confirmation centred in it.",
+    "Start over returns to the first step, and `bare` (the default) sits flat in a chat thread."
+  ],
+  "a11y": [
+    "Options are a `radiogroup` labelled with the step title, and each option is a `radio` with `aria-checked`.",
+    "The current step on the track has `aria-current=\"step\"`.",
+    "Completed steps on the track are focusable buttons that respond to Enter and Space.",
+    "The confetti is skipped when the user prefers reduced motion."
+  ],
+  "faq": [
+    {
+      "q": "How do I validate a step before the person continues?",
+      "a": "Pass `onNext(step, values)`. Return false, or a promise that resolves to false, to stay on the step. Continue is disabled while the promise is pending."
+    },
+    {
+      "q": "Can a step have my own inputs instead of options?",
+      "a": "Yes. Give the step `content` with your own fields and leave out `options`. The content shows under the title."
+    },
+    {
+      "q": "How are the answers given back to me?",
+      "a": "`values` holds the picked option index for each step, and `onFinish` receives the same array when the last step is finished. Each step starts on its `defaultOption`, or the first option."
+    }
+  ]
+}

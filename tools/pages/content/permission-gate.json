@@ -1,0 +1,44 @@
+{
+  "summary": "Permission gate is the card an agent shows when it wants to do something it has not been allowed to do yet, like editing Figma frames. The person ticks which scopes to grant, picks how long the permission lasts, and allows or declines, and they can revoke or undo that choice afterwards.",
+  "use": [
+    "When the agent is about to use a new tool or touch a new part of a workspace for the first time.",
+    "When a request bundles several powers and people should be able to grant only some of them.",
+    "When the agent is already running and reaches something it needs one more scope for, so it asks again for just that scope.",
+    "When one of the scopes is risky, like publishing a shared library, and you want it flagged.",
+    "When a permission should last only for this task or for today."
+  ],
+  "features": [
+    "Each scope has a checkbox, a `label`, an optional `detail` line and an optional `risk` tag such as \"Risky\".",
+    "A small dropdown in the footer picks how long it lasts. `durations` defaults to This task, Today and Always, and `durationDetails` adds a line under each in the menu, like \"Until midnight\".",
+    "The Allow button counts the ticked scopes, like \"Allow 2 scopes\". It reads \"Pick a scope\" and stays disabled when none are ticked.",
+    "`onAllow` receives the ticked keys and the duration. Return a promise and the button shows a spinner until it settles.",
+    "After allowing, the card shows what was granted and for how long, with an `allowedDetail` line that crossfades and a Revoke button. `allowedTitle` replaces the first line, like \"Done. 6 frames edited\".",
+    "While the agent works under the permission, `working` shows a spinner on a neutral row instead of the green check, and `meta` adds quiet text at the end of it, like an elapsed time.",
+    "`followUp` marks a second ask in the middle of a run, for one more scope: the icon tile turns amber, and `declineLabel` can say what declining means, like \"Skip this frame\". A scope's `riskDetail` is what its risk tag shows on hover.",
+    "After Not now, the card shows `declinedTitle` and `declinedDetail` with an Undo button that brings the scopes back."
+  ],
+  "a11y": [
+    "Each scope is a native checkbox inside its label, so the whole row is clickable and keyboard reachable.",
+    "How long is a menu button with `aria-haspopup` and `aria-expanded`; its choices are `menuitemradio` items with `aria-checked`.",
+    "From the keyboard, Enter, Space or the down arrow opens a menu with the focus on its picked item, or its first (the up arrow, on its last); the arrow keys move through it and wrap, Home and End jump to the ends, Tab closes it and moves on, and closing it gives the focus back to its button.",
+    "The Allow button is a disabled button until at least one scope is ticked."
+  ],
+  "faq": [
+    {
+      "q": "Can the agent wait for the permission before it continues?",
+      "a": "Yes. Make `onAllow` return a promise that resolves once your agent has the grant. The button spins while it waits, then the card switches to the allowed state."
+    },
+    {
+      "q": "How do I pre-tick the safe scopes?",
+      "a": "Pass their keys in `defaultValue`, or control the ticks with `value` and `onValueChange`. Scopes you leave out start unticked."
+    },
+    {
+      "q": "What happens when the person presses Revoke?",
+      "a": "The allowed message fades out, the card returns to asking with the scopes shown again, and `onRevoke` is called so you can withdraw the grant."
+    },
+    {
+      "q": "Can I use my own durations?",
+      "a": "Yes. Pass any list of strings as `durations`. The first one is picked by default unless you set `defaultDuration` or `duration`."
+    }
+  ]
+}

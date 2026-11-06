@@ -1,0 +1,54 @@
+/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+/* ---------- Thinking ---------- */
+/* the steps the agent takes, on a line that turns green as each one finishes; the step in hand turns in the accent with a
+   soft halo, and what each step found writes itself in under it. The header ends as a summary of the work */
+/* neither the trace nor the box it sits in anchors the page's scroll: a centred demo that grows would otherwise pull
+   the page along with it */
+.stage-in:has(>.tk){overflow-anchor:none}
+.tk{font-size:14px;width:100%;max-width:420px;margin-inline:auto;overflow-anchor:none}
+/* on a card the trace keeps the room it will fill, so the header stays put as steps arrive */
+.stage-in>.tk{min-height:inherit}
+.tk-h{display:flex;align-items:center;gap:10px;width:calc(100% + 16px);margin:0 -8px;padding:6px var(--dm-s-2);border-radius:calc(10px * var(--dm-rk));text-align:left;transition:background var(--dm-t-fast)}
+@media (hover:hover) and (pointer:fine){.tk-h:hover{background:var(--dm-row)}}
+.tk-mark{width:18px;height:18px;flex:none;display:grid;place-items:center;color:var(--dm-accent-mark,var(--dm-accent));transition:color .3s}
+.tk-h.tk-fin .tk-mark{color:var(--dm-ok)}
+.tk-h.tk-fin .tk-mark .i{animation:tkpop .5s var(--dm-ease) backwards}
+.tk-title{flex:1;min-width:0;color:var(--dm-fg)}
+.tk-time{color:var(--dm-muted);font-size:13px}
+.tk-chev{color:var(--dm-muted);transition:transform .32s var(--dm-ease)}
+.tk[data-open="0"] .tk-chev{transform:rotate(-90deg)}
+.tk-list{list-style:none;margin:0;padding:6px 0 0;display:flex;flex-direction:column}
+.tk-st{position:relative;display:flex;gap:10px;padding:6px 0}
+/* the line from each step down to the next: grey, and green once the step above it is done */
+.tk-st:not(:last-child)::before,.tk-st.done:not(:last-child)::after{content:"";position:absolute;left:8.25px;top:29px;bottom:-5px;width:1.5px;border-radius:1px;background:var(--dm-line)}
+.tk-st.done:not(:last-child)::after{background:color-mix(in srgb,var(--dm-ok) 55%,var(--dm-line));transform-origin:top;animation:tkgrow .6s var(--dm-ease) backwards}
+@keyframes tkgrow{from{transform:scaleY(0)}}
+.tk-st .mk{position:relative;width:18px;height:18px;flex:none;margin-top:1px;display:grid;place-items:center;border-radius:50%;color:var(--dm-muted);transition:background .32s,color .32s}
+.tk-st .mk .spin{width:10px;height:10px}
+.tk-st.run .mk{color:var(--dm-accent-mark,var(--dm-accent));background:var(--dm-accent-bg);animation:tkhalo 1.8s var(--dm-ease-io) infinite}
+.tk-st.done .mk{background:var(--dm-ok-bg);color:var(--dm-ok)}
+.tk-st.done .mk .i{animation:tkpop .45s var(--dm-ease) backwards}
+.tk-st.retry .mk{background:var(--dm-warn-bg);color:var(--dm-warn);animation:tkhalow 1.8s var(--dm-ease-io) infinite}
+@keyframes tkhalo{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--dm-fg) 0%,transparent)}50%{box-shadow:0 0 0 4px color-mix(in srgb,var(--dm-fg) 6%,transparent)}}
+@keyframes tkhalow{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--dm-fg) 0%,transparent)}50%{box-shadow:0 0 0 4px color-mix(in srgb,var(--dm-fg) 6%,transparent)}}
+@keyframes tkpop{0%{transform:scale(.4);opacity:0}60%{transform:scale(1.15);opacity:1}100%{transform:none}}
+.tk-st .tx{flex:1;min-width:0;display:flex;flex-direction:column}
+.tk-st .tk-ln{display:flex;align-items:baseline;gap:var(--dm-s-2)}
+.tk-st .lab{flex:1;min-width:0;color:var(--dm-fg);transition:color .32s}
+.tk-st.done .lab{color:var(--dm-fg2)}
+/* how long the step took, once it is done */
+.tk-st .tk-dur{flex:none;font-size:12px;color:var(--dm-muted)}
+/* what a step found opens under it, a word at a time */
+.tk-st .res{display:grid;grid-template-rows:0fr;font-size:13px;color:var(--dm-muted);transition:grid-template-rows .32s var(--dm-ease),color .32s}
+.tk-st .res.on{grid-template-rows:1fr}
+.tk-st .res>span{overflow:hidden;min-height:0}
+.tk-st .res .w{display:inline-block;white-space:pre;animation:tkword .42s var(--dm-ease) backwards}
+@keyframes tkword{from{opacity:0;transform:translateY(3px);filter:blur(2px)}}
+.tk-st.retry .res{color:var(--dm-warn)}
+.tk-st .res [data-tip]{text-decoration:underline dotted var(--dm-faint);text-underline-offset:3px;cursor:default}
+:root:not([data-style="soft"]) .tk-st.run .mk:not(:where([data-style="soft"],[data-style="soft"] *)),:root:not([data-style="soft"]) .tk-st.retry .mk:not(:where([data-style="soft"],[data-style="soft"] *)){animation:none}
+:root:not([data-style="soft"]) .tk-st.run .mk:not(:where([data-style="soft"],[data-style="soft"] *)){box-shadow:inset 0 0 0 1px var(--dm-accent-mark)}
+:root:not([data-style="soft"]) .tk-st.done:not(:last-child):not(:where([data-style="soft"],[data-style="soft"] *))::after{background:var(--dm-ok);width:1px;left:8.5px}
+:root:not([data-style="soft"]) .tk-st:not(:last-child):not(:where([data-style="soft"],[data-style="soft"] *))::before{width:1px;left:8.5px;background:repeating-linear-gradient(var(--dm-rail) 0 3px,transparent 3px 6px)}
+:root:not([data-style="soft"]) .tk-st.done .mk .i:not(:where([data-style="soft"],[data-style="soft"] *)),:root:not([data-style="soft"]) .tk-h.tk-fin .tk-mark .i:not(:where([data-style="soft"],[data-style="soft"] *)){animation:none}
+:root:not([data-style="soft"]) .tk-st .res .w:not(:where([data-style="soft"],[data-style="soft"] *)){animation:bpin .3s var(--dm-ease) backwards}

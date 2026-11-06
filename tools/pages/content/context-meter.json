@@ -1,0 +1,38 @@
+{
+  "summary": "Context meter shows how full an agent's context window is and what fills it. A small pill with a ring and a percentage opens a panel with one bar split by kind (files, tool output, chat, instructions), a legend whose rows list what is in them on hover, and a Compact button that frees room and says how much.",
+  "use": [
+    "When long agent sessions run close to the context limit and people should see it coming.",
+    "When people want to know why the context is full, not only how full it is.",
+    "When your agent can compact a session, and people should decide when and see what it freed.",
+    "When a new tool result can suddenly take a large share and you want to warn about it."
+  ],
+  "features": [
+    "`parts` are the kinds of thing in the context, each with a `label`, a `tokens` count, an optional `color` and `items`, the list shown on hover. `limit` is the size of the window.",
+    "The pill shows the ring and the share used. From `warnAt` of the limit, 85% by default, the ring turns orange.",
+    "The bar and the numbers count to their new values whenever `parts` change, so a compaction counts down.",
+    "Hovering a legend row lights its share of the bar and shows its `items`.",
+    "`message` adds a line under the legend, in orange with a warning sign for `messageTone: 'warn'` or in green with a check for `'ok'`, like \"Freed 41.2k tokens. 9 decisions kept\". The line keeps its room while empty, so a message fades in without the panel changing height.",
+    "Compact calls `onCompact`. Return a promise and the button spins until it settles. Set `compacted` and the button becomes Undo, which calls `onUndo`.",
+    "The pill opens and shuts the panel, and `open`, `defaultOpen` and `onOpenChange` let you control it. The panel keeps its room while shut, so nothing around it moves."
+  ],
+  "a11y": [
+    "The pill is a button with `aria-expanded` and a label that includes the share used, like \"Context, 68% used\".",
+    "The panel is a region labelled \"What fills the context\", and it is inert while shut so its controls can't be reached.",
+    "Escape shuts the panel while the pointer or the focus is on the meter, and moves the focus back to the pill if it was inside.",
+    "The message line is an `aria-live=\"polite\"` region, so a warning or the compaction result is announced."
+  ],
+  "faq": [
+    {
+      "q": "What should the parts be?",
+      "a": "Whatever your agent can tell apart. Files, tool output, chat and instructions work for most agents. Put the largest items of each into `items` so people can see what to drop."
+    },
+    {
+      "q": "How do I show what a compaction freed?",
+      "a": "Make `onCompact` return a promise, update `parts` with the smaller counts when it resolves, set `compacted`, and pass the difference as `message` with `messageTone: 'ok'`. The numbers count down by themselves."
+    },
+    {
+      "q": "When does it turn orange?",
+      "a": "When the tokens in `parts` add up to `warnAt` of `limit` or more. `warnAt` is 0.85 unless you change it."
+    }
+  ]
+}

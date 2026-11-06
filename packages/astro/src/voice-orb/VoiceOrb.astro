@@ -1,0 +1,34 @@
+---
+// Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
+// Voice orb: A hands-free voice chat, with an orb that shows who is talking.
+// The markup, CSS and script are designme.dev's own, run by the shared core in ../core, which mounts the component when it scrolls
+// into view and plays its demo. To show your own data, change voice-orb.js. The markup is kept exactly as it is (is:raw).
+import type { HTMLAttributes } from 'astro/types';
+import '../core/designme.css';
+import './voice-orb.css';
+
+export interface Props extends HTMLAttributes<'div'> {
+  /** "soft" draws it in the Soft style. Leave it out for Blueprint, or for the style set on <html> (data-style="soft") */
+  'data-style'?: 'soft';
+}
+const { class: className, ...rest } = Astro.props;
+---
+<div class:list={['card', className]} data-c="voice-orb" {...rest}>
+  <div class="stage-in"><Fragment is:raw>
+<div class="vor panel" data-m="idle">
+  <div class="vor-top"><span class="vor-dot"></span><span class="vor-st">Ready</span><span class="vor-t num muted">0:00</span></div>
+  <div class="vor-orb" aria-hidden="true"><i class="vor-pc"></i><i class="vor-core"><canvas class="vor-gl"></canvas></i></div>
+  <div class="vor-cap" aria-live="polite"><span class="vor-who muted"></span><p class="vor-tx hint">Talk to the agent about Pricing v4</p></div>
+  <div class="fold shut vor-mf"><div><div class="vor-mw"><p><svg class="i xs"><use href="#i-alert"/></svg><span>You're muted. Unmute so the agent can hear you.</span></p><button class="pill sm vor-un">Unmute</button></div></div></div>
+  <div class="vor-f">
+    <button class="pill primary sm vor-go"><svg class="i xs"><use href="#i-mic"/></svg>Start talking</button>
+    <button class="ib fill vor-mute" aria-label="Mute" aria-pressed="false" data-tip="Mute"><svg class="i s"><use href="#i-mic"/></svg></button>
+    <span class="sp"></span>
+    <button class="pill sm vor-end">End</button>
+  </div>
+</div>
+  </Fragment></div>
+</div>
+<script>
+  import './voice-orb.js';
+</script>

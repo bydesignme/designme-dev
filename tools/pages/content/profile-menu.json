@@ -1,0 +1,40 @@
+{
+  "summary": "Profile menu is the account menu that opens from an avatar in an app's top bar. It shows who is signed in, lists the workspaces to switch between, and holds a theme switch, a Keyboard shortcuts row with its key, and Sign out. It is a real menu: the arrow keys move through it, Escape closes it and puts the focus back on the avatar.",
+  "use": [
+    "When people belong to more than one workspace and switch between them from anywhere in the app.",
+    "When the account's settings that apply everywhere, like the theme, should sit one click from every page.",
+    "When the app has keyboard shortcuts and people need a place to find them.",
+    "When the top bar has room for an avatar but not for a row of account buttons."
+  ],
+  "features": [
+    "The menu opens under the avatar, lined up with its right edge, and starts with the person's name and email.",
+    "The workspaces are a group of radio items, each with a tinted tile, a name and a quiet `detail` like \"Free, 3 members\". The current one is checked; picking another closes the menu and the bar crossfades to its name.",
+    "The theme is a switch row. It stays in the menu after a click, so the change shows where it was made. It reports the change through `onDarkChange`; applying the theme is up to you.",
+    "Keyboard shortcuts shows its key, ?, and opens a short list under the bar. Pressing ? anywhere in the component opens and closes the same list. By default it lists the keys the menu itself answers to.",
+    "Sign out swaps the avatar for a Sign in button, which swaps it back. `note` shows a confirmation with a green check under the bar, like \"Switched to Acme Labs\"."
+  ],
+  "a11y": [
+    "The avatar is a button with `aria-haspopup=\"menu\"` and `aria-expanded`, labelled \"Account menu\" and the person's name.",
+    "The menu has `role=\"menu\"` and is named by the name and email at its top. The workspaces are `menuitemradio` items in a group named \"Workspaces\"; the theme row is a `menuitemcheckbox`; the rest are `menuitem`s.",
+    "Enter, Space or the down arrow on the avatar opens the menu on its first item, and the up arrow on its last. Inside, the arrow keys move and wrap, Home and End jump to the ends, Escape closes it and gives the focus back to the avatar, and Tab closes it and moves on.",
+    "The confirmation under the bar is a polite live region, so a switch or a theme change is announced."
+  ],
+  "faq": [
+    {
+      "q": "Does the theme switch change the theme?",
+      "a": "No. It flips its own state and calls `onDarkChange`. Set `data-theme` on `<html>` there, or call your own theme code. On designme.dev the demo only says what it was set to."
+    },
+    {
+      "q": "Can the workspaces be a submenu instead?",
+      "a": "They are an inline list, so the whole menu fits a phone screen without a flyout. Keep the list short; for many workspaces, link to a page that lists them all."
+    },
+    {
+      "q": "What happens on Sign out?",
+      "a": "The avatar gives way to a Sign in button and `onSignedInChange(false)` is called. Do the real sign out there, or control it with `signedIn`."
+    },
+    {
+      "q": "Can I list my app's own shortcuts?",
+      "a": "Yes. Pass `shortcuts` as `{ keys, label }[]`. Only ? is handled by the component; your other keys need your own handlers."
+    }
+  ]
+}

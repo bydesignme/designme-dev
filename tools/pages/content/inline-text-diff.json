@@ -1,0 +1,36 @@
+{
+  "summary": "Inline text diff shows the agent's edits to a piece of copy where they sit in the text: the old words struck in red, the new ones beside them in green. Clicking an edit opens a small toolbar to accept or reject it, an edit the agent isn't sure of is marked and says why, and the header can accept or reject everything still waiting.",
+  "use": [
+    "When the agent rewrites copy and people should approve it word by word, not all or nothing.",
+    "When the edits are short and read best in place, inside the sentence they change.",
+    "When the agent can say it isn't sure of an edit, like a claim that isn't in the brief, so people check that one first.",
+    "When most edits are fine and one click should take the rest."
+  ],
+  "features": [
+    "`parts` hold the copy in order: plain strings, with edits between them. Each edit has a `key`, the words it replaces (`from`) and the words it suggests (`to`).",
+    "An edit with a `note` is marked in amber, and the note shows above its Accept and Reject buttons.",
+    "Clicking an edit opens its toolbar under the edit's last line. Accepting keeps the new words and rejecting keeps the old ones, both as plain text.",
+    "`decisions` / `defaultDecisions` / `onDecisionsChange` keep what was decided, `accepted` or `rejected` per edit key.",
+    "The status under the title counts down the edits left, then says how many were accepted and rejected.",
+    "Accept all and Reject all take every edit still waiting. Once none are left, the buttons give way to `doneLabel`."
+  ],
+  "a11y": [
+    "Each edit is a button you can reach with Tab and open with Enter or Space, which puts the focus on Accept; ← and → move between Accept and Reject. Its label says which edit it is, the words it replaces and the words it suggests, and `aria-expanded` says whether its toolbar is open.",
+    "The toolbar is a dialog labelled \"Edit\". Escape closes it and puts focus back on the edit, and so does deciding from the keyboard.",
+    "The line under the copy is an `aria-live=\"polite\"` region, so the final result is read out."
+  ],
+  "faq": [
+    {
+      "q": "Does it work out the diff between two texts?",
+      "a": "No. You pass the edits as `parts`, each with the words it replaces and the words it suggests. Your agent decides what changed; the component shows it and records the decisions."
+    },
+    {
+      "q": "How is it different from Change review?",
+      "a": "Change review is for code: whole files and hunks, kept or undone. Inline text diff is for prose, where each edit is a few words inside a sentence."
+    },
+    {
+      "q": "How do I get the final text?",
+      "a": "Walk `parts` with the `decisions`: plain strings as they are, `to` for an accepted edit and `from` for a rejected one."
+    }
+  ]
+}

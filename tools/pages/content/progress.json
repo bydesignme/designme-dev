@@ -1,0 +1,37 @@
+{
+  "summary": "One run shown three ways, plus a meter. A ring gives the whole run as a percentage, a row of segments gives the steps (step 3 of 5), and a bar gives how far the step in hand is, with its count in words. The run can be indeterminate while it works out how much there is, running, paused, failed with Retry, or done. Under it, a credits meter fills and warns in words at 75% (Running low) and more strongly at 90%.",
+  "use": [
+    "For an agent run whose length you only know once it has started: show it indeterminate first, then switch to the real numbers.",
+    "When a run has named steps and each step has its own count, like pages fetched or files indexed.",
+    "Beside a run that spends a budget, so people see the budget fill and get warned before it runs out."
+  ],
+  "features": [
+    "Five states: indeterminate (the ring turns a short arc and the bar sweeps), running (the accent), paused (grey), error (red, with the error over the bar and a Retry button) and complete (green, with a check in the ring).",
+    "A line under the title in plain words, such as \"Step 3 of 5, indexing files\" or \"Paused at step 3 of 5\"; pass `valueText` for your own.",
+    "A status tag (Starting, Running, Paused, Failed, Done) and one button beside it: Pause while running, Resume while paused, Run again once complete when `onRestart` is set.",
+    "The step's count over its bar, like \"1,240 of 2,000\", from each step's `unit` and `total`.",
+    "An optional `meter` with two thresholds, drawn as notches through the bar: from `warnAt` (75%) its bar turns orange and a Running low tag appears, from `dangerAt` (90%) it turns red and says `dangerLabel`.",
+    "The line over the bar and the button keep their place in every state, so the component never changes height as the run goes on."
+  ],
+  "a11y": [
+    "The ring, the segments and the bar each have role=\"progressbar\" with an aria-valuetext in words (\"62% of the run\", \"Step 3 of 5\", \"1,240 of 2,000 files\"); while indeterminate they have no value.",
+    "The meter has role=\"meter\", with its value and its warning in aria-valuetext (\"9,280 of 10,000 credits, almost out\").",
+    "A polite live region announces only changes of state (Paused, Step 4 failed, Done), never every percent.",
+    "The warnings are words in a tag, not only a colour.",
+    "With reduced motion the ring stops turning and the indeterminate bar shows as a still, faint fill."
+  ],
+  "faq": [
+    {
+      "q": "How do I show a run I can't measure yet?",
+      "a": "Set `state` to \"indeterminate\". Switch it to \"running\" with `step` and `stepProgress` once you know how much there is."
+    },
+    {
+      "q": "Can I use only the meter, or only the bar?",
+      "a": "The component always draws the run. For a meter on its own, leave the run out of your page and copy the meter's markup and its classes; they don't depend on the rest."
+    },
+    {
+      "q": "How do I change where the meter warns?",
+      "a": "Pass `warnAt` and `dangerAt` as shares of `max`, for example 0.8 and 0.95. The notches move with them."
+    }
+  ]
+}

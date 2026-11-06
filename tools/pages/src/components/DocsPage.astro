@@ -1,0 +1,295 @@
+---
+// One docs page under /docs/<page>, in the frame the component pages share (SiteShell): the sidebar on the left and the page
+// in the library's full column, with its sections as a row of links under the lead that sticks under the header
+// (SectionBar). The page's text and its visuals are blocks (src/lib/docs.mjs, drawn by DocsBlocks).
+import Page from '../layouts/Page.astro';
+import SiteShell from './SiteShell.astro';
+import DocsBlocks from './DocsBlocks.astro';
+import SectionBar from './SectionBar.astro';
+import { SITE, icon } from '../lib/data.mjs';
+import { DOCS, inlineHtml } from '../lib/docs.mjs';
+const { d } = Astro.props;
+const title = `${d.title}: Docs | Designme.dev`;
+const jsonld = [
+  { '@context':'https://schema.org', '@type':'TechArticle', headline:d.title, description:d.desc, url:SITE + d.url,
+    author:{ '@type':'Organization', name:'DesignMe', url:'https://designme.agency' }, isPartOf:{ '@type':'WebSite', name:'Designme.dev', url:SITE + '/' } },
+  { '@context':'https://schema.org', '@type':'BreadcrumbList', itemListElement:[
+    { '@type':'ListItem', position:1, name:'Docs', item:SITE + DOCS[0].url },
+    { '@type':'ListItem', position:2, name:d.title, item:SITE + d.url } ] },
+];
+const toc = d.sections.map(s => ({ id:s.id, label:s.h }));
+---
+<Page title={title} description={d.desc} path={d.url} jsonld={jsonld}>
+  <Fragment slot="head">
+    <link rel="alternate" type="text/markdown" title={`${d.title} as Markdown`} href={`${d.url}.md`}>
+    <!-- the shared core: its tokens give the accent's roles (the sidebar's marker, the theming preview) in the style and theme you pick -->
+    <link rel="stylesheet" href="/components/assets/core.css">
+    <style is:global>
+      /* text: 14px, grey, with dark links; a section opens with its name over a line */
+      /* a section you jump to lands with its line 24px under the section bar (SectionBar) and its name 24px under that */
+      .dc-sec{scroll-margin-top:calc(var(--pg-head) + var(--pg-bar, 0px) + 24px)}
+      .dc-sec>h2{margin:48px 0 16px;padding-top:24px;border-top:1px solid var(--pg-line);font-size:14px;line-height:20px;font-weight:500;color:var(--pg-fg)}
+      /* the first section opens right under the bar, whose own line is the line over it */
+      .dc-bar+.dc-sec>h2{margin-top:0;border-top:0}
+      .dc-sec>h2 a{color:inherit;text-decoration:none}
+      .dc-body p{margin:0 0 12px;color:var(--pg-dim);max-width:72ch}
+      .dc-body ul,.dc-body ol{margin:0 0 12px;padding-left:20px;color:var(--pg-dim)}
+      /* running text keeps a readable measure in the full-width column; code, tables and visuals use all of it */
+      .dc-body :is(ul,ol):not([class]){max-width:72ch}
+      .dc-body li{margin:0 0 8px}
+      .dc-body li::marker{color:var(--pg-muted)}
+      .dc-body :is(p,li,td,figcaption) a{color:var(--pg-fg);text-decoration:underline;text-decoration-color:var(--pg-line2);text-underline-offset:3px;transition:text-decoration-color .16s}
+      .dc-body :is(p,li,td,figcaption) a:hover{text-decoration-color:currentColor}
+      .dc-body code.nw{white-space:nowrap}
+      .dc-body code{font:500 12.5px/1.4 var(--pg-mono);font-variant-ligatures:none;background:var(--pg-chip);padding:1px 5px;border-radius:5px;color:var(--pg-fg);overflow-wrap:anywhere}
+      .dc-h3{margin:0 0 6px;font-size:14px;line-height:20px;font-weight:500;color:var(--pg-fg)}
+      .dc-body>*:last-child,.dc-step-b>*:last-child,.dc-items>li>*:last-child,.dc-tp>*:last-child{margin-bottom:0}
+
+      /* a block of code: its name and Copy in a bar over it */
+      .dc-code{margin:0 0 16px;border-radius:12px;background:var(--pg-soft);box-shadow:inset 0 0 0 1px var(--pg-line);overflow:hidden}
+      .dc-code-h{display:flex;align-items:center;justify-content:space-between;gap:12px;height:40px;padding:0 6px 0 14px;border-bottom:1px solid var(--pg-line);font-size:13px;color:var(--pg-muted)}
+      .dc-code pre{margin:0;overflow-x:auto;padding:14px 16px;font:500 12.5px/1.65 var(--pg-mono);font-variant-ligatures:none;tab-size:2;color:var(--pg-fg)}
+      .dc-code pre code{background:none;padding:0;font:inherit;border-radius:0}
+      /* the box clips its code, so the keyboard ring goes round the whole box */
+      .dc-code:has(> pre:focus-visible){outline:2px solid var(--pg-focus);outline-offset:2px}
+      .dc-code > pre:focus-visible{outline:0}
+      .dc-code[data-lang="text"] pre{white-space:pre-wrap;overflow-wrap:anywhere}
+      .dc-copy{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 11px 0 9px;border:0;border-radius:999px;background:var(--pg-bg);color:var(--pg-fg);box-shadow:inset 0 0 0 1px var(--pg-line2);font:500 13px/1 var(--pg-sans);cursor:pointer;transition:background-color .2s}
+      .dc-copy:hover{background:var(--pg-chip)}
+      .dc-copy span{display:grid}
+      .dc-copy svg{width:14px;height:14px}
+
+      /* a table: plain rows */
+      .dc-tw{overflow-x:auto;margin:0 0 16px}
+      .dc-tw table{width:100%;border-collapse:collapse;font-size:14px}
+      .dc-tw th{text-align:left;font-weight:500;color:var(--pg-muted);padding:0 16px 10px 0;border-bottom:1px solid var(--pg-line)}
+      .dc-tw td{padding:10px 16px 10px 0;border-bottom:1px solid var(--pg-line);vertical-align:top;color:var(--pg-dim)}
+      .dc-tw td:first-child{color:var(--pg-fg)}
+      .dc-tw td:not(:last-child){white-space:nowrap}
+      .dc-tw:not(.dc-keys) table:has(th:nth-child(3)) td:nth-child(2){white-space:normal}
+      .dc-keys td:nth-child(2){white-space:normal}
+      .dc-keys td:first-child{width:1%}
+      .dc-kbds{display:inline-flex;align-items:center;gap:4px}
+      .dc-body kbd{display:inline-grid;place-items:center;min-width:24px;height:24px;padding:0 7px;border-radius:6px;background:var(--pg-bg);box-shadow:inset 0 0 0 1px var(--pg-line2),inset 0 -1px 0 var(--pg-line2);font:500 12px/1 var(--pg-sans);color:var(--pg-fg)}
+      .dc-to{font-size:13px;color:var(--pg-muted)}
+
+      /* steps: a number on a line that runs down to the next */
+      .dc-steps{list-style:none;margin:0 0 16px;padding:0!important;counter-reset:none}
+      .dc-step{position:relative;display:grid;grid-template-columns:24px minmax(0,1fr);column-gap:16px;margin:0!important;padding-bottom:28px}
+      .dc-step:last-child{padding-bottom:4px}
+      .dc-step:not(:last-child)::before{content:"";position:absolute;left:11.5px;top:30px;bottom:6px;width:1px;background:var(--pg-line2)}
+      .dc-step-n{display:grid;place-items:center;width:24px;height:24px;border-radius:999px;background:var(--pg-chip);box-shadow:inset 0 0 0 1px var(--pg-line);font-size:12px;font-weight:500;color:var(--pg-fg);font-variant-numeric:tabular-nums}
+      .dc-step-b{min-width:0;padding-top:2px}
+
+      /* tabs: a switch like the header's, then one panel */
+      .dc-tabs{margin:0 0 16px}
+      .dc-tl{display:inline-flex;max-width:100%;overflow-x:auto;scrollbar-width:none;padding:2px;margin:0 0 20px;border-radius:999px;background:var(--pg-chip)}
+      .dc-tl button{flex:none;height:28px;padding:0 12px;border:0;border-radius:999px;background:none;color:var(--pg-dim);font:500 13px/1 var(--pg-sans);cursor:pointer;transition:color .2s,background-color .2s}
+      .dc-tl button:hover{color:var(--pg-fg)}
+      .dc-tl button[aria-selected="true"]{background:var(--pg-bg);color:var(--pg-fg);box-shadow:0 1px 2px rgba(18,18,18,.08),0 0 0 .5px rgba(18,18,18,.06)}
+      .dc-tp:focus-visible{outline-offset:6px;border-radius:4px}
+
+      /* facts, requirements and notes: a plain list, each item's name over what it says, one under another. Only things you
+         can click get a card */
+      .dc-body .dc-items{list-style:none;margin:0 0 16px;padding:0;display:flex;flex-direction:column;gap:16px}
+      .dc-body .dc-items>li{margin:0}
+      .dc-items .dc-h3{margin:0 0 2px}
+      .dc-items p{margin:0 0 8px}
+      .dc-items .dc-code{margin:10px 0 0}
+
+      /* where files land: a plain tree */
+      .dc-tree{margin:0 0 16px}
+      .dc-tree figcaption{margin:0 0 8px;font-size:13px;color:var(--pg-muted)}
+      .dc-tree ul{list-style:none;margin:0;padding:0}
+      .dc-tree ul ul{margin-left:7px;padding-left:14px;border-left:1px solid var(--pg-line)}
+      .dc-tree li{margin:0}
+      .dc-tn{display:flex;align-items:center;gap:8px;height:26px;font-size:13px;color:var(--pg-fg)}
+      .dc-tn svg{flex:none;width:15px;height:15px;color:var(--pg-muted)}
+
+      /* cards that lead on */
+      .dc-cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+      .dc-card{display:grid;grid-template-columns:32px minmax(0,1fr) 16px;align-items:start;gap:12px;padding:14px 14px 14px 14px;border-radius:12px;box-shadow:inset 0 0 0 1px var(--pg-line);text-decoration:none;transition:box-shadow .16s ease,background-color .16s ease}
+      .dc-card:hover{box-shadow:inset 0 0 0 1px var(--pg-line2);background:var(--pg-soft)}
+      .dc-card-i{display:grid;place-items:center;width:32px;height:32px;border-radius:9px;background:var(--pg-chip);color:var(--pg-fg)}
+      .dc-card-i svg{width:16px;height:16px}
+      .dc-card-b{display:flex;flex-direction:column;gap:2px;min-width:0}
+      .dc-card-go{display:grid;place-items:center;height:20px;color:var(--pg-muted);transition:transform .2s ease,color .2s}
+      .dc-card-go svg{width:14px;height:14px}
+      .dc-card:hover .dc-card-go{color:var(--pg-fg);transform:translateX(2px)}
+
+      /* the agent components by group, each a plain link, in columns */
+      .dc-agrp{margin:0 0 20px}
+      .dc-agrp .dc-h3{margin:0 0 6px}
+      .dc-body .dc-alist{columns:3 180px;column-gap:24px;margin:0;padding:0;list-style:none}
+      .dc-body .dc-alist li{margin:0;padding:3px 0;break-inside:avoid}
+      .dc-agents>p{margin-top:4px}
+
+      /* the two styles: four live frames, scaled to fit their cell */
+      .dc-styles{margin:0 0 16px}
+      .dc-sgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+      .dc-scell{display:flex;flex-direction:column;gap:8px;min-width:0}
+      .dc-sframe{position:relative;aspect-ratio:480/330;border-radius:12px;overflow:hidden;background:#fafafa;box-shadow:inset 0 0 0 1px var(--pg-line)}
+      .dc-scell[data-theme-of="dark"] .dc-sframe{background:#1c1c1c}
+      .dc-sframe iframe{position:absolute;left:0;top:0;width:480px;height:330px;border:0;transform-origin:0 0;transform:scale(var(--k,.66));pointer-events:none}
+      .dc-scap{font-size:13px;color:var(--pg-dim)}
+      .dc-scap b{font-weight:500;color:var(--pg-fg)}
+      .dc-styles figcaption{margin-top:12px;font-size:13px;color:var(--pg-muted)}
+
+      /* the default accents: a table of the roles in each style and theme, each value with a swatch drawn on that theme's
+         surface */
+      .dc-swtab td:first-child{color:var(--pg-fg)}
+      .dc-swvar{display:block;font-size:12px;color:var(--pg-muted)}
+      .dc-swcell{display:inline-flex;align-items:center;gap:8px}
+      .dc-swv{font-size:12px;color:var(--pg-dim);font-variant-numeric:tabular-nums;white-space:nowrap}
+      .dc-swc{flex:none;display:grid;place-items:center;width:24px;height:24px;border-radius:7px;background:var(--s,transparent);box-shadow:inset 0 0 0 1px var(--l,var(--pg-line));font-size:11px;font-weight:500}
+      .dc-swc-accent{background:var(--a)}
+      .dc-swc-onAccent{background:var(--a);color:var(--on)}
+      .dc-swc-accentFg{color:var(--fgA)}
+      .dc-swc-accentMark{box-shadow:inset 0 0 0 2px var(--mk)}
+      .dc-swc-accentBg{background:linear-gradient(var(--bgA),var(--bgA)),var(--s,transparent)}
+      .dc-swt{display:flex;flex-direction:column;min-width:0;line-height:18px}
+      .dc-swn{font-size:13px}
+      .dc-pv-role{display:flex;align-items:center;gap:10px;min-width:0}
+      .dc-pv .dc-swv{color:var(--pv-dim)}
+      /* the preview's small grey text holds 4.5:1 and APCA Lc 60 on the stage and the page, in both themes */
+      .dc-pv{--pv-dim:#525252}
+      @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .dc-pv{--pv-dim:#c0c0c0}}
+      :root[data-theme="dark"] .dc-pv{--pv-dim:#c0c0c0}
+
+      /* the accent's roles in use, in the style and theme you're looking at, and in any accent you pick */
+      .dc-pv{--a:var(--dm-accent);--on:var(--dm-on-accent);--fgA:var(--dm-accent-fg);--mk:var(--dm-accent-mark);--bgA:var(--dm-accent-bg);margin:0 0 16px;border-radius:14px;box-shadow:inset 0 0 0 1px var(--pg-line);overflow:hidden}
+      .dc-pv-bar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;padding:10px 14px;border-bottom:1px solid var(--pg-line)}
+      .dc-pv-l{font-size:13px;font-weight:500;color:var(--pg-fg)}
+      .dc-pv-picks{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+      .dc-pick{position:relative;display:grid;place-items:center;width:24px;height:24px;padding:0;border:0;border-radius:999px;background:var(--sw,#d4f84a);box-shadow:inset 0 0 0 1px rgba(18,18,18,.12);cursor:pointer}
+      html[data-style="soft"] .dc-pick[data-v="default"]{background:#116ff8}
+      html:not([data-style="soft"]) .dc-pick[data-v="#d4f84a"],html[data-style="soft"] .dc-pick[data-v="#116ff8"]{display:none}
+      .dc-pick[aria-checked="true"],.dc-pick-any.on{box-shadow:0 0 0 2px var(--pg-bg),0 0 0 4px var(--pg-fg)}
+      .dc-pick-any{background:conic-gradient(#ff5f5f,#ffd23f,#3ddc97,#3d8bff,#b06bff,#ff5f5f)}
+      .dc-pick-any input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}
+      .dc-pick-any:has(input:focus-visible){outline:2px solid var(--pg-focus);outline-offset:2px}
+      .dc-pv-now{margin-left:auto;font-size:13px;color:var(--pv-dim)}
+      .dc-pv-stage{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:center;gap:28px 36px;padding:32px 20px 24px;background:var(--surface,var(--pg-bg));color:var(--fg,var(--pg-fg))}
+      .dc-pv-item{display:flex;flex-direction:column;align-items:center;gap:10px}
+      .dc-pv-cap{font-size:12px;color:var(--pv-dim)}
+      .dc-pv-btn{display:inline-flex;align-items:center;height:32px;padding:0 14px;border-radius:999px;background:var(--a);color:var(--on);box-shadow:inset 0 0 0 1px var(--mk);font-size:13px;font-weight:500}
+      .dc-pv-switch{position:relative;display:block;width:36px;height:20px;border-radius:999px;background:var(--a);box-shadow:inset 0 0 0 1px var(--mk)}
+      .dc-pv-switch i{position:absolute;top:3px;right:3px;width:14px;height:14px;border-radius:999px;background:var(--on)}
+      .dc-pv-chip{display:inline-flex;align-items:center;height:28px;padding:0 12px;border-radius:999px;background:var(--bgA);color:var(--fgA);font-size:13px;font-weight:500}
+      .dc-pv-link{display:inline-flex;align-items:center;height:28px;font-size:14px;font-weight:500;color:var(--fgA);text-decoration:underline;text-decoration-color:var(--mk);text-underline-offset:4px}
+      .dc-pv-chart{display:block;width:160px;height:56px;overflow:visible}
+      .dc-pv-chart .ln{fill:none;stroke:var(--mk);stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+      .dc-pv-chart .ar{fill:color-mix(in srgb,var(--mk) 12%,transparent)}
+      :root:not([data-style="soft"]) .dc-pv-btn,:root:not([data-style="soft"]) .dc-pv-chip,:root:not([data-style="soft"]) .dc-pv-switch,:root:not([data-style="soft"]) .dc-pv-switch i{border-radius:0}
+      .dc-pv-roles{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;padding:12px 14px;border-top:1px solid var(--pg-line);color:var(--pg-fg)}
+      .dc-pv-note{margin:0!important;padding:10px 14px;border-top:1px solid var(--pg-line);font-size:13px;color:var(--pv-dim)!important;max-width:none!important}
+
+      .dc-md{display:inline-flex;align-items:center;gap:6px;margin-top:40px;font-size:13px;color:var(--pg-dim)}
+      @media (max-width:1100px){
+        .dc-pv-roles{grid-template-columns:repeat(3,minmax(0,1fr))}
+      }
+      @media (max-width:640px){
+        .dc-cards{grid-template-columns:minmax(0,1fr)}
+        .dc-body .dc-alist{columns:2}
+        .dc-sgrid{gap:10px}
+        .dc-pv-roles{grid-template-columns:repeat(2,minmax(0,1fr))}
+        .dc-pv-now{flex-basis:100%;margin-left:0}
+        .dc-pv-stage{gap:24px 28px}
+        /* tables: each row a short block, its heads beside the values */
+        .dc-tw{overflow:visible}
+        .dc-tw thead{display:none}
+        .dc-tw table,.dc-tw tbody,.dc-tw tr,.dc-tw td{display:block}
+        .dc-tw tr{padding:10px 0;border-bottom:1px solid var(--pg-line)}
+        .dc-tw tr:first-child{border-top:1px solid var(--pg-line)}
+        .dc-tw td{padding:0;border:0;white-space:normal!important}
+        .dc-tw td+td{margin-top:4px}
+        .dc-tw:has(th:nth-child(3)) td+td::before{content:attr(data-h) ": ";color:var(--pg-muted)}
+        .dc-step{column-gap:12px}
+      }
+    </style>
+  </Fragment>
+
+  <SiteShell doc={d.slug} where="Docs" title={d.title}>
+    <nav class="pg-crumbs" aria-label="Breadcrumb"><a href={DOCS[0].url}>Docs</a><span>/</span><span>{d.title}</span></nav>
+    <h1 class="pg-h1" id="content" tabindex="-1">{d.title}</h1>
+    <p class="pg-lead" set:html={inlineHtml(d.lead)} />
+    <SectionBar items={toc} />
+    {d.sections.map((sec, i) => <section class="dc-sec" id={sec.id}>
+      <h2><a href={`#${sec.id}`}>{sec.h}</a></h2>
+      <DocsBlocks blocks={sec.blocks} id={`s${i}`} />
+    </section>)}
+    <p class="dc-md">This page as Markdown: <a href={`${d.url}.md`}>{d.slug}.md</a></p>
+    <nav class="dc-pn" aria-label="Previous and next page">
+      {d.prev && <a href={d.prev.url} rel="prev"><span class="pg-d"><Fragment set:html={icon('arrow_back')} />Previous</span><span class="pg-t">{d.prev.title}</span></a>}
+      {d.next && <a href={d.next.url} rel="next" class="n"><span class="pg-d">Next<Fragment set:html={icon('arrow_forward')} /></span><span class="pg-t">{d.next.title}</span></a>}
+    </nav>
+  </SiteShell>
+
+  <Fragment slot="end">
+    <script is:inline>
+    (function(){
+      var root = document.documentElement;
+      // tabs: a click or the arrow keys show one panel at a time
+      [].slice.call(document.querySelectorAll('.dc-tabs')).forEach(function(box){
+        var tabs = [].slice.call(box.querySelector('[role="tablist"]').children);
+        var pick = function(t, focus){ tabs.forEach(function(b){ var on = b === t; b.setAttribute('aria-selected', String(on)); b.tabIndex = on ? 0 : -1; document.getElementById(b.getAttribute('aria-controls')).hidden = !on; }); if (focus) t.focus(); };
+        tabs.forEach(function(b, i){
+          b.addEventListener('click', function(){ pick(b); });
+          b.addEventListener('keydown', function(e){ var d = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0; if (e.key === 'Home') d = -i; if (e.key === 'End') d = tabs.length - 1 - i; if (!d) return; e.preventDefault(); pick(tabs[(i + d + tabs.length) % tabs.length], true); });
+        });
+      });
+      // the live frames: each is a 480px page, scaled to its cell
+      var frames = [].slice.call(document.querySelectorAll('.dc-sframe'));
+      var fit = function(){ frames.forEach(function(f){ f.style.setProperty('--k', (f.clientWidth / 480).toFixed(4)); }); };
+      fit(); addEventListener('resize', fit);
+      // the accent preview: the roles of the accent you pick, worked out as the homepage's picker does (window.dmAccent in
+      // tools/site/make-patches.py, and window.dmAccentRoles in Page.astro), for the style and theme you're looking at. They
+      // apply to the preview only
+      var pv = document.querySelector('[data-pv]'); if (!pv) return;
+      // the roles, worked out by the same function that applies the accent picked in the menu (window.dmAccentRoles, Page.astro)
+      var roles = window.dmAccentRoles;
+      var KEYS = ['--dm-accent','--dm-accent-bg','--dm-on-accent','--dm-accent-fg','--dm-accent-mark'];
+      var cur = 'default', picks = [].slice.call(pv.querySelectorAll('button.dc-pick')), any = pv.querySelector('.dc-pick-any'), input = any.querySelector('input');
+      var now = pv.querySelector('.dc-pv-now'), out = [].slice.call(pv.querySelectorAll('.dc-pv-role'));
+      var isDark = function(){ var t = root.getAttribute('data-theme'); return t ? t === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches; };
+      function paint(){
+        var soft = root.getAttribute('data-style') === 'soft', dark = isDark();
+        KEYS.forEach(function(k){ pv.style.removeProperty(k); });
+        if (cur !== 'default'){ var v = roles(cur, soft, dark); for (var k in v) if (v[k]) pv.style.setProperty(k, v[k]); }
+        // Default shows the style's own accent even when another one is picked for the page: its values are read with the
+        // page's accent lifted for a moment (nothing paints in between)
+        else if (root.style.getPropertyValue('--dm-accent')){
+          var held = {}; for (var i = 0; i < root.style.length; i++){ var n = root.style[i]; if (n.indexOf('--dm-accent') === 0 || n === '--dm-on-accent') held[n] = root.style.getPropertyValue(n); }
+          for (var n2 in held) root.style.removeProperty(n2);
+          var d = getComputedStyle(pv), dv = KEYS.map(function(k){ return d.getPropertyValue(k).trim(); });
+          for (var n3 in held) root.style.setProperty(n3, held[n3]);
+          KEYS.forEach(function(k, j){ pv.style.setProperty(k, dv[j]); });
+        }
+        var cs = getComputedStyle(pv);
+        // a tint reads as its colour and how much of it shows, like "#ff850d · 8%", so every value fits on one line
+        var short = function(v){ var mx = v.replace(/\s+/g, ' ').match(/^color-mix\(in srgb, ?(#[0-9a-f]{3,8}) ([\d.]+)%, ?transparent\)$/i); if (mx) return mx[1] + ' · ' + Math.round(+mx[2]) + '%'; var m = v.match(/^rgba?\(\s*(\d+)[,\s]+(\d+)[,\s]+(\d+)(?:[,\s/]+([\d.]+%?))?\s*\)$/); if (!m) return v;
+          var hx = '#' + [m[1], m[2], m[3]].map(function(n){ return (+n).toString(16).padStart(2, '0'); }).join('');
+          if (m[4] === undefined) return hx; var al = m[4].endsWith('%') ? parseFloat(m[4]) : parseFloat(m[4]) * 100; return al >= 100 ? hx : hx + ' · ' + Math.round(al) + '%'; };
+        out.forEach(function(r){ r.querySelector('.dc-swv').textContent = short(cs.getPropertyValue(r.dataset.var).trim()); });
+        var known = picks.some(function(b){ return b.dataset.v === cur; });
+        picks.forEach(function(b){ var on = b.dataset.v === cur; b.setAttribute('aria-checked', String(on)); b.tabIndex = on || (!known && b === picks[0]) ? 0 : -1; });
+        any.classList.toggle('on', !known); if (!known) any.style.setProperty('--sw', cur);
+        now.textContent = cur === 'default' ? (soft ? 'Blue, the Soft default' : 'Lime, the Blueprint default') + ', ' + (dark ? 'dark' : 'light') : cur.toUpperCase() + ', ' + (soft ? 'Soft' : 'Blueprint') + ' ' + (dark ? 'dark' : 'light');
+      }
+      picks.forEach(function(b, i){
+        b.addEventListener('click', function(){ cur = b.dataset.v; paint(); });
+        // the arrow keys, Home and End move through the swatches shown (the style hides the one its Default repeats) and pick
+        b.addEventListener('keydown', function(e){
+          var vis = picks.filter(function(x){ return x.getClientRects().length; }), j = vis.indexOf(b);
+          var d = e.key === 'ArrowRight' || e.key === 'ArrowDown' ? 1 : e.key === 'ArrowLeft' || e.key === 'ArrowUp' ? -1 : 0;
+          var n = d ? vis[(j + d + vis.length) % vis.length] : e.key === 'Home' ? vis[0] : e.key === 'End' ? vis[vis.length - 1] : null;
+          if (!n) return; e.preventDefault(); cur = n.dataset.v; paint(); n.focus(); });
+      });
+      input.addEventListener('input', function(){ cur = input.value; paint(); });
+      new MutationObserver(paint).observe(root, { attributes:true, attributeFilter:['data-theme','data-style'] });
+      matchMedia('(prefers-color-scheme: dark)').addEventListener('change', paint);
+      paint();
+    })();
+    </script>
+  </Fragment>
+</Page>

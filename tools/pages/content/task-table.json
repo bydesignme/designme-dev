@@ -1,0 +1,42 @@
+{
+  "summary": "Task table lists the tasks your agents are working on, with each task's status, the agent on it, its cost and when it last changed. Select some rows and the header turns into bulk actions to pause, retry or cancel them.",
+  "use": [
+    "When several agents run tasks at once and people need one place to see them all.",
+    "When someone wants to retry every failed task, or pause a batch, in one go.",
+    "When sorting by cost or status helps people find what needs attention.",
+    "When the list can run empty and should say so clearly."
+  ],
+  "features": [
+    "Columns for task, status, agent, cost and updated. Click a header to sort by it, and click again to reverse the order.",
+    "Five statuses, each with its own glyph: running, failed, queued, paused and done. Sorting by status follows that order.",
+    "Click a row or its checkbox to select it. The select-all box shows a dash when only some rows are picked.",
+    "While rows are selected, the header shows the count with Pause, Retry, Cancel and Clear. An action calls `onAction` with the ids and clears the selection.",
+    "Rows glide to their new places when the order changes, and cancelled rows slide away before `onAction` runs.",
+    "With no tasks, the table shows a \"No agent tasks\" note, or your own `empty` content, with an optional `emptyAction` button.",
+    "Under 560px wide, on a phone or in a narrow card, each task stacks: its name and cost on top, and its status, agent and last update on a line under it. The header row keeps select all and the sort buttons, so nothing is dropped."
+  ],
+  "a11y": [
+    "Each header cell sets `aria-sort` to ascending, descending or none.",
+    "Row checkboxes are buttons with `role=\"checkbox\"`, `aria-checked` and an `aria-label` like \"Select Sync Figma frames\".",
+    "The select-all box uses `aria-checked=\"mixed\"` when only some rows are selected, and the hidden half of the header is `inert`.",
+    "With reduced motion turned on, rows skip the glide and cancelled rows leave without sliding."
+  ],
+  "faq": [
+    {
+      "q": "Does Cancel remove the rows for me?",
+      "a": "No. The rows slide out, then `onAction('cancel', ids)` is called. Remove those tasks from `tasks` in that handler or they come back."
+    },
+    {
+      "q": "How is \"Updated\" shown?",
+      "a": "`updated` is the number of minutes since the task last changed. It reads as \"14m ago\", or \"Just now\" at 0, and the default sort puts the smallest number first."
+    },
+    {
+      "q": "Does it work on a phone?",
+      "a": "Yes. Below 560px wide the rows stack instead of scrolling sideways, and every field stays: name, cost, status, agent and when it changed. Selecting rows and the bulk actions work the same way."
+    },
+    {
+      "q": "Can I select rows from my own code?",
+      "a": "Yes. Control `selected` with an array of task ids and update it from `onSelectedChange`. The demo selects a failed task and a running task this way, then retries them."
+    }
+  ]
+}

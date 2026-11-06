@@ -1,0 +1,40 @@
+{
+  "summary": "A scatter chart of agent runs: each dot is a run, placed by its cost and its eval score and sized by the tokens it used, with a colour and a shape for each model. Dashed median lines cut it into four named quadrants. Point at the chart and the tooltip snaps to the nearest run while the other models step back; drag across it to select runs, see how many and their averages, and ask the agent why they stand out.",
+  "use": [
+    "To weigh cost against quality across many runs, prompts or models at once.",
+    "To find runs that cost a lot for a middling score, or cheap runs that score well, and ask the agent what they share.",
+    "On an evals or spend dashboard, beside a table of the same runs."
+  ],
+  "features": [
+    "Axis titles with units set clear of the ticks, a few light gridlines with quiet tick labels, and a dot size that grows with tokens.",
+    "A colour from the chart palette and a shape (circle, square, triangle) for each series, so the models tell apart without colour too.",
+    "Median lines for cost and score, worked out from the runs on show, with a name in each quadrant's corner (`quadrants`).",
+    "The legend shows and hides each model; one always stays, and the medians follow what is on show.",
+    "Pointing snaps the tooltip to the nearest run within reach (cost, score, run, model and tokens) and dims the other models.",
+    "Dragging draws a dashed box; the runs inside it are selected, with their count and averages under the chart, and an Ask the agent why button (with `onAsk`). A click on an empty spot, or Escape, clears it.",
+    "On a narrow chart (340px or less, as on a phone) the quadrant names give way to the median lines alone, each axis keeps three ticks, the dots get a little smaller, and a selection's words sit above a full-width Ask the agent why.",
+    "`ringed` draws dashed rings round runs worth a look, such as outliers the agent found, and `note` says why.",
+    "The selection can be controlled with `selected` and `onSelectedChange`."
+  ],
+  "a11y": [
+    "The chart takes the focus as one group with a label saying the arrow keys step through the runs.",
+    "The arrow keys move from run to run, cheapest first; Home and End go to the first and last; Escape clears a selection. Each run in focus is written under the chart, which is a polite live region, with its place in the list (\"7 of 48\").",
+    "Series differ by shape as well as colour.",
+    "The drawn chart is hidden from screen readers; the line under it carries the values.",
+    "The keyboard focus ring is the quiet grey ring; a mouse or touch never shows one."
+  ],
+  "faq": [
+    {
+      "q": "Can I plot something other than cost and score?",
+      "a": "Yes. Set `xDomain`, `yDomain`, the ticks, the titles, the formatters and the quadrant names for your two measures. The demo's labels are only defaults."
+    },
+    {
+      "q": "How does the agent answer about a selection?",
+      "a": "Pass `onAsk`. It gets the selected runs and returns the answer, or a promise of it; the answer streams in under the chart a word at a time."
+    },
+    {
+      "q": "Does a drag on a phone scroll the page or select?",
+      "a": "A vertical swipe still scrolls the page. A drag that moves sideways draws the selection box."
+    }
+  ]
+}

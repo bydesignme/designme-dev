@@ -1,0 +1,49 @@
+{
+  "summary": "A prompt and the pictures it makes on one side, earlier pictures and style presets on the other. The composer holds the prompt, style chips (Editorial, Poster, Surreal and 35mm in the demo), a shape (1:1, 3:4 or 16:9) and how many pictures to make (1 to 4), and the image model. Each picture is made in three stages, as an image model works: Composing, where a grid of dots in the picture's colours grows out of grain; Adding detail, where the blur lifts a step at a time while a scan line sweeps down and leaves the detailed picture behind it; and Upscaling, where the last softness and grain go. The pictures move at their own pace, each with its percentage, the run's stages are ticked off above them with the overall percentage, and one can fail with Retry. Blueprint never blurs: its dots are square cells, the picture shows through them at half strength, and its scan line is the accent's mark. The demo generates four portraits, retries the one that fails, upscales one, opens another larger and uses it as a reference, then picks a style preset.",
+  "use": [
+    "Wherever an agent or an app makes images from a prompt: moodboards, campaign and product shots, illustrations, covers.",
+    "When people make several pictures at a time and want to see each one arrive, compare them, and keep working from the best one (upscale it, vary it, use it as a reference).",
+    "When earlier pictures and saved style presets should stay one click away from the prompt."
+  ],
+  "features": [
+    "The composer: the prompt (Enter generates, Shift and Enter add a line), style chips you turn on and off (picked, a tick slides in and the edge steps up), a Shape and number panel with two switches, and an image model menu. Generate stays off while the prompt is empty or a run is still going.",
+    "The prompt as sent, as a bubble, then the run: \"Generating 4 pictures\" with a spinner, the three stages (the one in hand in ink, the ones done ticked) and the overall percentage; once through, \"4 pictures ready in 15s\", or how many failed.",
+    "The pictures share the room left, as large as their shape and number allow: the layout (one row, or two by two) is worked out from the room each time it changes size.",
+    "The effect is driven by each picture's progress, in the 30 steps an image model takes, with the CSS easing between steps: dot size, blur, grain and how far the scan has come are custom properties on the picture, so it costs only a repaint of the pictures themselves, and the grain is a small tile drawn once on a canvas.",
+    "A failed picture fades to grey and says it couldn't finish, with Retry, which makes that one picture again.",
+    "On a finished picture, under the pointer or the keyboard: Vary, Upscale and Download. Upscale sweeps the line down once more over a softened copy and marks the picture 2×; Vary makes one new picture from it, moving in on another part of it in the demo.",
+    "Click a picture to open it larger, over the whole component: its prompt, shape and styles, Previous and Next, Upscale, Vary, Use as reference, Download, and a thumbs up and down for that picture. Use as reference adds it to the composer as a small chip with its picture, which you can remove.",
+    "Under the run, a thumbs up and down for the pictures, Copy prompt, and what made them (model, shape and styles).",
+    "Beside it, the Gallery: earlier pictures in two columns, each in its own shape, the newest first; finished pictures join it at the top as they land. The Styles tab holds presets, each a picture with a name and a line; picking one sets the style chips.",
+    "Narrower than about 620px, the gallery and the styles take the feed's place, picked with a Create / Gallery / Styles switch in the header; picking a preset there goes back to the prompt it changed.",
+    "React: `onGenerate(request, update)` makes the pictures, calling `update(slot, { progress, image, error })` as each goes; `image` can arrive early (a preview, or only a `placeholder`) and the effect plays over it. Retry and Vary call it again for one picture. `onAction` gets Upscale (return a promise and the sweep waits for it), Download, Use as reference and the ratings.",
+    "Each picture takes `src`, `alt` and a `placeholder`, a CSS background like a gradient of its colours, drawn under it while it loads or in place of it.",
+    "With reduced motion there are no dots, blur, grain or scan: a picture fades in once it is done, and the larger view and new gallery pictures appear without moving."
+  ],
+  "a11y": [
+    "The component is a region named \"Image generation\". The prompt, the style chips, the shape and number panel and the model menu are labelled, and the style chips are toggle buttons with aria-pressed.",
+    "A polite live region says when each stage starts and when the run is through (\"Composing, 4 pictures\", \"3 of 4 ready, 1 failed. Retry is on the failed one\"), never every step, and also says what Retry, Upscale, Vary, Use as reference and the ratings did.",
+    "Each picture is a button named after it once it is done (\"Open picture 2: A man in a green T-shirt…\"), and is disabled while it is being made; its quick actions are named for it (\"Upscale picture 2\") and show when it has the keyboard focus, not only under the pointer.",
+    "The larger view is a modal dialog named \"Picture 1 of 4\": it takes the focus when you open it, keeps it inside while it is open, Escape closes it and gives the focus back to the picture you opened it from, and Left and Right move between pictures. The picture in it is an image with its alt text.",
+    "The gallery is a group of buttons, each named after its picture, in the order they sit in their columns; the presets are toggle buttons that show which one matches the chips.",
+    "The keyboard focus ring is the quiet grey ring; a mouse or touch never shows one."
+  ],
+  "faq": [
+    {
+      "q": "Where do the pictures in the demo come from?",
+      "a": "They are photos from Pexels, free to use under the Pexels License (art/README.md in the repository links each one). They are not part of what you install: installed components draw each picture as a gradient of its colours, and on designme.dev the photos are laid over those gradients. In the demo each style draws from a few photos that suit it; your model makes the real pictures."
+    },
+    {
+      "q": "How do I connect my image model?",
+      "a": "In React, pass `onGenerate`. It gets the prompt, styles, shape, count, model and references, and an `update(slot, { progress, image, error })` to call as each picture goes. Send `image` as soon as you have anything to show, even only a `placeholder`, so the effect has colours to resolve from. In the HTML version, replace the demo's `start()` in the script with a call to your model, and set each picture's progress the same way."
+    },
+    {
+      "q": "Does it keep playing while the pointer is on it?",
+      "a": "The pictures being made keep coming, as a model's would. The rest of the demo (the person pressing Generate, Retry, Upscale and the rest) holds while the pointer rests on it, and stops for good once you click, type or focus inside it."
+    },
+    {
+      "q": "Why does Download say there is no file?",
+      "a": "An installed demo only has each picture's gradient, so there is nothing to save. Give your pictures a `src` and Download saves it; on designme.dev it saves the photo."
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "summary": "Ticket list is a support queue where the agent has already triaged each ticket and drafted a reply. Rows show a priority dot, the customer, how long they have waited and who the ticket is assigned to. Opening a ticket shows the customer's message and the suggested reply, which a person can edit before choosing Send and solve.",
+  "use": [
+    "When an agent triages incoming support tickets and drafts answers for a person to approve",
+    "When a support lead wants urgent tickets to stand out by colour",
+    "When replies should be edited in place before they go out",
+    "When solved tickets should leave the open queue but stay one click away"
+  ],
+  "features": [
+    "A coloured dot marks `priority`: urgent red, high amber, normal accent and low grey, with the name in a tooltip.",
+    "While shut, each row shows the customer and a preview of their `question`, plus the `waiting` time and assignee avatar.",
+    "Opening a row shows the question and the agent's `reply` in an editable box; Edit puts the cursor at the end of it.",
+    "Send and solve calls `onSend` with the ticket and the reply as edited; a promise shows a spinner, then the row fades out, folds its height away so the rows under it slide up, and moves to Solved.",
+    "An Open and Solved switch filters the list, and an empty filter shows `emptyLabel`, \"All caught up\" by default.",
+    "`tickets`, `filter` and `open` can each be controlled or left to the component."
+  ],
+  "a11y": [
+    "Each ticket row is a button with `aria-expanded` reporting whether it is open.",
+    "The Send and solve button sets `aria-busy` while sending.",
+    "The Open and Solved switch is a `group` labelled Filter, with `aria-pressed` on each option."
+  ],
+  "faq": [
+    {
+      "q": "Does the reply that gets sent include the person's edits?",
+      "a": "Yes. `onSend` receives the text currently in the reply box, edited or not. That text is also saved on the ticket when it moves to Solved."
+    },
+    {
+      "q": "What happens if sending fails?",
+      "a": "If the promise from `onSend` rejects, the spinner stops and the ticket stays open, so the person can try again."
+    },
+    {
+      "q": "How do I open the most urgent ticket for the person?",
+      "a": "Control `open` with `onOpenChange` and set it to that ticket's id. The example opens the urgent ticket a second after it loads."
+    }
+  ]
+}

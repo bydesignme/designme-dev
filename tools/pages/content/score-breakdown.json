@@ -1,0 +1,36 @@
+{
+  "summary": "A score out of 100 with what goes into it on show. The gauge is split into one segment per factor, sized by its weight (accuracy 40, speed 20, cost 20, safety 20), and each segment fills with the points that factor earned. Beside it sit the band word and the change since last week; under it, a row per factor with its points, a small bar and the agent's one-line note. The weakest factor is flagged in words, and its row offers Improve, which asks the agent for a proposal you can apply.",
+  "use": [
+    "For an agent quality score, an eval score or a health score that is a weighted sum of a few factors.",
+    "When people should see why the score is what it is, not only the number.",
+    "When the agent can suggest a fix for the factor that costs the most."
+  ],
+  "features": [
+    "A half-circle gauge split by weight, with a small gap between segments, each filled to earned / weight in the chart palette.",
+    "The score counts up to the total of the earned points, with a band word (Excellent from 90, Good from 75, Fair from 60, else Needs work) and the change against `previous` as a green or red tag.",
+    "Rows with the factor's colour, name, earned / weight, a bar and the agent's note; the weakest factor (the lowest share of its weight) has a Weakest tag.",
+    "Pointing at a row or its segment, or moving the focus into a row, lights both and dims the other segments.",
+    "A row opens to say how many points it loses; with `improvable` and `onImprove` it has Improve. While the proposal is on its way the row says what the agent is doing, then shows the proposal, what it gains and the new points, with Apply and Not now.",
+    "Apply calls `onApply`; update the factor and the gauge, the score and the rows move to the new values. The open rows can be controlled with `open` and `onOpenChange`."
+  ],
+  "a11y": [
+    "The gauge has role=\"meter\" with the score and an aria-valuetext with the band and the change, like \"86 of 100, good, up 9 since last week\".",
+    "Each row is a button with aria-expanded and a label with its points, the Weakest flag and the note; its closed detail is inert and hidden from screen readers.",
+    "The weakest factor and the change are said in words, not only by colour.",
+    "Number count-ups finish at once when the user prefers reduced motion."
+  ],
+  "faq": [
+    {
+      "q": "Do the weights have to add up to 100?",
+      "a": "Yes. Each weight is the number of points a factor can earn and the score is their sum, so the weights should total 100."
+    },
+    {
+      "q": "How is the weakest factor chosen?",
+      "a": "It is the factor with the lowest share of its own weight, so 11 of 20 counts as weaker than 34 of 40."
+    },
+    {
+      "q": "How does this differ from Health score?",
+      "a": "Health score averages equal checks. Score breakdown weighs its factors and shows each one's weight as its share of the gauge."
+    }
+  ]
+}

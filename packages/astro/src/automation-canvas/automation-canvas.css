@@ -1,0 +1,121 @@
+/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+/* ---------- Automation canvas ---------- */
+/* the canvas is the whole component, edge to edge, in the stage's colour: the automation's name sits over its top left,
+   Test run and what the run shows over its bottom left, and the zoom in its bottom right. It fills the height it is given,
+   and is 560px tall (640px below 560px wide, where the steps stack) when nothing gives it one */
+.acx{position:relative;width:100%;height:100%;container:acx/inline-size;border-radius:var(--dm-r-in)}
+.acx-top{position:absolute;left:var(--dm-s-4);top:var(--dm-s-4);z-index:3;display:flex;align-items:center;gap:var(--dm-s-2);max-width:calc(100% - 2 * var(--dm-s-4));font-size:13px;pointer-events:none}
+.acx-name{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.acx-on{flex:none}
+/* Test run and the run's status: a quiet group over the bottom left, level with the zoom; the text lets a drag through */
+.acx-bar{position:absolute;left:var(--dm-s-3);bottom:var(--dm-s-3);z-index:4;display:flex;align-items:center;gap:var(--dm-s-3);min-height:36px;pointer-events:none}
+.acx-run{pointer-events:auto}
+.acx-st{font-size:12.5px;white-space:nowrap}
+/* on a narrow canvas the status sits over Test run, so the zoom keeps its room beside them */
+@container acx (max-width:419px){.acx-bar{flex-direction:column-reverse;align-items:flex-start;gap:var(--dm-s-1)}}
+/* the canvas reads as a workflow editor: a dot every 16px, all the way to its edges */
+.acx-cv{position:relative;height:560px;min-height:100%;border-radius:inherit;outline:0;background-color:var(--dm-stage);background-image:radial-gradient(circle at center,color-mix(in srgb,var(--dm-fg) 14%,transparent) 1.1px,transparent 1.6px);background-size:16px 16px;background-position:center}
+@container acx (max-width:559px){.acx-cv{height:640px}}
+/* in a stage the canvas takes all of it, so the stage's own room goes */
+.card.wide .stage-in:has(>.acx){max-width:none;align-self:stretch}
+/* the view: the steps and wires sit on a world that pans and zooms inside the canvas, and the dots move with it. Drag the
+   empty canvas (one finger on a touch screen) or scroll to move around; Ctrl or ⌘ with the wheel, or a pinch, zooms at the
+   pointer. The popover and the picker sit over it, inside the canvas */
+.acx-vp{position:absolute;inset:0;overflow:hidden;overflow:clip;border-radius:inherit;cursor:grab;user-select:none;-webkit-user-select:none}
+/* touch is the page's until the canvas is engaged (a tap in it): then one finger pans and two pinch the canvas */
+.acx-cv.engaged :is(.acx-vp,.acx-n){touch-action:none}
+.acx-cv.pan .acx-vp{cursor:grabbing}
+.acx-world{position:absolute;inset:0;transform-origin:0 0}
+.acx-cv.anim{transition:background-position var(--dm-t) var(--dm-ease),background-size var(--dm-t) var(--dm-ease)}
+.acx-cv.anim .acx-world{transition:transform var(--dm-t) var(--dm-ease)}
+/* the canvas shows its focus only to the keyboard, in the quiet grey: a click gives it the focus without a ring */
+.acx-cv:focus-visible:not(.ptr){outline:2px solid color-mix(in srgb,var(--dm-field-line) 50%,transparent);outline-offset:-2px}
+/* Shift and a drag on the empty canvas draws a box: every step it touches joins the selection */
+.acx-mq{position:absolute;left:0;top:0;border-radius:var(--dm-r-xs);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-pick-on) 50%,transparent);background:color-mix(in srgb,var(--dm-fg) 4%,transparent);pointer-events:none}
+/* zoom out, the zoom level (which resets to 100%), zoom in and fit, quiet in the corner */
+.acx-zm{position:absolute;right:var(--dm-s-3);bottom:var(--dm-s-3);z-index:4;display:flex;align-items:center;padding:var(--dm-s-1);border-radius:var(--dm-r-pill);background:var(--dm-surface);box-shadow:var(--dm-shadow)}
+.acx-zb{width:28px;height:28px;flex:none;display:grid;place-items:center;border-radius:var(--dm-r-pill);color:var(--dm-fg2);transition:background var(--dm-t-fast),color var(--dm-t-fast)}
+.acx-zl{min-width:44px;height:28px;padding:0 var(--dm-s-1);flex:none;border-radius:var(--dm-r-pill);font-size:12px;color:var(--dm-fg2);transition:background var(--dm-t-fast),color var(--dm-t-fast)}
+@media (hover:hover) and (pointer:fine){.acx-zb:hover,.acx-zl:hover{background:var(--dm-row);color:var(--dm-fg)}}
+.acx-zb[aria-disabled="true"]{color:var(--dm-dis);background:none;cursor:not-allowed}
+@media (hover:hover) and (pointer:fine){.acx-zb[aria-disabled="true"]:hover{color:var(--dm-dis);background:none;cursor:not-allowed}}
+.acx-zs{width:1px;height:14px;margin:0 var(--dm-s-1);flex:none;background:var(--dm-line)}
+.acx-sr{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.acx-svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.acx-svg path{fill:none;stroke:var(--dm-faint);stroke-width:1.5;transition:stroke .6s var(--dm-ease)}
+/* on arrival the wires draw in after the steps have landed */
+.acx-svg.intro path{stroke-dasharray:var(--dm-l);animation:acxdraw .8s var(--dm-ease) .42s backwards}
+@keyframes acxdraw{from{stroke-dashoffset:var(--dm-l)}}
+/* a test run passes along each wire as one soft light, and the wire stays lightly lit once it has passed */
+.acx-svg path.done{stroke:color-mix(in srgb,var(--dm-accent-mark,var(--dm-accent)) 32%,var(--dm-faint))}
+.acx-svg path.pulse{stroke:var(--dm-accent-mark,var(--dm-accent));stroke-width:2.5;stroke-linecap:round;transition:none}
+/* the steps fade in without moving, so the wires meet them exactly while they arrive */
+.acx-in{animation:acxin .56s var(--dm-ease) backwards}
+@keyframes acxin{from{opacity:0;filter:blur(4px)}}
+/* a step's badge pops in once; after that its spinner turns into a check with a short crossfade */
+.acx-n .s{animation:acxs .34s cubic-bezier(.34,1.4,.64,1)}
+@keyframes acxs{from{opacity:0;transform:scale(.6)}}
+.acx-sv{display:grid;animation:acxsv .3s var(--dm-ease)}
+@keyframes acxsv{from{opacity:0;filter:blur(2px)}}
+.acx-n{position:absolute;width:176px;padding:10px var(--dm-s-3);border-radius:calc(14px * var(--dm-rk));background:var(--dm-surface);box-shadow:var(--dm-shadow);display:flex;align-items:center;gap:10px;font-size:12.5px;text-align:left;transition:box-shadow .3s,left .5s var(--dm-ease),top .5s var(--dm-ease)}
+@media (hover:hover) and (pointer:fine){.acx-n:hover{box-shadow:var(--dm-shadow-pop)}}
+.acx-n{cursor:pointer;user-select:none}
+.acx-n.drag{cursor:grabbing;transition:box-shadow .3s;box-shadow:var(--dm-shadow-pop);z-index:3;transform:scale(1.02)}
+/* a selected step: its white card with a light grey edge */
+.acx-n.sel{box-shadow:0 0 0 1px color-mix(in srgb,var(--dm-pick-on) 50%,transparent),var(--dm-shadow-pop)}
+.acx-n .ic{width:28px;height:28px;border-radius:calc(9px * var(--dm-rk));display:grid;place-items:center;flex:none}
+.acx-n .t{display:flex;flex-direction:column;min-width:0}
+.acx-n .t b{font-weight:500;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.acx-n .t span{font-size:11.5px;color:var(--dm-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.acx-n .s{position:absolute;right:-6px;top:-6px;width:18px;height:18px;border-radius:50%;display:grid;place-items:center;background:var(--dm-surface);box-shadow:0 0 0 1px color-mix(in srgb,var(--dm-line) 50%,transparent)}
+/* the running step: a thin accent line round it, with no halo */
+.acx-n.run{box-shadow:0 0 0 1.5px color-mix(in srgb,var(--dm-accent-mark,var(--dm-accent)) 55%,transparent),var(--dm-shadow)}
+.acx-pop{width:240px;padding:var(--dm-s-3)}
+.acx-pop h4{margin:0 0 10px;font-size:13px;font-weight:500}
+.acx-fl{display:flex;flex-direction:column;gap:var(--dm-s-1);margin-bottom:10px;font-size:12px;color:var(--dm-muted)}
+.acx-dd{display:flex;align-items:center;justify-content:space-between;height:32px;padding:0 10px;border-radius:var(--dm-r-field);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line) 50%,transparent);color:var(--dm-fg);font-size:13px;transition:box-shadow var(--dm-t-fast)}
+@supports (corner-shape:squircle){.acx-dd{corner-shape:squircle;border-radius:var(--dm-r-field-sq)}}
+/* a field: a quiet grey edge, one step stronger while it has the keyboard's focus; opening its list changes nothing */
+.acx-dd:focus-visible{outline:0;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line-strong) 50%,transparent)}
+.acx-dd .i{color:var(--dm-muted)}
+.acx-opts{display:none;flex-direction:column;padding:var(--dm-s-1);border-radius:calc(10px * var(--dm-rk));background:var(--dm-surface);box-shadow:var(--dm-shadow-pop);margin-top:var(--dm-s-1)}
+.acx-opts.open{display:flex}
+.acx-opts .mi{font-size:12.5px;padding:6px var(--dm-s-2)}
+/* adding steps: a step whose output leads nowhere yet has a small + on it (on its right, or under it when the canvas stacks),
+   and the agent step has labelled connectors under it for a model and its tools. Each opens the step picker beside it */
+.acx-h,.acx-sc{position:absolute;left:0;top:0;z-index:2;display:grid;place-items:center;background:var(--dm-surface);color:var(--dm-fg2);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-rail) 50%,transparent),var(--dm-shadow);transition:color var(--dm-t-fast),box-shadow var(--dm-t-fast),left .5s var(--dm-ease),top .5s var(--dm-ease),opacity var(--dm-t-fast)}
+.acx-h{width:20px;height:20px;border-radius:var(--dm-r-pill)}
+.acx-sc{height:24px;grid-auto-flow:column;gap:var(--dm-s-1);padding:0 var(--dm-s-2) 0 6px;border-radius:var(--dm-r-sm);font-size:11.5px;white-space:nowrap}
+.acx-h[aria-expanded="true"],.acx-sc[aria-expanded="true"]{color:var(--dm-fg);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line) 50%,transparent),var(--dm-shadow)}
+@media (hover:hover) and (pointer:fine){.acx-h:hover,.acx-sc:hover{color:var(--dm-fg);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line) 50%,transparent),var(--dm-shadow)}}
+.acx-nodes.drag :is(.acx-h,.acx-sc){transition:none}
+.acx-h.in,.acx-sc.in{animation:acxin .56s var(--dm-ease) backwards}
+.acx-svg path.stub{stroke-dasharray:3 3}
+.acx-svg path.sub{stroke-dasharray:4 4}
+.acx-svg path.new{stroke-dasharray:var(--dm-l);animation:acxdraw .5s var(--dm-ease) backwards}
+.acx-svg path.sub.new{animation:acxsub .5s var(--dm-ease) backwards}
+@keyframes acxsub{from{opacity:0}}
+.acx-n.sm{width:168px;padding:var(--dm-s-2) 10px;gap:var(--dm-s-2)}
+.acx-n.sm .ic{width:24px;height:24px;border-radius:var(--dm-r-sm)}
+.acx-n.add{animation:acxadd .42s var(--dm-ease) backwards}
+@keyframes acxadd{from{opacity:0;transform:scale(.92);filter:blur(3px)}}
+/* the step picker: a search over a short list of step types in groups. The arrows move through it (the search keeps the
+   focus), Enter adds the step, Escape closes it; the line at its foot says what the step under the pointer or the arrows does */
+.acx-pk{width:248px;padding:var(--dm-s-2);display:flex;flex-direction:column;gap:var(--dm-s-1)}
+.acx-q{display:flex;align-items:center;gap:var(--dm-s-2);height:32px;flex:none;padding:0 var(--dm-s-2);border-radius:var(--dm-r-field);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line) 50%,transparent);color:var(--dm-muted);transition:box-shadow var(--dm-t-fast)}
+@supports (corner-shape:squircle){.acx-q{corner-shape:squircle;border-radius:var(--dm-r-field-sq)}}
+.acx-q:focus-within{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line-strong) 50%,transparent)}
+.acx-q input{flex:1;min-width:0;height:100%;padding:0;border:0;outline:0;background:transparent;font:inherit;font-size:13px;color:var(--dm-fg)}
+.acx-q input::placeholder{color:var(--dm-muted)}
+.acx-ls{max-height:148px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--dm-rail) transparent}
+.acx-gh{padding:var(--dm-s-2) var(--dm-s-2) var(--dm-s-1);font-size:11.5px;color:var(--dm-muted)}
+.acx-o{display:flex;align-items:center;gap:var(--dm-s-2);height:32px;padding:0 var(--dm-s-2);border-radius:var(--dm-r-sm);font-size:13px;color:var(--dm-fg);cursor:pointer;user-select:none}
+.acx-o .ic{width:22px;height:22px;border-radius:var(--dm-r-xs);display:grid;place-items:center;flex:none}
+.acx-o.on{background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-rail) 50%,transparent)}
+.acx-o mark{background:none;color:inherit;font-weight:500}
+.acx-pe{padding:var(--dm-s-3) var(--dm-s-2);font-size:12.5px;color:var(--dm-muted);overflow-wrap:anywhere}
+.acx-pd{margin:0;padding:var(--dm-s-2) var(--dm-s-2) 2px;box-shadow:inset 0 1px 0 color-mix(in srgb,var(--dm-line) 50%,transparent);font-size:12px;line-height:1.4;color:var(--dm-fg2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.acx-live{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+:root:not([data-style="soft"]) :is(.acx-h,.acx-sc):not(:where([data-style="soft"],[data-style="soft"] *)){box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-rail) 50%,transparent)}
+:root:not([data-style="soft"]) .acx-zm:not(:where([data-style="soft"],[data-style="soft"] *)){box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 50%,transparent)}
+@media (hover:hover) and (pointer:fine){:root:not([data-style="soft"]) :is(.acx-h,.acx-sc):is(:hover,[aria-expanded="true"]):not(:where([data-style="soft"],[data-style="soft"] *)){box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line) 50%,transparent)}}

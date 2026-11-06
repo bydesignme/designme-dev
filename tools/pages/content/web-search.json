@@ -1,0 +1,38 @@
+{
+  "summary": "The agent's web searches, shown as it makes them: each query with how many results came back and how long it took, the pages it opened under it with whether it read, skimmed or skipped each one and why (a paywall, a block, a timeout), and the sites it went to as a small stack of initials. A search that finds nothing is asked again in other words, right under it. Once done, the trail folds to one line, \"3 searches, 6 pages read\", and the answer streams in under it with numbered citations that light the pages they came from.",
+  "use": [
+    "When an agent searches the web before it answers, and people want to see what it looked at.",
+    "When some pages couldn't be read and the answer should say so rather than hide it.",
+    "In a chat stream, above the answer the searches led to."
+  ],
+  "features": [
+    "A header that says what is happening (Searching for “…”, Reading 4 pages) and, once done, sums it up; it opens and folds the trail.",
+    "Query rows with the query, the result count (No results in the warning colour) and the time; each opens to its pages.",
+    "A query asked again in other words is marked \"Asked again in other words\" under it, right after the one that found nothing.",
+    "Page rows with the site's initial, the title, the site and date, and a tag: Reading (with a spinner), Read, Skimmed, or Skipped with the reason as a warning tag.",
+    "A stack of up to four site initials in the header, with the rest counted (+3).",
+    "Citations in the answer ([1], [2]) are buttons: pointing at one or tabbing to it lights the page it came from (or its search, when that is folded) and its site's initial, and its tooltip names the page.",
+    "Page titles cut short with an ellipsis show in full in a tooltip on hover and on keyboard focus."
+  ],
+  "a11y": [
+    "The header and each query are buttons with aria-expanded; a closed trail or query is inert and hidden from screen readers.",
+    "Each page row can take the focus and has a label with its title, site, date and status, like \"Anyone switched from Stripe Billing to Orb?, reddit.com, May 2026: Skipped: blocked\".",
+    "Citations have labels that name their source, like \"Source 2: Metronome vs Orb: a fair comparison, metronome.com\".",
+    "A role=\"status\" region announces only changes of phase (each new search, then Done), never every page.",
+    "Statuses are words, not only colours."
+  ],
+  "faq": [
+    {
+      "q": "How do I link a citation to a page?",
+      "a": "Give the page `cite` (1, 2…) and write [1], [2] in `answer`. Each number becomes a button tied to the page with that `cite`."
+    },
+    {
+      "q": "Can I keep the trail open when it is done?",
+      "a": "Yes. Control `open` and `onOpenChange`. Left to itself, the trail folds once `done` turns true."
+    },
+    {
+      "q": "Does it run the searches?",
+      "a": "No. It shows what your agent reports: pass the queries and pages as they arrive and update their status."
+    }
+  ]
+}

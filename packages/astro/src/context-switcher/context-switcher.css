@@ -1,0 +1,76 @@
+/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+/* ---------- Context switcher ---------- */
+/* where you are in an app, as a breadcrumb: organisation, project and environment. Each part opens its own switcher, with a
+   search, the list (the current one ticked, each with its badge) and Create new at the bottom. When the bar runs short the
+   names shorten with an ellipsis; when it is phone narrow only the last part shows, and a … menu holds the others */
+.csw{position:relative;width:100%;max-width:640px;margin:0 auto;container:csw/inline-size}
+.csw-bar{display:flex;align-items:center;width:fit-content;max-width:100%;margin:0 auto;min-height:52px;padding:var(--dm-s-2);border-radius:var(--dm-r-card)}
+.csw-path{flex:1;min-width:0;display:flex;align-items:center;gap:var(--dm-s-1);margin:0;padding:0;list-style:none}
+.csw-path>li{display:flex;align-items:center;min-width:0}
+/* short of room, each part takes an even share of the bar and never more than it needs, so a short name keeps its length
+   and the long ones shorten alike; the last part, where you are now, gets a larger share */
+.csw-seg{flex:1 1 0;max-width:max-content}.csw-seg:last-child{flex-grow:1.5}
+.csw-sep{flex:none;color:var(--dm-muted)}
+.csw-path>.csw-mi,.csw-path>.csw-sep.m{display:none}
+.csw-tr{display:flex;align-items:center;gap:var(--dm-s-2);min-width:0;max-width:100%;height:36px;padding:0 var(--dm-s-2);border-radius:var(--dm-r-sm);font-size:13.5px;font-weight:500;color:var(--dm-fg);white-space:nowrap;transition:background var(--dm-t-fast)}
+@media (hover:hover) and (pointer:fine){.csw-tr:hover{background:var(--dm-row)}}
+.csw-tr>.i{color:var(--dm-muted);flex:none}
+.csw-nm{min-width:0;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.csw-bh{display:flex;flex:none}
+.csw-bh:empty{display:none}
+/* an organisation's tile: its initial on its tint, the letter leaning toward the text colour so it reads in dark mode too */
+.csw-lg{--dm-tb:var(--dm-chip);--dm-tc:var(--dm-fg2);width:22px;height:22px;border-radius:var(--dm-r-xs);display:grid;place-items:center;flex:none;background:var(--dm-tb);color:color-mix(in srgb,var(--dm-tc) 80%,var(--dm-fg));font-size:11px;font-weight:500}
+.csw-lg[data-t="pb"]{--dm-tb:var(--dm-pb-bg);--dm-tc:var(--dm-pb)}.csw-lg[data-t="pl"]{--dm-tb:var(--dm-pl-bg);--dm-tc:var(--dm-pl)}.csw-lg[data-t="pm"]{--dm-tb:var(--dm-pm-bg);--dm-tc:var(--dm-pm)}.csw-lg[data-t="pp"]{--dm-tb:var(--dm-pp-bg);--dm-tc:var(--dm-pp)}
+.csw-lg[data-t="pr"]{--dm-tb:var(--dm-pr-bg);--dm-tc:var(--dm-pr)}.csw-lg[data-t="py"]{--dm-tb:var(--dm-py-bg);--dm-tc:var(--dm-py)}.csw-lg[data-t="pk"]{--dm-tb:var(--dm-pk-bg);--dm-tc:var(--dm-pk)}.csw-lg[data-t="pt"]{--dm-tb:var(--dm-pt-bg);--dm-tc:var(--dm-pt)}
+/* the badges are Badge's small size, in the same tones */
+.csw-bd{--dm-cb-bg:var(--dm-chip);--dm-cb-fg:var(--dm-fg2);flex:none;display:inline-flex;align-items:center;height:20px;padding:0 var(--dm-s-2);border-radius:var(--dm-r-pill);background:var(--dm-cb-bg);color:var(--dm-cb-fg);font-size:11.5px;font-weight:500;line-height:1;white-space:nowrap}
+.csw-bd[data-tone="accent"]{--dm-cb-bg:var(--dm-accent-bg);--dm-cb-fg:var(--dm-accent-fg)}
+.csw-bd[data-tone="success"]{--dm-cb-bg:var(--dm-ok-bg);--dm-cb-fg:var(--dm-ok)}.csw-bd[data-tone="warning"]{--dm-cb-bg:var(--dm-warn-bg);--dm-cb-fg:var(--dm-warn)}.csw-bd[data-tone="danger"]{--dm-cb-bg:var(--dm-bad-bg);--dm-cb-fg:var(--dm-bad)}
+.csw-bd[data-tone="blue"]{--dm-cb-bg:var(--dm-pb-bg);--dm-cb-fg:var(--dm-pb)}.csw-bd[data-tone="violet"]{--dm-cb-bg:var(--dm-pl-bg);--dm-cb-fg:var(--dm-pl)}.csw-bd[data-tone="green"]{--dm-cb-bg:var(--dm-pm-bg);--dm-cb-fg:var(--dm-pm)}.csw-bd[data-tone="orange"]{--dm-cb-bg:var(--dm-pp-bg);--dm-cb-fg:var(--dm-pp)}
+.csw-bd[data-tone="red"]{--dm-cb-bg:var(--dm-pr-bg);--dm-cb-fg:var(--dm-pr)}.csw-bd[data-tone="yellow"]{--dm-cb-bg:var(--dm-py-bg);--dm-cb-fg:var(--dm-py)}.csw-bd[data-tone="pink"]{--dm-cb-bg:var(--dm-pk-bg);--dm-cb-fg:var(--dm-pk)}.csw-bd[data-tone="teal"]{--dm-cb-bg:var(--dm-pt-bg);--dm-cb-fg:var(--dm-pt)}
+.csw-more{display:grid;place-items:center;width:32px;height:32px;border-radius:var(--dm-r-sm);color:var(--dm-fg2);flex:none;transition:background var(--dm-t-fast)}
+@media (hover:hover) and (pointer:fine){.csw-more:hover{background:var(--dm-row)}}
+/* the switcher: under the part it belongs to, never past the bar's ends */
+.csw-pop{width:288px;max-width:100%}
+/* a switcher or the … menu fades in a beat after the bar starts gliding up to make room for it, so it never shows past the
+   bottom of the space it was given */
+.glide>.csw-pop.open,.glide>.csw-mpop.open{transition-delay:.1s}
+.csw-sf{position:relative;display:flex;align-items:center;margin-bottom:var(--dm-s-1)}
+.csw-sf>.i{position:absolute;left:10px;color:var(--dm-muted);pointer-events:none}
+.csw-q{width:100%;height:32px;border:0;outline:0;border-radius:var(--dm-r-field);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line) 50%,transparent);transition:box-shadow var(--dm-t-fast);padding:0 var(--dm-s-2) 0 28px;font:inherit;font-size:13px;color:var(--dm-fg)}
+.csw-q::placeholder{color:var(--dm-muted)}
+.csw-q:focus{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line-strong) 50%,transparent)}
+@supports (corner-shape:squircle){.csw-q{corner-shape:squircle;border-radius:var(--dm-r-field-sq)}}
+.csw-list{max-height:248px;overflow-y:auto;display:flex;flex-direction:column;gap:2px}
+.csw-o{flex:none;min-height:34px;cursor:pointer}
+/* the row under the pointer or the arrow keys, the current one, and a hovered row in the … menu get a soft grey fill behind
+   them, with no edge and no tick */
+@media (hover:hover) and (pointer:fine){.csw-pop .csw-o:is(:hover,.hl,[aria-selected="true"]),.csw-mpop .mi:hover{background:var(--dm-row);box-shadow:none}}
+.csw-o .csw-on{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.csw-o .csw-lg{width:20px;height:20px;font-size:10.5px}
+.csw-o .ck{margin-left:0;flex:none}
+.csw-o .ck{display:none}
+.csw-o[aria-selected="true"] .csw-on{font-weight:500}
+/* a hovered row's tint lifts the dark list a step, so a badge on it leans a little toward the text colour and keeps APCA 60 */
+.csw-o:is(.hl,[aria-selected="true"]) .csw-bd{color:color-mix(in srgb,var(--dm-cb-fg) 85%,var(--dm-fg))}
+@media (hover:hover) and (pointer:fine){.csw-o:hover .csw-bd,.csw-tr:hover .csw-bd{color:color-mix(in srgb,var(--dm-cb-fg) 85%,var(--dm-fg))}}
+/* on a highlighted row a tinted chip takes a fuller tint, and a grey one turns white with a quiet edge, so neither fades into
+   the row behind it */
+@media (hover:hover) and (pointer:fine){.csw-o:is(:hover,.hl,[aria-selected="true"]) .csw-bd,.csw-tr:hover .csw-bd,.mi:is(:hover,.hl) .bdg{--dm-cb-bg:color-mix(in srgb,var(--dm-cb-fg) 16%,var(--dm-surface));--dm-bdg-bg:color-mix(in srgb,var(--dm-bdg-fg) 16%,var(--dm-surface))}}
+@media (hover:hover) and (pointer:fine){.csw-o:is(:hover,.hl,[aria-selected="true"]) .csw-bd:is(:not([data-tone]),[data-tone="neutral"]),.csw-tr:hover .csw-bd:is(:not([data-tone]),[data-tone="neutral"]),.mi:is(:hover,.hl) .bdg:is(:not([data-tone]),[data-tone="neutral"]){--dm-cb-bg:var(--dm-surface);--dm-bdg-bg:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-rail) 50%,transparent)}}
+.csw-new,.csw-new>.i{color:var(--dm-fg2)}
+.csw-none{padding:var(--dm-s-2);font-size:12.5px;color:var(--dm-muted)}
+.csw-mpop{width:248px}
+.csw-mpop .mi>.t{flex:1;min-width:0}
+.csw-mpop .mi>.t>b{display:block;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.csw-live{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+/* short of room, the organisation's tile goes first, so its name keeps more of its length */
+@container csw (max-width:560px){.csw-tr>.csw-lg{display:none}}
+/* phone narrow: the last part, and a … menu for the parts before it */
+@container csw (max-width:440px){
+  .csw-path>.csw-seg:not(:last-child),.csw-path>.csw-sep:not(.m){display:none}
+  .csw-path>.csw-mi,.csw-path>.csw-sep.m{display:flex}
+  .csw-nm{max-width:none}
+}
+:root:not([data-style="soft"]) .csw-bd:not(:where([data-style="soft"],[data-style="soft"] *)){box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-cb-fg) 14%,transparent);font-size:10.5px;letter-spacing:.03em;text-transform:uppercase}
+:root:not([data-style="soft"]) .csw-bd[data-tone="accent"]:not(:where([data-style="soft"],[data-style="soft"] *)){box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-accent-mark) 50%,transparent)}

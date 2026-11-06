@@ -1,0 +1,37 @@
+{
+  "summary": "Set limit is a budget card for capping what an agent can spend in a month. A bar shows what has been spent so far and where spending is forecast to land, and the person drags a knob or types a figure to set the cap. A line under the bar warns when the forecast will pass the cap, and a switch decides whether runs pause, ask first or keep going at the limit.",
+  "use": [
+    "When agent runs cost money and a team needs a monthly ceiling",
+    "When people should see whether their current pace will go over before it happens",
+    "When the team must choose what the agent does at the limit: stop, ask, or continue",
+    "When a cap needs to be adjusted quickly by dragging or typing an exact amount"
+  ],
+  "features": [
+    "The bar shows `spent` as a solid fill and `forecast` as a striped fill up to the cap.",
+    "Dragging along the bar snaps the cap to `step`, and the knob glides to new values set any other way.",
+    "Clicking the big figure lets the person type a cap; Enter or leaving the field keeps it within `min` and `max`, and Escape restores the old value.",
+    "When the forecast passes the cap, the line warns \"Forecast passes your cap around Oct 27\" and says what runs will do; otherwise it shows the amount left.",
+    "The At the limit switch sets `mode` to pause, ask or keep, and `message` can replace the line under the bar.",
+    "`format` controls how amounts are written, and the symbols around the number stay in place while typing."
+  ],
+  "a11y": [
+    "The knob is a `slider` with `aria-valuemin`, `aria-valuemax`, `aria-valuenow` and a formatted `aria-valuetext`.",
+    "Arrow keys move the cap by `step`, on the slider and in the typed figure.",
+    "The warning line is an `aria-live=\"polite\"` region, so going over or back on track is announced.",
+    "The At the limit switch is a labelled `group` with `aria-pressed` on each choice."
+  ],
+  "faq": [
+    {
+      "q": "Does this component stop the agent when the cap is reached?",
+      "a": "No. It shows and sets the cap and the at-the-limit choice. Read them from `onValueChange` and `onModeChange` and enforce them where your runs are billed."
+    },
+    {
+      "q": "How do I show amounts in another currency?",
+      "a": "Pass `format`, like `n => n + ' €'`. The text around the number stays fixed while someone types a new cap."
+    },
+    {
+      "q": "Can I write my own warning text?",
+      "a": "Yes. `message` receives whether the forecast is over, the cap, what is left and the mode, and returns what to show under the bar."
+    }
+  ]
+}

@@ -1,0 +1,103 @@
+/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+/* ---------- Agent builder ---------- */
+/* a form on the left, a test chat on the right (under it on a narrow card). Every field the agent drafted carries a Drafted tag
+   until someone changes it; a bar at the foot of the form saves, tests and publishes */
+.dm-abx{overflow:hidden;container-type:inline-size}
+.dm-abx-g{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr)}
+.dm-abx-f{display:flex;flex-direction:column;gap:var(--dm-s-3);padding:var(--dm-s-4);min-width:0}
+.dm-abx-l,.dm-abx-sh{font-size:12px;color:var(--dm-muted)}
+.dm-abx-ask{display:flex;flex-direction:column;gap:6px;padding-bottom:var(--dm-s-3);border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
+.dm-abx-askr{display:flex;gap:var(--dm-s-2)}
+.dm-abx-askr .dm-abx-in{flex:1}
+.dm-abx-in,.dm-abx-ta{min-width:0;height:32px;padding:0 10px;border:0;border-radius:var(--dm-r-field);outline:0;background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line) 50%,transparent);color:var(--dm-fg);font:inherit;font-size:13px;transition:box-shadow var(--dm-t-fast)}
+.dm-abx-ta{height:auto;min-height:76px;padding:var(--dm-s-2) 10px;resize:none;line-height:1.5;border-radius:var(--dm-r-box);field-sizing:content}
+.dm-abx-in:focus,.dm-abx-ta:focus{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line-strong) 50%,transparent)}
+.dm-abx-in[aria-invalid="true"]{box-shadow:inset 0 0 0 1px var(--dm-bad)}
+.dm-abx-in::placeholder,.dm-abx-ta::placeholder{color:var(--dm-muted)}
+@supports (corner-shape:squircle){.dm-abx-in{border-radius:var(--dm-r-field-sq)}.dm-abx-ta{border-radius:var(--dm-r-box-sq)}}
+.dm-abx-sel{appearance:none;-webkit-appearance:none;padding-right:28px;background:var(--dm-surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") right 9px center/12px no-repeat;cursor:pointer}
+.dm-abx-s{display:flex;flex-direction:column;gap:6px;transition:opacity .3s}
+.dm-abx-sh{display:flex;align-items:center;gap:var(--dm-s-2);min-height:20px}
+.dm-abx-sh>span:first-child{color:var(--dm-fg2);font-weight:500}
+.dm-abx-sh .dm-muted{margin-left:auto;font-size:11.5px}
+.dm-abx-s.dm-wait{opacity:.45}
+.dm-abx-s.dm-busy .dm-abx-sh>span:first-child{animation:dm-shim 2.2s linear infinite;background:linear-gradient(90deg,var(--dm-fg2) 0%,var(--dm-fg2) 38%,var(--dm-faint) 50%,var(--dm-fg2) 62%,var(--dm-fg2) 100%);background-size:260% 100%;-webkit-background-clip:text;background-clip:text;color:transparent}
+/* drafted by the agent, until someone edits it: the accent's tint with the accent as text */
+.dm-abx-dt{display:inline-flex;align-items:center;gap:4px;height:18px;padding:0 6px;border-radius:var(--dm-r-tag);background:var(--dm-accent-bg);color:var(--dm-accent-fg,var(--dm-accent));font-size:11px;font-weight:500}
+@supports (corner-shape:squircle){.dm-abx-dt{border-radius:var(--dm-r-tag-sq)}}
+/* identity: the agent's avatar (Dotto) beside its name, with its colour and shape picked under the name */
+.dm-abx-idr{display:grid;grid-template-columns:auto minmax(0,1fr);gap:var(--dm-s-2) var(--dm-s-3);align-items:center}
+.dm-abx-av{grid-row:span 2;width:64px;height:64px;display:grid;place-items:center}
+.dm-abx-av .dm-abx-mascot{width:64px;height:64px}
+.dm-abx-look{display:flex;align-items:center;justify-content:space-between;gap:var(--dm-s-2) var(--dm-s-3);flex-wrap:wrap;min-width:0}
+/* colour: swatches, a radio group; the one picked has a grey ring */
+.dm-abx-sw{display:flex;gap:var(--dm-s-2)}
+.dm-abx-sw button{width:20px;height:20px;border-radius:calc(6px * var(--dm-rk));background:var(--dm-s);box-shadow:inset 0 0 0 1px rgba(0,0,0,.08);transition:transform .15s var(--dm-ease),box-shadow var(--dm-t-fast)}
+@media (hover:hover) and (pointer:fine){.dm-abx-sw button:hover{transform:scale(1.08)}}
+.dm-abx-sw button[aria-checked="true"]{box-shadow:0 0 0 2px var(--dm-surface),0 0 0 3px color-mix(in srgb,var(--dm-pick-on) 70%,transparent)}
+.dm-abx-sw button:focus-visible{outline-offset:4px;border-radius:calc(6px * var(--dm-rk))}
+/* shape: a segmented switch of outlines, a radio group */
+.dm-abx-shp button{width:30px;height:24px;padding:0;display:grid;place-items:center}
+.dm-abx-shp button[aria-checked="true"]{color:var(--dm-fg)}
+.dm-abx-shp svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.5;overflow:visible}
+.dm-abx-shp svg path{vector-effect:non-scaling-stroke}
+:root:not([data-style="soft"]) .dm-abx-sw button:not(:where([data-style="soft"],[data-style="soft"] *)),:root:not([data-style="soft"]) .dm-abx-sw button:focus-visible:not(:where([data-style="soft"],[data-style="soft"] *)){border-radius:0}
+/* Dotto, the agent's mascot: a white screen (owner, 4 Nov: dark on a dark bezel was hard to see) in a bezel of the agent's colour (--dm-m, the accent unless one is picked), a 5 by 5
+   grid of dots drawing its eyes and smile. Idle blinks the top row of dots; thinking moves the eyes cell by cell and runs a
+   loading row. With reduced motion each state is a still pose */
+.dm-abx-mascot{--dm-m-c:var(--dm-m,var(--dm-accent));--dm-m-ink:color-mix(in oklab,var(--dm-m-c) 18%,#0a0a10);--dm-m-glow:color-mix(in oklab,var(--dm-m-c) 82%,white);display:block;flex:none;width:24px;height:24px;overflow:visible}
+.dm-abx-mascot .dm-bz{fill:var(--dm-m-c);transition:fill var(--dm-t-fast)}
+.dm-abx-mascot .dm-sc{fill:#fff;transition:fill var(--dm-t-fast)}
+.dm-abx-mascot .dm-dg{fill:var(--dm-m-c);opacity:.22}
+/* the lit dots are the agent's colour taken darker, so they read on the white screen in every colour, lime included */
+.dm-abx-mascot .dm-on{fill:color-mix(in oklab,var(--dm-m-c) 72%,#0a0a10)}
+/* in dark mode the screen is black and the lit dots glow in the agent's colour */
+:root[data-theme="dark"] .dm-abx-mascot .dm-sc{fill:#0b0b0e}
+:root[data-theme="dark"] .dm-abx-mascot .dm-on{fill:var(--dm-m-glow)}
+:root[data-theme="dark"] .dm-abx-mascot .dm-dg{opacity:.3}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .dm-abx-mascot .dm-sc{fill:#0b0b0e}:root:not([data-theme="light"]) .dm-abx-mascot .dm-on{fill:var(--dm-m-glow)}:root:not([data-theme="light"]) .dm-abx-mascot .dm-dg{opacity:.3}}
+.dm-abx-mascot .dm-th,.dm-abx-mascot[data-state="thinking"] .dm-id{display:none}
+.dm-abx-mascot[data-state="thinking"] .dm-th{display:inline}
+.dm-abx-mascot[data-state="thinking"] .dm-lk{transform:translate(0,-6.5px)}
+@media (prefers-reduced-motion:no-preference){
+.dm-abx-mascot .dm-tp{animation:dm-abxblink 5.2s step-end infinite}
+.dm-abx-mascot[data-state="thinking"] .dm-lk{animation:dm-abxlook 2.7s step-end infinite}
+.dm-abx-mascot[data-state="thinking"] .dm-ld{animation:dm-abxload .96s step-end infinite}
+.dm-abx-mascot[data-state="thinking"] .dm-l2{animation-delay:-.64s}
+.dm-abx-mascot[data-state="thinking"] .dm-l3{animation-delay:-.32s}
+}
+@keyframes dm-abxblink{0%{opacity:1}90%{opacity:0}94%{opacity:1}}
+@keyframes dm-abxlook{0%{transform:translate(0,-6.5px)}33.3%{transform:translate(6.5px,-6.5px)}66.6%{transform:translate(-6.5px,-6.5px)}}
+@keyframes dm-abxload{0%{opacity:1}33.3%{opacity:.18}}
+.dm-abx-err{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--dm-bad)}
+.dm-abx-mr{display:flex;gap:var(--dm-s-2);flex-wrap:wrap}
+.dm-abx-mr .dm-abx-sel{flex:1;min-width:120px}
+.dm-abx-eff button,.dm-abx-trs button,.dm-abx-tl .dm-seg2 button{font-size:12px;height:28px;padding:0 10px}
+.dm-abx-tools{display:flex;flex-direction:column;gap:2px}
+.dm-abx-tl{display:flex;align-items:center;gap:var(--dm-s-2);padding:2px 0;font-size:13px}
+.dm-abx-tl .dm-brand{width:16px;height:16px}
+.dm-abx-tl .dm-n{flex:1;min-width:0}
+.dm-abx-tl .dm-seg2 button{height:24px;padding:0 9px;font-size:11.5px}
+.dm-abx-kn{display:flex;flex-wrap:wrap;gap:6px}
+.dm-abx-tr{display:flex;align-items:center;gap:var(--dm-s-2);flex-wrap:wrap}
+.dm-abx-trd{font-size:12px}
+.dm-abx-bar{display:flex;align-items:center;gap:6px;margin-top:var(--dm-s-1);padding-top:var(--dm-s-3);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
+.dm-abx-st{font-size:12.5px;display:flex;align-items:center;gap:6px}
+.dm-abx-c{display:flex;flex-direction:column;min-width:0;background:var(--dm-row);border-left:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
+.dm-abx-ch{display:flex;align-items:center;gap:var(--dm-s-3);padding:var(--dm-s-4) var(--dm-s-4) var(--dm-s-2);font-size:13.5px;line-height:1.4}
+.dm-abx-ch .dm-abx-mascot{width:32px;height:32px}
+.dm-abx-cht{display:flex;flex-direction:column;min-width:0}
+.dm-abx-ch b{font-weight:500}
+.dm-abx-ch .dm-muted{font-size:12px}
+.dm-abx-log{flex:1;display:flex;flex-direction:column;gap:var(--dm-s-3);padding:var(--dm-s-2) var(--dm-s-4) var(--dm-s-4)}
+.dm-abx-empty{margin:auto 0;text-align:center;font-size:12.5px;line-height:1.5}
+.dm-abx-em{align-self:flex-end;max-width:92%;display:flex;flex-direction:column;gap:2px;padding:9px var(--dm-s-3);border-radius:var(--dm-r-card);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 50%,transparent);font-size:12.5px;line-height:1.5;color:var(--dm-fg2)}
+.dm-abx-em b{font-weight:500;color:var(--dm-fg);font-size:13px}
+.dm-abx-em .dm-muted{font-size:11.5px}
+.dm-abx-rp{display:flex;flex-direction:column;gap:6px;font-size:13px;line-height:1.5}
+.dm-abx-rp .dm-k{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--dm-muted)}
+.dm-abx-rp .dm-tags{display:flex;gap:4px;flex-wrap:wrap}
+.dm-abx-sr{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+@container (max-width:600px){.dm-abx-g{grid-template-columns:minmax(0,1fr)}.dm-abx-c{border-left:0;border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);min-height:220px}}
+/* on a phone the state takes its own line over the buttons, so Live with its avatar never pushes Publish out of the card */
+@container (max-width:340px){.dm-abx-bar{flex-wrap:wrap;row-gap:var(--dm-s-2)}.dm-abx-st{flex-basis:100%}}

@@ -1,0 +1,77 @@
+/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+/* ---------- Run queue ---------- */
+/* a queue of agent jobs in three parts, on one left edge: the job running, raised, with its agent, its steps, a progress
+   bar and the time left; the jobs up next, each with its agent and when it should start; and the jobs done, each with how
+   long it took and a green tick. A job glides from one part to the next as it moves, a part with nothing in it folds away,
+   and when every job is done a summary takes the running job's place */
+.rq{display:flex;flex-direction:column;padding:var(--dm-s-3);text-align:left}
+.rq-h{display:flex;align-items:center;justify-content:space-between;gap:var(--dm-s-3)}
+.rq-ht{display:flex;flex-direction:column;min-width:0}
+.rq-ht b{font-weight:500}
+.rq-st{font-size:12.5px;color:var(--dm-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* the whole queue at a glance: a part of the strip for each job, filled as it runs */
+.rq-tot{display:flex;gap:3px;margin-top:var(--dm-s-3)}
+.rq-tot i{flex:1;height:4px;border-radius:2px;background:var(--dm-line);overflow:hidden}
+.rq-tot b{display:block;height:100%;border-radius:inherit;background:var(--dm-accent-mark,var(--dm-accent));transform-origin:left;transform:scaleX(var(--dm-p,0));transition:transform .3s linear,background .3s}
+.rq-tot i.fail b{background:var(--dm-bad)}
+/* the end of the queue keeps the room it had and centres what is left in it */
+.rq-b{flex:1;display:flex;flex-direction:column}
+.rq.fin .rq-b{justify-content:center}
+.rq-sec{display:flex;flex-direction:column;gap:6px;padding-top:var(--dm-s-3)}
+.rq-l{display:flex;align-items:baseline;gap:6px;font-size:12px;color:var(--dm-muted)}
+.rq-l .num{color:var(--dm-fg2)}
+.rq-none{display:none;align-items:center;min-height:40px;margin:0;font-size:12.5px;color:var(--dm-muted)}
+.rq-next:empty+.rq-none,.rq-done:empty+.rq-none{display:flex}
+.rq-run,.rq-next,.rq-done{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px}
+/* a job: its agent's badge, what it is and who does it, and its time */
+.rq-j{display:flex;flex-direction:column;border-radius:var(--dm-r-in);font-size:13px}
+.rq-jh{display:flex;align-items:center;gap:10px;min-height:40px}
+.rq-av{position:relative;width:28px;height:28px;border-radius:calc(9px * var(--dm-rk));display:grid;place-items:center;flex:none;background:var(--dm-chip);color:var(--dm-fg2);transition:background .3s,color .3s}
+.rq-av .i{width:13px;height:13px;stroke-width:1.9}
+.rq-jt{flex:1;min-width:0;display:flex;flex-direction:column}
+.rq-jt b{font-weight:400;color:var(--dm-fg2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:color .3s}
+.rq-js{font-size:12px;color:var(--dm-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rq-jm{display:flex;align-items:center;gap:6px;flex:none;font-size:12px;color:var(--dm-muted);white-space:nowrap}
+.rq-jm .ok{display:grid;color:var(--dm-ok)}
+.rq-jb{display:none;align-items:center;gap:10px;padding:0 0 2px 38px}
+.rq-bar{flex:1;height:4px;border-radius:2px;background:var(--dm-line);overflow:hidden}
+.rq-bar i{display:block;height:100%;border-radius:inherit;background:var(--dm-accent-mark,var(--dm-accent));transform-origin:left;transform:scaleX(var(--dm-p,0));transition:transform .2s linear}
+.rq-pc{width:32px;flex:none;font-size:12px;color:var(--dm-muted);text-align:right}
+/* the job running: raised on the surface, its badge in the accent, with its progress and its steps */
+.rq-j:is([data-s="run"],[data-s="fail"]){padding:var(--dm-s-1) 10px 10px;background:var(--dm-surface);box-shadow:var(--dm-shadow);gap:6px}
+.rq-j:is([data-s="run"],[data-s="fail"]) .rq-jb{display:flex}
+.rq-j:is([data-s="run"],[data-s="fail"]) .rq-jt b{font-weight:500;color:var(--dm-fg)}
+.rq-j[data-s="run"] .rq-av{background:var(--dm-accent-bg);color:var(--dm-accent-fg,var(--dm-accent))}
+.rq-j[data-s="done"] .rq-jt b{color:var(--dm-fg2)}
+/* a failed step turns the job red until Retry */
+.rq-j[data-s="fail"]{background:var(--dm-bad-bg);box-shadow:none}
+.rq-j[data-s="fail"] .rq-av{background:var(--dm-surface);color:var(--dm-bad)}
+.rq-j[data-s="fail"] :is(.rq-jt b,.rq-jm,.rq-pc){color:var(--dm-bad)}
+.rq-j[data-s="fail"] .rq-js{color:var(--dm-fg2)}
+.rq-j[data-s="fail"] .rq-bar{background:color-mix(in srgb,var(--dm-bad) 18%,transparent)}
+.rq-j[data-s="fail"] .rq-bar i{background:var(--dm-bad)}
+.rq-steps{list-style:none;margin:0;padding:var(--dm-s-1) 0 0 38px;display:flex;flex-direction:column}
+.rq-sp{display:flex;align-items:center;gap:var(--dm-s-2);min-height:26px;font-size:12.5px;color:var(--dm-fg2)}
+.rq-sp .g{width:14px;display:grid;place-items:center;flex:none}
+.rq-sp .g .spin{width:10px;height:10px}
+.rq-sp .g .dot{width:5px;height:5px;color:var(--dm-faint)}
+.rq-sp .m{margin-left:auto;font-size:12px;color:var(--dm-muted)}
+.rq-sp.wait{color:var(--dm-muted)}
+.rq-sp.done .g{color:var(--dm-ok)}
+.rq-sp.fail,.rq-sp.fail .g{color:var(--dm-bad)}
+.rq-retry{height:24px;padding:0 10px;border-radius:var(--dm-r-pill);background:var(--dm-surface);box-shadow:var(--dm-shadow);font-size:12px;font-weight:500;color:var(--dm-fg);transition:box-shadow .2s,transform .15s}
+.rq-retry.on{box-shadow:var(--dm-shadow-pop)}
+@media (hover:hover) and (pointer:fine){.rq-retry:hover{box-shadow:var(--dm-shadow-pop)}}
+.rq-retry:active{transform:scale(.96)}
+/* the end: every job done, said once in green where the running job was */
+.rq-fin{display:flex;align-items:center;gap:10px;padding:10px;border-radius:var(--dm-r-in);background:var(--dm-ok-bg)}
+.rq-fin .rq-av{background:var(--dm-surface);color:var(--dm-ok)}
+.rq-fin b{font-weight:500;color:var(--dm-ok)}
+.rq-fin .rq-js{color:var(--dm-fg2)}
+.rq-say{position:absolute;width:1px;height:1px;margin:-1px;padding:0;border:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+@container (max-width:340px){.rq-h{flex-wrap:wrap}.rq-jb,.rq-steps{padding-left:0}}
+:root:not([data-style="soft"]) .rq-j:is([data-s="run"],[data-s="fail"]):not(:where([data-style="soft"],[data-style="soft"] *)){box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 70%,transparent)}
+:root:not([data-style="soft"]) .rq-j[data-s="run"]:not(:where([data-style="soft"],[data-style="soft"] *)){box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-accent-mark,var(--dm-accent)) 45%,transparent)}
+:root:not([data-style="soft"]) .rq-j[data-s="fail"]:not(:where([data-style="soft"],[data-style="soft"] *)){background:repeating-linear-gradient(135deg,transparent 0 5px,color-mix(in srgb,var(--dm-bad) 10%,transparent) 5px 6px),var(--dm-bad-bg);box-shadow:none}
+:root:not([data-style="soft"]) .rq-bar i:not(:where([data-style="soft"],[data-style="soft"] *)),:root:not([data-style="soft"]) .rq-tot b:not(:where([data-style="soft"],[data-style="soft"] *)){transition:transform .2s steps(2,end)}
+:root:not([data-style="soft"]) .rq-retry:not(:where([data-style="soft"],[data-style="soft"] *)){box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 70%,transparent)}

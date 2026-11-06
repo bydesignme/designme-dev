@@ -1,0 +1,37 @@
+{
+  "summary": "Code viewer shows the files an agent wrote or changed, with the changed lines marked. Click any line and a note opens under it with the agent's explanation of that line.",
+  "use": [
+    "When people want to understand why the agent wrote a line before they accept the change.",
+    "When an agent edits more than one file and you want tabs to move between them.",
+    "When you want changed lines highlighted without showing a full diff.",
+    "When readers need a quick way to copy the generated file."
+  ],
+  "features": [
+    "Each file appears as a tab. The header counts how many lines in the open file changed.",
+    "Lines can be plain strings or pieces tagged for highlighting: keyword, string, function, comment, tag and attribute.",
+    "Lines marked `changed` get a green number and a soft wash.",
+    "Clicking a line opens a note that says \"Reading the line\" for `delay` ms, then crossfades to the line's `note`. Lines with no note show `unchangedNote`.",
+    "The copy button copies the open file as plain text, shows \"Copied to clipboard\" and calls `onCopy`.",
+    "The open file and open line can be controlled with `file`, `line` and their change handlers, so the agent can point at a line itself."
+  ],
+  "a11y": [
+    "The file tabs sit in a `tablist`, and each tab is a `tab` with `aria-selected`.",
+    "Each code line is focusable with `role=\"button\"` and `aria-expanded`. Enter or Space opens and closes its note.",
+    "The note is an `aria-live=\"polite\"` region, so the explanation is announced when it appears.",
+    "The copy button has `aria-label=\"Copy file\"`, and with reduced motion the note opens without its height animation."
+  ],
+  "faq": [
+    {
+      "q": "Does it highlight syntax automatically?",
+      "a": "No. It renders the tokens you give it. Pass `code` as an array of plain strings and `[token, text]` pairs, using `k`, `s`, `f`, `cm`, `tg` or `at`."
+    },
+    {
+      "q": "Can the agent open a note on a line by itself?",
+      "a": "Yes. Control `line` with the index of the line, starting at 0, and update it from `onLineChange`. The demo opens line 7's note this way after a short wait."
+    },
+    {
+      "q": "What does the \"Reading the line\" pause do?",
+      "a": "It shows for `delay` milliseconds, 600 by default, before the note text appears. Set `delay` to 0 if you want the note to show right away."
+    }
+  ]
+}

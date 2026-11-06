@@ -1,0 +1,35 @@
+{
+  "summary": "Social sign-in is a sign-in card with one button per provider, such as Google, GitHub, Figma and SSO, plus a way to continue with email. The provider used last time gets an outline and a Last used badge, so a returning person can find it quickly. After sign-in the card swaps to a welcome message with the provider's name and a Sign out button.",
+  "use": [
+    "When people sign in to your agent product with an existing work account",
+    "When returning users tend to forget which provider they used last time",
+    "When sign-in calls an OAuth flow that takes a moment and the button should show it is working",
+    "When you need a small signed-in confirmation before the product loads"
+  ],
+  "features": [
+    "Providers show an official `brand` mark, an `icon` such as a lock for SSO, or a `letters` tile.",
+    "The `lastUsed` provider gets an outline and a Last used badge, and a successful sign-in updates it.",
+    "If `onSignIn` returns a promise, that provider's button spins until it settles and the other buttons wait.",
+    "Resolving to false or rejecting keeps the person signed out.",
+    "Once signed in, the card shows an avatar, \"Welcome back\" with the `user` name, which provider was used and a Sign out button.",
+    "`title`, `logo` and `emailLabel` change the heading, the mark on the tile and the email link."
+  ],
+  "a11y": [
+    "The button that is signing in sets `aria-busy` while its promise is pending.",
+    "Every provider is a native button labelled \"Continue with\" and the provider's name."
+  ],
+  "faq": [
+    {
+      "q": "How do I connect it to my OAuth flow?",
+      "a": "Handle `onSignIn`, which receives the clicked provider, and return a promise. The button spins until it resolves. Resolve to false or reject to keep the card signed out."
+    },
+    {
+      "q": "How does it remember the last provider between visits?",
+      "a": "It doesn't store anything itself. Save the key from `onLastUsedChange` wherever you like, then pass it back as `lastUsed` or `defaultLastUsed` next time."
+    },
+    {
+      "q": "Can I add a provider that has no brand mark, like Microsoft?",
+      "a": "Yes. Give it `letters`, such as \"MS\", for a letter tile, or an `icon` name. Built-in brand marks cover google, github, figma and slack."
+    }
+  ]
+}

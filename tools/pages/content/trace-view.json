@@ -1,0 +1,44 @@
+{
+  "summary": "Trace view lays one agent run out as an observability waterfall: every span, whether an LLM call, a tool call, a retrieval or a sub-agent, sits on a shared time axis, nested under the span that started it with a tree's guides, with its tokens and latency. Each kind has its own colour and a count in the key, and while the run streams a playhead marks where it is. A tool call that runs over its time budget turns amber and is tagged slow, and any span opens to show where it sat in the run, its input, output, latency and tokens.",
+  "use": [
+    "When people debug or review what an agent did in one run, and where the time and tokens went.",
+    "When a run streams in live and people want to watch each step start and finish.",
+    "When a slow or costly step should stand out without reading every number.",
+    "When people need the exact input and output of one step, like the request a tool made and what came back."
+  ],
+  "features": [
+    "`spans` is the run as a tree: each span has a `name`, a `kind` of `agent`, `llm`, `tool` or `retrieval`, a `start` and a `duration` in seconds, its `tokens`, and `children`. An agent span without its own `tokens` adds up every span under it.",
+    "Each kind has its own mark and colour, and its name in a tooltip on the mark. A key under the title counts the LLM calls, tool calls and retrievals that have started. Guides join each span to the one that started it.",
+    "Each row shows its bar on the time axis, its tokens and its latency; the header shows the run's total time. An agent span is drawn as a bracket over the time its spans take.",
+    "`time` streams a run in: spans that start later stay hidden, a span without a `duration` grows up to it with a light passing along its bar and a bright leading edge, and a playhead marks `time` down every track. Leave it out once the run is over and the playhead fades.",
+    "A tool call that takes longer than `slowAfter` seconds (2 by default) turns amber and hatched and gets a slow tag, with the budget in its tooltip.",
+    "Pressing a span opens its details under the waterfall: a bar showing where it sat in the run, its kind, start, latency, tokens, input and output, while the other bars step back. Pressing it again, the close button or Escape shuts them.",
+    "On a narrow card the names keep their room: the tokens column, the slow tag and the guides give way, the amber bar and time still mark a slow span, and every span's tokens stay in its details."
+  ],
+  "a11y": [
+    "Each span is a button in a labelled group, named with its name, kind, latency and tokens, and whether it is still running or slow.",
+    "Each span says whether its details are open, and the details are a labelled region.",
+    "The key is a labelled list, so the counts by kind are read out too. The guides, the playhead and the bar in the details are decoration and hidden from screen readers.",
+    "The arrow keys, Home and End move between spans, and Escape closes the details and puts focus back on the span.",
+    "The line under the title is announced politely when it changes.",
+    "With reduced motion nothing slides, fades or shimmers; the bars, the playhead and the numbers still update."
+  ],
+  "faq": [
+    {
+      "q": "Where do the spans come from?",
+      "a": "From your own tracing: OpenTelemetry, your model provider's logs or your agent framework's events. Map each to a name, kind, start, duration and tokens, nest them under their parent, and pass them in."
+    },
+    {
+      "q": "Why are only tool calls flagged slow?",
+      "a": "In the demo a tool call that waits on another service is the usual culprit. `slowAfter` sets the budget in seconds; flagging other kinds would take a change to the component."
+    },
+    {
+      "q": "What scale does the time axis use?",
+      "a": "It covers the run's length, rounded up to a whole second, unless you set `axis`. A faint line marks each tick and every other tick is labelled."
+    },
+    {
+      "q": "Can the details open on the side instead of below?",
+      "a": "Not as it is. They open under the waterfall, so the card stays narrow enough to sit beside a chat."
+    }
+  ]
+}

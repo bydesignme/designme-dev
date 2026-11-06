@@ -1,0 +1,236 @@
+/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+/* ---------- Image generation ---------- */
+/* a prompt and what it made on the left, earlier pictures and style presets on the right (owner, 5 Nov). Each picture is
+   made in three stages, the way an image model works: Composing (a grid of dots in the picture's colours grows out of
+   grain), Adding detail (the blur lifts step by step while a scan line sweeps down and leaves the detailed picture behind
+   it) and Upscaling (the last softness and grain go). The steps are a model's denoising steps: the picture changes a step
+   at a time and eases between them. Every picture moves at its own speed, and one can fail with Retry. Upscale sweeps the
+   line down once more over a softened copy. Blueprint never blurs: its dots are square cells, the picture shows through
+   them at half strength, and its scan line is the accent's mark. With reduced motion a picture fades in once it is done.
+   --dm-ar is a picture's width over its height, --dm-art the gradient of its colours that stands in for it; on a picture being
+   made, --dm-dot (Blueprint: --dm-sq) is the size of its dots, --dm-bl the blur, --dm-gr the grain, --dm-sc how far the scan has come and
+   --dm-stp how long a step takes */
+.dm-card.dm-wide .dm-stage-in:has(>.dm-igx){max-width:900px}
+.dm-igx{width:100%;container:igx/inline-size;text-align:left}
+.dm-igx-in{position:relative;display:grid;grid-template-columns:minmax(0,1fr) 252px;gap:var(--dm-s-3);height:572px}
+.dm-igx-main,.dm-igx-side{min-width:0;min-height:0;display:flex;flex-direction:column;background:var(--dm-surface);border-radius:var(--dm-r-card);box-shadow:var(--dm-shadow);overflow:hidden}
+.dm-igx-h{flex:none;display:flex;align-items:center;gap:var(--dm-s-2);height:44px;padding:0 var(--dm-s-2) 0 var(--dm-s-4);border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);font-size:13px}
+.dm-igx-cr{flex:1;min-width:0;display:flex;align-items:center;gap:2px;white-space:nowrap;color:var(--dm-muted)}
+.dm-igx-cr .dm-i{color:var(--dm-faint);flex:none}
+.dm-igx-cr b{min-width:0;font-weight:500;color:var(--dm-fg);overflow:hidden;text-overflow:ellipsis}
+.dm-igx-vw{display:none}
+/* the feed: the prompt as sent, then what it made */
+.dm-igx-feed{flex:1;min-height:0;display:flex;flex-direction:column;gap:var(--dm-s-3);padding:var(--dm-s-4) var(--dm-s-4) var(--dm-s-2)}
+.dm-igx-ask{flex:none;max-width:88%;font-size:13.5px;line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.dm-igx-ask:empty{display:none}
+.dm-igx-run{flex:1;min-height:0;display:flex;flex-direction:column;gap:10px}
+.dm-igx-run[hidden]{display:none}
+.dm-igx-rh{flex:none;display:flex;align-items:center;gap:var(--dm-s-3);min-height:20px;font-size:13px}
+.dm-igx-rt{flex:1;min-width:0;display:flex;align-items:center;gap:var(--dm-s-2);white-space:nowrap}
+.dm-igx-rt>span{min-width:0;overflow:hidden;text-overflow:ellipsis}
+.dm-igx-rt .dm-i{color:var(--dm-fg2)}
+.dm-igx-rt .dm-spin{width:11px;height:11px;color:var(--dm-fg2)}
+/* the three stages and how far the run has come: the stage in hand is ink, the ones done are ticked */
+.dm-igx-steps{flex:none;display:flex;align-items:center;gap:10px;font-size:12px;color:var(--dm-muted);white-space:nowrap}
+.dm-igx-steps span{display:inline-flex;align-items:center;gap:5px;transition:color var(--dm-t-fast)}
+.dm-igx-steps i{width:6px;height:6px;border-radius:50%;background:var(--dm-rail);transition:background var(--dm-t-fast)}
+.dm-igx-steps .dm-on{color:var(--dm-fg)}
+.dm-igx-steps .dm-on i{background:var(--dm-fg2)}
+.dm-igx-steps .dm-done{color:var(--dm-fg2)}
+.dm-igx-steps .dm-done i{display:none}
+.dm-igx-steps .dm-i{display:none;width:12px;height:12px}
+.dm-igx-steps .dm-done .dm-i{display:inline-block}
+.dm-igx-pc{flex:none;min-width:34px;font-size:12px;color:var(--dm-fg2);text-align:right}
+/* the pictures share the room left, as large as their shape and number allow: --dm-cols and --dm-rows are the layout that
+   gives each the most room, measured by the script */
+.dm-igx-tiles{flex:1;min-height:0;display:flex;flex-wrap:wrap;align-content:center;justify-content:center;gap:var(--dm-s-2);container-type:size}
+.dm-igx-t{position:relative;flex:none;margin:0;width:min(calc((100cqw - (var(--dm-cols,1) - 1) * var(--dm-s-2)) / var(--dm-cols,1)),calc((100cqh - (var(--dm-rows,1) - 1) * var(--dm-s-2)) / var(--dm-rows,1) * var(--dm-ar,1)));aspect-ratio:var(--dm-ar,1);border-radius:var(--dm-r-in);overflow:hidden;isolation:isolate;background:var(--dm-row);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 50%,transparent)}
+.dm-igx-o{position:absolute;inset:0;width:100%;height:100%;display:block;border-radius:inherit;cursor:zoom-in}
+.dm-igx-o:disabled{cursor:default}
+.dm-igx-o:focus-visible{outline-offset:-2px}
+.dm-igx-ly{position:absolute;inset:0;background-image:var(--dm-art);background-size:cover;background-position:center;pointer-events:none}
+/* the base: the picture's colours, soft, seen through the dots while it is composed */
+.dm-igx-b{transform:scale(calc(1.14 * var(--dm-vz,1)));transform-origin:var(--dm-vo,50% 50%);filter:blur(var(--dm-bl,18px)) saturate(1.3);opacity:0;transition:filter var(--dm-stp,.2s) linear,opacity .5s var(--dm-ease)}
+.dm-igx-t:is([data-st="gen"],[data-st="fail"]) .dm-igx-b{opacity:1}
+.dm-igx-t[data-st="gen"] .dm-igx-b{-webkit-mask:radial-gradient(circle,#000 var(--dm-dot,1px),transparent calc(var(--dm-dot,1px) + 1px)) 50% 50%/var(--dm-cell,12px) var(--dm-cell,12px);mask:radial-gradient(circle,#000 var(--dm-dot,1px),transparent calc(var(--dm-dot,1px) + 1px)) 50% 50%/var(--dm-cell,12px) var(--dm-cell,12px)}
+.dm-igx-t[data-st="fail"] .dm-igx-b{filter:blur(var(--dm-bl,18px)) grayscale(1);opacity:.55}
+/* the detailed picture, uncovered by the scan */
+.dm-igx-s{transform:scale(var(--dm-vz,1));transform-origin:var(--dm-vo,50% 50%);clip-path:inset(0 0 calc(100% - var(--dm-sc,1) * 100%) 0);filter:blur(var(--dm-sb,0px));transition:clip-path var(--dm-stp,.2s) linear,filter var(--dm-stp,.2s) linear,opacity .5s var(--dm-ease)}
+.dm-igx-t:is([data-st="wait"],[data-st="fail"]) .dm-igx-s{opacity:0}
+/* grain, which fades as the picture settles */
+.dm-igx-n{position:absolute;inset:0;pointer-events:none;background-image:var(--dm-noise,none);background-size:96px 96px;opacity:var(--dm-gr,0);transition:opacity var(--dm-stp,.2s) linear}
+.dm-igx-t:is([data-st="wait"],[data-st="gen"]) .dm-igx-n{animation:dm-igxgr .48s steps(1,end) infinite}
+.dm-igx-t[data-st="wait"] .dm-igx-n{opacity:.5}
+@keyframes dm-igxgr{0%{background-position:0 0}25%{background-position:-31px 17px}50%{background-position:23px -41px}75%{background-position:-13px -29px}}
+/* the scan line: a thin light with a faint wash above it */
+.dm-igx-l{position:absolute;inset:0;pointer-events:none;opacity:0;transform:translateY(calc(var(--dm-sc,0) * 100%));transition:transform var(--dm-stp,.2s) linear,opacity .3s}
+.dm-igx-l>span{position:absolute;left:0;right:0}
+.dm-igx-l>span:first-child{top:-1px;height:2px;background:rgba(255,255,255,.92)}
+.dm-igx-l>span:last-child{bottom:100%;height:32px;background:linear-gradient(rgba(255,255,255,0),rgba(255,255,255,.22))}
+.dm-igx-t[data-st="gen"] .dm-igx-l{opacity:var(--dm-lo,0)}
+/* Upscale: the picture softens, and the line sweeps down once leaving it sharp */
+.dm-igx-t.dm-up .dm-igx-b{opacity:1;-webkit-mask:none;mask:none;filter:blur(3px);transition:none}
+.dm-igx-t.dm-up .dm-igx-s{animation:dm-igxrv 1.6s var(--dm-ease-io) both}
+.dm-igx-t.dm-up .dm-igx-l{animation:dm-igxsc 1.6s var(--dm-ease-io) both}
+@keyframes dm-igxrv{from{clip-path:inset(0 0 100% 0)}to{clip-path:inset(0)}}
+@keyframes dm-igxsc{from{opacity:1;transform:translateY(0)}88%{opacity:1}to{opacity:0;transform:translateY(100%)}}
+/* how far a picture has come, until it is done */
+.dm-igx-tp{position:absolute;left:var(--dm-s-2);bottom:var(--dm-s-2);height:20px;padding:0 7px;display:inline-flex;align-items:center;border-radius:var(--dm-r-tag);background:color-mix(in srgb,var(--dm-surface) 90%,transparent);color:var(--dm-fg);font-size:11.5px;font-weight:500;opacity:0;transition:opacity .3s;pointer-events:none}
+.dm-igx-t:is([data-st="wait"],[data-st="gen"]) .dm-igx-tp{opacity:1}
+.dm-igx-tg{position:absolute;left:6px;top:6px;background:color-mix(in srgb,var(--dm-surface) 90%,transparent);color:var(--dm-fg);pointer-events:none}
+.dm-igx-tg:empty{display:none}
+/* a picture that failed: what happened and Retry, over its faded colours */
+.dm-igx-f{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:var(--dm-s-1);padding:var(--dm-s-2);text-align:center;background:color-mix(in srgb,var(--dm-surface) 84%,transparent);font-size:12px;line-height:1.35;color:var(--dm-fg2)}
+.dm-igx-t[data-st="fail"] .dm-igx-f{display:flex}
+.dm-igx-f>.dm-i{color:var(--dm-bad)}
+.dm-igx-f b{font-size:12.5px;font-weight:500;color:var(--dm-fg)}
+.dm-igx-f .dm-pill{margin-top:var(--dm-s-1)}
+/* quick actions on a finished picture, under the pointer or the keyboard */
+.dm-igx-q{position:absolute;right:6px;bottom:6px;display:flex;gap:2px;padding:2px;border-radius:calc(11px * var(--dm-rk));background:color-mix(in srgb,var(--dm-surface) 94%,transparent);box-shadow:var(--dm-shadow);opacity:0;transform:translateY(4px);pointer-events:none;transition:opacity var(--dm-t-fast),transform var(--dm-t-fast) var(--dm-ease)}
+.dm-igx-q .dm-ib{width:28px;height:28px}
+@media (hover:hover) and (pointer:fine){.dm-igx-t[data-st="done"]:hover .dm-igx-q{opacity:1;transform:none;pointer-events:auto}}
+.dm-igx-t[data-st="done"]:is(:focus-within,.dm-hov) .dm-igx-q{opacity:1;transform:none;pointer-events:auto}
+/* under the pictures: rate them, copy the prompt, and what made them */
+.dm-igx-acts{flex:none;display:flex;align-items:center;gap:2px;min-height:30px;margin-left:-6px}
+.dm-igx-acts .dm-ib[aria-pressed="true"],.dm-igx-lb .dm-ib[aria-pressed="true"]{background:var(--dm-chip);color:var(--dm-fg)}
+.dm-igx-sep{flex:none;width:1px;height:16px;margin:0 6px;background:color-mix(in srgb,var(--dm-line) 100%,transparent)}
+.dm-igx-meta{flex:1;min-width:0;font-size:12px;color:var(--dm-muted);text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* before anything is made */
+.dm-igx-empty{flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:var(--dm-s-3);font-size:13px;color:var(--dm-muted);text-align:center}
+.dm-igx-empty[hidden]{display:none}
+.dm-igx-ef{display:flex;gap:var(--dm-s-2)}
+.dm-igx-ef span{width:40px;aspect-ratio:3/4;display:grid;place-items:center;border-radius:var(--dm-r-sm);background:var(--dm-row);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 50%,transparent);color:var(--dm-faint)}
+.dm-igx-ef span:nth-child(2){transform:translateY(-6px)}
+/* the composer: references, the prompt, its styles, and the settings for the run */
+.dm-igx-cmp{flex:none;margin:0 var(--dm-s-3) var(--dm-s-3);display:flex;flex-direction:column;border-radius:var(--dm-r-box);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line) 50%,transparent);transition:box-shadow var(--dm-t-fast)}
+.dm-igx-cmp:focus-within{box-shadow:inset 0 0 0 1px var(--dm-field-line-strong)}
+.dm-igx-refs{display:flex;flex-wrap:wrap;gap:6px;padding:10px var(--dm-s-3) 0}
+.dm-igx-refs:empty{display:none}
+.dm-igx-ref{display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 var(--dm-s-1) 0 3px;border-radius:var(--dm-r-tag);background:var(--dm-chip);font-size:12px;color:var(--dm-fg2);white-space:nowrap}
+.dm-igx-ref .dm-igx-rp{position:relative;width:20px;height:20px;border-radius:calc(5px * var(--dm-rk));overflow:hidden;background:var(--dm-row)}
+.dm-igx-ref .dm-ib{width:20px;height:20px}
+.dm-igx-ta{display:block;width:100%;height:58px;border:0;outline:0;resize:none;background:none;color:var(--dm-fg);font:inherit;font-size:14px;line-height:1.45;padding:var(--dm-s-3) var(--dm-s-3) 2px}
+.dm-igx-ta::placeholder{color:var(--dm-muted)}
+.dm-igx-sty{display:flex;flex-wrap:wrap;gap:6px;padding:6px var(--dm-s-3) 0}
+/* a style chip is a white tile with a dimmed edge; picked, its edge steps up and a tick slides in */
+.dm-igx-sc{display:inline-flex;align-items:center;gap:0;height:26px;padding:0 10px;border-radius:var(--dm-r-tag);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 100%,transparent);font-size:12.5px;color:var(--dm-fg2);white-space:nowrap;transition:background var(--dm-t-fast),color var(--dm-t-fast),box-shadow var(--dm-t-fast),gap var(--dm-t) var(--dm-ease)}
+.dm-igx-sc .dm-i{width:0;opacity:0;transition:width var(--dm-t) var(--dm-ease),opacity var(--dm-t-fast)}
+@media (hover:hover) and (pointer:fine){.dm-igx-sc:hover{background:var(--dm-row);color:var(--dm-fg)}}
+.dm-igx-sc[aria-pressed="true"]{gap:5px;color:var(--dm-fg);box-shadow:inset 0 0 0 1px var(--dm-faint)}
+.dm-igx-sc[aria-pressed="true"] .dm-i{width:12px;opacity:1}
+.dm-igx-sc.dm-hl{background:var(--dm-row)}
+.dm-igx-bar{display:flex;align-items:center;gap:var(--dm-s-1);padding:var(--dm-s-2) var(--dm-s-2) var(--dm-s-2) 6px}
+.dm-igx-bar .dm-chip{height:32px;padding:0 10px;gap:6px;background:none;min-width:0;font-size:13px;color:var(--dm-fg2)}
+.dm-igx-bar .dm-chip[aria-expanded="true"]{background:var(--dm-row);color:var(--dm-fg)}
+@media (hover:hover) and (pointer:fine){.dm-igx-bar .dm-chip:hover{background:var(--dm-row);color:var(--dm-fg)}}
+.dm-igx-bar .dm-chip>span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dm-igx-bar .dm-chip>.dm-i:last-child{color:var(--dm-muted)}
+.dm-igx-bar .dm-sp{flex:1}
+.dm-igx-go{flex:none}
+/* the settings: shape and how many, two switches in a small panel */
+.dm-igx-pp-set{min-width:236px;padding:var(--dm-s-2) 10px 10px}
+.dm-igx-pp-set .dm-ph{padding:var(--dm-s-1) 0 6px}
+.dm-igx-pp-set .dm-seg2{display:flex;margin-bottom:var(--dm-s-1)}
+.dm-igx-pp-set .dm-seg2 button{flex:1}
+/* the side: earlier pictures and style presets */
+.dm-igx-sh{flex:none;display:flex;align-items:center;gap:var(--dm-s-2);height:44px;padding:0 var(--dm-s-2);border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
+.dm-igx-sh .dm-sp{flex:1}
+.dm-igx-sh .dm-muted{font-size:12px;padding-right:6px}
+.dm-igx-pane{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;padding:var(--dm-s-2)}
+.dm-igx-pane[hidden]{display:none}
+.dm-igx-pane:focus-visible{outline-offset:-2px}
+/* the gallery: two columns, each picture in its own shape, the newest first */
+.dm-igx-gal{display:flex;gap:6px;align-items:flex-start}
+.dm-igx-col{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}
+.dm-igx-g{position:relative;display:block;width:100%;aspect-ratio:var(--dm-ar,1);border-radius:var(--dm-r-sm);overflow:hidden;background:var(--dm-row);cursor:zoom-in;transition:opacity var(--dm-t-fast)}
+.dm-igx-g .dm-igx-ly{transform:scale(var(--dm-vz,1));transform-origin:var(--dm-vo,50% 50%);transition:transform .5s var(--dm-ease)}
+@media (hover:hover) and (pointer:fine){.dm-igx-g:hover .dm-igx-ly{transform:scale(calc(var(--dm-vz,1) * 1.04))}}
+.dm-igx-g:focus-visible{outline-offset:-2px}
+.dm-igx-g.dm-new{animation:dm-igxnew .7s var(--dm-ease) both}
+@keyframes dm-igxnew{from{opacity:0;filter:blur(8px);transform:translateY(-8px)}to{opacity:1;filter:none;transform:none}}
+:root:not([data-style="soft"]) .dm-igx-g.dm-new:not(:where([data-style="soft"],[data-style="soft"] *)){animation:dm-igxwipe var(--dm-t-slow) var(--dm-ease) both}
+@keyframes dm-igxwipe{from{clip-path:inset(0 0 100% 0)}to{clip-path:inset(0)}}
+/* the style presets: a picture and what it sets */
+.dm-igx-prs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.dm-igx-pr{display:flex;flex-direction:column;gap:6px;padding:4px 4px 8px;border-radius:var(--dm-r-in);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 100%,transparent);text-align:left;transition:background var(--dm-t-fast),box-shadow var(--dm-t-fast)}
+@media (hover:hover) and (pointer:fine){.dm-igx-pr:hover{background:var(--dm-row)}}
+.dm-igx-pr[aria-pressed="true"]{box-shadow:inset 0 0 0 1px var(--dm-faint)}
+.dm-igx-prp{position:relative;display:block;aspect-ratio:4/3;border-radius:var(--dm-r-sm);overflow:hidden;background:var(--dm-row)}
+.dm-igx-prt{display:flex;flex-direction:column;padding:0 4px;font-size:12.5px;line-height:1.35}
+.dm-igx-prt b{font-weight:500;color:var(--dm-fg)}
+.dm-igx-prt .dm-muted{font-size:11.5px}
+/* the larger view: over the whole component, the picture as large as it fits, with every action */
+.dm-igx-lb{position:absolute;inset:0;z-index:5;display:flex;flex-direction:column;border-radius:var(--dm-r-card);background:var(--dm-surface);box-shadow:var(--dm-shadow);overflow:hidden}
+.dm-igx-lb[hidden]{display:none}
+.dm-igx-lb.dm-open{animation:dm-igxlb .42s var(--dm-ease) both}
+@keyframes dm-igxlb{from{opacity:0}to{opacity:1}}
+.dm-igx-lb.dm-open .dm-igx-lbs>.dm-igx-t{animation:dm-igxlbp .6s var(--dm-ease) both}
+@keyframes dm-igxlbp{from{opacity:0;transform:scale(.94);filter:blur(10px)}to{opacity:1;transform:none;filter:none}}
+:root:not([data-style="soft"]) .dm-igx-lb.dm-open:not(:where([data-style="soft"],[data-style="soft"] *)){animation:dm-igxwipe var(--dm-t-slow) var(--dm-ease) both}
+:root:not([data-style="soft"]) .dm-igx-lb.dm-open .dm-igx-lbs>.dm-igx-t:not(:where([data-style="soft"],[data-style="soft"] *)){animation:none}
+.dm-igx-lbh{flex:none;display:flex;align-items:center;gap:var(--dm-s-2);min-height:48px;padding:6px var(--dm-s-2) 6px var(--dm-s-4);border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
+.dm-igx-lbt{flex:1;min-width:0;display:flex;flex-direction:column;font-size:13px;line-height:1.35}
+.dm-igx-lbt b{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dm-igx-lbt .dm-muted{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dm-igx-lbb{flex:1;min-height:0;display:flex;align-items:center;gap:var(--dm-s-2);padding:var(--dm-s-3) var(--dm-s-2)}
+.dm-igx-lbs{flex:1;min-width:0;height:100%;display:flex;align-items:center;justify-content:center;container-type:size}
+.dm-igx-lbs>.dm-igx-t{width:min(100cqw,100cqh * var(--dm-ar,1));cursor:default}
+.dm-igx-lbn{flex:none;width:32px;padding:0}
+@media (hover:hover) and (pointer:fine){.dm-igx-lbn:not(:disabled):hover{background:var(--dm-row)}}
+.dm-igx-lbf{flex:none;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:var(--dm-s-1);padding:var(--dm-s-2) var(--dm-s-3) var(--dm-s-3)}
+.dm-igx-lbf .dm-igx-sep{margin:0 var(--dm-s-1)}
+.dm-igx-sr{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+/* a narrower feed keeps only the stage in hand beside the title */
+@container igx (max-width:780px){.dm-igx-steps span:not(.dm-on){display:none}}
+/* between the two, the side gives the pictures a little more room, and a failed picture keeps only its title and Retry */
+@container igx (max-width:820px){.dm-igx-in{grid-template-columns:minmax(0,1fr) 212px}.dm-igx-f>span{display:none}}
+/* narrower: the gallery and the styles take the feed's place, picked in the header */
+@container igx (max-width:620px){
+  .dm-igx-in{grid-template-columns:minmax(0,1fr);height:600px}
+  .dm-igx-main,.dm-igx-side{grid-area:1/1}
+  .dm-igx-side{margin-top:45px;border-radius:0 0 var(--dm-r-card) var(--dm-r-card);box-shadow:none;visibility:hidden}
+  .dm-igx-sh{display:none}
+  .dm-igx-vw{display:inline-flex}
+  .dm-igx-cr{display:none}
+  .dm-igx-h{justify-content:space-between;padding-left:var(--dm-s-2)}
+  .dm-igx-in:is([data-view="gallery"],[data-view="styles"]) .dm-igx-side{visibility:visible;z-index:2}
+  .dm-igx-in:is([data-view="gallery"],[data-view="styles"]) :is(.dm-igx-feed,.dm-igx-cmp){visibility:hidden}
+  .dm-igx-steps span:not(.dm-on){display:none}
+  .dm-igx-pane{padding:var(--dm-s-3)}
+  .dm-igx-gal{gap:var(--dm-s-2)}.dm-igx-col{gap:var(--dm-s-2)}
+  .dm-igx-prs{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@container igx (max-width:440px){
+  .dm-igx-in{height:640px}
+  .dm-igx-feed{padding:var(--dm-s-3) var(--dm-s-3) var(--dm-s-2)}
+  .dm-igx-ask{display:block;white-space:nowrap;text-overflow:ellipsis}
+  .dm-igx-sty{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;gap:var(--dm-s-1)}
+  .dm-igx-sty::-webkit-scrollbar{display:none}
+  .dm-igx-sc{flex:none;padding:0 var(--dm-s-2)}
+  .dm-igx-f>span{display:none}
+  .dm-igx-cmp{margin:0 var(--dm-s-2) var(--dm-s-2)}
+  .dm-igx-steps{display:none}
+  .dm-igx-go{width:32px;padding:0}
+  .dm-igx-go span{display:none}
+  .dm-igx-meta{display:none}
+  .dm-igx-prs{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .dm-igx-lbf .dm-igx-lbl{display:none}
+  .dm-igx-lbn{display:none}
+}
+@container igx (max-width:340px){
+  .dm-igx-bar .dm-chip>.dm-i:first-child{display:none}
+  .dm-igx-bar .dm-chip{padding:0 var(--dm-s-2)}
+}
+/* Blueprint: square dots of the picture itself at half strength, a hard scan line in the accent's mark */
+:root:not([data-style="soft"]) .dm-igx-t[data-st="gen"] .dm-igx-b:not(:where([data-style="soft"],[data-style="soft"] *)){opacity:.55;-webkit-mask:linear-gradient(90deg,#000 var(--dm-sq,2px),transparent 0) 0 0/var(--dm-cell,12px) var(--dm-cell,12px),linear-gradient(#000 var(--dm-sq,2px),transparent 0) 0 0/var(--dm-cell,12px) var(--dm-cell,12px);-webkit-mask-composite:source-in;mask:linear-gradient(90deg,#000 var(--dm-sq,2px),transparent 0) 0 0/var(--dm-cell,12px) var(--dm-cell,12px),linear-gradient(#000 var(--dm-sq,2px),transparent 0) 0 0/var(--dm-cell,12px) var(--dm-cell,12px);mask-composite:intersect}
+:root:not([data-style="soft"]) .dm-igx-t.dm-up .dm-igx-b:not(:where([data-style="soft"],[data-style="soft"] *)){opacity:.45}
+:root:not([data-style="soft"]) .dm-igx-l>span:first-child:not(:where([data-style="soft"],[data-style="soft"] *)){height:1px;top:0;background:var(--dm-accent-mark)}
+:root:not([data-style="soft"]) .dm-igx-l>span:last-child:not(:where([data-style="soft"],[data-style="soft"] *)){display:none}
+:root:not([data-style="soft"]) .dm-igx-t.dm-up .dm-igx-l:not(:where([data-style="soft"],[data-style="soft"] *)),:root:not([data-style="soft"]) .dm-igx-t.dm-up .dm-igx-s:not(:where([data-style="soft"],[data-style="soft"] *)){animation-timing-function:steps(14,end)}
+@media (prefers-reduced-motion:reduce){
+  .dm-igx .dm-igx-t :is(.dm-igx-b,.dm-igx-n,.dm-igx-l){display:none}
+  .dm-igx .dm-igx-t .dm-igx-s{clip-path:none;filter:none;animation:none;transition:opacity .4s}
+  .dm-igx .dm-igx-t:is([data-st="wait"],[data-st="gen"],[data-st="fail"]) .dm-igx-s{opacity:0}
+  .dm-igx-g.dm-new,.dm-igx-lb.dm-open,.dm-igx-lb.dm-open .dm-igx-lbs>.dm-igx-t{animation:none}
+  .dm-igx-sc,.dm-igx-sc .dm-i{transition:none}
+}

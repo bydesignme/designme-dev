@@ -1,0 +1,37 @@
+{
+  "summary": "Payment form is a plan checkout with a Monthly and Yearly switch, card fields that format themselves as you type, and a summary that shows the seats, the yearly discount and the amount due today. The total rolls to the new price when the billing period changes, and the Pay button shows Processing and then Payment successful. It covers the moment someone upgrades to a paid plan for your agent product.",
+  "use": [
+    "When a team upgrades to a paid plan priced per seat",
+    "When you want to show the saving from yearly billing next to the monthly price",
+    "When a quick card checkout should catch typos before the payment is sent",
+    "When the price should update in place as the person switches billing period"
+  ],
+  "features": [
+    "The card number groups itself in fours, and a VISA, MC or AMEX badge appears from the first digits.",
+    "Expiry formats as MM / YY, and a finished number or expiry moves focus to the next field.",
+    "The summary multiplies `seats` by `price`, applies `yearlyDiscount` on yearly billing, and the total animates to the new amount.",
+    "On submit it checks for 16 digits, a full expiry and a CVC of at least three digits, and marks any field that fails.",
+    "`onPay` receives the formatted card, the period and the total; a promise keeps the button on Processing until it settles.",
+    "A rejected `onPay` shows its message, or `errorLabel`, under the button."
+  ],
+  "a11y": [
+    "Card inputs use `autocomplete` values `cc-number`, `cc-exp` and `cc-csc` with a numeric keypad, so browsers and password managers can fill them.",
+    "Fields that fail the check set `aria-invalid`, and a payment error renders with `role=\"alert\"`.",
+    "The Monthly and Yearly switch is a `group` labelled Billing, with `aria-pressed` on each option.",
+    "The Pay button is an `aria-live=\"polite\"` region, so Processing and Payment successful are announced."
+  ],
+  "faq": [
+    {
+      "q": "Does this component charge the card?",
+      "a": "No. It formats and checks the fields, then calls `onPay` with the card, period and total. Sending the payment to your provider happens in that handler."
+    },
+    {
+      "q": "How is the yearly price worked out?",
+      "a": "Yearly is `price` times `seats` times 12, minus `yearlyDiscount`, which is 0.2 by default. Monthly is `price` times `seats` with no discount."
+    },
+    {
+      "q": "Can I show prices in euros?",
+      "a": "Set `currency` to \"€\". It is placed before every amount, and amounts show two decimals."
+    }
+  ]
+}

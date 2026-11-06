@@ -1,0 +1,36 @@
+{
+  "summary": "Pricing cards shows your plans side by side, with a Monthly and Yearly switch and a slider for how many editors the price should cover. Each paid plan works out its own total for that team size and billing period, and prices roll to their new value when the period changes. Once the team is large enough, the outline can move from the popular plan to a bigger one.",
+  "use": [
+    "When an agent product is priced per seat and buyers want to see the total for their team",
+    "When yearly billing carries a discount you want to show next to the monthly price",
+    "When a free, a paid and a talk-to-sales plan sit on one page",
+    "When larger teams should be steered toward an enterprise plan"
+  ],
+  "features": [
+    "The billing switch shows the yearly saving as a tag, worked out from `yearlyDiscount`.",
+    "On yearly billing, paid plans show the discounted price with the monthly price struck through.",
+    "The editors slider, 1 to 50 by default, updates totals like \"$1,152 billed yearly for 5 editors\".",
+    "A `price` of 0 reads as free (\"forever\"), and null shows `priceLabel`, \"Custom\" by default.",
+    "`popular` adds a Most popular badge and outline; a plan with `fromSeats` takes the outline once the slider reaches that number.",
+    "Only the outlined plan's button is primary, on the accent; the others are white with a grey outline, and the primary button moves with the outline. Set an action's `variant` to fix a button's look.",
+    "Each plan's button calls `onChoose` with the plan, the period and the number of editors."
+  ],
+  "a11y": [
+    "The billing switch is a `group` labelled Billing, with `aria-pressed` on Monthly and Yearly.",
+    "The editors slider is a native range input labelled with `seatsLabel`, so arrow keys change it."
+  ],
+  "faq": [
+    {
+      "q": "How do I know which plan, period and team size the person picked?",
+      "a": "Handle `onChoose`. It receives the plan and an object with `period` and `seats`, the values the card was priced for when its button was pressed."
+    },
+    {
+      "q": "How do I show a free plan or a custom-priced plan?",
+      "a": "Set `price` to 0 for free, or null for priced on request. Paid plans work out their own total line; for free and custom plans set `total` yourself, like \"Up to 2 editors\"."
+    },
+    {
+      "q": "Can the Enterprise plan be highlighted for big teams?",
+      "a": "Yes. Give it `fromSeats`, such as 25. When the slider reaches that number, the outline moves to that card from the popular one."
+    }
+  ]
+}

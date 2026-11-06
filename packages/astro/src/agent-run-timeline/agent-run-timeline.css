@@ -1,0 +1,92 @@
+/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+/* ---------- Agent run timeline ---------- */
+/* each kind of step has a hue: --dm-k paints its bar, --dm-kt its text and icon, --dm-kb the icon's tint. The model is purple, tools
+   are teal and apps orange, each app with its own mark. The playhead runs in the accent with the time on it, and the lanes it
+   has passed take a faint wash; once the run is done it stops at the finish and turns green */
+.art{padding:var(--dm-s-4);--dm-lab:176px;--dm-dur:44px}
+.art-h{display:flex;align-items:flex-start;justify-content:space-between;gap:var(--dm-s-3)}
+.art-hd{min-width:0}
+.art-t{font-weight:500}
+.art-s{font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.art-s.sw{display:block}
+.art-tag{flex:none;transition:background .3s,color .3s}
+.art-tag .spin{width:9px;height:9px}
+.art.live .art-tag{background:var(--dm-accent-bg);color:var(--dm-accent-fg,var(--dm-fg))}
+/* the key: how long each kind has run so far */
+.art-key{display:flex;flex-wrap:wrap;gap:2px var(--dm-s-4);margin-top:10px;font-size:12px;color:var(--dm-muted)}
+.art-key span{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.art-key i{width:8px;height:8px;border-radius:2px;background:var(--dm-k);flex:none}
+.art-key b{font-weight:500;color:var(--dm-fg2)}
+.art-grid{position:relative;margin-top:var(--dm-s-3)}
+.art-axis,.art-row{display:grid;grid-template-columns:var(--dm-lab) minmax(0,1fr) var(--dm-dur);align-items:center}
+.art-axis{height:20px;font-size:11px;color:var(--dm-muted)}
+.art-ticks{position:relative;height:16px}
+.art-ticks span{position:absolute;top:0;transform:translateX(-50%);transition:opacity .2s}
+.art-ticks span:first-child{transform:none}
+.art-ticks span:last-child{transform:translateX(-100%)}
+.art-ticks span.hid{opacity:0}
+.art-rows{position:relative}
+.art-row{height:32px}
+.art-lab{display:flex;align-items:center;gap:var(--dm-s-2);min-width:0;padding-right:var(--dm-s-3);font-size:12.5px;color:var(--dm-fg2);white-space:nowrap;transition:color .3s}
+.art-lab .t{min-width:0;overflow:hidden;text-overflow:ellipsis}
+.art-lab .tag{flex:none}
+.art-ic{--dm-ring:0 0 0 0 transparent;width:22px;height:22px;border-radius:calc(7px * var(--dm-rk));display:grid;place-items:center;flex:none;background:var(--dm-kb);color:var(--dm-kt);box-shadow:var(--dm-ring);transition:opacity .3s}
+.art-ic .brand{width:13px;height:13px}
+/* an app's own mark sits on a plain tile */
+.art-row[data-k="app"] .art-ic{--dm-ring:inset 0 0 0 1px color-mix(in srgb,var(--dm-rail) 50%,transparent);background:var(--dm-surface);color:var(--dm-fg)}
+/* a step that hasn't started waits quietly; the one at work breathes a ring of its hue round its icon */
+.art-row[data-s="wait"] .art-lab{color:var(--dm-muted)}
+.art-row[data-s="wait"] .art-ic{opacity:.45}
+.art-row[data-s="run"] .art-lab{color:var(--dm-fg)}
+.art-row[data-s="run"] .art-ic{animation:artbreathe 1.8s var(--dm-ease-io) infinite}
+@keyframes artbreathe{0%,100%{box-shadow:var(--dm-ring),0 0 0 0 color-mix(in srgb,var(--dm-fg) 0%,transparent)}50%{box-shadow:var(--dm-ring),0 0 0 3px color-mix(in srgb,var(--dm-fg) 10%,transparent)}}
+.art-row.bump .art-ic{animation:artpop .45s var(--dm-ease)}
+@keyframes artpop{40%{transform:scale(1.14)}}
+/* the lanes: quarter lines at half strength, a bar for each step */
+.art-lane{position:relative;height:100%;background:linear-gradient(90deg,color-mix(in srgb,var(--dm-line) 50%,transparent) 1px,transparent 1px) 0 0/25% 100%;box-shadow:inset -1px 0 color-mix(in srgb,var(--dm-line) 50%,transparent)}
+.art-bar{position:absolute;top:9px;height:14px;width:0;border-radius:5px;background:linear-gradient(90deg,var(--dm-k),color-mix(in oklab,var(--dm-k) 82%,#fff));cursor:default;transition:filter .2s}
+@media (hover:hover) and (pointer:fine){.art-bar:hover{filter:brightness(1.08) saturate(1.1)}}
+/* the bar at work carries a passing light and a bright leading edge */
+.art-row[data-s="run"] .art-bar{background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.42) 46%,transparent 62%) 0 0/250% 100% no-repeat,var(--dm-k);animation:artsheen 1.3s linear infinite}
+.art-bar i{display:none;position:absolute;right:-1px;top:-3px;bottom:-3px;width:2px;border-radius:1px;background:var(--dm-k);box-shadow:none}
+.art-row[data-s="run"] .art-bar i{display:block}
+@keyframes artsheen{from{background-position:120% 0,0 0}to{background-position:-120% 0,0 0}}
+.art-row[data-s="fail"] .art-bar{background:repeating-linear-gradient(135deg,var(--dm-c5) 0 3px,color-mix(in srgb,var(--dm-c5) 45%,var(--dm-surface)) 3px 6px)}
+/* a retry hangs off the end of the step that failed */
+.art-link{position:absolute;top:-9px;height:25px;min-width:6px;border-left:1px dashed var(--dm-warn-mark);border-bottom:1px dashed var(--dm-warn-mark);pointer-events:none;display:none}
+.art-row:not([data-s="wait"]) .art-link{display:block;animation:artdraw .5s var(--dm-ease) backwards}
+@keyframes artdraw{from{clip-path:inset(0 100% 100% 0)}to{clip-path:inset(0)}}
+/* how long each step took, counting while it runs */
+.art-d{font-size:12px;color:var(--dm-muted);text-align:right;white-space:nowrap}
+.art-row[data-s="run"] .art-d{color:var(--dm-kt)}
+.art-row[data-s="done"] .art-d{color:var(--dm-fg2)}
+.art-row[data-s="fail"] .art-d{color:var(--dm-bad)}
+/* the playhead, with the time on the axis, and the wash over what it has passed */
+.art-past{position:absolute;top:20px;bottom:0;left:var(--dm-lab);width:calc((100% - var(--dm-lab) - var(--dm-dur)) * var(--dm-p,0));background:linear-gradient(90deg,transparent,var(--dm-sel));pointer-events:none;opacity:0;transition:opacity .5s}
+.art.live .art-past{opacity:1}
+.art-head{position:absolute;top:2px;bottom:0;left:calc(var(--dm-lab) + (100% - var(--dm-lab) - var(--dm-dur)) * var(--dm-p,0));width:0;pointer-events:none;opacity:0;transition:opacity .4s}
+.art.live .art-head,.art.fin .art-head{opacity:1}
+.art-head i{position:absolute;top:16px;bottom:0;left:-.75px;width:1.5px;border-radius:1px;background:var(--dm-accent-mark,var(--dm-accent));transition:background .4s}
+.art-now{position:absolute;top:0;left:0;transform:translateX(-50%);display:inline-flex;align-items:center;gap:3px;height:16px;padding:0 5px;border-radius:5px;background:var(--dm-accent);color:var(--dm-on-accent);font-size:11px;font-weight:500;line-height:1;white-space:nowrap;transition:background .4s,color .4s}
+.art-now .i{width:10px;height:10px}
+.art.fin .art-head i{background:var(--dm-ok)}
+.art.fin .art-now{background:var(--dm-ok-bg);color:var(--dm-ok)}
+.art-f{display:flex;flex-wrap:wrap;gap:var(--dm-s-2) var(--dm-s-5);margin-top:var(--dm-s-3);padding-top:var(--dm-s-3);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);font-size:12.5px}
+.art-f>span{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.art-f b{color:var(--dm-fg);font-weight:500}
+@media (max-width:600px){.art{--dm-lab:112px;--dm-dur:38px}.art-lab{gap:6px;padding-right:var(--dm-s-2)}.art-lab .tag{display:none}.art-f{gap:var(--dm-s-2) var(--dm-s-4)}}
+:root:not([data-style="soft"]) .art-ic:not(:where([data-style="soft"],[data-style="soft"] *)){--dm-ring:inset 0 0 0 1px color-mix(in srgb,var(--dm-k) 35%,transparent)}
+:root:not([data-style="soft"]) .art-row[data-k="app"] .art-ic:not(:where([data-style="soft"],[data-style="soft"] *)){--dm-ring:inset 0 0 0 1px color-mix(in srgb,var(--dm-rail) 50%,transparent)}
+:root:not([data-style="soft"]) .art-row[data-s="run"] .art-ic:not(:where([data-style="soft"],[data-style="soft"] *)){animation:artbp 1s steps(1,end) infinite}
+@keyframes artbp{0%,55%{box-shadow:inset 0 0 0 1px var(--dm-k)}56%,100%{box-shadow:var(--dm-ring)}}
+:root:not([data-style="soft"]) .art-row.bump .art-ic:not(:where([data-style="soft"],[data-style="soft"] *)){animation:none}
+:root:not([data-style="soft"]) .art-row[data-s="fail"] .art-bar:not(:where([data-style="soft"],[data-style="soft"] *)){background:repeating-linear-gradient(135deg,var(--dm-c5) 0 3px,color-mix(in srgb,var(--dm-c5) 45%,var(--dm-surface)) 3px 6px)}
+:root:not([data-style="soft"]) .art-bar:not(:where([data-style="soft"],[data-style="soft"] *)){background:var(--dm-k)}
+:root:not([data-style="soft"]) .art-row[data-s="run"] .art-bar:not(:where([data-style="soft"],[data-style="soft"] *)){background:linear-gradient(135deg,var(--dm-k) 25%,color-mix(in srgb,var(--dm-k) 50%,var(--dm-surface)) 25% 50%,var(--dm-k) 50% 75%,color-mix(in srgb,var(--dm-k) 50%,var(--dm-surface)) 75%) 0 0/8px 8px;animation:artmarch .6s steps(4) infinite}
+@keyframes artmarch{to{background-position:8px 0}}
+:root:not([data-style="soft"]) .art-bar i:not(:where([data-style="soft"],[data-style="soft"] *)){width:1px;right:0;box-shadow:none}
+:root:not([data-style="soft"]) .art-link:not(:where([data-style="soft"],[data-style="soft"] *)){border-left-style:solid;border-bottom-style:solid}
+:root:not([data-style="soft"]) .art-row:not([data-s="wait"]) .art-link:not(:where([data-style="soft"],[data-style="soft"] *)){animation:artdrawbp .3s steps(3,end) backwards}
+@keyframes artdrawbp{from{clip-path:inset(0 100% 100% 0)}to{clip-path:inset(0)}}
+:root:not([data-style="soft"]) .art-past:not(:where([data-style="soft"],[data-style="soft"] *)){background:repeating-linear-gradient(135deg,transparent 0 5px,var(--dm-grid) 5px 6px)}
+:root:not([data-style="soft"]) .art-head i:not(:where([data-style="soft"],[data-style="soft"] *)){width:1px;left:-.5px}

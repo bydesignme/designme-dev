@@ -1,0 +1,59 @@
+/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+/* ---------- Stepper ---------- */
+/* the agent walks you through setup in the chat: no container; with .panel it becomes a card */
+.stx{padding:var(--dm-s-4) 0;display:flex;flex-direction:column;gap:var(--dm-s-4)}
+.stx.panel{padding:var(--dm-s-4)}
+.stx-track{display:flex;align-items:center;gap:0}
+.stx-st{display:flex;align-items:center;gap:var(--dm-s-2);font-size:12.5px;color:var(--dm-muted);white-space:nowrap;transition:color .3s}
+.stx-st .n{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:11.5px;font-weight:500;box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--dm-line) 50%,transparent);color:var(--dm-muted);transition:background .35s var(--dm-ease),box-shadow .35s,color .35s;flex:none}
+.stx-st.on{color:var(--dm-fg)}
+.stx-st.on .n{box-shadow:inset 0 0 0 1.5px var(--dm-accent-mark,var(--dm-accent)),0 0 0 4px var(--dm-accent-bg);color:var(--dm-accent-fg,var(--dm-accent))}
+.stx-st.done{color:var(--dm-fg2);cursor:pointer}
+.stx-st.done .n{background:var(--dm-accent);box-shadow:none;color:var(--dm-on-accent)}
+.stx-ln{flex:1;height:2px;margin:0 10px;border-radius:1px;background:var(--dm-line);position:relative;overflow:hidden;min-width:16px}
+.stx-ln i{position:absolute;inset:0;background:var(--dm-accent-mark,var(--dm-accent));transform:scaleX(0);transform-origin:left;transition:transform .5s var(--dm-ease)}
+.stx-ln.full i{transform:none}
+@media (max-width:520px){.stx-st .lb{display:none}.stx-st.on .lb{display:inline}}
+/* each step sits in the middle, the same distance from the track above and the buttons below */
+.stx-vp{overflow-x:clip;overflow-y:visible;min-height:150px;display:flex;flex-direction:column;justify-content:center}
+.stx-body{display:flex;flex-direction:column;gap:10px}
+.stx-body.inr{animation:stxr .45s var(--dm-ease) both}.stx-body.inl{animation:stxl .45s var(--dm-ease) both}
+@keyframes stxr{from{opacity:0;transform:translateX(24px);filter:blur(4px)}}
+@keyframes stxl{from{opacity:0;transform:translateX(-24px);filter:blur(4px)}}
+.stx-body h4{margin:0;font-size:14px;font-weight:500}
+.stx-body p{margin:0;font-size:12.5px;color:var(--dm-muted)}
+.stx-opts{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--dm-s-2)}
+@media (max-width:520px){.stx-opts{grid-template-columns:1fr}}
+.stx-o{padding:var(--dm-s-3);border-radius:var(--dm-r-in);background:var(--dm-chip);text-align:left;font-size:13px;display:flex;flex-direction:column;gap:var(--dm-s-1);transition:background .2s,box-shadow .25s}
+.stx-o span{font-size:11.5px;color:var(--dm-muted)}
+@media (hover:hover) and (pointer:fine){.stx-o:hover{background:var(--dm-hover)}}
+/* the options fill the sliding view, which would cut an outside ring: theirs is drawn inside */
+.stx-o:focus-visible{outline-offset:-2px}
+/* the options are grey tiles with no edge; the picked one turns white with a dimmed grey edge */
+.stx-o.on{background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-pick-line) 50%,transparent),0 1px 2px rgba(0,0,0,.04)}
+@media (hover:hover) and (pointer:fine){.stx-o.on:hover{background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-pick-line) 50%,transparent),0 1px 2px rgba(0,0,0,.04)}}
+.stx-f{display:flex;justify-content:space-between}
+/* once it's done there is nothing to go back to: Start over sits alone in the middle */
+.stx.fin .stx-f{justify-content:center}
+.stx.fin .stx-bk{display:none}
+/* finished: the track has done its job, so only the success shows, centred in the height the steps had */
+.stx.fin .stx-track{display:none}
+.stx.fin .stx-vp{min-height:0}.stx.fin .stx-dn{padding:0 0 var(--dm-s-2)}
+.stx-bk[disabled]{visibility:hidden}
+.stx-dn{display:flex;flex-direction:column;align-items:center;gap:6px;padding:18px 0;text-align:center;font-size:13px}
+.stx-dn>b{font-size:14px;font-weight:500}
+/* finished: the check pops and draws itself, a soft ring spreads from it, and a little confetti bursts out once */
+.stx-ok{position:relative;width:44px;height:44px;margin-bottom:6px}
+.stx-ok svg{display:block;width:44px;height:44px;overflow:visible}
+.stx-ok .c{fill:var(--dm-accent-mark,var(--dm-accent));transform-origin:center;transform-box:fill-box}
+.stx-ok .k{fill:none;stroke:var(--dm-on-accent);stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:24}
+.stx-ok::after{content:"";position:absolute;inset:0;border-radius:50%;pointer-events:none}
+.stx-dn.go .stx-ok .c{animation:stxpop .6s var(--dm-ease) both}
+.stx-dn.go .stx-ok .k{animation:stxdraw .42s var(--dm-ease) .26s both}
+.stx-dn.go .stx-ok::after{animation:stxring 1.2s var(--dm-ease) .18s}
+@keyframes stxpop{from{transform:scale(.3);opacity:0}60%{transform:scale(1.08);opacity:1}to{transform:none;opacity:1}}
+@keyframes stxdraw{from{stroke-dashoffset:24}to{stroke-dashoffset:0}}
+@keyframes stxring{from{box-shadow:0 0 0 0 color-mix(in srgb,var(--dm-fg) 16%,transparent)}to{box-shadow:0 0 0 20px color-mix(in srgb,var(--dm-fg) 0%,transparent)}}
+.stx-conf{position:absolute;left:50%;top:50%;width:0;height:0;pointer-events:none}
+.stx-conf i{position:absolute;left:0;top:0;border-radius:2px;opacity:0}
+.stx-conf i.d{border-radius:50%}

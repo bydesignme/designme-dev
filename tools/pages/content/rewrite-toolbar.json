@@ -1,0 +1,40 @@
+{
+  "summary": "Rewrite toolbar lets a person click a sentence in a document and get a small toolbar with rewrite options, such as Clearer, Shorter or Friendlier. The agent's new sentence is written in word by word next to the struck-out original, and the person accepts it or puts the old one back.",
+  "use": [
+    "When people edit copy with an agent and want to change one sentence without regenerating the whole text.",
+    "When the old and new wording should be visible side by side before anything is saved.",
+    "When you want a few one-click rewrite styles plus a way to open a fuller agent prompt.",
+    "When a shortcut or command menu should be able to trigger the same rewrites."
+  ],
+  "features": [
+    "The text is passed as `sentences`, one string each, so a click selects exactly one sentence. The toolbar appears above it, or below it when there is no room above.",
+    "`actions` sets the buttons, Clearer, Shorter and Friendlier by default. Each one calls `onRewrite` with the sentence, the action key and its index.",
+    "While `onRewrite` works the toolbar says Rewriting. The answer is then typed in word by word, and the toolbar offers Accept and Undo.",
+    "Accept saves the sentence and calls `onSentencesChange` with the full text. Undo, or a failed `onRewrite`, leaves the original sentence as it was.",
+    "The wand button calls `onAsk` if you pass it, or runs the first action. Its tooltip shows `askLabel` and the `askShortcut` hint.",
+    "A ref exposes `rewrite(action)`, `accept()` and `undo()` so you can drive it from your own shortcuts or scripts."
+  ],
+  "a11y": [
+    "The toolbar has `role=\"toolbar\"` with `aria-label=\"Rewrite\"`, and it is `inert` while no sentence is selected.",
+    "The wand button has an `aria-label` taken from `askLabel`.",
+    "With reduced motion turned on, the rewrite appears all at once instead of word by word."
+  ],
+  "faq": [
+    {
+      "q": "How do I connect it to my model?",
+      "a": "Pass `onRewrite(sentence, action, index)` and return the new sentence or a promise of it. The component handles the waiting state, the word-by-word reveal and the review step."
+    },
+    {
+      "q": "What happens if the rewrite request fails?",
+      "a": "If `onRewrite` throws or rejects, the sentence stays as it was and the toolbar goes back to offering the rewrite actions."
+    },
+    {
+      "q": "Does the ⌘K shortcut work out of the box?",
+      "a": "No. `askShortcut` is only shown in the wand's tooltip. Bind the key yourself and call the ref's `rewrite` method or your own `onAsk` logic."
+    },
+    {
+      "q": "Can I click away while the agent is still rewriting?",
+      "a": "A click outside closes the toolbar only when no rewrite is in progress. While a rewrite is waiting, the toolbar stays open until it is accepted or undone."
+    }
+  ]
+}

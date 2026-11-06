@@ -1,0 +1,37 @@
+{
+ "name": "top-pages",
+ "title": "Top pages",
+ "description": "Most visited pages with share of traffic and a quick sort.",
+ "framework": "react",
+ "component": "TopPages",
+ "needs": [
+  "designme.css",
+  "lib/cx.ts",
+  "lib/hits.ts",
+  "lib/hooks.ts",
+  "lib/icons.tsx",
+  "lib/motion.tsx"
+ ],
+ "files": [
+  {
+   "path": "top-pages/TopPages.tsx",
+   "content": "'use client';\nimport { useEffect, useRef, useState } from 'react';\nimport { cx } from '../lib/cx';\nimport { useControllable, useReducedMotion, useTween } from '../lib/hooks';\nimport { Seg, Tip } from '../lib/motion';\nimport '../designme.css';\nimport './top-pages.css';\n\nexport interface TopPagesPage {\n  /** The page's path, like \"/pricing\" */\n  path: string;\n  /** Its name, like \"Pricing\" */\n  title: string;\n  /** Views over the period */\n  views: number;\n  /** Change against the period before, in percent, like 24 or -8 */\n  change: number;\n  /** Shown when you hover the row. Defaults to the site and the path, like \"designme.dev/pricing\" */\n  tip?: string;\n}\n\nexport type TopPagesSort = 'views' | 'change';\n\nexport interface TopPagesProps {\n  pages: TopPagesPage[];\n  /** Header text */\n  title?: string;\n  /** After the total, like \"last 30 days\" */\n  period?: string;\n  /** Put in front of each path in the row tips, like \"designme.dev\" */\n  site?: string;\n  /** How the rows are ordered. Leave it out to let the switch change it */\n  sort?: TopPagesSort;\n  defaultSort?: TopPagesSort;\n  onSortChange?: (sort: TopPagesSort) => void;\n  className?: string;\n}\n\nconst ROW = 50;\nconst fmt = (n: number) => Math.round(n).toLocaleString('en-US');\n\n/** The most visited pages, with their views and change. Rows slide into place when the order changes. */\nexport function TopPages({ pages, title = 'Top pages', period = 'last 30 days', site, sort, defaultSort = 'views', onSortChange, className }: TopPagesProps) {\n  const [by, setBy] = useControllable(sort, defaultSort, onSortChange);\n  const reduce = useReducedMotion();\n  const total = useTween(pages.reduce((a, p) => a + p.views, 0), 1000, 0);\n  const max = Math.max(1, ...pages.map(p => p.views));\n  const order = [...pages].sort((a, b) => by === 'views' ? b.views - a.views : b.change - a.change);\n\n  // each track fills in a little after the one above it\n  const [filled, setFilled] = useState(0);\n  useEffect(() => {\n    const ts = pages.map((_, i) => setTimeout(() => setFilled(n => Math.max(n, i + 1)), 200 + i * 70));\n    return () => ts.forEach(clearTimeout);\n  }, []); // eslint-disable-line react-hooks/exhaustive-deps\n\n  // the rows fade in from a blur, one after another\n  const list = useRef<HTMLDivElement>(null);\n  useEffect(() => {\n    if (reduce || !list.current) return;\n    [...list.current.children].forEach((row, i) => row.animate([{ opacity: 0, filter: 'blur(4px)' }, { opacity: 1, filter: 'blur(0)' }], { duration: 450, delay: i * 50, easing: 'ease-out', fill: 'backwards' }));\n  }, []); // eslint-disable-line react-hooks/exhaustive-deps\n\n  return (\n    <div data-dm=\"\" className={cx('dm-tpx dm-panel', className)}>\n      <div className=\"dm-tpx-h\">\n        <div><b>{title}</b><span className=\"dm-muted dm-tpx-sub\"><span className=\"dm-num dm-tpx-tot\">{fmt(total)}</span> views, {period}</span></div>\n        <Seg className=\"dm-tpx-sg\" label=\"Sort\" value={by} onChange={setBy} options={[{ value: 'views', label: 'Views' }, { value: 'change', label: 'Change' }]} />\n      </div>\n      <div className=\"dm-tpx-list\" ref={list} style={{ height: pages.length * ROW }}>\n        {pages.map((p, i) => {\n          const at = order.indexOf(p);\n          return (\n            <Tip key={p.path} label={p.tip ?? (site ? site + p.path : p.path)}>\n              <div className=\"dm-tpx-r\" style={{ transform: `translateY(${at * ROW}px)` }}>\n                <span className=\"dm-rk\">{at + 1}</span>\n                <span className=\"dm-pg\">\n                  <span className=\"dm-p\">{p.title} <span className=\"dm-muted\">{p.path}</span></span>\n                  <span className=\"dm-tr\"><i style={{ width: i < filled ? p.views / max * 100 + '%' : 0 }} /></span>\n                </span>\n                <span className=\"dm-n dm-num\">{fmt(p.views)}</span>\n                <span className={cx('dm-tag dm-ch dm-num', p.change >= 0 ? 'dm-ok' : 'dm-bad')}>{p.change >= 0 ? '+' : '−'}{Math.abs(p.change)}%</span>\n              </div>\n            </Tip>\n          );\n        })}\n      </div>\n    </div>\n  );\n}\n"
+  },
+  {
+   "path": "top-pages/top-pages.css",
+   "content": "/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */\n/* ---------- Top pages ---------- */\n.dm-tpx{padding:var(--dm-s-4);display:flex;flex-direction:column;gap:10px}\n.dm-tpx-h{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:0 2px}\n.dm-tpx-h>div:first-child{display:flex;flex-direction:column;font-size:13.5px}\n.dm-tpx-h b{font-weight:500}\n.dm-tpx-sub{font-size:12px}\n.dm-tpx-sg button{font-size:12px;height:26px;padding:0 9px}\n.dm-tpx-list{position:relative;height:calc(6 * 50px)}\n.dm-tpx-r{position:absolute;left:0;right:0;height:46px;display:grid;grid-template-columns:20px 1fr 56px 60px;align-items:start;gap:10px;padding:9px var(--dm-s-2) 0;border-radius:var(--dm-r-in);transition:transform .55s var(--dm-ease),background .2s}\n@media (hover:hover) and (pointer:fine){.dm-tpx-r:hover{background:var(--dm-row)}}\n.dm-tpx-r .dm-rk{font-family:var(--dm-mono);font-size:11px;line-height:19.5px;color:var(--dm-muted);text-align:center;transition:color .2s}\n@media (hover:hover) and (pointer:fine){.dm-tpx-r:hover .dm-rk{color:var(--dm-fg)}}\n.dm-tpx-r .dm-pg{display:flex;flex-direction:column;gap:5px;min-width:0}\n.dm-tpx-r .dm-p{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}\n.dm-tpx-r .dm-tr{height:4px;border-radius:2px;background:var(--dm-chip);overflow:hidden}\n@media (hover:hover) and (pointer:fine){.dm-tpx-r:hover .dm-tr{background:var(--dm-surface)}}\n.dm-tpx-r .dm-tr i{display:block;height:100%;width:0;border-radius:2px;background:var(--dm-accent-mark,var(--dm-accent));transition:width .9s var(--dm-ease)}\n.dm-tpx-r .dm-n{font-size:13px;font-weight:500;min-width:52px;text-align:right}\n.dm-tpx-r .dm-ch{justify-self:end;padding:0 6px}\n"
+  }
+ ],
+ "example": {
+  "path": "top-pages/TopPages.example.tsx",
+  "content": "'use client';\n// The animated preview from designme.dev, rebuilt from the React component: the totals roll up, the tracks fill in, and the switch re-sorts.\nimport { TopPages, type TopPagesPage } from './TopPages';\n\nconst PAGES: TopPagesPage[] = [\n  { path: '/pricing', title: 'Pricing', views: 18420, change: 24 },\n  { path: '/', title: 'Home', views: 15210, change: 3 },\n  { path: '/components', title: 'Components', views: 9870, change: 41 },\n  { path: '/docs/agent', title: 'Agent docs', views: 6340, change: -8 },\n  { path: '/blog/soft-ui', title: 'Soft UI, the post', views: 4120, change: 112 },\n  { path: '/changelog', title: 'Changelog', views: 2210, change: -14 }\n];\n\nexport default function TopPagesDemo() {\n  return <div style={{ width: '100%' }}><TopPages pages={PAGES} site=\"designme.dev\" /></div>;\n}\n",
+  "needs": [
+   "designme.css",
+   "lib/cx.ts",
+   "lib/hits.ts",
+   "lib/hooks.ts",
+   "lib/icons.tsx",
+   "lib/motion.tsx"
+  ]
+ }
+}

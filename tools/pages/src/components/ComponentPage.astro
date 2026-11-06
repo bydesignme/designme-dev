@@ -1,0 +1,410 @@
+---
+// One component: its live demo (the same HTML, CSS and JS that npx designme add installs), how to install it, what it is
+// for, how to use it in React, its props, its code, questions, and the components beside it. Every section opens with
+// the homepage's section header. It sits in the frame the docs share (SiteShell): the sidebar with its group open and it
+// marked, and the page in the library's full column; under the demo a row of links to the sections sticks under the header
+// (SectionBar).
+import Page from '../layouts/Page.astro';
+import SiteShell from './SiteShell.astro';
+import SectionBar from './SectionBar.astro';
+import { SITE, COMPONENTS, BANDS, borrows, icon, MARKS, shadcnUrl } from '../lib/data.mjs';
+import { FULL_SCREEN, FRAME_CSS, FRAME_JS } from '../lib/templates.mjs';
+// the cards under More in … play their component live while they're on screen; one that tells its story with other
+// components (Agent harness) keeps its picture
+const full = x => COMPONENTS.find(y => y.reg === x.reg);
+const live = x => !!full(x) && !borrows(full(x)).length;
+const { c } = Astro.props;
+const sec = c.section, copy = c.copy || {}, rx = c.react, ax = c.astro;
+const agent = sec.grp === 'agent';
+const title = `${c.title}: ${agent ? 'AI agent UI component' : 'free UI component'} for React, Astro and HTML | Designme.dev`;
+const description = `${c.desc} Free and MIT licensed, as HTML, a typed React component or an Astro component, in two styles with light and dark mode.`;
+const lent = borrows(c);
+// a component with designs under review (its homepage card's footer tabs) shows them here too, switched under the demo; the
+// CLI installs the first, Classic
+const dsn = c.designs;
+const list = n => n.length > 1 ? n.slice(0, -1).join(', ') + ' and ' + n[n.length - 1] : n[0];
+const dsnNote = dsn ? `The demo switches between ${list(dsn.names)}. The CLI installs ${dsn.names[0]}; the others are previews for now.` : '';
+// a component that is a whole app or a canvas gets the Desktop / Tablet / Mobile switch over its demo (src/device)
+const fullScreen = FULL_SCREEN.includes(c.reg);
+// demos that fill the stage to its edges, with their own header in the top left
+const EDGE = ['automation-canvas', 'canvas-toolbar'];
+const others = sec.cards.filter(x => x.reg !== c.reg), shown = others.slice(0, 8);
+const cmdHtml = `npx designme add ${c.reg}`, cmdReact = `npx designme add ${c.reg} --react`, cmdAstro = `npx designme add ${c.reg} --astro`;
+// the shadcn CLI adds the same React and Astro files from the shadcn registry items (r/shadcn)
+const cmdShadcn = `npx shadcn@latest add ${shadcnUrl(c.reg)}`, cmdShadcnAstro = `npx shadcn@latest add ${shadcnUrl(c.reg, true)}`;
+const importLine = rx ? `import { ${rx.component} } from '@/components/designme/${c.reg}/${rx.component}';` : '';
+// in Astro, from a page in src/pages, where the CLI suggests it when the project has no @/ alias
+const astroUse = ax ? `---\nimport ${ax.component} from '../components/designme/${c.reg}/${ax.component}.astro';\n---\n<${ax.component} />\n<${ax.component} data-style="soft" class="my-class" />` : '';
+// the demo's height: the widest layout's, then on a phone the height measured for that phone's width (--h-e and on)
+const ha = c.height[0], phone = BANDS.map(([b, w], i) => [b, w, i]).filter(([, w]) => w <= 640);
+const demoVars = [`--h-a:${ha}px`, ...phone.map(([b, , i]) => `--h-${b}:${c.height[i]}px`)].join(';');
+const demoCss = phone.map(([b], k) => `@media (max-width:${k ? phone[k - 1][1] - 1 : 640}px){.cp-demo .pg-demo{min-height:calc(var(--h-${b}) + 24px + var(--sw,0px))}}`).join('');
+const about = copy.summary ? [['When to use it', copy.use], ['What it does', copy.features], ['Accessibility', copy.a11y]].filter(([, l]) => l && l.length) : [];
+// the sections, in order: each one gets its number, its link in the bar and its header
+const SECS = [
+  ['install', 'Install', 'Add it to your project with the CLI.'],
+  copy.summary && ['about', 'About', 'What it is for and what it does.'],
+  (rx || ax) && ['usage', 'Usage', 'Import it in React and drive it from your own state, or place it in an Astro page.'],
+  rx && rx.props.length && ['props', 'Props', `Everything ${rx.component} takes.`],
+  ['code', 'Code', 'The full source, as the CLI installs it.'],
+  copy.faq && copy.faq.length && ['questions', 'Questions', 'What people ask about it.'],
+  others.length && ['more', `More in ${sec.title}`, sec.about],
+].filter(Boolean).map((s, i) => ({ id:s[0], name:s[1], line:s[2], n:String(i + 1).padStart(2, '0') }));
+const S = Object.fromEntries(SECS.map(s => [s.id, s]));
+const toc = SECS.map(s => ({ id:s.id, label:s.id === 'more' ? 'More' : s.name }));
+const jsonld = [
+  { '@context':'https://schema.org', '@type':'SoftwareSourceCode', name:c.title, description:copy.summary || c.desc, url:SITE + c.url,
+    image:`${SITE}/components/og/${c.reg}.jpg`,
+    programmingLanguage:['HTML', 'CSS', 'JavaScript', 'TypeScript'], runtimePlatform:'Web browser', license:'https://opensource.org/licenses/MIT',
+    isAccessibleForFree:true, keywords:[c.title, sec.title, agent ? 'AI agent UI' : 'UI component', 'React component', 'HTML component'].join(', '),
+    author:{ '@type':'Organization', name:'DesignMe', url:'https://designme.agency' },
+    isPartOf:{ '@type':'WebSite', name:'Designme.dev', url:SITE + '/' } },
+  { '@context':'https://schema.org', '@type':'BreadcrumbList', itemListElement:[
+    { '@type':'ListItem', position:1, name:'Library', item:SITE + '/' },
+    { '@type':'ListItem', position:2, name:sec.title, item:SITE + sec.url },
+    { '@type':'ListItem', position:3, name:c.title, item:SITE + c.url } ] },
+  ...(copy.faq && copy.faq.length ? [{ '@context':'https://schema.org', '@type':'FAQPage', mainEntity:copy.faq.map(f => ({ '@type':'Question', name:f.q.replace(/`/g, ''), acceptedAnswer:{ '@type':'Answer', text:f.a.replace(/`/g, '') } })) }] : []),
+];
+// `code` in the written copy becomes <code>
+const md = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/`([^`]+)`/g, '<code>$1</code>');
+const files = [
+  ...(rx ? [{ name:rx.tsxPath.split('/').pop(), lang:'React', code:rx.tsx }, { name:(rx.cssPath || '').split('/').pop(), lang:'React', code:rx.css }] : []),
+  // the Astro component imports the same CSS and script as the HTML version, so only its .astro file is new
+  ...(ax ? [{ name:ax.path.split('/').pop(), lang:'Astro', code:ax.code }] : []),
+  { name:`${c.reg}.html`, lang:'HTML', code:c.html.html }, { name:`${c.reg}.css`, lang:'HTML', code:c.html.css }, { name:`${c.reg}.js`, lang:'HTML', code:c.html.js },
+].filter(f => f.name && f.code);
+const copyIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg>';
+const lines = s => s.split('\n').length;
+// a command in words that each stay whole, so on a phone it wraps at a space and never inside a name or after its --
+// (an address, like the shadcn CLI's, is one long word, so it may also wrap after a slash)
+const words = cmd => cmd.split(' ').map(w => /^https?:/.test(w) ? w.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/\//g, '/<wbr>') : `<span class="cp-w">${w.replace(/&/g, '&amp;').replace(/</g, '&lt;')}</span>`).join(' ');
+---
+<Page title={title} description={description} path={c.url} jsonld={jsonld} image={`/components/og/${c.reg}.jpg`}>
+  <Fragment slot="head">
+    <link rel="stylesheet" href="/components/assets/core.css">
+    {lent.map(x => <style is:inline set:html={x.html.css} />)}
+    <style is:inline set:html={c.html.css} />
+    {dsn && <style is:inline set:html={dsn.css} />}
+    <style is:global>
+      .cp-demo{position:relative;margin:28px 0 0;border-radius:14px;background:var(--pg-soft);overflow:hidden}
+      .cp-anim{position:absolute;top:12px;right:12px;z-index:3;display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 11px;border:0;border-radius:999px;background:var(--pg-bg);box-shadow:inset 0 0 0 1px var(--pg-line);color:var(--pg-dim);font:500 13px/1 var(--pg-sans);cursor:pointer;transition:color .2s}
+      .cp-anim:hover{color:var(--pg-fg)}
+      .cp-anim svg{width:14px;height:14px}
+      /* the demo keeps the tallest the component gets, so nothing below moves while it plays; the card fills that space,
+         so it is on screen (and starts) as soon as the demo is */
+      .pg-demo{display:grid;grid-template-columns:minmax(0,1fr);justify-items:center;padding:56px 24px;min-height:calc(var(--h-a) + var(--sw,0px))}
+      /* a demo that grows never drags the page with it */
+      .pg-demo{overflow-anchor:none}
+      .pg-demo>.card{min-width:0;align-self:stretch;display:grid;place-items:center}
+      /* a component with a switch under it (its designs, modes or variants) fills the demo, and the switch sits at the demo's
+         foot, so it stays put as the designs change height (owner, 4 Nov) */
+      .pg-demo:has(>.card>.stage-in>.dm){padding-bottom:24px;--sw:40px}
+      .pg-demo>.card:has(>.stage-in>.dm){display:flex;flex-direction:column;align-items:stretch}
+      .pg-demo>.card>.stage-in:has(>.dm){flex:1;display:flex}
+      .pg-demo>.card>.stage-in>.dm{flex:1}
+      .pg-demo>.card>.stage-in>.dm>.dm-main{margin-block:auto}
+      /* Automation canvas and Canvas toolbar are a canvas that fills the demo, edge to edge */
+      .pg-demo:has(>.card>.stage-in>:is(.acx,.ctb)){padding:0;justify-items:stretch}
+      .pg-demo>.card:has(>.stage-in>:is(.acx,.ctb)){width:100%;place-items:stretch}
+      /* Blueprint stages carry a faint square grid, at a fifth of the lab's strength so it is only just there */
+      :root:not([data-style="soft"]){--bp-grid:rgba(20,20,12,.018)}
+      @media (prefers-color-scheme: dark){:root:not([data-theme="light"]):not([data-style="soft"]){--bp-grid:rgba(255,255,255,.014)}}
+      :root[data-theme="dark"]:not([data-style="soft"]){--bp-grid:rgba(255,255,255,.014)}
+      :root:not([data-style="soft"]) .pg-demo{background-image:linear-gradient(var(--bp-grid) 1px,transparent 1px),linear-gradient(90deg,var(--bp-grid) 1px,transparent 1px);background-size:24px 24px;background-position:-1px -1px}
+      /* a section you jump to lands with its heading 32px under the section bar (SectionBar, 47px under the header): the
+         header's and the bar's height and the room above the heading, less the section's own padding over it */
+      .cp-sec{scroll-margin-top:calc(var(--pg-head) + var(--pg-bar, 0px) - 24px);padding-bottom:24px}
+      .dc-bar+.cp-sec .pg-sh{padding-top:36px}
+      .cp-sec h3{margin:0 0 10px}
+      .cp-sec p{margin:0;max-width:72ch}
+      .cp-sec .pg-sh p{max-width:none}
+      .cp-sec ul{margin:0;padding-left:18px;color:var(--pg-dim)}
+      .cp-sec li{margin:0 0 8px}
+      .cp-sec li::marker{color:var(--pg-muted)}
+      .cp-sec code{font:500 12.5px/1.4 var(--pg-mono);font-variant-ligatures:none;background:var(--pg-chip);padding:1px 5px;border-radius:5px;color:var(--pg-fg)}
+      .cp-gap{margin-top:28px}
+      /* install: the two commands side by side */
+      .cp-two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+      /* the three ways to install: side by side where they fit, then one under another */
+      .cp-three{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
+      /* the column is the homepage's now, so the three fit side by side down to 1200px (each about as wide as they were at
+         1440 in the old 760px column) */
+      @media (max-width:1199px){.cp-three,.cp-two{grid-template-columns:minmax(0,1fr)}}
+      /* side by side, a command that wraps to more lines doesn't leave its neighbours' boxes shorter */
+      .cp-three .cp-line,.cp-two .cp-line{flex:1}
+      /* each way's mark (HTML5, React, Astro), 16px, before its name */
+      .cp-mt{display:flex;align-items:center;gap:8px}
+      .cp-mk{flex:none;display:block;width:16px;height:16px}
+      .cp-note a{color:var(--pg-fg)}
+      .cp-box{display:flex;flex-direction:column;gap:10px;min-width:0}
+      /* an install command wraps at a space rather than running under its Copy button, at every width */
+      .cp-line{display:flex;align-items:center;gap:10px;min-width:0;min-height:44px;padding:7px 6px 7px 14px;border-radius:12px;background:var(--pg-soft);box-shadow:inset 0 0 0 1px var(--pg-line)}
+      .cp-line .d{color:var(--pg-muted);font:500 13px/1 var(--pg-mono)}
+      .cp-line code{flex:1;min-width:0;overflow-wrap:anywhere;font:500 13px/1.5 var(--pg-mono);font-variant-ligatures:none;background:none;padding:0}
+      .cp-line .cp-w{white-space:nowrap}
+      .cp-copy{flex:none;display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 11px;border:0;border-radius:999px;background:var(--pg-bg);color:var(--pg-fg);box-shadow:inset 0 0 0 1px var(--pg-line2);font:500 13px/1 var(--pg-sans);cursor:pointer;transition:background-color .2s}
+      .cp-copy:hover{background:var(--pg-chip)}
+      .cp-note{margin-top:20px!important;color:var(--pg-dim);font-size:14px}
+      /* about: the summary, then When to use it, What it does and Accessibility as plain text tabs, one list at a time */
+      .cp-sum{font-size:14px;line-height:1.7}
+      .cp-tl{display:flex;gap:4px;margin:0 0 18px;overflow-x:auto;scrollbar-width:none;box-shadow:inset 0 -1px 0 var(--pg-line)}
+      /* on a touch screen the strip scrolls with 2px more room above and below, so its tabs' 40px tap areas aren't cut off at
+         its edges; the line under the tabs stays where it was */
+      @media (pointer:coarse){.cp-tl{padding:2px 0;margin:-2px 0 16px;box-shadow:none;background:linear-gradient(var(--pg-line),var(--pg-line)) 0 calc(100% - 2px)/100% 1px no-repeat}}
+      .cp-tl button:first-child{padding-left:0}
+      .cp-tl button:first-child::after{left:0}
+      .cp-tl button{position:relative;flex:none;height:36px;padding:0 10px;border:0;background:none;color:var(--pg-dim);font:400 14px/1 var(--pg-sans);cursor:pointer;transition:color .16s ease}
+      .cp-tl button:hover,.cp-tl button[aria-selected="true"]{color:var(--pg-fg)}
+      .cp-tl button::after{content:"";position:absolute;left:10px;right:10px;bottom:0;height:2px;border-radius:2px;background:var(--pg-fg);transform:scaleX(0);transition:transform .32s cubic-bezier(.16,1,.3,1)}
+      .cp-tl button[aria-selected="true"]::after{transform:scaleX(1)}
+      .cp-tp ul{max-width:72ch}
+      /* code */
+      .cp-pre{margin:0;max-height:480px;overflow:auto;padding:16px 18px;border-radius:12px;background:var(--pg-soft);box-shadow:inset 0 0 0 1px var(--pg-line);font:500 12.5px/1.65 var(--pg-mono);font-variant-ligatures:none;tab-size:2;color:var(--pg-fg)}
+      .cp-pre code{background:none;padding:0;font:inherit}
+      .cp-files{display:grid;gap:8px}
+      details.cp-file{border-radius:12px;box-shadow:inset 0 0 0 1px var(--pg-line)}
+      details.cp-file summary{display:flex;align-items:center;gap:12px;height:48px;padding:0 16px;cursor:pointer;list-style:none;font:500 13px/1 var(--pg-mono)}
+      details.cp-file summary::-webkit-details-marker{display:none}
+      details.cp-file summary::before{content:"";flex:none;width:6px;height:6px;border-right:1.5px solid var(--pg-muted);border-bottom:1.5px solid var(--pg-muted);transform:rotate(-45deg);transition:transform .2s}
+      details.cp-file[open] summary::before{transform:rotate(45deg)}
+      details.cp-file summary .l{margin-left:auto;font:13px/1 var(--pg-sans);color:var(--pg-muted)}
+      details.cp-file .cp-pre{border-radius:0 0 12px 12px;box-shadow:none;border-top:1px solid var(--pg-line);max-height:560px}
+      /* props */
+      .cp-props{overflow-x:auto}
+      .cp-props+.cp-props,.cp-props+h3{margin-top:28px}
+      .cp-props table{width:100%;min-width:620px;border-collapse:collapse;font-size:14px}
+      .cp-props th{text-align:left;font-weight:500;font-size:14px;color:var(--pg-muted);padding:0 12px 10px 0;border-bottom:1px solid var(--pg-line)}
+      .cp-props td{padding:12px 12px 12px 0;border-bottom:1px solid var(--pg-line);vertical-align:top;color:var(--pg-dim)}
+      .cp-props td:first-child{white-space:nowrap;width:1%}
+      .cp-props td:nth-child(2){width:34%}
+      .cp-props td:nth-child(2) code{white-space:normal;word-break:break-word;background:none;padding:0;color:var(--pg-dim)}
+      .cp-props .opt{display:block;margin-top:2px;font-size:13px;color:var(--pg-muted)}
+      .cp-ext{margin-top:12px!important;color:var(--pg-dim);font-size:14px}
+      /* questions: one column, with room between them */
+      .cp-qs{display:flex;flex-direction:column;gap:32px;max-width:72ch;margin:0}
+      .cp-qs dt{margin:0 0 6px}
+      .cp-qs dd{margin:0;color:var(--pg-dim)}
+      .cp-all{display:inline-block;margin-top:28px;font-size:14px;font-weight:500;color:var(--pg-dim);text-decoration:none}
+      .cp-all:hover{color:var(--pg-fg)}
+      /* a live preview inside a card: the component at its own size, scaled to fit the picture's box, over the picture */
+      .pg-thumb .pg-live{position:absolute;left:50%;top:50%;width:var(--vw);min-height:0;padding:0;display:block;transform:translate(-50%,-50%) scale(var(--k));pointer-events:none;opacity:0;transition:opacity .32s ease}
+      .pg-thumb .pg-live.on{opacity:1}
+      .pg-thumb img{transition:opacity .32s ease}
+      .pg-thumb:has(.pg-live.on) img{opacity:0}
+      .pg-live .hand{display:none}
+      @media (max-width:900px){.cp-two{grid-template-columns:minmax(0,1fr)}}
+      /* phones: the component in the middle of its stage, with Animate's 52px above it and the same below (the stage is
+         measured with 40px each side, so it grows by the 24px more), and 16px at its sides like the page's gutter */
+      @media (max-width:640px){
+        .pg-demo{padding:52px 16px}
+        .cp-demo{margin-top:24px}
+        .cp-two{gap:24px}
+        /* props: each prop is a short block (its name, its type, what it does) instead of a table to scroll sideways */
+        .cp-props{overflow:visible}
+        .cp-props table{min-width:0}
+        .cp-props thead{display:none}
+        .cp-props table,.cp-props tbody,.cp-props tr,.cp-props td{display:block;width:auto}
+        .cp-props tr{padding:12px 0;border-bottom:1px solid var(--pg-line)}
+        .cp-props tr:first-child{border-top:1px solid var(--pg-line)}
+        .cp-props td{padding:0;border:0}
+        .cp-props td:first-child{display:flex;align-items:baseline;gap:8px;width:auto;white-space:normal}
+        .cp-props .opt{margin:0}
+        .cp-props td:nth-child(2){width:auto;margin-top:4px}
+        .cp-props td:nth-child(2) code{font-size:12.5px;color:var(--pg-muted)}
+        .cp-props td:nth-child(3){margin-top:4px}
+        .cp-pre{padding:14px 16px}
+        details.cp-file summary{padding:0 14px}
+      }
+    </style>
+    <style is:inline set:html={demoCss} />
+    {fullScreen && <Fragment>
+      <script is:inline>if (/[?&]embed=1(&|$)/.test(location.search)) document.documentElement.setAttribute('data-embed', '');</script>
+      <style is:inline set:html={FRAME_CSS} />
+      <style is:global>
+        /* Desktop / Tablet / Mobile, top left of the demo: Desktop is the demo itself, the others show this page, with
+           ?embed=1, in a frame of that width */
+        .cp-dev{position:absolute;top:12px;left:12px;z-index:3}
+        /* a demo that runs to the stage's edges (the canvases) gets a strip above it for the switch, so the switch never sits
+           on the component's own header (Automation canvas's title and toggle, top left); the others have room already */
+        @media (min-width:861px){.cp-demo[data-edge] .cp-dev ~ .pg-demo{margin-top:52px}}
+        .cp-view{display:none;height:760px;--dvf-line:var(--pg-line2);--dvf-bg:var(--pg-bg)}
+        .cp-demo.framed .cp-view{display:block;margin-top:52px;height:708px}
+        .cp-demo.framed .pg-demo{display:none}
+        @media (max-width:860px){.cp-dev{display:none}}
+        /* ?embed=1: only the demo, filling the window */
+        html[data-embed],html[data-embed] body{height:100%;overflow:hidden}
+        html[data-embed] body{visibility:hidden}
+        html[data-embed] .cp-demo{visibility:visible;position:fixed;inset:0;z-index:100;margin:0;border-radius:0;overflow:auto;overscroll-behavior:contain}
+        html[data-embed] body>.tip{visibility:visible}
+        html[data-embed] :is(.cp-dev,.cp-anim){display:none}
+        html[data-embed] .pg-demo{min-height:100%}
+      </style>
+    </Fragment>}
+  </Fragment>
+
+  <SiteShell reg={c.reg} where={sec.title} title={c.title}>
+    <nav class="pg-crumbs" aria-label="Breadcrumb"><a href="/">Library</a><span>/</span><a href={sec.url}>{sec.title}</a></nav>
+    <h1 class="pg-h1" id="content" tabindex="-1">{c.title}</h1>
+    <p class="pg-lead">{c.desc} Free and MIT licensed, as HTML, a typed React component or an Astro component, in two styles with light and dark mode.</p>
+    <div class="pg-cmd"><span class="d">$</span><span class="c" set:html={words(cmdHtml)} /><button type="button" data-copy={cmdHtml} aria-label="Copy install command" set:html={copyIcon} /></div>
+
+    <section class="cp-demo" data-edge={EDGE.includes(c.reg) ? "" : undefined} aria-label={`${c.title} demo`}>
+      {fullScreen && <div class="pg-seg cp-dev" role="radiogroup" aria-label="Preview width"><button type="button" role="radio" aria-checked="true" data-dev="desktop">Desktop</button><button type="button" role="radio" aria-checked="false" tabindex="-1" data-dev="tablet">Tablet</button><button type="button" role="radio" aria-checked="false" tabindex="-1" data-dev="mobile">Mobile</button></div>}
+      <button type="button" class="cp-anim" id="cp-replay"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>Animate</button>
+      <div class="pg-demo stage-inner" style={demoVars} set:html={dsn ? dsn.html : c.html.html} />
+      {fullScreen && <div class="cp-view dvf" aria-label={`${c.title} at another width`}></div>}
+    </section>
+    {dsn && <p class="cp-note cp-dsn">{dsnNote}</p>}
+    {lent.length > 0 && <div hidden aria-hidden="true" set:html={lent.map(x => x.html.html).join('\n')} />}
+
+    <SectionBar items={toc} />
+
+    <section class="cp-sec" id="install">
+      <div class="pg-sh"><span class="n">{S.install.n}</span><h2>{S.install.name}</h2><p>{S.install.line}</p></div>
+      <div class="cp-three">
+        <div class="cp-box"><h3 class="pg-t cp-mt"><Fragment set:html={MARKS.html} />HTML, CSS and JavaScript</h3><div class="cp-line"><span class="d">$</span><code set:html={words(cmdHtml)} /><button class="cp-copy" type="button" data-copy={cmdHtml} data-label="Copy" aria-label="Copy the HTML install command">Copy</button></div></div>
+        <div class="cp-box"><h3 class="pg-t cp-mt"><Fragment set:html={MARKS.react} />React</h3><div class="cp-line"><span class="d">$</span><code set:html={words(cmdReact)} /><button class="cp-copy" type="button" data-copy={cmdReact} data-label="Copy" aria-label="Copy the React install command">Copy</button></div></div>
+        {ax && <div class="cp-box"><h3 class="pg-t cp-mt"><Fragment set:html={MARKS.astro} />Astro</h3><div class="cp-line"><span class="d">$</span><code set:html={words(cmdAstro)} /><button class="cp-copy" type="button" data-copy={cmdAstro} data-label="Copy" aria-label="Copy the Astro install command">Copy</button></div></div>}
+      </div>
+      <p class="cp-note">The CLI copies the source into your project, so you own it and can change anything. The HTML version lands in <code>./designme</code> with the shared core and a <code>demo.html</code>. The React version lands in <code>src/components/designme</code> and needs React 19; it works in Next.js, Vite and Astro islands. The Astro version lands in <code>src/components/designme</code> too, with the same markup, CSS and script as the HTML version. See <a href="/docs/astro">Astro</a>.</p>
+      <div class="cp-two cp-gap">
+        <div class="cp-box"><h3 class="pg-t cp-mt"><Fragment set:html={MARKS.react} />shadcn CLI, React</h3><div class="cp-line"><span class="d">$</span><code set:html={words(cmdShadcn)} /><button class="cp-copy" type="button" data-copy={cmdShadcn} data-label="Copy" aria-label="Copy the shadcn command for React">Copy</button></div></div>
+        {ax && <div class="cp-box"><h3 class="pg-t cp-mt"><Fragment set:html={MARKS.astro} />shadcn CLI, Astro</h3><div class="cp-line"><span class="d">$</span><code set:html={words(cmdShadcnAstro)} /><button class="cp-copy" type="button" data-copy={cmdShadcnAstro} data-label="Copy" aria-label="Copy the shadcn command for Astro">Copy</button></div></div>}
+      </div>
+      <p class="cp-note">In a project set up for shadcn/ui, its CLI adds the same files to your components folder, under <code>designme/</code>, with the shared core. To give the components your shadcn or Tailwind v4 theme, add the <a href="/docs/installation#theme-bridge">theme bridge</a>.</p>
+    </section>
+
+    {S.about && <section class="cp-sec" id="about">
+      <div class="pg-sh"><span class="n">{S.about.n}</span><h2>{S.about.name}</h2><p>{S.about.line}</p></div>
+      <p class="cp-sum" set:html={md(copy.summary)} />
+      {about.length > 0 && <div class="cp-gap">
+        <div class="cp-tl" role="tablist" aria-label="About">{about.map(([h], i) => <button type="button" role="tab" id={`ab-t${i}`} aria-controls={`ab-p${i}`} aria-selected={i === 0 ? 'true' : 'false'} tabindex={i === 0 ? 0 : -1}>{h}</button>)}</div>
+        {about.map(([, list], i) => <div class="cp-tp" role="tabpanel" id={`ab-p${i}`} aria-labelledby={`ab-t${i}`} hidden={i !== 0}><ul>{list.map(x => <li set:html={md(x)} />)}</ul></div>)}
+      </div>}
+    </section>}
+
+    {S.usage && <section class="cp-sec" id="usage">
+      <div class="pg-sh"><span class="n">{S.usage.n}</span><h2>{S.usage.name}</h2><p>{S.usage.line}</p></div>
+      {rx && <div class="cp-box"><h3 class="pg-t cp-mt"><Fragment set:html={MARKS.react} />React</h3><pre class="cp-pre" data-name="React import"><code>{importLine}</code></pre></div>}
+      {rx && rx.example && <div class="cp-box cp-gap"><h3 class="pg-t">React example</h3><p class="pg-d">The demo above as a React component, {lines(rx.example)} lines you can copy.</p><pre class="cp-pre" data-name="React example"><code>{rx.example}</code></pre></div>}
+      {ax && <div class="cp-box cp-gap"><h3 class="pg-t cp-mt"><Fragment set:html={MARKS.astro} />Astro</h3><p class="pg-d">In a page in <code>src/pages</code>. It plays the demo above; change its <code>{c.reg}.js</code> to show your own data. Attributes like <code>class</code> go on its root element.</p><pre class="cp-pre" data-name="Astro usage"><code>{astroUse}</code></pre></div>}
+    </section>}
+
+    {S.props && <section class="cp-sec" id="props">
+      <div class="pg-sh"><span class="n">{S.props.n}</span><h2>{S.props.name}</h2><p>{S.props.line}</p></div>
+      {rx.props.map(iface => <>
+        {rx.props.length > 1 && <h3 class="pg-t"><code>{iface.name}</code></h3>}
+        {iface.doc && <p class="pg-d" style="margin-bottom:10px">{iface.doc}</p>}
+        <div class="cp-props"><table>
+          <thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead>
+          <tbody>{iface.props.map(p => <tr><td><code>{p.name}</code>{!p.optional && <span class="opt">required</span>}</td><td><code>{p.type}</code></td><td>{p.doc}</td></tr>)}</tbody>
+        </table></div>
+        {iface.extends && <p class="cp-ext">Also takes the props of <code>{iface.extends}</code>.</p>}
+      </>)}
+    </section>}
+
+    <section class="cp-sec" id="code">
+      <div class="pg-sh"><span class="n">{S.code.n}</span><h2>{S.code.name}</h2><p>{S.code.line}</p></div>
+      <div class="cp-files">{files.map(f => <details class="cp-file"><summary>{f.name}<span class="l">{f.lang} · {lines(f.code)} lines</span></summary><pre class="cp-pre" data-name={f.name}><code>{f.code}</code></pre></details>)}</div>
+    </section>
+
+    {S.questions && <section class="cp-sec" id="questions">
+      <div class="pg-sh"><span class="n">{S.questions.n}</span><h2>{S.questions.name}</h2><p>{S.questions.line}</p></div>
+      <dl class="cp-qs">{copy.faq.map(f => <div><dt class="pg-t" set:html={md(f.q)} /><dd set:html={md(f.a)} /></div>)}</dl>
+    </section>}
+
+    {S.more && <section class="cp-sec" id="more">
+      <div class="pg-sh"><span class="n">{S.more.n}</span><h2>{S.more.name}</h2><p>{S.more.line}</p></div>
+      <div class="pg-cards">{shown.map(x => <div class="pg-card">
+        <a class="pg-t pg-link" href={`/components/${x.reg}`}>{x.title}</a><span class="pg-d">{x.desc}</span>
+        <span class="pg-thumb" data-reg={live(x) ? x.reg : undefined} data-h={full(x) ? full(x).height[0] : 420} data-wide={x.wide ? '1' : undefined}><img class="lt" src={`/components/thumbs/${x.reg}-light.webp`} alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src={`/components/thumbs/${x.reg}-dark.webp`} alt="" width="640" height="400" loading="lazy" decoding="async"></span>
+      </div>)}</div>
+      {others.length > shown.length && <a class="cp-all" href={sec.url}>All {sec.cards.length} in {sec.title} →</a>}
+    </section>}
+
+    <nav class="dc-pn" aria-label="Previous and next component">
+      <a href={c.prev.url} rel="prev"><span class="pg-d"><Fragment set:html={icon('arrow_back')} />Previous</span><span class="pg-t">{c.prev.title}</span></a>
+      <a href={c.next.url} rel="next" class="n"><span class="pg-d">Next<Fragment set:html={icon('arrow_forward')} /></span><span class="pg-t">{c.next.title}</span></a>
+    </nav>
+  </SiteShell>
+
+  <Fragment slot="end">
+    <script is:inline src="/components/assets/core.js"></script>
+    {lent.map(x => <script is:inline set:html={x.html.js} />)}
+    <script is:inline set:html={c.html.js} />
+    {dsn && <script is:inline set:html={dsn.js} />}
+    {fullScreen && <script is:inline set:html={FRAME_JS} />}
+    {fullScreen && <script is:inline>
+    // Desktop / Tablet / Mobile over the demo: the others show this page with ?embed=1 in a frame of that width, and Animate
+    // loads it again
+    (function(){
+      var sw = document.querySelector('.cp-dev'), demo = document.querySelector('.cp-demo'), view = document.querySelector('.cp-view'), frame = null;
+      if (!sw || document.documentElement.hasAttribute('data-embed')) return;
+      var pick = function(dev){
+        sw.querySelectorAll('[data-dev]').forEach(function(b){ var on = b.dataset.dev === dev; b.setAttribute('aria-checked', String(on)); b.tabIndex = on ? 0 : -1; });
+        demo.classList.toggle('framed', dev !== 'desktop');
+        if (dev === 'desktop') return;
+        frame = frame || window.dmFrame(view, { title:function(){ return document.querySelector('.pg-h1').textContent + ' demo, ' + dev; } });
+        frame.show(location.pathname + '?embed=1', dev);
+      };
+      sw.querySelectorAll('[data-dev]').forEach(function(b){ b.addEventListener('click', function(){ pick(b.dataset.dev); }); });
+      sw.addEventListener('keydown', function(e){
+        var d = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0, bs = [].slice.call(sw.querySelectorAll('[data-dev]')), i = bs.indexOf(document.activeElement);
+        if (!d || i < 0) return; e.preventDefault(); var n = bs[(i + d + bs.length) % bs.length]; n.click(); n.focus();
+      });
+      document.getElementById('cp-replay').addEventListener('click', function(){ if (frame && demo.classList.contains('framed')) frame.reload(); });
+      matchMedia('(max-width:860px)').addEventListener('change', function(m){ if (m.matches) pick('desktop'); });
+    })();
+    </script>}
+    <script is:inline>
+    (function(){
+      var card = document.querySelector('.pg-demo > .card[data-c]');
+      var replay = function(){ if (card && typeof DM !== 'undefined') DM.mount(card); };
+      document.getElementById('cp-replay').addEventListener('click', replay);
+      // a new style starts the demo again
+      document.addEventListener('pg-style', replay);
+      // the cards under More in …: each plays its component, scaled into its picture, while it's on screen, and stops when it
+      // leaves. The component's files come from the registry (/r/<name>.json), once each
+      // with reduced motion they keep their pictures; the setting is read live, so turning it on stops the previews playing
+      // and turning it off starts them, without a reload
+      var reduceMq = matchMedia('(prefers-reduced-motion: reduce)'), got = {}, io = null, thumbs = [].slice.call(document.querySelectorAll('.pg-thumb[data-reg]'));
+      var files = function(reg){ return got[reg] || (got[reg] = fetch('/r/' + reg + '.json').then(function(r){ return r.json(); }).then(function(d){
+        var f = function(ext){ var x = d.files.filter(function(x){ return x.path.slice(-ext.length) === ext; })[0]; return x ? x.content : ''; };
+        var st = document.createElement('style'); st.textContent = f('.css'); document.head.appendChild(st);
+        var sc = document.createElement('script'); sc.textContent = f('.js'); document.body.appendChild(sc);
+        return f('.html');
+      })); };
+      var fit = function(t){ var box = t.querySelector('.pg-live'); if (!box) return; var vw = t.dataset.wide ? 920 : 560, h = +t.dataset.h || 420;
+        box.style.setProperty('--vw', vw + 'px'); box.style.setProperty('--k', Math.min(t.clientWidth / vw, t.clientHeight / h).toFixed(3)); };
+      var stopOne = function(t){ var box = t.querySelector('.pg-live'), card = box && box.firstElementChild; if (card && card._c){ card._c.stop(); card._c = null; } };
+      var start = function(){
+        if (io || reduceMq.matches || !('IntersectionObserver' in window) || typeof DM === 'undefined') return;
+        io = new IntersectionObserver(function(es){ es.forEach(function(en){
+          var t = en.target, box = t.querySelector('.pg-live'), card = box && box.firstElementChild;
+          if (!en.isIntersecting){ stopOne(t); return; }
+          if (card){ fit(t); DM.mount(card); box.classList.add('on'); return; }
+          files(t.dataset.reg).then(function(html){
+            if (!io) return;
+            box = document.createElement('div'); box.className = 'pg-live pg-demo'; box.setAttribute('aria-hidden', 'true'); box.innerHTML = html;
+            t.appendChild(box); fit(t); card = box.firstElementChild;
+            if (card && DM.defs[card.dataset.c]){ DM.mount(card); requestAnimationFrame(function(){ box.classList.add('on'); }); }
+          }).catch(function(){});
+        }); }, { threshold:.3 });
+        thumbs.forEach(function(t){ io.observe(t); });
+      };
+      // stopping puts each card's picture back
+      var stop = function(){ if (!io) return; io.disconnect(); io = null; thumbs.forEach(function(t){ stopOne(t); var box = t.querySelector('.pg-live'); if (box) box.classList.remove('on'); }); };
+      addEventListener('resize', function(){ if (io) thumbs.forEach(fit); });
+      if (reduceMq.addEventListener) reduceMq.addEventListener('change', function(){ if (reduceMq.matches) stop(); else start(); });
+      start();
+      // About's tabs: a click or the arrow keys show one list at a time
+      var tabs = [].slice.call(document.querySelectorAll('.cp-tl [role="tab"]'));
+      var pick = function(t, focus){ tabs.forEach(function(b){ var on = b === t; b.setAttribute('aria-selected', String(on)); b.tabIndex = on ? 0 : -1; document.getElementById(b.getAttribute('aria-controls')).hidden = !on; }); if (focus) t.focus(); };
+      tabs.forEach(function(b, i){
+        b.addEventListener('click', function(){ pick(b); });
+        b.addEventListener('keydown', function(e){ var d = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0; if (e.key === 'Home') d = -i; if (e.key === 'End') d = tabs.length - 1 - i; if (!d) return; e.preventDefault(); pick(tabs[(i + d + tabs.length) % tabs.length], true); });
+      });
+    })();
+    </script>
+  </Fragment>
+</Page>

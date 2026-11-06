@@ -1,0 +1,33 @@
+{
+  "summary": "Error recovery shows an agent run that stopped on a failed step, with the steps before and after it and the error underneath. Below the steps, the person chooses how the agent should carry on, such as retry, skip the step or hand it to a colleague, and presses Continue.",
+  "use": [
+    "When an agent hits an error it can't fix by itself, like a lost permission or a missing file, and needs a decision.",
+    "When you want the person to see what already worked before choosing what to do about what failed.",
+    "When a failure can go to a teammate instead of stopping the whole run."
+  ],
+  "features": [
+    "Each step has a `state`: done, fail (with a red alert and note), run (spinner), wait (not started), skip (struck through) or hand (passed to a person).",
+    "A step's `note` sits under it, like \"Done in 8s\" or the error message, and crossfades when it changes. The glyph plays a short entrance each time the state changes.",
+    "The header shows the run's `title` and a `status` line, like \"Stopped at step 2\", that crossfades as you update it.",
+    "`options` are shown as single-choice rows under `question`. The first one is picked by default, or you control the choice with `value` and `onValueChange`.",
+    "Continue calls `onContinue` with the chosen value and folds the choices away. `continueLabel` renames the button, and `open` lets you keep the choices in view."
+  ],
+  "a11y": [
+    "The choices are a `role=\"radiogroup\"` labelled by the question, and each option is a `role=\"radio\"` with `aria-checked`.",
+    "Once folded away, the choices are `inert` and `aria-hidden`."
+  ],
+  "faq": [
+    {
+      "q": "What happens after the person presses Continue?",
+      "a": "The choices fold away and `onContinue` gets the chosen option's value. Your code carries on the run and updates the steps, for example setting the failed step to 'run', then 'done', or to 'skip' or 'hand'."
+    },
+    {
+      "q": "Can I offer my own recovery options?",
+      "a": "Yes. `options` is a list of `{ value, label }`, so you can offer any choices that fit the error, like asking for access first and then retrying."
+    },
+    {
+      "q": "How do I show that a step went to a person?",
+      "a": "Set its `state` to 'hand' and use `note` to say who has it and what they got, for example the error and the logs."
+    }
+  ]
+}

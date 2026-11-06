@@ -1,0 +1,41 @@
+{
+  "summary": "OTP field takes a one-time code with one box per digit. Typing moves to the next box, Backspace moves back, and pasting the whole code fills every box at once. The code is checked as soon as the last box is filled: a wrong one shakes red and says how many tries are left, and the right one turns green.",
+  "use": [
+    "When people confirm an email address or a phone number with a code you send them.",
+    "When a sign-in or a risky action needs a second step, like a code from an authenticator app.",
+    "When people are likely to paste the code from an email, or have a phone offer it from a message.",
+    "When a wrong code should be easy to fix without clearing the boxes by hand."
+  ],
+  "features": [
+    "`length` boxes, six by default, in two halves with a short dash between them.",
+    "`value`, `defaultValue` and `onValueChange` hold the digits; `onComplete` gets the code once every box is filled.",
+    "Pasting a code into any box fills them all from the first, ignoring spaces and dashes.",
+    "`status` shows what's happening: `checking` dims the digits and spins, `error` shakes the boxes and turns them red, `success` turns them green and locks them. Typing after an error starts the code over from the first box.",
+    "`message` sets the line under the boxes, like \"That code doesn't match. 2 tries left\". `footer` holds a resend link or its countdown.",
+    "`title`, `description` and `icon` set the header, like \"Check your email\" with the address the code went to."
+  ],
+  "a11y": [
+    "The boxes form a group labelled \"Verification code\", and each box is named, like \"Digit 3 of 6\".",
+    "The first box has `autocomplete=\"one-time-code\"`, and every box has `inputmode=\"numeric\"`, so phones show the number pad and can offer a code from a message.",
+    "Backspace clears a box, or the one before it when it's empty; ← and → move between boxes without changing them.",
+    "A wrong code marks the boxes `aria-invalid`, and the line under them is announced politely."
+  ],
+  "faq": [
+    {
+      "q": "Does it check the code?",
+      "a": "No. `onComplete` gives you the code. Set `status` to `checking`, then `success` or `error` from what your server says."
+    },
+    {
+      "q": "Why one box per digit?",
+      "a": "People can see how many digits are left and where a typo is. A paste still fills them all at once, so it's no slower."
+    },
+    {
+      "q": "Can the code have letters?",
+      "a": "Not yet. Each box takes a digit, which is what most email and text codes use."
+    },
+    {
+      "q": "What happens after a wrong code?",
+      "a": "The digits stay red so people can see what they entered. Typing again, or Backspace, clears them and starts from the first box."
+    }
+  ]
+}

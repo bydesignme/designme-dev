@@ -1,0 +1,37 @@
+{
+  "summary": "A field for a number you can type or step. Minus and plus sit at the ends of the field, a unit or a currency sign sits beside the value, and a hint under it gives the range. Press and hold minus or plus to keep going, faster the longer you hold; the arrow keys move a step, Shift or Page Up and Page Down ten. A typed value is rounded to the step and kept inside the range when you press Enter or leave the field, and the hint says what changed, like \"$20.00 is the most\" or \"Rounded to 35 steps\". The demo sets an agent's run limits.",
+  "use": [
+    "For limits and quantities with a sensible range: an agent's steps, budget and time per run, retries, seats, a page size.",
+    "When people often move a value by a step or two, and sometimes type it outright.",
+    "Instead of a slider when the exact number matters more than a feel for where it sits in its range."
+  ],
+  "features": [
+    "`min`, `max`, `step` and `bigStep` (10 by default) set the range and how far the keys move it; `decimals` sets how the value shows, like 2 for money.",
+    "`prefix` and `unit` show beside the value (\"$\", \"steps\", \"min\"); the value and its unit stay centred between minus and plus.",
+    "Minus is disabled at `min` and plus at `max`. Pressing and holding either one steps at once, then repeats, faster as you hold.",
+    "What you type is checked as you go (anything but digits and a point marks the field in red) and kept on Enter or when you leave: rounded to the step and kept inside the range. Escape puts back the value before.",
+    "The hint shows the range (\"5 to 100, in steps of 5\") or, after a value was changed to fit, what changed. Set your own with `hint`.",
+    "`NumberFieldGroup` is the panel from the demo: a title, a line under it, the fields and a summary at the foot."
+  ],
+  "a11y": [
+    "The input is a spinbutton with aria-valuemin, aria-valuemax, aria-valuenow and the value in words as aria-valuetext (\"10 minutes\"); it is labelled by the field's label.",
+    "Up and Down move a step, Shift with an arrow or Page Up and Page Down move ten. Enter keeps what was typed and Escape puts back the value before.",
+    "Minus and plus are named buttons (\"Fewer steps\", \"More steps\") left out of the tab order, since the keys do the same; a person using a pointer presses or holds them.",
+    "A value that isn't a number is marked with aria-invalid and a red edge, not colour alone: the hint asks for a number in the range.",
+    "Clicking the label or beside the value puts the cursor in the field."
+  ],
+  "faq": [
+    {
+      "q": "Why not an input with type=\"number\"?",
+      "a": "Its spinner is tiny, looks different in every browser, changes the value when you scroll over it, and can't show a unit. This keeps the same keys and the spinbutton role, with buttons you can hit and a unit beside the value."
+    },
+    {
+      "q": "What happens to a value that is out of range?",
+      "a": "It is kept at the nearest end when you press Enter or leave the field, and the hint says so, like \"100 steps is the most\". `onValueChange` only ever gets values inside the range and on a step."
+    },
+    {
+      "q": "Can it show money?",
+      "a": "Yes. Use `prefix=\"$\"` and `decimals={2}`, with a step like 0.25. For other currencies, change the prefix or use `unit` for a code after the value."
+    }
+  ]
+}

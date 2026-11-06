@@ -1,0 +1,36 @@
+{
+  "summary": "Voice capture is the panel a person talks into when they speak a request to an agent. It shows a live waveform, a clock and the transcript as it is heard, highlights the words the speech model was unsure of, and asks the person to check them before the text is sent.",
+  "use": [
+    "When people speak tasks to your agent, on a phone or hands-free, and transcription mistakes would send the agent the wrong way.",
+    "When your speech-to-text service returns alternatives for low-confidence words and you want people to pick the right one.",
+    "When people need to pause, cancel or record again without losing track of what was sent."
+  ],
+  "features": [
+    "It moves through five states: listening, paused, review, sent and cancelled. The buttons move it along by themselves, or you control it with `state` and `onStateChange`.",
+    "Words passed in `words` fade in as they arrive. A word given with `alternatives` is highlighted and opens a \"Did you mean\" menu, and picking one calls `onFix`.",
+    "Done first moves from recording to review, then a second Done sends the checked text, with fixes applied, to `onSend`.",
+    "The waveform samples `level` about every 50 milliseconds. Pass a function to read the microphone directly, and it records silence while paused. Once recording stops, the wave stays as the whole recording, still, so the panel keeps its height.",
+    "The clock counts up while listening unless you pass `seconds`, and the status line defaults to Listening, Paused, Check what I heard, Sent or Cancelled.",
+    "Cancelling keeps the words on show, greyed. Once the capture is sent or cancelled, a Record again button clears the fixes and the clock and calls `onRecordAgain`."
+  ],
+  "a11y": [
+    "The transcript is an `aria-live=\"polite\"` region, so new words are announced.",
+    "Unsure words are focusable `role=\"button\"` elements with `aria-haspopup=\"menu\"`, and Enter or Space opens their menu with the focus on the first fix.",
+    "The \"Did you mean\" menu uses `role=\"menu\"` and `menuitem`, the arrow keys move through it and wrap, Home and End jump, and Escape or a click outside closes it (Escape gives the focus back to the word).",
+    "The Pause button is labelled Pause or Resume to match the state, and the waveform canvas is `aria-hidden`."
+  ],
+  "faq": [
+    {
+      "q": "Does the component use the microphone or do speech recognition?",
+      "a": "No. You run the recording and transcription, add words to `words` as they arrive, and pass the input level as `level`. The component draws them and handles review."
+    },
+    {
+      "q": "How do I mark a word the speech model wasn't sure about?",
+      "a": "Pass it as an object, like `{ text: 'toddle', alternatives: ['toggle', 'tunnel'] }`. It gets a highlight, and after recording stops its tooltip says it is not sure about the word."
+    },
+    {
+      "q": "What text does `onSend` receive?",
+      "a": "The heard words joined with spaces, with every word the person fixed replaced by their pick."
+    }
+  ]
+}

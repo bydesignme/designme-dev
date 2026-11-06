@@ -1,0 +1,37 @@
+{
+  "summary": "Voice orb is the screen for a hands-free voice chat with the agent. An orb in the middle swells with whoever is talking, in the accent colour while it listens to you and violet while the agent speaks, with what was said written under it word by word. Below sit mute and end, and someone who talks while muted is told so, with a button to unmute.",
+  "use": [
+    "When people talk to the agent instead of typing, and need to see that it is listening.",
+    "When it should be clear at a glance whose turn it is: yours, the agent's, or the agent thinking.",
+    "When people mute often, and should find out straight away when they talk into a muted microphone.",
+    "When the chat should end with a record of it, like a saved transcript."
+  ],
+  "features": [
+    "`state` moves through `idle`, `listening`, `thinking`, `speaking` and `ended`. The status line, its dot and the orb's colour follow it.",
+    "`level` from 0 to 1 sets how far the orb swells, how fast the light inside it flows, how bright its heart glows, how much its rim wobbles and how much its highlight shimmers. Feed it from your audio, or from a made-up curve as the demo does.",
+    "The orb is a glass sphere lit from the top left, with a darker side, a bright edge and a small sharp highlight. Inside it, three layers of light in the colours of whoever is talking, and a third hue, flow at different speeds and shift against each other as if in a volume. A small WebGL shader draws it, once a frame. Nothing reaches past its edge, so it needs no room around it. Without WebGL a 2D canvas draws a simpler sphere, with reduced motion it holds still, and off screen it stops drawing.",
+    "`caption` shows what was said last and who said it, each new word fading in.",
+    "`muted` / `onMutedChange` drive the mute button. While muted, listening shows as Muted and a slash crosses the microphone.",
+    "`mutedNotice` folds open \"You're muted\" with an Unmute button, for when your code hears someone talking while muted.",
+    "The timer shows `elapsed` in minutes and seconds. Once `ended`, the buttons give way to a row with the length, and Start again when you pass `onRestart`."
+  ],
+  "a11y": [
+    "The orb is decorative and hidden from screen readers; the status line names the state in words.",
+    "The caption is an `aria-live=\"polite\"` region, so what is said is read out.",
+    "The mute button is labelled \"Mute\" and uses `aria-pressed` to say whether the microphone is off."
+  ],
+  "faq": [
+    {
+      "q": "Does it use the microphone or play sound?",
+      "a": "No. It draws the `state`, `level` and `caption` you pass. Your code records, transcribes and plays the agent's voice. The demo plays a written script and never asks for the microphone."
+    },
+    {
+      "q": "How is it different from Voice capture?",
+      "a": "Voice capture records one message to check and fix before sending. Voice orb is a back-and-forth conversation, with the agent answering out loud."
+    },
+    {
+      "q": "How do I drive the orb from real audio?",
+      "a": "Read the loudness from your audio, for example with a Web Audio AnalyserNode, scale it to 0 to 1, and pass it as `level` on each animation frame."
+    }
+  ]
+}
