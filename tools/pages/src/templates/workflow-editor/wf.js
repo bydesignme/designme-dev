@@ -2,9 +2,10 @@
    helpers ($, $$, I, swap, enter, stagger, seg, html, closePops) and its popovers (data-pop) and tooltips (data-tip). The
    workspace, people, leads and runs are made up. A test run is worked out from the graph on the canvas (which steps run, in
    what order, which path the branch takes, what each step hands on), so editing the workflow changes what the next run does.
-   The parts the library doesn't have yet are written as self-contained pieces with a wfx- prefix, so they can be promoted:
-   the step node and edge inserter (canvas), the step picker, the data picker, the step inspector, the run drawer, the agent's
-   fix card and the version history. */
+   The step inspector, the data picker and the run drawer are the library's Step inspector, Data picker and Run drawer, drawn
+   with their classes and driven from here. The parts the library doesn't have yet are written as self-contained pieces with a
+   wfx- prefix, so they can be promoted: the step node and edge inserter (canvas), the step picker, the agent's fix card and
+   the version history. */
 (() => {
   const app = document.querySelector('.wf'); if (!app) return;
   const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -489,7 +490,7 @@
     toast('ai', `The agent added ${n.t}`, kind ? 'It picked the step from your words. Check its fields' : 'Your words are its instructions. Check its inputs', { label:'Undo', run:undo });
   }
 
-  /* ---------- wfx-var: the data picker, what earlier steps produced ---------- */
+  /* ---------- the data picker: Data picker's picker, what earlier steps produced ---------- */
   function upstream(id){
     const n = byId(id); if (!n) return [];
     const seen = new Set(), list = [], walk = x => insOf(x).forEach(e => { if (seen.has(e.f)) return; seen.add(e.f); walk(e.f); list.push(byId(e.f)); });
@@ -500,38 +501,54 @@
     return list.filter(Boolean);
   }
   const vref = v => { const [r, k] = (v || '').split('.'); return { n:byRef(r), k }; };
-  const tok = (v, empty = 'Pick data') => { const { n, k } = vref(v); if (!v) return `<span class="wfx-tok none">${I('plus', 'xs')}<span>${empty}</span></span>`;
-    if (!n) return `<span class="wfx-tok bad" data-tip="That step is gone">${I('alert', 'xs')}<span>${esc(v)}</span></span>`;
-    return `<span class="wfx-tok"><span class="ic${n.type === 'ai' ? ' ai' : ''}">${I(n.ic, 'xs')}</span><span class="s">${esc(n.t)}</span><span class="k">${esc(k)}</span></span>`; };
-  const vp2 = $('#wf-p-var', app), vq = $('.wfx-var-q', vp2), vls = $('.wfx-var-ls', vp2);
+  // every field the steps before a step hand on, as "ref.field"
+  const reach = n => new Set(upstream(n.id).flatMap(u => u.out.map(o => u.ref + '.' + o[0])));
+  // a mapped field: Step inspector's token, the step's tile, the step and the field. One whose step is gone, or that no earlier
+  // step gives (ok false), is red
+  const tok = (v, attrs = '', ok = null, empty = 'Pick data') => { const { n, k } = vref(v);
+    if (!v) return `<span class="sti-tok none"${attrs}>${I('plus', 'xs')}<span>${empty}</span></span>`;
+    if (!n || ok === false) return `<span class="sti-tok bad"${attrs} data-tip="${n ? 'Not from an earlier step' : 'That step is gone'}">${I('alert', 'xs')}<span class="s">${esc(n ? n.t : v.split('.')[0])}</span><span class="sep" aria-hidden="true">›</span><span class="f">${esc(k || '')}</span></span>`;
+    return `<span class="sti-tok"${attrs}><span class="sti-ti" data-k="${n.type}" aria-hidden="true">${I(n.ic, 'xs')}</span><span class="s">${esc(n.t)}</span><span class="sep" aria-hidden="true">›</span><span class="f">${esc(k)}</span></span>`; };
+  // each data type in its colour: text blue, numbers green, lists orange, objects pink
+  const TYPE_TONE = { text:'b', number:'m', list:'p', object:'k', bool:'y', date:'t' };
+  const vp2 = $('#wf-p-var', app), vq = $('.wf-var-q', vp2), vls = $('.fpk-ls', vp2), vn = $('.wf-var-n', vp2);
   let vTarget = null, vItems = [], vHi = 0;
   function paintVar(){
     const n = byId(vTarget.node), v = vq.value.trim().toLowerCase(); let h = '', k = 0; vItems = [];
     const ups = upstream(vTarget.node);
-    ups.forEach(u => { const fs = u.out.filter(o => !v || (u.t + ' ' + o[0]).toLowerCase().includes(v)); if (!fs.length) return;
-      h += `<div role="group" aria-label="${esc(u.t)}"><div class="wfx-var-g" aria-hidden="true">${tile(u)}<span>${esc(u.t)}</span></div>` + fs.map(o => { const ref = u.ref + '.' + o[0], i = k++; vItems.push(ref);
-        return `<div class="wfx-var-o" role="option" id="wf-vo-${i}" aria-selected="false" data-i="${i}"><span class="k">${esc(o[0])}</span><span class="tag">${o[1]}</span><span class="ex">${esc(o[2])}</span></div>`; }).join('') + '</div>'; });
-    vls.innerHTML = h || `<p class="wfx-var-e">${ups.length ? 'No field matches' : `${esc(n.t)} is the first step, so there is no data before it`}</p>`;
+    ups.forEach((u, ui) => { const fs = u.out.filter(o => !v || (u.t + ' ' + o[0]).toLowerCase().includes(v)); if (!fs.length) return;
+      h += `<div role="group" aria-labelledby="wf-vg-${ui}"><div class="fpk-g" id="wf-vg-${ui}"><span class="fpk-ti" data-k="${u.type}" aria-hidden="true">${I(u.ic, 'xs')}</span><b>${esc(u.t)}</b><span class="n">${TYPES[u.type].k}</span></div>` + fs.map(o => { const ref = u.ref + '.' + o[0], i = k++; vItems.push(ref);
+        return `<div class="fpk-o" role="option" id="wf-vo-${i}" aria-selected="false" data-i="${i}" aria-label="${esc(o[0])}, ${o[1]}, from ${esc(u.t)}"><span class="k">${esc(o[0])}</span><span class="tag ${TYPE_TONE[o[1]] || 'b'}">${o[1]}</span><span class="ex">${esc(o[2])}</span></div>`; }).join('') + '</div>'; });
+    vls.innerHTML = h || `<p class="fpk-e">${ups.length ? 'No field matches' : `${esc(n.t)} is the first step, so there is no data before it`}</p>`;
+    vn.textContent = ups.length ? `From the ${ups.length} ${ups.length === 1 ? 'step' : 'steps'} before ${n.t}` : 'Nothing runs before this step';
     vHi = Math.max(0, vItems.indexOf(vTarget.cur)); hiVar(vHi);
   }
-  function hiVar(i){ const os = $$('.wfx-var-o', vls); if (!os.length) return; vHi = (i + os.length) % os.length; os.forEach((o, j) => { o.classList.toggle('on', j === vHi); o.setAttribute('aria-selected', String(j === vHi)); }); vq.setAttribute('aria-activedescendant', os[vHi].id); os[vHi].scrollIntoView({ block:'nearest' }); }
+  function hiVar(i){ const os = $$('.fpk-o', vls); if (!os.length){ vq.removeAttribute('aria-activedescendant'); return; } vHi = (i + os.length) % os.length; os.forEach((o, j) => { o.classList.toggle('on', j === vHi); o.setAttribute('aria-selected', String(j === vHi)); }); vq.setAttribute('aria-activedescendant', os[vHi].id); os[vHi].scrollIntoView({ block:'nearest' }); }
   function pickVar(i){ const ref = vItems[i]; if (!ref) return; closePops(); vTarget.set(ref); }
   vq.addEventListener('input', paintVar);
   vq.addEventListener('keydown', e => { if (e.key === 'ArrowDown' || e.key === 'ArrowUp'){ e.preventDefault(); hiVar(vHi + (e.key === 'ArrowDown' ? 1 : -1)); } else if (e.key === 'Enter'){ e.preventDefault(); pickVar(vHi); } });
-  vls.addEventListener('click', e => { const o = e.target.closest('.wfx-var-o'); if (o) pickVar(+o.dataset.i); });
-  vls.addEventListener('pointermove', e => { const o = e.target.closest('.wfx-var-o'); if (o && +o.dataset.i !== vHi) hiVar(+o.dataset.i); });
+  vls.addEventListener('click', e => { const o = e.target.closest('.fpk-o'); if (o) pickVar(+o.dataset.i); });
+  vls.addEventListener('pointermove', e => { const o = e.target.closest('.fpk-o'); if (o && +o.dataset.i !== vHi) hiVar(+o.dataset.i); });
   function openVar(target){ vTarget = target; vq.value = ''; paintVar(); setTimeout(() => { if (vp2.classList.contains('open')) vq.focus(); }, 30); }
 
-  /* ---------- wfx-inspector: the step inspector, Details panel's sections and rows ---------- */
-  const insp = $('.wfx-insp', app);
+  /* ---------- the step inspector: Step inspector's head, sections, rows, choices, tokens and chips ---------- */
+  const insp = $('.wf-insp', app);
   const shut = new Set(['out']);
-  const sec = (k, t, body, extra = '') => `<div class="dtp-sec"><button class="dtp-sh" aria-expanded="${!shut.has(k)}" data-sec="${k}">${I('chev-r', 'xs')}<span>${t}</span>${extra}</button><div class="fold${shut.has(k) ? ' shut' : ''}"><div><div class="wfx-rows">${body}</div></div></div></div>`;
-  const row = (label, ctl, cls = '') => `<div class="wfx-row${cls}"><span class="k">${label}</span><div class="v">${ctl}</div></div>`;
-  const selBtn = (f, val, label) => `<button class="dtp-v wfx-sel" data-f="${f}" data-pop="#wf-p-sel" aria-haspopup="menu" aria-label="${esc(label)}: ${esc(val)}"><span>${esc(val)}</span>${I('chev-d', 'xs')}</button>`;
-  const varBtn = (f, v, label) => `<button class="wfx-tok-b" data-f="${f}" data-pop="#wf-p-var" aria-haspopup="dialog" aria-label="${esc(label)}: ${v ? esc(v) : 'not set'}. Pick data">${tok(v)}</button>`;
-  const num = (f, v, lo, hi, label) => `<span class="wfx-num" role="group" aria-label="${esc(label)}"><button class="ib" data-f="${f}" data-d="-1" aria-label="Fewer" ${v <= lo ? 'aria-disabled="true"' : ''}>${I('minus', 'xs')}</button><span class="num" aria-live="polite">${v}</span><button class="ib" data-f="${f}" data-d="1" aria-label="More" ${v >= hi ? 'aria-disabled="true"' : ''}>${I('plus', 'xs')}</button></span>`;
-  const segBtns = (f, v, opts, label) => `<div class="seg2 wfx-seg" role="group" aria-label="${esc(label)}" data-f="${f}">${opts.map(([k, t]) => `<button aria-pressed="${v === k}" data-v="${k}">${t}</button>`).join('')}</div>`;
+  const sec = (k, t, body, extra = '') => `<div class="sti-sec" data-sec="${k}"><button class="sti-sh" aria-expanded="${!shut.has(k)}" aria-controls="wf-sec-${k}" data-sec="${k}">${I('chev-r', 'xs')}<span>${t}</span>${extra}</button><div class="fold${shut.has(k) ? ' shut' : ''}" id="wf-sec-${k}"><div><div class="sti-rows">${body}</div></div></div></div>`;
+  const row = (label, ctl, cls = '') => `<div class="sti-row${cls}"><span class="k">${label}</span><div class="v">${ctl}</div></div>`;
+  const selBtn = (f, val, label) => `<button class="sti-sel" data-f="${f}" data-pop="#wf-p-sel" aria-haspopup="menu" aria-label="${esc(label)}: ${esc(val)}"><span>${esc(val)}</span>${I('chev-d', 'xs')}</button>`;
+  const varBtn = (f, v, label, ok = null) => `<button class="sti-tokb" data-f="${f}" data-pop="#wf-p-var" aria-haspopup="dialog" aria-label="${esc(label)}: ${v ? esc(v) : 'not set'}${ok === false ? ', which no earlier step gives' : ''}. Pick data">${tok(v, '', ok)}</button>`;
+  // a mapped field no earlier step gives says why, under its row
+  const note = (v, ok) => { if (!v || ok !== false) return ''; const { n, k } = vref(v); return `<p class="sti-note">${n ? `${esc(n.t)} runs after this step.` : `${esc(v.split('.')[0])} isn't in the workflow any more.`} Pick where ${esc(k || 'it')} comes from.</p>`; };
+  const num = (f, v, lo, hi, label) => `<span class="sti-num" role="group" aria-label="${esc(label)}"><button class="ib" data-f="${f}" data-d="-1" aria-label="Fewer ${label.toLowerCase()}" data-tip="Fewer" ${v <= lo ? 'aria-disabled="true"' : ''}>${I('minus', 'xs')}</button><span class="num" aria-live="polite">${v}</span><button class="ib" data-f="${f}" data-d="1" aria-label="More ${label.toLowerCase()}" data-tip="More" ${v >= hi ? 'aria-disabled="true"' : ''}>${I('plus', 'xs')}</button></span>`;
+  const segBtns = (f, v, opts, label) => `<div class="seg2 sti-seg" role="group" aria-label="${esc(label)}" data-f="${f}">${opts.map(([k, t]) => `<button aria-pressed="${v === k}" data-v="${k}">${t}</button>`).join('')}</div>`;
   const toggle = (f, on, label) => `<button class="wfx-tg" role="switch" aria-checked="${on}" data-f="${f}"><span class="toggle" aria-hidden="true"></span><span>${esc(label)}</span></button>`;
+  const stile = (n, s = 'xs') => `<span class="sti-ti" data-k="${n.type}" aria-hidden="true">${I(n.ic, s)}</span>`;
+  // the instructions: their text with each {{step.field}} as a token, and back
+  const insHTML = (n, ok) => esc(n.cfg.prompt).replace(/\{\{\s*([\w]+\.[\w]+)\s*\}\}/g, (m, r) => tok(r, ` contenteditable="false" data-ref="${r}"`, ok.has(r)));
+  const readIns = el => [...el.childNodes].map(x => x.nodeType === 3 ? x.textContent : x.dataset && x.dataset.ref ? `{{${x.dataset.ref}}}` : x.nodeName === 'BR' ? '\n' : '\n' + x.textContent).join('');
+  let caret = null;
+  document.addEventListener('selectionchange', () => { const s = getSelection(), bx = $('.sti-ins', insp); if (s.rangeCount && bx && bx.contains(s.anchorNode)) caret = s.getRangeAt(0).cloneRange(); });
   // what each select offers
   const OPTS = {
     model:() => MODELS.map(m => [m[0], m[0], m[1]]),
@@ -563,50 +580,50 @@
         + `<div class="wfx-insp-l" role="list" aria-label="Steps">${topo().flatMap(x => [x, ...(x.cfg.tools || []).map(byId).filter(Boolean)]).map(x => `<button role="listitem" data-go="${x.id}"${x.type === 'tool' ? ' class="tl"' : ''}>${tile(x)}<span class="t">${esc(x.t)}</span><span class="muted">${TYPES[x.type].k}</span></button>`).join('')}</div>`;
       return;
     }
-    const c = n.cfg, T = TYPES[n.type], idx = topo().indexOf(n);
+    const c = n.cfg, T = TYPES[n.type], idx = topo().indexOf(n), ok = reach(n);
     const ran = lastOf(n.id);
-    let h = `<div class="wfx-insp-h">${tile(n, ' big')}<span class="tx"><input class="wfx-insp-n" value="${esc(n.t)}" aria-label="Step name" maxlength="40" spellcheck="false"><span class="muted">${T.k}${n.type === 'tool' ? ', used by ' + esc(byId(n.host)?.t || '') : idx >= 0 ? `, step ${idx + 1} of ${flow().length}` : ''}</span></span>`
+    let h = `<div class="sti-h">${stile(n, 's')}<span class="sti-tx"><span class="sti-nr"><input class="sti-n" value="${esc(n.t)}" aria-label="Step name" maxlength="40" spellcheck="false" autocomplete="off">${n.off ? '<span class="tag sti-off">Off</span>' : ''}</span><span class="sti-kd">${T.k}${n.type === 'tool' ? ', used by ' + esc(byId(n.host)?.t || '') : idx >= 0 ? `, step ${idx + 1} of ${flow().length}` : ''}</span></span>`
       + `<button class="ib" data-a="test" aria-label="Test this step on its own" data-tip="Test this step">${I('play', 's')}</button><button class="ib" data-a="menu" data-pop="#wf-p-node" data-pop-align="end" aria-haspopup="menu" aria-label="Step actions" data-tip="More">${I('more', 's')}</button><button class="ib wfx-insp-x" data-a="close" aria-label="Close the step" data-tip="Close" data-tip-k="Esc">${I('x', 's')}</button></div>`;
     if (ran) h += `<button class="wfx-insp-run" data-a="data"><span class="dot" style="color:${ran.st === 'bad' ? 'var(--dm-bad)' : 'var(--dm-ok-mark)'}"></span><span>${ran.st === 'bad' ? 'Failed' : 'Ran'} in the last run, ${secs(ran.e - ran.s)}</span><span class="go">See its data${I('chev-r', 'xs')}</span></button>`;
-    const inputs = () => Object.keys(c.in || {}).map(k => row(esc(k), varBtn('in.' + k, c.in[k], k))).join('') + `<button class="pill ghost sm wfx-addin" data-a="addin">${I('plus', 'xs')}Map another field</button>`;
+    const okOf = v => v ? ok.has(v) : null;
+    const missing = Object.values(c.in || {}).filter(v => v && !ok.has(v)).length, mapped = Object.keys(c.in || {}).length;
+    const inMeta = missing ? `<span class="tag bad">${missing} missing</span>` : `<span class="n">${mapped} mapped</span>`;
+    const inputs = () => Object.keys(c.in || {}).map(k => row(esc(k), varBtn('in.' + k, c.in[k], k, okOf(c.in[k]))) + note(c.in[k], okOf(c.in[k]))).join('') + `<button class="pill ghost sm wfx-addin" data-a="addin">${I('plus', 'xs')}Map another field</button>`;
     const fails = (tool = false) => sec('fail', 'If it fails', row('Retries', num('retries', c.retries, 0, 5, 'Retries')) + row('Wait between', segBtns('backoff', c.backoff, [['fixed', '2s each'], ['doubling', 'Doubling']], 'Wait between tries'))
       + row(LABEL.limit, selBtn('limit', (OPTS.limit().find(o => o[0] === c.limit) || [0, c.limit])[1], LABEL.limit)) + (tool ? row('Cache', toggle('cache', c.cache, 'Reuse results for 24 hours')) : '') + row(LABEL.onfail, selBtn('onfail', FAIL[c.onfail], LABEL.onfail)));
-    const outs = () => sec('out', `Output, ${n.out.length} ${n.out.length === 1 ? 'field' : 'fields'}`, n.out.length ? n.out.map(o => `<div class="wfx-schema"><span class="k">${esc(o[0])}</span><span class="tag">${o[1]}</span><span class="ex muted">${esc(o[2])}</span></div>`).join('') : '<p class="muted wfx-p">Nothing. The run carries on as it was.</p>');
+    const outs = () => sec('out', 'Output', n.out.length ? n.out.map(o => `<div class="sti-out"><span>${esc(o[0])}</span><span class="tag ${TYPE_TONE[o[1]] || 'b'}">${o[1]}</span><span class="ex">${esc(o[2])}</span></div>`).join('') : '<p class="sti-p">Nothing. The run carries on as it was.</p>', `<span class="n">${n.out.length} ${n.out.length === 1 ? 'field' : 'fields'}</span>`);
     if (n.type === 'trigger') h += sec('setup', 'Starts when', row(LABEL.source, selBtn('source', c.source, LABEL.source)) + (c.form ? row(LABEL.form, selBtn('form', c.form, LABEL.form)) : '') + (c.when ? row(LABEL.when, selBtn('when', c.when, LABEL.when)) : '')) + outs();
     if (n.type === 'ai'){
       h += sec('setup', 'Setup', row(LABEL.model, selBtn('model', c.model, LABEL.model))
-        + `<div class="wfx-prompt"><div class="wfx-prompt-h"><span class="k" id="wf-pr-l">Instructions</span><button class="pill ghost sm" data-f="prompt" data-pop="#wf-p-var" aria-haspopup="dialog">${I('plus', 'xs')}Insert data</button></div><textarea class="wfx-ta" rows="5" aria-labelledby="wf-pr-l" spellcheck="false">${esc(c.prompt)}</textarea>`
-        + usesHTML(n) + '</div>'
-        + row('Tools', `<span class="wfx-tools">${c.tools.map(t => byId(t)).filter(Boolean).map(t => `<span class="wfx-chip">${I(t.ic, 'xs')}<button class="wfx-chip-t" data-go="${t.id}">${esc(t.t)}</button><button class="wfx-chip-x" data-a="untool" data-t="${t.id}" aria-label="Remove ${esc(t.t)}" data-tip="Remove">${I('x', 'xs')}</button></span>`).join('')}<button class="dtp-add" data-f="tool" data-pop="#wf-p-sel" aria-haspopup="menu" aria-label="Add a tool" data-tip="Add a tool">${I('plus', 'xs')}</button></span>`, ' top'))
-        + sec('in', 'Inputs', inputs()) + outs() + fails();
+        + `<div class="sti-insw"><div class="sti-ih"><span class="k" id="wf-pr-l">Instructions</span><button class="pill ghost sm" data-f="prompt" data-pop="#wf-p-var" aria-haspopup="dialog">${I('plus', 'xs')}Insert data</button></div><div class="sti-ins" contenteditable="true" role="textbox" aria-multiline="true" aria-labelledby="wf-pr-l" spellcheck="false">${insHTML(n, ok)}</div></div>`
+        + row('Tools', `<span class="sti-chips">${c.tools.map(t => byId(t)).filter(Boolean).map(t => `<span class="sti-chip">${stile(t)}<button class="wfx-chip-t" data-go="${t.id}">${esc(t.t)}</button><button class="sti-cx" data-a="untool" data-t="${t.id}" aria-label="Remove ${esc(t.t)}" data-tip="Remove">${I('x', 'xs')}</button></span>`).join('')}<button class="sti-add" data-f="tool" data-pop="#wf-p-sel" aria-haspopup="menu" aria-label="Add a tool" data-tip="Add a tool">${I('plus', 'xs')}</button></span>`, ' top'))
+        + sec('in', 'Inputs', inputs(), inMeta) + outs() + fails();
     }
-    if (n.type === 'tool') h += sec('setup', 'Setup', row(LABEL.conn, selBtn('conn', c.conn, LABEL.conn)) + row(LABEL.action, selBtn('action', c.action || 'Find a company by domain', LABEL.action))) + sec('in', 'Inputs', inputs()) + outs() + fails(true);
+    if (n.type === 'tool') h += sec('setup', 'Setup', row(LABEL.conn, selBtn('conn', c.conn, LABEL.conn)) + row(LABEL.action, selBtn('action', c.action || 'Find a company by domain', LABEL.action))) + sec('in', 'Inputs', inputs(), inMeta) + outs() + fails(true);
     if (n.type === 'app' || n.type === 'output') h += sec('setup', 'Setup', row(LABEL.conn, selBtn('conn', c.conn, LABEL.conn)) + (c.list ? row(LABEL.list, selBtn('list', c.list, LABEL.list)) : '') + (n.type === 'output' ? row(LABEL.channel, selBtn('channel', c.channel || '#inbound-leads', LABEL.channel)) : ''))
-      + sec('in', 'Inputs', inputs()) + outs() + fails();
+      + sec('in', 'Inputs', inputs(), inMeta) + outs() + fails();
     if (n.type === 'branch'){
       const o = outsOf(n.id), yes = o.find(e => e.label === 'yes'), no = o.find(e => e.label === 'no');
-      h += sec('setup', 'Takes Yes when', `<div class="wfx-rule">${varBtn('rule.v', c.rule.v, 'Value')}${selBtn('rule.op', c.rule.op, 'Comparison')}<label class="wfx-in sm"><span class="pg-sr">Number</span><input type="number" inputmode="numeric" data-f="rule.n" value="${c.rule.n}" min="0" max="100" aria-label="Number"></label></div>`
-        + row('Yes', yes ? `<button class="wfx-link" data-go="${yes.t}">${tile(byId(yes.t))}${esc(byId(yes.t).t)}</button>` : '<span class="muted">Ends the run</span>')
-        + row('No', no ? `<button class="wfx-link" data-go="${no.t}">${tile(byId(no.t))}${esc(byId(no.t).t)}</button>` : `<button class="pill ghost sm" data-pop="#wf-p-pick" data-no="${n.id}" aria-haspopup="dialog">${I('plus', 'xs')}Add a No path</button>`)) + outs();
+      const link = e => `<button class="sti-link" data-go="${e.t}">${stile(byId(e.t))}<span>${esc(byId(e.t).t)}</span></button>`;
+      h += sec('setup', 'Takes Yes when', `<div class="sti-rule">${varBtn('rule.v', c.rule.v, 'Value', okOf(c.rule.v))}${selBtn('rule.op', c.rule.op, 'Comparison')}<input class="sti-in" type="number" inputmode="numeric" data-f="rule.n" value="${c.rule.n}" min="0" max="100" aria-label="Threshold"></div>` + note(c.rule.v, okOf(c.rule.v))
+        + row('Yes', yes ? link(yes) : '<span class="muted">Ends the run</span>')
+        + row('No', no ? link(no) : `<button class="pill ghost sm" data-pop="#wf-p-pick" data-no="${n.id}" aria-haspopup="dialog">${I('plus', 'xs')}Add a No path</button>`)) + outs();
     }
     if (n.type === 'approval'){
       const draft = upstream(n.id).filter(u => u.type === 'ai').pop();
-      h += sec('setup', 'Who approves', row('People', `<span class="wfx-ppl">${c.who.map(w => `<span class="wfx-chip">${av(w)}<span>${P[w][0]}</span><button class="wfx-chip-x" data-a="unwho" data-w="${w}" aria-label="Remove ${P[w][0]}" data-tip="Remove">${I('x', 'xs')}</button></span>`).join('')}<button class="dtp-add" data-f="who" data-pop="#wf-p-sel" aria-haspopup="menu" aria-label="Add a person" data-tip="Add a person">${I('plus', 'xs')}</button></span>`, ' top')
+      h += sec('setup', 'Who approves', row('People', `<span class="sti-chips">${c.who.map(w => `<span class="sti-chip">${av(w)}<span>${P[w][0]}</span><button class="sti-cx" data-a="unwho" data-w="${w}" aria-label="Remove ${P[w][0]}" data-tip="Remove">${I('x', 'xs')}</button></span>`).join('')}<button class="sti-add" data-f="who" data-pop="#wf-p-sel" aria-haspopup="menu" aria-label="Add a person" data-tip="Add a person">${I('plus', 'xs')}</button></span>`, ' top')
         + row(LABEL.via, selBtn('via', c.via, LABEL.via)) + row('They see', draft ? tok(draft.ref + '.' + (draft.out[0] || [''])[0]) : '<span class="muted">The run so far</span>'))
         + sec('exp', 'If nobody answers', row(LABEL.expire, selBtn('expire', c.expire, LABEL.expire)) + row(LABEL.then, selBtn('then', c.then, LABEL.then))) + outs();
     }
-    if (n.type === 'wait') h += sec('setup', 'Setup', row(LABEL.for, selBtn('for', c.for, LABEL.for)) + `<p class="muted wfx-p">Test runs skip the wait.</p>`) + outs();
+    if (n.type === 'wait') h += sec('setup', 'Setup', row(LABEL.for, selBtn('for', c.for, LABEL.for)) + `<p class="sti-p">Test runs skip the wait.</p>`) + outs();
     h += `<div class="wfx-insp-f"><span class="muted">Changes save to the draft</span><button class="pill line sm" data-a="test">${I('play', 'xs')}Test this step</button></div>`;
-    const keep = insp.scrollTop, foc = document.activeElement && insp.contains(document.activeElement) ? (document.activeElement.dataset.f || (document.activeElement.classList.contains('wfx-ta') ? 'ta' : document.activeElement.classList.contains('wfx-insp-n') ? 'name' : null)) : null;
-    insp.innerHTML = h; insp.scrollTop = keep;
-    if (foc){ const el = foc === 'ta' ? $('.wfx-ta', insp) : foc === 'name' ? $('.wfx-insp-n', insp) : $(`[data-f="${foc}"]`, insp); if (el && el.tagName !== 'BUTTON') el.focus({ preventScroll:true }); }
+    const ae = document.activeElement, keep = insp.scrollTop, foc = ae && insp.contains(ae) ? (ae.dataset.f || (ae.classList.contains('sti-ins') ? 'ins' : ae.classList.contains('sti-n') ? 'name' : null)) : null;
+    insp.innerHTML = h; insp.scrollTop = keep; caret = null;
+    $$('.sti-seg', insp).forEach(g => seg(g));
+    if (foc){ const el = foc === 'ins' ? $('.sti-ins', insp) : foc === 'name' ? $('.sti-n', insp) : $(`[data-f="${foc}"]`, insp); if (el && el.tagName !== 'BUTTON'){ el.focus({ preventScroll:true }); if (foc === 'ins') caretAt(el, null); } }
   }
-  // the data the instructions read, and any that isn't from an earlier step
-  function usesHTML(n){
-    const used = [...new Set([...n.cfg.prompt.matchAll(/\{\{\s*([\w]+\.[\w]+)\s*\}\}/g)].map(m => m[1]))]; if (!used.length) return '';
-    const ok = new Set(upstream(n.id).flatMap(u => u.out.map(o => u.ref + '.' + o[0])));
-    return `<div class="wfx-uses"><span class="muted">Reads</span>${used.map(u => ok.has(u) ? tok(u) : `<span class="wfx-tok bad" data-tip="Not from an earlier step">${I('alert', 'xs')}<span>${esc(u)}</span></span>`).join('')}</div>`;
-  }
+  // puts the caret in the instructions after the token at index i, or at their end
+  function caretAt(box, i){ const r = document.createRange(), t = i == null ? null : $$('[data-ref]', box)[i]; if (t){ r.setStartAfter(t.nextSibling || t); } else { r.selectNodeContents(box); r.collapse(false); } r.collapse(true); const s = getSelection(); s.removeAllRanges(); s.addRange(r); }
   const editNode = (desc, key, fn, o) => { const n = byId(selId); if (!n) return; commit(desc, () => fn(n), { key:n.id + '.' + key, ...o }); };
   // clicks in the inspector: sections, steps, the select menus, the data picker, steppers, switches and buttons
   insp.addEventListener('click', e => {
@@ -616,15 +633,20 @@
     if (b.dataset.go){ select(b.dataset.go, { open:true }); return; }
     if (!n) return;
     const f = b.dataset.f, a = b.dataset.a;
-    if (b.matches('.wfx-sel, .dtp-add[data-f]')) return buildSel(n, f);
+    if (b.matches('.sti-sel, .sti-add[data-f]')) return buildSel(n, f);
     if (b.matches('[data-pop="#wf-p-var"]')){
-      if (f === 'prompt'){ const ta = $('.wfx-ta', insp), at0 = ta.selectionStart ?? ta.value.length;
-        return openVar({ node:n.id, cur:null, set:ref => { const v = ta.value, ins = `{{${ref}}}`; editNode(`Edited the instructions on ${n.t}`, 'prompt', x => { x.cfg.prompt = v.slice(0, at0) + ins + v.slice(at0); }); const t2 = $('.wfx-ta', insp); if (t2){ t2.focus(); t2.setSelectionRange(at0 + ins.length, at0 + ins.length); } } }); }
+      // Insert data puts a token where the caret was in the instructions, or at their end
+      if (f === 'prompt'){ const box = $('.sti-ins', insp), at0 = caret && box && box.contains(caret.startContainer) ? caret.cloneRange() : null;
+        return openVar({ node:n.id, cur:null, set:ref => { const bx = $('.sti-ins', insp); if (!bx) return; const t = html(tok(ref, ` contenteditable="false" data-ref="${ref}"`)), sp = document.createTextNode(' ');
+          if (at0 && bx.contains(at0.startContainer)){ at0.collapse(false); at0.insertNode(sp); at0.insertNode(t); } else bx.append(t, sp);
+          const i = $$('[data-ref]', bx).indexOf(t), v = readIns(bx);
+          editNode(`Edited the instructions on ${n.t}`, 'prompt', x => { x.cfg.prompt = v; });
+          const b2 = $('.sti-ins', insp); if (b2){ b2.focus({ preventScroll:true }); caretAt(b2, i); const nt = $$('[data-ref]', b2)[i]; if (nt && !REDUCE) nt.classList.add('new'); } } }); }
       return openVar({ node:n.id, cur:getF(n, f), set:ref => editNode(`Mapped ${f.split('.').pop()} on ${n.t}`, f, x => setF(x, f, ref)) });
     }
     if (b.dataset.d){ if (b.getAttribute('aria-disabled') === 'true') return; const v = clamp((getF(n, f) || 0) + +b.dataset.d, 0, 5); editNode(`Set retries on ${n.t} to ${v}`, f, x => setF(x, f, v)); return; }
     if (b.matches('.wfx-tg')){ const v = b.getAttribute('aria-checked') !== 'true'; editNode(`${v ? 'Turned on' : 'Turned off'} caching on ${n.t}`, f, x => setF(x, f, v)); return; }
-    if (b.closest('.wfx-seg')){ const g = b.closest('.wfx-seg'); editNode(`Changed the wait between tries on ${n.t}`, g.dataset.f, x => setF(x, g.dataset.f, b.dataset.v)); return; }
+    if (b.closest('.sti-seg')){ const g = b.closest('.sti-seg'); editNode(`Changed the wait between tries on ${n.t}`, g.dataset.f, x => setF(x, g.dataset.f, b.dataset.v)); return; }
     if (a === 'close') return select(null);
     if (a === 'test') return testStep(n.id);
     if (a === 'data'){ openDrawer(true); setDrTab('data'); dataTab = n.ref; paintData(); return; }
@@ -638,17 +660,21 @@
   let typed = false;
   insp.addEventListener('input', e => {
     const n = byId(selId); if (!n) return; const t = e.target; typed = true;
-    if (t.matches('.wfx-insp-n')){ const v = t.value.trim() || TYPES[n.type].k, was = n.t; commit(`Renamed a step to ${v}`, () => { n.t = v; }, { key:n.id + '.name', quiet:true }); const el = $(`.wfx-node[data-id="${n.id}"] .wfx-n1 .t`, nodesEl); if (el) el.textContent = v; if (was !== v) say(''); }
-    if (t.matches('.wfx-ta')) commit(`Edited the instructions on ${n.t}`, () => { n.cfg.prompt = t.value; }, { key:n.id + '.prompt', quiet:true });
+    if (t.matches('.sti-n')){ const v = t.value.trim() || TYPES[n.type].k, was = n.t; commit(`Renamed a step to ${v}`, () => { n.t = v; }, { key:n.id + '.name', quiet:true }); const el = $(`.wfx-node[data-id="${n.id}"] .wfx-n1 .t`, nodesEl); if (el) el.textContent = v; if (was !== v) say(''); }
+    if (t.matches('.sti-ins')) commit(`Edited the instructions on ${n.t}`, () => { n.cfg.prompt = readIns(t); }, { key:n.id + '.prompt', quiet:true });
     if (t.dataset.f === 'rule.n'){ const v = clamp(+t.value || 0, 0, 1000); commit(`Set the threshold on ${n.t} to ${v}`, () => { n.cfg.rule.n = v; }, { key:n.id + '.rule', quiet:true }); const m = $(`.wfx-node[data-id="${n.id}"] .m`, nodesEl); if (m) m.innerHTML = meta(n); }
   });
-  // the instructions show which data they read once you stop typing
+  // once you stop typing, the canvas catches up, and a {{step.field}} typed into the instructions becomes a token
   insp.addEventListener('focusout', e => {
-    if (!e.target.matches('.wfx-ta, .wfx-insp-n, [data-f="rule.n"]') || !typed) return; typed = false;
+    if (!e.target.matches('.sti-ins, .sti-n, [data-f="rule.n"]') || !typed) return; typed = false;
     const n = byId(selId); renderCanvas(); paintTop();
-    if (n && e.target.matches('.wfx-ta')){ const u = $('.wfx-uses', insp), h = usesHTML(n); if (u) u.outerHTML = h || ''; else if (h) e.target.insertAdjacentHTML('afterend', h); }
+    if (n && e.target.matches('.sti-ins') && /\{\{/.test(e.target.textContent)) e.target.innerHTML = insHTML(n, reach(n));
   });
-  insp.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.matches('.wfx-insp-n')){ e.preventDefault(); e.target.blur(); } });
+  insp.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && e.target.matches('.sti-n')){ e.preventDefault(); e.target.blur(); }
+    // Enter starts a new line in the instructions as plain text, so the box never fills with markup
+    if (e.key === 'Enter' && e.target.matches('.sti-ins')){ e.preventDefault(); const s = getSelection(); if (!s.rangeCount) return; const rg = s.getRangeAt(0); rg.deleteContents(); const nl = document.createTextNode('\n'); rg.insertNode(nl); rg.setStartAfter(nl); rg.collapse(true); s.removeAllRanges(); s.addRange(rg); e.target.dispatchEvent(new Event('input', { bubbles:true })); }
+  });
   // one menu for every select in the inspector, built as it opens
   const ck = `<span class="ck">${I('check', 'xs')}</span>`;
   const mi = (attrs, body, role = 'menuitemradio', checked = false) => `<button class="mi" role="${role}" aria-checked="${checked}" tabindex="-1" data-close ${attrs}>${body}${role !== 'menuitem' ? ck : ''}</button>`;
@@ -776,24 +802,29 @@
     finishNode(C, n, t); C.pos++; advance(C, t);
   }
 
-  /* ---------- wfx-drawer: the run drawer, with Trace view's rows, Action log's rows and Code viewer ---------- */
-  const dr = $('.wfx-drawer', app), drT = $('.wfx-dr-t', dr), drMeta = $('.wfx-dr-meta', dr), drTg = $('.wfx-dr-tg', dr), drNote = $('.wfx-dr-note', dr);
-  const trv = $('.wf-trv', dr), trRows = $('.trv-rows', trv), trSc = $('.trv-sc', trv), logEl = $('.wf-log', dr), stopB = $('.wfx-dr-stop', dr), followB = $('.wfx-dr-follow', dr);
-  let drTab = 'steps', dataTab = null, follow = true;
-  function openDrawer(on){ app.classList.toggle('dro', on); drTg.setAttribute('aria-expanded', String(on)); drTg.setAttribute('aria-label', on ? 'Hide the run' : 'Show the run'); }
-  drTg.onclick = () => openDrawer(!app.classList.contains('dro'));
-  const drSeg = seg($('.wfx-dr-tabs', dr), v => setDrTab(v));
-  function setDrTab(v){ drTab = v; $$('.wfx-dr-tabs button', dr).forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === v))); drSeg.place(); $$('.wfx-dr-v', dr).forEach(x => x.hidden = x.dataset.v !== v); if (v === 'data') paintData(); }
+  /* ---------- the run drawer: Run drawer, its timeline, its log and its data ---------- */
+  const dr = $('.wf-dr', app), drT = $('.rdr-tg', dr), drMeta = $('.rdr-meta', dr), drTg = $('.rdr-tg', dr), drNote = $('.wfx-dr-note', dr), drB = $('.rdr-b', dr);
+  const trRows = $('.rdr-rows', dr), trSc = $('.rdr-sc', dr), logEl = $('.rdr-log', dr), logN0 = $('.rdr-lf .n', dr), stopB = $('.rdr-stop', dr), followB = $('.rdr-follow', dr);
+  let drTab = 'steps', dataTab = null, follow = true, lvl = 'all';
+  function openDrawer(on){ dr.classList.add('anim'); dr.classList.toggle('shut', !on); app.classList.toggle('dro', on); drTg.setAttribute('aria-expanded', String(on)); drTg.setAttribute('aria-label', on ? 'Hide the run' : 'Show the run'); setTimeout(() => dr.classList.remove('anim'), REDUCE ? 0 : 500); }
+  drTg.onclick = () => openDrawer(dr.classList.contains('shut'));
+  const drSeg = seg($('.rdr-tabs', dr), v => setDrTab(v));
+  function setDrTab(v){ drTab = v; $$('.rdr-tabs button', dr).forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === v))); drSeg.place(); $$('.rdr-v', dr).forEach(x => x.hidden = x.dataset.v !== v); if (v === 'data') paintData(); }
+  // the log's levels: all of them, the warnings or the errors
+  seg($('.rdr-lvs', dr), v => { lvl = v; filterLog(); });
+  function filterLog(){ let n = 0; $$('.rdr-l', logEl).forEach(li => { li.hidden = lvl !== 'all' && li.dataset.l !== lvl; if (!li.hidden) n++; }); logN0.textContent = `${n} ${n === 1 ? 'line' : 'lines'}`;
+    const e = $('.rdr-le', logEl.parentElement); if (!n && !e) logEl.insertAdjacentHTML('afterend', `<p class="rdr-le">${R ? `No ${lvl === 'warn' ? 'warnings' : lvl === 'error' ? 'errors' : 'lines'} in this run yet.` : 'Run a test to see its log.'}</p>`); if (n && e) e.remove(); }
   followB.onclick = () => { follow = !follow; followB.setAttribute('aria-pressed', String(follow)); followB.dataset.tip = follow ? 'Follow the run' : 'Stay put'; };
   // the drawer's height: drag its top edge, or use the arrow keys on it
-  { const grip = $('.wfx-dr-grip', dr); let g = null;
-    const setH = h => { h = clamp(Math.round(h), 160, Math.min(560, app.clientHeight - 200)); app.style.setProperty('--wf-drh', h + 'px'); grip.setAttribute('aria-valuenow', h); };
-    grip.addEventListener('pointerdown', e => { g = { y:e.clientY, h:dr.getBoundingClientRect().height }; grip.setPointerCapture(e.pointerId); app.classList.add('drag-dr'); if (!app.classList.contains('dro')) openDrawer(true); });
+  { const grip = $('.rdr-grip', dr); let g = null;
+    const setH = h => { h = clamp(Math.round(h), 160, Math.min(560, app.clientHeight - 200)); dr.style.setProperty('--rdr-h', h + 'px'); grip.setAttribute('aria-valuenow', h); };
+    grip.addEventListener('pointerdown', e => { g = { y:e.clientY, h:dr.classList.contains('shut') ? 45 : dr.getBoundingClientRect().height }; grip.setPointerCapture(e.pointerId); grip.classList.add('on'); dr.classList.add('drag'); app.classList.add('drag-dr'); if (dr.classList.contains('shut')){ dr.classList.remove('shut'); app.classList.add('dro'); drTg.setAttribute('aria-expanded', 'true'); } });
     grip.addEventListener('pointermove', e => { if (g) setH(g.h - (e.clientY - g.y)); });
-    const up = () => { g = null; app.classList.remove('drag-dr'); }; grip.addEventListener('pointerup', up); grip.addEventListener('pointercancel', up);
-    grip.addEventListener('keydown', e => { const d = e.key === 'ArrowUp' ? 24 : e.key === 'ArrowDown' ? -24 : 0; if (!d) return; e.preventDefault(); if (!app.classList.contains('dro')) openDrawer(true); setH(dr.getBoundingClientRect().height + d); }); }
+    const up = () => { g = null; grip.classList.remove('on'); dr.classList.remove('drag'); app.classList.remove('drag-dr'); }; grip.addEventListener('pointerup', up); grip.addEventListener('pointercancel', up);
+    grip.addEventListener('keydown', e => { const d = e.key === 'ArrowUp' ? 24 : e.key === 'ArrowDown' ? -24 : 0; let h = d ? dr.getBoundingClientRect().height + d : null; if (e.key === 'Home') h = 160; if (e.key === 'End') h = 560; if (h == null) return; e.preventDefault(); if (dr.classList.contains('shut')) openDrawer(true); setH(h); }); }
 
-  const COL_K = { ok:'var(--dm-accent-mark,var(--dm-accent))', run:'var(--dm-accent-mark,var(--dm-accent))', bad:'var(--dm-bad)', retry:'var(--dm-warn-mark)', wait:'var(--dm-warn-mark)', stop:'var(--dm-faint)' };
+  // the kind of each span, for its tile and its bar's colour: a step's own kind, its model and tool calls, a wait to retry
+  const kOf = s => s.k === 'step' ? byId(s.node)?.type || 'app' : s.k;
   const stOf = (s, t) => s.e == null ? (R && R.state === 'stopped' ? 'stop' : 'wait') : t < s.e ? (s.k === 'retry' ? 'retry' : 'run') : s.st;
   let rowEls = new Map(), axisN = 0, nodeCache = new Map(), logN = 0;
   function startRun({ only = null, lead = W.lead } = {}){
@@ -810,7 +841,7 @@
     paintTop(); tick();
     say(only ? `Testing ${byId(only).t}` : 'Test run started');
   }
-  function resetRunView(){ trRows.innerHTML = ''; logEl.innerHTML = ''; rowEls = new Map(); nodeCache = new Map(); logN = 0; axisN = 0; drNote.innerHTML = ''; dataTab = null; }
+  function resetRunView(){ trRows.innerHTML = ''; logEl.innerHTML = ''; rowEls = new Map(); nodeCache = new Map(); logN = 0; axisN = 0; drNote.innerHTML = ''; dataTab = null; filterLog(); }
   function tick(){
     if (!R || !R.live) return;
     R.now = (performance.now() - R.t0) / 1000;
@@ -838,7 +869,7 @@
   }
   stopB.onclick = () => { if (!R || !R.live) return; cancelAnimationFrame(R.raf); R.live = false; R.state = 'stopped'; R.now = Math.min(R.now, R.C.segEnd);
     R.C.spans.forEach(s => { if (s.s > R.now){ s.gone = true; } else if (s.e == null || s.e > R.now){ s.e = R.now; s.st = 'stop'; } }); R.C.logs = R.C.logs.filter(l => l.at <= R.now); R.C.end = { t:R.now, failed:null, stopped:true };
-    logAt(R.C, R.now, 'stop', 'Run stopped', 'You stopped it', ''); stopB.hidden = true; $('.wf-test', app).classList.remove('on'); drNote.innerHTML = ''; paintRun(); paintTop(); toast('info', 'Run stopped', 'Nothing after this point ran'); };
+    logAt(R.C, R.now, 'stop', 'Run stopped', 'You stopped it', 'warn'); stopB.hidden = true; $('.wf-test', app).classList.remove('on'); $$('.rdr-ask', trRows).forEach(x => x.remove()); drNote.innerHTML = ''; paintRun(); paintTop(); toast('info', 'Run stopped', 'Nothing after this point ran'); };
   // a past run, shown whole
   function showRun(run){
     if (R && R.live){ toast('info', 'A test is running', 'Stop it first to look at another run'); return; }
@@ -885,32 +916,33 @@
     }); $$('.wfx-elab', nodesEl).forEach(l => { const e = W.edges[+l.dataset.e]; l.classList.toggle('skip', !!(e && C.skip.has(e.t) && t >= (C.skipAt ?? 1e9))); l.classList.toggle('done', !!(e && C.active.has(e.f + '>' + e.t) && C.spans.some(s => s.node === e.t && s.s <= t))); }); }
     else { $$('path.e', svg).forEach(p => p.classList.remove('done', 'skip')); $$('.wfx-elab', nodesEl).forEach(l => l.classList.remove('skip', 'done')); }
     if (!R) return;
-    // the trace: one row per span, on an axis that grows with the run
+    // the timeline: one row per span, each bar in its kind's colour, on an axis that grows with the run
     const SPAN = Math.max(10, Math.ceil((Math.max(t, ...C.spans.filter(s => s.s <= t && !s.gone).map(s => s.e != null ? Math.min(s.e, t) : t)) + 1) / 2) * 2);
-    const wpx = trSc.clientWidth || 300, stp = [2, 5, 10, 20, 30, 60].find(x => SPAN / x * 28 <= wpx) || 60;
-    if (SPAN * 100 + stp !== axisN){ axisN = SPAN * 100 + stp; trSc.innerHTML = Array.from({ length:Math.floor(SPAN / stp) }, (_, i) => `<span style="left:${i * stp / SPAN * 100}%">${i * stp}s</span>`).join(''); }
-    trv.style.setProperty('--dm-now', String(t / SPAN)); trv.classList.toggle('live', !!R.live);
+    const wpx = trSc.clientWidth || 300, stp = [2, 5, 10, 20, 30, 60].find(x => SPAN / x * 34 <= wpx) || 60;
+    if (SPAN * 100 + stp !== axisN){ axisN = SPAN * 100 + stp; trRows.style.setProperty('--rdr-g', (stp / SPAN * 100) + '%'); trSc.innerHTML = Array.from({ length:Math.floor(SPAN / stp) }, (_, i) => `<span style="left:${i * stp / SPAN * 100}%">${i * stp}s</span>`).join(''); }
     C.spans.forEach(s => {
       if (s.gone || s.s > t + 1e-6) return;
       let el = rowEls.get(s.id);
       if (!el){
-        el = html(`<button type="button" class="trv-r${s.lv ? '' : ' root'}" data-span="${s.id}" data-node="${s.node}" style="--dm-lv:${s.lv}"><span class="trv-n"><span class="trv-k">${I(s.ic, 'xs')}</span><span class="trv-nm">${esc(s.n)}</span></span><span class="trv-b"><i></i></span><span class="trv-tk num">${s.tok ? (s.tok / 1000).toFixed(1) + 'k' : ''}</span><span class="trv-ms num"></span></button>`);
-        trRows.appendChild(el); rowEls.set(s.id, el); if (R.live && !REDUCE) enter(el);
+        const k = kOf(s);
+        el = html(`<button type="button" class="rdr-r" data-span="${s.id}" data-node="${s.node}" data-k="${k}" data-lv="${s.lv}" style="--lv:${s.lv}" aria-pressed="${s.node === selId}"><span class="rdr-n"><span class="rdr-ti" data-k="${k}" aria-hidden="true">${I(s.ic, 'xs')}</span><span class="rdr-nm">${esc(s.n)}</span></span><span class="rdr-bt"><i></i></span><span class="rdr-ms num"></span></button>`);
+        trRows.appendChild(el); rowEls.set(s.id, el); if (R.live && !REDUCE) el.classList.add('in');
       }
       const st = stOf(s, t), e = s.e == null ? t : Math.min(s.e, t);
-      el.style.setProperty('--dm-k', COL_K[st === 'okr' ? 'ok' : st] || COL_K.ok);
-      el.classList.toggle('run', st === 'run'); el.classList.toggle('slow', st === 'retry' || st === 'wait'); el.classList.toggle('bad', st === 'bad');
-      const i = $('.trv-b i', el); i.style.left = (s.s / SPAN * 100) + '%'; i.style.width = Math.max(.4, (e - s.s) / SPAN * 100) + '%';
-      $('.trv-ms', el).textContent = st === 'wait' ? 'Waiting' : s.note && s.note !== 'You' ? s.note : secs(e - s.s);
+      el.dataset.st = st === 'okr' ? 'ok' : st; el.classList.toggle('run', st === 'run');
+      const i = $('.rdr-bt i', el); i.style.left = (s.s / SPAN * 100) + '%'; i.style.width = Math.max(.4, (e - s.s) / SPAN * 100) + '%';
+      $('.rdr-ms', el).textContent = st === 'wait' ? 'Waiting' : st === 'bad' ? 'Failed' : s.note && s.note !== 'You' ? s.note : secs(e - s.s);
       el.setAttribute('aria-label', `${s.n}, ${st === 'run' ? 'running' : st === 'retry' ? 'waiting to try again' : st === 'bad' ? 'failed' : st === 'wait' ? 'waiting' : st === 'stop' ? 'stopped' : 'done'}, ${secs(e - s.s)}`);
     });
-    // the log, a line at a time
+    // the log, a line at a time, its levels in colour
+    const LV = { bad:'error', warn:'warn', ok:'info' };
     const L = C.logs.filter(l => l.at <= t + 1e-6).sort((a, b) => a.at - b.at);
-    for (; logN < L.length; logN++){ const l = L[logN];
-      const li = html(`<li class="alg-it${l.tone ? ' ' + l.tone : ''}"><button class="alg-row" aria-expanded="false"${l.det ? '' : ' disabled'}><span class="alg-ic">${I(l.ic, 'xs')}</span><span class="alg-tx"><b>${esc(l.b)}</b><span class="d">${esc(l.d)}</span></span><span class="alg-r"><span class="num">${l.at.toFixed(2)}s</span>${l.det ? `<span class="g">${I('chev-d', 'xs')}</span>` : ''}</span></button>${l.det ? `<div class="fold shut alg-det"><div><pre>${esc(l.det)}</pre></div></div>` : ''}</li>`);
-      logEl.appendChild(li); if (R.live && !REDUCE) enter(li); }
-    if (R.live && drTab === 'log'){ const b = logEl.closest('.wfx-dr-b'); b.scrollTop = b.scrollHeight; }
-    if (R.live && drTab === 'steps'){ const b = trRows.closest('.wfx-dr-b'), last = trRows.lastElementChild; if (last && last.offsetTop + last.offsetHeight > b.scrollTop + b.clientHeight) b.scrollTop = last.offsetTop + last.offsetHeight - b.clientHeight + 8; }
+    for (; logN < L.length; logN++){ const l = L[logN], lv = LV[l.tone] || 'debug';
+      const li = html(`<li class="rdr-l" data-l="${lv}"><span class="t num">${l.at.toFixed(2)}s</span><span class="lv tag" data-l="${lv}">${lv}</span><span class="m"><b>${esc(l.b)}</b> <span>${esc(l.d)}</span></span></li>`);
+      logEl.appendChild(li); if (R.live && !REDUCE) li.classList.add('in'); }
+    filterLog();
+    if (R.live && drTab === 'log' && follow) drB.scrollTop = drB.scrollHeight;
+    if (R.live && drTab === 'steps' && follow){ const last = trRows.lastElementChild; if (last && last.offsetTop + last.offsetHeight > drB.scrollTop + drB.clientHeight) drB.scrollTop = last.offsetTop + last.offsetHeight - drB.clientHeight + 8; }
     // while a step waits to try again, the drawer says why
     if (R.live && R.state === 'run'){
       const rs = C.spans.find(s => s.k === 'retry' && s.s <= t && t < s.e), key = rs ? rs.id : 0;
@@ -923,48 +955,54 @@
     if (drTab === 'data' && (done || Math.floor(t * 4) !== R._dq)){ R._dq = Math.floor(t * 4); paintData(); }
   }
   function paintHead(){
-    if (!R){ const last = W.runs[0];
-      drT.innerHTML = last ? `<span class="dot" style="color:${last.out === 'bad' ? 'var(--dm-bad)' : last.out === 'wait' ? 'var(--dm-warn-mark)' : 'var(--dm-ok-mark)'}"></span>Last run, #${last.id}` : 'No runs yet';
+    // the run's state in colour: running in the accent, waiting amber, passed green, failed red, stopped grey
+    const TAG = { run:['run', '<span class="spin"></span>Running'], wait:['warn', 'Waiting'], ok:['ok', 'Passed'], bad:['bad', 'Failed'], stopped:['', 'Stopped'] };
+    if (!R){ const last = W.runs[0], tg = last && TAG[last.out];
+      drT.innerHTML = I('chev-u', 'xs') + (last ? `<span><span class="w">Last run </span><span class="num">#${last.id}</span></span><span class="rdr-st tag ${tg[0]}">${tg[1]}</span>` : '<span>No runs yet</span>');
       drMeta.textContent = last ? `${last.path}, ${last.when}` : 'Press Test run to try the workflow'; return; }
-    const C = R.C, st = R.live ? (R.state === 'wait' ? 'wait' : 'run') : R.state;
-    const tag = { run:'<span class="tag"><span class="spin"></span>Running</span>', wait:'<span class="tag warn">Waiting</span>', ok:'<span class="tag ok">Passed</span>', bad:'<span class="tag bad">Failed</span>', stopped:'<span class="tag">Stopped</span>' }[st];
-    drT.innerHTML = `<span class="w">${R.only ? 'Step test' : R.test ? 'Test run' : 'Run'} </span>#${R.id}${tag}`;
+    const C = R.C, st = R.live ? (R.state === 'wait' ? 'wait' : 'run') : R.state, tg = TAG[st];
+    drT.innerHTML = I('chev-u', 'xs') + `<span><span class="w">${R.only ? 'Step test' : R.test ? 'Test run' : 'Run'} </span><span class="num">#${R.id}</span></span><span class="rdr-st tag ${tg[0]}">${tg[1]}</span>`;
     const tokNow = sum(C.spans.filter(s => s.tok && s.s <= R.now), s => s.tok);
     drMeta.textContent = [R.only ? byId(R.only)?.t : R.L ? R.L.n + ', ' + R.L.co : 'Sample data', secs(R.now), tokNow ? `${(tokNow / 1000).toFixed(1)}k tokens, $${(tokNow * .0000045).toFixed(3)}` : ''].filter(Boolean).join(', ');
   }
-  logEl.addEventListener('click', e => { const b = e.target.closest('.alg-row'); if (!b || b.disabled) return; const f = b.nextElementSibling; if (!f) return; const open = f.classList.toggle('shut') === false; b.setAttribute('aria-expanded', String(open)); });
-  trRows.addEventListener('click', e => { const b = e.target.closest('.trv-r'); if (!b) return; select(b.dataset.node, { open:true }); $$('.trv-r', trRows).forEach(r => r.setAttribute('aria-pressed', String(r.dataset.node === b.dataset.node))); });
-  // the data each step handed on, as JSON in Code viewer
-  const cvTabs = $('.wf-cvx .cvx-tabs', dr), cvCode = $('.wf-cvx .cvx-code', dr), cvMeta = $('.wf-cvx .cvx-meta', dr);
-  const jsonHTML = s => esc(s).replace(/(&quot;[^&]*?&quot;)(\s*:)?/g, (m, a, colon) => colon ? `<span class="at">${a}</span>${colon}` : `<span class="s">${a}</span>`).replace(/\b(-?\d+(?:\.\d+)?|true|false|null)\b(?![^<]*<\/span>)/g, '<span class="k">$1</span>');
+  trRows.addEventListener('click', e => { const b = e.target.closest('.rdr-r'); if (!b) return; select(b.dataset.node, { open:true }); $$('.rdr-r', trRows).forEach(r => r.setAttribute('aria-pressed', String(r.dataset.node === b.dataset.node))); });
+  // what each step took in and handed on, as JSON
+  const jsonHTML = o => esc(JSON.stringify(o, null, 2)).replace(/(&quot;[^&]*?&quot;)(\s*:)?|\b(-?\d+(?:\.\d+)?|true|false|null)\b/g, (m, s, colon, n) => s ? (colon ? `<span class="k">${s}</span>${colon}` : `<span class="s">${s}</span>`) : `<span class="n">${n}</span>`);
+  const dsEl = $('.rdr-ds', dr), ioEl = $('.rdr-io', dr);
+  // a step's input: what its fields were mapped from, as they were in this run
+  const inOf = (n, C) => { if (n.type === 'trigger') return C.L ? { lead:C.L.n, email:C.L.email, company:C.L.co } : { source:n.cfg.source };
+    const o = {}; Object.entries(n.cfg.in || {}).forEach(([k, v]) => { const { n:src, k:f } = vref(v); o[k] = src && C.out[src.ref] ? C.out[src.ref][f] ?? null : null; });
+    if (n.type === 'branch'){ const { n:src, k:f } = vref(n.cfg.rule.v); o[f || 'value'] = src && C.out[src.ref] ? C.out[src.ref][f] : null; o.rule = `${f} ${n.cfg.rule.op} ${n.cfg.rule.n}`; }
+    return o; };
   function paintData(){
-    if (!R){ cvTabs.innerHTML = ''; cvCode.innerHTML = `<span class="cvx-l"><span class="n"></span><span class="c muted">Run a test to see the data each step hands on.</span></span>`; return; }
+    if (!R){ dsEl.innerHTML = ''; ioEl.innerHTML = '<p class="rdr-de">Run a test to see the data each step takes in and hands on.</p>'; return; }
     const t = R.now, ready = W.nodes.filter(n => R.C.out[n.ref] && R.C.spans.some(s => s.node === n.id && s.e != null && s.e <= t + 1e-6 && s.st !== 'bad'));
-    if (!ready.length){ cvTabs.innerHTML = ''; cvCode.innerHTML = `<span class="cvx-l"><span class="n"></span><span class="c muted">No step has finished yet.</span></span>`; cvMeta.textContent = ''; return; }
+    if (!ready.length){ dsEl.innerHTML = ''; ioEl.innerHTML = '<p class="rdr-de">No step has finished yet.</p>'; return; }
     if (!ready.some(n => n.ref === dataTab)) dataTab = ready[ready.length - 1].ref;
-    cvTabs.innerHTML = ready.map(n => `<button class="cvx-tab${n.ref === dataTab ? ' on' : ''}" role="tab" aria-selected="${n.ref === dataTab}" data-ref="${n.ref}">${esc(n.ref)}</button>`).join('');
-    const j = JSON.stringify(R.C.out[dataTab], null, 2);
-    cvCode.innerHTML = j.split('\n').map((l, i) => `<span class="cvx-l"><span class="n">${i + 1}</span><span class="c">${jsonHTML(l)}</span></span>`).join('');
-    cvMeta.textContent = `${byRef(dataTab)?.t || dataTab}, ${(j.length / 1024).toFixed(1)} KB`;
+    dsEl.innerHTML = ready.map(n => `<button data-ref="${n.ref}" aria-pressed="${n.ref === dataTab}"><span class="rdr-ti" data-k="${n.type}" aria-hidden="true">${I(n.ic, 'xs')}</span><span>${esc(n.t)}</span></button>`).join('');
+    const n = byRef(dataTab);
+    ioEl.innerHTML = `<h4>Input</h4><pre class="rdr-json" tabindex="0" aria-label="${esc(n.t)} input">${jsonHTML(inOf(n, R.C))}</pre><h4>Output</h4><pre class="rdr-json" tabindex="0" aria-label="${esc(n.t)} output">${jsonHTML(R.C.out[dataTab])}</pre>`;
   }
-  cvTabs.addEventListener('click', e => { const b = e.target.closest('.cvx-tab'); if (!b) return; dataTab = b.dataset.ref; paintData(); });
-  // in a test run the person approving is you: the drafted reply, with approve, edit and reject
+  dsEl.addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; dataTab = b.dataset.ref; paintData(); });
+  // in a test run the person approving is you: Run drawer's question, under the step that waits, with the drafted reply
   function approvalCard(){
     const C = R.C, n = byId(C.pause.node), draft = upstream(n.id).filter(u => u.type === 'ai').pop(), o = draft && C.out[draft.ref];
-    drNote.innerHTML = `<div class="wfx-appr" role="group" aria-label="Approve the reply"><div class="wfx-appr-h"><span class="wfx-ic">${I('user', 'xs')}</span><span class="tx"><b>${esc(n.t)}: your call</b><span>Live runs ask ${n.cfg.who.map(w => P[w][0]).join(' or ')} in ${VIA[n.cfg.via] || n.cfg.via}. In a test, you decide.</span></span></div>`
-      + (o ? `<div class="wfx-appr-m">${o.subject ? `<b>${esc(o.subject)}</b>` : ''}<p>${esc(o.body || o.text || '')}</p></div>` : '')
-      + `<div class="wfx-appr-a"><button class="pill primary sm" data-a="yes">${I('check', 'xs')}Approve</button><button class="pill line sm" data-a="edit">${I('edit', 'xs')}Edit the draft step</button><span class="wf-sp"></span><button class="pill ghost sm" data-a="no">Reject</button></div></div>`;
-    if (!REDUCE) enter(drNote.firstElementChild);
-    $('[data-a="yes"]', drNote).onclick = () => resume(true);
-    $('[data-a="no"]', drNote).onclick = () => resume(false);
-    $('[data-a="edit"]', drNote).onclick = () => { if (draft) select(draft.id, { open:true }); };
+    const el = rowEls.get(C.pause.span.id); if (!el) return;
+    $$('.rdr-ask', trRows).forEach(x => x.remove());
+    el.insertAdjacentHTML('afterend', `<div class="rdr-ask wf-ask" role="group" aria-label="Approve the reply"><span class="rdr-ti" data-k="approval" aria-hidden="true">${I('user', 'xs')}</span><span class="tx"><b>${esc(n.t)}: your call</b><span>Live runs ask ${n.cfg.who.map(w => P[w][0]).join(' or ')} in ${VIA[n.cfg.via] || n.cfg.via}. In a test, you decide.</span>${o ? `<span class="wf-draft">${o.subject ? `<b>${esc(o.subject)}</b> ` : ''}${esc(o.body || o.text || '')}</span>` : ''}</span>`
+      + `<span class="acts"><button class="pill primary sm" data-a="yes">${I('check', 'xs')}Approve</button><button class="pill line sm" data-a="edit">${I('edit', 'xs')}Edit the draft step</button><button class="pill ghost sm" data-a="no">Reject</button></span></div>`);
+    const card = el.nextElementSibling; if (!REDUCE) card.classList.add('in');
+    if (drTab === 'steps' && card.offsetTop + card.offsetHeight > drB.scrollTop + drB.clientHeight) drB.scrollTop = card.offsetTop + card.offsetHeight - drB.clientHeight + 8;
+    $('[data-a="yes"]', card).onclick = () => resume(true);
+    $('[data-a="no"]', card).onclick = () => resume(false);
+    $('[data-a="edit"]', card).onclick = () => { if (draft) select(draft.id, { open:true }); };
     say(`${n.t} is waiting for you to approve`);
     paintTop();
   }
   function resume(ok){
     if (!R || R.state !== 'wait') return;
     const C = R.C, shown = C.pause.at + 1.2;
-    R.t0 = performance.now() - shown * 1000; R.state = 'run'; drNote.innerHTML = '';
+    R.t0 = performance.now() - shown * 1000; R.state = 'run'; $$('.rdr-ask', trRows).forEach(x => x.remove());
     decide(C, shown, ok); R.now = shown; tick();
   }
   // wfx-fix: after a retry or a failure, the agent offers a change to the step that failed, applied to the draft in one go

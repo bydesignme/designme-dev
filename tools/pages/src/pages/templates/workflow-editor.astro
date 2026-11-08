@@ -3,8 +3,9 @@
 // An agent workflow on a canvas (trigger, AI steps with tools, a branch, a human approval, app steps and an output), a step
 // inspector, a run drawer with the trace, the log and the data, run history and versions. The shell is drawn with the
 // components' own classes and tokens, from their installed CSS, so the screen follows Soft and Blueprint, light and dark, with
-// the site's switches. Its data and interactions are one script (src/templates/workflow-editor/wf.js); the layout around the
-// components, and the parts the library doesn't have yet (wfx-*, candidates for new components), are
+// the site's switches. The step inspector, the data picker and the run drawer are the library's Step inspector, Data picker
+// and Run drawer (they started here). Its data and interactions are one script (src/templates/workflow-editor/wf.js); the
+// layout around the components, and the parts the library doesn't have yet (wfx-*, candidates for new components), are
 // src/templates/workflow-editor/wf.css. Noindex and out of the sitemap, llms.txt and the site's navigation.
 import fs from 'node:fs';
 import path from 'node:path';
@@ -12,8 +13,8 @@ import Page from '../../layouts/Page.astro';
 import { ROOT, COMPONENTS } from '../../lib/data.mjs';
 
 // the components the screen is made of, by their registry name: each one's installed CSS is on the page
-const USES = ['agent-harness', 'automation-canvas', 'canvas-toolbar', 'segmented-control', 'details-panel', 'form', 'trace-view', 'action-log',
-  'code-viewer', 'command-palette', 'toast', 'progress', 'profile-menu'];
+const USES = ['agent-harness', 'automation-canvas', 'canvas-toolbar', 'step-inspector', 'data-picker', 'run-drawer', 'segmented-control', 'form',
+  'action-log', 'command-palette', 'toast', 'progress', 'profile-menu'];
 const css = USES.map(reg => {
   const c = COMPONENTS.find(x => x.reg === reg);
   if (!c) throw new Error('workflow-editor: no component called ' + reg);
@@ -97,38 +98,38 @@ const I = (n, c = 's') => `<svg class="i ${c}" aria-hidden="true"><use href="#i-
             </div>
           </div>
 
-          <!-- the run drawer (wfx-drawer): Trace view's waterfall, Action log's rows and Code viewer's data, under the canvas -->
-          <section class="wfx-drawer" aria-label="Run">
-            <div class="wfx-dr-grip" role="separator" aria-orientation="horizontal" aria-label="Resize the run panel" tabindex="0" aria-valuemin="160" aria-valuemax="560"></div>
-            <div class="wfx-dr-h">
-              <button class="wfx-dr-tg" aria-expanded="false" aria-controls="wf-dr-b"><Fragment set:html={I('chev-u', 'xs')} /><span class="wfx-dr-t"></span></button>
-              <span class="wfx-dr-meta muted num"></span>
-              <span class="wf-sp"></span>
-              <div class="seg2 wfx-dr-tabs" role="group" aria-label="Show"><button aria-pressed="true" data-v="steps">Steps</button><button aria-pressed="false" data-v="log">Log</button><button aria-pressed="false" data-v="data">Data</button></div>
-              <button class="pill ghost sm wfx-dr-stop" aria-label="Stop the run" data-tip="Stop the run" hidden><Fragment set:html={I('stop', 'xs')} /><span>Stop</span></button>
-              <button class="ib wfx-dr-follow" aria-pressed="true" aria-label="Follow the run on the canvas" data-tip="Follow the run"><Fragment set:html={I('target', 'xs')} /></button>
+          <!-- the run drawer: Run drawer, under the canvas, with the agent's notes beside its steps -->
+          <div class="rdr-dw wf-dr shut" role="region" aria-label="Run">
+            <div class="rdr-grip" role="separator" aria-orientation="horizontal" aria-label="Resize the run panel" tabindex="0" aria-valuemin="160" aria-valuemax="560"><i></i></div>
+            <div class="rdr-h">
+              <button class="rdr-tg" aria-expanded="false" aria-controls="wf-dr-b"><Fragment set:html={I('chev-u', 'xs')} /></button>
+              <span class="rdr-meta num"></span>
+              <span class="rdr-sp"></span>
+              <div class="seg2 rdr-tabs" role="group" aria-label="Show"><button aria-pressed="true" data-v="steps">Steps</button><button aria-pressed="false" data-v="log">Log</button><button aria-pressed="false" data-v="data">Data</button></div>
+              <button class="pill ghost sm rdr-stop" aria-label="Stop the run" data-tip="Stop the run" hidden><Fragment set:html={I('stop', 'xs')} /><span>Stop</span></button>
+              <button class="ib rdr-follow" aria-pressed="true" aria-label="Follow the run on the canvas" data-tip="Follow the run"><Fragment set:html={I('target', 's')} /></button>
             </div>
-            <div class="wfx-dr-b" id="wf-dr-b">
-              <div class="wfx-dr-v" data-v="steps">
+            <div class="rdr-b" id="wf-dr-b">
+              <div class="rdr-v wf-steps" data-v="steps">
                 <div class="wfx-dr-note"></div>
-                <div class="trv wf-trv">
-                  <div class="trv-ax" aria-hidden="true"><span>Step</span><span class="trv-sc"></span><span class="trv-tk">Tokens</span><span class="trv-ms">Time</span></div>
-                  <div class="trv-rows" role="group" aria-label="Steps of the run"></div>
+                <div class="wf-tl">
+                  <div class="rdr-ax" aria-hidden="true"><span>Step</span><span class="rdr-sc"></span><span class="ms">Time</span></div>
+                  <div class="rdr-rows" role="group" aria-label="Steps of the run"></div>
                 </div>
               </div>
-              <div class="wfx-dr-v" data-v="log" hidden><ol class="alg-list wf-log" aria-label="Run log"></ol></div>
-              <div class="wfx-dr-v" data-v="data" hidden><div class="cvx wf-cvx"><div class="cvx-h"><div class="cvx-tabs" role="tablist" aria-label="Step data"></div><span class="cvx-meta num"></span></div><div class="cvx-body"><pre class="cvx-code"></pre></div></div></div>
+              <div class="rdr-v" data-v="log" hidden><div class="rdr-lf"><div class="seg2 rdr-lvs" role="group" aria-label="Level"><button aria-pressed="true" data-v="all">All</button><button aria-pressed="false" data-v="warn">Warnings</button><button aria-pressed="false" data-v="error">Errors</button></div><span class="n num"></span></div><ol class="rdr-log" aria-label="Run log"></ol></div>
+              <div class="rdr-v" data-v="data" hidden><div class="rdr-data"><div class="rdr-ds" role="group" aria-label="Steps"></div><div class="rdr-io"></div></div></div>
             </div>
-          </section>
+          </div>
         </div>
 
-        <!-- the right panel: the step inspector (wfx-inspector), run history and versions (wfx-versions) -->
+        <!-- the right panel: the step inspector (Step inspector), run history and versions (wfx-versions) -->
         <aside class="wf-panel" aria-label="Details" inert>
           <div class="wf-ph">
             <div class="sgc-seg wf-seg" role="tablist" aria-label="Panel"><span class="sgc-k" aria-hidden="true"></span><button role="tab" id="wf-t-step" aria-controls="wf-v-step" aria-selected="true" data-v="step">Step</button><button role="tab" id="wf-t-runs" aria-controls="wf-v-runs" aria-selected="false" tabindex="-1" data-v="runs">Runs</button><button role="tab" id="wf-t-versions" aria-controls="wf-v-versions" aria-selected="false" tabindex="-1" data-v="versions">Versions</button></div>
             <button class="ib wf-pclose" aria-label="Close the panel" data-tip="Close" data-tip-k="Esc"><Fragment set:html={I('x')} /></button>
           </div>
-          <div class="wf-pv" id="wf-v-step" role="tabpanel" aria-labelledby="wf-t-step"><div class="dtp wfx-insp"></div></div>
+          <div class="wf-pv" id="wf-v-step" role="tabpanel" aria-labelledby="wf-t-step"><div class="sti wf-insp"></div></div>
           <div class="wf-pv" id="wf-v-runs" role="tabpanel" aria-labelledby="wf-t-runs" hidden></div>
           <div class="wf-pv" id="wf-v-versions" role="tabpanel" aria-labelledby="wf-t-versions" hidden></div>
         </aside>
@@ -148,10 +149,11 @@ const I = (n, c = 's') => `<svg class="i ${c}" aria-hidden="true"><use href="#i-
       <div class="acx-ls" id="wf-pick-ls" role="listbox" aria-label="Steps"></div>
       <p class="acx-pd" aria-hidden="true"></p>
     </div>
-    <!-- the data picker (wfx-var): what earlier steps produced, to map into a field -->
-    <div class="pop wfx-var" id="wf-p-var" role="dialog" aria-label="Pick data from an earlier step">
-      <div class="acx-q"><Fragment set:html={I('search', 'xs')} /><input class="wfx-var-q" type="text" role="combobox" aria-expanded="true" aria-autocomplete="list" aria-controls="wf-var-ls" placeholder="Find a field" aria-label="Find a field" autocomplete="off" spellcheck="false"></div>
-      <div class="wfx-var-ls" id="wf-var-ls" role="listbox" aria-label="Fields"></div>
+    <!-- the data picker: Data picker's picker, of what earlier steps produced, to map into a field -->
+    <div class="pop fpk-pop" id="wf-p-var" role="dialog" aria-label="Pick data from an earlier step">
+      <div class="fpk-q"><Fragment set:html={I('search')} /><input class="wf-var-q" type="text" role="combobox" aria-expanded="true" aria-autocomplete="list" aria-controls="wf-var-ls" placeholder="Find a field" aria-label="Find a field" autocomplete="off" spellcheck="false"></div>
+      <div class="fpk-ls" id="wf-var-ls" role="listbox" aria-label="Fields from earlier steps"></div>
+      <p class="fpk-ft"><span class="wf-var-n"></span><span class="kh" aria-hidden="true"><span class="kbd">↑</span> <span class="kbd">↓</span> <span class="kbd">↵</span></span></p>
     </div>
 
     <!-- Ask the agent: the Command palette, over the app -->

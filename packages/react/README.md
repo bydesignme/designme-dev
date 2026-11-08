@@ -4,7 +4,7 @@ React versions of the [designme.dev](https://designme.dev) components, for Next.
 
 They use the same markup and the same CSS as the site, so they look and move exactly like the previews on designme.dev, in both styles (Blueprint and Soft) and in light and dark. The difference is that each one takes props, so you drive it from your own state instead of a scripted demo.
 
-All 122 components are here, from Status pill to Currency converter, each with an example that replays its demo from the site.
+All 125 components are here, from Status pill to Currency converter, each with an example that replays its demo from the site.
 
 Each one has a page on designme.dev with its demo, its React usage, its props and its code, at `https://designme.dev/components/<name>`. To see them all running locally, run `npm run dev` here.
 
@@ -334,6 +334,18 @@ A trigger, a few agent steps, and a run you can watch flow through.
 **CanvasToolbar** · `canvas-toolbar/CanvasToolbar.tsx`  
 A floating toolbar for a workflow canvas: run, pick a tool, comment, fit and zoom.  
 `nodes: { id, icon, color, iconColor?, title, detail?, x, y, narrow?, state?: 'run' | 'done' }[]` (positions in canvas pixels at 100%; `narrow` is used below 440px), `edges: [from, to][]`, `lit` (the wires a run has reached), `running`, `onRun`, `onStop`, `runLabel`, `stopLabel`, `tool: 'select' | 'hand' | 'lasso'` / `defaultTool` / `onToolChange`, `commenting` / `defaultCommenting` / `onCommentingChange`, `onComment({ x, y })` and `comments` (the pins), `view: { panX, panY, zoom } | null` / `defaultView` / `onViewChange` (null fits the steps), `selected` / `defaultSelected` / `onSelectedChange`, `onNodesMove(moves, narrow)`, `zoomSteps`, `label`, `children` (drawn on the canvas under the steps). The toolbar is fixed at the bottom centre, and the canvas fills the height it is given, 560px when nothing gives it one (520px below 440px wide). A ref can `panBy`, `zoomIn`, `zoomOut`, `zoomTo` and `fit`. Shortcuts while the canvas or toolbar has the focus: V, H and L for the tools, C to comment, ⇧1 to fit, ⇧0 for 100%, − and + to zoom, the arrow keys to pan, Escape to leave Comment or clear the selection. Below 440px Comment and Fit move into More, below 360px the zoom buttons too.
+
+**StepInspector** · `step-inspector/StepInspector.tsx`  
+The settings of one step in an agent workflow, in sections that fold.  
+`step: StepConfig` (`title`, `kind: 'trigger' | 'ai' | 'tool' | 'app' | 'output' | 'branch' | 'wait' | 'approval'` (its tile's colour), `icon`, `position`, and by kind: `model`, `instructions` (text and `{ ref }` parts), `tools`, `inputs: { name, ref }[]`, `outputs: { name, type, sample }[]`, `retries`, `backoff: 'fixed' | 'doubling'`, `timeLimit`, `onFail`, `rule: { ref, op, value }`, `yes`, `no`, `approvers`, `askIn`, `shows`, `expire`, `then`, `off`), `sources` (the earlier steps and their fields; a ref is `"<step id>.<field>"`, and one they don't give is flagged), `onChange(step)`, `onTest`, `testing`, `status` / `statusOk` (the line under the name), `choices` (each choice's options), `toolOptions`, `people`, `open` / `defaultOpen` / `onOpenChange` (the open sections), `actions` (more buttons in the head).
+
+**DataPicker** · `data-picker/DataPicker.tsx`  
+Map a field from earlier steps into a step's input.  
+`sources: { id, title, kind, icon?, fields: { name, type: 'text' | 'number' | 'list' | 'object' | 'bool' | 'date', sample? }[] }[]` (only the steps before this one), `fields` / `defaultFields` / `onFieldsChange` (`{ key, label, refs }[]`, each ref `"<step id>.<field>"`), `step` (the step on top), `open` / `defaultOpen` / `onOpenChange` (the input whose picker is open), `query` / `onQueryChange`, `active` / `onActiveChange` (the highlighted option), `note`. Types and step kinds are coloured; the arrows, Enter and Escape work in the search.
+
+**RunDrawer** · `run-drawer/RunDrawer.tsx`  
+A workflow's run under its canvas: the steps, the log and the data.  
+`runId`, `label`, `state: 'running' | 'waiting' | 'passed' | 'failed' | 'stopped'`, `time`, `tokens`, `cost`, `steps: { id, title, kind, icon?, input?, output? }[]`, `spans: { id, step, name, kind, icon?, level?: 0 | 1, start, end?, state?: 'ok' | 'bad' | 'wait' | 'stop' }[]` (a kind of `retry` is the hatched wait before a retry), `log: { at, level: 'debug' | 'info' | 'warn' | 'error', title, message? }[]`, `waiting: { step, title, detail? }` with `onApprove` / `onReject`, `onStop`, `onRunAgain`, `tab` / `defaultTab` / `onTabChange`, `level` / `defaultLevel` / `onLevelChange` (the log's filter), `follow` / `defaultFollow` / `onFollowChange`, `expanded` / `defaultExpanded` / `onExpandedChange`, `height` / `defaultHeight` / `onHeightChange`, `selected` / `defaultSelected` / `onSelectedChange`, `canvas` (what sits over the drawer: the steps as a strip by default, `null` for the drawer alone).
 
 **MemoryPanel** · `memory-panel/MemoryPanel.tsx`  
 What the agent remembers about your team, editable and removable.  

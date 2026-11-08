@@ -1,0 +1,43 @@
+{
+  "summary": "Run drawer shows a workflow's run in a drawer under its canvas. Its head says the run's state in colour, with the time, the tokens and the cost, and switches between Steps, Log and Data. Steps is a timeline with each step's model and tool calls nested under it, Log is the run's lines with their levels in colour, and Data is what each step took in and handed on. It folds down to its head, drags taller, follows the run and stops it.",
+  "use": [
+    "Under a workflow canvas, for test runs and for looking back at past runs.",
+    "When a run calls models and tools and people need to see what took the time, what failed and what was tried again.",
+    "When a run can pause for a person, like an approval, and the person testing it decides there and then.",
+    "When people debug a step from the data it got and the data it handed on."
+  ],
+  "features": [
+    "The head holds a fold button with the run's name and its state, in colour: running in the accent with a spinner, waiting amber, passed green, failed red, stopped grey. Beside it the time, the tokens and the cost so far, then Steps, Log and Data, Stop while the run goes (Run again once it has ended) and Follow the run.",
+    "Steps is a timeline on an axis that grows with the run. Each step is a row with its tile, and its model and tool calls sit under it, indented. Each bar has its kind's colour: the trigger orange, AI steps and their model calls violet, tools teal, app steps and outputs blue, a branch yellow, an approval green. A failed try is red and says Failed, and the wait before a retry is hatched amber.",
+    "A step that waits for a person shows a hatched amber bar that grows while it waits, and under it the question with Approve and Reject. Approving lets the run carry on; rejecting fails it.",
+    "Log lists the run's lines with their times and levels in colour (debug grey, info blue, warn amber, error red), an error line on a red tint. The switch over it shows all of them, the warnings or the errors, with a count.",
+    "Data lists the steps that have finished; pick one to see its input and output as JSON, keys, strings and numbers each in their colour.",
+    "Over the drawer, the workflow's steps sit as a strip of tiles in their colours, linked by grey wires: the step under way is ringed in the accent (amber while it waits or retries), done steps are ticked, and the running step shows its name. Picking a tile, a row or a step in Data picks that step everywhere.",
+    "Follow the run (on by default) keeps the newest row and line in view, and the running step in the middle of the strip. Turn it off to read without the view moving.",
+    "The fold button folds the drawer down to its head and opens it again. The drawer's top edge drags it taller or shorter, and the arrow keys do the same on it.",
+    "On designme.dev a test run plays at the pace of a real one: the company lookup is rate limited once, tries again, and the run waits for an approval. In React, pass the run as `spans`, `log` and `steps`, with `time` and `state`, and handle `onApprove`, `onStop` and `onRunAgain`; set `canvas` to put your own canvas over the drawer, or `null` for the drawer on its own."
+  ],
+  "a11y": [
+    "The drawer is a region labelled Run. The fold button has `aria-expanded` and `aria-controls`, and its name includes the run's state.",
+    "The top edge is a `separator` with `aria-orientation=\"horizontal\"` and its height as `aria-valuenow`; the up and down arrows change it by 24 pixels, and Home and End go to the smallest and largest.",
+    "Stop, Run again and Follow the run are labelled and show tooltips; Follow the run is a toggle with `aria-pressed`. Steps, Log and Data and the log's levels are switches with `aria-pressed`.",
+    "Each timeline row is a button labelled with its name, its state and its time, like \"Company lookup, failed, 1.5s\". The steps on the strip are buttons labelled with their names.",
+    "The JSON blocks can take the focus, so they scroll from the keyboard.",
+    "A polite live region (HTML) says when the run starts, waits for you, carries on, passes, fails or stops.",
+    "With reduced motion new rows and lines appear without their entrance, the running bar holds still, the drawer folds without sliding and the strip jumps to the running step."
+  ],
+  "faq": [
+    {
+      "q": "Does it run the workflow?",
+      "a": "No. Your code runs it and passes what happened: the spans with their start and end, the log lines and the run's state. The drawer draws them at the `time` you give it."
+    },
+    {
+      "q": "Can I use it without the strip of steps?",
+      "a": "Yes. In React, set `canvas` to your own canvas, or to `null` for the drawer alone. In HTML, the drawer is the `rdr-dw` element and works under any canvas."
+    },
+    {
+      "q": "How do I show a retry?",
+      "a": "Add the failed try as a span with `state: 'bad'`, the wait before the next try as a span of kind `retry`, and the next try after it, all under the same step."
+    }
+  ]
+}

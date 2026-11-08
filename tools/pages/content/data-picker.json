@@ -1,0 +1,41 @@
+{
+  "summary": "Data picker maps data from earlier steps of a workflow into a step's inputs. Each input holds tokens, the earlier step and then its field, with a button to remove each one, and a + that opens the picker: only the fields that earlier steps hand on, grouped by step under the step's coloured tile, each with its type as a coloured chip and a sample value. A search filters them, the arrow keys move through them and Enter puts the one picked in.",
+  "use": [
+    "In a workflow or automation builder, where a step's inputs (an email's To, Subject and Body) come from what earlier steps found.",
+    "When people should only ever pick data that exists by the time the step runs.",
+    "When fields need their type and a real sample to tell apart, like the company name from a form and the company record from a lookup.",
+    "Beside a step inspector, for the inputs of the step that is picked."
+  ],
+  "features": [
+    "The step being set up sits on top with its tile, its name and where it sits. Under it, each input has its label and a box of tokens.",
+    "A token shows the earlier step's tile in its kind's colour, the step's name and the field. The step's name gives way first when there is no room, so the field stays whole. Each token has a remove button.",
+    "The + at the end of an input opens the picker under it. On designme.dev the inputs glide up as it opens, so the inputs and the picker stay centred together.",
+    "The picker lists only the fields of the earlier steps, grouped by step in their order, each group with the step's tile, its name and its place. Each field shows its type as a coloured chip, text blue, numbers green, lists orange, objects pink, yes or no yellow and dates teal, and a sample value.",
+    "Search matches a field's name or its step's name, and underlines the part of a field's name that matched. The up and down arrows move through the fields and wrap, the pointer moves the highlight too, and Enter or a click puts the field in the input it was opened from.",
+    "A field already in the input isn't added twice; the live region says so.",
+    "A note under the list says where the fields come from, with the keys that work in it.",
+    "In React, `fields` and `onFieldsChange` hold the inputs and what is mapped into each, `sources` is the earlier steps, and `open`, `query` and `active` can drive the picker from your own state."
+  ],
+  "a11y": [
+    "Each input's box is a labelled group. Each + is labelled \"Insert data into Body\", with `aria-haspopup=\"dialog\"` and `aria-expanded`, and each remove button \"Remove email from Demo request form\". Both show tooltips.",
+    "The picker is a labelled dialog. Its search is a `combobox` that controls a `listbox` of options in labelled groups, and points at the highlighted field with `aria-activedescendant`. Each option is labelled with the field, its type and its step.",
+    "A click on + puts the focus in the search. Escape closes the picker and gives the focus back to its +, and so does picking a field from the keyboard.",
+    "Removing a token with the keyboard moves the focus to its input's +, so it never falls to the page.",
+    "A polite live region says what was added or removed, like \"Added reasons from Research and score to Body\".",
+    "With reduced motion new tokens appear and removed ones go without their animation."
+  ],
+  "faq": [
+    {
+      "q": "How do I show only the steps before this one?",
+      "a": "Pass them as `sources`, in order. The picker offers their fields and nothing else, so a step can never read data that doesn't exist yet."
+    },
+    {
+      "q": "Can people type text around the tokens?",
+      "a": "Not in this component: each input holds tokens only. For text with fields inline, like instructions, use the instructions box in Step inspector."
+    },
+    {
+      "q": "How are fields referred to?",
+      "a": "As `\"<step id>.<field name>\"`, like `research.score`. That is what `fields` holds for each input."
+    }
+  ]
+}

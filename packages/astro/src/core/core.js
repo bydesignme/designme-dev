@@ -288,7 +288,7 @@ document.addEventListener('click', e => { const b = e.target.closest && e.target
 const DM = {
   defs:{},
   // agents at work: their demos keep playing while a mouse rests on them, instead of holding (see mount)
-  PLAYS:new Set(['status-pill','step-loader','thinking','reasoning-trail','agent-lanes','agent-run-timeline','trace-view','agent-tree','run-queue','terminal-stream','browser-session','action-log','attachment-tray','progress','web-search','agent-phases','thinking-states']),
+  PLAYS:new Set(['status-pill','step-loader','thinking','reasoning-trail','agent-lanes','agent-run-timeline','trace-view','agent-tree','run-queue','terminal-stream','browser-session','action-log','attachment-tray','progress','web-search','agent-phases','thinking-states','run-drawer']),
   def(id, fn){ this.defs[id] = fn; },
   /* the markup a card starts from: its <template>, or, when the markup is written out in its stage, what the stage holds
      before it first mounts, kept as a template so Replay starts from it again */

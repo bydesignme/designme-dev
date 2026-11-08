@@ -1,0 +1,63 @@
+/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+/* ---------- Data picker ---------- */
+/* maps data from earlier steps into a step's fields. Each field holds tokens, the step and then its field, and a + that opens
+   the picker: only what earlier steps hand on, grouped by step under each step's tile in its kind's colour, each field with
+   its type as a coloured chip and a sample value. Search filters it, the arrows move through it and Enter puts the field in */
+.fpk{position:relative;width:100%;max-width:var(--dm-field-w);container:fpk/inline-size;margin-inline:auto;display:flex;flex-direction:column;gap:var(--dm-s-3);text-align:left}
+.fpk-hd{display:flex;align-items:center;gap:var(--dm-s-2);font-size:13px}
+.fpk-hd b{font-weight:500}
+.fpk-hd .muted{margin-left:auto;font-size:12px}
+.fpk-ti{width:18px;height:18px;flex:none;display:grid;place-items:center;border-radius:calc(5px * var(--dm-rk));background:var(--dm-fpk-kb,var(--dm-chip));color:var(--dm-fpk-kf,var(--dm-fg2))}
+.fpk-ti .i{width:11px;height:11px}
+.fpk-hd .fpk-ti{width:24px;height:24px;border-radius:calc(7px * var(--dm-rk))}
+.fpk-hd .fpk-ti .i{width:12px;height:12px}
+.fpk-ti[data-k="trigger"]{--dm-fpk-kb:var(--dm-pp-bg);--dm-fpk-kf:var(--dm-pp)}
+.fpk-ti[data-k="ai"]{--dm-fpk-kb:var(--dm-pl-bg);--dm-fpk-kf:var(--dm-pl)}
+.fpk-ti[data-k="tool"]{--dm-fpk-kb:var(--dm-pt-bg);--dm-fpk-kf:var(--dm-pt)}
+.fpk-ti:is([data-k="app"],[data-k="output"]){--dm-fpk-kb:var(--dm-pb-bg);--dm-fpk-kf:var(--dm-pb)}
+.fpk-ti[data-k="branch"]{--dm-fpk-kb:var(--dm-py-bg);--dm-fpk-kf:var(--dm-py)}
+.fpk-ti[data-k="wait"]{--dm-fpk-kb:var(--dm-pk-bg);--dm-fpk-kf:var(--dm-pk)}
+.fpk-ti[data-k="approval"]{--dm-fpk-kb:var(--dm-pm-bg);--dm-fpk-kf:var(--dm-pm)}
+.fpk-f{display:flex;flex-direction:column;gap:6px}
+.fpk-l{font-size:12.5px;color:var(--dm-muted)}
+.fpk-box{display:flex;flex-wrap:wrap;align-items:center;gap:6px;min-height:var(--dm-field-h);padding:5px 5px 5px var(--dm-s-2);border-radius:var(--dm-r-field);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line) 50%,transparent);transition:box-shadow var(--dm-t-fast)}
+@supports (corner-shape:squircle){.fpk-box{corner-shape:squircle;border-radius:var(--dm-r-field-sq)}}
+.fpk-box:has([aria-expanded="true"]){box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line-strong) 50%,transparent)}
+.fpk-ph{font-size:13px;color:var(--dm-muted)}
+.fpk-tok{display:inline-flex;align-items:center;gap:5px;max-width:100%;min-width:0;height:26px;padding:0 2px 0 4px;border-radius:var(--dm-r-sm);background:var(--dm-chip);font-size:12px;color:var(--dm-fg);white-space:nowrap}
+.fpk-tok .s{min-width:0;max-width:120px;color:var(--dm-muted);overflow:hidden;text-overflow:ellipsis}
+.fpk-tok .sep{color:var(--dm-muted)}
+.fpk-tok .f{flex:none;max-width:100%;font-weight:500;overflow:hidden;text-overflow:ellipsis}
+.fpk-tok.new{animation:popin .5s var(--dm-ease) backwards}
+.fpk-tok.out{animation:leave .3s var(--dm-ease) both}
+.fpk-x{width:20px;height:20px;flex:none;display:grid;place-items:center;border-radius:calc(5px * var(--dm-rk));color:var(--dm-muted);transition:background var(--dm-t-fast),color var(--dm-t-fast)}
+@media (hover:hover) and (pointer:fine){.fpk-x:hover{background:var(--dm-surface);color:var(--dm-fg)}}
+.fpk-add{width:26px;height:26px;flex:none;display:grid;place-items:center;margin-left:auto;border-radius:var(--dm-r-sm);color:var(--dm-muted);transition:background var(--dm-t-fast),color var(--dm-t-fast)}
+.fpk-add[aria-expanded="true"]{background:var(--dm-row);color:var(--dm-fg)}
+@media (hover:hover) and (pointer:fine){.fpk-add:hover{background:var(--dm-row);color:var(--dm-fg)}}
+/* the picker */
+.fpk-pop.pop{width:min(320px,100cqi,calc(100vw - 32px));padding:var(--dm-s-2);display:flex;flex-direction:column;gap:var(--dm-s-1)}
+.fpk-q{display:flex;align-items:center;gap:var(--dm-s-2);height:36px;padding:0 10px;border-radius:var(--dm-r-field);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line) 50%,transparent);color:var(--dm-muted);transition:box-shadow var(--dm-t-fast)}
+@supports (corner-shape:squircle){.fpk-q{corner-shape:squircle;border-radius:var(--dm-r-field-sq)}}
+.fpk-q:focus-within{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line-strong) 50%,transparent)}
+.fpk-q input{flex:1;min-width:0;height:100%;border:0;outline:0;background:none;font:inherit;font-size:13px;color:var(--dm-fg)}
+.fpk-q input::placeholder{color:var(--dm-muted)}
+.fpk-ls{max-height:252px;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:var(--dm-rail) transparent}
+.fpk-g{display:flex;align-items:center;gap:var(--dm-s-2);padding:var(--dm-s-2) 6px var(--dm-s-1);font-size:12px;color:var(--dm-muted)}
+.fpk-g b{min-width:0;font-weight:500;color:var(--dm-fg2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fpk-g .n{margin-left:auto;flex:none}
+.fpk-o{display:grid;grid-template-columns:auto auto minmax(0,1fr);align-items:center;gap:var(--dm-s-2);height:32px;padding:0 var(--dm-s-2) 0 32px;border-radius:var(--dm-r-sm);font-size:13px;cursor:pointer;user-select:none}
+.fpk-o.on{background:var(--dm-row)}
+.fpk-o .k{white-space:nowrap}
+.fpk-o .k mark{background:none;color:inherit;font-weight:500;text-decoration:underline;text-decoration-color:var(--dm-faint);text-underline-offset:2px}
+.fpk-o .ex{min-width:0;text-align:right;font-size:12px;color:var(--dm-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fpk-o .tag{font-weight:500}
+.fpk-e{margin:0;padding:var(--dm-s-4) var(--dm-s-2);font-size:12.5px;color:var(--dm-muted)}
+.fpk-ft{display:flex;align-items:center;gap:var(--dm-s-2);margin:0;padding:6px 6px 2px;border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);font-size:12px;color:var(--dm-muted)}
+.fpk-ft .kbd{margin-right:-4px}
+.fpk-ft span:first-child{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fpk-live{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+@media (prefers-reduced-motion:reduce){.fpk-tok.new,.fpk-tok.out{animation:none!important}}
+@container fpk (max-width:300px){.fpk-ft .kh{display:none}}
+:root:not([data-style="soft"]) .fpk-ti:not(:where([data-style="soft"],[data-style="soft"] *)){box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-fpk-kf,var(--dm-rail)) 30%,transparent)}
+:root:not([data-style="soft"]) .fpk-tok:not(:where([data-style="soft"],[data-style="soft"] *)){background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-rail) 60%,transparent)}

@@ -85,7 +85,12 @@ const NEW = [
   // 5 Nov: Image generation, wide, after Artifact card with what an agent makes (Thinking states, on its own branch, takes c164)
   { cid:'c165', id:'image-generation', title:'Image generation', section:'Conversation', after:'c108', icon:'stars', next:'artifact-card' },
   // 5 Nov: Thinking states, a choice of thinking indicators, after Step loader and its four loaders; wide like it, so the row stays full
-  { cid:'c164', id:'thinking-states', title:'Thinking states', section:'Agent status', after:'c1', icon:'stars', next:'step-loader' }
+  { cid:'c164', id:'thinking-states', title:'Thinking states', section:'Agent status', after:'c1', icon:'stars', next:'step-loader' },
+  // 8 Nov: three components promoted from the Workflow editor template, after Canvas toolbar with the other workflow parts:
+  // Step inspector and Data picker side by side, then Run drawer across the row, so the rows stay full
+  { cid:'c166', id:'step-inspector', title:'Step inspector', section:'Workspace', after:'c141', icon:'tune', next:'canvas-toolbar' },
+  { cid:'c167', id:'data-picker', title:'Data picker', section:'Workspace', after:'c166', icon:'link', next:'step-inspector' },
+  { cid:'c168', id:'run-drawer', title:'Run drawer', section:'Workspace', after:'c167', icon:'history', next:'data-picker' }
 ];
 // a card placed after a new one that isn't there yet goes where that one would have gone
 for (const x of NEW){ let a = NEW.find(y => y.cid === x.after); while (a && !soft.includes(`data-c="${a.id}" id="c-${a.id}"`)){ x.after = a.after; a = NEW.find(y => y.cid === x.after); } }
