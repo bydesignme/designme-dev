@@ -1,6 +1,6 @@
 # Progress and meter
 
-> A run's progress as a ring, steps and a bar, beside a credits meter that warns as it fills.
+> An agent run's progress and what it costs, with a credits meter that warns as it fills.
 
 App basics / Forms and inputs. Free and MIT licensed, as plain HTML, CSS and JavaScript or as a typed React component, in two styles (Soft and Blueprint) with light and dark mode. Live demo: https://designme.dev/components/progress
 
