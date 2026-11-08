@@ -192,7 +192,13 @@ body:has(.crm) .dmf{display:none}
 .crm-ow .prg-mb.ok .fl{background:var(--dm-ok-mark)}
 
 /* ---------- the details sheet: Details panel, over the right of the screen ---------- */
-.crm-sheet{position:absolute;top:64px;right:var(--dm-s-2);bottom:var(--dm-s-2);z-index:20;width:min(392px,calc(100% - 16px));border-radius:var(--dm-r-card);background:var(--dm-raised);box-shadow:var(--dm-shadow-pop);overflow:auto;overscroll-behavior:contain;opacity:0;visibility:hidden;transform:translateX(16px);transition:opacity .2s var(--dm-ease),transform .4s var(--dm-ease),visibility 0s .2s}
+/* the open sheet sits over a dimmed app (owner, 8 Nov): a shade over the sidebar and the view, and a deeper shadow with a
+   hairline edge, so it reads as the top layer in both themes */
+.crm-shade{position:absolute;inset:0;z-index:19;background:rgba(10,10,14,.3);opacity:0;pointer-events:none;transition:opacity .25s var(--dm-ease)}
+:root[data-theme="dark"] .crm-shade{background:rgba(0,0,0,.56)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .crm-shade{background:rgba(0,0,0,.56)}}
+.crm.sh .crm-shade{opacity:1;pointer-events:auto}
+.crm-sheet{position:absolute;top:64px;right:var(--dm-s-2);bottom:var(--dm-s-2);z-index:20;width:min(392px,calc(100% - 16px));border-radius:var(--dm-r-card);background:var(--dm-raised);box-shadow:0 0 0 1px color-mix(in srgb,var(--dm-line) 70%,transparent),0 8px 18px rgba(0,0,0,.12),0 24px 60px rgba(0,0,0,.26);overflow:auto;overscroll-behavior:contain;opacity:0;visibility:hidden;transform:translateX(16px);transition:opacity .2s var(--dm-ease),transform .4s var(--dm-ease),visibility 0s .2s}
 .crm-sheet.on{opacity:1;visibility:visible;transform:none;transition-property:opacity,transform}
 .crm-dtp.dtp{padding:var(--dm-s-3) var(--dm-s-3) var(--dm-s-4) var(--dm-s-4);gap:var(--dm-s-1)}
 .crm-dtp .dtp-h{padding:2px 0 0;gap:10px}
@@ -321,4 +327,6 @@ body:has(.crm) .dmf{display:none}
   .crm-fc{padding:var(--dm-s-3)}
   .crm-fc .rgx-b{justify-content:center}
 }
-@media (prefers-reduced-motion:reduce){.crm-over,.crm-cmd .cpl,.crm-newd .fmx{animation:none}.crm-sheet,.crm-side.ahx-side{transition:none}}
+/* menus and popovers lift off the page with a hairline edge as well as their shadow */
+.crm .pop{box-shadow:0 0 0 1px color-mix(in srgb,var(--dm-line) 70%,transparent),var(--dm-shadow-pop)}
+@media (prefers-reduced-motion:reduce){.crm-over,.crm-cmd .cpl,.crm-newd .fmx{animation:none}.crm-sheet,.crm-side.ahx-side,.crm-shade{transition:none}}

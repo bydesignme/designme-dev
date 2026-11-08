@@ -333,14 +333,14 @@
   }
   function openSheet(id, focus = false){
     const was = sheetFor; sheetFor = id; renderSheet();
-    sheet.inert = false; sheet.classList.add('on');
+    sheet.inert = false; sheet.classList.add('on'); app.classList.add('sh');
     $$('tr[data-id]', tbody).forEach(tr => tr.classList.toggle('open', tr.dataset.id === id));
     if (focus || (document.activeElement && document.activeElement.closest('tr[data-id],.kbx-k,.cpl,.ntx'))) setTimeout(() => $('[data-a="close"]', dtp).focus({ preventScroll:true }), 60);
     if (was !== id && !REDUCE) dtp.animate([{ opacity:0, transform:'translateY(4px)' }, { opacity:1, transform:'none' }], { duration:240, easing:'ease-out' });
   }
   function closeSheet(){
     if (!sheetFor) return;
-    const id = sheetFor; sheetFor = null; sheet.classList.remove('on'); sheet.inert = true;
+    const id = sheetFor; sheetFor = null; sheet.classList.remove('on'); sheet.inert = true; app.classList.remove('sh');
     $$('tr.open', tbody).forEach(tr => tr.classList.remove('open'));
     const tr = $(`tr[data-id="${id}"]`, tbody); if (tr && sheet.contains(document.activeElement)) focusRow(tr);
   }
@@ -625,6 +625,7 @@
   const drawer = on => { app.classList.toggle('dr', on); if (on) setTimeout(() => $('.crm-side .ahx-cv[aria-current="true"]', app)?.focus(), 80); };
   $('.crm-menu', app).onclick = () => drawer(true);
   $('.crm-scrim', app).onclick = () => drawer(false);
+  $('.crm-shade', app).onclick = () => closeSheet();
 
   /* ---------- notifications: Notifications ---------- */
   const NT = [
