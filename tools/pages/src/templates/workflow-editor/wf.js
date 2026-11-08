@@ -189,6 +189,12 @@
     if (act) $('.pill', t).onclick = () => { act.run(); out(); };
     toasts.appendChild(t);
     while (toasts.children.length > 3) toasts.firstElementChild.remove();
+    // a click anywhere else, or Escape, sends the toasts away; a click on a toast itself (its Undo, its ×) is handled above
+    if (!toasts._away){ toasts._away = true; const t0 = () => performance.now();
+      const away = () => $$('.tst-t:not(.tst-out)', toasts).forEach(x => { if (t0() - (x._born || 0) > 250){ x.classList.add('tst-out'); setTimeout(() => x.remove(), 320); } });
+      document.addEventListener('pointerdown', e => { if (!toasts.contains(e.target)) away(); }, true);
+      document.addEventListener('keydown', e => { if (e.key === 'Escape' && toasts.children.length) away(); }); }
+    t._born = performance.now();
     let left = 6000, t0 = performance.now(), tm = setTimeout(out, left);
     t.addEventListener('pointerenter', () => { clearTimeout(tm); left -= performance.now() - t0; });
     t.addEventListener('pointerleave', () => { t0 = performance.now(); tm = setTimeout(out, Math.max(1200, left)); });
@@ -248,7 +254,7 @@
       branch:() => [rule.v ? `${rule.v.split('.')[1]} ${rule.op.replace('is ', '')} ${rule.n}` : 'No rule yet'], approval:() => [c.who.map(first).join(' or ')], app:() => [c.list || c.conn], output:() => [c.channel || c.conn], wait:() => [c.for] }[n.type] || (() => []))();
     return m.filter(Boolean).map(t => `<span class="tag">${esc(t)}</span>`).join('') + (n.off ? '<span class="tag">Off</span>' : '');
   };
-  const tile = (n, cls = '') => `<span class="wfx-ic${n.type === 'ai' ? ' ai' : ''}${cls}" aria-hidden="true">${I(n.ic, 'xs')}</span>`;
+  const tile = (n, cls = '') => `<span class="wfx-ic${n.type === 'ai' ? ' ai' : ''}${cls}" data-k="${n.type}" aria-hidden="true">${I(n.ic, 'xs')}</span>`;
   function nodeHTML(n){
     const p = POS[n.id];
     return `<button class="wfx-node${n.type === 'tool' ? ' tool' : ''}${n.off ? ' off' : ''}${selId === n.id ? ' sel' : ''}" data-id="${n.id}" data-type="${n.type}" style="left:${p.x}px;top:${p.y - NH / 2}px" aria-pressed="${selId === n.id}" aria-label="${esc(TYPES[n.type].k + ': ' + n.t)}">`

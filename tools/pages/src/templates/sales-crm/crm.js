@@ -104,6 +104,12 @@
     if (act) $('.pill', t).onclick = () => { act.run(); out(); };
     toasts.appendChild(t);
     while (toasts.children.length > 3) toasts.firstElementChild.remove();
+    // a click anywhere else, or Escape, sends the toasts away; a click on a toast itself (its Undo, its ×) is handled above
+    if (!toasts._away){ toasts._away = true; const t0 = () => performance.now();
+      const away = () => $$('.tst-t:not(.tst-out)', toasts).forEach(x => { if (t0() - (x._born || 0) > 250){ x.classList.add('tst-out'); setTimeout(() => x.remove(), 320); } });
+      document.addEventListener('pointerdown', e => { if (!toasts.contains(e.target)) away(); }, true);
+      document.addEventListener('keydown', e => { if (e.key === 'Escape' && toasts.children.length) away(); }); }
+    t._born = performance.now();
     // it times out after six seconds, held while the pointer rests on it
     let left = 6000, t0 = performance.now(), tm = setTimeout(out, left);
     t.addEventListener('pointerenter', () => { clearTimeout(tm); left -= performance.now() - t0; });

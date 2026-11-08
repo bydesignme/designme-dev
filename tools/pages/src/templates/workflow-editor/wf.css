@@ -23,8 +23,8 @@
 body:has(.wf) .dmf{display:none}
 
 /* ---------- the app ---------- */
-.wf[data-c]{--wf-ns:var(--dm-shadow);width:100%;max-width:none;height:100%;display:grid;grid-template-columns:240px minmax(0,1fr);position:relative;overflow:hidden;background:var(--dm-surface);color:var(--dm-fg);font-size:13px;text-align:left}
-:root:not([data-style="soft"]) .wf[data-c]{--wf-ns:0 0 #0000}
+.wf[data-c]{--wf-ns:var(--dm-shadow);--wf-nb:color-mix(in srgb,var(--dm-line) 60%,transparent);--wf-dot:color-mix(in srgb,var(--dm-fg) 8%,transparent);width:100%;max-width:none;height:100%;display:grid;grid-template-columns:240px minmax(0,1fr);position:relative;overflow:hidden;background:var(--dm-surface);color:var(--dm-fg);font-size:13px;text-align:left}
+:root:not([data-style="soft"]) .wf[data-c]{--wf-ns:0 0 #0000;--wf-nb:color-mix(in srgb,var(--dm-line-strong) 45%,transparent);--wf-dot:color-mix(in srgb,var(--dm-fg) 7%,transparent)}
 :where(.wf) :where(h1,h2,h3,p,ul,ol){margin:0}
 .wf .muted{color:var(--dm-muted)}
 .wf-sp{flex:1}
@@ -79,7 +79,7 @@ body:has(.wf) .dmf{display:none}
 /* ---------- wfx-node and the canvas: a board of steps that pans and zooms ---------- */
 .wfx-cv{position:relative;flex:1;min-height:0;outline:0;background:var(--dm-stage)}
 .wfx-cv:focus-visible{box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--dm-field-line-strong) 60%,transparent)}
-.wfx-vp{position:absolute;inset:0;overflow:hidden;overflow:clip;touch-action:none;user-select:none;-webkit-user-select:none;background-image:radial-gradient(circle at center,color-mix(in srgb,var(--dm-fg) 13%,transparent) 1.1px,transparent 1.6px);background-size:16px 16px}
+.wfx-vp{position:absolute;inset:0;overflow:hidden;overflow:clip;touch-action:none;user-select:none;-webkit-user-select:none;background-image:radial-gradient(circle at center,var(--wf-dot) 1.1px,transparent 1.6px);background-size:16px 16px}
 .wfx-cv[data-tool="hand"] .wfx-vp,.wfx-cv[data-tool="hand"] .wfx-node{cursor:grab}
 .wfx-cv.pan .wfx-vp,.wfx-cv.pan .wfx-node{cursor:grabbing}
 .wfx-world{position:absolute;left:0;top:0;transform-origin:0 0}
@@ -92,7 +92,7 @@ body:has(.wf) .dmf{display:none}
 .wfx-svg path.e.skip{stroke-dasharray:4 4;opacity:.55}
 .wfx-svg path.hit{fill:none;stroke:transparent;stroke-width:18;pointer-events:stroke}
 .wfx-nodes{position:absolute;left:0;top:0}
-.wfx-node{position:absolute;width:172px;height:66px;padding:10px 10px 9px;display:flex;flex-direction:column;justify-content:space-between;border-radius:calc(12px * var(--dm-rk));background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 60%,transparent),var(--wf-ns);text-align:left;cursor:pointer;user-select:none;transition:box-shadow .25s,opacity .3s}
+.wfx-node{position:absolute;width:172px;height:66px;padding:10px 10px 9px;display:flex;flex-direction:column;justify-content:space-between;border-radius:calc(12px * var(--dm-rk));background:var(--dm-surface);box-shadow:inset 0 0 0 1px var(--wf-nb),var(--wf-ns);text-align:left;cursor:pointer;user-select:none;transition:box-shadow .25s,opacity .3s}
 @supports (corner-shape:squircle){.wfx-node{corner-shape:squircle}}
 @media (hover:hover) and (pointer:fine){.wfx-node:hover{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line-strong) 50%,transparent),var(--wf-ns)}}
 .wfx-node.tool{background:color-mix(in srgb,var(--dm-surface) 55%,var(--dm-stage))}
@@ -103,6 +103,16 @@ body:has(.wf) .dmf{display:none}
 .wfx-node.off{opacity:.55}
 .wfx-n1{display:flex;align-items:center;gap:6px;min-width:0}
 .wfx-n1 .wfx-ic{width:20px;height:20px;border-radius:calc(6px * var(--dm-rk))}
+/* the kind of step in colour (owner, 8 Nov): the trigger orange, AI steps violet, tools teal, app steps and outputs blue, a
+   branch yellow, a wait pink, an approval green. The step's run state keeps its own ring and badge on top of this */
+.wfx-ic[data-k]{background:var(--wf-kb);color:var(--wf-kf)}
+.wfx-ic[data-k="trigger"]{--wf-kb:var(--dm-pp-bg);--wf-kf:var(--dm-pp)}
+.wfx-ic[data-k="ai"]{--wf-kb:var(--dm-pl-bg);--wf-kf:var(--dm-pl)}
+.wfx-ic[data-k="tool"]{--wf-kb:var(--dm-pt-bg);--wf-kf:var(--dm-pt)}
+.wfx-ic:is([data-k="app"],[data-k="output"]){--wf-kb:var(--dm-pb-bg);--wf-kf:var(--dm-pb)}
+.wfx-ic[data-k="branch"]{--wf-kb:var(--dm-py-bg);--wf-kf:var(--dm-py)}
+.wfx-ic[data-k="wait"]{--wf-kb:var(--dm-pk-bg);--wf-kf:var(--dm-pk)}
+.wfx-ic[data-k="approval"]{--wf-kb:var(--dm-pm-bg);--wf-kf:var(--dm-pm)}
 .wfx-n1 .t{min-width:0;font-size:12.5px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .wfx-n2{display:flex;align-items:center;height:20px;min-width:0}
 .wfx-n2 .m{display:flex;gap:var(--dm-s-1);min-width:0;overflow:hidden}
@@ -136,7 +146,7 @@ body:has(.wf) .dmf{display:none}
 .wfx-pin.bot{bottom:-4px;left:calc(50% - 4px)}
 /* a step's icon tile: neutral, the AI steps in the accent tint */
 .wfx-ic{width:24px;height:24px;flex:none;display:grid;place-items:center;border-radius:calc(7px * var(--dm-rk));background:var(--dm-chip);color:var(--dm-fg2)}
-.wfx-ic.ai{background:var(--dm-accent-bg);color:var(--dm-accent-fg,var(--dm-accent))}
+.wfx-ic.ai:not([data-k]){background:var(--dm-accent-bg);color:var(--dm-accent-fg,var(--dm-accent))}
 .wfx-ic.big{width:32px;height:32px;border-radius:calc(9px * var(--dm-rk))}
 /* wfx-ins: the + on a wire, shown when the pointer is on the wire or the keyboard reaches it */
 .wfx-ins{position:absolute;width:22px;height:22px;margin:-11px 0 0 -11px;border-radius:50%;display:grid;place-items:center;background:var(--dm-surface);color:var(--dm-fg2);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line-strong) 50%,transparent),var(--wf-ns);opacity:0;transform:scale(.7);transition:opacity .15s,transform .2s var(--dm-ease),color .15s}
