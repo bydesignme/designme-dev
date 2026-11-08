@@ -40,6 +40,13 @@ both styles and themes. Its layout is `src/templates/sales-crm/crm.css` and its 
 `src/templates/sales-crm/crm.js`. It is noindex (a meta tag and `_headers`), and stays out of the sitemap, `llms.txt` and the
 site's navigation until the owner decides where to link it. `publish.mjs` copies `templates/` to the repository root.
 
+`/templates/workflow-editor` (`src/pages/templates/workflow-editor.astro`) is an agent workflow editor made the same way: a
+sidebar of workflows, a canvas of steps that pans and zooms, a step inspector, test runs with a trace, a log and each step's
+data, run history and versions. Its layout is `src/templates/workflow-editor/wf.css` and its data and interactions
+`src/templates/workflow-editor/wf.js`. The parts the library doesn't have yet are written inside it with a `wfx-` prefix
+(the step node and the + on a wire, the step picker, the data picker, the step inspector, the run drawer, the agent's fix
+card and the version history), each self-contained so it can be promoted to a component later. Noindex, like the Sales CRM.
+
 ## Pictures
 
 `shots.mjs` photographs every component from its own page once its demo has played, in the Soft style: a 640×400
