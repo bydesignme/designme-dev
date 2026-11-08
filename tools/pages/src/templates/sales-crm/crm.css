@@ -146,6 +146,21 @@ body:has(.crm) .dmf{display:none}
 .crm-kb .kbx-cols{--dm-kbx-gt:repeat(5,minmax(216px,1fr))}
 .crm-kb .kbx-c{min-height:calc(100dvh - var(--pg-head) - 248px)}
 .crm-kb.list .kbx-c{min-height:0}
+/* hiding a stage: a quiet button at the end of its header, shown on hover or focus (always on a touch screen); the stage
+   leaves the board and waits as a chip by the filters, which brings it back or takes a dropped deal */
+.crm-kb .kbx-ch{padding-left:6px}
+.crm-kb .crm-hide{opacity:0;margin-left:-2px;transition:opacity .15s var(--dm-ease),color .15s}
+.crm-kb .kbx-c:hover .crm-hide,.crm-kb .crm-hide:focus-visible{opacity:1}
+@media (hover:none){.crm-kb .crm-hide{opacity:1}}
+@container kbx (min-width:640px){.crm-kb .kbx-c.gone{display:none}}
+@container kbx (max-width:639px){.crm-dock{display:none!important}}
+.crm-dock{display:flex;align-items:center;gap:var(--dm-s-1);min-width:0;margin-left:var(--dm-s-2);padding-left:var(--dm-s-3);border-left:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
+.crm-dock[hidden]{display:none}
+.crm-dkl{flex:none;font-size:12.5px;color:var(--dm-muted);white-space:nowrap}
+.crm-dks{display:flex;gap:var(--dm-s-1);flex-wrap:wrap}
+.crm-dk .k{margin-left:2px}
+.crm-dk .i{color:var(--dm-muted)}
+.crm-dk.over{background:var(--dm-sel);box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--dm-accent-mark,var(--dm-accent)) 40%,transparent)}
 .crm-kb .kbx-ch .n{margin-left:2px}
 .crm-kb .kbx-ch .s{margin-left:auto;font-size:12px;color:var(--dm-fg2)}
 .crm-kb .kbx-k{gap:var(--dm-s-1)}
@@ -165,11 +180,24 @@ body:has(.crm) .dmf{display:none}
 /* ---------- Forecast: the chart components on a grid ---------- */
 .crm-fc{overflow:auto;padding:var(--dm-s-4) var(--dm-s-4) var(--dm-s-6) var(--dm-s-5);display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:var(--dm-s-3);align-content:start;background:var(--dm-stage)}
 .crm-fc[hidden]{display:none}
-.crm-c12{grid-column:span 12}.crm-c8{grid-column:span 8}.crm-c4{grid-column:span 4}
+.crm-c12{grid-column:span 12}.crm-c8{grid-column:span 8}.crm-c6{grid-column:span 6}.crm-c4{grid-column:span 4}
 .crm-fc .scx-grid{gap:var(--dm-s-3)}
 .crm-fc .scx-c{cursor:default}
 .crm-fc .scx-k .tag{margin-left:auto}
-.crm-fc .lnx-ch{height:168px}
+.crm-fc .lnx-ch{height:132px}
+/* where this quarter's line stops: a dashed mark and the word Today */
+.crm-fc .lnx-svg .crm-now{stroke:color-mix(in srgb,var(--dm-fg) 28%,transparent);stroke-width:1;stroke-dasharray:2 3;vector-effect:non-scaling-stroke}
+.crm-nowl{position:absolute;top:-2px;transform:translateX(-50%);padding:0 4px;font-size:10.5px;line-height:14px;color:var(--dm-muted);background:var(--dm-surface);pointer-events:none}
+/* Team activity: Mon to Fri down the side, twelve weeks across, in wide cells that keep the card short */
+.crm-hm .hmx-days{grid-template-rows:repeat(5,1fr);font-size:10.5px}
+.crm-hm .hmx-grid{grid-template-columns:repeat(12,minmax(0,1fr))}
+.crm-hm .hmx-grid i{aspect-ratio:auto;height:22px;max-width:none}
+.crm-hm .hmx-grid i:hover{transform:scale(1.12)}
+.crm-hm .hmx-f{grid-template-columns:repeat(4,1fr)}
+.crm-hm .hmx-sc{grid-template-columns:auto minmax(0,1fr)!important;overflow:visible!important;-webkit-mask-image:none!important;mask-image:none!important}
+.crm-hm .hmx-sc::after{display:none}
+.crm-hm .hmx-days{position:static!important;background:none!important}
+.crm-hm .hmx-lg{margin-top:auto}
 .crm-fc .lnx-ax{padding-top:2px}
 .crm-fc .rgx-b{justify-content:flex-start;gap:var(--dm-s-4);flex-wrap:nowrap}
 .crm-fc .rgx-lg{flex:1 1 140px}
@@ -190,6 +218,12 @@ body:has(.crm) .dmf{display:none}
 .crm-ow .prg-mb{grid-column:2/4;height:6px}
 .crm-ow .prg-mb .th{left:100%}
 .crm-ow .prg-mb.ok .fl{background:var(--dm-ok-mark)}
+/* commit: what the open Proposal and Negotiation deals should bring, a lighter run after what is won */
+.crm-ow .prg-mb .crm-cm{position:absolute;top:0;bottom:0;background:color-mix(in srgb,var(--dm-accent-mark,var(--dm-accent)) 28%,transparent);border-radius:0 calc(3px * var(--dm-rk)) calc(3px * var(--dm-rk)) 0}
+.crm-lgd{display:flex;align-items:center;gap:5px;font-size:12px}
+.crm-lgd i{width:8px;height:8px;border-radius:2px;margin-left:6px}
+.crm-lgd i.w{background:var(--dm-accent-mark,var(--dm-accent))}
+.crm-lgd i.c{background:color-mix(in srgb,var(--dm-accent-mark,var(--dm-accent)) 28%,transparent)}
 
 /* ---------- the details sheet: Details panel, over the right of the screen ---------- */
 /* the open sheet sits over a dimmed app (owner, 8 Nov): a shade over the sidebar and the view, and a deeper shadow with a
@@ -271,7 +305,7 @@ body:has(.crm) .dmf{display:none}
 
 /* ---------- narrower screens ---------- */
 @media (max-width:1279px){
-  .crm-c8{grid-column:span 12}
+  .crm-c8,.crm-c6{grid-column:span 12}
   .crm-c4{grid-column:span 6}
   .crm-own{grid-column:span 6}
 }
@@ -311,7 +345,9 @@ body:has(.crm) .dmf{display:none}
   /* the company's checkbox and name stay in view while the table scrolls sideways under them */
   .crm-t .stk,.crm-t .stk2{position:sticky;z-index:1;background:var(--dm-surface)}
   .crm-t .stk{left:0}
-  .crm-t .stk2{left:56px;box-shadow:inset -1px 0 0 color-mix(in srgb,var(--dm-line) 50%,transparent)}
+  .crm-t .stk2{left:var(--crm-stk,56px);box-shadow:inset -1px 0 0 color-mix(in srgb,var(--dm-line) 50%,transparent);transition:box-shadow .2s}
+  /* once rows slide under the company column, its edge casts a soft shadow so what passes beneath reads as scrolled */
+  .crm-sc.sx .crm-t .stk2{box-shadow:inset -1px 0 0 color-mix(in srgb,var(--dm-line) 70%,transparent),6px 0 10px -6px rgba(0,0,0,.22)}
   .crm-t th.stk,.crm-t th.stk2,.crm-t tfoot .stk,.crm-t tfoot .stk2{z-index:3}
   .crm-t tbody tr:is(.sel,.open) :is(.stk,.stk2){background:color-mix(in srgb,var(--dm-fg) 6%,var(--dm-surface))}
   .crm-co .nm{max-width:150px}

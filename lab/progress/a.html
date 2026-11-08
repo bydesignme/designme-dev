@@ -1,0 +1,450 @@
+<!doctype html>
+<html lang="en" data-style="soft">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Progress A: progressive disclosure · Designme.dev</title>
+<link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+<script>
+/* the page opens in the style and theme the site last used */
+(function(){ var d = document.documentElement, dark = matchMedia('(prefers-color-scheme: dark)').matches, s = 'soft', t = null;
+  try { s = localStorage.getItem('dmui-style') || 'soft'; t = localStorage.getItem('dmui-theme'); } catch(e){}
+  if (s === 'soft') d.setAttribute('data-style', 'soft'); else d.removeAttribute('data-style');
+  d.setAttribute('data-theme', t === 'dark' || t === 'light' ? t : (dark ? 'dark' : 'light')); })();
+</script>
+<style>
+@font-face{font-family:Inter;font-style:normal;font-weight:400;font-display:swap;src:url(../../fonts/inter-latin-400-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:Inter;font-style:normal;font-weight:500;font-display:swap;src:url(../../fonts/inter-latin-500-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:Inter;font-style:normal;font-weight:400;font-display:swap;src:url(../../fonts/inter-latin-ext-400-normal.woff2) format('woff2');unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+1E00-1E9F,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
+@font-face{font-family:Inter;font-style:normal;font-weight:500;font-display:swap;src:url(../../fonts/inter-latin-ext-500-normal.woff2) format('woff2');unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+1E00-1E9F,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
+</style>
+<link rel="stylesheet" href="../../components/assets/core.css">
+<style>
+/* ---------- tokens ----------
+   components/assets/core.css ships the install's prefixed tokens (--dm-*). The component below is written with the short
+   names the site's source (soft-2/index.html) uses, so it can move there as it is; on this page they point at the core's */
+:root{
+  --page:var(--dm-page); --stage:var(--dm-stage); --surface:var(--dm-surface); --raised:var(--dm-raised);
+  --fg:var(--dm-fg); --fg2:var(--dm-fg2); --muted:var(--dm-muted); --faint:var(--dm-faint); --rail:var(--dm-rail); --line:var(--dm-line); --line-strong:var(--dm-line-strong);
+  --chip:var(--dm-chip); --hover:var(--dm-hover); --row:var(--dm-row); --grid:var(--dm-grid);
+  --accent:var(--dm-accent); --accent-fg:var(--dm-accent-fg); --accent-mark:var(--dm-accent-mark); --accent-bg:var(--dm-accent-bg);
+  --ok:var(--dm-ok); --ok-bg:var(--dm-ok-bg); --ok-mark:var(--dm-ok-mark); --warn:var(--dm-warn); --warn-bg:var(--dm-warn-bg); --warn-mark:var(--dm-warn-mark); --bad:var(--dm-bad); --bad-bg:var(--dm-bad-bg);
+  --rk:var(--dm-rk); --r-card:var(--dm-r-card); --r-in:var(--dm-r-in); --r-sm:var(--dm-r-sm); --r-xs:var(--dm-r-xs); --r-pill:var(--dm-r-pill);
+  --s-1:var(--dm-s-1); --s-2:var(--dm-s-2); --s-3:var(--dm-s-3); --s-4:var(--dm-s-4); --s-5:var(--dm-s-5); --s-6:var(--dm-s-6); --s-8:var(--dm-s-8);
+  --sans:var(--dm-sans); --ease:var(--dm-ease); --ease-io:var(--dm-ease-io); --t-fast:var(--dm-t-fast); --t:var(--dm-t); --t-slow:var(--dm-t-slow);
+}
+
+/* ---------- the page ---------- */
+html,body{margin:0;background:var(--page)}
+body{font-family:var(--sans);font-size:14px;line-height:1.5;color:var(--fg);-webkit-font-smoothing:antialiased}
+:where(.lab) button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+:where(.lab) :focus-visible{outline:2px solid var(--line-strong);outline-offset:2px;border-radius:6px}
+.sr{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.lab{max-width:760px;margin:0 auto;padding:var(--s-8) var(--s-6) 72px}
+.lab-h{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:var(--s-4) var(--s-6);padding-bottom:var(--s-5)}
+.lab-h h1{margin:0;font-size:14px;font-weight:500;line-height:1.4}
+.lab-h h1 span{color:var(--muted);font-weight:400}
+.lab-h p{margin:var(--s-1) 0 0;max-width:520px;font-size:13px;line-height:1.55;color:var(--muted);text-wrap:pretty}
+.lab-ctl{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s-2)}
+.lab-ctl .seg2 button{color:var(--muted)}
+.lab-ctl .seg2 button[aria-pressed="true"]{color:var(--fg)}
+.lab-rp{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 12px;border-radius:var(--r-pill);background:var(--chip);font-size:12.5px;color:var(--fg);transition:background var(--t-fast)}
+.lab-rp:hover{background:var(--hover)}
+.lab-rp .i{color:var(--fg2)}
+/* the stage: the component sits centred in it at every height */
+.fr-st{display:flex;align-items:center;justify-content:center;min-height:620px;padding:var(--s-6) var(--s-4);border-radius:var(--r-card);background:var(--stage);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--line) 50%,transparent)}
+.fr-st>.card{width:100%;display:flex;justify-content:center}
+:root:not([data-style="soft"]) .fr-st{border-radius:0;background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:24px 24px;background-position:-1px -1px}
+:root:not([data-style="soft"]) :is(.lab-rp,.lab-ctl .seg2,.lab-ctl .seg2 *){border-radius:0}
+:root:not([data-style="soft"]) .lab-h h1{font-size:12px;letter-spacing:.04em;text-transform:uppercase}
+@media (max-width:640px){.lab{padding:var(--s-6) var(--s-4) 56px}.fr-st{padding:var(--s-4) var(--s-3);min-height:600px}}
+@media (prefers-reduced-motion:reduce){.lab *,.lab *::before,.lab *::after,.tip{transition-duration:.01ms!important;animation-duration:.01ms!important}}
+
+/* ---------- A · progressive disclosure ----------
+   At rest: the run's name, its state in words, one bar for the whole run and the time left. Steps and Credits open
+   layers with the detail: each step's count, timing and what it is on now; the run's spend and its share of the month */
+.pva{width:100%;display:flex;flex-direction:column;padding:var(--s-4) var(--s-4) var(--s-2);font-size:13px;line-height:1.45;color:var(--fg);--pva-c:var(--accent-mark)}
+.pva[data-s="paused"]{--pva-c:var(--line-strong)}
+.pva[data-s="err"]{--pva-c:var(--bad)}
+.pva[data-s="done"]{--pva-c:var(--ok-mark)}
+.pva-top{display:flex;align-items:flex-start;gap:var(--s-3)}
+.pva-id{flex:1;min-width:0}
+.pva-name{font-size:14px;font-weight:500;line-height:20px}
+.pva-st{display:flex;align-items:center;gap:var(--s-2);min-width:0;min-height:20px;margin-top:2px;color:var(--fg2)}
+.pva-st .w{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pva[data-s="err"] .pva-st{color:var(--bad)}
+/* the state's mark: a dot that breathes while the run works, a still grey one while paused, an icon when it stops */
+.pva-mk{position:relative;flex:none;display:grid;place-items:center;width:12px;height:12px}
+.pva-mk>i{width:6px;height:6px;border-radius:50%;corner-shape:round;background:var(--pva-c)}
+.pva-mk>i::after{content:"";position:absolute;inset:3px;border-radius:50%;corner-shape:round;background:var(--pva-c);opacity:0}
+.pva:is([data-s="run"],[data-s="ind"]) .pva-mk>i::after{animation:pvaping 1.8s var(--ease) infinite}
+@keyframes pvaping{0%{transform:scale(1);opacity:.45}80%,100%{transform:scale(2.6);opacity:0}}
+.pva-mk .i{display:none}
+.pva:is([data-s="err"],[data-s="done"]) .pva-mk>i{display:none}
+.pva[data-s="err"] .pva-mk .e,.pva[data-s="done"] .pva-mk .d{display:block}
+.pva[data-s="done"] .pva-mk{color:var(--ok)}
+.pva-act{flex:none;display:flex;align-items:center;gap:var(--s-1);margin:-3px -6px 0 0}
+.pva-act .pill{gap:6px}
+.pva-act .ib[disabled]{color:var(--dm-dis);cursor:default}
+/* the failure, in a sentence, under the state while the run is stopped */
+.pva-err p{margin:0;padding-top:var(--s-1);font-size:12.5px;line-height:1.5;color:var(--fg2);text-wrap:pretty}
+/* the one bar: the whole run, in proportion to how long each step takes; hairline gaps mark where steps meet */
+.pva-bar{position:relative;height:6px;margin-top:var(--s-3);border-radius:calc(3px * var(--rk));background:var(--chip);overflow:hidden}
+.pva-fill{position:absolute;left:0;top:0;bottom:0;width:0;border-radius:inherit;background:var(--pva-c);transition:width .2s linear,background var(--t-fast)}
+.pva[data-s="ind"] .pva-fill{width:30%;animation:pvasweep 1.3s var(--ease-io) infinite;transition:none}
+@keyframes pvasweep{from{transform:translateX(-100%)}to{transform:translateX(340%)}}
+.pva-tk{position:absolute;top:0;bottom:0;width:2px;margin-left:-1px;background:var(--surface)}
+.pva[data-s="ind"] .pva-tk{opacity:0}
+.pva-meta{display:flex;align-items:center;justify-content:space-between;gap:var(--s-2);min-height:28px;margin-top:var(--s-2);font-size:12.5px;color:var(--fg2)}
+.pva-eta{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pva-eta b{font-weight:500;color:var(--fg)}
+/* the credits control: this run's spend, opening a layer with its projection and the month */
+.pva-cr{position:relative;flex:none;display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 6px 0 8px;margin-right:-6px;border-radius:var(--r-sm);color:var(--fg2);font-size:12.5px;transition:background var(--t-fast),color var(--t-fast)}
+.pva-cr:hover{background:var(--row);color:var(--fg)}
+.pva-cr[aria-expanded="true"]{background:var(--chip);color:var(--fg)}
+.pva-cr .v{font-weight:500;color:var(--fg)}
+.pva-cr .cv{transition:transform var(--t) var(--ease)}
+.pva-cr[aria-expanded="true"] .cv{transform:rotate(180deg)}
+.pva-cr .wd{position:absolute;top:4px;left:19px;width:6px;height:6px;border-radius:50%;corner-shape:round;background:var(--warn-mark);box-shadow:0 0 0 1.5px var(--surface)}
+.pva-sep{height:1px;margin-top:var(--s-3);background:color-mix(in srgb,var(--line) 50%,transparent)}
+/* Steps: the toggle that opens the step list */
+.pva-tog{display:flex;align-items:center;gap:var(--s-2);width:calc(100% + var(--s-4));height:36px;margin:var(--s-1) calc(var(--s-2) * -1) 0;padding:0 var(--s-2);border-radius:var(--r-sm);font-size:13px;text-align:left;transition:background var(--t-fast)}
+.pva-tog:hover{background:var(--row)}
+.pva-tog .cv{color:var(--fg2);transition:transform var(--t) var(--ease)}
+.pva-tog[aria-expanded="true"] .cv{transform:rotate(180deg)}
+.pva-tog .l{font-weight:500}
+.pva-tog .n{min-width:0;flex:1;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pva-tog .el{flex:none;color:var(--muted);font-size:12.5px}
+/* the step list */
+.pva-list{list-style:none;margin:0;padding:0 0 var(--s-2);display:flex;flex-direction:column;gap:2px}
+.pva-sh{display:grid;grid-template-columns:16px minmax(0,1fr) auto 40px 12px;align-items:center;column-gap:var(--s-2);width:100%;min-height:32px;padding:0 var(--s-2);border-radius:var(--r-sm);font-size:13px;text-align:left}
+button.pva-sh{transition:background var(--t-fast)}
+button.pva-sh:hover{background:var(--row)}
+.pva-si{display:grid;place-items:center;width:16px;height:16px;color:var(--fg2)}
+.pva-si .spin{width:11px;height:11px;color:var(--accent-mark)}
+.pva-o{width:9px;height:9px;border-radius:50%;corner-shape:round;box-shadow:inset 0 0 0 1.5px var(--line-strong)}
+.pva-sn{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pva-sc,.pva-sd{font-size:12.5px;color:var(--muted);white-space:nowrap}
+.pva-sd{text-align:right}
+.pva-sv{display:grid;place-items:center;color:var(--fg2)}
+.pva-sv .i{transition:transform var(--t) var(--ease)}
+button.pva-sh[aria-expanded="true"] .pva-sv .i{transform:rotate(180deg)}
+.pva-s[data-st="up"] .pva-sn{color:var(--muted)}
+.pva-s:is([data-st="live"],[data-st="err"]) .pva-sn{font-weight:500}
+.pva-s[data-st="live"] .pva-sc{color:var(--fg)}
+.pva-s[data-st="err"] .pva-si{color:var(--bad)}
+.pva-s[data-st="err"] .pva-sc{color:var(--fg)}
+/* a step's detail sits under its name: what it is on now, or its log once it is done */
+.pva-sxi{display:flex;flex-direction:column;gap:2px;padding:0 var(--s-2) var(--s-2) calc(var(--s-2) * 2 + 16px);font-size:12.5px;line-height:1.5;color:var(--fg2)}
+.pva-sxi p{margin:0;text-wrap:pretty}
+.pva-now{display:flex;align-items:baseline;gap:6px;min-width:0}
+.pva-now .p{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--fg)}
+.pva-s[data-st="err"] .pva-e{color:var(--bad)}
+.pva-k{flex:none;color:var(--muted)}
+/* the credits layer */
+.pop.pva-pop{width:300px;max-width:calc(100% - 16px);padding:var(--s-3) var(--s-4) var(--s-4);font-size:12.5px;line-height:1.5;color:var(--fg2);cursor:default}
+.pva-ph{display:flex;align-items:baseline;justify-content:space-between;gap:var(--s-2);margin-bottom:var(--s-1)}
+.pva-ph .pva-k{font-size:12px}
+.pva-kv{display:flex;align-items:baseline;justify-content:space-between;gap:var(--s-3);min-height:22px}
+.pva-kv b{font-weight:500;color:var(--fg)}
+.pva-kv .x{color:var(--fg)}
+.pva-ps{height:1px;margin:var(--s-3) 0;background:color-mix(in srgb,var(--line) 50%,transparent)}
+.pva-ph .num b{font-weight:500;color:var(--fg)}
+.pva-mb{position:relative;height:8px;margin:var(--s-2) 0 var(--s-3);border-radius:calc(4px * var(--rk));background:var(--chip)}
+.pva-mb>i{position:absolute;top:0;bottom:0;left:0;width:0;transition:left .3s var(--ease),width .3s var(--ease)}
+.pva-mb .a{background:var(--line-strong);border-radius:calc(4px * var(--rk)) 0 0 calc(4px * var(--rk))}
+.pva-mb .b{background:var(--accent-mark)}
+.pva-mb .c{background:repeating-linear-gradient(135deg,var(--accent-mark) 0 1.5px,transparent 1.5px 4px);opacity:.7}
+.pva-mb .th{width:2px;top:-3px;bottom:-3px;margin-left:-1px;border-radius:1px;background:color-mix(in srgb,var(--fg) 40%,transparent)}
+.pva-lg{display:flex;flex-direction:column;gap:2px}
+.pva-lg>span{display:flex;align-items:center;gap:var(--s-2)}
+.pva-lg .sw{flex:none;width:8px;height:8px;border-radius:2px}
+.pva-lg .sw.a{background:var(--line-strong)}
+.pva-lg .sw.b{background:var(--accent-mark)}
+.pva-lg .sw.c{background:repeating-linear-gradient(135deg,var(--accent-mark) 0 1.5px,transparent 1.5px 3.5px);box-shadow:inset 0 0 0 1px var(--accent-mark)}
+.pva-lg .t{flex:1}
+.pva-lg .num{color:var(--fg)}
+.pva-wn{display:flex;align-items:flex-start;gap:var(--s-2);margin:var(--s-3) 0 0;color:var(--fg2);text-wrap:pretty}
+.pva-wn .tag{flex:none;margin-top:1px}
+/* Blueprint: square, with small uppercase labels */
+:root:not([data-style="soft"]) :is(.pva-k,.pva-tog .l){font-size:11px;font-weight:500;letter-spacing:.04em;text-transform:uppercase}
+:root:not([data-style="soft"]) .pva-ph .pva-k{font-size:10.5px}
+:root:not([data-style="soft"]) .pva-mk>i,:root:not([data-style="soft"]) .pva-mk>i::after,:root:not([data-style="soft"]) .pva-o,:root:not([data-style="soft"]) .pva-cr .wd{border-radius:50%!important}
+@media (prefers-reduced-motion:reduce){
+  .pva-mk>i::after{animation:none!important;opacity:0!important}
+  .pva[data-s="ind"] .pva-fill{animation:none;width:100%;opacity:.35}
+  .pva-fill,.pva-mb>i{transition:none}
+}
+</style>
+</head>
+<body>
+<main class="lab">
+  <header class="lab-h">
+    <div>
+      <h1>Progress and meter <span>· A, progressive disclosure</span></h1>
+      <p>Calm at rest: the run's state in words, one bar for the whole run and the time left. Open Steps for each step's count, timing and the item it is on, or Credits for this run's spend and its share of the month.</p>
+    </div>
+    <div class="lab-ctl">
+      <div class="seg2" id="sw-style" role="group" aria-label="Style"><button type="button" data-v="soft" aria-pressed="true">Soft</button><button type="button" data-v="blueprint" aria-pressed="false">Blueprint</button></div>
+      <div class="seg2" id="sw-theme" role="group" aria-label="Theme"><button type="button" data-v="light" aria-pressed="true">Light</button><button type="button" data-v="dark" aria-pressed="false">Dark</button></div>
+      <button type="button" class="lab-rp" id="replay" aria-label="Replay the run"><svg class="i s" aria-hidden="true"><use href="#i-refresh"/></svg>Replay</button>
+    </div>
+  </header>
+
+  <div class="fr-st">
+    <div class="card" data-c="pva-progress"><div class="stage-in"></div><template>
+      <div class="pva panel" data-s="ind">
+        <div class="pva-top">
+          <div class="pva-id">
+            <div class="pva-name" id="pva-n">Indexing the docs</div>
+            <div class="pva-st"><span class="pva-mk" aria-hidden="true"><i></i><svg class="i xs e"><use href="#i-alert"/></svg><svg class="i xs d"><use href="#i-check"/></svg></span><span class="w">Preparing the run</span></div>
+          </div>
+          <div class="pva-act">
+            <button type="button" class="pill sm line pva-retry" hidden><svg class="i xs" aria-hidden="true"><use href="#i-refresh"/></svg>Retry</button>
+            <button type="button" class="ib pva-btn" aria-label="Pause" data-tip="Pause" disabled><svg class="i" aria-hidden="true"><use href="#i-pause"/></svg></button>
+          </div>
+        </div>
+        <div class="fold shut pva-err"><div><p></p></div></div>
+        <div class="pva-bar" role="progressbar" aria-labelledby="pva-n" aria-valuemin="0" aria-valuemax="100"><i class="pva-fill"></i></div>
+        <div class="pva-meta">
+          <span class="pva-eta num">Counting pages</span>
+          <button type="button" class="pva-cr" data-pop="#pva-cpop" data-pop-align="end" aria-haspopup="dialog" aria-expanded="false" aria-controls="pva-cpop"><svg class="i s" aria-hidden="true"><use href="#i-coins"/></svg><span><span class="v num">0</span> credits<span class="sr"> used by this run</span></span><svg class="i xs cv" aria-hidden="true"><use href="#i-chev-d"/></svg></button>
+          <div class="pop pva-pop" id="pva-cpop" role="dialog" aria-label="Credits">
+            <div class="pva-ph"><span class="pva-k">This run</span></div>
+            <div class="pva-kv pva-c-sr"><span>Spent so far</span><b class="num pva-c-sp">0</b></div>
+            <div class="pva-kv"><span class="pva-c-pl">Projected total</span><span class="num x pva-c-pj">534</span></div>
+            <div class="pva-kv"><span>Costliest step</span><span class="x">Writing embeddings, <span class="num">342</span></span></div>
+            <div class="pva-ps"></div>
+            <div class="pva-ph"><span class="pva-k">This month</span><span class="num"><b class="pva-c-mo">7,000</b> of 10,000</span></div>
+            <div class="pva-mb" role="meter" aria-label="Credits this month" aria-valuemin="0" aria-valuemax="10000"><i class="a"></i><i class="b"></i><i class="c"></i><i class="th" style="left:75%"></i><i class="th" style="left:90%"></i></div>
+            <div class="pva-lg">
+              <span><i class="sw a"></i><span class="t">Before this run</span><span class="num pva-c-a">7,000</span></span>
+              <span><i class="sw b"></i><span class="t">This run</span><span class="num pva-c-b">0</span></span>
+              <span class="pva-c-cl"><i class="sw c"></i><span class="t">Still to come</span><span class="num pva-c-c">534</span></span>
+            </div>
+            <p class="pva-wn"></p>
+          </div>
+        </div>
+        <div class="pva-sep"></div>
+        <button type="button" class="pva-tog" aria-expanded="false" aria-controls="pva-list"><svg class="i s cv" aria-hidden="true"><use href="#i-chev-d"/></svg><span class="l">Steps</span><span class="n">0 of 5 done</span><span class="el num">0:00 elapsed</span></button>
+        <div class="fold shut pva-fold"><div><ol class="pva-list" id="pva-list" aria-label="Steps"></ol></div></div>
+        <p class="sr pva-live" role="status" aria-live="polite"></p>
+      </div>
+    </template></div>
+  </div>
+</main>
+<script src="../../components/assets/core.js"></script>
+<script>
+/* ---------- A · progressive disclosure ---------- */
+DM.PLAYS.add('pva-progress');
+DM.def('pva-progress', (r, c) => {
+  const root = $('.pva', r), stw = $('.pva-st .w', r), btn = $('.pva-btn', r), retryB = $('.pva-retry', r);
+  const errF = $('.pva-err', r), errP = $('.pva-err p', r), bar = $('.pva-bar', r), fill = $('.pva-fill', r), eta = $('.pva-eta', r);
+  const cr = $('.pva-cr', r), pop = $('.pva-pop', r), tog = $('.pva-tog', r), fold = $('.pva-fold', r), list = $('.pva-list', r), live = $('.pva-live', r);
+  const Ih = (n, k = 's') => I(n, k).replace('<svg ', '<svg aria-hidden="true" ');
+  const fmt = n => Math.round(n).toLocaleString('en-US');
+  const secs = s => s < 60 ? s.toFixed(1) + 's' : clock(s);
+  const clock = s => { s = Math.floor(s); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };
+  const set = (el, v, h) => { if (h ? el.innerHTML !== v : el.textContent !== v) h ? el.innerHTML = v : el.textContent = v; };
+
+  /* the run: five steps. Each step's share of the bar is its share of the work (its ticks), so the bar and the time left
+     agree; each tick costs the step's credits */
+  const SL = ['getting-started', 'install', 'quickstart', 'auth/api-keys', 'auth/oauth', 'webhooks', 'rate-limits', 'errors', 'sdk/node', 'sdk/python', 'pagination', 'search', 'uploads', 'billing', 'changelog', 'migrate-v2'];
+  const S = [
+    { name:'Reading the sitemap', unit:'pages', total:48, T:6, cost:2, verb:'Reading', now:k => `/docs/${SL[k % 16]}` },
+    { name:'Fetching pages', unit:'pages', total:48, T:16, cost:3, verb:'Fetching', now:k => `/docs/${SL[(k * 3) % 16]}` },
+    { name:'Indexing files', unit:'files', total:2000, T:26, cost:4, verb:'Indexing', now:k => `docs/${SL[(k * 5) % 16]}${k % 3 ? '.md' : '-' + (k % 4 + 1) + '.png'}` },
+    { name:'Writing embeddings', unit:'chunks', total:6400, T:38, cost:9, verb:'Embedding', now:(k, n) => `chunk ${fmt(n)}, ${SL[(k * 7) % 16]}.md` },
+    { name:'Checking links', unit:'links', total:310, T:14, cost:2, verb:'Checking', now:k => `/docs/${SL[(k * 11) % 16]}#${['setup', 'examples', 'limits', 'faq'][k % 4]}` }
+  ];
+  const TICK = 150, ALL = S.reduce((t, s) => t + s.T, 0), RUNCOST = S.reduce((t, s) => t + s.T * s.cost, 0), LIMIT = 10000, FAIL_AT = 19;
+  const before = S.map((s, j) => S.slice(0, j).reduce((t, x) => t + x.T, 0));
+  // where steps meet on the bar
+  bar.insertAdjacentHTML('beforeend', before.slice(1).map(b => `<i class="pva-tk" aria-hidden="true" style="left:${b / ALL * 100}%"></i>`).join(''));
+
+  let state = 'ind', step = 0, sub = 0, spent = 0, elapsed = 0, run = 0, failed = false, monthBase = 7000, band = -1;
+  let stat = S.map(() => 'up'), start = [], dur = [], used = [], shown = '';
+  const ticks = () => state === 'done' ? ALL : before[step] + sub;
+  const count = j => stat[j] === 'done' ? S[j].total : j === step ? Math.round(sub / S[j].T * S[j].total) : 0;
+  const left = () => (ALL - ticks()) * TICK / 1000;
+  const etaWords = s => s < 3 ? 'A few seconds left' : s < 60 ? `About ${Math.round(s)}s left` : `About ${Math.round(s / 60)} min left`;
+  const say = m => { live.textContent = ''; setTimeout(() => { if (!c.dead) live.textContent = m; }, 60); };
+
+  /* ---------- the step list ---------- */
+  list.innerHTML = S.map((s, j) => `<li class="pva-s" data-st="up"><div class="pva-sh"></div><div class="fold shut pva-sx" id="pva-x${j}"><div><div class="pva-sxi"></div></div></div></li>`).join('');
+  const lis = $$('.pva-s', list);
+  const LOG = [
+    () => 'Found 48 pages in sitemap.xml.',
+    () => 'Fetched all 48 pages.',
+    () => 'Indexed 2,000 files from the 48 pages.',
+    () => failed ? 'Wrote 6,400 chunks. It timed out once at chunk 3,200 and went on from there after Retry.' : 'Wrote 6,400 chunks.',
+    () => 'Checked 310 links. None are broken.'
+  ];
+  function head(j){
+    const s = S[j], st = stat[j];
+    const ic = st === 'done' ? Ih('check', 'xs') : st === 'err' ? Ih('alert', 'xs') : st === 'live' ? (state === 'paused' ? Ih('pause', 'xs') : '<span class="spin" aria-hidden="true"></span>') : '<span class="pva-o" aria-hidden="true"></span>';
+    const word = { done:', done', err:', failed', live:state === 'paused' ? ', paused' : ', running', up:', not started' }[st];
+    return `<span class="pva-si">${ic}</span><span class="pva-sn">${s.name}<span class="sr">${word}</span></span><span class="pva-sc num"></span><span class="pva-sd num"></span><span class="pva-sv">${st === 'done' ? Ih('chev-d', 'xs') : ''}</span>`;
+  }
+  function detail(j){
+    const st = stat[j];
+    if (st === 'live') return `<div class="pva-now"><span class="pva-k">${S[j].verb}</span><span class="p"></span></div><div class="pva-sub muted num"></div>`;
+    if (st === 'err') return `<p>Stopped at chunk ${fmt(count(j) + 1)}. The ${fmt(count(j))} chunks before it are saved.</p><p class="muted num">Used ${fmt(used[j])} credits, started ${clock(start[j])} into the run.</p>`;
+    if (st === 'done') return `<p>${LOG[j]()}</p><p class="muted num">Used ${fmt(used[j])} credits, started ${clock(start[j])} into the run.</p>`;
+    return '';
+  }
+  // a step changes state: its row is drawn again. Done rows fold their detail away and become buttons that open their log
+  function restep(j, to){
+    const li = lis[j], from = stat[j]; stat[j] = to; li.dataset.st = to;
+    const old = $('.pva-sh', li), sx = $('.pva-sx', li), inner = $('.pva-sxi', sx);
+    const hd = document.createElement(to === 'done' ? 'button' : 'div'); hd.className = 'pva-sh';
+    if (to === 'done'){ hd.type = 'button'; hd.setAttribute('aria-expanded', 'false'); hd.setAttribute('aria-controls', sx.id); hd.onclick = () => { const o = hd.getAttribute('aria-expanded') !== 'true'; hd.setAttribute('aria-expanded', String(o)); sx.classList.toggle('shut', !o); }; }
+    hd.innerHTML = head(j); old.replaceWith(hd);
+    if (to === 'done' || to === 'up'){
+      sx.classList.add('shut');
+      if (from === 'up' || REDUCE) inner.innerHTML = detail(j); else c.later(cssT(), () => { if (stat[j] === to) inner.innerHTML = detail(j); });
+    } else { inner.innerHTML = detail(j); requestAnimationFrame(() => sx.classList.remove('shut')); }
+  }
+  lis.forEach((li, j) => { $('.pva-sh', li).innerHTML = head(j); });
+  const cssT = () => { const v = getComputedStyle(root).getPropertyValue('--dm-t').trim(); return (v.endsWith('ms') ? parseFloat(v) : parseFloat(v) * 1000) || 450; };
+  function paintSteps(){
+    lis.forEach((li, j) => {
+      const s = S[j], st = stat[j], sc = $('.pva-sc', li), sd = $('.pva-sd', li);
+      set(sc, st === 'done' ? `${fmt(s.total)} ${s.unit}` : st === 'live' || st === 'err' ? `${fmt(count(j))} of ${fmt(s.total)}` : '');
+      set(sd, st === 'done' ? secs(dur[j]) : st === 'live' || st === 'err' ? secs(elapsed - start[j]) : '');
+      if (st === 'live'){
+        const p = $('.pva-now .p', li), sb = $('.pva-sub', li);
+        if (p) set(p, s.now(sub, Math.max(1, count(j))));
+        if (sb){ const l = (s.T - sub) * TICK / 1000; set(sb, `${state === 'paused' ? 'Paused' : l < 3 ? 'A few seconds left in this step' : `About ${Math.round(l)}s left in this step`}, ${fmt(used[j] || 0)} credits so far`); }
+      }
+    });
+  }
+
+  /* ---------- the surface at rest, and the credits layer ---------- */
+  function paint(){
+    root.dataset.s = state;
+    const p = ticks() / ALL, pc = Math.round(p * 100), sname = S[Math.min(step, S.length - 1)].name;
+    // the bar: the whole run
+    if (state === 'ind'){ bar.removeAttribute('aria-valuenow'); bar.setAttribute('aria-valuetext', 'Preparing the run'); fill.style.width = ''; }
+    else {
+      fill.style.width = p * 100 + '%'; bar.setAttribute('aria-valuenow', pc);
+      bar.setAttribute('aria-valuetext', { run:`${pc}%, step ${step + 1} of 5, ${etaWords(left()).toLowerCase()}`, paused:`${pc}%, paused`, err:`${pc}%, stopped at step ${step + 1} of 5`, done:'Done' }[state]);
+    }
+    // the state in words, and the time left
+    set(stw, { ind:'Preparing the run', run:`Step ${step + 1} of 5 · ${sname}`, paused:`Paused at step ${step + 1} of 5`, err:`${sname} failed`, done:'Done · 2,000 files indexed, 310 links checked' }[state]);
+    set(eta, { ind:'Counting pages', run:`<b>${pc}%</b> · ${etaWords(left())}`, paused:`<b>${pc}%</b> · Paused, ${etaWords(left()).toLowerCase()} once resumed`, err:`<b>${pc}%</b> · Stopped`, done:`<b>100%</b> · Took ${clock(elapsed)}` }[state], true);
+    // the Steps toggle: how far, and for how long
+    const nd = stat.filter(x => x === 'done').length;
+    set($('.n', tog), state === 'err' ? `${nd} of 5 done, step ${step + 1} failed` : `${nd} of 5 done`);
+    set($('.el', tog), `${clock(elapsed)} ${state === 'done' ? 'total' : 'elapsed'}`);
+    paintSteps();
+    // credits: this run, its projection, and the month with this run's share drawn on it
+    const month = monthBase + spent, proj = monthBase + RUNCOST;
+    set($('.v', cr), fmt(spent));
+    set($('.pva-c-sp', pop), fmt(spent)); set($('.pva-c-pl', pop), state === 'done' ? 'Total' : 'Projected total'); set($('.pva-c-pj', pop), fmt(RUNCOST));
+    set($('.pva-c-mo', pop), fmt(month)); set($('.pva-c-a', pop), fmt(monthBase)); set($('.pva-c-b', pop), fmt(spent)); set($('.pva-c-c', pop), fmt(RUNCOST - spent));
+    $('.pva-c-cl', pop).hidden = $('.pva-c-sr', pop).hidden = state === 'done';
+    const [ma, mb, mc] = $$('.pva-mb i', pop);
+    ma.style.width = monthBase / LIMIT * 100 + '%'; mb.style.left = ma.style.width; mb.style.width = spent / LIMIT * 100 + '%';
+    mc.style.left = month / LIMIT * 100 + '%'; mc.style.width = (state === 'done' ? 0 : (RUNCOST - spent) / LIMIT * 100) + '%';
+    const mtr = $('.pva-mb', pop), nb = month >= 9000 ? 2 : month >= 7500 ? 1 : 0, pb = proj >= 9000 ? 2 : proj >= 7500 ? 1 : 0;
+    mtr.setAttribute('aria-valuenow', month); mtr.setAttribute('aria-valuetext', `${fmt(month)} of 10,000 credits used this month, ${fmt(spent)} of them by this run`);
+    const lim = ['', '75%', '90%'];
+    set($('.pva-wn', pop), nb ? `<span class="tag warn">${Ih('warn', 'xs')}Past ${lim[nb]}</span><span>Over ${lim[nb]} of the month's credits are used. They reset Dec 1.</span>`
+      : pb > nb && state !== 'done' ? `<span>This run is on course to take the month past ${lim[pb]}. Credits reset Dec 1.</span>` : '<span>Alerts at 75% and 90%. Credits reset Dec 1.</span>', true);
+    // passing a threshold is a change of state: the control gets a warning dot, and it is said once
+    if (nb !== band){
+      const wd = $('.wd', cr);
+      if (nb && !wd) cr.insertAdjacentHTML('beforeend', '<i class="wd" aria-hidden="true"></i>'); else if (!nb && wd) wd.remove();
+      if (band >= 0 && nb > band) say(`This month's credits passed ${lim[nb]}`);
+      band = nb;
+    }
+    // what changes only with the state: the button, Retry and the failure sentence
+    if (shown !== state){
+      const b = state === 'paused' ? ['play', 'Resume'] : state === 'done' ? ['refresh', 'Run again'] : ['pause', 'Pause'];
+      const had = document.activeElement === retryB;
+      $('use', btn).setAttribute('href', '#i-' + b[0]); btn.setAttribute('aria-label', b[1]); btn.dataset.tip = b[1];
+      btn.disabled = state === 'ind'; btn.hidden = state === 'err'; retryB.hidden = state !== 'err';
+      if (had && state !== 'err') btn.focus({ preventScroll:true });
+      if (state === 'err') errP.textContent = `The embeddings service timed out. Nothing written is lost: Retry picks up at chunk ${fmt(count(step) + 1)}.`;
+      errF.classList.toggle('shut', state !== 'err');
+      lis.forEach((li, j) => { if (stat[j] === 'live') $('.pva-si', li).innerHTML = state === 'paused' ? Ih('pause', 'xs') : '<span class="spin" aria-hidden="true"></span>'; });
+      // only a change of state is announced, never every percent
+      if (shown) say({ ind:'Starting the run', run:shown === 'err' ? `Retrying from chunk ${fmt(count(step) + 1)}` : 'Running', paused:`Paused at step ${step + 1} of 5`, err:`Step ${step + 1}, ${sname.toLowerCase()}, failed: the embeddings service timed out`, done:`Done. Indexed 2,000 files and checked 310 links in ${clock(elapsed)}` }[state]);
+      shown = state;
+    }
+  }
+
+  /* ---------- the controls ---------- */
+  btn.onclick = () => {
+    if (state === 'run'){ state = 'paused'; paint(); }
+    else if (state === 'paused'){ state = 'run'; paint(); }
+    else if (state === 'done'){ monthBase += spent; c.run(go); }
+  };
+  retryB.onclick = () => { if (state !== 'err') return; state = 'run'; restep(step, 'live'); paint(); };
+  tog.onclick = () => { const o = tog.getAttribute('aria-expanded') !== 'true'; tog.setAttribute('aria-expanded', String(o)); fold.classList.toggle('shut', !o); };
+  // the credits layer is placed again while the run's surface changes height under it
+  const ro = new ResizeObserver(() => { if (pop.classList.contains('open')) placePop(cr, pop); }); ro.observe(root); c.offs.push(() => ro.disconnect());
+
+  // the clock runs while the run prepares or works, not while it is paused or stopped
+  let t0 = performance.now();
+  c.every(200, () => { const t = performance.now(); if (state === 'run' || state === 'ind'){ elapsed += (t - t0) / 1000; paint(); } t0 = t; });
+  // run time is the agent's, so it is not held by a pointer and keeps its pace with reduced motion
+  const tick = ms => new Promise((res, rej) => { c.t.push(setTimeout(() => c.dead ? rej('stop') : res(), ms)); });
+  const until = async f => { while (!f()) await tick(100); };
+
+  /* the agent's run: it works out what there is, then goes step by step; the fourth step times out once, halfway */
+  async function go(){
+    const id = ++run;
+    state = 'ind'; step = 0; sub = 0; spent = 0; elapsed = 0; failed = false; start = []; dur = []; used = [];
+    S.forEach((s, j) => { if (stat[j] !== 'up') restep(j, 'up'); });
+    paint();
+    await tick(1800); if (id !== run) return;
+    state = 'run';
+    for (step = 0; step < S.length; step++){
+      sub = 0; start[step] = elapsed; used[step] = 0; restep(step, 'live'); paint();
+      for (let k = 1; k <= S[step].T; k++){
+        await tick(TICK); await until(() => state !== 'paused'); if (id !== run) return;
+        if (step === 3 && k === FAIL_AT + 1 && !failed){
+          failed = true; state = 'err'; restep(step, 'err'); paint();
+          await until(() => state !== 'err'); if (id !== run) return;
+          await tick(400); if (id !== run) return;
+        }
+        sub = k; spent += S[step].cost; used[step] += S[step].cost; paint();
+      }
+      dur[step] = elapsed - start[step]; restep(step, 'done');
+    }
+    step = S.length - 1; state = 'done'; paint();
+  }
+  paint(); c.run(go);
+
+  /* the demo, once: Steps opens, the fourth step fails and is retried, the credits layer opens and closes, and the run
+     settles back to its calm surface. It stops for good at the visitor's first click, key or focus inside */
+  c.story(async s => {
+    await s.until(() => state === 'run' && step === 2 && sub >= 3);
+    await s.tap(tog); s.away();
+    await s.until(() => state === 'err'); await s.beat(4);
+    await s.tap(retryB); s.away(); await s.beat(2);
+    await s.tap(cr); await s.beat(6);
+    await s.tap(cr); s.away();
+    await s.until(() => state === 'done'); await s.beat(3);
+    await s.tap(tog); s.away();
+    // played once: ending the story here, rather than returning, skips the core's replay loop
+    throw 'stop';
+  });
+});
+
+/* ---------- the page: style, theme and replay ---------- */
+{
+  const d = document.documentElement;
+  const mark = (sel, v) => $$(sel + ' button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === v)));
+  mark('#sw-style', d.dataset.style === 'soft' ? 'soft' : 'blueprint');
+  mark('#sw-theme', d.dataset.theme === 'dark' ? 'dark' : 'light');
+  seg($('#sw-style'), v => { if (v === 'soft') d.dataset.style = 'soft'; else delete d.dataset.style; try { localStorage.setItem('dmui-style', v); } catch(e){} });
+  seg($('#sw-theme'), v => { d.dataset.theme = v; try { localStorage.setItem('dmui-theme', v); } catch(e){} });
+  $('#replay').addEventListener('click', () => { const card = $('[data-c="pva-progress"]'); DM.mount(card, !!card._c); });
+}
+</script>
+</body>
+</html>

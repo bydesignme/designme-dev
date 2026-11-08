@@ -1,0 +1,454 @@
+<!doctype html>
+<html lang="en" data-style="soft">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Progress B: step timeline · Designme.dev</title>
+<link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+<script>
+/* the page opens in the style and theme the site last used */
+(function(){ var d = document.documentElement, dark = matchMedia('(prefers-color-scheme: dark)').matches, s = 'soft', t = null;
+  try { s = localStorage.getItem('dmui-style') || 'soft'; t = localStorage.getItem('dmui-theme'); } catch(e){}
+  if (s === 'soft') d.setAttribute('data-style', 'soft'); else d.removeAttribute('data-style');
+  d.setAttribute('data-theme', t === 'dark' || t === 'light' ? t : (dark ? 'dark' : 'light')); })();
+</script>
+<style>
+@font-face{font-family:Inter;font-style:normal;font-weight:400;font-display:swap;src:url(../../fonts/inter-latin-400-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:Inter;font-style:normal;font-weight:500;font-display:swap;src:url(../../fonts/inter-latin-500-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:Inter;font-style:normal;font-weight:400;font-display:swap;src:url(../../fonts/inter-latin-ext-400-normal.woff2) format('woff2');unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+1E00-1E9F,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
+@font-face{font-family:Inter;font-style:normal;font-weight:500;font-display:swap;src:url(../../fonts/inter-latin-ext-500-normal.woff2) format('woff2');unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+1E00-1E9F,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
+</style>
+<link rel="stylesheet" href="../../components/assets/core.css">
+<style>
+/* ---------- tokens ---------- */
+/* the core now ships its tokens as --dm-*; this page writes the site's short names, so they point at the core's */
+:root{
+  --page:var(--dm-page);--stage:var(--dm-stage);--surface:var(--dm-surface);--raised:var(--dm-raised);
+  --fg:var(--dm-fg);--fg2:var(--dm-fg2);--muted:var(--dm-muted);--faint:var(--dm-faint);--rail:var(--dm-rail);--line:var(--dm-line);
+  --chip:var(--dm-chip);--hover:var(--dm-hover);--row:var(--dm-row);--grid:var(--dm-grid);
+  --accent-mark:var(--dm-accent-mark);--accent-fg:var(--dm-accent-fg);--accent-bg:var(--dm-accent-bg);
+  --ok:var(--dm-ok);--ok-bg:var(--dm-ok-bg);--ok-mark:var(--dm-ok-mark);--warn:var(--dm-warn);--warn-bg:var(--dm-warn-bg);--warn-mark:var(--dm-warn-mark);--bad:var(--dm-bad);--bad-bg:var(--dm-bad-bg);
+  --r-card:var(--dm-r-card);--r-in:var(--dm-r-in);--r-sm:var(--dm-r-sm);--r-pill:var(--dm-r-pill);--rk:var(--dm-rk);
+  --s-1:var(--dm-s-1);--s-2:var(--dm-s-2);--s-3:var(--dm-s-3);--s-4:var(--dm-s-4);--s-5:var(--dm-s-5);--s-6:var(--dm-s-6);--s-8:var(--dm-s-8);
+  --ease:var(--dm-ease);--ease-io:var(--dm-ease-io);--t:var(--dm-t);--t-fast:var(--dm-t-fast);
+  --shadow:var(--dm-shadow);--shadow-pop:var(--dm-shadow-pop);--sans:var(--dm-sans)
+}
+
+/* ---------- the page ---------- */
+html,body{margin:0;background:var(--page)}
+body{font-family:var(--sans);font-size:14px;line-height:1.5;color:var(--fg);-webkit-font-smoothing:antialiased}
+:where(.lab) button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+.lab :focus-visible{outline:2px solid var(--dm-focus);outline-offset:2px}
+.lab{max-width:760px;margin:0 auto;padding:40px 24px 64px}
+.lab-h h1{margin:0;font-size:14px;font-weight:500;line-height:1.4}
+.lab-h p{margin:4px 0 0;max-width:600px;font-size:13.5px;line-height:1.55;color:var(--muted);text-wrap:pretty}
+.lab-ctl{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s-2);margin-top:var(--s-5)}
+.lab-ctl .sp{flex:1}
+.lab-rp{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 12px;border-radius:var(--r-pill);background:var(--chip);font-size:12.5px;color:var(--fg);transition:background var(--t-fast)}
+.lab-rp:hover{background:var(--hover)}
+.lab-rp .i{color:var(--fg2)}
+.lab-st{position:relative;display:flex;min-height:680px;margin-top:var(--s-3);border-radius:var(--r-card);background:var(--stage);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--line) 50%,transparent)}
+.lab-st>[data-c]{flex:1;width:auto;max-width:none;display:flex}
+.lab-st .stage-in{max-width:none;flex:1;display:flex;align-items:center;justify-content:center;padding:var(--s-8) var(--s-4)}
+:root:not([data-style="soft"]) .lab-st{border-radius:0;background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:24px 24px;background-position:-1px -1px}
+:root:not([data-style="soft"]) :is(.lab-rp,.lab-ctl .seg2,.lab-ctl .seg2 *){border-radius:0}
+@media (max-width:640px){.lab{padding:28px 16px 48px}.lab-st .stage-in{padding:var(--s-6) var(--s-3)}}
+
+/* ---------- Progress B: the steps are the progress ---------- */
+/* a vertical rail of the run's steps. Finished steps fold to one line (open one to see what it made), the step in hand is a
+   raised card on the rail with its own bar, count, speed, the item it is on and its time left, and the steps ahead wait in
+   grey with their size. The card slides down the rail as each step finishes. Credits wait in the footer as one line */
+.pvb{width:440px;max-width:100%;display:flex;flex-direction:column;--mk:var(--accent-mark);
+  --rl:color-mix(in srgb,var(--rail) 50%,transparent);--hl:color-mix(in srgb,var(--line) 50%,transparent)}
+.pvb[data-s="paused"]{--mk:var(--faint)}
+.pvb[data-s="err"]{--mk:var(--bad)}
+.pvb-vh{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+/* labels: quiet words in Soft, small capitals in Blueprint */
+.pvb-k{font-size:12px;color:var(--muted)}
+:root:not([data-style="soft"]) .pvb-k{font-size:10.5px;font-weight:500;letter-spacing:.04em;text-transform:uppercase}
+
+/* the header: what runs, how it is going in words, and the one control */
+.pvb-h{display:flex;align-items:center;gap:var(--s-3);padding:var(--s-4) var(--s-3) var(--s-3) var(--s-4)}
+.pvb-ht{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.4}
+.pvb-ht b{font-size:13.5px;font-weight:500}
+.pvb-sum{font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pvb-tag{flex:none}
+.pvb-tag.run{background:var(--accent-bg);color:var(--accent-fg)}
+.pvb-btn{flex:none}
+
+/* the rail: a line from step to step, solid where the run has been and dashed where it is going */
+.pvb-rw{position:relative;z-index:0;padding:0 var(--s-2) var(--s-2)}
+.pvb-rail{list-style:none;margin:0;padding:0}
+.pvb-st{position:relative;transition:padding var(--t) var(--ease)}
+.pvb-st::before{content:"";position:absolute;z-index:0;left:16px;top:18px;width:2px;height:100%;background:repeating-linear-gradient(to bottom,var(--rl) 0 4px,transparent 4px 8px)}
+.pvb-st[data-k="done"]::before{background:var(--rl)}
+.pvb-st:last-child::before{display:none}
+/* the live card: one raised surface that slides from step to step (placed by the script) */
+.pvb-lift{position:absolute;left:var(--s-2);right:var(--s-2);top:0;height:0;z-index:1;border-radius:var(--r-in);background:var(--raised);box-shadow:var(--shadow-pop);pointer-events:none;opacity:0;transition:opacity var(--t) var(--ease)}
+.pvb-lift.on{opacity:1}
+.pvb-st:is([data-k="live"],[data-k="end"]){padding-block:var(--s-1)}
+
+/* a step's line: its marker, its name and its size or time */
+.pvb-row{position:relative;z-index:2;width:100%;display:flex;align-items:center;gap:var(--s-3);min-height:36px;padding:9px var(--s-2);border-radius:var(--r-sm);font-size:13px;line-height:18px;text-align:left;color:var(--fg)}
+/* the hover grey is see-through, so the rail still shows under it */
+button.pvb-row:hover{background:color-mix(in srgb,var(--fg) 3%,transparent)}
+button.pvb-row:focus-visible{outline-offset:-2px}
+.pvb-nd{position:relative;z-index:3;flex:none;width:18px;height:18px;display:grid;place-items:center;border-radius:50%;corner-shape:round;background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--rail);color:var(--muted)}
+.pvb-nm{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pvb-mt{flex:none;font-size:12.5px;color:var(--muted)}
+.pvb-cv{flex:none;color:var(--muted);margin-left:calc(var(--s-1) * -1);transition:transform var(--t) var(--ease)}
+.pvb-row[aria-expanded="true"] .pvb-cv{transform:rotate(180deg)}
+/* ahead: grey, with the size it expects */
+.pvb-st[data-k="next"] .pvb-nm{color:var(--muted)}
+/* done: a green tick, a quiet line you can open */
+.pvb-st[data-k="done"] .pvb-nd{background:linear-gradient(var(--ok-bg),var(--ok-bg)),var(--surface);box-shadow:none;color:var(--ok)}
+/* live: the name steps up, the marker says how it is going */
+.pvb-st:is([data-k="live"],[data-k="end"]) .pvb-nm{font-weight:500}
+.pvb-st[data-k="live"] .pvb-nd{background:var(--raised);box-shadow:none;color:var(--mk)}
+.pvb-st[data-k="live"] .pvb-nd .spin{width:14px;height:14px;border-width:2px}
+.pvb[data-s="paused"] .pvb-st[data-k="live"] .pvb-nd{background:var(--chip);color:var(--fg2)}
+.pvb[data-s="err"] .pvb-st[data-k="live"] .pvb-nd{background:linear-gradient(var(--bad-bg),var(--bad-bg)),var(--raised);color:var(--bad)}
+.pvb[data-s="err"] .pvb-st[data-k="live"] .pvb-mt{color:var(--bad)}
+.pvb-st[data-k="end"] .pvb-nd{background:linear-gradient(var(--ok-bg),var(--ok-bg)),var(--raised);box-shadow:none;color:var(--ok)}
+
+/* folds: a step's detail, the live card's body, the log and the credits meter open in place */
+.pvb-fold{position:relative;z-index:2;display:grid;grid-template-rows:0fr;opacity:0;visibility:hidden;transition:grid-template-rows var(--t) var(--ease),opacity var(--t-fast) var(--ease),visibility 0s linear var(--t)}
+.pvb-fold.open{grid-template-rows:1fr;opacity:1;visibility:visible;transition:grid-template-rows var(--t) var(--ease),opacity var(--t) var(--ease),visibility 0s}
+.pvb-fold>div{min-height:0;overflow:hidden}
+.pvb-in{padding:0 var(--s-3) var(--s-3) 38px}
+
+/* the live card's body */
+.pvb-bar{position:relative;height:6px;margin-top:2px;border-radius:calc(3px * var(--rk));background:var(--chip);overflow:hidden}
+.pvb-bar i{position:absolute;left:0;top:0;bottom:0;width:0;border-radius:inherit;background:var(--mk);transition:width .12s linear,background .3s}
+.pvb-bar.ind i{width:32%;animation:pvbsweep 1.3s var(--ease-io) infinite;transition:none}
+@keyframes pvbsweep{from{transform:translateX(-100%)}to{transform:translateX(320%)}}
+.pvb-nums{display:flex;align-items:baseline;justify-content:space-between;gap:var(--s-2);margin-top:var(--s-2);font-size:12.5px;line-height:18px}
+.pvb-cnt{color:var(--fg)}
+.pvb-rate{color:var(--muted);white-space:nowrap}
+.pvb-now{display:flex;align-items:baseline;gap:6px;min-width:0;margin-top:2px;font-size:12.5px;line-height:18px}
+.pvb-now .pvb-k{flex:none}
+.pvb-nowt{min-width:0;color:var(--fg2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* the failure takes the card's body: what happened, Retry and the log */
+.pvb-er{display:none}
+.pvb[data-s="err"] .pvb-er{display:block}
+.pvb[data-s="err"] .pvb-go{display:none}
+.pvb-em{margin:var(--s-2) 0 0;font-size:12.5px;line-height:1.5;color:var(--fg2);text-wrap:pretty}
+.pvb-ea{display:flex;flex-wrap:wrap;gap:var(--s-2);margin-top:var(--s-3)}
+.pvb-ea .pill .i{margin-left:-2px}
+.pvb-log>div>div{padding:2px 2px 0}
+.pvb-log ol{list-style:none;margin:var(--s-3) 0 0;padding:0;display:flex;flex-direction:column;gap:2px;font-size:12px;line-height:18px;color:var(--fg2)}
+.pvb-log li{display:flex;gap:var(--s-3)}
+.pvb-log time{flex:none;color:var(--muted)}
+
+/* a finished step's detail: plain lines, no card */
+.pvb-dp{margin:0;font-size:12.5px;line-height:1.5;color:var(--fg)}
+.pvb-dm{margin:2px 0 0;font-size:12.5px;line-height:1.5;color:var(--muted)}
+.pvb-dt .pvb-k{display:block;margin-top:var(--s-2)}
+.pvb-ls{list-style:none;margin:2px 0 0;padding:0;font-size:12.5px;line-height:20px;color:var(--fg2)}
+.pvb-ls li{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* the footer: credits as one line that opens into the month's meter */
+.pvb-f{padding:var(--s-1) var(--s-2) var(--s-2);border-top:1px solid var(--hl)}
+.pvb-cr{width:100%;display:flex;align-items:center;gap:var(--s-2);min-height:36px;padding:0 var(--s-2);border-radius:var(--r-sm);font-size:12.5px;color:var(--muted);text-align:left;transition:background var(--t-fast)}
+.pvb-cr:hover{background:var(--row)}
+.pvb-cr:focus-visible{outline-offset:-2px}
+.pvb-crl{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pvb-cr b{font-weight:500;color:var(--fg)}
+.pvb-crw{flex:none;display:inline-flex}
+.pvb-cr .pvb-cv{margin-left:0}
+.pvb-cr[aria-expanded="true"] .pvb-cv{transform:rotate(180deg)}
+.pvb-cm .pvb-in{padding:var(--s-1) var(--s-2) var(--s-2)}
+.pvb-mb{--mtr:var(--accent-mark);position:relative;height:8px;margin-top:var(--s-2);border-radius:calc(4px * var(--rk));background:var(--chip)}
+.pvb-mb.warn{--mtr:var(--warn-mark)}
+.pvb-mb.bad{--mtr:var(--bad)}
+.pvb-mb>i{position:absolute;top:0;bottom:0;display:block}
+/* earlier this month is a tint of the meter's colour, this run the solid slice at its end */
+.pvb-mb .fl{left:0;width:0;border-radius:inherit;background:color-mix(in srgb,var(--mtr) 38%,var(--chip));transition:width .3s var(--ease),background .3s}
+.pvb-mb .rn{width:0;border-radius:0 calc(4px * var(--rk)) calc(4px * var(--rk)) 0;background:var(--mtr);transition:width .3s var(--ease),background .3s}
+/* where the meter starts to warn: a notch through the bar at 75% and 90% */
+.pvb-mb .th{top:-3px;bottom:-3px;width:2px;margin-left:-1px;border-radius:1px;background:color-mix(in srgb,var(--fg) 35%,transparent)}
+.pvb-ml{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s-1) var(--s-4);margin-top:var(--s-3);font-size:12px;color:var(--muted)}
+.pvb-ml span{display:inline-flex;align-items:center;gap:6px}
+.pvb-ml b{font-weight:500;color:var(--fg)}
+.pvb-ml i{width:8px;height:8px;border-radius:2px;background:var(--mtr,var(--accent-mark))}
+.pvb-ml i.e{background:color-mix(in srgb,var(--mtr,var(--accent-mark)) 38%,var(--chip))}
+.pvb-mn{margin:var(--s-2) 0 0;font-size:12px;color:var(--muted)}
+.pvb-sr{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+/* a narrow column keeps the warning as its icon */
+@container (max-width:400px){.pvb-crw .lbl{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}.pvb-crw .tag{padding:0 5px}.pvb-cr .pvb-x{display:none}}
+@media (prefers-reduced-motion:reduce){
+  .pvb *,.pvb-lift{transition-duration:.01ms!important}
+  .pvb-bar.ind i{animation:none;width:100%;opacity:.35}
+  .pvb .spin{animation:none}
+  .lab-st *{animation-duration:.01ms!important}
+}
+</style>
+</head>
+<body>
+<main class="lab">
+  <header class="lab-h">
+    <h1>Progress B: the steps are the progress</h1>
+    <p>One rail of steps instead of a ring and three bars. The live step is a raised card with its own count, speed, current page and time left; finished steps fold to a line you can open, and credits wait in the footer until you ask.</p>
+  </header>
+  <div class="lab-ctl">
+    <div class="seg2" id="sw-style" role="group" aria-label="Style"><button type="button" data-v="soft" aria-pressed="true">Soft</button><button type="button" data-v="blueprint" aria-pressed="false">Blueprint</button></div>
+    <div class="seg2" id="sw-theme" role="group" aria-label="Theme"><button type="button" data-v="light" aria-pressed="true">Light</button><button type="button" data-v="dark" aria-pressed="false">Dark</button></div>
+    <span class="sp"></span>
+    <button type="button" class="lab-rp" aria-label="Replay the run"><svg class="i s" aria-hidden="true"><use href="#i-refresh"/></svg>Replay</button>
+  </div>
+  <div class="lab-st">
+    <div class="card" data-c="progress-b"><div class="stage-in"></div><template>
+<div class="pvb panel" data-s="ind">
+  <div class="pvb-h">
+    <div class="pvb-ht"><b>Indexing the docs</b><span class="pvb-sum num" role="progressbar" aria-label="Run progress" aria-valuemin="0" aria-valuemax="100">Preparing the run</span></div>
+    <span class="tag pvb-tag">Starting</span>
+    <button type="button" class="ib pvb-btn" aria-label="Pause" data-tip="Pause" disabled><svg class="i" aria-hidden="true"><use href="#i-pause"/></svg></button>
+  </div>
+  <div class="pvb-rw">
+    <div class="pvb-lift" aria-hidden="true"></div>
+    <ol class="pvb-rail" aria-label="Steps"></ol>
+  </div>
+  <div class="pvb-f">
+    <button type="button" class="pvb-cr" aria-expanded="false">
+      <span class="pvb-crl">This run <b class="num pvb-rc">0</b><span class="pvb-x"> credits</span> · Month <b class="num pvb-mc">7,080</b> of 10,000</span>
+      <span class="pvb-crw"></span>
+      <svg class="i s pvb-cv" aria-hidden="true"><use href="#i-chev-d"/></svg>
+    </button>
+    <div class="pvb-fold pvb-cm"><div><div class="pvb-in">
+      <div class="pvb-mb" role="meter" aria-label="Credits this month" aria-valuemin="0" aria-valuemax="10000"><i class="fl"></i><i class="rn"></i><i class="th" style="left:75%"></i><i class="th" style="left:90%"></i></div>
+      <div class="pvb-ml num"><span><i class="e"></i>Earlier this month <b class="pvb-me">7,080</b></span><span><i></i>This run <b class="pvb-mr">0</b></span></div>
+      <p class="pvb-mn num">Warns at 7,500 and 9,000 · Resets Dec 1</p>
+    </div></div></div>
+  </div>
+  <p class="pvb-sr" aria-live="polite"></p>
+</div>
+    </template></div>
+  </div>
+</main>
+<script src="../../components/assets/core.js"></script>
+<script>
+/* ---------- Progress B ---------- */
+// an agent at work keeps working while a mouse rests on it (owner, 3 Nov)
+DM.PLAYS.add('progress-b');
+DM.def('progress-b', (r, c) => {
+  const P = ['/docs/getting-started', '/docs/install', '/docs/api/auth', '/docs/api/tokens', '/docs/api/errors', '/docs/guides/webhooks', '/docs/guides/retries', '/docs/guides/rate-limits', '/docs/sdk/node', '/docs/sdk/python', '/docs/changelog', '/docs/faq'];
+  const F = P.map(p => p.slice(6) + '.md');
+  // the run's steps: what each does, what it counts, how long it takes here (ms), what it costs, and what it leaves behind
+  const S = [
+    { name:'Reading the sitemap', unit:'pages', total:48, ms:1300, cr:8, made:'48 page addresses from sitemap.xml', items:['/docs/getting-started', '/docs/api/auth', '/docs/guides/webhooks'], now:n => `sitemap.xml, entry ${Math.max(1, n)}` },
+    { name:'Fetching pages', unit:'pages', total:48, ms:2600, cr:64, made:'48 pages of HTML, 2.3 MB in all', items:['/docs/api/auth, 41 KB', '/docs/install, 18 KB', '/docs/guides/webhooks, 33 KB'], now:n => 'GET ' + P[n % P.length] },
+    { name:'Indexing files', unit:'files', total:2000, ms:3200, cr:120, made:'2,000 files split into 6,400 chunks', items:['api/auth.md, 9 chunks', 'guides/webhooks.md, 14 chunks', 'install.md, 4 chunks'], now:n => F[n % F.length] },
+    { name:'Writing embeddings', unit:'chunks', total:6400, ms:3600, cr:260, made:'6,400 vectors in the docs index', items:['api/auth.md, chunks 1 to 9', 'api/tokens.md, chunks 1 to 6', 'guides/retries.md, chunks 1 to 11'], now:n => `${F[Math.floor(n / 9) % F.length]}, chunk ${n % 9 + 1}` },
+    { name:'Checking links', unit:'links', total:310, ms:1600, cr:40, made:'310 links checked, none broken', items:['/docs/install, 200', '/docs/api/auth#tokens, 200', '/docs/sdk/node, 200'], now:n => `${P[n % P.length]}, 200` }
+  ];
+  const N = S.length, MONTH0 = 7080, LIMIT = 10000, FAIL = 3;
+  const fmt = n => Math.round(n).toLocaleString('en-US');
+  const clock = ms => { const s = Math.floor(ms / 1000); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };
+  const secs = ms => (ms / 1000).toFixed(1) + 's';
+  const left = ms => 'about ' + (ms < 60000 ? Math.max(1, Math.ceil(ms / 1000)) + 's' : clock(ms)) + ' left';
+  const id = 'pvb' + Math.random().toString(36).slice(2, 7);
+  const root = $('.pvb', r), rw = $('.pvb-rw', r), ol = $('.pvb-rail', r), lift = $('.pvb-lift', r), sum = $('.pvb-sum', r), tag = $('.pvb-tag', r), btn = $('.pvb-btn', r), sr = $('.pvb-sr', r);
+  const cr = $('.pvb-cr', r), cm = $('.pvb-cm', r), mb = $('.pvb-mb', r), crw = $('.pvb-crw', r);
+
+  // the rows, built once; a step's line becomes a button (it opens) once the step is done
+  ol.innerHTML = S.map((s, i) => `<li class="pvb-st" data-k="next">
+    <div class="pvb-row"><span class="pvb-nd" aria-hidden="true"></span><span class="pvb-nm"><span class="pvb-vh"></span>${s.name}</span><span class="pvb-mt num"></span></div>
+    <div class="pvb-fold pvb-dt" id="${id}-d${i}"><div><div class="pvb-in">
+      <p class="pvb-dp"></p><p class="pvb-dm num"></p>
+      <span class="pvb-k">First 3 of ${fmt(s.total)}</span>
+      <ul class="pvb-ls">${s.items.map(t => `<li>${t}</li>`).join('')}</ul>
+    </div></div></div>
+    <div class="pvb-fold pvb-lv"><div><div class="pvb-in">
+      <div class="pvb-bar" role="progressbar" aria-label="${s.name}" aria-valuemin="0" aria-valuemax="100"><i></i></div>
+      <div class="pvb-go"><div class="pvb-nums"><span class="num pvb-cnt"></span><span class="num pvb-rate"></span></div><div class="pvb-now"><span class="pvb-k">Now</span><span class="pvb-nowt"></span></div></div>
+      ${i === FAIL ? `<div class="pvb-er"><p class="pvb-em">The embeddings service stopped answering on chunk 3,201. The 3,200 chunks before it are saved, so a retry carries on from there.</p>
+        <div class="pvb-ea"><button type="button" class="pill sm primary pvb-retry">${I('refresh', 'xs')}Retry step</button><button type="button" class="pill sm line pvb-logb" aria-expanded="false" aria-controls="${id}-log">View log</button></div>
+        <div class="pvb-fold pvb-log" id="${id}-log"><div><div><ol></ol></div></div></div></div>` : ''}
+    </div></div></div>
+  </li>`).join('') + `<li class="pvb-st pvb-fin" data-k="next">
+    <div class="pvb-row"><span class="pvb-nd" aria-hidden="true">${I('flag', 'xs')}</span><span class="pvb-nm"><span class="pvb-vh"></span>Index ready</span><span class="pvb-mt num"></span></div>
+    <div class="pvb-fold pvb-lv"><div><div class="pvb-in"><p class="pvb-dp">2,000 files and 6,400 chunks are searchable now.</p><p class="pvb-dm num"></p></div></div></div>
+  </li>`;
+  const rows = $$('.pvb-st', ol).map((li, i) => ({ li, i, k:'', nd:'', s:S[i],
+    dt:$('.pvb-dt', li), lv:$('.pvb-lv', li), bar:$('.pvb-bar', li), cnt:$('.pvb-cnt', li), rate:$('.pvb-rate', li), nowt:$('.pvb-nowt', li), mt:$('.pvb-mt', li), vh:$('.pvb-vh', li) }));
+  const fin = rows[N], retryB = $('.pvb-retry', r), logB = $('.pvb-logb', r), log = $('.pvb-log', r);
+
+  let run = 0, st = 'ind', cur = 0, sub = 0, el = 0, stepEl = [], runCr = 0, failed = false, retries = 0, nowAt = -1e9, openI = -1, shownState = '', shownBand = -1, failAt = 0;
+
+  // ---- the live card: one raised surface that follows the step in hand, gliding down the rail when it moves on
+  let at = null, glide = null;
+  const D = () => parseFloat(getComputedStyle(root).getPropertyValue('--dm-t')) * 1000 || 450;
+  const ease = t => 1 - Math.pow(1 - t, 3);
+  const moveLift = () => { glide = at && !REDUCE ? { from:{ ...at }, t0:performance.now(), d:D() } : null; };
+  c.loop(t => {
+    const L = rows.find(x => x.k === 'live' || x.k === 'end'); if (!L){ lift.classList.remove('on'); return; }
+    const to = { y:L.li.offsetTop, h:L.li.offsetHeight }; let now = to;
+    if (glide){ const p = Math.min(1, (performance.now() - glide.t0) / glide.d), e = ease(p); now = { y:glide.from.y + (to.y - glide.from.y) * e, h:glide.from.h + (to.h - glide.from.h) * e }; if (p >= 1) glide = null; }
+    if (!at || at.y !== now.y || at.h !== now.h){ lift.style.transform = `translateY(${now.y}px)`; lift.style.height = now.h + 'px'; at = now; }
+    lift.classList.add('on');
+  });
+
+  // ---- a step's line: done (a button that opens its detail), live or ahead
+  function setKind(R, k){
+    const was = R.k; R.k = k; R.li.dataset.k = k;
+    const row = $('.pvb-row', R.li), inner = row.innerHTML.replace(/<svg class="i s pvb-cv"[\s\S]*?<\/svg>/, '');
+    if (k === 'done' && R.s){
+      const b = document.createElement('button'); b.type = 'button'; b.className = 'pvb-row'; b.setAttribute('aria-expanded', 'false'); b.setAttribute('aria-controls', R.dt.id);
+      b.innerHTML = inner + `<svg class="i s pvb-cv" aria-hidden="true"><use href="#i-chev-d"/></svg>`; b.onclick = () => openStep(R.i === openI ? -1 : R.i);
+      row.replaceWith(b);
+    } else if (row.tagName === 'BUTTON'){ const d = document.createElement('div'); d.className = 'pvb-row'; d.innerHTML = inner; row.replaceWith(d); }
+    R.mt = $('.pvb-mt', R.li); R.vh = $('.pvb-vh', R.li);
+    R.lv.classList.toggle('open', k === 'live' || k === 'end');
+    if (k !== 'done' && R.dt){ R.dt.classList.remove('open'); if (openI === R.i) openI = -1; }
+    if ((k === 'live' || k === 'end') && was && was !== k) moveLift();
+    R.nd = '';
+  }
+  function node(R, key, html){ if (R.nd === key) return; R.nd = key; $('.pvb-nd', R.li).innerHTML = html; }
+  function openStep(i){
+    openI = i;
+    rows.forEach(R => { if (!R.dt) return; const on = R.i === i && R.k === 'done', b = $('button.pvb-row', R.li); R.dt.classList.toggle('open', on); if (b) b.setAttribute('aria-expanded', String(on)); });
+  }
+
+  // ---- paint: everything follows the run's state
+  function paint(){
+    root.dataset.s = st;
+    rows.forEach(R => {
+      const k = R === fin ? (st === 'done' ? 'end' : 'next') : st === 'done' || R.i < cur ? 'done' : R.i === cur ? 'live' : 'next';
+      if (R.k !== k) setKind(R, k);
+      const s = R.s;
+      if (k === 'done'){
+        node(R, 'done', I('check', 'xs')); R.vh.textContent = 'Done: ';
+        const took = stepEl[R.i] || s.ms, extra = R.i === FAIL && retries ? `, after ${retries} retry` : '';
+        R.mt.textContent = `${fmt(s.total)} ${s.unit} · ${secs(took)}`;
+        $('.pvb-dp', R.dt).textContent = s.made + extra;
+        $('.pvb-dm', R.dt).textContent = `${secs(took)} · ${fmt(s.total / (took / 1000))} ${s.unit}/s · ${fmt(s.cr)} credits`;
+      } else if (k === 'next'){
+        node(R, 'next', R === fin ? I('flag', 'xs') : ''); R.vh.textContent = 'Up next: ';
+        R.mt.textContent = s ? `${fmt(s.total)} ${s.unit}` : '';
+      } else if (k === 'end'){
+        node(R, 'end', I('check', 'xs')); R.vh.textContent = 'Done: '; R.mt.textContent = clock(el);
+        $('.pvb-dm', R.li).textContent = `${clock(el)} in all · ${fmt(runCr)} credits` + (retries ? ` · ${retries} retry` : '');
+      } else {
+        node(R, st, st === 'paused' ? I('pause', 'xs') : st === 'err' ? I('alert', 'xs') : '<span class="spin"></span>');
+        R.vh.textContent = { ind:'Starting: ', run:'Running: ', paused:'Paused: ', err:'Failed: ' }[st];
+        const n = Math.round(sub * s.total), se = stepEl[R.i] || 0;
+        R.bar.classList.toggle('ind', st === 'ind');
+        if (st === 'ind'){
+          R.bar.removeAttribute('aria-valuenow'); R.bar.setAttribute('aria-valuetext', 'Working out how much there is');
+          R.cnt.textContent = 'Counting pages'; R.rate.textContent = ''; R.nowt.textContent = 'sitemap.xml'; R.mt.textContent = 'Starting';
+        } else {
+          R.bar.firstElementChild.style.width = sub * 100 + '%';
+          R.bar.setAttribute('aria-valuenow', Math.round(sub * 100)); R.bar.setAttribute('aria-valuetext', `${fmt(n)} of ${fmt(s.total)} ${s.unit}`);
+          R.cnt.textContent = `${fmt(n)} of ${fmt(s.total)} ${s.unit}`;
+          R.rate.textContent = se >= 300 ? `${fmt(n / (se / 1000))} ${s.unit}/s` : 'measuring';
+          // the item it is on changes a few times a second, not every tick, so it stays readable
+          if (st === 'run' && el - nowAt >= 400){ R.nowt.textContent = s.now(n); nowAt = el; }
+          R.mt.textContent = st === 'paused' ? 'Paused' : st === 'err' ? 'Timed out' : sub > .08 ? left(se / sub * (1 - sub)) : 'estimating';
+        }
+      }
+    });
+    // the header: the run in words, which is also its progress bar for assistive tech
+    const weight = S.reduce((t, s) => t + s.ms, 0), doneMs = S.slice(0, Math.min(cur, N)).reduce((t, s) => t + s.ms, 0);
+    const pct = st === 'done' ? 100 : Math.round((doneMs + sub * (S[cur] ? S[cur].ms : 0)) / weight * 100);
+    const se = stepEl[cur] || 0, stepLeft = st === 'run' && sub > .08 ? se / sub * (1 - sub) : (1 - sub) * (S[cur] ? S[cur].ms : 0);
+    const rem = stepLeft + S.slice(cur + 1).reduce((t, s) => t + s.ms, 0);
+    const words = { ind:'Preparing the run',
+      run:`Step ${cur + 1} of ${N} · ${clock(el)} · ${left(rem)}`,
+      paused:`Paused at step ${cur + 1} of ${N} · ${clock(el)}`,
+      err:`Step ${cur + 1} of ${N} failed · ${clock(el)}`,
+      done:`Done in ${clock(el)} · 2,000 files indexed` }[st];
+    if (sum.textContent !== words) sum.textContent = words;
+    if (st === 'ind'){ sum.removeAttribute('aria-valuenow'); sum.setAttribute('aria-valuetext', 'Preparing the run'); }
+    else { sum.setAttribute('aria-valuenow', pct); sum.setAttribute('aria-valuetext', st === 'done' ? 'Done, all 5 steps' : `${pct}% of the run, step ${cur + 1} of ${N}`); }
+    if (shownState !== st){
+      swap(tag, { ind:'Starting', run:'Running', paused:'Paused', err:'Failed', done:'Done' }[st]);
+      tag.className = 'tag pvb-tag ' + ({ run:'run', err:'bad', done:'ok' }[st] || '');
+      const b = st === 'paused' ? ['play', 'Resume'] : st === 'done' ? ['refresh', 'Run again'] : ['pause', 'Pause'];
+      const hadFocus = document.activeElement === btn;
+      btn.innerHTML = I(b[0], ''); btn.setAttribute('aria-label', b[1]); btn.dataset.tip = b[1];
+      btn.disabled = st === 'ind'; btn.hidden = st === 'err';
+      if (hadFocus && st === 'err') retryB.focus();
+      // only a change of state is announced, never every count
+      if (shownState) sr.textContent = { ind:'Starting the run', run:shownState === 'paused' ? 'Resumed' : shownState === 'err' ? `Retrying step ${cur + 1}` : 'Running', paused:'Paused', err:`Step ${cur + 1}, ${S[FAIL].name.toLowerCase()}, failed: the embeddings service timed out. Retry is on the step.`, done:'Done. ' + words }[st];
+      shownState = st;
+    }
+    // the footer: this run and the month, in one line; the meter waits behind it
+    const month = MONTH0 + runCr, m = month / LIMIT, band = m >= .9 ? 2 : m >= .75 ? 1 : 0;
+    $('.pvb-rc', r).textContent = fmt(runCr); $('.pvb-mc', r).textContent = fmt(month); $('.pvb-mr', r).textContent = fmt(runCr);
+    $('.fl', mb).style.width = m * 100 + '%'; const rn = $('.rn', mb); rn.style.left = MONTH0 / LIMIT * 100 + '%'; rn.style.width = runCr / LIMIT * 100 + '%';
+    mb.classList.toggle('warn', band === 1); mb.classList.toggle('bad', band === 2); $('.pvb-ml', r).style.setProperty('--mtr', ['var(--accent-mark)', 'var(--warn-mark)', 'var(--bad)'][band]);
+    mb.setAttribute('aria-valuenow', Math.round(month)); mb.setAttribute('aria-valuetext', `${fmt(month)} of 10,000 credits this month, ${fmt(runCr)} from this run` + ['', ', running low', ', almost out'][band]);
+    if (band !== shownBand){
+      crw.innerHTML = ['', `<span class="tag warn">${I('warn', 'xs')}<span class="lbl">Running low</span></span>`, `<span class="tag bad">${I('alert', 'xs')}<span class="lbl">Almost out</span></span>`][band];
+      if (shownBand >= 0 && band){ enter(crw.firstElementChild); sr.textContent = `Credits running low: ${fmt(month)} of 10,000 used this month`; }
+      shownBand = band;
+    }
+  }
+
+  // ---- what a person can do
+  function retry(){ if (st !== 'err') return; showLog(false); st = 'run'; paint(); if (r.contains(document.activeElement) && !document.activeElement.offsetParent) btn.focus(); }
+  function showLog(on){ log.classList.toggle('open', on); logB.setAttribute('aria-expanded', String(on)); logB.textContent = on ? 'Hide log' : 'View log'; }
+  retryB.onclick = retry;
+  logB.onclick = () => showLog(logB.getAttribute('aria-expanded') !== 'true');
+  btn.onclick = () => {
+    if (st === 'run'){ st = 'paused'; paint(); }
+    else if (st === 'paused'){ st = 'run'; paint(); }
+    else if (st === 'done') c.run(go);
+  };
+  cr.onclick = () => { const on = cr.getAttribute('aria-expanded') !== 'true'; cr.setAttribute('aria-expanded', String(on)); cm.classList.toggle('open', on); };
+
+  // ---- the agent's run: it works out what there is, then goes step by step; the fourth step times out once
+  const until = async f => { while (!f()) await c.wait(100); };
+  const TICK = 100;
+  async function go(){
+    const me = ++run;
+    st = 'ind'; cur = 0; sub = 0; el = 0; stepEl = S.map(() => 0); runCr = 0; failed = false; retries = 0; nowAt = -1e9;
+    openStep(-1); showLog(false); paint();
+    for (let k = 0; k < 18; k++){ await c.wait(TICK); if (me !== run) return; el += TICK; paint(); }
+    st = 'run';
+    for (cur = 0; cur < N; cur++){
+      sub = 0; nowAt = -1e9; paint();
+      while (sub < 1){
+        await c.wait(TICK); await until(() => st !== 'paused'); if (me !== run) return;
+        const s = S[cur]; let nx = Math.min(1, sub + TICK / s.ms);
+        if (cur === FAIL && !failed && nx >= .5) nx = .5;
+        runCr += s.cr * (nx - sub); sub = nx; el += TICK; stepEl[cur] += TICK; paint();
+        if (cur === FAIL && !failed && sub === .5){
+          failed = true; failAt = el; st = 'err';
+          const t = ms => `<time class="num">${clock(ms)}</time>`;
+          $('ol', log).innerHTML = `<li>${t(failAt - 300)}<span>Sent chunks 3,201 to 3,248 to the embeddings service</span></li><li>${t(failAt)}<span>No answer before the time limit</span></li><li>${t(failAt)}<span>Step stopped, 3,200 of 6,400 chunks saved</span></li>`;
+          paint(); await until(() => st !== 'err'); if (me !== run) return;
+          retries++; nowAt = -1e9;
+        }
+      }
+    }
+    cur = N; st = 'done'; paint();
+  }
+  paint(); c.run(go);
+
+  // the preview's story: the fourth step fails, the person reads the log and retries, and once it is done opens a step.
+  // It plays once, then the run stays as it is for the visitor
+  if (r === c.st) c.story(async s => {
+    await s.until(() => st === 'err'); await s.beat(2);
+    await s.tap(logB); await s.beat(3);
+    await s.tap(retryB); s.away();
+    await s.until(() => st === 'done'); await s.beat(3);
+    await s.tap($('button.pvb-row', rows[2].li)); s.away();
+    await s.until(() => false);
+  });
+});
+
+/* ---------- the page: style, theme and replay ---------- */
+{
+  const d = document.documentElement;
+  const mark = (sel, v) => $$(sel + ' button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === v)));
+  mark('#sw-style', d.dataset.style === 'soft' ? 'soft' : 'blueprint');
+  mark('#sw-theme', d.dataset.theme === 'dark' ? 'dark' : 'light');
+  seg($('#sw-style'), v => { if (v === 'soft') d.dataset.style = 'soft'; else delete d.dataset.style; try { localStorage.setItem('dmui-style', v); } catch(e){} });
+  seg($('#sw-theme'), v => { d.dataset.theme = v; try { localStorage.setItem('dmui-theme', v); } catch(e){} });
+  $('.lab-rp').addEventListener('click', () => { const card = $('[data-c="progress-b"]'); DM.mount(card, !!card._c); });
+}
+</script>
+</body>
+</html>

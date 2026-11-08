@@ -11,8 +11,8 @@ import Page from '../../layouts/Page.astro';
 import { ROOT, COMPONENTS } from '../../lib/data.mjs';
 
 // the components the screen is made of, by their registry name: each one's installed CSS is on the page
-const USES = ['agent-harness', 'segmented-control', 'task-table', 'progress', 'kanban-board', 'details-panel', 'filter-menu', 'form', 'toast',
-  'notifications', 'profile-menu', 'command-palette', 'stat-cards', 'line-chart', 'radial-goals', 'funnel-chart', 'bar-chart'];
+const USES = ['agent-harness', 'segmented-control', 'task-table', 'progress', 'kanban-board', 'details-panel', 'filter-menu', 'form', 'toast', 'activity-heatmap',
+  'notifications', 'profile-menu', 'command-palette', 'stat-cards', 'line-chart', 'radial-goals', 'funnel-chart'];
 const css = USES.map(reg => {
   const c = COMPONENTS.find(x => x.reg === reg);
   if (!c) throw new Error('sales-crm: no component called ' + reg);
@@ -41,9 +41,6 @@ const I = (n, c = 's') => `<svg class="i ${c}" aria-hidden="true"><use href="#i-
         <button class="ahx-cv" data-go="companies"><Fragment set:html={I('table')} /><span class="t">Companies</span><span class="n num" data-count="companies"></span></button>
         <button class="ahx-cv" data-go="deals"><Fragment set:html={I('grid')} /><span class="t">Deals board</span><span class="n num" data-count="deals"></span></button>
         <button class="ahx-cv" data-go="forecast"><Fragment set:html={I('chart')} /><span class="t">Forecast</span></button>
-        <button class="ahx-cv" data-soon="Activities"><Fragment set:html={I('clock')} /><span class="t">Activities</span><span class="n num">9</span></button>
-        <button class="ahx-cv" data-soon="Contacts"><Fragment set:html={I('user')} /><span class="t">Contacts</span><span class="n num">38</span></button>
-        <button class="ahx-cv" data-soon="Email sequences"><Fragment set:html={I('send')} /><span class="t">Email sequences</span></button>
       </nav>
       <div class="ahx-lh"><span>Team</span></div>
       <div class="crm-nav crm-teams"></div>
@@ -136,7 +133,7 @@ const I = (n, c = 's') => `<svg class="i ${c}" aria-hidden="true"><use href="#i-
       <section class="crm-view crm-deals" id="crm-v-deals" role="tabpanel" aria-labelledby="crm-t-deals" hidden>
         <div class="kbx crm-kb">
           <div class="kbx-hd"><div class="kbx-ti"><b>Q4 pipeline</b><span class="num crm-kbsum"></span></div><div class="kbx-fp" role="group" aria-label="Filter by owner"></div><span class="kbx-sp"></span><label class="kbx-q"><Fragment set:html={I('search', 'xs')} /><input type="search" placeholder="Search deals" aria-label="Search deals" autocomplete="off"><button class="ib kbx-qx" aria-label="Clear the search" hidden><Fragment set:html={I('x', 'xs')} /></button></label><div class="seg2 kbx-vw" role="group" aria-label="View"><button aria-pressed="true" data-v="board"><Fragment set:html={I('grid', 'xs')} /><span class="lb">Board</span></button><button aria-pressed="false" data-v="list"><Fragment set:html={I('list', 'xs')} /><span class="lb">List</span></button></div></div>
-          <div class="kbx-fl"><button class="chip sm kbx-f" data-pop="#crm-p-close" aria-haspopup="menu" data-f="close"><span class="k">Close date</span><span class="v"></span><Fragment set:html={I('chev-d', 'xs')} /></button><button class="pill ghost sm kbx-clr" hidden>Clear</button><span class="kbx-sp"></span><span class="kbx-cnt num"></span></div>
+          <div class="kbx-fl"><button class="chip sm kbx-f" data-pop="#crm-p-close" aria-haspopup="menu" data-f="close"><span class="k">Close date</span><span class="v"></span><Fragment set:html={I('chev-d', 'xs')} /></button><button class="pill ghost sm kbx-clr" hidden>Clear</button><div class="crm-dock" role="group" aria-label="Hidden stages" hidden><span class="crm-dkl">Hidden</span><div class="crm-dks"></div></div><span class="kbx-sp"></span><span class="kbx-cnt num"></span></div>
           <div class="kbx-bar"><div class="seg2 kbx-tabs" role="group" aria-label="Stage"></div></div>
           <div class="kbx-bd"><div class="kbx-cols"></div><div class="kbx-em" hidden><span class="ic"><Fragment set:html={I('filter')} /></span><b>No deals match</b><span>Try another owner, date or search.</span><button class="pill line sm crm-kbclr">Clear filters</button></div></div>
           <div class="kbx-sr" aria-live="polite"></div>
@@ -146,26 +143,28 @@ const I = (n, c = 's') => `<svg class="i ${c}" aria-hidden="true"><use href="#i-
       <!-- Forecast: Stat cards, Line chart, Radial goals, Funnel, Bar chart and Progress meters, worked out from the deals -->
       <section class="crm-view crm-fc" id="crm-v-forecast" role="tabpanel" aria-labelledby="crm-t-forecast" hidden>
         <div class="scx-grid crm-c12"></div>
-        <div class="lnx panel crm-c8">
+        <div class="lnx panel crm-c6">
           <div class="lnx-h"><div><span class="muted">Closed won, cumulative</span><b class="num lnx-v">$0</b></div><div class="lnx-lg"><button class="lnx-k on" data-s="0" aria-pressed="true"><i style="background:var(--dm-accent-mark,var(--dm-accent))"></i>Q4 2026</button><button class="lnx-k on" data-s="1" aria-pressed="true"><i style="background:var(--dm-c2)"></i>Q3 2026</button></div></div>
           <div class="lnx-ch"><svg class="lnx-svg" viewBox="0 0 320 140" preserveAspectRatio="none" aria-hidden="true"></svg><div class="lnx-x"></div><div class="lnx-tt"><b class="num"></b><span></span></div></div>
           <div class="lnx-ax muted num" aria-hidden="true"><span>Wk 1</span><span>Wk 3</span><span>Wk 5</span><span>Wk 7</span><span>Wk 9</span><span>Wk 11</span><span>Wk 13</span></div>
         </div>
-        <div class="rgx panel crm-c4">
-          <div class="rgx-h"><div class="rgx-t"><b>Team quotas</b><span class="muted rgx-sub">Q4, closed won and commit</span></div></div>
-          <div class="rgx-b"><div class="rgx-ring"><svg viewBox="0 0 180 180" aria-hidden="true"></svg><div class="rgx-c"><b class="num">0%</b><span class="muted">of quota</span></div></div><div class="rgx-lg"></div></div>
+        <div class="hmx panel crm-hm crm-c6">
+          <div class="hmx-h"><div><b>Team activity</b><span class="muted hmx-st">Last 12 weeks</span></div><div class="seg2 hmx-sg" role="group" aria-label="Whose activity"><button aria-pressed="true" data-v="team">Team</button><button aria-pressed="false" data-v="agent">Agent</button></div></div>
+          <div class="hmx-wrap"><div class="hmx-sc"><div class="hmx-days muted"><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span></div><div class="hmx-grid"></div>
+          <div class="hmx-f muted num"></div></div></div>
+          <div class="hmx-lg muted">Less<i style="--dm-a:.08"></i><i style="--dm-a:.3"></i><i style="--dm-a:.55"></i><i style="--dm-a:.85"></i>More</div>
         </div>
         <div class="fnx panel crm-c4">
           <div class="fnx-h"><b>Stage conversion</b><span class="muted crm-fnn num"></span></div>
           <div class="fnx-rows"></div>
           <div class="fnx-ins"><span class="fnx-ic"><Fragment set:html={I('spark', 'xs')} /></span><span class="fnx-t"></span></div>
         </div>
-        <div class="bcx panel crm-c4">
-          <div class="bcx-h"><div><span class="muted">Closed won by month</span><b class="num bcx-v">$0</b></div></div>
-          <div class="bcx-ch"></div>
+        <div class="rgx panel crm-c4">
+          <div class="rgx-h"><div class="rgx-t"><b>Team quotas</b><span class="muted rgx-sub">Q4, closed won against quota</span></div></div>
+          <div class="rgx-b"><div class="rgx-ring"><svg viewBox="0 0 180 180" aria-hidden="true"></svg><div class="rgx-c"><b class="num">0%</b><span class="muted">of quota</span></div></div><div class="rgx-lg"></div></div>
         </div>
         <div class="panel crm-own crm-c4">
-          <div class="crm-ph"><b>Quota attainment</b><span class="muted">By owner, Q4</span></div>
+          <div class="crm-ph"><b>Quota attainment</b><span class="crm-lgd muted"><i class="w"></i>Won<i class="c"></i>Commit</span></div>
           <div class="crm-owl"></div>
         </div>
       </section>

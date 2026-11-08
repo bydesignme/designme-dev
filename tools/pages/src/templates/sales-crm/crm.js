@@ -21,7 +21,7 @@
   const QUOTA = { MK:1300000, AR:850000, TR:1100000, JO:300000, LN:340000, IB:260000, DK:160000, KM:150000 };
   const TEAMS = [{ k:'strat', t:'Strategic AEs', who:['MK', 'AR', 'TR'] }, { k:'mid', t:'Mid-market', who:['JO', 'LN', 'IB'] }, { k:'sdr', t:'SDR team', who:['DK', 'KM'] }];
   TEAMS.forEach(t => t.quota = t.who.reduce((a, o) => a + QUOTA[o], 0));
-  // closed won earlier this quarter, before the deals on the board
+  // closed won earlier this quarter, on top of the won deals in the list below: each becomes two won deals on the owner's accounts
   const WON_BEFORE = { MK:190000, AR:110000, TR:140000, JO:70000, LN:90000, IB:50000, DK:30000, KM:24000 };
   const ACT = { Call:'comment', Email:'mail', Demo:'monitor', QBR:'users', Exec:'users', Pricing:'dollar', Legal:'shield', Security:'shield', Discovery:'search' };
 
@@ -70,6 +70,13 @@
     CO.push(c);
     r[7].forEach(x => DE.push({ id:'DL-' + (did++), co:c.id, n:x[0], st:x[1], v:x[2] * 1000, close:x[3], adj:x[4], own:c.own }));
   });
+  // the quarter so far (days since it began), and what each owner won earlier in it, as won deals on their own accounts, so the
+  // board's Closed won column, the companies' totals and the forecast all count the same deals
+  const q0 = new Date(today.getFullYear(), Math.floor(today.getMonth() / 3) * 3, 1), qDay = Math.round((today - q0) / 864e5), WK = Math.floor(qDay / 7);
+  const EARLY = ['Annual renewal', 'Seat add-on', 'Pilot extension', 'Support upgrade', 'Second team', 'Data connector'];
+  OWN.forEach((o, k) => { const mine = CO.filter(c => c.own === o), part = [.58, .42];
+    part.forEach((f, j) => { const c = mine[(k + j) % mine.length], back = 8 + ((k * 7 + j * 13) % Math.max(1, qDay - 9));
+      DE.push({ id:'DL-' + (did++), co:c.id, n:EARLY[(k + j * 3) % EARLY.length], st:'won', v:Math.round(WON_BEFORE[o] * f / 1000) * 1000, close:-Math.min(back, qDay), adj:0, own:o }); }); });
   DE.forEach(d => d.p = probOf(d));
   const coOf = id => CO.find(c => c.id === id);
   const dealOf = id => DE.find(d => d.id === id);
@@ -406,7 +413,7 @@
   $('.kbx-tabs', kb).innerHTML = STAGES.map(s => `<button aria-pressed="${s.k === K.tab}" data-v="${s.k}">${s.k === 'won' ? 'Won' : s.t}<span class="n num"></span></button>`).join('');
   seg($('.kbx-tabs', kb), v => { K.tab = v; renderBoard(); });
   seg($('.kbx-vw', kb), v => { K.view = v; kb.classList.toggle('list', v === 'list'); renderBoard(); });
-  cols.innerHTML = STAGES.map(s => `<div class="kbx-c" data-col="${s.k}"><div class="kbx-ch"><button class="ib kbx-tg" aria-expanded="true" aria-label="Fold ${s.t}" data-tip="Fold">${I('chev-d', 'xs')}</button><b>${s.t}</b><span class="n num"></span><span class="s num"></span></div><div class="kbx-list" role="list" aria-label="${s.t}"></div></div>`).join('');
+  cols.innerHTML = STAGES.map(s => `<div class="kbx-c" data-col="${s.k}"><div class="kbx-ch"><b>${s.t}</b><span class="n num"></span><span class="s num"></span><button class="ib crm-hide" aria-label="Hide ${s.t}" data-tip="Hide column">${I('minus', 'xs')}</button></div><div class="kbx-list" role="list" aria-label="${s.t}"></div></div>`).join('');
   const card = d => { const c = coOf(d.co), late = slipping(d);
     return `<div class="kbx-k${d.st === 'won' ? ' won' : ''}${sheetFor === d.co ? ' open' : ''}" data-id="${d.id}" role="listitem" tabindex="-1" aria-label="${esc(d.n)}, ${esc(c.n)}, ${money(d.v)}, ${ST[d.st].t}">`
       + `<div class="kbx-k1"><span class="kbx-id num">${d.id}</span><span class="kbx-sp"></span><span class="kbx-who" data-tip="${P[d.own][0]}">${av(d.own)}</span><button class="kbx-mv" data-pop="#crm-p-mv" data-pop-align="end" aria-haspopup="menu" aria-label="Move ${esc(d.n)}" data-tip="Move to" tabindex="-1">${I('more', 'xs')}</button></div>`
@@ -424,11 +431,16 @@
       shown += L.length;
       $('.kbx-list', col).innerHTML = L.map(card).join('') || (filtering ? '' : '<div class="kbx-none">No deals</div>');
       $('.kbx-ch .n', col).textContent = L.length; $('.kbx-ch .s', col).textContent = kmoney(sum(L, d => d.v));
-      col.classList.toggle('shut', K.shut.has(s.k)); col.classList.toggle('on', K.tab === s.k);
-      const tg = $('.kbx-tg', col); tg.setAttribute('aria-expanded', !K.shut.has(s.k)); tg.setAttribute('aria-label', (K.shut.has(s.k) ? 'Open ' : 'Fold ') + s.t); tg.dataset.tip = K.shut.has(s.k) ? 'Open' : 'Fold';
+      col.classList.toggle('gone', K.shut.has(s.k)); col.classList.toggle('on', K.tab === s.k); col._sum = [L.length, kmoney(sum(L, d => d.v))];
       $(`.kbx-tabs [data-v="${s.k}"] .n`, kb).textContent = L.length;
     });
-    cols.style.setProperty('--dm-kbx-gt', STAGES.map(s => K.shut.has(s.k) && K.view === 'board' ? '44px' : 'minmax(216px,1fr)').join(' '));
+    // a hidden stage leaves the board for a chip by the filters: press the chip to bring the column back, or drop a card on it
+    cols.style.setProperty('--dm-kbx-gt', STAGES.filter(s => !K.shut.has(s.k)).map(() => 'minmax(216px,1fr)').join(' ') || 'minmax(0,1fr)');
+    const hid = STAGES.filter(s => K.shut.has(s.k)), dock = $('.crm-dock', kb), had = new Set($$('.crm-dk', dock).map(b => b.dataset.col));
+    dock.hidden = !hid.length;
+    $('.crm-dks', dock).innerHTML = hid.map(s => { const [n, v] = $(`.kbx-c[data-col="${s.k}"]`, cols)._sum;
+      return `<button class="chip sm crm-dk" data-col="${s.k}" aria-label="Show ${s.t}, ${n} ${n === 1 ? 'deal' : 'deals'}, ${v}" data-tip="Show column, or drop a deal here"><span class="v">${s.t}</span><span class="k num">${n} · ${v}</span>${I('plus', 'xs')}</button>`; }).join('');
+    $$('.crm-dk', dock).forEach(b => { if (!had.has(b.dataset.col)) enter(b); });
     $('.kbx-em', kb).hidden = shown > 0 || !filtering;
     $('.kbx-cnt', kb).textContent = filtering ? `${shown} of ${DE.length} deals` : `${DE.length} deals`;
     $$('.kbx-fp button', kb).forEach(b => b.setAttribute('aria-pressed', K.own.has(b.dataset.who)));
@@ -437,6 +449,9 @@
     $('.kbx-clr', kb).hidden = !filtering;
     const ks = $$('.kbx-k', cols), keep = ks.find(k => k.dataset.id === kFocus) || ks[0]; if (keep) keep.tabIndex = 0;
   }
+  $('.crm-dock', kb).addEventListener('click', e => { const b = e.target.closest('.crm-dk'); if (!b || dragged) return; const k = b.dataset.col; K.shut.delete(k); renderBoard();
+    const col = $(`.kbx-c[data-col="${k}"]`, cols); enter(col); col.scrollIntoView({ block:'nearest', inline:'nearest', behavior:REDUCE ? 'auto' : 'smooth' });
+    swap($('.kbx-sr', kb), `${ST[k].t} shown`); const h = $('.crm-hide', col); if (h) h.focus({ preventScroll:true }); });
   $('.kbx-fp', kb).addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; K.own.has(b.dataset.who) ? K.own.delete(b.dataset.who) : K.own.add(b.dataset.who); renderBoard(); });
   kq.addEventListener('input', () => { K.q = kq.value.trim(); kqx.hidden = !kq.value; renderBoard(); });
   kqx.onclick = () => { kq.value = ''; K.q = ''; kqx.hidden = true; renderBoard(); kq.focus(); };
@@ -449,8 +464,9 @@
   });
   cols.addEventListener('click', e => {
     if (dragged) return;
-    const tg = e.target.closest('.kbx-tg'), col = e.target.closest('.kbx-c');
-    if (tg || (col && col.classList.contains('shut') && !e.target.closest('.kbx-k'))){ const k = col.dataset.col; K.shut.has(k) ? K.shut.delete(k) : K.shut.add(k); renderBoard(); return; }
+    const hide = e.target.closest('.crm-hide');
+    if (hide){ const k = hide.closest('.kbx-c').dataset.col; K.shut.add(k); renderBoard(); swap($('.kbx-sr', kb), `${ST[k].t} hidden. It waits by the filters, press it to show the column again`);
+      const b = $(`.crm-dk[data-col="${k}"]`, kb); if (b) b.focus({ preventScroll:true }); return; }
     const el = e.target.closest('.kbx-k'); if (!el) return;
     kFocus = el.dataset.id;
     if (e.target.closest('.kbx-mv')){ mvFor = el.dataset.id; buildMoveMenu(); return; }
@@ -479,7 +495,7 @@
     if (e.pointerType === 'touch' && getComputedStyle(el).touchAction !== 'none') return;
     const d = dealOf(el.dataset.id), rc = el.getBoundingClientRect(), ox = e.clientX - rc.left, oy = e.clientY - rc.top, bd = $('.kbx-bd', kb);
     let ghost = null, over = null, moved = false, raf = 0, lx = e.clientX;
-    const at = (x, y) => { const t = document.elementFromPoint(x, y); return t && t.closest('.crm-kb .kbx-c'); };
+    const at = (x, y) => { const t = document.elementFromPoint(x, y); return t && t.closest('.crm-kb .kbx-c, .crm-kb .crm-dk'); };
     const move = ev => {
       if (!moved && Math.hypot(ev.clientX - e.clientX, ev.clientY - e.clientY) < 5) return;
       if (!moved){ moved = true; ghost = el.cloneNode(true); ghost.classList.add('ghost'); ghost.classList.remove('open'); ghost.removeAttribute('tabindex'); ghost.style.width = rc.width + 'px'; app.appendChild(ghost); el.classList.add('drag'); closeSheet(); }
@@ -493,7 +509,7 @@
       if (!moved) return;
       ghost.remove(); el.classList.remove('drag'); if (over) over.classList.remove('over');
       dragged = true; setTimeout(() => dragged = false, 0);
-      if (over && over.dataset.col !== d.st){ K.shut.delete(over.dataset.col); moveDeal(d, over.dataset.col); }
+      if (over && over.dataset.col !== d.st) moveDeal(d, over.dataset.col);
     };
     addEventListener('pointermove', move); addEventListener('pointerup', up); addEventListener('pointercancel', up);
   });
@@ -502,16 +518,10 @@
   const fc = $('.crm-fc', app);
   const Q3 = { pipe:3920000, weighted:1880000, avg:96000 };
   const Q3W = [110, 260, 400, 540, 690, 840, 960, 1060, 1150, 1240, 1310, 1370, 1420].map(x => x * 1000);
-  const Q3M = [['Jul', 452000], ['Aug', 431000], ['Sep', 537000]];
-  // the quarter so far: which week of it today is in, and every closed-won amount with the day it closed (days from today):
-  // what was won before the board's deals, spread over the weeks gone, then each won deal on its close date
-  const q0 = new Date(today.getFullYear(), Math.floor(today.getMonth() / 3) * 3, 1), qDay = Math.round((today - q0) / 864e5), WK = Math.floor(qDay / 7);
-  const SPREAD = [.13, .19, .21, .23, .24, .2, .18, .16, .15, .14, .13, .12, .11];
-  const wonEvents = () => {
-    const base = sum(OWN, o => WON_BEFORE[o]), ws = SPREAD.slice(0, Math.max(1, WK)), tw = sum(ws);
-    return [...ws.map((w, i) => ({ at:-qDay + i * 7 + 3, v:base * w / tw })), ...DE.filter(d => d.st === 'won').map(d => ({ at:Math.min(0, d.close), v:d.v }))];
-  };
-  const wonOf = who => sum(who, o => WON_BEFORE[o]) + sum(DE.filter(d => d.st === 'won' && who.includes(d.own)), d => d.v);
+  // every closed-won deal of the quarter with the day it closed (days from today): the same deals as the board's Closed won column
+  const wonQ = () => DE.filter(d => d.st === 'won' && d.close >= -qDay);
+  const wonEvents = () => wonQ().map(d => ({ at:Math.min(0, d.close), v:d.v }));
+  const wonOf = who => sum(wonQ().filter(d => who.includes(d.own)), d => d.v);
   // commit: the weighted value of the deals in Proposal and Negotiation
   const commitOf = who => sum(DE.filter(d => (d.st === 'nego' || d.st === 'prop') && who.includes(d.own)), d => d.v * d.p / 100);
   const delta = (a, b) => { const p = Math.round((a / b - 1) * 1000) / 10; return `<span class="tag scx-d num ${p >= 0 ? 'ok' : 'bad'}">${p >= 0 ? '+' : '−'}${Math.abs(p)}%</span>`; };
@@ -532,30 +542,33 @@
     const svg = $('.lnx-svg', fc);
     svg.innerHTML = `<defs><linearGradient id="crm-lng" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="var(--dm-accent-mark,var(--dm-accent))" stop-opacity=".16"/><stop offset="1" stop-color="var(--dm-accent-mark,var(--dm-accent))" stop-opacity="0"/></linearGradient></defs>`
       + [35, 70, 105].map(y => `<line class="gl" x1="0" x2="320" y1="${y}" y2="${y}"/>`).join('')
+      + `<line class="crm-now" x1="${X(A.length - 1)}" x2="${X(A.length - 1)}" y1="6" y2="140"/>`
       + `<path class="ar" d="${smooth(pa)} L${X(A.length - 1)} 140 L0 140 Z" fill="url(#crm-lng)" style="opacity:${lineOn[0] ? 1 : 0}"/><path class="ln l1${lineOn[1] ? '' : ' off'}" d="${smooth(pb)}" stroke="var(--dm-c2)" stroke-dasharray="4 4"/><path class="ln l0${lineOn[0] ? '' : ' off'}" d="${smooth(pa)}" stroke="var(--dm-accent-mark,var(--dm-accent))"/>`;
-    const ch = $('.lnx-ch', fc); $$('.lnx-pt', ch).forEach(x => x.remove());
+    const ch = $('.lnx-ch', fc); $$('.lnx-pt, .crm-nowl', ch).forEach(x => x.remove());
+    ch.insertAdjacentHTML('beforeend', `<span class="crm-nowl" style="left:${(A.length - 1) / 12 * 100}%">Today</span>`);
     ch.insertAdjacentHTML('beforeend', '<span class="lnx-pt on" style="color:var(--dm-accent-mark,var(--dm-accent))"></span><span class="lnx-pt on" style="color:var(--dm-c2)"></span>');
-    const lv = $('.lnx-v', fc), latest = () => kmoney(lineOn[0] ? won : Q3W[12]);
+    const lv = $('.lnx-v', fc), latest = () => kmoney(won);
     if (shownLine === null || REDUCE) lv.textContent = latest(); else if (shownLine !== won) tween(shownLine, won, 700, n => lv.textContent = kmoney(n));
     shownLine = won;
     ch.onpointermove = ev => { const b = ch.getBoundingClientRect(), i = clamp(Math.round((ev.clientX - b.left) / b.width * 12), 0, 12), px = i / 12 * b.width;
       $('.lnx-x', ch).style.left = px + 'px'; $('.lnx-tt', ch).style.left = clamp(px, 70, b.width - 70) + 'px';
       const pts = $$('.lnx-pt', ch); [pa, pb].forEach((p, k) => { const has = !!p[i] && lineOn[k]; pts[k].classList.toggle('on', has); if (p[i]){ pts[k].style.left = px + 'px'; pts[k].style.top = p[i][1] / 140 * b.height + 'px'; } });
       const a = A[i], q = Q3W[i];
-      $('.lnx-tt b', ch).textContent = lineOn[0] && a != null ? kmoney(a) + ' won' : kmoney(q) + ' won in Q3';
-      $('.lnx-tt span', ch).textContent = `Week ${i + 1}` + (lineOn[0] && a != null && lineOn[1] ? `, ${a >= q ? '+' : '−'}${kmoney(Math.abs(a - q))} on Q3` : lineOn[0] && a == null ? ', still to come' : '');
-      lv.textContent = lineOn[0] && a != null ? kmoney(a) : kmoney(lineOn[1] ? q : won); };
+      const mine = lineOn[0] && a != null;
+      $('.lnx-tt b', ch).textContent = mine ? kmoney(a) + ' won by week ' + (i + 1) : kmoney(q) + ' by week ' + (i + 1) + ' of Q3';
+      $('.lnx-tt span', ch).textContent = mine ? (lineOn[1] ? `${a >= q ? '+' : '−'}${kmoney(Math.abs(a - q))} on Q3 at this point` : 'This quarter') : a == null ? 'This quarter is not there yet' : 'Last quarter';
+      lv.textContent = mine ? kmoney(a) : latest(); };
     ch.onpointerleave = () => lv.textContent = latest();
     // radial goals: each team's closed won and commit against its quota
     const RAD = [78, 60, 42], CS = ['var(--dm-c1)', 'var(--dm-c3)', 'var(--dm-c4)'];
-    const share = t => (wonOf(t.who) + commitOf(t.who)) / t.quota;
+    const share = t => wonOf(t.who) / t.quota;
     const rsvg = $('.rgx-ring svg', fc);
     if (!rsvg.children.length) rsvg.innerHTML = TEAMS.map((t, i) => `<g data-i="${i}" style="stroke:${CS[i]}"><circle class="tr" cx="90" cy="90" r="${RAD[i]}"/><circle class="fl" cx="90" cy="90" r="${RAD[i]}" pathLength="100" stroke-dasharray="0 100"/></g>`).join('');
     TEAMS.forEach((t, i) => $(`g[data-i="${i}"] .fl`, rsvg).setAttribute('stroke-dasharray', `${Math.max(0, Math.min(1, share(t)) * 100 - .01)} 100`));
     const lg = $('.rgx-lg', fc), pc = x => Math.round(x * 100) + '%';
-    lg.innerHTML = TEAMS.map((t, i) => `<div class="rgx-r" data-i="${i}" tabindex="0" aria-label="${t.t}: ${pc(share(t))} of a ${kmoney(t.quota)} quota"><i style="background:${CS[i]}"></i><span class="n">${t.t}</span><span class="p num">${share(t) >= 1 ? `<span class="tag ok">${pc(share(t))}</span>` : pc(share(t))}</span><span class="v num">${kmoney(wonOf(t.who) + commitOf(t.who))} of ${kmoney(t.quota)}</span></div>`).join('');
-    const all = sum(TEAMS, t => wonOf(t.who) + commitOf(t.who)) / sum(TEAMS, t => t.quota), cb = $('.rgx-c b', fc), cl = $('.rgx-c .muted', fc);
-    const centreOn = i => { const ring = $('.rgx-ring', fc); ring.classList.toggle('hov', i >= 0); $$('g', rsvg).forEach((g, k) => g.classList.toggle('on', k === i)); $$('.rgx-r', lg).forEach((r, k) => r.classList.toggle('on', k === i)); cb.textContent = pc(i < 0 ? all : share(TEAMS[i])); cl.textContent = i < 0 ? 'of quota' : TEAMS[i].t; };
+    lg.innerHTML = TEAMS.map((t, i) => `<div class="rgx-r" data-i="${i}" tabindex="0" aria-label="${t.t}: ${kmoney(wonOf(t.who))} won, ${pc(share(t))} of a ${kmoney(t.quota)} quota, ${kmoney(commitOf(t.who))} more in commit" data-tip="${kmoney(commitOf(t.who))} more in commit"><i style="background:${CS[i]}"></i><span class="n">${t.t}</span><span class="p num">${share(t) >= 1 ? `<span class="tag ok">${pc(share(t))}</span>` : pc(share(t))}</span><span class="v num">${kmoney(wonOf(t.who))} won of ${kmoney(t.quota)}</span></div>`).join('');
+    const all = sum(TEAMS, t => wonOf(t.who)) / sum(TEAMS, t => t.quota), cb = $('.rgx-c b', fc), cl = $('.rgx-c .muted', fc);
+    const centreOn = i => { const ring = $('.rgx-ring', fc); ring.classList.toggle('hov', i >= 0); $$('g', rsvg).forEach((g, k) => g.classList.toggle('on', k === i)); $$('.rgx-r', lg).forEach((r, k) => r.classList.toggle('on', k === i)); cb.textContent = pc(i < 0 ? all : share(TEAMS[i])); cl.textContent = i < 0 ? 'of quota won' : TEAMS[i].t; };
     centreOn(-1);
     $$('.rgx-r', lg).forEach((r, i) => { r.onpointerenter = r.onfocus = () => centreOn(i); r.onpointerleave = r.onblur = () => centreOn(-1); });
     // funnel: how many deals reached each stage
@@ -565,18 +578,31 @@
     $('.fnx-rows', fc).innerHTML = STAGES.map((s, i) => { const w = Math.max(6, reach[i] / (reach[0] || 1) * 100);
       return `<div class="fnx-r${i === worst ? ' drop' : ''}" style="--dm-fc:color-mix(in oklab,var(--dm-c1) ${100 - i * 25}%,var(--dm-c2))"><span class="k">${s.k === 'won' ? 'Won' : s.t}</span><div class="tr" data-tip="${i ? Math.round(reach[i] / reach[0] * 100) + '% of all deals' : 'Every deal starts here'}"><div class="bar" style="width:${w}%"></div><span class="n num${w < 24 ? ' out' : ''}" style="left:${w < 24 ? `calc(${w}% + 8px)` : '10px'}">${reach[i]}</span></div><span class="v num">${i ? '−' + Math.round((1 - reach[i] / (reach[i - 1] || 1)) * 100) + '%' : '100%'}</span></div>`; }).join('');
     $('.fnx-t', fc).textContent = `The biggest drop is from ${STAGES[worst - 1].t.toLowerCase()} to ${STAGES[worst].t.toLowerCase()}: ${Math.round((1 - reach[worst] / reach[worst - 1]) * 100)}% of deals stop there.`;
-    // bar chart: closed won by month, one accent colour, the breakdown in the hover readout
-    // the months of this quarter so far, from the same closed-won amounts, after the three of Q3
-    const mo = n => new Date(q0.getFullYear(), q0.getMonth() + n, 1), M = [...Q3M];
-    for (let n = 0; mo(n) <= today; n++) M.push([mo(n).toLocaleDateString('en-US', { month:'short' }), sum(EV.filter(e => { const d = dateOf(e.at); return d >= mo(n) && d < mo(n + 1); }), e => e.v)]);
-    const mx = Math.max(...M.map(m => m[1])) * 1.08;
-    const bch = $('.bcx-ch', fc);
-    bch.innerHTML = M.map(([m, v], i) => `<div class="bcx-b"><div class="bcx-tt"><b class="num">${money(v)}</b><span>${m}${i === M.length - 1 ? ', so far' : ''}</span></div><div class="bcx-st"><i style="height:${Math.max(3, v / mx * 150)}px"></i></div><div class="bcx-l">${m}</div></div>`).join('');
-    $('.bcx-v', fc).textContent = kmoney(sum(M, m => m[1])) + ' since ' + M[0][0];
+    // Activity heatmap: the team's calls, meetings and emails by weekday over the last 12 weeks, the same touches as the
+    // companies' Activity column (each week's total spread over its days), or the follow-ups the agent drafted
+    renderHeat();
     // quota by owner: Progress's meter, with a notch at the quota
-    $('.crm-owl', fc).innerHTML = OWN.map(o => ({ o, v:wonOf([o]) + commitOf([o]) })).sort((a, b) => b.v / QUOTA[b.o] - a.v / QUOTA[a.o]).map(({ o, v }) => { const p = v / QUOTA[o];
-      return `<div class="crm-ow">${av(o)}<span class="n">${P[o][0]}</span><span class="p num">${kmoney(v)} <span class="muted">of ${kmoney(QUOTA[o])}</span></span><div class="prg-mb${p >= 1 ? ' ok' : ''}" role="meter" aria-label="${P[o][0]}, ${Math.round(p * 100)}% of quota" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.min(100, Math.round(p * 100))}"><i class="fl" style="width:${Math.min(100, p * 100)}%"></i></div></div>`; }).join('');
+    $('.crm-owl', fc).innerHTML = OWN.map(o => ({ o, w:wonOf([o]), m:commitOf([o]) })).sort((a, b) => b.w / QUOTA[b.o] - a.w / QUOTA[a.o]).map(({ o, w, m }) => { const p = w / QUOTA[o], pm = Math.max(0, Math.min(1 - Math.min(1, p), m / QUOTA[o]));
+      return `<div class="crm-ow">${av(o)}<span class="n">${P[o][0]}</span><span class="p num">${kmoney(w)} <span class="muted">of ${kmoney(QUOTA[o])}</span></span><div class="prg-mb${p >= 1 ? ' ok' : ''}" role="meter" aria-label="${P[o][0]}: ${kmoney(w)} won, ${Math.round(p * 100)}% of quota, ${kmoney(m)} more in commit" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.min(100, Math.round(p * 100))}" data-tip="${kmoney(m)} more in commit"><i class="fl" style="width:${Math.min(100, p * 100)}%"></i><i class="crm-cm" style="left:${Math.min(100, p * 100)}%;width:${pm * 100}%"></i></div></div>`; }).join('');
   }
+  const hm = $('.crm-hm', fc), hmg = $('.hmx-grid', hm), WD = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'], DAYW = [.22, .25, .23, .19, .11];
+  let hmWho = 'team', hmShown = false;
+  hmg.innerHTML = Array.from({ length:60 }, () => '<i style="--dm-a:0"></i>').join('');
+  $('.hmx-f', hm).innerHTML = [11, 8, 5, 2].map(w => `<span>${fmtD(-((today.getDay() + 6) % 7) - w * 7)}</span>`).join('');
+  function renderHeat(){
+    // a week's touches: every company's Activity for that week; the agent's drafts follow the accounts that went quiet
+    const wk = w => hmWho === 'team' ? sum(CO, c => c.trend[w]) : sum(CO, c => c.trend[w] === 0 ? 2 : c.trend[w] < 3 ? 1 : 0) + 3;
+    const V = []; for (let d = 0; d < 5; d++) for (let w = 0; w < 12; w++) V.push(Math.round(wk(w) * DAYW[d] * (1 + Math.sin(d * 5.3 + w * 2.1) * .18)));
+    const mx = Math.max(...V), cells = $$('i', hmg), tot = sum(V);
+    cells.forEach((el, i) => { const d = Math.floor(i / 12), w = i % 12, v = V[i], monday = -((today.getDay() + 6) % 7) - (11 - w) * 7;
+      const set = () => el.style.setProperty('--dm-a', (v / mx * .9).toFixed(2));
+      if (REDUCE || hmShown) set(); else setTimeout(set, (w + d) * 18);
+      el.dataset.tip = `${WD[d]}, week of ${fmtD(monday)}: ${v} ${hmWho === 'team' ? (v === 1 ? 'touch' : 'calls, meetings and emails') : (v === 1 ? 'follow-up drafted' : 'follow-ups drafted')}`; });
+    hmShown = true;
+    const best = DAYW.indexOf(Math.max(...DAYW));
+    swap($('.hmx-st', hm), hmWho === 'team' ? `${tot.toLocaleString('en-US')} touches in 12 weeks, busiest on ${WD[best]}s` : `${tot.toLocaleString('en-US')} follow-ups drafted for quiet accounts`);
+  }
+  seg($('.hmx-sg', hm), v => { hmWho = v; renderHeat(); });
   $$('.lnx-k', fc).forEach(k => k.onclick = () => { const s = +k.dataset.s; if (lineOn[s] && !lineOn[1 - s]) return; lineOn[s] = !lineOn[s]; k.classList.toggle('on', lineOn[s]); k.setAttribute('aria-pressed', lineOn[s]); renderForecast(); });
 
   /* ---------- tabs: Segmented control ---------- */
@@ -612,7 +638,6 @@
     else if (b.dataset.reg){ F.reg = F.reg === b.dataset.reg ? null : b.dataset.reg; setTab('companies'); renderTable(); }
     else if (b.dataset.rep === 'slip'){ K.close = 'overdue'; K.own.clear(); setTab('deals'); }
     else if (b.dataset.go) setTab(b.dataset.go);
-    else if (b.dataset.soon) toast('info', `${b.dataset.soon} isn't in this template`, 'It shows Companies, Deals and Forecast');
     else if (b.dataset.act === 'invite'){ (navigator.clipboard ? navigator.clipboard.writeText(location.href) : Promise.reject()).catch(() => {}); toast('ok', 'Invite link copied', 'Anyone with it can join Larkfield Sales'); }
     else if (b.dataset.act === 'billing') toast('info', 'Billing is not part of the template', 'Your trial has 14 days left');
     else if (b.dataset.act === 'help') help();
@@ -748,6 +773,9 @@
 
   /* ---------- everything follows the data ---------- */
   function refresh(){ derive(); renderTable(); renderBoard(); if (tab === 'forecast') renderForecast(); if (sheetFor) renderSheet(); counts(); }
+  const tsc = $('.crm-sc', app); tsc.addEventListener('scroll', () => tsc.classList.toggle('sx', tsc.scrollLeft > 2), { passive:true });
+  // the company column sticks right after the checkbox column, however wide that column comes out, so nothing shows between them
+  const stk = $('.crm-t th.stk', app); new ResizeObserver(() => $('.crm-t', app).style.setProperty('--crm-stk', stk.getBoundingClientRect().width + 'px')).observe(stk);
   derive(); renderTable(); renderBoard(); setTab('companies'); stagger($$('tr[data-id]', tbody).slice(0, 16), 22);
   // a link to a company (#c3) opens it
   const h = location.hash.slice(1); if (h && coOf(h)) openSheet(h);
