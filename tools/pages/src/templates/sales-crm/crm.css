@@ -1,10 +1,11 @@
 /* Sales CRM template: the layout around the components. Every colour, radius and space is a component token (--dm-*), so
    the screen follows Soft and Blueprint, light and dark. The parts themselves are the components' own classes:
-   Agent harness (the sidebar's rows and workspace button), Segmented control (the tabs), Task table (the table's header,
-   bulk bar, sort buttons and checkboxes), Kanban board (the filter chips, the search field and the deals board), Progress
-   (win probability's segments, the trial and quota meters), Details panel (the sheet), Filter menu (a removable filter chip),
-   Form (New company), Toast, Notifications, Profile menu, Command palette, Stat cards, Line chart, Radial goals, Funnel and
-   Bar chart. Hover styles are only for a mouse (hover:hover and pointer:fine). */
+   Agent harness (the sidebar's rows and workspace button), Task table (the accounts table's header, bulk bar, sort buttons
+   and checkboxes), Filter menu (the Filter button, its two-step menu and the filter chips), Search input (the search and
+   ask field and the agent's answer line), Health score (the health gauge in each row and in the sheet), Agent inbox (the
+   inbox's groups and rows), Event calendar (the week), Kanban board (the deals board), Details panel (the sheet), Progress
+   (the quota meters), Form (Add account), Toast, Notifications, Profile menu, Command palette, Stat cards, Line chart,
+   Activity heatmap, Radial goals and Funnel. Hover styles are only for a mouse (hover:hover and pointer:fine). */
 
 /* ---------- the page: the app fills the window under the site's header ---------- */
 .pg-app{display:block;height:calc(100dvh - var(--pg-head));overflow:hidden}
@@ -32,27 +33,25 @@ body:has(.crm) .dmf{display:none}
 .crm-wst .s{font-size:12px;font-weight:400;color:var(--dm-muted)}
 .crm-nav{display:flex;flex-direction:column;gap:2px}
 .crm-nav .ahx-cv>.i{color:var(--dm-muted);transition:color var(--dm-t-fast)}
-.crm-nav .ahx-cv[aria-current="true"]>.i{color:var(--dm-fg)}
-/* a team or pipeline whose filter is on looks like the page you're on */
-.crm-nav .ahx-cv[aria-pressed="true"]{background:var(--dm-surface);color:var(--dm-fg);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-rail) 50%,transparent),0 1px 2px rgba(0,0,0,.04)}
 .crm-nav .ahx-cv .n{margin-left:auto;font-size:12px;color:var(--dm-muted)}
 .crm-nav .ahx-cv .t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .crm-nav .ahx-cv .dot{width:8px;height:8px;margin:0 4px}
 .crm-nav .ahx-cv .av{width:20px;height:20px;font-size:9px}
 .crm-side .ahx-lh{padding-top:var(--dm-s-4)}
-.crm-sfoot{margin-top:auto;padding-top:var(--dm-s-4);display:flex;flex-direction:column;gap:2px}
-.crm-trial{display:flex;flex-direction:column;gap:var(--dm-s-2);margin-top:var(--dm-s-2);padding:var(--dm-s-3) 9px 2px;border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
-.crm-trial .prg-mh{font-size:12.5px;color:var(--dm-fg2)}
-.crm-trial .prg-mb{height:6px}
-.crm-trial .pill{align-self:flex-start;margin-top:2px}
+.crm-nav .ahx-cv[aria-current="page"]>.i{color:var(--dm-fg)}
+/* what waits in the Agent inbox: the accent tint, the one count in the sidebar that asks for something */
+.crm-nav .ahx-cv .n.crm-wait{min-width:20px;height:20px;padding:0 6px;display:inline-grid;place-items:center;border-radius:var(--dm-r-tag);background:var(--dm-sel);color:var(--dm-accent-fg,var(--dm-accent));font-weight:500}
+.crm-nav .ahx-cv .n.crm-wait[hidden]{display:none}
+@supports (corner-shape:squircle){.crm-nav .ahx-cv .n.crm-wait{corner-shape:squircle;border-radius:var(--dm-r-tag-sq)}}
 
-/* ---------- the main column: top bar, tabs, then the view ---------- */
+/* ---------- the main column: the header (the view's name and a live summary), then the view ---------- */
 .crm-main{position:relative;display:flex;flex-direction:column;min-width:0;min-height:0;overflow:hidden}
 .crm-top{flex:none;display:flex;align-items:center;gap:var(--dm-s-2);height:56px;padding:0 var(--dm-s-4) 0 var(--dm-s-5);border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
 .crm-menu{display:none;margin-left:-8px;color:var(--dm-fg2)}
+.crm-ttl{display:flex;align-items:baseline;gap:var(--dm-s-3);min-width:0}
 .crm-h1{font-size:16px;font-weight:500;letter-spacing:-.01em;white-space:nowrap;outline:0}
-.crm-live{margin-left:2px}
-.crm-live .dot{width:6px;height:6px;color:var(--dm-ok-mark)}
+.crm-sum{min-width:0;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.crm-sum .sh{display:none}
 .crm-find{flex:0 1 240px;min-width:0;cursor:pointer;margin-right:var(--dm-s-1)}
 .crm-find .t{flex:1;min-width:0;text-align:left;font-size:13px;color:var(--dm-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 @media (hover:hover) and (pointer:fine){.crm-find:hover{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line-strong) 50%,transparent)}}
@@ -62,82 +61,165 @@ body:has(.crm) .dmf{display:none}
 .crm-me{padding-right:var(--dm-s-2)}
 .crm-me .av{width:26px;height:26px;font-size:10.5px}
 .crm-men{font-size:13px;color:var(--dm-fg);white-space:nowrap}
-.crm-tabs{flex:none;display:flex;align-items:center;gap:var(--dm-s-3);padding:10px var(--dm-s-4) 10px var(--dm-s-5);border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
-.crm-seg button{height:28px;padding:0 var(--dm-s-3)}
-.crm-ctx{margin-left:auto;font-size:12.5px;white-space:nowrap}
 .crm-view{flex:1;min-height:0}
 .crm-view[hidden]{display:none}
 
-/* ---------- Companies: the Task table, denser and wider ---------- */
+/* ---------- Accounts: the Task table, with Filter menu and Search input in its toolbar ---------- */
 .crm-co.ttx{display:flex;flex-direction:column;overflow:hidden;container-type:normal}
-.crm-hd.ttx-hd{flex:none;height:52px}
-.crm-fbar.ttx-ti{gap:6px;padding:0 var(--dm-s-4);overflow-x:auto;scrollbar-width:none}
-.crm-fbar::-webkit-scrollbar{display:none}
+/* the toolbar is one row while it fits; with filters on, the search, Sort, Export and Add account wrap onto a second */
+.crm-hd.ttx-hd{flex:none;height:auto;min-height:52px}
+.crm-fbar.ttx-ti{position:relative;flex-wrap:wrap;gap:6px;row-gap:var(--dm-s-2);padding:10px var(--dm-s-4);overflow:visible}
 .crm-chips,.crm-acts{display:flex;align-items:center;gap:6px}
 .crm-chips>*,.crm-acts>*{flex:none}
 .crm-acts{margin-left:auto}
-.crm-fbar .kbx-f .v{max-width:132px;overflow:hidden;text-overflow:ellipsis}
-.crm .kbx-f[aria-expanded="true"]>.i:last-child{transform:rotate(180deg)}
-.crm .kbx-f>.i:last-child{transition:transform var(--dm-t) var(--dm-ease)}
-.crm-acts .kbx-q{flex:0 1 200px;width:200px;min-width:150px}
+.crm-ftr.on{background:var(--dm-chip)}
+.crm-fch{display:flex;align-items:center;gap:6px}
+.crm-fch:empty{display:none}
+.crm-inview{font-size:12.5px;white-space:nowrap;margin-left:2px}
+.crm-inview:empty{display:none}
+/* the search field is Search input's box at the toolbar's height; it searches as you type, and a question waits for Enter */
+.crm-ask.six-box{flex:0 1 300px;width:300px;min-width:180px;max-width:none}
+.crm-ask .six-in{height:32px;padding-left:10px}
+.crm-ask .six-in input{font-size:13px}
+.crm-ask .six-in input::-webkit-search-cancel-button{display:none}
+.crm-ask:focus-within{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line-strong) 50%,transparent)}
+.crm-sort .v{max-width:96px;overflow:hidden;text-overflow:ellipsis}
+/* the agent's answer to a question: Search input's answer line, under the toolbar */
+.crm-ans{flex:none;padding:var(--dm-s-2) var(--dm-s-4) 0}
+.crm-ans[hidden]{display:none}
+.crm-ans .six-ans{margin:0;align-items:center;padding:6px 6px 6px var(--dm-s-3)}
+.crm-ans .six-ans>svg{margin-top:0}
+.crm-ans .t{flex:1;min-width:0}
+.crm-ans .pill{flex:none}
 .crm-hd .ttx-sb{padding-left:var(--dm-s-4)}
 .crm-sc.ttx-sc{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;outline:0}
 .crm-sc:focus-visible{box-shadow:inset 0 0 0 2px var(--dm-focus)}
-.crm-t.ttx-t{min-width:1080px}
+.crm-t.ttx-t{min-width:1060px}
 .crm-t th{position:sticky;top:0;z-index:2;background:var(--dm-surface);height:38px}
-.crm-t td{height:44px}
-.crm-t th,.crm-t td{padding:0 6px}
+.crm-t td{height:54px}
+.crm-t th,.crm-t td{padding:0 var(--dm-s-2)}
 .crm-t th.ck,.crm-t td.ck{width:40px;padding-left:var(--dm-s-4)}
-.crm-t thead th:nth-child(2){padding-left:var(--dm-s-1)}
-.crm-t tbody td:nth-child(2){padding-left:var(--dm-s-1)}
+.crm-t thead th:nth-child(2),.crm-t tbody td:nth-child(2){padding-left:var(--dm-s-1)}
 .crm-t tbody tr[data-id]:focus-visible{outline:2px solid var(--dm-focus);outline-offset:-2px}
 .crm-t tbody tr.open{background:color-mix(in srgb,var(--dm-fg) 6%,transparent)}
-/* the company: its tile (Profile menu's workspace tile) and its name */
-.crm-co .nm{display:flex;align-items:center;gap:var(--dm-s-2);font-weight:500;max-width:164px}
-.crm-co .nm>span:last-child{overflow:hidden;text-overflow:ellipsis}
-.crm .pfm-lg.sm{width:22px;height:22px;font-size:10.5px;border-radius:calc(6px * var(--dm-rk))}
+/* the account: its tile (Profile menu's workspace tile), its name and its segment under it */
+.crm-co .nm{display:flex;align-items:center;gap:10px;font-weight:500;max-width:220px}
+.crm-co .nm .tx{display:flex;flex-direction:column;min-width:0;line-height:1.35}
+.crm-co .nm .t{overflow:hidden;text-overflow:ellipsis}
+.crm-co .nm .s{font-size:12px;font-weight:400;color:var(--dm-muted)}
+.crm .pfm-lg.sm{width:24px;height:24px;font-size:11px;border-radius:calc(6px * var(--dm-rk))}
 .crm .pfm-lg.xs{width:16px;height:16px;font-size:9px;border-radius:calc(4px * var(--dm-rk))}
-.crm-tags{display:flex;align-items:center;gap:var(--dm-s-1)}
-.crm-tags .tag.more{background:none;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-rail) 50%,transparent);color:var(--dm-muted)}
 .crm-t .ttx-st{height:22px;font-size:12px}
 .crm-t .ttx-st .dot{width:6px;height:6px}
-.crm-t td.num,.crm-t td.r{color:var(--dm-fg)}
-.crm-t td.val{font-weight:500}
-/* win probability: Progress's segments, ten to a bar, in the progress colour of how likely it is */
-.crm-win{display:flex;align-items:center;gap:var(--dm-s-2)}
-.crm-win .prg-seg{width:64px;gap:2px}
-.crm-win .prg-seg i{height:10px;border-radius:calc(1.5px * var(--dm-rk))}
-.crm-win .prg-seg b{border-radius:inherit}
-.crm-win .p{width:32px;text-align:right;font-size:12.5px;color:var(--dm-fg2)}
-.crm-win{--dm-prg-c:var(--dm-accent-mark,var(--dm-accent))}
-.crm-win[data-w="lo"]{--dm-prg-c:var(--dm-warn-mark)}
-/* activity: Bar chart's bars, twelve weeks of meetings, calls and emails, in neutral grey with this week in the accent, and
-   the count in the hover readout */
-.crm-spark{display:flex;align-items:flex-end;gap:2px;height:20px;width:60px}
-.crm-spark i{flex:1;min-height:2px;border-radius:calc(1px * var(--dm-rk)) calc(1px * var(--dm-rk)) 0 0;background:color-mix(in srgb,var(--dm-muted) 55%,transparent)}
-.crm-spark i:last-child{background:var(--dm-accent-mark,var(--dm-accent))}
-.crm-spark i.z{background:color-mix(in srgb,var(--dm-muted) 25%,transparent)}
-.crm-last{display:flex;align-items:center;gap:6px;color:var(--dm-fg)}
-.crm-last .i{color:var(--dm-muted)}
-.crm-last{gap:5px}
-.crm-last .muted::before{content:"·";margin-right:5px;color:var(--dm-muted)}
-.crm-last.old>span:nth-child(2){color:var(--dm-bad)}
+/* the next step, from the calendar: what it is, then when; overdue and missing read red */
+.crm-nx{display:flex;flex-direction:column;line-height:1.35;min-width:0;max-width:200px}
+.crm-nx .k{color:var(--dm-fg);overflow:hidden;text-overflow:ellipsis}
+.crm-nx .d{font-size:12px;color:var(--dm-muted)}
+.crm-nx.late .d,.crm-nx.none .k{color:var(--dm-bad)}
+.crm-t .ag{color:var(--dm-fg)}
+/* the pipeline: the open value, and how many deals make it up */
+.crm-pv{display:inline-flex;flex-direction:column;align-items:flex-end;line-height:1.35}
+.crm-pv b{font-weight:500;color:var(--dm-fg)}
+.crm-pv .muted{font-size:12px}
+/* health: Health score's gauge at row size, its score and a word, in the gauge's colours */
+.crm-hs.hsx{padding:0;display:inline-flex;flex-direction:row;align-items:center;gap:var(--dm-s-2)}
+.crm-hs svg{width:28px;height:17px;overflow:visible;flex:none}
+.crm-hs path{fill:none;stroke-width:15;stroke-linecap:round}
+.crm-hs .tr{stroke:color-mix(in srgb,var(--dm-line) 80%,transparent)}
+.crm-hs .fl{stroke-dasharray:157;stroke:var(--dm-hs-ok)}
+.crm-hs[data-h="mid"] .fl{stroke:var(--dm-accent-mark,var(--dm-accent))}
+.crm-hs[data-h="bad"] .fl{stroke:var(--dm-hs-bad)}
+.crm-hs b{min-width:18px;font-size:13px;font-weight:500;color:var(--dm-fg)}
+.crm-hs .l{font-size:12px;color:var(--dm-muted)}
+/* the agent's suggestion: the accent tint, like Event calendar's Ask */
+.crm .pill.soft.crm-ag{height:26px;padding:0 10px 0 8px;gap:5px;background:var(--dm-sel);color:var(--dm-accent-fg,var(--dm-accent));box-shadow:none;font-weight:500}
+@media (hover:hover) and (pointer:fine){.crm .pill.soft.crm-ag:hover{background:color-mix(in srgb,var(--dm-accent) 14%,transparent)}}
 .crm-actc{width:36px}
 .crm-t tr>:last-child{padding-right:var(--dm-s-3)}
 .crm-t .ib.crm-rm{width:28px;height:28px;color:var(--dm-muted)}
 .crm-t .ib.crm-rm[aria-expanded="true"]{background:var(--dm-row);color:var(--dm-fg)}
-/* the footer: the sums of the rows in view, under their columns */
-.crm-t tfoot td{position:sticky;bottom:0;z-index:2;height:40px;background:var(--dm-surface);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);border-bottom:0;color:var(--dm-fg2);font-size:12.5px}
-.crm-t tfoot td b{font-weight:500;color:var(--dm-fg)}
-.crm-t tfoot td:last-child{text-align:right}
-.crm-fcalc{margin-right:var(--dm-s-2)}
-.crm-fcalc:empty{display:none}
-.crm-fcalc .k{color:var(--dm-muted)}
-.crm-addcalc{margin-right:-6px}
 .crm-empty td{height:auto;padding:56px var(--dm-s-4)!important;text-align:center;white-space:normal}
 .crm-t tbody tr.ttx-out{opacity:0;transform:translateX(14px);transition:opacity .24s var(--dm-ease),transform .24s var(--dm-ease)}
+/* the Filter menu's two steps, and a stage's dot in it */
+.crm-flt.pop{width:248px}
+.crm-flt .mi>.i:last-child{color:var(--dm-muted)}
+.crm-flt .mi .r{color:var(--dm-muted);font-size:12px}
+.crm-sd{color:var(--dm-muted)}
+.crm-sd[data-s="nego"]{color:var(--dm-accent-mark,var(--dm-accent))}
+.crm-sd[data-s="won"]{color:var(--dm-ok-mark)}
 
-/* ---------- Deals: the Kanban board ---------- */
+/* ---------- Agent inbox: its groups and rows, wider, each with Dismiss, Edit and Approve ---------- */
+.crm-ib{overflow:auto;padding:var(--dm-s-4) var(--dm-s-4) var(--dm-s-6) var(--dm-s-5);background:var(--dm-stage)}
+.crm-ib[hidden]{display:none}
+.crm-aib.aib{max-width:880px;margin:0;padding:6px 6px var(--dm-s-2)}
+.crm-aib .aib-h{padding:var(--dm-s-2) 10px var(--dm-s-1)}
+.crm-aib .aib-i{gap:var(--dm-s-3);padding:10px}
+.crm-aib .aib-av{background:var(--dm-chip);color:var(--dm-fg2)}
+.crm-aib .crm-it{flex:1;min-width:0;text-align:left;font:inherit;color:inherit;cursor:pointer;border-radius:var(--dm-r-sm)}
+.crm-aib .crm-it b{color:var(--dm-fg)}
+.crm-aib .aib-r{gap:6px}
+.crm-aib .aib-i.done .aib-t b{color:var(--dm-fg2);font-weight:400}
+.crm-aib .aib-r .ok{color:var(--dm-ok);display:grid}
+.crm-ires{white-space:nowrap}
+.crm-ibe{padding:var(--dm-s-6) 10px;font-size:13px;text-align:center}
+/* a follow-up's draft, opened by Edit: a field like any other, then Cancel and Save */
+.crm-ied{display:flex;flex-direction:column;gap:var(--dm-s-2);margin:0 10px var(--dm-s-2) 50px}
+.crm-iel{font-size:12px;color:var(--dm-muted)}
+.crm-ta{width:100%;min-height:96px;resize:vertical;padding:var(--dm-s-2) var(--dm-s-3);border:0;outline:0;border-radius:var(--dm-r-field);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line) 50%,transparent);font:inherit;font-size:13px;line-height:1.5;color:var(--dm-fg);transition:box-shadow var(--dm-t-fast)}
+@supports (corner-shape:squircle){.crm-ta{corner-shape:squircle;border-radius:var(--dm-r-field-sq)}}
+.crm-ta:focus{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line-strong) 50%,transparent)}
+.crm-iea{display:flex;justify-content:flex-end;gap:6px}
+
+/* ---------- Calendar: Event calendar's week, 8am to 6pm, with the deals closing each day under the day headers ---------- */
+.crm-cal{overflow:auto;padding:var(--dm-s-4) var(--dm-s-4) var(--dm-s-6) var(--dm-s-5);background:var(--dm-stage)}
+.crm-cal[hidden]{display:none}
+.crm-ecx .ecx-h{min-height:52px}
+.crm-wk{display:flex;align-items:center;gap:2px;margin-left:-6px}
+.crm-wk .ib{width:28px;height:28px}
+.crm-wk .pill{margin:0 var(--dm-s-2) 0 var(--dm-s-1)}
+.crm-wkt{white-space:nowrap}
+.crm-plan:disabled{opacity:1}
+.crm-ecx .ecx-grid{--dm-ph:48px}
+.crm-ecx .ecx-col{height:calc(var(--dm-ph) * 10)}
+/* the time column starts under the day header and the closing strip */
+.crm-ecx .ecx-tm{padding-top:62px}
+.crm-cls{height:30px;display:flex;align-items:center;gap:4px;padding:0 4px;border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);overflow:hidden}
+.crm-clb{display:inline-flex;align-items:center;gap:4px;min-width:0;max-width:100%;height:22px;padding:0 7px 0 5px;border-radius:var(--dm-r-tag);background:var(--dm-chip);font-size:11.5px;font-weight:500;color:var(--dm-fg2);white-space:nowrap;transition:background var(--dm-t-fast),color var(--dm-t-fast)}
+@supports (corner-shape:squircle){.crm-clb{corner-shape:squircle;border-radius:var(--dm-r-tag-sq)}}
+.crm-clb span{overflow:hidden;text-overflow:ellipsis}
+.crm-clb .i{flex:none;color:var(--dm-muted)}
+.crm-clb.more{flex:none;padding:0 7px}
+@media (hover:hover) and (pointer:fine){.crm-clb:hover{background:var(--dm-hover);color:var(--dm-fg)}}
+/* a meeting: the owner's pastel pair; overlapping meetings share the column */
+.crm-ecx .ecx-e{right:auto;min-width:0}
+.crm-ecx .ecx-e>span:not(.ecx-sg){display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.crm-ecx .ecx-e.late{box-shadow:inset 2px 0 0 var(--dm-bad)}
+/* the agent's proposed slots: dashed, with Book and Skip */
+.crm-ecx .ecx-e.sug{box-shadow:none!important;border:1.5px dashed color-mix(in srgb,var(--dm-accent-mark,var(--dm-accent)) 60%,transparent);z-index:2;cursor:default}
+.crm-ecx .ecx-e.sug{display:flex;flex-direction:column;justify-content:space-between}
+.crm-ecx .ecx-sg{align-items:center;margin-top:0}
+.crm-ecx .ecx-sg button{font-weight:500}
+.crm-ecx .ecx-sg i{margin-left:auto;font-style:normal;font-size:10.5px;color:var(--dm-accent-fg,var(--dm-accent));white-space:nowrap}
+.crm-ecx .ecx-e.drag{z-index:6}
+.crm-cpop.ecx-pop{width:300px}
+.crm-cpop .crm-pacc{margin:2px 0 2px -6px;padding:0 6px;height:28px;gap:6px}
+.crm-pdl{display:flex;align-items:center;gap:var(--dm-s-2);margin:var(--dm-s-2) 0 0 18px;font-size:12.5px}
+.crm-pdl .t{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--dm-fg)}
+.crm-pdl .ttx-st{height:20px;font-size:11.5px;flex:none}
+.crm-pdl .ttx-st .dot{width:6px;height:6px}
+.crm-pdl .num{color:var(--dm-fg2);flex:none}
+.crm .av.crm-cav{background:var(--dm-chip);color:var(--dm-fg2)}
+.crm-leg{display:flex;flex-wrap:wrap;gap:var(--dm-s-1) var(--dm-s-3);padding:10px var(--dm-s-3);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);font-size:12px}
+.crm-leg span{display:inline-flex;align-items:center;gap:6px}
+.crm-leg i{width:8px;height:8px;border-radius:50%}
+@container ecx (max-width:519px){
+  .crm-ecx .ecx-grid{--dm-ph:56px}
+  .crm-ecx .ecx-tm{padding-top:30px}
+  .crm-ecx .ecx-msg{order:5;flex-basis:100%;margin:0}
+  .crm-ecx .ecx-msg:empty{display:none}
+}
+
+/* ---------- Pipeline: the Kanban board ---------- */
 .crm-deals{display:flex;flex-direction:column;overflow:auto}
 .crm-kb.kbx{flex:1 0 auto;padding:var(--dm-s-3) var(--dm-s-4) var(--dm-s-4) var(--dm-s-5);min-height:0}
 .crm-kb .kbx-fp .av{box-shadow:0 0 0 2px var(--dm-surface)}
@@ -252,7 +334,32 @@ body:has(.crm) .dmf{display:none}
 .crm-dtp .crm-tg .dtp-tags>*{flex:none;height:20px}
 .crm-dtp .dtp-v{max-width:100%}
 .crm-dtp .dtp-v.static{margin-left:0;padding:0}
-.crm-dtp .crm-win .prg-seg{width:96px}
+/* the agent's suggestion for the account, and its health: Health score's gauge and checks, smaller */
+.crm-sag.six-ans{margin:var(--dm-s-2) 0 0;align-items:center}
+.crm-sag>span{flex:1;min-width:0}
+.crm-sag .pill{flex:none}
+.crm-shs.hsx{padding:var(--dm-s-3) 0 var(--dm-s-1);gap:var(--dm-s-2);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);margin-top:var(--dm-s-3)}
+.crm-shs .hsx-g{width:96px;height:58px}
+.crm-shs .hsx-g svg path{stroke-width:10}
+.crm-shs .hsx-g .fl{transition:none}
+.crm-shs .hsx-v b{font-size:24px}
+.crm-shs .hsx-v span{font-size:10.5px}
+.crm-shs .hsx-list{padding-top:var(--dm-s-1);border-top:0;gap:0}
+.crm-shs .hsx-c{padding:5px 0}
+.crm-shs .hsx-ch{padding:0;gap:10px}
+.crm-shs .hsx-ch .t{flex:1;min-width:0}
+.crm-shs .hsx-d{padding:1px 0 0;font-size:12px;color:var(--dm-muted)}
+@media (hover:hover) and (pointer:fine){.crm-shs .hsx-c:hover{background:none}}
+.crm-dtp .crm-snx{gap:6px;text-align:left}
+.crm-dtp .crm-snx .i{flex:none}
+.crm-dtp .crm-snx .i{color:var(--dm-muted)}
+.crm-dtp .crm-snx.late,.crm-dtp .crm-snx.late .i,.crm-dtp .crm-snx.none{color:var(--dm-bad)}
+.crm-ppl{display:flex;flex-direction:column;margin:2px 0 0;padding:0;list-style:none}
+.crm-ppl li{display:flex;align-items:center;gap:10px;padding:5px 0;font-size:13px;line-height:1.35}
+.crm-ppl .av{width:28px;height:28px;font-size:10.5px}
+.crm-ppl li>span:last-child{display:flex;flex-direction:column;min-width:0}
+.crm-ppl b{font-weight:500}
+.crm-ppl .muted{font-size:12px}
 .crm-sum3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--dm-s-2);margin:var(--dm-s-3) 0 var(--dm-s-1)}
 .crm-sum3>div{display:flex;flex-direction:column;gap:2px}
 .crm-sum3 span{font-size:12px;color:var(--dm-muted)}
@@ -260,10 +367,13 @@ body:has(.crm) .dmf{display:none}
 .crm-dl{display:flex;flex-direction:column;gap:2px;margin:0 calc(-1 * var(--dm-s-2))}
 .crm-dl button{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:10px;width:100%;min-height:36px;padding:0 var(--dm-s-2);border-radius:var(--dm-r-sm);text-align:left;transition:background var(--dm-t-fast)}
 @media (hover:hover) and (pointer:fine){.crm-dl button:hover{background:var(--dm-row)}}
-.crm-dl .t{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.crm-dl .t{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.crm-dl .t .w{display:block;font-size:12px;color:var(--dm-muted)}
+.crm-dl .t .w.late{color:var(--dm-bad)}
+.crm-dl button{padding-top:5px;padding-bottom:5px}
 .crm-dl .ttx-st{height:20px;font-size:11.5px}
 .crm-dl .ttx-st .dot{width:6px;height:6px}
-.crm-dl .num{font-size:12.5px;color:var(--dm-fg2);text-align:right;min-width:64px}
+.crm-dl button>.num{font-size:12.5px;color:var(--dm-fg2);text-align:right;min-width:64px}
 .crm-tl{display:flex;flex-direction:column;margin:2px 0 0;padding:0;list-style:none}
 .crm-tl li{display:grid;grid-template-columns:28px minmax(0,1fr);gap:10px;padding:6px 0;font-size:13px;line-height:1.4}
 .crm-tl .ic{width:28px;height:28px;border-radius:calc(9px * var(--dm-rk));display:grid;place-items:center;background:var(--dm-chip);color:var(--dm-fg2)}
@@ -285,7 +395,7 @@ body:has(.crm) .dmf{display:none}
 .crm-ntf .ntx-list{max-height:340px;overflow:auto}
 .crm-ntf .ntx-n .ic .pfm-lg{width:30px;height:30px}
 
-/* ---------- overlays: search and New company ---------- */
+/* ---------- overlays: Jump to and Add account ---------- */
 .crm-over{position:absolute;inset:0;z-index:70;display:flex;justify-content:center;align-items:flex-start;padding:72px var(--dm-s-4) var(--dm-s-4);background:color-mix(in srgb,var(--dm-page) 60%,transparent);animation:crmfade .2s var(--dm-ease)}
 .crm-over[hidden]{display:none}
 @keyframes crmfade{from{opacity:0}}
@@ -306,17 +416,28 @@ body:has(.crm) .dmf{display:none}
 
 /* ---------- narrower screens ---------- */
 @media (max-width:1279px){
+  .crm-find{flex-basis:150px}
+  .crm-men{display:none}
+  /* the account's checkbox and name stay in view while the table scrolls sideways under them */
+  .crm-t .stk,.crm-t .stk2{position:sticky;z-index:1;background:var(--dm-surface)}
+  .crm-t .stk{left:0}
+  .crm-t .stk2{left:var(--crm-stk,56px);box-shadow:inset -1px 0 0 color-mix(in srgb,var(--dm-line) 50%,transparent);transition:box-shadow .2s}
+  /* once rows slide under the account column, its edge casts a soft shadow so what passes beneath reads as scrolled */
+  .crm-sc.sx .crm-t .stk2{box-shadow:inset -1px 0 0 color-mix(in srgb,var(--dm-line) 70%,transparent),6px 0 10px -6px rgba(0,0,0,.22)}
+  .crm-t th.stk,.crm-t th.stk2{z-index:3}
+  .crm-t tbody tr:is(.sel,.open) :is(.stk,.stk2){background:color-mix(in srgb,var(--dm-fg) 6%,var(--dm-surface))}
   .crm-c8,.crm-c6{grid-column:span 12}
   .crm-c4{grid-column:span 6}
   .crm-own{grid-column:span 6}
 }
-/* below 1100px the toolbar wraps: the filter chips on one row (scrolling sideways when they run out of room), search, Export
-   and New company on the next; the bulk bar still covers it all while rows are picked */
+@media (max-width:1279px) and (hover:hover) and (pointer:fine){.crm-t tbody tr[data-id]:hover :is(.stk,.stk2){background:var(--dm-row)}}
+/* below 1100px the toolbar wraps: Filter and its chips on one row (scrolling sideways when they run out of room), the search
+   field, Sort, Export and Add account on the next; the bulk bar still covers it all while rows are picked */
 @media (max-width:1099px){
-  .crm-hd.ttx-hd{height:auto}
-  .crm-fbar.ttx-ti{position:relative;flex-wrap:wrap;row-gap:var(--dm-s-2);padding-top:10px;padding-bottom:10px;overflow:visible}
   .crm-chips{flex:1 1 auto;min-width:0;overflow-x:auto;scrollbar-width:none;margin:-2px 0;padding:2px 0}
   .crm-chips::-webkit-scrollbar{display:none}
+  .crm-acts{flex:1 1 100%;margin-left:0}
+  .crm-ask.six-box{flex:1 1 auto;width:auto}
 }
 /* tablet and phone: the sidebar becomes a drawer over the app, opened from the top bar */
 @media (max-width:1023px){
@@ -327,38 +448,41 @@ body:has(.crm) .dmf{display:none}
   .crm.dr .crm-scrim{opacity:1;pointer-events:auto}
   .crm-menu{display:inline-grid}
   .crm-main{grid-column:1}
-  .crm-top,.crm-tabs{padding-left:var(--dm-s-4)}
+  .crm-top{padding-left:var(--dm-s-4)}
   .crm-fbar.ttx-ti,.crm-hd .ttx-sb{padding-left:var(--dm-s-4)}
   .crm-t th.ck,.crm-t td.ck{padding-left:var(--dm-s-4)}
   .crm-kb.kbx{padding-left:var(--dm-s-4)}
   .crm-kb .kbx-bd{margin-left:calc(-1 * var(--dm-s-4));padding-left:var(--dm-s-4)}
-  .crm-fc{padding-left:var(--dm-s-4)}
+  .crm-fc,.crm-ib,.crm-cal{padding-left:var(--dm-s-4)}
 }
 @media (max-width:760px){
-  .crm-men,.crm-live{display:none}
+  .crm-men{display:none}
   .crm-find{flex:none;width:36px;padding:0;justify-content:center}
   .crm-find .t,.crm-find .kbd{display:none}
-  .crm-ctx{display:none}
-  .crm-seg{flex:1}
-  .crm-seg button{flex:1;padding:0 var(--dm-s-2)}
+  /* the view's name over its summary, so the summary keeps its room */
+  .crm-ttl{flex-direction:column;align-items:flex-start;gap:0;line-height:1.3}
+  .crm-h1{font-size:15px}
+  .crm-sum{max-width:100%;font-size:12px}
+  .crm-aib .aib-i{flex-wrap:wrap;row-gap:var(--dm-s-2)}
+  .crm-aib .crm-it{flex-basis:calc(100% - 44px)}
+  .crm-aib .crm-it span{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+  .crm-aib .crm-it b{white-space:normal}
+  .crm-aib .aib-r{flex-basis:100%;justify-content:flex-end}
+  .crm-ied{margin-left:10px}
+  .crm-ib,.crm-cal{padding:var(--dm-s-3)}
   .crm-c4,.crm-own{grid-column:span 12}
   .crm-fc .scx-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
-  /* the company's checkbox and name stay in view while the table scrolls sideways under them */
-  .crm-t .stk,.crm-t .stk2{position:sticky;z-index:1;background:var(--dm-surface)}
-  .crm-t .stk{left:0}
-  .crm-t .stk2{left:var(--crm-stk,56px);box-shadow:inset -1px 0 0 color-mix(in srgb,var(--dm-line) 50%,transparent);transition:box-shadow .2s}
-  /* once rows slide under the company column, its edge casts a soft shadow so what passes beneath reads as scrolled */
-  .crm-sc.sx .crm-t .stk2{box-shadow:inset -1px 0 0 color-mix(in srgb,var(--dm-line) 70%,transparent),6px 0 10px -6px rgba(0,0,0,.22)}
-  .crm-t th.stk,.crm-t th.stk2,.crm-t tfoot .stk,.crm-t tfoot .stk2{z-index:3}
-  .crm-t tbody tr:is(.sel,.open) :is(.stk,.stk2){background:color-mix(in srgb,var(--dm-fg) 6%,var(--dm-surface))}
   .crm-co .nm{max-width:150px}
+  .crm-t.ttx-t{min-width:1000px}
   .crm-toasts{right:var(--dm-s-2);bottom:var(--dm-s-2);width:calc(100% - 16px)}
 }
 @media (max-width:520px){
-  .crm-acts{flex:1 1 100%;margin-left:0}
-  .crm-acts .kbx-q{flex:1 1 auto;width:auto;min-width:0}
+  .crm-sum .lg{display:none}
+  .crm-sum .sh{display:inline}
+  .crm-ask.six-box{min-width:0}
   .crm-acts .pill>span{display:none}
-  .crm-acts .pill{width:32px;padding:0}
+  .crm-acts .pill{width:32px;padding:0;justify-content:center}
+  .crm-ans .six-ans{flex-wrap:wrap}
   .crm-fc .rgx-b{flex-wrap:wrap}
   .crm-top{gap:var(--dm-s-1);padding-right:var(--dm-s-3)}
   .crm-me .i{display:none}

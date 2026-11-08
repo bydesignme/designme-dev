@@ -1,14 +1,17 @@
-/* Sales CRM template: the data and every interaction. It runs after the shared core (core.js), so it uses the core's
-   helpers ($, $$, I, swap, tween, enter, stagger, seg, html) and its popovers (data-pop) and tooltips (data-tip). The
-   companies, people and deals are made up. Every figure on the screen (the table's sums, the board's columns, the forecast)
-   is worked out from the deals, so moving a deal, assigning an owner or adding a company changes all of them. */
+/* Sales CRM template: a CRM where an agent works beside the rep. It runs after the shared core (core.js), so it uses the
+   core's helpers ($, $$, I, swap, tween, enter, stagger, seg, html) and its popovers (data-pop) and tooltips (data-tip).
+   The accounts, people, deals and meetings are made up; everything else is worked out from them. An account's next step is
+   its earliest booked meeting in the calendar, its health comes from how recently it was touched, whether a deal is past
+   its close date and its win probability, and the agent's suggestions (a chip in the table, a row in the Agent inbox) come
+   from the same data. Approving one changes the data, so the table, the inbox, the calendar, the board and the forecast
+   always show the same numbers. */
 (() => {
   const app = document.querySelector('.crm'); if (!app) return;
   const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   const sum = (a, f = x => x) => a.reduce((t, x) => t + f(x), 0);
   const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 
-  /* ---------- people, stages, pipelines and teams ---------- */
+  /* ---------- people, stages, regions and teams ---------- */
   const P = { MK:['Maya Kim', 'l'], AR:['Ari Reyes', 'p'], TR:['Theo Reed', 't'], JO:['Jon Ortiz', 'm'], LN:['Lena Novak', 'r'], IB:['Iris Bell', 'k'], DK:['Dev Kumar', 'b'], KM:['Kofi Mensah', 'y'] };
   const OWN = Object.keys(P);
   const av = (id, cls = '') => `<span class="av${cls ? ' ' + cls : ''}" style="background:var(--dm-av-${P[id][1]});color:var(--dm-av-${P[id][1]}-ink)" aria-hidden="true">${id}</span>`;
@@ -17,61 +20,86 @@
   const ST = Object.fromEntries(STAGES.map((s, i) => [s.k, { ...s, i }]));
   // a stage is a Task table status pill: Negotiation reads in the accent (it is the one in play), Closed won in green
   const pill = k => `<span class="ttx-st" data-s="${k === 'won' ? 'done' : k === 'nego' ? 'run' : 'wait'}"><span class="sv"><span class="dot"></span><span>${ST[k].t}</span></span></span>`;
-  const REG = { na:{ t:'North America', c:'var(--dm-c1)' }, emea:{ t:'EMEA enterprise', c:'var(--dm-c2)' }, apac:{ t:'APAC expansion', c:'var(--dm-c4)' } };
+  const REG = { na:{ t:'Americas', c:'var(--dm-c1)' }, emea:{ t:'Europe', c:'var(--dm-c2)' }, apac:{ t:'Asia Pacific', c:'var(--dm-c4)' } };
   const QUOTA = { MK:1300000, AR:850000, TR:1100000, JO:300000, LN:340000, IB:260000, DK:160000, KM:150000 };
-  const TEAMS = [{ k:'strat', t:'Strategic AEs', who:['MK', 'AR', 'TR'] }, { k:'mid', t:'Mid-market', who:['JO', 'LN', 'IB'] }, { k:'sdr', t:'SDR team', who:['DK', 'KM'] }];
+  const TEAMS = [{ k:'key', t:'Key accounts', who:['MK', 'AR', 'TR'] }, { k:'grow', t:'Growth', who:['JO', 'LN', 'IB'] }, { k:'new', t:'New business', who:['DK', 'KM'] }];
   TEAMS.forEach(t => t.quota = t.who.reduce((a, o) => a + QUOTA[o], 0));
   // closed won earlier this quarter, on top of the won deals in the list below: each becomes two won deals on the owner's accounts
   const WON_BEFORE = { MK:190000, AR:110000, TR:140000, JO:70000, LN:90000, IB:50000, DK:30000, KM:24000 };
   const ACT = { Call:'comment', Email:'mail', Demo:'monitor', QBR:'users', Exec:'users', Pricing:'dollar', Legal:'shield', Security:'shield', Discovery:'search' };
+  // a touch's meeting, and how long it runs in hours
+  const TOUCH = { Call:['Call', .5], Demo:['Demo', 1], QBR:['QBR', 1], Exec:['Exec sync', .75], Pricing:['Pricing call', .75], Legal:['Legal review', .75], Security:['Security review', 1], Discovery:['Discovery call', .5] };
 
   /* ---------- dates: days from today, so the screen always reads as current ---------- */
   const today = new Date(); today.setHours(0, 0, 0, 0);
   const dateOf = n => { const d = new Date(today); d.setDate(d.getDate() + n); return d; };
+  const DAYN = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'], DAYL = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  const dow = n => dateOf(n).getDay(), isWork = n => dow(n) > 0 && dow(n) < 6;
   const fmtD = n => dateOf(n).toLocaleDateString('en-US', { month:'short', day:'numeric' });
+  const fmtDW = n => DAYN[dow(n)] + ' ' + fmtD(n);
+  const fmtM = n => dateOf(n).toLocaleDateString('en-US', { month:'long' });
+  const workAfter = (n, k) => { let d = n; while (k > 0){ d++; if (isWork(d)) k--; } return d; };
+  const workBefore = (n, k) => { let d = n; while (k > 0){ d--; if (isWork(d)) k--; } return d; };
+  // a close date on a weekend moves to the Friday before, or to the Monday after when that Friday has gone
+  const toWork = n => { if (isWork(n)) return n; const fri = n - (dow(n) === 6 ? 1 : 2); return n < 0 || fri >= 1 ? fri : n + (dow(n) === 6 ? 2 : 1); };
+  // hours: 9:30 in a range, 9:30am on its own
+  const tm = h => { const hh = Math.floor(h), mm = Math.round((h - hh) * 60); return `${hh > 12 ? hh - 12 : hh}:${String(mm).padStart(2, '0')}`; };
+  const tmA = h => { const hh = Math.floor(h), mm = Math.round((h - hh) * 60); return `${hh > 12 ? hh - 12 : hh}${mm ? ':' + String(mm).padStart(2, '0') : ''}${hh >= 12 ? 'pm' : 'am'}`; };
   const money = v => '$' + Math.round(v).toLocaleString('en-US');
   const kmoney = v => v >= 1e6 ? '$' + parseFloat((v / 1e6).toFixed(2)) + 'M' : v >= 1e3 ? '$' + Math.round(v / 1e3) + 'k' : '$' + Math.round(v);
+  const plural = (n, a, b = a + 's') => `${n} ${n === 1 ? a : b}`;
+  const poss = n => n + (n.endsWith('s') ? "'" : "'s");
 
-  /* ---------- the companies and their deals (made up) ---------- */
-  // name, segment, tags, owner, pipeline, days since the last interaction, its kind, deals: [name, stage, value in $k, closes in days, probability +/-]
+  /* ---------- the accounts and their deals (made up) ---------- */
+  // name, segment, tags, owner, region, days since the last touch, its kind, deals: [name, stage, value in $k, closes in days, probability +/-]
   const RAW = [
     ['Halcyon Labs', 'Enterprise', ['Expansion', 'Pilot'], 'MK', 'na', 1, 'Demo', [['Platform expansion', 'nego', 184, 18, 5], ['Analytics pilot', 'demo', 42, 40, 0]]],
-    ['Brightwater Health', 'Strategic', ['Renewal', 'Upsell', 'Co-sell'], 'AR', 'na', 2, 'QBR', [['Renewal 2027', 'prop', 228, 30, 10], ['Care team seats', 'disc', 64, 75, 0], ['Co-sell with partner', 'won', 96, -12, 0]]],
-    ['Pinecrest Logistics', 'Mid-market', ['New logo'], 'JO', 'emea', 4, 'Pricing', [['First contract', 'demo', 58, 45, 0]]],
-    ['Corvid Analytics', 'Enterprise', ['Expansion', 'Upsell', 'Partner'], 'TR', 'na', 0, 'Call', [['Enterprise tier', 'nego', 312, 12, 8], ['Data add-on', 'prop', 88, 28, -5], ['Partner bundle', 'disc', 40, 90, 0]]],
-    ['Lumen Grid', 'Mid-market', ['Upsell'], 'LN', 'emea', 9, 'Email', [['Seat upgrade', 'prop', 36, 26, -10]]],
-    ['Saltmarsh Foods', 'SMB', ['New logo', 'Pilot'], 'DK', 'emea', 16, 'Discovery', [['Pilot', 'disc', 18, 60, 0], ['Starter plan', 'demo', 12, 50, 0]]],
+    ['Brightwater Health', 'Strategic', ['Renewal', 'More seats', 'Partner-led'], 'AR', 'na', 2, 'QBR', [['Renewal 2027', 'prop', 228, 30, 10], ['Care team seats', 'disc', 64, 75, 0], ['Partner bundle', 'won', 96, -12, 0]]],
+    ['Pinecrest Logistics', 'Mid-market', ['First deal'], 'JO', 'emea', 4, 'Pricing', [['First contract', 'demo', 58, 45, 0]]],
+    ['Corvid Analytics', 'Enterprise', ['Expansion', 'More seats', 'Reseller'], 'TR', 'na', 0, 'Call', [['Enterprise tier', 'nego', 312, 12, 8], ['Data add-on', 'prop', 88, 28, -5], ['Reseller bundle', 'disc', 40, 90, 0]]],
+    ['Lumen Grid', 'Mid-market', ['More seats'], 'LN', 'emea', 9, 'Email', [['Seat upgrade', 'prop', 36, 26, -10]]],
+    ['Saltmarsh Foods', 'SMB', ['First deal', 'Pilot'], 'DK', 'emea', 16, 'Discovery', [['Pilot', 'disc', 18, 60, 0], ['Starter plan', 'demo', 12, 50, 0]]],
     ['Ironbark Capital', 'Strategic', ['Expansion'], 'MK', 'na', 3, 'Exec', [['Global rollout', 'prop', 420, 48, 0], ['Risk module', 'won', 140, -30, 0]]],
-    ['Tidewell Energy', 'Enterprise', ['Renewal', 'Co-sell'], 'AR', 'apac', 38, 'Legal', [['Renewal', 'nego', 265, -4, -40], ['Grid ops seats', 'demo', 75, 70, 0]]],
-    ['Quillon Media', 'Mid-market', ['New logo', 'Partner', 'Pilot'], 'IB', 'na', 6, 'Demo', [['New logo', 'demo', 66, 35, 0], ['Partner pilot', 'disc', 24, 80, 0]]],
-    ['Marrow & Finch', 'SMB', ['Upsell'], 'KM', 'emea', 21, 'Email', [['Upsell', 'disc', 22, 55, -5]]],
+    ['Tidewell Energy', 'Enterprise', ['Renewal', 'Partner-led'], 'AR', 'apac', 38, 'Legal', [['Renewal', 'nego', 265, -4, -40], ['Grid ops seats', 'demo', 75, 70, 0]]],
+    ['Quillon Media', 'Mid-market', ['First deal', 'Reseller', 'Pilot'], 'IB', 'na', 6, 'Demo', [['First contract', 'demo', 66, 35, 0], ['Reseller pilot', 'disc', 24, 80, 0]]],
+    ['Marrow & Finch', 'SMB', ['More seats'], 'KM', 'emea', 21, 'Email', [['Seat upgrade', 'disc', 22, 55, -5]]],
     ['Oakhaven Retail', 'Enterprise', ['Expansion', 'Renewal'], 'TR', 'na', 5, 'Pricing', [['Store rollout', 'nego', 198, 9, 10], ['Renewal', 'prop', 120, 40, 0]]],
-    ['Fernway Travel', 'Mid-market', ['New logo'], 'JO', 'apac', 12, 'Call', [['First contract', 'disc', 48, 65, 0]]],
-    ['Kestrel Robotics', 'Strategic', ['Pilot', 'Expansion', 'Co-sell'], 'MK', 'apac', 1, 'Security', [['Pilot to production', 'nego', 356, 6, 12], ['Fleet expansion', 'prop', 150, 52, 0], ['Security review', 'won', 60, -20, 0]]],
+    ['Fernway Travel', 'Mid-market', ['First deal'], 'JO', 'apac', 12, 'Call', [['First contract', 'disc', 48, 65, 0]]],
+    ['Kestrel Robotics', 'Strategic', ['Pilot', 'Expansion', 'Partner-led'], 'MK', 'apac', 1, 'Security', [['Pilot to production', 'nego', 356, 6, 12], ['Fleet expansion', 'prop', 150, 52, 0], ['Security review', 'won', 60, -20, 0]]],
     ['Bluefin Insurance', 'Enterprise', ['Renewal'], 'LN', 'emea', 27, 'QBR', [['Renewal', 'prop', 142, -2, -30]]],
-    ['Arbor & Vine', 'SMB', ['New logo', 'Upsell'], 'DK', 'na', 44, 'Email', [['Starter', 'disc', 9, 85, -5]]],
+    ['Arbor & Vine', 'SMB', ['First deal', 'More seats'], 'DK', 'na', 44, 'Email', [['Starter', 'disc', 9, 85, -5]]],
     ['Cobalt Ridge', 'Mid-market', ['Expansion'], 'IB', 'na', 8, 'Demo', [['Expansion', 'demo', 72, 38, 5]]],
-    ['Juniper Point', 'Enterprise', ['Upsell', 'Partner'], 'AR', 'emea', 3, 'Exec', [['Upsell', 'prop', 96, 24, 5], ['Partner deal', 'won', 54, -8, 0]]],
+    ['Juniper Point', 'Enterprise', ['More seats', 'Reseller'], 'AR', 'emea', 3, 'Exec', [['More seats', 'prop', 96, 24, 5], ['Reseller deal', 'won', 54, -8, 0]]],
     ['Larkspur Mobility', 'Mid-market', ['Pilot'], 'KM', 'apac', 62, 'Call', [['Pilot', 'disc', 30, -10, -8]]],
-    ['Granite Peak Systems', 'Strategic', ['Expansion', 'Renewal', 'Co-sell'], 'TR', 'na', 2, 'Pricing', [['Platform renewal', 'nego', 388, 15, 0], ['Expansion', 'prop', 164, 44, 0], ['Co-sell', 'demo', 90, 70, 0]]],
-    ['Moss & Ember', 'SMB', ['New logo'], 'JO', 'emea', 19, 'Discovery', [['First contract', 'disc', 26, 58, 0]]],
+    ['Granite Peak Systems', 'Strategic', ['Expansion', 'Renewal', 'Partner-led'], 'TR', 'na', 2, 'Pricing', [['Platform renewal', 'nego', 388, 15, 0], ['Expansion', 'prop', 164, 44, 0], ['Partner deal', 'demo', 90, 70, 0]]],
+    ['Moss & Ember', 'SMB', ['First deal'], 'JO', 'emea', 19, 'Discovery', [['First contract', 'disc', 26, 58, 0]]],
     ['Wrenfield Pharma', 'Enterprise', ['Pilot', 'Expansion'], 'LN', 'na', 7, 'Security', [['Research pilot', 'prop', 118, 33, 0], ['Expansion', 'disc', 210, 95, 0]]],
-    ['Driftwood Games', 'Mid-market', ['Upsell', 'Co-sell'], 'IB', 'apac', 33, 'Email', [['Studio seats', 'demo', 44, -6, -10]]],
+    ['Driftwood Games', 'Mid-market', ['More seats', 'Partner-led'], 'IB', 'apac', 33, 'Email', [['Studio seats', 'demo', 44, -6, -10]]],
     ['Orchard Street Bank', 'Strategic', ['Renewal', 'Expansion'], 'MK', 'na', 11, 'Legal', [['Renewal', 'nego', 246, 21, 5], ['Wealth expansion', 'demo', 130, 60, 0]]],
-    ['Velvet Hammer Studio', 'SMB', ['New logo', 'Partner'], 'DK', 'emea', 4, 'Demo', [['Studio plan', 'won', 16, -3, 0], ['Partner add-on', 'disc', 8, 48, 0]]],
+    ['Velvet Hammer Studio', 'SMB', ['First deal', 'Reseller'], 'DK', 'emea', 4, 'Demo', [['Studio plan', 'won', 16, -3, 0], ['Reseller add-on', 'disc', 8, 48, 0]]],
   ];
-  // twelve weeks of meetings, calls and emails: none since the last interaction, a steady few before it
+  // the people on the buyer's side: two or three to an account, the first is the champion
+  const FN = ['Priya', 'Marcus', 'Elena', 'Tomas', 'Grace', 'Omar', 'Hana', 'Luis', 'Sofia', 'Ben', 'Aisha', 'Noah', 'Yuki', 'Carla', 'Felix', 'Amara', 'Jonas', 'Leah', 'Ravi', 'Ines'];
+  const LN_ = ['Shah', 'Lindqvist', 'Moreau', 'Baker', 'Osei', 'Fischer', 'Tanaka', 'Romero', 'Walsh', 'Haddad', 'Brennan', 'Costa', 'Ikeda', 'Varga', 'Larsen', 'Duarte'];
+  const ROLE = ['Head of operations', 'VP of finance', 'IT lead', 'Procurement lead', 'COO', 'Product lead', 'Head of data', 'CFO'];
+  const peopleOf = i => Array.from({ length:2 + i % 2 }, (_, k) => ({ n:FN[(i * 3 + k * 7) % FN.length] + ' ' + LN_[(i * 5 + k * 3) % LN_.length], r:ROLE[(i + k * 3) % ROLE.length] }));
+  const ini = n => n.split(' ').map(w => w[0]).join('');
+  // twelve weeks of meetings, calls and emails: none since the last touch, a steady few before it
   const trendOf = (i, last) => { let s = i * 7919 + 17; const r = () => (s = (s * 16807) % 2147483647) / 2147483647;
     return Array.from({ length:12 }, (_, w) => (11 - w) * 7 + 3 < last ? 0 : Math.round(1 + r() * 5 + (last < 10 ? w / 3 : 0))); };
+  // what happened before the last touch: a proposal email four days earlier and a discovery call nine days before that
+  const baseOf = c => [[c.lt, c.last, `${c.lt === 'Email' ? 'Email thread' : TOUCH[c.lt][0]} with ${c.ppl[0].n}`, P[c.own][0]],
+    ['Email', c.last + 4, 'Sent the proposal and pricing', P[c.own][0]], ['Discovery', c.last + 13, `Discovery call, ${c.ppl.length + 1} people joined`, P[c.own][0]]];
   let CO = [], DE = [], nid = 0, did = 201;
   const probOf = d => d.st === 'won' ? 100 : clamp(ST[d.st].p + d.adj, 5, 95);
   RAW.forEach((r, i) => {
-    const c = { id:'c' + (nid++), n:r[0], seg:r[1], tags:[...r[2]], own:r[3], reg:r[4], last:r[5], lt:r[6], trend:trendOf(i, r[5]), log:[] };
+    const c = { id:'c' + (nid++), n:r[0], seg:r[1], tags:[...r[2]], own:r[3], reg:r[4], last:r[5], lt:r[6], trend:trendOf(i, r[5]), log:[], ppl:peopleOf(i), i };
+    c.base = baseOf(c);
     CO.push(c);
-    r[7].forEach(x => DE.push({ id:'DL-' + (did++), co:c.id, n:x[0], st:x[1], v:x[2] * 1000, close:x[3], adj:x[4], own:c.own }));
+    r[7].forEach(x => DE.push({ id:'DL-' + (did++), co:c.id, n:x[0], st:x[1], v:x[2] * 1000, close:x[1] === 'won' ? x[3] : toWork(x[3]), adj:x[4], own:c.own }));
   });
   // the quarter so far (days since it began), and what each owner won earlier in it, as won deals on their own accounts, so the
-  // board's Closed won column, the companies' totals and the forecast all count the same deals
+  // board's Closed won column, the accounts' totals and the forecast all count the same deals
   const q0 = new Date(today.getFullYear(), Math.floor(today.getMonth() / 3) * 3, 1), qDay = Math.round((today - q0) / 864e5), WK = Math.floor(qDay / 7);
   const EARLY = ['Annual renewal', 'Seat add-on', 'Pilot extension', 'Support upgrade', 'Second team', 'Data connector'];
   OWN.forEach((o, k) => { const mine = CO.filter(c => c.own === o), part = [.58, .42];
@@ -80,8 +108,20 @@
   DE.forEach(d => d.p = probOf(d));
   const coOf = id => CO.find(c => c.id === id);
   const dealOf = id => DE.find(d => d.id === id);
+  const slipping = d => d.st !== 'won' && d.close < 0;
+  const eom = Math.round((new Date(today.getFullYear(), today.getMonth() + 1, 0) - today) / 864e5), eoq = Math.round((new Date(today.getFullYear(), Math.floor(today.getMonth() / 3) * 3 + 3, 0) - today) / 864e5);
 
-  // what each company's row shows, worked out from its deals
+  /* ---------- the calendar's meetings: booked next steps and the touches already held ---------- */
+  // a meeting: account, deal, title, day (from today), start and length in hours, owner, and planned or held
+  let MT = [], mid = 1;
+  const busy = (own, day, h, dur, skip) => MT.some(m => m !== skip && m.own === own && m.day === day && h < m.h + m.dur && m.h < h + dur);
+  const freeAt = (own, day, h, dur, avoid = []) => { for (let t = h; t + dur <= 17.5; t += .5) if (!busy(own, day, t, dur) && !avoid.some(a => a.own === own && a.day === day && t < a.h + a.vd && a.h < t + dur)) return t; return null; };
+  const STEP = { disc:['Discovery call', .5], demo:['Demo', 1], prop:['Proposal review', .75], nego:['Pricing call', .75] };
+  const NEGO = [['Pricing call', .75], ['Legal review', .75], ['Exec sync', 1]];
+  const meet = o => { const m = { id:'m' + (mid++), st:'plan', ...o }; MT.push(m); return m; };
+  // the agent's inbox items (built below, once the meetings are in)
+  const IB = [];
+  const ltName = c => c.lt === 'Email' ? 'email' : TOUCH[c.lt][0].toLowerCase();
   function derive(){
     CO.forEach(c => {
       const mine = DE.filter(d => d.co === c.id), open = mine.filter(d => d.st !== 'won');
@@ -90,8 +130,67 @@
       c.win = c.value ? Math.round(c.weighted / c.value * 100) : (c.won ? 100 : 0);
       c.st = open.length ? open.reduce((a, d) => ST[d.st].i > ST[a].i ? d.st : a, 'disc') : (c.won ? 'won' : 'disc');
       c.lead = open.slice().sort((a, b) => ST[b.st].i - ST[a.st].i || b.v - a.v)[0] || null;
+      c.slip = open.filter(slipping).length;
+      // the next step is the earliest planned meeting: overdue when its day has gone and nobody logged it
+      c.next = MT.filter(m => m.co === c.id && m.st === 'plan' && !m.fresh).sort((a, b) => a.day - b.day || a.h - b.h)[0] || null;
+      // health, out of 100: recent contact (40), no deal past its close date (30) and win probability (30)
+      c.hp = [Math.round(40 * clamp(1 - (c.last - 3) / 42, 0, 1)), c.slip ? 0 : 30, Math.round(c.win * .3)];
+      c.health = sum(c.hp); c.hb = c.health >= 70 ? 'ok' : c.health >= 50 ? 'mid' : 'bad';
     });
+    CO.forEach(c => c.sug = sugOf(c));
   }
+  // the plan at the start: an account touched in the last week has its next step booked within seven working days (before
+  // its lead deal closes); an account with a deal past its close date has a step that was due a few days ago and never
+  // happened; the rest have nothing booked. The touches already held go on the days they happened
+  derive();
+  CO.forEach(c => {
+    const i = c.i, d = c.lead, slip = DE.find(x => x.co === c.id && slipping(x));
+    if (c.lt !== 'Email' && c.last > 0 && isWork(-c.last)){ const [k, dur] = TOUCH[c.lt], h = freeAt(c.own, -c.last, 9 + (i * 5 % 14) / 2, dur); if (h != null) meet({ co:c.id, deal:d && d.id, kind:k, day:-c.last, h, dur, own:c.own, st:'held' }); }
+    if (isWork(-(c.last + 13))){ const h = freeAt(c.own, -(c.last + 13), 10 + (i % 6) / 2, .5); if (h != null) meet({ co:c.id, deal:d && d.id, kind:'Discovery call', day:-(c.last + 13), h, dur:.5, own:c.own, st:'held' }); }
+  });
+  CO.forEach(c => {
+    const i = c.i, d = c.lead; if (!d) return;
+    const [kind, dur] = d.st === 'nego' ? NEGO[i % 3] : STEP[d.st];
+    const slip = DE.find(x => x.co === c.id && slipping(x));
+    if (c.last <= 7){
+      let w = 1 + (i * 5 + 2) % 7;
+      if (d.close > 1){ let n = 0; for (let x = 1; x < d.close; x++) if (isWork(x)) n++; w = clamp(Math.min(w, n), 1, 7); }
+      const day = workAfter(0, w), h = freeAt(c.own, day, 9 + ((i * 4 + 3) % 15) / 2, dur) ?? freeAt(c.own, day, 9, dur);
+      if (h != null) meet({ co:c.id, deal:d.id, kind, day, h, dur, own:c.own });
+    } else if (slip){
+      const [k2, d2] = slip.st === 'nego' ? NEGO[i % 3] : STEP[slip.st], day = workBefore(0, 1 + i % 4);
+      meet({ co:c.id, deal:slip.id, kind:k2, day, h:freeAt(c.own, day, 10 + (i % 4), d2) ?? 9, dur:d2, own:c.own });
+    }
+  });
+
+  /* ---------- the agent's inbox: what it prepared, to approve, edit or dismiss ---------- */
+  // follow-ups drafted for accounts quiet for more than two weeks, new close dates for deals past theirs, and data fixes: a deal
+  // a stage behind its last touch, and early deals still at their full probability after weeks of silence
+  const ASKQ = { disc:'what would make this a priority this quarter', demo:'who else needs to see it before a proposal', prop:'what is left before sign-off', nego:'who signs and when', won:'how the rollout is going' };
+  derive();
+  CO.filter(c => c.last > 14 && !c.slip && c.lead).forEach(c => { const d = c.lead, fn = c.ppl[0].n.split(' ')[0];
+    IB.push({ id:'ib-f-' + c.id, kind:'follow', co:c.id, deal:d.id, to:c.ppl[0].n, subj:`Picking up the ${d.n.toLowerCase()}`,
+      body:`Hi ${fn}, it has been a few weeks since we last spoke about the ${d.n.toLowerCase()}. Is ${fmtM(d.close)} still the right time to decide? I can send ${d.st === 'disc' ? 'a short recording of the demo' : d.st === 'demo' ? 'the pricing we talked about' : 'an updated proposal'} this week if that helps.`, state:'wait' }); });
+  DE.filter(slipping).sort((a, b) => a.close - b.close).reverse().forEach((d, k) => IB.push({ id:'ib-s-' + d.id, kind:'slip', co:d.co, deal:d.id, was:d.close, to:workAfter(0, 8 + k * 2), state:'wait' }));
+  CO.forEach(c => { const d = c.lead; if (d && ST[d.st].i < ST.prop.i && (c.lt === 'Pricing' || c.lt === 'Legal')) IB.push({ id:'ib-x-' + d.id, kind:'fix', fix:'stage', co:c.id, deal:d.id, to:'prop', state:'wait' }); });
+  DE.filter(d => (d.st === 'disc' || d.st === 'demo') && d.adj >= 0 && d.v >= 25000 && coOf(d.co).last > 14).forEach(d => IB.push({ id:'ib-p-' + d.id, kind:'fix', fix:'prob', co:d.co, deal:d.id, to:-10, state:'wait' }));
+  const waiting = () => IB.filter(x => x.state === 'wait' && coOf(x.co) && dealOf(x.deal));
+
+  // one suggestion per account, the most pressing first: a deal past its close date, a quiet account's drafted follow-up, a
+  // step that is overdue, no step at all, a data fix, then a QBR for a strategic renewal
+  function sugOf(c){
+    const w = IB.filter(x => x.co === c.id && x.state === 'wait' && dealOf(x.deal));
+    const s = w.find(x => x.kind === 'slip'), f = w.find(x => x.kind === 'follow'), x = w.find(y => y.kind === 'fix');
+    if (s){ const d = dealOf(s.deal); return { k:'slip', label:'New close date', item:s, why:`${d.n} was due ${fmtD(d.close)} and is still open. The agent suggests ${fmtDW(s.to)}.` }; }
+    if (f) return { k:'follow', label:'Send follow-up', item:f, why:`No touch for ${c.last} days. The agent drafted “${f.subj}” to ${f.to}.` };
+    if (c.next && c.next.day < 0) return { k:'resched', label:'Reschedule', why:`The ${c.next.kind.toLowerCase()} was due ${fmtDW(c.next.day)}. The agent moves it to ${first(c.own)}'s first free slot.` };
+    if (!c.next && c.lead) return { k:'book', label:'Book next step', why:`Nothing is booked. The agent finds ${first(c.own)}'s first free slot for a ${STEP[c.lead.st][0].toLowerCase()}.` };
+    if (x) return { k:'fix', label:x.fix === 'stage' ? 'Move to Proposal' : 'Lower win %', item:x, why:fixWhy(x) };
+    if (c.seg === 'Strategic' && c.tags.includes('Renewal') && c.lead && !MT.some(m => m.co === c.id && m.st === 'plan' && m.kind === 'QBR')) return { k:'qbr', label:'Book QBR', why:'A strategic renewal with no QBR booked. The agent books one in about two weeks.' };
+    return null;
+  }
+  const fixWhy = x => { const d = dealOf(x.deal), c = coOf(x.co);
+    return x.fix === 'stage' ? `The last touch was a ${ltName(c)}, so the ${d.n.toLowerCase()} is past Demo.` : `No touch for ${c.last} days, so ${d.p}% looks high for the ${d.n.toLowerCase()}.`; };
 
   /* ---------- toasts: Toast ---------- */
   const toasts = $('.crm-toasts', app);
@@ -105,165 +204,269 @@
     toasts.appendChild(t);
     while (toasts.children.length > 3) toasts.firstElementChild.remove();
     // it times out after six seconds, held while the pointer rests on it
-    let left = 6000, t0 = performance.now(), tm = setTimeout(out, left);
-    t.addEventListener('pointerenter', () => { clearTimeout(tm); left -= performance.now() - t0; });
-    t.addEventListener('pointerleave', () => { t0 = performance.now(); tm = setTimeout(out, Math.max(1200, left)); });
+    let left = 6000, t0 = performance.now(), tm0 = setTimeout(out, left);
+    t.addEventListener('pointerenter', () => { clearTimeout(tm0); left -= performance.now() - t0; });
+    t.addEventListener('pointerleave', () => { t0 = performance.now(); tm0 = setTimeout(out, Math.max(1200, left)); });
+  }
+
+  /* ---------- what the agent does when a suggestion is accepted: each returns its toast and its undo ---------- */
+  const firstSlot = (c, dur, from = workAfter(0, 1)) => { for (let day = from, n = 0; n < 20; day++){ if (!isWork(day)) continue; n++; const h = freeAt(c.own, day, 9, dur); if (h != null) return { day, h }; } return { day:from, h:9 }; };
+  function run(kind, c, item){
+    const now = () => 'Just now';
+    if (kind === 'follow'){
+      const prev = [c.last, c.lt];
+      c.log.unshift(['Email', 0, `Follow-up sent to ${item.to}: “${item.subj}”`, 'The agent, approved by Nina Cole']); c.last = 0; c.lt = 'Email'; c.trend[11]++; c._fresh = true;
+      item.state = 'done'; item.res = 'Sent ' + now().toLowerCase();
+      return { t:`Follow-up sent to ${item.to}`, s:`${c.n}: logged as an email, last touch is now today`, undo:() => { c.log.shift(); [c.last, c.lt] = prev; c.trend[11]--; item.state = 'wait'; } };
+    }
+    if (kind === 'slip'){
+      const d = dealOf(item.deal), was = d.close; d.close = item.to; item.state = 'done'; item.res = 'Now closes ' + fmtD(item.to);
+      return { t:`${c.n}: ${d.n.toLowerCase()} now closes ${fmtDW(item.to)}`, s:`It was due ${fmtD(was)}`, undo:() => { d.close = was; item.state = 'wait'; } };
+    }
+    if (kind === 'fix'){
+      const d = dealOf(item.deal), was = [d.st, d.adj, d.p];
+      if (item.fix === 'stage') setStage(d, item.to); else { d.adj += item.to; d.p = probOf(d); }
+      item.state = 'done'; item.res = item.fix === 'stage' ? 'Moved to ' + ST[item.to].t : `Now ${d.p}%`;
+      return { t:item.fix === 'stage' ? `${d.n} moved to ${ST[item.to].t}` : `${d.n} lowered to ${d.p}%`, s:`${c.n}, win probability ${was[2]}% to ${d.p}%`, undo:() => { [d.st, d.adj, d.p] = was; item.state = 'wait'; } };
+    }
+    if (kind === 'book' || kind === 'qbr'){
+      const [k, dur] = kind === 'qbr' ? ['QBR', 1] : c.lead.st === 'nego' ? NEGO[c.i % 3] : STEP[c.lead.st];
+      const s = firstSlot(c, dur, kind === 'qbr' ? workAfter(0, 9) : workAfter(0, 1)), m = meet({ co:c.id, deal:c.lead.id, kind:k, day:s.day, h:s.h, dur, own:c.own, by:'agent' });
+      return { t:`${k} booked with ${c.n}`, s:`${fmtDW(m.day)}, ${tmA(m.h)}, on ${first(c.own)}'s calendar`, m, undo:() => { MT = MT.filter(x => x !== m); } };
+    }
+    if (kind === 'resched'){
+      const m = c.next, was = [m.day, m.h], s = firstSlot(c, m.dur); m.day = s.day; m.h = s.h;
+      return { t:`${m.kind} with ${c.n} moved`, s:`From ${fmtD(was[0])} to ${fmtDW(m.day)}, ${tmA(m.h)}`, m, undo:() => { [m.day, m.h] = was; } };
+    }
+  }
+  // the table's chip, the sheet's button and the inbox's Approve all come here
+  function accept(c, sug){
+    const r = run(sug.k, c, sug.item); if (!r) return;
+    if (sug.item) sug.item.undo = r.undo;
+    refresh(); say(r.t);
+    toast('ok', r.t, r.s, { label:'Undo', run:() => { r.undo(); if (sug.item) sug.item.undo = null; refresh(); } });
+    const tr = $(`tr[data-id="${c.id}"]`, tbody); if (tr) enter($('.crm-nx', tr) || tr);
   }
 
   /* ---------- the state of the filters, the selection and what is open ---------- */
-  const F = { sort:'value', desc:true, own:new Set(), stage:new Set(), last:90, q:'', reg:null, calc:null };
+  // A holds the filters as Filter menu's chips: a field, a value, and whether it reads the other way (is not, older than)
+  const F = { A:[], q:'', sort:'value', desc:true, said:'' };
   const K = { own:new Set(), q:'', close:'any', view:'board', shut:new Set(), tab:'disc' };
   const sel = new Set();
-  let tab = 'companies', sheetFor = null, rowMenuFor = null, mvFor = null, stageFor = null;
+  let view = 'accounts', sheetFor = null, rowMenuFor = null, mvFor = null, stageFor = null;
 
-  /* ---------- Companies: the table ---------- */
+  /* ---------- the filters: Filter menu ---------- */
+  const openOf = c => DE.filter(d => d.co === c.id && d.st !== 'won');
+  const CLOSE = { week:['This week', d => d.close >= 0 && d.close <= 7], month:['This month', d => d.close >= 0 && d.close <= eom], quarter:['This quarter', d => d.close >= 0 && d.close <= eoq], late:['Passed', d => d.close < 0] };
+  const FL = {
+    owner:{ l:'Owner', ic:'user', ops:['is', 'is not'], o:() => OWN.map(o => ({ v:o, l:P[o][0], g:av(o) })), test:(c, v) => c.own === v },
+    stage:{ l:'Stage', ic:'layers', ops:['is', 'is not'], o:() => STAGES.map(s => ({ v:s.k, l:s.t, g:`<span class="dot crm-sd" data-s="${s.k}"></span>` })), test:(c, v) => c.st === v },
+    close:{ l:'Close date', ic:'target', ops:['is', 'is not'], o:() => Object.entries(CLOSE).map(([v, x]) => ({ v, l:x[0] })), test:(c, v) => openOf(c).some(CLOSE[v][1]) },
+    next:{ l:'Next step', ic:'cal', ops:['is', 'is not'], o:() => [{ v:'none', l:'Missing' }, { v:'late', l:'Overdue' }, { v:'week', l:'In 7 days' }], test:(c, v) => v === 'none' ? !c.next : v === 'late' ? !!c.next && c.next.day < 0 : !!c.next && c.next.day >= 0 && c.next.day <= 7 },
+    last:{ l:'Last touch', ic:'history', ops:['within', 'older than'], o:() => [{ v:7, l:'7 days' }, { v:14, l:'14 days' }, { v:30, l:'30 days' }], test:(c, v) => c.last <= v },
+    health:{ l:'Health', ic:'gauge', ops:['is', 'is not'], o:() => [{ v:'ok', l:'Good' }, { v:'mid', l:'Fair' }, { v:'bad', l:'At risk' }], test:(c, v) => c.hb === v },
+  };
+  // the saved views in the sidebar are filters too
+  const SAVED = { closing:['Closing this month', [{ k:'close', v:'month', neg:false }]], nostep:['No next step', [{ k:'next', v:'none', neg:false }]], quiet:['Quiet for 2+ weeks', [{ k:'last', v:14, neg:true }]] };
+  const savedOn = () => Object.keys(SAVED).find(k => F.A.length === 1 && SAVED[k][1].every(x => F.A.some(a => a.k === x.k && a.v === x.v && a.neg === x.neg))) || null;
+  const valOf = (k, v) => FL[k].o().find(o => o.v === v);
+  const fmatch = (c, skip) => F.A.every(f => f.k === skip || FL[f.k].test(c, f.v) !== f.neg);
+  const savedCount = k => CO.filter(c => SAVED[k][1].every(f => FL[f.k].test(c, f.v) !== f.neg)).length;
+
+  /* ---------- Accounts: the table ---------- */
   const tbody = $('.crm-t tbody', app), tableBox = $('.crm-co', app), scroller = $('.crm-sc', app);
   const allBox = $('.ttx-all', app), sb = $('.crm-hd .ttx-sb', app);
   const tick = I('check', 'xs').replace('class="i xs"', 'class="i xs ck-y"') + I('minus', 'xs').replace('class="i xs"', 'class="i xs ck-m"');
   allBox.innerHTML = tick;
   $$('.crm-t .ttx-s', app).forEach(b => b.insertAdjacentHTML('beforeend', `<span class="ar">${I('chev-u', 'xs')}</span>`));
-  const SORTS = { value:['Pipeline value', c => c.value], win:['Win probability', c => c.win], deals:['Open deals', c => c.deals], last:['Last interaction', c => -c.last], name:['Company name', c => c.n.toLowerCase()], stage:['Stage', c => ST[c.st].i], owner:['Account owner', c => P[c.own][0]], trend:['Activity', c => sum(c.trend.slice(-4))] };
-  const LASTS = [[7, 'Last 7 days'], [30, 'Last 30 days'], [90, 'Last 90 days'], [0, 'Any time']];
-  const matches = c => (!F.q || (c.n + ' ' + c.seg + ' ' + c.tags.join(' ') + ' ' + P[c.own][0]).toLowerCase().includes(F.q.toLowerCase()))
-    && (!F.own.size || F.own.has(c.own)) && (!F.stage.size || F.stage.has(c.st)) && (!F.last || c.last <= F.last) && (!F.reg || c.reg === F.reg);
+  const SORTS = { value:['Pipeline', c => c.value], health:['Health', c => c.health], next:['Next step', c => c.next ? c.next.day * 100 + c.next.h : 1e6], name:['Account', c => c.n.toLowerCase()], stage:['Stage', c => ST[c.st].i], owner:['Owner', c => P[c.own][0]] };
+  const ASC = ['name', 'owner', 'next'];
+  const matches = c => (!F.q || (c.n + ' ' + c.seg + ' ' + c.tags.join(' ') + ' ' + P[c.own][0] + ' ' + c.ppl.map(p => p.n).join(' ')).toLowerCase().includes(F.q.toLowerCase())) && fmatch(c);
   const inView = () => {
     const f = SORTS[F.sort][1];
     return CO.filter(matches).sort((a, b) => { const x = f(a), y = f(b); return (x > y ? 1 : x < y ? -1 : 0) * (F.desc ? -1 : 1) || a.n.localeCompare(b.n); });
   };
   // each segment and tag keeps one colour wherever it shows (the core tag's colours: blue, violet, green, orange, red, yellow, pink, teal)
-  const HUE = { Strategic:'l', Enterprise:'b', 'Mid-market':'t', SMB:'k', Expansion:'m', Renewal:'p', Upsell:'y', Pilot:'k', 'New logo':'b', 'Co-sell':'l', Partner:'t', Champion:'m', 'Budget set':'y', 'Security review':'r', 'Multi-year':'p' };
+  const HUE = { Strategic:'l', Enterprise:'b', 'Mid-market':'t', SMB:'k', Expansion:'m', Renewal:'p', 'More seats':'y', Pilot:'k', 'First deal':'b', 'Partner-led':'l', Reseller:'t', Champion:'m', 'Budget set':'y', 'Security review':'r', 'Multi-year':'p' };
   const chip = t => `<span class="tag ${HUE[t] || 'bltmprky'[[...t].reduce((a, ch) => a + ch.charCodeAt(0), 0) % 8]}">${esc(t)}</span>`;
-  const tags = c => { const all = [c.seg, ...c.tags], shown = all.slice(0, 2), more = all.slice(2);
-    return `<span class="crm-tags">${shown.map(chip).join('')}${more.length ? `<span class="tag more" data-tip="${esc(more.join(', '))}">+${more.length}</span>` : ''}</span>`; };
-  // win probability as Progress's segments: ten to a bar, the last one part filled
-  const winBar = w => `<span class="crm-win" data-w="${w < 30 ? 'lo' : 'ok'}"><span class="prg-seg" role="img" aria-label="${w}% win probability">${Array.from({ length:10 }, (_, i) => `<i><b style="--dm-f:${clamp((w - i * 10) / 10, 0, 1)}"></b></i>`).join('')}</span><span class="p num">${w}%</span></span>`;
-  const spark = c => { const mx = Math.max(6, ...c.trend), n = sum(c.trend);
-    return `<span class="crm-spark" data-tip="${n} touches in 12 weeks, ${c.trend[11]} this week" aria-label="${n} touches in 12 weeks" role="img">${c.trend.map(v => `<i${v ? '' : ' class="z"'} style="height:${v ? Math.max(14, v / mx * 100) : 9}%"></i>`).join('')}</span>`; };
-  const lastCell = c => `<span class="crm-last${c.last > 30 ? ' old' : ''}">${I('cal', 'xs')}<span class="num">${c.last === 0 ? 'Today' : fmtD(-c.last)}</span><span class="muted">${esc(c.lt)}</span></span>`;
+  // the next step: what it is and when, from the calendar; red when it is overdue or missing
+  const nextCell = c => { const m = c.next;
+    if (!m) return `<span class="crm-nx none"><span class="k">No next step</span><span class="d">Last touch ${c.last === 0 ? 'today' : c.last + 'd ago'}</span></span>`;
+    const late = m.day < 0;
+    return `<span class="crm-nx${late ? ' late' : ''}" data-m="${m.id}"><span class="k">${esc(m.kind)}</span><span class="d num">${late ? `Overdue, was ${fmtDW(m.day)}` : `${fmtDW(m.day)}, ${tmA(m.h)}`}</span></span>`; };
+  // health: Health score's gauge at row size, with its score and a word
+  const HB = { ok:'Good', mid:'Fair', bad:'At risk' };
+  const gauge = (v, col) => `<svg viewBox="0 0 120 70" aria-hidden="true"><path d="M10 64a50 50 0 0 1 100 0" class="tr"/><path d="M10 64a50 50 0 0 1 100 0" class="fl" style="stroke-dashoffset:${(157 * (1 - v / 100)).toFixed(1)}${col ? ';stroke:' + col : ''}"/></svg>`;
+  const healthCell = c => `<span class="hsx crm-hs" data-h="${c.hb}" data-tip="Contact ${c.hp[0]} of 40, deals on time ${c.hp[1]} of 30, win probability ${c.hp[2]} of 30">${gauge(c.health)}<b class="num" aria-label="Health ${c.health} of 100">${c.health}</b><span class="l">${HB[c.hb]}</span></span>`;
+  const agentCell = c => c.sug ? `<button class="pill soft sm crm-ag" data-sug="${c.id}" tabindex="-1" data-tip="${esc(c.sug.why)}" aria-label="${esc(c.sug.label)}. ${esc(c.sug.why)}">${I('spark', 'xs')}<span>${c.sug.label}</span></button>` : '';
   const row = c => `<tr data-id="${c.id}" tabindex="-1" class="${sel.has(c.id) ? 'sel' : ''}${sheetFor === c.id ? ' open' : ''}" aria-label="${esc(c.n)}">`
     + `<td class="ck stk"><button class="ttx-cb" role="checkbox" aria-checked="${sel.has(c.id)}" aria-label="Select ${esc(c.n)}" tabindex="-1">${tick}</button></td>`
-    + `<td class="stk2"><span class="nm"><span class="pfm-lg sm" aria-hidden="true">${esc(c.n[0])}</span><span title="${esc(c.n)}">${esc(c.n)}</span></span></td>`
-    + `<td>${tags(c)}</td><td>${pill(c.st)}</td><td><span class="ag">${av(c.own)}${esc(P[c.own][0])}</span></td>`
-    + `<td class="r num">${c.deals}</td><td class="r num val">${money(c.value)}</td><td>${winBar(c.win)}</td><td>${spark(c)}</td><td>${lastCell(c)}</td>`
+    + `<td class="stk2"><span class="nm"><span class="pfm-lg sm" aria-hidden="true">${esc(c.n[0])}</span><span class="tx"><span class="t" title="${esc(c.n)}">${esc(c.n)}</span><span class="s">${esc(c.seg)}</span></span></span></td>`
+    + `<td>${pill(c.st)}</td><td>${nextCell(c)}</td><td><span class="ag">${av(c.own)}${esc(P[c.own][0])}</span></td>`
+    + `<td class="r"><span class="crm-pv"><b class="num">${money(c.value)}</b><span class="muted">${plural(c.deals, 'open deal')}</span></span></td><td>${healthCell(c)}</td><td class="crm-agc">${agentCell(c)}</td>`
     + `<td class="r"><button class="ib crm-rm" data-pop="#crm-p-row" data-pop-align="end" aria-haspopup="menu" aria-label="Actions for ${esc(c.n)}" tabindex="-1">${I('more', 'xs')}</button></td></tr>`;
-  let view = [], focusId = null;
+  let rows = [], focusId = null;
   function renderTable(){
-    view = inView();
-    tbody.innerHTML = view.length ? view.map(row).join('') : `<tr class="crm-empty"><td colspan="11"><div class="ttx-em"><span class="ic">${I('filter')}</span><b>No companies match</b><span>Try another owner, stage or search.</span><button class="pill ghost sm crm-clr2">Clear filters</button></div></td></tr>`;
+    rows = inView();
+    tbody.innerHTML = rows.length ? rows.map(row).join('') : `<tr class="crm-empty"><td colspan="9"><div class="ttx-em"><span class="ic">${I('filter')}</span><b>No accounts match</b><span>Try another filter or search.</span><button class="pill ghost sm crm-clr2">Clear filters</button></div></td></tr>`;
     // one row at a time is in the Tab order; the arrow keys move between them
-    const keep = view.find(c => c.id === focusId) || view[0]; if (keep) $(`tr[data-id="${keep.id}"]`, tbody).tabIndex = 0;
+    const keep = rows.find(c => c.id === focusId) || rows[0]; if (keep) $(`tr[data-id="${keep.id}"]`, tbody).tabIndex = 0;
     $$('.crm-t .ttx-s', app).forEach(b => { const on = b.dataset.k === F.sort; b.classList.toggle('on', on); b.classList.toggle('desc', on && F.desc); b.closest('th').setAttribute('aria-sort', on ? (F.desc ? 'descending' : 'ascending') : 'none'); });
-    // the footer: the rows in view, added up
-    $('.crm-fn', app).innerHTML = `<b>${view.length}</b> ${view.length === 1 ? 'company' : 'companies'} in view`;
-    $('.crm-fdeals', app).innerHTML = `<b>${sum(view, c => c.deals)}</b>`;
-    const tot = sum(view, c => c.value);
-    $('.crm-fsum', app).innerHTML = `<span class="muted">Sum</span> <b>${money(tot)}</b>`;
-    $('.crm-favg', app).innerHTML = view.length ? `<span class="muted">Avg</span> <b>${Math.round(sum(view, c => c.win) / view.length)}%</b>` : '';
-    const vs = view.map(c => c.value).sort((a, b) => a - b), CALC = calcs();
-    $('.crm-fcalc', app).innerHTML = F.calc && view.length ? `<span class="k">${CALC[F.calc][0]}</span> <b class="num">${CALC[F.calc][1](vs, view)}</b>` : '';
+    $('.crm-sort .v', app).textContent = SORTS[F.sort][0];
     syncSel(); chips(); counts();
   }
-  const calcs = () => ({
-    median:['Median', vs => money(vs.length % 2 ? vs[(vs.length - 1) / 2] : (vs[vs.length / 2 - 1] + vs[vs.length / 2]) / 2)],
-    max:['Largest', vs => money(vs[vs.length - 1])],
-    weighted:['Weighted', (vs, v) => money(sum(v, c => c.weighted))],
-    won:['Won', (vs, v) => money(sum(v, c => c.won))],
-  });
   function syncSel(){
     [...sel].forEach(id => { if (!coOf(id)) sel.delete(id); });
     $$('tr[data-id]', tbody).forEach(tr => { const on = sel.has(tr.dataset.id); tr.classList.toggle('sel', on); $('.ttx-cb', tr).setAttribute('aria-checked', on); });
-    const n = view.filter(c => sel.has(c.id)).length;
-    allBox.setAttribute('aria-checked', !n ? 'false' : n === view.length ? 'true' : 'mixed');
+    const n = rows.filter(c => sel.has(c.id)).length;
+    allBox.setAttribute('aria-checked', !n ? 'false' : n === rows.length ? 'true' : 'mixed');
     tableBox.classList.toggle('selecting', sel.size > 0); sb.inert = !sel.size;
     if (sel.size) $('.ttx-n', sb).textContent = sel.size + ' selected';
   }
-  // the filter chips say what they filter by, and turn into white tiles once they filter
+  // the filters as Filter menu's chips: the field, is or is not (press it to turn it round), the value and its x
+  const fch = $('.crm-fch', app);
   function chips(){
-    const set = (f, v, on) => { const b = $(`.crm-fbar .kbx-f[data-f="${f}"]`, app); $('.v', b).textContent = v; b.classList.toggle('on', on); };
-    set('sort', SORTS[F.sort][0], false);
-    set('owner', !F.own.size ? 'All' : F.own.size === 1 ? P[[...F.own][0]][0] : F.own.size + ' people', F.own.size > 0);
-    set('stage', !F.stage.size ? 'Any' : F.stage.size === 1 ? ST[[...F.stage][0]].t : F.stage.size + ' stages', F.stage.size > 0);
-    set('last', LASTS.find(l => l[0] === F.last)[1].replace('Last ', ''), F.last !== 90);
-    // a pipeline picked in the sidebar is a Filter menu chip, with its x
-    $('.crm-pipechip', app).innerHTML = F.reg ? `<span class="flm-ch seen"><span class="k">Pipeline is</span><span class="op" aria-hidden="true"></span><span class="v">${REG[F.reg].t}</span><button class="x" aria-label="Remove the pipeline filter" data-tip="Remove">${I('x', 'xs')}</button></span>` : '';
-    const x = $('.crm-pipechip .x', app); if (x) x.onclick = () => { F.reg = null; renderTable(); };
-    $('.crm-clr', app).hidden = !(F.own.size || F.stage.size || F.last !== 90 || F.q || F.reg);
-    // the sidebar marks the team or pipeline whose filter is on
-    $$('.crm-teams .ahx-cv', app).forEach(b => { const t = TEAMS.find(x => x.k === b.dataset.team); b.setAttribute('aria-pressed', String(F.own.size === t.who.length && t.who.every(w => F.own.has(w)))); });
-    $$('.crm-pipes .ahx-cv', app).forEach(b => b.setAttribute('aria-pressed', String(F.reg === b.dataset.reg)));
+    const have = new Set(F.A.map(f => f.k));
+    $$('.flm-ch', fch).forEach(ch => { if (!have.has(ch.dataset.k)) ch.remove(); });
+    F.A.forEach(f => {
+      let ch = $(`.flm-ch[data-k="${f.k}"]`, fch);
+      if (!ch){ ch = html(`<div class="flm-ch" role="listitem" data-k="${f.k}"><span class="k">${FL[f.k].l}</span><button class="op"></button><span class="v"></span><button class="x">${I('x', 'xs')}</button></div>`); fch.appendChild(ch); }
+      else ch.classList.add('seen');
+      const o = valOf(f.k, f.v), op = FL[f.k].ops[+f.neg], text = `${FL[f.k].l} ${op} ${o.l}`;
+      $('.op', ch).textContent = op; $('.v', ch).textContent = o.l;
+      $('.op', ch).setAttribute('aria-label', `${text}: change to ${FL[f.k].ops[+!f.neg]}`); $('.op', ch).dataset.tip = `Change to ${FL[f.k].ops[+!f.neg]}`;
+      $('.x', ch).setAttribute('aria-label', `Remove filter ${text}`); $('.x', ch).dataset.tip = 'Remove filter';
+    });
+    const on = F.A.length || F.q;
+    $('.crm-clr', app).hidden = !on;
+    $('.crm-inview', app).textContent = on ? `${rows.length} of ${CO.length}` : '';
+    $('.crm-ftr', app).classList.toggle('on', F.A.length > 0);
+    navCurrent();
   }
-  const clearFilters = () => { F.own.clear(); F.stage.clear(); F.last = 90; F.q = ''; F.reg = null; const q = $('.crm-q input', app); q.value = ''; $('.crm-q .kbx-qx', app).hidden = true; renderTable(); };
+  fch.addEventListener('click', e => {
+    const ch = e.target.closest('.flm-ch'); if (!ch) return; const k = ch.dataset.k;
+    if (e.target.closest('.op')){ const f = F.A.find(x => x.k === k); f.neg = !f.neg; said(''); renderTable(); }
+    if (e.target.closest('.x')){ const had = ch.contains(document.activeElement), next = ch.nextElementSibling || ch.previousElementSibling; F.A = F.A.filter(x => x.k !== k); hideTip(); said(''); renderTable(); if (had) ((next && $('.x', next)) || $('.crm-ftr', app)).focus({ preventScroll:true }); }
+  });
+  const clearFilters = () => { F.A = []; F.q = ''; const q = $('.crm-ask input', app); q.value = ''; $('.crm-ask .six-x', app).hidden = true; said(''); renderTable(); };
   $('.crm-clr', app).onclick = clearFilters;
-  // the table's search
-  { const q = $('.crm-q input', app), x = $('.crm-q .kbx-qx', app);
-    q.addEventListener('input', () => { F.q = q.value.trim(); x.hidden = !q.value; renderTable(); });
-    x.onclick = () => { q.value = ''; F.q = ''; x.hidden = true; renderTable(); q.focus(); }; }
+  // the Filter menu: two steps, the fields and then the values of the one picked, each saying how many accounts it leaves
+  const fpop = $('#crm-p-flt', app);
+  function fstep(k, focus){
+    if (!k){
+      fpop.setAttribute('aria-label', 'Filter by');
+      fpop.innerHTML = `<div class="ph" role="none">Filter by</div>` + Object.entries(FL).map(([key, f]) => { const a = F.A.find(x => x.k === key), o = a && valOf(key, a.v);
+        return `<button class="mi" role="menuitem" aria-haspopup="menu" tabindex="-1" data-k="${key}">${I(f.ic)}<span>${f.l}</span><span class="r">${o ? (a.neg ? f.ops[1] + ' ' : '') + o.l : ''}</span>${I('chev-r', 'xs')}</button>`; }).join('');
+    } else {
+      const f = FL[k], on = F.A.find(x => x.k === k);
+      fpop.setAttribute('aria-label', f.l);
+      fpop.innerHTML = `<button class="mi flm-bk" role="menuitem" tabindex="-1" aria-label="Back to all fields">${I('chev-l', 'xs')}<span>${f.l}</span></button><div class="sep" role="separator"></div>`
+        + f.o().map(o => `<button class="mi" role="menuitemradio" aria-checked="${!!on && on.v === o.v}" tabindex="-1" data-close data-v="${o.v}">${o.g || ''}<span>${o.l}</span><span class="r num">${CO.filter(c => fmatch(c, k) && f.test(c, o.v)).length}</span><span class="ck">${I('check', 'xs')}</span></button>`).join('');
+    }
+    fpop.dataset.k = k || '';
+    if (focus) setTimeout(() => { const m = k ? ($('.mi[aria-checked="true"]', fpop) || $$('.mi', fpop)[1]) : ($(`.mi[data-k="${focus}"]`, fpop) || $('.mi', fpop)); if (m) m.focus({ preventScroll:true }); });
+  }
+  $('.crm-ftr', app).addEventListener('click', () => fstep(null));
+  fpop.addEventListener('click', e => {
+    const m = e.target.closest('.mi'); if (!m) return; const kb = !e.detail;
+    if (m.classList.contains('flm-bk') || m.dataset.k) e.stopPropagation();
+    if (m.classList.contains('flm-bk')){ const from = fpop.dataset.k; fstep(null, kb || fpop.contains(document.activeElement) ? from : null); return; }
+    if (m.dataset.k){ fstep(m.dataset.k, kb || fpop.contains(document.activeElement)); return; }
+    const k = fpop.dataset.k, raw = m.dataset.v, v = k === 'last' ? +raw : raw, f = F.A.find(x => x.k === k);
+    if (f){ f.v = v; f.neg = false; } else F.A.push({ k, v, neg:false });
+    $$('.mi[data-v]', fpop).forEach(x => x.setAttribute('aria-checked', x === m)); said(''); renderTable();
+  });
+  fpop.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' && !fpop.dataset.k){ const m = e.target.closest('.mi[data-k]'); if (m){ e.preventDefault(); e.stopPropagation(); fstep(m.dataset.k, true); } }
+    else if (e.key === 'ArrowLeft' && fpop.dataset.k){ e.preventDefault(); e.stopPropagation(); fstep(null, fpop.dataset.k); }
+  }, true);
+
+  /* ---------- search, or ask in plain words: Search input's field and its answer line ---------- */
+  const ask = $('.crm-ask input', app), askx = $('.crm-ask .six-x', app), ans = $('.crm-ans', app);
+  const asked = t => t.trim().split(/\s+/).length >= 3;
+  // the words the agent understands: each one becomes a filter, and together they read back as a sentence
+  function parse(t){
+    t = t.toLowerCase(); const A = [];
+    const late = /(slipp|overdue deal|past (its|their|the) close|missed (its|their|the) close|close date (has )?passed)/.test(t);
+    if (/clos/.test(t) || late) A.push({ k:'close', v:late ? 'late' : /this week|next 7|7 days/.test(t) ? 'week' : /quarter/.test(t) ? 'quarter' : 'month', neg:false });
+    if (/(no|without|missing|lack|nothing)( a| an| any)? (next )?(step|meeting|booked)|nothing (is )?booked|no follow.?up booked/.test(t)) A.push({ k:'next', v:'none', neg:false });
+    else if (/(overdue|late|missed) (next )?step|step (is |was )?(overdue|late)/.test(t)) A.push({ k:'next', v:'late', neg:false });
+    if (/(quiet|silent|gone cold|cold|no (contact|touch|reply)|not (been )?(touched|contacted)|haven.t (talked|heard|spoken)|2\+? weeks|two weeks)/.test(t)) A.push({ k:'last', v:14, neg:true });
+    if (/(at risk|unhealthy|low health|poor health|risky)/.test(t)) A.push({ k:'health', v:'bad', neg:false });
+    else if (/(healthy|good health)/.test(t)) A.push({ k:'health', v:'ok', neg:false });
+    const o = OWN.find(x => new RegExp('\\b' + first(x).toLowerCase() + '\\b').test(t)); if (o) A.push({ k:'owner', v:o, neg:false });
+    const s = STAGES.find(x => x.k !== 'won' && t.includes(x.t.toLowerCase())); if (s) A.push({ k:'stage', v:s.k, neg:false });
+    return A;
+  }
+  const READ = { close:{ week:'a deal closing this week', month:'a deal closing this month', quarter:'a deal closing this quarter', late:'a deal past its close date' }, next:{ none:'no next step', late:'an overdue next step', week:'a step in the next 7 days' }, last:{ 14:'no touch in 14+ days' }, health:{ bad:'health at risk', ok:'good health' } };
+  const readOf = f => f.k === 'owner' ? 'owned by ' + P[f.v][0] : f.k === 'stage' ? 'in ' + ST[f.v].t : READ[f.k][f.v];
+  function said(t){ F.said = t; ans.hidden = !t; if (t) $('.t', ans).textContent = t; }
+  function runAsk(){
+    const t = ask.value.trim(); if (!t) return;
+    const A = parse(t);
+    if (!A.length){ F.q = t; renderTable(); said(asked(t) ? `No filter matched “${t}”, so this searches names. Try “quiet accounts”, “closing this month” or “no next step”.` : ''); return; }
+    F.A = A; F.q = ''; ask.value = ''; askx.hidden = true; renderTable();
+    const parts = A.map(readOf), list = parts.length > 1 ? parts.slice(0, -1).join(', ') + ' and ' + parts[parts.length - 1] : parts[0];
+    const views = Object.keys(SAVED).filter(k => SAVED[k][1].every(x => A.some(a => a.k === x.k && a.v === x.v && a.neg === x.neg))).map(k => SAVED[k][0]);
+    say(`${rows.length} accounts`);
+    said(`${plural(rows.length, 'account')} with ${list}${rows.length && rows.length <= 3 ? `: ${rows.map(c => c.n).join(', ')}` : ''}. ${views.length ? `Applied ${views.length > 1 ? 'the saved views' : 'the saved view'} ${views.join(' and ')}${A.length > views.length ? ' and ' + plural(A.length - views.length, 'more filter') : ''}.` : 'Applied ' + plural(A.length, 'filter') + '.'}`);
+  }
+  ask.addEventListener('input', () => { const t = ask.value.trim(); askx.hidden = !ask.value;
+    // a question waits for Enter; a name filters as you type
+    if (asked(t)){ if (F.q){ F.q = ''; renderTable(); } said('Press Enter and the agent turns this into filters.'); }
+    else { F.q = t; if (F.said) said(''); renderTable(); } });
+  ask.addEventListener('keydown', e => { if (e.key === 'Enter'){ e.preventDefault(); runAsk(); } else if (e.key === 'Escape' && ask.value){ e.preventDefault(); e.stopPropagation(); askx.click(); } });
+  askx.onclick = () => { ask.value = ''; F.q = ''; askx.hidden = true; said(''); renderTable(); ask.focus(); };
+  $('.crm-ansx', ans).onclick = () => clearFilters();
+
   // sorting from the column headers: a second press turns the order round
-  $$('.crm-t .ttx-s', app).forEach(b => b.onclick = () => { const k = b.dataset.k; if (k === F.sort) F.desc = !F.desc; else { F.sort = k; F.desc = !['name', 'owner'].includes(k); } renderTable(); });
-  allBox.onclick = () => { const on = allBox.getAttribute('aria-checked') !== 'true'; view.forEach(c => on ? sel.add(c.id) : sel.delete(c.id)); syncSel(); };
+  $$('.crm-t .ttx-s', app).forEach(b => b.onclick = () => { const k = b.dataset.k; if (k === F.sort) F.desc = !F.desc; else { F.sort = k; F.desc = !ASC.includes(k); } renderTable(); });
+  allBox.onclick = () => { const on = allBox.getAttribute('aria-checked') !== 'true'; rows.forEach(c => on ? sel.add(c.id) : sel.delete(c.id)); syncSel(); };
   $('.ttx-clr', sb).onclick = () => { sel.clear(); syncSel(); };
   const toggleSel = id => { sel.has(id) ? sel.delete(id) : sel.add(id); syncSel(); };
   tbody.addEventListener('click', e => {
     if (e.target.closest('.crm-clr2')) return clearFilters();
     const tr = e.target.closest('tr[data-id]'); if (!tr) return;
     focusRow(tr, false);
-    if (e.target.closest('.ttx-cb')) return toggleSel(tr.dataset.id);
-    if (e.target.closest('.crm-rm')){ rowMenuFor = tr.dataset.id; buildRowMenu(); return; }
-    openSheet(tr.dataset.id);
+    const c = coOf(tr.dataset.id);
+    if (e.target.closest('.ttx-cb')) return toggleSel(c.id);
+    if (e.target.closest('.crm-rm')){ rowMenuFor = c.id; buildRowMenu(); return; }
+    if (e.target.closest('.crm-ag')){ hideTip(); if (c.sug) accept(c, c.sug); return; }
+    openSheet(c.id);
   });
   function focusRow(tr, move = true){ $$('tr[data-id]', tbody).forEach(x => x.tabIndex = x === tr ? 0 : -1); focusId = tr.dataset.id; if (move) tr.focus(); }
   tbody.addEventListener('keydown', e => {
     const tr = e.target.closest('tr[data-id]'); if (!tr || e.target !== tr) return;
     if (e.key === 'ArrowDown' || e.key === 'ArrowUp'){ e.preventDefault(); const n = e.key === 'ArrowDown' ? tr.nextElementSibling : tr.previousElementSibling; if (n && n.dataset.id) focusRow(n); }
-    else if (e.key === 'Enter'){ e.preventDefault(); openSheet(tr.dataset.id); }
+    else if (e.key === 'Enter'){ e.preventDefault(); openSheet(tr.dataset.id, true); }
     else if (e.key === ' '){ e.preventDefault(); toggleSel(tr.dataset.id); }
+    else if (e.key === 'a' || e.key === 'A'){ const c = coOf(tr.dataset.id); if (c.sug){ e.preventDefault(); accept(c, c.sug); const t = $(`tr[data-id="${c.id}"]`, tbody); if (t) focusRow(t); } }
   });
 
   /* ---------- menus: built as they open, updated in place while they are open ---------- */
   const ck = `<span class="ck">${I('check', 'xs')}</span>`;
-  const onOpen = (sel, fn) => $$(sel, app).forEach(b => b.addEventListener('click', fn));
+  const onOpen = (s, fn) => $$(s, app).forEach(b => b.addEventListener('click', fn));
   const mi = (attrs, body, role = 'menuitemradio', checked = false, close = true) => `<button class="mi" role="${role}" aria-checked="${checked}" tabindex="-1"${close ? ' data-close' : ''} ${attrs}>${body}${role !== 'menuitem' ? ck : ''}</button>`;
   const pop = id => $('#' + id, app);
-  // Sort by: the field, then the order
-  onOpen('[data-f="sort"]', () => {
-    const p = pop('crm-p-sort');
-    p.innerHTML = `<div class="ph" role="none">Sort by</div>` + Object.entries(SORTS).filter(([k]) => k !== 'trend').map(([k, s]) => mi(`data-k="${k}"`, `<span>${s[0]}</span>`, 'menuitemradio', F.sort === k)).join('')
-      + `<div class="sep" role="separator"></div>` + mi('data-o="desc"', `${I('down', 's')}<span>${F.sort === 'name' || F.sort === 'owner' ? 'Z to A' : 'High to low'}</span>`, 'menuitemradio', F.desc) + mi('data-o="asc"', `${I('up', 's')}<span>${F.sort === 'name' || F.sort === 'owner' ? 'A to Z' : 'Low to high'}</span>`, 'menuitemradio', !F.desc);
-    $$('.mi', p).forEach(m => m.addEventListener('click', () => { if (m.dataset.k){ F.sort = m.dataset.k; F.desc = !['name', 'owner'].includes(m.dataset.k); } else F.desc = m.dataset.o === 'desc'; renderTable(); }));
-  });
-  // Owner and Stage: several at once, so their menus stay open as you tick
-  const multi = (id, set, items, label) => {
-    const p = pop(id);
-    p.innerHTML = `<div class="ph" role="none">${label}</div>` + items.map(([k, body]) => mi(`data-k="${k}"`, body, 'menuitemcheckbox', set.has(k), false)).join('')
-      + `<div class="sep" role="separator"></div>` + mi('data-clear', `${I('x', 's')}<span>Show all</span>`, 'menuitem', false, true);
-    $$('.mi', p).forEach(m => m.addEventListener('click', () => {
-      if (m.hasAttribute('data-clear')) set.clear(); else set.has(m.dataset.k) ? set.delete(m.dataset.k) : set.add(m.dataset.k);
-      $$('.mi[data-k]', p).forEach(x => x.setAttribute('aria-checked', set.has(x.dataset.k))); renderTable();
-    }));
-  };
-  onOpen('[data-f="owner"]', () => multi('crm-p-owner', F.own, OWN.map(o => [o, `${av(o)}<span>${P[o][0]}</span><span class="r num">${CO.filter(c => c.own === o).length}</span>`]), 'Account owner'));
-  onOpen('[data-f="stage"]', () => multi('crm-p-stage', F.stage, STAGES.map(s => [s.k, `${pill(s.k)}<span class="r num">${CO.filter(c => c.st === s.k).length}</span>`]), 'Stage'));
-  onOpen('[data-f="last"]', () => {
-    const p = pop('crm-p-last');
-    p.innerHTML = `<div class="ph" role="none">Last interaction</div>` + LASTS.map(([d, t]) => mi(`data-d="${d}"`, `<span>${t}</span><span class="r num">${CO.filter(c => !d || c.last <= d).length}</span>`, 'menuitemradio', F.last === d)).join('');
-    $$('.mi', p).forEach(m => m.addEventListener('click', () => { F.last = +m.dataset.d; renderTable(); }));
-  });
-  // the footer's Add calculation
-  onOpen('.crm-addcalc', () => {
-    const p = pop('crm-p-calc'), C = calcs();
-    p.innerHTML = `<div class="ph" role="none">Add a calculation</div>` + Object.entries(C).map(([k, c]) => mi(`data-k="${k}"`, `<span>${c[0]} pipeline value</span>`.replace('Weighted pipeline value', 'Weighted forecast').replace('Won pipeline value', 'Closed won'), 'menuitemradio', F.calc === k)).join('')
-      + (F.calc ? `<div class="sep" role="separator"></div>` + mi('data-k=""', `${I('x', 's')}<span>Remove calculation</span>`, 'menuitem') : '');
-    $$('.mi', p).forEach(m => m.addEventListener('click', () => { F.calc = m.dataset.k || null; renderTable(); }));
+  // Sort: the field, then the order
+  onOpen('.crm-sort', () => {
+    const p = pop('crm-p-sort'), az = ['name', 'owner'].includes(F.sort), when = F.sort === 'next';
+    p.innerHTML = `<div class="ph" role="none">Sort by</div>` + Object.entries(SORTS).map(([k, s]) => mi(`data-k="${k}"`, `<span>${s[0]}</span>`, 'menuitemradio', F.sort === k)).join('')
+      + `<div class="sep" role="separator"></div>` + mi('data-o="asc"', `${I('up', 's')}<span>${az ? 'A to Z' : when ? 'Soonest first' : 'Low to high'}</span>`, 'menuitemradio', !F.desc) + mi('data-o="desc"', `${I('down', 's')}<span>${az ? 'Z to A' : when ? 'Latest first' : 'High to low'}</span>`, 'menuitemradio', F.desc);
+    $$('.mi', p).forEach(m => m.addEventListener('click', () => { if (m.dataset.k){ F.sort = m.dataset.k; F.desc = !ASC.includes(m.dataset.k); } else F.desc = m.dataset.o === 'desc'; renderTable(); }));
   });
   // a row's own menu
   function buildRowMenu(){
     const c = coOf(rowMenuFor), p = pop('crm-p-row'); if (!c) return;
-    p.innerHTML = `<div class="ph" role="none">${esc(c.n)}</div>` + mi('data-a="open"', `${I('panel', 's')}<span>Open details</span>`, 'menuitem') + mi('data-a="call"', `${I('comment', 's')}<span>Log a call</span>`, 'menuitem')
+    p.innerHTML = `<div class="ph" role="none">${esc(c.n)}</div>` + mi('data-a="open"', `${I('panel', 's')}<span>Open details</span>`, 'menuitem')
+      + (c.sug ? mi('data-a="sug"', `${I('spark', 's')}<span>${c.sug.label}</span>`, 'menuitem') : '')
+      + mi('data-a="call"', `${I('comment', 's')}<span>Log a call</span>`, 'menuitem')
       + mi('data-a="select"', `${I('check', 's')}<span>${sel.has(c.id) ? 'Deselect' : 'Select'}</span>`, 'menuitem')
-      + `<div class="sep" role="separator"></div>` + `<button class="mi bad" role="menuitem" tabindex="-1" data-close data-a="del">${I('trash', 's')}<span>Delete company</span></button>`;
+      + `<div class="sep" role="separator"></div>` + `<button class="mi bad" role="menuitem" tabindex="-1" data-close data-a="del">${I('trash', 's')}<span>Delete account</span></button>`;
     $$('.mi', p).forEach(m => m.addEventListener('click', () => {
       const a = m.dataset.a;
-      if (a === 'open') setTimeout(() => openSheet(c.id), 130);
+      if (a === 'open') setTimeout(() => openSheet(c.id, true), 130);
+      if (a === 'sug' && c.sug) accept(c, c.sug);
       if (a === 'call') logActivity(c, 'Call');
       if (a === 'select') toggleSel(c.id);
       if (a === 'del') remove([c.id]);
@@ -275,10 +478,10 @@
     const p = pop('crm-p-assign');
     p.innerHTML = `<div class="ph" role="none">Assign ${sel.size} to</div>` + OWN.map(o => mi(`data-o="${o}"`, `${av(o)}<span>${P[o][0]}</span>`, 'menuitem')).join('');
     $$('.mi', p).forEach(m => m.addEventListener('click', () => {
-      const ids = [...sel], before = ids.map(id => [id, coOf(id).own]), o = m.dataset.o;
-      ids.forEach(id => { coOf(id).own = o; DE.filter(d => d.co === id).forEach(d => d.own = o); });
+      const ids = [...sel], o = m.dataset.o, before = ids.map(id => [id, coOf(id).own]), mts = MT.filter(x => ids.includes(x.co) && x.st === 'plan').map(x => [x, x.own]);
+      ids.forEach(id => { coOf(id).own = o; DE.filter(d => d.co === id && d.st !== 'won').forEach(d => d.own = o); }); mts.forEach(([x]) => x.own = o);
       sel.clear(); refresh();
-      toast('ok', `${ids.length} ${ids.length === 1 ? 'company' : 'companies'} assigned to ${P[o][0]}`, 'Their open deals moved with them', { label:'Undo', run:() => { before.forEach(([id, w]) => { const c = coOf(id); if (c){ c.own = w; DE.filter(d => d.co === id).forEach(d => d.own = w); } }); refresh(); } });
+      toast('ok', `${plural(ids.length, 'account')} assigned to ${P[o][0]}`, 'Their open deals and booked meetings moved with them', { label:'Undo', run:() => { before.forEach(([id, w]) => { const c = coOf(id); if (c){ c.own = w; DE.filter(d => d.co === id && d.st !== 'won').forEach(d => d.own = w); } }); mts.forEach(([x, w]) => x.own = w); refresh(); } });
     }));
   });
   onOpen('[data-pop="#crm-p-move"]', () => {
@@ -287,73 +490,82 @@
     $$('.mi', p).forEach(m => m.addEventListener('click', () => {
       const moves = [...sel].map(coOf).filter(c => c && c.lead).map(c => [c.lead, c.lead.st]);
       moves.forEach(([d]) => setStage(d, m.dataset.s)); sel.clear(); refresh();
-      toast('ok', `Moved ${moves.length} ${moves.length === 1 ? 'deal' : 'deals'} to ${ST[m.dataset.s].t}`, 'The lead deal of each company you picked', { label:'Undo', run:() => { moves.forEach(([d, s]) => setStage(d, s)); refresh(); } });
+      toast('ok', `Moved ${plural(moves.length, 'deal')} to ${ST[m.dataset.s].t}`, 'The lead deal of each account you picked', { label:'Undo', run:() => { moves.forEach(([d, s]) => setStage(d, s)); refresh(); } });
     }));
   });
   $('[data-a="export"]', sb).onclick = () => exportCsv(CO.filter(c => sel.has(c.id)));
   $('[data-a="delete"]', sb).onclick = () => remove([...sel]);
   // removed rows slide away, and Undo brings them back
   function remove(ids){
-    const gone = ids.map(coOf).filter(Boolean), deals = DE.filter(d => ids.includes(d.co));
-    const finish = () => { CO = CO.filter(c => !ids.includes(c.id)); DE = DE.filter(d => !ids.includes(d.co)); ids.forEach(id => sel.delete(id)); if (ids.includes(sheetFor)) closeSheet(); refresh(); };
-    const rows = ids.map(id => $(`tr[data-id="${id}"]`, tbody)).filter(Boolean);
-    if (rows.length && !REDUCE){ rows.forEach(r => r.classList.add('ttx-out')); setTimeout(finish, 240); } else finish();
-    toast('bad', gone.length === 1 ? `${gone[0].n} deleted` : `${gone.length} companies deleted`, `${deals.length} ${deals.length === 1 ? 'deal' : 'deals'} went with ${gone.length === 1 ? 'it' : 'them'}`, { label:'Undo', run:() => { CO.push(...gone.filter(c => !coOf(c.id))); DE.push(...deals.filter(d => !dealOf(d.id))); refresh(); } });
+    const gone = ids.map(coOf).filter(Boolean), deals = DE.filter(d => ids.includes(d.co)), mts = MT.filter(m => ids.includes(m.co));
+    const finish = () => { CO = CO.filter(c => !ids.includes(c.id)); DE = DE.filter(d => !ids.includes(d.co)); MT = MT.filter(m => !ids.includes(m.co)); ids.forEach(id => sel.delete(id)); if (ids.includes(sheetFor)) closeSheet(); refresh(); };
+    const trs = ids.map(id => $(`tr[data-id="${id}"]`, tbody)).filter(Boolean);
+    if (trs.length && !REDUCE){ trs.forEach(r => r.classList.add('ttx-out')); setTimeout(finish, 240); } else finish();
+    toast('bad', gone.length === 1 ? `${gone[0].n} deleted` : `${gone.length} accounts deleted`, `${plural(deals.length, 'deal')} and ${plural(mts.length, 'meeting')} went with ${gone.length === 1 ? 'it' : 'them'}`, { label:'Undo', run:() => { CO.push(...gone.filter(c => !coOf(c.id))); DE.push(...deals.filter(d => !dealOf(d.id))); MT.push(...mts.filter(m => !MT.includes(m))); refresh(); } });
   }
 
   /* ---------- Export: the rows as a CSV file ---------- */
   function exportCsv(list){
-    const rows = [['Company', 'Segment', 'Tags', 'Stage', 'Owner', 'Pipeline', 'Open deals', 'Pipeline value', 'Win probability', 'Last interaction', 'Type'],
-      ...list.map(c => [c.n, c.seg, c.tags.join('; '), ST[c.st].t, P[c.own][0], REG[c.reg].t, c.deals, c.value, c.win + '%', dateOf(-c.last).toISOString().slice(0, 10), c.lt])];
-    const csv = rows.map(r => r.map(v => /[",\n]/.test(String(v)) ? '"' + String(v).replace(/"/g, '""') + '"' : v).join(',')).join('\n');
+    const out = [['Account', 'Segment', 'Tags', 'Stage', 'Owner', 'Region', 'Open deals', 'Pipeline value', 'Health', 'Next step', 'Next step date', 'Last touch'],
+      ...list.map(c => [c.n, c.seg, c.tags.join('; '), ST[c.st].t, P[c.own][0], REG[c.reg].t, c.deals, c.value, c.health, c.next ? c.next.kind : '', c.next ? dateOf(c.next.day).toISOString().slice(0, 10) : '', dateOf(-c.last).toISOString().slice(0, 10)])];
+    const csv = out.map(r => r.map(v => /[",\n]/.test(String(v)) ? '"' + String(v).replace(/"/g, '""') + '"' : v).join(',')).join('\n');
     try {
-      const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type:'text/csv' })); a.download = 'larkfield-companies.csv';
+      const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type:'text/csv' })); a.download = 'larkfield-accounts.csv';
       app.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
     } catch(e){}
-    toast('ok', `Exported ${list.length} ${list.length === 1 ? 'company' : 'companies'}`, 'larkfield-companies.csv, ' + money(sum(list, c => c.value)) + ' in pipeline');
+    toast('ok', `Exported ${plural(list.length, 'account')}`, 'larkfield-accounts.csv, ' + money(sum(list, c => c.value)) + ' in pipeline');
   }
-  $('.crm-export', app).onclick = () => exportCsv(view);
+  $('.crm-export', app).onclick = () => exportCsv(rows);
 
-  /* ---------- the details sheet: Details panel ---------- */
+  /* ---------- the details sheet: Details panel, with Health score's gauge and checks ---------- */
   const sheet = $('.crm-sheet', app), dtp = $('.crm-dtp', app);
   const shut = new Set();
   const section = (k, t, body) => `<div class="dtp-sec"><button class="dtp-sh" aria-expanded="${!shut.has(k)}" data-sec="${k}">${I('chev-r', 'xs')}<span>${t}</span></button><div class="fold${shut.has(k) ? ' shut' : ''}"><div>${body}</div></div></div>`;
-  const tlOf = c => {
-    const own = P[c.own][0], base = [[c.lt, c.last, `${c.lt === 'Email' ? 'Email thread' : c.lt === 'Call' ? 'Call' : c.lt + ' meeting'} with the ${c.seg === 'SMB' ? 'founder' : 'buying group'}`, own],
-      ['Email', c.last + 4, 'Sent the proposal and pricing', own], ['Discovery', c.last + 13, 'Discovery call, 4 people joined', own]];
-    return [...c.log, ...base];
-  };
+  const tlOf = c => [...c.log, ...c.base];
+  const hcol = v => v >= 70 ? 'var(--dm-hs-ok)' : v >= 50 ? 'var(--dm-accent-mark,var(--dm-accent))' : 'var(--dm-hs-bad)';
+  const andList = a => a.length > 1 ? a.slice(0, -1).join(', ') + ' and ' + a[a.length - 1] : a[0] || '';
+  const healthLine = (hb, low) => !low.length ? `${HB[hb]}, every check is fine` : `${HB[hb]}: ${low.length > 1 ? 'low on' : 'low'} ${andList(low)}`;
   function renderSheet(){
     const c = coOf(sheetFor); if (!c) return closeSheet();
-    const mine = DE.filter(d => d.co === c.id).sort((a, b) => ST[b.st].i - ST[a.st].i || b.v - a.v);
+    const mine = DE.filter(d => d.co === c.id).sort((a, b) => ST[b.st].i - ST[a.st].i || b.v - a.v), m = c.next;
+    const checks = [['Recent contact', Math.round(c.hp[0] / 40 * 100), c.last === 0 ? 'Touched today' : `Last touch ${plural(c.last, 'day')} ago`], ['Deals on time', c.slip ? 0 : 100, c.slip ? `${plural(c.slip, 'deal')} past the close date` : 'No deal past its close date'], ['Win probability', c.win, `${c.win}% across the open deals`]];
     dtp.innerHTML = `<div class="dtp-h"><span class="pfm-lg" aria-hidden="true">${esc(c.n[0])}</span><span class="tx"><b id="crm-sh-t">${esc(c.n)}</b><span>${esc(c.seg)}, ${REG[c.reg].t}</span></span><button class="ib" data-a="link" aria-label="Copy a link to ${esc(c.n)}" data-tip="Copy link">${I('link', 's')}</button><button class="ib" data-a="close" aria-label="Close details" data-tip="Close" data-tip-k="Esc">${I('x', 's')}</button></div>`
       + `<div class="crm-sum3"><div><span>Pipeline</span><b class="num">${kmoney(c.value)}</b></div><div><span>Weighted</span><b class="num">${kmoney(c.weighted)}</b></div><div><span>Closed won</span><b class="num">${kmoney(c.won)}</b></div></div>`
+      + (c.sug ? `<div class="six-ans crm-sag">${I('spark', 'xs')}<span>${esc(c.sug.why)}</span><button class="pill primary sm" data-a="sug">${c.sug.label}</button></div>` : '')
+      + `<div class="hsx crm-shs"><div class="hsx-top"><div class="hsx-g">${gauge(c.health, hcol(c.health))}<div class="hsx-v"><b class="num">${c.health}</b><span class="muted">of 100</span></div></div><div class="hsx-s"><b>Account health</b><span class="muted hsx-st">${healthLine(c.hb, checks.filter(x => x[1] < 70).map(x => x[0].toLowerCase()))}</span></div></div>`
+      + `<div class="hsx-list">${checks.map(x => `<div class="hsx-c"><div class="hsx-ch"><span class="t">${x[0]}</span><span class="bar"><i style="width:${x[1]}%;background:${hcol(x[1])}"></i></span><span class="v num">${x[1]}</span></div><div class="hsx-d"><span>${esc(x[2])}</span></div></div>`).join('')}</div></div>`
       + section('props', 'Properties', `<div class="dtp-rows">`
-        + `<div class="dtp-r"><span class="k">Account owner</span><button class="dtp-v" data-pop="#crm-p-sown" aria-haspopup="menu">${av(c.own)}<span>${esc(P[c.own][0])}</span>${I('chev-d', 'xs')}</button></div>`
+        + `<div class="dtp-r"><span class="k">Owner</span><button class="dtp-v" data-pop="#crm-p-sown" aria-haspopup="menu">${av(c.own)}<span>${esc(P[c.own][0])}</span>${I('chev-d', 'xs')}</button></div>`
+        + `<div class="dtp-r"><span class="k">Next step</span>${m ? `<button class="dtp-v crm-snx${m.day < 0 ? ' late' : ''}" data-a="cal" aria-label="${esc(m.kind)}, ${m.day < 0 ? 'overdue, ' : ''}${fmtDW(m.day)} ${tmA(m.h)}. Open in the calendar">${I('cal', 'xs')}<span>${esc(m.kind)}, ${m.day < 0 ? 'overdue since ' + fmtD(m.day) : fmtDW(m.day) + ', ' + tmA(m.h)}</span></button>` : `<span class="dtp-v static crm-snx none">No next step</span>`}</div>`
         + `<div class="dtp-r"><span class="k">Stage</span><span class="dtp-v static">${pill(c.st)}</span></div>`
-        + `<div class="dtp-r"><span class="k">Pipeline</span><span class="dtp-v static"><span class="dot" style="color:${REG[c.reg].c}"></span>${REG[c.reg].t}</span></div>`
-        + `<div class="dtp-r crm-tg"><span class="k">Tags</span><span class="dtp-tags">${[c.seg, ...c.tags].map(chip).join('')}<button class="dtp-add" data-a="tag" aria-label="Add a tag" data-tip="Add tag">${I('plus', 'xs')}</button></span></div>`
-        + `<div class="dtp-r"><span class="k">Win probability</span><span class="dtp-v static">${winBar(c.win)}</span></div>`
-        + `<div class="dtp-r"><span class="k">Last interaction</span><span class="dtp-v static">${lastCell(c)}</span></div></div>`)
-      + section('deals', `Deals, ${mine.length}`, mine.length ? `<div class="crm-dl">${mine.map(d => `<button data-deal="${d.id}" data-pop="#crm-p-sstage" aria-haspopup="menu" aria-label="${esc(d.n)}, ${ST[d.st].t}, ${money(d.v)}. Change its stage"><span class="t">${esc(d.n)}</span>${pill(d.st)}<span class="num">${kmoney(d.v)}</span></button>`).join('')}</div>` : '<p class="muted">No deals yet.</p>')
+        + `<div class="dtp-r"><span class="k">Region</span><span class="dtp-v static"><span class="dot" style="color:${REG[c.reg].c}"></span>${REG[c.reg].t}</span></div>`
+        + `<div class="dtp-r"><span class="k">Last touch</span><span class="dtp-v static">${c.last === 0 ? 'Today' : fmtD(-c.last)}, ${esc(ltName(c))}</span></div>`
+        + `<div class="dtp-r crm-tg"><span class="k">Tags</span><span class="dtp-tags">${[c.seg, ...c.tags].map(chip).join('')}<button class="dtp-add" data-a="tag" aria-label="Add a tag" data-tip="Add tag">${I('plus', 'xs')}</button></span></div></div>`)
+      + section('deals', `Deals, ${mine.length}`, mine.length ? `<div class="crm-dl">${mine.map(d => `<button data-deal="${d.id}" data-pop="#crm-p-sstage" aria-haspopup="menu" aria-label="${esc(d.n)}, ${ST[d.st].t}, ${money(d.v)}${slipping(d) ? ', past its close date' : ''}. Change its stage"><span class="t">${esc(d.n)}<span class="w num${slipping(d) ? ' late' : ''}">${d.st === 'won' ? 'Won ' + fmtD(d.close) : (slipping(d) ? 'Was due ' : 'Closes ') + fmtD(d.close) + ', ' + d.p + '%'}</span></span>${pill(d.st)}<span class="num">${kmoney(d.v)}</span></button>`).join('')}</div>` : '<p class="muted">No deals yet.</p>')
+      + section('ppl', `People, ${c.ppl.length}`, `<ul class="crm-ppl">${c.ppl.map((p, i) => `<li><span class="av crm-cav" aria-hidden="true">${ini(p.n)}</span><span><b>${esc(p.n)}</b><span class="muted">${esc(p.r)}${i ? '' : ', champion'}</span></span></li>`).join('')}</ul>`)
       + section('act', 'Activity', `<ul class="crm-tl">${tlOf(c).slice(0, 5).map(([k, d, t, w], i) => `<li${i === 0 && c._fresh ? ' class="new"' : ''}><span class="ic">${I(ACT[k] || 'comment', 'xs')}</span><span>${esc(t)}<span class="w num">${d === 0 ? 'Today' : fmtD(-d)}, ${esc(w)}</span></span></li>`).join('')}</ul>`)
-      + `<div class="crm-sact"><button class="pill line sm" data-a="call">${I('comment', 'xs')}Log a call</button><button class="pill primary sm" data-a="email">${I('mail', 'xs')}Email the champion</button></div>`;
+      + `<div class="crm-sact"><button class="pill line sm" data-a="call">${I('comment', 'xs')}Log a call</button><button class="pill line sm" data-a="email">${I('mail', 'xs')}Log an email</button></div>`;
     c._fresh = false;
     sheet.setAttribute('aria-labelledby', 'crm-sh-t');
   }
   function openSheet(id, focus = false){
-    const was = sheetFor; sheetFor = id; renderSheet();
+    const was = sheetFor; sheetFor = id; closeCalPop(); renderSheet();
     sheet.inert = false; sheet.classList.add('on'); app.classList.add('sh');
     $$('tr[data-id]', tbody).forEach(tr => tr.classList.toggle('open', tr.dataset.id === id));
-    if (focus || (document.activeElement && document.activeElement.closest('tr[data-id],.kbx-k,.cpl,.ntx'))) setTimeout(() => $('[data-a="close"]', dtp).focus({ preventScroll:true }), 60);
+    if (focus || (document.activeElement && document.activeElement.closest('tr[data-id],.kbx-k,.cpl,.ntx,.aib,.ecx'))) setTimeout(() => $('[data-a="close"]', dtp).focus({ preventScroll:true }), 60);
     if (was !== id && !REDUCE) dtp.animate([{ opacity:0, transform:'translateY(4px)' }, { opacity:1, transform:'none' }], { duration:240, easing:'ease-out' });
   }
+  let sheetBack = null;
   function closeSheet(){
     if (!sheetFor) return;
-    const id = sheetFor; sheetFor = null; sheet.classList.remove('on'); sheet.inert = true; app.classList.remove('sh');
+    const id = sheetFor, inside = sheet.contains(document.activeElement); sheetFor = null; sheet.classList.remove('on'); sheet.inert = true; app.classList.remove('sh');
     $$('tr.open', tbody).forEach(tr => tr.classList.remove('open'));
-    const tr = $(`tr[data-id="${id}"]`, tbody); if (tr && sheet.contains(document.activeElement)) focusRow(tr);
+    if (!inside) return;
+    const tr = view === 'accounts' && $(`tr[data-id="${id}"]`, tbody); if (tr) return focusRow(tr);
+    if (sheetBack && sheetBack.isConnected) sheetBack.focus({ preventScroll:true }); else $('#content', app).focus({ preventScroll:true });
   }
+  // what had the focus before the sheet took it, to give it back on close
+  app.addEventListener('focusin', e => { if (!sheet.contains(e.target)) sheetBack = e.target; });
   dtp.addEventListener('click', e => {
     const b = e.target.closest('button'); if (!b) return;
     const c = coOf(sheetFor);
@@ -362,23 +574,26 @@
     const a = b.dataset.a;
     if (a === 'close') closeSheet();
     if (a === 'link'){ const url = location.origin + location.pathname + '#' + c.id; (navigator.clipboard ? navigator.clipboard.writeText(url) : Promise.reject()).catch(() => {}); toast('ok', 'Link copied', c.n + ' opens with its details'); }
-    if (a === 'tag'){ const next = ['Champion', 'Budget set', 'Security review', 'Multi-year'].find(t => !c.tags.includes(t)); if (next){ c.tags.push(next); renderSheet(); renderTable(); const t = $$('.dtp-tags .tag', dtp).pop(); enter(t); } }
+    if (a === 'tag'){ const next = ['Champion', 'Budget set', 'Security review', 'Multi-year'].find(t => !c.tags.includes(t)); if (next){ c.tags.push(next); renderSheet(); const t = $$('.dtp-tags .tag', dtp).pop(); enter(t); } }
     if (a === 'call') logActivity(c, 'Call');
-    if (a === 'email'){ logActivity(c, 'Email', 'Email to the champion, follow-up on the proposal'); }
+    if (a === 'email') logActivity(c, 'Email', `Email to ${c.ppl[0].n}`);
+    if (a === 'sug' && c.sug) accept(c, c.sug);
+    if (a === 'cal' && c.next){ const m = c.next; closeSheet(); showMeeting(m); }
   });
   function logActivity(c, kind, text){
     const prev = [c.last, c.lt];
-    c.log.unshift([kind, 0, text || (kind === 'Call' ? 'Call logged with the buying group' : 'Email sent'), 'Nina Cole']); c.last = 0; c.lt = kind; c.trend[11]++; c._fresh = true;
+    c.log.unshift([kind, 0, text || (kind === 'Call' ? `Call with ${c.ppl[0].n}` : 'Email sent'), 'Nina Cole']); c.last = 0; c.lt = kind; c.trend[11]++; c._fresh = true;
     refresh();
-    toast('ok', kind === 'Call' ? 'Call logged' : 'Email sent', `${c.n}, last interaction is now today`, { label:'Undo', run:() => { c.log.shift(); [c.last, c.lt] = prev; c.trend[11]--; refresh(); } });
+    toast('ok', kind === 'Call' ? 'Call logged' : 'Email logged', `${c.n}, last touch is now today`, { label:'Undo', run:() => { c.log.shift(); [c.last, c.lt] = prev; c.trend[11]--; refresh(); } });
   }
   // the owner menu is built as it opens; the sheet's button is drawn again each time, so this listens on the sheet
   dtp.addEventListener('click', e => {
     if (!e.target.closest('[data-pop="#crm-p-sown"]')) return;
     const c = coOf(sheetFor), p = pop('crm-p-sown');
-    p.innerHTML = `<div class="ph" role="none">Account owner</div>` + OWN.map(o => mi(`data-o="${o}"`, `${av(o)}<span>${P[o][0]}</span>`, 'menuitemradio', c.own === o)).join('');
-    $$('.mi', p).forEach(m => m.addEventListener('click', () => { const was = c.own; if (was === m.dataset.o) return; c.own = m.dataset.o; DE.filter(d => d.co === c.id && d.own === was).forEach(d => d.own = c.own); refresh();
-      toast('ok', `${c.n} is now ${first(c.own)}'s`, 'Owner changed from ' + P[was][0], { label:'Undo', run:() => { DE.filter(d => d.co === c.id && d.own === c.own).forEach(d => d.own = was); c.own = was; refresh(); } }); }));
+    p.innerHTML = `<div class="ph" role="none">Owner</div>` + OWN.map(o => mi(`data-o="${o}"`, `${av(o)}<span>${P[o][0]}</span>`, 'menuitemradio', c.own === o)).join('');
+    $$('.mi', p).forEach(m => m.addEventListener('click', () => { const was = c.own; if (was === m.dataset.o) return; const mts = MT.filter(x => x.co === c.id && x.st === 'plan');
+      c.own = m.dataset.o; DE.filter(d => d.co === c.id && d.st !== 'won').forEach(d => d.own = c.own); mts.forEach(x => x.own = c.own); refresh();
+      toast('ok', `${c.n} is now ${first(c.own)}'s`, 'Its open deals and booked meetings moved too', { label:'Undo', run:() => { DE.filter(d => d.co === c.id && d.st !== 'won').forEach(d => d.own = was); mts.forEach(x => x.own = was); c.own = was; refresh(); } }); }));
   }, true);
   function buildStageMenu(){
     const d = dealOf(stageFor), p = pop('crm-p-sstage'); if (!d) return;
@@ -401,12 +616,272 @@
     toast(st === 'won' ? 'ok' : 'info', st === 'won' ? `Won: ${c.n}, ${money(d.v)}` : `${d.n} moved to ${ST[st].t}`, st === 'won' ? `${d.n}. Added to this quarter's closed won` : `${c.n}, win probability now ${d.p}%`, { label:'Undo', run:() => { setStage(d, was); refresh(); } });
   }
 
-  /* ---------- Deals: the Kanban board ---------- */
+  /* ---------- Agent inbox: Agent inbox's groups and rows ---------- */
+  const ibx = $('.crm-aib', app), igs = $('.aib-gs', ibx);
+  const IBG = [['follow', 'Follow-ups drafted'], ['slip', 'Close dates passed'], ['fix', 'Data fixes'], ['done', 'Done']];
+  const IBI = { follow:'mail', slip:'cal', fix:'wand' };
+  let edFor = null;
+  const ibText = x => { const c = coOf(x.co), d = dealOf(x.deal);
+    if (x.kind === 'follow') return [`Follow-up to ${x.to}, ${c.n}`, `Quiet for ${plural(c.last, 'day')}. “${x.subj}”: ${x.body}`];
+    if (x.kind === 'slip') return [`Move ${poss(c.n)} ${d.n.toLowerCase()} to ${fmtDW(x.to)}`, `It was due ${fmtD(x.was)} and is still in ${ST[d.st].t}, ${money(d.v)}`];
+    return x.fix === 'stage' ? [`Move ${poss(c.n)} ${d.n.toLowerCase()} to ${ST[x.to].t}`, fixWhy(x)] : [`Lower ${poss(c.n)} ${d.n.toLowerCase()} from ${d.p}% to ${clamp(d.p + x.to, 5, 95)}%`, fixWhy(x)]; };
+  function renderInbox(){
+    const live = IB.filter(x => coOf(x.co) && dealOf(x.deal)), w = live.filter(x => x.state === 'wait');
+    const grp = k => k === 'done' ? live.filter(x => x.state !== 'wait') : w.filter(x => x.kind === k);
+    igs.innerHTML = IBG.map(([k, n]) => { const L = grp(k); if (!L.length) return '';
+      return `<section class="aib-g" data-g="${k}" aria-label="${n}"><div class="aib-gh"><span>${n}</span><span class="n">${L.length}</span></div><div class="aib-gl" role="list">${L.map(ibRow).join('')}</div></section>`; }).join('');
+    swap($('.aib-st', ibx), w.length ? `${w.length} waiting for you` : 'All clear');
+    if (!w.length && !igs.querySelector('[data-g="done"]')) igs.innerHTML = `<div class="crm-ibe muted">Nothing waiting. The agent adds to this list as accounts go quiet or deals pass their close dates.</div>`;
+  }
+  const ibRow = x => { const [b, s] = ibText(x), wait = x.state === 'wait';
+    return `<div class="aib-i crm-ii${wait ? '' : ' done'}" role="listitem" data-ib="${x.id}"><span class="aib-av" aria-hidden="true">${I(IBI[x.kind], 'xs')}</span><button class="aib-t crm-it" data-ia="open" aria-label="${esc(b)}. Open the account"><b>${esc(b)}</b><span>${esc(s)}</span></button>`
+      + `<span class="aib-r">${wait ? `<button class="pill ghost sm" data-ia="dismiss" aria-label="Dismiss: ${esc(b)}">Dismiss</button><button class="pill line sm" data-ia="edit"${x.kind === 'follow' ? '' : ' data-pop="#crm-p-ied" data-pop-align="end" aria-haspopup="menu"'} aria-label="Edit: ${esc(b)}">${I('edit', 'xs')}Edit</button><button class="pill primary sm" data-ia="ok" aria-label="Approve: ${esc(b)}">Approve</button>`
+        : `<span class="ok">${I(x.state === 'done' ? 'ok' : 'x', 'xs')}</span><span class="crm-ires">${esc(x.res)}</span>${x.undo ? `<button class="pill ghost sm" data-ia="undo" aria-label="Undo: ${esc(b)}">Undo</button>` : ''}`}</span></div>`
+      + (edFor === x.id ? `<div class="crm-ied"><label class="crm-iel" for="crm-ta-${x.id}">Draft to ${esc(x.to)}</label><textarea class="crm-ta" id="crm-ta-${x.id}" rows="4">${esc(x.body)}</textarea><div class="crm-iea"><button class="pill ghost sm" data-ia="cancel">Cancel</button><button class="pill primary sm" data-ia="save">Save draft</button></div></div>` : ''); };
+  function ibDo(x, a){
+    const c = coOf(x.co);
+    if (a === 'ok'){ accept(c, { k:x.kind, item:x }); return; }
+    if (a === 'dismiss'){ x.state = 'gone'; x.res = 'Dismissed'; x.undo = () => { x.state = 'wait'; }; refresh(); toast('info', 'Dismissed', ibText(x)[0], { label:'Undo', run:() => { x.state = 'wait'; x.undo = null; refresh(); } }); return; }
+    if (a === 'undo' && x.undo){ x.undo(); x.undo = null; refresh(); return; }
+  }
+  igs.addEventListener('click', e => {
+    const b = e.target.closest('[data-ia]'); if (!b) return;
+    const el = b.closest('[data-ib]') || b.closest('.crm-ied').previousElementSibling, x = IB.find(y => y.id === el.dataset.ib), a = b.dataset.ia;
+    if (a === 'open'){ openSheet(x.co); return; }
+    if (a === 'edit'){ if (x.kind === 'follow'){ edFor = edFor === x.id ? null : x.id; renderInbox(); const ta = $('.crm-ta', igs); if (ta){ ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length); } } else buildEdit(x); return; }
+    if (a === 'cancel' || a === 'save'){ if (a === 'save'){ const v = $('.crm-ta', igs).value.trim(); if (v) x.body = v; } edFor = null; renderInbox(); const r = $(`[data-ib="${x.id}"] [data-ia="edit"]`, igs); if (r) r.focus(); if (a === 'save') toast('ok', 'Draft saved', `Approve it to send it to ${x.to}`); return; }
+    const was = document.activeElement === b;
+    ibDo(x, a);
+    // the focus stays in the list: on the next row's Approve, or the list's heading
+    if (was){ const n = $('.aib-i:not(.done) [data-ia="ok"]', igs); (n || $('#content', app)).focus({ preventScroll:true }); }
+  });
+  igs.addEventListener('keydown', e => { if (e.key === 'Escape' && e.target.closest('.crm-ta')){ e.preventDefault(); e.stopPropagation(); $('[data-ia="cancel"]', igs).click(); } });
+  // Edit on a close date or a data fix: other dates, or other values
+  function buildEdit(x){
+    const p = pop('crm-p-ied'), d = dealOf(x.deal);
+    if (x.kind === 'slip'){
+      const opts = [workAfter(0, 5), workAfter(0, 10), toWork(eom), toWork(Math.round((new Date(today.getFullYear(), today.getMonth() + 2, 0) - today) / 864e5))].concat(x.to).sort((m, n) => m - n).filter((v, i, a) => a.indexOf(v) === i);
+      p.innerHTML = `<div class="ph" role="none">New close date</div>` + opts.map(n => mi(`data-n="${n}"`, `<span>${fmtDW(n)}</span><span class="r num">in ${plural(n, 'day')}</span>`, 'menuitemradio', x.to === n)).join('');
+      $$('.mi', p).forEach(m => m.addEventListener('click', () => { x.to = +m.dataset.n; renderInbox(); }));
+    } else if (x.fix === 'stage'){
+      p.innerHTML = `<div class="ph" role="none">Move to</div>` + STAGES.filter(s => s.k !== 'won' && ST[s.k].i > ST[d.st].i).map(s => mi(`data-s="${s.k}"`, pill(s.k), 'menuitemradio', x.to === s.k)).join('');
+      $$('.mi', p).forEach(m => m.addEventListener('click', () => { x.to = m.dataset.s; renderInbox(); }));
+    } else {
+      p.innerHTML = `<div class="ph" role="none">Lower to</div>` + [-5, -10, -15].map(n => mi(`data-n="${n}"`, `<span>${clamp(d.p + n, 5, 95)}%</span>`, 'menuitemradio', x.to === n)).join('');
+      $$('.mi', p).forEach(m => m.addEventListener('click', () => { x.to = +m.dataset.n; renderInbox(); }));
+    }
+  }
+
+  /* ---------- Calendar: Event calendar's week, Monday to Friday, 8am to 6pm ---------- */
+  const ecx = $('.crm-ecx', app), cgrid = $('.ecx-grid', ecx), cdays = $('.ecx-days', ecx), cmsg = $('.ecx-msg', ecx), plan = $('.crm-plan', ecx), H0 = 8, HN = 10;
+  // the week on show: this one, or the next when today is a weekend
+  const baseMon = (() => { const d = dow(0); return d === 0 ? 1 : d === 6 ? 2 : 1 - d; })();
+  let wk = 0, cday = -1, SG = [];
+  const mon = () => baseMon + wk * 7;
+  const weekOf = (w = wk) => { const m0 = baseMon + w * 7; return [m0, m0 + 4]; };
+  const inWeek = (n, w = wk) => { const [a, b] = weekOf(w); return n >= a && n <= b; };
+  const weekLabel = (w = wk) => { const [a, b] = weekOf(w), sm = dateOf(a).getMonth() === dateOf(b).getMonth(); return `${fmtD(a)} to ${sm ? dateOf(b).getDate() : fmtD(b)}, ${dateOf(b).getFullYear()}`; };
+  const at = h => `calc(var(--dm-ph) * ${h - H0} + 1px)`, tall = n => `calc(var(--dm-ph) * ${n} - 3px)`;
+  const PX = () => parseFloat(getComputedStyle(cgrid).getPropertyValue('--dm-ph')) || 48;
+  // the time column: an hour a row (8am), or on a narrow calendar half an hour a row (8:00, 8:30)
+  $('.ecx-tm', ecx).innerHTML = Array.from({ length:HN * 2 }, (_, i) => { const h = H0 + Math.floor(i / 2), h12 = h > 12 ? h - 12 : h; return i % 2 ? `<span class="hf"><i class="n">${h12}:30</i></span>` : `<span><i class="w">${h12}${h >= 12 ? 'pm' : 'am'}</i><i class="n">${h12}:00</i></span>`; }).join('');
+  $('.crm-leg', ecx).innerHTML = OWN.map(o => `<span><i style="background:var(--dm-p${P[o][1]})"></i>${first(o)}</span>`).join('');
+  const closingOn = n => DE.filter(d => d.st !== 'won' && d.close === n).sort((a, b) => b.v - a.v);
+  const meetingsIn = (w = wk) => MT.filter(m => inWeek(m.day, w) && m.st === 'plan' && !m.fresh);
+  // overlapping meetings share their column: each takes a lane, as wide as the busiest moment of its group allows
+  function lanes(list){
+    list.sort((a, b) => a.h - b.h || b.vd - a.vd);
+    let g = [], end = -1; const groups = [];
+    list.forEach(e => { if (g.length && e.h >= end){ groups.push(g); g = []; end = -1; } g.push(e); end = Math.max(end, e.h + e.vd); });
+    if (g.length) groups.push(g);
+    groups.forEach(gr => { const ends = []; gr.forEach(e => { let k = ends.findIndex(t => t <= e.h); if (k < 0){ k = ends.length; ends.push(0); } ends[k] = e.h + e.vd; e._l = k; }); gr.forEach(e => e._n = ends.length); });
+  }
+  const evLabel = m => { const c = coOf(m.co); return `${c.n}, ${m.kind}, ${fmtDW(m.day)} ${tmA(m.h)} to ${tmA(m.h + m.dur)}, ${P[m.own][0]}${m.st === 'plan' && m.day < 0 ? ', overdue' : m.st === 'held' ? ', held' : ''}`; };
+  function evEl(m){
+    const c = coOf(m.co), col = P[m.own][1], late = m.st === 'plan' && m.day < 0, n = m._n || 1;
+    const el = html(`<button class="ecx-e crm-ev${m.sug ? ' sug' : ''}${late ? ' late' : ''}${m.st === 'held' ? ' held' : ''}" data-m="${m.id}" style="top:${at(m.h)};height:${tall(m.sug ? m.vd : m.dur)};left:calc(3px + (100% - 6px) * ${(m._l || 0) / n});width:calc((100% - 6px) / ${n} - ${n > 1 ? 2 : 0}px);${m.sug ? '' : `background:var(--dm-p${col}-bg);color:var(--dm-p${col})`}" aria-label="${esc(m.sug ? 'Suggested: ' + m.kind.toLowerCase() + ' with ' + c.n + ', ' + fmtDW(m.day) + ' ' + tmA(m.h) : evLabel(m))}"><b>${esc(c.n)}</b>${m.sug ? '' : `<span>${late ? 'Overdue: ' : ''}${esc(m.kind)}, ${tm(m.h)}</span>`}</button>`);
+    if (m.sug) el.insertAdjacentHTML('beforeend', `<span class="ecx-sg"><button class="y" data-sg="book" aria-label="Book a ${esc(m.kind.toLowerCase())} with ${esc(c.n)}, ${fmtDW(m.day)} ${tmA(m.h)}">Book</button><button class="n" data-sg="skip" aria-label="Skip ${esc(c.n)}">Skip</button><i class="num">${tm(m.h)}</i></span>`);
+    el._m = m;
+    return el;
+  }
+  function renderCal(){
+    closeCalPop();
+    const m0 = mon();
+    $('.crm-wkt', ecx).textContent = weekLabel();
+    $$('.ecx-day, .ecx-scan', cgrid).forEach(x => x.remove());
+    cgrid.insertAdjacentHTML('beforeend', [0, 1, 2, 3, 4].map(i => { const n = m0 + i, cl = closingOn(n);
+      return `<div class="ecx-day" data-d="${i}"><div class="ecx-dh${n === 0 ? ' t' : ''}">${DAYN[dow(n)]} <b>${dateOf(n).getDate()}</b></div><div class="crm-cls" aria-label="Closing ${fmtDW(n)}">${cl.slice(0, cl.length > 2 ? 1 : 2).map(d => { const c = coOf(d.co);
+        return `<button class="crm-clb" data-co="${c.id}" data-tip="${esc(c.n)}: ${esc(d.n)}, ${money(d.v)}, ${ST[d.st].t}" aria-label="Closing ${fmtDW(n)}: ${esc(c.n)}, ${esc(d.n)}, ${money(d.v)}. Open the account">${I('target', 'xs')}<span>${esc(c.n)}</span></button>`; }).join('')}${cl.length > 2 ? `<button class="crm-clb more" data-pop="#crm-p-cls" data-day="${n}" aria-haspopup="menu" aria-label="${cl.length - 1} more closing ${fmtDW(n)}">+${cl.length - 1}</button>` : ''}</div><div class="ecx-col" data-d="${i}"></div></div>`; }).join('') + '<div class="ecx-scan"></div>');
+    for (let i = 0; i < 5; i++){
+      const n = m0 + i, list = MT.filter(m => m.day === n).concat(SG.filter(s => s.day === n));
+      list.forEach(m => m.vd = m.sug ? Math.max(1, m.dur) : m.dur); lanes(list);
+      const cl = $(`.ecx-col[data-d="${i}"]`, cgrid);
+      list.forEach(m => { const el = evEl(m); cl.appendChild(el); bind(el); });
+      if (n === 0 && isWork(0)){ const t = new Date(), h = t.getHours() + t.getMinutes() / 60; if (h >= H0 && h <= H0 + HN) cl.insertAdjacentHTML('beforeend', `<div class="ecx-now" style="top:calc(var(--dm-ph) * ${(h - H0).toFixed(3)})" data-tip="Now, ${tmA(Math.floor(h * 4) / 4)}"></div>`); }
+    }
+    // a narrow calendar shows one day: the row of days picks it
+    cdays.innerHTML = [0, 1, 2, 3, 4].map(i => { const n = m0 + i, k = MT.filter(m => m.day === n && m.st !== 'held').length + SG.filter(s => s.day === n).length;
+      return `<button aria-pressed="false" data-d="${i}"${n === 0 ? ' class="t"' : ''} aria-label="${DAYL[dow(n)]} ${fmtD(n)}, ${plural(k, 'meeting')}"><span>${DAYN[dow(n)]}</span><b>${dateOf(n).getDate()}</b></button>`; }).join('');
+    if (cday < 0) cday = inWeek(0) && isWork(0) ? -mon() : 0;
+    showDay(cday, false);
+    counts();
+  }
+  function showDay(i, anim = true){
+    const was = cday; cday = i;
+    $$('button', cdays).forEach(b => b.setAttribute('aria-pressed', +b.dataset.d === i));
+    $$('.ecx-day', cgrid).forEach((d, k) => d.classList.toggle('on', k === i));
+    if (anim && was !== i && cdays.getClientRects().length){ closeCalPop(); enter($$('.ecx-day', cgrid)[i]); }
+  }
+  cdays.addEventListener('click', e => { const b = e.target.closest('button'); if (b) showDay(+b.dataset.d); });
+  const goWeek = w => { wk = w; cday = -1; SG = SG.filter(s => inWeek(s.day)); renderCal(); };
+  $$('[data-wk]', ecx).forEach(b => b.onclick = () => goWeek(+b.dataset.wk === 0 ? 0 : wk + +b.dataset.wk));
+  // a meeting found elsewhere (the sheet's next step): its week, its day, and its card open
+  function showMeeting(m){
+    setView('calendar'); wk = Math.floor((m.day - baseMon) / 7); cday = (m.day - baseMon) - wk * 7; renderCal();
+    const el = $(`.ecx-e[data-m="${m.id}"]`, cgrid); if (el){ el.scrollIntoView({ block:'nearest' }); el.focus({ preventScroll:true }); openCalPop(el); }
+  }
+
+  // the meeting's card: the account, the deal and its stage, the people, Prep with agent and Open account
+  const cpop = html('<div class="ecx-pop crm-cpop" role="dialog" aria-label="Meeting"></div>'); ecx.appendChild(cpop);
+  let popFor = null;
+  const closeCalPop = () => { if (!popFor) return; const back = cpop.contains(document.activeElement) && popFor; const m = popFor._m; cpop.classList.remove('open'); popFor = null;
+    if (m && m.fresh){ MT = MT.filter(x => x !== m); renderCal(); return; } if (back && back.isConnected) back.focus({ preventScroll:true }); };
+  const prepNote = m => { const c = coOf(m.co), d = dealOf(m.deal) || c.lead, ch = c.ppl[0], bits = [];
+    if (d) bits.push(d.st === 'won' ? `${d.n} closed won, ${kmoney(d.v)}.` : `${d.n} is in ${ST[d.st].t} at ${d.p}%, ${kmoney(d.v)}, ${slipping(d) ? `and was due ${fmtD(d.close)}, so agree a new date` : `closing ${fmtD(d.close)}`}.`);
+    bits.push(c.last === 0 ? 'Last touch was today.' : `Last touch was ${plural(c.last, 'day')} ago, ${c.lt === 'Email' ? 'an email' : 'a ' + ltName(c)}.`);
+    const more = DE.filter(x => x.co === c.id && x.st !== 'won' && x !== d); if (more.length) bits.push(`Also open: ${more.map(x => x.n.toLowerCase()).join(', ')}.`);
+    bits.push(`Ask ${ch.n.split(' ')[0]} ${ASKQ[d ? d.st : 'disc']}.`);
+    return bits.join(' '); };
+  function openCalPop(el){
+    const m = el._m; if (popFor === el){ closeCalPop(); return; }
+    if (popFor && popFor._m.fresh && popFor._m !== m) closeCalPop();
+    popFor = el; const c = coOf(m.co), d = dealOf(m.deal) || c.lead, col = P[m.own][1];
+    const who = [`<span class="av" style="background:var(--dm-av-${col});color:var(--dm-av-${col}-ink)" aria-hidden="true">${m.own}</span>`, ...c.ppl.slice(0, 2).map(p => `<span class="av crm-cav" aria-hidden="true">${ini(p.n)}</span>`)].join('');
+    cpop.innerHTML = `<div class="ecx-ph"><i style="background:var(--dm-p${col})"></i>${m.fresh ? `<input class="ecx-ti" placeholder="Call" aria-label="Meeting title" value="">` : `<b>${esc(c.n)}</b>`}<button class="ib ecx-px" aria-label="Close" data-tip="Close">${I('x', 'xs')}</button></div>`
+      + (m.fresh ? `<div class="ecx-pt"><button class="dtp-v crm-pacc" data-pop="#crm-p-acc" aria-haspopup="menu" aria-label="Account: ${esc(c.n)}. Change it"><span class="pfm-lg xs" aria-hidden="true">${esc(c.n[0])}</span><span>${esc(c.n)}</span>${I('chev-d', 'xs')}</button></div>` : `<div class="ecx-pt">${esc(m.kind)}${m.st === 'held' ? ', held' : m.day < 0 ? ', overdue' : ''}</div>`)
+      + `<div class="ecx-pt num">${fmtDW(m.day)}, ${tm(m.h)} – ${tm(m.h + m.dur)}</div>`
+      + (d ? `<div class="crm-pdl"><span class="t">${esc(d.n)}</span>${pill(d.st)}<span class="num">${kmoney(d.v)}</span></div>` : '')
+      + `<div class="ecx-pw">${who}<span class="muted">${esc(first(m.own))}, ${c.ppl.slice(0, 2).map(p => esc(p.n.split(' ')[0])).join(', ')}</span></div>`
+      + `<div class="ecx-pa">${m.fresh ? `<button class="pill ghost sm" data-p="discard">Discard</button><button class="pill primary sm" data-p="save">Book</button>` : `<button class="pill line sm" data-p="open">Open account</button>${m.st === 'held' ? '' : `<button class="pill soft sm ecx-ask ecx-prep" data-p="prep">${I('spark', 'xs')}Prep with agent</button>`}`}</div>`;
+    const pr = ecx.getBoundingClientRect(), er = el.getBoundingClientRect(), w = cpop.offsetWidth || 288;
+    let x = er.right - pr.left + 8; if (x + w > pr.width - 8) x = er.left - pr.left - w - 8; x = clamp(x, 8, Math.max(8, pr.width - w - 8));
+    let y = er.top - pr.top; y = Math.max(8, Math.min(y, pr.height - cpop.offsetHeight - 8));
+    cpop.style.left = x + 'px'; cpop.style.top = y + 'px'; cpop.classList.remove('open'); void cpop.offsetWidth; cpop.classList.add('open'); hideTip();
+    const ti = $('.ecx-ti', cpop); if (ti){ ti.focus({ preventScroll:true }); ti.onkeydown = k => { if (k.key === 'Enter'){ k.preventDefault(); saveNew(); } }; }
+  }
+  function saveNew(){
+    const m = popFor && popFor._m; if (!m || !m.fresh) return;
+    const t = ($('.ecx-ti', cpop).value || '').trim(); m.kind = t || 'Call'; m.fresh = false; popFor = null; cpop.classList.remove('open');
+    const c = coOf(m.co); refresh();
+    toast('ok', `${m.kind} booked with ${c.n}`, `${fmtDW(m.day)}, ${tmA(m.h)}, on ${first(m.own)}'s calendar`, { label:'Undo', run:() => { MT = MT.filter(x => x !== m); refresh(); } });
+    const el = $(`.ecx-e[data-m="${m.id}"]`, cgrid); if (el){ enter(el); el.focus({ preventScroll:true }); }
+  }
+  cpop.addEventListener('click', e => {
+    const b = e.target.closest('button'); if (!b) return; const m = popFor && popFor._m; if (!m) return;
+    if (b.classList.contains('ecx-px') || b.dataset.p === 'discard'){ closeCalPop(); return; }
+    if (b.dataset.p === 'save') return saveNew();
+    if (b.dataset.p === 'open'){ const id = m.co; closeCalPop(); openSheet(id, true); return; }
+    if (b.dataset.p === 'prep'){ b.innerHTML = '<span class="think on"><i></i><i></i><i></i><i></i></span>Writing'; b.disabled = true;
+      setTimeout(() => { if (!b.isConnected) return; const nt = html(`<div class="ecx-note">${I('spark', 'xs')}<span>${esc(prepNote(m))}</span></div>`); b.closest('.ecx-pa').before(nt); enter(nt); b.remove(); }, REDUCE ? 0 : 900); }
+    if (b.classList.contains('crm-pacc')) buildAcc(m);
+  });
+  // a new meeting's account: the ones with nothing booked first
+  function buildAcc(m){
+    const p = pop('crm-p-acc'), L = CO.slice().sort((a, b) => (!!a.next - !!b.next) || b.value - a.value);
+    p.innerHTML = `<div class="ph" role="none">Account</div>` + L.map(c => mi(`data-co="${c.id}"`, `<span class="pfm-lg xs" aria-hidden="true">${esc(c.n[0])}</span><span>${esc(c.n)}</span>${c.next ? '' : '<span class="r muted">No next step</span>'}`, 'menuitemradio', m.co === c.id)).join('');
+    $$('.mi', p).forEach(x => x.addEventListener('click', () => { const c = coOf(x.dataset.co), t = $('.ecx-ti', cpop).value; m.co = c.id; m.own = c.own; m.deal = c.lead && c.lead.id; const el = popFor; popFor = null; const nel = evEl(m); el.replaceWith(nel); bind(nel); openCalPop(nel); $('.ecx-ti', cpop).value = t; }));
+  }
+  // drag a meeting to another time or day, snapping to 15 minutes; a click without moving opens its card
+  const colAt = i => $(`.ecx-col[data-d="${i}"]`, cgrid);
+  function bind(el){
+    const m = el._m;
+    el.onclick = k => { if (k.target.closest('.ecx-sg')) return; if (!k.isTrusted || k.detail) return; if (m.sug) return; openCalPop(el); const f = $('.ecx-ti', cpop) || $('button', cpop); if (popFor === el && f) f.focus({ preventScroll:true }); };
+    el.onpointerdown = d => {
+      if (d.button || d.target.closest('.ecx-sg') || m.sug) return;
+      const sx = d.clientX, sy = d.clientY, i0 = (m.day - mon()); let moved = false, ni = i0, nh = m.h;
+      if (m.st === 'held'){ el.onpointerup = () => { el.onpointerup = null; openCalPop(el); }; return; }
+      el.setPointerCapture(d.pointerId);
+      el.onpointermove = mv => { const dx = mv.clientX - sx, dy = mv.clientY - sy; if (!moved && Math.hypot(dx, dy) < 5) return; if (!moved){ moved = true; el.classList.add('drag'); if (popFor !== el || !m.fresh) closeCalPop(); hideTip(); }
+        nh = clamp(m.h + Math.round(dy / PX() * 4) / 4, H0, H0 + HN - m.dur);
+        const under = document.elementsFromPoint(mv.clientX, mv.clientY).find(x => x.classList && x.classList.contains('ecx-col')); if (under) ni = +under.dataset.d;
+        el.style.transform = `translateX(${colAt(ni).getBoundingClientRect().left - colAt(i0).getBoundingClientRect().left}px)`; el.style.top = at(nh); $('span', el).textContent = `${m.kind}, ${tm(nh)}`; };
+      el.onpointerup = el.onpointercancel = () => { el.onpointermove = el.onpointerup = el.onpointercancel = null; if (!moved){ openCalPop(el); return; }
+        el.classList.remove('drag'); el.style.transform = '';
+        const was = [m.day, m.h], day = mon() + ni; if (was[0] === day && was[1] === nh){ renderCal(); return; }
+        m.day = day; m.h = nh;
+        if (m.fresh){ renderCal(); const e2 = $(`.ecx-e[data-m="${m.id}"]`, cgrid); if (e2) openCalPop(e2); return; }
+        const c = coOf(m.co); refresh();
+        swap(cmsg, `Moved ${c.n} to ${DAYN[dow(day)]} ${tm(nh)}`);
+        toast('ok', `${m.kind} with ${c.n} moved`, `${fmtDW(day)}, ${tmA(nh)}${was[0] !== day ? ', was ' + fmtDW(was[0]) : ', was ' + tmA(was[1])}`, { label:'Undo', run:() => { [m.day, m.h] = was; refresh(); } });
+      };
+    };
+  }
+  // click free time to add a meeting: a dashed slot follows the pointer, and a click there opens a new meeting's card
+  const ghost = html('<div class="ecx-ghost">+ New meeting</div>');
+  cgrid.addEventListener('pointermove', e => { const cl = e.target.classList && e.target.classList.contains('ecx-col') ? e.target : null; if (!cl || $('.ecx-e.drag', cgrid) || e.pointerType === 'touch'){ ghost.remove(); return; }
+    const h = H0 + Math.min(HN * 2 - 1, Math.floor((e.clientY - cl.getBoundingClientRect().top) / PX() * 2)) / 2; ghost.style.top = at(h); ghost._h = h; if (ghost.parentElement !== cl) cl.appendChild(ghost); });
+  cgrid.addEventListener('pointerleave', () => ghost.remove());
+  cgrid.addEventListener('click', e => {
+    const cb = e.target.closest('.crm-clb'); if (cb && cb.dataset.co){ openSheet(cb.dataset.co, !e.detail); return; }
+    if (cb && cb.dataset.day){ buildCls(+cb.dataset.day); return; }
+    const sg = e.target.closest('[data-sg]'); if (sg){ const m = sg.closest('.ecx-e')._m; sg.dataset.sg === 'book' ? bookSg(m) : skipSg(m); return; }
+    const cl = e.target.classList && e.target.classList.contains('ecx-col') ? e.target : null; if (!cl) return;
+    const h = ghost.parentElement === cl ? ghost._h : H0 + Math.min(HN * 2 - 1, Math.floor((e.clientY - cl.getBoundingClientRect().top) / PX() * 2)) / 2; ghost.remove();
+    if (h + .5 > H0 + HN) return;
+    if (popFor) closeCalPop();
+    const c = CO.slice().sort((a, b) => (!!a.next - !!b.next) || b.value - a.value)[0];
+    const m = meet({ co:c.id, deal:c.lead && c.lead.id, kind:'Call', day:mon() + +cl.dataset.d, h, dur:.5, own:c.own, fresh:true });
+    renderCal(); const el = $(`.ecx-e[data-m="${m.id}"]`, cgrid); if (el){ enter(el); openCalPop(el); }
+  });
+  function buildCls(n){
+    const p = pop('crm-p-cls');
+    p.innerHTML = `<div class="ph" role="none">Closing ${fmtDW(n)}</div>` + closingOn(n).map(d => mi(`data-co="${d.co}"`, `<span>${esc(coOf(d.co).n)}</span><span class="r num">${kmoney(d.v)}</span>`, 'menuitem')).join('');
+    $$('.mi', p).forEach(x => x.addEventListener('click', () => setTimeout(() => openSheet(x.dataset.co, true), 130)));
+  }
+  // anything outside the open card closes it; its account menu and a toast's Undo don't count
+  document.addEventListener('pointerdown', e => { if (popFor && !cpop.contains(e.target) && !popFor.contains(e.target) && !e.target.closest('.crm-pop,.tst-t')) closeCalPop(); });
+
+  // Plan follow-ups: a slot this week for every account quiet for more than two weeks with nothing ahead, drawn dashed with
+  // Book and Skip
+  function planFollowUps(){
+    closeCalPop();
+    const soon = workAfter(0, isWork(0) ? 0 : 1), w0 = wk;
+    if (weekOf()[1] < soon) wk = 0;
+    const days = [0, 1, 2, 3, 4].map(i => mon() + i).filter(n => n >= Math.max(1, soon));
+    if (!days.length){ wk++; cday = -1; return planFollowUps(); }
+    if (wk !== w0) cday = -1;
+    const T = CO.filter(c => c.last > 14 && (!c.next || c.next.day < 0)).sort((a, b) => b.last - a.last);
+    SG = [];
+    T.forEach((c, i) => { const late = c.next && c.next.day < 0 ? c.next : null, dur = late ? late.dur : .5;
+      for (let k = 0; k < days.length; k++){ const day = days[(i + k) % days.length], h = freeAt(c.own, day, 9 + (i % 4), dur, SG);
+        if (h != null){ SG.push({ id:'s' + c.id, co:c.id, deal:c.lead && c.lead.id, own:c.own, day, h, dur, vd:Math.max(1, dur), kind:late ? late.kind : 'Follow-up call', sug:true }); break; } } });
+    plan.disabled = true; $('span', plan).innerHTML = '';
+    plan.insertAdjacentHTML('afterbegin', '<span class="think on"><i></i><i></i><i></i><i></i></span>'); $('.i', plan).style.display = 'none'; $('span:last-child', plan).textContent = `Checking ${plural(new Set(T.map(c => c.own)).size, 'calendar')}`;
+    const done = () => { $('.think', plan)?.remove(); $('.i', plan).style.display = ''; $('span', plan).textContent = 'Plan follow-ups'; plan.disabled = false;
+      renderCal(); swap(cmsg, SG.length ? `${plural(SG.length, 'slot')} for accounts quiet 14+ days` : 'Every quiet account has a step booked');
+      const f = SG[0]; if (f) showDay(f.day - mon()); const b = $('.ecx-e.sug [data-sg="book"]', cgrid); if (b && document.activeElement === plan) b.focus({ preventScroll:true }); };
+    if (REDUCE) return done();
+    renderCal(); const sc = $('.ecx-scan', cgrid); sc.classList.remove('go'); void sc.offsetWidth; sc.classList.add('go');
+    setTimeout(done, 1200);
+  }
+  plan.onclick = planFollowUps;
+  // booking a slot for an account whose step is overdue moves that step there; otherwise it books a follow-up call
+  function bookSg(s){
+    const c = coOf(s.co); SG = SG.filter(x => x !== s);
+    const late = c.next && c.next.day < 0 ? c.next : null, was = late && [late.day, late.h, late.dur];
+    const m = late || meet({ co:s.co, deal:s.deal, kind:s.kind, day:s.day, h:s.h, dur:s.dur, own:s.own, by:'agent' });
+    if (late){ m.day = s.day; m.h = s.h; }
+    refresh(); swap(cmsg, SG.length ? `Booked ${c.n}. ${plural(SG.length, 'slot')} left` : `Booked ${c.n}. All slots handled`);
+    toast('ok', late ? `${m.kind} with ${c.n} moved` : `Follow-up call booked with ${c.n}`, `${fmtDW(m.day)}, ${tmA(m.h)}, on ${first(m.own)}'s calendar${late ? ', was due ' + fmtD(was[0]) : ''}`, { label:'Undo', run:() => { if (late) [m.day, m.h] = was; else MT = MT.filter(x => x !== m); SG.push(s); refresh(); } });
+    const el = $(`.ecx-e[data-m="${m.id}"]`, cgrid); if (el) enter(el);
+    const nb = $('.ecx-e.sug [data-sg="book"]', cgrid); if (nb && ecx.contains(document.activeElement) === false) return; if (nb) nb.focus({ preventScroll:true });
+  }
+  function skipSg(s){ SG = SG.filter(x => x !== s); renderCal(); swap(cmsg, SG.length ? `Skipped ${coOf(s.co).n}. ${plural(SG.length, 'slot')} left` : 'All slots handled'); const nb = $('.ecx-e.sug [data-sg="book"]', cgrid); if (nb) nb.focus({ preventScroll:true }); }
+
+  /* ---------- Pipeline: the Kanban board ---------- */
   const kb = $('.crm-kb', app), cols = $('.kbx-cols', kb), live = $('.kbx-sr', kb), kq = $('.kbx-hd .kbx-q input', kb), kqx = $('.kbx-hd .kbx-qx', kb);
   const say = t => { live.textContent = ''; setTimeout(() => live.textContent = t, 40); };
-  const CLOSES = [['any', 'Any time'], ['month', 'This month'], ['quarter', 'This quarter'], ['overdue', 'Overdue']];
-  const eom = Math.round((new Date(today.getFullYear(), today.getMonth() + 1, 0) - today) / 864e5), eoq = Math.round((new Date(today.getFullYear(), Math.floor(today.getMonth() / 3) * 3 + 3, 0) - today) / 864e5);
-  const slipping = d => d.st !== 'won' && d.close < 0;
+  const CLOSES = [['any', 'Any time'], ['month', 'This month'], ['quarter', 'This quarter'], ['overdue', 'Date passed']];
   const dshows = d => (!K.own.size || K.own.has(d.own)) && (!K.q || (d.n + ' ' + coOf(d.co).n + ' ' + d.id).toLowerCase().includes(K.q.toLowerCase()))
     && (K.close === 'any' || (K.close === 'overdue' ? slipping(d) : d.st !== 'won' && d.close >= 0 && d.close <= (K.close === 'month' ? eom : eoq)));
   $('.kbx-fp', kb).innerHTML = OWN.map(o => `<button aria-pressed="false" data-who="${o}" aria-label="${P[o][0]}" data-tip="${P[o][0]}">${av(o)}</button>`).join('');
@@ -415,7 +890,7 @@
   seg($('.kbx-vw', kb), v => { K.view = v; kb.classList.toggle('list', v === 'list'); renderBoard(); });
   cols.innerHTML = STAGES.map(s => `<div class="kbx-c" data-col="${s.k}"><div class="kbx-ch"><b>${s.t}</b><span class="n num"></span><span class="s num"></span><button class="ib crm-hide" aria-label="Hide ${s.t}" data-tip="Hide column">${I('minus', 'xs')}</button></div><div class="kbx-list" role="list" aria-label="${s.t}"></div></div>`).join('');
   const card = d => { const c = coOf(d.co), late = slipping(d);
-    return `<div class="kbx-k${d.st === 'won' ? ' won' : ''}${sheetFor === d.co ? ' open' : ''}" data-id="${d.id}" role="listitem" tabindex="-1" aria-label="${esc(d.n)}, ${esc(c.n)}, ${money(d.v)}, ${ST[d.st].t}">`
+    return `<div class="kbx-k${d.st === 'won' ? ' won' : ''}${sheetFor === d.co ? ' open' : ''}" data-id="${d.id}" role="listitem" tabindex="-1" aria-label="${esc(d.n)}, ${esc(c.n)}, ${money(d.v)}, ${ST[d.st].t}${late ? ', past its close date' : ''}">`
       + `<div class="kbx-k1"><span class="kbx-id num">${d.id}</span><span class="kbx-sp"></span><span class="kbx-who" data-tip="${P[d.own][0]}">${av(d.own)}</span><button class="kbx-mv" data-pop="#crm-p-mv" data-pop-align="end" aria-haspopup="menu" aria-label="Move ${esc(d.n)}" data-tip="Move to" tabindex="-1">${I('more', 'xs')}</button></div>`
       + `<div class="t">${esc(d.n)}</div>`
       + `<div class="kbx-m"><span class="kbx-mt co"><span class="pfm-lg xs" aria-hidden="true">${esc(c.n[0])}</span>${esc(c.n)}</span><span class="kbx-mt v num">${money(d.v)}</span>`
@@ -423,7 +898,7 @@
   let kFocus = null;
   function renderBoard(){
     const open = DE.filter(d => d.st !== 'won');
-    $('.crm-kbsum', kb).textContent = `${open.length} open deals, ${kmoney(sum(open, d => d.v))}`;
+    $('.crm-kbsum', kb).textContent = `${open.length} open, ${kmoney(sum(open, d => d.v))}`;
     const filtering = K.own.size || K.q || K.close !== 'any';
     let shown = 0;
     STAGES.forEach(s => {
@@ -439,7 +914,7 @@
     const hid = STAGES.filter(s => K.shut.has(s.k)), dock = $('.crm-dock', kb), had = new Set($$('.crm-dk', dock).map(b => b.dataset.col));
     dock.hidden = !hid.length;
     $('.crm-dks', dock).innerHTML = hid.map(s => { const [n, v] = $(`.kbx-c[data-col="${s.k}"]`, cols)._sum;
-      return `<button class="chip sm crm-dk" data-col="${s.k}" aria-label="Show ${s.t}, ${n} ${n === 1 ? 'deal' : 'deals'}, ${v}" data-tip="Show column, or drop a deal here"><span class="v">${s.t}</span><span class="k num">${n} · ${v}</span>${I('plus', 'xs')}</button>`; }).join('');
+      return `<button class="chip sm crm-dk" data-col="${s.k}" aria-label="Show ${s.t}, ${plural(n, 'deal')}, ${v}" data-tip="Show column, or drop a deal here"><span class="v">${s.t}</span><span class="k num">${n} · ${v}</span>${I('plus', 'xs')}</button>`; }).join('');
     $$('.crm-dk', dock).forEach(b => { if (!had.has(b.dataset.col)) enter(b); });
     $('.kbx-em', kb).hidden = shown > 0 || !filtering;
     $('.kbx-cnt', kb).textContent = filtering ? `${shown} of ${DE.length} deals` : `${DE.length} deals`;
@@ -459,7 +934,7 @@
   $('.kbx-clr', kb).onclick = clearBoard; $('.crm-kbclr', kb).onclick = clearBoard;
   onOpen('[data-f="close"]', () => {
     const p = pop('crm-p-close');
-    p.innerHTML = `<div class="ph" role="none">Close date</div>` + CLOSES.map(([k, t]) => mi(`data-k="${k}"`, `<span>${t}</span><span class="r num">${k === 'any' ? DE.length : DE.filter(d => { const s = K.close; K.close = k; const r = dshows(d); K.close = s; return r; }).length}</span>`, 'menuitemradio', K.close === k)).join('');
+    p.innerHTML = `<div class="ph" role="none">Closes</div>` + CLOSES.map(([k, t]) => mi(`data-k="${k}"`, `<span>${t}</span><span class="r num">${k === 'any' ? DE.length : DE.filter(d => { const s = K.close; K.close = k; const r = dshows(d); K.close = s; return r; }).length}</span>`, 'menuitemradio', K.close === k)).join('');
     $$('.mi', p).forEach(m => m.addEventListener('click', () => { K.close = m.dataset.k; renderBoard(); }));
   });
   cols.addEventListener('click', e => {
@@ -478,7 +953,7 @@
     const ks = $$('.kbx-k', cols).filter(k => k.offsetParent), i = ks.indexOf(el);
     const go = n => { if (!n) return; e.preventDefault(); ks.forEach(k => k.tabIndex = -1); n.tabIndex = 0; kFocus = n.dataset.id; n.focus(); };
     if (e.key === 'ArrowDown') go(ks[i + 1]); else if (e.key === 'ArrowUp') go(ks[i - 1]);
-    else if (e.key === 'ArrowRight' || e.key === 'ArrowLeft'){ const c = el.closest('.kbx-c'), cs = $$('.kbx-c', cols), n = cs[cs.indexOf(c) + (e.key === 'ArrowRight' ? 1 : -1)]; if (n) go($('.kbx-k', n)); }
+    else if (e.key === 'ArrowRight' || e.key === 'ArrowLeft'){ const c = el.closest('.kbx-c'), cs = $$('.kbx-c', cols).filter(x => x.offsetParent), n = cs[cs.indexOf(c) + (e.key === 'ArrowRight' ? 1 : -1)]; if (n) go($('.kbx-k', n)); }
     else if (e.key === 'Enter'){ e.preventDefault(); openSheet(dealOf(el.dataset.id).co, true); }
     else if (e.key === 'm' || e.key === 'M'){ e.preventDefault(); $('.kbx-mv', el).click(); }
   });
@@ -494,20 +969,20 @@
     const el = e.target.closest('.kbx-k'); if (!el || e.button !== 0 || e.target.closest('button') || kb.classList.contains('list')) return;
     if (e.pointerType === 'touch' && getComputedStyle(el).touchAction !== 'none') return;
     const d = dealOf(el.dataset.id), rc = el.getBoundingClientRect(), ox = e.clientX - rc.left, oy = e.clientY - rc.top, bd = $('.kbx-bd', kb);
-    let ghost = null, over = null, moved = false, raf = 0, lx = e.clientX;
-    const at = (x, y) => { const t = document.elementFromPoint(x, y); return t && t.closest('.crm-kb .kbx-c, .crm-kb .crm-dk'); };
+    let gh = null, over = null, moved = false, raf = 0, lx = e.clientX;
+    const at2 = (x, y) => { const t = document.elementFromPoint(x, y); return t && t.closest('.crm-kb .kbx-c, .crm-kb .crm-dk'); };
     const move = ev => {
       if (!moved && Math.hypot(ev.clientX - e.clientX, ev.clientY - e.clientY) < 5) return;
-      if (!moved){ moved = true; ghost = el.cloneNode(true); ghost.classList.add('ghost'); ghost.classList.remove('open'); ghost.removeAttribute('tabindex'); ghost.style.width = rc.width + 'px'; app.appendChild(ghost); el.classList.add('drag'); closeSheet(); }
-      ghost.style.left = ev.clientX - ox + 'px'; ghost.style.top = ev.clientY - oy + 'px'; lx = ev.clientX;
-      const c = at(ev.clientX, ev.clientY); if (c !== over){ if (over) over.classList.remove('over'); over = c; if (over && over.dataset.col !== d.st) over.classList.add('over'); }
+      if (!moved){ moved = true; gh = el.cloneNode(true); gh.classList.add('ghost'); gh.classList.remove('open'); gh.removeAttribute('tabindex'); gh.style.width = rc.width + 'px'; app.appendChild(gh); el.classList.add('drag'); closeSheet(); }
+      gh.style.left = ev.clientX - ox + 'px'; gh.style.top = ev.clientY - oy + 'px'; lx = ev.clientX;
+      const c = at2(ev.clientX, ev.clientY); if (c !== over){ if (over) over.classList.remove('over'); over = c; if (over && over.dataset.col !== d.st) over.classList.add('over'); }
       // near the board's edges it scrolls sideways
-      if (!raf){ const tickS = () => { const b = bd.getBoundingClientRect(), dx = lx < b.left + 48 ? -12 : lx > b.right - 48 ? 12 : 0; if (dx && ghost){ bd.scrollLeft += dx; raf = requestAnimationFrame(tickS); } else raf = 0; }; raf = requestAnimationFrame(tickS); }
+      if (!raf){ const tickS = () => { const b = bd.getBoundingClientRect(), dx = lx < b.left + 48 ? -12 : lx > b.right - 48 ? 12 : 0; if (dx && gh){ bd.scrollLeft += dx; raf = requestAnimationFrame(tickS); } else raf = 0; }; raf = requestAnimationFrame(tickS); }
     };
     const up = () => {
       removeEventListener('pointermove', move); removeEventListener('pointerup', up); removeEventListener('pointercancel', up); cancelAnimationFrame(raf); raf = 0;
       if (!moved) return;
-      ghost.remove(); el.classList.remove('drag'); if (over) over.classList.remove('over');
+      gh.remove(); el.classList.remove('drag'); if (over) over.classList.remove('over');
       dragged = true; setTimeout(() => dragged = false, 0);
       if (over && over.dataset.col !== d.st) moveDeal(d, over.dataset.col);
     };
@@ -559,7 +1034,7 @@
       $('.lnx-tt span', ch).textContent = mine ? (lineOn[1] ? `${a >= q ? '+' : '−'}${kmoney(Math.abs(a - q))} on Q3 at this point` : 'This quarter') : a == null ? 'This quarter is not there yet' : 'Last quarter';
       lv.textContent = mine ? kmoney(a) : latest(); };
     ch.onpointerleave = () => lv.textContent = latest();
-    // radial goals: each team's closed won and commit against its quota
+    // radial goals: each team's closed won against its quota
     const RAD = [78, 60, 42], CS = ['var(--dm-c1)', 'var(--dm-c3)', 'var(--dm-c4)'];
     const share = t => wonOf(t.who) / t.quota;
     const rsvg = $('.rgx-ring svg', fc);
@@ -579,7 +1054,7 @@
       return `<div class="fnx-r${i === worst ? ' drop' : ''}" style="--dm-fc:color-mix(in oklab,var(--dm-c1) ${100 - i * 25}%,var(--dm-c2))"><span class="k">${s.k === 'won' ? 'Won' : s.t}</span><div class="tr" data-tip="${i ? Math.round(reach[i] / reach[0] * 100) + '% of all deals' : 'Every deal starts here'}"><div class="bar" style="width:${w}%"></div><span class="n num${w < 24 ? ' out' : ''}" style="left:${w < 24 ? `calc(${w}% + 8px)` : '10px'}">${reach[i]}</span></div><span class="v num">${i ? '−' + Math.round((1 - reach[i] / (reach[i - 1] || 1)) * 100) + '%' : '100%'}</span></div>`; }).join('');
     $('.fnx-t', fc).textContent = `The biggest drop is from ${STAGES[worst - 1].t.toLowerCase()} to ${STAGES[worst].t.toLowerCase()}: ${Math.round((1 - reach[worst] / reach[worst - 1]) * 100)}% of deals stop there.`;
     // Activity heatmap: the team's calls, meetings and emails by weekday over the last 12 weeks, the same touches as the
-    // companies' Activity column (each week's total spread over its days), or the follow-ups the agent drafted
+    // accounts' activity, or the follow-ups the agent drafted
     renderHeat();
     // quota by owner: Progress's meter, with a notch at the quota
     $('.crm-owl', fc).innerHTML = OWN.map(o => ({ o, w:wonOf([o]), m:commitOf([o]) })).sort((a, b) => b.w / QUOTA[b.o] - a.w / QUOTA[a.o]).map(({ o, w, m }) => { const p = w / QUOTA[o], pm = Math.max(0, Math.min(1 - Math.min(1, p), m / QUOTA[o]));
@@ -590,9 +1065,9 @@
   hmg.innerHTML = Array.from({ length:60 }, () => '<i style="--dm-a:0"></i>').join('');
   $('.hmx-f', hm).innerHTML = [11, 8, 5, 2].map(w => `<span>${fmtD(-((today.getDay() + 6) % 7) - w * 7)}</span>`).join('');
   function renderHeat(){
-    // a week's touches: every company's Activity for that week; the agent's drafts follow the accounts that went quiet
-    const wk = w => hmWho === 'team' ? sum(CO, c => c.trend[w]) : sum(CO, c => c.trend[w] === 0 ? 2 : c.trend[w] < 3 ? 1 : 0) + 3;
-    const V = []; for (let d = 0; d < 5; d++) for (let w = 0; w < 12; w++) V.push(Math.round(wk(w) * DAYW[d] * (1 + Math.sin(d * 5.3 + w * 2.1) * .18)));
+    // a week's touches: every account's activity for that week; the agent's drafts follow the accounts that went quiet
+    const wkv = w => hmWho === 'team' ? sum(CO, c => c.trend[w]) : sum(CO, c => c.trend[w] === 0 ? 2 : c.trend[w] < 3 ? 1 : 0) + 3;
+    const V = []; for (let d = 0; d < 5; d++) for (let w = 0; w < 12; w++) V.push(Math.round(wkv(w) * DAYW[d] * (1 + Math.sin(d * 5.3 + w * 2.1) * .18)));
     const mx = Math.max(...V), cells = $$('i', hmg), tot = sum(V);
     cells.forEach((el, i) => { const d = Math.floor(i / 12), w = i % 12, v = V[i], monday = -((today.getDay() + 6) % 7) - (11 - w) * 7;
       const set = () => el.style.setProperty('--dm-a', (v / mx * .9).toFixed(2));
@@ -605,52 +1080,58 @@
   seg($('.hmx-sg', hm), v => { hmWho = v; renderHeat(); });
   $$('.lnx-k', fc).forEach(k => k.onclick = () => { const s = +k.dataset.s; if (lineOn[s] && !lineOn[1 - s]) return; lineOn[s] = !lineOn[s]; k.classList.toggle('on', lineOn[s]); k.setAttribute('aria-pressed', lineOn[s]); renderForecast(); });
 
-  /* ---------- tabs: Segmented control ---------- */
-  const tabs = $$('.crm-seg [role="tab"]', app), knob = $('.crm-seg .sgc-k', app);
-  const place = () => { const b = tabs.find(t => t.getAttribute('aria-selected') === 'true'); knob.style.left = b.offsetLeft + 'px'; knob.style.width = b.offsetWidth + 'px'; };
-  new ResizeObserver(place).observe($('.crm-seg', app));
-  const TITLES = { companies:'Companies', deals:'Deals', forecast:'Forecast' };
-  function setTab(k, focus = false){
-    tab = k; app.dataset.tab = k;
-    tabs.forEach(t => { const on = t.dataset.v === k; t.setAttribute('aria-selected', on); t.tabIndex = on ? 0 : -1; if (on && focus) t.focus(); });
-    ['companies', 'deals', 'forecast'].forEach(v => $('#crm-v-' + v, app).hidden = v !== k);
-    swap($('.crm-h1t', app), TITLES[k]);
-    $$('.crm-nav [data-go]', app).forEach(b => { if (b.dataset.rep) return; b.toggleAttribute('aria-current', false); if (b.dataset.go === k) b.setAttribute('aria-current', 'true'); });
-    place(); if (k === 'forecast') { closeSheet(); renderForecast(); } if (k === 'deals') renderBoard();
+  /* ---------- views: the sidebar switches them, the header names the one on show with a live summary ---------- */
+  const VIEWS = { accounts:'Accounts', inbox:'Agent inbox', calendar:'Calendar', pipeline:'Pipeline', forecast:'Forecast' };
+  function setView(k){
+    const was = view; view = k; app.dataset.view = k;
+    Object.keys(VIEWS).forEach(v => $('#crm-v-' + v, app).hidden = v !== k);
+    swap($('.crm-h1t', app), VIEWS[k]);
+    if (k !== 'calendar') closeCalPop();
+    if (k === 'forecast'){ closeSheet(); renderForecast(); }
+    if (k === 'pipeline') renderBoard();
+    if (k === 'inbox') renderInbox();
+    if (k === 'calendar' && was !== 'calendar') renderCal();
     counts(); drawer(false);
   }
-  tabs.forEach(t => t.addEventListener('click', () => setTab(t.dataset.v)));
-  $('.crm-seg', app).addEventListener('keydown', e => { const i = tabs.findIndex(t => t.getAttribute('aria-selected') === 'true'), d = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0; if (!d) return; e.preventDefault(); setTab(tabs[(i + d + tabs.length) % tabs.length].dataset.v, true); });
-
-  /* ---------- the sidebar ---------- */
-  $('.crm-teams', app).innerHTML = TEAMS.map(t => `<button class="ahx-cv" data-team="${t.k}" aria-pressed="false">${I('users')}<span class="t">${t.t}</span><span class="n num">${t.who.length}</span></button>`).join('');
-  $('.crm-pipes', app).innerHTML = Object.entries(REG).map(([k, r]) => `<button class="ahx-cv" data-reg="${k}" aria-pressed="false"><span class="dot" style="color:${r.c}"></span><span class="t">${r.t}</span><span class="n num" data-count="reg-${k}"></span></button>`).join('');
+  function navCurrent(){
+    const sv = view === 'accounts' ? savedOn() : null;
+    $$('.crm-side [data-go]', app).forEach(b => { const on = b.dataset.go === view && !sv; on ? b.setAttribute('aria-current', 'page') : b.removeAttribute('aria-current'); });
+    $$('.crm-side [data-saved]', app).forEach(b => { const on = b.dataset.saved === sv; on ? b.setAttribute('aria-current', 'page') : b.removeAttribute('aria-current'); });
+  }
   function counts(){
     const set = (k, v) => $$(`[data-count="${k}"]`, app).forEach(x => x.textContent = v);
-    set('companies', CO.length); set('deals', DE.filter(d => d.st !== 'won').length); set('slip', DE.filter(slipping).length);
-    Object.keys(REG).forEach(k => set('reg-' + k, CO.filter(c => c.reg === k).length));
-    const open = DE.filter(d => d.st !== 'won');
-    $('.crm-ctx', app).textContent = tab === 'companies' ? `${CO.length} companies, ${kmoney(sum(CO, c => c.value))} open` : tab === 'deals' ? `${open.length} open, ${kmoney(sum(open, d => d.v * d.p / 100))} weighted` : `Q4 ${today.getFullYear()}, week ${clamp(Math.ceil((today - new Date(today.getFullYear(), Math.floor(today.getMonth() / 3) * 3, 1)) / 6048e5), 1, 13)} of 13`;
+    const open = DE.filter(d => d.st !== 'won'), pipe = sum(open, d => d.v), slip = open.filter(slipping).length, w = waiting();
+    set('accounts', CO.length); set('deals', open.length); set('meetings', meetingsIn(0).length);
+    set('inbox', w.length || ''); $('.crm-wait', app).hidden = !w.length;
+    Object.keys(SAVED).forEach(k => set(k, savedCount(k)));
+    $('[data-go="inbox"]', app).setAttribute('aria-label', `Agent inbox, ${w.length} waiting`);
+    const cnt = k => w.filter(x => x.kind === k).length;
+    // each summary in full, and a shorter one for a phone's header
+    const S = {
+      accounts:[`${plural(CO.length, 'account')} · ${kmoney(pipe)} open · ${slip} slipping`, `${plural(CO.length, 'account')} · ${kmoney(pipe)} · ${slip} slipping`],
+      inbox:w.length ? [[`${w.length} waiting`, cnt('follow') && plural(cnt('follow'), 'follow-up'), cnt('slip') && `${cnt('slip')} past close`, cnt('fix') && plural(cnt('fix'), 'data fix', 'data fixes')].filter(Boolean).join(' · '), `${w.length} waiting for you`] : ['Nothing waiting', 'Nothing waiting'],
+      calendar:[`${weekLabel().replace(/, \d{4}$/, '')} · ${plural(meetingsIn().length, 'meeting')} · ${closingIn()} closing`, `${plural(meetingsIn().length, 'meeting')} · ${closingIn()} closing`],
+      pipeline:[`${plural(open.length, 'open deal')} · ${kmoney(pipe)} open · ${kmoney(sum(open, d => d.v * d.p / 100))} weighted`, `${plural(open.length, 'open deal')} · ${kmoney(pipe)}`],
+      forecast:[`Q${Math.floor(today.getMonth() / 3) + 1} ${today.getFullYear()} · week ${clamp(WK + 1, 1, 13)} of 13 · ${kmoney(wonOf(OWN))} closed won`, `Week ${clamp(WK + 1, 1, 13)} of 13 · ${kmoney(wonOf(OWN))} won`],
+    };
+    swap($('.crm-sum', app), `<span class="lg">${S[view][0]}</span><span class="sh">${S[view][1]}</span>`, true);
+    navCurrent();
   }
+  const closingIn = () => { const [a, b] = weekOf(); return DE.filter(d => d.st !== 'won' && d.close >= a && d.close <= b).length; };
   app.addEventListener('click', e => {
     const b = e.target.closest('.crm-side button'); if (!b) return;
-    if (b.dataset.team){ const t = TEAMS.find(x => x.k === b.dataset.team), on = b.getAttribute('aria-pressed') === 'true'; F.own = new Set(on ? [] : t.who); setTab('companies'); renderTable(); }
-    else if (b.dataset.reg){ F.reg = F.reg === b.dataset.reg ? null : b.dataset.reg; setTab('companies'); renderTable(); }
-    else if (b.dataset.rep === 'slip'){ K.close = 'overdue'; K.own.clear(); setTab('deals'); }
-    else if (b.dataset.go) setTab(b.dataset.go);
-    else if (b.dataset.act === 'invite'){ (navigator.clipboard ? navigator.clipboard.writeText(location.href) : Promise.reject()).catch(() => {}); toast('ok', 'Invite link copied', 'Anyone with it can join Larkfield Sales'); }
-    else if (b.dataset.act === 'billing') toast('info', 'Billing is not part of the template', 'Your trial has 14 days left');
-    else if (b.dataset.act === 'help') help();
-    if (b.closest('.crm-nav,.crm-sfoot')) drawer(false);
+    if (b.dataset.go){ if (b.dataset.go === 'accounts' && savedOn()){ F.A = []; said(''); renderTable(); } setView(b.dataset.go); }
+    else if (b.dataset.saved){ F.A = SAVED[b.dataset.saved][1].map(x => ({ ...x })); F.q = ''; ask.value = ''; askx.hidden = true; said(''); setView('accounts'); renderTable(); stagger($$('tr[data-id]', tbody).slice(0, 10), 22); }
+    if (b.closest('.crm-nav')) drawer(false);
   });
-  const help = () => toast('info', 'Keyboard shortcuts', '⌘K or Ctrl K search, / filters the table, arrows move through rows and cards, Enter opens, Space picks a row, M moves a card, Esc closes');
+  const help = () => toast('info', 'Keyboard shortcuts', '⌘K or Ctrl K jumps, / searches or asks, arrows move through rows and cards, Enter opens, Space picks a row, A takes the agent’s suggestion, M moves a card, Esc closes');
   onOpen('.crm-wsb', () => {
     const p = pop('crm-p-ws'), cur = $('.crm-wst .t', app).textContent;
-    p.innerHTML = `<div class="ph" role="none">Workspaces</div>` + [['L', 'Larkfield Sales', '8 members', 'pb'], ['P', 'Larkfield Partners', '3 members', 'pl']].map(w => mi(`data-n="${w[1]}"`, `<span class="pfm-lg" data-t="${w[3]}">${w[0]}</span><span>${w[1]}<span class="d">${w[2]}</span></span>`, 'menuitemradio', w[1] === cur)).join('');
-    $$('.mi', p).forEach(m => m.addEventListener('click', () => { if (m.dataset.n === cur) return; $('.crm-wst .t', app).textContent = m.dataset.n; $('.crm-wsb .pfm-lg', app).textContent = m.dataset.n[0] === 'L' && m.dataset.n.includes('Partners') ? 'P' : 'L'; $('.crm-wsb .pfm-lg', app).dataset.t = m.dataset.n.includes('Partners') ? 'pl' : 'pb'; toast('info', `Switched to ${m.dataset.n}`, 'The template shows the same pipeline in both'); }));
+    p.innerHTML = `<div class="ph" role="none">Workspaces</div>` + [['L', 'Larkfield Sales', '8 people', 'pb'], ['P', 'Larkfield Partners', '3 people', 'pl']].map(w => mi(`data-n="${w[1]}"`, `<span class="pfm-lg" data-t="${w[3]}">${w[0]}</span><span>${w[1]}<span class="d">${w[2]}</span></span>`, 'menuitemradio', w[1] === cur)).join('');
+    $$('.mi', p).forEach(m => m.addEventListener('click', () => { if (m.dataset.n === cur) return; const pt = m.dataset.n.includes('Partners'); $('.crm-wst .t', app).textContent = m.dataset.n; $('.crm-wst .s', app).textContent = pt ? '3 people' : '8 people'; $('.crm-wsb .pfm-lg', app).textContent = pt ? 'P' : 'L'; $('.crm-wsb .pfm-lg', app).dataset.t = pt ? 'pl' : 'pb'; toast('info', `Switched to ${m.dataset.n}`, 'The template shows the same accounts in both'); }));
   });
-  // the drawer, on tablets and phones
-  const drawer = on => { app.classList.toggle('dr', on); if (on) setTimeout(() => $('.crm-side .ahx-cv[aria-current="true"]', app)?.focus(), 80); };
+  // the sidebar is a drawer on tablets and phones, opened from the header
+  const drawer = on => { app.classList.toggle('dr', on); if (on) setTimeout(() => $('.crm-side .ahx-cv[aria-current]', app)?.focus(), 80); };
   $('.crm-menu', app).onclick = () => drawer(true);
   $('.crm-scrim', app).onclick = () => drawer(false);
   $('.crm-shade', app).onclick = () => closeSheet();
@@ -670,7 +1151,7 @@
     nct.textContent = n; nct.classList.toggle('z', !n); bell.classList.toggle('read', !n);
     bell.setAttribute('aria-label', n ? `Notifications, ${n} unread` : 'Notifications');
   }
-  nlist.addEventListener('click', e => { const b = e.target.closest('.ntx-n'); if (!b) return; const x = NT.find(n => n.co === b.dataset.co); x.read = true; paintN(); const c = CO.find(c => c.n === x.co); setTimeout(() => { if (c){ if (tab === 'forecast') setTab('companies'); openSheet(c.id, true); } }, 140); b.setAttribute('data-close', ''); });
+  nlist.addEventListener('click', e => { const b = e.target.closest('.ntx-n'); if (!b) return; const x = NT.find(n => n.co === b.dataset.co); x.read = true; paintN(); const c = CO.find(y => y.n === x.co); setTimeout(() => { if (c){ if (view === 'forecast') setView('accounts'); openSheet(c.id, true); } }, 140); b.setAttribute('data-close', ''); });
   $('.ntx-all', ntf).onclick = () => { NT.forEach(x => x.read = true); paintN(); };
   seg($('.ntx-tabs .seg2', ntf), v => { nf = v; paintN(); });
   paintN();
@@ -683,42 +1164,43 @@
   $('#crm-p-me [data-act="help"]', app).addEventListener('click', help);
   $('#crm-p-me [data-act="signout"]', app).addEventListener('click', () => toast('info', 'Still signed in', 'This is a template, so there is no account to leave'));
 
-  /* ---------- search: Command palette ---------- */
+  /* ---------- jump to: Command palette ---------- */
   const over = $('.crm-cmd', app), q = $('.cpl-q', over), list = $('.cpl-list', over), st = $('.cpl-st', over);
   list.id = 'crm-cpl'; q.setAttribute('role', 'combobox'); q.setAttribute('aria-expanded', 'true'); q.setAttribute('aria-controls', list.id); q.setAttribute('aria-autocomplete', 'list');
   let items = [], hi = 0, back = null;
   const ACTIONS = () => [
-    ['Go to', I('table', 'xs'), 'Companies', 'Table', () => setTab('companies')], ['Go to', I('grid', 'xs'), 'Deals board', 'Board', () => setTab('deals')], ['Go to', I('chart', 'xs'), 'Forecast', 'Charts', () => setTab('forecast')],
-    ['Actions', I('plus', 'xs'), 'New company', '', () => newCompany()], ['Actions', I('down', 'xs'), 'Export companies in view', 'CSV', () => exportCsv(view)],
+    ['Go to', I('table', 'xs'), 'Accounts', 'Table', () => { F.A = []; renderTable(); setView('accounts'); }], ['Go to', I('spark', 'xs'), 'Agent inbox', waiting().length + ' waiting', () => setView('inbox')], ['Go to', I('cal', 'xs'), 'Calendar', 'Week', () => setView('calendar')],
+    ['Go to', I('grid', 'xs'), 'Pipeline', 'Board', () => setView('pipeline')], ['Go to', I('chart', 'xs'), 'Forecast', 'Charts', () => setView('forecast')],
+    ['Actions', I('spark', 'xs'), 'Plan follow-ups for quiet accounts', '', () => { setView('calendar'); planFollowUps(); }],
+    ['Actions', I('plus', 'xs'), 'Add account', '', () => newAccount()], ['Actions', I('down', 'xs'), 'Export accounts in view', 'CSV', () => exportCsv(rows)],
     ['Actions', I('moon', 'xs'), isDark() ? 'Switch to light theme' : 'Switch to dark theme', '', () => th.click()],
-    ['Actions', I('flag', 'xs'), 'Show slipping deals', DE.filter(slipping).length + ' deals', () => { K.close = 'overdue'; setTab('deals'); }],
   ];
   function paintCmd(){
     const v = q.value.trim().toLowerCase(), m = s => !v || s.toLowerCase().includes(v);
     const cos = CO.filter(c => m(c.n + ' ' + P[c.own][0] + ' ' + c.seg)).sort((a, b) => b.value - a.value).slice(0, v ? 6 : 4);
     const ds = v ? DE.filter(d => m(d.n + ' ' + coOf(d.co).n + ' ' + d.id)).slice(0, 5) : [];
     const R = [...ACTIONS().filter(a => m(a[2])).map(a => ({ g:a[0], ic:a[1], t:a[2], h:a[3], run:a[4] })),
-      ...cos.map(c => ({ g:'Companies', ic:`<span class="pfm-lg">${esc(c.n[0])}</span>`, t:c.n, h:`${kmoney(c.value)}, ${P[c.own][0]}`, run:() => { if (tab === 'forecast') setTab('companies'); openSheet(c.id, true); } })),
-      ...ds.map(d => ({ g:'Deals', ic:av(d.own), t:d.n, h:`${coOf(d.co).n}, ${ST[d.st].t}`, run:() => { setTab('deals'); kFocus = d.id; renderBoard(); const el = $(`.kbx-k[data-id="${d.id}"]`, cols); if (el){ el.scrollIntoView({ block:'nearest', inline:'nearest' }); el.classList.add('open'); el.tabIndex = 0; el.focus(); } } }))];
-    // the agent-free fallback: a search of the table
-    if (v && !R.length) R.push({ g:'Search', ic:I('search', 'xs'), t:`Filter companies by “${q.value.trim()}”`, h:'', run:() => { setTab('companies'); const i = $('.crm-q input', app); i.value = q.value.trim(); i.dispatchEvent(new Event('input')); } });
+      ...cos.map(c => ({ g:'Accounts', ic:`<span class="pfm-lg">${esc(c.n[0])}</span>`, t:c.n, h:`${kmoney(c.value)}, ${P[c.own][0]}`, run:() => { if (view === 'forecast') setView('accounts'); openSheet(c.id, true); } })),
+      ...ds.map(d => ({ g:'Deals', ic:av(d.own), t:d.n, h:`${coOf(d.co).n}, ${ST[d.st].t}`, run:() => { setView('pipeline'); kFocus = d.id; renderBoard(); const el = $(`.kbx-k[data-id="${d.id}"]`, cols); if (el){ el.scrollIntoView({ block:'nearest', inline:'nearest' }); el.classList.add('open'); el.tabIndex = 0; el.focus(); } } }))];
+    // nothing matched: ask the accounts table instead
+    if (v && !R.length) R.push({ g:'Ask', ic:I('spark', 'xs'), t:`Ask the accounts: “${q.value.trim()}”`, h:'', run:() => { setView('accounts'); ask.value = q.value.trim(); askx.hidden = false; runAsk(); } });
     let h = '<span class="cpl-hl"></span>', g = '';
     R.forEach((x, i) => { if (x.g !== g){ g = x.g; h += `<div class="cpl-g" role="presentation">${g}</div>`; } h += `<button class="cpl-i" role="option" id="crm-cpl-${i}" tabindex="-1" data-i="${i}"><span class="ic">${x.ic}</span><span class="t">${esc(x.t)}</span>${x.h ? `<span class="h">${esc(x.h)}</span>` : ''}</button>`; });
     list.innerHTML = h; items = R; hi = 0; moveHi(0);
-    st.innerHTML = `${R.length} ${R.length === 1 ? 'result' : 'results'}`;
+    st.innerHTML = plural(R.length, 'result');
   }
   function moveHi(d){ const bs = $$('.cpl-i', list); if (!bs.length){ q.removeAttribute('aria-activedescendant'); $('.cpl-hl', list).style.opacity = 0; return; } hi = (hi + d + bs.length) % bs.length; bs.forEach((b, i) => { b.classList.toggle('hl', i === hi); b.setAttribute('aria-selected', i === hi); }); const b = bs[hi], hl = $('.cpl-hl', list); hl.style.opacity = 1; hl.style.top = b.offsetTop + 'px'; q.setAttribute('aria-activedescendant', b.id); if (b.offsetTop < list.scrollTop + 30 || b.offsetTop + 36 > list.scrollTop + list.clientHeight) b.scrollIntoView({ block:'nearest' }); }
   const runItem = i => { const x = items[i]; closeCmd(false); if (x) x.run(); };
-  function openCmd(){ if (!over.hidden) return; back = document.activeElement; over.hidden = false; q.value = ''; paintCmd(); drawer(false); q.focus(); }
+  function openCmd(){ if (!over.hidden) return; back = document.activeElement; over.hidden = false; q.value = ''; paintCmd(); drawer(false); closeCalPop(); q.focus(); }
   function closeCmd(restore = true){ if (over.hidden) return; over.hidden = true; if (restore && back && back.isConnected) back.focus({ preventScroll:true }); }
   q.addEventListener('input', paintCmd);
-  q.addEventListener('keydown', e => { if (e.key === 'ArrowDown' || e.key === 'ArrowUp'){ e.preventDefault(); moveHi(e.key === 'ArrowDown' ? 1 : -1); } else if (e.key === 'Enter'){ e.preventDefault(); runItem(hi); } else if (e.key === 'Escape'){ e.preventDefault(); closeCmd(); } else if (e.key === 'Tab') e.preventDefault(); });
+  q.addEventListener('keydown', e => { if (e.key === 'ArrowDown' || e.key === 'ArrowUp'){ e.preventDefault(); moveHi(e.key === 'ArrowDown' ? 1 : -1); } else if (e.key === 'Enter'){ e.preventDefault(); runItem(hi); } else if (e.key === 'Tab') e.preventDefault(); });
   list.addEventListener('click', e => { const b = e.target.closest('.cpl-i'); if (b) runItem(+b.dataset.i); });
   list.addEventListener('pointermove', e => { const b = e.target.closest('.cpl-i'); if (b && +b.dataset.i !== hi) moveHi(+b.dataset.i - hi); });
   over.addEventListener('pointerdown', e => { if (e.target === over) closeCmd(); });
   $('.crm-find', app).onclick = openCmd;
 
-  /* ---------- New company: Form ---------- */
+  /* ---------- Add account: Form ---------- */
   const nd = $('.crm-newd', app), form = $('form', nd), nin = $('[name="n"]', form), vin = $('[name="v"]', form);
   const SEGS = ['Enterprise', 'Mid-market', 'SMB', 'Strategic'];
   let nseg = 'Mid-market', nown = 'JO', nback = null;
@@ -731,54 +1213,54 @@
     box.addEventListener('click', e => { const b = e.target.closest('.chip'); if (!b) return; k ? nown = b.dataset.v : nseg = b.dataset.v; paintPick(); $$('.chip', box).find(x => x.dataset.v === b.dataset.v).focus(); });
     box.addEventListener('keydown', e => { const d = e.key === 'ArrowRight' || e.key === 'ArrowDown' ? 1 : e.key === 'ArrowLeft' || e.key === 'ArrowUp' ? -1 : 0; if (!d) return; e.preventDefault(); const bs = $$('.chip', box), i = bs.findIndex(b => b.getAttribute('aria-checked') === 'true'); bs[(i + d + bs.length) % bs.length].click(); });
   });
-  function newCompany(){ nback = document.activeElement; nd.hidden = false; form.reset(); $$('.fmx-f', form).forEach(f => { f.classList.remove('bad'); $('.er', f)?.remove(); }); paintPick(); drawer(false); setTimeout(() => nin.focus(), 30); }
+  function newAccount(){ nback = document.activeElement; nd.hidden = false; form.reset(); $$('.fmx-f', form).forEach(f => { f.classList.remove('bad'); $('.er', f)?.remove(); }); paintPick(); drawer(false); setTimeout(() => nin.focus(), 30); }
   const closeNew = () => { if (nd.hidden) return; nd.hidden = true; if (nback && nback.isConnected) nback.focus({ preventScroll:true }); };
-  $('.crm-new', app).onclick = newCompany;
+  $('.crm-new', app).onclick = newAccount;
   $('.crm-newx', form).onclick = closeNew;
   nd.addEventListener('pointerdown', e => { if (e.target === nd) closeNew(); });
-  form.addEventListener('keydown', e => { if (e.key === 'Escape'){ e.preventDefault(); closeNew(); } });
   vin.addEventListener('blur', () => { const n = +vin.value.replace(/[^\d.]/g, ''); if (n) vin.value = money(n < 1000 ? n * 1000 : n); });
   form.addEventListener('submit', e => {
     e.preventDefault();
     const name = nin.value.trim(), f = nin.closest('.fmx-f');
     $('.er', f)?.remove(); f.classList.toggle('bad', !name);
-    if (!name){ f.insertAdjacentHTML('beforeend', '<span class="er">Give the company a name</span>'); nin.setAttribute('aria-invalid', 'true'); nin.focus(); return; }
-    if (CO.some(c => c.n.toLowerCase() === name.toLowerCase())){ f.classList.add('bad'); f.insertAdjacentHTML('beforeend', `<span class="er">${esc(name)} is already in the table</span>`); nin.focus(); return; }
+    if (!name){ f.insertAdjacentHTML('beforeend', '<span class="er">Give the account a name</span>'); nin.setAttribute('aria-invalid', 'true'); nin.focus(); return; }
+    if (CO.some(c => c.n.toLowerCase() === name.toLowerCase())){ f.classList.add('bad'); f.insertAdjacentHTML('beforeend', `<span class="er">${esc(name)} is already an account</span>`); nin.focus(); return; }
     nin.removeAttribute('aria-invalid');
     let v = +vin.value.replace(/[^\d.]/g, '') || 25000; if (v < 1000) v *= 1000;
-    const c = { id:'c' + (nid++), n:name, seg:nseg, tags:['New logo'], own:nown, reg:'na', last:0, lt:'Discovery', trend:[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], log:[['Discovery', 0, 'Company added by Nina Cole', 'Nina Cole']] };
-    CO.push(c); const d = { id:'DL-' + (did++), co:c.id, n:'First contract', st:'disc', v, close:60, adj:0, own:nown }; d.p = probOf(d); DE.push(d); derive();
-    nd.hidden = true; clearFilters(); setTab('companies'); refresh();
+    const i = nid, c = { id:'c' + (nid++), n:name, seg:nseg, tags:['First deal'], own:nown, reg:'na', last:0, lt:'Discovery', trend:[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], log:[['Discovery', 0, 'Account added by Nina Cole', 'Nina Cole']], ppl:peopleOf(i), i, base:[] };
+    CO.push(c); const d = { id:'DL-' + (did++), co:c.id, n:'First contract', st:'disc', v, close:toWork(60), adj:0, own:nown }; d.p = probOf(d); DE.push(d);
+    nd.hidden = true; clearFilters(); setView('accounts'); refresh();
     const tr = $(`tr[data-id="${c.id}"]`, tbody); if (tr){ tr.scrollIntoView({ block:'nearest' }); enter(tr); focusRow(tr); }
-    toast('ok', `${name} added`, `${P[nown][0]} owns it, with a ${money(v)} deal in Discovery`, { label:'Open', run:() => openSheet(c.id, true) });
+    toast('ok', `${name} added`, `${P[nown][0]} owns it, with a ${money(v)} deal in Discovery. The agent suggests booking a first call`, { label:'Open', run:() => openSheet(c.id, true) });
   });
 
-  /* ---------- keys: ⌘K, /, Escape ---------- */
-  document.addEventListener('keydown', e => {
+  /* ---------- keys: ⌘K, /, ?, and Escape closing one thing at a time ---------- */
+  // on the window, so it runs before the core's Escape on the document: an open menu is the core's to close
+  addEventListener('keydown', e => {
     if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k'){ e.preventDefault(); over.hidden ? openCmd() : closeCmd(); return; }
     if (e.key === 'Escape'){
-      if ($('.pop.open', app)) return; // the core shuts the open menu first
-      if (!over.hidden){ closeCmd(); return; }
-      if (!nd.hidden){ closeNew(); return; }
+      if ($('.pop.open', app) || e.target.closest?.('.crm-ta') || (e.target === ask && ask.value)) return;
+      if (!over.hidden){ e.preventDefault(); closeCmd(); return; }
+      if (!nd.hidden){ e.preventDefault(); closeNew(); return; }
+      if (popFor){ e.preventDefault(); closeCalPop(); return; }
       if (app.classList.contains('dr')){ drawer(false); $('.crm-menu', app).focus(); return; }
       if (sheetFor){ closeSheet(); return; }
-      if (sel.size && tab === 'companies'){ sel.clear(); syncSel(); }
+      if (SG.length && view === 'calendar'){ SG = []; renderCal(); swap(cmsg, ''); return; }
+      if (sel.size && view === 'accounts'){ sel.clear(); syncSel(); }
       return;
     }
     const typing = e.target.closest && e.target.closest('input,textarea,[contenteditable="true"]');
     if (typing || e.metaKey || e.ctrlKey || e.altKey) return;
-    if (e.key === '/' && over.hidden && nd.hidden){ e.preventDefault(); if (tab === 'deals') kq.focus(); else { setTab('companies'); $('.crm-q input', app).focus(); } }
+    if (e.key === '/' && over.hidden && nd.hidden){ e.preventDefault(); if (view === 'pipeline') kq.focus(); else { if (view !== 'accounts') setView('accounts'); ask.focus(); } }
     if (e.key === '?' && over.hidden && nd.hidden){ e.preventDefault(); help(); }
   }, true);
 
   /* ---------- everything follows the data ---------- */
-  function refresh(){ derive(); renderTable(); renderBoard(); if (tab === 'forecast') renderForecast(); if (sheetFor) renderSheet(); counts(); }
+  function refresh(){ derive(); renderTable(); renderBoard(); renderInbox(); if (view === 'calendar') renderCal(); if (view === 'forecast') renderForecast(); if (sheetFor) renderSheet(); counts(); }
   const tsc = $('.crm-sc', app); tsc.addEventListener('scroll', () => tsc.classList.toggle('sx', tsc.scrollLeft > 2), { passive:true });
-  // the company column sticks right after the checkbox column, however wide that column comes out, so nothing shows between them
+  // the account column sticks right after the checkbox column, however wide that column comes out, so nothing shows between them
   const stk = $('.crm-t th.stk', app); new ResizeObserver(() => $('.crm-t', app).style.setProperty('--crm-stk', stk.getBoundingClientRect().width + 'px')).observe(stk);
-  derive(); renderTable(); renderBoard(); setTab('companies'); stagger($$('tr[data-id]', tbody).slice(0, 16), 22);
-  // a link to a company (#c3) opens it
+  derive(); renderTable(); renderBoard(); renderInbox(); setView('accounts'); stagger($$('tr[data-id]', tbody).slice(0, 16), 22);
+  // a link to an account (#c3) opens it
   const h = location.hash.slice(1); if (h && coOf(h)) openSheet(h);
-  // the knob and the board's columns are placed once the fonts are in
-  if (document.fonts && document.fonts.ready) document.fonts.ready.then(place);
 })();

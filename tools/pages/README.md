@@ -34,8 +34,9 @@ window) in a frame 820 or 390 CSS px wide, scaled to fit (`src/device/frame.js` 
 The templates (whole app pages made of the components, and a showcase of them on the homepage) are parked on the
 `templates` branch until they're picked up again; `src/lib/templates.mjs` and `templates-list.json` are their data.
 
-`/templates/sales-crm` (`src/pages/templates/sales-crm.astro`) is a whole sales CRM screen made of the components: a
-companies table, a deals board, a forecast and a details sheet, drawn with the components' installed CSS and classes, in
+`/templates/sales-crm` (`src/pages/templates/sales-crm.astro`) is a whole sales CRM screen made of the components, with an
+agent working beside the rep: an accounts table (next step, health and the agent's suggestion per account), an agent inbox,
+a week calendar, a deals board, a forecast and a details sheet, drawn with the components' installed CSS and classes, in
 both styles and themes. Its layout is `src/templates/sales-crm/crm.css` and its data and interactions
 `src/templates/sales-crm/crm.js`. It is noindex (a meta tag and `_headers`), and stays out of the sitemap, `llms.txt` and the
 site's navigation until the owner decides where to link it. `publish.mjs` copies `templates/` to the repository root.
