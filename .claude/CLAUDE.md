@@ -61,6 +61,8 @@ every session and every agent.
   is one accent colour with no legend; its breakdown is in the hover readout.
 - Use the existing chip, tag and text styles as they are; don't invent new ones. Non-interactive metadata ("12 pages",
   "3 frames", counts, sizes, durations) is a plain grey chip or muted text, never coloured.
+  Labels a person sets (tags, segments, Kanban labels) do take colour: the core tag colours (`.tag.b/.l/.m/.p/.r/.y/.k/.t`,
+  or Badge's `data-tone`), one colour per label wherever it shows (owner, 8 Nov).
 - Grey borders are at half strength (`color-mix(in srgb,var(--line) 50%,transparent)` and the like), and the hover or
   highlight grey behind a row or ghost control is `--row` (`#fafafa` in Soft light).
 

@@ -1368,6 +1368,11 @@ body:has(.crm) .dmf{display:none}
 .crm-dtp .dtp-sh{padding-left:0;margin-top:var(--dm-s-1)}
 .crm-dtp .dtp-r{grid-template-columns:112px minmax(0,1fr)}
 .crm-dtp .dtp-r .k{padding-left:0}
+/* tags wrap onto even rows: the label sits level with the first row, every chip and the add button share one height */
+.crm-dtp .dtp-r.crm-tg{align-items:start}
+.crm-dtp .crm-tg .k{line-height:20px;margin-top:7px}
+.crm-dtp .crm-tg .dtp-tags{padding:7px 0;gap:6px}
+.crm-dtp .crm-tg .dtp-tags>*{flex:none;height:20px}
 .crm-dtp .dtp-v{max-width:100%}
 .crm-dtp .dtp-v.static{margin-left:0;padding:0}
 .crm-dtp .crm-win .prg-seg{width:96px}
@@ -1868,8 +1873,11 @@ const fitHits = window.dmFitHits || (() => {
     const f = SORTS[F.sort][1];
     return CO.filter(matches).sort((a, b) => { const x = f(a), y = f(b); return (x > y ? 1 : x < y ? -1 : 0) * (F.desc ? -1 : 1) || a.n.localeCompare(b.n); });
   };
+  // each segment and tag keeps one colour wherever it shows (the core tag's colours: blue, violet, green, orange, red, yellow, pink, teal)
+  const HUE = { Strategic:'l', Enterprise:'b', 'Mid-market':'t', SMB:'k', Expansion:'m', Renewal:'p', Upsell:'y', Pilot:'k', 'New logo':'b', 'Co-sell':'l', Partner:'t', Champion:'m', 'Budget set':'y', 'Security review':'r', 'Multi-year':'p' };
+  const chip = t => `<span class="tag ${HUE[t] || 'bltmprky'[[...t].reduce((a, ch) => a + ch.charCodeAt(0), 0) % 8]}">${esc(t)}</span>`;
   const tags = c => { const all = [c.seg, ...c.tags], shown = all.slice(0, 2), more = all.slice(2);
-    return `<span class="crm-tags">${shown.map(t => `<span class="tag">${esc(t)}</span>`).join('')}${more.length ? `<span class="tag more" data-tip="${esc(more.join(', '))}">+${more.length}</span>` : ''}</span>`; };
+    return `<span class="crm-tags">${shown.map(chip).join('')}${more.length ? `<span class="tag more" data-tip="${esc(more.join(', '))}">+${more.length}</span>` : ''}</span>`; };
   // win probability as Progress's segments: ten to a bar, the last one part filled
   const winBar = w => `<span class="crm-win" data-w="${w < 30 ? 'lo' : 'ok'}"><span class="prg-seg" role="img" aria-label="${w}% win probability">${Array.from({ length:10 }, (_, i) => `<i><b style="--dm-f:${clamp((w - i * 10) / 10, 0, 1)}"></b></i>`).join('')}</span><span class="p num">${w}%</span></span>`;
   const spark = c => { const mx = Math.max(6, ...c.trend), n = sum(c.trend);
@@ -2067,7 +2075,7 @@ const fitHits = window.dmFitHits || (() => {
         + `<div class="dtp-r"><span class="k">Account owner</span><button class="dtp-v" data-pop="#crm-p-sown" aria-haspopup="menu">${av(c.own)}<span>${esc(P[c.own][0])}</span>${I('chev-d', 'xs')}</button></div>`
         + `<div class="dtp-r"><span class="k">Stage</span><span class="dtp-v static">${pill(c.st)}</span></div>`
         + `<div class="dtp-r"><span class="k">Pipeline</span><span class="dtp-v static"><span class="dot" style="color:${REG[c.reg].c}"></span>${REG[c.reg].t}</span></div>`
-        + `<div class="dtp-r"><span class="k">Tags</span><span class="dtp-tags"><span class="tag">${esc(c.seg)}</span>${c.tags.map(t => `<span class="tag">${esc(t)}</span>`).join('')}<button class="dtp-add" data-a="tag" aria-label="Add a tag" data-tip="Add tag">${I('plus', 'xs')}</button></span></div>`
+        + `<div class="dtp-r crm-tg"><span class="k">Tags</span><span class="dtp-tags">${[c.seg, ...c.tags].map(chip).join('')}<button class="dtp-add" data-a="tag" aria-label="Add a tag" data-tip="Add tag">${I('plus', 'xs')}</button></span></div>`
         + `<div class="dtp-r"><span class="k">Win probability</span><span class="dtp-v static">${winBar(c.win)}</span></div>`
         + `<div class="dtp-r"><span class="k">Last interaction</span><span class="dtp-v static">${lastCell(c)}</span></div></div>`)
       + section('deals', `Deals, ${mine.length}`, mine.length ? `<div class="crm-dl">${mine.map(d => `<button data-deal="${d.id}" data-pop="#crm-p-sstage" aria-haspopup="menu" aria-label="${esc(d.n)}, ${ST[d.st].t}, ${money(d.v)}. Change its stage"><span class="t">${esc(d.n)}</span>${pill(d.st)}<span class="num">${kmoney(d.v)}</span></button>`).join('')}</div>` : '<p class="muted">No deals yet.</p>')
