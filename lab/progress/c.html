@@ -86,7 +86,9 @@ body{font-family:var(--sans);font-size:14px;line-height:1.5;color:var(--fg);-web
 .pvc-c[data-k="run"][data-d="0"] .pvc-lm{visibility:hidden}
 .pvc-c[data-k="run"][data-d="0"] .pvc-lip{padding-right:136px}
 .pvc-b{padding:0 var(--s-4) var(--s-4)}
-.pvc-act{position:absolute;top:5px;right:9px;display:flex;align-items:center;gap:var(--s-1)}
+.pvc-act{position:absolute;top:5px;right:9px;display:flex;align-items:center;gap:var(--s-1);height:30px;transition:opacity var(--t-fast)}
+.pvc-c:not([data-d="0"]) .pvc-act{opacity:0;visibility:hidden}
+.pvc-pp.gone{visibility:hidden}
 .pvc-st.run{background:var(--accent-bg);color:var(--accent-fg)}
 /* the run: what it is doing now, and the way to more */
 .pvc-sub{display:flex;align-items:center;justify-content:space-between;gap:var(--s-2);min-height:28px;margin-top:-6px}
@@ -381,7 +383,7 @@ DM.def('pvc-progress', (r, c) => {
       swap(tag, TAG[state][0]); tag.className = 'tag pvc-st ' + TAG[state][1];
       const b = state === 'paused' ? ['play', 'Resume'] : state === 'done' ? ['refresh', 'Run again'] : ['pause', 'Pause'];
       pp.innerHTML = ic(b[0]); pp.setAttribute('aria-label', b[1]); pp.dataset.tip = b[1];
-      pp.disabled = state === 'ind'; pp.hidden = state === 'err';
+      pp.disabled = state === 'ind'; pp.classList.toggle('gone', state === 'err');
       runIcon.innerHTML = { ind:'<span class="spin"></span>', run:'<span class="spin"></span>', paused:ic('pause', 'xs'), err:ic('alert', 'xs'), done:ic('check', 'xs') }[state];
       if (shownState) say = { ind:'Starting the run', run:shownState === 'err' ? 'Retrying step 4' : shownState === 'paused' ? 'Resumed' : 'Running', paused:'Paused', err:'Step 4 failed: the embeddings service timed out. Retry is under the bar.', done:'Done. ' + words }[state];
       shownState = state;
