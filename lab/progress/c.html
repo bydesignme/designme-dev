@@ -131,9 +131,10 @@ body{font-family:var(--sans);font-size:14px;line-height:1.5;color:var(--fg);-web
 .pvc-kv dd{margin:0;font-size:13px;color:var(--fg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 /* the month: used before this run, this run so far, what it should still take, and where it starts to warn */
 .pvc-m{margin-top:var(--s-3);padding-top:var(--s-3);border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
-.pvc-mh{display:flex;align-items:center;justify-content:space-between;gap:var(--s-2);min-height:20px;font-size:13px}
+.pvc-mh{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:var(--s-1) var(--s-2);min-height:20px;font-size:13px}
+.pvc-mh .pvc-k{white-space:nowrap}
 .pvc-mh .l{display:flex;align-items:center;gap:var(--s-2);min-width:0}
-.pvc-mh .v{flex:none;font-size:12.5px;color:var(--muted)}
+.pvc-mh .v{flex:none;margin-left:auto;font-size:12.5px;color:var(--muted)}
 .pvc-mh .v b{font-size:13px;color:var(--fg)}
 .pvc-mw{position:relative;margin-top:var(--s-2)}
 .pvc-mb{position:relative;height:8px;border-radius:calc(4px * var(--rk));background:var(--chip);overflow:hidden}
@@ -232,7 +233,7 @@ body{font-family:var(--sans);font-size:14px;line-height:1.5;color:var(--fg);-web
                 <div class="pvc-lg num" aria-hidden="true">
                   <span><i class="pvc-dot b"></i><span class="pvc-k">Before</span><b data-v="before"></b></span>
                   <span><i class="pvc-dot r"></i><span class="pvc-k">This run</span><b data-v="spent"></b></span>
-                  <span><i class="pvc-dot p pvc-hp"></i><span class="pvc-k">To finish</span><b data-v="rem"></b></span>
+                  <span class="pvc-lgp"><i class="pvc-dot p pvc-hp"></i><span class="pvc-k">To finish</span><b data-v="rem"></b></span>
                 </div>
               </div>
             </div>
@@ -392,7 +393,7 @@ DM.def('pvc-progress', (r, c) => {
     const m = { before:n.before, spent:n.spent, rem:n.rem, end:n.end };
     mRun(m); mUse(m);
     V('used').textContent = fmt(n.used); V('before').textContent = fmt(n.before); V('spent').textContent = fmt(n.spent);
-    V('rem').textContent = n.est == null ? 'working it out' : state === 'done' ? '0' : fmt(n.rem);
+    $('.pvc-lgp', r).hidden = state === 'done'; V('rem').textContent = n.est == null ? 'working it out' : state === 'done' ? '0' : fmt(n.rem);
     const mt = `${fmt(n.used)} of 10,000 credits used, ${fmt(n.spent)} of them by this run` + (n.est == null ? '' : state === 'done' ? '' : `, about ${fmt(n.rem)} more to finish it, ${fmt(n.end)} in all`);
     const mw = $('[data-m="run"]', r); mw.setAttribute('aria-valuenow', Math.round(n.used)); mw.setAttribute('aria-valuetext', mt);
     const uw = $('[data-m="usage"]', r); uw.setAttribute('aria-valuenow', Math.round(n.used)); uw.setAttribute('aria-valuetext', mt + `, and about ${fmt(QUEUED)} for the queue`);
@@ -512,7 +513,7 @@ DM.def('pvc-progress', (r, c) => {
   c.taken(() => { if (hot >= 0 && !tr.matches(':hover') && !hitBox.contains(document.activeElement)) scrub(-1); });
   c.story(async s => {
     await s.until(() => state === 'run' && step === 2 && sub >= .25);
-    await s.point(hits[1], false); scrub(1); await s.beat(4); scrub(-1); s.away();
+    await s.point(hits[1], false); scrub(1); await s.beat(4); if (!tr.matches(':hover')) scrub(-1); s.away();
     await s.until(() => state === 'err'); await s.beat(2);
     await s.tap(more); await s.beat(5);
     await s.tap($('.pvc-retry', r)); await s.beat(1); s.away();
