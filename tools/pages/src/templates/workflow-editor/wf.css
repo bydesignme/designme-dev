@@ -1,15 +1,14 @@
 /* Workflow editor template: the layout around the components, and the parts the library doesn't have yet. Every colour,
    radius and space is a component token (--dm-*), so the screen follows Soft and Blueprint, light and dark. The library's
    parts are their own classes: Agent harness (the sidebar), Canvas toolbar (the bar under the canvas), Automation canvas (the
-   step picker), Segmented control (the panel's tabs), Details panel (the inspector's sections), Form (Publish), Trace view
-   (the run's steps), Action log (the log and the runs), Code viewer (the data), Command palette, Toast and Progress.
-   The new parts are prefixed wfx- and self-contained, so each could be promoted to a component:
+   step picker), Step inspector (the inspector), Data picker (the picker of earlier steps' data), Run drawer (the run under
+   the canvas), Segmented control (the panel's tabs), Form (Publish), Action log (the runs), Command palette, Toast and
+   Progress.
+   The step inspector, the data picker and the run drawer are Step inspector, Data picker and Run drawer, promoted from here.
+   The parts the library doesn't have yet are prefixed wfx- and self-contained, so each could be promoted to a component:
      wfx-node, wfx-ins, wfx-elab  a workflow step on the canvas with its run state, the + on a wire, a branch's path label
      wfx-pick                     the step picker, with the agent as the last row
-     wfx-var, wfx-tok             the data picker and the token a mapped field shows
-     wfx-insp                     the step inspector
-     wfx-drawer                   the run drawer under the canvas
-     wfx-fix, wfx-appr, wfx-note  the agent's fix, the approval a test run asks of you, a plain note
+     wfx-fix, wfx-note            the agent's fix and a plain note, beside the run's steps
      wfx-vers                     the version history
    Blueprint is the page with no data-style, so its overrides are :root:not([data-style="soft"]). Hover styles are only for a
    mouse (hover:hover and pointer:fine). */
@@ -170,71 +169,29 @@ body:has(.wf) .dmf{display:none}
 .wf-bar.ctb-bar{transform:translateX(-50%)}
 .wf-bar .ctb-b[aria-disabled="true"]{cursor:not-allowed}
 
-/* ---------- wfx-drawer: the run, under the canvas ---------- */
-.wfx-drawer{position:relative;z-index:6;flex:none;height:44px;display:flex;flex-direction:column;background:var(--dm-surface);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
-.wf.dro .wfx-drawer{height:var(--wf-drh,312px)}
-.wfx-dr-grip{position:absolute;left:0;right:0;top:-5px;height:10px;z-index:3;cursor:ns-resize;touch-action:none;outline:0}
-.wfx-dr-grip:focus-visible{box-shadow:inset 0 -2px 0 color-mix(in srgb,var(--dm-field-line-strong) 70%,transparent)}
+/* ---------- the run drawer: Run drawer under the canvas, the agent's notes beside its steps ---------- */
+.wf .rdr-dw{z-index:6}
 .wf.drag-dr{user-select:none;cursor:ns-resize}
-.wfx-dr-h{flex:none;display:flex;align-items:center;gap:var(--dm-s-2);height:43px;padding:0 var(--dm-s-3) 0 var(--dm-s-2)}
-.wfx-dr-tg{flex:none;display:inline-flex;align-items:center;gap:var(--dm-s-2);min-width:0;height:30px;padding:0 var(--dm-s-2);border-radius:var(--dm-r-sm);font-size:13px;font-weight:500;white-space:nowrap;transition:background var(--dm-t-fast)}
-@media (hover:hover) and (pointer:fine){.wfx-dr-tg:hover{background:var(--dm-row)}}
-.wfx-dr-tg>.i{color:var(--dm-muted);transition:transform var(--dm-t) var(--dm-ease)}
-.wf.dro .wfx-dr-tg>.i{transform:rotate(180deg)}
-.wfx-dr-t{display:inline-flex;align-items:center;gap:var(--dm-s-2)}
-.wfx-dr-t>.dot{width:7px;height:7px}
-.wfx-dr-t .tag .spin{width:9px;height:9px;border-width:1.5px}
-.wfx-dr-meta{min-width:0;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.wfx-dr-tabs{flex:none}
-.wfx-dr-stop{flex:none}
-.wfx-dr-follow{width:28px;height:28px;flex:none;color:var(--dm-muted)}
-.wf:not(.dro) :is(.wfx-dr-tabs,.wfx-dr-follow,.wfx-dr-b){display:none}
-.wfx-dr-b{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;padding:0 var(--dm-s-3) var(--dm-s-3)}
-.wfx-dr-v[hidden]{display:none}
-/* the steps, with the agent's card beside them while it has something to say */
-.wfx-dr-v[data-v="steps"]{display:grid;grid-template-columns:minmax(0,1fr) clamp(272px,34%,340px);align-items:start;gap:var(--dm-s-4)}
-.wfx-dr-v[data-v="steps"]:has(.wfx-dr-note:empty){grid-template-columns:minmax(0,1fr)}
-.wfx-dr-note{order:2;position:sticky;top:0}
+.wf-steps:not([hidden]){display:grid;grid-template-columns:minmax(0,1fr) clamp(272px,34%,340px);align-items:start;gap:var(--dm-s-4)}
+.wf-steps:has(.wfx-dr-note:empty){grid-template-columns:minmax(0,1fr)}
+.wf-tl{min-width:0}
+.wfx-dr-note{order:2;position:sticky;top:0;padding-top:var(--dm-s-2)}
 .wfx-dr-note:empty{display:none}
-.wf-trv.trv{max-width:none;margin:0;padding:0;--dm-cols:minmax(0,15fr) minmax(0,14fr) 44px 60px}
-.wf-trv .trv-ax{position:sticky;top:0;z-index:2;background:var(--dm-surface);border-top:0;box-shadow:0 1px 0 color-mix(in srgb,var(--dm-line) 50%,transparent)}
-.wf-trv .trv-r{min-height:30px}
-.wf-trv .trv-r[aria-pressed="true"]{background:var(--dm-sel)}
-.wf-trv .trv-r.bad .trv-ms{color:var(--dm-bad)}
-.wf-trv .trv-r.slow .trv-ms{color:var(--dm-warn)}
-.wf-trv .trv-ms{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.wf-trv .trv-k{border-radius:calc(5px * var(--dm-rk))}
-.wf-log{padding-top:var(--dm-s-1)}
-.wf-log .alg-row{padding:6px 10px}
-.wf-log .alg-row[disabled]{cursor:default}
-.wf-log .alg-ic{width:24px;height:24px}
-.wf-log .alg-it.bad .alg-ic{background:var(--dm-bad-bg);color:var(--dm-bad)}
-.wf-log .alg-it.warn .alg-ic{background:var(--dm-warn-bg);color:var(--dm-warn)}
-.wf-log .alg-it.ok .alg-ic{background:var(--dm-ok-bg);color:var(--dm-ok)}
-.wf-log .alg-tx{display:flex;align-items:baseline;gap:var(--dm-s-2);min-width:0}
-.wf-log .alg-tx b{flex:none;font-weight:500}
-.wf-log .alg-tx .d{display:block;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.wf-log .alg-row[aria-expanded="true"] .g .i{transform:rotate(180deg)}
-.wf-log .g .i{transition:transform var(--dm-t) var(--dm-ease)}
-.wf-log .alg-det pre{max-height:180px;overflow:auto}
-.wf-cvx.cvx{margin-top:var(--dm-s-2);border-radius:var(--dm-r-card);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 50%,transparent)}
-.wf-cvx .cvx-body{min-height:0}
-.wf-cvx .cvx-l{cursor:default}
-/* wfx-appr, wfx-fix and wfx-note: what the run needs from you, and what the agent suggests */
-.wfx-appr,.wfx-fix,.wfx-note{display:flex;flex-direction:column;gap:10px;padding:var(--dm-s-3);border-radius:var(--dm-r-card);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 60%,transparent),var(--wf-ns)}
+.wf-ask.rdr-ask{align-items:flex-start}
+.wf-ask>.rdr-ti{margin-top:1px}
+.wf-ask .acts{flex-wrap:wrap;align-self:center}
+.wf-ask .wf-draft{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-top:2px;color:var(--dm-fg2)}
+.wf-ask .wf-draft b{font-weight:500;color:var(--dm-fg)}
+/* wfx-fix and wfx-note: what the agent suggests, and a plain note */
+.wfx-fix,.wfx-note{display:flex;flex-direction:column;gap:10px;padding:var(--dm-s-3);border-radius:var(--dm-r-card);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 60%,transparent),var(--wf-ns)}
 .wfx-note{flex-direction:row;align-items:center}
-.wfx-appr-h,.wfx-fix-h{display:flex;align-items:flex-start;gap:10px}
-.wfx-appr .tx,.wfx-fix .tx,.wfx-note .tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;line-height:1.4}
-.wfx-appr .tx b,.wfx-fix .tx b,.wfx-note .tx b{font-weight:500}
-.wfx-appr .tx span,.wfx-fix .tx span,.wfx-note .tx span{font-size:12.5px;color:var(--dm-muted)}
-.wfx-appr-h .wfx-ic{background:var(--dm-warn-bg);color:var(--dm-warn)}
+.wfx-fix-h{display:flex;align-items:flex-start;gap:10px}
+.wfx-fix .tx,.wfx-note .tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;line-height:1.4}
+.wfx-fix .tx b,.wfx-note .tx b{font-weight:500}
+.wfx-fix .tx span,.wfx-note .tx span{font-size:12.5px;color:var(--dm-muted)}
 .wfx-note.ok .wfx-ic{background:var(--dm-ok-bg);color:var(--dm-ok)}
 .wfx-note.warn .wfx-ic{background:var(--dm-warn-bg);color:var(--dm-warn)}
-.wfx-appr-m{padding:10px var(--dm-s-3);border-radius:var(--dm-r-in);background:var(--dm-stage);font-size:12.5px;line-height:1.5}
-.wfx-appr-m b{display:block;font-weight:500}
-.wfx-appr-m p{margin:2px 0 0;color:var(--dm-fg2);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
-.wfx-appr-a,.wfx-fix-a{display:flex;align-items:center;flex-wrap:wrap;gap:6px}
-.wfx-fix-a{flex-wrap:nowrap}
+.wfx-fix-a{display:flex;align-items:center;gap:6px}
 .wfx-fix-a .pill{min-width:0}
 .wfx-fix-a .ib{width:28px;height:28px;color:var(--dm-muted)}
 .wfx-fix-l{list-style:none;padding:0;display:flex;flex-direction:column;gap:6px;font-size:12.5px}
@@ -254,75 +211,17 @@ body:has(.wf) .dmf{display:none}
 .wf-pv{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain}
 .wf-pv[hidden]{display:none}
 .wfx-empty{padding:var(--dm-s-6) var(--dm-s-4);font-size:12.5px;color:var(--dm-muted);text-align:center}
-/* wfx-insp: the step inspector */
-.wfx-insp.dtp{padding:var(--dm-s-3) var(--dm-s-4) var(--dm-s-4);gap:2px}
-.wfx-insp-h{display:flex;align-items:center;gap:10px;padding:2px 0 var(--dm-s-2)}
-.wfx-insp-h .tx{flex:1;min-width:0;display:flex;flex-direction:column}
-.wfx-insp-h .tx .muted{font-size:12px;padding-left:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.wfx-insp-h .ib{width:28px;height:28px;flex:none;color:var(--dm-muted)}
-.wfx-insp-n{width:100%;height:26px;padding:0 6px;margin-left:-6px;border:0;outline:0;border-radius:var(--dm-r-in);background:none;font:inherit;font-size:14px;font-weight:500;color:var(--dm-fg);box-shadow:inset 0 0 0 1px transparent;transition:box-shadow var(--dm-t-fast)}
-@media (hover:hover) and (pointer:fine){.wfx-insp-n:hover{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line) 50%,transparent)}}
-.wfx-insp-n:focus{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line-strong) 50%,transparent)}
-.wfx-insp-run{display:flex;align-items:center;gap:var(--dm-s-2);width:100%;height:32px;margin-bottom:var(--dm-s-1);padding:0 10px;border-radius:var(--dm-r-sm);background:var(--dm-row);font-size:12.5px;color:var(--dm-fg2);text-align:left}
+/* the inspector: Step inspector, edge to edge in the panel; the last run's line, Map another field, the cache switch and the
+   foot are the template's own */
+.wf-insp.sti{max-width:none;margin:0;padding:var(--dm-s-3) var(--dm-s-4) var(--dm-s-4)}
+.wfx-insp-run{display:flex;align-items:center;gap:var(--dm-s-2);width:100%;height:32px;margin:var(--dm-s-2) 0 var(--dm-s-1);padding:0 10px;border-radius:var(--dm-r-sm);background:var(--dm-row);font-size:12.5px;color:var(--dm-fg2);text-align:left}
 .wfx-insp-run .go{margin-left:auto;display:inline-flex;align-items:center;gap:2px;color:var(--dm-fg)}
-.wfx-insp .dtp-sh{padding-left:0}
-.wfx-rows{display:flex;flex-direction:column;gap:2px;padding:0 0 var(--dm-s-2)}
-.wfx-row{display:grid;grid-template-columns:104px minmax(0,1fr);align-items:center;min-height:36px}
-.wfx-row.top{align-items:start}
-.wfx-row.top>.k{padding-top:9px}
-.wfx-row>.k{font-size:12.5px;color:var(--dm-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.wfx-row>.v{min-width:0;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
-.wfx-insp .dtp-v{max-width:calc(100% + 8px);font-size:13px}
-.wfx-insp .dtp-v>span{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.wfx-insp .dtp-add{width:24px;height:24px}
-.wfx-p{margin:2px 0 6px;font-size:12.5px}
 .wfx-addin{align-self:flex-start;margin:2px 0 0 -8px;color:var(--dm-fg2)}
-/* wfx-tok: a field mapped from an earlier step: the step, then its field */
-.wfx-tok{display:inline-flex;align-items:center;gap:5px;max-width:100%;min-width:0;height:24px;padding:0 var(--dm-s-2) 0 3px;border-radius:var(--dm-r-sm);background:var(--dm-chip);font-size:12px;color:var(--dm-fg);white-space:nowrap}
-.wfx-tok .ic{width:18px;height:18px;flex:none;display:grid;place-items:center;border-radius:calc(5px * var(--dm-rk));background:var(--dm-surface);color:var(--dm-fg2)}
-.wfx-tok .ic.ai{color:var(--dm-accent-fg,var(--dm-accent))}
-.wfx-tok .s{min-width:0;max-width:120px;color:var(--dm-muted);overflow:hidden;text-overflow:ellipsis}
-.wfx-tok .s::after{content:"›";margin-left:5px}
-.wfx-tok .k{font-weight:500;overflow:hidden;text-overflow:ellipsis}
-.wfx-tok.none{padding-left:var(--dm-s-2);background:none;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 60%,transparent);color:var(--dm-muted)}
-.wfx-tok.bad{padding-left:6px;background:var(--dm-bad-bg);color:var(--dm-bad)}
-.wfx-tok-b{display:inline-flex;max-width:100%;min-width:0;border-radius:var(--dm-r-sm);transition:box-shadow var(--dm-t-fast)}
-.wfx-tok-b[aria-expanded="true"] .wfx-tok{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line-strong) 50%,transparent)}
-@media (hover:hover) and (pointer:fine){.wfx-tok-b:hover .wfx-tok{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line) 60%,transparent)}}
-.wfx-prompt{display:flex;flex-direction:column;gap:6px;padding:var(--dm-s-1) 0 var(--dm-s-2)}
-.wfx-prompt-h{display:flex;align-items:center;justify-content:space-between;min-height:28px}
-.wfx-prompt-h .k{font-size:12.5px;color:var(--dm-muted)}
-.wfx-prompt-h .pill{margin-right:-8px;color:var(--dm-fg2)}
-.wfx-ta,.wfx-in input{display:block;width:100%;border:0;outline:0;border-radius:var(--dm-r-field);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line) 50%,transparent);font:inherit;color:var(--dm-fg);transition:box-shadow var(--dm-t-fast)}
-@supports (corner-shape:squircle){.wfx-ta,.wfx-in input{corner-shape:squircle;border-radius:var(--dm-r-field-sq)}}
-.wfx-ta{min-height:112px;padding:var(--dm-s-2) 10px;font-size:13px;line-height:1.55;resize:vertical}
-.wfx-ta:focus,.wfx-in input:focus{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line-strong) 50%,transparent)}
-.wfx-uses{display:flex;flex-wrap:wrap;align-items:center;gap:var(--dm-s-1) 6px;font-size:12px}
-.wfx-num{display:inline-flex;align-items:center;gap:2px;height:30px;padding:0 3px;border-radius:var(--dm-r-field);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line) 50%,transparent)}
-.wfx-num .ib{width:24px;height:24px}
-.wfx-num .ib[aria-disabled="true"]{color:var(--dm-dis);cursor:not-allowed;background:none}
-.wfx-num .num{min-width:22px;text-align:center;font-size:13px}
-.wfx-seg.seg2 button{height:24px;font-size:12px}
 .wfx-tg{display:inline-flex;align-items:center;gap:var(--dm-s-2);min-height:30px;font-size:12.5px;color:var(--dm-fg2);text-align:left}
 .wfx-tg[aria-checked="true"] .toggle{background:var(--dm-accent);box-shadow:inset 0 0 0 1px var(--dm-accent-mark,var(--dm-accent))}
 .wfx-tg[aria-checked="true"] .toggle::after{transform:translateX(12px);background:var(--dm-on-accent)}
-.wfx-tools,.wfx-ppl{display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:6px 0}
-.wfx-chip{display:inline-flex;align-items:center;gap:5px;height:24px;max-width:100%;padding:0 3px 0 7px;border-radius:var(--dm-r-sm);background:var(--dm-chip);font-size:12px;color:var(--dm-fg)}
-.wfx-chip>.i{color:var(--dm-fg2)}
-.wfx-chip .av{width:18px;height:18px;margin-left:-4px;font-size:8.5px}
 .wfx-chip-t{font:inherit;color:inherit;white-space:nowrap}
 @media (hover:hover) and (pointer:fine){.wfx-chip-t:hover{text-decoration:underline;text-underline-offset:2px}}
-.wfx-chip-x{width:18px;height:18px;display:grid;place-items:center;border-radius:calc(5px * var(--dm-rk));color:var(--dm-muted)}
-@media (hover:hover) and (pointer:fine){.wfx-chip-x:hover{background:var(--dm-surface);color:var(--dm-fg)}}
-.wfx-schema{display:grid;grid-template-columns:auto auto minmax(0,1fr);align-items:center;gap:var(--dm-s-2);min-height:30px;font-size:12.5px}
-.wfx-schema .ex{text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12px}
-.wfx-schema .tag,.wfx-var-o .tag{font-weight:400;color:var(--dm-muted)}
-.wfx-rule{display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:var(--dm-s-1) 0 var(--dm-s-2)}
-.wfx-rule .dtp-v{margin-left:0;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line) 50%,transparent)}
-.wfx-in input{width:64px;height:28px;padding:0 var(--dm-s-2);font-size:13px}
-.wfx-link{display:inline-flex;align-items:center;gap:var(--dm-s-2);height:30px;max-width:100%;padding:0 var(--dm-s-2);margin-left:-8px;border-radius:var(--dm-r-sm);font-size:13px;white-space:nowrap;transition:background var(--dm-t-fast)}
-@media (hover:hover) and (pointer:fine){.wfx-link:hover{background:var(--dm-row)}}
-.wfx-link .wfx-ic{width:20px;height:20px}
 .wfx-insp-f{display:flex;align-items:center;justify-content:space-between;gap:var(--dm-s-2);margin-top:var(--dm-s-2);padding-top:var(--dm-s-3);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);font-size:12px}
 .wfx-insp-e{display:flex;flex-direction:column;align-items:center;gap:var(--dm-s-1);padding:var(--dm-s-6) var(--dm-s-3) var(--dm-s-4);text-align:center}
 .wfx-insp-e .wfx-ic{margin-bottom:var(--dm-s-2)}
@@ -380,20 +279,12 @@ body:has(.wf) .dmf{display:none}
 .wf-pop .mi.bad,.wf-pop .mi.bad .i{color:var(--dm-bad)}
 .wf-pop .mi[aria-disabled="true"]{color:var(--dm-dis);cursor:not-allowed}
 .wf-pop .mi .kbd{margin-left:auto}
+.wf-pop .mi .av{flex:none}
 .wf .pop{box-shadow:0 0 0 1px color-mix(in srgb,var(--dm-line) 70%,transparent),var(--dm-shadow-pop)}
 .wfx-pick.acx-pk{width:272px}
 .wfx-pick .acx-ls{max-height:260px}
 .wfx-pick .acx-o .ic.wfx-ic{width:22px;height:22px;border-radius:calc(6px * var(--dm-rk))}
 .wfx-pick .acx-o>span:last-child{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-/* wfx-var: the data picker */
-.wfx-var.pop{width:304px;padding:var(--dm-s-2);display:flex;flex-direction:column;gap:var(--dm-s-1)}
-.wfx-var-ls{max-height:288px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--dm-rail) transparent}
-.wfx-var-g{display:flex;align-items:center;gap:var(--dm-s-2);padding:var(--dm-s-2) 6px var(--dm-s-1);font-size:12px;color:var(--dm-muted)}
-.wfx-var-g .wfx-ic{width:18px;height:18px;border-radius:calc(5px * var(--dm-rk))}
-.wfx-var-o{display:grid;grid-template-columns:auto auto minmax(0,1fr);align-items:center;gap:var(--dm-s-2);height:32px;padding:0 var(--dm-s-2) 0 32px;border-radius:var(--dm-r-sm);font-size:13px;cursor:pointer;user-select:none}
-.wfx-var-o.on{background:var(--dm-row)}
-.wfx-var-o .ex{min-width:0;text-align:right;font-size:12px;color:var(--dm-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.wfx-var-e{margin:0;padding:var(--dm-s-4) var(--dm-s-2);font-size:12.5px;color:var(--dm-muted)}
 .wf-over{position:absolute;inset:0;z-index:70;display:flex;justify-content:center;align-items:flex-start;padding:72px var(--dm-s-4) var(--dm-s-4);background:color-mix(in srgb,var(--dm-page) 60%,transparent);animation:wffade .2s var(--dm-ease)}
 .wf-over[hidden]{display:none}
 @keyframes wffade{from{opacity:0}}
@@ -438,9 +329,8 @@ body:has(.wf) .dmf{display:none}
 }
 /* a narrow work area puts the agent's card over the steps, and the run's details give way to the switch */
 @container wfw (max-width:720px){
-  .wfx-dr-v[data-v="steps"]{grid-template-columns:minmax(0,1fr)}
+  .wf-steps:not([hidden]){grid-template-columns:minmax(0,1fr)}
   .wfx-dr-note{order:0;position:static}
-  .wfx-dr-meta{display:none}
 }
 @media (max-width:640px){
   .wf-top{gap:var(--dm-s-1);padding-right:var(--dm-s-2)}
@@ -450,13 +340,7 @@ body:has(.wf) .dmf{display:none}
   .wf-pub{width:32px;padding:0}
   .wf-pub span{display:none}
   .wf-bar .wf-xs{display:none}
-  .wf.dro .wfx-drawer{height:min(var(--wf-drh,312px),56%)}
-  .wfx-dr-follow,.wfx-dr-t .w{display:none}
-  .wfx-dr-stop{width:28px;padding:0}
-  .wfx-dr-stop span{display:none}
-  .wfx-dr-h{padding-right:var(--dm-s-2)}
-  .wf-trv.trv{--dm-cols:minmax(0,1fr) 72px 52px}
-  .wf-trv :is(.trv-tk){display:none}
+  .wf .rdr-dw:not(.shut){height:min(var(--rdr-h,312px),56%)}
   .wf.pn .wf-panel{width:100%}
   .wf-over{padding:var(--dm-s-4) var(--dm-s-2)}
   .wfx-fix-l li{grid-template-columns:auto 12px minmax(0,1fr)}

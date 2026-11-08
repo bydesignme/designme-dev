@@ -5101,6 +5101,333 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--row)}
 :root[data-theme="dark"] .ctb{--ctb-stop:#c43535;--ctb-stop-2:#d34646}
 :root[data-style="bp"] .ctb-n.run{box-shadow:0 0 0 1px var(--accent-mark),0 0 0 4px color-mix(in srgb,var(--accent) 22%,transparent)}
 :root[data-style="bp"] .ctb-n.sel{box-shadow:0 0 0 1px color-mix(in srgb,var(--pick-on) 50%,transparent)}
+/* ---------- Step inspector ---------- */
+/* the settings of one step in an agent workflow. Its tile says its kind in colour (the trigger orange, AI steps violet,
+   tools teal, app steps and outputs blue, a branch yellow, a wait pink, an approval green), then its name, where it sits
+   and Test and More. Under it, sections that fold: what the step does, the data it reads, what it hands on and what happens
+   if it fails. Data mapped from an earlier step is a token, the step and then its field; data that no earlier step gives is
+   a red token with a line saying why. Data types are coloured chips; every line and edge is grey */
+.sti{width:100%;max-width:360px;margin-inline:auto;padding:var(--s-3) var(--s-4) var(--s-1);display:flex;flex-direction:column;text-align:left}
+.sti-ti{width:18px;height:18px;flex:none;display:grid;place-items:center;border-radius:calc(5px * var(--rk));background:var(--sti-kb,var(--chip));color:var(--sti-kf,var(--fg2))}
+.sti-ti .i{width:11px;height:11px}
+.sti-ti[data-k="trigger"]{--sti-kb:var(--pp-bg);--sti-kf:var(--pp)}
+.sti-ti[data-k="ai"]{--sti-kb:var(--pl-bg);--sti-kf:var(--pl)}
+.sti-ti[data-k="tool"]{--sti-kb:var(--pt-bg);--sti-kf:var(--pt)}
+.sti-ti:is([data-k="app"],[data-k="output"]){--sti-kb:var(--pb-bg);--sti-kf:var(--pb)}
+.sti-ti[data-k="branch"]{--sti-kb:var(--py-bg);--sti-kf:var(--py)}
+.sti-ti[data-k="wait"]{--sti-kb:var(--pk-bg);--sti-kf:var(--pk)}
+.sti-ti[data-k="approval"]{--sti-kb:var(--pm-bg);--sti-kf:var(--pm)}
+.sti-h{display:flex;align-items:center;gap:10px;padding:2px 0 var(--s-3);border-bottom:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
+.sti-h>.sti-ti{width:32px;height:32px;border-radius:calc(9px * var(--rk))}
+.sti-h>.sti-ti .i{width:14px;height:14px}
+.sti-tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+.sti-nr{display:flex;align-items:center;gap:6px;min-width:0}
+.sti-n{flex:1;min-width:0;width:100%;height:24px;padding:0 6px;margin-left:-6px;border:0;outline:0;border-radius:var(--r-xs);background:none;font:inherit;font-size:14px;font-weight:500;color:var(--fg);text-overflow:ellipsis;box-shadow:inset 0 0 0 1px transparent;transition:box-shadow var(--t-fast)}
+.sti-n:hover{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--field-line) 50%,transparent)}
+.sti-n:focus{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--field-line-strong) 50%,transparent)}
+.sti-kd{display:block;min-width:0;font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sti-kd.ok{color:var(--ok)}
+.sti-h .ib{width:28px;height:28px;flex:none;color:var(--muted)}
+.sti-h .ib:hover{color:var(--fg)}
+.sti-test.busy .i{animation:rot 1s linear infinite}
+/* a section: its head folds it, and says what needs a look */
+.sti-sec{border-bottom:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
+.sti-sec:last-child{border-bottom:0}
+.sti-sh{display:flex;align-items:center;gap:6px;width:100%;min-height:40px;font-size:12.5px;font-weight:500;color:var(--fg);text-align:left}
+.sti-sh>.i{color:var(--muted);transform:rotate(90deg);transition:transform var(--t) var(--ease)}
+.sti-sh[aria-expanded="false"]>.i{transform:none}
+.sti-sh .n{margin-left:auto;font-size:12px;font-weight:400;color:var(--muted)}
+.sti-sh .tag{margin-left:auto}
+.sti-rows{display:flex;flex-direction:column;gap:2px;padding:0 0 var(--s-3)}
+.sti-row{display:grid;grid-template-columns:92px minmax(0,1fr);align-items:center;gap:var(--s-2);min-height:34px}
+.sti-row.top{align-items:start}
+.sti-row.top>.k{padding-top:7px}
+.sti-row>.k{min-width:0;font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sti-row>.v{min-width:0;display:flex;align-items:center;flex-wrap:wrap;gap:6px}
+/* a choice: a field-like trigger that opens a menu */
+.sti-sel{display:inline-flex;align-items:center;gap:6px;max-width:100%;min-width:0;height:30px;padding:0 var(--s-2) 0 10px;border-radius:var(--r-field);background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--field-line) 50%,transparent);font-size:13px;color:var(--fg);text-align:left;transition:box-shadow var(--t-fast),background var(--t-fast)}
+@supports (corner-shape:squircle){.sti-sel{corner-shape:squircle;border-radius:var(--r-field-sq)}}
+.sti-sel>span{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sti-sel>.i{color:var(--muted)}
+.sti-sel:hover{background:var(--row)}
+.sti-sel[aria-expanded="true"]{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--field-line-strong) 50%,transparent)}
+/* a mapped field: the step's tile, the step and the field */
+.sti-tok{display:inline-flex;align-items:center;gap:5px;max-width:100%;min-width:0;height:24px;padding:0 var(--s-2) 0 3px;border-radius:var(--r-sm);background:var(--chip);font-size:12px;line-height:24px;color:var(--fg);white-space:nowrap;vertical-align:middle;user-select:none}
+.sti-tok .s{min-width:0;max-width:112px;color:var(--muted);overflow:hidden;text-overflow:ellipsis}
+.sti-tok .sep{color:var(--muted)}
+.sti-tok .f{flex:none;max-width:100%;font-weight:500;overflow:hidden;text-overflow:ellipsis}
+.sti-tok.bad{padding-left:6px;background:var(--bad-bg);color:var(--bad)}
+.sti-tok.bad .s,.sti-tok.bad .sep{color:inherit}
+.sti-tok.none{padding-left:var(--s-2);background:none;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--line) 60%,transparent);color:var(--muted)}
+.sti-tokb{display:inline-flex;max-width:100%;min-width:0;border-radius:var(--r-sm);transition:box-shadow var(--t-fast)}
+.sti-tokb .sti-tok{transition:box-shadow var(--t-fast)}
+.sti-tokb:hover .sti-tok{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--field-line) 60%,transparent)}
+.sti-tokb[aria-expanded="true"] .sti-tok{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--field-line-strong) 50%,transparent)}
+.sti-note{grid-column:2;margin:-2px 0 2px;font-size:12px;line-height:1.4;color:var(--bad)}
+/* the instructions: text with mapped fields inline */
+.sti-ih{display:flex;align-items:center;justify-content:space-between;min-height:30px}
+.sti-ih .k{font-size:12.5px;color:var(--muted)}
+.sti-ih .pill{margin-right:-8px;color:var(--fg2)}
+.sti-ins{display:block;min-height:96px;padding:var(--s-2) 10px;border-radius:var(--r-box);background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--field-line) 50%,transparent);font-size:13px;line-height:26px;color:var(--fg);white-space:pre-wrap;overflow-wrap:anywhere;outline:0;cursor:text;transition:box-shadow var(--t-fast)}
+@supports (corner-shape:squircle){.sti-ins{corner-shape:squircle;border-radius:var(--r-box-sq)}}
+.sti-ins:focus{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--field-line-strong) 50%,transparent)}
+.sti-ins .sti-tok{margin:0 1px;cursor:default}
+.sti-ins .sti-tok.new{animation:popin .5s var(--ease) backwards}
+.sti-insw{display:flex;flex-direction:column;gap:6px;padding:0 0 var(--s-2)}
+/* tools and people as chips, each with its remove */
+.sti-chips{display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:5px 0}
+.sti-chip{display:inline-flex;align-items:center;gap:5px;height:26px;max-width:100%;padding:0 3px 0 4px;border-radius:var(--r-sm);background:var(--chip);font-size:12.5px;color:var(--fg)}
+.sti-chip>span:not(.sti-ti):not(.av){min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sti-chip .av{width:18px;height:18px;font-size:8.5px}
+.sti-chip.new{animation:popin .5s var(--ease) backwards}
+.sti-cx{width:20px;height:20px;flex:none;display:grid;place-items:center;border-radius:calc(5px * var(--rk));color:var(--muted);transition:background var(--t-fast),color var(--t-fast)}
+.sti-cx:hover{background:var(--surface);color:var(--fg)}
+.sti-add{width:26px;height:26px;flex:none;display:grid;place-items:center;border-radius:var(--r-sm);color:var(--muted);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--line) 60%,transparent);transition:background var(--t-fast),color var(--t-fast)}
+.sti-add:hover,.sti-add[aria-expanded="true"]{background:var(--row);color:var(--fg)}
+/* what the step hands on: each field with its type in colour */
+.sti-out{display:grid;grid-template-columns:auto auto minmax(0,1fr);align-items:center;gap:var(--s-2);min-height:30px;font-size:13px}
+.sti-out .ex{min-width:0;text-align:right;font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sti-out .tag,.sti-dp .tag{font-weight:500}
+/* a stepper, a two-way switch and a number */
+.sti-num{display:inline-flex;align-items:center;gap:2px;height:30px;padding:0 3px;border-radius:var(--r-field);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--field-line) 50%,transparent)}
+@supports (corner-shape:squircle){.sti-num{corner-shape:squircle;border-radius:var(--r-field-sq)}}
+.sti-num .ib{width:24px;height:24px}
+.sti-num .ib[aria-disabled="true"]{color:var(--dis);background:none;cursor:not-allowed}
+.sti-num .num{min-width:22px;text-align:center;font-size:13px}
+.sti-seg.seg2 button{height:24px;padding:0 10px;font-size:12px}
+.sti-rule{display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:var(--s-1) 0 var(--s-2)}
+.sti-in{width:64px;height:30px;padding:0 var(--s-2);border:0;outline:0;border-radius:var(--r-field);background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--field-line) 50%,transparent);font:inherit;font-size:13px;font-variant-numeric:tabular-nums;color:var(--fg);transition:box-shadow var(--t-fast)}
+@supports (corner-shape:squircle){.sti-in{corner-shape:squircle;border-radius:var(--r-field-sq)}}
+.sti-in:focus{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--field-line-strong) 50%,transparent)}
+/* where a branch's paths go */
+.sti-link{display:inline-flex;align-items:center;gap:var(--s-2);min-width:0;max-width:100%;height:28px;font-size:13px;color:var(--fg);white-space:nowrap}
+.sti-link>span:last-child{min-width:0;overflow:hidden;text-overflow:ellipsis}
+button.sti-link{padding:0 var(--s-2);margin-left:-8px;border-radius:var(--r-sm);transition:background var(--t-fast)}
+button.sti-link:hover{background:var(--row)}
+.sti-p{margin:0;padding:2px 0 var(--s-2);font-size:12.5px;color:var(--muted)}
+/* the menus: a field list grouped by step, and the choices */
+.sti-pk,.sti-dp{min-width:208px;max-width:288px}
+.sti-dp{width:288px;max-height:300px;overflow-y:auto;scrollbar-width:thin}
+.sti-dp .ph{display:flex;align-items:center;gap:var(--s-2)}
+.sti-dp .mi{display:grid;grid-template-columns:auto auto minmax(0,1fr);gap:var(--s-2);padding-left:34px}
+.sti-dp .mi .r{min-width:0;margin-left:0;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sti-pk .mi .av{width:20px;height:20px;font-size:9px}
+.sti-off{flex:none}
+.sti-live{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.sti-body{position:relative}
+.sti-body.in>*{animation:enter var(--t) var(--ease) backwards}
+.sti-body.in>:nth-child(2){animation-delay:40ms}.sti-body.in>:nth-child(3){animation-delay:80ms}.sti-body.in>:nth-child(4){animation-delay:120ms}
+@media (prefers-reduced-motion:reduce){.sti-body.in>*,.sti-ins .sti-tok.new,.sti-chip.new,.sti-test.busy .i{animation:none!important}}
+:root[data-style="bp"] .sti-ti{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--sti-kf,var(--rail)) 30%,transparent)}
+:root[data-style="bp"] .sti-tok:not(.bad):not(.none),:root[data-style="bp"] .sti-chip{background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--rail) 60%,transparent)}
+/* ---------- Data picker ---------- */
+/* maps data from earlier steps into a step's fields. Each field holds tokens, the step and then its field, and a + that opens
+   the picker: only what earlier steps hand on, grouped by step under each step's tile in its kind's colour, each field with
+   its type as a coloured chip and a sample value. Search filters it, the arrows move through it and Enter puts the field in */
+.fpk{position:relative;width:100%;max-width:var(--field-w);container:fpk/inline-size;margin-inline:auto;display:flex;flex-direction:column;gap:var(--s-3);text-align:left}
+.fpk-hd{display:flex;align-items:center;gap:var(--s-2);font-size:13px}
+.fpk-hd b{font-weight:500}
+.fpk-hd .muted{margin-left:auto;font-size:12px}
+.fpk-ti{width:18px;height:18px;flex:none;display:grid;place-items:center;border-radius:calc(5px * var(--rk));background:var(--fpk-kb,var(--chip));color:var(--fpk-kf,var(--fg2))}
+.fpk-ti .i{width:11px;height:11px}
+.fpk-hd .fpk-ti{width:24px;height:24px;border-radius:calc(7px * var(--rk))}
+.fpk-hd .fpk-ti .i{width:12px;height:12px}
+.fpk-ti[data-k="trigger"]{--fpk-kb:var(--pp-bg);--fpk-kf:var(--pp)}
+.fpk-ti[data-k="ai"]{--fpk-kb:var(--pl-bg);--fpk-kf:var(--pl)}
+.fpk-ti[data-k="tool"]{--fpk-kb:var(--pt-bg);--fpk-kf:var(--pt)}
+.fpk-ti:is([data-k="app"],[data-k="output"]){--fpk-kb:var(--pb-bg);--fpk-kf:var(--pb)}
+.fpk-ti[data-k="branch"]{--fpk-kb:var(--py-bg);--fpk-kf:var(--py)}
+.fpk-ti[data-k="wait"]{--fpk-kb:var(--pk-bg);--fpk-kf:var(--pk)}
+.fpk-ti[data-k="approval"]{--fpk-kb:var(--pm-bg);--fpk-kf:var(--pm)}
+.fpk-f{display:flex;flex-direction:column;gap:6px}
+.fpk-l{font-size:12.5px;color:var(--muted)}
+.fpk-box{display:flex;flex-wrap:wrap;align-items:center;gap:6px;min-height:var(--field-h);padding:5px 5px 5px var(--s-2);border-radius:var(--r-field);background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--field-line) 50%,transparent);transition:box-shadow var(--t-fast)}
+@supports (corner-shape:squircle){.fpk-box{corner-shape:squircle;border-radius:var(--r-field-sq)}}
+.fpk-box:has([aria-expanded="true"]){box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--field-line-strong) 50%,transparent)}
+.fpk-ph{font-size:13px;color:var(--muted)}
+.fpk-tok{display:inline-flex;align-items:center;gap:5px;max-width:100%;min-width:0;height:26px;padding:0 2px 0 4px;border-radius:var(--r-sm);background:var(--chip);font-size:12px;color:var(--fg);white-space:nowrap}
+.fpk-tok .s{min-width:0;max-width:120px;color:var(--muted);overflow:hidden;text-overflow:ellipsis}
+.fpk-tok .sep{color:var(--muted)}
+.fpk-tok .f{flex:none;max-width:100%;font-weight:500;overflow:hidden;text-overflow:ellipsis}
+.fpk-tok.new{animation:popin .5s var(--ease) backwards}
+.fpk-tok.out{animation:leave .3s var(--ease) both}
+.fpk-x{width:20px;height:20px;flex:none;display:grid;place-items:center;border-radius:calc(5px * var(--rk));color:var(--muted);transition:background var(--t-fast),color var(--t-fast)}
+.fpk-x:hover{background:var(--surface);color:var(--fg)}
+.fpk-add{width:26px;height:26px;flex:none;display:grid;place-items:center;margin-left:auto;border-radius:var(--r-sm);color:var(--muted);transition:background var(--t-fast),color var(--t-fast)}
+.fpk-add:hover,.fpk-add[aria-expanded="true"]{background:var(--row);color:var(--fg)}
+/* the picker */
+.fpk-pop.pop{width:min(320px,100cqi,calc(100vw - 32px));padding:var(--s-2);display:flex;flex-direction:column;gap:var(--s-1)}
+.fpk-q{display:flex;align-items:center;gap:var(--s-2);height:36px;padding:0 10px;border-radius:var(--r-field);background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--field-line) 50%,transparent);color:var(--muted);transition:box-shadow var(--t-fast)}
+@supports (corner-shape:squircle){.fpk-q{corner-shape:squircle;border-radius:var(--r-field-sq)}}
+.fpk-q:focus-within{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--field-line-strong) 50%,transparent)}
+.fpk-q input{flex:1;min-width:0;height:100%;border:0;outline:0;background:none;font:inherit;font-size:13px;color:var(--fg)}
+.fpk-q input::placeholder{color:var(--muted)}
+.fpk-ls{max-height:252px;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:var(--rail) transparent}
+.fpk-g{display:flex;align-items:center;gap:var(--s-2);padding:var(--s-2) 6px var(--s-1);font-size:12px;color:var(--muted)}
+.fpk-g b{min-width:0;font-weight:500;color:var(--fg2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fpk-g .n{margin-left:auto;flex:none}
+.fpk-o{display:grid;grid-template-columns:auto auto minmax(0,1fr);align-items:center;gap:var(--s-2);height:32px;padding:0 var(--s-2) 0 32px;border-radius:var(--r-sm);font-size:13px;cursor:pointer;user-select:none}
+.fpk-o.on{background:var(--row)}
+.fpk-o .k{white-space:nowrap}
+.fpk-o .k mark{background:none;color:inherit;font-weight:500;text-decoration:underline;text-decoration-color:var(--faint);text-underline-offset:2px}
+.fpk-o .ex{min-width:0;text-align:right;font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fpk-o .tag{font-weight:500}
+.fpk-e{margin:0;padding:var(--s-4) var(--s-2);font-size:12.5px;color:var(--muted)}
+.fpk-ft{display:flex;align-items:center;gap:var(--s-2);margin:0;padding:6px 6px 2px;border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent);font-size:12px;color:var(--muted)}
+.fpk-ft .kbd{margin-right:-4px}
+.fpk-ft span:first-child{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fpk-live{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+@media (prefers-reduced-motion:reduce){.fpk-tok.new,.fpk-tok.out{animation:none!important}}
+@container fpk (max-width:300px){.fpk-ft .kh{display:none}}
+:root[data-style="bp"] .fpk-ti{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--fpk-kf,var(--rail)) 30%,transparent)}
+:root[data-style="bp"] .fpk-tok{background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--rail) 60%,transparent)}
+/* ---------- Run drawer ---------- */
+/* the run of a workflow, in a drawer under its canvas that folds down to one line and drags taller. Its head says the run's
+   state in colour (running in the accent, waiting amber, passed green, failed red, stopped grey), the time, the tokens and the
+   cost, then Steps, Log and Data, Stop and Follow the run. Steps is a timeline with each step's model and tool calls nested
+   under it, each bar in its kind's colour, a failed try red and the wait before a retry hatched amber. Log is the run's lines
+   with their levels in colour, filtered by level. Data is what each step took in and handed on, as JSON */
+.rdr{position:relative;width:100%;height:472px;container:rdrf/inline-size;display:flex;flex-direction:column;overflow:hidden;border-radius:var(--r-card);background:var(--surface);box-shadow:var(--shadow);text-align:left}
+.rdr-cv{position:relative;flex:1;min-height:0;display:flex;align-items:center;justify-content:center;padding:var(--s-4) var(--s-3);background:var(--stage);background-image:radial-gradient(circle at center,color-mix(in srgb,var(--fg) 9%,transparent) 1px,transparent 1.5px);background-size:16px 16px;overflow:hidden}
+.rdr-flow{position:relative;display:flex;align-items:center;max-width:100%;overflow-x:auto;scrollbar-width:none;padding:6px}
+.rdr-flow::-webkit-scrollbar{display:none}
+.rdr-wire{flex:none;width:14px;height:1.5px;background:var(--faint);transition:background .4s var(--ease)}
+.rdr-wire.done{background:color-mix(in srgb,var(--fg) 40%,var(--faint))}
+.rdr-nd{position:relative;flex:none;display:flex;align-items:center;gap:6px;height:34px;padding:0 7px;border-radius:calc(10px * var(--rk));background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--line) 80%,transparent);font-size:12px;white-space:nowrap;transition:box-shadow .3s,opacity .3s}
+.rdr-nd:hover{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--line-strong) 50%,transparent)}
+.rdr-nd .t{max-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;opacity:0;transition:max-width var(--t) var(--ease),opacity var(--t) var(--ease)}
+.rdr-nd:is([data-st="run"],[data-st="retry"],[data-st="wait"],[data-st="bad"],[aria-pressed="true"]) .t{max-width:132px;opacity:1}
+.rdr-nd[aria-pressed="true"]{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--pick-on) 75%,transparent),var(--shadow-pop)}
+.rdr-nd[data-st="run"]{box-shadow:0 0 0 1.5px var(--accent-mark,var(--accent))}
+.rdr-nd[data-st="bad"]{box-shadow:0 0 0 1.5px var(--bad)}
+.rdr-nd:is([data-st="retry"],[data-st="wait"]){box-shadow:0 0 0 1.5px var(--warn-mark)}
+.rdr-nd[data-st="skip"]{opacity:.5}
+.rdr-ns{display:none;width:14px;height:14px;place-items:center;color:var(--ok)}
+.rdr-nd[data-st="ok"] .rdr-ns{display:grid;margin-left:-2px}
+.rdr-nd[data-st="ok"] .rdr-ns .i{width:12px;height:12px}
+.rdr-ti{width:18px;height:18px;flex:none;display:grid;place-items:center;border-radius:calc(5px * var(--rk));background:var(--rdr-kb,var(--chip));color:var(--rdr-kf,var(--fg2))}
+.rdr-ti .i{width:11px;height:11px}
+.rdr [data-k],.rdr-dw [data-k]{--rdr-kb:var(--chip);--rdr-kf:var(--fg2);--rdr-kc:var(--faint)}
+.rdr [data-k="trigger"],.rdr-dw [data-k="trigger"]{--rdr-kb:var(--pp-bg);--rdr-kf:var(--pp);--rdr-kc:var(--pp)}
+.rdr [data-k="ai"],.rdr-dw [data-k="ai"]{--rdr-kb:var(--pl-bg);--rdr-kf:var(--pl);--rdr-kc:var(--pl)}
+.rdr [data-k="model"],.rdr-dw [data-k="model"]{--rdr-kb:var(--pl-bg);--rdr-kf:var(--pl);--rdr-kc:color-mix(in srgb,var(--pl) 75%,var(--surface))}
+.rdr [data-k="tool"],.rdr-dw [data-k="tool"]{--rdr-kb:var(--pt-bg);--rdr-kf:var(--pt);--rdr-kc:var(--pt)}
+.rdr :is([data-k="app"],[data-k="output"]),.rdr-dw :is([data-k="app"],[data-k="output"]){--rdr-kb:var(--pb-bg);--rdr-kf:var(--pb);--rdr-kc:var(--pb)}
+.rdr [data-k="branch"],.rdr-dw [data-k="branch"]{--rdr-kb:var(--py-bg);--rdr-kf:var(--py);--rdr-kc:var(--py)}
+.rdr [data-k="wait"],.rdr-dw [data-k="wait"]{--rdr-kb:var(--pk-bg);--rdr-kf:var(--pk);--rdr-kc:var(--pk)}
+.rdr [data-k="approval"],.rdr-dw [data-k="approval"]{--rdr-kb:var(--pm-bg);--rdr-kf:var(--pm);--rdr-kc:var(--pm)}
+.rdr [data-k="retry"],.rdr-dw [data-k="retry"]{--rdr-kb:var(--warn-bg);--rdr-kf:var(--warn);--rdr-kc:var(--warn-mark)}
+/* the drawer */
+.rdr-dw{position:relative;flex:none;height:var(--rdr-h,312px);display:flex;flex-direction:column;background:var(--surface);border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent);container:rdr/inline-size}
+.rdr-dw.shut{height:45px}
+.rdr-dw.anim{transition:height var(--t) var(--ease)}
+.rdr-grip{position:absolute;left:0;right:0;top:-6px;z-index:3;height:12px;display:grid;place-items:center;cursor:ns-resize;touch-action:none;outline:0}
+.rdr-grip i{display:block;width:32px;height:4px;border-radius:2px;background:var(--rail);opacity:0;transition:opacity var(--t-fast),background var(--t-fast)}
+.rdr-grip:hover i,.rdr-grip.on i{opacity:1}
+.rdr-grip:focus-visible i{opacity:1;background:var(--line-strong)}
+.rdr-dw.drag{user-select:none}
+.rdr-h{flex:none;display:flex;align-items:center;gap:var(--s-2);height:44px;padding:0 var(--s-2) 0 6px}
+.rdr-tg{flex:none;display:inline-flex;align-items:center;gap:var(--s-2);min-width:0;height:30px;padding:0 var(--s-2);border-radius:var(--r-sm);font-size:13px;font-weight:500;white-space:nowrap;transition:background var(--t-fast)}
+.rdr-tg:hover{background:var(--row)}
+.rdr-tg>.i{color:var(--muted);transform:rotate(180deg);transition:transform var(--t) var(--ease)}
+.rdr-dw.shut .rdr-tg>.i{transform:none}
+.rdr-st.tag .spin{width:9px;height:9px;border-width:1.5px}
+.rdr-st.run{background:var(--accent-bg);color:var(--accent-fg,var(--accent))}
+.rdr-meta{min-width:0;font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rdr-sp{flex:1}
+.rdr-tabs{flex:none}
+.rdr-tabs button{padding:0 10px}
+.rdr-stop,.rdr-again{flex:none}
+.rdr-follow{width:28px;height:28px;flex:none;color:var(--muted)}
+.rdr-follow[aria-pressed="true"]{background:var(--row);color:var(--fg)}
+.rdr-dw.shut :is(.rdr-tabs,.rdr-follow){display:none}
+.rdr-b{position:relative;flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:var(--rail) transparent;padding:0 var(--s-3) var(--s-3)}
+.rdr-dw.shut .rdr-b{display:none}
+.rdr-v[hidden]{display:none}
+/* Steps: the timeline */
+.rdr-ax,.rdr-r{display:grid;grid-template-columns:minmax(0,15fr) minmax(0,14fr) 56px;align-items:center;gap:var(--s-2);padding:0 var(--s-2)}
+.rdr-ax{position:sticky;top:0;z-index:2;height:28px;background:var(--surface);box-shadow:0 1px 0 color-mix(in srgb,var(--line) 50%,transparent);font-size:12px;color:var(--muted)}
+.rdr-ax .ms{text-align:right}
+.rdr-sc{position:relative;height:16px}
+.rdr-sc span{position:absolute;top:0;transform:translateX(-50%);white-space:nowrap}
+.rdr-sc span:first-child{transform:none}
+.rdr-rows{display:flex;flex-direction:column;padding-top:var(--s-1)}
+.rdr-r{width:100%;min-height:30px;border-radius:calc(8px * var(--rk));font-size:12.5px;text-align:left;transition:background .16s}
+.rdr-r:hover{background:var(--row)}
+.rdr-r[aria-pressed="true"]{background:var(--sel)}
+.rdr-r.in{animation:enter var(--t) var(--ease) backwards}
+.rdr-n{display:flex;align-items:center;gap:6px;min-width:0;padding-left:calc(var(--lv,0) * 18px)}
+.rdr-nm{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rdr-r[data-lv="0"] .rdr-nm{font-weight:500}
+.rdr-bt{position:relative;height:18px;background:linear-gradient(to right,color-mix(in srgb,var(--line) 70%,transparent) 1px,transparent 1px) 0 0/var(--rdr-g,20%) 100%}
+.rdr-bt i{position:absolute;top:5px;height:8px;min-width:3px;border-radius:calc(2.5px * var(--rk));background:var(--rdr-kc)}
+.rdr-r.run .rdr-bt i{animation:rdrrun 1.2s var(--ease-io) infinite}
+@keyframes rdrrun{50%{opacity:.55}}
+.rdr-r[data-st="bad"] .rdr-bt i{background:var(--bad)}
+.rdr-r[data-st="stop"] .rdr-bt i{background:var(--faint)}
+.rdr-r[data-k="retry"] .rdr-bt i,.rdr-r[data-st="wait"] .rdr-bt i{background:repeating-linear-gradient(135deg,var(--warn-mark) 0 3px,color-mix(in srgb,var(--warn-mark) 45%,var(--surface)) 3px 6px)}
+.rdr-ms{text-align:right;font-size:12px;color:var(--fg2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rdr-r[data-st="bad"] .rdr-ms{color:var(--bad)}
+.rdr-r:is([data-k="retry"],[data-st="wait"]) .rdr-ms{color:var(--warn)}
+/* what the run waits for: a person's yes */
+.rdr-ask{display:flex;align-items:center;flex-wrap:wrap;width:100%;box-sizing:border-box;gap:var(--s-2) var(--s-3);margin:6px 0 var(--s-1);padding:10px var(--s-3);border-radius:var(--r-in);background:var(--warn-bg);font-size:12.5px}
+.rdr-ask.in{animation:enter var(--t) var(--ease) backwards}
+.rdr-ask .tx{flex:1;min-width:min(200px,100%);display:flex;flex-direction:column;line-height:1.4}
+.rdr-ask .tx b{font-weight:500;color:var(--fg)}
+.rdr-ask .tx span{color:var(--fg2)}
+.rdr-ask .acts{display:flex;gap:6px}
+.rdr-ask .pill.line{background:var(--surface)}
+/* Log: the lines, their levels in colour */
+.rdr-lf{position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:var(--s-2);padding:var(--s-2) 0 6px;background:var(--surface)}
+.rdr-lf .n{margin-left:auto;font-size:12px;color:var(--muted)}
+.rdr-log{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.rdr-l{display:grid;grid-template-columns:62px 56px minmax(0,1fr);align-items:baseline;gap:var(--s-2);padding:5px var(--s-2);border-radius:calc(8px * var(--rk));font-size:12.5px;line-height:1.45}
+.rdr-l.in{animation:enter var(--t) var(--ease) backwards}
+.rdr-l .t{font-size:12px;color:var(--muted)}
+.rdr-l .lv{justify-self:start;height:18px;padding:0 6px;font-size:11px}
+.rdr-l .lv[data-l="debug"]{background:var(--chip);color:var(--fg2)}
+.rdr-l .lv[data-l="info"]{background:var(--pb-bg);color:var(--pb)}
+.rdr-l .lv[data-l="warn"]{background:var(--warn-bg);color:var(--warn)}
+.rdr-l .lv[data-l="error"]{background:var(--bad-bg);color:var(--bad)}
+.rdr-l .m{min-width:0}
+.rdr-l .m b{font-weight:500}
+.rdr-l .m span{color:var(--fg2)}
+.rdr-l[data-l="error"]{background:color-mix(in srgb,var(--bad-bg) 45%,transparent)}
+.rdr-le{margin:0;padding:var(--s-4) var(--s-2);font-size:12.5px;color:var(--muted)}
+/* Data: each step's input and output */
+.rdr-data{display:grid;grid-template-columns:176px minmax(0,1fr);gap:var(--s-3);padding-top:var(--s-2)}
+.rdr-ds{display:flex;flex-direction:column;gap:2px;min-width:0}
+.rdr-ds button{display:flex;align-items:center;gap:var(--s-2);width:100%;min-width:0;height:30px;padding:0 var(--s-2);border-radius:var(--r-sm);font-size:12.5px;text-align:left;transition:background var(--t-fast)}
+.rdr-ds button:hover{background:var(--row)}
+.rdr-ds button[aria-pressed="true"]{background:var(--sel);font-weight:500}
+.rdr-ds button span:last-child{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rdr-io{display:flex;flex-direction:column;gap:var(--s-2);min-width:0}
+.rdr-io h4{margin:0;font-size:12px;font-weight:500;color:var(--muted)}
+.rdr-json{margin:0;padding:var(--s-2) 10px;border-radius:var(--r-in);background:var(--wash);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--line) 50%,transparent);font-family:var(--mono);font-size:12px;line-height:1.6;color:var(--fg);white-space:pre;overflow-x:auto;scrollbar-width:thin}
+.rdr-json .k{color:var(--pb)}
+.rdr-json .s{color:var(--pm)}
+.rdr-json .n{color:var(--pl)}
+.rdr-de{margin:0;padding:var(--s-4) var(--s-2);font-size:12.5px;color:var(--muted)}
+.rdr-live{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+/* a narrow drawer keeps the run's state and its switch, and gives up the details */
+@container rdr (max-width:620px){
+  .rdr-meta,.rdr-tg .w{display:none}
+  .rdr-stop span,.rdr-again span{display:none}
+  .rdr-stop,.rdr-again{width:28px;padding:0}
+  .rdr-ax,.rdr-r{grid-template-columns:minmax(0,1fr) 30% 48px;padding:0 6px}
+  .rdr-data{grid-template-columns:minmax(0,1fr)}
+  .rdr-ds{flex-direction:row;overflow-x:auto;scrollbar-width:none}
+  .rdr-ds button{flex:none;width:auto}
+  .rdr-l{grid-template-columns:auto minmax(0,1fr);row-gap:2px}
+  .rdr-l .t{grid-column:1}
+  .rdr-l .m{grid-column:1/-1}
+}
+@container rdr (max-width:440px){.rdr-tabs button{padding:0 8px}.rdr-follow,.rdr-tg>span:not(.rdr-st){display:none}.rdr-h{gap:6px}}
+@container rdrf (max-width:400px){.rdr-nd:not([aria-pressed="true"]) .t{max-width:0;opacity:0}}
+@media (prefers-reduced-motion:reduce){.rdr-r.in,.rdr-l.in,.rdr-ask.in,.rdr-r.run .rdr-bt i{animation:none!important}.rdr-dw.anim,.rdr-nd .t{transition:none}}
+:root[data-style="bp"] .rdr-ti{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--rdr-kf,var(--rail)) 30%,transparent)}
+:root[data-style="bp"] .rdr-r.run .rdr-bt i{animation:none;background:repeating-linear-gradient(90deg,var(--rdr-kc) 0 4px,color-mix(in srgb,var(--rdr-kc) 50%,var(--surface)) 4px 6px)}
+:root[data-style="bp"] .rdr-ask{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--warn-mark) 45%,transparent)}
 /* ---------- Memory panel ---------- */
 /* each memory shows where it came from, as that source's own mark (Slack, Figma, GitHub, Notion, Linear, Drive) or an icon
    (something said in chat, an edit), and its kind in the kind's colour (--k). A memory the agent learns arrives shimmering
@@ -9697,6 +10024,74 @@ button.pvb-row:focus-visible{outline-offset:-2px}
 </div></template>
   <div class="card-f"><span>Pan with the hand, zoom in, fit, then run</span><span class="sp"></span><button class="replay" aria-label="Replay Canvas toolbar"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
 </article>
+<article class="card" data-c="step-inspector" id="c-step-inspector">
+  <div class="card-h"><div><h3>Step inspector</h3><p>The settings of one step in an agent workflow, in sections that fold.</p></div></div>
+  <div class="stage"><div class="stage-in"></div></div>
+  <template><div class="sti-dm dm"><div class="dm-main">
+  <div class="sti panel" data-k="ai">
+    <div class="sti-h">
+      <span class="sti-ti" data-k="ai" aria-hidden="true">{spark}</span>
+      <span class="sti-tx"><span class="sti-nr"><input class="sti-n" value="Research and score" aria-label="Step name" maxlength="40" spellcheck="false" autocomplete="off"></span><span class="sti-kd">AI step, step 2 of 7</span></span>
+      <button class="ib sti-test" aria-label="Test this step" data-tip="Test this step">{play}</button>
+      <button class="ib sti-more" data-pop=".sti-mm" data-pop-align="end" aria-haspopup="menu" aria-expanded="false" aria-label="Step actions" data-tip="More">{more}</button>
+    </div>
+    <div class="sti-body"></div>
+    <div class="pop sti-pk" role="menu" aria-label="Options"></div>
+    <div class="pop sti-dp" role="menu" aria-label="Data from earlier steps"></div>
+    <div class="pop sti-mm" role="menu" aria-label="Step actions">
+      <button class="mi" role="menuitem" tabindex="-1" data-a="rename" data-close>{edit}<span>Rename</span></button>
+      <button class="mi" role="menuitem" tabindex="-1" data-a="off" data-close>{pause}<span>Turn off</span></button>
+    </div>
+    <p class="sti-live" aria-live="polite"></p>
+  </div>
+  </div>
+  <div class="demo"><div class="seg2" role="group" aria-label="Step"><button aria-pressed="true" data-v="ai">AI step</button><button aria-pressed="false" data-v="branch">Branch</button><button aria-pressed="false" data-v="approval">Approval</button></div></div>
+</div></template>
+  <div class="card-f"><span>Map data, add a retry, then switch the step</span><span class="sp"></span><button class="replay" aria-label="Replay Step inspector"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
+</article>
+<article class="card" data-c="data-picker" id="c-data-picker">
+  <div class="card-h"><div><h3>Data picker</h3><p>Map a field from earlier steps into a step's input.</p></div></div>
+  <div class="stage"><div class="stage-in"></div></div>
+  <template><div class="fpk">
+  <div class="fpk-hd"><span class="fpk-ti" data-k="app" aria-hidden="true">{mail}</span><b>Send the reply</b><span class="muted">Step 6 of 7</span></div>
+  <div class="fpk-f" data-f="to"><span class="fpk-l">To</span><div class="fpk-box" role="group" aria-label="To"></div></div>
+  <div class="fpk-f" data-f="subject"><span class="fpk-l">Subject</span><div class="fpk-box" role="group" aria-label="Subject"></div></div>
+  <div class="fpk-f" data-f="body"><span class="fpk-l">Body</span><div class="fpk-box" role="group" aria-label="Body"></div></div>
+  <div class="pop fpk-pop" role="dialog" aria-label="Pick data from an earlier step">
+    <div class="fpk-q">{search}<input type="text" role="combobox" aria-expanded="true" aria-autocomplete="list" placeholder="Find a field" aria-label="Find a field" autocomplete="off" spellcheck="false"></div>
+    <div class="fpk-ls" role="listbox" aria-label="Fields from earlier steps"></div>
+    <p class="fpk-ft"><span>From the 4 steps before Send the reply</span><span class="kh" aria-hidden="true"><span class="kbd">↑</span> <span class="kbd">↓</span> <span class="kbd">↵</span></span></p>
+  </div>
+  <p class="fpk-live" aria-live="polite"></p>
+</div></template>
+  <div class="card-f"><span>Press + to map a field, or remove one</span><span class="sp"></span><button class="replay" aria-label="Replay Data picker"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
+</article>
+<article class="card wide" data-c="run-drawer" id="c-run-drawer">
+  <div class="card-h"><div><h3>Run drawer</h3><p>A workflow's run under its canvas: the steps, the log and the data.</p></div></div>
+  <div class="stage"><div class="stage-in"></div></div>
+  <template><div class="rdr" data-reveal="flat">
+  <div class="rdr-cv"><div class="rdr-flow" role="group" aria-label="Steps of the workflow"></div></div>
+  <div class="rdr-dw" role="region" aria-label="Run">
+    <div class="rdr-grip" role="separator" aria-orientation="horizontal" aria-label="Resize the run drawer" tabindex="0" aria-valuemin="120" aria-valuemax="408" aria-valuenow="312"><i></i></div>
+    <div class="rdr-h">
+      <button class="rdr-tg" aria-expanded="true">{chev-u.xs}<span><span class="w">Test run </span><span class="rdr-id num">#2088</span></span><span class="rdr-st tag run"><span class="spin"></span>Running</span></button>
+      <span class="rdr-meta num"></span>
+      <span class="rdr-sp"></span>
+      <div class="seg2 rdr-tabs" role="group" aria-label="Show"><button aria-pressed="true" data-v="steps">Steps</button><button aria-pressed="false" data-v="log">Log</button><button aria-pressed="false" data-v="data">Data</button></div>
+      <button class="pill ghost sm rdr-stop" aria-label="Stop the run" data-tip="Stop the run">{stop.xs}<span>Stop</span></button>
+      <button class="pill ghost sm rdr-again" aria-label="Run again" data-tip="Run again" hidden>{refresh.xs}<span>Run again</span></button>
+      <button class="ib rdr-follow" aria-pressed="true" aria-label="Follow the run" data-tip="Follow the run">{target}</button>
+    </div>
+    <div class="rdr-b">
+      <div class="rdr-v" data-v="steps"><div class="rdr-ax" aria-hidden="true"><span>Step</span><span class="rdr-sc"></span><span class="ms">Time</span></div><div class="rdr-rows" role="group" aria-label="Steps of the run"></div></div>
+      <div class="rdr-v" data-v="log" hidden><div class="rdr-lf"><div class="seg2 rdr-lvs" role="group" aria-label="Level"><button aria-pressed="true" data-v="all">All</button><button aria-pressed="false" data-v="warn">Warnings</button><button aria-pressed="false" data-v="error">Errors</button></div><span class="n num"></span></div><ol class="rdr-log" aria-label="Run log"></ol></div>
+      <div class="rdr-v" data-v="data" hidden><div class="rdr-data"><div class="rdr-ds" role="group" aria-label="Steps"></div><div class="rdr-io"></div></div></div>
+    </div>
+    <p class="rdr-live" aria-live="polite"></p>
+  </div>
+</div></template>
+  <div class="card-f"><span>Approve the step it waits on, then read the log</span><span class="sp"></span><button class="replay" aria-label="Replay Run drawer"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
+</article>
 <article class="card bare" data-c="memory-panel" id="c-memory-panel">
   <div class="card-h"><div><h3>Memory panel</h3><p>What the agent remembers about your team, editable and removable.</p></div></div>
   <div class="stage"><div class="stage-in"></div></div>
@@ -10811,7 +11206,7 @@ document.addEventListener('click', e => { const b = e.target.closest && e.target
 const DM = {
   defs:{},
   // agents at work: their demos keep playing while a mouse rests on them, instead of holding (see mount)
-  PLAYS:new Set(['status-pill','step-loader','thinking','reasoning-trail','agent-lanes','agent-run-timeline','trace-view','agent-tree','run-queue','terminal-stream','browser-session','action-log','attachment-tray','progress','web-search','agent-phases','thinking-states']),
+  PLAYS:new Set(['status-pill','step-loader','thinking','reasoning-trail','agent-lanes','agent-run-timeline','trace-view','agent-tree','run-queue','terminal-stream','browser-session','action-log','attachment-tray','progress','web-search','agent-phases','thinking-states','run-drawer']),
   def(id, fn){ this.defs[id] = fn; },
   /* the markup a card starts from: its <template>, or, when the markup is written out in its stage, what the stage holds
      before it first mounts, kept as a template so Replay starts from it again */
@@ -11075,7 +11470,7 @@ document.addEventListener('DOMContentLoaded', () => {
   /* style: Soft 2 or Blueprint 2, from ?style= or what this browser last picked; each style keeps its own accent */
   const STY = {
     soft2:{ h:'Soft 2', p:$('#style-p') ? $('#style-p').textContent : '', acc:'#116ff8', key:'soft2-accent', title:'Designme Soft 2' },
-    bp2:{ h:'Blueprint 2', p:"The same 122 components drawn as a technical sheet: square corners, hairline edges instead of shadows, a lime accent, and motion that wipes and ticks into place in short, hard beats.", acc:'#d4f84a', key:'bp2-accent', title:'Designme Blueprint 2' }
+    bp2:{ h:'Blueprint 2', p:"The same 125 components drawn as a technical sheet: square corners, hairline edges instead of shadows, a lime accent, and motion that wipes and ticks into place in short, hard beats.", acc:'#d4f84a', key:'bp2-accent', title:'Designme Blueprint 2' }
   };
   let style = 'soft2';
   try { const q = new URLSearchParams(location.search).get('style'); const ls = localStorage.getItem('designme2-style');
@@ -18865,6 +19260,452 @@ DM.def('canvas-toolbar', (r, c) => {
     await s.tap(radios[0]); await s.beat(1);
     await s.tap(runB); s.away();
     await s.until(() => !running); await s.beat(3);
+  });
+});
+/* ---------- Step inspector ---------- */
+DM.def('step-inspector', (r, c) => {
+  r.innerHTML = r.innerHTML.replace(/\{([\w-]+)(?:\.(xs))?\}/g, (m, k, z) => I(k, z || 's'));
+  const uid = 'sti' + Math.random().toString(36).slice(2, 7);
+  const body = $('.sti-body', r), nameIn = $('.sti-n', r), kd = $('.sti-kd', r), tile = $('.sti-h>.sti-ti', r), live = $('.sti-live', r);
+  const pk = $('.sti-pk', r), dp = $('.sti-dp', r), mm = $('.sti-mm', r), testB = $('.sti-test', r), nr = $('.sti-nr', r);
+  const KIND = { trigger:'Trigger', ai:'AI step', tool:'Tool', app:'App step', output:'Output', branch:'Branch', wait:'Wait', approval:'Approval' };
+  // each data type has its colour: text blue, numbers green, lists orange, objects pink, yes or no yellow, dates teal
+  const TY = { text:'b', number:'m', list:'p', object:'k', bool:'y', date:'t' };
+  // the workflow around the step: what each step hands on, as [field, type, sample]
+  const SRC = {
+    form:{ t:'Demo request form', k:'trigger', ic:'file-text', out:[['name', 'text', 'Priya Shah'], ['email', 'text', 'priya@corvid.io'], ['company', 'text', 'Corvid Analytics'], ['seats', 'number', '240']] },
+    lookup:{ t:'Company lookup', k:'tool', ic:'globe', out:[['employees', 'number', '420'], ['industry', 'text', 'Analytics software'], ['funding', 'text', 'Series B']] },
+    research:{ t:'Research and score', k:'ai', ic:'spark', out:[['score', 'number', '84'], ['tier', 'text', 'Enterprise'], ['reasons', 'list', '3 reasons'], ['company', 'object', '{ 5 fields }']] },
+    reply:{ t:'Draft a reply', k:'ai', ic:'edit', out:[['subject', 'text', 'Your demo with Fernhill'], ['body', 'text', 'Hi Priya, thanks for writing']] },
+    nurture:{ t:'Add to nurture list', k:'app', ic:'users', out:[] }
+  };
+  const PEOPLE = { MK:['Maya Kim', 'l'], TR:['Theo Reed', 't'], AN:['Ana Novak', 'p'], JB:['Jonah Brooks', 'm'] };
+  const TOOLS = [['lookup', 'Company lookup', 'globe'], ['search', 'Web search', 'search'], ['crm', 'CRM lookup', 'db']];
+  const OPTS = { model:[['Sonnet 5.5', 'Balanced, the default'], ['Opus 5.5', 'Deepest reasoning, slower'], ['Haiku 5.5', 'Fastest and cheapest']], op:[['is at least'], ['is below'], ['is exactly']],
+    via:[['Slack message'], ['Email'], ['In the app']], expire:[['4 hours'], ['24 hours'], ['3 days']], then:[['Stop the run'], ['Send it anyway'], ['Ask someone else']],
+    limit:[['15 seconds'], ['30 seconds'], ['60 seconds']], onfail:[['Stop the run'], ['Skip this step'], ['Carry on with empty data']] };
+  const LABEL = { model:'Model', op:'Comparison', via:'Ask in', expire:'Nobody answers in', then:'Then', limit:'Time limit', onfail:'If it still fails' };
+  // the three steps the demo switches between, each with only the settings its kind has. The AI step reads an email from a
+  // step called Contact, which is no longer in the workflow, so that input is flagged
+  const STEP = {
+    ai:{ n:'Research and score', ic:'spark', at:2, up:['form', 'lookup'], model:'Sonnet 5.5', tools:['lookup'],
+      ins:['Look up ', 'form.company', ' and the person who wrote in. Score how well they fit our plans from 0 to 100, with three reasons.\nTheir team is ', 'lookup.employees', ' people.'],
+      in:[['company', 'form.company'], ['seats', 'form.seats'], ['email', 'contact.email']], out:SRC.research.out, retries:1, backoff:'fixed', limit:'60 seconds', onfail:'Stop the run' },
+    branch:{ n:'Good fit?', ic:'branch', at:3, up:['form', 'lookup', 'research'], rule:{ v:'research.score', op:'is at least', n:70 }, yes:'reply', no:'nurture', out:[['path', 'text', 'Yes']] },
+    approval:{ n:'Rep approves', ic:'user', at:5, up:['form', 'lookup', 'research', 'reply'], who:['MK', 'TR'], via:'Slack message', sees:'reply.body', expire:'24 hours', then:'Stop the run', out:[['decision', 'text', 'Approved'], ['by', 'text', 'Maya Kim']] }
+  };
+  const shut = new Set(['out', 'fail']);
+  let k = 'ai', S = STEP.ai, target = null, caret = null, off = false;
+  const say = t => { live.textContent = ''; c.later(40, () => { live.textContent = t; }); };
+  const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+  const known = ref => { const [s] = ref.split('.'); return !!SRC[s] && S.up.includes(s); };
+  const nameOf = ref => { const [s, f] = ref.split('.'); return (SRC[s] ? SRC[s].t : cap(s)) + ' › ' + f; };
+  // a mapped field: the step's tile, the step and the field; one no earlier step gives is red
+  const tok = (ref, attrs = '') => { const [s, f] = ref.split('.'), src = SRC[s];
+    if (!known(ref)) return `<span class="sti-tok bad"${attrs}>${I('alert', 'xs')}<span class="s">${src ? src.t : cap(s)}</span><span class="sep" aria-hidden="true">›</span><span class="f">${f}</span></span>`;
+    return `<span class="sti-tok"${attrs}><span class="sti-ti" data-k="${src.k}" aria-hidden="true">${I(src.ic, 'xs')}</span><span class="s">${src.t}</span><span class="sep" aria-hidden="true">›</span><span class="f">${f}</span></span>`; };
+  const ty = t => `<span class="tag ${TY[t]}">${t}</span>`;
+  const sec = (id, t, inner, meta = '') => `<div class="sti-sec" data-sec="${id}"><button class="sti-sh" aria-expanded="${!shut.has(id)}" aria-controls="${uid}-${id}" data-sec="${id}">${I('chev-r', 'xs')}<span>${t}</span>${meta}</button><div class="fold${shut.has(id) ? ' shut' : ''}" id="${uid}-${id}"><div><div class="sti-rows">${inner}</div></div></div></div>`;
+  const row = (label, v, cls = '') => `<div class="sti-row${cls}"><span class="k">${label}</span><div class="v">${v}</div></div>`;
+  const sel = (f, v) => `<button class="sti-sel" data-f="${f}" data-pop=".sti-pk" aria-haspopup="menu" aria-expanded="false" aria-label="${LABEL[f]}: ${v}"><span>${v}</span>${I('chev-d', 'xs')}</button>`;
+  const tokB = (f, ref, label) => `<button class="sti-tokb" data-f="${f}" data-pop=".sti-dp" aria-haspopup="menu" aria-expanded="false" aria-label="${label}: ${nameOf(ref)}${known(ref) ? '' : ', which no earlier step gives'}. Change it">${tok(ref)}</button>`;
+  const note = ref => known(ref) ? '' : `<p class="sti-note">${cap(ref.split('.')[0])} isn't an earlier step any more. Pick where ${ref.split('.')[1]} comes from.</p>`;
+  const insHTML = () => S.ins.map(p => typeof p === 'string' && !/^\w+\.\w+$/.test(p) ? p.replace(/&/g, '&amp;').replace(/</g, '&lt;') : tok(p, ` contenteditable="false" data-ref="${p}"`)).join('');
+  const chip = (ic, k, t, x, attr) => `<span class="sti-chip">${k === 'av' ? AV(ic, `var(--av-${PEOPLE[attr][1]})`).replace('<span class="av"', '<span class="av" aria-hidden="true"') : `<span class="sti-ti" data-k="${k}" aria-hidden="true">${I(ic, 'xs')}</span>`}<span>${t}</span><button class="sti-cx" data-x="${attr}" aria-label="Remove ${t}" data-tip="Remove">${I('x', 'xs')}</button></span>`;
+  const missing = () => (S.in || []).filter(([, v]) => !known(v)).length;
+  const inMeta = () => missing() ? `<span class="tag bad">${missing()} missing</span>` : `<span class="n">${S.in.length} mapped</span>`;
+  const outs = () => sec('out', 'Output', S.out.map(([f, t, ex]) => `<div class="sti-out"><span>${f}</span>${ty(t)}<span class="ex">${ex}</span></div>`).join(''), `<span class="n">${S.out.length} ${S.out.length === 1 ? 'field' : 'fields'}</span>`);
+  const num = (f, v, lo, hi, label) => `<span class="sti-num" role="group" aria-label="${label}"><button class="ib" data-f="${f}" data-d="-1" aria-label="Fewer ${label.toLowerCase()}" data-tip="Fewer"${v <= lo ? ' aria-disabled="true"' : ''}>${I('minus', 'xs')}</button><span class="num" aria-live="polite">${v}</span><button class="ib" data-f="${f}" data-d="1" aria-label="More ${label.toLowerCase()}" data-tip="More"${v >= hi ? ' aria-disabled="true"' : ''}>${I('plus', 'xs')}</button></span>`;
+  const link = id => `<span class="sti-link"><span class="sti-ti" data-k="${SRC[id].k}" aria-hidden="true">${I(SRC[id].ic, 'xs')}</span><span>${SRC[id].t}</span></span>`;
+  function render(fresh){
+    const T = { ai:'spark', branch:'branch', approval:'user' }[k];
+    tile.dataset.k = k; tile.innerHTML = I(T, 's'); r.querySelector('.sti').dataset.k = k;
+    nameIn.value = S.n; kd.classList.remove('ok'); kd.textContent = `${KIND[k]}, step ${S.at} of 7`;
+    let h = '';
+    if (k === 'ai'){
+      h += sec('setup', 'Setup', row(LABEL.model, sel('model', S.model))
+        + `<div class="sti-insw"><div class="sti-ih"><span class="k" id="${uid}-il">Instructions</span><button class="pill ghost sm sti-insert" data-f="ins" data-pop=".sti-dp" aria-haspopup="menu" aria-expanded="false">${I('plus', 'xs')}Insert data</button></div>`
+        + `<div class="sti-ins" contenteditable="true" role="textbox" aria-multiline="true" aria-labelledby="${uid}-il" spellcheck="false">${insHTML()}</div></div>`
+        + row('Tools', `<span class="sti-chips">${S.tools.map(t => { const x = TOOLS.find(y => y[0] === t); return chip(x[2], 'tool', x[1], null, t); }).join('')}<button class="sti-add" data-f="tool" data-pop=".sti-pk" aria-haspopup="menu" aria-expanded="false" aria-label="Add a tool" data-tip="Add a tool">${I('plus', 'xs')}</button></span>`, ' top'));
+      h += sec('in', 'Inputs', S.in.map(([f, v]) => row(f, tokB('in.' + f, v, f)) + note(v)).join(''), inMeta());
+      h += outs();
+      h += sec('fail', 'If it fails', row('Retries', num('retries', S.retries, 0, 5, 'Retries'))
+        + row('Wait between', `<div class="seg2 sti-seg" role="group" aria-label="Wait between tries" data-f="backoff"><button aria-pressed="${S.backoff === 'fixed'}" data-v="fixed">2s each</button><button aria-pressed="${S.backoff === 'doubling'}" data-v="doubling">Doubling</button></div>`)
+        + row(LABEL.limit, sel('limit', S.limit)) + row(LABEL.onfail, sel('onfail', S.onfail)));
+    }
+    if (k === 'branch'){
+      h += sec('setup', 'Takes Yes when', `<div class="sti-rule">${tokB('rule', S.rule.v, 'Value')}${sel('op', S.rule.op)}<input class="sti-in" type="number" inputmode="numeric" min="0" max="100" value="${S.rule.n}" aria-label="Threshold"></div>`
+        + row('Yes', link(S.yes)) + row('No', link(S.no)));
+      h += outs();
+    }
+    if (k === 'approval'){
+      h += sec('setup', 'Who approves', row('People', `<span class="sti-chips">${S.who.map(w => chip(w, 'av', PEOPLE[w][0], null, w)).join('')}<button class="sti-add" data-f="who" data-pop=".sti-pk" aria-haspopup="menu" aria-expanded="false" aria-label="Add a person" data-tip="Add a person">${I('plus', 'xs')}</button></span>`, ' top')
+        + row(LABEL.via, sel('via', S.via)) + row('They see', tokB('sees', S.sees, 'They see')));
+      h += sec('exp', 'If nobody answers', row(LABEL.expire, sel('expire', S.expire)) + row(LABEL.then, sel('then', S.then)));
+      h += outs();
+    }
+    body.innerHTML = h; caret = null;
+    $$('.sti-seg', body).forEach(g => seg(g, v => { S.backoff = v; say(v === 'doubling' ? 'Waits double between tries' : 'Waits 2 seconds between tries'); }));
+    if (fresh && !REDUCE){ body.classList.remove('in'); void body.offsetWidth; body.classList.add('in'); }
+  }
+  // the switch under the demo picks the kind of step; a pick that isn't the demo's own is the visitor taking over
+  let byDemo = false;
+  const kseg = $('.demo .seg2', r);
+  seg(kseg, v => { if (!byDemo) c.mine = true; if (v === k) return; closePops(); k = v; S = STEP[v]; off = false; paintOff(); render(true); });
+  const kindTo = v => { byDemo = true; const b = $(`button[data-v="${v}"]`, kseg); if (b) b.click(); byDemo = false; };
+  // the menus are written as they open: a choice's options, the tools, the people, and the data from earlier steps
+  const ck = `<span class="ck">${I('check', 'xs')}</span>`;
+  function fillPk(b){
+    const f = b.dataset.f; target = b;
+    if (f === 'tool'){ pk.setAttribute('aria-label', 'Add a tool'); pk.innerHTML = `<div class="ph" role="none">Give ${S.n} a tool</div>` + TOOLS.map(([id, t, ic]) => `<button class="mi" role="menuitem" tabindex="-1" data-tool="${id}" data-close${S.tools.includes(id) ? ' aria-disabled="true"' : ''}><span class="sti-ti" data-k="tool" aria-hidden="true">${I(ic, 'xs')}</span><span>${t}</span></button>`).join(''); return; }
+    if (f === 'who'){ pk.setAttribute('aria-label', 'Who approves'); pk.innerHTML = `<div class="ph" role="none">Who approves</div>` + Object.keys(PEOPLE).map(w => `<button class="mi" role="menuitemcheckbox" aria-checked="${S.who.includes(w)}" tabindex="-1" data-w="${w}" data-close>${AV(w, `var(--av-${PEOPLE[w][1]})`)}<span>${PEOPLE[w][0]}</span>${ck}</button>`).join(''); return; }
+    const cur = f === 'op' ? S.rule.op : S[f];
+    pk.setAttribute('aria-label', LABEL[f]);
+    pk.innerHTML = `<div class="ph" role="none">${LABEL[f]}</div>` + OPTS[f].map(([v, d]) => `<button class="mi" role="menuitemradio" aria-checked="${v === cur}" tabindex="-1" data-v="${v}" data-close><span>${v}${d ? `<span class="d">${d}</span>` : ''}</span>${ck}</button>`).join('');
+  }
+  function fillDp(b){
+    target = b; const f = b.dataset.f, cur = f === 'ins' ? null : f === 'rule' ? S.rule.v : f === 'sees' ? S.sees : (S.in.find(x => 'in.' + x[0] === f) || [])[1];
+    dp.innerHTML = S.up.map(s => { const src = SRC[s]; return `<div role="group" aria-label="${src.t}"><div class="ph" role="none"><span class="sti-ti" data-k="${src.k}" aria-hidden="true">${I(src.ic, 'xs')}</span>${src.t}</div>`
+      + src.out.map(([fd, t, ex]) => `<button class="mi" role="menuitemradio" aria-checked="${s + '.' + fd === cur}" tabindex="-1" data-ref="${s}.${fd}" data-close><span>${fd}</span>${ty(t)}<span class="r">${ex}</span></button>`).join('') + '</div>'; }).join('');
+  }
+  // what the instructions say, read back from the box: its text, and its tokens as references
+  const readIns = el => { const out = []; el.childNodes.forEach(n => { if (n.nodeType === 3) out.push(n.textContent); else if (n.dataset && n.dataset.ref) out.push(n.dataset.ref); else if (n.nodeName === 'BR') out.push('\n'); else out.push('\n' + n.textContent); }); return out; };
+  function insertTok(ref){
+    const box = $('.sti-ins', body); if (!box) return;
+    const t = html(tok(ref, ` contenteditable="false" data-ref="${ref}"`)); t.classList.add('new');
+    const sp = document.createTextNode(' ');
+    if (caret && box.contains(caret.startContainer)){ caret.collapse(false); caret.insertNode(sp); caret.insertNode(t); }
+    else { if (box.lastChild && box.lastChild.nodeType === 3 && !/\s$/.test(box.lastChild.textContent)) box.appendChild(document.createTextNode(' ')); box.append(t, sp); }
+    S.ins = readIns(box);
+  }
+  function map(f, ref){
+    if (f === 'ins'){ insertTok(ref); say(`Inserted ${nameOf(ref)} into the instructions`); return; }
+    if (f === 'rule') S.rule.v = ref; else if (f === 'sees') S.sees = ref; else { const x = S.in.find(y => 'in.' + y[0] === f); if (x) x[1] = ref; }
+    const b = $(`.sti-tokb[data-f="${f}"]`, body); if (!b) return;
+    const label = f === 'rule' ? 'Value' : f === 'sees' ? 'They see' : f.slice(3);
+    b.outerHTML = tokB(f, ref, label);
+    const nb = $(`.sti-tokb[data-f="${f}"]`, body), n = nb.closest('.sti-row').nextElementSibling;
+    if (n && n.classList.contains('sti-note')) n.remove();
+    if (!known(ref)) nb.closest('.sti-row').insertAdjacentHTML('afterend', note(ref));
+    enter($('.sti-tok', nb));
+    const m = $('.sti-sec[data-sec="in"] .sti-sh', body); if (m){ $$('.tag, .n', m).forEach(x => x.remove()); m.insertAdjacentHTML('beforeend', inMeta()); }
+    say(`${label} now reads ${nameOf(ref)}`);
+  }
+  c.on(document, 'selectionchange', () => { const s = getSelection(), box = $('.sti-ins', body); if (s.rangeCount && box && box.contains(s.anchorNode)) caret = s.getRangeAt(0).cloneRange(); });
+  c.on(body, 'input', e => { if (e.target.matches('.sti-ins')) S.ins = readIns(e.target); if (e.target.matches('.sti-in')) S.rule.n = Math.max(0, Math.min(100, +e.target.value || 0)); });
+  // Enter starts a new line in the instructions as plain text, so the box never fills with markup
+  c.on(body, 'keydown', e => { if (e.key !== 'Enter' || !e.target.matches('.sti-ins')) return; e.preventDefault(); const s = getSelection(); if (!s.rangeCount) return; const rg = s.getRangeAt(0); rg.deleteContents(); const nl = document.createTextNode('\n'); rg.insertNode(nl); rg.setStartAfter(nl); rg.collapse(true); s.removeAllRanges(); s.addRange(rg); S.ins = readIns(e.target); });
+  c.on(r, 'click', e => {
+    const b = e.target.closest('button'); if (!b || !r.contains(b)) return;
+    if (b.matches('[data-pop=".sti-pk"]')) return fillPk(b);
+    if (b.matches('[data-pop=".sti-dp"]')) return fillDp(b);
+    if (b.dataset.sec){ const f = b.nextElementSibling, open = f.classList.toggle('shut') === false; b.setAttribute('aria-expanded', String(open)); open ? shut.delete(b.dataset.sec) : shut.add(b.dataset.sec); return; }
+    if (b.dataset.d){ if (b.getAttribute('aria-disabled') === 'true') return; const v = Math.max(0, Math.min(5, S.retries + +b.dataset.d)); S.retries = v; const g = b.closest('.sti-num'); $('.num', g).textContent = v;
+      $$('.ib', g).forEach(x => { const lo = +x.dataset.d < 0 ? v <= 0 : v >= 5; lo ? x.setAttribute('aria-disabled', 'true') : x.removeAttribute('aria-disabled'); }); return; }
+    if (b.matches('.sti-cx')){ const x = b.dataset.x;
+      if (k === 'ai'){ S.tools = S.tools.filter(t => t !== x); say(`Removed ${TOOLS.find(t => t[0] === x)[1]}`); }
+      else { if (S.who.length < 2){ say('Someone has to approve. Add another person first'); return; } S.who = S.who.filter(w => w !== x); say(`Removed ${PEOPLE[x][0]}`); }
+      const ch = b.closest('.sti-chip'), add = ch.parentElement.querySelector('.sti-add'); ch.remove(); if (e.isTrusted && add) add.focus({ preventScroll:true }); return; }
+    if (b.closest('.sti-pk') && b.matches('.mi')){
+      if (b.getAttribute('aria-disabled') === 'true') return;
+      const f = target && target.dataset.f;
+      if (b.dataset.tool){ S.tools.push(b.dataset.tool); const x = TOOLS.find(t => t[0] === b.dataset.tool), add = $('.sti-add[data-f="tool"]', body); add.insertAdjacentHTML('beforebegin', chip(x[2], 'tool', x[1], null, x[0])); enter(add.previousElementSibling); say(`${S.n} can use ${x[1]}`); return; }
+      if (b.dataset.w){ const w = b.dataset.w, add = $('.sti-add[data-f="who"]', body);
+        if (S.who.includes(w)){ if (S.who.length < 2) return say('Someone has to approve'); S.who = S.who.filter(x => x !== w); const ch = $(`.sti-cx[data-x="${w}"]`, body); if (ch) ch.closest('.sti-chip').remove(); say(`Removed ${PEOPLE[w][0]}`); return; }
+        S.who.push(w); add.insertAdjacentHTML('beforebegin', chip(w, 'av', PEOPLE[w][0], null, w)); enter(add.previousElementSibling); say(`${PEOPLE[w][0]} can approve`); return; }
+      const v = b.dataset.v; if (f === 'op') S.rule.op = v; else S[f] = v;
+      if (target && target.isConnected){ $('span', target).textContent = v; target.setAttribute('aria-label', `${LABEL[f]}: ${v}`); }
+      say(`${LABEL[f]}: ${v}`); return;
+    }
+    if (b.closest('.sti-dp') && b.dataset.ref){ if (target) map(target.dataset.f, b.dataset.ref); return; }
+    if (b.closest('.sti-mm')){ if (b.dataset.a === 'rename') setTimeout(() => { nameIn.focus(); nameIn.select(); }, 140); if (b.dataset.a === 'off'){ off = !off; paintOff(); say(off ? `${S.n} is off. Runs skip it` : `${S.n} is on`); } return; }
+  });
+  function paintOff(){ const t = $('.sti-off', nr); if (off && !t) nr.insertAdjacentHTML('beforeend', '<span class="tag sti-off">Off</span>'); if (!off && t) t.remove();
+    const m = $('[data-a="off"]', mm); m.innerHTML = `${I(off ? 'play' : 'pause', 's')}<span>${off ? 'Turn on' : 'Turn off'}</span>`; }
+  // the name saves as it is typed; Escape puts back the name it had when the field took the focus
+  let was = S.n;
+  c.on(nameIn, 'focus', () => { was = S.n; });
+  c.on(nameIn, 'input', () => { S.n = nameIn.value; });
+  c.on(nameIn, 'keydown', e => { if (e.key === 'Enter'){ e.preventDefault(); nameIn.blur(); } if (e.key === 'Escape'){ nameIn.value = S.n = was; nameIn.blur(); } });
+  c.on(nameIn, 'blur', () => { if (!nameIn.value.trim()){ nameIn.value = S.n = KIND[k]; } });
+  // Test runs the step on its own with sample data, and says how it went
+  let testing = 0;
+  c.on(testB, 'click', () => {
+    if (testing) return; const id = ++testing; testB.classList.add('busy'); testB.innerHTML = I('refresh', 's'); swap(kd, 'Testing with sample data'); kd.classList.remove('ok');
+    c.later(1400, () => { if (testing !== id) return; testing = 0; testB.classList.remove('busy'); testB.innerHTML = I('play', 's'); kd.classList.add('ok'); swap(kd, 'Worked in 1.4s, with sample data'); say(`${S.n} worked in 1.4 seconds`);
+      c.later(3200, () => { if (!testing){ kd.classList.remove('ok'); swap(kd, `${KIND[k]}, step ${S.at} of 7`); } }); });
+  });
+  render(false);
+  // the preview's story: insert a field into the instructions, fix the input that points at a step that is gone, give the
+  // step a second retry, then look at a branch's rule and add a person to an approval
+  c.story(async s => {
+    await s.beat(3);
+    await s.tap($('.sti-insert', r)); await s.beat(1.6);
+    await s.tap($('.sti-dp .mi[data-ref="lookup.industry"]', r)); await s.beat(2.4);
+    await s.tap($('.sti-tokb[data-f="in.email"]', r)); await s.beat(1.6);
+    await s.tap($('.sti-dp .mi[data-ref="form.email"]', r)); await s.beat(2.4);
+    await s.tap($('.sti-sh[data-sec="fail"]', r)); await s.beat(1.4);
+    await s.tap($('.sti-num [data-d="1"]', r)); await s.beat(2.4);
+    s.away(); kindTo('branch'); await s.beat(2.4);
+    await s.point($('.sti-in', r), false); await s.beat(2.4);
+    s.away(); kindTo('approval'); await s.beat(2);
+    await s.tap($('.sti-add[data-f="who"]', r)); await s.beat(1.4);
+    await s.tap($('.sti-pk .mi[data-w="JB"]', r)); await s.beat(2.4);
+  });
+});
+/* ---------- Data picker ---------- */
+DM.def('data-picker', (r, c) => {
+  r.innerHTML = r.innerHTML.replace(/\{([\w-]+)(?:\.(xs))?\}/g, (m, k, z) => I(k, z || 's'));
+  const uid = 'fpk' + Math.random().toString(36).slice(2, 7);
+  const box = $('.fpk', r), pop = $('.fpk-pop', r), q = $('.fpk-q input', r), ls = $('.fpk-ls', r), live = $('.fpk-live', r);
+  // each data type has its colour: text blue, numbers green, lists orange, objects pink, yes or no yellow, dates teal
+  const TY = { text:'b', number:'m', list:'p', object:'k', bool:'y', date:'t' };
+  // the steps before Send the reply, in their order, and what each hands on: [field, type, sample]
+  const S = [
+    { id:'form', t:'Demo request form', k:'trigger', ic:'file-text', f:[['name', 'text', 'Priya Shah'], ['email', 'text', 'priya@corvid.io'], ['company', 'text', 'Corvid Analytics'], ['seats', 'number', '240'], ['sent_at', 'date', 'Nov 8, 10:41']] },
+    { id:'lookup', t:'Company lookup', k:'tool', ic:'globe', f:[['employees', 'number', '420'], ['industry', 'text', 'Analytics software'], ['verified', 'bool', 'true']] },
+    { id:'research', t:'Research and score', k:'ai', ic:'spark', f:[['score', 'number', '84'], ['tier', 'text', 'Enterprise'], ['reasons', 'list', '3 reasons'], ['company', 'object', '{ 5 fields }']] },
+    { id:'reply', t:'Draft a reply', k:'ai', ic:'edit', f:[['subject', 'text', 'Your demo with Fernhill'], ['body', 'text', 'Hi Priya, thanks for writing']] }
+  ];
+  const F = { to:{ l:'To', v:['form.email'] }, subject:{ l:'Subject', v:['reply.subject', 'form.company'] }, body:{ l:'Body', v:['reply.body'] } };
+  let target = null, items = [], hi = 0;
+  ls.id = uid + '-ls'; q.setAttribute('aria-controls', ls.id);
+  const say = t => { live.textContent = ''; c.later(40, () => { live.textContent = t; }); };
+  const of = ref => { const [s, f] = ref.split('.'); return { st:S.find(x => x.id === s), f }; };
+  const tokHTML = ref => { const { st, f } = of(ref);
+    return `<span class="fpk-tok" data-ref="${ref}"><span class="fpk-ti" data-k="${st.k}" aria-hidden="true">${I(st.ic, 'xs')}</span><span class="s">${st.t}</span><span class="sep" aria-hidden="true">›</span><span class="f">${f}</span><button class="fpk-x" aria-label="Remove ${f} from ${st.t}" data-tip="Remove">${I('x', 'xs')}</button></span>`; };
+  const addB = k => `<button class="fpk-add" data-f="${k}" data-pop=".fpk-pop" data-pop-pos="down" data-pop-align="end" aria-haspopup="dialog" aria-expanded="false" aria-label="Insert data into ${F[k].l}" data-tip="Insert data">${I('plus', 's')}</button>`;
+  const paintField = k => { $(`.fpk-f[data-f="${k}"] .fpk-box`, r).innerHTML = (F[k].v.length ? F[k].v.map(tokHTML).join('') : '<span class="fpk-ph">Pick data from an earlier step</span>') + addB(k); };
+  Object.keys(F).forEach(paintField);
+  const mark = (t, v) => { const i = v ? t.toLowerCase().indexOf(v) : -1; return i < 0 ? t : t.slice(0, i) + '<mark>' + t.slice(i, i + v.length) + '</mark>' + t.slice(i + v.length); };
+  function paint(){
+    const v = q.value.trim().toLowerCase(); let h = '', n = 0; items = [];
+    S.forEach((st, si) => {
+      const fs = st.f.filter(([f]) => !v || f.toLowerCase().includes(v) || st.t.toLowerCase().includes(v)); if (!fs.length) return;
+      h += `<div role="group" aria-labelledby="${uid}-g${si}"><div class="fpk-g" id="${uid}-g${si}"><span class="fpk-ti" data-k="${st.k}" aria-hidden="true">${I(st.ic, 'xs')}</span><b>${st.t}</b><span class="n">Step ${si + 1}</span></div>`
+        + fs.map(([f, t, ex]) => { const ref = st.id + '.' + f, i = n++; items.push(ref);
+          return `<div class="fpk-o" role="option" id="${uid}-o${i}" aria-selected="false" data-i="${i}" aria-label="${f}, ${t}, from ${st.t}"><span class="k">${mark(f, v)}</span><span class="tag ${TY[t]}">${t}</span><span class="ex">${ex}</span></div>`; }).join('') + '</div>';
+    });
+    ls.innerHTML = h || `<p class="fpk-e">No field matches “${q.value.trim().replace(/</g, '&lt;')}”</p>`;
+    hi = 0; move(0);
+  }
+  function move(d){
+    const os = $$('.fpk-o', ls); if (!os.length){ q.removeAttribute('aria-activedescendant'); return; }
+    hi = (hi + d + os.length) % os.length;
+    os.forEach((o, i) => { o.classList.toggle('on', i === hi); o.setAttribute('aria-selected', String(i === hi)); });
+    q.setAttribute('aria-activedescendant', os[hi].id); os[hi].scrollIntoView({ block:'nearest' });
+  }
+  function pick(i){
+    const ref = items[i]; if (!ref || !target) return; const k = target, { st, f } = of(ref);
+    closePops();
+    if (F[k].v.includes(ref)){ say(`${F[k].l} already has ${f} from ${st.t}`); return; }
+    F[k].v.push(ref);
+    const bx = $(`.fpk-f[data-f="${k}"] .fpk-box`, r), add = $('.fpk-add', bx), ph = $('.fpk-ph', bx); if (ph) ph.remove();
+    add.insertAdjacentHTML('beforebegin', tokHTML(ref)); if (!REDUCE) add.previousElementSibling.classList.add('new');
+    say(`Added ${f} from ${st.t} to ${F[k].l}`);
+  }
+  function remove(tk, mine){
+    const k = tk.closest('.fpk-f').dataset.f, ref = tk.dataset.ref, { st, f } = of(ref), add = $('.fpk-add', tk.parentElement);
+    F[k].v = F[k].v.filter(x => x !== ref);
+    tk.classList.add('out'); tk.inert = true;
+    setTimeout(() => { tk.remove(); if (!F[k].v.length) add.insertAdjacentHTML('beforebegin', '<span class="fpk-ph">Pick data from an earlier step</span>'); }, REDUCE ? 0 : 280);
+    if (mine) add.focus({ preventScroll:true });
+    say(`Removed ${f} from ${st.t}`);
+  }
+  // the picker opens from a field's +, on that field's data; a click puts the focus in its search
+  c.on(r, 'click', e => {
+    const b = e.target.closest('button');
+    if (b && b.matches('.fpk-add')){ target = b.dataset.f; pop.setAttribute('aria-label', `Pick data for ${F[target].l}`); q.value = ''; paint(); if (e.isTrusted) setTimeout(() => { if (pop.classList.contains('open')) q.focus({ preventScroll:true }); }, 30); return; }
+    if (b && b.matches('.fpk-x')){ remove(b.closest('.fpk-tok'), e.isTrusted); return; }
+    const o = e.target.closest('.fpk-o'); if (o) pick(+o.dataset.i);
+  });
+  c.on(ls, 'pointermove', e => { const o = e.target.closest('.fpk-o'); if (o && +o.dataset.i !== hi){ hi = +o.dataset.i; move(0); } });
+  c.on(q, 'input', paint);
+  // in the search the arrows move through the fields and wrap, Enter puts the one picked in, Escape closes (the core)
+  c.on(q, 'keydown', e => { if (e.key === 'ArrowDown' || e.key === 'ArrowUp'){ e.preventDefault(); move(e.key === 'ArrowDown' ? 1 : -1); } else if (e.key === 'Enter'){ e.preventDefault(); pick(hi); } });
+  // the fields sit centred, and glide up as the picker opens under one of them
+  const centred = centre(c, box, () => pop.classList.contains('open') ? Math.max(box.offsetHeight, pop.offsetTop + pop.offsetHeight) : box.offsetHeight);
+  const mo = new MutationObserver(() => { if (pop.classList.contains('open')) centred(); else c.later(REDUCE ? 0 : 180, centred); });
+  mo.observe(pop, { attributes:true, attributeFilter:['class'] }); c.offs.push(() => mo.disconnect());
+  // the preview's story: take a field out of the subject, then open Body's picker, search for "sc" (the score, and every
+  // field of Research and score), move down to the reasons with the arrows and put them in
+  c.story(async s => {
+    await s.beat(3);
+    await s.tap($('.fpk-tok[data-ref="form.company"] .fpk-x', r)); await s.beat(2);
+    await s.tap($('.fpk-add[data-f="body"]', r)); await s.beat(1.4);
+    await s.type(q, 'sc', { each:paint, n:.3 }); await s.beat(1.2);
+    for (let i = 0; i < 2; i++){ move(1); await s.beat(.8); }
+    await s.beat(.6); await s.tap($('.fpk-o.on', r)); await s.beat(2.4);
+  });
+});
+/* ---------- Run drawer ---------- */
+DM.def('run-drawer', (r, c) => {
+  r.innerHTML = r.innerHTML.replace(/\{([\w-]+)(?:\.(xs))?\}/g, (m, k, z) => I(k, z || 's'));
+  const uid = 'rdr' + Math.random().toString(36).slice(2, 7);
+  const frame = $('.rdr', r), dw = $('.rdr-dw', r), flow = $('.rdr-flow', r), tg = $('.rdr-tg', r), stT = $('.rdr-st', r), idT = $('.rdr-id', r), meta = $('.rdr-meta', r);
+  const bd = $('.rdr-b', r), rowsEl = $('.rdr-rows', r), sc = $('.rdr-sc', r), logEl = $('.rdr-log', r), cnt = $('.rdr-lf .n', r), ds = $('.rdr-ds', r), io = $('.rdr-io', r);
+  const stopB = $('.rdr-stop', r), againB = $('.rdr-again', r), followB = $('.rdr-follow', r), grip = $('.rdr-grip', r), live = $('.rdr-live', r);
+  bd.id = uid + '-b'; tg.setAttribute('aria-controls', bd.id);
+  // the workflow: each step with what it took in and handed on; an AI step's model and tool calls are its kids, as
+  // [kind, name, icon, seconds, tokens, error]; the lookup is rate limited once, so it waits and tries again
+  const STEPS = [
+    { id:'form', t:'Demo request form', k:'trigger', ic:'file-text', d:.25, in:{ source:'Website form', form:'Book a demo' }, out:{ name:'Priya Shah', email:'priya@corvid.io', company:'Corvid Analytics', seats:240 }, log:['debug', 'New submission from priya@corvid.io'] },
+    { id:'research', t:'Research and score', k:'ai', ic:'spark', in:{ company:'Corvid Analytics', email:'priya@corvid.io', seats:240 }, out:{ score:84, tier:'Enterprise', reasons:['Asked for 240 seats', 'Support team use case', 'Series B and hiring'] }, log:['info', 'Scored 84, Enterprise'],
+      kids:[['model', 'Sonnet 5.5, reads the input', 'spark', .6, 380], ['tool', 'Company lookup', 'globe', 1.5, 0, '429 Too many requests'], ['retry', 'Wait 2s, then try again', 'refresh', 2], ['tool', 'Company lookup, try 2', 'globe', .7], ['model', 'Sonnet 5.5, writes the score', 'spark', 1.25, 1240]] },
+    { id:'fit', t:'Good fit?', k:'branch', ic:'branch', d:.1, in:{ score:84, rule:'score is at least 70' }, out:{ path:'Yes' }, log:['info', 'score is 84, at least 70, so it took Yes'] },
+    { id:'reply', t:'Draft a reply', k:'ai', ic:'edit', in:{ name:'Priya Shah', reasons:'3 reasons' }, out:{ subject:'Your demo with Fernhill', body:'Hi Priya, thanks for reaching out about 240 seats.' }, log:['info', 'Drafted "Your demo with Fernhill"'],
+      kids:[['model', 'Sonnet 5.5, writes the reply', 'spark', 1.2, 980]] },
+    { id:'approve', t:'Rep approves', k:'approval', ic:'user', ask:'Maya Kim or Theo Reed', in:{ ask:['Maya Kim', 'Theo Reed'], via:'Slack message', shows:'reply.body' }, out:{ decision:'Approved', by:'You' } },
+    { id:'send', t:'Send the reply', k:'app', ic:'mail', d:.55, in:{ to:'priya@corvid.io', subject:'Your demo with Fernhill' }, out:{ message_id:'msg_8f2c41', sent:true }, log:['info', 'Sent to priya@corvid.io'] },
+    { id:'post', t:'Post to Slack', k:'output', ic:'hash', d:.4, in:{ channel:'#inbound-leads', text:'Priya Shah at Corvid Analytics scored 84' }, out:{ ts:'1731062520.4' }, log:['info', 'Posted to #inbound-leads'] }
+  ];
+  const byId = id => STEPS.find(x => x.id === id);
+  flow.innerHTML = STEPS.map((x, i) => (i ? '<span class="rdr-wire" aria-hidden="true"></span>' : '') + `<button class="rdr-nd" data-s="${x.id}" aria-pressed="false" aria-label="${x.t}" data-tip="${x.t}"><span class="rdr-ti" data-k="${x.k}" aria-hidden="true">${I(x.ic, 'xs')}</span><span class="t">${x.t}</span><span class="rdr-ns" aria-hidden="true">${I('check', 'xs')}</span></button>`).join('');
+  let run = 2087, R = null, tab = 'steps', lvl = 'all', follow = true, picked = null, last = 0;
+  const say = t => { live.textContent = ''; c.later(40, () => { live.textContent = t; }); };
+  const secs = v => (v < 10 ? v.toFixed(1) : Math.round(v)) + 's';
+  const stamp = v => { const m = Math.floor(v / 60), s = v - m * 60; return String(m).padStart(2, '0') + ':' + s.toFixed(2).padStart(5, '0'); };
+  // a run: its spans (one per step and per model or tool call) and its log, planned up to the step that waits for a person
+  function plan(from, t0){
+    for (let i = from; i < STEPS.length; i++){
+      const x = STEPS[i];
+      if (x.ask){ R.sp.push({ s:x.id, t:x.t, k:x.k, ic:x.ic, lv:0, a:t0, e:null, st:'wait' }); R.log.push({ at:t0, l:'warn', b:x.t, m:`Waiting for ${x.ask}` }); R.pause = { i, at:t0 }; return; }
+      if (!x.kids){ R.sp.push({ s:x.id, t:x.t, k:x.k, ic:x.ic, lv:0, a:t0, e:t0 + x.d, st:'ok' }); t0 += x.d; R.log.push({ at:t0, l:x.log[0], b:x.t, m:x.log[1] }); continue; }
+      const p = { s:x.id, t:x.t, k:x.k, ic:x.ic, lv:0, a:t0, e:null, st:'ok' }; R.sp.push(p);
+      for (const [k, t, ic, d, tok, err] of x.kids){
+        R.sp.push({ s:x.id, t, k, ic, lv:1, a:t0, e:t0 + d, st:err ? 'bad' : 'ok', tok, err });
+        if (k === 'model') R.log.push({ at:t0 + d, l:'debug', b:t, m:`${tok.toLocaleString('en-US')} tokens` });
+        if (err) R.log.push({ at:t0 + d, l:'error', b:t, m:err });
+        if (k === 'retry') R.log.push({ at:t0, l:'warn', b:'Company lookup', m:'Trying again in 2s, try 2 of 2' });
+        if (k === 'tool' && !err) R.log.push({ at:t0 + d, l:'info', b:'Company lookup', m:'Found Corvid Analytics on try 2' });
+        t0 += d;
+      }
+      p.e = t0; R.log.push({ at:t0, l:x.log[0], b:x.t, m:x.log[1] });
+    }
+    R.end = t0; R.log.push({ at:t0, l:'info', b:'Run passed', m:`${secs(t0)}, 1 retry` });
+  }
+  function start(){
+    R = { id:++run, t:0, st:'run', sp:[], log:[], pause:null, end:null, rows:new Map(), logN:0 };
+    R.log.push({ at:0, l:'info', b:'Run started', m:'Test run with Priya Shah, Corvid Analytics' });
+    plan(0, 0); rowsEl.innerHTML = ''; logEl.innerHTML = ''; picked = null; idT.textContent = '#' + R.id;
+    stopB.hidden = false; againB.hidden = true; paint(true); say(`Test run #${R.id} started`);
+  }
+  const node = id => $(`.rdr-nd[data-s="${id}"]`, flow);
+  function stateOf(sp, t){ if (sp.st === 'stop') return 'stop'; if (sp.e == null) return R.st === 'stopped' ? 'stop' : sp.st; return t < sp.e ? (sp.k === 'retry' ? 'retry' : 'run') : sp.st; }
+  // the canvas, the timeline, the log, the data and the head all follow the run's clock
+  function paint(force){
+    const t = R.t, sps = R.sp.filter(x => x.a <= t + 1e-6);
+    // the steps on the canvas: the one under way ringed, a retry or a wait amber, done ones ticked
+    STEPS.forEach((x, i) => {
+      const mine = sps.filter(p => p.s === x.id), main = mine.find(p => p.lv === 0);
+      let st = '';
+      if (main){ const ms = stateOf(main, t);
+        if (ms === 'run'){ const cur = mine.filter(p => p.lv === 1).pop(); st = cur && (cur.k === 'retry' || (cur.st === 'bad' && t >= cur.e)) ? 'retry' : 'run'; } else st = ms; }
+      const el = node(x.id); if (el.dataset.st !== st){ el.dataset.st = st; if (st === 'run' && follow && R.st === 'run'){ const l = el.offsetLeft - flow.clientWidth / 2 + el.offsetWidth / 2; flow.scrollTo({ left:l, behavior:REDUCE ? 'auto' : 'smooth' }); } }
+      const w = el.previousElementSibling; if (w) w.classList.toggle('done', !!main);
+    });
+    // the timeline's axis grows with the run
+    const span = Math.max(10, Math.ceil((t + .5) / 2) * 2), wpx = sc.clientWidth || 240, step = [2, 5, 10, 20].find(x => span / x * 34 <= wpx) || 20;
+    const key = span * 100 + step; if (key !== R.ax){ R.ax = key; rowsEl.style.setProperty('--rdr-g', (step / span * 100) + '%'); sc.innerHTML = Array.from({ length:Math.floor(span / step) }, (_, i) => `<span style="left:${i * step / span * 100}%">${i * step}s</span>`).join(''); }
+    sps.forEach(p => {
+      let el = R.rows.get(p);
+      if (!el){
+        el = html(`<button class="rdr-r" data-s="${p.s}" data-k="${p.k}" data-lv="${p.lv}" style="--lv:${p.lv}" aria-pressed="${p.s === picked}"><span class="rdr-n"><span class="rdr-ti" data-k="${p.k}" aria-hidden="true">${I(p.ic, 'xs')}</span><span class="rdr-nm">${p.t}</span></span><span class="rdr-bt"><i></i></span><span class="rdr-ms num"></span></button>`);
+        R.rows.set(p, el); rowsEl.appendChild(el); if (!force && !REDUCE) el.classList.add('in');
+      }
+      const st = stateOf(p, t), e = p.e == null ? t : Math.min(p.e, t);
+      el.dataset.st = st; el.classList.toggle('run', st === 'run');
+      const i = $('.rdr-bt i', el); i.style.left = (p.a / span * 100) + '%'; i.style.width = Math.max(.6, (e - p.a) / span * 100) + '%';
+      $('.rdr-ms', el).textContent = st === 'wait' ? 'Waiting' : st === 'bad' && p.e != null ? 'Failed' : st === 'stop' ? 'Stopped' : secs(e - p.a);
+      el.setAttribute('aria-label', `${p.t}, ${{ run:'running', retry:'waiting to try again', wait:'waiting for approval', bad:'failed', stop:'stopped', ok:'done' }[st]}, ${secs(e - p.a)}`);
+    });
+    // a person's yes, under the step that waits for it
+    const ask = $('.rdr-ask', rowsEl);
+    if (R.st === 'wait' && !ask){ const p = R.sp[R.sp.length - 1], x = byId(p.s), el = R.rows.get(p);
+      if (el) el.insertAdjacentHTML('afterend', `<div class="rdr-ask${REDUCE ? '' : ' in'}" role="group" aria-label="${x.t} waits for you"><span class="rdr-ti" data-k="approval" aria-hidden="true">${I('user', 'xs')}</span><span class="tx"><b>${x.t} is waiting for you</b><span>Live runs ask ${x.ask} in Slack. In a test, you decide.</span></span><span class="acts"><button class="pill primary sm" data-a="yes">${I('check', 'xs')}Approve</button><button class="pill line sm" data-a="no">Reject</button></span></div>`); }
+    if (R.st !== 'wait' && ask) ask.remove();
+    // the log, a line at a time, its levels in colour
+    const L = R.log.filter(l => l.at <= t + 1e-6).sort((a, b) => a.at - b.at);
+    for (; R.logN < L.length; R.logN++){ const l = L[R.logN];
+      const li = html(`<li class="rdr-l" data-l="${l.l}"><span class="t num">${stamp(l.at)}</span><span class="lv tag" data-l="${l.l}">${l.l}</span><span class="m"><b>${l.b}</b> <span>${l.m}</span></span></li>`);
+      li.hidden = lvl !== 'all' && l.l !== lvl; logEl.appendChild(li); if (!force && !REDUCE && !li.hidden) li.classList.add('in'); }
+    filterLog(false);
+    // the newest line in view while the run is followed
+    if (follow && (R.st === 'run' || R.st === 'wait' || force)){ if (tab === 'steps'){ const b = rowsEl.lastElementChild; if (b && b.offsetTop + b.offsetHeight > bd.scrollTop + bd.clientHeight) bd.scrollTop = b.offsetTop + b.offsetHeight - bd.clientHeight + 6; } if (tab === 'log') bd.scrollTop = bd.scrollHeight; }
+    // the head: the run's state, its time, tokens and cost
+    const tag = { run:['run', '<span class="spin"></span>Running'], wait:['warn', 'Waiting'], ok:['ok', 'Passed'], bad:['bad', 'Failed'], stopped:['', 'Stopped'] }[R.st];
+    if (stT.dataset.s !== R.st){ stT.dataset.s = R.st; stT.className = 'rdr-st tag ' + tag[0]; stT.innerHTML = tag[1]; }
+    const tok = Math.round(R.sp.filter(p => p.tok && p.a <= t).reduce((n, p) => n + p.tok * Math.min(1, (t - p.a) / (p.e - p.a)), 0));
+    meta.textContent = [secs(t), tok ? `${(tok / 1000).toFixed(1)}k tokens` : '', tok ? `$${(tok * .0000045).toFixed(3)}` : ''].filter(Boolean).join(', ');
+    if (tab === 'data' && (force || Math.floor(t * 2) !== R.dq)){ R.dq = Math.floor(t * 2); paintData(); }
+  }
+  function filterLog(anim){ let n = 0; $$('.rdr-l', logEl).forEach(li => { const show = lvl === 'all' || li.dataset.l === lvl; if (li.hidden === show){ li.hidden = !show; if (show && anim && !REDUCE){ li.classList.remove('in'); void li.offsetWidth; li.classList.add('in'); } } if (show) n++; });
+    cnt.textContent = `${n} ${n === 1 ? 'line' : 'lines'}`;
+    let e = $('.rdr-le', logEl.parentElement); if (!n && !e){ logEl.insertAdjacentHTML('afterend', `<p class="rdr-le">No ${lvl === 'warn' ? 'warnings' : 'errors'} in this run.</p>`); } if (n && e) e.remove(); }
+  // the data each finished step took in and handed on, as JSON
+  const json = o => JSON.stringify(o, null, 2).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/("[^"]*")(\s*:)?|\b(-?\d+(?:\.\d+)?|true|false|null)\b/g, (m, s, colon, n) => s ? (colon ? `<span class="k">${s}</span>${colon}` : `<span class="s">${s}</span>`) : `<span class="n">${n}</span>`);
+  function paintData(){
+    const t = R.t, done = STEPS.filter(x => R.sp.some(p => p.s === x.id && p.lv === 0 && p.e != null && p.e <= t + 1e-6 && p.st === 'ok'));
+    if (!done.length){ ds.innerHTML = ''; io.innerHTML = '<p class="rdr-de">No step has finished yet.</p>'; return; }
+    const cur = done.find(x => x.id === picked) || done[done.length - 1];
+    ds.innerHTML = done.map(x => `<button data-s="${x.id}" aria-pressed="${x === cur}"><span class="rdr-ti" data-k="${x.k}" aria-hidden="true">${I(x.ic, 'xs')}</span><span>${x.t}</span></button>`).join('');
+    const out = x => x.id === 'approve' ? { decision:R.ok === false ? 'Rejected' : 'Approved', by:'You' } : x.out;
+    io.innerHTML = `<h4>Input</h4><pre class="rdr-json" tabindex="0" aria-label="${cur.t} input">${json(cur.in)}</pre><h4>Output</h4><pre class="rdr-json" tabindex="0" aria-label="${cur.t} output">${json(out(cur))}</pre>`;
+  }
+  const pick = id => { picked = id; $$('.rdr-r', rowsEl).forEach(b => b.setAttribute('aria-pressed', String(b.dataset.s === id))); $$('.rdr-nd', flow).forEach(b => b.setAttribute('aria-pressed', String(b.dataset.s === id))); if (tab === 'data') paintData(); };
+  function decide(ok){
+    if (!R || R.st !== 'wait') return; const p = R.sp[R.sp.length - 1], x = byId(p.s); p.e = R.t; p.st = ok ? 'ok' : 'bad';
+    if (ok){ R.log.push({ at:R.t, l:'info', b:x.t, m:'Approved by you' }); R.st = 'run'; R.ok = true; plan(R.pause.i + 1, R.t); R.pause = null; say(`${x.t}: approved. The run carries on`); }
+    else { R.ok = false; R.log.push({ at:R.t, l:'error', b:x.t, m:'Rejected by you. Nothing was sent' }); R.st = 'bad'; R.end = R.t; finish(); }
+    paint();
+  }
+  function finish(){ stopB.hidden = true; againB.hidden = false; say(R.st === 'ok' ? `Test run passed in ${secs(R.t)}` : R.st === 'bad' ? 'Test run failed' : 'Run stopped'); }
+  // the run's clock, at the pace of a real one; while a step waits for a person the clock runs on and its bar grows
+  c.loop(ts => {
+    const dt = last ? Math.min(.1, (ts - last) / 1000) : 0; last = ts;
+    if (!R || (R.st !== 'run' && R.st !== 'wait')) return;
+    R.t += dt;
+    if (R.st === 'wait'){ paint(); return; }
+    if (R.pause && R.t >= R.pause.at){ R.t = R.pause.at; R.st = 'wait'; say(`${byId(R.sp[R.sp.length - 1].s).t} is waiting for you to approve`); }
+    if (R.end != null && R.t >= R.end){ R.t = R.end; R.st = 'ok'; paint(); finish(); return; }
+    paint();
+  });
+  c.on(stopB, 'click', () => { if (!R || (R.st !== 'run' && R.st !== 'wait')) return;
+    R.sp = R.sp.filter(p => p.a <= R.t); R.sp.forEach(p => { if (p.e == null || p.e > R.t){ p.e = R.t; p.st = 'stop'; } });
+    R.log = R.log.filter(l => l.at <= R.t); R.log.push({ at:R.t, l:'warn', b:'Run stopped', m:`You stopped it at ${secs(R.t)}` }); R.st = 'stopped'; R.pause = null; R.end = R.t; paint(); finish(); if (againB) againB.focus({ preventScroll:true }); });
+  c.on(againB, 'click', e => { start(); if (e.isTrusted) stopB.focus({ preventScroll:true }); });
+  c.on(r, 'click', e => {
+    const a = e.target.closest('.rdr-ask [data-a]'); if (a) return decide(a.dataset.a === 'yes');
+    const b = e.target.closest('.rdr-r, .rdr-nd, .rdr-ds button'); if (!b) return;
+    pick(b.dataset.s);
+    if (b.matches('.rdr-nd') && tab === 'steps'){ const row = $(`.rdr-r[data-s="${b.dataset.s}"]`, rowsEl); if (row) bd.scrollTop = Math.max(0, row.offsetTop - 34); }
+  });
+  // Steps, Log and Data; the log's level filter
+  const tabs = seg($('.rdr-tabs', r), v => { tab = v; $$('.rdr-v', r).forEach(x => x.hidden = x.dataset.v !== v); bd.scrollTop = 0; if (v === 'data') paintData(); if (v === 'log' && follow && R.st === 'run') bd.scrollTop = bd.scrollHeight; });
+  seg($('.rdr-lvs', r), v => { lvl = v; filterLog(true); });
+  c.on(followB, 'click', () => { follow = !follow; followB.setAttribute('aria-pressed', String(follow)); followB.dataset.tip = follow ? 'Follow the run' : 'Stay put'; say(follow ? 'Following the run' : 'Staying put'); });
+  // the drawer folds down to its head, and drags taller from its top edge (or the arrow keys on it)
+  const maxH = () => Math.max(160, frame.clientHeight - 64);
+  const setH = h => { h = Math.round(Math.max(120, Math.min(maxH(), h))); dw.style.setProperty('--rdr-h', h + 'px'); grip.setAttribute('aria-valuenow', h); grip.setAttribute('aria-valuemax', maxH()); };
+  const fold = open => { dw.classList.add('anim'); dw.classList.toggle('shut', !open); tg.setAttribute('aria-expanded', String(open)); c.later(REDUCE ? 0 : 500, () => dw.classList.remove('anim')); };
+  c.on(tg, 'click', () => fold(dw.classList.contains('shut')));
+  let g = null;
+  c.on(grip, 'pointerdown', e => { g = { y:e.clientY, h:dw.classList.contains('shut') ? 45 : dw.getBoundingClientRect().height }; grip.setPointerCapture(e.pointerId); grip.classList.add('on'); dw.classList.add('drag'); if (dw.classList.contains('shut')){ dw.classList.remove('shut'); tg.setAttribute('aria-expanded', 'true'); } });
+  c.on(grip, 'pointermove', e => { if (g) setH(g.h - (e.clientY - g.y)); });
+  const up = () => { g = null; grip.classList.remove('on'); dw.classList.remove('drag'); }; c.on(grip, 'pointerup', up); c.on(grip, 'pointercancel', up);
+  c.on(grip, 'keydown', e => { const cur = dw.getBoundingClientRect().height, d = { ArrowUp:24, ArrowDown:-24 }[e.key]; let h = null;
+    if (d) h = cur + d; if (e.key === 'Home') h = 120; if (e.key === 'End') h = maxH(); if (h == null) return; e.preventDefault(); if (dw.classList.contains('shut')) fold(true); setH(h); });
+  setH(312);
+  start();
+  // the preview's story: approve the step the run waits on, then read the log, its errors, and what the research handed on
+  c.story(async s => {
+    await s.until(() => R.st === 'wait'); await s.beat(2.4);
+    await s.tap($('.rdr-ask [data-a="yes"]', r));
+    await s.until(() => R.st === 'ok'); await s.beat(1.6);
+    await s.tap($('.rdr-tabs [data-v="log"]', r)); await s.beat(2.4);
+    await s.tap($('.rdr-lvs [data-v="error"]', r)); await s.beat(2.4);
+    await s.tap($('.rdr-tabs [data-v="data"]', r)); await s.beat(1.4);
+    await s.tap($('.rdr-ds [data-s="research"]', r)); await s.beat(3);
   });
 });
 /* ---------- Memory panel ---------- */

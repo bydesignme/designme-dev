@@ -54,6 +54,9 @@ Object.assign(WAIT, { 'image-generation':11200 });
 Object.assign(WAIT, { 'kanban-board':3800 });
 // Thinking states between two lines, Orbit reading the files
 Object.assign(WAIT, { 'thinking-states':3900 });
+// Step inspector with a field put into the instructions; Data picker with its picker open on the score; Run drawer with the
+// lookup tried again and the research writing its score
+Object.assign(WAIT, { 'step-inspector':6200, 'data-picker':7400, 'run-drawer':5600 });
 const OUT = { thumbs:path.join(HERE, 'public/components/thumbs'), og:path.join(HERE, 'public/components/og') };
 Object.values(OUT).forEach(d => fs.mkdirSync(d, { recursive:true }));
 
@@ -70,7 +73,7 @@ const base = `http://127.0.0.1:${server.address().port}`;
 
 // a box of the given shape around the component, inside the demo, in page pixels
 // a component too tall for the shared picture's shape is pictured from its top (its title), not cut through the middle
-const TOP = new Set(['agent-run-timeline', 'memory-panel', 'kanban-board']);
+const TOP = new Set(['agent-run-timeline', 'memory-panel', 'kanban-board', 'step-inspector']);
 const boxAround = (comp, demo, ratio, pad, top = false) => {
   let w = comp.width + pad * 2, h = comp.height + pad * 2;
   if (w / h < ratio) w = h * ratio; else h = w / ratio;

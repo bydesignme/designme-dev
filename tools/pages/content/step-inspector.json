@@ -1,0 +1,44 @@
+{
+  "summary": "Step inspector is the settings panel for one step of an agent workflow. Its head shows the step's kind as a coloured tile, its name, which you can edit in place, where it sits in the workflow, and Test and More. Under it, sections fold open and shut: what the step does, the data it reads from earlier steps, what it hands on and what happens if it fails. Data mapped from an earlier step shows as a token, the step and then its field, and data that no earlier step gives is flagged in red.",
+  "use": [
+    "Beside a workflow canvas, for the step someone has picked, in an automation builder or an agent workflow editor.",
+    "When steps of different kinds need different settings: a model and instructions for an AI step, a rule for a branch, the people who approve for an approval.",
+    "When a step reads data from earlier steps and people need to see where each value comes from, and which ones are broken.",
+    "When people set retries and time limits for steps that call models, tools or other apps."
+  ],
+  "features": [
+    "The tile says the kind of step in colour, the same everywhere a step shows: the trigger orange, AI steps violet, tools teal, app steps and outputs blue, a branch yellow, a wait pink and an approval green. Every line and edge stays grey.",
+    "The name is a quiet field: click it, type, and Enter or a click elsewhere keeps it; Escape (HTML) puts the old name back. More opens Rename and Turn off, and a step that is off shows an Off tag after its name.",
+    "Test runs the step on its own. Its play icon turns while it runs, and the line under the name says how it went, in green when it worked, then goes back to the kind and position.",
+    "Sections fold from their heads: Setup (or Takes Yes when, Who approves), Inputs, Output and If it fails (or If nobody answers). Output and If it fails start shut. Inputs says how many fields are mapped, or how many are missing, in red.",
+    "An AI step has its model, its instructions and its tools. The instructions are text with mapped fields inline as tokens; Insert data opens the fields of the earlier steps, grouped by step, each with its type in colour and a sample, and puts the one you pick where the cursor was. Tools are chips with a remove button, and + adds one from a menu.",
+    "Inputs map each name to a field of an earlier step. A token's button opens the same fields to change it. A field from a step that is no longer before this one turns red, with a line that says where it went wrong; picking a field fixes it.",
+    "Output lists what the step hands on, each field with its type as a coloured chip (text blue, numbers green, lists orange, objects pink, yes or no yellow, dates teal) and a sample value.",
+    "If it fails holds a retries stepper from 0 to 5, the wait between tries (2s each or doubling), a time limit and what happens if it still fails. Each choice is a field-like button with its menu.",
+    "A branch has its rule (a mapped value, a comparison and a number) and where the Yes and No paths go. An approval has the people who approve as chips with their initials, where they are asked, what they see and what happens if nobody answers in time.",
+    "On designme.dev the switch under the demo shows three steps, an AI step, a branch and an approval. The HTML install ships the switch, the three steps and their sample data; change the data in its script. In React, pass the step and the steps before it, and `onChange` gets the whole step back after every change."
+  ],
+  "a11y": [
+    "Each section head is a button with `aria-expanded` and `aria-controls`; a shut section is hidden, so Tab passes over it.",
+    "Test, More, the remove buttons and the add buttons are labelled (\"Test this step\", \"Remove Company lookup\", \"Add a person\") and show tooltips. Choices say their name and value, like \"Model: Sonnet 5.5\".",
+    "A token's button is labelled with the field and where it comes from, and a flagged one adds that no earlier step gives it.",
+    "The menus are menus: the arrows move through them and wrap, Enter picks, and Escape closes them and gives the focus back to their button. The picked option is `aria-checked`.",
+    "The instructions are a multi-line `textbox` labelled Instructions. Enter starts a new line; the tokens in it can't be typed into.",
+    "The retries count is a polite live region, and the stepper's buttons turn `aria-disabled` at 0 and 5. A polite live region (HTML) says what each change did, like \"email now reads Demo request form › email\".",
+    "With reduced motion the sections and tokens appear without their entrance, and Test's icon holds still."
+  ],
+  "faq": [
+    {
+      "q": "How do I add a kind of step it doesn't show?",
+      "a": "Every kind has its colour and icon already. In React, a step of kind `tool`, `app` or `output` shows Inputs, Output and If it fails; `trigger` and `wait` show their Output. Add your own rows in the HTML version's script, which writes each kind's sections."
+    },
+    {
+      "q": "How does it know which data is missing?",
+      "a": "It checks each mapped field against the steps you pass as earlier steps. A field whose step or name isn't among them is flagged. Pass only the steps that run before this one."
+    },
+    {
+      "q": "Does Test run anything?",
+      "a": "No. In React it calls `onTest`; set `testing` while your test runs and `status` to say how it went. The HTML demo pretends to run it for 1.4 seconds."
+    }
+  ]
+}

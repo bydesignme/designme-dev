@@ -557,6 +557,342 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
 :root:not([data-style="soft"]) .ctb-n.run:not(:where([data-style="soft"],[data-style="soft"] *)){box-shadow:0 0 0 1px var(--dm-accent-mark),0 0 0 4px color-mix(in srgb,var(--dm-accent-mark,var(--dm-accent)) 22%,transparent)}
 :root:not([data-style="soft"]) .ctb-n.sel:not(:where([data-style="soft"],[data-style="soft"] *)){box-shadow:0 0 0 1px color-mix(in srgb,var(--dm-pick-on) 50%,transparent)}
 
+/* Step inspector */
+/* ---------- Step inspector ---------- */
+/* the settings of one step in an agent workflow. Its tile says its kind in colour (the trigger orange, AI steps violet,
+   tools teal, app steps and outputs blue, a branch yellow, a wait pink, an approval green), then its name, where it sits
+   and Test and More. Under it, sections that fold: what the step does, the data it reads, what it hands on and what happens
+   if it fails. Data mapped from an earlier step is a token, the step and then its field; data that no earlier step gives is
+   a red token with a line saying why. Data types are coloured chips; every line and edge is grey */
+.sti{width:100%;max-width:360px;margin-inline:auto;padding:var(--dm-s-3) var(--dm-s-4) var(--dm-s-1);display:flex;flex-direction:column;text-align:left}
+.sti-ti{width:18px;height:18px;flex:none;display:grid;place-items:center;border-radius:calc(5px * var(--dm-rk));background:var(--dm-sti-kb,var(--dm-chip));color:var(--dm-sti-kf,var(--dm-fg2))}
+.sti-ti .i{width:11px;height:11px}
+.sti-ti[data-k="trigger"]{--dm-sti-kb:var(--dm-pp-bg);--dm-sti-kf:var(--dm-pp)}
+.sti-ti[data-k="ai"]{--dm-sti-kb:var(--dm-pl-bg);--dm-sti-kf:var(--dm-pl)}
+.sti-ti[data-k="tool"]{--dm-sti-kb:var(--dm-pt-bg);--dm-sti-kf:var(--dm-pt)}
+.sti-ti:is([data-k="app"],[data-k="output"]){--dm-sti-kb:var(--dm-pb-bg);--dm-sti-kf:var(--dm-pb)}
+.sti-ti[data-k="branch"]{--dm-sti-kb:var(--dm-py-bg);--dm-sti-kf:var(--dm-py)}
+.sti-ti[data-k="wait"]{--dm-sti-kb:var(--dm-pk-bg);--dm-sti-kf:var(--dm-pk)}
+.sti-ti[data-k="approval"]{--dm-sti-kb:var(--dm-pm-bg);--dm-sti-kf:var(--dm-pm)}
+.sti-h{display:flex;align-items:center;gap:10px;padding:2px 0 var(--dm-s-3);border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
+.sti-h>.sti-ti{width:32px;height:32px;border-radius:calc(9px * var(--dm-rk))}
+.sti-h>.sti-ti .i{width:14px;height:14px}
+.sti-tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+.sti-nr{display:flex;align-items:center;gap:6px;min-width:0}
+.sti-n{flex:1;min-width:0;width:100%;height:24px;padding:0 6px;margin-left:-6px;border:0;outline:0;border-radius:var(--dm-r-xs);background:none;font:inherit;font-size:14px;font-weight:500;color:var(--dm-fg);text-overflow:ellipsis;box-shadow:inset 0 0 0 1px transparent;transition:box-shadow var(--dm-t-fast)}
+@media (hover:hover) and (pointer:fine){.sti-n:hover{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line) 50%,transparent)}}
+.sti-n:focus{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line-strong) 50%,transparent)}
+.sti-kd{display:block;min-width:0;font-size:12px;color:var(--dm-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sti-kd.ok{color:var(--dm-ok)}
+.sti-h .ib{width:28px;height:28px;flex:none;color:var(--dm-muted)}
+@media (hover:hover) and (pointer:fine){.sti-h .ib:hover{color:var(--dm-fg)}}
+.sti-test.busy .i{animation:rot 1s linear infinite}
+/* a section: its head folds it, and says what needs a look */
+.sti-sec{border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
+.sti-sec:last-child{border-bottom:0}
+.sti-sh{display:flex;align-items:center;gap:6px;width:100%;min-height:40px;font-size:12.5px;font-weight:500;color:var(--dm-fg);text-align:left}
+.sti-sh>.i{color:var(--dm-muted);transform:rotate(90deg);transition:transform var(--dm-t) var(--dm-ease)}
+.sti-sh[aria-expanded="false"]>.i{transform:none}
+.sti-sh .n{margin-left:auto;font-size:12px;font-weight:400;color:var(--dm-muted)}
+.sti-sh .tag{margin-left:auto}
+.sti-rows{display:flex;flex-direction:column;gap:2px;padding:0 0 var(--dm-s-3)}
+.sti-row{display:grid;grid-template-columns:92px minmax(0,1fr);align-items:center;gap:var(--dm-s-2);min-height:34px}
+.sti-row.top{align-items:start}
+.sti-row.top>.k{padding-top:7px}
+.sti-row>.k{min-width:0;font-size:12.5px;color:var(--dm-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sti-row>.v{min-width:0;display:flex;align-items:center;flex-wrap:wrap;gap:6px}
+/* a choice: a field-like trigger that opens a menu */
+.sti-sel{display:inline-flex;align-items:center;gap:6px;max-width:100%;min-width:0;height:30px;padding:0 var(--dm-s-2) 0 10px;border-radius:var(--dm-r-field);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line) 50%,transparent);font-size:13px;color:var(--dm-fg);text-align:left;transition:box-shadow var(--dm-t-fast),background var(--dm-t-fast)}
+@supports (corner-shape:squircle){.sti-sel{corner-shape:squircle;border-radius:var(--dm-r-field-sq)}}
+.sti-sel>span{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sti-sel>.i{color:var(--dm-muted)}
+@media (hover:hover) and (pointer:fine){.sti-sel:hover{background:var(--dm-row)}}
+.sti-sel[aria-expanded="true"]{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line-strong) 50%,transparent)}
+/* a mapped field: the step's tile, the step and the field */
+.sti-tok{display:inline-flex;align-items:center;gap:5px;max-width:100%;min-width:0;height:24px;padding:0 var(--dm-s-2) 0 3px;border-radius:var(--dm-r-sm);background:var(--dm-chip);font-size:12px;line-height:24px;color:var(--dm-fg);white-space:nowrap;vertical-align:middle;user-select:none}
+.sti-tok .s{min-width:0;max-width:112px;color:var(--dm-muted);overflow:hidden;text-overflow:ellipsis}
+.sti-tok .sep{color:var(--dm-muted)}
+.sti-tok .f{flex:none;max-width:100%;font-weight:500;overflow:hidden;text-overflow:ellipsis}
+.sti-tok.bad{padding-left:6px;background:var(--dm-bad-bg);color:var(--dm-bad)}
+.sti-tok.bad .s,.sti-tok.bad .sep{color:inherit}
+.sti-tok.none{padding-left:var(--dm-s-2);background:none;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 60%,transparent);color:var(--dm-muted)}
+.sti-tokb{display:inline-flex;max-width:100%;min-width:0;border-radius:var(--dm-r-sm);transition:box-shadow var(--dm-t-fast)}
+.sti-tokb .sti-tok{transition:box-shadow var(--dm-t-fast)}
+@media (hover:hover) and (pointer:fine){.sti-tokb:hover .sti-tok{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line) 60%,transparent)}}
+.sti-tokb[aria-expanded="true"] .sti-tok{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line-strong) 50%,transparent)}
+.sti-note{grid-column:2;margin:-2px 0 2px;font-size:12px;line-height:1.4;color:var(--dm-bad)}
+/* the instructions: text with mapped fields inline */
+.sti-ih{display:flex;align-items:center;justify-content:space-between;min-height:30px}
+.sti-ih .k{font-size:12.5px;color:var(--dm-muted)}
+.sti-ih .pill{margin-right:-8px;color:var(--dm-fg2)}
+.sti-ins{display:block;min-height:96px;padding:var(--dm-s-2) 10px;border-radius:var(--dm-r-box);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line) 50%,transparent);font-size:13px;line-height:26px;color:var(--dm-fg);white-space:pre-wrap;overflow-wrap:anywhere;outline:0;cursor:text;transition:box-shadow var(--dm-t-fast)}
+@supports (corner-shape:squircle){.sti-ins{corner-shape:squircle;border-radius:var(--dm-r-box-sq)}}
+.sti-ins:focus{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line-strong) 50%,transparent)}
+.sti-ins .sti-tok{margin:0 1px;cursor:default}
+.sti-ins .sti-tok.new{animation:popin .5s var(--dm-ease) backwards}
+.sti-insw{display:flex;flex-direction:column;gap:6px;padding:0 0 var(--dm-s-2)}
+/* tools and people as chips, each with its remove */
+.sti-chips{display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:5px 0}
+.sti-chip{display:inline-flex;align-items:center;gap:5px;height:26px;max-width:100%;padding:0 3px 0 4px;border-radius:var(--dm-r-sm);background:var(--dm-chip);font-size:12.5px;color:var(--dm-fg)}
+.sti-chip>span:not(.sti-ti):not(.av){min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sti-chip .av{width:18px;height:18px;font-size:8.5px}
+.sti-chip.new{animation:popin .5s var(--dm-ease) backwards}
+.sti-cx{width:20px;height:20px;flex:none;display:grid;place-items:center;border-radius:calc(5px * var(--dm-rk));color:var(--dm-muted);transition:background var(--dm-t-fast),color var(--dm-t-fast)}
+@media (hover:hover) and (pointer:fine){.sti-cx:hover{background:var(--dm-surface);color:var(--dm-fg)}}
+.sti-add{width:26px;height:26px;flex:none;display:grid;place-items:center;border-radius:var(--dm-r-sm);color:var(--dm-muted);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 60%,transparent);transition:background var(--dm-t-fast),color var(--dm-t-fast)}
+.sti-add[aria-expanded="true"]{background:var(--dm-row);color:var(--dm-fg)}
+@media (hover:hover) and (pointer:fine){.sti-add:hover{background:var(--dm-row);color:var(--dm-fg)}}
+/* what the step hands on: each field with its type in colour */
+.sti-out{display:grid;grid-template-columns:auto auto minmax(0,1fr);align-items:center;gap:var(--dm-s-2);min-height:30px;font-size:13px}
+.sti-out .ex{min-width:0;text-align:right;font-size:12px;color:var(--dm-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sti-out .tag,.sti-dp .tag{font-weight:500}
+/* a stepper, a two-way switch and a number */
+.sti-num{display:inline-flex;align-items:center;gap:2px;height:30px;padding:0 3px;border-radius:var(--dm-r-field);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line) 50%,transparent)}
+@supports (corner-shape:squircle){.sti-num{corner-shape:squircle;border-radius:var(--dm-r-field-sq)}}
+.sti-num .ib{width:24px;height:24px}
+.sti-num .ib[aria-disabled="true"]{color:var(--dm-dis);background:none;cursor:not-allowed}
+.sti-num .num{min-width:22px;text-align:center;font-size:13px}
+.sti-seg.seg2 button{height:24px;padding:0 10px;font-size:12px}
+.sti-rule{display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:var(--dm-s-1) 0 var(--dm-s-2)}
+.sti-in{width:64px;height:30px;padding:0 var(--dm-s-2);border:0;outline:0;border-radius:var(--dm-r-field);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line) 50%,transparent);font:inherit;font-size:13px;font-variant-numeric:tabular-nums;color:var(--dm-fg);transition:box-shadow var(--dm-t-fast)}
+@supports (corner-shape:squircle){.sti-in{corner-shape:squircle;border-radius:var(--dm-r-field-sq)}}
+.sti-in:focus{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line-strong) 50%,transparent)}
+/* where a branch's paths go */
+.sti-link{display:inline-flex;align-items:center;gap:var(--dm-s-2);min-width:0;max-width:100%;height:28px;font-size:13px;color:var(--dm-fg);white-space:nowrap}
+.sti-link>span:last-child{min-width:0;overflow:hidden;text-overflow:ellipsis}
+:where([data-c]) button.sti-link{padding:0 var(--dm-s-2);margin-left:-8px;border-radius:var(--dm-r-sm);transition:background var(--dm-t-fast)}
+@media (hover:hover) and (pointer:fine){:where([data-c]) button.sti-link:hover{background:var(--dm-row)}}
+.sti-p{margin:0;padding:2px 0 var(--dm-s-2);font-size:12.5px;color:var(--dm-muted)}
+/* the menus: a field list grouped by step, and the choices */
+.sti-pk,.sti-dp{min-width:208px;max-width:288px}
+.sti-dp{width:288px;max-height:300px;overflow-y:auto;scrollbar-width:thin}
+.sti-dp .ph{display:flex;align-items:center;gap:var(--dm-s-2)}
+.sti-dp .mi{display:grid;grid-template-columns:auto auto minmax(0,1fr);gap:var(--dm-s-2);padding-left:34px}
+.sti-dp .mi .r{min-width:0;margin-left:0;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sti-pk .mi .av{width:20px;height:20px;font-size:9px}
+.sti-off{flex:none}
+.sti-live{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.sti-body{position:relative}
+.sti-body.in>*{animation:enter var(--dm-t) var(--dm-ease) backwards}
+.sti-body.in>:nth-child(2){animation-delay:40ms}.sti-body.in>:nth-child(3){animation-delay:80ms}.sti-body.in>:nth-child(4){animation-delay:120ms}
+@media (prefers-reduced-motion:reduce){.sti-body.in>*,.sti-ins .sti-tok.new,.sti-chip.new,.sti-test.busy .i{animation:none!important}}
+:root:not([data-style="soft"]) .sti-ti:not(:where([data-style="soft"],[data-style="soft"] *)){box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-sti-kf,var(--dm-rail)) 30%,transparent)}
+:root:not([data-style="soft"]) .sti-tok:not(.bad):not(.none):not(:where([data-style="soft"],[data-style="soft"] *)),:root:not([data-style="soft"]) .sti-chip:not(:where([data-style="soft"],[data-style="soft"] *)){background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-rail) 60%,transparent)}
+
+/* Data picker */
+/* ---------- Data picker ---------- */
+/* maps data from earlier steps into a step's fields. Each field holds tokens, the step and then its field, and a + that opens
+   the picker: only what earlier steps hand on, grouped by step under each step's tile in its kind's colour, each field with
+   its type as a coloured chip and a sample value. Search filters it, the arrows move through it and Enter puts the field in */
+.fpk{position:relative;width:100%;max-width:var(--dm-field-w);container:fpk/inline-size;margin-inline:auto;display:flex;flex-direction:column;gap:var(--dm-s-3);text-align:left}
+.fpk-hd{display:flex;align-items:center;gap:var(--dm-s-2);font-size:13px}
+.fpk-hd b{font-weight:500}
+.fpk-hd .muted{margin-left:auto;font-size:12px}
+.fpk-ti{width:18px;height:18px;flex:none;display:grid;place-items:center;border-radius:calc(5px * var(--dm-rk));background:var(--dm-fpk-kb,var(--dm-chip));color:var(--dm-fpk-kf,var(--dm-fg2))}
+.fpk-ti .i{width:11px;height:11px}
+.fpk-hd .fpk-ti{width:24px;height:24px;border-radius:calc(7px * var(--dm-rk))}
+.fpk-hd .fpk-ti .i{width:12px;height:12px}
+.fpk-ti[data-k="trigger"]{--dm-fpk-kb:var(--dm-pp-bg);--dm-fpk-kf:var(--dm-pp)}
+.fpk-ti[data-k="ai"]{--dm-fpk-kb:var(--dm-pl-bg);--dm-fpk-kf:var(--dm-pl)}
+.fpk-ti[data-k="tool"]{--dm-fpk-kb:var(--dm-pt-bg);--dm-fpk-kf:var(--dm-pt)}
+.fpk-ti:is([data-k="app"],[data-k="output"]){--dm-fpk-kb:var(--dm-pb-bg);--dm-fpk-kf:var(--dm-pb)}
+.fpk-ti[data-k="branch"]{--dm-fpk-kb:var(--dm-py-bg);--dm-fpk-kf:var(--dm-py)}
+.fpk-ti[data-k="wait"]{--dm-fpk-kb:var(--dm-pk-bg);--dm-fpk-kf:var(--dm-pk)}
+.fpk-ti[data-k="approval"]{--dm-fpk-kb:var(--dm-pm-bg);--dm-fpk-kf:var(--dm-pm)}
+.fpk-f{display:flex;flex-direction:column;gap:6px}
+.fpk-l{font-size:12.5px;color:var(--dm-muted)}
+.fpk-box{display:flex;flex-wrap:wrap;align-items:center;gap:6px;min-height:var(--dm-field-h);padding:5px 5px 5px var(--dm-s-2);border-radius:var(--dm-r-field);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line) 50%,transparent);transition:box-shadow var(--dm-t-fast)}
+@supports (corner-shape:squircle){.fpk-box{corner-shape:squircle;border-radius:var(--dm-r-field-sq)}}
+.fpk-box:has([aria-expanded="true"]){box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line-strong) 50%,transparent)}
+.fpk-ph{font-size:13px;color:var(--dm-muted)}
+.fpk-tok{display:inline-flex;align-items:center;gap:5px;max-width:100%;min-width:0;height:26px;padding:0 2px 0 4px;border-radius:var(--dm-r-sm);background:var(--dm-chip);font-size:12px;color:var(--dm-fg);white-space:nowrap}
+.fpk-tok .s{min-width:0;max-width:120px;color:var(--dm-muted);overflow:hidden;text-overflow:ellipsis}
+.fpk-tok .sep{color:var(--dm-muted)}
+.fpk-tok .f{flex:none;max-width:100%;font-weight:500;overflow:hidden;text-overflow:ellipsis}
+.fpk-tok.new{animation:popin .5s var(--dm-ease) backwards}
+.fpk-tok.out{animation:leave .3s var(--dm-ease) both}
+.fpk-x{width:20px;height:20px;flex:none;display:grid;place-items:center;border-radius:calc(5px * var(--dm-rk));color:var(--dm-muted);transition:background var(--dm-t-fast),color var(--dm-t-fast)}
+@media (hover:hover) and (pointer:fine){.fpk-x:hover{background:var(--dm-surface);color:var(--dm-fg)}}
+.fpk-add{width:26px;height:26px;flex:none;display:grid;place-items:center;margin-left:auto;border-radius:var(--dm-r-sm);color:var(--dm-muted);transition:background var(--dm-t-fast),color var(--dm-t-fast)}
+.fpk-add[aria-expanded="true"]{background:var(--dm-row);color:var(--dm-fg)}
+@media (hover:hover) and (pointer:fine){.fpk-add:hover{background:var(--dm-row);color:var(--dm-fg)}}
+/* the picker */
+.fpk-pop.pop{width:min(320px,100cqi,calc(100vw - 32px));padding:var(--dm-s-2);display:flex;flex-direction:column;gap:var(--dm-s-1)}
+.fpk-q{display:flex;align-items:center;gap:var(--dm-s-2);height:36px;padding:0 10px;border-radius:var(--dm-r-field);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line) 50%,transparent);color:var(--dm-muted);transition:box-shadow var(--dm-t-fast)}
+@supports (corner-shape:squircle){.fpk-q{corner-shape:squircle;border-radius:var(--dm-r-field-sq)}}
+.fpk-q:focus-within{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line-strong) 50%,transparent)}
+.fpk-q input{flex:1;min-width:0;height:100%;border:0;outline:0;background:none;font:inherit;font-size:13px;color:var(--dm-fg)}
+.fpk-q input::placeholder{color:var(--dm-muted)}
+.fpk-ls{max-height:252px;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:var(--dm-rail) transparent}
+.fpk-g{display:flex;align-items:center;gap:var(--dm-s-2);padding:var(--dm-s-2) 6px var(--dm-s-1);font-size:12px;color:var(--dm-muted)}
+.fpk-g b{min-width:0;font-weight:500;color:var(--dm-fg2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fpk-g .n{margin-left:auto;flex:none}
+.fpk-o{display:grid;grid-template-columns:auto auto minmax(0,1fr);align-items:center;gap:var(--dm-s-2);height:32px;padding:0 var(--dm-s-2) 0 32px;border-radius:var(--dm-r-sm);font-size:13px;cursor:pointer;user-select:none}
+.fpk-o.on{background:var(--dm-row)}
+.fpk-o .k{white-space:nowrap}
+.fpk-o .k mark{background:none;color:inherit;font-weight:500;text-decoration:underline;text-decoration-color:var(--dm-faint);text-underline-offset:2px}
+.fpk-o .ex{min-width:0;text-align:right;font-size:12px;color:var(--dm-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fpk-o .tag{font-weight:500}
+.fpk-e{margin:0;padding:var(--dm-s-4) var(--dm-s-2);font-size:12.5px;color:var(--dm-muted)}
+.fpk-ft{display:flex;align-items:center;gap:var(--dm-s-2);margin:0;padding:6px 6px 2px;border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);font-size:12px;color:var(--dm-muted)}
+.fpk-ft .kbd{margin-right:-4px}
+.fpk-ft span:first-child{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fpk-live{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+@media (prefers-reduced-motion:reduce){.fpk-tok.new,.fpk-tok.out{animation:none!important}}
+@container fpk (max-width:300px){.fpk-ft .kh{display:none}}
+:root:not([data-style="soft"]) .fpk-ti:not(:where([data-style="soft"],[data-style="soft"] *)){box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-fpk-kf,var(--dm-rail)) 30%,transparent)}
+:root:not([data-style="soft"]) .fpk-tok:not(:where([data-style="soft"],[data-style="soft"] *)){background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-rail) 60%,transparent)}
+
+/* Run drawer */
+/* ---------- Run drawer ---------- */
+/* the run of a workflow, in a drawer under its canvas that folds down to one line and drags taller. Its head says the run's
+   state in colour (running in the accent, waiting amber, passed green, failed red, stopped grey), the time, the tokens and the
+   cost, then Steps, Log and Data, Stop and Follow the run. Steps is a timeline with each step's model and tool calls nested
+   under it, each bar in its kind's colour, a failed try red and the wait before a retry hatched amber. Log is the run's lines
+   with their levels in colour, filtered by level. Data is what each step took in and handed on, as JSON */
+.rdr{position:relative;width:100%;height:472px;container:rdrf/inline-size;display:flex;flex-direction:column;overflow:hidden;border-radius:var(--dm-r-card);background:var(--dm-surface);box-shadow:var(--dm-shadow);text-align:left}
+.rdr-cv{position:relative;flex:1;min-height:0;display:flex;align-items:center;justify-content:center;padding:var(--dm-s-4) var(--dm-s-3);background:var(--dm-stage);background-image:radial-gradient(circle at center,color-mix(in srgb,var(--dm-fg) 9%,transparent) 1px,transparent 1.5px);background-size:16px 16px;overflow:hidden}
+.rdr-flow{position:relative;display:flex;align-items:center;max-width:100%;overflow-x:auto;scrollbar-width:none;padding:6px}
+.rdr-flow::-webkit-scrollbar{display:none}
+.rdr-wire{flex:none;width:14px;height:1.5px;background:var(--dm-faint);transition:background .4s var(--dm-ease)}
+.rdr-wire.done{background:color-mix(in srgb,var(--dm-fg) 40%,var(--dm-faint))}
+.rdr-nd{position:relative;flex:none;display:flex;align-items:center;gap:6px;height:34px;padding:0 7px;border-radius:calc(10px * var(--dm-rk));background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 80%,transparent);font-size:12px;white-space:nowrap;transition:box-shadow .3s,opacity .3s}
+@media (hover:hover) and (pointer:fine){.rdr-nd:hover{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line-strong) 50%,transparent)}}
+.rdr-nd .t{max-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;opacity:0;transition:max-width var(--dm-t) var(--dm-ease),opacity var(--dm-t) var(--dm-ease)}
+.rdr-nd:is([data-st="run"],[data-st="retry"],[data-st="wait"],[data-st="bad"],[aria-pressed="true"]) .t{max-width:132px;opacity:1}
+.rdr-nd[aria-pressed="true"]{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-pick-on) 75%,transparent),var(--dm-shadow-pop)}
+.rdr-nd[data-st="run"]{box-shadow:0 0 0 1.5px var(--dm-accent-mark,var(--dm-accent))}
+.rdr-nd[data-st="bad"]{box-shadow:0 0 0 1.5px var(--dm-bad)}
+.rdr-nd:is([data-st="retry"],[data-st="wait"]){box-shadow:0 0 0 1.5px var(--dm-warn-mark)}
+.rdr-nd[data-st="skip"]{opacity:.5}
+.rdr-ns{display:none;width:14px;height:14px;place-items:center;color:var(--dm-ok)}
+.rdr-nd[data-st="ok"] .rdr-ns{display:grid;margin-left:-2px}
+.rdr-nd[data-st="ok"] .rdr-ns .i{width:12px;height:12px}
+.rdr-ti{width:18px;height:18px;flex:none;display:grid;place-items:center;border-radius:calc(5px * var(--dm-rk));background:var(--dm-rdr-kb,var(--dm-chip));color:var(--dm-rdr-kf,var(--dm-fg2))}
+.rdr-ti .i{width:11px;height:11px}
+.rdr [data-k],.rdr-dw [data-k]{--dm-rdr-kb:var(--dm-chip);--dm-rdr-kf:var(--dm-fg2);--dm-rdr-kc:var(--dm-faint)}
+.rdr [data-k="trigger"],.rdr-dw [data-k="trigger"]{--dm-rdr-kb:var(--dm-pp-bg);--dm-rdr-kf:var(--dm-pp);--dm-rdr-kc:var(--dm-pp)}
+.rdr [data-k="ai"],.rdr-dw [data-k="ai"]{--dm-rdr-kb:var(--dm-pl-bg);--dm-rdr-kf:var(--dm-pl);--dm-rdr-kc:var(--dm-pl)}
+.rdr [data-k="model"],.rdr-dw [data-k="model"]{--dm-rdr-kb:var(--dm-pl-bg);--dm-rdr-kf:var(--dm-pl);--dm-rdr-kc:color-mix(in srgb,var(--dm-pl) 75%,var(--dm-surface))}
+.rdr [data-k="tool"],.rdr-dw [data-k="tool"]{--dm-rdr-kb:var(--dm-pt-bg);--dm-rdr-kf:var(--dm-pt);--dm-rdr-kc:var(--dm-pt)}
+.rdr :is([data-k="app"],[data-k="output"]),.rdr-dw :is([data-k="app"],[data-k="output"]){--dm-rdr-kb:var(--dm-pb-bg);--dm-rdr-kf:var(--dm-pb);--dm-rdr-kc:var(--dm-pb)}
+.rdr [data-k="branch"],.rdr-dw [data-k="branch"]{--dm-rdr-kb:var(--dm-py-bg);--dm-rdr-kf:var(--dm-py);--dm-rdr-kc:var(--dm-py)}
+.rdr [data-k="wait"],.rdr-dw [data-k="wait"]{--dm-rdr-kb:var(--dm-pk-bg);--dm-rdr-kf:var(--dm-pk);--dm-rdr-kc:var(--dm-pk)}
+.rdr [data-k="approval"],.rdr-dw [data-k="approval"]{--dm-rdr-kb:var(--dm-pm-bg);--dm-rdr-kf:var(--dm-pm);--dm-rdr-kc:var(--dm-pm)}
+.rdr [data-k="retry"],.rdr-dw [data-k="retry"]{--dm-rdr-kb:var(--dm-warn-bg);--dm-rdr-kf:var(--dm-warn);--dm-rdr-kc:var(--dm-warn-mark)}
+/* the drawer */
+.rdr-dw{position:relative;flex:none;height:var(--dm-rdr-h,312px);display:flex;flex-direction:column;background:var(--dm-surface);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);container:rdr/inline-size}
+.rdr-dw.shut{height:45px}
+.rdr-dw.anim{transition:height var(--dm-t) var(--dm-ease)}
+.rdr-grip{position:absolute;left:0;right:0;top:-6px;z-index:3;height:12px;display:grid;place-items:center;cursor:ns-resize;touch-action:none;outline:0}
+.rdr-grip i{display:block;width:32px;height:4px;border-radius:2px;background:var(--dm-rail);opacity:0;transition:opacity var(--dm-t-fast),background var(--dm-t-fast)}
+.rdr-grip.on i{opacity:1}
+@media (hover:hover) and (pointer:fine){.rdr-grip:hover i{opacity:1}}
+.rdr-grip:focus-visible i{opacity:1;background:var(--dm-line-strong)}
+.rdr-dw.drag{user-select:none}
+.rdr-h{flex:none;display:flex;align-items:center;gap:var(--dm-s-2);height:44px;padding:0 var(--dm-s-2) 0 6px}
+.rdr-tg{flex:none;display:inline-flex;align-items:center;gap:var(--dm-s-2);min-width:0;height:30px;padding:0 var(--dm-s-2);border-radius:var(--dm-r-sm);font-size:13px;font-weight:500;white-space:nowrap;transition:background var(--dm-t-fast)}
+@media (hover:hover) and (pointer:fine){.rdr-tg:hover{background:var(--dm-row)}}
+.rdr-tg>.i{color:var(--dm-muted);transform:rotate(180deg);transition:transform var(--dm-t) var(--dm-ease)}
+.rdr-dw.shut .rdr-tg>.i{transform:none}
+.rdr-st.tag .spin{width:9px;height:9px;border-width:1.5px}
+.rdr-st.run{background:var(--dm-accent-bg);color:var(--dm-accent-fg,var(--dm-accent))}
+.rdr-meta{min-width:0;font-size:12.5px;color:var(--dm-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rdr-sp{flex:1}
+.rdr-tabs{flex:none}
+.rdr-tabs button{padding:0 10px}
+.rdr-stop,.rdr-again{flex:none}
+.rdr-follow{width:28px;height:28px;flex:none;color:var(--dm-muted)}
+.rdr-follow[aria-pressed="true"]{background:var(--dm-row);color:var(--dm-fg)}
+.rdr-dw.shut :is(.rdr-tabs,.rdr-follow){display:none}
+.rdr-b{position:relative;flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:var(--dm-rail) transparent;padding:0 var(--dm-s-3) var(--dm-s-3)}
+.rdr-dw.shut .rdr-b{display:none}
+.rdr-v[hidden]{display:none}
+/* Steps: the timeline */
+.rdr-ax,.rdr-r{display:grid;grid-template-columns:minmax(0,15fr) minmax(0,14fr) 56px;align-items:center;gap:var(--dm-s-2);padding:0 var(--dm-s-2)}
+.rdr-ax{position:sticky;top:0;z-index:2;height:28px;background:var(--dm-surface);box-shadow:0 1px 0 color-mix(in srgb,var(--dm-line) 50%,transparent);font-size:12px;color:var(--dm-muted)}
+.rdr-ax .ms{text-align:right}
+.rdr-sc{position:relative;height:16px}
+.rdr-sc span{position:absolute;top:0;transform:translateX(-50%);white-space:nowrap}
+.rdr-sc span:first-child{transform:none}
+.rdr-rows{display:flex;flex-direction:column;padding-top:var(--dm-s-1)}
+.rdr-r{width:100%;min-height:30px;border-radius:calc(8px * var(--dm-rk));font-size:12.5px;text-align:left;transition:background .16s}
+@media (hover:hover) and (pointer:fine){.rdr-r:hover{background:var(--dm-row)}}
+.rdr-r[aria-pressed="true"]{background:var(--dm-sel)}
+.rdr-r.in{animation:enter var(--dm-t) var(--dm-ease) backwards}
+.rdr-n{display:flex;align-items:center;gap:6px;min-width:0;padding-left:calc(var(--dm-lv,0) * 18px)}
+.rdr-nm{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rdr-r[data-lv="0"] .rdr-nm{font-weight:500}
+.rdr-bt{position:relative;height:18px;background:linear-gradient(to right,color-mix(in srgb,var(--dm-line) 70%,transparent) 1px,transparent 1px) 0 0/var(--dm-rdr-g,20%) 100%}
+.rdr-bt i{position:absolute;top:5px;height:8px;min-width:3px;border-radius:calc(2.5px * var(--dm-rk));background:var(--dm-rdr-kc)}
+.rdr-r.run .rdr-bt i{animation:rdrrun 1.2s var(--dm-ease-io) infinite}
+@keyframes rdrrun{50%{opacity:.55}}
+.rdr-r[data-st="bad"] .rdr-bt i{background:var(--dm-bad)}
+.rdr-r[data-st="stop"] .rdr-bt i{background:var(--dm-faint)}
+.rdr-r[data-k="retry"] .rdr-bt i,.rdr-r[data-st="wait"] .rdr-bt i{background:repeating-linear-gradient(135deg,var(--dm-warn-mark) 0 3px,color-mix(in srgb,var(--dm-warn-mark) 45%,var(--dm-surface)) 3px 6px)}
+.rdr-ms{text-align:right;font-size:12px;color:var(--dm-fg2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rdr-r[data-st="bad"] .rdr-ms{color:var(--dm-bad)}
+.rdr-r:is([data-k="retry"],[data-st="wait"]) .rdr-ms{color:var(--dm-warn)}
+/* what the run waits for: a person's yes */
+.rdr-ask{display:flex;align-items:center;flex-wrap:wrap;width:100%;box-sizing:border-box;gap:var(--dm-s-2) var(--dm-s-3);margin:6px 0 var(--dm-s-1);padding:10px var(--dm-s-3);border-radius:var(--dm-r-in);background:var(--dm-warn-bg);font-size:12.5px}
+.rdr-ask.in{animation:enter var(--dm-t) var(--dm-ease) backwards}
+.rdr-ask .tx{flex:1;min-width:min(200px,100%);display:flex;flex-direction:column;line-height:1.4}
+.rdr-ask .tx b{font-weight:500;color:var(--dm-fg)}
+.rdr-ask .tx span{color:var(--dm-fg2)}
+.rdr-ask .acts{display:flex;gap:6px}
+.rdr-ask .pill.line{background:var(--dm-surface)}
+/* Log: the lines, their levels in colour */
+.rdr-lf{position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:var(--dm-s-2);padding:var(--dm-s-2) 0 6px;background:var(--dm-surface)}
+.rdr-lf .n{margin-left:auto;font-size:12px;color:var(--dm-muted)}
+.rdr-log{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.rdr-l{display:grid;grid-template-columns:62px 56px minmax(0,1fr);align-items:baseline;gap:var(--dm-s-2);padding:5px var(--dm-s-2);border-radius:calc(8px * var(--dm-rk));font-size:12.5px;line-height:1.45}
+.rdr-l.in{animation:enter var(--dm-t) var(--dm-ease) backwards}
+.rdr-l .t{font-size:12px;color:var(--dm-muted)}
+.rdr-l .lv{justify-self:start;height:18px;padding:0 6px;font-size:11px}
+.rdr-l .lv[data-l="debug"]{background:var(--dm-chip);color:var(--dm-fg2)}
+.rdr-l .lv[data-l="info"]{background:var(--dm-pb-bg);color:var(--dm-pb)}
+.rdr-l .lv[data-l="warn"]{background:var(--dm-warn-bg);color:var(--dm-warn)}
+.rdr-l .lv[data-l="error"]{background:var(--dm-bad-bg);color:var(--dm-bad)}
+.rdr-l .m{min-width:0}
+.rdr-l .m b{font-weight:500}
+.rdr-l .m span{color:var(--dm-fg2)}
+.rdr-l[data-l="error"]{background:color-mix(in srgb,var(--dm-bad-bg) 45%,transparent)}
+.rdr-le{margin:0;padding:var(--dm-s-4) var(--dm-s-2);font-size:12.5px;color:var(--dm-muted)}
+/* Data: each step's input and output */
+.rdr-data{display:grid;grid-template-columns:176px minmax(0,1fr);gap:var(--dm-s-3);padding-top:var(--dm-s-2)}
+.rdr-ds{display:flex;flex-direction:column;gap:2px;min-width:0}
+.rdr-ds button{display:flex;align-items:center;gap:var(--dm-s-2);width:100%;min-width:0;height:30px;padding:0 var(--dm-s-2);border-radius:var(--dm-r-sm);font-size:12.5px;text-align:left;transition:background var(--dm-t-fast)}
+@media (hover:hover) and (pointer:fine){.rdr-ds button:hover{background:var(--dm-row)}}
+.rdr-ds button[aria-pressed="true"]{background:var(--dm-sel);font-weight:500}
+.rdr-ds button span:last-child{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rdr-io{display:flex;flex-direction:column;gap:var(--dm-s-2);min-width:0}
+.rdr-io h4{margin:0;font-size:12px;font-weight:500;color:var(--dm-muted)}
+.rdr-json{margin:0;padding:var(--dm-s-2) 10px;border-radius:var(--dm-r-in);background:var(--dm-wash);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 50%,transparent);font-family:var(--dm-mono);font-size:12px;line-height:1.6;color:var(--dm-fg);white-space:pre;overflow-x:auto;scrollbar-width:thin}
+.rdr-json .k{color:var(--dm-pb)}
+.rdr-json .s{color:var(--dm-pm)}
+.rdr-json .n{color:var(--dm-pl)}
+.rdr-de{margin:0;padding:var(--dm-s-4) var(--dm-s-2);font-size:12.5px;color:var(--dm-muted)}
+.rdr-live{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+/* a narrow drawer keeps the run's state and its switch, and gives up the details */
+@container rdr (max-width:620px){
+  .rdr-meta,.rdr-tg .w{display:none}
+  .rdr-stop span,.rdr-again span{display:none}
+  .rdr-stop,.rdr-again{width:28px;padding:0}
+  .rdr-ax,.rdr-r{grid-template-columns:minmax(0,1fr) 30% 48px;padding:0 6px}
+  .rdr-data{grid-template-columns:minmax(0,1fr)}
+  .rdr-ds{flex-direction:row;overflow-x:auto;scrollbar-width:none}
+  .rdr-ds button{flex:none;width:auto}
+  .rdr-l{grid-template-columns:auto minmax(0,1fr);row-gap:2px}
+  .rdr-l .t{grid-column:1}
+  .rdr-l .m{grid-column:1/-1}
+}
+@container rdr (max-width:440px){.rdr-tabs button{padding:0 8px}.rdr-follow,.rdr-tg>span:not(.rdr-st){display:none}.rdr-h{gap:6px}}
+@container rdrf (max-width:400px){.rdr-nd:not([aria-pressed="true"]) .t{max-width:0;opacity:0}}
+@media (prefers-reduced-motion:reduce){.rdr-r.in,.rdr-l.in,.rdr-ask.in,.rdr-r.run .rdr-bt i{animation:none!important}.rdr-dw.anim,.rdr-nd .t{transition:none}}
+:root:not([data-style="soft"]) .rdr-ti:not(:where([data-style="soft"],[data-style="soft"] *)){box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-rdr-kf,var(--dm-rail)) 30%,transparent)}
+:root:not([data-style="soft"]) .rdr-r.run .rdr-bt i:not(:where([data-style="soft"],[data-style="soft"] *)){animation:none;background:repeating-linear-gradient(90deg,var(--dm-rdr-kc) 0 4px,color-mix(in srgb,var(--dm-rdr-kc) 50%,var(--dm-surface)) 4px 6px)}
+:root:not([data-style="soft"]) .rdr-ask:not(:where([data-style="soft"],[data-style="soft"] *)){box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-warn-mark) 45%,transparent)}
+
 /* Segmented control */
 /* ---------- Segmented control ---------- */
 /* one choice from a few views of the same thing: the picked one sits on a white knob that slides to it. It is a tab
@@ -616,31 +952,6 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
 @media (hover:hover) and (pointer:fine){.sgc-mo .d.now:hover{background:var(--dm-ink);color:var(--dm-on-ink)}}
 .sgc-mo .d.now::after{background:var(--dm-on-ink)}
 
-/* Details panel */
-/* ---------- Details panel ---------- */
-.dtp{padding:var(--dm-s-3);display:flex;flex-direction:column;gap:6px}
-.dtp-h{display:flex;align-items:center;gap:var(--dm-s-2);padding:2px var(--dm-s-1) 6px;font-size:13.5px}
-.dtp-h b{font-weight:500;flex:1;min-width:0}
-.dtp-sh{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--dm-muted);padding:6px var(--dm-s-1);width:100%;text-align:left}
-@media (hover:hover) and (pointer:fine){.dtp-sh:hover{color:var(--dm-fg)}}
-.dtp-sh svg{transition:transform .4s var(--dm-ease);transform:rotate(90deg)}
-.dtp-sh[aria-expanded="false"] svg{transform:none}
-.dtp-rows{display:flex;flex-direction:column}
-.dtp-r{display:grid;grid-template-columns:84px 1fr;align-items:center;min-height:34px;font-size:13px;position:relative}
-.dtp-r .k{color:var(--dm-muted);padding-left:var(--dm-s-1)}
-.dtp-v{display:inline-flex;align-items:center;gap:7px;justify-self:start;height:28px;padding:0 var(--dm-s-2);margin-left:-8px;border-radius:var(--dm-r-sm);transition:background .2s;color:var(--dm-fg)}
-:where([data-c]) button.dtp-v[aria-expanded="true"]{background:var(--dm-row)}
-@media (hover:hover) and (pointer:fine){:where([data-c]) button.dtp-v:hover{background:var(--dm-row)}}
-.dtp-v .av{width:20px;height:20px;font-size:9.5px}
-.dtp-v>svg{color:var(--dm-muted)}
-.dtp-v.flash{animation:dtpf .9s var(--dm-ease)}
-@keyframes dtpf{30%{background:var(--dm-accent-bg)}}
-.dtp-tags{display:flex;gap:var(--dm-s-1);align-items:center;flex-wrap:wrap}
-.dtp-add{width:20px;height:20px;border-radius:calc(6px * var(--dm-rk));display:grid;place-items:center;color:var(--dm-muted);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 50%,transparent)}
-@media (hover:hover) and (pointer:fine){.dtp-add:hover{color:var(--dm-fg);background:var(--dm-row)}}
-.dtp .mi .av{width:20px;height:20px;font-size:9.5px}
-.dtp .pop{min-width:180px}
-
 /* Form */
 /* ---------- Form ---------- */
 .fmx{padding:var(--dm-s-4);display:flex;flex-direction:column;gap:var(--dm-s-3);max-width:380px;margin:0 auto;width:100%}
@@ -669,95 +980,6 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
 .fmx-done{display:flex;flex-direction:column;align-items:center;gap:6px;padding:var(--dm-s-6) 0;text-align:center;font-size:13px}
 .fmx-done>svg{width:28px;height:28px;color:var(--dm-ok)}
 
-/* Trace view */
-/* ---------- Trace view ---------- */
-/* one agent run as a waterfall: every span on a shared time axis, nested under the span that started it, with its tokens
-   and latency. Each kind has its colour (the chart palette's identity slots): its mark, its bar and its count in the key.
-   While the run streams, a playhead marks now and the running bars glow at their leading edge. A span over its time budget
-   turns amber and hatched, and any span opens to show where it sat in the run, its input and its output */
-.trv{width:100%;max-width:720px;margin:0 auto;padding:6px;container-type:inline-size;--dm-cols:minmax(0,11fr) minmax(0,8fr) 40px 44px}
-.trv-h{display:flex;align-items:center;justify-content:space-between;gap:var(--dm-s-3);padding:var(--dm-s-2) 10px 6px}
-.trv-ht{display:flex;flex-direction:column;min-width:0}
-.trv-ht b{font-weight:500;font-size:14px}
-.trv-st{font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.trv-tot{font-size:14px;font-weight:500;flex:none}
-/* the key: each kind with its colour and how many of its spans have started */
-.trv-lg{display:flex;flex-wrap:wrap;gap:2px var(--dm-s-3);padding:0 10px var(--dm-s-2);font-size:12px;color:var(--dm-muted)}
-.trv-lg span{display:inline-flex;align-items:center;gap:5px;white-space:nowrap;transition:color .3s}
-.trv-lg i{width:8px;height:8px;border-radius:2px;background:var(--dm-k);flex:none}
-.trv-lg b{font-weight:500;color:var(--dm-fg2)}
-.trv-lg span.z{color:var(--dm-dis)}.trv-lg span.z b{color:inherit}.trv-lg span.z i{opacity:.45}
-.trv-ax,.trv-r{display:grid;grid-template-columns:var(--dm-cols);align-items:center;gap:var(--dm-s-2);padding:0 10px}
-.trv-ax{height:30px;border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);font-size:12px;color:var(--dm-muted)}
-.trv-tk,.trv-ms{text-align:right;white-space:nowrap}
-.trv-sc{position:relative;height:18px}
-.trv-sc span{position:absolute;top:0;transform:translateX(-50%);font-size:12px}
-.trv-sc span:first-child{transform:none}
-.trv-rows{display:flex;flex-direction:column;padding-bottom:var(--dm-s-1)}
-.trv-r{width:100%;min-height:32px;border-radius:calc(10px * var(--dm-rk));font-size:13px;text-align:left;transition:background .16s}
-@media (hover:hover) and (pointer:fine){.trv-r:hover{background:var(--dm-row)}}
-.trv-r[aria-expanded="true"]{background:var(--dm-sel)}
-.trv-r[aria-expanded="true"] .trv-tk{color:var(--dm-fg2)}
-.trv-r:focus-visible{outline:0;box-shadow:inset 0 0 0 2px var(--dm-focus)}
-.trv-n{position:relative;display:flex;align-items:center;gap:6px;min-width:0;align-self:stretch;padding-left:calc(var(--dm-lv,0) * 16px)}
-.trv-k{position:relative;z-index:1;width:18px;height:18px;display:grid;place-items:center;flex:none;border-radius:5px;color:color-mix(in srgb,var(--dm-k) 70%,var(--dm-fg));background:color-mix(in srgb,var(--dm-k) 13%,var(--dm-surface))}
-.trv-nm{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.trv-r.root .trv-nm{font-weight:500}
-.trv-n .tag{flex:none}
-/* the tree: a guide from each parent's mark down past its children, with an elbow into each child */
-.trv-g{position:absolute;top:0;bottom:0;left:0;pointer-events:none}
-.trv-g i{position:absolute;top:0;bottom:0;left:calc(var(--dm-x) * 16px + 8.5px);width:1px;background:color-mix(in srgb,var(--dm-rail) 60%,transparent)}
-.trv-g i.end{bottom:50%}
-.trv-g i.el::after{content:"";position:absolute;left:0;top:calc(50% - 1px);width:7px;height:1px;background:inherit}
-.trv-g i.end.el::after{top:auto;bottom:-1px}
-.trv-g i.dn{top:50%}
-/* a bar per span on the shared axis: faint lines mark the ticks */
-.trv-b{position:relative;height:20px;background:linear-gradient(to right,var(--dm-line) 1px,transparent 1px) 0 0/20% 100%}
-/* a bar is laid out once at its full length; while it runs, --dm-f (0 to 1) reveals it with a clip and moves its bright edge with a
-   transform, so a streaming run repaints without laying the page out again */
-.trv-b i{position:absolute;top:5px;height:10px;min-width:3px;border-radius:3px;clip-path:inset(-6px calc((1 - var(--dm-f,1)) * 100% - 2px) -6px -6px);background:linear-gradient(90deg,color-mix(in srgb,var(--dm-k) 70%,var(--dm-surface)),var(--dm-k));transition:background .3s,opacity .3s}
-/* a running bar has a light passing along it and a bright leading edge */
-.trv-r.run .trv-b i{background:linear-gradient(90deg,color-mix(in srgb,var(--dm-k) 55%,var(--dm-surface)) 0 30%,color-mix(in srgb,var(--dm-k) 25%,var(--dm-surface)) 45%,var(--dm-k) 60% 100%) 0 0/250% 100%;animation:trvsheen 1.4s linear infinite}
-.trv-r.run:not([data-k="agent"]) .trv-b i::after{content:"";position:absolute;left:0;right:0;top:-2px;bottom:-2px;--dm-e:var(--dm-k);background:linear-gradient(to left,var(--dm-e) 0 2px,transparent 2px);transform:translateX(calc(var(--dm-f,1) * 100% - 100% + 1px))}
-@keyframes trvsheen{from{background-position:100% 0}to{background-position:-150% 0}}
-/* an agent span holds the others, so it is drawn as a bracket over the time they take */
-.trv-r[data-k="agent"] .trv-b i,.trv-r.run[data-k="agent"] .trv-b i{top:9px;height:2px;border-radius:1px;background:var(--dm-faint);animation:none}
-.trv-r[data-k="agent"] .trv-b i::before,.trv-r[data-k="agent"] .trv-b i::after{content:"";position:absolute;top:-3px;width:2px;height:8px;border-radius:1px;background:var(--dm-faint)}
-.trv-r[data-k="agent"] .trv-b i::before{left:0}.trv-r[data-k="agent"] .trv-b i::after{right:0}
-.trv-r.run[data-k="agent"] .trv-b i::after{background:var(--dm-muted)}
-/* over budget: amber, hatched */
-.trv-r.slow .trv-b i,.trv-r.run.slow .trv-b i{background:repeating-linear-gradient(135deg,var(--dm-warn-mark) 0 3px,color-mix(in srgb,var(--dm-warn-mark) 55%,var(--dm-surface)) 3px 6px)}
-.trv-r.run.slow .trv-b i::after{--dm-e:var(--dm-warn-mark)}
-.trv-r .trv-tk{font-size:12px;color:var(--dm-muted)}
-.trv-r .trv-ms{font-size:12.5px;color:var(--dm-fg2)}
-.trv-r.slow .trv-ms{color:var(--dm-warn)}
-/* with a span open, the other bars step back */
-.trv-rows.sel .trv-r:not([aria-expanded="true"]) .trv-b i{opacity:.35}
-/* the playhead: where the run is now, one line down every bar's track while it streams */
-.trv-b::after,.trv-sc::after{content:"";position:absolute;left:0;right:0;top:-6px;bottom:-6px;background:linear-gradient(90deg,var(--dm-accent-mark,var(--dm-accent)) 0 1px,transparent 1px);transform:translateX(calc(var(--dm-now,0) * 100% - .5px));opacity:0;transition:opacity .4s;pointer-events:none}
-.trv-sc::after{top:12px;bottom:-6px}
-.trv.live .trv-b::after,.trv.live .trv-sc::after{opacity:.75}
-.trv-dc{display:flex;flex-direction:column;gap:10px;margin-top:2px;padding:6px 10px var(--dm-s-2);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
-.trv-dh{display:flex;align-items:center;gap:var(--dm-s-2);min-width:0;font-size:13px}
-.trv-dh b{min-width:0;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.trv-dh .ib{margin:0 -6px 0 auto}
-/* where the open span sat in the run */
-.trv-pos{position:relative;height:6px;border-radius:3px;background:var(--dm-line)}
-.trv-pos i{position:absolute;top:0;bottom:0;min-width:3px;border-radius:3px;background:var(--dm-k);transition:width .25s linear}
-.trv-kv{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--dm-s-2)}
-.trv-kv div{display:flex;flex-direction:column;min-width:0}
-.trv-kv span{font-size:12px;color:var(--dm-muted)}
-.trv-kv b{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.trv-io{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:6px 10px;font-size:12px;color:var(--dm-muted)}
-.trv-io code{font-family:var(--dm-mono);font-size:12px;color:var(--dm-fg2);background:var(--dm-chip);padding:5px var(--dm-s-2);border-radius:var(--dm-r-sm);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-:root:not([data-style="soft"]) .trv-r:not(.slow) .trv-b i:not(:where([data-style="soft"],[data-style="soft"] *)){background:var(--dm-k)}
-:root:not([data-style="soft"]) .trv-r.run:not(.slow):not([data-k="agent"]) .trv-b i:not(:where([data-style="soft"],[data-style="soft"] *)){background:repeating-linear-gradient(90deg,var(--dm-k) 0 4px,color-mix(in srgb,var(--dm-k) 55%,var(--dm-surface)) 4px 6px);animation:none}
-:root:not([data-style="soft"]) .trv-r.run:not([data-k="agent"]) .trv-b i:not(:where([data-style="soft"],[data-style="soft"] *))::after{filter:none;background:linear-gradient(to left,var(--dm-e) 0 1px,transparent 1px);transform:translateX(calc(var(--dm-f,1) * 100% - 100%))}
-:root:not([data-style="soft"]) .trv-g i:not(:where([data-style="soft"],[data-style="soft"] *)),:root:not([data-style="soft"]) .trv-g i.el:not(:where([data-style="soft"],[data-style="soft"] *))::after{background:var(--dm-faint)}
-/* narrow: the names keep their room. Tokens move into each span's details, the slow tag leaves the amber bar and time to
-   say it (the time keeps its tooltip), the tree draws closer, and the details give the start its own line */
-@container (max-width:330px){.trv-ax,.trv-r{grid-template-columns:minmax(0,1fr) 72px 44px}.trv-tk,.trv-n .tag{display:none}.trv-n{padding-left:calc(var(--dm-lv,0) * 10px)}.trv-g{display:none}.trv-kv{grid-template-columns:repeat(2,minmax(0,1fr))}}
-
 /* Action log */
 /* ---------- Action log ---------- */
 .alg{padding:var(--dm-s-2)}
@@ -782,39 +1004,6 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
 .alg-det{margin:0 10px 0 46px}
 .alg-det pre{margin:0 0 10px;font-family:var(--dm-mono);font-size:11.5px;line-height:1.6;background:var(--dm-surface);border-radius:calc(10px * var(--dm-rk));padding:var(--dm-s-2) 10px;white-space:pre-wrap;color:var(--dm-fg2);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 50%,transparent)}
 .alg-det .a{color:var(--dm-add)}.alg-det .x{color:var(--dm-del)}
-
-/* Code viewer */
-/* ---------- Code viewer ---------- */
-.cvx{overflow:hidden;display:flex;flex-direction:column}
-.cvx-h{display:flex;align-items:center;gap:2px;height:44px;padding:0 var(--dm-s-2);border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
-.cvx-tabs{display:flex;gap:2px;flex:1;min-width:0;overflow-x:auto}
-.cvx-tab{display:flex;align-items:center;height:28px;padding:0 10px;border-radius:var(--dm-r-sm);font-size:12px;font-family:var(--dm-mono);color:var(--dm-muted);transition:color .2s,background .2s;white-space:nowrap}
-@media (hover:hover) and (pointer:fine){.cvx-tab:hover{color:var(--dm-fg)}}
-/* the tabs scroll sideways, which would cut an outside ring: theirs is drawn inside */
-.cvx-tab:focus-visible{outline-offset:-2px}
-.cvx-tab.on{background:var(--dm-surface);color:var(--dm-fg);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-pick-on) 50%,transparent)}
-.cvx-meta{margin-left:auto;padding-right:2px;font-size:12px;color:var(--dm-muted);white-space:nowrap}
-.cvx-meta b{font-weight:500;color:var(--dm-ok)}
-.cvx-body{overflow-x:auto;min-height:232px}
-.cvx-code{margin:0;padding:var(--dm-s-2) 0;font-family:var(--dm-mono);font-size:12px;line-height:1.8}
-.cvx-l{display:flex;padding-right:var(--dm-s-4);cursor:pointer;transition:background .2s}
-@media (hover:hover) and (pointer:fine){.cvx-l:hover{background:var(--dm-row)}}
-/* a line that takes the focus fills the scrolling code, which would cut an outside ring: its ring is drawn inside */
-.cvx-l:focus-visible{outline-offset:-2px}
-.cvx-l.new{background:color-mix(in srgb,var(--dm-ok) 6%,transparent)}
-.cvx-l.on{background:var(--dm-sel)}
-@media (hover:hover) and (pointer:fine){.cvx-l.on:hover{background:var(--dm-sel)}}
-.cvx-l .n{width:42px;text-align:right;padding-right:var(--dm-s-4);color:var(--dm-muted);user-select:none;flex:none;transition:color .2s}
-.cvx-l.new .n{color:var(--dm-ok)}
-.cvx-l.on .n{color:var(--dm-accent-fg,var(--dm-accent))}
-.cvx-l .c{white-space:pre}
-/* one cool family for the syntax (owner, 4 Nov: the warm and cool mix clashed): violet keywords, blue functions, teal
-   components, green strings; attributes and the rest stay in the text greys */
-.cvx-code .k{color:var(--dm-pl)}.cvx-code .s{color:var(--dm-pm)}.cvx-code .f{color:var(--dm-pb)}.cvx-code .cm{color:var(--dm-muted);font-style:italic}.cvx-code .tg{color:var(--dm-pt)}.cvx-code .at{color:var(--dm-fg2)}
-/* the agent's note belongs to the line it explains (owner, 4 Nov: no grey box): it carries on in that line's tint, aligned
-   with the code, like an inline review comment */
-.cvx-note{margin:0;padding:var(--dm-s-1) var(--dm-s-4) var(--dm-s-2) 42px;background:var(--dm-sel);font-family:var(--dm-sans);font-size:12.5px;line-height:1.5;white-space:normal;color:var(--dm-fg2);display:flex;gap:var(--dm-s-2)}
-.cvx-note>svg{color:var(--dm-accent-fg,var(--dm-accent));flex:none;margin-top:3px}
 
 /* Command palette */
 /* ---------- Command palette ---------- */
@@ -974,15 +1163,14 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
 </style><style>/* Workflow editor template: the layout around the components, and the parts the library doesn't have yet. Every colour,
    radius and space is a component token (--dm-*), so the screen follows Soft and Blueprint, light and dark. The library's
    parts are their own classes: Agent harness (the sidebar), Canvas toolbar (the bar under the canvas), Automation canvas (the
-   step picker), Segmented control (the panel's tabs), Details panel (the inspector's sections), Form (Publish), Trace view
-   (the run's steps), Action log (the log and the runs), Code viewer (the data), Command palette, Toast and Progress.
-   The new parts are prefixed wfx- and self-contained, so each could be promoted to a component:
+   step picker), Step inspector (the inspector), Data picker (the picker of earlier steps' data), Run drawer (the run under
+   the canvas), Segmented control (the panel's tabs), Form (Publish), Action log (the runs), Command palette, Toast and
+   Progress.
+   The step inspector, the data picker and the run drawer are Step inspector, Data picker and Run drawer, promoted from here.
+   The parts the library doesn't have yet are prefixed wfx- and self-contained, so each could be promoted to a component:
      wfx-node, wfx-ins, wfx-elab  a workflow step on the canvas with its run state, the + on a wire, a branch's path label
      wfx-pick                     the step picker, with the agent as the last row
-     wfx-var, wfx-tok             the data picker and the token a mapped field shows
-     wfx-insp                     the step inspector
-     wfx-drawer                   the run drawer under the canvas
-     wfx-fix, wfx-appr, wfx-note  the agent's fix, the approval a test run asks of you, a plain note
+     wfx-fix, wfx-note            the agent's fix and a plain note, beside the run's steps
      wfx-vers                     the version history
    Blueprint is the page with no data-style, so its overrides are :root:not([data-style="soft"]). Hover styles are only for a
    mouse (hover:hover and pointer:fine). */
@@ -1143,71 +1331,29 @@ body:has(.wf) .dmf{display:none}
 .wf-bar.ctb-bar{transform:translateX(-50%)}
 .wf-bar .ctb-b[aria-disabled="true"]{cursor:not-allowed}
 
-/* ---------- wfx-drawer: the run, under the canvas ---------- */
-.wfx-drawer{position:relative;z-index:6;flex:none;height:44px;display:flex;flex-direction:column;background:var(--dm-surface);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
-.wf.dro .wfx-drawer{height:var(--wf-drh,312px)}
-.wfx-dr-grip{position:absolute;left:0;right:0;top:-5px;height:10px;z-index:3;cursor:ns-resize;touch-action:none;outline:0}
-.wfx-dr-grip:focus-visible{box-shadow:inset 0 -2px 0 color-mix(in srgb,var(--dm-field-line-strong) 70%,transparent)}
+/* ---------- the run drawer: Run drawer under the canvas, the agent's notes beside its steps ---------- */
+.wf .rdr-dw{z-index:6}
 .wf.drag-dr{user-select:none;cursor:ns-resize}
-.wfx-dr-h{flex:none;display:flex;align-items:center;gap:var(--dm-s-2);height:43px;padding:0 var(--dm-s-3) 0 var(--dm-s-2)}
-.wfx-dr-tg{flex:none;display:inline-flex;align-items:center;gap:var(--dm-s-2);min-width:0;height:30px;padding:0 var(--dm-s-2);border-radius:var(--dm-r-sm);font-size:13px;font-weight:500;white-space:nowrap;transition:background var(--dm-t-fast)}
-@media (hover:hover) and (pointer:fine){.wfx-dr-tg:hover{background:var(--dm-row)}}
-.wfx-dr-tg>.i{color:var(--dm-muted);transition:transform var(--dm-t) var(--dm-ease)}
-.wf.dro .wfx-dr-tg>.i{transform:rotate(180deg)}
-.wfx-dr-t{display:inline-flex;align-items:center;gap:var(--dm-s-2)}
-.wfx-dr-t>.dot{width:7px;height:7px}
-.wfx-dr-t .tag .spin{width:9px;height:9px;border-width:1.5px}
-.wfx-dr-meta{min-width:0;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.wfx-dr-tabs{flex:none}
-.wfx-dr-stop{flex:none}
-.wfx-dr-follow{width:28px;height:28px;flex:none;color:var(--dm-muted)}
-.wf:not(.dro) :is(.wfx-dr-tabs,.wfx-dr-follow,.wfx-dr-b){display:none}
-.wfx-dr-b{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;padding:0 var(--dm-s-3) var(--dm-s-3)}
-.wfx-dr-v[hidden]{display:none}
-/* the steps, with the agent's card beside them while it has something to say */
-.wfx-dr-v[data-v="steps"]{display:grid;grid-template-columns:minmax(0,1fr) clamp(272px,34%,340px);align-items:start;gap:var(--dm-s-4)}
-.wfx-dr-v[data-v="steps"]:has(.wfx-dr-note:empty){grid-template-columns:minmax(0,1fr)}
-.wfx-dr-note{order:2;position:sticky;top:0}
+.wf-steps:not([hidden]){display:grid;grid-template-columns:minmax(0,1fr) clamp(272px,34%,340px);align-items:start;gap:var(--dm-s-4)}
+.wf-steps:has(.wfx-dr-note:empty){grid-template-columns:minmax(0,1fr)}
+.wf-tl{min-width:0}
+.wfx-dr-note{order:2;position:sticky;top:0;padding-top:var(--dm-s-2)}
 .wfx-dr-note:empty{display:none}
-.wf-trv.trv{max-width:none;margin:0;padding:0;--dm-cols:minmax(0,15fr) minmax(0,14fr) 44px 60px}
-.wf-trv .trv-ax{position:sticky;top:0;z-index:2;background:var(--dm-surface);border-top:0;box-shadow:0 1px 0 color-mix(in srgb,var(--dm-line) 50%,transparent)}
-.wf-trv .trv-r{min-height:30px}
-.wf-trv .trv-r[aria-pressed="true"]{background:var(--dm-sel)}
-.wf-trv .trv-r.bad .trv-ms{color:var(--dm-bad)}
-.wf-trv .trv-r.slow .trv-ms{color:var(--dm-warn)}
-.wf-trv .trv-ms{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.wf-trv .trv-k{border-radius:calc(5px * var(--dm-rk))}
-.wf-log{padding-top:var(--dm-s-1)}
-.wf-log .alg-row{padding:6px 10px}
-.wf-log .alg-row[disabled]{cursor:default}
-.wf-log .alg-ic{width:24px;height:24px}
-.wf-log .alg-it.bad .alg-ic{background:var(--dm-bad-bg);color:var(--dm-bad)}
-.wf-log .alg-it.warn .alg-ic{background:var(--dm-warn-bg);color:var(--dm-warn)}
-.wf-log .alg-it.ok .alg-ic{background:var(--dm-ok-bg);color:var(--dm-ok)}
-.wf-log .alg-tx{display:flex;align-items:baseline;gap:var(--dm-s-2);min-width:0}
-.wf-log .alg-tx b{flex:none;font-weight:500}
-.wf-log .alg-tx .d{display:block;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.wf-log .alg-row[aria-expanded="true"] .g .i{transform:rotate(180deg)}
-.wf-log .g .i{transition:transform var(--dm-t) var(--dm-ease)}
-.wf-log .alg-det pre{max-height:180px;overflow:auto}
-.wf-cvx.cvx{margin-top:var(--dm-s-2);border-radius:var(--dm-r-card);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 50%,transparent)}
-.wf-cvx .cvx-body{min-height:0}
-.wf-cvx .cvx-l{cursor:default}
-/* wfx-appr, wfx-fix and wfx-note: what the run needs from you, and what the agent suggests */
-.wfx-appr,.wfx-fix,.wfx-note{display:flex;flex-direction:column;gap:10px;padding:var(--dm-s-3);border-radius:var(--dm-r-card);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 60%,transparent),var(--wf-ns)}
+.wf-ask.rdr-ask{align-items:flex-start}
+.wf-ask>.rdr-ti{margin-top:1px}
+.wf-ask .acts{flex-wrap:wrap;align-self:center}
+.wf-ask .wf-draft{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-top:2px;color:var(--dm-fg2)}
+.wf-ask .wf-draft b{font-weight:500;color:var(--dm-fg)}
+/* wfx-fix and wfx-note: what the agent suggests, and a plain note */
+.wfx-fix,.wfx-note{display:flex;flex-direction:column;gap:10px;padding:var(--dm-s-3);border-radius:var(--dm-r-card);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 60%,transparent),var(--wf-ns)}
 .wfx-note{flex-direction:row;align-items:center}
-.wfx-appr-h,.wfx-fix-h{display:flex;align-items:flex-start;gap:10px}
-.wfx-appr .tx,.wfx-fix .tx,.wfx-note .tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;line-height:1.4}
-.wfx-appr .tx b,.wfx-fix .tx b,.wfx-note .tx b{font-weight:500}
-.wfx-appr .tx span,.wfx-fix .tx span,.wfx-note .tx span{font-size:12.5px;color:var(--dm-muted)}
-.wfx-appr-h .wfx-ic{background:var(--dm-warn-bg);color:var(--dm-warn)}
+.wfx-fix-h{display:flex;align-items:flex-start;gap:10px}
+.wfx-fix .tx,.wfx-note .tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;line-height:1.4}
+.wfx-fix .tx b,.wfx-note .tx b{font-weight:500}
+.wfx-fix .tx span,.wfx-note .tx span{font-size:12.5px;color:var(--dm-muted)}
 .wfx-note.ok .wfx-ic{background:var(--dm-ok-bg);color:var(--dm-ok)}
 .wfx-note.warn .wfx-ic{background:var(--dm-warn-bg);color:var(--dm-warn)}
-.wfx-appr-m{padding:10px var(--dm-s-3);border-radius:var(--dm-r-in);background:var(--dm-stage);font-size:12.5px;line-height:1.5}
-.wfx-appr-m b{display:block;font-weight:500}
-.wfx-appr-m p{margin:2px 0 0;color:var(--dm-fg2);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
-.wfx-appr-a,.wfx-fix-a{display:flex;align-items:center;flex-wrap:wrap;gap:6px}
-.wfx-fix-a{flex-wrap:nowrap}
+.wfx-fix-a{display:flex;align-items:center;gap:6px}
 .wfx-fix-a .pill{min-width:0}
 .wfx-fix-a .ib{width:28px;height:28px;color:var(--dm-muted)}
 .wfx-fix-l{list-style:none;padding:0;display:flex;flex-direction:column;gap:6px;font-size:12.5px}
@@ -1227,75 +1373,17 @@ body:has(.wf) .dmf{display:none}
 .wf-pv{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain}
 .wf-pv[hidden]{display:none}
 .wfx-empty{padding:var(--dm-s-6) var(--dm-s-4);font-size:12.5px;color:var(--dm-muted);text-align:center}
-/* wfx-insp: the step inspector */
-.wfx-insp.dtp{padding:var(--dm-s-3) var(--dm-s-4) var(--dm-s-4);gap:2px}
-.wfx-insp-h{display:flex;align-items:center;gap:10px;padding:2px 0 var(--dm-s-2)}
-.wfx-insp-h .tx{flex:1;min-width:0;display:flex;flex-direction:column}
-.wfx-insp-h .tx .muted{font-size:12px;padding-left:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.wfx-insp-h .ib{width:28px;height:28px;flex:none;color:var(--dm-muted)}
-.wfx-insp-n{width:100%;height:26px;padding:0 6px;margin-left:-6px;border:0;outline:0;border-radius:var(--dm-r-in);background:none;font:inherit;font-size:14px;font-weight:500;color:var(--dm-fg);box-shadow:inset 0 0 0 1px transparent;transition:box-shadow var(--dm-t-fast)}
-@media (hover:hover) and (pointer:fine){.wfx-insp-n:hover{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line) 50%,transparent)}}
-.wfx-insp-n:focus{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line-strong) 50%,transparent)}
-.wfx-insp-run{display:flex;align-items:center;gap:var(--dm-s-2);width:100%;height:32px;margin-bottom:var(--dm-s-1);padding:0 10px;border-radius:var(--dm-r-sm);background:var(--dm-row);font-size:12.5px;color:var(--dm-fg2);text-align:left}
+/* the inspector: Step inspector, edge to edge in the panel; the last run's line, Map another field, the cache switch and the
+   foot are the template's own */
+.wf-insp.sti{max-width:none;margin:0;padding:var(--dm-s-3) var(--dm-s-4) var(--dm-s-4)}
+.wfx-insp-run{display:flex;align-items:center;gap:var(--dm-s-2);width:100%;height:32px;margin:var(--dm-s-2) 0 var(--dm-s-1);padding:0 10px;border-radius:var(--dm-r-sm);background:var(--dm-row);font-size:12.5px;color:var(--dm-fg2);text-align:left}
 .wfx-insp-run .go{margin-left:auto;display:inline-flex;align-items:center;gap:2px;color:var(--dm-fg)}
-.wfx-insp .dtp-sh{padding-left:0}
-.wfx-rows{display:flex;flex-direction:column;gap:2px;padding:0 0 var(--dm-s-2)}
-.wfx-row{display:grid;grid-template-columns:104px minmax(0,1fr);align-items:center;min-height:36px}
-.wfx-row.top{align-items:start}
-.wfx-row.top>.k{padding-top:9px}
-.wfx-row>.k{font-size:12.5px;color:var(--dm-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.wfx-row>.v{min-width:0;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
-.wfx-insp .dtp-v{max-width:calc(100% + 8px);font-size:13px}
-.wfx-insp .dtp-v>span{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.wfx-insp .dtp-add{width:24px;height:24px}
-.wfx-p{margin:2px 0 6px;font-size:12.5px}
 .wfx-addin{align-self:flex-start;margin:2px 0 0 -8px;color:var(--dm-fg2)}
-/* wfx-tok: a field mapped from an earlier step: the step, then its field */
-.wfx-tok{display:inline-flex;align-items:center;gap:5px;max-width:100%;min-width:0;height:24px;padding:0 var(--dm-s-2) 0 3px;border-radius:var(--dm-r-sm);background:var(--dm-chip);font-size:12px;color:var(--dm-fg);white-space:nowrap}
-.wfx-tok .ic{width:18px;height:18px;flex:none;display:grid;place-items:center;border-radius:calc(5px * var(--dm-rk));background:var(--dm-surface);color:var(--dm-fg2)}
-.wfx-tok .ic.ai{color:var(--dm-accent-fg,var(--dm-accent))}
-.wfx-tok .s{min-width:0;max-width:120px;color:var(--dm-muted);overflow:hidden;text-overflow:ellipsis}
-.wfx-tok .s::after{content:"›";margin-left:5px}
-.wfx-tok .k{font-weight:500;overflow:hidden;text-overflow:ellipsis}
-.wfx-tok.none{padding-left:var(--dm-s-2);background:none;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 60%,transparent);color:var(--dm-muted)}
-.wfx-tok.bad{padding-left:6px;background:var(--dm-bad-bg);color:var(--dm-bad)}
-.wfx-tok-b{display:inline-flex;max-width:100%;min-width:0;border-radius:var(--dm-r-sm);transition:box-shadow var(--dm-t-fast)}
-.wfx-tok-b[aria-expanded="true"] .wfx-tok{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line-strong) 50%,transparent)}
-@media (hover:hover) and (pointer:fine){.wfx-tok-b:hover .wfx-tok{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line) 60%,transparent)}}
-.wfx-prompt{display:flex;flex-direction:column;gap:6px;padding:var(--dm-s-1) 0 var(--dm-s-2)}
-.wfx-prompt-h{display:flex;align-items:center;justify-content:space-between;min-height:28px}
-.wfx-prompt-h .k{font-size:12.5px;color:var(--dm-muted)}
-.wfx-prompt-h .pill{margin-right:-8px;color:var(--dm-fg2)}
-.wfx-ta,.wfx-in input{display:block;width:100%;border:0;outline:0;border-radius:var(--dm-r-field);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line) 50%,transparent);font:inherit;color:var(--dm-fg);transition:box-shadow var(--dm-t-fast)}
-@supports (corner-shape:squircle){.wfx-ta,.wfx-in input{corner-shape:squircle;border-radius:var(--dm-r-field-sq)}}
-.wfx-ta{min-height:112px;padding:var(--dm-s-2) 10px;font-size:13px;line-height:1.55;resize:vertical}
-.wfx-ta:focus,.wfx-in input:focus{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line-strong) 50%,transparent)}
-.wfx-uses{display:flex;flex-wrap:wrap;align-items:center;gap:var(--dm-s-1) 6px;font-size:12px}
-.wfx-num{display:inline-flex;align-items:center;gap:2px;height:30px;padding:0 3px;border-radius:var(--dm-r-field);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line) 50%,transparent)}
-.wfx-num .ib{width:24px;height:24px}
-.wfx-num .ib[aria-disabled="true"]{color:var(--dm-dis);cursor:not-allowed;background:none}
-.wfx-num .num{min-width:22px;text-align:center;font-size:13px}
-.wfx-seg.seg2 button{height:24px;font-size:12px}
 .wfx-tg{display:inline-flex;align-items:center;gap:var(--dm-s-2);min-height:30px;font-size:12.5px;color:var(--dm-fg2);text-align:left}
 .wfx-tg[aria-checked="true"] .toggle{background:var(--dm-accent);box-shadow:inset 0 0 0 1px var(--dm-accent-mark,var(--dm-accent))}
 .wfx-tg[aria-checked="true"] .toggle::after{transform:translateX(12px);background:var(--dm-on-accent)}
-.wfx-tools,.wfx-ppl{display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:6px 0}
-.wfx-chip{display:inline-flex;align-items:center;gap:5px;height:24px;max-width:100%;padding:0 3px 0 7px;border-radius:var(--dm-r-sm);background:var(--dm-chip);font-size:12px;color:var(--dm-fg)}
-.wfx-chip>.i{color:var(--dm-fg2)}
-.wfx-chip .av{width:18px;height:18px;margin-left:-4px;font-size:8.5px}
 .wfx-chip-t{font:inherit;color:inherit;white-space:nowrap}
 @media (hover:hover) and (pointer:fine){.wfx-chip-t:hover{text-decoration:underline;text-underline-offset:2px}}
-.wfx-chip-x{width:18px;height:18px;display:grid;place-items:center;border-radius:calc(5px * var(--dm-rk));color:var(--dm-muted)}
-@media (hover:hover) and (pointer:fine){.wfx-chip-x:hover{background:var(--dm-surface);color:var(--dm-fg)}}
-.wfx-schema{display:grid;grid-template-columns:auto auto minmax(0,1fr);align-items:center;gap:var(--dm-s-2);min-height:30px;font-size:12.5px}
-.wfx-schema .ex{text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12px}
-.wfx-schema .tag,.wfx-var-o .tag{font-weight:400;color:var(--dm-muted)}
-.wfx-rule{display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:var(--dm-s-1) 0 var(--dm-s-2)}
-.wfx-rule .dtp-v{margin-left:0;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line) 50%,transparent)}
-.wfx-in input{width:64px;height:28px;padding:0 var(--dm-s-2);font-size:13px}
-.wfx-link{display:inline-flex;align-items:center;gap:var(--dm-s-2);height:30px;max-width:100%;padding:0 var(--dm-s-2);margin-left:-8px;border-radius:var(--dm-r-sm);font-size:13px;white-space:nowrap;transition:background var(--dm-t-fast)}
-@media (hover:hover) and (pointer:fine){.wfx-link:hover{background:var(--dm-row)}}
-.wfx-link .wfx-ic{width:20px;height:20px}
 .wfx-insp-f{display:flex;align-items:center;justify-content:space-between;gap:var(--dm-s-2);margin-top:var(--dm-s-2);padding-top:var(--dm-s-3);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);font-size:12px}
 .wfx-insp-e{display:flex;flex-direction:column;align-items:center;gap:var(--dm-s-1);padding:var(--dm-s-6) var(--dm-s-3) var(--dm-s-4);text-align:center}
 .wfx-insp-e .wfx-ic{margin-bottom:var(--dm-s-2)}
@@ -1353,20 +1441,12 @@ body:has(.wf) .dmf{display:none}
 .wf-pop .mi.bad,.wf-pop .mi.bad .i{color:var(--dm-bad)}
 .wf-pop .mi[aria-disabled="true"]{color:var(--dm-dis);cursor:not-allowed}
 .wf-pop .mi .kbd{margin-left:auto}
+.wf-pop .mi .av{flex:none}
 .wf .pop{box-shadow:0 0 0 1px color-mix(in srgb,var(--dm-line) 70%,transparent),var(--dm-shadow-pop)}
 .wfx-pick.acx-pk{width:272px}
 .wfx-pick .acx-ls{max-height:260px}
 .wfx-pick .acx-o .ic.wfx-ic{width:22px;height:22px;border-radius:calc(6px * var(--dm-rk))}
 .wfx-pick .acx-o>span:last-child{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-/* wfx-var: the data picker */
-.wfx-var.pop{width:304px;padding:var(--dm-s-2);display:flex;flex-direction:column;gap:var(--dm-s-1)}
-.wfx-var-ls{max-height:288px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--dm-rail) transparent}
-.wfx-var-g{display:flex;align-items:center;gap:var(--dm-s-2);padding:var(--dm-s-2) 6px var(--dm-s-1);font-size:12px;color:var(--dm-muted)}
-.wfx-var-g .wfx-ic{width:18px;height:18px;border-radius:calc(5px * var(--dm-rk))}
-.wfx-var-o{display:grid;grid-template-columns:auto auto minmax(0,1fr);align-items:center;gap:var(--dm-s-2);height:32px;padding:0 var(--dm-s-2) 0 32px;border-radius:var(--dm-r-sm);font-size:13px;cursor:pointer;user-select:none}
-.wfx-var-o.on{background:var(--dm-row)}
-.wfx-var-o .ex{min-width:0;text-align:right;font-size:12px;color:var(--dm-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.wfx-var-e{margin:0;padding:var(--dm-s-4) var(--dm-s-2);font-size:12.5px;color:var(--dm-muted)}
 .wf-over{position:absolute;inset:0;z-index:70;display:flex;justify-content:center;align-items:flex-start;padding:72px var(--dm-s-4) var(--dm-s-4);background:color-mix(in srgb,var(--dm-page) 60%,transparent);animation:wffade .2s var(--dm-ease)}
 .wf-over[hidden]{display:none}
 @keyframes wffade{from{opacity:0}}
@@ -1411,9 +1491,8 @@ body:has(.wf) .dmf{display:none}
 }
 /* a narrow work area puts the agent's card over the steps, and the run's details give way to the switch */
 @container wfw (max-width:720px){
-  .wfx-dr-v[data-v="steps"]{grid-template-columns:minmax(0,1fr)}
+  .wf-steps:not([hidden]){grid-template-columns:minmax(0,1fr)}
   .wfx-dr-note{order:0;position:static}
-  .wfx-dr-meta{display:none}
 }
 @media (max-width:640px){
   .wf-top{gap:var(--dm-s-1);padding-right:var(--dm-s-2)}
@@ -1423,13 +1502,7 @@ body:has(.wf) .dmf{display:none}
   .wf-pub{width:32px;padding:0}
   .wf-pub span{display:none}
   .wf-bar .wf-xs{display:none}
-  .wf.dro .wfx-drawer{height:min(var(--wf-drh,312px),56%)}
-  .wfx-dr-follow,.wfx-dr-t .w{display:none}
-  .wfx-dr-stop{width:28px;padding:0}
-  .wfx-dr-stop span{display:none}
-  .wfx-dr-h{padding-right:var(--dm-s-2)}
-  .wf-trv.trv{--dm-cols:minmax(0,1fr) 72px 52px}
-  .wf-trv :is(.trv-tk){display:none}
+  .wf .rdr-dw:not(.shut){height:min(var(--rdr-h,312px),56%)}
   .wf.pn .wf-panel{width:100%}
   .wf-over{padding:var(--dm-s-4) var(--dm-s-2)}
   .wfx-fix-l li{grid-template-columns:auto 12px minmax(0,1fr)}
@@ -1448,7 +1521,7 @@ body:has(.wf) .dmf{display:none}
 @font-face{font-family:Inter;font-style:normal;font-weight:600;font-display:swap;src:url(/fonts/inter-latin-600-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:Inter;font-style:normal;font-weight:700;font-display:swap;src:url(/fonts/inter-latin-700-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:"JetBrains Mono";font-style:normal;font-weight:500;font-display:swap;src:url(/fonts/jetbrains-mono-latin-500-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}</style><style>:root{--pg-bg:#fff;--pg-fg:#121212;--pg-dim:#525252;--pg-muted:#6a6a6a;--pg-line:#12121214;--pg-line2:#12121224;--pg-soft:#fafafa;--pg-chip:#f1f1f1;--pg-ink:#121212;--pg-on-ink:#fff;--pg-top:#ffffffdb;--pg-sans:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--pg-mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;--pg-head:53px}@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--pg-bg:#111;--pg-fg:#f2f2f2;--pg-dim:#c9c9c9;--pg-muted:silver;--pg-line:#ffffff14;--pg-line2:#ffffff24;--pg-soft:#1c1c1c;--pg-chip:#ffffff0f;--pg-ink:#f5f5f4;--pg-on-ink:#121212;--pg-top:#111111db;color-scheme:dark}}:root[data-theme=dark]{--pg-bg:#111;--pg-fg:#f2f2f2;--pg-dim:#c9c9c9;--pg-muted:silver;--pg-line:#ffffff14;--pg-line2:#ffffff24;--pg-soft:#1c1c1c;--pg-chip:#ffffff0f;--pg-ink:#f5f5f4;--pg-on-ink:#121212;--pg-top:#111111db;color-scheme:dark}*{box-sizing:border-box}html{-webkit-text-size-adjust:100%;scrollbar-gutter:stable}:where(.pg-main [id]:not([data-c] *),.pg-main :is(a[href],button,summary,input):not([data-c] *)){scroll-margin-top:calc(var(--pg-head) + var(--pg-bar,0px) + 24px)}@media (prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}body{background:var(--pg-bg);color:var(--pg-fg);font:14px/1.6 var(--pg-sans);letter-spacing:-.006em;-webkit-font-smoothing:antialiased;margin:0}a{color:inherit}:root{--pg-react:#087ea4}@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--pg-react:#61dafb}}:root[data-theme=dark]{--pg-react:#61dafb}:root{--pg-field:#d4d4d4;--pg-focus:#858585}@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--pg-field:#424242;--pg-focus:gray}}:root[data-theme=dark]{--pg-field:#424242;--pg-focus:gray}:focus-visible:not([data-c] *){outline:2px solid var(--pg-focus);outline-offset:2px}:is(input:not([type=checkbox],[type=radio],[type=range],[type=color],[type=file]),textarea):focus-visible:not([data-c] *){outline:0}.pg-top{z-index:50;height:var(--pg-head);background:var(--pg-top);backdrop-filter:blur(14px);border-bottom:1px solid var(--pg-line);position:sticky;top:0}.pg-top-in{align-items:center;gap:6px;max-width:1464px;height:100%;margin:0 auto;padding:0 32px;display:flex}.pg-logo{color:var(--pg-fg);transform-origin:0;display:block;transform:scale(.88)}.pg-logo svg{width:auto;height:26px;display:block}@media (width<=640px){.pg-logo svg{height:18px}}@media (width<=420px){.pg-logo svg{height:16px}}@media (width<=340px){.pg-logo svg{height:14px}}.lg svg.L{overflow:visible}.lg .L .wm{fill:currentColor}.lg .L .wm .ch{fill-opacity:0;stroke:currentColor;stroke-width:1px;vector-effect:non-scaling-stroke;transition:fill-opacity .2s cubic-bezier(.2,.7,.2,1) calc(var(--i) * 45ms),stroke-opacity .2s cubic-bezier(.2,.7,.2,1) calc(var(--i) * 45ms)}.lg .L .dev{fill:var(--dm-accent-fg,currentColor)}.lg .L .cons{fill:none;stroke:var(--dm-accent-mark,currentColor);transition:opacity .3s cubic-bezier(.2,.7,.2,1)}.lg .L .cons path{stroke-width:1px;vector-effect:non-scaling-stroke}.lg .L .cons .cl{stroke-opacity:.45}.lg:focus-visible .L .wm .ch{fill-opacity:1;stroke-opacity:0}.lg:focus-visible .L .cons{opacity:.3}@media (hover:hover) and (pointer:fine){.lg:hover .L .wm .ch{fill-opacity:1;stroke-opacity:0}.lg:hover .L .cons{opacity:.3}}@media (hover:none),(width<=640px){.lg .L .wm .ch{fill-opacity:1;stroke:none}.lg .L .cons{opacity:.3}}@media (prefers-reduced-motion:reduce){.lg .L .wm .ch{transition-delay:0s}}.pg-sp{flex:1}.pg-seg{background:var(--pg-chip);border-radius:999px;padding:2px;display:inline-flex}.pg-seg button{height:24px;color:var(--pg-dim);font:500 13px/1 var(--pg-sans);cursor:pointer;background:0 0;border:0;border-radius:999px;padding:0 10px;transition:color .2s}@media (hover:hover) and (pointer:fine){.pg-seg button:hover{color:var(--pg-fg)}}.pg-seg button[aria-checked=true]{background:var(--pg-bg);color:var(--pg-fg);box-shadow:0 1px 2px #12121214,0 0 0 .5px #1212120f}.pg-seg svg{width:14px;height:14px;display:block}.pg-seg.icons button{place-items:center;width:26px;padding:0;display:grid}.pg-gh{background:var(--pg-bg);height:28px;box-shadow:inset 0 0 0 1px var(--pg-line2);color:var(--pg-dim);font:500 13px/1 var(--pg-sans);white-space:nowrap;border-radius:999px;flex:none;align-items:center;gap:6px;margin-right:6px;padding:0 11px 0 9px;text-decoration:none;transition:color .2s,background-color .2s;display:inline-flex}@media (hover:hover) and (pointer:fine){.pg-gh:hover{color:var(--pg-fg);background:var(--pg-chip)}}.pg-gh svg{flex:none;width:14px;height:14px;display:block}.pg-gh-n{color:var(--pg-fg);font-variant-numeric:tabular-nums}.pg-gh.has-n .pg-gh-l{display:none}.pg-wrap{max-width:1024px;margin:0 auto;padding:0 32px}.pg-main{padding:40px 0 96px}.pg-crumbs{color:var(--pg-muted);flex-wrap:wrap;gap:6px;font-size:13px;display:flex}.pg-crumbs a{color:var(--pg-dim);text-decoration:none}@media (hover:hover) and (pointer:fine){.pg-crumbs a:hover{color:var(--pg-fg)}}.pg-h1{letter-spacing:-.022em;color:var(--pg-fg);text-wrap:balance;margin:14px 0 0;font-size:20px;font-weight:500;line-height:1.3}.pg-lead{color:var(--pg-dim);max-width:72ch;margin:8px 0 0;font-size:14px;line-height:1.6}.pg-lead code,.pg-code{font:500 12.5px/1.4 var(--pg-mono);font-variant-ligatures:none;background:var(--pg-chip);color:var(--pg-fg);border-radius:6px;padding:2px 6px}.pg-cmd{min-height:32px;box-shadow:inset 0 0 0 1px var(--pg-line2);background:var(--pg-bg);font:500 12px/1 var(--pg-mono);font-variant-ligatures:none;border-radius:9px;align-items:center;gap:8px;max-width:100%;margin:16px 0 0;padding:4px 6px 4px 10px;display:inline-flex}.pg-cmd .d{color:var(--pg-muted)}.pg-cmd .c{min-width:0;color:var(--pg-fg);overflow-wrap:anywhere;line-height:1.5}.pg-cmd .c span{white-space:nowrap}.pg-cmd button{width:24px;height:24px;color:var(--pg-muted);cursor:pointer;background:0 0;border:0;border-radius:6px;flex:none;place-items:center;display:grid}@media (hover:hover) and (pointer:fine){.pg-cmd button:hover{color:var(--pg-fg);background:var(--pg-chip)}}.pg-cmd svg{width:14px;height:14px}.pg-sh{border-bottom:1px solid var(--pg-line);flex-wrap:wrap;align-items:baseline;gap:2px 10px;margin:0 0 24px;padding:56px 0 18px;display:flex}.pg-sh .n{font:500 12px/1.5 var(--pg-mono);color:var(--pg-muted)}.pg-sh h2{letter-spacing:0;margin:0;font-size:14px;font-weight:500;line-height:20px}.pg-sh p{color:var(--pg-dim);flex-basis:100%;margin:0;font-size:14px;line-height:20px}.pg-t{letter-spacing:0;color:var(--pg-fg);font-size:14px;font-weight:500;line-height:20px}.pg-d{color:var(--pg-dim);font-size:14px;line-height:20px}.pg-cards{grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;display:grid}.pg-card{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--pg-line) 50%,transparent);border-radius:16px;flex-direction:column;padding:5px;text-decoration:none;transition:box-shadow .16s;display:flex}@media (hover:hover) and (pointer:fine){.pg-card:hover{box-shadow:inset 0 0 0 1px var(--pg-line)}}.pg-card .pg-thumb{order:-1}.pg-card{position:relative}.pg-card .pg-t{margin:10px 6px 0;text-decoration:none}.pg-link:after{content:"";z-index:2;border-radius:16px;position:absolute;inset:0}.pg-card .pg-d{white-space:nowrap;text-overflow:ellipsis;margin:0 6px 6px;overflow:hidden}.pg-thumb{aspect-ratio:16/10;background:var(--pg-soft);border-radius:12px;position:relative;overflow:hidden}.pg-thumb img{object-fit:cover;width:100%;height:100%;transition:transform .5s cubic-bezier(.16,1,.3,1);position:absolute;inset:0}@media (hover:hover) and (pointer:fine){.pg-card:hover .pg-thumb img{transform:scale(1.025)}}.pg-thumb .dk{display:none}@media (prefers-color-scheme:dark){:root:not([data-theme=light]) .pg-thumb .lt{display:none}:root:not([data-theme=light]) .pg-thumb .dk{display:block}}:root[data-theme=dark] .pg-thumb .lt{display:none}:root[data-theme=dark] .pg-thumb .dk{display:block}@media (width<=860px){.pg-cards{grid-template-columns:repeat(2,minmax(0,1fr))}}@media (width<=520px){.pg-cards{grid-template-columns:minmax(0,1fr)}}.pg-foot{color:var(--pg-muted);border-top:1px solid var(--pg-line);font-size:14px}.pg-foot .pg-wrap{max-width:1464px}.pg-foot-in{flex-wrap:wrap;justify-content:space-between;gap:10px 24px;padding-block:28px 40px;display:flex}.pg-foot nav{flex-wrap:wrap;gap:18px;display:flex}.pg-foot a{color:var(--pg-dim);text-decoration:none}@media (hover:hover) and (pointer:fine){.pg-foot a:hover{color:var(--pg-fg)}}.pg-foot-in>span a{text-decoration:underline;text-decoration-color:var(--pg-line2);text-underline-offset:3px;transition:text-decoration-color .16s}@media (hover:hover) and (pointer:fine){.pg-foot-in>span a:hover{text-decoration-color:currentColor}}@media (width<=960px){:root{--pg-head:61px}.pg-top-in,.pg-wrap{padding:0 24px}.pg-top .pg-style{display:none}.pg-gh{height:32px;padding:0 12px 0 10px}}@media (width<=640px){.pg-top-in,.pg-wrap{padding:0 16px}.pg-h1{font-size:20px}.pg-main{padding:24px 0 64px}.pg-sh{margin-bottom:20px;padding-top:40px}.pg-foot-in{padding-block:24px 32px}}@media (width<=420px){.pg-top-in{gap:4px}.pg-gh{padding:0 9px 0 8px}}@media (pointer:coarse){:where(body) :where(button,a[href],summary,[role=button],[role=tab],[role=switch],[role=radio],[role=checkbox],label:has(input[type=color],input[type=checkbox],input[type=radio])):not(:where([data-c],[data-c] *,.pg-link)){--dm-hit-w:40px;--dm-hit-h:40px;position:relative}:where(body) :where(button,a[href],summary,[role=button],[role=tab],[role=switch],[role=radio],[role=checkbox],label:has(input[type=color],input[type=checkbox],input[type=radio])):not(:where([data-c],[data-c] *,.pg-link,.side-ul .side-a.act,.hire-btn,details.cp-file summary)):before,:where(body) :where(button,a[href],summary,[role=button],[role=tab],[role=switch],[role=radio],[role=checkbox]):where(.side-ul .side-a.act,details.cp-file summary):not(:where([data-c] *)):after{content:"";inset:min(0px,(100% - var(--dm-hit-h)) / 2) min(0px,(100% - var(--dm-hit-w)) / 2);--dm-hit:1;position:absolute}body .hire-btn{overflow:visible}body .hire-btn:before{width:auto;height:auto;top:auto;left:auto;inset:min(0px,(100% - var(--dm-hit-h)) / 2) min(0px,(100% - var(--dm-hit-w)) / 2);opacity:0;--dm-hit:1;background:0 0;border-radius:0;margin:0;transition:none;transform:none}}.pg-skip{z-index:100;background:var(--pg-bg);height:32px;color:var(--pg-fg);box-shadow:inset 0 0 0 1px var(--pg-line2);font:500 13px/1 var(--pg-sans);letter-spacing:0;white-space:nowrap;opacity:0;pointer-events:none;border-radius:999px;align-items:center;padding:0 12px;text-decoration:none;display:inline-flex;position:fixed;top:8px;left:16px;transform:translateY(-48px)}.pg-skip:focus{opacity:1;pointer-events:auto;outline:2px solid var(--pg-focus);outline-offset:2px;transform:none}@media (prefers-reduced-motion:no-preference){.pg-skip{transition:opacity .2s,transform .2s cubic-bezier(.16,1,.3,1)}}#content:focus{outline:none}.pg-sr{clip-path:inset(50%);white-space:nowrap;border:0;width:1px;height:1px;margin:-1px;padding:0;position:absolute;overflow:hidden}
-</style></head><body><a class="pg-skip" href="#content">Skip to content</a><div class="pg-sr" id="pg-live" role="status" aria-live="polite"></div><header class="pg-top"><div class="pg-top-in"><a class="pg-logo lg o3" href="/" aria-label="Designme.dev home"><svg class="L" viewBox="-6 12.5 204.952 29.5" role="img" aria-label="Designme.dev"><g class="cons"><path class="cl" d="M-5 20.103H197.952 M-5 39.101H197.952"/><path class="ct" d="M0 18.903v-2.6 M155.787 18.903v-2.6 M0 40.301v2.6 M155.787 40.301v2.6"/></g><g class="wm"><path class="ch" style="--i:7" d="M137.937 20.1034V39.1011H155.787V33.1982H145.37V31.9317H155.38V27.2501H145.37V26.0062H155.787V20.1034H137.937Z"/><path class="ch" style="--i:6" d="M136.845 39.1013V20.1036L127.536 20.1036L125.525 29.2632H124.983L122.972 20.1036L113.662 20.1036V39.1013H120.735V32.7009H121.299L122.542 39.1013H127.965L129.208 32.7009H129.773V39.1013L136.845 39.1013Z"/><path class="ch" style="--i:5" d="M91.5581 20.1034V39.1011H100.054L104.686 30.5069H105.341V39.1011H112.572V20.1034H104.279L99.4665 28.6976H98.7886V20.1034H91.5581Z"/><path class="ch" style="--i:4" d="M90.3556 30.9135V20.1029H86.6499L86.5369 22.274H86.4014C85.0457 20.6457 82.7409 19.4696 79.5324 19.4696C73.6576 19.4696 69.1159 23.4501 69.1159 29.6017C69.1159 35.776 73.3639 39.7338 80.2102 39.7338C84.9553 39.7338 89.8359 37.4044 90.4007 32.0669H83.0347C82.8765 32.4966 81.9501 33.3334 80.391 33.3334C78.0637 33.3334 76.5046 31.9538 76.5046 29.6017C76.5046 27.2496 78.1315 25.87 80.1425 25.87C80.4814 25.87 82.5602 25.7796 83.2154 27.521H79.9391V30.9135H90.3556Z"/><path class="ch" style="--i:3" d="M60.9353 20.1034V39.1011H68.3691V20.1034H60.9353Z"/><path class="ch" style="--i:2" d="M50.0428 19.4696C42.9704 19.4922 39.8523 21.5277 40.1008 26.7747H46.7664C46.7664 25.8248 47.6025 25.2594 50.0428 25.2368C52.0763 25.1915 52.8446 25.6665 52.8446 26.1414C52.8446 26.2771 53.0027 26.9104 51.4211 27.0913L48.913 27.4758C45.3203 28.0186 40.5075 28.1091 40.5075 33.4465C40.5075 37.3139 43.5805 39.7338 50.0879 39.7338C55.8724 39.7338 59.8943 38.3769 59.691 32.474H53.0705C52.8898 33.4239 52.0086 33.9893 49.9298 33.9893C48.1673 33.9893 47.6477 33.5144 47.6477 33.062C47.6477 32.9263 47.6025 32.3157 48.7096 32.18L50.698 31.8634C54.5618 31.2301 60.2333 31.4563 60.2333 25.8248C60.2333 21.4372 56.9343 19.4244 50.0428 19.4696Z"/><path class="ch" style="--i:1" d="M21.5475 20.1034V39.1011H39.3978V33.1982H28.9813V31.9317H38.9911V27.2501H28.9813V26.0062H39.3978V20.1034H21.5475Z"/><path class="ch" style="--i:0" d="M10.0775 39.1011C18.0537 39.1011 20.6973 35.1206 20.6973 29.6022C20.6973 24.1291 18.0537 20.1034 10.0775 20.1034H0V39.1011H10.0775ZM10.1001 26.3228C11.7044 26.3228 13.2409 27.0013 13.2409 29.6022C13.2409 32.2483 11.7044 32.9042 10.1001 32.9042H7.45646V26.3228H10.1001Z"/><path class="r" d="M160.138 24.7522C158.938 24.7522 157.983 23.8244 157.983 22.5601C157.983 21.3049 158.938 20.368 160.138 20.368C161.339 20.368 162.294 21.3049 162.294 22.5601C162.294 23.8244 161.339 24.7522 160.138 24.7522ZM160.138 24.4339C161.139 24.4339 161.939 23.6607 161.939 22.5601C161.939 21.4686 161.139 20.6864 160.138 20.6864C159.147 20.6864 158.337 21.4686 158.337 22.5601C158.337 23.6607 159.147 24.4339 160.138 24.4339ZM159.747 23.7517H159.265V21.3413H160.239C160.784 21.3413 161.075 21.5959 161.075 22.0416C161.075 22.3691 160.875 22.5692 160.548 22.642V22.6602C161.148 22.7693 160.957 23.6607 161.121 23.7244V23.7517H160.63C160.457 23.6243 160.693 22.8421 160.093 22.8421H159.747V23.7517ZM159.747 22.4419H160.12C160.411 22.4419 160.611 22.3691 160.611 22.078C160.611 21.7961 160.402 21.7415 160.129 21.7415H159.747V22.4419Z"/></g><g class="dev"><path class="g" style="--i:0" d="M168.139 39.196C168.66 39.196 169.073 38.784 169.073 38.263C169.073 37.736 168.66 37.324 168.139 37.324C167.613 37.324 167.2 37.736 167.2 38.263C167.2 38.784 167.613 39.196 168.139 39.196Z"/><path class="g" style="--i:1" d="M173.687 39.241C174.97 39.241 175.484 38.441 175.731 37.99H175.846V39.101H177.204V29.643H175.807V33.16H175.731C175.49 32.722 175.008 31.916 173.687 31.916C171.98 31.916 170.717 33.261 170.717 35.572C170.717 37.863 171.961 39.241 173.687 39.241ZM173.992 38.054C172.78 38.054 172.145 36.968 172.145 35.559C172.145 34.163 172.761 33.103 173.992 33.103C175.192 33.103 175.833 34.086 175.833 35.559C175.833 37.038 175.179 38.054 173.992 38.054Z"/><path class="g" style="--i:2" d="M182.142 39.247C183.659 39.247 184.745 38.504 185.081 37.4L183.767 37.089C183.52 37.749 182.936 38.092 182.155 38.092C180.993 38.092 180.206 37.349 180.156 35.978H185.189V35.483C185.189 32.925 183.64 31.916 182.022 31.916C180.035 31.916 178.753 33.42 178.753 35.604C178.753 37.806 180.048 39.247 182.142 39.247ZM180.162 34.937C180.238 33.915 180.911 33.071 182.028 33.071C183.101 33.071 183.704 33.82 183.805 34.937Z"/><path class="g" style="--i:3" d="M188.75 39.101H190.274L192.952 32.004H191.454L190.052 36.035C189.836 36.664 189.683 37.286 189.525 37.908C189.366 37.286 189.201 36.664 188.985 36.035L187.582 32.004H186.072Z"/></g></svg></a><span class="wf-name">Workflow editor template</span><span class="pg-sp"></span><a class="pg-gh" href="https://github.com/bydesignme/designme-dev" aria-label="Star designme.dev on GitHub" data-gh-stars><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg><span class="pg-gh-l">Star on GitHub</span><span class="pg-gh-n" hidden></span></a><div class="pg-seg pg-style" role="radiogroup" aria-label="Style"><button type="button" role="radio" aria-checked="false" data-style-set="bp">Blueprint</button><button type="button" role="radio" aria-checked="false" data-style-set="soft">Soft</button><button type="button" role="radio" aria-checked="false" aria-haspopup="dialog" data-style-set="mine">Your theme</button></div><div class="pg-seg icons" role="radiogroup" aria-label="Theme"><button type="button" role="radio" aria-checked="false" data-theme-set="light" aria-label="Light"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg></button><button type="button" role="radio" aria-checked="false" data-theme-set="dark" aria-label="Dark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"></path></svg></button></div></div></header><main class="pg-app"><div class="wf" data-c="workflow-editor"><!-- the workflows: Agent harness's side list, grouped by what needs you --><aside class="ahx-side wf-side" aria-label="Workflows"><div class="ahx-ws"><button class="ahx-wsb wf-wsb" data-pop="#wf-p-ws" aria-haspopup="menu"><span class="pfm-lg" aria-hidden="true">F</span><span class="wf-wst"><span class="t">Fernhill</span><span class="s">Revenue operations</span></span><svg class="i xs" aria-hidden="true"><use href="#i-unfold"/></svg></button></div><button class="ahx-cv wf-newwf" data-act="new"><svg class="i s" aria-hidden="true"><use href="#i-plus"/></svg><span class="t">New workflow</span></button><div class="wf-flows"></div><div class="wf-sfoot"><button class="ahx-cv" data-act="apps"><svg class="i s" aria-hidden="true"><use href="#i-link"/></svg><span class="t">Connected apps</span><span class="n num">6</span></button><div class="wf-usage"><div class="prg-mh"><span>Runs this month</span><span class="muted num wf-usen"></span></div><div class="prg-mb" role="meter" aria-label="Agent runs used this month" aria-valuemin="0" aria-valuemax="5000"><i class="fl"></i></div></div></div></aside><div class="ahx-scrim wf-scrim" aria-hidden="true"></div><div class="wf-main"><header class="wf-top"><button class="ib wf-menu" aria-label="Show the workflows" data-tip="Workflows"><svg class="i s" aria-hidden="true"><use href="#i-panel"/></svg></button><div class="wf-title"><h1 class="wf-h1" id="content" tabindex="-1"><button class="wf-h1b" aria-label="Rename the workflow" data-tip="Rename"><span class="wf-h1t"></span></button></h1><span class="wf-state"></span></div><span class="wf-saved muted" aria-live="polite"></span><span class="wf-sp"></span><button class="pill ghost sm wf-ask" aria-label="Ask the agent" aria-keyshortcuts="Control+K Meta+K"><svg class="i xs" aria-hidden="true"><use href="#i-spark"/></svg><span class="t">Ask the agent</span><span class="kbd">⌘K</span></button><button class="ib wf-hist" data-panel="runs" aria-label="Runs" data-tip="Runs"><svg class="i s" aria-hidden="true"><use href="#i-clock"/></svg></button><button class="ib wf-vers" data-panel="versions" aria-label="Versions" data-tip="Versions"><svg class="i s" aria-hidden="true"><use href="#i-history"/></svg></button><div class="wf-split"><button class="pill line sm wf-test"><svg class="i xs" aria-hidden="true"><use href="#i-play"/></svg><span>Test run</span></button><button class="pill line sm wf-testm" data-pop="#wf-p-lead" data-pop-align="end" aria-haspopup="menu" aria-label="Choose the test lead" data-tip="Test with"><svg class="i xs" aria-hidden="true"><use href="#i-chev-d"/></svg></button></div><button class="pill primary sm wf-pub"><svg class="i xs" aria-hidden="true"><use href="#i-upload"/></svg><span>Publish</span></button><button class="ib wf-more" data-pop="#wf-p-more" data-pop-align="end" aria-haspopup="menu" aria-label="More workflow actions" data-tip="More"><svg class="i s" aria-hidden="true"><use href="#i-more"/></svg></button></header><div class="wf-body"><div class="wf-work"><!-- the canvas: the steps on a board that pans and zooms (wfx-node, wfx-ins), with Canvas toolbar's bar under it --><div class="wfx-cv" tabindex="0" role="application" aria-roledescription="workflow canvas" aria-label="Workflow canvas" aria-describedby="wf-cv-help"><div class="wfx-vp"><div class="wfx-world"><svg class="wfx-svg" aria-hidden="true"></svg><div class="wfx-nodes"></div></div></div><button class="wf-lead" data-pop="#wf-p-lead" aria-haspopup="menu"></button><span class="wfx-sr" id="wf-cv-help">Tab moves through the steps, Enter opens one. With the canvas focused the arrow keys move the view, plus and minus zoom and 0 fits the workflow. Delete removes the selected step.</span><div class="ctb-bar wf-bar" role="toolbar" aria-label="Canvas tools"><div class="ctb-tools" role="radiogroup" aria-label="Tool"><button class="ctb-b" role="radio" aria-checked="true" data-t="select" aria-label="Select" data-tip="Select" data-tip-k="V"><svg class="i s" aria-hidden="true"><use href="#i-cursor"/></svg></button><button class="ctb-b" role="radio" aria-checked="false" tabindex="-1" data-t="hand" aria-label="Pan" data-tip="Pan" data-tip-k="H"><svg class="i s" aria-hidden="true"><use href="#i-hand"/></svg></button></div><span class="ctb-sep"></span><button class="ctb-b wf-add" data-pop="#wf-p-pick" data-pop-pos="up" aria-haspopup="dialog" aria-label="Add a step" data-tip="Add a step" data-tip-k="A"><svg class="i s" aria-hidden="true"><use href="#i-plus"/></svg></button><span class="ctb-sep"></span><button class="ctb-b wf-undo" aria-label="Undo" data-tip="Undo" data-tip-k="⌘Z" aria-disabled="true"><svg class="i s" aria-hidden="true"><use href="#i-undo"/></svg></button><button class="ctb-b wf-redo" aria-label="Redo" data-tip="Redo" data-tip-k="⇧⌘Z" aria-disabled="true"><svg class="i s" aria-hidden="true"><use href="#i-redo"/></svg></button><span class="ctb-sep wf-xs"></span><button class="ctb-b wf-tidy wf-xs" aria-label="Tidy up the layout" data-tip="Tidy up"><svg class="i s" aria-hidden="true"><use href="#i-grid"/></svg></button><button class="ctb-b wf-fit" aria-label="Fit to screen" data-tip="Fit to screen" data-tip-k="0"><svg class="i s" aria-hidden="true"><use href="#i-fit"/></svg></button><span class="ctb-sep wf-xs"></span><button class="ctb-b wf-zo wf-xs" aria-label="Zoom out" data-tip="Zoom out" data-tip-k="−"><svg class="i s" aria-hidden="true"><use href="#i-minus"/></svg></button><button class="ctb-z num wf-zl wf-xs" aria-label="Zoom 100%, reset to 100%" data-tip="Zoom to 100%">100%</button><button class="ctb-b wf-zi wf-xs" aria-label="Zoom in" data-tip="Zoom in" data-tip-k="+"><svg class="i s" aria-hidden="true"><use href="#i-plus"/></svg></button></div></div><!-- the run drawer (wfx-drawer): Trace view's waterfall, Action log's rows and Code viewer's data, under the canvas --><section class="wfx-drawer" aria-label="Run"><div class="wfx-dr-grip" role="separator" aria-orientation="horizontal" aria-label="Resize the run panel" tabindex="0" aria-valuemin="160" aria-valuemax="560"></div><div class="wfx-dr-h"><button class="wfx-dr-tg" aria-expanded="false" aria-controls="wf-dr-b"><svg class="i xs" aria-hidden="true"><use href="#i-chev-u"/></svg><span class="wfx-dr-t"></span></button><span class="wfx-dr-meta muted num"></span><span class="wf-sp"></span><div class="seg2 wfx-dr-tabs" role="group" aria-label="Show"><button aria-pressed="true" data-v="steps">Steps</button><button aria-pressed="false" data-v="log">Log</button><button aria-pressed="false" data-v="data">Data</button></div><button class="pill ghost sm wfx-dr-stop" aria-label="Stop the run" data-tip="Stop the run" hidden><svg class="i xs" aria-hidden="true"><use href="#i-stop"/></svg><span>Stop</span></button><button class="ib wfx-dr-follow" aria-pressed="true" aria-label="Follow the run on the canvas" data-tip="Follow the run"><svg class="i xs" aria-hidden="true"><use href="#i-target"/></svg></button></div><div class="wfx-dr-b" id="wf-dr-b"><div class="wfx-dr-v" data-v="steps"><div class="wfx-dr-note"></div><div class="trv wf-trv"><div class="trv-ax" aria-hidden="true"><span>Step</span><span class="trv-sc"></span><span class="trv-tk">Tokens</span><span class="trv-ms">Time</span></div><div class="trv-rows" role="group" aria-label="Steps of the run"></div></div></div><div class="wfx-dr-v" data-v="log" hidden><ol class="alg-list wf-log" aria-label="Run log"></ol></div><div class="wfx-dr-v" data-v="data" hidden><div class="cvx wf-cvx"><div class="cvx-h"><div class="cvx-tabs" role="tablist" aria-label="Step data"></div><span class="cvx-meta num"></span></div><div class="cvx-body"><pre class="cvx-code"></pre></div></div></div></div></section></div><!-- the right panel: the step inspector (wfx-inspector), run history and versions (wfx-versions) --><aside class="wf-panel" aria-label="Details" inert><div class="wf-ph"><div class="sgc-seg wf-seg" role="tablist" aria-label="Panel"><span class="sgc-k" aria-hidden="true"></span><button role="tab" id="wf-t-step" aria-controls="wf-v-step" aria-selected="true" data-v="step">Step</button><button role="tab" id="wf-t-runs" aria-controls="wf-v-runs" aria-selected="false" tabindex="-1" data-v="runs">Runs</button><button role="tab" id="wf-t-versions" aria-controls="wf-v-versions" aria-selected="false" tabindex="-1" data-v="versions">Versions</button></div><button class="ib wf-pclose" aria-label="Close the panel" data-tip="Close" data-tip-k="Esc"><svg class="i s" aria-hidden="true"><use href="#i-x"/></svg></button></div><div class="wf-pv" id="wf-v-step" role="tabpanel" aria-labelledby="wf-t-step"><div class="dtp wfx-insp"></div></div><div class="wf-pv" id="wf-v-runs" role="tabpanel" aria-labelledby="wf-t-runs" hidden></div><div class="wf-pv" id="wf-v-versions" role="tabpanel" aria-labelledby="wf-t-versions" hidden></div></aside></div></div><!-- menus and pickers: the shared core opens each from its button (data-pop) --><div class="pop wf-pop" id="wf-p-ws" role="menu" aria-label="Workspaces"></div><div class="pop wf-pop" id="wf-p-lead" role="menu" aria-label="Test with"></div><div class="pop wf-pop" id="wf-p-more" role="menu" aria-label="Workflow actions"></div><div class="pop wf-pop" id="wf-p-sel" role="menu" aria-label="Options"></div><div class="pop wf-pop" id="wf-p-node" role="menu" aria-label="Step actions"></div><div class="pop wf-pop" id="wf-p-ver" role="menu" aria-label="Version actions"></div><!-- the step picker (wfx-picker): Automation canvas's picker, with the agent as its last resort --><div class="pop acx-pk wfx-pick" id="wf-p-pick" role="dialog" aria-label="Add a step"><div class="acx-q"><svg class="i xs" aria-hidden="true"><use href="#i-search"/></svg><input class="acx-qi" type="text" role="combobox" aria-expanded="true" aria-autocomplete="list" aria-controls="wf-pick-ls" placeholder="Find a step or describe one" aria-label="Find a step or describe one" autocomplete="off" spellcheck="false"></div><div class="acx-ls" id="wf-pick-ls" role="listbox" aria-label="Steps"></div><p class="acx-pd" aria-hidden="true"></p></div><!-- the data picker (wfx-var): what earlier steps produced, to map into a field --><div class="pop wfx-var" id="wf-p-var" role="dialog" aria-label="Pick data from an earlier step"><div class="acx-q"><svg class="i xs" aria-hidden="true"><use href="#i-search"/></svg><input class="wfx-var-q" type="text" role="combobox" aria-expanded="true" aria-autocomplete="list" aria-controls="wf-var-ls" placeholder="Find a field" aria-label="Find a field" autocomplete="off" spellcheck="false"></div><div class="wfx-var-ls" id="wf-var-ls" role="listbox" aria-label="Fields"></div></div><!-- Ask the agent: the Command palette, over the app --><div class="wf-over wf-cmd" hidden><div class="cpl panel" role="dialog" aria-label="Ask the agent or jump to a step"><div class="cpl-in"><svg class="i s" aria-hidden="true"><use href="#i-spark"/></svg><input class="cpl-q" placeholder="Ask the agent, or find a step or action" aria-label="Ask the agent, or find a step or action" spellcheck="false" autocomplete="off"><span class="kbd">esc</span></div><div class="cpl-list" role="listbox" aria-label="Results"></div><div class="cpl-f muted"><span><span class="kbd">↑</span><span class="kbd">↓</span> move</span><span><span class="kbd">↵</span> run</span><span class="cpl-st"></span></div></div></div><!-- Publish: the Form, with the note the agent drafts from the changes --><div class="wf-over wf-pubd" hidden><form class="fmx panel" role="dialog" aria-modal="true" aria-labelledby="wf-pub-h" novalidate><div class="fmx-h"><b id="wf-pub-h">Publish</b><button type="button" class="ib wf-pubx" aria-label="Close" data-tip="Close"><svg class="i xs" aria-hidden="true"><use href="#i-x"/></svg></button></div><ul class="wf-checks" aria-label="Before you publish"></ul><label class="fmx-f ai"><span>What changed<i class="fmx-dr" aria-hidden="true"><svg class="i xs" aria-hidden="true"><use href="#i-spark"/></svg>Drafted by the agent</i></span><textarea name="note" rows="3"></textarea></label><div class="fmx-ft"><span class="fmx-ms muted wf-pubms"></span><button class="pill primary sm fmx-go" type="submit"></button></div></form></div><div class="wf-toasts" aria-live="polite"></div></div></main><footer class="pg-foot"><div class="pg-wrap"><div class="pg-foot-in"><span>Free and MIT licensed. Built by <a href="https://designme.agency">DesignMe</a>.</span><nav aria-label="More"><a href="/">All components</a><a href="/docs/introduction">Docs</a><a href="/#/changelog">Changelog</a><a href="/#/roadmap">Roadmap</a><a href="/llms.txt">llms.txt</a><a href="/">Home</a></nav></div></div></footer><script>
+</style></head><body><a class="pg-skip" href="#content">Skip to content</a><div class="pg-sr" id="pg-live" role="status" aria-live="polite"></div><header class="pg-top"><div class="pg-top-in"><a class="pg-logo lg o3" href="/" aria-label="Designme.dev home"><svg class="L" viewBox="-6 12.5 204.952 29.5" role="img" aria-label="Designme.dev"><g class="cons"><path class="cl" d="M-5 20.103H197.952 M-5 39.101H197.952"/><path class="ct" d="M0 18.903v-2.6 M155.787 18.903v-2.6 M0 40.301v2.6 M155.787 40.301v2.6"/></g><g class="wm"><path class="ch" style="--i:7" d="M137.937 20.1034V39.1011H155.787V33.1982H145.37V31.9317H155.38V27.2501H145.37V26.0062H155.787V20.1034H137.937Z"/><path class="ch" style="--i:6" d="M136.845 39.1013V20.1036L127.536 20.1036L125.525 29.2632H124.983L122.972 20.1036L113.662 20.1036V39.1013H120.735V32.7009H121.299L122.542 39.1013H127.965L129.208 32.7009H129.773V39.1013L136.845 39.1013Z"/><path class="ch" style="--i:5" d="M91.5581 20.1034V39.1011H100.054L104.686 30.5069H105.341V39.1011H112.572V20.1034H104.279L99.4665 28.6976H98.7886V20.1034H91.5581Z"/><path class="ch" style="--i:4" d="M90.3556 30.9135V20.1029H86.6499L86.5369 22.274H86.4014C85.0457 20.6457 82.7409 19.4696 79.5324 19.4696C73.6576 19.4696 69.1159 23.4501 69.1159 29.6017C69.1159 35.776 73.3639 39.7338 80.2102 39.7338C84.9553 39.7338 89.8359 37.4044 90.4007 32.0669H83.0347C82.8765 32.4966 81.9501 33.3334 80.391 33.3334C78.0637 33.3334 76.5046 31.9538 76.5046 29.6017C76.5046 27.2496 78.1315 25.87 80.1425 25.87C80.4814 25.87 82.5602 25.7796 83.2154 27.521H79.9391V30.9135H90.3556Z"/><path class="ch" style="--i:3" d="M60.9353 20.1034V39.1011H68.3691V20.1034H60.9353Z"/><path class="ch" style="--i:2" d="M50.0428 19.4696C42.9704 19.4922 39.8523 21.5277 40.1008 26.7747H46.7664C46.7664 25.8248 47.6025 25.2594 50.0428 25.2368C52.0763 25.1915 52.8446 25.6665 52.8446 26.1414C52.8446 26.2771 53.0027 26.9104 51.4211 27.0913L48.913 27.4758C45.3203 28.0186 40.5075 28.1091 40.5075 33.4465C40.5075 37.3139 43.5805 39.7338 50.0879 39.7338C55.8724 39.7338 59.8943 38.3769 59.691 32.474H53.0705C52.8898 33.4239 52.0086 33.9893 49.9298 33.9893C48.1673 33.9893 47.6477 33.5144 47.6477 33.062C47.6477 32.9263 47.6025 32.3157 48.7096 32.18L50.698 31.8634C54.5618 31.2301 60.2333 31.4563 60.2333 25.8248C60.2333 21.4372 56.9343 19.4244 50.0428 19.4696Z"/><path class="ch" style="--i:1" d="M21.5475 20.1034V39.1011H39.3978V33.1982H28.9813V31.9317H38.9911V27.2501H28.9813V26.0062H39.3978V20.1034H21.5475Z"/><path class="ch" style="--i:0" d="M10.0775 39.1011C18.0537 39.1011 20.6973 35.1206 20.6973 29.6022C20.6973 24.1291 18.0537 20.1034 10.0775 20.1034H0V39.1011H10.0775ZM10.1001 26.3228C11.7044 26.3228 13.2409 27.0013 13.2409 29.6022C13.2409 32.2483 11.7044 32.9042 10.1001 32.9042H7.45646V26.3228H10.1001Z"/><path class="r" d="M160.138 24.7522C158.938 24.7522 157.983 23.8244 157.983 22.5601C157.983 21.3049 158.938 20.368 160.138 20.368C161.339 20.368 162.294 21.3049 162.294 22.5601C162.294 23.8244 161.339 24.7522 160.138 24.7522ZM160.138 24.4339C161.139 24.4339 161.939 23.6607 161.939 22.5601C161.939 21.4686 161.139 20.6864 160.138 20.6864C159.147 20.6864 158.337 21.4686 158.337 22.5601C158.337 23.6607 159.147 24.4339 160.138 24.4339ZM159.747 23.7517H159.265V21.3413H160.239C160.784 21.3413 161.075 21.5959 161.075 22.0416C161.075 22.3691 160.875 22.5692 160.548 22.642V22.6602C161.148 22.7693 160.957 23.6607 161.121 23.7244V23.7517H160.63C160.457 23.6243 160.693 22.8421 160.093 22.8421H159.747V23.7517ZM159.747 22.4419H160.12C160.411 22.4419 160.611 22.3691 160.611 22.078C160.611 21.7961 160.402 21.7415 160.129 21.7415H159.747V22.4419Z"/></g><g class="dev"><path class="g" style="--i:0" d="M168.139 39.196C168.66 39.196 169.073 38.784 169.073 38.263C169.073 37.736 168.66 37.324 168.139 37.324C167.613 37.324 167.2 37.736 167.2 38.263C167.2 38.784 167.613 39.196 168.139 39.196Z"/><path class="g" style="--i:1" d="M173.687 39.241C174.97 39.241 175.484 38.441 175.731 37.99H175.846V39.101H177.204V29.643H175.807V33.16H175.731C175.49 32.722 175.008 31.916 173.687 31.916C171.98 31.916 170.717 33.261 170.717 35.572C170.717 37.863 171.961 39.241 173.687 39.241ZM173.992 38.054C172.78 38.054 172.145 36.968 172.145 35.559C172.145 34.163 172.761 33.103 173.992 33.103C175.192 33.103 175.833 34.086 175.833 35.559C175.833 37.038 175.179 38.054 173.992 38.054Z"/><path class="g" style="--i:2" d="M182.142 39.247C183.659 39.247 184.745 38.504 185.081 37.4L183.767 37.089C183.52 37.749 182.936 38.092 182.155 38.092C180.993 38.092 180.206 37.349 180.156 35.978H185.189V35.483C185.189 32.925 183.64 31.916 182.022 31.916C180.035 31.916 178.753 33.42 178.753 35.604C178.753 37.806 180.048 39.247 182.142 39.247ZM180.162 34.937C180.238 33.915 180.911 33.071 182.028 33.071C183.101 33.071 183.704 33.82 183.805 34.937Z"/><path class="g" style="--i:3" d="M188.75 39.101H190.274L192.952 32.004H191.454L190.052 36.035C189.836 36.664 189.683 37.286 189.525 37.908C189.366 37.286 189.201 36.664 188.985 36.035L187.582 32.004H186.072Z"/></g></svg></a><span class="wf-name">Workflow editor template</span><span class="pg-sp"></span><a class="pg-gh" href="https://github.com/bydesignme/designme-dev" aria-label="Star designme.dev on GitHub" data-gh-stars><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg><span class="pg-gh-l">Star on GitHub</span><span class="pg-gh-n" hidden></span></a><div class="pg-seg pg-style" role="radiogroup" aria-label="Style"><button type="button" role="radio" aria-checked="false" data-style-set="bp">Blueprint</button><button type="button" role="radio" aria-checked="false" data-style-set="soft">Soft</button><button type="button" role="radio" aria-checked="false" aria-haspopup="dialog" data-style-set="mine">Your theme</button></div><div class="pg-seg icons" role="radiogroup" aria-label="Theme"><button type="button" role="radio" aria-checked="false" data-theme-set="light" aria-label="Light"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg></button><button type="button" role="radio" aria-checked="false" data-theme-set="dark" aria-label="Dark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"></path></svg></button></div></div></header><main class="pg-app"><div class="wf" data-c="workflow-editor"><!-- the workflows: Agent harness's side list, grouped by what needs you --><aside class="ahx-side wf-side" aria-label="Workflows"><div class="ahx-ws"><button class="ahx-wsb wf-wsb" data-pop="#wf-p-ws" aria-haspopup="menu"><span class="pfm-lg" aria-hidden="true">F</span><span class="wf-wst"><span class="t">Fernhill</span><span class="s">Revenue operations</span></span><svg class="i xs" aria-hidden="true"><use href="#i-unfold"/></svg></button></div><button class="ahx-cv wf-newwf" data-act="new"><svg class="i s" aria-hidden="true"><use href="#i-plus"/></svg><span class="t">New workflow</span></button><div class="wf-flows"></div><div class="wf-sfoot"><button class="ahx-cv" data-act="apps"><svg class="i s" aria-hidden="true"><use href="#i-link"/></svg><span class="t">Connected apps</span><span class="n num">6</span></button><div class="wf-usage"><div class="prg-mh"><span>Runs this month</span><span class="muted num wf-usen"></span></div><div class="prg-mb" role="meter" aria-label="Agent runs used this month" aria-valuemin="0" aria-valuemax="5000"><i class="fl"></i></div></div></div></aside><div class="ahx-scrim wf-scrim" aria-hidden="true"></div><div class="wf-main"><header class="wf-top"><button class="ib wf-menu" aria-label="Show the workflows" data-tip="Workflows"><svg class="i s" aria-hidden="true"><use href="#i-panel"/></svg></button><div class="wf-title"><h1 class="wf-h1" id="content" tabindex="-1"><button class="wf-h1b" aria-label="Rename the workflow" data-tip="Rename"><span class="wf-h1t"></span></button></h1><span class="wf-state"></span></div><span class="wf-saved muted" aria-live="polite"></span><span class="wf-sp"></span><button class="pill ghost sm wf-ask" aria-label="Ask the agent" aria-keyshortcuts="Control+K Meta+K"><svg class="i xs" aria-hidden="true"><use href="#i-spark"/></svg><span class="t">Ask the agent</span><span class="kbd">⌘K</span></button><button class="ib wf-hist" data-panel="runs" aria-label="Runs" data-tip="Runs"><svg class="i s" aria-hidden="true"><use href="#i-clock"/></svg></button><button class="ib wf-vers" data-panel="versions" aria-label="Versions" data-tip="Versions"><svg class="i s" aria-hidden="true"><use href="#i-history"/></svg></button><div class="wf-split"><button class="pill line sm wf-test"><svg class="i xs" aria-hidden="true"><use href="#i-play"/></svg><span>Test run</span></button><button class="pill line sm wf-testm" data-pop="#wf-p-lead" data-pop-align="end" aria-haspopup="menu" aria-label="Choose the test lead" data-tip="Test with"><svg class="i xs" aria-hidden="true"><use href="#i-chev-d"/></svg></button></div><button class="pill primary sm wf-pub"><svg class="i xs" aria-hidden="true"><use href="#i-upload"/></svg><span>Publish</span></button><button class="ib wf-more" data-pop="#wf-p-more" data-pop-align="end" aria-haspopup="menu" aria-label="More workflow actions" data-tip="More"><svg class="i s" aria-hidden="true"><use href="#i-more"/></svg></button></header><div class="wf-body"><div class="wf-work"><!-- the canvas: the steps on a board that pans and zooms (wfx-node, wfx-ins), with Canvas toolbar's bar under it --><div class="wfx-cv" tabindex="0" role="application" aria-roledescription="workflow canvas" aria-label="Workflow canvas" aria-describedby="wf-cv-help"><div class="wfx-vp"><div class="wfx-world"><svg class="wfx-svg" aria-hidden="true"></svg><div class="wfx-nodes"></div></div></div><button class="wf-lead" data-pop="#wf-p-lead" aria-haspopup="menu"></button><span class="wfx-sr" id="wf-cv-help">Tab moves through the steps, Enter opens one. With the canvas focused the arrow keys move the view, plus and minus zoom and 0 fits the workflow. Delete removes the selected step.</span><div class="ctb-bar wf-bar" role="toolbar" aria-label="Canvas tools"><div class="ctb-tools" role="radiogroup" aria-label="Tool"><button class="ctb-b" role="radio" aria-checked="true" data-t="select" aria-label="Select" data-tip="Select" data-tip-k="V"><svg class="i s" aria-hidden="true"><use href="#i-cursor"/></svg></button><button class="ctb-b" role="radio" aria-checked="false" tabindex="-1" data-t="hand" aria-label="Pan" data-tip="Pan" data-tip-k="H"><svg class="i s" aria-hidden="true"><use href="#i-hand"/></svg></button></div><span class="ctb-sep"></span><button class="ctb-b wf-add" data-pop="#wf-p-pick" data-pop-pos="up" aria-haspopup="dialog" aria-label="Add a step" data-tip="Add a step" data-tip-k="A"><svg class="i s" aria-hidden="true"><use href="#i-plus"/></svg></button><span class="ctb-sep"></span><button class="ctb-b wf-undo" aria-label="Undo" data-tip="Undo" data-tip-k="⌘Z" aria-disabled="true"><svg class="i s" aria-hidden="true"><use href="#i-undo"/></svg></button><button class="ctb-b wf-redo" aria-label="Redo" data-tip="Redo" data-tip-k="⇧⌘Z" aria-disabled="true"><svg class="i s" aria-hidden="true"><use href="#i-redo"/></svg></button><span class="ctb-sep wf-xs"></span><button class="ctb-b wf-tidy wf-xs" aria-label="Tidy up the layout" data-tip="Tidy up"><svg class="i s" aria-hidden="true"><use href="#i-grid"/></svg></button><button class="ctb-b wf-fit" aria-label="Fit to screen" data-tip="Fit to screen" data-tip-k="0"><svg class="i s" aria-hidden="true"><use href="#i-fit"/></svg></button><span class="ctb-sep wf-xs"></span><button class="ctb-b wf-zo wf-xs" aria-label="Zoom out" data-tip="Zoom out" data-tip-k="−"><svg class="i s" aria-hidden="true"><use href="#i-minus"/></svg></button><button class="ctb-z num wf-zl wf-xs" aria-label="Zoom 100%, reset to 100%" data-tip="Zoom to 100%">100%</button><button class="ctb-b wf-zi wf-xs" aria-label="Zoom in" data-tip="Zoom in" data-tip-k="+"><svg class="i s" aria-hidden="true"><use href="#i-plus"/></svg></button></div></div><!-- the run drawer: Run drawer, under the canvas, with the agent's notes beside its steps --><div class="rdr-dw wf-dr shut" role="region" aria-label="Run"><div class="rdr-grip" role="separator" aria-orientation="horizontal" aria-label="Resize the run panel" tabindex="0" aria-valuemin="160" aria-valuemax="560"><i></i></div><div class="rdr-h"><button class="rdr-tg" aria-expanded="false" aria-controls="wf-dr-b"><svg class="i xs" aria-hidden="true"><use href="#i-chev-u"/></svg></button><span class="rdr-meta num"></span><span class="rdr-sp"></span><div class="seg2 rdr-tabs" role="group" aria-label="Show"><button aria-pressed="true" data-v="steps">Steps</button><button aria-pressed="false" data-v="log">Log</button><button aria-pressed="false" data-v="data">Data</button></div><button class="pill ghost sm rdr-stop" aria-label="Stop the run" data-tip="Stop the run" hidden><svg class="i xs" aria-hidden="true"><use href="#i-stop"/></svg><span>Stop</span></button><button class="ib rdr-follow" aria-pressed="true" aria-label="Follow the run on the canvas" data-tip="Follow the run"><svg class="i s" aria-hidden="true"><use href="#i-target"/></svg></button></div><div class="rdr-b" id="wf-dr-b"><div class="rdr-v wf-steps" data-v="steps"><div class="wfx-dr-note"></div><div class="wf-tl"><div class="rdr-ax" aria-hidden="true"><span>Step</span><span class="rdr-sc"></span><span class="ms">Time</span></div><div class="rdr-rows" role="group" aria-label="Steps of the run"></div></div></div><div class="rdr-v" data-v="log" hidden><div class="rdr-lf"><div class="seg2 rdr-lvs" role="group" aria-label="Level"><button aria-pressed="true" data-v="all">All</button><button aria-pressed="false" data-v="warn">Warnings</button><button aria-pressed="false" data-v="error">Errors</button></div><span class="n num"></span></div><ol class="rdr-log" aria-label="Run log"></ol></div><div class="rdr-v" data-v="data" hidden><div class="rdr-data"><div class="rdr-ds" role="group" aria-label="Steps"></div><div class="rdr-io"></div></div></div></div></div></div><!-- the right panel: the step inspector (Step inspector), run history and versions (wfx-versions) --><aside class="wf-panel" aria-label="Details" inert><div class="wf-ph"><div class="sgc-seg wf-seg" role="tablist" aria-label="Panel"><span class="sgc-k" aria-hidden="true"></span><button role="tab" id="wf-t-step" aria-controls="wf-v-step" aria-selected="true" data-v="step">Step</button><button role="tab" id="wf-t-runs" aria-controls="wf-v-runs" aria-selected="false" tabindex="-1" data-v="runs">Runs</button><button role="tab" id="wf-t-versions" aria-controls="wf-v-versions" aria-selected="false" tabindex="-1" data-v="versions">Versions</button></div><button class="ib wf-pclose" aria-label="Close the panel" data-tip="Close" data-tip-k="Esc"><svg class="i s" aria-hidden="true"><use href="#i-x"/></svg></button></div><div class="wf-pv" id="wf-v-step" role="tabpanel" aria-labelledby="wf-t-step"><div class="sti wf-insp"></div></div><div class="wf-pv" id="wf-v-runs" role="tabpanel" aria-labelledby="wf-t-runs" hidden></div><div class="wf-pv" id="wf-v-versions" role="tabpanel" aria-labelledby="wf-t-versions" hidden></div></aside></div></div><!-- menus and pickers: the shared core opens each from its button (data-pop) --><div class="pop wf-pop" id="wf-p-ws" role="menu" aria-label="Workspaces"></div><div class="pop wf-pop" id="wf-p-lead" role="menu" aria-label="Test with"></div><div class="pop wf-pop" id="wf-p-more" role="menu" aria-label="Workflow actions"></div><div class="pop wf-pop" id="wf-p-sel" role="menu" aria-label="Options"></div><div class="pop wf-pop" id="wf-p-node" role="menu" aria-label="Step actions"></div><div class="pop wf-pop" id="wf-p-ver" role="menu" aria-label="Version actions"></div><!-- the step picker (wfx-picker): Automation canvas's picker, with the agent as its last resort --><div class="pop acx-pk wfx-pick" id="wf-p-pick" role="dialog" aria-label="Add a step"><div class="acx-q"><svg class="i xs" aria-hidden="true"><use href="#i-search"/></svg><input class="acx-qi" type="text" role="combobox" aria-expanded="true" aria-autocomplete="list" aria-controls="wf-pick-ls" placeholder="Find a step or describe one" aria-label="Find a step or describe one" autocomplete="off" spellcheck="false"></div><div class="acx-ls" id="wf-pick-ls" role="listbox" aria-label="Steps"></div><p class="acx-pd" aria-hidden="true"></p></div><!-- the data picker: Data picker's picker, of what earlier steps produced, to map into a field --><div class="pop fpk-pop" id="wf-p-var" role="dialog" aria-label="Pick data from an earlier step"><div class="fpk-q"><svg class="i s" aria-hidden="true"><use href="#i-search"/></svg><input class="wf-var-q" type="text" role="combobox" aria-expanded="true" aria-autocomplete="list" aria-controls="wf-var-ls" placeholder="Find a field" aria-label="Find a field" autocomplete="off" spellcheck="false"></div><div class="fpk-ls" id="wf-var-ls" role="listbox" aria-label="Fields from earlier steps"></div><p class="fpk-ft"><span class="wf-var-n"></span><span class="kh" aria-hidden="true"><span class="kbd">↑</span> <span class="kbd">↓</span> <span class="kbd">↵</span></span></p></div><!-- Ask the agent: the Command palette, over the app --><div class="wf-over wf-cmd" hidden><div class="cpl panel" role="dialog" aria-label="Ask the agent or jump to a step"><div class="cpl-in"><svg class="i s" aria-hidden="true"><use href="#i-spark"/></svg><input class="cpl-q" placeholder="Ask the agent, or find a step or action" aria-label="Ask the agent, or find a step or action" spellcheck="false" autocomplete="off"><span class="kbd">esc</span></div><div class="cpl-list" role="listbox" aria-label="Results"></div><div class="cpl-f muted"><span><span class="kbd">↑</span><span class="kbd">↓</span> move</span><span><span class="kbd">↵</span> run</span><span class="cpl-st"></span></div></div></div><!-- Publish: the Form, with the note the agent drafts from the changes --><div class="wf-over wf-pubd" hidden><form class="fmx panel" role="dialog" aria-modal="true" aria-labelledby="wf-pub-h" novalidate><div class="fmx-h"><b id="wf-pub-h">Publish</b><button type="button" class="ib wf-pubx" aria-label="Close" data-tip="Close"><svg class="i xs" aria-hidden="true"><use href="#i-x"/></svg></button></div><ul class="wf-checks" aria-label="Before you publish"></ul><label class="fmx-f ai"><span>What changed<i class="fmx-dr" aria-hidden="true"><svg class="i xs" aria-hidden="true"><use href="#i-spark"/></svg>Drafted by the agent</i></span><textarea name="note" rows="3"></textarea></label><div class="fmx-ft"><span class="fmx-ms muted wf-pubms"></span><button class="pill primary sm fmx-go" type="submit"></button></div></form></div><div class="wf-toasts" aria-live="polite"></div></div></main><footer class="pg-foot"><div class="pg-wrap"><div class="pg-foot-in"><span>Free and MIT licensed. Built by <a href="https://designme.agency">DesignMe</a>.</span><nav aria-label="More"><a href="/">All components</a><a href="/docs/introduction">Docs</a><a href="/#/changelog">Changelog</a><a href="/#/roadmap">Roadmap</a><a href="/llms.txt">llms.txt</a><a href="/">Home</a></nav></div></div></footer><script>
 // Skip to content: the focus moves to the page's heading, which glides (or, with reduced motion, jumps) under the header,
 // without changing the address
 (function(){
@@ -1702,9 +1775,10 @@ const fitHits = window.dmFitHits || (() => {
    helpers ($, $$, I, swap, enter, stagger, seg, html, closePops) and its popovers (data-pop) and tooltips (data-tip). The
    workspace, people, leads and runs are made up. A test run is worked out from the graph on the canvas (which steps run, in
    what order, which path the branch takes, what each step hands on), so editing the workflow changes what the next run does.
-   The parts the library doesn't have yet are written as self-contained pieces with a wfx- prefix, so they can be promoted:
-   the step node and edge inserter (canvas), the step picker, the data picker, the step inspector, the run drawer, the agent's
-   fix card and the version history. */
+   The step inspector, the data picker and the run drawer are the library's Step inspector, Data picker and Run drawer, drawn
+   with their classes and driven from here. The parts the library doesn't have yet are written as self-contained pieces with a
+   wfx- prefix, so they can be promoted: the step node and edge inserter (canvas), the step picker, the agent's fix card and
+   the version history. */
 (() => {
   const app = document.querySelector('.wf'); if (!app) return;
   const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -2189,7 +2263,7 @@ const fitHits = window.dmFitHits || (() => {
     toast('ai', `The agent added ${n.t}`, kind ? 'It picked the step from your words. Check its fields' : 'Your words are its instructions. Check its inputs', { label:'Undo', run:undo });
   }
 
-  /* ---------- wfx-var: the data picker, what earlier steps produced ---------- */
+  /* ---------- the data picker: Data picker's picker, what earlier steps produced ---------- */
   function upstream(id){
     const n = byId(id); if (!n) return [];
     const seen = new Set(), list = [], walk = x => insOf(x).forEach(e => { if (seen.has(e.f)) return; seen.add(e.f); walk(e.f); list.push(byId(e.f)); });
@@ -2200,38 +2274,54 @@ const fitHits = window.dmFitHits || (() => {
     return list.filter(Boolean);
   }
   const vref = v => { const [r, k] = (v || '').split('.'); return { n:byRef(r), k }; };
-  const tok = (v, empty = 'Pick data') => { const { n, k } = vref(v); if (!v) return `<span class="wfx-tok none">${I('plus', 'xs')}<span>${empty}</span></span>`;
-    if (!n) return `<span class="wfx-tok bad" data-tip="That step is gone">${I('alert', 'xs')}<span>${esc(v)}</span></span>`;
-    return `<span class="wfx-tok"><span class="ic${n.type === 'ai' ? ' ai' : ''}">${I(n.ic, 'xs')}</span><span class="s">${esc(n.t)}</span><span class="k">${esc(k)}</span></span>`; };
-  const vp2 = $('#wf-p-var', app), vq = $('.wfx-var-q', vp2), vls = $('.wfx-var-ls', vp2);
+  // every field the steps before a step hand on, as "ref.field"
+  const reach = n => new Set(upstream(n.id).flatMap(u => u.out.map(o => u.ref + '.' + o[0])));
+  // a mapped field: Step inspector's token, the step's tile, the step and the field. One whose step is gone, or that no earlier
+  // step gives (ok false), is red
+  const tok = (v, attrs = '', ok = null, empty = 'Pick data') => { const { n, k } = vref(v);
+    if (!v) return `<span class="sti-tok none"${attrs}>${I('plus', 'xs')}<span>${empty}</span></span>`;
+    if (!n || ok === false) return `<span class="sti-tok bad"${attrs} data-tip="${n ? 'Not from an earlier step' : 'That step is gone'}">${I('alert', 'xs')}<span class="s">${esc(n ? n.t : v.split('.')[0])}</span><span class="sep" aria-hidden="true">›</span><span class="f">${esc(k || '')}</span></span>`;
+    return `<span class="sti-tok"${attrs}><span class="sti-ti" data-k="${n.type}" aria-hidden="true">${I(n.ic, 'xs')}</span><span class="s">${esc(n.t)}</span><span class="sep" aria-hidden="true">›</span><span class="f">${esc(k)}</span></span>`; };
+  // each data type in its colour: text blue, numbers green, lists orange, objects pink
+  const TYPE_TONE = { text:'b', number:'m', list:'p', object:'k', bool:'y', date:'t' };
+  const vp2 = $('#wf-p-var', app), vq = $('.wf-var-q', vp2), vls = $('.fpk-ls', vp2), vn = $('.wf-var-n', vp2);
   let vTarget = null, vItems = [], vHi = 0;
   function paintVar(){
     const n = byId(vTarget.node), v = vq.value.trim().toLowerCase(); let h = '', k = 0; vItems = [];
     const ups = upstream(vTarget.node);
-    ups.forEach(u => { const fs = u.out.filter(o => !v || (u.t + ' ' + o[0]).toLowerCase().includes(v)); if (!fs.length) return;
-      h += `<div role="group" aria-label="${esc(u.t)}"><div class="wfx-var-g" aria-hidden="true">${tile(u)}<span>${esc(u.t)}</span></div>` + fs.map(o => { const ref = u.ref + '.' + o[0], i = k++; vItems.push(ref);
-        return `<div class="wfx-var-o" role="option" id="wf-vo-${i}" aria-selected="false" data-i="${i}"><span class="k">${esc(o[0])}</span><span class="tag">${o[1]}</span><span class="ex">${esc(o[2])}</span></div>`; }).join('') + '</div>'; });
-    vls.innerHTML = h || `<p class="wfx-var-e">${ups.length ? 'No field matches' : `${esc(n.t)} is the first step, so there is no data before it`}</p>`;
+    ups.forEach((u, ui) => { const fs = u.out.filter(o => !v || (u.t + ' ' + o[0]).toLowerCase().includes(v)); if (!fs.length) return;
+      h += `<div role="group" aria-labelledby="wf-vg-${ui}"><div class="fpk-g" id="wf-vg-${ui}"><span class="fpk-ti" data-k="${u.type}" aria-hidden="true">${I(u.ic, 'xs')}</span><b>${esc(u.t)}</b><span class="n">${TYPES[u.type].k}</span></div>` + fs.map(o => { const ref = u.ref + '.' + o[0], i = k++; vItems.push(ref);
+        return `<div class="fpk-o" role="option" id="wf-vo-${i}" aria-selected="false" data-i="${i}" aria-label="${esc(o[0])}, ${o[1]}, from ${esc(u.t)}"><span class="k">${esc(o[0])}</span><span class="tag ${TYPE_TONE[o[1]] || 'b'}">${o[1]}</span><span class="ex">${esc(o[2])}</span></div>`; }).join('') + '</div>'; });
+    vls.innerHTML = h || `<p class="fpk-e">${ups.length ? 'No field matches' : `${esc(n.t)} is the first step, so there is no data before it`}</p>`;
+    vn.textContent = ups.length ? `From the ${ups.length} ${ups.length === 1 ? 'step' : 'steps'} before ${n.t}` : 'Nothing runs before this step';
     vHi = Math.max(0, vItems.indexOf(vTarget.cur)); hiVar(vHi);
   }
-  function hiVar(i){ const os = $$('.wfx-var-o', vls); if (!os.length) return; vHi = (i + os.length) % os.length; os.forEach((o, j) => { o.classList.toggle('on', j === vHi); o.setAttribute('aria-selected', String(j === vHi)); }); vq.setAttribute('aria-activedescendant', os[vHi].id); os[vHi].scrollIntoView({ block:'nearest' }); }
+  function hiVar(i){ const os = $$('.fpk-o', vls); if (!os.length){ vq.removeAttribute('aria-activedescendant'); return; } vHi = (i + os.length) % os.length; os.forEach((o, j) => { o.classList.toggle('on', j === vHi); o.setAttribute('aria-selected', String(j === vHi)); }); vq.setAttribute('aria-activedescendant', os[vHi].id); os[vHi].scrollIntoView({ block:'nearest' }); }
   function pickVar(i){ const ref = vItems[i]; if (!ref) return; closePops(); vTarget.set(ref); }
   vq.addEventListener('input', paintVar);
   vq.addEventListener('keydown', e => { if (e.key === 'ArrowDown' || e.key === 'ArrowUp'){ e.preventDefault(); hiVar(vHi + (e.key === 'ArrowDown' ? 1 : -1)); } else if (e.key === 'Enter'){ e.preventDefault(); pickVar(vHi); } });
-  vls.addEventListener('click', e => { const o = e.target.closest('.wfx-var-o'); if (o) pickVar(+o.dataset.i); });
-  vls.addEventListener('pointermove', e => { const o = e.target.closest('.wfx-var-o'); if (o && +o.dataset.i !== vHi) hiVar(+o.dataset.i); });
+  vls.addEventListener('click', e => { const o = e.target.closest('.fpk-o'); if (o) pickVar(+o.dataset.i); });
+  vls.addEventListener('pointermove', e => { const o = e.target.closest('.fpk-o'); if (o && +o.dataset.i !== vHi) hiVar(+o.dataset.i); });
   function openVar(target){ vTarget = target; vq.value = ''; paintVar(); setTimeout(() => { if (vp2.classList.contains('open')) vq.focus(); }, 30); }
 
-  /* ---------- wfx-inspector: the step inspector, Details panel's sections and rows ---------- */
-  const insp = $('.wfx-insp', app);
+  /* ---------- the step inspector: Step inspector's head, sections, rows, choices, tokens and chips ---------- */
+  const insp = $('.wf-insp', app);
   const shut = new Set(['out']);
-  const sec = (k, t, body, extra = '') => `<div class="dtp-sec"><button class="dtp-sh" aria-expanded="${!shut.has(k)}" data-sec="${k}">${I('chev-r', 'xs')}<span>${t}</span>${extra}</button><div class="fold${shut.has(k) ? ' shut' : ''}"><div><div class="wfx-rows">${body}</div></div></div></div>`;
-  const row = (label, ctl, cls = '') => `<div class="wfx-row${cls}"><span class="k">${label}</span><div class="v">${ctl}</div></div>`;
-  const selBtn = (f, val, label) => `<button class="dtp-v wfx-sel" data-f="${f}" data-pop="#wf-p-sel" aria-haspopup="menu" aria-label="${esc(label)}: ${esc(val)}"><span>${esc(val)}</span>${I('chev-d', 'xs')}</button>`;
-  const varBtn = (f, v, label) => `<button class="wfx-tok-b" data-f="${f}" data-pop="#wf-p-var" aria-haspopup="dialog" aria-label="${esc(label)}: ${v ? esc(v) : 'not set'}. Pick data">${tok(v)}</button>`;
-  const num = (f, v, lo, hi, label) => `<span class="wfx-num" role="group" aria-label="${esc(label)}"><button class="ib" data-f="${f}" data-d="-1" aria-label="Fewer" ${v <= lo ? 'aria-disabled="true"' : ''}>${I('minus', 'xs')}</button><span class="num" aria-live="polite">${v}</span><button class="ib" data-f="${f}" data-d="1" aria-label="More" ${v >= hi ? 'aria-disabled="true"' : ''}>${I('plus', 'xs')}</button></span>`;
-  const segBtns = (f, v, opts, label) => `<div class="seg2 wfx-seg" role="group" aria-label="${esc(label)}" data-f="${f}">${opts.map(([k, t]) => `<button aria-pressed="${v === k}" data-v="${k}">${t}</button>`).join('')}</div>`;
+  const sec = (k, t, body, extra = '') => `<div class="sti-sec" data-sec="${k}"><button class="sti-sh" aria-expanded="${!shut.has(k)}" aria-controls="wf-sec-${k}" data-sec="${k}">${I('chev-r', 'xs')}<span>${t}</span>${extra}</button><div class="fold${shut.has(k) ? ' shut' : ''}" id="wf-sec-${k}"><div><div class="sti-rows">${body}</div></div></div></div>`;
+  const row = (label, ctl, cls = '') => `<div class="sti-row${cls}"><span class="k">${label}</span><div class="v">${ctl}</div></div>`;
+  const selBtn = (f, val, label) => `<button class="sti-sel" data-f="${f}" data-pop="#wf-p-sel" aria-haspopup="menu" aria-label="${esc(label)}: ${esc(val)}"><span>${esc(val)}</span>${I('chev-d', 'xs')}</button>`;
+  const varBtn = (f, v, label, ok = null) => `<button class="sti-tokb" data-f="${f}" data-pop="#wf-p-var" aria-haspopup="dialog" aria-label="${esc(label)}: ${v ? esc(v) : 'not set'}${ok === false ? ', which no earlier step gives' : ''}. Pick data">${tok(v, '', ok)}</button>`;
+  // a mapped field no earlier step gives says why, under its row
+  const note = (v, ok) => { if (!v || ok !== false) return ''; const { n, k } = vref(v); return `<p class="sti-note">${n ? `${esc(n.t)} runs after this step.` : `${esc(v.split('.')[0])} isn't in the workflow any more.`} Pick where ${esc(k || 'it')} comes from.</p>`; };
+  const num = (f, v, lo, hi, label) => `<span class="sti-num" role="group" aria-label="${esc(label)}"><button class="ib" data-f="${f}" data-d="-1" aria-label="Fewer ${label.toLowerCase()}" data-tip="Fewer" ${v <= lo ? 'aria-disabled="true"' : ''}>${I('minus', 'xs')}</button><span class="num" aria-live="polite">${v}</span><button class="ib" data-f="${f}" data-d="1" aria-label="More ${label.toLowerCase()}" data-tip="More" ${v >= hi ? 'aria-disabled="true"' : ''}>${I('plus', 'xs')}</button></span>`;
+  const segBtns = (f, v, opts, label) => `<div class="seg2 sti-seg" role="group" aria-label="${esc(label)}" data-f="${f}">${opts.map(([k, t]) => `<button aria-pressed="${v === k}" data-v="${k}">${t}</button>`).join('')}</div>`;
   const toggle = (f, on, label) => `<button class="wfx-tg" role="switch" aria-checked="${on}" data-f="${f}"><span class="toggle" aria-hidden="true"></span><span>${esc(label)}</span></button>`;
+  const stile = (n, s = 'xs') => `<span class="sti-ti" data-k="${n.type}" aria-hidden="true">${I(n.ic, s)}</span>`;
+  // the instructions: their text with each {{step.field}} as a token, and back
+  const insHTML = (n, ok) => esc(n.cfg.prompt).replace(/\{\{\s*([\w]+\.[\w]+)\s*\}\}/g, (m, r) => tok(r, ` contenteditable="false" data-ref="${r}"`, ok.has(r)));
+  const readIns = el => [...el.childNodes].map(x => x.nodeType === 3 ? x.textContent : x.dataset && x.dataset.ref ? `{{${x.dataset.ref}}}` : x.nodeName === 'BR' ? '\n' : '\n' + x.textContent).join('');
+  let caret = null;
+  document.addEventListener('selectionchange', () => { const s = getSelection(), bx = $('.sti-ins', insp); if (s.rangeCount && bx && bx.contains(s.anchorNode)) caret = s.getRangeAt(0).cloneRange(); });
   // what each select offers
   const OPTS = {
     model:() => MODELS.map(m => [m[0], m[0], m[1]]),
@@ -2263,50 +2353,50 @@ const fitHits = window.dmFitHits || (() => {
         + `<div class="wfx-insp-l" role="list" aria-label="Steps">${topo().flatMap(x => [x, ...(x.cfg.tools || []).map(byId).filter(Boolean)]).map(x => `<button role="listitem" data-go="${x.id}"${x.type === 'tool' ? ' class="tl"' : ''}>${tile(x)}<span class="t">${esc(x.t)}</span><span class="muted">${TYPES[x.type].k}</span></button>`).join('')}</div>`;
       return;
     }
-    const c = n.cfg, T = TYPES[n.type], idx = topo().indexOf(n);
+    const c = n.cfg, T = TYPES[n.type], idx = topo().indexOf(n), ok = reach(n);
     const ran = lastOf(n.id);
-    let h = `<div class="wfx-insp-h">${tile(n, ' big')}<span class="tx"><input class="wfx-insp-n" value="${esc(n.t)}" aria-label="Step name" maxlength="40" spellcheck="false"><span class="muted">${T.k}${n.type === 'tool' ? ', used by ' + esc(byId(n.host)?.t || '') : idx >= 0 ? `, step ${idx + 1} of ${flow().length}` : ''}</span></span>`
+    let h = `<div class="sti-h">${stile(n, 's')}<span class="sti-tx"><span class="sti-nr"><input class="sti-n" value="${esc(n.t)}" aria-label="Step name" maxlength="40" spellcheck="false" autocomplete="off">${n.off ? '<span class="tag sti-off">Off</span>' : ''}</span><span class="sti-kd">${T.k}${n.type === 'tool' ? ', used by ' + esc(byId(n.host)?.t || '') : idx >= 0 ? `, step ${idx + 1} of ${flow().length}` : ''}</span></span>`
       + `<button class="ib" data-a="test" aria-label="Test this step on its own" data-tip="Test this step">${I('play', 's')}</button><button class="ib" data-a="menu" data-pop="#wf-p-node" data-pop-align="end" aria-haspopup="menu" aria-label="Step actions" data-tip="More">${I('more', 's')}</button><button class="ib wfx-insp-x" data-a="close" aria-label="Close the step" data-tip="Close" data-tip-k="Esc">${I('x', 's')}</button></div>`;
     if (ran) h += `<button class="wfx-insp-run" data-a="data"><span class="dot" style="color:${ran.st === 'bad' ? 'var(--dm-bad)' : 'var(--dm-ok-mark)'}"></span><span>${ran.st === 'bad' ? 'Failed' : 'Ran'} in the last run, ${secs(ran.e - ran.s)}</span><span class="go">See its data${I('chev-r', 'xs')}</span></button>`;
-    const inputs = () => Object.keys(c.in || {}).map(k => row(esc(k), varBtn('in.' + k, c.in[k], k))).join('') + `<button class="pill ghost sm wfx-addin" data-a="addin">${I('plus', 'xs')}Map another field</button>`;
+    const okOf = v => v ? ok.has(v) : null;
+    const missing = Object.values(c.in || {}).filter(v => v && !ok.has(v)).length, mapped = Object.keys(c.in || {}).length;
+    const inMeta = missing ? `<span class="tag bad">${missing} missing</span>` : `<span class="n">${mapped} mapped</span>`;
+    const inputs = () => Object.keys(c.in || {}).map(k => row(esc(k), varBtn('in.' + k, c.in[k], k, okOf(c.in[k]))) + note(c.in[k], okOf(c.in[k]))).join('') + `<button class="pill ghost sm wfx-addin" data-a="addin">${I('plus', 'xs')}Map another field</button>`;
     const fails = (tool = false) => sec('fail', 'If it fails', row('Retries', num('retries', c.retries, 0, 5, 'Retries')) + row('Wait between', segBtns('backoff', c.backoff, [['fixed', '2s each'], ['doubling', 'Doubling']], 'Wait between tries'))
       + row(LABEL.limit, selBtn('limit', (OPTS.limit().find(o => o[0] === c.limit) || [0, c.limit])[1], LABEL.limit)) + (tool ? row('Cache', toggle('cache', c.cache, 'Reuse results for 24 hours')) : '') + row(LABEL.onfail, selBtn('onfail', FAIL[c.onfail], LABEL.onfail)));
-    const outs = () => sec('out', `Output, ${n.out.length} ${n.out.length === 1 ? 'field' : 'fields'}`, n.out.length ? n.out.map(o => `<div class="wfx-schema"><span class="k">${esc(o[0])}</span><span class="tag">${o[1]}</span><span class="ex muted">${esc(o[2])}</span></div>`).join('') : '<p class="muted wfx-p">Nothing. The run carries on as it was.</p>');
+    const outs = () => sec('out', 'Output', n.out.length ? n.out.map(o => `<div class="sti-out"><span>${esc(o[0])}</span><span class="tag ${TYPE_TONE[o[1]] || 'b'}">${o[1]}</span><span class="ex">${esc(o[2])}</span></div>`).join('') : '<p class="sti-p">Nothing. The run carries on as it was.</p>', `<span class="n">${n.out.length} ${n.out.length === 1 ? 'field' : 'fields'}</span>`);
     if (n.type === 'trigger') h += sec('setup', 'Starts when', row(LABEL.source, selBtn('source', c.source, LABEL.source)) + (c.form ? row(LABEL.form, selBtn('form', c.form, LABEL.form)) : '') + (c.when ? row(LABEL.when, selBtn('when', c.when, LABEL.when)) : '')) + outs();
     if (n.type === 'ai'){
       h += sec('setup', 'Setup', row(LABEL.model, selBtn('model', c.model, LABEL.model))
-        + `<div class="wfx-prompt"><div class="wfx-prompt-h"><span class="k" id="wf-pr-l">Instructions</span><button class="pill ghost sm" data-f="prompt" data-pop="#wf-p-var" aria-haspopup="dialog">${I('plus', 'xs')}Insert data</button></div><textarea class="wfx-ta" rows="5" aria-labelledby="wf-pr-l" spellcheck="false">${esc(c.prompt)}</textarea>`
-        + usesHTML(n) + '</div>'
-        + row('Tools', `<span class="wfx-tools">${c.tools.map(t => byId(t)).filter(Boolean).map(t => `<span class="wfx-chip">${I(t.ic, 'xs')}<button class="wfx-chip-t" data-go="${t.id}">${esc(t.t)}</button><button class="wfx-chip-x" data-a="untool" data-t="${t.id}" aria-label="Remove ${esc(t.t)}" data-tip="Remove">${I('x', 'xs')}</button></span>`).join('')}<button class="dtp-add" data-f="tool" data-pop="#wf-p-sel" aria-haspopup="menu" aria-label="Add a tool" data-tip="Add a tool">${I('plus', 'xs')}</button></span>`, ' top'))
-        + sec('in', 'Inputs', inputs()) + outs() + fails();
+        + `<div class="sti-insw"><div class="sti-ih"><span class="k" id="wf-pr-l">Instructions</span><button class="pill ghost sm" data-f="prompt" data-pop="#wf-p-var" aria-haspopup="dialog">${I('plus', 'xs')}Insert data</button></div><div class="sti-ins" contenteditable="true" role="textbox" aria-multiline="true" aria-labelledby="wf-pr-l" spellcheck="false">${insHTML(n, ok)}</div></div>`
+        + row('Tools', `<span class="sti-chips">${c.tools.map(t => byId(t)).filter(Boolean).map(t => `<span class="sti-chip">${stile(t)}<button class="wfx-chip-t" data-go="${t.id}">${esc(t.t)}</button><button class="sti-cx" data-a="untool" data-t="${t.id}" aria-label="Remove ${esc(t.t)}" data-tip="Remove">${I('x', 'xs')}</button></span>`).join('')}<button class="sti-add" data-f="tool" data-pop="#wf-p-sel" aria-haspopup="menu" aria-label="Add a tool" data-tip="Add a tool">${I('plus', 'xs')}</button></span>`, ' top'))
+        + sec('in', 'Inputs', inputs(), inMeta) + outs() + fails();
     }
-    if (n.type === 'tool') h += sec('setup', 'Setup', row(LABEL.conn, selBtn('conn', c.conn, LABEL.conn)) + row(LABEL.action, selBtn('action', c.action || 'Find a company by domain', LABEL.action))) + sec('in', 'Inputs', inputs()) + outs() + fails(true);
+    if (n.type === 'tool') h += sec('setup', 'Setup', row(LABEL.conn, selBtn('conn', c.conn, LABEL.conn)) + row(LABEL.action, selBtn('action', c.action || 'Find a company by domain', LABEL.action))) + sec('in', 'Inputs', inputs(), inMeta) + outs() + fails(true);
     if (n.type === 'app' || n.type === 'output') h += sec('setup', 'Setup', row(LABEL.conn, selBtn('conn', c.conn, LABEL.conn)) + (c.list ? row(LABEL.list, selBtn('list', c.list, LABEL.list)) : '') + (n.type === 'output' ? row(LABEL.channel, selBtn('channel', c.channel || '#inbound-leads', LABEL.channel)) : ''))
-      + sec('in', 'Inputs', inputs()) + outs() + fails();
+      + sec('in', 'Inputs', inputs(), inMeta) + outs() + fails();
     if (n.type === 'branch'){
       const o = outsOf(n.id), yes = o.find(e => e.label === 'yes'), no = o.find(e => e.label === 'no');
-      h += sec('setup', 'Takes Yes when', `<div class="wfx-rule">${varBtn('rule.v', c.rule.v, 'Value')}${selBtn('rule.op', c.rule.op, 'Comparison')}<label class="wfx-in sm"><span class="pg-sr">Number</span><input type="number" inputmode="numeric" data-f="rule.n" value="${c.rule.n}" min="0" max="100" aria-label="Number"></label></div>`
-        + row('Yes', yes ? `<button class="wfx-link" data-go="${yes.t}">${tile(byId(yes.t))}${esc(byId(yes.t).t)}</button>` : '<span class="muted">Ends the run</span>')
-        + row('No', no ? `<button class="wfx-link" data-go="${no.t}">${tile(byId(no.t))}${esc(byId(no.t).t)}</button>` : `<button class="pill ghost sm" data-pop="#wf-p-pick" data-no="${n.id}" aria-haspopup="dialog">${I('plus', 'xs')}Add a No path</button>`)) + outs();
+      const link = e => `<button class="sti-link" data-go="${e.t}">${stile(byId(e.t))}<span>${esc(byId(e.t).t)}</span></button>`;
+      h += sec('setup', 'Takes Yes when', `<div class="sti-rule">${varBtn('rule.v', c.rule.v, 'Value', okOf(c.rule.v))}${selBtn('rule.op', c.rule.op, 'Comparison')}<input class="sti-in" type="number" inputmode="numeric" data-f="rule.n" value="${c.rule.n}" min="0" max="100" aria-label="Threshold"></div>` + note(c.rule.v, okOf(c.rule.v))
+        + row('Yes', yes ? link(yes) : '<span class="muted">Ends the run</span>')
+        + row('No', no ? link(no) : `<button class="pill ghost sm" data-pop="#wf-p-pick" data-no="${n.id}" aria-haspopup="dialog">${I('plus', 'xs')}Add a No path</button>`)) + outs();
     }
     if (n.type === 'approval'){
       const draft = upstream(n.id).filter(u => u.type === 'ai').pop();
-      h += sec('setup', 'Who approves', row('People', `<span class="wfx-ppl">${c.who.map(w => `<span class="wfx-chip">${av(w)}<span>${P[w][0]}</span><button class="wfx-chip-x" data-a="unwho" data-w="${w}" aria-label="Remove ${P[w][0]}" data-tip="Remove">${I('x', 'xs')}</button></span>`).join('')}<button class="dtp-add" data-f="who" data-pop="#wf-p-sel" aria-haspopup="menu" aria-label="Add a person" data-tip="Add a person">${I('plus', 'xs')}</button></span>`, ' top')
+      h += sec('setup', 'Who approves', row('People', `<span class="sti-chips">${c.who.map(w => `<span class="sti-chip">${av(w)}<span>${P[w][0]}</span><button class="sti-cx" data-a="unwho" data-w="${w}" aria-label="Remove ${P[w][0]}" data-tip="Remove">${I('x', 'xs')}</button></span>`).join('')}<button class="sti-add" data-f="who" data-pop="#wf-p-sel" aria-haspopup="menu" aria-label="Add a person" data-tip="Add a person">${I('plus', 'xs')}</button></span>`, ' top')
         + row(LABEL.via, selBtn('via', c.via, LABEL.via)) + row('They see', draft ? tok(draft.ref + '.' + (draft.out[0] || [''])[0]) : '<span class="muted">The run so far</span>'))
         + sec('exp', 'If nobody answers', row(LABEL.expire, selBtn('expire', c.expire, LABEL.expire)) + row(LABEL.then, selBtn('then', c.then, LABEL.then))) + outs();
     }
-    if (n.type === 'wait') h += sec('setup', 'Setup', row(LABEL.for, selBtn('for', c.for, LABEL.for)) + `<p class="muted wfx-p">Test runs skip the wait.</p>`) + outs();
+    if (n.type === 'wait') h += sec('setup', 'Setup', row(LABEL.for, selBtn('for', c.for, LABEL.for)) + `<p class="sti-p">Test runs skip the wait.</p>`) + outs();
     h += `<div class="wfx-insp-f"><span class="muted">Changes save to the draft</span><button class="pill line sm" data-a="test">${I('play', 'xs')}Test this step</button></div>`;
-    const keep = insp.scrollTop, foc = document.activeElement && insp.contains(document.activeElement) ? (document.activeElement.dataset.f || (document.activeElement.classList.contains('wfx-ta') ? 'ta' : document.activeElement.classList.contains('wfx-insp-n') ? 'name' : null)) : null;
-    insp.innerHTML = h; insp.scrollTop = keep;
-    if (foc){ const el = foc === 'ta' ? $('.wfx-ta', insp) : foc === 'name' ? $('.wfx-insp-n', insp) : $(`[data-f="${foc}"]`, insp); if (el && el.tagName !== 'BUTTON') el.focus({ preventScroll:true }); }
+    const ae = document.activeElement, keep = insp.scrollTop, foc = ae && insp.contains(ae) ? (ae.dataset.f || (ae.classList.contains('sti-ins') ? 'ins' : ae.classList.contains('sti-n') ? 'name' : null)) : null;
+    insp.innerHTML = h; insp.scrollTop = keep; caret = null;
+    $$('.sti-seg', insp).forEach(g => seg(g));
+    if (foc){ const el = foc === 'ins' ? $('.sti-ins', insp) : foc === 'name' ? $('.sti-n', insp) : $(`[data-f="${foc}"]`, insp); if (el && el.tagName !== 'BUTTON'){ el.focus({ preventScroll:true }); if (foc === 'ins') caretAt(el, null); } }
   }
-  // the data the instructions read, and any that isn't from an earlier step
-  function usesHTML(n){
-    const used = [...new Set([...n.cfg.prompt.matchAll(/\{\{\s*([\w]+\.[\w]+)\s*\}\}/g)].map(m => m[1]))]; if (!used.length) return '';
-    const ok = new Set(upstream(n.id).flatMap(u => u.out.map(o => u.ref + '.' + o[0])));
-    return `<div class="wfx-uses"><span class="muted">Reads</span>${used.map(u => ok.has(u) ? tok(u) : `<span class="wfx-tok bad" data-tip="Not from an earlier step">${I('alert', 'xs')}<span>${esc(u)}</span></span>`).join('')}</div>`;
-  }
+  // puts the caret in the instructions after the token at index i, or at their end
+  function caretAt(box, i){ const r = document.createRange(), t = i == null ? null : $$('[data-ref]', box)[i]; if (t){ r.setStartAfter(t.nextSibling || t); } else { r.selectNodeContents(box); r.collapse(false); } r.collapse(true); const s = getSelection(); s.removeAllRanges(); s.addRange(r); }
   const editNode = (desc, key, fn, o) => { const n = byId(selId); if (!n) return; commit(desc, () => fn(n), { key:n.id + '.' + key, ...o }); };
   // clicks in the inspector: sections, steps, the select menus, the data picker, steppers, switches and buttons
   insp.addEventListener('click', e => {
@@ -2316,15 +2406,20 @@ const fitHits = window.dmFitHits || (() => {
     if (b.dataset.go){ select(b.dataset.go, { open:true }); return; }
     if (!n) return;
     const f = b.dataset.f, a = b.dataset.a;
-    if (b.matches('.wfx-sel, .dtp-add[data-f]')) return buildSel(n, f);
+    if (b.matches('.sti-sel, .sti-add[data-f]')) return buildSel(n, f);
     if (b.matches('[data-pop="#wf-p-var"]')){
-      if (f === 'prompt'){ const ta = $('.wfx-ta', insp), at0 = ta.selectionStart ?? ta.value.length;
-        return openVar({ node:n.id, cur:null, set:ref => { const v = ta.value, ins = `{{${ref}}}`; editNode(`Edited the instructions on ${n.t}`, 'prompt', x => { x.cfg.prompt = v.slice(0, at0) + ins + v.slice(at0); }); const t2 = $('.wfx-ta', insp); if (t2){ t2.focus(); t2.setSelectionRange(at0 + ins.length, at0 + ins.length); } } }); }
+      // Insert data puts a token where the caret was in the instructions, or at their end
+      if (f === 'prompt'){ const box = $('.sti-ins', insp), at0 = caret && box && box.contains(caret.startContainer) ? caret.cloneRange() : null;
+        return openVar({ node:n.id, cur:null, set:ref => { const bx = $('.sti-ins', insp); if (!bx) return; const t = html(tok(ref, ` contenteditable="false" data-ref="${ref}"`)), sp = document.createTextNode(' ');
+          if (at0 && bx.contains(at0.startContainer)){ at0.collapse(false); at0.insertNode(sp); at0.insertNode(t); } else bx.append(t, sp);
+          const i = $$('[data-ref]', bx).indexOf(t), v = readIns(bx);
+          editNode(`Edited the instructions on ${n.t}`, 'prompt', x => { x.cfg.prompt = v; });
+          const b2 = $('.sti-ins', insp); if (b2){ b2.focus({ preventScroll:true }); caretAt(b2, i); const nt = $$('[data-ref]', b2)[i]; if (nt && !REDUCE) nt.classList.add('new'); } } }); }
       return openVar({ node:n.id, cur:getF(n, f), set:ref => editNode(`Mapped ${f.split('.').pop()} on ${n.t}`, f, x => setF(x, f, ref)) });
     }
     if (b.dataset.d){ if (b.getAttribute('aria-disabled') === 'true') return; const v = clamp((getF(n, f) || 0) + +b.dataset.d, 0, 5); editNode(`Set retries on ${n.t} to ${v}`, f, x => setF(x, f, v)); return; }
     if (b.matches('.wfx-tg')){ const v = b.getAttribute('aria-checked') !== 'true'; editNode(`${v ? 'Turned on' : 'Turned off'} caching on ${n.t}`, f, x => setF(x, f, v)); return; }
-    if (b.closest('.wfx-seg')){ const g = b.closest('.wfx-seg'); editNode(`Changed the wait between tries on ${n.t}`, g.dataset.f, x => setF(x, g.dataset.f, b.dataset.v)); return; }
+    if (b.closest('.sti-seg')){ const g = b.closest('.sti-seg'); editNode(`Changed the wait between tries on ${n.t}`, g.dataset.f, x => setF(x, g.dataset.f, b.dataset.v)); return; }
     if (a === 'close') return select(null);
     if (a === 'test') return testStep(n.id);
     if (a === 'data'){ openDrawer(true); setDrTab('data'); dataTab = n.ref; paintData(); return; }
@@ -2338,17 +2433,21 @@ const fitHits = window.dmFitHits || (() => {
   let typed = false;
   insp.addEventListener('input', e => {
     const n = byId(selId); if (!n) return; const t = e.target; typed = true;
-    if (t.matches('.wfx-insp-n')){ const v = t.value.trim() || TYPES[n.type].k, was = n.t; commit(`Renamed a step to ${v}`, () => { n.t = v; }, { key:n.id + '.name', quiet:true }); const el = $(`.wfx-node[data-id="${n.id}"] .wfx-n1 .t`, nodesEl); if (el) el.textContent = v; if (was !== v) say(''); }
-    if (t.matches('.wfx-ta')) commit(`Edited the instructions on ${n.t}`, () => { n.cfg.prompt = t.value; }, { key:n.id + '.prompt', quiet:true });
+    if (t.matches('.sti-n')){ const v = t.value.trim() || TYPES[n.type].k, was = n.t; commit(`Renamed a step to ${v}`, () => { n.t = v; }, { key:n.id + '.name', quiet:true }); const el = $(`.wfx-node[data-id="${n.id}"] .wfx-n1 .t`, nodesEl); if (el) el.textContent = v; if (was !== v) say(''); }
+    if (t.matches('.sti-ins')) commit(`Edited the instructions on ${n.t}`, () => { n.cfg.prompt = readIns(t); }, { key:n.id + '.prompt', quiet:true });
     if (t.dataset.f === 'rule.n'){ const v = clamp(+t.value || 0, 0, 1000); commit(`Set the threshold on ${n.t} to ${v}`, () => { n.cfg.rule.n = v; }, { key:n.id + '.rule', quiet:true }); const m = $(`.wfx-node[data-id="${n.id}"] .m`, nodesEl); if (m) m.innerHTML = meta(n); }
   });
-  // the instructions show which data they read once you stop typing
+  // once you stop typing, the canvas catches up, and a {{step.field}} typed into the instructions becomes a token
   insp.addEventListener('focusout', e => {
-    if (!e.target.matches('.wfx-ta, .wfx-insp-n, [data-f="rule.n"]') || !typed) return; typed = false;
+    if (!e.target.matches('.sti-ins, .sti-n, [data-f="rule.n"]') || !typed) return; typed = false;
     const n = byId(selId); renderCanvas(); paintTop();
-    if (n && e.target.matches('.wfx-ta')){ const u = $('.wfx-uses', insp), h = usesHTML(n); if (u) u.outerHTML = h || ''; else if (h) e.target.insertAdjacentHTML('afterend', h); }
+    if (n && e.target.matches('.sti-ins') && /\{\{/.test(e.target.textContent)) e.target.innerHTML = insHTML(n, reach(n));
   });
-  insp.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.matches('.wfx-insp-n')){ e.preventDefault(); e.target.blur(); } });
+  insp.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && e.target.matches('.sti-n')){ e.preventDefault(); e.target.blur(); }
+    // Enter starts a new line in the instructions as plain text, so the box never fills with markup
+    if (e.key === 'Enter' && e.target.matches('.sti-ins')){ e.preventDefault(); const s = getSelection(); if (!s.rangeCount) return; const rg = s.getRangeAt(0); rg.deleteContents(); const nl = document.createTextNode('\n'); rg.insertNode(nl); rg.setStartAfter(nl); rg.collapse(true); s.removeAllRanges(); s.addRange(rg); e.target.dispatchEvent(new Event('input', { bubbles:true })); }
+  });
   // one menu for every select in the inspector, built as it opens
   const ck = `<span class="ck">${I('check', 'xs')}</span>`;
   const mi = (attrs, body, role = 'menuitemradio', checked = false) => `<button class="mi" role="${role}" aria-checked="${checked}" tabindex="-1" data-close ${attrs}>${body}${role !== 'menuitem' ? ck : ''}</button>`;
@@ -2476,24 +2575,29 @@ const fitHits = window.dmFitHits || (() => {
     finishNode(C, n, t); C.pos++; advance(C, t);
   }
 
-  /* ---------- wfx-drawer: the run drawer, with Trace view's rows, Action log's rows and Code viewer ---------- */
-  const dr = $('.wfx-drawer', app), drT = $('.wfx-dr-t', dr), drMeta = $('.wfx-dr-meta', dr), drTg = $('.wfx-dr-tg', dr), drNote = $('.wfx-dr-note', dr);
-  const trv = $('.wf-trv', dr), trRows = $('.trv-rows', trv), trSc = $('.trv-sc', trv), logEl = $('.wf-log', dr), stopB = $('.wfx-dr-stop', dr), followB = $('.wfx-dr-follow', dr);
-  let drTab = 'steps', dataTab = null, follow = true;
-  function openDrawer(on){ app.classList.toggle('dro', on); drTg.setAttribute('aria-expanded', String(on)); drTg.setAttribute('aria-label', on ? 'Hide the run' : 'Show the run'); }
-  drTg.onclick = () => openDrawer(!app.classList.contains('dro'));
-  const drSeg = seg($('.wfx-dr-tabs', dr), v => setDrTab(v));
-  function setDrTab(v){ drTab = v; $$('.wfx-dr-tabs button', dr).forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === v))); drSeg.place(); $$('.wfx-dr-v', dr).forEach(x => x.hidden = x.dataset.v !== v); if (v === 'data') paintData(); }
+  /* ---------- the run drawer: Run drawer, its timeline, its log and its data ---------- */
+  const dr = $('.wf-dr', app), drT = $('.rdr-tg', dr), drMeta = $('.rdr-meta', dr), drTg = $('.rdr-tg', dr), drNote = $('.wfx-dr-note', dr), drB = $('.rdr-b', dr);
+  const trRows = $('.rdr-rows', dr), trSc = $('.rdr-sc', dr), logEl = $('.rdr-log', dr), logN0 = $('.rdr-lf .n', dr), stopB = $('.rdr-stop', dr), followB = $('.rdr-follow', dr);
+  let drTab = 'steps', dataTab = null, follow = true, lvl = 'all';
+  function openDrawer(on){ dr.classList.add('anim'); dr.classList.toggle('shut', !on); app.classList.toggle('dro', on); drTg.setAttribute('aria-expanded', String(on)); drTg.setAttribute('aria-label', on ? 'Hide the run' : 'Show the run'); setTimeout(() => dr.classList.remove('anim'), REDUCE ? 0 : 500); }
+  drTg.onclick = () => openDrawer(dr.classList.contains('shut'));
+  const drSeg = seg($('.rdr-tabs', dr), v => setDrTab(v));
+  function setDrTab(v){ drTab = v; $$('.rdr-tabs button', dr).forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === v))); drSeg.place(); $$('.rdr-v', dr).forEach(x => x.hidden = x.dataset.v !== v); if (v === 'data') paintData(); }
+  // the log's levels: all of them, the warnings or the errors
+  seg($('.rdr-lvs', dr), v => { lvl = v; filterLog(); });
+  function filterLog(){ let n = 0; $$('.rdr-l', logEl).forEach(li => { li.hidden = lvl !== 'all' && li.dataset.l !== lvl; if (!li.hidden) n++; }); logN0.textContent = `${n} ${n === 1 ? 'line' : 'lines'}`;
+    const e = $('.rdr-le', logEl.parentElement); if (!n && !e) logEl.insertAdjacentHTML('afterend', `<p class="rdr-le">${R ? `No ${lvl === 'warn' ? 'warnings' : lvl === 'error' ? 'errors' : 'lines'} in this run yet.` : 'Run a test to see its log.'}</p>`); if (n && e) e.remove(); }
   followB.onclick = () => { follow = !follow; followB.setAttribute('aria-pressed', String(follow)); followB.dataset.tip = follow ? 'Follow the run' : 'Stay put'; };
   // the drawer's height: drag its top edge, or use the arrow keys on it
-  { const grip = $('.wfx-dr-grip', dr); let g = null;
-    const setH = h => { h = clamp(Math.round(h), 160, Math.min(560, app.clientHeight - 200)); app.style.setProperty('--wf-drh', h + 'px'); grip.setAttribute('aria-valuenow', h); };
-    grip.addEventListener('pointerdown', e => { g = { y:e.clientY, h:dr.getBoundingClientRect().height }; grip.setPointerCapture(e.pointerId); app.classList.add('drag-dr'); if (!app.classList.contains('dro')) openDrawer(true); });
+  { const grip = $('.rdr-grip', dr); let g = null;
+    const setH = h => { h = clamp(Math.round(h), 160, Math.min(560, app.clientHeight - 200)); dr.style.setProperty('--rdr-h', h + 'px'); grip.setAttribute('aria-valuenow', h); };
+    grip.addEventListener('pointerdown', e => { g = { y:e.clientY, h:dr.classList.contains('shut') ? 45 : dr.getBoundingClientRect().height }; grip.setPointerCapture(e.pointerId); grip.classList.add('on'); dr.classList.add('drag'); app.classList.add('drag-dr'); if (dr.classList.contains('shut')){ dr.classList.remove('shut'); app.classList.add('dro'); drTg.setAttribute('aria-expanded', 'true'); } });
     grip.addEventListener('pointermove', e => { if (g) setH(g.h - (e.clientY - g.y)); });
-    const up = () => { g = null; app.classList.remove('drag-dr'); }; grip.addEventListener('pointerup', up); grip.addEventListener('pointercancel', up);
-    grip.addEventListener('keydown', e => { const d = e.key === 'ArrowUp' ? 24 : e.key === 'ArrowDown' ? -24 : 0; if (!d) return; e.preventDefault(); if (!app.classList.contains('dro')) openDrawer(true); setH(dr.getBoundingClientRect().height + d); }); }
+    const up = () => { g = null; grip.classList.remove('on'); dr.classList.remove('drag'); app.classList.remove('drag-dr'); }; grip.addEventListener('pointerup', up); grip.addEventListener('pointercancel', up);
+    grip.addEventListener('keydown', e => { const d = e.key === 'ArrowUp' ? 24 : e.key === 'ArrowDown' ? -24 : 0; let h = d ? dr.getBoundingClientRect().height + d : null; if (e.key === 'Home') h = 160; if (e.key === 'End') h = 560; if (h == null) return; e.preventDefault(); if (dr.classList.contains('shut')) openDrawer(true); setH(h); }); }
 
-  const COL_K = { ok:'var(--dm-accent-mark,var(--dm-accent))', run:'var(--dm-accent-mark,var(--dm-accent))', bad:'var(--dm-bad)', retry:'var(--dm-warn-mark)', wait:'var(--dm-warn-mark)', stop:'var(--dm-faint)' };
+  // the kind of each span, for its tile and its bar's colour: a step's own kind, its model and tool calls, a wait to retry
+  const kOf = s => s.k === 'step' ? byId(s.node)?.type || 'app' : s.k;
   const stOf = (s, t) => s.e == null ? (R && R.state === 'stopped' ? 'stop' : 'wait') : t < s.e ? (s.k === 'retry' ? 'retry' : 'run') : s.st;
   let rowEls = new Map(), axisN = 0, nodeCache = new Map(), logN = 0;
   function startRun({ only = null, lead = W.lead } = {}){
@@ -2510,7 +2614,7 @@ const fitHits = window.dmFitHits || (() => {
     paintTop(); tick();
     say(only ? `Testing ${byId(only).t}` : 'Test run started');
   }
-  function resetRunView(){ trRows.innerHTML = ''; logEl.innerHTML = ''; rowEls = new Map(); nodeCache = new Map(); logN = 0; axisN = 0; drNote.innerHTML = ''; dataTab = null; }
+  function resetRunView(){ trRows.innerHTML = ''; logEl.innerHTML = ''; rowEls = new Map(); nodeCache = new Map(); logN = 0; axisN = 0; drNote.innerHTML = ''; dataTab = null; filterLog(); }
   function tick(){
     if (!R || !R.live) return;
     R.now = (performance.now() - R.t0) / 1000;
@@ -2538,7 +2642,7 @@ const fitHits = window.dmFitHits || (() => {
   }
   stopB.onclick = () => { if (!R || !R.live) return; cancelAnimationFrame(R.raf); R.live = false; R.state = 'stopped'; R.now = Math.min(R.now, R.C.segEnd);
     R.C.spans.forEach(s => { if (s.s > R.now){ s.gone = true; } else if (s.e == null || s.e > R.now){ s.e = R.now; s.st = 'stop'; } }); R.C.logs = R.C.logs.filter(l => l.at <= R.now); R.C.end = { t:R.now, failed:null, stopped:true };
-    logAt(R.C, R.now, 'stop', 'Run stopped', 'You stopped it', ''); stopB.hidden = true; $('.wf-test', app).classList.remove('on'); drNote.innerHTML = ''; paintRun(); paintTop(); toast('info', 'Run stopped', 'Nothing after this point ran'); };
+    logAt(R.C, R.now, 'stop', 'Run stopped', 'You stopped it', 'warn'); stopB.hidden = true; $('.wf-test', app).classList.remove('on'); $$('.rdr-ask', trRows).forEach(x => x.remove()); drNote.innerHTML = ''; paintRun(); paintTop(); toast('info', 'Run stopped', 'Nothing after this point ran'); };
   // a past run, shown whole
   function showRun(run){
     if (R && R.live){ toast('info', 'A test is running', 'Stop it first to look at another run'); return; }
@@ -2585,32 +2689,33 @@ const fitHits = window.dmFitHits || (() => {
     }); $$('.wfx-elab', nodesEl).forEach(l => { const e = W.edges[+l.dataset.e]; l.classList.toggle('skip', !!(e && C.skip.has(e.t) && t >= (C.skipAt ?? 1e9))); l.classList.toggle('done', !!(e && C.active.has(e.f + '>' + e.t) && C.spans.some(s => s.node === e.t && s.s <= t))); }); }
     else { $$('path.e', svg).forEach(p => p.classList.remove('done', 'skip')); $$('.wfx-elab', nodesEl).forEach(l => l.classList.remove('skip', 'done')); }
     if (!R) return;
-    // the trace: one row per span, on an axis that grows with the run
+    // the timeline: one row per span, each bar in its kind's colour, on an axis that grows with the run
     const SPAN = Math.max(10, Math.ceil((Math.max(t, ...C.spans.filter(s => s.s <= t && !s.gone).map(s => s.e != null ? Math.min(s.e, t) : t)) + 1) / 2) * 2);
-    const wpx = trSc.clientWidth || 300, stp = [2, 5, 10, 20, 30, 60].find(x => SPAN / x * 28 <= wpx) || 60;
-    if (SPAN * 100 + stp !== axisN){ axisN = SPAN * 100 + stp; trSc.innerHTML = Array.from({ length:Math.floor(SPAN / stp) }, (_, i) => `<span style="left:${i * stp / SPAN * 100}%">${i * stp}s</span>`).join(''); }
-    trv.style.setProperty('--dm-now', String(t / SPAN)); trv.classList.toggle('live', !!R.live);
+    const wpx = trSc.clientWidth || 300, stp = [2, 5, 10, 20, 30, 60].find(x => SPAN / x * 34 <= wpx) || 60;
+    if (SPAN * 100 + stp !== axisN){ axisN = SPAN * 100 + stp; trRows.style.setProperty('--rdr-g', (stp / SPAN * 100) + '%'); trSc.innerHTML = Array.from({ length:Math.floor(SPAN / stp) }, (_, i) => `<span style="left:${i * stp / SPAN * 100}%">${i * stp}s</span>`).join(''); }
     C.spans.forEach(s => {
       if (s.gone || s.s > t + 1e-6) return;
       let el = rowEls.get(s.id);
       if (!el){
-        el = html(`<button type="button" class="trv-r${s.lv ? '' : ' root'}" data-span="${s.id}" data-node="${s.node}" style="--dm-lv:${s.lv}"><span class="trv-n"><span class="trv-k">${I(s.ic, 'xs')}</span><span class="trv-nm">${esc(s.n)}</span></span><span class="trv-b"><i></i></span><span class="trv-tk num">${s.tok ? (s.tok / 1000).toFixed(1) + 'k' : ''}</span><span class="trv-ms num"></span></button>`);
-        trRows.appendChild(el); rowEls.set(s.id, el); if (R.live && !REDUCE) enter(el);
+        const k = kOf(s);
+        el = html(`<button type="button" class="rdr-r" data-span="${s.id}" data-node="${s.node}" data-k="${k}" data-lv="${s.lv}" style="--lv:${s.lv}" aria-pressed="${s.node === selId}"><span class="rdr-n"><span class="rdr-ti" data-k="${k}" aria-hidden="true">${I(s.ic, 'xs')}</span><span class="rdr-nm">${esc(s.n)}</span></span><span class="rdr-bt"><i></i></span><span class="rdr-ms num"></span></button>`);
+        trRows.appendChild(el); rowEls.set(s.id, el); if (R.live && !REDUCE) el.classList.add('in');
       }
       const st = stOf(s, t), e = s.e == null ? t : Math.min(s.e, t);
-      el.style.setProperty('--dm-k', COL_K[st === 'okr' ? 'ok' : st] || COL_K.ok);
-      el.classList.toggle('run', st === 'run'); el.classList.toggle('slow', st === 'retry' || st === 'wait'); el.classList.toggle('bad', st === 'bad');
-      const i = $('.trv-b i', el); i.style.left = (s.s / SPAN * 100) + '%'; i.style.width = Math.max(.4, (e - s.s) / SPAN * 100) + '%';
-      $('.trv-ms', el).textContent = st === 'wait' ? 'Waiting' : s.note && s.note !== 'You' ? s.note : secs(e - s.s);
+      el.dataset.st = st === 'okr' ? 'ok' : st; el.classList.toggle('run', st === 'run');
+      const i = $('.rdr-bt i', el); i.style.left = (s.s / SPAN * 100) + '%'; i.style.width = Math.max(.4, (e - s.s) / SPAN * 100) + '%';
+      $('.rdr-ms', el).textContent = st === 'wait' ? 'Waiting' : st === 'bad' ? 'Failed' : s.note && s.note !== 'You' ? s.note : secs(e - s.s);
       el.setAttribute('aria-label', `${s.n}, ${st === 'run' ? 'running' : st === 'retry' ? 'waiting to try again' : st === 'bad' ? 'failed' : st === 'wait' ? 'waiting' : st === 'stop' ? 'stopped' : 'done'}, ${secs(e - s.s)}`);
     });
-    // the log, a line at a time
+    // the log, a line at a time, its levels in colour
+    const LV = { bad:'error', warn:'warn', ok:'info' };
     const L = C.logs.filter(l => l.at <= t + 1e-6).sort((a, b) => a.at - b.at);
-    for (; logN < L.length; logN++){ const l = L[logN];
-      const li = html(`<li class="alg-it${l.tone ? ' ' + l.tone : ''}"><button class="alg-row" aria-expanded="false"${l.det ? '' : ' disabled'}><span class="alg-ic">${I(l.ic, 'xs')}</span><span class="alg-tx"><b>${esc(l.b)}</b><span class="d">${esc(l.d)}</span></span><span class="alg-r"><span class="num">${l.at.toFixed(2)}s</span>${l.det ? `<span class="g">${I('chev-d', 'xs')}</span>` : ''}</span></button>${l.det ? `<div class="fold shut alg-det"><div><pre>${esc(l.det)}</pre></div></div>` : ''}</li>`);
-      logEl.appendChild(li); if (R.live && !REDUCE) enter(li); }
-    if (R.live && drTab === 'log'){ const b = logEl.closest('.wfx-dr-b'); b.scrollTop = b.scrollHeight; }
-    if (R.live && drTab === 'steps'){ const b = trRows.closest('.wfx-dr-b'), last = trRows.lastElementChild; if (last && last.offsetTop + last.offsetHeight > b.scrollTop + b.clientHeight) b.scrollTop = last.offsetTop + last.offsetHeight - b.clientHeight + 8; }
+    for (; logN < L.length; logN++){ const l = L[logN], lv = LV[l.tone] || 'debug';
+      const li = html(`<li class="rdr-l" data-l="${lv}"><span class="t num">${l.at.toFixed(2)}s</span><span class="lv tag" data-l="${lv}">${lv}</span><span class="m"><b>${esc(l.b)}</b> <span>${esc(l.d)}</span></span></li>`);
+      logEl.appendChild(li); if (R.live && !REDUCE) li.classList.add('in'); }
+    filterLog();
+    if (R.live && drTab === 'log' && follow) drB.scrollTop = drB.scrollHeight;
+    if (R.live && drTab === 'steps' && follow){ const last = trRows.lastElementChild; if (last && last.offsetTop + last.offsetHeight > drB.scrollTop + drB.clientHeight) drB.scrollTop = last.offsetTop + last.offsetHeight - drB.clientHeight + 8; }
     // while a step waits to try again, the drawer says why
     if (R.live && R.state === 'run'){
       const rs = C.spans.find(s => s.k === 'retry' && s.s <= t && t < s.e), key = rs ? rs.id : 0;
@@ -2623,48 +2728,54 @@ const fitHits = window.dmFitHits || (() => {
     if (drTab === 'data' && (done || Math.floor(t * 4) !== R._dq)){ R._dq = Math.floor(t * 4); paintData(); }
   }
   function paintHead(){
-    if (!R){ const last = W.runs[0];
-      drT.innerHTML = last ? `<span class="dot" style="color:${last.out === 'bad' ? 'var(--dm-bad)' : last.out === 'wait' ? 'var(--dm-warn-mark)' : 'var(--dm-ok-mark)'}"></span>Last run, #${last.id}` : 'No runs yet';
+    // the run's state in colour: running in the accent, waiting amber, passed green, failed red, stopped grey
+    const TAG = { run:['run', '<span class="spin"></span>Running'], wait:['warn', 'Waiting'], ok:['ok', 'Passed'], bad:['bad', 'Failed'], stopped:['', 'Stopped'] };
+    if (!R){ const last = W.runs[0], tg = last && TAG[last.out];
+      drT.innerHTML = I('chev-u', 'xs') + (last ? `<span><span class="w">Last run </span><span class="num">#${last.id}</span></span><span class="rdr-st tag ${tg[0]}">${tg[1]}</span>` : '<span>No runs yet</span>');
       drMeta.textContent = last ? `${last.path}, ${last.when}` : 'Press Test run to try the workflow'; return; }
-    const C = R.C, st = R.live ? (R.state === 'wait' ? 'wait' : 'run') : R.state;
-    const tag = { run:'<span class="tag"><span class="spin"></span>Running</span>', wait:'<span class="tag warn">Waiting</span>', ok:'<span class="tag ok">Passed</span>', bad:'<span class="tag bad">Failed</span>', stopped:'<span class="tag">Stopped</span>' }[st];
-    drT.innerHTML = `<span class="w">${R.only ? 'Step test' : R.test ? 'Test run' : 'Run'} </span>#${R.id}${tag}`;
+    const C = R.C, st = R.live ? (R.state === 'wait' ? 'wait' : 'run') : R.state, tg = TAG[st];
+    drT.innerHTML = I('chev-u', 'xs') + `<span><span class="w">${R.only ? 'Step test' : R.test ? 'Test run' : 'Run'} </span><span class="num">#${R.id}</span></span><span class="rdr-st tag ${tg[0]}">${tg[1]}</span>`;
     const tokNow = sum(C.spans.filter(s => s.tok && s.s <= R.now), s => s.tok);
     drMeta.textContent = [R.only ? byId(R.only)?.t : R.L ? R.L.n + ', ' + R.L.co : 'Sample data', secs(R.now), tokNow ? `${(tokNow / 1000).toFixed(1)}k tokens, $${(tokNow * .0000045).toFixed(3)}` : ''].filter(Boolean).join(', ');
   }
-  logEl.addEventListener('click', e => { const b = e.target.closest('.alg-row'); if (!b || b.disabled) return; const f = b.nextElementSibling; if (!f) return; const open = f.classList.toggle('shut') === false; b.setAttribute('aria-expanded', String(open)); });
-  trRows.addEventListener('click', e => { const b = e.target.closest('.trv-r'); if (!b) return; select(b.dataset.node, { open:true }); $$('.trv-r', trRows).forEach(r => r.setAttribute('aria-pressed', String(r.dataset.node === b.dataset.node))); });
-  // the data each step handed on, as JSON in Code viewer
-  const cvTabs = $('.wf-cvx .cvx-tabs', dr), cvCode = $('.wf-cvx .cvx-code', dr), cvMeta = $('.wf-cvx .cvx-meta', dr);
-  const jsonHTML = s => esc(s).replace(/(&quot;[^&]*?&quot;)(\s*:)?/g, (m, a, colon) => colon ? `<span class="at">${a}</span>${colon}` : `<span class="s">${a}</span>`).replace(/\b(-?\d+(?:\.\d+)?|true|false|null)\b(?![^<]*<\/span>)/g, '<span class="k">$1</span>');
+  trRows.addEventListener('click', e => { const b = e.target.closest('.rdr-r'); if (!b) return; select(b.dataset.node, { open:true }); $$('.rdr-r', trRows).forEach(r => r.setAttribute('aria-pressed', String(r.dataset.node === b.dataset.node))); });
+  // what each step took in and handed on, as JSON
+  const jsonHTML = o => esc(JSON.stringify(o, null, 2)).replace(/(&quot;[^&]*?&quot;)(\s*:)?|\b(-?\d+(?:\.\d+)?|true|false|null)\b/g, (m, s, colon, n) => s ? (colon ? `<span class="k">${s}</span>${colon}` : `<span class="s">${s}</span>`) : `<span class="n">${n}</span>`);
+  const dsEl = $('.rdr-ds', dr), ioEl = $('.rdr-io', dr);
+  // a step's input: what its fields were mapped from, as they were in this run
+  const inOf = (n, C) => { if (n.type === 'trigger') return C.L ? { lead:C.L.n, email:C.L.email, company:C.L.co } : { source:n.cfg.source };
+    const o = {}; Object.entries(n.cfg.in || {}).forEach(([k, v]) => { const { n:src, k:f } = vref(v); o[k] = src && C.out[src.ref] ? C.out[src.ref][f] ?? null : null; });
+    if (n.type === 'branch'){ const { n:src, k:f } = vref(n.cfg.rule.v); o[f || 'value'] = src && C.out[src.ref] ? C.out[src.ref][f] : null; o.rule = `${f} ${n.cfg.rule.op} ${n.cfg.rule.n}`; }
+    return o; };
   function paintData(){
-    if (!R){ cvTabs.innerHTML = ''; cvCode.innerHTML = `<span class="cvx-l"><span class="n"></span><span class="c muted">Run a test to see the data each step hands on.</span></span>`; return; }
+    if (!R){ dsEl.innerHTML = ''; ioEl.innerHTML = '<p class="rdr-de">Run a test to see the data each step takes in and hands on.</p>'; return; }
     const t = R.now, ready = W.nodes.filter(n => R.C.out[n.ref] && R.C.spans.some(s => s.node === n.id && s.e != null && s.e <= t + 1e-6 && s.st !== 'bad'));
-    if (!ready.length){ cvTabs.innerHTML = ''; cvCode.innerHTML = `<span class="cvx-l"><span class="n"></span><span class="c muted">No step has finished yet.</span></span>`; cvMeta.textContent = ''; return; }
+    if (!ready.length){ dsEl.innerHTML = ''; ioEl.innerHTML = '<p class="rdr-de">No step has finished yet.</p>'; return; }
     if (!ready.some(n => n.ref === dataTab)) dataTab = ready[ready.length - 1].ref;
-    cvTabs.innerHTML = ready.map(n => `<button class="cvx-tab${n.ref === dataTab ? ' on' : ''}" role="tab" aria-selected="${n.ref === dataTab}" data-ref="${n.ref}">${esc(n.ref)}</button>`).join('');
-    const j = JSON.stringify(R.C.out[dataTab], null, 2);
-    cvCode.innerHTML = j.split('\n').map((l, i) => `<span class="cvx-l"><span class="n">${i + 1}</span><span class="c">${jsonHTML(l)}</span></span>`).join('');
-    cvMeta.textContent = `${byRef(dataTab)?.t || dataTab}, ${(j.length / 1024).toFixed(1)} KB`;
+    dsEl.innerHTML = ready.map(n => `<button data-ref="${n.ref}" aria-pressed="${n.ref === dataTab}"><span class="rdr-ti" data-k="${n.type}" aria-hidden="true">${I(n.ic, 'xs')}</span><span>${esc(n.t)}</span></button>`).join('');
+    const n = byRef(dataTab);
+    ioEl.innerHTML = `<h4>Input</h4><pre class="rdr-json" tabindex="0" aria-label="${esc(n.t)} input">${jsonHTML(inOf(n, R.C))}</pre><h4>Output</h4><pre class="rdr-json" tabindex="0" aria-label="${esc(n.t)} output">${jsonHTML(R.C.out[dataTab])}</pre>`;
   }
-  cvTabs.addEventListener('click', e => { const b = e.target.closest('.cvx-tab'); if (!b) return; dataTab = b.dataset.ref; paintData(); });
-  // in a test run the person approving is you: the drafted reply, with approve, edit and reject
+  dsEl.addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; dataTab = b.dataset.ref; paintData(); });
+  // in a test run the person approving is you: Run drawer's question, under the step that waits, with the drafted reply
   function approvalCard(){
     const C = R.C, n = byId(C.pause.node), draft = upstream(n.id).filter(u => u.type === 'ai').pop(), o = draft && C.out[draft.ref];
-    drNote.innerHTML = `<div class="wfx-appr" role="group" aria-label="Approve the reply"><div class="wfx-appr-h"><span class="wfx-ic">${I('user', 'xs')}</span><span class="tx"><b>${esc(n.t)}: your call</b><span>Live runs ask ${n.cfg.who.map(w => P[w][0]).join(' or ')} in ${VIA[n.cfg.via] || n.cfg.via}. In a test, you decide.</span></span></div>`
-      + (o ? `<div class="wfx-appr-m">${o.subject ? `<b>${esc(o.subject)}</b>` : ''}<p>${esc(o.body || o.text || '')}</p></div>` : '')
-      + `<div class="wfx-appr-a"><button class="pill primary sm" data-a="yes">${I('check', 'xs')}Approve</button><button class="pill line sm" data-a="edit">${I('edit', 'xs')}Edit the draft step</button><span class="wf-sp"></span><button class="pill ghost sm" data-a="no">Reject</button></div></div>`;
-    if (!REDUCE) enter(drNote.firstElementChild);
-    $('[data-a="yes"]', drNote).onclick = () => resume(true);
-    $('[data-a="no"]', drNote).onclick = () => resume(false);
-    $('[data-a="edit"]', drNote).onclick = () => { if (draft) select(draft.id, { open:true }); };
+    const el = rowEls.get(C.pause.span.id); if (!el) return;
+    $$('.rdr-ask', trRows).forEach(x => x.remove());
+    el.insertAdjacentHTML('afterend', `<div class="rdr-ask wf-ask" role="group" aria-label="Approve the reply"><span class="rdr-ti" data-k="approval" aria-hidden="true">${I('user', 'xs')}</span><span class="tx"><b>${esc(n.t)}: your call</b><span>Live runs ask ${n.cfg.who.map(w => P[w][0]).join(' or ')} in ${VIA[n.cfg.via] || n.cfg.via}. In a test, you decide.</span>${o ? `<span class="wf-draft">${o.subject ? `<b>${esc(o.subject)}</b> ` : ''}${esc(o.body || o.text || '')}</span>` : ''}</span>`
+      + `<span class="acts"><button class="pill primary sm" data-a="yes">${I('check', 'xs')}Approve</button><button class="pill line sm" data-a="edit">${I('edit', 'xs')}Edit the draft step</button><button class="pill ghost sm" data-a="no">Reject</button></span></div>`);
+    const card = el.nextElementSibling; if (!REDUCE) card.classList.add('in');
+    if (drTab === 'steps' && card.offsetTop + card.offsetHeight > drB.scrollTop + drB.clientHeight) drB.scrollTop = card.offsetTop + card.offsetHeight - drB.clientHeight + 8;
+    $('[data-a="yes"]', card).onclick = () => resume(true);
+    $('[data-a="no"]', card).onclick = () => resume(false);
+    $('[data-a="edit"]', card).onclick = () => { if (draft) select(draft.id, { open:true }); };
     say(`${n.t} is waiting for you to approve`);
     paintTop();
   }
   function resume(ok){
     if (!R || R.state !== 'wait') return;
     const C = R.C, shown = C.pause.at + 1.2;
-    R.t0 = performance.now() - shown * 1000; R.state = 'run'; drNote.innerHTML = '';
+    R.t0 = performance.now() - shown * 1000; R.state = 'run'; $$('.rdr-ask', trRows).forEach(x => x.remove());
     decide(C, shown, ok); R.now = shown; tick();
   }
   // wfx-fix: after a retry or a failure, the agent offers a change to the step that failed, applied to the draft in one go

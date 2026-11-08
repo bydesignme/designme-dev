@@ -134,7 +134,7 @@ patch("""  $$('[data-copy]').forEach(btn => btn.addEventListener('click', async 
 # ---------- the intro: one short line, the React install command, then a switch between the two sets ----------
 RX_CMD = 'npx designme add live-answer --react'
 patch("""<p>46 components for showing an agent's work, from status and conversation to review, sources and workspace, plus 32 app basics for the dashboard around it, designed and built by the <a href="https://designme.agency" target="_blank" rel="noopener">DesignMe</a> team.</p>""",
-      """<p>122 free components in HTML, React or Astro, designed and built by <a href="https://designme.agency" target="_blank" rel="noopener">DesignMe</a>.</p>
+      """<p>125 free components in HTML, React or Astro, designed and built by <a href="https://designme.agency" target="_blank" rel="noopener">DesignMe</a>.</p>
   <div class="intro-get"><button class="cdm-cmd intro-cmd" data-cmd=\"""" + RX_CMD + """\" title="Copy install command"><span class="d">$</span><span class="c">""" + RX_CMD + """</span><span class="ms sm">content_copy</span></button></div>""")
 # the two group introductions become one switch: Agent components or App basics
 patch("""<div class="grp-intro"><span class="k">46 components</span><h2>Agent components</h2><p>Everything for showing an agent's work, from the first plan to the final summary.</p></div>""",
@@ -951,6 +951,7 @@ CSS += """
 patch("""    const LOG = [
 """, """    const LOG = [
       { v:'v0.16', d:'4 November 2026', t:'Astro, shadcn and twelve new components', items:[
+        ['new','Three components for workflow editors, from the Workflow editor template: a step inspector that sets up one step and flags data no earlier step gives, a data picker that maps fields from earlier steps, and a run drawer with the steps, the log and the data of a run',['Step inspector','Data picker','Run drawer']],
         ['new','Thinking states: six thinking indicators to pick from (Orbit, Morph, Scan, Stream, Matrix and Stack), each a small mark with a status line that steps through what the agent is doing',['Thinking states']],
         ['new','Twelve new components, each in HTML, React and Astro, for 119 in all',['Progress and meter','Slider','Context menu','Carousel','Colour picker','Agent phases','Web search','Agent builder','Radial goals','Eval radar','Cost vs quality','Score breakdown']],
         ['new','Every component as an Astro component, with the same markup, CSS and script as the HTML version. Add them with npx designme add and the <span class="nowrap">--astro</span> flag'],
