@@ -1,0 +1,221 @@
+---
+// /templates/sales-crm: a whole sales CRM screen made of the library's own components, as a showcase of what they build.
+// The app's shell (sidebar, top bar, tabs) and its three views (the companies table, the deals board and the forecast)
+// are drawn with the components' own classes and tokens, from their installed CSS, so the screen follows Soft and Blueprint,
+// light and dark, with the site's switches. Its data and interactions are one script (src/templates/sales-crm/crm.js);
+// the layout around the components is src/templates/sales-crm/crm.css. Noindex and out of the sitemap, llms.txt and the
+// site's navigation until the owner decides where to link it.
+import fs from 'node:fs';
+import path from 'node:path';
+import Page from '../../layouts/Page.astro';
+import { ROOT, COMPONENTS } from '../../lib/data.mjs';
+
+// the components the screen is made of, by their registry name: each one's installed CSS is on the page
+const USES = ['agent-harness', 'segmented-control', 'task-table', 'progress', 'kanban-board', 'details-panel', 'filter-menu', 'form', 'toast',
+  'notifications', 'profile-menu', 'command-palette', 'stat-cards', 'line-chart', 'radial-goals', 'funnel-chart', 'bar-chart'];
+const css = USES.map(reg => {
+  const c = COMPONENTS.find(x => x.reg === reg);
+  if (!c) throw new Error('sales-crm: no component called ' + reg);
+  return `/* ${c.title} */\n` + c.html.css;
+}).join('\n');
+const DIR = path.join(ROOT, 'tools/pages/src/templates/sales-crm');
+const APP_CSS = fs.readFileSync(path.join(DIR, 'crm.css'), 'utf8');
+const APP_JS = fs.readFileSync(path.join(DIR, 'crm.js'), 'utf8');
+const title = 'Sales CRM template made of designme.dev components | Designme.dev';
+const description = 'A sales CRM screen built from designme.dev components: a companies table, a deals board, a forecast and a details sheet, in Soft and Blueprint, light and dark.';
+const I = (n, c = 's') => `<svg class="i ${c}" aria-hidden="true"><use href="#i-${n}"/></svg>`;
+---
+<Page title={title} description={description} path="/templates/sales-crm" app>
+  <Fragment slot="head">
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="stylesheet" href="/components/assets/core.css">
+    <style is:inline set:html={css} />
+    <style is:inline set:html={APP_CSS} />
+  </Fragment>
+  <span slot="top" class="crm-name">Sales CRM template</span>
+
+  <div class="crm" data-c="sales-crm" data-tab="companies">
+    <aside class="ahx-side crm-side" aria-label="Workspace">
+      <div class="ahx-ws"><button class="ahx-wsb crm-wsb" data-pop="#crm-p-ws" aria-haspopup="menu"><span class="pfm-lg" data-t="pb">L</span><span class="crm-wst"><span class="t">Larkfield Sales</span><span class="s">Company pipeline</span></span><Fragment set:html={I('unfold', 'xs')} /></button></div>
+      <nav class="crm-nav" aria-label="Pages">
+        <button class="ahx-cv" data-go="companies"><Fragment set:html={I('table')} /><span class="t">Companies</span><span class="n num" data-count="companies"></span></button>
+        <button class="ahx-cv" data-go="deals"><Fragment set:html={I('grid')} /><span class="t">Deals board</span><span class="n num" data-count="deals"></span></button>
+        <button class="ahx-cv" data-go="forecast"><Fragment set:html={I('chart')} /><span class="t">Forecast</span></button>
+        <button class="ahx-cv" data-soon="Activities"><Fragment set:html={I('clock')} /><span class="t">Activities</span><span class="n num">9</span></button>
+        <button class="ahx-cv" data-soon="Contacts"><Fragment set:html={I('user')} /><span class="t">Contacts</span><span class="n num">38</span></button>
+        <button class="ahx-cv" data-soon="Email sequences"><Fragment set:html={I('send')} /><span class="t">Email sequences</span></button>
+      </nav>
+      <div class="ahx-lh"><span>Team</span></div>
+      <div class="crm-nav crm-teams"></div>
+      <div class="ahx-lh"><span>Reporting</span></div>
+      <div class="crm-nav">
+        <button class="ahx-cv" data-go="forecast" data-rep="q4"><Fragment set:html={I('target')} /><span class="t">Q4 forecast</span></button>
+        <button class="ahx-cv" data-rep="slip"><Fragment set:html={I('flag')} /><span class="t">Slipping deals</span><span class="n num" data-count="slip"></span></button>
+      </div>
+      <div class="ahx-lh"><span>Pipelines</span></div>
+      <div class="crm-nav crm-pipes"></div>
+      <div class="crm-sfoot">
+        <button class="ahx-cv" data-act="invite"><Fragment set:html={I('users')} /><span class="t">Invite teammates</span></button>
+        <button class="ahx-cv" data-act="help"><Fragment set:html={I('info')} /><span class="t">Help and shortcuts</span></button>
+        <div class="crm-trial">
+          <div class="prg-mh"><span><b>14 days</b> left in your trial</span></div>
+          <div class="prg-mb" role="meter" aria-label="Trial days used" aria-valuemin="0" aria-valuemax="30" aria-valuenow="16"><i class="fl" style="width:53%"></i></div>
+          <button class="pill line sm" data-act="billing"><Fragment set:html={I('dollar', 'xs')} />Add billing</button>
+        </div>
+      </div>
+    </aside>
+    <div class="ahx-scrim crm-scrim" aria-hidden="true"></div>
+
+    <div class="crm-main">
+      <header class="crm-top">
+        <button class="ib crm-menu" aria-label="Show the sidebar" data-tip="Menu"><Fragment set:html={I('panel')} /></button>
+        <h1 class="crm-h1" id="content" tabindex="-1"><span class="crm-h1t">Companies</span></h1>
+        <span class="tag ok crm-live"><span class="dot"></span>Active</span>
+        <span class="crm-sp"></span>
+        <button class="kbx-q crm-find" aria-label="Search companies, deals and actions" aria-keyshortcuts="Control+K Meta+K"><Fragment set:html={I('search', 'xs')} /><span class="t">Search</span><span class="kbd">⌘K</span></button>
+        <button class="ib crm-bell" data-pop="#crm-p-ntf" data-pop-align="end" aria-haspopup="dialog" aria-label="Notifications" data-tip="Notifications"><Fragment set:html={I('bell')} /><i class="crm-unread" aria-hidden="true"></i></button>
+        <button class="pfm-tr crm-me" data-pop="#crm-p-me" data-pop-align="end" aria-haspopup="menu" aria-label="Account menu, Nina Cole"><span class="av" style="background:var(--dm-av-m);color:var(--dm-av-m-ink)">NC</span><span class="crm-men">Nina Cole</span><Fragment set:html={I('chev-d', 'xs')} /></button>
+      </header>
+
+      <div class="crm-tabs">
+        <div class="sgc-seg crm-seg" role="tablist" aria-label="View"><span class="sgc-k" aria-hidden="true"></span><button role="tab" id="crm-t-companies" aria-controls="crm-v-companies" aria-selected="true" data-v="companies">Companies</button><button role="tab" id="crm-t-deals" aria-controls="crm-v-deals" aria-selected="false" tabindex="-1" data-v="deals">Deals</button><button role="tab" id="crm-t-forecast" aria-controls="crm-v-forecast" aria-selected="false" tabindex="-1" data-v="forecast">Forecast</button></div>
+        <span class="crm-ctx muted num"></span>
+      </div>
+
+      <!-- Companies: the task table's header, bulk bar, sort buttons and checkboxes around a denser table -->
+      <section class="crm-view ttx crm-co" id="crm-v-companies" role="tabpanel" aria-labelledby="crm-t-companies">
+        <div class="ttx-hd crm-hd">
+          <div class="ttx-ti crm-fbar" role="toolbar" aria-label="Sort and filter">
+            <div class="crm-chips">
+            <button class="chip sm kbx-f" data-pop="#crm-p-sort" aria-haspopup="menu" data-f="sort"><span class="k">Sort by</span><span class="v"></span><Fragment set:html={I('chev-d', 'xs')} /></button>
+            <button class="chip sm kbx-f" data-pop="#crm-p-owner" aria-haspopup="menu" data-f="owner"><span class="k">Owner</span><span class="v"></span><Fragment set:html={I('chev-d', 'xs')} /></button>
+            <button class="chip sm kbx-f" data-pop="#crm-p-stage" aria-haspopup="menu" data-f="stage"><span class="k">Stage</span><span class="v"></span><Fragment set:html={I('chev-d', 'xs')} /></button>
+            <button class="chip sm kbx-f" data-pop="#crm-p-last" aria-haspopup="menu" data-f="last"><span class="k">Last activity</span><span class="v"></span><Fragment set:html={I('chev-d', 'xs')} /></button>
+            <span class="crm-pipechip"></span>
+            <button class="pill ghost sm crm-clr" hidden>Clear</button>
+            </div>
+            <div class="crm-acts">
+            <label class="kbx-q crm-q"><Fragment set:html={I('search', 'xs')} /><input type="search" placeholder="Search companies" aria-label="Search companies" autocomplete="off"><button class="ib kbx-qx" aria-label="Clear the search" hidden><Fragment set:html={I('x', 'xs')} /></button></label>
+            <button class="pill line sm crm-export" aria-label="Export companies in view"><Fragment set:html={I('down', 'xs')} /><span>Export</span></button>
+            <button class="pill primary sm crm-new" aria-label="New company"><Fragment set:html={I('plus', 'xs')} /><span>New company</span></button>
+            </div>
+          </div>
+          <div class="ttx-sb" inert><span class="ttx-n num"></span><button class="pill ghost sm" data-pop="#crm-p-assign" aria-haspopup="menu"><Fragment set:html={I('user', 'xs')} />Assign owner</button><button class="pill ghost sm" data-pop="#crm-p-move" aria-haspopup="menu"><Fragment set:html={I('right', 'xs')} />Move stage</button><button class="pill ghost sm" data-a="export"><Fragment set:html={I('down', 'xs')} />Export</button><button class="pill ghost sm ttx-del" data-a="delete"><Fragment set:html={I('trash', 'xs')} />Delete</button><span class="ttx-sp"></span><button class="pill ghost sm ttx-clr">Clear</button></div>
+        </div>
+        <div class="ttx-sc crm-sc" tabindex="0" role="region" aria-label="Companies table">
+          <table class="ttx-t crm-t">
+            <thead><tr>
+              <th class="ck stk"><button class="ttx-cb ttx-all" role="checkbox" aria-checked="false" aria-label="Select all companies in view"></button></th>
+              <th class="stk2"><button class="ttx-s" data-k="name">Company</button></th>
+              <th>Segment and tags</th>
+              <th><button class="ttx-s" data-k="stage">Stage</button></th>
+              <th><button class="ttx-s" data-k="owner">Owner</button></th>
+              <th class="r"><button class="ttx-s" data-k="deals">Deals</button></th>
+              <th class="r"><button class="ttx-s" data-k="value">Pipeline</button></th>
+              <th><button class="ttx-s" data-k="win">Win probability</button></th>
+              <th><button class="ttx-s" data-k="trend">Activity</button></th>
+              <th><button class="ttx-s" data-k="last">Last touch</button></th>
+              <th class="r crm-actc"><span class="pg-sr">Actions</span></th>
+            </tr></thead>
+            <tbody></tbody>
+            <tfoot><tr>
+              <td class="ck stk"></td>
+              <td class="stk2"><span class="crm-fn num"></span></td>
+              <td></td><td></td><td></td>
+              <td class="r num crm-fdeals"></td>
+              <td class="r num crm-fsum"></td>
+              <td class="num crm-favg"></td>
+              <td></td>
+              <td colspan="2"><span class="crm-fcalc"></span><button class="pill ghost sm crm-addcalc" data-pop="#crm-p-calc" aria-haspopup="menu" data-pop-align="end"><Fragment set:html={I('plus', 'xs')} />Add calculation</button></td>
+            </tr></tfoot>
+          </table>
+        </div>
+      </section>
+
+      <!-- Deals: the Kanban board, with the stages as columns -->
+      <section class="crm-view crm-deals" id="crm-v-deals" role="tabpanel" aria-labelledby="crm-t-deals" hidden>
+        <div class="kbx crm-kb">
+          <div class="kbx-hd"><div class="kbx-ti"><b>Q4 pipeline</b><span class="num crm-kbsum"></span></div><div class="kbx-fp" role="group" aria-label="Filter by owner"></div><span class="kbx-sp"></span><label class="kbx-q"><Fragment set:html={I('search', 'xs')} /><input type="search" placeholder="Search deals" aria-label="Search deals" autocomplete="off"><button class="ib kbx-qx" aria-label="Clear the search" hidden><Fragment set:html={I('x', 'xs')} /></button></label><div class="seg2 kbx-vw" role="group" aria-label="View"><button aria-pressed="true" data-v="board"><Fragment set:html={I('grid', 'xs')} /><span class="lb">Board</span></button><button aria-pressed="false" data-v="list"><Fragment set:html={I('list', 'xs')} /><span class="lb">List</span></button></div></div>
+          <div class="kbx-fl"><button class="chip sm kbx-f" data-pop="#crm-p-close" aria-haspopup="menu" data-f="close"><span class="k">Close date</span><span class="v"></span><Fragment set:html={I('chev-d', 'xs')} /></button><button class="pill ghost sm kbx-clr" hidden>Clear</button><span class="kbx-sp"></span><span class="kbx-cnt num"></span></div>
+          <div class="kbx-bar"><div class="seg2 kbx-tabs" role="group" aria-label="Stage"></div></div>
+          <div class="kbx-bd"><div class="kbx-cols"></div><div class="kbx-em" hidden><span class="ic"><Fragment set:html={I('filter')} /></span><b>No deals match</b><span>Try another owner, date or search.</span><button class="pill line sm crm-kbclr">Clear filters</button></div></div>
+          <div class="kbx-sr" aria-live="polite"></div>
+        </div>
+      </section>
+
+      <!-- Forecast: Stat cards, Line chart, Radial goals, Funnel, Bar chart and Progress meters, worked out from the deals -->
+      <section class="crm-view crm-fc" id="crm-v-forecast" role="tabpanel" aria-labelledby="crm-t-forecast" hidden>
+        <div class="scx-grid crm-c12"></div>
+        <div class="lnx panel crm-c8">
+          <div class="lnx-h"><div><span class="muted">Closed won, cumulative</span><b class="num lnx-v">$0</b></div><div class="lnx-lg"><button class="lnx-k on" data-s="0" aria-pressed="true"><i style="background:var(--dm-accent-mark,var(--dm-accent))"></i>Q4 2026</button><button class="lnx-k on" data-s="1" aria-pressed="true"><i style="background:var(--dm-c2)"></i>Q3 2026</button></div></div>
+          <div class="lnx-ch"><svg class="lnx-svg" viewBox="0 0 320 140" preserveAspectRatio="none" aria-hidden="true"></svg><div class="lnx-x"></div><div class="lnx-tt"><b class="num"></b><span></span></div></div>
+          <div class="lnx-ax muted num" aria-hidden="true"><span>Wk 1</span><span>Wk 3</span><span>Wk 5</span><span>Wk 7</span><span>Wk 9</span><span>Wk 11</span><span>Wk 13</span></div>
+        </div>
+        <div class="rgx panel crm-c4">
+          <div class="rgx-h"><div class="rgx-t"><b>Team quotas</b><span class="muted rgx-sub">Q4, closed won and commit</span></div></div>
+          <div class="rgx-b"><div class="rgx-ring"><svg viewBox="0 0 180 180" aria-hidden="true"></svg><div class="rgx-c"><b class="num">0%</b><span class="muted">of quota</span></div></div><div class="rgx-lg"></div></div>
+        </div>
+        <div class="fnx panel crm-c4">
+          <div class="fnx-h"><b>Stage conversion</b><span class="muted crm-fnn num"></span></div>
+          <div class="fnx-rows"></div>
+          <div class="fnx-ins"><span class="fnx-ic"><Fragment set:html={I('spark', 'xs')} /></span><span class="fnx-t"></span></div>
+        </div>
+        <div class="bcx panel crm-c4">
+          <div class="bcx-h"><div><span class="muted">Closed won by month</span><b class="num bcx-v">$0</b></div></div>
+          <div class="bcx-ch"></div>
+        </div>
+        <div class="panel crm-own crm-c4">
+          <div class="crm-ph"><b>Quota attainment</b><span class="muted">By owner, Q4</span></div>
+          <div class="crm-owl"></div>
+        </div>
+      </section>
+
+      <!-- the company's details: the Details panel's sections and rows, as a sheet over the right of the screen -->
+      <aside class="crm-sheet" role="dialog" aria-modal="false" aria-label="Company details" inert><div class="dtp crm-dtp"></div></aside>
+    </div>
+
+    <!-- menus: the shared core opens each from its button (data-pop) -->
+    <div class="pop crm-pop" id="crm-p-ws" role="menu" aria-label="Workspaces"></div>
+    <div class="pop crm-pop" id="crm-p-sort" role="menu" aria-label="Sort by"></div>
+    <div class="pop crm-pop" id="crm-p-owner" role="menu" aria-label="Owner"></div>
+    <div class="pop crm-pop" id="crm-p-stage" role="menu" aria-label="Stage"></div>
+    <div class="pop crm-pop" id="crm-p-last" role="menu" aria-label="Last activity"></div>
+    <div class="pop crm-pop" id="crm-p-close" role="menu" aria-label="Close date"></div>
+    <div class="pop crm-pop" id="crm-p-assign" role="menu" aria-label="Assign owner"></div>
+    <div class="pop crm-pop" id="crm-p-move" role="menu" aria-label="Move to stage"></div>
+    <div class="pop crm-pop" id="crm-p-row" role="menu" aria-label="Company actions"></div>
+    <div class="pop crm-pop" id="crm-p-mv" role="menu" aria-label="Move deal to"></div>
+    <div class="pop crm-pop" id="crm-p-calc" role="menu" aria-label="Add a calculation"></div>
+    <div class="pop crm-pop" id="crm-p-sown" role="menu" aria-label="Account owner"></div>
+    <div class="pop crm-pop" id="crm-p-sstage" role="menu" aria-label="Stage"></div>
+    <div class="pop crm-pop crm-ntf" id="crm-p-ntf" role="dialog" aria-label="Notifications"><div class="ntx"><div class="ntx-h"><b>Notifications</b><span class="ntx-ct num">0</span><span class="ntx-sp"></span><button class="pill ghost sm ntx-all">Mark all read</button></div><div class="ntx-tabs"><div class="seg2" role="group" aria-label="Show"><button aria-pressed="true" data-v="all">All</button><button aria-pressed="false" data-v="men">Mentions</button><button aria-pressed="false" data-v="deal">Deals</button></div></div><div class="ntx-list"></div></div></div>
+    <div class="pop pfm-pop crm-pop" id="crm-p-me" role="menu" aria-labelledby="crm-me-n crm-me-e">
+      <div class="pfm-me" role="none"><span class="av" style="background:var(--dm-av-m);color:var(--dm-av-m-ink)">NC</span><span class="t"><b id="crm-me-n">Nina Cole</b><span class="muted" id="crm-me-e">Head of sales</span></span></div>
+      <div class="sep" role="separator"></div>
+      <button class="mi pfm-th" role="menuitemcheckbox" aria-checked="false" tabindex="-1"><Fragment set:html={I('moon')} /><span>Dark theme</span><span class="toggle" aria-hidden="true"></span></button>
+      <button class="mi" role="menuitem" tabindex="-1" data-act="help" data-close><Fragment set:html={I('keyboard')} /><span>Keyboard shortcuts</span><span class="kbd" aria-hidden="true">?</span></button>
+      <div class="sep" role="separator"></div>
+      <button class="mi" role="menuitem" tabindex="-1" data-act="signout" data-close><Fragment set:html={I('logout')} /><span>Sign out</span></button>
+    </div>
+
+    <!-- search: the Command palette, over the app -->
+    <div class="crm-over crm-cmd" hidden><div class="cpl panel" role="dialog" aria-label="Search"><div class="cpl-in"><Fragment set:html={I('search')} /><input class="cpl-q" placeholder="Search companies, deals and actions" aria-label="Search" spellcheck="false" autocomplete="off"><span class="kbd">esc</span></div><div class="cpl-list" role="listbox" aria-label="Results"></div><div class="cpl-f muted"><span><span class="kbd">↑</span><span class="kbd">↓</span> move</span><span><span class="kbd">↵</span> open</span><span class="cpl-st"></span></div></div></div>
+
+    <!-- New company: the Form -->
+    <div class="crm-over crm-newd" hidden><form class="fmx panel" role="dialog" aria-modal="true" aria-labelledby="crm-new-h" novalidate>
+      <div class="fmx-h"><b id="crm-new-h">New company</b><button type="button" class="ib crm-newx" aria-label="Close" data-tip="Close"><Fragment set:html={I('x', 'xs')} /></button></div>
+      <label class="fmx-f"><span>Company name</span><input name="n" placeholder="Hollis & Rowe" maxlength="40" autocomplete="off"></label>
+      <div class="fmx-f"><span id="crm-new-seg">Segment</span><div class="fmx-ty" role="radiogroup" aria-labelledby="crm-new-seg"></div></div>
+      <div class="fmx-f"><span id="crm-new-own">Account owner</span><div class="fmx-ty" role="radiogroup" aria-labelledby="crm-new-own"></div></div>
+      <label class="fmx-f"><span>First deal value</span><input name="v" inputmode="numeric" placeholder="$40,000" autocomplete="off"></label>
+      <div class="fmx-ft"><span class="fmx-ms muted">Starts in Discovery</span><button class="pill primary sm fmx-go" type="submit">Create company</button></div>
+    </form></div>
+
+    <div class="crm-toasts" aria-live="polite"></div>
+  </div>
+
+  <Fragment slot="end">
+    <script is:inline src="/components/assets/core.js"></script>
+    <script is:inline set:html={APP_JS} />
+  </Fragment>
+</Page>

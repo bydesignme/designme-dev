@@ -1,4 +1,5 @@
-// Copies the built pages into the repository root, which Cloudflare Pages serves as it is: components/, docs/ and sitemap.xml.
+// Copies the built pages into the repository root, which Cloudflare Pages serves as it is: components/, docs/, templates/
+// and sitemap.xml.
 // Anything else in the build is a mistake, so it stops. It also writes _redirects: the homepage lists every component,
 // so /components and each /components/<section> go there, to that section.
 import fs from 'node:fs';
@@ -6,13 +7,16 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
 const HERE = path.dirname(fileURLToPath(import.meta.url)), DIST = path.join(HERE, 'dist'), ROOT = path.resolve(HERE, '../..');
-const expected = new Set(['components', 'docs', 'sitemap.xml']);
+const expected = new Set(['components', 'docs', 'templates', 'sitemap.xml']);
 const extra = fs.readdirSync(DIST).filter(f => !expected.has(f));
 if (extra.length) throw new Error('unexpected build output: ' + extra.join(', '));
 fs.rmSync(path.join(ROOT, 'components'), { recursive:true, force:true });
 fs.cpSync(path.join(DIST, 'components'), path.join(ROOT, 'components'), { recursive:true });
 fs.rmSync(path.join(ROOT, 'docs'), { recursive:true, force:true });
 fs.cpSync(path.join(DIST, 'docs'), path.join(ROOT, 'docs'), { recursive:true });
+// the templates (whole app screens made of the components) are noindex and kept out of the sitemap for now
+fs.rmSync(path.join(ROOT, 'templates'), { recursive:true, force:true });
+fs.cpSync(path.join(DIST, 'templates'), path.join(ROOT, 'templates'), { recursive:true });
 fs.copyFileSync(path.join(DIST, 'sitemap.xml'), path.join(ROOT, 'sitemap.xml'));
 fs.rmSync(path.join(ROOT, 'components.html'), { force:true });
 const site = JSON.parse(fs.readFileSync(path.join(HERE, 'data/site.json'), 'utf8'));
@@ -34,7 +38,7 @@ fs.writeFileSync(path.join(ROOT, '_redirects'), [
 {
   const { ungated } = createRequire(import.meta.url)('../site/hover-gate.js');
   const unesc = t => t.replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
-  const left = ['components', 'docs'].flatMap(d => fs.readdirSync(path.join(ROOT, d)).filter(f => f.endsWith('.html')).flatMap(f => {
+  const left = ['components', 'docs', 'templates'].flatMap(d => fs.readdirSync(path.join(ROOT, d)).filter(f => f.endsWith('.html')).flatMap(f => {
     const t = fs.readFileSync(path.join(ROOT, d, f), 'utf8');
     return [...t.replace(/srcdoc="[^"]*"/g, '').matchAll(/<style[^>]*>([\s\S]*?)<\/style>/g), ...[...t.matchAll(/srcdoc="([^"]*)"/g)].flatMap(m => [...unesc(m[1]).matchAll(/<style[^>]*>([\s\S]*?)<\/style>/g)])]
       .flatMap(m => ungated(m[1]).map(s => `${d}/${f}: ${s}`));
@@ -43,4 +47,5 @@ fs.writeFileSync(path.join(ROOT, '_redirects'), [
 }
 const count = fs.readdirSync(path.join(ROOT, 'components')).filter(f => f.endsWith('.html')).length;
 const docs = fs.readdirSync(path.join(ROOT, 'docs')).filter(f => f.endsWith('.html')).length;
-console.log(`published ${count} pages in components/, ${docs} in docs/, sitemap.xml and _redirects`);
+const tpl = fs.readdirSync(path.join(ROOT, 'templates')).filter(f => f.endsWith('.html')).length;
+console.log(`published ${count} pages in components/, ${docs} in docs/, ${tpl} in templates/, sitemap.xml and _redirects`);

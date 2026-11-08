@@ -1,0 +1,324 @@
+/* Sales CRM template: the layout around the components. Every colour, radius and space is a component token (--dm-*), so
+   the screen follows Soft and Blueprint, light and dark. The parts themselves are the components' own classes:
+   Agent harness (the sidebar's rows and workspace button), Segmented control (the tabs), Task table (the table's header,
+   bulk bar, sort buttons and checkboxes), Kanban board (the filter chips, the search field and the deals board), Progress
+   (win probability's segments, the trial and quota meters), Details panel (the sheet), Filter menu (a removable filter chip),
+   Form (New company), Toast, Notifications, Profile menu, Command palette, Stat cards, Line chart, Radial goals, Funnel and
+   Bar chart. Hover styles are only for a mouse (hover:hover and pointer:fine). */
+
+/* ---------- the page: the app fills the window under the site's header ---------- */
+.pg-app{display:block;height:calc(100dvh - var(--pg-head));overflow:hidden}
+.pg-app + .pg-foot{display:none}
+.pg-top .pg-top-in{max-width:none}
+.crm-name{margin-left:var(--dm-s-3);font-size:13px;color:var(--pg-muted);white-space:nowrap}
+@media (max-width:640px){.crm-name{display:none}}
+/* the site's smiley button on phones and tablets would sit over the app's own controls */
+body:has(.crm) .dmf{display:none}
+
+/* ---------- the app ---------- */
+.crm[data-c]{width:100%;max-width:none;height:100%;display:grid;grid-template-columns:240px minmax(0,1fr);position:relative;overflow:hidden;background:var(--dm-surface);color:var(--dm-fg);font-size:13px;text-align:left}
+:where(.crm) :where(h1,h2,h3,p){margin:0;font:inherit}
+.crm .muted{color:var(--dm-muted)}
+.crm-sp{flex:1}
+.crm .pg-sr{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+
+/* ---------- the sidebar: Agent harness's side list ---------- */
+.crm-side.ahx-side{width:auto;min-height:0;overflow-y:auto;scrollbar-width:none;padding:var(--dm-s-2) var(--dm-s-2) var(--dm-s-3)}
+.crm-side::-webkit-scrollbar{display:none}
+.crm-wsb{height:44px;padding-left:6px}
+.crm-wsb .pfm-lg{width:28px;height:28px}
+.crm-wst{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.3;text-align:left}
+.crm-wst .t{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.crm-wst .s{font-size:12px;font-weight:400;color:var(--dm-muted)}
+.crm-nav{display:flex;flex-direction:column;gap:2px}
+.crm-nav .ahx-cv>.i{color:var(--dm-muted);transition:color var(--dm-t-fast)}
+.crm-nav .ahx-cv[aria-current="true"]>.i{color:var(--dm-fg)}
+/* a team or pipeline whose filter is on looks like the page you're on */
+.crm-nav .ahx-cv[aria-pressed="true"]{background:var(--dm-surface);color:var(--dm-fg);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-rail) 50%,transparent),0 1px 2px rgba(0,0,0,.04)}
+.crm-nav .ahx-cv .n{margin-left:auto;font-size:12px;color:var(--dm-muted)}
+.crm-nav .ahx-cv .t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.crm-nav .ahx-cv .dot{width:8px;height:8px;margin:0 4px}
+.crm-nav .ahx-cv .av{width:20px;height:20px;font-size:9px}
+.crm-side .ahx-lh{padding-top:var(--dm-s-4)}
+.crm-sfoot{margin-top:auto;padding-top:var(--dm-s-4);display:flex;flex-direction:column;gap:2px}
+.crm-trial{display:flex;flex-direction:column;gap:var(--dm-s-2);margin-top:var(--dm-s-2);padding:var(--dm-s-3) 9px 2px;border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
+.crm-trial .prg-mh{font-size:12.5px;color:var(--dm-fg2)}
+.crm-trial .prg-mb{height:6px}
+.crm-trial .pill{align-self:flex-start;margin-top:2px}
+
+/* ---------- the main column: top bar, tabs, then the view ---------- */
+.crm-main{position:relative;display:flex;flex-direction:column;min-width:0;min-height:0;overflow:hidden}
+.crm-top{flex:none;display:flex;align-items:center;gap:var(--dm-s-2);height:56px;padding:0 var(--dm-s-4) 0 var(--dm-s-5);border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
+.crm-menu{display:none;margin-left:-8px;color:var(--dm-fg2)}
+.crm-h1{font-size:16px;font-weight:500;letter-spacing:-.01em;white-space:nowrap;outline:0}
+.crm-live{margin-left:2px}
+.crm-live .dot{width:6px;height:6px;color:var(--dm-ok-mark)}
+.crm-find{flex:0 1 240px;min-width:0;cursor:pointer;margin-right:var(--dm-s-1)}
+.crm-find .t{flex:1;min-width:0;text-align:left;font-size:13px;color:var(--dm-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media (hover:hover) and (pointer:fine){.crm-find:hover{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line-strong) 50%,transparent)}}
+.crm-bell{position:relative}
+.crm-unread{position:absolute;top:6px;right:7px;width:7px;height:7px;border-radius:50%;background:var(--dm-accent-mark,var(--dm-accent));box-shadow:0 0 0 2px var(--dm-surface);transition:transform var(--dm-t) var(--dm-ease),opacity var(--dm-t)}
+.crm-bell.read .crm-unread{transform:scale(0);opacity:0}
+.crm-me{padding-right:var(--dm-s-2)}
+.crm-me .av{width:26px;height:26px;font-size:10.5px}
+.crm-men{font-size:13px;color:var(--dm-fg);white-space:nowrap}
+.crm-tabs{flex:none;display:flex;align-items:center;gap:var(--dm-s-3);padding:10px var(--dm-s-4) 10px var(--dm-s-5);border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
+.crm-seg button{height:28px;padding:0 var(--dm-s-3)}
+.crm-ctx{margin-left:auto;font-size:12.5px;white-space:nowrap}
+.crm-view{flex:1;min-height:0}
+.crm-view[hidden]{display:none}
+
+/* ---------- Companies: the Task table, denser and wider ---------- */
+.crm-co.ttx{display:flex;flex-direction:column;overflow:hidden;container-type:normal}
+.crm-hd.ttx-hd{flex:none;height:52px}
+.crm-fbar.ttx-ti{gap:6px;padding:0 var(--dm-s-4);overflow-x:auto;scrollbar-width:none}
+.crm-fbar::-webkit-scrollbar{display:none}
+.crm-chips,.crm-acts{display:flex;align-items:center;gap:6px}
+.crm-chips>*,.crm-acts>*{flex:none}
+.crm-acts{margin-left:auto}
+.crm-fbar .kbx-f .v{max-width:132px;overflow:hidden;text-overflow:ellipsis}
+.crm .kbx-f[aria-expanded="true"]>.i:last-child{transform:rotate(180deg)}
+.crm .kbx-f>.i:last-child{transition:transform var(--dm-t) var(--dm-ease)}
+.crm-acts .kbx-q{flex:0 1 200px;width:200px;min-width:150px}
+.crm-hd .ttx-sb{padding-left:var(--dm-s-4)}
+.crm-sc.ttx-sc{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;outline:0}
+.crm-sc:focus-visible{box-shadow:inset 0 0 0 2px var(--dm-focus)}
+.crm-t.ttx-t{min-width:1080px}
+.crm-t th{position:sticky;top:0;z-index:2;background:var(--dm-surface);height:38px}
+.crm-t td{height:44px}
+.crm-t th,.crm-t td{padding:0 6px}
+.crm-t th.ck,.crm-t td.ck{width:40px;padding-left:var(--dm-s-4)}
+.crm-t thead th:nth-child(2){padding-left:var(--dm-s-1)}
+.crm-t tbody td:nth-child(2){padding-left:var(--dm-s-1)}
+.crm-t tbody tr[data-id]:focus-visible{outline:2px solid var(--dm-focus);outline-offset:-2px}
+.crm-t tbody tr.open{background:color-mix(in srgb,var(--dm-fg) 6%,transparent)}
+/* the company: its tile (Profile menu's workspace tile) and its name */
+.crm-co .nm{display:flex;align-items:center;gap:var(--dm-s-2);font-weight:500;max-width:164px}
+.crm-co .nm>span:last-child{overflow:hidden;text-overflow:ellipsis}
+.crm .pfm-lg.sm{width:22px;height:22px;font-size:10.5px;border-radius:calc(6px * var(--dm-rk))}
+.crm .pfm-lg.xs{width:16px;height:16px;font-size:9px;border-radius:calc(4px * var(--dm-rk))}
+.crm-tags{display:flex;align-items:center;gap:var(--dm-s-1)}
+.crm-tags .tag.more{background:none;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-rail) 50%,transparent);color:var(--dm-muted)}
+.crm-t .ttx-st{height:22px;font-size:12px}
+.crm-t .ttx-st .dot{width:6px;height:6px}
+.crm-t td.num,.crm-t td.r{color:var(--dm-fg)}
+.crm-t td.val{font-weight:500}
+/* win probability: Progress's segments, ten to a bar, in the progress colour of how likely it is */
+.crm-win{display:flex;align-items:center;gap:var(--dm-s-2)}
+.crm-win .prg-seg{width:64px;gap:2px}
+.crm-win .prg-seg i{height:10px;border-radius:calc(1.5px * var(--dm-rk))}
+.crm-win .prg-seg b{border-radius:inherit}
+.crm-win .p{width:32px;text-align:right;font-size:12.5px;color:var(--dm-fg2)}
+.crm-win{--dm-prg-c:var(--dm-accent-mark,var(--dm-accent))}
+.crm-win[data-w="lo"]{--dm-prg-c:var(--dm-warn-mark)}
+/* activity: Bar chart's bars, twelve weeks of meetings, calls and emails, in neutral grey with this week in the accent, and
+   the count in the hover readout */
+.crm-spark{display:flex;align-items:flex-end;gap:2px;height:20px;width:60px}
+.crm-spark i{flex:1;min-height:2px;border-radius:calc(1px * var(--dm-rk)) calc(1px * var(--dm-rk)) 0 0;background:color-mix(in srgb,var(--dm-muted) 55%,transparent)}
+.crm-spark i:last-child{background:var(--dm-accent-mark,var(--dm-accent))}
+.crm-spark i.z{background:color-mix(in srgb,var(--dm-muted) 25%,transparent)}
+.crm-last{display:flex;align-items:center;gap:6px;color:var(--dm-fg)}
+.crm-last .i{color:var(--dm-muted)}
+.crm-last{gap:5px}
+.crm-last .muted::before{content:"·";margin-right:5px;color:var(--dm-muted)}
+.crm-last.old>span:nth-child(2){color:var(--dm-bad)}
+.crm-actc{width:36px}
+.crm-t tr>:last-child{padding-right:var(--dm-s-3)}
+.crm-t .ib.crm-rm{width:28px;height:28px;color:var(--dm-muted)}
+.crm-t .ib.crm-rm[aria-expanded="true"]{background:var(--dm-row);color:var(--dm-fg)}
+/* the footer: the sums of the rows in view, under their columns */
+.crm-t tfoot td{position:sticky;bottom:0;z-index:2;height:40px;background:var(--dm-surface);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);border-bottom:0;color:var(--dm-fg2);font-size:12.5px}
+.crm-t tfoot td b{font-weight:500;color:var(--dm-fg)}
+.crm-t tfoot td:last-child{text-align:right}
+.crm-fcalc{margin-right:var(--dm-s-2)}
+.crm-fcalc:empty{display:none}
+.crm-fcalc .k{color:var(--dm-muted)}
+.crm-addcalc{margin-right:-6px}
+.crm-empty td{height:auto;padding:56px var(--dm-s-4)!important;text-align:center;white-space:normal}
+.crm-t tbody tr.ttx-out{opacity:0;transform:translateX(14px);transition:opacity .24s var(--dm-ease),transform .24s var(--dm-ease)}
+
+/* ---------- Deals: the Kanban board ---------- */
+.crm-deals{display:flex;flex-direction:column;overflow:auto}
+.crm-kb.kbx{flex:1 0 auto;padding:var(--dm-s-3) var(--dm-s-4) var(--dm-s-4) var(--dm-s-5);min-height:0}
+.crm-kb .kbx-fp .av{box-shadow:0 0 0 2px var(--dm-surface)}
+.crm-kb .kbx-fp button[aria-pressed="true"] .av{box-shadow:0 0 0 2px var(--dm-surface),0 0 0 3.5px var(--dm-line-strong)}
+.crm-kb .kbx-bd{overflow-x:auto;overscroll-behavior-x:contain;margin:0 calc(-1 * var(--dm-s-4)) 0 calc(-1 * var(--dm-s-5));padding:0 var(--dm-s-4) 2px var(--dm-s-5)}
+.crm-kb .kbx-cols{--dm-kbx-gt:repeat(5,minmax(216px,1fr))}
+.crm-kb .kbx-c{min-height:calc(100dvh - var(--pg-head) - 248px)}
+.crm-kb.list .kbx-c{min-height:0}
+.crm-kb .kbx-ch .n{margin-left:2px}
+.crm-kb .kbx-ch .s{margin-left:auto;font-size:12px;color:var(--dm-fg2)}
+.crm-kb .kbx-k{gap:var(--dm-s-1)}
+.crm-kb .kbx-who{padding-right:1px;cursor:default}
+.crm-kb .kbx-m{gap:2px var(--dm-s-2)}
+.crm-kb .kbx-mt.v{color:var(--dm-fg);font-weight:500}
+.crm-kb .kbx-mt.co{flex-basis:100%;color:var(--dm-fg2)}
+.crm-kb .kbx-mt .pfm-lg{margin-right:2px}
+.crm-kb .kbx-k.won .kbx-mt.v{color:var(--dm-ok)}
+.crm-kb.list .kbx-mt.co{flex-basis:auto}
+.crm-kb.list .kbx-k{height:40px}
+.crm-kb .kbx-tabs{overflow-x:auto;scrollbar-width:none}
+.crm-kb .kbx-tabs::-webkit-scrollbar{display:none}
+.crm-kb .kbx-tabs button{flex:none;white-space:nowrap}
+@container kbx (max-width:639px){.crm-kb .kbx-bd{margin:0;padding:0;overflow:visible}.crm-kb .kbx-c{min-height:360px}}
+
+/* ---------- Forecast: the chart components on a grid ---------- */
+.crm-fc{overflow:auto;padding:var(--dm-s-4) var(--dm-s-4) var(--dm-s-6) var(--dm-s-5);display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:var(--dm-s-3);align-content:start;background:var(--dm-stage)}
+.crm-fc[hidden]{display:none}
+.crm-c12{grid-column:span 12}.crm-c8{grid-column:span 8}.crm-c4{grid-column:span 4}
+.crm-fc .scx-grid{gap:var(--dm-s-3)}
+.crm-fc .scx-c{cursor:default}
+.crm-fc .scx-k .tag{margin-left:auto}
+.crm-fc .lnx-ch{height:168px}
+.crm-fc .lnx-ax{padding-top:2px}
+.crm-fc .rgx-b{justify-content:flex-start;gap:var(--dm-s-4);flex-wrap:nowrap}
+.crm-fc .rgx-lg{flex:1 1 140px}
+.crm-fc .rgx-ring{width:148px;height:148px}
+.crm-fnn{font-size:12px}
+.crm-fc .fnx-r{grid-template-columns:96px 1fr 44px}
+.crm-fc .bcx-ch{height:176px}
+.crm-fc .bcx-b:last-child .bcx-st{outline:0}
+.crm-ph{display:flex;align-items:baseline;justify-content:space-between;gap:var(--dm-s-2);font-size:13.5px}
+.crm-ph b{font-weight:500}
+.crm-ph .muted{font-size:12px}
+.crm-own{padding:var(--dm-s-4);display:flex;flex-direction:column;gap:var(--dm-s-3)}
+.crm-owl{display:flex;flex-direction:column;gap:10px}
+.crm-ow{display:grid;grid-template-columns:20px minmax(0,1fr) auto;align-items:center;column-gap:var(--dm-s-2);row-gap:5px;font-size:12.5px}
+.crm-ow .av{width:20px;height:20px;font-size:9px;grid-row:span 2}
+.crm-ow .n{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.crm-ow .p{color:var(--dm-fg2);text-align:right}
+.crm-ow .prg-mb{grid-column:2/4;height:6px}
+.crm-ow .prg-mb .th{left:100%}
+.crm-ow .prg-mb.ok .fl{background:var(--dm-ok-mark)}
+
+/* ---------- the details sheet: Details panel, over the right of the screen ---------- */
+.crm-sheet{position:absolute;top:64px;right:var(--dm-s-2);bottom:var(--dm-s-2);z-index:20;width:min(392px,calc(100% - 16px));border-radius:var(--dm-r-card);background:var(--dm-raised);box-shadow:var(--dm-shadow-pop);overflow:auto;overscroll-behavior:contain;opacity:0;visibility:hidden;transform:translateX(16px);transition:opacity .2s var(--dm-ease),transform .4s var(--dm-ease),visibility 0s .2s}
+.crm-sheet.on{opacity:1;visibility:visible;transform:none;transition-property:opacity,transform}
+.crm-dtp.dtp{padding:var(--dm-s-3) var(--dm-s-3) var(--dm-s-4) var(--dm-s-4);gap:var(--dm-s-1)}
+.crm-dtp .dtp-h{padding:2px 0 0;gap:10px}
+.crm-dtp .dtp-h .pfm-lg{width:32px;height:32px;font-size:13px}
+.crm-dtp .dtp-h .tx{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.35}
+.crm-dtp .dtp-h .tx b{font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.crm-dtp .dtp-h .tx span{font-size:12px;color:var(--dm-muted)}
+.crm-dtp .dtp-h .ib{width:28px;height:28px;color:var(--dm-muted)}
+.crm-dtp .dtp-sh{padding-left:0;margin-top:var(--dm-s-1)}
+.crm-dtp .dtp-r{grid-template-columns:112px minmax(0,1fr)}
+.crm-dtp .dtp-r .k{padding-left:0}
+.crm-dtp .dtp-v{max-width:100%}
+.crm-dtp .dtp-v.static{margin-left:0;padding:0}
+.crm-dtp .crm-win .prg-seg{width:96px}
+.crm-sum3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--dm-s-2);margin:var(--dm-s-3) 0 var(--dm-s-1)}
+.crm-sum3>div{display:flex;flex-direction:column;gap:2px}
+.crm-sum3 span{font-size:12px;color:var(--dm-muted)}
+.crm-sum3 b{font-size:14px;font-weight:500}
+.crm-dl{display:flex;flex-direction:column;gap:2px;margin:0 calc(-1 * var(--dm-s-2))}
+.crm-dl button{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:10px;width:100%;min-height:36px;padding:0 var(--dm-s-2);border-radius:var(--dm-r-sm);text-align:left;transition:background var(--dm-t-fast)}
+@media (hover:hover) and (pointer:fine){.crm-dl button:hover{background:var(--dm-row)}}
+.crm-dl .t{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.crm-dl .ttx-st{height:20px;font-size:11.5px}
+.crm-dl .ttx-st .dot{width:6px;height:6px}
+.crm-dl .num{font-size:12.5px;color:var(--dm-fg2);text-align:right;min-width:64px}
+.crm-tl{display:flex;flex-direction:column;margin-top:2px}
+.crm-tl li{display:grid;grid-template-columns:28px minmax(0,1fr);gap:10px;padding:6px 0;font-size:13px;line-height:1.4}
+.crm-tl .ic{width:28px;height:28px;border-radius:calc(9px * var(--dm-rk));display:grid;place-items:center;background:var(--dm-chip);color:var(--dm-fg2)}
+.crm-tl li.new{animation:enter var(--dm-t-slow) var(--dm-ease) backwards}
+.crm-tl .w{display:block;font-size:12px;color:var(--dm-muted)}
+.crm-sact{display:flex;gap:var(--dm-s-2);margin-top:var(--dm-s-3);padding-top:var(--dm-s-3);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
+.crm-sact .pill{flex:1}
+
+/* ---------- menus ---------- */
+.crm-pop{min-width:196px}
+.crm-pop .mi .av{width:20px;height:20px;font-size:9px}
+.crm-pop .mi .dot{width:8px;height:8px;margin:0 3px}
+.crm-pop .mi .r{margin-left:auto}
+.crm-pop .mi .r+.ck{margin-left:0}
+.crm-pop .mi .pfm-lg{width:22px;height:22px;font-size:10.5px}
+.crm-pop .mi.bad,.crm-pop .mi.bad .i{color:var(--dm-bad)}
+.crm-ntf.pop{width:360px;padding:0}
+.crm-ntf .ntx{min-height:0;padding:var(--dm-s-3)}
+.crm-ntf .ntx-list{max-height:340px;overflow:auto}
+.crm-ntf .ntx-n .ic .pfm-lg{width:30px;height:30px}
+
+/* ---------- overlays: search and New company ---------- */
+.crm-over{position:absolute;inset:0;z-index:70;display:flex;justify-content:center;align-items:flex-start;padding:72px var(--dm-s-4) var(--dm-s-4);background:color-mix(in srgb,var(--dm-page) 60%,transparent);animation:crmfade .2s var(--dm-ease)}
+.crm-over[hidden]{display:none}
+@keyframes crmfade{from{opacity:0}}
+.crm-cmd .cpl{width:100%;max-width:580px;animation:popin .35s var(--dm-ease) backwards}
+.crm-cmd .cpl-list{height:auto;max-height:min(360px,calc(100dvh - var(--pg-head) - 200px))}
+.crm-cmd .cpl-i .ic .pfm-lg{width:24px;height:24px;font-size:10.5px}
+.crm-cmd .cpl-i .ic .av{width:24px;height:24px;font-size:10px}
+.crm-newd .fmx{max-width:400px;box-shadow:var(--dm-shadow-pop);animation:popin .35s var(--dm-ease) backwards}
+.crm-newd .fmx-ty{flex-wrap:wrap}
+.crm-newd .fmx-ty .chip.on{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-pick-on) 50%,transparent),inset 0 0 0 1px color-mix(in srgb,var(--dm-faint) 50%,transparent);color:var(--dm-fg)}
+.crm-newd .fmx-ty .chip .av{width:18px;height:18px;font-size:8.5px;margin-left:-4px}
+.crm-newd .fmx-h .ib{width:28px;height:28px;margin-right:-6px;color:var(--dm-muted)}
+
+/* ---------- toasts: Toast, bottom right ---------- */
+.crm-toasts{position:absolute;right:var(--dm-s-4);bottom:var(--dm-s-4);z-index:80;display:flex;flex-direction:column;align-items:flex-end;gap:var(--dm-s-2);width:min(380px,calc(100% - 32px));pointer-events:none}
+.crm-toasts .tst-t{pointer-events:auto}
+
+
+/* ---------- narrower screens ---------- */
+@media (max-width:1279px){
+  .crm-c8{grid-column:span 12}
+  .crm-c4{grid-column:span 6}
+  .crm-own{grid-column:span 6}
+}
+/* below 1100px the toolbar wraps: the filter chips on one row (scrolling sideways when they run out of room), search, Export
+   and New company on the next; the bulk bar still covers it all while rows are picked */
+@media (max-width:1099px){
+  .crm-hd.ttx-hd{height:auto}
+  .crm-fbar.ttx-ti{position:relative;flex-wrap:wrap;row-gap:var(--dm-s-2);padding-top:10px;padding-bottom:10px;overflow:visible}
+  .crm-chips{flex:1 1 auto;min-width:0;overflow-x:auto;scrollbar-width:none;margin:-2px 0;padding:2px 0}
+  .crm-chips::-webkit-scrollbar{display:none}
+}
+/* tablet and phone: the sidebar becomes a drawer over the app, opened from the top bar */
+@media (max-width:1023px){
+  .crm[data-c]{grid-template-columns:minmax(0,1fr)}
+  .crm-side.ahx-side{position:absolute;z-index:60;left:0;top:0;bottom:0;width:264px;background:var(--dm-surface);transform:translateX(-101%);visibility:hidden;transition:transform var(--dm-t) var(--dm-ease),box-shadow var(--dm-t) var(--dm-ease),visibility 0s var(--dm-t)}
+  .crm.dr .crm-side.ahx-side{transform:none;visibility:visible;box-shadow:var(--dm-shadow-pop);transition-delay:0s}
+  .crm-scrim.ahx-scrim{display:block;position:absolute;inset:0;z-index:55;background:rgba(0,0,0,.2);opacity:0;pointer-events:none;transition:opacity var(--dm-t) var(--dm-ease)}
+  .crm.dr .crm-scrim{opacity:1;pointer-events:auto}
+  .crm-menu{display:inline-grid}
+  .crm-main{grid-column:1}
+  .crm-top,.crm-tabs{padding-left:var(--dm-s-4)}
+  .crm-fbar.ttx-ti,.crm-hd .ttx-sb{padding-left:var(--dm-s-4)}
+  .crm-t th.ck,.crm-t td.ck{padding-left:var(--dm-s-4)}
+  .crm-kb.kbx{padding-left:var(--dm-s-4)}
+  .crm-kb .kbx-bd{margin-left:calc(-1 * var(--dm-s-4));padding-left:var(--dm-s-4)}
+  .crm-fc{padding-left:var(--dm-s-4)}
+}
+@media (max-width:760px){
+  .crm-men,.crm-live{display:none}
+  .crm-find{flex:none;width:36px;padding:0;justify-content:center}
+  .crm-find .t,.crm-find .kbd{display:none}
+  .crm-ctx{display:none}
+  .crm-seg{flex:1}
+  .crm-seg button{flex:1;padding:0 var(--dm-s-2)}
+  .crm-c4,.crm-own{grid-column:span 12}
+  .crm-fc .scx-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  /* the company's checkbox and name stay in view while the table scrolls sideways under them */
+  .crm-t .stk,.crm-t .stk2{position:sticky;z-index:1;background:var(--dm-surface)}
+  .crm-t .stk{left:0}
+  .crm-t .stk2{left:56px;box-shadow:inset -1px 0 0 color-mix(in srgb,var(--dm-line) 50%,transparent)}
+  .crm-t th.stk,.crm-t th.stk2,.crm-t tfoot .stk,.crm-t tfoot .stk2{z-index:3}
+  .crm-t tbody tr:is(.sel,.open) :is(.stk,.stk2){background:color-mix(in srgb,var(--dm-fg) 6%,var(--dm-surface))}
+  .crm-co .nm{max-width:150px}
+  .crm-toasts{right:var(--dm-s-2);bottom:var(--dm-s-2);width:calc(100% - 16px)}
+}
+@media (max-width:520px){
+  .crm-acts{flex:1 1 100%;margin-left:0}
+  .crm-acts .kbx-q{flex:1 1 auto;width:auto;min-width:0}
+  .crm-acts .pill>span{display:none}
+  .crm-acts .pill{width:32px;padding:0}
+  .crm-fc .rgx-b{flex-wrap:wrap}
+  .crm-top{gap:var(--dm-s-1);padding-right:var(--dm-s-3)}
+  .crm-me .i{display:none}
+  .crm-me{padding-right:var(--dm-s-1)}
+  .crm-sheet{top:0;right:0;bottom:0;width:100%;border-radius:0}
+  .crm-over{padding:var(--dm-s-4) var(--dm-s-2)}
+  .crm-fc .scx-grid{gap:var(--dm-s-2)}
+  .crm-fc{padding:var(--dm-s-3)}
+  .crm-fc .rgx-b{justify-content:center}
+}
+@media (prefers-reduced-motion:reduce){.crm-over,.crm-cmd .cpl,.crm-newd .fmx{animation:none}.crm-sheet,.crm-side.ahx-side{transition:none}}
