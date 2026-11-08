@@ -142,6 +142,17 @@ button.pva-sh[aria-expanded="true"] .pva-sv .i{transform:rotate(180deg)}
 .pva-now .p{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--fg)}
 .pva-s[data-st="err"] .pva-e{color:var(--bad)}
 .pva-k{flex:none;color:var(--muted)}
+.pva-sub .nw{display:none}
+:where(.pva) :is(.pva-sh,.pva-tog):focus-visible{outline-offset:-2px}
+/* on a phone the names keep their room: done rows drop their count (their log has it), and the running step's count moves
+   into its detail */
+@container (max-width:400px){
+  .pva-sh{grid-template-columns:16px minmax(0,1fr) 36px 12px;column-gap:6px}
+  .pva-sc{display:none}
+  .pva-sub .nw{display:inline}
+  .pva-sub .ww{display:none}
+  .pva-sxi{padding-left:calc(var(--s-2) + 16px + 6px)}
+}
 /* the credits layer */
 .pop.pva-pop{width:300px;max-width:calc(100% - 16px);padding:var(--s-3) var(--s-4) var(--s-4);font-size:12.5px;line-height:1.5;color:var(--fg2);cursor:default}
 .pva-ph{display:flex;align-items:baseline;justify-content:space-between;gap:var(--s-2);margin-bottom:var(--s-1)}
@@ -312,11 +323,12 @@ DM.def('pva-progress', (r, c) => {
     lis.forEach((li, j) => {
       const s = S[j], st = stat[j], sc = $('.pva-sc', li), sd = $('.pva-sd', li);
       set(sc, st === 'done' ? `${fmt(s.total)} ${s.unit}` : st === 'live' || st === 'err' ? `${fmt(count(j))} of ${fmt(s.total)}` : '');
+      if (st === 'done') li.firstElementChild.setAttribute('aria-label', `${s.name}, done, ${fmt(s.total)} ${s.unit} in ${secs(dur[j])}`);
       set(sd, st === 'done' ? secs(dur[j]) : st === 'live' || st === 'err' ? secs(elapsed - start[j]) : '');
       if (st === 'live'){
         const p = $('.pva-now .p', li), sb = $('.pva-sub', li);
         if (p) set(p, s.now(sub, Math.max(1, count(j))));
-        if (sb){ const l = (s.T - sub) * TICK / 1000; set(sb, `${state === 'paused' ? 'Paused' : l < 3 ? 'A few seconds left in this step' : `About ${Math.round(l)}s left in this step`}, ${fmt(used[j] || 0)} credits so far`); }
+        if (sb){ const l = (s.T - sub) * TICK / 1000, rest = `${state === 'paused' ? 'paused' : l < 3 ? 'a few seconds left in this step' : `about ${Math.round(l)}s left in this step`}, ${fmt(used[j] || 0)} credits so far`; set(sb, `<span class="nw">${fmt(count(j))} of ${fmt(s.total)} ${s.unit}, ${rest}</span><span class="ww">${rest[0].toUpperCase() + rest.slice(1)}</span>`, true); }
       }
     });
   }
@@ -336,7 +348,7 @@ DM.def('pva-progress', (r, c) => {
     set(eta, { ind:'Counting pages', run:`<b>${pc}%</b> · ${etaWords(left())}`, paused:`<b>${pc}%</b> · Paused, ${etaWords(left()).toLowerCase()} once resumed`, err:`<b>${pc}%</b> · Stopped`, done:`<b>100%</b> · Took ${clock(elapsed)}` }[state], true);
     // the Steps toggle: how far, and for how long
     const nd = stat.filter(x => x === 'done').length;
-    set($('.n', tog), state === 'err' ? `${nd} of 5 done, step ${step + 1} failed` : `${nd} of 5 done`);
+    set($('.n', tog), state === 'err' ? `${nd} of 5 done · 1 failed` : `${nd} of 5 done`);
     set($('.el', tog), `${clock(elapsed)} ${state === 'done' ? 'total' : 'elapsed'}`);
     paintSteps();
     // credits: this run, its projection, and the month with this run's share drawn on it
