@@ -1172,8 +1172,11 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
      wfx-pick                     the step picker, with the agent as the last row
      wfx-fix, wfx-note            the agent's fix and a plain note, beside the run's steps
      wfx-vers                     the version history
+     wfx-apps                     Connected apps: the apps with their marks and state, a catalogue to connect more, the tools
    Blueprint is the page with no data-style, so its overrides are :root:not([data-style="soft"]). Hover styles are only for a
-   mouse (hover:hover and pointer:fine). */
+   mouse (hover:hover and pointer:fine).
+   Motion uses the library's tokens (--dm-t, --dm-t-fast, --dm-ease): panels slide without a bounce, popovers and dialogs lift and
+   fade in like the core's .pop, and everything that leaves fades and closes its room. Reduced motion turns it all off. */
 
 /* ---------- the page: the app fills the window under the site's header ---------- */
 .pg-app{display:block;height:calc(100dvh - var(--pg-head));overflow:hidden}
@@ -1191,6 +1194,11 @@ body:has(.wf) .dmf{display:none}
 .wf-sp{flex:1}
 .wf .pg-sr,.wfx-sr{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 .wf .ib[aria-pressed="true"]{background:var(--dm-row);color:var(--dm-fg)}
+/* the focus ring is the keyboard's alone (wf.js sets data-wf-input on the page from the last key or pointer): after a click or a
+   tap no control keeps one, not even one a closing menu hands the focus back to */
+:root[data-wf-input="pointer"] :focus-visible{outline:0!important}
+:root[data-wf-input="pointer"] .wf :is(.wfx-cv,.sgc-seg button,.sgc-p):focus-visible{box-shadow:none}
+:root[data-wf-input="pointer"] .wf .rdr-grip:focus-visible i{opacity:0}
 
 /* ---------- the sidebar: Agent harness's side list ---------- */
 .wf-side.ahx-side{width:auto;min-height:0;overflow-y:auto;scrollbar-width:none;padding:var(--dm-s-2) var(--dm-s-2) var(--dm-s-3)}
@@ -1261,6 +1269,7 @@ body:has(.wf) .dmf{display:none}
 .wfx-node:focus-visible{outline:2px solid var(--dm-focus);outline-offset:2px}
 .wfx-node.drag{z-index:3;cursor:grabbing;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-pick-on) 50%,transparent),var(--dm-shadow-pop);transition:none}
 .wfx-node.add{animation:popin .4s var(--dm-ease) backwards}
+.wfx-node.gone{pointer-events:none;z-index:0}
 .wfx-node.off{opacity:.55}
 .wfx-n1{display:flex;align-items:center;gap:6px;min-width:0}
 .wfx-n1 .wfx-ic{width:20px;height:20px;border-radius:calc(6px * var(--dm-rk))}
@@ -1333,17 +1342,30 @@ body:has(.wf) .dmf{display:none}
 
 /* ---------- the run drawer: Run drawer under the canvas, the agent's notes beside its steps ---------- */
 .wf .rdr-dw{z-index:6}
+/* the run drawer slides (Run drawer's own height transition); its body fades in as it opens and stays, fading, while it shuts,
+   so nothing vanishes before the drawer has closed over it */
+.wf .rdr-dw .rdr-b{transition:opacity var(--dm-t) var(--dm-ease)}
+.wf .rdr-dw.shut .rdr-b{display:block;visibility:hidden;opacity:0;transition:opacity var(--dm-t-fast) var(--dm-ease),visibility 0s var(--dm-t)}
+.wf .rdr-dw:not(.shut) :is(.rdr-tabs,.rdr-follow),.wf .rdr-stop:not([hidden]){animation:wffade var(--dm-t) var(--dm-ease) backwards}
+.wf .rdr-dw.shut.anim .rdr-tabs{display:inline-flex}
+.wf .rdr-dw.shut.anim .rdr-follow{display:inline-grid}
+.wf .rdr-dw.shut :is(.rdr-tabs,.rdr-follow){opacity:0;transition:opacity var(--dm-t-fast) var(--dm-ease)}
 .wf.drag-dr{user-select:none;cursor:ns-resize}
-.wf-steps:not([hidden]){display:grid;grid-template-columns:minmax(0,1fr) clamp(272px,34%,340px);align-items:start;gap:var(--dm-s-4)}
-.wf-steps:has(.wfx-dr-note:empty){grid-template-columns:minmax(0,1fr)}
+/* the agent's column opens beside the steps as its card arrives (the card keeps its width and is uncovered, not squeezed) and
+   closes once it has gone */
+.wf-steps:not([hidden]){display:grid;grid-template-columns:minmax(0,1fr) clamp(272px,34%,340px);align-items:start;column-gap:var(--dm-s-4);transition:grid-template-columns var(--dm-t) var(--dm-ease),column-gap var(--dm-t) var(--dm-ease)}
+.wf-steps:has(.wfx-dr-note:empty){grid-template-columns:minmax(0,1fr) 0px;column-gap:0}
 .wf-tl{min-width:0}
-.wfx-dr-note{order:2;position:sticky;top:0;padding-top:var(--dm-s-2)}
+.wfx-dr-note{order:2;position:sticky;top:0;min-width:0;padding-top:var(--dm-s-2);overflow:clip;overflow-clip-margin:8px}
+.wfx-dr-note>*{min-width:clamp(272px,calc((100cqw - 24px) * .34),340px)}
 .wfx-dr-note:empty{display:none}
-.wf-ask.rdr-ask{align-items:flex-start}
-.wf-ask>.rdr-ti{margin-top:1px}
-.wf-ask .acts{flex-wrap:wrap;align-self:center}
-.wf-ask .wf-draft{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-top:2px;color:var(--dm-fg2)}
-.wf-ask .wf-draft b{font-weight:500;color:var(--dm-fg)}
+/* the approval in a test run: Run drawer's question with the drafted reply; its three buttons are the library's pills, each with
+   its icon */
+.wf-appr.rdr-ask{align-items:flex-start}
+.wf-appr>.rdr-ti{margin-top:1px}
+.wf-appr .acts{flex-wrap:wrap;align-self:center;gap:6px}
+.wf-appr .wf-draft{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-top:2px;color:var(--dm-fg2)}
+.wf-appr .wf-draft b{font-weight:500;color:var(--dm-fg)}
 /* wfx-fix and wfx-note: what the agent suggests, and a plain note */
 .wfx-fix,.wfx-note{display:flex;flex-direction:column;gap:10px;padding:var(--dm-s-3);border-radius:var(--dm-r-card);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 60%,transparent),var(--wf-ns)}
 .wfx-note{flex-direction:row;align-items:center}
@@ -1364,8 +1386,18 @@ body:has(.wf) .dmf{display:none}
 .wfx-fix-l .now{font-weight:500;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
 /* ---------- the right panel: the inspector, runs and versions ---------- */
-.wf-panel{position:relative;z-index:8;flex:none;width:0;display:flex;flex-direction:column;overflow:hidden;background:var(--dm-surface);border-left:1px solid transparent}
+.wf-panel{position:relative;z-index:8;flex:none;width:0;display:flex;flex-direction:column;overflow:hidden;background:var(--dm-surface);border-left:1px solid transparent;transition:width var(--dm-t) var(--dm-ease),border-color var(--dm-t) var(--dm-ease)}
 .wf.pn .wf-panel{width:368px;border-left-color:color-mix(in srgb,var(--dm-line) 50%,transparent)}
+/* beside the canvas the panel's width eases open (the canvas narrowing with it), its content at its full width, so it slides in
+   with the panel's edge instead of reflowing, and fades */
+@media (min-width:1200px){
+  .wf-panel>:is(.wf-ph,.wf-pv){width:368px;flex-shrink:0}
+  .wf-panel>*{opacity:0;transition:opacity var(--dm-t-fast) var(--dm-ease)}
+  .wf.pn .wf-panel>*{opacity:1;transition-duration:var(--dm-t)}
+}
+/* a new tab, or another step in the inspector, fades in from the side it sits on */
+.wf-pv.in{animation:wfpv var(--dm-t) var(--dm-ease) backwards}
+@keyframes wfpv{from{opacity:0;transform:translateX(var(--wf-dx,0px))}}
 .wf-ph{flex:none;display:flex;align-items:center;gap:var(--dm-s-2);height:52px;padding:0 var(--dm-s-2) 0 var(--dm-s-3);border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
 .wf-seg{flex:1;display:flex}
 .wf-seg button{flex:1;height:28px;padding:0 var(--dm-s-3);font-size:12.5px}
@@ -1447,13 +1479,24 @@ body:has(.wf) .dmf{display:none}
 .wfx-pick .acx-ls{max-height:260px}
 .wfx-pick .acx-o .ic.wfx-ic{width:22px;height:22px;border-radius:calc(6px * var(--dm-rk))}
 .wfx-pick .acx-o>span:last-child{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.wf-over{position:absolute;inset:0;z-index:70;display:flex;justify-content:center;align-items:flex-start;padding:72px var(--dm-s-4) var(--dm-s-4);background:color-mix(in srgb,var(--dm-page) 60%,transparent);animation:wffade .2s var(--dm-ease)}
+.wf-over{position:absolute;inset:0;z-index:70;display:flex;justify-content:center;align-items:flex-start;padding:72px var(--dm-s-4) var(--dm-s-4);background:color-mix(in srgb,var(--dm-page) 60%,transparent);animation:wffade var(--dm-t-fast) var(--dm-ease)}
 .wf-over[hidden]{display:none}
 @keyframes wffade{from{opacity:0}}
-.wf-cmd .cpl{width:100%;max-width:600px;animation:popin .35s var(--dm-ease) backwards}
+@keyframes wffadeout{to{opacity:0}}
+/* Ask the agent and Publish lift and fade in like the core's popovers, and leave the same way */
+.wf-over :is(.cpl,.fmx){animation:wfpop var(--dm-t) var(--dm-ease) backwards}
+.wf-over.out{pointer-events:none;animation:wffadeout var(--dm-t-fast) var(--dm-ease) both}
+.wf-over.out :is(.cpl,.fmx){animation:wfpopout var(--dm-t-fast) var(--dm-ease) both}
+@keyframes wfpop{from{opacity:0;transform:translateY(6px) scale(.98);filter:blur(3px)}}
+@keyframes wfpopout{to{opacity:0;transform:translateY(6px) scale(.98);filter:blur(3px)}}
+:root:not([data-style="soft"]) .wf-over :is(.cpl,.fmx){animation-name:wfpopbp}
+:root:not([data-style="soft"]) .wf-over.out :is(.cpl,.fmx){animation-name:wfpopoutbp}
+@keyframes wfpopbp{from{opacity:0;transform:translateY(4px)}}
+@keyframes wfpopoutbp{to{opacity:0;transform:translateY(4px)}}
+.wf-cmd .cpl{width:100%;max-width:600px}
 .wf-cmd .cpl-list{height:auto;max-height:min(380px,calc(100dvh - var(--pg-head) - 200px))}
 .wf-cmd .cpl-in>.i{color:var(--dm-accent-fg,var(--dm-accent))}
-.wf-pubd .fmx{max-width:440px;box-shadow:var(--dm-shadow-pop);animation:popin .35s var(--dm-ease) backwards}
+.wf-pubd .fmx{max-width:440px;box-shadow:var(--dm-shadow-pop)}
 .wf-pubd .fmx-h .ib{width:28px;height:28px;margin-right:-6px;color:var(--dm-muted)}
 .wf-pubd textarea{min-height:84px}
 .wf-checks{list-style:none;padding:0;display:flex;flex-direction:column;gap:var(--dm-s-2);font-size:12.5px}
@@ -1463,6 +1506,102 @@ body:has(.wf) .dmf{display:none}
 .wf-checks .pill{margin-left:auto}
 .wf-toasts{position:absolute;right:var(--dm-s-3);top:var(--dm-s-3);z-index:80;display:flex;flex-direction:column;align-items:flex-end;gap:var(--dm-s-2);width:min(380px,calc(100% - 32px));pointer-events:none}
 .wf-toasts .tst-t{pointer-events:auto}
+
+/* ---------- wfx-apps: Connected apps, a popover over the sidebar's foot ---------- */
+/* it grows upwards from where it opened (wf.js keeps its bottom edge) and eases to each view's height */
+.wfx-apps.pop{z-index:66;width:344px;max-width:calc(100vw - 16px);max-height:min(560px,calc(100% - 72px));display:flex;flex-direction:column;padding:0;min-width:0}
+.wfx-apps.pop.morph{overflow:hidden}
+.wfx-apps-v{flex:1 1 auto;min-height:0;display:flex;flex-direction:column}
+.wfx-apps-h{flex:none;display:flex;align-items:center;gap:var(--dm-s-2);height:48px;padding:0 var(--dm-s-3) 0 var(--dm-s-4)}
+.wfx-apps-h.bk{padding-left:var(--dm-s-2)}
+.wfx-apps-h b{font-weight:500;font-size:13.5px;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wfx-apps-h .muted{font-size:12px}
+.wfx-apps-lk{white-space:nowrap}
+.wfx-back.ib{width:28px;height:28px;color:var(--dm-muted)}
+.wfx-apps-sc{flex:0 1 auto;min-height:0;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:var(--dm-rail) transparent;padding:0 6px 6px}
+.wfx-apps-sh{display:flex;align-items:center;gap:6px;padding:var(--dm-s-3) 10px var(--dm-s-1);font-size:11.5px;color:var(--dm-muted)}
+.wfx-apps-l{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:1px}
+.wfx-apps-p{flex:none;margin:0;padding:0 var(--dm-s-4) var(--dm-s-2);font-size:12.5px;line-height:1.45;color:var(--dm-muted)}
+/* a row: the app's mark, its name and what it is for, its state */
+.wfx-app-b,.wfx-app-o,.wfx-tl{display:flex;align-items:center;gap:10px;width:100%;min-height:50px;padding:7px 10px;border-radius:calc(10px * var(--dm-rk));font-size:13px;text-align:left;color:var(--dm-fg);transition:background var(--dm-t-fast),opacity var(--dm-t-fast)}
+@supports (corner-shape:squircle){.wfx-app-b,.wfx-app-o,.wfx-tl{corner-shape:squircle}}
+.wfx-app-b:focus-visible,.wfx-app-o:focus-visible{outline-offset:-2px}
+@media (hover:hover) and (pointer:fine){
+  .wfx-app-b:hover,.wfx-app-o:not([aria-disabled="true"]):hover{background:var(--dm-row)}
+  .wfx-app-b:hover>.i{transform:translateX(2px);color:var(--dm-fg2)}
+}
+.wfx-app-o{cursor:pointer}
+.wfx-app-o.on{background:var(--dm-row)}
+.wfx-app-o[aria-disabled="true"]{cursor:default}
+.wfx-app-b>.i{flex:none;color:var(--dm-faint);transition:transform var(--dm-t-fast) var(--dm-ease),color var(--dm-t-fast)}
+.wfx-app-b .t,.wfx-app-o .t,.wfx-tl .t,.wfx-app-hd .t{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.35}
+:is(.wfx-app-b,.wfx-app-o,.wfx-tl) .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+:is(.wfx-app-b,.wfx-app-o,.wfx-tl) .d{font-size:12px;color:var(--dm-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wfx-app[data-st="auth"] .d{color:var(--dm-warn)}
+.wfx-app[data-st="bad"] .d{color:var(--dm-bad)}
+.wfx-app-b .tag,.wfx-tl .tag{flex:none}
+/* a new or returning app, and a new tool, fade in on a quiet grey that settles */
+.wfx-app.new .wfx-app-b,.wfx-tl.new{animation:wfnew 1.6s var(--dm-ease) backwards}
+@keyframes wfnew{from{background:var(--dm-row)}}
+.wfx-app.new .wfx-app-b>:not(.i){animation:enter var(--dm-t-slow) var(--dm-ease) backwards}
+/* an app's mark: the brand mark on a plain tile, or, for an app without one, its icon on a tint */
+.wfx-lg{position:relative;width:30px;height:30px;flex:none;display:grid;place-items:center;border-radius:calc(9px * var(--dm-rk));background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 70%,transparent);color:var(--dm-fg)}
+@supports (corner-shape:squircle){.wfx-lg{corner-shape:squircle}}
+.wfx-lg .brand{width:16px;height:16px}
+.wfx-lg[data-tone]{box-shadow:none;background:var(--wf-tb);color:var(--wf-tf)}
+.wfx-lg[data-tone="pp"]{--wf-tb:var(--dm-pp-bg);--wf-tf:var(--dm-pp)}
+.wfx-lg[data-tone="pl"]{--wf-tb:var(--dm-pl-bg);--wf-tf:var(--dm-pl)}
+.wfx-lg[data-tone="pt"]{--wf-tb:var(--dm-pt-bg);--wf-tf:var(--dm-pt)}
+.wfx-lg[data-tone="pb"]{--wf-tb:var(--dm-pb-bg);--wf-tf:var(--dm-pb)}
+.wfx-lg[data-tone="py"]{--wf-tb:var(--dm-py-bg);--wf-tf:var(--dm-py)}
+.wfx-lg[data-tone="pk"]{--wf-tb:var(--dm-pk-bg);--wf-tf:var(--dm-pk)}
+.wfx-lg[data-tone="pm"]{--wf-tb:var(--dm-pm-bg);--wf-tf:var(--dm-pm)}
+.wfx-lg.big{width:40px;height:40px;border-radius:calc(11px * var(--dm-rk))}
+.wfx-lg.big .brand{width:20px;height:20px}
+.wfx-lg.big .i{width:16px;height:16px}
+@media (hover:hover) and (pointer:fine){.wfx-app-b:hover .wfx-lg:not([data-tone]),.wfx-app-o:not([aria-disabled="true"]):hover .wfx-lg:not([data-tone]){box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line-strong) 50%,transparent)}}
+/* the catalogue's search and its right-hand state: Connect, a spinner, then a tick */
+.wfx-apps-q{flex:none;display:flex;align-items:center;gap:var(--dm-s-2);height:36px;margin:0 var(--dm-s-3) var(--dm-s-2);padding:0 10px;border-radius:var(--dm-r-field);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line) 50%,transparent);color:var(--dm-muted);transition:box-shadow var(--dm-t-fast)}
+@supports (corner-shape:squircle){.wfx-apps-q{corner-shape:squircle}}
+.wfx-apps-q:has(input:focus){box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line-strong) 50%,transparent)}
+.wfx-apps-q input{flex:1;min-width:0;height:100%;border:0;outline:0;background:transparent;font:inherit;font-size:13px;color:var(--dm-fg)}
+.wfx-apps-q input::placeholder{color:var(--dm-muted)}
+.wfx-app-r{flex:none;display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--dm-muted);transition:color var(--dm-t-fast)}
+.wfx-app-o.on .wfx-app-r{color:var(--dm-fg)}
+.wfx-app-r .spin{width:11px;height:11px;color:var(--dm-accent-mark,var(--dm-accent))}
+.wfx-app-o.done .wfx-app-r,.wfx-app-o.done .wfx-app-r .i{color:var(--dm-ok)}
+.wfx-tick{display:grid;animation:wftick .4s var(--dm-ease)}
+@keyframes wftick{from{opacity:0;transform:scale(.6)}}
+.wfx-app-o.busy .wfx-app-r{color:var(--dm-fg2)}
+.wfx-apps-e{margin:0;padding:var(--dm-s-5) var(--dm-s-3);font-size:12.5px;color:var(--dm-muted);text-align:center}
+.wfx-apps-ft{flex:none;display:flex;align-items:center;justify-content:space-between;margin:0;padding:var(--dm-s-2) var(--dm-s-4);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);font-size:12px}
+/* the foot: Add a connector, Add a tool, or an app's Reconnect and Disconnect */
+.wfx-apps-f{flex:none;display:flex;align-items:center;gap:6px;padding:var(--dm-s-2) var(--dm-s-3) var(--dm-s-3);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
+.wfx-apps-f .pill.ghost{color:var(--dm-fg2)}
+.wfx-apps-f .pill.wfx-dis{margin-left:auto;color:var(--dm-bad)}
+@media (hover:hover) and (pointer:fine){.wfx-apps-f .pill.wfx-dis:hover{color:var(--dm-bad);background:var(--dm-bad-bg)}}
+/* Connected apps keeps its row's fill while its popover is open */
+.wf-appsb[aria-expanded="true"]{background:var(--dm-row);color:var(--dm-fg)}
+.wfx-apps-f .pill.busy{pointer-events:none}
+.wfx-apps-f .pill .spin{width:11px;height:11px}
+/* an app's details */
+.wfx-app-hd{display:flex;align-items:center;gap:var(--dm-s-3);padding:var(--dm-s-1) 10px var(--dm-s-3)}
+.wfx-app-hd b{font-weight:500;font-size:13.5px}
+.wfx-app-hd .d{font-size:12px;color:var(--dm-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wfx-app-why{display:flex;align-items:flex-start;gap:var(--dm-s-2);margin:0 4px var(--dm-s-3);padding:var(--dm-s-2) 10px;border-radius:var(--dm-r-in);font-size:12.5px;line-height:1.45}
+.wfx-app-why .i{margin-top:2px}
+.wfx-app-why.warn{background:var(--dm-warn-bg);color:var(--dm-warn)}
+.wfx-app-why.bad{background:var(--dm-bad-bg);color:var(--dm-bad)}
+.wfx-app-dl{margin:0;padding:0 10px var(--dm-s-2);display:grid;grid-template-columns:72px minmax(0,1fr);gap:var(--dm-s-2) var(--dm-s-3);font-size:12.5px;line-height:1.45}
+.wfx-app-dl dt{color:var(--dm-muted)}
+.wfx-app-dl dd{margin:0;min-width:0;color:var(--dm-fg)}
+.wfx-app-wf{list-style:none;margin:-4px 0 0 -6px;padding:0;display:flex;flex-direction:column;gap:1px}
+.wfx-app-wf button{display:flex;align-items:center;gap:var(--dm-s-2);width:100%;height:28px;padding:0 6px;border-radius:var(--dm-r-sm);font-size:12.5px;text-align:left;color:var(--dm-fg);transition:background var(--dm-t-fast)}
+.wfx-app-wf .dot{width:6px;height:6px;flex:none;border-radius:50%;background:currentColor}
+.wfx-app-wf .t{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wfx-app-wf .i{color:var(--dm-muted);opacity:0;transform:translateX(-3px);transition:opacity var(--dm-t-fast),transform var(--dm-t-fast) var(--dm-ease)}
+.wfx-app-wf button:focus-visible .i{opacity:1;transform:none}
+@media (hover:hover) and (pointer:fine){.wfx-app-wf button:hover{background:var(--dm-row)}.wfx-app-wf button:hover .i{opacity:1;transform:none}}
 
 /* ---------- narrower screens ---------- */
 /* under 1200px the panel slides over the canvas instead of beside it */
@@ -1510,18 +1649,18 @@ body:has(.wf) .dmf{display:none}
   .wf-toasts{right:var(--dm-s-2);top:auto;bottom:var(--dm-s-2);width:calc(100% - 16px)}
 }
 @media (prefers-reduced-motion:reduce){
-  .wf-over,.wf-cmd .cpl,.wf-pubd .fmx,.wfx-node.add,.wfx-st{animation:none!important}
-  .wf-panel,.wf-side.ahx-side,.wfx-ins,.wfx-node,.wfx-svg path.e,.wfx-cv.anim .wfx-world,.wfx-cv.anim .wfx-vp{transition:none!important}
+  .wf-over,.wf-cmd .cpl,.wf-pubd .fmx,.wfx-node.add,.wfx-st,.wf-pv.in,.wf .rdr-dw :is(.rdr-tabs,.rdr-follow,.rdr-stop),.wfx-app.new,.wfx-tl.new,.wfx-tick{animation:none!important}
+  .wf-panel,.wf-panel>*,.wf-side.ahx-side,.wfx-ins,.wfx-node,.wfx-svg path.e,.wfx-cv.anim .wfx-world,.wfx-cv.anim .wfx-vp,.wf .rdr-dw .rdr-b,.wf-steps,.wfx-app-b>.i{transition:none!important}
   .wf-test.busy .i{animation:none}
 }
 /* true circles stay round in Soft, where everything else is a squircle */
-@supports (corner-shape:squircle){.wf-edited,.wfx-st,.wfx-pin,.wfx-ins,.wfx-ver-m,.wf-checks .g{corner-shape:round}}
+@supports (corner-shape:squircle){.wf-edited,.wfx-st,.wfx-pin,.wfx-ins,.wfx-ver-m,.wf-checks .g,.wfx-app-wf .dot{corner-shape:round}}
 </style><style>@font-face{font-family:Inter;font-style:normal;font-weight:400;font-display:swap;src:url(/fonts/inter-latin-400-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:Inter;font-style:normal;font-weight:500;font-display:swap;src:url(/fonts/inter-latin-500-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:Inter;font-style:normal;font-weight:600;font-display:swap;src:url(/fonts/inter-latin-600-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:Inter;font-style:normal;font-weight:700;font-display:swap;src:url(/fonts/inter-latin-700-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:"JetBrains Mono";font-style:normal;font-weight:500;font-display:swap;src:url(/fonts/jetbrains-mono-latin-500-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}</style><style>:root{--pg-bg:#fff;--pg-fg:#121212;--pg-dim:#525252;--pg-muted:#6a6a6a;--pg-line:#12121214;--pg-line2:#12121224;--pg-soft:#fafafa;--pg-chip:#f1f1f1;--pg-ink:#121212;--pg-on-ink:#fff;--pg-top:#ffffffdb;--pg-sans:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--pg-mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;--pg-head:53px}@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--pg-bg:#111;--pg-fg:#f2f2f2;--pg-dim:#c9c9c9;--pg-muted:silver;--pg-line:#ffffff14;--pg-line2:#ffffff24;--pg-soft:#1c1c1c;--pg-chip:#ffffff0f;--pg-ink:#f5f5f4;--pg-on-ink:#121212;--pg-top:#111111db;color-scheme:dark}}:root[data-theme=dark]{--pg-bg:#111;--pg-fg:#f2f2f2;--pg-dim:#c9c9c9;--pg-muted:silver;--pg-line:#ffffff14;--pg-line2:#ffffff24;--pg-soft:#1c1c1c;--pg-chip:#ffffff0f;--pg-ink:#f5f5f4;--pg-on-ink:#121212;--pg-top:#111111db;color-scheme:dark}*{box-sizing:border-box}html{-webkit-text-size-adjust:100%;scrollbar-gutter:stable}:where(.pg-main [id]:not([data-c] *),.pg-main :is(a[href],button,summary,input):not([data-c] *)){scroll-margin-top:calc(var(--pg-head) + var(--pg-bar,0px) + 24px)}@media (prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}body{background:var(--pg-bg);color:var(--pg-fg);font:14px/1.6 var(--pg-sans);letter-spacing:-.006em;-webkit-font-smoothing:antialiased;margin:0}a{color:inherit}:root{--pg-react:#087ea4}@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--pg-react:#61dafb}}:root[data-theme=dark]{--pg-react:#61dafb}:root{--pg-field:#d4d4d4;--pg-focus:#858585}@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--pg-field:#424242;--pg-focus:gray}}:root[data-theme=dark]{--pg-field:#424242;--pg-focus:gray}:focus-visible:not([data-c] *){outline:2px solid var(--pg-focus);outline-offset:2px}:is(input:not([type=checkbox],[type=radio],[type=range],[type=color],[type=file]),textarea):focus-visible:not([data-c] *){outline:0}.pg-top{z-index:50;height:var(--pg-head);background:var(--pg-top);backdrop-filter:blur(14px);border-bottom:1px solid var(--pg-line);position:sticky;top:0}.pg-top-in{align-items:center;gap:6px;max-width:1464px;height:100%;margin:0 auto;padding:0 32px;display:flex}.pg-logo{color:var(--pg-fg);display:block}.pg-notr,.pg-notr *,.pg-notr :before,.pg-notr :after{transition:none!important}.pg-top.app .pg-top-in{max-width:none;padding:0 16px 0 14px}.pg-logo.pg-smile{width:28px;height:28px;margin-right:var(--pg-smile-gap,10px);border-radius:8px;place-items:center;transition:transform .45s cubic-bezier(.34,1.56,.64,1);display:grid;transform:none}.pg-logo.pg-smile svg{width:24px;height:20px}@media (hover:hover) and (pointer:fine){.pg-logo.pg-smile:hover{transform:rotate(-8deg)scale(1.06)}}.pg-logo{transform-origin:0;transform:scale(.88)}.pg-logo svg{width:auto;height:26px;display:block}@media (width<=640px){.pg-logo svg{height:18px}}@media (width<=420px){.pg-logo svg{height:16px}}@media (width<=340px){.pg-logo svg{height:14px}}.lg svg.L{overflow:visible}.lg .L .wm{fill:currentColor}.lg .L .wm .ch{fill-opacity:0;stroke:currentColor;stroke-width:1px;vector-effect:non-scaling-stroke;transition:fill-opacity .2s cubic-bezier(.2,.7,.2,1) calc(var(--i) * 45ms),stroke-opacity .2s cubic-bezier(.2,.7,.2,1) calc(var(--i) * 45ms)}.lg .L .dev{fill:var(--dm-accent-fg,currentColor)}.lg .L .cons{fill:none;stroke:var(--dm-accent-mark,currentColor);transition:opacity .3s cubic-bezier(.2,.7,.2,1)}.lg .L .cons path{stroke-width:1px;vector-effect:non-scaling-stroke}.lg .L .cons .cl{stroke-opacity:.45}.lg:focus-visible .L .wm .ch{fill-opacity:1;stroke-opacity:0}.lg:focus-visible .L .cons{opacity:.3}@media (hover:hover) and (pointer:fine){.lg:hover .L .wm .ch{fill-opacity:1;stroke-opacity:0}.lg:hover .L .cons{opacity:.3}}@media (hover:none),(width<=640px){.lg .L .wm .ch{fill-opacity:1;stroke:none}.lg .L .cons{opacity:.3}}@media (prefers-reduced-motion:reduce){.lg .L .wm .ch{transition-delay:0s}}.pg-sp{flex:1}.pg-seg{background:var(--pg-chip);border-radius:999px;padding:2px;display:inline-flex}.pg-seg button{height:24px;color:var(--pg-dim);font:500 13px/1 var(--pg-sans);cursor:pointer;background:0 0;border:0;border-radius:999px;padding:0 10px;transition:color .2s}@media (pointer:coarse){.pg-seg button,.pg-gh{position:relative}.pg-seg button:after,.pg-gh:after{content:"";height:44px;margin-top:-22px;position:absolute;top:50%;left:0;right:0}}@media (hover:hover) and (pointer:fine){.pg-seg button:hover{color:var(--pg-fg)}}.pg-seg button[aria-checked=true]{background:var(--pg-bg);color:var(--pg-fg);box-shadow:0 1px 2px #12121214,0 0 0 .5px #1212120f}.pg-seg svg{width:14px;height:14px;display:block}.pg-seg.icons button{place-items:center;width:26px;padding:0;display:grid}.pg-gh{background:var(--pg-bg);height:28px;box-shadow:inset 0 0 0 1px var(--pg-line2);color:var(--pg-dim);font:500 13px/1 var(--pg-sans);white-space:nowrap;border-radius:999px;flex:none;align-items:center;gap:6px;margin-right:6px;padding:0 11px 0 9px;text-decoration:none;transition:color .2s,background-color .2s;display:inline-flex}@media (hover:hover) and (pointer:fine){.pg-gh:hover{color:var(--pg-fg);background:var(--pg-chip)}}.pg-gh svg{flex:none;width:14px;height:14px;display:block}.pg-gh-n{color:var(--pg-fg);font-variant-numeric:tabular-nums}.pg-gh.has-n .pg-gh-l{display:none}.pg-wrap{max-width:1024px;margin:0 auto;padding:0 32px}.pg-main{padding:40px 0 96px}.pg-crumbs{color:var(--pg-muted);flex-wrap:wrap;gap:6px;font-size:13px;display:flex}.pg-crumbs a{color:var(--pg-dim);text-decoration:none}@media (hover:hover) and (pointer:fine){.pg-crumbs a:hover{color:var(--pg-fg)}}.pg-h1{letter-spacing:-.022em;color:var(--pg-fg);text-wrap:balance;margin:14px 0 0;font-size:20px;font-weight:500;line-height:1.3}.pg-lead{color:var(--pg-dim);max-width:72ch;margin:8px 0 0;font-size:14px;line-height:1.6}.pg-lead code,.pg-code{font:500 12.5px/1.4 var(--pg-mono);font-variant-ligatures:none;background:var(--pg-chip);color:var(--pg-fg);border-radius:6px;padding:2px 6px}.pg-cmd{min-height:32px;box-shadow:inset 0 0 0 1px var(--pg-line2);background:var(--pg-bg);font:500 12px/1 var(--pg-mono);font-variant-ligatures:none;border-radius:9px;align-items:center;gap:8px;max-width:100%;margin:16px 0 0;padding:4px 6px 4px 10px;display:inline-flex}.pg-cmd .d{color:var(--pg-muted)}.pg-cmd .c{min-width:0;color:var(--pg-fg);overflow-wrap:anywhere;line-height:1.5}.pg-cmd .c span{white-space:nowrap}.pg-cmd button{width:24px;height:24px;color:var(--pg-muted);cursor:pointer;background:0 0;border:0;border-radius:6px;flex:none;place-items:center;display:grid}@media (hover:hover) and (pointer:fine){.pg-cmd button:hover{color:var(--pg-fg);background:var(--pg-chip)}}.pg-cmd svg{width:14px;height:14px}.pg-sh{border-bottom:1px solid var(--pg-line);flex-wrap:wrap;align-items:baseline;gap:2px 10px;margin:0 0 24px;padding:56px 0 18px;display:flex}.pg-sh .n{font:500 12px/1.5 var(--pg-mono);color:var(--pg-muted)}.pg-sh h2{letter-spacing:0;margin:0;font-size:14px;font-weight:500;line-height:20px}.pg-sh p{color:var(--pg-dim);flex-basis:100%;margin:0;font-size:14px;line-height:20px}.pg-t{letter-spacing:0;color:var(--pg-fg);font-size:14px;font-weight:500;line-height:20px}.pg-d{color:var(--pg-dim);font-size:14px;line-height:20px}.pg-cards{grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;display:grid}.pg-card{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--pg-line) 50%,transparent);border-radius:16px;flex-direction:column;padding:5px;text-decoration:none;transition:box-shadow .16s;display:flex}@media (hover:hover) and (pointer:fine){.pg-card:hover{box-shadow:inset 0 0 0 1px var(--pg-line)}}.pg-card .pg-thumb{order:-1}.pg-card{position:relative}.pg-card .pg-t{margin:10px 6px 0;text-decoration:none}.pg-link:after{content:"";z-index:2;border-radius:16px;position:absolute;inset:0}.pg-card .pg-d{white-space:nowrap;text-overflow:ellipsis;margin:0 6px 6px;overflow:hidden}.pg-thumb{aspect-ratio:16/10;background:var(--pg-soft);border-radius:12px;position:relative;overflow:hidden}.pg-thumb img{object-fit:cover;width:100%;height:100%;transition:transform .5s cubic-bezier(.16,1,.3,1);position:absolute;inset:0}@media (hover:hover) and (pointer:fine){.pg-card:hover .pg-thumb img{transform:scale(1.025)}}.pg-thumb .dk{display:none}@media (prefers-color-scheme:dark){:root:not([data-theme=light]) .pg-thumb .lt{display:none}:root:not([data-theme=light]) .pg-thumb .dk{display:block}}:root[data-theme=dark] .pg-thumb .lt{display:none}:root[data-theme=dark] .pg-thumb .dk{display:block}@media (width<=860px){.pg-cards{grid-template-columns:repeat(2,minmax(0,1fr))}}@media (width<=520px){.pg-cards{grid-template-columns:minmax(0,1fr)}}.pg-foot{color:var(--pg-muted);border-top:1px solid var(--pg-line);font-size:14px}.pg-foot .pg-wrap{max-width:1464px}.pg-foot-in{flex-wrap:wrap;justify-content:space-between;gap:10px 24px;padding-block:28px 40px;display:flex}.pg-foot nav{flex-wrap:wrap;gap:18px;display:flex}.pg-foot a{color:var(--pg-dim);text-decoration:none}@media (hover:hover) and (pointer:fine){.pg-foot a:hover{color:var(--pg-fg)}}.pg-foot-in>span a{text-decoration:underline;text-decoration-color:var(--pg-line2);text-underline-offset:3px;transition:text-decoration-color .16s}@media (hover:hover) and (pointer:fine){.pg-foot-in>span a:hover{text-decoration-color:currentColor}}@media (width<=960px){:root{--pg-head:61px}.pg-top-in,.pg-wrap{padding:0 24px}.pg-top .pg-style{display:none}.pg-gh{height:32px;padding:0 12px 0 10px}}@media (width<=640px){.pg-top-in,.pg-wrap{padding:0 16px}.pg-h1{font-size:20px}.pg-main{padding:24px 0 64px}.pg-sh{margin-bottom:20px;padding-top:40px}.pg-foot-in{padding-block:24px 32px}}@media (width<=420px){.pg-top-in{gap:4px}.pg-gh{padding:0 9px 0 8px}}@media (pointer:coarse){:where(body) :where(button,a[href],summary,[role=button],[role=tab],[role=switch],[role=radio],[role=checkbox],label:has(input[type=color],input[type=checkbox],input[type=radio])):not(:where([data-c],[data-c] *,.pg-link)){--dm-hit-w:40px;--dm-hit-h:40px;position:relative}:where(body) :where(button,a[href],summary,[role=button],[role=tab],[role=switch],[role=radio],[role=checkbox],label:has(input[type=color],input[type=checkbox],input[type=radio])):not(:where([data-c],[data-c] *,.pg-link,.side-ul .side-a.act,.hire-btn,details.cp-file summary)):before,:where(body) :where(button,a[href],summary,[role=button],[role=tab],[role=switch],[role=radio],[role=checkbox]):where(.side-ul .side-a.act,details.cp-file summary):not(:where([data-c] *)):after{content:"";inset:min(0px,(100% - var(--dm-hit-h)) / 2) min(0px,(100% - var(--dm-hit-w)) / 2);--dm-hit:1;position:absolute}body .hire-btn{overflow:visible}body .hire-btn:before{width:auto;height:auto;top:auto;left:auto;inset:min(0px,(100% - var(--dm-hit-h)) / 2) min(0px,(100% - var(--dm-hit-w)) / 2);opacity:0;--dm-hit:1;background:0 0;border-radius:0;margin:0;transition:none;transform:none}}.pg-skip{z-index:100;background:var(--pg-bg);height:32px;color:var(--pg-fg);box-shadow:inset 0 0 0 1px var(--pg-line2);font:500 13px/1 var(--pg-sans);letter-spacing:0;white-space:nowrap;opacity:0;pointer-events:none;border-radius:999px;align-items:center;padding:0 12px;text-decoration:none;display:inline-flex;position:fixed;top:8px;left:16px;transform:translateY(-48px)}.pg-skip:focus{opacity:1;pointer-events:auto;outline:2px solid var(--pg-focus);outline-offset:2px;transform:none}@media (prefers-reduced-motion:no-preference){.pg-skip{transition:opacity .2s,transform .2s cubic-bezier(.16,1,.3,1)}}#content:focus{outline:none}.pg-sr{clip-path:inset(50%);white-space:nowrap;border:0;width:1px;height:1px;margin:-1px;padding:0;position:absolute;overflow:hidden}
-</style></head><body><a class="pg-skip" href="#content">Skip to content</a><div class="pg-sr" id="pg-live" role="status" aria-live="polite"></div><header class="pg-top app"><div class="pg-top-in"><a class="pg-logo pg-smile" href="/" aria-label="Designme.dev home"><svg viewBox="0 0 759 632" aria-hidden="true" focusable="false"><path fill="currentColor" d="M149.497 283.784C149.477 284.047 149.474 284.311 149.487 284.575C156.385 340.034 183.548 391.116 225.9 428.196C267.989 465.044 322.188 485.532 378.414 485.855L379.743 485.859C436.453 485.868 491.188 465.353 533.619 428.212C575.912 391.194 603.062 340.216 610.018 284.856L610.018 281.512C610.008 277.337 608.324 273.315 605.303 270.335C602.277 267.351 598.155 265.656 593.837 265.656L165.647 265.656C161.338 265.656 157.226 267.349 154.21 270.331C151.198 273.309 149.524 277.326 149.523 281.491L149.523 283.437L149.497 283.784ZM114.378 247.395C118.396 247.391 122.254 245.919 125.214 243.29C128.063 240.759 129.887 237.33 130.396 233.629L130.396 233.35L130.437 232.917C136.355 171.634 165.162 114.754 211.202 73.3687C257.239 31.9859 317.206 9.06063 379.393 9.04448L379.396 9.04448C441.593 9.04583 501.574 31.964 547.624 73.3482C593.677 114.735 622.491 171.624 628.411 232.917L628.453 233.35L628.453 233.643C628.953 237.344 630.773 240.774 633.621 243.304C636.58 245.932 640.437 247.399 644.452 247.395L725.644 247.395C728.882 247.404 732.089 248.06 735.071 249.329C738.055 250.598 740.753 252.453 743.001 254.787C745.252 257.123 747.005 259.891 748.151 262.924C749.296 265.954 749.81 269.183 749.662 272.418L749.663 272.418C745.484 366.797 704.617 455.919 635.615 521.211C566.616 586.499 474.809 622.924 379.338 622.924C283.872 622.924 192.071 586.496 123.081 521.206C54.0935 455.917 13.2412 366.804 9.07133 272.438L9.07036 272.438L9.07036 272.436C9.07007 272.43 9.06967 272.423 9.06938 272.417L9.07036 272.417C8.92272 269.182 9.43655 265.953 10.5811 262.924C11.7276 259.89 13.481 257.123 15.7315 254.787C17.9805 252.452 20.6797 250.597 23.6622 249.329C26.6443 248.06 29.8504 247.404 33.0889 247.395L114.378 247.395Z"/></svg></a><span class="wf-name">Workflow editor template</span><span class="pg-sp"></span><a class="pg-gh" href="https://github.com/bydesignme/designme-dev" aria-label="Star designme.dev on GitHub" data-gh-stars><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg><span class="pg-gh-l">Star on GitHub</span><span class="pg-gh-n" hidden></span></a><div class="pg-seg pg-style" role="radiogroup" aria-label="Style"><button type="button" role="radio" aria-checked="false" data-style-set="bp">Blueprint</button><button type="button" role="radio" aria-checked="false" data-style-set="soft">Soft</button><button type="button" role="radio" aria-checked="false" aria-haspopup="dialog" data-style-set="mine">Your theme</button></div><div class="pg-seg icons" role="radiogroup" aria-label="Theme"><button type="button" role="radio" aria-checked="false" data-theme-set="light" aria-label="Light"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg></button><button type="button" role="radio" aria-checked="false" data-theme-set="dark" aria-label="Dark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"></path></svg></button></div></div></header><main class="pg-app"><div class="wf" data-c="workflow-editor"><!-- the workflows: Agent harness's side list, grouped by what needs you --><aside class="ahx-side wf-side" aria-label="Workflows"><div class="ahx-ws"><button class="ahx-wsb wf-wsb" data-pop="#wf-p-ws" aria-haspopup="menu"><span class="pfm-lg" aria-hidden="true">F</span><span class="wf-wst"><span class="t">Fernhill</span><span class="s">Revenue operations</span></span><svg class="i xs" aria-hidden="true"><use href="#i-unfold"/></svg></button></div><button class="ahx-cv wf-newwf" data-act="new"><svg class="i s" aria-hidden="true"><use href="#i-plus"/></svg><span class="t">New workflow</span></button><div class="wf-flows"></div><div class="wf-sfoot"><button class="ahx-cv" data-act="apps"><svg class="i s" aria-hidden="true"><use href="#i-link"/></svg><span class="t">Connected apps</span><span class="n num">6</span></button><div class="wf-usage"><div class="prg-mh"><span>Runs this month</span><span class="muted num wf-usen"></span></div><div class="prg-mb" role="meter" aria-label="Agent runs used this month" aria-valuemin="0" aria-valuemax="5000"><i class="fl"></i></div></div></div></aside><div class="ahx-scrim wf-scrim" aria-hidden="true"></div><div class="wf-main"><header class="wf-top"><button class="ib wf-menu" aria-label="Show the workflows" data-tip="Workflows"><svg class="i s" aria-hidden="true"><use href="#i-panel"/></svg></button><div class="wf-title"><h1 class="wf-h1" id="content" tabindex="-1"><button class="wf-h1b" aria-label="Rename the workflow" data-tip="Rename"><span class="wf-h1t"></span></button></h1><span class="wf-state"></span></div><span class="wf-saved muted" aria-live="polite"></span><span class="wf-sp"></span><button class="pill ghost sm wf-ask" aria-label="Ask the agent" aria-keyshortcuts="Control+K Meta+K"><svg class="i xs" aria-hidden="true"><use href="#i-spark"/></svg><span class="t">Ask the agent</span><span class="kbd">⌘K</span></button><button class="ib wf-hist" data-panel="runs" aria-label="Runs" data-tip="Runs"><svg class="i s" aria-hidden="true"><use href="#i-clock"/></svg></button><button class="ib wf-vers" data-panel="versions" aria-label="Versions" data-tip="Versions"><svg class="i s" aria-hidden="true"><use href="#i-history"/></svg></button><div class="wf-split"><button class="pill line sm wf-test"><svg class="i xs" aria-hidden="true"><use href="#i-play"/></svg><span>Test run</span></button><button class="pill line sm wf-testm" data-pop="#wf-p-lead" data-pop-align="end" aria-haspopup="menu" aria-label="Choose the test lead" data-tip="Test with"><svg class="i xs" aria-hidden="true"><use href="#i-chev-d"/></svg></button></div><button class="pill primary sm wf-pub"><svg class="i xs" aria-hidden="true"><use href="#i-upload"/></svg><span>Publish</span></button><button class="ib wf-more" data-pop="#wf-p-more" data-pop-align="end" aria-haspopup="menu" aria-label="More workflow actions" data-tip="More"><svg class="i s" aria-hidden="true"><use href="#i-more"/></svg></button></header><div class="wf-body"><div class="wf-work"><!-- the canvas: the steps on a board that pans and zooms (wfx-node, wfx-ins), with Canvas toolbar's bar under it --><div class="wfx-cv" tabindex="0" role="application" aria-roledescription="workflow canvas" aria-label="Workflow canvas" aria-describedby="wf-cv-help"><div class="wfx-vp"><div class="wfx-world"><svg class="wfx-svg" aria-hidden="true"></svg><div class="wfx-nodes"></div></div></div><button class="wf-lead" data-pop="#wf-p-lead" aria-haspopup="menu"></button><span class="wfx-sr" id="wf-cv-help">Tab moves through the steps, Enter opens one. With the canvas focused the arrow keys move the view, plus and minus zoom and 0 fits the workflow. Delete removes the selected step.</span><div class="ctb-bar wf-bar" role="toolbar" aria-label="Canvas tools"><div class="ctb-tools" role="radiogroup" aria-label="Tool"><button class="ctb-b" role="radio" aria-checked="true" data-t="select" aria-label="Select" data-tip="Select" data-tip-k="V"><svg class="i s" aria-hidden="true"><use href="#i-cursor"/></svg></button><button class="ctb-b" role="radio" aria-checked="false" tabindex="-1" data-t="hand" aria-label="Pan" data-tip="Pan" data-tip-k="H"><svg class="i s" aria-hidden="true"><use href="#i-hand"/></svg></button></div><span class="ctb-sep"></span><button class="ctb-b wf-add" data-pop="#wf-p-pick" data-pop-pos="up" aria-haspopup="dialog" aria-label="Add a step" data-tip="Add a step" data-tip-k="A"><svg class="i s" aria-hidden="true"><use href="#i-plus"/></svg></button><span class="ctb-sep"></span><button class="ctb-b wf-undo" aria-label="Undo" data-tip="Undo" data-tip-k="⌘Z" aria-disabled="true"><svg class="i s" aria-hidden="true"><use href="#i-undo"/></svg></button><button class="ctb-b wf-redo" aria-label="Redo" data-tip="Redo" data-tip-k="⇧⌘Z" aria-disabled="true"><svg class="i s" aria-hidden="true"><use href="#i-redo"/></svg></button><span class="ctb-sep wf-xs"></span><button class="ctb-b wf-tidy wf-xs" aria-label="Tidy up the layout" data-tip="Tidy up"><svg class="i s" aria-hidden="true"><use href="#i-grid"/></svg></button><button class="ctb-b wf-fit" aria-label="Fit to screen" data-tip="Fit to screen" data-tip-k="0"><svg class="i s" aria-hidden="true"><use href="#i-fit"/></svg></button><span class="ctb-sep wf-xs"></span><button class="ctb-b wf-zo wf-xs" aria-label="Zoom out" data-tip="Zoom out" data-tip-k="−"><svg class="i s" aria-hidden="true"><use href="#i-minus"/></svg></button><button class="ctb-z num wf-zl wf-xs" aria-label="Zoom 100%, reset to 100%" data-tip="Zoom to 100%">100%</button><button class="ctb-b wf-zi wf-xs" aria-label="Zoom in" data-tip="Zoom in" data-tip-k="+"><svg class="i s" aria-hidden="true"><use href="#i-plus"/></svg></button></div></div><!-- the run drawer: Run drawer, under the canvas, with the agent's notes beside its steps --><div class="rdr-dw wf-dr shut" role="region" aria-label="Run"><div class="rdr-grip" role="separator" aria-orientation="horizontal" aria-label="Resize the run panel" tabindex="0" aria-valuemin="160" aria-valuemax="560"><i></i></div><div class="rdr-h"><button class="rdr-tg" aria-expanded="false" aria-controls="wf-dr-b"><svg class="i xs" aria-hidden="true"><use href="#i-chev-u"/></svg></button><span class="rdr-meta num"></span><span class="rdr-sp"></span><div class="seg2 rdr-tabs" role="group" aria-label="Show"><button aria-pressed="true" data-v="steps">Steps</button><button aria-pressed="false" data-v="log">Log</button><button aria-pressed="false" data-v="data">Data</button></div><button class="pill ghost sm rdr-stop" aria-label="Stop the run" data-tip="Stop the run" hidden><svg class="i xs" aria-hidden="true"><use href="#i-stop"/></svg><span>Stop</span></button><button class="ib rdr-follow" aria-pressed="true" aria-label="Follow the run on the canvas" data-tip="Follow the run"><svg class="i s" aria-hidden="true"><use href="#i-target"/></svg></button></div><div class="rdr-b" id="wf-dr-b"><div class="rdr-v wf-steps" data-v="steps"><div class="wfx-dr-note"></div><div class="wf-tl"><div class="rdr-ax" aria-hidden="true"><span>Step</span><span class="rdr-sc"></span><span class="ms">Time</span></div><div class="rdr-rows" role="group" aria-label="Steps of the run"></div></div></div><div class="rdr-v" data-v="log" hidden><div class="rdr-lf"><div class="seg2 rdr-lvs" role="group" aria-label="Level"><button aria-pressed="true" data-v="all">All</button><button aria-pressed="false" data-v="warn">Warnings</button><button aria-pressed="false" data-v="error">Errors</button></div><span class="n num"></span></div><ol class="rdr-log" aria-label="Run log"></ol></div><div class="rdr-v" data-v="data" hidden><div class="rdr-data"><div class="rdr-ds" role="group" aria-label="Steps"></div><div class="rdr-io"></div></div></div></div></div></div><!-- the right panel: the step inspector (Step inspector), run history and versions (wfx-versions) --><aside class="wf-panel" aria-label="Details" inert><div class="wf-ph"><div class="sgc-seg wf-seg" role="tablist" aria-label="Panel"><span class="sgc-k" aria-hidden="true"></span><button role="tab" id="wf-t-step" aria-controls="wf-v-step" aria-selected="true" data-v="step">Step</button><button role="tab" id="wf-t-runs" aria-controls="wf-v-runs" aria-selected="false" tabindex="-1" data-v="runs">Runs</button><button role="tab" id="wf-t-versions" aria-controls="wf-v-versions" aria-selected="false" tabindex="-1" data-v="versions">Versions</button></div><button class="ib wf-pclose" aria-label="Close the panel" data-tip="Close" data-tip-k="Esc"><svg class="i s" aria-hidden="true"><use href="#i-x"/></svg></button></div><div class="wf-pv" id="wf-v-step" role="tabpanel" aria-labelledby="wf-t-step"><div class="sti wf-insp"></div></div><div class="wf-pv" id="wf-v-runs" role="tabpanel" aria-labelledby="wf-t-runs" hidden></div><div class="wf-pv" id="wf-v-versions" role="tabpanel" aria-labelledby="wf-t-versions" hidden></div></aside></div></div><!-- menus and pickers: the shared core opens each from its button (data-pop) --><div class="pop wf-pop" id="wf-p-ws" role="menu" aria-label="Workspaces"></div><div class="pop wf-pop" id="wf-p-lead" role="menu" aria-label="Test with"></div><div class="pop wf-pop" id="wf-p-more" role="menu" aria-label="Workflow actions"></div><div class="pop wf-pop" id="wf-p-sel" role="menu" aria-label="Options"></div><div class="pop wf-pop" id="wf-p-node" role="menu" aria-label="Step actions"></div><div class="pop wf-pop" id="wf-p-ver" role="menu" aria-label="Version actions"></div><!-- the step picker (wfx-picker): Automation canvas's picker, with the agent as its last resort --><div class="pop acx-pk wfx-pick" id="wf-p-pick" role="dialog" aria-label="Add a step"><div class="acx-q"><svg class="i xs" aria-hidden="true"><use href="#i-search"/></svg><input class="acx-qi" type="text" role="combobox" aria-expanded="true" aria-autocomplete="list" aria-controls="wf-pick-ls" placeholder="Find a step or describe one" aria-label="Find a step or describe one" autocomplete="off" spellcheck="false"></div><div class="acx-ls" id="wf-pick-ls" role="listbox" aria-label="Steps"></div><p class="acx-pd" aria-hidden="true"></p></div><!-- the data picker: Data picker's picker, of what earlier steps produced, to map into a field --><div class="pop fpk-pop" id="wf-p-var" role="dialog" aria-label="Pick data from an earlier step"><div class="fpk-q"><svg class="i s" aria-hidden="true"><use href="#i-search"/></svg><input class="wf-var-q" type="text" role="combobox" aria-expanded="true" aria-autocomplete="list" aria-controls="wf-var-ls" placeholder="Find a field" aria-label="Find a field" autocomplete="off" spellcheck="false"></div><div class="fpk-ls" id="wf-var-ls" role="listbox" aria-label="Fields from earlier steps"></div><p class="fpk-ft"><span class="wf-var-n"></span><span class="kh" aria-hidden="true"><span class="kbd">↑</span> <span class="kbd">↓</span> <span class="kbd">↵</span></span></p></div><!-- Ask the agent: the Command palette, over the app --><div class="wf-over wf-cmd" hidden><div class="cpl panel" role="dialog" aria-label="Ask the agent or jump to a step"><div class="cpl-in"><svg class="i s" aria-hidden="true"><use href="#i-spark"/></svg><input class="cpl-q" placeholder="Ask the agent, or find a step or action" aria-label="Ask the agent, or find a step or action" spellcheck="false" autocomplete="off"><span class="kbd">esc</span></div><div class="cpl-list" role="listbox" aria-label="Results"></div><div class="cpl-f muted"><span><span class="kbd">↑</span><span class="kbd">↓</span> move</span><span><span class="kbd">↵</span> run</span><span class="cpl-st"></span></div></div></div><!-- Publish: the Form, with the note the agent drafts from the changes --><div class="wf-over wf-pubd" hidden><form class="fmx panel" role="dialog" aria-modal="true" aria-labelledby="wf-pub-h" novalidate><div class="fmx-h"><b id="wf-pub-h">Publish</b><button type="button" class="ib wf-pubx" aria-label="Close" data-tip="Close"><svg class="i xs" aria-hidden="true"><use href="#i-x"/></svg></button></div><ul class="wf-checks" aria-label="Before you publish"></ul><label class="fmx-f ai"><span>What changed<i class="fmx-dr" aria-hidden="true"><svg class="i xs" aria-hidden="true"><use href="#i-spark"/></svg>Drafted by the agent</i></span><textarea name="note" rows="3"></textarea></label><div class="fmx-ft"><span class="fmx-ms muted wf-pubms"></span><button class="pill primary sm fmx-go" type="submit"></button></div></form></div><div class="wf-toasts" aria-live="polite"></div></div></main><footer class="pg-foot"><div class="pg-wrap"><div class="pg-foot-in"><span>Free and MIT licensed. Built by <a href="https://designme.agency">DesignMe</a>.</span><nav aria-label="More"><a href="/">All components</a><a href="/docs/introduction">Docs</a><a href="/#/changelog">Changelog</a><a href="/#/roadmap">Roadmap</a><a href="/llms.txt">llms.txt</a><a href="/">Home</a></nav></div></div></footer><script>
+</style></head><body><a class="pg-skip" href="#content">Skip to content</a><div class="pg-sr" id="pg-live" role="status" aria-live="polite"></div><header class="pg-top app"><div class="pg-top-in"><a class="pg-logo pg-smile" href="/" aria-label="Designme.dev home"><svg viewBox="0 0 759 632" aria-hidden="true" focusable="false"><path fill="currentColor" d="M149.497 283.784C149.477 284.047 149.474 284.311 149.487 284.575C156.385 340.034 183.548 391.116 225.9 428.196C267.989 465.044 322.188 485.532 378.414 485.855L379.743 485.859C436.453 485.868 491.188 465.353 533.619 428.212C575.912 391.194 603.062 340.216 610.018 284.856L610.018 281.512C610.008 277.337 608.324 273.315 605.303 270.335C602.277 267.351 598.155 265.656 593.837 265.656L165.647 265.656C161.338 265.656 157.226 267.349 154.21 270.331C151.198 273.309 149.524 277.326 149.523 281.491L149.523 283.437L149.497 283.784ZM114.378 247.395C118.396 247.391 122.254 245.919 125.214 243.29C128.063 240.759 129.887 237.33 130.396 233.629L130.396 233.35L130.437 232.917C136.355 171.634 165.162 114.754 211.202 73.3687C257.239 31.9859 317.206 9.06063 379.393 9.04448L379.396 9.04448C441.593 9.04583 501.574 31.964 547.624 73.3482C593.677 114.735 622.491 171.624 628.411 232.917L628.453 233.35L628.453 233.643C628.953 237.344 630.773 240.774 633.621 243.304C636.58 245.932 640.437 247.399 644.452 247.395L725.644 247.395C728.882 247.404 732.089 248.06 735.071 249.329C738.055 250.598 740.753 252.453 743.001 254.787C745.252 257.123 747.005 259.891 748.151 262.924C749.296 265.954 749.81 269.183 749.662 272.418L749.663 272.418C745.484 366.797 704.617 455.919 635.615 521.211C566.616 586.499 474.809 622.924 379.338 622.924C283.872 622.924 192.071 586.496 123.081 521.206C54.0935 455.917 13.2412 366.804 9.07133 272.438L9.07036 272.438L9.07036 272.436C9.07007 272.43 9.06967 272.423 9.06938 272.417L9.07036 272.417C8.92272 269.182 9.43655 265.953 10.5811 262.924C11.7276 259.89 13.481 257.123 15.7315 254.787C17.9805 252.452 20.6797 250.597 23.6622 249.329C26.6443 248.06 29.8504 247.404 33.0889 247.395L114.378 247.395Z"/></svg></a><span class="wf-name">Workflow editor template</span><span class="pg-sp"></span><a class="pg-gh" href="https://github.com/bydesignme/designme-dev" aria-label="Star designme.dev on GitHub" data-gh-stars><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg><span class="pg-gh-l">Star on GitHub</span><span class="pg-gh-n" hidden></span></a><div class="pg-seg pg-style" role="radiogroup" aria-label="Style"><button type="button" role="radio" aria-checked="false" data-style-set="bp">Blueprint</button><button type="button" role="radio" aria-checked="false" data-style-set="soft">Soft</button><button type="button" role="radio" aria-checked="false" aria-haspopup="dialog" data-style-set="mine">Your theme</button></div><div class="pg-seg icons" role="radiogroup" aria-label="Theme"><button type="button" role="radio" aria-checked="false" data-theme-set="light" aria-label="Light"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg></button><button type="button" role="radio" aria-checked="false" data-theme-set="dark" aria-label="Dark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"></path></svg></button></div></div></header><main class="pg-app"><div class="wf" data-c="workflow-editor"><!-- the workflows: Agent harness's side list, grouped by what needs you --><aside class="ahx-side wf-side" aria-label="Workflows"><div class="ahx-ws"><button class="ahx-wsb wf-wsb" data-pop="#wf-p-ws" aria-haspopup="menu"><span class="pfm-lg" aria-hidden="true">F</span><span class="wf-wst"><span class="t">Fernhill</span><span class="s">Revenue operations</span></span><svg class="i xs" aria-hidden="true"><use href="#i-unfold"/></svg></button></div><button class="ahx-cv wf-newwf" data-act="new"><svg class="i s" aria-hidden="true"><use href="#i-plus"/></svg><span class="t">New workflow</span></button><div class="wf-flows"></div><div class="wf-sfoot"><button class="ahx-cv wf-appsb" data-act="apps" data-pop="#wf-p-apps" data-pop-pos="up" aria-haspopup="dialog"><svg class="i s" aria-hidden="true"><use href="#i-link"/></svg><span class="t">Connected apps</span><span class="n num">6</span></button><div class="wf-usage"><div class="prg-mh"><span>Runs this month</span><span class="muted num wf-usen"></span></div><div class="prg-mb" role="meter" aria-label="Agent runs used this month" aria-valuemin="0" aria-valuemax="5000"><i class="fl"></i></div></div></div></aside><div class="ahx-scrim wf-scrim" aria-hidden="true"></div><div class="wf-main"><header class="wf-top"><button class="ib wf-menu" aria-label="Show the workflows" data-tip="Workflows"><svg class="i s" aria-hidden="true"><use href="#i-panel"/></svg></button><div class="wf-title"><h1 class="wf-h1" id="content" tabindex="-1"><button class="wf-h1b" aria-label="Rename the workflow" data-tip="Rename"><span class="wf-h1t"></span></button></h1><span class="wf-state"></span></div><span class="wf-saved muted" aria-live="polite"></span><span class="wf-sp"></span><button class="pill ghost sm wf-ask" aria-label="Ask the agent" aria-keyshortcuts="Control+K Meta+K"><svg class="i xs" aria-hidden="true"><use href="#i-spark"/></svg><span class="t">Ask the agent</span><span class="kbd">⌘K</span></button><button class="ib wf-hist" data-panel="runs" aria-label="Runs" data-tip="Runs"><svg class="i s" aria-hidden="true"><use href="#i-clock"/></svg></button><button class="ib wf-vers" data-panel="versions" aria-label="Versions" data-tip="Versions"><svg class="i s" aria-hidden="true"><use href="#i-history"/></svg></button><div class="wf-split"><button class="pill line sm wf-test"><svg class="i xs" aria-hidden="true"><use href="#i-play"/></svg><span>Test run</span></button><button class="pill line sm wf-testm" data-pop="#wf-p-lead" data-pop-align="end" aria-haspopup="menu" aria-label="Choose the test lead" data-tip="Test with"><svg class="i xs" aria-hidden="true"><use href="#i-chev-d"/></svg></button></div><button class="pill primary sm wf-pub"><svg class="i xs" aria-hidden="true"><use href="#i-upload"/></svg><span>Publish</span></button><button class="ib wf-more" data-pop="#wf-p-more" data-pop-align="end" aria-haspopup="menu" aria-label="More workflow actions" data-tip="More"><svg class="i s" aria-hidden="true"><use href="#i-more"/></svg></button></header><div class="wf-body"><div class="wf-work"><!-- the canvas: the steps on a board that pans and zooms (wfx-node, wfx-ins), with Canvas toolbar's bar under it --><div class="wfx-cv" tabindex="0" role="application" aria-roledescription="workflow canvas" aria-label="Workflow canvas" aria-describedby="wf-cv-help"><div class="wfx-vp"><div class="wfx-world"><svg class="wfx-svg" aria-hidden="true"></svg><div class="wfx-nodes"></div></div></div><button class="wf-lead" data-pop="#wf-p-lead" aria-haspopup="menu"></button><span class="wfx-sr" id="wf-cv-help">Tab moves through the steps, Enter opens one. With the canvas focused the arrow keys move the view, plus and minus zoom and 0 fits the workflow. Delete removes the selected step.</span><div class="ctb-bar wf-bar" role="toolbar" aria-label="Canvas tools"><div class="ctb-tools" role="radiogroup" aria-label="Tool"><button class="ctb-b" role="radio" aria-checked="true" data-t="select" aria-label="Select" data-tip="Select" data-tip-k="V"><svg class="i s" aria-hidden="true"><use href="#i-cursor"/></svg></button><button class="ctb-b" role="radio" aria-checked="false" tabindex="-1" data-t="hand" aria-label="Pan" data-tip="Pan" data-tip-k="H"><svg class="i s" aria-hidden="true"><use href="#i-hand"/></svg></button></div><span class="ctb-sep"></span><button class="ctb-b wf-add" data-pop="#wf-p-pick" data-pop-pos="up" aria-haspopup="dialog" aria-label="Add a step" data-tip="Add a step" data-tip-k="A"><svg class="i s" aria-hidden="true"><use href="#i-plus"/></svg></button><span class="ctb-sep"></span><button class="ctb-b wf-undo" aria-label="Undo" data-tip="Undo" data-tip-k="⌘Z" aria-disabled="true"><svg class="i s" aria-hidden="true"><use href="#i-undo"/></svg></button><button class="ctb-b wf-redo" aria-label="Redo" data-tip="Redo" data-tip-k="⇧⌘Z" aria-disabled="true"><svg class="i s" aria-hidden="true"><use href="#i-redo"/></svg></button><span class="ctb-sep wf-xs"></span><button class="ctb-b wf-tidy wf-xs" aria-label="Tidy up the layout" data-tip="Tidy up"><svg class="i s" aria-hidden="true"><use href="#i-grid"/></svg></button><button class="ctb-b wf-fit" aria-label="Fit to screen" data-tip="Fit to screen" data-tip-k="0"><svg class="i s" aria-hidden="true"><use href="#i-fit"/></svg></button><span class="ctb-sep wf-xs"></span><button class="ctb-b wf-zo wf-xs" aria-label="Zoom out" data-tip="Zoom out" data-tip-k="−"><svg class="i s" aria-hidden="true"><use href="#i-minus"/></svg></button><button class="ctb-z num wf-zl wf-xs" aria-label="Zoom 100%, reset to 100%" data-tip="Zoom to 100%">100%</button><button class="ctb-b wf-zi wf-xs" aria-label="Zoom in" data-tip="Zoom in" data-tip-k="+"><svg class="i s" aria-hidden="true"><use href="#i-plus"/></svg></button></div></div><!-- the run drawer: Run drawer, under the canvas, with the agent's notes beside its steps --><div class="rdr-dw wf-dr shut" role="region" aria-label="Run"><div class="rdr-grip" role="separator" aria-orientation="horizontal" aria-label="Resize the run panel" tabindex="0" aria-valuemin="160" aria-valuemax="560"><i></i></div><div class="rdr-h"><button class="rdr-tg" aria-expanded="false" aria-controls="wf-dr-b"><svg class="i xs" aria-hidden="true"><use href="#i-chev-u"/></svg></button><span class="rdr-meta num"></span><span class="rdr-sp"></span><div class="seg2 rdr-tabs" role="group" aria-label="Show"><button aria-pressed="true" data-v="steps">Steps</button><button aria-pressed="false" data-v="log">Log</button><button aria-pressed="false" data-v="data">Data</button></div><button class="pill ghost sm rdr-stop" aria-label="Stop the run" data-tip="Stop the run" hidden><svg class="i xs" aria-hidden="true"><use href="#i-stop"/></svg><span>Stop</span></button><button class="ib rdr-follow" aria-pressed="true" aria-label="Follow the run on the canvas" data-tip="Follow the run"><svg class="i s" aria-hidden="true"><use href="#i-target"/></svg></button></div><div class="rdr-b" id="wf-dr-b"><div class="rdr-v wf-steps" data-v="steps"><div class="wfx-dr-note"></div><div class="wf-tl"><div class="rdr-ax" aria-hidden="true"><span>Step</span><span class="rdr-sc"></span><span class="ms">Time</span></div><div class="rdr-rows" role="group" aria-label="Steps of the run"></div></div></div><div class="rdr-v" data-v="log" hidden><div class="rdr-lf"><div class="seg2 rdr-lvs" role="group" aria-label="Level"><button aria-pressed="true" data-v="all">All</button><button aria-pressed="false" data-v="warn">Warnings</button><button aria-pressed="false" data-v="error">Errors</button></div><span class="n num"></span></div><ol class="rdr-log" aria-label="Run log"></ol></div><div class="rdr-v" data-v="data" hidden><div class="rdr-data"><div class="rdr-ds" role="group" aria-label="Steps"></div><div class="rdr-io"></div></div></div></div></div></div><!-- the right panel: the step inspector (Step inspector), run history and versions (wfx-versions) --><aside class="wf-panel" aria-label="Details" inert><div class="wf-ph"><div class="sgc-seg wf-seg" role="tablist" aria-label="Panel"><span class="sgc-k" aria-hidden="true"></span><button role="tab" id="wf-t-step" aria-controls="wf-v-step" aria-selected="true" data-v="step">Step</button><button role="tab" id="wf-t-runs" aria-controls="wf-v-runs" aria-selected="false" tabindex="-1" data-v="runs">Runs</button><button role="tab" id="wf-t-versions" aria-controls="wf-v-versions" aria-selected="false" tabindex="-1" data-v="versions">Versions</button></div><button class="ib wf-pclose" aria-label="Close the panel" data-tip="Close" data-tip-k="Esc"><svg class="i s" aria-hidden="true"><use href="#i-x"/></svg></button></div><div class="wf-pv" id="wf-v-step" role="tabpanel" aria-labelledby="wf-t-step"><div class="sti wf-insp"></div></div><div class="wf-pv" id="wf-v-runs" role="tabpanel" aria-labelledby="wf-t-runs" hidden></div><div class="wf-pv" id="wf-v-versions" role="tabpanel" aria-labelledby="wf-t-versions" hidden></div></aside></div></div><!-- menus and pickers: the shared core opens each from its button (data-pop) --><div class="pop wf-pop" id="wf-p-ws" role="menu" aria-label="Workspaces"></div><div class="pop wf-pop" id="wf-p-lead" role="menu" aria-label="Test with"></div><div class="pop wf-pop" id="wf-p-more" role="menu" aria-label="Workflow actions"></div><div class="pop wf-pop" id="wf-p-sel" role="menu" aria-label="Options"></div><div class="pop wf-pop" id="wf-p-node" role="menu" aria-label="Step actions"></div><div class="pop wf-pop" id="wf-p-ver" role="menu" aria-label="Version actions"></div><!-- Connected apps (wfx-apps): the apps with their marks and state, a catalogue to connect more, the tools and each app's details --><div class="pop wfx-apps" id="wf-p-apps" role="dialog" aria-label="Connected apps"></div><!-- the step picker (wfx-picker): Automation canvas's picker, with the agent as its last resort --><div class="pop acx-pk wfx-pick" id="wf-p-pick" role="dialog" aria-label="Add a step"><div class="acx-q"><svg class="i xs" aria-hidden="true"><use href="#i-search"/></svg><input class="acx-qi" type="text" role="combobox" aria-expanded="true" aria-autocomplete="list" aria-controls="wf-pick-ls" placeholder="Find a step or describe one" aria-label="Find a step or describe one" autocomplete="off" spellcheck="false"></div><div class="acx-ls" id="wf-pick-ls" role="listbox" aria-label="Steps"></div><p class="acx-pd" aria-hidden="true"></p></div><!-- the data picker: Data picker's picker, of what earlier steps produced, to map into a field --><div class="pop fpk-pop" id="wf-p-var" role="dialog" aria-label="Pick data from an earlier step"><div class="fpk-q"><svg class="i s" aria-hidden="true"><use href="#i-search"/></svg><input class="wf-var-q" type="text" role="combobox" aria-expanded="true" aria-autocomplete="list" aria-controls="wf-var-ls" placeholder="Find a field" aria-label="Find a field" autocomplete="off" spellcheck="false"></div><div class="fpk-ls" id="wf-var-ls" role="listbox" aria-label="Fields from earlier steps"></div><p class="fpk-ft"><span class="wf-var-n"></span><span class="kh" aria-hidden="true"><span class="kbd">↑</span> <span class="kbd">↓</span> <span class="kbd">↵</span></span></p></div><!-- Ask the agent: the Command palette, over the app --><div class="wf-over wf-cmd" hidden><div class="cpl panel" role="dialog" aria-label="Ask the agent or jump to a step"><div class="cpl-in"><svg class="i s" aria-hidden="true"><use href="#i-spark"/></svg><input class="cpl-q" placeholder="Ask the agent, or find a step or action" aria-label="Ask the agent, or find a step or action" spellcheck="false" autocomplete="off"><span class="kbd">esc</span></div><div class="cpl-list" role="listbox" aria-label="Results"></div><div class="cpl-f muted"><span><span class="kbd">↑</span><span class="kbd">↓</span> move</span><span><span class="kbd">↵</span> run</span><span class="cpl-st"></span></div></div></div><!-- Publish: the Form, with the note the agent drafts from the changes --><div class="wf-over wf-pubd" hidden><form class="fmx panel" role="dialog" aria-modal="true" aria-labelledby="wf-pub-h" novalidate><div class="fmx-h"><b id="wf-pub-h">Publish</b><button type="button" class="ib wf-pubx" aria-label="Close" data-tip="Close"><svg class="i xs" aria-hidden="true"><use href="#i-x"/></svg></button></div><ul class="wf-checks" aria-label="Before you publish"></ul><label class="fmx-f ai"><span>What changed<i class="fmx-dr" aria-hidden="true"><svg class="i xs" aria-hidden="true"><use href="#i-spark"/></svg>Drafted by the agent</i></span><textarea name="note" rows="3"></textarea></label><div class="fmx-ft"><span class="fmx-ms muted wf-pubms"></span><button class="pill primary sm fmx-go" type="submit"></button></div></form></div><div class="wf-toasts" aria-live="polite"></div></div></main><footer class="pg-foot"><div class="pg-wrap"><div class="pg-foot-in"><span>Free and MIT licensed. Built by <a href="https://designme.agency">DesignMe</a>.</span><nav aria-label="More"><a href="/">All components</a><a href="/docs/introduction">Docs</a><a href="/#/changelog">Changelog</a><a href="/#/roadmap">Roadmap</a><a href="/llms.txt">llms.txt</a><a href="/">Home</a></nav></div></div></footer><script>
 // Skip to content: the focus moves to the page's heading, which glides (or, with reduced motion, jumps) under the header,
 // without changing the address
 (function(){
@@ -1788,6 +1927,36 @@ const fitHits = window.dmFitHits || (() => {
   const sum = (a, f = x => x) => a.reduce((t, x) => t + f(x), 0);
   const secs = v => (v < 10 ? v.toFixed(1) : Math.round(v)) + 's';
 
+  /* ---------- motion: the library's durations and ease (--dm-t, --dm-t-fast, --dm-ease), read live so Soft and Blueprint keep
+     their own feel. Everything that opens or closes moves, and nothing moves with reduced motion ---------- */
+  const MT = v => (parseFloat(getComputedStyle(app).getPropertyValue(v)) || .3) * 1000;
+  const EASE = () => getComputedStyle(app).getPropertyValue('--dm-ease').trim() || 'ease-out';
+  const BOX = ['marginTop', 'marginBottom', 'paddingTop', 'paddingBottom'];
+  // a block that joins a list opens its own room, so what is under it glides down instead of jumping
+  function grow(el){
+    if (!el || REDUCE) return el;
+    const cs = getComputedStyle(el), a = { height:'0px' }, b = { height:el.offsetHeight + 'px' }; BOX.forEach(p => { a[p] = '0px'; b[p] = cs[p]; });
+    el.style.overflow = 'hidden'; const done = () => { el.style.overflow = ''; };
+    el.animate([a, b], { duration:MT('--dm-t'), easing:EASE() }).finished.then(done, done);
+    return el;
+  }
+  // and one that leaves fades and closes its room, then goes; gap is the list's gap, closed with it
+  function shrink(el, { delay = 0, gap = 0, fade = true, dur = MT('--dm-t') * .7 } = {}){
+    if (!el) return;
+    if (REDUCE || !el.isConnected || !el.offsetHeight){ el.remove(); return; }
+    const cs = getComputedStyle(el), a = { height:el.offsetHeight + 'px' }, b = { height:'0px' };
+    BOX.forEach(p => { a[p] = cs[p]; b[p] = '0px'; }); if (gap){ a.marginBottom = cs.marginBottom; b.marginBottom = -gap + 'px'; }
+    if (fade){ a.opacity = 1; b.opacity = 0; }
+    el.style.overflow = 'hidden'; el.style.pointerEvents = 'none'; el.inert = true;
+    const go = () => el.remove();
+    el.animate([a, b], { duration:dur, delay, easing:EASE(), fill:'forwards' }).finished.then(go, go);
+  }
+  // the focus ring is the keyboard's alone: once a mouse or a finger was used, no control shows one, not even one a script hands
+  // the focus back to (a menu closing onto its button); the next key brings it back
+  const modality = k => { document.documentElement.dataset.wfInput = k; };
+  document.addEventListener('pointerdown', () => modality('pointer'), true);
+  document.addEventListener('keydown', e => { if (!['Shift', 'Control', 'Alt', 'Meta', 'CapsLock', 'Fn'].includes(e.key)) modality('key'); }, true);
+
   /* ---------- people, step kinds, models and connections ---------- */
   const P = { MK:['Maya Kim', 'l'], TR:['Theo Reed', 't'], AN:['Ana Novak', 'p'], JB:['Jonah Brooks', 'm'] };
   const ME = 'AN';
@@ -1799,10 +1968,18 @@ const fitHits = window.dmFitHits || (() => {
     branch:{ k:'Branch', ic:'branch' }, wait:{ k:'Wait', ic:'clock' }, approval:{ k:'Approval', ic:'user' }, output:{ k:'Output', ic:'hash' } };
   const MODELS = [['Sonnet 5.5', 'Balanced, the default'], ['Opus 5.5', 'Deepest reasoning, slower'], ['Haiku 5.5', 'Fastest and cheapest']];
   const CONNS = { mail:['sales@fernhill.co', 'ana@fernhill.co'], hash:['Fernhill on Slack'], users:['Email marketing'], db:['Fernhill CRM', 'Data warehouse'], globe:['Company data API', 'Web search'], other:['Fernhill CRM', 'Webhook'] };
-  const TOOLS = [['globe', 'Company lookup', 'Company data API', 'Finds a company by its email domain', [['employees', 'number', '420'], ['industry', 'text', 'Software']]],
-    ['search', 'Web search', 'Web search', 'Searches the web and keeps the top results', [['results', 'list', '5 pages'], ['top_url', 'text', 'corvid.io/about']]],
-    ['db', 'CRM lookup', 'Fernhill CRM', 'Reads a contact and its deals from the CRM', [['contact', 'text', 'Priya Shah'], ['open_deals', 'number', '0']]],
-    ['file-text', 'Read a page', 'Web search', 'Reads the text of a web page', [['text', 'text', 'Corvid builds analytics']]]];
+  // the tools an AI step can call: icon, name, connection, what it does, what it hands on, and its kind (its tile's colour)
+  const TOOLS = [['globe', 'Company lookup', 'Company data API', 'Finds a company by its email domain', [['employees', 'number', '420'], ['industry', 'text', 'Software']], 'data'],
+    ['search', 'Web search', 'Web search', 'Searches the web and keeps the top results', [['results', 'list', '5 pages'], ['top_url', 'text', 'corvid.io/about']], 'web'],
+    ['db', 'CRM lookup', 'Fernhill CRM', 'Reads a contact and its deals from the CRM', [['contact', 'text', 'Priya Shah'], ['open_deals', 'number', '0']], 'data'],
+    ['file-text', 'Read a page', 'Web search', 'Reads the text of a web page', [['text', 'text', 'Corvid builds analytics']], 'web'],
+    ['code', 'Run code', 'Built in', 'Runs a short script on the data so far', [['result', 'object', '{ 3 fields }']], 'code'],
+    ['file', 'Read a file', 'Built in', 'Reads the text of an attached PDF or document', [['text', 'text', 'Order form, 2 pages']], 'code']];
+  const TKIND = { data:['Data', 'pt'], web:['Web', 'pb'], code:['Built in', 'pk'] };
+  // the tools the workspace has turned on; Connected apps adds the others
+  const WS_TOOLS = new Set(['Company lookup', 'Web search', 'CRM lookup', 'Read a page']);
+  // the CRM's sign-in has expired until it is connected again (Connected apps), so the workflows that use it fail with a 401
+  let crmExpired = true;
 
   /* ---------- the step catalogue: what the picker offers ---------- */
   const CAT = [
@@ -1939,7 +2116,7 @@ const fitHits = window.dmFitHits || (() => {
       if (F.ver) W.versions = Array.from({ length:Math.min(F.ver, 3) }, (_, i) => { const g = JSON.parse(W.live), a = g.nodes.find(x => x.type === 'ai'); if (i && a) a.cfg.prompt = a.t + ', in a few lines.';
         return { v:F.ver - i, by:['MK', 'TR', 'AN'][i % 3], when:ago(3 + i * 8), note:i === Math.min(F.ver, 3) - 1 && F.ver <= 3 ? 'First version.' : 'Tuned the instructions.', ch:['Changed the instructions on the AI step'], g:JSON.stringify(g) }; });
       const bad = F.st === 'failing', crm = W.nodes.find(n => n.ic === 'db');
-      if (bad && crm) W.testFail = { node:crm.id, times:9, err:'401 The CRM connection has expired' };
+      if (bad && crm && crmExpired) W.testFail = { node:crm.id, times:9, err:'401 The CRM connection has expired' };
       W.runs = F.ver ? [0, 1, 2].map(i => ({ id:900 + F.today * 3 - i, lead:null, out:bad && i < 2 ? 'bad' : 'ok', path:bad && i < 2 ? 'Failed at ' + (crm ? crm.t : 'a step') : 'Finished', dur:3 + i * .7, when:['1 hour ago', '5 hours ago', 'Yesterday'][i], o:bad && i < 2 && crm ? { fail:{ node:crm.id, times:9, err:'401 The CRM connection has expired' } } : {} })) : [];
     }
     return W;
@@ -1957,17 +2134,27 @@ const fitHits = window.dmFitHits || (() => {
   /* ---------- toasts: Toast ---------- */
   const toasts = $('.wf-toasts', app); $('.wf-work', app).appendChild(toasts);
   const TONE = { ok:['ok', 'var(--dm-ok)', 'var(--dm-ok-bg)'], info:['info', 'var(--dm-fg2)', 'var(--dm-chip)'], warn:['warn', 'var(--dm-warn)', 'var(--dm-warn-bg)'], bad:['x', 'var(--dm-bad)', 'var(--dm-bad-bg)'], ai:['spark', 'var(--dm-accent-fg,var(--dm-accent))', 'var(--dm-accent-bg)'] };
+  // a toast fades out (Toast's own tst-out), then closes its room so the others glide together
+  function toastOut(t){
+    if (!t.isConnected || t.classList.contains('tst-out')) return;
+    t.classList.add('tst-out'); shrink(t, { delay:120, gap:parseFloat(getComputedStyle(toasts).rowGap) || 8, fade:false, dur:MT('--dm-t') * .6 });
+  }
   function toast(kind, b, s = '', act = null){
     const [ic, col, bg] = TONE[kind];
     const t = html(`<div class="tst-t tst-in" role="status"><span class="g" style="color:${col};background:${bg}">${I(ic)}</span><div class="tx"><b>${esc(b)}</b>${s ? `<span>${esc(s)}</span>` : ''}</div><div class="acts">${act ? `<button class="pill ghost sm">${esc(act.label)}</button>` : ''}<button class="ib" aria-label="Dismiss" data-tip="Dismiss">${I('x')}</button></div></div>`);
-    const out = () => { if (!t.isConnected || t.classList.contains('tst-out')) return; t.classList.add('tst-out'); setTimeout(() => t.remove(), 320); };
+    const out = () => toastOut(t);
     $('.ib', t).onclick = out;
     if (act) $('.pill', t).onclick = () => { act.run(); out(); };
+    // the toasts already shown glide to make room (on phones they stack up from the bottom)
+    const was = new Map($$('.tst-t:not(.tst-out)', toasts).map(x => [x, x.getBoundingClientRect().top]));
     toasts.appendChild(t);
-    while (toasts.children.length > 3) toasts.firstElementChild.remove();
+    if (!REDUCE) was.forEach((y, x) => { const d = y - x.getBoundingClientRect().top; if (Math.abs(d) > .5) x.animate([{ transform:`translateY(${d}px)` }, { transform:'none' }], { duration:MT('--dm-t'), easing:EASE() }); });
+    const live = $$('.tst-t:not(.tst-out)', toasts); live.slice(0, Math.max(0, live.length - 3)).forEach(toastOut);
     // a click anywhere else, or Escape, sends the toasts away; a click on a toast itself (its Undo, its ×) is handled above
     if (!toasts._away){ toasts._away = true; const t0 = () => performance.now();
-      const away = () => $$('.tst-t:not(.tst-out)', toasts).forEach(x => { if (t0() - (x._born || 0) > 250){ x.classList.add('tst-out'); setTimeout(() => x.remove(), 320); } });
+      // a toast's own buttons never close the popover it reports on (Undo in Connected apps puts the app back in its list)
+      toasts.addEventListener('click', e => e.stopPropagation());
+      const away = () => $$('.tst-t:not(.tst-out)', toasts).forEach(x => { if (t0() - (x._born || 0) > 250) toastOut(x); });
       document.addEventListener('pointerdown', e => { if (!toasts.contains(e.target)) away(); }, true);
       document.addEventListener('keydown', e => { if (e.key === 'Escape' && toasts.children.length) away(); }); }
     t._born = performance.now();
@@ -2057,9 +2244,39 @@ const fitHits = window.dmFitHits || (() => {
     $$('.wfx-ins, .wfx-elab', nodesEl).forEach(x => x.remove());
     nodesEl.insertAdjacentHTML('beforeend', extra);
   }
+  // an edit moves the steps it touches: the ones that stay glide to their new places with their wires, a new one pops in and a
+  // removed one fades where it was. Opening another workflow just draws it
+  let drawnW = null, tweenRaf = 0;
   function renderCanvas(){
-    POS = layout();
+    const old = {}, same = drawnW === W && !REDUCE; drawnW = W;
+    Object.keys(POS).forEach(id => { old[id] = { x:POS[id].x, y:POS[id].y }; });
+    cancelAnimationFrame(tweenRaf); tweenRaf = 0; tween.to = null; POS = layout();
+    const gone = same ? $$('.wfx-node:not(.gone)', nodesEl).filter(el => !byId(el.dataset.id)) : [];
+    const from = {}; if (same) W.nodes.forEach(n => { const o = old[n.id], p = POS[n.id]; if (o && p && Math.hypot(o.x - p.x, o.y - p.y) > .5) from[n.id] = { x:o.x, y:o.y }; });
     nodesEl.innerHTML = W.nodes.map(nodeHTML).join('');
+    if (same) $$('.wfx-node', nodesEl).forEach(el => { if (!old[el.dataset.id]) el.classList.add('add'); });
+    gone.forEach(el => { el.classList.add('gone'); el.classList.remove('sel'); el.inert = true; el.setAttribute('aria-hidden', 'true'); nodesEl.appendChild(el);
+      const go = () => el.remove(); el.animate([{ opacity:getComputedStyle(el).opacity, transform:'none' }, { opacity:0, transform:'scale(.94)' }], { duration:MT('--dm-t-fast') + 60, easing:'ease-in', fill:'forwards' }).finished.then(go, go); });
+    if (Object.keys(from).length) tween(from); else { drawWires(); paintRun(true); }
+  }
+  function tween(from){
+    const to = {}, t0 = performance.now(), D = MT('--dm-t'), els = {};
+    Object.keys(from).forEach(id => { to[id] = { x:POS[id].x, y:POS[id].y }; els[id] = $(`.wfx-node[data-id="${id}"]`, nodesEl); });
+    const frame = now => {
+      const k = Math.min(1, (now - t0) / D), e = 1 - Math.pow(1 - k, 3);
+      Object.keys(to).forEach(id => { const p = POS[id], el = els[id]; if (!p) return; p.x = from[id].x + (to[id].x - from[id].x) * e; p.y = from[id].y + (to[id].y - from[id].y) * e;
+        if (el){ el.style.left = p.x + 'px'; el.style.top = (p.y - NH / 2) + 'px'; } });
+      drawWires(); paintRun(true);
+      tweenRaf = k < 1 ? requestAnimationFrame(frame) : 0;
+      if (!tweenRaf) tween.to = null;
+    };
+    tween.to = to; frame(t0);
+  }
+  // a drag or another edit mid-glide starts from where the steps are going
+  function finishTween(){
+    if (!tweenRaf) return; cancelAnimationFrame(tweenRaf); tweenRaf = 0;
+    const to = tween.to; tween.to = null; if (!to) return;
+    Object.keys(to).forEach(id => { if (!POS[id]) return; Object.assign(POS[id], to[id]); const el = $(`.wfx-node[data-id="${id}"]`, nodesEl); if (el){ el.style.left = POS[id].x + 'px'; el.style.top = (POS[id].y - NH / 2) + 'px'; } });
     drawWires(); paintRun(true);
   }
   // a wire under the pointer shows its +; the + stays while the pointer moves onto it
@@ -2081,15 +2298,25 @@ const fitHits = window.dmFitHits || (() => {
     if (anim) setTimeout(() => cv.classList.remove('anim'), 320);
   }
   // the room the steps can use: under the test chip, over the toolbar
-  // a panel over the canvas (under 1200px) takes its right side
-  const room = () => { const p = $('.wf-panel', app), over = app.classList.contains('pn') && getComputedStyle(p).position === 'absolute' && innerWidth > 640 ? p.offsetWidth : 0; return { l:16, t:56, r:cv.clientWidth - 16 - over, b:cv.clientHeight - 64 }; };
+  // a panel over the canvas (under 1200px) takes its right side. While the panel or the run drawer slides, the room is the one
+  // they leave once they settle, so a step brought into view lands in the right place; live is the room this frame
+  const PW = 368;
+  const drGoal = () => dr.classList.contains('shut') ? 45 : Math.min(parseFloat(dr.style.getPropertyValue('--rdr-h')) || 312, innerWidth <= 640 ? Math.round(dr.parentElement.clientHeight * .56) : 1e9);
+  const room = (live = false) => {
+    const p = $('.wf-panel', app), pn = app.classList.contains('pn'), beside = getComputedStyle(p).position !== 'absolute';
+    const over = pn && !beside && innerWidth > 640 ? p.offsetWidth : 0, dw = live || !beside ? 0 : (pn ? PW : 0) - p.offsetWidth, dh = live ? 0 : drGoal() - dr.offsetHeight;
+    return { l:16, t:56, r:cv.clientWidth - 16 - over - dw, b:cv.clientHeight - 64 - dh }; };
+  // the panel and the drawer are sliding until then: the view follows them frame by frame instead of easing after them
+  let sizingTill = 0;
+  const sizing = () => performance.now() < sizingTill || dr.classList.contains('drag');
+  const settle = () => { sizingTill = performance.now() + MT('--dm-t') + 80; };
   function bbox(){
     const ps = Object.values(POS); if (!ps.length) return { x:0, y:0, w:1, h:1 };
     const x0 = Math.min(...ps.map(p => p.x)), x1 = Math.max(...ps.map(p => p.x + NW)), y0 = Math.min(...ps.map(p => p.y - NH / 2)) - 12, y1 = Math.max(...ps.map(p => p.y + NH / 2));
     return { x:x0, y:y0, w:x1 - x0, h:y1 - y0 };
   }
-  function fit(anim = false){
-    const r = room(), b = bbox(), W0 = r.r - r.l, H0 = r.b - r.t;
+  function fit(anim = false, live = false){
+    const r = room(live), b = bbox(), W0 = r.r - r.l, H0 = r.b - r.t;
     const z = clamp(Math.min(W0 / b.w, H0 / b.h, 1), .7, 1);
     // a workflow wider than the canvas at the smallest readable zoom starts at its trigger
     const px = b.w * z <= W0 ? r.l + (W0 - b.w * z) / 2 - b.x * z : r.l + 8 - b.x * z;
@@ -2123,6 +2350,7 @@ const fitHits = window.dmFitHits || (() => {
   let drag = null, justDragged = false;
   vp.addEventListener('pointerdown', e => {
     if (e.button !== 0 && e.button !== 1) return;
+    finishTween();
     const nd = e.target.closest('.wfx-node'), ctl = e.target.closest('.wfx-ins');
     if (ctl) return;
     if (nd && tool === 'select' && e.button === 0) drag = { kind:'node', id:nd.dataset.id, x:e.clientX, y:e.clientY, p0:{ ...POS[nd.dataset.id] }, on:false, before:snapAll(), el:nd };
@@ -2170,6 +2398,8 @@ const fitHits = window.dmFitHits || (() => {
 
   /* ---------- picking a step ---------- */
   function select(id, { open = false, focus = false, centre = false } = {}){
+    // another step in the open inspector fades in
+    if (id && id !== selId && app.classList.contains('pn') && panelTab === 'step') slideIn('step', 0);
     selId = id;
     $$('.wfx-node', nodesEl).forEach(b => { const on = b.dataset.id === id; b.classList.toggle('sel', on); b.setAttribute('aria-pressed', String(on)); });
     if (id && open) openPanel('step');
@@ -2457,7 +2687,7 @@ const fitHits = window.dmFitHits || (() => {
     const p = $('#wf-p-sel', app);
     if (f === 'tool'){
       const have = new Set((n.cfg.tools || []).map(t => byId(t)?.t));
-      p.innerHTML = `<div class="ph" role="none">Give ${esc(n.t)} a tool</div>` + TOOLS.map(([ic, t, conn, d], i) => mi(`data-i="${i}"${have.has(t) ? ' aria-disabled="true"' : ''}`, `${I(ic, 's')}<span>${t}<span class="d">${d}</span></span>`, 'menuitem')).join('');
+      p.innerHTML = `<div class="ph" role="none">Give ${esc(n.t)} a tool</div>` + TOOLS.map(([ic, t, conn, d], i) => WS_TOOLS.has(t) ? mi(`data-i="${i}"${have.has(t) ? ' aria-disabled="true"' : ''}`, `${I(ic, 's')}<span>${t}<span class="d">${d}</span></span>`, 'menuitem') : '').join('');
       $$('.mi', p).forEach(m => m.onclick = () => { if (m.getAttribute('aria-disabled') === 'true') return; const [ic, t, conn, , out] = TOOLS[+m.dataset.i]; const tn = uniq(N('tool', t, { ic, host:n.id, out:out.map(o => [...o]), cfg:{ conn, action:t === 'Company lookup' ? 'Find a company by domain' : 'Search' } }));
         commit(`Gave ${n.t} the ${t} tool`, () => { W.nodes.push(tn); n.cfg.tools.push(tn.id); }); });
       return;
@@ -2581,7 +2811,21 @@ const fitHits = window.dmFitHits || (() => {
   const dr = $('.wf-dr', app), drT = $('.rdr-tg', dr), drMeta = $('.rdr-meta', dr), drTg = $('.rdr-tg', dr), drNote = $('.wfx-dr-note', dr), drB = $('.rdr-b', dr);
   const trRows = $('.rdr-rows', dr), trSc = $('.rdr-sc', dr), logEl = $('.rdr-log', dr), logN0 = $('.rdr-lf .n', dr), stopB = $('.rdr-stop', dr), followB = $('.rdr-follow', dr);
   let drTab = 'steps', dataTab = null, follow = true, lvl = 'all';
-  function openDrawer(on){ dr.classList.add('anim'); dr.classList.toggle('shut', !on); app.classList.toggle('dro', on); drTg.setAttribute('aria-expanded', String(on)); drTg.setAttribute('aria-label', on ? 'Hide the run' : 'Show the run'); setTimeout(() => dr.classList.remove('anim'), REDUCE ? 0 : 500); }
+  // the agent's card beside the steps: it fades in as its column opens (or, on a narrow drawer, as it opens its room over the
+  // steps), and fades out before the column closes
+  const stacked = () => getComputedStyle(drNote).position === 'static';
+  function noteIn(){ const c = drNote.firstElementChild; if (!c || REDUCE) return; enter(c); if (stacked()) grow(c); }
+  function setNote(h){ drNote.innerHTML = h; noteIn(); }
+  function clearNote(){
+    const c = drNote.firstElementChild; if (!c) return;
+    if (REDUCE){ drNote.innerHTML = ''; return; }
+    if (c._out) return; c._out = true;
+    if (stacked()) return shrink(c);
+    c.inert = true; const go = () => { if (c.parentNode === drNote) drNote.removeChild(c); };
+    c.animate([{ opacity:1, transform:'none' }, { opacity:0, transform:'translateY(4px)' }], { duration:MT('--dm-t-fast'), easing:'ease-in', fill:'forwards' }).finished.then(go, go);
+  }
+  // the drawer slides open and shut (Run drawer's own height transition), its body fading with it
+  function openDrawer(on){ if (dr.classList.contains('shut') === on) settle(); clearTimeout(dr._anim); dr.classList.add('anim'); dr.classList.toggle('shut', !on); app.classList.toggle('dro', on); drTg.setAttribute('aria-expanded', String(on)); drTg.setAttribute('aria-label', on ? 'Hide the run' : 'Show the run'); dr._anim = setTimeout(() => dr.classList.remove('anim'), REDUCE ? 0 : MT('--dm-t') + 50); }
   drTg.onclick = () => openDrawer(dr.classList.contains('shut'));
   const drSeg = seg($('.rdr-tabs', dr), v => setDrTab(v));
   function setDrTab(v){ drTab = v; $$('.rdr-tabs button', dr).forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === v))); drSeg.place(); $$('.rdr-v', dr).forEach(x => x.hidden = x.dataset.v !== v); if (v === 'data') paintData(); }
@@ -2595,8 +2839,10 @@ const fitHits = window.dmFitHits || (() => {
     const setH = h => { h = clamp(Math.round(h), 160, Math.min(560, app.clientHeight - 200)); dr.style.setProperty('--rdr-h', h + 'px'); grip.setAttribute('aria-valuenow', h); };
     grip.addEventListener('pointerdown', e => { g = { y:e.clientY, h:dr.classList.contains('shut') ? 45 : dr.getBoundingClientRect().height }; grip.setPointerCapture(e.pointerId); grip.classList.add('on'); dr.classList.add('drag'); app.classList.add('drag-dr'); if (dr.classList.contains('shut')){ dr.classList.remove('shut'); app.classList.add('dro'); drTg.setAttribute('aria-expanded', 'true'); } });
     grip.addEventListener('pointermove', e => { if (g) setH(g.h - (e.clientY - g.y)); });
-    const up = () => { g = null; grip.classList.remove('on'); dr.classList.remove('drag'); app.classList.remove('drag-dr'); }; grip.addEventListener('pointerup', up); grip.addEventListener('pointercancel', up);
-    grip.addEventListener('keydown', e => { const d = e.key === 'ArrowUp' ? 24 : e.key === 'ArrowDown' ? -24 : 0; let h = d ? dr.getBoundingClientRect().height + d : null; if (e.key === 'Home') h = 160; if (e.key === 'End') h = 560; if (h == null) return; e.preventDefault(); if (dr.classList.contains('shut')) openDrawer(true); setH(h); }); }
+    const up = () => { if (!g) return; g = null; grip.classList.remove('on'); dr.classList.remove('drag'); app.classList.remove('drag-dr'); if (selId) reveal(selId); }; grip.addEventListener('pointerup', up); grip.addEventListener('pointercancel', up);
+    grip.addEventListener('keydown', e => { const d = e.key === 'ArrowUp' ? 24 : e.key === 'ArrowDown' ? -24 : 0; let h = d ? dr.getBoundingClientRect().height + d : null; if (e.key === 'Home') h = 160; if (e.key === 'End') h = 560; if (h == null) return; e.preventDefault(); if (dr.classList.contains('shut')) openDrawer(true);
+      // from the keyboard the height eases to its next stop; a drag follows the pointer
+      clearTimeout(dr._anim); dr.classList.add('anim'); settle(); setH(h); dr._anim = setTimeout(() => dr.classList.remove('anim'), REDUCE ? 0 : MT('--dm-t') + 50); }); }
 
   // the kind of each span, for its tile and its bar's colour: a step's own kind, its model and tool calls, a wait to retry
   const kOf = s => s.k === 'step' ? byId(s.node)?.type || 'app' : s.k;
@@ -2644,14 +2890,14 @@ const fitHits = window.dmFitHits || (() => {
   }
   stopB.onclick = () => { if (!R || !R.live) return; cancelAnimationFrame(R.raf); R.live = false; R.state = 'stopped'; R.now = Math.min(R.now, R.C.segEnd);
     R.C.spans.forEach(s => { if (s.s > R.now){ s.gone = true; } else if (s.e == null || s.e > R.now){ s.e = R.now; s.st = 'stop'; } }); R.C.logs = R.C.logs.filter(l => l.at <= R.now); R.C.end = { t:R.now, failed:null, stopped:true };
-    logAt(R.C, R.now, 'stop', 'Run stopped', 'You stopped it', 'warn'); stopB.hidden = true; $('.wf-test', app).classList.remove('on'); $$('.rdr-ask', trRows).forEach(x => x.remove()); drNote.innerHTML = ''; paintRun(); paintTop(); toast('info', 'Run stopped', 'Nothing after this point ran'); };
+    logAt(R.C, R.now, 'stop', 'Run stopped', 'You stopped it', 'warn'); stopB.hidden = true; $('.wf-test', app).classList.remove('on'); $$('.rdr-ask', trRows).forEach(x => shrink(x)); clearNote(); paintRun(); paintTop(); toast('info', 'Run stopped', 'Nothing after this point ran'); };
   // a past run, shown whole
   function showRun(run){
     if (R && R.live){ toast('info', 'A test is running', 'Stop it first to look at another run'); return; }
     ctxOf(run);
     R = { id:run.id, test:run.test, C:run.C, L:run.lead, now:run.C.pause ? run.C.pause.at : run.C.segEnd, state:run.out, live:false, past:true, saved:run };
     resetRunView(); openDrawer(true); paintRun(true); paintTop();
-    if (run.out === 'wait' && run.C.pause && byId(run.C.pause.node)){ const n = byId(run.C.pause.node); drNote.innerHTML = `<div class="wfx-note"><span class="wfx-ic">${I('clock', 'xs')}</span><span class="tx"><b>Waiting for ${n.cfg.who.map(first).join(' or ')}</b><span>Asked ${run.when}, in ${VIA[n.cfg.via] || n.cfg.via}. ${n.cfg.then} if nobody answers in ${n.cfg.expire}.</span></span><button class="pill line sm" data-a="nudge">Remind them</button></div>`;
+    if (run.out === 'wait' && run.C.pause && byId(run.C.pause.node)){ const n = byId(run.C.pause.node); setNote(`<div class="wfx-note"><span class="wfx-ic">${I('clock', 'xs')}</span><span class="tx"><b>Waiting for ${n.cfg.who.map(first).join(' or ')}</b><span>Asked ${run.when}, in ${VIA[n.cfg.via] || n.cfg.via}. ${n.cfg.then} if nobody answers in ${n.cfg.expire}.</span></span><button class="pill line sm" data-a="nudge">Remind them</button></div>`);
       $('[data-a="nudge"]', drNote).onclick = () => toast('ok', 'Reminder sent', `${n.cfg.who.map(first).join(' and ')} got a nudge in Slack`); }
     else fixCard();
     $$('.wfx-run', app).forEach(b => b.setAttribute('aria-current', String(+b.dataset.run === run.id)));
@@ -2723,8 +2969,8 @@ const fitHits = window.dmFitHits || (() => {
       const rs = C.spans.find(s => s.k === 'retry' && s.s <= t && t < s.e), key = rs ? rs.id : 0;
       if (key !== R._note){ R._note = key;
         if (rs){ const n = byId(rs.node), f = C.spans.filter(s => s.node === rs.node && s.st === 'bad' && s.e <= t).pop(), tries = 1 + (n.cfg.retries || 0), k = C.spans.filter(s => s.node === rs.node && s.k !== 'retry' && s.s <= t).length;
-          drNote.innerHTML = `<div class="wfx-note warn" role="status"><span class="wfx-ic">${I('refresh', 'xs')}</span><span class="tx"><b>${esc(n.t)} failed</b><span>${esc(f && f.err ? f.err : 'It did not answer')}. Try ${k + 1} of ${tries} starts in a moment.</span></span></div>`; if (!REDUCE) enter(drNote.firstElementChild); }
-        else if ($('.wfx-note.warn', drNote)) drNote.innerHTML = ''; }
+          setNote(`<div class="wfx-note warn" role="status"><span class="wfx-ic">${I('refresh', 'xs')}</span><span class="tx"><b>${esc(n.t)} failed</b><span>${esc(f && f.err ? f.err : 'It did not answer')}. Try ${k + 1} of ${tries} starts in a moment.</span></span></div>`); }
+        else if ($('.wfx-note.warn', drNote)) clearNote(); }
     }
     paintHead();
     if (drTab === 'data' && (done || Math.floor(t * 4) !== R._dq)){ R._dq = Math.floor(t * 4); paintData(); }
@@ -2764,9 +3010,10 @@ const fitHits = window.dmFitHits || (() => {
     const C = R.C, n = byId(C.pause.node), draft = upstream(n.id).filter(u => u.type === 'ai').pop(), o = draft && C.out[draft.ref];
     const el = rowEls.get(C.pause.span.id); if (!el) return;
     $$('.rdr-ask', trRows).forEach(x => x.remove());
-    el.insertAdjacentHTML('afterend', `<div class="rdr-ask wf-ask" role="group" aria-label="Approve the reply"><span class="rdr-ti" data-k="approval" aria-hidden="true">${I('user', 'xs')}</span><span class="tx"><b>${esc(n.t)}: your call</b><span>Live runs ask ${n.cfg.who.map(w => P[w][0]).join(' or ')} in ${VIA[n.cfg.via] || n.cfg.via}. In a test, you decide.</span>${o ? `<span class="wf-draft">${o.subject ? `<b>${esc(o.subject)}</b> ` : ''}${esc(o.body || o.text || '')}</span>` : ''}</span>`
-      + `<span class="acts"><button class="pill primary sm" data-a="yes">${I('check', 'xs')}Approve</button><button class="pill line sm" data-a="edit">${I('edit', 'xs')}Edit the draft step</button><button class="pill ghost sm" data-a="no">Reject</button></span></div>`);
-    const card = el.nextElementSibling; if (!REDUCE) card.classList.add('in');
+    el.insertAdjacentHTML('afterend', `<div class="rdr-ask wf-appr" role="group" aria-label="Approve the reply"><span class="rdr-ti" data-k="approval" aria-hidden="true">${I('user', 'xs')}</span><span class="tx"><b>${esc(n.t)}: your call</b><span>Live runs ask ${n.cfg.who.map(w => P[w][0]).join(' or ')} in ${VIA[n.cfg.via] || n.cfg.via}. In a test, you decide.</span>${o ? `<span class="wf-draft">${o.subject ? `<b>${esc(o.subject)}</b> ` : ''}${esc(o.body || o.text || '')}</span>` : ''}</span>`
+      + `<span class="acts"><button class="pill primary sm" data-a="yes">${I('check', 'xs')}<span>Approve</span></button><button class="pill line sm" data-a="edit">${I('edit', 'xs')}<span>Edit the draft step</span></button><button class="pill ghost sm" data-a="no">${I('x', 'xs')}<span>Reject</span></button></span></div>`);
+    // it opens its room under the step that waits, and fades in (Run drawer's own entrance)
+    const card = el.nextElementSibling; if (!REDUCE){ card.classList.add('in'); grow(card); }
     if (drTab === 'steps' && card.offsetTop + card.offsetHeight > drB.scrollTop + drB.clientHeight) drB.scrollTop = card.offsetTop + card.offsetHeight - drB.clientHeight + 8;
     $('[data-a="yes"]', card).onclick = () => resume(true);
     $('[data-a="no"]', card).onclick = () => resume(false);
@@ -2777,34 +3024,33 @@ const fitHits = window.dmFitHits || (() => {
   function resume(ok){
     if (!R || R.state !== 'wait') return;
     const C = R.C, shown = C.pause.at + 1.2;
-    R.t0 = performance.now() - shown * 1000; R.state = 'run'; $$('.rdr-ask', trRows).forEach(x => x.remove());
+    R.t0 = performance.now() - shown * 1000; R.state = 'run'; $$('.rdr-ask', trRows).forEach(x => { x.classList.remove('in'); shrink(x); });
     decide(C, shown, ok); R.now = shown; tick();
   }
   // wfx-fix: after a retry or a failure, the agent offers a change to the step that failed, applied to the draft in one go
   function fixCard(){
     if (!R) return; const C = R.C;
     const bad = C.spans.filter(s => s.st === 'bad').map(s => byId(s.node)).find(n => n && ['tool', 'app', 'output'].includes(n.type));
-    if (!bad || !['tool', 'app', 'output'].includes(bad.type)){ drNote.innerHTML = ''; return; }
+    if (!bad || !['tool', 'app', 'output'].includes(bad.type)){ clearNote(); return; }
     const c = bad.cfg, rows = [];
     if (C.o.fail && C.o.fail.err && /401/.test(C.o.fail.err)){
-      drNote.innerHTML = `<div class="wfx-fix"><div class="wfx-fix-h"><span class="wfx-ic ai">${I('spark', 'xs')}</span><span class="tx"><b>The CRM connection has expired</b><span>Retrying won't help: ${esc(bad.t)} needs the account connected again.</span></span></div><div class="wfx-fix-a"><button class="pill primary sm" data-a="reconnect">Reconnect the CRM</button></div></div>`;
-      $('[data-a="reconnect"]', drNote).onclick = () => toast('info', 'Connecting accounts is outside the template', 'In a real workspace this opens the CRM sign-in'); return;
+      setNote(`<div class="wfx-fix"><div class="wfx-fix-h"><span class="wfx-ic ai">${I('spark', 'xs')}</span><span class="tx"><b>The CRM connection has expired</b><span>Retrying won't help: ${esc(bad.t)} needs the account connected again.</span></span></div><div class="wfx-fix-a"><button class="pill primary sm" data-a="reconnect">Reconnect the CRM</button></div></div>`);
+      $('[data-a="reconnect"]', drNote).onclick = e => reconnectApp(appById('crm'), e.currentTarget, () => clearNote()); return;
     }
     if (c.retries < 3) rows.push(['Retries', String(c.retries), '3', x => { x.cfg.retries = 3; }]);
     if (c.backoff !== 'doubling') rows.push(['Wait between tries', '2s each', 'Doubling', x => { x.cfg.backoff = 'doubling'; }]);
     if (bad.type === 'tool' && !c.cache) rows.push(['Cache', 'Off', '24 hours', x => { x.cfg.cache = true; }]);
-    if (!rows.length){ drNote.innerHTML = ''; return; }
+    if (!rows.length){ clearNote(); return; }
     const failed = R.state === 'bad';
-    drNote.innerHTML = `<div class="wfx-fix" role="group" aria-label="The agent's suggestion"><div class="wfx-fix-h"><span class="wfx-ic ai">${I('spark', 'xs')}</span><span class="tx"><b>${failed ? `${esc(bad.t)} ran out of retries` : `${esc(bad.t)} needed a retry`}</b><span>${esc(bad.cfg.conn)} limits how often it is called. ${failed ? 'With these changes the run waits it out.' : 'These keep live runs from stalling.'}</span></span></div>`
+    setNote(`<div class="wfx-fix" role="group" aria-label="The agent's suggestion"><div class="wfx-fix-h"><span class="wfx-ic ai">${I('spark', 'xs')}</span><span class="tx"><b>${failed ? `${esc(bad.t)} ran out of retries` : `${esc(bad.t)} needed a retry`}</b><span>${esc(bad.cfg.conn)} limits how often it is called. ${failed ? 'With these changes the run waits it out.' : 'These keep live runs from stalling.'}</span></span></div>`
       + `<ul class="wfx-fix-l">${rows.map(r => `<li><span class="k">${r[0]}</span><span class="was">${esc(r[1])}</span>${I('right', 'xs')}<span class="now">${esc(r[2])}</span></li>`).join('')}</ul>`
-      + `<div class="wfx-fix-a"><button class="pill primary sm" data-a="apply">Apply to the draft</button><button class="pill ghost sm" data-a="show">Show the step</button><span class="wf-sp"></span><button class="ib" data-a="dismiss" aria-label="Dismiss the suggestion" data-tip="Dismiss">${I('x', 'xs')}</button></div></div>`;
-    if (!REDUCE) enter(drNote.firstElementChild);
+      + `<div class="wfx-fix-a"><button class="pill primary sm" data-a="apply">Apply to the draft</button><button class="pill ghost sm" data-a="show">Show the step</button><span class="wf-sp"></span><button class="ib" data-a="dismiss" aria-label="Dismiss the suggestion" data-tip="Dismiss">${I('x', 'xs')}</button></div></div>`);
     $('[data-a="apply"]', drNote).onclick = () => { commit(`Made ${bad.t} retry with backoff`, () => rows.forEach(r => r[3](bad)), { key:bad.id + '.fix' });
-      drNote.innerHTML = `<div class="wfx-note ok"><span class="wfx-ic">${I('check', 'xs')}</span><span class="tx"><b>Applied to the draft</b><span>${esc(bad.t)}: ${rows.map(r => r[0].toLowerCase() + ' ' + r[2].toLowerCase()).join(', ')}.</span></span><button class="pill ghost sm" data-a="undo">Undo</button></div>`;
+      setNote(`<div class="wfx-note ok"><span class="wfx-ic">${I('check', 'xs')}</span><span class="tx"><b>Applied to the draft</b><span>${esc(bad.t)}: ${rows.map(r => r[0].toLowerCase() + ' ' + r[2].toLowerCase()).join(', ')}.</span></span><button class="pill ghost sm" data-a="undo">Undo</button></div>`);
       $('[data-a="undo"]', drNote).onclick = () => { undo(); fixCard(); };
       if (selId === bad.id) renderInspector(); toast('ai', 'The agent updated ' + bad.t, 'Test again to check it', { label:'Test run', run:() => startRun() }); };
     $('[data-a="show"]', drNote).onclick = () => select(bad.id, { open:true });
-    $('[data-a="dismiss"]', drNote).onclick = () => { drNote.innerHTML = ''; };
+    $('[data-a="dismiss"]', drNote).onclick = () => clearNote();
   }
   function testStep(id){ const n = byId(id); if (R && R.live){ toast('info', 'A test is running', 'Wait for it to finish, or stop it'); return; } if (n.type === 'trigger'){ toast('info', `${n.t} gets its sample from the test data`, 'Pick another lead from Test run'); return; } startRun({ only:id }); }
   const runTest = () => { if (R && R.live){ toast('info', 'A test is already running', 'Stop it in the run panel to start again'); openDrawer(true); return; } startRun(); };
@@ -2814,15 +3060,25 @@ const fitHits = window.dmFitHits || (() => {
   const panel = $('.wf-panel', app), ptabs = $$('.wf-seg [role="tab"]', app), knob = $('.wf-seg .sgc-k', app);
   const placeK = () => { const b = ptabs.find(t => t.getAttribute('aria-selected') === 'true'); if (!b || !b.offsetWidth) return; knob.style.left = b.offsetLeft + 'px'; knob.style.width = b.offsetWidth + 'px'; };
   new ResizeObserver(placeK).observe($('.wf-seg', app));
+  // the panel slides in beside the canvas (its width eases, the canvas narrowing with it) or, under 1200px, over it; a new tab
+  // fades in from the side it sits on
+  const TABS = ['step', 'runs', 'versions'];
+  function slideIn(tab, d){
+    const v = $('#wf-v-' + tab, app); if (REDUCE || !v) return;
+    v.style.setProperty('--wf-dx', d * 10 + 'px'); v.classList.remove('in'); void v.offsetWidth; v.classList.add('in');
+  }
   function openPanel(tab, focus = false){
+    const was = app.classList.contains('pn'), prev = panelTab;
+    if (!was) settle();
     panelTab = tab; app.classList.add('pn'); panel.inert = false;
+    if (!was || prev !== tab) slideIn(tab, was ? Math.sign(TABS.indexOf(tab) - TABS.indexOf(prev)) : 0);
     ptabs.forEach(t => { const on = t.dataset.v === tab; t.setAttribute('aria-selected', String(on)); t.tabIndex = on ? 0 : -1; if (on && focus) t.focus(); });
-    ['step', 'runs', 'versions'].forEach(v => $('#wf-v-' + v, app).hidden = v !== tab);
+    TABS.forEach(v => $('#wf-v-' + v, app).hidden = v !== tab);
     $$('[data-panel]', app).forEach(b => b.setAttribute('aria-pressed', String(b.dataset.panel === tab)));
     requestAnimationFrame(placeK);
     if (tab === 'step') renderInspector(); if (tab === 'runs') renderRuns(); if (tab === 'versions') renderVersions();
   }
-  function closePanel(){ app.classList.remove('pn'); panel.inert = true; $$('[data-panel]', app).forEach(b => b.setAttribute('aria-pressed', 'false')); if (selId) select(null); }
+  function closePanel(){ if (app.classList.contains('pn')) settle(); app.classList.remove('pn'); panel.inert = true; $$('[data-panel]', app).forEach(b => b.setAttribute('aria-pressed', 'false')); if (selId) select(null); }
   ptabs.forEach(t => t.onclick = () => openPanel(t.dataset.v));
   $('.wf-seg', app).addEventListener('keydown', e => { const i = ptabs.findIndex(t => t.getAttribute('aria-selected') === 'true'), d = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0; if (!d) return; e.preventDefault(); openPanel(ptabs[(i + d + 3) % 3].dataset.v, true); });
   $('.wf-pclose', app).onclick = closePanel;
@@ -2866,6 +3122,15 @@ const fitHits = window.dmFitHits || (() => {
     fit(true); toast('info', live ? `The draft is v${v} again` : `Restored v${v} as the draft`, live ? 'Your changes are gone' : `v${W.versions[0].v} stays live until you publish`, { label:'Undo', run:undo });
   }
   function discard(){ restoreV(W.versions[0].v); }
+
+  /* ---------- overlays (Ask the agent, Publish): they fade and lift in like the core's popovers, and out the same way ---------- */
+  const isOpen = el => !el.hidden && !el.classList.contains('out');
+  function showOver(el){ clearTimeout(el._t); el.classList.remove('out'); el.inert = false; el.hidden = false; }
+  function hideOver(el){
+    if (REDUCE){ el.hidden = true; return; }
+    el.classList.add('out'); el.inert = true; clearTimeout(el._t);
+    el._t = setTimeout(() => { el.hidden = true; el.classList.remove('out'); el.inert = false; }, MT('--dm-t-fast'));
+  }
 
   /* ---------- the top bar: name, state, Test with, Publish and the workflow's menu ---------- */
   function paintTop(){
@@ -2926,7 +3191,7 @@ const fitHits = window.dmFitHits || (() => {
   const pubD = $('.wf-pubd', app), pubF = $('form', pubD), pubBack = { el:null };
   function openPublish(){
     if (!W.changes.length && W.versions.length){ toast('info', 'Nothing to publish', `v${W.versions[0].v} is already live`); return; }
-    pubBack.el = document.activeElement; pubD.hidden = false;
+    pubBack.el = document.activeElement; showOver(pubD);
     const next = (W.versions[0]?.v || 0) + 1, tested = W.runs.find(r => r.test && r.C);
     const fresh = tested && tested.testOf === (W.seq || 0), unmapped = W.nodes.filter(n => n.type === 'branch' && !n.cfg.rule.v).length + W.nodes.filter(n => Object.values(n.cfg.in || {}).some(v => v && !byRef(v.split('.')[0]))).length;
     const ck = (ok, t, act = '') => `<li class="${ok ? 'ok' : 'warn'}"><span class="g">${I(ok ? 'check' : 'alert', 'xs')}</span><span>${t}</span>${act}</li>`;
@@ -2942,7 +3207,7 @@ const fitHits = window.dmFitHits || (() => {
     const t = $('[data-a="test"]', pubD); if (t) t.onclick = () => { closePub(); startRun(); };
     setTimeout(() => $('textarea', pubF).focus(), 30);
   }
-  const closePub = () => { if (pubD.hidden) return; pubD.hidden = true; if (pubBack.el && pubBack.el.isConnected) pubBack.el.focus({ preventScroll:true }); };
+  const closePub = () => { if (!isOpen(pubD)) return; hideOver(pubD); if (pubBack.el && pubBack.el.isConnected) pubBack.el.focus({ preventScroll:true }); };
   $('textarea', pubF).addEventListener('input', () => pubF.querySelector('.fmx-f').classList.remove('ai'));
   $('.wf-pub', app).onclick = openPublish;
   $('.wf-pubx', pubD).onclick = closePub;
@@ -2975,7 +3240,6 @@ const fitHits = window.dmFitHits || (() => {
     const b = e.target.closest('.wf-side button'); if (!b) return;
     if (b.dataset.wf){ if (b.dataset.wf !== F.id) openFlow(b.dataset.wf); drawer(false); }
     if (b.dataset.act === 'new'){ const f = { id:'new' + (++nid), name:'Untitled workflow', st:'draft', ver:0, today:0, build:() => ({ nodes:[N('trigger', 'When a webhook arrives', { ic:'bolt', cfg:{ source:'Webhook' } })], edges:[] }) }; FLOWS.push(f); openFlow(f.id); select(W.nodes[0].id, { open:true }); toast('ai', 'A new workflow', 'Add steps with + or describe them to the agent with ⌘K'); }
-    if (b.dataset.act === 'apps') toast('info', '6 apps connected', 'Gmail, Slack, the CRM, email marketing, the data warehouse and Company data API');
   });
   $('.wf-wsb', app).addEventListener('click', () => {
     const p = $('#wf-p-ws', app);
@@ -2987,6 +3251,200 @@ const fitHits = window.dmFitHits || (() => {
   $('.wf-menu', app).onclick = () => drawer(true);
   $('.wf-scrim', app).onclick = () => drawer(false);
   matchMedia('(max-width:1023px)').addEventListener('change', () => drawer(false));
+
+  /* ---------- wfx-apps: Connected apps, a popover from the sidebar. The apps with their marks (the core's BRAND marks, or a tinted
+     tile for an app without one), their state and what uses them; a catalogue to connect another; the tools AI steps can call;
+     and each app's details, to reconnect or disconnect it ---------- */
+  const APPS = [
+    { id:'gmail', n:'Gmail', mark:'gmail', who:'sales@fernhill.co and ana@fernhill.co', conns:['sales@fernhill.co', 'ana@fernhill.co'], st:'ok', can:'Sends email from two inboxes', since:'March 2' },
+    { id:'slack', n:'Slack', mark:'slack', who:'Fernhill workspace', conns:['Fernhill on Slack'], st:'ok', can:'Posts to channels and asks people to approve', since:'March 2' },
+    { id:'crm', n:'Fernhill CRM', ic:'db', tone:'pb', who:'ana@fernhill.co', conns:['Fernhill CRM'], st:'auth', short:'Sign-in expired', why:'The sign-in expired, so its steps fail with a 401', can:'Reads and updates contacts and deals', since:'March 9' },
+    { id:'mkt', n:'Email marketing', ic:'users', tone:'pk', who:'Fernhill newsletter', conns:['Email marketing'], st:'ok', can:'Adds people to lists', since:'April 14' },
+    { id:'dwh', n:'Data warehouse', ic:'table', tone:'pt', who:'analytics.fernhill.co', conns:['Data warehouse'], st:'bad', short:'Last sync timed out', why:'The last sync timed out', can:'Runs read-only queries', since:'May 3' },
+    { id:'cdata', n:'Company data API', ic:'globe', tone:'pp', who:'API key ending 4f2a', conns:['Company data API'], st:'ok', can:'Looks up companies by domain, 60 calls a minute', since:'June 20' }
+  ];
+  const CATALOG = [
+    { id:'drive', n:'Google Drive', mark:'drive', d:'Reads and files documents' },
+    { id:'notion', n:'Notion', mark:'notion', d:'Reads pages and adds to databases' },
+    { id:'linear', n:'Linear', mark:'linear', d:'Creates and updates issues' },
+    { id:'github', n:'GitHub', mark:'github', d:'Opens issues and reads pull requests' },
+    { id:'figma', n:'Figma', mark:'figma', d:'Reads files and leaves comments' },
+    { id:'cal', n:'Calendar', ic:'cal', tone:'pp', d:'Finds times and books meetings' },
+    { id:'billing', n:'Billing', ic:'dollar', tone:'pm', d:'Reads invoices and payments' },
+    { id:'desk', n:'Support desk', ic:'comment', tone:'pl', d:'Reads and answers tickets' },
+    { id:'hooks', n:'Webhooks', ic:'link', tone:'py', d:'Sends and receives any web request' }
+  ];
+  const ST = { ok:['ok', 'Connected'], auth:['warn', 'Needs sign-in'], bad:['bad', 'Error'] };
+  const appById = id => APPS.find(a => a.id === id);
+  const appsBtn = $('.wf-appsb', app), appsPop = $('#wf-p-apps', app);
+  const lg = (a, big = '') => a.mark ? `<span class="wfx-lg${big}" aria-hidden="true">${BRAND[a.mark]}</span>` : `<span class="wfx-lg${big}" data-tone="${a.tone}" aria-hidden="true">${I(a.ic, big ? 's' : 'xs')}</span>`;
+  // what uses an app: the workflows with a step on one of its accounts, worked out from their graphs
+  const usersOf = a => FLOWS.filter(f => load(f).nodes.some(n => a.conns.includes(n.cfg.conn)));
+  const nOf = (k, one, many) => `${k} ${k === 1 ? one : many}`;
+  const usedTxt = a => { const k = usersOf(a).length; return k ? `Used by ${nOf(k, 'workflow', 'workflows')}` : 'No workflow uses it yet'; };
+  const toolUse = t => { const k = FLOWS.filter(f => load(f).nodes.some(n => n.type === 'tool' && n.t === t)).length; return k ? `Used in ${nOf(k, 'workflow', 'workflows')}` : 'Ready for AI steps'; };
+  const tTile = t => `<span class="wfx-lg" data-tone="${TKIND[t[5]][1]}" aria-hidden="true">${I(t[0], 'xs')}</span>`;
+  function paintAppsN(){ $('.n', appsBtn).textContent = APPS.length; }
+  let aView = 'list', aSel = null, aBack = null, aHi = 0, aHits = [], aBusy = 0;
+  const head = (t, back) => `<div class="wfx-apps-h${back ? ' bk' : ''}">${back ? `<button class="ib wfx-back" data-back aria-label="Back to Connected apps" data-tip="Back" data-tip-k="Esc">${I('chev-l', 's')}</button>` : ''}${t}</div>`;
+  function viewHTML(){
+    if (aView === 'list'){
+      const look = APPS.filter(a => a.st !== 'ok').length, tools = TOOLS.filter(t => WS_TOOLS.has(t[1]));
+      return head(`<b id="wf-apps-t">Connected apps</b><span class="muted num">${APPS.length}</span>${look ? `<span class="wf-sp"></span><span class="muted wfx-apps-lk">${nOf(look, 'needs a look', 'need a look')}</span>` : ''}`)
+        + `<div class="wfx-apps-sc"><ul class="wfx-apps-l" aria-labelledby="wf-apps-t">${APPS.map(a => `<li class="wfx-app${a.fresh ? ' new' : ''}" data-id="${a.id}" data-st="${a.st}"><button class="wfx-app-b" data-go="${a.id}" aria-label="${esc(a.n)}, ${ST[a.st][1]}. ${esc(a.st === 'ok' ? usedTxt(a) : a.why)}. Details">${lg(a)}<span class="t"><span class="nm">${esc(a.n)}</span><span class="d">${esc(a.st === 'ok' ? usedTxt(a) : a.short)}</span></span><span class="tag ${ST[a.st][0]}">${ST[a.st][1]}</span>${I('chev-r', 'xs')}</button></li>`).join('')}</ul>`
+        + `<div class="wfx-apps-sh" id="wf-apps-tt"><span>Tools</span><span class="num">${tools.length}</span></div><ul class="wfx-apps-l" aria-labelledby="wf-apps-tt">${tools.map(t => `<li class="wfx-tl${t.fresh ? ' new' : ''}">${tTile(t)}<span class="t"><span class="nm">${esc(t[1])}</span><span class="d">${esc(toolUse(t[1]))}</span></span><span class="tag">${TKIND[t[5]][0]}</span></li>`).join('')}</ul></div>`
+        + `<div class="wfx-apps-f"><button class="pill line sm" data-v="add">${I('plus', 'xs')}<span>Add a connector</span></button><button class="pill ghost sm" data-v="tool">${I('plus', 'xs')}<span>Add a tool</span></button></div>`;
+    }
+    if (aView === 'add') return head('<b>Add a connector</b>', true)
+      + `<div class="wfx-apps-q">${I('search', 'xs')}<input type="text" role="combobox" aria-expanded="true" aria-autocomplete="list" aria-controls="wf-apps-cat" placeholder="Search apps" aria-label="Search apps" autocomplete="off" spellcheck="false"></div>`
+      + `<div class="wfx-apps-sc"><div class="wfx-apps-l" id="wf-apps-cat" role="listbox" aria-label="Apps you can connect"></div></div><p class="wfx-apps-ft muted"><span class="wfx-apps-cn"></span><span class="kh" aria-hidden="true"><span class="kbd">↑</span> <span class="kbd">↓</span> <span class="kbd">↵</span></span></p>`;
+    if (aView === 'tool') return head('<b>Add a tool</b>', true)
+      + `<p class="wfx-apps-p">Tools are what an AI step can call while it works. Give one to a step from its inspector.</p>`
+      + `<div class="wfx-apps-sc"><ul class="wfx-apps-l" aria-label="Tools">${TOOLS.map((t, i) => { const on = WS_TOOLS.has(t[1]);
+        return `<li><button class="wfx-app-o${on ? ' done' : ''}" data-tool="${i}"${on ? ' aria-disabled="true"' : ''} aria-label="${esc(t[1])}, ${TKIND[t[5]][0]}. ${esc(t[3])}. ${on ? 'Added' : 'Add it'}">${tTile(t)}<span class="t"><span class="nm">${esc(t[1])}</span><span class="d">${esc(t[3])}</span></span><span class="wfx-app-r">${on ? `${I('check', 'xs')}Added` : `${I('plus', 'xs')}Add`}</span></button></li>`; }).join('')}</ul></div>`;
+    const a = appById(aSel); if (!a) return '';
+    const users = usersOf(a), [tone, label] = ST[a.st];
+    return head(`<b>${esc(a.n)}</b>`, true)
+      + `<div class="wfx-apps-sc"><div class="wfx-app-hd">${lg(a, ' big')}<span class="t"><b>${esc(a.n)}</b><span class="d">${esc(a.who)}</span></span><span class="tag ${tone}">${label}</span></div>`
+      + (a.st !== 'ok' ? `<p class="wfx-app-why ${tone}">${I(a.st === 'bad' ? 'alert' : 'lock', 'xs')}<span>${esc(a.why)}. Reconnect it to fix the steps that use it.</span></p>` : '')
+      + `<dl class="wfx-app-dl"><dt>Can</dt><dd>${esc(a.can)}</dd><dt>Connected</dt><dd>${esc(a.since)}, by ${esc(P[ME][0])}</dd><dt>Used by</dt><dd>${users.length ? `<ul class="wfx-app-wf">${users.map(f => `<li><button data-flow="${f.id}" aria-label="Open ${esc(f.name)}"><span class="dot" style="color:${f.st === 'failing' ? 'var(--dm-bad)' : f.st === 'draft' ? 'var(--dm-faint)' : 'var(--dm-ok-mark)'}" aria-hidden="true"></span><span class="t">${esc(f.name)}</span>${I('right', 'xs')}</button></li>`).join('')}</ul>` : '<span class="muted">No workflow yet</span>'}</dd></dl></div>`
+      + `<div class="wfx-apps-f"><button class="pill ${a.st === 'ok' ? 'line' : 'primary'} sm" data-a="reconnect">${I('refresh', 'xs')}<span>Reconnect</span></button><button class="pill ghost sm wfx-dis" data-a="disconnect">${I('logout', 'xs')}<span>Disconnect</span></button></div>`;
+  }
+  // a new view slides in from the side it comes from, and the popover eases to its new height; it keeps its bottom edge where it
+  // opened, over the button, so it grows upwards
+  function paintApps(dir = 0){
+    const open = appsPop.classList.contains('open') && !REDUCE, h0 = appsPop.offsetHeight;
+    appsPop.innerHTML = `<div class="wfx-apps-v" data-view="${aView}">${viewHTML()}</div>`;
+    if (aView === 'add') paintCat();
+    APPS.forEach(a => { delete a.fresh; }); TOOLS.forEach(t => { delete t.fresh; });
+    if (!open) return;
+    const h1 = appsPop.offsetHeight;
+    if (Math.abs(h1 - h0) > 1){ appsPop.classList.add('morph'); const done = () => appsPop.classList.remove('morph');
+      appsPop.animate([{ height:h0 + 'px' }, { height:h1 + 'px' }], { duration:MT('--dm-t') * .8, easing:EASE() }).finished.then(done, done); }
+    if (dir) appsPop.firstElementChild.animate([{ opacity:0, transform:`translateX(${dir * 14}px)` }, { opacity:1, transform:'none' }], { duration:MT('--dm-t') * .7, easing:EASE() });
+  }
+  // the focus moves into the new view when it was in the popover (the search field takes it either way); back in the list, it
+  // lands on what opened the view
+  const inPop = () => !!document.activeElement && appsPop.contains(document.activeElement);
+  function appsGo(view, { id = null, dir = 1 } = {}){
+    const ae = document.activeElement, had = inPop();
+    if (aView === 'list') aBack = had && ae.dataset.go ? `[data-go="${ae.dataset.go}"]` : had && ae.dataset.v ? `[data-v="${ae.dataset.v}"]` : null;
+    aView = view; if (id) aSel = id; paintApps(dir);
+    const to = view === 'add' ? $('.wfx-apps-q input', appsPop) : view === 'tool' ? $('.wfx-app-o:not([aria-disabled="true"])', appsPop) || $('.wfx-back', appsPop)
+      : view === 'detail' ? $('[data-a="reconnect"]', appsPop) : (aBack && $(aBack, appsPop)) || $('.wfx-app-b', appsPop);
+    if (to && (had || view === 'add')) to.focus({ preventScroll:true });
+  }
+  // the catalogue: what isn't connected yet, filtered as you type, with the arrow keys and Enter
+  function paintCat(){
+    const inp = $('.wfx-apps-q input', appsPop), ls = $('#wf-apps-cat', appsPop), v = inp ? inp.value.trim().toLowerCase() : '';
+    aHits = CATALOG.filter(c => !v || (c.n + ' ' + c.d).toLowerCase().includes(v));
+    ls.innerHTML = aHits.length ? aHits.map((c, i) => `<div class="wfx-app-o" role="option" id="wf-ac-${i}" data-i="${i}" aria-selected="false">${lg(c)}<span class="t"><span class="nm">${esc(c.n)}</span><span class="d">${esc(c.d)}</span></span><span class="wfx-app-r">Connect</span></div>`).join('')
+      : `<p class="wfx-apps-e">No app called “${esc(inp.value.trim())}” yet</p>`;
+    $('.wfx-apps-cn', appsPop).textContent = nOf(aHits.length, 'app', 'apps');
+    hiCat(0);
+  }
+  function hiCat(i){
+    const os = $$('.wfx-app-o', $('#wf-apps-cat', appsPop)), inp = $('.wfx-apps-q input', appsPop);
+    if (!os.length){ inp.removeAttribute('aria-activedescendant'); return; }
+    aHi = (i + os.length) % os.length; os.forEach((o, j) => { o.classList.toggle('on', j === aHi); o.setAttribute('aria-selected', String(j === aHi)); });
+    inp.setAttribute('aria-activedescendant', os[aHi].id); os[aHi].scrollIntoView({ block:'nearest' });
+  }
+  // a pick connects: a spinner, then a tick, then the app joins the list
+  function connect(i){
+    const c = aHits[i], el = $(`#wf-ac-${i}`, appsPop); if (!c || !el || aBusy) return;
+    aBusy++; el.classList.add('busy'); el.setAttribute('aria-disabled', 'true'); const r = $('.wfx-app-r', el);
+    r.innerHTML = '<span class="spin" aria-hidden="true"></span>Connecting'; say(`Connecting ${c.n}`);
+    setTimeout(() => { r.innerHTML = `<span class="wfx-tick">${I('check', 'xs')}</span>Connected`; el.classList.add('done'); }, REDUCE ? 0 : 900);
+    setTimeout(() => {
+      aBusy--; CATALOG.splice(CATALOG.indexOf(c), 1);
+      APPS.push({ ...c, who:'ana@fernhill.co', conns:[c.n], st:'ok', can:c.d, since:'Today', fresh:true }); paintAppsN();
+      if (appsPop.classList.contains('open') && aView === 'add'){ const had = inPop(); aView = 'list'; paintApps(-1); const row = $(`.wfx-app[data-id="${c.id}"]`, appsPop); if (row){ row.scrollIntoView({ block:'nearest' }); if (had) $('.wfx-app-b', row).focus({ preventScroll:true }); } }
+      toast('ok', `${c.n} connected`, `${nOf(APPS.length, 'app', 'apps')} connected`); say(`${c.n} connected`);
+    }, REDUCE ? 0 : 1500);
+  }
+  function addTool(i, el){
+    const t = TOOLS[i]; if (!t || WS_TOOLS.has(t[1]) || aBusy) return;
+    aBusy++; el.setAttribute('aria-disabled', 'true'); const r = $('.wfx-app-r', el);
+    r.innerHTML = '<span class="spin" aria-hidden="true"></span>Adding';
+    setTimeout(() => { aBusy--; WS_TOOLS.add(t[1]); t.fresh = true; el.classList.add('done'); r.innerHTML = `<span class="wfx-tick">${I('check', 'xs')}</span>Added`; el.setAttribute('aria-label', `${t[1]}, added`);
+      toast('ok', `${t[1]} added`, 'Give it to an AI step from its inspector'); say(`${t[1]} added`);
+      const nx = $('.wfx-app-o:not([aria-disabled="true"])', appsPop); if (document.activeElement === el) (nx || $('.wfx-back', appsPop)).focus({ preventScroll:true }); }, REDUCE ? 0 : 800);
+  }
+  // reconnecting plays the same states on its button; the CRM's expired sign-in is what fails the Renewal reminders runs
+  function reconnectApp(a, btn, then){
+    if (!a || aBusy) return; aBusy++;
+    const lab = btn && btn.innerHTML; if (btn){ btn.setAttribute('aria-disabled', 'true'); btn.classList.add('busy'); btn.innerHTML = '<span class="spin" aria-hidden="true"></span><span>Connecting</span>'; }
+    setTimeout(() => { if (btn) btn.innerHTML = `${I('check', 'xs')}<span>Connected</span>`; }, REDUCE ? 0 : 900);
+    setTimeout(() => {
+      aBusy--; const was = a.st; a.st = 'ok'; delete a.why; delete a.short;
+      if (a.id === 'crm'){ crmExpired = false; FLOWS.forEach(f => { if (f.W && f.W.testFail && /^401/.test(f.W.testFail.err)) f.W.testFail = null; }); }
+      if (btn && btn.isConnected && !appsPop.contains(btn)){ btn.removeAttribute('aria-disabled'); btn.classList.remove('busy'); btn.innerHTML = lab; }
+      if (appsPop.classList.contains('open') && aView === 'detail' && aSel === a.id){ const had = inPop(); paintApps(0); const b = $('[data-a="reconnect"]', appsPop); if (b && had) b.focus({ preventScroll:true }); }
+      else if (appsPop.classList.contains('open') && aView === 'list') paintApps(0);
+      toast('ok', `${a.n} ${was === 'ok' ? 'reconnected' : 'is connected again'}`, a.id === 'crm' ? 'Its steps can sign in again. Test to check' : usedTxt(a)); say(`${a.n} connected`);
+      if (then) then();
+    }, REDUCE ? 0 : 1400);
+  }
+  function disconnect(a){
+    const i = APPS.indexOf(a), users = usersOf(a).length; if (i < 0) return;
+    APPS.splice(i, 1); const back = { id:a.id, n:a.n, mark:a.mark, ic:a.ic, tone:a.tone, d:a.can }; CATALOG.unshift(back); paintAppsN();
+    const had = inPop(); aView = 'list'; aBack = null; paintApps(-1); const b = $('.wfx-app-b', appsPop) || $('[data-v="add"]', appsPop); if (b && had) b.focus({ preventScroll:true });
+    say(`${a.n} disconnected`);
+    toast('info', `Disconnected ${a.n}`, users ? `${nOf(users, 'workflow', 'workflows')} used it` : 'No workflow used it', { label:'Undo', run:() => {
+      if (APPS.includes(a)) return; const j = CATALOG.indexOf(back); if (j >= 0) CATALOG.splice(j, 1);
+      a.fresh = true; APPS.splice(Math.min(i, APPS.length), 0, a); paintAppsN();
+      if (appsPop.classList.contains('open') && aView === 'list') paintApps(0); else if (appsPop.classList.contains('open') && aView === 'add') paintCat();
+      say(`${a.n} connected again`); } });
+  }
+  // the popover opens from Connected apps (the core places it; it is drawn first, so it opens at its height)
+  app.addEventListener('click', e => {
+    if (!e.target.closest('.wf-appsb')) return;
+    if (appsPop.classList.contains('open')) return;
+    appsPop.style.bottom = ''; aView = 'list'; aBack = null; paintApps();
+    requestAnimationFrame(() => {
+      if (!appsPop.classList.contains('open')) return;
+      const top = parseFloat(appsPop.style.top) || 0; appsPop.style.bottom = (app.clientHeight - top - appsPop.offsetHeight) + 'px'; appsPop.style.top = 'auto';
+      // opened with Enter or Space, the focus goes to the first app, once the popover can take it
+      const first = (k = 0) => { const f = $('.wfx-app-b', appsPop); if (!f || !appsPop.classList.contains('open')) return; if (getComputedStyle(f).visibility !== 'visible' && k < 30) return requestAnimationFrame(() => first(k + 1)); f.focus({ preventScroll:true }); };
+      if (!e.detail) first();
+    });
+  }, true);
+  // the keyboard: the arrows move through the popover's buttons (or the catalogue, from its search field), Escape steps back to
+  // the list and, there, closes it (the core), the focus going back to Connected apps
+  appsBtn.addEventListener('keydown', e => {
+    if ((e.key !== 'ArrowDown' && e.key !== 'ArrowUp') || !appsPop.classList.contains('open')) return;
+    e.preventDefault(); const it = $$('.wfx-apps-v button:not([aria-disabled="true"])', appsPop); const t = e.key === 'ArrowDown' ? it[0] : it[it.length - 1]; if (t) t.focus();
+  });
+  appsPop.addEventListener('keydown', e => {
+    const k = e.key, inp = e.target.closest('.wfx-apps-q input');
+    if (inp){ if (k === 'ArrowDown' || k === 'ArrowUp'){ e.preventDefault(); hiCat(aHi + (k === 'ArrowDown' ? 1 : -1)); } else if (k === 'Enter'){ e.preventDefault(); connect(aHi); } return; }
+    if (!['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(k)) return;
+    const it = $$('.wfx-apps-v button:not([aria-disabled="true"])', appsPop); if (!it.length) return;
+    const i = it.indexOf(document.activeElement); e.preventDefault();
+    const j = k === 'Home' ? 0 : k === 'End' ? it.length - 1 : i < 0 ? 0 : (i + (k === 'ArrowDown' ? 1 : -1) + it.length) % it.length; it[j].focus();
+  });
+  addEventListener('keydown', e => {
+    if (e.key !== 'Escape' || !appsPop.classList.contains('open') || aView === 'list') return;
+    e.preventDefault(); e.stopPropagation(); const had = inPop(); appsGo('list', { dir:-1 }); if (!had){ const f = (aBack && $(aBack, appsPop)) || $('.wfx-app-b', appsPop); if (f) f.focus({ preventScroll:true }); }
+  }, true);
+  appsPop.addEventListener('input', e => { if (e.target.closest('.wfx-apps-q')) paintCat(); });
+  appsPop.addEventListener('pointermove', e => { const o = e.target.closest('#wf-apps-cat .wfx-app-o'); if (o && +o.dataset.i !== aHi) hiCat(+o.dataset.i); });
+  // clicks are handled here, so the core never reads a click on a view that was just redrawn as one outside the popover
+  appsPop.addEventListener('click', e => {
+    e.stopPropagation();
+    const b = e.target.closest('button,[role="option"]'); if (!b || b.getAttribute('aria-disabled') === 'true') return;
+    if (b.dataset.go) return appsGo('detail', { id:b.dataset.go });
+    if (b.hasAttribute('data-back')) return appsGo('list', { dir:-1 });
+    if (b.dataset.v === 'add') return appsGo('add');
+    if (b.dataset.v === 'tool') return appsGo('tool');
+    if (b.matches('#wf-apps-cat .wfx-app-o')) return connect(+b.dataset.i);
+    if (b.dataset.tool) return addTool(+b.dataset.tool, b);
+    if (b.dataset.flow){ closePops(); if (b.dataset.flow !== F.id) openFlow(b.dataset.flow); drawer(false); return; }
+    const a = appById(aSel);
+    if (b.dataset.a === 'reconnect') return reconnectApp(a, b);
+    if (b.dataset.a === 'disconnect') return disconnect(a);
+  });
+  paintAppsN();
 
   /* ---------- Ask the agent: Command palette ---------- */
   const over = $('.wf-cmd', app), q = $('.cpl-q', over), list = $('.cpl-list', over), st = $('.cpl-st', over);
@@ -3023,8 +3481,8 @@ const fitHits = window.dmFitHits || (() => {
   }
   function moveHi(d){ const bs = $$('.cpl-i', list), hl = $('.cpl-hl', list); if (!bs.length){ q.removeAttribute('aria-activedescendant'); hl.style.opacity = 0; return; } hi = (hi + d + bs.length) % bs.length; bs.forEach((b, i) => { b.classList.toggle('hl', i === hi); b.setAttribute('aria-selected', String(i === hi)); }); const b = bs[hi]; hl.style.opacity = 1; hl.style.top = b.offsetTop + 'px'; q.setAttribute('aria-activedescendant', b.id); b.scrollIntoView({ block:'nearest' }); }
   const runItem = i => { const x = items[i]; closeCmd(false); if (x) x.run(); };
-  function openCmd(){ if (!over.hidden) return; closePops(); back = document.activeElement; over.hidden = false; q.value = ''; paintCmd(); drawer(false); q.focus(); }
-  function closeCmd(restore = true){ if (over.hidden) return; over.hidden = true; if (restore && back && back.isConnected) back.focus({ preventScroll:true }); }
+  function openCmd(){ if (isOpen(over)) return; closePops(); back = document.activeElement; showOver(over); q.value = ''; paintCmd(); drawer(false); q.focus(); }
+  function closeCmd(restore = true){ if (!isOpen(over)) return; hideOver(over); if (restore && back && back.isConnected) back.focus({ preventScroll:true }); }
   q.addEventListener('input', paintCmd);
   q.addEventListener('keydown', e => { if (e.key === 'ArrowDown' || e.key === 'ArrowUp'){ e.preventDefault(); moveHi(e.key === 'ArrowDown' ? 1 : -1); } else if (e.key === 'Enter'){ e.preventDefault(); runItem(hi); } else if (e.key === 'Escape'){ e.preventDefault(); closeCmd(); } else if (e.key === 'Tab') e.preventDefault(); });
   list.addEventListener('click', e => { const b = e.target.closest('.cpl-i'); if (b) runItem(+b.dataset.i); });
@@ -3035,19 +3493,19 @@ const fitHits = window.dmFitHits || (() => {
   /* ---------- keys: ⌘K, ⌘Z, A, V, H, Escape ---------- */
   document.addEventListener('keydown', e => {
     const k = e.key.toLowerCase();
-    if ((e.metaKey || e.ctrlKey) && k === 'k'){ e.preventDefault(); over.hidden ? openCmd() : closeCmd(); return; }
+    if ((e.metaKey || e.ctrlKey) && k === 'k'){ e.preventDefault(); isOpen(over) ? closeCmd() : openCmd(); return; }
     const typing = e.target.closest && e.target.closest('input,textarea,[contenteditable="true"]');
-    if ((e.metaKey || e.ctrlKey) && k === 'z' && !typing && over.hidden){ e.preventDefault(); e.shiftKey ? redo() : undo(); return; }
+    if ((e.metaKey || e.ctrlKey) && k === 'z' && !typing && !isOpen(over)){ e.preventDefault(); e.shiftKey ? redo() : undo(); return; }
     if (e.key === 'Escape'){
       if ($('.pop.open', app)) return;
-      if (!over.hidden){ closeCmd(); return; }
-      if (!pubD.hidden){ closePub(); return; }
+      if (isOpen(over)){ closeCmd(); return; }
+      if (isOpen(pubD)){ closePub(); return; }
       if (app.classList.contains('dr')){ drawer(false); $('.wf-menu', app).focus(); return; }
       if (selId){ const id = selId; select(null); const b = $(`.wfx-node[data-id="${id}"]`, nodesEl); if (b) b.focus({ preventScroll:true }); return; }
       if (app.classList.contains('pn')){ closePanel(); return; }
       return;
     }
-    if (typing || e.metaKey || e.ctrlKey || e.altKey || !over.hidden || !pubD.hidden) return;
+    if (typing || e.metaKey || e.ctrlKey || e.altKey || isOpen(over) || isOpen(pubD)) return;
     if (!app.contains(e.target) && e.target !== document.body) return;
     if (k === 'v') setTool('select'); else if (k === 'h') setTool('hand');
     else if (k === 'a' && !$('.pop.open')){ e.preventDefault(); $('.wf-add', app).click(); }
@@ -3060,7 +3518,7 @@ const fitHits = window.dmFitHits || (() => {
   const first0 = () => { fit(); $$('.wfx-node', nodesEl).forEach((b, i) => { if (!REDUCE) b.animate([{ opacity:0, filter:'blur(3px)' }, { opacity:1, filter:'none' }], { duration:520, delay:Math.min(i, 8) * 55, easing:'cubic-bezier(.16,1,.3,1)', fill:'backwards' }); }); };
   first0();
   // the view fits the workflow again when the canvas changes size, unless you moved it yourself
-  new ResizeObserver(() => { if (!V.user && !drag && !selId) fit(!!cv._w); else if (selId) reveal(selId); cv._w = cv.clientWidth; }).observe(cv);
+  new ResizeObserver(() => { const live = sizing(); if (!V.user && !drag && !selId) fit(live ? false : !!cv._w, live); else if (selId && !live) reveal(selId); cv._w = cv.clientWidth; }).observe(cv);
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { placeK(); });
   // the page can be opened on a step or a run: #run=2084, #step=n5
   const hs = new URLSearchParams(location.hash.slice(1));

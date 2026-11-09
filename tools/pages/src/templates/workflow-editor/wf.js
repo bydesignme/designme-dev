@@ -13,6 +13,36 @@
   const sum = (a, f = x => x) => a.reduce((t, x) => t + f(x), 0);
   const secs = v => (v < 10 ? v.toFixed(1) : Math.round(v)) + 's';
 
+  /* ---------- motion: the library's durations and ease (--dm-t, --dm-t-fast, --dm-ease), read live so Soft and Blueprint keep
+     their own feel. Everything that opens or closes moves, and nothing moves with reduced motion ---------- */
+  const MT = v => (parseFloat(getComputedStyle(app).getPropertyValue(v)) || .3) * 1000;
+  const EASE = () => getComputedStyle(app).getPropertyValue('--dm-ease').trim() || 'ease-out';
+  const BOX = ['marginTop', 'marginBottom', 'paddingTop', 'paddingBottom'];
+  // a block that joins a list opens its own room, so what is under it glides down instead of jumping
+  function grow(el){
+    if (!el || REDUCE) return el;
+    const cs = getComputedStyle(el), a = { height:'0px' }, b = { height:el.offsetHeight + 'px' }; BOX.forEach(p => { a[p] = '0px'; b[p] = cs[p]; });
+    el.style.overflow = 'hidden'; const done = () => { el.style.overflow = ''; };
+    el.animate([a, b], { duration:MT('--dm-t'), easing:EASE() }).finished.then(done, done);
+    return el;
+  }
+  // and one that leaves fades and closes its room, then goes; gap is the list's gap, closed with it
+  function shrink(el, { delay = 0, gap = 0, fade = true, dur = MT('--dm-t') * .7 } = {}){
+    if (!el) return;
+    if (REDUCE || !el.isConnected || !el.offsetHeight){ el.remove(); return; }
+    const cs = getComputedStyle(el), a = { height:el.offsetHeight + 'px' }, b = { height:'0px' };
+    BOX.forEach(p => { a[p] = cs[p]; b[p] = '0px'; }); if (gap){ a.marginBottom = cs.marginBottom; b.marginBottom = -gap + 'px'; }
+    if (fade){ a.opacity = 1; b.opacity = 0; }
+    el.style.overflow = 'hidden'; el.style.pointerEvents = 'none'; el.inert = true;
+    const go = () => el.remove();
+    el.animate([a, b], { duration:dur, delay, easing:EASE(), fill:'forwards' }).finished.then(go, go);
+  }
+  // the focus ring is the keyboard's alone: once a mouse or a finger was used, no control shows one, not even one a script hands
+  // the focus back to (a menu closing onto its button); the next key brings it back
+  const modality = k => { document.documentElement.dataset.wfInput = k; };
+  document.addEventListener('pointerdown', () => modality('pointer'), true);
+  document.addEventListener('keydown', e => { if (!['Shift', 'Control', 'Alt', 'Meta', 'CapsLock', 'Fn'].includes(e.key)) modality('key'); }, true);
+
   /* ---------- people, step kinds, models and connections ---------- */
   const P = { MK:['Maya Kim', 'l'], TR:['Theo Reed', 't'], AN:['Ana Novak', 'p'], JB:['Jonah Brooks', 'm'] };
   const ME = 'AN';
@@ -24,10 +54,18 @@
     branch:{ k:'Branch', ic:'branch' }, wait:{ k:'Wait', ic:'clock' }, approval:{ k:'Approval', ic:'user' }, output:{ k:'Output', ic:'hash' } };
   const MODELS = [['Sonnet 5.5', 'Balanced, the default'], ['Opus 5.5', 'Deepest reasoning, slower'], ['Haiku 5.5', 'Fastest and cheapest']];
   const CONNS = { mail:['sales@fernhill.co', 'ana@fernhill.co'], hash:['Fernhill on Slack'], users:['Email marketing'], db:['Fernhill CRM', 'Data warehouse'], globe:['Company data API', 'Web search'], other:['Fernhill CRM', 'Webhook'] };
-  const TOOLS = [['globe', 'Company lookup', 'Company data API', 'Finds a company by its email domain', [['employees', 'number', '420'], ['industry', 'text', 'Software']]],
-    ['search', 'Web search', 'Web search', 'Searches the web and keeps the top results', [['results', 'list', '5 pages'], ['top_url', 'text', 'corvid.io/about']]],
-    ['db', 'CRM lookup', 'Fernhill CRM', 'Reads a contact and its deals from the CRM', [['contact', 'text', 'Priya Shah'], ['open_deals', 'number', '0']]],
-    ['file-text', 'Read a page', 'Web search', 'Reads the text of a web page', [['text', 'text', 'Corvid builds analytics']]]];
+  // the tools an AI step can call: icon, name, connection, what it does, what it hands on, and its kind (its tile's colour)
+  const TOOLS = [['globe', 'Company lookup', 'Company data API', 'Finds a company by its email domain', [['employees', 'number', '420'], ['industry', 'text', 'Software']], 'data'],
+    ['search', 'Web search', 'Web search', 'Searches the web and keeps the top results', [['results', 'list', '5 pages'], ['top_url', 'text', 'corvid.io/about']], 'web'],
+    ['db', 'CRM lookup', 'Fernhill CRM', 'Reads a contact and its deals from the CRM', [['contact', 'text', 'Priya Shah'], ['open_deals', 'number', '0']], 'data'],
+    ['file-text', 'Read a page', 'Web search', 'Reads the text of a web page', [['text', 'text', 'Corvid builds analytics']], 'web'],
+    ['code', 'Run code', 'Built in', 'Runs a short script on the data so far', [['result', 'object', '{ 3 fields }']], 'code'],
+    ['file', 'Read a file', 'Built in', 'Reads the text of an attached PDF or document', [['text', 'text', 'Order form, 2 pages']], 'code']];
+  const TKIND = { data:['Data', 'pt'], web:['Web', 'pb'], code:['Built in', 'pk'] };
+  // the tools the workspace has turned on; Connected apps adds the others
+  const WS_TOOLS = new Set(['Company lookup', 'Web search', 'CRM lookup', 'Read a page']);
+  // the CRM's sign-in has expired until it is connected again (Connected apps), so the workflows that use it fail with a 401
+  let crmExpired = true;
 
   /* ---------- the step catalogue: what the picker offers ---------- */
   const CAT = [
@@ -164,7 +202,7 @@
       if (F.ver) W.versions = Array.from({ length:Math.min(F.ver, 3) }, (_, i) => { const g = JSON.parse(W.live), a = g.nodes.find(x => x.type === 'ai'); if (i && a) a.cfg.prompt = a.t + ', in a few lines.';
         return { v:F.ver - i, by:['MK', 'TR', 'AN'][i % 3], when:ago(3 + i * 8), note:i === Math.min(F.ver, 3) - 1 && F.ver <= 3 ? 'First version.' : 'Tuned the instructions.', ch:['Changed the instructions on the AI step'], g:JSON.stringify(g) }; });
       const bad = F.st === 'failing', crm = W.nodes.find(n => n.ic === 'db');
-      if (bad && crm) W.testFail = { node:crm.id, times:9, err:'401 The CRM connection has expired' };
+      if (bad && crm && crmExpired) W.testFail = { node:crm.id, times:9, err:'401 The CRM connection has expired' };
       W.runs = F.ver ? [0, 1, 2].map(i => ({ id:900 + F.today * 3 - i, lead:null, out:bad && i < 2 ? 'bad' : 'ok', path:bad && i < 2 ? 'Failed at ' + (crm ? crm.t : 'a step') : 'Finished', dur:3 + i * .7, when:['1 hour ago', '5 hours ago', 'Yesterday'][i], o:bad && i < 2 && crm ? { fail:{ node:crm.id, times:9, err:'401 The CRM connection has expired' } } : {} })) : [];
     }
     return W;
@@ -182,17 +220,27 @@
   /* ---------- toasts: Toast ---------- */
   const toasts = $('.wf-toasts', app); $('.wf-work', app).appendChild(toasts);
   const TONE = { ok:['ok', 'var(--dm-ok)', 'var(--dm-ok-bg)'], info:['info', 'var(--dm-fg2)', 'var(--dm-chip)'], warn:['warn', 'var(--dm-warn)', 'var(--dm-warn-bg)'], bad:['x', 'var(--dm-bad)', 'var(--dm-bad-bg)'], ai:['spark', 'var(--dm-accent-fg,var(--dm-accent))', 'var(--dm-accent-bg)'] };
+  // a toast fades out (Toast's own tst-out), then closes its room so the others glide together
+  function toastOut(t){
+    if (!t.isConnected || t.classList.contains('tst-out')) return;
+    t.classList.add('tst-out'); shrink(t, { delay:120, gap:parseFloat(getComputedStyle(toasts).rowGap) || 8, fade:false, dur:MT('--dm-t') * .6 });
+  }
   function toast(kind, b, s = '', act = null){
     const [ic, col, bg] = TONE[kind];
     const t = html(`<div class="tst-t tst-in" role="status"><span class="g" style="color:${col};background:${bg}">${I(ic)}</span><div class="tx"><b>${esc(b)}</b>${s ? `<span>${esc(s)}</span>` : ''}</div><div class="acts">${act ? `<button class="pill ghost sm">${esc(act.label)}</button>` : ''}<button class="ib" aria-label="Dismiss" data-tip="Dismiss">${I('x')}</button></div></div>`);
-    const out = () => { if (!t.isConnected || t.classList.contains('tst-out')) return; t.classList.add('tst-out'); setTimeout(() => t.remove(), 320); };
+    const out = () => toastOut(t);
     $('.ib', t).onclick = out;
     if (act) $('.pill', t).onclick = () => { act.run(); out(); };
+    // the toasts already shown glide to make room (on phones they stack up from the bottom)
+    const was = new Map($$('.tst-t:not(.tst-out)', toasts).map(x => [x, x.getBoundingClientRect().top]));
     toasts.appendChild(t);
-    while (toasts.children.length > 3) toasts.firstElementChild.remove();
+    if (!REDUCE) was.forEach((y, x) => { const d = y - x.getBoundingClientRect().top; if (Math.abs(d) > .5) x.animate([{ transform:`translateY(${d}px)` }, { transform:'none' }], { duration:MT('--dm-t'), easing:EASE() }); });
+    const live = $$('.tst-t:not(.tst-out)', toasts); live.slice(0, Math.max(0, live.length - 3)).forEach(toastOut);
     // a click anywhere else, or Escape, sends the toasts away; a click on a toast itself (its Undo, its ×) is handled above
     if (!toasts._away){ toasts._away = true; const t0 = () => performance.now();
-      const away = () => $$('.tst-t:not(.tst-out)', toasts).forEach(x => { if (t0() - (x._born || 0) > 250){ x.classList.add('tst-out'); setTimeout(() => x.remove(), 320); } });
+      // a toast's own buttons never close the popover it reports on (Undo in Connected apps puts the app back in its list)
+      toasts.addEventListener('click', e => e.stopPropagation());
+      const away = () => $$('.tst-t:not(.tst-out)', toasts).forEach(x => { if (t0() - (x._born || 0) > 250) toastOut(x); });
       document.addEventListener('pointerdown', e => { if (!toasts.contains(e.target)) away(); }, true);
       document.addEventListener('keydown', e => { if (e.key === 'Escape' && toasts.children.length) away(); }); }
     t._born = performance.now();
@@ -282,9 +330,39 @@
     $$('.wfx-ins, .wfx-elab', nodesEl).forEach(x => x.remove());
     nodesEl.insertAdjacentHTML('beforeend', extra);
   }
+  // an edit moves the steps it touches: the ones that stay glide to their new places with their wires, a new one pops in and a
+  // removed one fades where it was. Opening another workflow just draws it
+  let drawnW = null, tweenRaf = 0;
   function renderCanvas(){
-    POS = layout();
+    const old = {}, same = drawnW === W && !REDUCE; drawnW = W;
+    Object.keys(POS).forEach(id => { old[id] = { x:POS[id].x, y:POS[id].y }; });
+    cancelAnimationFrame(tweenRaf); tweenRaf = 0; tween.to = null; POS = layout();
+    const gone = same ? $$('.wfx-node:not(.gone)', nodesEl).filter(el => !byId(el.dataset.id)) : [];
+    const from = {}; if (same) W.nodes.forEach(n => { const o = old[n.id], p = POS[n.id]; if (o && p && Math.hypot(o.x - p.x, o.y - p.y) > .5) from[n.id] = { x:o.x, y:o.y }; });
     nodesEl.innerHTML = W.nodes.map(nodeHTML).join('');
+    if (same) $$('.wfx-node', nodesEl).forEach(el => { if (!old[el.dataset.id]) el.classList.add('add'); });
+    gone.forEach(el => { el.classList.add('gone'); el.classList.remove('sel'); el.inert = true; el.setAttribute('aria-hidden', 'true'); nodesEl.appendChild(el);
+      const go = () => el.remove(); el.animate([{ opacity:getComputedStyle(el).opacity, transform:'none' }, { opacity:0, transform:'scale(.94)' }], { duration:MT('--dm-t-fast') + 60, easing:'ease-in', fill:'forwards' }).finished.then(go, go); });
+    if (Object.keys(from).length) tween(from); else { drawWires(); paintRun(true); }
+  }
+  function tween(from){
+    const to = {}, t0 = performance.now(), D = MT('--dm-t'), els = {};
+    Object.keys(from).forEach(id => { to[id] = { x:POS[id].x, y:POS[id].y }; els[id] = $(`.wfx-node[data-id="${id}"]`, nodesEl); });
+    const frame = now => {
+      const k = Math.min(1, (now - t0) / D), e = 1 - Math.pow(1 - k, 3);
+      Object.keys(to).forEach(id => { const p = POS[id], el = els[id]; if (!p) return; p.x = from[id].x + (to[id].x - from[id].x) * e; p.y = from[id].y + (to[id].y - from[id].y) * e;
+        if (el){ el.style.left = p.x + 'px'; el.style.top = (p.y - NH / 2) + 'px'; } });
+      drawWires(); paintRun(true);
+      tweenRaf = k < 1 ? requestAnimationFrame(frame) : 0;
+      if (!tweenRaf) tween.to = null;
+    };
+    tween.to = to; frame(t0);
+  }
+  // a drag or another edit mid-glide starts from where the steps are going
+  function finishTween(){
+    if (!tweenRaf) return; cancelAnimationFrame(tweenRaf); tweenRaf = 0;
+    const to = tween.to; tween.to = null; if (!to) return;
+    Object.keys(to).forEach(id => { if (!POS[id]) return; Object.assign(POS[id], to[id]); const el = $(`.wfx-node[data-id="${id}"]`, nodesEl); if (el){ el.style.left = POS[id].x + 'px'; el.style.top = (POS[id].y - NH / 2) + 'px'; } });
     drawWires(); paintRun(true);
   }
   // a wire under the pointer shows its +; the + stays while the pointer moves onto it
@@ -306,15 +384,25 @@
     if (anim) setTimeout(() => cv.classList.remove('anim'), 320);
   }
   // the room the steps can use: under the test chip, over the toolbar
-  // a panel over the canvas (under 1200px) takes its right side
-  const room = () => { const p = $('.wf-panel', app), over = app.classList.contains('pn') && getComputedStyle(p).position === 'absolute' && innerWidth > 640 ? p.offsetWidth : 0; return { l:16, t:56, r:cv.clientWidth - 16 - over, b:cv.clientHeight - 64 }; };
+  // a panel over the canvas (under 1200px) takes its right side. While the panel or the run drawer slides, the room is the one
+  // they leave once they settle, so a step brought into view lands in the right place; live is the room this frame
+  const PW = 368;
+  const drGoal = () => dr.classList.contains('shut') ? 45 : Math.min(parseFloat(dr.style.getPropertyValue('--rdr-h')) || 312, innerWidth <= 640 ? Math.round(dr.parentElement.clientHeight * .56) : 1e9);
+  const room = (live = false) => {
+    const p = $('.wf-panel', app), pn = app.classList.contains('pn'), beside = getComputedStyle(p).position !== 'absolute';
+    const over = pn && !beside && innerWidth > 640 ? p.offsetWidth : 0, dw = live || !beside ? 0 : (pn ? PW : 0) - p.offsetWidth, dh = live ? 0 : drGoal() - dr.offsetHeight;
+    return { l:16, t:56, r:cv.clientWidth - 16 - over - dw, b:cv.clientHeight - 64 - dh }; };
+  // the panel and the drawer are sliding until then: the view follows them frame by frame instead of easing after them
+  let sizingTill = 0;
+  const sizing = () => performance.now() < sizingTill || dr.classList.contains('drag');
+  const settle = () => { sizingTill = performance.now() + MT('--dm-t') + 80; };
   function bbox(){
     const ps = Object.values(POS); if (!ps.length) return { x:0, y:0, w:1, h:1 };
     const x0 = Math.min(...ps.map(p => p.x)), x1 = Math.max(...ps.map(p => p.x + NW)), y0 = Math.min(...ps.map(p => p.y - NH / 2)) - 12, y1 = Math.max(...ps.map(p => p.y + NH / 2));
     return { x:x0, y:y0, w:x1 - x0, h:y1 - y0 };
   }
-  function fit(anim = false){
-    const r = room(), b = bbox(), W0 = r.r - r.l, H0 = r.b - r.t;
+  function fit(anim = false, live = false){
+    const r = room(live), b = bbox(), W0 = r.r - r.l, H0 = r.b - r.t;
     const z = clamp(Math.min(W0 / b.w, H0 / b.h, 1), .7, 1);
     // a workflow wider than the canvas at the smallest readable zoom starts at its trigger
     const px = b.w * z <= W0 ? r.l + (W0 - b.w * z) / 2 - b.x * z : r.l + 8 - b.x * z;
@@ -348,6 +436,7 @@
   let drag = null, justDragged = false;
   vp.addEventListener('pointerdown', e => {
     if (e.button !== 0 && e.button !== 1) return;
+    finishTween();
     const nd = e.target.closest('.wfx-node'), ctl = e.target.closest('.wfx-ins');
     if (ctl) return;
     if (nd && tool === 'select' && e.button === 0) drag = { kind:'node', id:nd.dataset.id, x:e.clientX, y:e.clientY, p0:{ ...POS[nd.dataset.id] }, on:false, before:snapAll(), el:nd };
@@ -395,6 +484,8 @@
 
   /* ---------- picking a step ---------- */
   function select(id, { open = false, focus = false, centre = false } = {}){
+    // another step in the open inspector fades in
+    if (id && id !== selId && app.classList.contains('pn') && panelTab === 'step') slideIn('step', 0);
     selId = id;
     $$('.wfx-node', nodesEl).forEach(b => { const on = b.dataset.id === id; b.classList.toggle('sel', on); b.setAttribute('aria-pressed', String(on)); });
     if (id && open) openPanel('step');
@@ -682,7 +773,7 @@
     const p = $('#wf-p-sel', app);
     if (f === 'tool'){
       const have = new Set((n.cfg.tools || []).map(t => byId(t)?.t));
-      p.innerHTML = `<div class="ph" role="none">Give ${esc(n.t)} a tool</div>` + TOOLS.map(([ic, t, conn, d], i) => mi(`data-i="${i}"${have.has(t) ? ' aria-disabled="true"' : ''}`, `${I(ic, 's')}<span>${t}<span class="d">${d}</span></span>`, 'menuitem')).join('');
+      p.innerHTML = `<div class="ph" role="none">Give ${esc(n.t)} a tool</div>` + TOOLS.map(([ic, t, conn, d], i) => WS_TOOLS.has(t) ? mi(`data-i="${i}"${have.has(t) ? ' aria-disabled="true"' : ''}`, `${I(ic, 's')}<span>${t}<span class="d">${d}</span></span>`, 'menuitem') : '').join('');
       $$('.mi', p).forEach(m => m.onclick = () => { if (m.getAttribute('aria-disabled') === 'true') return; const [ic, t, conn, , out] = TOOLS[+m.dataset.i]; const tn = uniq(N('tool', t, { ic, host:n.id, out:out.map(o => [...o]), cfg:{ conn, action:t === 'Company lookup' ? 'Find a company by domain' : 'Search' } }));
         commit(`Gave ${n.t} the ${t} tool`, () => { W.nodes.push(tn); n.cfg.tools.push(tn.id); }); });
       return;
@@ -806,7 +897,21 @@
   const dr = $('.wf-dr', app), drT = $('.rdr-tg', dr), drMeta = $('.rdr-meta', dr), drTg = $('.rdr-tg', dr), drNote = $('.wfx-dr-note', dr), drB = $('.rdr-b', dr);
   const trRows = $('.rdr-rows', dr), trSc = $('.rdr-sc', dr), logEl = $('.rdr-log', dr), logN0 = $('.rdr-lf .n', dr), stopB = $('.rdr-stop', dr), followB = $('.rdr-follow', dr);
   let drTab = 'steps', dataTab = null, follow = true, lvl = 'all';
-  function openDrawer(on){ dr.classList.add('anim'); dr.classList.toggle('shut', !on); app.classList.toggle('dro', on); drTg.setAttribute('aria-expanded', String(on)); drTg.setAttribute('aria-label', on ? 'Hide the run' : 'Show the run'); setTimeout(() => dr.classList.remove('anim'), REDUCE ? 0 : 500); }
+  // the agent's card beside the steps: it fades in as its column opens (or, on a narrow drawer, as it opens its room over the
+  // steps), and fades out before the column closes
+  const stacked = () => getComputedStyle(drNote).position === 'static';
+  function noteIn(){ const c = drNote.firstElementChild; if (!c || REDUCE) return; enter(c); if (stacked()) grow(c); }
+  function setNote(h){ drNote.innerHTML = h; noteIn(); }
+  function clearNote(){
+    const c = drNote.firstElementChild; if (!c) return;
+    if (REDUCE){ drNote.innerHTML = ''; return; }
+    if (c._out) return; c._out = true;
+    if (stacked()) return shrink(c);
+    c.inert = true; const go = () => { if (c.parentNode === drNote) drNote.removeChild(c); };
+    c.animate([{ opacity:1, transform:'none' }, { opacity:0, transform:'translateY(4px)' }], { duration:MT('--dm-t-fast'), easing:'ease-in', fill:'forwards' }).finished.then(go, go);
+  }
+  // the drawer slides open and shut (Run drawer's own height transition), its body fading with it
+  function openDrawer(on){ if (dr.classList.contains('shut') === on) settle(); clearTimeout(dr._anim); dr.classList.add('anim'); dr.classList.toggle('shut', !on); app.classList.toggle('dro', on); drTg.setAttribute('aria-expanded', String(on)); drTg.setAttribute('aria-label', on ? 'Hide the run' : 'Show the run'); dr._anim = setTimeout(() => dr.classList.remove('anim'), REDUCE ? 0 : MT('--dm-t') + 50); }
   drTg.onclick = () => openDrawer(dr.classList.contains('shut'));
   const drSeg = seg($('.rdr-tabs', dr), v => setDrTab(v));
   function setDrTab(v){ drTab = v; $$('.rdr-tabs button', dr).forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === v))); drSeg.place(); $$('.rdr-v', dr).forEach(x => x.hidden = x.dataset.v !== v); if (v === 'data') paintData(); }
@@ -820,8 +925,10 @@
     const setH = h => { h = clamp(Math.round(h), 160, Math.min(560, app.clientHeight - 200)); dr.style.setProperty('--rdr-h', h + 'px'); grip.setAttribute('aria-valuenow', h); };
     grip.addEventListener('pointerdown', e => { g = { y:e.clientY, h:dr.classList.contains('shut') ? 45 : dr.getBoundingClientRect().height }; grip.setPointerCapture(e.pointerId); grip.classList.add('on'); dr.classList.add('drag'); app.classList.add('drag-dr'); if (dr.classList.contains('shut')){ dr.classList.remove('shut'); app.classList.add('dro'); drTg.setAttribute('aria-expanded', 'true'); } });
     grip.addEventListener('pointermove', e => { if (g) setH(g.h - (e.clientY - g.y)); });
-    const up = () => { g = null; grip.classList.remove('on'); dr.classList.remove('drag'); app.classList.remove('drag-dr'); }; grip.addEventListener('pointerup', up); grip.addEventListener('pointercancel', up);
-    grip.addEventListener('keydown', e => { const d = e.key === 'ArrowUp' ? 24 : e.key === 'ArrowDown' ? -24 : 0; let h = d ? dr.getBoundingClientRect().height + d : null; if (e.key === 'Home') h = 160; if (e.key === 'End') h = 560; if (h == null) return; e.preventDefault(); if (dr.classList.contains('shut')) openDrawer(true); setH(h); }); }
+    const up = () => { if (!g) return; g = null; grip.classList.remove('on'); dr.classList.remove('drag'); app.classList.remove('drag-dr'); if (selId) reveal(selId); }; grip.addEventListener('pointerup', up); grip.addEventListener('pointercancel', up);
+    grip.addEventListener('keydown', e => { const d = e.key === 'ArrowUp' ? 24 : e.key === 'ArrowDown' ? -24 : 0; let h = d ? dr.getBoundingClientRect().height + d : null; if (e.key === 'Home') h = 160; if (e.key === 'End') h = 560; if (h == null) return; e.preventDefault(); if (dr.classList.contains('shut')) openDrawer(true);
+      // from the keyboard the height eases to its next stop; a drag follows the pointer
+      clearTimeout(dr._anim); dr.classList.add('anim'); settle(); setH(h); dr._anim = setTimeout(() => dr.classList.remove('anim'), REDUCE ? 0 : MT('--dm-t') + 50); }); }
 
   // the kind of each span, for its tile and its bar's colour: a step's own kind, its model and tool calls, a wait to retry
   const kOf = s => s.k === 'step' ? byId(s.node)?.type || 'app' : s.k;
@@ -869,14 +976,14 @@
   }
   stopB.onclick = () => { if (!R || !R.live) return; cancelAnimationFrame(R.raf); R.live = false; R.state = 'stopped'; R.now = Math.min(R.now, R.C.segEnd);
     R.C.spans.forEach(s => { if (s.s > R.now){ s.gone = true; } else if (s.e == null || s.e > R.now){ s.e = R.now; s.st = 'stop'; } }); R.C.logs = R.C.logs.filter(l => l.at <= R.now); R.C.end = { t:R.now, failed:null, stopped:true };
-    logAt(R.C, R.now, 'stop', 'Run stopped', 'You stopped it', 'warn'); stopB.hidden = true; $('.wf-test', app).classList.remove('on'); $$('.rdr-ask', trRows).forEach(x => x.remove()); drNote.innerHTML = ''; paintRun(); paintTop(); toast('info', 'Run stopped', 'Nothing after this point ran'); };
+    logAt(R.C, R.now, 'stop', 'Run stopped', 'You stopped it', 'warn'); stopB.hidden = true; $('.wf-test', app).classList.remove('on'); $$('.rdr-ask', trRows).forEach(x => shrink(x)); clearNote(); paintRun(); paintTop(); toast('info', 'Run stopped', 'Nothing after this point ran'); };
   // a past run, shown whole
   function showRun(run){
     if (R && R.live){ toast('info', 'A test is running', 'Stop it first to look at another run'); return; }
     ctxOf(run);
     R = { id:run.id, test:run.test, C:run.C, L:run.lead, now:run.C.pause ? run.C.pause.at : run.C.segEnd, state:run.out, live:false, past:true, saved:run };
     resetRunView(); openDrawer(true); paintRun(true); paintTop();
-    if (run.out === 'wait' && run.C.pause && byId(run.C.pause.node)){ const n = byId(run.C.pause.node); drNote.innerHTML = `<div class="wfx-note"><span class="wfx-ic">${I('clock', 'xs')}</span><span class="tx"><b>Waiting for ${n.cfg.who.map(first).join(' or ')}</b><span>Asked ${run.when}, in ${VIA[n.cfg.via] || n.cfg.via}. ${n.cfg.then} if nobody answers in ${n.cfg.expire}.</span></span><button class="pill line sm" data-a="nudge">Remind them</button></div>`;
+    if (run.out === 'wait' && run.C.pause && byId(run.C.pause.node)){ const n = byId(run.C.pause.node); setNote(`<div class="wfx-note"><span class="wfx-ic">${I('clock', 'xs')}</span><span class="tx"><b>Waiting for ${n.cfg.who.map(first).join(' or ')}</b><span>Asked ${run.when}, in ${VIA[n.cfg.via] || n.cfg.via}. ${n.cfg.then} if nobody answers in ${n.cfg.expire}.</span></span><button class="pill line sm" data-a="nudge">Remind them</button></div>`);
       $('[data-a="nudge"]', drNote).onclick = () => toast('ok', 'Reminder sent', `${n.cfg.who.map(first).join(' and ')} got a nudge in Slack`); }
     else fixCard();
     $$('.wfx-run', app).forEach(b => b.setAttribute('aria-current', String(+b.dataset.run === run.id)));
@@ -948,8 +1055,8 @@
       const rs = C.spans.find(s => s.k === 'retry' && s.s <= t && t < s.e), key = rs ? rs.id : 0;
       if (key !== R._note){ R._note = key;
         if (rs){ const n = byId(rs.node), f = C.spans.filter(s => s.node === rs.node && s.st === 'bad' && s.e <= t).pop(), tries = 1 + (n.cfg.retries || 0), k = C.spans.filter(s => s.node === rs.node && s.k !== 'retry' && s.s <= t).length;
-          drNote.innerHTML = `<div class="wfx-note warn" role="status"><span class="wfx-ic">${I('refresh', 'xs')}</span><span class="tx"><b>${esc(n.t)} failed</b><span>${esc(f && f.err ? f.err : 'It did not answer')}. Try ${k + 1} of ${tries} starts in a moment.</span></span></div>`; if (!REDUCE) enter(drNote.firstElementChild); }
-        else if ($('.wfx-note.warn', drNote)) drNote.innerHTML = ''; }
+          setNote(`<div class="wfx-note warn" role="status"><span class="wfx-ic">${I('refresh', 'xs')}</span><span class="tx"><b>${esc(n.t)} failed</b><span>${esc(f && f.err ? f.err : 'It did not answer')}. Try ${k + 1} of ${tries} starts in a moment.</span></span></div>`); }
+        else if ($('.wfx-note.warn', drNote)) clearNote(); }
     }
     paintHead();
     if (drTab === 'data' && (done || Math.floor(t * 4) !== R._dq)){ R._dq = Math.floor(t * 4); paintData(); }
@@ -989,9 +1096,10 @@
     const C = R.C, n = byId(C.pause.node), draft = upstream(n.id).filter(u => u.type === 'ai').pop(), o = draft && C.out[draft.ref];
     const el = rowEls.get(C.pause.span.id); if (!el) return;
     $$('.rdr-ask', trRows).forEach(x => x.remove());
-    el.insertAdjacentHTML('afterend', `<div class="rdr-ask wf-ask" role="group" aria-label="Approve the reply"><span class="rdr-ti" data-k="approval" aria-hidden="true">${I('user', 'xs')}</span><span class="tx"><b>${esc(n.t)}: your call</b><span>Live runs ask ${n.cfg.who.map(w => P[w][0]).join(' or ')} in ${VIA[n.cfg.via] || n.cfg.via}. In a test, you decide.</span>${o ? `<span class="wf-draft">${o.subject ? `<b>${esc(o.subject)}</b> ` : ''}${esc(o.body || o.text || '')}</span>` : ''}</span>`
-      + `<span class="acts"><button class="pill primary sm" data-a="yes">${I('check', 'xs')}Approve</button><button class="pill line sm" data-a="edit">${I('edit', 'xs')}Edit the draft step</button><button class="pill ghost sm" data-a="no">Reject</button></span></div>`);
-    const card = el.nextElementSibling; if (!REDUCE) card.classList.add('in');
+    el.insertAdjacentHTML('afterend', `<div class="rdr-ask wf-appr" role="group" aria-label="Approve the reply"><span class="rdr-ti" data-k="approval" aria-hidden="true">${I('user', 'xs')}</span><span class="tx"><b>${esc(n.t)}: your call</b><span>Live runs ask ${n.cfg.who.map(w => P[w][0]).join(' or ')} in ${VIA[n.cfg.via] || n.cfg.via}. In a test, you decide.</span>${o ? `<span class="wf-draft">${o.subject ? `<b>${esc(o.subject)}</b> ` : ''}${esc(o.body || o.text || '')}</span>` : ''}</span>`
+      + `<span class="acts"><button class="pill primary sm" data-a="yes">${I('check', 'xs')}<span>Approve</span></button><button class="pill line sm" data-a="edit">${I('edit', 'xs')}<span>Edit the draft step</span></button><button class="pill ghost sm" data-a="no">${I('x', 'xs')}<span>Reject</span></button></span></div>`);
+    // it opens its room under the step that waits, and fades in (Run drawer's own entrance)
+    const card = el.nextElementSibling; if (!REDUCE){ card.classList.add('in'); grow(card); }
     if (drTab === 'steps' && card.offsetTop + card.offsetHeight > drB.scrollTop + drB.clientHeight) drB.scrollTop = card.offsetTop + card.offsetHeight - drB.clientHeight + 8;
     $('[data-a="yes"]', card).onclick = () => resume(true);
     $('[data-a="no"]', card).onclick = () => resume(false);
@@ -1002,34 +1110,33 @@
   function resume(ok){
     if (!R || R.state !== 'wait') return;
     const C = R.C, shown = C.pause.at + 1.2;
-    R.t0 = performance.now() - shown * 1000; R.state = 'run'; $$('.rdr-ask', trRows).forEach(x => x.remove());
+    R.t0 = performance.now() - shown * 1000; R.state = 'run'; $$('.rdr-ask', trRows).forEach(x => { x.classList.remove('in'); shrink(x); });
     decide(C, shown, ok); R.now = shown; tick();
   }
   // wfx-fix: after a retry or a failure, the agent offers a change to the step that failed, applied to the draft in one go
   function fixCard(){
     if (!R) return; const C = R.C;
     const bad = C.spans.filter(s => s.st === 'bad').map(s => byId(s.node)).find(n => n && ['tool', 'app', 'output'].includes(n.type));
-    if (!bad || !['tool', 'app', 'output'].includes(bad.type)){ drNote.innerHTML = ''; return; }
+    if (!bad || !['tool', 'app', 'output'].includes(bad.type)){ clearNote(); return; }
     const c = bad.cfg, rows = [];
     if (C.o.fail && C.o.fail.err && /401/.test(C.o.fail.err)){
-      drNote.innerHTML = `<div class="wfx-fix"><div class="wfx-fix-h"><span class="wfx-ic ai">${I('spark', 'xs')}</span><span class="tx"><b>The CRM connection has expired</b><span>Retrying won't help: ${esc(bad.t)} needs the account connected again.</span></span></div><div class="wfx-fix-a"><button class="pill primary sm" data-a="reconnect">Reconnect the CRM</button></div></div>`;
-      $('[data-a="reconnect"]', drNote).onclick = () => toast('info', 'Connecting accounts is outside the template', 'In a real workspace this opens the CRM sign-in'); return;
+      setNote(`<div class="wfx-fix"><div class="wfx-fix-h"><span class="wfx-ic ai">${I('spark', 'xs')}</span><span class="tx"><b>The CRM connection has expired</b><span>Retrying won't help: ${esc(bad.t)} needs the account connected again.</span></span></div><div class="wfx-fix-a"><button class="pill primary sm" data-a="reconnect">Reconnect the CRM</button></div></div>`);
+      $('[data-a="reconnect"]', drNote).onclick = e => reconnectApp(appById('crm'), e.currentTarget, () => clearNote()); return;
     }
     if (c.retries < 3) rows.push(['Retries', String(c.retries), '3', x => { x.cfg.retries = 3; }]);
     if (c.backoff !== 'doubling') rows.push(['Wait between tries', '2s each', 'Doubling', x => { x.cfg.backoff = 'doubling'; }]);
     if (bad.type === 'tool' && !c.cache) rows.push(['Cache', 'Off', '24 hours', x => { x.cfg.cache = true; }]);
-    if (!rows.length){ drNote.innerHTML = ''; return; }
+    if (!rows.length){ clearNote(); return; }
     const failed = R.state === 'bad';
-    drNote.innerHTML = `<div class="wfx-fix" role="group" aria-label="The agent's suggestion"><div class="wfx-fix-h"><span class="wfx-ic ai">${I('spark', 'xs')}</span><span class="tx"><b>${failed ? `${esc(bad.t)} ran out of retries` : `${esc(bad.t)} needed a retry`}</b><span>${esc(bad.cfg.conn)} limits how often it is called. ${failed ? 'With these changes the run waits it out.' : 'These keep live runs from stalling.'}</span></span></div>`
+    setNote(`<div class="wfx-fix" role="group" aria-label="The agent's suggestion"><div class="wfx-fix-h"><span class="wfx-ic ai">${I('spark', 'xs')}</span><span class="tx"><b>${failed ? `${esc(bad.t)} ran out of retries` : `${esc(bad.t)} needed a retry`}</b><span>${esc(bad.cfg.conn)} limits how often it is called. ${failed ? 'With these changes the run waits it out.' : 'These keep live runs from stalling.'}</span></span></div>`
       + `<ul class="wfx-fix-l">${rows.map(r => `<li><span class="k">${r[0]}</span><span class="was">${esc(r[1])}</span>${I('right', 'xs')}<span class="now">${esc(r[2])}</span></li>`).join('')}</ul>`
-      + `<div class="wfx-fix-a"><button class="pill primary sm" data-a="apply">Apply to the draft</button><button class="pill ghost sm" data-a="show">Show the step</button><span class="wf-sp"></span><button class="ib" data-a="dismiss" aria-label="Dismiss the suggestion" data-tip="Dismiss">${I('x', 'xs')}</button></div></div>`;
-    if (!REDUCE) enter(drNote.firstElementChild);
+      + `<div class="wfx-fix-a"><button class="pill primary sm" data-a="apply">Apply to the draft</button><button class="pill ghost sm" data-a="show">Show the step</button><span class="wf-sp"></span><button class="ib" data-a="dismiss" aria-label="Dismiss the suggestion" data-tip="Dismiss">${I('x', 'xs')}</button></div></div>`);
     $('[data-a="apply"]', drNote).onclick = () => { commit(`Made ${bad.t} retry with backoff`, () => rows.forEach(r => r[3](bad)), { key:bad.id + '.fix' });
-      drNote.innerHTML = `<div class="wfx-note ok"><span class="wfx-ic">${I('check', 'xs')}</span><span class="tx"><b>Applied to the draft</b><span>${esc(bad.t)}: ${rows.map(r => r[0].toLowerCase() + ' ' + r[2].toLowerCase()).join(', ')}.</span></span><button class="pill ghost sm" data-a="undo">Undo</button></div>`;
+      setNote(`<div class="wfx-note ok"><span class="wfx-ic">${I('check', 'xs')}</span><span class="tx"><b>Applied to the draft</b><span>${esc(bad.t)}: ${rows.map(r => r[0].toLowerCase() + ' ' + r[2].toLowerCase()).join(', ')}.</span></span><button class="pill ghost sm" data-a="undo">Undo</button></div>`);
       $('[data-a="undo"]', drNote).onclick = () => { undo(); fixCard(); };
       if (selId === bad.id) renderInspector(); toast('ai', 'The agent updated ' + bad.t, 'Test again to check it', { label:'Test run', run:() => startRun() }); };
     $('[data-a="show"]', drNote).onclick = () => select(bad.id, { open:true });
-    $('[data-a="dismiss"]', drNote).onclick = () => { drNote.innerHTML = ''; };
+    $('[data-a="dismiss"]', drNote).onclick = () => clearNote();
   }
   function testStep(id){ const n = byId(id); if (R && R.live){ toast('info', 'A test is running', 'Wait for it to finish, or stop it'); return; } if (n.type === 'trigger'){ toast('info', `${n.t} gets its sample from the test data`, 'Pick another lead from Test run'); return; } startRun({ only:id }); }
   const runTest = () => { if (R && R.live){ toast('info', 'A test is already running', 'Stop it in the run panel to start again'); openDrawer(true); return; } startRun(); };
@@ -1039,15 +1146,25 @@
   const panel = $('.wf-panel', app), ptabs = $$('.wf-seg [role="tab"]', app), knob = $('.wf-seg .sgc-k', app);
   const placeK = () => { const b = ptabs.find(t => t.getAttribute('aria-selected') === 'true'); if (!b || !b.offsetWidth) return; knob.style.left = b.offsetLeft + 'px'; knob.style.width = b.offsetWidth + 'px'; };
   new ResizeObserver(placeK).observe($('.wf-seg', app));
+  // the panel slides in beside the canvas (its width eases, the canvas narrowing with it) or, under 1200px, over it; a new tab
+  // fades in from the side it sits on
+  const TABS = ['step', 'runs', 'versions'];
+  function slideIn(tab, d){
+    const v = $('#wf-v-' + tab, app); if (REDUCE || !v) return;
+    v.style.setProperty('--wf-dx', d * 10 + 'px'); v.classList.remove('in'); void v.offsetWidth; v.classList.add('in');
+  }
   function openPanel(tab, focus = false){
+    const was = app.classList.contains('pn'), prev = panelTab;
+    if (!was) settle();
     panelTab = tab; app.classList.add('pn'); panel.inert = false;
+    if (!was || prev !== tab) slideIn(tab, was ? Math.sign(TABS.indexOf(tab) - TABS.indexOf(prev)) : 0);
     ptabs.forEach(t => { const on = t.dataset.v === tab; t.setAttribute('aria-selected', String(on)); t.tabIndex = on ? 0 : -1; if (on && focus) t.focus(); });
-    ['step', 'runs', 'versions'].forEach(v => $('#wf-v-' + v, app).hidden = v !== tab);
+    TABS.forEach(v => $('#wf-v-' + v, app).hidden = v !== tab);
     $$('[data-panel]', app).forEach(b => b.setAttribute('aria-pressed', String(b.dataset.panel === tab)));
     requestAnimationFrame(placeK);
     if (tab === 'step') renderInspector(); if (tab === 'runs') renderRuns(); if (tab === 'versions') renderVersions();
   }
-  function closePanel(){ app.classList.remove('pn'); panel.inert = true; $$('[data-panel]', app).forEach(b => b.setAttribute('aria-pressed', 'false')); if (selId) select(null); }
+  function closePanel(){ if (app.classList.contains('pn')) settle(); app.classList.remove('pn'); panel.inert = true; $$('[data-panel]', app).forEach(b => b.setAttribute('aria-pressed', 'false')); if (selId) select(null); }
   ptabs.forEach(t => t.onclick = () => openPanel(t.dataset.v));
   $('.wf-seg', app).addEventListener('keydown', e => { const i = ptabs.findIndex(t => t.getAttribute('aria-selected') === 'true'), d = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0; if (!d) return; e.preventDefault(); openPanel(ptabs[(i + d + 3) % 3].dataset.v, true); });
   $('.wf-pclose', app).onclick = closePanel;
@@ -1091,6 +1208,15 @@
     fit(true); toast('info', live ? `The draft is v${v} again` : `Restored v${v} as the draft`, live ? 'Your changes are gone' : `v${W.versions[0].v} stays live until you publish`, { label:'Undo', run:undo });
   }
   function discard(){ restoreV(W.versions[0].v); }
+
+  /* ---------- overlays (Ask the agent, Publish): they fade and lift in like the core's popovers, and out the same way ---------- */
+  const isOpen = el => !el.hidden && !el.classList.contains('out');
+  function showOver(el){ clearTimeout(el._t); el.classList.remove('out'); el.inert = false; el.hidden = false; }
+  function hideOver(el){
+    if (REDUCE){ el.hidden = true; return; }
+    el.classList.add('out'); el.inert = true; clearTimeout(el._t);
+    el._t = setTimeout(() => { el.hidden = true; el.classList.remove('out'); el.inert = false; }, MT('--dm-t-fast'));
+  }
 
   /* ---------- the top bar: name, state, Test with, Publish and the workflow's menu ---------- */
   function paintTop(){
@@ -1151,7 +1277,7 @@
   const pubD = $('.wf-pubd', app), pubF = $('form', pubD), pubBack = { el:null };
   function openPublish(){
     if (!W.changes.length && W.versions.length){ toast('info', 'Nothing to publish', `v${W.versions[0].v} is already live`); return; }
-    pubBack.el = document.activeElement; pubD.hidden = false;
+    pubBack.el = document.activeElement; showOver(pubD);
     const next = (W.versions[0]?.v || 0) + 1, tested = W.runs.find(r => r.test && r.C);
     const fresh = tested && tested.testOf === (W.seq || 0), unmapped = W.nodes.filter(n => n.type === 'branch' && !n.cfg.rule.v).length + W.nodes.filter(n => Object.values(n.cfg.in || {}).some(v => v && !byRef(v.split('.')[0]))).length;
     const ck = (ok, t, act = '') => `<li class="${ok ? 'ok' : 'warn'}"><span class="g">${I(ok ? 'check' : 'alert', 'xs')}</span><span>${t}</span>${act}</li>`;
@@ -1167,7 +1293,7 @@
     const t = $('[data-a="test"]', pubD); if (t) t.onclick = () => { closePub(); startRun(); };
     setTimeout(() => $('textarea', pubF).focus(), 30);
   }
-  const closePub = () => { if (pubD.hidden) return; pubD.hidden = true; if (pubBack.el && pubBack.el.isConnected) pubBack.el.focus({ preventScroll:true }); };
+  const closePub = () => { if (!isOpen(pubD)) return; hideOver(pubD); if (pubBack.el && pubBack.el.isConnected) pubBack.el.focus({ preventScroll:true }); };
   $('textarea', pubF).addEventListener('input', () => pubF.querySelector('.fmx-f').classList.remove('ai'));
   $('.wf-pub', app).onclick = openPublish;
   $('.wf-pubx', pubD).onclick = closePub;
@@ -1200,7 +1326,6 @@
     const b = e.target.closest('.wf-side button'); if (!b) return;
     if (b.dataset.wf){ if (b.dataset.wf !== F.id) openFlow(b.dataset.wf); drawer(false); }
     if (b.dataset.act === 'new'){ const f = { id:'new' + (++nid), name:'Untitled workflow', st:'draft', ver:0, today:0, build:() => ({ nodes:[N('trigger', 'When a webhook arrives', { ic:'bolt', cfg:{ source:'Webhook' } })], edges:[] }) }; FLOWS.push(f); openFlow(f.id); select(W.nodes[0].id, { open:true }); toast('ai', 'A new workflow', 'Add steps with + or describe them to the agent with ⌘K'); }
-    if (b.dataset.act === 'apps') toast('info', '6 apps connected', 'Gmail, Slack, the CRM, email marketing, the data warehouse and Company data API');
   });
   $('.wf-wsb', app).addEventListener('click', () => {
     const p = $('#wf-p-ws', app);
@@ -1212,6 +1337,200 @@
   $('.wf-menu', app).onclick = () => drawer(true);
   $('.wf-scrim', app).onclick = () => drawer(false);
   matchMedia('(max-width:1023px)').addEventListener('change', () => drawer(false));
+
+  /* ---------- wfx-apps: Connected apps, a popover from the sidebar. The apps with their marks (the core's BRAND marks, or a tinted
+     tile for an app without one), their state and what uses them; a catalogue to connect another; the tools AI steps can call;
+     and each app's details, to reconnect or disconnect it ---------- */
+  const APPS = [
+    { id:'gmail', n:'Gmail', mark:'gmail', who:'sales@fernhill.co and ana@fernhill.co', conns:['sales@fernhill.co', 'ana@fernhill.co'], st:'ok', can:'Sends email from two inboxes', since:'March 2' },
+    { id:'slack', n:'Slack', mark:'slack', who:'Fernhill workspace', conns:['Fernhill on Slack'], st:'ok', can:'Posts to channels and asks people to approve', since:'March 2' },
+    { id:'crm', n:'Fernhill CRM', ic:'db', tone:'pb', who:'ana@fernhill.co', conns:['Fernhill CRM'], st:'auth', short:'Sign-in expired', why:'The sign-in expired, so its steps fail with a 401', can:'Reads and updates contacts and deals', since:'March 9' },
+    { id:'mkt', n:'Email marketing', ic:'users', tone:'pk', who:'Fernhill newsletter', conns:['Email marketing'], st:'ok', can:'Adds people to lists', since:'April 14' },
+    { id:'dwh', n:'Data warehouse', ic:'table', tone:'pt', who:'analytics.fernhill.co', conns:['Data warehouse'], st:'bad', short:'Last sync timed out', why:'The last sync timed out', can:'Runs read-only queries', since:'May 3' },
+    { id:'cdata', n:'Company data API', ic:'globe', tone:'pp', who:'API key ending 4f2a', conns:['Company data API'], st:'ok', can:'Looks up companies by domain, 60 calls a minute', since:'June 20' }
+  ];
+  const CATALOG = [
+    { id:'drive', n:'Google Drive', mark:'drive', d:'Reads and files documents' },
+    { id:'notion', n:'Notion', mark:'notion', d:'Reads pages and adds to databases' },
+    { id:'linear', n:'Linear', mark:'linear', d:'Creates and updates issues' },
+    { id:'github', n:'GitHub', mark:'github', d:'Opens issues and reads pull requests' },
+    { id:'figma', n:'Figma', mark:'figma', d:'Reads files and leaves comments' },
+    { id:'cal', n:'Calendar', ic:'cal', tone:'pp', d:'Finds times and books meetings' },
+    { id:'billing', n:'Billing', ic:'dollar', tone:'pm', d:'Reads invoices and payments' },
+    { id:'desk', n:'Support desk', ic:'comment', tone:'pl', d:'Reads and answers tickets' },
+    { id:'hooks', n:'Webhooks', ic:'link', tone:'py', d:'Sends and receives any web request' }
+  ];
+  const ST = { ok:['ok', 'Connected'], auth:['warn', 'Needs sign-in'], bad:['bad', 'Error'] };
+  const appById = id => APPS.find(a => a.id === id);
+  const appsBtn = $('.wf-appsb', app), appsPop = $('#wf-p-apps', app);
+  const lg = (a, big = '') => a.mark ? `<span class="wfx-lg${big}" aria-hidden="true">${BRAND[a.mark]}</span>` : `<span class="wfx-lg${big}" data-tone="${a.tone}" aria-hidden="true">${I(a.ic, big ? 's' : 'xs')}</span>`;
+  // what uses an app: the workflows with a step on one of its accounts, worked out from their graphs
+  const usersOf = a => FLOWS.filter(f => load(f).nodes.some(n => a.conns.includes(n.cfg.conn)));
+  const nOf = (k, one, many) => `${k} ${k === 1 ? one : many}`;
+  const usedTxt = a => { const k = usersOf(a).length; return k ? `Used by ${nOf(k, 'workflow', 'workflows')}` : 'No workflow uses it yet'; };
+  const toolUse = t => { const k = FLOWS.filter(f => load(f).nodes.some(n => n.type === 'tool' && n.t === t)).length; return k ? `Used in ${nOf(k, 'workflow', 'workflows')}` : 'Ready for AI steps'; };
+  const tTile = t => `<span class="wfx-lg" data-tone="${TKIND[t[5]][1]}" aria-hidden="true">${I(t[0], 'xs')}</span>`;
+  function paintAppsN(){ $('.n', appsBtn).textContent = APPS.length; }
+  let aView = 'list', aSel = null, aBack = null, aHi = 0, aHits = [], aBusy = 0;
+  const head = (t, back) => `<div class="wfx-apps-h${back ? ' bk' : ''}">${back ? `<button class="ib wfx-back" data-back aria-label="Back to Connected apps" data-tip="Back" data-tip-k="Esc">${I('chev-l', 's')}</button>` : ''}${t}</div>`;
+  function viewHTML(){
+    if (aView === 'list'){
+      const look = APPS.filter(a => a.st !== 'ok').length, tools = TOOLS.filter(t => WS_TOOLS.has(t[1]));
+      return head(`<b id="wf-apps-t">Connected apps</b><span class="muted num">${APPS.length}</span>${look ? `<span class="wf-sp"></span><span class="muted wfx-apps-lk">${nOf(look, 'needs a look', 'need a look')}</span>` : ''}`)
+        + `<div class="wfx-apps-sc"><ul class="wfx-apps-l" aria-labelledby="wf-apps-t">${APPS.map(a => `<li class="wfx-app${a.fresh ? ' new' : ''}" data-id="${a.id}" data-st="${a.st}"><button class="wfx-app-b" data-go="${a.id}" aria-label="${esc(a.n)}, ${ST[a.st][1]}. ${esc(a.st === 'ok' ? usedTxt(a) : a.why)}. Details">${lg(a)}<span class="t"><span class="nm">${esc(a.n)}</span><span class="d">${esc(a.st === 'ok' ? usedTxt(a) : a.short)}</span></span><span class="tag ${ST[a.st][0]}">${ST[a.st][1]}</span>${I('chev-r', 'xs')}</button></li>`).join('')}</ul>`
+        + `<div class="wfx-apps-sh" id="wf-apps-tt"><span>Tools</span><span class="num">${tools.length}</span></div><ul class="wfx-apps-l" aria-labelledby="wf-apps-tt">${tools.map(t => `<li class="wfx-tl${t.fresh ? ' new' : ''}">${tTile(t)}<span class="t"><span class="nm">${esc(t[1])}</span><span class="d">${esc(toolUse(t[1]))}</span></span><span class="tag">${TKIND[t[5]][0]}</span></li>`).join('')}</ul></div>`
+        + `<div class="wfx-apps-f"><button class="pill line sm" data-v="add">${I('plus', 'xs')}<span>Add a connector</span></button><button class="pill ghost sm" data-v="tool">${I('plus', 'xs')}<span>Add a tool</span></button></div>`;
+    }
+    if (aView === 'add') return head('<b>Add a connector</b>', true)
+      + `<div class="wfx-apps-q">${I('search', 'xs')}<input type="text" role="combobox" aria-expanded="true" aria-autocomplete="list" aria-controls="wf-apps-cat" placeholder="Search apps" aria-label="Search apps" autocomplete="off" spellcheck="false"></div>`
+      + `<div class="wfx-apps-sc"><div class="wfx-apps-l" id="wf-apps-cat" role="listbox" aria-label="Apps you can connect"></div></div><p class="wfx-apps-ft muted"><span class="wfx-apps-cn"></span><span class="kh" aria-hidden="true"><span class="kbd">↑</span> <span class="kbd">↓</span> <span class="kbd">↵</span></span></p>`;
+    if (aView === 'tool') return head('<b>Add a tool</b>', true)
+      + `<p class="wfx-apps-p">Tools are what an AI step can call while it works. Give one to a step from its inspector.</p>`
+      + `<div class="wfx-apps-sc"><ul class="wfx-apps-l" aria-label="Tools">${TOOLS.map((t, i) => { const on = WS_TOOLS.has(t[1]);
+        return `<li><button class="wfx-app-o${on ? ' done' : ''}" data-tool="${i}"${on ? ' aria-disabled="true"' : ''} aria-label="${esc(t[1])}, ${TKIND[t[5]][0]}. ${esc(t[3])}. ${on ? 'Added' : 'Add it'}">${tTile(t)}<span class="t"><span class="nm">${esc(t[1])}</span><span class="d">${esc(t[3])}</span></span><span class="wfx-app-r">${on ? `${I('check', 'xs')}Added` : `${I('plus', 'xs')}Add`}</span></button></li>`; }).join('')}</ul></div>`;
+    const a = appById(aSel); if (!a) return '';
+    const users = usersOf(a), [tone, label] = ST[a.st];
+    return head(`<b>${esc(a.n)}</b>`, true)
+      + `<div class="wfx-apps-sc"><div class="wfx-app-hd">${lg(a, ' big')}<span class="t"><b>${esc(a.n)}</b><span class="d">${esc(a.who)}</span></span><span class="tag ${tone}">${label}</span></div>`
+      + (a.st !== 'ok' ? `<p class="wfx-app-why ${tone}">${I(a.st === 'bad' ? 'alert' : 'lock', 'xs')}<span>${esc(a.why)}. Reconnect it to fix the steps that use it.</span></p>` : '')
+      + `<dl class="wfx-app-dl"><dt>Can</dt><dd>${esc(a.can)}</dd><dt>Connected</dt><dd>${esc(a.since)}, by ${esc(P[ME][0])}</dd><dt>Used by</dt><dd>${users.length ? `<ul class="wfx-app-wf">${users.map(f => `<li><button data-flow="${f.id}" aria-label="Open ${esc(f.name)}"><span class="dot" style="color:${f.st === 'failing' ? 'var(--dm-bad)' : f.st === 'draft' ? 'var(--dm-faint)' : 'var(--dm-ok-mark)'}" aria-hidden="true"></span><span class="t">${esc(f.name)}</span>${I('right', 'xs')}</button></li>`).join('')}</ul>` : '<span class="muted">No workflow yet</span>'}</dd></dl></div>`
+      + `<div class="wfx-apps-f"><button class="pill ${a.st === 'ok' ? 'line' : 'primary'} sm" data-a="reconnect">${I('refresh', 'xs')}<span>Reconnect</span></button><button class="pill ghost sm wfx-dis" data-a="disconnect">${I('logout', 'xs')}<span>Disconnect</span></button></div>`;
+  }
+  // a new view slides in from the side it comes from, and the popover eases to its new height; it keeps its bottom edge where it
+  // opened, over the button, so it grows upwards
+  function paintApps(dir = 0){
+    const open = appsPop.classList.contains('open') && !REDUCE, h0 = appsPop.offsetHeight;
+    appsPop.innerHTML = `<div class="wfx-apps-v" data-view="${aView}">${viewHTML()}</div>`;
+    if (aView === 'add') paintCat();
+    APPS.forEach(a => { delete a.fresh; }); TOOLS.forEach(t => { delete t.fresh; });
+    if (!open) return;
+    const h1 = appsPop.offsetHeight;
+    if (Math.abs(h1 - h0) > 1){ appsPop.classList.add('morph'); const done = () => appsPop.classList.remove('morph');
+      appsPop.animate([{ height:h0 + 'px' }, { height:h1 + 'px' }], { duration:MT('--dm-t') * .8, easing:EASE() }).finished.then(done, done); }
+    if (dir) appsPop.firstElementChild.animate([{ opacity:0, transform:`translateX(${dir * 14}px)` }, { opacity:1, transform:'none' }], { duration:MT('--dm-t') * .7, easing:EASE() });
+  }
+  // the focus moves into the new view when it was in the popover (the search field takes it either way); back in the list, it
+  // lands on what opened the view
+  const inPop = () => !!document.activeElement && appsPop.contains(document.activeElement);
+  function appsGo(view, { id = null, dir = 1 } = {}){
+    const ae = document.activeElement, had = inPop();
+    if (aView === 'list') aBack = had && ae.dataset.go ? `[data-go="${ae.dataset.go}"]` : had && ae.dataset.v ? `[data-v="${ae.dataset.v}"]` : null;
+    aView = view; if (id) aSel = id; paintApps(dir);
+    const to = view === 'add' ? $('.wfx-apps-q input', appsPop) : view === 'tool' ? $('.wfx-app-o:not([aria-disabled="true"])', appsPop) || $('.wfx-back', appsPop)
+      : view === 'detail' ? $('[data-a="reconnect"]', appsPop) : (aBack && $(aBack, appsPop)) || $('.wfx-app-b', appsPop);
+    if (to && (had || view === 'add')) to.focus({ preventScroll:true });
+  }
+  // the catalogue: what isn't connected yet, filtered as you type, with the arrow keys and Enter
+  function paintCat(){
+    const inp = $('.wfx-apps-q input', appsPop), ls = $('#wf-apps-cat', appsPop), v = inp ? inp.value.trim().toLowerCase() : '';
+    aHits = CATALOG.filter(c => !v || (c.n + ' ' + c.d).toLowerCase().includes(v));
+    ls.innerHTML = aHits.length ? aHits.map((c, i) => `<div class="wfx-app-o" role="option" id="wf-ac-${i}" data-i="${i}" aria-selected="false">${lg(c)}<span class="t"><span class="nm">${esc(c.n)}</span><span class="d">${esc(c.d)}</span></span><span class="wfx-app-r">Connect</span></div>`).join('')
+      : `<p class="wfx-apps-e">No app called “${esc(inp.value.trim())}” yet</p>`;
+    $('.wfx-apps-cn', appsPop).textContent = nOf(aHits.length, 'app', 'apps');
+    hiCat(0);
+  }
+  function hiCat(i){
+    const os = $$('.wfx-app-o', $('#wf-apps-cat', appsPop)), inp = $('.wfx-apps-q input', appsPop);
+    if (!os.length){ inp.removeAttribute('aria-activedescendant'); return; }
+    aHi = (i + os.length) % os.length; os.forEach((o, j) => { o.classList.toggle('on', j === aHi); o.setAttribute('aria-selected', String(j === aHi)); });
+    inp.setAttribute('aria-activedescendant', os[aHi].id); os[aHi].scrollIntoView({ block:'nearest' });
+  }
+  // a pick connects: a spinner, then a tick, then the app joins the list
+  function connect(i){
+    const c = aHits[i], el = $(`#wf-ac-${i}`, appsPop); if (!c || !el || aBusy) return;
+    aBusy++; el.classList.add('busy'); el.setAttribute('aria-disabled', 'true'); const r = $('.wfx-app-r', el);
+    r.innerHTML = '<span class="spin" aria-hidden="true"></span>Connecting'; say(`Connecting ${c.n}`);
+    setTimeout(() => { r.innerHTML = `<span class="wfx-tick">${I('check', 'xs')}</span>Connected`; el.classList.add('done'); }, REDUCE ? 0 : 900);
+    setTimeout(() => {
+      aBusy--; CATALOG.splice(CATALOG.indexOf(c), 1);
+      APPS.push({ ...c, who:'ana@fernhill.co', conns:[c.n], st:'ok', can:c.d, since:'Today', fresh:true }); paintAppsN();
+      if (appsPop.classList.contains('open') && aView === 'add'){ const had = inPop(); aView = 'list'; paintApps(-1); const row = $(`.wfx-app[data-id="${c.id}"]`, appsPop); if (row){ row.scrollIntoView({ block:'nearest' }); if (had) $('.wfx-app-b', row).focus({ preventScroll:true }); } }
+      toast('ok', `${c.n} connected`, `${nOf(APPS.length, 'app', 'apps')} connected`); say(`${c.n} connected`);
+    }, REDUCE ? 0 : 1500);
+  }
+  function addTool(i, el){
+    const t = TOOLS[i]; if (!t || WS_TOOLS.has(t[1]) || aBusy) return;
+    aBusy++; el.setAttribute('aria-disabled', 'true'); const r = $('.wfx-app-r', el);
+    r.innerHTML = '<span class="spin" aria-hidden="true"></span>Adding';
+    setTimeout(() => { aBusy--; WS_TOOLS.add(t[1]); t.fresh = true; el.classList.add('done'); r.innerHTML = `<span class="wfx-tick">${I('check', 'xs')}</span>Added`; el.setAttribute('aria-label', `${t[1]}, added`);
+      toast('ok', `${t[1]} added`, 'Give it to an AI step from its inspector'); say(`${t[1]} added`);
+      const nx = $('.wfx-app-o:not([aria-disabled="true"])', appsPop); if (document.activeElement === el) (nx || $('.wfx-back', appsPop)).focus({ preventScroll:true }); }, REDUCE ? 0 : 800);
+  }
+  // reconnecting plays the same states on its button; the CRM's expired sign-in is what fails the Renewal reminders runs
+  function reconnectApp(a, btn, then){
+    if (!a || aBusy) return; aBusy++;
+    const lab = btn && btn.innerHTML; if (btn){ btn.setAttribute('aria-disabled', 'true'); btn.classList.add('busy'); btn.innerHTML = '<span class="spin" aria-hidden="true"></span><span>Connecting</span>'; }
+    setTimeout(() => { if (btn) btn.innerHTML = `${I('check', 'xs')}<span>Connected</span>`; }, REDUCE ? 0 : 900);
+    setTimeout(() => {
+      aBusy--; const was = a.st; a.st = 'ok'; delete a.why; delete a.short;
+      if (a.id === 'crm'){ crmExpired = false; FLOWS.forEach(f => { if (f.W && f.W.testFail && /^401/.test(f.W.testFail.err)) f.W.testFail = null; }); }
+      if (btn && btn.isConnected && !appsPop.contains(btn)){ btn.removeAttribute('aria-disabled'); btn.classList.remove('busy'); btn.innerHTML = lab; }
+      if (appsPop.classList.contains('open') && aView === 'detail' && aSel === a.id){ const had = inPop(); paintApps(0); const b = $('[data-a="reconnect"]', appsPop); if (b && had) b.focus({ preventScroll:true }); }
+      else if (appsPop.classList.contains('open') && aView === 'list') paintApps(0);
+      toast('ok', `${a.n} ${was === 'ok' ? 'reconnected' : 'is connected again'}`, a.id === 'crm' ? 'Its steps can sign in again. Test to check' : usedTxt(a)); say(`${a.n} connected`);
+      if (then) then();
+    }, REDUCE ? 0 : 1400);
+  }
+  function disconnect(a){
+    const i = APPS.indexOf(a), users = usersOf(a).length; if (i < 0) return;
+    APPS.splice(i, 1); const back = { id:a.id, n:a.n, mark:a.mark, ic:a.ic, tone:a.tone, d:a.can }; CATALOG.unshift(back); paintAppsN();
+    const had = inPop(); aView = 'list'; aBack = null; paintApps(-1); const b = $('.wfx-app-b', appsPop) || $('[data-v="add"]', appsPop); if (b && had) b.focus({ preventScroll:true });
+    say(`${a.n} disconnected`);
+    toast('info', `Disconnected ${a.n}`, users ? `${nOf(users, 'workflow', 'workflows')} used it` : 'No workflow used it', { label:'Undo', run:() => {
+      if (APPS.includes(a)) return; const j = CATALOG.indexOf(back); if (j >= 0) CATALOG.splice(j, 1);
+      a.fresh = true; APPS.splice(Math.min(i, APPS.length), 0, a); paintAppsN();
+      if (appsPop.classList.contains('open') && aView === 'list') paintApps(0); else if (appsPop.classList.contains('open') && aView === 'add') paintCat();
+      say(`${a.n} connected again`); } });
+  }
+  // the popover opens from Connected apps (the core places it; it is drawn first, so it opens at its height)
+  app.addEventListener('click', e => {
+    if (!e.target.closest('.wf-appsb')) return;
+    if (appsPop.classList.contains('open')) return;
+    appsPop.style.bottom = ''; aView = 'list'; aBack = null; paintApps();
+    requestAnimationFrame(() => {
+      if (!appsPop.classList.contains('open')) return;
+      const top = parseFloat(appsPop.style.top) || 0; appsPop.style.bottom = (app.clientHeight - top - appsPop.offsetHeight) + 'px'; appsPop.style.top = 'auto';
+      // opened with Enter or Space, the focus goes to the first app, once the popover can take it
+      const first = (k = 0) => { const f = $('.wfx-app-b', appsPop); if (!f || !appsPop.classList.contains('open')) return; if (getComputedStyle(f).visibility !== 'visible' && k < 30) return requestAnimationFrame(() => first(k + 1)); f.focus({ preventScroll:true }); };
+      if (!e.detail) first();
+    });
+  }, true);
+  // the keyboard: the arrows move through the popover's buttons (or the catalogue, from its search field), Escape steps back to
+  // the list and, there, closes it (the core), the focus going back to Connected apps
+  appsBtn.addEventListener('keydown', e => {
+    if ((e.key !== 'ArrowDown' && e.key !== 'ArrowUp') || !appsPop.classList.contains('open')) return;
+    e.preventDefault(); const it = $$('.wfx-apps-v button:not([aria-disabled="true"])', appsPop); const t = e.key === 'ArrowDown' ? it[0] : it[it.length - 1]; if (t) t.focus();
+  });
+  appsPop.addEventListener('keydown', e => {
+    const k = e.key, inp = e.target.closest('.wfx-apps-q input');
+    if (inp){ if (k === 'ArrowDown' || k === 'ArrowUp'){ e.preventDefault(); hiCat(aHi + (k === 'ArrowDown' ? 1 : -1)); } else if (k === 'Enter'){ e.preventDefault(); connect(aHi); } return; }
+    if (!['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(k)) return;
+    const it = $$('.wfx-apps-v button:not([aria-disabled="true"])', appsPop); if (!it.length) return;
+    const i = it.indexOf(document.activeElement); e.preventDefault();
+    const j = k === 'Home' ? 0 : k === 'End' ? it.length - 1 : i < 0 ? 0 : (i + (k === 'ArrowDown' ? 1 : -1) + it.length) % it.length; it[j].focus();
+  });
+  addEventListener('keydown', e => {
+    if (e.key !== 'Escape' || !appsPop.classList.contains('open') || aView === 'list') return;
+    e.preventDefault(); e.stopPropagation(); const had = inPop(); appsGo('list', { dir:-1 }); if (!had){ const f = (aBack && $(aBack, appsPop)) || $('.wfx-app-b', appsPop); if (f) f.focus({ preventScroll:true }); }
+  }, true);
+  appsPop.addEventListener('input', e => { if (e.target.closest('.wfx-apps-q')) paintCat(); });
+  appsPop.addEventListener('pointermove', e => { const o = e.target.closest('#wf-apps-cat .wfx-app-o'); if (o && +o.dataset.i !== aHi) hiCat(+o.dataset.i); });
+  // clicks are handled here, so the core never reads a click on a view that was just redrawn as one outside the popover
+  appsPop.addEventListener('click', e => {
+    e.stopPropagation();
+    const b = e.target.closest('button,[role="option"]'); if (!b || b.getAttribute('aria-disabled') === 'true') return;
+    if (b.dataset.go) return appsGo('detail', { id:b.dataset.go });
+    if (b.hasAttribute('data-back')) return appsGo('list', { dir:-1 });
+    if (b.dataset.v === 'add') return appsGo('add');
+    if (b.dataset.v === 'tool') return appsGo('tool');
+    if (b.matches('#wf-apps-cat .wfx-app-o')) return connect(+b.dataset.i);
+    if (b.dataset.tool) return addTool(+b.dataset.tool, b);
+    if (b.dataset.flow){ closePops(); if (b.dataset.flow !== F.id) openFlow(b.dataset.flow); drawer(false); return; }
+    const a = appById(aSel);
+    if (b.dataset.a === 'reconnect') return reconnectApp(a, b);
+    if (b.dataset.a === 'disconnect') return disconnect(a);
+  });
+  paintAppsN();
 
   /* ---------- Ask the agent: Command palette ---------- */
   const over = $('.wf-cmd', app), q = $('.cpl-q', over), list = $('.cpl-list', over), st = $('.cpl-st', over);
@@ -1248,8 +1567,8 @@
   }
   function moveHi(d){ const bs = $$('.cpl-i', list), hl = $('.cpl-hl', list); if (!bs.length){ q.removeAttribute('aria-activedescendant'); hl.style.opacity = 0; return; } hi = (hi + d + bs.length) % bs.length; bs.forEach((b, i) => { b.classList.toggle('hl', i === hi); b.setAttribute('aria-selected', String(i === hi)); }); const b = bs[hi]; hl.style.opacity = 1; hl.style.top = b.offsetTop + 'px'; q.setAttribute('aria-activedescendant', b.id); b.scrollIntoView({ block:'nearest' }); }
   const runItem = i => { const x = items[i]; closeCmd(false); if (x) x.run(); };
-  function openCmd(){ if (!over.hidden) return; closePops(); back = document.activeElement; over.hidden = false; q.value = ''; paintCmd(); drawer(false); q.focus(); }
-  function closeCmd(restore = true){ if (over.hidden) return; over.hidden = true; if (restore && back && back.isConnected) back.focus({ preventScroll:true }); }
+  function openCmd(){ if (isOpen(over)) return; closePops(); back = document.activeElement; showOver(over); q.value = ''; paintCmd(); drawer(false); q.focus(); }
+  function closeCmd(restore = true){ if (!isOpen(over)) return; hideOver(over); if (restore && back && back.isConnected) back.focus({ preventScroll:true }); }
   q.addEventListener('input', paintCmd);
   q.addEventListener('keydown', e => { if (e.key === 'ArrowDown' || e.key === 'ArrowUp'){ e.preventDefault(); moveHi(e.key === 'ArrowDown' ? 1 : -1); } else if (e.key === 'Enter'){ e.preventDefault(); runItem(hi); } else if (e.key === 'Escape'){ e.preventDefault(); closeCmd(); } else if (e.key === 'Tab') e.preventDefault(); });
   list.addEventListener('click', e => { const b = e.target.closest('.cpl-i'); if (b) runItem(+b.dataset.i); });
@@ -1260,19 +1579,19 @@
   /* ---------- keys: ⌘K, ⌘Z, A, V, H, Escape ---------- */
   document.addEventListener('keydown', e => {
     const k = e.key.toLowerCase();
-    if ((e.metaKey || e.ctrlKey) && k === 'k'){ e.preventDefault(); over.hidden ? openCmd() : closeCmd(); return; }
+    if ((e.metaKey || e.ctrlKey) && k === 'k'){ e.preventDefault(); isOpen(over) ? closeCmd() : openCmd(); return; }
     const typing = e.target.closest && e.target.closest('input,textarea,[contenteditable="true"]');
-    if ((e.metaKey || e.ctrlKey) && k === 'z' && !typing && over.hidden){ e.preventDefault(); e.shiftKey ? redo() : undo(); return; }
+    if ((e.metaKey || e.ctrlKey) && k === 'z' && !typing && !isOpen(over)){ e.preventDefault(); e.shiftKey ? redo() : undo(); return; }
     if (e.key === 'Escape'){
       if ($('.pop.open', app)) return;
-      if (!over.hidden){ closeCmd(); return; }
-      if (!pubD.hidden){ closePub(); return; }
+      if (isOpen(over)){ closeCmd(); return; }
+      if (isOpen(pubD)){ closePub(); return; }
       if (app.classList.contains('dr')){ drawer(false); $('.wf-menu', app).focus(); return; }
       if (selId){ const id = selId; select(null); const b = $(`.wfx-node[data-id="${id}"]`, nodesEl); if (b) b.focus({ preventScroll:true }); return; }
       if (app.classList.contains('pn')){ closePanel(); return; }
       return;
     }
-    if (typing || e.metaKey || e.ctrlKey || e.altKey || !over.hidden || !pubD.hidden) return;
+    if (typing || e.metaKey || e.ctrlKey || e.altKey || isOpen(over) || isOpen(pubD)) return;
     if (!app.contains(e.target) && e.target !== document.body) return;
     if (k === 'v') setTool('select'); else if (k === 'h') setTool('hand');
     else if (k === 'a' && !$('.pop.open')){ e.preventDefault(); $('.wf-add', app).click(); }
@@ -1285,7 +1604,7 @@
   const first0 = () => { fit(); $$('.wfx-node', nodesEl).forEach((b, i) => { if (!REDUCE) b.animate([{ opacity:0, filter:'blur(3px)' }, { opacity:1, filter:'none' }], { duration:520, delay:Math.min(i, 8) * 55, easing:'cubic-bezier(.16,1,.3,1)', fill:'backwards' }); }); };
   first0();
   // the view fits the workflow again when the canvas changes size, unless you moved it yourself
-  new ResizeObserver(() => { if (!V.user && !drag && !selId) fit(!!cv._w); else if (selId) reveal(selId); cv._w = cv.clientWidth; }).observe(cv);
+  new ResizeObserver(() => { const live = sizing(); if (!V.user && !drag && !selId) fit(live ? false : !!cv._w, live); else if (selId && !live) reveal(selId); cv._w = cv.clientWidth; }).observe(cv);
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { placeK(); });
   // the page can be opened on a step or a run: #run=2084, #step=n5
   const hs = new URLSearchParams(location.hash.slice(1));

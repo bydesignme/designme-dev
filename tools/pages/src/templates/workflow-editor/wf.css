@@ -10,8 +10,11 @@
      wfx-pick                     the step picker, with the agent as the last row
      wfx-fix, wfx-note            the agent's fix and a plain note, beside the run's steps
      wfx-vers                     the version history
+     wfx-apps                     Connected apps: the apps with their marks and state, a catalogue to connect more, the tools
    Blueprint is the page with no data-style, so its overrides are :root:not([data-style="soft"]). Hover styles are only for a
-   mouse (hover:hover and pointer:fine). */
+   mouse (hover:hover and pointer:fine).
+   Motion uses the library's tokens (--dm-t, --dm-t-fast, --dm-ease): panels slide without a bounce, popovers and dialogs lift and
+   fade in like the core's .pop, and everything that leaves fades and closes its room. Reduced motion turns it all off. */
 
 /* ---------- the page: the app fills the window under the site's header ---------- */
 .pg-app{display:block;height:calc(100dvh - var(--pg-head));overflow:hidden}
@@ -29,6 +32,11 @@ body:has(.wf) .dmf{display:none}
 .wf-sp{flex:1}
 .wf .pg-sr,.wfx-sr{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 .wf .ib[aria-pressed="true"]{background:var(--dm-row);color:var(--dm-fg)}
+/* the focus ring is the keyboard's alone (wf.js sets data-wf-input on the page from the last key or pointer): after a click or a
+   tap no control keeps one, not even one a closing menu hands the focus back to */
+:root[data-wf-input="pointer"] :focus-visible{outline:0!important}
+:root[data-wf-input="pointer"] .wf :is(.wfx-cv,.sgc-seg button,.sgc-p):focus-visible{box-shadow:none}
+:root[data-wf-input="pointer"] .wf .rdr-grip:focus-visible i{opacity:0}
 
 /* ---------- the sidebar: Agent harness's side list ---------- */
 .wf-side.ahx-side{width:auto;min-height:0;overflow-y:auto;scrollbar-width:none;padding:var(--dm-s-2) var(--dm-s-2) var(--dm-s-3)}
@@ -99,6 +107,7 @@ body:has(.wf) .dmf{display:none}
 .wfx-node:focus-visible{outline:2px solid var(--dm-focus);outline-offset:2px}
 .wfx-node.drag{z-index:3;cursor:grabbing;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-pick-on) 50%,transparent),var(--dm-shadow-pop);transition:none}
 .wfx-node.add{animation:popin .4s var(--dm-ease) backwards}
+.wfx-node.gone{pointer-events:none;z-index:0}
 .wfx-node.off{opacity:.55}
 .wfx-n1{display:flex;align-items:center;gap:6px;min-width:0}
 .wfx-n1 .wfx-ic{width:20px;height:20px;border-radius:calc(6px * var(--dm-rk))}
@@ -171,17 +180,30 @@ body:has(.wf) .dmf{display:none}
 
 /* ---------- the run drawer: Run drawer under the canvas, the agent's notes beside its steps ---------- */
 .wf .rdr-dw{z-index:6}
+/* the run drawer slides (Run drawer's own height transition); its body fades in as it opens and stays, fading, while it shuts,
+   so nothing vanishes before the drawer has closed over it */
+.wf .rdr-dw .rdr-b{transition:opacity var(--dm-t) var(--dm-ease)}
+.wf .rdr-dw.shut .rdr-b{display:block;visibility:hidden;opacity:0;transition:opacity var(--dm-t-fast) var(--dm-ease),visibility 0s var(--dm-t)}
+.wf .rdr-dw:not(.shut) :is(.rdr-tabs,.rdr-follow),.wf .rdr-stop:not([hidden]){animation:wffade var(--dm-t) var(--dm-ease) backwards}
+.wf .rdr-dw.shut.anim .rdr-tabs{display:inline-flex}
+.wf .rdr-dw.shut.anim .rdr-follow{display:inline-grid}
+.wf .rdr-dw.shut :is(.rdr-tabs,.rdr-follow){opacity:0;transition:opacity var(--dm-t-fast) var(--dm-ease)}
 .wf.drag-dr{user-select:none;cursor:ns-resize}
-.wf-steps:not([hidden]){display:grid;grid-template-columns:minmax(0,1fr) clamp(272px,34%,340px);align-items:start;gap:var(--dm-s-4)}
-.wf-steps:has(.wfx-dr-note:empty){grid-template-columns:minmax(0,1fr)}
+/* the agent's column opens beside the steps as its card arrives (the card keeps its width and is uncovered, not squeezed) and
+   closes once it has gone */
+.wf-steps:not([hidden]){display:grid;grid-template-columns:minmax(0,1fr) clamp(272px,34%,340px);align-items:start;column-gap:var(--dm-s-4);transition:grid-template-columns var(--dm-t) var(--dm-ease),column-gap var(--dm-t) var(--dm-ease)}
+.wf-steps:has(.wfx-dr-note:empty){grid-template-columns:minmax(0,1fr) 0px;column-gap:0}
 .wf-tl{min-width:0}
-.wfx-dr-note{order:2;position:sticky;top:0;padding-top:var(--dm-s-2)}
+.wfx-dr-note{order:2;position:sticky;top:0;min-width:0;padding-top:var(--dm-s-2);overflow:clip;overflow-clip-margin:8px}
+.wfx-dr-note>*{min-width:clamp(272px,calc((100cqw - 24px) * .34),340px)}
 .wfx-dr-note:empty{display:none}
-.wf-ask.rdr-ask{align-items:flex-start}
-.wf-ask>.rdr-ti{margin-top:1px}
-.wf-ask .acts{flex-wrap:wrap;align-self:center}
-.wf-ask .wf-draft{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-top:2px;color:var(--dm-fg2)}
-.wf-ask .wf-draft b{font-weight:500;color:var(--dm-fg)}
+/* the approval in a test run: Run drawer's question with the drafted reply; its three buttons are the library's pills, each with
+   its icon */
+.wf-appr.rdr-ask{align-items:flex-start}
+.wf-appr>.rdr-ti{margin-top:1px}
+.wf-appr .acts{flex-wrap:wrap;align-self:center;gap:6px}
+.wf-appr .wf-draft{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-top:2px;color:var(--dm-fg2)}
+.wf-appr .wf-draft b{font-weight:500;color:var(--dm-fg)}
 /* wfx-fix and wfx-note: what the agent suggests, and a plain note */
 .wfx-fix,.wfx-note{display:flex;flex-direction:column;gap:10px;padding:var(--dm-s-3);border-radius:var(--dm-r-card);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 60%,transparent),var(--wf-ns)}
 .wfx-note{flex-direction:row;align-items:center}
@@ -202,8 +224,18 @@ body:has(.wf) .dmf{display:none}
 .wfx-fix-l .now{font-weight:500;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
 /* ---------- the right panel: the inspector, runs and versions ---------- */
-.wf-panel{position:relative;z-index:8;flex:none;width:0;display:flex;flex-direction:column;overflow:hidden;background:var(--dm-surface);border-left:1px solid transparent}
+.wf-panel{position:relative;z-index:8;flex:none;width:0;display:flex;flex-direction:column;overflow:hidden;background:var(--dm-surface);border-left:1px solid transparent;transition:width var(--dm-t) var(--dm-ease),border-color var(--dm-t) var(--dm-ease)}
 .wf.pn .wf-panel{width:368px;border-left-color:color-mix(in srgb,var(--dm-line) 50%,transparent)}
+/* beside the canvas the panel's width eases open (the canvas narrowing with it), its content at its full width, so it slides in
+   with the panel's edge instead of reflowing, and fades */
+@media (min-width:1200px){
+  .wf-panel>:is(.wf-ph,.wf-pv){width:368px;flex-shrink:0}
+  .wf-panel>*{opacity:0;transition:opacity var(--dm-t-fast) var(--dm-ease)}
+  .wf.pn .wf-panel>*{opacity:1;transition-duration:var(--dm-t)}
+}
+/* a new tab, or another step in the inspector, fades in from the side it sits on */
+.wf-pv.in{animation:wfpv var(--dm-t) var(--dm-ease) backwards}
+@keyframes wfpv{from{opacity:0;transform:translateX(var(--wf-dx,0px))}}
 .wf-ph{flex:none;display:flex;align-items:center;gap:var(--dm-s-2);height:52px;padding:0 var(--dm-s-2) 0 var(--dm-s-3);border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
 .wf-seg{flex:1;display:flex}
 .wf-seg button{flex:1;height:28px;padding:0 var(--dm-s-3);font-size:12.5px}
@@ -285,13 +317,24 @@ body:has(.wf) .dmf{display:none}
 .wfx-pick .acx-ls{max-height:260px}
 .wfx-pick .acx-o .ic.wfx-ic{width:22px;height:22px;border-radius:calc(6px * var(--dm-rk))}
 .wfx-pick .acx-o>span:last-child{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.wf-over{position:absolute;inset:0;z-index:70;display:flex;justify-content:center;align-items:flex-start;padding:72px var(--dm-s-4) var(--dm-s-4);background:color-mix(in srgb,var(--dm-page) 60%,transparent);animation:wffade .2s var(--dm-ease)}
+.wf-over{position:absolute;inset:0;z-index:70;display:flex;justify-content:center;align-items:flex-start;padding:72px var(--dm-s-4) var(--dm-s-4);background:color-mix(in srgb,var(--dm-page) 60%,transparent);animation:wffade var(--dm-t-fast) var(--dm-ease)}
 .wf-over[hidden]{display:none}
 @keyframes wffade{from{opacity:0}}
-.wf-cmd .cpl{width:100%;max-width:600px;animation:popin .35s var(--dm-ease) backwards}
+@keyframes wffadeout{to{opacity:0}}
+/* Ask the agent and Publish lift and fade in like the core's popovers, and leave the same way */
+.wf-over :is(.cpl,.fmx){animation:wfpop var(--dm-t) var(--dm-ease) backwards}
+.wf-over.out{pointer-events:none;animation:wffadeout var(--dm-t-fast) var(--dm-ease) both}
+.wf-over.out :is(.cpl,.fmx){animation:wfpopout var(--dm-t-fast) var(--dm-ease) both}
+@keyframes wfpop{from{opacity:0;transform:translateY(6px) scale(.98);filter:blur(3px)}}
+@keyframes wfpopout{to{opacity:0;transform:translateY(6px) scale(.98);filter:blur(3px)}}
+:root:not([data-style="soft"]) .wf-over :is(.cpl,.fmx){animation-name:wfpopbp}
+:root:not([data-style="soft"]) .wf-over.out :is(.cpl,.fmx){animation-name:wfpopoutbp}
+@keyframes wfpopbp{from{opacity:0;transform:translateY(4px)}}
+@keyframes wfpopoutbp{to{opacity:0;transform:translateY(4px)}}
+.wf-cmd .cpl{width:100%;max-width:600px}
 .wf-cmd .cpl-list{height:auto;max-height:min(380px,calc(100dvh - var(--pg-head) - 200px))}
 .wf-cmd .cpl-in>.i{color:var(--dm-accent-fg,var(--dm-accent))}
-.wf-pubd .fmx{max-width:440px;box-shadow:var(--dm-shadow-pop);animation:popin .35s var(--dm-ease) backwards}
+.wf-pubd .fmx{max-width:440px;box-shadow:var(--dm-shadow-pop)}
 .wf-pubd .fmx-h .ib{width:28px;height:28px;margin-right:-6px;color:var(--dm-muted)}
 .wf-pubd textarea{min-height:84px}
 .wf-checks{list-style:none;padding:0;display:flex;flex-direction:column;gap:var(--dm-s-2);font-size:12.5px}
@@ -301,6 +344,102 @@ body:has(.wf) .dmf{display:none}
 .wf-checks .pill{margin-left:auto}
 .wf-toasts{position:absolute;right:var(--dm-s-3);top:var(--dm-s-3);z-index:80;display:flex;flex-direction:column;align-items:flex-end;gap:var(--dm-s-2);width:min(380px,calc(100% - 32px));pointer-events:none}
 .wf-toasts .tst-t{pointer-events:auto}
+
+/* ---------- wfx-apps: Connected apps, a popover over the sidebar's foot ---------- */
+/* it grows upwards from where it opened (wf.js keeps its bottom edge) and eases to each view's height */
+.wfx-apps.pop{z-index:66;width:344px;max-width:calc(100vw - 16px);max-height:min(560px,calc(100% - 72px));display:flex;flex-direction:column;padding:0;min-width:0}
+.wfx-apps.pop.morph{overflow:hidden}
+.wfx-apps-v{flex:1 1 auto;min-height:0;display:flex;flex-direction:column}
+.wfx-apps-h{flex:none;display:flex;align-items:center;gap:var(--dm-s-2);height:48px;padding:0 var(--dm-s-3) 0 var(--dm-s-4)}
+.wfx-apps-h.bk{padding-left:var(--dm-s-2)}
+.wfx-apps-h b{font-weight:500;font-size:13.5px;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wfx-apps-h .muted{font-size:12px}
+.wfx-apps-lk{white-space:nowrap}
+.wfx-back.ib{width:28px;height:28px;color:var(--dm-muted)}
+.wfx-apps-sc{flex:0 1 auto;min-height:0;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:var(--dm-rail) transparent;padding:0 6px 6px}
+.wfx-apps-sh{display:flex;align-items:center;gap:6px;padding:var(--dm-s-3) 10px var(--dm-s-1);font-size:11.5px;color:var(--dm-muted)}
+.wfx-apps-l{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:1px}
+.wfx-apps-p{flex:none;margin:0;padding:0 var(--dm-s-4) var(--dm-s-2);font-size:12.5px;line-height:1.45;color:var(--dm-muted)}
+/* a row: the app's mark, its name and what it is for, its state */
+.wfx-app-b,.wfx-app-o,.wfx-tl{display:flex;align-items:center;gap:10px;width:100%;min-height:50px;padding:7px 10px;border-radius:calc(10px * var(--dm-rk));font-size:13px;text-align:left;color:var(--dm-fg);transition:background var(--dm-t-fast),opacity var(--dm-t-fast)}
+@supports (corner-shape:squircle){.wfx-app-b,.wfx-app-o,.wfx-tl{corner-shape:squircle}}
+.wfx-app-b:focus-visible,.wfx-app-o:focus-visible{outline-offset:-2px}
+@media (hover:hover) and (pointer:fine){
+  .wfx-app-b:hover,.wfx-app-o:not([aria-disabled="true"]):hover{background:var(--dm-row)}
+  .wfx-app-b:hover>.i{transform:translateX(2px);color:var(--dm-fg2)}
+}
+.wfx-app-o{cursor:pointer}
+.wfx-app-o.on{background:var(--dm-row)}
+.wfx-app-o[aria-disabled="true"]{cursor:default}
+.wfx-app-b>.i{flex:none;color:var(--dm-faint);transition:transform var(--dm-t-fast) var(--dm-ease),color var(--dm-t-fast)}
+.wfx-app-b .t,.wfx-app-o .t,.wfx-tl .t,.wfx-app-hd .t{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.35}
+:is(.wfx-app-b,.wfx-app-o,.wfx-tl) .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+:is(.wfx-app-b,.wfx-app-o,.wfx-tl) .d{font-size:12px;color:var(--dm-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wfx-app[data-st="auth"] .d{color:var(--dm-warn)}
+.wfx-app[data-st="bad"] .d{color:var(--dm-bad)}
+.wfx-app-b .tag,.wfx-tl .tag{flex:none}
+/* a new or returning app, and a new tool, fade in on a quiet grey that settles */
+.wfx-app.new .wfx-app-b,.wfx-tl.new{animation:wfnew 1.6s var(--dm-ease) backwards}
+@keyframes wfnew{from{background:var(--dm-row)}}
+.wfx-app.new .wfx-app-b>:not(.i){animation:enter var(--dm-t-slow) var(--dm-ease) backwards}
+/* an app's mark: the brand mark on a plain tile, or, for an app without one, its icon on a tint */
+.wfx-lg{position:relative;width:30px;height:30px;flex:none;display:grid;place-items:center;border-radius:calc(9px * var(--dm-rk));background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 70%,transparent);color:var(--dm-fg)}
+@supports (corner-shape:squircle){.wfx-lg{corner-shape:squircle}}
+.wfx-lg .brand{width:16px;height:16px}
+.wfx-lg[data-tone]{box-shadow:none;background:var(--wf-tb);color:var(--wf-tf)}
+.wfx-lg[data-tone="pp"]{--wf-tb:var(--dm-pp-bg);--wf-tf:var(--dm-pp)}
+.wfx-lg[data-tone="pl"]{--wf-tb:var(--dm-pl-bg);--wf-tf:var(--dm-pl)}
+.wfx-lg[data-tone="pt"]{--wf-tb:var(--dm-pt-bg);--wf-tf:var(--dm-pt)}
+.wfx-lg[data-tone="pb"]{--wf-tb:var(--dm-pb-bg);--wf-tf:var(--dm-pb)}
+.wfx-lg[data-tone="py"]{--wf-tb:var(--dm-py-bg);--wf-tf:var(--dm-py)}
+.wfx-lg[data-tone="pk"]{--wf-tb:var(--dm-pk-bg);--wf-tf:var(--dm-pk)}
+.wfx-lg[data-tone="pm"]{--wf-tb:var(--dm-pm-bg);--wf-tf:var(--dm-pm)}
+.wfx-lg.big{width:40px;height:40px;border-radius:calc(11px * var(--dm-rk))}
+.wfx-lg.big .brand{width:20px;height:20px}
+.wfx-lg.big .i{width:16px;height:16px}
+@media (hover:hover) and (pointer:fine){.wfx-app-b:hover .wfx-lg:not([data-tone]),.wfx-app-o:not([aria-disabled="true"]):hover .wfx-lg:not([data-tone]){box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line-strong) 50%,transparent)}}
+/* the catalogue's search and its right-hand state: Connect, a spinner, then a tick */
+.wfx-apps-q{flex:none;display:flex;align-items:center;gap:var(--dm-s-2);height:36px;margin:0 var(--dm-s-3) var(--dm-s-2);padding:0 10px;border-radius:var(--dm-r-field);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line) 50%,transparent);color:var(--dm-muted);transition:box-shadow var(--dm-t-fast)}
+@supports (corner-shape:squircle){.wfx-apps-q{corner-shape:squircle}}
+.wfx-apps-q:has(input:focus){box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line-strong) 50%,transparent)}
+.wfx-apps-q input{flex:1;min-width:0;height:100%;border:0;outline:0;background:transparent;font:inherit;font-size:13px;color:var(--dm-fg)}
+.wfx-apps-q input::placeholder{color:var(--dm-muted)}
+.wfx-app-r{flex:none;display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--dm-muted);transition:color var(--dm-t-fast)}
+.wfx-app-o.on .wfx-app-r{color:var(--dm-fg)}
+.wfx-app-r .spin{width:11px;height:11px;color:var(--dm-accent-mark,var(--dm-accent))}
+.wfx-app-o.done .wfx-app-r,.wfx-app-o.done .wfx-app-r .i{color:var(--dm-ok)}
+.wfx-tick{display:grid;animation:wftick .4s var(--dm-ease)}
+@keyframes wftick{from{opacity:0;transform:scale(.6)}}
+.wfx-app-o.busy .wfx-app-r{color:var(--dm-fg2)}
+.wfx-apps-e{margin:0;padding:var(--dm-s-5) var(--dm-s-3);font-size:12.5px;color:var(--dm-muted);text-align:center}
+.wfx-apps-ft{flex:none;display:flex;align-items:center;justify-content:space-between;margin:0;padding:var(--dm-s-2) var(--dm-s-4);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);font-size:12px}
+/* the foot: Add a connector, Add a tool, or an app's Reconnect and Disconnect */
+.wfx-apps-f{flex:none;display:flex;align-items:center;gap:6px;padding:var(--dm-s-2) var(--dm-s-3) var(--dm-s-3);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
+.wfx-apps-f .pill.ghost{color:var(--dm-fg2)}
+.wfx-apps-f .pill.wfx-dis{margin-left:auto;color:var(--dm-bad)}
+@media (hover:hover) and (pointer:fine){.wfx-apps-f .pill.wfx-dis:hover{color:var(--dm-bad);background:var(--dm-bad-bg)}}
+/* Connected apps keeps its row's fill while its popover is open */
+.wf-appsb[aria-expanded="true"]{background:var(--dm-row);color:var(--dm-fg)}
+.wfx-apps-f .pill.busy{pointer-events:none}
+.wfx-apps-f .pill .spin{width:11px;height:11px}
+/* an app's details */
+.wfx-app-hd{display:flex;align-items:center;gap:var(--dm-s-3);padding:var(--dm-s-1) 10px var(--dm-s-3)}
+.wfx-app-hd b{font-weight:500;font-size:13.5px}
+.wfx-app-hd .d{font-size:12px;color:var(--dm-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wfx-app-why{display:flex;align-items:flex-start;gap:var(--dm-s-2);margin:0 4px var(--dm-s-3);padding:var(--dm-s-2) 10px;border-radius:var(--dm-r-in);font-size:12.5px;line-height:1.45}
+.wfx-app-why .i{margin-top:2px}
+.wfx-app-why.warn{background:var(--dm-warn-bg);color:var(--dm-warn)}
+.wfx-app-why.bad{background:var(--dm-bad-bg);color:var(--dm-bad)}
+.wfx-app-dl{margin:0;padding:0 10px var(--dm-s-2);display:grid;grid-template-columns:72px minmax(0,1fr);gap:var(--dm-s-2) var(--dm-s-3);font-size:12.5px;line-height:1.45}
+.wfx-app-dl dt{color:var(--dm-muted)}
+.wfx-app-dl dd{margin:0;min-width:0;color:var(--dm-fg)}
+.wfx-app-wf{list-style:none;margin:-4px 0 0 -6px;padding:0;display:flex;flex-direction:column;gap:1px}
+.wfx-app-wf button{display:flex;align-items:center;gap:var(--dm-s-2);width:100%;height:28px;padding:0 6px;border-radius:var(--dm-r-sm);font-size:12.5px;text-align:left;color:var(--dm-fg);transition:background var(--dm-t-fast)}
+.wfx-app-wf .dot{width:6px;height:6px;flex:none;border-radius:50%;background:currentColor}
+.wfx-app-wf .t{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wfx-app-wf .i{color:var(--dm-muted);opacity:0;transform:translateX(-3px);transition:opacity var(--dm-t-fast),transform var(--dm-t-fast) var(--dm-ease)}
+.wfx-app-wf button:focus-visible .i{opacity:1;transform:none}
+@media (hover:hover) and (pointer:fine){.wfx-app-wf button:hover{background:var(--dm-row)}.wfx-app-wf button:hover .i{opacity:1;transform:none}}
 
 /* ---------- narrower screens ---------- */
 /* under 1200px the panel slides over the canvas instead of beside it */
@@ -348,9 +487,9 @@ body:has(.wf) .dmf{display:none}
   .wf-toasts{right:var(--dm-s-2);top:auto;bottom:var(--dm-s-2);width:calc(100% - 16px)}
 }
 @media (prefers-reduced-motion:reduce){
-  .wf-over,.wf-cmd .cpl,.wf-pubd .fmx,.wfx-node.add,.wfx-st{animation:none!important}
-  .wf-panel,.wf-side.ahx-side,.wfx-ins,.wfx-node,.wfx-svg path.e,.wfx-cv.anim .wfx-world,.wfx-cv.anim .wfx-vp{transition:none!important}
+  .wf-over,.wf-cmd .cpl,.wf-pubd .fmx,.wfx-node.add,.wfx-st,.wf-pv.in,.wf .rdr-dw :is(.rdr-tabs,.rdr-follow,.rdr-stop),.wfx-app.new,.wfx-tl.new,.wfx-tick{animation:none!important}
+  .wf-panel,.wf-panel>*,.wf-side.ahx-side,.wfx-ins,.wfx-node,.wfx-svg path.e,.wfx-cv.anim .wfx-world,.wfx-cv.anim .wfx-vp,.wf .rdr-dw .rdr-b,.wf-steps,.wfx-app-b>.i{transition:none!important}
   .wf-test.busy .i{animation:none}
 }
 /* true circles stay round in Soft, where everything else is a squircle */
-@supports (corner-shape:squircle){.wf-edited,.wfx-st,.wfx-pin,.wfx-ins,.wfx-ver-m,.wf-checks .g{corner-shape:round}}
+@supports (corner-shape:squircle){.wf-edited,.wfx-st,.wfx-pin,.wfx-ins,.wfx-ver-m,.wf-checks .g,.wfx-app-wf .dot{corner-shape:round}}
