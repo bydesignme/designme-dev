@@ -14,7 +14,7 @@ fs.rmSync(path.join(ROOT, 'components'), { recursive:true, force:true });
 fs.cpSync(path.join(DIST, 'components'), path.join(ROOT, 'components'), { recursive:true });
 fs.rmSync(path.join(ROOT, 'docs'), { recursive:true, force:true });
 fs.cpSync(path.join(DIST, 'docs'), path.join(ROOT, 'docs'), { recursive:true });
-// the templates (whole app screens made of the components) are noindex and kept out of the sitemap for now
+// the templates (whole app screens made of the components); indexed and in the sitemap since 9 Nov
 fs.rmSync(path.join(ROOT, 'templates'), { recursive:true, force:true });
 fs.cpSync(path.join(DIST, 'templates'), path.join(ROOT, 'templates'), { recursive:true });
 fs.copyFileSync(path.join(DIST, 'sitemap.xml'), path.join(ROOT, 'sitemap.xml'));
