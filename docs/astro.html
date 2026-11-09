@@ -357,12 +357,12 @@ import Buttons from &#39;../components/designme/buttons/Buttons.astro&#39;;
     var fmt = function(n){ return n < 1000 ? String(n) : n < 1e6 ? (Math.floor(n / 100) / 10) + 'k' : (Math.floor(n / 1e5) / 10) + 'm'; };
     var show = function(n){ pills.forEach(function(a){ var c = a.querySelector('.pg-gh-n'); c.textContent = fmt(n); c.hidden = false; a.classList.add('has-n'); a.setAttribute('aria-label', 'Star designme.dev on GitHub, ' + n.toLocaleString('en') + ' stars'); }); };
     var saved = null; try { saved = sessionStorage.getItem(KEY); } catch(e){}
-    if (saved !== null){ if (/^\d+$/.test(saved)) show(+saved); return; }
+    if (saved !== null){ if (/^\d+$/.test(saved) && +saved > 0) show(+saved); return; }
     if (!window.fetch) return;
     var keep = function(v){ try { sessionStorage.setItem(KEY, v); } catch(e){} };
     fetch('https://api.github.com/repos/bydesignme/designme-dev').then(function(r){ return r.ok ? r.json() : null; }).then(function(d){
       var n = d && typeof d.stargazers_count === 'number' ? d.stargazers_count : null;
-      keep(n === null ? '-' : String(n)); if (n !== null) show(n);
+      keep(n === null ? '-' : String(n)); if (n) show(n);
     }).catch(function(){ keep('-'); });
   })();
   // copy buttons: the text goes to the clipboard, or through a hidden field where the browser won't allow that. The button

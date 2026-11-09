@@ -200,7 +200,7 @@ patch("""  /* ---------- book a call button: fill grows from the pointer -------
 # the phone menu's search counted one card too few
 patch("""placeholder="Search ${$$('main .comp').length - 1} components\"""", """placeholder="Search ${$$('main .comp').length} components\"""")
 patch("""from status pills and reasoning trails to tool calls and run summaries, plus app basics for the dashboard around them, in two styles with light and dark mode.""",
-      """from status pills and reasoning trails to tool calls and run summaries, plus app basics for the dashboard around them, in HTML, React or Astro, in two styles with light and dark mode.""")
+      """from status pills to tool calls, in HTML, React or Astro, with light and dark mode.""")
 patch("""<meta property="og:description" content="Free UI components for AI agent products, in two styles with light and dark mode.""",
       """<meta property="og:description" content="Free UI components for AI agent products, in HTML, React or Astro, in two styles with light and dark mode.""")
 
@@ -911,12 +911,12 @@ patch("""</header>""", """</header>
   var fmt = function(n){ return n < 1000 ? String(n) : n < 1e6 ? (Math.floor(n / 100) / 10) + 'k' : (Math.floor(n / 1e5) / 10) + 'm'; };
   var show = function(n){ pills.forEach(function(a){ var c = a.querySelector('.gh-n'); c.textContent = fmt(n); c.hidden = false; a.classList.add('has-n'); a.setAttribute('aria-label', 'Star designme.dev on GitHub, ' + n.toLocaleString('en') + ' stars'); }); };
   var saved = null; try { saved = sessionStorage.getItem(KEY); } catch(e){}
-  if (saved !== null){ if (/^\\d+$/.test(saved)) show(+saved); return; }
+  if (saved !== null){ if (/^\\d+$/.test(saved) && +saved > 0) show(+saved); return; }
   if (!window.fetch) return;
   var keep = function(v){ try { sessionStorage.setItem(KEY, v); } catch(e){} };
   fetch('https://api.github.com/repos/bydesignme/designme-dev').then(function(r){ return r.ok ? r.json() : null; }).then(function(d){
     var n = d && typeof d.stargazers_count === 'number' ? d.stargazers_count : null;
-    keep(n === null ? '-' : String(n)); if (n !== null) show(n);
+    keep(n === null ? '-' : String(n)); if (n) show(n);
   }).catch(function(){ keep('-'); });
 })();
 </script>""")
@@ -951,6 +951,14 @@ CSS += """
 # (git log on soft-plush; component names in the third field are card titles, so their buttons open the component)
 patch("""    const LOG = [
 """, """    const LOG = [
+      { v:'v1.0.0', d:'9 November 2026', t:'The first public release', items:[
+        ['new','designme.dev is public: the code is on GitHub under the MIT licence, and the CLI is 1.0.0 on npm. Add components with npx designme add, as HTML, React or Astro'],
+        ['new','Templates: a Sales CRM, a Fundraising CRM and a Workflow editor, whole apps built from the components, in the sidebar under Templates'],
+        ['improved','Health score switches between a Healthy, a Watch and an At risk account under its demo',['Health score']],
+        ['improved','Progress and meter has three designs to compare: Compact, Steps and Budget',['Progress and meter']],
+        ['improved','In dark mode each surface sits a step lighter than what it is on, so menus, popovers and toasts stand off the page, and tooltips are a raised dark chip'],
+        ['improved','On the slider, the value the agent recommends sits clear above the handle',['Slider']],
+        ['improved','Sign-ups, roadmap votes and ideas are limited per visitor to stop flooding, and the privacy notice says how'] ] },
       { v:'v0.16', d:'4 November 2026', t:'Astro, shadcn and twelve new components', items:[
         ['new','Three components for workflow editors, from the Workflow editor template: a step inspector that sets up one step and flags data no earlier step gives, a data picker that maps fields from earlier steps, and a run drawer with the steps, the log and the data of a run',['Step inspector','Data picker','Run drawer']],
         ['new','Thinking states: six thinking indicators to pick from (Orbit, Morph, Scan, Stream, Matrix and Stack), each a small mark with a status line that steps through what the agent is doing',['Thinking states']],
