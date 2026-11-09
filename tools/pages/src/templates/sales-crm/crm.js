@@ -773,7 +773,7 @@
     const L = ibOrder(), w = L.filter(x => x.state === 'wait');
     if (!L.some(x => x.id === ibSel)) ibSel = (w[0] || L[0] || {}).id || null;
     igs.innerHTML = IBG.map(([k, n]) => { const G = L.filter(x => k === 'done' ? x.state !== 'wait' : x.state === 'wait' && x.kind === k); if (!G.length) return '';
-      return `<section class="aib-g" data-g="${k}" aria-label="${n}"><div class="aib-gh"><span>${n}</span><span class="n">${G.length}</span>${k !== 'done' && G.length > 1 ? `<button class="pill ghost sm crm-iall" data-ia="all" data-g="${k}" aria-label="Approve all ${G.length}: ${n.toLowerCase()}">Approve all</button>` : ''}</div><div class="aib-gl" role="list">${G.map(ibRow).join('')}</div></section>`; }).join('');
+      return `<section class="aib-g" data-g="${k}" aria-label="${n}"><div class="aib-gh"><span class="crm-gd" data-k="${k}" aria-hidden="true"></span><span>${n}</span><span class="n">${G.length}</span>${k !== 'done' && G.length > 1 ? `<button class="pill ghost sm crm-iall" data-ia="all" data-g="${k}" aria-label="Approve all ${G.length}: ${n.toLowerCase()}">Approve all</button>` : ''}</div><div class="aib-gl" role="list">${G.map(ibRow).join('')}</div></section>`; }).join('');
     swap($('.aib-st', ibx), w.length ? `${w.length} waiting for you` : 'All clear');
     if (!L.length) igs.innerHTML = `<div class="crm-ibe muted">Nothing waiting. The agent adds to this list as accounts go quiet or deals pass their close dates.</div>`;
     renderPreview();
@@ -781,7 +781,7 @@
   // a row: its icon, what it is and why; the selected one is in the Tab order and the arrow keys move from it. The row's own
   // buttons are shortcuts for a mouse; the preview has the same actions, labelled, for the keyboard
   const ibRow = x => { const [b, s] = ibText(x), wait = x.state === 'wait', on = x.id === ibSel;
-    return `<div class="aib-i crm-ii${wait ? '' : ' done'}${on ? ' on' : ''}" role="listitem" data-ib="${x.id}"><span class="aib-av" aria-hidden="true">${I(IBI[x.kind], 'xs')}</span><button class="aib-t crm-it" data-ia="sel" aria-current="${on}" tabindex="${on ? 0 : -1}"><b>${esc(b)}</b><span>${esc(s)}</span></button>`
+    return `<div class="aib-i crm-ii${wait ? '' : ' done'}${on ? ' on' : ''}" role="listitem" data-ib="${x.id}" data-k="${x.kind}"><span class="aib-av" data-k="${x.kind}" aria-hidden="true">${I(IBI[x.kind], 'xs')}</span><button class="aib-t crm-it" data-ia="sel" aria-current="${on}" tabindex="${on ? 0 : -1}"><b>${esc(b)}</b><span>${esc(s)}</span></button>`
       + `<span class="aib-r">${wait ? `<button class="ib" data-ia="dismiss" tabindex="-1" aria-label="Dismiss: ${esc(b)}" data-tip="Dismiss">${I('x', 'xs')}</button><button class="ib" data-ia="edit" tabindex="-1"${x.kind === 'follow' ? '' : ' data-pop="#crm-p-ied" data-pop-align="end" aria-haspopup="menu"'} aria-label="Edit: ${esc(b)}" data-tip="Edit">${I('edit', 'xs')}</button><button class="ib crm-iok" data-ia="ok" tabindex="-1" aria-label="Approve: ${esc(b)}" data-tip="Approve">${I('check', 'xs')}</button>`
         : `<span class="ok">${I(x.state === 'done' ? 'ok' : 'x', 'xs')}</span><span class="crm-ires">${esc(x.res)}</span>`}</span></div>`; };
   // the preview: the whole draft, or the deal and its dates, or the change and why, with the same actions
@@ -793,7 +793,7 @@
     const body = x.state !== 'wait' && x.snap ? x.snap.pv : pvBody(x);
     const acts = wait ? `<button class="pill ghost" data-ia="dismiss">Dismiss</button><button class="pill soft" data-ia="edit"${x.kind === 'follow' ? '' : ' data-pop="#crm-p-ied" data-pop-align="end" aria-haspopup="menu"'}>${I('edit', 'xs')}Edit</button><button class="pill primary" data-ia="ok">${x.kind === 'follow' ? 'Approve and send' : 'Approve'}</button>`
       : `<span class="crm-pvres"><span class="ok">${I(x.state === 'done' ? 'ok' : 'x', 'xs')}</span>${esc(x.res)}</span>${x.undo ? `<button class="pill soft" data-ia="undo">${I('undo', 'xs')}Undo</button>` : ''}`;
-    ipv.innerHTML = `<div class="crm-pvh"><span class="aib-av" aria-hidden="true">${I(IBI[x.kind], 'xs')}</span><span class="muted">${IBK[x.kind]}</span><span class="crm-sp"></span><button class="pill ghost sm" data-ia="open">${I('panel', 'xs')}Open account</button><button class="ib crm-pvx" data-ia="close" aria-label="Close the preview" data-tip="Close">${I('x', 's')}</button></div>`
+    ipv.innerHTML = `<div class="crm-pvh"><span class="aib-av" data-k="${x.kind}" aria-hidden="true">${I(IBI[x.kind], 'xs')}</span><span class="crm-pvk" data-k="${x.kind}">${IBK[x.kind]}</span><span class="crm-sp"></span><button class="pill ghost sm" data-ia="open">${I('panel', 'xs')}Open account</button><button class="ib crm-pvx" data-ia="close" aria-label="Close the preview" data-tip="Close">${I('x', 's')}</button></div>`
       + `<h2 class="crm-pvt" id="crm-pvt" tabindex="-1">${esc(title)}</h2>${body}<div class="crm-pva">${acts}</div>`;
     ipv.setAttribute('aria-labelledby', 'crm-pvt');
     if (pvLast !== x.id + x.state){ if (pvLast) [...ipv.children].forEach((el, i) => glide(el, { transform:'translateY(4px)' }, T + i * 30)); pvLast = x.id + x.state; }
