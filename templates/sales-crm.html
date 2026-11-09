@@ -1595,6 +1595,10 @@ body:has(.crm) .dmf{display:none}
 .crm-ecx .ecx-e{right:auto;min-width:0}
 .crm-ecx .ecx-e>span:not(.ecx-sg){display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .crm-ecx .ecx-e.late{box-shadow:inset 2px 0 0 var(--dm-bad)}
+/* a half-hour meeting is one line: the account, then the kind and time as far as they fit */
+.crm-ecx .ecx-e.short{display:flex;align-items:baseline;gap:6px;padding-top:2px;padding-bottom:0}
+.crm-ecx .ecx-e.short b{flex:none;max-width:70%}
+.crm-ecx .ecx-e.short>span:not(.ecx-sg){flex:1;min-width:0}
 /* the agent's proposed slots: dashed, with Book and Skip */
 .crm-ecx .ecx-e.sug{box-shadow:none!important;border:1.5px dashed color-mix(in srgb,var(--dm-accent-mark,var(--dm-accent)) 60%,transparent);z-index:2;cursor:default}
 .crm-ecx .ecx-e.sug{display:flex;flex-direction:column;justify-content:space-between}
@@ -3232,7 +3236,7 @@ const fitHits = window.dmFitHits || (() => {
   function evEl(m){
     const c = coOf(m.co), col = P[m.own][1], late = m.st === 'plan' && m.day < 0, n = m._n || 1;
     const tag = m.sug ? 'div' : 'button';
-    const el = html(`<${tag} class="ecx-e crm-ev${m.sug ? ' sug' : ''}${late ? ' late' : ''}${m.st === 'held' ? ' held' : ''}" data-m="${m.id}" style="top:${at(m.h)};height:${tall(m.sug ? m.vd : m.dur)};left:calc(3px + (100% - 6px) * ${(m._l || 0) / n});width:calc((100% - 6px) / ${n} - ${n > 1 ? 2 : 0}px);${m.sug ? '' : `background:var(--dm-p${col}-bg);color:var(--dm-p${col})`}" ${m.sug ? ' role="group"' : ''} aria-label="${esc(m.sug ? 'Suggested: ' + low(m.kind) + ' with ' + c.n + ', ' + fmtDW(m.day) + ' ' + tmA(m.h) : evLabel(m))}"><b>${esc(c.n)}</b>${m.sug ? '' : `<span>${late ? 'Overdue: ' : ''}${esc(m.kind)}, ${tm(m.h)}</span>`}</${tag}>`);
+    const el = html(`<${tag} class="ecx-e crm-ev${m.sug ? ' sug' : ''}${!m.sug && m.dur <= .5 ? ' short' : ''}${late ? ' late' : ''}${m.st === 'held' ? ' held' : ''}" data-m="${m.id}" style="top:${at(m.h)};height:${tall(m.sug ? m.vd : m.dur)};left:calc(3px + (100% - 6px) * ${(m._l || 0) / n});width:calc((100% - 6px) / ${n} - ${n > 1 ? 2 : 0}px);${m.sug ? '' : `background:var(--dm-p${col}-bg);color:var(--dm-p${col})`}" ${m.sug ? ' role="group"' : ''} aria-label="${esc(m.sug ? 'Suggested: ' + low(m.kind) + ' with ' + c.n + ', ' + fmtDW(m.day) + ' ' + tmA(m.h) : evLabel(m))}"><b>${esc(c.n)}</b>${m.sug ? '' : `<span>${late ? 'Overdue: ' : ''}${esc(m.kind)}, ${tm(m.h)}</span>`}</${tag}>`);
     if (m.sug) el.insertAdjacentHTML('beforeend', `<span class="ecx-sg"><button class="y" data-sg="book" aria-label="Book a ${esc(low(m.kind))} with ${esc(c.n)}, ${fmtDW(m.day)} ${tmA(m.h)}">Book</button><button class="n crm-sgm" data-sg="more" data-pop="#crm-p-sg" aria-haspopup="menu" aria-label="More for ${esc(c.n)}" data-tip="Skip or open">${I('more', 'xs')}</button><i class="num">${tm(m.h)}</i></span>`);
     el._m = m;
     return el;
