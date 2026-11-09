@@ -1454,6 +1454,14 @@ for pre in ('<a class="hire-btn" id="hire-btn" href=',
 patch("""<h2>Who helps us</h2><p>Supabase stores sign-ups and roadmap votes, beehiiv sends our emails, Plausible provides usage statistics and Cloudflare hosts the site.""",
       """<h2>Who helps us</h2><p>Supabase stores sign-ups and roadmap votes, Plausible provides usage statistics and Cloudflare hosts the site. If we start sending emails through an email service, we will name it here before your address goes to it. The star count in the header comes from GitHub: your browser asks GitHub's public API for it once per visit, so GitHub sees that request and your IP address, as with any site you open.""")
 patch("""Last updated October 2026.""", """Last updated November 2026.""")
+# privacy notice: the roadmap and sign-ups keep a hashed IP to rate-limit abuse (Supabase, 9 Nov; tools/supabase/2026-11-09-rate-limits.sql)
+patch("""we store that ID with your votes and any idea you suggest. It does not include your name or email.</p>""",
+      """we store that ID with your votes and any idea you suggest. It does not include your name or email.</p>
+        <p><b>A scrambled form of your IP address.</b> To stop one person flooding sign-ups, votes or ideas, we keep a one-way hash of your IP address, never the address itself, when you sign up, vote or suggest an idea, and use it to limit how often that can happen.</p>""")
+patch("""We run the roadmap and usage statistics to decide what to build next, which is our legitimate interest (Art. 6(1)(f) GDPR).""",
+      """We run the roadmap and usage statistics to decide what to build next, and keep the hashed IP address to prevent abuse, which are our legitimate interests (Art. 6(1)(f) GDPR).""")
+patch("""and roadmap votes for as long as the roadmap runs.""",
+      """and roadmap votes, with the hashed IP address stored alongside them, for as long as the roadmap runs. The record used to limit sign-ups, votes and ideas deletes itself after two days.""")
 
 # the footer credits what the repository's NOTICE.md lists (owner, 4 Nov: no photos; flags are flag-icons, brand marks
 # Simple Icons and Devicon, and DiceBear only draws the avatars in the share picture)
