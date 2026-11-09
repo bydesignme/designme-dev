@@ -17,6 +17,15 @@
 body:has(.crm) .dmf{display:none}
 
 /* ---------- the app ---------- */
+/* the template's hairlines: the line colour, a step toward the text colour so rows and sections read in dark as in light */
+.crm[data-c]{--crm-hair:color-mix(in srgb,var(--dm-line),var(--dm-fg) 9%)}
+.crm .ttx-hd,.crm .ttx-t th,.crm .ttx-t td,.crm .ecx-h,.crm .ecx-dh{border-bottom-color:var(--crm-hair)}
+.crm .ecx-day{border-left-color:var(--crm-hair)}
+.crm .ecx-col{background-image:linear-gradient(var(--crm-hair) 1px,transparent 1px)}
+.crm .hsx-list{border-top-color:var(--crm-hair)}
+.crm .ahx-side{border-right-color:var(--crm-hair)}
+.crm .kbx.list .kbx-k{box-shadow:inset 0 -1px 0 var(--crm-hair)}
+.crm .dtp-add{box-shadow:inset 0 0 0 1px var(--crm-hair)}
 .crm[data-c]{width:100%;max-width:none;height:100%;display:grid;grid-template-columns:240px minmax(0,1fr);position:relative;overflow:hidden;background:var(--dm-surface);color:var(--dm-fg);font-size:13px;text-align:left}
 :where(.crm) :where(h1,h2,h3,p){margin:0;font:inherit}
 .crm .muted{color:var(--dm-muted)}
@@ -46,15 +55,13 @@ body:has(.crm) .dmf{display:none}
 
 /* ---------- the main column: the header (the view's name and a live summary), then the view ---------- */
 .crm-main{position:relative;display:flex;flex-direction:column;min-width:0;min-height:0;overflow:hidden}
-.crm-top{flex:none;display:flex;align-items:center;gap:var(--dm-s-2);height:56px;padding:0 var(--dm-s-4) 0 var(--dm-s-5);border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
+.crm-top{flex:none;display:flex;align-items:center;gap:var(--dm-s-2);height:56px;padding:0 var(--dm-s-4) 0 var(--dm-s-5);border-bottom:1px solid var(--crm-hair)}
 .crm-menu{display:none;margin-left:-8px;color:var(--dm-fg2)}
 .crm-ttl{display:flex;align-items:baseline;gap:var(--dm-s-3);min-width:0}
 .crm-h1{font-size:16px;font-weight:500;letter-spacing:-.01em;white-space:nowrap;outline:0}
 .crm-sum{min-width:0;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .crm-sum .sh{display:none}
-.crm-find{flex:0 1 240px;min-width:0;cursor:pointer;margin-right:var(--dm-s-1)}
-.crm-find .t{flex:1;min-width:0;text-align:left;font-size:13px;color:var(--dm-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-@media (hover:hover) and (pointer:fine){.crm-find:hover{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line-strong) 50%,transparent)}}
+.crm-find{color:var(--dm-fg2)}
 .crm-bell{position:relative}
 .crm-unread{position:absolute;top:6px;right:7px;width:7px;height:7px;border-radius:50%;background:var(--dm-accent-mark,var(--dm-accent));box-shadow:0 0 0 2px var(--dm-surface);transition:transform var(--dm-t) var(--dm-ease),opacity var(--dm-t)}
 .crm-bell.read .crm-unread{transform:scale(0);opacity:0}
@@ -80,7 +87,8 @@ body:has(.crm) .dmf{display:none}
 /* the search field is Search input's box at the toolbar's height; it searches as you type, and a question waits for Enter */
 .crm-ask.six-box{flex:0 1 300px;width:300px;min-width:180px;max-width:none}
 .crm-ask .six-in{height:32px;padding-left:10px}
-.crm-ask .six-in input{font-size:13px}
+.crm-ask .six-in input{font-size:13px;width:0}
+.crm-acts{min-width:0}
 .crm-ask .six-in input::-webkit-search-cancel-button{display:none}
 .crm-ask:focus-within{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line-strong) 50%,transparent)}
 .crm-sort .v{max-width:96px;overflow:hidden;text-overflow:ellipsis}
@@ -148,30 +156,62 @@ body:has(.crm) .dmf{display:none}
 .crm-sd[data-s="nego"]{color:var(--dm-accent-mark,var(--dm-accent))}
 .crm-sd[data-s="won"]{color:var(--dm-ok-mark)}
 
-/* ---------- Agent inbox: its groups and rows, wider, each with Dismiss, Edit and Approve ---------- */
-.crm-ib{overflow:auto;padding:var(--dm-s-4) var(--dm-s-4) var(--dm-s-6) var(--dm-s-5);background:var(--dm-stage)}
+/* ---------- Agent inbox: Agent inbox's list on the left, the selected item's preview on the right ---------- */
+.crm-ib{display:grid;grid-template-columns:minmax(340px,440px) minmax(0,1fr);gap:var(--dm-s-3);overflow:hidden;padding:var(--dm-s-4) var(--dm-s-4) var(--dm-s-4) var(--dm-s-5);background:var(--dm-stage)}
 .crm-ib[hidden]{display:none}
-.crm-aib.aib{max-width:880px;margin:0;padding:6px 6px var(--dm-s-2)}
+.crm-aib.aib{max-width:none;margin:0;padding:6px 6px var(--dm-s-2);min-height:0;overflow:auto;overscroll-behavior:contain}
 .crm-aib .aib-h{padding:var(--dm-s-2) 10px var(--dm-s-1)}
-.crm-aib .aib-i{gap:var(--dm-s-3);padding:10px}
-.crm-aib .aib-av{background:var(--dm-chip);color:var(--dm-fg2)}
-.crm-aib .crm-it{flex:1;min-width:0;text-align:left;font:inherit;color:inherit;cursor:pointer;border-radius:var(--dm-r-sm)}
+.crm-aib .aib-i{gap:10px;padding:var(--dm-s-2) 6px var(--dm-s-2) 10px}
+.crm-aib .aib-i.on{background:var(--dm-row);box-shadow:inset 0 0 0 1px var(--crm-hair)}
+.crm-aib .aib-av,.crm-ipv .aib-av{background:var(--dm-chip);color:var(--dm-fg2)}
+.crm-aib .crm-it{flex:1;min-width:0;text-align:left;font:inherit;color:inherit;cursor:pointer;border-radius:var(--dm-r-sm);outline-offset:2px}
 .crm-aib .crm-it b{color:var(--dm-fg)}
-.crm-aib .aib-r{gap:6px}
+.crm-aib .aib-r{gap:2px}
+.crm-aib .aib-r .ib{width:28px;height:28px;color:var(--dm-muted)}
+.crm-aib .aib-r .ib.crm-iok{color:var(--dm-accent-fg,var(--dm-accent))}
+@media (hover:hover) and (pointer:fine){.crm-aib .aib-r .ib:hover{color:var(--dm-fg)}}
 .crm-aib .aib-i.done .aib-t b{color:var(--dm-fg2);font-weight:400}
-.crm-aib .aib-r .ok{color:var(--dm-ok);display:grid}
-.crm-ires{white-space:nowrap}
+.crm-aib .aib-r .ok,.crm-pvres .ok{color:var(--dm-ok);display:grid}
+.crm-ires{white-space:nowrap;font-size:12px}
 .crm-ibe{padding:var(--dm-s-6) 10px;font-size:13px;text-align:center}
+/* the preview: what the item is, its title, its details as label and value rows, the full draft, then the actions */
+.crm-ipv.panel{min-height:0;overflow:auto;overscroll-behavior:contain;display:flex;flex-direction:column;gap:var(--dm-s-3);padding:var(--dm-s-4) var(--dm-s-5) var(--dm-s-4)}
+.crm-pvh{display:flex;align-items:center;gap:10px;font-size:12.5px}
+.crm-pvx{display:none}
+.crm-pvt{font-size:14px;font-weight:500;line-height:1.4;outline:0}
+.crm-pvm{display:flex;flex-direction:column;border-top:1px solid var(--crm-hair);border-bottom:1px solid var(--crm-hair);padding:var(--dm-s-1) 0}
+.crm-pvr{display:grid;grid-template-columns:112px minmax(0,1fr);align-items:center;min-height:36px;font-size:13px}
+.crm-pvr .k{color:var(--dm-muted)}
+.crm-pvr .v{display:flex;align-items:center;gap:var(--dm-s-2);min-width:0}
+.crm-pvr .v>span:not(.ttx-st):not(.av):not(.pfm-lg){min-width:0}
+.crm-pvr .v>*{flex:none}
+.crm-pvr .v>span:first-of-type:not(.av):not(.pfm-lg),.crm-pvr .v>.av+span,.crm-pvr .v>.pfm-lg+span{flex:0 1 auto}
+.crm-pvr .v .av{width:22px;height:22px;font-size:9.5px}
+.crm-pvr .v .i{color:var(--dm-muted)}
+.crm-pvr .ttx-st{height:20px;font-size:11.5px}
+.crm-pvr .ttx-st .dot{width:6px;height:6px}
+.crm-was{color:var(--dm-muted);text-decoration:line-through}
+.crm-bad{color:var(--dm-bad)}
+.crm-pvb{white-space:pre-wrap;font-size:13.5px;line-height:1.6;color:var(--dm-fg)}
+.crm-pvc{font-size:12.5px;line-height:1.55;color:var(--dm-fg2)}
+.crm-pva{display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-end;gap:var(--dm-s-2);margin-top:auto;padding-top:var(--dm-s-3);border-top:1px solid var(--crm-hair)}
+.crm-pvres{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--dm-fg2)}
+.crm-pve{margin:auto;font-size:13px}
 /* a follow-up's draft, opened by Edit: a field like any other, then Cancel and Save */
-.crm-ied{display:flex;flex-direction:column;gap:var(--dm-s-2);margin:0 10px var(--dm-s-2) 50px}
+.crm-ied{display:flex;flex-direction:column;gap:var(--dm-s-2)}
 .crm-iel{font-size:12px;color:var(--dm-muted)}
-.crm-ta{width:100%;min-height:96px;resize:vertical;padding:var(--dm-s-2) var(--dm-s-3);border:0;outline:0;border-radius:var(--dm-r-field);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line) 50%,transparent);font:inherit;font-size:13px;line-height:1.5;color:var(--dm-fg);transition:box-shadow var(--dm-t-fast)}
+.crm-ta{width:100%;min-height:150px;resize:vertical;padding:var(--dm-s-2) var(--dm-s-3);border:0;outline:0;border-radius:var(--dm-r-field);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line) 50%,transparent);font:inherit;font-size:13.5px;line-height:1.6;color:var(--dm-fg);transition:box-shadow var(--dm-t-fast)}
 @supports (corner-shape:squircle){.crm-ta{corner-shape:squircle;border-radius:var(--dm-r-field-sq)}}
 .crm-ta:focus{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line-strong) 50%,transparent)}
 .crm-iea{display:flex;justify-content:flex-end;gap:6px}
 
 /* ---------- Calendar: Event calendar's week, 8am to 6pm, with the deals closing each day under the day headers ---------- */
-.crm-cal{overflow:auto;padding:var(--dm-s-4) var(--dm-s-4) var(--dm-s-6) var(--dm-s-5);background:var(--dm-stage)}
+.crm-cal{display:flex;flex-direction:column;overflow:auto;padding:var(--dm-s-4) var(--dm-s-4) var(--dm-s-4) var(--dm-s-5);background:var(--dm-stage)}
+.crm-ecx.ecx{flex:1 0 auto;display:flex;flex-direction:column;min-height:min-content}
+.crm-ecx .ecx-sc{flex:1 1 auto;min-height:0}
+.crm-ecx .ecx-grid{grid-template-columns:44px repeat(5,minmax(72px,1fr)) repeat(2,minmax(56px,.7fr));min-width:560px}
+.crm-ecx .ecx-day.we{background:color-mix(in srgb,var(--dm-fg) 2.5%,transparent)}
+.crm-ecx .ecx-day.we .ecx-dh{color:var(--dm-muted)}
 .crm-cal[hidden]{display:none}
 .crm-ecx .ecx-h{min-height:52px}
 .crm-wk{display:flex;align-items:center;gap:2px;margin-left:-6px}
@@ -183,7 +223,7 @@ body:has(.crm) .dmf{display:none}
 .crm-ecx .ecx-col{height:calc(var(--dm-ph) * 10)}
 /* the time column starts under the day header and the closing strip */
 .crm-ecx .ecx-tm{padding-top:62px}
-.crm-cls{height:30px;display:flex;align-items:center;gap:4px;padding:0 4px;border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);overflow:hidden}
+.crm-cls{height:30px;display:flex;align-items:center;justify-content:center;gap:4px;padding:0 4px;border-bottom:1px solid var(--crm-hair);overflow:hidden}
 .crm-clb{display:inline-flex;align-items:center;gap:4px;min-width:0;max-width:100%;height:22px;padding:0 7px 0 5px;border-radius:var(--dm-r-tag);background:var(--dm-chip);font-size:11.5px;font-weight:500;color:var(--dm-fg2);white-space:nowrap;transition:background var(--dm-t-fast),color var(--dm-t-fast)}
 @supports (corner-shape:squircle){.crm-clb{corner-shape:squircle;border-radius:var(--dm-r-tag-sq)}}
 .crm-clb span{overflow:hidden;text-overflow:ellipsis}
@@ -208,12 +248,12 @@ body:has(.crm) .dmf{display:none}
 .crm-pdl .ttx-st{height:20px;font-size:11.5px;flex:none}
 .crm-pdl .ttx-st .dot{width:6px;height:6px}
 .crm-pdl .num{color:var(--dm-fg2);flex:none}
-.crm .av.crm-cav{background:var(--dm-chip);color:var(--dm-fg2)}
-.crm-leg{display:flex;flex-wrap:wrap;gap:var(--dm-s-1) var(--dm-s-3);padding:10px var(--dm-s-3);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);font-size:12px}
+.crm-leg{display:flex;flex-wrap:wrap;justify-content:center;gap:var(--dm-s-1) var(--dm-s-3);padding:10px var(--dm-s-3);border-top:1px solid var(--crm-hair);font-size:12px}
 .crm-leg span{display:inline-flex;align-items:center;gap:6px}
 .crm-leg i{width:8px;height:8px;border-radius:50%}
 @container ecx (max-width:519px){
-  .crm-ecx .ecx-grid{--dm-ph:56px}
+  .crm-ecx .ecx-grid{--dm-ph:56px;grid-template-columns:44px minmax(0,1fr);min-width:0}
+  .crm-ecx .ecx-day.we{background:none}
   .crm-ecx .ecx-tm{padding-top:30px}
   .crm-ecx .ecx-msg{order:5;flex-basis:100%;margin:0}
   .crm-ecx .ecx-msg:empty{display:none}
@@ -237,7 +277,7 @@ body:has(.crm) .dmf{display:none}
 @media (hover:none){.crm-kb .crm-hide{opacity:1}}
 @container kbx (min-width:640px){.crm-kb .kbx-c.gone{display:none}}
 @container kbx (max-width:639px){.crm-dock{display:none!important}}
-.crm-dock{display:flex;align-items:center;gap:var(--dm-s-1);min-width:0;margin-left:var(--dm-s-2);padding-left:var(--dm-s-3);border-left:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
+.crm-dock{display:flex;align-items:center;gap:var(--dm-s-1);min-width:0;margin-left:var(--dm-s-2);padding-left:var(--dm-s-3);border-left:1px solid var(--crm-hair)}
 .crm-dock[hidden]{display:none}
 .crm-dkl{flex:none;font-size:12.5px;color:var(--dm-muted);white-space:nowrap}
 .crm-dks{display:flex;gap:var(--dm-s-1);flex-wrap:wrap}
@@ -315,7 +355,7 @@ body:has(.crm) .dmf{display:none}
 :root[data-theme="dark"] .crm-shade{background:rgba(0,0,0,.56)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .crm-shade{background:rgba(0,0,0,.56)}}
 .crm.sh .crm-shade{opacity:1;pointer-events:auto}
-.crm-sheet{position:absolute;top:64px;right:var(--dm-s-2);bottom:var(--dm-s-2);z-index:20;width:min(392px,calc(100% - 16px));border-radius:var(--dm-r-card);background:var(--dm-raised);box-shadow:0 0 0 1px color-mix(in srgb,var(--dm-line) 70%,transparent),0 8px 18px rgba(0,0,0,.12),0 24px 60px rgba(0,0,0,.26);overflow:auto;overscroll-behavior:contain;opacity:0;visibility:hidden;transform:translateX(16px);transition:opacity .2s var(--dm-ease),transform .4s var(--dm-ease),visibility 0s .2s}
+.crm-sheet{position:absolute;top:64px;right:var(--dm-s-2);bottom:var(--dm-s-2);z-index:20;width:min(472px,calc(100% - 16px));border-radius:var(--dm-r-card);background:var(--dm-raised);box-shadow:0 0 0 1px color-mix(in srgb,var(--dm-line) 70%,transparent),0 8px 18px rgba(0,0,0,.12),0 24px 60px rgba(0,0,0,.26);overflow:auto;overscroll-behavior:contain;opacity:0;visibility:hidden;transform:translateX(16px);transition:opacity .2s var(--dm-ease),transform .4s var(--dm-ease),visibility 0s .2s}
 .crm-sheet.on{opacity:1;visibility:visible;transform:none;transition-property:opacity,transform}
 .crm-dtp.dtp{padding:var(--dm-s-3) var(--dm-s-3) var(--dm-s-4) var(--dm-s-4);gap:var(--dm-s-1)}
 .crm-dtp .dtp-h{padding:2px 0 0;gap:10px}
@@ -327,30 +367,33 @@ body:has(.crm) .dmf{display:none}
 .crm-dtp .dtp-sh{padding-left:0;margin-top:var(--dm-s-1)}
 .crm-dtp .dtp-r{grid-template-columns:112px minmax(0,1fr)}
 .crm-dtp .dtp-r .k{padding-left:0}
-/* tags wrap onto even rows: the label sits level with the first row, every chip and the add button share one height */
-.crm-dtp .dtp-r.crm-tg{align-items:start}
-.crm-dtp .crm-tg .k{line-height:20px;margin-top:7px}
-.crm-dtp .crm-tg .dtp-tags{padding:7px 0;gap:6px}
-.crm-dtp .crm-tg .dtp-tags>*{flex:none;height:20px}
+/* tags wrap onto even rows: the label sits level with the first row, every tag and the add button share one height and
+   centre line. The row is its own grid rather than a .dtp-r, so the rows' label rules (.dtp-r .k) never reach the pink tag,
+   which is .tag.k */
+.crm-dtp .crm-tg{display:grid;grid-template-columns:112px minmax(0,1fr);align-items:start;font-size:13px}
+.crm-dtp .crm-tgk{color:var(--dm-muted);line-height:20px;margin-top:7px}
+.crm-dtp .crm-tg .dtp-tags{padding:7px 0;gap:6px;align-items:center}
+.crm-dtp .crm-tg .dtp-tags>*{flex:none;height:20px;box-sizing:border-box;display:inline-flex;align-items:center;line-height:1}
+.crm-dtp .crm-tg .dtp-add{width:20px;justify-content:center}
 .crm-dtp .dtp-v{max-width:100%}
 .crm-dtp .dtp-v.static{margin-left:0;padding:0}
 /* the agent's suggestion for the account, and its health: Health score's gauge and checks, smaller */
 .crm-sag.six-ans{margin:var(--dm-s-2) 0 0;align-items:center}
 .crm-sag>span{flex:1;min-width:0}
 .crm-sag .pill{flex:none}
-.crm-shs.hsx{padding:var(--dm-s-3) 0 var(--dm-s-1);gap:var(--dm-s-2);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);margin-top:var(--dm-s-3)}
-.crm-shs .hsx-g{width:96px;height:58px}
-.crm-shs .hsx-g svg path{stroke-width:10}
+.crm-shs.hsx{padding:var(--dm-s-3) 0 var(--dm-s-1);gap:var(--dm-s-2);border-top:1px solid var(--crm-hair);margin-top:var(--dm-s-3)}
+.crm-shs .hsx-g{width:120px;height:72px}
 .crm-shs .hsx-g .fl{transition:none}
-.crm-shs .hsx-v b{font-size:24px}
-.crm-shs .hsx-v span{font-size:10.5px}
+.crm-shs .hsx-v b{font-size:26px}
+.crm-shs .hsx-v span{font-size:11px}
 .crm-shs .hsx-list{padding-top:var(--dm-s-1);border-top:0;gap:0}
 .crm-shs .hsx-c{padding:5px 0}
 .crm-shs .hsx-ch{padding:0;gap:10px}
 .crm-shs .hsx-ch .t{flex:1;min-width:0}
 .crm-shs .hsx-d{padding:1px 0 0;font-size:12px;color:var(--dm-muted)}
 @media (hover:hover) and (pointer:fine){.crm-shs .hsx-c:hover{background:none}}
-.crm-dtp .crm-snx{gap:6px;text-align:left}
+.crm-dtp .crm-snx{gap:6px;text-align:left;min-width:0;max-width:100%}
+.crm-dtp .crm-snx span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .crm-dtp .crm-snx .i{flex:none}
 .crm-dtp .crm-snx .i{color:var(--dm-muted)}
 .crm-dtp .crm-snx.late,.crm-dtp .crm-snx.late .i,.crm-dtp .crm-snx.none{color:var(--dm-bad)}
@@ -379,8 +422,9 @@ body:has(.crm) .dmf{display:none}
 .crm-tl .ic{width:28px;height:28px;border-radius:calc(9px * var(--dm-rk));display:grid;place-items:center;background:var(--dm-chip);color:var(--dm-fg2)}
 .crm-tl li.new{animation:enter var(--dm-t-slow) var(--dm-ease) backwards}
 .crm-tl .w{display:block;font-size:12px;color:var(--dm-muted)}
-.crm-sact{display:flex;gap:var(--dm-s-2);margin-top:var(--dm-s-3);padding-top:var(--dm-s-3);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
+.crm-sact{display:flex;gap:var(--dm-s-2);margin-top:var(--dm-s-3);padding-top:var(--dm-s-3);border-top:1px solid var(--crm-hair)}
 .crm-sact .pill{flex:1}
+.crm-sact .pill .i{color:var(--dm-fg2)}
 
 /* ---------- menus ---------- */
 .crm-pop{min-width:196px}
@@ -416,12 +460,14 @@ body:has(.crm) .dmf{display:none}
 
 /* ---------- narrower screens ---------- */
 @media (max-width:1279px){
-  .crm-find{flex-basis:150px}
+  .crm-ib{grid-template-columns:minmax(280px,340px) minmax(0,1fr)}
+  .crm-pvr{grid-template-columns:88px minmax(0,1fr)}
+  .crm-ipv.panel{padding:var(--dm-s-4)}
   .crm-men{display:none}
   /* the account's checkbox and name stay in view while the table scrolls sideways under them */
   .crm-t .stk,.crm-t .stk2{position:sticky;z-index:1;background:var(--dm-surface)}
   .crm-t .stk{left:0}
-  .crm-t .stk2{left:var(--crm-stk,56px);box-shadow:inset -1px 0 0 color-mix(in srgb,var(--dm-line) 50%,transparent);transition:box-shadow .2s}
+  .crm-t .stk2{left:var(--crm-stk,56px);box-shadow:inset -1px 0 0 var(--crm-hair);transition:box-shadow .2s}
   /* once rows slide under the account column, its edge casts a soft shadow so what passes beneath reads as scrolled */
   .crm-sc.sx .crm-t .stk2{box-shadow:inset -1px 0 0 color-mix(in srgb,var(--dm-line) 70%,transparent),6px 0 10px -6px rgba(0,0,0,.22)}
   .crm-t th.stk,.crm-t th.stk2{z-index:3}
@@ -457,18 +503,21 @@ body:has(.crm) .dmf{display:none}
 }
 @media (max-width:760px){
   .crm-men{display:none}
-  .crm-find{flex:none;width:36px;padding:0;justify-content:center}
-  .crm-find .t,.crm-find .kbd{display:none}
   /* the view's name over its summary, so the summary keeps its room */
   .crm-ttl{flex-direction:column;align-items:flex-start;gap:0;line-height:1.3}
   .crm-h1{font-size:15px}
   .crm-sum{max-width:100%;font-size:12px}
-  .crm-aib .aib-i{flex-wrap:wrap;row-gap:var(--dm-s-2)}
-  .crm-aib .crm-it{flex-basis:calc(100% - 44px)}
-  .crm-aib .crm-it span{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+  /* a phone shows the list alone; a picked item's preview is a sheet over the view */
+  .crm-ib{display:block;overflow:auto}
+  .crm-aib.aib{overflow:visible}
   .crm-aib .crm-it b{white-space:normal}
-  .crm-aib .aib-r{flex-basis:100%;justify-content:flex-end}
-  .crm-ied{margin-left:10px}
+  .crm-ipv.panel{display:none;position:absolute;inset:0;z-index:30;border-radius:0;box-shadow:none;background:var(--dm-raised);padding:var(--dm-s-3) var(--dm-s-4) var(--dm-s-4)}
+  .crm-ib.pv .crm-ipv.panel{display:flex;animation:crmfade .2s var(--dm-ease)}
+  .crm-ipv.panel.out{display:flex;pointer-events:none;animation:crmout .2s var(--dm-ease) forwards}
+  .crm-pvx{display:inline-grid;margin-right:-6px}
+  .crm-pvr{grid-template-columns:96px minmax(0,1fr)}
+  .crm-pva .pill{flex:1 1 auto}
+  .crm-pva .crm-sp{display:none}
   .crm-ib,.crm-cal{padding:var(--dm-s-3)}
   .crm-c4,.crm-own{grid-column:span 12}
   .crm-fc .scx-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
@@ -493,6 +542,15 @@ body:has(.crm) .dmf{display:none}
   .crm-fc{padding:var(--dm-s-3)}
   .crm-fc .rgx-b{justify-content:center}
 }
+/* motion: overlays fade out the way core's popovers do (Jump to, Add account, a phone's inbox preview), shown by .out while they
+   go; a pointer press hides focus rings until a key is pressed; the current view in the sidebar has the harness's selected look */
+.crm-over.out{pointer-events:none;animation:crmout .2s var(--dm-ease) forwards}
+.crm-over.out>*{animation:crmpout .2s var(--dm-ease) forwards}
+@keyframes crmout{to{opacity:0}}
+@keyframes crmpout{to{opacity:0;transform:translateY(6px) scale(.98);filter:blur(3px)}}
+.crm[data-ptr] :focus-visible{outline:none}
+.crm[data-ptr] .crm-sc:focus-visible{box-shadow:none}
+.crm-nav .ahx-cv[aria-current="page"]{background:var(--dm-surface);color:var(--dm-fg);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-rail) 50%,transparent),0 1px 2px rgba(0,0,0,.04)}
 /* menus and popovers lift off the page with a hairline edge as well as their shadow */
 .crm .pop{box-shadow:0 0 0 1px color-mix(in srgb,var(--dm-line) 70%,transparent),var(--dm-shadow-pop)}
-@media (prefers-reduced-motion:reduce){.crm-over,.crm-cmd .cpl,.crm-newd .fmx{animation:none}.crm-sheet,.crm-side.ahx-side,.crm-shade{transition:none}}
+@media (prefers-reduced-motion:reduce){.crm-over,.crm-cmd .cpl,.crm-newd .fmx,.crm-over.out,.crm-over.out>*,.crm-ipv.panel{animation:none}.crm-sheet,.crm-side.ahx-side,.crm-shade{transition:none}}
