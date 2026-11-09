@@ -13,11 +13,11 @@ type Pick = 'healthy' | 'watch' | 'risk';
 const ACCOUNTS: Record<Pick, HealthAccount & { after?: Partial<HealthFactor> }> = {
   healthy: { name: 'Granite Peak Systems', segment: 'Strategic, Americas', previous: 85,
     factors: [
-      { key: 'contact', label: 'Contact', status: 'ok', value: '2d', unit: 'ago', summary: 'last touch 2 days ago', points: 28, max: 30, trend: { kind: 'dots', values: [true, true, true, true, true, true] },
+      { key: 'contact', label: 'Contact', status: 'ok', value: '2d', unit: 'ago', summary: 'last touch 2 days ago', points: 28, max: 30,
         detail: ['Last touch Nov 7, a pricing call with Dana Ruiz.', 'In touch every week for the last 6 weeks.'] },
-      { key: 'late', label: 'On time', status: 'ok', value: '0', unit: 'late', summary: 'no deal past its close date', points: 25, max: 25, trend: { kind: 'marks', values: [false, false, false] },
+      { key: 'late', label: 'On time', status: 'ok', value: '0', unit: 'late', summary: 'no deal past its close date', points: 25, max: 25,
         detail: ['3 open deals, none past its close date.', 'Next to close: Platform renewal, Nov 24.'] },
-      { key: 'win', label: 'Win chance', status: 'ok', value: '62%', summary: '62% across the open deals', points: 16, max: 25, trend: { kind: 'spark', values: [54, 55, 57, 58, 60, 62] },
+      { key: 'win', label: 'Win chance', status: 'ok', value: '62%', summary: '62% across the open deals', points: 16, max: 25,
         detail: ['62% weighted across 3 open deals.', 'Up from 54% six weeks ago.'] },
       { key: 'next', label: 'Next step', status: 'ok', value: 'Thu', unit: 'in 3 days', summary: 'pricing call on Thursday', points: 20, max: 20,
         detail: ['Pricing call, Thu Nov 12, 9am, with Dana Ruiz.'] }
@@ -26,11 +26,11 @@ const ACCOUNTS: Record<Pick, HealthAccount & { after?: Partial<HealthFactor> }> 
       doneText: 'Email to Dana drafted with the updated quote. It waits in your outbox for review.', doneLabel: 'Drafted' } },
   watch: { name: 'Fernway Travel', segment: 'Mid-market, Asia Pacific', previous: 71,
     factors: [
-      { key: 'contact', label: 'Contact', status: 'warn', value: '11d', unit: 'ago', summary: 'quiet for 11 days', points: 18, max: 30, trend: { kind: 'dots', values: [true, true, true, true, true, false] },
+      { key: 'contact', label: 'Contact', status: 'warn', value: '11d', unit: 'ago', summary: 'quiet for 11 days', points: 18, max: 30,
         detail: ['Last touch Oct 29, an email to Sam Patel. No reply yet.', 'In touch in 5 of the last 6 weeks.'] },
-      { key: 'late', label: 'On time', status: 'ok', value: '0', unit: 'late', summary: 'no deal past its close date', points: 25, max: 25, trend: { kind: 'marks', values: [false, false] },
+      { key: 'late', label: 'On time', status: 'ok', value: '0', unit: 'late', summary: 'no deal past its close date', points: 25, max: 25,
         detail: ['2 open deals, both before their close date.', 'Next to close: First contract, Dec 15.'] },
-      { key: 'win', label: 'Win chance', status: 'ok', value: '61%', summary: '61% across the open deals', points: 15, max: 25, trend: { kind: 'spark', values: [66, 66, 65, 64, 62, 61] },
+      { key: 'win', label: 'Win chance', status: 'ok', value: '61%', summary: '61% across the open deals', points: 15, max: 25,
         detail: ['61% weighted across 2 open deals.', 'Down from 66% six weeks ago.'] },
       { key: 'next', label: 'Next step', status: 'warn', value: 'None', unit: 'booked', summary: 'no next step booked', points: 0, max: 20,
         detail: ['Nothing is booked with Fernway Travel.', 'Booking a meeting adds 20 points.'] }
@@ -41,11 +41,11 @@ const ACCOUNTS: Record<Pick, HealthAccount & { after?: Partial<HealthFactor> }> 
       detail: ['Check-in, Wed Nov 11, 10am, with Sam Patel.', 'Booked by the agent just now.'] } },
   risk: { name: 'Tidewell Energy', segment: 'Enterprise, Asia Pacific', previous: 41,
     factors: [
-      { key: 'contact', label: 'Contact', status: 'bad', value: '38d', unit: 'ago', summary: 'quiet for 38 days', points: 0, max: 30, trend: { kind: 'dots', values: [true, false, false, false, false, false] },
+      { key: 'contact', label: 'Contact', status: 'bad', value: '38d', unit: 'ago', summary: 'quiet for 38 days', points: 0, max: 30,
         detail: ['Last touch Oct 2, a demo follow-up with Priya Shah.', 'In touch in 1 of the last 6 weeks.'] },
-      { key: 'late', label: 'On time', status: 'bad', value: '1', unit: 'late', summary: '1 deal 6 days past its close date', points: 9, max: 25, trend: { kind: 'marks', values: [true, false] },
+      { key: 'late', label: 'On time', status: 'bad', value: '1', unit: 'late', summary: '1 deal 6 days past its close date', points: 9, max: 25,
         detail: ['Renewal was due Nov 3 and is still open, 6 days late.', '1 of 2 open deals is past its close date.'] },
-      { key: 'win', label: 'Win chance', status: 'warn', value: '33%', summary: '33% across the open deals', points: 8, max: 25, trend: { kind: 'spark', values: [52, 50, 46, 41, 36, 33] },
+      { key: 'win', label: 'Win chance', status: 'warn', value: '33%', summary: '33% across the open deals', points: 8, max: 25,
         detail: ['33% weighted across 2 open deals.', 'Down from 52% six weeks ago.'] },
       { key: 'next', label: 'Next step', status: 'bad', value: '6d', unit: 'overdue', summary: 'next step overdue since Nov 3', points: 0, max: 20,
         detail: ['Renewal call, due Tue Nov 3. Not held or moved.'] }

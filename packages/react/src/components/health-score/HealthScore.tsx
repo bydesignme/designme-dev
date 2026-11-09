@@ -1,7 +1,7 @@
 'use client';
-import { Fragment, useEffect, useId, useRef, useState, type ReactNode } from 'react';
+import { Fragment, useEffect, useId, useRef, useState } from 'react';
 import { cx } from '../../lib/cx';
-import { useControllable, useReducedMotion, useTween } from '../../lib/hooks';
+import { useControllable, useTween } from '../../lib/hooks';
 import { Icon, type IconName } from '../../lib/icons';
 import { Fold, Spin, Swap } from '../../lib/motion';
 import '../../designme.css';
@@ -9,8 +9,7 @@ import './health-score.css';
 
 export type HealthStatus = 'ok' | 'warn' | 'bad';
 
-/** A factor's small trend: `dots` is one dot per period, filled when it happened (contact by week); `marks` is one mark per
-    item, red when it is late (open deals); `spark` is a line of values, its last point in the factor's status */
+/** @deprecated The rows no longer draw a trend (owner, 9 Nov): kept so existing data still type-checks, and ignored */
 export type HealthTrend = { kind: 'dots'; values: boolean[] } | { kind: 'marks'; values: boolean[] } | { kind: 'spark'; values: number[] };
 
 export interface HealthFactor {
@@ -18,19 +17,20 @@ export interface HealthFactor {
   key: string;
   /** Like "Contact" */
   label: string;
-  /** Its dot, its trend's mark and how the score counts it: on track, watch or at risk */
+  /** Its dot and how the score counts it: on track, watch or at risk */
   status: HealthStatus;
   /** The figure, like "11d", "0", "61%" or "None" */
   value: string;
   /** Quieter words after the figure, like "ago", "late" or "booked" */
   unit?: string;
-  /** What screen readers hear for the tile, like "quiet for 11 days" */
+  /** What screen readers hear for the row, like "quiet for 11 days" */
   summary: string;
   /** Its share of the score: `points` of `max`. The factors' points add up to the score unless you pass `score` */
   points: number;
   max: number;
+  /** @deprecated Ignored: the rows no longer draw a trend */
   trend?: HealthTrend;
-  /** The lines its detail shows when the tile is open */
+  /** The lines its detail shows when the row is open */
   detail?: string[];
 }
 
@@ -72,7 +72,7 @@ export interface HealthScoreProps {
   bands?: [number, number];
   /** The verdict words, by status */
   verdicts?: Partial<Record<HealthStatus, string>>;
-  /** The open factor, by key, or null for none. Leave it out to let the tiles toggle themselves */
+  /** The open factor, by key, or null for none. Leave it out to let the rows toggle themselves */
   open?: string | null;
   defaultOpen?: string | null;
   onOpenChange?: (key: string | null) => void;
@@ -85,39 +85,11 @@ export interface HealthScoreProps {
 const RING = 2 * Math.PI * 18;
 const WORD: Record<HealthStatus, string> = { ok: 'On track', warn: 'Watch', bad: 'At risk' };
 
-function Trend({ trend }: { trend: HealthTrend }) {
-  if (trend.kind === 'dots') return <span className="dm-hsc-dots">{trend.values.map((on, i) => <i key={i} className={on ? 'dm-on' : undefined} />)}</span>;
-  if (trend.kind === 'marks') return <span className="dm-hsc-bars">{trend.values.map((late, i) => <i key={i} className={late ? 'dm-late' : undefined} />)}</span>;
-  const v = trend.values, lo = Math.min(...v), hi = Math.max(...v);
-  const pt = v.map((y, i) => [2 + i * 52 / Math.max(1, v.length - 1), 3 + (1 - (y - lo) / (hi - lo || 1)) * 14]), e = pt[pt.length - 1];
-  return (
-    <svg className="dm-hsc-sp" viewBox="0 0 56 20">
-      <polyline points={pt.map(p => p.map(n => n.toFixed(1)).join(',')).join(' ')} />
-      {e && <circle cx={e[0].toFixed(1)} cy={e[1].toFixed(1)} r="2.5" />}
-    </svg>
-  );
-}
-
-/** Crossfades a part when its id changes: the old one blurs out, the new one in (like Swap, for markup) */
-function Fade({ id, children }: { id: string; children: ReactNode }) {
-  const [shown, setShown] = useState({ id, children });
-  const [out, setOut] = useState(false);
-  const reduce = useReducedMotion();
-  useEffect(() => {
-    if (id === shown.id) { setOut(false); if (children !== shown.children) setShown({ id, children }); return; }
-    setOut(true);
-    const t = setTimeout(() => { setShown({ id, children }); setOut(false); }, reduce ? 0 : 170);
-    return () => clearTimeout(t);
-  }, [id, children, shown, reduce]);
-  return <span className={cx('dm-sw', out && 'dm-out')}>{shown.children}</span>;
-}
-
-/** An account's health: the score in a small ring with its verdict and change, a tile per factor with its figure and a small
-    trend (open one for its detail), and the agent's next move with its button. Colour only marks state: the dots, the trend
-    marks and the ring. Fits a 440px details sheet; under 360px of room the trends, the Weakest label and the button take their own lines. */
+/** An account's health: the score in a small ring with its verdict and change, a row per factor under a hairline with its
+    status dot and figure (open one for its detail, right under it), and the agent's next move with its button. Colour only
+    marks state: the dots and the ring. Fits a 440px details sheet; under 360px of room the button goes under the agent's line. */
 export function HealthScore({ account, label = 'Account health', period = '30 days', bands = [70, 50], verdicts, open, defaultOpen = null, onOpenChange, onAction, className }: HealthScoreProps) {
   const [opened, setOpened] = useControllable<string | null>(open, defaultOpen, onOpenChange);
-  const reduce = useReducedMotion();
   const { factors, suggestion: sug } = account;
   const score = Math.round(account.score ?? factors.reduce((t, f) => t + f.points, 0));
   const band: HealthStatus = score >= bands[0] ? 'ok' : score >= bands[1] ? 'warn' : 'bad';
@@ -132,15 +104,6 @@ export function HealthScore({ account, label = 'Account health', period = '30 da
   const [drawn, setDrawn] = useState(false);
   useEffect(() => { const t = setTimeout(() => setDrawn(true), 140); return () => clearTimeout(t); }, []);
   const shown = useTween(drawn ? score : 0, 900, 0);
-  // the trends draw in once, as the block arrives
-  const grid = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    if (reduce || !grid.current) return;
-    grid.current.querySelectorAll<HTMLElement>('.dm-hsc-tr > * > *').forEach((el, i) => el.animate?.(
-      [{ clipPath: 'inset(-4px 100% -4px -4px)' }, { clipPath: 'inset(-4px -4px -4px -4px)' }],
-      { duration: 700, delay: 260 + i * 70, easing: 'cubic-bezier(.45,0,.2,1)', fill: 'backwards' }));
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
   // the button is busy for the account it was pressed for; done is the account's own (suggestion.done)
   const who = account.name ?? '';
   const [busy, setBusy] = useState<string | null>(null);
@@ -162,8 +125,6 @@ export function HealthScore({ account, label = 'Account health', period = '30 da
     wasDone.current = done; wasWho.current = who;
   }, [done, who, sug]);
 
-  const pairs: HealthFactor[][] = [];
-  factors.forEach((f, i) => { if (i % 2 === 0) pairs.push([f]); else pairs[pairs.length - 1].push(f); });
   const ids = 'dm-hsc' + useId();
 
   return (
@@ -180,34 +141,27 @@ export function HealthScore({ account, label = 'Account health', period = '30 da
         <div className="dm-hsc-ht"><Swap className="dm-hsc-vd">{verdict}</Swap><Swap className="dm-hsc-sub">{line}</Swap></div>
         {change !== null && <Swap className="dm-hsc-dl dm-num">{`${change >= 0 ? '+' : '−'}${Math.abs(change)} in ${period}`}</Swap>}
       </div>
-      <div className="dm-hsc-g" ref={grid}>
-        {pairs.map((pair, j) => {
-          const here = pair.find(f => f.key === opened);
-          return (
-            <Fragment key={j}>
-              {pair.map(f => (
-                <button key={f.key} type="button" className="dm-hsc-t" data-s={f.status} data-weak={f === weak ? '' : undefined} aria-expanded={f.key === opened} aria-controls={`${ids}-${j}`}
-                  aria-label={`${f.label}: ${f.summary}. ${WORD[f.status]}${f === weak ? ', the weakest factor' : ''}`} onClick={() => setOpened(f.key === opened ? null : f.key)}>
-                  <span className="dm-hsc-k"><i className="dm-hsc-dot" /><span>{f.label}</span></span>
-                  <span className="dm-hsc-wk" aria-hidden="true">Weakest</span>
-                  <Icon name="chev-d" size="xs" className="dm-hsc-cv" />
-                  <span className="dm-hsc-v"><b className="dm-num"><Swap>{f.value}</Swap></b><Swap>{f.unit ?? ''}</Swap></span>
-                  <span className="dm-hsc-tr" aria-hidden="true">{f.trend && <Fade id={JSON.stringify(f.trend)}><Trend trend={f.trend} /></Fade>}</span>
-                </button>
-              ))}
-              <Fold open={!!here} className="dm-hsc-d">
-                <div id={`${ids}-${j}`} role="region" aria-label={here ? `${here.label} details` : 'Details'}>
-                  {here && (
-                    <div className="dm-hsc-dc dm-enter" key={who + here.key}>
-                      {(here.detail ?? []).map((l, i) => <p key={i} className="dm-hsc-dp">{l}</p>)}
-                      <p className="dm-hsc-pt dm-num"><span>{here.points} of {here.max} points</span><i /><span>{WORD[here.status]}</span></p>
-                    </div>
-                  )}
-                </div>
-              </Fold>
-            </Fragment>
-          );
-        })}
+      <div className="dm-hsc-l">
+        {factors.map((f, j) => (
+          <Fragment key={f.key}>
+            <button type="button" className="dm-hsc-t" data-s={f.status} data-weak={f === weak ? '' : undefined} aria-expanded={f.key === opened} aria-controls={`${ids}-${j}`}
+              aria-label={`${f.label}: ${f.summary}. ${WORD[f.status]}${f === weak ? ', the weakest factor' : ''}`} onClick={() => setOpened(f.key === opened ? null : f.key)}>
+              <span className="dm-hsc-k"><i className="dm-hsc-dot" /><span className="dm-hsc-n">{f.label}</span><span className="dm-hsc-wk" aria-hidden="true">Weakest</span></span>
+              <span className="dm-hsc-v"><b className="dm-num"><Swap>{f.value}</Swap></b><Swap>{f.unit ?? ''}</Swap></span>
+              <Icon name="chev-d" size="xs" className="dm-hsc-cv" />
+            </button>
+            <Fold open={f.key === opened} className="dm-hsc-d">
+              <div id={`${ids}-${j}`} role="region" aria-label={`${f.label} details`}>
+                {f.key === opened && (
+                  <div className="dm-hsc-dc dm-enter" key={who + f.key}>
+                    {(f.detail ?? []).map((l, i) => <p key={i} className="dm-hsc-dp">{l}</p>)}
+                    <p className="dm-hsc-pt dm-num"><span>{f.points} of {f.max} points</span><i /><span>{WORD[f.status]}</span></p>
+                  </div>
+                )}
+              </div>
+            </Fold>
+          </Fragment>
+        ))}
       </div>
       {sug && (
         <div className="dm-hsc-s">
