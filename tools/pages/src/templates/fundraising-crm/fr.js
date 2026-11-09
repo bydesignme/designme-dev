@@ -36,9 +36,9 @@
   /* ---------- us: the founders, and the people who can make an intro ---------- */
   const TEAM = { AB:{ n:'Ada Brennan', c:'l', r:'CEO' }, SO:{ n:'Sam Okafor', c:'t', r:'CTO' } };
   const CON = {
-    JP:{ n:'Jonah Pryce', c:'b', r:'Partner at Fernhill Capital, our seed lead' }, MT:{ n:'Mei Tanaka', c:'k', r:'Angel, our first cheque' },
-    OH:{ n:'Owen Hale', c:'p', r:'Advisor, ran operations at a freight company' }, LF:{ n:'Lucia Ferro', c:'m', r:'Founder of Keelson' },
-    DR:{ n:'Daniel Roux', c:'y', r:'CFO at Harlow Foods, a customer' }, NS:{ n:'Nadia Sorensen', c:'r', r:'Former colleague, now an operator in residence' } };
+    JP:{ n:'Jonah Pryce', c:'b', r:'Partner at Fernhill Capital, our seed lead', last:3 }, MT:{ n:'Mei Tanaka', c:'k', r:'Angel, our first cheque', last:12 },
+    OH:{ n:'Owen Hale', c:'p', r:'Advisor, ran operations at a freight company', last:6 }, LF:{ n:'Lucia Ferro', c:'m', r:'Founder of Keelson', last:9 },
+    DR:{ n:'Daniel Roux', c:'y', r:'CFO at Harlow Foods, a customer', last:2 }, NS:{ n:'Nadia Sorensen', c:'r', r:'Former colleague, now an operator in residence', last:20 } };
   const ini = n => n.split(' ').map(w => w[0]).join('');
   const avc = (n, c, cls = '') => `<span class="av${cls ? ' ' + cls : ''}" style="background:var(--dm-av-${c});color:var(--dm-av-${c}-ink)" aria-hidden="true">${ini(n)}</span>`;
   const avT = (id, cls) => avc(TEAM[id].n, TEAM[id].c, cls), avC = (id, cls) => avc(CON[id].n, CON[id].c, cls);
@@ -258,7 +258,7 @@
         body:`Hi ${first(p.n)},\n\n${pitch}\n\nI saw ${f.n} back ${f.port[0]} and thought our work on planning would interest you. Could I send the deck?\n\nBest,\nAda` });
     });
     MT.filter(m => m.st === 'held' && m.day >= -4 && (m.kind === 'First meeting' || m.kind === 'Partner meeting')).forEach(m => { const f = fundOf(m.f); if (!ACTIVE.includes(f.st)) return; const p = leadOf(f);
-      IB.push({ id:'ib-f-' + m.id, kind:'follow', f:f.id, to:p.id, state:'wait', subj:`Thank you, and what you asked for`,
+      IB.push({ id:'ib-f-' + m.id, kind:'follow', f:f.id, m:m.id, to:p.id, state:'wait', subj:`Thank you, and what you asked for`,
         body:`Hi ${first(p.n)},\n\nThank you for the time ${m.day === -1 ? 'yesterday' : 'on ' + DAYL[dow(m.day)]}. As promised, the ${m.kind === 'First meeting' ? 'cohort retention and the pricing per site' : 'two customer contacts and the services breakdown'} are now in the data room.\n\nHappy to set up ${m.kind === 'First meeting' ? 'time with the partnership' : 'diligence calls'} whenever suits.\n\nBest,\nAda` }); });
     FUNDS.filter(f => quietDays(f)).forEach(f => { const p = leadOf(f), d = lastDoc(f);
       IB.push({ id:'ib-n-' + f.id, kind:'nudge', f:f.id, to:p.id, state:'wait', subj:`October numbers are in`,
@@ -340,7 +340,7 @@
       return { t:`${x.kind === 'nudge' ? 'Nudge' : x.kind === 'reply' ? 'Reply' : 'Follow-up'} sent to ${p.n}`, s:`${f.n}, logged as an email`, undo:() => { f.log.shift(); f.nudged = wasN; x.state = 'wait'; } };
     }
     if (x.kind === 'book'){
-      const s = freeSlot(1, 2), m = meet({ f:f.id, k:'partner', day:s.day, h:s.h, own:'AB' }); m.who = ['AB', 'SO']; m.by = 'agent';
+      const s = (x.slots && x.slots[x.pick]) || freeSlot(1, 2), m = meet({ f:f.id, k:'partner', day:s.day, h:s.h, own:'AB' }); m.who = ['AB', 'SO']; m.by = 'agent';
       const undo = setStage(f, 'partner'); x.state = 'done'; x.res = 'Booked ' + fmtD(m.day);
       return { t:`Partner meeting booked with ${f.n}`, s:`${fmtDW(m.day)}, ${tmA(m.h)}. ${f.n} moved to Partner meeting`, m, undo:() => { MT = MT.filter(y => y !== m); undo(); x.state = 'wait'; } };
     }
@@ -349,10 +349,11 @@
       return { t:`${f.n} moved to Passed`, s:x.why, undo:() => { undo(); x.state = 'wait'; } };
     }
   }
-  function approve(x){
-    const r = run(x); if (!r) return;
-    x.undo = r.undo; refresh(); say(r.t);
-    toast('ok', r.t, r.s, { label:'Undo', run:() => { r.undo(); x.undo = null; refresh(); } });
+  function approve(x, keep){
+    const snap = ibSnap(x), r = run(x); if (!r) return;
+    x.snap = snap; x.undo = () => { r.undo(); x.snap = null; };
+    if (!keep) refresh(); say(r.t);
+    toast('ok', r.t, r.s, { label:'Undo', run:() => { r.undo(); x.snap = null; x.undo = null; refresh(); } });
   }
   const ibOf = (f, kinds) => IB.find(x => x.f === f.id && x.state === 'wait' && (!kinds || kinds.includes(x.kind)));
 
@@ -369,7 +370,7 @@
   function sugOf(f){
     const x = ibOf(f);
     if (x) return { label:{ intro:x.via ? 'Ask for the intro' : 'Send cold email', follow:'Send follow-up', nudge:'Send nudge', book:'Book partner meeting', fix:'Move to Passed', reply:'Send reply' }[x.kind], why:ibWhy(x), item:x };
-    if (f.st === 'ts') return { label:'Compare term sheets', why:`${short(f)}'s sheet expires ${inDays(f.ts.exp)}. The agent compares it with the other${sheets().length > 2 ? 's' : ''}.`, go:'terms' };
+    if (f.st === 'ts') return { label:'Open in Term sheets', why:`${short(f)}'s sheet expires ${inDays(f.ts.exp)}. The agent compares it with the other${sheets().length > 2 ? 's' : ''}.`, go:'terms' };
     const n = nextOf(f); if (n.m && n.m.day <= 7) return { label:'Prep for the meeting', why:`${n.m.kind} ${n.m.day <= 1 ? inDays(n.m.day) : 'on ' + DAYL[dow(n.m.day)]}. The agent writes a prep note from what you know.`, prep:n.m };
     return null;
   }
@@ -496,16 +497,15 @@
   rd.addEventListener('click', e => {
     const o = e.target.closest('[data-open]'); if (o){ openSheet(o.dataset.open, !e.detail); return; }
     const r = e.target.closest('[data-risk]'); if (r){ const x = rd._risks[+r.dataset.risk]; if (x) x.run(); return; }
-    const fr = e.target.closest('.fnx-r'); if (fr){ K.tab = fr.dataset.st; setView('investors'); const col = $(`.kbx-c[data-col="${fr.dataset.st}"]`, cols); if (col){ K.shut.delete(fr.dataset.st); renderBoard(); col.scrollIntoView({ block:'nearest', inline:'nearest', behavior:REDUCE ? 'auto' : 'smooth' }); enter(col); } }
   });
   function risks(){
     const R = [];
-    sheets().forEach(f => { if (f.ts.exp <= 5) R.push({ sev:f.ts.exp <= 3 ? 'bad' : 'warn', w:10 - f.ts.exp, t:`${short(f)}'s term sheet expires ${inDays(f.ts.exp)}`, s:`${M(f.ts.amt)} at ${M(f.ts.pre)} pre-money, ${f.ts.noShop} days no-shop`, act:'Compare', run:() => setView('terms') }); });
+    sheets().forEach(f => { if (f.ts.exp <= 5) R.push({ sev:f.ts.exp <= 3 ? 'bad' : 'warn', w:10 - f.ts.exp, t:`${short(f)}'s term sheet expires ${inDays(f.ts.exp)}`, s:`${M(f.ts.amt)} at ${M(f.ts.pre)} pre-money, ${f.ts.noShop} days no-shop`, act:'Open fund', run:() => openSheet(f.id, true) }); });
     FUNDS.filter(f => quietDays(f)).sort((a, b) => ST[b.st].i - ST[a.st].i).forEach(f => { const d = lastDoc(f), x = ibOf(f, ['nudge']);
       R.push({ sev:ST[f.st].i >= 4 ? 'bad' : 'warn', w:quietDays(f) / 2 + ST[f.st].i, t:`${short(f)} hasn't opened ${d && d.id === 'deck' ? 'the deck' : 'the data room'} in ${quietDays(f)} days`, s:`${ST[f.st].t}, ${leadOf(f).n}${f.nudged === 0 ? '. Nudged today' : ''}`, act:x ? 'Nudge' : 'Open', run:() => x ? approve(x) : openSheet(f.id, true) }); });
     active().filter(f => f.conflict && ST[f.st].i >= 2).forEach(f => R.push({ sev:'warn', w:4, t:`${short(f)} backs ${f.conflict}, a competitor`, s:`${RIVAL[f.conflict]}. Keep the roadmap high level`, act:'Open', run:() => openSheet(f.id, true) }));
-    const cp = sheets().find(f => /Participating/.test(f.ts.part)); if (cp) R.push({ sev:'warn', w:5, t:`${short(cp)} asks for participating preferred`, s:'They are paid back first and share in the rest', act:'What to say', run:() => { setView('terms'); ask(); } });
-    const late = active().filter(f => ST[f.st].i >= 3 && f.leads).length; if (!leadChosen() && late < 4) R.push({ sev:'warn', w:3, t:`Only ${plural(late, 'possible lead')} past the partner meeting`, s:'Aim for four or more before you pick one', act:'Funds', run:() => { K.role = 'lead'; setView('investors'); renderBoard(); } });
+    const cp = sheets().find(f => /Participating/.test(f.ts.part)); if (cp) R.push({ sev:'warn', w:5, t:`${short(cp)} asks for participating preferred`, s:'They are paid back first and share in the rest', act:'Open in Term sheets', run:() => { setView('terms'); ask(); } });
+    const late = active().filter(f => ST[f.st].i >= 3 && f.leads).length; if (!leadChosen() && late < 4) R.push({ sev:'warn', w:3, t:`Only ${plural(late, 'possible lead')} past the partner meeting`, s:'Aim for four or more before you pick one', act:'Open in Investors', run:() => { clearBoard(); K.role = 'lead'; setView('investors'); renderBoard(); } });
     return R.sort((a, b) => (b.sev === 'bad') - (a.sev === 'bad') || b.w - a.w);
   }
   function timeline(){
@@ -648,7 +648,7 @@
         + `<div class="dtp-r"><span class="k">Stage</span><button class="dtp-v" data-pop="#fr-p-stage" aria-haspopup="menu" aria-label="Stage: ${ST[f.st].t}. Change it">${stag(f.st)}${I('chev-d', 'xs')}</button></div>`
         + `<div class="dtp-r"><span class="k">Lead partner</span><button class="dtp-v" data-pop="#fr-p-lead" aria-haspopup="menu" aria-label="Lead partner: ${esc(lp.n)}. Change it">${avP(lp)}<span>${esc(lp.n)}</span>${I('chev-d', 'xs')}</button></div>`
         + `<div class="dtp-r"><span class="k">Runs it</span><button class="dtp-v" data-pop="#fr-p-own" aria-haspopup="menu" aria-label="Runs the relationship: ${TEAM[f.own].n}. Change it">${avT(f.own)}<span>${TEAM[f.own].n}</span>${I('chev-d', 'xs')}</button></div>`
-        + `<div class="dtp-r"><span class="k">Next step</span>${n.m ? `<button class="dtp-v fr-snx" data-a="cal" aria-label="${esc(n.t)}, ${esc(n.d)}. Open in Meetings">${I('cal', 'xs')}<span>${esc(n.t)}, ${esc(n.d)}</span></button>` : `<span class="dtp-v static fr-snx${n.late ? ' late' : ''}">${esc(n.t)}${n.d ? `<span class="muted">, ${esc(n.d)}</span>` : ''}</span>`}</div>`
+        + `<div class="dtp-r"><span class="k">Next step</span>${n.m ? `<button class="dtp-v fr-snx" data-a="cal" aria-label="${esc(n.t)}, ${esc(n.d)}. Open in Meetings" data-tip="Open in Meetings">${I('cal', 'xs')}<span>${esc(n.t)}, ${esc(n.d)}</span>${I('right', 'xs')}</button>` : `<span class="dtp-v static fr-snx${n.late ? ' late' : ''}">${esc(n.t)}${n.d ? `<span class="muted">, ${esc(n.d)}</span>` : ''}</span>`}</div>`
         + `<div class="dtp-r"><span class="k">Last touch</span><span class="dtp-v static">${lastTouch(f)}</span></div>`
         + (f.st === 'in' ? `<div class="dtp-r"><span class="k">Commitment</span><span class="dtp-v static"><span class="seg2 fr-hs" role="group" aria-label="Commitment"><button aria-pressed="${!f.commit.hard}" data-v="soft">Soft-circled</button><button aria-pressed="${f.commit.hard}" data-v="hard">Hard</button></span></span></div>` : '')
         + `</div>`)
@@ -938,51 +938,173 @@
     };
   }
 
-  /* ---------- Agent inbox: Agent inbox's groups and rows ---------- */
-  const ibx = $('.fr-aib', app), igs = $('.aib-gs', ibx);
+  /* ---------- Agent inbox: Agent inbox's grouped list on the left, the selected item opened as a conversation on the right ---------- */
+  const ibv = $('#fr-v-inbox', app), ibx = $('.fr-aib', app), igs = $('.aib-gs', ibx), ipv = $('.fr-ipv', app);
   const IBG = [['intro', 'Intro requests'], ['follow', 'Follow-ups after meetings'], ['nudge', 'Nudges for quiet funds'], ['reply', 'Term sheet replies'], ['book', 'Meetings to book'], ['fix', 'Pipeline fixes'], ['done', 'Done']];
   const IBS = { intro:['intro request'], follow:['follow-up'], nudge:['nudge'], reply:['reply', 'replies'], book:['meeting to book', 'meetings to book'], fix:['fix', 'fixes'] };
   const IBI = { intro:'users', follow:'mail', nudge:'history', reply:'file-text', book:'cal', fix:'wand' };
-  let edFor = null;
+  const IBK = { intro:'Intro request', follow:'Follow-up after a meeting', nudge:'Nudge for a quiet fund', reply:'Term sheet reply', book:'Meeting to book', fix:'Pipeline fix' };
+  const MAIL = ['intro', 'follow', 'nudge', 'reply'];
+  let ibSel = null, edFor = null, pvLast = null;
+  const ibById = id => IB.find(x => x.id === id);
+  const tieOf = x => { const f = fundOf(x.f); return (f.paths.find(y => y.via === x.via) || { s:2 }).s; };
   function ibWhy(x){
     const f = fundOf(x.f), p = x.to && personOf(x.to);
-    if (x.kind === 'intro') return x.via ? `${CON[x.via].n} has a ${STR[(f.paths.find(y => y.via === x.via) || { s:2 }).s][0].toLowerCase()} tie to ${p.n}. The agent drafted a forwardable intro.` : `No one you know knows ${short(f)}. The agent drafted a cold email to ${p.n}.`;
+    if (x.kind === 'intro') return x.via ? `${CON[x.via].n} has a ${STR[tieOf(x)][0].toLowerCase()} tie to ${p.n}. The agent drafted a forwardable intro.` : `No one you know knows ${short(f)}. The agent drafted a cold email to ${p.n}.`;
     if (x.kind === 'follow') return `You met ${p.n} ${ago(-Math.max(...meetsOf(f).filter(m => m.st === 'held').map(m => m.day)))}. The agent drafted the thank-you with what they asked for.`;
     if (x.kind === 'nudge') return `${short(f)} hasn't opened the data room in ${quietDays(f)} days. The agent drafted a short update.`;
-    if (x.kind === 'book') return `${short(f)} scored ${f.fit} and the first meeting went well. The agent books the partner meeting in the first free hour.`;
+    if (x.kind === 'book') return `${short(f)} scored ${f.fit} and the first meeting went well. The agent found three free hours for the partner meeting.`;
     if (x.kind === 'reply') return `A reply to ${short(f)}'s term sheet, from the comparison.`;
     return `${leadOf(f).n} said ${x.why.replace(/^They/, 'they')}. The agent suggests moving ${short(f)} to Passed.`;
   }
-  const ibText = x => { const f = fundOf(x.f), p = x.to && personOf(x.to);
-    if (x.kind === 'intro') return [x.via ? `Ask ${CON[x.via].n} for an intro to ${p.n}, ${f.n}` : `Cold email to ${p.n}, ${f.n}`, x.via ? `${STR[(f.paths.find(y => y.via === x.via) || { s:2 }).s][0]} tie. Forwardable, with a blurb for ${first(p.n)}. Fit ${f.fit}` : `No warm path. Fit ${f.fit}`];
-    if (x.kind === 'follow' || x.kind === 'nudge' || x.kind === 'reply') return [`${x.kind === 'nudge' ? 'Nudge' : x.kind === 'reply' ? 'Reply' : 'Follow up with'} ${p.n}, ${f.n}`, `“${x.subj}”: ${x.body.split('\n').filter(Boolean)[1] || ''}`];
-    if (x.kind === 'book') return [`Book a partner meeting with ${f.n}`, ibWhy(x)];
-    return [`Move ${f.n} to Passed`, ibWhy(x)]; };
-  const ibRow = x => { const [b, s] = ibText(x), wait = x.state === 'wait', f = fundOf(x.f), mail = ['intro', 'follow', 'nudge', 'reply'].includes(x.kind);
-    return `<div class="aib-i fr-ii${wait ? '' : ' done'}" role="listitem" data-ib="${x.id}"><span class="aib-av" aria-hidden="true">${I(IBI[x.kind], 'xs')}</span><button class="aib-t fr-it" data-ia="open" aria-label="${esc(b)}. Open ${esc(f.n)}"><b>${esc(b)}</b><span>${esc(s)}</span></button>`
-      + `<span class="aib-r">${wait ? `<button class="pill ghost sm" data-ia="dismiss" aria-label="Dismiss: ${esc(b)}">Dismiss</button>${mail ? `<button class="pill line sm" data-ia="edit" aria-label="Edit: ${esc(b)}">${I('edit', 'xs')}Edit</button>` : ''}<button class="pill primary sm" data-ia="ok" aria-label="Approve: ${esc(b)}">${mail ? 'Send' : 'Approve'}</button>`
-        : `<span class="ok">${I(x.state === 'done' ? 'ok' : 'x', 'xs')}</span><span class="fr-ires">${esc(x.res)}</span>${x.undo ? `<button class="pill ghost sm" data-ia="undo" aria-label="Undo: ${esc(b)}">Undo</button>` : ''}`}</span></div>`
-      + (edFor === x.id ? `<div class="fr-ied"><label class="fr-iel" for="fr-ta-${x.id}">Draft to ${esc(x.via ? CON[x.via].n : personOf(x.to).n)}</label><textarea class="fr-ta" id="fr-ta-${x.id}" rows="7">${esc(x.body)}</textarea><div class="fr-iea"><button class="pill ghost sm" data-ia="cancel">Cancel</button><button class="pill primary sm" data-ia="save">Save draft</button></div></div>` : ''); };
-  function renderInbox(){
-    const live = IB.filter(x => fundOf(x.f)), w = live.filter(x => x.state === 'wait');
-    const grp = k => k === 'done' ? live.filter(x => x.state !== 'wait') : w.filter(x => x.kind === k);
-    igs.innerHTML = IBG.map(([k, n]) => { const L = grp(k); if (!L.length) return ''; return `<section class="aib-g" data-g="${k}" aria-label="${n}"><div class="aib-gh"><span>${n}</span><span class="n">${L.length}</span></div><div class="aib-gl" role="list">${L.map(ibRow).join('')}</div></section>`; }).join('');
-    swap($('.aib-st', ibx), w.length ? `${w.length} waiting for you` : 'All clear');
-    if (!w.length && !igs.querySelector('[data-g="done"]')) igs.innerHTML = `<div class="fr-ibe muted">Nothing waiting. The agent drafts here as meetings end, funds go quiet and paths open up.</div>`;
+  const ibText = x => { if (x.state !== 'wait' && x.snap) return x.snap.t; const f = fundOf(x.f), p = x.to && personOf(x.to);
+    if (x.kind === 'intro') return [x.via ? `Ask ${CON[x.via].n} for an intro to ${p.n}, ${f.n}` : `Cold email to ${p.n}, ${f.n}`, x.via ? `${STR[tieOf(x)][0]} tie. Forwardable, with a blurb for ${first(p.n)}. Fit ${f.fit}` : `No warm path. Fit ${f.fit}`];
+    if (x.kind === 'follow' || x.kind === 'nudge' || x.kind === 'reply') return [`${x.kind === 'nudge' ? 'Nudge' : x.kind === 'reply' ? 'Reply to' : 'Follow up with'} ${p.n}, ${f.n}`, `“${x.subj}”`];
+    if (x.kind === 'book') return [`Book a partner meeting with ${f.n}`, `${plural((x.slots || slotsFor(x)).length, 'free hour')} found. Fit ${f.fit}`];
+    return [`Move ${f.n} to Passed`, x.why]; };
+  // the hours the agent offers for a partner meeting: the first free hour on each of the next three working days from Wednesday on
+  function slotsFor(x){
+    if (x.slots) return x.slots;
+    const out = []; for (let day = workAfter(0, 2), n = 0; out.length < 3 && n < 12; day++){ if (!isWork(day)) continue; n++; for (let h = 10; h + 1 <= 17; h += .5) if (!busy(day, h, 1)){ out.push({ day, h }); break; } }
+    x.slots = out; x.pick = 0; return out;
   }
-  igs.addEventListener('click', e => {
-    const b = e.target.closest('[data-ia]'); if (!b) return;
-    const el = b.closest('[data-ib]') || b.closest('.fr-ied').previousElementSibling, x = IB.find(y => y.id === el.dataset.ib), a = b.dataset.ia;
-    if (a === 'open'){ if (x.kind === 'intro'){ introFor = x.f; introTab = fundOf(x.f).st === 'res' ? 'open' : 'all'; $$('.fr-isg button', iv).forEach(y => y.setAttribute('aria-pressed', y.dataset.v === introTab)); setView('intros'); } else openSheet(x.f); return; }
-    if (a === 'edit'){ edFor = edFor === x.id ? null : x.id; renderInbox(); const ta = $('.fr-ta', igs); if (ta){ ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length); enter(ta.closest('.fr-ied')); } return; }
-    if (a === 'cancel' || a === 'save'){ if (a === 'save'){ const v = $('.fr-ta', igs).value.trim(); if (v) x.body = v; } edFor = null; renderInbox(); const r = $(`[data-ib="${x.id}"] [data-ia="edit"]`, igs); if (r) r.focus(); if (a === 'save') toast('ok', 'Draft saved', 'Send it when you are ready'); return; }
-    const was = document.activeElement === b;
-    if (a === 'ok') approve(x);
-    if (a === 'dismiss'){ x.state = 'gone'; x.res = 'Dismissed'; x.undo = () => { x.state = 'wait'; }; refresh(); toast('info', 'Dismissed', ibText(x)[0], { label:'Undo', run:() => { x.state = 'wait'; x.undo = null; refresh(); } }); }
-    if (a === 'undo' && x.undo){ x.undo(); x.undo = null; refresh(); }
-    if (was){ const n = $('.aib-i:not(.done) [data-ia="ok"]', igs); (n || $('#content', app)).focus({ preventScroll:true }); }
+  // the list's order: what waits, group by group, then what is done
+  const ibOrder = () => { const live = IB.filter(x => fundOf(x.f)), w = live.filter(x => x.state === 'wait');
+    return [...IBG.filter(g => g[0] !== 'done').flatMap(([k]) => w.filter(x => x.kind === k)), ...live.filter(x => x.state !== 'wait')]; };
+  const phone = () => matchMedia('(max-width:760px)').matches;
+  // motion: the library's ease and durations, for content that is swapped rather than shown or hidden
+  const CS0 = getComputedStyle(app), EASE = CS0.getPropertyValue('--dm-ease').trim() || 'ease';
+  const dur = (v, d) => { v = (v || '').trim(); return v.endsWith('ms') ? parseFloat(v) : v.endsWith('s') ? parseFloat(v) * 1000 : d; };
+  const TM = dur(CS0.getPropertyValue('--dm-t'), 300);
+  const glide = (el, from, ms = TM) => { if (!el || REDUCE || !el.animate) return; el.animate([{ opacity:0, ...from }, { opacity:1, transform:'none' }], { duration:ms, easing:EASE }); };
+  function renderInbox(){
+    const L = ibOrder(), w = L.filter(x => x.state === 'wait');
+    if (!L.some(x => x.id === ibSel)) ibSel = (w[0] || L[0] || {}).id || null;
+    igs.innerHTML = IBG.map(([k, n]) => { const G = L.filter(x => k === 'done' ? x.state !== 'wait' : x.state === 'wait' && x.kind === k); if (!G.length) return '';
+      return `<section class="aib-g" data-g="${k}" aria-label="${n}"><div class="aib-gh"><span>${n}</span><span class="n">${G.length}</span>${k !== 'done' && G.length > 1 ? `<button class="pill ghost sm fr-iall" data-ia="all" data-g="${k}" aria-label="Approve all ${G.length}: ${n.toLowerCase()}">Approve all</button>` : ''}</div><div class="aib-gl" role="list">${G.map(ibRow).join('')}</div></section>`; }).join('');
+    swap($('.aib-st', ibx), w.length ? `${w.length} waiting for you` : 'All clear');
+    if (!L.length) igs.innerHTML = `<div class="fr-ibe muted">Nothing waiting. The agent drafts here as meetings end, funds go quiet and paths open up.</div>`;
+    renderPreview();
+  }
+  // a row: its icon, what it is and why; the selected one is in the Tab order and the arrow keys move from it. The row's small
+  // buttons are shortcuts for a mouse; the conversation on the right has the same actions, labelled
+  const ibRow = x => { const [b, s] = ibText(x), wait = x.state === 'wait', on = x.id === ibSel, mail = MAIL.includes(x.kind);
+    return `<div class="aib-i fr-ii${wait ? '' : ' done'}${on ? ' on' : ''}" role="listitem" data-ib="${x.id}"><span class="aib-av" aria-hidden="true">${I(IBI[x.kind], 'xs')}</span><button class="aib-t fr-it" data-ia="sel" aria-current="${on}" tabindex="${on ? 0 : -1}"><b>${esc(b)}</b><span>${esc(s)}</span></button>`
+      + `<span class="aib-r">${wait ? `<button class="ib" data-ia="dismiss" tabindex="-1" aria-label="Dismiss: ${esc(b)}" data-tip="Dismiss">${I('x', 'xs')}</button><button class="ib" data-ia="edit" tabindex="-1" aria-label="Edit: ${esc(b)}" data-tip="Edit">${I('edit', 'xs')}</button><button class="ib fr-iok" data-ia="ok" tabindex="-1" aria-label="${mail ? 'Send' : 'Approve'}: ${esc(b)}" data-tip="${mail ? 'Send' : 'Approve'}">${I(mail ? 'send' : 'check', 'xs')}</button>`
+        : `<span class="ok">${I(x.state === 'done' ? 'ok' : 'x', 'xs')}</span><span class="fr-ires">${esc(x.res)}</span>`}</span></div>`; };
+  const pvRow = (k, v) => `<div class="fr-pvr"><span class="k">${k}</span><span class="v">${v}</span></div>`;
+  const nameV = (avh, n, s) => `${avh}<span class="t">${esc(n)}${s ? `<span class="muted">, ${esc(s)}</span>` : ''}</span>`;
+  const sec = (t, body) => `<div class="fr-pvs"><div class="fr-pvsh">${t}</div>${body}</div>`;
+  // the email itself: who it goes to, from, the subject and the message, or the field to rewrite it in
+  function mailBlock(x){
+    const f = fundOf(x.f), p = personOf(x.to), viaC = x.via && CON[x.via];
+    const to = viaC ? nameV(avC(x.via), viaC.n, viaC.r) : nameV(avP(p), p.n, `${p.r} at ${f.n}`);
+    return `<div class="fr-pvm">${pvRow('To', to)}${pvRow('From', nameV(avT('AB'), TEAM.AB.n, 'CEO, Loomwise'))}${pvRow('Subject', `<span class="t">${esc(x.subj)}</span>`)}</div>`
+      + (edFor === x.id && x.state === 'wait' ? `<div class="fr-ied"><label class="fr-iel" for="fr-ta">Draft to ${esc(viaC ? viaC.n : p.n)}</label><textarea class="fr-ta" id="fr-ta" rows="10">${esc(x.body)}</textarea><div class="fr-iea"><button class="pill ghost sm" data-ia="cancel">Cancel</button><button class="pill primary sm" data-ia="save">Save draft</button></div></div>`
+        : `<div class="fr-pvb">${esc(x.body)}</div>`);
+  }
+  // each kind's conversation, from the live data while it waits, frozen into its snapshot once it is decided
+  function pvBody(x){
+    const f = fundOf(x.f), p = x.to && personOf(x.to);
+    if (x.kind === 'intro'){
+      const why = x.via ? `<div class="fr-chain on">${avT('AB')}<i class="ln"></i>${avC(x.via)}<i class="ln"></i>${avP(p)}<span class="t"><b>${esc(first(CON[x.via].n))} to ${esc(first(p.n))}</b><span class="muted">${esc(CON[x.via].r)}</span></span>${strength(tieOf(x))}</div>`
+        + `<p class="fr-pvc">${esc(CON[x.via].n)} last spoke with you ${ago(CON[x.via].last)} and knows ${esc(p.n)} ${tieOf(x) === 3 ? 'well: they worked together' : tieOf(x) === 2 ? 'from a board they share' : 'from a conference'}. ${f.paths.length > 1 ? `${plural(f.paths.length - 1, 'other path')}, weaker.` : 'The only path.'}</p>`
+        : `<p class="fr-pvc">No one in your network knows anyone at ${esc(f.n)}, so this goes straight to ${esc(p.n)}.</p>`;
+      return mailBlock(x) + sec('For', `<div class="fr-pvm">${pvRow('Partner', nameV(avP(p), p.n, `${p.r} at ${f.n}`))}${pvRow('Fund', `${stag(f.st)}<span class="muted">${f.leads ? 'Leads' : 'Follows'}, ${M(f.min)} to ${M(f.max)}, fit ${f.fit}</span>`)}</div>`) + sec('Why this path', why);
+    }
+    if (x.kind === 'follow'){
+      const m = x.m && MT.find(y => y.id === x.m);
+      return mailBlock(x) + (m ? sec('The meeting it follows', `<div class="fr-pvm">${pvRow('Meeting', `<span class="t">${m.kind}, ${fmtDW(m.day)}, ${tmA(m.h)}</span>`)}${pvRow('With', `<span class="fr-avs">${[...m.who.map(o => avT(o)), avP(p)].join('')}</span><span class="t muted">${m.who.map(o => first(TEAM[o].n)).join(', ')}, ${esc(first(p.n))}</span>`)}</div>${m.note ? `<p class="fr-pvc fr-note">${I('edit', 'xs')}<span>${esc(m.note)}</span></p>` : ''}`) : '');
+    }
+    if (x.kind === 'nudge'){
+      const v = viewsOf(f), acc = DOCS.filter(d => v.some(y => y.d === d.id) || d.need <= Math.min(5, ST[f.st].i));
+      const rows = acc.map(d => { const dv = v.filter(y => y.d === d.id), last = dv.length ? -Math.max(...dv.map(y => y.day)) : null; return { d, last, s:sum(dv, y => y.s) }; }).sort((a, b) => (a.last ?? 999) - (b.last ?? 999));
+      return sec('Investor', `<div class="fr-pvm">${pvRow('Partner', nameV(avP(p), p.n, `${p.r} at ${f.n}`))}${pvRow('Stage', `${stag(f.st)}<span class="muted">quiet for ${plural(quietDays(f), 'day')}</span>`)}</div>`)
+        + sec('Data room activity', `<div class="fr-pvd">${rows.map(r => `<div class="fr-pvdr"><span class="ic">${I(r.d.ic, 'xs')}</span><span class="t">${esc(r.d.n)}</span><span class="num muted">${r.s ? mins(r.s) : ''}</span><span class="num${r.last == null ? ' fr-late' : r.last >= 7 ? ' fr-late' : ''}">${r.last == null ? 'Never opened' : ago(r.last)}</span></div>`).join('')}</div>`)
+        + sec('The draft', mailBlock(x));
+    }
+    if (x.kind === 'reply'){
+      const t = f.ts, tt = termsOf(f);
+      return `<div class="fr-pv2"><div>${mailBlock(x)}</div>${sec(`${esc(short(f))}'s key terms`, `<div class="fr-pvm">${[['Investment', M(t.amt)], ['Pre-money', M(t.pre)], ['Effective pre', M(tt.eff)], ['Option pool', `${Math.round(t.pool * 100)}%, ${t.poolPre ? 'before' : 'after'}`], ['Preference', `${t.pref}, ${t.part === 'None' ? 'non-participating' : 'participating'}`], ['No-shop', t.noShop + ' days'], ['Expires', fmtDW(t.exp)]].map(([k, val]) => pvRow(k, `<span class="t num">${esc(val)}</span>`)).join('')}</div>`)}</div>`;
+    }
+    if (x.kind === 'book'){
+      const S = slotsFor(x), held = meetsOf(f).filter(m => m.st === 'held').pop();
+      return sec('Fund', `<div class="fr-pvm">${pvRow('Partner', nameV(avP(leadOf(f)), leadOf(f).n, `${leadOf(f).r} at ${f.n}`))}${pvRow('Stage', `${stag(f.st)}<span class="muted">fit ${f.fit}</span>`)}${held ? pvRow('Last met', `<span class="t">${held.kind}, ${fmtD(held.day)}</span>`) : ''}</div>${held && held.note ? `<p class="fr-pvc fr-note">${I('edit', 'xs')}<span>${esc(held.note)}</span></p>` : ''}`)
+        + sec('Proposed slots, one hour with Ada and Sam', x.state === 'wait' ? `<div class="fr-slots" role="radiogroup" aria-label="Proposed slots">${S.map((s, i) => `<button class="chip fr-slot${i === x.pick ? ' on' : ''}" role="radio" aria-checked="${i === x.pick}" tabindex="${i === x.pick ? 0 : -1}" data-slot="${i}">${I('cal', 'xs')}<span>${fmtDW(s.day)}, ${tmA(s.h)}</span></button>`).join('')}</div>` : `<p class="fr-pvc">${esc(x.res)}</p>`);
+    }
+    const n = meetsOf(f).filter(m => m.st === 'held').length;
+    return sec('The change', `<div class="fr-pvm">${pvRow('Fund', nameV(tile(f, 'xs'), f.n, f.city))}${pvRow('Stage', `${stag(f.st === 'out' && x.state !== 'wait' ? (f.reached || 'dd') : f.st)}${I('right', 'xs')}${stag('out')}`)}${pvRow('History', `<span class="t">${plural(n, 'meeting')}, ${mins(sum(viewsOf(f), y => y.s))} in the data room</span>`)}</div>`)
+      + sec('Reason', edFor === x.id && x.state === 'wait' ? `<div class="fr-ied"><label class="fr-iel" for="fr-ta">Why they passed</label><textarea class="fr-ta" id="fr-ta" rows="3">${esc(x.why)}</textarea><div class="fr-iea"><button class="pill ghost sm" data-ia="cancel">Cancel</button><button class="pill primary sm" data-ia="save">Save</button></div></div>` : `<p class="fr-pvc">${esc(ibWhy(x))} <span class="muted">Approving takes ${plural(1, 'fund')} out of the pipeline; the board, the funnel and the risks follow.</span></p>`);
+  }
+  function ibSnap(x){ return { t:ibText(x), pv:pvBody(x) }; }
+  function renderPreview(){
+    const x = ibById(ibSel); ipv.dataset.ib = x ? x.id : '';
+    if (!x){ ipv.innerHTML = `<div class="fr-pve muted">Nothing to open.</div>`; return; }
+    const f = fundOf(x.f), wait = x.state === 'wait', [title] = ibText(x), mail = MAIL.includes(x.kind);
+    const body = !wait && x.snap ? x.snap.pv : pvBody(x);
+    const acts = wait ? `<button class="pill ghost" data-ia="dismiss">${I('x', 'xs')}Dismiss</button><button class="pill soft" data-ia="edit">${I('edit', 'xs')}Edit</button><button class="pill primary" data-ia="ok">${I(mail ? 'send' : 'check', 'xs')}${mail ? 'Send' : x.kind === 'book' ? 'Approve and book' : 'Approve'}</button>`
+      : `<span class="fr-pvres"><span class="ok">${I(x.state === 'done' ? 'ok' : 'x', 'xs')}</span>${esc(x.res)}</span>${x.undo ? `<button class="pill soft" data-ia="undo">${I('undo', 'xs')}Undo</button>` : ''}`;
+    ipv.innerHTML = `<div class="fr-pvh"><span class="aib-av" aria-hidden="true">${I(IBI[x.kind], 'xs')}</span><span class="muted">${IBK[x.kind]}</span><span class="fr-sp"></span>${x.kind === 'intro' ? `<button class="pill ghost sm" data-ia="intros">Open in Intros${I('right', 'xs')}</button>` : ''}<button class="pill line sm" data-ia="open">${I('panel', 'xs')}Open fund</button><button class="ib fr-pvx" data-ia="close" aria-label="Close" data-tip="Close">${I('x', 's')}</button></div>`
+      + `<h2 class="fr-pvt" id="fr-pvt" tabindex="-1">${esc(title)}</h2>${body}<div class="fr-pva">${acts}</div>`;
+    ipv.setAttribute('aria-labelledby', 'fr-pvt');
+    if (pvLast !== x.id + x.state){ if (pvLast) [...ipv.children].forEach((el, i) => glide(el, { transform:'translateY(4px)' }, TM + i * 30)); pvLast = x.id + x.state; }
+  }
+  // a phone shows the list alone; picking a row opens its conversation as a sheet over it
+  const pvOpen = on => { const was = ibv.classList.contains('pv'); ibv.classList.toggle('pv', on); ipv.inert = phone() && !on; if (was && !on && !REDUCE){ ipv.classList.add('out'); clearTimeout(ipv._out); ipv._out = setTimeout(() => ipv.classList.remove('out'), 200); } };
+  const rowFocus = () => $(`[data-ib="${ibSel}"] .fr-it`, igs)?.focus({ preventScroll:true });
+  function ibSelect(id, focus){ ibSel = id; edFor = null; renderInbox(); if (focus) $(`[data-ib="${id}"] .fr-it`, igs)?.focus({ preventScroll:false }); }
+  const nextAfter = x => { const L = ibOrder().filter(y => y.state === 'wait'), i = L.indexOf(x); return L[i + 1] || L[i - 1] || null; };
+  // Approve all: every waiting item of a group in one go, with one Undo for all of them
+  function approveAll(k){
+    const L = ibOrder().filter(x => x.state === 'wait' && x.kind === k); if (!L.length) return;
+    const undos = L.map(x => { x.snap = ibSnap(x); const r = run(x); const u = () => { r.undo(); x.snap = null; x.undo = null; }; x.undo = u; return u; });
+    const nx = ibOrder().find(x => x.state === 'wait'); ibSel = nx ? nx.id : L[0].id;
+    refresh(); const n = IBG.find(g => g[0] === k)[1].toLowerCase();
+    toast('ok', `Approved ${L.length} ${n}`, MAIL.includes(k) ? `${plural(L.length, 'email')} sent and logged on the funds` : k === 'book' ? `${plural(L.length, 'meeting')} booked` : 'The board follows', { label:'Undo', run:() => { undos.reverse().forEach(u => u()); refresh(); } });
+    rowFocus();
+  }
+  function ibDo(x, a){
+    const next = nextAfter(x);
+    if (a === 'ok') approve(x, true);
+    else if (a === 'dismiss'){ x.snap = ibSnap(x); x.state = 'gone'; x.res = 'Dismissed'; x.undo = () => { x.state = 'wait'; x.snap = null; }; toast('info', 'Dismissed', ibText(x)[0], { label:'Undo', run:() => { x.state = 'wait'; x.snap = null; x.undo = null; refresh(); } }); }
+    else if (a === 'undo' && x.undo){ x.undo(); x.undo = null; refresh(); return; }
+    // the next waiting item takes the selection
+    if (x.id === ibSel && next){ ibSel = next.id; edFor = null; }
+    refresh();
+  }
+  ibv.addEventListener('click', e => {
+    const b = e.target.closest('[data-ia],[data-slot]'); if (!b) return;
+    if (b.dataset.ia === 'all') return approveAll(b.dataset.g);
+    const el = b.closest('[data-ib]'), x = ibById(el && el.dataset.ib); if (!x) return;
+    if (b.dataset.slot){ x.pick = +b.dataset.slot; renderPreview(); $(`[data-slot="${x.pick}"]`, ipv)?.focus({ preventScroll:true }); return; }
+    const a = b.dataset.ia, inPv = ipv.contains(b), kb = !e.detail;
+    if (a === 'sel'){ ibSelect(x.id, true); if (phone()){ pvOpen(true); setTimeout(() => $('#fr-pvt', ipv)?.focus({ preventScroll:true }), 60); } return; }
+    if (a === 'close'){ pvOpen(false); rowFocus(); return; }
+    if (a === 'open'){ openSheet(x.f, kb); return; }
+    if (a === 'intros'){ pvOpen(false); introFor = x.f; pinIntro = null; introTab = fundOf(x.f).st === 'res' ? 'open' : 'all'; $$('.fr-isg button', iv).forEach(y => y.setAttribute('aria-pressed', y.dataset.v === introTab)); setView('intros'); return; }
+    if (a === 'edit'){
+      if (x.id !== ibSel){ ibSel = x.id; renderInbox(); }
+      if (phone()) pvOpen(true);
+      if (x.kind === 'book'){ edFor = null; renderPreview(); $('.fr-slot.on', ipv)?.focus(); return; }
+      edFor = edFor === x.id ? null : x.id; renderPreview(); const ta = $('.fr-ta', ipv); if (ta){ ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length); glide(ta.closest('.fr-ied'), { transform:'translateY(3px)' }, 220); }
+      return;
+    }
+    if (a === 'cancel' || a === 'save'){ if (a === 'save'){ const v = $('.fr-ta', ipv).value.trim(); if (v){ if (x.kind === 'fix') x.why = v; else x.body = v; } } edFor = null; renderPreview(); $('[data-ia="edit"]', ipv)?.focus(); if (a === 'save') toast('ok', x.kind === 'fix' ? 'Reason saved' : 'Draft saved', x.kind === 'fix' ? 'Approve it to move the fund' : 'Send it when you are ready'); return; }
+    ibDo(x, a);
+    // the focus stays where it was: on the conversation's main button for the next item, or on the selected row
+    if (inPv){ const n = $('[data-ia="ok"]', ipv) || $('[data-ia="open"]', ipv); if (n && !ipv.contains(document.activeElement)) n.focus({ preventScroll:true }); }
+    else rowFocus();
   });
-  igs.addEventListener('keydown', e => { if (e.key === 'Escape' && e.target.closest('.fr-ta')){ e.preventDefault(); e.stopPropagation(); $('[data-ia="cancel"]', igs).click(); } });
+  // up and down move through the list, selecting as they go; Home and End jump to its ends
+  igs.addEventListener('keydown', e => {
+    const b = e.target.closest('.fr-it'); if (!b) return;
+    const all = $$('.fr-it', igs), i = all.indexOf(b), to = { ArrowDown:all[i + 1], ArrowUp:all[i - 1], Home:all[0], End:all[all.length - 1] }[e.key];
+    if (to){ e.preventDefault(); ibSelect(to.closest('[data-ib]').dataset.ib, true); }
+  });
+  ipv.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && e.target.closest('.fr-ta')){ e.preventDefault(); e.stopPropagation(); $('[data-ia="cancel"]', ipv).click(); return; }
+    const s = e.target.closest('.fr-slot'); if (s && /^Arrow/.test(e.key)){ e.preventDefault(); const x = ibById(ibSel), d = /Right|Down/.test(e.key) ? 1 : -1; x.pick = (x.pick + d + x.slots.length) % x.slots.length; renderPreview(); $(`[data-slot="${x.pick}"]`, ipv)?.focus(); }
+  });
 
   /* ---------- Term sheets: side by side, the better term marked, and what to say ---------- */
   const tsv = $('#fr-v-terms', app), tst = $('.fr-tst', tsv), sayBox = $('.fr-say', tsv);
@@ -1041,8 +1163,8 @@
     if (e.target.closest('[data-sx]')){ sayBox.hidden = true; return; }
     const rp = e.target.closest('[data-reply]'); if (rp){ const f = fundOf(rp.dataset.reply), r = sayText(), p = leadOf(f), isBest = r && r.b === f;
       const id = 'ib-r-' + f.id + '-' + IB.length;
-      IB.push({ id, kind:'reply', f:f.id, to:p.id, state:'wait', subj:`Re: ${f.n} term sheet`, body:isBest ? `Hi ${first(p.n)},\n\nThank you for the term sheet. We are close. Two asks: 21 days of no-shop instead of ${f.ts.noShop}, and room for followers so the round lands at ${M(MAX)}.\n\nIf that works, we can sign this week.\n\nBest,\nAda` : `Hi ${first(p.n)},\n\nThank you for the term sheet. To compare like for like, could you look at 1x non-participating preferred and the pool top-up after the round?\n\nWe are deciding this week.\n\nBest,\nAda` });
-      refresh(); toast('ok', `Reply to ${p.n} drafted`, 'It waits in the Agent inbox for you to send', { label:'Open', run:() => setView('inbox') }); return; }
+      ibSel = id; IB.push({ id, kind:'reply', f:f.id, to:p.id, state:'wait', subj:`Re: ${f.n} term sheet`, body:isBest ? `Hi ${first(p.n)},\n\nThank you for the term sheet. We are close. Two asks: 21 days of no-shop instead of ${f.ts.noShop}, and room for followers so the round lands at ${M(MAX)}.\n\nIf that works, we can sign this week.\n\nBest,\nAda` : `Hi ${first(p.n)},\n\nThank you for the term sheet. To compare like for like, could you look at 1x non-participating preferred and the pool top-up after the round?\n\nWe are deciding this week.\n\nBest,\nAda` });
+      refresh(); toast('ok', `Reply to ${p.n} drafted`, 'It waits in the Agent inbox for you to send', { label:'Open in Agent inbox', run:() => { ibSel = id; setView('inbox'); } }); return; }
     const ac = e.target.closest('[data-accept]'); if (ac){ const f = fundOf(ac.dataset.accept), undo = setStage(f, 'in'); f.commit = { amt:f.ts.amt, hard:true, day:0 }; sayBox.hidden = true; refresh();
       toast('ok', `${f.n} leads the round`, `${M(f.ts.amt)} hard. ${M(totalM())} of ${M(TARGET)} committed`, { label:'Undo', run:() => { undo(); refresh(); } }); }
   });
@@ -1148,10 +1270,19 @@
       if ($('.pop.open', app) || e.target.closest?.('.fr-ta')) return;
       if (!over.hidden){ e.preventDefault(); closeCmd(); return; }
       if (popFor){ e.preventDefault(); closeCalPop(); return; }
-      if (app.classList.contains('dr')){ drawer(false); $('.fr-menu', app).focus(); return; }
       if (sheetFor){ closeSheet(); return; }
+      if (ibv.classList.contains('pv')){ pvOpen(false); rowFocus(); return; }
+      if (app.classList.contains('dr')){ drawer(false); $('.fr-menu', app).focus(); return; }
       if (view === 'terms' && !sayBox.hidden){ sayBox.hidden = true; return; }
       return;
+    }
+    if (e.key === 'Tab'){
+      const box = app.classList.contains('dr') ? $('.fr-side', app) : sheetFor && matchMedia('(max-width:520px)').matches ? sheet : ibv.classList.contains('pv') && phone() && view === 'inbox' ? ipv : null;
+      if (box && !$('.pop.open', app)){
+        const fs = $$('button,[href],input,textarea,select,[tabindex]:not([tabindex="-1"])', box).filter(x => !x.disabled && x.getClientRects().length && !x.closest('[inert],[hidden]'));
+        if (fs.length){ const i = fs.indexOf(document.activeElement);
+          if (e.shiftKey && i <= 0){ e.preventDefault(); fs[fs.length - 1].focus(); } else if (!e.shiftKey && (i === fs.length - 1 || i < 0)){ e.preventDefault(); fs[0].focus(); } }
+      }
     }
     const typing = e.target.closest && e.target.closest('input,textarea,[contenteditable="true"]');
     if (typing || e.metaKey || e.ctrlKey || e.altKey) return;
