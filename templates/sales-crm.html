@@ -1262,35 +1262,101 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
 
 /* Health score */
 /* ---------- Health score ---------- */
-.hsx{padding:var(--dm-s-4);display:flex;flex-direction:column;gap:var(--dm-s-3);--dm-hs-ok:#16b558;--dm-hs-bad:#e5383b}
-:root[data-theme="dark"] .hsx{--dm-hs-ok:#34d27a;--dm-hs-bad:#ff5c5f}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .hsx{--dm-hs-ok:#34d27a;--dm-hs-bad:#ff5c5f}}
-.hsx-top{display:flex;align-items:center;gap:14px}
-.hsx-g{position:relative;width:150px;height:90px;flex:none}
-.hsx-g svg{width:100%;height:100%;overflow:visible}
-.hsx-g path{fill:none;stroke-width:9;stroke-linecap:round}
-.hsx-g .tr{stroke:var(--dm-line)}
-.hsx-g .fl{stroke:var(--dm-accent-mark,var(--dm-accent));stroke-dasharray:157;stroke-dashoffset:157;transition:stroke-dashoffset .9s var(--dm-ease),stroke .4s}
-.hsx-v{position:absolute;left:0;right:0;bottom:0;display:flex;flex-direction:column;align-items:center;line-height:1.1}
-/* the score is the one big number in the card (owner, 3 Nov: bigger and bolder than the 14px / 500 rule) */
-.hsx-v b{font-size:32px;font-weight:600;letter-spacing:-.03em;line-height:1}
-.hsx-v span{font-size:11px;margin-top:2px}
-.hsx-s{display:flex;flex-direction:column;font-size:13px}
-.hsx-s b{font-weight:500}
-.hsx-st{font-size:12px}
-.hsx-list{display:flex;flex-direction:column;gap:2px;padding-top:var(--dm-s-3);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
-.hsx-c{border-radius:calc(10px * var(--dm-rk));transition:background .2s}
-.hsx-c.open{background:var(--dm-row)}
-@media (hover:hover) and (pointer:fine){.hsx-c:hover{background:var(--dm-row)}}
-.hsx-ch{display:flex;align-items:center;gap:10px;width:100%;padding:var(--dm-s-2);font-size:13px;text-align:left}
-.hsx-ch .t{flex:1}
-.hsx-ch .bar{width:70px;height:5px;border-radius:3px;background:var(--dm-line);overflow:hidden}
-.hsx-ch .bar i{display:block;height:100%;border-radius:3px;transition:width .8s var(--dm-ease),background .4s}
-.hsx-ch .v{width:26px;text-align:right;font-size:12px;color:var(--dm-fg2)}
-.hsx-ch>svg{color:var(--dm-muted);transition:transform .35s var(--dm-ease)}
-.hsx-c.open .hsx-ch>svg{transform:rotate(90deg)}
-.hsx-d{padding:0 var(--dm-s-2) 10px var(--dm-s-2);font-size:12px;color:var(--dm-fg2);display:flex;align-items:center;gap:10px;line-height:1.45}
-.hsx-d span{flex:1}
+/* an account's health: the score in a small ring with its verdict, four factor tiles (each with its figure and a small
+   trend, opening its detail in place) and the agent's next move with its button. The state shows only in the status dots, the
+   trend marks and the ring; every tile and the suggestion stay on the neutral surface, and the weakest factor gets an ink label */
+.hsc{display:flex;flex-direction:column;gap:var(--dm-s-3);width:100%;padding:var(--dm-s-4);container-type:inline-size;--dm-vm:var(--dm-ok-mark);--dm-vf:var(--dm-ok)}
+.hsc[data-v="warn"]{--dm-vm:var(--dm-warn-mark);--dm-vf:var(--dm-warn)}
+.hsc[data-v="bad"]{--dm-vm:var(--dm-bad);--dm-vf:var(--dm-bad)}
+.hsc-sr{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+/* the account it is about, when the block stands on its own (a details sheet that names the account leaves it out) */
+.hsc-ac{display:flex;flex-direction:column;align-items:flex-start;padding-bottom:var(--dm-s-3);border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);line-height:1.4}
+.hsc-ac b{font-size:14px;font-weight:500}
+.hsc-ac>span{font-size:12px;color:var(--dm-muted)}
+/* the header line: the score in its ring, the verdict and how it moved */
+.hsc-h{display:flex;align-items:center;gap:var(--dm-s-3)}
+.hsc-ring{position:relative;flex:none;width:44px;height:44px;display:grid;place-items:center}
+.hsc-ring svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg);overflow:visible}
+.hsc-ring circle{fill:none;stroke-width:4}
+.hsc-ring .tr{stroke:var(--dm-line)}
+.hsc-ring .fl{stroke:var(--dm-vm);stroke-linecap:round;transition:stroke-dashoffset .9s var(--dm-ease),stroke var(--dm-t) var(--dm-ease)}
+.hsc-ring b{position:relative;font-size:14px;font-weight:500;letter-spacing:-.01em;line-height:1}
+.hsc-ht{flex:1;min-width:0;display:flex;flex-direction:column;align-items:flex-start;line-height:1.4}
+.hsc-vd{font-size:14px;font-weight:500;color:var(--dm-vf);transition:color var(--dm-t) var(--dm-ease)}
+.hsc-sub{font-size:12px;color:var(--dm-muted);text-wrap:pretty}
+.hsc-dl{flex:none;align-self:flex-start;margin-top:4px;font-size:12px;color:var(--dm-muted)}
+/* the tiles: two by two, a detail row under each pair */
+.hsc-g{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--dm-s-2)}
+.hsc-t{position:relative;display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"k k" "v tr";align-items:center;align-content:start;gap:var(--dm-s-2);min-width:0;padding:10px var(--dm-s-3) var(--dm-s-3);border-radius:var(--dm-r-in);background-color:var(--dm-surface);box-shadow:var(--dm-shadow);text-align:left;--dm-sm:var(--dm-ok-mark);
+  transition:transform var(--dm-t) var(--dm-ease),box-shadow var(--dm-t-fast) var(--dm-ease),background-color var(--dm-t-fast)}
+.hsc-t[data-s="warn"]{--dm-sm:var(--dm-warn-mark)}
+.hsc-t[data-s="bad"]{--dm-sm:var(--dm-bad)}
+@media (hover:hover) and (pointer:fine){.hsc-t:hover{transform:translateY(-1px);box-shadow:var(--dm-shadow-pop)}}
+.hsc-t:active{transform:scale(.98);transition-duration:.12s}
+/* open: picked, so its edge steps up a little (a dimmed grey, never black) */
+.hsc-t[aria-expanded="true"]{box-shadow:var(--dm-shadow),inset 0 0 0 1px color-mix(in srgb,var(--dm-faint) 65%,transparent)}
+@media (hover:hover) and (pointer:fine){.hsc-t[aria-expanded="true"]:hover{box-shadow:var(--dm-shadow-pop),inset 0 0 0 1px color-mix(in srgb,var(--dm-faint) 65%,transparent)}}
+.hsc-k{grid-area:k;display:flex;align-items:center;gap:6px;min-width:0;padding-right:20px;font-size:12px;line-height:16px;color:var(--dm-muted)}
+.hsc-k>span{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hsc-dot{flex:none;width:8px;height:8px;border-radius:50%;background:var(--dm-sm);transition:background var(--dm-t) var(--dm-ease)}
+/* the weakest factor that is off track says so in ink, never with a fill; the word fades from tile to tile as factors change */
+.hsc-wk{position:absolute;top:10px;right:calc(var(--dm-s-3) + 20px);font-size:11px;font-weight:500;line-height:16px;color:var(--dm-fg);opacity:0;transition:opacity var(--dm-t) var(--dm-ease)}
+.hsc-t[data-weak] .hsc-wk{opacity:1}
+.hsc-t[data-weak] .hsc-k{padding-right:calc(28px + 4.2em)}
+.hsc-cv{position:absolute;top:12px;right:var(--dm-s-3);color:var(--dm-muted);transition:transform var(--dm-t) var(--dm-ease)}
+.hsc-t[aria-expanded="true"] .hsc-cv{transform:rotate(180deg)}
+.hsc-v{grid-area:v;display:flex;align-items:baseline;gap:5px;min-width:0;white-space:nowrap;line-height:20px}
+.hsc-v b{font-size:14px;font-weight:500;letter-spacing:-.01em}
+.hsc-v>span{font-size:12px;color:var(--dm-muted);overflow:hidden;text-overflow:ellipsis}
+.hsc-tr{grid-area:tr;justify-self:end;display:flex;align-items:center;height:20px}
+/* micro trends, in grey with one mark in the status: six weeks of contact, one mark per open deal, six weeks of win chance */
+.hsc-dots,.hsc-bars{display:flex;align-items:center;gap:3px}
+.hsc-dots i{width:6px;height:6px;border-radius:50%;box-shadow:inset 0 0 0 1.25px var(--dm-faint)}
+.hsc-dots i.on{background:var(--dm-fg2);box-shadow:none}
+.hsc-bars i{width:12px;height:6px;border-radius:calc(2px * var(--dm-rk));background:var(--dm-fg2)}
+.hsc-bars i.late{background:var(--dm-bad)}
+.hsc-sp{display:block;width:56px;height:20px;overflow:visible}
+.hsc-sp polyline{fill:none;stroke:var(--dm-muted);stroke-width:1.5;stroke-linejoin:round;stroke-linecap:round;vector-effect:non-scaling-stroke}
+.hsc-sp circle{fill:var(--dm-sm);stroke:var(--dm-surface);stroke-width:1.5}
+/* a pair's detail: plain lines under the pair, no card */
+.hsc-d{grid-column:1/-1;margin-top:calc(var(--dm-s-2) * -1)}
+.hsc-dc{padding:var(--dm-s-3) var(--dm-s-3) var(--dm-s-1)}
+.hsc-dp{margin:0;font-size:12px;line-height:1.5;color:var(--dm-fg);text-wrap:pretty}
+.hsc-dp+.hsc-dp{margin-top:2px;color:var(--dm-fg2)}
+.hsc-pt{display:flex;align-items:center;gap:var(--dm-s-2);margin:var(--dm-s-2) 0 0;font-size:12px;color:var(--dm-muted)}
+.hsc-pt i{width:4px;height:4px;border-radius:50%;background:var(--dm-faint)}
+/* the agent's next move: a plain row under a hairline, the spark in the accent, one line and its button */
+.hsc-s{display:flex;align-items:center;gap:var(--dm-s-2);min-height:44px;padding-top:var(--dm-s-3);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);font-size:12px;line-height:1.45;color:var(--dm-fg2)}
+.hsc-s>.i{flex:none;align-self:flex-start;margin-top:3px;color:var(--dm-accent-mark,var(--dm-accent))}
+.hsc-st{flex:1;min-width:0;text-wrap:pretty}
+.hsc-s .pill{flex:none}
+.hsc-s .pill .spin{width:12px;height:12px}
+.hsc-done{flex:none;outline:0}
+.hsc-done .i{margin-left:-1px}
+/* Blueprint: hairline tiles, square marks, labels in small capitals */
+:root:not([data-style="soft"]) .hsc-t:not(:where([data-style="soft"],[data-style="soft"] *)){box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-rail) 60%,transparent)}
+@media (hover:hover) and (pointer:fine){:root:not([data-style="soft"]) .hsc-t:hover:not(:where([data-style="soft"],[data-style="soft"] *)){transform:none;background-color:var(--dm-wash);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-faint) 70%,transparent)}}
+:root:not([data-style="soft"]) .hsc-t:active:not(:where([data-style="soft"],[data-style="soft"] *)){transform:translateY(1px)}
+:root:not([data-style="soft"]) .hsc-t[aria-expanded="true"]:not(:where([data-style="soft"],[data-style="soft"] *)){box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line-strong) 70%,transparent)}
+@media (hover:hover) and (pointer:fine){:root:not([data-style="soft"]) .hsc-t[aria-expanded="true"]:hover:not(:where([data-style="soft"],[data-style="soft"] *)){box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line-strong) 70%,transparent)}}
+:root:not([data-style="soft"]) :is(.hsc-k,.hsc-pt,.hsc-wk):not(:where([data-style="soft"],[data-style="soft"] *)){font-size:11px;font-weight:500;letter-spacing:.04em;text-transform:uppercase}
+:root:not([data-style="soft"]) .hsc-t[data-weak] .hsc-k:not(:where([data-style="soft"],[data-style="soft"] *)){padding-right:calc(28px + 5.6em)}
+:root:not([data-style="soft"]) .hsc-dots i:not(:where([data-style="soft"],[data-style="soft"] *)){width:7px;height:7px}
+:root:not([data-style="soft"]) .hsc-done:not(:where([data-style="soft"],[data-style="soft"] *)){font-size:11px}
+/* a narrow block (a phone, a slim sheet): the trend takes its own line under the figure, and the button goes under the line */
+@container (max-width:359px){
+  .hsc-t{grid-template-areas:"k k" "v v" "tr tr";row-gap:6px}
+  /* the weakest factor's word gets its own line under the trend, where it has room */
+  .hsc-t[data-weak]{grid-template-areas:"k k" "v v" "tr tr" "w w"}
+  .hsc-wk{position:static;grid-area:w;justify-self:start;display:none}
+  .hsc-t[data-weak] .hsc-wk{display:block}
+  .hsc-t[data-weak] .hsc-k,:root:not([data-style="soft"]) .hsc-t[data-weak] .hsc-k:not(:where([data-style="soft"],[data-style="soft"] *)){padding-right:20px}
+  .hsc-tr{justify-self:start}
+  .hsc-s{flex-wrap:wrap;row-gap:var(--dm-s-2)}
+  .hsc-st{flex:1 1 calc(100% - 26px)}
+  .hsc-s :is(.pill,.hsc-done){margin-left:22px}
+}
+@media (prefers-reduced-motion:reduce){.hsc-t:active{transform:none}@media (hover:hover) and (pointer:fine){.hsc-t:hover{transform:none}}}
 
 /* Decision prompt */
 /* ---------- Decision prompt ---------- */
@@ -1383,7 +1449,6 @@ body:has(.crm) .dmf{display:none}
 .crm .ttx-hd,.crm .ttx-t th,.crm .ttx-t td,.crm .ecx-h,.crm .ecx-dh{border-bottom-color:var(--crm-hair)}
 .crm .ecx-day{border-left-color:var(--crm-hair)}
 .crm .ecx-col{background-image:linear-gradient(var(--crm-hair) 1px,transparent 1px)}
-.crm .hsx-list{border-top-color:var(--crm-hair)}
 .crm .ahx-side{border-right-color:var(--crm-hair)}
 .crm .kbx.list .kbx-k{box-shadow:inset 0 -1px 0 var(--crm-hair)}
 .crm .dtp-add{box-shadow:inset 0 0 0 1px var(--crm-hair)}
@@ -1491,13 +1556,13 @@ body:has(.crm) .dmf{display:none}
 .crm-pv b{font-weight:500;color:var(--dm-fg)}
 .crm-pv .muted{font-size:12px}
 /* health: Health score's gauge at row size, its score and a word, in the gauge's colours */
-.crm-hs.hsx{padding:0;display:inline-flex;flex-direction:row;align-items:center;gap:var(--dm-s-2)}
-.crm-hs svg{width:28px;height:17px;overflow:visible;flex:none}
-.crm-hs path{fill:none;stroke-width:15;stroke-linecap:round}
-.crm-hs .tr{stroke:color-mix(in srgb,var(--dm-line) 80%,transparent)}
-.crm-hs .fl{stroke-dasharray:157;stroke:var(--dm-hs-ok)}
-.crm-hs[data-h="mid"] .fl{stroke:var(--dm-accent-mark,var(--dm-accent))}
-.crm-hs[data-h="bad"] .fl{stroke:var(--dm-hs-bad)}
+/* the row's health: Health score's ring at row size, in the verdict's mark, with the score and the word */
+.crm-hs{display:inline-flex;align-items:center;gap:var(--dm-s-2);--crm-hm:var(--dm-ok-mark)}
+.crm-hs[data-h="mid"]{--crm-hm:var(--dm-warn-mark)}
+.crm-hs[data-h="bad"]{--crm-hm:var(--dm-bad)}
+.crm-hs svg{width:18px;height:18px;flex:none;transform:rotate(-90deg);overflow:visible}
+.crm-hs circle{fill:none;stroke-width:2.5}
+.crm-hs .fl{stroke:var(--crm-hm);stroke-linecap:round}
 .crm-hs b{min-width:18px;font-size:13px;font-weight:500;color:var(--dm-fg)}
 .crm-hs .l{font-size:12px;color:var(--dm-muted)}
 /* the agent's suggestion: the accent tint, like Event calendar's Ask */
@@ -1746,17 +1811,8 @@ body:has(.crm) .dmf{display:none}
 .crm-sag.six-ans{margin:var(--dm-s-2) 0 0;align-items:center}
 .crm-sag>span{flex:1;min-width:0}
 .crm-sag .pill{flex:none}
-.crm-shs.hsx{padding:var(--dm-s-3) 0 var(--dm-s-1);gap:var(--dm-s-2);border-top:1px solid var(--crm-hair);margin-top:var(--dm-s-3)}
-.crm-shs .hsx-g{width:120px;height:72px}
-.crm-shs .hsx-g .fl{transition:none}
-.crm-shs .hsx-v b{font-size:26px}
-.crm-shs .hsx-v span{font-size:11px}
-.crm-shs .hsx-list{padding-top:var(--dm-s-1);border-top:0;gap:0}
-.crm-shs .hsx-c{padding:5px 0}
-.crm-shs .hsx-ch{padding:0;gap:10px}
-.crm-shs .hsx-ch .t{flex:1;min-width:0}
-.crm-shs .hsx-d{padding:1px 0 0;font-size:12px;color:var(--dm-muted)}
-@media (hover:hover) and (pointer:fine){.crm-shs .hsx-c:hover{background:none}}
+/* the sheet's health: Health score's block under a hairline, flush with the sheet's sides */
+.crm-shs.hsc{padding:var(--dm-s-3) 0 var(--dm-s-1);margin-top:var(--dm-s-3);border-top:1px solid var(--crm-hair)}
 .crm-dtp .crm-snx{gap:6px;text-align:left;min-width:0;max-width:100%}
 .crm-dtp .crm-snx span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .crm-dtp .crm-snx .i{flex:none}
@@ -1798,7 +1854,6 @@ body:has(.crm) .dmf{display:none}
 .crm-hd .ttx-sb{overflow-x:auto;scrollbar-width:none}
 .crm-hd .ttx-sb::-webkit-scrollbar{display:none}
 /* health: a quiet score for Good, the gauge only where it says something (Fair and At risk) */
-.crm-hs .g0{width:28px;flex:none}
 .crm-hs[data-h="ok"] b{color:var(--dm-fg2);font-weight:400}
 /* the deal a close date filter matched, under the pipeline value */
 .crm-due{font-size:12px;color:var(--dm-muted)}
@@ -1943,7 +1998,6 @@ body:has(.crm) .dmf{display:none}
 :root:not([data-style="soft"]) .crm-ecx .ecx-e.sug{color:var(--dm-fg)!important;border-color:color-mix(in srgb,var(--dm-line-strong) 70%,transparent)}
 :root:not([data-style="soft"]) .crm-ecx .ecx-sg button.y{background:var(--dm-chip);color:var(--dm-fg)}
 :root:not([data-style="soft"]) .crm-ecx .ecx-sg button.n,:root:not([data-style="soft"]) .crm-ecx .ecx-sg i{color:var(--dm-fg2)}
-:root:not([data-style="soft"]) .crm-hs[data-h="mid"] .fl{stroke:var(--dm-warn-mark)}
 :root:not([data-style="soft"]) .crm-aib .aib-r .ib.crm-iok{color:var(--dm-fg2)}
 :root:not([data-style="soft"]) .crm-sd[data-s="nego"]{color:var(--dm-fg)}
 :root:not([data-style="soft"]) .crm-ecx .ecx-scan{background:linear-gradient(90deg,transparent,var(--dm-line-strong),transparent)}
@@ -2687,7 +2741,7 @@ const fitHits = window.dmFitHits || (() => {
     next:{ l:'Next step', ic:'cal', ops:['is', 'is not'], o:() => [{ v:'none', l:'Missing' }, { v:'late', l:'Overdue' }, { v:'week', l:'In 7 days' }], test:(c, v) => v === 'none' ? !c.next : v === 'late' ? !!c.next && c.next.day < 0 : !!c.next && c.next.day >= 0 && c.next.day <= 7 },
     last:{ l:'Last touch', ic:'history', ops:['within', 'older than'], o:() => [{ v:7, l:'7 days' }, { v:14, l:'14 days' }, { v:30, l:'30 days' }], test:(c, v) => c.last <= v },
     value:{ l:'Pipeline', ic:'dollar', ops:['over', 'up to'], o:() => [...new Set([50000, 100000, 250000, 500000, ...F.A.filter(f => f.k === 'value').map(f => f.v)])].sort((a, b) => a - b).map(v => ({ v, l:kmoney(v) })), test:(c, v) => c.value > v },
-    health:{ l:'Health', ic:'gauge', ops:['is', 'is not'], o:() => [{ v:'ok', l:'Good' }, { v:'mid', l:'Fair' }, { v:'bad', l:'At risk' }], test:(c, v) => c.hb === v },
+    health:{ l:'Health', ic:'gauge', ops:['is', 'is not'], o:() => [{ v:'ok', l:'Healthy' }, { v:'mid', l:'Watch' }, { v:'bad', l:'At risk' }], test:(c, v) => c.hb === v },
   };
   // the saved views in the sidebar are filters too
   const SAVED = { closing:['Closing this month', [{ k:'close', v:'month', neg:false }]], nostep:['No next step', [{ k:'next', v:'none', neg:false }]], quiet:['Quiet for 2+ weeks', [{ k:'last', v:14, neg:true }]] };
@@ -2721,10 +2775,10 @@ const fitHits = window.dmFitHits || (() => {
     if (!m) return `<span class="crm-nx none"><span class="k">No next step</span><span class="d">Last touch ${c.last === 0 ? 'today' : c.last + 'd ago'}</span></span>`;
     const late = m.day < 0;
     return `<span class="crm-nx${late ? ' late' : ''}" data-m="${m.id}"><span class="k">${esc(m.kind)}</span><span class="d num">${late ? `Overdue, was ${fmtDW(m.day)}` : `${fmtDW(m.day)}, ${tmA(m.h)}`}</span></span>`; };
-  // health: Health score's gauge at row size, with its score and a word
-  const HB = { ok:'Good', mid:'Fair', bad:'At risk' };
-  const gauge = (v, col) => `<svg viewBox="0 0 120 70" aria-hidden="true"><path d="M10 64a50 50 0 0 1 100 0" class="tr"/><path d="M10 64a50 50 0 0 1 100 0" class="fl" style="stroke-dashoffset:${(157 * (1 - v / 100)).toFixed(1)}${col ? ';stroke:' + col : ''}"/></svg>`;
-  const healthCell = c => `<span class="hsx crm-hs" data-h="${c.hb}" data-tip="Contact ${c.hp[0]} of 35, deals on time ${c.hp[1]} of 25, win probability ${c.hp[2]} of 25, next step ${c.hp[3]} of 15">${c.hb === 'ok' ? '<i class="g0" aria-hidden="true"></i>' : gauge(c.health)}<b class="num" aria-label="Health ${c.health} of 100">${c.health}</b><span class="l">${HB[c.hb]}</span></span>`;
+  // health: Health score's ring at row size, with its score and its verdict
+  const HB = { ok:'Healthy', mid:'Watch', bad:'At risk' };
+  const ring = (v, r) => { const C = 2 * Math.PI * r, w = r * 2 + 8; return `<svg viewBox="0 0 ${w} ${w}" aria-hidden="true"><circle class="tr" cx="${w / 2}" cy="${w / 2}" r="${r}"/><circle class="fl" cx="${w / 2}" cy="${w / 2}" r="${r}" stroke-dasharray="${C.toFixed(1)}" stroke-dashoffset="${(C * (1 - v / 100)).toFixed(1)}"/></svg>`; };
+  const healthCell = c => `<span class="crm-hs" data-h="${c.hb}" data-tip="Contact ${c.hp[0]} of 35, on time ${c.hp[1]} of 25, win chance ${c.hp[2]} of 25, next step ${c.hp[3]} of 15">${ring(c.health, 7)}<b class="num" aria-label="Health ${c.health} of 100">${c.health}</b><span class="l">${HB[c.hb]}</span></span>`;
   const agentCell = c => c.sug ? `<button class="pill soft sm crm-ag" data-sug="${c.id}" tabindex="-1"${CONFIRM.has(c.sug.k) ? ' data-pop="#crm-p-cfm" data-pop-align="end" aria-haspopup="dialog"' : ''} data-tip="${esc(c.sug.why)}" aria-label="${esc(c.sug.label)}. ${esc(c.sug.why)}">${I('spark', 'xs')}<span>${c.sug.label}</span></button>` : '';
   const row = c => `<tr data-id="${c.id}" tabindex="-1" class="${sel.has(c.id) ? 'sel' : ''}${sheetFor === c.id ? ' open' : ''}" aria-label="${esc(c.n)}">`
     + `<td class="ck stk"><button class="ttx-cb" role="checkbox" aria-checked="${sel.has(c.id)}" aria-label="Select ${esc(c.n)}" tabindex="-1">${tick}</button></td>`
@@ -2833,14 +2887,14 @@ const fitHits = window.dmFitHits || (() => {
     let quiet = false; while (take(/\b(quiet|silent|gone cold|cold|no (contact|touch|reply|replies)|not (been )?(touched|contacted)|haven'?t (talked|heard|spoken)( to| from)?|(for )?(2|two)\+? weeks)\b/)) quiet = true;
     if (quiet) A.push({ k:'last', v:14, neg:true });
     if (take(/\b(at risk|at-risk|unhealthy|low health|poor health|risky)\b/)) A.push({ k:'health', v:'bad', neg:false });
-    else if (take(/\b(fair health|fair)\b/)) A.push({ k:'health', v:'mid', neg:false });
+    else if (take(/\b(on watch|watch|fair health|fair)\b/)) A.push({ k:'health', v:'mid', neg:false });
     else if (take(/\b(healthy|good health)\b/)) A.push({ k:'health', v:'ok', neg:false });
     const o = OWN.find(x => take(new RegExp('\\b' + first(x).toLowerCase() + "('s)?\\b"))); if (o) A.push({ k:'owner', v:o, neg:false });
     const st = STAGES.find(x => !closed({ st:x.k }) && take(new RegExp('\\b' + x.t.toLowerCase() + '\\b'))); if (st) A.push({ k:'stage', v:st.k, neg:false });
     const rest = t.split(/[^a-z0-9$%+&'-]+/).filter(w => w && !FILLER.has(w));
     return { A, rest };
   }
-  const READ = { close:{ week:'a deal closing this week', month:'a deal closing this month or overdue', quarter:'a deal closing this quarter', late:'a deal past its close date' }, next:{ none:'no next step', late:'an overdue next step', week:'a step in the next 7 days' }, last:{ 14:'no touch in 14+ days' }, health:{ bad:'health at risk', mid:'fair health', ok:'good health' } };
+  const READ = { close:{ week:'a deal closing this week', month:'a deal closing this month or overdue', quarter:'a deal closing this quarter', late:'a deal past its close date' }, next:{ none:'no next step', late:'an overdue next step', week:'a step in the next 7 days' }, last:{ 14:'no touch in 14+ days' }, health:{ bad:'health at risk', mid:'health on watch', ok:'healthy' } };
   const readOf = f => f.k === 'owner' ? 'owned by ' + P[f.v][0] : f.k === 'stage' ? 'in ' + ST[f.v].t : f.k === 'value' ? `pipeline ${f.neg ? 'of ' + kmoney(f.v) + ' or less' : 'over ' + kmoney(f.v)}` : READ[f.k][f.v];
   function said(t){ F.said = t; ans.hidden = !t; if (t) $('.t', ans).textContent = t; }
   function runAsk(){
@@ -2981,18 +3035,43 @@ const fitHits = window.dmFitHits || (() => {
   const shut = new Set();
   const section = (k, t, body) => `<div class="dtp-sec"><button class="dtp-sh" aria-expanded="${!shut.has(k)}" data-sec="${k}">${I('chev-r', 'xs')}<span>${t}</span></button><div class="fold${shut.has(k) ? ' shut' : ''}"><div>${body}</div></div></div>`;
   const tlOf = c => [...c.log, ...c.base];
-  const hcol = v => v >= 70 ? 'var(--dm-hs-ok)' : v >= 50 ? 'var(--dm-accent-mark,var(--dm-accent))' : 'var(--dm-hs-bad)';
   const andList = a => a.length > 1 ? a.slice(0, -1).join(', ') + ' and ' + a[a.length - 1] : a[0] || '';
-  const healthLine = c => !c.weak.length ? `${HB[c.hb]}, nothing needs attention` : `${HB[c.hb]}${c.hb === 'ok' ? ', but' : ':'} ${andList(c.weak)}`;
+  const HK = ['contact', 'late', 'win', 'next'], HL = { contact:'Contact', late:'On time', win:'Win chance', next:'Next step' }, HMAX = [35, 25, 25, 15];
+  const HSW = { ok:'On track', warn:'Watch', bad:'At risk' }, HV = { ok:'ok', mid:'warn', bad:'bad' };
+  let hscOpen = null, hscFor = null;
+  // each factor: its status, the figure on its tile, and the lines its detail shows
+  const factors = c => { const m = c.next;
+    return {
+      contact:{ s:c.last <= 7 ? 'ok' : c.last <= 14 ? 'warn' : 'bad', fig:c.last === 0 ? 'Today' : String(c.last), unit:c.last === 0 ? 'last touch' : plural(c.last, 'day').replace(/^\d+ /, '') + ' quiet',
+        lines:[c.last === 0 ? `Touched today, ${esc(ltName(c))}` : `Last touch ${plural(c.last, 'day')} ago, ${esc(ltName(c))}`, 'Full points within three days of a touch, none after a month of quiet'] },
+      late:{ s:c.slip ? 'bad' : 'ok', fig:c.slip ? String(c.slip) : 'All', unit:c.slip ? 'past close' : 'on time',
+        lines:[c.slip ? `${plural(c.slip, 'deal')} past ${c.slip === 1 ? 'its' : 'their'} close date` : 'No deal past its close date', c.slip ? 'Move the close date or log what is holding it up' : 'Stays full while every open deal is inside its date'] },
+      win:{ s:!c.lead ? 'warn' : c.win >= 50 ? 'ok' : c.win >= 35 ? 'warn' : 'bad', fig:c.lead ? c.win + '%' : 'None', unit:c.lead ? 'to win' : 'open',
+        lines:[c.lead ? `${c.win}% across the open deals, weighted by value` : 'No open deal to weigh', c.lead ? `Lead deal: ${esc(c.lead.n)}, ${ST[c.lead.st].t}` : 'A new deal brings these points back'] },
+      next:{ s:!m ? 'bad' : m.day < 0 ? 'warn' : 'ok', fig:!m ? 'None' : m.day < 0 ? 'Late' : fmtDW(m.day).split(' ')[0], unit:!m ? 'booked' : m.day < 0 ? 'since ' + fmtD(m.day) : low(m.kind),
+        lines:[!m ? 'Nothing booked with this account' : m.day < 0 ? `${esc(m.kind)}, due ${fmtD(m.day)}, never logged` : `${esc(m.kind)}, ${fmtDW(m.day)}, ${tmA(m.h)}`, !m ? 'A booked step gives the full 15 points' : m.day < 0 ? 'A late step counts for a third' : 'Booked and on time'] }
+    }; };
+  const healthBlock = c => {
+    const F = factors(c), v = c.health, b = HV[c.hb], C = 2 * Math.PI * 18, ok = HK.filter(k => F[k].s === 'ok').length;
+    const w = HK.filter(k => F[k].s !== 'ok').sort((a, z) => c.hp[HK.indexOf(a)] / HMAX[HK.indexOf(a)] - c.hp[HK.indexOf(z)] / HMAX[HK.indexOf(z)] || HK.indexOf(a) - HK.indexOf(z))[0];
+    const tile = (k, i) => `<button type="button" class="hsc-t" data-hk="${k}" data-s="${F[k].s}"${k === w ? ' data-weak' : ''} aria-expanded="${hscOpen === k}" aria-controls="crm-hd${i < 2 ? 0 : 1}" aria-label="${HL[k]}: ${F[k].fig} ${F[k].unit}. ${HSW[F[k].s]}${k === w ? ', the weakest factor' : ''}">`
+      + `<span class="hsc-k"><i class="hsc-dot"></i><span>${HL[k]}</span></span><span class="hsc-wk" aria-hidden="true">Weakest</span>${I('chev-d', 'xs hsc-cv')}`
+      + `<span class="hsc-v"><b class="num">${F[k].fig}</b><span>${esc(F[k].unit)}</span></span><span class="hsc-tr" aria-hidden="true"></span></button>`;
+    const region = j => { const k = hscOpen && (HK.indexOf(hscOpen) < 2 ? 0 : 1) === j ? hscOpen : null, i = HK.indexOf(k);
+      return `<div class="fold${k ? '' : ' shut'} hsc-d" id="crm-hd${j}" role="region" aria-label="${k ? HL[k] + ' details' : 'Details'}"><div><div class="hsc-dc">${k ? F[k].lines.map(l => `<p class="hsc-dp">${l}</p>`).join('') + `<p class="hsc-pt num"><span>${c.hp[i]} of ${HMAX[i]} points</span><i></i><span>${HSW[F[k].s]}</span></p>` : ''}</div></div></div>`; };
+    return `<div class="hsc crm-shs" data-v="${b}" role="group" aria-label="Account health"><div class="hsc-h">`
+      + `<div class="hsc-ring" role="img" aria-label="Health ${v} of 100, ${HB[c.hb].toLowerCase()}"><svg viewBox="0 0 44 44" aria-hidden="true"><circle class="tr" cx="22" cy="22" r="18"/><circle class="fl" cx="22" cy="22" r="18" stroke-dasharray="${C.toFixed(1)}" stroke-dashoffset="${(C * (1 - v / 100)).toFixed(1)}"/></svg><b class="num" aria-hidden="true">${v}</b></div>`
+      + `<div class="hsc-ht"><b class="hsc-vd">${HB[c.hb]}</b><span class="hsc-sub">Account health, ${ok === 4 ? 'all 4 on track' : ok + ' of 4 on track'}</span></div></div>`
+      + `<div class="hsc-g">${tile(HK[0], 0)}${tile(HK[1], 1)}${region(0)}${tile(HK[2], 2)}${tile(HK[3], 3)}${region(1)}</div></div>`;
+  };
   function renderSheet(){
     const c = coOf(sheetFor); if (!c) return closeSheet();
     const mine = DE.filter(d => d.co === c.id).sort((a, b) => ST[b.st].i - ST[a.st].i || b.v - a.v), m = c.next;
-    const checks = [['Recent contact', Math.round(c.hp[0] / 35 * 100), c.last === 0 ? 'Touched today' : `Last touch ${plural(c.last, 'day')} ago`], ['Deals on time', c.slip ? 0 : 100, c.slip ? `${plural(c.slip, 'deal')} past the close date` : 'No deal past its close date'], ['Win probability', c.win, `${c.win}% across the open deals`], ['Next step', Math.round(c.hp[3] / 15 * 100), !c.next ? 'Nothing booked' : c.next.day < 0 ? `${c.next.kind}, overdue since ${fmtD(c.next.day)}` : `${c.next.kind}, ${fmtDW(c.next.day)}`]];
+    if (hscFor !== c.id){ hscFor = c.id; hscOpen = null; }
     dtp.innerHTML = `<div class="dtp-h"><span class="pfm-lg" aria-hidden="true">${esc(c.n[0])}</span><span class="tx"><b id="crm-sh-t">${esc(c.n)}</b><span>${esc(c.seg)}, ${REG[c.reg].t}</span></span><button class="ib" data-a="link" aria-label="Copy a link to ${esc(c.n)}" data-tip="Copy link">${I('link', 's')}</button><button class="ib" data-a="close" aria-label="Close details" data-tip="Close" data-tip-k="Esc">${I('x', 's')}</button></div>`
       + `<div class="crm-sum3"><div><span>Pipeline</span><b class="num">${kmoney(c.value)}</b></div><div><span>Weighted</span><b class="num">${kmoney(c.weighted)}</b></div><div><span>Closed won</span><b class="num">${kmoney(c.won)}</b></div></div>`
       + (c.sug ? `<div class="six-ans crm-sag">${I('spark', 'xs')}<span>${esc(c.sug.why)}</span><button class="pill primary sm" data-a="sug"${CONFIRM.has(c.sug.k) ? ' data-pop="#crm-p-cfm" data-pop-align="end" aria-haspopup="dialog"' : ''}>${c.sug.label}</button></div>` : '')
-      + `<div class="hsx crm-shs"><div class="hsx-top"><div class="hsx-g">${gauge(c.health, hcol(c.health))}<div class="hsx-v"><b class="num">${c.health}</b><span class="muted">of 100</span></div></div><div class="hsx-s"><b>Account health</b><span class="muted hsx-st">${healthLine(c)}</span></div></div>`
-      + `<div class="hsx-list">${checks.map(x => `<div class="hsx-c"><div class="hsx-ch"><span class="t">${x[0]}</span><span class="bar"><i style="width:${x[1]}%;background:${hcol(x[1])}"></i></span><span class="v num">${x[1]}</span></div><div class="hsx-d"><span>${esc(x[2])}</span></div></div>`).join('')}</div></div>`
+      + healthBlock(c)
       + section('props', 'Properties', `<div class="dtp-rows">`
         + `<div class="dtp-r"><span class="k">Owner</span><button class="dtp-v" data-pop="#crm-p-sown" aria-haspopup="menu">${av(c.own)}<span>${esc(P[c.own][0])}</span>${I('chev-d', 'xs')}</button></div>`
         + `<div class="dtp-r"><span class="k">Next step</span>${m ? `<button class="dtp-v crm-snx${m.day < 0 ? ' late' : ''}" data-a="cal" aria-label="${esc(m.kind)}, ${m.day < 0 ? 'overdue, ' : ''}${fmtDW(m.day)} ${tmA(m.h)}. Open in the calendar">${I('cal', 'xs')}<span>${esc(m.kind)}, ${m.day < 0 ? 'overdue since ' + fmtD(m.day) : fmtDW(m.day) + ', ' + tmA(m.h)}</span></button>` : `<span class="dtp-v static crm-snx none">No next step</span>`}</div>`
@@ -3031,6 +3110,11 @@ const fitHits = window.dmFitHits || (() => {
     const c = coOf(sheetFor);
     if (b.dataset.sec){ const f = b.nextElementSibling, open = f.classList.toggle('shut') === false; b.setAttribute('aria-expanded', open); open ? shut.delete(b.dataset.sec) : shut.add(b.dataset.sec); return; }
     if (b.dataset.deal){ stageFor = b.dataset.deal; buildStageMenu(); return; }
+    if (b.dataset.hk){ const k = b.dataset.hk, was = hscOpen, row = x => x && (HK.indexOf(x) < 2 ? 0 : 1); hscOpen = was === k ? null : k;
+      const blk = $('.crm-shs', dtp), tmp = document.createElement('div'); tmp.innerHTML = healthBlock(c); const nb = tmp.firstElementChild;
+      $$('.hsc-t', blk).forEach(t => t.setAttribute('aria-expanded', String(t.dataset.hk === hscOpen)));
+      $$('.hsc-d', blk).forEach((reg, j) => { const fresh = $$('.hsc-d', nb)[j]; if (hscOpen && row(hscOpen) === j){ $('.hsc-dc', reg).innerHTML = $('.hsc-dc', fresh).innerHTML; reg.setAttribute('aria-label', fresh.getAttribute('aria-label')); if (row(was) === j && was) enter($('.hsc-dc', reg)); } reg.classList.toggle('shut', !(hscOpen && row(hscOpen) === j)); });
+      return; }
     const a = b.dataset.a;
     if (a === 'close') closeSheet();
     if (a === 'link'){ const url = location.origin + location.pathname + '#' + c.id; (navigator.clipboard ? navigator.clipboard.writeText(url) : Promise.reject()).catch(() => {}); toast('ok', 'Link copied', c.n + ' opens with its details'); }

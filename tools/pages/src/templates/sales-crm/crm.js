@@ -328,7 +328,7 @@
     next:{ l:'Next step', ic:'cal', ops:['is', 'is not'], o:() => [{ v:'none', l:'Missing' }, { v:'late', l:'Overdue' }, { v:'week', l:'In 7 days' }], test:(c, v) => v === 'none' ? !c.next : v === 'late' ? !!c.next && c.next.day < 0 : !!c.next && c.next.day >= 0 && c.next.day <= 7 },
     last:{ l:'Last touch', ic:'history', ops:['within', 'older than'], o:() => [{ v:7, l:'7 days' }, { v:14, l:'14 days' }, { v:30, l:'30 days' }], test:(c, v) => c.last <= v },
     value:{ l:'Pipeline', ic:'dollar', ops:['over', 'up to'], o:() => [...new Set([50000, 100000, 250000, 500000, ...F.A.filter(f => f.k === 'value').map(f => f.v)])].sort((a, b) => a - b).map(v => ({ v, l:kmoney(v) })), test:(c, v) => c.value > v },
-    health:{ l:'Health', ic:'gauge', ops:['is', 'is not'], o:() => [{ v:'ok', l:'Good' }, { v:'mid', l:'Fair' }, { v:'bad', l:'At risk' }], test:(c, v) => c.hb === v },
+    health:{ l:'Health', ic:'gauge', ops:['is', 'is not'], o:() => [{ v:'ok', l:'Healthy' }, { v:'mid', l:'Watch' }, { v:'bad', l:'At risk' }], test:(c, v) => c.hb === v },
   };
   // the saved views in the sidebar are filters too
   const SAVED = { closing:['Closing this month', [{ k:'close', v:'month', neg:false }]], nostep:['No next step', [{ k:'next', v:'none', neg:false }]], quiet:['Quiet for 2+ weeks', [{ k:'last', v:14, neg:true }]] };
@@ -362,10 +362,10 @@
     if (!m) return `<span class="crm-nx none"><span class="k">No next step</span><span class="d">Last touch ${c.last === 0 ? 'today' : c.last + 'd ago'}</span></span>`;
     const late = m.day < 0;
     return `<span class="crm-nx${late ? ' late' : ''}" data-m="${m.id}"><span class="k">${esc(m.kind)}</span><span class="d num">${late ? `Overdue, was ${fmtDW(m.day)}` : `${fmtDW(m.day)}, ${tmA(m.h)}`}</span></span>`; };
-  // health: Health score's gauge at row size, with its score and a word
-  const HB = { ok:'Good', mid:'Fair', bad:'At risk' };
-  const gauge = (v, col) => `<svg viewBox="0 0 120 70" aria-hidden="true"><path d="M10 64a50 50 0 0 1 100 0" class="tr"/><path d="M10 64a50 50 0 0 1 100 0" class="fl" style="stroke-dashoffset:${(157 * (1 - v / 100)).toFixed(1)}${col ? ';stroke:' + col : ''}"/></svg>`;
-  const healthCell = c => `<span class="hsx crm-hs" data-h="${c.hb}" data-tip="Contact ${c.hp[0]} of 35, deals on time ${c.hp[1]} of 25, win probability ${c.hp[2]} of 25, next step ${c.hp[3]} of 15">${c.hb === 'ok' ? '<i class="g0" aria-hidden="true"></i>' : gauge(c.health)}<b class="num" aria-label="Health ${c.health} of 100">${c.health}</b><span class="l">${HB[c.hb]}</span></span>`;
+  // health: Health score's ring at row size, with its score and its verdict
+  const HB = { ok:'Healthy', mid:'Watch', bad:'At risk' };
+  const ring = (v, r) => { const C = 2 * Math.PI * r, w = r * 2 + 8; return `<svg viewBox="0 0 ${w} ${w}" aria-hidden="true"><circle class="tr" cx="${w / 2}" cy="${w / 2}" r="${r}"/><circle class="fl" cx="${w / 2}" cy="${w / 2}" r="${r}" stroke-dasharray="${C.toFixed(1)}" stroke-dashoffset="${(C * (1 - v / 100)).toFixed(1)}"/></svg>`; };
+  const healthCell = c => `<span class="crm-hs" data-h="${c.hb}" data-tip="Contact ${c.hp[0]} of 35, on time ${c.hp[1]} of 25, win chance ${c.hp[2]} of 25, next step ${c.hp[3]} of 15">${ring(c.health, 7)}<b class="num" aria-label="Health ${c.health} of 100">${c.health}</b><span class="l">${HB[c.hb]}</span></span>`;
   const agentCell = c => c.sug ? `<button class="pill soft sm crm-ag" data-sug="${c.id}" tabindex="-1"${CONFIRM.has(c.sug.k) ? ' data-pop="#crm-p-cfm" data-pop-align="end" aria-haspopup="dialog"' : ''} data-tip="${esc(c.sug.why)}" aria-label="${esc(c.sug.label)}. ${esc(c.sug.why)}">${I('spark', 'xs')}<span>${c.sug.label}</span></button>` : '';
   const row = c => `<tr data-id="${c.id}" tabindex="-1" class="${sel.has(c.id) ? 'sel' : ''}${sheetFor === c.id ? ' open' : ''}" aria-label="${esc(c.n)}">`
     + `<td class="ck stk"><button class="ttx-cb" role="checkbox" aria-checked="${sel.has(c.id)}" aria-label="Select ${esc(c.n)}" tabindex="-1">${tick}</button></td>`
@@ -474,14 +474,14 @@
     let quiet = false; while (take(/\b(quiet|silent|gone cold|cold|no (contact|touch|reply|replies)|not (been )?(touched|contacted)|haven'?t (talked|heard|spoken)( to| from)?|(for )?(2|two)\+? weeks)\b/)) quiet = true;
     if (quiet) A.push({ k:'last', v:14, neg:true });
     if (take(/\b(at risk|at-risk|unhealthy|low health|poor health|risky)\b/)) A.push({ k:'health', v:'bad', neg:false });
-    else if (take(/\b(fair health|fair)\b/)) A.push({ k:'health', v:'mid', neg:false });
+    else if (take(/\b(on watch|watch|fair health|fair)\b/)) A.push({ k:'health', v:'mid', neg:false });
     else if (take(/\b(healthy|good health)\b/)) A.push({ k:'health', v:'ok', neg:false });
     const o = OWN.find(x => take(new RegExp('\\b' + first(x).toLowerCase() + "('s)?\\b"))); if (o) A.push({ k:'owner', v:o, neg:false });
     const st = STAGES.find(x => !closed({ st:x.k }) && take(new RegExp('\\b' + x.t.toLowerCase() + '\\b'))); if (st) A.push({ k:'stage', v:st.k, neg:false });
     const rest = t.split(/[^a-z0-9$%+&'-]+/).filter(w => w && !FILLER.has(w));
     return { A, rest };
   }
-  const READ = { close:{ week:'a deal closing this week', month:'a deal closing this month or overdue', quarter:'a deal closing this quarter', late:'a deal past its close date' }, next:{ none:'no next step', late:'an overdue next step', week:'a step in the next 7 days' }, last:{ 14:'no touch in 14+ days' }, health:{ bad:'health at risk', mid:'fair health', ok:'good health' } };
+  const READ = { close:{ week:'a deal closing this week', month:'a deal closing this month or overdue', quarter:'a deal closing this quarter', late:'a deal past its close date' }, next:{ none:'no next step', late:'an overdue next step', week:'a step in the next 7 days' }, last:{ 14:'no touch in 14+ days' }, health:{ bad:'health at risk', mid:'health on watch', ok:'healthy' } };
   const readOf = f => f.k === 'owner' ? 'owned by ' + P[f.v][0] : f.k === 'stage' ? 'in ' + ST[f.v].t : f.k === 'value' ? `pipeline ${f.neg ? 'of ' + kmoney(f.v) + ' or less' : 'over ' + kmoney(f.v)}` : READ[f.k][f.v];
   function said(t){ F.said = t; ans.hidden = !t; if (t) $('.t', ans).textContent = t; }
   function runAsk(){
@@ -622,18 +622,43 @@
   const shut = new Set();
   const section = (k, t, body) => `<div class="dtp-sec"><button class="dtp-sh" aria-expanded="${!shut.has(k)}" data-sec="${k}">${I('chev-r', 'xs')}<span>${t}</span></button><div class="fold${shut.has(k) ? ' shut' : ''}"><div>${body}</div></div></div>`;
   const tlOf = c => [...c.log, ...c.base];
-  const hcol = v => v >= 70 ? 'var(--dm-hs-ok)' : v >= 50 ? 'var(--dm-accent-mark,var(--dm-accent))' : 'var(--dm-hs-bad)';
   const andList = a => a.length > 1 ? a.slice(0, -1).join(', ') + ' and ' + a[a.length - 1] : a[0] || '';
-  const healthLine = c => !c.weak.length ? `${HB[c.hb]}, nothing needs attention` : `${HB[c.hb]}${c.hb === 'ok' ? ', but' : ':'} ${andList(c.weak)}`;
+  const HK = ['contact', 'late', 'win', 'next'], HL = { contact:'Contact', late:'On time', win:'Win chance', next:'Next step' }, HMAX = [35, 25, 25, 15];
+  const HSW = { ok:'On track', warn:'Watch', bad:'At risk' }, HV = { ok:'ok', mid:'warn', bad:'bad' };
+  let hscOpen = null, hscFor = null;
+  // each factor: its status, the figure on its tile, and the lines its detail shows
+  const factors = c => { const m = c.next;
+    return {
+      contact:{ s:c.last <= 7 ? 'ok' : c.last <= 14 ? 'warn' : 'bad', fig:c.last === 0 ? 'Today' : String(c.last), unit:c.last === 0 ? 'last touch' : plural(c.last, 'day').replace(/^\d+ /, '') + ' quiet',
+        lines:[c.last === 0 ? `Touched today, ${esc(ltName(c))}` : `Last touch ${plural(c.last, 'day')} ago, ${esc(ltName(c))}`, 'Full points within three days of a touch, none after a month of quiet'] },
+      late:{ s:c.slip ? 'bad' : 'ok', fig:c.slip ? String(c.slip) : 'All', unit:c.slip ? 'past close' : 'on time',
+        lines:[c.slip ? `${plural(c.slip, 'deal')} past ${c.slip === 1 ? 'its' : 'their'} close date` : 'No deal past its close date', c.slip ? 'Move the close date or log what is holding it up' : 'Stays full while every open deal is inside its date'] },
+      win:{ s:!c.lead ? 'warn' : c.win >= 50 ? 'ok' : c.win >= 35 ? 'warn' : 'bad', fig:c.lead ? c.win + '%' : 'None', unit:c.lead ? 'to win' : 'open',
+        lines:[c.lead ? `${c.win}% across the open deals, weighted by value` : 'No open deal to weigh', c.lead ? `Lead deal: ${esc(c.lead.n)}, ${ST[c.lead.st].t}` : 'A new deal brings these points back'] },
+      next:{ s:!m ? 'bad' : m.day < 0 ? 'warn' : 'ok', fig:!m ? 'None' : m.day < 0 ? 'Late' : fmtDW(m.day).split(' ')[0], unit:!m ? 'booked' : m.day < 0 ? 'since ' + fmtD(m.day) : low(m.kind),
+        lines:[!m ? 'Nothing booked with this account' : m.day < 0 ? `${esc(m.kind)}, due ${fmtD(m.day)}, never logged` : `${esc(m.kind)}, ${fmtDW(m.day)}, ${tmA(m.h)}`, !m ? 'A booked step gives the full 15 points' : m.day < 0 ? 'A late step counts for a third' : 'Booked and on time'] }
+    }; };
+  const healthBlock = c => {
+    const F = factors(c), v = c.health, b = HV[c.hb], C = 2 * Math.PI * 18, ok = HK.filter(k => F[k].s === 'ok').length;
+    const w = HK.filter(k => F[k].s !== 'ok').sort((a, z) => c.hp[HK.indexOf(a)] / HMAX[HK.indexOf(a)] - c.hp[HK.indexOf(z)] / HMAX[HK.indexOf(z)] || HK.indexOf(a) - HK.indexOf(z))[0];
+    const tile = (k, i) => `<button type="button" class="hsc-t" data-hk="${k}" data-s="${F[k].s}"${k === w ? ' data-weak' : ''} aria-expanded="${hscOpen === k}" aria-controls="crm-hd${i < 2 ? 0 : 1}" aria-label="${HL[k]}: ${F[k].fig} ${F[k].unit}. ${HSW[F[k].s]}${k === w ? ', the weakest factor' : ''}">`
+      + `<span class="hsc-k"><i class="hsc-dot"></i><span>${HL[k]}</span></span><span class="hsc-wk" aria-hidden="true">Weakest</span>${I('chev-d', 'xs hsc-cv')}`
+      + `<span class="hsc-v"><b class="num">${F[k].fig}</b><span>${esc(F[k].unit)}</span></span><span class="hsc-tr" aria-hidden="true"></span></button>`;
+    const region = j => { const k = hscOpen && (HK.indexOf(hscOpen) < 2 ? 0 : 1) === j ? hscOpen : null, i = HK.indexOf(k);
+      return `<div class="fold${k ? '' : ' shut'} hsc-d" id="crm-hd${j}" role="region" aria-label="${k ? HL[k] + ' details' : 'Details'}"><div><div class="hsc-dc">${k ? F[k].lines.map(l => `<p class="hsc-dp">${l}</p>`).join('') + `<p class="hsc-pt num"><span>${c.hp[i]} of ${HMAX[i]} points</span><i></i><span>${HSW[F[k].s]}</span></p>` : ''}</div></div></div>`; };
+    return `<div class="hsc crm-shs" data-v="${b}" role="group" aria-label="Account health"><div class="hsc-h">`
+      + `<div class="hsc-ring" role="img" aria-label="Health ${v} of 100, ${HB[c.hb].toLowerCase()}"><svg viewBox="0 0 44 44" aria-hidden="true"><circle class="tr" cx="22" cy="22" r="18"/><circle class="fl" cx="22" cy="22" r="18" stroke-dasharray="${C.toFixed(1)}" stroke-dashoffset="${(C * (1 - v / 100)).toFixed(1)}"/></svg><b class="num" aria-hidden="true">${v}</b></div>`
+      + `<div class="hsc-ht"><b class="hsc-vd">${HB[c.hb]}</b><span class="hsc-sub">Account health, ${ok === 4 ? 'all 4 on track' : ok + ' of 4 on track'}</span></div></div>`
+      + `<div class="hsc-g">${tile(HK[0], 0)}${tile(HK[1], 1)}${region(0)}${tile(HK[2], 2)}${tile(HK[3], 3)}${region(1)}</div></div>`;
+  };
   function renderSheet(){
     const c = coOf(sheetFor); if (!c) return closeSheet();
     const mine = DE.filter(d => d.co === c.id).sort((a, b) => ST[b.st].i - ST[a.st].i || b.v - a.v), m = c.next;
-    const checks = [['Recent contact', Math.round(c.hp[0] / 35 * 100), c.last === 0 ? 'Touched today' : `Last touch ${plural(c.last, 'day')} ago`], ['Deals on time', c.slip ? 0 : 100, c.slip ? `${plural(c.slip, 'deal')} past the close date` : 'No deal past its close date'], ['Win probability', c.win, `${c.win}% across the open deals`], ['Next step', Math.round(c.hp[3] / 15 * 100), !c.next ? 'Nothing booked' : c.next.day < 0 ? `${c.next.kind}, overdue since ${fmtD(c.next.day)}` : `${c.next.kind}, ${fmtDW(c.next.day)}`]];
+    if (hscFor !== c.id){ hscFor = c.id; hscOpen = null; }
     dtp.innerHTML = `<div class="dtp-h"><span class="pfm-lg" aria-hidden="true">${esc(c.n[0])}</span><span class="tx"><b id="crm-sh-t">${esc(c.n)}</b><span>${esc(c.seg)}, ${REG[c.reg].t}</span></span><button class="ib" data-a="link" aria-label="Copy a link to ${esc(c.n)}" data-tip="Copy link">${I('link', 's')}</button><button class="ib" data-a="close" aria-label="Close details" data-tip="Close" data-tip-k="Esc">${I('x', 's')}</button></div>`
       + `<div class="crm-sum3"><div><span>Pipeline</span><b class="num">${kmoney(c.value)}</b></div><div><span>Weighted</span><b class="num">${kmoney(c.weighted)}</b></div><div><span>Closed won</span><b class="num">${kmoney(c.won)}</b></div></div>`
       + (c.sug ? `<div class="six-ans crm-sag">${I('spark', 'xs')}<span>${esc(c.sug.why)}</span><button class="pill primary sm" data-a="sug"${CONFIRM.has(c.sug.k) ? ' data-pop="#crm-p-cfm" data-pop-align="end" aria-haspopup="dialog"' : ''}>${c.sug.label}</button></div>` : '')
-      + `<div class="hsx crm-shs"><div class="hsx-top"><div class="hsx-g">${gauge(c.health, hcol(c.health))}<div class="hsx-v"><b class="num">${c.health}</b><span class="muted">of 100</span></div></div><div class="hsx-s"><b>Account health</b><span class="muted hsx-st">${healthLine(c)}</span></div></div>`
-      + `<div class="hsx-list">${checks.map(x => `<div class="hsx-c"><div class="hsx-ch"><span class="t">${x[0]}</span><span class="bar"><i style="width:${x[1]}%;background:${hcol(x[1])}"></i></span><span class="v num">${x[1]}</span></div><div class="hsx-d"><span>${esc(x[2])}</span></div></div>`).join('')}</div></div>`
+      + healthBlock(c)
       + section('props', 'Properties', `<div class="dtp-rows">`
         + `<div class="dtp-r"><span class="k">Owner</span><button class="dtp-v" data-pop="#crm-p-sown" aria-haspopup="menu">${av(c.own)}<span>${esc(P[c.own][0])}</span>${I('chev-d', 'xs')}</button></div>`
         + `<div class="dtp-r"><span class="k">Next step</span>${m ? `<button class="dtp-v crm-snx${m.day < 0 ? ' late' : ''}" data-a="cal" aria-label="${esc(m.kind)}, ${m.day < 0 ? 'overdue, ' : ''}${fmtDW(m.day)} ${tmA(m.h)}. Open in the calendar">${I('cal', 'xs')}<span>${esc(m.kind)}, ${m.day < 0 ? 'overdue since ' + fmtD(m.day) : fmtDW(m.day) + ', ' + tmA(m.h)}</span></button>` : `<span class="dtp-v static crm-snx none">No next step</span>`}</div>`
@@ -672,6 +697,11 @@
     const c = coOf(sheetFor);
     if (b.dataset.sec){ const f = b.nextElementSibling, open = f.classList.toggle('shut') === false; b.setAttribute('aria-expanded', open); open ? shut.delete(b.dataset.sec) : shut.add(b.dataset.sec); return; }
     if (b.dataset.deal){ stageFor = b.dataset.deal; buildStageMenu(); return; }
+    if (b.dataset.hk){ const k = b.dataset.hk, was = hscOpen, row = x => x && (HK.indexOf(x) < 2 ? 0 : 1); hscOpen = was === k ? null : k;
+      const blk = $('.crm-shs', dtp), tmp = document.createElement('div'); tmp.innerHTML = healthBlock(c); const nb = tmp.firstElementChild;
+      $$('.hsc-t', blk).forEach(t => t.setAttribute('aria-expanded', String(t.dataset.hk === hscOpen)));
+      $$('.hsc-d', blk).forEach((reg, j) => { const fresh = $$('.hsc-d', nb)[j]; if (hscOpen && row(hscOpen) === j){ $('.hsc-dc', reg).innerHTML = $('.hsc-dc', fresh).innerHTML; reg.setAttribute('aria-label', fresh.getAttribute('aria-label')); if (row(was) === j && was) enter($('.hsc-dc', reg)); } reg.classList.toggle('shut', !(hscOpen && row(hscOpen) === j)); });
+      return; }
     const a = b.dataset.a;
     if (a === 'close') closeSheet();
     if (a === 'link'){ const url = location.origin + location.pathname + '#' + c.id; (navigator.clipboard ? navigator.clipboard.writeText(url) : Promise.reject()).catch(() => {}); toast('ok', 'Link copied', c.n + ' opens with its details'); }

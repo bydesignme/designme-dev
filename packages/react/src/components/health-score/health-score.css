@@ -1,31 +1,97 @@
 /* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Health score ---------- */
-.dm-hsx{padding:var(--dm-s-4);display:flex;flex-direction:column;gap:var(--dm-s-3);--dm-hs-ok:#16b558;--dm-hs-bad:#e5383b}
-:root[data-theme="dark"] .dm-hsx{--dm-hs-ok:#34d27a;--dm-hs-bad:#ff5c5f}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .dm-hsx{--dm-hs-ok:#34d27a;--dm-hs-bad:#ff5c5f}}
-.dm-hsx-top{display:flex;align-items:center;gap:14px}
-.dm-hsx-g{position:relative;width:150px;height:90px;flex:none}
-.dm-hsx-g svg{width:100%;height:100%;overflow:visible}
-.dm-hsx-g path{fill:none;stroke-width:9;stroke-linecap:round}
-.dm-hsx-g .dm-tr{stroke:var(--dm-line)}
-.dm-hsx-g .dm-fl{stroke:var(--dm-accent-mark,var(--dm-accent));stroke-dasharray:157;stroke-dashoffset:157;transition:stroke-dashoffset .9s var(--dm-ease),stroke .4s}
-.dm-hsx-v{position:absolute;left:0;right:0;bottom:0;display:flex;flex-direction:column;align-items:center;line-height:1.1}
-/* the score is the one big number in the card (owner, 3 Nov: bigger and bolder than the 14px / 500 rule) */
-.dm-hsx-v b{font-size:32px;font-weight:600;letter-spacing:-.03em;line-height:1}
-.dm-hsx-v span{font-size:11px;margin-top:2px}
-.dm-hsx-s{display:flex;flex-direction:column;font-size:13.5px}
-.dm-hsx-s b{font-weight:500}
-.dm-hsx-st{font-size:12.5px}
-.dm-hsx-list{display:flex;flex-direction:column;gap:2px;padding-top:var(--dm-s-3);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
-.dm-hsx-c{border-radius:calc(10px * var(--dm-rk));transition:background .2s}
-.dm-hsx-c.dm-open{background:var(--dm-row)}
-@media (hover:hover) and (pointer:fine){.dm-hsx-c:hover{background:var(--dm-row)}}
-.dm-hsx-ch{display:flex;align-items:center;gap:10px;width:100%;padding:var(--dm-s-2);font-size:13px;text-align:left}
-.dm-hsx-ch .dm-t{flex:1}
-.dm-hsx-ch .dm-bar{width:70px;height:5px;border-radius:3px;background:var(--dm-line);overflow:hidden}
-.dm-hsx-ch .dm-bar i{display:block;height:100%;border-radius:3px;transition:width .8s var(--dm-ease),background .4s}
-.dm-hsx-ch .dm-v{width:26px;text-align:right;font-size:12px;color:var(--dm-fg2)}
-.dm-hsx-ch>svg{color:var(--dm-muted);transition:transform .35s var(--dm-ease)}
-.dm-hsx-c.dm-open .dm-hsx-ch>svg{transform:rotate(90deg)}
-.dm-hsx-d{padding:0 var(--dm-s-2) 10px var(--dm-s-2);font-size:12.5px;color:var(--dm-fg2);display:flex;align-items:center;gap:10px;line-height:1.45}
-.dm-hsx-d span{flex:1}
+/* an account's health: the score in a small ring with its verdict, four factor tiles (each with its figure and a small
+   trend, opening its detail in place) and the agent's next move with its button. The state shows only in the status dots, the
+   trend marks and the ring; every tile and the suggestion stay on the neutral surface, and the weakest factor gets an ink label */
+.dm-hsc{display:flex;flex-direction:column;gap:var(--dm-s-3);width:100%;padding:var(--dm-s-4);container-type:inline-size;--dm-vm:var(--dm-ok-mark);--dm-vf:var(--dm-ok)}
+.dm-hsc[data-v="warn"]{--dm-vm:var(--dm-warn-mark);--dm-vf:var(--dm-warn)}
+.dm-hsc[data-v="bad"]{--dm-vm:var(--dm-bad);--dm-vf:var(--dm-bad)}
+.dm-hsc-sr{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+/* the account it is about, when the block stands on its own (a details sheet that names the account leaves it out) */
+.dm-hsc-ac{display:flex;flex-direction:column;align-items:flex-start;padding-bottom:var(--dm-s-3);border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);line-height:1.4}
+.dm-hsc-ac b{font-size:14px;font-weight:500}
+.dm-hsc-ac>span{font-size:12.5px;color:var(--dm-muted)}
+/* the header line: the score in its ring, the verdict and how it moved */
+.dm-hsc-h{display:flex;align-items:center;gap:var(--dm-s-3)}
+.dm-hsc-ring{position:relative;flex:none;width:44px;height:44px;display:grid;place-items:center}
+.dm-hsc-ring svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg);overflow:visible}
+.dm-hsc-ring circle{fill:none;stroke-width:4}
+.dm-hsc-ring .dm-tr{stroke:var(--dm-line)}
+.dm-hsc-ring .dm-fl{stroke:var(--dm-vm);stroke-linecap:round;transition:stroke-dashoffset .9s var(--dm-ease),stroke var(--dm-t) var(--dm-ease)}
+.dm-hsc-ring b{position:relative;font-size:14px;font-weight:500;letter-spacing:-.01em;line-height:1}
+.dm-hsc-ht{flex:1;min-width:0;display:flex;flex-direction:column;align-items:flex-start;line-height:1.4}
+.dm-hsc-vd{font-size:14px;font-weight:500;color:var(--dm-vf);transition:color var(--dm-t) var(--dm-ease)}
+.dm-hsc-sub{font-size:12.5px;color:var(--dm-muted);text-wrap:pretty}
+.dm-hsc-dl{flex:none;align-self:flex-start;margin-top:4px;font-size:12.5px;color:var(--dm-muted)}
+/* the tiles: two by two, a detail row under each pair */
+.dm-hsc-g{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--dm-s-2)}
+.dm-hsc-t{position:relative;display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"k k" "v tr";align-items:center;align-content:start;gap:var(--dm-s-2);min-width:0;padding:10px var(--dm-s-3) var(--dm-s-3);border-radius:var(--dm-r-in);background-color:var(--dm-surface);box-shadow:var(--dm-shadow);text-align:left;--dm-sm:var(--dm-ok-mark);
+  transition:transform var(--dm-t) var(--dm-ease),box-shadow var(--dm-t-fast) var(--dm-ease),background-color var(--dm-t-fast)}
+.dm-hsc-t[data-s="warn"]{--dm-sm:var(--dm-warn-mark)}
+.dm-hsc-t[data-s="bad"]{--dm-sm:var(--dm-bad)}
+@media (hover:hover) and (pointer:fine){.dm-hsc-t:hover{transform:translateY(-1px);box-shadow:var(--dm-shadow-pop)}}
+.dm-hsc-t:active{transform:scale(.98);transition-duration:.12s}
+/* open: picked, so its edge steps up a little (a dimmed grey, never black) */
+.dm-hsc-t[aria-expanded="true"]{box-shadow:var(--dm-shadow),inset 0 0 0 1px color-mix(in srgb,var(--dm-faint) 65%,transparent)}
+@media (hover:hover) and (pointer:fine){.dm-hsc-t[aria-expanded="true"]:hover{box-shadow:var(--dm-shadow-pop),inset 0 0 0 1px color-mix(in srgb,var(--dm-faint) 65%,transparent)}}
+.dm-hsc-k{grid-area:k;display:flex;align-items:center;gap:6px;min-width:0;padding-right:20px;font-size:12px;line-height:16px;color:var(--dm-muted)}
+.dm-hsc-k>span{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dm-hsc-dot{flex:none;width:8px;height:8px;border-radius:50%;background:var(--dm-sm);transition:background var(--dm-t) var(--dm-ease)}
+/* the weakest factor that is off track says so in ink, never with a fill; the word fades from tile to tile as factors change */
+.dm-hsc-wk{position:absolute;top:10px;right:calc(var(--dm-s-3) + 20px);font-size:11px;font-weight:500;line-height:16px;color:var(--dm-fg);opacity:0;transition:opacity var(--dm-t) var(--dm-ease)}
+.dm-hsc-t[data-weak] .dm-hsc-wk{opacity:1}
+.dm-hsc-t[data-weak] .dm-hsc-k{padding-right:calc(28px + 4.2em)}
+.dm-hsc-cv{position:absolute;top:12px;right:var(--dm-s-3);color:var(--dm-muted);transition:transform var(--dm-t) var(--dm-ease)}
+.dm-hsc-t[aria-expanded="true"] .dm-hsc-cv{transform:rotate(180deg)}
+.dm-hsc-v{grid-area:v;display:flex;align-items:baseline;gap:5px;min-width:0;white-space:nowrap;line-height:20px}
+.dm-hsc-v b{font-size:14px;font-weight:500;letter-spacing:-.01em}
+.dm-hsc-v>span{font-size:12px;color:var(--dm-muted);overflow:hidden;text-overflow:ellipsis}
+.dm-hsc-tr{grid-area:tr;justify-self:end;display:flex;align-items:center;height:20px}
+/* micro trends, in grey with one mark in the status: six weeks of contact, one mark per open deal, six weeks of win chance */
+.dm-hsc-dots,.dm-hsc-bars{display:flex;align-items:center;gap:3px}
+.dm-hsc-dots i{width:6px;height:6px;border-radius:50%;box-shadow:inset 0 0 0 1.25px var(--dm-faint)}
+.dm-hsc-dots i.dm-on{background:var(--dm-fg2);box-shadow:none}
+.dm-hsc-bars i{width:12px;height:6px;border-radius:calc(2px * var(--dm-rk));background:var(--dm-fg2)}
+.dm-hsc-bars i.dm-late{background:var(--dm-bad)}
+.dm-hsc-sp{display:block;width:56px;height:20px;overflow:visible}
+.dm-hsc-sp polyline{fill:none;stroke:var(--dm-muted);stroke-width:1.5;stroke-linejoin:round;stroke-linecap:round;vector-effect:non-scaling-stroke}
+.dm-hsc-sp circle{fill:var(--dm-sm);stroke:var(--dm-surface);stroke-width:1.5}
+/* a pair's detail: plain lines under the pair, no card */
+.dm-hsc-d{grid-column:1/-1;margin-top:calc(var(--dm-s-2) * -1)}
+.dm-hsc-dc{padding:var(--dm-s-3) var(--dm-s-3) var(--dm-s-1)}
+.dm-hsc-dp{margin:0;font-size:12.5px;line-height:1.5;color:var(--dm-fg);text-wrap:pretty}
+.dm-hsc-dp+.dm-hsc-dp{margin-top:2px;color:var(--dm-fg2)}
+.dm-hsc-pt{display:flex;align-items:center;gap:var(--dm-s-2);margin:var(--dm-s-2) 0 0;font-size:12px;color:var(--dm-muted)}
+.dm-hsc-pt i{width:4px;height:4px;border-radius:50%;background:var(--dm-faint)}
+/* the agent's next move: a plain row under a hairline, the spark in the accent, one line and its button */
+.dm-hsc-s{display:flex;align-items:center;gap:var(--dm-s-2);min-height:44px;padding-top:var(--dm-s-3);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);font-size:12.5px;line-height:1.45;color:var(--dm-fg2)}
+.dm-hsc-s>.dm-i{flex:none;align-self:flex-start;margin-top:3px;color:var(--dm-accent-mark,var(--dm-accent))}
+.dm-hsc-st{flex:1;min-width:0;text-wrap:pretty}
+.dm-hsc-s .dm-pill{flex:none}
+.dm-hsc-s .dm-pill .dm-spin{width:12px;height:12px}
+.dm-hsc-done{flex:none;outline:0}
+.dm-hsc-done .dm-i{margin-left:-1px}
+/* Blueprint: hairline tiles, square marks, labels in small capitals */
+:root:not([data-style="soft"]) .dm-hsc-t:not(:where([data-style="soft"],[data-style="soft"] *)){box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-rail) 60%,transparent)}
+@media (hover:hover) and (pointer:fine){:root:not([data-style="soft"]) .dm-hsc-t:hover:not(:where([data-style="soft"],[data-style="soft"] *)){transform:none;background-color:var(--dm-wash);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-faint) 70%,transparent)}}
+:root:not([data-style="soft"]) .dm-hsc-t:active:not(:where([data-style="soft"],[data-style="soft"] *)){transform:translateY(1px)}
+:root:not([data-style="soft"]) .dm-hsc-t[aria-expanded="true"]:not(:where([data-style="soft"],[data-style="soft"] *)){box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line-strong) 70%,transparent)}
+@media (hover:hover) and (pointer:fine){:root:not([data-style="soft"]) .dm-hsc-t[aria-expanded="true"]:hover:not(:where([data-style="soft"],[data-style="soft"] *)){box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line-strong) 70%,transparent)}}
+:root:not([data-style="soft"]) :is(.dm-hsc-k,.dm-hsc-pt,.dm-hsc-wk):not(:where([data-style="soft"],[data-style="soft"] *)){font-size:11px;font-weight:500;letter-spacing:.04em;text-transform:uppercase}
+:root:not([data-style="soft"]) .dm-hsc-t[data-weak] .dm-hsc-k:not(:where([data-style="soft"],[data-style="soft"] *)){padding-right:calc(28px + 5.6em)}
+:root:not([data-style="soft"]) .dm-hsc-dots i:not(:where([data-style="soft"],[data-style="soft"] *)){width:7px;height:7px}
+:root:not([data-style="soft"]) .dm-hsc-done:not(:where([data-style="soft"],[data-style="soft"] *)){font-size:11px}
+/* a narrow block (a phone, a slim sheet): the trend takes its own line under the figure, and the button goes under the line */
+@container (max-width:359px){
+  .dm-hsc-t{grid-template-areas:"k k" "v v" "tr tr";row-gap:6px}
+  /* the weakest factor's word gets its own line under the trend, where it has room */
+  .dm-hsc-t[data-weak]{grid-template-areas:"k k" "v v" "tr tr" "w w"}
+  .dm-hsc-wk{position:static;grid-area:w;justify-self:start;display:none}
+  .dm-hsc-t[data-weak] .dm-hsc-wk{display:block}
+  .dm-hsc-t[data-weak] .dm-hsc-k,:root:not([data-style="soft"]) .dm-hsc-t[data-weak] .dm-hsc-k:not(:where([data-style="soft"],[data-style="soft"] *)){padding-right:20px}
+  .dm-hsc-tr{justify-self:start}
+  .dm-hsc-s{flex-wrap:wrap;row-gap:var(--dm-s-2)}
+  .dm-hsc-st{flex:1 1 calc(100% - 26px)}
+  .dm-hsc-s :is(.dm-pill,.dm-hsc-done){margin-left:22px}
+}
+@media (prefers-reduced-motion:reduce){.dm-hsc-t:active{transform:none}@media (hover:hover) and (pointer:fine){.dm-hsc-t:hover{transform:none}}}
