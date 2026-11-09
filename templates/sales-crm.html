@@ -1310,6 +1310,15 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
 body:has(.crm) .dmf{display:none}
 
 /* ---------- the app ---------- */
+/* the template's hairlines: the line colour, a step toward the text colour so rows and sections read in dark as in light */
+.crm[data-c]{--crm-hair:color-mix(in srgb,var(--dm-line),var(--dm-fg) 9%)}
+.crm .ttx-hd,.crm .ttx-t th,.crm .ttx-t td,.crm .ecx-h,.crm .ecx-dh{border-bottom-color:var(--crm-hair)}
+.crm .ecx-day{border-left-color:var(--crm-hair)}
+.crm .ecx-col{background-image:linear-gradient(var(--crm-hair) 1px,transparent 1px)}
+.crm .hsx-list{border-top-color:var(--crm-hair)}
+.crm .ahx-side{border-right-color:var(--crm-hair)}
+.crm .kbx.list .kbx-k{box-shadow:inset 0 -1px 0 var(--crm-hair)}
+.crm .dtp-add{box-shadow:inset 0 0 0 1px var(--crm-hair)}
 .crm[data-c]{width:100%;max-width:none;height:100%;display:grid;grid-template-columns:240px minmax(0,1fr);position:relative;overflow:hidden;background:var(--dm-surface);color:var(--dm-fg);font-size:13px;text-align:left}
 :where(.crm) :where(h1,h2,h3,p){margin:0;font:inherit}
 .crm .muted{color:var(--dm-muted)}
@@ -1339,15 +1348,13 @@ body:has(.crm) .dmf{display:none}
 
 /* ---------- the main column: the header (the view's name and a live summary), then the view ---------- */
 .crm-main{position:relative;display:flex;flex-direction:column;min-width:0;min-height:0;overflow:hidden}
-.crm-top{flex:none;display:flex;align-items:center;gap:var(--dm-s-2);height:56px;padding:0 var(--dm-s-4) 0 var(--dm-s-5);border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
+.crm-top{flex:none;display:flex;align-items:center;gap:var(--dm-s-2);height:56px;padding:0 var(--dm-s-4) 0 var(--dm-s-5);border-bottom:1px solid var(--crm-hair)}
 .crm-menu{display:none;margin-left:-8px;color:var(--dm-fg2)}
 .crm-ttl{display:flex;align-items:baseline;gap:var(--dm-s-3);min-width:0}
 .crm-h1{font-size:16px;font-weight:500;letter-spacing:-.01em;white-space:nowrap;outline:0}
 .crm-sum{min-width:0;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .crm-sum .sh{display:none}
-.crm-find{flex:0 1 240px;min-width:0;cursor:pointer;margin-right:var(--dm-s-1)}
-.crm-find .t{flex:1;min-width:0;text-align:left;font-size:13px;color:var(--dm-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-@media (hover:hover) and (pointer:fine){.crm-find:hover{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line-strong) 50%,transparent)}}
+.crm-find{color:var(--dm-fg2)}
 .crm-bell{position:relative}
 .crm-unread{position:absolute;top:6px;right:7px;width:7px;height:7px;border-radius:50%;background:var(--dm-accent-mark,var(--dm-accent));box-shadow:0 0 0 2px var(--dm-surface);transition:transform var(--dm-t) var(--dm-ease),opacity var(--dm-t)}
 .crm-bell.read .crm-unread{transform:scale(0);opacity:0}
@@ -1373,7 +1380,8 @@ body:has(.crm) .dmf{display:none}
 /* the search field is Search input's box at the toolbar's height; it searches as you type, and a question waits for Enter */
 .crm-ask.six-box{flex:0 1 300px;width:300px;min-width:180px;max-width:none}
 .crm-ask .six-in{height:32px;padding-left:10px}
-.crm-ask .six-in input{font-size:13px}
+.crm-ask .six-in input{font-size:13px;width:0}
+.crm-acts{min-width:0}
 .crm-ask .six-in input::-webkit-search-cancel-button{display:none}
 .crm-ask:focus-within{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line-strong) 50%,transparent)}
 .crm-sort .v{max-width:96px;overflow:hidden;text-overflow:ellipsis}
@@ -1441,30 +1449,62 @@ body:has(.crm) .dmf{display:none}
 .crm-sd[data-s="nego"]{color:var(--dm-accent-mark,var(--dm-accent))}
 .crm-sd[data-s="won"]{color:var(--dm-ok-mark)}
 
-/* ---------- Agent inbox: its groups and rows, wider, each with Dismiss, Edit and Approve ---------- */
-.crm-ib{overflow:auto;padding:var(--dm-s-4) var(--dm-s-4) var(--dm-s-6) var(--dm-s-5);background:var(--dm-stage)}
+/* ---------- Agent inbox: Agent inbox's list on the left, the selected item's preview on the right ---------- */
+.crm-ib{display:grid;grid-template-columns:minmax(340px,440px) minmax(0,1fr);gap:var(--dm-s-3);overflow:hidden;padding:var(--dm-s-4) var(--dm-s-4) var(--dm-s-4) var(--dm-s-5);background:var(--dm-stage)}
 .crm-ib[hidden]{display:none}
-.crm-aib.aib{max-width:880px;margin:0;padding:6px 6px var(--dm-s-2)}
+.crm-aib.aib{max-width:none;margin:0;padding:6px 6px var(--dm-s-2);min-height:0;overflow:auto;overscroll-behavior:contain}
 .crm-aib .aib-h{padding:var(--dm-s-2) 10px var(--dm-s-1)}
-.crm-aib .aib-i{gap:var(--dm-s-3);padding:10px}
-.crm-aib .aib-av{background:var(--dm-chip);color:var(--dm-fg2)}
-.crm-aib .crm-it{flex:1;min-width:0;text-align:left;font:inherit;color:inherit;cursor:pointer;border-radius:var(--dm-r-sm)}
+.crm-aib .aib-i{gap:10px;padding:var(--dm-s-2) 6px var(--dm-s-2) 10px}
+.crm-aib .aib-i.on{background:var(--dm-row);box-shadow:inset 0 0 0 1px var(--crm-hair)}
+.crm-aib .aib-av,.crm-ipv .aib-av{background:var(--dm-chip);color:var(--dm-fg2)}
+.crm-aib .crm-it{flex:1;min-width:0;text-align:left;font:inherit;color:inherit;cursor:pointer;border-radius:var(--dm-r-sm);outline-offset:2px}
 .crm-aib .crm-it b{color:var(--dm-fg)}
-.crm-aib .aib-r{gap:6px}
+.crm-aib .aib-r{gap:2px}
+.crm-aib .aib-r .ib{width:28px;height:28px;color:var(--dm-muted)}
+.crm-aib .aib-r .ib.crm-iok{color:var(--dm-accent-fg,var(--dm-accent))}
+@media (hover:hover) and (pointer:fine){.crm-aib .aib-r .ib:hover{color:var(--dm-fg)}}
 .crm-aib .aib-i.done .aib-t b{color:var(--dm-fg2);font-weight:400}
-.crm-aib .aib-r .ok{color:var(--dm-ok);display:grid}
-.crm-ires{white-space:nowrap}
+.crm-aib .aib-r .ok,.crm-pvres .ok{color:var(--dm-ok);display:grid}
+.crm-ires{white-space:nowrap;font-size:12px}
 .crm-ibe{padding:var(--dm-s-6) 10px;font-size:13px;text-align:center}
+/* the preview: what the item is, its title, its details as label and value rows, the full draft, then the actions */
+.crm-ipv.panel{min-height:0;overflow:auto;overscroll-behavior:contain;display:flex;flex-direction:column;gap:var(--dm-s-3);padding:var(--dm-s-4) var(--dm-s-5) var(--dm-s-4)}
+.crm-pvh{display:flex;align-items:center;gap:10px;font-size:12.5px}
+.crm-pvx{display:none}
+.crm-pvt{font-size:14px;font-weight:500;line-height:1.4;outline:0}
+.crm-pvm{display:flex;flex-direction:column;border-top:1px solid var(--crm-hair);border-bottom:1px solid var(--crm-hair);padding:var(--dm-s-1) 0}
+.crm-pvr{display:grid;grid-template-columns:112px minmax(0,1fr);align-items:center;min-height:36px;font-size:13px}
+.crm-pvr .k{color:var(--dm-muted)}
+.crm-pvr .v{display:flex;align-items:center;gap:var(--dm-s-2);min-width:0}
+.crm-pvr .v>span:not(.ttx-st):not(.av):not(.pfm-lg){min-width:0}
+.crm-pvr .v>*{flex:none}
+.crm-pvr .v>span:first-of-type:not(.av):not(.pfm-lg),.crm-pvr .v>.av+span,.crm-pvr .v>.pfm-lg+span{flex:0 1 auto}
+.crm-pvr .v .av{width:22px;height:22px;font-size:9.5px}
+.crm-pvr .v .i{color:var(--dm-muted)}
+.crm-pvr .ttx-st{height:20px;font-size:11.5px}
+.crm-pvr .ttx-st .dot{width:6px;height:6px}
+.crm-was{color:var(--dm-muted);text-decoration:line-through}
+.crm-bad{color:var(--dm-bad)}
+.crm-pvb{white-space:pre-wrap;font-size:13.5px;line-height:1.6;color:var(--dm-fg)}
+.crm-pvc{font-size:12.5px;line-height:1.55;color:var(--dm-fg2)}
+.crm-pva{display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-end;gap:var(--dm-s-2);margin-top:auto;padding-top:var(--dm-s-3);border-top:1px solid var(--crm-hair)}
+.crm-pvres{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--dm-fg2)}
+.crm-pve{margin:auto;font-size:13px}
 /* a follow-up's draft, opened by Edit: a field like any other, then Cancel and Save */
-.crm-ied{display:flex;flex-direction:column;gap:var(--dm-s-2);margin:0 10px var(--dm-s-2) 50px}
+.crm-ied{display:flex;flex-direction:column;gap:var(--dm-s-2)}
 .crm-iel{font-size:12px;color:var(--dm-muted)}
-.crm-ta{width:100%;min-height:96px;resize:vertical;padding:var(--dm-s-2) var(--dm-s-3);border:0;outline:0;border-radius:var(--dm-r-field);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line) 50%,transparent);font:inherit;font-size:13px;line-height:1.5;color:var(--dm-fg);transition:box-shadow var(--dm-t-fast)}
+.crm-ta{width:100%;min-height:150px;resize:vertical;padding:var(--dm-s-2) var(--dm-s-3);border:0;outline:0;border-radius:var(--dm-r-field);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line) 50%,transparent);font:inherit;font-size:13.5px;line-height:1.6;color:var(--dm-fg);transition:box-shadow var(--dm-t-fast)}
 @supports (corner-shape:squircle){.crm-ta{corner-shape:squircle;border-radius:var(--dm-r-field-sq)}}
 .crm-ta:focus{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line-strong) 50%,transparent)}
 .crm-iea{display:flex;justify-content:flex-end;gap:6px}
 
 /* ---------- Calendar: Event calendar's week, 8am to 6pm, with the deals closing each day under the day headers ---------- */
-.crm-cal{overflow:auto;padding:var(--dm-s-4) var(--dm-s-4) var(--dm-s-6) var(--dm-s-5);background:var(--dm-stage)}
+.crm-cal{display:flex;flex-direction:column;overflow:auto;padding:var(--dm-s-4) var(--dm-s-4) var(--dm-s-4) var(--dm-s-5);background:var(--dm-stage)}
+.crm-ecx.ecx{flex:1 0 auto;display:flex;flex-direction:column;min-height:min-content}
+.crm-ecx .ecx-sc{flex:1 1 auto;min-height:0}
+.crm-ecx .ecx-grid{grid-template-columns:44px repeat(5,minmax(72px,1fr)) repeat(2,minmax(56px,.7fr));min-width:560px}
+.crm-ecx .ecx-day.we{background:color-mix(in srgb,var(--dm-fg) 2.5%,transparent)}
+.crm-ecx .ecx-day.we .ecx-dh{color:var(--dm-muted)}
 .crm-cal[hidden]{display:none}
 .crm-ecx .ecx-h{min-height:52px}
 .crm-wk{display:flex;align-items:center;gap:2px;margin-left:-6px}
@@ -1476,7 +1516,7 @@ body:has(.crm) .dmf{display:none}
 .crm-ecx .ecx-col{height:calc(var(--dm-ph) * 10)}
 /* the time column starts under the day header and the closing strip */
 .crm-ecx .ecx-tm{padding-top:62px}
-.crm-cls{height:30px;display:flex;align-items:center;gap:4px;padding:0 4px;border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);overflow:hidden}
+.crm-cls{height:30px;display:flex;align-items:center;justify-content:center;gap:4px;padding:0 4px;border-bottom:1px solid var(--crm-hair);overflow:hidden}
 .crm-clb{display:inline-flex;align-items:center;gap:4px;min-width:0;max-width:100%;height:22px;padding:0 7px 0 5px;border-radius:var(--dm-r-tag);background:var(--dm-chip);font-size:11.5px;font-weight:500;color:var(--dm-fg2);white-space:nowrap;transition:background var(--dm-t-fast),color var(--dm-t-fast)}
 @supports (corner-shape:squircle){.crm-clb{corner-shape:squircle;border-radius:var(--dm-r-tag-sq)}}
 .crm-clb span{overflow:hidden;text-overflow:ellipsis}
@@ -1501,12 +1541,12 @@ body:has(.crm) .dmf{display:none}
 .crm-pdl .ttx-st{height:20px;font-size:11.5px;flex:none}
 .crm-pdl .ttx-st .dot{width:6px;height:6px}
 .crm-pdl .num{color:var(--dm-fg2);flex:none}
-.crm .av.crm-cav{background:var(--dm-chip);color:var(--dm-fg2)}
-.crm-leg{display:flex;flex-wrap:wrap;gap:var(--dm-s-1) var(--dm-s-3);padding:10px var(--dm-s-3);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);font-size:12px}
+.crm-leg{display:flex;flex-wrap:wrap;justify-content:center;gap:var(--dm-s-1) var(--dm-s-3);padding:10px var(--dm-s-3);border-top:1px solid var(--crm-hair);font-size:12px}
 .crm-leg span{display:inline-flex;align-items:center;gap:6px}
 .crm-leg i{width:8px;height:8px;border-radius:50%}
 @container ecx (max-width:519px){
-  .crm-ecx .ecx-grid{--dm-ph:56px}
+  .crm-ecx .ecx-grid{--dm-ph:56px;grid-template-columns:44px minmax(0,1fr);min-width:0}
+  .crm-ecx .ecx-day.we{background:none}
   .crm-ecx .ecx-tm{padding-top:30px}
   .crm-ecx .ecx-msg{order:5;flex-basis:100%;margin:0}
   .crm-ecx .ecx-msg:empty{display:none}
@@ -1530,7 +1570,7 @@ body:has(.crm) .dmf{display:none}
 @media (hover:none){.crm-kb .crm-hide{opacity:1}}
 @container kbx (min-width:640px){.crm-kb .kbx-c.gone{display:none}}
 @container kbx (max-width:639px){.crm-dock{display:none!important}}
-.crm-dock{display:flex;align-items:center;gap:var(--dm-s-1);min-width:0;margin-left:var(--dm-s-2);padding-left:var(--dm-s-3);border-left:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
+.crm-dock{display:flex;align-items:center;gap:var(--dm-s-1);min-width:0;margin-left:var(--dm-s-2);padding-left:var(--dm-s-3);border-left:1px solid var(--crm-hair)}
 .crm-dock[hidden]{display:none}
 .crm-dkl{flex:none;font-size:12.5px;color:var(--dm-muted);white-space:nowrap}
 .crm-dks{display:flex;gap:var(--dm-s-1);flex-wrap:wrap}
@@ -1608,7 +1648,7 @@ body:has(.crm) .dmf{display:none}
 :root[data-theme="dark"] .crm-shade{background:rgba(0,0,0,.56)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .crm-shade{background:rgba(0,0,0,.56)}}
 .crm.sh .crm-shade{opacity:1;pointer-events:auto}
-.crm-sheet{position:absolute;top:64px;right:var(--dm-s-2);bottom:var(--dm-s-2);z-index:20;width:min(392px,calc(100% - 16px));border-radius:var(--dm-r-card);background:var(--dm-raised);box-shadow:0 0 0 1px color-mix(in srgb,var(--dm-line) 70%,transparent),0 8px 18px rgba(0,0,0,.12),0 24px 60px rgba(0,0,0,.26);overflow:auto;overscroll-behavior:contain;opacity:0;visibility:hidden;transform:translateX(16px);transition:opacity .2s var(--dm-ease),transform .4s var(--dm-ease),visibility 0s .2s}
+.crm-sheet{position:absolute;top:64px;right:var(--dm-s-2);bottom:var(--dm-s-2);z-index:20;width:min(472px,calc(100% - 16px));border-radius:var(--dm-r-card);background:var(--dm-raised);box-shadow:0 0 0 1px color-mix(in srgb,var(--dm-line) 70%,transparent),0 8px 18px rgba(0,0,0,.12),0 24px 60px rgba(0,0,0,.26);overflow:auto;overscroll-behavior:contain;opacity:0;visibility:hidden;transform:translateX(16px);transition:opacity .2s var(--dm-ease),transform .4s var(--dm-ease),visibility 0s .2s}
 .crm-sheet.on{opacity:1;visibility:visible;transform:none;transition-property:opacity,transform}
 .crm-dtp.dtp{padding:var(--dm-s-3) var(--dm-s-3) var(--dm-s-4) var(--dm-s-4);gap:var(--dm-s-1)}
 .crm-dtp .dtp-h{padding:2px 0 0;gap:10px}
@@ -1620,30 +1660,33 @@ body:has(.crm) .dmf{display:none}
 .crm-dtp .dtp-sh{padding-left:0;margin-top:var(--dm-s-1)}
 .crm-dtp .dtp-r{grid-template-columns:112px minmax(0,1fr)}
 .crm-dtp .dtp-r .k{padding-left:0}
-/* tags wrap onto even rows: the label sits level with the first row, every chip and the add button share one height */
-.crm-dtp .dtp-r.crm-tg{align-items:start}
-.crm-dtp .crm-tg .k{line-height:20px;margin-top:7px}
-.crm-dtp .crm-tg .dtp-tags{padding:7px 0;gap:6px}
-.crm-dtp .crm-tg .dtp-tags>*{flex:none;height:20px}
+/* tags wrap onto even rows: the label sits level with the first row, every tag and the add button share one height and
+   centre line. The row is its own grid rather than a .dtp-r, so the rows' label rules (.dtp-r .k) never reach the pink tag,
+   which is .tag.k */
+.crm-dtp .crm-tg{display:grid;grid-template-columns:112px minmax(0,1fr);align-items:start;font-size:13px}
+.crm-dtp .crm-tgk{color:var(--dm-muted);line-height:20px;margin-top:7px}
+.crm-dtp .crm-tg .dtp-tags{padding:7px 0;gap:6px;align-items:center}
+.crm-dtp .crm-tg .dtp-tags>*{flex:none;height:20px;box-sizing:border-box;display:inline-flex;align-items:center;line-height:1}
+.crm-dtp .crm-tg .dtp-add{width:20px;justify-content:center}
 .crm-dtp .dtp-v{max-width:100%}
 .crm-dtp .dtp-v.static{margin-left:0;padding:0}
 /* the agent's suggestion for the account, and its health: Health score's gauge and checks, smaller */
 .crm-sag.six-ans{margin:var(--dm-s-2) 0 0;align-items:center}
 .crm-sag>span{flex:1;min-width:0}
 .crm-sag .pill{flex:none}
-.crm-shs.hsx{padding:var(--dm-s-3) 0 var(--dm-s-1);gap:var(--dm-s-2);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);margin-top:var(--dm-s-3)}
-.crm-shs .hsx-g{width:96px;height:58px}
-.crm-shs .hsx-g svg path{stroke-width:10}
+.crm-shs.hsx{padding:var(--dm-s-3) 0 var(--dm-s-1);gap:var(--dm-s-2);border-top:1px solid var(--crm-hair);margin-top:var(--dm-s-3)}
+.crm-shs .hsx-g{width:120px;height:72px}
 .crm-shs .hsx-g .fl{transition:none}
-.crm-shs .hsx-v b{font-size:24px}
-.crm-shs .hsx-v span{font-size:10.5px}
+.crm-shs .hsx-v b{font-size:26px}
+.crm-shs .hsx-v span{font-size:11px}
 .crm-shs .hsx-list{padding-top:var(--dm-s-1);border-top:0;gap:0}
 .crm-shs .hsx-c{padding:5px 0}
 .crm-shs .hsx-ch{padding:0;gap:10px}
 .crm-shs .hsx-ch .t{flex:1;min-width:0}
 .crm-shs .hsx-d{padding:1px 0 0;font-size:12px;color:var(--dm-muted)}
 @media (hover:hover) and (pointer:fine){.crm-shs .hsx-c:hover{background:none}}
-.crm-dtp .crm-snx{gap:6px;text-align:left}
+.crm-dtp .crm-snx{gap:6px;text-align:left;min-width:0;max-width:100%}
+.crm-dtp .crm-snx span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .crm-dtp .crm-snx .i{flex:none}
 .crm-dtp .crm-snx .i{color:var(--dm-muted)}
 .crm-dtp .crm-snx.late,.crm-dtp .crm-snx.late .i,.crm-dtp .crm-snx.none{color:var(--dm-bad)}
@@ -1672,8 +1715,9 @@ body:has(.crm) .dmf{display:none}
 .crm-tl .ic{width:28px;height:28px;border-radius:calc(9px * var(--dm-rk));display:grid;place-items:center;background:var(--dm-chip);color:var(--dm-fg2)}
 .crm-tl li.new{animation:enter var(--dm-t-slow) var(--dm-ease) backwards}
 .crm-tl .w{display:block;font-size:12px;color:var(--dm-muted)}
-.crm-sact{display:flex;gap:var(--dm-s-2);margin-top:var(--dm-s-3);padding-top:var(--dm-s-3);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
+.crm-sact{display:flex;gap:var(--dm-s-2);margin-top:var(--dm-s-3);padding-top:var(--dm-s-3);border-top:1px solid var(--crm-hair)}
 .crm-sact .pill{flex:1}
+.crm-sact .pill .i{color:var(--dm-fg2)}
 
 /* ---------- menus ---------- */
 .crm-pop{min-width:196px}
@@ -1709,12 +1753,14 @@ body:has(.crm) .dmf{display:none}
 
 /* ---------- narrower screens ---------- */
 @media (max-width:1279px){
-  .crm-find{flex-basis:150px}
+  .crm-ib{grid-template-columns:minmax(280px,340px) minmax(0,1fr)}
+  .crm-pvr{grid-template-columns:88px minmax(0,1fr)}
+  .crm-ipv.panel{padding:var(--dm-s-4)}
   .crm-men{display:none}
   /* the account's checkbox and name stay in view while the table scrolls sideways under them */
   .crm-t .stk,.crm-t .stk2{position:sticky;z-index:1;background:var(--dm-surface)}
   .crm-t .stk{left:0}
-  .crm-t .stk2{left:var(--crm-stk,56px);box-shadow:inset -1px 0 0 color-mix(in srgb,var(--dm-line) 50%,transparent);transition:box-shadow .2s}
+  .crm-t .stk2{left:var(--crm-stk,56px);box-shadow:inset -1px 0 0 var(--crm-hair);transition:box-shadow .2s}
   /* once rows slide under the account column, its edge casts a soft shadow so what passes beneath reads as scrolled */
   .crm-sc.sx .crm-t .stk2{box-shadow:inset -1px 0 0 color-mix(in srgb,var(--dm-line) 70%,transparent),6px 0 10px -6px rgba(0,0,0,.22)}
   .crm-t th.stk,.crm-t th.stk2{z-index:3}
@@ -1750,18 +1796,21 @@ body:has(.crm) .dmf{display:none}
 }
 @media (max-width:760px){
   .crm-men{display:none}
-  .crm-find{flex:none;width:36px;padding:0;justify-content:center}
-  .crm-find .t,.crm-find .kbd{display:none}
   /* the view's name over its summary, so the summary keeps its room */
   .crm-ttl{flex-direction:column;align-items:flex-start;gap:0;line-height:1.3}
   .crm-h1{font-size:15px}
   .crm-sum{max-width:100%;font-size:12px}
-  .crm-aib .aib-i{flex-wrap:wrap;row-gap:var(--dm-s-2)}
-  .crm-aib .crm-it{flex-basis:calc(100% - 44px)}
-  .crm-aib .crm-it span{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+  /* a phone shows the list alone; a picked item's preview is a sheet over the view */
+  .crm-ib{display:block;overflow:auto}
+  .crm-aib.aib{overflow:visible}
   .crm-aib .crm-it b{white-space:normal}
-  .crm-aib .aib-r{flex-basis:100%;justify-content:flex-end}
-  .crm-ied{margin-left:10px}
+  .crm-ipv.panel{display:none;position:absolute;inset:0;z-index:30;border-radius:0;box-shadow:none;background:var(--dm-raised);padding:var(--dm-s-3) var(--dm-s-4) var(--dm-s-4)}
+  .crm-ib.pv .crm-ipv.panel{display:flex;animation:crmfade .2s var(--dm-ease)}
+  .crm-ipv.panel.out{display:flex;pointer-events:none;animation:crmout .2s var(--dm-ease) forwards}
+  .crm-pvx{display:inline-grid;margin-right:-6px}
+  .crm-pvr{grid-template-columns:96px minmax(0,1fr)}
+  .crm-pva .pill{flex:1 1 auto}
+  .crm-pva .crm-sp{display:none}
   .crm-ib,.crm-cal{padding:var(--dm-s-3)}
   .crm-c4,.crm-own{grid-column:span 12}
   .crm-fc .scx-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
@@ -1786,16 +1835,25 @@ body:has(.crm) .dmf{display:none}
   .crm-fc{padding:var(--dm-s-3)}
   .crm-fc .rgx-b{justify-content:center}
 }
+/* motion: overlays fade out the way core's popovers do (Jump to, Add account, a phone's inbox preview), shown by .out while they
+   go; a pointer press hides focus rings until a key is pressed; the current view in the sidebar has the harness's selected look */
+.crm-over.out{pointer-events:none;animation:crmout .2s var(--dm-ease) forwards}
+.crm-over.out>*{animation:crmpout .2s var(--dm-ease) forwards}
+@keyframes crmout{to{opacity:0}}
+@keyframes crmpout{to{opacity:0;transform:translateY(6px) scale(.98);filter:blur(3px)}}
+.crm[data-ptr] :focus-visible{outline:none}
+.crm[data-ptr] .crm-sc:focus-visible{box-shadow:none}
+.crm-nav .ahx-cv[aria-current="page"]{background:var(--dm-surface);color:var(--dm-fg);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-rail) 50%,transparent),0 1px 2px rgba(0,0,0,.04)}
 /* menus and popovers lift off the page with a hairline edge as well as their shadow */
 .crm .pop{box-shadow:0 0 0 1px color-mix(in srgb,var(--dm-line) 70%,transparent),var(--dm-shadow-pop)}
-@media (prefers-reduced-motion:reduce){.crm-over,.crm-cmd .cpl,.crm-newd .fmx{animation:none}.crm-sheet,.crm-side.ahx-side,.crm-shade{transition:none}}
+@media (prefers-reduced-motion:reduce){.crm-over,.crm-cmd .cpl,.crm-newd .fmx,.crm-over.out,.crm-over.out>*,.crm-ipv.panel{animation:none}.crm-sheet,.crm-side.ahx-side,.crm-shade{transition:none}}
 </style><style>@font-face{font-family:Inter;font-style:normal;font-weight:400;font-display:swap;src:url(/fonts/inter-latin-400-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:Inter;font-style:normal;font-weight:500;font-display:swap;src:url(/fonts/inter-latin-500-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:Inter;font-style:normal;font-weight:600;font-display:swap;src:url(/fonts/inter-latin-600-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:Inter;font-style:normal;font-weight:700;font-display:swap;src:url(/fonts/inter-latin-700-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:"JetBrains Mono";font-style:normal;font-weight:500;font-display:swap;src:url(/fonts/jetbrains-mono-latin-500-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}</style><style>:root{--pg-bg:#fff;--pg-fg:#121212;--pg-dim:#525252;--pg-muted:#6a6a6a;--pg-line:#12121214;--pg-line2:#12121224;--pg-soft:#fafafa;--pg-chip:#f1f1f1;--pg-ink:#121212;--pg-on-ink:#fff;--pg-top:#ffffffdb;--pg-sans:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--pg-mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;--pg-head:53px}@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--pg-bg:#111;--pg-fg:#f2f2f2;--pg-dim:#c9c9c9;--pg-muted:silver;--pg-line:#ffffff14;--pg-line2:#ffffff24;--pg-soft:#1c1c1c;--pg-chip:#ffffff0f;--pg-ink:#f5f5f4;--pg-on-ink:#121212;--pg-top:#111111db;color-scheme:dark}}:root[data-theme=dark]{--pg-bg:#111;--pg-fg:#f2f2f2;--pg-dim:#c9c9c9;--pg-muted:silver;--pg-line:#ffffff14;--pg-line2:#ffffff24;--pg-soft:#1c1c1c;--pg-chip:#ffffff0f;--pg-ink:#f5f5f4;--pg-on-ink:#121212;--pg-top:#111111db;color-scheme:dark}*{box-sizing:border-box}html{-webkit-text-size-adjust:100%;scrollbar-gutter:stable}:where(.pg-main [id]:not([data-c] *),.pg-main :is(a[href],button,summary,input):not([data-c] *)){scroll-margin-top:calc(var(--pg-head) + var(--pg-bar,0px) + 24px)}@media (prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}body{background:var(--pg-bg);color:var(--pg-fg);font:14px/1.6 var(--pg-sans);letter-spacing:-.006em;-webkit-font-smoothing:antialiased;margin:0}a{color:inherit}:root{--pg-react:#087ea4}@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--pg-react:#61dafb}}:root[data-theme=dark]{--pg-react:#61dafb}:root{--pg-field:#d4d4d4;--pg-focus:#858585}@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--pg-field:#424242;--pg-focus:gray}}:root[data-theme=dark]{--pg-field:#424242;--pg-focus:gray}:focus-visible:not([data-c] *){outline:2px solid var(--pg-focus);outline-offset:2px}:is(input:not([type=checkbox],[type=radio],[type=range],[type=color],[type=file]),textarea):focus-visible:not([data-c] *){outline:0}.pg-top{z-index:50;height:var(--pg-head);background:var(--pg-top);backdrop-filter:blur(14px);border-bottom:1px solid var(--pg-line);position:sticky;top:0}.pg-top-in{align-items:center;gap:6px;max-width:1464px;height:100%;margin:0 auto;padding:0 32px;display:flex}.pg-logo{color:var(--pg-fg);display:block}.pg-top.app .pg-top-in{max-width:none;padding:0 16px 0 14px}.pg-logo.pg-smile{width:28px;height:28px;margin-right:var(--pg-smile-gap,10px);border-radius:8px;place-items:center;transition:transform .45s cubic-bezier(.34,1.56,.64,1);display:grid;transform:none}.pg-logo.pg-smile svg{width:24px;height:20px}@media (hover:hover) and (pointer:fine){.pg-logo.pg-smile:hover{transform:rotate(-8deg)scale(1.06)}}.pg-logo{transform-origin:0;transform:scale(.88)}.pg-logo svg{width:auto;height:26px;display:block}@media (width<=640px){.pg-logo svg{height:18px}}@media (width<=420px){.pg-logo svg{height:16px}}@media (width<=340px){.pg-logo svg{height:14px}}.lg svg.L{overflow:visible}.lg .L .wm{fill:currentColor}.lg .L .wm .ch{fill-opacity:0;stroke:currentColor;stroke-width:1px;vector-effect:non-scaling-stroke;transition:fill-opacity .2s cubic-bezier(.2,.7,.2,1) calc(var(--i) * 45ms),stroke-opacity .2s cubic-bezier(.2,.7,.2,1) calc(var(--i) * 45ms)}.lg .L .dev{fill:var(--dm-accent-fg,currentColor)}.lg .L .cons{fill:none;stroke:var(--dm-accent-mark,currentColor);transition:opacity .3s cubic-bezier(.2,.7,.2,1)}.lg .L .cons path{stroke-width:1px;vector-effect:non-scaling-stroke}.lg .L .cons .cl{stroke-opacity:.45}.lg:focus-visible .L .wm .ch{fill-opacity:1;stroke-opacity:0}.lg:focus-visible .L .cons{opacity:.3}@media (hover:hover) and (pointer:fine){.lg:hover .L .wm .ch{fill-opacity:1;stroke-opacity:0}.lg:hover .L .cons{opacity:.3}}@media (hover:none),(width<=640px){.lg .L .wm .ch{fill-opacity:1;stroke:none}.lg .L .cons{opacity:.3}}@media (prefers-reduced-motion:reduce){.lg .L .wm .ch{transition-delay:0s}}.pg-sp{flex:1}.pg-seg{background:var(--pg-chip);border-radius:999px;padding:2px;display:inline-flex}.pg-seg button{height:24px;color:var(--pg-dim);font:500 13px/1 var(--pg-sans);cursor:pointer;background:0 0;border:0;border-radius:999px;padding:0 10px;transition:color .2s}@media (hover:hover) and (pointer:fine){.pg-seg button:hover{color:var(--pg-fg)}}.pg-seg button[aria-checked=true]{background:var(--pg-bg);color:var(--pg-fg);box-shadow:0 1px 2px #12121214,0 0 0 .5px #1212120f}.pg-seg svg{width:14px;height:14px;display:block}.pg-seg.icons button{place-items:center;width:26px;padding:0;display:grid}.pg-gh{background:var(--pg-bg);height:28px;box-shadow:inset 0 0 0 1px var(--pg-line2);color:var(--pg-dim);font:500 13px/1 var(--pg-sans);white-space:nowrap;border-radius:999px;flex:none;align-items:center;gap:6px;margin-right:6px;padding:0 11px 0 9px;text-decoration:none;transition:color .2s,background-color .2s;display:inline-flex}@media (hover:hover) and (pointer:fine){.pg-gh:hover{color:var(--pg-fg);background:var(--pg-chip)}}.pg-gh svg{flex:none;width:14px;height:14px;display:block}.pg-gh-n{color:var(--pg-fg);font-variant-numeric:tabular-nums}.pg-gh.has-n .pg-gh-l{display:none}.pg-wrap{max-width:1024px;margin:0 auto;padding:0 32px}.pg-main{padding:40px 0 96px}.pg-crumbs{color:var(--pg-muted);flex-wrap:wrap;gap:6px;font-size:13px;display:flex}.pg-crumbs a{color:var(--pg-dim);text-decoration:none}@media (hover:hover) and (pointer:fine){.pg-crumbs a:hover{color:var(--pg-fg)}}.pg-h1{letter-spacing:-.022em;color:var(--pg-fg);text-wrap:balance;margin:14px 0 0;font-size:20px;font-weight:500;line-height:1.3}.pg-lead{color:var(--pg-dim);max-width:72ch;margin:8px 0 0;font-size:14px;line-height:1.6}.pg-lead code,.pg-code{font:500 12.5px/1.4 var(--pg-mono);font-variant-ligatures:none;background:var(--pg-chip);color:var(--pg-fg);border-radius:6px;padding:2px 6px}.pg-cmd{min-height:32px;box-shadow:inset 0 0 0 1px var(--pg-line2);background:var(--pg-bg);font:500 12px/1 var(--pg-mono);font-variant-ligatures:none;border-radius:9px;align-items:center;gap:8px;max-width:100%;margin:16px 0 0;padding:4px 6px 4px 10px;display:inline-flex}.pg-cmd .d{color:var(--pg-muted)}.pg-cmd .c{min-width:0;color:var(--pg-fg);overflow-wrap:anywhere;line-height:1.5}.pg-cmd .c span{white-space:nowrap}.pg-cmd button{width:24px;height:24px;color:var(--pg-muted);cursor:pointer;background:0 0;border:0;border-radius:6px;flex:none;place-items:center;display:grid}@media (hover:hover) and (pointer:fine){.pg-cmd button:hover{color:var(--pg-fg);background:var(--pg-chip)}}.pg-cmd svg{width:14px;height:14px}.pg-sh{border-bottom:1px solid var(--pg-line);flex-wrap:wrap;align-items:baseline;gap:2px 10px;margin:0 0 24px;padding:56px 0 18px;display:flex}.pg-sh .n{font:500 12px/1.5 var(--pg-mono);color:var(--pg-muted)}.pg-sh h2{letter-spacing:0;margin:0;font-size:14px;font-weight:500;line-height:20px}.pg-sh p{color:var(--pg-dim);flex-basis:100%;margin:0;font-size:14px;line-height:20px}.pg-t{letter-spacing:0;color:var(--pg-fg);font-size:14px;font-weight:500;line-height:20px}.pg-d{color:var(--pg-dim);font-size:14px;line-height:20px}.pg-cards{grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;display:grid}.pg-card{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--pg-line) 50%,transparent);border-radius:16px;flex-direction:column;padding:5px;text-decoration:none;transition:box-shadow .16s;display:flex}@media (hover:hover) and (pointer:fine){.pg-card:hover{box-shadow:inset 0 0 0 1px var(--pg-line)}}.pg-card .pg-thumb{order:-1}.pg-card{position:relative}.pg-card .pg-t{margin:10px 6px 0;text-decoration:none}.pg-link:after{content:"";z-index:2;border-radius:16px;position:absolute;inset:0}.pg-card .pg-d{white-space:nowrap;text-overflow:ellipsis;margin:0 6px 6px;overflow:hidden}.pg-thumb{aspect-ratio:16/10;background:var(--pg-soft);border-radius:12px;position:relative;overflow:hidden}.pg-thumb img{object-fit:cover;width:100%;height:100%;transition:transform .5s cubic-bezier(.16,1,.3,1);position:absolute;inset:0}@media (hover:hover) and (pointer:fine){.pg-card:hover .pg-thumb img{transform:scale(1.025)}}.pg-thumb .dk{display:none}@media (prefers-color-scheme:dark){:root:not([data-theme=light]) .pg-thumb .lt{display:none}:root:not([data-theme=light]) .pg-thumb .dk{display:block}}:root[data-theme=dark] .pg-thumb .lt{display:none}:root[data-theme=dark] .pg-thumb .dk{display:block}@media (width<=860px){.pg-cards{grid-template-columns:repeat(2,minmax(0,1fr))}}@media (width<=520px){.pg-cards{grid-template-columns:minmax(0,1fr)}}.pg-foot{color:var(--pg-muted);border-top:1px solid var(--pg-line);font-size:14px}.pg-foot .pg-wrap{max-width:1464px}.pg-foot-in{flex-wrap:wrap;justify-content:space-between;gap:10px 24px;padding-block:28px 40px;display:flex}.pg-foot nav{flex-wrap:wrap;gap:18px;display:flex}.pg-foot a{color:var(--pg-dim);text-decoration:none}@media (hover:hover) and (pointer:fine){.pg-foot a:hover{color:var(--pg-fg)}}.pg-foot-in>span a{text-decoration:underline;text-decoration-color:var(--pg-line2);text-underline-offset:3px;transition:text-decoration-color .16s}@media (hover:hover) and (pointer:fine){.pg-foot-in>span a:hover{text-decoration-color:currentColor}}@media (width<=960px){:root{--pg-head:61px}.pg-top-in,.pg-wrap{padding:0 24px}.pg-top .pg-style{display:none}.pg-gh{height:32px;padding:0 12px 0 10px}}@media (width<=640px){.pg-top-in,.pg-wrap{padding:0 16px}.pg-h1{font-size:20px}.pg-main{padding:24px 0 64px}.pg-sh{margin-bottom:20px;padding-top:40px}.pg-foot-in{padding-block:24px 32px}}@media (width<=420px){.pg-top-in{gap:4px}.pg-gh{padding:0 9px 0 8px}}@media (pointer:coarse){:where(body) :where(button,a[href],summary,[role=button],[role=tab],[role=switch],[role=radio],[role=checkbox],label:has(input[type=color],input[type=checkbox],input[type=radio])):not(:where([data-c],[data-c] *,.pg-link)){--dm-hit-w:40px;--dm-hit-h:40px;position:relative}:where(body) :where(button,a[href],summary,[role=button],[role=tab],[role=switch],[role=radio],[role=checkbox],label:has(input[type=color],input[type=checkbox],input[type=radio])):not(:where([data-c],[data-c] *,.pg-link,.side-ul .side-a.act,.hire-btn,details.cp-file summary)):before,:where(body) :where(button,a[href],summary,[role=button],[role=tab],[role=switch],[role=radio],[role=checkbox]):where(.side-ul .side-a.act,details.cp-file summary):not(:where([data-c] *)):after{content:"";inset:min(0px,(100% - var(--dm-hit-h)) / 2) min(0px,(100% - var(--dm-hit-w)) / 2);--dm-hit:1;position:absolute}body .hire-btn{overflow:visible}body .hire-btn:before{width:auto;height:auto;top:auto;left:auto;inset:min(0px,(100% - var(--dm-hit-h)) / 2) min(0px,(100% - var(--dm-hit-w)) / 2);opacity:0;--dm-hit:1;background:0 0;border-radius:0;margin:0;transition:none;transform:none}}.pg-skip{z-index:100;background:var(--pg-bg);height:32px;color:var(--pg-fg);box-shadow:inset 0 0 0 1px var(--pg-line2);font:500 13px/1 var(--pg-sans);letter-spacing:0;white-space:nowrap;opacity:0;pointer-events:none;border-radius:999px;align-items:center;padding:0 12px;text-decoration:none;display:inline-flex;position:fixed;top:8px;left:16px;transform:translateY(-48px)}.pg-skip:focus{opacity:1;pointer-events:auto;outline:2px solid var(--pg-focus);outline-offset:2px;transform:none}@media (prefers-reduced-motion:no-preference){.pg-skip{transition:opacity .2s,transform .2s cubic-bezier(.16,1,.3,1)}}#content:focus{outline:none}.pg-sr{clip-path:inset(50%);white-space:nowrap;border:0;width:1px;height:1px;margin:-1px;padding:0;position:absolute;overflow:hidden}
-</style></head><body><a class="pg-skip" href="#content">Skip to content</a><div class="pg-sr" id="pg-live" role="status" aria-live="polite"></div><header class="pg-top app"><div class="pg-top-in"><a class="pg-logo pg-smile" href="/" aria-label="Designme.dev home"><svg viewBox="0 0 759 632" aria-hidden="true" focusable="false"><path fill="currentColor" d="M149.497 283.784C149.477 284.047 149.474 284.311 149.487 284.575C156.385 340.034 183.548 391.116 225.9 428.196C267.989 465.044 322.188 485.532 378.414 485.855L379.743 485.859C436.453 485.868 491.188 465.353 533.619 428.212C575.912 391.194 603.062 340.216 610.018 284.856L610.018 281.512C610.008 277.337 608.324 273.315 605.303 270.335C602.277 267.351 598.155 265.656 593.837 265.656L165.647 265.656C161.338 265.656 157.226 267.349 154.21 270.331C151.198 273.309 149.524 277.326 149.523 281.491L149.523 283.437L149.497 283.784ZM114.378 247.395C118.396 247.391 122.254 245.919 125.214 243.29C128.063 240.759 129.887 237.33 130.396 233.629L130.396 233.35L130.437 232.917C136.355 171.634 165.162 114.754 211.202 73.3687C257.239 31.9859 317.206 9.06063 379.393 9.04448L379.396 9.04448C441.593 9.04583 501.574 31.964 547.624 73.3482C593.677 114.735 622.491 171.624 628.411 232.917L628.453 233.35L628.453 233.643C628.953 237.344 630.773 240.774 633.621 243.304C636.58 245.932 640.437 247.399 644.452 247.395L725.644 247.395C728.882 247.404 732.089 248.06 735.071 249.329C738.055 250.598 740.753 252.453 743.001 254.787C745.252 257.123 747.005 259.891 748.151 262.924C749.296 265.954 749.81 269.183 749.662 272.418L749.663 272.418C745.484 366.797 704.617 455.919 635.615 521.211C566.616 586.499 474.809 622.924 379.338 622.924C283.872 622.924 192.071 586.496 123.081 521.206C54.0935 455.917 13.2412 366.804 9.07133 272.438L9.07036 272.438L9.07036 272.436C9.07007 272.43 9.06967 272.423 9.06938 272.417L9.07036 272.417C8.92272 269.182 9.43655 265.953 10.5811 262.924C11.7276 259.89 13.481 257.123 15.7315 254.787C17.9805 252.452 20.6797 250.597 23.6622 249.329C26.6443 248.06 29.8504 247.404 33.0889 247.395L114.378 247.395Z"/></svg></a><span class="crm-name">Sales CRM template</span><span class="pg-sp"></span><a class="pg-gh" href="https://github.com/bydesignme/designme-dev" aria-label="Star designme.dev on GitHub" data-gh-stars><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg><span class="pg-gh-l">Star on GitHub</span><span class="pg-gh-n" hidden></span></a><div class="pg-seg pg-style" role="radiogroup" aria-label="Style"><button type="button" role="radio" aria-checked="false" data-style-set="bp">Blueprint</button><button type="button" role="radio" aria-checked="false" data-style-set="soft">Soft</button><button type="button" role="radio" aria-checked="false" aria-haspopup="dialog" data-style-set="mine">Your theme</button></div><div class="pg-seg icons" role="radiogroup" aria-label="Theme"><button type="button" role="radio" aria-checked="false" data-theme-set="light" aria-label="Light"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg></button><button type="button" role="radio" aria-checked="false" data-theme-set="dark" aria-label="Dark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"></path></svg></button></div></div></header><main class="pg-app"><div class="crm" data-c="sales-crm" data-view="accounts"><aside class="ahx-side crm-side" aria-label="Workspace"><div class="ahx-ws"><button class="ahx-wsb crm-wsb" data-pop="#crm-p-ws" aria-haspopup="menu"><span class="pfm-lg" data-t="pb">L</span><span class="crm-wst"><span class="t">Larkfield Sales</span><span class="s">8 people</span></span><svg class="i xs" aria-hidden="true"><use href="#i-unfold"/></svg></button></div><nav class="crm-nav" aria-label="Views"><button class="ahx-cv" data-go="accounts"><svg class="i s" aria-hidden="true"><use href="#i-table"/></svg><span class="t">Accounts</span><span class="n num" data-count="accounts"></span></button><button class="ahx-cv" data-go="pipeline"><svg class="i s" aria-hidden="true"><use href="#i-grid"/></svg><span class="t">Pipeline</span><span class="n num" data-count="deals"></span></button><button class="ahx-cv" data-go="forecast"><svg class="i s" aria-hidden="true"><use href="#i-chart"/></svg><span class="t">Forecast</span></button><button class="ahx-cv" data-go="calendar"><svg class="i s" aria-hidden="true"><use href="#i-cal"/></svg><span class="t">Calendar</span><span class="n num" data-count="meetings" data-tip="Meetings booked this week"></span></button></nav><div class="ahx-lh"><span>Agent</span></div><nav class="crm-nav" aria-label="Agent"><button class="ahx-cv" data-go="inbox"><svg class="i s" aria-hidden="true"><use href="#i-spark"/></svg><span class="t">Agent inbox</span><span class="n num crm-wait" data-count="inbox"></span></button><button class="ahx-cv" data-saved="closing"><svg class="i s" aria-hidden="true"><use href="#i-target"/></svg><span class="t">Closing this month</span><span class="n num" data-count="closing"></span></button><button class="ahx-cv" data-saved="nostep"><svg class="i s" aria-hidden="true"><use href="#i-flag"/></svg><span class="t">No next step</span><span class="n num" data-count="nostep"></span></button><button class="ahx-cv" data-saved="quiet"><svg class="i s" aria-hidden="true"><use href="#i-history"/></svg><span class="t">Quiet for 2+ weeks</span><span class="n num" data-count="quiet"></span></button></nav></aside><div class="ahx-scrim crm-scrim" aria-hidden="true"></div><div class="crm-main"><header class="crm-top"><button class="ib crm-menu" aria-label="Show views" data-tip="Views"><svg class="i s" aria-hidden="true"><use href="#i-panel"/></svg></button><div class="crm-ttl"><h1 class="crm-h1" id="content" tabindex="-1"><span class="crm-h1t">Accounts</span></h1><span class="crm-sum muted num" aria-live="polite"></span></div><span class="crm-sp"></span><button class="kbx-q crm-find" aria-label="Search accounts, deals and actions" aria-keyshortcuts="Control+K Meta+K"><svg class="i xs" aria-hidden="true"><use href="#i-search"/></svg><span class="t">Jump to</span><span class="kbd">⌘K</span></button><button class="ib crm-bell" data-pop="#crm-p-ntf" data-pop-align="end" aria-haspopup="dialog" aria-label="Notifications" data-tip="Notifications"><svg class="i s" aria-hidden="true"><use href="#i-bell"/></svg><i class="crm-unread" aria-hidden="true"></i></button><button class="pfm-tr crm-me" data-pop="#crm-p-me" data-pop-align="end" aria-haspopup="menu" aria-label="Account menu, Nina Cole"><span class="av" style="background:var(--dm-av-m);color:var(--dm-av-m-ink)">NC</span><span class="crm-men">Nina Cole</span><svg class="i xs" aria-hidden="true"><use href="#i-chev-d"/></svg></button></header><!-- Accounts: the task table's header, bulk bar, sort buttons and checkboxes, with Filter menu's chips and Search input's
-           field and answer line in the toolbar --><section class="crm-view ttx crm-co" id="crm-v-accounts" aria-label="Accounts"><div class="ttx-hd crm-hd"><div class="ttx-ti crm-fbar" role="toolbar" aria-label="Filter, search and sort"><div class="crm-chips"><button class="pill line sm flm-tr crm-ftr" data-pop="#crm-p-flt" aria-haspopup="menu"><svg class="i s" aria-hidden="true"><use href="#i-filter"/></svg>Filter</button><div class="flm-chips crm-fch" role="list" aria-label="Filters"></div><button class="pill ghost sm crm-clr" hidden>Clear</button><span class="crm-inview muted num"></span></div><div class="crm-acts"><div class="six-box crm-ask"><div class="six-in"><svg class="i xs" aria-hidden="true"><use href="#i-search"/></svg><input type="search" placeholder="Search, or ask in plain words" aria-label="Search accounts, or ask in plain words and press Enter" autocomplete="off" spellcheck="false"><button class="ib six-x" aria-label="Clear the search" hidden><svg class="i xs" aria-hidden="true"><use href="#i-x"/></svg></button></div></div><button class="pill line sm crm-sort" data-pop="#crm-p-sort" data-pop-align="end" aria-haspopup="menu" aria-label="Sort"><svg class="i xs" aria-hidden="true"><use href="#i-sort"/></svg><span class="v">Pipeline</span></button><button class="pill line sm crm-export" aria-label="Export accounts in view as CSV"><svg class="i xs" aria-hidden="true"><use href="#i-down"/></svg><span>Export CSV</span></button><button class="pill primary sm crm-new" aria-label="Add account"><svg class="i xs" aria-hidden="true"><use href="#i-plus"/></svg><span>Add account</span></button></div></div><div class="ttx-sb" inert><span class="ttx-n num"></span><button class="pill ghost sm" data-pop="#crm-p-assign" aria-haspopup="menu"><svg class="i xs" aria-hidden="true"><use href="#i-user"/></svg>Assign owner</button><button class="pill ghost sm" data-pop="#crm-p-move" aria-haspopup="menu"><svg class="i xs" aria-hidden="true"><use href="#i-right"/></svg>Move stage</button><button class="pill ghost sm" data-a="export"><svg class="i xs" aria-hidden="true"><use href="#i-down"/></svg>Export</button><button class="pill ghost sm ttx-del" data-a="delete"><svg class="i xs" aria-hidden="true"><use href="#i-trash"/></svg>Delete</button><span class="ttx-sp"></span><button class="pill ghost sm ttx-clr">Clear</button></div></div><div class="crm-ans" hidden><div class="six-ans"><svg class="i xs" aria-hidden="true"><use href="#i-spark"/></svg><span class="t" aria-live="polite"></span><button class="pill ghost sm crm-ansx">Clear</button></div></div><div class="ttx-sc crm-sc" tabindex="0" role="region" aria-label="Accounts table"><table class="ttx-t crm-t"><thead><tr><th class="ck stk"><button class="ttx-cb ttx-all" role="checkbox" aria-checked="false" aria-label="Select all accounts in view"></button></th><th class="stk2"><button class="ttx-s" data-k="name">Account</button></th><th><button class="ttx-s" data-k="stage">Stage</button></th><th><button class="ttx-s" data-k="next">Next step</button></th><th><button class="ttx-s" data-k="owner">Owner</button></th><th class="r"><button class="ttx-s" data-k="value">Pipeline</button></th><th><button class="ttx-s" data-k="health">Health</button></th><th>Agent</th><th class="r crm-actc"><span class="pg-sr">Actions</span></th></tr></thead><tbody></tbody></table></div></section><!-- Agent inbox: Agent inbox's grouped list, one row per thing the agent prepared --><section class="crm-view crm-ib" id="crm-v-inbox" aria-label="Agent inbox" hidden><div class="aib panel crm-aib"><div class="aib-h"><b>Prepared by the agent</b><span class="muted aib-st" aria-live="polite"></span></div><div class="aib-gs"></div></div></section><!-- Calendar: Event calendar's week, with the deals closing each day under the day headers --><section class="crm-view crm-cal" id="crm-v-calendar" aria-label="Calendar" hidden><div class="ecx panel crm-ecx"><div class="ecx-h"><div class="crm-wk"><button class="ib" data-wk="-1" aria-label="Previous week" data-tip="Previous week"><svg class="i xs" aria-hidden="true"><use href="#i-chev-l"/></svg></button><button class="ib" data-wk="1" aria-label="Next week" data-tip="Next week"><svg class="i xs" aria-hidden="true"><use href="#i-chev-r"/></svg></button><button class="pill line sm" data-wk="0">Today</button></div><b class="crm-wkt num"></b><span class="ecx-sp"></span><span class="ecx-msg muted" aria-live="polite"></span><button class="pill soft sm ecx-ask crm-plan"><svg class="i xs" aria-hidden="true"><use href="#i-spark"/></svg><span>Plan follow-ups</span></button></div><div class="ecx-days" role="group" aria-label="Day"></div><div class="ecx-sc"><div class="ecx-grid"><div class="ecx-tm"></div></div></div><div class="crm-leg muted" aria-label="Owners"></div></div></section><!-- Pipeline: the Kanban board, with the stages as columns --><section class="crm-view crm-deals" id="crm-v-pipeline" aria-label="Pipeline" hidden><div class="kbx crm-kb"><div class="kbx-hd"><div class="kbx-ti"><b>Open deals by stage</b><span class="num crm-kbsum"></span></div><div class="kbx-fp" role="group" aria-label="Filter by owner"></div><span class="kbx-sp"></span><label class="kbx-q"><svg class="i xs" aria-hidden="true"><use href="#i-search"/></svg><input type="search" placeholder="Search deals" aria-label="Search deals" autocomplete="off"><button class="ib kbx-qx" aria-label="Clear the search" hidden><svg class="i xs" aria-hidden="true"><use href="#i-x"/></svg></button></label><div class="seg2 kbx-vw" role="group" aria-label="Layout"><button aria-pressed="true" data-v="board"><svg class="i xs" aria-hidden="true"><use href="#i-grid"/></svg><span class="lb">Board</span></button><button aria-pressed="false" data-v="list"><svg class="i xs" aria-hidden="true"><use href="#i-list"/></svg><span class="lb">List</span></button></div></div><div class="kbx-fl"><button class="chip sm kbx-f" data-pop="#crm-p-close" aria-haspopup="menu" data-f="close"><span class="k">Closes</span><span class="v"></span><svg class="i xs" aria-hidden="true"><use href="#i-chev-d"/></svg></button><button class="pill ghost sm kbx-clr" hidden>Clear</button><div class="crm-dock" role="group" aria-label="Hidden stages" hidden><span class="crm-dkl">Hidden</span><div class="crm-dks"></div></div><span class="kbx-sp"></span><span class="kbx-cnt num"></span></div><div class="kbx-bar"><div class="seg2 kbx-tabs" role="group" aria-label="Stage"></div></div><div class="kbx-bd"><div class="kbx-cols"></div><div class="kbx-em" hidden><span class="ic"><svg class="i s" aria-hidden="true"><use href="#i-filter"/></svg></span><b>No deals match</b><span>Try another owner, date or search.</span><button class="pill line sm crm-kbclr">Clear filters</button></div></div><div class="kbx-sr" aria-live="polite"></div></div></section><!-- Forecast: Stat cards, Line chart, Activity heatmap, Funnel, Radial goals and Progress meters, worked out from the deals --><section class="crm-view crm-fc" id="crm-v-forecast" aria-label="Forecast" hidden><div class="scx-grid crm-c12"></div><div class="lnx panel crm-c6"><div class="lnx-h"><div><span class="muted">Closed won, cumulative</span><b class="num lnx-v">$0</b></div><div class="lnx-lg"><button class="lnx-k on" data-s="0" aria-pressed="true"><i style="background:var(--dm-accent-mark,var(--dm-accent))"></i>Q4 2026</button><button class="lnx-k on" data-s="1" aria-pressed="true"><i style="background:var(--dm-c2)"></i>Q3 2026</button></div></div><div class="lnx-ch"><svg class="lnx-svg" viewBox="0 0 320 140" preserveAspectRatio="none" aria-hidden="true"></svg><div class="lnx-x"></div><div class="lnx-tt"><b class="num"></b><span></span></div></div><div class="lnx-ax muted num" aria-hidden="true"><span>Wk 1</span><span>Wk 3</span><span>Wk 5</span><span>Wk 7</span><span>Wk 9</span><span>Wk 11</span><span>Wk 13</span></div></div><div class="hmx panel crm-hm crm-c6"><div class="hmx-h"><div><b>Team activity</b><span class="muted hmx-st">Last 12 weeks</span></div><div class="seg2 hmx-sg" role="group" aria-label="Whose activity"><button aria-pressed="true" data-v="team">Team</button><button aria-pressed="false" data-v="agent">Agent</button></div></div><div class="hmx-wrap"><div class="hmx-sc"><div class="hmx-days muted"><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span></div><div class="hmx-grid"></div><div class="hmx-f muted num"></div></div></div><div class="hmx-lg muted">Less<i style="--dm-a:.08"></i><i style="--dm-a:.3"></i><i style="--dm-a:.55"></i><i style="--dm-a:.85"></i>More</div></div><div class="fnx panel crm-c4"><div class="fnx-h"><b>Stage conversion</b><span class="muted crm-fnn num"></span></div><div class="fnx-rows"></div><div class="fnx-ins"><span class="fnx-ic"><svg class="i xs" aria-hidden="true"><use href="#i-spark"/></svg></span><span class="fnx-t"></span></div></div><div class="rgx panel crm-c4"><div class="rgx-h"><div class="rgx-t"><b>Team quotas</b><span class="muted rgx-sub">Q4, closed won against quota</span></div></div><div class="rgx-b"><div class="rgx-ring"><svg viewBox="0 0 180 180" aria-hidden="true"></svg><div class="rgx-c"><b class="num">0%</b><span class="muted">of quota</span></div></div><div class="rgx-lg"></div></div></div><div class="panel crm-own crm-c4"><div class="crm-ph"><b>Quota attainment</b><span class="crm-lgd muted"><i class="w"></i>Won<i class="c"></i>Commit</span></div><div class="crm-owl"></div></div></section><!-- the account's details: the Details panel's sections and rows, as a sheet over the right of the screen --><aside class="crm-sheet" role="dialog" aria-modal="false" aria-label="Account details" inert><div class="dtp crm-dtp"></div></aside></div><!-- a dimmed overlay under the open sheet, over the rest of the app; a click on it closes the sheet --><div class="crm-shade" aria-hidden="true"></div><!-- menus: the shared core opens each from its button (data-pop) --><div class="pop crm-pop" id="crm-p-ws" role="menu" aria-label="Workspaces"></div><div class="pop crm-pop flm-pop crm-flt" id="crm-p-flt" role="menu" aria-label="Filter by"></div><div class="pop crm-pop" id="crm-p-sort" role="menu" aria-label="Sort"></div><div class="pop crm-pop" id="crm-p-close" role="menu" aria-label="Close date"></div><div class="pop crm-pop" id="crm-p-assign" role="menu" aria-label="Assign owner"></div><div class="pop crm-pop" id="crm-p-move" role="menu" aria-label="Move to stage"></div><div class="pop crm-pop" id="crm-p-row" role="menu" aria-label="Account actions"></div><div class="pop crm-pop" id="crm-p-mv" role="menu" aria-label="Move deal to"></div><div class="pop crm-pop" id="crm-p-sown" role="menu" aria-label="Account owner"></div><div class="pop crm-pop" id="crm-p-sstage" role="menu" aria-label="Stage"></div><div class="pop crm-pop" id="crm-p-ied" role="menu" aria-label="Change the suggestion"></div><div class="pop crm-pop crm-acc" id="crm-p-acc" role="menu" aria-label="Account"></div><div class="pop crm-pop" id="crm-p-cls" role="menu" aria-label="Closing that day"></div><div class="pop crm-pop crm-ntf" id="crm-p-ntf" role="dialog" aria-label="Notifications"><div class="ntx"><div class="ntx-h"><b>Notifications</b><span class="ntx-ct num">0</span><span class="ntx-sp"></span><button class="pill ghost sm ntx-all">Mark all read</button></div><div class="ntx-tabs"><div class="seg2" role="group" aria-label="Show"><button aria-pressed="true" data-v="all">All</button><button aria-pressed="false" data-v="men">Mentions</button><button aria-pressed="false" data-v="deal">Deals</button></div></div><div class="ntx-list"></div></div></div><div class="pop pfm-pop crm-pop" id="crm-p-me" role="menu" aria-labelledby="crm-me-n crm-me-e"><div class="pfm-me" role="none"><span class="av" style="background:var(--dm-av-m);color:var(--dm-av-m-ink)">NC</span><span class="t"><b id="crm-me-n">Nina Cole</b><span class="muted" id="crm-me-e">Head of sales</span></span></div><div class="sep" role="separator"></div><button class="mi pfm-th" role="menuitemcheckbox" aria-checked="false" tabindex="-1"><svg class="i s" aria-hidden="true"><use href="#i-moon"/></svg><span>Dark theme</span><span class="toggle" aria-hidden="true"></span></button><button class="mi" role="menuitem" tabindex="-1" data-act="help" data-close><svg class="i s" aria-hidden="true"><use href="#i-keyboard"/></svg><span>Keyboard shortcuts</span><span class="kbd" aria-hidden="true">?</span></button><div class="sep" role="separator"></div><button class="mi" role="menuitem" tabindex="-1" data-act="signout" data-close><svg class="i s" aria-hidden="true"><use href="#i-logout"/></svg><span>Sign out</span></button></div><!-- jump to: the Command palette, over the app --><div class="crm-over crm-cmd" hidden><div class="cpl panel" role="dialog" aria-label="Jump to"><div class="cpl-in"><svg class="i s" aria-hidden="true"><use href="#i-search"/></svg><input class="cpl-q" placeholder="Jump to an account, a deal or an action" aria-label="Jump to" spellcheck="false" autocomplete="off"><span class="kbd">esc</span></div><div class="cpl-list" role="listbox" aria-label="Results"></div><div class="cpl-f muted"><span><span class="kbd">↑</span><span class="kbd">↓</span> move</span><span><span class="kbd">↵</span> open</span><span class="cpl-st"></span></div></div></div><!-- Add account: the Form --><div class="crm-over crm-newd" hidden><form class="fmx panel" role="dialog" aria-modal="true" aria-labelledby="crm-new-h" novalidate><div class="fmx-h"><b id="crm-new-h">Add account</b><button type="button" class="ib crm-newx" aria-label="Close" data-tip="Close"><svg class="i xs" aria-hidden="true"><use href="#i-x"/></svg></button></div><label class="fmx-f"><span>Account name</span><input name="n" placeholder="Hollis &amp; Rowe" maxlength="40" autocomplete="off"></label><div class="fmx-f"><span id="crm-new-seg">Segment</span><div class="fmx-ty" role="radiogroup" aria-labelledby="crm-new-seg"></div></div><div class="fmx-f"><span id="crm-new-own">Owner</span><div class="fmx-ty" role="radiogroup" aria-labelledby="crm-new-own"></div></div><label class="fmx-f"><span>First deal value</span><input name="v" inputmode="numeric" placeholder="$40,000" autocomplete="off"></label><div class="fmx-ft"><span class="fmx-ms muted">The deal starts in Discovery</span><button class="pill primary sm fmx-go" type="submit">Add account</button></div></form></div><div class="crm-toasts" aria-live="polite"></div></div></main><footer class="pg-foot"><div class="pg-wrap"><div class="pg-foot-in"><span>Free and MIT licensed. Built by <a href="https://designme.agency">DesignMe</a>.</span><nav aria-label="More"><a href="/">All components</a><a href="/docs/introduction">Docs</a><a href="/#/changelog">Changelog</a><a href="/#/roadmap">Roadmap</a><a href="/llms.txt">llms.txt</a><a href="/">Home</a></nav></div></div></footer><script>
+</style></head><body><a class="pg-skip" href="#content">Skip to content</a><div class="pg-sr" id="pg-live" role="status" aria-live="polite"></div><header class="pg-top app"><div class="pg-top-in"><a class="pg-logo pg-smile" href="/" aria-label="Designme.dev home"><svg viewBox="0 0 759 632" aria-hidden="true" focusable="false"><path fill="currentColor" d="M149.497 283.784C149.477 284.047 149.474 284.311 149.487 284.575C156.385 340.034 183.548 391.116 225.9 428.196C267.989 465.044 322.188 485.532 378.414 485.855L379.743 485.859C436.453 485.868 491.188 465.353 533.619 428.212C575.912 391.194 603.062 340.216 610.018 284.856L610.018 281.512C610.008 277.337 608.324 273.315 605.303 270.335C602.277 267.351 598.155 265.656 593.837 265.656L165.647 265.656C161.338 265.656 157.226 267.349 154.21 270.331C151.198 273.309 149.524 277.326 149.523 281.491L149.523 283.437L149.497 283.784ZM114.378 247.395C118.396 247.391 122.254 245.919 125.214 243.29C128.063 240.759 129.887 237.33 130.396 233.629L130.396 233.35L130.437 232.917C136.355 171.634 165.162 114.754 211.202 73.3687C257.239 31.9859 317.206 9.06063 379.393 9.04448L379.396 9.04448C441.593 9.04583 501.574 31.964 547.624 73.3482C593.677 114.735 622.491 171.624 628.411 232.917L628.453 233.35L628.453 233.643C628.953 237.344 630.773 240.774 633.621 243.304C636.58 245.932 640.437 247.399 644.452 247.395L725.644 247.395C728.882 247.404 732.089 248.06 735.071 249.329C738.055 250.598 740.753 252.453 743.001 254.787C745.252 257.123 747.005 259.891 748.151 262.924C749.296 265.954 749.81 269.183 749.662 272.418L749.663 272.418C745.484 366.797 704.617 455.919 635.615 521.211C566.616 586.499 474.809 622.924 379.338 622.924C283.872 622.924 192.071 586.496 123.081 521.206C54.0935 455.917 13.2412 366.804 9.07133 272.438L9.07036 272.438L9.07036 272.436C9.07007 272.43 9.06967 272.423 9.06938 272.417L9.07036 272.417C8.92272 269.182 9.43655 265.953 10.5811 262.924C11.7276 259.89 13.481 257.123 15.7315 254.787C17.9805 252.452 20.6797 250.597 23.6622 249.329C26.6443 248.06 29.8504 247.404 33.0889 247.395L114.378 247.395Z"/></svg></a><span class="crm-name">Sales CRM template</span><span class="pg-sp"></span><a class="pg-gh" href="https://github.com/bydesignme/designme-dev" aria-label="Star designme.dev on GitHub" data-gh-stars><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg><span class="pg-gh-l">Star on GitHub</span><span class="pg-gh-n" hidden></span></a><div class="pg-seg pg-style" role="radiogroup" aria-label="Style"><button type="button" role="radio" aria-checked="false" data-style-set="bp">Blueprint</button><button type="button" role="radio" aria-checked="false" data-style-set="soft">Soft</button><button type="button" role="radio" aria-checked="false" aria-haspopup="dialog" data-style-set="mine">Your theme</button></div><div class="pg-seg icons" role="radiogroup" aria-label="Theme"><button type="button" role="radio" aria-checked="false" data-theme-set="light" aria-label="Light"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg></button><button type="button" role="radio" aria-checked="false" data-theme-set="dark" aria-label="Dark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"></path></svg></button></div></div></header><main class="pg-app"><div class="crm" data-c="sales-crm" data-view="accounts"><aside class="ahx-side crm-side" aria-label="Workspace"><div class="ahx-ws"><button class="ahx-wsb crm-wsb" data-pop="#crm-p-ws" aria-haspopup="menu"><span class="pfm-lg" data-t="pb">L</span><span class="crm-wst"><span class="t">Larkfield Sales</span><span class="s">8 people</span></span><svg class="i xs" aria-hidden="true"><use href="#i-unfold"/></svg></button></div><nav class="crm-nav" aria-label="Views"><button class="ahx-cv" data-go="accounts"><svg class="i s" aria-hidden="true"><use href="#i-table"/></svg><span class="t">Accounts</span><span class="n num" data-count="accounts"></span></button><button class="ahx-cv" data-go="pipeline"><svg class="i s" aria-hidden="true"><use href="#i-grid"/></svg><span class="t">Pipeline</span><span class="n num" data-count="deals"></span></button><button class="ahx-cv" data-go="forecast"><svg class="i s" aria-hidden="true"><use href="#i-chart"/></svg><span class="t">Forecast</span></button><button class="ahx-cv" data-go="calendar"><svg class="i s" aria-hidden="true"><use href="#i-cal"/></svg><span class="t">Calendar</span><span class="n num" data-count="meetings" data-tip="Meetings booked this week"></span></button></nav><div class="ahx-lh"><span>Agent</span></div><nav class="crm-nav" aria-label="Agent"><button class="ahx-cv" data-go="inbox"><svg class="i s" aria-hidden="true"><use href="#i-spark"/></svg><span class="t">Agent inbox</span><span class="n num crm-wait" data-count="inbox"></span></button><button class="ahx-cv" data-saved="closing"><svg class="i s" aria-hidden="true"><use href="#i-target"/></svg><span class="t">Closing this month</span><span class="n num" data-count="closing"></span></button><button class="ahx-cv" data-saved="nostep"><svg class="i s" aria-hidden="true"><use href="#i-flag"/></svg><span class="t">No next step</span><span class="n num" data-count="nostep"></span></button><button class="ahx-cv" data-saved="quiet"><svg class="i s" aria-hidden="true"><use href="#i-history"/></svg><span class="t">Quiet for 2+ weeks</span><span class="n num" data-count="quiet"></span></button></nav></aside><div class="ahx-scrim crm-scrim" aria-hidden="true"></div><div class="crm-main"><header class="crm-top"><button class="ib crm-menu" aria-label="Show views" data-tip="Views"><svg class="i s" aria-hidden="true"><use href="#i-panel"/></svg></button><div class="crm-ttl"><h1 class="crm-h1" id="content" tabindex="-1"><span class="crm-h1t">Accounts</span></h1><span class="crm-sum muted num" aria-live="polite"></span></div><span class="crm-sp"></span><button class="ib crm-find" aria-label="Jump to an account, a deal or an action" aria-keyshortcuts="Control+K Meta+K" data-tip="Jump to" data-tip-k="⌘K"><svg class="i s" aria-hidden="true"><use href="#i-search"/></svg></button><button class="ib crm-bell" data-pop="#crm-p-ntf" data-pop-align="end" aria-haspopup="dialog" aria-label="Notifications" data-tip="Notifications"><svg class="i s" aria-hidden="true"><use href="#i-bell"/></svg><i class="crm-unread" aria-hidden="true"></i></button><button class="pfm-tr crm-me" data-pop="#crm-p-me" data-pop-align="end" aria-haspopup="menu" aria-label="Account menu, Nina Cole"><span class="av" style="background:var(--dm-av-m);color:var(--dm-av-m-ink)">NC</span><span class="crm-men">Nina Cole</span><svg class="i xs" aria-hidden="true"><use href="#i-chev-d"/></svg></button></header><!-- Accounts: the task table's header, bulk bar, sort buttons and checkboxes, with Filter menu's chips and Search input's
+           field and answer line in the toolbar --><section class="crm-view ttx crm-co" id="crm-v-accounts" aria-label="Accounts"><div class="ttx-hd crm-hd"><div class="ttx-ti crm-fbar" role="toolbar" aria-label="Filter, search and sort"><div class="crm-chips" hidden><div class="flm-chips crm-fch" role="list" aria-label="Filters"></div><button class="pill ghost sm crm-clr" hidden>Clear</button><span class="crm-inview muted num"></span></div><div class="crm-acts"><div class="six-box crm-ask"><div class="six-in"><svg class="i xs" aria-hidden="true"><use href="#i-search"/></svg><input type="search" placeholder="Search, or ask in plain words" aria-label="Search accounts, or ask in plain words and press Enter" autocomplete="off" spellcheck="false"><button class="ib six-x" aria-label="Clear the search" hidden><svg class="i xs" aria-hidden="true"><use href="#i-x"/></svg></button></div></div><button class="pill line sm flm-tr crm-ftr" data-pop="#crm-p-flt" data-pop-align="end" aria-haspopup="menu"><svg class="i xs" aria-hidden="true"><use href="#i-filter"/></svg><span>Filter</span></button><button class="pill line sm crm-sort" data-pop="#crm-p-sort" data-pop-align="end" aria-haspopup="menu" aria-label="Sort"><svg class="i xs" aria-hidden="true"><use href="#i-sort"/></svg><span class="v">Pipeline</span></button><button class="pill line sm crm-export" aria-label="Export accounts in view as CSV"><svg class="i xs" aria-hidden="true"><use href="#i-down"/></svg><span>Export CSV</span></button><button class="pill primary sm crm-new" aria-label="Add account"><svg class="i xs" aria-hidden="true"><use href="#i-plus"/></svg><span>Add account</span></button></div></div><div class="ttx-sb" inert><span class="ttx-n num"></span><button class="pill ghost sm" data-pop="#crm-p-assign" aria-haspopup="menu"><svg class="i xs" aria-hidden="true"><use href="#i-user"/></svg>Assign owner</button><button class="pill ghost sm" data-pop="#crm-p-move" aria-haspopup="menu"><svg class="i xs" aria-hidden="true"><use href="#i-right"/></svg>Move stage</button><button class="pill ghost sm" data-a="export"><svg class="i xs" aria-hidden="true"><use href="#i-down"/></svg>Export</button><button class="pill ghost sm ttx-del" data-a="delete"><svg class="i xs" aria-hidden="true"><use href="#i-trash"/></svg>Delete</button><span class="ttx-sp"></span><button class="pill ghost sm ttx-clr">Clear</button></div></div><div class="crm-ans" hidden><div class="six-ans"><svg class="i xs" aria-hidden="true"><use href="#i-spark"/></svg><span class="t" aria-live="polite"></span><button class="pill ghost sm crm-ansx">Clear</button></div></div><div class="ttx-sc crm-sc" tabindex="0" role="region" aria-label="Accounts table"><table class="ttx-t crm-t"><thead><tr><th class="ck stk"><button class="ttx-cb ttx-all" role="checkbox" aria-checked="false" aria-label="Select all accounts in view"></button></th><th class="stk2"><button class="ttx-s" data-k="name">Account</button></th><th><button class="ttx-s" data-k="stage">Stage</button></th><th><button class="ttx-s" data-k="next">Next step</button></th><th><button class="ttx-s" data-k="owner">Owner</button></th><th class="r"><button class="ttx-s" data-k="value">Pipeline</button></th><th><button class="ttx-s" data-k="health">Health</button></th><th>Agent</th><th class="r crm-actc"><span class="pg-sr">Actions</span></th></tr></thead><tbody></tbody></table></div></section><!-- Agent inbox: Agent inbox's grouped list on the left, a preview of the selected item on the right (a sheet on a phone) --><section class="crm-view crm-ib" id="crm-v-inbox" aria-label="Agent inbox" hidden><div class="aib panel crm-aib"><div class="aib-h"><b>Prepared by the agent</b><span class="muted aib-st" aria-live="polite"></span></div><div class="aib-gs"></div></div><div class="panel crm-ipv" role="region" aria-label="Preview"></div></section><!-- Calendar: Event calendar's week, with the deals closing each day under the day headers --><section class="crm-view crm-cal" id="crm-v-calendar" aria-label="Calendar" hidden><div class="ecx panel crm-ecx"><div class="ecx-h"><div class="crm-wk"><button class="ib" data-wk="-1" aria-label="Previous week" data-tip="Previous week"><svg class="i xs" aria-hidden="true"><use href="#i-chev-l"/></svg></button><button class="ib" data-wk="1" aria-label="Next week" data-tip="Next week"><svg class="i xs" aria-hidden="true"><use href="#i-chev-r"/></svg></button><button class="pill line sm" data-wk="0">Today</button></div><b class="crm-wkt num"></b><span class="ecx-sp"></span><span class="ecx-msg muted" aria-live="polite"></span><button class="pill soft sm ecx-ask crm-plan"><svg class="i xs" aria-hidden="true"><use href="#i-spark"/></svg><span>Plan follow-ups</span></button></div><div class="ecx-days" role="group" aria-label="Day"></div><div class="ecx-sc"><div class="ecx-grid"><div class="ecx-tm"></div></div></div><div class="crm-leg muted" aria-label="Owners"></div></div></section><!-- Pipeline: the Kanban board, with the stages as columns --><section class="crm-view crm-deals" id="crm-v-pipeline" aria-label="Pipeline" hidden><div class="kbx crm-kb"><div class="kbx-hd"><div class="kbx-ti"><b>Open deals by stage</b><span class="num crm-kbsum"></span></div><div class="kbx-fp" role="group" aria-label="Filter by owner"></div><span class="kbx-sp"></span><label class="kbx-q"><svg class="i xs" aria-hidden="true"><use href="#i-search"/></svg><input type="search" placeholder="Search deals" aria-label="Search deals" autocomplete="off"><button class="ib kbx-qx" aria-label="Clear the search" hidden><svg class="i xs" aria-hidden="true"><use href="#i-x"/></svg></button></label><div class="seg2 kbx-vw" role="group" aria-label="Layout"><button aria-pressed="true" data-v="board"><svg class="i xs" aria-hidden="true"><use href="#i-grid"/></svg><span class="lb">Board</span></button><button aria-pressed="false" data-v="list"><svg class="i xs" aria-hidden="true"><use href="#i-list"/></svg><span class="lb">List</span></button></div></div><div class="kbx-fl"><button class="chip sm kbx-f" data-pop="#crm-p-close" aria-haspopup="menu" data-f="close"><span class="k">Closes</span><span class="v"></span><svg class="i xs" aria-hidden="true"><use href="#i-chev-d"/></svg></button><button class="pill ghost sm kbx-clr" hidden>Clear</button><div class="crm-dock" role="group" aria-label="Hidden stages" hidden><span class="crm-dkl">Hidden</span><div class="crm-dks"></div></div><span class="kbx-sp"></span><span class="kbx-cnt num"></span></div><div class="kbx-bar"><div class="seg2 kbx-tabs" role="group" aria-label="Stage"></div></div><div class="kbx-bd"><div class="kbx-cols"></div><div class="kbx-em" hidden><span class="ic"><svg class="i s" aria-hidden="true"><use href="#i-filter"/></svg></span><b>No deals match</b><span>Try another owner, date or search.</span><button class="pill line sm crm-kbclr">Clear filters</button></div></div><div class="kbx-sr" aria-live="polite"></div></div></section><!-- Forecast: Stat cards, Line chart, Activity heatmap, Funnel, Radial goals and Progress meters, worked out from the deals --><section class="crm-view crm-fc" id="crm-v-forecast" aria-label="Forecast" hidden><div class="scx-grid crm-c12"></div><div class="lnx panel crm-c6"><div class="lnx-h"><div><span class="muted">Closed won, cumulative</span><b class="num lnx-v">$0</b></div><div class="lnx-lg"><button class="lnx-k on" data-s="0" aria-pressed="true"><i style="background:var(--dm-accent-mark,var(--dm-accent))"></i>Q4 2026</button><button class="lnx-k on" data-s="1" aria-pressed="true"><i style="background:var(--dm-c2)"></i>Q3 2026</button></div></div><div class="lnx-ch"><svg class="lnx-svg" viewBox="0 0 320 140" preserveAspectRatio="none" aria-hidden="true"></svg><div class="lnx-x"></div><div class="lnx-tt"><b class="num"></b><span></span></div></div><div class="lnx-ax muted num" aria-hidden="true"><span>Wk 1</span><span>Wk 3</span><span>Wk 5</span><span>Wk 7</span><span>Wk 9</span><span>Wk 11</span><span>Wk 13</span></div></div><div class="hmx panel crm-hm crm-c6"><div class="hmx-h"><div><b>Team activity</b><span class="muted hmx-st">Last 12 weeks</span></div><div class="seg2 hmx-sg" role="group" aria-label="Whose activity"><button aria-pressed="true" data-v="team">Team</button><button aria-pressed="false" data-v="agent">Agent</button></div></div><div class="hmx-wrap"><div class="hmx-sc"><div class="hmx-days muted"><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span></div><div class="hmx-grid"></div><div class="hmx-f muted num"></div></div></div><div class="hmx-lg muted">Less<i style="--dm-a:.08"></i><i style="--dm-a:.3"></i><i style="--dm-a:.55"></i><i style="--dm-a:.85"></i>More</div></div><div class="fnx panel crm-c4"><div class="fnx-h"><b>Stage conversion</b><span class="muted crm-fnn num"></span></div><div class="fnx-rows"></div><div class="fnx-ins"><span class="fnx-ic"><svg class="i xs" aria-hidden="true"><use href="#i-spark"/></svg></span><span class="fnx-t"></span></div></div><div class="rgx panel crm-c4"><div class="rgx-h"><div class="rgx-t"><b>Team quotas</b><span class="muted rgx-sub">Q4, closed won against quota</span></div></div><div class="rgx-b"><div class="rgx-ring"><svg viewBox="0 0 180 180" aria-hidden="true"></svg><div class="rgx-c"><b class="num">0%</b><span class="muted">of quota</span></div></div><div class="rgx-lg"></div></div></div><div class="panel crm-own crm-c4"><div class="crm-ph"><b>Quota attainment</b><span class="crm-lgd muted"><i class="w"></i>Won<i class="c"></i>Commit</span></div><div class="crm-owl"></div></div></section><!-- the account's details: the Details panel's sections and rows, as a sheet over the right of the screen --><aside class="crm-sheet" role="dialog" aria-modal="false" aria-label="Account details" inert><div class="dtp crm-dtp"></div></aside></div><!-- a dimmed overlay under the open sheet, over the rest of the app; a click on it closes the sheet --><div class="crm-shade" aria-hidden="true"></div><!-- menus: the shared core opens each from its button (data-pop) --><div class="pop crm-pop" id="crm-p-ws" role="menu" aria-label="Workspaces"></div><div class="pop crm-pop flm-pop crm-flt" id="crm-p-flt" role="menu" aria-label="Filter by"></div><div class="pop crm-pop" id="crm-p-sort" role="menu" aria-label="Sort"></div><div class="pop crm-pop" id="crm-p-close" role="menu" aria-label="Close date"></div><div class="pop crm-pop" id="crm-p-assign" role="menu" aria-label="Assign owner"></div><div class="pop crm-pop" id="crm-p-move" role="menu" aria-label="Move to stage"></div><div class="pop crm-pop" id="crm-p-row" role="menu" aria-label="Account actions"></div><div class="pop crm-pop" id="crm-p-mv" role="menu" aria-label="Move deal to"></div><div class="pop crm-pop" id="crm-p-sown" role="menu" aria-label="Account owner"></div><div class="pop crm-pop" id="crm-p-sstage" role="menu" aria-label="Stage"></div><div class="pop crm-pop" id="crm-p-ied" role="menu" aria-label="Change the suggestion"></div><div class="pop crm-pop crm-acc" id="crm-p-acc" role="menu" aria-label="Account"></div><div class="pop crm-pop" id="crm-p-cls" role="menu" aria-label="Closing that day"></div><div class="pop crm-pop crm-ntf" id="crm-p-ntf" role="dialog" aria-label="Notifications"><div class="ntx"><div class="ntx-h"><b>Notifications</b><span class="ntx-ct num">0</span><span class="ntx-sp"></span><button class="pill ghost sm ntx-all">Mark all read</button></div><div class="ntx-tabs"><div class="seg2" role="group" aria-label="Show"><button aria-pressed="true" data-v="all">All</button><button aria-pressed="false" data-v="men">Mentions</button><button aria-pressed="false" data-v="deal">Deals</button></div></div><div class="ntx-list"></div></div></div><div class="pop pfm-pop crm-pop" id="crm-p-me" role="menu" aria-labelledby="crm-me-n crm-me-e"><div class="pfm-me" role="none"><span class="av" style="background:var(--dm-av-m);color:var(--dm-av-m-ink)">NC</span><span class="t"><b id="crm-me-n">Nina Cole</b><span class="muted" id="crm-me-e">Head of sales</span></span></div><div class="sep" role="separator"></div><button class="mi pfm-th" role="menuitemcheckbox" aria-checked="false" tabindex="-1"><svg class="i s" aria-hidden="true"><use href="#i-moon"/></svg><span>Dark theme</span><span class="toggle" aria-hidden="true"></span></button><button class="mi" role="menuitem" tabindex="-1" data-act="help" data-close><svg class="i s" aria-hidden="true"><use href="#i-keyboard"/></svg><span>Keyboard shortcuts</span><span class="kbd" aria-hidden="true">?</span></button><div class="sep" role="separator"></div><button class="mi" role="menuitem" tabindex="-1" data-act="signout" data-close><svg class="i s" aria-hidden="true"><use href="#i-logout"/></svg><span>Sign out</span></button></div><!-- jump to: the Command palette, over the app --><div class="crm-over crm-cmd" hidden><div class="cpl panel" role="dialog" aria-label="Jump to"><div class="cpl-in"><svg class="i s" aria-hidden="true"><use href="#i-search"/></svg><input class="cpl-q" placeholder="Jump to an account, a deal or an action" aria-label="Jump to" spellcheck="false" autocomplete="off"><span class="kbd">esc</span></div><div class="cpl-list" role="listbox" aria-label="Results"></div><div class="cpl-f muted"><span><span class="kbd">↑</span><span class="kbd">↓</span> move</span><span><span class="kbd">↵</span> open</span><span class="cpl-st"></span></div></div></div><!-- Add account: the Form --><div class="crm-over crm-newd" hidden><form class="fmx panel" role="dialog" aria-modal="true" aria-labelledby="crm-new-h" novalidate><div class="fmx-h"><b id="crm-new-h">Add account</b><button type="button" class="ib crm-newx" aria-label="Close" data-tip="Close"><svg class="i xs" aria-hidden="true"><use href="#i-x"/></svg></button></div><label class="fmx-f"><span>Account name</span><input name="n" placeholder="Hollis &amp; Rowe" maxlength="40" autocomplete="off"></label><div class="fmx-f"><span id="crm-new-seg">Segment</span><div class="fmx-ty" role="radiogroup" aria-labelledby="crm-new-seg"></div></div><div class="fmx-f"><span id="crm-new-own">Owner</span><div class="fmx-ty" role="radiogroup" aria-labelledby="crm-new-own"></div></div><label class="fmx-f"><span>First deal value</span><input name="v" inputmode="numeric" placeholder="$40,000" autocomplete="off"></label><div class="fmx-ft"><span class="fmx-ms muted">The deal starts in Discovery</span><button class="pill primary sm fmx-go" type="submit">Add account</button></div></form></div><div class="crm-toasts" aria-live="polite"></div></div></main><footer class="pg-foot"><div class="pg-wrap"><div class="pg-foot-in"><span>Free and MIT licensed. Built by <a href="https://designme.agency">DesignMe</a>.</span><nav aria-label="More"><a href="/">All components</a><a href="/docs/introduction">Docs</a><a href="/#/changelog">Changelog</a><a href="/#/roadmap">Roadmap</a><a href="/llms.txt">llms.txt</a><a href="/">Home</a></nav></div></div></footer><script>
 // Skip to content: the focus moves to the page's heading, which glides (or, with reduced motion, jumps) under the header,
 // without changing the address
 (function(){
@@ -2094,6 +2152,16 @@ const fitHits = window.dmFitHits || (() => {
   const tmA = h => { const hh = Math.floor(h), mm = Math.round((h - hh) * 60); return `${hh > 12 ? hh - 12 : hh}${mm ? ':' + String(mm).padStart(2, '0') : ''}${hh >= 12 ? 'pm' : 'am'}`; };
   const money = v => '$' + Math.round(v).toLocaleString('en-US');
   const kmoney = v => v >= 1e6 ? '$' + parseFloat((v / 1e6).toFixed(2)) + 'M' : v >= 1e3 ? '$' + Math.round(v / 1e3) + 'k' : '$' + Math.round(v);
+  // motion: the library's ease and durations, for the moves the CSS can't make (content that is swapped, not shown or hidden)
+  const CS0 = getComputedStyle(app), EASE = CS0.getPropertyValue('--dm-ease').trim() || 'ease';
+  const dur = (v, d) => { v = (v || '').trim(); return v.endsWith('ms') ? parseFloat(v) : v.endsWith('s') ? parseFloat(v) * 1000 : d; };
+  const T = dur(CS0.getPropertyValue('--dm-t'), 300), TF = dur(CS0.getPropertyValue('--dm-t-fast'), 140);
+  const glide = (el, from, ms = T) => { if (!el || REDUCE || !el.animate) return; el.animate([{ opacity:0, ...from }, { opacity:1, transform:'none' }], { duration:ms, easing:EASE }); };
+  // an overlay (Jump to, Add account) fades out before it hides; opening it again while it fades takes it straight back. A phone's
+  // preview sheet, which is shown by a class rather than hidden, only plays the fade (fadeCls)
+  const fadeOut = (el, ms = 200) => { if (REDUCE){ el.hidden = true; return; } el._closing = true; el.classList.add('out'); clearTimeout(el._out); el._out = setTimeout(() => { el.hidden = true; el.classList.remove('out'); el._closing = false; }, ms); };
+  const unfade = el => { clearTimeout(el._out); el.classList.remove('out'); el._closing = false; };
+  const fadeCls = (el, ms = 200) => { if (REDUCE) return; el.classList.add('out'); clearTimeout(el._out); el._out = setTimeout(() => el.classList.remove('out'), ms); };
   const plural = (n, a, b = a + 's') => `${n} ${n === 1 ? a : b}`;
   const poss = n => n + (n.endsWith('s') ? "'" : "'s");
 
@@ -2131,6 +2199,8 @@ const fitHits = window.dmFitHits || (() => {
   const ROLE = ['Head of operations', 'VP of finance', 'IT lead', 'Procurement lead', 'COO', 'Product lead', 'Head of data', 'CFO'];
   const peopleOf = i => Array.from({ length:2 + i % 2 }, (_, k) => ({ n:FN[(i * 3 + k * 7) % FN.length] + ' ' + LN_[(i * 5 + k * 3) % LN_.length], r:ROLE[(i + k * 3) % ROLE.length] }));
   const ini = n => n.split(' ').map(w => w[0]).join('');
+  // a contact's avatar: the same --dm-av pairs as the owners', picked by their name so it never changes
+  const avn = (n, cls = '') => { const k = 'bltmprky'[[...n].reduce((a, ch) => (a * 31 + ch.charCodeAt(0)) % 9973, 7) % 8]; return `<span class="av${cls ? ' ' + cls : ''}" style="background:var(--dm-av-${k});color:var(--dm-av-${k}-ink)" aria-hidden="true">${ini(n)}</span>`; };
   // twelve weeks of meetings, calls and emails: none since the last touch, a steady few before it
   const trendOf = (i, last) => { let s = i * 7919 + 17; const r = () => (s = (s * 16807) % 2147483647) / 2147483647;
     return Array.from({ length:12 }, (_, w) => (11 - w) * 7 + 3 < last ? 0 : Math.round(1 + r() * 5 + (last < 10 ? w / 3 : 0))); };
@@ -2168,7 +2238,9 @@ const fitHits = window.dmFitHits || (() => {
   const meet = o => { const m = { id:'m' + (mid++), st:'plan', ...o }; MT.push(m); return m; };
   // the agent's inbox items (built below, once the meetings are in)
   const IB = [];
-  const ltName = c => c.lt === 'Email' ? 'email' : TOUCH[c.lt][0].toLowerCase();
+  // a meeting's name in a sentence: lower case, except an acronym (QBR)
+  const low = k => /^[A-Z]{2,}\b/.test(k) ? k : k.toLowerCase();
+  const ltName = c => c.lt === 'Email' ? 'email' : low(TOUCH[c.lt][0]);
   function derive(){
     CO.forEach(c => {
       const mine = DE.filter(d => d.co === c.id), open = mine.filter(d => d.st !== 'won');
@@ -2230,7 +2302,7 @@ const fitHits = window.dmFitHits || (() => {
     const s = w.find(x => x.kind === 'slip'), f = w.find(x => x.kind === 'follow'), x = w.find(y => y.kind === 'fix');
     if (s){ const d = dealOf(s.deal); return { k:'slip', label:'New close date', item:s, why:`${d.n} was due ${fmtD(d.close)} and is still open. The agent suggests ${fmtDW(s.to)}.` }; }
     if (f) return { k:'follow', label:'Send follow-up', item:f, why:`No touch for ${c.last} days. The agent drafted “${f.subj}” to ${f.to}.` };
-    if (c.next && c.next.day < 0) return { k:'resched', label:'Reschedule', why:`The ${c.next.kind.toLowerCase()} was due ${fmtDW(c.next.day)}. The agent moves it to ${first(c.own)}'s first free slot.` };
+    if (c.next && c.next.day < 0) return { k:'resched', label:'Reschedule', why:`The ${low(c.next.kind)} was due ${fmtDW(c.next.day)}. The agent moves it to ${first(c.own)}'s first free slot.` };
     if (!c.next && c.lead) return { k:'book', label:'Book next step', why:`Nothing is booked. The agent finds ${first(c.own)}'s first free slot for a ${STEP[c.lead.st][0].toLowerCase()}.` };
     if (x) return { k:'fix', label:x.fix === 'stage' ? 'Move to Proposal' : 'Lower win %', item:x, why:fixWhy(x) };
     if (c.seg === 'Strategic' && c.tags.includes('Renewal') && c.lead && !MT.some(m => m.co === c.id && m.st === 'plan' && m.kind === 'QBR')) return { k:'qbr', label:'Book QBR', why:'A strategic renewal with no QBR booked. The agent books one in about two weeks.' };
@@ -2298,7 +2370,7 @@ const fitHits = window.dmFitHits || (() => {
     if (sug.item) sug.item.undo = r.undo;
     refresh(); say(r.t);
     toast('ok', r.t, r.s, { label:'Undo', run:() => { r.undo(); if (sug.item) sug.item.undo = null; refresh(); } });
-    const tr = $(`tr[data-id="${c.id}"]`, tbody); if (tr) enter($('.crm-nx', tr) || tr);
+    const tr = $(`tr[data-id="${c.id}"]`, tbody); if (tr) $$('.crm-nx, .crm-hs, .crm-agc>*', tr).forEach((x, i) => enter(x, i * 40));
   }
 
   /* ---------- the state of the filters, the selection and what is open ---------- */
@@ -2380,9 +2452,9 @@ const fitHits = window.dmFitHits || (() => {
   const fch = $('.crm-fch', app);
   function chips(){
     const have = new Set(F.A.map(f => f.k));
-    $$('.flm-ch', fch).forEach(ch => { if (!have.has(ch.dataset.k)) ch.remove(); });
+    $$('.flm-ch', fch).forEach(ch => { if (have.has(ch.dataset.k) || ch.classList.contains('gone')) return; if (REDUCE) return ch.remove(); ch.classList.add('gone'); setTimeout(() => ch.remove(), 300); });
     F.A.forEach(f => {
-      let ch = $(`.flm-ch[data-k="${f.k}"]`, fch);
+      let ch = $(`.flm-ch[data-k="${f.k}"]:not(.gone)`, fch);
       if (!ch){ ch = html(`<div class="flm-ch" role="listitem" data-k="${f.k}"><span class="k">${FL[f.k].l}</span><button class="op"></button><span class="v"></span><button class="x">${I('x', 'xs')}</button></div>`); fch.appendChild(ch); }
       else ch.classList.add('seen');
       const o = valOf(f.k, f.v), op = FL[f.k].ops[+f.neg], text = `${FL[f.k].l} ${op} ${o.l}`;
@@ -2391,6 +2463,7 @@ const fitHits = window.dmFitHits || (() => {
       $('.x', ch).setAttribute('aria-label', `Remove filter ${text}`); $('.x', ch).dataset.tip = 'Remove filter';
     });
     const on = F.A.length || F.q;
+    $('.crm-chips', app).hidden = !on;
     $('.crm-clr', app).hidden = !on;
     $('.crm-inview', app).textContent = on ? `${rows.length} of ${CO.length}` : '';
     $('.crm-ftr', app).classList.toggle('on', F.A.length > 0);
@@ -2416,6 +2489,7 @@ const fitHits = window.dmFitHits || (() => {
       fpop.innerHTML = `<button class="mi flm-bk" role="menuitem" tabindex="-1" aria-label="Back to all fields">${I('chev-l', 'xs')}<span>${f.l}</span></button><div class="sep" role="separator"></div>`
         + f.o().map(o => `<button class="mi" role="menuitemradio" aria-checked="${!!on && on.v === o.v}" tabindex="-1" data-close data-v="${o.v}">${o.g || ''}<span>${o.l}</span><span class="r num">${CO.filter(c => fmatch(c, k) && f.test(c, o.v)).length}</span><span class="ck">${I('check', 'xs')}</span></button>`).join('');
     }
+    if (fpop.dataset.k !== (k || '')) glide(fpop, { transform:`translateX(${k ? 8 : -8}px)` }, 220);
     fpop.dataset.k = k || '';
     if (focus) setTimeout(() => { const m = k ? ($('.mi[aria-checked="true"]', fpop) || $$('.mi', fpop)[1]) : ($(`.mi[data-k="${focus}"]`, fpop) || $('.mi', fpop)); if (m) m.focus({ preventScroll:true }); });
   }
@@ -2593,11 +2667,11 @@ const fitHits = window.dmFitHits || (() => {
         + `<div class="dtp-r"><span class="k">Stage</span><span class="dtp-v static">${pill(c.st)}</span></div>`
         + `<div class="dtp-r"><span class="k">Region</span><span class="dtp-v static"><span class="dot" style="color:${REG[c.reg].c}"></span>${REG[c.reg].t}</span></div>`
         + `<div class="dtp-r"><span class="k">Last touch</span><span class="dtp-v static">${c.last === 0 ? 'Today' : fmtD(-c.last)}, ${esc(ltName(c))}</span></div>`
-        + `<div class="dtp-r crm-tg"><span class="k">Tags</span><span class="dtp-tags">${[c.seg, ...c.tags].map(chip).join('')}<button class="dtp-add" data-a="tag" aria-label="Add a tag" data-tip="Add tag">${I('plus', 'xs')}</button></span></div></div>`)
+        + `</div><div class="crm-tg"><span class="crm-tgk">Tags</span><span class="dtp-tags">${[c.seg, ...c.tags].map(chip).join('')}<button class="dtp-add" data-a="tag" aria-label="Add a tag" data-tip="Add tag">${I('plus', 'xs')}</button></span></div>`)
       + section('deals', `Deals, ${mine.length}`, mine.length ? `<div class="crm-dl">${mine.map(d => `<button data-deal="${d.id}" data-pop="#crm-p-sstage" aria-haspopup="menu" aria-label="${esc(d.n)}, ${ST[d.st].t}, ${money(d.v)}${slipping(d) ? ', past its close date' : ''}. Change its stage"><span class="t">${esc(d.n)}<span class="w num${slipping(d) ? ' late' : ''}">${d.st === 'won' ? 'Won ' + fmtD(d.close) : (slipping(d) ? 'Was due ' : 'Closes ') + fmtD(d.close) + ', ' + d.p + '%'}</span></span>${pill(d.st)}<span class="num">${kmoney(d.v)}</span></button>`).join('')}</div>` : '<p class="muted">No deals yet.</p>')
-      + section('ppl', `People, ${c.ppl.length}`, `<ul class="crm-ppl">${c.ppl.map((p, i) => `<li><span class="av crm-cav" aria-hidden="true">${ini(p.n)}</span><span><b>${esc(p.n)}</b><span class="muted">${esc(p.r)}${i ? '' : ', champion'}</span></span></li>`).join('')}</ul>`)
+      + section('ppl', `People, ${c.ppl.length}`, `<ul class="crm-ppl">${c.ppl.map((p, i) => `<li>${avn(p.n)}<span><b>${esc(p.n)}</b><span class="muted">${esc(p.r)}${i ? '' : ', champion'}</span></span></li>`).join('')}</ul>`)
       + section('act', 'Activity', `<ul class="crm-tl">${tlOf(c).slice(0, 5).map(([k, d, t, w], i) => `<li${i === 0 && c._fresh ? ' class="new"' : ''}><span class="ic">${I(ACT[k] || 'comment', 'xs')}</span><span>${esc(t)}<span class="w num">${d === 0 ? 'Today' : fmtD(-d)}, ${esc(w)}</span></span></li>`).join('')}</ul>`)
-      + `<div class="crm-sact"><button class="pill line sm" data-a="call">${I('comment', 'xs')}Log a call</button><button class="pill line sm" data-a="email">${I('mail', 'xs')}Log an email</button></div>`;
+      + `<div class="crm-sact"><button class="pill soft" data-a="call">${I('comment', 'xs')}Log a call</button><button class="pill soft" data-a="email">${I('mail', 'xs')}Log an email</button></div>`;
     c._fresh = false;
     sheet.setAttribute('aria-labelledby', 'crm-sh-t');
   }
@@ -2669,46 +2743,104 @@ const fitHits = window.dmFitHits || (() => {
     toast(st === 'won' ? 'ok' : 'info', st === 'won' ? `Won: ${c.n}, ${money(d.v)}` : `${d.n} moved to ${ST[st].t}`, st === 'won' ? `${d.n}. Added to this quarter's closed won` : `${c.n}, win probability now ${d.p}%`, { label:'Undo', run:() => { setStage(d, was); refresh(); } });
   }
 
-  /* ---------- Agent inbox: Agent inbox's groups and rows ---------- */
-  const ibx = $('.crm-aib', app), igs = $('.aib-gs', ibx);
+  /* ---------- Agent inbox: Agent inbox's grouped list on the left, the selected item's preview on the right ---------- */
+  const ibv = $('.crm-ib', app), ibx = $('.crm-aib', app), igs = $('.aib-gs', ibx), ipv = $('.crm-ipv', app);
   const IBG = [['follow', 'Follow-ups drafted'], ['slip', 'Close dates passed'], ['fix', 'Data fixes'], ['done', 'Done']];
-  const IBI = { follow:'mail', slip:'cal', fix:'wand' };
-  let edFor = null;
+  const IBI = { follow:'mail', slip:'cal', fix:'wand' }, IBK = { follow:'Follow-up drafted', slip:'Close date passed', fix:'Data fix' };
+  let ibSel = null, edFor = null, pvLast = null;
   const ibText = x => { const c = coOf(x.co), d = dealOf(x.deal);
-    if (x.kind === 'follow') return [`Follow-up to ${x.to}, ${c.n}`, `Quiet for ${plural(c.last, 'day')}. “${x.subj}”: ${x.body}`];
+    if (x.kind === 'follow') return [`Follow-up to ${x.to}, ${c.n}`, `Quiet for ${plural(c.last, 'day')}. “${x.subj}”`];
     if (x.kind === 'slip') return [`Move ${poss(c.n)} ${d.n.toLowerCase()} to ${fmtDW(x.to)}`, `It was due ${fmtD(x.was)} and is still in ${ST[d.st].t}, ${money(d.v)}`];
     return x.fix === 'stage' ? [`Move ${poss(c.n)} ${d.n.toLowerCase()} to ${ST[x.to].t}`, fixWhy(x)] : [`Lower ${poss(c.n)} ${d.n.toLowerCase()} from ${d.p}% to ${clamp(d.p + x.to, 5, 95)}%`, fixWhy(x)]; };
+  // the list's order: what waits, group by group, then what is done
+  const ibOrder = () => { const live = IB.filter(x => coOf(x.co) && dealOf(x.deal)), w = live.filter(x => x.state === 'wait');
+    return [...['follow', 'slip', 'fix'].flatMap(k => w.filter(x => x.kind === k)), ...live.filter(x => x.state !== 'wait')]; };
+  const ibOf = id => IB.find(x => x.id === id);
+  const phone = () => matchMedia('(max-width:760px)').matches;
   function renderInbox(){
-    const live = IB.filter(x => coOf(x.co) && dealOf(x.deal)), w = live.filter(x => x.state === 'wait');
-    const grp = k => k === 'done' ? live.filter(x => x.state !== 'wait') : w.filter(x => x.kind === k);
-    igs.innerHTML = IBG.map(([k, n]) => { const L = grp(k); if (!L.length) return '';
-      return `<section class="aib-g" data-g="${k}" aria-label="${n}"><div class="aib-gh"><span>${n}</span><span class="n">${L.length}</span></div><div class="aib-gl" role="list">${L.map(ibRow).join('')}</div></section>`; }).join('');
+    const L = ibOrder(), w = L.filter(x => x.state === 'wait');
+    if (!L.some(x => x.id === ibSel)) ibSel = (w[0] || L[0] || {}).id || null;
+    igs.innerHTML = IBG.map(([k, n]) => { const G = L.filter(x => k === 'done' ? x.state !== 'wait' : x.state === 'wait' && x.kind === k); if (!G.length) return '';
+      return `<section class="aib-g" data-g="${k}" aria-label="${n}"><div class="aib-gh"><span>${n}</span><span class="n">${G.length}</span></div><div class="aib-gl" role="list">${G.map(ibRow).join('')}</div></section>`; }).join('');
     swap($('.aib-st', ibx), w.length ? `${w.length} waiting for you` : 'All clear');
-    if (!w.length && !igs.querySelector('[data-g="done"]')) igs.innerHTML = `<div class="crm-ibe muted">Nothing waiting. The agent adds to this list as accounts go quiet or deals pass their close dates.</div>`;
+    if (!L.length) igs.innerHTML = `<div class="crm-ibe muted">Nothing waiting. The agent adds to this list as accounts go quiet or deals pass their close dates.</div>`;
+    renderPreview();
   }
-  const ibRow = x => { const [b, s] = ibText(x), wait = x.state === 'wait';
-    return `<div class="aib-i crm-ii${wait ? '' : ' done'}" role="listitem" data-ib="${x.id}"><span class="aib-av" aria-hidden="true">${I(IBI[x.kind], 'xs')}</span><button class="aib-t crm-it" data-ia="open" aria-label="${esc(b)}. Open the account"><b>${esc(b)}</b><span>${esc(s)}</span></button>`
-      + `<span class="aib-r">${wait ? `<button class="pill ghost sm" data-ia="dismiss" aria-label="Dismiss: ${esc(b)}">Dismiss</button><button class="pill line sm" data-ia="edit"${x.kind === 'follow' ? '' : ' data-pop="#crm-p-ied" data-pop-align="end" aria-haspopup="menu"'} aria-label="Edit: ${esc(b)}">${I('edit', 'xs')}Edit</button><button class="pill primary sm" data-ia="ok" aria-label="Approve: ${esc(b)}">Approve</button>`
-        : `<span class="ok">${I(x.state === 'done' ? 'ok' : 'x', 'xs')}</span><span class="crm-ires">${esc(x.res)}</span>${x.undo ? `<button class="pill ghost sm" data-ia="undo" aria-label="Undo: ${esc(b)}">Undo</button>` : ''}`}</span></div>`
-      + (edFor === x.id ? `<div class="crm-ied"><label class="crm-iel" for="crm-ta-${x.id}">Draft to ${esc(x.to)}</label><textarea class="crm-ta" id="crm-ta-${x.id}" rows="4">${esc(x.body)}</textarea><div class="crm-iea"><button class="pill ghost sm" data-ia="cancel">Cancel</button><button class="pill primary sm" data-ia="save">Save draft</button></div></div>` : ''); };
+  // a row: its icon, what it is and why; the selected one is in the Tab order and the arrow keys move from it. The row's own
+  // buttons are shortcuts for a mouse; the preview has the same actions, labelled, for the keyboard
+  const ibRow = x => { const [b, s] = ibText(x), wait = x.state === 'wait', on = x.id === ibSel;
+    return `<div class="aib-i crm-ii${wait ? '' : ' done'}${on ? ' on' : ''}" role="listitem" data-ib="${x.id}"><span class="aib-av" aria-hidden="true">${I(IBI[x.kind], 'xs')}</span><button class="aib-t crm-it" data-ia="sel" aria-current="${on}" tabindex="${on ? 0 : -1}"><b>${esc(b)}</b><span>${esc(s)}</span></button>`
+      + `<span class="aib-r">${wait ? `<button class="ib" data-ia="dismiss" tabindex="-1" aria-label="Dismiss: ${esc(b)}" data-tip="Dismiss">${I('x', 'xs')}</button><button class="ib" data-ia="edit" tabindex="-1"${x.kind === 'follow' ? '' : ' data-pop="#crm-p-ied" data-pop-align="end" aria-haspopup="menu"'} aria-label="Edit: ${esc(b)}" data-tip="Edit">${I('edit', 'xs')}</button><button class="ib crm-iok" data-ia="ok" tabindex="-1" aria-label="Approve: ${esc(b)}" data-tip="Approve">${I('check', 'xs')}</button>`
+        : `<span class="ok">${I(x.state === 'done' ? 'ok' : 'x', 'xs')}</span><span class="crm-ires">${esc(x.res)}</span>`}</span></div>`; };
+  // the preview: the whole draft, or the deal and its dates, or the change and why, with the same actions
+  const pvRow = (k, v) => `<div class="crm-pvr"><span class="k">${k}</span><span class="v">${v}</span></div>`;
+  function renderPreview(){
+    const x = ibOf(ibSel); ipv.dataset.ib = x ? x.id : '';
+    if (!x){ ipv.innerHTML = `<div class="crm-pve muted">Nothing to preview.</div>`; return; }
+    const c = coOf(x.co), d = dealOf(x.deal), wait = x.state === 'wait', [title] = ibText(x), ch = c.ppl.find(p => p.n === x.to) || c.ppl[0];
+    let body = '';
+    if (x.kind === 'follow'){
+      body = `<div class="crm-pvm">${pvRow('To', `${avn(ch.n)}<span>${esc(ch.n)}<span class="muted">, ${esc(ch.r)} at ${esc(c.n)}</span></span>`)}${pvRow('From', `${av(c.own)}<span>${esc(P[c.own][0])}</span>`)}${pvRow('Subject', esc(x.subj))}</div>`
+        + (edFor === x.id ? `<div class="crm-ied"><label class="crm-iel" for="crm-ta">Draft to ${esc(x.to)}</label><textarea class="crm-ta" id="crm-ta" rows="7">${esc(x.body)}</textarea><div class="crm-iea"><button class="pill ghost sm" data-ia="cancel">Cancel</button><button class="pill primary sm" data-ia="save">Save draft</button></div></div>`
+          : `<div class="crm-pvb">${esc(x.body)}\n\n${esc(P[c.own][0])}</div>`)
+        + `<div class="crm-pvc muted">Quiet for ${plural(c.last, 'day')}. ${esc(d.n)}, ${ST[d.st].t}, ${money(d.v)}, closing ${fmtD(d.close)}.</div>`;
+    } else if (x.kind === 'slip'){
+      body = `<div class="crm-pvm">${pvRow('Account', `<span class="pfm-lg xs" aria-hidden="true">${esc(c.n[0])}</span><span>${esc(c.n)}</span>`)}${pvRow('Deal', `<span>${esc(d.n)}</span>${pill(d.st)}<span class="num">${money(d.v)}</span>`)}`
+        + pvRow('Close date', `<span class="crm-was num">${fmtD(x.was)}</span>${I('right', 'xs')}<b class="num">${fmtDW(x.to)}</b>`) + pvRow('Win probability', `<span class="num">${d.p}%</span>`)
+        + pvRow('Next step', c.next ? `<span${c.next.day < 0 ? ' class="crm-bad"' : ''}>${esc(c.next.kind)}, ${c.next.day < 0 ? 'overdue since ' + fmtD(c.next.day) : fmtDW(c.next.day)}</span>` : '<span class="crm-bad">None booked</span>')
+        + pvRow('Owner', `${av(c.own)}<span>${esc(P[c.own][0])}</span>`) + `</div>`
+        + `<div class="crm-pvc muted">${esc(d.n)} was due ${fmtD(x.was)} and is still in ${ST[d.st].t}. The last touch was ${c.last === 0 ? 'today' : plural(c.last, 'day') + ' ago'}, ${c.lt === 'Email' ? 'an email' : 'a ' + ltName(c)}. Approving moves the close date; the forecast and the board follow.</div>`;
+    } else {
+      const was = x.fix === 'stage' ? pill(d.st) : `<span class="num">${d.p}%</span>`, now = x.fix === 'stage' ? pill(x.to) : `<b class="num">${clamp(d.p + x.to, 5, 95)}%</b>`;
+      body = `<div class="crm-pvm">${pvRow('Account', `<span class="pfm-lg xs" aria-hidden="true">${esc(c.n[0])}</span><span>${esc(c.n)}</span>`)}${pvRow('Deal', `<span>${esc(d.n)}</span><span class="num muted">${money(d.v)}</span>`)}`
+        + pvRow(x.fix === 'stage' ? 'Stage' : 'Win probability', `${was}${I('right', 'xs')}${now}`) + `</div>`
+        + `<div class="crm-pvc">${esc(fixWhy(x))} <span class="muted">Approving changes the deal; its weighted value in the forecast follows.</span></div>`;
+    }
+    const acts = wait ? `<button class="pill ghost" data-ia="dismiss">Dismiss</button><button class="pill soft" data-ia="edit"${x.kind === 'follow' ? '' : ' data-pop="#crm-p-ied" data-pop-align="end" aria-haspopup="menu"'}>${I('edit', 'xs')}Edit</button><button class="pill primary" data-ia="ok">${x.kind === 'follow' ? 'Approve and send' : 'Approve'}</button>`
+      : `<span class="crm-pvres"><span class="ok">${I(x.state === 'done' ? 'ok' : 'x', 'xs')}</span>${esc(x.res)}</span>${x.undo ? `<button class="pill soft" data-ia="undo">${I('undo', 'xs')}Undo</button>` : ''}`;
+    ipv.innerHTML = `<div class="crm-pvh"><span class="aib-av" aria-hidden="true">${I(IBI[x.kind], 'xs')}</span><span class="muted">${IBK[x.kind]}</span><span class="crm-sp"></span><button class="pill ghost sm" data-ia="open">${I('panel', 'xs')}Open account</button><button class="ib crm-pvx" data-ia="close" aria-label="Close the preview" data-tip="Close">${I('x', 's')}</button></div>`
+      + `<h2 class="crm-pvt" id="crm-pvt" tabindex="-1">${esc(title)}</h2>${body}<div class="crm-pva">${acts}</div>`;
+    ipv.setAttribute('aria-labelledby', 'crm-pvt');
+    if (pvLast !== x.id + x.state){ if (pvLast) [...ipv.children].forEach((el, i) => glide(el, { transform:'translateY(4px)' }, T + i * 30)); pvLast = x.id + x.state; }
+  }
+  // a phone shows the list alone; picking a row opens its preview as a sheet over it
+  const pvOpen = on => { const was = ibv.classList.contains('pv'); ibv.classList.toggle('pv', on); ipv.inert = phone() && !on; if (was && !on) fadeCls(ipv); };
+  function ibSelect(id, focus){ ibSel = id; edFor = null; renderInbox(); if (focus === 'row') $(`[data-ib="${id}"] .crm-it`, igs)?.focus({ preventScroll:false }); }
   function ibDo(x, a){
-    const c = coOf(x.co);
-    if (a === 'ok'){ accept(c, { k:x.kind, item:x }); return; }
-    if (a === 'dismiss'){ x.state = 'gone'; x.res = 'Dismissed'; x.undo = () => { x.state = 'wait'; }; refresh(); toast('info', 'Dismissed', ibText(x)[0], { label:'Undo', run:() => { x.state = 'wait'; x.undo = null; refresh(); } }); return; }
-    if (a === 'undo' && x.undo){ x.undo(); x.undo = null; refresh(); return; }
+    const c = coOf(x.co), L = ibOrder().filter(y => y.state === 'wait'), i = L.indexOf(x), next = L[i + 1] || L[i - 1];
+    if (a === 'ok'){ accept(c, { k:x.kind, item:x }); }
+    else if (a === 'dismiss'){ x.state = 'gone'; x.res = 'Dismissed'; x.undo = () => { x.state = 'wait'; }; toast('info', 'Dismissed', ibText(x)[0], { label:'Undo', run:() => { x.state = 'wait'; x.undo = null; refresh(); } }); }
+    else if (a === 'undo' && x.undo){ x.undo(); x.undo = null; refresh(); return; }
+    // the next waiting item takes the selection
+    if (x.id === ibSel && next){ ibSel = next.id; edFor = null; }
+    refresh();
   }
-  igs.addEventListener('click', e => {
+  ibv.addEventListener('click', e => {
     const b = e.target.closest('[data-ia]'); if (!b) return;
-    const el = b.closest('[data-ib]') || b.closest('.crm-ied').previousElementSibling, x = IB.find(y => y.id === el.dataset.ib), a = b.dataset.ia;
-    if (a === 'open'){ openSheet(x.co); return; }
-    if (a === 'edit'){ if (x.kind === 'follow'){ edFor = edFor === x.id ? null : x.id; renderInbox(); const ta = $('.crm-ta', igs); if (ta){ ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length); } } else buildEdit(x); return; }
-    if (a === 'cancel' || a === 'save'){ if (a === 'save'){ const v = $('.crm-ta', igs).value.trim(); if (v) x.body = v; } edFor = null; renderInbox(); const r = $(`[data-ib="${x.id}"] [data-ia="edit"]`, igs); if (r) r.focus(); if (a === 'save') toast('ok', 'Draft saved', `Approve it to send it to ${x.to}`); return; }
-    const was = document.activeElement === b;
+    const el = b.closest('[data-ib]'), x = ibOf(el && el.dataset.ib), a = b.dataset.ia; if (!x) return;
+    const inPv = ipv.contains(b), kb = !e.detail;
+    if (a === 'sel'){ ibSelect(x.id, 'row'); if (phone()){ pvOpen(true); setTimeout(() => $('#crm-pvt', ipv)?.focus({ preventScroll:true }), 60); } return; }
+    if (a === 'close'){ pvOpen(false); $(`[data-ib="${x.id}"] .crm-it`, igs)?.focus({ preventScroll:true }); return; }
+    if (a === 'open'){ openSheet(x.co, kb); return; }
+    if (a === 'edit'){
+      if (x.id !== ibSel){ ibSel = x.id; edFor = null; renderInbox(); }
+      if (x.kind === 'follow'){ edFor = edFor === x.id ? null : x.id; renderPreview(); if (phone()) pvOpen(true); const ta = $('.crm-ta', ipv); if (ta){ ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length); } }
+      else buildEdit(x);
+      return;
+    }
+    if (a === 'cancel' || a === 'save'){ if (a === 'save'){ const v = $('.crm-ta', ipv).value.trim(); if (v) x.body = v; } edFor = null; renderPreview(); $('[data-ia="edit"]', ipv)?.focus(); if (a === 'save') toast('ok', 'Draft saved', `Approve it to send it to ${x.to}`); return; }
     ibDo(x, a);
-    // the focus stays in the list: on the next row's Approve, or the list's heading
-    if (was){ const n = $('.aib-i:not(.done) [data-ia="ok"]', igs); (n || $('#content', app)).focus({ preventScroll:true }); }
+    // the focus stays where it was: on the preview's Approve for the next item, or on the selected row
+    if (inPv && ipv.contains(document.activeElement) === false){ const n = $('[data-ia="ok"]', ipv) || $('[data-ia="open"]', ipv); if (n) n.focus({ preventScroll:true }); }
+    else if (!inPv) $(`[data-ib="${ibSel}"] .crm-it`, igs)?.focus({ preventScroll:true });
   });
-  igs.addEventListener('keydown', e => { if (e.key === 'Escape' && e.target.closest('.crm-ta')){ e.preventDefault(); e.stopPropagation(); $('[data-ia="cancel"]', igs).click(); } });
+  // up and down move through the list, selecting as they go; Home and End jump to its ends
+  igs.addEventListener('keydown', e => {
+    const b = e.target.closest('.crm-it'); if (!b) return;
+    const all = $$('.crm-it', igs), i = all.indexOf(b), to = { ArrowDown:all[i + 1], ArrowUp:all[i - 1], Home:all[0], End:all[all.length - 1] }[e.key];
+    if (to){ e.preventDefault(); ibSelect(to.closest('[data-ib]').dataset.ib, 'row'); }
+  });
+  ipv.addEventListener('keydown', e => { if (e.key === 'Escape' && e.target.closest('.crm-ta')){ e.preventDefault(); e.stopPropagation(); $('[data-ia="cancel"]', ipv).click(); } });
   // Edit on a close date or a data fix: other dates, or other values
   function buildEdit(x){
     const p = pop('crm-p-ied'), d = dealOf(x.deal);
@@ -2725,13 +2857,13 @@ const fitHits = window.dmFitHits || (() => {
     }
   }
 
-  /* ---------- Calendar: Event calendar's week, Monday to Friday, 8am to 6pm ---------- */
+  /* ---------- Calendar: Event calendar's week, Monday to Sunday, 8am to 6pm ---------- */
   const ecx = $('.crm-ecx', app), cgrid = $('.ecx-grid', ecx), cdays = $('.ecx-days', ecx), cmsg = $('.ecx-msg', ecx), plan = $('.crm-plan', ecx), H0 = 8, HN = 10;
-  // the week on show: this one, or the next when today is a weekend
-  const baseMon = (() => { const d = dow(0); return d === 0 ? 1 : d === 6 ? 2 : 1 - d; })();
+  // the week on show starts on this week's Monday, weekends included, with today marked
+  const baseMon = (() => { const d = dow(0); return d === 0 ? -6 : 1 - d; })();
   let wk = 0, cday = -1, SG = [];
   const mon = () => baseMon + wk * 7;
-  const weekOf = (w = wk) => { const m0 = baseMon + w * 7; return [m0, m0 + 4]; };
+  const weekOf = (w = wk) => { const m0 = baseMon + w * 7; return [m0, m0 + 6]; };
   const inWeek = (n, w = wk) => { const [a, b] = weekOf(w); return n >= a && n <= b; };
   const weekLabel = (w = wk) => { const [a, b] = weekOf(w), sm = dateOf(a).getMonth() === dateOf(b).getMonth(); return `${fmtD(a)} to ${sm ? dateOf(b).getDate() : fmtD(b)}, ${dateOf(b).getFullYear()}`; };
   const at = h => `calc(var(--dm-ph) * ${h - H0} + 1px)`, tall = n => `calc(var(--dm-ph) * ${n} - 3px)`;
@@ -2752,8 +2884,8 @@ const fitHits = window.dmFitHits || (() => {
   const evLabel = m => { const c = coOf(m.co); return `${c.n}, ${m.kind}, ${fmtDW(m.day)} ${tmA(m.h)} to ${tmA(m.h + m.dur)}, ${P[m.own][0]}${m.st === 'plan' && m.day < 0 ? ', overdue' : m.st === 'held' ? ', held' : ''}`; };
   function evEl(m){
     const c = coOf(m.co), col = P[m.own][1], late = m.st === 'plan' && m.day < 0, n = m._n || 1;
-    const el = html(`<button class="ecx-e crm-ev${m.sug ? ' sug' : ''}${late ? ' late' : ''}${m.st === 'held' ? ' held' : ''}" data-m="${m.id}" style="top:${at(m.h)};height:${tall(m.sug ? m.vd : m.dur)};left:calc(3px + (100% - 6px) * ${(m._l || 0) / n});width:calc((100% - 6px) / ${n} - ${n > 1 ? 2 : 0}px);${m.sug ? '' : `background:var(--dm-p${col}-bg);color:var(--dm-p${col})`}" aria-label="${esc(m.sug ? 'Suggested: ' + m.kind.toLowerCase() + ' with ' + c.n + ', ' + fmtDW(m.day) + ' ' + tmA(m.h) : evLabel(m))}"><b>${esc(c.n)}</b>${m.sug ? '' : `<span>${late ? 'Overdue: ' : ''}${esc(m.kind)}, ${tm(m.h)}</span>`}</button>`);
-    if (m.sug) el.insertAdjacentHTML('beforeend', `<span class="ecx-sg"><button class="y" data-sg="book" aria-label="Book a ${esc(m.kind.toLowerCase())} with ${esc(c.n)}, ${fmtDW(m.day)} ${tmA(m.h)}">Book</button><button class="n" data-sg="skip" aria-label="Skip ${esc(c.n)}">Skip</button><i class="num">${tm(m.h)}</i></span>`);
+    const el = html(`<button class="ecx-e crm-ev${m.sug ? ' sug' : ''}${late ? ' late' : ''}${m.st === 'held' ? ' held' : ''}" data-m="${m.id}" style="top:${at(m.h)};height:${tall(m.sug ? m.vd : m.dur)};left:calc(3px + (100% - 6px) * ${(m._l || 0) / n});width:calc((100% - 6px) / ${n} - ${n > 1 ? 2 : 0}px);${m.sug ? '' : `background:var(--dm-p${col}-bg);color:var(--dm-p${col})`}" aria-label="${esc(m.sug ? 'Suggested: ' + low(m.kind) + ' with ' + c.n + ', ' + fmtDW(m.day) + ' ' + tmA(m.h) : evLabel(m))}"><b>${esc(c.n)}</b>${m.sug ? '' : `<span>${late ? 'Overdue: ' : ''}${esc(m.kind)}, ${tm(m.h)}</span>`}</button>`);
+    if (m.sug) el.insertAdjacentHTML('beforeend', `<span class="ecx-sg"><button class="y" data-sg="book" aria-label="Book a ${esc(low(m.kind))} with ${esc(c.n)}, ${fmtDW(m.day)} ${tmA(m.h)}">Book</button><button class="n" data-sg="skip" aria-label="Skip ${esc(c.n)}">Skip</button><i class="num">${tm(m.h)}</i></span>`);
     el._m = m;
     return el;
   }
@@ -2762,23 +2894,30 @@ const fitHits = window.dmFitHits || (() => {
     const m0 = mon();
     $('.crm-wkt', ecx).textContent = weekLabel();
     $$('.ecx-day, .ecx-scan', cgrid).forEach(x => x.remove());
-    cgrid.insertAdjacentHTML('beforeend', [0, 1, 2, 3, 4].map(i => { const n = m0 + i, cl = closingOn(n);
-      return `<div class="ecx-day" data-d="${i}"><div class="ecx-dh${n === 0 ? ' t' : ''}">${DAYN[dow(n)]} <b>${dateOf(n).getDate()}</b></div><div class="crm-cls" aria-label="Closing ${fmtDW(n)}">${cl.slice(0, cl.length > 2 ? 1 : 2).map(d => { const c = coOf(d.co);
+    cgrid.insertAdjacentHTML('beforeend', [0, 1, 2, 3, 4, 5, 6].map(i => { const n = m0 + i, cl = closingOn(n);
+      return `<div class="ecx-day${isWork(n) ? '' : ' we'}" data-d="${i}"><div class="ecx-dh${n === 0 ? ' t' : ''}">${DAYN[dow(n)]} <b>${dateOf(n).getDate()}</b></div><div class="crm-cls" aria-label="Closing ${fmtDW(n)}">${cl.slice(0, cl.length > 2 ? 1 : 2).map(d => { const c = coOf(d.co);
         return `<button class="crm-clb" data-co="${c.id}" data-tip="${esc(c.n)}: ${esc(d.n)}, ${money(d.v)}, ${ST[d.st].t}" aria-label="Closing ${fmtDW(n)}: ${esc(c.n)}, ${esc(d.n)}, ${money(d.v)}. Open the account">${I('target', 'xs')}<span>${esc(c.n)}</span></button>`; }).join('')}${cl.length > 2 ? `<button class="crm-clb more" data-pop="#crm-p-cls" data-day="${n}" aria-haspopup="menu" aria-label="${cl.length - 1} more closing ${fmtDW(n)}">+${cl.length - 1}</button>` : ''}</div><div class="ecx-col" data-d="${i}"></div></div>`; }).join('') + '<div class="ecx-scan"></div>');
-    for (let i = 0; i < 5; i++){
+    for (let i = 0; i < 7; i++){
       const n = m0 + i, list = MT.filter(m => m.day === n).concat(SG.filter(s => s.day === n));
       list.forEach(m => m.vd = m.sug ? Math.max(1, m.dur) : m.dur); lanes(list);
       const cl = $(`.ecx-col[data-d="${i}"]`, cgrid);
       list.forEach(m => { const el = evEl(m); cl.appendChild(el); bind(el); });
-      if (n === 0 && isWork(0)){ const t = new Date(), h = t.getHours() + t.getMinutes() / 60; if (h >= H0 && h <= H0 + HN) cl.insertAdjacentHTML('beforeend', `<div class="ecx-now" style="top:calc(var(--dm-ph) * ${(h - H0).toFixed(3)})" data-tip="Now, ${tmA(Math.floor(h * 4) / 4)}"></div>`); }
+      if (n === 0){ const t = new Date(), h = t.getHours() + t.getMinutes() / 60; if (h >= H0 && h <= H0 + HN) cl.insertAdjacentHTML('beforeend', `<div class="ecx-now" style="top:calc(var(--dm-ph) * ${(h - H0).toFixed(3)})" data-tip="Now, ${tmA(Math.floor(h * 4) / 4)}"></div>`); }
     }
     // a narrow calendar shows one day: the row of days picks it
-    cdays.innerHTML = [0, 1, 2, 3, 4].map(i => { const n = m0 + i, k = MT.filter(m => m.day === n && m.st !== 'held').length + SG.filter(s => s.day === n).length;
+    cdays.innerHTML = [0, 1, 2, 3, 4, 5, 6].map(i => { const n = m0 + i, k = MT.filter(m => m.day === n && m.st !== 'held').length + SG.filter(s => s.day === n).length;
       return `<button aria-pressed="false" data-d="${i}"${n === 0 ? ' class="t"' : ''} aria-label="${DAYL[dow(n)]} ${fmtD(n)}, ${plural(k, 'meeting')}"><span>${DAYN[dow(n)]}</span><b>${dateOf(n).getDate()}</b></button>`; }).join('');
-    if (cday < 0) cday = inWeek(0) && isWork(0) ? -mon() : 0;
+    if (cday < 0) cday = inWeek(0) ? -mon() : 0;
+    fitHours();
     showDay(cday, false);
     counts();
   }
+  const csc = $('.ecx-sc', ecx);
+  function fitHours(){
+    if (cdays.getClientRects().length){ cgrid.style.removeProperty('--dm-ph'); return; }
+    const room = csc.clientHeight - 62; if (room > 0) cgrid.style.setProperty('--dm-ph', Math.max(40, Math.floor(room / HN)) + 'px');
+  }
+  new ResizeObserver(() => { if (view === 'calendar') fitHours(); }).observe(csc);
   function showDay(i, anim = true){
     const was = cday; cday = i;
     $$('button', cdays).forEach(b => b.setAttribute('aria-pressed', +b.dataset.d === i));
@@ -2786,7 +2925,8 @@ const fitHits = window.dmFitHits || (() => {
     if (anim && was !== i && cdays.getClientRects().length){ closeCalPop(); enter($$('.ecx-day', cgrid)[i]); }
   }
   cdays.addEventListener('click', e => { const b = e.target.closest('button'); if (b) showDay(+b.dataset.d); });
-  const goWeek = w => { wk = w; cday = -1; SG = SG.filter(s => inWeek(s.day)); renderCal(); };
+  const goWeek = w => { const dir = Math.sign(w - wk); wk = w; cday = -1; SG = SG.filter(s => inWeek(s.day)); renderCal();
+    if (dir) [$('.crm-wkt', ecx), ...$$('.ecx-day', cgrid), $('.ecx-days', ecx)].forEach(el => glide(el, { transform:`translateX(${dir * 14}px)` })); };
   $$('[data-wk]', ecx).forEach(b => b.onclick = () => goWeek(+b.dataset.wk === 0 ? 0 : wk + +b.dataset.wk));
   // a meeting found elsewhere (the sheet's next step): its week, its day, and its card open
   function showMeeting(m){
@@ -2809,7 +2949,7 @@ const fitHits = window.dmFitHits || (() => {
     const m = el._m; if (popFor === el){ closeCalPop(); return; }
     if (popFor && popFor._m.fresh && popFor._m !== m) closeCalPop();
     popFor = el; const c = coOf(m.co), d = dealOf(m.deal) || c.lead, col = P[m.own][1];
-    const who = [`<span class="av" style="background:var(--dm-av-${col});color:var(--dm-av-${col}-ink)" aria-hidden="true">${m.own}</span>`, ...c.ppl.slice(0, 2).map(p => `<span class="av crm-cav" aria-hidden="true">${ini(p.n)}</span>`)].join('');
+    const who = [`<span class="av" style="background:var(--dm-av-${col});color:var(--dm-av-${col}-ink)" aria-hidden="true">${m.own}</span>`, ...c.ppl.slice(0, 2).map(p => avn(p.n))].join('');
     cpop.innerHTML = `<div class="ecx-ph"><i style="background:var(--dm-p${col})"></i>${m.fresh ? `<input class="ecx-ti" placeholder="Call" aria-label="Meeting title" value="">` : `<b>${esc(c.n)}</b>`}<button class="ib ecx-px" aria-label="Close" data-tip="Close">${I('x', 'xs')}</button></div>`
       + (m.fresh ? `<div class="ecx-pt"><button class="dtp-v crm-pacc" data-pop="#crm-p-acc" aria-haspopup="menu" aria-label="Account: ${esc(c.n)}. Change it"><span class="pfm-lg xs" aria-hidden="true">${esc(c.n[0])}</span><span>${esc(c.n)}</span>${I('chev-d', 'xs')}</button></div>` : `<div class="ecx-pt">${esc(m.kind)}${m.st === 'held' ? ', held' : m.day < 0 ? ', overdue' : ''}</div>`)
       + `<div class="ecx-pt num">${fmtDW(m.day)}, ${tm(m.h)} – ${tm(m.h + m.dur)}</div>`
@@ -2900,13 +3040,13 @@ const fitHits = window.dmFitHits || (() => {
     closeCalPop();
     const soon = workAfter(0, isWork(0) ? 0 : 1), w0 = wk;
     if (weekOf()[1] < soon) wk = 0;
-    const days = [0, 1, 2, 3, 4].map(i => mon() + i).filter(n => n >= Math.max(1, soon));
+    const days = [0, 1, 2, 3, 4, 5, 6].map(i => mon() + i).filter(n => isWork(n) && n >= Math.max(1, soon));
     if (!days.length){ wk++; cday = -1; return planFollowUps(); }
     if (wk !== w0) cday = -1;
     const T = CO.filter(c => c.last > 14 && (!c.next || c.next.day < 0)).sort((a, b) => b.last - a.last);
     SG = [];
     T.forEach((c, i) => { const late = c.next && c.next.day < 0 ? c.next : null, dur = late ? late.dur : .5;
-      for (let k = 0; k < days.length; k++){ const day = days[(i + k) % days.length], h = freeAt(c.own, day, 9 + (i % 4), dur, SG);
+      for (let k = 0; k < days.length; k++){ const day = days[(i + k) % days.length], h = freeAt(c.own, day, 9 + (i % 4), dur, SG.map(x => ({ ...x, own:c.own })));
         if (h != null){ SG.push({ id:'s' + c.id, co:c.id, deal:c.lead && c.lead.id, own:c.own, day, h, dur, vd:Math.max(1, dur), kind:late ? late.kind : 'Follow-up call', sug:true }); break; } } });
     plan.disabled = true; $('span', plan).innerHTML = '';
     plan.insertAdjacentHTML('afterbegin', '<span class="think on"><i></i><i></i><i></i><i></i></span>'); $('.i', plan).style.display = 'none'; $('span:last-child', plan).textContent = `Checking ${plural(new Set(T.map(c => c.own)).size, 'calendar')}`;
@@ -3138,11 +3278,12 @@ const fitHits = window.dmFitHits || (() => {
   function setView(k){
     const was = view; view = k; app.dataset.view = k;
     Object.keys(VIEWS).forEach(v => $('#crm-v-' + v, app).hidden = v !== k);
+    if (was !== k) glide($('#crm-v-' + k, app), { transform:'translateY(3px)' }, 220);
     swap($('.crm-h1t', app), VIEWS[k]);
     if (k !== 'calendar') closeCalPop();
     if (k === 'forecast'){ closeSheet(); renderForecast(); }
     if (k === 'pipeline') renderBoard();
-    if (k === 'inbox') renderInbox();
+    if (k === 'inbox') renderInbox(); else pvOpen(false);
     if (k === 'calendar' && was !== 'calendar') renderCal();
     counts(); drawer(false);
   }
@@ -3244,8 +3385,8 @@ const fitHits = window.dmFitHits || (() => {
   }
   function moveHi(d){ const bs = $$('.cpl-i', list); if (!bs.length){ q.removeAttribute('aria-activedescendant'); $('.cpl-hl', list).style.opacity = 0; return; } hi = (hi + d + bs.length) % bs.length; bs.forEach((b, i) => { b.classList.toggle('hl', i === hi); b.setAttribute('aria-selected', i === hi); }); const b = bs[hi], hl = $('.cpl-hl', list); hl.style.opacity = 1; hl.style.top = b.offsetTop + 'px'; q.setAttribute('aria-activedescendant', b.id); if (b.offsetTop < list.scrollTop + 30 || b.offsetTop + 36 > list.scrollTop + list.clientHeight) b.scrollIntoView({ block:'nearest' }); }
   const runItem = i => { const x = items[i]; closeCmd(false); if (x) x.run(); };
-  function openCmd(){ if (!over.hidden) return; back = document.activeElement; over.hidden = false; q.value = ''; paintCmd(); drawer(false); closeCalPop(); q.focus(); }
-  function closeCmd(restore = true){ if (over.hidden) return; over.hidden = true; if (restore && back && back.isConnected) back.focus({ preventScroll:true }); }
+  function openCmd(){ if (over._closing) unfade(over); else if (!over.hidden) return; back = document.activeElement; over.hidden = false; q.value = ''; paintCmd(); drawer(false); closeCalPop(); q.focus(); }
+  function closeCmd(restore = true){ if (over.hidden || over._closing) return; fadeOut(over); if (restore && back && back.isConnected) back.focus({ preventScroll:true }); }
   q.addEventListener('input', paintCmd);
   q.addEventListener('keydown', e => { if (e.key === 'ArrowDown' || e.key === 'ArrowUp'){ e.preventDefault(); moveHi(e.key === 'ArrowDown' ? 1 : -1); } else if (e.key === 'Enter'){ e.preventDefault(); runItem(hi); } else if (e.key === 'Tab') e.preventDefault(); });
   list.addEventListener('click', e => { const b = e.target.closest('.cpl-i'); if (b) runItem(+b.dataset.i); });
@@ -3266,8 +3407,8 @@ const fitHits = window.dmFitHits || (() => {
     box.addEventListener('click', e => { const b = e.target.closest('.chip'); if (!b) return; k ? nown = b.dataset.v : nseg = b.dataset.v; paintPick(); $$('.chip', box).find(x => x.dataset.v === b.dataset.v).focus(); });
     box.addEventListener('keydown', e => { const d = e.key === 'ArrowRight' || e.key === 'ArrowDown' ? 1 : e.key === 'ArrowLeft' || e.key === 'ArrowUp' ? -1 : 0; if (!d) return; e.preventDefault(); const bs = $$('.chip', box), i = bs.findIndex(b => b.getAttribute('aria-checked') === 'true'); bs[(i + d + bs.length) % bs.length].click(); });
   });
-  function newAccount(){ nback = document.activeElement; nd.hidden = false; form.reset(); $$('.fmx-f', form).forEach(f => { f.classList.remove('bad'); $('.er', f)?.remove(); }); paintPick(); drawer(false); setTimeout(() => nin.focus(), 30); }
-  const closeNew = () => { if (nd.hidden) return; nd.hidden = true; if (nback && nback.isConnected) nback.focus({ preventScroll:true }); };
+  function newAccount(){ unfade(nd); nback = document.activeElement; nd.hidden = false; form.reset(); $$('.fmx-f', form).forEach(f => { f.classList.remove('bad'); $('.er', f)?.remove(); }); paintPick(); drawer(false); setTimeout(() => nin.focus(), 30); }
+  const closeNew = () => { if (nd.hidden || nd._closing) return; fadeOut(nd); if (nback && nback.isConnected) nback.focus({ preventScroll:true }); };
   $('.crm-new', app).onclick = newAccount;
   $('.crm-newx', form).onclick = closeNew;
   nd.addEventListener('pointerdown', e => { if (e.target === nd) closeNew(); });
@@ -3282,7 +3423,7 @@ const fitHits = window.dmFitHits || (() => {
     let v = +vin.value.replace(/[^\d.]/g, '') || 25000; if (v < 1000) v *= 1000;
     const i = nid, c = { id:'c' + (nid++), n:name, seg:nseg, tags:['First deal'], own:nown, reg:'na', last:0, lt:'Discovery', trend:[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], log:[['Discovery', 0, 'Account added by Nina Cole', 'Nina Cole']], ppl:peopleOf(i), i, base:[] };
     CO.push(c); const d = { id:'DL-' + (did++), co:c.id, n:'First contract', st:'disc', v, close:toWork(60), adj:0, own:nown }; d.p = probOf(d); DE.push(d);
-    nd.hidden = true; clearFilters(); setView('accounts'); refresh();
+    fadeOut(nd); clearFilters(); setView('accounts'); refresh();
     const tr = $(`tr[data-id="${c.id}"]`, tbody); if (tr){ tr.scrollIntoView({ block:'nearest' }); enter(tr); focusRow(tr); }
     toast('ok', `${name} added`, `${P[nown][0]} owns it, with a ${money(v)} deal in Discovery. The agent suggests booking a first call`, { label:'Open', run:() => openSheet(c.id, true) });
   });
@@ -3290,12 +3431,13 @@ const fitHits = window.dmFitHits || (() => {
   /* ---------- keys: ⌘K, /, ?, and Escape closing one thing at a time ---------- */
   // on the window, so it runs before the core's Escape on the document: an open menu is the core's to close
   addEventListener('keydown', e => {
-    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k'){ e.preventDefault(); over.hidden ? openCmd() : closeCmd(); return; }
+    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k'){ e.preventDefault(); over.hidden || over._closing ? openCmd() : closeCmd(); return; }
     if (e.key === 'Escape'){
       if ($('.pop.open', app) || e.target.closest?.('.crm-ta') || (e.target === ask && ask.value)) return;
-      if (!over.hidden){ e.preventDefault(); closeCmd(); return; }
-      if (!nd.hidden){ e.preventDefault(); closeNew(); return; }
+      if (!over.hidden && !over._closing){ e.preventDefault(); closeCmd(); return; }
+      if (!nd.hidden && !nd._closing){ e.preventDefault(); closeNew(); return; }
       if (popFor){ e.preventDefault(); closeCalPop(); return; }
+      if (ibv.classList.contains('pv')){ pvOpen(false); $(`[data-ib="${ibSel}"] .crm-it`, igs)?.focus({ preventScroll:true }); return; }
       if (app.classList.contains('dr')){ drawer(false); $('.crm-menu', app).focus(); return; }
       if (sheetFor){ closeSheet(); return; }
       if (SG.length && view === 'calendar'){ SG = []; renderCal(); swap(cmsg, ''); return; }
@@ -3307,6 +3449,10 @@ const fitHits = window.dmFitHits || (() => {
     if (e.key === '/' && over.hidden && nd.hidden){ e.preventDefault(); if (view === 'pipeline') kq.focus(); else { if (view !== 'accounts') setView('accounts'); ask.focus(); } }
     if (e.key === '?' && over.hidden && nd.hidden){ e.preventDefault(); help(); }
   }, true);
+
+  /* ---------- focus rings show for the keyboard only: a click or tap hides them until a key is pressed ---------- */
+  document.addEventListener('pointerdown', () => app.dataset.ptr = '', true);
+  document.addEventListener('keydown', e => { if (!['Shift', 'Control', 'Alt', 'Meta'].includes(e.key)) delete app.dataset.ptr; }, true);
 
   /* ---------- everything follows the data ---------- */
   function refresh(){ derive(); renderTable(); renderBoard(); renderInbox(); if (view === 'calendar') renderCal(); if (view === 'forecast') renderForecast(); if (sheetFor) renderSheet(); counts(); }

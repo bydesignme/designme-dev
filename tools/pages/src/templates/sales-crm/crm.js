@@ -47,6 +47,16 @@
   const tmA = h => { const hh = Math.floor(h), mm = Math.round((h - hh) * 60); return `${hh > 12 ? hh - 12 : hh}${mm ? ':' + String(mm).padStart(2, '0') : ''}${hh >= 12 ? 'pm' : 'am'}`; };
   const money = v => '$' + Math.round(v).toLocaleString('en-US');
   const kmoney = v => v >= 1e6 ? '$' + parseFloat((v / 1e6).toFixed(2)) + 'M' : v >= 1e3 ? '$' + Math.round(v / 1e3) + 'k' : '$' + Math.round(v);
+  // motion: the library's ease and durations, for the moves the CSS can't make (content that is swapped, not shown or hidden)
+  const CS0 = getComputedStyle(app), EASE = CS0.getPropertyValue('--dm-ease').trim() || 'ease';
+  const dur = (v, d) => { v = (v || '').trim(); return v.endsWith('ms') ? parseFloat(v) : v.endsWith('s') ? parseFloat(v) * 1000 : d; };
+  const T = dur(CS0.getPropertyValue('--dm-t'), 300), TF = dur(CS0.getPropertyValue('--dm-t-fast'), 140);
+  const glide = (el, from, ms = T) => { if (!el || REDUCE || !el.animate) return; el.animate([{ opacity:0, ...from }, { opacity:1, transform:'none' }], { duration:ms, easing:EASE }); };
+  // an overlay (Jump to, Add account) fades out before it hides; opening it again while it fades takes it straight back. A phone's
+  // preview sheet, which is shown by a class rather than hidden, only plays the fade (fadeCls)
+  const fadeOut = (el, ms = 200) => { if (REDUCE){ el.hidden = true; return; } el._closing = true; el.classList.add('out'); clearTimeout(el._out); el._out = setTimeout(() => { el.hidden = true; el.classList.remove('out'); el._closing = false; }, ms); };
+  const unfade = el => { clearTimeout(el._out); el.classList.remove('out'); el._closing = false; };
+  const fadeCls = (el, ms = 200) => { if (REDUCE) return; el.classList.add('out'); clearTimeout(el._out); el._out = setTimeout(() => el.classList.remove('out'), ms); };
   const plural = (n, a, b = a + 's') => `${n} ${n === 1 ? a : b}`;
   const poss = n => n + (n.endsWith('s') ? "'" : "'s");
 
@@ -84,6 +94,8 @@
   const ROLE = ['Head of operations', 'VP of finance', 'IT lead', 'Procurement lead', 'COO', 'Product lead', 'Head of data', 'CFO'];
   const peopleOf = i => Array.from({ length:2 + i % 2 }, (_, k) => ({ n:FN[(i * 3 + k * 7) % FN.length] + ' ' + LN_[(i * 5 + k * 3) % LN_.length], r:ROLE[(i + k * 3) % ROLE.length] }));
   const ini = n => n.split(' ').map(w => w[0]).join('');
+  // a contact's avatar: the same --dm-av pairs as the owners', picked by their name so it never changes
+  const avn = (n, cls = '') => { const k = 'bltmprky'[[...n].reduce((a, ch) => (a * 31 + ch.charCodeAt(0)) % 9973, 7) % 8]; return `<span class="av${cls ? ' ' + cls : ''}" style="background:var(--dm-av-${k});color:var(--dm-av-${k}-ink)" aria-hidden="true">${ini(n)}</span>`; };
   // twelve weeks of meetings, calls and emails: none since the last touch, a steady few before it
   const trendOf = (i, last) => { let s = i * 7919 + 17; const r = () => (s = (s * 16807) % 2147483647) / 2147483647;
     return Array.from({ length:12 }, (_, w) => (11 - w) * 7 + 3 < last ? 0 : Math.round(1 + r() * 5 + (last < 10 ? w / 3 : 0))); };
@@ -121,7 +133,9 @@
   const meet = o => { const m = { id:'m' + (mid++), st:'plan', ...o }; MT.push(m); return m; };
   // the agent's inbox items (built below, once the meetings are in)
   const IB = [];
-  const ltName = c => c.lt === 'Email' ? 'email' : TOUCH[c.lt][0].toLowerCase();
+  // a meeting's name in a sentence: lower case, except an acronym (QBR)
+  const low = k => /^[A-Z]{2,}\b/.test(k) ? k : k.toLowerCase();
+  const ltName = c => c.lt === 'Email' ? 'email' : low(TOUCH[c.lt][0]);
   function derive(){
     CO.forEach(c => {
       const mine = DE.filter(d => d.co === c.id), open = mine.filter(d => d.st !== 'won');
@@ -183,7 +197,7 @@
     const s = w.find(x => x.kind === 'slip'), f = w.find(x => x.kind === 'follow'), x = w.find(y => y.kind === 'fix');
     if (s){ const d = dealOf(s.deal); return { k:'slip', label:'New close date', item:s, why:`${d.n} was due ${fmtD(d.close)} and is still open. The agent suggests ${fmtDW(s.to)}.` }; }
     if (f) return { k:'follow', label:'Send follow-up', item:f, why:`No touch for ${c.last} days. The agent drafted “${f.subj}” to ${f.to}.` };
-    if (c.next && c.next.day < 0) return { k:'resched', label:'Reschedule', why:`The ${c.next.kind.toLowerCase()} was due ${fmtDW(c.next.day)}. The agent moves it to ${first(c.own)}'s first free slot.` };
+    if (c.next && c.next.day < 0) return { k:'resched', label:'Reschedule', why:`The ${low(c.next.kind)} was due ${fmtDW(c.next.day)}. The agent moves it to ${first(c.own)}'s first free slot.` };
     if (!c.next && c.lead) return { k:'book', label:'Book next step', why:`Nothing is booked. The agent finds ${first(c.own)}'s first free slot for a ${STEP[c.lead.st][0].toLowerCase()}.` };
     if (x) return { k:'fix', label:x.fix === 'stage' ? 'Move to Proposal' : 'Lower win %', item:x, why:fixWhy(x) };
     if (c.seg === 'Strategic' && c.tags.includes('Renewal') && c.lead && !MT.some(m => m.co === c.id && m.st === 'plan' && m.kind === 'QBR')) return { k:'qbr', label:'Book QBR', why:'A strategic renewal with no QBR booked. The agent books one in about two weeks.' };
@@ -251,7 +265,7 @@
     if (sug.item) sug.item.undo = r.undo;
     refresh(); say(r.t);
     toast('ok', r.t, r.s, { label:'Undo', run:() => { r.undo(); if (sug.item) sug.item.undo = null; refresh(); } });
-    const tr = $(`tr[data-id="${c.id}"]`, tbody); if (tr) enter($('.crm-nx', tr) || tr);
+    const tr = $(`tr[data-id="${c.id}"]`, tbody); if (tr) $$('.crm-nx, .crm-hs, .crm-agc>*', tr).forEach((x, i) => enter(x, i * 40));
   }
 
   /* ---------- the state of the filters, the selection and what is open ---------- */
@@ -333,9 +347,9 @@
   const fch = $('.crm-fch', app);
   function chips(){
     const have = new Set(F.A.map(f => f.k));
-    $$('.flm-ch', fch).forEach(ch => { if (!have.has(ch.dataset.k)) ch.remove(); });
+    $$('.flm-ch', fch).forEach(ch => { if (have.has(ch.dataset.k) || ch.classList.contains('gone')) return; if (REDUCE) return ch.remove(); ch.classList.add('gone'); setTimeout(() => ch.remove(), 300); });
     F.A.forEach(f => {
-      let ch = $(`.flm-ch[data-k="${f.k}"]`, fch);
+      let ch = $(`.flm-ch[data-k="${f.k}"]:not(.gone)`, fch);
       if (!ch){ ch = html(`<div class="flm-ch" role="listitem" data-k="${f.k}"><span class="k">${FL[f.k].l}</span><button class="op"></button><span class="v"></span><button class="x">${I('x', 'xs')}</button></div>`); fch.appendChild(ch); }
       else ch.classList.add('seen');
       const o = valOf(f.k, f.v), op = FL[f.k].ops[+f.neg], text = `${FL[f.k].l} ${op} ${o.l}`;
@@ -344,6 +358,7 @@
       $('.x', ch).setAttribute('aria-label', `Remove filter ${text}`); $('.x', ch).dataset.tip = 'Remove filter';
     });
     const on = F.A.length || F.q;
+    $('.crm-chips', app).hidden = !on;
     $('.crm-clr', app).hidden = !on;
     $('.crm-inview', app).textContent = on ? `${rows.length} of ${CO.length}` : '';
     $('.crm-ftr', app).classList.toggle('on', F.A.length > 0);
@@ -369,6 +384,7 @@
       fpop.innerHTML = `<button class="mi flm-bk" role="menuitem" tabindex="-1" aria-label="Back to all fields">${I('chev-l', 'xs')}<span>${f.l}</span></button><div class="sep" role="separator"></div>`
         + f.o().map(o => `<button class="mi" role="menuitemradio" aria-checked="${!!on && on.v === o.v}" tabindex="-1" data-close data-v="${o.v}">${o.g || ''}<span>${o.l}</span><span class="r num">${CO.filter(c => fmatch(c, k) && f.test(c, o.v)).length}</span><span class="ck">${I('check', 'xs')}</span></button>`).join('');
     }
+    if (fpop.dataset.k !== (k || '')) glide(fpop, { transform:`translateX(${k ? 8 : -8}px)` }, 220);
     fpop.dataset.k = k || '';
     if (focus) setTimeout(() => { const m = k ? ($('.mi[aria-checked="true"]', fpop) || $$('.mi', fpop)[1]) : ($(`.mi[data-k="${focus}"]`, fpop) || $('.mi', fpop)); if (m) m.focus({ preventScroll:true }); });
   }
@@ -546,11 +562,11 @@
         + `<div class="dtp-r"><span class="k">Stage</span><span class="dtp-v static">${pill(c.st)}</span></div>`
         + `<div class="dtp-r"><span class="k">Region</span><span class="dtp-v static"><span class="dot" style="color:${REG[c.reg].c}"></span>${REG[c.reg].t}</span></div>`
         + `<div class="dtp-r"><span class="k">Last touch</span><span class="dtp-v static">${c.last === 0 ? 'Today' : fmtD(-c.last)}, ${esc(ltName(c))}</span></div>`
-        + `<div class="dtp-r crm-tg"><span class="k">Tags</span><span class="dtp-tags">${[c.seg, ...c.tags].map(chip).join('')}<button class="dtp-add" data-a="tag" aria-label="Add a tag" data-tip="Add tag">${I('plus', 'xs')}</button></span></div></div>`)
+        + `</div><div class="crm-tg"><span class="crm-tgk">Tags</span><span class="dtp-tags">${[c.seg, ...c.tags].map(chip).join('')}<button class="dtp-add" data-a="tag" aria-label="Add a tag" data-tip="Add tag">${I('plus', 'xs')}</button></span></div>`)
       + section('deals', `Deals, ${mine.length}`, mine.length ? `<div class="crm-dl">${mine.map(d => `<button data-deal="${d.id}" data-pop="#crm-p-sstage" aria-haspopup="menu" aria-label="${esc(d.n)}, ${ST[d.st].t}, ${money(d.v)}${slipping(d) ? ', past its close date' : ''}. Change its stage"><span class="t">${esc(d.n)}<span class="w num${slipping(d) ? ' late' : ''}">${d.st === 'won' ? 'Won ' + fmtD(d.close) : (slipping(d) ? 'Was due ' : 'Closes ') + fmtD(d.close) + ', ' + d.p + '%'}</span></span>${pill(d.st)}<span class="num">${kmoney(d.v)}</span></button>`).join('')}</div>` : '<p class="muted">No deals yet.</p>')
-      + section('ppl', `People, ${c.ppl.length}`, `<ul class="crm-ppl">${c.ppl.map((p, i) => `<li><span class="av crm-cav" aria-hidden="true">${ini(p.n)}</span><span><b>${esc(p.n)}</b><span class="muted">${esc(p.r)}${i ? '' : ', champion'}</span></span></li>`).join('')}</ul>`)
+      + section('ppl', `People, ${c.ppl.length}`, `<ul class="crm-ppl">${c.ppl.map((p, i) => `<li>${avn(p.n)}<span><b>${esc(p.n)}</b><span class="muted">${esc(p.r)}${i ? '' : ', champion'}</span></span></li>`).join('')}</ul>`)
       + section('act', 'Activity', `<ul class="crm-tl">${tlOf(c).slice(0, 5).map(([k, d, t, w], i) => `<li${i === 0 && c._fresh ? ' class="new"' : ''}><span class="ic">${I(ACT[k] || 'comment', 'xs')}</span><span>${esc(t)}<span class="w num">${d === 0 ? 'Today' : fmtD(-d)}, ${esc(w)}</span></span></li>`).join('')}</ul>`)
-      + `<div class="crm-sact"><button class="pill line sm" data-a="call">${I('comment', 'xs')}Log a call</button><button class="pill line sm" data-a="email">${I('mail', 'xs')}Log an email</button></div>`;
+      + `<div class="crm-sact"><button class="pill soft" data-a="call">${I('comment', 'xs')}Log a call</button><button class="pill soft" data-a="email">${I('mail', 'xs')}Log an email</button></div>`;
     c._fresh = false;
     sheet.setAttribute('aria-labelledby', 'crm-sh-t');
   }
@@ -622,46 +638,104 @@
     toast(st === 'won' ? 'ok' : 'info', st === 'won' ? `Won: ${c.n}, ${money(d.v)}` : `${d.n} moved to ${ST[st].t}`, st === 'won' ? `${d.n}. Added to this quarter's closed won` : `${c.n}, win probability now ${d.p}%`, { label:'Undo', run:() => { setStage(d, was); refresh(); } });
   }
 
-  /* ---------- Agent inbox: Agent inbox's groups and rows ---------- */
-  const ibx = $('.crm-aib', app), igs = $('.aib-gs', ibx);
+  /* ---------- Agent inbox: Agent inbox's grouped list on the left, the selected item's preview on the right ---------- */
+  const ibv = $('.crm-ib', app), ibx = $('.crm-aib', app), igs = $('.aib-gs', ibx), ipv = $('.crm-ipv', app);
   const IBG = [['follow', 'Follow-ups drafted'], ['slip', 'Close dates passed'], ['fix', 'Data fixes'], ['done', 'Done']];
-  const IBI = { follow:'mail', slip:'cal', fix:'wand' };
-  let edFor = null;
+  const IBI = { follow:'mail', slip:'cal', fix:'wand' }, IBK = { follow:'Follow-up drafted', slip:'Close date passed', fix:'Data fix' };
+  let ibSel = null, edFor = null, pvLast = null;
   const ibText = x => { const c = coOf(x.co), d = dealOf(x.deal);
-    if (x.kind === 'follow') return [`Follow-up to ${x.to}, ${c.n}`, `Quiet for ${plural(c.last, 'day')}. “${x.subj}”: ${x.body}`];
+    if (x.kind === 'follow') return [`Follow-up to ${x.to}, ${c.n}`, `Quiet for ${plural(c.last, 'day')}. “${x.subj}”`];
     if (x.kind === 'slip') return [`Move ${poss(c.n)} ${d.n.toLowerCase()} to ${fmtDW(x.to)}`, `It was due ${fmtD(x.was)} and is still in ${ST[d.st].t}, ${money(d.v)}`];
     return x.fix === 'stage' ? [`Move ${poss(c.n)} ${d.n.toLowerCase()} to ${ST[x.to].t}`, fixWhy(x)] : [`Lower ${poss(c.n)} ${d.n.toLowerCase()} from ${d.p}% to ${clamp(d.p + x.to, 5, 95)}%`, fixWhy(x)]; };
+  // the list's order: what waits, group by group, then what is done
+  const ibOrder = () => { const live = IB.filter(x => coOf(x.co) && dealOf(x.deal)), w = live.filter(x => x.state === 'wait');
+    return [...['follow', 'slip', 'fix'].flatMap(k => w.filter(x => x.kind === k)), ...live.filter(x => x.state !== 'wait')]; };
+  const ibOf = id => IB.find(x => x.id === id);
+  const phone = () => matchMedia('(max-width:760px)').matches;
   function renderInbox(){
-    const live = IB.filter(x => coOf(x.co) && dealOf(x.deal)), w = live.filter(x => x.state === 'wait');
-    const grp = k => k === 'done' ? live.filter(x => x.state !== 'wait') : w.filter(x => x.kind === k);
-    igs.innerHTML = IBG.map(([k, n]) => { const L = grp(k); if (!L.length) return '';
-      return `<section class="aib-g" data-g="${k}" aria-label="${n}"><div class="aib-gh"><span>${n}</span><span class="n">${L.length}</span></div><div class="aib-gl" role="list">${L.map(ibRow).join('')}</div></section>`; }).join('');
+    const L = ibOrder(), w = L.filter(x => x.state === 'wait');
+    if (!L.some(x => x.id === ibSel)) ibSel = (w[0] || L[0] || {}).id || null;
+    igs.innerHTML = IBG.map(([k, n]) => { const G = L.filter(x => k === 'done' ? x.state !== 'wait' : x.state === 'wait' && x.kind === k); if (!G.length) return '';
+      return `<section class="aib-g" data-g="${k}" aria-label="${n}"><div class="aib-gh"><span>${n}</span><span class="n">${G.length}</span></div><div class="aib-gl" role="list">${G.map(ibRow).join('')}</div></section>`; }).join('');
     swap($('.aib-st', ibx), w.length ? `${w.length} waiting for you` : 'All clear');
-    if (!w.length && !igs.querySelector('[data-g="done"]')) igs.innerHTML = `<div class="crm-ibe muted">Nothing waiting. The agent adds to this list as accounts go quiet or deals pass their close dates.</div>`;
+    if (!L.length) igs.innerHTML = `<div class="crm-ibe muted">Nothing waiting. The agent adds to this list as accounts go quiet or deals pass their close dates.</div>`;
+    renderPreview();
   }
-  const ibRow = x => { const [b, s] = ibText(x), wait = x.state === 'wait';
-    return `<div class="aib-i crm-ii${wait ? '' : ' done'}" role="listitem" data-ib="${x.id}"><span class="aib-av" aria-hidden="true">${I(IBI[x.kind], 'xs')}</span><button class="aib-t crm-it" data-ia="open" aria-label="${esc(b)}. Open the account"><b>${esc(b)}</b><span>${esc(s)}</span></button>`
-      + `<span class="aib-r">${wait ? `<button class="pill ghost sm" data-ia="dismiss" aria-label="Dismiss: ${esc(b)}">Dismiss</button><button class="pill line sm" data-ia="edit"${x.kind === 'follow' ? '' : ' data-pop="#crm-p-ied" data-pop-align="end" aria-haspopup="menu"'} aria-label="Edit: ${esc(b)}">${I('edit', 'xs')}Edit</button><button class="pill primary sm" data-ia="ok" aria-label="Approve: ${esc(b)}">Approve</button>`
-        : `<span class="ok">${I(x.state === 'done' ? 'ok' : 'x', 'xs')}</span><span class="crm-ires">${esc(x.res)}</span>${x.undo ? `<button class="pill ghost sm" data-ia="undo" aria-label="Undo: ${esc(b)}">Undo</button>` : ''}`}</span></div>`
-      + (edFor === x.id ? `<div class="crm-ied"><label class="crm-iel" for="crm-ta-${x.id}">Draft to ${esc(x.to)}</label><textarea class="crm-ta" id="crm-ta-${x.id}" rows="4">${esc(x.body)}</textarea><div class="crm-iea"><button class="pill ghost sm" data-ia="cancel">Cancel</button><button class="pill primary sm" data-ia="save">Save draft</button></div></div>` : ''); };
+  // a row: its icon, what it is and why; the selected one is in the Tab order and the arrow keys move from it. The row's own
+  // buttons are shortcuts for a mouse; the preview has the same actions, labelled, for the keyboard
+  const ibRow = x => { const [b, s] = ibText(x), wait = x.state === 'wait', on = x.id === ibSel;
+    return `<div class="aib-i crm-ii${wait ? '' : ' done'}${on ? ' on' : ''}" role="listitem" data-ib="${x.id}"><span class="aib-av" aria-hidden="true">${I(IBI[x.kind], 'xs')}</span><button class="aib-t crm-it" data-ia="sel" aria-current="${on}" tabindex="${on ? 0 : -1}"><b>${esc(b)}</b><span>${esc(s)}</span></button>`
+      + `<span class="aib-r">${wait ? `<button class="ib" data-ia="dismiss" tabindex="-1" aria-label="Dismiss: ${esc(b)}" data-tip="Dismiss">${I('x', 'xs')}</button><button class="ib" data-ia="edit" tabindex="-1"${x.kind === 'follow' ? '' : ' data-pop="#crm-p-ied" data-pop-align="end" aria-haspopup="menu"'} aria-label="Edit: ${esc(b)}" data-tip="Edit">${I('edit', 'xs')}</button><button class="ib crm-iok" data-ia="ok" tabindex="-1" aria-label="Approve: ${esc(b)}" data-tip="Approve">${I('check', 'xs')}</button>`
+        : `<span class="ok">${I(x.state === 'done' ? 'ok' : 'x', 'xs')}</span><span class="crm-ires">${esc(x.res)}</span>`}</span></div>`; };
+  // the preview: the whole draft, or the deal and its dates, or the change and why, with the same actions
+  const pvRow = (k, v) => `<div class="crm-pvr"><span class="k">${k}</span><span class="v">${v}</span></div>`;
+  function renderPreview(){
+    const x = ibOf(ibSel); ipv.dataset.ib = x ? x.id : '';
+    if (!x){ ipv.innerHTML = `<div class="crm-pve muted">Nothing to preview.</div>`; return; }
+    const c = coOf(x.co), d = dealOf(x.deal), wait = x.state === 'wait', [title] = ibText(x), ch = c.ppl.find(p => p.n === x.to) || c.ppl[0];
+    let body = '';
+    if (x.kind === 'follow'){
+      body = `<div class="crm-pvm">${pvRow('To', `${avn(ch.n)}<span>${esc(ch.n)}<span class="muted">, ${esc(ch.r)} at ${esc(c.n)}</span></span>`)}${pvRow('From', `${av(c.own)}<span>${esc(P[c.own][0])}</span>`)}${pvRow('Subject', esc(x.subj))}</div>`
+        + (edFor === x.id ? `<div class="crm-ied"><label class="crm-iel" for="crm-ta">Draft to ${esc(x.to)}</label><textarea class="crm-ta" id="crm-ta" rows="7">${esc(x.body)}</textarea><div class="crm-iea"><button class="pill ghost sm" data-ia="cancel">Cancel</button><button class="pill primary sm" data-ia="save">Save draft</button></div></div>`
+          : `<div class="crm-pvb">${esc(x.body)}\n\n${esc(P[c.own][0])}</div>`)
+        + `<div class="crm-pvc muted">Quiet for ${plural(c.last, 'day')}. ${esc(d.n)}, ${ST[d.st].t}, ${money(d.v)}, closing ${fmtD(d.close)}.</div>`;
+    } else if (x.kind === 'slip'){
+      body = `<div class="crm-pvm">${pvRow('Account', `<span class="pfm-lg xs" aria-hidden="true">${esc(c.n[0])}</span><span>${esc(c.n)}</span>`)}${pvRow('Deal', `<span>${esc(d.n)}</span>${pill(d.st)}<span class="num">${money(d.v)}</span>`)}`
+        + pvRow('Close date', `<span class="crm-was num">${fmtD(x.was)}</span>${I('right', 'xs')}<b class="num">${fmtDW(x.to)}</b>`) + pvRow('Win probability', `<span class="num">${d.p}%</span>`)
+        + pvRow('Next step', c.next ? `<span${c.next.day < 0 ? ' class="crm-bad"' : ''}>${esc(c.next.kind)}, ${c.next.day < 0 ? 'overdue since ' + fmtD(c.next.day) : fmtDW(c.next.day)}</span>` : '<span class="crm-bad">None booked</span>')
+        + pvRow('Owner', `${av(c.own)}<span>${esc(P[c.own][0])}</span>`) + `</div>`
+        + `<div class="crm-pvc muted">${esc(d.n)} was due ${fmtD(x.was)} and is still in ${ST[d.st].t}. The last touch was ${c.last === 0 ? 'today' : plural(c.last, 'day') + ' ago'}, ${c.lt === 'Email' ? 'an email' : 'a ' + ltName(c)}. Approving moves the close date; the forecast and the board follow.</div>`;
+    } else {
+      const was = x.fix === 'stage' ? pill(d.st) : `<span class="num">${d.p}%</span>`, now = x.fix === 'stage' ? pill(x.to) : `<b class="num">${clamp(d.p + x.to, 5, 95)}%</b>`;
+      body = `<div class="crm-pvm">${pvRow('Account', `<span class="pfm-lg xs" aria-hidden="true">${esc(c.n[0])}</span><span>${esc(c.n)}</span>`)}${pvRow('Deal', `<span>${esc(d.n)}</span><span class="num muted">${money(d.v)}</span>`)}`
+        + pvRow(x.fix === 'stage' ? 'Stage' : 'Win probability', `${was}${I('right', 'xs')}${now}`) + `</div>`
+        + `<div class="crm-pvc">${esc(fixWhy(x))} <span class="muted">Approving changes the deal; its weighted value in the forecast follows.</span></div>`;
+    }
+    const acts = wait ? `<button class="pill ghost" data-ia="dismiss">Dismiss</button><button class="pill soft" data-ia="edit"${x.kind === 'follow' ? '' : ' data-pop="#crm-p-ied" data-pop-align="end" aria-haspopup="menu"'}>${I('edit', 'xs')}Edit</button><button class="pill primary" data-ia="ok">${x.kind === 'follow' ? 'Approve and send' : 'Approve'}</button>`
+      : `<span class="crm-pvres"><span class="ok">${I(x.state === 'done' ? 'ok' : 'x', 'xs')}</span>${esc(x.res)}</span>${x.undo ? `<button class="pill soft" data-ia="undo">${I('undo', 'xs')}Undo</button>` : ''}`;
+    ipv.innerHTML = `<div class="crm-pvh"><span class="aib-av" aria-hidden="true">${I(IBI[x.kind], 'xs')}</span><span class="muted">${IBK[x.kind]}</span><span class="crm-sp"></span><button class="pill ghost sm" data-ia="open">${I('panel', 'xs')}Open account</button><button class="ib crm-pvx" data-ia="close" aria-label="Close the preview" data-tip="Close">${I('x', 's')}</button></div>`
+      + `<h2 class="crm-pvt" id="crm-pvt" tabindex="-1">${esc(title)}</h2>${body}<div class="crm-pva">${acts}</div>`;
+    ipv.setAttribute('aria-labelledby', 'crm-pvt');
+    if (pvLast !== x.id + x.state){ if (pvLast) [...ipv.children].forEach((el, i) => glide(el, { transform:'translateY(4px)' }, T + i * 30)); pvLast = x.id + x.state; }
+  }
+  // a phone shows the list alone; picking a row opens its preview as a sheet over it
+  const pvOpen = on => { const was = ibv.classList.contains('pv'); ibv.classList.toggle('pv', on); ipv.inert = phone() && !on; if (was && !on) fadeCls(ipv); };
+  function ibSelect(id, focus){ ibSel = id; edFor = null; renderInbox(); if (focus === 'row') $(`[data-ib="${id}"] .crm-it`, igs)?.focus({ preventScroll:false }); }
   function ibDo(x, a){
-    const c = coOf(x.co);
-    if (a === 'ok'){ accept(c, { k:x.kind, item:x }); return; }
-    if (a === 'dismiss'){ x.state = 'gone'; x.res = 'Dismissed'; x.undo = () => { x.state = 'wait'; }; refresh(); toast('info', 'Dismissed', ibText(x)[0], { label:'Undo', run:() => { x.state = 'wait'; x.undo = null; refresh(); } }); return; }
-    if (a === 'undo' && x.undo){ x.undo(); x.undo = null; refresh(); return; }
+    const c = coOf(x.co), L = ibOrder().filter(y => y.state === 'wait'), i = L.indexOf(x), next = L[i + 1] || L[i - 1];
+    if (a === 'ok'){ accept(c, { k:x.kind, item:x }); }
+    else if (a === 'dismiss'){ x.state = 'gone'; x.res = 'Dismissed'; x.undo = () => { x.state = 'wait'; }; toast('info', 'Dismissed', ibText(x)[0], { label:'Undo', run:() => { x.state = 'wait'; x.undo = null; refresh(); } }); }
+    else if (a === 'undo' && x.undo){ x.undo(); x.undo = null; refresh(); return; }
+    // the next waiting item takes the selection
+    if (x.id === ibSel && next){ ibSel = next.id; edFor = null; }
+    refresh();
   }
-  igs.addEventListener('click', e => {
+  ibv.addEventListener('click', e => {
     const b = e.target.closest('[data-ia]'); if (!b) return;
-    const el = b.closest('[data-ib]') || b.closest('.crm-ied').previousElementSibling, x = IB.find(y => y.id === el.dataset.ib), a = b.dataset.ia;
-    if (a === 'open'){ openSheet(x.co); return; }
-    if (a === 'edit'){ if (x.kind === 'follow'){ edFor = edFor === x.id ? null : x.id; renderInbox(); const ta = $('.crm-ta', igs); if (ta){ ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length); } } else buildEdit(x); return; }
-    if (a === 'cancel' || a === 'save'){ if (a === 'save'){ const v = $('.crm-ta', igs).value.trim(); if (v) x.body = v; } edFor = null; renderInbox(); const r = $(`[data-ib="${x.id}"] [data-ia="edit"]`, igs); if (r) r.focus(); if (a === 'save') toast('ok', 'Draft saved', `Approve it to send it to ${x.to}`); return; }
-    const was = document.activeElement === b;
+    const el = b.closest('[data-ib]'), x = ibOf(el && el.dataset.ib), a = b.dataset.ia; if (!x) return;
+    const inPv = ipv.contains(b), kb = !e.detail;
+    if (a === 'sel'){ ibSelect(x.id, 'row'); if (phone()){ pvOpen(true); setTimeout(() => $('#crm-pvt', ipv)?.focus({ preventScroll:true }), 60); } return; }
+    if (a === 'close'){ pvOpen(false); $(`[data-ib="${x.id}"] .crm-it`, igs)?.focus({ preventScroll:true }); return; }
+    if (a === 'open'){ openSheet(x.co, kb); return; }
+    if (a === 'edit'){
+      if (x.id !== ibSel){ ibSel = x.id; edFor = null; renderInbox(); }
+      if (x.kind === 'follow'){ edFor = edFor === x.id ? null : x.id; renderPreview(); if (phone()) pvOpen(true); const ta = $('.crm-ta', ipv); if (ta){ ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length); } }
+      else buildEdit(x);
+      return;
+    }
+    if (a === 'cancel' || a === 'save'){ if (a === 'save'){ const v = $('.crm-ta', ipv).value.trim(); if (v) x.body = v; } edFor = null; renderPreview(); $('[data-ia="edit"]', ipv)?.focus(); if (a === 'save') toast('ok', 'Draft saved', `Approve it to send it to ${x.to}`); return; }
     ibDo(x, a);
-    // the focus stays in the list: on the next row's Approve, or the list's heading
-    if (was){ const n = $('.aib-i:not(.done) [data-ia="ok"]', igs); (n || $('#content', app)).focus({ preventScroll:true }); }
+    // the focus stays where it was: on the preview's Approve for the next item, or on the selected row
+    if (inPv && ipv.contains(document.activeElement) === false){ const n = $('[data-ia="ok"]', ipv) || $('[data-ia="open"]', ipv); if (n) n.focus({ preventScroll:true }); }
+    else if (!inPv) $(`[data-ib="${ibSel}"] .crm-it`, igs)?.focus({ preventScroll:true });
   });
-  igs.addEventListener('keydown', e => { if (e.key === 'Escape' && e.target.closest('.crm-ta')){ e.preventDefault(); e.stopPropagation(); $('[data-ia="cancel"]', igs).click(); } });
+  // up and down move through the list, selecting as they go; Home and End jump to its ends
+  igs.addEventListener('keydown', e => {
+    const b = e.target.closest('.crm-it'); if (!b) return;
+    const all = $$('.crm-it', igs), i = all.indexOf(b), to = { ArrowDown:all[i + 1], ArrowUp:all[i - 1], Home:all[0], End:all[all.length - 1] }[e.key];
+    if (to){ e.preventDefault(); ibSelect(to.closest('[data-ib]').dataset.ib, 'row'); }
+  });
+  ipv.addEventListener('keydown', e => { if (e.key === 'Escape' && e.target.closest('.crm-ta')){ e.preventDefault(); e.stopPropagation(); $('[data-ia="cancel"]', ipv).click(); } });
   // Edit on a close date or a data fix: other dates, or other values
   function buildEdit(x){
     const p = pop('crm-p-ied'), d = dealOf(x.deal);
@@ -678,13 +752,13 @@
     }
   }
 
-  /* ---------- Calendar: Event calendar's week, Monday to Friday, 8am to 6pm ---------- */
+  /* ---------- Calendar: Event calendar's week, Monday to Sunday, 8am to 6pm ---------- */
   const ecx = $('.crm-ecx', app), cgrid = $('.ecx-grid', ecx), cdays = $('.ecx-days', ecx), cmsg = $('.ecx-msg', ecx), plan = $('.crm-plan', ecx), H0 = 8, HN = 10;
-  // the week on show: this one, or the next when today is a weekend
-  const baseMon = (() => { const d = dow(0); return d === 0 ? 1 : d === 6 ? 2 : 1 - d; })();
+  // the week on show starts on this week's Monday, weekends included, with today marked
+  const baseMon = (() => { const d = dow(0); return d === 0 ? -6 : 1 - d; })();
   let wk = 0, cday = -1, SG = [];
   const mon = () => baseMon + wk * 7;
-  const weekOf = (w = wk) => { const m0 = baseMon + w * 7; return [m0, m0 + 4]; };
+  const weekOf = (w = wk) => { const m0 = baseMon + w * 7; return [m0, m0 + 6]; };
   const inWeek = (n, w = wk) => { const [a, b] = weekOf(w); return n >= a && n <= b; };
   const weekLabel = (w = wk) => { const [a, b] = weekOf(w), sm = dateOf(a).getMonth() === dateOf(b).getMonth(); return `${fmtD(a)} to ${sm ? dateOf(b).getDate() : fmtD(b)}, ${dateOf(b).getFullYear()}`; };
   const at = h => `calc(var(--dm-ph) * ${h - H0} + 1px)`, tall = n => `calc(var(--dm-ph) * ${n} - 3px)`;
@@ -705,8 +779,8 @@
   const evLabel = m => { const c = coOf(m.co); return `${c.n}, ${m.kind}, ${fmtDW(m.day)} ${tmA(m.h)} to ${tmA(m.h + m.dur)}, ${P[m.own][0]}${m.st === 'plan' && m.day < 0 ? ', overdue' : m.st === 'held' ? ', held' : ''}`; };
   function evEl(m){
     const c = coOf(m.co), col = P[m.own][1], late = m.st === 'plan' && m.day < 0, n = m._n || 1;
-    const el = html(`<button class="ecx-e crm-ev${m.sug ? ' sug' : ''}${late ? ' late' : ''}${m.st === 'held' ? ' held' : ''}" data-m="${m.id}" style="top:${at(m.h)};height:${tall(m.sug ? m.vd : m.dur)};left:calc(3px + (100% - 6px) * ${(m._l || 0) / n});width:calc((100% - 6px) / ${n} - ${n > 1 ? 2 : 0}px);${m.sug ? '' : `background:var(--dm-p${col}-bg);color:var(--dm-p${col})`}" aria-label="${esc(m.sug ? 'Suggested: ' + m.kind.toLowerCase() + ' with ' + c.n + ', ' + fmtDW(m.day) + ' ' + tmA(m.h) : evLabel(m))}"><b>${esc(c.n)}</b>${m.sug ? '' : `<span>${late ? 'Overdue: ' : ''}${esc(m.kind)}, ${tm(m.h)}</span>`}</button>`);
-    if (m.sug) el.insertAdjacentHTML('beforeend', `<span class="ecx-sg"><button class="y" data-sg="book" aria-label="Book a ${esc(m.kind.toLowerCase())} with ${esc(c.n)}, ${fmtDW(m.day)} ${tmA(m.h)}">Book</button><button class="n" data-sg="skip" aria-label="Skip ${esc(c.n)}">Skip</button><i class="num">${tm(m.h)}</i></span>`);
+    const el = html(`<button class="ecx-e crm-ev${m.sug ? ' sug' : ''}${late ? ' late' : ''}${m.st === 'held' ? ' held' : ''}" data-m="${m.id}" style="top:${at(m.h)};height:${tall(m.sug ? m.vd : m.dur)};left:calc(3px + (100% - 6px) * ${(m._l || 0) / n});width:calc((100% - 6px) / ${n} - ${n > 1 ? 2 : 0}px);${m.sug ? '' : `background:var(--dm-p${col}-bg);color:var(--dm-p${col})`}" aria-label="${esc(m.sug ? 'Suggested: ' + low(m.kind) + ' with ' + c.n + ', ' + fmtDW(m.day) + ' ' + tmA(m.h) : evLabel(m))}"><b>${esc(c.n)}</b>${m.sug ? '' : `<span>${late ? 'Overdue: ' : ''}${esc(m.kind)}, ${tm(m.h)}</span>`}</button>`);
+    if (m.sug) el.insertAdjacentHTML('beforeend', `<span class="ecx-sg"><button class="y" data-sg="book" aria-label="Book a ${esc(low(m.kind))} with ${esc(c.n)}, ${fmtDW(m.day)} ${tmA(m.h)}">Book</button><button class="n" data-sg="skip" aria-label="Skip ${esc(c.n)}">Skip</button><i class="num">${tm(m.h)}</i></span>`);
     el._m = m;
     return el;
   }
@@ -715,23 +789,30 @@
     const m0 = mon();
     $('.crm-wkt', ecx).textContent = weekLabel();
     $$('.ecx-day, .ecx-scan', cgrid).forEach(x => x.remove());
-    cgrid.insertAdjacentHTML('beforeend', [0, 1, 2, 3, 4].map(i => { const n = m0 + i, cl = closingOn(n);
-      return `<div class="ecx-day" data-d="${i}"><div class="ecx-dh${n === 0 ? ' t' : ''}">${DAYN[dow(n)]} <b>${dateOf(n).getDate()}</b></div><div class="crm-cls" aria-label="Closing ${fmtDW(n)}">${cl.slice(0, cl.length > 2 ? 1 : 2).map(d => { const c = coOf(d.co);
+    cgrid.insertAdjacentHTML('beforeend', [0, 1, 2, 3, 4, 5, 6].map(i => { const n = m0 + i, cl = closingOn(n);
+      return `<div class="ecx-day${isWork(n) ? '' : ' we'}" data-d="${i}"><div class="ecx-dh${n === 0 ? ' t' : ''}">${DAYN[dow(n)]} <b>${dateOf(n).getDate()}</b></div><div class="crm-cls" aria-label="Closing ${fmtDW(n)}">${cl.slice(0, cl.length > 2 ? 1 : 2).map(d => { const c = coOf(d.co);
         return `<button class="crm-clb" data-co="${c.id}" data-tip="${esc(c.n)}: ${esc(d.n)}, ${money(d.v)}, ${ST[d.st].t}" aria-label="Closing ${fmtDW(n)}: ${esc(c.n)}, ${esc(d.n)}, ${money(d.v)}. Open the account">${I('target', 'xs')}<span>${esc(c.n)}</span></button>`; }).join('')}${cl.length > 2 ? `<button class="crm-clb more" data-pop="#crm-p-cls" data-day="${n}" aria-haspopup="menu" aria-label="${cl.length - 1} more closing ${fmtDW(n)}">+${cl.length - 1}</button>` : ''}</div><div class="ecx-col" data-d="${i}"></div></div>`; }).join('') + '<div class="ecx-scan"></div>');
-    for (let i = 0; i < 5; i++){
+    for (let i = 0; i < 7; i++){
       const n = m0 + i, list = MT.filter(m => m.day === n).concat(SG.filter(s => s.day === n));
       list.forEach(m => m.vd = m.sug ? Math.max(1, m.dur) : m.dur); lanes(list);
       const cl = $(`.ecx-col[data-d="${i}"]`, cgrid);
       list.forEach(m => { const el = evEl(m); cl.appendChild(el); bind(el); });
-      if (n === 0 && isWork(0)){ const t = new Date(), h = t.getHours() + t.getMinutes() / 60; if (h >= H0 && h <= H0 + HN) cl.insertAdjacentHTML('beforeend', `<div class="ecx-now" style="top:calc(var(--dm-ph) * ${(h - H0).toFixed(3)})" data-tip="Now, ${tmA(Math.floor(h * 4) / 4)}"></div>`); }
+      if (n === 0){ const t = new Date(), h = t.getHours() + t.getMinutes() / 60; if (h >= H0 && h <= H0 + HN) cl.insertAdjacentHTML('beforeend', `<div class="ecx-now" style="top:calc(var(--dm-ph) * ${(h - H0).toFixed(3)})" data-tip="Now, ${tmA(Math.floor(h * 4) / 4)}"></div>`); }
     }
     // a narrow calendar shows one day: the row of days picks it
-    cdays.innerHTML = [0, 1, 2, 3, 4].map(i => { const n = m0 + i, k = MT.filter(m => m.day === n && m.st !== 'held').length + SG.filter(s => s.day === n).length;
+    cdays.innerHTML = [0, 1, 2, 3, 4, 5, 6].map(i => { const n = m0 + i, k = MT.filter(m => m.day === n && m.st !== 'held').length + SG.filter(s => s.day === n).length;
       return `<button aria-pressed="false" data-d="${i}"${n === 0 ? ' class="t"' : ''} aria-label="${DAYL[dow(n)]} ${fmtD(n)}, ${plural(k, 'meeting')}"><span>${DAYN[dow(n)]}</span><b>${dateOf(n).getDate()}</b></button>`; }).join('');
-    if (cday < 0) cday = inWeek(0) && isWork(0) ? -mon() : 0;
+    if (cday < 0) cday = inWeek(0) ? -mon() : 0;
+    fitHours();
     showDay(cday, false);
     counts();
   }
+  const csc = $('.ecx-sc', ecx);
+  function fitHours(){
+    if (cdays.getClientRects().length){ cgrid.style.removeProperty('--dm-ph'); return; }
+    const room = csc.clientHeight - 62; if (room > 0) cgrid.style.setProperty('--dm-ph', Math.max(40, Math.floor(room / HN)) + 'px');
+  }
+  new ResizeObserver(() => { if (view === 'calendar') fitHours(); }).observe(csc);
   function showDay(i, anim = true){
     const was = cday; cday = i;
     $$('button', cdays).forEach(b => b.setAttribute('aria-pressed', +b.dataset.d === i));
@@ -739,7 +820,8 @@
     if (anim && was !== i && cdays.getClientRects().length){ closeCalPop(); enter($$('.ecx-day', cgrid)[i]); }
   }
   cdays.addEventListener('click', e => { const b = e.target.closest('button'); if (b) showDay(+b.dataset.d); });
-  const goWeek = w => { wk = w; cday = -1; SG = SG.filter(s => inWeek(s.day)); renderCal(); };
+  const goWeek = w => { const dir = Math.sign(w - wk); wk = w; cday = -1; SG = SG.filter(s => inWeek(s.day)); renderCal();
+    if (dir) [$('.crm-wkt', ecx), ...$$('.ecx-day', cgrid), $('.ecx-days', ecx)].forEach(el => glide(el, { transform:`translateX(${dir * 14}px)` })); };
   $$('[data-wk]', ecx).forEach(b => b.onclick = () => goWeek(+b.dataset.wk === 0 ? 0 : wk + +b.dataset.wk));
   // a meeting found elsewhere (the sheet's next step): its week, its day, and its card open
   function showMeeting(m){
@@ -762,7 +844,7 @@
     const m = el._m; if (popFor === el){ closeCalPop(); return; }
     if (popFor && popFor._m.fresh && popFor._m !== m) closeCalPop();
     popFor = el; const c = coOf(m.co), d = dealOf(m.deal) || c.lead, col = P[m.own][1];
-    const who = [`<span class="av" style="background:var(--dm-av-${col});color:var(--dm-av-${col}-ink)" aria-hidden="true">${m.own}</span>`, ...c.ppl.slice(0, 2).map(p => `<span class="av crm-cav" aria-hidden="true">${ini(p.n)}</span>`)].join('');
+    const who = [`<span class="av" style="background:var(--dm-av-${col});color:var(--dm-av-${col}-ink)" aria-hidden="true">${m.own}</span>`, ...c.ppl.slice(0, 2).map(p => avn(p.n))].join('');
     cpop.innerHTML = `<div class="ecx-ph"><i style="background:var(--dm-p${col})"></i>${m.fresh ? `<input class="ecx-ti" placeholder="Call" aria-label="Meeting title" value="">` : `<b>${esc(c.n)}</b>`}<button class="ib ecx-px" aria-label="Close" data-tip="Close">${I('x', 'xs')}</button></div>`
       + (m.fresh ? `<div class="ecx-pt"><button class="dtp-v crm-pacc" data-pop="#crm-p-acc" aria-haspopup="menu" aria-label="Account: ${esc(c.n)}. Change it"><span class="pfm-lg xs" aria-hidden="true">${esc(c.n[0])}</span><span>${esc(c.n)}</span>${I('chev-d', 'xs')}</button></div>` : `<div class="ecx-pt">${esc(m.kind)}${m.st === 'held' ? ', held' : m.day < 0 ? ', overdue' : ''}</div>`)
       + `<div class="ecx-pt num">${fmtDW(m.day)}, ${tm(m.h)} – ${tm(m.h + m.dur)}</div>`
@@ -853,13 +935,13 @@
     closeCalPop();
     const soon = workAfter(0, isWork(0) ? 0 : 1), w0 = wk;
     if (weekOf()[1] < soon) wk = 0;
-    const days = [0, 1, 2, 3, 4].map(i => mon() + i).filter(n => n >= Math.max(1, soon));
+    const days = [0, 1, 2, 3, 4, 5, 6].map(i => mon() + i).filter(n => isWork(n) && n >= Math.max(1, soon));
     if (!days.length){ wk++; cday = -1; return planFollowUps(); }
     if (wk !== w0) cday = -1;
     const T = CO.filter(c => c.last > 14 && (!c.next || c.next.day < 0)).sort((a, b) => b.last - a.last);
     SG = [];
     T.forEach((c, i) => { const late = c.next && c.next.day < 0 ? c.next : null, dur = late ? late.dur : .5;
-      for (let k = 0; k < days.length; k++){ const day = days[(i + k) % days.length], h = freeAt(c.own, day, 9 + (i % 4), dur, SG);
+      for (let k = 0; k < days.length; k++){ const day = days[(i + k) % days.length], h = freeAt(c.own, day, 9 + (i % 4), dur, SG.map(x => ({ ...x, own:c.own })));
         if (h != null){ SG.push({ id:'s' + c.id, co:c.id, deal:c.lead && c.lead.id, own:c.own, day, h, dur, vd:Math.max(1, dur), kind:late ? late.kind : 'Follow-up call', sug:true }); break; } } });
     plan.disabled = true; $('span', plan).innerHTML = '';
     plan.insertAdjacentHTML('afterbegin', '<span class="think on"><i></i><i></i><i></i><i></i></span>'); $('.i', plan).style.display = 'none'; $('span:last-child', plan).textContent = `Checking ${plural(new Set(T.map(c => c.own)).size, 'calendar')}`;
@@ -1091,11 +1173,12 @@
   function setView(k){
     const was = view; view = k; app.dataset.view = k;
     Object.keys(VIEWS).forEach(v => $('#crm-v-' + v, app).hidden = v !== k);
+    if (was !== k) glide($('#crm-v-' + k, app), { transform:'translateY(3px)' }, 220);
     swap($('.crm-h1t', app), VIEWS[k]);
     if (k !== 'calendar') closeCalPop();
     if (k === 'forecast'){ closeSheet(); renderForecast(); }
     if (k === 'pipeline') renderBoard();
-    if (k === 'inbox') renderInbox();
+    if (k === 'inbox') renderInbox(); else pvOpen(false);
     if (k === 'calendar' && was !== 'calendar') renderCal();
     counts(); drawer(false);
   }
@@ -1197,8 +1280,8 @@
   }
   function moveHi(d){ const bs = $$('.cpl-i', list); if (!bs.length){ q.removeAttribute('aria-activedescendant'); $('.cpl-hl', list).style.opacity = 0; return; } hi = (hi + d + bs.length) % bs.length; bs.forEach((b, i) => { b.classList.toggle('hl', i === hi); b.setAttribute('aria-selected', i === hi); }); const b = bs[hi], hl = $('.cpl-hl', list); hl.style.opacity = 1; hl.style.top = b.offsetTop + 'px'; q.setAttribute('aria-activedescendant', b.id); if (b.offsetTop < list.scrollTop + 30 || b.offsetTop + 36 > list.scrollTop + list.clientHeight) b.scrollIntoView({ block:'nearest' }); }
   const runItem = i => { const x = items[i]; closeCmd(false); if (x) x.run(); };
-  function openCmd(){ if (!over.hidden) return; back = document.activeElement; over.hidden = false; q.value = ''; paintCmd(); drawer(false); closeCalPop(); q.focus(); }
-  function closeCmd(restore = true){ if (over.hidden) return; over.hidden = true; if (restore && back && back.isConnected) back.focus({ preventScroll:true }); }
+  function openCmd(){ if (over._closing) unfade(over); else if (!over.hidden) return; back = document.activeElement; over.hidden = false; q.value = ''; paintCmd(); drawer(false); closeCalPop(); q.focus(); }
+  function closeCmd(restore = true){ if (over.hidden || over._closing) return; fadeOut(over); if (restore && back && back.isConnected) back.focus({ preventScroll:true }); }
   q.addEventListener('input', paintCmd);
   q.addEventListener('keydown', e => { if (e.key === 'ArrowDown' || e.key === 'ArrowUp'){ e.preventDefault(); moveHi(e.key === 'ArrowDown' ? 1 : -1); } else if (e.key === 'Enter'){ e.preventDefault(); runItem(hi); } else if (e.key === 'Tab') e.preventDefault(); });
   list.addEventListener('click', e => { const b = e.target.closest('.cpl-i'); if (b) runItem(+b.dataset.i); });
@@ -1219,8 +1302,8 @@
     box.addEventListener('click', e => { const b = e.target.closest('.chip'); if (!b) return; k ? nown = b.dataset.v : nseg = b.dataset.v; paintPick(); $$('.chip', box).find(x => x.dataset.v === b.dataset.v).focus(); });
     box.addEventListener('keydown', e => { const d = e.key === 'ArrowRight' || e.key === 'ArrowDown' ? 1 : e.key === 'ArrowLeft' || e.key === 'ArrowUp' ? -1 : 0; if (!d) return; e.preventDefault(); const bs = $$('.chip', box), i = bs.findIndex(b => b.getAttribute('aria-checked') === 'true'); bs[(i + d + bs.length) % bs.length].click(); });
   });
-  function newAccount(){ nback = document.activeElement; nd.hidden = false; form.reset(); $$('.fmx-f', form).forEach(f => { f.classList.remove('bad'); $('.er', f)?.remove(); }); paintPick(); drawer(false); setTimeout(() => nin.focus(), 30); }
-  const closeNew = () => { if (nd.hidden) return; nd.hidden = true; if (nback && nback.isConnected) nback.focus({ preventScroll:true }); };
+  function newAccount(){ unfade(nd); nback = document.activeElement; nd.hidden = false; form.reset(); $$('.fmx-f', form).forEach(f => { f.classList.remove('bad'); $('.er', f)?.remove(); }); paintPick(); drawer(false); setTimeout(() => nin.focus(), 30); }
+  const closeNew = () => { if (nd.hidden || nd._closing) return; fadeOut(nd); if (nback && nback.isConnected) nback.focus({ preventScroll:true }); };
   $('.crm-new', app).onclick = newAccount;
   $('.crm-newx', form).onclick = closeNew;
   nd.addEventListener('pointerdown', e => { if (e.target === nd) closeNew(); });
@@ -1235,7 +1318,7 @@
     let v = +vin.value.replace(/[^\d.]/g, '') || 25000; if (v < 1000) v *= 1000;
     const i = nid, c = { id:'c' + (nid++), n:name, seg:nseg, tags:['First deal'], own:nown, reg:'na', last:0, lt:'Discovery', trend:[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], log:[['Discovery', 0, 'Account added by Nina Cole', 'Nina Cole']], ppl:peopleOf(i), i, base:[] };
     CO.push(c); const d = { id:'DL-' + (did++), co:c.id, n:'First contract', st:'disc', v, close:toWork(60), adj:0, own:nown }; d.p = probOf(d); DE.push(d);
-    nd.hidden = true; clearFilters(); setView('accounts'); refresh();
+    fadeOut(nd); clearFilters(); setView('accounts'); refresh();
     const tr = $(`tr[data-id="${c.id}"]`, tbody); if (tr){ tr.scrollIntoView({ block:'nearest' }); enter(tr); focusRow(tr); }
     toast('ok', `${name} added`, `${P[nown][0]} owns it, with a ${money(v)} deal in Discovery. The agent suggests booking a first call`, { label:'Open', run:() => openSheet(c.id, true) });
   });
@@ -1243,12 +1326,13 @@
   /* ---------- keys: ⌘K, /, ?, and Escape closing one thing at a time ---------- */
   // on the window, so it runs before the core's Escape on the document: an open menu is the core's to close
   addEventListener('keydown', e => {
-    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k'){ e.preventDefault(); over.hidden ? openCmd() : closeCmd(); return; }
+    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k'){ e.preventDefault(); over.hidden || over._closing ? openCmd() : closeCmd(); return; }
     if (e.key === 'Escape'){
       if ($('.pop.open', app) || e.target.closest?.('.crm-ta') || (e.target === ask && ask.value)) return;
-      if (!over.hidden){ e.preventDefault(); closeCmd(); return; }
-      if (!nd.hidden){ e.preventDefault(); closeNew(); return; }
+      if (!over.hidden && !over._closing){ e.preventDefault(); closeCmd(); return; }
+      if (!nd.hidden && !nd._closing){ e.preventDefault(); closeNew(); return; }
       if (popFor){ e.preventDefault(); closeCalPop(); return; }
+      if (ibv.classList.contains('pv')){ pvOpen(false); $(`[data-ib="${ibSel}"] .crm-it`, igs)?.focus({ preventScroll:true }); return; }
       if (app.classList.contains('dr')){ drawer(false); $('.crm-menu', app).focus(); return; }
       if (sheetFor){ closeSheet(); return; }
       if (SG.length && view === 'calendar'){ SG = []; renderCal(); swap(cmsg, ''); return; }
@@ -1260,6 +1344,10 @@
     if (e.key === '/' && over.hidden && nd.hidden){ e.preventDefault(); if (view === 'pipeline') kq.focus(); else { if (view !== 'accounts') setView('accounts'); ask.focus(); } }
     if (e.key === '?' && over.hidden && nd.hidden){ e.preventDefault(); help(); }
   }, true);
+
+  /* ---------- focus rings show for the keyboard only: a click or tap hides them until a key is pressed ---------- */
+  document.addEventListener('pointerdown', () => app.dataset.ptr = '', true);
+  document.addEventListener('keydown', e => { if (!['Shift', 'Control', 'Alt', 'Meta'].includes(e.key)) delete app.dataset.ptr; }, true);
 
   /* ---------- everything follows the data ---------- */
   function refresh(){ derive(); renderTable(); renderBoard(); renderInbox(); if (view === 'calendar') renderCal(); if (view === 'forecast') renderForecast(); if (sheetFor) renderSheet(); counts(); }

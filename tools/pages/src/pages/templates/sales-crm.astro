@@ -62,7 +62,7 @@ const I = (n, c = 's') => `<svg class="i ${c}" aria-hidden="true"><use href="#i-
         <button class="ib crm-menu" aria-label="Show views" data-tip="Views"><Fragment set:html={I('panel')} /></button>
         <div class="crm-ttl"><h1 class="crm-h1" id="content" tabindex="-1"><span class="crm-h1t">Accounts</span></h1><span class="crm-sum muted num" aria-live="polite"></span></div>
         <span class="crm-sp"></span>
-        <button class="kbx-q crm-find" aria-label="Search accounts, deals and actions" aria-keyshortcuts="Control+K Meta+K"><Fragment set:html={I('search', 'xs')} /><span class="t">Jump to</span><span class="kbd">⌘K</span></button>
+        <button class="ib crm-find" aria-label="Jump to an account, a deal or an action" aria-keyshortcuts="Control+K Meta+K" data-tip="Jump to" data-tip-k="⌘K"><Fragment set:html={I('search')} /></button>
         <button class="ib crm-bell" data-pop="#crm-p-ntf" data-pop-align="end" aria-haspopup="dialog" aria-label="Notifications" data-tip="Notifications"><Fragment set:html={I('bell')} /><i class="crm-unread" aria-hidden="true"></i></button>
         <button class="pfm-tr crm-me" data-pop="#crm-p-me" data-pop-align="end" aria-haspopup="menu" aria-label="Account menu, Nina Cole"><span class="av" style="background:var(--dm-av-m);color:var(--dm-av-m-ink)">NC</span><span class="crm-men">Nina Cole</span><Fragment set:html={I('chev-d', 'xs')} /></button>
       </header>
@@ -72,14 +72,14 @@ const I = (n, c = 's') => `<svg class="i ${c}" aria-hidden="true"><use href="#i-
       <section class="crm-view ttx crm-co" id="crm-v-accounts" aria-label="Accounts">
         <div class="ttx-hd crm-hd">
           <div class="ttx-ti crm-fbar" role="toolbar" aria-label="Filter, search and sort">
-            <div class="crm-chips">
-              <button class="pill line sm flm-tr crm-ftr" data-pop="#crm-p-flt" aria-haspopup="menu"><Fragment set:html={I('filter')} />Filter</button>
+            <div class="crm-chips" hidden>
               <div class="flm-chips crm-fch" role="list" aria-label="Filters"></div>
               <button class="pill ghost sm crm-clr" hidden>Clear</button>
               <span class="crm-inview muted num"></span>
             </div>
             <div class="crm-acts">
               <div class="six-box crm-ask"><div class="six-in"><Fragment set:html={I('search', 'xs')} /><input type="search" placeholder="Search, or ask in plain words" aria-label="Search accounts, or ask in plain words and press Enter" autocomplete="off" spellcheck="false"><button class="ib six-x" aria-label="Clear the search" hidden><Fragment set:html={I('x', 'xs')} /></button></div></div>
+              <button class="pill line sm flm-tr crm-ftr" data-pop="#crm-p-flt" data-pop-align="end" aria-haspopup="menu"><Fragment set:html={I('filter', 'xs')} /><span>Filter</span></button>
               <button class="pill line sm crm-sort" data-pop="#crm-p-sort" data-pop-align="end" aria-haspopup="menu" aria-label="Sort"><Fragment set:html={I('sort', 'xs')} /><span class="v">Pipeline</span></button>
               <button class="pill line sm crm-export" aria-label="Export accounts in view as CSV"><Fragment set:html={I('down', 'xs')} /><span>Export CSV</span></button>
               <button class="pill primary sm crm-new" aria-label="Add account"><Fragment set:html={I('plus', 'xs')} /><span>Add account</span></button>
@@ -106,12 +106,13 @@ const I = (n, c = 's') => `<svg class="i ${c}" aria-hidden="true"><use href="#i-
         </div>
       </section>
 
-      <!-- Agent inbox: Agent inbox's grouped list, one row per thing the agent prepared -->
+      <!-- Agent inbox: Agent inbox's grouped list on the left, a preview of the selected item on the right (a sheet on a phone) -->
       <section class="crm-view crm-ib" id="crm-v-inbox" aria-label="Agent inbox" hidden>
         <div class="aib panel crm-aib">
           <div class="aib-h"><b>Prepared by the agent</b><span class="muted aib-st" aria-live="polite"></span></div>
           <div class="aib-gs"></div>
         </div>
+        <div class="panel crm-ipv" role="region" aria-label="Preview"></div>
       </section>
 
       <!-- Calendar: Event calendar's week, with the deals closing each day under the day headers -->
