@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="en" data-style="soft">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Health C: trend and drivers · Designme.dev</title>
+<link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+<script>
+/* the page opens in the style and theme the site last used */
+(function(){ var d = document.documentElement, dark = matchMedia('(prefers-color-scheme: dark)').matches, s = 'soft', t = null;
+  try { s = localStorage.getItem('dmui-style') || 'soft'; t = localStorage.getItem('dmui-theme'); } catch(e){}
+  if (s === 'soft') d.setAttribute('data-style', 'soft'); else d.removeAttribute('data-style');
+  d.setAttribute('data-theme', t === 'dark' || t === 'light' ? t : (dark ? 'dark' : 'light')); })();
+</script>
+<style>
+@font-face{font-family:Inter;font-style:normal;font-weight:400;font-display:swap;src:url(../../fonts/inter-latin-400-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:Inter;font-style:normal;font-weight:500;font-display:swap;src:url(../../fonts/inter-latin-500-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:Inter;font-style:normal;font-weight:400;font-display:swap;src:url(../../fonts/inter-latin-ext-400-normal.woff2) format('woff2');unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+1E00-1E9F,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
+@font-face{font-family:Inter;font-style:normal;font-weight:500;font-display:swap;src:url(../../fonts/inter-latin-ext-500-normal.woff2) format('woff2');unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+1E00-1E9F,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
+</style>
+<link rel="stylesheet" href="../../components/assets/core.css">
+<style>
+/* ---------- tokens ---------- */
+/* the core now ships its tokens as --dm-*; this page writes the site's short names, so they point at the core's */
+:root{
+  --page:var(--dm-page);--stage:var(--dm-stage);--surface:var(--dm-surface);--raised:var(--dm-raised);
+  --fg:var(--dm-fg);--fg2:var(--dm-fg2);--muted:var(--dm-muted);--faint:var(--dm-faint);--rail:var(--dm-rail);--line:var(--dm-line);
+  --chip:var(--dm-chip);--hover:var(--dm-hover);--row:var(--dm-row);--grid:var(--dm-grid);
+  --accent-mark:var(--dm-accent-mark);--accent-fg:var(--dm-accent-fg);--accent-bg:var(--dm-accent-bg);
+  --ok:var(--dm-ok);--ok-bg:var(--dm-ok-bg);--ok-mark:var(--dm-ok-mark);--warn:var(--dm-warn);--warn-bg:var(--dm-warn-bg);--warn-mark:var(--dm-warn-mark);--bad:var(--dm-bad);--bad-bg:var(--dm-bad-bg);
+  --r-card:var(--dm-r-card);--r-in:var(--dm-r-in);--r-sm:var(--dm-r-sm);--r-pill:var(--dm-r-pill);--rk:var(--dm-rk);
+  --s-1:var(--dm-s-1);--s-2:var(--dm-s-2);--s-3:var(--dm-s-3);--s-4:var(--dm-s-4);--s-5:var(--dm-s-5);--s-6:var(--dm-s-6);--s-8:var(--dm-s-8);
+  --ease:var(--dm-ease);--ease-io:var(--dm-ease-io);--t:var(--dm-t);--t-fast:var(--dm-t-fast);
+  --shadow:var(--dm-shadow);--shadow-pop:var(--dm-shadow-pop);--sans:var(--dm-sans);
+  --accent:var(--dm-accent);--ink:var(--dm-ink);--on-ink:var(--dm-on-ink)
+}
+
+/* ---------- the page ---------- */
+html,body{margin:0;background:var(--page)}
+body{font-family:var(--sans);font-size:14px;line-height:1.5;color:var(--fg);-webkit-font-smoothing:antialiased}
+:where(.lab) button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+.lab :focus-visible{outline:2px solid var(--dm-focus);outline-offset:2px}
+.lab{max-width:760px;margin:0 auto;padding:40px 24px 64px}
+.lab-h h1{margin:0;font-size:14px;font-weight:500;line-height:1.4}
+.lab-h p{margin:4px 0 0;max-width:600px;font-size:13.5px;line-height:1.55;color:var(--muted);text-wrap:pretty}
+.lab-ctl{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s-2);margin-top:var(--s-5)}
+.lab-ctl .sp{flex:1}
+.lab-rp{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 12px;border-radius:var(--r-pill);background:var(--chip);font-size:12.5px;color:var(--fg);transition:background var(--t-fast)}
+.lab-rp:hover{background:var(--hover)}
+.lab-rp .i{color:var(--fg2)}
+.lab-st{position:relative;display:flex;min-height:680px;margin-top:var(--s-3);border-radius:var(--r-card);background:var(--stage);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--line) 50%,transparent)}
+.lab-st>[data-c]{flex:1;width:auto;max-width:none;display:flex}
+.lab-st .stage-in{max-width:none;flex:1;display:flex;align-items:center;justify-content:center;padding:var(--s-8) var(--s-4)}
+:root:not([data-style="soft"]) .lab-st{border-radius:0;background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:24px 24px;background-position:-1px -1px}
+:root:not([data-style="soft"]) :is(.lab-rp,.lab-ctl .seg2,.lab-ctl .seg2 *){border-radius:0}
+@media (max-width:640px){.lab{padding:28px 16px 48px}.lab-st .stage-in{padding:var(--s-6) var(--s-3)}}
+
+/* ---------- the lab stage: three sheets at the details sheet's width, one under another ---------- */
+.lab-st.hvc-stage{flex-direction:column;align-items:center;gap:var(--s-6);min-height:0;padding:var(--s-8) var(--s-4)}
+.lab-st.hvc-stage>[data-c]{flex:none;width:472px;max-width:100%}
+.lab-st.hvc-stage .stage-in{padding:0}
+/* a slice of the details sheet: the account's header, then the block. Its content is 440px wide, as in the sheet */
+.hvc-sh{width:472px;max-width:100%;box-sizing:border-box;padding:var(--s-4);background:var(--raised)}
+.hvc-ah{display:flex;align-items:center;gap:10px;padding-bottom:var(--s-3)}
+.hvc-lg{flex:none;width:32px;height:32px;display:grid;place-items:center;border-radius:calc(8px * var(--rk));background:var(--chip);font-size:13px;font-weight:500;color:var(--fg2)}
+.hvc-an{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.35}
+.hvc-an b{font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hvc-an span{font-size:12px;color:var(--muted)}
+
+/* ---------- Health C: trend and drivers ---------- */
+/* the score as a story: twelve weeks of health as a small line that ends on today's score, a line under it that says what
+   changed (this week at rest, the week under the pointer or the keyboard while scrubbing), the drivers as signed points
+   that walk from a typical account's 60 to the score, and the agent's next move. One hue for the verdict, green and red
+   for what adds and what takes away; the line itself is ink */
+.hvc{--hl:color-mix(in srgb,var(--line) 50%,transparent);--tw:120px;display:flex;flex-direction:column;padding-top:var(--s-3);border-top:1px solid var(--hl)}
+/* labels: quiet words in Soft, small capitals in Blueprint */
+.hvc-k{font-size:12px;color:var(--muted)}
+:root:not([data-style="soft"]) .hvc-k{font-size:11px;font-weight:500;letter-spacing:.04em;text-transform:uppercase}
+/* nothing under 11px: Blueprint's tags are 10.5px in the core */
+:root:not([data-style="soft"]) .hvc .tag{font-size:11px}
+
+/* the head: the block's name, its span and the verdict */
+.hvc-h{display:flex;align-items:center;gap:var(--s-2);min-height:20px}
+.hvc-t{flex:1;min-width:0;font-size:13.5px;font-weight:500;line-height:20px}
+.hvc-t span{margin-left:6px;font-size:12.5px;font-weight:400;color:var(--muted)}
+.hvc-h .tag{flex:none}
+
+/* the trend: a 64px line on a fixed 0 to 100 scale, the two verdict lines (70 and 50) dashed, today's score at its end */
+.hvc-ch{position:relative;height:64px;margin-top:var(--s-3);touch-action:pan-y;cursor:default}
+.hvc-ch:focus-visible{outline-offset:4px;border-radius:var(--r-sm)}
+.hvc-svg{position:absolute;inset:0;width:100%;height:100%;display:block;overflow:visible}
+.hvc-svg .gl{stroke:var(--rail);stroke-width:1;stroke-dasharray:2 3}
+.hvc-svg .ar{opacity:0;transition:opacity .6s var(--ease)}
+.hvc-svg .ar.in{opacity:1}
+.hvc-svg .ln{fill:none;stroke:var(--fg);stroke-width:1.75;stroke-linejoin:round;stroke-linecap:round}
+/* weeks where something happened: a hollow mark for a touch, a red one for something that slipped */
+.hvc-svg .ev{fill:var(--raised);stroke:var(--fg2);stroke-width:1.5;opacity:0;transition:opacity .3s var(--ease)}
+.hvc-svg .ev.bad{fill:var(--bad);stroke:var(--raised)}
+.hvc-svg .ev.in{opacity:1}
+/* the scrub: a hairline and a ringed dot on the week */
+.hvc-svg .cx{stroke:var(--faint);stroke-width:1;opacity:0;transition:opacity .15s}
+.hvc-svg .cp{fill:var(--raised);stroke:var(--fg);stroke-width:2;opacity:0;transition:opacity .15s}
+.hvc-ch.on .cx,.hvc-ch.on .cp{opacity:1}
+.hvc-svg .nd{fill:var(--fg);stroke:var(--raised);stroke-width:2;opacity:0;transition:opacity .3s var(--ease)}
+.hvc-svg .nd.in{opacity:1}
+.hvc-ch.on .nd{opacity:.35}
+.hvc-yl{position:absolute;left:0;font-size:11px;line-height:1;color:var(--muted);transform:translateY(-50%)}
+.hvc-end{position:absolute;right:0;font-size:20px;font-weight:500;line-height:1;letter-spacing:-.02em;transform:translateY(-50%);opacity:0;transition:opacity .3s var(--ease)}
+.hvc-end.in{opacity:1}
+.hvc-ch.on .hvc-end{color:var(--muted)}
+.hvc-ax{display:flex;justify-content:space-between;margin:6px 40px 0 22px;font-size:11px;line-height:14px;color:var(--muted)}
+
+/* what changed: this week at rest, the scrubbed week while scrubbing. One line, so nothing under it moves */
+.hvc-ro{display:flex;align-items:baseline;gap:6px;min-width:0;margin:var(--s-2) 0 0;font-size:12.5px;line-height:18px;color:var(--fg2)}
+.hvc-ro .hvc-k{flex:none}
+.hvc-rs{flex:none;font-weight:500;color:var(--fg)}
+.hvc-rd{flex:none;font-weight:500}
+.hvc-rn{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hvc-rd.up,.hvc-d.up .hvc-v{color:var(--ok)}
+.hvc-rd.dn,.hvc-d.dn .hvc-v{color:var(--bad)}
+.hvc-rd.eq{color:var(--muted)}
+
+/* the drivers: signed points from a typical account's 60 to the score, as a plain list with a small waterfall */
+.hvc-dh{display:flex;align-items:baseline;justify-content:space-between;gap:var(--s-3);margin-top:var(--s-4);padding-top:var(--s-3);border-top:1px solid var(--hl)}
+.hvc-dh .hvc-bs{font-size:12px;color:var(--muted)}
+.hvc-dl{position:relative;list-style:none;margin:var(--s-1) 0 0;padding:0}
+.hvc-d{display:grid;grid-template-columns:32px minmax(0,1fr) var(--tw);align-items:center;column-gap:var(--s-3);min-height:28px;font-size:13px;line-height:18px}
+.hvc-v{text-align:right;font-size:12.5px;font-weight:500}
+.hvc-dn{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hvc-dn span{color:var(--muted)}
+.hvc-tr{position:relative;height:8px}
+.hvc-tr i{position:absolute;top:0;bottom:0;min-width:2px;border-radius:calc(2px * var(--rk));transform:scaleX(0);transition:transform .6s var(--ease)}
+.hvc-tr i.in{transform:none}
+.hvc-d.up .hvc-tr i{background:var(--ok-mark);transform-origin:left}
+.hvc-d.dn .hvc-tr i{background:var(--bad);transform-origin:right}
+/* the walk's start (60, dashed) and its end (the score, ink), drawn through every row's track */
+.hvc-gd{position:absolute;top:2px;bottom:2px;width:0;border-left:1px dashed var(--faint);pointer-events:none}
+.hvc-gd.end{border-left:1px solid color-mix(in srgb,var(--fg) 45%,transparent)}
+
+/* the agent's next move, with the one button */
+.hvc-ag{display:flex;align-items:center;gap:10px;margin-top:var(--s-3);padding:10px 10px 10px var(--s-3);border-radius:var(--r-in);background:var(--accent-bg);font-size:12.5px;line-height:1.5;color:var(--fg2)}
+.hvc-ag>.i{flex:none;align-self:flex-start;margin-top:3px;color:var(--accent-fg)}
+.hvc-agt{flex:1;min-width:0;text-wrap:pretty}
+.hvc-ag .pill{flex:none}
+.hvc-ag .pill .i{color:currentColor;margin-left:-2px}
+.hvc-ag .pill .spin{width:11px;height:11px;margin-left:-2px}
+.hvc-ag .pill[aria-disabled="true"]{cursor:default}
+/* on a tinted surface a secondary button is white in light mode */
+.hvc-ag .pill.line{background:var(--raised)}
+@media (prefers-reduced-motion:reduce){
+  .hvc *{transition-duration:.01ms!important}
+  .lab-st *{animation-duration:.01ms!important}
+}
+</style>
+</head>
+<body>
+<main class="lab">
+  <header class="lab-h">
+    <h1>Account health C: trend and drivers</h1>
+    <p>Health as a story over twelve weeks instead of a gauge. A small line ends on today's score; scrub it to see what happened each week. Under it, the drivers walk from a typical account's 60 to the score in signed points, and the agent says what to do next.</p>
+  </header>
+  <div class="lab-ctl">
+    <div class="seg2" id="sw-style" role="group" aria-label="Style"><button type="button" data-v="soft" aria-pressed="true">Soft</button><button type="button" data-v="blueprint" aria-pressed="false">Blueprint</button></div>
+    <div class="seg2" id="sw-theme" role="group" aria-label="Theme"><button type="button" data-v="light" aria-pressed="true">Light</button><button type="button" data-v="dark" aria-pressed="false">Dark</button></div>
+    <span class="sp"></span>
+    <button type="button" class="lab-rp" aria-label="Replay the entrance"><svg class="i s" aria-hidden="true"><use href="#i-refresh"/></svg>Replay</button>
+  </div>
+  <div class="lab-st hvc-stage">
+    <div class="card" data-c="health-c" data-acct="healthy"><div class="stage-in"></div><template><div class="hvc-sh panel" data-reveal="none"></div></template></div>
+    <div class="card" data-c="health-c" data-acct="watch"><div class="stage-in"></div><template><div class="hvc-sh panel" data-reveal="none"></div></template></div>
+    <div class="card" data-c="health-c" data-acct="risk"><div class="stage-in"></div><template><div class="hvc-sh panel" data-reveal="none"></div></template></div>
+  </div>
+</main>
+<script src="../../components/assets/core.js"></script>
+<script>
+/* ---------- Health C: trend and drivers ---------- */
+// the twelve weeks, Mondays, ending this week
+const HVC_WK = ['Aug 24', 'Aug 31', 'Sep 7', 'Sep 14', 'Sep 21', 'Sep 28', 'Oct 5', 'Oct 12', 'Oct 19', 'Oct 26', 'Nov 2', 'Nov 9'];
+/* one scoring model for every account: a typical account starts at 60, then
+   recent contact: 2 days +12, 11 days +5, 38 days -10 · next step: booked +3, none -20, overdue -6
+   deals on time: none overdue +2, one overdue -10 · win chance: points above or below 50% */
+const HVC = {
+  healthy:{ n:'Granite Peak Systems', seg:'Strategic, North America',
+    h:[64, 66, 63, 68, 71, 70, 74, 78, 76, 81, 83, 89],
+    // what happened each week, and which weeks get a mark on the line (t: a touch, s: something slipped)
+    ev:['Intro call with the ops lead', 'Security pack shared', 'No replies this week', 'Demo for 3 people', 'Trial workspace opened', 'Steady, 2 emails answered', 'Security review passed', 'Proposal sent', 'Close date moved a week', 'Champion looped in finance', 'Pricing sent, opened 3 times', 'Pricing meeting with the buying group'],
+    mk:{ 0:'t', 3:'t', 7:'t', 8:'s', 11:'t' },
+    now:'Pricing meeting held, next call booked for Thu',
+    d:[[12, 'Recent contact', '2 days ago'], [12, 'Win chance', '62% across 3 deals'], [3, 'Next step booked', 'Thu Nov 12'], [2, 'No deal overdue', '']],
+    ag:{ t:'Send a pricing recap before Thursday so the buying group comes with answers.', b:'Draft recap', busy:'Drafting', done:'Drafted', ok:'Recap drafted for Theo Reed to review before Thursday’s call.' } },
+  watch:{ n:'Kestrel Robotics', seg:'Strategic, EMEA',
+    h:[72, 74, 73, 75, 71, 72, 70, 74, 69, 66, 61, 58],
+    ev:['Kickoff with the data team', 'Usage up 20%', 'Steady, weekly sync held', 'Quarterly review held', 'Champion on leave', 'Steady, 1 email answered', 'Budget owner joined a call', 'Demo for the data team', 'Follow-up call cancelled', 'Check-in on Oct 29, nothing booked', 'No reply to 2 emails', 'Quiet for 11 days'],
+    mk:{ 3:'t', 7:'t', 8:'s', 9:'t' },
+    now:'No reply to the Nov 4 email, nothing booked',
+    d:[[-20, 'No next step', 'nothing booked'], [11, 'Win chance', '61% across 2 deals'], [5, 'Last touch', '11 days ago'], [2, 'No deal overdue', '']],
+    ag:{ t:'Book a next step. A 30 minute review with Dana Park would lift health to about 81.', b:'Book review', busy:'Sending', done:'Invited', ok:'Invite sent to Dana Park for Thu Nov 12, 2:00 pm. Health updates when she accepts.' } },
+  risk:{ n:'Ironbark Capital', seg:'Strategic, North America',
+    h:[61, 58, 60, 55, 52, 48, 44, 41, 33, 27, 22, 17],
+    ev:['Renewal kickoff', 'Steady, 1 email answered', 'Pricing questions answered', 'Champion changed roles', 'Two emails unanswered', 'Last call, Oct 2: budget questions', 'No reply', 'No reply to the follow-up', 'Win chance cut to 33%, budget freeze', 'Quiet for 4 weeks', 'Call on Nov 3 missed', 'Renewal 6 days past its close date'],
+    mk:{ 0:'t', 3:'s', 5:'t', 8:'s', 10:'s' },
+    now:'Renewal is now 6 days past its close date',
+    d:[[-17, 'Win chance', '33% on the renewal'], [-10, 'Quiet', '38 days, last call Oct 2'], [-10, 'Deal overdue', 'renewal, 6 days'], [-6, 'Next step overdue', 'since Nov 3']],
+    ag:{ t:'Offer Marcus Lee a new close date. A reply would lift health to about 39.', b:'Draft check-in', busy:'Drafting', done:'Drafted', ok:'Check-in to Marcus Lee drafted, with Nov 20 as the new close date.' } }
+};
+const HVC_BASE = 60;
+DM.def('health-c', (r, c, card) => {
+  const A = HVC[card.dataset.acct]; if (!A) return;
+  const N = A.h.length, last = N - 1, score = A.h[last];
+  const verdict = score >= 70 ? ['ok', 'Healthy'] : score >= 50 ? ['warn', 'Watch'] : ['bad', 'At risk'];
+  const sgn = n => (n > 0 ? '+' : n < 0 ? '−' : '±') + Math.abs(n);
+  const cls = n => n > 0 ? 'up' : n < 0 ? 'dn' : 'eq';
+  const id = 'hvc' + Math.random().toString(36).slice(2, 7);
+  const sum = A.d.reduce((t, x) => t + x[0], HVC_BASE);
+  if (sum !== score) console.warn('health-c: drivers sum to', sum, 'not', score);
+  const wkDelta = A.h[last] - A.h[last - 1];
+  // the walk: each driver runs from the total before it to the total after it
+  let run = HVC_BASE;
+  const steps = A.d.map(([v, l, s]) => { const a = run; run += v; return { v, l, s, a, b:run }; });
+
+  // the plot: 22px on the left for the verdict lines' numbers, 40px on the right for today's score
+  const H = 64, L = 22, R = 40;
+  // the scale fits the account's own twelve weeks, padded out to tens, so the story fills the 64px; the verdict lines
+  // (70 and 50) are drawn where they fall inside it
+  const LO = Math.max(0, Math.floor((Math.min(...A.h) - 12) / 10) * 10), HI = Math.min(100, Math.ceil((Math.max(...A.h) + 6) / 10) * 10);
+  const sh = $('.hvc-sh', r);
+  sh.innerHTML = `<div class="hvc-ah"><span class="hvc-lg" aria-hidden="true">${A.n[0]}</span><span class="hvc-an"><b>${A.n}</b><span>${A.seg}</span></span></div>
+  <section class="hvc" aria-label="Account health">
+    <div class="hvc-h"><span class="hvc-t">Account health<span>12 weeks</span></span><span class="tag ${verdict[0]}">${verdict[1]}</span></div>
+    <div class="hvc-ch" tabindex="0" role="slider" aria-label="Health by week. Left and Right move between weeks" aria-valuemin="0" aria-valuemax="100">
+      <svg class="hvc-svg" aria-hidden="true">
+        <defs><linearGradient id="${id}-g" x1="0" x2="0" y1="0" y2="1"><stop offset="0" style="stop-color:var(--fg);stop-opacity:.09"/><stop offset="1" style="stop-color:var(--fg);stop-opacity:0"/></linearGradient></defs>
+        ${[70, 50].filter(v => v > LO && v < HI).map(v => `<line class="gl" data-v="${v}"/>`).join('')}
+        <path class="ar" fill="url(#${id}-g)"/><path class="ln" pathLength="1"/>
+        ${Object.keys(A.mk).map(i => `<circle class="ev${A.mk[i] === 's' ? ' bad' : ''}" r="3" data-i="${i}"/>`).join('')}
+        <line class="cx"/><circle class="nd" r="4"/><circle class="cp" r="4"/>
+      </svg>
+      ${[70, 50].filter(v => v > LO && v < HI).map(v => `<span class="hvc-yl num" data-v="${v}">${v}</span>`).join('')}
+      <b class="hvc-end num">${score}</b>
+    </div>
+    <div class="hvc-ax num" aria-hidden="true"><span>${HVC_WK[0]}</span><span>${HVC_WK[last]}</span></div>
+    <p class="hvc-ro"><span class="hvc-k">This week</span><b class="hvc-rs num" hidden></b><span class="hvc-rd num"></span><span class="hvc-rn"></span></p>
+    <div class="hvc-dh"><span class="hvc-k">Why ${score}</span><span class="hvc-bs num">From ${HVC_BASE}, a typical account</span></div>
+    <ul class="hvc-dl" aria-label="What adds to and takes from the score, from ${HVC_BASE}">
+      ${steps.map(s => `<li class="hvc-d ${cls(s.v)}"><span class="hvc-v num">${sgn(s.v)}</span><span class="hvc-dn">${s.l}${s.s ? ` <span>${s.s}</span>` : ''}</span><span class="hvc-tr" aria-hidden="true"><i style="left:${Math.min(s.a, s.b)}%;width:${Math.abs(s.v)}%"></i></span></li>`).join('')}
+      <li class="hvc-gd" aria-hidden="true" style="left:calc(100% - var(--tw) + var(--tw) * ${HVC_BASE / 100})"></li>
+      <li class="hvc-gd end" aria-hidden="true" style="left:calc(100% - var(--tw) + var(--tw) * ${score / 100})"></li>
+    </ul>
+    <div class="hvc-ag"><svg class="i s" aria-hidden="true"><use href="#i-spark"/></svg><span class="hvc-agt">${A.ag.t}</span><button type="button" class="pill primary sm">${A.ag.b}</button></div>
+  </section>`;
+
+  const ch = $('.hvc-ch', sh), svg = $('svg', ch), ln = $('.ln', svg), ar = $('.ar', svg), cx = $('.cx', svg), cp = $('.cp', svg), nd = $('.nd', svg);
+  const end = $('.hvc-end', ch), ro = $('.hvc-ro', sh), rk = $('.hvc-k', ro), rs = $('.hvc-rs', ro), rd = $('.hvc-rd', ro), rn = $('.hvc-rn', ro);
+  let W = 0;
+  const X = i => L + i / last * (W - L - R), Y = v => 4 + (HI - v) / (HI - LO) * (H - 8);
+  const smooth = p => p.map((q, i) => { if (!i) return `M${q[0]} ${q[1]}`; const a = p[i - 1], m = (q[0] - a[0]) / 2; return `C${a[0] + m} ${a[1]} ${q[0] - m} ${q[1]} ${q[0]} ${q[1]}`; }).join(' ');
+  let at = null;
+  function draw(){
+    W = ch.clientWidth; if (!W) return;
+    const p = A.h.map((v, i) => [X(i), Y(v)]), d = smooth(p);
+    ln.setAttribute('d', d); ar.setAttribute('d', `${d} L${X(last)} ${H} L${X(0)} ${H} Z`);
+    $$('.gl', svg).forEach(g => { const y = Y(+g.dataset.v); g.setAttribute('x1', L); g.setAttribute('x2', W - R + 6); g.setAttribute('y1', y); g.setAttribute('y2', y); });
+    $$('.hvc-yl', ch).forEach(t => t.style.top = Y(+t.dataset.v) + 'px');
+    $$('.ev', svg).forEach(e => { e.setAttribute('cx', X(+e.dataset.i)); e.setAttribute('cy', Y(A.h[+e.dataset.i])); });
+    nd.setAttribute('cx', X(last)); nd.setAttribute('cy', Y(score));
+    end.style.top = Math.max(10, Math.min(H - 10, Y(score))) + 'px';
+    cx.setAttribute('y1', 0); cx.setAttribute('y2', H);
+    if (at !== null) place(at);
+  }
+  // the readout: this week at rest, the scrubbed week while scrubbing
+  const note = i => A.ev[i];
+  function rest(){
+    at = null; ch.classList.remove('on');
+    rk.textContent = 'This week'; rs.hidden = true;
+    rd.textContent = sgn(wkDelta); rd.className = 'hvc-rd num ' + cls(wkDelta); rn.textContent = A.now;
+    ch.setAttribute('aria-valuenow', score); ch.setAttribute('aria-valuetext', `This week, ${score}, ${sgn(wkDelta).replace('−', 'minus ')} since last week. ${A.now}`);
+  }
+  function place(i){ const x = X(i); cx.setAttribute('x1', x); cx.setAttribute('x2', x); cp.setAttribute('cx', x); cp.setAttribute('cy', Y(A.h[i])); }
+  function show(i){
+    at = i; ch.classList.add('on'); place(i);
+    const dv = i ? A.h[i] - A.h[i - 1] : null;
+    rk.textContent = (i === last ? 'This week' : 'Week of ' + HVC_WK[i]); rs.hidden = false; rs.textContent = A.h[i];
+    rd.textContent = dv === null ? '' : sgn(dv); rd.className = 'hvc-rd num ' + (dv === null ? 'eq' : cls(dv)); rn.textContent = note(i);
+    ch.setAttribute('aria-valuenow', A.h[i]); ch.setAttribute('aria-valuetext', `${i === last ? 'This week' : 'Week of ' + HVC_WK[i]}, ${A.h[i]}${dv === null ? '' : ', ' + sgn(dv).replace('−', 'minus ')}. ${note(i)}`);
+  }
+  const idx = e => { const b = ch.getBoundingClientRect(); return Math.max(0, Math.min(last, Math.round((e.clientX - b.left - L) / (b.width - L - R) * last))); };
+  c.on(ch, 'pointermove', e => show(idx(e)));
+  c.on(ch, 'pointerdown', e => show(idx(e)));
+  c.on(ch, 'pointerleave', () => { if (document.activeElement !== ch || !ch.matches(':focus-visible')) rest(); });
+  c.on(ch, 'focus', () => { if (ch.matches(':focus-visible')) show(at ?? last); });
+  c.on(ch, 'blur', rest);
+  c.on(ch, 'keydown', e => {
+    const k = e.key, i = at ?? last;
+    const to = k === 'ArrowLeft' || k === 'ArrowDown' ? i - 1 : k === 'ArrowRight' || k === 'ArrowUp' ? i + 1 : k === 'Home' ? 0 : k === 'End' ? last : k === 'PageDown' ? i - 4 : k === 'PageUp' ? i + 4 : null;
+    if (k === 'Escape'){ rest(); return; }
+    if (to === null) return; e.preventDefault(); show(Math.max(0, Math.min(last, to)));
+  });
+  const ro2 = new ResizeObserver(draw); ro2.observe(ch); c.offs.push(() => ro2.disconnect());
+  draw(); rest();
+
+  // the agent's move: the button works, then says so
+  const ag = $('.hvc-ag', sh), agt = $('.hvc-agt', ag), btn = $('.pill', ag);
+  c.on(btn, 'click', () => c.run(async () => {
+    if (btn.getAttribute('aria-disabled') === 'true') return;
+    btn.setAttribute('aria-disabled', 'true'); btn.innerHTML = `<span class="spin" aria-hidden="true"></span>${A.ag.busy}`;
+    await c.wait(900);
+    btn.classList.replace('primary', 'line'); btn.innerHTML = `<svg class="i xs" aria-hidden="true"><use href="#i-check"/></svg>${A.ag.done}`;
+    swap(agt, A.ag.ok);
+  }));
+
+  // the entrance: the parts rise in turn, the line draws from the first week to this one, then today's score and the
+  // walk's bars land. Timers here are plain ones (kept in c.t), so a resting pointer never holds the entrance
+  const later = (ms, fn) => c.t.push(setTimeout(() => { if (!c.dead) fn(); }, REDUCE ? 0 : ms));
+  stagger([$('.hvc-ah', sh), $('.hvc-h', sh), ch, $('.hvc-ax', sh), ro, $('.hvc-dh', sh), ...$$('.hvc-d', sh), ag], 45);
+  ln.style.strokeDasharray = '1'; ln.style.strokeDashoffset = '1';
+  later(160, () => {
+    ar.classList.add('in');
+    tween(1, 0, 900, v => ln.style.strokeDashoffset = v).then(() => { if (c.dead) return; ln.style.strokeDasharray = ''; ln.style.strokeDashoffset = ''; });
+    $$('.ev', svg).forEach(e => later(Math.round(+e.dataset.i / last * 820), () => e.classList.add('in')));
+  });
+  later(1000, () => { nd.classList.add('in'); end.classList.add('in'); });
+  $$('.hvc-tr i', sh).forEach((b, i) => later(520 + i * 110, () => b.classList.add('in')));
+});
+
+/* ---------- the page: style, theme and replay ---------- */
+{
+  const d = document.documentElement;
+  const mark = (sel, v) => $$(sel + ' button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === v)));
+  mark('#sw-style', d.dataset.style === 'soft' ? 'soft' : 'blueprint');
+  mark('#sw-theme', d.dataset.theme === 'dark' ? 'dark' : 'light');
+  seg($('#sw-style'), v => { if (v === 'soft') d.dataset.style = 'soft'; else delete d.dataset.style; try { localStorage.setItem('dmui-style', v); } catch(e){} });
+  seg($('#sw-theme'), v => { d.dataset.theme = v; try { localStorage.setItem('dmui-theme', v); } catch(e){} });
+  $('.lab-rp').addEventListener('click', () => $$('[data-c="health-c"]').forEach(card => DM.mount(card, !!card._c)));
+}
+</script>
+</body>
+</html>
