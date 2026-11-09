@@ -16,10 +16,12 @@
   const OWN = Object.keys(P);
   const av = (id, cls = '') => `<span class="av${cls ? ' ' + cls : ''}" style="background:var(--dm-av-${P[id][1]});color:var(--dm-av-${P[id][1]}-ink)" aria-hidden="true">${id}</span>`;
   const first = id => P[id][0].split(' ')[0];
-  const STAGES = [{ k:'disc', t:'Discovery', p:10 }, { k:'demo', t:'Demo', p:25 }, { k:'prop', t:'Proposal', p:50 }, { k:'nego', t:'Negotiation', p:75 }, { k:'won', t:'Closed won', p:100 }];
+  const STAGES = [{ k:'disc', t:'Discovery', p:10 }, { k:'demo', t:'Demo', p:25 }, { k:'prop', t:'Proposal', p:50 }, { k:'nego', t:'Negotiation', p:75 }, { k:'won', t:'Closed won', p:100 }, { k:'lost', t:'Closed lost', p:0 }];
+  // a deal is closed once it is won or lost; everything else is open pipeline
+  const closed = d => d.st === 'won' || d.st === 'lost';
   const ST = Object.fromEntries(STAGES.map((s, i) => [s.k, { ...s, i }]));
   // a stage is a Task table status pill: Negotiation reads in the accent (it is the one in play), Closed won in green
-  const pill = k => `<span class="ttx-st" data-s="${k === 'won' ? 'done' : k === 'nego' ? 'run' : 'wait'}"><span class="sv"><span class="dot"></span><span>${ST[k].t}</span></span></span>`;
+  const pill = k => `<span class="ttx-st" data-s="${k === 'won' ? 'done' : k === 'lost' ? 'fail' : k === 'nego' ? 'run' : 'wait'}"><span class="sv"><span class="dot"></span><span>${ST[k].t}</span></span></span>`;
   const REG = { na:{ t:'Americas', c:'var(--dm-c1)' }, emea:{ t:'Europe', c:'var(--dm-c2)' }, apac:{ t:'Asia Pacific', c:'var(--dm-c4)' } };
   const QUOTA = { MK:1300000, AR:850000, TR:1100000, JO:300000, LN:340000, IB:260000, DK:160000, KM:150000 };
   const TEAMS = [{ k:'key', t:'Key accounts', who:['MK', 'AR', 'TR'] }, { k:'grow', t:'Growth', who:['JO', 'LN', 'IB'] }, { k:'new', t:'New business', who:['DK', 'KM'] }];
@@ -103,7 +105,7 @@
   const baseOf = c => [[c.lt, c.last, `${c.lt === 'Email' ? 'Email thread' : TOUCH[c.lt][0]} with ${c.ppl[0].n}`, P[c.own][0]],
     ['Email', c.last + 4, 'Sent the proposal and pricing', P[c.own][0]], ['Discovery', c.last + 13, `Discovery call, ${c.ppl.length + 1} people joined`, P[c.own][0]]];
   let CO = [], DE = [], nid = 0, did = 201;
-  const probOf = d => d.st === 'won' ? 100 : clamp(ST[d.st].p + d.adj, 5, 95);
+  const probOf = d => d.st === 'won' ? 100 : d.st === 'lost' ? 0 : clamp(ST[d.st].p + d.adj, 5, 95);
   RAW.forEach((r, i) => {
     const c = { id:'c' + (nid++), n:r[0], seg:r[1], tags:[...r[2]], own:r[3], reg:r[4], last:r[5], lt:r[6], trend:trendOf(i, r[5]), log:[], ppl:peopleOf(i), i };
     c.base = baseOf(c);
@@ -117,10 +119,14 @@
   OWN.forEach((o, k) => { const mine = CO.filter(c => c.own === o), part = [.58, .42];
     part.forEach((f, j) => { const c = mine[(k + j) % mine.length], back = 8 + ((k * 7 + j * 13) % Math.max(1, qDay - 9));
       DE.push({ id:'DL-' + (did++), co:c.id, n:EARLY[(k + j * 3) % EARLY.length], st:'won', v:Math.round(WON_BEFORE[o] * f / 1000) * 1000, close:-Math.min(back, qDay), adj:0, own:o }); }); });
+  // lost this quarter, each at the stage it reached and with the reason the buyer gave: they count in no pipeline and no closed won
+  const LOST = [['Pinecrest Logistics', 'Warehouse add-on', 34, 'prop', 'Chose a cheaper tool'], ['Fernway Travel', 'Agency pilot', 22, 'demo', 'No budget this year'],
+    ['Lumen Grid', 'Analytics seats', 18, 'disc', 'Kept the tool they already use'], ['Cobalt Ridge', 'Second region', 40, 'nego', 'Project paused after a reorg'], ['Quillon Media', 'Studio bundle', 28, 'prop', 'Lost to a competitor on price']];
+  LOST.forEach(([n, dn, v, at, why], k) => { const c = CO.find(x => x.n === n); DE.push({ id:'DL-' + (did++), co:c.id, n:dn, st:'lost', v:v * 1000, close:-Math.min(qDay, 4 + k * 6), adj:0, own:c.own, at, why }); });
   DE.forEach(d => d.p = probOf(d));
   const coOf = id => CO.find(c => c.id === id);
   const dealOf = id => DE.find(d => d.id === id);
-  const slipping = d => d.st !== 'won' && d.close < 0;
+  const slipping = d => !closed(d) && d.close < 0;
   const eom = Math.round((new Date(today.getFullYear(), today.getMonth() + 1, 0) - today) / 864e5), eoq = Math.round((new Date(today.getFullYear(), Math.floor(today.getMonth() / 3) * 3 + 3, 0) - today) / 864e5);
 
   /* ---------- the calendar's meetings: booked next steps and the touches already held ---------- */
@@ -138,7 +144,7 @@
   const ltName = c => c.lt === 'Email' ? 'email' : low(TOUCH[c.lt][0]);
   function derive(){
     CO.forEach(c => {
-      const mine = DE.filter(d => d.co === c.id), open = mine.filter(d => d.st !== 'won');
+      const mine = DE.filter(d => d.co === c.id), open = mine.filter(d => !closed(d));
       c.deals = open.length; c.value = sum(open, d => d.v); c.won = sum(mine.filter(d => d.st === 'won'), d => d.v);
       c.weighted = sum(open, d => d.v * d.p / 100);
       c.win = c.value ? Math.round(c.weighted / c.value * 100) : (c.won ? 100 : 0);
@@ -147,9 +153,14 @@
       c.slip = open.filter(slipping).length;
       // the next step is the earliest planned meeting: overdue when its day has gone and nobody logged it
       c.next = MT.filter(m => m.co === c.id && m.st === 'plan' && !m.fresh).sort((a, b) => a.day - b.day || a.h - b.h)[0] || null;
-      // health, out of 100: recent contact (40), no deal past its close date (30) and win probability (30)
-      c.hp = [Math.round(40 * clamp(1 - (c.last - 3) / 42, 0, 1)), c.slip ? 0 : 30, Math.round(c.win * .3)];
+      // health, out of 100: recent contact (35, gone after a month of silence), no deal past its close date (25), win probability
+      // (25) and a next step booked (15; an overdue one counts for a third). The word follows the score, and a factor is named
+      // as weak only when it is: quiet for more than a week, a deal past its close date, under 35% to win, no step or a late one
+      const nx = c.next ? (c.next.day < 0 ? 1 / 3 : 1) : 0;
+      c.hp = [Math.round(35 * clamp(1 - (c.last - 3) / 27, 0, 1)), c.slip ? 0 : 25, Math.round(c.win * .25), Math.round(15 * nx)];
       c.health = sum(c.hp); c.hb = c.health >= 70 ? 'ok' : c.health >= 50 ? 'mid' : 'bad';
+      c.weak = [c.last > 7 && `quiet for ${c.last} days`, c.slip && (c.slip === 1 ? 'a deal past its close date' : `${c.slip} deals past their close dates`), c.lead && c.win < 35 && `${c.win}% to win`,
+        !c.next ? 'no next step' : c.next.day < 0 && 'a late next step'].filter(Boolean);
     });
     CO.forEach(c => c.sug = sugOf(c));
   }
@@ -183,11 +194,11 @@
   const ASKQ = { disc:'what would make this a priority this quarter', demo:'who else needs to see it before a proposal', prop:'what is left before sign-off', nego:'who signs and when', won:'how the rollout is going' };
   derive();
   CO.filter(c => c.last > 14 && !c.slip && c.lead).forEach(c => { const d = c.lead, fn = c.ppl[0].n.split(' ')[0];
-    IB.push({ id:'ib-f-' + c.id, kind:'follow', co:c.id, deal:d.id, to:c.ppl[0].n, subj:`Picking up the ${d.n.toLowerCase()}`,
+    IB.push({ id:'ib-f-' + c.id, kind:'follow', co:c.id, deal:d.id, days:c.last, to:c.ppl[0].n, subj:`Picking up the ${d.n.toLowerCase()}`,
       body:`Hi ${fn}, it has been a few weeks since we last spoke about the ${d.n.toLowerCase()}. Is ${fmtM(d.close)} still the right time to decide? I can send ${d.st === 'disc' ? 'a short recording of the demo' : d.st === 'demo' ? 'the pricing we talked about' : 'an updated proposal'} this week if that helps.`, state:'wait' }); });
   DE.filter(slipping).sort((a, b) => a.close - b.close).reverse().forEach((d, k) => IB.push({ id:'ib-s-' + d.id, kind:'slip', co:d.co, deal:d.id, was:d.close, to:workAfter(0, 8 + k * 2), state:'wait' }));
-  CO.forEach(c => { const d = c.lead; if (d && ST[d.st].i < ST.prop.i && (c.lt === 'Pricing' || c.lt === 'Legal')) IB.push({ id:'ib-x-' + d.id, kind:'fix', fix:'stage', co:c.id, deal:d.id, to:'prop', state:'wait' }); });
-  DE.filter(d => (d.st === 'disc' || d.st === 'demo') && d.adj >= 0 && d.v >= 25000 && coOf(d.co).last > 14).forEach(d => IB.push({ id:'ib-p-' + d.id, kind:'fix', fix:'prob', co:d.co, deal:d.id, to:-10, state:'wait' }));
+  CO.forEach(c => { const d = c.lead; if (d && ST[d.st].i < ST.prop.i && (c.lt === 'Pricing' || c.lt === 'Legal')) IB.push({ id:'ib-x-' + d.id, kind:'fix', fix:'stage', co:c.id, deal:d.id, lt:c.lt, to:'prop', state:'wait' }); });
+  DE.filter(d => (d.st === 'disc' || d.st === 'demo') && d.adj >= 0 && d.v >= 25000 && coOf(d.co).last > 14).forEach(d => IB.push({ id:'ib-p-' + d.id, kind:'fix', fix:'prob', co:d.co, deal:d.id, days:coOf(d.co).last, to:-10, state:'wait' }));
   const waiting = () => IB.filter(x => x.state === 'wait' && coOf(x.co) && dealOf(x.deal));
 
   // one suggestion per account, the most pressing first: a deal past its close date, a quiet account's drafted follow-up, a
@@ -197,14 +208,14 @@
     const s = w.find(x => x.kind === 'slip'), f = w.find(x => x.kind === 'follow'), x = w.find(y => y.kind === 'fix');
     if (s){ const d = dealOf(s.deal); return { k:'slip', label:'New close date', item:s, why:`${d.n} was due ${fmtD(d.close)} and is still open. The agent suggests ${fmtDW(s.to)}.` }; }
     if (f) return { k:'follow', label:'Send follow-up', item:f, why:`No touch for ${c.last} days. The agent drafted “${f.subj}” to ${f.to}.` };
-    if (c.next && c.next.day < 0) return { k:'resched', label:'Reschedule', why:`The ${low(c.next.kind)} was due ${fmtDW(c.next.day)}. The agent moves it to ${first(c.own)}'s first free slot.` };
-    if (!c.next && c.lead) return { k:'book', label:'Book next step', why:`Nothing is booked. The agent finds ${first(c.own)}'s first free slot for a ${STEP[c.lead.st][0].toLowerCase()}.` };
+    if (c.next && c.next.day < 0) return { k:'resched', label:'Reschedule', why:`The ${low(c.next.kind)} was due ${fmtDW(c.next.day)}. The agent finds ${first(c.own)}'s first free slot for it; you confirm the time.` };
+    if (!c.next && c.lead) return { k:'book', label:'Book next step', why:`Nothing is booked. The agent finds ${first(c.own)}'s first free slot for a ${low(stepFor(c, 'book')[0])}; you confirm the time.` };
     if (x) return { k:'fix', label:x.fix === 'stage' ? 'Move to Proposal' : 'Lower win %', item:x, why:fixWhy(x) };
-    if (c.seg === 'Strategic' && c.tags.includes('Renewal') && c.lead && !MT.some(m => m.co === c.id && m.st === 'plan' && m.kind === 'QBR')) return { k:'qbr', label:'Book QBR', why:'A strategic renewal with no QBR booked. The agent books one in about two weeks.' };
+    if (c.seg === 'Strategic' && c.tags.includes('Renewal') && c.lead && !MT.some(m => m.co === c.id && m.st === 'plan' && m.kind === 'QBR')) return { k:'qbr', label:'Book QBR', why:'A strategic renewal with no QBR booked. The agent finds a slot in about two weeks; you confirm the time.' };
     return null;
   }
   const fixWhy = x => { const d = dealOf(x.deal), c = coOf(x.co);
-    return x.fix === 'stage' ? `The last touch was a ${ltName(c)}, so the ${d.n.toLowerCase()} is past Demo.` : `No touch for ${c.last} days, so ${d.p}% looks high for the ${d.n.toLowerCase()}.`; };
+    return x.fix === 'stage' ? `The last touch was a ${ltName({ lt:x.lt || c.lt })}, so the ${d.n.toLowerCase()} is past Demo.` : `No touch for ${x.days ?? c.last} days, so ${d.p}% looks high for the ${d.n.toLowerCase()}.`; };
 
   /* ---------- toasts: Toast ---------- */
   const toasts = $('.crm-toasts', app);
@@ -230,8 +241,13 @@
   }
 
   /* ---------- what the agent does when a suggestion is accepted: each returns its toast and its undo ---------- */
-  const firstSlot = (c, dur, from = workAfter(0, 1)) => { for (let day = from, n = 0; n < 20; day++){ if (!isWork(day)) continue; n++; const h = freeAt(c.own, day, 9, dur); if (h != null) return { day, h }; } return { day:from, h:9 }; };
-  function run(kind, c, item){
+  // what a booking suggestion books: one rule for its label, its tooltip, its confirm card and the meeting itself
+  function stepFor(c, kind){ if (kind === 'qbr') return ['QBR', 1]; if (kind === 'resched' && c.next) return [c.next.kind, c.next.dur]; return c.lead.st === 'nego' ? NEGO[c.i % 3] : STEP[c.lead.st]; }
+  // the owner's free slots, in order: on the hour and half hour, working days, 9 to 5; skip moves on to a later one
+  const firstSlot = (c, dur, from = workAfter(0, 1), skip = 0, avoid) => { for (let day = from, n = 0; n < 20; day++){ if (!isWork(day)) continue; n++;
+      for (let h = 9; h + dur <= 17; h += .5){ if (busy(c.own, day, h, dur, avoid)) continue; if (skip-- <= 0) return { day, h }; } } return { day:from, h:9 }; };
+  const slotFrom = kind => kind === 'qbr' ? workAfter(0, 9) : workAfter(0, 1);
+  function run(kind, c, item, slot){
     const now = () => 'Just now';
     if (kind === 'follow'){
       const prev = [c.last, c.lt];
@@ -250,40 +266,68 @@
       return { t:item.fix === 'stage' ? `${d.n} moved to ${ST[item.to].t}` : `${d.n} lowered to ${d.p}%`, s:`${c.n}, win probability ${was[2]}% to ${d.p}%`, undo:() => { [d.st, d.adj, d.p] = was; item.state = 'wait'; } };
     }
     if (kind === 'book' || kind === 'qbr'){
-      const [k, dur] = kind === 'qbr' ? ['QBR', 1] : c.lead.st === 'nego' ? NEGO[c.i % 3] : STEP[c.lead.st];
-      const s = firstSlot(c, dur, kind === 'qbr' ? workAfter(0, 9) : workAfter(0, 1)), m = meet({ co:c.id, deal:c.lead.id, kind:k, day:s.day, h:s.h, dur, own:c.own, by:'agent' });
+      const [k, dur] = stepFor(c, kind);
+      const s = slot || firstSlot(c, dur, slotFrom(kind)), m = meet({ co:c.id, deal:c.lead.id, kind:k, day:s.day, h:s.h, dur, own:c.own, by:'agent' });
       return { t:`${k} booked with ${c.n}`, s:`${fmtDW(m.day)}, ${tmA(m.h)}, on ${first(c.own)}'s calendar`, m, undo:() => { MT = MT.filter(x => x !== m); } };
     }
     if (kind === 'resched'){
-      const m = c.next, was = [m.day, m.h], s = firstSlot(c, m.dur); m.day = s.day; m.h = s.h;
+      const m = c.next, was = [m.day, m.h], s = slot || firstSlot(c, m.dur, workAfter(0, 1), 0, m); m.day = s.day; m.h = s.h;
       return { t:`${m.kind} with ${c.n} moved`, s:`From ${fmtD(was[0])} to ${fmtDW(m.day)}, ${tmA(m.h)}`, m, undo:() => { [m.day, m.h] = was; } };
     }
   }
   // the table's chip, the sheet's button and the inbox's Approve all come here
-  function accept(c, sug){
-    const r = run(sug.k, c, sug.item); if (!r) return;
-    if (sug.item) sug.item.undo = r.undo;
+  // an inbox item keeps the words and figures it had when it was approved or dismissed (its snapshot), so Done never rewrites them
+  function accept(c, sug, slot){
+    if (sug.item) sug.item.snap = ibSnap(sug.item);
+    const r = run(sug.k, c, sug.item, slot); if (!r) return;
+    if (sug.item){ const u = r.undo; r.undo = () => { u(); sug.item.snap = null; }; sug.item.undo = r.undo; }
     refresh(); say(r.t);
     toast('ok', r.t, r.s, { label:'Undo', run:() => { r.undo(); if (sug.item) sug.item.undo = null; refresh(); } });
     const tr = $(`tr[data-id="${c.id}"]`, tbody); if (tr) $$('.crm-nx, .crm-hs, .crm-agc>*', tr).forEach((x, i) => enter(x, i * 40));
   }
 
+  const CONFIRM = new Set(['follow', 'book', 'qbr', 'resched']);
+  const cfm = $('#crm-p-cfm', app); let cfFor = null;
+  function buildCfm(c, sug){
+    const skip = cfFor && cfFor.c === c && cfFor.sug === sug ? cfFor.skip : 0; cfFor = { c, sug, skip };
+    if (sug.k === 'follow'){ const x = sug.item;
+      cfm.innerHTML = `<div class="crm-cfh"><b id="crm-cft">Follow-up to ${esc(x.to)}</b><span class="muted">${esc(c.n)}, drafted by the agent</span></div><div class="crm-cfs"><span class="muted">Subject</span> ${esc(x.subj)}</div><div class="crm-cfb">${esc(x.body)}</div>`
+        + `<div class="crm-cfa"><button class="pill ghost sm" data-cf="edit" data-close>${I('edit', 'xs')}Edit</button><button class="pill primary sm" data-cf="go" data-close>${I('send', 'xs')}Send</button></div>`;
+    } else {
+      const [k, dur] = stepFor(c, sug.k), sl = firstSlot(c, dur, sug.k === 'resched' ? workAfter(0, 1) : slotFrom(sug.k), skip, sug.k === 'resched' ? c.next : undefined); cfFor.slot = sl;
+      cfm.innerHTML = `<div class="crm-cfh"><b id="crm-cft">${sug.k === 'resched' ? 'Move the ' + low(k) : 'Book a ' + low(k)}</b><span class="muted">${esc(c.n)}, on ${esc(first(c.own))}'s calendar</span></div>`
+        + `<div class="crm-cfslot">${I('cal', 'xs')}<b class="num">${fmtDW(sl.day)}, ${tm(sl.h)} – ${tmA(sl.h + dur)}</b>${skip ? '' : '<span class="muted">first free slot</span>'}</div>`
+        + `<div class="crm-cfa"><button class="pill ghost sm" data-cf="next">${I('refresh', 'xs')}Pick another time</button><button class="pill primary sm" data-cf="go" data-close>${sug.k === 'resched' ? 'Move' : 'Book'}</button></div>`;
+    }
+    cfm.setAttribute('aria-labelledby', 'crm-cft');
+  }
+  cfm.addEventListener('click', e => {
+    const b = e.target.closest('[data-cf]'); if (!b || !cfFor) return; const { c, sug } = cfFor;
+    if (b.dataset.cf === 'next'){ e.stopPropagation(); cfFor.skip++; buildCfm(c, sug); glide($('.crm-cfslot', cfm), { transform:'translateY(3px)' }, 220); $('[data-cf="next"]', cfm).focus({ preventScroll:true }); return; }
+    if (b.dataset.cf === 'go'){ const sl = cfFor.slot; cfFor = null; setTimeout(() => accept(c, sug, sl), 0); return; }
+    if (b.dataset.cf === 'edit'){ const x = sug.item; cfFor = null; setTimeout(() => { closeSheet(); setView('inbox'); ibSel = x.id; edFor = x.id; renderInbox(); const ta = $('.crm-ta', ipv); if (ta){ ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length); } }, 130); }
+  });
+  // the chip (or the sheet's button) opens the card; a keyboard opens it with the focus on its main button
+  const sugGo = (c, btn, kb) => { if (!c.sug) return; if (!CONFIRM.has(c.sug.k)) return accept(c, c.sug); buildCfm(c, c.sug); if (kb) setTimeout(() => $('[data-cf="go"]', cfm)?.focus({ preventScroll:true }), 40); };
+
   /* ---------- the state of the filters, the selection and what is open ---------- */
   // A holds the filters as Filter menu's chips: a field, a value, and whether it reads the other way (is not, older than)
   const F = { A:[], q:'', sort:'value', desc:true, said:'' };
-  const K = { own:new Set(), q:'', close:'any', view:'board', shut:new Set(), tab:'disc' };
+  // the board starts with Closed lost hidden, as a chip in the hidden stages' dock
+  const K = { own:new Set(), q:'', close:'any', view:'board', shut:new Set(['lost']), tab:'disc' };
   const sel = new Set();
   let view = 'accounts', sheetFor = null, rowMenuFor = null, mvFor = null, stageFor = null;
 
   /* ---------- the filters: Filter menu ---------- */
-  const openOf = c => DE.filter(d => d.co === c.id && d.st !== 'won');
-  const CLOSE = { week:['This week', d => d.close >= 0 && d.close <= 7], month:['This month', d => d.close >= 0 && d.close <= eom], quarter:['This quarter', d => d.close >= 0 && d.close <= eoq], late:['Passed', d => d.close < 0] };
+  const openOf = c => DE.filter(d => d.co === c.id && !closed(d));
+  const CLOSE = { week:['This week', d => d.close >= 0 && d.close <= 7], month:['This month or overdue', d => d.close <= eom], quarter:['This quarter', d => d.close >= 0 && d.close <= eoq], late:['Passed', d => d.close < 0] };
   const FL = {
     owner:{ l:'Owner', ic:'user', ops:['is', 'is not'], o:() => OWN.map(o => ({ v:o, l:P[o][0], g:av(o) })), test:(c, v) => c.own === v },
     stage:{ l:'Stage', ic:'layers', ops:['is', 'is not'], o:() => STAGES.map(s => ({ v:s.k, l:s.t, g:`<span class="dot crm-sd" data-s="${s.k}"></span>` })), test:(c, v) => c.st === v },
     close:{ l:'Close date', ic:'target', ops:['is', 'is not'], o:() => Object.entries(CLOSE).map(([v, x]) => ({ v, l:x[0] })), test:(c, v) => openOf(c).some(CLOSE[v][1]) },
     next:{ l:'Next step', ic:'cal', ops:['is', 'is not'], o:() => [{ v:'none', l:'Missing' }, { v:'late', l:'Overdue' }, { v:'week', l:'In 7 days' }], test:(c, v) => v === 'none' ? !c.next : v === 'late' ? !!c.next && c.next.day < 0 : !!c.next && c.next.day >= 0 && c.next.day <= 7 },
     last:{ l:'Last touch', ic:'history', ops:['within', 'older than'], o:() => [{ v:7, l:'7 days' }, { v:14, l:'14 days' }, { v:30, l:'30 days' }], test:(c, v) => c.last <= v },
+    value:{ l:'Pipeline', ic:'dollar', ops:['over', 'up to'], o:() => [...new Set([50000, 100000, 250000, 500000, ...F.A.filter(f => f.k === 'value').map(f => f.v)])].sort((a, b) => a - b).map(v => ({ v, l:kmoney(v) })), test:(c, v) => c.value > v },
     health:{ l:'Health', ic:'gauge', ops:['is', 'is not'], o:() => [{ v:'ok', l:'Good' }, { v:'mid', l:'Fair' }, { v:'bad', l:'At risk' }], test:(c, v) => c.hb === v },
   };
   // the saved views in the sidebar are filters too
@@ -310,6 +354,10 @@
   const HUE = { Strategic:'l', Enterprise:'b', 'Mid-market':'t', SMB:'k', Expansion:'m', Renewal:'p', 'More seats':'y', Pilot:'k', 'First deal':'b', 'Partner-led':'l', Reseller:'t', Champion:'m', 'Budget set':'y', 'Security review':'r', 'Multi-year':'p' };
   const chip = t => `<span class="tag ${HUE[t] || 'bltmprky'[[...t].reduce((a, ch) => a + ch.charCodeAt(0), 0) % 8]}">${esc(t)}</span>`;
   // the next step: what it is and when, from the calendar; red when it is overdue or missing
+  // the pipeline cell's second line: how many deals, or, while a close date filter is on, the deal it matched and when it closes
+  const dueLine = c => { const f = F.A.find(x => x.k === 'close' && !x.neg); if (!f) return `<span class="muted">${plural(c.deals, 'open deal')}</span>`;
+    const d = openOf(c).filter(CLOSE[f.v][1]).sort((a, b) => a.close - b.close)[0]; if (!d) return `<span class="muted">${plural(c.deals, 'open deal')}</span>`;
+    return d.close < 0 ? `<span class="crm-due late">Overdue, due ${fmtD(d.close)}</span>` : `<span class="crm-due">Closes ${fmtD(d.close)}</span>`; };
   const nextCell = c => { const m = c.next;
     if (!m) return `<span class="crm-nx none"><span class="k">No next step</span><span class="d">Last touch ${c.last === 0 ? 'today' : c.last + 'd ago'}</span></span>`;
     const late = m.day < 0;
@@ -317,13 +365,13 @@
   // health: Health score's gauge at row size, with its score and a word
   const HB = { ok:'Good', mid:'Fair', bad:'At risk' };
   const gauge = (v, col) => `<svg viewBox="0 0 120 70" aria-hidden="true"><path d="M10 64a50 50 0 0 1 100 0" class="tr"/><path d="M10 64a50 50 0 0 1 100 0" class="fl" style="stroke-dashoffset:${(157 * (1 - v / 100)).toFixed(1)}${col ? ';stroke:' + col : ''}"/></svg>`;
-  const healthCell = c => `<span class="hsx crm-hs" data-h="${c.hb}" data-tip="Contact ${c.hp[0]} of 40, deals on time ${c.hp[1]} of 30, win probability ${c.hp[2]} of 30">${gauge(c.health)}<b class="num" aria-label="Health ${c.health} of 100">${c.health}</b><span class="l">${HB[c.hb]}</span></span>`;
-  const agentCell = c => c.sug ? `<button class="pill soft sm crm-ag" data-sug="${c.id}" tabindex="-1" data-tip="${esc(c.sug.why)}" aria-label="${esc(c.sug.label)}. ${esc(c.sug.why)}">${I('spark', 'xs')}<span>${c.sug.label}</span></button>` : '';
+  const healthCell = c => `<span class="hsx crm-hs" data-h="${c.hb}" data-tip="Contact ${c.hp[0]} of 35, deals on time ${c.hp[1]} of 25, win probability ${c.hp[2]} of 25, next step ${c.hp[3]} of 15">${c.hb === 'ok' ? '<i class="g0" aria-hidden="true"></i>' : gauge(c.health)}<b class="num" aria-label="Health ${c.health} of 100">${c.health}</b><span class="l">${HB[c.hb]}</span></span>`;
+  const agentCell = c => c.sug ? `<button class="pill soft sm crm-ag" data-sug="${c.id}" tabindex="-1"${CONFIRM.has(c.sug.k) ? ' data-pop="#crm-p-cfm" data-pop-align="end" aria-haspopup="dialog"' : ''} data-tip="${esc(c.sug.why)}" aria-label="${esc(c.sug.label)}. ${esc(c.sug.why)}">${I('spark', 'xs')}<span>${c.sug.label}</span></button>` : '';
   const row = c => `<tr data-id="${c.id}" tabindex="-1" class="${sel.has(c.id) ? 'sel' : ''}${sheetFor === c.id ? ' open' : ''}" aria-label="${esc(c.n)}">`
     + `<td class="ck stk"><button class="ttx-cb" role="checkbox" aria-checked="${sel.has(c.id)}" aria-label="Select ${esc(c.n)}" tabindex="-1">${tick}</button></td>`
     + `<td class="stk2"><span class="nm"><span class="pfm-lg sm" aria-hidden="true">${esc(c.n[0])}</span><span class="tx"><span class="t" title="${esc(c.n)}">${esc(c.n)}</span><span class="s">${esc(c.seg)}</span></span></span></td>`
     + `<td>${pill(c.st)}</td><td>${nextCell(c)}</td><td><span class="ag">${av(c.own)}${esc(P[c.own][0])}</span></td>`
-    + `<td class="r"><span class="crm-pv"><b class="num">${money(c.value)}</b><span class="muted">${plural(c.deals, 'open deal')}</span></span></td><td>${healthCell(c)}</td><td class="crm-agc">${agentCell(c)}</td>`
+    + `<td class="r"><span class="crm-pv"><b class="num">${money(c.value)}</b>${dueLine(c)}</span></td><td>${healthCell(c)}</td><td class="crm-agc">${agentCell(c)}</td>`
     + `<td class="r"><button class="ib crm-rm" data-pop="#crm-p-row" data-pop-align="end" aria-haspopup="menu" aria-label="Actions for ${esc(c.n)}" tabindex="-1">${I('more', 'xs')}</button></td></tr>`;
   let rows = [], focusId = null;
   function renderTable(){
@@ -394,7 +442,7 @@
     if (m.classList.contains('flm-bk') || m.dataset.k) e.stopPropagation();
     if (m.classList.contains('flm-bk')){ const from = fpop.dataset.k; fstep(null, kb || fpop.contains(document.activeElement) ? from : null); return; }
     if (m.dataset.k){ fstep(m.dataset.k, kb || fpop.contains(document.activeElement)); return; }
-    const k = fpop.dataset.k, raw = m.dataset.v, v = k === 'last' ? +raw : raw, f = F.A.find(x => x.k === k);
+    const k = fpop.dataset.k, raw = m.dataset.v, v = k === 'last' || k === 'value' ? +raw : raw, f = F.A.find(x => x.k === k);
     if (f){ f.v = v; f.neg = false; } else F.A.push({ k, v, neg:false });
     $$('.mi[data-v]', fpop).forEach(x => x.setAttribute('aria-checked', x === m)); said(''); renderTable();
   });
@@ -406,32 +454,45 @@
   /* ---------- search, or ask in plain words: Search input's field and its answer line ---------- */
   const ask = $('.crm-ask input', app), askx = $('.crm-ask .six-x', app), ans = $('.crm-ans', app);
   const asked = t => t.trim().split(/\s+/).length >= 3;
-  // the words the agent understands: each one becomes a filter, and together they read back as a sentence
-  function parse(t){
-    t = t.toLowerCase(); const A = [];
-    const late = /(slipp|overdue deal|past (its|their|the) close|missed (its|their|the) close|close date (has )?passed)/.test(t);
-    if (/clos/.test(t) || late) A.push({ k:'close', v:late ? 'late' : /this week|next 7|7 days/.test(t) ? 'week' : /quarter/.test(t) ? 'quarter' : 'month', neg:false });
-    if (/(no|without|missing|lack|nothing)( a| an| any)? (next )?(step|meeting|booked)|nothing (is )?booked|no follow.?up booked/.test(t)) A.push({ k:'next', v:'none', neg:false });
-    else if (/(overdue|late|missed) (next )?step|step (is |was )?(overdue|late)/.test(t)) A.push({ k:'next', v:'late', neg:false });
-    if (/(quiet|silent|gone cold|cold|no (contact|touch|reply)|not (been )?(touched|contacted)|haven.t (talked|heard|spoken)|2\+? weeks|two weeks)/.test(t)) A.push({ k:'last', v:14, neg:true });
-    if (/(at risk|unhealthy|low health|poor health|risky)/.test(t)) A.push({ k:'health', v:'bad', neg:false });
-    else if (/(healthy|good health)/.test(t)) A.push({ k:'health', v:'ok', neg:false });
-    const o = OWN.find(x => new RegExp('\\b' + first(x).toLowerCase() + '\\b').test(t)); if (o) A.push({ k:'owner', v:o, neg:false });
-    const s = STAGES.find(x => x.k !== 'won' && t.includes(x.t.toLowerCase())); if (s) A.push({ k:'stage', v:s.k, neg:false });
-    return A;
+  // the words the agent understands: each phrase becomes a filter and is taken out of the query; what is left, bar filler
+  // words, is what it could not read, and the answer says so
+  const FILLER = new Set('a an the and or with without that which who whose are is be been being in on of for to my our their me show find list get give see all any please only just accounts account deals deal companies company customers there have has having where what whats want i we us by at from it them those these some value worth pipeline total open'.split(' '));
+  const AMT = { k:1e3, thousand:1e3, m:1e6, mn:1e6, million:1e6 };
+  function parse(t0){
+    let t = ' ' + t0.toLowerCase().replace(/[’]/g, "'") + ' '; const A = [];
+    const take = re => { const m = t.match(re); if (!m) return null; t = t.slice(0, m.index) + ' '.repeat(m[0].length) + t.slice(m.index + m[0].length); return m; };
+    // amounts: over, above, more than, at least, ≥ and > (and the opposites), with k or M
+    let m;
+    while ((m = take(/(over|above|more than|greater than|at least|>=|≥|>|under|below|less than|at most|<=|≤|<)\s*\$?\s*(\d[\d,]*(?:\.\d+)?)\s*(k|m|mn|thousand|million)?\b/))){
+      const n = parseFloat(m[2].replace(/,/g, '')) * (AMT[m[3]] || 1), under = /under|below|less|most|<|≤/.test(m[1]); A.push({ k:'value', v:n, neg:under }); }
+    const late = take(/\b(slipp\w*|overdue deals?|past (its|their|the) close( dates?)?|missed (its|their|the) close( dates?)?|close dates? (has |have )?passed)\b/);
+    const cl = take(/\b(clos\w*)( (this|next|within the next|in the next) (week|month|quarter|7 days|30 days))?( or overdue)?\b/);
+    if (late) A.push({ k:'close', v:'late', neg:false });
+    else if (cl) A.push({ k:'close', v:/week|7 days/.test(cl[0]) ? 'week' : /quarter/.test(cl[0]) ? 'quarter' : 'month', neg:false });
+    if (take(/\b(no|without|missing|lacking|lack|nothing)( a| an| any)? (next )?(steps?|meetings?|booked)\b|\bnothing (is )?booked\b|\bno follow.?up booked\b/)) A.push({ k:'next', v:'none', neg:false });
+    else if (take(/\b(overdue|late|missed) (next )?steps?\b|\bsteps? (is |are |was )?(overdue|late)\b/)) A.push({ k:'next', v:'late', neg:false });
+    let quiet = false; while (take(/\b(quiet|silent|gone cold|cold|no (contact|touch|reply|replies)|not (been )?(touched|contacted)|haven'?t (talked|heard|spoken)( to| from)?|(for )?(2|two)\+? weeks)\b/)) quiet = true;
+    if (quiet) A.push({ k:'last', v:14, neg:true });
+    if (take(/\b(at risk|at-risk|unhealthy|low health|poor health|risky)\b/)) A.push({ k:'health', v:'bad', neg:false });
+    else if (take(/\b(fair health|fair)\b/)) A.push({ k:'health', v:'mid', neg:false });
+    else if (take(/\b(healthy|good health)\b/)) A.push({ k:'health', v:'ok', neg:false });
+    const o = OWN.find(x => take(new RegExp('\\b' + first(x).toLowerCase() + "('s)?\\b"))); if (o) A.push({ k:'owner', v:o, neg:false });
+    const st = STAGES.find(x => !closed({ st:x.k }) && take(new RegExp('\\b' + x.t.toLowerCase() + '\\b'))); if (st) A.push({ k:'stage', v:st.k, neg:false });
+    const rest = t.split(/[^a-z0-9$%+&'-]+/).filter(w => w && !FILLER.has(w));
+    return { A, rest };
   }
-  const READ = { close:{ week:'a deal closing this week', month:'a deal closing this month', quarter:'a deal closing this quarter', late:'a deal past its close date' }, next:{ none:'no next step', late:'an overdue next step', week:'a step in the next 7 days' }, last:{ 14:'no touch in 14+ days' }, health:{ bad:'health at risk', ok:'good health' } };
-  const readOf = f => f.k === 'owner' ? 'owned by ' + P[f.v][0] : f.k === 'stage' ? 'in ' + ST[f.v].t : READ[f.k][f.v];
+  const READ = { close:{ week:'a deal closing this week', month:'a deal closing this month or overdue', quarter:'a deal closing this quarter', late:'a deal past its close date' }, next:{ none:'no next step', late:'an overdue next step', week:'a step in the next 7 days' }, last:{ 14:'no touch in 14+ days' }, health:{ bad:'health at risk', mid:'fair health', ok:'good health' } };
+  const readOf = f => f.k === 'owner' ? 'owned by ' + P[f.v][0] : f.k === 'stage' ? 'in ' + ST[f.v].t : f.k === 'value' ? `pipeline ${f.neg ? 'of ' + kmoney(f.v) + ' or less' : 'over ' + kmoney(f.v)}` : READ[f.k][f.v];
   function said(t){ F.said = t; ans.hidden = !t; if (t) $('.t', ans).textContent = t; }
   function runAsk(){
     const t = ask.value.trim(); if (!t) return;
-    const A = parse(t);
-    if (!A.length){ F.q = t; renderTable(); said(asked(t) ? `No filter matched “${t}”, so this searches names. Try “quiet accounts”, “closing this month” or “no next step”.` : ''); return; }
+    const { A, rest } = parse(t), skipped = rest.length ? ` Ignored “${rest.join(' ')}”: no filter reads it.` : '';
+    if (!A.length){ F.q = t; renderTable(); said(asked(t) ? `No filter matched “${t}”, so this searches names. Try “quiet accounts”, “closing this month”, “no next step” or “over 100k”.` : ''); return; }
     F.A = A; F.q = ''; ask.value = ''; askx.hidden = true; renderTable();
     const parts = A.map(readOf), list = parts.length > 1 ? parts.slice(0, -1).join(', ') + ' and ' + parts[parts.length - 1] : parts[0];
     const views = Object.keys(SAVED).filter(k => SAVED[k][1].every(x => A.some(a => a.k === x.k && a.v === x.v && a.neg === x.neg))).map(k => SAVED[k][0]);
     say(`${rows.length} accounts`);
-    said(`${plural(rows.length, 'account')} with ${list}${rows.length && rows.length <= 3 ? `: ${rows.map(c => c.n).join(', ')}` : ''}. ${views.length ? `Applied ${views.length > 1 ? 'the saved views' : 'the saved view'} ${views.join(' and ')}${A.length > views.length ? ' and ' + plural(A.length - views.length, 'more filter') : ''}.` : 'Applied ' + plural(A.length, 'filter') + '.'}`);
+    said(`${plural(rows.length, 'account')} with ${list}${rows.length && rows.length <= 3 ? `: ${rows.map(c => c.n).join(', ')}` : ''}. ${views.length ? `Applied ${views.length > 1 ? 'the saved views' : 'the saved view'} ${views.join(' and ')}${A.length > views.length ? ' and ' + plural(A.length - views.length, 'more filter') : ''}.` : 'Applied ' + plural(A.length, 'filter') + '.'}${skipped}`);
   }
   ask.addEventListener('input', () => { const t = ask.value.trim(); askx.hidden = !ask.value;
     // a question waits for Enter; a name filters as you type
@@ -453,7 +514,7 @@
     const c = coOf(tr.dataset.id);
     if (e.target.closest('.ttx-cb')) return toggleSel(c.id);
     if (e.target.closest('.crm-rm')){ rowMenuFor = c.id; buildRowMenu(); return; }
-    if (e.target.closest('.crm-ag')){ hideTip(); if (c.sug) accept(c, c.sug); return; }
+    if (e.target.closest('.crm-ag')){ hideTip(); sugGo(c, e.target.closest('.crm-ag'), !e.detail); return; }
     openSheet(c.id);
   });
   function focusRow(tr, move = true){ $$('tr[data-id]', tbody).forEach(x => x.tabIndex = x === tr ? 0 : -1); focusId = tr.dataset.id; if (move) tr.focus(); }
@@ -462,7 +523,7 @@
     if (e.key === 'ArrowDown' || e.key === 'ArrowUp'){ e.preventDefault(); const n = e.key === 'ArrowDown' ? tr.nextElementSibling : tr.previousElementSibling; if (n && n.dataset.id) focusRow(n); }
     else if (e.key === 'Enter'){ e.preventDefault(); openSheet(tr.dataset.id, true); }
     else if (e.key === ' '){ e.preventDefault(); toggleSel(tr.dataset.id); }
-    else if (e.key === 'a' || e.key === 'A'){ const c = coOf(tr.dataset.id); if (c.sug){ e.preventDefault(); accept(c, c.sug); const t = $(`tr[data-id="${c.id}"]`, tbody); if (t) focusRow(t); } }
+    else if (e.key === 'a' || e.key === 'A'){ const c = coOf(tr.dataset.id); if (c.sug && CONFIRM.has(c.sug.k)){ e.preventDefault(); $('.crm-ag', tr).click(); setTimeout(() => $('[data-cf="go"]', cfm)?.focus({ preventScroll:true }), 40); return; } if (c.sug){ e.preventDefault(); accept(c, c.sug); const t = $(`tr[data-id="${c.id}"]`, tbody); if (t) focusRow(t); } }
   });
 
   /* ---------- menus: built as they open, updated in place while they are open ---------- */
@@ -488,10 +549,10 @@
     $$('.mi', p).forEach(m => m.addEventListener('click', () => {
       const a = m.dataset.a;
       if (a === 'open') setTimeout(() => openSheet(c.id, true), 130);
-      if (a === 'sug' && c.sug) accept(c, c.sug);
+      if (a === 'sug' && c.sug) setTimeout(() => { const ch = $(`tr[data-id="${c.id}"] .crm-ag`, tbody); if (ch && CONFIRM.has(c.sug.k)){ ch.click(); setTimeout(() => $('[data-cf="go"]', cfm)?.focus({ preventScroll:true }), 40); } else accept(c, c.sug); }, 140);
       if (a === 'call') logActivity(c, 'Call');
       if (a === 'select') toggleSel(c.id);
-      if (a === 'del') remove([c.id]);
+      if (a === 'del') setTimeout(() => askDelete([c.id]), 130);
     }));
   }
 
@@ -501,9 +562,9 @@
     p.innerHTML = `<div class="ph" role="none">Assign ${sel.size} to</div>` + OWN.map(o => mi(`data-o="${o}"`, `${av(o)}<span>${P[o][0]}</span>`, 'menuitem')).join('');
     $$('.mi', p).forEach(m => m.addEventListener('click', () => {
       const ids = [...sel], o = m.dataset.o, before = ids.map(id => [id, coOf(id).own]), mts = MT.filter(x => ids.includes(x.co) && x.st === 'plan').map(x => [x, x.own]);
-      ids.forEach(id => { coOf(id).own = o; DE.filter(d => d.co === id && d.st !== 'won').forEach(d => d.own = o); }); mts.forEach(([x]) => x.own = o);
+      ids.forEach(id => { coOf(id).own = o; DE.filter(d => d.co === id && !closed(d)).forEach(d => d.own = o); }); mts.forEach(([x]) => x.own = o);
       sel.clear(); refresh();
-      toast('ok', `${plural(ids.length, 'account')} assigned to ${P[o][0]}`, 'Their open deals and booked meetings moved with them', { label:'Undo', run:() => { before.forEach(([id, w]) => { const c = coOf(id); if (c){ c.own = w; DE.filter(d => d.co === id && d.st !== 'won').forEach(d => d.own = w); } }); mts.forEach(([x, w]) => x.own = w); refresh(); } });
+      toast('ok', `${plural(ids.length, 'account')} assigned to ${P[o][0]}`, 'Their open deals and booked meetings moved with them', { label:'Undo', run:() => { before.forEach(([id, w]) => { const c = coOf(id); if (c){ c.own = w; DE.filter(d => d.co === id && !closed(d)).forEach(d => d.own = w); } }); mts.forEach(([x, w]) => x.own = w); refresh(); } });
     }));
   });
   onOpen('[data-pop="#crm-p-move"]', () => {
@@ -516,7 +577,24 @@
     }));
   });
   $('[data-a="export"]', sb).onclick = () => exportCsv(CO.filter(c => sel.has(c.id)));
-  $('[data-a="delete"]', sb).onclick = () => remove([...sel]);
+  $('[data-a="delete"]', sb).onclick = () => askDelete([...sel]);
+  // deleting asks first: Decision prompt's question and summary rows, with Cancel and Delete; Escape or the shade cancels
+  const dlw = $('.crm-delw', app), dlg = $('.crm-dlg', dlw); let dlBack = null, dlIds = null;
+  function askDelete(ids){
+    ids = ids.filter(id => coOf(id)); if (!ids.length) return;
+    const cos = ids.map(coOf), ds = DE.filter(d => ids.includes(d.co)), op = ds.filter(d => !closed(d)), wn = ds.filter(d => d.st === 'won'), mt = MT.filter(m => ids.includes(m.co) && m.st === 'plan');
+    dlIds = ids; dlBack = document.activeElement;
+    dlg.innerHTML = `<div class="dpx-q" id="crm-dlq">Delete ${ids.length === 1 ? esc(cos[0].n) : plural(ids.length, 'account')}?</div>`
+      + `<div class="dpx-sum" id="crm-dld">${ids.length > 1 ? `<div class="dpx-sr"><span>Accounts</span>${esc(cos.map(c => c.n).join(', '))}</div>` : ''}`
+      + `<div class="dpx-sr"><span>Open deals</span>${plural(op.length, 'deal')}, ${money(sum(op, d => d.v))} of the open pipeline</div>`
+      + `<div class="dpx-sr"><span>Closed deals</span>${wn.length ? `${plural(wn.length, 'won deal')}, ${money(sum(wn, d => d.v))} off this quarter's closed won` : 'None won'}${ds.length - op.length - wn.length ? `, ${ds.length - op.length - wn.length} lost` : ''}</div>`
+      + `<div class="dpx-sr"><span>Meetings</span>${mt.length ? plural(mt.length, 'booked meeting') : 'None booked'}</div></div>`
+      + `<div class="dpx-f"><span class="muted crm-dln">You can undo it right after.</span><button class="pill ghost sm" data-dl="no">Cancel</button><button class="pill sm crm-danger" data-dl="yes">${I('trash', 'xs')}Delete</button></div>`;
+    unfade(dlw); dlw.hidden = false; setTimeout(() => $('[data-dl="no"]', dlg).focus(), 30);
+  }
+  const closeDel = () => { if (dlw.hidden || dlw._closing) return; fadeOut(dlw); if (dlBack && dlBack.isConnected) dlBack.focus({ preventScroll:true }); };
+  dlw.addEventListener('click', e => { const b = e.target.closest('[data-dl]'); if (!b) return; const ids = dlIds; closeDel(); if (b.dataset.dl === 'yes') remove(ids); });
+  dlw.addEventListener('pointerdown', e => { if (e.target === dlw) closeDel(); });
   // removed rows slide away, and Undo brings them back
   function remove(ids){
     const gone = ids.map(coOf).filter(Boolean), deals = DE.filter(d => ids.includes(d.co)), mts = MT.filter(m => ids.includes(m.co));
@@ -546,15 +624,15 @@
   const tlOf = c => [...c.log, ...c.base];
   const hcol = v => v >= 70 ? 'var(--dm-hs-ok)' : v >= 50 ? 'var(--dm-accent-mark,var(--dm-accent))' : 'var(--dm-hs-bad)';
   const andList = a => a.length > 1 ? a.slice(0, -1).join(', ') + ' and ' + a[a.length - 1] : a[0] || '';
-  const healthLine = (hb, low) => !low.length ? `${HB[hb]}, every check is fine` : `${HB[hb]}: ${low.length > 1 ? 'low on' : 'low'} ${andList(low)}`;
+  const healthLine = c => !c.weak.length ? `${HB[c.hb]}, nothing needs attention` : `${HB[c.hb]}${c.hb === 'ok' ? ', but' : ':'} ${andList(c.weak)}`;
   function renderSheet(){
     const c = coOf(sheetFor); if (!c) return closeSheet();
     const mine = DE.filter(d => d.co === c.id).sort((a, b) => ST[b.st].i - ST[a.st].i || b.v - a.v), m = c.next;
-    const checks = [['Recent contact', Math.round(c.hp[0] / 40 * 100), c.last === 0 ? 'Touched today' : `Last touch ${plural(c.last, 'day')} ago`], ['Deals on time', c.slip ? 0 : 100, c.slip ? `${plural(c.slip, 'deal')} past the close date` : 'No deal past its close date'], ['Win probability', c.win, `${c.win}% across the open deals`]];
+    const checks = [['Recent contact', Math.round(c.hp[0] / 35 * 100), c.last === 0 ? 'Touched today' : `Last touch ${plural(c.last, 'day')} ago`], ['Deals on time', c.slip ? 0 : 100, c.slip ? `${plural(c.slip, 'deal')} past the close date` : 'No deal past its close date'], ['Win probability', c.win, `${c.win}% across the open deals`], ['Next step', Math.round(c.hp[3] / 15 * 100), !c.next ? 'Nothing booked' : c.next.day < 0 ? `${c.next.kind}, overdue since ${fmtD(c.next.day)}` : `${c.next.kind}, ${fmtDW(c.next.day)}`]];
     dtp.innerHTML = `<div class="dtp-h"><span class="pfm-lg" aria-hidden="true">${esc(c.n[0])}</span><span class="tx"><b id="crm-sh-t">${esc(c.n)}</b><span>${esc(c.seg)}, ${REG[c.reg].t}</span></span><button class="ib" data-a="link" aria-label="Copy a link to ${esc(c.n)}" data-tip="Copy link">${I('link', 's')}</button><button class="ib" data-a="close" aria-label="Close details" data-tip="Close" data-tip-k="Esc">${I('x', 's')}</button></div>`
       + `<div class="crm-sum3"><div><span>Pipeline</span><b class="num">${kmoney(c.value)}</b></div><div><span>Weighted</span><b class="num">${kmoney(c.weighted)}</b></div><div><span>Closed won</span><b class="num">${kmoney(c.won)}</b></div></div>`
-      + (c.sug ? `<div class="six-ans crm-sag">${I('spark', 'xs')}<span>${esc(c.sug.why)}</span><button class="pill primary sm" data-a="sug">${c.sug.label}</button></div>` : '')
-      + `<div class="hsx crm-shs"><div class="hsx-top"><div class="hsx-g">${gauge(c.health, hcol(c.health))}<div class="hsx-v"><b class="num">${c.health}</b><span class="muted">of 100</span></div></div><div class="hsx-s"><b>Account health</b><span class="muted hsx-st">${healthLine(c.hb, checks.filter(x => x[1] < 70).map(x => x[0].toLowerCase()))}</span></div></div>`
+      + (c.sug ? `<div class="six-ans crm-sag">${I('spark', 'xs')}<span>${esc(c.sug.why)}</span><button class="pill primary sm" data-a="sug"${CONFIRM.has(c.sug.k) ? ' data-pop="#crm-p-cfm" data-pop-align="end" aria-haspopup="dialog"' : ''}>${c.sug.label}</button></div>` : '')
+      + `<div class="hsx crm-shs"><div class="hsx-top"><div class="hsx-g">${gauge(c.health, hcol(c.health))}<div class="hsx-v"><b class="num">${c.health}</b><span class="muted">of 100</span></div></div><div class="hsx-s"><b>Account health</b><span class="muted hsx-st">${healthLine(c)}</span></div></div>`
       + `<div class="hsx-list">${checks.map(x => `<div class="hsx-c"><div class="hsx-ch"><span class="t">${x[0]}</span><span class="bar"><i style="width:${x[1]}%;background:${hcol(x[1])}"></i></span><span class="v num">${x[1]}</span></div><div class="hsx-d"><span>${esc(x[2])}</span></div></div>`).join('')}</div></div>`
       + section('props', 'Properties', `<div class="dtp-rows">`
         + `<div class="dtp-r"><span class="k">Owner</span><button class="dtp-v" data-pop="#crm-p-sown" aria-haspopup="menu">${av(c.own)}<span>${esc(P[c.own][0])}</span>${I('chev-d', 'xs')}</button></div>`
@@ -564,7 +642,8 @@
         + `<div class="dtp-r"><span class="k">Last touch</span><span class="dtp-v static">${c.last === 0 ? 'Today' : fmtD(-c.last)}, ${esc(ltName(c))}</span></div>`
         + `</div><div class="crm-tg"><span class="crm-tgk">Tags</span><span class="dtp-tags">${[c.seg, ...c.tags].map(chip).join('')}<button class="dtp-add" data-a="tag" aria-label="Add a tag" data-tip="Add tag">${I('plus', 'xs')}</button></span></div>`)
       + section('deals', `Deals, ${mine.length}`, mine.length ? `<div class="crm-dl">${mine.map(d => `<button data-deal="${d.id}" data-pop="#crm-p-sstage" aria-haspopup="menu" aria-label="${esc(d.n)}, ${ST[d.st].t}, ${money(d.v)}${slipping(d) ? ', past its close date' : ''}. Change its stage"><span class="t">${esc(d.n)}<span class="w num${slipping(d) ? ' late' : ''}">${d.st === 'won' ? 'Won ' + fmtD(d.close) : (slipping(d) ? 'Was due ' : 'Closes ') + fmtD(d.close) + ', ' + d.p + '%'}</span></span>${pill(d.st)}<span class="num">${kmoney(d.v)}</span></button>`).join('')}</div>` : '<p class="muted">No deals yet.</p>')
-      + section('ppl', `People, ${c.ppl.length}`, `<ul class="crm-ppl">${c.ppl.map((p, i) => `<li>${avn(p.n)}<span><b>${esc(p.n)}</b><span class="muted">${esc(p.r)}${i ? '' : ', champion'}</span></span></li>`).join('')}</ul>`)
+      + section('ppl', `People, ${c.ppl.length}`, `<ul class="crm-ppl">${c.ppl.map((p, i) => `<li>${avn(p.n)}<span><b>${esc(p.n)}</b><span class="muted">${esc(p.r)}${i ? '' : ', champion'}${m && whoOf(m).includes(pkey(c.id, i)) ? `. In the ${esc(low(m.kind))}, ${fmtDW(m.day)}` : ''}</span></span></li>`).join('')}</ul>`
+        + (m ? (t => t.length ? `<p class="crm-pj muted">Also in the ${esc(low(m.kind))}: ${esc(andList(t))}</p>` : '')(whoOf(m).filter(k => k.startsWith('o:') && k !== 'o:' + m.own).map(k => personOf(k).n)) : ''))
       + section('act', 'Activity', `<ul class="crm-tl">${tlOf(c).slice(0, 5).map(([k, d, t, w], i) => `<li${i === 0 && c._fresh ? ' class="new"' : ''}><span class="ic">${I(ACT[k] || 'comment', 'xs')}</span><span>${esc(t)}<span class="w num">${d === 0 ? 'Today' : fmtD(-d)}, ${esc(w)}</span></span></li>`).join('')}</ul>`)
       + `<div class="crm-sact"><button class="pill soft" data-a="call">${I('comment', 'xs')}Log a call</button><button class="pill soft" data-a="email">${I('mail', 'xs')}Log an email</button></div>`;
     c._fresh = false;
@@ -599,7 +678,7 @@
     if (a === 'tag'){ const next = ['Champion', 'Budget set', 'Security review', 'Multi-year'].find(t => !c.tags.includes(t)); if (next){ c.tags.push(next); renderSheet(); const t = $$('.dtp-tags .tag', dtp).pop(); enter(t); } }
     if (a === 'call') logActivity(c, 'Call');
     if (a === 'email') logActivity(c, 'Email', `Email to ${c.ppl[0].n}`);
-    if (a === 'sug' && c.sug) accept(c, c.sug);
+    if (a === 'sug' && c.sug) sugGo(c, b, !e.detail);
     if (a === 'cal' && c.next){ const m = c.next; closeSheet(); showMeeting(m); }
   });
   function logActivity(c, kind, text){
@@ -614,8 +693,8 @@
     const c = coOf(sheetFor), p = pop('crm-p-sown');
     p.innerHTML = `<div class="ph" role="none">Owner</div>` + OWN.map(o => mi(`data-o="${o}"`, `${av(o)}<span>${P[o][0]}</span>`, 'menuitemradio', c.own === o)).join('');
     $$('.mi', p).forEach(m => m.addEventListener('click', () => { const was = c.own; if (was === m.dataset.o) return; const mts = MT.filter(x => x.co === c.id && x.st === 'plan');
-      c.own = m.dataset.o; DE.filter(d => d.co === c.id && d.st !== 'won').forEach(d => d.own = c.own); mts.forEach(x => x.own = c.own); refresh();
-      toast('ok', `${c.n} is now ${first(c.own)}'s`, 'Its open deals and booked meetings moved too', { label:'Undo', run:() => { DE.filter(d => d.co === c.id && d.st !== 'won').forEach(d => d.own = was); mts.forEach(x => x.own = was); c.own = was; refresh(); } }); }));
+      c.own = m.dataset.o; DE.filter(d => d.co === c.id && !closed(d)).forEach(d => d.own = c.own); mts.forEach(x => x.own = c.own); refresh();
+      toast('ok', `${c.n} is now ${first(c.own)}'s`, 'Its open deals and booked meetings moved too', { label:'Undo', run:() => { DE.filter(d => d.co === c.id && !closed(d)).forEach(d => d.own = was); mts.forEach(x => x.own = was); c.own = was; refresh(); } }); }));
   }, true);
   function buildStageMenu(){
     const d = dealOf(stageFor), p = pop('crm-p-sstage'); if (!d) return;
@@ -626,8 +705,9 @@
   /* ---------- moving a deal: the board, the sheet and the menus all come here ---------- */
   // a deal that is won closes today; moved back out, it gets its expected close date again
   function setStage(d, st){
-    if (st === 'won' && d.st !== 'won'){ d.was = d.close; d.close = 0; }
-    if (st !== 'won' && d.st === 'won' && d.was != null){ d.close = d.was; d.was = null; }
+    const to = closed({ st }), from = closed(d);
+    if (to && !from){ d.was = d.close; d.close = 0; if (st === 'lost'){ d.at = d.st; d.why = d.why || 'Marked lost by Nina Cole'; } }
+    if (!to && from && d.was != null){ d.close = d.was; d.was = null; }
     d.st = st; d.p = probOf(d);
   }
   function moveDeal(d, st){
@@ -635,7 +715,7 @@
     setStage(d, st); refresh();
     const c = coOf(d.co);
     say(`${d.n} moved to ${ST[st].t}`);
-    toast(st === 'won' ? 'ok' : 'info', st === 'won' ? `Won: ${c.n}, ${money(d.v)}` : `${d.n} moved to ${ST[st].t}`, st === 'won' ? `${d.n}. Added to this quarter's closed won` : `${c.n}, win probability now ${d.p}%`, { label:'Undo', run:() => { setStage(d, was); refresh(); } });
+    toast(st === 'won' ? 'ok' : 'info', st === 'won' ? `Won: ${c.n}, ${money(d.v)}` : st === 'lost' ? `Lost: ${c.n}, ${money(d.v)}` : `${d.n} moved to ${ST[st].t}`, st === 'won' ? `${d.n}. Added to this quarter's closed won` : st === 'lost' ? `${d.n}. Out of the open pipeline` : `${c.n}, win probability now ${d.p}%`, { label:'Undo', run:() => { setStage(d, was); refresh(); } });
   }
 
   /* ---------- Agent inbox: Agent inbox's grouped list on the left, the selected item's preview on the right ---------- */
@@ -643,8 +723,8 @@
   const IBG = [['follow', 'Follow-ups drafted'], ['slip', 'Close dates passed'], ['fix', 'Data fixes'], ['done', 'Done']];
   const IBI = { follow:'mail', slip:'cal', fix:'wand' }, IBK = { follow:'Follow-up drafted', slip:'Close date passed', fix:'Data fix' };
   let ibSel = null, edFor = null, pvLast = null;
-  const ibText = x => { const c = coOf(x.co), d = dealOf(x.deal);
-    if (x.kind === 'follow') return [`Follow-up to ${x.to}, ${c.n}`, `Quiet for ${plural(c.last, 'day')}. “${x.subj}”`];
+  const ibText = x => { if (x.state !== 'wait' && x.snap) return x.snap.t; const c = coOf(x.co), d = dealOf(x.deal);
+    if (x.kind === 'follow') return [`Follow-up to ${x.to}, ${c.n}`, `Quiet for ${plural(x.days ?? c.last, 'day')}. “${x.subj}”`];
     if (x.kind === 'slip') return [`Move ${poss(c.n)} ${d.n.toLowerCase()} to ${fmtDW(x.to)}`, `It was due ${fmtD(x.was)} and is still in ${ST[d.st].t}, ${money(d.v)}`];
     return x.fix === 'stage' ? [`Move ${poss(c.n)} ${d.n.toLowerCase()} to ${ST[x.to].t}`, fixWhy(x)] : [`Lower ${poss(c.n)} ${d.n.toLowerCase()} from ${d.p}% to ${clamp(d.p + x.to, 5, 95)}%`, fixWhy(x)]; };
   // the list's order: what waits, group by group, then what is done
@@ -656,7 +736,7 @@
     const L = ibOrder(), w = L.filter(x => x.state === 'wait');
     if (!L.some(x => x.id === ibSel)) ibSel = (w[0] || L[0] || {}).id || null;
     igs.innerHTML = IBG.map(([k, n]) => { const G = L.filter(x => k === 'done' ? x.state !== 'wait' : x.state === 'wait' && x.kind === k); if (!G.length) return '';
-      return `<section class="aib-g" data-g="${k}" aria-label="${n}"><div class="aib-gh"><span>${n}</span><span class="n">${G.length}</span></div><div class="aib-gl" role="list">${G.map(ibRow).join('')}</div></section>`; }).join('');
+      return `<section class="aib-g" data-g="${k}" aria-label="${n}"><div class="aib-gh"><span>${n}</span><span class="n">${G.length}</span>${k !== 'done' && G.length > 1 ? `<button class="pill ghost sm crm-iall" data-ia="all" data-g="${k}" aria-label="Approve all ${G.length}: ${n.toLowerCase()}">Approve all</button>` : ''}</div><div class="aib-gl" role="list">${G.map(ibRow).join('')}</div></section>`; }).join('');
     swap($('.aib-st', ibx), w.length ? `${w.length} waiting for you` : 'All clear');
     if (!L.length) igs.innerHTML = `<div class="crm-ibe muted">Nothing waiting. The agent adds to this list as accounts go quiet or deals pass their close dates.</div>`;
     renderPreview();
@@ -673,12 +753,23 @@
     const x = ibOf(ibSel); ipv.dataset.ib = x ? x.id : '';
     if (!x){ ipv.innerHTML = `<div class="crm-pve muted">Nothing to preview.</div>`; return; }
     const c = coOf(x.co), d = dealOf(x.deal), wait = x.state === 'wait', [title] = ibText(x), ch = c.ppl.find(p => p.n === x.to) || c.ppl[0];
+    const body = x.state !== 'wait' && x.snap ? x.snap.pv : pvBody(x);
+    const acts = wait ? `<button class="pill ghost" data-ia="dismiss">Dismiss</button><button class="pill soft" data-ia="edit"${x.kind === 'follow' ? '' : ' data-pop="#crm-p-ied" data-pop-align="end" aria-haspopup="menu"'}>${I('edit', 'xs')}Edit</button><button class="pill primary" data-ia="ok">${x.kind === 'follow' ? 'Approve and send' : 'Approve'}</button>`
+      : `<span class="crm-pvres"><span class="ok">${I(x.state === 'done' ? 'ok' : 'x', 'xs')}</span>${esc(x.res)}</span>${x.undo ? `<button class="pill soft" data-ia="undo">${I('undo', 'xs')}Undo</button>` : ''}`;
+    ipv.innerHTML = `<div class="crm-pvh"><span class="aib-av" aria-hidden="true">${I(IBI[x.kind], 'xs')}</span><span class="muted">${IBK[x.kind]}</span><span class="crm-sp"></span><button class="pill ghost sm" data-ia="open">${I('panel', 'xs')}Open account</button><button class="ib crm-pvx" data-ia="close" aria-label="Close the preview" data-tip="Close">${I('x', 's')}</button></div>`
+      + `<h2 class="crm-pvt" id="crm-pvt" tabindex="-1">${esc(title)}</h2>${body}<div class="crm-pva">${acts}</div>`;
+    ipv.setAttribute('aria-labelledby', 'crm-pvt');
+    if (pvLast !== x.id + x.state){ if (pvLast) [...ipv.children].forEach((el, i) => glide(el, { transform:'translateY(4px)' }, T + i * 30)); pvLast = x.id + x.state; }
+  }
+  // the preview's body, from the live data while the item waits (frozen into its snapshot once it is decided)
+  function pvBody(x){
+    const c = coOf(x.co), d = dealOf(x.deal), ch = c.ppl.find(p => p.n === x.to) || c.ppl[0];
     let body = '';
     if (x.kind === 'follow'){
       body = `<div class="crm-pvm">${pvRow('To', `${avn(ch.n)}<span>${esc(ch.n)}<span class="muted">, ${esc(ch.r)} at ${esc(c.n)}</span></span>`)}${pvRow('From', `${av(c.own)}<span>${esc(P[c.own][0])}</span>`)}${pvRow('Subject', esc(x.subj))}</div>`
         + (edFor === x.id ? `<div class="crm-ied"><label class="crm-iel" for="crm-ta">Draft to ${esc(x.to)}</label><textarea class="crm-ta" id="crm-ta" rows="7">${esc(x.body)}</textarea><div class="crm-iea"><button class="pill ghost sm" data-ia="cancel">Cancel</button><button class="pill primary sm" data-ia="save">Save draft</button></div></div>`
           : `<div class="crm-pvb">${esc(x.body)}\n\n${esc(P[c.own][0])}</div>`)
-        + `<div class="crm-pvc muted">Quiet for ${plural(c.last, 'day')}. ${esc(d.n)}, ${ST[d.st].t}, ${money(d.v)}, closing ${fmtD(d.close)}.</div>`;
+        + `<div class="crm-pvc muted">Quiet for ${plural(x.days ?? c.last, 'day')}. ${esc(d.n)}, ${ST[d.st].t}, ${money(d.v)}, closing ${fmtD(d.close)}.</div>`;
     } else if (x.kind === 'slip'){
       body = `<div class="crm-pvm">${pvRow('Account', `<span class="pfm-lg xs" aria-hidden="true">${esc(c.n[0])}</span><span>${esc(c.n)}</span>`)}${pvRow('Deal', `<span>${esc(d.n)}</span>${pill(d.st)}<span class="num">${money(d.v)}</span>`)}`
         + pvRow('Close date', `<span class="crm-was num">${fmtD(x.was)}</span>${I('right', 'xs')}<b class="num">${fmtDW(x.to)}</b>`) + pvRow('Win probability', `<span class="num">${d.p}%</span>`)
@@ -691,20 +782,25 @@
         + pvRow(x.fix === 'stage' ? 'Stage' : 'Win probability', `${was}${I('right', 'xs')}${now}`) + `</div>`
         + `<div class="crm-pvc">${esc(fixWhy(x))} <span class="muted">Approving changes the deal; its weighted value in the forecast follows.</span></div>`;
     }
-    const acts = wait ? `<button class="pill ghost" data-ia="dismiss">Dismiss</button><button class="pill soft" data-ia="edit"${x.kind === 'follow' ? '' : ' data-pop="#crm-p-ied" data-pop-align="end" aria-haspopup="menu"'}>${I('edit', 'xs')}Edit</button><button class="pill primary" data-ia="ok">${x.kind === 'follow' ? 'Approve and send' : 'Approve'}</button>`
-      : `<span class="crm-pvres"><span class="ok">${I(x.state === 'done' ? 'ok' : 'x', 'xs')}</span>${esc(x.res)}</span>${x.undo ? `<button class="pill soft" data-ia="undo">${I('undo', 'xs')}Undo</button>` : ''}`;
-    ipv.innerHTML = `<div class="crm-pvh"><span class="aib-av" aria-hidden="true">${I(IBI[x.kind], 'xs')}</span><span class="muted">${IBK[x.kind]}</span><span class="crm-sp"></span><button class="pill ghost sm" data-ia="open">${I('panel', 'xs')}Open account</button><button class="ib crm-pvx" data-ia="close" aria-label="Close the preview" data-tip="Close">${I('x', 's')}</button></div>`
-      + `<h2 class="crm-pvt" id="crm-pvt" tabindex="-1">${esc(title)}</h2>${body}<div class="crm-pva">${acts}</div>`;
-    ipv.setAttribute('aria-labelledby', 'crm-pvt');
-    if (pvLast !== x.id + x.state){ if (pvLast) [...ipv.children].forEach((el, i) => glide(el, { transform:'translateY(4px)' }, T + i * 30)); pvLast = x.id + x.state; }
+    return body;
   }
+  function ibSnap(x){ return { t:ibText(x), pv:pvBody(x) }; }
   // a phone shows the list alone; picking a row opens its preview as a sheet over it
   const pvOpen = on => { const was = ibv.classList.contains('pv'); ibv.classList.toggle('pv', on); ipv.inert = phone() && !on; if (was && !on) fadeCls(ipv); };
   function ibSelect(id, focus){ ibSel = id; edFor = null; renderInbox(); if (focus === 'row') $(`[data-ib="${id}"] .crm-it`, igs)?.focus({ preventScroll:false }); }
+  // Approve all: every waiting item of a group in one go, with one Undo for all of them
+  function approveAll(k){
+    const L = ibOrder().filter(x => x.state === 'wait' && x.kind === k); if (!L.length) return;
+    const undos = L.map(x => { x.snap = ibSnap(x); const r = run(x.kind, coOf(x.co), x); const u = () => { r.undo(); x.snap = null; x.undo = null; }; x.undo = u; return u; });
+    const nx = ibOrder().find(x => x.state === 'wait'); if (nx) ibSel = nx.id;
+    refresh(); const n = IBG.find(g => g[0] === k)[1].toLowerCase();
+    toast('ok', `Approved ${L.length} ${n.replace(/^(follow-ups|close dates|data fixes).*/, '$1')}`, k === 'follow' ? `${plural(L.length, 'email')} logged on the accounts` : k === 'slip' ? 'Their new close dates are on the board and in the forecast' : 'The deals are updated', { label:'Undo', run:() => { undos.reverse().forEach(u => u()); refresh(); } });
+    $(`[data-ib="${ibSel}"] .crm-it`, igs)?.focus({ preventScroll:true });
+  }
   function ibDo(x, a){
     const c = coOf(x.co), L = ibOrder().filter(y => y.state === 'wait'), i = L.indexOf(x), next = L[i + 1] || L[i - 1];
     if (a === 'ok'){ accept(c, { k:x.kind, item:x }); }
-    else if (a === 'dismiss'){ x.state = 'gone'; x.res = 'Dismissed'; x.undo = () => { x.state = 'wait'; }; toast('info', 'Dismissed', ibText(x)[0], { label:'Undo', run:() => { x.state = 'wait'; x.undo = null; refresh(); } }); }
+    else if (a === 'dismiss'){ x.snap = ibSnap(x); x.state = 'gone'; x.res = 'Dismissed'; x.undo = () => { x.state = 'wait'; x.snap = null; }; toast('info', 'Dismissed', ibText(x)[0], { label:'Undo', run:() => { x.state = 'wait'; x.snap = null; x.undo = null; refresh(); } }); }
     else if (a === 'undo' && x.undo){ x.undo(); x.undo = null; refresh(); return; }
     // the next waiting item takes the selection
     if (x.id === ibSel && next){ ibSel = next.id; edFor = null; }
@@ -712,6 +808,7 @@
   }
   ibv.addEventListener('click', e => {
     const b = e.target.closest('[data-ia]'); if (!b) return;
+    if (b.dataset.ia === 'all') return approveAll(b.dataset.g);
     const el = b.closest('[data-ib]'), x = ibOf(el && el.dataset.ib), a = b.dataset.ia; if (!x) return;
     const inPv = ipv.contains(b), kb = !e.detail;
     if (a === 'sel'){ ibSelect(x.id, 'row'); if (phone()){ pvOpen(true); setTimeout(() => $('#crm-pvt', ipv)?.focus({ preventScroll:true }), 60); } return; }
@@ -744,7 +841,7 @@
       p.innerHTML = `<div class="ph" role="none">New close date</div>` + opts.map(n => mi(`data-n="${n}"`, `<span>${fmtDW(n)}</span><span class="r num">in ${plural(n, 'day')}</span>`, 'menuitemradio', x.to === n)).join('');
       $$('.mi', p).forEach(m => m.addEventListener('click', () => { x.to = +m.dataset.n; renderInbox(); }));
     } else if (x.fix === 'stage'){
-      p.innerHTML = `<div class="ph" role="none">Move to</div>` + STAGES.filter(s => s.k !== 'won' && ST[s.k].i > ST[d.st].i).map(s => mi(`data-s="${s.k}"`, pill(s.k), 'menuitemradio', x.to === s.k)).join('');
+      p.innerHTML = `<div class="ph" role="none">Move to</div>` + STAGES.filter(s => !closed({ st:s.k }) && ST[s.k].i > ST[d.st].i).map(s => mi(`data-s="${s.k}"`, pill(s.k), 'menuitemradio', x.to === s.k)).join('');
       $$('.mi', p).forEach(m => m.addEventListener('click', () => { x.to = m.dataset.s; renderInbox(); }));
     } else {
       p.innerHTML = `<div class="ph" role="none">Lower to</div>` + [-5, -10, -15].map(n => mi(`data-n="${n}"`, `<span>${clamp(d.p + n, 5, 95)}%</span>`, 'menuitemradio', x.to === n)).join('');
@@ -766,7 +863,7 @@
   // the time column: an hour a row (8am), or on a narrow calendar half an hour a row (8:00, 8:30)
   $('.ecx-tm', ecx).innerHTML = Array.from({ length:HN * 2 }, (_, i) => { const h = H0 + Math.floor(i / 2), h12 = h > 12 ? h - 12 : h; return i % 2 ? `<span class="hf"><i class="n">${h12}:30</i></span>` : `<span><i class="w">${h12}${h >= 12 ? 'pm' : 'am'}</i><i class="n">${h12}:00</i></span>`; }).join('');
   $('.crm-leg', ecx).innerHTML = OWN.map(o => `<span><i style="background:var(--dm-p${P[o][1]})"></i>${first(o)}</span>`).join('');
-  const closingOn = n => DE.filter(d => d.st !== 'won' && d.close === n).sort((a, b) => b.v - a.v);
+  const closingOn = n => DE.filter(d => !closed(d) && d.close === n).sort((a, b) => b.v - a.v);
   const meetingsIn = (w = wk) => MT.filter(m => inWeek(m.day, w) && m.st === 'plan' && !m.fresh);
   // overlapping meetings share their column: each takes a lane, as wide as the busiest moment of its group allows
   function lanes(list){
@@ -779,13 +876,14 @@
   const evLabel = m => { const c = coOf(m.co); return `${c.n}, ${m.kind}, ${fmtDW(m.day)} ${tmA(m.h)} to ${tmA(m.h + m.dur)}, ${P[m.own][0]}${m.st === 'plan' && m.day < 0 ? ', overdue' : m.st === 'held' ? ', held' : ''}`; };
   function evEl(m){
     const c = coOf(m.co), col = P[m.own][1], late = m.st === 'plan' && m.day < 0, n = m._n || 1;
-    const el = html(`<button class="ecx-e crm-ev${m.sug ? ' sug' : ''}${late ? ' late' : ''}${m.st === 'held' ? ' held' : ''}" data-m="${m.id}" style="top:${at(m.h)};height:${tall(m.sug ? m.vd : m.dur)};left:calc(3px + (100% - 6px) * ${(m._l || 0) / n});width:calc((100% - 6px) / ${n} - ${n > 1 ? 2 : 0}px);${m.sug ? '' : `background:var(--dm-p${col}-bg);color:var(--dm-p${col})`}" aria-label="${esc(m.sug ? 'Suggested: ' + low(m.kind) + ' with ' + c.n + ', ' + fmtDW(m.day) + ' ' + tmA(m.h) : evLabel(m))}"><b>${esc(c.n)}</b>${m.sug ? '' : `<span>${late ? 'Overdue: ' : ''}${esc(m.kind)}, ${tm(m.h)}</span>`}</button>`);
-    if (m.sug) el.insertAdjacentHTML('beforeend', `<span class="ecx-sg"><button class="y" data-sg="book" aria-label="Book a ${esc(low(m.kind))} with ${esc(c.n)}, ${fmtDW(m.day)} ${tmA(m.h)}">Book</button><button class="n" data-sg="skip" aria-label="Skip ${esc(c.n)}">Skip</button><i class="num">${tm(m.h)}</i></span>`);
+    const tag = m.sug ? 'div' : 'button';
+    const el = html(`<${tag} class="ecx-e crm-ev${m.sug ? ' sug' : ''}${!m.sug && m.dur <= .5 ? ' short' : ''}${late ? ' late' : ''}${m.st === 'held' ? ' held' : ''}" data-m="${m.id}" style="top:${at(m.h)};height:${tall(m.sug ? m.vd : m.dur)};left:calc(3px + (100% - 6px) * ${(m._l || 0) / n});width:calc((100% - 6px) / ${n} - ${n > 1 ? 2 : 0}px);${m.sug ? '' : `background:var(--dm-p${col}-bg);color:var(--dm-p${col})`}" ${m.sug ? ' role="group"' : ''} aria-label="${esc(m.sug ? 'Suggested: ' + low(m.kind) + ' with ' + c.n + ', ' + fmtDW(m.day) + ' ' + tmA(m.h) : evLabel(m))}"><b>${esc(c.n)}</b>${m.sug ? '' : `<span>${late ? 'Overdue: ' : ''}${esc(m.kind)}, ${tm(m.h)}</span>`}</${tag}>`);
+    if (m.sug) el.insertAdjacentHTML('beforeend', `<span class="ecx-sg"><button class="y" data-sg="book" aria-label="Book a ${esc(low(m.kind))} with ${esc(c.n)}, ${fmtDW(m.day)} ${tmA(m.h)}">Book</button><button class="n crm-sgm" data-sg="more" data-pop="#crm-p-sg" aria-haspopup="menu" aria-label="More for ${esc(c.n)}" data-tip="Skip or open">${I('more', 'xs')}</button><i class="num">${tm(m.h)}</i></span>`);
     el._m = m;
     return el;
   }
-  function renderCal(){
-    closeCalPop();
+  function renderCal(keep){
+    if (!keep) closeCalPop();
     const m0 = mon();
     $('.crm-wkt', ecx).textContent = weekLabel();
     $$('.ecx-day, .ecx-scan', cgrid).forEach(x => x.remove());
@@ -834,29 +932,127 @@
   let popFor = null;
   const closeCalPop = () => { if (!popFor) return; const back = cpop.contains(document.activeElement) && popFor; const m = popFor._m; cpop.classList.remove('open'); popFor = null;
     if (m && m.fresh){ MT = MT.filter(x => x !== m); renderCal(); return; } if (back && back.isConnected) back.focus({ preventScroll:true }); };
-  const prepNote = m => { const c = coOf(m.co), d = dealOf(m.deal) || c.lead, ch = c.ppl[0], bits = [];
-    if (d) bits.push(d.st === 'won' ? `${d.n} closed won, ${kmoney(d.v)}.` : `${d.n} is in ${ST[d.st].t} at ${d.p}%, ${kmoney(d.v)}, ${slipping(d) ? `and was due ${fmtD(d.close)}, so agree a new date` : `closing ${fmtD(d.close)}`}.`);
+  // who is in a meeting: its owner, then people from the account and from the team, saved with the meeting (m.who)
+  const pkey = (co, i) => `c:${co}:${i}`;
+  function personOf(k){
+    if (k.startsWith('o:')){ const o = k.slice(2); return { k, n:P[o][0], r:k.slice(2) === 'NC' ? 'Head of sales' : 'Sales, Larkfield', av:av(o), team:true, own:o }; }
+    const [, co, i] = k.split(':'), c = coOf(co), p = c && c.ppl[+i]; if (!p) return null;
+    return { k, n:p.n, r:`${p.r}, ${c.n}`, av:avn(p.n), team:false };
+  }
+  const whoOf = m => { if (!m.who) m.who = ['o:' + m.own, ...coOf(m.co).ppl.slice(0, 2).map((p, i) => pkey(m.co, i))]; m.who = m.who.filter(k => personOf(k)); return m.who; };
+  const namesOf = m => andList(whoOf(m).map(k => personOf(k).n.split(' ')[0]));
+  const prepNote = m => { const c = coOf(m.co), d = dealOf(m.deal) || c.lead, inv = whoOf(m).map(personOf).filter(p => !p.team), ch = inv[0] || { n:c.ppl[0].n }, bits = [`With ${namesOf(m)}.`];
+    if (d) bits.push(d.st === 'won' ? `${d.n} closed won, ${kmoney(d.v)}.` : d.st === 'lost' ? `${d.n} was lost: ${d.why}.` : `${d.n} is in ${ST[d.st].t} at ${d.p}%, ${kmoney(d.v)}, ${slipping(d) ? `and was due ${fmtD(d.close)}, so agree a new date` : `closing ${fmtD(d.close)}`}.`);
     bits.push(c.last === 0 ? 'Last touch was today.' : `Last touch was ${plural(c.last, 'day')} ago, ${c.lt === 'Email' ? 'an email' : 'a ' + ltName(c)}.`);
-    const more = DE.filter(x => x.co === c.id && x.st !== 'won' && x !== d); if (more.length) bits.push(`Also open: ${more.map(x => x.n.toLowerCase()).join(', ')}.`);
+    const more = DE.filter(x => x.co === c.id && !closed(x) && x !== d); if (more.length) bits.push(`Also open: ${more.map(x => x.n.toLowerCase()).join(', ')}.`);
     bits.push(`Ask ${ch.n.split(' ')[0]} ${ASKQ[d ? d.st : 'disc']}.`);
     return bits.join(' '); };
+  function placeCard(el){
+    const pr = ecx.getBoundingClientRect(), er = el.getBoundingClientRect(), w = cpop.offsetWidth || 300;
+    let x = er.right - pr.left + 8; if (x + w > pr.width - 8) x = er.left - pr.left - w - 8; x = clamp(x, 8, Math.max(8, pr.width - w - 8));
+    let y = er.top - pr.top; y = Math.max(8, Math.min(y, pr.height - cpop.offsetHeight - 8));
+    cpop.style.left = x + 'px'; cpop.style.top = y + 'px';
+  }
   function openCalPop(el){
     const m = el._m; if (popFor === el){ closeCalPop(); return; }
     if (popFor && popFor._m.fresh && popFor._m !== m) closeCalPop();
     popFor = el; const c = coOf(m.co), d = dealOf(m.deal) || c.lead, col = P[m.own][1];
-    const who = [`<span class="av" style="background:var(--dm-av-${col});color:var(--dm-av-${col}-ink)" aria-hidden="true">${m.own}</span>`, ...c.ppl.slice(0, 2).map(p => avn(p.n))].join('');
     cpop.innerHTML = `<div class="ecx-ph"><i style="background:var(--dm-p${col})"></i>${m.fresh ? `<input class="ecx-ti" placeholder="Call" aria-label="Meeting title" value="">` : `<b>${esc(c.n)}</b>`}<button class="ib ecx-px" aria-label="Close" data-tip="Close">${I('x', 'xs')}</button></div>`
       + (m.fresh ? `<div class="ecx-pt"><button class="dtp-v crm-pacc" data-pop="#crm-p-acc" aria-haspopup="menu" aria-label="Account: ${esc(c.n)}. Change it"><span class="pfm-lg xs" aria-hidden="true">${esc(c.n[0])}</span><span>${esc(c.n)}</span>${I('chev-d', 'xs')}</button></div>` : `<div class="ecx-pt">${esc(m.kind)}${m.st === 'held' ? ', held' : m.day < 0 ? ', overdue' : ''}</div>`)
-      + `<div class="ecx-pt num">${fmtDW(m.day)}, ${tm(m.h)} – ${tm(m.h + m.dur)}</div>`
+      + (m.st === 'held' ? `<div class="ecx-pt num">${fmtDW(m.day)}, ${tm(m.h)} – ${tm(m.h + m.dur)}</div>`
+        : `<div class="ecx-pt"><button class="dtp-v crm-pwhen num" data-pop="#crm-p-when" aria-haspopup="dialog" aria-label="When: ${fmtDW(m.day)}, ${tmA(m.h)} to ${tmA(m.h + m.dur)}. Change it" data-tip="Change the date or time">${I('cal', 'xs')}<span>${fmtDW(m.day)}, ${tm(m.h)} – ${tm(m.h + m.dur)}</span></button></div>`)
       + (d ? `<div class="crm-pdl"><span class="t">${esc(d.n)}</span>${pill(d.st)}<span class="num">${kmoney(d.v)}</span></div>` : '')
-      + `<div class="ecx-pw">${who}<span class="muted">${esc(first(m.own))}, ${c.ppl.slice(0, 2).map(p => esc(p.n.split(' ')[0])).join(', ')}</span></div>`
+      + `<div class="ecx-pw crm-pw">${peopleRow(m)}</div>`
       + `<div class="ecx-pa">${m.fresh ? `<button class="pill ghost sm" data-p="discard">Discard</button><button class="pill primary sm" data-p="save">Book</button>` : `<button class="pill line sm" data-p="open">Open account</button>${m.st === 'held' ? '' : `<button class="pill soft sm ecx-ask ecx-prep" data-p="prep">${I('spark', 'xs')}Prep with agent</button>`}`}</div>`;
-    const pr = ecx.getBoundingClientRect(), er = el.getBoundingClientRect(), w = cpop.offsetWidth || 288;
-    let x = er.right - pr.left + 8; if (x + w > pr.width - 8) x = er.left - pr.left - w - 8; x = clamp(x, 8, Math.max(8, pr.width - w - 8));
-    let y = er.top - pr.top; y = Math.max(8, Math.min(y, pr.height - cpop.offsetHeight - 8));
-    cpop.style.left = x + 'px'; cpop.style.top = y + 'px'; cpop.classList.remove('open'); void cpop.offsetWidth; cpop.classList.add('open'); hideTip();
+    placeCard(el); cpop.classList.remove('open'); void cpop.offsetWidth; cpop.classList.add('open'); hideTip();
     const ti = $('.ecx-ti', cpop); if (ti){ ti.focus({ preventScroll:true }); ti.onkeydown = k => { if (k.key === 'Enter'){ k.preventDefault(); saveNew(); } }; }
   }
+  // the people row: an overlapping avatar stack (each one removes its person; the organiser stays), a + that opens the picker,
+  // and their first names
+  const avsHtml = m => { const W = whoOf(m).map(personOf);
+    return `<span class="crm-avs" role="list" aria-label="People">${W.map(p => p.k === 'o:' + m.own ? `<span class="crm-avb" role="listitem" data-k="${p.k}" data-tip="${esc(p.n)}, organiser">${p.av}</span>`
+        : `<button class="crm-avb" role="listitem" data-k="${p.k}" data-rm="${p.k}" aria-label="Remove ${esc(p.n)}" data-tip="Remove ${esc(p.n)}">${p.av}<i class="x" aria-hidden="true">${I('x', 'xs')}</i></button>`).join('')}</span>`; };
+  function peopleRow(m){
+    return avsHtml(m) + `<button class="ib crm-padd" data-pop="#crm-p-ppl" data-pop-align="end" aria-haspopup="dialog" aria-label="Add people" data-tip="Add people">${I('plus', 'xs')}</button>`
+      + `<span class="muted crm-pwn">${esc(namesOf(m))}</span>`;
+  }
+  // the row redrawn in place: a person who joins settles in, one who leaves fades out first
+  function paintPeople(m, added, removed){
+    const row = $('.crm-pw', cpop); if (!row) return;
+    // only the stack and the names are redrawn, so the + keeps its place and the focus
+    const draw = () => { $('.crm-avs', row).outerHTML = avsHtml(m); $('.crm-pwn', row).textContent = namesOf(m); if (added) enter($(`.crm-avb[data-k="${added}"]`, row)); glide($('.crm-pwn', row), { transform:'translateY(2px)' }, 200); };
+    const gone = removed && $(`.crm-avb[data-k="${removed}"]`, row);
+    if (gone && !REDUCE && gone.animate) gone.animate([{ opacity:1, transform:'none' }, { opacity:0, transform:'scale(.6)' }], { duration:160, easing:EASE }).finished.then(draw); else draw();
+  }
+  // the picker: the account's people first, then the team, each with its avatar, role and a check; a search; the arrow keys
+  // move, Enter adds or removes, Escape closes
+  const ppk = $('#crm-p-ppl', app), ppq = $('.crm-ppq', ppk), ppl = $('.crm-ppo', ppk); let ppFor = null, ppAt = 0;
+  function buildPpl(m){
+    ppFor = m; ppq.value = ''; ppAt = 0; paintPpl(); setTimeout(() => ppq.focus({ preventScroll:true }), 40);
+  }
+  function paintPpl(){
+    const m = ppFor; if (!m) return; const c = coOf(m.co), q = ppq.value.trim().toLowerCase(), W = whoOf(m);
+    const keys = [...c.ppl.map((p, i) => pkey(c.id, i)), ...OWN.map(o => 'o:' + o)].map(personOf).filter(p => !q || (p.n + ' ' + p.r).toLowerCase().includes(q));
+    const grp = (t, L) => L.length ? `<div class="ph" role="presentation">${t}</div>` + L.map(p => `<div class="crm-po" role="option" id="crm-po-${p.k.replace(/[^a-z0-9]/gi, '')}" aria-selected="${W.includes(p.k)}" data-k="${p.k}"${p.k === 'o:' + m.own ? ' aria-disabled="true"' : ''}>${p.av}<span class="t"><b>${esc(p.n)}</b><span class="muted">${esc(p.k === 'o:' + m.own ? 'Organiser' : p.r)}</span></span><span class="ck">${I('check', 'xs')}</span></div>`).join('') : '';
+    ppl.innerHTML = grp(`At ${esc(c.n)}`, keys.filter(p => !p.team)) + grp('Your team', keys.filter(p => p.team)) || '<div class="crm-ppe muted">Nobody matches</div>';
+    hiPpl(0);
+  }
+  function hiPpl(d){
+    const os = $$('.crm-po', ppl); if (!os.length){ ppq.removeAttribute('aria-activedescendant'); return; }
+    ppAt = clamp(ppAt + d, 0, os.length - 1); os.forEach((o, i) => o.classList.toggle('hl', i === ppAt)); ppq.setAttribute('aria-activedescendant', os[ppAt].id); os[ppAt].scrollIntoView({ block:'nearest' });
+  }
+  function togglePerson(k){
+    const m = ppFor; if (!m || k === 'o:' + m.own) return; const W = whoOf(m), on = W.includes(k);
+    m.who = on ? W.filter(x => x !== k) : [...W, k];
+    const o = $(`.crm-po[data-k="${k}"]`, ppl); if (o) o.setAttribute('aria-selected', !on);
+    paintPeople(m, on ? null : k, on ? k : null); if (!m.fresh) refreshMeeting(m);
+    say(`${personOf(k).n} ${on ? 'removed from' : 'added to'} the ${low(m.kind)}`);
+  }
+  ppl.addEventListener('click', e => { const o = e.target.closest('.crm-po'); if (o){ ppAt = $$('.crm-po', ppl).indexOf(o); hiPpl(0); togglePerson(o.dataset.k); } });
+  ppq.addEventListener('input', () => { ppAt = 0; paintPpl(); });
+  ppq.addEventListener('keydown', e => { if (e.key === 'ArrowDown' || e.key === 'ArrowUp'){ e.preventDefault(); hiPpl(e.key === 'ArrowDown' ? 1 : -1); } else if (e.key === 'Enter'){ e.preventDefault(); const o = $$('.crm-po', ppl)[ppAt]; if (o) togglePerson(o.dataset.k); } });
+  // a change to a booked meeting reaches the sheet's People list, the Prep note and the next step at once
+  const refreshMeeting = m => { derive(); if (sheetFor === m.co) renderSheet(); };
+
+  // the date and time: Date picker's month grid, then the start (in 15 minutes) and the length; it changes the meeting as you
+  // pick, and a booked meeting's move toasts with Undo when the picker closes
+  const wpk = $('#crm-p-when', app); let wFor = null, wMon = 0;
+  function buildWhen(m){ wFor = { m, was:[m.day, m.h, m.dur] }; const d = dateOf(m.day); wMon = (d.getFullYear() - today.getFullYear()) * 12 + d.getMonth() - today.getMonth(); paintWhen(); setTimeout(() => $('.dpk-d.s', wpk)?.focus({ preventScroll:true }), 40); }
+  function paintWhen(dir){
+    const m = wFor.m, f = new Date(today.getFullYear(), today.getMonth() + wMon, 1), lead = (f.getDay() + 6) % 7, dim = new Date(f.getFullYear(), f.getMonth() + 1, 0).getDate();
+    const off = dt => Math.round((dt - today) / 864e5);
+    let g = ''; for (let i = 0; i < lead; i++) g += '<span></span>';
+    for (let d = 1; d <= dim; d++){ const n = off(new Date(f.getFullYear(), f.getMonth(), d)); g += `<button class="dpk-d${n === m.day ? ' s' : ''}${n === 0 ? ' t' : ''}${isWork(n) ? '' : ' o'}" data-n="${n}" aria-pressed="${n === m.day}" aria-label="${DAYL[dow(n)]} ${fmtD(n)}">${d}</button>`; }
+    wpk.innerHTML = `<div class="dpk-mh"><button class="ib" data-w="-1" aria-label="Previous month">${I('chev-l', 'xs')}</button><b>${f.toLocaleDateString('en-US', { month:'long', year:'numeric' })}</b><button class="ib" data-w="1" aria-label="Next month">${I('chev-r', 'xs')}</button></div>`
+      + `<div class="dpk-wd muted"><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span></div><div class="dpk-vp"><div class="dpk-g${dir ? (dir < 0 ? ' in-l' : ' in-r') : ''}">${g}</div></div>`
+      + `<div class="crm-wt"><span class="k">Starts</span><button class="ib" data-t="-.25" aria-label="15 minutes earlier">${I('minus', 'xs')}</button><b class="num" aria-live="polite">${tmA(m.h)}</b><button class="ib" data-t=".25" aria-label="15 minutes later">${I('plus', 'xs')}</button></div>`
+      + `<div class="crm-wt"><span class="k">Length</span><div class="seg2 crm-wl" role="group" aria-label="Length">${[.25, .5, .75, 1, 1.5].map(v => `<button aria-pressed="${m.dur === v}" data-l="${v}">${v < 1 ? v * 60 + 'm' : v + 'h'}</button>`).join('')}</div></div>`
+      + `<div class="crm-wa"><button class="pill primary sm" data-close>Done</button></div>`;
+  }
+  wpk.addEventListener('click', e => {
+    const b = e.target.closest('button'); if (!b || !wFor) return; const m = wFor.m;
+    if (b.dataset.w){ e.stopPropagation(); wMon += +b.dataset.w; paintWhen(+b.dataset.w); $(`[data-w="${b.dataset.w}"]`, wpk).focus(); return; }
+    if (b.dataset.n != null){ e.stopPropagation(); m.day = +b.dataset.n; }
+    else if (b.dataset.t){ e.stopPropagation(); m.h = clamp(m.h + +b.dataset.t, H0, H0 + HN - m.dur); }
+    else if (b.dataset.l){ e.stopPropagation(); m.dur = +b.dataset.l; m.h = Math.min(m.h, H0 + HN - m.dur); }
+    else return;
+    const sel = b.dataset.n != null ? `[data-n="${b.dataset.n}"]` : b.dataset.t ? `[data-t="${b.dataset.t}"]` : `[data-l="${b.dataset.l}"]`;
+    paintWhen(); $(sel, wpk)?.focus({ preventScroll:true }); moveCard(m);
+  });
+  // the calendar follows: the meeting's week, its new place, and the card stays open on it
+  function moveCard(m){
+    if (!inWeek(m.day)){ wk = Math.floor((m.day - baseMon) / 7); cday = -1; }
+    if (cdays.getClientRects().length) cday = m.day - mon();
+    renderCal(true);
+    const el = $(`.ecx-e[data-m="${m.id}"]`, cgrid); if (el){ popFor = el; placeCard(el); }
+    const w = $('.crm-pwhen span', cpop); if (w) w.textContent = `${fmtDW(m.day)}, ${tm(m.h)} – ${tm(m.h + m.dur)}`;
+    if (!m.fresh) refreshMeeting(m);
+  }
+  // when the picker closes on a booked meeting that moved, one toast says so, with Undo
+  new MutationObserver(() => { if (wpk.classList.contains('open') || !wFor) return; const { m, was } = wFor; wFor = null;
+    if (m.fresh || (m.day === was[0] && m.h === was[1] && m.dur === was[2])) return; const c = coOf(m.co); refresh();
+    toast('ok', `${m.kind} with ${c.n} moved`, `${fmtDW(m.day)}, ${tmA(m.h)} to ${tmA(m.h + m.dur)}, was ${fmtDW(was[0])} ${tmA(was[1])}`, { label:'Undo', run:() => { [m.day, m.h, m.dur] = was; refresh(); } }); }).observe(wpk, { attributes:true, attributeFilter:['class'] });
+
   function saveNew(){
     const m = popFor && popFor._m; if (!m || !m.fresh) return;
     const t = ($('.ecx-ti', cpop).value || '').trim(); m.kind = t || 'Call'; m.fresh = false; popFor = null; cpop.classList.remove('open');
@@ -872,12 +1068,15 @@
     if (b.dataset.p === 'prep'){ b.innerHTML = '<span class="think on"><i></i><i></i><i></i><i></i></span>Writing'; b.disabled = true;
       setTimeout(() => { if (!b.isConnected) return; const nt = html(`<div class="ecx-note">${I('spark', 'xs')}<span>${esc(prepNote(m))}</span></div>`); b.closest('.ecx-pa').before(nt); enter(nt); b.remove(); }, REDUCE ? 0 : 900); }
     if (b.classList.contains('crm-pacc')) buildAcc(m);
+    if (b.classList.contains('crm-padd')) buildPpl(m);
+    if (b.classList.contains('crm-pwhen')) buildWhen(m);
+    if (b.dataset.rm){ const k = b.dataset.rm, W = whoOf(m); m.who = W.filter(x => x !== k); hideTip(); paintPeople(m, null, k); if (!m.fresh) refreshMeeting(m); say(`${personOf(k).n} removed`); setTimeout(() => $('.crm-padd', cpop)?.focus({ preventScroll:true }), 200); }
   });
   // a new meeting's account: the ones with nothing booked first
   function buildAcc(m){
     const p = pop('crm-p-acc'), L = CO.slice().sort((a, b) => (!!a.next - !!b.next) || b.value - a.value);
     p.innerHTML = `<div class="ph" role="none">Account</div>` + L.map(c => mi(`data-co="${c.id}"`, `<span class="pfm-lg xs" aria-hidden="true">${esc(c.n[0])}</span><span>${esc(c.n)}</span>${c.next ? '' : '<span class="r muted">No next step</span>'}`, 'menuitemradio', m.co === c.id)).join('');
-    $$('.mi', p).forEach(x => x.addEventListener('click', () => { const c = coOf(x.dataset.co), t = $('.ecx-ti', cpop).value; m.co = c.id; m.own = c.own; m.deal = c.lead && c.lead.id; const el = popFor; popFor = null; const nel = evEl(m); el.replaceWith(nel); bind(nel); openCalPop(nel); $('.ecx-ti', cpop).value = t; }));
+    $$('.mi', p).forEach(x => x.addEventListener('click', () => { const c = coOf(x.dataset.co), t = $('.ecx-ti', cpop).value; m.co = c.id; m.own = c.own; m.deal = c.lead && c.lead.id; m.who = null; const el = popFor; popFor = null; const nel = evEl(m); el.replaceWith(nel); bind(nel); openCalPop(nel); $('.ecx-ti', cpop).value = t; }));
   }
   // drag a meeting to another time or day, snapping to 15 minutes; a click without moving opens its card
   const colAt = i => $(`.ecx-col[data-d="${i}"]`, cgrid);
@@ -912,7 +1111,7 @@
   cgrid.addEventListener('click', e => {
     const cb = e.target.closest('.crm-clb'); if (cb && cb.dataset.co){ openSheet(cb.dataset.co, !e.detail); return; }
     if (cb && cb.dataset.day){ buildCls(+cb.dataset.day); return; }
-    const sg = e.target.closest('[data-sg]'); if (sg){ const m = sg.closest('.ecx-e')._m; sg.dataset.sg === 'book' ? bookSg(m) : skipSg(m); return; }
+    const sg = e.target.closest('[data-sg]'); if (sg){ const m = sg.closest('.ecx-e')._m; if (sg.dataset.sg === 'book') bookSg(m); else if (sg.dataset.sg === 'more') buildSgMenu(m); return; }
     const cl = e.target.classList && e.target.classList.contains('ecx-col') ? e.target : null; if (!cl) return;
     const h = ghost.parentElement === cl ? ghost._h : H0 + Math.min(HN * 2 - 1, Math.floor((e.clientY - cl.getBoundingClientRect().top) / PX() * 2)) / 2; ghost.remove();
     if (h + .5 > H0 + HN) return;
@@ -928,6 +1127,7 @@
   }
   // anything outside the open card closes it; its account menu and a toast's Undo don't count
   document.addEventListener('pointerdown', e => { if (popFor && !cpop.contains(e.target) && !popFor.contains(e.target) && !e.target.closest('.crm-pop,.tst-t')) closeCalPop(); });
+  cpop.addEventListener('keydown', e => { if (e.key === 'Escape' && $('.pop.open', app)) e.stopPropagation(); });
 
   // Plan follow-ups: a slot this week for every account quiet for more than two weeks with nothing ahead, drawn dashed with
   // Book and Skip
@@ -949,7 +1149,7 @@
       renderCal(); swap(cmsg, SG.length ? `${plural(SG.length, 'slot')} for accounts quiet 14+ days` : 'Every quiet account has a step booked');
       const f = SG[0]; if (f) showDay(f.day - mon()); const b = $('.ecx-e.sug [data-sg="book"]', cgrid); if (b && document.activeElement === plan) b.focus({ preventScroll:true }); };
     if (REDUCE) return done();
-    renderCal(); const sc = $('.ecx-scan', cgrid); sc.classList.remove('go'); void sc.offsetWidth; sc.classList.add('go');
+    renderCal(); const sc = $('.ecx-scan', cgrid); sc.classList.remove('go'); void sc.offsetWidth; sc.classList.add('go'); sc.addEventListener('animationend', () => sc.classList.remove('go'), { once:true });
     setTimeout(done, 1200);
   }
   plan.onclick = planFollowUps;
@@ -964,6 +1164,12 @@
     const el = $(`.ecx-e[data-m="${m.id}"]`, cgrid); if (el) enter(el);
     const nb = $('.ecx-e.sug [data-sg="book"]', cgrid); if (nb && ecx.contains(document.activeElement) === false) return; if (nb) nb.focus({ preventScroll:true });
   }
+  // a proposed slot's menu: Book, Skip, or the account
+  function buildSgMenu(sl){
+    const p = pop('crm-p-sg'), c = coOf(sl.co);
+    p.innerHTML = `<div class="ph" role="none">${esc(c.n)}, ${fmtDW(sl.day)} ${tmA(sl.h)}</div>` + mi('data-s="book"', `${I('check', 's')}<span>Book this slot</span>`, 'menuitem') + mi('data-s="skip"', `${I('x', 's')}<span>Skip</span>`, 'menuitem') + mi('data-s="open"', `${I('panel', 's')}<span>Open ${esc(c.n)}</span>`, 'menuitem');
+    $$('.mi', p).forEach(x => x.addEventListener('click', () => { const a = x.dataset.s; setTimeout(() => a === 'book' ? bookSg(sl) : a === 'skip' ? skipSg(sl) : openSheet(sl.co, true), 130); }));
+  }
   function skipSg(s){ SG = SG.filter(x => x !== s); renderCal(); swap(cmsg, SG.length ? `Skipped ${coOf(s.co).n}. ${plural(SG.length, 'slot')} left` : 'All slots handled'); const nb = $('.ecx-e.sug [data-sg="book"]', cgrid); if (nb) nb.focus({ preventScroll:true }); }
 
   /* ---------- Pipeline: the Kanban board ---------- */
@@ -971,27 +1177,38 @@
   const say = t => { live.textContent = ''; setTimeout(() => live.textContent = t, 40); };
   const CLOSES = [['any', 'Any time'], ['month', 'This month'], ['quarter', 'This quarter'], ['overdue', 'Date passed']];
   const dshows = d => (!K.own.size || K.own.has(d.own)) && (!K.q || (d.n + ' ' + coOf(d.co).n + ' ' + d.id).toLowerCase().includes(K.q.toLowerCase()))
-    && (K.close === 'any' || (K.close === 'overdue' ? slipping(d) : d.st !== 'won' && d.close >= 0 && d.close <= (K.close === 'month' ? eom : eoq)));
+    && (K.close === 'any' || (K.close === 'overdue' ? slipping(d) : !closed(d) && d.close >= 0 && d.close <= (K.close === 'month' ? eom : eoq)));
   $('.kbx-fp', kb).innerHTML = OWN.map(o => `<button aria-pressed="false" data-who="${o}" aria-label="${P[o][0]}" data-tip="${P[o][0]}">${av(o)}</button>`).join('');
-  $('.kbx-tabs', kb).innerHTML = STAGES.map(s => `<button aria-pressed="${s.k === K.tab}" data-v="${s.k}">${s.k === 'won' ? 'Won' : s.t}<span class="n num"></span></button>`).join('');
+  $('.kbx-tabs', kb).innerHTML = STAGES.map(s => `<button aria-pressed="${s.k === K.tab}" data-v="${s.k}">${s.k === 'won' ? 'Won' : s.k === 'lost' ? 'Lost' : s.t}<span class="n num"></span></button>`).join('');
   seg($('.kbx-tabs', kb), v => { K.tab = v; renderBoard(); });
   seg($('.kbx-vw', kb), v => { K.view = v; kb.classList.toggle('list', v === 'list'); renderBoard(); });
   cols.innerHTML = STAGES.map(s => `<div class="kbx-c" data-col="${s.k}"><div class="kbx-ch"><b>${s.t}</b><span class="n num"></span><span class="s num"></span><button class="ib crm-hide" aria-label="Hide ${s.t}" data-tip="Hide column">${I('minus', 'xs')}</button></div><div class="kbx-list" role="list" aria-label="${s.t}"></div></div>`).join('');
+  const whenOf = d => d.st === 'won' ? 'Won ' + fmtD(d.close) : d.st === 'lost' ? 'Lost ' + fmtD(d.close) : fmtD(d.close);
+  // the list: one row per deal, in the columns of the list's header
+  const listRow = d => { const c = coOf(d.co), late = slipping(d);
+    return `<div class="kbx-k crm-lr${d.st === 'won' ? ' won' : ''}${d.st === 'lost' ? ' lost' : ''}${sheetFor === d.co ? ' open' : ''}" data-id="${d.id}" role="listitem" tabindex="-1" aria-label="${esc(d.n)}, ${esc(c.n)}, ${money(d.v)}, ${ST[d.st].t}${late ? ', past its close date' : ''}">`
+      + `<span class="kbx-id num">${d.id}</span><span class="t">${esc(d.n)}</span><span class="co"><span class="pfm-lg xs" aria-hidden="true">${esc(c.n[0])}</span><span>${esc(c.n)}</span></span>`
+      + `<span class="ow">${av(d.own)}<span>${esc(first(d.own))}</span></span><span class="cl num${late ? ' late' : ''}">${whenOf(d)}</span><span class="pr num">${closed(d) ? '' : d.p + '%'}</span><span class="v num">${money(d.v)}</span>`
+      + `<button class="kbx-mv" data-pop="#crm-p-mv" data-pop-align="end" aria-haspopup="menu" aria-label="Move ${esc(d.n)}" data-tip="Move to" tabindex="-1">${I('more', 'xs')}</button></div>`; };
   const card = d => { const c = coOf(d.co), late = slipping(d);
-    return `<div class="kbx-k${d.st === 'won' ? ' won' : ''}${sheetFor === d.co ? ' open' : ''}" data-id="${d.id}" role="listitem" tabindex="-1" aria-label="${esc(d.n)}, ${esc(c.n)}, ${money(d.v)}, ${ST[d.st].t}${late ? ', past its close date' : ''}">`
+    if (K.view === 'list') return listRow(d);
+    return `<div class="kbx-k${d.st === 'won' ? ' won' : ''}${d.st === 'lost' ? ' lost' : ''}${sheetFor === d.co ? ' open' : ''}" data-id="${d.id}" role="listitem" tabindex="-1" aria-label="${esc(d.n)}, ${esc(c.n)}, ${money(d.v)}, ${ST[d.st].t}${late ? ', past its close date' : ''}">`
       + `<div class="kbx-k1"><span class="kbx-id num">${d.id}</span><span class="kbx-sp"></span><span class="kbx-who" data-tip="${P[d.own][0]}">${av(d.own)}</span><button class="kbx-mv" data-pop="#crm-p-mv" data-pop-align="end" aria-haspopup="menu" aria-label="Move ${esc(d.n)}" data-tip="Move to" tabindex="-1">${I('more', 'xs')}</button></div>`
       + `<div class="t">${esc(d.n)}</div>`
       + `<div class="kbx-m"><span class="kbx-mt co"><span class="pfm-lg xs" aria-hidden="true">${esc(c.n[0])}</span>${esc(c.n)}</span><span class="kbx-mt v num">${money(d.v)}</span>`
-      + `<span class="kbx-mt num${late ? ' late' : ''}">${I(late ? 'alert' : 'cal', 'xs')}${d.st === 'won' ? 'Won ' + fmtD(d.close) : fmtD(d.close)}</span>${d.st !== 'won' ? `<span class="kbx-mt num">${d.p}%</span>` : ''}</div></div>`; };
+      + `<span class="kbx-mt num${late ? ' late' : ''}">${I(late ? 'alert' : 'cal', 'xs')}${whenOf(d)}</span>${closed(d) ? '' : `<span class="kbx-mt num">${d.p}%</span>`}</div>${d.st === 'lost' && d.why ? `<div class="crm-why">${esc(d.why)}</div>` : ''}</div>`; };
   let kFocus = null;
   function renderBoard(){
-    const open = DE.filter(d => d.st !== 'won');
-    $('.crm-kbsum', kb).textContent = `${open.length} open, ${kmoney(sum(open, d => d.v))}`;
     const filtering = K.own.size || K.q || K.close !== 'any';
+    const vis = DE.filter(d => !K.shut.has(d.st) && dshows(d)), vo = vis.filter(d => !closed(d)), vw = vis.filter(d => d.st === 'won'), vl = vis.filter(d => d.st === 'lost');
+    K.sum = [`${vo.length} open · ${kmoney(sum(vo, d => d.v))}`, vw.length && `${vw.length} won`, vl.length && `${vl.length} lost`].filter(Boolean).join(' · ');
+    $('.crm-kbsum', kb).textContent = K.sum;
+    // the list's column headers, once, over the stage groups
+    $('.crm-lhd', kb).hidden = K.view !== 'list';
     let shown = 0;
     STAGES.forEach(s => {
-      const col = $(`.kbx-c[data-col="${s.k}"]`, cols), L = DE.filter(d => d.st === s.k && dshows(d)).sort((a, b) => (s.k === 'won' ? b.close - a.close : a.close - b.close) || b.v - a.v);
-      shown += L.length;
+      const col = $(`.kbx-c[data-col="${s.k}"]`, cols), L = DE.filter(d => d.st === s.k && dshows(d)).sort((a, b) => (closed({ st:s.k }) ? b.close - a.close : a.close - b.close) || b.v - a.v);
+      if (!K.shut.has(s.k)) shown += L.length;
       $('.kbx-list', col).innerHTML = L.map(card).join('') || (filtering ? '' : '<div class="kbx-none">No deals</div>');
       $('.kbx-ch .n', col).textContent = L.length; $('.kbx-ch .s', col).textContent = kmoney(sum(L, d => d.v));
       col.classList.toggle('gone', K.shut.has(s.k)); col.classList.toggle('on', K.tab === s.k); col._sum = [L.length, kmoney(sum(L, d => d.v))];
@@ -1005,12 +1222,14 @@
       return `<button class="chip sm crm-dk" data-col="${s.k}" aria-label="Show ${s.t}, ${plural(n, 'deal')}, ${v}" data-tip="Show column, or drop a deal here"><span class="v">${s.t}</span><span class="k num">${n} · ${v}</span>${I('plus', 'xs')}</button>`; }).join('');
     $$('.crm-dk', dock).forEach(b => { if (!had.has(b.dataset.col)) enter(b); });
     $('.kbx-em', kb).hidden = shown > 0 || !filtering;
-    $('.kbx-cnt', kb).textContent = filtering ? `${shown} of ${DE.length} deals` : `${DE.length} deals`;
+    const onBoard = DE.filter(d => !K.shut.has(d.st)).length;
+    $('.kbx-cnt', kb).textContent = filtering ? `${shown} of ${onBoard} deals shown` : `${onBoard} deals shown${onBoard < DE.length ? `, ${DE.length - onBoard} in hidden stages` : ''}`;
     $$('.kbx-fp button', kb).forEach(b => b.setAttribute('aria-pressed', K.own.has(b.dataset.who)));
     $('.kbx-fp', kb).classList.toggle('some', K.own.size > 0);
     const cb = $('[data-f="close"]', kb); $('.v', cb).textContent = CLOSES.find(x => x[0] === K.close)[1]; cb.classList.toggle('on', K.close !== 'any');
     $('.kbx-clr', kb).hidden = !filtering;
     const ks = $$('.kbx-k', cols), keep = ks.find(k => k.dataset.id === kFocus) || ks[0]; if (keep) keep.tabIndex = 0;
+    if (view === 'pipeline') counts();
   }
   $('.crm-dock', kb).addEventListener('click', e => { const b = e.target.closest('.crm-dk'); if (!b || dragged) return; const k = b.dataset.col; K.shut.delete(k); renderBoard();
     const col = $(`.kbx-c[data-col="${k}"]`, cols); enter(col); col.scrollIntoView({ block:'nearest', inline:'nearest', behavior:REDUCE ? 'auto' : 'smooth' });
@@ -1061,7 +1280,7 @@
     const at2 = (x, y) => { const t = document.elementFromPoint(x, y); return t && t.closest('.crm-kb .kbx-c, .crm-kb .crm-dk'); };
     const move = ev => {
       if (!moved && Math.hypot(ev.clientX - e.clientX, ev.clientY - e.clientY) < 5) return;
-      if (!moved){ moved = true; gh = el.cloneNode(true); gh.classList.add('ghost'); gh.classList.remove('open'); gh.removeAttribute('tabindex'); gh.style.width = rc.width + 'px'; app.appendChild(gh); el.classList.add('drag'); closeSheet(); }
+      if (!moved){ moved = true; gh = el.cloneNode(true); gh.classList.add('ghost'); gh.classList.remove('open'); gh.removeAttribute('tabindex'); gh.setAttribute('aria-hidden', 'true'); gh.style.width = rc.width + 'px'; gh.style.height = rc.height + 'px'; gh.style.boxSizing = 'border-box'; $('.kbx-bd', kb).appendChild(gh); el.classList.add('drag'); closeSheet(); }
       gh.style.left = ev.clientX - ox + 'px'; gh.style.top = ev.clientY - oy + 'px'; lx = ev.clientX;
       const c = at2(ev.clientX, ev.clientY); if (c !== over){ if (over) over.classList.remove('over'); over = c; if (over && over.dataset.col !== d.st) over.classList.add('over'); }
       // near the board's edges it scrolls sideways
@@ -1079,7 +1298,7 @@
 
   /* ---------- Forecast: the chart components, worked out from the deals ---------- */
   const fc = $('.crm-fc', app);
-  const Q3 = { pipe:3920000, weighted:1880000, avg:96000 };
+  const Q3 = { pipe:3920000, weighted:1880000, avg:131000 };
   const Q3W = [110, 260, 400, 540, 690, 840, 960, 1060, 1150, 1240, 1310, 1370, 1420].map(x => x * 1000);
   // every closed-won deal of the quarter with the day it closed (days from today): the same deals as the board's Closed won column
   const wonQ = () => DE.filter(d => d.st === 'won' && d.close >= -qDay);
@@ -1092,12 +1311,12 @@
   const lineOn = [true, true];
   let shownLine = null;
   function renderForecast(){
-    const open = DE.filter(d => d.st !== 'won'), pipe = sum(open, d => d.v), weighted = sum(open, d => d.v * d.p / 100), won = wonOf(OWN), avg = open.length ? pipe / open.length : 0;
+    const open = DE.filter(d => !closed(d)), pipe = sum(open, d => d.v), weighted = sum(open, d => d.v * d.p / 100), won = wonOf(OWN), avg = open.length ? pipe / open.length : 0;
     // the cumulative won by week, this quarter so far
     const EV = wonEvents(), A = Array.from({ length:WK + 1 }, (_, i) => sum(EV.filter(e => Math.floor((e.at + qDay) / 7) <= i), e => e.v));
-    const S = [['chart', 'Open pipeline', pipe, Q3.pipe, [3.4, 3.6, 3.5, 3.8, 3.9, 4.0, pipe / 1e6], 'Compared with the end of Q3'], ['target', 'Weighted forecast', weighted, Q3.weighted, [1.5, 1.6, 1.7, 1.65, 1.8, 1.9, weighted / 1e6], 'Compared with the end of Q3'],
-      ['ok', 'Closed won, Q4', won, Q3W[WK], A.map(v => v / 1e6), `Compared with week ${WK + 1} of Q3`], ['coins', 'Average open deal', avg, Q3.avg, [88, 91, 90, 94, 95, 97, avg / 1e3], 'Compared with the end of Q3']];
-    $('.scx-grid', fc).innerHTML = S.map((s, i) => `<div class="scx-c panel" data-tip="${s[5]}"><span class="scx-k"><span class="ic">${I(s[0], 'xs')}</span>${s[1]}</span><div class="scx-v"><b class="num">${kmoney(s[2])}</b>${delta(s[2], s[3])}</div><div class="scx-sp"><svg viewBox="0 0 100 30" preserveAspectRatio="none" aria-hidden="true"><path stroke="var(--dm-c${i + 1})" d="${sparkPath(s[4])}"/></svg></div></div>`).join('');
+    const S = [['chart', 'Open pipeline', pipe, Q3.pipe, [3.4, 3.6, 3.5, 3.8, 3.9, 4.0, pipe / 1e6], 'vs end of Q3'], ['target', 'Weighted forecast', weighted, Q3.weighted, [1.5, 1.6, 1.7, 1.65, 1.8, 1.9, weighted / 1e6], 'vs end of Q3'],
+      ['ok', 'Closed won, Q4', won, Q3W[WK], A.map(v => v / 1e6), `vs week ${WK + 1} of Q3`], ['coins', 'Average open deal', avg, Q3.avg, [138, 136, 133, 130, 128, 126, avg / 1e3], 'vs end of Q3']];
+    $('.scx-grid', fc).innerHTML = S.map((s, i) => `<div class="scx-c panel"><span class="scx-k"><span class="ic">${I(s[0], 'xs')}</span>${s[1]}</span><div class="scx-v"><b class="num">${kmoney(s[2])}</b>${delta(s[2], s[3])}<span class="crm-vs">${s[5]}</span></div><div class="scx-sp"><svg viewBox="0 0 100 30" preserveAspectRatio="none" aria-hidden="true"><path stroke="var(--dm-c${i + 1})" d="${sparkPath(s[4])}"/></svg></div></div>`).join('');
     // the line chart: closed won by week, this quarter against last
     const hi = Math.max(Q3W[12], won) * 1.08, X = i => i / 12 * 320, Y = v => 136 - v / hi * 128;
     const smooth = p => p.map((q, i) => { if (!i) return `M${q[0]} ${q[1]}`; const a = p[i - 1], m = (q[0] - a[0]) / 2; return `C${a[0] + m} ${a[1]} ${q[0] - m} ${q[1]} ${q[0]} ${q[1]}`; }).join(' ');
@@ -1131,16 +1350,19 @@
     const lg = $('.rgx-lg', fc), pc = x => Math.round(x * 100) + '%';
     lg.innerHTML = TEAMS.map((t, i) => `<div class="rgx-r" data-i="${i}" tabindex="0" aria-label="${t.t}: ${kmoney(wonOf(t.who))} won, ${pc(share(t))} of a ${kmoney(t.quota)} quota, ${kmoney(commitOf(t.who))} more in commit" data-tip="${kmoney(commitOf(t.who))} more in commit"><i style="background:${CS[i]}"></i><span class="n">${t.t}</span><span class="p num">${share(t) >= 1 ? `<span class="tag ok">${pc(share(t))}</span>` : pc(share(t))}</span><span class="v num">${kmoney(wonOf(t.who))} won of ${kmoney(t.quota)}</span></div>`).join('');
     const all = sum(TEAMS, t => wonOf(t.who)) / sum(TEAMS, t => t.quota), cb = $('.rgx-c b', fc), cl = $('.rgx-c .muted', fc);
-    const centreOn = i => { const ring = $('.rgx-ring', fc); ring.classList.toggle('hov', i >= 0); $$('g', rsvg).forEach((g, k) => g.classList.toggle('on', k === i)); $$('.rgx-r', lg).forEach((r, k) => r.classList.toggle('on', k === i)); cb.textContent = pc(i < 0 ? all : share(TEAMS[i])); cl.textContent = i < 0 ? 'of quota won' : TEAMS[i].t; };
+    const centreOn = i => { const ring = $('.rgx-ring', fc); ring.classList.toggle('hov', i >= 0); $$('g', rsvg).forEach((g, k) => g.classList.toggle('on', k === i)); $$('.rgx-r', lg).forEach((r, k) => r.classList.toggle('on', k === i)); cb.textContent = pc(i < 0 ? all : share(TEAMS[i])); cl.textContent = 'won'; };
+    // the centre holds the percentage and one short word; the team being read is the legend row's highlight
     centreOn(-1);
     $$('.rgx-r', lg).forEach((r, i) => { r.onpointerenter = r.onfocus = () => centreOn(i); r.onpointerleave = r.onblur = () => centreOn(-1); });
-    // funnel: how many deals reached each stage
-    const reach = STAGES.map(s => DE.filter(d => ST[d.st].i >= ST[s.k].i).length);
+    // funnel: how many deals reached each stage, every deal at the furthest stage it got to (a lost deal where it was lost)
+    const FS = STAGES.filter(s => s.k !== 'lost'), fur = d => d.st === 'lost' ? ST[d.at || 'disc'].i : ST[d.st].i;
+    const reach = FS.map(s => DE.filter(d => fur(d) >= ST[s.k].i).length);
     let worst = 1; reach.forEach((n, i) => { if (i && n / reach[i - 1] < reach[worst] / reach[worst - 1]) worst = i; });
-    $('.crm-fnn', fc).textContent = `${DE.length} deals`;
-    $('.fnx-rows', fc).innerHTML = STAGES.map((s, i) => { const w = Math.max(6, reach[i] / (reach[0] || 1) * 100);
+    $('.crm-fnn', fc).textContent = `${DE.length} deals, by furthest stage`;
+    $('.fnx-rows', fc).innerHTML = FS.map((s, i) => { const w = Math.max(6, reach[i] / (reach[0] || 1) * 100);
       return `<div class="fnx-r${i === worst ? ' drop' : ''}" style="--dm-fc:color-mix(in oklab,var(--dm-c1) ${100 - i * 25}%,var(--dm-c2))"><span class="k">${s.k === 'won' ? 'Won' : s.t}</span><div class="tr" data-tip="${i ? Math.round(reach[i] / reach[0] * 100) + '% of all deals' : 'Every deal starts here'}"><div class="bar" style="width:${w}%"></div><span class="n num${w < 24 ? ' out' : ''}" style="left:${w < 24 ? `calc(${w}% + 8px)` : '10px'}">${reach[i]}</span></div><span class="v num">${i ? '−' + Math.round((1 - reach[i] / (reach[i - 1] || 1)) * 100) + '%' : '100%'}</span></div>`; }).join('');
-    $('.fnx-t', fc).textContent = `The biggest drop is from ${STAGES[worst - 1].t.toLowerCase()} to ${STAGES[worst].t.toLowerCase()}: ${Math.round((1 - reach[worst] / reach[worst - 1]) * 100)}% of deals stop there.`;
+    const held = DE.filter(d => fur(d) === worst - 1), lostThere = held.filter(d => d.st === 'lost').length;
+    $('.fnx-t', fc).textContent = `The biggest drop is from ${FS[worst - 1].t.toLowerCase()} to ${FS[worst].t.toLowerCase()}: ${Math.round((1 - reach[worst] / reach[worst - 1]) * 100)}% of the deals that reached ${FS[worst - 1].t.toLowerCase()} got no further, ${held.length - lostThere} still open there and ${lostThere} lost.`;
     // Activity heatmap: the team's calls, meetings and emails by weekday over the last 12 weeks, the same touches as the
     // accounts' activity, or the follow-ups the agent drafted
     renderHeat();
@@ -1156,9 +1378,9 @@
     // a week's touches: every account's activity for that week; the agent's drafts follow the accounts that went quiet
     const wkv = w => hmWho === 'team' ? sum(CO, c => c.trend[w]) : sum(CO, c => c.trend[w] === 0 ? 2 : c.trend[w] < 3 ? 1 : 0) + 3;
     const V = []; for (let d = 0; d < 5; d++) for (let w = 0; w < 12; w++) V.push(Math.round(wkv(w) * DAYW[d] * (1 + Math.sin(d * 5.3 + w * 2.1) * .18)));
-    const mx = Math.max(...V), cells = $$('i', hmg), tot = sum(V);
+    const mx = Math.max(...V), mn = Math.min(...V), cells = $$('i', hmg), tot = sum(V);
     cells.forEach((el, i) => { const d = Math.floor(i / 12), w = i % 12, v = V[i], monday = -((today.getDay() + 6) % 7) - (11 - w) * 7;
-      const set = () => el.style.setProperty('--dm-a', (v / mx * .9).toFixed(2));
+      const set = () => el.style.setProperty('--dm-a', (.08 + (v - mn) / ((mx - mn) || 1) * .87).toFixed(2));
       if (REDUCE || hmShown) set(); else setTimeout(set, (w + d) * 18);
       el.dataset.tip = `${WD[d]}, week of ${fmtD(monday)}: ${v} ${hmWho === 'team' ? (v === 1 ? 'touch' : 'calls, meetings and emails') : (v === 1 ? 'follow-up drafted' : 'follow-ups drafted')}`; });
     hmShown = true;
@@ -1189,7 +1411,7 @@
   }
   function counts(){
     const set = (k, v) => $$(`[data-count="${k}"]`, app).forEach(x => x.textContent = v);
-    const open = DE.filter(d => d.st !== 'won'), pipe = sum(open, d => d.v), slip = open.filter(slipping).length, w = waiting();
+    const open = DE.filter(d => !closed(d)), pipe = sum(open, d => d.v), slip = open.filter(slipping).length, w = waiting();
     set('accounts', CO.length); set('deals', open.length); set('meetings', meetingsIn(0).length);
     set('inbox', w.length || ''); $('.crm-wait', app).hidden = !w.length;
     Object.keys(SAVED).forEach(k => set(k, savedCount(k)));
@@ -1200,13 +1422,13 @@
       accounts:[`${plural(CO.length, 'account')} · ${kmoney(pipe)} open · ${slip} slipping`, `${plural(CO.length, 'account')} · ${kmoney(pipe)} · ${slip} slipping`],
       inbox:w.length ? [[`${w.length} waiting`, cnt('follow') && plural(cnt('follow'), 'follow-up'), cnt('slip') && `${cnt('slip')} past close`, cnt('fix') && plural(cnt('fix'), 'data fix', 'data fixes')].filter(Boolean).join(' · '), `${w.length} waiting for you`] : ['Nothing waiting', 'Nothing waiting'],
       calendar:[`${weekLabel().replace(/, \d{4}$/, '')} · ${plural(meetingsIn().length, 'meeting')} · ${closingIn()} closing`, `${plural(meetingsIn().length, 'meeting')} · ${closingIn()} closing`],
-      pipeline:[`${plural(open.length, 'open deal')} · ${kmoney(pipe)} open · ${kmoney(sum(open, d => d.v * d.p / 100))} weighted`, `${plural(open.length, 'open deal')} · ${kmoney(pipe)}`],
+      pipeline:[(K.own.size || K.q || K.close !== 'any' ? 'Shown: ' : '') + (K.sum || '').replace(/^(\d+) open · (\$[\d.]+[kM]?)/, (m, n, v) => `${plural(+n, 'open deal')} · ${v} open`), K.sum || ''],
       forecast:[`Q${Math.floor(today.getMonth() / 3) + 1} ${today.getFullYear()} · week ${clamp(WK + 1, 1, 13)} of 13 · ${kmoney(wonOf(OWN))} closed won`, `Week ${clamp(WK + 1, 1, 13)} of 13 · ${kmoney(wonOf(OWN))} won`],
     };
     swap($('.crm-sum', app), `<span class="lg">${S[view][0]}</span><span class="sh">${S[view][1]}</span>`, true);
     navCurrent();
   }
-  const closingIn = () => { const [a, b] = weekOf(); return DE.filter(d => d.st !== 'won' && d.close >= a && d.close <= b).length; };
+  const closingIn = () => { const [a, b] = weekOf(); return DE.filter(d => !closed(d) && d.close >= a && d.close <= b).length; };
   app.addEventListener('click', e => {
     const b = e.target.closest('.crm-side button'); if (!b) return;
     if (b.dataset.go){ if (b.dataset.go === 'accounts' && savedOn()){ F.A = []; said(''); renderTable(); } setView(b.dataset.go); }
@@ -1226,10 +1448,13 @@
   $('.crm-shade', app).onclick = () => closeSheet();
 
   /* ---------- notifications: Notifications ---------- */
+  const ago = n => n >= 0 ? 'Today' : n === -1 ? 'Yesterday' : `${-n} days ago`;
+  const lastWin = DE.filter(d => d.st === 'won' && RAW.some(r => r[0] === coOf(d.co).n && r[7].some(x => x[0] === d.n))).sort((a, b) => b.close - a.close)[0];
+  const tideR = DE.find(d => coOf(d.co).n === 'Tidewell Energy' && d.n === 'Renewal');
   const NT = [
-    { k:'deal', ic:'ok', col:'var(--dm-ok)', co:'Kestrel Robotics', t:'<b>Kestrel Robotics</b> passed its security review. $60,000 closed won', w:'12 min ago' },
+    { k:'deal', ic:'ok', col:'var(--dm-ok)', co:coOf(lastWin.co).n, t:`<b>${esc(coOf(lastWin.co).n)}</b> closed won: ${esc(lastWin.n)}, ${money(lastWin.v)}`, w:ago(lastWin.close) },
     { k:'men', av:'MK', co:'Halcyon Labs', t:'<b>Maya Kim</b> mentioned you on Halcyon Labs: "Can you join the pricing call?"', w:'40 min ago' },
-    { k:'deal', ic:'alert', col:'var(--dm-warn)', co:'Tidewell Energy', t:'<b>Tidewell Energy</b> renewal is past its close date', w:'2 hours ago' },
+    { k:'deal', ic:'alert', col:'var(--dm-warn)', co:'Tidewell Energy', t:`<b>Tidewell Energy</b> renewal passed its close date, ${fmtD(tideR.close)}`, w:ago(tideR.close) },
     { k:'men', av:'TR', co:'Granite Peak Systems', t:'<b>Theo Reed</b> asked you to review the Granite Peak proposal', w:'Yesterday' },
     { k:'deal', ic:'chart', col:'var(--dm-pb)', co:'Orchard Street Bank', t:'<b>Orchard Street Bank</b> moved to Negotiation', w:'Yesterday', read:true },
   ];
@@ -1292,17 +1517,18 @@
   /* ---------- Add account: Form ---------- */
   const nd = $('.crm-newd', app), form = $('form', nd), nin = $('[name="n"]', form), vin = $('[name="v"]', form);
   const SEGS = ['Enterprise', 'Mid-market', 'SMB', 'Strategic'];
-  let nseg = 'Mid-market', nown = 'JO', nback = null;
+  let nseg = null, nown = null, nback = null;
   const [segBox, ownBox] = $$('.fmx-ty', form);
   const paintPick = () => {
-    segBox.innerHTML = SEGS.map(s => `<button type="button" class="chip sm${s === nseg ? ' on' : ''}" role="radio" aria-checked="${s === nseg}" tabindex="${s === nseg ? 0 : -1}" data-v="${s}">${s}</button>`).join('');
-    ownBox.innerHTML = OWN.slice(0, 6).map(o => `<button type="button" class="chip sm${o === nown ? ' on' : ''}" role="radio" aria-checked="${o === nown}" tabindex="${o === nown ? 0 : -1}" data-v="${o}">${av(o)}${first(o)}</button>`).join('');
+    // with nothing picked yet, the first chip is the radio group's Tab stop
+    segBox.innerHTML = SEGS.map((s, i) => `<button type="button" class="chip sm${s === nseg ? ' on' : ''}" role="radio" aria-checked="${s === nseg}" tabindex="${s === nseg || (!nseg && !i) ? 0 : -1}" data-v="${s}">${s}</button>`).join('');
+    ownBox.innerHTML = OWN.map((o, i) => `<button type="button" class="chip sm${o === nown ? ' on' : ''}" role="radio" aria-checked="${o === nown}" tabindex="${o === nown || (!nown && !i) ? 0 : -1}" data-v="${o}">${av(o)}${first(o)}</button>`).join('');
   };
   [segBox, ownBox].forEach((box, k) => {
-    box.addEventListener('click', e => { const b = e.target.closest('.chip'); if (!b) return; k ? nown = b.dataset.v : nseg = b.dataset.v; paintPick(); $$('.chip', box).find(x => x.dataset.v === b.dataset.v).focus(); });
-    box.addEventListener('keydown', e => { const d = e.key === 'ArrowRight' || e.key === 'ArrowDown' ? 1 : e.key === 'ArrowLeft' || e.key === 'ArrowUp' ? -1 : 0; if (!d) return; e.preventDefault(); const bs = $$('.chip', box), i = bs.findIndex(b => b.getAttribute('aria-checked') === 'true'); bs[(i + d + bs.length) % bs.length].click(); });
+    box.addEventListener('click', e => { const b = e.target.closest('.chip'); if (!b) return; k ? nown = b.dataset.v : nseg = b.dataset.v; const fx = box.closest('.fmx-f'); fx.classList.remove('bad'); $('.er', fx)?.remove(); paintPick(); $$('.chip', box).find(x => x.dataset.v === b.dataset.v).focus(); });
+    box.addEventListener('keydown', e => { const d = e.key === 'ArrowRight' || e.key === 'ArrowDown' ? 1 : e.key === 'ArrowLeft' || e.key === 'ArrowUp' ? -1 : 0; if (!d) return; e.preventDefault(); const bs = $$('.chip', box), i = Math.max(-1, bs.findIndex(b => b.getAttribute('aria-checked') === 'true')); bs[((i < 0 && d < 0 ? 0 : i) + d + bs.length) % bs.length].click(); });
   });
-  function newAccount(){ unfade(nd); nback = document.activeElement; nd.hidden = false; form.reset(); $$('.fmx-f', form).forEach(f => { f.classList.remove('bad'); $('.er', f)?.remove(); }); paintPick(); drawer(false); setTimeout(() => nin.focus(), 30); }
+  function newAccount(){ unfade(nd); nback = document.activeElement; nd.hidden = false; form.reset(); nseg = nown = null; $$('.fmx-f', form).forEach(f => { f.classList.remove('bad'); $('.er', f)?.remove(); }); paintPick(); drawer(false); setTimeout(() => nin.focus(), 30); }
   const closeNew = () => { if (nd.hidden || nd._closing) return; fadeOut(nd); if (nback && nback.isConnected) nback.focus({ preventScroll:true }); };
   $('.crm-new', app).onclick = newAccount;
   $('.crm-newx', form).onclick = closeNew;
@@ -1311,10 +1537,14 @@
   form.addEventListener('submit', e => {
     e.preventDefault();
     const name = nin.value.trim(), f = nin.closest('.fmx-f');
-    $('.er', f)?.remove(); f.classList.toggle('bad', !name);
+    $$('.fmx-f', form).forEach(x => { x.classList.remove('bad'); $('.er', x)?.remove(); }); f.classList.toggle('bad', !name);
     if (!name){ f.insertAdjacentHTML('beforeend', '<span class="er">Give the account a name</span>'); nin.setAttribute('aria-invalid', 'true'); nin.focus(); return; }
     if (CO.some(c => c.n.toLowerCase() === name.toLowerCase())){ f.classList.add('bad'); f.insertAdjacentHTML('beforeend', `<span class="er">${esc(name)} is already an account</span>`); nin.focus(); return; }
     nin.removeAttribute('aria-invalid');
+    // a segment and an owner are picked, never assumed
+    const need = [[segBox, nseg, 'Pick a segment'], [ownBox, nown, 'Pick an owner']].filter(x => !x[1]);
+    need.forEach(([box, , msg]) => { const fx = box.closest('.fmx-f'); fx.classList.add('bad'); fx.insertAdjacentHTML('beforeend', `<span class="er">${msg}</span>`); });
+    if (need.length){ $('.chip', need[0][0]).focus(); return; }
     let v = +vin.value.replace(/[^\d.]/g, '') || 25000; if (v < 1000) v *= 1000;
     const i = nid, c = { id:'c' + (nid++), n:name, seg:nseg, tags:['First deal'], own:nown, reg:'na', last:0, lt:'Discovery', trend:[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], log:[['Discovery', 0, 'Account added by Nina Cole', 'Nina Cole']], ppl:peopleOf(i), i, base:[] };
     CO.push(c); const d = { id:'DL-' + (did++), co:c.id, n:'First contract', st:'disc', v, close:toWork(60), adj:0, own:nown }; d.p = probOf(d); DE.push(d);
@@ -1331,6 +1561,7 @@
       if ($('.pop.open', app) || e.target.closest?.('.crm-ta') || (e.target === ask && ask.value)) return;
       if (!over.hidden && !over._closing){ e.preventDefault(); closeCmd(); return; }
       if (!nd.hidden && !nd._closing){ e.preventDefault(); closeNew(); return; }
+      if (!dlw.hidden && !dlw._closing){ e.preventDefault(); closeDel(); return; }
       if (popFor){ e.preventDefault(); closeCalPop(); return; }
       if (ibv.classList.contains('pv')){ pvOpen(false); $(`[data-ib="${ibSel}"] .crm-it`, igs)?.focus({ preventScroll:true }); return; }
       if (app.classList.contains('dr')){ drawer(false); $('.crm-menu', app).focus(); return; }
@@ -1338,6 +1569,16 @@
       if (SG.length && view === 'calendar'){ SG = []; renderCal(); swap(cmsg, ''); return; }
       if (sel.size && view === 'accounts'){ sel.clear(); syncSel(); }
       return;
+    }
+    // Tab stays inside what covers the screen: the drawer, a phone's sheet or preview, the delete question, Add account
+    if (e.key === 'Tab'){
+      const box = !dlw.hidden && !dlw._closing ? dlg : !nd.hidden && !nd._closing ? form : app.classList.contains('dr') ? $('.crm-side', app)
+        : sheetFor && matchMedia('(max-width:520px)').matches ? sheet : ibv.classList.contains('pv') && phone() ? ipv : null;
+      if (box && !$('.pop.open', app)){
+        const f = $$('button,[href],input,textarea,select,[tabindex]:not([tabindex="-1"])', box).filter(x => !x.disabled && x.getClientRects().length && !x.closest('[inert],[hidden]'));
+        if (f.length){ const i = f.indexOf(document.activeElement);
+          if (e.shiftKey && i <= 0){ e.preventDefault(); f[f.length - 1].focus(); } else if (!e.shiftKey && (i === f.length - 1 || i < 0)){ e.preventDefault(); f[0].focus(); } }
+      }
     }
     const typing = e.target.closest && e.target.closest('input,textarea,[contenteditable="true"]');
     if (typing || e.metaKey || e.ctrlKey || e.altKey) return;

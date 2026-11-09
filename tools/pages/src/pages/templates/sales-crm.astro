@@ -16,14 +16,19 @@ import { ROOT, COMPONENTS } from '../../lib/data.mjs';
 // the components the screen is made of, by their registry name: each one's installed CSS is on the page
 const USES = ['agent-harness', 'task-table', 'progress', 'kanban-board', 'details-panel', 'filter-menu', 'search-input', 'form', 'toast',
   'activity-heatmap', 'notifications', 'profile-menu', 'command-palette', 'stat-cards', 'line-chart', 'radial-goals', 'funnel-chart',
-  'event-calendar', 'agent-inbox', 'health-score'];
-const css = USES.map(reg => {
+  'event-calendar', 'agent-inbox', 'health-score', 'decision-prompt', 'date-picker'];
+// the screen's type scale: five sizes from the library's own (11, 12, 13, 14 and the 16px title), nothing under 11px. Every
+// component's text snaps to the nearest step at or below it; a display number (Health score's score, Stat cards' values) keeps
+// its size
+const SCALE = v => v >= 15 ? v : v >= 13.75 ? 14 : v >= 12.75 ? 13 : v >= 11.75 ? 12 : 11;
+const snap = t => t.replace(/font-size:\s*([\d.]+)px/g, (m, v) => 'font-size:' + SCALE(+v) + 'px');
+const css = snap(USES.map(reg => {
   const c = COMPONENTS.find(x => x.reg === reg);
   if (!c) throw new Error('sales-crm: no component called ' + reg);
   return `/* ${c.title} */\n` + c.html.css;
-}).join('\n');
+}).join('\n'));
 const DIR = path.join(ROOT, 'tools/pages/src/templates/sales-crm');
-const APP_CSS = fs.readFileSync(path.join(DIR, 'crm.css'), 'utf8');
+const APP_CSS = snap(fs.readFileSync(path.join(DIR, 'crm.css'), 'utf8'));
 const APP_JS = fs.readFileSync(path.join(DIR, 'crm.js'), 'utf8');
 const title = 'Sales CRM template made of designme.dev components | Designme.dev';
 const description = 'A sales CRM with an agent beside the rep, built from designme.dev components: accounts with next steps and health, an agent inbox, a calendar, a deals board and a forecast, in Soft and Blueprint, light and dark.';
@@ -131,7 +136,7 @@ const I = (n, c = 's') => `<svg class="i ${c}" aria-hidden="true"><use href="#i-
           <div class="kbx-hd"><div class="kbx-ti"><b>Open deals by stage</b><span class="num crm-kbsum"></span></div><div class="kbx-fp" role="group" aria-label="Filter by owner"></div><span class="kbx-sp"></span><label class="kbx-q"><Fragment set:html={I('search', 'xs')} /><input type="search" placeholder="Search deals" aria-label="Search deals" autocomplete="off"><button class="ib kbx-qx" aria-label="Clear the search" hidden><Fragment set:html={I('x', 'xs')} /></button></label><div class="seg2 kbx-vw" role="group" aria-label="Layout"><button aria-pressed="true" data-v="board"><Fragment set:html={I('grid', 'xs')} /><span class="lb">Board</span></button><button aria-pressed="false" data-v="list"><Fragment set:html={I('list', 'xs')} /><span class="lb">List</span></button></div></div>
           <div class="kbx-fl"><button class="chip sm kbx-f" data-pop="#crm-p-close" aria-haspopup="menu" data-f="close"><span class="k">Closes</span><span class="v"></span><Fragment set:html={I('chev-d', 'xs')} /></button><button class="pill ghost sm kbx-clr" hidden>Clear</button><div class="crm-dock" role="group" aria-label="Hidden stages" hidden><span class="crm-dkl">Hidden</span><div class="crm-dks"></div></div><span class="kbx-sp"></span><span class="kbx-cnt num"></span></div>
           <div class="kbx-bar"><div class="seg2 kbx-tabs" role="group" aria-label="Stage"></div></div>
-          <div class="kbx-bd"><div class="kbx-cols"></div><div class="kbx-em" hidden><span class="ic"><Fragment set:html={I('filter')} /></span><b>No deals match</b><span>Try another owner, date or search.</span><button class="pill line sm crm-kbclr">Clear filters</button></div></div>
+          <div class="kbx-bd"><div class="crm-lhd" role="presentation" hidden><span class="kbx-id">ID</span><span class="t">Deal</span><span class="co">Account</span><span class="ow">Owner</span><span class="cl">Closes</span><span class="pr">Win</span><span class="v">Value</span><span class="mv"></span></div><div class="kbx-cols"></div><div class="kbx-em" hidden><span class="ic"><Fragment set:html={I('filter')} /></span><b>No deals match</b><span>Try another owner, date or search.</span><button class="pill line sm crm-kbclr">Clear filters</button></div></div>
           <div class="kbx-sr" aria-live="polite"></div>
         </div>
       </section>
@@ -166,7 +171,8 @@ const I = (n, c = 's') => `<svg class="i ${c}" aria-hidden="true"><use href="#i-
       </section>
 
       <!-- the account's details: the Details panel's sections and rows, as a sheet over the right of the screen -->
-      <aside class="crm-sheet" role="dialog" aria-modal="false" aria-label="Account details" inert><div class="dtp crm-dtp"></div></aside>
+      <!-- the sheet slides inside a clipping layer, so its slide never widens the page -->
+      <div class="crm-sheetw"><aside class="crm-sheet" role="dialog" aria-modal="false" aria-label="Account details" inert><div class="dtp crm-dtp"></div></aside></div>
     </div>
     <!-- a dimmed overlay under the open sheet, over the rest of the app; a click on it closes the sheet -->
     <div class="crm-shade" aria-hidden="true"></div>
@@ -184,6 +190,10 @@ const I = (n, c = 's') => `<svg class="i ${c}" aria-hidden="true"><use href="#i-
     <div class="pop crm-pop" id="crm-p-sstage" role="menu" aria-label="Stage"></div>
     <div class="pop crm-pop" id="crm-p-ied" role="menu" aria-label="Change the suggestion"></div>
     <div class="pop crm-pop crm-acc" id="crm-p-acc" role="menu" aria-label="Account"></div>
+    <div class="pop crm-pop crm-cfm" id="crm-p-cfm" role="dialog" aria-label="Confirm"></div>
+    <div class="pop crm-pop" id="crm-p-sg" role="menu" aria-label="Proposed slot"></div>
+    <div class="pop crm-pop crm-ppk" id="crm-p-ppl" role="dialog" aria-label="Add people"><label class="crm-ppin"><svg class="i xs" aria-hidden="true"><use href="#i-search"/></svg><input class="crm-ppq" placeholder="Search people" aria-label="Search people" role="combobox" aria-expanded="true" aria-controls="crm-ppo" autocomplete="off" spellcheck="false"></label><div class="crm-ppo" id="crm-ppo" role="listbox" aria-multiselectable="true" aria-label="People"></div></div>
+    <div class="pop crm-pop dpk-pop crm-when" id="crm-p-when" role="dialog" aria-label="Date and time"></div>
     <div class="pop crm-pop" id="crm-p-cls" role="menu" aria-label="Closing that day"></div>
     <div class="pop crm-pop crm-ntf" id="crm-p-ntf" role="dialog" aria-label="Notifications"><div class="ntx"><div class="ntx-h"><b>Notifications</b><span class="ntx-ct num">0</span><span class="ntx-sp"></span><button class="pill ghost sm ntx-all">Mark all read</button></div><div class="ntx-tabs"><div class="seg2" role="group" aria-label="Show"><button aria-pressed="true" data-v="all">All</button><button aria-pressed="false" data-v="men">Mentions</button><button aria-pressed="false" data-v="deal">Deals</button></div></div><div class="ntx-list"></div></div></div>
     <div class="pop pfm-pop crm-pop" id="crm-p-me" role="menu" aria-labelledby="crm-me-n crm-me-e">
@@ -201,12 +211,15 @@ const I = (n, c = 's') => `<svg class="i ${c}" aria-hidden="true"><use href="#i-
     <!-- Add account: the Form -->
     <div class="crm-over crm-newd" hidden><form class="fmx panel" role="dialog" aria-modal="true" aria-labelledby="crm-new-h" novalidate>
       <div class="fmx-h"><b id="crm-new-h">Add account</b><button type="button" class="ib crm-newx" aria-label="Close" data-tip="Close"><Fragment set:html={I('x', 'xs')} /></button></div>
-      <label class="fmx-f"><span>Account name</span><input name="n" placeholder="Hollis & Rowe" maxlength="40" autocomplete="off"></label>
+      <label class="fmx-f"><span>Account name</span><input name="n" placeholder="e.g. Hollis & Rowe" maxlength="40" autocomplete="off" required></label>
       <div class="fmx-f"><span id="crm-new-seg">Segment</span><div class="fmx-ty" role="radiogroup" aria-labelledby="crm-new-seg"></div></div>
       <div class="fmx-f"><span id="crm-new-own">Owner</span><div class="fmx-ty" role="radiogroup" aria-labelledby="crm-new-own"></div></div>
-      <label class="fmx-f"><span>First deal value</span><input name="v" inputmode="numeric" placeholder="$40,000" autocomplete="off"></label>
-      <div class="fmx-ft"><span class="fmx-ms muted">The deal starts in Discovery</span><button class="pill primary sm fmx-go" type="submit">Add account</button></div>
+      <label class="fmx-f"><span>First deal value</span><input name="v" inputmode="numeric" placeholder="e.g. $40,000" autocomplete="off"></label>
+      <div class="fmx-ft"><span class="fmx-ms muted">The first deal starts in Discovery, at $25,000 unless you set a value</span><button class="pill primary sm fmx-go" type="submit">Add account</button></div>
     </form></div>
+
+    <!-- delete: Decision prompt's question, summary and buttons, as a dialog over the app -->
+    <div class="crm-over crm-delw" hidden><div class="dpx panel crm-dlg" role="alertdialog" aria-modal="true" aria-labelledby="crm-dlq" aria-describedby="crm-dld"></div></div>
 
     <div class="crm-toasts" aria-live="polite"></div>
   </div>
