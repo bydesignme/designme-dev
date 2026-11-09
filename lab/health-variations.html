@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en" data-style="soft">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Account health variations · Designme.dev</title>
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<script>
+/* the page opens in the style and theme the site last used */
+(function(){ var d = document.documentElement, dark = matchMedia('(prefers-color-scheme: dark)').matches, s = 'soft', t = null;
+  try { s = localStorage.getItem('dmui-style') || 'soft'; t = localStorage.getItem('dmui-theme'); } catch(e){}
+  if (s === 'soft') d.setAttribute('data-style', 'soft'); else d.removeAttribute('data-style');
+  d.setAttribute('data-theme', t === 'dark' || t === 'light' ? t : (dark ? 'dark' : 'light')); })();
+</script>
+<link rel="stylesheet" href="../components/assets/core.css">
+<style>
+/* the three variations of Progress and meter side by side: each is its own lab page, shown here in a frame without its
+   heading; one switch sets the style and theme of all three, and each has its own Replay */
+html,body{margin:0;background:var(--dm-page);color:var(--dm-fg);font-family:var(--dm-sans);-webkit-font-smoothing:antialiased}
+.cmp{max-width:1400px;margin:0 auto;padding:40px 32px 72px}
+.cmp-h{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px 24px;padding-bottom:24px;border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
+.cmp-h h1{margin:0;font-size:20px;font-weight:500;letter-spacing:-.02em}
+.cmp-h p{margin:6px 0 0;max-width:680px;font-size:14px;line-height:1.55;color:var(--dm-muted)}
+:where(.cmp) button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+.cmp-ctl{display:flex;gap:8px}
+.cmp-ctl .seg2 button{color:var(--dm-muted)}.cmp-ctl .seg2 button[aria-pressed="true"]{color:var(--dm-fg)}
+.cmp-g{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;margin-top:28px}
+@media (max-width:1180px){.cmp-g{grid-template-columns:minmax(0,1fr)}}
+.cmp-c h2{display:flex;align-items:baseline;gap:8px;margin:0;font-size:14px;font-weight:500}
+.cmp-c h2 span{font-size:12.5px;font-weight:400;color:var(--dm-muted)}
+.cmp-c p{margin:4px 0 10px;font-size:13px;line-height:1.5;color:var(--dm-muted);min-height:3em}
+.cmp-c iframe{display:block;width:100%;height:1700px;border:0;border-radius:var(--dm-r-card);background:var(--dm-stage)}
+.cmp-c a{font-size:12.5px;color:var(--dm-fg2)}
+:root:not([data-style="soft"]) :is(.cmp-c iframe,.cmp-ctl .seg2,.cmp-ctl .seg2 *){border-radius:0}
+@media (max-width:640px){.cmp{padding:28px 16px 56px}}
+</style>
+</head>
+<body>
+<main class="cmp">
+  <header class="cmp-h">
+    <div><h1>Account health: three variations</h1>
+      <p>Three ways to show an account's health in the CRM's details sheet, in place of the gauge and three bars. Each shows the same three accounts: healthy, worth watching and at risk. Hover the factors, press the agent's button, then pick one.</p></div>
+    <div class="cmp-ctl">
+      <div class="seg2" role="group" aria-label="Style"><button data-s="soft">Soft</button><button data-s="bp">Blueprint</button></div>
+      <div class="seg2" role="group" aria-label="Theme"><button data-t="light">Light</button><button data-t="dark">Dark</button></div>
+      <button class="pill line sm cmp-rp">Replay all</button>
+    </div>
+  </header>
+  <div class="cmp-g">
+    <section class="cmp-c"><h2>A <span>Verdict first</span></h2><p>A status in words and colour, one sentence on why, the agent's next step, then four quiet factor lines.</p><iframe src="health/a.html" title="Variation A, verdict first"></iframe><a href="health/a.html">Open on its own</a></section>
+    <section class="cmp-c"><h2>B <span>Factor tiles</span></h2><p>A small score ring and the verdict over a 2 by 2 grid of factor tiles, each with its figure and a tiny trend.</p><iframe src="health/b.html" title="Variation B, factor tiles"></iframe><a href="health/b.html">Open on its own</a></section>
+    <section class="cmp-c"><h2>C <span>Trend and drivers</span></h2><p>A 12-week health line you can scrub, then the reasons as plus and minus points that add up to the score.</p><iframe src="health/c.html" title="Variation C, trend and drivers"></iframe><a href="health/c.html">Open on its own</a></section>
+  </div>
+</main>
+<script>
+(() => {
+  const d = document.documentElement, frames = [...document.querySelectorAll('iframe')];
+  const state = () => ({ s:d.getAttribute('data-style') === 'soft' ? 'soft' : 'bp', t:d.getAttribute('data-theme') });
+  // each frame shows its variation without its own heading, in the style and theme chosen here
+  const dress = f => { try { const doc = f.contentDocument, { s, t } = state();
+    if (!doc.getElementById('cmp-embed')){ const st = doc.createElement('style'); st.id = 'cmp-embed';
+      st.textContent = 'header,.lab-h,.lab-ctl{display:none!important}body>main,.lab{padding:12px!important;max-width:none!important}'; doc.head.appendChild(st); }
+    const r = doc.documentElement; if (s === 'soft') r.setAttribute('data-style', 'soft'); else r.removeAttribute('data-style'); r.setAttribute('data-theme', t); } catch (e) {} };
+  frames.forEach(f => f.addEventListener('load', () => dress(f)));
+  const paint = () => { const { s, t } = state();
+    document.querySelectorAll('[data-s]').forEach(b => b.setAttribute('aria-pressed', b.dataset.s === s));
+    document.querySelectorAll('[data-t]').forEach(b => b.setAttribute('aria-pressed', b.dataset.t === t));
+    frames.forEach(dress); };
+  document.querySelectorAll('[data-s]').forEach(b => b.onclick = () => { if (b.dataset.s === 'soft') d.setAttribute('data-style', 'soft'); else d.removeAttribute('data-style'); try { localStorage.setItem('dmui-style', b.dataset.s); } catch (e) {} paint(); });
+  document.querySelectorAll('[data-t]').forEach(b => b.onclick = () => { d.setAttribute('data-theme', b.dataset.t); try { localStorage.setItem('dmui-theme', b.dataset.t); } catch (e) {} paint(); });
+  // Replay all: each variation starts its run again from the top
+  document.querySelector('.cmp-rp').onclick = () => frames.forEach(f => f.contentWindow.location.reload());
+  paint();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,357 @@
+<!doctype html>
+<html lang="en" data-style="soft">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Account health B: factor tiles · Designme.dev</title>
+<link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+<script>
+/* the page opens in the style and theme the site last used */
+(function(){ var d = document.documentElement, dark = matchMedia('(prefers-color-scheme: dark)').matches, s = 'soft', t = null;
+  try { s = localStorage.getItem('dmui-style') || 'soft'; t = localStorage.getItem('dmui-theme'); } catch(e){}
+  if (s === 'soft') d.setAttribute('data-style', 'soft'); else d.removeAttribute('data-style');
+  d.setAttribute('data-theme', t === 'dark' || t === 'light' ? t : (dark ? 'dark' : 'light')); })();
+</script>
+<style>
+@font-face{font-family:Inter;font-style:normal;font-weight:400;font-display:swap;src:url(../../fonts/inter-latin-400-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:Inter;font-style:normal;font-weight:500;font-display:swap;src:url(../../fonts/inter-latin-500-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:Inter;font-style:normal;font-weight:400;font-display:swap;src:url(../../fonts/inter-latin-ext-400-normal.woff2) format('woff2');unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+1E00-1E9F,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
+@font-face{font-family:Inter;font-style:normal;font-weight:500;font-display:swap;src:url(../../fonts/inter-latin-ext-500-normal.woff2) format('woff2');unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+1E00-1E9F,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
+</style>
+<link rel="stylesheet" href="../../components/assets/core.css">
+<style>
+/* ---------- tokens ---------- */
+/* the core now ships its tokens as --dm-*; this page writes the site's short names, so they point at the core's */
+:root{
+  --page:var(--dm-page);--stage:var(--dm-stage);--surface:var(--dm-surface);--raised:var(--dm-raised);
+  --fg:var(--dm-fg);--fg2:var(--dm-fg2);--muted:var(--dm-muted);--faint:var(--dm-faint);--rail:var(--dm-rail);--line:var(--dm-line);--line-strong:var(--dm-line-strong);
+  --chip:var(--dm-chip);--hover:var(--dm-hover);--row:var(--dm-row);--wash:var(--dm-wash);--grid:var(--dm-grid);
+  --accent:var(--dm-accent);--accent-mark:var(--dm-accent-mark);--accent-fg:var(--dm-accent-fg);--accent-bg:var(--dm-accent-bg);
+  --ok:var(--dm-ok);--ok-bg:var(--dm-ok-bg);--ok-mark:var(--dm-ok-mark);--warn:var(--dm-warn);--warn-bg:var(--dm-warn-bg);--warn-mark:var(--dm-warn-mark);--bad:var(--dm-bad);--bad-bg:var(--dm-bad-bg);
+  --r-card:var(--dm-r-card);--r-in:var(--dm-r-in);--r-sm:var(--dm-r-sm);--r-pill:var(--dm-r-pill);--rk:var(--dm-rk);
+  --s-1:var(--dm-s-1);--s-2:var(--dm-s-2);--s-3:var(--dm-s-3);--s-4:var(--dm-s-4);--s-5:var(--dm-s-5);--s-6:var(--dm-s-6);--s-8:var(--dm-s-8);
+  --ease:var(--dm-ease);--ease-io:var(--dm-ease-io);--t:var(--dm-t);--t-fast:var(--dm-t-fast);--t-slow:var(--dm-t-slow);
+  --shadow:var(--dm-shadow);--shadow-pop:var(--dm-shadow-pop);--sans:var(--dm-sans)
+}
+
+/* ---------- the page ---------- */
+html,body{margin:0;background:var(--page)}
+body{font-family:var(--sans);font-size:14px;line-height:1.5;color:var(--fg);-webkit-font-smoothing:antialiased}
+:where(.lab) button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+.lab :focus-visible{outline:2px solid var(--dm-focus);outline-offset:2px}
+.lab{max-width:760px;margin:0 auto;padding:40px 24px 64px}
+.lab-h h1{margin:0;font-size:14px;font-weight:500;line-height:1.4}
+.lab-h p{margin:4px 0 0;max-width:600px;font-size:13.5px;line-height:1.55;color:var(--muted);text-wrap:pretty}
+.lab-ctl{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s-2);margin-top:var(--s-5)}
+.lab-ctl .sp{flex:1}
+.lab-rp{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 12px;border-radius:var(--r-pill);background:var(--chip);font-size:12.5px;color:var(--fg);transition:background var(--t-fast)}
+.lab-rp:hover{background:var(--hover)}
+.lab-rp .i{color:var(--fg2)}
+.lab-st{position:relative;display:flex;flex-direction:column;align-items:center;gap:var(--s-8);margin-top:var(--s-3);padding:var(--s-8) var(--s-4);border-radius:var(--r-card);background:var(--stage);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--line) 50%,transparent)}
+.lab-case{width:472px;max-width:100%}
+.lab-cap{display:flex;align-items:baseline;gap:var(--s-2);margin:0 0 var(--s-2) 2px;font-size:12.5px;color:var(--muted)}
+.lab-cap b{font-weight:500;color:var(--fg)}
+.lab-st .stage-in{max-width:none}
+:root:not([data-style="soft"]) .lab-st{border-radius:0;background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:24px 24px;background-position:-1px -1px}
+:root:not([data-style="soft"]) :is(.lab-rp,.lab-ctl .seg2,.lab-ctl .seg2 *){border-radius:0}
+:root:not([data-style="soft"]) .lab-cap{font-size:11px;font-weight:500;letter-spacing:.04em;text-transform:uppercase}
+@media (max-width:640px){.lab{padding:28px 16px 48px}.lab-st{padding:var(--s-6) var(--s-3);gap:var(--s-6)}}
+
+/* ---------- the sheet around the block: a stand-in for the CRM's details sheet, at its width ---------- */
+.hvb-sheet{width:100%;padding:var(--s-4)}
+.hvb-sh{display:flex;flex-direction:column;padding:0 0 var(--s-3);margin-bottom:var(--s-4);border-bottom:1px solid color-mix(in srgb,var(--line) 50%,transparent);line-height:1.4}
+.hvb-sh b{font-size:14px;font-weight:500}
+.hvb-sh span{font-size:12.5px;color:var(--muted)}
+
+/* ---------- Account health B: factor tiles ---------- */
+/* the score is a small ring in one header line with its verdict; four tiles hold the factors, each with its figure and a
+   small trend. The weakest factor that is not on track is tinted in its status; any tile opens its detail in place, and the
+   agent's next move sits at the foot with its button */
+.hvb{display:flex;flex-direction:column;gap:var(--s-3);--vm:var(--ok-mark);--vf:var(--ok)}
+.hvb[data-v="warn"]{--vm:var(--warn-mark);--vf:var(--warn)}
+.hvb[data-v="bad"]{--vm:var(--bad);--vf:var(--bad)}
+.hvb-sr{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+
+/* the header line: the score in its ring, the verdict and how it moved */
+.hvb-h{display:flex;align-items:center;gap:var(--s-3)}
+.hvb-ring{position:relative;flex:none;width:44px;height:44px;display:grid;place-items:center}
+.hvb-ring svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg);overflow:visible}
+.hvb-ring circle{fill:none;stroke-width:4}
+.hvb-ring .tr{stroke:var(--line)}
+.hvb-ring .fl{stroke:var(--vm);stroke-linecap:round;transition:stroke-dashoffset .9s var(--ease),stroke var(--t) var(--ease)}
+.hvb-ring b{position:relative;font-size:14px;font-weight:500;letter-spacing:-.01em;line-height:1}
+.hvb-ht{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.4}
+.hvb-vd{font-size:14px;font-weight:500;color:var(--vf);transition:color var(--t) var(--ease)}
+.hvb-sub{font-size:12.5px;color:var(--muted);text-wrap:pretty}
+.hvb-dl{flex:none;align-self:flex-start;margin-top:4px;font-size:12.5px;color:var(--muted)}
+
+/* the tiles: two by two, a detail row under each pair */
+.hvb-g{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--s-2)}
+.hvb-t{position:relative;display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"k k" "v tr";align-items:center;gap:var(--s-2);min-width:0;padding:10px var(--s-3) var(--s-3);border-radius:var(--r-in);background-color:var(--surface);box-shadow:var(--shadow);text-align:left;
+  --sm:var(--ok-mark);--tb:color-mix(in srgb,var(--ok-bg) 60%,transparent);
+  transition:transform var(--t) var(--ease),box-shadow var(--t-fast) var(--ease),background-color var(--t-fast)}
+.hvb-t[data-s="warn"]{--sm:var(--warn-mark);--tb:color-mix(in srgb,var(--warn-bg) 60%,transparent)}
+.hvb-t[data-s="bad"]{--sm:var(--bad);--tb:color-mix(in srgb,var(--bad-bg) 60%,transparent)}
+/* the weakest tile's tint lives on its own layer, so it fades from tile to tile when a factor changes */
+.hvb-t::before{content:"";position:absolute;inset:0;border-radius:inherit;background:var(--tb);opacity:0;pointer-events:none;transition:opacity var(--t) var(--ease)}
+.hvb-t[data-weak]::before{opacity:1}
+.hvb-t>*{position:relative}
+@media (hover:hover) and (pointer:fine){.hvb-t:hover{transform:translateY(-1px);box-shadow:var(--shadow-pop)}}
+.hvb-t:active{transform:scale(.98);transition-duration:.12s}
+/* open: picked, so its edge steps up a little (a dimmed grey, never black) */
+.hvb-t[aria-expanded="true"]{box-shadow:var(--shadow),inset 0 0 0 1px color-mix(in srgb,var(--faint) 65%,transparent)}
+@media (hover:hover) and (pointer:fine){.hvb-t[aria-expanded="true"]:hover{box-shadow:var(--shadow-pop),inset 0 0 0 1px color-mix(in srgb,var(--faint) 65%,transparent)}}
+
+.hvb-k{grid-area:k;display:flex;align-items:center;gap:6px;min-width:0;padding-right:20px;font-size:12px;line-height:16px;color:var(--muted)}
+.hvb-k span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hvb-dot{flex:none;width:8px;height:8px;border-radius:50%;corner-shape:round;background:var(--sm);transition:background var(--t) var(--ease)}
+.hvb-cv{position:absolute!important;top:12px;right:var(--s-3);color:var(--muted);transition:transform var(--t) var(--ease)}
+.hvb-t[aria-expanded="true"] .hvb-cv{transform:rotate(180deg)}
+.hvb-v{grid-area:v;display:flex;align-items:baseline;gap:5px;min-width:0;white-space:nowrap;line-height:20px}
+.hvb-v b{font-size:14px;font-weight:500;letter-spacing:-.01em}
+.hvb-v span{font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis}
+.hvb-tr{grid-area:tr;justify-self:end;display:flex;align-items:center;height:20px}
+/* on the tint, the quiet words step up to keep their contrast */
+.hvb-t[data-weak] :is(.hvb-k,.hvb-v span,.hvb-cv){color:var(--fg2)}
+
+/* micro trends: six weeks of contact, one mark per open deal, six weeks of win chance */
+.hvb-dots,.hvb-bars{display:flex;align-items:center;gap:3px}
+.hvb-dots i{width:6px;height:6px;border-radius:50%;corner-shape:round;box-shadow:inset 0 0 0 1.25px var(--faint)}
+.hvb-dots i.on{background:var(--fg2);box-shadow:none}
+.hvb-bars i{width:12px;height:6px;border-radius:calc(2px * var(--rk));background:var(--fg2)}
+.hvb-bars i.late{background:var(--bad)}
+.hvb-sp{display:block;width:56px;height:20px;overflow:visible}
+.hvb-sp polyline{fill:none;stroke:var(--muted);stroke-width:1.5;stroke-linejoin:round;stroke-linecap:round;vector-effect:non-scaling-stroke}
+.hvb-sp circle{fill:var(--sm);stroke:var(--surface);stroke-width:1.5}
+.hvb-t[data-weak] .hvb-sp circle{stroke:none}
+
+/* a pair's detail: plain lines under the pair, no card */
+.hvb-d{grid-column:1/-1;margin-top:calc(var(--s-2) * -1)}
+.hvb-dc{padding:var(--s-3) var(--s-3) var(--s-1)}
+.hvb-dp{margin:0;font-size:12.5px;line-height:1.5;color:var(--fg);text-wrap:pretty}
+.hvb-dp+.hvb-dp{margin-top:2px;color:var(--fg2)}
+.hvb-dm{display:flex;align-items:center;gap:var(--s-2);margin:var(--s-2) 0 0;font-size:12px;color:var(--muted)}
+.hvb-dm i{width:4px;height:4px;border-radius:50%;corner-shape:round;background:var(--faint)}
+
+/* the agent's suggestion: one line and its button, on the accent tint */
+.hvb-s{display:flex;align-items:center;gap:var(--s-2);min-height:48px;padding:var(--s-2) var(--s-2) var(--s-2) var(--s-3);border-radius:var(--r-in);background:var(--accent-bg);font-size:12.5px;line-height:1.45;color:var(--fg2)}
+.hvb-s>.i{flex:none;align-self:flex-start;margin-top:3px;color:var(--accent-fg)}
+.hvb-st{flex:1;min-width:0;text-wrap:pretty}
+.hvb-s .pill{flex:none}
+.hvb-s .pill .spin{width:12px;height:12px}
+.hvb-done{flex:none;outline:0}
+.hvb-done .i{margin-left:-1px}
+
+/* ---------- Blueprint: hairline tiles, square marks, labels in small capitals ---------- */
+:root:not([data-style="soft"]) .hvb-t{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--rail) 60%,transparent)}
+@media (hover:hover) and (pointer:fine){:root:not([data-style="soft"]) .hvb-t:hover{transform:none;background-color:var(--wash);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--faint) 70%,transparent)}}
+:root:not([data-style="soft"]) .hvb-t:active{transform:translateY(1px)}
+:root:not([data-style="soft"]) .hvb-t[aria-expanded="true"],:root:not([data-style="soft"]) .hvb-t[aria-expanded="true"]:hover{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--line-strong) 70%,transparent)}
+:root:not([data-style="soft"]) .hvb-k{font-size:11px;font-weight:500;letter-spacing:.04em;text-transform:uppercase}
+:root:not([data-style="soft"]) .hvb-dm{font-size:11px;font-weight:500;letter-spacing:.04em;text-transform:uppercase}
+:root:not([data-style="soft"]) .hvb-dots i{width:7px;height:7px}
+:root:not([data-style="soft"]) .hvb-done{font-size:11px}
+:root:not([data-style="soft"]) .hvb-s{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--accent-mark) 35%,transparent)}
+
+/* a narrow sheet (phones): the trend takes its own line under the figure, and the button goes under the suggestion */
+@container (max-width:420px){
+  .hvb-t{grid-template-areas:"k k" "v v" "tr tr";row-gap:6px}
+  .hvb-tr{justify-self:start}
+  .hvb-s{flex-wrap:wrap;row-gap:var(--s-2);padding:var(--s-3)}
+  .hvb-st{flex:1 1 calc(100% - 26px)}
+  .hvb-s :is(.pill,.hvb-done){margin-left:22px}
+}
+@media (prefers-reduced-motion:reduce){
+  .hvb *,.hvb *::before{transition-duration:.01ms!important;animation-duration:.01ms!important}
+  .hvb-t:hover,.hvb-t:active{transform:none}
+}
+</style>
+</head>
+<body>
+<main class="lab">
+  <header class="lab-h">
+    <h1>Account health B: factor tiles</h1>
+    <p>The score shrinks to a ring in one header line with its verdict. Four tiles carry the factors, each with its figure and a small trend; the weakest one that is off track is tinted, any tile opens its detail in place, and the agent's next move waits at the foot with its button.</p>
+  </header>
+  <div class="lab-ctl">
+    <div class="seg2" id="sw-style" role="group" aria-label="Style"><button type="button" data-v="soft" aria-pressed="true">Soft</button><button type="button" data-v="blueprint" aria-pressed="false">Blueprint</button></div>
+    <div class="seg2" id="sw-theme" role="group" aria-label="Theme"><button type="button" data-v="light" aria-pressed="true">Light</button><button type="button" data-v="dark" aria-pressed="false">Dark</button></div>
+    <span class="sp"></span>
+    <button type="button" class="lab-rp" aria-label="Replay the three blocks"><svg class="i s" aria-hidden="true"><use href="#i-refresh"/></svg>Replay</button>
+  </div>
+  <div class="lab-st">
+    <section class="lab-case"><p class="lab-cap"><b>Healthy</b>89, everything on track</p>
+      <div data-c="health-b" data-acct="0"><div class="stage-in"></div><template><div class="hvb-sheet panel" data-reveal="none"></div></template></div></section>
+    <section class="lab-case"><p class="lab-cap"><b>Watch</b>58, quiet and nothing booked</p>
+      <div data-c="health-b" data-acct="1"><div class="stage-in"></div><template><div class="hvb-sheet panel" data-reveal="none"></div></template></div></section>
+    <section class="lab-case"><p class="lab-cap"><b>At risk</b>17, quiet, late and overdue</p>
+      <div data-c="health-b" data-acct="2"><div class="stage-in"></div><template><div class="hvb-sheet panel" data-reveal="none"></div></template></div></section>
+  </div>
+</main>
+<script src="../../components/assets/core.js"></script>
+<script>
+/* ---------- Account health B ---------- */
+/* today is Mon Nov 9. A factor's points add up to the score: contact 30, deals on time 25, win chance 25, next step 20 */
+const HVB = [
+  { n:'Granite Peak Systems', seg:'Strategic, Americas', was:85,
+    f:{
+      contact:{ s:'ok', fig:'2d', unit:'ago', say:'last touch 2 days ago', pts:28, max:30, tr:['dots', [1, 1, 1, 1, 1, 1]],
+        lines:['Last touch Nov 7, a pricing call with Dana Ruiz.', 'In touch every week for the last 6 weeks.'] },
+      late:{ s:'ok', fig:'0', unit:'late', say:'no deal past its close date', pts:25, max:25, tr:['bars', [0, 0, 0]],
+        lines:['3 open deals, none past its close date.', 'Next to close: Platform renewal, Nov 24.'] },
+      win:{ s:'ok', fig:'62%', unit:'', say:'62% across the open deals', pts:16, max:25, tr:['spark', [54, 55, 57, 58, 60, 62]],
+        lines:['62% weighted across 3 open deals.', 'Up from 54% six weeks ago.'] },
+      next:{ s:'ok', fig:'Thu', unit:'in 3 days', say:'pricing call on Thursday', pts:20, max:20, tr:null,
+        lines:['Pricing call, Thu Nov 12, 9am, with Dana Ruiz.'] }
+    },
+    sug:{ t:'The pricing call is on Thursday. Send Dana the updated quote before it.', b:'Draft email', ic:'mail',
+      done:'Email to Dana drafted with the updated quote. It waits in your outbox for review.', tag:'Drafted' } },
+  { n:'Fernway Travel', seg:'Mid-market, Asia Pacific', was:71,
+    f:{
+      contact:{ s:'warn', fig:'11d', unit:'ago', say:'quiet for 11 days', pts:18, max:30, tr:['dots', [1, 1, 1, 1, 1, 0]],
+        lines:['Last touch Oct 29, an email to Sam Patel. No reply yet.', 'In touch in 5 of the last 6 weeks.'] },
+      late:{ s:'ok', fig:'0', unit:'late', say:'no deal past its close date', pts:25, max:25, tr:['bars', [0, 0]],
+        lines:['2 open deals, both before their close date.', 'Next to close: First contract, Dec 15.'] },
+      win:{ s:'ok', fig:'61%', unit:'', say:'61% across the open deals', pts:15, max:25, tr:['spark', [66, 66, 65, 64, 62, 61]],
+        lines:['61% weighted across 2 open deals.', 'Down from 66% six weeks ago.'] },
+      next:{ s:'warn', fig:'None', unit:'booked', say:'no next step booked', pts:0, max:20, tr:null,
+        lines:['Nothing is booked with Fernway Travel.', 'Booking a meeting adds 20 points.'] }
+    },
+    sug:{ t:'Quiet for 11 days with nothing booked. Book a check-in with Sam this week.', b:'Book check-in', ic:'cal',
+      done:'Check-in with Sam booked for Wed Nov 11, 10am. Health 58 to 78.', tag:'Booked',
+      after:{ next:{ s:'ok', fig:'Wed', unit:'in 2 days', say:'check-in on Wednesday', pts:20,
+        lines:['Check-in, Wed Nov 11, 10am, with Sam Patel.', 'Booked by the agent just now.'] } } } },
+  { n:'Tidewell Energy', seg:'Enterprise, Asia Pacific', was:41,
+    f:{
+      contact:{ s:'bad', fig:'38d', unit:'ago', say:'quiet for 38 days', pts:0, max:30, tr:['dots', [1, 0, 0, 0, 0, 0]],
+        lines:['Last touch Oct 2, a demo follow-up with Priya Shah.', 'In touch in 1 of the last 6 weeks.'] },
+      late:{ s:'bad', fig:'1', unit:'late', say:'1 deal 6 days past its close date', pts:9, max:25, tr:['bars', [1, 0]],
+        lines:['Renewal was due Nov 3 and is still open, 6 days late.', '1 of 2 open deals is past its close date.'] },
+      win:{ s:'warn', fig:'33%', unit:'', say:'33% across the open deals', pts:8, max:25, tr:['spark', [52, 50, 46, 41, 36, 33]],
+        lines:['33% weighted across 2 open deals.', 'Down from 52% six weeks ago.'] },
+      next:{ s:'bad', fig:'6d', unit:'overdue', say:'next step overdue since Nov 3', pts:0, max:20, tr:null,
+        lines:['Renewal call, due Tue Nov 3. Not held or moved.'] }
+    },
+    sug:{ t:'38 days quiet and the renewal is 6 days late. Call Priya to reset the date.', b:'Book call', ic:'cal',
+      done:'Call with Priya booked for Tue Nov 10, 9am. Health 17 to 37, still at risk.', tag:'Booked',
+      after:{ next:{ s:'ok', fig:'Tue', unit:'tomorrow', say:'renewal call tomorrow', pts:20,
+        lines:['Renewal call, Tue Nov 10, 9am, with Priya Shah.', 'Booked by the agent just now, in place of the overdue step.'] } } } }
+];
+DM.def('health-b', (r, c, card) => {
+  const A = JSON.parse(JSON.stringify(HVB[+card.dataset.acct || 0]));
+  const K = ['contact', 'late', 'win', 'next'], L = { contact:'Contact', late:'On time', win:'Win chance', next:'Next step' };
+  const SW = { ok:'on track', warn:'watch', bad:'at risk' }, VD = { ok:'Healthy', warn:'Watch', bad:'At risk' };
+  const id = 'hvb' + (card.dataset.acct || 0) + Math.random().toString(36).slice(2, 6), C = 2 * Math.PI * 18;
+  const score = () => K.reduce((t, k) => t + A.f[k].pts, 0);
+  const band = v => v >= 70 ? 'ok' : v >= 50 ? 'warn' : 'bad';
+  const delta = v => (v - A.was >= 0 ? '+' : '−') + Math.abs(v - A.was) + ' in 30 days';
+  const onTrack = () => { const n = K.filter(k => A.f[k].s === 'ok').length; return n === 4 ? 'all 4 on track' : `${n} of 4 on track`; };
+  // the weakest factor that is off track: the lowest share of its points, the first one on a tie. None when all are on track
+  const weakest = () => K.filter(k => A.f[k].s !== 'ok').sort((a, b) => A.f[a].pts / A.f[a].max - A.f[b].pts / A.f[b].max || K.indexOf(a) - K.indexOf(b))[0];
+
+  const trend = f => {
+    if (!f.tr) return '';
+    const [k, v] = f.tr;
+    if (k === 'dots') return `<span class="hvb-dots">${v.map(x => `<i${x ? ' class="on"' : ''}></i>`).join('')}</span>`;
+    if (k === 'bars') return `<span class="hvb-bars">${v.map(x => `<i${x ? ' class="late"' : ''}></i>`).join('')}</span>`;
+    const lo = Math.min(...v), hi = Math.max(...v), pt = v.map((y, i) => [2 + i * 52 / (v.length - 1), 3 + (1 - (y - lo) / (hi - lo || 1)) * 14]);
+    return `<svg class="hvb-sp" viewBox="0 0 56 20"><polyline points="${pt.map(p => p.map(n => n.toFixed(1)).join(',')).join(' ')}"/><circle cx="${pt[pt.length - 1][0]}" cy="${pt[pt.length - 1][1].toFixed(1)}" r="2.5"/></svg>`;
+  };
+  const tile = (k, i) => `<button type="button" class="hvb-t" data-k="${k}" aria-expanded="false" aria-controls="${id}-d${i < 2 ? 0 : 1}">
+      <span class="hvb-k"><i class="hvb-dot"></i><span>${L[k]}</span></span>${I('chev-d', 'xs hvb-cv')}
+      <span class="hvb-v"><b class="num"></b><span></span></span><span class="hvb-tr" aria-hidden="true"></span></button>`;
+  const region = j => `<div class="fold shut hvb-d" id="${id}-d${j}" role="region" aria-label="Details"><div><div class="hvb-dc"></div></div></div>`;
+
+  const sheet = $('.hvb-sheet', r);
+  sheet.innerHTML = `<div class="hvb-sh"><b>${A.n}</b><span>${A.seg}</span></div>
+    <section class="hvb" aria-label="Account health">
+      <div class="hvb-h">
+        <div class="hvb-ring" role="img"><svg viewBox="0 0 44 44" aria-hidden="true"><circle class="tr" cx="22" cy="22" r="18"/><circle class="fl" cx="22" cy="22" r="18" stroke-dasharray="${C.toFixed(2)}" stroke-dashoffset="${C.toFixed(2)}"/></svg><b class="num" aria-hidden="true">0</b></div>
+        <div class="hvb-ht"><b class="hvb-vd"></b><span class="hvb-sub"></span></div>
+        <span class="hvb-dl num"></span>
+      </div>
+      <div class="hvb-g">${tile(K[0], 0)}${tile(K[1], 1)}${region(0)}${tile(K[2], 2)}${tile(K[3], 3)}${region(1)}</div>
+      <div class="hvb-s">${I('spark', 's')}<span class="hvb-st"></span><button type="button" class="pill primary sm hvb-go">${I(A.sug.ic, 'xs')}${A.sug.b}</button></div>
+      <p class="hvb-sr" aria-live="polite"></p>
+    </section>`;
+  const root = $('.hvb', sheet), head = $('.hvb-h', root), ring = $('.hvb-ring', root), fl = $('.fl', ring), num = $('.hvb-ring b', root);
+  const vd = $('.hvb-vd', root), sub = $('.hvb-sub', root), dl = $('.hvb-dl', root), sr = $('.hvb-sr', root);
+  const tiles = $$('.hvb-t', root), regs = $$('.hvb-d', root), sug = $('.hvb-s', root), go = $('.hvb-go', root);
+  $('.hvb-st', sug).textContent = A.sug.t;
+
+  // ---- paint: the header and the tiles follow the factors
+  let shown = 0, open = null;
+  function paint(first){
+    const v = score(), b = band(v), w = weakest();
+    root.dataset.v = b;
+    ring.setAttribute('aria-label', `Health ${v} of 100, ${VD[b].toLowerCase()}`);
+    const fillRing = () => { fl.style.strokeDashoffset = (C * (1 - v / 100)).toFixed(2); tween(shown, v, 900, n => { shown = n; num.textContent = Math.round(n); }); };
+    first ? c.later(140, fillRing) : fillRing();
+    const words = [VD[b], `Account health, ${onTrack()}`, delta(v)];
+    if (first){ vd.textContent = words[0]; sub.textContent = words[1]; dl.textContent = words[2]; }
+    else { swap(vd, words[0]); swap(sub, words[1]); swap(dl, words[2]); }
+    dl.dataset.tip = `Was ${A.was} on Oct 10`;
+    tiles.forEach(t => {
+      const k = t.dataset.k, f = A.f[k], fig = $('.hvb-v b', t), unit = $('.hvb-v span', t);
+      t.dataset.s = f.s; t.toggleAttribute('data-weak', k === w);
+      t.setAttribute('aria-label', `${L[k]}: ${f.say}. ${SW[f.s][0].toUpperCase() + SW[f.s].slice(1)}${k === w ? ', the weakest factor' : ''}`);
+      if (first){ fig.textContent = f.fig; unit.textContent = f.unit; $('.hvb-tr', t).innerHTML = trend(f); }
+      else if (fig.textContent !== f.fig){ swap(fig, f.fig); swap(unit, f.unit); $('.hvb-tr', t).innerHTML = trend(f); }
+    });
+    if (open) fill(open, false);
+  }
+
+  // ---- a tile opens its detail under its pair; one at a time
+  function fill(k, fresh){
+    const f = A.f[k], i = K.indexOf(k), reg = regs[i < 2 ? 0 : 1], dc = $('.hvb-dc', reg);
+    dc.innerHTML = f.lines.map(l => `<p class="hvb-dp">${l}</p>`).join('') + `<p class="hvb-dm num"><span>${f.pts} of ${f.max} points</span><i></i><span>${SW[f.s][0].toUpperCase() + SW[f.s].slice(1)}</span></p>`;
+    reg.setAttribute('aria-label', L[k] + ' details');
+    if (fresh) enter(dc);
+  }
+  function toggle(k){
+    const was = open; open = open === k ? null : k;
+    const ri = open ? (K.indexOf(open) < 2 ? 0 : 1) : -1, wasRi = was ? (K.indexOf(was) < 2 ? 0 : 1) : -1;
+    if (open) fill(open, wasRi === ri);
+    regs.forEach((reg, j) => reg.classList.toggle('shut', j !== ri));
+    tiles.forEach(t => t.setAttribute('aria-expanded', String(t.dataset.k === open)));
+  }
+  tiles.forEach(t => t.onclick = () => toggle(t.dataset.k));
+
+  // ---- the agent's suggestion: the button works, says so, and the factors it changes update
+  go.onclick = () => c.run(async () => {
+    if (go.disabled) return;
+    const had = document.activeElement === go;
+    go.style.width = go.offsetWidth + 'px'; go.disabled = true; go.setAttribute('aria-busy', 'true');
+    go.innerHTML = '<span class="spin" aria-hidden="true"></span><span class="hvb-sr">Working</span>';
+    await c.wait(900);
+    const after = A.sug.after || {};
+    Object.keys(after).forEach(k => Object.assign(A.f[k], after[k]));
+    const t = html(`<span class="tag ok hvb-done" tabindex="-1">${I('check', 'xs')}${A.sug.tag}</span>`);
+    go.replaceWith(t); enter(t); if (had) t.focus();
+    swap($('.hvb-st', sug), A.sug.done);
+    paint(false);
+    sr.textContent = A.sug.done;
+  });
+
+  // ---- the entrance: the header, the four tiles and the suggestion arrive in turn; the ring fills and the trends draw
+  paint(true);
+  stagger([head, ...tiles, sug], 55, 40);
+  if (!REDUCE) $$('.hvb-tr', root).forEach((el, i) => el.firstElementChild && el.firstElementChild.animate(
+    [{ clipPath:'inset(-4px 100% -4px -4px)' }, { clipPath:'inset(-4px -4px -4px -4px)' }],
+    { duration:700, delay:260 + i * 70, easing:'cubic-bezier(.45,0,.2,1)', fill:'backwards' }));
+});
+
+/* ---------- the page: style, theme and replay ---------- */
+{
+  const d = document.documentElement;
+  const mark = (sel, v) => $$(sel + ' button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === v)));
+  mark('#sw-style', d.dataset.style === 'soft' ? 'soft' : 'blueprint');
+  mark('#sw-theme', d.dataset.theme === 'dark' ? 'dark' : 'light');
+  seg($('#sw-style'), v => { if (v === 'soft') d.dataset.style = 'soft'; else delete d.dataset.style; try { localStorage.setItem('dmui-style', v === 'soft' ? 'soft' : 'bp'); } catch(e){} });
+  seg($('#sw-theme'), v => { d.dataset.theme = v; try { localStorage.setItem('dmui-theme', v); } catch(e){} });
+  $('.lab-rp').addEventListener('click', () => $$('[data-c="health-b"]').forEach(card => DM.mount(card, true)));
+}
+</script>
+</body>
+</html>

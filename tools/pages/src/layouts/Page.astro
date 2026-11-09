@@ -130,6 +130,7 @@ a{color:inherit}
 .pg-top{position:sticky;top:0;z-index:50;height:var(--pg-head);background:var(--pg-top);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-bottom:1px solid var(--pg-line)}
 .pg-top-in{height:100%;max-width:1464px;margin:0 auto;padding:0 32px;display:flex;align-items:center;gap:6px}
 .pg-logo{display:block;color:var(--pg-fg)}
+.pg-notr,.pg-notr *,.pg-notr *::before,.pg-notr *::after{transition:none!important}
 /* an app page (the templates) fills the window, so its header does too: the smiley sits over the sidebar's workspace tile
    (14px in) and the style and theme switches end where the dashboard's top bar does (16px in) (owner, 9 Nov) */
 .pg-top.app .pg-top-in{max-width:none;padding:0 16px 0 14px}
@@ -159,6 +160,8 @@ a{color:inherit}
 .pg-sp{flex:1}
 .pg-seg{display:inline-flex;padding:2px;border-radius:999px;background:var(--pg-chip)}
 .pg-seg button{height:24px;padding:0 10px;border:0;border-radius:999px;background:none;color:var(--pg-dim);font:500 13px/1 var(--pg-sans);cursor:pointer;transition:color .2s}
+/* on a touch screen the header's small switches and the GitHub pill get a 44px tall tap area, drawn by nothing (they look the same) */
+@media (pointer:coarse){.pg-seg button,.pg-gh{position:relative}.pg-seg button::after,.pg-gh::after{content:"";position:absolute;left:0;right:0;top:50%;height:44px;margin-top:-22px}}
 .pg-seg button:hover{color:var(--pg-fg)}
 .pg-seg button[aria-checked="true"]{background:var(--pg-bg);color:var(--pg-fg);box-shadow:0 1px 2px rgba(18,18,18,.08),0 0 0 .5px rgba(18,18,18,.06)}
 .pg-seg svg{display:block;width:14px;height:14px}
@@ -304,6 +307,8 @@ a{color:inherit}
   }); });
   document.querySelectorAll('[data-theme-set]').forEach(function(b){ b.addEventListener('click', function(){
     var next = b.dataset.themeSet, sys = mq.matches ? 'dark' : 'light';
+    // for the moment the theme changes nothing animates its colours, so no button shows the old theme's grey for a frame
+    root.classList.add('pg-notr'); requestAnimationFrame(function(){ requestAnimationFrame(function(){ root.classList.remove('pg-notr'); }); });
     if (next === sys){ root.removeAttribute('data-theme'); try { localStorage.removeItem('dmui-theme'); } catch(e){} }
     else { root.setAttribute('data-theme', next); try { localStorage.setItem('dmui-theme', next); } catch(e){} }
     paint();
