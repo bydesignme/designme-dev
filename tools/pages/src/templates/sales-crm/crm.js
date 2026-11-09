@@ -317,7 +317,10 @@
   // A holds the filters as Filter menu's chips: a field, a value, and whether it reads the other way (is not, older than)
   const F = { A:[], q:'', sort:'value', desc:true, said:'' };
   // the board starts with Closed lost hidden, as a chip in the hidden stages' dock
-  const K = { own:new Set(), q:'', close:'any', view:'board', shut:new Set(['lost']), tab:'disc' };
+  const K = { own:new Set(), q:'', close:'any', view:'board', shut:new Set(['lost']), tab:'disc', order:STAGES.map(s => s.k), draft:null };
+  // the board's column order lasts the session (a reload keeps it; a new tab starts from the stages' order)
+  try { const o = JSON.parse(sessionStorage.getItem('crm-col-order') || 'null'); if (Array.isArray(o) && o.length === STAGES.length && STAGES.every(s => o.includes(s.k))) K.order = o; } catch(e){}
+  const saveOrder = () => { try { sessionStorage.setItem('crm-col-order', JSON.stringify(K.order)); } catch(e){} };
   const sel = new Set();
   let view = 'accounts', sheetFor = null, rowMenuFor = null, mvFor = null, stageFor = null;
 
@@ -1216,7 +1219,12 @@
   $('.kbx-tabs', kb).innerHTML = STAGES.map(s => `<button aria-pressed="${s.k === K.tab}" data-v="${s.k}">${s.k === 'won' ? 'Won' : s.k === 'lost' ? 'Lost' : s.t}<span class="n num"></span></button>`).join('');
   seg($('.kbx-tabs', kb), v => { K.tab = v; renderBoard(); });
   seg($('.kbx-vw', kb), v => { K.view = v; kb.classList.toggle('list', v === 'list'); renderBoard(); });
-  cols.innerHTML = STAGES.map(s => `<div class="kbx-c" data-col="${s.k}"><div class="kbx-ch"><span class="crm-sd" data-s="${s.k}" aria-hidden="true"></span><b>${s.t}</b><span class="n num"></span><span class="s num"></span><button class="ib crm-hide" aria-label="Hide ${s.t}" data-tip="Hide column">${I('minus', 'xs')}</button></div><div class="kbx-list" role="list" aria-label="${s.t}"></div></div>`).join('');
+  cols.innerHTML = STAGES.map(s => `<div class="kbx-c" data-col="${s.k}" role="group" aria-label="${s.t}"><div class="kbx-ch"><span class="crm-sd" data-s="${s.k}" aria-hidden="true"></span><b>${s.t}</b><span class="tag crm-cnt num" aria-label="0 deals">0</span><span class="kbx-sp"></span>`
+    + `<button class="ib crm-grip" aria-label="Move the ${s.t} column: drag it, or use the left and right arrows" data-tip="Drag, or press ← →" aria-keyshortcuts="ArrowLeft ArrowRight">${I('grip', 'xs')}</button>`
+    + `<button class="ib kbx-cmn crm-cmn" data-pop="#crm-p-colm" data-pop-align="end" aria-haspopup="menu" aria-label="${s.t} actions" data-tip="Column actions">${I('more', 'xs')}</button>`
+    + (closed({ st:s.k }) ? '' : `<button class="ib kbx-cadd crm-cadd" aria-label="Add a deal to ${s.t}" data-tip="Add deal">${I('plus', 'xs')}</button>`) + '</div>'
+    + `<div class="kbx-list" role="list" aria-label="${s.t}"></div><div class="crm-cft"><span>Total</span><b class="num">$0</b></div></div>`).join('');
+  const colOf = k => $(`.kbx-c[data-col="${k}"]`, cols);
   const whenOf = d => d.st === 'won' ? 'Won ' + fmtD(d.close) : d.st === 'lost' ? 'Lost ' + fmtD(d.close) : fmtD(d.close);
   // the list: one row per deal, in the columns of the list's header
   const listRow = d => { const c = coOf(d.co), late = slipping(d);
@@ -1231,6 +1239,54 @@
       + `<div class="t">${esc(d.n)}</div>`
       + `<div class="kbx-m"><span class="kbx-mt co"><span class="pfm-lg xs" aria-hidden="true">${esc(c.n[0])}</span>${esc(c.n)}</span><span class="kbx-mt v num">${money(d.v)}</span>`
       + `<span class="kbx-mt num${late ? ' late' : ''}">${I(late ? 'alert' : 'cal', 'xs')}${whenOf(d)}</span>${closed(d) ? '' : `<span class="kbx-mt num">${d.p}%</span>`}</div>${d.st === 'lost' && d.why ? `<div class="crm-why">${esc(d.why)}</div>` : ''}</div>`; };
+  // the + puts a draft at the top of its column: write the deal's name, pick the account (the one touched last by default),
+  // Enter or Add adds it with Undo, Escape or Cancel drops it
+  const draftCard = () => { const dr = K.draft, c = coOf(dr.co);
+    return `<div class="kbx-k crm-draft" role="listitem"><div class="t" contenteditable="true" role="textbox" aria-label="New deal's name" data-ph="Deal name">${esc(dr.name)}</div>`
+      + `<div class="crm-drw"><button class="dtp-v crm-dacc" data-pop="#crm-p-acc" aria-haspopup="menu" aria-label="Account: ${esc(c.n)}. Change it"><span class="pfm-lg xs" aria-hidden="true">${esc(c.n[0])}</span><span>${esc(c.n)}</span>${I('chev-d', 'xs')}</button><span class="kbx-sp"></span>`
+      + `<button class="pill ghost sm" data-dr="no">Cancel</button><button class="pill primary sm" data-dr="ok">Add</button></div></div>`; };
+  function startDraft(k){
+    if (K.draft && K.draft.k === k){ focusDraft(); return; }
+    const co = (sheetFor && coOf(sheetFor)) || CO.slice().sort((a, b) => a.last - b.last || b.value - a.value)[0];
+    K.draft = { k, co:co.id, name:'' }; renderBoard(); const el = $('.crm-draft', cols); if (el) enter(el); focusDraft();
+  }
+  const focusDraft = () => { const t = $('.crm-draft .t', cols); if (!t) return; t.focus({ preventScroll:true }); const r = document.createRange(); r.selectNodeContents(t); r.collapse(false); const sl = getSelection(); sl.removeAllRanges(); sl.addRange(r); t.closest('.kbx-k').scrollIntoView({ block:'nearest' }); };
+  function dropDraft(){ const k = K.draft && K.draft.k; K.draft = null; renderBoard(); const b = k && $('.crm-cadd', colOf(k)); if (b) b.focus({ preventScroll:true }); }
+  function saveDraft(){
+    const dr = K.draft; if (!dr) return; const name = dr.name.trim(); if (!name){ focusDraft(); swap($('.kbx-sr', kb), 'Give the deal a name first'); return; }
+    const c = coOf(dr.co), d = { id:'DL-' + (did++), co:c.id, n:name, st:dr.k, v:25000, close:toWork(30), adj:0, own:c.own }; d.p = probOf(d); DE.push(d);
+    K.draft = null; kFocus = d.id; refresh(); say(`${name} added to ${ST[dr.k].t}`);
+    const el = $(`.kbx-k[data-id="${d.id}"]`, cols); if (el){ enter(el); $$('.kbx-k', cols).forEach(x => x.tabIndex = -1); el.tabIndex = 0; el.focus({ preventScroll:true }); }
+    toast('ok', `${name} added to ${ST[dr.k].t}`, `${c.n}, ${money(d.v)}, closes ${fmtD(d.close)}`, { label:'Undo', run:() => { DE = DE.filter(x => x !== d); refresh(); } });
+  }
+  cols.addEventListener('input', e => { if (e.target.closest('.crm-draft .t') && K.draft) K.draft.name = e.target.textContent; });
+  cols.addEventListener('keydown', e => { if (!e.target.closest('.crm-draft')) return;
+    if (e.key === 'Enter' && e.target.closest('.t')){ e.preventDefault(); saveDraft(); }
+    else if (e.key === 'Escape' && !$('.pop.open', app)){ e.preventDefault(); e.stopPropagation(); dropDraft(); } }, true);
+  // the draft's account: the same Account menu as a new meeting's
+  function buildDraftAcc(){
+    const p = pop('crm-p-acc'), L = CO.slice().sort((a, b) => a.n.localeCompare(b.n));
+    p.innerHTML = `<div class="ph" role="none">Account</div>` + L.map(c => mi(`data-co="${c.id}"`, `<span class="pfm-lg xs" aria-hidden="true">${esc(c.n[0])}</span><span>${esc(c.n)}</span>`, 'menuitemradio', K.draft.co === c.id)).join('');
+    $$('.mi', p).forEach(x => x.addEventListener('click', () => { if (!K.draft) return; K.draft.co = x.dataset.co; const b = $('.crm-dacc', cols), c = coOf(x.dataset.co);
+      if (b){ $('span:not(.pfm-lg)', b).textContent = c.n; $('.pfm-lg', b).textContent = c.n[0]; b.setAttribute('aria-label', `Account: ${c.n}. Change it`); } setTimeout(focusDraft, 140); }));
+  }
+
+  // moving a column: by the menu, the grip's arrow keys, or a drag (below). The others glide to their new places
+  const visCols = () => STAGES.filter(s => !K.shut.has(s.k)).map(s => s.k).sort((a, b) => K.order.indexOf(a) - K.order.indexOf(b));
+  function flip(fn){
+    const els = $$('.kbx-c', cols).filter(c => c.offsetParent), before = new Map(els.map(c => [c, c.getBoundingClientRect().left]));
+    fn();
+    if (REDUCE) return;
+    els.forEach(c => { const dx = before.get(c) - c.getBoundingClientRect().left; if (Math.abs(dx) > 1) c.animate([{ transform:`translateX(${dx}px)` }, { transform:'none' }], { duration:280, easing:EASE }); });
+  }
+  function moveCol(k, dir, focus){
+    const v = visCols(), i = v.indexOf(k), j = i + dir; if (i < 0 || j < 0 || j >= v.length) { say(`${ST[k].t} is already ${dir < 0 ? 'first' : 'last'}`); return; }
+    const o = K.order.filter(x => x !== k), at = o.indexOf(v[j]); o.splice(dir > 0 ? at + 1 : at, 0, k);
+    flip(() => { K.order = o; saveOrder(); renderBoard(); });
+    say(`${ST[k].t} moved to position ${j + 1} of ${v.length}`);
+    if (focus) $(`.${focus}`, colOf(k))?.focus({ preventScroll:true });
+  }
+
   let kFocus = null;
   function renderBoard(){
     const filtering = K.own.size || K.q || K.close !== 'any';
@@ -1243,19 +1299,27 @@
     STAGES.forEach(s => {
       const col = $(`.kbx-c[data-col="${s.k}"]`, cols), L = DE.filter(d => d.st === s.k && dshows(d)).sort((a, b) => (closed({ st:s.k }) ? b.close - a.close : a.close - b.close) || b.v - a.v);
       if (!K.shut.has(s.k)) shown += L.length;
-      $('.kbx-list', col).innerHTML = L.map(card).join('') || (filtering ? '' : '<div class="kbx-none">No deals</div>');
-      $('.kbx-ch .n', col).textContent = L.length; $('.kbx-ch .s', col).textContent = kmoney(sum(L, d => d.v));
+      $('.kbx-list', col).innerHTML = (K.draft && K.draft.k === s.k && K.view !== 'list' ? draftCard() : '') + (L.map(card).join('') || (filtering ? '' : '<div class="kbx-none">No deals</div>'));
+      const cn = $('.crm-cnt', col); cn.textContent = L.length; cn.setAttribute('aria-label', plural(L.length, 'deal')); $('.crm-cft b', col).textContent = kmoney(sum(L, d => d.v));
       col.classList.toggle('gone', K.shut.has(s.k)); col.classList.toggle('on', K.tab === s.k); col._sum = [L.length, kmoney(sum(L, d => d.v))];
       $(`.kbx-tabs [data-v="${s.k}"] .n`, kb).textContent = L.length;
     });
+    // the columns (and the phone's stage tabs) stand in the session's order
+    K.order.forEach(k => { const c = colOf(k); if (c && cols.lastElementChild !== c) cols.appendChild(c); const t = $(`.kbx-tabs [data-v="${k}"]`, kb); if (t) t.parentElement.appendChild(t); });
     // a hidden stage leaves the board for a chip by the filters: press the chip to bring the column back, or drop a card on it
-    cols.style.setProperty('--dm-kbx-gt', STAGES.filter(s => !K.shut.has(s.k)).map(() => 'minmax(216px,1fr)').join(' ') || 'minmax(0,1fr)');
+    cols.style.setProperty('--dm-kbx-gt', STAGES.filter(s => !K.shut.has(s.k)).map(() => 'minmax(232px,1fr)').join(' ') || 'minmax(0,1fr)');
     const hid = STAGES.filter(s => K.shut.has(s.k)), dock = $('.crm-dock', kb), had = new Set($$('.crm-dk', dock).map(b => b.dataset.col));
     dock.hidden = !hid.length;
     $('.crm-dks', dock).innerHTML = hid.map(s => { const [n, v] = $(`.kbx-c[data-col="${s.k}"]`, cols)._sum;
       return `<button class="chip sm crm-dk" data-col="${s.k}" aria-label="Show ${s.t}, ${plural(n, 'deal')}, ${v}" data-tip="Show column, or drop a deal here"><span class="v">${s.t}</span><span class="k num">${n} · ${v}</span>${I('plus', 'xs')}</button>`; }).join('');
     $$('.crm-dk', dock).forEach(b => { if (!had.has(b.dataset.col)) enter(b); });
-    $('.kbx-em', kb).hidden = shown > 0 || !filtering;
+    // every stage hidden: say so, how much it hides, and offer them all back; filters that leave the board empty say whether
+    // matching deals sit in hidden stages
+    const allHid = K.shut.size === STAGES.length, ah = $('.crm-allhid', kb);
+    ah.hidden = !allHid; if (allHid) $('.crm-ahn', ah).textContent = `That hides ${plural(DE.length, 'deal')}. Show them all, or pick a stage above.`;
+    const inHid = DE.filter(d => K.shut.has(d.st) && dshows(d)).length;
+    $('.kbx-em', kb).hidden = allHid || shown > 0 || !filtering;
+    $('.kbx-em .crm-emn', kb).textContent = inHid ? `${plural(inHid, 'matching deal')} ${inHid === 1 ? 'sits' : 'sit'} in hidden stages.` : 'Try another owner, date or search.';
     const onBoard = DE.filter(d => !K.shut.has(d.st)).length;
     $('.kbx-cnt', kb).textContent = filtering ? `${shown} of ${onBoard} deals shown` : `${onBoard} deals shown${onBoard < DE.length ? `, ${DE.length - onBoard} in hidden stages` : ''}`;
     $$('.kbx-fp button', kb).forEach(b => b.setAttribute('aria-pressed', K.own.has(b.dataset.who)));
@@ -1267,7 +1331,7 @@
   }
   $('.crm-dock', kb).addEventListener('click', e => { const b = e.target.closest('.crm-dk'); if (!b || dragged) return; const k = b.dataset.col; K.shut.delete(k); renderBoard();
     const col = $(`.kbx-c[data-col="${k}"]`, cols); enter(col); col.scrollIntoView({ block:'nearest', inline:'nearest', behavior:REDUCE ? 'auto' : 'smooth' });
-    swap($('.kbx-sr', kb), `${ST[k].t} shown`); const h = $('.crm-hide', col); if (h) h.focus({ preventScroll:true }); });
+    swap($('.kbx-sr', kb), `${ST[k].t} shown`); const h = $('.crm-cmn', col); if (h) h.focus({ preventScroll:true }); });
   $('.kbx-fp', kb).addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; K.own.has(b.dataset.who) ? K.own.delete(b.dataset.who) : K.own.add(b.dataset.who); renderBoard(); });
   kq.addEventListener('input', () => { K.q = kq.value.trim(); kqx.hidden = !kq.value; renderBoard(); });
   kqx.onclick = () => { kq.value = ''; K.q = ''; kqx.hidden = true; renderBoard(); kq.focus(); };
@@ -1280,9 +1344,10 @@
   });
   cols.addEventListener('click', e => {
     if (dragged) return;
-    const hide = e.target.closest('.crm-hide');
-    if (hide){ const k = hide.closest('.kbx-c').dataset.col; K.shut.add(k); renderBoard(); swap($('.kbx-sr', kb), `${ST[k].t} hidden. It waits by the filters, press it to show the column again`);
-      const b = $(`.crm-dk[data-col="${k}"]`, kb); if (b) b.focus({ preventScroll:true }); return; }
+    const add = e.target.closest('.crm-cadd'); if (add){ startDraft(add.closest('.kbx-c').dataset.col); return; }
+    const cm = e.target.closest('.crm-cmn'); if (cm){ buildColMenu(cm.closest('.kbx-c').dataset.col); return; }
+    if (e.target.closest('.crm-grip')) return;
+    const dr = e.target.closest('.crm-draft'); if (dr){ const b = e.target.closest('[data-dr]'); if (b) b.dataset.dr === 'ok' ? saveDraft() : dropDraft(); else if (e.target.closest('.crm-dacc')) buildDraftAcc(); return; }
     const el = e.target.closest('.kbx-k'); if (!el) return;
     kFocus = el.dataset.id;
     if (e.target.closest('.kbx-mv')){ mvFor = el.dataset.id; buildMoveMenu(); return; }
@@ -1290,6 +1355,8 @@
     $$('.kbx-k', cols).forEach(k => k.classList.toggle('open', k === el));
   });
   cols.addEventListener('keydown', e => {
+    const g = e.target.closest('.crm-grip');
+    if (g && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')){ e.preventDefault(); moveCol(g.closest('.kbx-c').dataset.col, e.key === 'ArrowLeft' ? -1 : 1, 'crm-grip'); return; }
     const el = e.target.closest('.kbx-k'); if (!el || e.target !== el) return;
     const ks = $$('.kbx-k', cols).filter(k => k.offsetParent), i = ks.indexOf(el);
     const go = n => { if (!n) return; e.preventDefault(); ks.forEach(k => k.tabIndex = -1); n.tabIndex = 0; kFocus = n.dataset.id; n.focus(); };
@@ -1304,10 +1371,59 @@
       + `<div class="sep" role="separator"></div>` + mi('data-open', `${I('panel', 's')}<span>Open ${esc(coOf(d.co).n)}</span>`, 'menuitem');
     $$('.mi', p).forEach(m => m.addEventListener('click', () => { if (m.hasAttribute('data-open')) setTimeout(() => openSheet(d.co, true), 130); else moveDeal(d, m.dataset.s); }));
   }
+  // a column's menu: add a deal, move it left or right, hide it
+  function hideCol(k){ K.shut.add(k); if (K.draft && K.draft.k === k) K.draft = null; renderBoard(); swap($('.kbx-sr', kb), `${ST[k].t} hidden. It waits by the filters, press it to show the column again`);
+    const b = K.shut.size === STAGES.length ? $('.crm-allhid .pill', kb) : $(`.crm-dk[data-col="${k}"]`, kb); if (b) setTimeout(() => b.focus({ preventScroll:true }), 140); }
+  function buildColMenu(k){
+    const p = pop('crm-p-colm'), v = visCols(), i = v.indexOf(k);
+    p.innerHTML = `<div class="ph" role="none">${ST[k].t}</div>` + (closed({ st:k }) ? '' : mi('data-c="add"', `${I('plus', 's')}<span>Add a deal</span>`, 'menuitem'))
+      + mi(`data-c="left"${i <= 0 ? ' aria-disabled="true"' : ''}`, `${I('chev-l', 's')}<span>Move left</span>`, 'menuitem') + mi(`data-c="right"${i >= v.length - 1 ? ' aria-disabled="true"' : ''}`, `${I('chev-r', 's')}<span>Move right</span>`, 'menuitem')
+      + `<div class="sep" role="separator"></div>` + mi('data-c="hide"', `${I('eye', 's')}<span>Hide column</span>`, 'menuitem');
+    $$('.mi', p).forEach(m => m.addEventListener('click', () => { const c = m.dataset.c; if (m.getAttribute('aria-disabled') === 'true') return;
+      setTimeout(() => c === 'add' ? startDraft(k) : c === 'hide' ? hideCol(k) : moveCol(k, c === 'left' ? -1 : 1, 'crm-cmn'), 130); }));
+  }
+  // every stage hidden: Show all stages brings the columns back in, with one Undo
+  $('.crm-allhid .pill', kb).addEventListener('click', () => {
+    const was = new Set(K.shut); K.shut.clear(); renderBoard();
+    visCols().forEach((k, i) => enter(colOf(k), i * 50));
+    say(`All ${STAGES.length} stages shown`); setTimeout(() => $('.crm-grip', colOf(visCols()[0]))?.focus({ preventScroll:true }), 60);
+    toast('ok', 'All stages shown', `${plural(STAGES.length, 'column')} back on the board`, { label:'Undo', run:() => { K.shut = was; renderBoard(); } });
+  });
+  // dragging a column by its head (or its grip): a lifted copy follows the pointer, a dashed place shows where it will land,
+  // the other columns glide aside, and on release the copy settles into the place
+  cols.addEventListener('pointerdown', e => {
+    const head = e.target.closest('.kbx-ch'); if (!head || e.button !== 0 || kb.classList.contains('list') || e.target.closest('button:not(.crm-grip)')) return;
+    const col = head.closest('.kbx-c'), k = col.dataset.col, bd = $('.kbx-bd', kb); if (!$('.kbx-tabs', kb).closest('.kbx-bar') || getComputedStyle($('.kbx-bar', kb)).display !== 'none') return;
+    let gh = null, moved = false, raf = 0, lx = e.clientX; const rc0 = col.getBoundingClientRect();
+    const move = ev => {
+      if (!moved && Math.abs(ev.clientX - e.clientX) < 6) return; lx = ev.clientX;
+      if (!moved){ moved = true; hideTip(); closePops();
+        const bb = bd.getBoundingClientRect(); gh = col.cloneNode(true); gh.classList.add('crm-cghost'); gh.removeAttribute('role'); gh.setAttribute('aria-hidden', 'true'); $$('[tabindex],button', gh).forEach(x => x.tabIndex = -1);
+        Object.assign(gh.style, { left:rc0.left + 'px', top:rc0.top + 'px', width:rc0.width + 'px', height:Math.min(rc0.height, bb.bottom - rc0.top) + 'px' });
+        kb.appendChild(gh); col.classList.add('crm-cph'); app.classList.add('crm-coldrag'); }
+      gh.style.transform = `translateX(${ev.clientX - e.clientX}px) rotate(.6deg)`;
+      // the place goes before the first other column whose middle is right of the pointer
+      const others = $$('.kbx-c', cols).filter(c => c !== col && c.offsetParent), next = others.find(c => { const r = c.getBoundingClientRect(); return ev.clientX < r.left + r.width / 2; }) || null;
+      if ((next ? next.previousElementSibling : cols.lastElementChild) !== col && !(next && next === col.nextElementSibling)){
+        flip(() => { if (next) cols.insertBefore(col, next); else cols.appendChild(col); }); }
+      if (!raf){ const tick = () => { const b = bd.getBoundingClientRect(), dx = lx < b.left + 48 ? -12 : lx > b.right - 48 ? 12 : 0; if (dx && gh){ bd.scrollLeft += dx; raf = requestAnimationFrame(tick); } else raf = 0; }; raf = requestAnimationFrame(tick); }
+    };
+    const up = () => {
+      removeEventListener('pointermove', move); removeEventListener('pointerup', up); removeEventListener('pointercancel', up); cancelAnimationFrame(raf); raf = 0;
+      if (!moved) return;
+      dragged = true; setTimeout(() => dragged = false, 0);
+      const to = col.getBoundingClientRect(), done = () => { gh.remove(); col.classList.remove('crm-cph'); app.classList.remove('crm-coldrag'); };
+      K.order = [...$$('.kbx-c', cols)].map(c => c.dataset.col); saveOrder();
+      const v = visCols(); say(`${ST[k].t} moved to position ${v.indexOf(k) + 1} of ${v.length}`);
+      if (REDUCE || !gh.animate) return done();
+      gh.animate([{ transform:gh.style.transform }, { transform:`translateX(${to.left - rc0.left}px)` }], { duration:220, easing:EASE, fill:'forwards' }).finished.then(done, done);
+    };
+    addEventListener('pointermove', move); addEventListener('pointerup', up); addEventListener('pointercancel', up);
+  });
   // dragging a card to another column, with a copy of it under the pointer
   let dragged = false;
   cols.addEventListener('pointerdown', e => {
-    const el = e.target.closest('.kbx-k'); if (!el || e.button !== 0 || e.target.closest('button') || kb.classList.contains('list')) return;
+    const el = e.target.closest('.kbx-k'); if (!el || e.button !== 0 || e.target.closest('button') || el.classList.contains('crm-draft') || kb.classList.contains('list')) return;
     if (e.pointerType === 'touch' && getComputedStyle(el).touchAction !== 'none') return;
     const d = dealOf(el.dataset.id), rc = el.getBoundingClientRect(), ox = e.clientX - rc.left, oy = e.clientY - rc.top, bd = $('.kbx-bd', kb);
     let gh = null, over = null, moved = false, raf = 0, lx = e.clientX;

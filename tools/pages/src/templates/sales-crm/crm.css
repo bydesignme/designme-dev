@@ -263,21 +263,59 @@ body:has(.crm) .dmf{display:none}
 }
 
 /* ---------- Pipeline: the Kanban board ---------- */
-.crm-deals{display:flex;flex-direction:column;overflow:auto}
-.crm-kb.kbx{flex:1 0 auto;padding:var(--dm-s-3) var(--dm-s-4) var(--dm-s-4) var(--dm-s-5);min-height:0}
+.crm-deals{display:flex;flex-direction:column;overflow:hidden}
+/* the board scrolls inside itself, never the page: on a wide screen the columns scroll under their sticky heads and totals,
+   on a phone the one stage's column scrolls with the filters above it */
+.crm-kb.kbx{flex:1 1 auto;padding:var(--dm-s-3) var(--dm-s-4) var(--dm-s-4) var(--dm-s-5);min-height:0;overflow-y:auto;overscroll-behavior:contain}
 .crm-kb .kbx-fp .av{box-shadow:0 0 0 2px var(--dm-surface)}
 .crm-kb .kbx-fp button[aria-pressed="true"] .av{box-shadow:0 0 0 2px var(--dm-surface),0 0 0 3.5px var(--dm-line-strong)}
-.crm-kb .kbx-bd{overflow-x:auto;overscroll-behavior-x:contain;margin:0 calc(-1 * var(--dm-s-4)) 0 calc(-1 * var(--dm-s-5));padding:0 var(--dm-s-4) 2px var(--dm-s-5)}
-.crm-kb .kbx-cols{--dm-kbx-gt:repeat(5,minmax(216px,1fr))}
-.crm-kb .kbx-c{min-height:calc(100dvh - var(--pg-head) - 248px)}
-.crm-kb.list .kbx-c{min-height:0}
-/* hiding a stage: a quiet button at the end of its header, shown on hover or focus (always on a touch screen); the stage
-   leaves the board and waits as a chip by the filters, which brings it back or takes a dropped deal */
-.crm-kb .kbx-ch{padding-left:6px}
-.crm-kb .crm-hide{opacity:0;margin-left:-2px;transition:opacity .15s var(--dm-ease),color .15s}
-.crm-kb .crm-hide:focus-visible{opacity:1}
-@media (hover:hover) and (pointer:fine){.crm-kb .kbx-c:hover .crm-hide{opacity:1}}
-@media (hover:none){.crm-kb .crm-hide{opacity:1}}
+.crm-kb.kbx>*{flex-shrink:0}
+.crm-kb.kbx>.kbx-bd{flex:1 1 auto;min-height:0;overflow:auto;overscroll-behavior:contain;margin:0 calc(-1 * var(--dm-s-4)) 0 calc(-1 * var(--dm-s-5));padding:0 var(--dm-s-4) 0 var(--dm-s-5)}
+.crm-kb .kbx-cols{--dm-kbx-gt:repeat(5,minmax(232px,1fr));gap:14px;min-height:100%}
+/* a column is a quiet wash (opaque, so cards pass under its head and total) with soft corners; Blueprint draws it square.
+   Its cards are white on the wash with Soft's layered shadow */
+.crm-kb .kbx-c{--crm-colbg:color-mix(in srgb,var(--dm-fg) 3.5%,var(--dm-surface));--crm-colr:calc(14px * var(--dm-rk));min-height:0;padding:0 8px;gap:8px;border-radius:var(--crm-colr);background:var(--crm-colbg)}
+.crm-kb .kbx-c.over{--crm-colbg:color-mix(in srgb,var(--dm-accent) 8%,var(--dm-surface))}
+.crm-kb.list .kbx-c{min-height:0;padding:0;gap:0;border-radius:0;background:none}
+.crm-kb:not(.list) .kbx-k{padding:12px 12px 11px;background:var(--dm-raised)}
+/* the head: the stage's dot, name and deal count, then add, the column's menu and its grip. The menu and grip wait for the
+   pointer (always there on a touch screen, and on keyboard focus) */
+.crm-kb:not(.list) .kbx-ch{position:sticky;top:0;z-index:2;height:auto;min-height:44px;margin:0 -8px;padding:6px 8px 2px 14px;gap:6px;background:var(--crm-colbg);border-radius:var(--crm-colr) var(--crm-colr) 0 0;cursor:grab;touch-action:pan-y}
+.crm-kb.list .kbx-ch{padding-left:6px}
+.crm-kb .kbx-ch .crm-cnt{height:18px;padding:0 6px;font-size:11px;font-weight:400;color:var(--dm-muted);background:color-mix(in srgb,var(--dm-fg) 6%,transparent);box-shadow:none;cursor:inherit}
+.crm-kb .kbx-ch .ib{cursor:pointer}
+.crm-kb .kbx-ch .crm-grip{cursor:grab;touch-action:none}
+.crm-kb:not(.list) .kbx-ch>.ib:last-child{margin-right:-4px}
+.crm-kb:not(.list) .kbx-ch :is(.crm-cmn,.crm-grip){opacity:0;transition:opacity .15s var(--dm-ease),color .15s}
+.crm-kb:not(.list) .kbx-ch :is(.crm-cmn,.crm-grip):is(:focus-visible,[aria-expanded="true"]){opacity:1}
+@media (hover:hover) and (pointer:fine){.crm-kb:not(.list) .kbx-c:hover .kbx-ch :is(.crm-cmn,.crm-grip){opacity:1}}
+@media (hover:none){.crm-kb:not(.list) .kbx-ch :is(.crm-cmn,.crm-grip){opacity:1}}
+.crm-kb.list :is(.crm-cadd,.crm-grip){display:none}
+/* the column's total: pinned to the bottom of the visible board while the cards scroll under it */
+.crm-kb .crm-cft{position:sticky;bottom:0;z-index:2;flex:none;display:flex;align-items:center;justify-content:space-between;gap:var(--dm-s-2);height:36px;margin:auto -8px 0;padding:0 14px;font-size:12px;color:var(--dm-muted);background:var(--crm-colbg);border-top:1px solid var(--crm-hair);border-radius:0 0 var(--crm-colr) var(--crm-colr)}
+.crm-kb .crm-cft b{font-weight:500;color:var(--dm-fg2)}
+.crm-kb.list .crm-cft{position:static;justify-content:flex-end;height:32px;margin:0;padding:0 var(--dm-s-3);background:none;border-radius:0}
+/* moving a column: a lifted copy follows the pointer and a dashed place shows where it lands */
+.crm-kb .kbx-c.crm-cph{background:color-mix(in srgb,var(--dm-fg) 1.5%,transparent);outline:1.5px dashed color-mix(in srgb,var(--dm-line-strong) 50%,transparent);outline-offset:-1.5px}
+.crm-kb .kbx-c.crm-cph>*{visibility:hidden}
+.crm-kb .kbx-c.crm-cghost{position:fixed;z-index:100;margin:0;pointer-events:none;overflow:hidden;box-shadow:0 0 0 1px color-mix(in srgb,var(--dm-line-strong) 45%,transparent),var(--dm-shadow-pop);transform-origin:50% 0;will-change:transform}
+.crm-cghost .kbx-list{flex:1 1 0;min-height:0;overflow:hidden}
+.crm-cghost :is(.kbx-ch,.crm-cft){position:static}
+.crm-cghost .kbx-ch :is(.crm-cmn,.crm-grip){opacity:1}
+.crm-coldrag,.crm-coldrag *{cursor:grabbing!important;user-select:none;-webkit-user-select:none}
+/* a new deal: a draft card at the top of its column */
+.crm-kb .kbx-k.crm-draft{gap:10px;cursor:default;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-pick-on) 70%,transparent),var(--dm-shadow)}
+.crm-draft .t[contenteditable="true"]{min-height:calc(13px * 1.4 + 6px);padding-top:3px;padding-bottom:3px}
+.crm-draft .t:empty::before{content:attr(data-ph);color:var(--dm-muted);pointer-events:none}
+.crm-drw{display:flex;flex-wrap:wrap;align-items:center;gap:8px 6px;min-width:0}
+.crm-drw .dtp-v.crm-dacc{flex:1 1 100%;min-width:0;width:auto;max-width:none;height:30px;padding:0 8px;gap:6px;font-size:12px}
+.crm-dacc .i:last-child{margin-left:auto}
+.crm-dacc span:not(.pfm-lg){min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.crm-drw .pill{flex:none}
+.crm-drw .kbx-sp{flex:1 1 0}
+/* every stage hidden: the board says so and offers them all back */
+.crm-allhid{gap:4px}
+.crm-allhid .crm-ahn{max-width:380px;text-wrap:balance}
 @container kbx (min-width:640px){.crm-kb .kbx-c.gone{display:none}}
 @container kbx (max-width:639px){.crm-dock{display:none!important}}
 .crm-dock{display:flex;align-items:center;gap:var(--dm-s-1);min-width:0;margin-left:var(--dm-s-2);padding-left:var(--dm-s-3);border-left:1px solid var(--crm-hair)}
@@ -287,8 +325,6 @@ body:has(.crm) .dmf{display:none}
 .crm-dk .k{margin-left:2px}
 .crm-dk .i{color:var(--dm-muted)}
 .crm-dk.over{background:var(--dm-sel);box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--dm-accent-mark,var(--dm-accent)) 40%,transparent)}
-.crm-kb .kbx-ch .n{margin-left:2px}
-.crm-kb .kbx-ch .s{margin-left:auto;font-size:12px;color:var(--dm-fg2)}
 .crm-kb .kbx-k{gap:var(--dm-s-1)}
 .crm-kb .kbx-who{padding-right:1px;cursor:default}
 .crm-kb .kbx-m{gap:2px var(--dm-s-2)}
@@ -301,7 +337,7 @@ body:has(.crm) .dmf{display:none}
 .crm-kb .kbx-tabs{overflow-x:auto;scrollbar-width:none}
 .crm-kb .kbx-tabs::-webkit-scrollbar{display:none}
 .crm-kb .kbx-tabs button{flex:none;white-space:nowrap}
-@container kbx (max-width:639px){.crm-kb .kbx-bd{margin:0;padding:0;overflow:visible}.crm-kb .kbx-c{min-height:360px}}
+@container kbx (max-width:639px){.crm-kb.kbx>.kbx-bd{flex:none;margin:0;padding:0;overflow:visible}.crm-kb .kbx-cols{min-height:0}.crm-kb .crm-cft{bottom:calc(-1 * var(--dm-s-4))}.crm-kb:not(.list) .kbx-c{min-height:360px;padding-top:8px}}
 
 /* ---------- Forecast: the chart components on a grid ---------- */
 .crm-fc{overflow:auto;padding:var(--dm-s-4) var(--dm-s-4) var(--dm-s-6) var(--dm-s-5);display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:var(--dm-s-3);align-content:start;background:var(--dm-stage)}
@@ -576,6 +612,7 @@ body:has(.crm) .dmf{display:none}
 
 /* ---------- menus ---------- */
 .crm-pop{min-width:196px}
+#crm-p-colm{width:208px}
 .crm-pop .mi .av{width:20px;height:20px;font-size:9px}
 .crm-pop .mi .dot{width:8px;height:8px;margin:0 3px}
 .crm-pop .mi .r{margin-left:auto}
@@ -646,7 +683,7 @@ body:has(.crm) .dmf{display:none}
   .crm-fbar.ttx-ti,.crm-hd .ttx-sb{padding-left:var(--dm-s-4)}
   .crm-t th.ck,.crm-t td.ck{padding-left:var(--dm-s-4)}
   .crm-kb.kbx{padding-left:var(--dm-s-4)}
-  .crm-kb .kbx-bd{margin-left:calc(-1 * var(--dm-s-4));padding-left:var(--dm-s-4)}
+  .crm-kb.kbx>.kbx-bd{margin-left:calc(-1 * var(--dm-s-4));padding-left:var(--dm-s-4)}
   .crm-fc,.crm-ib,.crm-cal{padding-left:var(--dm-s-4)}
 }
 @media (max-width:760px){
