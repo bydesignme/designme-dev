@@ -400,8 +400,8 @@ Most visited pages with share of traffic and a quick sort.
 `pages: { path, title, views, change, tip? }[]`, `title`, `period`, `site`, `sort` / `defaultSort` / `onSortChange` (`'views' | 'change'`).
 
 **HealthScore** · `health-score/HealthScore.tsx`  
-A design system score made of a few checks you can open.  
-`checks: { key?, label, score, detail, fixable? }[]`, `title`, `score` (defaults to the average), `status`, `open` / `defaultOpen` / `onOpenChange`, `onFix(check, index)` (return a promise to spin until it settles).
+An account's health: a score ring, four factors that open, and the agent's next move.  
+`account: { name?, segment?, factors, score?, previous?, suggestion? }` (pass another account, or the same one changed, and the ring sweeps, the score counts and what changed crossfades), with `factors: { key, label, status: 'ok' | 'warn' | 'bad', value, unit?, summary, points, max, trend?, detail? }[]` (the score defaults to the points added up; `trend` is `{ kind: 'dots' | 'marks', values: boolean[] }` or `{ kind: 'spark', values: number[] }`; the weakest factor off track is labelled Weakest) and `suggestion: { text, action, icon?, done?, doneText?, doneLabel? }`, `label` ("Account health"), `period` ("30 days"), `bands` (`[70, 50]`: Healthy, Watch, At risk), `verdicts`, `open` / `defaultOpen` / `onOpenChange` (the open factor's key, or null), `onAction(account)` (return a promise to spin until it settles, then pass the account back with `suggestion.done`). Fits a 440px details sheet.
 
 **ScoreBreakdown** · `score-breakdown/ScoreBreakdown.tsx`  
 A score whose gauge is split by its weighted factors, with the weakest flagged and a fix to apply.  

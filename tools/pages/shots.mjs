@@ -57,6 +57,8 @@ Object.assign(WAIT, { 'thinking-states':3900 });
 // Step inspector with a field put into the instructions; Data picker with its picker open on the score; Run drawer with the
 // lookup tried again and the research writing its score
 Object.assign(WAIT, { 'step-inspector':6200, 'data-picker':7400, 'run-drawer':5600 });
+// Health score on Watch, its ring orange and Next step the weakest, before the check-in is booked
+Object.assign(WAIT, { 'health-score':2300 });
 const OUT = { thumbs:path.join(HERE, 'public/components/thumbs'), og:path.join(HERE, 'public/components/og') };
 Object.values(OUT).forEach(d => fs.mkdirSync(d, { recursive:true }));
 

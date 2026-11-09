@@ -128,7 +128,7 @@ It is the factor with the lowest share of its own weight, so 11 of 20 counts as 
 
 **How does this differ from Health score?**
 
-Health score averages equal checks. Score breakdown weighs its factors and shows each one's weight as its share of the gauge.
+Health score is an account's health at a glance: a small ring, four factor tiles with their trends, and the agent's next move. Score breakdown is about the score itself: it shows each factor's weight as its share of the gauge, flags the weakest part and proposes a fix to try.
 
 ## Source
 
@@ -276,7 +276,7 @@ export function ScoreBreakdown({ factors, title = 'Quality score', previous, sin
 - [Radial goals](https://designme.dev/components/radial-goals.md): Each agent's share of its own target as a ring, with the overall score in the middle.
 - [Funnel chart](https://designme.dev/components/funnel-chart.md): Signup to paid, with the biggest drop called out by the agent.
 - [Top pages](https://designme.dev/components/top-pages.md): Most visited pages with share of traffic and a quick sort.
-- [Health score](https://designme.dev/components/health-score.md): A design system score made of a few checks you can open.
+- [Health score](https://designme.dev/components/health-score.md): An account's health: a score ring, four factors that open, and the agent's next move.
 - [Eval radar](https://designme.dev/components/radar-chart.md): This run against the baseline on six eval scores, with the weak ones flagged.
 - [Cost vs quality](https://designme.dev/components/scatter-chart.md): Every run as a dot by cost and eval score, sized by tokens, with quadrants and a drag to select.
 - [Activity heatmap](https://designme.dev/components/activity-heatmap.md): When the agent and the team were busy, by day and hour.
