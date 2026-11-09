@@ -748,7 +748,7 @@ Every CSS variable starts with \`--dm-\` in every version, and in the React vers
   // the sidebar's icons (the site's own Phosphor set, which the homepage draws in its sidebar in both styles), so the docs and
   // component pages draw the same Library, Docs, Changelog, Roadmap and FAQ rows
   const shell = JSON.parse(site.match(/const PH_SHELL = (\{.*?\});\n/)[1]), icons = {};
-  for (const k of ['dashboard', 'description', 'history', 'trending_up', 'help', 'expand_more', 'search', 'terminal', 'tune', 'stars', 'check_circle', 'arrow_forward', 'arrow_back', 'code', 'content_copy']){
+  for (const k of ['dashboard', 'description', 'view_sidebar', 'history', 'trending_up', 'help', 'expand_more', 'search', 'terminal', 'tune', 'stars', 'check_circle', 'arrow_forward', 'arrow_back', 'code', 'content_copy']){
     if (!shell[k]) throw new Error('no sidebar icon called ' + k); icons[k] = shell[k];
   }
   // the foot of the homepage's sidebar (the DesignMe sticker, the credit line and Book a call), so every page pins the same one
