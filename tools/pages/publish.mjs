@@ -22,6 +22,8 @@ fs.rmSync(path.join(ROOT, 'components.html'), { force:true });
 const site = JSON.parse(fs.readFileSync(path.join(HERE, 'data/site.json'), 'utf8'));
 fs.writeFileSync(path.join(ROOT, '_redirects'), [
   '# written by tools/pages/publish.mjs',
+  '# the Fundraising CRM template is off the site for now (owner, 9 Nov); its code is in tools/pages/src/templates/fundraising-crm',
+  '/templates/fundraising-crm /templates/sales-crm 302',
   '# the homepage lists every component: the old list and section pages go there',
   '/components / 301', '/components/ / 301', '/components.html / 301',
   ...site.sections.map(s => `/components/${s.slug} /#${s.id} 301`),
