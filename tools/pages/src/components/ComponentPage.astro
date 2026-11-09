@@ -125,6 +125,11 @@ const words = cmd => cmd.split(' ').map(w => /^https?:/.test(w) ? w.replace(/&/g
       .cp-sec li::marker{color:var(--pg-muted)}
       .cp-sec code{font:500 12.5px/1.4 var(--pg-mono);font-variant-ligatures:none;background:var(--pg-chip);padding:1px 5px;border-radius:5px;color:var(--pg-fg)}
       .cp-gap{margin-top:28px}
+      /* install: the ways to add it one under another, each with its name beside its command; on a phone the name sits above */
+      .cp-ins{display:flex;flex-direction:column;gap:10px}
+      .cp-row{display:grid;grid-template-columns:180px minmax(0,1fr);align-items:center;gap:16px;min-width:0}
+      .cp-row .cp-mt{margin:0}
+      @media (max-width:719px){.cp-row{grid-template-columns:minmax(0,1fr);gap:8px}}
       /* install: the two commands side by side */
       .cp-two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
       /* the three ways to install: side by side where they fit, then one under another */
@@ -263,17 +268,14 @@ const words = cmd => cmd.split(' ').map(w => /^https?:/.test(w) ? w.replace(/&/g
 
     <section class="cp-sec" id="install">
       <div class="pg-sh"><span class="n">{S.install.n}</span><h2>{S.install.name}</h2><p>{S.install.line}</p></div>
-      <div class="cp-three">
-        <div class="cp-box"><h3 class="pg-t cp-mt"><Fragment set:html={MARKS.html} />HTML, CSS and JavaScript</h3><div class="cp-line"><span class="d">$</span><code set:html={words(cmdHtml)} /><button class="cp-copy" type="button" data-copy={cmdHtml} data-label="Copy" aria-label="Copy the HTML install command">Copy</button></div></div>
-        <div class="cp-box"><h3 class="pg-t cp-mt"><Fragment set:html={MARKS.react} />React</h3><div class="cp-line"><span class="d">$</span><code set:html={words(cmdReact)} /><button class="cp-copy" type="button" data-copy={cmdReact} data-label="Copy" aria-label="Copy the React install command">Copy</button></div></div>
-        {ax && <div class="cp-box"><h3 class="pg-t cp-mt"><Fragment set:html={MARKS.astro} />Astro</h3><div class="cp-line"><span class="d">$</span><code set:html={words(cmdAstro)} /><button class="cp-copy" type="button" data-copy={cmdAstro} data-label="Copy" aria-label="Copy the Astro install command">Copy</button></div></div>}
+      <div class="cp-ins">
+        <div class="cp-row"><h3 class="pg-t cp-mt"><Fragment set:html={MARKS.html} />HTML, CSS and JS</h3><div class="cp-line"><span class="d">$</span><code set:html={words(cmdHtml)} /><button class="cp-copy" type="button" data-copy={cmdHtml} data-label="Copy" aria-label="Copy the HTML install command">Copy</button></div></div>
+        <div class="cp-row"><h3 class="pg-t cp-mt"><Fragment set:html={MARKS.react} />React</h3><div class="cp-line"><span class="d">$</span><code set:html={words(cmdReact)} /><button class="cp-copy" type="button" data-copy={cmdReact} data-label="Copy" aria-label="Copy the React install command">Copy</button></div></div>
+        {ax && <div class="cp-row"><h3 class="pg-t cp-mt"><Fragment set:html={MARKS.astro} />Astro</h3><div class="cp-line"><span class="d">$</span><code set:html={words(cmdAstro)} /><button class="cp-copy" type="button" data-copy={cmdAstro} data-label="Copy" aria-label="Copy the Astro install command">Copy</button></div></div>}
+        <div class="cp-row"><h3 class="pg-t cp-mt"><Fragment set:html={MARKS.react} />shadcn, React</h3><div class="cp-line"><span class="d">$</span><code set:html={words(cmdShadcn)} /><button class="cp-copy" type="button" data-copy={cmdShadcn} data-label="Copy" aria-label="Copy the shadcn command for React">Copy</button></div></div>
+        {ax && <div class="cp-row"><h3 class="pg-t cp-mt"><Fragment set:html={MARKS.astro} />shadcn, Astro</h3><div class="cp-line"><span class="d">$</span><code set:html={words(cmdShadcnAstro)} /><button class="cp-copy" type="button" data-copy={cmdShadcnAstro} data-label="Copy" aria-label="Copy the shadcn command for Astro">Copy</button></div></div>}
       </div>
-      <p class="cp-note">The CLI copies the source into your project, so you own it and can change anything. The HTML version lands in <code>./designme</code> with the shared core and a <code>demo.html</code>. The React version lands in <code>src/components/designme</code> and needs React 19; it works in Next.js, Vite and Astro islands. The Astro version lands in <code>src/components/designme</code> too, with the same markup, CSS and script as the HTML version. See <a href="/docs/astro">Astro</a>.</p>
-      <div class="cp-two cp-gap">
-        <div class="cp-box"><h3 class="pg-t cp-mt"><Fragment set:html={MARKS.react} />shadcn CLI, React</h3><div class="cp-line"><span class="d">$</span><code set:html={words(cmdShadcn)} /><button class="cp-copy" type="button" data-copy={cmdShadcn} data-label="Copy" aria-label="Copy the shadcn command for React">Copy</button></div></div>
-        {ax && <div class="cp-box"><h3 class="pg-t cp-mt"><Fragment set:html={MARKS.astro} />shadcn CLI, Astro</h3><div class="cp-line"><span class="d">$</span><code set:html={words(cmdShadcnAstro)} /><button class="cp-copy" type="button" data-copy={cmdShadcnAstro} data-label="Copy" aria-label="Copy the shadcn command for Astro">Copy</button></div></div>}
-      </div>
-      <p class="cp-note">In a project set up for shadcn/ui, its CLI adds the same files to your components folder, under <code>designme/</code>, with the shared core. To give the components your shadcn or Tailwind v4 theme, add the <a href="/docs/installation#theme-bridge">theme bridge</a>.</p>
+      <p class="cp-note">The CLI copies the source into your project, so you own it and can change anything. Where each version lands, what it needs and the shadcn theme bridge: <a href="/docs/installation">Installation</a>.</p>
     </section>
 
     {S.about && <section class="cp-sec" id="about">
