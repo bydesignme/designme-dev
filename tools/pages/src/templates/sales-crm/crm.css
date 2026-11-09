@@ -234,6 +234,10 @@ body:has(.crm) .dmf{display:none}
 .crm-ecx .ecx-e{right:auto;min-width:0}
 .crm-ecx .ecx-e>span:not(.ecx-sg){display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .crm-ecx .ecx-e.late{box-shadow:inset 2px 0 0 var(--dm-bad)}
+/* a half-hour meeting is one line: the account, then the kind and time as far as they fit */
+.crm-ecx .ecx-e.short{display:flex;align-items:baseline;gap:6px;padding-top:2px;padding-bottom:0}
+.crm-ecx .ecx-e.short b{flex:none;max-width:70%}
+.crm-ecx .ecx-e.short>span:not(.ecx-sg){flex:1;min-width:0}
 /* the agent's proposed slots: dashed, with Book and Skip */
 .crm-ecx .ecx-e.sug{box-shadow:none!important;border:1.5px dashed color-mix(in srgb,var(--dm-accent-mark,var(--dm-accent)) 60%,transparent);z-index:2;cursor:default}
 .crm-ecx .ecx-e.sug{display:flex;flex-direction:column;justify-content:space-between}
@@ -426,6 +430,163 @@ body:has(.crm) .dmf{display:none}
 .crm-sact .pill{flex:1}
 .crm-sact .pill .i{color:var(--dm-fg2)}
 
+/* ---------- round 3 ---------- */
+/* the sheet slides inside a layer that clips it, so the page never gets wider; the toolbar's bulk bar scrolls inside itself */
+.crm-sheetw{position:absolute;inset:0;z-index:20;overflow:hidden;pointer-events:none}
+.crm-sheet{pointer-events:auto}
+.crm-hd .ttx-sb{overflow-x:auto;scrollbar-width:none}
+.crm-hd .ttx-sb::-webkit-scrollbar{display:none}
+/* health: a quiet score for Good, the gauge only where it says something (Fair and At risk) */
+.crm-hs .g0{width:28px;flex:none}
+.crm-hs[data-h="ok"] b{color:var(--dm-fg2);font-weight:400}
+/* the deal a close date filter matched, under the pipeline value */
+.crm-due{font-size:12px;color:var(--dm-muted)}
+.crm-due.late{color:var(--dm-bad)}
+/* a lost deal's card says why */
+.crm-why{font-size:12px;line-height:1.4;color:var(--dm-muted)}
+.crm-kb .kbx-k.lost .kbx-mt.v{color:var(--dm-muted)}
+/* the list: column headers once over the groups, one grid for the header and the rows, numbers right-aligned */
+.crm-lhd,.crm-kb.list .kbx-k.crm-lr{display:grid;grid-template-columns:64px minmax(0,1.5fr) minmax(0,1.3fr) 112px 84px 48px 96px 28px;align-items:center;column-gap:var(--dm-s-3)}
+.crm-lhd{height:32px;padding:0 var(--dm-s-3);margin-bottom:var(--dm-s-2);font-size:12px;color:var(--dm-muted)}
+.crm-lhd[hidden]{display:none}
+.crm-lhd .pr,.crm-lhd .v,.crm-lr .pr,.crm-lr .v{text-align:right}
+.crm-kb.list .kbx-k.crm-lr{height:40px;padding:0 var(--dm-s-3);font-size:13px}
+/* the component's list orders and sizes its own row parts; these rows keep the header's order and the grid's widths */
+.crm-kb.list .kbx-cols .kbx-k.crm-lr>*,.crm-kb.list .kbx-bd .crm-lhd>*{order:0;width:auto;flex:none;min-width:0}
+.crm-kb.list .kbx-cols .kbx-k.crm-lr>:is(.kbx-id,.t),.crm-kb.list .kbx-bd .crm-lhd>:is(.kbx-id,.t){display:block}
+.crm-lr .kbx-id{font-size:12px;color:var(--dm-muted)}
+.crm-lr .t{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.crm-lr .co,.crm-lr .ow{display:flex;align-items:center;gap:6px;min-width:0;color:var(--dm-fg2)}
+.crm-lr .co>span:last-child,.crm-lr .ow>span:last-child{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.crm-lr .ow .av{width:20px;height:20px;font-size:11px}
+.crm-lr .cl,.crm-lr .pr{color:var(--dm-fg2)}
+.crm-lr .cl.late{color:var(--dm-bad)}
+.crm-lr .v{font-weight:500}
+.crm-lr .kbx-mv{justify-self:end}
+.crm-kb.list .kbx-k.crm-lr.won .v{color:var(--dm-ok)}
+@container kbx (max-width:639px){
+  .crm-lhd,.crm-kb.list .kbx-k.crm-lr{grid-template-columns:minmax(0,1fr) 84px 28px}
+  .crm-lhd>:not(.t,.v,.mv),.crm-lr>:not(.t,.v,.kbx-mv){display:none}
+}
+/* the confirm card: a draft to send, or a slot to book */
+.crm-cfm.pop{width:340px;max-width:calc(100vw - 16px);padding:var(--dm-s-3)}
+.crm-cfh{display:flex;flex-direction:column;gap:2px;margin-bottom:var(--dm-s-2)}
+.crm-cfh b{font-size:13px;font-weight:500}
+.crm-cfh .muted,.crm-cfs{font-size:12px}
+.crm-cfs{margin-bottom:6px}
+.crm-cfb{max-height:180px;overflow:auto;padding:var(--dm-s-2) 10px;border-radius:var(--dm-r-in);background:var(--dm-row);font-size:13px;line-height:1.55}
+.crm-cfslot{display:flex;align-items:center;gap:var(--dm-s-2);padding:10px;border-radius:var(--dm-r-in);background:var(--dm-row);font-size:13px}
+.crm-cfslot b{font-weight:500}
+.crm-cfslot .i{color:var(--dm-muted)}
+.crm-cfslot .muted{margin-left:auto;font-size:12px}
+.crm-cfa{display:flex;justify-content:flex-end;gap:6px;margin-top:10px}
+/* delete asks first: Decision prompt as a dialog, its destructive button in the bad colour */
+.crm-delw .crm-dlg.dpx{width:100%;max-width:460px;padding:var(--dm-s-4);background:var(--dm-raised);box-shadow:var(--dm-shadow-pop);animation:popin .35s var(--dm-ease) backwards}
+.crm-dlg .dpx-q{margin-bottom:0}
+.crm-dlg .dpx-sr{border-bottom-color:var(--crm-hair)}
+.crm-dlg .dpx-sr span{width:104px}
+.crm-dlg .dpx-f{align-items:center}
+.crm-dln{margin-right:auto;font-size:12px}
+.crm .pill.crm-danger{background:var(--dm-bad);color:var(--dm-surface)}
+/* the inbox group's Approve all */
+.crm-aib .aib-gh .crm-iall{margin-left:auto;height:24px;padding:0 var(--dm-s-2)}
+.crm-pj{margin:var(--dm-s-1) 0 0;font-size:12px}
+/* the meeting card's people: Kanban's overlapping avatar stack (round with a ring in Soft, square in Blueprint), each one a
+   button that removes its person (a small x shows on hover and keyboard focus), then + and the names */
+.crm-cpop .crm-pw{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.crm-avs{display:flex;align-items:center;padding-left:5px}
+.crm-avb{position:relative;display:grid;margin-left:-5px;border-radius:50%}
+.crm-cpop .crm-avs .av{width:24px;height:24px;margin:0;font-size:11px;box-shadow:0 0 0 1.5px var(--dm-raised)}
+.crm-avb .x{position:absolute;top:-4px;right:-4px;width:14px;height:14px;display:grid;place-items:center;border-radius:50%;background:var(--dm-fg);color:var(--dm-raised);opacity:0;transition:opacity var(--dm-t-fast)}
+.crm-avb .x .i{width:9px;height:9px}
+@media (hover:hover) and (pointer:fine){.crm-avb:hover .x{opacity:1}}
+.crm-avb:focus-visible .x{opacity:1}
+.crm-padd.ib{width:24px;height:24px;margin-left:2px;box-shadow:inset 0 0 0 1px var(--crm-hair);color:var(--dm-fg2)}
+.crm-pwn{font-size:12px}
+.crm-cpop .crm-pwhen{margin:0 0 0 -6px;height:26px;padding:0 6px;gap:6px;font-size:12px;color:var(--dm-fg2)}
+.crm-cpop .crm-pwhen .i{color:var(--dm-muted)}
+/* the people picker: a search, then the account's people and the team, each with a check */
+.crm-ppk.pop{width:288px;padding:6px}
+.crm-ppin{display:flex;align-items:center;gap:var(--dm-s-2);height:32px;margin:2px 2px 6px;padding:0 10px;border-radius:var(--dm-r-field);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line) 50%,transparent);color:var(--dm-muted)}
+.crm-ppin:focus-within{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line-strong) 50%,transparent)}
+@supports (corner-shape:squircle){.crm-ppin{corner-shape:squircle;border-radius:var(--dm-r-field-sq)}}
+.crm-ppq{flex:1;min-width:0;height:100%;border:0;outline:0;background:none;font:inherit;font-size:13px;color:var(--dm-fg)}
+.crm-ppq::placeholder{color:var(--dm-muted)}
+.crm-ppo{max-height:264px;overflow:auto}
+.crm-po{display:flex;align-items:center;gap:10px;padding:6px var(--dm-s-2);border-radius:var(--dm-r-sm);font-size:13px;cursor:pointer;transition:background var(--dm-t-fast)}
+.crm-po.hl{background:var(--dm-row)}
+@media (hover:hover) and (pointer:fine){.crm-po:hover{background:var(--dm-row)}}
+.crm-po[aria-disabled="true"]{cursor:default}
+.crm-po .av{width:24px;height:24px;font-size:11px}
+.crm-po .t{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.3}
+.crm-po .t b{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.crm-po .t .muted{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.crm-po .ck{display:grid;opacity:0;color:var(--dm-fg);transition:opacity var(--dm-t-fast)}
+.crm-po[aria-selected="true"] .ck{opacity:1}
+.crm-ppe{padding:var(--dm-s-4) var(--dm-s-2);font-size:13px;text-align:center}
+/* the date and time: Date picker's month, then the start and the length */
+.crm-when.pop{width:288px;padding:10px}
+.crm-when .dpk-g{gap:2px 0}
+.crm-when .dpk-d{height:30px}
+.crm-wt{display:flex;align-items:center;gap:6px;margin-top:var(--dm-s-2);font-size:13px}
+.crm-wt .k{width:52px;flex:none;font-size:12px;color:var(--dm-muted)}
+.crm-wt b{min-width:64px;text-align:center;font-weight:500}
+.crm-wt .ib{width:28px;height:28px;box-shadow:inset 0 0 0 1px var(--crm-hair)}
+.crm-wl button{padding:0 9px}
+.crm-wa{display:flex;justify-content:flex-end;margin-top:10px}
+/* a proposed slot: the account, Book and a menu; its time shows while it fits */
+.crm-ecx .ecx-e.sug{container-type:inline-size}
+.crm-ecx .crm-sgm{display:grid;place-items:center;padding:2px 4px}
+@container (max-width:112px){.crm-ecx .ecx-sg i{display:none}}
+.crm-ecx .ecx-scan:not(.go){display:none}
+/* toasts sit over the inbox preview's empty space, clear of its actions */
+@media (min-width:761px){.crm[data-view="inbox"] .crm-toasts{right:calc(var(--dm-s-4) + 20px);bottom:calc(var(--dm-s-4) + 80px)}}
+/* Forecast: the comparison is said, not hidden in a hover */
+.crm-fc .scx-v{flex-wrap:wrap;row-gap:2px}
+.crm-vs{flex-basis:100%;font-size:12px;color:var(--dm-muted)}
+
+/* the type scale reaches the core's own pieces too: tags and menu headings at 11px, small buttons at 12px */
+.crm .tag,.crm .pop .ph,:root:not([data-style="soft"]) .crm .tag{font-size:11px}
+.crm .pill.sm{font-size:12px}
+.crm .seg2 button{font-size:12px}
+
+/* ---------- dark review ---------- */
+/* the row gauge's track is a grey you can see in every theme, so a low score reads as a short arc on a whole one */
+.crm-hs .tr{stroke:color-mix(in srgb,var(--dm-line-strong) 45%,var(--dm-line))}
+:root[data-theme="dark"] .crm-hs .tr{stroke:color-mix(in srgb,var(--dm-line-strong) 80%,var(--dm-line))}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .crm-hs .tr{stroke:color-mix(in srgb,var(--dm-line-strong) 80%,var(--dm-line))}}
+/* the shade behind Add account, Jump to and the delete question, and behind the phone's drawer: rows behind it stop reading */
+.crm .crm-over{background:rgba(12,12,16,.36)}
+.crm .crm-scrim.ahx-scrim{background:rgba(12,12,16,.36)}
+:root[data-theme="dark"] .crm .crm-over,:root[data-theme="dark"] .crm .crm-scrim.ahx-scrim{background:rgba(0,0,0,.58)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .crm .crm-over,:root:not([data-theme="light"]) .crm .crm-scrim.ahx-scrim{background:rgba(0,0,0,.58)}}
+/* Add account: a picked chip is Form's picked look, a clear step from the rest (surface, a stronger edge, ink text); and
+   placeholders are the muted placeholder colour */
+.crm-newd .fmx-ty .chip{background:var(--dm-surface);color:var(--dm-fg2)}
+.crm-newd .fmx-ty .chip.on{background:var(--dm-sel);color:var(--dm-fg);box-shadow:inset 0 0 0 1.5px var(--dm-line-strong)}
+.crm-newd .fmx-f input::placeholder{color:var(--dm-muted);opacity:1}
+/* Forecast: gridlines a quiet grey that still reads in dark */
+.crm-fc .lnx-svg .gl{stroke:color-mix(in srgb,var(--dm-line),var(--dm-fg) 14%)}
+/* the dragged card keeps its lift in dark: a hairline edge on its shadow */
+.crm-kb .kbx-k.ghost{box-shadow:0 0 0 1px color-mix(in srgb,var(--dm-line-strong) 55%,transparent),var(--dm-shadow-pop)}
+/* focus rings: the library's --dm-focus at full strength, 2px, on everything the keyboard reaches */
+.crm :focus-visible{outline:2px solid var(--dm-focus)}
+/* Blueprint: its lime marks the primary action and what is picked or current, nothing else. The stage in play, the agent's chips
+   and asks, the inbox count, proposed slots and Fair health are ink and grey there */
+:root:not([data-style="soft"]) .crm .ttx-st[data-s="run"]{--dm-sc:var(--dm-fg);background:color-mix(in srgb,var(--dm-fg) 10%,transparent)}
+:root:not([data-style="soft"]) .crm .pill.soft.crm-ag,:root:not([data-style="soft"]) .crm .pill.soft.ecx-ask{background:var(--dm-chip);color:var(--dm-fg)}
+@media (hover:hover) and (pointer:fine){:root:not([data-style="soft"]) .crm .pill.soft.crm-ag:hover,:root:not([data-style="soft"]) .crm .pill.soft.ecx-ask:hover{background:color-mix(in srgb,var(--dm-fg) 14%,transparent)}}
+:root:not([data-style="soft"]) .crm-nav .ahx-cv .n.crm-wait{background:var(--dm-chip);color:var(--dm-fg)}
+:root:not([data-style="soft"]) .crm .six-ans{background:var(--dm-row);color:var(--dm-fg2)}
+:root:not([data-style="soft"]) .crm .six-ans>svg{color:var(--dm-fg2)}
+:root:not([data-style="soft"]) .crm-ecx .ecx-e.sug{color:var(--dm-fg)!important;border-color:color-mix(in srgb,var(--dm-line-strong) 70%,transparent)}
+:root:not([data-style="soft"]) .crm-ecx .ecx-sg button.y{background:var(--dm-chip);color:var(--dm-fg)}
+:root:not([data-style="soft"]) .crm-ecx .ecx-sg button.n,:root:not([data-style="soft"]) .crm-ecx .ecx-sg i{color:var(--dm-fg2)}
+:root:not([data-style="soft"]) .crm-hs[data-h="mid"] .fl{stroke:var(--dm-warn-mark)}
+:root:not([data-style="soft"]) .crm-aib .aib-r .ib.crm-iok{color:var(--dm-fg2)}
+:root:not([data-style="soft"]) .crm-sd[data-s="nego"]{color:var(--dm-fg)}
+:root:not([data-style="soft"]) .crm-ecx .ecx-scan{background:linear-gradient(90deg,transparent,var(--dm-line-strong),transparent)}
+
 /* ---------- menus ---------- */
 .crm-pop{min-width:196px}
 .crm-pop .mi .av{width:20px;height:20px;font-size:9px}
@@ -526,6 +687,29 @@ body:has(.crm) .dmf{display:none}
   .crm-toasts{right:var(--dm-s-2);bottom:var(--dm-s-2);width:calc(100% - 16px)}
 }
 @media (max-width:520px){
+  /* each account on two lines: its name and value, then its stage, next step and health; the wide columns go */
+  .crm-t.ttx-t{min-width:0;display:block}
+  .crm-t thead{display:none}
+  .crm-t tbody{display:block}
+  .crm-t tbody tr[data-id]{display:grid;grid-template-columns:44px auto minmax(0,1fr) auto;grid-template-rows:auto auto;align-items:center;column-gap:var(--dm-s-2);row-gap:4px;padding:10px var(--dm-s-4) 10px 0;border-bottom:1px solid var(--crm-hair)}
+  .crm-t tbody tr[data-id]>td{display:block;height:auto;padding:0;border:0;position:static;background:none!important;box-shadow:none!important}
+  .crm-t tbody tr[data-id]>td.ck{grid-row:1/3;padding-left:var(--dm-s-4)}
+  .crm-t tbody tr[data-id]>td:nth-child(2){grid-column:2/4;grid-row:1;min-width:0}
+  .crm-t tbody tr[data-id]>td:nth-child(3){grid-column:2;grid-row:2}
+  .crm-t tbody tr[data-id]>td:nth-child(4){grid-column:3;grid-row:2;min-width:0}
+  .crm-t tbody tr[data-id]>td:nth-child(6){grid-column:4;grid-row:1;text-align:right}
+  .crm-t tbody tr[data-id]>td:nth-child(7){grid-column:4;grid-row:2;justify-self:end}
+  .crm-t tbody tr[data-id]>td:is(:nth-child(5),:nth-child(8),:nth-child(9)){display:none}
+  .crm-co .nm{max-width:none}
+  .crm-co .nm .pfm-lg{display:none}
+  .crm-co .nm .s{display:none}
+  .crm-t .crm-nx{flex-direction:row;gap:var(--dm-s-1);max-width:none;font-size:12px}
+  .crm-t .crm-nx .k{flex:none;max-width:50%}
+  .crm-t .crm-nx .d{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .crm-t .crm-nx .d::before{content:"· "}
+  .crm-t .crm-pv .muted,.crm-t .crm-due{display:none}
+  .crm-t .crm-hs .l{display:none}
+  .crm-t .ttx-st{height:20px}
   .crm-sum .lg{display:none}
   .crm-sum .sh{display:inline}
   .crm-ask.six-box{min-width:0}
