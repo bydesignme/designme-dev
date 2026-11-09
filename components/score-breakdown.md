@@ -128,7 +128,7 @@ It is the factor with the lowest share of its own weight, so 11 of 20 counts as 
 
 **How does this differ from Health score?**
 
-Health score is an account's health at a glance: a small ring, four factor tiles with their trends, and the agent's next move. Score breakdown is about the score itself: it shows each factor's weight as its share of the gauge, flags the weakest part and proposes a fix to try.
+Health score is an account's health at a glance: a small ring, four factor rows that open their detail, and the agent's next move. Score breakdown is about the score itself: it shows each factor's weight as its share of the gauge, flags the weakest part and proposes a fix to try.
 
 ## Source
 
