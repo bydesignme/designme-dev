@@ -83,12 +83,12 @@ body{font-family:var(--sans);font-size:14px;line-height:1.5;color:var(--fg);-web
 .hvb-ring b{position:relative;font-size:14px;font-weight:500;letter-spacing:-.01em;line-height:1}
 .hvb-ht{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.4}
 .hvb-vd{font-size:14px;font-weight:500;color:var(--vf);transition:color var(--t) var(--ease)}
-.hvb-sub{font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hvb-sub{font-size:12.5px;color:var(--muted);text-wrap:pretty}
 .hvb-dl{flex:none;align-self:flex-start;margin-top:4px;font-size:12.5px;color:var(--muted)}
 
 /* the tiles: two by two, a detail row under each pair */
 .hvb-g{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--s-2)}
-.hvb-t{position:relative;display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"k cv" "v tr";align-items:center;gap:var(--s-2);min-width:0;padding:10px var(--s-3) var(--s-3);border-radius:var(--r-in);background-color:var(--surface);box-shadow:var(--shadow);text-align:left;
+.hvb-t{position:relative;display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"k k" "v tr";align-items:center;gap:var(--s-2);min-width:0;padding:10px var(--s-3) var(--s-3);border-radius:var(--r-in);background-color:var(--surface);box-shadow:var(--shadow);text-align:left;
   --sm:var(--ok-mark);--tb:color-mix(in srgb,var(--ok-bg) 60%,transparent);
   transition:transform var(--t) var(--ease),box-shadow var(--t-fast) var(--ease),background-color var(--t-fast)}
 .hvb-t[data-s="warn"]{--sm:var(--warn-mark);--tb:color-mix(in srgb,var(--warn-bg) 60%,transparent)}
@@ -103,10 +103,10 @@ body{font-family:var(--sans);font-size:14px;line-height:1.5;color:var(--fg);-web
 .hvb-t[aria-expanded="true"]{box-shadow:var(--shadow),inset 0 0 0 1px color-mix(in srgb,var(--faint) 65%,transparent)}
 @media (hover:hover) and (pointer:fine){.hvb-t[aria-expanded="true"]:hover{box-shadow:var(--shadow-pop),inset 0 0 0 1px color-mix(in srgb,var(--faint) 65%,transparent)}}
 
-.hvb-k{grid-area:k;display:flex;align-items:center;gap:6px;min-width:0;font-size:12px;line-height:16px;color:var(--muted)}
+.hvb-k{grid-area:k;display:flex;align-items:center;gap:6px;min-width:0;padding-right:20px;font-size:12px;line-height:16px;color:var(--muted)}
 .hvb-k span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .hvb-dot{flex:none;width:8px;height:8px;border-radius:50%;corner-shape:round;background:var(--sm);transition:background var(--t) var(--ease)}
-.hvb-cv{grid-area:cv;justify-self:end;color:var(--muted);transition:transform var(--t) var(--ease)}
+.hvb-cv{position:absolute!important;top:12px;right:var(--s-3);color:var(--muted);transition:transform var(--t) var(--ease)}
 .hvb-t[aria-expanded="true"] .hvb-cv{transform:rotate(180deg)}
 .hvb-v{grid-area:v;display:flex;align-items:baseline;gap:5px;min-width:0;white-space:nowrap;line-height:20px}
 .hvb-v b{font-size:14px;font-weight:500;letter-spacing:-.01em}
@@ -154,6 +154,14 @@ body{font-family:var(--sans);font-size:14px;line-height:1.5;color:var(--fg);-web
 :root:not([data-style="soft"]) .hvb-done{font-size:11px}
 :root:not([data-style="soft"]) .hvb-s{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--accent-mark) 35%,transparent)}
 
+/* a narrow sheet (phones): the trend takes its own line under the figure, and the button goes under the suggestion */
+@container (max-width:420px){
+  .hvb-t{grid-template-areas:"k k" "v v" "tr tr";row-gap:6px}
+  .hvb-tr{justify-self:start}
+  .hvb-s{flex-wrap:wrap;row-gap:var(--s-2);padding:var(--s-3)}
+  .hvb-st{flex:1 1 calc(100% - 26px)}
+  .hvb-s :is(.pill,.hvb-done){margin-left:22px}
+}
 @media (prefers-reduced-motion:reduce){
   .hvb *,.hvb *::before{transition-duration:.01ms!important;animation-duration:.01ms!important}
   .hvb-t:hover,.hvb-t:active{transform:none}
