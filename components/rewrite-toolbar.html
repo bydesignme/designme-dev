@@ -553,7 +553,7 @@ const { class: className, ...rest } = Astro.props;
 .rwx-tb.act{padding:var(--dm-s-1) var(--dm-s-1) var(--dm-s-1) var(--dm-s-3)}
 .rwx-tb .lbl{font-size:12.5px;margin-right:6px;display:flex;align-items:center;gap:7px}
 .rwx-tb .pill.sm{height:28px}
-</code></pre></details><details class="cp-file"><summary>rewrite-toolbar.js<span class="l">HTML · 52 lines</span></summary><pre class="cp-pre" data-name="rewrite-toolbar.js"><code>DM.def(&#39;rewrite-toolbar&#39;, (r, c) =&gt; {
+</code></pre></details><details class="cp-file"><summary>rewrite-toolbar.js<span class="l">HTML · 53 lines</span></summary><pre class="cp-pre" data-name="rewrite-toolbar.js"><code>DM.def(&#39;rewrite-toolbar&#39;, (r, c) =&gt; {
   r.innerHTML = r.innerHTML.replace(&#39;{spark}&#39;, I(&#39;spark&#39;,&#39;xs&#39;)).replace(&#39;{at}&#39;, I(&#39;wand&#39;,&#39;xs&#39;));
   const S = [
     [&#39;Welcome to DesignMe, a place where you and your team can work together with an agent on all of your design files in one place.&#39;, { clear:&#39;DesignMe is where your team and an agent design together.&#39;, short:&#39;Design with your team and an agent.&#39;, warm:&#39;Welcome in. This is where you, your team and your agent make things together.&#39; }],
@@ -567,6 +567,7 @@ const { class: className, ...rest } = Astro.props;
   centre(c, box, () =&gt; box.offsetHeight);
   function place(el){
     const br = box.getBoundingClientRect(), rects = el.getClientRects(), f = rects[0];
+    if (!f) return; // the card is hidden (far off screen, or the other set is showing): nothing to place against
     const w = tb.offsetWidth; let x = f.left - br.left; x = Math.max(8, Math.min(x, br.width - w - 8));
     // above the sentence, unless that would cover the header: then under its last line
     let y = f.top - br.top - tb.offsetHeight - 8; if (y &lt; $(&#39;.rwx-h&#39;, r).getBoundingClientRect().bottom - br.top) y = rects[rects.length - 1].bottom - br.top + 8;
@@ -937,6 +938,7 @@ const fitHits = window.dmFitHits || (() => {
   centre(c, box, () => box.offsetHeight);
   function place(el){
     const br = box.getBoundingClientRect(), rects = el.getClientRects(), f = rects[0];
+    if (!f) return; // the card is hidden (far off screen, or the other set is showing): nothing to place against
     const w = tb.offsetWidth; let x = f.left - br.left; x = Math.max(8, Math.min(x, br.width - w - 8));
     // above the sentence, unless that would cover the header: then under its last line
     let y = f.top - br.top - tb.offsetHeight - 8; if (y < $('.rwx-h', r).getBoundingClientRect().bottom - br.top) y = rects[rects.length - 1].bottom - br.top + 8;

@@ -9,10 +9,15 @@ SW = '<div class="fw-sw" role="group" aria-label="Version"><button type="button"
 
 # shared helpers, next to the code data they read
 patch("""  const CODE = JSON.parse($('#code-data').textContent);
-""", """  // the code behind each component lives in code-data.json, fetched once the page has loaded or the first time it is needed
+""", """  // the code behind each component lives in code-data.json (1.8 MB), fetched the first time it is needed, or ahead of that
+  // once the visitor starts using the page after it has loaded (a tap, a key, the wheel, a scroll), so a visit that only
+  // looks doesn't download it
   let CODE = null;
   const codeReady = () => codeReady.p || (codeReady.p = fetch('/code-data.json').then(r => { if (!r.ok) throw new Error(r.status); return r.json(); }).then(d => (CODE = d)).catch(e => { codeReady.p = null; throw e; }));
-  addEventListener('load', () => setTimeout(() => codeReady().catch(() => {}), 1500));
+  addEventListener('load', () => {
+    const ev = ['pointerdown', 'keydown', 'wheel', 'touchstart', 'scroll'], go = () => { ev.forEach(t => removeEventListener(t, go, true)); setTimeout(() => codeReady().catch(() => {}), 1500); };
+    ev.forEach(t => addEventListener(t, go, { capture:true, passive:true }));
+  });
   // the React version of each component comes from the registry npx designme add --react uses, fetched the first time it is shown
   const RX = {}, reactOf = name => RX[name] || (RX[name] = fetch(`/r/react/${name}.json`).then(r => { if (!r.ok) throw new Error(r.status); return r.json(); }).catch(e => { delete RX[name]; throw e; }));
   const RX_TABS = { 'rx-tsx':'Component', 'rx-css':'CSS', 'rx-ex':'Example' };
@@ -407,10 +412,19 @@ patch("""    function open(c, push = true){
       if (c && c.dataset.reg){ location.href = '/components/' + c.dataset.reg; return; }
       if (!c) return;
       const was = dv.classList.contains('open');""")
+# the button is written into each card's head by build.js, icon and all, so the page isn't rebuilt 125 times as it starts;
+# a card without one gets it here, as before
 patch("""const b = document.createElement('button'); b.className = 'exp-btn'; b.title = 'Open full screen';
-      b.setAttribute('aria-label', 'Open ' + c.querySelector('.comp-title').textContent + ' full screen');""",
-      """const b = document.createElement('button'); b.className = 'exp-btn'; b.title = 'Open its page';
-      b.setAttribute('aria-label', 'Open the ' + c.querySelector('.comp-title').textContent + ' page');""")
+      b.setAttribute('aria-label', 'Open ' + c.querySelector('.comp-title').textContent + ' full screen');
+      b.innerHTML = ic('open_in_full','sm'); save ? save.before(b) : head.appendChild(b);""",
+      """const b = head.querySelector(':scope>.exp-btn') || document.createElement('button');
+      if (!b.parentElement){ b.className = 'exp-btn'; b.title = 'Open its page';
+        b.setAttribute('aria-label', 'Open the ' + c.querySelector('.comp-title').textContent + ' page');
+        b.innerHTML = ic('open_in_full','sm'); save ? save.before(b) : head.appendChild(b); }""")
+# icons the build has drawn already (data-pre, the site chrome's own set in a card's head and foot, see build.js) count as
+# drawn, so the script doesn't draw them again
+patch("""      if (el.dataset.ic === name && el._h === html && el.firstElementChild) return;""",
+      """      if (el.dataset.ic === name && (el._h === html || el.dataset.pre === name && html.startsWith('<svg class="sh"')) && el.firstElementChild){ el._h = html; return; }""")
 
 # ---------- FAQ: a page of its own, beside the sidebar like Changelog and Roadmap, with a way to ask or suggest more ----------
 patch("""    const PAGES = { changelog:[changelog,'Changelog'], roadmap:[roadmap,'Roadmap'], privacy:[privacy,'Privacy'] };""",
@@ -786,6 +800,9 @@ body.ui section.faq{display:none}
   body.ui main .comp-head>.code-btns .ghost:active,body.ui main .comp-head>.exp-btn:active{background:var(--sh-chip);color:var(--sh-text)}
   body.ui main .comp-head>.code-btns .anim-btn::after{display:none}
 }
+/* with a mouse the buttons sit over the stage. The page is written with them in the head, where a touch screen wants them
+   (build.js), so with a mouse they stay out of sight there until the script has moved them */
+@media (hover:hover) and (min-width:641px){ body.ui main .comp-head>.code-btns{display:none} }
 /* Pricing cards: the original page kept 62px under them, to balance buttons that once sat over the top of the stage; now
    they get the same room above and below as every other component */
 body.ui main .comp[data-v2="pricing-cards"] .stage-inner{padding-bottom:40px!important}
@@ -1417,14 +1434,16 @@ html{scrollbar-gutter:stable}
 # ---------- the width of a scrollbar ----------
 # --sbw on the root: how much room a scrollbar's gutter takes here (a classic scrollbar's width, 0 with overlay scrollbars).
 # Changelog, Roadmap and FAQ scroll inside their own panel, which keeps that gutter, and take it off their right padding so
-# their column ends where the library's does. Measured again on resize, as zooming changes it
-patch("""</body>""", """<script>
+# their column ends where the library's does. Measured again on resize, as zooming changes it. It is measured in the head,
+# after the styles and before the page is drawn: a variable set on the root once the page is there makes the browser work
+# out the style of every element again (about half a second on a mid-range phone)
+patch("""</head>""", """<script>
 (function(){
-  var set = function(){ var d = document.createElement('div'); d.style.cssText = 'position:absolute;top:-200px;width:100px;height:50px;overflow:auto;scrollbar-gutter:stable;visibility:hidden'; document.body.appendChild(d); document.documentElement.style.setProperty('--sbw', (d.offsetWidth - d.clientWidth) + 'px'); d.remove(); };
+  var set = function(){ var d = document.createElement('div'); d.style.cssText = 'position:absolute;top:-200px;width:100px;height:50px;overflow:auto;scrollbar-gutter:stable;visibility:hidden'; (document.body || document.documentElement).appendChild(d); document.documentElement.style.setProperty('--sbw', (d.offsetWidth - d.clientWidth) + 'px'); d.remove(); };
   set(); addEventListener('resize', set);
 })();
 </script>
-</body>""")
+</head>""")
 
 # ---------- Your theme: a third option in the style switch ----------
 # Next to Blueprint and Soft, "Your theme" opens a small panel where a visitor pastes a shadcn/ui or Tailwind v4 theme (its CSS
@@ -1475,6 +1494,21 @@ patch("""and roadmap votes for as long as the roadmap runs.""",
 # Simple Icons and Devicon, and DiceBear only draws the avatars in the share picture)
 patch("""<p class="sf-credits">Free under the MIT licence. Avatars by DiceBear, Micah style by Micah Lanier (CC BY 4.0). Icons by Phosphor (MIT), flags by circle-flags (MIT), brand logos by Simple Icons (CC0), fonts Inter and JetBrains Mono (SIL OFL). Brand names and logos belong to their owners.</p>""",
       """<p class="sf-credits">Free under the MIT licence. Flags by flag-icons (MIT), brand logos by Simple Icons (CC0) and Devicon (MIT), site icons by Phosphor (MIT), fonts Inter and JetBrains Mono (SIL OFL), share picture avatars by DiceBear, Micah style by Micah Lanier (CC BY 4.0). Brand names and logos belong to their owners. <a href="https://github.com/bydesignme/designme-dev/blob/main/NOTICE.md" target="_blank" rel="noopener">All credits</a></p>""")
+
+# ---------- page speed (9 Nov) ----------
+# the headline the page opens with (the largest thing in the first view) is Inter 500, so 500 is the weight preloaded with
+# the body text's 400; nothing above the fold is drawn in 600
+patch("""<link rel="preload" href="/fonts/inter-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin>""",
+      """<link rel="preload" href="/fonts/inter-latin-500-normal.woff2" as="font" type="font/woff2" crossorigin>""")
+# the header's height (--hdr-h, which the sidebar and the phone menu sit under) is set as soon as the header is there, while
+# the rest of the page isn't yet: set later, on the root of the whole page, it makes the browser restyle every element. The
+# site's script sets it again as before (on resize too), which changes nothing when the height is the same
+patch("""</header>
+<script>
+// the GitHub pill""", """</header>
+<script>try{document.documentElement.style.setProperty('--hdr-h',Math.round(document.querySelector('.top').getBoundingClientRect().bottom)+'px')}catch(e){}</script>
+<script>
+// the GitHub pill""")
 
 json.dump({ 'patches': P, 'css': CSS },open(os.path.join(HERE, 'site-patches.json'), 'w'), indent=1)
 print(len(P), 'patches')

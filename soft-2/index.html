@@ -16517,6 +16517,7 @@ DM.def('rewrite-toolbar', (r, c) => {
   centre(c, box, () => box.offsetHeight);
   function place(el){
     const br = box.getBoundingClientRect(), rects = el.getClientRects(), f = rects[0];
+    if (!f) return; // the card is hidden (far off screen, or the other set is showing): nothing to place against
     const w = tb.offsetWidth; let x = f.left - br.left; x = Math.max(8, Math.min(x, br.width - w - 8));
     // above the sentence, unless that would cover the header: then under its last line
     let y = f.top - br.top - tb.offsetHeight - 8; if (y < $('.rwx-h', r).getBoundingClientRect().bottom - br.top) y = rects[rects.length - 1].bottom - br.top + 8;

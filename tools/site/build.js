@@ -5,6 +5,9 @@ const fs = require('fs'), path = require('path');
 // edits to the site's own UI, written by make-patches.py
 const SITE_PATCHES = JSON.parse(fs.readFileSync(path.join(__dirname, 'site-patches.json'), 'utf8'));
 const postcss = require('postcss'), acorn = require('acorn');
+// the page's big styles and scripts are files in /assets named by their content (split-assets.js); V2_PARTS are the
+// components' section files (DEF_PARTS below)
+const { splitAssets, hashedAsset } = require('./split-assets.js'), V2_PARTS = [];
 const [SITE, SOFT, OUT, REGDIR] = process.argv.slice(2);
 let site = fs.readFileSync(SITE, 'utf8');
 const soft = fs.readFileSync(SOFT, 'utf8');
@@ -274,10 +277,83 @@ const defs = DEFS_JS.replace(/href="#i-/g, 'href="#v2i-').replace(/closest\('\.c
 if (!defs.includes(".v2-layer') || document.body).appendChild(ghost)")) throw new Error('ghost patch failed');
 for (const [a, b] of [["e.target.closest('.v2 [data-tip]')", 3], ["closest('.v2 [data-pop]')", 1], ['card.dataset.v2', 1]]) if (core.split(a).length - 1 !== b) throw new Error('core patch failed: ' + a);
 if (/#i-/.test(core + defs)) throw new Error('icon id left over');
+/* ---------- the components' own code loads a section at a time ----------
+   Nearly all of the components' script is their DM.def blocks (1.2 MB of 1.3), and a visit sees a few of them. So the
+   homepage's script holds the core, the code of the first section (Conversation, in the first screen) and anything more than
+   one section shares; each other section's components are a file of their own (v2-<section>.<hash>.js), fetched the first
+   time the section comes within a screen of the view, or one of its cards is asked to mount (a deep link, the sidebar, a
+   tab, Animate). The file is run inside the components' function (partRun below), so it sees the core exactly as the code
+   in the main file does. Each top-level statement of the definitions goes with the one component it defines, a helper with
+   the components that use it (into the main file if they are in more than one section), and anything else stays in the main
+   file. A component that runs others by name (Agent harness, through DM.defs) waits for every section */
+const DEF_PARTS = (() => {
+  const declsOf = st => { const out = [], walk = p => { if (!p) return;
+      if (p.type === 'Identifier') out.push(p.name); else if (p.type === 'ObjectPattern') p.properties.forEach(x => walk(x.value || x.argument));
+      else if (p.type === 'ArrayPattern') p.elements.forEach(walk); else if (p.type === 'AssignmentPattern') walk(p.left); else if (p.type === 'RestElement') walk(p.argument); };
+    if (st.type === 'VariableDeclaration') st.declarations.forEach(d => walk(d.id));
+    else if ((st.type === 'FunctionDeclaration' || st.type === 'ClassDeclaration') && st.id) out.push(st.id.name);
+    return out; };
+  // every name a statement reads (more than it needs, which only keeps more in the main file): identifiers that aren't
+  // property names
+  const namesIn = node => { const out = new Set();
+    (function walk(n, parent, key){
+      if (!n || typeof n.type !== 'string') return;
+      if (n.type === 'Identifier' && !(parent && parent.type === 'MemberExpression' && key === 'property' && !parent.computed)
+        && !(parent && (parent.type === 'Property' || parent.type === 'MethodDefinition' || parent.type === 'PropertyDefinition') && key === 'key' && !parent.computed && !parent.shorthand)) out.add(n.name);
+      for (const k in n){ if (k === 'type' || k === 'start' || k === 'end') continue; const v = n[k];
+        if (Array.isArray(v)) v.forEach(x => walk(x, n, k)); else if (v && typeof v.type === 'string') walk(v, n, k); }
+    })(node, null, null);
+    return out; };
+  let prev = 0;
+  const sts = acorn.parse(defs, { ecmaVersion:'latest' }).body.map(st => {
+    const own = defs.slice(st.start, st.end), text = defs.slice(prev, st.end); prev = st.end;
+    const ids = [...new Set([...own.matchAll(/DM\.def\('([\w-]+)'/g)].map(m => m[1]))];
+    // reaching into other components' definitions (DM.defs.x, DM.defs[name]) needs all of them
+    const others = [...own.matchAll(/DM\.defs(?:\[\s*'([\w-]+)'\s*\]|\.(\w+)|\[)/g)].some(m => !ids.includes(m[1] || m[2]));
+    return { text, ids, decl:declsOf(st), names:namesIn(st), others };
+  });
+  return { sts, coreNames:namesIn(acorn.parse(core, { ecmaVersion:'latest' })) };
+})();
+// the parts, once the page's sections are known: { main, files:{ key:text }, of:{ id:key }, all:[ids] }
+function defParts(sectionOf, first){
+  const { sts, coreNames } = DEF_PARTS;
+  const keyOf = id => sectionOf[id] || '_'; // '_': components the page doesn't show (Agent harness can still run them)
+  const part = sts.map(x => x.ids.length === 1 ? keyOf(x.ids[0]) : null);
+  sts.forEach((x, i) => { if (!x.ids.length && !x.decl.length) warn.push('components script: a top-level statement that defines nothing stays in the main file: ' + x.text.trim().slice(0, 60)); });
+  // helpers go where their users are, through helpers of helpers, last to first; one used in two places, or by the core,
+  // stays in the main file
+  for (let i = sts.length - 1; i >= 0; i--){
+    const x = sts[i]; if (x.ids.length || !x.decl.length) continue;
+    const users = new Set(); let main = x.decl.some(n => coreNames.has(n));
+    sts.forEach((y, j) => { if (j !== i && x.decl.some(n => y.names.has(n))){ if (part[j] === null) main = true; else users.add(part[j]); } });
+    part[i] = !main && users.size === 1 ? [...users][0] : null;
+  }
+  const main = [], files = {};
+  sts.forEach((x, i) => { const k = part[i] === first ? null : part[i]; if (k === null) main.push(x.text); else files[k] = (files[k] || '') + x.text; });
+  const of = {}; for (const x of sts) for (const id of x.ids){ const k = keyOf(id); if (k !== first && files[k]) of[id] = k; }
+  return { main:main.join(''), files, of, all:[...new Set(sts.filter(x => x.others).flatMap(x => x.ids))] };
+}
 const V2JS = `/* ===== Soft 2 and Blueprint 2 components ===== */
 (function(){
 ${core}
-${defs}
+/*@@V2DEFS@@*/
+/* ---------- the sections' components, loaded the first time a section comes near (DEF_PARTS in build.js) ---------- */
+const PARTS = /*@@V2PARTS@@*/null;
+const partRun = src => eval(src);
+// the markup of the cards whose section has a file of its own comes with that file
+const TPLS = {};
+{ const tpl = DM.tpl;
+  DM.tpl = function(card){
+    const id = card && card.dataset && card.dataset.v2;
+    if (id && TPLS[id] != null && !$('template', card)){ const t = document.createElement('template'); t.innerHTML = TPLS[id]; card.appendChild(t); }
+    return tpl.call(this, card);
+  }; }
+const partsDone = new Set(), partsLoading = {};
+const loadPart = k => partsLoading[k] || (partsLoading[k] = fetch(PARTS.files[k]).then(r => { if (!r.ok) throw new Error(r.status + ' ' + PARTS.files[k]); return r.text(); })
+  .then(src => { partRun(src + '\\n//# sourceURL=' + location.origin + PARTS.files[k]); partsDone.add(k); }, e => { delete partsLoading[k]; throw e; }));
+const partsOf = id => PARTS.all.includes(id) ? Object.keys(PARTS.files) : PARTS.of[id] ? [PARTS.of[id]] : [];
+const hasDefs = id => partsOf(id).every(k => partsDone.has(k));
+const needDefs = id => Promise.all(partsOf(id).map(loadPart));
 /* ---------- on designme.dev: each card mounts its component when it scrolls into view ---------- */
 {
   const layer = document.createElement('div'); layer.className = 'v2 v2-layer'; layer.appendChild(tip); document.body.appendChild(layer);
@@ -289,11 +365,26 @@ ${defs}
     $$('.tab', g).forEach(t => { const v = String(!!on && t.dataset.v === on.dataset.v); if (t.getAttribute('aria-selected') !== v){ t.setAttribute('aria-selected', v); moved = true; } });
     if (moved) dispatchEvent(new Event('resize'));
   };
+  // the components' stylesheet loads without holding up the page's first paint (split-assets.js), so nothing mounts until
+  // it is in: no component is ever drawn, or measures itself, unstyled
+  const sheet = document.getElementById('v2-css');
+  const ready = !sheet || sheet.tagName !== 'LINK' || sheet.media !== 'print' ? Promise.resolve()
+    : new Promise(r => { sheet.addEventListener('load', r, { once:true }); sheet.addEventListener('error', r, { once:true }); });
+  let styled = false; ready.then(() => { styled = true; });
+  const whenStyled = fn => styled ? fn() : ready.then(fn);
   const waiting = new Set($$('.comp[data-v2]'));
   // and keep following it when the component flips it itself, as Banner's demo does
-  const mount = (comp, now) => { waiting.delete(comp); DM.mount(comp, now); syncTabs(comp);
-    if (comp._tabsMo) comp._tabsMo.disconnect(); const sg = demoSeg(comp);
-    if (sg){ comp._tabsMo = new MutationObserver(() => syncTabs(comp)); comp._tabsMo.observe(sg, { subtree:true, attributes:true, attributeFilter:['aria-pressed'] }); } };
+  // a card whose section hasn't loaded yet mounts as soon as it has (a failed load leaves it waiting for the next scroll)
+  const mount = (comp, now) => { waiting.delete(comp);
+    const go = () => { DM.mount(comp, now); syncTabs(comp);
+      if (comp._tabsMo) comp._tabsMo.disconnect(); const sg = demoSeg(comp);
+      if (sg){ comp._tabsMo = new MutationObserver(() => syncTabs(comp)); comp._tabsMo.observe(sg, { subtree:true, attributes:true, attributeFilter:['aria-pressed'] }); } };
+    if (hasDefs(comp.dataset.v2)) go(); else needDefs(comp.dataset.v2).then(go, e => { console.warn('designme: components not loaded', e); if (!comp._c) waiting.add(comp); });
+  };
+  // a section's components load when it comes within a screen of the view, so its cards have them by the time they show
+  const nearSec = new IntersectionObserver(es => es.forEach(en => { if (!en.isIntersecting) return; nearSec.unobserve(en.target);
+    const ids = $$('.comp[data-v2]', en.target).map(c => c.dataset.v2); new Set(ids.flatMap(partsOf)).forEach(k => loadPart(k).catch(() => {})); }), { rootMargin:'100% 0px' });
+  $$('.lib-sec').forEach(s => nearSec.observe(s));
   // a card mounts a quarter of a screen before it scrolls into view, so it has its component by the time it shows
   const io = new IntersectionObserver(es => es.forEach(en => { if (en.isIntersecting){ io.unobserve(en.target); mount(en.target); } }), { rootMargin:'25% 0px' });
   // a card far from the screen stops drawing: its demo is hidden (the space it takes stays) and its CSS animations pause,
@@ -307,22 +398,24 @@ ${defs}
   let lastY = scrollY;
   addEventListener('scroll', () => {
     const near = (r, m) => r.height && r.bottom > -m && r.top < innerHeight + m;
-    for (const comp of waiting) if (near(comp.getBoundingClientRect(), 0)){ io.unobserve(comp); mount(comp, true); }
+    if (styled) for (const comp of waiting) if (near(comp.getBoundingClientRect(), 0)){ io.unobserve(comp); mount(comp, true); }
     if (Math.abs(scrollY - lastY) > 400) $$('.comp.dm-idle').forEach(comp => { if (near(comp.getBoundingClientRect(), 200)) comp.classList.remove('dm-idle'); });
     lastY = scrollY;
   }, { passive:true });
+  whenStyled(() => $$('.comp[data-v2]').forEach(comp => io.observe(comp)));
   $$('.comp[data-v2]').forEach(comp => {
-    io.observe(comp);
     const g = $('.comp-foot [data-tabs]', comp);
     if (g) g.addEventListener('click', e => {
       const b = e.target.closest('.tab'); if (!b) return;
-      if (!comp._c){ io.unobserve(comp); mount(comp); }
-      const sb = $(\`.stage-in .dm>.demo .seg2 button[data-v="\${b.dataset.v}"]\`, comp);
-      if (sb && sb.getAttribute('aria-pressed') !== 'true') sb.click();
+      whenStyled(() => {
+        if (!comp._c){ io.unobserve(comp); mount(comp); }
+        const sb = $(\`.stage-in .dm>.demo .seg2 button[data-v="\${b.dataset.v}"]\`, comp);
+        if (sb && sb.getAttribute('aria-pressed') !== 'true') sb.click();
+      });
     });
   });
   // the card's Animate button replays the component from the start
-  window.V2 = { replay: comp => { io.unobserve(comp); mount(comp); } };
+  window.V2 = { replay: comp => whenStyled(() => { io.unobserve(comp); mount(comp); }) };
 }
 })();
 `;
@@ -422,8 +515,30 @@ main = main.replace(/<article([^>]*\bid="(c\d+)"[^>]*)>([\s\S]*?)<\/article>/g, 
       .map(t => `        <button class="tab" role="tab" aria-selected="${t[1]}" data-v="${t[2]}">${t[3]}</button>`).join('\n');
     left = `<div class="tabs" role="tablist" aria-label="${sw[1]}" data-tabs="v2-${id}">\n${tabs}\n      </div>`;
   } else left = `<span class="mono-xs">${C.hint}</span>`;
-  const foot = `<div class="comp-foot">\n      ${left}\n      ${codeBtns}\n    </div>\n    <template>${C.tpl}</template>\n  `;
+  const foot = `<div class="comp-foot">\n      ${left}\n    </div>\n    <template>${C.tpl}</template>\n  `;
   body = body.slice(0, sA) + stage + foot;
+  /* the card's buttons are written the way the site's script leaves them on a touch screen or a phone-sized window
+     (placeCodeBtns in make-patches.py): each label in a span the icon row can hide, each button named after the component,
+     and the row in the card's head, before the save button. Moved there by the script once the page had drawn, all 125 rows
+     were styled twice, which on a mid-range phone held the page up for about a second. With a mouse, the script moves them
+     over the stage as before (until then the CSS keeps them out of the head) */
+  {
+    const n = (body.match(/class="comp-title">([^<]*)</) || [])[1] || '', q = t => t.replace(/"/g, '&quot;');
+    const NAME = { 'data-anim':'Animate ' + n, 'data-view':'View the code of ' + n, 'data-copy':'Copy the code of ' + n };
+    const btns = codeBtns.replace(/<button([^>]*)>([\s\S]*?)<\/button>/g, (m, a, inner) => {
+      const k = Object.keys(NAME).find(x => new RegExp(`\\s${x}(?=[\\s>=])`).test(a + '>'));
+      // a label written straight into the button (not one already in a span) goes in a span.cb-l
+      let depth = 0;
+      inner = inner.split(/(<[^>]+>)/).map(x => {
+        if (x.startsWith('<')){ if (/^<\//.test(x)) depth--; else if (!/\/>$/.test(x)) depth++; return x; }
+        return depth || !x.trim() ? x : `<span class="cb-l">${x}</span>`;
+      }).join('');
+      return `<button${a}${k && n ? ` aria-label="${q(NAME[k])}"` : ''}>${inner}</button>`;
+    });
+    const at = body.indexOf('<button class="save-btn"');
+    if (at < 0 || at > sA) throw new Error('no save button in the head of ' + cid);
+    body = body.slice(0, at) + btns + body.slice(at);
+  }
   done.push(cid);
   // a new card is as wide as its component is drawn, whatever the card it was cut from
   const wide = C.cls.includes('wide') || STRETCH.includes(id) || (/class="comp wide"/.test(attrs) && !NARROW.includes(id) && !NEW.some(x => x.id === id));
@@ -660,8 +775,24 @@ if (REGDIR){
 /* ---------- the components' script goes last ---------- */
 {
   const end = site.lastIndexOf('</body>');
+  // the components' code by section (DEF_PARTS): the main file keeps the first section's (the first screen), the other
+  // sections are files of their own
+  const sectionOf = {}, order = [];
+  for (const [, sid, body] of site.matchAll(/<section class="lib-sec" id="([\w-]+)"[^>]*>([\s\S]*?)<\/section>/g)){
+    order.push(sid); for (const [, id] of body.matchAll(/<article\b[^>]*\bdata-v2="([\w-]+)"/g)) sectionOf[id] = sid;
+  }
+  const P = defParts(sectionOf, order[0]), files = {};
+  // a card in a section with a file of its own gets its markup (its <template>) from that file too, so the page doesn't
+  // carry markup for components nobody scrolls to (DM.tpl reads TPLS, below)
+  site = site.replace(/(<article\b[^>]*\bdata-v2="([\w-]+)"[^>]*>[\s\S]*?)<template>([\s\S]*?)<\/template>(\s*<\/article>)/g, (m, head, id, tpl, end) => {
+    const k = sectionOf[id]; if (!P.files[k] || head.includes('</article>')) return m;
+    P.files[k] = `TPLS[${JSON.stringify(id)}] = ${JSON.stringify(tpl)};\n` + P.files[k]; return head + end;
+  });
+  for (const [k, text] of Object.entries(P.files)){ const f = hashedAsset('v2-' + k.replace(/^s-/, '').replace(/^_$/, 'other'), 'js', text); V2_PARTS.push(f); files[k] = f.url; }
+  const js = V2JS.replace('/*@@V2DEFS@@*/', () => P.main).replace('/*@@V2PARTS@@*/null', () => JSON.stringify({ files, of:P.of, all:P.all }));
+  console.log(`components script: ${Math.round(js.length / 1024)} KB with ${order[0]}, ${V2_PARTS.length} section files of ${Math.round(V2_PARTS.reduce((n, f) => n + f.text.length, 0) / 1024)} KB, waiting for every section: ${P.all.join(', ') || 'none'}`);
   // then the pictures in the carousels' demos, which only the site shows (art/art.js), and the phone's DesignMe card (fab/fab.js)
-  site = site.slice(0, end) + '<script id="v2-js">\n' + V2JS + '</script>\n<script src="/art/art.js" defer></script>\n<script src="/fab/fab.js" defer></script>\n' + site.slice(end);
+  site = site.slice(0, end) + '<script id="v2-js">\n' + js + '</script>\n<script src="/art/art.js" defer></script>\n<script src="/fab/fab.js" defer></script>\n' + site.slice(end);
 }
 /* ---------- site: the HTML / React switch in the code views, and thumbnails of components not yet started ---------- */
 for (const [a, b] of SITE_PATCHES.patches){
@@ -710,7 +841,30 @@ site = site.replace(/(<article\b[^>]*\bdata-reg="([\w-]+)"[^>]*>[\s\S]*?<h2 clas
 }
 // the site's own styles take the neutral greys (the components' styles, #v2-css, come from soft-2/index.html already neutral)
 site = site.replace(/(<style(?![^>]*id="v2-css")[^>]*>)([\s\S]*?)(<\/style>)/g, (m, a, css, b) => a + neutralSite(css) + b);
-fs.writeFileSync(OUT, site);
+/* ---------- the cards' own chrome, written out the way the site's script leaves it as it starts: each card's "open its
+   page" button, and the icons of its head (the site chrome's own set, PH_SHELL, the same in both styles), drawn in. Added by
+   the script one card at a time once the page had drawn, they held up a phone for half a second. The script keeps working
+   as before: it reuses the button it finds, and leaves an icon marked data-pre as it is (make-patches.py) ---------- */
+{
+  const shell = JSON.parse(site.match(/const PH_SHELL = (\{.*?\});\n/)[1]);
+  const icA = site.indexOf('  const ICONS = {'), icons = new Set([...site.slice(icA, site.indexOf('\n  };', icA)).matchAll(/^\s+'?(\w+)'?:/gm)].map(m => m[1]));
+  if (icA < 0 || !icons.has('open_in_full')) throw new Error("the site's icon set (ICONS) not found");
+  const draw = html => html.replace(/<span class="ms( sm)?">([a-z_]+)<\/span>/g, (m, sm, name) => !shell[name] || !icons.has(name) ? m
+    : `<span class="ms${sm || ''}" data-ic="${name}" data-pre="${name}" aria-hidden="true"><svg class="sh" viewBox="0 0 256 256">${shell[name]}</svg></span>`);
+  let n = 0;
+  site = site.replace(/(<article\b[^>]*\bdata-v2="[\w-]+"[^>]*>)([\s\S]*?)(<div class="stage">)/g, (m, a, head, st) => {
+    const title = (head.match(/<h2 class="comp-title">([\s\S]*?)<\/h2>/) || [])[1];
+    if (title == null || !head.includes('<button class="save-btn"') || head.includes('</article>')) return m;
+    n++;
+    head = head.replace('<button class="save-btn"', () => `<button class="exp-btn" title="Open its page" aria-label="Open the ${title.replace(/<[^>]+>/g, '').replace(/"/g, '&quot;')} page"><span class="ms sm">open_in_full</span></button><button class="save-btn"`);
+    return a + draw(head) + st;
+  });
+  if (n !== done.length) throw new Error(`card heads written out: ${n} of ${done.length}`);
+}
+// the big styles and scripts go to content-hashed files in /assets (split-assets.js); the steps below read the page whole
+const split = splitAssets(site, path.dirname(OUT), V2_PARTS);
+fs.writeFileSync(OUT, split.html);
+console.log('assets:', split.files.join(' ') + '; index.html', split.html.length, 'bytes');
 console.log('swapped', done.length, 'cards; size', site.length);
 
 /* ---------- llms.txt: a plain Markdown index of every component for AI tools, in the page's own order ---------- */

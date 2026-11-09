@@ -34,7 +34,7 @@ From this folder:
 npm install          # acorn and postcss
 npm run base         # writes site-main.html, the original page, from git history (needs a full clone, not a shallow one)
 npm run patches      # only after editing make-patches.py: rewrites site-patches.json
-npm run build        # writes ../../index.html, ../../code-data.json, ../../r/*.json, ../../llms.txt and ../../404.html
+npm run build        # writes ../../index.html and ../../assets, ../../code-data.json, ../../r/*.json, ../../llms.txt and ../../404.html
 npm run react        # regenerates the React CSS and registry (r/react) from the new build, and type-checks them
 npm run astro        # regenerates the Astro components (packages/astro), r/astro, r/shadcn and the theme bridge, and builds them all
 npm run pages        # builds the component pages, their Markdown copies and the sitemap (see ../pages/README.md)
@@ -95,3 +95,10 @@ Pushing `staging` deploys https://staging.designme-dev.pages.dev; `main` deploys
   hand; `sitemap.xml` comes from `tools/pages`. The build also writes `../pages/data/site.json` for those pages, and
   links each card's title on the homepage to its page.
 - `site-main.html` is the original page, taken from git and not committed.
+- `split-assets.js` moves the page's big styles and scripts into `../../assets`, each named by a hash of its content
+  (`v2.<hash>.css`, `site.<hash>.js`, `v2.<hash>.js`), so `_headers` can cache them for a year while `index.html` revalidates.
+  The site's own stylesheet and the small scripts that must run before the first paint stay inline. The components' script
+  holds the core and the first section's components; every other section's components (their code and their card's
+  markup) are a file of their own, `v2-<section>.<hash>.js`, loaded the first time the section comes within a screen of the
+  view or one of its cards is asked to start (`DEF_PARTS` in `build.js`). Files a new build no longer names are deleted, so
+  commit `assets/` with `index.html`.

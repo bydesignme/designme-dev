@@ -31,7 +31,7 @@ Each component ships in HTML (`soft-2/index.html`) and React (`packages/react`),
 
 Generated, don't edit by hand:
 
-- `index.html`, `404.html`, `llms.txt` and `code-data.json`
+- `index.html` and `assets/` (its styles and scripts), `404.html`, `llms.txt` and `code-data.json`
 - `r/`: the HTML registry, plus `r/react`, `r/astro`, `r/shadcn` and `r/theme-bridge.json`
 - `components/`, `docs/`, `sitemap.xml` and `_redirects`
 - `packages/astro/src` and `packages/astro/manifest.json`
@@ -53,7 +53,7 @@ From `tools/site`:
 npm install
 npm run base      # once: writes site-main.html, the original page, from commit 56e4f0b (ignored by git)
 npm run patches   # only after editing make-patches.py: rewrites site-patches.json
-npm run build     # ../../index.html, code-data.json, r/*.json, llms.txt and 404.html
+npm run build     # ../../index.html and ../../assets, code-data.json, r/*.json, llms.txt and 404.html
 npm run react     # the React CSS and r/react, with a type check
 npm run astro     # packages/astro, r/astro, r/shadcn and the theme bridge, then builds them all
 npm run pages     # the component and docs pages, their Markdown copies and the sitemap
