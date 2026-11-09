@@ -644,15 +644,16 @@
   const healthBlock = c => {
     const F = factors(c), v = c.health, b = HV[c.hb], C = 2 * Math.PI * 18, ok = HK.filter(k => F[k].s === 'ok').length;
     const w = HK.filter(k => F[k].s !== 'ok').sort((a, z) => c.hp[HK.indexOf(a)] / HMAX[HK.indexOf(a)] - c.hp[HK.indexOf(z)] / HMAX[HK.indexOf(z)] || HK.indexOf(a) - HK.indexOf(z))[0];
-    const tile = (k, i) => `<button type="button" class="hsc-t" data-hk="${k}" data-s="${F[k].s}"${k === w ? ' data-weak' : ''} aria-expanded="${hscOpen === k}" aria-controls="crm-hd${i < 2 ? 0 : 1}" aria-label="${HL[k]}: ${F[k].fig} ${F[k].unit}. ${HSW[F[k].s]}${k === w ? ', the weakest factor' : ''}">`
+    const tile = (k, i) => `<button type="button" class="hsc-t" data-hk="${k}" data-s="${F[k].s}"${k === w ? ' data-weak' : ''} aria-expanded="${hscOpen === k}" aria-controls="crm-hd${i}" aria-label="${HL[k]}: ${F[k].fig} ${F[k].unit}. ${HSW[F[k].s]}${k === w ? ', the weakest factor' : ''}">`
       + `<span class="hsc-k"><i class="hsc-dot"></i><span>${HL[k]}</span></span><span class="hsc-wk" aria-hidden="true">Weakest</span>${I('chev-d', 'xs hsc-cv')}`
       + `<span class="hsc-v"><b class="num">${F[k].fig}</b><span>${esc(F[k].unit)}</span></span><span class="hsc-tr" aria-hidden="true"></span></button>`;
-    const region = j => { const k = hscOpen && (HK.indexOf(hscOpen) < 2 ? 0 : 1) === j ? hscOpen : null, i = HK.indexOf(k);
+    // a row's details unfold right under it
+    const region = j => { const k = hscOpen === HK[j] ? hscOpen : null, i = j;
       return `<div class="fold${k ? '' : ' shut'} hsc-d" id="crm-hd${j}" role="region" aria-label="${k ? HL[k] + ' details' : 'Details'}"><div><div class="hsc-dc">${k ? F[k].lines.map(l => `<p class="hsc-dp">${l}</p>`).join('') + `<p class="hsc-pt num"><span>${c.hp[i]} of ${HMAX[i]} points</span><i></i><span>${HSW[F[k].s]}</span></p>` : ''}</div></div></div>`; };
     return `<div class="hsc crm-shs" data-v="${b}" role="group" aria-label="Account health"><div class="hsc-h">`
       + `<div class="hsc-ring" role="img" aria-label="Health ${v} of 100, ${HB[c.hb].toLowerCase()}"><svg viewBox="0 0 44 44" aria-hidden="true"><circle class="tr" cx="22" cy="22" r="18"/><circle class="fl" cx="22" cy="22" r="18" stroke-dasharray="${C.toFixed(1)}" stroke-dashoffset="${(C * (1 - v / 100)).toFixed(1)}"/></svg><b class="num" aria-hidden="true">${v}</b></div>`
       + `<div class="hsc-ht"><b class="hsc-vd">${HB[c.hb]}</b><span class="hsc-sub">Account health, ${ok === 4 ? 'all 4 on track' : ok + ' of 4 on track'}</span></div></div>`
-      + `<div class="hsc-g">${tile(HK[0], 0)}${tile(HK[1], 1)}${region(0)}${tile(HK[2], 2)}${tile(HK[3], 3)}${region(1)}</div></div>`;
+      + `<div class="hsc-g crm-hrows">${HK.map((k, i) => tile(k, i) + region(i)).join('')}</div></div>`;
   };
   function renderSheet(){
     const c = coOf(sheetFor); if (!c) return closeSheet();
@@ -700,7 +701,7 @@
     const c = coOf(sheetFor);
     if (b.dataset.sec){ const f = b.nextElementSibling, open = f.classList.toggle('shut') === false; b.setAttribute('aria-expanded', open); open ? shut.delete(b.dataset.sec) : shut.add(b.dataset.sec); return; }
     if (b.dataset.deal){ stageFor = b.dataset.deal; buildStageMenu(); return; }
-    if (b.dataset.hk){ const k = b.dataset.hk, was = hscOpen, row = x => x && (HK.indexOf(x) < 2 ? 0 : 1); hscOpen = was === k ? null : k;
+    if (b.dataset.hk){ const k = b.dataset.hk, was = hscOpen, row = x => x ? HK.indexOf(x) : -1; hscOpen = was === k ? null : k;
       const blk = $('.crm-shs', dtp), tmp = document.createElement('div'); tmp.innerHTML = healthBlock(c); const nb = tmp.firstElementChild;
       $$('.hsc-t', blk).forEach(t => t.setAttribute('aria-expanded', String(t.dataset.hk === hscOpen)));
       $$('.hsc-d', blk).forEach((reg, j) => { const fresh = $$('.hsc-d', nb)[j]; if (hscOpen && row(hscOpen) === j){ $('.hsc-dc', reg).innerHTML = $('.hsc-dc', fresh).innerHTML; reg.setAttribute('aria-label', fresh.getAttribute('aria-label')); if (row(was) === j && was) enter($('.hsc-dc', reg)); } reg.classList.toggle('shut', !(hscOpen && row(hscOpen) === j)); });
