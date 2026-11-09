@@ -1,0 +1,206 @@
+---
+// /templates/fundraising-crm: a founder's fundraising workspace for a Series A, with an agent beside them, made of the library's
+// own components as a showcase of what they build. The sidebar switches between the Round (an overview of the raise from the
+// chart and stat components), Investors (a board of funds by stage, or a list), Intros (warm intro paths, with the agent's
+// forwardable intro emails), the Data room (who read what, for how long, and who has gone quiet), Meetings (the week), the Agent
+// inbox (what the agent drafted, to approve) and Term sheets (the two sheets side by side, and what to say to them). A fund
+// opens in a details sheet: its thesis, cheque range, fit, portfolio conflicts, people, intro path, meeting notes, data room
+// views and next step. Every number comes from one data model, so every view agrees. Everything is drawn with the components'
+// own classes and tokens, from their installed CSS, so the screen follows Soft and Blueprint, light and dark, with the site's
+// switches. Its data and interactions are one script (src/templates/fundraising-crm/fr.js); the layout around the components is
+// src/templates/fundraising-crm/fr.css. Noindex and out of the sitemap, llms.txt and the site's navigation.
+import fs from 'node:fs';
+import path from 'node:path';
+import Page from '../../layouts/Page.astro';
+import { ROOT, COMPONENTS } from '../../lib/data.mjs';
+
+// the components the screen is made of, by their registry name: each one's installed CSS is on the page
+const USES = ['agent-harness', 'stat-cards', 'progress', 'funnel-chart', 'bar-chart', 'line-chart', 'radial-goals', 'kanban-board',
+  'details-panel', 'score-breakdown', 'task-table', 'search-input', 'agent-inbox', 'draft-review', 'event-calendar', 'file-explorer',
+  'top-pages', 'command-palette', 'toast', 'profile-menu'];
+const css = USES.map(reg => {
+  const c = COMPONENTS.find(x => x.reg === reg);
+  if (!c) throw new Error('fundraising-crm: no component called ' + reg);
+  return `/* ${c.title} */\n` + c.html.css;
+}).join('\n');
+const DIR = path.join(ROOT, 'tools/pages/src/templates/fundraising-crm');
+const APP_CSS = fs.readFileSync(path.join(DIR, 'fr.css'), 'utf8');
+const APP_JS = fs.readFileSync(path.join(DIR, 'fr.js'), 'utf8');
+const title = 'Fundraising CRM template made of designme.dev components | Designme.dev';
+const description = 'A Series A fundraising workspace with an agent beside the founder, built from designme.dev components: the round at a glance, an investor pipeline, warm intros, a data room, meetings and term sheets, in Soft and Blueprint, light and dark.';
+const I = (n, c = 's') => `<svg class="i ${c}" aria-hidden="true"><use href="#i-${n}"/></svg>`;
+---
+<Page title={title} description={description} path="/templates/fundraising-crm" app>
+  <Fragment slot="head">
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="stylesheet" href="/components/assets/core.css">
+    <style is:inline set:html={css} />
+    <style is:inline set:html={APP_CSS} />
+  </Fragment>
+  <span slot="top" class="fr-name">Fundraising CRM template</span>
+
+  <div class="fr" data-c="fundraising-crm" data-view="round">
+    <aside class="ahx-side fr-side" aria-label="Workspace">
+      <div class="ahx-ws"><button class="ahx-wsb fr-wsb" data-pop="#fr-p-ws" aria-haspopup="menu"><span class="pfm-lg" data-t="pl">L</span><span class="fr-wst"><span class="t">Loomwise</span><span class="s">Series A</span></span><Fragment set:html={I('unfold', 'xs')} /></button></div>
+      <nav class="fr-nav" aria-label="Views">
+        <button class="ahx-cv" data-go="round"><Fragment set:html={I('gauge')} /><span class="t">Round</span></button>
+        <button class="ahx-cv" data-go="investors"><Fragment set:html={I('grid')} /><span class="t">Investors</span><span class="n num" data-count="funds"></span></button>
+        <button class="ahx-cv" data-go="intros"><Fragment set:html={I('users')} /><span class="t">Intros</span><span class="n num" data-count="intros" data-tip="Warm paths not asked yet"></span></button>
+        <button class="ahx-cv" data-go="room"><Fragment set:html={I('folder')} /><span class="t">Data room</span><span class="n num" data-count="docs"></span></button>
+        <button class="ahx-cv" data-go="meetings"><Fragment set:html={I('cal')} /><span class="t">Meetings</span><span class="n num" data-count="meetings" data-tip="Meetings this week"></span></button>
+      </nav>
+      <div class="ahx-lh"><span>Agent</span></div>
+      <nav class="fr-nav" aria-label="Agent">
+        <button class="ahx-cv" data-go="inbox"><Fragment set:html={I('spark')} /><span class="t">Agent inbox</span><span class="n num fr-wait" data-count="inbox"></span></button>
+        <button class="ahx-cv" data-go="terms"><Fragment set:html={I('file-text')} /><span class="t">Term sheets</span><span class="n num" data-count="terms"></span></button>
+        <button class="ahx-cv" data-saved="quiet"><Fragment set:html={I('history')} /><span class="t">Gone quiet</span><span class="n num" data-count="quiet"></span></button>
+        <button class="ahx-cv" data-saved="leads"><Fragment set:html={I('star')} /><span class="t">Could lead</span><span class="n num" data-count="leads"></span></button>
+      </nav>
+    </aside>
+    <div class="ahx-scrim fr-scrim" aria-hidden="true"></div>
+
+    <div class="fr-main">
+      <header class="fr-top">
+        <button class="ib fr-menu" aria-label="Show views" data-tip="Views"><Fragment set:html={I('panel')} /></button>
+        <div class="fr-ttl"><h1 class="fr-h1" id="content" tabindex="-1"><span class="fr-h1t">Round</span></h1><span class="fr-sum muted num" aria-live="polite"></span></div>
+        <span class="fr-sp"></span>
+        <button class="ib fr-find" aria-label="Search funds, people and actions" aria-keyshortcuts="Control+K Meta+K" data-tip="Search" data-tip-k="⌘K"><Fragment set:html={I('search')} /></button>
+        <button class="pfm-tr fr-me" data-pop="#fr-p-me" data-pop-align="end" aria-haspopup="menu" aria-label="Account menu, Ada Brennan"><span class="av" style="background:var(--dm-av-l);color:var(--dm-av-l-ink)">AB</span><span class="fr-men">Ada Brennan</span><Fragment set:html={I('chev-d', 'xs')} /></button>
+      </header>
+
+      <!-- Round: Stat cards, Progress's meter, Radial goals, Funnel, Bar chart, Line chart, and the agent's risks and timeline -->
+      <section class="fr-view fr-rd" id="fr-v-round" aria-label="Round">
+        <div class="scx-grid fr-c12"></div>
+        <div class="panel fr-cmt fr-c8">
+          <div class="fr-ph"><div><b>Committed against the target</b><span class="muted fr-cmts"></span></div><div class="fr-lgd muted"><span><i class="h"></i>Hard</span><span><i class="s"></i>Soft-circled</span><span><i class="t"></i>Best term sheet</span></div></div>
+          <div class="fr-meter">
+            <div class="prg-mb fr-mb" role="meter" aria-valuemin="0" aria-valuemax="12"><i class="fl"></i><i class="fr-soft"></i><i class="fr-tsb"></i><i class="th fr-tg"></i><i class="th fr-mx"></i></div>
+            <div class="fr-ticks muted num"></div>
+          </div>
+          <div class="fr-cl" role="list" aria-label="Commitments"></div>
+        </div>
+        <div class="rgx panel fr-c4">
+          <div class="rgx-h"><div class="rgx-t"><b>Round goals</b><span class="muted rgx-sub">Against the plan for this raise</span></div></div>
+          <div class="rgx-b"><div class="rgx-ring"><svg viewBox="0 0 180 180" aria-hidden="true"></svg><div class="rgx-c"><b class="num">0%</b><span class="muted">of goals</span></div></div><div class="rgx-lg"></div></div>
+          <div class="six-ans fr-gn"><Fragment set:html={I('spark', 'xs')} /><span></span></div>
+        </div>
+        <div class="fnx panel fr-c4">
+          <div class="fnx-h"><b>Pipeline by stage</b><span class="muted fr-fnn num"></span></div>
+          <div class="fnx-rows"></div>
+          <div class="fnx-ins"><span class="fnx-ic"><Fragment set:html={I('spark', 'xs')} /></span><span class="fnx-t"></span></div>
+        </div>
+        <div class="bcx panel fr-c4 fr-wk">
+          <div class="bcx-h"><div><span class="muted">Investor meetings a week</span><b class="num bcx-v">0</b></div><span class="muted fr-wkn"></span></div>
+          <div class="bcx-ch"></div>
+        </div>
+        <div class="panel fr-risk fr-c4">
+          <div class="fr-ph"><div><b>Top risks</b><span class="muted">Flagged by the agent from the data</span></div></div>
+          <div class="fr-rl" role="list" aria-label="Risks"></div>
+        </div>
+        <div class="panel fr-tline fr-c8">
+          <div class="fr-ph"><div><b>Timeline to close</b><span class="muted fr-tls"></span></div></div>
+          <div class="fr-rail"><div class="fr-rtr"><i class="fr-rdone"></i></div><div class="fr-ms"></div><span class="fr-today"></span></div>
+        </div>
+        <div class="lnx panel fr-c4 fr-ln">
+          <div class="lnx-h"><div><span class="muted">Committed, cumulative</span><b class="num lnx-v">$0</b></div><div class="lnx-lg"><button class="lnx-k on" data-s="0" aria-pressed="true"><i style="background:var(--dm-accent-mark,var(--dm-accent))"></i>Committed</button><button class="lnx-k on" data-s="1" aria-pressed="true"><i style="background:var(--dm-c2)"></i>Plan</button></div></div>
+          <div class="lnx-ch"><svg class="lnx-svg" viewBox="0 0 320 140" preserveAspectRatio="none" aria-hidden="true"></svg><div class="lnx-x"></div><div class="lnx-tt"><b class="num"></b><span></span></div></div>
+          <div class="lnx-ax muted num" aria-hidden="true"></div>
+        </div>
+      </section>
+
+      <!-- Investors: the Kanban board, the stages as columns, or the same cards as a list -->
+      <section class="fr-view fr-inv" id="fr-v-investors" aria-label="Investors" hidden>
+        <div class="kbx fr-kb">
+          <div class="kbx-hd"><div class="kbx-ti"><b>Funds by stage</b><span class="num fr-kbsum"></span></div><div class="kbx-fp" role="group" aria-label="Filter by who runs the relationship"></div><span class="kbx-sp"></span><div class="seg2 kbx-vw" role="group" aria-label="Layout"><button aria-pressed="true" data-v="board"><Fragment set:html={I('grid', 'xs')} /><span class="lb">Board</span></button><button aria-pressed="false" data-v="list"><Fragment set:html={I('list', 'xs')} /><span class="lb">List</span></button></div></div>
+          <div class="kbx-fl"><button class="chip sm kbx-f" data-pop="#fr-p-fit" aria-haspopup="menu" data-f="fit"><span class="k">Fit</span><span class="v"></span><Fragment set:html={I('chev-d', 'xs')} /></button><button class="chip sm kbx-f" data-pop="#fr-p-role" aria-haspopup="menu" data-f="role"><span class="k">Role</span><span class="v"></span><Fragment set:html={I('chev-d', 'xs')} /></button><button class="chip sm kbx-f" data-pop="#fr-p-sect" aria-haspopup="menu" data-f="sect"><span class="k">Sector</span><span class="v"></span><Fragment set:html={I('chev-d', 'xs')} /></button><button class="chip sm kbx-f fr-qf" aria-pressed="false" data-f="quiet"><Fragment set:html={I('history', 'xs')} /><span class="v">Gone quiet</span></button><button class="pill ghost sm kbx-clr" hidden>Clear</button><span class="kbx-sp"></span><span class="kbx-cnt num"></span></div>
+          <div class="kbx-bar"><div class="seg2 kbx-tabs" role="group" aria-label="Stage"></div></div>
+          <div class="kbx-bd"><div class="kbx-cols"></div><div class="kbx-em" hidden><span class="ic"><Fragment set:html={I('filter')} /></span><b>No funds match</b><span>Try another filter.</span><button class="pill line sm fr-kbclr">Clear filters</button></div></div>
+          <div class="kbx-sr" aria-live="polite"></div>
+        </div>
+      </section>
+
+      <!-- Intros: the warm paths to each fund, the network behind the one picked, and the agent's forwardable email -->
+      <section class="fr-view fr-int" id="fr-v-intros" aria-label="Intros" hidden>
+        <div class="panel fr-ipl">
+          <div class="fr-ph"><div><b>Warm paths</b><span class="muted fr-ips"></span></div><div class="seg2 fr-isg" role="group" aria-label="Show"><button aria-pressed="true" data-v="open">To ask</button><button aria-pressed="false" data-v="asked">Asked</button><button aria-pressed="false" data-v="all">All</button></div></div>
+          <div class="fr-il" role="listbox" aria-label="Funds to reach"></div>
+        </div>
+        <div class="fr-ir">
+          <div class="panel fr-net"><div class="fr-ph"><div><b class="fr-nett">Network</b><span class="muted fr-nets"></span></div></div><svg class="fr-nsv" aria-hidden="true"></svg><div class="fr-nodes"></div></div>
+          <div class="drf panel fr-drf"></div>
+        </div>
+      </section>
+
+      <!-- Data room: File explorer's tree of documents, Task table's views per investor, Top pages' most read, and who went quiet -->
+      <section class="fr-view fr-dr" id="fr-v-room" aria-label="Data room" hidden>
+        <div class="fxp panel fr-fx"><div class="fr-ph"><div><b>Documents</b><span class="muted fr-fxs"></span></div></div><div class="fxp-tree" role="tree" aria-label="Documents"></div><div class="fxp-f muted"><span class="fxp-st"></span></div></div>
+        <div class="fr-dmid">
+          <div class="fr-dh"></div>
+          <div class="ttx panel fr-dt"><div class="ttx-sc fr-dsc"><table class="ttx-t fr-dtt"><thead></thead><tbody></tbody></table></div></div>
+        </div>
+        <div class="fr-dside">
+          <div class="panel fr-quiet"><div class="fr-ph"><div><b>Gone quiet</b><span class="muted">Active funds with no data room views in 7+ days</span></div></div><div class="fr-ql" role="list" aria-label="Gone quiet"></div></div>
+          <div class="tpx panel fr-tp"><div class="tpx-h"><div><b>Most read</b><span class="muted tpx-sub"><span class="num tpx-tot">0</span> minutes in the room</span></div><div class="seg2 tpx-sg" role="group" aria-label="Rank by"><button aria-pressed="true" data-v="m">Minutes</button><button aria-pressed="false" data-v="f">Funds</button></div></div><div class="tpx-list"></div></div>
+        </div>
+      </section>
+
+      <!-- Meetings: Event calendar's week, all seven days, filling the height -->
+      <section class="fr-view fr-cal" id="fr-v-meetings" aria-label="Meetings" hidden>
+        <div class="ecx panel fr-ecx">
+          <div class="ecx-h"><div class="fr-wkn2"><button class="ib" data-wk="-1" aria-label="Previous week" data-tip="Previous week"><Fragment set:html={I('chev-l', 'xs')} /></button><button class="ib" data-wk="1" aria-label="Next week" data-tip="Next week"><Fragment set:html={I('chev-r', 'xs')} /></button><button class="pill line sm" data-wk="0">Today</button></div><b class="fr-wkt num"></b><span class="ecx-sp"></span><span class="ecx-msg muted" aria-live="polite"></span><div class="fr-leg muted" aria-label="Kinds of meeting"></div></div>
+          <div class="ecx-days" role="group" aria-label="Day"></div>
+          <div class="ecx-sc"><div class="ecx-grid"><div class="ecx-tm"></div></div></div>
+        </div>
+      </section>
+
+      <!-- Agent inbox: what the agent drafted, grouped, each to approve, edit or dismiss -->
+      <section class="fr-view fr-ib" id="fr-v-inbox" aria-label="Agent inbox" hidden>
+        <div class="aib panel fr-aib">
+          <div class="aib-h"><b>Drafted by the agent</b><span class="muted aib-st" aria-live="polite"></span></div>
+          <div class="aib-gs"></div>
+        </div>
+      </section>
+
+      <!-- Term sheets: the sheets side by side, the better term marked, and the agent's answer to "what do I say?" -->
+      <section class="fr-view fr-ts" id="fr-v-terms" aria-label="Term sheets" hidden>
+        <div class="panel fr-tsp">
+          <div class="fr-ph"><div><b>Term sheets</b><span class="muted fr-tss"></span></div><button class="pill soft sm fr-ask"><Fragment set:html={I('spark', 'xs')} /><span>What do I say to these?</span></button></div>
+          <div class="fr-tsw"><table class="fr-tst"><thead></thead><tbody></tbody></table></div>
+        </div>
+        <div class="panel fr-say" hidden></div>
+      </section>
+
+      <!-- a fund's details: the Details panel's sections and rows, as a sheet over the right of the screen -->
+      <aside class="fr-sheet" role="dialog" aria-modal="false" aria-label="Fund details" inert><div class="dtp fr-dtp"></div></aside>
+    </div>
+    <div class="fr-shade" aria-hidden="true"></div>
+
+    <!-- menus: the shared core opens each from its button (data-pop) -->
+    <div class="pop fr-pop" id="fr-p-ws" role="menu" aria-label="Rounds"></div>
+    <div class="pop fr-pop" id="fr-p-fit" role="menu" aria-label="Fit"></div>
+    <div class="pop fr-pop" id="fr-p-role" role="menu" aria-label="Role in the round"></div>
+    <div class="pop fr-pop" id="fr-p-sect" role="menu" aria-label="Sector"></div>
+    <div class="pop fr-pop" id="fr-p-mv" role="menu" aria-label="Move fund to"></div>
+    <div class="pop fr-pop" id="fr-p-stage" role="menu" aria-label="Stage"></div>
+    <div class="pop fr-pop" id="fr-p-lead" role="menu" aria-label="Lead partner"></div>
+    <div class="pop fr-pop" id="fr-p-own" role="menu" aria-label="Runs the relationship"></div>
+    <div class="pop pfm-pop fr-pop" id="fr-p-me" role="menu" aria-labelledby="fr-me-n fr-me-e">
+      <div class="pfm-me" role="none"><span class="av" style="background:var(--dm-av-l);color:var(--dm-av-l-ink)">AB</span><span class="t"><b id="fr-me-n">Ada Brennan</b><span class="muted" id="fr-me-e">CEO, Loomwise</span></span></div>
+      <div class="sep" role="separator"></div>
+      <button class="mi pfm-th" role="menuitemcheckbox" aria-checked="false" tabindex="-1"><Fragment set:html={I('moon')} /><span>Dark theme</span><span class="toggle" aria-hidden="true"></span></button>
+      <button class="mi" role="menuitem" tabindex="-1" data-act="help" data-close><Fragment set:html={I('keyboard')} /><span>Keyboard shortcuts</span><span class="kbd" aria-hidden="true">?</span></button>
+      <div class="sep" role="separator"></div>
+      <button class="mi" role="menuitem" tabindex="-1" data-act="signout" data-close><Fragment set:html={I('logout')} /><span>Sign out</span></button>
+    </div>
+
+    <!-- search: the Command palette, over the app -->
+    <div class="fr-over fr-cmd" hidden><div class="cpl panel" role="dialog" aria-label="Search"><div class="cpl-in"><Fragment set:html={I('search')} /><input class="cpl-q" placeholder="Search funds, partners and actions" aria-label="Search" spellcheck="false" autocomplete="off"><span class="kbd">esc</span></div><div class="cpl-list" role="listbox" aria-label="Results"></div><div class="cpl-f muted"><span><span class="kbd">↑</span><span class="kbd">↓</span> move</span><span><span class="kbd">↵</span> open</span><span class="cpl-st"></span></div></div></div>
+
+    <div class="fr-toasts" aria-live="polite"></div>
+  </div>
+
+  <Fragment slot="end">
+    <script is:inline src="/components/assets/core.js"></script>
+    <script is:inline set:html={APP_JS} />
+  </Fragment>
+</Page>
