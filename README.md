@@ -114,7 +114,7 @@ from them.
 
 | Sources (edit these) | Generated (don't edit by hand) |
 | --- | --- |
-| `soft-2/index.html`: every HTML component | `index.html`, `404.html`, `llms.txt`, `code-data.json` |
+| `soft-2/index.html`: every HTML component | `index.html` and its `assets/`, `404.html`, `llms.txt`, `code-data.json` |
 | `packages/react`: the React components (`.tsx`) | `r/`: the registries the CLI and shadcn read |
 | `tools/pages/content/<id>.json`: each component's docs copy | `components/`, `docs/`, `sitemap.xml`, `_redirects` |
 | `tools/site/*` and `tools/pages/*`: the build | `packages/astro/src`: the Astro components |
