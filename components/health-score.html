@@ -256,6 +256,218 @@
   .hsc-s :is(.pill,.hsc-done){margin-left:22px}
 }
 @media (prefers-reduced-motion:reduce){.hsc-t:active{transform:none}@media (hover:hover) and (pointer:fine){.hsc-t:hover{transform:none}}}
+</style><style>/* the homepage card's design switch (its footer tabs on designme.dev): Verdict first, Factor tiles (Classic, the component
+   above), Trend and drivers, and Rows, four ways to show one account's health (owner, 9 Nov; lab/health-variations.html).
+   Every design shows the same three account states, picked with the account switch under it. The registry, the code view
+   and the component page install Classic on its own (build.js leaves a data-designs="card" switch out of them) */
+.dm.hsd-dm>.dm-main{align-items:center}
+/* on a phone the four names don't fit on one line: each takes two, as the card's footer tabs do on designme.dev, and the
+   switch stays inside the room a component page keeps for it under the demo */
+.hsd-dm>.demo,.hsd-dm>.demo .seg2{max-width:100%}
+.hsd-dm>.demo .seg2 button{height:auto;min-height:26px;padding:2px 11px;line-height:14px}
+/* the account switch, under whichever design is showing */
+.hsd-ac{display:flex;justify-content:center;margin-top:var(--dm-s-6)}
+/* ---------- A · verdict first ----------
+   The verdict in a word and a colour, the score beside it in small type, one sentence on why, the agent's next step as a
+   button, then the four factors as quiet lines. Only the weakest factor is drawn with emphasis; hover or focus a factor and
+   the line under the list says what is behind its figure */
+.hva-sheet{width:100%;padding:var(--dm-s-4)}
+.hva-sh{display:flex;align-items:center;gap:10px;margin-bottom:var(--dm-s-4)}
+.hva-av{flex:none;width:32px;height:32px;display:grid;place-items:center;border-radius:calc(9px * var(--dm-rk));background:var(--dm-chip);color:var(--dm-fg2);font-size:13px;font-weight:500}
+.hva-sht{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.35}
+.hva-sht b{font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hva-sht span{font-size:12px;color:var(--dm-muted)}
+.hva{display:flex;flex-direction:column;container-type:inline-size;font-size:13px;line-height:20px;color:var(--dm-fg);
+  --dm-hl:color-mix(in srgb,var(--dm-line) 50%,transparent);--dm-lv:var(--dm-ok);--dm-lv-bg:var(--dm-ok-bg);--dm-lv-mk:var(--dm-ok-mark)}
+.hva[data-lv="warn"]{--dm-lv:var(--dm-warn);--dm-lv-bg:var(--dm-warn-bg);--dm-lv-mk:var(--dm-warn-mark)}
+.hva[data-lv="bad"]{--dm-lv:var(--dm-bad);--dm-lv-bg:var(--dm-bad-bg);--dm-lv-mk:var(--dm-bad)}
+.hva-vh{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+/* the head: the section's name, and 12 weeks of history in one line */
+.hva-h{display:flex;align-items:center;gap:var(--dm-s-2);min-height:20px}
+.hva-k{flex:1;min-width:0;margin:0;font-size:12px;font-weight:400;line-height:20px;color:var(--dm-muted)}
+.hva-tr{flex:none;display:inline-flex;align-items:center;gap:6px;height:20px;padding:0 2px;border-radius:calc(4px * var(--dm-rk));font-size:12px;color:var(--dm-muted);cursor:default}
+.hva-tr svg{width:44px;height:14px;overflow:visible}
+.hva-tr polyline{fill:none;stroke:var(--dm-muted);stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;opacity:.7}
+.hva-tr circle{fill:var(--dm-lv-mk)}
+.hva-tr b{font-weight:500;color:var(--dm-fg2)}
+/* the verdict: a status pill, and the score as secondary text */
+.hva-v{display:flex;align-items:center;gap:10px;margin-top:6px}
+.hva-pill{display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 10px 0 9px;border-radius:var(--dm-r-pill);background:var(--dm-lv-bg);color:var(--dm-lv);font-size:12.5px;font-weight:500;line-height:1;white-space:nowrap}
+.hva-dot{width:6px;height:6px;flex:none;border-radius:50%;corner-shape:round;background:var(--dm-lv-mk)}
+.hva-sc{font-size:12.5px;color:var(--dm-muted)}
+.hva-sc b{font-weight:500;color:var(--dm-fg2)}
+/* why, in one sentence: the weak factor's words step up to the ink colour */
+.hva-why{margin:var(--dm-s-2) 0 0;color:var(--dm-fg2);text-wrap:pretty}
+.hva-why b{font-weight:500;color:var(--dm-fg)}
+/* what to do next: the agent's suggestion and its button */
+.hva-act{display:flex;flex-wrap:wrap;align-items:center;gap:var(--dm-s-2) var(--dm-s-3);margin-top:var(--dm-s-3)}
+.hva-am{flex:1 1 220px;min-width:0;display:flex;align-items:flex-start;gap:var(--dm-s-2)}
+.hva-ai{flex:none;width:20px;height:20px;display:grid;place-items:center;border-radius:calc(6px * var(--dm-rk));background:var(--dm-accent-bg)}
+.hva-ai .i{color:var(--dm-accent-fg)}
+.hva-at{margin:0;font-size:12.5px;line-height:20px;color:var(--dm-fg2);text-wrap:pretty}
+.hva-go{flex:none}
+/* a narrow sheet puts the button under the suggestion, in line with its words */
+@container (max-width:400px){.hva-go{margin-left:28px}}
+.hva-go .spin{width:11px;height:11px}
+.hva-go.done{cursor:default}
+.hva-go.done .i{color:var(--dm-ok)}
+.hva-go.done:active{transform:none}
+/* the factors: quiet lines with a small mark and the one figure that matters */
+.hva-ev{margin-top:var(--dm-s-3);padding-top:var(--dm-s-2);border-top:1px solid var(--dm-hl)}
+.hva-fs{list-style:none;margin:0 calc(var(--dm-s-2) * -1);padding:0;display:flex;flex-direction:column;gap:2px}
+.hva-r{--dm-fl:var(--dm-ok);--dm-fl-bg:var(--dm-ok-bg);--dm-fl-mk:var(--dm-ok-mark);--dm-fl-tint:color-mix(in srgb,var(--dm-fl-bg) 60%,transparent)}
+.hva-r[data-lv="warn"]{--dm-fl:var(--dm-warn);--dm-fl-bg:var(--dm-warn-bg);--dm-fl-mk:var(--dm-warn-mark)}
+.hva-r[data-lv="bad"]{--dm-fl:var(--dm-bad);--dm-fl-bg:var(--dm-bad-bg);--dm-fl-mk:var(--dm-bad)}
+.hva-rb{width:100%;display:flex;align-items:center;gap:10px;height:32px;padding:0 var(--dm-s-2);border-radius:var(--dm-r-sm);text-align:left;color:var(--dm-fg2);transition:background var(--dm-t-fast),color var(--dm-t-fast)}
+.hva-rb:focus-visible{outline-offset:-2px}
+.hva-mk{flex:none;width:16px;height:16px;display:grid;place-items:center}
+.hva-mk .i{color:var(--dm-fl-mk);stroke-width:2.2}
+.hva-l{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hva-fv{flex:none;font-size:12.5px;color:var(--dm-fg)}
+.hva-r.on .hva-rb{background:var(--dm-row);color:var(--dm-fg)}
+/* the weakest factor: its own tint, its figure in its status colour */
+.hva-r.weak .hva-rb{background:var(--dm-fl-tint);color:var(--dm-fg)}
+.hva-r.weak .hva-l{font-weight:500}
+.hva-r.weak .hva-fv{color:var(--dm-fl);font-weight:500}
+.hva-r.weak.on .hva-rb{background:var(--dm-fl-bg)}
+@media (hover:hover) and (pointer:fine){
+  .hva-rb:hover{background:var(--dm-row);color:var(--dm-fg)}
+  .hva-r.weak .hva-rb:hover{background:var(--dm-fl-bg)}
+}
+.hva-r.fresh .hva-fv{animation:enter var(--dm-t-slow) var(--dm-ease) backwards}
+/* the readout: what is behind the factor in hand (the weakest one until you point at another) */
+.hva-rd{margin:var(--dm-s-2) 0 0;min-height:36px;font-size:12.5px;line-height:18px;color:var(--dm-muted);text-wrap:pretty}
+.hva-rd b{font-weight:500;color:var(--dm-fg2)}
+/* the history's line draws in */
+.hva-tr polyline.draw{animation:hvadraw .9s var(--dm-ease) .25s backwards}
+.hva-tr circle.draw{animation:enter var(--dm-t) var(--dm-ease) 1s backwards}
+@keyframes hvadraw{from{stroke-dashoffset:1}to{stroke-dashoffset:0}}
+:root:not([data-style="soft"]) .hva-k:not(:where([data-style="soft"],[data-style="soft"] *)){font-size:11px;font-weight:500;letter-spacing:.04em;text-transform:uppercase}
+:root:not([data-style="soft"]) .hva-pill:not(:where([data-style="soft"],[data-style="soft"] *)){box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-lv) 14%,transparent);font-size:11px;letter-spacing:.03em;text-transform:uppercase}
+@media (prefers-reduced-motion:reduce){.hva *{transition-duration:.01ms!important;animation:none!important}}
+/* ---------- C · trend and drivers ----------
+   The score as a story: twelve weeks of health as a small line that ends on today's score, a line under it that says what
+   changed (this week at rest, the week under the pointer or the keyboard while scrubbing), the drivers as signed points
+   that walk from a typical account's 60 to the score, and the agent's next move. One hue for the verdict, green and red
+   for what adds and what takes away; the line itself is ink */
+.hvc-sh{width:100%;padding:var(--dm-s-4)}
+.hvc-ah{display:flex;align-items:center;gap:10px;padding-bottom:var(--dm-s-3)}
+.hvc-lg{flex:none;width:32px;height:32px;display:grid;place-items:center;border-radius:calc(8px * var(--dm-rk));background:var(--dm-chip);font-size:13px;font-weight:500;color:var(--dm-fg2)}
+.hvc-an{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.35}
+.hvc-an b{font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hvc-an span{font-size:12px;color:var(--dm-muted)}
+.hvc{--dm-hl:color-mix(in srgb,var(--dm-line) 50%,transparent);--dm-tw:120px;display:flex;flex-direction:column;padding-top:var(--dm-s-3);border-top:1px solid var(--dm-hl);container-type:inline-size}
+/* labels: quiet words in Soft, small capitals in Blueprint */
+.hvc-k{font-size:12px;color:var(--dm-muted)}
+/* the head: the block's name, its span and the verdict */
+.hvc-h{display:flex;align-items:center;gap:var(--dm-s-2);min-height:20px}
+.hvc-t{flex:1;min-width:0;font-size:13.5px;font-weight:500;line-height:20px}
+.hvc-t span{margin-left:6px;font-size:12.5px;font-weight:400;color:var(--dm-muted)}
+.hvc-h .tag{flex:none}
+/* the trend: a 64px line, the verdict lines (70 and 50) dashed where they fall, today's score at its end */
+.hvc-ch{position:relative;height:64px;margin-top:var(--dm-s-3);touch-action:pan-y;cursor:default}
+.hvc-ch:focus-visible{outline-offset:4px;border-radius:var(--dm-r-sm)}
+.hvc-svg{position:absolute;inset:0;width:100%;height:100%;display:block;overflow:visible}
+.hvc-svg .gl{stroke:var(--dm-rail);stroke-width:1;stroke-dasharray:2 3}
+.hvc-svg .ar{opacity:0;transition:opacity .6s var(--dm-ease)}
+.hvc-svg .ar.in{opacity:1}
+.hvc-svg .ln{fill:none;stroke:var(--dm-fg);stroke-width:1.75;stroke-linejoin:round;stroke-linecap:round}
+/* weeks where something happened: a hollow mark for a touch, a red one for something that slipped */
+.hvc-svg .ev{fill:var(--dm-surface);stroke:var(--dm-fg2);stroke-width:1.5;opacity:0;transition:opacity .3s var(--dm-ease)}
+.hvc-svg .ev.bad{fill:var(--dm-bad);stroke:var(--dm-surface)}
+.hvc-svg .ev.in{opacity:1}
+/* the scrub: a hairline and a ringed dot on the week */
+.hvc-svg .cx{stroke:var(--dm-faint);stroke-width:1;opacity:0;transition:opacity .15s}
+.hvc-svg .cp{fill:var(--dm-surface);stroke:var(--dm-fg);stroke-width:2;opacity:0;transition:opacity .15s}
+.hvc-ch.on .cx,.hvc-ch.on .cp{opacity:1}
+.hvc-svg .nd{fill:var(--dm-fg);stroke:var(--dm-surface);stroke-width:2;opacity:0;transition:opacity .3s var(--dm-ease)}
+.hvc-svg .nd.in{opacity:1}
+.hvc-ch.on .nd{opacity:.35}
+.hvc-yl{position:absolute;left:0;font-size:11px;line-height:1;color:var(--dm-muted);transform:translateY(-50%)}
+.hvc-end{position:absolute;right:0;font-size:20px;font-weight:500;line-height:1;letter-spacing:-.02em;transform:translateY(-50%);opacity:0;transition:opacity .3s var(--dm-ease)}
+.hvc-end.in{opacity:1}
+.hvc-ch.on .hvc-end{color:var(--dm-muted)}
+.hvc-ax{display:flex;justify-content:space-between;margin:6px 40px 0 22px;font-size:11px;line-height:14px;color:var(--dm-muted)}
+/* what changed: this week at rest, the scrubbed week while scrubbing. One line, so nothing under it moves */
+.hvc-ro{display:flex;align-items:baseline;gap:6px;min-width:0;margin:var(--dm-s-2) 0 0;font-size:12.5px;line-height:18px;color:var(--dm-fg2)}
+.hvc-ro .hvc-k{flex:none}
+.hvc-rs{flex:none;font-weight:500;color:var(--dm-fg)}
+.hvc-rd{flex:none;font-weight:500}
+.hvc-rn{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hvc-rd.up,.hvc-d.up .hvc-v{color:var(--dm-ok)}
+.hvc-rd.dn,.hvc-d.dn .hvc-v{color:var(--dm-bad)}
+.hvc-rd.eq{color:var(--dm-muted)}
+/* the drivers: signed points from a typical account's 60 to the score, as a plain list with a small waterfall */
+.hvc-dh{display:flex;align-items:baseline;justify-content:space-between;gap:var(--dm-s-3);margin-top:var(--dm-s-4);padding-top:var(--dm-s-3);border-top:1px solid var(--dm-hl)}
+.hvc-dh .hvc-bs{font-size:12px;color:var(--dm-muted)}
+.hvc-dl{position:relative;list-style:none;margin:var(--dm-s-1) 0 0;padding:0}
+.hvc-d{display:grid;grid-template-columns:32px minmax(0,1fr) var(--dm-tw);align-items:center;column-gap:var(--dm-s-3);min-height:28px;font-size:13px;line-height:18px}
+.hvc-v{text-align:right;font-size:12.5px;font-weight:500}
+.hvc-dn{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hvc-dn span{color:var(--dm-muted)}
+.hvc-tr{position:relative;height:8px}
+.hvc-tr i{position:absolute;top:0;bottom:0;min-width:2px;border-radius:calc(2px * var(--dm-rk));transform:scaleX(0);transition:transform .6s var(--dm-ease)}
+.hvc-tr i.in{transform:none}
+.hvc-d.up .hvc-tr i{background:var(--dm-ok-mark);transform-origin:left}
+.hvc-d.dn .hvc-tr i{background:var(--dm-bad);transform-origin:right}
+/* the walk's start (60, dashed) and its end (the score, ink), drawn through every row's track */
+.hvc-gd{position:absolute;top:2px;bottom:2px;width:0;border-left:1px dashed var(--dm-faint);pointer-events:none}
+.hvc-gd.end{border-left:1px solid color-mix(in srgb,var(--dm-fg) 45%,transparent)}
+/* the agent's next move, with the one button */
+.hvc-ag{display:flex;align-items:center;gap:10px;margin-top:var(--dm-s-3);padding:10px 10px 10px var(--dm-s-3);border-radius:var(--dm-r-in);background:var(--dm-accent-bg);font-size:12.5px;line-height:1.5;color:var(--dm-fg2)}
+.hvc-ag>.i{flex:none;align-self:flex-start;margin-top:3px;color:var(--dm-accent-fg)}
+.hvc-agt{flex:1;min-width:0;text-wrap:pretty}
+.hvc-ag .pill{flex:none}
+.hvc-ag .pill .i{color:currentColor;margin-left:-2px}
+.hvc-ag .pill .spin{width:11px;height:11px;margin-left:-2px}
+.hvc-ag .pill[aria-disabled="true"]{cursor:default}
+/* on a tinted surface a secondary button is white in light mode */
+.hvc-ag .pill.line{background:var(--dm-surface)}
+/* a phone's full-width sheet: a shorter walk, and the button goes under the agent's line */
+@container (max-width:400px){
+  .hvc-dl{--dm-tw:72px}
+  .hvc-ag{flex-wrap:wrap;row-gap:var(--dm-s-2)}
+  .hvc-agt{flex:1 1 calc(100% - 30px)}
+  .hvc-ag .pill{margin-left:24px}
+}
+:root:not([data-style="soft"]) .hvc-k:not(:where([data-style="soft"],[data-style="soft"] *)){font-size:11px;font-weight:500;letter-spacing:.04em;text-transform:uppercase}
+/* nothing under 11px: Blueprint's tags are smaller in the core */
+:root:not([data-style="soft"]) .hvc .tag:not(:where([data-style="soft"],[data-style="soft"] *)){font-size:11px}
+@media (prefers-reduced-motion:reduce){.hvc *{transition-duration:.01ms!important}}
+/* ---------- D · rows ----------
+   Factor tiles without the tiles (owner, 9 Nov): the same head, then the four factors as full-width rows under one another,
+   split by hairlines, with no fill, shadow or card of their own. A row has its status dot and name (and Weakest, in ink, on
+   the weakest factor off track), its figure and small trend, and a chevron; it opens its detail right under it, one at a time */
+.hsr-l{display:flex;flex-direction:column;border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
+.hsr-r{--dm-sm:var(--dm-ok-mark)}
+.hsr-r[data-s="warn"]{--dm-sm:var(--dm-warn-mark)}
+.hsr-r[data-s="bad"]{--dm-sm:var(--dm-bad)}
+.hsr-r+.hsr-r{border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
+.hsr-b{width:100%;display:grid;grid-template-columns:minmax(0,1fr) auto 56px 16px;grid-template-areas:"k v tr cv";align-items:center;column-gap:var(--dm-s-3);min-height:44px;padding:var(--dm-s-2) 0;text-align:left;color:var(--dm-fg2);transition:color var(--dm-t-fast)}
+.hsr-b:focus-visible{outline-offset:2px;border-radius:var(--dm-r-sm)}
+.hsr-k{grid-area:k;display:flex;align-items:center;gap:6px;min-width:0;font-size:13px;line-height:20px}
+.hsr-n{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hsr-wk{flex:none;margin-left:2px;font-size:11px;font-weight:500;line-height:16px;color:var(--dm-fg);opacity:0;transition:opacity var(--dm-t) var(--dm-ease)}
+.hsr-r[data-weak] .hsr-wk{opacity:1}
+.hsr-v{grid-area:v;display:flex;align-items:baseline;justify-content:flex-end;gap:5px;min-width:0;white-space:nowrap;line-height:20px}
+.hsr-v b{font-size:14px;font-weight:500;letter-spacing:-.01em;color:var(--dm-fg)}
+.hsr-v>span{font-size:12px;color:var(--dm-muted)}
+.hsr-tr{grid-area:tr;justify-self:end;display:flex;align-items:center;height:20px}
+.hsr-cv{grid-area:cv;color:var(--dm-muted);transition:transform var(--dm-t) var(--dm-ease),color var(--dm-t-fast)}
+.hsr-b[aria-expanded="true"]{color:var(--dm-fg)}
+.hsr-b[aria-expanded="true"] .hsr-cv{transform:rotate(180deg);color:var(--dm-fg2)}
+@media (hover:hover) and (pointer:fine){
+  .hsr-b:hover{color:var(--dm-fg)}
+  .hsr-b:hover .hsr-cv{color:var(--dm-fg2)}
+}
+/* a row's detail, under its name */
+.hsr-dc{padding:0 0 var(--dm-s-3) 14px}
+:root:not([data-style="soft"]) :is(.hsr-n,.hsr-wk):not(:where([data-style="soft"],[data-style="soft"] *)){font-size:11px;font-weight:500;letter-spacing:.04em;text-transform:uppercase}
+/* a narrow block (a phone, a slim sheet): the figure and its trend take a second line under the name */
+@container (max-width:359px){
+  .hsr-b{grid-template-columns:minmax(0,1fr) auto 16px;grid-template-areas:"k k cv" "v tr .";row-gap:2px}
+  .hsr-v{justify-self:start;padding-left:14px}
+}
 </style><style>@media (max-width:640px){.cp-demo .pg-demo{min-height:calc(var(--h-j) + 24px + var(--sw,0px))}}@media (max-width:519px){.cp-demo .pg-demo{min-height:calc(var(--h-k) + 24px + var(--sw,0px))}}@media (max-width:429px){.cp-demo .pg-demo{min-height:calc(var(--h-l) + 24px + var(--sw,0px))}}@media (max-width:389px){.cp-demo .pg-demo{min-height:calc(var(--h-m) + 24px + var(--sw,0px))}}</style><style>@font-face{font-family:Inter;font-style:normal;font-weight:400;font-display:swap;src:url(/fonts/inter-latin-400-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:Inter;font-style:normal;font-weight:500;font-display:swap;src:url(/fonts/inter-latin-500-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:Inter;font-style:normal;font-weight:600;font-display:swap;src:url(/fonts/inter-latin-600-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
@@ -271,9 +483,9 @@
 <path d="M149.497 283.784C149.477 284.047 149.474 284.311 149.487 284.575C156.385 340.034 183.548 391.116 225.9 428.196C267.989 465.044 322.188 485.532 378.414 485.855L379.743 485.859C436.453 485.868 491.188 465.353 533.619 428.212C575.912 391.194 603.062 340.216 610.018 284.856L610.018 281.512C610.008 277.337 608.324 273.315 605.303 270.335C602.277 267.351 598.155 265.656 593.837 265.656L165.647 265.656C161.338 265.656 157.226 267.349 154.21 270.331C151.198 273.309 149.524 277.326 149.523 281.491L149.523 283.437L149.497 283.784ZM114.378 247.395C118.396 247.391 122.254 245.919 125.214 243.29C128.063 240.759 129.887 237.33 130.396 233.629L130.396 233.35L130.437 232.917C136.355 171.634 165.162 114.754 211.202 73.3687C257.239 31.9859 317.206 9.06063 379.393 9.04448L379.396 9.04448C441.593 9.04583 501.574 31.964 547.624 73.3482C593.677 114.735 622.491 171.624 628.411 232.917L628.453 233.35L628.453 233.643C628.953 237.344 630.773 240.774 633.621 243.304C636.58 245.932 640.437 247.399 644.452 247.395L725.644 247.395C728.882 247.404 732.089 248.06 735.071 249.329C738.055 250.598 740.753 252.453 743.001 254.787C745.252 257.123 747.005 259.891 748.151 262.924C749.296 265.954 749.81 269.183 749.662 272.418L749.663 272.418C745.484 366.797 704.617 455.919 635.615 521.211C566.616 586.499 474.809 622.924 379.338 622.924C283.872 622.924 192.071 586.496 123.081 521.206C54.0935 455.917 13.2412 366.804 9.07133 272.438L9.07036 272.438L9.07036 272.436C9.07007 272.43 9.06967 272.423 9.06938 272.417L9.07036 272.417C8.92272 269.182 9.43655 265.953 10.5811 262.924C11.7276 259.89 13.481 257.123 15.7315 254.787C17.9805 252.452 20.6797 250.597 23.6622 249.329C26.6443 248.06 29.8504 247.404 33.0889 247.395L114.378 247.395Z" fill="black" stroke="white" stroke-width="18.0901"/>
 </svg></div><span class="gloss"></span></div><p>Built by <span class="u">DesignMe</span>, free to use under the MIT licence.</p></a>
     <p class="side-cta-d">Expert design and dev support for startups and enterprises, from Astro sites to React apps and AI products.</p>
-    <a class="hire-btn" href="https://www.designme.agency/intro?utm_source=designme.dev&utm_medium=referral&utm_campaign=book_a_call" target="_blank" rel="noopener">Book a call<span class="ms"><svg class="sh" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"/></svg></span></a></div></div></details><nav class="pg-crumbs" aria-label="Breadcrumb"><a href="/">Library</a><span>/</span><a href="/#s-charts">Charts and tables</a></nav><h1 class="pg-h1" id="content" tabindex="-1">Health score</h1><p class="pg-lead">An account&#39;s health: a score ring, four factors that open, and the agent&#39;s next move. Free and MIT licensed, as HTML, a typed React component or an Astro component, in two styles with light and dark mode.</p><div class="pg-cmd"><span class="d">$</span><span class="c"><span class="cp-w">npx</span> <span class="cp-w">designme</span> <span class="cp-w">add</span> <span class="cp-w">health-score</span></span><button type="button" data-copy="npx designme add health-score" aria-label="Copy install command"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg></button></div><section class="cp-demo" aria-label="Health score demo"><button type="button" class="cp-anim" id="cp-replay"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"></path><path d="M3 3v5h5"></path></svg>Animate</button><div class="pg-demo stage-inner" style="--h-a:500px;--h-j:450px;--h-k:566px;--h-l:566px;--h-m:602px"><div class="card" data-c="health-score">
+    <a class="hire-btn" href="https://www.designme.agency/intro?utm_source=designme.dev&utm_medium=referral&utm_campaign=book_a_call" target="_blank" rel="noopener">Book a call<span class="ms"><svg class="sh" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"/></svg></span></a></div></div></details><nav class="pg-crumbs" aria-label="Breadcrumb"><a href="/">Library</a><span>/</span><a href="/#s-charts">Charts and tables</a></nav><h1 class="pg-h1" id="content" tabindex="-1">Health score</h1><p class="pg-lead">An account&#39;s health: a score ring, four factors that open, and the agent&#39;s next move. Free and MIT licensed, as HTML, a typed React component or an Astro component, in two styles with light and dark mode.</p><div class="pg-cmd"><span class="d">$</span><span class="c"><span class="cp-w">npx</span> <span class="cp-w">designme</span> <span class="cp-w">add</span> <span class="cp-w">health-score</span></span><button type="button" data-copy="npx designme add health-score" aria-label="Copy install command"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg></button></div><section class="cp-demo" aria-label="Health score demo"><button type="button" class="cp-anim" id="cp-replay"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"></path><path d="M3 3v5h5"></path></svg>Animate</button><div class="pg-demo stage-inner" style="--h-a:670px;--h-j:638px;--h-k:638px;--h-l:657px;--h-m:667px"><div class="card" data-c="health-score">
   <div class="stage-in">
-    <div class="hsc-dm dm"><div class="dm-main">
+    <div class="dm hsd-dm" data-designs="card"><div class="dm-main"><div class="hsc-dm dm"><div class="dm-main">
       <div class="hsc panel" role="group" aria-label="Account health">
         <div class="hsc-ac"><b></b><span></span></div>
         <div class="hsc-h">
@@ -287,10 +499,12 @@
       </div>
       </div>
       <div class="demo"><div class="seg2" role="group" aria-label="Account"><button aria-pressed="false" data-v="0">Healthy</button><button aria-pressed="true" data-v="1">Watch</button><button aria-pressed="false" data-v="2">At risk</button></div></div>
+    </div></div>
+    <div class="demo"><div class="seg2" role="group" aria-label="Health score design"><button aria-pressed="true" data-v="verdict">Verdict first</button><button aria-pressed="false" data-v="classic">Factor tiles</button><button aria-pressed="false" data-v="trend">Trend and drivers</button><button aria-pressed="false" data-v="rows">Rows</button></div></div>
     </div>
   </div>
 </div>
-</div></section><script>
+</div></section><p class="cp-note cp-dsn">The demo switches between Verdict first, Factor tiles, Trend and drivers and Rows. The CLI installs Factor tiles; the others are previews for now.</p><script>
 // (the script comes before the row, so the row's next sibling is the page's first section, which CSS reaches with +; it runs
 // once the page has been read.)
 // the section you're reading is the last one whose top has passed a line 120px under the header and the row, or the last
@@ -1573,6 +1787,508 @@ DM.def('health-score', (r, c) => {
     throw 'stop';
   });
 });
+</script><script>/* ---------- Health score designs ---------- */
+{
+  const classic = DM.defs['health-score'];
+  const HSD = {};
+  const accSw = i => `<div class="demo hsd-ac"><div class="seg2" role="group" aria-label="Account">${['Healthy', 'Watch', 'At risk'].map((n, j) => `<button aria-pressed="${j === i}" data-v="${j}">${n}</button>`).join('')}</div></div>`;
+  // each design plays the story Factor tiles plays, once: Watch is showing, the person takes the agent's move, then they
+  // switch to the account at risk
+  const story = (c, go, sg, done) => c.story(async s => {
+    await s.beat(5);
+    await s.tap(go()); s.away();
+    await s.until(done); await s.beat(5);
+    await s.tap($$('button', sg)[2]); s.away();
+    throw 'stop';
+  });
+
+  /* ---------- A · verdict first ---------- */
+  // a factor's level: its mark, and the word assistive tech hears
+  const HVA_LV = { ok:['check', 'Fine'], warn:['warn', 'Watch'], bad:['alert', 'At risk'] }, HVA_VD = { ok:'Healthy', warn:'Watch', bad:'At risk' };
+  // three accounts on Mon Nov 9. A factor is { k: name, lv: level, v: the one figure, d: what is behind it }. weak is the
+  // factor drawn with emphasis (-1 when none is weak), dflt the one the readout opens on. The agent's step (act) can change
+  // factors (f), the why and the weak factor once it is done
+  const HVA = [
+    { n:'Granite Peak Systems', meta:'Strategic, Americas', lv:'ok', score:89,
+      trend:[74, 76, 75, 79, 81, 80, 83, 85, 84, 87, 88, 89],
+      why:'Going well: touched 2 days ago, no deal past its close date and a pricing call booked for Thursday.',
+      act:{ t:'Send Dana Ortiz an agenda before Thursday\'s pricing call.', b:'Draft agenda', busy:'Drafting', done:'Drafted',
+        after:'Agenda drafted from the last three calls. It is in your drafts to review.' },
+      f:[
+        { k:'Recent contact', lv:'ok', v:'2 days ago', d:'Email from Dana Ortiz on Sat Nov 7. Fine while the last touch is under 8 days.' },
+        { k:'Deals on time', lv:'ok', v:'0 overdue', d:'3 open deals. The next to close is Platform renewal, on Nov 24.' },
+        { k:'Win probability', lv:'ok', v:'62%', d:'Weighted by value: Platform renewal at 75%, Expansion at 50%. Fine from 50%.' },
+        { k:'Next step', lv:'ok', v:'Pricing call Thu', d:'Pricing call with Dana Ortiz, Thu Nov 12 at 9am, booked by Theo Reed.' }
+      ], weak:-1, dflt:2 },
+    { n:'Fernway Travel', meta:'Mid-market, APAC', lv:'warn', score:58,
+      trend:[81, 80, 78, 79, 76, 74, 71, 69, 66, 63, 60, 58],
+      why:'<b>No next step is booked</b>, and nobody has been in touch for 11 days. The deal and its odds still look fine.',
+      act:{ t:'Book a 20 minute check-in with Priya Nair this week.', b:'Book check-in', busy:'Booking', done:'Booked',
+        after:'Check-in booked for Wed Nov 11 at 10am. The invite went to Priya Nair.',
+        why:'Check-in booked for Wednesday. <b>Recent contact</b> stays low until that call happens.',
+        f:{ 3:{ lv:'ok', v:'Check-in Wed', d:'Check-in with Priya Nair, Wed Nov 11 at 10am, booked just now.' } }, weak:0 },
+      f:[
+        { k:'Recent contact', lv:'warn', v:'11 days ago', d:'Email to Priya Nair on Thu Oct 29, no reply yet. Watch from 8 days, at risk after 21.' },
+        { k:'Deals on time', lv:'ok', v:'0 overdue', d:'1 open deal. First contract closes on Jan 13.' },
+        { k:'Win probability', lv:'ok', v:'61%', d:'First contract, in discovery, at 61%. Fine from 50%.' },
+        { k:'Next step', lv:'warn', v:'None booked', d:'Nothing on the calendar with Fernway Travel since the Oct 29 email.' }
+      ], weak:3, dflt:3 },
+    { n:'Tidewell Energy', meta:'Enterprise, APAC', lv:'bad', score:17,
+      trend:[52, 50, 47, 45, 41, 38, 34, 31, 27, 24, 21, 17],
+      why:'<b>Nobody has been in touch for 38 days</b>, and the Renewal is 6 days past its close date.',
+      act:{ t:'Call Marco Bell this week to agree a new close date for the Renewal.', b:'Schedule call', busy:'Scheduling', done:'Scheduled',
+        after:'Call booked for Tue Nov 10 at 2pm. The renewal notes are in the invite.',
+        why:'Call booked for Tuesday. Until it happens, <b>38 days without contact</b> keeps the account at risk.',
+        f:{ 3:{ lv:'ok', v:'Call Tue', d:'Call with Marco Bell, Tue Nov 10 at 2pm, booked just now.' } }, weak:0 },
+      f:[
+        { k:'Recent contact', lv:'bad', v:'38 days ago', d:'Legal review email to Marco Bell on Fri Oct 2. At risk after 21 days.' },
+        { k:'Deals on time', lv:'bad', v:'1 overdue', d:'Renewal, $265k, was due Nov 3 and is 6 days late. Grid ops seats is on time.' },
+        { k:'Win probability', lv:'bad', v:'33%', d:'Weighted by value: Renewal at 25%, Grid ops seats at 60%. At risk under 35%.' },
+        { k:'Next step', lv:'bad', v:'Overdue, Nov 3', d:'Renewal review was planned for Tue Nov 3 and never logged.' }
+      ], weak:0, dflt:0 }
+  ];
+  HSD.verdict = [i => `<div class="hva-sheet panel"></div>\n${accSw(i)}`, (r, c) => {
+    const sheet = $('.hva-sheet', r), sg = $('.hsd-ac .seg2', r), uid = 'hva' + Math.random().toString(36).slice(2, 7);
+    // each account keeps what the agent did for it, so switching away and back shows its step still done
+    const done = [false, false, false], busy = new Set();
+    let at = c.acct, V = null, shown = 0, run = 0;
+    const btn = i => { const x = HVA[i].act;
+      if (busy.has(i)) return `<button type="button" class="pill sm primary hva-go" aria-busy="true"><span class="spin" aria-hidden="true"></span>${x.busy}</button>`;
+      if (done[i]) return `<button type="button" class="pill sm line hva-go done" aria-disabled="true">${I('check', 'xs')}${x.done}</button>`;
+      return `<button type="button" class="pill sm primary hva-go">${x.b}</button>`; };
+    // the account as it stands: once its step is done, the factors it fixes are fine and the weak factor moves on
+    function draw(i, first){
+      const A = HVA[i], d = done[i], x = A.act, f = A.f.map((y, j) => ({ ...y, ...(d && x.f && x.f[j] || {}) }));
+      let weak = d && x.weak !== undefined ? x.weak : A.weak, dflt = d && x.weak !== undefined ? x.weak : A.dflt, hov = -1, pin = -1;
+      const t = A.trend, dd = t[t.length - 1] - t[0], lo = Math.min(...t), hi = Math.max(...t);
+      const pts = t.map((v, j) => [j / (t.length - 1) * 44, 13 - (v - lo) / (hi - lo || 1) * 12]);
+      const delta = (dd > 0 ? '+' : dd < 0 ? '−' : '') + Math.abs(dd);
+      sheet.innerHTML = `
+  <div class="hva-sh"><span class="hva-av" aria-hidden="true">${A.n[0]}</span><span class="hva-sht"><b>${A.n}</b><span>${A.meta}</span></span></div>
+  <section class="hva" data-lv="${A.lv}" aria-labelledby="${uid}-h">
+    <div class="hva-h">
+      <h3 class="hva-k" id="${uid}-h">Account health</h3>
+      <span class="hva-tr" tabindex="0" role="img" aria-label="Health over 12 weeks: ${t[0]} to ${t[t.length - 1]}" data-tip="Last 12 weeks: ${t[0]} to ${t[t.length - 1]}">
+        <svg viewBox="0 0 44 14" aria-hidden="true"><polyline pathLength="1" stroke-dasharray="1" points="${pts.map(p => p.map(n => n.toFixed(1)).join(',')).join(' ')}"/><circle r="2.25" cx="${pts[pts.length - 1][0]}" cy="${pts[pts.length - 1][1].toFixed(1)}"/></svg>
+        <span aria-hidden="true"><b class="num">${delta}</b> in 12 wk</span>
+      </span>
+    </div>
+    <div class="hva-v">
+      <span class="hva-pill"><span class="hva-dot" aria-hidden="true"></span>${HVA_VD[A.lv]}</span>
+      <span class="hva-sc"><b class="num">${Math.round(shown)}</b> of 100<span class="hva-vh">, health score</span></span>
+    </div>
+    <p class="hva-why">${d && x.why ? x.why : A.why}</p>
+    <div class="hva-act">
+      <div class="hva-am"><span class="hva-ai" aria-hidden="true">${I('spark', 'xs')}</span><p class="hva-at"><span class="hva-vh">Agent suggests: </span><span class="hva-att">${d ? x.after : x.t}</span></p></div>
+      ${btn(i)}
+    </div>
+    <div class="hva-ev">
+      <ul class="hva-fs" aria-label="What the score is made of">${f.map((y, j) => `<li class="hva-r" data-lv="${y.lv}">
+        <button type="button" class="hva-rb" aria-describedby="${uid}-d${j}"><span class="hva-mk" aria-hidden="true">${I(HVA_LV[y.lv][0], 'xs')}</span><span class="hva-l">${y.k}</span><span class="hva-fv">${y.v}</span></button>
+        <span class="hva-vh" id="${uid}-d${j}">${HVA_LV[y.lv][1]}. ${y.d}</span>
+      </li>`).join('')}</ul>
+      <p class="hva-rd" aria-hidden="true"></p>
+    </div>
+    <p class="hva-vh" aria-live="polite"></p>
+  </section>`;
+      const rows = $$('.hva-r', sheet), rd = $('.hva-rd', sheet), sc = $('.hva-sc b', sheet), fs = $('.hva-fs', sheet);
+      // the readout follows the pointer, then a focused or tapped factor, then the default one
+      const readout = j => `<b>${f[j].k}.</b> ${f[j].d}`;
+      const show = () => {
+        const user = hov >= 0 ? hov : pin, j = user >= 0 ? user : dflt;
+        rows.forEach((li, k) => li.classList.toggle('on', k === user));
+        swap(rd, readout(j), true);
+      };
+      rows.forEach((li, j) => {
+        const b = $('.hva-rb', li);
+        c.on(b, 'pointerenter', e => { if (e.pointerType === 'mouse'){ hov = j; show(); } });
+        c.on(b, 'pointerleave', e => { if (e.pointerType === 'mouse' && hov === j){ hov = -1; show(); } });
+        c.on(b, 'focus', () => { pin = j; show(); });
+        c.on(b, 'click', () => { pin = j; show(); });
+      });
+      c.on(fs, 'focusout', e => { if (!e.relatedTarget || !e.relatedTarget.closest || e.relatedTarget.closest('.hva-fs') !== fs){ pin = -1; show(); } });
+      const paintWeak = () => rows.forEach((li, k) => li.classList.toggle('weak', k === weak));
+      paintWeak(); rd.innerHTML = readout(dflt);
+      $('.hva-go', sheet).onclick = () => act(i);
+      V = { i, f, rows, show, sr:$('.hva-vh[aria-live]', sheet),
+        // the step lands: the factors it fixes turn fine and the weak factor moves on
+        land(){
+          const go = $('.hva-go', sheet), y = HVA[i].act;
+          go.outerHTML = btn(i); $('.hva-go', sheet).onclick = () => act(i);
+          swap($('.hva-att', sheet), y.after);
+          if (y.why) swap($('.hva-why', sheet), y.why, true);
+          Object.entries(y.f || {}).forEach(([j, z]) => {
+            Object.assign(f[j], z); const li = rows[j];
+            li.dataset.lv = z.lv; $('.hva-mk', li).innerHTML = I(HVA_LV[z.lv][0], 'xs'); $('.hva-fv', li).textContent = z.v;
+            $(`#${uid}-d${j}`, sheet).textContent = `${HVA_LV[z.lv][1]}. ${z.d}`;
+            li.classList.remove('fresh'); void li.offsetWidth; li.classList.add('fresh');
+          });
+          if (y.weak !== undefined){ weak = y.weak; dflt = y.weak; paintWeak(); }
+          show(); V.sr.textContent = y.after;
+        } };
+      // the entrance: the verdict first, then why, the step and the factors one by one; the score counts up. Another account
+      // fades in where this one was, its score counting from the last one
+      if (first){
+        const parts = [$('.hva-sh', sheet), $('.hva-h', sheet), $('.hva-v', sheet), $('.hva-why', sheet), $('.hva-act', sheet)];
+        stagger(parts, 50); stagger(rows, 40, parts.length * 50); enter(rd, parts.length * 50 + rows.length * 40);
+      } else if (!REDUCE) sheet.animate([{ opacity:0 }, { opacity:1 }], { duration:260, easing:'ease-out' });
+      $$('.hva-tr polyline, .hva-tr circle', sheet).forEach(el => el.classList.add('draw'));
+      const tk = ++run; tween(shown, A.score, 700, n => { if (tk !== run) return; shown = n; sc.textContent = Math.round(n); });
+    }
+    // the agent's step: the button works, says so, and the factor it fixes turns fine. The work belongs to the account it
+    // was pressed for, even if another account is showing by the time it lands
+    function act(i){
+      if (busy.has(i) || done[i]) return;
+      const go = $('.hva-go', sheet); go.style.minWidth = go.offsetWidth + 'px';
+      busy.add(i); go.setAttribute('aria-busy', 'true'); go.innerHTML = `<span class="spin" aria-hidden="true"></span>${HVA[i].act.busy}`;
+      c.run(async () => {
+        await c.wait(900);
+        busy.delete(i); done[i] = true;
+        if (V && V.i === i) V.land();
+      });
+    }
+    seg(sg, v => { if (+v === at) return; at = +v; draw(at, false); });
+    draw(at, true);
+    story(c, () => $('.hva-go', sheet), sg, () => done[1]);
+  }];
+
+  /* ---------- C · trend and drivers ---------- */
+  // the twelve weeks, Mondays, ending this week
+  const HVC_WK = ['Aug 24', 'Aug 31', 'Sep 7', 'Sep 14', 'Sep 21', 'Sep 28', 'Oct 5', 'Oct 12', 'Oct 19', 'Oct 26', 'Nov 2', 'Nov 9'];
+  /* one scoring model for every account: a typical account starts at 60, then
+     recent contact: 2 days +12, 11 days +5, 38 days -10 · next step: booked +3, none -20, overdue -6
+     deals on time: none overdue +2, one overdue -10 · win chance: points above or below 50% */
+  const HVC_BASE = 60;
+  const HVC = [
+    { n:'Granite Peak Systems', seg:'Strategic, North America',
+      h:[64, 66, 63, 68, 71, 70, 74, 78, 76, 81, 83, 89],
+      // what happened each week, and which weeks get a mark on the line (t: a touch, s: something slipped)
+      ev:['Intro call with the ops lead', 'Security pack shared', 'No replies this week', 'Demo for 3 people', 'Trial workspace opened', 'Steady, 2 emails answered', 'Security review passed', 'Proposal sent', 'Close date moved a week', 'Champion looped in finance', 'Pricing sent, opened 3 times', 'Pricing meeting with the buying group'],
+      mk:{ 0:'t', 3:'t', 7:'t', 8:'s', 11:'t' },
+      now:'Pricing meeting held, next call booked for Thu',
+      d:[[12, 'Recent contact', '2 days ago'], [12, 'Win chance', '62% across 3 deals'], [3, 'Next step booked', 'Thu Nov 12'], [2, 'No deal overdue', '']],
+      ag:{ t:'Send a pricing recap before Thursday so the buying group comes with answers.', b:'Draft recap', busy:'Drafting', done:'Drafted', ok:'Recap drafted for Theo Reed to review before Thursday’s call.' } },
+    { n:'Kestrel Robotics', seg:'Strategic, EMEA',
+      h:[72, 74, 73, 75, 71, 72, 70, 74, 69, 66, 61, 58],
+      ev:['Kickoff with the data team', 'Usage up 20%', 'Steady, weekly sync held', 'Quarterly review held', 'Champion on leave', 'Steady, 1 email answered', 'Budget owner joined a call', 'Demo for the data team', 'Follow-up call cancelled', 'Check-in on Oct 29, nothing booked', 'No reply to 2 emails', 'Quiet for 11 days'],
+      mk:{ 3:'t', 7:'t', 8:'s', 9:'t' },
+      now:'No reply to the Nov 4 email, nothing booked',
+      d:[[-20, 'No next step', 'nothing booked'], [11, 'Win chance', '61% across 2 deals'], [5, 'Last touch', '11 days ago'], [2, 'No deal overdue', '']],
+      ag:{ t:'Book a next step. A 30 minute review with Dana Park would lift health to about 81.', b:'Book review', busy:'Sending', done:'Invited', ok:'Invite sent to Dana Park for Thu Nov 12, 2:00 pm. Health updates when she accepts.' } },
+    { n:'Ironbark Capital', seg:'Strategic, North America',
+      h:[61, 58, 60, 55, 52, 48, 44, 41, 33, 27, 22, 17],
+      ev:['Renewal kickoff', 'Steady, 1 email answered', 'Pricing questions answered', 'Champion changed roles', 'Two emails unanswered', 'Last call, Oct 2: budget questions', 'No reply', 'No reply to the follow-up', 'Win chance cut to 33%, budget freeze', 'Quiet for 4 weeks', 'Call on Nov 3 missed', 'Renewal 6 days past its close date'],
+      mk:{ 0:'t', 3:'s', 5:'t', 8:'s', 10:'s' },
+      now:'Renewal is now 6 days past its close date',
+      d:[[-17, 'Win chance', '33% on the renewal'], [-10, 'Quiet', '38 days, last call Oct 2'], [-10, 'Deal overdue', 'renewal, 6 days'], [-6, 'Next step overdue', 'since Nov 3']],
+      ag:{ t:'Offer Marcus Lee a new close date. A reply would lift health to about 39.', b:'Draft check-in', busy:'Drafting', done:'Drafted', ok:'Check-in to Marcus Lee drafted, with Nov 20 as the new close date.' } }
+  ];
+  HSD.trend = [i => `<div class="hvc-sh panel"></div>\n${accSw(i)}`, (r, c) => {
+    const sh = $('.hvc-sh', r), sg = $('.hsd-ac .seg2', r);
+    const done = [false, false, false], busy = new Set();
+    let at = c.acct, ro2 = null, gen = 0;
+    c.offs.push(() => { if (ro2) ro2.disconnect(); });
+    const sgn = n => (n > 0 ? '+' : n < 0 ? '−' : '±') + Math.abs(n);
+    const cls = n => n > 0 ? 'up' : n < 0 ? 'dn' : 'eq';
+    const btn = i => { const x = HVC[i].ag;
+      if (busy.has(i)) return `<button type="button" class="pill primary sm" aria-disabled="true"><span class="spin" aria-hidden="true"></span>${x.busy}</button>`;
+      if (done[i]) return `<button type="button" class="pill line sm" aria-disabled="true">${I('check', 'xs')}${x.done}</button>`;
+      return `<button type="button" class="pill primary sm">${x.b}</button>`; };
+    function draw(i, first){
+      const A = HVC[i], N = A.h.length, last = N - 1, score = A.h[last], g = ++gen;
+      const verdict = score >= 70 ? ['ok', 'Healthy'] : score >= 50 ? ['warn', 'Watch'] : ['bad', 'At risk'];
+      const id = 'hvc' + Math.random().toString(36).slice(2, 7);
+      const wkDelta = A.h[last] - A.h[last - 1];
+      // the walk: each driver runs from the total before it to the total after it
+      let run = HVC_BASE;
+      const steps = A.d.map(([v, l, s]) => { const a = run; run += v; return { v, l, s, a, b:run }; });
+      // the plot: 22px on the left for the verdict lines' numbers, 40px on the right for today's score. The scale fits the
+      // account's own twelve weeks, padded out to tens, so the story fills the 64px; the verdict lines (70 and 50) are drawn
+      // where they fall inside it
+      const H = 64, L = 22, R = 40;
+      const LO = Math.max(0, Math.floor((Math.min(...A.h) - 12) / 10) * 10), HI = Math.min(100, Math.ceil((Math.max(...A.h) + 6) / 10) * 10);
+      const lines = [70, 50].filter(v => v > LO && v < HI);
+      sh.innerHTML = `<div class="hvc-ah"><span class="hvc-lg" aria-hidden="true">${A.n[0]}</span><span class="hvc-an"><b>${A.n}</b><span>${A.seg}</span></span></div>
+  <section class="hvc" aria-label="Account health">
+    <div class="hvc-h"><span class="hvc-t">Account health<span>12 weeks</span></span><span class="tag ${verdict[0]}">${verdict[1]}</span></div>
+    <div class="hvc-ch" tabindex="0" role="slider" aria-label="Health by week. Left and Right move between weeks" aria-valuemin="0" aria-valuemax="100">
+      <svg class="hvc-svg" aria-hidden="true">
+        <defs><linearGradient id="${id}-g" x1="0" x2="0" y1="0" y2="1"><stop offset="0" style="stop-color:var(--dm-fg);stop-opacity:.09"/><stop offset="1" style="stop-color:var(--dm-fg);stop-opacity:0"/></linearGradient></defs>
+        ${lines.map(v => `<line class="gl" data-v="${v}"/>`).join('')}
+        <path class="ar" fill="url(#${id}-g)"/><path class="ln" pathLength="1"/>
+        ${Object.keys(A.mk).map(j => `<circle class="ev${A.mk[j] === 's' ? ' bad' : ''}" r="3" data-i="${j}"/>`).join('')}
+        <line class="cx"/><circle class="nd" r="4"/><circle class="cp" r="4"/>
+      </svg>
+      ${lines.map(v => `<span class="hvc-yl num" data-v="${v}">${v}</span>`).join('')}
+      <b class="hvc-end num">${score}</b>
+    </div>
+    <div class="hvc-ax num" aria-hidden="true"><span>${HVC_WK[0]}</span><span>${HVC_WK[last]}</span></div>
+    <p class="hvc-ro"><span class="hvc-k">This week</span><b class="hvc-rs num" hidden></b><span class="hvc-rd num"></span><span class="hvc-rn"></span></p>
+    <div class="hvc-dh"><span class="hvc-k">Why ${score}</span><span class="hvc-bs num">From ${HVC_BASE}, a typical account</span></div>
+    <ul class="hvc-dl" aria-label="What adds to and takes from the score, from ${HVC_BASE}">
+      ${steps.map(s => `<li class="hvc-d ${cls(s.v)}"><span class="hvc-v num">${sgn(s.v)}</span><span class="hvc-dn">${s.l}${s.s ? ` <span>${s.s}</span>` : ''}</span><span class="hvc-tr" aria-hidden="true"><i style="left:${Math.min(s.a, s.b)}%;width:${Math.abs(s.v)}%"></i></span></li>`).join('')}
+      <li class="hvc-gd" aria-hidden="true" style="left:calc(100% - var(--dm-tw) + var(--dm-tw) * ${HVC_BASE / 100})"></li>
+      <li class="hvc-gd end" aria-hidden="true" style="left:calc(100% - var(--dm-tw) + var(--dm-tw) * ${score / 100})"></li>
+    </ul>
+    <div class="hvc-ag">${I('spark', 's')}<span class="hvc-agt">${done[i] ? A.ag.ok : A.ag.t}</span>${btn(i)}</div>
+  </section>`;
+
+      const ch = $('.hvc-ch', sh), svg = $('svg', ch), ln = $('.ln', svg), ar = $('.ar', svg), cx = $('.cx', svg), cp = $('.cp', svg), nd = $('.nd', svg);
+      const end = $('.hvc-end', ch), ro = $('.hvc-ro', sh), rk = $('.hvc-k', ro), rs = $('.hvc-rs', ro), rd = $('.hvc-rd', ro), rn = $('.hvc-rn', ro);
+      let W = 0, wk = null;
+      const X = j => L + j / last * (W - L - R), Y = v => 4 + (HI - v) / (HI - LO) * (H - 8);
+      const smooth = p => p.map((q, j) => { if (!j) return `M${q[0]} ${q[1]}`; const a = p[j - 1], m = (q[0] - a[0]) / 2; return `C${a[0] + m} ${a[1]} ${q[0] - m} ${q[1]} ${q[0]} ${q[1]}`; }).join(' ');
+      const place = j => { const x = X(j); cx.setAttribute('x1', x); cx.setAttribute('x2', x); cp.setAttribute('cx', x); cp.setAttribute('cy', Y(A.h[j])); };
+      function fit(){
+        W = ch.clientWidth; if (!W) return;
+        const p = A.h.map((v, j) => [X(j), Y(v)]), d = smooth(p);
+        ln.setAttribute('d', d); ar.setAttribute('d', `${d} L${X(last)} ${H} L${X(0)} ${H} Z`);
+        $$('.gl', svg).forEach(l => { const y = Y(+l.dataset.v); l.setAttribute('x1', L); l.setAttribute('x2', W - R + 6); l.setAttribute('y1', y); l.setAttribute('y2', y); });
+        $$('.hvc-yl', ch).forEach(t => t.style.top = Y(+t.dataset.v) + 'px');
+        $$('.ev', svg).forEach(e => { e.setAttribute('cx', X(+e.dataset.i)); e.setAttribute('cy', Y(A.h[+e.dataset.i])); });
+        nd.setAttribute('cx', X(last)); nd.setAttribute('cy', Y(score));
+        end.style.top = Math.max(10, Math.min(H - 10, Y(score))) + 'px';
+        cx.setAttribute('y1', 0); cx.setAttribute('y2', H);
+        if (wk !== null) place(wk);
+      }
+      // the readout: this week at rest, the scrubbed week while scrubbing
+      function rest(){
+        wk = null; ch.classList.remove('on');
+        rk.textContent = 'This week'; rs.hidden = true;
+        rd.textContent = sgn(wkDelta); rd.className = 'hvc-rd num ' + cls(wkDelta); rn.textContent = A.now;
+        ch.setAttribute('aria-valuenow', score); ch.setAttribute('aria-valuetext', `This week, ${score}, ${sgn(wkDelta).replace('−', 'minus ')} since last week. ${A.now}`);
+      }
+      function week(j){
+        wk = j; ch.classList.add('on'); place(j);
+        const dv = j ? A.h[j] - A.h[j - 1] : null, name = j === last ? 'This week' : 'Week of ' + HVC_WK[j];
+        rk.textContent = name; rs.hidden = false; rs.textContent = A.h[j];
+        rd.textContent = dv === null ? '' : sgn(dv); rd.className = 'hvc-rd num ' + (dv === null ? 'eq' : cls(dv)); rn.textContent = A.ev[j];
+        ch.setAttribute('aria-valuenow', A.h[j]); ch.setAttribute('aria-valuetext', `${name}, ${A.h[j]}${dv === null ? '' : ', ' + sgn(dv).replace('−', 'minus ')}. ${A.ev[j]}`);
+      }
+      const idx = e => { const b = ch.getBoundingClientRect(); return Math.max(0, Math.min(last, Math.round((e.clientX - b.left - L) / (b.width - L - R) * last))); };
+      c.on(ch, 'pointermove', e => week(idx(e)));
+      c.on(ch, 'pointerdown', e => week(idx(e)));
+      c.on(ch, 'pointerleave', () => { if (document.activeElement !== ch || !ch.matches(':focus-visible')) rest(); });
+      c.on(ch, 'focus', () => { if (ch.matches(':focus-visible')) week(wk ?? last); });
+      c.on(ch, 'blur', rest);
+      c.on(ch, 'keydown', e => {
+        const k = e.key, j = wk ?? last;
+        const to = k === 'ArrowLeft' || k === 'ArrowDown' ? j - 1 : k === 'ArrowRight' || k === 'ArrowUp' ? j + 1 : k === 'Home' ? 0 : k === 'End' ? last : k === 'PageDown' ? j - 4 : k === 'PageUp' ? j + 4 : null;
+        if (k === 'Escape'){ rest(); return; }
+        if (to === null) return; e.preventDefault(); week(Math.max(0, Math.min(last, to)));
+      });
+      if (ro2) ro2.disconnect();
+      ro2 = new ResizeObserver(fit); ro2.observe(ch);
+      fit(); rest();
+      $('.hvc-ag .pill', sh).onclick = () => act(i);
+
+      // the entrance: the parts rise in turn, the line draws from the first week to this one, then today's score and the
+      // walk's bars land. Another account draws its line and bars the same way, without the rise. Timers here are plain
+      // ones (kept in c.t), so a resting pointer never holds the entrance
+      const later = (ms, fn) => c.t.push(setTimeout(() => { if (!c.dead && g === gen) fn(); }, REDUCE ? 0 : ms));
+      if (first) stagger([$('.hvc-ah', sh), $('.hvc-h', sh), ch, $('.hvc-ax', sh), ro, $('.hvc-dh', sh), ...$$('.hvc-d', sh), $('.hvc-ag', sh)], 45);
+      else if (!REDUCE) sh.animate([{ opacity:0 }, { opacity:1 }], { duration:260, easing:'ease-out' });
+      ln.style.strokeDasharray = '1'; ln.style.strokeDashoffset = '1';
+      later(first ? 160 : 60, () => {
+        ar.classList.add('in');
+        tween(1, 0, 900, v => ln.style.strokeDashoffset = v).then(() => { if (c.dead) return; ln.style.strokeDasharray = ''; ln.style.strokeDashoffset = ''; });
+        $$('.ev', svg).forEach(e => later(Math.round(+e.dataset.i / last * 820), () => e.classList.add('in')));
+      });
+      later(first ? 1000 : 900, () => { nd.classList.add('in'); end.classList.add('in'); });
+      $$('.hvc-tr i', sh).forEach((b, j) => later((first ? 520 : 300) + j * 110, () => b.classList.add('in')));
+    }
+    // the agent's move: the button works, then says so. The work belongs to the account it was pressed for
+    function act(i){
+      if (busy.has(i) || done[i]) return;
+      busy.add(i); $('.hvc-ag .pill', sh).outerHTML = btn(i);
+      c.run(async () => {
+        await c.wait(900);
+        busy.delete(i); done[i] = true;
+        if (at !== i) return;
+        $('.hvc-ag .pill', sh).outerHTML = btn(i);
+        swap($('.hvc-agt', sh), HVC[i].ag.ok);
+      });
+    }
+    seg(sg, v => { if (+v === at) return; at = +v; draw(at, false); });
+    draw(at, true);
+    story(c, () => $('.hvc-ag .pill', sh), sg, () => done[1]);
+  }];
+
+  /* ---------- D · rows ---------- */
+  // Factor tiles' accounts and story (HSC, above), with the factors as rows that open their detail under them
+  HSD.rows = [i => `<div class="hsc hsr panel" role="group" aria-label="Account health">
+    <div class="hsc-ac"><b></b><span></span></div>
+    <div class="hsc-h">
+      <div class="hsc-ring" role="img" aria-label="Health score"><svg viewBox="0 0 44 44" aria-hidden="true"><circle class="tr" cx="22" cy="22" r="18"/><circle class="fl" cx="22" cy="22" r="18" stroke-dasharray="113.1" stroke-dashoffset="113.1"/></svg><b class="num" aria-hidden="true">0</b></div>
+      <div class="hsc-ht"><b class="hsc-vd"></b><span class="hsc-sub"></span></div>
+      <span class="hsc-dl num"></span>
+    </div>
+    <div class="hsr-l"></div>
+    <div class="hsc-s">${I('spark', 's')}<span class="hsc-st"></span><button type="button" class="pill primary sm hsc-go"></button></div>
+    <p class="hsc-sr" aria-live="polite"></p>
+  </div>
+  ${accSw(i)}`, (r, c) => {
+    // each account keeps what the agent did for it, so switching away and back shows the booking still there
+    const AC = JSON.parse(JSON.stringify(HSC));
+    const K = ['contact', 'late', 'win', 'next'], L = { contact:'Contact', late:'On time', win:'Win chance', next:'Next step' };
+    const SW = { ok:'On track', warn:'Watch', bad:'At risk' }, VD = { ok:'Healthy', warn:'Watch', bad:'At risk' }, C = 2 * Math.PI * 18;
+    const id = 'hsr' + Math.random().toString(36).slice(2, 7);
+    let A = AC[c.acct];
+    const score = () => K.reduce((t, k) => t + A.f[k].pts, 0);
+    const band = v => v >= 70 ? 'ok' : v >= 50 ? 'warn' : 'bad';
+    const delta = v => (v - A.was >= 0 ? '+' : '−') + Math.abs(v - A.was) + ' in 30 days';
+    const onTrack = () => { const n = K.filter(k => A.f[k].s === 'ok').length; return n === K.length ? `all ${n} on track` : `${n} of ${K.length} on track`; };
+    // the weakest factor that is off track: the lowest share of its points, the first one on a tie. None when all are on track
+    const weakest = () => K.filter(k => A.f[k].s !== 'ok').sort((a, b) => A.f[a].pts / A.f[a].max - A.f[b].pts / A.f[b].max || K.indexOf(a) - K.indexOf(b))[0];
+    const trend = f => {
+      if (!f.tr) return '';
+      const [k, v] = f.tr;
+      if (k === 'dots') return `<span class="hsc-dots">${v.map(x => `<i${x ? ' class="on"' : ''}></i>`).join('')}</span>`;
+      if (k === 'bars') return `<span class="hsc-bars">${v.map(x => `<i${x ? ' class="late"' : ''}></i>`).join('')}</span>`;
+      const lo = Math.min(...v), hi = Math.max(...v), pt = v.map((y, j) => [2 + j * 52 / (v.length - 1), 3 + (1 - (y - lo) / (hi - lo || 1)) * 14]), e = pt[pt.length - 1];
+      return `<svg class="hsc-sp" viewBox="0 0 56 20"><polyline points="${pt.map(p => p.map(n => n.toFixed(1)).join(',')).join(' ')}"/><circle cx="${e[0].toFixed(1)}" cy="${e[1].toFixed(1)}" r="2.5"/></svg>`;
+    };
+    const row = (k, j) => `<div class="hsr-r" data-k="${k}"><button type="button" class="hsr-b" aria-expanded="false" aria-controls="${id}-d${j}">
+      <span class="hsr-k"><i class="hsc-dot"></i><span class="hsr-n">${L[k]}</span><span class="hsr-wk" aria-hidden="true">Weakest</span></span>
+      <span class="hsr-v"><b class="num"></b><span></span></span><span class="hsr-tr" aria-hidden="true"></span>${I('chev-d', 'xs hsr-cv')}</button>
+      <div class="fold shut hsr-d" id="${id}-d${j}" role="region" aria-label="${L[k]} details"><div><div class="hsr-dc"></div></div></div></div>`;
+    const root = $('.hsr', r), list = $('.hsr-l', root);
+    list.innerHTML = K.map(row).join('');
+    const ring = $('.hsc-ring', root), fl = $('.fl', ring), num = $('b', ring), an = $('.hsc-ac b', root), as = $('.hsc-ac span', root);
+    const vd = $('.hsc-vd', root), sub = $('.hsc-sub', root), dl = $('.hsc-dl', root), sr = $('.hsc-sr', root);
+    const rows = $$('.hsr-r', root), sug = $('.hsc-s', root), st = $('.hsc-st', sug), sg = $('.hsd-ac .seg2', r);
+
+    // ---- paint: the head, the rows and an open detail follow the factors. After the first time everything that changes
+    // crossfades, the ring sweeps and the score counts to its new value
+    let shown = 0, run = 0, open = null;
+    function paint(first){
+      const v = score(), b = band(v), w = weakest();
+      root.dataset.v = b;
+      ring.setAttribute('aria-label', `Health ${v} of 100, ${VD[b].toLowerCase()}, ${v - A.was >= 0 ? 'up' : 'down'} ${Math.abs(v - A.was)} in 30 days`);
+      const sweep = () => { fl.style.strokeDashoffset = (C * (1 - v / 100)).toFixed(2); const t = ++run; tween(shown, v, 900, n => { if (t !== run) return; shown = n; num.textContent = Math.round(n); }); };
+      first ? c.later(140, sweep) : sweep();
+      const words = [VD[b], `Account health, ${onTrack()}`, delta(v)];
+      [vd, sub, dl].forEach((el, j) => first ? el.textContent = words[j] : swap(el, words[j]));
+      rows.forEach(rw => {
+        const k = rw.dataset.k, f = A.f[k], bt = $('.hsr-b', rw), fig = $('.hsr-v b', rw), unit = $('.hsr-v span', rw), tr = $('.hsr-tr', rw), tx = trend(f);
+        rw.dataset.s = f.s; rw.toggleAttribute('data-weak', k === w);
+        bt.setAttribute('aria-label', `${L[k]}: ${f.say}. ${SW[f.s]}${k === w ? ', the weakest factor' : ''}`);
+        if (first){ fig.textContent = f.fig; unit.textContent = f.unit; tr.innerHTML = tx; }
+        else { swap(fig, f.fig); swap(unit, f.unit); if (tr._tx !== tx) swap(tr, tx, true); }
+        tr._tx = tx;
+      });
+    }
+
+    // ---- a row opens its detail right under it; one at a time
+    function fill(k, how){
+      const f = A.f[k], dc = $('.hsr-dc', rows[K.indexOf(k)]);
+      dc.innerHTML = f.lines.map(l => `<p class="hsc-dp">${l}</p>`).join('') + `<p class="hsc-pt num"><span>${f.pts} of ${f.max} points</span><i></i><span>${SW[f.s]}</span></p>`;
+      if (how === 'enter') enter(dc);
+      else if (how === 'fade' && !REDUCE) dc.animate([{ opacity:0 }, { opacity:1 }], { duration:260, easing:'ease-out' });
+    }
+    function toggle(k){
+      open = open === k ? null : k;
+      if (open) fill(open, 'enter');
+      rows.forEach(rw => { const on = rw.dataset.k === open; $('.hsr-d', rw).classList.toggle('shut', !on); $('.hsr-b', rw).setAttribute('aria-expanded', String(on)); });
+    }
+    rows.forEach(rw => $('.hsr-b', rw).onclick = () => toggle(rw.dataset.k));
+
+    // ---- the agent's suggestion: its button works, shows it is busy, says what it did, and the factors it changes update.
+    // The work belongs to the account it was pressed for, even if another account is showing by the time it lands
+    const draw = (go, acct) => {
+      if (!acct.busy){ go.disabled = false; go.removeAttribute('aria-busy'); go.style.width = ''; go.innerHTML = I(acct.sug.ic, 'xs') + acct.sug.b; return; }
+      if (go.offsetWidth) go.style.width = go.offsetWidth + 'px';
+      go.disabled = true; go.setAttribute('aria-busy', 'true'); go.innerHTML = '<span class="spin" aria-hidden="true"></span><span class="hsc-sr">Working</span>';
+    };
+    function control(){
+      if (A.done) return html(`<span class="tag ok hsc-done" tabindex="-1">${I('check', 'xs')}${A.sug.tag}</span>`);
+      const go = html('<button type="button" class="pill primary sm hsc-go"></button>'), acct = A;
+      draw(go, acct); go.onclick = () => act(acct, go);
+      return go;
+    }
+    function act(acct, go){
+      if (acct.busy || acct.done) return;
+      const had = document.activeElement === go;
+      acct.busy = true; draw(go, acct);
+      c.run(async () => {
+        await c.wait(900);
+        acct.busy = false; acct.done = true;
+        const after = acct.sug.after || {};
+        Object.keys(after).forEach(k => Object.assign(acct.f[k], after[k]));
+        if (acct !== A) return;
+        const n = control(); $('.hsc-go,.hsc-done', sug).replaceWith(n); enter(n); if (had) n.focus();
+        swap(st, acct.sug.done);
+        paint(false); if (open) fill(open, null);
+        sr.textContent = acct.sug.done;
+      });
+    }
+
+    // ---- an account: its name, its factors and its suggestion. Switching crossfades what changes, and an open row stays
+    // open on the same factor of the new account
+    function show(i, first){
+      A = AC[i];
+      const words = [A.n, A.seg, A.done ? A.sug.done : A.sug.t];
+      [an, as, st].forEach((el, j) => first ? el.textContent = words[j] : swap(el, words[j]));
+      const n = control(); $('.hsc-go,.hsc-done', sug).replaceWith(n); if (!first) enter(n);
+      paint(first);
+      if (open) fill(open, 'fade');
+      if (!first) sr.textContent = `${A.n}, health ${score()} of 100, ${VD[band(score())].toLowerCase()}`;
+    }
+    seg(sg, v => show(+v));
+    show(c.acct, true);
+    // the trends draw in once the rows have arrived
+    if (!REDUCE) $$('.hsr-tr', root).forEach((el, j) => el.firstElementChild && el.firstElementChild.animate(
+      [{ clipPath:'inset(-4px 100% -4px -4px)' }, { clipPath:'inset(-4px -4px -4px -4px)' }],
+      { duration:700, delay:260 + j * 70, easing:'cubic-bezier(.45,0,.2,1)', fill:'backwards' }));
+    story(c, () => $('.hsc-go', sug), sg, () => AC[1].done);
+  }];
+
+  /* ---------- Factor tiles, the classic ---------- */
+  // the component above, with its account switch under it like the other designs' (rather than as the demo's own switch)
+  let CLS = '';
+  HSD.classic = [() => CLS, (r, c) => {
+    classic(r, c, c.card);
+    // the account the visitor picked
+    if (c.acct !== 1){ const b = $$('.hsd-ac .seg2 button', r)[c.acct]; if (b) b.click(); }
+  }];
+
+  // a pick draws the design in place and plays its story from the start, on a controller of its own inside the card's.
+  // The card keeps the pick when it is replayed. Once the visitor has taken over in one design, the next one they pick
+  // stays theirs too (no story), on the account they chose
+  function hsdDesigns(r, c){
+    const dm = $(':scope>.hsd-dm', r), main = $(':scope>.dm-main', dm), sg = $(':scope>.demo .seg2', dm), card = c.card || r;
+    const cm = $(':scope>.hsc-dm', main);
+    if (cm) CLS = $(':scope>.dm-main', cm).innerHTML.trim() + '\n' + accSw(1);
+    let k = null, at = HSD[card._hsDesign] ? card._hsDesign : 'verdict', acct = 1, took = false;
+    const show = (v, fresh) => {
+      if (k){ if (k.mine) took = true; k.stop(); const i = c.kids.indexOf(k); if (i >= 0) c.kids.splice(i, 1); }
+      const kk = k = ctl(c); kk.card = c.card; kk.st = c.st; kk.acct = acct;
+      Object.defineProperty(kk, 'held', { get:() => c.held });
+      Object.defineProperty(kk, 'seen', { get:() => c.seen });
+      const mine = e => { if (e.isTrusted) kk.mine = true; };
+      ['pointerdown', 'keydown', 'input', 'click'].forEach(t => kk.on(main, t, mine, true));
+      kk.on(main, 'focusin', e => { if (e.isTrusted && e.timeStamp - lastInput < 100) kk.mine = true; }, true);
+      kk.on(main, 'click', e => { const b = e.isTrusted && e.target.closest('.hsd-ac button[data-v]'); if (b) acct = +b.dataset.v; }, true);
+      if (took) kk.mine = true;
+      if (openPop && main.contains(openPop.pop)) closePops();
+      hideTip(); $$(':scope>.hand', c.st).forEach(h => h.remove());
+      main.innerHTML = HSD[v][0](acct);
+      try { HSD[v][1](main, kk); } catch(e){ console.error(e); }
+      if (fresh) reveal(main);
+    };
+    c.offs.push(() => { if (k) k.stop(); });
+    $$('button', sg).forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === at)));
+    seg(sg, v => { if (v === at || !HSD[v]) return; at = card._hsDesign = v; show(v, true); });
+    show(at, false);
+  }
+  DM.def('health-score', (r, c, card) => {
+    // installed on its own (no switch), or inside another component, it is Factor tiles
+    const dm = $(':scope>.hsd-dm', r);
+    if (!dm) return classic(r, c, card);
+    if (r !== c.st || !card){ dm.replaceWith(...$(':scope>.dm-main', dm).childNodes); return classic(r, c, card); }
+    hsdDesigns(r, c);
+  });
+}
 </script><script>
     (function(){
       var card = document.querySelector('.pg-demo > .card[data-c]');

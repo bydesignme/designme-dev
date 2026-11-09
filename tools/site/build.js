@@ -413,8 +413,9 @@ main = main.replace(/<article([^>]*\bid="(c\d+)"[^>]*)>([\s\S]*?)<\/article>/g, 
   const cls = ['v2', 'stage-in', ...C.cls.filter(c => c === 'wide' || c === 'bare'), ...(STRETCH.includes(id) ? ['wide'] : [])].join(' ');
   const stage = `<div class="stage"><div class="stage-inner dots v2-host" data-demo><div class="${cls}"></div></div></div>\n    `;
   const codeBtns = body.slice(fA).match(/<div class="code-btns">[\s\S]*?<\/div>/)[0];
-  // a variant switch inside the component becomes the footer tabs, otherwise the footer says what to try
-  const sw = C.tpl.match(/<div class="demo"><div class="seg2" role="group" aria-label="([^"]*)">([\s\S]*?)<\/div><\/div>/);
+  // a variant switch inside the component becomes the footer tabs, otherwise the footer says what to try. A card with a design
+  // switch around a component that has a switch of its own (Health score's accounts) gets the last one, the card's
+  const sw = [...C.tpl.matchAll(/<div class="demo"><div class="seg2" role="group" aria-label="([^"]*)">([\s\S]*?)<\/div><\/div>/g)].pop();
   let left;
   if (sw){
     const tabs = [...sw[2].matchAll(/<button aria-pressed="(true|false)" data-v="([^"]+)">([^<]*)<\/button>/g)]
@@ -575,10 +576,11 @@ const markupOf = id => {
   if (/\{(?:[a-z][\w-]*)\}/.test(r.innerHTML.replace(/\$\{[^}]*\}/g, ''))) warn.push('placeholder left in ' + id + ': ' + r.innerHTML.match(/\{[a-z][\w-]*\}/)[0]);
   return r.innerHTML;
 };
-/* a design switch that is the homepage card's alone (<div class="dm …" data-designs="card">, its first design Classic, the
+/* a design switch that is the homepage card's alone (<div class="dm …" data-designs="card">, its main holding Classic, the
    component as it ships): the card shows the designs under review as its footer tabs, and the registry, the code view and
-   the component page install Classic on its own, as it was */
-const shipped = tpl => { const m = tpl.match(/^\s*<div class="dm [\w-]+" data-designs="card"><div class="dm-main">([\s\S]*?)<\/div>\s*<div class="demo">[\s\S]*<\/div>\s*$/); return m ? m[1] : tpl; };
+   the component page install Classic on its own, as it was. Classic can have a demo switch of its own (Health score's
+   accounts), so the card's switch is the last one */
+const shipped = tpl => { const m = tpl.match(/^\s*<div class="dm [\w-]+" data-designs="card"><div class="dm-main">([\s\S]*)<\/div>\s*<div class="demo">(?:(?!<div class="demo">)[\s\S])*<\/div>\s*$/); return m ? m[1] : tpl; };
 const regHtml = id => { const C = CARDS[id], cls = ['card', ...C.cls.filter(c => c === 'wide' || c === 'bare')].join(' ');
   // the DesignMe smiley over the Agent harness greeting is the site's demo only: an install gets the empty mark slot (owner, 4 Nov)
   const inner = shipped(markupOf(id)).replace(/<svg class="ahx-brand"[\s\S]*?<\/svg>/, '').trim().split('\n').map(l => l.trim() ? '    ' + l : '').join('\n');
@@ -595,8 +597,11 @@ const designsOf = id => {
   const a = DEFS_JS.indexOf('\n{\n', h) + 1, blk = acorn.parse(DEFS_JS.slice(a), { ecmaVersion:'latest' }).body[0];
   if (blk.type !== 'BlockStatement' || !DEFS_JS.slice(a, a + blk.end).includes(`DM.def('${id}'`)) { warn.push('designs script of ' + C.title + ' not found'); return null; }
   const css = SECTIONS[C.title + ' designs']; if (!css) warn.push('no designs CSS for ' + C.title);
-  const names = [...C.tpl.matchAll(/<div class="demo"><div class="seg2"[^>]*>([\s\S]*?)<\/div><\/div>/g)].pop()[1].match(/data-v="[^"]+">[^<]*/g).map(x => x.split('>')[1].replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&'));
-  return { names, html:`<div class="${cls}" data-c="${id}">\n  <div class="stage-in">\n${inner}\n  </div>\n</div>\n`,
+  const opts = [...C.tpl.matchAll(/<div class="demo"><div class="seg2"[^>]*>([\s\S]*?)<\/div><\/div>/g)].pop()[1].match(/data-v="[^"]+">[^<]*/g);
+  const names = opts.map(x => x.split('>')[1].replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&'));
+  // the one the CLI installs: the design whose value is classic (it need not come first), or else the first
+  const classic = names[Math.max(0, opts.findIndex(x => x.startsWith('data-v="classic"')))];
+  return { names, classic, html:`<div class="${cls}" data-c="${id}">\n  <div class="stage-in">\n${inner}\n  </div>\n</div>\n`,
     css:css ? regCss(css) : '', js:head + '\n' + DEFS_JS.slice(a, a + blk.end) + '\n' };
 };
 /* what the registry installs has --dm- CSS variables (token-prefix.js), so it never meets a page's own --accent or --muted; the

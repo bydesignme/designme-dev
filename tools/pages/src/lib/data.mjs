@@ -63,7 +63,8 @@ export const HITS_JS = (() => {
 // how tall each card's stage gets while its demo plays, popovers included (tools/site/measure-heights.js), widest layout
 // first, the narrowest phone last: the demo keeps that height, as the homepage's cards do. BANDS names each one and the
 // screen width it was measured at
-// the designs a card's switch shows (Classic first), for the components that have them (tools/site/build.js, designsOf)
+// the designs a card's switch shows (Classic, first unless it says which), for the components that have them
+// (tools/site/build.js, designsOf)
 const DESIGNS = maybe('tools/pages/data/designs.json') || {};
 const MEASURED = read('tools/site/card-heights.json'), HEIGHTS = MEASURED.heights;
 export const BANDS = MEASURED.bands;
