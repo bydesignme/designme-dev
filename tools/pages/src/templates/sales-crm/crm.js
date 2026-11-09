@@ -21,7 +21,10 @@
   const closed = d => d.st === 'won' || d.st === 'lost';
   const ST = Object.fromEntries(STAGES.map((s, i) => [s.k, { ...s, i }]));
   // a stage is a Task table status pill: Negotiation reads in the accent (it is the one in play), Closed won in green
-  const pill = k => `<span class="ttx-st" data-s="${k === 'won' ? 'done' : k === 'lost' ? 'fail' : k === 'nego' ? 'run' : 'wait'}"><span class="sv"><span class="dot"></span><span>${ST[k].t}</span></span></span>`;
+  // each open stage has its own label colour (the core tag colours), the same wherever the stage shows; won and lost are
+  // the ok and bad statuses
+  const STH = { disc:'t', demo:'l', prop:'p', nego:'b' };
+  const pill = k => `<span class="ttx-st crm-sg" data-s="${k === 'won' ? 'done' : k === 'lost' ? 'fail' : 'wait'}"${STH[k] ? ` data-h="${STH[k]}"` : ''}><span class="sv"><span class="dot"></span><span>${ST[k].t}</span></span></span>`;
   const REG = { na:{ t:'Americas', c:'var(--dm-c1)' }, emea:{ t:'Europe', c:'var(--dm-c2)' }, apac:{ t:'Asia Pacific', c:'var(--dm-c4)' } };
   const QUOTA = { MK:1300000, AR:850000, TR:1100000, JO:300000, LN:340000, IB:260000, DK:160000, KM:150000 };
   const TEAMS = [{ k:'key', t:'Key accounts', who:['MK', 'AR', 'TR'] }, { k:'grow', t:'Growth', who:['JO', 'LN', 'IB'] }, { k:'new', t:'New business', who:['DK', 'KM'] }];
@@ -1212,7 +1215,7 @@
   $('.kbx-tabs', kb).innerHTML = STAGES.map(s => `<button aria-pressed="${s.k === K.tab}" data-v="${s.k}">${s.k === 'won' ? 'Won' : s.k === 'lost' ? 'Lost' : s.t}<span class="n num"></span></button>`).join('');
   seg($('.kbx-tabs', kb), v => { K.tab = v; renderBoard(); });
   seg($('.kbx-vw', kb), v => { K.view = v; kb.classList.toggle('list', v === 'list'); renderBoard(); });
-  cols.innerHTML = STAGES.map(s => `<div class="kbx-c" data-col="${s.k}"><div class="kbx-ch"><b>${s.t}</b><span class="n num"></span><span class="s num"></span><button class="ib crm-hide" aria-label="Hide ${s.t}" data-tip="Hide column">${I('minus', 'xs')}</button></div><div class="kbx-list" role="list" aria-label="${s.t}"></div></div>`).join('');
+  cols.innerHTML = STAGES.map(s => `<div class="kbx-c" data-col="${s.k}"><div class="kbx-ch"><span class="crm-sd" data-s="${s.k}" aria-hidden="true"></span><b>${s.t}</b><span class="n num"></span><span class="s num"></span><button class="ib crm-hide" aria-label="Hide ${s.t}" data-tip="Hide column">${I('minus', 'xs')}</button></div><div class="kbx-list" role="list" aria-label="${s.t}"></div></div>`).join('');
   const whenOf = d => d.st === 'won' ? 'Won ' + fmtD(d.close) : d.st === 'lost' ? 'Lost ' + fmtD(d.close) : fmtD(d.close);
   // the list: one row per deal, in the columns of the list's header
   const listRow = d => { const c = coOf(d.co), late = slipping(d);

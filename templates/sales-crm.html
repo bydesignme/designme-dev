@@ -1579,7 +1579,6 @@ body:has(.crm) .dmf{display:none}
 .crm-flt .mi>.i:last-child{color:var(--dm-muted)}
 .crm-flt .mi .r{color:var(--dm-muted);font-size:12px}
 .crm-sd{color:var(--dm-muted)}
-.crm-sd[data-s="nego"]{color:var(--dm-accent-mark,var(--dm-accent))}
 .crm-sd[data-s="won"]{color:var(--dm-ok-mark)}
 
 /* ---------- Agent inbox: Agent inbox's list on the left, the selected item's preview on the right ---------- */
@@ -1999,7 +1998,6 @@ body:has(.crm) .dmf{display:none}
 :root:not([data-style="soft"]) .crm-ecx .ecx-sg button.y{background:var(--dm-chip);color:var(--dm-fg)}
 :root:not([data-style="soft"]) .crm-ecx .ecx-sg button.n,:root:not([data-style="soft"]) .crm-ecx .ecx-sg i{color:var(--dm-fg2)}
 :root:not([data-style="soft"]) .crm-aib .aib-r .ib.crm-iok{color:var(--dm-fg2)}
-:root:not([data-style="soft"]) .crm-sd[data-s="nego"]{color:var(--dm-fg)}
 :root:not([data-style="soft"]) .crm-ecx .ecx-scan{background:linear-gradient(90deg,transparent,var(--dm-line-strong),transparent)}
 
 /* ---------- menus ---------- */
@@ -2153,6 +2151,21 @@ body:has(.crm) .dmf{display:none}
 /* menus and popovers lift off the page with a hairline edge as well as their shadow */
 .crm .pop{box-shadow:0 0 0 1px color-mix(in srgb,var(--dm-line) 70%,transparent),var(--dm-shadow-pop)}
 @media (prefers-reduced-motion:reduce){.crm-over,.crm-cmd .cpl,.crm-newd .fmx,.crm-over.out,.crm-over.out>*,.crm-ipv.panel{animation:none}.crm-sheet,.crm-side.ahx-side,.crm-shade{transition:none}}
+
+/* ---------- stage colours (owner, 9 Nov) ---------- */
+/* a stage is a label: Discovery teal, Demo violet, Proposal orange, Negotiation blue, in both styles; won and lost stay the
+   ok and bad statuses */
+:root .crm .ttx-st.crm-sg[data-h="t"]{--dm-sc:var(--dm-pt);background:var(--dm-pt-bg)}
+:root .crm .ttx-st.crm-sg[data-h="l"]{--dm-sc:var(--dm-pl);background:var(--dm-pl-bg)}
+:root .crm .ttx-st.crm-sg[data-h="p"]{--dm-sc:var(--dm-pp);background:var(--dm-pp-bg)}
+:root .crm .ttx-st.crm-sg[data-h="b"]{--dm-sc:var(--dm-pb);background:var(--dm-pb-bg)}
+.crm-sd[data-s="disc"]{color:var(--dm-pt)}
+.crm-sd[data-s="demo"]{color:var(--dm-pl)}
+.crm-sd[data-s="prop"]{color:var(--dm-pp)}
+.crm-sd[data-s="nego"]{color:var(--dm-pb)}
+.crm-sd[data-s="lost"]{color:var(--dm-bad)}
+/* the board's column heads carry the stage's dot too */
+.kbx-ch .crm-sd{flex:none;width:8px;height:8px;border-radius:50%;background:currentColor;margin-right:2px}
 </style><style>@font-face{font-family:Inter;font-style:normal;font-weight:400;font-display:swap;src:url(/fonts/inter-latin-400-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:Inter;font-style:normal;font-weight:500;font-display:swap;src:url(/fonts/inter-latin-500-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:Inter;font-style:normal;font-weight:600;font-display:swap;src:url(/fonts/inter-latin-600-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
@@ -2434,7 +2447,10 @@ const fitHits = window.dmFitHits || (() => {
   const closed = d => d.st === 'won' || d.st === 'lost';
   const ST = Object.fromEntries(STAGES.map((s, i) => [s.k, { ...s, i }]));
   // a stage is a Task table status pill: Negotiation reads in the accent (it is the one in play), Closed won in green
-  const pill = k => `<span class="ttx-st" data-s="${k === 'won' ? 'done' : k === 'lost' ? 'fail' : k === 'nego' ? 'run' : 'wait'}"><span class="sv"><span class="dot"></span><span>${ST[k].t}</span></span></span>`;
+  // each open stage has its own label colour (the core tag colours), the same wherever the stage shows; won and lost are
+  // the ok and bad statuses
+  const STH = { disc:'t', demo:'l', prop:'p', nego:'b' };
+  const pill = k => `<span class="ttx-st crm-sg" data-s="${k === 'won' ? 'done' : k === 'lost' ? 'fail' : 'wait'}"${STH[k] ? ` data-h="${STH[k]}"` : ''}><span class="sv"><span class="dot"></span><span>${ST[k].t}</span></span></span>`;
   const REG = { na:{ t:'Americas', c:'var(--dm-c1)' }, emea:{ t:'Europe', c:'var(--dm-c2)' }, apac:{ t:'Asia Pacific', c:'var(--dm-c4)' } };
   const QUOTA = { MK:1300000, AR:850000, TR:1100000, JO:300000, LN:340000, IB:260000, DK:160000, KM:150000 };
   const TEAMS = [{ k:'key', t:'Key accounts', who:['MK', 'AR', 'TR'] }, { k:'grow', t:'Growth', who:['JO', 'LN', 'IB'] }, { k:'new', t:'New business', who:['DK', 'KM'] }];
@@ -3625,7 +3641,7 @@ const fitHits = window.dmFitHits || (() => {
   $('.kbx-tabs', kb).innerHTML = STAGES.map(s => `<button aria-pressed="${s.k === K.tab}" data-v="${s.k}">${s.k === 'won' ? 'Won' : s.k === 'lost' ? 'Lost' : s.t}<span class="n num"></span></button>`).join('');
   seg($('.kbx-tabs', kb), v => { K.tab = v; renderBoard(); });
   seg($('.kbx-vw', kb), v => { K.view = v; kb.classList.toggle('list', v === 'list'); renderBoard(); });
-  cols.innerHTML = STAGES.map(s => `<div class="kbx-c" data-col="${s.k}"><div class="kbx-ch"><b>${s.t}</b><span class="n num"></span><span class="s num"></span><button class="ib crm-hide" aria-label="Hide ${s.t}" data-tip="Hide column">${I('minus', 'xs')}</button></div><div class="kbx-list" role="list" aria-label="${s.t}"></div></div>`).join('');
+  cols.innerHTML = STAGES.map(s => `<div class="kbx-c" data-col="${s.k}"><div class="kbx-ch"><span class="crm-sd" data-s="${s.k}" aria-hidden="true"></span><b>${s.t}</b><span class="n num"></span><span class="s num"></span><button class="ib crm-hide" aria-label="Hide ${s.t}" data-tip="Hide column">${I('minus', 'xs')}</button></div><div class="kbx-list" role="list" aria-label="${s.t}"></div></div>`).join('');
   const whenOf = d => d.st === 'won' ? 'Won ' + fmtD(d.close) : d.st === 'lost' ? 'Lost ' + fmtD(d.close) : fmtD(d.close);
   // the list: one row per deal, in the columns of the list's header
   const listRow = d => { const c = coOf(d.co), late = slipping(d);
