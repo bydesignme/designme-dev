@@ -130,6 +130,7 @@ a{color:inherit}
 .pg-top{position:sticky;top:0;z-index:50;height:var(--pg-head);background:var(--pg-top);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-bottom:1px solid var(--pg-line)}
 .pg-top-in{height:100%;max-width:1464px;margin:0 auto;padding:0 32px;display:flex;align-items:center;gap:6px}
 .pg-logo{display:block;color:var(--pg-fg)}
+.pg-notr,.pg-notr *,.pg-notr *::before,.pg-notr *::after{transition:none!important}
 /* an app page (the templates) fills the window, so its header does too: the smiley sits over the sidebar's workspace tile
    (14px in) and the style and theme switches end where the dashboard's top bar does (16px in) (owner, 9 Nov) */
 .pg-top.app .pg-top-in{max-width:none;padding:0 16px 0 14px}
@@ -306,6 +307,8 @@ a{color:inherit}
   }); });
   document.querySelectorAll('[data-theme-set]').forEach(function(b){ b.addEventListener('click', function(){
     var next = b.dataset.themeSet, sys = mq.matches ? 'dark' : 'light';
+    // for the moment the theme changes nothing animates its colours, so no button shows the old theme's grey for a frame
+    root.classList.add('pg-notr'); requestAnimationFrame(function(){ requestAnimationFrame(function(){ root.classList.remove('pg-notr'); }); });
     if (next === sys){ root.removeAttribute('data-theme'); try { localStorage.removeItem('dmui-theme'); } catch(e){} }
     else { root.setAttribute('data-theme', next); try { localStorage.setItem('dmui-theme', next); } catch(e){} }
     paint();

@@ -100,8 +100,9 @@ for (const x of NEW){ MAP[x.cid] = x.id; EXTRA.push({ cid:x.cid, id:x.id, reg:x.
 /* ---------- read the Soft 2 page ---------- */
 const cssA = soft.indexOf('<style>\n[hidden]') + '<style>'.length;
 // on designme.dev the dark stage is a neutral #1c1c1c, so the components' dark greys drop their blue (Soft) and warm (Blueprint)
-// tint and sit one step lighter than the stage, the same grey the site's panels used before
-const NEUTRAL_DARK = { '--page':'#111111', '--stage':'#1c1c1c', '--surface':'#262626', '--raised':'#2c2c2c', '--fg':'#f2f2f2', '--fg2':'#c9c9c9',
+// tint and sit one step lighter than the stage, the same grey the site's panels used before. Raised (menus, popovers, toasts,
+// cards on a board) is a clear step above a card, #363636 on #262626, so they lift off it in dark (owner, 9 Nov)
+const NEUTRAL_DARK = { '--page':'#111111', '--stage':'#1c1c1c', '--surface':'#262626', '--raised':'#363636', '--fg':'#f2f2f2', '--fg2':'#c9c9c9',
   '--muted':'#c0c0c0', '--faint':'#555555', '--rail':'#414141', '--line':'#333333', '--chip':'#303030', '--hover':'#373737', '--press':'#3f3f3f',
   '--wash':'#2c2c2c', '--soft':'#323232', '--soft-h':'#3a3a3a', '--dis':'#737373', '--ink':'#f2f2f2', '--on-ink':'#161616', '--field-line':'#424242', '--field-line-strong':'#808080' };
 function neutralDark(text){
