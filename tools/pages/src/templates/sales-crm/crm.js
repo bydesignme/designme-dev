@@ -1216,7 +1216,8 @@
   const csc = $('.ecx-sc', ecx);
   function fitHours(){
     if (cdays.getClientRects().length){ cgrid.style.removeProperty('--dm-ph'); return; }
-    const room = csc.clientHeight - 62; if (room > 0) cgrid.style.setProperty('--dm-ph', Math.max(40, Math.floor(room / HN)) + 'px');
+    // the hours share the room exactly (no whole-pixel rounding), so the grid's last line meets the legend's with no strip between
+    const room = csc.clientHeight - 62; if (room > 0) cgrid.style.setProperty('--dm-ph', Math.max(40, room / HN) + 'px');
   }
   new ResizeObserver(() => { if (view === 'calendar') fitHours(); }).observe(csc);
   function showDay(i, anim = true){

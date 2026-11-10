@@ -3009,6 +3009,9 @@ body:has(.crm) .dmf{display:none}
 /* every view starts at the header title's inset (owner, 10 Nov): the Accounts toolbar, its checkboxes, the board, the calendar
    and the inbox sit 20px in, with their controls on the same centre line in Accounts and Pipeline. The forecast lines up with
    the title and the account menu up to a 16-inch MacBook Pro's widest setting and centres only on wider screens */
+/* the calendar's legend row is as tall as its toolbar row (52px), the names centred in it with even room above and below
+   (owner, 10 Nov) */
+.crm-leg{position:relative;z-index:1;box-sizing:border-box;min-height:52px;margin-top:-1px;align-items:center;align-content:center;padding-top:var(--dm-s-2);padding-bottom:var(--dm-s-2);background:inherit}
 </style><style>@font-face{font-family:Inter;font-style:normal;font-weight:400;font-display:swap;src:url(/fonts/inter-latin-400-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:Inter;font-style:normal;font-weight:500;font-display:swap;src:url(/fonts/inter-latin-500-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:Inter;font-style:normal;font-weight:600;font-display:swap;src:url(/fonts/inter-latin-600-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
@@ -4504,7 +4507,8 @@ const fitHits = window.dmFitHits || (() => {
   const csc = $('.ecx-sc', ecx);
   function fitHours(){
     if (cdays.getClientRects().length){ cgrid.style.removeProperty('--dm-ph'); return; }
-    const room = csc.clientHeight - 62; if (room > 0) cgrid.style.setProperty('--dm-ph', Math.max(40, Math.floor(room / HN)) + 'px');
+    // the hours share the room exactly (no whole-pixel rounding), so the grid's last line meets the legend's with no strip between
+    const room = csc.clientHeight - 62; if (room > 0) cgrid.style.setProperty('--dm-ph', Math.max(40, room / HN) + 'px');
   }
   new ResizeObserver(() => { if (view === 'calendar') fitHours(); }).observe(csc);
   function showDay(i, anim = true){
