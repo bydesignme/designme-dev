@@ -1,5 +1,5 @@
 // Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
-import { $, $$, DM, I, enter, hideTip, html, placePop, swap } from '../core/core.js';
+import { $, $$, DM, I, REDUCE, enter, hideTip, html, placePop, reflow, stagger, swap } from '../core/core.js';
 DM.def('filter-menu', (r, c) => {
   r.innerHTML = r.innerHTML.replace('{filter}', I('filter'));
   const OWN = { MK:'Maya Kim', LP:'Leo Park', AR:'Ana Ruiz', SC:'Sam Cole' };
@@ -30,33 +30,40 @@ DM.def('filter-menu', (r, c) => {
   l1.insertAdjacentHTML('beforeend', Object.entries(F).map(([k, f]) => `<button class="mi" role="menuitem" aria-haspopup="menu" tabindex="-1" data-k="${k}">${I(f.ic)}<span>${f.l}</span><span class="r"></span>${I('chev-r','xs')}</button>`).join(''));
   const fields = $$('.mi', l1);
   function paint(){
-    // chips: one per field, a new one pops in and the ones already there keep still
+    // chips: one per field. A new one pops in, one taken off fades where it was and the rest glide over to close the gap,
+    // and a chip that stays crossfades to its new operator or value
     const have = new Set(A.map(f => f.k));
-    $$('.flm-ch', chips).forEach(ch => { if (!have.has(ch.dataset.k)) ch.remove(); });
-    A.forEach(f => {
-      let ch = $(`.flm-ch[data-k="${f.k}"]`, chips);
-      if (!ch){ ch = html(`<div class="flm-ch" role="listitem" data-k="${f.k}"><span class="k">${F[f.k].l}</span><button class="op"></button><span class="v"></span><button class="x" data-tip="Remove filter">${I('x','xs')}</button></div>`); chips.appendChild(ch); wire(ch); }
-      else ch.classList.add('seen');
-      const o = val(f.k, f.v), op = F[f.k].ops[+f.neg], text = `${F[f.k].l} ${op} ${o.c || o.l}`;
-      $('.op', ch).textContent = op; $('.v', ch).textContent = o.c || o.l;
-      $('.op', ch).setAttribute('aria-label', `${text}: change to ${F[f.k].ops[+!f.neg]}`); $('.op', ch).dataset.tip = `Change to ${F[f.k].ops[+!f.neg]}`;
-      $('.x', ch).setAttribute('aria-label', `Remove filter ${text}`);
-    });
+    reflow(() => $$('.flm-ch', chips), () => {
+      $$('.flm-ch:not([data-ghost])', chips).forEach(ch => { if (!have.has(ch.dataset.k)) ch.remove(); });
+      A.forEach(f => {
+        let ch = $(`.flm-ch[data-k="${f.k}"]`, chips); const fresh = !ch;
+        if (!ch){ ch = html(`<div class="flm-ch" role="listitem" data-k="${f.k}"><span class="k">${F[f.k].l}</span><button class="op"></button><span class="v"></span><button class="x" data-tip="Remove filter">${I('x','xs')}</button></div>`); chips.appendChild(ch); wire(ch); }
+        else ch.classList.add('seen');
+        const o = val(f.k, f.v), op = F[f.k].ops[+f.neg], text = `${F[f.k].l} ${op} ${o.c || o.l}`;
+        [[$('.op', ch), op], [$('.v', ch), o.c || o.l]].forEach(([el, t]) => { if (el.textContent === t) return; el.textContent = t;
+          if (!fresh && !REDUCE){ if (el._in) el._in.cancel(); el._in = el.animate([{ opacity:0, transform:'translateY(2px)' }, { opacity:1, transform:'none' }], { duration:200, easing:getComputedStyle(r).getPropertyValue('--dm-ease').trim() || 'ease' }); } });
+        $('.op', ch).setAttribute('aria-label', `${text}: change to ${F[f.k].ops[+!f.neg]}`); $('.op', ch).dataset.tip = `Change to ${F[f.k].ops[+!f.neg]}`;
+        $('.x', ch).setAttribute('aria-label', `Remove filter ${text}`);
+      });
+    }, { by:'data-k', root:$('.flm', r), enter:false });
     // the menu shows each field's value, if it has one
     fields.forEach(m => { const f = A.find(x => x.k === m.dataset.k), o = f && val(f.k, f.v); $('.r', m).textContent = o ? (f.neg ? F[f.k].ops[1] + ' ' : '') + (o.c || o.l) : ''; });
     const hit = T.filter(t => match(t)), n = hit.length;
     swap(ct, A.length ? `${n} of ${T.length} issues` : `${T.length} issues`); clr.hidden = !A.length;
-    // the four most recently updated, and how many more
-    const old = new Set($$('.flm-r', list).map(x => x.dataset.t));
-    list.innerHTML = n ? hit.slice(0, 4).map(t => `<div class="flm-r" data-t="${t.t}"><span class="dot" data-s="${t.s}" aria-label="${ST[t.s]}" role="img"></span><span class="t">${t.t}</span><span class="av" data-o="${t.o}" aria-label="${OWN[t.o]}" role="img">${t.o}</span><span class="a">${age(t.a)}</span></div>`).join('') + (n > 4 ? `<div class="flm-more">and ${n - 4} more</div>` : '')
-      : '<div class="flm-e">No issues match these filters</div>';
-    $$('.flm-r', list).forEach((x, i) => { if (!old.has(x.dataset.t)) enter(x, i * 50); });
+    // the four most recently updated, and how many more. Issues that still match glide to their new places, new ones fade
+    // in and the ones filtered out fade where they were (the first paint is the card's entrance)
+    const draw = () => { list.innerHTML = n ? hit.slice(0, 4).map(t => `<div class="flm-r" data-t="${t.t}"><span class="dot" data-s="${t.s}" aria-label="${ST[t.s]}" role="img"></span><span class="t">${t.t}</span><span class="av" data-o="${t.o}" aria-label="${OWN[t.o]}" role="img">${t.o}</span><span class="a">${age(t.a)}</span></div>`).join('') + (n > 4 ? `<div class="flm-more" data-t="more">and ${n - 4} more</div>` : '')
+      : '<div class="flm-e" data-t="none">No issues match these filters</div>'; };
+    if (painted) reflow(() => [...list.children], draw, { by:'data-t', root:$('.flm', r) });
+    else { draw(); stagger($$('.flm-r', list), 50); }
+    painted = true;
   }
+  let painted = false;
   function wire(ch){
     const k = ch.dataset.k;
     $('.op', ch).onclick = () => { const f = A.find(x => x.k === k); f.neg = !f.neg; paint(); };
     $('.x', ch).onclick = () => {
-      const had = ch.contains(document.activeElement), next = ch.nextElementSibling || ch.previousElementSibling;
+      const near = $$('.flm-ch:not([data-ghost])', chips), i = near.indexOf(ch), had = ch.contains(document.activeElement), next = near[i + 1] || near[i - 1];
       A = A.filter(x => x.k !== k); hideTip(); paint();
       if (had) ((next && $('.x', next)) || tr).focus({ preventScroll:true });
     };
@@ -75,9 +82,14 @@ DM.def('filter-menu', (r, c) => {
     if (on && focus){ const all = items(); focusItem(focus === 'last' ? all[all.length - 1] : all[0]); }
     if (!on && pop.contains(document.activeElement)) tr.focus({ preventScroll:true });
   }
+  // moving between the two steps, the step coming in slides 4px from the side it is on (values from the right, the fields
+  // back from the left) as it fades in
+  let slid = null;
   function step(k){
     const had = pop.contains(document.activeElement), from = field;
     field = k; l1.hidden = !!k; l2.hidden = !k;
+    if (slid){ slid.cancel(); slid = null; }
+    if (isOpen() && !REDUCE && !!k !== !!from) slid = (k ? l2 : l1).animate([{ opacity:0, transform:`translateX(${k ? 4 : -4}px)` }, { opacity:1, transform:'none' }], { duration:(parseFloat(getComputedStyle(r).getPropertyValue('--dm-t-fast')) || .22) * 1000, easing:getComputedStyle(r).getPropertyValue('--dm-ease').trim() || 'ease' });
     if (k){
       const f = F[k], on = A.find(x => x.k === k);
       l2.setAttribute('aria-label', f.l);

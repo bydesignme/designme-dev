@@ -4,7 +4,7 @@ import { createPortal } from 'react-dom';
 import { cx } from '../../lib/cx';
 import { useControllable, useIsoLayoutEffect, useReducedMotion } from '../../lib/hooks';
 import { Icon } from '../../lib/icons';
-import { Avatar, Seg, Swap, Think, Tip } from '../../lib/motion';
+import { Avatar, reflowGhost, reflowGlide, reflowIn, reflowMeasure, reflowStop, Seg, Swap, Think, Tip, type ReflowSnap } from '../../lib/motion';
 import { usePopover } from '../../lib/popover';
 import '../../designme.css';
 import './kanban-board.css';
@@ -199,7 +199,7 @@ export function KanbanBoard({
   const visible = (key: string) => list.filter(c => c.column === key && matches(c));
   const shownCount = list.filter(matches).length;
   const setF = (next: KanbanBoardFilters) => {
-    kept.current.clear(); flip.current = true; setFilters(next);
+    kept.current.clear(); flip.current = true; filt.current = true; setFilters(next);
     const n = latest.current.filter(c => (!next.query || `${c.title} ${codeOf(c)}`.toLowerCase().includes(next.query.toLowerCase())) && (!next.assignees.length || (c.assignees ?? []).some(a => next.assignees.includes(a))) && (!next.labels.length || (c.labels ?? []).some(l => next.labels.includes(l))) && (!next.priorities.length || next.priorities.includes(c.priority ?? 'none'))).length;
     const any = !!(next.query || next.assignees.length || next.labels.length || next.priorities.length);
     say(any ? `${n} of ${latest.current.length} cards shown` : `All ${latest.current.length} cards shown`);
@@ -207,19 +207,26 @@ export function KanbanBoard({
   const toggleIn = <T,>(arr: T[], v: T) => arr.includes(v) ? arr.filter(x => x !== v) : [...arr, v];
   const allLabels = labels ?? [...new Set(list.flatMap(c => c.labels ?? []))];
 
-  /* ---------- the cards glide to their new places after a move, a sort or a filter ---------- */
-  const flip = useRef(false);
-  const rects = useRef(new Map<string, { x: number; y: number }>());
+  /* ---------- the cards glide to their new places after a move, a sort or a filter. A filter also fades in the cards it
+     brings back and fades the ones it hides where they were. A glide still going when the board draws again carries on from
+     where the card is on screen ---------- */
+  const flip = useRef(false), filt = useRef(false);
+  const rects = useRef(new Map<string, ReflowSnap>());
   useIsoLayoutEffect(() => {
-    const base = root.current?.getBoundingClientRect(); if (!base) return;
-    const now = new Map<string, { x: number; y: number }>();
-    els.current.forEach((el, id) => { const r = el.getBoundingClientRect(); now.set(id, { x: r.left - base.left, y: r.top - base.top }); });
-    if (flip.current && !reduce) now.forEach((p, id) => {
-      const was = rects.current.get(id); if (!was) return;
-      const dx = was.x - p.x, dy = was.y - p.y;
-      if (Math.abs(dx) > 1 || Math.abs(dy) > 1) els.current.get(id)?.animate([{ transform: `translate(${dx}px,${dy}px)` }, { transform: 'none' }], { duration: 420, easing: 'cubic-bezier(.22,1,.36,1)' });
+    const box = root.current; if (!box) return;
+    const now = new Map<string, ReflowSnap>(), go = flip.current && !reduce, was = rects.current;
+    let n = 0;
+    els.current.forEach((el, id) => {
+      const { rb, b, o, dx, dy } = reflowMeasure(el, box);
+      const s: ReflowSnap = { el, p: el.parentNode, x: b.left - rb.left, y: b.top - rb.top, w: b.width, h: b.height };
+      if (b.width || b.height) now.set(id, s);
+      if (!go) return;
+      const a = was.get(id);
+      if (a && (Math.abs(a.x - s.x) > .5 || Math.abs(a.y - s.y) > .5)) { reflowStop(el); reflowGlide(el, a.x + dx - s.x, a.y + dy - s.y, box, o, 420); }
+      else if (!a && filt.current && (b.width || b.height)) { reflowStop(el); reflowIn(el, n++, box); }
     });
-    flip.current = false; rects.current = now;
+    if (go && filt.current) was.forEach((a, id) => { if (!now.has(id)) reflowGhost(a, box, 'data-id'); });
+    flip.current = false; filt.current = false; rects.current = now;
   });
 
   // cards that are new, or moved by someone else, come in with the entrance; a dropped card gets its own little pop

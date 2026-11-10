@@ -1,5 +1,5 @@
 // Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
-import { $, $$, AV, DM, I, REDUCE, enter, html, stagger, swap } from '../core/core.js';
+import { $, $$, AV, DM, I, REDUCE, enter, html, reflow, stagger, swap } from '../core/core.js';
 DM.def('task-table', (r, c) => {
   r.innerHTML = r.innerHTML.replace('{pause}', I('pause','xs')).replace('{refresh}', I('refresh','xs')).replace('{x}', I('x','xs'));
   const ST = { run:['Running','<span class="spin"></span>'], done:['Done', I('ok','xs')], fail:['Failed', I('alert','xs')], wait:['Queued','<span class="dot"></span>'], pause:['Paused', I('pause','xs')] };
@@ -29,12 +29,13 @@ DM.def('task-table', (r, c) => {
     tr.onclick = () => { t.sel = !t.sel; sync(); };
     rows.set(t.id, tr); return tr;
   }
-  // rows glide to their new places: measured before and after the move, then eased from where they were
+  // rows glide to their new places, a short glide from where they are on screen, so sorting again mid-glide carries on
+  // from there
+  const glideRows = move => reflow(() => [...rows.values()], move, { by:'data-id', root:box, enter:false, leave:false });
   function order(anim){
     const f = fields[key], list = [...T].sort((a, b) => { const x = f(a), y = f(b); return (x > y ? 1 : x < y ? -1 : 0) * (desc ? -1 : 1); });
-    const first = anim && !REDUCE ? new Map(list.map(t => [t.id, rows.get(t.id).getBoundingClientRect().top])) : null;
-    list.forEach(t => tb.appendChild(rows.get(t.id)));
-    if (first) list.forEach(t => { const el = rows.get(t.id), d = first.get(t.id) - el.getBoundingClientRect().top; if (Math.abs(d) > 1) el.animate([{ transform:`translateY(${d}px)` }, { transform:'none' }], { duration:520, easing:ease }); });
+    const move = () => list.forEach(t => tb.appendChild(rows.get(t.id)));
+    anim ? glideRows(move) : move();
     $$('.ttx-s', r).forEach(b => { b.classList.toggle('on', +b.dataset.k === key); b.classList.toggle('desc', desc); b.closest('th').setAttribute('aria-sort', +b.dataset.k === key ? (desc ? 'descending' : 'ascending') : 'none'); });
   }
   let said = '';
@@ -52,9 +53,7 @@ DM.def('task-table', (r, c) => {
     const out = T.filter(t => ids.includes(t.id)); T = T.filter(t => !ids.includes(t.id));
     // the table's height as it was, for the empty state that takes the last rows' place
     const had = T.length ? 0 : box.getBoundingClientRect().height;
-    const go = () => { const first = new Map(T.map(t => [t.id, rows.get(t.id).getBoundingClientRect().top]));
-      out.forEach(t => { rows.get(t.id).remove(); rows.delete(t.id); });
-      if (!REDUCE) T.forEach(t => { const el = rows.get(t.id), d = first.get(t.id) - el.getBoundingClientRect().top; if (Math.abs(d) > 1) el.animate([{ transform:`translateY(${d}px)` }, { transform:'none' }], { duration:480, easing:ease }); });
+    const go = () => { glideRows(() => out.forEach(t => { rows.get(t.id).remove(); rows.delete(t.id); }));
       if (!T.length) empty(had); sync(); };
     if (REDUCE) return go();
     out.forEach(t => rows.get(t.id).classList.add('ttx-out'));

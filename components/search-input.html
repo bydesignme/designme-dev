@@ -174,7 +174,7 @@
 .six-ch button{display:grid;opacity:.6}@media (hover:hover) and (pointer:fine){.six-ch button:hover{opacity:1}}
 .six-x{width:24px;height:24px}
 @supports (corner-shape:squircle){.six-ch{corner-shape:squircle;border-radius:var(--dm-r-tag-sq)}}
-.six-res{padding:var(--dm-s-1) 6px var(--dm-s-2);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
+.six-res{position:relative;padding:var(--dm-s-1) 6px var(--dm-s-2);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
 .six-g{font-size:11.5px;color:var(--dm-muted);padding:var(--dm-s-2) var(--dm-s-2) var(--dm-s-1)}
 .six-it{display:flex;align-items:center;gap:10px;width:100%;padding:7px var(--dm-s-2);border-radius:calc(10px * var(--dm-rk));font-size:13px;text-align:left;transition:background .15s}
 .six-it.hl{background:var(--dm-row)}
@@ -304,12 +304,12 @@ export default function SearchInputDemo() {
 import SearchInput from &#39;../components/designme/search-input/SearchInput.astro&#39;;
 ---
 &lt;SearchInput /&gt;
-&lt;SearchInput data-style=&quot;soft&quot; class=&quot;my-class&quot; /&gt;</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything SearchInput takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>items</code><span class="opt">required</span></td><td><code>SearchInputItem[]</code></td><td></td></tr><tr><td><code>sources</code></td><td><code>SearchInputSource[]</code></td><td>Typing @ lists these, and picking one adds it as a filter chip</td></tr><tr><td><code>recent</code></td><td><code>string[]</code></td><td>Earlier searches, shown while the box is empty</td></tr><tr><td><code>value</code></td><td><code>string</code></td><td>What is typed. Leave it out to let the box hold its own</td></tr><tr><td><code>defaultValue</code></td><td><code>string</code></td><td></td></tr><tr><td><code>onValueChange</code></td><td><code>(value: string) =&gt; void</code></td><td></td></tr><tr><td><code>scope</code></td><td><code>string | null</code></td><td>The source filter, by label, or null. Backspace in an empty box removes it</td></tr><tr><td><code>defaultScope</code></td><td><code>string | null</code></td><td></td></tr><tr><td><code>onScopeChange</code></td><td><code>(scope: string | null) =&gt; void</code></td><td></td></tr><tr><td><code>open</code></td><td><code>boolean</code></td><td>Whether the box is lifted with its results open. Focus opens it and leaving closes it when you leave it out</td></tr><tr><td><code>defaultOpen</code></td><td><code>boolean</code></td><td></td></tr><tr><td><code>onOpenChange</code></td><td><code>(open: boolean) =&gt; void</code></td><td></td></tr><tr><td><code>answer</code></td><td><code>string</code></td><td>An answer from the agent, shown above the results. Feed it as it grows and each new word fades in</td></tr><tr><td><code>filter</code></td><td><code>(item: SearchInputItem, search: string) =&gt; boolean</code></td><td>Which items match the search. By default an item matches the whole search or any word longer than two letters</td></tr><tr><td><code>onSelect</code></td><td><code>(item: SearchInputItem) =&gt; void</code></td><td>Called when a result is picked, by click or Enter</td></tr><tr><td><code>onSubmit</code></td><td><code>(search: string, scope: string | null) =&gt; void</code></td><td>Called by Enter when no row is highlighted, with the search and the source filter</td></tr><tr><td><code>placeholder</code></td><td><code>string</code></td><td></td></tr><tr><td><code>shortcut</code></td><td><code>string</code></td><td>The key hint at the end of the empty box</td></tr><tr><td><code>emptyLabel</code></td><td><code>string</code></td><td>What the list says when nothing matches</td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>SearchInput.tsx<span class="l">React · 191 lines</span></summary><pre class="cp-pre" data-name="SearchInput.tsx"><code>&#39;use client&#39;;
+&lt;SearchInput data-style=&quot;soft&quot; class=&quot;my-class&quot; /&gt;</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything SearchInput takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>items</code><span class="opt">required</span></td><td><code>SearchInputItem[]</code></td><td></td></tr><tr><td><code>sources</code></td><td><code>SearchInputSource[]</code></td><td>Typing @ lists these, and picking one adds it as a filter chip</td></tr><tr><td><code>recent</code></td><td><code>string[]</code></td><td>Earlier searches, shown while the box is empty</td></tr><tr><td><code>value</code></td><td><code>string</code></td><td>What is typed. Leave it out to let the box hold its own</td></tr><tr><td><code>defaultValue</code></td><td><code>string</code></td><td></td></tr><tr><td><code>onValueChange</code></td><td><code>(value: string) =&gt; void</code></td><td></td></tr><tr><td><code>scope</code></td><td><code>string | null</code></td><td>The source filter, by label, or null. Backspace in an empty box removes it</td></tr><tr><td><code>defaultScope</code></td><td><code>string | null</code></td><td></td></tr><tr><td><code>onScopeChange</code></td><td><code>(scope: string | null) =&gt; void</code></td><td></td></tr><tr><td><code>open</code></td><td><code>boolean</code></td><td>Whether the box is lifted with its results open. Focus opens it and leaving closes it when you leave it out</td></tr><tr><td><code>defaultOpen</code></td><td><code>boolean</code></td><td></td></tr><tr><td><code>onOpenChange</code></td><td><code>(open: boolean) =&gt; void</code></td><td></td></tr><tr><td><code>answer</code></td><td><code>string</code></td><td>An answer from the agent, shown above the results. Feed it as it grows and each new word fades in</td></tr><tr><td><code>filter</code></td><td><code>(item: SearchInputItem, search: string) =&gt; boolean</code></td><td>Which items match the search. By default an item matches the whole search or any word longer than two letters</td></tr><tr><td><code>onSelect</code></td><td><code>(item: SearchInputItem) =&gt; void</code></td><td>Called when a result is picked, by click or Enter</td></tr><tr><td><code>onSubmit</code></td><td><code>(search: string, scope: string | null) =&gt; void</code></td><td>Called by Enter when no row is highlighted, with the search and the source filter</td></tr><tr><td><code>placeholder</code></td><td><code>string</code></td><td></td></tr><tr><td><code>shortcut</code></td><td><code>string</code></td><td>The key hint at the end of the empty box</td></tr><tr><td><code>emptyLabel</code></td><td><code>string</code></td><td>What the list says when nothing matches</td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>SearchInput.tsx<span class="l">React · 189 lines</span></summary><pre class="cp-pre" data-name="SearchInput.tsx"><code>&#39;use client&#39;;
 import { useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from &#39;react&#39;;
 import { cx } from &#39;../lib/cx&#39;;
 import { useControllable, useIsoLayoutEffect, useReducedMotion } from &#39;../lib/hooks&#39;;
 import { Icon, type IconName } from &#39;../lib/icons&#39;;
-import { enter, Fold } from &#39;../lib/motion&#39;;
+import { Fold, useReflow } from &#39;../lib/motion&#39;;
 import &#39;../designme.css&#39;;
 import &#39;./search-input.css&#39;;
 
@@ -392,8 +392,9 @@ export function SearchInput({ items, sources = [], recent = [], value, defaultVa
   const root = useRef&lt;HTMLDivElement&gt;(null), input = useRef&lt;HTMLInputElement&gt;(null);
   const id = useId();
 
-  // the results draw in again each time the box opens; while it stays open, only rows that weren&#39;t showing enter,
-  // so typing doesn&#39;t restart the list, and the list eases to its new height
+  // while the box is open, rows that were showing a moment ago glide to their new places as the answer comes and goes or the
+  // results narrow, new rows and the answer fade in, and rows that no longer match fade where they were, so typing never
+  // restarts the list; the list eases to its new height
   const [opens, setOpens] = useState(0), [wasOpen, setWasOpen] = useState(isOpen);
   if (wasOpen !== isOpen) { setWasOpen(isOpen); if (isOpen) setOpens(opens + 1); }
 
@@ -405,13 +406,10 @@ export function SearchInput({ items, sources = [], recent = [], value, defaultVa
     : mode === &#39;recent&#39; ? recent.map(search =&gt; ({ kind: &#39;recent&#39;, search }))
     : found.map(item =&gt; ({ kind: &#39;item&#39;, item }));
   const paint = `${opens}|${text}|${sc}`;
-  const delays = useRef({ opens: -1, at: new Map&lt;string, number&gt;() });
-  if (delays.current.opens !== opens) delays.current = { opens, at: new Map() };
-  const shownKeys = new Set(rows.map(r =&gt; rowKey(r)));
-  for (const k of [...delays.current.at.keys()]) if (!shownKeys.has(k)) delays.current.at.delete(k);
-  let fresh = 0;
-  const delayOf = (k: string) =&gt; { const at = delays.current.at; if (!at.has(k)) at.set(k, fresh++ * 25); return at.get(k)!; };
-  const list = useRef&lt;HTMLDivElement&gt;(null), lastH = useRef(0), grow = useRef&lt;Animation | null&gt;(null), reduce = useReducedMotion();
+  // places are read against the box, which glides as the list opens under it
+  const list = useRef&lt;HTMLDivElement&gt;(null), field = useRef&lt;HTMLDivElement&gt;(null);
+  useReflow(field, &#39;.dm-six-res &gt; [data-key]&#39;, { host: list });
+  const lastH = useRef(0), grow = useRef&lt;Animation | null&gt;(null), reduce = useReducedMotion();
   useIsoLayoutEffect(() =&gt; {
     const el = list.current; if (!el) { lastH.current = 0; return; }
     const from = grow.current?.playState === &#39;running&#39; ? el.getBoundingClientRect().height : lastH.current;
@@ -449,9 +447,9 @@ export function SearchInput({ items, sources = [], recent = [], value, defaultVa
   };
   // rows are picked on mousedown, so the cursor stays in the box
   const row = (r: Row, i: number, body: ReactNode) =&gt; {
-    const k = rowKey(r), e = enter(delayOf(k));
+    const k = rowKey(r);
     return (
-      &lt;button key={k} type=&quot;button&quot; tabIndex={-1} id={`${id}-${i}`} role=&quot;option&quot; aria-selected={i === cur} className={cx(&#39;dm-six-it&#39;, e.className, i === cur &amp;&amp; &#39;dm-hl&#39;)} style={e.style}
+      &lt;button key={k} data-key={k} type=&quot;button&quot; tabIndex={-1} id={`${id}-${i}`} role=&quot;option&quot; aria-selected={i === cur} className={cx(&#39;dm-six-it&#39;, i === cur &amp;&amp; &#39;dm-hl&#39;)}
         onMouseDown={ev =&gt; { ev.preventDefault(); pick(r); }}&gt;{body}&lt;/button&gt;
     );
   };
@@ -459,7 +457,7 @@ export function SearchInput({ items, sources = [], recent = [], value, defaultVa
   const words = answer?.split(&#39; &#39;).filter(Boolean) ?? [];
   return (
     &lt;div data-dm=&quot;&quot; ref={root} className={cx(&#39;dm-six&#39;, className)}&gt;
-      &lt;div className={cx(&#39;dm-six-box&#39;, isOpen &amp;&amp; &#39;dm-f&#39;)}&gt;
+      &lt;div ref={field} className={cx(&#39;dm-six-box&#39;, isOpen &amp;&amp; &#39;dm-f&#39;)}&gt;
         &lt;div className=&quot;dm-six-in&quot;&gt;
           &lt;Icon name=&quot;search&quot; size=&quot;xs&quot; /&gt;
           &lt;span className=&quot;dm-six-chips&quot;&gt;
@@ -474,19 +472,19 @@ export function SearchInput({ items, sources = [], recent = [], value, defaultVa
         &lt;Fold open={isOpen}&gt;
           &lt;div key={opens} ref={list} className=&quot;dm-six-res&quot; id={`${id}-list`} role=&quot;listbox&quot; aria-label=&quot;Results&quot;&gt;
             {mode === &#39;sources&#39; &amp;&amp; &lt;&gt;
-              &lt;div className=&quot;dm-six-g&quot;&gt;Filter by source&lt;/div&gt;
+              &lt;div className=&quot;dm-six-g&quot; data-key=&quot;g&quot;&gt;Filter by source&lt;/div&gt;
               {rows.map((r, i) =&gt; r.kind === &#39;source&#39; &amp;&amp; row(r, i, &lt;&gt;&lt;span className=&quot;dm-ic&quot;&gt;&lt;Icon name={r.source.icon} size=&quot;xs&quot; /&gt;&lt;/span&gt;{r.source.label}&lt;span className=&quot;dm-d&quot;&gt;@{r.source.key}&lt;/span&gt;&lt;/&gt;))}
             &lt;/&gt;}
             {mode === &#39;recent&#39; &amp;&amp; !!rows.length &amp;&amp; &lt;&gt;
-              &lt;div className=&quot;dm-six-g&quot;&gt;Recent&lt;/div&gt;
+              &lt;div className=&quot;dm-six-g&quot; data-key=&quot;g&quot;&gt;Recent&lt;/div&gt;
               {rows.map((r, i) =&gt; r.kind === &#39;recent&#39; &amp;&amp; row(r, i, &lt;&gt;&lt;span className=&quot;dm-ic&quot;&gt;&lt;Icon name=&quot;history&quot; size=&quot;xs&quot; /&gt;&lt;/span&gt;{r.search}&lt;/&gt;))}
             &lt;/&gt;}
             {mode === &#39;results&#39; &amp;&amp; &lt;&gt;
-              {answer !== undefined &amp;&amp; &lt;div className=&quot;dm-six-ans&quot;&gt;&lt;Icon name=&quot;spark&quot; size=&quot;xs&quot; /&gt;&lt;span&gt;{words.map((w, i) =&gt; &lt;span key={i} className=&quot;dm-w&quot;&gt;{w} &lt;/span&gt;)}&lt;/span&gt;&lt;/div&gt;}
+              {answer !== undefined &amp;&amp; &lt;div className=&quot;dm-six-ans&quot; data-key=&quot;ans&quot;&gt;&lt;Icon name=&quot;spark&quot; size=&quot;xs&quot; /&gt;&lt;span&gt;{words.map((w, i) =&gt; &lt;span key={i} className=&quot;dm-w&quot;&gt;{w} &lt;/span&gt;)}&lt;/span&gt;&lt;/div&gt;}
               {rows.length ? &lt;&gt;
-                &lt;div className=&quot;dm-six-g&quot;&gt;{rows.length} {rows.length === 1 ? &#39;result&#39; : &#39;results&#39;}&lt;/div&gt;
+                &lt;div className=&quot;dm-six-g&quot; data-key=&quot;g&quot;&gt;{rows.length} {rows.length === 1 ? &#39;result&#39; : &#39;results&#39;}&lt;/div&gt;
                 {rows.map((r, i) =&gt; r.kind === &#39;item&#39; &amp;&amp; row(r, i, &lt;&gt;&lt;span className=&quot;dm-ic&quot;&gt;&lt;Icon name={r.item.icon} size=&quot;xs&quot; /&gt;&lt;/span&gt;&lt;span&gt;{marked(r.item.label, word)}&lt;/span&gt;&lt;span className=&quot;dm-d&quot;&gt;{r.item.source}&lt;/span&gt;&lt;/&gt;))}
-              &lt;/&gt; : &lt;div className=&quot;dm-six-g&quot;&gt;{emptyLabel}&lt;/div&gt;}
+              &lt;/&gt; : &lt;div className=&quot;dm-six-g&quot; data-key=&quot;g&quot;&gt;{emptyLabel}&lt;/div&gt;}
             &lt;/&gt;}
           &lt;/div&gt;
         &lt;/Fold&gt;
@@ -509,7 +507,7 @@ export function SearchInput({ items, sources = [], recent = [], value, defaultVa
 .dm-six-ch button{display:grid;opacity:.6}@media (hover:hover) and (pointer:fine){.dm-six-ch button:hover{opacity:1}}
 .dm-six-x{width:24px;height:24px}
 @supports (corner-shape:squircle){.dm-six-ch{corner-shape:squircle;border-radius:var(--dm-r-tag-sq)}}
-.dm-six-res{padding:var(--dm-s-1) 6px var(--dm-s-2);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
+.dm-six-res{position:relative;padding:var(--dm-s-1) 6px var(--dm-s-2);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
 .dm-six-g{font-size:11.5px;color:var(--dm-muted);padding:var(--dm-s-2) var(--dm-s-2) var(--dm-s-1)}
 .dm-six-it{display:flex;align-items:center;gap:10px;width:100%;padding:7px var(--dm-s-2);border-radius:calc(10px * var(--dm-rk));font-size:13px;text-align:left;transition:background .15s}
 .dm-six-it.dm-hl{background:var(--dm-row)}
@@ -574,7 +572,7 @@ const { class: className, ...rest } = Astro.props;
 .six-ch button{display:grid;opacity:.6}@media (hover:hover) and (pointer:fine){.six-ch button:hover{opacity:1}}
 .six-x{width:24px;height:24px}
 @supports (corner-shape:squircle){.six-ch{corner-shape:squircle;border-radius:var(--dm-r-tag-sq)}}
-.six-res{padding:var(--dm-s-1) 6px var(--dm-s-2);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
+.six-res{position:relative;padding:var(--dm-s-1) 6px var(--dm-s-2);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
 .six-g{font-size:11.5px;color:var(--dm-muted);padding:var(--dm-s-2) var(--dm-s-2) var(--dm-s-1)}
 .six-it{display:flex;align-items:center;gap:10px;width:100%;padding:7px var(--dm-s-2);border-radius:calc(10px * var(--dm-rk));font-size:13px;text-align:left;transition:background .15s}
 .six-it.hl{background:var(--dm-row)}
@@ -587,12 +585,12 @@ const { class: className, ...rest } = Astro.props;
 .six-ans .w{animation:sxw .4s var(--dm-ease) both}
 .six-ans .w.done{animation:none}
 @keyframes sxw{from{opacity:0;filter:blur(3px)}}
-</code></pre></details><details class="cp-file"><summary>search-input.js<span class="l">HTML · 56 lines</span></summary><pre class="cp-pre" data-name="search-input.js"><code>DM.def(&#39;search-input&#39;, (r, c) =&gt; {
+</code></pre></details><details class="cp-file"><summary>search-input.js<span class="l">HTML · 57 lines</span></summary><pre class="cp-pre" data-name="search-input.js"><code>DM.def(&#39;search-input&#39;, (r, c) =&gt; {
   r.innerHTML = r.innerHTML.replace(&#39;{search}&#39;, I(&#39;search&#39;,&#39;xs&#39;)).replace(&#39;{x}&#39;, I(&#39;x&#39;,&#39;xs&#39;));
   const box = $(&#39;.six-box&#39;, r), inp = $(&#39;.six-in input&#39;, r), dd = $(&#39;.six-dd&#39;, r), res = $(&#39;.six-res&#39;, r), chips = $(&#39;.six-chips&#39;, r), xB = $(&#39;.six-x&#39;, r), k = $(&#39;.six-k&#39;, r);
   const ITEMS = [[&#39;figma&#39;,&#39;Pricing v4&#39;,&#39;Figma&#39;],[&#39;figma&#39;,&#39;Pricing mobile&#39;,&#39;Figma&#39;],[&#39;file-text&#39;,&#39;Pricing research notes&#39;,&#39;Notion&#39;],[&#39;code&#39;,&#39;PricingCard.tsx&#39;,&#39;GitHub&#39;],[&#39;figma&#39;,&#39;Checkout flow&#39;,&#39;Figma&#39;],[&#39;file-text&#39;,&#39;Brand voice guide&#39;,&#39;Notion&#39;],[&#39;code&#39;,&#39;tokens.css&#39;,&#39;GitHub&#39;]];
   const SC = { figma:&#39;Figma&#39;, notion:&#39;Notion&#39;, github:&#39;GitHub&#39; };
-  let scope = null, at = null, ans = 0, rows = new Set(), grow = null, hi = -1;
+  let scope = null, at = null, ans = 0, grow = null, hi = -1;
   res.id = &#39;six-r-&#39; + Math.random().toString(36).slice(2, 7); res.setAttribute(&#39;role&#39;, &#39;listbox&#39;); res.setAttribute(&#39;aria-label&#39;, &#39;Suggestions&#39;);
   inp.setAttribute(&#39;role&#39;, &#39;combobox&#39;); inp.setAttribute(&#39;aria-autocomplete&#39;, &#39;list&#39;); inp.setAttribute(&#39;aria-expanded&#39;, &#39;false&#39;); inp.setAttribute(&#39;aria-controls&#39;, res.id);
   // the agent&#39;s answer streams in word by word and keeps going while the question is still being typed
@@ -610,13 +608,14 @@ const { class: className, ...rest } = Astro.props;
       if (v.split(&#39; &#39;).length &gt; 2 || v.endsWith(&#39;?&#39;)) h += `&lt;div class=&quot;six-ans&quot;&gt;${I(&#39;spark&#39;,&#39;xs&#39;)}&lt;span class=&quot;six-at&quot;&gt;&lt;/span&gt;&lt;/div&gt;`;
       h += m.length ? &#39;&lt;div class=&quot;six-g&quot;&gt;&#39; + m.length + (m.length === 1 ? &#39; result&#39; : &#39; results&#39;) + &#39;&lt;/div&gt;&#39; + m.map(i =&gt; `&lt;button class=&quot;six-it&quot;&gt;&lt;span class=&quot;ic&quot;&gt;${I(i[0],&#39;xs&#39;)}&lt;/span&gt;&lt;span&gt;${hw ? i[1].replace(new RegExp(hw.replace(/[.*+?^${}()|[\]\\]/g, &#39;\\$&amp;&#39;), &#39;i&#39;), s =&gt; `&lt;mark&gt;${s}&lt;/mark&gt;`) : i[1]}&lt;/span&gt;&lt;span class=&quot;d&quot;&gt;${i[2]}&lt;/span&gt;&lt;/button&gt;`).join(&#39;&#39;) : &#39;&lt;div class=&quot;six-g&quot;&gt;No matches. Press Enter to ask the agent&lt;/div&gt;&#39;;
     }
-    res.innerHTML = h; hi = -1; inp.removeAttribute(&#39;aria-activedescendant&#39;);
-    $$(&#39;.six-it&#39;, res).forEach((b, j) =&gt; { b.id = res.id + &#39;-&#39; + j; b.setAttribute(&#39;role&#39;, &#39;option&#39;); b.setAttribute(&#39;aria-selected&#39;, &#39;false&#39;); b.tabIndex = -1; });
-    // only rows that weren&#39;t showing a moment ago enter, so typing doesn&#39;t restart the whole list
-    const now = $$(&#39;.six-it&#39;, res), fresh = now.filter(b =&gt; !rows.has(b.textContent)); rows = new Set(now.map(b =&gt; b.textContent)); stagger(fresh, 25);
-    const a = $(&#39;.six-at&#39;, res);
+    // rows that were showing a moment ago glide to their new places as the answer line comes and goes or the results narrow,
+    // new rows and the answer fade in, and rows that no longer match fade where they were, so typing never restarts the list
+    reflow(() =&gt; [...res.children], () =&gt; { res.innerHTML = h; [...res.children].forEach(x =&gt; x.dataset.key = x.matches(&#39;.six-ans&#39;) ? &#39;ans&#39; : x.matches(&#39;.six-g&#39;) ? &#39;g&#39; : x.textContent); }, { root:box });
+    hi = -1; inp.removeAttribute(&#39;aria-activedescendant&#39;);
+    $$(&#39;.six-it:not([data-ghost])&#39;, res).forEach((b, j) =&gt; { b.id = res.id + &#39;-&#39; + j; b.setAttribute(&#39;role&#39;, &#39;option&#39;); b.setAttribute(&#39;aria-selected&#39;, &#39;false&#39;); b.tabIndex = -1; });
+    const a = $(&#39;.six-ans:not([data-ghost]) .six-at&#39;, res);
     if (a){ a.innerHTML = WS.slice(0, ans).map(w =&gt; `&lt;span class=&quot;w done&quot;&gt;${w} &lt;/span&gt;`).join(&#39;&#39;);
-      if (!at &amp;&amp; ans &lt; WS.length) at = c.every(45, () =&gt; { const el = $(&#39;.six-at&#39;, res); if (!el || ans &gt;= WS.length){ clearInterval(at); at = null; return; } el.insertAdjacentHTML(&#39;beforeend&#39;, `&lt;span class=&quot;w&quot;&gt;${WS[ans++]} &lt;/span&gt;`); }); }
+      if (!at &amp;&amp; ans &lt; WS.length) at = c.every(45, () =&gt; { const el = $(&#39;.six-ans:not([data-ghost]) .six-at&#39;, res); if (!el || ans &gt;= WS.length){ clearInterval(at); at = null; return; } el.insertAdjacentHTML(&#39;beforeend&#39;, `&lt;span class=&quot;w&quot;&gt;${WS[ans++]} &lt;/span&gt;`); }); }
     else { if (at){ clearInterval(at); at = null; } ans = 0; }
     const h1 = res.offsetHeight;
     if (h0 &amp;&amp; h1 !== h0 &amp;&amp; !REDUCE) grow = res.animate([{ height:h0 + &#39;px&#39;, boxSizing:&#39;border-box&#39;, overflow:&#39;hidden&#39; }, { height:h1 + &#39;px&#39;, boxSizing:&#39;border-box&#39;, overflow:&#39;hidden&#39; }], { duration:280, easing:&#39;cubic-bezier(.22,1,.36,1)&#39; });
@@ -630,12 +629,12 @@ const { class: className, ...rest } = Astro.props;
   inp.oninput = () =&gt; { list(); paint(); };
   // the box is a combobox for the list under it: up and down move through the rows and wrap, Enter picks the highlighted
   // one, and Escape closes the list, keeping the focus in the box (a second Escape clears it)
-  const light = k =&gt; { const all = $$(&#39;.six-it&#39;, res); if (!all.length) return; hi = (k + all.length) % all.length;
+  const light = k =&gt; { const all = $$(&#39;.six-it:not([data-ghost])&#39;, res); if (!all.length) return; hi = (k + all.length) % all.length;
     all.forEach((b, j) =&gt; { b.classList.toggle(&#39;hl&#39;, j === hi); b.setAttribute(&#39;aria-selected&#39;, j === hi); }); inp.setAttribute(&#39;aria-activedescendant&#39;, all[hi].id); all[hi].scrollIntoView({ block:&#39;nearest&#39; }); };
   inp.onkeydown = e =&gt; {
     if (e.key === &#39;Backspace&#39; &amp;&amp; !inp.value &amp;&amp; scope){ scope = null; chips.innerHTML = &#39;&#39;; paint(); }
     if (e.key === &#39;ArrowDown&#39; || e.key === &#39;ArrowUp&#39;){ e.preventDefault(); if (dd.classList.contains(&#39;shut&#39;)){ list(); paint(); } light(hi &lt; 0 ? (e.key === &#39;ArrowDown&#39; ? 0 : -1) : hi + (e.key === &#39;ArrowDown&#39; ? 1 : -1)); }
-    if (e.key === &#39;Enter&#39; &amp;&amp; hi &gt;= 0 &amp;&amp; !dd.classList.contains(&#39;shut&#39;)){ const b = $$(&#39;.six-it&#39;, res)[hi]; if (b &amp;&amp; b.onmousedown){ e.preventDefault(); b.onmousedown(e); } }
+    if (e.key === &#39;Enter&#39; &amp;&amp; hi &gt;= 0 &amp;&amp; !dd.classList.contains(&#39;shut&#39;)){ const b = $$(&#39;.six-it:not([data-ghost])&#39;, res)[hi]; if (b &amp;&amp; b.onmousedown){ e.preventDefault(); b.onmousedown(e); } }
     if (e.key === &#39;Escape&#39;){ e.preventDefault(); if (!dd.classList.contains(&#39;shut&#39;)){ dd.classList.add(&#39;shut&#39;); inp.setAttribute(&#39;aria-expanded&#39;, &#39;false&#39;); inp.removeAttribute(&#39;aria-activedescendant&#39;); } else if (inp.value || scope){ inp.value = &#39;&#39;; scope = null; chips.innerHTML = &#39;&#39;; paint(); } } };
   xB.onmousedown = e =&gt; { e.preventDefault(); inp.value = &#39;&#39;; scope = null; chips.innerHTML = &#39;&#39;; paint(); };
   c.on(document, &#39;pointerdown&#39;, e =&gt; { if (!r.contains(e.target) &amp;&amp; document.activeElement !== inp) shut(); });
@@ -966,7 +965,7 @@ const fitHits = window.dmFitHits || (() => {
   const box = $('.six-box', r), inp = $('.six-in input', r), dd = $('.six-dd', r), res = $('.six-res', r), chips = $('.six-chips', r), xB = $('.six-x', r), k = $('.six-k', r);
   const ITEMS = [['figma','Pricing v4','Figma'],['figma','Pricing mobile','Figma'],['file-text','Pricing research notes','Notion'],['code','PricingCard.tsx','GitHub'],['figma','Checkout flow','Figma'],['file-text','Brand voice guide','Notion'],['code','tokens.css','GitHub']];
   const SC = { figma:'Figma', notion:'Notion', github:'GitHub' };
-  let scope = null, at = null, ans = 0, rows = new Set(), grow = null, hi = -1;
+  let scope = null, at = null, ans = 0, grow = null, hi = -1;
   res.id = 'six-r-' + Math.random().toString(36).slice(2, 7); res.setAttribute('role', 'listbox'); res.setAttribute('aria-label', 'Suggestions');
   inp.setAttribute('role', 'combobox'); inp.setAttribute('aria-autocomplete', 'list'); inp.setAttribute('aria-expanded', 'false'); inp.setAttribute('aria-controls', res.id);
   // the agent's answer streams in word by word and keeps going while the question is still being typed
@@ -984,13 +983,14 @@ const fitHits = window.dmFitHits || (() => {
       if (v.split(' ').length > 2 || v.endsWith('?')) h += `<div class="six-ans">${I('spark','xs')}<span class="six-at"></span></div>`;
       h += m.length ? '<div class="six-g">' + m.length + (m.length === 1 ? ' result' : ' results') + '</div>' + m.map(i => `<button class="six-it"><span class="ic">${I(i[0],'xs')}</span><span>${hw ? i[1].replace(new RegExp(hw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i'), s => `<mark>${s}</mark>`) : i[1]}</span><span class="d">${i[2]}</span></button>`).join('') : '<div class="six-g">No matches. Press Enter to ask the agent</div>';
     }
-    res.innerHTML = h; hi = -1; inp.removeAttribute('aria-activedescendant');
-    $$('.six-it', res).forEach((b, j) => { b.id = res.id + '-' + j; b.setAttribute('role', 'option'); b.setAttribute('aria-selected', 'false'); b.tabIndex = -1; });
-    // only rows that weren't showing a moment ago enter, so typing doesn't restart the whole list
-    const now = $$('.six-it', res), fresh = now.filter(b => !rows.has(b.textContent)); rows = new Set(now.map(b => b.textContent)); stagger(fresh, 25);
-    const a = $('.six-at', res);
+    // rows that were showing a moment ago glide to their new places as the answer line comes and goes or the results narrow,
+    // new rows and the answer fade in, and rows that no longer match fade where they were, so typing never restarts the list
+    reflow(() => [...res.children], () => { res.innerHTML = h; [...res.children].forEach(x => x.dataset.key = x.matches('.six-ans') ? 'ans' : x.matches('.six-g') ? 'g' : x.textContent); }, { root:box });
+    hi = -1; inp.removeAttribute('aria-activedescendant');
+    $$('.six-it:not([data-ghost])', res).forEach((b, j) => { b.id = res.id + '-' + j; b.setAttribute('role', 'option'); b.setAttribute('aria-selected', 'false'); b.tabIndex = -1; });
+    const a = $('.six-ans:not([data-ghost]) .six-at', res);
     if (a){ a.innerHTML = WS.slice(0, ans).map(w => `<span class="w done">${w} </span>`).join('');
-      if (!at && ans < WS.length) at = c.every(45, () => { const el = $('.six-at', res); if (!el || ans >= WS.length){ clearInterval(at); at = null; return; } el.insertAdjacentHTML('beforeend', `<span class="w">${WS[ans++]} </span>`); }); }
+      if (!at && ans < WS.length) at = c.every(45, () => { const el = $('.six-ans:not([data-ghost]) .six-at', res); if (!el || ans >= WS.length){ clearInterval(at); at = null; return; } el.insertAdjacentHTML('beforeend', `<span class="w">${WS[ans++]} </span>`); }); }
     else { if (at){ clearInterval(at); at = null; } ans = 0; }
     const h1 = res.offsetHeight;
     if (h0 && h1 !== h0 && !REDUCE) grow = res.animate([{ height:h0 + 'px', boxSizing:'border-box', overflow:'hidden' }, { height:h1 + 'px', boxSizing:'border-box', overflow:'hidden' }], { duration:280, easing:'cubic-bezier(.22,1,.36,1)' });
@@ -1004,12 +1004,12 @@ const fitHits = window.dmFitHits || (() => {
   inp.oninput = () => { list(); paint(); };
   // the box is a combobox for the list under it: up and down move through the rows and wrap, Enter picks the highlighted
   // one, and Escape closes the list, keeping the focus in the box (a second Escape clears it)
-  const light = k => { const all = $$('.six-it', res); if (!all.length) return; hi = (k + all.length) % all.length;
+  const light = k => { const all = $$('.six-it:not([data-ghost])', res); if (!all.length) return; hi = (k + all.length) % all.length;
     all.forEach((b, j) => { b.classList.toggle('hl', j === hi); b.setAttribute('aria-selected', j === hi); }); inp.setAttribute('aria-activedescendant', all[hi].id); all[hi].scrollIntoView({ block:'nearest' }); };
   inp.onkeydown = e => {
     if (e.key === 'Backspace' && !inp.value && scope){ scope = null; chips.innerHTML = ''; paint(); }
     if (e.key === 'ArrowDown' || e.key === 'ArrowUp'){ e.preventDefault(); if (dd.classList.contains('shut')){ list(); paint(); } light(hi < 0 ? (e.key === 'ArrowDown' ? 0 : -1) : hi + (e.key === 'ArrowDown' ? 1 : -1)); }
-    if (e.key === 'Enter' && hi >= 0 && !dd.classList.contains('shut')){ const b = $$('.six-it', res)[hi]; if (b && b.onmousedown){ e.preventDefault(); b.onmousedown(e); } }
+    if (e.key === 'Enter' && hi >= 0 && !dd.classList.contains('shut')){ const b = $$('.six-it:not([data-ghost])', res)[hi]; if (b && b.onmousedown){ e.preventDefault(); b.onmousedown(e); } }
     if (e.key === 'Escape'){ e.preventDefault(); if (!dd.classList.contains('shut')){ dd.classList.add('shut'); inp.setAttribute('aria-expanded', 'false'); inp.removeAttribute('aria-activedescendant'); } else if (inp.value || scope){ inp.value = ''; scope = null; chips.innerHTML = ''; paint(); } } };
   xB.onmousedown = e => { e.preventDefault(); inp.value = ''; scope = null; chips.innerHTML = ''; paint(); };
   c.on(document, 'pointerdown', e => { if (!r.contains(e.target) && document.activeElement !== inp) shut(); });

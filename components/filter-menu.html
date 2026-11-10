@@ -338,12 +338,12 @@ export default function FilterMenuDemo() {
 import FilterMenu from &#39;../components/designme/filter-menu/FilterMenu.astro&#39;;
 ---
 &lt;FilterMenu /&gt;
-&lt;FilterMenu data-style=&quot;soft&quot; class=&quot;my-class&quot; /&gt;</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything FilterMenu takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>fields</code><span class="opt">required</span></td><td><code>FilterMenuField[]</code></td><td></td></tr><tr><td><code>filters</code></td><td><code>FilterMenuFilter[]</code></td><td>The filters in use, in the order they were added; one per field. Leave it out to let the menu keep them</td></tr><tr><td><code>defaultFilters</code></td><td><code>FilterMenuFilter[]</code></td><td></td></tr><tr><td><code>onFiltersChange</code></td><td><code>(filters: FilterMenuFilter[]) =&gt; void</code></td><td></td></tr><tr><td><code>total</code><span class="opt">required</span></td><td><code>number</code></td><td>How many items there are, and how many match the filters</td></tr><tr><td><code>count</code><span class="opt">required</span></td><td><code>number</code></td><td></td></tr><tr><td><code>noun</code></td><td><code>string</code></td><td>The items&#39; name, like &quot;issues&quot;</td></tr><tr><td><code>countFor</code></td><td><code>(field: string, value: string) =&gt; number</code></td><td>The number beside a value in the menu: how many items picking it would leave. Left out, no numbers show</td></tr><tr><td><code>results</code></td><td><code>FilterMenuResult[]</code></td><td>The first few matches, shown under the count</td></tr><tr><td><code>emptyLabel</code></td><td><code>string</code></td><td>Shown when nothing matches. Defaults to &quot;No issues match these filters&quot; with your noun</td></tr><tr><td><code>label</code></td><td><code>string</code></td><td>Defaults to &quot;Filter&quot; and &quot;Clear all&quot;</td></tr><tr><td><code>clearLabel</code></td><td><code>string</code></td><td></td></tr><tr><td><code>open</code></td><td><code>boolean</code></td><td>Whether the menu is open. Leave it out to let the Filter button, Escape and a click outside open and close it</td></tr><tr><td><code>defaultOpen</code></td><td><code>boolean</code></td><td></td></tr><tr><td><code>onOpenChange</code></td><td><code>(open: boolean) =&gt; void</code></td><td></td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>FilterMenu.tsx<span class="l">React · 211 lines</span></summary><pre class="cp-pre" data-name="FilterMenu.tsx"><code>&#39;use client&#39;;
+&lt;FilterMenu data-style=&quot;soft&quot; class=&quot;my-class&quot; /&gt;</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything FilterMenu takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>fields</code><span class="opt">required</span></td><td><code>FilterMenuField[]</code></td><td></td></tr><tr><td><code>filters</code></td><td><code>FilterMenuFilter[]</code></td><td>The filters in use, in the order they were added; one per field. Leave it out to let the menu keep them</td></tr><tr><td><code>defaultFilters</code></td><td><code>FilterMenuFilter[]</code></td><td></td></tr><tr><td><code>onFiltersChange</code></td><td><code>(filters: FilterMenuFilter[]) =&gt; void</code></td><td></td></tr><tr><td><code>total</code><span class="opt">required</span></td><td><code>number</code></td><td>How many items there are, and how many match the filters</td></tr><tr><td><code>count</code><span class="opt">required</span></td><td><code>number</code></td><td></td></tr><tr><td><code>noun</code></td><td><code>string</code></td><td>The items&#39; name, like &quot;issues&quot;</td></tr><tr><td><code>countFor</code></td><td><code>(field: string, value: string) =&gt; number</code></td><td>The number beside a value in the menu: how many items picking it would leave. Left out, no numbers show</td></tr><tr><td><code>results</code></td><td><code>FilterMenuResult[]</code></td><td>The first few matches, shown under the count</td></tr><tr><td><code>emptyLabel</code></td><td><code>string</code></td><td>Shown when nothing matches. Defaults to &quot;No issues match these filters&quot; with your noun</td></tr><tr><td><code>label</code></td><td><code>string</code></td><td>Defaults to &quot;Filter&quot; and &quot;Clear all&quot;</td></tr><tr><td><code>clearLabel</code></td><td><code>string</code></td><td></td></tr><tr><td><code>open</code></td><td><code>boolean</code></td><td>Whether the menu is open. Leave it out to let the Filter button, Escape and a click outside open and close it</td></tr><tr><td><code>defaultOpen</code></td><td><code>boolean</code></td><td></td></tr><tr><td><code>onOpenChange</code></td><td><code>(open: boolean) =&gt; void</code></td><td></td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>FilterMenu.tsx<span class="l">React · 230 lines</span></summary><pre class="cp-pre" data-name="FilterMenu.tsx"><code>&#39;use client&#39;;
 import { useEffect, useRef, useState, type KeyboardEvent, type MouseEvent, type ReactNode } from &#39;react&#39;;
 import { cx } from &#39;../lib/cx&#39;;
-import { useControllable } from &#39;../lib/hooks&#39;;
+import { useControllable, useIsoLayoutEffect, useReducedMotion } from &#39;../lib/hooks&#39;;
 import { Icon, type IconName } from &#39;../lib/icons&#39;;
-import { avatarInk, Swap, Tip } from &#39;../lib/motion&#39;;
+import { avatarInk, freshText, reflowPace, Swap, Tip, useMounted, useReflow } from &#39;../lib/motion&#39;;
 import { usePopover } from &#39;../lib/popover&#39;;
 import &#39;../designme.css&#39;;
 import &#39;./filter-menu.css&#39;;
@@ -432,6 +432,11 @@ export function FilterMenu({
   // chips already on screen keep still when the list changes; only a new one pops in
   const seen = useRef(new Set&lt;string&gt;());
   useEffect(() =&gt; { seen.current = new Set(list.map(f =&gt; f.field)); }, [list]);
+  // a chip taken off fades where it was and the rest glide over to close the gap; the results that still match glide to their
+  // new places, new ones fade in and the ones filtered out fade where they were. The results play their entrance only once
+  useReflow(root, &#39;.dm-flm-ch&#39;, { enter: false });
+  useReflow(root, &#39;.dm-flm-list &gt; [data-key]&#39;);
+  const mounted = useMounted();
 
   const fieldOf = (k: string) =&gt; fields.find(f =&gt; f.key === k);
   const opsOf = (f?: FilterMenuField) =&gt; f?.operators ?? [&#39;is&#39;, &#39;is not&#39;];
@@ -457,7 +462,8 @@ export function FilterMenu({
     menu.closeSoon();
   };
   const remove = (k: string, e: MouseEvent&lt;HTMLButtonElement&gt;) =&gt; {
-    const chip = e.currentTarget.closest(&#39;.dm-flm-ch&#39;), next = (chip?.nextElementSibling ?? chip?.previousElementSibling)?.querySelector&lt;HTMLElement&gt;(&#39;.dm-flm-x&#39;);
+    const chip = e.currentTarget.closest(&#39;.dm-flm-ch&#39;), near = [...(chip?.parentElement?.querySelectorAll(&#39;.dm-flm-ch:not([data-ghost])&#39;) ?? [])], i = chip ? near.indexOf(chip) : -1;
+    const next = (near[i + 1] ?? near[i - 1])?.querySelector&lt;HTMLElement&gt;(&#39;.dm-flm-x&#39;);
     const had = chip?.contains(document.activeElement);
     setList(list.filter(f =&gt; f.field !== k));
     if (had) setTimeout(() =&gt; (next ?? trigger.current)?.focus());
@@ -479,6 +485,19 @@ export function FilterMenu({
     else if (e.key === &#39;Tab&#39;) setTimeout(() =&gt; menu.close());
   };
 
+  // moving between the two steps, the step coming in slides 4px from the side it is on (values from the right, the fields back
+  // from the left) as it fades in
+  const lv1 = useRef&lt;HTMLDivElement&gt;(null), lv2 = useRef&lt;HTMLDivElement&gt;(null), slid = useRef&lt;Animation | null&gt;(null), wasField = useRef(field);
+  const reduce = useReducedMotion();
+  useIsoLayoutEffect(() =&gt; {
+    const from = wasField.current; wasField.current = field;
+    if (!!from === !!field) return;
+    slid.current?.cancel(); slid.current = null;
+    const el = field ? lv2.current : lv1.current; if (!menu.open || reduce || !el?.animate) return;
+    const { ease, ms } = reflowPace(el);
+    slid.current = el.animate([{ opacity: 0, transform: `translateX(${field ? 4 : -4}px)` }, { opacity: 1, transform: &#39;none&#39; }], { duration: ms, easing: ease });
+  }, [field]);
+
   const cur = field ? fieldOf(field) : undefined, on = list.find(f =&gt; f.field === field);
   return (
     &lt;div data-dm=&quot;&quot; ref={root} className={cx(&#39;dm-flm dm-panel&#39;, className)}&gt;
@@ -489,12 +508,12 @@ export function FilterMenu({
             const fd = fieldOf(f.field), o = optOf(f); if (!fd || !o) return null;
             const ops = opsOf(fd), op = ops[+!!f.negate], other = ops[+!f.negate], text = `${fd.label} ${op} ${o.chip ?? o.label}`;
             return (
-              &lt;div key={f.field} className={cx(&#39;dm-flm-ch&#39;, seen.current.has(f.field) &amp;&amp; &#39;dm-seen&#39;)} role=&quot;listitem&quot;&gt;
+              &lt;div key={f.field} data-key={f.field} className={cx(&#39;dm-flm-ch&#39;, seen.current.has(f.field) &amp;&amp; &#39;dm-seen&#39;)} role=&quot;listitem&quot;&gt;
                 &lt;span className=&quot;dm-k&quot;&gt;{fd.label}&lt;/span&gt;
                 &lt;Tip label={`Change to ${other}`}&gt;
-                  &lt;button type=&quot;button&quot; className=&quot;dm-op&quot; aria-label={`${text}: change to ${other}`} onClick={() =&gt; setList(list.map(x =&gt; (x.field === f.field ? { ...x, negate: !x.negate } : x)))}&gt;{op}&lt;/button&gt;
+                  &lt;button type=&quot;button&quot; ref={el =&gt; freshText(el, op)} className=&quot;dm-op&quot; aria-label={`${text}: change to ${other}`} onClick={() =&gt; setList(list.map(x =&gt; (x.field === f.field ? { ...x, negate: !x.negate } : x)))}&gt;{op}&lt;/button&gt;
                 &lt;/Tip&gt;
-                &lt;span className=&quot;dm-v&quot;&gt;{o.chip ?? o.label}&lt;/span&gt;
+                &lt;span className=&quot;dm-v&quot; ref={el =&gt; freshText(el, o.chip ?? o.label)}&gt;{o.chip ?? o.label}&lt;/span&gt;
                 &lt;Tip label=&quot;Remove filter&quot;&gt;
                   &lt;button type=&quot;button&quot; className=&quot;dm-x dm-flm-x&quot; aria-label={`Remove filter ${text}`} onClick={e =&gt; remove(f.field, e)}&gt;&lt;Icon name=&quot;x&quot; size=&quot;xs&quot; /&gt;&lt;/button&gt;
                 &lt;/Tip&gt;
@@ -504,7 +523,7 @@ export function FilterMenu({
         &lt;/div&gt;
       &lt;/div&gt;
       &lt;div {...menu.pop} className={cx(menu.pop.className, &#39;dm-flm-pop&#39;)} onKeyDown={onMenuKey}&gt;
-        &lt;div className=&quot;dm-flm-lv&quot; role=&quot;menu&quot; aria-label={`${label} by`} hidden={!!field}&gt;
+        &lt;div ref={lv1} className=&quot;dm-flm-lv&quot; role=&quot;menu&quot; aria-label={`${label} by`} hidden={!!field}&gt;
           &lt;div className=&quot;dm-ph&quot; role=&quot;none&quot;&gt;{label} by&lt;/div&gt;
           {fields.map(fd =&gt; {
             const f = list.find(x =&gt; x.field === fd.key), o = f &amp;&amp; optOf(f);
@@ -516,7 +535,7 @@ export function FilterMenu({
             );
           })}
         &lt;/div&gt;
-        &lt;div className=&quot;dm-flm-lv&quot; role=&quot;menu&quot; aria-label={cur?.label} hidden={!field}&gt;
+        &lt;div ref={lv2} className=&quot;dm-flm-lv&quot; role=&quot;menu&quot; aria-label={cur?.label} hidden={!field}&gt;
           {cur &amp;&amp; &lt;&gt;
             &lt;button type=&quot;button&quot; className=&quot;dm-mi dm-flm-bk&quot; role=&quot;menuitem&quot; tabIndex={-1} aria-label=&quot;Back to all fields&quot; onClick={() =&gt; step(null)}&gt;&lt;Icon name=&quot;chev-l&quot; size=&quot;xs&quot; /&gt;&lt;span&gt;{cur.label}&lt;/span&gt;&lt;/button&gt;
             &lt;div className=&quot;dm-sep&quot; role=&quot;separator&quot; /&gt;
@@ -533,16 +552,16 @@ export function FilterMenu({
         {list.length &gt; 0 &amp;&amp; &lt;button type=&quot;button&quot; className=&quot;dm-pill dm-ghost dm-sm dm-flm-clr&quot; onClick={e =&gt; { const had = e.currentTarget === document.activeElement; setList([]); if (had) trigger.current?.focus(); }}&gt;{clearLabel}&lt;/button&gt;}
       &lt;/div&gt;
       &lt;div className=&quot;dm-flm-list&quot;&gt;
-        {count === 0 ? &lt;div className=&quot;dm-flm-e&quot;&gt;{emptyLabel ?? `No ${noun} match these filters`}&lt;/div&gt; : &lt;&gt;
+        {count === 0 ? &lt;div className=&quot;dm-flm-e&quot; data-key=&quot;none&quot;&gt;{emptyLabel ?? `No ${noun} match these filters`}&lt;/div&gt; : &lt;&gt;
           {results.map((t, i) =&gt; (
-            &lt;div key={t.id} className=&quot;dm-flm-r dm-enter&quot; style={{ animationDelay: i * 50 + &#39;ms&#39; }}&gt;
+            &lt;div key={t.id} data-key={t.id} className={cx(&#39;dm-flm-r&#39;, !mounted &amp;&amp; &#39;dm-enter&#39;)} style={mounted ? undefined : { animationDelay: i * 50 + &#39;ms&#39; }}&gt;
               {t.dot ? &lt;span className=&quot;dm-dot&quot; style={{ color: t.dot.color }} role=&quot;img&quot; aria-label={t.dot.label} /&gt; : &lt;span /&gt;}
               &lt;span className=&quot;dm-t&quot;&gt;{t.title}&lt;/span&gt;
               {t.avatar ? &lt;span className=&quot;dm-av&quot; style={{ background: t.avatar.color, color: avatarInk(t.avatar.color) }} role=&quot;img&quot; aria-label={t.avatar.label}&gt;{t.avatar.initials}&lt;/span&gt; : &lt;span /&gt;}
               &lt;span className=&quot;dm-a&quot;&gt;{t.meta}&lt;/span&gt;
             &lt;/div&gt;
           ))}
-          {count &gt; results.length &amp;&amp; &lt;div className=&quot;dm-flm-more&quot;&gt;and {count - results.length} more&lt;/div&gt;}
+          {count &gt; results.length &amp;&amp; &lt;div className=&quot;dm-flm-more&quot; data-key=&quot;more&quot;&gt;and {count - results.length} more&lt;/div&gt;}
         &lt;/&gt;}
       &lt;/div&gt;
     &lt;/div&gt;
@@ -685,7 +704,7 @@ const { class: className, ...rest } = Astro.props;
 @media (prefers-color-scheme:dark){:root:not([data-theme=&quot;light&quot;]) .flm{--dm-flm-open:#5b9dff;--dm-flm-prog:#f59e0b;--dm-flm-done:#5fcb2a}}
 :root[data-theme=&quot;dark&quot;] .flm{--dm-flm-open:#5b9dff;--dm-flm-prog:#f59e0b;--dm-flm-done:#5fcb2a}
 .flm .av[data-o=&quot;MK&quot;]{background:var(--dm-av-l);color:var(--dm-av-l-ink)}.flm .av[data-o=&quot;LP&quot;]{background:var(--dm-av-b);color:var(--dm-av-b-ink)}.flm .av[data-o=&quot;AR&quot;]{background:var(--dm-av-m);color:var(--dm-av-m-ink)}.flm .av[data-o=&quot;SC&quot;]{background:var(--dm-av-p);color:var(--dm-av-p-ink)}
-</code></pre></details><details class="cp-file"><summary>filter-menu.js<span class="l">HTML · 125 lines</span></summary><pre class="cp-pre" data-name="filter-menu.js"><code>DM.def(&#39;filter-menu&#39;, (r, c) =&gt; {
+</code></pre></details><details class="cp-file"><summary>filter-menu.js<span class="l">HTML · 137 lines</span></summary><pre class="cp-pre" data-name="filter-menu.js"><code>DM.def(&#39;filter-menu&#39;, (r, c) =&gt; {
   r.innerHTML = r.innerHTML.replace(&#39;{filter}&#39;, I(&#39;filter&#39;));
   const OWN = { MK:&#39;Maya Kim&#39;, LP:&#39;Leo Park&#39;, AR:&#39;Ana Ruiz&#39;, SC:&#39;Sam Cole&#39; };
   const ST = { open:&#39;Open&#39;, prog:&#39;In progress&#39;, done:&#39;Done&#39; };
@@ -715,33 +734,40 @@ const { class: className, ...rest } = Astro.props;
   l1.insertAdjacentHTML(&#39;beforeend&#39;, Object.entries(F).map(([k, f]) =&gt; `&lt;button class=&quot;mi&quot; role=&quot;menuitem&quot; aria-haspopup=&quot;menu&quot; tabindex=&quot;-1&quot; data-k=&quot;${k}&quot;&gt;${I(f.ic)}&lt;span&gt;${f.l}&lt;/span&gt;&lt;span class=&quot;r&quot;&gt;&lt;/span&gt;${I(&#39;chev-r&#39;,&#39;xs&#39;)}&lt;/button&gt;`).join(&#39;&#39;));
   const fields = $$(&#39;.mi&#39;, l1);
   function paint(){
-    // chips: one per field, a new one pops in and the ones already there keep still
+    // chips: one per field. A new one pops in, one taken off fades where it was and the rest glide over to close the gap,
+    // and a chip that stays crossfades to its new operator or value
     const have = new Set(A.map(f =&gt; f.k));
-    $$(&#39;.flm-ch&#39;, chips).forEach(ch =&gt; { if (!have.has(ch.dataset.k)) ch.remove(); });
-    A.forEach(f =&gt; {
-      let ch = $(`.flm-ch[data-k=&quot;${f.k}&quot;]`, chips);
-      if (!ch){ ch = html(`&lt;div class=&quot;flm-ch&quot; role=&quot;listitem&quot; data-k=&quot;${f.k}&quot;&gt;&lt;span class=&quot;k&quot;&gt;${F[f.k].l}&lt;/span&gt;&lt;button class=&quot;op&quot;&gt;&lt;/button&gt;&lt;span class=&quot;v&quot;&gt;&lt;/span&gt;&lt;button class=&quot;x&quot; data-tip=&quot;Remove filter&quot;&gt;${I(&#39;x&#39;,&#39;xs&#39;)}&lt;/button&gt;&lt;/div&gt;`); chips.appendChild(ch); wire(ch); }
-      else ch.classList.add(&#39;seen&#39;);
-      const o = val(f.k, f.v), op = F[f.k].ops[+f.neg], text = `${F[f.k].l} ${op} ${o.c || o.l}`;
-      $(&#39;.op&#39;, ch).textContent = op; $(&#39;.v&#39;, ch).textContent = o.c || o.l;
-      $(&#39;.op&#39;, ch).setAttribute(&#39;aria-label&#39;, `${text}: change to ${F[f.k].ops[+!f.neg]}`); $(&#39;.op&#39;, ch).dataset.tip = `Change to ${F[f.k].ops[+!f.neg]}`;
-      $(&#39;.x&#39;, ch).setAttribute(&#39;aria-label&#39;, `Remove filter ${text}`);
-    });
+    reflow(() =&gt; $$(&#39;.flm-ch&#39;, chips), () =&gt; {
+      $$(&#39;.flm-ch:not([data-ghost])&#39;, chips).forEach(ch =&gt; { if (!have.has(ch.dataset.k)) ch.remove(); });
+      A.forEach(f =&gt; {
+        let ch = $(`.flm-ch[data-k=&quot;${f.k}&quot;]`, chips); const fresh = !ch;
+        if (!ch){ ch = html(`&lt;div class=&quot;flm-ch&quot; role=&quot;listitem&quot; data-k=&quot;${f.k}&quot;&gt;&lt;span class=&quot;k&quot;&gt;${F[f.k].l}&lt;/span&gt;&lt;button class=&quot;op&quot;&gt;&lt;/button&gt;&lt;span class=&quot;v&quot;&gt;&lt;/span&gt;&lt;button class=&quot;x&quot; data-tip=&quot;Remove filter&quot;&gt;${I(&#39;x&#39;,&#39;xs&#39;)}&lt;/button&gt;&lt;/div&gt;`); chips.appendChild(ch); wire(ch); }
+        else ch.classList.add(&#39;seen&#39;);
+        const o = val(f.k, f.v), op = F[f.k].ops[+f.neg], text = `${F[f.k].l} ${op} ${o.c || o.l}`;
+        [[$(&#39;.op&#39;, ch), op], [$(&#39;.v&#39;, ch), o.c || o.l]].forEach(([el, t]) =&gt; { if (el.textContent === t) return; el.textContent = t;
+          if (!fresh &amp;&amp; !REDUCE){ if (el._in) el._in.cancel(); el._in = el.animate([{ opacity:0, transform:&#39;translateY(2px)&#39; }, { opacity:1, transform:&#39;none&#39; }], { duration:200, easing:getComputedStyle(r).getPropertyValue(&#39;--dm-ease&#39;).trim() || &#39;ease&#39; }); } });
+        $(&#39;.op&#39;, ch).setAttribute(&#39;aria-label&#39;, `${text}: change to ${F[f.k].ops[+!f.neg]}`); $(&#39;.op&#39;, ch).dataset.tip = `Change to ${F[f.k].ops[+!f.neg]}`;
+        $(&#39;.x&#39;, ch).setAttribute(&#39;aria-label&#39;, `Remove filter ${text}`);
+      });
+    }, { by:&#39;data-k&#39;, root:$(&#39;.flm&#39;, r), enter:false });
     // the menu shows each field&#39;s value, if it has one
     fields.forEach(m =&gt; { const f = A.find(x =&gt; x.k === m.dataset.k), o = f &amp;&amp; val(f.k, f.v); $(&#39;.r&#39;, m).textContent = o ? (f.neg ? F[f.k].ops[1] + &#39; &#39; : &#39;&#39;) + (o.c || o.l) : &#39;&#39;; });
     const hit = T.filter(t =&gt; match(t)), n = hit.length;
     swap(ct, A.length ? `${n} of ${T.length} issues` : `${T.length} issues`); clr.hidden = !A.length;
-    // the four most recently updated, and how many more
-    const old = new Set($$(&#39;.flm-r&#39;, list).map(x =&gt; x.dataset.t));
-    list.innerHTML = n ? hit.slice(0, 4).map(t =&gt; `&lt;div class=&quot;flm-r&quot; data-t=&quot;${t.t}&quot;&gt;&lt;span class=&quot;dot&quot; data-s=&quot;${t.s}&quot; aria-label=&quot;${ST[t.s]}&quot; role=&quot;img&quot;&gt;&lt;/span&gt;&lt;span class=&quot;t&quot;&gt;${t.t}&lt;/span&gt;&lt;span class=&quot;av&quot; data-o=&quot;${t.o}&quot; aria-label=&quot;${OWN[t.o]}&quot; role=&quot;img&quot;&gt;${t.o}&lt;/span&gt;&lt;span class=&quot;a&quot;&gt;${age(t.a)}&lt;/span&gt;&lt;/div&gt;`).join(&#39;&#39;) + (n &gt; 4 ? `&lt;div class=&quot;flm-more&quot;&gt;and ${n - 4} more&lt;/div&gt;` : &#39;&#39;)
-      : &#39;&lt;div class=&quot;flm-e&quot;&gt;No issues match these filters&lt;/div&gt;&#39;;
-    $$(&#39;.flm-r&#39;, list).forEach((x, i) =&gt; { if (!old.has(x.dataset.t)) enter(x, i * 50); });
+    // the four most recently updated, and how many more. Issues that still match glide to their new places, new ones fade
+    // in and the ones filtered out fade where they were (the first paint is the card&#39;s entrance)
+    const draw = () =&gt; { list.innerHTML = n ? hit.slice(0, 4).map(t =&gt; `&lt;div class=&quot;flm-r&quot; data-t=&quot;${t.t}&quot;&gt;&lt;span class=&quot;dot&quot; data-s=&quot;${t.s}&quot; aria-label=&quot;${ST[t.s]}&quot; role=&quot;img&quot;&gt;&lt;/span&gt;&lt;span class=&quot;t&quot;&gt;${t.t}&lt;/span&gt;&lt;span class=&quot;av&quot; data-o=&quot;${t.o}&quot; aria-label=&quot;${OWN[t.o]}&quot; role=&quot;img&quot;&gt;${t.o}&lt;/span&gt;&lt;span class=&quot;a&quot;&gt;${age(t.a)}&lt;/span&gt;&lt;/div&gt;`).join(&#39;&#39;) + (n &gt; 4 ? `&lt;div class=&quot;flm-more&quot; data-t=&quot;more&quot;&gt;and ${n - 4} more&lt;/div&gt;` : &#39;&#39;)
+      : &#39;&lt;div class=&quot;flm-e&quot; data-t=&quot;none&quot;&gt;No issues match these filters&lt;/div&gt;&#39;; };
+    if (painted) reflow(() =&gt; [...list.children], draw, { by:&#39;data-t&#39;, root:$(&#39;.flm&#39;, r) });
+    else { draw(); stagger($$(&#39;.flm-r&#39;, list), 50); }
+    painted = true;
   }
+  let painted = false;
   function wire(ch){
     const k = ch.dataset.k;
     $(&#39;.op&#39;, ch).onclick = () =&gt; { const f = A.find(x =&gt; x.k === k); f.neg = !f.neg; paint(); };
     $(&#39;.x&#39;, ch).onclick = () =&gt; {
-      const had = ch.contains(document.activeElement), next = ch.nextElementSibling || ch.previousElementSibling;
+      const near = $$(&#39;.flm-ch:not([data-ghost])&#39;, chips), i = near.indexOf(ch), had = ch.contains(document.activeElement), next = near[i + 1] || near[i - 1];
       A = A.filter(x =&gt; x.k !== k); hideTip(); paint();
       if (had) ((next &amp;&amp; $(&#39;.x&#39;, next)) || tr).focus({ preventScroll:true });
     };
@@ -760,9 +786,14 @@ const { class: className, ...rest } = Astro.props;
     if (on &amp;&amp; focus){ const all = items(); focusItem(focus === &#39;last&#39; ? all[all.length - 1] : all[0]); }
     if (!on &amp;&amp; pop.contains(document.activeElement)) tr.focus({ preventScroll:true });
   }
+  // moving between the two steps, the step coming in slides 4px from the side it is on (values from the right, the fields
+  // back from the left) as it fades in
+  let slid = null;
   function step(k){
     const had = pop.contains(document.activeElement), from = field;
     field = k; l1.hidden = !!k; l2.hidden = !k;
+    if (slid){ slid.cancel(); slid = null; }
+    if (isOpen() &amp;&amp; !REDUCE &amp;&amp; !!k !== !!from) slid = (k ? l2 : l1).animate([{ opacity:0, transform:`translateX(${k ? 4 : -4}px)` }, { opacity:1, transform:&#39;none&#39; }], { duration:(parseFloat(getComputedStyle(r).getPropertyValue(&#39;--dm-t-fast&#39;)) || .22) * 1000, easing:getComputedStyle(r).getPropertyValue(&#39;--dm-ease&#39;).trim() || &#39;ease&#39; });
     if (k){
       const f = F[k], on = A.find(x =&gt; x.k === k);
       l2.setAttribute(&#39;aria-label&#39;, f.l);
@@ -1158,33 +1189,40 @@ const fitHits = window.dmFitHits || (() => {
   l1.insertAdjacentHTML('beforeend', Object.entries(F).map(([k, f]) => `<button class="mi" role="menuitem" aria-haspopup="menu" tabindex="-1" data-k="${k}">${I(f.ic)}<span>${f.l}</span><span class="r"></span>${I('chev-r','xs')}</button>`).join(''));
   const fields = $$('.mi', l1);
   function paint(){
-    // chips: one per field, a new one pops in and the ones already there keep still
+    // chips: one per field. A new one pops in, one taken off fades where it was and the rest glide over to close the gap,
+    // and a chip that stays crossfades to its new operator or value
     const have = new Set(A.map(f => f.k));
-    $$('.flm-ch', chips).forEach(ch => { if (!have.has(ch.dataset.k)) ch.remove(); });
-    A.forEach(f => {
-      let ch = $(`.flm-ch[data-k="${f.k}"]`, chips);
-      if (!ch){ ch = html(`<div class="flm-ch" role="listitem" data-k="${f.k}"><span class="k">${F[f.k].l}</span><button class="op"></button><span class="v"></span><button class="x" data-tip="Remove filter">${I('x','xs')}</button></div>`); chips.appendChild(ch); wire(ch); }
-      else ch.classList.add('seen');
-      const o = val(f.k, f.v), op = F[f.k].ops[+f.neg], text = `${F[f.k].l} ${op} ${o.c || o.l}`;
-      $('.op', ch).textContent = op; $('.v', ch).textContent = o.c || o.l;
-      $('.op', ch).setAttribute('aria-label', `${text}: change to ${F[f.k].ops[+!f.neg]}`); $('.op', ch).dataset.tip = `Change to ${F[f.k].ops[+!f.neg]}`;
-      $('.x', ch).setAttribute('aria-label', `Remove filter ${text}`);
-    });
+    reflow(() => $$('.flm-ch', chips), () => {
+      $$('.flm-ch:not([data-ghost])', chips).forEach(ch => { if (!have.has(ch.dataset.k)) ch.remove(); });
+      A.forEach(f => {
+        let ch = $(`.flm-ch[data-k="${f.k}"]`, chips); const fresh = !ch;
+        if (!ch){ ch = html(`<div class="flm-ch" role="listitem" data-k="${f.k}"><span class="k">${F[f.k].l}</span><button class="op"></button><span class="v"></span><button class="x" data-tip="Remove filter">${I('x','xs')}</button></div>`); chips.appendChild(ch); wire(ch); }
+        else ch.classList.add('seen');
+        const o = val(f.k, f.v), op = F[f.k].ops[+f.neg], text = `${F[f.k].l} ${op} ${o.c || o.l}`;
+        [[$('.op', ch), op], [$('.v', ch), o.c || o.l]].forEach(([el, t]) => { if (el.textContent === t) return; el.textContent = t;
+          if (!fresh && !REDUCE){ if (el._in) el._in.cancel(); el._in = el.animate([{ opacity:0, transform:'translateY(2px)' }, { opacity:1, transform:'none' }], { duration:200, easing:getComputedStyle(r).getPropertyValue('--dm-ease').trim() || 'ease' }); } });
+        $('.op', ch).setAttribute('aria-label', `${text}: change to ${F[f.k].ops[+!f.neg]}`); $('.op', ch).dataset.tip = `Change to ${F[f.k].ops[+!f.neg]}`;
+        $('.x', ch).setAttribute('aria-label', `Remove filter ${text}`);
+      });
+    }, { by:'data-k', root:$('.flm', r), enter:false });
     // the menu shows each field's value, if it has one
     fields.forEach(m => { const f = A.find(x => x.k === m.dataset.k), o = f && val(f.k, f.v); $('.r', m).textContent = o ? (f.neg ? F[f.k].ops[1] + ' ' : '') + (o.c || o.l) : ''; });
     const hit = T.filter(t => match(t)), n = hit.length;
     swap(ct, A.length ? `${n} of ${T.length} issues` : `${T.length} issues`); clr.hidden = !A.length;
-    // the four most recently updated, and how many more
-    const old = new Set($$('.flm-r', list).map(x => x.dataset.t));
-    list.innerHTML = n ? hit.slice(0, 4).map(t => `<div class="flm-r" data-t="${t.t}"><span class="dot" data-s="${t.s}" aria-label="${ST[t.s]}" role="img"></span><span class="t">${t.t}</span><span class="av" data-o="${t.o}" aria-label="${OWN[t.o]}" role="img">${t.o}</span><span class="a">${age(t.a)}</span></div>`).join('') + (n > 4 ? `<div class="flm-more">and ${n - 4} more</div>` : '')
-      : '<div class="flm-e">No issues match these filters</div>';
-    $$('.flm-r', list).forEach((x, i) => { if (!old.has(x.dataset.t)) enter(x, i * 50); });
+    // the four most recently updated, and how many more. Issues that still match glide to their new places, new ones fade
+    // in and the ones filtered out fade where they were (the first paint is the card's entrance)
+    const draw = () => { list.innerHTML = n ? hit.slice(0, 4).map(t => `<div class="flm-r" data-t="${t.t}"><span class="dot" data-s="${t.s}" aria-label="${ST[t.s]}" role="img"></span><span class="t">${t.t}</span><span class="av" data-o="${t.o}" aria-label="${OWN[t.o]}" role="img">${t.o}</span><span class="a">${age(t.a)}</span></div>`).join('') + (n > 4 ? `<div class="flm-more" data-t="more">and ${n - 4} more</div>` : '')
+      : '<div class="flm-e" data-t="none">No issues match these filters</div>'; };
+    if (painted) reflow(() => [...list.children], draw, { by:'data-t', root:$('.flm', r) });
+    else { draw(); stagger($$('.flm-r', list), 50); }
+    painted = true;
   }
+  let painted = false;
   function wire(ch){
     const k = ch.dataset.k;
     $('.op', ch).onclick = () => { const f = A.find(x => x.k === k); f.neg = !f.neg; paint(); };
     $('.x', ch).onclick = () => {
-      const had = ch.contains(document.activeElement), next = ch.nextElementSibling || ch.previousElementSibling;
+      const near = $$('.flm-ch:not([data-ghost])', chips), i = near.indexOf(ch), had = ch.contains(document.activeElement), next = near[i + 1] || near[i - 1];
       A = A.filter(x => x.k !== k); hideTip(); paint();
       if (had) ((next && $('.x', next)) || tr).focus({ preventScroll:true });
     };
@@ -1203,9 +1241,14 @@ const fitHits = window.dmFitHits || (() => {
     if (on && focus){ const all = items(); focusItem(focus === 'last' ? all[all.length - 1] : all[0]); }
     if (!on && pop.contains(document.activeElement)) tr.focus({ preventScroll:true });
   }
+  // moving between the two steps, the step coming in slides 4px from the side it is on (values from the right, the fields
+  // back from the left) as it fades in
+  let slid = null;
   function step(k){
     const had = pop.contains(document.activeElement), from = field;
     field = k; l1.hidden = !!k; l2.hidden = !k;
+    if (slid){ slid.cancel(); slid = null; }
+    if (isOpen() && !REDUCE && !!k !== !!from) slid = (k ? l2 : l1).animate([{ opacity:0, transform:`translateX(${k ? 4 : -4}px)` }, { opacity:1, transform:'none' }], { duration:(parseFloat(getComputedStyle(r).getPropertyValue('--dm-t-fast')) || .22) * 1000, easing:getComputedStyle(r).getPropertyValue('--dm-ease').trim() || 'ease' });
     if (k){
       const f = F[k], on = A.find(x => x.k === k);
       l2.setAttribute('aria-label', f.l);

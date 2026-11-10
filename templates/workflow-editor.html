@@ -1669,6 +1669,10 @@ body:has(.wf) .dmf{display:none}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .wf[data-c]{--dm-line:#474747}}
 /* the side panel's edge: a full-strength line, no shadow (owner, 9 Nov) */
 .wf.pn .wf-panel{border-left-color:var(--dm-line)}
+
+/* ---------- lists a filter or a search changes ---------- */
+/* the copies the core's reflow() leaves where rows went sit inside their own list, so they scroll and clip with it */
+.wf :is(.acx-ls,.fpk-ls,.rdr-log,.wfx-apps-l,.wf-runs){position:relative}
 </style><style>@font-face{font-family:Inter;font-style:normal;font-weight:400;font-display:swap;src:url(/fonts/inter-latin-400-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:Inter;font-style:normal;font-weight:500;font-display:swap;src:url(/fonts/inter-latin-500-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:Inter;font-style:normal;font-weight:600;font-display:swap;src:url(/fonts/inter-latin-600-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
@@ -1964,6 +1968,14 @@ const fitHits = window.dmFitHits || (() => {
     el.style.overflow = 'hidden'; el.style.pointerEvents = 'none'; el.inert = true;
     const go = () => el.remove();
     el.animate([a, b], { duration:dur, delay, easing:EASE(), fill:'forwards' }).finished.then(go, go);
+  }
+  // a list a search narrows (the step picker, the data picker, the app catalogue): while its popover is open and the query
+  // changes, the rows that still match glide to their places, new ones fade in and the ones that no longer match fade where
+  // they were (the core's reflow()); opening it just draws it. key(el) names each row
+  function listTo(ls, h, sel, key, q, pop){
+    const put = () => { ls.innerHTML = h; $$(sel, ls).forEach(x => { x.dataset.key = key(x); }); };
+    const go = ls._q !== undefined && ls._q !== q && pop.classList.contains('open'); ls._q = q;
+    go ? reflow(() => $$(sel, ls), put, { root:pop, host:ls }) : put();
   }
   // the focus ring is the keyboard's alone: once a mouse or a finger was used, no control shows one, not even one a script hands
   // the focus back to (a menu closing onto its button); the next key brings it back
@@ -2478,10 +2490,10 @@ const fitHits = window.dmFitHits || (() => {
     CAT.forEach(g => { const its = g.items.filter(it => hit(it.t + ' ' + it.d)); if (!its.length) return;
       h += `<div role="group" aria-label="${g.g}"><div class="acx-gh" aria-hidden="true">${g.g}</div>` + its.map(it => { pItems.push(it); const i = k++; return `<div class="acx-o" role="option" id="wf-pk-${i}" aria-selected="false" data-i="${i}"><span class="ic wfx-ic${it.type === 'ai' ? ' ai' : ''}">${I(it.ic, 'xs')}</span><span>${esc(it.t)}</span></div>`; }).join('') + '</div>'; });
     if (v){ pItems.push({ ask:true, q:pq.value.trim() }); h += `<div role="group" aria-label="Agent"><div class="acx-gh" aria-hidden="true">Agent</div><div class="acx-o wfx-pick-ask" role="option" id="wf-pk-${k}" aria-selected="false" data-i="${k}"><span class="ic wfx-ic ai">${I('spark', 'xs')}</span><span>Build “${esc(pq.value.trim())}”</span></div></div>`; }
-    pls.innerHTML = h; pHi = 0; hiPick(0);
+    listTo(pls, h, '.acx-gh, .acx-o', x => x.matches('.wfx-pick-ask') ? 'ask' : (x.matches('.acx-gh') ? 'g:' : 'o:') + x.textContent, pq.value, pk); pHi = 0; hiPick(0);
   }
   function hiPick(i){
-    const os = $$('.acx-o', pls); if (!os.length) return; pHi = (i + os.length) % os.length;
+    const os = $$('.acx-o:not([data-ghost])', pls); if (!os.length) return; pHi = (i + os.length) % os.length;
     os.forEach((o, j) => { o.classList.toggle('on', j === pHi); o.setAttribute('aria-selected', String(j === pHi)); });
     pq.setAttribute('aria-activedescendant', os[pHi].id); os[pHi].scrollIntoView({ block:'nearest' });
     const it = pItems[pHi]; pd.textContent = it.ask ? 'The agent sets up a step from what you wrote' : it.d;
@@ -2538,11 +2550,11 @@ const fitHits = window.dmFitHits || (() => {
     ups.forEach((u, ui) => { const fs = u.out.filter(o => !v || (u.t + ' ' + o[0]).toLowerCase().includes(v)); if (!fs.length) return;
       h += `<div role="group" aria-labelledby="wf-vg-${ui}"><div class="fpk-g" id="wf-vg-${ui}"><span class="fpk-ti" data-k="${u.type}" aria-hidden="true">${I(u.ic, 'xs')}</span><b>${esc(u.t)}</b><span class="n">${TYPES[u.type].k}</span></div>` + fs.map(o => { const ref = u.ref + '.' + o[0], i = k++; vItems.push(ref);
         return `<div class="fpk-o" role="option" id="wf-vo-${i}" aria-selected="false" data-i="${i}" aria-label="${esc(o[0])}, ${o[1]}, from ${esc(u.t)}"><span class="k">${esc(o[0])}</span><span class="tag ${TYPE_TONE[o[1]] || 'b'}">${o[1]}</span><span class="ex">${esc(o[2])}</span></div>`; }).join('') + '</div>'; });
-    vls.innerHTML = h || `<p class="fpk-e">${ups.length ? 'No field matches' : `${esc(n.t)} is the first step, so there is no data before it`}</p>`;
+    listTo(vls, h || `<p class="fpk-e">${ups.length ? 'No field matches' : `${esc(n.t)} is the first step, so there is no data before it`}</p>`, '.fpk-g, .fpk-o, .fpk-e', x => x.getAttribute('aria-label') || x.textContent, vq.value, vp2);
     vn.textContent = ups.length ? `From the ${ups.length} ${ups.length === 1 ? 'step' : 'steps'} before ${n.t}` : 'Nothing runs before this step';
     vHi = Math.max(0, vItems.indexOf(vTarget.cur)); hiVar(vHi);
   }
-  function hiVar(i){ const os = $$('.fpk-o', vls); if (!os.length){ vq.removeAttribute('aria-activedescendant'); return; } vHi = (i + os.length) % os.length; os.forEach((o, j) => { o.classList.toggle('on', j === vHi); o.setAttribute('aria-selected', String(j === vHi)); }); vq.setAttribute('aria-activedescendant', os[vHi].id); os[vHi].scrollIntoView({ block:'nearest' }); }
+  function hiVar(i){ const os = $$('.fpk-o:not([data-ghost])', vls); if (!os.length){ vq.removeAttribute('aria-activedescendant'); return; } vHi = (i + os.length) % os.length; os.forEach((o, j) => { o.classList.toggle('on', j === vHi); o.setAttribute('aria-selected', String(j === vHi)); }); vq.setAttribute('aria-activedescendant', os[vHi].id); os[vHi].scrollIntoView({ block:'nearest' }); }
   function pickVar(i){ const ref = vItems[i]; if (!ref) return; closePops(); vTarget.set(ref); }
   vq.addEventListener('input', paintVar);
   vq.addEventListener('keydown', e => { if (e.key === 'ArrowDown' || e.key === 'ArrowUp'){ e.preventDefault(); hiVar(vHi + (e.key === 'ArrowDown' ? 1 : -1)); } else if (e.key === 'Enter'){ e.preventDefault(); pickVar(vHi); } });
@@ -2844,7 +2856,8 @@ const fitHits = window.dmFitHits || (() => {
   const drSeg = seg($('.rdr-tabs', dr), v => setDrTab(v));
   function setDrTab(v){ drTab = v; $$('.rdr-tabs button', dr).forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === v))); drSeg.place(); $$('.rdr-v', dr).forEach(x => x.hidden = x.dataset.v !== v); if (v === 'data') paintData(); }
   // the log's levels: all of them, the warnings or the errors
-  seg($('.rdr-lvs', dr), v => { lvl = v; filterLog(); });
+  // lines a level hides fade where they were and the rest close up; lines it brings back fade in
+  seg($('.rdr-lvs', dr), v => { lvl = v; reflow(() => $$('.rdr-l', logEl), filterLog, { root:logEl.parentElement }); });
   function filterLog(){ let n = 0; $$('.rdr-l', logEl).forEach(li => { li.hidden = lvl !== 'all' && li.dataset.l !== lvl; if (!li.hidden) n++; }); logN0.textContent = `${n} ${n === 1 ? 'line' : 'lines'}`;
     const e = $('.rdr-le', logEl.parentElement); if (!n && !e) logEl.insertAdjacentHTML('afterend', `<p class="rdr-le">${R ? `No ${lvl === 'warn' ? 'warnings' : lvl === 'error' ? 'errors' : 'lines'} in this run yet.` : 'Run a test to see its log.'}</p>`); if (n && e) e.remove(); }
   followB.onclick = () => { follow = !follow; followB.setAttribute('aria-pressed', String(follow)); followB.dataset.tip = follow ? 'Follow the run' : 'Stay put'; };
@@ -2973,7 +2986,7 @@ const fitHits = window.dmFitHits || (() => {
     const LV = { bad:'error', warn:'warn', ok:'info' };
     const L = C.logs.filter(l => l.at <= t + 1e-6).sort((a, b) => a.at - b.at);
     for (; logN < L.length; logN++){ const l = L[logN], lv = LV[l.tone] || 'debug';
-      const li = html(`<li class="rdr-l" data-l="${lv}"><span class="t num">${l.at.toFixed(2)}s</span><span class="lv tag" data-l="${lv}">${lv}</span><span class="m"><b>${esc(l.b)}</b> <span>${esc(l.d)}</span></span></li>`);
+      const li = html(`<li class="rdr-l" data-l="${lv}" data-key="${logN}"><span class="t num">${l.at.toFixed(2)}s</span><span class="lv tag" data-l="${lv}">${lv}</span><span class="m"><b>${esc(l.b)}</b> <span>${esc(l.d)}</span></span></li>`);
       logEl.appendChild(li); if (R.live && !REDUCE) li.classList.add('in'); }
     filterLog();
     if (R.live && drTab === 'log' && follow) drB.scrollTop = drB.scrollHeight;
@@ -3100,13 +3113,24 @@ const fitHits = window.dmFitHits || (() => {
   // Runs: Action log's rows, newest first, with a filter
   let runF = 'all';
   const ctxOf = r => { if (!r.C){ const C = newCtx(r.lead, r.o || {}); if (r.o && r.o.approve === 'wait') C.o.approve = 'wait'; advance(C, 0); if (C.end && C.end.failed) C.end.ok = false; r.C = C; } return r.C; };
+  // the filter stays put (its knob slides) and only the list under it changes: runs that still match glide to their places,
+  // ones that come in fade in, and ones filtered out fade where they were
   function renderRuns(){
     const box = $('#wf-v-runs', app), L = W.runs.filter(r => runF === 'all' || (runF === 'bad' ? r.out === 'bad' : r.test));
     const g = r => r.out === 'bad' ? `<span class="g bad">${I('x', 'xs')}</span>` : r.out === 'wait' ? `<span class="g wait">${I('clock', 'xs')}</span>` : `<span class="g ok">${I('check', 'xs')}</span>`;
-    box.innerHTML = `<div class="wf-pbar"><div class="seg2 wf-runf" role="group" aria-label="Show runs"><button aria-pressed="${runF === 'all'}" data-v="all">All</button><button aria-pressed="${runF === 'bad'}" data-v="bad">Failed</button><button aria-pressed="${runF === 'test'}" data-v="test">Tests</button></div><span class="muted num">${F.today} today</span></div>`
-      + (L.length ? `<ol class="alg-list wf-runs" aria-label="Runs">${L.map(r => `<li class="alg-it"><button class="alg-row wfx-run" data-run="${r.id}" aria-current="${R && R.id === r.id}"><span class="alg-ic">${g(r)}</span><span class="alg-tx"><b>#${r.id}${r.lead ? ' ' + esc(r.lead.n) : ''}</b><span class="d">${r.test ? 'Test, ' : ''}${esc(r.path)}</span></span><span class="alg-r"><span class="num">${secs(ctxOf(r).segEnd)}<span class="w">${esc(r.when)}</span></span></span></button></li>`).join('')}</ol>`
-        : `<p class="wfx-empty">${W.runs.length ? 'No runs match.' : 'No runs yet. Press Test run to try the workflow.'}</p>`);
-    seg($('.wf-runf', box), v => { runF = v; renderRuns(); });
+    const items = L.map(r => `<li class="alg-it" data-key="${r.id}"><button class="alg-row wfx-run" data-run="${r.id}" aria-current="${R && R.id === r.id}"><span class="alg-ic">${g(r)}</span><span class="alg-tx"><b>#${r.id}${r.lead ? ' ' + esc(r.lead.n) : ''}</b><span class="d">${r.test ? 'Test, ' : ''}${esc(r.path)}</span></span><span class="alg-r"><span class="num">${secs(ctxOf(r).segEnd)}<span class="w">${esc(r.when)}</span></span></span></button></li>`).join('');
+    const none = W.runs.length ? 'No runs match.' : 'No runs yet. Press Test run to try the workflow.';
+    let bar = $('.wf-pbar', box);
+    if (!bar){
+      box.innerHTML = `<div class="wf-pbar"><div class="seg2 wf-runf" role="group" aria-label="Show runs"><button aria-pressed="${runF === 'all'}" data-v="all">All</button><button aria-pressed="${runF === 'bad'}" data-v="bad">Failed</button><button aria-pressed="${runF === 'test'}" data-v="test">Tests</button></div><span class="muted num wf-rtd"></span></div>`;
+      bar = $('.wf-pbar', box); seg($('.wf-runf', box), v => { runF = v; renderRuns(); });
+    }
+    $('.wf-rtd', bar).textContent = `${F.today} today`;
+    reflow(() => $$('.wf-runs > .alg-it, .wfx-empty', box), () => {
+      let ol = $('.wf-runs', box), em = $('.wfx-empty', box);
+      if (L.length){ if (em) em.remove(); if (!ol){ bar.insertAdjacentHTML('afterend', '<ol class="alg-list wf-runs" aria-label="Runs"></ol>'); ol = $('.wf-runs', box); } ol.innerHTML = items; }
+      else { if (ol) ol.remove(); if (!em){ bar.insertAdjacentHTML('afterend', '<p class="wfx-empty" data-key="empty"></p>'); em = $('.wfx-empty', box); } em.textContent = none; }
+    }, { root:box });
   }
   $('#wf-v-runs', app).addEventListener('click', e => { const b = e.target.closest('.wfx-run'); if (!b) return; const r = W.runs.find(x => x.id === +b.dataset.run); if (r) showRun(r); });
   // wfx-versions: the draft on top with what changed, then every published version with its note
@@ -3249,6 +3273,11 @@ const fitHits = window.dmFitHits || (() => {
     F = f; W = load(f); R = null; selId = null; resetRunView(); drNote.innerHTML = ''; stopB.hidden = true; $('.wf-test', app).classList.remove('on');
     if (app.classList.contains('pn')) openPanel(panelTab === 'step' ? 'step' : panelTab);
     renderAll(); W.runs.forEach(ctxOf); fit(); drawer(false); paintData();
+    // the workflow picked fades in where the last one was: its steps and wires rise 4px, the title and its state rise 2px, and
+    // an open panel's tab fades in from where it is. A quick second pick starts over from there
+    if (!REDUCE){ const E = EASE(), d = MT('--dm-t-fast') + 60;
+      [[nodesEl, 4], [svg, 4], [$('.wf-h1t', app), 2], [$('.wf-state', app), 2]].forEach(([x, y]) => { if (!x) return; if (x._sw) x._sw.cancel(); x._sw = x.animate([{ opacity:0, transform:`translateY(${y}px)` }, { opacity:1, transform:'none' }], { duration:d, easing:E }); });
+      if (app.classList.contains('pn')) slideIn(panelTab, 0); }
   }
   app.addEventListener('click', e => {
     const b = e.target.closest('.wf-side button'); if (!b) return;
@@ -3352,13 +3381,13 @@ const fitHits = window.dmFitHits || (() => {
   function paintCat(){
     const inp = $('.wfx-apps-q input', appsPop), ls = $('#wf-apps-cat', appsPop), v = inp ? inp.value.trim().toLowerCase() : '';
     aHits = CATALOG.filter(c => !v || (c.n + ' ' + c.d).toLowerCase().includes(v));
-    ls.innerHTML = aHits.length ? aHits.map((c, i) => `<div class="wfx-app-o" role="option" id="wf-ac-${i}" data-i="${i}" aria-selected="false">${lg(c)}<span class="t"><span class="nm">${esc(c.n)}</span><span class="d">${esc(c.d)}</span></span><span class="wfx-app-r">Connect</span></div>`).join('')
-      : `<p class="wfx-apps-e">No app called “${esc(inp.value.trim())}” yet</p>`;
+    listTo(ls, aHits.length ? aHits.map((c, i) => `<div class="wfx-app-o" role="option" id="wf-ac-${i}" data-i="${i}" aria-selected="false">${lg(c)}<span class="t"><span class="nm">${esc(c.n)}</span><span class="d">${esc(c.d)}</span></span><span class="wfx-app-r">Connect</span></div>`).join('')
+      : `<p class="wfx-apps-e">No app called “${esc(inp.value.trim())}” yet</p>`, '.wfx-app-o, .wfx-apps-e', x => x.matches('.wfx-apps-e') ? 'none' : $('.nm', x).textContent, v, appsPop);
     $('.wfx-apps-cn', appsPop).textContent = nOf(aHits.length, 'app', 'apps');
     hiCat(0);
   }
   function hiCat(i){
-    const os = $$('.wfx-app-o', $('#wf-apps-cat', appsPop)), inp = $('.wfx-apps-q input', appsPop);
+    const os = $$('.wfx-app-o:not([data-ghost])', $('#wf-apps-cat', appsPop)), inp = $('.wfx-apps-q input', appsPop);
     if (!os.length){ inp.removeAttribute('aria-activedescendant'); return; }
     aHi = (i + os.length) % os.length; os.forEach((o, j) => { o.classList.toggle('on', j === aHi); o.setAttribute('aria-selected', String(j === aHi)); });
     inp.setAttribute('aria-activedescendant', os[aHi].id); os[aHi].scrollIntoView({ block:'nearest' });

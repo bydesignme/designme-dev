@@ -1,5 +1,5 @@
 // Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
-import { $, $$, AV, DM, I, REDUCE, enter, html, menuOpen, openPop, popFocus, seg, stagger, swap } from '../core/core.js';
+import { $, $$, AV, DM, I, REDUCE, enter, html, menuOpen, openPop, popFocus, reflow, seg, stagger, swap } from '../core/core.js';
 DM.def('kanban', (r, c) => {
   r.innerHTML = r.innerHTML.replace(/\{(search|x|grid|list)\}/g, (m, k) => I(k, 'xs'));
   // the columns, each with a short name for the tabs a narrow board shows; In progress has a WIP limit of three
@@ -88,6 +88,9 @@ DM.def('kanban', (r, c) => {
   // the cards are drawn again after each change; the ones that stay glide from where they were to where they are now
   let painted = false;
   function paint(o = {}){
+    // a filter or a search: the cards that still match glide to their new places, ones that come back fade in and ones
+    // filtered out fade where they were
+    if (o.filter && painted){ reflow(() => $$('.kbx-k', wrap), () => paint({ flip:false }), { by:'data-id', root:box }); return; }
     const had = document.activeElement && box.contains(document.activeElement) && document.activeElement.closest('.kbx-k');
     const keep = had ? had.dataset.id : null;
     const first = !REDUCE && painted && o.flip !== false ? new Map($$('.kbx-k', wrap).map(el => [el.dataset.id, el.getBoundingClientRect()])) : null;
@@ -325,7 +328,7 @@ DM.def('kanban', (r, c) => {
     $$('.mi', fm).forEach(m => m.onclick = () => { const v = m.dataset.v; set.has(v) ? set.delete(v) : set.add(v); m.setAttribute('aria-checked', set.has(v)); refilter(); });
   }
   $$('.kbx-f', r).forEach(b => b.addEventListener('click', () => fill(b.dataset.f)));
-  function refilter(){ K.forEach(k => delete k.keep); paint(); const n = K.filter(shows).length; say(filtering() ? `${n} of ${K.length} cards shown` : `All ${K.length} cards shown`); }
+  function refilter(){ K.forEach(k => delete k.keep); paint({ filter:true });const n = K.filter(shows).length; say(filtering() ? `${n} of ${K.length} cards shown` : `All ${K.length} cards shown`); }
   $$('.kbx-fp button', r).forEach(b => b.onclick = () => { const w = b.dataset.who; F.who.has(w) ? F.who.delete(w) : F.who.add(w); refilter(); });
   const clear = () => { F.q = ''; q.value = ''; qx.hidden = true; F.who.clear(); F.l.clear(); F.p.clear(); refilter(); };
   $('.kbx-clr', r).onclick = clear; $('.kbx-ec', r).onclick = () => { clear(); q.focus({ preventScroll:true }); };

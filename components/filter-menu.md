@@ -170,9 +170,9 @@ Yes. Each field in `fields` has a `key`, a `label`, an optional `icon`, its two 
 'use client';
 import { useEffect, useRef, useState, type KeyboardEvent, type MouseEvent, type ReactNode } from 'react';
 import { cx } from '../lib/cx';
-import { useControllable } from '../lib/hooks';
+import { useControllable, useIsoLayoutEffect, useReducedMotion } from '../lib/hooks';
 import { Icon, type IconName } from '../lib/icons';
-import { avatarInk, Swap, Tip } from '../lib/motion';
+import { avatarInk, freshText, reflowPace, Swap, Tip, useMounted, useReflow } from '../lib/motion';
 import { usePopover } from '../lib/popover';
 import '../designme.css';
 import './filter-menu.css';
@@ -261,6 +261,11 @@ export function FilterMenu({
   // chips already on screen keep still when the list changes; only a new one pops in
   const seen = useRef(new Set<string>());
   useEffect(() => { seen.current = new Set(list.map(f => f.field)); }, [list]);
+  // a chip taken off fades where it was and the rest glide over to close the gap; the results that still match glide to their
+  // new places, new ones fade in and the ones filtered out fade where they were. The results play their entrance only once
+  useReflow(root, '.dm-flm-ch', { enter: false });
+  useReflow(root, '.dm-flm-list > [data-key]');
+  const mounted = useMounted();
 
   const fieldOf = (k: string) => fields.find(f => f.key === k);
   const opsOf = (f?: FilterMenuField) => f?.operators ?? ['is', 'is not'];
@@ -286,7 +291,8 @@ export function FilterMenu({
     menu.closeSoon();
   };
   const remove = (k: string, e: MouseEvent<HTMLButtonElement>) => {
-    const chip = e.currentTarget.closest('.dm-flm-ch'), next = (chip?.nextElementSibling ?? chip?.previousElementSibling)?.querySelector<HTMLElement>('.dm-flm-x');
+    const chip = e.currentTarget.closest('.dm-flm-ch'), near = [...(chip?.parentElement?.querySelectorAll('.dm-flm-ch:not([data-ghost])') ?? [])], i = chip ? near.indexOf(chip) : -1;
+    const next = (near[i + 1] ?? near[i - 1])?.querySelector<HTMLElement>('.dm-flm-x');
     const had = chip?.contains(document.activeElement);
     setList(list.filter(f => f.field !== k));
     if (had) setTimeout(() => (next ?? trigger.current)?.focus());
@@ -308,6 +314,19 @@ export function FilterMenu({
     else if (e.key === 'Tab') setTimeout(() => menu.close());
   };
 
+  // moving between the two steps, the step coming in slides 4px from the side it is on (values from the right, the fields back
+  // from the left) as it fades in
+  const lv1 = useRef<HTMLDivElement>(null), lv2 = useRef<HTMLDivElement>(null), slid = useRef<Animation | null>(null), wasField = useRef(field);
+  const reduce = useReducedMotion();
+  useIsoLayoutEffect(() => {
+    const from = wasField.current; wasField.current = field;
+    if (!!from === !!field) return;
+    slid.current?.cancel(); slid.current = null;
+    const el = field ? lv2.current : lv1.current; if (!menu.open || reduce || !el?.animate) return;
+    const { ease, ms } = reflowPace(el);
+    slid.current = el.animate([{ opacity: 0, transform: `translateX(${field ? 4 : -4}px)` }, { opacity: 1, transform: 'none' }], { duration: ms, easing: ease });
+  }, [field]);
+
   const cur = field ? fieldOf(field) : undefined, on = list.find(f => f.field === field);
   return (
     <div data-dm="" ref={root} className={cx('dm-flm dm-panel', className)}>
@@ -318,12 +337,12 @@ export function FilterMenu({
             const fd = fieldOf(f.field), o = optOf(f); if (!fd || !o) return null;
             const ops = opsOf(fd), op = ops[+!!f.negate], other = ops[+!f.negate], text = `${fd.label} ${op} ${o.chip ?? o.label}`;
             return (
-              <div key={f.field} className={cx('dm-flm-ch', seen.current.has(f.field) && 'dm-seen')} role="listitem">
+              <div key={f.field} data-key={f.field} className={cx('dm-flm-ch', seen.current.has(f.field) && 'dm-seen')} role="listitem">
                 <span className="dm-k">{fd.label}</span>
                 <Tip label={`Change to ${other}`}>
-                  <button type="button" className="dm-op" aria-label={`${text}: change to ${other}`} onClick={() => setList(list.map(x => (x.field === f.field ? { ...x, negate: !x.negate } : x)))}>{op}</button>
+                  <button type="button" ref={el => freshText(el, op)} className="dm-op" aria-label={`${text}: change to ${other}`} onClick={() => setList(list.map(x => (x.field === f.field ? { ...x, negate: !x.negate } : x)))}>{op}</button>
                 </Tip>
-                <span className="dm-v">{o.chip ?? o.label}</span>
+                <span className="dm-v" ref={el => freshText(el, o.chip ?? o.label)}>{o.chip ?? o.label}</span>
                 <Tip label="Remove filter">
                   <button type="button" className="dm-x dm-flm-x" aria-label={`Remove filter ${text}`} onClick={e => remove(f.field, e)}><Icon name="x" size="xs" /></button>
                 </Tip>
@@ -333,7 +352,7 @@ export function FilterMenu({
         </div>
       </div>
       <div {...menu.pop} className={cx(menu.pop.className, 'dm-flm-pop')} onKeyDown={onMenuKey}>
-        <div className="dm-flm-lv" role="menu" aria-label={`${label} by`} hidden={!!field}>
+        <div ref={lv1} className="dm-flm-lv" role="menu" aria-label={`${label} by`} hidden={!!field}>
           <div className="dm-ph" role="none">{label} by</div>
           {fields.map(fd => {
             const f = list.find(x => x.field === fd.key), o = f && optOf(f);
@@ -345,7 +364,7 @@ export function FilterMenu({
             );
           })}
         </div>
-        <div className="dm-flm-lv" role="menu" aria-label={cur?.label} hidden={!field}>
+        <div ref={lv2} className="dm-flm-lv" role="menu" aria-label={cur?.label} hidden={!field}>
           {cur && <>
             <button type="button" className="dm-mi dm-flm-bk" role="menuitem" tabIndex={-1} aria-label="Back to all fields" onClick={() => step(null)}><Icon name="chev-l" size="xs" /><span>{cur.label}</span></button>
             <div className="dm-sep" role="separator" />
@@ -362,16 +381,16 @@ export function FilterMenu({
         {list.length > 0 && <button type="button" className="dm-pill dm-ghost dm-sm dm-flm-clr" onClick={e => { const had = e.currentTarget === document.activeElement; setList([]); if (had) trigger.current?.focus(); }}>{clearLabel}</button>}
       </div>
       <div className="dm-flm-list">
-        {count === 0 ? <div className="dm-flm-e">{emptyLabel ?? `No ${noun} match these filters`}</div> : <>
+        {count === 0 ? <div className="dm-flm-e" data-key="none">{emptyLabel ?? `No ${noun} match these filters`}</div> : <>
           {results.map((t, i) => (
-            <div key={t.id} className="dm-flm-r dm-enter" style={{ animationDelay: i * 50 + 'ms' }}>
+            <div key={t.id} data-key={t.id} className={cx('dm-flm-r', !mounted && 'dm-enter')} style={mounted ? undefined : { animationDelay: i * 50 + 'ms' }}>
               {t.dot ? <span className="dm-dot" style={{ color: t.dot.color }} role="img" aria-label={t.dot.label} /> : <span />}
               <span className="dm-t">{t.title}</span>
               {t.avatar ? <span className="dm-av" style={{ background: t.avatar.color, color: avatarInk(t.avatar.color) }} role="img" aria-label={t.avatar.label}>{t.avatar.initials}</span> : <span />}
               <span className="dm-a">{t.meta}</span>
             </div>
           ))}
-          {count > results.length && <div className="dm-flm-more">and {count - results.length} more</div>}
+          {count > results.length && <div className="dm-flm-more" data-key="more">and {count - results.length} more</div>}
         </>}
       </div>
     </div>

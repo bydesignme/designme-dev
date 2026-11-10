@@ -128,8 +128,65 @@ function swap(el, html, isHTML){
 function tween(from, to, ms, step, ease = t => 1 - Math.pow(1 - t, 3)){
   return new Promise(res => { const t0 = performance.now(); const f = t => { const p = Math.max(0, Math.min(1, (t - t0) / (REDUCE ? 1 : ms))); step(from + (to - from) * ease(p), p); p < 1 ? requestAnimationFrame(f) : res(); }; requestAnimationFrame(f); });
 }
-function enter(el, delay = 0){ if (!el) return el; el.classList.remove('enter'); void el.offsetWidth; el.style.animationDelay = delay + 'ms'; el.classList.add('enter'); return el; }
+// the entrance plays once: its class goes when it ends, so moving the element later (a sort re-appending a row) doesn't play it again
+function enter(el, delay = 0){ if (!el) return el; el.classList.remove('enter'); void el.offsetWidth; el.style.animationDelay = delay + 'ms'; el.classList.add('enter');
+  const end = e => { if (e.target !== el || e.animationName !== 'enter') return; el.classList.remove('enter'); el.removeEventListener('animationend', end); el.removeEventListener('animationcancel', end); };
+  el.addEventListener('animationend', end); el.addEventListener('animationcancel', end); return el; }
 function stagger(els, step = 60, base = 0){ els.forEach((e, i) => enter(e, base + i * step)); }
+/* reflow(): a list that changes under a filter, a search or a sort. The change happens at once, in change(); this only
+   shows it. items() gives the list's items, each known by its o.by attribute (data-key by default). The items that stay
+   glide from where they were to where they are now, new ones fade in from 4px down, and the ones that went fade out where
+   they were, as a copy that takes no room and can't be reached. A change made while the last one is still moving starts
+   from where everything is on screen, so quick clicks never stack or leave anything halfway. Transform and opacity only,
+   at the style's own pace (--t-fast, --ease); with reduced motion it is only the change.
+   An item the change hides counts as gone. Only items that don't sit inside one another can be listed (a group and its own
+   rows would glide twice).
+   o: { by, root (the component, which places are measured against), enter:false (new items come in some other way),
+   leave:false (items that go fade some other way), host (where a copy goes when the change redrew the item's own parent) } */
+function reflow(items, change, o = {}){
+  const by = o.by || 'data-key', live = () => items().filter(el => !el.hasAttribute('data-ghost'));
+  if (REDUCE || !document.body.animate){ change(); return; }
+  // places are read against the component (o.root), so when the change re-centres it in its stage the items move with it
+  const box = () => o.root && o.root.isConnected ? o.root.getBoundingClientRect() : { left:0, top:0 }, r0 = box();
+  const was = new Map(), hosts = new Set();
+  for (const el of live()){
+    const k = el.getAttribute(by), b = el.getBoundingClientRect(); if (k == null || (!b.width && !b.height)) continue;
+    was.set(k, { el, b, p:el.parentNode, o:+getComputedStyle(el).opacity, w:el.cells ? [...el.cells].map(td => td.getBoundingClientRect().width) : null }); hosts.add(el.parentNode);
+  }
+  // copies still fading from the last change stay on screen, even when this one redraws the list they sit in
+  if (o.host) hosts.add(o.host);
+  const ghosts = [...hosts].flatMap(p => [...p.children].filter(x => x.hasAttribute('data-ghost')).map(g => [g, p]));
+  change();
+  ghosts.forEach(([g, p]) => { if (!g.isConnected && p.isConnected) p.appendChild(g); });
+  const r1 = box(), sx = r1.left - r0.left, sy = r1.top - r0.top;
+  const now = live(), at = now[0] || [...hosts].find(p => p.isConnected) || document.documentElement, cs = getComputedStyle(at);
+  const E = cs.getPropertyValue('--ease').trim() || 'ease', T = (parseFloat(cs.getPropertyValue('--t-fast')) || .22) * 1000, seen = new Set();
+  let n = 0;
+  for (const el of now){
+    const k = el.getAttribute(by), a = was.get(k);
+    (el._rf || []).forEach(x => x.cancel()); el._rf = [];
+    const b = el.getBoundingClientRect(); if (!b.width && !b.height) continue;
+    seen.add(k);
+    if (!a){ if (o.enter !== false) el._rf.push(el.animate([{ opacity:0, transform:'translateY(4px)' }, { opacity:1, transform:'none' }], { duration:T, delay:Math.min(n++, 5) * 24, easing:E, fill:'backwards' })); continue; }
+    const dx = a.b.left + sx - b.left, dy = a.b.top + sy - b.top;
+    if (Math.abs(dx) > .5 || Math.abs(dy) > .5) el._rf.push(el.animate([{ transform:`translate(${dx}px,${dy}px)` }, { transform:'none' }], { duration:T + 40, easing:E }));
+    if (a.o < .99) el._rf.push(el.animate([{ opacity:a.o }, { opacity:1 }], { duration:T, easing:E }));
+  }
+  if (o.leave === false) return;
+  was.forEach((a, k) => {
+    const p = a.p.isConnected ? a.p : o.host && o.host.isConnected ? o.host : null;
+    if (seen.has(k) || !p || a.o < .05) return;
+    const g = a.el.cloneNode(true);
+    [g, ...g.querySelectorAll('[id]')].forEach(x => x.removeAttribute('id'));
+    g.removeAttribute(by); g.removeAttribute('hidden'); g.setAttribute('data-ghost', ''); g.setAttribute('aria-hidden', 'true'); g.inert = true;
+    Object.assign(g.style, { position:'absolute', left:'0', top:'0', margin:'0', width:a.b.width + 'px', height:a.b.height + 'px', boxSizing:'border-box', pointerEvents:'none' });
+    if (a.w) [...g.cells].forEach((td, i) => { td.style.boxSizing = 'border-box'; td.style.width = a.w[i] + 'px'; });
+    p.appendChild(g);
+    const gb = g.getBoundingClientRect(); g.style.transform = `translate(${a.b.left + sx - gb.left}px,${a.b.top + sy - gb.top}px)`;
+    const f = g.animate([{ opacity:a.o }, { opacity:0 }], { duration:T * .8, easing:E, fill:'forwards' });
+    f.onfinish = f.oncancel = () => g.remove();
+  });
+}
 /* a component that swaps what it shows for a shorter end state (a confirmation, a summary) keeps the height it had, so it
    stays centred in its stage instead of shrinking to the top of it; .held centres the end state inside that height.
    release() lets it size to its content again, for Start over and the like */
@@ -3544,7 +3601,7 @@ DM.def('image-generation', (r, c, card) => {
   });
 });
 /* ---------- the sections' components, loaded the first time a section comes near (DEF_PARTS in build.js) ---------- */
-const PARTS = {"files":{"s-status":"/assets/v2-status.8d4ddf7a69.js","s-product":"/assets/v2-product.b8d27a446a.js","s-review":"/assets/v2-review.9255d5ad55.js","s-data":"/assets/v2-data.691abc2d29.js","s-workspace":"/assets/v2-workspace.a51181e45b.js","s-harness":"/assets/v2-harness.a05cbcfaa8.js","s-charts":"/assets/v2-charts.8288f74222.js","s-dates":"/assets/v2-dates.afefa5e411.js","s-forms":"/assets/v2-forms.ec1090c3a7.js","s-collab":"/assets/v2-collab.fa20b34e10.js"},"of":{"status-pill":"s-status","step-loader":"s-status","thinking-states":"s-status","reasoning-trail":"s-status","thinking":"s-status","context-meter":"s-status","action-log":"s-status","run-queue":"s-status","agent-tree":"s-status","agent-inbox":"s-status","browser-session":"s-status","trace-view":"s-status","run-cost":"s-status","toast":"s-status","toast-stack":"s-status","pricing-cards":"s-product","onboarding-checklist":"s-product","stepper":"s-product","set-limit":"s-product","currency-converter":"s-product","run-summary":"s-status","error-recovery":"s-status","agent-lanes":"s-status","agent-run-timeline":"s-status","decision-prompt":"s-review","proposal-card":"s-review","rewrite-toolbar":"s-review","design-tuner":"s-review","permission-gate":"s-review","human-handoff":"s-review","launch-checklist":"s-review","plan-review":"s-review","change-review":"s-review","inline-text-diff":"s-review","draft-review":"s-review","steering":"s-review","eval-results":"s-review","design-review":"s-review","source-stack":"s-data","metric-insight":"s-data","task-table":"s-data","code-viewer":"s-data","terminal-stream":"s-data","details-panel":"s-data","citation-hover":"s-data","field-extraction":"s-data","workspace-rail":"s-workspace","command-palette":"s-workspace","agent-settings":"s-workspace","file-explorer":"s-workspace","automation-canvas":"s-workspace","canvas-toolbar":"s-workspace","step-inspector":"s-workspace","data-picker":"s-workspace","run-drawer":"s-workspace","memory-panel":"s-workspace","model-compare":"s-workspace","tool-connections":"s-workspace","knowledge-sources":"s-workspace","scheduled-runs":"s-workspace","harness":"s-harness","line-chart":"s-charts","bar-chart":"s-charts","donut-chart":"s-charts","funnel":"s-charts","top-pages":"s-charts","health-score":"s-charts","activity-heatmap":"s-charts","stat-cards":"s-charts","account-table":"s-charts","date-picker":"s-dates","segmented-control":"s-dates","date-range-picker":"s-dates","event-calendar":"s-dates","agenda":"s-dates","buttons":"s-forms","badge":"s-forms","tooltip":"s-forms","search-input":"s-forms","country-select":"s-forms","multi-select":"s-forms","social-signin":"s-forms","sign-in":"s-forms","otp-field":"s-forms","form":"s-forms","payment-form":"s-forms","comments":"s-collab","notifications":"s-collab","banner":"s-collab","invite":"s-collab","reactions":"s-collab","profile-menu":"s-collab","context-switcher":"s-collab","filter-menu":"s-collab","number-field":"s-collab","ticket-list":"s-collab","kanban":"s-collab","agent-builder":"s-workspace","agent-phases":"s-status","color-picker":"s-forms","context-menu":"s-collab","progress":"s-forms","radar-chart":"s-charts","radial-goals":"s-charts","scatter-chart":"s-charts","score-breakdown":"s-charts","slider":"s-forms","carousel":"s-forms","web-search":"s-status"},"all":["harness"]};
+const PARTS = {"files":{"s-status":"/assets/v2-status.8d4ddf7a69.js","s-product":"/assets/v2-product.b8d27a446a.js","s-review":"/assets/v2-review.9255d5ad55.js","s-data":"/assets/v2-data.635fd5e0fa.js","s-workspace":"/assets/v2-workspace.a51181e45b.js","s-harness":"/assets/v2-harness.a05cbcfaa8.js","s-charts":"/assets/v2-charts.9a7629fce0.js","s-dates":"/assets/v2-dates.afefa5e411.js","s-forms":"/assets/v2-forms.43f89d0cc1.js","s-collab":"/assets/v2-collab.c663df7c3d.js"},"of":{"status-pill":"s-status","step-loader":"s-status","thinking-states":"s-status","reasoning-trail":"s-status","thinking":"s-status","context-meter":"s-status","action-log":"s-status","run-queue":"s-status","agent-tree":"s-status","agent-inbox":"s-status","browser-session":"s-status","trace-view":"s-status","run-cost":"s-status","toast":"s-status","toast-stack":"s-status","pricing-cards":"s-product","onboarding-checklist":"s-product","stepper":"s-product","set-limit":"s-product","currency-converter":"s-product","run-summary":"s-status","error-recovery":"s-status","agent-lanes":"s-status","agent-run-timeline":"s-status","decision-prompt":"s-review","proposal-card":"s-review","rewrite-toolbar":"s-review","design-tuner":"s-review","permission-gate":"s-review","human-handoff":"s-review","launch-checklist":"s-review","plan-review":"s-review","change-review":"s-review","inline-text-diff":"s-review","draft-review":"s-review","steering":"s-review","eval-results":"s-review","design-review":"s-review","source-stack":"s-data","metric-insight":"s-data","task-table":"s-data","code-viewer":"s-data","terminal-stream":"s-data","details-panel":"s-data","citation-hover":"s-data","field-extraction":"s-data","workspace-rail":"s-workspace","command-palette":"s-workspace","agent-settings":"s-workspace","file-explorer":"s-workspace","automation-canvas":"s-workspace","canvas-toolbar":"s-workspace","step-inspector":"s-workspace","data-picker":"s-workspace","run-drawer":"s-workspace","memory-panel":"s-workspace","model-compare":"s-workspace","tool-connections":"s-workspace","knowledge-sources":"s-workspace","scheduled-runs":"s-workspace","harness":"s-harness","line-chart":"s-charts","bar-chart":"s-charts","donut-chart":"s-charts","funnel":"s-charts","top-pages":"s-charts","health-score":"s-charts","activity-heatmap":"s-charts","stat-cards":"s-charts","account-table":"s-charts","date-picker":"s-dates","segmented-control":"s-dates","date-range-picker":"s-dates","event-calendar":"s-dates","agenda":"s-dates","buttons":"s-forms","badge":"s-forms","tooltip":"s-forms","search-input":"s-forms","country-select":"s-forms","multi-select":"s-forms","social-signin":"s-forms","sign-in":"s-forms","otp-field":"s-forms","form":"s-forms","payment-form":"s-forms","comments":"s-collab","notifications":"s-collab","banner":"s-collab","invite":"s-collab","reactions":"s-collab","profile-menu":"s-collab","context-switcher":"s-collab","filter-menu":"s-collab","number-field":"s-collab","ticket-list":"s-collab","kanban":"s-collab","agent-builder":"s-workspace","agent-phases":"s-status","color-picker":"s-forms","context-menu":"s-collab","progress":"s-forms","radar-chart":"s-charts","radial-goals":"s-charts","scatter-chart":"s-charts","score-breakdown":"s-charts","slider":"s-forms","carousel":"s-forms","web-search":"s-status"},"all":["harness"]};
 const partRun = src => eval(src);
 // the markup of the cards whose section has a file of its own comes with that file
 const TPLS = {};

@@ -324,6 +324,8 @@ code.c{font-family:var(--mono);font-size:12.5px;background:var(--chip);padding:1
 @keyframes handtap{from{opacity:.3;transform:scale(.3)}to{opacity:0;transform:scale(1.3)}}
 .pop-in{animation:popin .5s var(--ease) backwards}
 @keyframes popin{from{opacity:0;transform:scale(.96);filter:blur(3px)}to{opacity:1;transform:none;filter:blur(0)}}
+/* what reflow() leaves behind as an item goes: a still copy that only fades */
+[data-ghost],[data-ghost] *{animation:none!important;transition:none!important}
 .leave{animation:leave .35s var(--ease) both}
 @keyframes leave{to{opacity:0;transform:translateY(-6px);filter:blur(4px)}}
 .sw{display:inline-block;transition:opacity .2s var(--ease),filter .2s var(--ease),transform .25s var(--ease)}
@@ -4516,6 +4518,9 @@ button.evr-vs-r:focus-visible{outline-offset:-2px;border-radius:calc(10px * var(
 .dtp-sh svg{transition:transform .4s var(--ease);transform:rotate(90deg)}
 .dtp-sh[aria-expanded="false"] svg{transform:none}
 .dtp-rows{display:flex;flex-direction:column}
+/* a section's rows settle 4px as it folds open, and lift away as it folds shut */
+.dtp .fold .dtp-rows{transition:transform var(--t) var(--ease)}
+.dtp .fold.shut .dtp-rows{transform:translateY(-4px)}
 .dtp-r{display:grid;grid-template-columns:84px 1fr;align-items:center;min-height:34px;font-size:13px;position:relative}
 .dtp-r .k{color:var(--muted);padding-left:var(--s-1)}
 .dtp-v{display:inline-flex;align-items:center;gap:7px;justify-self:start;height:28px;padding:0 var(--s-2);margin-left:-8px;border-radius:var(--r-sm);transition:background .2s;color:var(--fg)}
@@ -6478,7 +6483,7 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
 .six-ch button{display:grid;opacity:.6}.six-ch button:hover{opacity:1}
 .six-x{width:24px;height:24px}
 @supports (corner-shape:squircle){.six-ch{corner-shape:squircle;border-radius:var(--r-tag-sq)}}
-.six-res{padding:var(--s-1) 6px var(--s-2);border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
+.six-res{position:relative;padding:var(--s-1) 6px var(--s-2);border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
 .six-g{font-size:11.5px;color:var(--muted);padding:var(--s-2) var(--s-2) var(--s-1)}
 .six-it{display:flex;align-items:center;gap:10px;width:100%;padding:7px var(--s-2);border-radius:calc(10px * var(--rk));font-size:13px;text-align:left;transition:background .15s}
 .six-it:hover,.six-it.hl{background:var(--row)}
@@ -11097,8 +11102,65 @@ function swap(el, html, isHTML){
 function tween(from, to, ms, step, ease = t => 1 - Math.pow(1 - t, 3)){
   return new Promise(res => { const t0 = performance.now(); const f = t => { const p = Math.max(0, Math.min(1, (t - t0) / (REDUCE ? 1 : ms))); step(from + (to - from) * ease(p), p); p < 1 ? requestAnimationFrame(f) : res(); }; requestAnimationFrame(f); });
 }
-function enter(el, delay = 0){ if (!el) return el; el.classList.remove('enter'); void el.offsetWidth; el.style.animationDelay = delay + 'ms'; el.classList.add('enter'); return el; }
+// the entrance plays once: its class goes when it ends, so moving the element later (a sort re-appending a row) doesn't play it again
+function enter(el, delay = 0){ if (!el) return el; el.classList.remove('enter'); void el.offsetWidth; el.style.animationDelay = delay + 'ms'; el.classList.add('enter');
+  const end = e => { if (e.target !== el || e.animationName !== 'enter') return; el.classList.remove('enter'); el.removeEventListener('animationend', end); el.removeEventListener('animationcancel', end); };
+  el.addEventListener('animationend', end); el.addEventListener('animationcancel', end); return el; }
 function stagger(els, step = 60, base = 0){ els.forEach((e, i) => enter(e, base + i * step)); }
+/* reflow(): a list that changes under a filter, a search or a sort. The change happens at once, in change(); this only
+   shows it. items() gives the list's items, each known by its o.by attribute (data-key by default). The items that stay
+   glide from where they were to where they are now, new ones fade in from 4px down, and the ones that went fade out where
+   they were, as a copy that takes no room and can't be reached. A change made while the last one is still moving starts
+   from where everything is on screen, so quick clicks never stack or leave anything halfway. Transform and opacity only,
+   at the style's own pace (--t-fast, --ease); with reduced motion it is only the change.
+   An item the change hides counts as gone. Only items that don't sit inside one another can be listed (a group and its own
+   rows would glide twice).
+   o: { by, root (the component, which places are measured against), enter:false (new items come in some other way),
+   leave:false (items that go fade some other way), host (where a copy goes when the change redrew the item's own parent) } */
+function reflow(items, change, o = {}){
+  const by = o.by || 'data-key', live = () => items().filter(el => !el.hasAttribute('data-ghost'));
+  if (REDUCE || !document.body.animate){ change(); return; }
+  // places are read against the component (o.root), so when the change re-centres it in its stage the items move with it
+  const box = () => o.root && o.root.isConnected ? o.root.getBoundingClientRect() : { left:0, top:0 }, r0 = box();
+  const was = new Map(), hosts = new Set();
+  for (const el of live()){
+    const k = el.getAttribute(by), b = el.getBoundingClientRect(); if (k == null || (!b.width && !b.height)) continue;
+    was.set(k, { el, b, p:el.parentNode, o:+getComputedStyle(el).opacity, w:el.cells ? [...el.cells].map(td => td.getBoundingClientRect().width) : null }); hosts.add(el.parentNode);
+  }
+  // copies still fading from the last change stay on screen, even when this one redraws the list they sit in
+  if (o.host) hosts.add(o.host);
+  const ghosts = [...hosts].flatMap(p => [...p.children].filter(x => x.hasAttribute('data-ghost')).map(g => [g, p]));
+  change();
+  ghosts.forEach(([g, p]) => { if (!g.isConnected && p.isConnected) p.appendChild(g); });
+  const r1 = box(), sx = r1.left - r0.left, sy = r1.top - r0.top;
+  const now = live(), at = now[0] || [...hosts].find(p => p.isConnected) || document.documentElement, cs = getComputedStyle(at);
+  const E = cs.getPropertyValue('--ease').trim() || 'ease', T = (parseFloat(cs.getPropertyValue('--t-fast')) || .22) * 1000, seen = new Set();
+  let n = 0;
+  for (const el of now){
+    const k = el.getAttribute(by), a = was.get(k);
+    (el._rf || []).forEach(x => x.cancel()); el._rf = [];
+    const b = el.getBoundingClientRect(); if (!b.width && !b.height) continue;
+    seen.add(k);
+    if (!a){ if (o.enter !== false) el._rf.push(el.animate([{ opacity:0, transform:'translateY(4px)' }, { opacity:1, transform:'none' }], { duration:T, delay:Math.min(n++, 5) * 24, easing:E, fill:'backwards' })); continue; }
+    const dx = a.b.left + sx - b.left, dy = a.b.top + sy - b.top;
+    if (Math.abs(dx) > .5 || Math.abs(dy) > .5) el._rf.push(el.animate([{ transform:`translate(${dx}px,${dy}px)` }, { transform:'none' }], { duration:T + 40, easing:E }));
+    if (a.o < .99) el._rf.push(el.animate([{ opacity:a.o }, { opacity:1 }], { duration:T, easing:E }));
+  }
+  if (o.leave === false) return;
+  was.forEach((a, k) => {
+    const p = a.p.isConnected ? a.p : o.host && o.host.isConnected ? o.host : null;
+    if (seen.has(k) || !p || a.o < .05) return;
+    const g = a.el.cloneNode(true);
+    [g, ...g.querySelectorAll('[id]')].forEach(x => x.removeAttribute('id'));
+    g.removeAttribute(by); g.removeAttribute('hidden'); g.setAttribute('data-ghost', ''); g.setAttribute('aria-hidden', 'true'); g.inert = true;
+    Object.assign(g.style, { position:'absolute', left:'0', top:'0', margin:'0', width:a.b.width + 'px', height:a.b.height + 'px', boxSizing:'border-box', pointerEvents:'none' });
+    if (a.w) [...g.cells].forEach((td, i) => { td.style.boxSizing = 'border-box'; td.style.width = a.w[i] + 'px'; });
+    p.appendChild(g);
+    const gb = g.getBoundingClientRect(); g.style.transform = `translate(${a.b.left + sx - gb.left}px,${a.b.top + sy - gb.top}px)`;
+    const f = g.animate([{ opacity:a.o }, { opacity:0 }], { duration:T * .8, easing:E, fill:'forwards' });
+    f.onfinish = f.oncancel = () => g.remove();
+  });
+}
 /* a component that swaps what it shows for a shorter end state (a confirmation, a summary) keeps the height it had, so it
    stays centred in its stage instead of shrinking to the top of it; .held centres the end state inside that height.
    release() lets it size to its content again, for Start over and the like */
@@ -17775,12 +17837,13 @@ DM.def('task-table', (r, c) => {
     tr.onclick = () => { t.sel = !t.sel; sync(); };
     rows.set(t.id, tr); return tr;
   }
-  // rows glide to their new places: measured before and after the move, then eased from where they were
+  // rows glide to their new places, a short glide from where they are on screen, so sorting again mid-glide carries on
+  // from there
+  const glideRows = move => reflow(() => [...rows.values()], move, { by:'data-id', root:box, enter:false, leave:false });
   function order(anim){
     const f = fields[key], list = [...T].sort((a, b) => { const x = f(a), y = f(b); return (x > y ? 1 : x < y ? -1 : 0) * (desc ? -1 : 1); });
-    const first = anim && !REDUCE ? new Map(list.map(t => [t.id, rows.get(t.id).getBoundingClientRect().top])) : null;
-    list.forEach(t => tb.appendChild(rows.get(t.id)));
-    if (first) list.forEach(t => { const el = rows.get(t.id), d = first.get(t.id) - el.getBoundingClientRect().top; if (Math.abs(d) > 1) el.animate([{ transform:`translateY(${d}px)` }, { transform:'none' }], { duration:520, easing:ease }); });
+    const move = () => list.forEach(t => tb.appendChild(rows.get(t.id)));
+    anim ? glideRows(move) : move();
     $$('.ttx-s', r).forEach(b => { b.classList.toggle('on', +b.dataset.k === key); b.classList.toggle('desc', desc); b.closest('th').setAttribute('aria-sort', +b.dataset.k === key ? (desc ? 'descending' : 'ascending') : 'none'); });
   }
   let said = '';
@@ -17798,9 +17861,7 @@ DM.def('task-table', (r, c) => {
     const out = T.filter(t => ids.includes(t.id)); T = T.filter(t => !ids.includes(t.id));
     // the table's height as it was, for the empty state that takes the last rows' place
     const had = T.length ? 0 : box.getBoundingClientRect().height;
-    const go = () => { const first = new Map(T.map(t => [t.id, rows.get(t.id).getBoundingClientRect().top]));
-      out.forEach(t => { rows.get(t.id).remove(); rows.delete(t.id); });
-      if (!REDUCE) T.forEach(t => { const el = rows.get(t.id), d = first.get(t.id) - el.getBoundingClientRect().top; if (Math.abs(d) > 1) el.animate([{ transform:`translateY(${d}px)` }, { transform:'none' }], { duration:480, easing:ease }); });
+    const go = () => { glideRows(() => out.forEach(t => { rows.get(t.id).remove(); rows.delete(t.id); }));
       if (!T.length) empty(had); sync(); };
     if (REDUCE) return go();
     out.forEach(t => rows.get(t.id).classList.add('ttx-out'));
@@ -21025,18 +21086,38 @@ DM.def('account-table', (r, c) => {
   ];
   const tb = $('tbody', r), q = $('.atb-s input', r); let plan = '', open = null;
   const hc = h => h >= 80 ? 'var(--atb-ok)' : h >= 60 ? 'var(--atb-warn)' : 'var(--atb-bad)';
-  function paint(anim){
-    const s = q.value.trim().toLowerCase(), rows = A.filter(a => (!plan || a[2] === plan) && (!s || a[0].toLowerCase().includes(s)));
-    tb.innerHTML = rows.length ? rows.map(a => `<tr class="row${open === a[0] ? ' open' : ''}" data-n="${a[0]}"><td><span class="nm"><span class="lg" style="background:var(--av-${a[1]});color:var(--av-${a[1]}-ink)">${a[0][0]}</span>${a[0]}</span></td><td><span class="tag ${a[2] === 'Enterprise' ? 'l' : a[2] === 'Pro' ? 'b' : 't'}">${a[2]}</span></td><td class="num">${a[3]}</td><td><span class="hb"><i><b style="width:${a[4]}%;background:${hc(a[4])}"></b></i><span class="num">${a[4]}</span></span></td><td class="r num">${a[5]}</td></tr>` + (open === a[0] ? `<tr class="det"><td colspan="5"><div class="fold"><div><div class="atb-note">${I('spark','xs')}<span>${a[6]}</span><button class="pill soft sm">Draft email</button></div></div></div></td></tr>` : '')).join('') : '<tr class="atb-empty"><td colspan="5">No accounts match</td></tr>';
-    if (anim) stagger($$('tr.row', tb), 35);
-    $$('tr.row', tb).forEach(tr => tr.onclick = () => { open = open === tr.dataset.n ? null : tr.dataset.n; paint(); const d = $('.atb-note', tb); if (d) enter(d); });
-    const dr = $('.atb-note .pill', tb); if (dr) dr.onclick = e => { e.stopPropagation(); dr.innerHTML = '<span class="spin"></span>'; c.later(800, () => { dr.innerHTML = I('check','xs') + 'Draft ready'; }); };
+  // each row is made once and kept, so a search or a plan filter can ease it between places; the note under an open row
+  // is its own row, keyed after it
+  const rows = new Map(A.map(a => [a[0], html(`<tr class="row" data-n="${a[0]}"><td><span class="nm"><span class="lg" style="background:var(--av-${a[1]});color:var(--av-${a[1]}-ink)">${a[0][0]}</span>${a[0]}</span></td><td><span class="tag ${a[2] === 'Enterprise' ? 'l' : a[2] === 'Pro' ? 'b' : 't'}">${a[2]}</span></td><td class="num">${a[3]}</td><td><span class="hb"><i><b style="width:${a[4]}%;background:${hc(a[4])}"></b></i><span class="num">${a[4]}</span></span></td><td class="r num">${a[5]}</td></tr>`)]));
+  const none = html('<tr class="atb-empty" data-n=" none"><td colspan="5">No accounts match</td></tr>');
+  let det = null;
+  function note(a){
+    const d = html(`<tr class="det" data-n="${a[0]} note"><td colspan="5"><div class="fold"><div><div class="atb-note">${I('spark','xs')}<span>${a[6]}</span><button class="pill soft sm">Draft email</button></div></div></div></td></tr>`);
+    const dr = $('.pill', d); dr.onclick = e => { e.stopPropagation(); dr.innerHTML = '<span class="spin"></span>'; c.later(800, () => { dr.innerHTML = I('check','xs') + 'Draft ready'; }); };
+    return d;
   }
+  // the rows that match, in order, with the open row's note under it
+  function paint(anim){
+    const s = q.value.trim().toLowerCase(), L = A.filter(a => (!plan || a[2] === plan) && (!s || a[0].toLowerCase().includes(s)));
+    // a note still folding shut stays under its row
+    const draw = () => { const keep = $$('tr.det.going', tb); tb.replaceChildren(...(L.length ? L.flatMap(a => [rows.get(a[0]), ...(det && open === a[0] ? [det] : [])]) : [none]));
+      keep.forEach(x => { if (x._row.isConnected) x._row.after(x); }); };
+    if (anim) reflow(() => $$('tr[data-n]', tb), draw, { by:'data-n', root:$('.atb', r) }); else draw();
+    rows.forEach((tr, n) => tr.classList.toggle('open', n === open));
+  }
+  // a row opens its note by its height, and the rows under it ease down; another row, or the same one again, folds it shut
+  function toggle(n){
+    if (det){ const d = det, f = $('.fold', d); d.classList.add('going'); d.removeAttribute('data-n'); f.classList.add('shut'); setTimeout(() => d.remove(), REDUCE ? 0 : (parseFloat(getComputedStyle(r).getPropertyValue('--t')) || .45) * 1000); det = null; }
+    open = open === n ? null : n;
+    if (open){ det = note(A.find(a => a[0] === open)); det._row = rows.get(open); const f = $('.fold', det); f.classList.add('shut'); rows.get(open).after(det); void f.offsetHeight; f.classList.remove('shut'); enter($('.atb-note', det)); }
+    rows.forEach((tr, k) => tr.classList.toggle('open', k === open));
+  }
+  rows.forEach((tr, n) => tr.onclick = () => toggle(n));
   q.oninput = () => paint(true);
   $$('.atb-fl .chip', r).forEach(ch => ch.onclick = () => { $$('.atb-fl .chip', r).forEach(x => x.classList.toggle('on', x === ch)); plan = ch.dataset.p; paint(true); });
-  paint(true);
+  paint(); stagger([...rows.values()], 35);
   // the preview opens one account's note on its own, unless you take over first
-  c.auto(1200, () => { if (!open){ open = 'Lumen Labs'; paint(); enter($('.atb-note', tb)); } });
+  c.auto(1200, () => { if (!open) toggle('Lumen Labs'); });
 });
 /* ---------- Date picker ---------- */
 DM.def('date-picker', (r, c) => {
@@ -21507,7 +21588,7 @@ DM.def('search-input', (r, c) => {
   const box = $('.six-box', r), inp = $('.six-in input', r), dd = $('.six-dd', r), res = $('.six-res', r), chips = $('.six-chips', r), xB = $('.six-x', r), k = $('.six-k', r);
   const ITEMS = [['figma','Pricing v4','Figma'],['figma','Pricing mobile','Figma'],['file-text','Pricing research notes','Notion'],['code','PricingCard.tsx','GitHub'],['figma','Checkout flow','Figma'],['file-text','Brand voice guide','Notion'],['code','tokens.css','GitHub']];
   const SC = { figma:'Figma', notion:'Notion', github:'GitHub' };
-  let scope = null, at = null, ans = 0, rows = new Set(), grow = null, hi = -1;
+  let scope = null, at = null, ans = 0, grow = null, hi = -1;
   res.id = 'six-r-' + Math.random().toString(36).slice(2, 7); res.setAttribute('role', 'listbox'); res.setAttribute('aria-label', 'Suggestions');
   inp.setAttribute('role', 'combobox'); inp.setAttribute('aria-autocomplete', 'list'); inp.setAttribute('aria-expanded', 'false'); inp.setAttribute('aria-controls', res.id);
   // the agent's answer streams in word by word and keeps going while the question is still being typed
@@ -21525,13 +21606,14 @@ DM.def('search-input', (r, c) => {
       if (v.split(' ').length > 2 || v.endsWith('?')) h += `<div class="six-ans">${I('spark','xs')}<span class="six-at"></span></div>`;
       h += m.length ? '<div class="six-g">' + m.length + (m.length === 1 ? ' result' : ' results') + '</div>' + m.map(i => `<button class="six-it"><span class="ic">${I(i[0],'xs')}</span><span>${hw ? i[1].replace(new RegExp(hw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i'), s => `<mark>${s}</mark>`) : i[1]}</span><span class="d">${i[2]}</span></button>`).join('') : '<div class="six-g">No matches. Press Enter to ask the agent</div>';
     }
-    res.innerHTML = h; hi = -1; inp.removeAttribute('aria-activedescendant');
-    $$('.six-it', res).forEach((b, j) => { b.id = res.id + '-' + j; b.setAttribute('role', 'option'); b.setAttribute('aria-selected', 'false'); b.tabIndex = -1; });
-    // only rows that weren't showing a moment ago enter, so typing doesn't restart the whole list
-    const now = $$('.six-it', res), fresh = now.filter(b => !rows.has(b.textContent)); rows = new Set(now.map(b => b.textContent)); stagger(fresh, 25);
-    const a = $('.six-at', res);
+    // rows that were showing a moment ago glide to their new places as the answer line comes and goes or the results narrow,
+    // new rows and the answer fade in, and rows that no longer match fade where they were, so typing never restarts the list
+    reflow(() => [...res.children], () => { res.innerHTML = h; [...res.children].forEach(x => x.dataset.key = x.matches('.six-ans') ? 'ans' : x.matches('.six-g') ? 'g' : x.textContent); }, { root:box });
+    hi = -1; inp.removeAttribute('aria-activedescendant');
+    $$('.six-it:not([data-ghost])', res).forEach((b, j) => { b.id = res.id + '-' + j; b.setAttribute('role', 'option'); b.setAttribute('aria-selected', 'false'); b.tabIndex = -1; });
+    const a = $('.six-ans:not([data-ghost]) .six-at', res);
     if (a){ a.innerHTML = WS.slice(0, ans).map(w => `<span class="w done">${w} </span>`).join('');
-      if (!at && ans < WS.length) at = c.every(45, () => { const el = $('.six-at', res); if (!el || ans >= WS.length){ clearInterval(at); at = null; return; } el.insertAdjacentHTML('beforeend', `<span class="w">${WS[ans++]} </span>`); }); }
+      if (!at && ans < WS.length) at = c.every(45, () => { const el = $('.six-ans:not([data-ghost]) .six-at', res); if (!el || ans >= WS.length){ clearInterval(at); at = null; return; } el.insertAdjacentHTML('beforeend', `<span class="w">${WS[ans++]} </span>`); }); }
     else { if (at){ clearInterval(at); at = null; } ans = 0; }
     const h1 = res.offsetHeight;
     if (h0 && h1 !== h0 && !REDUCE) grow = res.animate([{ height:h0 + 'px', boxSizing:'border-box', overflow:'hidden' }, { height:h1 + 'px', boxSizing:'border-box', overflow:'hidden' }], { duration:280, easing:'cubic-bezier(.22,1,.36,1)' });
@@ -21545,12 +21627,12 @@ DM.def('search-input', (r, c) => {
   inp.oninput = () => { list(); paint(); };
   // the box is a combobox for the list under it: up and down move through the rows and wrap, Enter picks the highlighted
   // one, and Escape closes the list, keeping the focus in the box (a second Escape clears it)
-  const light = k => { const all = $$('.six-it', res); if (!all.length) return; hi = (k + all.length) % all.length;
+  const light = k => { const all = $$('.six-it:not([data-ghost])', res); if (!all.length) return; hi = (k + all.length) % all.length;
     all.forEach((b, j) => { b.classList.toggle('hl', j === hi); b.setAttribute('aria-selected', j === hi); }); inp.setAttribute('aria-activedescendant', all[hi].id); all[hi].scrollIntoView({ block:'nearest' }); };
   inp.onkeydown = e => {
     if (e.key === 'Backspace' && !inp.value && scope){ scope = null; chips.innerHTML = ''; paint(); }
     if (e.key === 'ArrowDown' || e.key === 'ArrowUp'){ e.preventDefault(); if (dd.classList.contains('shut')){ list(); paint(); } light(hi < 0 ? (e.key === 'ArrowDown' ? 0 : -1) : hi + (e.key === 'ArrowDown' ? 1 : -1)); }
-    if (e.key === 'Enter' && hi >= 0 && !dd.classList.contains('shut')){ const b = $$('.six-it', res)[hi]; if (b && b.onmousedown){ e.preventDefault(); b.onmousedown(e); } }
+    if (e.key === 'Enter' && hi >= 0 && !dd.classList.contains('shut')){ const b = $$('.six-it:not([data-ghost])', res)[hi]; if (b && b.onmousedown){ e.preventDefault(); b.onmousedown(e); } }
     if (e.key === 'Escape'){ e.preventDefault(); if (!dd.classList.contains('shut')){ dd.classList.add('shut'); inp.setAttribute('aria-expanded', 'false'); inp.removeAttribute('aria-activedescendant'); } else if (inp.value || scope){ inp.value = ''; scope = null; chips.innerHTML = ''; paint(); } } };
   xB.onmousedown = e => { e.preventDefault(); inp.value = ''; scope = null; chips.innerHTML = ''; paint(); };
   c.on(document, 'pointerdown', e => { if (!r.contains(e.target) && document.activeElement !== inp) shut(); });
@@ -22396,33 +22478,40 @@ DM.def('filter-menu', (r, c) => {
   l1.insertAdjacentHTML('beforeend', Object.entries(F).map(([k, f]) => `<button class="mi" role="menuitem" aria-haspopup="menu" tabindex="-1" data-k="${k}">${I(f.ic)}<span>${f.l}</span><span class="r"></span>${I('chev-r','xs')}</button>`).join(''));
   const fields = $$('.mi', l1);
   function paint(){
-    // chips: one per field, a new one pops in and the ones already there keep still
+    // chips: one per field. A new one pops in, one taken off fades where it was and the rest glide over to close the gap,
+    // and a chip that stays crossfades to its new operator or value
     const have = new Set(A.map(f => f.k));
-    $$('.flm-ch', chips).forEach(ch => { if (!have.has(ch.dataset.k)) ch.remove(); });
-    A.forEach(f => {
-      let ch = $(`.flm-ch[data-k="${f.k}"]`, chips);
-      if (!ch){ ch = html(`<div class="flm-ch" role="listitem" data-k="${f.k}"><span class="k">${F[f.k].l}</span><button class="op"></button><span class="v"></span><button class="x" data-tip="Remove filter">${I('x','xs')}</button></div>`); chips.appendChild(ch); wire(ch); }
-      else ch.classList.add('seen');
-      const o = val(f.k, f.v), op = F[f.k].ops[+f.neg], text = `${F[f.k].l} ${op} ${o.c || o.l}`;
-      $('.op', ch).textContent = op; $('.v', ch).textContent = o.c || o.l;
-      $('.op', ch).setAttribute('aria-label', `${text}: change to ${F[f.k].ops[+!f.neg]}`); $('.op', ch).dataset.tip = `Change to ${F[f.k].ops[+!f.neg]}`;
-      $('.x', ch).setAttribute('aria-label', `Remove filter ${text}`);
-    });
+    reflow(() => $$('.flm-ch', chips), () => {
+      $$('.flm-ch:not([data-ghost])', chips).forEach(ch => { if (!have.has(ch.dataset.k)) ch.remove(); });
+      A.forEach(f => {
+        let ch = $(`.flm-ch[data-k="${f.k}"]`, chips); const fresh = !ch;
+        if (!ch){ ch = html(`<div class="flm-ch" role="listitem" data-k="${f.k}"><span class="k">${F[f.k].l}</span><button class="op"></button><span class="v"></span><button class="x" data-tip="Remove filter">${I('x','xs')}</button></div>`); chips.appendChild(ch); wire(ch); }
+        else ch.classList.add('seen');
+        const o = val(f.k, f.v), op = F[f.k].ops[+f.neg], text = `${F[f.k].l} ${op} ${o.c || o.l}`;
+        [[$('.op', ch), op], [$('.v', ch), o.c || o.l]].forEach(([el, t]) => { if (el.textContent === t) return; el.textContent = t;
+          if (!fresh && !REDUCE){ if (el._in) el._in.cancel(); el._in = el.animate([{ opacity:0, transform:'translateY(2px)' }, { opacity:1, transform:'none' }], { duration:200, easing:getComputedStyle(r).getPropertyValue('--ease').trim() || 'ease' }); } });
+        $('.op', ch).setAttribute('aria-label', `${text}: change to ${F[f.k].ops[+!f.neg]}`); $('.op', ch).dataset.tip = `Change to ${F[f.k].ops[+!f.neg]}`;
+        $('.x', ch).setAttribute('aria-label', `Remove filter ${text}`);
+      });
+    }, { by:'data-k', root:$('.flm', r), enter:false });
     // the menu shows each field's value, if it has one
     fields.forEach(m => { const f = A.find(x => x.k === m.dataset.k), o = f && val(f.k, f.v); $('.r', m).textContent = o ? (f.neg ? F[f.k].ops[1] + ' ' : '') + (o.c || o.l) : ''; });
     const hit = T.filter(t => match(t)), n = hit.length;
     swap(ct, A.length ? `${n} of ${T.length} issues` : `${T.length} issues`); clr.hidden = !A.length;
-    // the four most recently updated, and how many more
-    const old = new Set($$('.flm-r', list).map(x => x.dataset.t));
-    list.innerHTML = n ? hit.slice(0, 4).map(t => `<div class="flm-r" data-t="${t.t}"><span class="dot" data-s="${t.s}" aria-label="${ST[t.s]}" role="img"></span><span class="t">${t.t}</span><span class="av" data-o="${t.o}" aria-label="${OWN[t.o]}" role="img">${t.o}</span><span class="a">${age(t.a)}</span></div>`).join('') + (n > 4 ? `<div class="flm-more">and ${n - 4} more</div>` : '')
-      : '<div class="flm-e">No issues match these filters</div>';
-    $$('.flm-r', list).forEach((x, i) => { if (!old.has(x.dataset.t)) enter(x, i * 50); });
+    // the four most recently updated, and how many more. Issues that still match glide to their new places, new ones fade
+    // in and the ones filtered out fade where they were (the first paint is the card's entrance)
+    const draw = () => { list.innerHTML = n ? hit.slice(0, 4).map(t => `<div class="flm-r" data-t="${t.t}"><span class="dot" data-s="${t.s}" aria-label="${ST[t.s]}" role="img"></span><span class="t">${t.t}</span><span class="av" data-o="${t.o}" aria-label="${OWN[t.o]}" role="img">${t.o}</span><span class="a">${age(t.a)}</span></div>`).join('') + (n > 4 ? `<div class="flm-more" data-t="more">and ${n - 4} more</div>` : '')
+      : '<div class="flm-e" data-t="none">No issues match these filters</div>'; };
+    if (painted) reflow(() => [...list.children], draw, { by:'data-t', root:$('.flm', r) });
+    else { draw(); stagger($$('.flm-r', list), 50); }
+    painted = true;
   }
+  let painted = false;
   function wire(ch){
     const k = ch.dataset.k;
     $('.op', ch).onclick = () => { const f = A.find(x => x.k === k); f.neg = !f.neg; paint(); };
     $('.x', ch).onclick = () => {
-      const had = ch.contains(document.activeElement), next = ch.nextElementSibling || ch.previousElementSibling;
+      const near = $$('.flm-ch:not([data-ghost])', chips), i = near.indexOf(ch), had = ch.contains(document.activeElement), next = near[i + 1] || near[i - 1];
       A = A.filter(x => x.k !== k); hideTip(); paint();
       if (had) ((next && $('.x', next)) || tr).focus({ preventScroll:true });
     };
@@ -22441,9 +22530,14 @@ DM.def('filter-menu', (r, c) => {
     if (on && focus){ const all = items(); focusItem(focus === 'last' ? all[all.length - 1] : all[0]); }
     if (!on && pop.contains(document.activeElement)) tr.focus({ preventScroll:true });
   }
+  // moving between the two steps, the step coming in slides 4px from the side it is on (values from the right, the fields
+  // back from the left) as it fades in
+  let slid = null;
   function step(k){
     const had = pop.contains(document.activeElement), from = field;
     field = k; l1.hidden = !!k; l2.hidden = !k;
+    if (slid){ slid.cancel(); slid = null; }
+    if (isOpen() && !REDUCE && !!k !== !!from) slid = (k ? l2 : l1).animate([{ opacity:0, transform:`translateX(${k ? 4 : -4}px)` }, { opacity:1, transform:'none' }], { duration:(parseFloat(getComputedStyle(r).getPropertyValue('--t-fast')) || .22) * 1000, easing:getComputedStyle(r).getPropertyValue('--ease').trim() || 'ease' });
     if (k){
       const f = F[k], on = A.find(x => x.k === k);
       l2.setAttribute('aria-label', f.l);
@@ -22685,6 +22779,9 @@ DM.def('kanban', (r, c) => {
   // the cards are drawn again after each change; the ones that stay glide from where they were to where they are now
   let painted = false;
   function paint(o = {}){
+    // a filter or a search: the cards that still match glide to their new places, ones that come back fade in and ones
+    // filtered out fade where they were
+    if (o.filter && painted){ reflow(() => $$('.kbx-k', wrap), () => paint({ flip:false }), { by:'data-id', root:box }); return; }
     const had = document.activeElement && box.contains(document.activeElement) && document.activeElement.closest('.kbx-k');
     const keep = had ? had.dataset.id : null;
     const first = !REDUCE && painted && o.flip !== false ? new Map($$('.kbx-k', wrap).map(el => [el.dataset.id, el.getBoundingClientRect()])) : null;
@@ -22922,7 +23019,7 @@ DM.def('kanban', (r, c) => {
     $$('.mi', fm).forEach(m => m.onclick = () => { const v = m.dataset.v; set.has(v) ? set.delete(v) : set.add(v); m.setAttribute('aria-checked', set.has(v)); refilter(); });
   }
   $$('.kbx-f', r).forEach(b => b.addEventListener('click', () => fill(b.dataset.f)));
-  function refilter(){ K.forEach(k => delete k.keep); paint(); const n = K.filter(shows).length; say(filtering() ? `${n} of ${K.length} cards shown` : `All ${K.length} cards shown`); }
+  function refilter(){ K.forEach(k => delete k.keep); paint({ filter:true });const n = K.filter(shows).length; say(filtering() ? `${n} of ${K.length} cards shown` : `All ${K.length} cards shown`); }
   $$('.kbx-fp button', r).forEach(b => b.onclick = () => { const w = b.dataset.who; F.who.has(w) ? F.who.delete(w) : F.who.add(w); refilter(); });
   const clear = () => { F.q = ''; q.value = ''; qx.hidden = true; F.who.clear(); F.l.clear(); F.p.clear(); refilter(); };
   $('.kbx-clr', r).onclick = clear; $('.kbx-ec', r).onclick = () => { clear(); q.focus({ preventScroll:true }); };

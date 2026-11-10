@@ -302,12 +302,12 @@ export default function AccountTableDemo() {
 import AccountTable from &#39;../components/designme/account-table/AccountTable.astro&#39;;
 ---
 &lt;AccountTable /&gt;
-&lt;AccountTable data-style=&quot;soft&quot; class=&quot;my-class&quot; /&gt;</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything AccountTable takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>accounts</code><span class="opt">required</span></td><td><code>AccountTableAccount[]</code></td><td></td></tr><tr><td><code>plans</code></td><td><code>string[]</code></td><td>The plan filters after All. Defaults to the plans in `accounts`, in the order they first appear</td></tr><tr><td><code>planTones</code></td><td><code>Record&lt;string, AccountTableTone&gt;</code></td><td>The tag colour for each plan. Defaults to Enterprise purple, Pro blue, Team teal</td></tr><tr><td><code>plan</code></td><td><code>string</code></td><td>The plan filter, or &#39;&#39; for All</td></tr><tr><td><code>defaultPlan</code></td><td><code>string</code></td><td></td></tr><tr><td><code>onPlanChange</code></td><td><code>(plan: string) =&gt; void</code></td><td></td></tr><tr><td><code>query</code></td><td><code>string</code></td><td>The search text. Matches account names</td></tr><tr><td><code>defaultQuery</code></td><td><code>string</code></td><td></td></tr><tr><td><code>onQueryChange</code></td><td><code>(query: string) =&gt; void</code></td><td></td></tr><tr><td><code>open</code></td><td><code>string | null</code></td><td>The account whose row is open, or null</td></tr><tr><td><code>defaultOpen</code></td><td><code>string | null</code></td><td></td></tr><tr><td><code>onOpenChange</code></td><td><code>(name: string | null) =&gt; void</code></td><td></td></tr><tr><td><code>action</code></td><td><code>{ label: string; doneLabel?: string; onClick: (account: AccountTableAccount) =&gt; void | Promise&lt;unknown&gt; }</code></td><td>A button in the open row&#39;s note, like Draft email. Return a promise and it spins until it settles, then shows `doneLabel`</td></tr><tr><td><code>placeholder</code></td><td><code>string</code></td><td></td></tr><tr><td><code>emptyLabel</code></td><td><code>string</code></td><td>Shown when nothing matches the search and filter</td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>AccountTable.tsx<span class="l">React · 145 lines</span></summary><pre class="cp-pre" data-name="AccountTable.tsx"><code>&#39;use client&#39;;
+&lt;AccountTable data-style=&quot;soft&quot; class=&quot;my-class&quot; /&gt;</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything AccountTable takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>accounts</code><span class="opt">required</span></td><td><code>AccountTableAccount[]</code></td><td></td></tr><tr><td><code>plans</code></td><td><code>string[]</code></td><td>The plan filters after All. Defaults to the plans in `accounts`, in the order they first appear</td></tr><tr><td><code>planTones</code></td><td><code>Record&lt;string, AccountTableTone&gt;</code></td><td>The tag colour for each plan. Defaults to Enterprise purple, Pro blue, Team teal</td></tr><tr><td><code>plan</code></td><td><code>string</code></td><td>The plan filter, or &#39;&#39; for All</td></tr><tr><td><code>defaultPlan</code></td><td><code>string</code></td><td></td></tr><tr><td><code>onPlanChange</code></td><td><code>(plan: string) =&gt; void</code></td><td></td></tr><tr><td><code>query</code></td><td><code>string</code></td><td>The search text. Matches account names</td></tr><tr><td><code>defaultQuery</code></td><td><code>string</code></td><td></td></tr><tr><td><code>onQueryChange</code></td><td><code>(query: string) =&gt; void</code></td><td></td></tr><tr><td><code>open</code></td><td><code>string | null</code></td><td>The account whose row is open, or null</td></tr><tr><td><code>defaultOpen</code></td><td><code>string | null</code></td><td></td></tr><tr><td><code>onOpenChange</code></td><td><code>(name: string | null) =&gt; void</code></td><td></td></tr><tr><td><code>action</code></td><td><code>{ label: string; doneLabel?: string; onClick: (account: AccountTableAccount) =&gt; void | Promise&lt;unknown&gt; }</code></td><td>A button in the open row&#39;s note, like Draft email. Return a promise and it spins until it settles, then shows `doneLabel`</td></tr><tr><td><code>placeholder</code></td><td><code>string</code></td><td></td></tr><tr><td><code>emptyLabel</code></td><td><code>string</code></td><td>Shown when nothing matches the search and filter</td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>AccountTable.tsx<span class="l">React · 164 lines</span></summary><pre class="cp-pre" data-name="AccountTable.tsx"><code>&#39;use client&#39;;
 import { Fragment, useEffect, useRef, useState, type ReactNode } from &#39;react&#39;;
 import { cx } from &#39;../lib/cx&#39;;
-import { useControllable } from &#39;../lib/hooks&#39;;
+import { useControllable, useReducedMotion } from &#39;../lib/hooks&#39;;
 import { Icon } from &#39;../lib/icons&#39;;
-import { avatarInk, enter, Spin } from &#39;../lib/motion&#39;;
+import { avatarInk, enter, Fold, Spin, useMounted, useReflow } from &#39;../lib/motion&#39;;
 import &#39;../designme.css&#39;;
 import &#39;./account-table.css&#39;;
 
@@ -371,11 +371,16 @@ export function AccountTable({
   const s = text.trim().toLowerCase();
   const rows = accounts.filter(a =&gt; (!filter || a.plan === filter) &amp;&amp; (!s || a.name.toLowerCase().includes(s)));
 
-  // the rows stagger in again whenever the search or the filter changes
-  const look = `${filter}\u0000${s}`;
-  const [seen, setSeen] = useState(look);
-  const [pass, setPass] = useState(0);
-  if (seen !== look) { setSeen(look); setPass(p =&gt; p + 1); }
+  // the rows stagger in once; after that a search or a plan filter glides the rows that still match to their new places,
+  // fades new ones in and fades the ones filtered out where they were
+  const box = useRef&lt;HTMLDivElement&gt;(null);
+  useReflow(box, &#39;tbody &gt; tr[data-key]&#39;);
+  const mounted = useMounted();
+
+  // an open row&#39;s note opens by its height and the rows under it ease down; it folds shut the same way, and goes once folded
+  const [shut, setShut] = useState&lt;string | null&gt;(null);
+  const [was, setWas] = useState(opened);
+  if (was !== opened) { setWas(opened); if (was) setShut(was); }
 
   // the action button resets whenever another row opens
   const [draft, setDraft] = useState&lt;&#39;idle&#39; | &#39;busy&#39; | &#39;done&#39;&gt;(&#39;idle&#39;);
@@ -395,7 +400,7 @@ export function AccountTable({
   const toggle = (name: string) =&gt; setOpened(opened === name ? null : name);
 
   return (
-    &lt;div data-dm=&quot;&quot; className={cx(&#39;dm-atb dm-panel&#39;, className)}&gt;
+    &lt;div data-dm=&quot;&quot; ref={box} className={cx(&#39;dm-atb dm-panel&#39;, className)}&gt;
       &lt;div className=&quot;dm-atb-h&quot;&gt;
         &lt;label className=&quot;dm-atb-s&quot;&gt;&lt;Icon name=&quot;search&quot; size=&quot;xs&quot; /&gt;&lt;input placeholder={placeholder} aria-label={placeholder} value={text} onChange={e =&gt; setText(e.target.value)} /&gt;&lt;/label&gt;
         &lt;div className=&quot;dm-atb-fl&quot; role=&quot;group&quot; aria-label=&quot;Plan&quot;&gt;
@@ -407,12 +412,12 @@ export function AccountTable({
       &lt;div className=&quot;dm-atb-sc&quot;&gt;
         &lt;table&gt;
           &lt;thead&gt;&lt;tr&gt;&lt;th&gt;Account&lt;/th&gt;&lt;th&gt;Plan&lt;/th&gt;&lt;th&gt;Seats&lt;/th&gt;&lt;th&gt;Health&lt;/th&gt;&lt;th className=&quot;dm-r&quot;&gt;MRR&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;
-          &lt;tbody key={pass}&gt;
+          &lt;tbody&gt;
             {rows.length ? rows.map((a, i) =&gt; {
-              const isOpen = opened === a.name, tone = planTones[a.plan];
+              const isOpen = opened === a.name, tone = planTones[a.plan], e = mounted ? undefined : enter(i * 35);
               return (
                 &lt;Fragment key={a.name}&gt;
-                  &lt;tr className={cx(&#39;dm-row&#39;, isOpen &amp;&amp; &#39;dm-open&#39;, enter(i * 35).className)} style={enter(i * 35).style} tabIndex={0} aria-expanded={isOpen}
+                  &lt;tr data-key={a.name} className={cx(&#39;dm-row&#39;, isOpen &amp;&amp; &#39;dm-open&#39;, e?.className)} style={e?.style} tabIndex={0} aria-expanded={isOpen}
                     onClick={() =&gt; toggle(a.name)} onKeyDown={e =&gt; { if ((e.key === &#39;Enter&#39; || e.key === &#39; &#39;) &amp;&amp; e.target === e.currentTarget) { e.preventDefault(); toggle(a.name); } }}&gt;
                     &lt;td&gt;&lt;span className=&quot;dm-nm&quot;&gt;&lt;span className=&quot;dm-lg&quot; style={{ background: a.color, color: avatarInk(a.color) }}&gt;{a.name[0]}&lt;/span&gt;{a.name}&lt;/span&gt;&lt;/td&gt;
                     &lt;td&gt;&lt;span className={cx(&#39;dm-tag&#39;, tone &amp;&amp; TONE[tone])}&gt;{a.plan}&lt;/span&gt;&lt;/td&gt;
@@ -420,10 +425,8 @@ export function AccountTable({
                     &lt;td&gt;&lt;span className=&quot;dm-hb&quot;&gt;&lt;i&gt;&lt;b style={{ width: a.health + &#39;%&#39;, background: healthColor(a.health) }} /&gt;&lt;/i&gt;&lt;span className=&quot;dm-num&quot;&gt;{a.health}&lt;/span&gt;&lt;/span&gt;&lt;/td&gt;
                     &lt;td className=&quot;dm-r dm-num&quot;&gt;{a.mrr}&lt;/td&gt;
                   &lt;/tr&gt;
-                  {isOpen &amp;&amp; (
-                    &lt;tr className=&quot;dm-det&quot;&gt;
-                      &lt;td colSpan={5}&gt;
-                        &lt;div className=&quot;dm-fold&quot;&gt;&lt;div&gt;
+                  {(isOpen || shut === a.name) &amp;&amp; (
+                    &lt;Note name={a.name} open={isOpen} onGone={() =&gt; setShut(x =&gt; x === a.name ? null : x)}&gt;
                           &lt;div className=&quot;dm-atb-note dm-enter&quot;&gt;
                             &lt;Icon name=&quot;spark&quot; size=&quot;xs&quot; /&gt;
                             &lt;span&gt;{a.note}&lt;/span&gt;
@@ -433,17 +436,33 @@ export function AccountTable({
                               &lt;/button&gt;
                             )}
                           &lt;/div&gt;
-                        &lt;/div&gt;&lt;/div&gt;
-                      &lt;/td&gt;
-                    &lt;/tr&gt;
+                    &lt;/Note&gt;
                   )}
                 &lt;/Fragment&gt;
               );
-            }) : &lt;tr className=&quot;dm-atb-empty&quot;&gt;&lt;td colSpan={5}&gt;{emptyLabel}&lt;/td&gt;&lt;/tr&gt;}
+            }) : &lt;tr className=&quot;dm-atb-empty&quot; data-key=&quot; none&quot;&gt;&lt;td colSpan={5}&gt;{emptyLabel}&lt;/td&gt;&lt;/tr&gt;}
           &lt;/tbody&gt;
         &lt;/table&gt;
       &lt;/div&gt;
     &lt;/div&gt;
+  );
+}
+
+/** The note under an open row: it mounts shut and folds open on the next frame; told to close, it folds shut and then goes */
+function Note({ name, open, onGone, children }: { name: string; open: boolean; onGone: () =&gt; void; children: ReactNode }) {
+  const [on, setOn] = useState(false);
+  const reduce = useReducedMotion();
+  const ref = useRef&lt;HTMLTableRowElement&gt;(null);
+  useEffect(() =&gt; {
+    if (open) { const f = requestAnimationFrame(() =&gt; setOn(true)); return () =&gt; cancelAnimationFrame(f); }
+    setOn(false);
+    const ms = reduce || !ref.current ? 0 : (parseFloat(getComputedStyle(ref.current).getPropertyValue(&#39;--dm-t&#39;)) || .45) * 1000;
+    const t = setTimeout(onGone, ms); return () =&gt; clearTimeout(t);
+  }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
+  return (
+    &lt;tr ref={ref} className=&quot;dm-det&quot; data-key={name + &#39; note&#39;}&gt;
+      &lt;td colSpan={5}&gt;&lt;Fold open={on}&gt;{children}&lt;/Fold&gt;&lt;/td&gt;
+    &lt;/tr&gt;
   );
 }
 </code></pre></details><details class="cp-file"><summary>account-table.css<span class="l">React · 47 lines</span></summary><pre class="cp-pre" data-name="account-table.css"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
@@ -571,7 +590,7 @@ const { class: className, ...rest } = Astro.props;
 .atb-note&gt;svg{color:var(--dm-accent-fg,var(--dm-accent));flex:none}
 .atb-note span{flex:1}
 .atb-empty td{text-align:center;color:var(--dm-muted);padding:var(--dm-s-6)}
-</code></pre></details><details class="cp-file"><summary>account-table.js<span class="l">HTML · 26 lines</span></summary><pre class="cp-pre" data-name="account-table.js"><code>DM.def(&#39;account-table&#39;, (r, c) =&gt; {
+</code></pre></details><details class="cp-file"><summary>account-table.js<span class="l">HTML · 46 lines</span></summary><pre class="cp-pre" data-name="account-table.js"><code>DM.def(&#39;account-table&#39;, (r, c) =&gt; {
   r.innerHTML = r.innerHTML.replace(&#39;{search}&#39;, I(&#39;search&#39;,&#39;xs&#39;));
   const A = [
     [&#39;Northwind&#39;,&#39;b&#39;,&#39;Enterprise&#39;,120,92,&#39;$14,400&#39;,&#39;Expanding. Design team added 18 seats this month.&#39;],
@@ -583,18 +602,38 @@ const { class: className, ...rest } = Astro.props;
   ];
   const tb = $(&#39;tbody&#39;, r), q = $(&#39;.atb-s input&#39;, r); let plan = &#39;&#39;, open = null;
   const hc = h =&gt; h &gt;= 80 ? &#39;var(--dm-atb-ok)&#39; : h &gt;= 60 ? &#39;var(--dm-atb-warn)&#39; : &#39;var(--dm-atb-bad)&#39;;
-  function paint(anim){
-    const s = q.value.trim().toLowerCase(), rows = A.filter(a =&gt; (!plan || a[2] === plan) &amp;&amp; (!s || a[0].toLowerCase().includes(s)));
-    tb.innerHTML = rows.length ? rows.map(a =&gt; `&lt;tr class=&quot;row${open === a[0] ? &#39; open&#39; : &#39;&#39;}&quot; data-n=&quot;${a[0]}&quot;&gt;&lt;td&gt;&lt;span class=&quot;nm&quot;&gt;&lt;span class=&quot;lg&quot; style=&quot;background:var(--dm-av-${a[1]});color:var(--dm-av-${a[1]}-ink)&quot;&gt;${a[0][0]}&lt;/span&gt;${a[0]}&lt;/span&gt;&lt;/td&gt;&lt;td&gt;&lt;span class=&quot;tag ${a[2] === &#39;Enterprise&#39; ? &#39;l&#39; : a[2] === &#39;Pro&#39; ? &#39;b&#39; : &#39;t&#39;}&quot;&gt;${a[2]}&lt;/span&gt;&lt;/td&gt;&lt;td class=&quot;num&quot;&gt;${a[3]}&lt;/td&gt;&lt;td&gt;&lt;span class=&quot;hb&quot;&gt;&lt;i&gt;&lt;b style=&quot;width:${a[4]}%;background:${hc(a[4])}&quot;&gt;&lt;/b&gt;&lt;/i&gt;&lt;span class=&quot;num&quot;&gt;${a[4]}&lt;/span&gt;&lt;/span&gt;&lt;/td&gt;&lt;td class=&quot;r num&quot;&gt;${a[5]}&lt;/td&gt;&lt;/tr&gt;` + (open === a[0] ? `&lt;tr class=&quot;det&quot;&gt;&lt;td colspan=&quot;5&quot;&gt;&lt;div class=&quot;fold&quot;&gt;&lt;div&gt;&lt;div class=&quot;atb-note&quot;&gt;${I(&#39;spark&#39;,&#39;xs&#39;)}&lt;span&gt;${a[6]}&lt;/span&gt;&lt;button class=&quot;pill soft sm&quot;&gt;Draft email&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/td&gt;&lt;/tr&gt;` : &#39;&#39;)).join(&#39;&#39;) : &#39;&lt;tr class=&quot;atb-empty&quot;&gt;&lt;td colspan=&quot;5&quot;&gt;No accounts match&lt;/td&gt;&lt;/tr&gt;&#39;;
-    if (anim) stagger($$(&#39;tr.row&#39;, tb), 35);
-    $$(&#39;tr.row&#39;, tb).forEach(tr =&gt; tr.onclick = () =&gt; { open = open === tr.dataset.n ? null : tr.dataset.n; paint(); const d = $(&#39;.atb-note&#39;, tb); if (d) enter(d); });
-    const dr = $(&#39;.atb-note .pill&#39;, tb); if (dr) dr.onclick = e =&gt; { e.stopPropagation(); dr.innerHTML = &#39;&lt;span class=&quot;spin&quot;&gt;&lt;/span&gt;&#39;; c.later(800, () =&gt; { dr.innerHTML = I(&#39;check&#39;,&#39;xs&#39;) + &#39;Draft ready&#39;; }); };
+  // each row is made once and kept, so a search or a plan filter can ease it between places; the note under an open row
+  // is its own row, keyed after it
+  const rows = new Map(A.map(a =&gt; [a[0], html(`&lt;tr class=&quot;row&quot; data-n=&quot;${a[0]}&quot;&gt;&lt;td&gt;&lt;span class=&quot;nm&quot;&gt;&lt;span class=&quot;lg&quot; style=&quot;background:var(--dm-av-${a[1]});color:var(--dm-av-${a[1]}-ink)&quot;&gt;${a[0][0]}&lt;/span&gt;${a[0]}&lt;/span&gt;&lt;/td&gt;&lt;td&gt;&lt;span class=&quot;tag ${a[2] === &#39;Enterprise&#39; ? &#39;l&#39; : a[2] === &#39;Pro&#39; ? &#39;b&#39; : &#39;t&#39;}&quot;&gt;${a[2]}&lt;/span&gt;&lt;/td&gt;&lt;td class=&quot;num&quot;&gt;${a[3]}&lt;/td&gt;&lt;td&gt;&lt;span class=&quot;hb&quot;&gt;&lt;i&gt;&lt;b style=&quot;width:${a[4]}%;background:${hc(a[4])}&quot;&gt;&lt;/b&gt;&lt;/i&gt;&lt;span class=&quot;num&quot;&gt;${a[4]}&lt;/span&gt;&lt;/span&gt;&lt;/td&gt;&lt;td class=&quot;r num&quot;&gt;${a[5]}&lt;/td&gt;&lt;/tr&gt;`)]));
+  const none = html(&#39;&lt;tr class=&quot;atb-empty&quot; data-n=&quot; none&quot;&gt;&lt;td colspan=&quot;5&quot;&gt;No accounts match&lt;/td&gt;&lt;/tr&gt;&#39;);
+  let det = null;
+  function note(a){
+    const d = html(`&lt;tr class=&quot;det&quot; data-n=&quot;${a[0]} note&quot;&gt;&lt;td colspan=&quot;5&quot;&gt;&lt;div class=&quot;fold&quot;&gt;&lt;div&gt;&lt;div class=&quot;atb-note&quot;&gt;${I(&#39;spark&#39;,&#39;xs&#39;)}&lt;span&gt;${a[6]}&lt;/span&gt;&lt;button class=&quot;pill soft sm&quot;&gt;Draft email&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/td&gt;&lt;/tr&gt;`);
+    const dr = $(&#39;.pill&#39;, d); dr.onclick = e =&gt; { e.stopPropagation(); dr.innerHTML = &#39;&lt;span class=&quot;spin&quot;&gt;&lt;/span&gt;&#39;; c.later(800, () =&gt; { dr.innerHTML = I(&#39;check&#39;,&#39;xs&#39;) + &#39;Draft ready&#39;; }); };
+    return d;
   }
+  // the rows that match, in order, with the open row&#39;s note under it
+  function paint(anim){
+    const s = q.value.trim().toLowerCase(), L = A.filter(a =&gt; (!plan || a[2] === plan) &amp;&amp; (!s || a[0].toLowerCase().includes(s)));
+    // a note still folding shut stays under its row
+    const draw = () =&gt; { const keep = $$(&#39;tr.det.going&#39;, tb); tb.replaceChildren(...(L.length ? L.flatMap(a =&gt; [rows.get(a[0]), ...(det &amp;&amp; open === a[0] ? [det] : [])]) : [none]));
+      keep.forEach(x =&gt; { if (x._row.isConnected) x._row.after(x); }); };
+    if (anim) reflow(() =&gt; $$(&#39;tr[data-n]&#39;, tb), draw, { by:&#39;data-n&#39;, root:$(&#39;.atb&#39;, r) }); else draw();
+    rows.forEach((tr, n) =&gt; tr.classList.toggle(&#39;open&#39;, n === open));
+  }
+  // a row opens its note by its height, and the rows under it ease down; another row, or the same one again, folds it shut
+  function toggle(n){
+    if (det){ const d = det, f = $(&#39;.fold&#39;, d); d.classList.add(&#39;going&#39;); d.removeAttribute(&#39;data-n&#39;); f.classList.add(&#39;shut&#39;); setTimeout(() =&gt; d.remove(), REDUCE ? 0 : (parseFloat(getComputedStyle(r).getPropertyValue(&#39;--dm-t&#39;)) || .45) * 1000); det = null; }
+    open = open === n ? null : n;
+    if (open){ det = note(A.find(a =&gt; a[0] === open)); det._row = rows.get(open); const f = $(&#39;.fold&#39;, det); f.classList.add(&#39;shut&#39;); rows.get(open).after(det); void f.offsetHeight; f.classList.remove(&#39;shut&#39;); enter($(&#39;.atb-note&#39;, det)); }
+    rows.forEach((tr, k) =&gt; tr.classList.toggle(&#39;open&#39;, k === open));
+  }
+  rows.forEach((tr, n) =&gt; tr.onclick = () =&gt; toggle(n));
   q.oninput = () =&gt; paint(true);
   $$(&#39;.atb-fl .chip&#39;, r).forEach(ch =&gt; ch.onclick = () =&gt; { $$(&#39;.atb-fl .chip&#39;, r).forEach(x =&gt; x.classList.toggle(&#39;on&#39;, x === ch)); plan = ch.dataset.p; paint(true); });
-  paint(true);
+  paint(); stagger([...rows.values()], 35);
   // the preview opens one account&#39;s note on its own, unless you take over first
-  c.auto(1200, () =&gt; { if (!open){ open = &#39;Lumen Labs&#39;; paint(); enter($(&#39;.atb-note&#39;, tb)); } });
+  c.auto(1200, () =&gt; { if (!open) toggle(&#39;Lumen Labs&#39;); });
 });
 </code></pre></details></div></section><section class="cp-sec" id="questions"><div class="pg-sh"><span class="n">06</span><h2>Questions</h2><p>What people ask about it.</p></div><dl class="cp-qs"><div><dt class="pg-t">How do I add a "Draft email" button to the agent's note?</dt><dd>Pass <code>action</code> with a <code>label</code>, an optional <code>doneLabel</code> and an <code>onClick</code> that receives the account. Return a promise and the button spins until it resolves, then shows the done label. If it rejects, the button goes back to its label.</dd></div><div><dt class="pg-t">Can the agent open a row by itself?</dt><dd>Yes. Control <code>open</code> with the account's name and update it from your own state, for example when the agent flags an account. Set it to null to close all rows.</dd></div><div><dt class="pg-t">Does the table sort or format MRR for me?</dt><dd>No. Rows appear in the order of <code>accounts</code>, and <code>mrr</code> is shown as the string you pass, so format it first, like "$14,400".</dd></div><div><dt class="pg-t">Can I put links or formatting in the note?</dt><dd>Yes. <code>note</code> takes any React node, so it can hold links, bold text or other elements.</dd></div></dl></section><section class="cp-sec" id="more"><div class="pg-sh"><span class="n">07</span><h2>More in Charts and tables</h2><p>Lightweight charts and tables for dashboards and reports, drawn in plain SVG and HTML.</p></div><div class="pg-cards"><div class="pg-card"><a class="pg-t pg-link" href="/components/line-chart">Line chart</a><span class="pg-d">Two series over time with a hover readout and toggles.</span><span class="pg-thumb" data-reg="line-chart" data-h="420"><img class="lt" src="/components/thumbs/line-chart-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/line-chart-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></div><div class="pg-card"><a class="pg-t pg-link" href="/components/bar-chart">Bar chart</a><span class="pg-d">Weekly agent runs, split by outcome, with a range switch.</span><span class="pg-thumb" data-reg="bar-chart" data-h="420"><img class="lt" src="/components/thumbs/bar-chart-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/bar-chart-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></div><div class="pg-card"><a class="pg-t pg-link" href="/components/donut-chart">Donut chart</a><span class="pg-d">Where the agent&#39;s time went, by kind of task.</span><span class="pg-thumb" data-reg="donut-chart" data-h="420"><img class="lt" src="/components/thumbs/donut-chart-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/donut-chart-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></div><div class="pg-card"><a class="pg-t pg-link" href="/components/radial-goals">Radial goals</a><span class="pg-d">Each agent&#39;s share of its own target as a ring, with the overall score in the middle.</span><span class="pg-thumb" data-reg="radial-goals" data-h="420"><img class="lt" src="/components/thumbs/radial-goals-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/radial-goals-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></div><div class="pg-card"><a class="pg-t pg-link" href="/components/funnel-chart">Funnel chart</a><span class="pg-d">Signup to paid, with the biggest drop called out by the agent.</span><span class="pg-thumb" data-reg="funnel-chart" data-h="430"><img class="lt" src="/components/thumbs/funnel-chart-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/funnel-chart-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></div><div class="pg-card"><a class="pg-t pg-link" href="/components/top-pages">Top pages</a><span class="pg-d">Most visited pages with share of traffic and a quick sort.</span><span class="pg-thumb" data-reg="top-pages" data-h="493"><img class="lt" src="/components/thumbs/top-pages-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/top-pages-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></div><div class="pg-card"><a class="pg-t pg-link" href="/components/health-score">Health score</a><span class="pg-d">An account&#39;s health: a score ring, four factors that open, and the agent&#39;s next move.</span><span class="pg-thumb" data-reg="health-score" data-h="518"><img class="lt" src="/components/thumbs/health-score-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/health-score-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></div><div class="pg-card"><a class="pg-t pg-link" href="/components/score-breakdown">Score breakdown</a><span class="pg-d">A score out of 100 whose gauge is split by what goes into it, with the weakest part flagged and a fix to try.</span><span class="pg-thumb" data-reg="score-breakdown" data-h="627"><img class="lt" src="/components/thumbs/score-breakdown-light.webp" alt="" width="640" height="400" loading="lazy" decoding="async"><img class="dk" src="/components/thumbs/score-breakdown-dark.webp" alt="" width="640" height="400" loading="lazy" decoding="async"></span></div></div><a class="cp-all" href="/#s-charts">All 13 in Charts and tables →</a></section><nav class="dc-pn" aria-label="Previous and next component"><a href="/components/stat-cards" rel="prev"><span class="pg-d"><svg viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M224,128a8,8,0,0,1-8,8H59.31l58.35,58.34a8,8,0,0,1-11.32,11.32l-72-72a8,8,0,0,1,0-11.32l72-72a8,8,0,0,1,11.32,11.32L59.31,120H216A8,8,0,0,1,224,128Z"/></svg>Previous</span><span class="pg-t">Stat cards</span></a><a href="/components/date-picker" rel="next" class="n"><span class="pg-d">Next<svg viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"/></svg></span><span class="pg-t">Date picker</span></a></nav></div></div></div><script>
 // the sidebar, as the homepage's behaves
@@ -927,18 +966,38 @@ const fitHits = window.dmFitHits || (() => {
   ];
   const tb = $('tbody', r), q = $('.atb-s input', r); let plan = '', open = null;
   const hc = h => h >= 80 ? 'var(--dm-atb-ok)' : h >= 60 ? 'var(--dm-atb-warn)' : 'var(--dm-atb-bad)';
-  function paint(anim){
-    const s = q.value.trim().toLowerCase(), rows = A.filter(a => (!plan || a[2] === plan) && (!s || a[0].toLowerCase().includes(s)));
-    tb.innerHTML = rows.length ? rows.map(a => `<tr class="row${open === a[0] ? ' open' : ''}" data-n="${a[0]}"><td><span class="nm"><span class="lg" style="background:var(--dm-av-${a[1]});color:var(--dm-av-${a[1]}-ink)">${a[0][0]}</span>${a[0]}</span></td><td><span class="tag ${a[2] === 'Enterprise' ? 'l' : a[2] === 'Pro' ? 'b' : 't'}">${a[2]}</span></td><td class="num">${a[3]}</td><td><span class="hb"><i><b style="width:${a[4]}%;background:${hc(a[4])}"></b></i><span class="num">${a[4]}</span></span></td><td class="r num">${a[5]}</td></tr>` + (open === a[0] ? `<tr class="det"><td colspan="5"><div class="fold"><div><div class="atb-note">${I('spark','xs')}<span>${a[6]}</span><button class="pill soft sm">Draft email</button></div></div></div></td></tr>` : '')).join('') : '<tr class="atb-empty"><td colspan="5">No accounts match</td></tr>';
-    if (anim) stagger($$('tr.row', tb), 35);
-    $$('tr.row', tb).forEach(tr => tr.onclick = () => { open = open === tr.dataset.n ? null : tr.dataset.n; paint(); const d = $('.atb-note', tb); if (d) enter(d); });
-    const dr = $('.atb-note .pill', tb); if (dr) dr.onclick = e => { e.stopPropagation(); dr.innerHTML = '<span class="spin"></span>'; c.later(800, () => { dr.innerHTML = I('check','xs') + 'Draft ready'; }); };
+  // each row is made once and kept, so a search or a plan filter can ease it between places; the note under an open row
+  // is its own row, keyed after it
+  const rows = new Map(A.map(a => [a[0], html(`<tr class="row" data-n="${a[0]}"><td><span class="nm"><span class="lg" style="background:var(--dm-av-${a[1]});color:var(--dm-av-${a[1]}-ink)">${a[0][0]}</span>${a[0]}</span></td><td><span class="tag ${a[2] === 'Enterprise' ? 'l' : a[2] === 'Pro' ? 'b' : 't'}">${a[2]}</span></td><td class="num">${a[3]}</td><td><span class="hb"><i><b style="width:${a[4]}%;background:${hc(a[4])}"></b></i><span class="num">${a[4]}</span></span></td><td class="r num">${a[5]}</td></tr>`)]));
+  const none = html('<tr class="atb-empty" data-n=" none"><td colspan="5">No accounts match</td></tr>');
+  let det = null;
+  function note(a){
+    const d = html(`<tr class="det" data-n="${a[0]} note"><td colspan="5"><div class="fold"><div><div class="atb-note">${I('spark','xs')}<span>${a[6]}</span><button class="pill soft sm">Draft email</button></div></div></div></td></tr>`);
+    const dr = $('.pill', d); dr.onclick = e => { e.stopPropagation(); dr.innerHTML = '<span class="spin"></span>'; c.later(800, () => { dr.innerHTML = I('check','xs') + 'Draft ready'; }); };
+    return d;
   }
+  // the rows that match, in order, with the open row's note under it
+  function paint(anim){
+    const s = q.value.trim().toLowerCase(), L = A.filter(a => (!plan || a[2] === plan) && (!s || a[0].toLowerCase().includes(s)));
+    // a note still folding shut stays under its row
+    const draw = () => { const keep = $$('tr.det.going', tb); tb.replaceChildren(...(L.length ? L.flatMap(a => [rows.get(a[0]), ...(det && open === a[0] ? [det] : [])]) : [none]));
+      keep.forEach(x => { if (x._row.isConnected) x._row.after(x); }); };
+    if (anim) reflow(() => $$('tr[data-n]', tb), draw, { by:'data-n', root:$('.atb', r) }); else draw();
+    rows.forEach((tr, n) => tr.classList.toggle('open', n === open));
+  }
+  // a row opens its note by its height, and the rows under it ease down; another row, or the same one again, folds it shut
+  function toggle(n){
+    if (det){ const d = det, f = $('.fold', d); d.classList.add('going'); d.removeAttribute('data-n'); f.classList.add('shut'); setTimeout(() => d.remove(), REDUCE ? 0 : (parseFloat(getComputedStyle(r).getPropertyValue('--dm-t')) || .45) * 1000); det = null; }
+    open = open === n ? null : n;
+    if (open){ det = note(A.find(a => a[0] === open)); det._row = rows.get(open); const f = $('.fold', det); f.classList.add('shut'); rows.get(open).after(det); void f.offsetHeight; f.classList.remove('shut'); enter($('.atb-note', det)); }
+    rows.forEach((tr, k) => tr.classList.toggle('open', k === open));
+  }
+  rows.forEach((tr, n) => tr.onclick = () => toggle(n));
   q.oninput = () => paint(true);
   $$('.atb-fl .chip', r).forEach(ch => ch.onclick = () => { $$('.atb-fl .chip', r).forEach(x => x.classList.toggle('on', x === ch)); plan = ch.dataset.p; paint(true); });
-  paint(true);
+  paint(); stagger([...rows.values()], 35);
   // the preview opens one account's note on its own, unless you take over first
-  c.auto(1200, () => { if (!open){ open = 'Lumen Labs'; paint(); enter($('.atb-note', tb)); } });
+  c.auto(1200, () => { if (!open) toggle('Lumen Labs'); });
 });
 </script><script>
     (function(){
