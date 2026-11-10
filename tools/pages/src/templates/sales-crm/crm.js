@@ -384,6 +384,46 @@
       e.preventDefault(); e.stopPropagation(); measure(); const i = +g.dataset.i; colW[i] = Math.max(MIN[i] || 72, colW[i] + (e.key === 'ArrowRight' ? 16 : -16)); apply(); save(); });
     wide.addEventListener('change', apply); apply();
   }
+  // the summary row (owner, 10 Nov): pinned to the table's foot as it scrolls, the count of accounts in view under Account and a
+  // calculation under any other column, picked from the cell itself. Pipeline starts on its sum and Health on its average;
+  // an empty cell offers one when the row is hovered. It follows the filters, the search and the columns' widths
+  const n0 = v => typeof v === 'number' ? v.toLocaleString('en-US') : v;
+  const med = a => { const b = [...a].sort((x, y) => x - y), m = b.length >> 1; return b.length ? (b.length % 2 ? b[m] : (b[m - 1] + b[m]) / 2) : 0; };
+  const avgOf = (r, f) => r.length ? sum(r, f) / r.length : 0;
+  const CALC = {
+    stage:{ uniq:['Unique', r => [new Set(r.map(c => c.st)).size, 'stages']],
+      top:['Most common', r => { const n = {}; r.forEach(c => n[c.st] = (n[c.st] || 0) + 1); const k = Object.keys(n).sort((a, b) => n[b] - n[a])[0]; return k ? [ST[k].t, 'most common'] : [0, 'accounts']; }] },
+    next:{ none:['No next step', r => [r.filter(c => !c.next).length, 'without one']], late:['Overdue', r => [r.filter(c => c.next && c.next.day < 0).length, 'overdue']],
+      week:['In 7 days', r => [r.filter(c => c.next && c.next.day >= 0 && c.next.day <= 7).length, 'in 7 days']] },
+    owner:{ uniq:['Unique', r => [new Set(r.map(c => c.own)).size, 'owners']] },
+    value:{ sum:['Sum', r => [kmoney(sum(r, c => c.value)), 'sum']], avg:['Average', r => [kmoney(avgOf(r, c => c.value)), 'average']], med:['Median', r => [kmoney(med(r.map(c => c.value))), 'median']],
+      min:['Smallest', r => [kmoney(r.length ? Math.min(...r.map(c => c.value)) : 0), 'smallest']], max:['Largest', r => [kmoney(r.length ? Math.max(...r.map(c => c.value)) : 0), 'largest']] },
+    health:{ avg:['Average', r => [Math.round(avgOf(r, c => c.health)), 'average']], med:['Median', r => [Math.round(med(r.map(c => c.health))), 'median']],
+      min:['Lowest', r => [r.length ? Math.min(...r.map(c => c.health)) : 0, 'lowest']], risk:['At risk', r => [r.filter(c => c.hb === 'bad').length, 'at risk']] },
+    agent:{ sug:['Suggestions', r => [r.filter(c => c.sug).length, 'suggested']] },
+  };
+  const calcOn = { value:'sum', health:'avg' };
+  const tfKeys = [null, 'name', 'stage', 'next', 'owner', 'value', 'health', 'agent', null], colName = {};
+  $$('.crm-t thead th', app).forEach((th, i) => { if (tfKeys[i]) colName[tfKeys[i]] = th.textContent.trim(); });
+  const tfr = $('.crm-t', app).createTFoot().insertRow(); tfr.className = 'crm-tf';
+  tfKeys.forEach((k, i) => { const td = document.createElement('td');
+    if (i === 0) td.className = 'ck stk'; else if (k === 'name') td.className = 'stk2';
+    if (k === 'name') td.innerHTML = '<span class="crm-tfc"></span>';
+    else if (k) td.innerHTML = `<button class="crm-tfb" data-k="${k}" data-pop="#crm-p-calc" data-pop-pos="up" aria-haspopup="menu"></button>`;
+    tfr.appendChild(td); });
+  function paintCalcs(){
+    $('.crm-tfc', tfr).innerHTML = `<b class="num">${rows.length}</b><span>${rows.length === 1 ? 'account' : 'accounts'}</span>`;
+    $$('.crm-tfb', tfr).forEach(b => { const k = b.dataset.k, c = calcOn[k];
+      if (c){ const [v, l] = CALC[k][c][1](rows); b.innerHTML = `<b class="num">${n0(v)}</b><span>${l}</span>`; b.classList.add('on'); b.setAttribute('aria-label', `${colName[k]}: ${n0(v)} ${l}. Change the calculation`); }
+      else { b.innerHTML = `${I('plus', 'xs')}<span>Add calculation</span>`; b.classList.remove('on'); b.setAttribute('aria-label', `Add a calculation for ${colName[k]}`); } });
+  }
+  let calcFor = null;
+  $$('.crm-tfb', tfr).forEach(b => b.addEventListener('click', () => {
+    calcFor = b.dataset.k; const p = $('#crm-p-calc', app), cur = calcOn[calcFor];
+    p.innerHTML = `<div class="ph" role="none">${esc(colName[calcFor])}</div>` + Object.entries(CALC[calcFor]).map(([id, [l, f]]) => mi(`data-c="${id}"`, `<span>${l}</span><span class="r num">${n0(f(rows)[0])}</span>`, 'menuitemradio', cur === id)).join('')
+      + (cur ? `<div class="sep" role="separator"></div>` + mi('data-c=""', `${I('x', 's')}<span>None</span>`, 'menuitem') : '');
+    $$('.mi', p).forEach(m => m.addEventListener('click', () => { if (m.dataset.c) calcOn[calcFor] = m.dataset.c; else delete calcOn[calcFor]; paintCalcs(); }));
+  }));
   const SORTS = { value:['Pipeline', c => c.value, 'dollar', 'Low to high', 'High to low'], health:['Health', c => c.health, 'gauge', 'Low to high', 'High to low'], next:['Next step', c => c.next ? c.next.day * 100 + c.next.h : 1e6, 'cal', 'Soonest first', 'Latest first'], name:['Account', c => c.n.toLowerCase(), 'globe', 'A to Z', 'Z to A'], stage:['Stage', c => ST[c.st].i, 'layers', 'Earliest first', 'Latest first'], owner:['Owner', c => P[c.own][0], 'user', 'A to Z', 'Z to A'] };
   const ASC = ['name', 'owner', 'next'];
   const qOk = c => !F.q || (c.n + ' ' + c.seg + ' ' + c.tags.join(' ') + ' ' + P[c.own][0] + ' ' + c.ppl.map(p => p.n).join(' ')).toLowerCase().includes(F.q.toLowerCase());
@@ -445,7 +485,7 @@
     $$('.crm-t .ttx-s', app).forEach(b => { const on = b.dataset.k === F.S[0].k; b.classList.toggle('on', on); b.classList.toggle('desc', on && F.S[0].desc); b.closest('th').setAttribute('aria-sort', on ? (F.S[0].desc ? 'descending' : 'ascending') : 'none'); });
     swap($('.crm-sort .v', app), sortLabel());
     $$('button', acFp).forEach(b => b.setAttribute('aria-pressed', F.own.has(b.dataset.who))); acFp.classList.toggle('some', F.own.size > 0);
-    syncSel(); chips(); counts();
+    syncSel(); chips(); counts(); paintCalcs();
   }
   function syncSel(){
     [...sel].forEach(id => { if (!coOf(id)) sel.delete(id); });
