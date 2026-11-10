@@ -2362,6 +2362,12 @@ body:has(.crm) .dmf{display:none}
    without holding a space of its own, so a card at rest has no gap there */
 .crm-kb:not(.list) .kbx-k1{position:relative}
 .crm-kb:not(.list) .kbx-k1 .kbx-mv{position:absolute;right:26px;top:-1px;margin:0}
+/* the account as an outlined chip beside the priority, so a card is four lines: ID and owner, chips, name, figures */
+.crm-kb .crm-pri{display:flex;align-items:center;gap:6px;min-width:0}
+.crm-kacc{display:inline-flex;align-items:center;gap:5px;min-width:0;height:20px;padding:0 7px 0 3px;border-radius:var(--dm-r-sm);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 70%,transparent);font-size:11px;color:var(--dm-fg2)}
+@supports (corner-shape:squircle){.crm-kacc{corner-shape:squircle}}
+.crm-kacc .pfm-lg.xs{width:14px;height:14px;font-size:11px}
+.crm-kacc .t{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 </style><style>@font-face{font-family:Inter;font-style:normal;font-weight:400;font-display:swap;src:url(/fonts/inter-latin-400-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:Inter;font-style:normal;font-weight:500;font-display:swap;src:url(/fonts/inter-latin-500-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:Inter;font-style:normal;font-weight:600;font-display:swap;src:url(/fonts/inter-latin-600-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
@@ -3962,9 +3968,10 @@ const fitHits = window.dmFitHits || (() => {
     if (K.view === 'list') return listRow(d);
     return `<div class="kbx-k${d.st === 'won' ? ' won' : ''}${d.st === 'lost' ? ' lost' : ''}${sheetFor === d.co ? ' open' : ''}" data-id="${d.id}" role="listitem" tabindex="-1" aria-label="${esc(d.n)}, ${esc(c.n)}, ${money(d.v)}, ${ST[d.st].t}${late ? ', past its close date' : ''}">`
       + `<div class="kbx-k1"><span class="kbx-id num">${d.id}</span><span class="kbx-sp"></span><span class="kbx-who" data-tip="${P[d.own][0]}">${av(d.own)}</span><button class="kbx-mv" data-pop="#crm-p-mv" data-pop-align="end" aria-haspopup="menu" aria-label="Move ${esc(d.n)}" data-tip="Move to" tabindex="-1">${I('more', 'xs')}</button></div>`
-      + (closed(d) ? '' : (pr => `<div class="kbx-tags crm-pri"><span class="tag ${pr[1]}">${pr[0]}</span></div>`)(prioOf(d)))
+      // the chips: its priority (open deals) and its account, side by side, the way Kanban board pairs a priority and a project
+      + `<div class="kbx-tags crm-pri">${closed(d) ? '' : (pr => `<span class="tag ${pr[1]}">${pr[0]}</span>`)(prioOf(d))}<span class="crm-kacc"><span class="pfm-lg xs" aria-hidden="true">${esc(c.n[0])}</span><span class="t">${esc(c.n)}</span></span></div>`
       + `<div class="t">${esc(d.n)}</div>`
-      + `<div class="kbx-m"><span class="kbx-mt co"><span class="pfm-lg xs" aria-hidden="true">${esc(c.n[0])}</span>${esc(c.n)}</span><span class="kbx-mt v num">${money(d.v)}</span>`
+      + `<div class="kbx-m"><span class="kbx-mt v num">${money(d.v)}</span>`
       + `<span class="kbx-mt num${late ? ' late' : ''}">${I(late ? 'alert' : 'cal', 'xs')}${whenOf(d)}</span>${closed(d) ? '' : `<span class="kbx-mt num">${d.p}%</span>`}</div>${d.st === 'lost' && d.why ? `<div class="crm-why">${esc(d.why)}</div>` : ''}</div>`; };
   // the + puts a draft at the top of its column: write the deal's name, pick the account (the one touched last by default),
   // Enter or Add adds it with Undo, Escape or Cancel drops it

@@ -1340,9 +1340,10 @@
     if (K.view === 'list') return listRow(d);
     return `<div class="kbx-k${d.st === 'won' ? ' won' : ''}${d.st === 'lost' ? ' lost' : ''}${sheetFor === d.co ? ' open' : ''}" data-id="${d.id}" role="listitem" tabindex="-1" aria-label="${esc(d.n)}, ${esc(c.n)}, ${money(d.v)}, ${ST[d.st].t}${late ? ', past its close date' : ''}">`
       + `<div class="kbx-k1"><span class="kbx-id num">${d.id}</span><span class="kbx-sp"></span><span class="kbx-who" data-tip="${P[d.own][0]}">${av(d.own)}</span><button class="kbx-mv" data-pop="#crm-p-mv" data-pop-align="end" aria-haspopup="menu" aria-label="Move ${esc(d.n)}" data-tip="Move to" tabindex="-1">${I('more', 'xs')}</button></div>`
-      + (closed(d) ? '' : (pr => `<div class="kbx-tags crm-pri"><span class="tag ${pr[1]}">${pr[0]}</span></div>`)(prioOf(d)))
+      // the chips: its priority (open deals) and its account, side by side, the way Kanban board pairs a priority and a project
+      + `<div class="kbx-tags crm-pri">${closed(d) ? '' : (pr => `<span class="tag ${pr[1]}">${pr[0]}</span>`)(prioOf(d))}<span class="crm-kacc"><span class="pfm-lg xs" aria-hidden="true">${esc(c.n[0])}</span><span class="t">${esc(c.n)}</span></span></div>`
       + `<div class="t">${esc(d.n)}</div>`
-      + `<div class="kbx-m"><span class="kbx-mt co"><span class="pfm-lg xs" aria-hidden="true">${esc(c.n[0])}</span>${esc(c.n)}</span><span class="kbx-mt v num">${money(d.v)}</span>`
+      + `<div class="kbx-m"><span class="kbx-mt v num">${money(d.v)}</span>`
       + `<span class="kbx-mt num${late ? ' late' : ''}">${I(late ? 'alert' : 'cal', 'xs')}${whenOf(d)}</span>${closed(d) ? '' : `<span class="kbx-mt num">${d.p}%</span>`}</div>${d.st === 'lost' && d.why ? `<div class="crm-why">${esc(d.why)}</div>` : ''}</div>`; };
   // the + puts a draft at the top of its column: write the deal's name, pick the account (the one touched last by default),
   // Enter or Add adds it with Undo, Escape or Cancel drops it
