@@ -66,17 +66,17 @@ the script, and give the component's data the new name and a gradient.
 ## The Sales CRM's team
 
 The Sales CRM template on designme.dev shows its sales team with Pexels portraits (owner, 10 Nov), cropped to 192px in
-`people/`. The names are made up; the photos only stand in for them. Customers' contacts keep initials, as real CRMs
+`people/`, each file named with its Pexels id. The names are made up; the photos only stand in for them. Customers' contacts keep initials, as real CRMs
 show people without a photo. The template's installable components never point at these files.
 
 | File | Pexels photo | Shown as |
 | --- | --- | --- |
-| `people/MK.jpg` | [5876695](https://www.pexels.com/photo/5876695/) | Maya Kim |
-| `people/AR.jpg` | [3785077](https://www.pexels.com/photo/3785077/) | Ari Reyes |
-| `people/TR.jpg` | [6274712](https://www.pexels.com/photo/6274712/) | Theo Reed |
-| `people/JO.jpg` | [5384445](https://www.pexels.com/photo/5384445/) | Jon Ortiz |
-| `people/LN.jpg` | [3786525](https://www.pexels.com/photo/3786525/) | Lena Novak |
-| `people/IB.jpg` | [3769021](https://www.pexels.com/photo/3769021/) | Iris Bell |
-| `people/DK.jpg` | [2379005](https://www.pexels.com/photo/2379005/) | Dev Kumar |
-| `people/KM.jpg` | [7562313](https://www.pexels.com/photo/7562313/) | Kofi Mensah |
-| `people/NC.jpg` | [3777943](https://www.pexels.com/photo/3777943/) | Noah Cole |
+| `people/MK-5876695.jpg` | [5876695](https://www.pexels.com/photo/5876695/) | Maya Kim |
+| `people/AR-3785077.jpg` | [3785077](https://www.pexels.com/photo/3785077/) | Ari Reyes |
+| `people/TR-6274712.jpg` | [6274712](https://www.pexels.com/photo/6274712/) | Theo Reed |
+| `people/JO-5384445.jpg` | [5384445](https://www.pexels.com/photo/5384445/) | Jon Ortiz |
+| `people/LN-3786525.jpg` | [3786525](https://www.pexels.com/photo/3786525/) | Lena Novak |
+| `people/IB-3769021.jpg` | [3769021](https://www.pexels.com/photo/3769021/) | Iris Bell |
+| `people/DK-2379005.jpg` | [2379005](https://www.pexels.com/photo/2379005/) | Dev Kumar |
+| `people/KM-7562313.jpg` | [7562313](https://www.pexels.com/photo/7562313/) | Kofi Mensah |
+| `people/NC-3777943.jpg` | [3777943](https://www.pexels.com/photo/3777943/) | Noah Cole |

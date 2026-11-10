@@ -131,6 +131,15 @@ a{color:inherit}
 .pg-top-in{height:100%;max-width:1464px;margin:0 auto;padding:0 32px;display:flex;align-items:center;gap:6px}
 .pg-logo{display:block;color:var(--pg-fg)}
 .pg-notr,.pg-notr *,.pg-notr *::before,.pg-notr *::after{transition:none!important}
+/* the control that changed the theme still moves (owner, 10 Nov): a switch's knob slides while the rest of the page changes at once */
+.pg-notr .toggle,.pg-notr .toggle::after{transition:background .15s ease,transform .3s cubic-bezier(.22,1,.36,1)!important}
+.pg-notr .pg-seg .pg-k{transition:transform .32s cubic-bezier(.22,1,.36,1),width .32s cubic-bezier(.22,1,.36,1)!important}
+/* the header's switches (style, theme): a knob slides to the pick */
+.pg-seg{position:relative}
+.pg-seg button{z-index:1}
+.pg-seg .pg-k{position:absolute;top:2px;bottom:2px;left:0;width:0;border-radius:999px;background:var(--pg-bg);box-shadow:0 1px 2px rgba(18,18,18,.08),0 0 0 .5px rgba(18,18,18,.06);pointer-events:none;transition:transform .32s cubic-bezier(.22,1,.36,1),width .32s cubic-bezier(.22,1,.36,1)}
+.pg-seg.has-k button[aria-checked="true"]{background:none;box-shadow:none}
+@media (prefers-reduced-motion:reduce){.pg-seg .pg-k,.pg-notr .pg-seg .pg-k,.pg-notr .toggle,.pg-notr .toggle::after{transition:none!important}}
 /* an app page (the templates) fills the window, so its header does too: the smiley sits over the sidebar's workspace tile
    (14px in) and the style and theme switches end where the dashboard's top bar does (16px in) (owner, 9 Nov) */
 .pg-top.app .pg-top-in{max-width:none;padding:0 16px 0 14px}
@@ -294,6 +303,10 @@ a{color:inherit}
   var paint = function(){
     var t = theme(), style = mine() ? 'mine' : root.getAttribute('data-style') === 'soft' ? 'soft' : 'bp';
     // each switch is a set of radio buttons with one Tab stop, the one that's picked
+    (function(){ function knob(seg){ var k = seg.querySelector('.pg-k'), b = seg.querySelector('[aria-checked="true"]'); if (!b) return;
+        if (!k){ k = document.createElement('span'); k.className = 'pg-k'; k.setAttribute('aria-hidden', 'true'); seg.prepend(k); seg.classList.add('has-k'); k.style.transition = 'none'; }
+        k.style.width = b.offsetWidth + 'px'; k.style.transform = 'translateX(' + (b.offsetLeft - 2) + 'px)'; if (k.style.transition){ void k.offsetWidth; k.style.transition = ''; } }
+      document.querySelectorAll('.pg-seg').forEach(function(seg){ new MutationObserver(function(){ knob(seg); }).observe(seg, { subtree:true, attributes:true, attributeFilter:['aria-checked'] }); requestAnimationFrame(function(){ knob(seg); }); if (window.ResizeObserver) new ResizeObserver(function(){ knob(seg); }).observe(seg); }); })();
     document.querySelectorAll('[data-theme-set]').forEach(function(b){ var on = b.dataset.themeSet === t; b.setAttribute('aria-checked', String(on)); b.tabIndex = on ? 0 : -1; });
     document.querySelectorAll('[data-style-set]').forEach(function(b){ var on = b.dataset.styleSet === style; b.setAttribute('aria-checked', String(on)); b.tabIndex = on ? 0 : -1; });
   };

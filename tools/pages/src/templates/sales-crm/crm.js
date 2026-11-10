@@ -15,7 +15,9 @@
   const P = { MK:['Maya Kim', 'l'], AR:['Ari Reyes', 'p'], TR:['Theo Reed', 't'], JO:['Jon Ortiz', 'm'], LN:['Lena Novak', 'r'], IB:['Iris Bell', 'k'], DK:['Dev Kumar', 'b'], KM:['Kofi Mensah', 'y'] };
   const OWN = Object.keys(P);
   // the team has faces (Pexels portraits, on the site only: art/README.md); a customer's people keep their initials
-  const av = (id, cls = '') => `<span class="av ph${cls ? ' ' + cls : ''}" style="background:var(--dm-av-${P[id][1]});color:var(--dm-av-${P[id][1]}-ink)" aria-hidden="true"><img src="/art/people/${id}.jpg" alt="" width="64" height="64" loading="lazy" decoding="async"></span>`;
+  // each photo's file carries its Pexels id, so swapping a photo is never hidden by a cached copy
+  const PHOTO = { MK:5876695, AR:3785077, TR:6274712, JO:5384445, LN:3786525, IB:3769021, DK:2379005, KM:7562313, NC:3777943 };
+  const av = (id, cls = '') => `<span class="av ph${cls ? ' ' + cls : ''}" style="background:var(--dm-av-${P[id][1]});color:var(--dm-av-${P[id][1]}-ink)" aria-hidden="true"><img src="/art/people/${id}-${PHOTO[id]}.jpg" alt="" width="64" height="64" loading="lazy" decoding="async"></span>`;
   const first = id => P[id][0].split(' ')[0];
   const STAGES = [{ k:'disc', t:'Discovery', p:10 }, { k:'demo', t:'Demo', p:25 }, { k:'prop', t:'Proposal', p:50 }, { k:'nego', t:'Negotiation', p:75 }, { k:'won', t:'Closed won', p:100 }, { k:'lost', t:'Closed lost', p:0 }];
   // a deal is closed once it is won or lost; everything else is open pipeline
@@ -95,7 +97,7 @@
     ['Velvet Hammer Studio', 'SMB', ['First deal', 'Reseller'], 'DK', 'emea', 4, 'Demo', [['Studio plan', 'won', 16, -3, 0], ['Reseller add-on', 'disc', 8, 48, 0]]],
   ];
   // the people on the buyer's side: two or three to an account, the first is the champion
-  const FN = ['Priya', 'Marcus', 'Elena', 'Tomas', 'Grace', 'Omar', 'Hana', 'Luis', 'Sofia', 'Ben', 'Aisha', 'Noah', 'Yuki', 'Carla', 'Felix', 'Amara', 'Jonas', 'Leah', 'Ravi', 'Ines'];
+  const FN = ['Priya', 'Marcus', 'Elena', 'Tomas', 'Grace', 'Omar', 'Hana', 'Luis', 'Sofia', 'Ben', 'Aisha', 'Nadia', 'Yuki', 'Carla', 'Felix', 'Amara', 'Jonas', 'Leah', 'Ravi', 'Ines'];
   const LN_ = ['Shah', 'Lindqvist', 'Moreau', 'Baker', 'Osei', 'Fischer', 'Tanaka', 'Romero', 'Walsh', 'Haddad', 'Brennan', 'Costa', 'Ikeda', 'Varga', 'Larsen', 'Duarte'];
   const ROLE = ['Head of operations', 'VP of finance', 'IT lead', 'Procurement lead', 'COO', 'Product lead', 'Head of data', 'CFO'];
   const peopleOf = i => Array.from({ length:2 + i % 2 }, (_, k) => ({ n:FN[(i * 3 + k * 7) % FN.length] + ' ' + LN_[(i * 5 + k * 3) % LN_.length], r:ROLE[(i + k * 3) % ROLE.length] }));
@@ -1017,14 +1019,15 @@
   const mview = $('.crm-mon', ecx), csc2 = $('.ecx-sc', ecx);
   function setCv(v, n){
     const from = shownDay(); cv = v; closeCalPop();
-    $$('.crm-cvw button', ecx).forEach(b => b.setAttribute('aria-pressed', b.dataset.cv === v));
+    $$('.crm-cvw button', ecx).forEach(b => b.setAttribute('aria-pressed', b.dataset.cv === v)); cvSeg.place();
     ecx.classList.toggle('vday', v === 'day'); ecx.classList.toggle('vmon', v === 'month');
     csc2.hidden = v === 'month'; mview.hidden = v !== 'month'; plan.hidden = v === 'month';
     const at0 = n != null ? n : from;
     if (v === 'month'){ mo = mon0(at0); renderMonth(); glide(mview, { transform:'scale(.99)' }, 220); }
     else { goDay(at0); glide(csc2, { transform:'scale(.995)' }, 220); }
   }
-  $$('.crm-cvw button', ecx).forEach(b => b.onclick = () => { if (b.dataset.cv !== cv) setCv(b.dataset.cv); });
+  // the view switch is Segmented control: its knob slides to the view picked, here or from Month's days and meetings
+  const cvSeg = seg($('.crm-cvw', ecx), v => { if (v !== cv) setCv(v); });
   // Month: six weeks, each day with its first three meetings and how many more; a day opens in Day, a meeting opens its card
   function renderMonth(dir){
     const f = new Date(today.getFullYear(), today.getMonth() + mo, 1), lead = (f.getDay() + 6) % 7, n0 = Math.round((f - today) / 864e5) - lead;
@@ -1341,7 +1344,7 @@
     return `<div class="kbx-k${d.st === 'won' ? ' won' : ''}${d.st === 'lost' ? ' lost' : ''}${sheetFor === d.co ? ' open' : ''}" data-id="${d.id}" role="listitem" tabindex="-1" aria-label="${esc(d.n)}, ${esc(c.n)}, ${money(d.v)}, ${ST[d.st].t}${late ? ', past its close date' : ''}">`
       + `<div class="kbx-k1"><span class="kbx-id num">${d.id}</span><span class="kbx-sp"></span><span class="kbx-who" data-tip="${P[d.own][0]}">${av(d.own)}</span><button class="kbx-mv" data-pop="#crm-p-mv" data-pop-align="end" aria-haspopup="menu" aria-label="Move ${esc(d.n)}" data-tip="Move to" tabindex="-1">${I('more', 'xs')}</button></div>`
       // the chips: its priority (open deals) and its account, side by side, the way Kanban board pairs a priority and a project
-      + `<div class="kbx-tags crm-pri">${closed(d) ? '' : (pr => `<span class="tag ${pr[1]}">${pr[0]}</span>`)(prioOf(d))}<span class="crm-kacc"><span class="pfm-lg xs" aria-hidden="true">${esc(c.n[0])}</span><span class="t">${esc(c.n)}</span></span></div>`
+      + `<div class="kbx-tags crm-pri">${closed(d) ? '' : (pr => `<span class="tag ${pr[1]}">${pr[0]}</span>`)(prioOf(d))}<span class="crm-kacc"><span class="pfm-lg xs" aria-hidden="true">${esc(c.n[0])}</span><span class="crm-kan">${esc(c.n)}</span></span></div>`
       + `<div class="t">${esc(d.n)}</div>`
       + `<div class="kbx-m"><span class="kbx-mt v num">${money(d.v)}</span>`
       + `<span class="kbx-mt num${late ? ' late' : ''}">${I(late ? 'alert' : 'cal', 'xs')}${whenOf(d)}</span>${closed(d) ? '' : `<span class="kbx-mt num">${d.p}%</span>`}</div>${d.st === 'lost' && d.why ? `<div class="crm-why">${esc(d.why)}</div>` : ''}</div>`; };
@@ -1585,32 +1588,35 @@
     const S = [['chart', 'Open pipeline', pipe, Q3.pipe, [3.4, 3.6, 3.5, 3.8, 3.9, 4.0, pipe / 1e6], 'vs end of Q3'], ['target', 'Weighted forecast', weighted, Q3.weighted, [1.5, 1.6, 1.7, 1.65, 1.8, 1.9, weighted / 1e6], 'vs end of Q3'],
       ['ok', 'Closed won, Q4', won, Q3W[WK], A.map(v => v / 1e6), `vs week ${WK + 1} of Q3`], ['coins', 'Average open deal', avg, Q3.avg, [138, 136, 133, 130, 128, 126, avg / 1e3], 'vs end of Q3']];
     $('.scx-grid', fc).innerHTML = S.map((s, i) => `<div class="scx-c panel"><span class="scx-k"><span class="ic">${I(s[0], 'xs')}</span>${s[1]}</span><div class="scx-v"><b class="num">${kmoney(s[2])}</b>${delta(s[2], s[3])}<span class="crm-vs">${s[5]}</span></div><div class="scx-sp"><svg viewBox="0 0 100 30" preserveAspectRatio="none" aria-hidden="true"><path stroke="var(--dm-c${i + 1})" d="${sparkPath(s[4])}"/></svg></div></div>`).join('');
-    // the line chart: closed won by week, this quarter against last
-    const wkOf = d => Math.max(WK + 1, Math.floor((d.close + qDay) / 7)), proj = [A[A.length - 1]];
-    for (let i = WK + 1; i <= 12; i++) proj.push(proj[proj.length - 1] + sum(DE.filter(d => !closed(d) && d.close <= eoq && wkOf(d) === i), d => d.v * d.p / 100));
-    const hi = Math.max(Q3W[12], won, proj[proj.length - 1]) * 1.08, X = i => i / 12 * 320, Y = v => 136 - v / hi * 128;
-    const smooth = p => p.map((q, i) => { if (!i) return `M${q[0]} ${q[1]}`; const a = p[i - 1], m = (q[0] - a[0]) / 2; return `C${a[0] + m} ${a[1]} ${q[0] - m} ${q[1]} ${q[0]} ${q[1]}`; }).join(' ');
-    const pa = A.map((v, i) => [X(i), Y(v)]), pb = Q3W.map((v, i) => [X(i), Y(v)]), pf = proj.map((v, k) => [X(WK + k), Y(v)]);
+    // the line chart: closed won day by day, from the quarter's first day to today, against Q3 at the same point (owner,
+    // 10 Nov: the chart covers the quarter so far and ends at today on its right edge; the quarter-end forecast is a line of
+    // text under the total, not half a chart)
+    const N = Math.max(1, qDay), AD = Array.from({ length:N + 1 }, (_, d) => sum(EV.filter(e => e.at + qDay <= d), e => e.v));
+    const q3At = d => { const w = Math.min(12, Math.floor(d / 7)), prev = w ? Q3W[w - 1] : 0; return prev + (Q3W[w] - prev) * ((d % 7) + 1) / 7; };
+    const QD = AD.map((_, d) => q3At(d));
+    const fcEnd = won + sum(DE.filter(d => !closed(d) && d.close <= eoq), d => d.v * d.p / 100);
+    const hi = Math.max(AD[N], QD[N]) * 1.12, X = d => d / N * 320, Y = v => 136 - v / hi * 128;
+    const line = p => p.map((q, i) => (i ? 'L' : 'M') + q[0].toFixed(1) + ' ' + q[1].toFixed(1)).join(' ');
+    const pa = AD.map((v, d) => [X(d), Y(v)]), pb = QD.map((v, d) => [X(d), Y(v)]);
     const svg = $('.lnx-svg', fc);
     svg.innerHTML = `<defs><linearGradient id="crm-lng" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="var(--dm-accent-mark,var(--dm-accent))" stop-opacity=".16"/><stop offset="1" stop-color="var(--dm-accent-mark,var(--dm-accent))" stop-opacity="0"/></linearGradient></defs>`
       + [35, 70, 105].map(y => `<line class="gl" x1="0" x2="320" y1="${y}" y2="${y}"/>`).join('')
-      + `<line class="crm-now" x1="${X(A.length - 1)}" x2="${X(A.length - 1)}" y1="6" y2="140"/>`
-      + `<path class="ar" d="${smooth(pa)} L${X(A.length - 1)} 140 L0 140 Z" fill="url(#crm-lng)" style="opacity:${lineOn[0] ? 1 : 0}"/><path class="ln l1 crm-q3${lineOn[1] ? '' : ' off'}" d="${smooth(pb)}" stroke="var(--dm-c2)"/><path class="ln l0 crm-pj${lineOn[0] ? '' : ' off'}" d="${smooth(pf)}" stroke="var(--dm-accent-mark,var(--dm-accent))" stroke-dasharray="4 4"/><path class="ln l0${lineOn[0] ? '' : ' off'}" d="${smooth(pa)}" stroke="var(--dm-accent-mark,var(--dm-accent))"/>`;
+      + `<path class="ar" d="${line(pa)} L320 140 L0 140 Z" fill="url(#crm-lng)" style="opacity:${lineOn[0] ? 1 : 0}"/><path class="ln l1 crm-q3${lineOn[1] ? '' : ' off'}" d="${line(pb)}" stroke="var(--dm-c2)"/><path class="ln l0${lineOn[0] ? '' : ' off'}" d="${line(pa)}" stroke="var(--dm-accent-mark,var(--dm-accent))"/>`;
+    // the axis: the quarter's first day, two dates between, and Today at the right edge
+    $('.lnx-ax', fc).innerHTML = [0, Math.round(N / 3), Math.round(N * 2 / 3), N].map(d => `<span>${d === N ? 'Today' : fmtD(d - N)}</span>`).join('');
     const ch = $('.lnx-ch', fc); $$('.lnx-pt, .crm-nowl, .crm-pjl', ch).forEach(x => x.remove());
-    ch.insertAdjacentHTML('beforeend', `<span class="crm-pjl num" style="top:${(pf[pf.length - 1][1] / 140 * 100).toFixed(1)}%">Forecast ${kmoney(proj[proj.length - 1])}</span>`);
-    ch.insertAdjacentHTML('beforeend', `<span class="crm-nowl" style="left:${(A.length - 1) / 12 * 100}%">Today</span>`);
     ch.insertAdjacentHTML('beforeend', '<span class="lnx-pt on" style="color:var(--dm-accent-mark,var(--dm-accent))"></span><span class="lnx-pt on" style="color:var(--dm-c2)"></span>');
+    $('.crm-fcst', fc).innerHTML = `<b class="num">${kmoney(fcEnd)}</b> forecast by the quarter's end`;
     const lv = $('.lnx-v', fc), latest = () => kmoney(won);
     if (shownLine === null || REDUCE) lv.textContent = latest(); else if (shownLine !== won) tween(shownLine, won, 700, n => lv.textContent = kmoney(n));
     shownLine = won;
-    ch.onpointermove = ev => { const b = ch.getBoundingClientRect(), i = clamp(Math.round((ev.clientX - b.left) / b.width * 12), 0, 12), px = i / 12 * b.width;
+    ch.onpointermove = ev => { const b = ch.getBoundingClientRect(), i = clamp(Math.round((ev.clientX - b.left) / b.width * N), 0, N), px = i / N * b.width;
       $('.lnx-x', ch).style.left = px + 'px'; $('.lnx-tt', ch).style.left = clamp(px, 70, b.width - 70) + 'px';
-      const pts = $$('.lnx-pt', ch); [pa.concat(pf.slice(1)), pb].forEach((p, k) => { const has = !!p[i] && lineOn[k]; pts[k].classList.toggle('on', has); if (p[i]){ pts[k].style.left = px + 'px'; pts[k].style.top = p[i][1] / 140 * b.height + 'px'; } });
-      const a = A[i], q = Q3W[i];
-      const mine = lineOn[0] && a != null, fc0 = lineOn[0] && a == null ? proj[i - WK] : null;
-      $('.lnx-tt b', ch).textContent = mine ? kmoney(a) + ' won by week ' + (i + 1) : fc0 != null ? kmoney(fc0) + ' forecast by week ' + (i + 1) : kmoney(q) + ' by week ' + (i + 1) + ' of Q3';
-      $('.lnx-tt span', ch).textContent = fc0 != null ? 'Won so far, plus open deals weighted by their chance, by when they close' + (lineOn[1] ? `. Q3 had ${kmoney(q)}` : '') : mine ? (lineOn[1] ? `${a >= q ? '+' : '−'}${kmoney(Math.abs(a - q))} on Q3 at this point` : 'This quarter') : a == null ? 'This quarter is not there yet' : 'Last quarter';
-      lv.textContent = mine ? kmoney(a) : latest(); };
+      const pts = $$('.lnx-pt', ch); [pa, pb].forEach((p, k) => { const has = lineOn[k]; pts[k].classList.toggle('on', has); pts[k].style.left = px + 'px'; pts[k].style.top = p[i][1] / 140 * b.height + 'px'; });
+      const a = AD[i], q = QD[i], when = i === N ? 'today' : fmtD(i - N);
+      $('.lnx-tt b', ch).textContent = lineOn[0] ? `${kmoney(a)} won by ${when}` : `${kmoney(q)} by this point in Q3`;
+      $('.lnx-tt span', ch).textContent = lineOn[0] && lineOn[1] ? `${a >= q ? '+' : '−'}${kmoney(Math.abs(a - q))} on Q3 at this point` : lineOn[0] ? 'This quarter' : 'Last quarter';
+      lv.textContent = lineOn[0] ? kmoney(a) : latest(); };
     ch.onpointerleave = () => lv.textContent = latest();
     // radial goals: each team's closed won against its quota
     const RAD = [78, 60, 42], CS = ['var(--dm-c1)', 'var(--dm-c3)', 'var(--dm-c4)'];
@@ -1643,37 +1649,64 @@
     paintFbn(); paintQsum(); paintAct();
   }
   /* ---------- the forecast's banner, the quota card's figures and deal activity (owner, 10 Nov) ---------- */
-  const fbn = $('.crm-fbn', fc), FBART = "<g class=\"gds\"><path class=\"gd\" d=\"M135.6 59L42.1 113M151.2 68L57.6 122M166.8 77L73.2 131M182.4 86L88.8 140M197.9 95L104.4 149M135.6 59L197.9 95M120 68L182.4 104M104.4 77L166.8 113M88.8 86L151.2 122M73.2 95L135.6 131M57.6 104L120 140M42.1 113L104.4 149\"/></g><g class=\"z\" style=\"--z:0\"><path class=\"pl\" d=\"M135.6 21L166.8 39L166.8 95L151.2 104L120 86L120 30Z\"/><path class=\"ln\" style=\"--d:0\" pathLength=\"1\" d=\"M135.6 21L166.8 39L151.2 48L120 30Z\"/><path class=\"ln\" style=\"--d:1\" pathLength=\"1\" d=\"M166.8 39L166.8 95L151.2 104L120 86L120 30\"/><path class=\"ln\" style=\"--d:2\" pathLength=\"1\" d=\"M151.2 48L151.2 104\"/><path class=\"pl\" d=\"M120 44L151.2 62L151.2 104L135.6 113L104.4 95L104.4 53Z\"/><path class=\"ln\" style=\"--d:3\" pathLength=\"1\" d=\"M120 44L151.2 62L135.6 71L104.4 53Z\"/><path class=\"ln\" style=\"--d:4\" pathLength=\"1\" d=\"M151.2 62L151.2 104L135.6 113L104.4 95L104.4 53\"/><path class=\"ln\" style=\"--d:5\" pathLength=\"1\" d=\"M135.6 71L135.6 113\"/><path class=\"pl\" d=\"M104.4 67L135.6 85L135.6 113L120 122L88.8 104L88.8 76Z\"/><path class=\"ln\" style=\"--d:6\" pathLength=\"1\" d=\"M104.4 67L135.6 85L120 94L88.8 76Z\"/><path class=\"ln\" style=\"--d:7\" pathLength=\"1\" d=\"M135.6 85L135.6 113L120 122L88.8 104L88.8 76\"/><path class=\"ln\" style=\"--d:8\" pathLength=\"1\" d=\"M120 94L120 122\"/><path class=\"pl\" d=\"M88.8 90L120 108L120 122L104.4 131L73.2 113L73.2 99Z\"/><path class=\"ln\" style=\"--d:9\" pathLength=\"1\" d=\"M88.8 90L120 108L104.4 117L73.2 99Z\"/><path class=\"ln\" style=\"--d:10\" pathLength=\"1\" d=\"M120 108L120 122L104.4 131L73.2 113L73.2 99\"/><path class=\"ln\" style=\"--d:11\" pathLength=\"1\" d=\"M104.4 117L104.4 131\"/></g><g class=\"z\" style=\"--z:2\"><path class=\"ln ac\" style=\"--d:12\" pathLength=\"1\" d=\"M137.1 30.9V8.9h14l-4 5 4 5h-14\"/></g>";
+  const fbn = $('.crm-sbn', app), FBART = "<g class=\"gds\"><path class=\"gd\" d=\"M135.6 59L42.1 113M151.2 68L57.6 122M166.8 77L73.2 131M182.4 86L88.8 140M197.9 95L104.4 149M135.6 59L197.9 95M120 68L182.4 104M104.4 77L166.8 113M88.8 86L151.2 122M73.2 95L135.6 131M57.6 104L120 140M42.1 113L104.4 149\"/></g><g class=\"z\" style=\"--z:0\"><path class=\"pl\" d=\"M135.6 21L166.8 39L166.8 95L151.2 104L120 86L120 30Z\"/><path class=\"ln\" style=\"--d:0\" pathLength=\"1\" d=\"M135.6 21L166.8 39L151.2 48L120 30Z\"/><path class=\"ln\" style=\"--d:1\" pathLength=\"1\" d=\"M166.8 39L166.8 95L151.2 104L120 86L120 30\"/><path class=\"ln\" style=\"--d:2\" pathLength=\"1\" d=\"M151.2 48L151.2 104\"/><path class=\"pl\" d=\"M120 44L151.2 62L151.2 104L135.6 113L104.4 95L104.4 53Z\"/><path class=\"ln\" style=\"--d:3\" pathLength=\"1\" d=\"M120 44L151.2 62L135.6 71L104.4 53Z\"/><path class=\"ln\" style=\"--d:4\" pathLength=\"1\" d=\"M151.2 62L151.2 104L135.6 113L104.4 95L104.4 53\"/><path class=\"ln\" style=\"--d:5\" pathLength=\"1\" d=\"M135.6 71L135.6 113\"/><path class=\"pl\" d=\"M104.4 67L135.6 85L135.6 113L120 122L88.8 104L88.8 76Z\"/><path class=\"ln\" style=\"--d:6\" pathLength=\"1\" d=\"M104.4 67L135.6 85L120 94L88.8 76Z\"/><path class=\"ln\" style=\"--d:7\" pathLength=\"1\" d=\"M135.6 85L135.6 113L120 122L88.8 104L88.8 76\"/><path class=\"ln\" style=\"--d:8\" pathLength=\"1\" d=\"M120 94L120 122\"/><path class=\"pl\" d=\"M88.8 90L120 108L120 122L104.4 131L73.2 113L73.2 99Z\"/><path class=\"ln\" style=\"--d:9\" pathLength=\"1\" d=\"M88.8 90L120 108L104.4 117L73.2 99Z\"/><path class=\"ln\" style=\"--d:10\" pathLength=\"1\" d=\"M120 108L120 122L104.4 131L73.2 113L73.2 99\"/><path class=\"ln\" style=\"--d:11\" pathLength=\"1\" d=\"M104.4 117L104.4 131\"/></g><g class=\"z\" style=\"--z:2\"><path class=\"ln ac\" style=\"--d:12\" pathLength=\"1\" d=\"M137.1 30.9V8.9h14l-4 5 4 5h-14\"/></g>";
   $('.bnx-art', fbn).innerHTML = `<svg class="bnx-svg" viewBox="0 0 240 160" width="240" height="160" focusable="false">${FBART}</svg>`;
   try { if (sessionStorage.getItem('crm-fbn') === 'hidden') fbn.hidden = true; } catch(e){}
   function paintFbn(){
     const open = DE.filter(d => !closed(d)), commit = commitOf(OWN), unsure = DE.filter(d => (d.st === 'prop' || d.st === 'nego') && d.p >= 30 && d.p <= 60).length;
-    $('.crm-fbd', fbn).textContent = `The agent drafted it from ${open.length} open deals: ${kmoney(commit)} in commit, ${kmoney(sum(open, d => d.v * d.p / 100))} weighted. It is unsure about ${plural(unsure, 'deal')}.`;
+    $('.crm-fbd', fbn).textContent = `The agent drafted ${kmoney(commit)} from ${open.length} open deals and flagged ${unsure} to check.`;
   }
   fbn.addEventListener('click', e => { const b = e.target.closest('[data-fb]'); if (!b) return;
     if (b.dataset.fb === 'go'){ setView('pipeline'); return; }
-    fadeOut(fbn); try { sessionStorage.setItem('crm-fbn', 'hidden'); } catch(e){} $('#content', app).focus({ preventScroll:true }); });
+    fadeOut(fbn); try { sessionStorage.setItem('crm-fbn', 'hidden'); } catch(e){} $('[data-go="accounts"]', app).focus({ preventScroll:true }); });
+  paintFbn();
   function paintQsum(){
     const quota = sum(TEAMS, t => t.quota), w = wonOf(OWN), cm = commitOf(OWN), gap = Math.max(0, quota - w - cm);
     $('.crm-qsum', fc).innerHTML = [['Won', w], ['Commit', cm], ['Gap to quota', gap]].map(([k, v]) => `<div><span>${k}</span><b class="num">${kmoney(v)}</b></div>`).join('');
   }
-  // deal activity: wins and losses this quarter, newest first, or the open deals closing in the next two weeks; a row opens its account
-  let actF = 'all', actPg = 0; const ACTN = 8, abody = $('.crm-dat tbody', fc);
-  const actRows = () => actF === 'due' ? DE.filter(d => !closed(d) && d.close >= 0 && d.close <= 14).sort((a, b) => a.close - b.close)
-    : DE.filter(d => (actF === 'all' ? closed(d) : d.st === actF) && d.close >= -qDay && d.close <= 0).sort((a, b) => b.close - a.close);
+  // deal activity: the deals that close this quarter, nearest to today first, filtered by stage, owner and amount, or searched;
+  // a row (or its ⋯) opens its account
+  const AF = { st:'all', own:'all', amt:'all', q:'' }, ACTN = 8, abody = $('.crm-dat tbody', fc); let actPg = 0;
+  const AOPT = {
+    st:[['all', 'Any stage'], ['open', 'Open'], ['soon', 'Closing in 14 days'], ['won', 'Closed won'], ['lost', 'Closed lost']],
+    own:[['all', 'Any owner'], ...OWN.map(o => [o, P[o][0]])],
+    amt:[['all', 'Any amount'], ['s', 'Under $50k'], ['m', '$50k to $200k'], ['l', 'Over $200k']],
+  };
+  // a filter's button names its field until a value is picked
+  const AFL = { st:'Stage', own:'Owner', amt:'Amount' };
+  const amtOk = (d, k) => k === 'all' || (k === 's' ? d.v < 50000 : k === 'm' ? d.v >= 50000 && d.v <= 200000 : d.v > 200000);
+  const actRows = () => DE.filter(d => d.close >= -qDay && d.close <= eoq)
+    .filter(d => AF.st === 'all' || (AF.st === 'open' ? !closed(d) : AF.st === 'soon' ? !closed(d) && d.close >= 0 && d.close <= 14 : d.st === AF.st))
+    .filter(d => AF.own === 'all' || d.own === AF.own).filter(d => amtOk(d, AF.amt))
+    .filter(d => !AF.q || (d.n + ' ' + coOf(d.co).n + ' ' + d.id + ' ' + P[d.own][0]).toLowerCase().includes(AF.q))
+    .sort((a, b) => Math.abs(a.close) - Math.abs(b.close) || b.v - a.v);
+  const pageList = (n, at) => n <= 7 ? [...Array(n).keys()] : at < 4 ? [0, 1, 2, 3, 4, -1, n - 1] : at > n - 5 ? [0, -1, n - 5, n - 4, n - 3, n - 2, n - 1] : [0, -1, at - 1, at, at + 1, -1, n - 1];
   function paintAct(dir){
     const L = actRows(), pages = Math.max(1, Math.ceil(L.length / ACTN)); actPg = clamp(actPg, 0, pages - 1);
     const pg = L.slice(actPg * ACTN, actPg * ACTN + ACTN);
-    abody.innerHTML = pg.length ? pg.map(d => { const c = coOf(d.co), amt = d.st === 'won' ? ' won' : d.st === 'lost' ? ' lost' : '';
-      return `<tr data-co="${c.id}" tabindex="0" aria-label="${esc(d.n)}, ${esc(c.n)}, ${ST[d.st].t}, ${money(d.v)}. Open the account"><td><span class="crm-dn">${esc(d.n)}</span><span class="muted num">${d.id}</span></td><td><span class="crm-dc"><span class="pfm-lg xs" aria-hidden="true">${esc(c.n[0])}</span>${esc(c.n)}</span></td><td><span class="crm-do">${av(d.own)}${esc(first(d.own))}</span></td><td>${pill(d.st)}</td><td class="num">${d.close === 0 ? 'Today' : fmtD(d.close)}</td><td class="r num crm-da${amt}">${money(d.v)}</td></tr>`; }).join('')
-      : `<tr class="crm-dempty"><td colspan="6">Nothing here this quarter</td></tr>`;
-    $('.crm-actn', fc).textContent = `${L.length} ${actF === 'due' ? 'closing in 14 days' : actF === 'all' ? 'won or lost this quarter' : actF + ' this quarter'}`;
-    $('.crm-pgn', fc).textContent = L.length ? `${actPg * ACTN + 1}–${Math.min(L.length, actPg * ACTN + ACTN)} of ${L.length}` : '';
+    abody.innerHTML = pg.length ? pg.map(d => { const c = coOf(d.co), when = d.close === 0 ? 'Today' : fmtD(d.close), k = d.st === 'won' ? ' won' : d.st === 'lost' ? ' lost' : '';
+      return `<tr data-co="${c.id}" tabindex="0" aria-label="${esc(d.n)}, ${esc(c.n)}, ${ST[d.st].t}, closes ${when}, ${money(d.v)}. Open the account">`
+        + `<td><span class="crm-dd"><span class="pfm-lg" aria-hidden="true">${esc(c.n[0])}</span><span class="crm-dtx"><span class="crm-dn">${esc(d.n)}</span><span class="crm-dsub">${esc(c.n)} · ${when}</span></span></span></td>`
+        + `<td>${esc(c.n)}</td><td><span class="crm-do">${av(d.own)}${esc(P[d.own][0])}</span></td><td>${pill(d.st)}</td><td class="num">${when}</td>`
+        + `<td class="r"><span class="crm-amt num${k}">${d.st === 'won' ? '+' : ''}${money(d.v)}</span></td>`
+        + `<td class="r"><button class="ib crm-dmore" data-co="${c.id}" tabindex="-1" aria-label="Open ${esc(c.n)}" data-tip="Open account">${I('more', 'xs')}</button></td></tr>`; }).join('')
+      : `<tr class="crm-dempty"><td colspan="7">No deals match these filters</td></tr>`;
+    $('.crm-actn', fc).textContent = plural(L.length, 'deal');
+    $('.crm-pgs', fc).innerHTML = pages > 1 ? pageList(pages, actPg).map(i => i < 0 ? '<span class="crm-pgx" aria-hidden="true">…</span>' : `<button class="crm-pgb num${i === actPg ? ' on' : ''}" data-p="${i}" aria-label="Page ${i + 1}"${i === actPg ? ' aria-current="page"' : ''}>${i + 1}</button>`).join('') : '';
+    $('.crm-pgs', fc).insertAdjacentHTML('beforeend', pages > 1 ? `<span class="crm-pgm num">${actPg + 1} of ${pages}</span>` : '');
     $('[data-pg="-1"]', fc).disabled = actPg === 0; $('[data-pg="1"]', fc).disabled = actPg >= pages - 1;
-    if (dir && !REDUCE) $$('tr', abody).forEach((tr, i) => tr.animate([{ opacity:0, transform:`translateX(${dir * 8}px)` }, { opacity:1, transform:'none' }], { duration:220, delay:i * 14, easing:EASE, fill:'backwards' }));
+    if (dir && !REDUCE) $$('tr', abody).forEach((tr, i) => tr.animate([{ opacity:0, transform:`translateY(${dir > 0 ? 4 : -4}px)` }, { opacity:1, transform:'none' }], { duration:220, delay:i * 14, easing:EASE, fill:'backwards' }));
   }
-  $$('.crm-actf button', fc).forEach(b => b.onclick = () => { if (b.dataset.a === actF) return; actF = b.dataset.a; actPg = 0; $$('.crm-actf button', fc).forEach(x => x.setAttribute('aria-pressed', x === b)); paintAct(1); });
+  // the filter menus: one popover, built for the button that opened it
+  let afFor = null;
+  onOpen('.crm-af', e => { afFor = e.currentTarget.dataset.af; const p = pop('crm-p-af');
+    p.innerHTML = AOPT[afFor].map(([v, l]) => mi(`data-v="${v}"`, `${afFor === 'own' && v !== 'all' ? av(v) : ''}<span>${l}</span>`, 'menuitemradio', AF[afFor] === v)).join('');
+    $$('.mi', p).forEach(m => m.addEventListener('click', () => { const k = afFor; AF[k] = m.dataset.v; actPg = 0;
+      const b = $(`.crm-af[data-af="${k}"]`, fc); b.classList.toggle('on', AF[k] !== 'all'); swap($('.v', b), AF[k] === 'all' ? AFL[k] : AOPT[k].find(x => x[0] === AF[k])[1]); paintAct(1); })); });
+  const asq = $('.crm-asq input', fc);
+  asq.addEventListener('input', () => { AF.q = asq.value.trim().toLowerCase(); actPg = 0; paintAct(); });
   $$('[data-pg]', fc).forEach(b => b.onclick = () => { actPg += +b.dataset.pg; paintAct(+b.dataset.pg); });
+  $('.crm-pgs', fc).addEventListener('click', e => { const b = e.target.closest('[data-p]'); if (!b) return; const to = +b.dataset.p, dir = Math.sign(to - actPg); actPg = to; paintAct(dir); });
   abody.addEventListener('click', e => { const tr = e.target.closest('tr[data-co]'); if (tr) openSheet(tr.dataset.co, true); });
   abody.addEventListener('keydown', e => { const tr = e.target.closest('tr[data-co]'); if (tr && (e.key === 'Enter' || e.key === ' ')){ e.preventDefault(); openSheet(tr.dataset.co, true); } });
   const hm = $('.crm-hm', fc), hmg = $('.hmx-grid', hm), WD = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'], DAYW = [.22, .25, .23, .19, .11];
@@ -1817,31 +1850,6 @@
   sug.addEventListener('focusout', () => setTimeout(() => { if (!sug.contains(document.activeElement) && document.activeElement !== ask) hideSug(); }, 120));
   addEventListener('resize', () => { if (sug.classList.contains('open')) showSug(); });
 
-  /* ---------- setting up the workspace: the sidebar's progress card ---------- */
-  // five steps, three done; the card opens to them, each open step has its action, and the card says so and leaves once all
-  // five are done. Hiding it lasts the session
-  const STEPS = [
-    { k:'import', t:'Import your accounts', d:'24 accounts from a CSV', done:true },
-    { k:'team', t:'Invite your team', d:'8 people', done:true },
-    { k:'quota', t:'Set quarterly quotas', d:'$5.18M across the team', done:true },
-    { k:'cal', t:'Connect your calendar', d:'So the agent can book meetings', act:'Connect', msg:['Calendar connected', 'The agent books into free slots from now on'] },
-    { k:'fu', t:'Turn on follow-ups', d:'The agent drafts them after 14 quiet days', act:'Turn on', msg:['Follow-ups are on', 'Drafts wait in the agent inbox for you'] },
-  ];
-  const setup = $('.crm-setup', app), stl = $('.crm-stl', setup), stb = $('.crm-stb', setup);
-  let stHidden = false; try { stHidden = sessionStorage.getItem('crm-setup') === 'hidden'; } catch(e){}
-  function paintSetup(){
-    const n = STEPS.filter(x => x.done).length;
-    $('.n', stb).textContent = n === STEPS.length ? 'All done' : `${n} of ${STEPS.length}`;
-    $('.crm-stbar', setup).setAttribute('aria-valuenow', n); $('.crm-stbar i', setup).style.width = (n / STEPS.length * 100) + '%';
-    stl.innerHTML = STEPS.map(x => `<li class="${x.done ? 'done' : ''}" data-k="${x.k}"><span class="ck" aria-hidden="true">${x.done ? I('check', 'xs') : ''}</span><span class="tx"><span class="t">${x.t}</span><span class="d">${x.d}</span></span>${x.done ? '<span class="sr">Done</span>' : `<button class="pill line sm" data-st="${x.k}">${x.act}</button>`}</li>`).join('');
-  }
-  const setOpen = on => { setup.dataset.open = on; stb.setAttribute('aria-expanded', on); $('.fold', setup).classList.toggle('shut', !on); };
-  stb.onclick = () => setOpen(setup.dataset.open !== 'true');
-  $('.crm-stx', setup).onclick = () => { hideTip(); fadeOut(setup); try { sessionStorage.setItem('crm-setup', 'hidden'); } catch(e){} $('[data-go="accounts"]', app).focus({ preventScroll:true }); };
-  stl.addEventListener('click', e => { const b = e.target.closest('[data-st]'); if (!b) return; const x = STEPS.find(s => s.k === b.dataset.st); x.done = true; paintSetup();
-    const li = $(`li[data-k="${x.k}"]`, stl); if (li) enter(li); toast('ok', x.msg[0], x.msg[1], { label:'Undo', run:() => { x.done = false; paintSetup(); } });
-    const next = $('[data-st]', stl); if (next) next.focus({ preventScroll:true }); else { stb.focus({ preventScroll:true }); setTimeout(() => { if (STEPS.every(s => s.done)) setOpen(false); }, 900); } });
-  if (stHidden) setup.hidden = true; paintSetup();
 
   /* ---------- notifications: Notifications ---------- */
   const ago = n => n >= 0 ? 'Today' : n === -1 ? 'Yesterday' : `${-n} days ago`;
