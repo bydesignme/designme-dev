@@ -18,7 +18,15 @@ DM.def('badge', (r, c) => {
     const had = b.contains(document.activeElement), all = $$('.bdg:not(.go)', set), i = all.indexOf(b), next = all[i + 1] || all[i - 1];
     gone.push(b); live.textContent = `Removed ${label(b)}`;
     // the focus goes on to the next badge's remove button, or to Undo once none is left
-    const done = () => { b.remove(); b.classList.remove('go'); undo.hidden = false; if (had) ((next && next.isConnected && $('.bdg-x', next)) || undo).focus({ preventScroll:true }); };
+    // the badges after it slide into its place rather than jumping there (owner, 10 Nov)
+    const done = () => {
+      const sib = $$('.bdg', set).filter(x => x !== b), was = new Map(sib.map(x => [x, x.getBoundingClientRect()]));
+      b.remove(); b.classList.remove('go'); const fresh = undo.hidden; undo.hidden = false;
+      if (!REDUCE){ sib.forEach(x => { const o = was.get(x), n = x.getBoundingClientRect(), dx = o.left - n.left, dy = o.top - n.top;
+          if (dx || dy) x.animate([{ transform:`translate(${dx}px,${dy}px)` }, { transform:'none' }], { duration:300, easing:'cubic-bezier(.22,.8,.24,1)' }); });
+        if (fresh) undo.animate([{ opacity:0, transform:'translateX(-6px)' }, { opacity:1, transform:'none' }], { duration:260, delay:80, easing:'ease-out', fill:'backwards' }); }
+      if (had) ((next && next.isConnected && $('.bdg-x', next)) || undo).focus({ preventScroll:true });
+    };
     if (REDUCE) done(); else { b.classList.add('go'); c.later(220, done); }
   }
   function restore(){

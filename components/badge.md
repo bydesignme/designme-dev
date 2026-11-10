@@ -1,6 +1,6 @@
 # Badge
 
-> Small labels for plans, environments and status, with a dot, an icon or a remove button.
+> Labels for plans and status, with a dot, an icon or a remove button.
 
 App basics / Forms and inputs. Free and MIT licensed, as plain HTML, CSS and JavaScript or as a typed React component, in two styles (Soft and Blueprint) with light and dark mode. Live demo: https://designme.dev/components/badge
 

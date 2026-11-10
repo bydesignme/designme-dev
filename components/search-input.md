@@ -353,7 +353,7 @@ export function SearchInput({ items, sources = [], recent = [], value, defaultVa
 ## More in Forms and inputs
 
 - [Buttons](https://designme.dev/components/buttons.md): Every button style, with loading, success and hold-to-confirm states.
-- [Badge](https://designme.dev/components/badge.md): Small labels for plans, environments and status, with a dot, an icon or a remove button.
+- [Badge](https://designme.dev/components/badge.md): Labels for plans and status, with a dot, an icon or a remove button.
 - [Progress and meter](https://designme.dev/components/progress.md): An agent run's progress and what it costs, with a credits meter that warns as it fills.
 - [Slider](https://designme.dev/components/slider.md): Named stops, a stepped scale and a range, with the agent's recommended value marked on the track.
 - [Tooltip](https://designme.dev/components/tooltip.md): Quiet labels on hover, with shortcuts and a richer preview card.
