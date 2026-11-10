@@ -3765,10 +3765,10 @@ const fitHits = window.dmFitHits || (() => {
     hideTip(); return true;
   };
   document.addEventListener('keydown', e => {
-    if (!(e.metaKey || e.ctrlKey) || e.altKey || view !== 'accounts') return;
+    if (!(e.metaKey || e.ctrlKey) || e.altKey || (view !== 'accounts' && view !== 'pipeline')) return;
     const k = e.key.toLowerCase(), redo = (k === 'z' && e.shiftKey) || (k === 'y' && e.ctrlKey && !e.metaKey); if (k !== 'z' && !redo) return;
     const t = e.target; if (t && (t.closest('input,textarea,select,[contenteditable="true"]'))) return;
-    if (histGo(!redo)) e.preventDefault();
+    if ((view === 'accounts' ? histGo : kHistGo)(!redo)) e.preventDefault();
   });
   let calcFor = null;
   $$('.crm-tfb', tfr).forEach(b => b.addEventListener('click', () => {
@@ -4908,6 +4908,24 @@ const fitHits = window.dmFitHits || (() => {
     const up = () => { g.removeEventListener('pointermove', mv); g.removeEventListener('pointerup', up); g.removeEventListener('pointercancel', up);
       kMove(from, to); kResort(); kSoon(`.crm-srw[data-i="${to}"] .crm-srg`); };
     g.addEventListener('pointermove', mv); g.addEventListener('pointerup', up); g.addEventListener('pointercancel', up); });
+  // undo and redo for the board (owner, 10 Nov), as on Accounts: Cmd or Ctrl Z steps back through the board's own changes
+  // (a deal moved to another stage, the filters, the owners picked, the sort, the hidden stages and the columns' order) and
+  // Cmd or Ctrl Shift Z (or Ctrl Y) steps forward again
+  const KH = { past:[], future:[], cur:null, busy:false };
+  const kSnap = () => JSON.stringify({ A:K.A, S:K.S, own:[...K.own], shut:[...K.shut], order:K.order,
+    d:DE.map(d => [d.id, d.st, d.p, d.close, d.was ?? null, d.at ?? null, d.why ?? null]) });
+  const kNote = () => { if (KH.busy) return; const now = kSnap(); if (KH.cur === null){ KH.cur = now; return; }
+    if (now === KH.cur) return; KH.past.push(KH.cur); if (KH.past.length > 60) KH.past.shift(); KH.cur = now; KH.future = []; };
+  const kHistGo = back => {
+    const from = back ? KH.past : KH.future, to = back ? KH.future : KH.past; if (!from.length) return false;
+    to.push(KH.cur); KH.cur = from.pop(); const st = JSON.parse(KH.cur);
+    KH.busy = true;
+    K.A = st.A; K.S = st.S; K.own = new Set(st.own); K.shut = new Set(st.shut); K.order = st.order; saveOrder();
+    const byId = new Map(st.d.map(x => [x[0], x]));
+    DE.forEach(d => { const x = byId.get(d.id); if (!x) return; [, d.st, d.p, d.close] = x; d.was = x[4]; d.at = x[5]; d.why = x[6]; });
+    refresh(); swap($('.crm-ksort .v', kb), kSortLabel()); $('.crm-ksort', kb).classList.toggle('on', !kDefault());
+    KH.busy = false; hideTip(); return true;
+  };
   const dval = (k, v) => DFL[k].o().find(o => o.v === v);
   const dpass = (d, skip) => K.A.every(f => f.k === skip || DFL[f.k].test(d, f.v) !== f.neg);
   const dshows = (d, skip) => (!K.own.size || K.own.has(d.own)) && (!K.q || (d.n + ' ' + coOf(d.co).n + ' ' + d.id).toLowerCase().includes(K.q.toLowerCase())) && dpass(d, skip);
@@ -5043,6 +5061,7 @@ const fitHits = window.dmFitHits || (() => {
     $('.kbx-clr', kb).hidden = !filtering;
     const ks = $$('.kbx-k', cols), keep = ks.find(k => k.dataset.id === kFocus) || ks[0]; if (keep) keep.tabIndex = 0;
     if (view === 'pipeline') counts();
+    kNote();
   }
   $('.crm-dock', kb).addEventListener('click', e => { const b = e.target.closest('.crm-dk'); if (!b || dragged) return; const k = b.dataset.col; K.shut.delete(k); renderBoard();
     const col = $(`.kbx-c[data-col="${k}"]`, cols); enter(col); col.scrollIntoView({ block:'nearest', inline:'nearest', behavior:REDUCE ? 'auto' : 'smooth' });
