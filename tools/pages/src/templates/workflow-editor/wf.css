@@ -567,30 +567,86 @@ body:has(.wf) .dmf{display:none}
 :root:not([data-style="soft"])[data-theme="dark"] .wfx-cv{background:var(--dm-surface)}
 :root:not([data-style="soft"])[data-theme="dark"] .wf .ahx-side{border-right:1px solid var(--wf-g)}
 :root:not([data-style="soft"])[data-theme="dark"] .wf-top{border-bottom:1px solid var(--wf-g)}
-:root:not([data-style="soft"])[data-theme="dark"] .wf-side .ahx-ws{position:relative}
-:root:not([data-style="soft"])[data-theme="dark"] .wf-side .ahx-ws::after{content:"";position:absolute;left:-8px;right:-8px;bottom:-5px;height:1px;background:var(--wf-g);pointer-events:none}
 :root:not([data-style="soft"])[data-theme="dark"] .wf.pn .wf-panel{border-left-color:var(--wf-g)}
 :root:not([data-style="soft"])[data-theme="dark"] .wf-ph{border-bottom-color:var(--wf-g)}
 :root:not([data-style="soft"])[data-theme="dark"] .wf .rdr-dw{border-top:1px solid var(--wf-g);box-shadow:none}
-:root:not([data-style="soft"])[data-theme="dark"] .wf-usage::before{left:-8px;right:-8px;background:var(--wf-g)}
+:root:not([data-style="soft"])[data-theme="dark"] .wf-usage::before{background:var(--wf-g)}
 :root:not([data-style="soft"])[data-theme="dark"] .wf-insp .wfx-insp-f{box-sizing:border-box;min-height:58px;border-top:1px solid var(--wf-g)}
 :root:not([data-style="soft"])[data-theme="dark"] .wfx-cv .ctb-bar{box-shadow:0 0 0 1px var(--wf-g)}
-:root:not([data-style="soft"])[data-theme="dark"] .wf-seg.sgc-seg{background:color-mix(in srgb,var(--dm-stage) 55%,#000);box-shadow:inset 0 0 0 1px var(--wf-g)}
-:root:not([data-style="soft"])[data-theme="dark"] .wf-seg .sgc-k{background:color-mix(in srgb,var(--dm-fg) 12%,var(--dm-stage));box-shadow:none}
 @media (prefers-color-scheme:dark){
   :root:not([data-style="soft"]):not([data-theme="light"]) .wf{--wf-g:color-mix(in srgb,var(--dm-fg) 14%,transparent)}
   :root:not([data-style="soft"]):not([data-theme="light"]) :is(.wf-side.ahx-side,.wf-top,.wf.pn .wf-panel,.wf .rdr-dw,.wf-insp .wfx-insp-f,.wfx-cv .ctb-bar){background:var(--dm-stage)}
   :root:not([data-style="soft"]):not([data-theme="light"]) .wfx-cv{background:var(--dm-surface)}
   :root:not([data-style="soft"]):not([data-theme="light"]) .wf .ahx-side{border-right:1px solid var(--wf-g)}
   :root:not([data-style="soft"]):not([data-theme="light"]) .wf-top{border-bottom:1px solid var(--wf-g)}
-  :root:not([data-style="soft"]):not([data-theme="light"]) .wf-side .ahx-ws{position:relative}
-  :root:not([data-style="soft"]):not([data-theme="light"]) .wf-side .ahx-ws::after{content:"";position:absolute;left:-8px;right:-8px;bottom:-5px;height:1px;background:var(--wf-g);pointer-events:none}
   :root:not([data-style="soft"]):not([data-theme="light"]) .wf.pn .wf-panel{border-left-color:var(--wf-g)}
   :root:not([data-style="soft"]):not([data-theme="light"]) .wf-ph{border-bottom-color:var(--wf-g)}
   :root:not([data-style="soft"]):not([data-theme="light"]) .wf .rdr-dw{border-top:1px solid var(--wf-g);box-shadow:none}
-  :root:not([data-style="soft"]):not([data-theme="light"]) .wf-usage::before{left:-8px;right:-8px;background:var(--wf-g)}
+  :root:not([data-style="soft"]):not([data-theme="light"]) .wf-usage::before{background:var(--wf-g)}
   :root:not([data-style="soft"]):not([data-theme="light"]) .wf-insp .wfx-insp-f{box-sizing:border-box;min-height:58px;border-top:1px solid var(--wf-g)}
   :root:not([data-style="soft"]):not([data-theme="light"]) .wfx-cv .ctb-bar{box-shadow:0 0 0 1px var(--wf-g)}
-  :root:not([data-style="soft"]):not([data-theme="light"]) .wf-seg.sgc-seg{background:color-mix(in srgb,var(--dm-stage) 55%,#000);box-shadow:inset 0 0 0 1px var(--wf-g)}
-  :root:not([data-style="soft"]):not([data-theme="light"]) .wf-seg .sgc-k{background:color-mix(in srgb,var(--dm-fg) 12%,var(--dm-stage));box-shadow:none}
 }
+/* the workflow's name and the test chip under it share a left edge, and their contents start on one line (owner, 10 Nov) */
+.wf-top .wf-h1b{margin-left:-8px;padding:0 8px}
+.wf-lead{padding-left:8px}
+/* owner's review, 10 Nov, third pass: one grid of rows and edges in every style.
+   The workspace switcher's row is the top bar's row (56px, the top bar's line at its foot), its hover 8px in from each edge;
+   New workflow starts level with the test chip on the canvas (12px under that line). In Blueprint the line crosses the whole
+   sidebar and Runs this month fills its cell; in Soft the line is inset like the sidebar's rows and Runs this month is a row
+   like the others, its divider above it */
+@media (min-width:1024px){
+  :root[data-style="soft"] .wf .wf-side.ahx-side{padding-top:8px}
+  .wf-side .ahx-ws{position:relative;box-sizing:border-box;height:56px;margin:0 0 10px;padding:8px 0 9px}
+  .wf-side .ahx-ws::after{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;background:color-mix(in srgb,var(--dm-line) 50%,transparent);pointer-events:none}
+  .wf-side .wf-wsb{height:39px;padding-left:6px}
+  .wf-side .wf-wsb .pfm-lg{width:27px;height:27px}
+  .wf-sfoot .wf-usage{height:44px;margin-top:14px;padding:6px 9px}
+  .wf-sfoot .wf-usage::before{top:-6px}
+  :root:not([data-style="soft"]) .wf-side.ahx-side{padding-top:0;padding-bottom:0}
+  :root:not([data-style="soft"]) .wf-side .ahx-ws{margin:0 -8px 10px;padding:8px 8px 9px}
+  :root:not([data-style="soft"]) .wf-sfoot .wf-usage{width:auto;height:58px;margin:var(--dm-s-2) -8px 0;padding:12px 17px 10px;border-radius:0}
+  :root:not([data-style="soft"]) .wf-sfoot .wf-usage::before{top:0}
+  :root:not([data-style="soft"])[data-theme="dark"] .wf-side .ahx-ws::after{background:var(--wf-g)}
+  @media (prefers-color-scheme:dark){
+    :root:not([data-style="soft"]):not([data-theme="light"]) .wf-side .ahx-ws::after{background:var(--wf-g)}
+  }
+}
+/* the inspector's chips, tokens, add buttons and dropdowns are one height (30px), their avatar or icon 5px from the edge */
+.wf-insp .sti-chip{height:30px;padding-left:5px}
+.wf-insp .sti-chip .av{width:20px;height:20px}
+.wf-insp .sti-add{width:30px;height:30px}
+.wf-insp .sti-tok{height:30px;line-height:30px;padding-left:5px}
+.wf-insp .sti-tok .sti-ti{width:20px;height:20px}
+/* a dropdown's menu opens on the trigger's left edge with its words on the trigger's words */
+#wf-p-sel{padding:4px}
+#wf-p-sel .mi{padding-left:6px;padding-right:6px}
+#wf-p-sel .ph{padding-left:6px}
+/* every switch in dark mode is one thing: a track a few tones darker than what it sits on, outlined as a whole, and a lighter
+   knob with no outline (Step, Runs, Versions; Steps, Log, Data; All, Warnings, Errors; Set limit) */
+:root[data-style="soft"][data-theme="dark"] .wf{--wf-trk:color-mix(in srgb,var(--dm-surface) 78%,#000);--wf-trk-l:color-mix(in srgb,var(--dm-fg) 10%,transparent);--wf-knob:color-mix(in srgb,var(--dm-fg) 14%,var(--dm-surface))}
+@media (prefers-color-scheme:dark){
+  :root[data-style="soft"]:not([data-theme="light"]) .wf{--wf-trk:color-mix(in srgb,var(--dm-surface) 78%,#000);--wf-trk-l:color-mix(in srgb,var(--dm-fg) 10%,transparent);--wf-knob:color-mix(in srgb,var(--dm-fg) 14%,var(--dm-surface))}
+}
+:root:not([data-style="soft"])[data-theme="dark"] .wf{--wf-trk:color-mix(in srgb,var(--dm-stage) 80%,#000);--wf-trk-l:var(--wf-g);--wf-knob:color-mix(in srgb,var(--dm-fg) 12%,var(--dm-stage))}
+@media (prefers-color-scheme:dark){
+  :root:not([data-style="soft"]):not([data-theme="light"]) .wf{--wf-trk:color-mix(in srgb,var(--dm-stage) 80%,#000);--wf-trk-l:var(--wf-g);--wf-knob:color-mix(in srgb,var(--dm-fg) 12%,var(--dm-stage))}
+}
+:root[data-theme="dark"] .wf :is(.seg2,.sgc-seg){background:var(--wf-trk);box-shadow:inset 0 0 0 1px var(--wf-trk-l)}
+:root[data-theme="dark"] .wf :is(.seg2 .knob,.sgc-seg .sgc-k){background:var(--wf-knob);box-shadow:none}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .wf :is(.seg2,.sgc-seg){background:var(--wf-trk);box-shadow:inset 0 0 0 1px var(--wf-trk-l)}
+  :root:not([data-theme="light"]) .wf :is(.seg2 .knob,.sgc-seg .sgc-k){background:var(--wf-knob);box-shadow:none}
+}
+/* Blueprint dark: the rows that stick to the top of the run bar's views and the versions' markers are the frame's tone, and
+   menus are the chips' fill with the grid's edge */
+:root:not([data-style="soft"])[data-theme="dark"] .wf .rdr-dw :is(.rdr-ax,.rdr-lf){background:var(--dm-stage)}
+:root:not([data-style="soft"])[data-theme="dark"] .wf-panel .wfx-ver-m{background:var(--dm-stage)}
+:root:not([data-style="soft"])[data-theme="dark"] .wf .pop{background:var(--dm-surface)}
+@media (prefers-color-scheme:dark){
+  :root:not([data-style="soft"]):not([data-theme="light"]) .wf .rdr-dw :is(.rdr-ax,.rdr-lf){background:var(--dm-stage)}
+  :root:not([data-style="soft"]):not([data-theme="light"]) .wf-panel .wfx-ver-m{background:var(--dm-stage)}
+  :root:not([data-style="soft"]):not([data-theme="light"]) .wf .pop{background:var(--dm-surface)}
+}
+/* the run bar's head and its views share one 12px edge: Last run's hover box starts where the Log filters and the steps' axis
+   start, and the follow button ends where they end (owner, 10 Nov) */
+.wf .rdr-dw .rdr-h{padding:0 var(--dm-s-3)}

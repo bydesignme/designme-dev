@@ -1352,7 +1352,7 @@
     if (lwarn.dataset.h !== String(over) + mode + (over ? '' : cap)){ const fresh = lwarn.dataset.h === undefined || lwarn.dataset.h.slice(0, 5) !== String(over).slice(0, 5); lwarn.dataset.h = String(over) + mode + (over ? '' : cap); lwarn.innerHTML = h; if (fresh) enter(lwarn.firstChild); }
     // the sidebar's meter: the dashed line where the limit is, and what it says
     const th = $('.wf-usage .th.stop', app), bt = $('.wf-usage', app), say = mode === 'keep' ? `Runs keep going past ${n0(cap)}` : mode === 'ask' ? `You're asked at ${n0(cap)} runs` : `Runs pause at ${n0(cap)}`;
-    th.style.left = (cap / LIM.MAX * 100) + '%'; bt.dataset.tip = `${say}, ${Math.round(cap / LIM.MAX * 100)}% of the plan. Set the limit`;
+    th.style.left = (cap / LIM.MAX * 100) + '%';
     bt.setAttribute('aria-label', `Runs this month: ${n0(used)} of 5,000. ${say}. Set the limit`);
   }
   const lat = e => { const b = lbar.getBoundingClientRect(); LIM.cap = Math.round((LIM.MIN + (LIM.MAX - LIM.MIN) * clamp((e.clientX - b.left) / b.width, 0, 1)) / 100) * 100; paintLim(); };
