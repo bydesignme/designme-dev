@@ -14,7 +14,7 @@ import { ROOT, COMPONENTS } from '../../lib/data.mjs';
 
 // the components the screen is made of, by their registry name: each one's installed CSS is on the page
 const USES = ['agent-harness', 'automation-canvas', 'canvas-toolbar', 'step-inspector', 'data-picker', 'run-drawer', 'segmented-control', 'form',
-  'action-log', 'command-palette', 'toast', 'progress', 'profile-menu'];
+  'action-log', 'command-palette', 'toast', 'progress', 'profile-menu', 'set-limit'];
 const css = USES.map(reg => {
   const c = COMPONENTS.find(x => x.reg === reg);
   if (!c) throw new Error('workflow-editor: no component called ' + reg);
@@ -43,10 +43,11 @@ const I = (n, c = 's') => `<svg class="i ${c}" aria-hidden="true"><use href="#i-
       <div class="wf-flows"></div>
       <div class="wf-sfoot">
         <button class="ahx-cv wf-appsb" data-act="apps" data-pop="#wf-p-apps" data-pop-pos="up" aria-haspopup="dialog"><Fragment set:html={I('link')} /><span class="t">Connected apps</span><span class="n num">6</span></button>
-        <div class="wf-usage">
-          <div class="prg-mh"><span>Runs this month</span><span class="muted num wf-usev"><Fragment set:html={I('coins', 'xs')} /><span class="wf-usen"></span></span></div>
-          <div class="prg-mb" role="meter" aria-label="Agent runs used this month; runs pause at 4,500" aria-valuemin="0" aria-valuemax="5000" data-tip="Runs pause at 4,500, 90% of the plan"><i class="fl"></i><i class="th stop" style="left:90%" aria-hidden="true"></i></div>
-        </div>
+        <!-- the usage meter opens Set limit, where the monthly cap is dragged or typed and what happens at it is picked (owner, 10 Nov) -->
+        <button class="wf-usage" data-pop="#wf-p-lim" data-pop-pos="up" aria-haspopup="dialog">
+          <span class="prg-mh"><span>Runs this month</span><span class="muted num wf-usev"><Fragment set:html={I('coins', 'xs')} /><span class="wf-usen"></span></span></span>
+          <span class="prg-mb" role="meter" aria-label="Agent runs used this month" aria-valuemin="0" aria-valuemax="5000"><i class="fl"></i><i class="th stop" aria-hidden="true"></i></span>
+        </button>
       </div>
     </aside>
     <div class="ahx-scrim wf-scrim" aria-hidden="true"></div>
@@ -144,6 +145,14 @@ const I = (n, c = 's') => `<svg class="i ${c}" aria-hidden="true"><use href="#i-
     <div class="pop wf-pop" id="wf-p-ver" role="menu" aria-label="Version actions"></div>
     <!-- Connected apps (wfx-apps): the apps with their marks and state, a catalogue to connect more, the tools and each app's details -->
     <div class="pop wfx-apps" id="wf-p-apps" role="dialog" aria-label="Connected apps"></div>
+    <!-- Set limit, for the month's agent runs -->
+    <div class="pop wf-limp" id="wf-p-lim" role="dialog" aria-label="Monthly run limit"><div class="slx">
+      <div class="slx-h"><div><b>Monthly runs</b><span class="muted">Plan of 5,000, resets Dec 1</span></div><label class="num slx-v" data-tip="Type a limit"><input class="slx-in" inputmode="numeric" autocomplete="off" aria-label="Monthly run limit" value="4500"></label></div>
+      <div class="slx-bar"><div class="slx-used"></div><div class="slx-fc"></div><button class="slx-k" role="slider" aria-label="Run limit" aria-valuemin="1000" aria-valuemax="5000"><span class="slx-tt num"></span></button></div>
+      <div class="slx-lg muted"><span><i style="background:var(--dm-accent-mark,var(--dm-accent))"></i>Used <b class="num slx-sp">3,140</b></span><span><i class="fc"></i>Forecast <b class="num slx-fv">4,620</b></span></div>
+      <div class="slx-warn"></div>
+      <div class="slx-opt"><span class="muted">At the limit</span><div class="seg2 slx-sg" role="group" aria-label="At the limit"><button aria-pressed="true" data-v="pause">Pause runs</button><button aria-pressed="false" data-v="ask">Ask me</button><button aria-pressed="false" data-v="keep">Keep going</button></div></div>
+    </div></div>
     <!-- the step picker (wfx-picker): Automation canvas's picker, with the agent as its last resort -->
     <div class="pop acx-pk wfx-pick" id="wf-p-pick" role="dialog" aria-label="Add a step">
       <div class="acx-q"><Fragment set:html={I('search', 'xs')} /><input class="acx-qi" type="text" role="combobox" aria-expanded="true" aria-autocomplete="list" aria-controls="wf-pick-ls" placeholder="Find a step or describe one" aria-label="Find a step or describe one" autocomplete="off" spellcheck="false"></div>

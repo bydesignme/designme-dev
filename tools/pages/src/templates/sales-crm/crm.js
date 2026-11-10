@@ -1157,7 +1157,7 @@
         : `<div class="ecx-pt"><button class="dtp-v crm-pwhen num" data-pop="#crm-p-when" aria-haspopup="dialog" aria-label="When: ${fmtDW(m.day)}, ${tmA(m.h)} to ${tmA(m.h + m.dur)}. Change it" data-tip="Change the date or time">${I('cal', 'xs')}<span>${fmtDW(m.day)}, ${tm(m.h)} – ${tm(m.h + m.dur)}</span></button></div>`)
       + (d ? `<div class="crm-pdl"><span class="t">${esc(d.n)}</span>${pill(d.st)}<span class="num">${kmoney(d.v)}</span></div>` : '')
       + `<div class="ecx-pw crm-pw">${peopleRow(m)}</div>`
-      + `<div class="ecx-pa">${m.fresh ? `<button class="pill ghost sm" data-p="discard">Discard</button><button class="pill primary sm" data-p="save">Book</button>` : `<button class="pill line sm" data-p="open">Open account</button>${done ? `<button class="pill primary sm" data-p="log">Log the call</button>` : `<button class="pill soft sm ecx-ask ecx-prep" data-p="prep">${I('spark', 'xs')}Prep with agent</button>`}`}</div>`
+      + `<div class="ecx-pa">${m.fresh ? `<button class="pill line sm" data-p="discard">Discard</button><button class="pill primary sm" data-p="save">Book</button>` : `<button class="pill line sm" data-p="open">Open account</button>${done ? `<button class="pill primary sm" data-p="log">Log the call</button>` : `<button class="pill soft sm ecx-ask ecx-prep" data-p="prep">${I('spark', 'xs')}Prep with agent</button>`}`}</div>`
       // Join call sits under the pair, on the text column, for every meeting still to come, as calendars show a call's link
       // (owner, 10 Nov: not a full-card button above the people)
       + (!m.fresh && !done ? `<div class="ecx-pa crm-pjn"><button class="pill primary sm" data-p="join">Join call</button></div>` : '');

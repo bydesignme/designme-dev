@@ -1334,7 +1334,39 @@
     box.innerHTML = G.map(([t, fn]) => { const L = FLOWS.filter(fn); return L.length ? `<div class="ahx-lh"><span>${t}</span></div><div class="wf-nav">${L.map(f => `<button class="ahx-cv" data-wf="${f.id}"${f === F ? ' aria-current="true"' : ''}><span class="dot" style="color:${dot(f)}" aria-hidden="true"></span><span class="t">${esc(f.name)}</span>${f.W && f.W.changes.length && f.st !== 'draft' ? '<span class="wf-edited" data-tip="Unpublished changes" aria-label="Unpublished changes"></span>' : ''}<span class="n num" data-tip="${f.note || (f.today + ' runs today')}">${f.st === 'failing' ? f.today + ' failed' : f.today || ''}</span></button>`).join('')}</div>` : ''; }).join('');
     const used = 3140 + sum(FLOWS.filter(f => f.W), f => f.W.runs.filter(r => r.when === 'Just now').length);
     $('.wf-usen', app).textContent = `${used.toLocaleString('en-US')} of 5k`; $('.wf-usage .fl', app).style.width = (used / 50) + '%'; $('.wf-usage .prg-mb', app).setAttribute('aria-valuenow', used);
+    LIM.used = used; paintLim();
   }
+  /* ---------- the month's run limit: Set limit, opened from the sidebar's meter. The cap is dragged or typed (1,000 to the
+     plan's 5,000, in steps of 100), and what happens at it is picked; the meter's dashed line and its words follow ---------- */
+  const LIM = { cap:4500, used:3140, fc:4620, mode:'pause', MIN:1000, MAX:5000 }, lp = $('#wf-p-lim', app);
+  const lk = $('.slx-k', lp), lbar = $('.slx-bar', lp), lin = $('.slx-in', lp), lwarn = $('.slx-warn', lp);
+  const lpct = x => (x - LIM.MIN) / (LIM.MAX - LIM.MIN) * 100, n0 = x => x.toLocaleString('en-US');
+  const LMODE = { pause:'pause', ask:'wait for you', keep:'keep going' };
+  function paintLim(){
+    const { cap, used, fc, mode } = LIM, over = fc > cap;
+    lk.style.left = lpct(cap) + '%'; $('.slx-tt', lp).textContent = n0(cap); lk.setAttribute('aria-valuenow', cap); lk.setAttribute('aria-valuetext', `${n0(cap)} runs`);
+    if (document.activeElement !== lin){ lin.value = cap; lin.style.width = Math.max(1, String(cap).length) + 'ch'; }
+    $('.slx-used', lp).style.width = Math.min(100, used / cap * lpct(cap)) + '%'; $('.slx-fc', lp).style.width = Math.min(lpct(cap), fc / cap * lpct(cap)) + '%';
+    $('.slx-sp', lp).textContent = n0(used);
+    const h = over ? `<span class="w">${I('alert', 'xs')}Forecast passes your limit around Nov 27. Runs will ${LMODE[mode]}.</span>` : `<span class="o">${I('ok', 'xs')}<span>On track, about ${n0(cap - fc)} runs to spare.</span></span>`;
+    if (lwarn.dataset.h !== String(over) + mode + (over ? '' : cap)){ const fresh = lwarn.dataset.h === undefined || lwarn.dataset.h.slice(0, 5) !== String(over).slice(0, 5); lwarn.dataset.h = String(over) + mode + (over ? '' : cap); lwarn.innerHTML = h; if (fresh) enter(lwarn.firstChild); }
+    // the sidebar's meter: the dashed line where the limit is, and what it says
+    const th = $('.wf-usage .th.stop', app), bt = $('.wf-usage', app), say = mode === 'keep' ? `Runs keep going past ${n0(cap)}` : mode === 'ask' ? `You're asked at ${n0(cap)} runs` : `Runs pause at ${n0(cap)}`;
+    th.style.left = (cap / LIM.MAX * 100) + '%'; bt.dataset.tip = `${say}, ${Math.round(cap / LIM.MAX * 100)}% of the plan. Set the limit`;
+    bt.setAttribute('aria-label', `Runs this month: ${n0(used)} of 5,000. ${say}. Set the limit`);
+  }
+  const lat = e => { const b = lbar.getBoundingClientRect(); LIM.cap = Math.round((LIM.MIN + (LIM.MAX - LIM.MIN) * clamp((e.clientX - b.left) / b.width, 0, 1)) / 100) * 100; paintLim(); };
+  lbar.onpointerdown = e => { lbar.setPointerCapture(e.pointerId); lk.classList.add('drag'); lat(e); lbar.onpointermove = lat; };
+  lbar.onpointerup = lbar.onpointercancel = () => { lk.classList.remove('drag'); lbar.onpointermove = null; };
+  let lsay = 0; const lflash = () => { lk.classList.add('say'); clearTimeout(lsay); lsay = setTimeout(() => lk.classList.remove('say'), 1200); };
+  lk.onkeydown = e => { const d = e.key === 'ArrowRight' || e.key === 'ArrowUp' ? 100 : e.key === 'ArrowLeft' || e.key === 'ArrowDown' ? -100 : 0; if (!d) return; e.preventDefault(); LIM.cap = clamp(LIM.cap + d, LIM.MIN, LIM.MAX); paintLim(); lflash(); };
+  seg($('.slx-sg', lp), m => { LIM.mode = m; paintLim(); });
+  let lbefore = LIM.cap;
+  $('.slx-v', lp).addEventListener('pointerdown', e => { if (document.activeElement !== lin){ e.preventDefault(); lin.focus({ preventScroll:true }); } });
+  lin.onfocus = () => { lbefore = LIM.cap; lin.select(); };
+  lin.oninput = () => { lin.value = lin.value.replace(/\D/g, '').slice(0, 4); lin.style.width = Math.max(1, lin.value.length) + 'ch'; const n = +lin.value; if (lin.value && n >= LIM.MIN && n <= LIM.MAX){ LIM.cap = n; paintLim(); lflash(); } };
+  lin.onkeydown = e => { if (e.key === 'Enter'){ e.preventDefault(); lin.blur(); } else if (e.key === 'Escape'){ e.stopPropagation(); LIM.cap = lbefore; lin.blur(); paintLim(); } };
+  lin.onblur = () => { const n = lin.value === '' ? lbefore : clamp(Math.round(parseInt(lin.value, 10) / 100) * 100, LIM.MIN, LIM.MAX); LIM.cap = n; paintLim(); };
   function openFlow(id){
     const f = FLOWS.find(x => x.id === id); if (!f) return;
     if (R && R.live){ cancelAnimationFrame(R.raf); }

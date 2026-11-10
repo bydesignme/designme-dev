@@ -137,7 +137,7 @@ function Details({ event, onClose, onSave, onDiscard, onPrepNotes, onJoin }: {
       {prep === 'done' && <div className={cx('dm-ecx-note', enter().className)}><Icon name="spark" size="xs" /><span>{note}</span></div>}
       {fresh ? (
         <div className="dm-ecx-pa">
-          <button type="button" className="dm-pill dm-ghost dm-sm" onClick={onDiscard}>Discard</button>
+          <button type="button" className="dm-pill dm-line dm-sm" onClick={onDiscard}>Discard</button>
           <button type="button" className="dm-pill dm-primary dm-sm" onClick={() => onSave(input.current?.value ?? '')}>Save</button>
         </div>
       ) : (onPrepNotes || onJoin) && (

@@ -63,11 +63,11 @@ The contrast targets hold on the surface, and on the grey chips and tinted rows 
 
 | Role | Soft light | Soft dark | Blueprint light | Blueprint dark |
 | --- | --- | --- | --- | --- |
-| Fill, `--dm-accent` | `#116ff8` | `#116ff8` | `#d4f84a` | `#d4f84a` |
+| Fill, `--dm-accent` | `#116ff8` | `#116ff8` | `#c2f23c` | `#d4f84a` |
 | On fill, `--dm-on-accent` | `#ffffff` | `#ffffff` | `#121212` | `#121212` |
 | Text, `--dm-accent-fg` | `#0f5fd5` | `#9dc4ff` | `#121212` | `#d4f84a` |
 | Mark, `--dm-accent-mark` | `#116ff8` | `#3d8bff` | `#1daa51` | `#d4f84a` |
-| Tint, `--dm-accent-bg` | `color-mix(in srgb,#116ff8 9%,transparent)` | `color-mix(in srgb,#116ff8 13%,transparent)` | `color-mix(in srgb,#d4f84a 9%,transparent)` | `color-mix(in srgb,#d4f84a 13%,transparent)` |
+| Tint, `--dm-accent-bg` | `color-mix(in srgb,#116ff8 9%,transparent)` | `color-mix(in srgb,#116ff8 13%,transparent)` | `color-mix(in srgb,#c2f23c 9%,transparent)` | `color-mix(in srgb,#d4f84a 13%,transparent)` |
 
 - Soft is blue, `#116ff8`, with white text on it, in light and dark mode. Accent text is `#0f5fd5` in light mode and `#9dc4ff` in dark mode.
 - Blueprint is lime, `#d4f84a`, with dark text and icons on it. In dark mode, text and marks are lime too. In light mode, lime is too light to read on white, so accent text uses the ink colour and marks use green, `#1daa51`.

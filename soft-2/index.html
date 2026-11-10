@@ -6879,6 +6879,11 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
 @media (prefers-reduced-motion:reduce){.bnx-svg *{animation:none!important}.bnx-svg .z{transform:none!important}}
 /* Blueprint: square, and the eyebrow as a small capital label */
 :root[data-style="bp"] .bnx:is(:not([data-tone]),[data-tone="accent"]){--bnx-ka:20%}
+/* a Blueprint banner has an edge in its own colour, like the sheet's other boxes (owner, 10 Nov) */
+:root[data-style="bp"] .bnx{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--bnx-f,var(--bnx-m)) 70%,var(--fg))}
+/* in light mode the agent's tint is a clear lime, not a cream, with an olive edge (owner, 10 Nov) */
+:root[data-style="bp"][data-theme="light"] :is(.pill.soft.ecx-ask,.six-ans){--ask-edge:color-mix(in srgb,var(--accent) 70%,var(--fg));background:color-mix(in srgb,var(--accent) 24%,var(--surface));box-shadow:inset 0 0 0 1px var(--ask-edge)}
+@media (prefers-color-scheme:light){:root[data-style="bp"]:not([data-theme="dark"]) :is(.pill.soft.ecx-ask,.six-ans){--ask-edge:color-mix(in srgb,var(--accent) 70%,var(--fg));background:color-mix(in srgb,var(--accent) 24%,var(--surface));box-shadow:inset 0 0 0 1px var(--ask-edge)}}
 @media (prefers-color-scheme:dark){:root[data-style="bp"]:not([data-theme="light"]) .bnx:is(:not([data-tone]),[data-tone="accent"]){--bnx-ka:9%}}
 :root[data-style="bp"][data-theme="dark"] .bnx:is(:not([data-tone]),[data-tone="accent"]){--bnx-ka:9%}
 :root[data-style="bp"] .bnx-eb{font-size:11px;letter-spacing:.06em;text-transform:uppercase}
@@ -8673,7 +8678,7 @@ button.pvb-row:focus-visible{outline-offset:-2px}
   --fg:#121212; --fg2:#4a4a46; --muted:#666660; --faint:#bdbdb6; --rail:#d2d2cb; --line:#e3e3dd; --field-line:#d2d2cb; --line-strong:#858580; --field-line-strong:#b0b0a9;
   --chip:#f1f1ed; --hover:#e8e8e3; --press:#dededa; --wash:#f6f6f3; --row:#fafaf8;
   --soft:#ebebe6; --soft-h:#e1e1db; --soft-ring:inset 0 0 0 1px rgba(20,20,12,.045); --dis:#a3a39c;
-  --accent:#d4f84a; --on-accent:#121212; --accent-fg:var(--fg); --accent-mark:#1daa51; --sel:color-mix(in srgb,var(--accent) 7%,transparent);
+  --accent:#c2f23c; --on-accent:#121212; --accent-fg:var(--fg); --accent-mark:#1daa51; --sel:color-mix(in srgb,var(--accent) 7%,transparent);
   --ink:#121212; --on-ink:#ffffff;
   --shadow:0 0 0 1px color-mix(in srgb,var(--line) 50%,transparent);
   --shadow-pop:0 0 0 1px color-mix(in srgb,var(--rail) 50%,transparent),0 12px 28px -14px rgba(20,20,12,.22);
@@ -8781,6 +8786,10 @@ button.pvb-row:focus-visible{outline-offset:-2px}
 }
 :root[data-theme="dark"] .pill.line{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--fg) 22%,var(--surface))}
 :root[data-theme="dark"] .seg2 .knob{background:var(--surface);box-shadow:0 0 0 1px color-mix(in srgb,var(--fg) 22%,transparent)}
+/* owner, 10 Nov: in dark mode an outlined button inside a menu, popover or event card is clear with its edge, not a darker fill
+   than the surface it sits on */
+:root[data-theme="dark"] :is(.pop,.ecx-pop) .pill.line{background:transparent}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) :is(.pop,.ecx-pop) .pill.line{background:transparent}}
 </style>
 <style>
 /* this page's own stages, left out of the shipped CSS: Automation canvas and Canvas toolbar fill theirs, edge to edge */
@@ -21388,7 +21397,7 @@ DM.def('event-calendar', (r, c) => {
   /* the details card opens beside the event and stays inside the calendar */
   function openPop(el){
     const e = el._e; if (openFor === el){ closePop(); return; } openFor = el; const n = 2 + e[3].length % 3, fresh = e[3] === 'New event';
-    pop.innerHTML = `<div class="ecx-ph"><i style="background:var(--p${e[4]})"></i>${fresh ? '<input class="ecx-ti" placeholder="Add a title" aria-label="Event title">' : `<b>${e[3]}</b>`}<button class="ib ecx-px" aria-label="Close" data-tip="Close">${I('x','xs')}</button></div><div class="ecx-pt">${DAYN[e[0]]} ${DAYS[e[0]].split(' ')[1]} Oct · ${tm(e[1])} – ${tm(e[1] + e[2])}</div><div class="ecx-pw">${WHO.slice(0, n).map(w => AV(w[0], w[1])).join('')}<span class="muted">${n} people</span></div><div class="ecx-pa">${fresh ? '<button class="pill ghost sm ecx-del">Discard</button><button class="pill primary sm ecx-save">Save</button>' : `<button class="pill soft sm ecx-prep">${I('spark','xs')}Prep notes</button><button class="pill primary sm">Join</button>`}</div>`;
+    pop.innerHTML = `<div class="ecx-ph"><i style="background:var(--p${e[4]})"></i>${fresh ? '<input class="ecx-ti" placeholder="Add a title" aria-label="Event title">' : `<b>${e[3]}</b>`}<button class="ib ecx-px" aria-label="Close" data-tip="Close">${I('x','xs')}</button></div><div class="ecx-pt">${DAYN[e[0]]} ${DAYS[e[0]].split(' ')[1]} Oct · ${tm(e[1])} – ${tm(e[1] + e[2])}</div><div class="ecx-pw">${WHO.slice(0, n).map(w => AV(w[0], w[1])).join('')}<span class="muted">${n} people</span></div><div class="ecx-pa">${fresh ? '<button class="pill line sm ecx-del">Discard</button><button class="pill primary sm ecx-save">Save</button>' : `<button class="pill soft sm ecx-prep">${I('spark','xs')}Prep notes</button><button class="pill primary sm">Join</button>`}</div>`;
     const pr = panel.getBoundingClientRect(), er = el.getBoundingClientRect(), w = 248;
     let x = er.right - pr.left + 8; if (x + w > pr.width - 8) x = er.left - pr.left - w - 8; x = Math.max(8, x);
     let y = er.top - pr.top; y = Math.max(8, Math.min(y, pr.height - pop.offsetHeight - 8));
