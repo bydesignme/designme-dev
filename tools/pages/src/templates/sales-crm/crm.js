@@ -944,11 +944,13 @@
     if (g.length) groups.push(g);
     groups.forEach(gr => { const ends = []; gr.forEach(e => { let k = ends.findIndex(t => t <= e.h); if (k < 0){ k = ends.length; ends.push(0); } ends[k] = e.h + e.vd; e._l = k; }); gr.forEach(e => e._n = ends.length); });
   }
+  const nowH = () => { const t = new Date(); return t.getHours() + t.getMinutes() / 60; };
+  const isPast = m => m.st === 'held' || m.day < 0 || (m.day === 0 && m.h + m.dur <= nowH());
   const evLabel = m => { const c = coOf(m.co); return `${c.n}, ${m.kind}, ${fmtDW(m.day)} ${tmA(m.h)} to ${tmA(m.h + m.dur)}, ${P[m.own][0]}${m.st === 'plan' && m.day < 0 ? ', overdue' : m.st === 'held' ? ', held' : ''}`; };
   function evEl(m){
     const c = coOf(m.co), col = P[m.own][1], late = m.st === 'plan' && m.day < 0, n = m._n || 1;
     const tag = m.sug ? 'div' : 'button';
-    const el = html(`<${tag} class="ecx-e crm-ev${m.sug ? ' sug' : ''}${!m.sug && m.dur <= .5 ? ' short' : ''}${late ? ' late' : ''}${m.st === 'held' ? ' held' : ''}" data-m="${m.id}" style="top:${at(m.h)};height:${tall(m.sug ? m.vd : m.dur)};left:calc(3px + (100% - 6px) * ${(m._l || 0) / n});width:calc((100% - 6px) / ${n} - ${n > 1 ? 2 : 0}px);${m.sug ? '' : `background:var(--dm-p${col}-bg);color:var(--dm-p${col})`}" ${m.sug ? ' role="group"' : ''} aria-label="${esc(m.sug ? 'Suggested: ' + low(m.kind) + ' with ' + c.n + ', ' + fmtDW(m.day) + ' ' + tmA(m.h) : evLabel(m))}"><b>${esc(c.n)}</b>${m.sug ? '' : `<span><span class="num">${tm(m.h)} – ${tm(m.h + m.dur)}</span> · ${late ? 'Overdue: ' : ''}${esc(m.kind)}</span>`}</${tag}>`);
+    const el = html(`<${tag} class="ecx-e crm-ev${m.sug ? ' sug' : ''}${!m.sug && m.dur <= .5 ? ' short' : ''}${late ? ' late' : ''}${m.st === 'held' ? ' held' : ''}${!m.sug && !late && isPast(m) ? ' past' : ''}" data-m="${m.id}" style="top:${at(m.h)};height:${tall(m.sug ? m.vd : m.dur)};left:calc(3px + (100% - 6px) * ${(m._l || 0) / n});width:calc((100% - 6px) / ${n} - ${n > 1 ? 2 : 0}px);${m.sug ? '' : `background:var(--dm-p${col}-bg);color:var(--dm-p${col})`}" ${m.sug ? ' role="group"' : ''} aria-label="${esc(m.sug ? 'Suggested: ' + low(m.kind) + ' with ' + c.n + ', ' + fmtDW(m.day) + ' ' + tmA(m.h) : evLabel(m))}"><b>${esc(c.n)}</b>${m.sug ? '' : `<span><span class="num">${tm(m.h)} – ${tm(m.h + m.dur)}</span> · ${late ? 'Overdue: ' : ''}${esc(m.kind)}</span>`}</${tag}>`);
     if (m.sug) el.insertAdjacentHTML('beforeend', `<span class="ecx-sg"><button class="y" data-sg="book" aria-label="Book a ${esc(low(m.kind))} with ${esc(c.n)}, ${fmtDW(m.day)} ${tmA(m.h)}">Book</button><button class="n crm-sgm" data-sg="more" data-pop="#crm-p-sg" aria-haspopup="menu" aria-label="More for ${esc(c.n)}" data-tip="Skip or open">${I('more', 'xs')}</button><i class="num">${tm(m.h)}</i></span>`);
     el._m = m;
     return el;
@@ -956,7 +958,6 @@
   function renderCal(keep){
     if (!keep) closeCalPop();
     const m0 = mon();
-    $('.crm-wkt', ecx).textContent = weekLabel();
     $$('.ecx-day, .ecx-scan', cgrid).forEach(x => x.remove());
     cgrid.insertAdjacentHTML('beforeend', [0, 1, 2, 3, 4, 5, 6].map(i => { const n = m0 + i, cl = closingOn(n);
       return `<div class="ecx-day${isWork(n) ? '' : ' we'}" data-d="${i}"><div class="ecx-dh${n === 0 ? ' t' : ''}">${DAYN[dow(n)]} <b>${dateOf(n).getDate()}</b></div><div class="crm-cls" aria-label="Closing ${fmtDW(n)}">${cl.slice(0, cl.length > 2 ? 1 : 2).map(d => { const c = coOf(d.co);
@@ -974,7 +975,7 @@
     if (cday < 0) cday = inWeek(0) ? -mon() : 0;
     fitHours();
     showDay(cday, false);
-    counts();
+    counts(); paintCalHead();
   }
   const csc = $('.ecx-sc', ecx);
   function fitHours(){
@@ -983,7 +984,7 @@
   }
   new ResizeObserver(() => { if (view === 'calendar') fitHours(); }).observe(csc);
   function showDay(i, anim = true){
-    const was = cday; cday = i;
+    const was = cday; cday = i; if (cv === 'day') paintCalHead();
     $$('button', cdays).forEach(b => b.setAttribute('aria-pressed', +b.dataset.d === i));
     $$('.ecx-day', cgrid).forEach((d, k) => d.classList.toggle('on', k === i));
     if (anim && was !== i && cdays.getClientRects().length){ closeCalPop(); enter($$('.ecx-day', cgrid)[i]); }
@@ -991,7 +992,73 @@
   cdays.addEventListener('click', e => { const b = e.target.closest('button'); if (b) showDay(+b.dataset.d); });
   const goWeek = w => { const dir = Math.sign(w - wk); wk = w; cday = -1; SG = SG.filter(s => inWeek(s.day)); renderCal();
     if (dir) [$('.crm-wkt', ecx), ...$$('.ecx-day', cgrid), $('.ecx-days', ecx)].forEach(el => glide(el, { transform:`translateX(${dir * 14}px)` })); };
-  $$('[data-wk]', ecx).forEach(b => b.onclick = () => goWeek(+b.dataset.wk === 0 ? 0 : wk + +b.dataset.wk));
+  $$('[data-wk]', ecx).forEach(b => b.onclick = () => { const st = +b.dataset.wk;
+    if (cv === 'month'){ mo = st === 0 ? 0 : mo + st; renderMonth(st); return; }
+    if (cv === 'day'){ goDay(st === 0 ? 0 : shownDay() + st, st); return; }
+    goWeek(st === 0 ? 0 : wk + st); });
+
+  /* ---------- the calendar's views: Day, Week and Month, and a date to go to (owner, 10 Nov) ---------- */
+  let cv = 'week', mo = 0, jMo = 0;
+  const mon0 = n => (dateOf(n).getFullYear() - today.getFullYear()) * 12 + dateOf(n).getMonth() - today.getMonth();
+  const shownDay = () => cv === 'month' ? Math.round((new Date(today.getFullYear(), today.getMonth() + mo, 1) - today) / 864e5) : mon() + (cday < 0 ? (inWeek(0) ? -mon() : 0) : cday);
+  const UNIT = { day:'day', week:'week', month:'month' };
+  function paintCalHead(){
+    const n = shownDay(), t = cv === 'day' ? `${DAYL[dow(n)]}, ${fmtD(n)}, ${dateOf(n).getFullYear()}` : cv === 'month' ? new Date(today.getFullYear(), today.getMonth() + mo, 1).toLocaleDateString('en-US', { month:'long', year:'numeric' }) : weekLabel();
+    swap($('.crm-wkt', ecx), t);
+    $('[data-wk="-1"]', ecx).setAttribute('aria-label', 'Previous ' + UNIT[cv]); $('[data-wk="-1"]', ecx).dataset.tip = 'Previous ' + UNIT[cv];
+    $('[data-wk="1"]', ecx).setAttribute('aria-label', 'Next ' + UNIT[cv]); $('[data-wk="1"]', ecx).dataset.tip = 'Next ' + UNIT[cv];
+  }
+  // one day: its week, and the day picked in it
+  function goDay(n, dir = 0){
+    const w = Math.floor((n - baseMon) / 7); if (w !== wk){ wk = w; SG = SG.filter(x => inWeek(x.day)); }
+    cday = n - baseMon - wk * 7; renderCal();
+    if (dir && cv === 'day') glide($$('.ecx-day', cgrid)[cday], { transform:`translateX(${dir * 12}px)` }, 240);
+  }
+  const mview = $('.crm-mon', ecx), csc2 = $('.ecx-sc', ecx);
+  function setCv(v, n){
+    const from = shownDay(); cv = v; closeCalPop();
+    $$('.crm-cvw button', ecx).forEach(b => b.setAttribute('aria-pressed', b.dataset.cv === v));
+    ecx.classList.toggle('vday', v === 'day'); ecx.classList.toggle('vmon', v === 'month');
+    csc2.hidden = v === 'month'; mview.hidden = v !== 'month'; plan.hidden = v === 'month';
+    const at0 = n != null ? n : from;
+    if (v === 'month'){ mo = mon0(at0); renderMonth(); glide(mview, { transform:'scale(.99)' }, 220); }
+    else { goDay(at0); glide(csc2, { transform:'scale(.995)' }, 220); }
+  }
+  $$('.crm-cvw button', ecx).forEach(b => b.onclick = () => { if (b.dataset.cv !== cv) setCv(b.dataset.cv); });
+  // Month: six weeks, each day with its first three meetings and how many more; a day opens in Day, a meeting opens its card
+  function renderMonth(dir){
+    const f = new Date(today.getFullYear(), today.getMonth() + mo, 1), lead = (f.getDay() + 6) % 7, n0 = Math.round((f - today) / 864e5) - lead;
+    let g = '';
+    for (let i = 0; i < 42; i++){ const n = n0 + i, d = dateOf(n), inM = d.getMonth() === f.getMonth(), L = MT.filter(m => m.day === n).sort((a, b) => a.h - b.h);
+      g += `<div class="crm-mc${inM ? '' : ' o'}${n === 0 ? ' t' : ''}${isWork(n) ? '' : ' we'}"><button class="crm-mcd num" data-n="${n}" aria-label="${DAYL[dow(n)]} ${fmtD(n)}, ${plural(L.length, 'meeting')}. Open the day">${d.getDate()}</button>`
+        + L.slice(0, 3).map(m => `<button class="crm-mce${isPast(m) ? ' past' : ''}" data-mm="${m.id}" style="--crm-mc:var(--dm-p${P[m.own][1]})" aria-label="${esc(evLabel(m))}"><i></i><span class="num">${tm(m.h)}</span><span class="t">${esc(coOf(m.co).n)}</span></button>`).join('')
+        + (L.length > 3 ? `<button class="crm-mcm" data-n="${n}">${L.length - 3} more</button>` : '') + `</div>`; }
+    mview.innerHTML = `<div class="crm-mwd muted">${['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(x => `<span>${x}</span>`).join('')}</div><div class="crm-mg">${g}</div>`;
+    if (dir) glide($('.crm-mg', mview), { transform:`translateX(${dir * 14}px)` }, 240);
+    paintCalHead();
+  }
+  mview.addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return;
+    if (b.dataset.mm){ const m = MT.find(x => x.id === b.dataset.mm); if (!m) return; setCv('day', m.day); const el = $(`.ecx-e[data-m="${m.id}"]`, cgrid); if (el){ el.focus({ preventScroll:true }); openCalPop(el); } return; }
+    if (b.dataset.n != null) setCv('day', +b.dataset.n); });
+  // the date picker on the label: a month of days, today and the day on show marked; a pick goes there in the same view
+  const jpk = pop('crm-p-jump');
+  function paintJump(dir){
+    const f = new Date(today.getFullYear(), today.getMonth() + jMo, 1), lead = (f.getDay() + 6) % 7, dim = new Date(f.getFullYear(), f.getMonth() + 1, 0).getDate(), on = shownDay();
+    const wkA = cv === 'week' ? weekOf()[0] : null;
+    let g = ''; for (let i = 0; i < lead; i++) g += '<span></span>';
+    for (let d = 1; d <= dim; d++){ const n = Math.round((new Date(f.getFullYear(), f.getMonth(), d) - today) / 864e5), sel = cv === 'week' ? n >= wkA && n <= wkA + 6 : cv === 'day' && n === on;
+      g += `<button class="dpk-d${sel ? ' s' : ''}${n === 0 ? ' t' : ''}${isWork(n) ? '' : ' o'}" data-n="${n}" aria-pressed="${sel}" aria-label="${DAYL[dow(n)]} ${fmtD(n)}">${d}</button>`; }
+    jpk.innerHTML = `<div class="dpk-mh"><button class="ib" data-j="-1" aria-label="Previous month">${I('chev-l', 'xs')}</button><b>${f.toLocaleDateString('en-US', { month:'long', year:'numeric' })}</b><button class="ib" data-j="1" aria-label="Next month">${I('chev-r', 'xs')}</button></div>`
+      + `<div class="dpk-wd muted"><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span></div><div class="dpk-vp"><div class="dpk-g${dir ? (dir < 0 ? ' in-l' : ' in-r') : ''}">${g}</div></div>`
+      + `<div class="crm-wa"><button class="pill line sm" data-n="0">Today</button></div>`;
+  }
+  onOpen('.crm-wkb', () => { jMo = cv === 'month' ? mo : mon0(shownDay()); paintJump(); setTimeout(() => $('.dpk-d.s, .dpk-d.t', jpk)?.focus({ preventScroll:true }), 40); });
+  jpk.addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return;
+    if (b.dataset.j){ e.stopPropagation(); jMo += +b.dataset.j; paintJump(+b.dataset.j); $(`[data-j="${b.dataset.j}"]`, jpk).focus(); return; }
+    if (b.dataset.n == null) return; const n = +b.dataset.n; closePops(); $('.crm-wkb', ecx).focus({ preventScroll:true });
+    if (cv === 'month'){ const was = mo; mo = mon0(n); renderMonth(Math.sign(mo - was)); } else if (cv === 'day') goDay(n, Math.sign(n - shownDay())); else { const w = Math.floor((n - baseMon) / 7); goWeek(w); } });
+  // Plan follow-ups places slots on the week, so it opens the week first
+  plan.addEventListener('click', () => { if (cv !== 'week') setCv('week'); }, true);
   // a meeting found elsewhere (the sheet's next step): its week, its day, and its card open
   function showMeeting(m){
     setView('calendar'); wk = Math.floor((m.day - baseMon) / 7); cday = (m.day - baseMon) - wk * 7; renderCal();
@@ -1027,14 +1094,15 @@
   function openCalPop(el){
     const m = el._m; if (popFor === el){ closeCalPop(); return; }
     if (popFor && popFor._m.fresh && popFor._m !== m) closeCalPop();
-    popFor = el; const c = coOf(m.co), d = dealOf(m.deal) || c.lead, col = P[m.own][1];
+    popFor = el; const c = coOf(m.co), d = dealOf(m.deal) || c.lead, col = P[m.own][1], done = !m.fresh && isPast(m);
     cpop.innerHTML = `<div class="ecx-ph"><i style="background:var(--dm-p${col})"></i>${m.fresh ? `<input class="ecx-ti" placeholder="Call" aria-label="Meeting title" value="">` : `<b>${esc(c.n)}</b>`}<button class="ib ecx-px" aria-label="Close" data-tip="Close">${I('x', 'xs')}</button></div>`
       + (m.fresh ? `<div class="ecx-pt"><button class="dtp-v crm-pacc" data-pop="#crm-p-acc" aria-haspopup="menu" aria-label="Account: ${esc(c.n)}. Change it"><span class="pfm-lg xs" aria-hidden="true">${esc(c.n[0])}</span><span>${esc(c.n)}</span>${I('chev-d', 'xs')}</button></div>` : `<div class="ecx-pt">${esc(m.kind)}${m.st === 'held' ? ', held' : m.day < 0 ? ', overdue' : ''}</div>`)
       + (m.st === 'held' ? `<div class="ecx-pt num">${fmtDW(m.day)}, ${tm(m.h)} – ${tm(m.h + m.dur)}</div>`
         : `<div class="ecx-pt"><button class="dtp-v crm-pwhen num" data-pop="#crm-p-when" aria-haspopup="dialog" aria-label="When: ${fmtDW(m.day)}, ${tmA(m.h)} to ${tmA(m.h + m.dur)}. Change it" data-tip="Change the date or time">${I('cal', 'xs')}<span>${fmtDW(m.day)}, ${tm(m.h)} – ${tm(m.h + m.dur)}</span></button></div>`)
       + (d ? `<div class="crm-pdl"><span class="t">${esc(d.n)}</span>${pill(d.st)}<span class="num">${kmoney(d.v)}</span></div>` : '')
+      + (!m.fresh && !done ? `<button class="pill primary sm crm-join" data-p="join">Join call</button>` : '')
       + `<div class="ecx-pw crm-pw">${peopleRow(m)}</div>`
-      + `<div class="ecx-pa">${m.fresh ? `<button class="pill ghost sm" data-p="discard">Discard</button><button class="pill primary sm" data-p="save">Book</button>` : `<button class="pill line sm" data-p="open">Open account</button>${m.st === 'held' ? '' : `<button class="pill soft sm ecx-ask ecx-prep" data-p="prep">${I('spark', 'xs')}Prep with agent</button>`}`}</div>`;
+      + `<div class="ecx-pa">${m.fresh ? `<button class="pill ghost sm" data-p="discard">Discard</button><button class="pill primary sm" data-p="save">Book</button>` : `<button class="pill line sm" data-p="open">Open account</button>${done ? `<button class="pill primary sm" data-p="log">Log the call</button>` : `<button class="pill soft sm ecx-ask ecx-prep" data-p="prep">${I('spark', 'xs')}Prep with agent</button>`}`}</div>`;
     placeCard(el); cpop.classList.remove('open'); void cpop.offsetWidth; cpop.classList.add('open'); hideTip();
     const ti = $('.ecx-ti', cpop); if (ti){ ti.focus({ preventScroll:true }); ti.onkeydown = k => { if (k.key === 'Enter'){ k.preventDefault(); saveNew(); } }; }
   }
@@ -1136,6 +1204,8 @@
     if (b.classList.contains('ecx-px') || b.dataset.p === 'discard'){ closeCalPop(); return; }
     if (b.dataset.p === 'save') return saveNew();
     if (b.dataset.p === 'open'){ const id = m.co; closeCalPop(); openSheet(id, true); return; }
+    if (b.dataset.p === 'join'){ toast('info', `Joining the ${low(m.kind)}`, `${coOf(m.co).n}, with ${andList(whoOf(m).map(k => personOf(k)).filter(Boolean).map(x => x.n.split(' ')[0]))}. A template has no call to open`); closeCalPop(); return; }
+    if (b.dataset.p === 'log'){ const c = coOf(m.co), was = m.st; m.st = 'held'; closeCalPop(); logActivity(c, 'Call', `${m.kind} with ${c.ppl[0].n}`); renderCal(); return; }
     if (b.dataset.p === 'prep'){ b.innerHTML = '<span class="think on"><i></i><i></i><i></i><i></i></span>Writing'; b.disabled = true;
       setTimeout(() => { if (!b.isConnected) return; const nt = html(`<div class="ecx-note">${I('spark', 'xs')}<span>${esc(prepNote(m))}</span></div>`); b.closest('.ecx-pa').before(nt); enter(nt); b.remove(); }, REDUCE ? 0 : 900); }
     if (b.classList.contains('crm-pacc')) buildAcc(m);

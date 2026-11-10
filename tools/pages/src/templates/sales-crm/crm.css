@@ -893,3 +893,55 @@ body:has(.crm) .dmf{display:none}
 .crm-stl .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 .crm-stl .pill{grid-column:2;justify-self:start}
 @media (prefers-reduced-motion:reduce){.crm-stbar i{transition:none}.crm-setup.out{animation:none}}
+
+/* ---------- calendar: views, the date picker and earlier events (owner, 10 Nov) ---------- */
+/* earlier events step back, so what is still to come leads; hovering one brings it forward */
+.crm-ecx .ecx-e.past{opacity:.5;transition:opacity var(--dm-t-fast) var(--dm-ease),transform .25s var(--dm-ease),box-shadow .25s}
+@media (hover:hover) and (pointer:fine){.crm-ecx .ecx-e.past:hover{opacity:.85}}
+.crm-ecx .ecx-e.past:focus-visible{opacity:1}
+/* the label opens a date picker; the view switch sits beside the agent's button */
+.crm-wkb{display:inline-flex;align-items:center;gap:4px;height:28px;padding:0 6px;border-radius:var(--dm-r-sm);transition:background var(--dm-t-fast)}
+@media (hover:hover) and (pointer:fine){.crm-wkb:hover{background:var(--dm-row)}}
+.crm-wkb .i{color:var(--dm-muted)}
+.crm-cvw{flex:none}
+.crm-jump.pop{width:268px}
+.crm-jump .crm-wa{display:flex;justify-content:flex-end;margin-top:var(--dm-s-2)}
+/* Day: one column, the day's own header kept */
+.crm-ecx.vday .ecx-grid{grid-template-columns:44px minmax(0,1fr);min-width:0}
+.crm-ecx.vday .ecx-day:not(.on){display:none}
+/* Month: six weeks of days, a meeting a line, coloured by its owner */
+.crm-mon{flex:1;min-height:0;display:flex;flex-direction:column;overflow:auto}
+.crm-mon[hidden]{display:none}
+.crm-mwd{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));border-bottom:1px solid var(--crm-hair);font-size:12px}
+.crm-mwd span{padding:8px 10px}
+.crm-mg{flex:1;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));grid-auto-rows:minmax(104px,1fr)}
+.crm-mc{display:flex;flex-direction:column;gap:2px;min-width:0;padding:4px 4px 6px;border-right:1px solid var(--crm-hair);border-bottom:1px solid var(--crm-hair)}
+.crm-mc:nth-child(7n){border-right:0}
+.crm-mc.we{background:color-mix(in srgb,var(--dm-fg) 2.5%,transparent)}
+.crm-mcd{align-self:flex-start;min-width:24px;height:24px;padding:0 6px;margin-bottom:2px;border-radius:12px;font-size:12px;color:var(--dm-fg2);transition:background var(--dm-t-fast)}
+.crm-mc.o .crm-mcd{color:var(--dm-muted)}
+.crm-mc.t .crm-mcd{background:var(--dm-accent);color:var(--dm-on-accent)}
+@media (hover:hover) and (pointer:fine){.crm-mc:not(.t) .crm-mcd:hover,.crm-mce:hover,.crm-mcm:hover{background:var(--dm-row)}}
+.crm-mce{display:flex;align-items:center;gap:6px;min-width:0;height:22px;padding:0 6px;border-radius:var(--dm-r-sm);font-size:11.5px;text-align:left;transition:background var(--dm-t-fast),opacity var(--dm-t-fast)}
+.crm-mce i{flex:none;width:6px;height:6px;border-radius:50%;background:var(--crm-mc)}
+.crm-mce .num{flex:none;color:var(--dm-muted)}
+.crm-mce .t{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--dm-fg)}
+.crm-mce.past{opacity:.5}
+.crm-mcm{align-self:flex-start;height:20px;padding:0 6px;border-radius:var(--dm-r-sm);font-size:11.5px;color:var(--dm-muted)}
+.crm-ecx.vmon .crm-leg{display:none}
+/* the meeting card's main action: Join call across the card for a meeting still to come */
+.crm-cpop .crm-join{width:100%;justify-content:center;margin:2px 0 4px}
+@container ecx (max-width:519px){
+  .crm-cvw button{padding:0 8px}
+  .crm-mg{grid-auto-rows:minmax(64px,1fr)}
+  .crm-mce .num,.crm-mce .t{display:none}
+  .crm-mce{height:12px;padding:0 4px}
+  .crm-mwd span{padding:6px 4px;text-align:center}
+}
+/* the board's own title and totals repeated the page header (owner, 10 Nov): the header already says them, and follows the
+   board's filters, so the row under it keeps only the owner filter, search and Board / List */
+.crm-kb .kbx-ti{display:none}
+/* the list's stage headers start on the same line as the rows' IDs; on a phone, where each row is just a deal and its value,
+   the column headers above the groups go (they sat outside the groups and said nothing the rows don't) */
+.crm-kb.list .kbx-c>.kbx-ch{padding-left:12px}
+@container kbx (max-width:639px){.crm-kb .crm-lhd{display:none}}
