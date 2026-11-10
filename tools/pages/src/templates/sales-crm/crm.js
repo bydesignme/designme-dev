@@ -315,7 +315,7 @@
 
   /* ---------- the state of the filters, the selection and what is open ---------- */
   // A holds the filters as Filter menu's chips: a field, a value, and whether it reads the other way (is not, older than)
-  const F = { A:[], q:'', sort:'value', desc:true, said:'' };
+  const F = { A:[], q:'', sort:'value', desc:true, then:null, said:'' };
   // the board starts with Closed lost hidden, as a chip in the hidden stages' dock
   const K = { own:new Set(), q:'', close:'any', view:'board', shut:new Set(['lost']), tab:'disc', order:STAGES.map(s => s.k), draft:null };
   // the board's column order lasts the session (a reload keeps it; a new tab starts from the stages' order)
@@ -338,7 +338,8 @@
   };
   // the saved views in the sidebar are filters too
   const SAVED = { closing:['Closing this month', [{ k:'close', v:'month', neg:false }]], nostep:['No next step', [{ k:'next', v:'none', neg:false }]], quiet:['Quiet for 2+ weeks', [{ k:'last', v:14, neg:true }]] };
-  const savedOn = () => Object.keys(SAVED).find(k => F.A.length === 1 && SAVED[k][1].every(x => F.A.some(a => a.k === x.k && a.v === x.v && a.neg === x.neg))) || null;
+  const sameA = (X, Y) => X.length === Y.length && Y.every(x => X.some(a => a.k === x.k && a.v === x.v && a.neg === x.neg));
+  const savedOn = () => Object.keys(SAVED).find(k => sameA(F.A, SAVED[k][1])) || null;
   const valOf = (k, v) => FL[k].o().find(o => o.v === v);
   const fmatch = (c, skip) => F.A.every(f => f.k === skip || FL[f.k].test(c, f.v) !== f.neg);
   const savedCount = k => CO.filter(c => SAVED[k][1].every(f => FL[f.k].test(c, f.v) !== f.neg)).length;
@@ -351,10 +352,26 @@
   $$('.crm-t .ttx-s', app).forEach(b => b.insertAdjacentHTML('beforeend', `<span class="ar">${I('chev-u', 'xs')}</span>`));
   const SORTS = { value:['Pipeline', c => c.value], health:['Health', c => c.health], next:['Next step', c => c.next ? c.next.day * 100 + c.next.h : 1e6], name:['Account', c => c.n.toLowerCase()], stage:['Stage', c => ST[c.st].i], owner:['Owner', c => P[c.own][0]] };
   const ASC = ['name', 'owner', 'next'];
-  const matches = c => (!F.q || (c.n + ' ' + c.seg + ' ' + c.tags.join(' ') + ' ' + P[c.own][0] + ' ' + c.ppl.map(p => p.n).join(' ')).toLowerCase().includes(F.q.toLowerCase())) && fmatch(c);
+  const qOk = c => !F.q || (c.n + ' ' + c.seg + ' ' + c.tags.join(' ') + ' ' + P[c.own][0] + ' ' + c.ppl.map(p => p.n).join(' ')).toLowerCase().includes(F.q.toLowerCase());
+  const matches = c => qOk(c) && fmatch(c);
+  const cmp = (x, y) => x > y ? 1 : x < y ? -1 : 0;
   const inView = () => {
-    const f = SORTS[F.sort][1];
-    return CO.filter(matches).sort((a, b) => { const x = f(a), y = f(b); return (x > y ? 1 : x < y ? -1 : 0) * (F.desc ? -1 : 1) || a.n.localeCompare(b.n); });
+    const f = SORTS[F.sort][1], g = F.then && SORTS[F.then][1], gd = F.then && !ASC.includes(F.then);
+    return CO.filter(matches).sort((a, b) => cmp(f(a), f(b)) * (F.desc ? -1 : 1) || (g ? cmp(g(a), g(b)) * (gd ? -1 : 1) : 0) || a.n.localeCompare(b.n));
+  };
+  const sortLabel = () => SORTS[F.sort][0] + (F.then ? ', then ' + SORTS[F.then][0].toLowerCase() : '');
+  // a filter as its chip reads it, and how many accounts the view would show without it
+  const fText = f => `${FL[f.k].l} ${FL[f.k].ops[+f.neg]} ${valOf(f.k, f.v).l}`;
+  const relaxed = () => F.A.map(f => ({ f, n:CO.filter(c => qOk(c) && F.A.every(g => g === f || FL[g.k].test(c, g.v) !== g.neg)).length })).filter(x => x.n).sort((a, b) => b.n - a.n);
+  // rows glide to their new places when the order or the filters change; rows that arrive fade up. Only the rows on screen
+  // move, a long jump fades instead of sliding, and nothing moves with reduced motion
+  const snapRows = () => { if (REDUCE || !tbody.firstElementChild) return null; const m = new Map(); $$('tr[data-id]', tbody).forEach(tr => m.set(tr.dataset.id, tr.getBoundingClientRect().top)); return m.size ? m : null; };
+  const playRows = m => {
+    if (!m || !scroller.offsetParent) return; const sc = scroller.getBoundingClientRect(); let k = 0;
+    $$('tr[data-id]', tbody).forEach(tr => { const r = tr.getBoundingClientRect(); if (r.bottom < sc.top || r.top > sc.bottom) return;
+      const was = m.get(tr.dataset.id), dy = was == null ? null : was - r.top;
+      if (dy == null || Math.abs(dy) > sc.height) tr.animate([{ opacity:0, transform:'translateY(6px)' }, { opacity:1, transform:'none' }], { duration:260, delay:Math.min(k++, 10) * 16, easing:EASE, fill:'backwards' });
+      else if (Math.abs(dy) > 1) tr.animate([{ transform:`translateY(${dy}px)` }, { transform:'none' }], { duration:340, easing:EASE }); });
   };
   // each segment and tag keeps one colour wherever it shows (the core tag's colours: blue, violet, green, orange, red, yellow, pink, teal)
   const HUE = { Strategic:'l', Enterprise:'b', 'Mid-market':'t', SMB:'k', Expansion:'m', Renewal:'p', 'More seats':'y', Pilot:'k', 'First deal':'b', 'Partner-led':'l', Reseller:'t', Champion:'m', 'Budget set':'y', 'Security review':'r', 'Multi-year':'p' };
@@ -381,12 +398,14 @@
     + `<td class="r"><button class="ib crm-rm" data-pop="#crm-p-row" data-pop-align="end" aria-haspopup="menu" aria-label="Actions for ${esc(c.n)}" tabindex="-1">${I('more', 'xs')}</button></td></tr>`;
   let rows = [], focusId = null;
   function renderTable(){
-    rows = inView();
-    tbody.innerHTML = rows.length ? rows.map(row).join('') : `<tr class="crm-empty"><td colspan="9"><div class="ttx-em"><span class="ic">${I('filter')}</span><b>No accounts match</b><span>Try another filter or search.</span><button class="pill ghost sm crm-clr2">Clear filters</button></div></td></tr>`;
+    rows = inView(); const snap = snapRows();
+    const rx = rows.length ? [] : relaxed().slice(0, 2);
+    tbody.innerHTML = rows.length ? rows.map(row).join('') : `<tr class="crm-empty"><td colspan="9"><div class="ttx-em"><span class="ic">${I('filter')}</span><b>No accounts match all of these</b><span>${rx.length ? 'Drop one filter to see more.' : 'Try another filter or search.'}</span><span class="crm-relax">${rx.map(x => `<button class="pill line sm" data-relax="${x.f.k}" aria-label="Remove the filter ${esc(fText(x.f))}, ${plural(x.n, 'account')}">Drop “${esc(fText(x.f))}”<span class="num">${x.n}</span></button>`).join('')}<button class="pill ghost sm crm-clr2">Clear filters</button></span></div></td></tr>`;
+    playRows(snap);
     // one row at a time is in the Tab order; the arrow keys move between them
     const keep = rows.find(c => c.id === focusId) || rows[0]; if (keep) $(`tr[data-id="${keep.id}"]`, tbody).tabIndex = 0;
     $$('.crm-t .ttx-s', app).forEach(b => { const on = b.dataset.k === F.sort; b.classList.toggle('on', on); b.classList.toggle('desc', on && F.desc); b.closest('th').setAttribute('aria-sort', on ? (F.desc ? 'descending' : 'ascending') : 'none'); });
-    $('.crm-sort .v', app).textContent = SORTS[F.sort][0];
+    swap($('.crm-sort .v', app), sortLabel());
     syncSel(); chips(); counts();
   }
   function syncSel(){
@@ -411,8 +430,9 @@
       $('.op', ch).setAttribute('aria-label', `${text}: change to ${FL[f.k].ops[+!f.neg]}`); $('.op', ch).dataset.tip = `Change to ${FL[f.k].ops[+!f.neg]}`;
       $('.x', ch).setAttribute('aria-label', `Remove filter ${text}`); $('.x', ch).dataset.tip = 'Remove filter';
     });
-    const on = F.A.length || F.q;
-    $('.crm-chips', app).hidden = !on;
+    const on = F.A.length || F.q, cr = $('.crm-chips', app), was = cr.hidden;
+    cr.hidden = !on; if (on && was) glide(cr, { transform:'translateX(-4px)' }, 240);
+    const sv = $('.crm-save', app), canSave = F.A.length > 0 && !savedOn(); if (sv.hidden === canSave){ sv.hidden = !canSave; if (canSave) enter(sv); }
     $('.crm-clr', app).hidden = !on;
     $('.crm-inview', app).textContent = on ? `${rows.length} of ${CO.length}` : '';
     $('.crm-ftr', app).classList.toggle('on', F.A.length > 0);
@@ -489,7 +509,7 @@
   }
   const READ = { close:{ week:'a deal closing this week', month:'a deal closing this month or overdue', quarter:'a deal closing this quarter', late:'a deal past its close date' }, next:{ none:'no next step', late:'an overdue next step', week:'a step in the next 7 days' }, last:{ 14:'no touch in 14+ days' }, health:{ bad:'health at risk', mid:'health on watch', ok:'healthy' } };
   const readOf = f => f.k === 'owner' ? 'owned by ' + P[f.v][0] : f.k === 'stage' ? 'in ' + ST[f.v].t : f.k === 'value' ? `pipeline ${f.neg ? 'of ' + kmoney(f.v) + ' or less' : 'over ' + kmoney(f.v)}` : READ[f.k][f.v];
-  function said(t){ F.said = t; ans.hidden = !t; if (t) $('.t', ans).textContent = t; }
+  function said(t){ const was = ans.hidden; F.said = t; ans.hidden = !t; if (t) $('.t', ans).textContent = t; if (t && was) glide(ans, { transform:'translateY(-4px)' }, 220); }
   function runAsk(){
     const t = ask.value.trim(); if (!t) return;
     const { A, rest } = parse(t), skipped = rest.length ? ` Ignored “${rest.join(' ')}”: no filter reads it.` : '';
@@ -497,8 +517,8 @@
     F.A = A; F.q = ''; ask.value = ''; askx.hidden = true; renderTable();
     const parts = A.map(readOf), list = parts.length > 1 ? parts.slice(0, -1).join(', ') + ' and ' + parts[parts.length - 1] : parts[0];
     const views = Object.keys(SAVED).filter(k => SAVED[k][1].every(x => A.some(a => a.k === x.k && a.v === x.v && a.neg === x.neg))).map(k => SAVED[k][0]);
-    say(`${rows.length} accounts`);
-    said(`${plural(rows.length, 'account')} with ${list}${rows.length && rows.length <= 3 ? `: ${rows.map(c => c.n).join(', ')}` : ''}. ${views.length ? `Applied ${views.length > 1 ? 'the saved views' : 'the saved view'} ${views.join(' and ')}${A.length > views.length ? ' and ' + plural(A.length - views.length, 'more filter') : ''}.` : 'Applied ' + plural(A.length, 'filter') + '.'}${skipped}`);
+    say(`${rows.length} accounts`); const rb = rows.length ? null : relaxed()[0];
+    said(`${plural(rows.length, 'account')} with ${list}${rows.length && rows.length <= 3 ? `: ${rows.map(c => c.n).join(', ')}` : ''}. ${views.length ? `Applied ${views.length > 1 ? 'the saved views' : 'the saved view'} ${views.join(' and ')}${A.length > views.length ? ' and ' + plural(A.length - views.length, 'more filter') : ''}.` : 'Applied ' + plural(A.length, 'filter') + '.'}${rb ? ` Drop “${readOf(rb.f)}” and ${plural(rb.n, 'account')} ${rb.n === 1 ? 'matches' : 'match'}.` : ''}${skipped}`);
   }
   ask.addEventListener('input', () => { const t = ask.value.trim(); askx.hidden = !ask.value;
     // a question waits for Enter; a name filters as you type
@@ -509,12 +529,13 @@
   $('.crm-ansx', ans).onclick = () => clearFilters();
 
   // sorting from the column headers: a second press turns the order round
-  $$('.crm-t .ttx-s', app).forEach(b => b.onclick = () => { const k = b.dataset.k; if (k === F.sort) F.desc = !F.desc; else { F.sort = k; F.desc = !ASC.includes(k); } renderTable(); });
+  $$('.crm-t .ttx-s', app).forEach(b => b.onclick = () => { const k = b.dataset.k; if (k === F.sort) F.desc = !F.desc; else { F.sort = k; F.desc = !ASC.includes(k); if (F.then === k) F.then = null; } renderTable(); });
   allBox.onclick = () => { const on = allBox.getAttribute('aria-checked') !== 'true'; rows.forEach(c => on ? sel.add(c.id) : sel.delete(c.id)); syncSel(); };
   $('.ttx-clr', sb).onclick = () => { sel.clear(); syncSel(); };
   const toggleSel = id => { sel.has(id) ? sel.delete(id) : sel.add(id); syncSel(); };
   tbody.addEventListener('click', e => {
     if (e.target.closest('.crm-clr2')) return clearFilters();
+    const rl = e.target.closest('[data-relax]'); if (rl){ F.A = F.A.filter(x => x.k !== rl.dataset.relax); said(''); renderTable(); $('.crm-ftr', app).focus({ preventScroll:true }); return; }
     const tr = e.target.closest('tr[data-id]'); if (!tr) return;
     focusRow(tr, false);
     const c = coOf(tr.dataset.id);
@@ -541,8 +562,10 @@
   onOpen('.crm-sort', () => {
     const p = pop('crm-p-sort'), az = ['name', 'owner'].includes(F.sort), when = F.sort === 'next';
     p.innerHTML = `<div class="ph" role="none">Sort by</div>` + Object.entries(SORTS).map(([k, s]) => mi(`data-k="${k}"`, `<span>${s[0]}</span>`, 'menuitemradio', F.sort === k)).join('')
-      + `<div class="sep" role="separator"></div>` + mi('data-o="asc"', `${I('up', 's')}<span>${az ? 'A to Z' : when ? 'Soonest first' : 'Low to high'}</span>`, 'menuitemradio', !F.desc) + mi('data-o="desc"', `${I('down', 's')}<span>${az ? 'Z to A' : when ? 'Latest first' : 'High to low'}</span>`, 'menuitemradio', F.desc);
-    $$('.mi', p).forEach(m => m.addEventListener('click', () => { if (m.dataset.k){ F.sort = m.dataset.k; F.desc = !ASC.includes(m.dataset.k); } else F.desc = m.dataset.o === 'desc'; renderTable(); }));
+      + `<div class="sep" role="separator"></div>` + mi('data-o="asc"', `${I('up', 's')}<span>${az ? 'A to Z' : when ? 'Soonest first' : 'Low to high'}</span>`, 'menuitemradio', !F.desc) + mi('data-o="desc"', `${I('down', 's')}<span>${az ? 'Z to A' : when ? 'Latest first' : 'High to low'}</span>`, 'menuitemradio', F.desc)
+      + `<div class="sep" role="separator"></div><div class="ph" role="none">Then by</div>` + mi('data-t=""', '<span>Nothing</span>', 'menuitemradio', !F.then)
+      + Object.entries(SORTS).filter(([k]) => k !== F.sort).map(([k, s]) => mi(`data-t="${k}"`, `<span>${s[0]}</span>`, 'menuitemradio', F.then === k)).join('');
+    $$('.mi', p).forEach(m => m.addEventListener('click', () => { if (m.dataset.t != null) F.then = m.dataset.t || null; else if (m.dataset.k){ F.sort = m.dataset.k; F.desc = !ASC.includes(m.dataset.k); if (F.then === F.sort) F.then = null; } else F.desc = m.dataset.o === 'desc'; renderTable(); }));
   });
   // a row's own menu
   function buildRowMenu(){
@@ -626,7 +649,9 @@
   /* ---------- the details sheet: Details panel, with Health score's gauge and checks ---------- */
   const sheet = $('.crm-sheet', app), dtp = $('.crm-dtp', app);
   const shut = new Set();
-  const section = (k, t, body) => `<div class="dtp-sec"><button class="dtp-sh" aria-expanded="${!shut.has(k)}" data-sec="${k}">${I('chev-r', 'xs')}<span>${t}</span></button><div class="fold${shut.has(k) ? ' shut' : ''}"><div>${body}</div></div></div>`;
+  // health starts folded to its one summary row; the rest start open
+  shut.add('health');
+  const section = (k, t, body, o = {}) => `<div class="dtp-sec crm-sec" data-k="${k}"><div class="crm-shr"><button class="dtp-sh" aria-expanded="${!shut.has(k)}" data-sec="${k}"${o.label ? ` aria-label="${o.label}"` : ''}>${I('chev-r', 'xs')}<span>${t}</span>${o.n != null ? `<span class="crm-sn num">${o.n}</span>` : ''}${o.aside || ''}</button>${o.act || ''}</div><div class="fold${shut.has(k) ? ' shut' : ''}"><div>${body}</div></div></div>`;
   const tlOf = c => [...c.log, ...c.base];
   const andList = a => a.length > 1 ? a.slice(0, -1).join(', ') + ' and ' + a[a.length - 1] : a[0] || '';
   const HK = ['contact', 'late', 'win', 'next'], HL = { contact:'Contact', late:'On time', win:'Win chance', next:'Next step' }, HMAX = [35, 25, 25, 15];
@@ -653,31 +678,37 @@
     // a row's details unfold right under it
     const region = j => { const k = hscOpen === HK[j] ? hscOpen : null, i = j;
       return `<div class="fold${k ? '' : ' shut'} hsc-d" id="crm-hd${j}" role="region" aria-label="${k ? HL[k] + ' details' : 'Details'}"><div><div class="hsc-dc">${k ? F[k].lines.map(l => `<p class="hsc-dp">${l}</p>`).join('') + `<p class="hsc-pt num"><span>${c.hp[i]} of ${HMAX[i]} points</span><i></i><span>${HSW[F[k].s]}</span></p>` : ''}</div></div></div>`; };
-    return `<div class="hsc crm-shs" data-v="${b}" role="group" aria-label="Account health"><div class="hsc-h">`
-      + `<div class="hsc-ring" role="img" aria-label="Health ${v} of 100, ${HB[c.hb].toLowerCase()}"><svg viewBox="0 0 44 44" aria-hidden="true"><circle class="tr" cx="22" cy="22" r="18"/><circle class="fl" cx="22" cy="22" r="18" stroke-dasharray="${C.toFixed(1)}" stroke-dashoffset="${(C * (1 - v / 100)).toFixed(1)}"/></svg><b class="num" aria-hidden="true">${v}</b></div>`
-      + `<div class="hsc-ht"><b class="hsc-vd">${HB[c.hb]}</b><span class="hsc-sub">Account health, ${ok === 4 ? 'all 4 on track' : ok + ' of 4 on track'}</span></div></div>`
-      + `<div class="hsc-l crm-hrows">${HK.map((k, i) => tile(k, i) + region(i)).join('')}</div></div>`;
+    return `<div class="hsc crm-shs" data-v="${b}" role="group" aria-label="Account health">`
+      + `<div class="hsc-l crm-hrows">${HK.map((k, i) => k === 'next' ? '' : tile(k, i) + region(i)).join('')}</div></div>`;
   };
   function renderSheet(){
     const c = coOf(sheetFor); if (!c) return closeSheet();
     const mine = DE.filter(d => d.co === c.id).sort((a, b) => ST[b.st].i - ST[a.st].i || b.v - a.v), m = c.next;
     if (hscFor !== c.id){ hscFor = c.id; hscOpen = null; }
+    const FX = factors(c), okN = HK.filter(k => FX[k].s === 'ok').length, RC = 2 * Math.PI * 7;
+    const weak = HK.filter(k => k !== 'next' && FX[k].s !== 'ok').sort((a, z) => c.hp[HK.indexOf(a)] / HMAX[HK.indexOf(a)] - c.hp[HK.indexOf(z)] / HMAX[HK.indexOf(z)])[0];
+    // the header: who it is, then the things you do most with an account, as secondary buttons (the agent's suggestion
+    // below carries the one accent button)
     dtp.innerHTML = `<div class="dtp-h"><span class="pfm-lg" aria-hidden="true">${esc(c.n[0])}</span><span class="tx"><b id="crm-sh-t">${esc(c.n)}</b><span>${esc(c.seg)}, ${REG[c.reg].t}</span></span><button class="ib" data-a="link" aria-label="Copy a link to ${esc(c.n)}" data-tip="Copy link">${I('link', 's')}</button><button class="ib" data-a="close" aria-label="Close details" data-tip="Close" data-tip-k="Esc">${I('x', 's')}</button></div>`
-      + `<div class="crm-sum3"><div><span>Pipeline</span><b class="num">${kmoney(c.value)}</b></div><div><span>Weighted</span><b class="num">${kmoney(c.weighted)}</b></div><div><span>Closed won</span><b class="num">${kmoney(c.won)}</b></div></div>`
+      + `<div class="crm-sact"><button class="pill line sm" data-a="call">${I('comment', 'xs')}Log a call</button><button class="pill line sm" data-a="email">${I('mail', 'xs')}Log an email</button><button class="pill line sm" data-a="deal">${I('plus', 'xs')}Add deal</button></div>`
       + (c.sug ? `<div class="six-ans crm-sag">${I('spark', 'xs')}<span>${esc(c.sug.why)}</span><button class="pill primary sm" data-a="sug"${CONFIRM.has(c.sug.k) ? ' data-pop="#crm-p-cfm" data-pop-align="end" aria-haspopup="dialog"' : ''}>${c.sug.label}</button></div>` : '')
-      + healthBlock(c)
       + section('props', 'Properties', `<div class="dtp-rows">`
         + `<div class="dtp-r"><span class="k">Owner</span><button class="dtp-v" data-pop="#crm-p-sown" aria-haspopup="menu">${av(c.own)}<span>${esc(P[c.own][0])}</span>${I('chev-d', 'xs')}</button></div>`
-        + `<div class="dtp-r"><span class="k">Next step</span>${m ? `<button class="dtp-v crm-snx${m.day < 0 ? ' late' : ''}" data-a="cal" aria-label="${esc(m.kind)}, ${m.day < 0 ? 'overdue, ' : ''}${fmtDW(m.day)} ${tmA(m.h)}. Open in the calendar">${I('cal', 'xs')}<span>${esc(m.kind)}, ${m.day < 0 ? 'overdue since ' + fmtD(m.day) : fmtDW(m.day) + ', ' + tmA(m.h)}</span></button>` : `<span class="dtp-v static crm-snx none">No next step</span>`}</div>`
         + `<div class="dtp-r"><span class="k">Stage</span><span class="dtp-v static">${pill(c.st)}</span></div>`
-        + `<div class="dtp-r"><span class="k">Region</span><span class="dtp-v static"><span class="dot" style="color:${REG[c.reg].c}"></span>${REG[c.reg].t}</span></div>`
+        + `<div class="dtp-r"><span class="k">Next step</span>${m ? `<button class="dtp-v crm-snx${m.day < 0 ? ' late' : ''}" data-a="cal" aria-label="${esc(m.kind)}, ${m.day < 0 ? 'overdue, ' : ''}${fmtDW(m.day)} ${tmA(m.h)}. Open in the calendar">${I('cal', 'xs')}<span>${esc(m.kind)}, ${m.day < 0 ? 'overdue since ' + fmtD(m.day) : fmtDW(m.day) + ', ' + tmA(m.h)}</span></button>` : `<span class="dtp-v static crm-snx none">No next step</span>`}</div>`
         + `<div class="dtp-r"><span class="k">Last touch</span><span class="dtp-v static">${c.last === 0 ? 'Today' : fmtD(-c.last)}, ${esc(ltName(c))}</span></div>`
+        + `<div class="dtp-r"><span class="k">Region</span><span class="dtp-v static"><span class="dot" style="color:${REG[c.reg].c}"></span>${REG[c.reg].t}</span></div>`
         + `</div><div class="crm-tg"><span class="crm-tgk">Tags</span><span class="dtp-tags">${[c.seg, ...c.tags].map(chip).join('')}<button class="dtp-add" data-a="tag" aria-label="Add a tag" data-tip="Add tag">${I('plus', 'xs')}</button></span></div>`)
-      + section('deals', `Deals, ${mine.length}`, mine.length ? `<div class="crm-dl">${mine.map(d => `<button data-deal="${d.id}" data-pop="#crm-p-sstage" aria-haspopup="menu" aria-label="${esc(d.n)}, ${ST[d.st].t}, ${money(d.v)}${slipping(d) ? ', past its close date' : ''}. Change its stage"><span class="t">${esc(d.n)}<span class="w num${slipping(d) ? ' late' : ''}">${d.st === 'won' ? 'Won ' + fmtD(d.close) : (slipping(d) ? 'Was due ' : 'Closes ') + fmtD(d.close) + ', ' + d.p + '%'}</span></span>${pill(d.st)}<span class="num">${kmoney(d.v)}</span></button>`).join('')}</div>` : '<p class="muted">No deals yet.</p>')
-      + section('ppl', `People, ${c.ppl.length}`, `<ul class="crm-ppl">${c.ppl.map((p, i) => `<li>${avn(p.n)}<span><b>${esc(p.n)}</b><span class="muted">${esc(p.r)}${i ? '' : ', champion'}${m && whoOf(m).includes(pkey(c.id, i)) ? `. In the ${esc(low(m.kind))}, ${fmtDW(m.day)}` : ''}</span></span></li>`).join('')}</ul>`
-        + (m ? (t => t.length ? `<p class="crm-pj muted">Also in the ${esc(low(m.kind))}: ${esc(andList(t))}</p>` : '')(whoOf(m).filter(k => k.startsWith('o:') && k !== 'o:' + m.own).map(k => personOf(k).n)) : ''))
-      + section('act', 'Activity', `<ul class="crm-tl">${tlOf(c).slice(0, 5).map(([k, d, t, w], i) => `<li${i === 0 && c._fresh ? ' class="new"' : ''}><span class="ic">${I(ACT[k] || 'comment', 'xs')}</span><span>${esc(t)}<span class="w num">${d === 0 ? 'Today' : fmtD(-d)}, ${esc(w)}</span></span></li>`).join('')}</ul>`)
-      + `<div class="crm-sact"><button class="pill soft" data-a="call">${I('comment', 'xs')}Log a call</button><button class="pill soft" data-a="email">${I('mail', 'xs')}Log an email</button></div>`;
+      // health folds to one row: the ring, the verdict and how many checks are on track; it opens to the checks
+      + section('health', 'Health', healthBlock(c), { label:`Health ${c.health} of 100, ${HB[c.hb].toLowerCase()}, ${okN === 4 ? 'all 4 on track' : okN + ' of 4 on track'}${weak ? ', weakest ' + HL[weak].toLowerCase() : ''}`,
+        aside:`<span class="crm-hsum"><span class="crm-hs" data-h="${c.hb}"><svg viewBox="0 0 22 22" aria-hidden="true"><circle class="tr" cx="11" cy="11" r="7"/><circle class="fl" cx="11" cy="11" r="7" stroke-dasharray="${RC.toFixed(1)}" stroke-dashoffset="${(RC * (1 - c.health / 100)).toFixed(1)}"/></svg><b class="num">${c.health}</b><span class="l">${HB[c.hb]}</span></span><span class="muted">${okN === 4 ? 'all 4 on track' : okN + ' of 4 on track'}</span></span>` })
+      + section('deals', 'Deals', `<div class="crm-sum3"><span><b class="num">${kmoney(c.value)}</b> pipeline</span><span><b class="num">${kmoney(c.weighted)}</b> weighted</span><span><b class="num">${kmoney(c.won)}</b> won</span></div>`
+        + (mine.length ? `<div class="crm-dl">${mine.map(d => `<button data-deal="${d.id}" data-pop="#crm-p-sstage" aria-haspopup="menu" aria-label="${esc(d.n)}, ${ST[d.st].t}, ${money(d.v)}${slipping(d) ? ', past its close date' : ''}. Change its stage"><span class="t">${esc(d.n)}<span class="w num${slipping(d) ? ' late' : ''}">${d.st === 'won' ? 'Won ' + fmtD(d.close) : (slipping(d) ? 'Was due ' : 'Closes ') + fmtD(d.close) + ', ' + d.p + '%'}</span></span>${pill(d.st)}<span class="num">${kmoney(d.v)}</span></button>`).join('')}</div>` : '<p class="muted">No deals yet.</p>'),
+        { n:mine.length, act:`<button class="ib crm-sadd" data-a="deal" aria-label="Add a deal to ${esc(c.n)}" data-tip="Add deal">${I('plus', 'xs')}</button>` })
+      + section('ppl', 'People', `<ul class="crm-ppl">${c.ppl.map((p, i) => `<li>${avn(p.n)}<span><b>${esc(p.n)}</b><span class="muted">${esc(p.r)}${i ? '' : ', champion'}${m && whoOf(m).includes(pkey(c.id, i)) ? `. In the ${esc(low(m.kind))}, ${fmtDW(m.day)}` : ''}</span></span></li>`).join('')}</ul>`
+        + (m ? (t => t.length ? `<p class="crm-pj muted">Also in the ${esc(low(m.kind))}: ${esc(andList(t))}</p>` : '')(whoOf(m).filter(k => k.startsWith('o:') && k !== 'o:' + m.own).map(k => personOf(k).n)) : ''), { n:c.ppl.length })
+      + section('act', 'Activity', `<ul class="crm-tl">${tlOf(c).slice(0, 5).map(([k, d, t, w], i) => `<li${i === 0 && c._fresh ? ' class="new"' : ''}><span class="ic">${I(ACT[k] || 'comment', 'xs')}</span><span>${esc(t)}<span class="w num">${d === 0 ? 'Today' : fmtD(-d)}, ${esc(w)}</span></span></li>`).join('')}</ul>`,
+        { act:`<button class="ib crm-sadd" data-a="call" aria-label="Log a call with ${esc(c.n)}" data-tip="Log a call">${I('plus', 'xs')}</button>` });
     c._fresh = false;
     sheet.setAttribute('aria-labelledby', 'crm-sh-t');
   }
@@ -702,7 +733,7 @@
   dtp.addEventListener('click', e => {
     const b = e.target.closest('button'); if (!b) return;
     const c = coOf(sheetFor);
-    if (b.dataset.sec){ const f = b.nextElementSibling, open = f.classList.toggle('shut') === false; b.setAttribute('aria-expanded', open); open ? shut.delete(b.dataset.sec) : shut.add(b.dataset.sec); return; }
+    if (b.dataset.sec){ const f = b.closest('.dtp-sec').lastElementChild, open = f.classList.toggle('shut') === false; b.setAttribute('aria-expanded', open); open ? shut.delete(b.dataset.sec) : shut.add(b.dataset.sec); return; }
     if (b.dataset.deal){ stageFor = b.dataset.deal; buildStageMenu(); return; }
     if (b.dataset.hk){ const k = b.dataset.hk, was = hscOpen, row = x => x ? HK.indexOf(x) : -1; hscOpen = was === k ? null : k;
       const blk = $('.crm-shs', dtp), tmp = document.createElement('div'); tmp.innerHTML = healthBlock(c); const nb = tmp.firstElementChild;
@@ -713,6 +744,7 @@
     if (a === 'close') closeSheet();
     if (a === 'link'){ const url = location.origin + location.pathname + '#' + c.id; (navigator.clipboard ? navigator.clipboard.writeText(url) : Promise.reject()).catch(() => {}); toast('ok', 'Link copied', c.n + ' opens with its details'); }
     if (a === 'tag'){ const next = ['Champion', 'Budget set', 'Security review', 'Multi-year'].find(t => !c.tags.includes(t)); if (next){ c.tags.push(next); renderSheet(); const t = $$('.dtp-tags .tag', dtp).pop(); enter(t); } }
+    if (a === 'deal'){ setView('pipeline'); if (K.shut.has('disc')){ K.shut.delete('disc'); renderBoard(); } startDraft('disc'); return; }
     if (a === 'call') logActivity(c, 'Call');
     if (a === 'email') logActivity(c, 'Email', `Email to ${c.ppl[0].n}`);
     if (a === 'sug' && c.sug) sugGo(c, b, !e.detail);
@@ -1273,6 +1305,15 @@
 
   // moving a column: by the menu, the grip's arrow keys, or a drag (below). The others glide to their new places
   const visCols = () => STAGES.filter(s => !K.shut.has(s.k)).map(s => s.k).sort((a, b) => K.order.indexOf(a) - K.order.indexOf(b));
+  // the board's filters (owners, search, close date): cards that stay glide to their new places, cards that come back fade up
+  function flipCards(fn){
+    if (REDUCE){ fn(); return; }
+    const before = new Map($$('.kbx-k[data-id]', cols).filter(k => k.offsetParent).map(k => { const r = k.getBoundingClientRect(); return [k.dataset.id, [r.left, r.top]]; }));
+    fn(); const vb = cols.getBoundingClientRect(); let n = 0;
+    $$('.kbx-k[data-id]', cols).forEach(k => { if (!k.offsetParent) return; const r = k.getBoundingClientRect(); if (r.bottom < vb.top || r.top > innerHeight) return; const b = before.get(k.dataset.id);
+      if (!b) k.animate([{ opacity:0, transform:'translateY(6px)' }, { opacity:1, transform:'none' }], { duration:240, delay:Math.min(n++, 8) * 18, easing:EASE, fill:'backwards' });
+      else { const dx = b[0] - r.left, dy = b[1] - r.top; if (Math.abs(dx) > 1 || Math.abs(dy) > 1) k.animate([{ transform:`translate(${dx}px,${dy}px)` }, { transform:'none' }], { duration:320, easing:EASE }); } });
+  }
   function flip(fn){
     const els = $$('.kbx-c', cols).filter(c => c.offsetParent), before = new Map(els.map(c => [c, c.getBoundingClientRect().left]));
     fn();
@@ -1332,15 +1373,15 @@
   $('.crm-dock', kb).addEventListener('click', e => { const b = e.target.closest('.crm-dk'); if (!b || dragged) return; const k = b.dataset.col; K.shut.delete(k); renderBoard();
     const col = $(`.kbx-c[data-col="${k}"]`, cols); enter(col); col.scrollIntoView({ block:'nearest', inline:'nearest', behavior:REDUCE ? 'auto' : 'smooth' });
     swap($('.kbx-sr', kb), `${ST[k].t} shown`); const h = $('.crm-cmn', col); if (h) h.focus({ preventScroll:true }); });
-  $('.kbx-fp', kb).addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; K.own.has(b.dataset.who) ? K.own.delete(b.dataset.who) : K.own.add(b.dataset.who); renderBoard(); });
-  kq.addEventListener('input', () => { K.q = kq.value.trim(); kqx.hidden = !kq.value; renderBoard(); });
-  kqx.onclick = () => { kq.value = ''; K.q = ''; kqx.hidden = true; renderBoard(); kq.focus(); };
-  const clearBoard = () => { K.own.clear(); K.q = ''; K.close = 'any'; kq.value = ''; kqx.hidden = true; renderBoard(); };
+  $('.kbx-fp', kb).addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; K.own.has(b.dataset.who) ? K.own.delete(b.dataset.who) : K.own.add(b.dataset.who); flipCards(renderBoard); });
+  kq.addEventListener('input', () => { K.q = kq.value.trim(); kqx.hidden = !kq.value; flipCards(renderBoard); });
+  kqx.onclick = () => { kq.value = ''; K.q = ''; kqx.hidden = true; flipCards(renderBoard); kq.focus(); };
+  const clearBoard = () => { K.own.clear(); K.q = ''; K.close = 'any'; kq.value = ''; kqx.hidden = true; flipCards(renderBoard); };
   $('.kbx-clr', kb).onclick = clearBoard; $('.crm-kbclr', kb).onclick = clearBoard;
   onOpen('[data-f="close"]', () => {
     const p = pop('crm-p-close');
     p.innerHTML = `<div class="ph" role="none">Closes</div>` + CLOSES.map(([k, t]) => mi(`data-k="${k}"`, `<span>${t}</span><span class="r num">${k === 'any' ? DE.length : DE.filter(d => { const s = K.close; K.close = k; const r = dshows(d); K.close = s; return r; }).length}</span>`, 'menuitemradio', K.close === k)).join('');
-    $$('.mi', p).forEach(m => m.addEventListener('click', () => { K.close = m.dataset.k; renderBoard(); }));
+    $$('.mi', p).forEach(m => m.addEventListener('click', () => { K.close = m.dataset.k; flipCards(renderBoard); }));
   });
   cols.addEventListener('click', e => {
     if (dragged) return;
@@ -1582,7 +1623,8 @@
   app.addEventListener('click', e => {
     const b = e.target.closest('.crm-side button'); if (!b) return;
     if (b.dataset.go){ if (b.dataset.go === 'accounts' && savedOn()){ F.A = []; said(''); renderTable(); } setView(b.dataset.go); }
-    else if (b.dataset.saved){ F.A = SAVED[b.dataset.saved][1].map(x => ({ ...x })); F.q = ''; ask.value = ''; askx.hidden = true; said(''); setView('accounts'); renderTable(); stagger($$('tr[data-id]', tbody).slice(0, 10), 22); }
+    else if (b.dataset.unsave){ unsave(b.dataset.unsave); return; }
+    else if (b.dataset.saved){ F.A = SAVED[b.dataset.saved][1].map(x => ({ ...x })); F.q = ''; ask.value = ''; askx.hidden = true; said(''); setView('accounts'); renderTable(); }
     if (b.closest('.crm-nav')) drawer(false);
   });
   const help = () => toast('info', 'Keyboard shortcuts', '⌘K or Ctrl K jumps, / searches or asks, arrows move through rows and cards, Enter opens, Space picks a row, A takes the agent’s suggestion, M moves a card, Esc closes');
@@ -1596,6 +1638,69 @@
   $('.crm-menu', app).onclick = () => drawer(true);
   $('.crm-scrim', app).onclick = () => drawer(false);
   $('.crm-shade', app).onclick = () => closeSheet();
+
+
+  /* ---------- saved views: the filters in view saved under a name, in the sidebar with the others ---------- */
+  // views a person saves last in this browser (localStorage, when it is allowed); a view is a name and its filters
+  const UVK = 'crm-views';
+  const viewsNav = $$('.crm-nav', app).pop();
+  const storeViews = () => { try { localStorage.setItem(UVK, JSON.stringify(Object.keys(SAVED).filter(k => k[0] === 'u').map(k => ({ id:k, n:SAVED[k][0], A:SAVED[k][1] })))); } catch(e){} };
+  const viewEl = k => html(`<div class="crm-uv" data-uv="${k}"><button class="ahx-cv" data-saved="${k}">${I('filter')}<span class="t">${esc(SAVED[k][0])}</span><span class="n num" data-count="${k}"></span></button><button class="ib crm-uvx" data-unsave="${k}" aria-label="Delete the view ${esc(SAVED[k][0])}" data-tip="Delete view">${I('x', 'xs')}</button></div>`);
+  let uvN = 0;
+  try { (JSON.parse(localStorage.getItem(UVK) || '[]') || []).forEach(v => {
+    if (!v || !/^u\d+$/.test(v.id) || typeof v.n !== 'string' || !Array.isArray(v.A) || !v.A.length || !v.A.every(f => FL[f.k] && FL[f.k].test)) return;
+    SAVED[v.id] = [v.n.slice(0, 40), v.A.map(f => ({ k:f.k, v:f.v, neg:!!f.neg }))]; uvN = Math.max(uvN, +v.id.slice(1)); viewsNav.appendChild(viewEl(v.id)); }); } catch(e){}
+  // the name it suggests: the filters as the answer line reads them
+  const viewName = () => { const t = F.A.map(readOf).join(', '); return (t[0] || '').toUpperCase() + t.slice(1, 40); };
+  function saveView(name){
+    const k = 'u' + (++uvN); SAVED[k] = [name, F.A.map(f => ({ ...f }))];
+    const el = viewEl(k); viewsNav.appendChild(el); enter(el); storeViews(); counts(); chips();
+    say(`Saved the view ${name}`);
+    toast('ok', `Saved “${name}”`, 'It is in the sidebar with the other views', { label:'Undo', run:() => unsave(k, true) });
+  }
+  function unsave(k, quiet){
+    const v = SAVED[k], el = $(`.crm-uv[data-uv="${k}"]`, app); if (!v) return; const on = savedOn() === k;
+    delete SAVED[k]; storeViews();
+    if (el){ if (el.contains(document.activeElement)) $('[data-go="accounts"]', app).focus({ preventScroll:true }); if (REDUCE || !el.animate) el.remove(); else { el.style.pointerEvents = 'none'; el.animate([{ opacity:1 }, { opacity:0, transform:'translateX(-6px)' }], { duration:180, easing:EASE, fill:'forwards' }).onfinish = () => el.remove(); } }
+    counts(); chips(); if (on) navCurrent();
+    if (!quiet) toast('ok', `Deleted “${v[0]}”`, 'Its filters stay on until you clear them', { label:'Undo', run:() => { SAVED[k] = v; const e2 = viewEl(k); viewsNav.appendChild(e2); enter(e2); storeViews(); counts(); chips(); } });
+  }
+  // Save view: a small dialog with the name, ready to type over; Enter saves, Escape or Cancel leaves it
+  onOpen('.crm-save', () => {
+    const p = pop('crm-p-save'), name = viewName();
+    p.innerHTML = `<form class="crm-svf"><label class="crm-svl" for="crm-svn">Save these filters as a view</label><input id="crm-svn" class="crm-svi" value="${esc(name)}" maxlength="40" autocomplete="off" spellcheck="false" aria-describedby="crm-svd"><p class="crm-svd muted" id="crm-svd">${esc(F.A.map(fText).join(' · '))}</p><div class="crm-cfa"><button type="button" class="pill ghost sm" data-close>Cancel</button><button type="submit" class="pill primary sm">Save view</button></div></form>`;
+    const i = $('.crm-svi', p); setTimeout(() => { i.focus({ preventScroll:true }); i.select(); }, 40);
+    $('form', p).onsubmit = e => { e.preventDefault(); const n = i.value.trim() || name; closePops(); saveView(n); setTimeout(() => { if (!document.activeElement || document.activeElement === document.body || document.activeElement.closest('[hidden]')) $('.crm-ftr', app).focus({ preventScroll:true }); }, 0); };
+  });
+
+  /* ---------- search: what to ask, shown while the field is empty and focused ---------- */
+  // each one is a question the field reads, shown with how many accounts it finds today; the ones that find none stay out
+  const ASKS = ['accounts at risk', 'closing this month', 'no next step', 'quiet for 2 weeks', 'in negotiation over 250k', 'closing this month with no next step', 'healthy and over 500k', 'overdue next steps'];
+  const sug = $('.crm-sug', app); let sugQuiet = false;
+  const sugCount = t => { const { A } = parse(t); return A.length ? CO.filter(c => A.every(f => FL[f.k].test(c, f.v) !== f.neg)).length : 0; };
+  function showSug(){
+    if (!ask.value && view === 'accounts' && !sugQuiet){
+      const L = ASKS.map(t => [t, sugCount(t)]).filter(x => x[1]).slice(0, 5);
+      sug.innerHTML = `<div class="ph" role="none">Try asking</div>` + L.map(([t, n]) => `<button class="mi crm-sgi" data-q="${esc(t)}" tabindex="-1">${I('spark', 'xs')}<span>${esc(t[0].toUpperCase() + t.slice(1))}</span><span class="r num">${n}</span></button>`).join('');
+      const hb = $('.crm-hd', app).getBoundingClientRect(), ab = $('.crm-ask', app).getBoundingClientRect(), cb = tableBox.getBoundingClientRect();
+      sug.style.left = Math.max(8, ab.left - cb.left) + 'px'; sug.style.top = (ab.bottom - cb.top + 6) + 'px'; sug.style.width = Math.max(ab.width, 280) + 'px';
+      sug.inert = false; sug.classList.add('open');
+    } else hideSug();
+  }
+  const hideSug = () => { sug.classList.remove('open'); sug.inert = true; };
+  hideSug();
+  const pickSug = b => { ask.value = b.dataset.q; hideSug(); sugQuiet = true; ask.focus({ preventScroll:true }); runAsk(); sugQuiet = false; };
+  ask.addEventListener('focus', showSug);
+  ask.addEventListener('input', () => ask.value ? hideSug() : showSug());
+  ask.addEventListener('blur', () => setTimeout(() => { if (!sug.contains(document.activeElement) && document.activeElement !== ask) hideSug(); }, 120));
+  ask.addEventListener('keydown', e => { if (e.key === 'ArrowDown' && sug.classList.contains('open')){ e.preventDefault(); $('.crm-sgi', sug)?.focus(); } else if (e.key === 'Escape' && sug.classList.contains('open')){ e.preventDefault(); e.stopPropagation(); hideSug(); } });
+  sug.addEventListener('mousedown', e => e.preventDefault());
+  sug.addEventListener('click', e => { const b = e.target.closest('.crm-sgi'); if (b) pickSug(b); });
+  sug.addEventListener('keydown', e => { const bs = $$('.crm-sgi', sug), i = bs.indexOf(document.activeElement);
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp'){ e.preventDefault(); const j = i + (e.key === 'ArrowDown' ? 1 : -1); if (j < 0) ask.focus(); else bs[Math.min(j, bs.length - 1)].focus(); }
+    else if (e.key === 'Escape' || e.key === 'Tab'){ if (e.key === 'Escape'){ e.preventDefault(); e.stopPropagation(); ask.focus(); } hideSug(); } });
+  sug.addEventListener('focusout', () => setTimeout(() => { if (!sug.contains(document.activeElement) && document.activeElement !== ask) hideSug(); }, 120));
+  addEventListener('resize', () => { if (sug.classList.contains('open')) showSug(); });
 
   /* ---------- notifications: Notifications ---------- */
   const ago = n => n >= 0 ? 'Today' : n === -1 ? 'Yesterday' : `${-n} days ago`;

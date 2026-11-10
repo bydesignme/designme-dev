@@ -388,14 +388,14 @@ body:has(.crm) .dmf{display:none}
 .crm-lgd i.c{background:color-mix(in srgb,var(--dm-accent-mark,var(--dm-accent)) 28%,transparent)}
 
 /* ---------- the details sheet: Details panel, over the right of the screen ---------- */
-/* the open sheet sits over a dimmed app (owner, 8 Nov): a shade over the sidebar and the view, and a deeper shadow with a
-   hairline edge, so it reads as the top layer in both themes */
+/* the sheet is a full-height side panel under the view's header (owner, 10 Nov): flush to the right edge and the bottom, on
+   the sidebar's surface with a full-strength hairline and no shadow, like the workflow editor's Step panel. Nothing is
+   dimmed, so the table stays usable and another row opens in place. The shade is kept for phones only (none today) */
 .crm-shade{position:absolute;inset:0;z-index:19;background:rgba(10,10,14,.3);opacity:0;pointer-events:none;transition:opacity .25s var(--dm-ease)}
 :root[data-theme="dark"] .crm-shade{background:rgba(0,0,0,.56)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .crm-shade{background:rgba(0,0,0,.56)}}
-.crm.sh .crm-shade{opacity:1;pointer-events:auto}
-.crm-sheet{position:absolute;top:64px;right:var(--dm-s-2);bottom:var(--dm-s-2);z-index:20;width:min(472px,calc(100% - 16px));border-radius:var(--dm-r-card);background:var(--dm-raised);box-shadow:0 0 0 1px color-mix(in srgb,var(--dm-line) 70%,transparent),0 8px 18px rgba(0,0,0,.12),0 24px 60px rgba(0,0,0,.26);overflow:auto;overscroll-behavior:contain;opacity:0;visibility:hidden;transform:translateX(16px);transition:opacity .2s var(--dm-ease),transform .4s var(--dm-ease),visibility 0s .2s}
-.crm-sheet.on{opacity:1;visibility:visible;transform:none;transition-property:opacity,transform}
+.crm-sheet{position:absolute;top:var(--crm-top-h,56px);right:0;bottom:0;z-index:20;width:min(440px,100%);background:var(--dm-surface);border-left:1px solid var(--dm-line);overflow:auto;overscroll-behavior:contain;scrollbar-width:thin;opacity:0;visibility:hidden;transform:translateX(12px);transition:opacity .18s var(--dm-ease),transform .32s var(--dm-ease),visibility 0s .32s}
+.crm-sheet.on{opacity:1;visibility:visible;transform:none;transition:opacity .22s var(--dm-ease),transform .36s var(--dm-ease),visibility 0s}
 .crm-dtp.dtp{padding:var(--dm-s-3) var(--dm-s-3) var(--dm-s-4) var(--dm-s-4);gap:var(--dm-s-1)}
 .crm-dtp .dtp-h{padding:2px 0 0;gap:10px}
 .crm-dtp .dtp-h .pfm-lg{width:32px;height:32px;font-size:13px}
@@ -421,7 +421,7 @@ body:has(.crm) .dmf{display:none}
 .crm-sag>span{flex:1;min-width:0}
 .crm-sag .pill{flex:none}
 /* the sheet's health: Health score's block under a hairline, flush with the sheet's sides */
-.crm-shs.hsc{padding:var(--dm-s-3) 0 var(--dm-s-1);margin-top:var(--dm-s-3);border-top:1px solid var(--crm-hair)}
+.crm-shs.hsc{padding:0 0 var(--dm-s-1)}
 .crm-dtp .crm-snx{gap:6px;text-align:left;min-width:0;max-width:100%}
 .crm-dtp .crm-snx span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .crm-dtp .crm-snx .i{flex:none}
@@ -433,10 +433,8 @@ body:has(.crm) .dmf{display:none}
 .crm-ppl li>span:last-child{display:flex;flex-direction:column;min-width:0}
 .crm-ppl b{font-weight:500}
 .crm-ppl .muted{font-size:12px}
-.crm-sum3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--dm-s-2);margin:var(--dm-s-3) 0 var(--dm-s-1)}
-.crm-sum3>div{display:flex;flex-direction:column;gap:2px}
-.crm-sum3 span{font-size:12px;color:var(--dm-muted)}
-.crm-sum3 b{font-size:14px;font-weight:500}
+.crm-sum3{display:flex;flex-wrap:wrap;gap:2px var(--dm-s-4);margin:0 0 var(--dm-s-2);font-size:12px;color:var(--dm-muted)}
+.crm-sum3 b{font-size:13px;font-weight:500;color:var(--dm-fg)}
 .crm-dl{display:flex;flex-direction:column;gap:2px;margin:0 calc(-1 * var(--dm-s-2))}
 .crm-dl button{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:10px;width:100%;min-height:36px;padding:0 var(--dm-s-2);border-radius:var(--dm-r-sm);text-align:left;transition:background var(--dm-t-fast)}
 @media (hover:hover) and (pointer:fine){.crm-dl button:hover{background:var(--dm-row)}}
@@ -452,9 +450,22 @@ body:has(.crm) .dmf{display:none}
 .crm-tl .ic{width:28px;height:28px;border-radius:calc(9px * var(--dm-rk));display:grid;place-items:center;background:var(--dm-chip);color:var(--dm-fg2)}
 .crm-tl li.new{animation:enter var(--dm-t-slow) var(--dm-ease) backwards}
 .crm-tl .w{display:block;font-size:12px;color:var(--dm-muted)}
-.crm-sact{display:flex;gap:var(--dm-s-2);margin-top:var(--dm-s-3);padding-top:var(--dm-s-3);border-top:1px solid var(--crm-hair)}
-.crm-sact .pill{flex:1}
+/* the sheet's actions sit under its header, left-aligned secondary buttons */
+.crm-sact{display:flex;flex-wrap:wrap;gap:var(--dm-s-2);margin:var(--dm-s-3) 0 var(--dm-s-1)}
 .crm-sact .pill .i{color:var(--dm-fg2)}
+/* a section's header row: the fold toggle (label, count, and for Health its summary) and an optional + beside it.
+   Sections are divided by hairlines so the panel reads as stacked groups */
+.crm-dtp .crm-sec{border-top:1px solid var(--crm-hair);padding-top:var(--dm-s-1);margin-top:var(--dm-s-2)}
+.crm-shr{display:flex;align-items:center;gap:var(--dm-s-1)}
+.crm-shr .dtp-sh{flex:1;min-width:0;min-height:32px;margin-top:0}
+.crm-sn{color:var(--dm-muted);font-size:12px}
+.crm-sadd.ib{width:28px;height:28px;color:var(--dm-muted);flex:none}
+@media (hover:hover) and (pointer:fine){.crm-sadd.ib:hover{color:var(--dm-fg)}}
+.crm-hsum{margin-left:auto;display:inline-flex;align-items:center;gap:var(--dm-s-2);min-width:0}
+.crm-hsum .crm-hs{gap:6px}
+.crm-hsum .crm-hs b{min-width:0}
+.crm-hsum .muted{font-size:12px;white-space:nowrap}
+.crm-dtp .dtp-sh[data-sec="health"]{color:var(--dm-muted)}
 
 /* ---------- round 3 ---------- */
 /* the sheet slides inside a layer that clips it, so the page never gets wider; the toolbar's bulk bar scrolls inside itself */
@@ -746,7 +757,7 @@ body:has(.crm) .dmf{display:none}
   .crm-top{gap:var(--dm-s-1);padding-right:var(--dm-s-3)}
   .crm-me .i{display:none}
   .crm-me{padding-right:var(--dm-s-1)}
-  .crm-sheet{top:0;right:0;bottom:0;width:100%;border-radius:0}
+  .crm-sheet{top:0;width:100%;border-left:0}
   .crm-over{padding:var(--dm-s-4) var(--dm-s-2)}
   .crm-fc .scx-grid{gap:var(--dm-s-2)}
   .crm-fc{padding:var(--dm-s-3)}
@@ -801,3 +812,31 @@ body:has(.crm) .dmf{display:none}
 .crm-aib .aib-gh{display:flex;align-items:center;gap:6px}
 .crm-aib .aib-i.on[data-k]{box-shadow:inset 3px 0 0 var(--crm-km,var(--crm-k)),inset 0 0 0 1px var(--crm-hair)}
 .crm-pvk{display:inline-flex;align-items:center;height:22px;padding:0 8px;border-radius:var(--dm-r-tag);background:var(--crm-kb);color:var(--crm-k);font-size:12px;font-weight:500}
+
+/* ---------- search, sort and saved views (owner, 10 Nov) ---------- */
+/* what to ask: the library's popover under the search field while it is empty and focused */
+#crm-v-accounts{position:relative}
+.crm-sug.pop{min-width:280px;z-index:30;--origin:top left}
+.crm-sgi .i{color:var(--dm-muted)}
+/* Save view sits with Clear; its dialog is a short form */
+.crm-save .i{color:var(--dm-fg2)}
+.crm-svp.pop{width:300px;padding:var(--dm-s-3)}
+.crm-svf{display:flex;flex-direction:column;gap:var(--dm-s-2)}
+.crm-svl{font-size:13px;font-weight:500}
+.crm-svi{height:32px;padding:0 10px;border-radius:var(--dm-r-field,calc(8px * var(--dm-rk)));background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line,var(--dm-line)) 50%,transparent);font-size:13px;outline:0;transition:box-shadow var(--dm-t-fast)}
+@supports (corner-shape:squircle){.crm-svi{corner-shape:squircle}}
+.crm-svi:focus,.crm-svi:focus-visible{outline:none}
+.crm-svi:focus{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line-strong,var(--dm-line-strong)) 50%,transparent)}
+.crm-svd{margin:0;font-size:12px;line-height:1.45}
+.crm-svf .crm-cfa{display:flex;justify-content:flex-end;gap:var(--dm-s-2);margin-top:var(--dm-s-1)}
+/* a saved view of your own: its count gives way to a delete button on hover or focus */
+.crm-uv{position:relative}
+.crm-uv>.ahx-cv{width:100%}
+.crm-uvx.ib{position:absolute;right:4px;top:50%;width:24px;height:24px;margin-top:-12px;color:var(--dm-muted);opacity:0;pointer-events:none;transition:opacity var(--dm-t-fast) var(--dm-ease)}
+.crm-uvx:focus-visible{opacity:1;pointer-events:auto}
+.crm-uv:has(.crm-uvx:focus-visible) .ahx-cv .n{opacity:0}
+@media (hover:hover) and (pointer:fine){.crm-uv:hover .crm-uvx{opacity:1;pointer-events:auto}.crm-uv:hover .ahx-cv .n{opacity:0}}
+@media (hover:none){.crm-uvx.ib{opacity:1;pointer-events:auto}.crm-uv .ahx-cv .n{opacity:0}}
+/* nothing matches: which one filter to drop, with what it would show */
+.crm-relax{display:flex;flex-wrap:wrap;justify-content:center;gap:var(--dm-s-2);margin-top:var(--dm-s-2)}
+.crm-relax .num{margin-left:6px;color:var(--dm-muted)}
