@@ -1675,14 +1675,7 @@
       $('.lnx-tt span', ch).textContent = lineOn[0] && lineOn[1] ? `${a >= q ? '+' : '−'}${kmoney(Math.abs(a - q))} on Q3 at this point` : lineOn[0] ? 'This quarter' : 'Last quarter';
       lv.textContent = lineOn[0] ? kmoney(a) : latest(); };
     ch.onpointerleave = () => lv.textContent = latest();
-    // Bar chart: the open pipeline by the week its deals close, the next 12 weeks, one accent, the breakdown in each bar's
-    // readout (owner, 10 Nov: week by week, twelve even bars); a deal past its close date counts in this week, as it still has
-    // to close
-    const wk0 = -((today.getDay() + 6) % 7), WB = Array.from({ length:12 }, () => ({ v:0, n:0, late:0 }));
-    open.forEach(d => { const i = Math.floor((Math.max(0, d.close) - wk0) / 7); if (i < 12){ WB[i].v += d.v; WB[i].n++; if (d.close < 0) WB[i].late++; } });
-    const bmx = Math.max(...WB.map(x => x.v), 1), bch = $('.bcx-ch', fc), soon = sum(WB.slice(0, 4), x => x.v);
-    bch.innerHTML = WB.map((m, i) => `<div class="bcx-b" role="listitem" tabindex="0" aria-label="Week of ${fmtD(wk0 + i * 7)}: ${money(m.v)} in ${plural(m.n, 'open deal')}"><div class="bcx-tt"><b class="num">${kmoney(m.v)}</b><span>${plural(m.n, 'deal')}, week of ${fmtD(wk0 + i * 7)}${m.late ? `, ${m.late} past due` : ''}</span></div><div class="bcx-st" style="height:calc((100% - 20px) * ${Math.max(.015, m.v / bmx).toFixed(3)})"><i></i></div><div class="bcx-l">${i % 3 ? '' : fmtD(wk0 + i * 7)}</div></div>`).join('');
-    $('.crm-bcs', fc).textContent = `${kmoney(soon)} closing in the next 4 weeks`;
+    paintBars();
     // radial goals: each team's closed won against its quota
     const RAD = [78, 60, 42], CS = ['var(--dm-c1)', 'var(--dm-c3)', 'var(--dm-c4)'];
     const share = t => wonOf(t.who) / t.quota;
@@ -1712,6 +1705,25 @@
     paintTop();
     paintFbn(); paintQsum(); paintAct();
   }
+  // Bar chart: the open pipeline by when its deals close, week by week (the next 12) or month by month (up to 6, to the last
+  // month a deal closes in), with the library chart's Week / Month switch (owner, 10 Nov); a deal past its close date counts in
+  // the current week or month, as it still has to close
+  let bcRange = 'w';
+  function paintBars(){
+    const open = DE.filter(d => !closed(d)), bch = $('.bcx-ch', fc), wk0 = -((today.getDay() + 6) % 7), m0 = today.getFullYear() * 12 + today.getMonth();
+    const B = Array.from({ length:bcRange === 'w' ? 12 : 6 }, () => ({ v:0, n:0, late:0 }));
+    open.forEach(d => { let i; if (bcRange === 'w') i = Math.floor((Math.max(0, d.close) - wk0) / 7); else { const t = new Date(today); t.setDate(t.getDate() + Math.max(0, d.close)); i = t.getFullYear() * 12 + t.getMonth() - m0; }
+      if (i < B.length){ B[i].v += d.v; B[i].n++; if (d.close < 0) B[i].late++; } });
+    if (bcRange === 'm') while (B.length > 3 && !B[B.length - 1].v) B.pop();
+    const mname = (i, f) => new Date(Math.floor((m0 + i) / 12), (m0 + i) % 12, 1).toLocaleString('en-US', { month:f });
+    const lab = i => bcRange === 'w' ? `week of ${fmtD(wk0 + i * 7)}` : mname(i, 'long'), bmx = Math.max(...B.map(x => x.v), 1);
+    bch.innerHTML = B.map((m, i) => `<div class="bcx-b" role="listitem" tabindex="0" aria-label="${lab(i)}: ${money(m.v)} in ${plural(m.n, 'open deal')}"><div class="bcx-tt"><b class="num">${kmoney(m.v)}</b><span>${plural(m.n, 'deal')}, ${lab(i)}${m.late ? `, ${m.late} past due` : ''}</span></div><div class="bcx-st" style="height:calc((100% - 20px) * ${Math.max(.015, m.v / bmx).toFixed(3)})"><i></i></div><div class="bcx-l">${bcRange === 'w' ? (i % 3 ? '' : fmtD(wk0 + i * 7)) : mname(i, 'short')}</div></div>`).join('');
+    $('.crm-bct', fc).textContent = `Pipeline by close ${bcRange === 'w' ? 'week' : 'month'}`;
+    const big = B.reduce((x, m, i) => m.v > B[x].v ? i : x, 0);
+    $('.crm-bcs', fc).textContent = bcRange === 'w' ? `${kmoney(sum(B.slice(0, 4), x => x.v))} in the next 4 weeks` : `${kmoney(sum(B, x => x.v))} open, most in ${mname(big, 'short')}`;
+    if (!REDUCE) $$('.bcx-st', bch).forEach((x, i) => x.animate([{ transform:'scaleY(0)', transformOrigin:'bottom' }, { transform:'none', transformOrigin:'bottom' }], { duration:420, delay:i * 18, easing:EASE, fill:'backwards' }));
+  }
+  seg($('.crm-bc .bcx-rg', fc), v => { bcRange = v; paintBars(); });
   /* ---------- the forecast's banner, the quota card's figures and deal activity (owner, 10 Nov) ---------- */
   const fbn = $('.crm-sbn', app), FBART = "<g class=\"gds\"><path class=\"gd\" d=\"M135.6 59L42.1 113M151.2 68L57.6 122M166.8 77L73.2 131M182.4 86L88.8 140M197.9 95L104.4 149M135.6 59L197.9 95M120 68L182.4 104M104.4 77L166.8 113M88.8 86L151.2 122M73.2 95L135.6 131M57.6 104L120 140M42.1 113L104.4 149\"/></g><g class=\"z\" style=\"--z:0\"><path class=\"pl\" d=\"M135.6 21L166.8 39L166.8 95L151.2 104L120 86L120 30Z\"/><path class=\"ln\" style=\"--d:0\" pathLength=\"1\" d=\"M135.6 21L166.8 39L151.2 48L120 30Z\"/><path class=\"ln\" style=\"--d:1\" pathLength=\"1\" d=\"M166.8 39L166.8 95L151.2 104L120 86L120 30\"/><path class=\"ln\" style=\"--d:2\" pathLength=\"1\" d=\"M151.2 48L151.2 104\"/><path class=\"pl\" d=\"M120 44L151.2 62L151.2 104L135.6 113L104.4 95L104.4 53Z\"/><path class=\"ln\" style=\"--d:3\" pathLength=\"1\" d=\"M120 44L151.2 62L135.6 71L104.4 53Z\"/><path class=\"ln\" style=\"--d:4\" pathLength=\"1\" d=\"M151.2 62L151.2 104L135.6 113L104.4 95L104.4 53\"/><path class=\"ln\" style=\"--d:5\" pathLength=\"1\" d=\"M135.6 71L135.6 113\"/><path class=\"pl\" d=\"M104.4 67L135.6 85L135.6 113L120 122L88.8 104L88.8 76Z\"/><path class=\"ln\" style=\"--d:6\" pathLength=\"1\" d=\"M104.4 67L135.6 85L120 94L88.8 76Z\"/><path class=\"ln\" style=\"--d:7\" pathLength=\"1\" d=\"M135.6 85L135.6 113L120 122L88.8 104L88.8 76\"/><path class=\"ln\" style=\"--d:8\" pathLength=\"1\" d=\"M120 94L120 122\"/><path class=\"pl\" d=\"M88.8 90L120 108L120 122L104.4 131L73.2 113L73.2 99Z\"/><path class=\"ln\" style=\"--d:9\" pathLength=\"1\" d=\"M88.8 90L120 108L104.4 117L73.2 99Z\"/><path class=\"ln\" style=\"--d:10\" pathLength=\"1\" d=\"M120 108L120 122L104.4 131L73.2 113L73.2 99\"/><path class=\"ln\" style=\"--d:11\" pathLength=\"1\" d=\"M104.4 117L104.4 131\"/></g><g class=\"z\" style=\"--z:2\"><path class=\"ln ac\" style=\"--d:12\" pathLength=\"1\" d=\"M137.1 30.9V8.9h14l-4 5 4 5h-14\"/></g>";
   $('.bnx-art', fbn).innerHTML = `<svg class="bnx-svg" viewBox="0 0 240 160" width="240" height="160" focusable="false">${FBART}</svg>`;

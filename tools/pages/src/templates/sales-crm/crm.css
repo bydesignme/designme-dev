@@ -1111,8 +1111,17 @@ body:has(.crm) .dmf{display:none}
   :root[data-style="soft"] .crm[data-c]{background:var(--dm-stage)}
   :root[data-style="soft"] .crm .ahx-side{border-right-color:transparent}
   :root[data-style="soft"] .crm-main{margin:var(--dm-s-2) var(--dm-s-2) var(--dm-s-2) 0;border-radius:calc(12px * var(--dm-rk));background:var(--dm-surface);box-shadow:var(--dm-shadow)}
-  /* in light mode the views inside the panel are white too, their cards set apart by their own shadows (owner, 10 Nov) */
-  :root[data-style="soft"]:not([data-theme="dark"]) :is(.crm-fc,.crm-ib,.crm-cal){background:var(--dm-surface)}
-  @media (prefers-color-scheme:dark){:root[data-style="soft"]:not([data-theme="light"]) :is(.crm-fc,.crm-ib,.crm-cal){background:var(--dm-stage)}}
+  /* the views inside the panel take the cards' colour, the cards set apart by their shadows and edges (owner, 10 Nov) */
+  :root[data-style="soft"] :is(.crm-fc,.crm-ib,.crm-cal){background:var(--dm-surface)}
+  /* in dark mode the panel keeps a hairline, or it would blend into the frame (owner, 10 Nov) */
+  :root[data-style="soft"][data-theme="dark"] .crm-main{box-shadow:var(--dm-shadow),0 0 0 1px color-mix(in srgb,var(--dm-fg) 10%,transparent)}
+  @media (prefers-color-scheme:dark){:root[data-style="soft"]:not([data-theme="light"]) .crm-main{box-shadow:var(--dm-shadow),0 0 0 1px color-mix(in srgb,var(--dm-fg) 10%,transparent)}}
   @supports (corner-shape:squircle){:root[data-style="soft"] .crm-main{corner-shape:squircle}}
 }
+/* dark mode, both styles: Forecast, Calendar and Inbox sit on the cards' colour, so the content cuts out against the darker
+   sidebar (owner, 10 Nov) */
+:root[data-theme="dark"] :is(.crm-fc,.crm-ib,.crm-cal){background:var(--dm-surface)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) :is(.crm-fc,.crm-ib,.crm-cal){background:var(--dm-surface)}}
+.crm-bc .bcx-h{align-items:flex-start}
+.crm-bc .crm-ht{flex:1}
+.crm-bc .crm-ht>*{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
