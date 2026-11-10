@@ -1856,8 +1856,10 @@ body:has(.wf) .dmf{display:none}
 :root[data-style="soft"] .wf-insp .wfx-insp-f{height:50px}
 /* a dropdown's outline is drawn outside its box and a field's inside it, so the menus under a field start 1px in: their edge
    lands on the field's edge. The test chip's menu is the chip's width, its avatars and heading on the chip's avatar */
-#wf-p-sel,#wf-p-lead{margin-left:1px}
-#wf-p-lead{min-width:0;max-width:none;padding:4px}
+#wf-p-sel,#wf-p-lead.fit{margin-left:1px}
+#wf-p-lead.fit{min-width:0;max-width:none}
+#wf-p-lead{padding:4px}
+#wf-p-lead:not(.fit){margin-left:-1px}
 #wf-p-lead .mi{padding-left:3px;padding-right:3px}
 #wf-p-lead .ph{padding-left:3px}
 #wf-p-lead .sep{margin-left:3px;margin-right:3px}
@@ -3407,8 +3409,9 @@ const fitHits = window.dmFitHits || (() => {
   // Test with: the leads the form pretends to send
   app.addEventListener('click', e => {
     const lt = e.target.closest('[data-pop="#wf-p-lead"]'); if (!lt) return;
-    // the menu is the chip's width, less the 1px each side its outline is drawn outside its box
-    const p = $('#wf-p-lead', app); p.style.width = (lt.getBoundingClientRect().width - 2) + 'px';
+    // opened from the test chip, the menu is the chip's width, less the 1px each side its outline is drawn outside its box;
+    // opened from Test run's arrow it keeps its own width
+    const p = $('#wf-p-lead', app), fit = lt.classList.contains('wf-lead'); p.classList.toggle('fit', fit); p.style.width = fit ? (lt.getBoundingClientRect().width - 2) + 'px' : '';
     if (!W.lead){ p.innerHTML = `<div class="ph" role="none">Test with</div>` + mi('data-k="sample"', `<span class="wfx-ic">${I('file-text', 'xs')}</span><span>Sample data<span class="d">Made from each step's fields</span></span>`, 'menuitemradio', true) + mi('data-k="last"', `<span class="wfx-ic">${I('history', 'xs')}</span><span>The last real event<span class="d">${W.runs.length ? 'From run #' + W.runs[0].id : 'No runs yet'}</span></span>`, 'menuitemradio', false);
       $$('.mi', p).forEach(m => m.onclick = () => { if (m.dataset.k === 'last') toast('info', 'Using sample data', W.runs.length ? 'Live events stay private in the template' : 'This workflow has not run yet'); }); return; }
     p.innerHTML = `<div class="ph" role="none">Test with</div>` + LEADS.map(L => mi(`data-k="${L.k}"`, `${avOf(L.ini, L.hue)}<span>${esc(L.n)}, ${esc(L.co)}<span class="d">${L.last ? 'The last real submission, ' : ''}${L.seats} seats${L.fail ? ', its lookup gets rate limited' : ''}</span></span>`, 'menuitemradio', W.lead.k === L.k)).join('')
